@@ -59,17 +59,10 @@ ezAOPass::ezAOPass()
 
 ezAOPass::~ezAOPass()
 {
-  if (!m_hSSAOSamplerState.IsInvalidated())
-  {
-    ezGALDevice::GetDefaultDevice()->DestroySamplerState(m_hSSAOSamplerState);
-    m_hSSAOSamplerState.Invalidate();
-  }
-
+  ezGALDevice::GetDefaultDevice()->DestroySamplerState(m_hSSAOSamplerState);
+  
   ezRenderContext::DeleteConstantBufferStorage(m_hDownscaleConstantBuffer);
-  m_hDownscaleConstantBuffer.Invalidate();
-
   ezRenderContext::DeleteConstantBufferStorage(m_hSSAOConstantBuffer);
-  m_hSSAOConstantBuffer.Invalidate();
 }
 
 bool ezAOPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)

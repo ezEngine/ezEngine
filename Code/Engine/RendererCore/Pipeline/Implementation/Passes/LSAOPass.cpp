@@ -87,7 +87,6 @@ ezLSAOPass::~ezLSAOPass()
   DestroyLineSweepData();
 
   ezRenderContext::DeleteConstantBufferStorage(m_hLineSweepCB);
-  m_hLineSweepCB.Invalidate();
 }
 
 bool ezLSAOPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)

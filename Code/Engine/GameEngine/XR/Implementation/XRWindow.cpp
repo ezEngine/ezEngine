@@ -74,7 +74,6 @@ ezWindowOutputTargetXR::~ezWindowOutputTargetXR()
 {
   // Delete companion resources.
   ezRenderContext::DeleteConstantBufferStorage(m_hCompanionConstantBuffer);
-  m_hCompanionConstantBuffer.Invalidate();
 }
 
 void ezWindowOutputTargetXR::PresentImage(bool bEnableVSync)

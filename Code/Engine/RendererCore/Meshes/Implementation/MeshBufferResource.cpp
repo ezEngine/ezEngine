@@ -871,18 +871,10 @@ ezResourceLoadDesc ezMeshBufferResource::UnloadData(Unload WhatToUnload)
 {
   for (auto& hVertexBuffer : m_hVertexBuffers)
   {
-    if (!hVertexBuffer.IsInvalidated())
-    {
-      ezGALDevice::GetDefaultDevice()->DestroyBuffer(hVertexBuffer);
-      hVertexBuffer.Invalidate();
-    }
+    ezGALDevice::GetDefaultDevice()->DestroyBuffer(hVertexBuffer);
   }
 
-  if (!m_hIndexBuffer.IsInvalidated())
-  {
-    ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hIndexBuffer);
-    m_hIndexBuffer.Invalidate();
-  }
+  ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hIndexBuffer);
 
   m_uiPrimitiveCount = 0;
 

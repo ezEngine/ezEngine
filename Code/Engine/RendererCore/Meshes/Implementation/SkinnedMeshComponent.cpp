@@ -22,12 +22,8 @@ ezSkinningState::~ezSkinningState()
 
 void ezSkinningState::Clear()
 {
-  if (!m_hGpuBuffer.IsInvalidated())
-  {
-    ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hGpuBuffer);
-    m_hGpuBuffer.Invalidate();
-  }
-
+  ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hGpuBuffer);
+  
   m_Transforms.Clear();
 }
 

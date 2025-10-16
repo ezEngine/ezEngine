@@ -160,11 +160,7 @@ struct ezShadowPool::Data
 
     m_TextureAtlas.Deinitialize();
 
-    if (!m_hShadowDataBuffer.IsInvalidated())
-    {
-      ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hShadowDataBuffer);
-      m_hShadowDataBuffer.Invalidate();
-    }
+    ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hShadowDataBuffer);
   }
 
   enum

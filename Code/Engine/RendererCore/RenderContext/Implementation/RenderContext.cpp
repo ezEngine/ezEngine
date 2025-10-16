@@ -149,11 +149,8 @@ ezRenderContext::ezRenderContext(ezGALCommandEncoder* pCommandEncoder)
 ezRenderContext::~ezRenderContext()
 {
   DeleteConstantBufferStorage(m_hGlobalConstantBufferStorage);
-  if (!m_hPushConstantsStorage.IsInvalidated())
-  {
-    DeleteConstantBufferStorage(m_hPushConstantsStorage);
-  }
-
+  DeleteConstantBufferStorage(m_hPushConstantsStorage);
+  
   if (s_pDefaultInstance == this)
     s_pDefaultInstance = nullptr;
 
@@ -689,28 +686,28 @@ ezConstantBufferStorageHandle ezRenderContext::CreateConstantBufferStorage(ezUIn
 }
 
 // static
-void ezRenderContext::DeleteConstantBufferStorage(ezConstantBufferStorageHandle hStorage)
+void ezRenderContext::DeleteConstantBufferStorage(ezConstantBufferStorageHandle& inout_hStorage)
 {
   EZ_LOCK(s_ConstantBufferStorageMutex);
 
   ezConstantBufferStorageBase* pStorage = nullptr;
-  if (!s_ConstantBufferStorageTable.Remove(hStorage.m_InternalId, &pStorage))
+  if (s_ConstantBufferStorageTable.Remove(inout_hStorage.m_InternalId, &pStorage))
   {
-    // already deleted
-    return;
+    pStorage->BeforeBeginFrame();
+    s_DirtyConstantBuffers.Remove(pStorage);
+
+    ezUInt32 uiSizeInBytes = pStorage->m_Data.GetCount();
+
+    auto it = s_FreeConstantBufferStorage.Find(uiSizeInBytes);
+    if (!it.IsValid())
+    {
+      it = s_FreeConstantBufferStorage.Insert(uiSizeInBytes, ezDynamicArray<ezConstantBufferStorageBase*>());
+    }
+
+    it.Value().PushBack(pStorage);
   }
-  pStorage->BeforeBeginFrame();
-  s_DirtyConstantBuffers.Remove(pStorage);
 
-  ezUInt32 uiSizeInBytes = pStorage->m_Data.GetCount();
-
-  auto it = s_FreeConstantBufferStorage.Find(uiSizeInBytes);
-  if (!it.IsValid())
-  {
-    it = s_FreeConstantBufferStorage.Insert(uiSizeInBytes, ezDynamicArray<ezConstantBufferStorageBase*>());
-  }
-
-  it.Value().PushBack(pStorage);
+  inout_hStorage.Invalidate();
 }
 
 // static

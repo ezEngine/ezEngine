@@ -28,7 +28,6 @@ ezRmlUiRenderer::ezRmlUiRenderer()
 ezRmlUiRenderer::~ezRmlUiRenderer()
 {
   ezRenderContext::DeleteConstantBufferStorage(m_hConstantBuffer);
-  m_hConstantBuffer.Invalidate();
 }
 
 void ezRmlUiRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& ref_types) const

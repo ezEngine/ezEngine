@@ -140,17 +140,9 @@ void ezDummyXR::OnActorDestroyed()
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
-  if (!m_hColorRT.IsInvalidated())
-  {
-    pDevice->DestroyTexture(m_hColorRT);
-    m_hColorRT.Invalidate();
-  }
-  if (!m_hDepthRT.IsInvalidated())
-  {
-    pDevice->DestroyTexture(m_hDepthRT);
-    m_hDepthRT.Invalidate();
-  }
-
+  pDevice->DestroyTexture(m_hColorRT);
+  pDevice->DestroyTexture(m_hDepthRT);
+  
   ezRenderWorld::RemoveMainView(m_hView);
   m_hView.Invalidate();
 }

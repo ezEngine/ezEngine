@@ -232,7 +232,7 @@ public:
   }
 
   static ezConstantBufferStorageHandle CreateConstantBufferStorage(ezUInt32 uiSizeInBytes, ezConstantBufferStorageBase*& out_pStorage);
-  static void DeleteConstantBufferStorage(ezConstantBufferStorageHandle hStorage);
+  static void DeleteConstantBufferStorage(ezConstantBufferStorageHandle& inout_hStorage);
 
   template <typename T>
   EZ_FORCE_INLINE static bool TryGetConstantBufferStorage(ezConstantBufferStorageHandle hStorage, ezConstantBufferStorage<T>*& out_pStorage)

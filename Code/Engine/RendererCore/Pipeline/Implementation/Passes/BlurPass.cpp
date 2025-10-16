@@ -45,7 +45,6 @@ ezBlurPass::ezBlurPass()
 ezBlurPass::~ezBlurPass()
 {
   ezRenderContext::DeleteConstantBufferStorage(m_hBlurCB);
-  m_hBlurCB.Invalidate();
 }
 
 bool ezBlurPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)

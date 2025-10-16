@@ -37,10 +37,16 @@ namespace
 
   void DestroyDependencies(ezGALDevice* pDevice, const ezGALGraphicsPipelineCreationDescription& graphicsPipelineDesc)
   {
-    pDevice->DestroyShader(graphicsPipelineDesc.m_hShader);
-    pDevice->DestroyBlendState(graphicsPipelineDesc.m_hBlendState);
-    pDevice->DestroyDepthStencilState(graphicsPipelineDesc.m_hDepthStencilState);
-    pDevice->DestroyRasterizerState(graphicsPipelineDesc.m_hRasterizerState);
+    // the destroy functions want a mutable reference but we don't want to modify the original description
+    auto hShader = graphicsPipelineDesc.m_hShader;
+    auto hRasterizerState = graphicsPipelineDesc.m_hRasterizerState;
+    auto hBlendState = graphicsPipelineDesc.m_hBlendState;
+    auto hDepthStencilState = graphicsPipelineDesc.m_hDepthStencilState;
+
+    pDevice->DestroyShader(hShader);
+    pDevice->DestroyRasterizerState(hRasterizerState);
+    pDevice->DestroyBlendState(hBlendState);
+    pDevice->DestroyDepthStencilState(hDepthStencilState);
   }
 } // namespace
 

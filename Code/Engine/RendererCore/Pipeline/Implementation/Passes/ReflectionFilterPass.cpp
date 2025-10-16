@@ -53,7 +53,6 @@ ezReflectionFilterPass::ezReflectionFilterPass()
 ezReflectionFilterPass::~ezReflectionFilterPass()
 {
   ezRenderContext::DeleteConstantBufferStorage(m_hIrradianceConstantBuffer);
-  m_hIrradianceConstantBuffer.Invalidate();
 }
 
 bool ezReflectionFilterPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)

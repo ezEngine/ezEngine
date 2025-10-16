@@ -41,40 +41,40 @@ public:
   // State creation functions
 
   ezGALBlendStateHandle CreateBlendState(const ezGALBlendStateCreationDescription& description);
-  void DestroyBlendState(ezGALBlendStateHandle hBlendState);
+  void DestroyBlendState(ezGALBlendStateHandle& inout_hBlendState);
 
   ezGALDepthStencilStateHandle CreateDepthStencilState(const ezGALDepthStencilStateCreationDescription& description);
-  void DestroyDepthStencilState(ezGALDepthStencilStateHandle hDepthStencilState);
+  void DestroyDepthStencilState(ezGALDepthStencilStateHandle& inout_hDepthStencilState);
 
   ezGALRasterizerStateHandle CreateRasterizerState(const ezGALRasterizerStateCreationDescription& description);
-  void DestroyRasterizerState(ezGALRasterizerStateHandle hRasterizerState);
+  void DestroyRasterizerState(ezGALRasterizerStateHandle& inout_hRasterizerState);
 
   ezGALSamplerStateHandle CreateSamplerState(const ezGALSamplerStateCreationDescription& description);
-  void DestroySamplerState(ezGALSamplerStateHandle hSamplerState);
+  void DestroySamplerState(ezGALSamplerStateHandle& inout_hSamplerState);
 
   ezGALBindGroupLayoutHandle CreateBindGroupLayout(const ezGALBindGroupLayoutCreationDescription& description);
-  void DestroyBindGroupLayout(ezGALBindGroupLayoutHandle hBindGroupLayout);
+  void DestroyBindGroupLayout(ezGALBindGroupLayoutHandle& inout_hBindGroupLayout);
 
   // Bind group functions
   ezGALBindGroupHandle CreateBindGroup(const ezGALBindGroupCreationDescription& description);
-  void DestroyBindGroup(ezGALBindGroupHandle hBindGroup);
+  void DestroyBindGroup(ezGALBindGroupHandle& inout_hBindGroup);
 
   ezGALPipelineLayoutHandle CreatePipelineLayout(const ezGALPipelineLayoutCreationDescription& description);
-  void DestroyPipelineLayout(ezGALPipelineLayoutHandle hPipelineLayout);
+  void DestroyPipelineLayout(ezGALPipelineLayoutHandle& inout_hPipelineLayout);
 
   ezGALGraphicsPipelineHandle CreateGraphicsPipeline(const ezGALGraphicsPipelineCreationDescription& description);
-  void DestroyGraphicsPipeline(ezGALGraphicsPipelineHandle hGraphicsPipeline);
+  void DestroyGraphicsPipeline(ezGALGraphicsPipelineHandle& inout_hGraphicsPipeline);
 
   ezGALComputePipelineHandle CreateComputePipeline(const ezGALComputePipelineCreationDescription& description);
-  void DestroyComputePipeline(ezGALComputePipelineHandle hComputePipeline);
+  void DestroyComputePipeline(ezGALComputePipelineHandle& inout_hComputePipeline);
 
   // Resource creation functions
 
   ezGALShaderHandle CreateShader(const ezGALShaderCreationDescription& description);
-  void DestroyShader(ezGALShaderHandle hShader);
+  void DestroyShader(ezGALShaderHandle& inout_hShader);
 
   ezGALBufferHandle CreateBuffer(const ezGALBufferCreationDescription& description, ezArrayPtr<const ezUInt8> initialData = ezArrayPtr<const ezUInt8>());
-  void DestroyBuffer(ezGALBufferHandle hBuffer);
+  void DestroyBuffer(ezGALBufferHandle& inout_hBuffer);
 
   ezGALDynamicBufferHandle CreateDynamicBuffer(const ezGALBufferCreationDescription& description, ezStringView sDebugName);
   void DestroyDynamicBuffer(ezGALDynamicBufferHandle& inout_hBuffer);
@@ -86,20 +86,20 @@ public:
   ezGALBufferHandle CreateConstantBuffer(ezUInt32 uiBufferSize);
 
   ezGALTextureHandle CreateTexture(const ezGALTextureCreationDescription& description, ezArrayPtr<ezGALSystemMemoryDescription> initialData = ezArrayPtr<ezGALSystemMemoryDescription>());
-  void DestroyTexture(ezGALTextureHandle hTexture);
+  void DestroyTexture(ezGALTextureHandle& inout_hTexture);
 
   ezGALTextureHandle CreateProxyTexture(ezGALTextureHandle hParentTexture, ezUInt32 uiSlice);
-  void DestroyProxyTexture(ezGALTextureHandle hProxyTexture);
+  void DestroyProxyTexture(ezGALTextureHandle& inout_hProxyTexture);
 
   ezGALTextureHandle CreateSharedTexture(const ezGALTextureCreationDescription& description, ezArrayPtr<ezGALSystemMemoryDescription> initialData = {});
   ezGALTextureHandle OpenSharedTexture(const ezGALTextureCreationDescription& description, ezGALPlatformSharedHandle hSharedHandle);
-  void DestroySharedTexture(ezGALTextureHandle hTexture);
+  void DestroySharedTexture(ezGALTextureHandle& inout_hTexture);
 
   ezGALReadbackBufferHandle CreateReadbackBuffer(const ezGALBufferCreationDescription& description);
-  void DestroyReadbackBuffer(ezGALReadbackBufferHandle hBuffer);
+  void DestroyReadbackBuffer(ezGALReadbackBufferHandle& inout_hBuffer);
 
   ezGALReadbackTextureHandle CreateReadbackTexture(const ezGALTextureCreationDescription& description);
-  void DestroyReadbackTexture(ezGALReadbackTextureHandle hTexture);
+  void DestroyReadbackTexture(ezGALReadbackTextureHandle& inout_hTexture);
 
   // Resource update functions
 
@@ -113,17 +113,17 @@ public:
   ezGALRenderTargetViewHandle GetDefaultRenderTargetView(ezGALTextureHandle hTexture);
 
   ezGALRenderTargetViewHandle CreateRenderTargetView(const ezGALRenderTargetViewCreationDescription& description);
-  void DestroyRenderTargetView(ezGALRenderTargetViewHandle hRenderTargetView);
+  void DestroyRenderTargetView(ezGALRenderTargetViewHandle& inout_hRenderTargetView);
 
   // Other rendering creation functions
 
   using SwapChainFactoryFunction = ezDelegate<ezGALSwapChain*(ezAllocator*)>;
   ezGALSwapChainHandle CreateSwapChain(const SwapChainFactoryFunction& func);
   ezResult UpdateSwapChain(ezGALSwapChainHandle hSwapChain, ezEnum<ezGALPresentMode> newPresentMode);
-  void DestroySwapChain(ezGALSwapChainHandle hSwapChain);
+  void DestroySwapChain(ezGALSwapChainHandle& inout_hSwapChain);
 
   ezGALVertexDeclarationHandle CreateVertexDeclaration(const ezGALVertexDeclarationCreationDescription& description);
-  void DestroyVertexDeclaration(ezGALVertexDeclarationHandle hVertexDeclaration);
+  void DestroyVertexDeclaration(ezGALVertexDeclarationHandle& inout_hVertexDeclaration);
 
   // GPU -> CPU query functions
 
@@ -280,14 +280,14 @@ protected:
   template <typename Handle, typename View, typename ViewTable, typename CacheTable>
   Handle InsertView(ezUInt32 uiHash, View* pView, ViewTable& viewTable, CacheTable& cacheTable);
   template <typename View, typename Handle, typename ViewTable>
-  void DestroyView(Handle hView, ViewTable& table, ezUInt32 galObjectType);
+  void DestroyView(Handle& inout_hView, ViewTable& table, ezUInt32 galObjectType);
 
   template <typename Handle, typename Resource, typename Table, typename CacheTable, typename HashType>
   Handle TryGetHashedResource(HashType uiHash, Table& table, CacheTable& cacheTable, ezUInt32 galObjectType, ezUInt32& ref_uiCounter);
   template <typename Handle, typename Resource, typename Table, typename CacheTable, typename HashType>
   Handle InsertHashedResource(HashType uiHash, Resource* pResource, Table& table, CacheTable& cacheTable, ezUInt32& ref_uiCounter);
   template <typename Resource, typename Handle, typename Table>
-  void DestroyHashedResource(Handle hResource, Table& table, ezUInt32 galObjectType, ezUInt32& ref_uiCounter);
+  void DestroyHashedResource(Handle& inout_hResource, Table& table, ezUInt32 galObjectType, ezUInt32& ref_uiCounter);
 
   ezProxyAllocator m_Allocator;
   ezLocalAllocatorWrapper m_AllocatorWrapper;

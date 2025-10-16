@@ -51,7 +51,6 @@ ezSeparatedBilateralBlurPass::ezSeparatedBilateralBlurPass()
 ezSeparatedBilateralBlurPass::~ezSeparatedBilateralBlurPass()
 {
   ezRenderContext::DeleteConstantBufferStorage(m_hBilateralBlurCB);
-  m_hBilateralBlurCB.Invalidate();
 }
 
 bool ezSeparatedBilateralBlurPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)

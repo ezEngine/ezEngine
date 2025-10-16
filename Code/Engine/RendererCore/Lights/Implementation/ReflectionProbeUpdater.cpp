@@ -53,10 +53,7 @@ ezReflectionProbeUpdater::ProbeUpdateInfo::~ProbeUpdateInfo()
 {
   for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_hCubemapProxies); ++i)
   {
-    if (!m_hCubemapProxies[i].IsInvalidated())
-    {
-      ezGALDevice::GetDefaultDevice()->DestroyProxyTexture(m_hCubemapProxies[i]);
-    }
+    ezGALDevice::GetDefaultDevice()->DestroyProxyTexture(m_hCubemapProxies[i]);
   }
 
   if (!m_hCubemap.IsInvalidated())

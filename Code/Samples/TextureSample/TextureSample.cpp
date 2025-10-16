@@ -367,10 +367,8 @@ public:
     ezResourceManager::EngineAboutToShutdown();
 
     ezRenderContext::DeleteConstantBufferStorage(m_hSampleConstants);
-    m_hSampleConstants.Invalidate();
 
     m_pDevice->DestroyTexture(m_hDepthStencilTexture);
-    m_hDepthStencilTexture.Invalidate();
 
     m_hMaterial.Invalidate();
     m_hQuadMeshBuffer.Invalidate();

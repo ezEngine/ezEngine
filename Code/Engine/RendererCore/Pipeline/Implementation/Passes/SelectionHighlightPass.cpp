@@ -47,7 +47,6 @@ ezSelectionHighlightPass::ezSelectionHighlightPass(const char* szName)
 ezSelectionHighlightPass::~ezSelectionHighlightPass()
 {
   ezRenderContext::DeleteConstantBufferStorage(m_hConstantBuffer);
-  m_hConstantBuffer.Invalidate();
 }
 
 bool ezSelectionHighlightPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)

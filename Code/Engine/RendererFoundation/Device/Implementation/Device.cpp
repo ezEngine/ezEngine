@@ -302,26 +302,23 @@ Handle ezGALDevice::InsertHashedResource(HashType uiHash, Resource* pResource, T
 }
 
 template <typename Resource, typename Handle, typename Table>
-void ezGALDevice::DestroyHashedResource(Handle hResource, Table& table, ezUInt32 galObjectType, ezUInt32& ref_uiCounter)
+void ezGALDevice::DestroyHashedResource(Handle& inout_hResource, Table& table, ezUInt32 galObjectType, ezUInt32& ref_uiCounter)
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
   Resource* pResource = nullptr;
-
-  if (table.TryGetValue(hResource, pResource))
+  if (table.TryGetValue(inout_hResource, pResource))
   {
     pResource->ReleaseRef();
     ref_uiCounter--;
 
     if (pResource->GetRefCount() == 0)
     {
-      AddDeadObject(galObjectType, hResource);
+      AddDeadObject(galObjectType, inout_hResource);
     }
   }
-  else
-  {
-    ezLog::Warning("DestroyHashedResource called on invalid handle (double free?)");
-  }
+
+  inout_hResource.Invalidate();
 }
 
 ezGALBlendStateHandle ezGALDevice::CreateBlendState(const ezGALBlendStateCreationDescription& desc)
@@ -337,9 +334,9 @@ ezGALBlendStateHandle ezGALDevice::CreateBlendState(const ezGALBlendStateCreatio
   return InsertHashedResource<ezGALBlendStateHandle>(uiHash, pBlendState, m_BlendStates, m_BlendStateTable, m_uiBlendStates);
 }
 
-void ezGALDevice::DestroyBlendState(ezGALBlendStateHandle hBlendState)
+void ezGALDevice::DestroyBlendState(ezGALBlendStateHandle& inout_hBlendState)
 {
-  DestroyHashedResource<ezGALBlendState>(hBlendState, m_BlendStates, GALObjectType::BlendState, m_uiBlendStates);
+  DestroyHashedResource<ezGALBlendState>(inout_hBlendState, m_BlendStates, GALObjectType::BlendState, m_uiBlendStates);
 }
 
 ezGALDepthStencilStateHandle ezGALDevice::CreateDepthStencilState(const ezGALDepthStencilStateCreationDescription& desc)
@@ -355,9 +352,9 @@ ezGALDepthStencilStateHandle ezGALDevice::CreateDepthStencilState(const ezGALDep
   return InsertHashedResource<ezGALDepthStencilStateHandle>(uiHash, pDepthStencilState, m_DepthStencilStates, m_DepthStencilStateTable, m_uiDepthStencilStates);
 }
 
-void ezGALDevice::DestroyDepthStencilState(ezGALDepthStencilStateHandle hDepthStencilState)
+void ezGALDevice::DestroyDepthStencilState(ezGALDepthStencilStateHandle& inout_hDepthStencilState)
 {
-  DestroyHashedResource<ezGALDepthStencilState>(hDepthStencilState, m_DepthStencilStates, GALObjectType::DepthStencilState, m_uiDepthStencilStates);
+  DestroyHashedResource<ezGALDepthStencilState>(inout_hDepthStencilState, m_DepthStencilStates, GALObjectType::DepthStencilState, m_uiDepthStencilStates);
 }
 
 ezGALRasterizerStateHandle ezGALDevice::CreateRasterizerState(const ezGALRasterizerStateCreationDescription& desc)
@@ -373,9 +370,9 @@ ezGALRasterizerStateHandle ezGALDevice::CreateRasterizerState(const ezGALRasteri
   return InsertHashedResource<ezGALRasterizerStateHandle>(uiHash, pRasterizerState, m_RasterizerStates, m_RasterizerStateTable, m_uiRasterizerStates);
 }
 
-void ezGALDevice::DestroyRasterizerState(ezGALRasterizerStateHandle hRasterizerState)
+void ezGALDevice::DestroyRasterizerState(ezGALRasterizerStateHandle& inout_hRasterizerState)
 {
-  DestroyHashedResource<ezGALRasterizerState>(hRasterizerState, m_RasterizerStates, GALObjectType::RasterizerState, m_uiRasterizerStates);
+  DestroyHashedResource<ezGALRasterizerState>(inout_hRasterizerState, m_RasterizerStates, GALObjectType::RasterizerState, m_uiRasterizerStates);
 }
 
 ezGALSamplerStateHandle ezGALDevice::CreateSamplerState(const ezGALSamplerStateCreationDescription& desc)
@@ -391,9 +388,9 @@ ezGALSamplerStateHandle ezGALDevice::CreateSamplerState(const ezGALSamplerStateC
   return InsertHashedResource<ezGALSamplerStateHandle>(uiHash, pSamplerState, m_SamplerStates, m_SamplerStateTable, m_uiSamplerStates);
 }
 
-void ezGALDevice::DestroySamplerState(ezGALSamplerStateHandle hSamplerState)
+void ezGALDevice::DestroySamplerState(ezGALSamplerStateHandle& inout_hSamplerState)
 {
-  DestroyHashedResource<ezGALSamplerState>(hSamplerState, m_SamplerStates, GALObjectType::SamplerState, m_uiSamplerStates);
+  DestroyHashedResource<ezGALSamplerState>(inout_hSamplerState, m_SamplerStates, GALObjectType::SamplerState, m_uiSamplerStates);
 }
 
 ezGALBindGroupLayoutHandle ezGALDevice::CreateBindGroupLayout(const ezGALBindGroupLayoutCreationDescription& desc)
@@ -409,9 +406,9 @@ ezGALBindGroupLayoutHandle ezGALDevice::CreateBindGroupLayout(const ezGALBindGro
   return InsertHashedResource<ezGALBindGroupLayoutHandle>(uiHash, pBindGroupLayout, m_BindGroupLayouts, m_BindGroupLayoutTable, m_uiBindGroupLayouts);
 }
 
-void ezGALDevice::DestroyBindGroupLayout(ezGALBindGroupLayoutHandle hBindGroupLayout)
+void ezGALDevice::DestroyBindGroupLayout(ezGALBindGroupLayoutHandle& inout_hBindGroupLayout)
 {
-  DestroyHashedResource<ezGALBindGroupLayout>(hBindGroupLayout, m_BindGroupLayouts, GALObjectType::BindGroupLayout, m_uiBindGroupLayouts);
+  DestroyHashedResource<ezGALBindGroupLayout>(inout_hBindGroupLayout, m_BindGroupLayouts, GALObjectType::BindGroupLayout, m_uiBindGroupLayouts);
 }
 
 ezGALBindGroupHandle ezGALDevice::CreateBindGroup(const ezGALBindGroupCreationDescription& desc)
@@ -500,9 +497,9 @@ ezGALBindGroupHandle ezGALDevice::CreateBindGroup(const ezGALBindGroupCreationDe
   return InsertHashedResource<ezGALBindGroupHandle>(uiHash, pBindGroup, m_BindGroups, m_BindGroupTable, m_uiBindGroups);
 }
 
-void ezGALDevice::DestroyBindGroup(ezGALBindGroupHandle hBindGroup)
+void ezGALDevice::DestroyBindGroup(ezGALBindGroupHandle& inout_hBindGroup)
 {
-  DestroyHashedResource<ezGALBindGroup>(hBindGroup, m_BindGroups, GALObjectType::BindGroup, m_uiBindGroups);
+  DestroyHashedResource<ezGALBindGroup>(inout_hBindGroup, m_BindGroups, GALObjectType::BindGroup, m_uiBindGroups);
 }
 
 ezGALPipelineLayoutHandle ezGALDevice::CreatePipelineLayout(const ezGALPipelineLayoutCreationDescription& desc)
@@ -518,9 +515,9 @@ ezGALPipelineLayoutHandle ezGALDevice::CreatePipelineLayout(const ezGALPipelineL
   return InsertHashedResource<ezGALPipelineLayoutHandle>(uiHash, pPipelineLayout, m_PipelineLayouts, m_PipelineLayoutTable, m_uiPipelineLayouts);
 }
 
-void ezGALDevice::DestroyPipelineLayout(ezGALPipelineLayoutHandle hPipelineLayout)
+void ezGALDevice::DestroyPipelineLayout(ezGALPipelineLayoutHandle& inout_hPipelineLayout)
 {
-  DestroyHashedResource<ezGALPipelineLayout>(hPipelineLayout, m_PipelineLayouts, GALObjectType::PipelineLayout, m_uiPipelineLayouts);
+  DestroyHashedResource<ezGALPipelineLayout>(inout_hPipelineLayout, m_PipelineLayouts, GALObjectType::PipelineLayout, m_uiPipelineLayouts);
 }
 
 ezGALGraphicsPipelineHandle ezGALDevice::CreateGraphicsPipeline(const ezGALGraphicsPipelineCreationDescription& desc)
@@ -597,36 +594,36 @@ ezGALGraphicsPipelineHandle ezGALDevice::CreateGraphicsPipeline(const ezGALGraph
   return ezGALGraphicsPipelineHandle();
 }
 
-void ezGALDevice::DestroyGraphicsPipeline(ezGALGraphicsPipelineHandle hGraphicsPipeline)
+void ezGALDevice::DestroyGraphicsPipeline(ezGALGraphicsPipelineHandle& inout_hGraphicsPipeline)
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
   ezGALGraphicsPipeline* pGraphicsPipeline = nullptr;
-
-  if (m_GraphicsPipelines.TryGetValue(hGraphicsPipeline, pGraphicsPipeline))
+  if (m_GraphicsPipelines.TryGetValue(inout_hGraphicsPipeline, pGraphicsPipeline))
   {
     pGraphicsPipeline->ReleaseRef();
     m_uiGraphicsPipelines--;
 
     if (pGraphicsPipeline->GetRefCount() == 0)
     {
-      AddDeadObject(GALObjectType::GraphicsPipeline, hGraphicsPipeline);
+      AddDeadObject(GALObjectType::GraphicsPipeline, inout_hGraphicsPipeline);
       const ezGALGraphicsPipelineCreationDescription& desc = pGraphicsPipeline->GetDescription();
 
-      DestroyShader(desc.m_hShader);
-      DestroyRasterizerState(desc.m_hRasterizerState);
-      DestroyBlendState(desc.m_hBlendState);
-      DestroyDepthStencilState(desc.m_hDepthStencilState);
-      if (!desc.m_hVertexDeclaration.IsInvalidated())
-      {
-        DestroyVertexDeclaration(desc.m_hVertexDeclaration);
-      }
+      auto hShader = desc.m_hShader;
+      auto hRasterizerState = desc.m_hRasterizerState;
+      auto hBlendState = desc.m_hBlendState;
+      auto hDepthStencilState = desc.m_hDepthStencilState;
+      auto hVertexDeclaration = desc.m_hVertexDeclaration;
+
+      DestroyShader(hShader);
+      DestroyRasterizerState(hRasterizerState);
+      DestroyBlendState(hBlendState);
+      DestroyDepthStencilState(hDepthStencilState);
+      DestroyVertexDeclaration(hVertexDeclaration);
     }
   }
-  else
-  {
-    ezLog::Warning("DestroyGraphicsPipeline called on invalid handle (double free?)");
-  }
+
+  inout_hGraphicsPipeline.Invalidate();
 }
 
 
@@ -689,22 +686,23 @@ ezGALComputePipelineHandle ezGALDevice::CreateComputePipeline(const ezGALCompute
   return ezGALComputePipelineHandle();
 }
 
-void ezGALDevice::DestroyComputePipeline(ezGALComputePipelineHandle hComputePipeline)
+void ezGALDevice::DestroyComputePipeline(ezGALComputePipelineHandle& inout_hComputePipeline)
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
   ezGALComputePipeline* pComputePipeline = nullptr;
-
-  if (m_ComputePipelines.TryGetValue(hComputePipeline, pComputePipeline))
+  if (m_ComputePipelines.TryGetValue(inout_hComputePipeline, pComputePipeline))
   {
     pComputePipeline->ReleaseRef();
     m_uiComputePipelines--;
 
     if (pComputePipeline->GetRefCount() == 0)
     {
-      AddDeadObject(GALObjectType::ComputePipeline, hComputePipeline);
+      AddDeadObject(GALObjectType::ComputePipeline, inout_hComputePipeline);
       const ezGALComputePipelineCreationDescription& desc = pComputePipeline->GetDescription();
-      DestroyShader(desc.m_hShader);
+
+      auto hShader = desc.m_hShader;
+      DestroyShader(hShader);
     }
   }
   else
@@ -771,26 +769,23 @@ ezGALShaderHandle ezGALDevice::CreateShader(const ezGALShaderCreationDescription
   return ezGALShaderHandle();
 }
 
-void ezGALDevice::DestroyShader(ezGALShaderHandle hShader)
+void ezGALDevice::DestroyShader(ezGALShaderHandle& inout_hShader)
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
   ezGALShader* pShader = nullptr;
-
-  if (m_Shaders.TryGetValue(hShader, pShader))
+  if (m_Shaders.TryGetValue(inout_hShader, pShader))
   {
     pShader->ReleaseRef();
     m_uiShaders--;
 
     if (pShader->GetRefCount() == 0)
     {
-      AddDeadObject(GALObjectType::Shader, hShader);
+      AddDeadObject(GALObjectType::Shader, inout_hShader);
     }
   }
-  else
-  {
-    ezLog::Warning("DestroyShader called on invalid handle (double free?)");
-  }
+
+  inout_hShader.Invalidate();
 }
 
 
@@ -866,20 +861,17 @@ ezGALBufferHandle ezGALDevice::CreateBuffer(const ezGALBufferCreationDescription
   return hBuffer;
 }
 
-void ezGALDevice::DestroyBuffer(ezGALBufferHandle hBuffer)
+void ezGALDevice::DestroyBuffer(ezGALBufferHandle& inout_hBuffer)
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
   ezGALBuffer* pBuffer = nullptr;
+  if (m_Buffers.TryGetValue(inout_hBuffer, pBuffer))
+  {
+    AddDeadObject(GALObjectType::Buffer, inout_hBuffer);
+  }
 
-  if (m_Buffers.TryGetValue(hBuffer, pBuffer))
-  {
-    AddDeadObject(GALObjectType::Buffer, hBuffer);
-  }
-  else
-  {
-    ezLog::Warning("DestroyBuffer called on invalid handle (double free?)");
-  }
+  inout_hBuffer.Invalidate();
 }
 
 ezGALDynamicBufferHandle ezGALDevice::CreateDynamicBuffer(const ezGALBufferCreationDescription& description, ezStringView sDebugName)
@@ -900,8 +892,9 @@ void ezGALDevice::DestroyDynamicBuffer(ezGALDynamicBufferHandle& inout_hBuffer)
   if (m_DynamicBuffers.TryGetValue(inout_hBuffer, pBuffer))
   {
     AddDeadObject(GALObjectType::DynamicBuffer, inout_hBuffer);
-    inout_hBuffer.Invalidate();
   }
+
+  inout_hBuffer.Invalidate();
 }
 
 // Helper functions for buffers (for common, simple use cases)
@@ -998,19 +991,17 @@ ezGALTextureHandle ezGALDevice::FinalizeTextureInternal(const ezGALTextureCreati
   return ezGALTextureHandle();
 }
 
-void ezGALDevice::DestroyTexture(ezGALTextureHandle hTexture)
+void ezGALDevice::DestroyTexture(ezGALTextureHandle& inout_hTexture)
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
   ezGALTexture* pTexture = nullptr;
-  if (m_Textures.TryGetValue(hTexture, pTexture))
+  if (m_Textures.TryGetValue(inout_hTexture, pTexture))
   {
-    AddDeadObject(GALObjectType::Texture, hTexture);
+    AddDeadObject(GALObjectType::Texture, inout_hTexture);
   }
-  else
-  {
-    ezLog::Warning("DestroyTexture called on invalid handle (double free?)");
-  }
+
+  inout_hTexture.Invalidate();
 }
 
 ezGALTextureHandle ezGALDevice::CreateProxyTexture(ezGALTextureHandle hParentTexture, ezUInt32 uiSlice)
@@ -1051,21 +1042,19 @@ ezGALTextureHandle ezGALDevice::CreateProxyTexture(ezGALTextureHandle hParentTex
   return hProxyTexture;
 }
 
-void ezGALDevice::DestroyProxyTexture(ezGALTextureHandle hProxyTexture)
+void ezGALDevice::DestroyProxyTexture(ezGALTextureHandle& inout_hProxyTexture)
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
   ezGALTexture* pTexture = nullptr;
-  if (m_Textures.TryGetValue(hProxyTexture, pTexture))
+  if (m_Textures.TryGetValue(inout_hProxyTexture, pTexture))
   {
     EZ_ASSERT_DEV(pTexture->GetDescription().m_Type == ezGALTextureType::Texture2DProxy, "Given texture is not a proxy texture");
 
-    AddDeadObject(GALObjectType::Texture, hProxyTexture);
+    AddDeadObject(GALObjectType::Texture, inout_hProxyTexture);
   }
-  else
-  {
-    ezLog::Warning("DestroyProxyTexture called on invalid handle (double free?)");
-  }
+
+  inout_hProxyTexture.Invalidate();
 }
 
 ezGALTextureHandle ezGALDevice::CreateSharedTexture(const ezGALTextureCreationDescription& desc, ezArrayPtr<ezGALSystemMemoryDescription> initialData)
@@ -1131,21 +1120,19 @@ ezGALTextureHandle ezGALDevice::OpenSharedTexture(const ezGALTextureCreationDesc
   return FinalizeTextureInternal(desc, pTexture);
 }
 
-void ezGALDevice::DestroySharedTexture(ezGALTextureHandle hSharedTexture)
+void ezGALDevice::DestroySharedTexture(ezGALTextureHandle& inout_hSharedTexture)
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
   ezGALTexture* pTexture = nullptr;
-  if (m_Textures.TryGetValue(hSharedTexture, pTexture))
+  if (m_Textures.TryGetValue(inout_hSharedTexture, pTexture))
   {
     EZ_ASSERT_DEV(pTexture->GetDescription().m_Type == ezGALTextureType::Texture2DShared, "Given texture is not a shared texture texture");
 
-    AddDeadObject(GALObjectType::Texture, hSharedTexture);
+    AddDeadObject(GALObjectType::Texture, inout_hSharedTexture);
   }
-  else
-  {
-    ezLog::Warning("DestroySharedTexture called on invalid handle (double free?)");
-  }
+
+  inout_hSharedTexture.Invalidate();
 }
 
 ezGALReadbackTextureHandle ezGALDevice::CreateReadbackTexture(const ezGALTextureCreationDescription& description)
@@ -1163,19 +1150,17 @@ ezGALReadbackTextureHandle ezGALDevice::CreateReadbackTexture(const ezGALTexture
   return hTexture;
 }
 
-void ezGALDevice::DestroyReadbackTexture(ezGALReadbackTextureHandle hTexture)
+void ezGALDevice::DestroyReadbackTexture(ezGALReadbackTextureHandle& inout_hTexture)
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
   ezGALReadbackTexture* pTexture = nullptr;
-  if (m_ReadbackTextures.TryGetValue(hTexture, pTexture))
+  if (m_ReadbackTextures.TryGetValue(inout_hTexture, pTexture))
   {
-    AddDeadObject(GALObjectType::ReadbackTexture, hTexture);
+    AddDeadObject(GALObjectType::ReadbackTexture, inout_hTexture);
   }
-  else
-  {
-    ezLog::Warning("DestroyReadbackTexture called on invalid handle (double free?)");
-  }
+
+  inout_hTexture.Invalidate();
 }
 
 ezGALReadbackBufferHandle ezGALDevice::CreateReadbackBuffer(const ezGALBufferCreationDescription& description)
@@ -1187,19 +1172,17 @@ ezGALReadbackBufferHandle ezGALDevice::CreateReadbackBuffer(const ezGALBufferCre
   return hBuffer;
 }
 
-void ezGALDevice::DestroyReadbackBuffer(ezGALReadbackBufferHandle hBuffer)
+void ezGALDevice::DestroyReadbackBuffer(ezGALReadbackBufferHandle& inout_hBuffer)
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
   ezGALReadbackBuffer* pBuffer = nullptr;
-  if (m_ReadbackBuffers.TryGetValue(hBuffer, pBuffer))
+  if (m_ReadbackBuffers.TryGetValue(inout_hBuffer, pBuffer))
   {
-    AddDeadObject(GALObjectType::ReadbackBuffer, hBuffer);
+    AddDeadObject(GALObjectType::ReadbackBuffer, inout_hBuffer);
   }
-  else
-  {
-    ezLog::Warning("DestroyReadbackBuffer called on invalid handle (double free?)");
-  }
+
+  inout_hBuffer.Invalidate();
 }
 
 void ezGALDevice::UpdateBufferForNextFrame(ezGALBufferHandle hBuffer, ezConstByteArrayPtr sourceData, ezUInt32 uiDestOffset /*= 0*/)
@@ -1315,21 +1298,20 @@ Handle ezGALDevice::InsertView(ezUInt32 uiHash, View* pView, ViewTable& viewTabl
 }
 
 template <typename View, typename Handle, typename ViewTable>
-void ezGALDevice::DestroyView(Handle hView, ViewTable& table, ezUInt32 galObjectType)
+void ezGALDevice::DestroyView(Handle& inout_hView, ViewTable& table, ezUInt32 galObjectType)
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();
+
   View* pView = nullptr;
-  if (table.TryGetValue(hView, pView))
+  if (table.TryGetValue(inout_hView, pView))
   {
     if (pView->ReleaseRef() == 0)
     {
-      AddDeadObject((GALObjectType::Enum)galObjectType, hView);
+      AddDeadObject((GALObjectType::Enum)galObjectType, inout_hView);
     }
   }
-  else
-  {
-    ezLog::Warning("DestroyView called on invalid handle (double free?)");
-  }
+
+  inout_hView.Invalidate();
 }
 
 ezGALRenderTargetViewHandle ezGALDevice::GetDefaultRenderTargetView(ezGALTextureHandle hTexture)
@@ -1381,9 +1363,9 @@ ezGALRenderTargetViewHandle ezGALDevice::CreateRenderTargetView(const ezGALRende
   return InsertView<ezGALRenderTargetViewHandle, ezGALRenderTargetView>(uiHash, pRenderTargetView, m_RenderTargetViews, pTexture->m_RenderTargetViews);
 }
 
-void ezGALDevice::DestroyRenderTargetView(ezGALRenderTargetViewHandle hRenderTargetView)
+void ezGALDevice::DestroyRenderTargetView(ezGALRenderTargetViewHandle& inout_hRenderTargetView)
 {
-  DestroyView<ezGALRenderTargetView>(hRenderTargetView, m_RenderTargetViews, GALObjectType::RenderTargetView);
+  DestroyView<ezGALRenderTargetView>(inout_hRenderTargetView, m_RenderTargetViews, GALObjectType::RenderTargetView);
 }
 
 ezGALSwapChainHandle ezGALDevice::CreateSwapChain(const SwapChainFactoryFunction& func)
@@ -1426,20 +1408,17 @@ ezResult ezGALDevice::UpdateSwapChain(ezGALSwapChainHandle hSwapChain, ezEnum<ez
   }
 }
 
-void ezGALDevice::DestroySwapChain(ezGALSwapChainHandle hSwapChain)
+void ezGALDevice::DestroySwapChain(ezGALSwapChainHandle& inout_hSwapChain)
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
   ezGALSwapChain* pSwapChain = nullptr;
+  if (m_SwapChains.TryGetValue(inout_hSwapChain, pSwapChain))
+  {
+    AddDeadObject(GALObjectType::SwapChain, inout_hSwapChain);
+  }
 
-  if (m_SwapChains.TryGetValue(hSwapChain, pSwapChain))
-  {
-    AddDeadObject(GALObjectType::SwapChain, hSwapChain);
-  }
-  else
-  {
-    ezLog::Warning("DestroySwapChain called on invalid handle (double free?)");
-  }
+  inout_hSwapChain.Invalidate();
 }
 
 ezGALVertexDeclarationHandle ezGALDevice::CreateVertexDeclaration(const ezGALVertexDeclarationCreationDescription& desc)
@@ -1499,26 +1478,23 @@ ezGALVertexDeclarationHandle ezGALDevice::CreateVertexDeclaration(const ezGALVer
   return ezGALVertexDeclarationHandle();
 }
 
-void ezGALDevice::DestroyVertexDeclaration(ezGALVertexDeclarationHandle hVertexDeclaration)
+void ezGALDevice::DestroyVertexDeclaration(ezGALVertexDeclarationHandle& inout_hVertexDeclaration)
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
   ezGALVertexDeclaration* pVertexDeclaration = nullptr;
-
-  if (m_VertexDeclarations.TryGetValue(hVertexDeclaration, pVertexDeclaration))
+  if (m_VertexDeclarations.TryGetValue(inout_hVertexDeclaration, pVertexDeclaration))
   {
     pVertexDeclaration->ReleaseRef();
     m_uiVertexDeclarations--;
 
     if (pVertexDeclaration->GetRefCount() == 0)
     {
-      AddDeadObject(GALObjectType::VertexDeclaration, hVertexDeclaration);
+      AddDeadObject(GALObjectType::VertexDeclaration, inout_hVertexDeclaration);
     }
   }
-  else
-  {
-    ezLog::Warning("DestroyVertexDeclaration called on invalid handle (double free?)");
-  }
+
+  inout_hVertexDeclaration.Invalidate();
 }
 
 ezEnum<ezGALAsyncResult> ezGALDevice::GetFenceResult(ezGALFenceHandle hFence, ezTime timeout)

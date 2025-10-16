@@ -199,7 +199,6 @@ void ezGraphicsTest::ShutdownRenderer()
   m_hCubeUV.Invalidate();
 
   ezRenderContext::DeleteConstantBufferStorage(m_hObjectTransformCB);
-  m_hObjectTransformCB.Invalidate();
 
   ezStartup::ShutdownHighLevelSystems();
 

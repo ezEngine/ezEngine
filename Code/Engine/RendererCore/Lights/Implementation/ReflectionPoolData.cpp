@@ -22,12 +22,8 @@ ezReflectionPool::Data::Data()
 
 ezReflectionPool::Data::~Data()
 {
-  if (!m_hFallbackReflectionSpecularTexture.IsInvalidated())
-  {
-    ezGALDevice::GetDefaultDevice()->DestroyTexture(m_hFallbackReflectionSpecularTexture);
-    m_hFallbackReflectionSpecularTexture.Invalidate();
-  }
-
+  ezGALDevice::GetDefaultDevice()->DestroyTexture(m_hFallbackReflectionSpecularTexture);
+  
   ezUInt32 uiWorldReflectionCount = m_WorldReflectionData.GetCount();
   for (ezUInt32 i = 0; i < uiWorldReflectionCount; ++i)
   {
@@ -36,11 +32,7 @@ ezReflectionPool::Data::~Data()
   }
   m_WorldReflectionData.Clear();
 
-  if (!m_hSkyIrradianceTexture.IsInvalidated())
-  {
-    ezGALDevice::GetDefaultDevice()->DestroyTexture(m_hSkyIrradianceTexture);
-    m_hSkyIrradianceTexture.Invalidate();
-  }
+  ezGALDevice::GetDefaultDevice()->DestroyTexture(m_hSkyIrradianceTexture);
 }
 
 ezReflectionProbeId ezReflectionPool::Data::AddProbe(const ezWorld* pWorld, ProbeData&& probeData)

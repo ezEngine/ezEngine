@@ -116,7 +116,8 @@ ezGALBindGroupHandle ezMaterialManager::GetMaterialBindGroup(const ezMaterialRes
       EZ_ASSERT_DEBUG(pBindGroup != nullptr, "Bind group should be owned by the material manager but it no longer exists.");
       if (pBindGroup->IsInvalidated())
       {
-        pDevice->DestroyBindGroup(bindGroupCache.m_hGroup);
+        auto hBindGroup = bindGroupCache.m_hGroup;
+        pDevice->DestroyBindGroup(hBindGroup);
         data.m_BindGroups.RemoveAtAndSwap(i);
         break;
       }
@@ -562,8 +563,7 @@ void ezMaterialManager::MaterialShaderConstants::UpdateConstantBuffers()
         break;
       case ezMaterialManager::MaterialStorageMode::SingleStructuredBuffer:
       {
-        if (!m_hStructuredBuffer.IsInvalidated())
-          pDevice->DestroyBuffer(m_hStructuredBuffer);
+        pDevice->DestroyBuffer(m_hStructuredBuffer);
 
         ezGALBufferCreationDescription bufferDesc;
         bufferDesc.m_uiStructSize = m_pLayout->m_uiTotalSize;
@@ -614,13 +614,11 @@ void ezMaterialManager::MaterialShaderConstants::DestroyGpuResources()
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
-  if (!m_hStructuredBuffer.IsInvalidated())
-    pDevice->DestroyBuffer(m_hStructuredBuffer);
+  pDevice->DestroyBuffer(m_hStructuredBuffer);
 
   for (ezGALBufferHandle hBuffer : m_MaterialBuffers)
   {
-    if (!hBuffer.IsInvalidated())
-      pDevice->DestroyBuffer(hBuffer);
+    pDevice->DestroyBuffer(hBuffer);
   }
   m_MaterialBuffers.Clear();
 }
