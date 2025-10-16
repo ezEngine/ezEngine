@@ -163,9 +163,9 @@ EZ_ALWAYS_INLINE bool ezGALDevice::HasDefaultDevice()
 template <typename HandleType>
 EZ_FORCE_INLINE void ezGALDevice::AddDeadObject(ezUInt32 uiType, HandleType handle)
 {
-  auto& deadObject = m_DeadObjects.ExpandAndGetRef();
-  deadObject.m_uiType = uiType;
-  deadObject.m_uiHandle = handle.GetInternalID().m_Data;
+  DeadObject deadObject = {uiType, handle.GetInternalID().m_Data};
+  EZ_ASSERT_DEBUG(!m_DeadObjects.Contains(deadObject), "The same object is being destroyed multiple times.");
+  m_DeadObjects.PushBack(deadObject);
 }
 
 template <typename HandleType>

@@ -239,17 +239,8 @@ void ezPickingRenderPass::DestroyTarget()
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
   m_RenderTargetSetup.DestroyAllAttachedViews();
-  if (!m_hPickingIdRT.IsInvalidated())
-  {
-    pDevice->DestroyTexture(m_hPickingIdRT);
-    m_hPickingIdRT.Invalidate();
-  }
-
-  if (!m_hPickingDepthRT.IsInvalidated())
-  {
-    pDevice->DestroyTexture(m_hPickingDepthRT);
-    m_hPickingDepthRT.Invalidate();
-  }
+  pDevice->DestroyTexture(m_hPickingIdRT);
+  pDevice->DestroyTexture(m_hPickingDepthRT);
 }
 
 void ezPickingRenderPass::ReadBackPropertiesSinglePick(ezView* pView)

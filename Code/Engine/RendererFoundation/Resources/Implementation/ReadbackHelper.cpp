@@ -23,11 +23,11 @@ ezGALReadbackBufferHelper::~ezGALReadbackBufferHelper()
 
 void ezGALReadbackBufferHelper::Reset()
 {
-  if (!m_hReadbackBuffer.IsInvalidated())
+  if (m_pDevice)
   {
     m_pDevice->DestroyReadbackBuffer(m_hReadbackBuffer);
-    m_hReadbackBuffer.Invalidate();
   }
+
   m_hFence = 0;
   m_pDevice = nullptr;
 }
@@ -81,11 +81,11 @@ ezGALReadbackTextureHelper::~ezGALReadbackTextureHelper()
 
 void ezGALReadbackTextureHelper::Reset()
 {
-  if (!m_hReadbackTexture.IsInvalidated())
+  if (m_pDevice)
   {
     m_pDevice->DestroyReadbackTexture(m_hReadbackTexture);
-    m_hReadbackTexture.Invalidate();
   }
+
   m_hFence = 0;
   m_pDevice = nullptr;
 }

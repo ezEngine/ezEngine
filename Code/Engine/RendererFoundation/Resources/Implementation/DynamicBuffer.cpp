@@ -55,18 +55,12 @@ void ezGALDynamicBuffer::Deinitialize()
 {
   Clear();
 
-  if (m_hBufferForUpload.IsInvalidated() == false)
-  {
-    ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hBufferForUpload);
-  }
-
-  if (m_hBufferForRendering.IsInvalidated() == false && m_hBufferForRendering != m_hBufferForUpload)
+  if (m_hBufferForRendering != m_hBufferForUpload)
   {
     ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hBufferForRendering);
   }
 
-  m_hBufferForUpload.Invalidate();
-  m_hBufferForRendering.Invalidate();
+  ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hBufferForUpload);
 }
 
 void ezGALDynamicBuffer::Clear()

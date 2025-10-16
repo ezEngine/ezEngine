@@ -345,11 +345,7 @@ void ezAOPass::SetFadeOutEnd(float fEnd)
 
   m_fFadeOutEnd = ezMath::Max(fEnd, m_fFadeOutStart);
 
-  if (!m_hSSAOSamplerState.IsInvalidated())
-  {
-    ezGALDevice::GetDefaultDevice()->DestroySamplerState(m_hSSAOSamplerState);
-    m_hSSAOSamplerState.Invalidate();
-  }
+  ezGALDevice::GetDefaultDevice()->DestroySamplerState(m_hSSAOSamplerState);
 }
 
 float ezAOPass::GetFadeOutEnd() const

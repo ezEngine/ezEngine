@@ -34,30 +34,10 @@ ezResourceLoadDesc ezShaderPermutationResource::UnloadData(Unload WhatToUnload)
 
   auto pDevice = ezGALDevice::GetDefaultDevice();
 
-  if (!m_hShader.IsInvalidated())
-  {
-    pDevice->DestroyShader(m_hShader);
-    m_hShader.Invalidate();
-  }
-
-  if (!m_hBlendState.IsInvalidated())
-  {
-    pDevice->DestroyBlendState(m_hBlendState);
-    m_hBlendState.Invalidate();
-  }
-
-  if (!m_hDepthStencilState.IsInvalidated())
-  {
-    pDevice->DestroyDepthStencilState(m_hDepthStencilState);
-    m_hDepthStencilState.Invalidate();
-  }
-
-  if (!m_hRasterizerState.IsInvalidated())
-  {
-    pDevice->DestroyRasterizerState(m_hRasterizerState);
-    m_hRasterizerState.Invalidate();
-  }
-
+  pDevice->DestroyShader(m_hShader);
+  pDevice->DestroyBlendState(m_hBlendState);
+  pDevice->DestroyDepthStencilState(m_hDepthStencilState);
+  pDevice->DestroyRasterizerState(m_hRasterizerState);
 
   ezResourceLoadDesc res;
   res.m_State = ezResourceState::Unloaded;

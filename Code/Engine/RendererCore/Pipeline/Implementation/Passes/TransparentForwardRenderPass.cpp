@@ -23,11 +23,7 @@ ezTransparentForwardRenderPass::ezTransparentForwardRenderPass(const char* szNam
 
 ezTransparentForwardRenderPass::~ezTransparentForwardRenderPass()
 {
-  if (!m_hSceneColorSamplerState.IsInvalidated())
-  {
-    ezGALDevice::GetDefaultDevice()->DestroySamplerState(m_hSceneColorSamplerState);
-    m_hSceneColorSamplerState.Invalidate();
-  }
+  ezGALDevice::GetDefaultDevice()->DestroySamplerState(m_hSceneColorSamplerState);
 }
 
 void ezTransparentForwardRenderPass::Execute(const ezRenderViewContext& renderViewContext,

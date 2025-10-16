@@ -33,11 +33,7 @@ ezResourceLoadDesc ezTextureCubeResource::UnloadData(Unload WhatToUnload)
     {
       --m_uiLoadedTextures;
 
-      if (!m_hGALTexture[m_uiLoadedTextures].IsInvalidated())
-      {
-        ezGALDevice::GetDefaultDevice()->DestroyTexture(m_hGALTexture[m_uiLoadedTextures]);
-        m_hGALTexture[m_uiLoadedTextures].Invalidate();
-      }
+      ezGALDevice::GetDefaultDevice()->DestroyTexture(m_hGALTexture[m_uiLoadedTextures]);
 
       m_uiMemoryGPU[m_uiLoadedTextures] = 0;
 
@@ -48,11 +44,7 @@ ezResourceLoadDesc ezTextureCubeResource::UnloadData(Unload WhatToUnload)
 
   if (WhatToUnload == Unload::AllQualityLevels)
   {
-    if (!m_hSamplerState.IsInvalidated())
-    {
-      ezGALDevice::GetDefaultDevice()->DestroySamplerState(m_hSamplerState);
-      m_hSamplerState.Invalidate();
-    }
+    ezGALDevice::GetDefaultDevice()->DestroySamplerState(m_hSamplerState);
   }
 
   ezResourceLoadDesc res;

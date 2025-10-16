@@ -152,7 +152,9 @@ EZ_CREATE_SIMPLE_RENDERER_TEST(DataStructures, StateDeduplication)
     EZ_TEST_INT(pDevice->GetGraphicsPipeline(hGraphicsPipeline)->GetRefCount(), 1);
     VerifyDependenciesRefCount(pDevice, graphicsPipelineDesc, 2);
 
-    pDevice->DestroyGraphicsPipeline(hGraphicsPipeline);
+    // The destroy function below will invalidate the handle, so we need to copy it for later use.
+    auto hGraphicsPipelineCopy = hGraphicsPipeline;
+    pDevice->DestroyGraphicsPipeline(hGraphicsPipelineCopy);
     VerifyDependenciesRefCount(pDevice, graphicsPipelineDesc, 1);
     DestroyDependencies(pDevice, graphicsPipelineDesc);
 
@@ -174,7 +176,9 @@ EZ_CREATE_SIMPLE_RENDERER_TEST(DataStructures, StateDeduplication)
     CreateDependencies(graphicsPipelineDesc);
     hGraphicsPipeline = pDevice->CreateGraphicsPipeline(graphicsPipelineDesc);
 
-    pDevice->DestroyGraphicsPipeline(hGraphicsPipeline);
+    // The destroy function below will invalidate the handle, so we need to copy it for later use.
+    auto hGraphicsPipelineCopy = hGraphicsPipeline;
+    pDevice->DestroyGraphicsPipeline(hGraphicsPipelineCopy);
     DestroyDependencies(pDevice, graphicsPipelineDesc);
 
     EZ_TEST_INT(pDevice->GetGraphicsPipeline(hGraphicsPipeline)->GetRefCount(), 0);
@@ -207,7 +211,10 @@ EZ_CREATE_SIMPLE_RENDERER_TEST(DataStructures, StateDeduplication)
 
     // Destroy dependencies first this time
     DestroyDependencies(pDevice, graphicsPipelineDesc);
-    pDevice->DestroyGraphicsPipeline(hGraphicsPipeline);
+
+    // The destroy function below will invalidate the handle, so we need to copy it for later use.
+    auto hGraphicsPipelineCopy = hGraphicsPipeline;
+    pDevice->DestroyGraphicsPipeline(hGraphicsPipelineCopy);
 
     EZ_TEST_INT(pDevice->GetGraphicsPipeline(hGraphicsPipeline)->GetRefCount(), 0);
     VerifyDependenciesRefCount(pDevice, graphicsPipelineDesc, 0);
@@ -254,7 +261,9 @@ EZ_CREATE_SIMPLE_RENDERER_TEST(DataStructures, StateDeduplication)
     EZ_TEST_INT(pDevice->GetGraphicsPipeline(hGraphicsPipeline)->GetRefCount(), 1);
     VerifyDependenciesRefCount(pDevice, graphicsPipelineDesc, 1);
 
-    pDevice->DestroyGraphicsPipeline(hGraphicsPipeline);
+    // The destroy function below will invalidate the handle, so we need to copy it for later use.
+    auto hGraphicsPipelineCopy = hGraphicsPipeline;
+    pDevice->DestroyGraphicsPipeline(hGraphicsPipelineCopy);
 
     EZ_TEST_INT(pDevice->GetGraphicsPipeline(hGraphicsPipeline)->GetRefCount(), 0);
     VerifyDependenciesRefCount(pDevice, graphicsPipelineDesc, 0);

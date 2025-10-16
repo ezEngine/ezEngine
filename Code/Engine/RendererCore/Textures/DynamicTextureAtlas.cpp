@@ -37,11 +37,10 @@ ezResult ezDynamicTextureAtlas::Initialize(const ezGALTextureCreationDescription
 
 void ezDynamicTextureAtlas::Deinitialize()
 {
+  // Check is needed since GetDefaultDevice will assert if there is no more device set.
   if (!m_hTexture.IsInvalidated())
   {
-    ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-    pDevice->DestroyTexture(m_hTexture);
-    m_hTexture.Invalidate();
+    ezGALDevice::GetDefaultDevice()->DestroyTexture(m_hTexture);
   }
 
   m_uiAlignment = 0;

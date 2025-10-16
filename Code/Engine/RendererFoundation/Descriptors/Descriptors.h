@@ -39,7 +39,7 @@ struct ezGALPushConstant
 struct ezGALPipelineLayoutCreationDescription : public ezHashableStruct<ezGALPipelineLayoutCreationDescription>
 {
   ezGALBindGroupLayoutHandle m_BindGroups[EZ_GAL_MAX_BIND_GROUPS]; ///< One for each bind group used in the shader. BG_FRAME, BG_RENDER_PASS, BG_MATERIAL, BG_DRAW_CALL.
-  ezGALPushConstant m_PushConstants;                        ///< Only one push constant block is supported right now.
+  ezGALPushConstant m_PushConstants;                               ///< Only one push constant block is supported right now.
 };
 
 /// \brief Defines the complete state of a graphics pipeline, excluding bound resources (e.g. textures, buffers) and dynamic states (e.g. viewport).

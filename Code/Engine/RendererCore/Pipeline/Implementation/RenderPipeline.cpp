@@ -51,12 +51,7 @@ ezRenderPipeline::ezRenderPipeline()
 
 ezRenderPipeline::~ezRenderPipeline()
 {
-  if (!m_hOcclusionDebugViewTexture.IsInvalidated())
-  {
-    ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-    pDevice->DestroyTexture(m_hOcclusionDebugViewTexture);
-    m_hOcclusionDebugViewTexture.Invalidate();
-  }
+  ezGALDevice::GetDefaultDevice()->DestroyTexture(m_hOcclusionDebugViewTexture);
 
   m_Data[0].Clear();
   m_Data[1].Clear();
@@ -1447,7 +1442,6 @@ void ezRenderPipeline::PreviewOcclusionBuffer(const ezRasterizerView& rasterizer
         pTexture->GetDescription().m_uiHeight != uiImgHeight)
     {
       pDevice->DestroyTexture(m_hOcclusionDebugViewTexture);
-      m_hOcclusionDebugViewTexture.Invalidate();
     }
   }
 
