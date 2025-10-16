@@ -23,7 +23,7 @@ ezSkinningState::~ezSkinningState()
 void ezSkinningState::Clear()
 {
   ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hGpuBuffer);
-  
+
   m_Transforms.Clear();
 }
 

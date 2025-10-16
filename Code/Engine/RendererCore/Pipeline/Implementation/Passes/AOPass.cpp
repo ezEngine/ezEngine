@@ -60,7 +60,7 @@ ezAOPass::ezAOPass()
 ezAOPass::~ezAOPass()
 {
   ezGALDevice::GetDefaultDevice()->DestroySamplerState(m_hSSAOSamplerState);
-  
+
   ezRenderContext::DeleteConstantBufferStorage(m_hDownscaleConstantBuffer);
   ezRenderContext::DeleteConstantBufferStorage(m_hSSAOConstantBuffer);
 }

@@ -150,7 +150,7 @@ ezRenderContext::~ezRenderContext()
 {
   DeleteConstantBufferStorage(m_hGlobalConstantBufferStorage);
   DeleteConstantBufferStorage(m_hPushConstantsStorage);
-  
+
   if (s_pDefaultInstance == this)
     s_pDefaultInstance = nullptr;
 

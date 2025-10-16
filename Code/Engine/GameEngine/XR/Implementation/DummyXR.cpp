@@ -142,7 +142,7 @@ void ezDummyXR::OnActorDestroyed()
 
   pDevice->DestroyTexture(m_hColorRT);
   pDevice->DestroyTexture(m_hDepthRT);
-  
+
   ezRenderWorld::RemoveMainView(m_hView);
   m_hView.Invalidate();
 }

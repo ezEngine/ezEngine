@@ -23,7 +23,7 @@ ezReflectionPool::Data::Data()
 ezReflectionPool::Data::~Data()
 {
   ezGALDevice::GetDefaultDevice()->DestroyTexture(m_hFallbackReflectionSpecularTexture);
-  
+
   ezUInt32 uiWorldReflectionCount = m_WorldReflectionData.GetCount();
   for (ezUInt32 i = 0; i < uiWorldReflectionCount; ++i)
   {

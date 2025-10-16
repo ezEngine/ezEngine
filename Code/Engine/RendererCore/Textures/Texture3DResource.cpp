@@ -40,7 +40,7 @@ ezResourceLoadDesc ezTexture3DResource::UnloadData(Unload WhatToUnload)
       --m_uiLoadedTextures;
 
       ezGALDevice::GetDefaultDevice()->DestroyTexture(m_hGALTexture[m_uiLoadedTextures]);
-      
+
       m_uiMemoryGPU[m_uiLoadedTextures] = 0;
 
       if (WhatToUnload == Unload::OneQualityLevel || m_uiLoadedTextures == 0)
