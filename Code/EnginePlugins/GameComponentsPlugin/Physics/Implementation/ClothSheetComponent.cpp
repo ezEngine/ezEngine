@@ -271,7 +271,7 @@ void ezClothSheetComponent::UpdateClothMesh()
   auto positions = pDynamicMeshBuffer->AccessPositionData();
 
   const ezVec2U32 vNumVertices = m_vSegments + ezVec2U32(1);
-  
+
   ezUInt32 vidx = 0;
   for (ezUInt32 y = 0; y < vNumVertices.y; ++y)
   {

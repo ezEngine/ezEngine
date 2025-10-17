@@ -139,7 +139,7 @@ private:
 
   friend struct ezDynamicMeshBufferManager;
   void MarkAsDirty();
-  void UploadChangesForNextFrame(); 
+  void UploadChangesForNextFrame();
 
   ezDynamicMeshBufferResourceDescriptor m_Descriptor;
 

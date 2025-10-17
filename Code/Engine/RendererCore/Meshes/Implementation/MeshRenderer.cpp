@@ -85,7 +85,7 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, c
     pContext->SetShaderPermutationVariable("FLIP_WINDING", "FALSE");
   }
 
-  pContext->BindMaterial(pRenderData->m_hMaterial);  
+  pContext->BindMaterial(pRenderData->m_hMaterial);
 
   SetAdditionalData(renderViewContext, pRenderData);
 
