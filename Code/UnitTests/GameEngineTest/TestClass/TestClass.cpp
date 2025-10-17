@@ -120,6 +120,7 @@ ezResult ezGameEngineTestApplication::LoadScene(const char* szSceneFile)
 {
   EZ_LOCK(m_pWorld->GetWriteMarker());
   m_pWorld->Clear();
+  m_pWorld->ResetUpdateCounter();
   m_pWorld->GetRandomNumberGenerator().Initialize(42); // reset the RNG
   m_pWorld->GetClock().Reset(false);                   // reset the world clock
 

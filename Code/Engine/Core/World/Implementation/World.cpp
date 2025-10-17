@@ -578,6 +578,16 @@ void ezWorld::Update()
   m_Data.m_StackAllocator.Swap();
 }
 
+void ezWorld::ResetUpdateCounter()
+{
+  m_Data.m_uiUpdateCounter = 0;
+
+  if (m_Data.m_pSpatialSystem != nullptr)
+  {
+    m_Data.m_pSpatialSystem->ResetFrameCounter();
+  }
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ezWorldModule* ezWorld::GetOrCreateModule(const ezRTTI* pRtti)
