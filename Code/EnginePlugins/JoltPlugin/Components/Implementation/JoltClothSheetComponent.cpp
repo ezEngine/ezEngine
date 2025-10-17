@@ -120,6 +120,8 @@ void ezJoltClothSheetComponent::OnSimulationStarted()
   }
 
   SetupCloth();
+
+  m_BodyGlobalTransform = GetOwner()->GetGlobalTransform();
 }
 
 void ezJoltClothSheetComponent::OnDeactivated()
@@ -212,27 +214,16 @@ void ezJoltClothSheetComponent::SetFlags(ezBitflags<ezJoltClothSheetFlags> flags
   SetupCloth();
 }
 
-void ezJoltClothSheetComponent::Update()
+void ezJoltClothSheetComponent::UpdatePreAsync()
 {
-  if (!IsActiveAndSimulating())
-    return;
-
-  // TODO: only do this every once in a while
-  UpdateBodyBounds();
-
   if (GetOwner()->GetVisibilityState(60) == ezVisibilityState::Direct)
   {
     // only apply wind to directly visible pieces of cloth
     ApplyWind();
   }
-
-  if (GetOwner()->GetVisibilityState(1) != ezVisibilityState::Invisible)
-  {
-    UpdateClothMeshAndTransform();
-  }
 }
 
-void ezJoltClothSheetComponent::UpdateClothMeshAndTransform()
+void ezJoltClothSheetComponent::UpdatePostAsync()
 {
   const ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
   auto* pSystem = pModule->GetJoltSystem();
@@ -249,12 +240,13 @@ void ezJoltClothSheetComponent::UpdateClothMeshAndTransform()
     return;
 
   const JPH::Body& body = lock.GetBody();
-  const JPH::SoftBodyMotionProperties* pMotion = static_cast<const JPH::SoftBodyMotionProperties*>(body.GetMotionProperties());
-  const JPH::Array<JPH::SoftBodyMotionProperties::Vertex>& particles = pMotion->GetVertices();
-
-  ezResourceLock<ezDynamicMeshBufferResource> pDynamicMeshBuffer(m_hDynamicMeshBuffer, ezResourceAcquireMode::BlockTillLoaded);
-
+  
+  if (GetOwner()->GetVisibilityState(1) != ezVisibilityState::Invisible)
   {
+    const JPH::SoftBodyMotionProperties* pMotion = static_cast<const JPH::SoftBodyMotionProperties*>(body.GetMotionProperties());
+    const JPH::Array<JPH::SoftBodyMotionProperties::Vertex>& particles = pMotion->GetVertices();
+
+    ezResourceLock<ezDynamicMeshBufferResource> pDynamicMeshBuffer(m_hDynamicMeshBuffer, ezResourceAcquireMode::BlockTillLoaded);
     auto positions = pDynamicMeshBuffer->AccessPositionData();
 
     const ezVec2U32 vNumVertices = m_vNumVertices;
@@ -269,6 +261,28 @@ void ezJoltClothSheetComponent::UpdateClothMeshAndTransform()
     }
 
     ezDynamicMeshBufferResource::CalculateGridNormalAndTangents(pDynamicMeshBuffer.GetPointerNonConst(), vNumVertices);
+  }
+
+  {
+    ezBoundingSphere prevBounds = m_BSphere;
+
+    // TODO: should rather iterate over all active (soft) bodies, than to check this here
+    if (!body.IsActive())
+      return;
+
+    const JPH::AABox box = body.GetWorldSpaceBounds();
+
+    const ezTransform t = GetOwner()->GetGlobalTransform().GetInverse();
+
+    m_BSphere.m_vCenter = t.TransformPosition(ezJoltConversionUtils::ToVec3(box.GetCenter()));
+
+    const ezVec3 ext = ezJoltConversionUtils::ToVec3(box.GetExtent());
+    m_BSphere.m_fRadius = ezMath::Max(ext.x, ext.y, ext.z);
+
+    if (prevBounds != m_BSphere)
+    {
+      SetUserFlag(0, true);
+    }
   }
 
   {
@@ -567,45 +581,6 @@ void ezJoltClothSheetComponent::RemoveBody()
   // pModule->DeleteObjectFilterID(m_uiObjectFilterID);
 }
 
-void ezJoltClothSheetComponent::UpdateBodyBounds()
-{
-  ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
-  auto* pSystem = pModule->GetJoltSystem();
-  const JPH::BodyLockInterface* pLi = &pSystem->GetBodyLockInterface();
-
-  JPH::BodyID bodyId(m_uiJoltBodyID);
-
-  if (bodyId.IsInvalid())
-    return;
-
-  // Get write access to the body
-  JPH::BodyLockRead lock(*pLi, bodyId);
-  if (!lock.SucceededAndIsInBroadPhase())
-    return;
-
-  ezBoundingSphere prevBounds = m_BSphere;
-
-  const JPH::Body& body = lock.GetBody();
-
-  // TODO: should rather iterate over all active (soft) bodies, than to check this here
-  if (!body.IsActive())
-    return;
-
-  const JPH::AABox box = body.GetWorldSpaceBounds();
-
-  const ezTransform t = GetOwner()->GetGlobalTransform().GetInverse();
-
-  m_BSphere.m_vCenter = t.TransformPosition(ezJoltConversionUtils::ToVec3(box.GetCenter()));
-
-  const ezVec3 ext = ezJoltConversionUtils::ToVec3(box.GetExtent());
-  m_BSphere.m_fRadius = ezMath::Max(ext.x, ext.y, ext.z);
-
-  if (prevBounds != m_BSphere)
-  {
-    SetUserFlag(0, true);
-  }
-}
-
 //////////////////////////////////////////////////////////////////////////
 
 ezJoltClothSheetComponentManager::ezJoltClothSheetComponentManager(ezWorld* pWorld)
@@ -620,7 +595,7 @@ void ezJoltClothSheetComponentManager::Initialize()
   SUPER::Initialize();
 
   {
-    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezJoltClothSheetComponentManager::Update, this);
+    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezJoltClothSheetComponentManager::UpdatePreAsync, this);
     desc.m_Phase = ezWorldUpdatePhase::PreAsync;
     desc.m_bOnlyUpdateWhenSimulating = true;
 
@@ -628,7 +603,7 @@ void ezJoltClothSheetComponentManager::Initialize()
   }
 
   {
-    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezJoltClothSheetComponentManager::UpdateBounds, this);
+    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezJoltClothSheetComponentManager::UpdatePostAsync, this);
     desc.m_Phase = ezWorldUpdatePhase::PostAsync;
     desc.m_bOnlyUpdateWhenSimulating = true;
 
@@ -636,40 +611,55 @@ void ezJoltClothSheetComponentManager::Initialize()
   }
 }
 
-void ezJoltClothSheetComponentManager::Update(const ezWorldModule::UpdateContext& context)
+void ezJoltClothSheetComponentManager::UpdatePreAsync(const ezWorldModule::UpdateContext& context)
 {
-  if (ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>())
-  {
-    if (pModule->GetJoltUpdateCounter() == m_uiLastJoltUpdateCounter)
-    {
-      // skip cloth updates, when there was no Jolt update yet
-      return;
-    }
+  ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
+  if (pModule == nullptr)
+    return;
 
-    m_uiLastJoltUpdateCounter = pModule->GetJoltUpdateCounter();
+  if (pModule->GetJoltUpdateCounter() == m_uiLastJoltUpdateCounter)
+  {
+    // skip cloth updates, when there was no Jolt update yet
+    return;
   }
 
   for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
   {
     if (it->IsActiveAndInitialized())
     {
-      it->Update();
+      it->UpdatePreAsync();
     }
   }
 }
 
-void ezJoltClothSheetComponentManager::UpdateBounds(const ezWorldModule::UpdateContext& context)
+void ezJoltClothSheetComponentManager::UpdatePostAsync(const ezWorldModule::UpdateContext& context)
 {
+  ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
+  if (pModule == nullptr)
+    return;
+
+  const bool bHadJoltUpdate = pModule->GetJoltUpdateCounter() != m_uiLastJoltUpdateCounter;
+
   for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
   {
-    if (it->IsActiveAndInitialized() && it->GetUserFlag(0))
+    if (it->IsActiveAndInitialized())
     {
-      it->TriggerLocalBoundsUpdate();
+      if (bHadJoltUpdate)
+      {
+        it->UpdatePostAsync();
+      }
 
-      // reset update bounds flag
-      it->SetUserFlag(0, false);
+      if (it->GetUserFlag(0))
+      {
+        it->TriggerLocalBoundsUpdate();
+
+        // reset update bounds flag
+        it->SetUserFlag(0, false);
+      }
     }
   }
+
+  m_uiLastJoltUpdateCounter = pModule->GetJoltUpdateCounter();
 }
 
 

@@ -20,8 +20,8 @@ public:
 
 private:
   ezUInt64 m_uiLastJoltUpdateCounter = 0;
-  void Update(const ezWorldModule::UpdateContext& context);
-  void UpdateBounds(const ezWorldModule::UpdateContext& context);
+  void UpdatePreAsync(const ezWorldModule::UpdateContext& context);
+  void UpdatePostAsync(const ezWorldModule::UpdateContext& context);
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -136,14 +136,13 @@ public:
   ezMaterialResourceHandle m_hMaterial;                                  // [ property ]
 
 private:
-  void Update();
-  void UpdateClothMeshAndTransform();
+  void UpdatePreAsync();
+  void UpdatePostAsync();
 
   void ApplyWind();
 
   void SetupCloth();
   void RemoveBody();
-  void UpdateBodyBounds();
 
   ezVec2 m_vSize = ezVec2(1.0f, 1.0f);
   ezVec2 m_vTextureScale = ezVec2(1.0f);
@@ -154,8 +153,9 @@ private:
   ezUInt32 m_uiObjectFilterID = ezInvalidIndex;
   ezUInt32 m_uiUserDataIndex = ezInvalidIndex;
   ezUInt32 m_uiJoltBodyID = ezInvalidIndex;
-  ezBoundingSphere m_BSphere;
 
+  ezBoundingSphere m_BSphere;
   ezTransform m_BodyGlobalTransform = ezTransform::MakeIdentity();
+
   ezDynamicMeshBufferResourceHandle m_hDynamicMeshBuffer;
 };
