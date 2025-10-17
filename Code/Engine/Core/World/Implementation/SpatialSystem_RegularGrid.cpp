@@ -173,6 +173,21 @@ namespace
 
     return result;
   }
+
+  EZ_ALWAYS_INLINE ezUInt64 EncodeLastVisibleFrameIndexAndVisType(ezUInt64 uiFrameCounter, ezVisibilityState::Enum visType)
+  {
+    return (uiFrameCounter << 4) | static_cast<ezUInt64>(visType);
+  }
+
+  EZ_ALWAYS_INLINE ezUInt64 ExtractLastVisibleFrameIndex(ezUInt64 uiLastVisibleFrameIdxAndVisType)
+  {
+    return (uiLastVisibleFrameIdxAndVisType >> 4);
+  }
+
+  EZ_ALWAYS_INLINE ezVisibilityState::Enum ExtractVisType(ezUInt64 uiLastVisibleFrameIdxAndVisType)
+  {
+    return static_cast<ezVisibilityState::Enum>(uiLastVisibleFrameIdxAndVisType & static_cast<ezUInt64>(15));
+  }
 } // namespace
 
 //////////////////////////////////////////////////////////////////////////
@@ -566,7 +581,7 @@ namespace ezInternal
       ref_stats.m_uiNumObjectsTested += numSpheres;
 
       ezUInt32 currentIndex = 0;
-      const ezUInt64 uiFrameIdxAndType = (pQueryData->m_uiFrameCounter << 4) | static_cast<ezUInt64>(visType);
+      const ezUInt64 uiFrameIdxAndType = EncodeLastVisibleFrameIndexAndVisType(pQueryData->m_uiFrameCounter, visType);
 
       while (currentIndex < numSpheres)
       {
@@ -977,13 +992,12 @@ ezVisibilityState::Enum ezSpatialSystem_RegularGrid::GetVisibilityState(const ez
       return ezVisitorExecution::Continue;
     });
 
-  const ezUInt64 uiLastVisibleFrameIdx = (uiLastVisibleFrameIdxAndVisType >> 4);
-  const ezUInt64 uiLastVisibilityType = (uiLastVisibleFrameIdxAndVisType & static_cast<ezUInt64>(15)); // mask out lower 4 bits
+  const ezUInt64 uiLastVisibleFrameIdx = ExtractLastVisibleFrameIndex(uiLastVisibleFrameIdxAndVisType);
 
   if (m_uiFrameCounter > uiLastVisibleFrameIdx + uiNumFramesBeforeInvisible)
     return ezVisibilityState::Invisible;
 
-  return static_cast<ezVisibilityState::Enum>(uiLastVisibilityType);
+  return ExtractVisType(uiLastVisibleFrameIdxAndVisType);
 }
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
@@ -1082,7 +1096,8 @@ ezSpatialDataHandle ezSpatialSystem_RegularGrid::AddSpatialDataToGrids(const ezS
       pGrid = EZ_NEW(&m_Allocator, Grid, *this, ezSpatialData::Category(static_cast<ezUInt16>(uiGridIndex)));
     }
 
-    pGrid->AddSpatialData(bounds, tags, pObject, m_uiFrameCounter, hData);
+    const ezUInt64 uiLastVisibleFrameIdxAndVisType = EncodeLastVisibleFrameIndexAndVisType(m_uiFrameCounter, ezVisibilityState::Direct);
+    pGrid->AddSpatialData(bounds, tags, pObject, uiLastVisibleFrameIdxAndVisType, hData);
   }
 
   return hData;

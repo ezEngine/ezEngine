@@ -17,11 +17,6 @@ ezSpatialSystem::ezSpatialSystem()
 
 ezSpatialSystem::~ezSpatialSystem() = default;
 
-void ezSpatialSystem::ResetFrameCounter()
-{
-  m_uiFrameCounter = 0;
-}
-
 void ezSpatialSystem::StartNewFrame()
 {
   ++m_uiFrameCounter;

@@ -22,9 +22,6 @@ public:
 
   virtual void StartNewFrame();
 
-  /// \brief Resets the frame counter to zero. Only for test purposes !
-  void ResetFrameCounter();
-
   /// \name Spatial Data Functions
   ///@{
 

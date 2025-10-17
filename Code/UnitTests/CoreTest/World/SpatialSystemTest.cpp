@@ -56,6 +56,28 @@ namespace
   }
   EZ_END_COMPONENT_TYPE;
   // clang-format on
+
+  static ezGameObject* CreateObjectAndTestComponent(ezWorld& world, bool bDynamic)
+  {
+    auto& rng = world.GetRandomNumberGenerator();
+    constexpr const double range = 10000.0;
+
+    float x = (float)rng.DoubleMinMax(-range, range);
+    float y = (float)rng.DoubleMinMax(-range, range);
+    float z = (float)rng.DoubleMinMax(-range, range);
+
+    ezGameObjectDesc desc;
+    desc.m_bDynamic = bDynamic;
+    desc.m_LocalPosition = ezVec3(x, y, z);
+
+    ezGameObject* pObject = nullptr;
+    world.CreateObject(desc, pObject);
+
+    TestBoundsComponent* pComponent = nullptr;
+    TestBoundsComponent::CreateComponent(pObject, pComponent);
+
+    return pObject;
+  }
 } // namespace
 
 EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
@@ -66,30 +88,9 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
   ezWorld world(worldDesc);
   EZ_LOCK(world.GetWriteMarker());
 
-  auto& rng = world.GetRandomNumberGenerator();
-
-  ezDynamicArray<ezGameObject*> objects;
-  objects.Reserve(1000);
-
   for (ezUInt32 i = 0; i < 1000; ++i)
   {
-    constexpr const double range = 10000.0;
-
-    float x = (float)rng.DoubleMinMax(-range, range);
-    float y = (float)rng.DoubleMinMax(-range, range);
-    float z = (float)rng.DoubleMinMax(-range, range);
-
-    ezGameObjectDesc desc;
-    desc.m_bDynamic = (i >= 500);
-    desc.m_LocalPosition = ezVec3(x, y, z);
-
-    ezGameObject* pObject = nullptr;
-    world.CreateObject(desc, pObject);
-
-    objects.PushBack(pObject);
-
-    TestBoundsComponent* pComponent = nullptr;
-    TestBoundsComponent::CreateComponent(pObject, pComponent);
+    CreateObjectAndTestComponent(world, i >= 500);
   }
 
   world.Update();
@@ -219,6 +220,22 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
       world.Update();
     }
 
+    // newly created objects should be considered visible in the first frame after creation
+    {
+      ezGameObject* pNewObject = CreateObjectAndTestComponent(world, false);
+
+      world.Update();
+
+      auto visState = pNewObject->GetVisibilityState();
+      EZ_TEST_BOOL(visState == ezVisibilityState::Direct);
+    }
+
+    // update a few more times to increase internal frame counter
+    for (uint32_t i = 0; i < numUpdates; ++i)
+    {
+      world.Update();
+    }
+
     queryParams.m_uiCategoryBitmask = ezDefaultSpatialDataCategories::RenderDynamic.GetBitmask();
 
     ezMat4 lookAt = ezGraphicsUtils::CreateLookAtViewMatrix(ezVec3::MakeZero(), ezVec3::MakeAxisX(), ezVec3::MakeAxisZ());
@@ -263,6 +280,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
       {
         ezVec3 pos = it->GetLocalPosition();
 
+        auto& rng = world.GetRandomNumberGenerator();
         pos.x += (float)rng.DoubleMinMax(-range, range);
         pos.y += (float)rng.DoubleMinMax(-range, range);
         pos.z += (float)rng.DoubleMinMax(-range, range);
@@ -292,9 +310,9 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
   // Test multiple categories for spatial data
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "MultipleCategories")
   {
-    for (ezUInt32 i = 0; i < objects.GetCount(); ++i)
+    for (auto it = world.GetObjects(); it.IsValid(); ++it)
     {
-      ezGameObject* pObject = objects[i];
+      ezGameObject* pObject = it;
 
       TestBoundsComponent* pComponent = nullptr;
       TestBoundsComponent::CreateComponent(pObject, pComponent);
