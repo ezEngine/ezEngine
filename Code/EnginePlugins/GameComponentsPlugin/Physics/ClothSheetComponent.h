@@ -1,11 +1,8 @@
 #pragma once
 
-#include <Core/World/ComponentManager.h>
 #include <GameEngine/Physics/ClothSheetSimulator.h>
 #include <RendererCore/Components/RenderComponent.h>
-#include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/Pipeline/RenderData.h>
-#include <RendererCore/Pipeline/Renderer.h>
 
 using ezMaterialResourceHandle = ezTypedResourceHandle<class ezMaterialResource>;
 using ezDynamicMeshBufferResourceHandle = ezTypedResourceHandle<class ezDynamicMeshBufferResource>;
@@ -24,6 +21,8 @@ private:
   void Update(const ezWorldModule::UpdateContext& context);
   void UpdateBounds(const ezWorldModule::UpdateContext& context);
 };
+
+//////////////////////////////////////////////////////////////////////////
 
 /// \brief Flags for how a piece of cloth should be simulated.
 struct EZ_GAMECOMPONENTS_DLL ezClothSheetFlags

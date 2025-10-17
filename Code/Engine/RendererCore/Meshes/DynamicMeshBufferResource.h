@@ -126,6 +126,12 @@ public:
   /// \brief Returns the vertex attributes that describes the data layout of the vertex buffers.
   EZ_ALWAYS_INLINE ezArrayPtr<const ezGALVertexAttribute> GetVertexAttributes() const { return m_VertexAttributes; }
 
+  /// \brief Helper function to create a grid aligned to the XY plane with the given size and number of vertices. The mesh buffer must already have the right number of vertices.
+  static void CreateGridXY(ezDynamicMeshBufferResource* pDynamicMeshBuffer, const ezVec2& vSize, const ezVec2U32& vNumVertices, const ezVec2& vTextureScale = ezVec2(1));
+
+  /// \brief Helper function to calculate smooth normals and tangents for a grid mesh created with the function above after its positions have been updated.
+  static void CalculateGridNormalAndTangents(ezDynamicMeshBufferResource* pDynamicMeshBuffer, const ezVec2U32& vNumVertices);
+
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;

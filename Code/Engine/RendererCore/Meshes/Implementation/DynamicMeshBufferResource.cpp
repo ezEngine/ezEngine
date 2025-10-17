@@ -2,6 +2,7 @@
 
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Containers/IterateBits.h>
+#include <Foundation/SimdMath/SimdConversion.h>
 #include <RendererCore/Meshes/DynamicMeshBufferResource.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Device/Device.h>
@@ -11,7 +12,7 @@ namespace
 {
   static ezMutex s_ResourcesToUploadMutex;
   static ezHashSet<ezDynamicMeshBufferResource*> s_ResourcesToUpload;
-}
+} // namespace
 
 struct ezDynamicMeshBufferManager
 {
@@ -244,6 +245,123 @@ void ezDynamicMeshBufferResource::UploadChangesForNextFrame()
     pDevice->UpdateBufferForNextFrame(m_hIndexBuffer, data, m_ModifiedIndexDataRange.m_uiMin);
 
     m_ModifiedIndexDataRange.Reset();
+  }
+}
+
+// static
+void ezDynamicMeshBufferResource::CreateGridXY(ezDynamicMeshBufferResource* pDynamicMeshBuffer, const ezVec2& vSize, const ezVec2U32& vNumVertices, const ezVec2& vTextureScale)
+{
+  EZ_ASSERT_DEV(vNumVertices.x > 1 && vNumVertices.y > 1, "Invalid number of vertices");
+
+  const ezUInt32 uiNumVertsX = vNumVertices.x;
+  const ezUInt32 uiNumVertsY = vNumVertices.y;
+  const ezUInt32 uiNumSegmentsX = uiNumVertsX - 1;
+  const ezUInt32 uiNumSegmentsY = uiNumVertsY - 1;
+
+  EZ_ASSERT_DEV(pDynamicMeshBuffer->m_Descriptor.m_uiMaxVertices == uiNumVertsX * uiNumVertsY, "Invalid number of vertices");
+  EZ_ASSERT_DEV(pDynamicMeshBuffer->m_Descriptor.m_uiMaxPrimitives = uiNumSegmentsX * uiNumSegmentsY * 2, "Invalid number of primitives");
+
+  {
+    const ezVec3 dirX = ezVec3(1, 0, 0);
+    const ezVec3 dirY = ezVec3(0, 1, 0);
+
+    ezDynamicMeshVertexNTT v;
+    v.EncodeNormal(ezVec3(0, 0, 1));
+    v.EncodeTangent(dirX, 1.0f);
+
+    ezVec2 dist = vSize;
+    dist.x /= (float)uiNumSegmentsX;
+    dist.y /= (float)uiNumSegmentsY;
+
+    const float fDivU = (1.0f / uiNumSegmentsX) * vTextureScale.x;
+    const float fDivV = (1.0f / uiNumSegmentsY) * vTextureScale.y;
+
+    auto positions = pDynamicMeshBuffer->AccessPositionData();
+    auto ntt = pDynamicMeshBuffer->AccessNormalTangentTexCoord0Data();
+
+    for (ezUInt32 y = 0; y < uiNumVertsY; ++y)
+    {
+      for (ezUInt32 x = 0; x < uiNumVertsX; ++x)
+      {
+        const ezUInt32 idx = (y * uiNumVertsX) + x;
+
+        positions[idx] = dirX * (x * dist.x) + dirY * (y * dist.y);
+        ntt[idx].m_vEncodedNormal = v.m_vEncodedNormal;
+        ntt[idx].m_vEncodedTangent = v.m_vEncodedTangent;
+        ntt[idx].m_vTexCoord = ezVec2(x * fDivU, y * fDivV);
+      }
+    }
+  }
+
+  {
+    auto indices = pDynamicMeshBuffer->AccessIndex16Data();
+
+    ezUInt32 tidx = 0;
+    ezUInt32 vidx = 0;
+    for (ezUInt32 y = 0; y < uiNumSegmentsY; ++y)
+    {
+      for (ezUInt32 x = 0; x < uiNumSegmentsX; ++x, ++vidx)
+      {
+        indices[tidx++] = vidx;
+        indices[tidx++] = vidx + 1;
+        indices[tidx++] = vidx + uiNumVertsX;
+
+        indices[tidx++] = vidx + 1;
+        indices[tidx++] = vidx + uiNumVertsX + 1;
+        indices[tidx++] = vidx + uiNumVertsX;
+      }
+
+      ++vidx;
+    }
+  }
+}
+
+void ezDynamicMeshBufferResource::CalculateGridNormalAndTangents(ezDynamicMeshBufferResource* pDynamicMeshBuffer, const ezVec2U32& vNumVertices)
+{
+  auto positions = pDynamicMeshBuffer->AccessPositionData();
+  auto ntt = pDynamicMeshBuffer->AccessNormalTangentTexCoord0Data();
+
+  const ezUInt32 width = vNumVertices.x;
+  const ezUInt32 height = vNumVertices.y;
+  const ezUInt32 widthM1 = width - 1;
+  const ezUInt32 heightM1 = height - 1;
+
+  ezUInt32 topIdx = 0;
+
+  ezUInt32 vidx = 0;
+  for (ezUInt32 y = 0; y < height; ++y)
+  {
+    ezUInt32 leftIdx = 0;
+    const ezUInt32 bottomIdx = ezMath::Min<ezUInt32>(y + 1, heightM1);
+
+    const ezUInt32 yOff = y * width;
+    const ezUInt32 yOffTop = topIdx * width;
+    const ezUInt32 yOffBottom = bottomIdx * width;
+
+    for (ezUInt32 x = 0; x < width; ++x, ++vidx)
+    {
+      const ezUInt32 rightIdx = ezMath::Min<ezUInt32>(x + 1, widthM1);
+
+      const ezSimdVec4f leftPos = ezSimdConversion::ToVec3(positions[yOff + leftIdx]);
+      const ezSimdVec4f rightPos = ezSimdConversion::ToVec3(positions[yOff + rightIdx]);
+      const ezSimdVec4f topPos = ezSimdConversion::ToVec3(positions[yOffTop + x]);
+      const ezSimdVec4f bottomPos = ezSimdConversion::ToVec3(positions[yOffBottom + x]);
+
+      const ezSimdVec4f leftToRight = rightPos - leftPos;
+      const ezSimdVec4f bottomToTop = topPos - bottomPos;
+      ezSimdVec4f normal = -leftToRight.CrossRH(bottomToTop);
+      normal.NormalizeIfNotZero<3>(ezSimdVec4f(0, 0, 1));
+
+      ezSimdVec4f tangent = leftToRight;
+      tangent.NormalizeIfNotZero<3>(ezSimdVec4f(1, 0, 0));
+
+      ntt[vidx].EncodeNormal(ezSimdConversion::ToVec3(normal));
+      ntt[vidx].EncodeTangent(ezSimdConversion::ToVec3(tangent), 1.0f);
+
+      leftIdx = x;
+    }
+
+    topIdx = y;
   }
 }
 

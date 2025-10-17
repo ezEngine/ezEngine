@@ -2,7 +2,6 @@
 
 #include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Core/Interfaces/WindWorldModule.h>
-#include <Core/World/World.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameComponentsPlugin/Physics/ClothSheetComponent.h>
@@ -266,56 +265,23 @@ void ezClothSheetComponent::Update()
 
 void ezClothSheetComponent::UpdateClothMesh()
 {
-  auto nodes = m_Simulator.m_Nodes.GetArrayPtr();
-
   ezResourceLock<ezDynamicMeshBufferResource> pDynamicMeshBuffer(m_hDynamicMeshBuffer, ezResourceAcquireMode::BlockTillLoaded);
 
+  auto nodes = m_Simulator.m_Nodes.GetArrayPtr();
   auto positions = pDynamicMeshBuffer->AccessPositionData();
-  auto ntt = pDynamicMeshBuffer->AccessNormalTangentTexCoord0Data();
 
-  const ezUInt32 width = m_vSegments.x + 1;
-  const ezUInt32 height = m_vSegments.y + 1;
-  const ezUInt32 widthM1 = m_vSegments.x;
-  const ezUInt32 heightM1 = m_vSegments.y;
-
-  ezUInt32 topIdx = 0;
-
+  const ezVec2U32 vNumVertices = m_vSegments + ezVec2U32(1);
+  
   ezUInt32 vidx = 0;
-  for (ezUInt32 y = 0; y < height; ++y)
+  for (ezUInt32 y = 0; y < vNumVertices.y; ++y)
   {
-    ezUInt32 leftIdx = 0;
-    const ezUInt32 bottomIdx = ezMath::Min<ezUInt32>(y + 1, heightM1);
-
-    const ezUInt32 yOff = y * width;
-    const ezUInt32 yOffTop = topIdx * width;
-    const ezUInt32 yOffBottom = bottomIdx * width;
-
-    for (ezUInt32 x = 0; x < width; ++x, ++vidx)
+    for (ezUInt32 x = 0; x < vNumVertices.x; ++x, ++vidx)
     {
-      const ezUInt32 rightIdx = ezMath::Min<ezUInt32>(x + 1, widthM1);
-
-      const ezSimdVec4f leftPos = nodes[yOff + leftIdx].m_vPosition;
-      const ezSimdVec4f rightPos = nodes[yOff + rightIdx].m_vPosition;
-      const ezSimdVec4f topPos = nodes[yOffTop + x].m_vPosition;
-      const ezSimdVec4f bottomPos = nodes[yOffBottom + x].m_vPosition;
-
-      const ezSimdVec4f leftToRight = rightPos - leftPos;
-      const ezSimdVec4f bottomToTop = topPos - bottomPos;
-      ezSimdVec4f normal = -leftToRight.CrossRH(bottomToTop);
-      normal.NormalizeIfNotZero<3>(ezSimdVec4f(0, 0, 1));
-
-      ezSimdVec4f tangent = leftToRight;
-      tangent.NormalizeIfNotZero<3>(ezSimdVec4f(1, 0, 0));
-
       positions[vidx] = ezSimdConversion::ToVec3(nodes[vidx].m_vPosition);
-      ntt[vidx].EncodeNormal(ezSimdConversion::ToVec3(normal));
-      ntt[vidx].EncodeTangent(ezSimdConversion::ToVec3(tangent), 1.0f);
-
-      leftIdx = x;
     }
-
-    topIdx = y;
   }
+
+  ezDynamicMeshBufferResource::CalculateGridNormalAndTangents(pDynamicMeshBuffer.GetPointerNonConst(), vNumVertices);
 }
 
 void ezClothSheetComponent::SetupCloth()
@@ -411,76 +377,20 @@ void ezClothSheetComponent::SetupCloth()
     ezStringBuilder sResourceName;
     sResourceName.SetFormat("ClothSheet_{}_{}x{}_{}x{}", ezArgP(this), m_vSize.x, m_vSize.y, m_vSegments.x, m_vSegments.y);
 
-    const ezUInt32 uiNumVertsX = m_vSegments.x + 1;
-    const ezUInt32 uiNumVertsY = m_vSegments.y + 1;
-
     m_hDynamicMeshBuffer = ezResourceManager::GetExistingResource<ezDynamicMeshBufferResource>(sResourceName);
 
     if (!m_hDynamicMeshBuffer.IsValid())
     {
       ezDynamicMeshBufferResourceDescriptor desc;
-      desc.m_uiMaxVertices = uiNumVertsX * uiNumVertsY;
+      desc.m_uiMaxVertices = (m_vSegments.x + 1) * (m_vSegments.y + 1);
       desc.m_IndexType = ezGALIndexType::UShort;
       desc.m_uiMaxPrimitives = m_vSegments.x * m_vSegments.y * 2;
 
       m_hDynamicMeshBuffer = ezResourceManager::GetOrCreateResource<ezDynamicMeshBufferResource>(sResourceName, std::move(desc));
-
-      ezResourceLock<ezDynamicMeshBufferResource> pDynamicMeshBuffer(m_hDynamicMeshBuffer, ezResourceAcquireMode::BlockTillLoaded);
-
-      {
-        const ezVec3 dirX = ezVec3(1, 0, 0);
-        const ezVec3 dirY = ezVec3(0, 1, 0);
-
-        ezDynamicMeshVertexNTT v;
-        v.EncodeNormal(ezVec3(0, 0, 1));
-        v.EncodeTangent(dirX, 1.0f);
-
-        ezVec2 dist = m_vSize;
-        dist.x /= (float)m_vSegments.x;
-        dist.y /= (float)m_vSegments.y;
-
-        const float fDivU = 1.0f / m_vSegments.x;
-        const float fDivV = 1.0f / m_vSegments.y;
-
-        auto positions = pDynamicMeshBuffer->AccessPositionData();
-        auto ntt = pDynamicMeshBuffer->AccessNormalTangentTexCoord0Data();
-
-        for (ezUInt32 y = 0; y < uiNumVertsY; ++y)
-        {
-          for (ezUInt32 x = 0; x < uiNumVertsX; ++x)
-          {
-            const ezUInt32 idx = (y * uiNumVertsX) + x;
-
-            positions[idx] = dirX * (x * dist.x) + dirY * (y * dist.y);
-            ntt[idx].m_vEncodedNormal = v.m_vEncodedNormal;
-            ntt[idx].m_vEncodedTangent = v.m_vEncodedTangent;
-            ntt[idx].m_vTexCoord = ezVec2(x * fDivU, y * fDivV);
-          }
-        }
-      }
-
-      {
-        auto indices = pDynamicMeshBuffer->AccessIndex16Data();
-
-        ezUInt32 tidx = 0;
-        ezUInt32 vidx = 0;
-        for (ezUInt32 y = 0; y < m_vSegments.y; ++y)
-        {
-          for (ezUInt32 x = 0; x < m_vSegments.x; ++x, ++vidx)
-          {
-            indices[tidx++] = vidx;
-            indices[tidx++] = vidx + 1;
-            indices[tidx++] = vidx + uiNumVertsX;
-
-            indices[tidx++] = vidx + 1;
-            indices[tidx++] = vidx + uiNumVertsX + 1;
-            indices[tidx++] = vidx + uiNumVertsX;
-          }
-
-          ++vidx;
-        }
-      }
     }
+
+    ezResourceLock<ezDynamicMeshBufferResource> pDynamicMeshBuffer(m_hDynamicMeshBuffer, ezResourceAcquireMode::BlockTillLoaded);
+    ezDynamicMeshBufferResource::CreateGridXY(pDynamicMeshBuffer.GetPointerNonConst(), m_vSize, m_vSegments + ezVec2U32(1));
   }
 
   TriggerLocalBoundsUpdate();

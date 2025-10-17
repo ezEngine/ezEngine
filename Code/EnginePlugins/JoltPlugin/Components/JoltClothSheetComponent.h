@@ -1,12 +1,9 @@
 #pragma once
 
-#include <Core/World/ComponentManager.h>
-#include <GameEngine/Physics/ClothSheetSimulator.h>
 #include <JoltPlugin/JoltPluginDLL.h>
+
 #include <RendererCore/Components/RenderComponent.h>
-#include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/Pipeline/RenderData.h>
-#include <RendererCore/Pipeline/Renderer.h>
 
 using ezMaterialResourceHandle = ezTypedResourceHandle<class ezMaterialResource>;
 using ezDynamicMeshBufferResourceHandle = ezTypedResourceHandle<class ezDynamicMeshBufferResource>;
@@ -28,42 +25,6 @@ private:
 };
 
 //////////////////////////////////////////////////////////////////////////
-
-class EZ_JOLTPLUGIN_DLL ezJoltClothSheetRenderData final : public ezRenderData
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezJoltClothSheetRenderData, ezRenderData);
-
-public:
-  ezUInt32 m_uiUniqueID = 0;
-  ezVec2 m_vTextureScale = ezVec2(1.0f);
-  ezArrayPtr<ezVec3> m_Positions;
-  ezArrayPtr<ezUInt16> m_Indices;
-  ezUInt16 m_uiVerticesX;
-  ezUInt16 m_uiVerticesY;
-  ezColor m_Color = ezColor::White;
-
-  ezMaterialResourceHandle m_hMaterial;
-};
-
-class EZ_JOLTPLUGIN_DLL ezJoltClothSheetRenderer : public ezRenderer
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezJoltClothSheetRenderer, ezRenderer);
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezJoltClothSheetRenderer);
-
-public:
-  ezJoltClothSheetRenderer();
-  ~ezJoltClothSheetRenderer();
-
-  virtual void GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& ref_categories) const override;
-  virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& ref_types) const override;
-  virtual void RenderBatch(const ezRenderViewContext& renderContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const override;
-
-
-protected:
-  void CreateVertexBuffer();
-
-  ezDynamicMeshBufferResourceHandle m_hDynamicMeshBuffer;
-};
 
 /// \brief Flags for how a piece of cloth should be simulated.
 struct EZ_JOLTPLUGIN_DLL ezJoltClothSheetFlags
@@ -144,11 +105,11 @@ public:
   /// Sets of how many pieces the cloth is made up.
   ///
   /// More pieces cost more performance to simulate the cloth.
-  /// A size of 32x32 is already quite performance intensive. USe as few segments as possible.
+  /// A size of 32x32 is already quite performance intensive. Use as few segments as possible.
   /// For many cases 8x8 or 12x12 should already be good enough.
   /// Also the more segments there are, the more the cloth will sag.
   void SetSegments(ezVec2U32 vVal);                     // [ property ]
-  ezVec2U32 GetSegments() const { return m_vSegments; } // [ property ]
+  ezVec2U32 GetSegments() const { return m_vNumVertices; } // [ property ]
 
   /// The collision layer determines with which other actors this actor collides. \see ezJoltActorComponent
   ezUInt8 m_uiCollisionLayer = 0; // [ property ]
@@ -176,6 +137,7 @@ public:
 
 private:
   void Update();
+  void UpdateClothMeshAndTransform();
 
   void ApplyWind();
 
@@ -185,7 +147,7 @@ private:
 
   ezVec2 m_vSize = ezVec2(1.0f, 1.0f);
   ezVec2 m_vTextureScale = ezVec2(1.0f);
-  ezVec2U32 m_vSegments = ezVec2U32(16, 16);
+  ezVec2U32 m_vNumVertices = ezVec2U32(16, 16);
   ezBitflags<ezJoltClothSheetFlags> m_Flags;
   mutable ezRenderData::Category m_RenderDataCategory;
   ezUInt8 m_uiSleepCounter = 0;
@@ -193,4 +155,7 @@ private:
   ezUInt32 m_uiUserDataIndex = ezInvalidIndex;
   ezUInt32 m_uiJoltBodyID = ezInvalidIndex;
   ezBoundingSphere m_BSphere;
+
+  ezTransform m_BodyGlobalTransform = ezTransform::MakeIdentity();
+  ezDynamicMeshBufferResourceHandle m_hDynamicMeshBuffer;
 };
