@@ -57,9 +57,9 @@ namespace
   EZ_END_COMPONENT_TYPE;
   // clang-format on
 
-  static ezGameObject* CreateObjectAndTestComponent(ezWorld& world, bool bDynamic)
+  static ezGameObject* CreateObjectAndTestComponent(ezWorld& inout_world, bool bDynamic)
   {
-    auto& rng = world.GetRandomNumberGenerator();
+    auto& rng = inout_world.GetRandomNumberGenerator();
     constexpr const double range = 10000.0;
 
     float x = (float)rng.DoubleMinMax(-range, range);
@@ -71,7 +71,7 @@ namespace
     desc.m_LocalPosition = ezVec3(x, y, z);
 
     ezGameObject* pObject = nullptr;
-    world.CreateObject(desc, pObject);
+    inout_world.CreateObject(desc, pObject);
 
     TestBoundsComponent* pComponent = nullptr;
     TestBoundsComponent::CreateComponent(pObject, pComponent);
