@@ -240,28 +240,6 @@ void ezJoltClothSheetComponent::UpdatePostAsync()
     return;
 
   const JPH::Body& body = lock.GetBody();
-  
-  if (GetOwner()->GetVisibilityState(1) != ezVisibilityState::Invisible)
-  {
-    const JPH::SoftBodyMotionProperties* pMotion = static_cast<const JPH::SoftBodyMotionProperties*>(body.GetMotionProperties());
-    const JPH::Array<JPH::SoftBodyMotionProperties::Vertex>& particles = pMotion->GetVertices();
-
-    ezResourceLock<ezDynamicMeshBufferResource> pDynamicMeshBuffer(m_hDynamicMeshBuffer, ezResourceAcquireMode::BlockTillLoaded);
-    auto positions = pDynamicMeshBuffer->AccessPositionData();
-
-    const ezVec2U32 vNumVertices = m_vNumVertices;
-
-    ezUInt32 vidx = 0;
-    for (ezUInt32 y = 0; y < vNumVertices.y; ++y)
-    {
-      for (ezUInt32 x = 0; x < vNumVertices.x; ++x, ++vidx)
-      {
-        positions[vidx] = ezJoltConversionUtils::ToVec3(particles[vidx].mPosition);
-      }
-    }
-
-    ezDynamicMeshBufferResource::CalculateGridNormalAndTangents(pDynamicMeshBuffer.GetPointerNonConst(), vNumVertices);
-  }
 
   {
     ezBoundingSphere prevBounds = m_BSphere;
@@ -281,8 +259,33 @@ void ezJoltClothSheetComponent::UpdatePostAsync()
 
     if (prevBounds != m_BSphere)
     {
-      SetUserFlag(0, true);
+      TriggerLocalBoundsUpdate();
     }
+  }
+
+  // Don't update mesh and transform when invisible
+  if (GetOwner()->GetVisibilityState() == ezVisibilityState::Invisible)
+    return;
+
+  {
+    const JPH::SoftBodyMotionProperties* pMotion = static_cast<const JPH::SoftBodyMotionProperties*>(body.GetMotionProperties());
+    const JPH::Array<JPH::SoftBodyMotionProperties::Vertex>& particles = pMotion->GetVertices();
+
+    ezResourceLock<ezDynamicMeshBufferResource> pDynamicMeshBuffer(m_hDynamicMeshBuffer, ezResourceAcquireMode::BlockTillLoaded);
+    auto positions = pDynamicMeshBuffer->AccessPositionData();
+
+    const ezVec2U32 vNumVertices = m_vNumVertices;
+
+    ezUInt32 vidx = 0;
+    for (ezUInt32 y = 0; y < vNumVertices.y; ++y)
+    {
+      for (ezUInt32 x = 0; x < vNumVertices.x; ++x, ++vidx)
+      {
+        positions[vidx] = ezJoltConversionUtils::ToVec3(particles[vidx].mPosition);
+      }
+    }
+
+    ezDynamicMeshBufferResource::CalculateGridNormalAndTangents(pDynamicMeshBuffer.GetPointerNonConst(), vNumVertices);
   }
 
   {
@@ -614,14 +617,13 @@ void ezJoltClothSheetComponentManager::Initialize()
 void ezJoltClothSheetComponentManager::UpdatePreAsync(const ezWorldModule::UpdateContext& context)
 {
   ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
-  if (pModule == nullptr)
-    return;
-
-  if (pModule->GetJoltUpdateCounter() == m_uiLastJoltUpdateCounter)
+  if (pModule == nullptr || pModule->GetJoltUpdateCounter() == m_uiLastJoltUpdateCounter)
   {
     // skip cloth updates, when there was no Jolt update yet
     return;
   }
+
+  m_uiLastJoltUpdateCounter = pModule->GetJoltUpdateCounter();
 
   for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
   {
@@ -635,31 +637,19 @@ void ezJoltClothSheetComponentManager::UpdatePreAsync(const ezWorldModule::Updat
 void ezJoltClothSheetComponentManager::UpdatePostAsync(const ezWorldModule::UpdateContext& context)
 {
   ezJoltWorldModule* pModule = GetWorld()->GetModule<ezJoltWorldModule>();
-  if (pModule == nullptr)
+  if (pModule == nullptr || pModule->GetJoltUpdateCounter() == m_uiLastJoltUpdateCounter)
+  {
+    // skip cloth updates, when there was no Jolt update yet
     return;
-
-  const bool bHadJoltUpdate = pModule->GetJoltUpdateCounter() != m_uiLastJoltUpdateCounter;
+  }
 
   for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
   {
     if (it->IsActiveAndInitialized())
     {
-      if (bHadJoltUpdate)
-      {
-        it->UpdatePostAsync();
-      }
-
-      if (it->GetUserFlag(0))
-      {
-        it->TriggerLocalBoundsUpdate();
-
-        // reset update bounds flag
-        it->SetUserFlag(0, false);
-      }
+      it->UpdatePostAsync();
     }
   }
-
-  m_uiLastJoltUpdateCounter = pModule->GetJoltUpdateCounter();
 }
 
 
