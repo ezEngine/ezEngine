@@ -379,7 +379,7 @@ void ezLocalBlackboardComponent::DeserializeComponent(ezWorldReader& inout_strea
 
       m_pBoard->SetEntryValue(entry.m_sName, entry.m_InitialValue);
       m_pBoard->SetEntryFlags(entry.m_sName, entry.m_Flags).AssertSuccess();
-      m_pBoard->SetEditorIndex(entry.m_sName, static_cast<ezUInt8>(i)); // allows us to map exposed parameters to the proper value
+      m_pBoard->SetEditorIndex(entry.m_sName, static_cast<ezUInt8>(i)).AssertSuccess(); // allows us to map exposed parameters to the proper value
     }
   }
 }
@@ -473,7 +473,7 @@ void ezLocalBlackboardComponent::Entries_Insert(ezUInt32 uiIndex, ezBlackboardEn
 
   m_pBoard->SetEntryValue(entry.m_sName, entry.m_InitialValue);
   m_pBoard->SetEntryFlags(entry.m_sName, entry.m_Flags).AssertSuccess();
-  m_pBoard->SetEditorIndex(entry.m_sName, static_cast<ezUInt8>(uiIndex));
+  m_pBoard->SetEditorIndex(entry.m_sName, static_cast<ezUInt8>(uiIndex)).AssertSuccess();
 }
 
 void ezLocalBlackboardComponent::Entries_Remove(ezUInt32 uiIndex)
