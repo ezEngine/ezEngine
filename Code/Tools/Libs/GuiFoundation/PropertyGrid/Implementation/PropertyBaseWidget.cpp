@@ -1790,13 +1790,54 @@ ezQtVariantPropertyWidget::~ezQtVariantPropertyWidget() = default;
 
 void ezQtVariantPropertyWidget::OnInit()
 {
+  ezVariantType::Enum order[] = {
+    ezVariantType::Invalid,
+    ezVariantType::Bool,
+    ezVariantType::Int8,
+    ezVariantType::UInt8,
+    ezVariantType::Int16,
+    ezVariantType::UInt16,
+    ezVariantType::Int32,
+    ezVariantType::UInt32,
+    ezVariantType::Int64,
+    ezVariantType::UInt64,
+    ezVariantType::Float,
+    ezVariantType::Double,
+    ezVariantType::Angle,
+    ezVariantType::Time,
+    ezVariantType::Color,
+    ezVariantType::ColorGamma,
+    ezVariantType::String,
+    ezVariantType::StringView,
+    ezVariantType::HashedString,
+    ezVariantType::TempHashedString,
+    ezVariantType::Vector2,
+    ezVariantType::Vector3,
+    ezVariantType::Vector4,
+    ezVariantType::Vector2I,
+    ezVariantType::Vector3I,
+    ezVariantType::Vector4I,
+    ezVariantType::Vector2U,
+    ezVariantType::Vector3U,
+    ezVariantType::Vector4U,
+    ezVariantType::Quaternion,
+    ezVariantType::Transform,
+    ezVariantType::Matrix3,
+    ezVariantType::Matrix4,
+    ezVariantType::Uuid,
+    ezVariantType::DataBuffer,
+    ezVariantType::VariantArray,
+    ezVariantType::VariantDictionary,
+    ezVariantType::TypedPointer,
+    ezVariantType::TypedObject,
+  };
+
   ezStringBuilder sName;
-  for (int i = ezVariantType::Invalid; i < ezVariantType::LastExtendedType; ++i)
+  for (int i = 0; i < EZ_ARRAY_SIZE(order); ++i)
   {
-    auto type = static_cast<ezVariantType::Enum>(i);
-    if (GetVariantTypeDisplayName(type, sName).Succeeded())
+    if (GetVariantTypeDisplayName(order[i], sName).Succeeded())
     {
-      m_pTypeList->addItem(ezMakeQString(ezTranslate(sName)), i);
+      m_pTypeList->addItem(ezMakeQString(ezTranslate(sName)), order[i]);
     }
   }
 
@@ -1868,9 +1909,18 @@ void ezQtVariantPropertyWidget::UpdateTypeListSelection(ezVariantType::Enum type
     if (m_pTypeList->itemData(i).toInt() == type)
     {
       m_pTypeList->setCurrentIndex(i);
-      break;
+      return;
     }
   }
+
+  const ezRTTI* pVariantEnum = ezGetStaticRTTI<ezVariantType>();
+  ezStringBuilder sName;
+  if (ezReflectionUtils::EnumerationToString(pVariantEnum, type, sName))
+  {
+    m_pTypeList->setPlaceholderText(ezMakeQString(ezTranslate(sName)));
+  }
+
+  m_pTypeList->setCurrentIndex(-1);
 }
 
 void ezQtVariantPropertyWidget::ChangeVariantType(ezVariantType::Enum type)
@@ -1900,15 +1950,45 @@ void ezQtVariantPropertyWidget::EnableTypeSelection(bool bEnable)
 
 ezResult ezQtVariantPropertyWidget::GetVariantTypeDisplayName(ezVariantType::Enum type, ezStringBuilder& out_sName) const
 {
-  if (type != ezVariantType::VariantArray && type != ezVariantType::VariantDictionary)
+  switch (type)
   {
-    if (type == ezVariantType::FirstStandardType || type >= ezVariantType::LastStandardType ||
-        type == ezVariantType::StringView || type == ezVariantType::DataBuffer || type == ezVariantType::TempHashedString)
+    case ezVariantType::FirstStandardType:
+    case ezVariantType::StringView:
+    case ezVariantType::DataBuffer:
+    case ezVariantType::TempHashedString:
+    case ezVariantType::Matrix3:
+    case ezVariantType::Matrix4:
+    case ezVariantType::Int8:
+    case ezVariantType::UInt8:
+    case ezVariantType::Int16:
+    case ezVariantType::UInt16:
+    case ezVariantType::UInt32:
+    case ezVariantType::Int64:
+    case ezVariantType::UInt64:
+    case ezVariantType::Double:
+    case ezVariantType::HashedString:
+    case ezVariantType::Vector2U:
+    case ezVariantType::Vector3U:
+    case ezVariantType::Vector4U:
+    case ezVariantType::Uuid:
+    case ezVariantType::ColorGamma:
       return EZ_FAILURE;
+
+    case ezVariantType::VariantArray:
+    case ezVariantType::VariantDictionary:
+      break;
+
+    default:
+      if (type >= ezVariantType::LastStandardType)
+        return EZ_FAILURE;
+      break;
   }
+
   const ezRTTI* pVariantEnum = ezGetStaticRTTI<ezVariantType>();
   if (ezReflectionUtils::EnumerationToString(pVariantEnum, type, out_sName) == false)
+  {
     return EZ_FAILURE;
+  }
 
   return EZ_SUCCESS;
 }
