@@ -58,7 +58,7 @@ void ezQtDynamicEnumPropertyWidget::onMenuAboutToShow()
 
   connect(m_pSearchableMenu, &ezQtSearchableMenu::MenuItemTriggered, m_pMenu, [this](const QString& sName, const QVariant& variant)
     {
-      if (variant.type() == QMetaType::QString)
+      if (variant.typeId() == QMetaType::QString)
       {
         if (variant.toString() == "<cmd>")
         {
