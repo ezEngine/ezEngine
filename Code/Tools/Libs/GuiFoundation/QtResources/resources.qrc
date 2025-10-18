@@ -63,5 +63,6 @@
     <file>Icons/Clear.svg</file>
     <file>Icons/Help.svg</file>
     <file>Icons/Help-BW.svg</file>
+	<file>Icons/Edit.svg</file>
   </qresource>
 </RCC>

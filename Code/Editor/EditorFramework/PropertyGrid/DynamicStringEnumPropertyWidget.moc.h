@@ -4,8 +4,8 @@
 #include <GuiFoundation/PropertyGrid/Implementation/PropertyWidget.moc.h>
 
 class QHBoxLayout;
-class QComboBox;
 class ezDynamicStringEnum;
+class ezQtSearchableMenu;
 
 class EZ_EDITORFRAMEWORK_DLL ezQtDynamicStringEnumPropertyWidget : public ezQtStandardPropertyWidget
 {
@@ -14,17 +14,19 @@ class EZ_EDITORFRAMEWORK_DLL ezQtDynamicStringEnumPropertyWidget : public ezQtSt
 public:
   ezQtDynamicStringEnumPropertyWidget();
 
-
 protected slots:
-  void on_CurrentEnum_changed(int iEnum);
+  void onMenuAboutToShow();
 
 protected:
   virtual void OnInit() override;
   virtual void InternalSetValue(const ezVariant& value) override;
 
 protected:
-  QComboBox* m_pWidget;
-  QHBoxLayout* m_pLayout;
+  QHBoxLayout* m_pLayout = nullptr;
   ezDynamicStringEnum* m_pEnum = nullptr;
-  ezInt32 m_iLastIndex = -1;
+  QPushButton* m_pButton = nullptr;
+  QMenu* m_pMenu = nullptr;
+  ezQtSearchableMenu* m_pSearchableMenu = nullptr;
+  ezString m_sEnumAttribute;
+  static ezMap<ezString, QString> s_LastSearch;
 };

@@ -3,6 +3,9 @@
 #include <EditorFramework/PropertyGrid/DynamicEnumPropertyWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <GuiFoundation/UIServices/DynamicEnums.h>
+#include <GuiFoundation/Widgets/SearchableMenu.moc.h>
+
+ezMap<ezString, QString> ezQtDynamicEnumPropertyWidget::s_LastSearch;
 
 ezQtDynamicEnumPropertyWidget::ezQtDynamicEnumPropertyWidget()
   : ezQtStandardPropertyWidget()
@@ -11,12 +14,15 @@ ezQtDynamicEnumPropertyWidget::ezQtDynamicEnumPropertyWidget()
   m_pLayout->setContentsMargins(0, 0, 0, 0);
   setLayout(m_pLayout);
 
-  m_pWidget = new QComboBox(this);
-  m_pWidget->installEventFilter(this);
-  m_pWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
-  m_pLayout->addWidget(m_pWidget);
+  m_pButton = new QPushButton(this);
+  m_pButton->setText("Select");
+  m_pButton->setStyleSheet("QPushButton { text-align:left; padding-left:5px; padding-top:3px; padding-bottom:3px; }");
 
-  EZ_VERIFY(connect(m_pWidget, SIGNAL(currentIndexChanged(int)), this, SLOT(on_CurrentEnum_changed(int))) != nullptr, "connection failed");
+  QSizePolicy policy = m_pButton->sizePolicy();
+  policy.setHorizontalStretch(0);
+  m_pButton->setSizePolicy(policy);
+
+  m_pLayout->addWidget(m_pButton);
 }
 
 void ezQtDynamicEnumPropertyWidget::OnInit()
@@ -26,51 +32,67 @@ void ezQtDynamicEnumPropertyWidget::OnInit()
 
   const ezDynamicEnumAttribute* pAttr = m_pProp->GetAttributeByType<ezDynamicEnumAttribute>();
 
-  m_pEnum = &ezDynamicEnum::GetDynamicEnum(pAttr->GetDynamicEnumName());
-  const auto& AllValues = m_pEnum->GetAllValidValues();
+  m_sEnumAttribute = pAttr->GetDynamicEnumName();
 
-  ezQtScopedBlockSignals bs(m_pWidget);
+  m_pEnum = &ezDynamicEnum::GetDynamicEnum(m_sEnumAttribute);
 
-  for (auto it = AllValues.GetIterator(); it.IsValid(); ++it)
-  {
-    m_pWidget->addItem(QString::fromUtf8(it.Value().GetData()), it.Key());
-  }
 
-  if (!m_pEnum->GetEditCommand().IsEmpty())
-  {
-    m_pWidget->addItem("< Edit Values... >", QString("<cmd>"));
-  }
+
+  m_pMenu = new QMenu(m_pButton);
+  m_pMenu->setToolTipsVisible(false);
+  connect(m_pMenu, &QMenu::aboutToShow, this, &ezQtDynamicEnumPropertyWidget::onMenuAboutToShow);
+  m_pButton->setMenu(m_pMenu);
 }
 
 void ezQtDynamicEnumPropertyWidget::InternalSetValue(const ezVariant& value)
 {
-  ezQtScopedBlockSignals b(m_pWidget);
 
-  if (value.IsValid())
-  {
-    m_iLastIndex = m_pWidget->findData(value.ConvertTo<ezInt64>());
-  }
-  else
-  {
-    m_iLastIndex = -1;
-  }
-
-  m_pWidget->setCurrentIndex(m_iLastIndex);
+  m_pButton->setText(ezMakeQString(m_pEnum->GetValueName(value.ConvertTo<ezInt64>())));
 }
 
-void ezQtDynamicEnumPropertyWidget::on_CurrentEnum_changed(int iEnum)
+void ezQtDynamicEnumPropertyWidget::onMenuAboutToShow()
 {
-  if (m_pWidget->currentData() == QString("<cmd>"))
+  m_pMenu->clear();
+
+  m_pSearchableMenu = new ezQtSearchableMenu(m_pMenu);
+
+  connect(m_pSearchableMenu, &ezQtSearchableMenu::MenuItemTriggered, m_pMenu, [this](const QString& sName, const QVariant& variant)
+    {
+      if (variant.type() == QVariant::String)
+      {
+        if (variant.toString() == "<cmd>")
+        {
+          ezActionManager::ExecuteAction({}, m_pEnum->GetEditCommand(), ezActionContext(const_cast<ezDocument*>(m_pGrid->GetDocument())), m_pEnum->GetEditCommandValue()).AssertSuccess();
+        }
+      }
+      else
+      {
+        InternalSetValue(variant.toLongLong());
+        BroadcastValueChanged(variant.toLongLong());
+      }
+
+      m_pMenu->close();
+      //
+    });
+
+  connect(m_pSearchableMenu, &ezQtSearchableMenu::SearchTextChanged, m_pMenu,
+    [this](const QString& sText)
+    { s_LastSearch[m_sEnumAttribute] = sText; });
+
+  if (!m_pEnum->GetEditCommand().IsEmpty())
   {
-    iEnum = m_iLastIndex;
-    m_pWidget->setCurrentIndex(iEnum);
-
-    ezActionManager::ExecuteAction({}, m_pEnum->GetEditCommand(), ezActionContext(const_cast<ezDocument*>(m_pGrid->GetDocument())), m_pEnum->GetEditCommandValue()).AssertSuccess();
-
-    return;
+    m_pSearchableMenu->AddItem("< Edit Values... >", "", QString("<cmd>"), QIcon(":/GuiFoundation/Icons/Edit.svg"));
   }
 
-  m_iLastIndex = m_pWidget->currentIndex();
-  ezInt64 iValue = m_pWidget->itemData(iEnum).toLongLong();
-  BroadcastValueChanged(iValue);
+  const auto& AllValues = m_pEnum->GetAllValidValues();
+
+  for (auto it = AllValues.GetIterator(); it.IsValid(); ++it)
+  {
+    m_pSearchableMenu->AddItem(it.Value(), "", it.Key());
+  }
+
+  m_pMenu->addAction(m_pSearchableMenu);
+
+  // important to do this last to make sure the search bar gets focus
+  m_pSearchableMenu->Finalize(s_LastSearch[m_sEnumAttribute]);
 }

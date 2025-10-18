@@ -68,7 +68,8 @@ bool ezDynamicStringEnum::IsValueValid(ezStringView sValue) const
 
 void ezDynamicStringEnum::SortValues()
 {
-  m_ValidValues.Sort();
+  ezCompareString_NoCase cmp;
+  m_ValidValues.Sort(cmp);
 }
 
 void ezDynamicStringEnum::SetEditCommand(ezStringView sCmd, const ezVariant& value)
