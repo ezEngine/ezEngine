@@ -133,13 +133,14 @@ public:
 
 private:
   ezUInt32 Entries_GetCount() const;
-  const ezBlackboardEntry& Entries_GetValue(ezUInt32 uiIndex) const;
-  void Entries_SetValue(ezUInt32 uiIndex, const ezBlackboardEntry& entry);
-  void Entries_Insert(ezUInt32 uiIndex, const ezBlackboardEntry& entry);
+  ezBlackboardEntry Entries_GetValue(ezUInt32 uiIndex) const;
+  void Entries_SetValue(ezUInt32 uiIndex, ezBlackboardEntry entry);
+  void Entries_Insert(ezUInt32 uiIndex, ezBlackboardEntry entry);
   void Entries_Remove(ezUInt32 uiIndex);
 
   void OnEntryChanged(const ezBlackboard::EntryEvent& e);
   void InitializeFromTemplate();
+  bool IsEditor() const;
 
   // this array is not held during runtime, it is only needed during editor time until the component is serialized out
   ezDynamicArray<ezBlackboardEntry> m_InitialEntries;

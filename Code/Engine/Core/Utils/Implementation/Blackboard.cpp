@@ -213,6 +213,27 @@ ezVariant ezBlackboard::GetEntryValue(const ezTempHashedString& sName, const ezV
   return pEntry != nullptr ? pEntry->m_Value : fallback;
 }
 
+ezResult ezBlackboard::SetEditorIndex(const ezTempHashedString& sName, ezUInt8 uiEditorIndex)
+{
+  auto itEntry = m_Entries.Find(sName);
+  if (!itEntry.IsValid())
+    return EZ_FAILURE;
+
+  itEntry.Value().m_uiEditorIndex = uiEditorIndex;
+  return EZ_SUCCESS;
+}
+
+ezHashedString ezBlackboard::FindNameForEditorIndex(ezUInt8 uiEditorIndex) const
+{
+  for (auto& e : m_Entries)
+  {
+    if (e.Value().m_uiEditorIndex == uiEditorIndex)
+      return e.Key();
+  }
+
+  return {};
+}
+
 ezVariant ezBlackboard::IncrementEntryValue(const ezTempHashedString& sName)
 {
   auto pEntry = m_Entries.GetValue(sName);
