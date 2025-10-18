@@ -22,6 +22,7 @@ ezQtGameObjectWidget::ezQtGameObjectWidget(QWidget* pParent, ezGameObjectDocumen
 
   m_pFilterWidget = new ezQtSearchWidget(this);
   m_pFilterWidget->setObjectName("ezQtSearchWidget");
+  m_pFilterWidget->setPlaceholderText("Search by name or component type");
   connect(m_pFilterWidget, &ezQtSearchWidget::textChanged, this, &ezQtGameObjectWidget::OnFilterTextChanged);
 
   layout()->addWidget(m_pFilterWidget);

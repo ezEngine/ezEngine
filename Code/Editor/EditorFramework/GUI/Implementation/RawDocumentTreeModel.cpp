@@ -588,6 +588,11 @@ bool ezQtDocumentTreeModel::MoveObjects(const ezDragDropInfo& info)
   return false;
 }
 
+const ezDocumentObject* ezQtDocumentTreeModel::GetObject(const QModelIndex index) const
+{
+  return (const ezDocumentObject*)index.internalPointer();
+}
+
 QStringList ezQtDocumentTreeModel::mimeTypes() const
 {
   QStringList types;

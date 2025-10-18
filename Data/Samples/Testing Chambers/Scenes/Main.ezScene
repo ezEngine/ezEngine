@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7297922959506964864,5177324930371449723}}
-		u4 %Hash{5663861999519337560}
+		u4 %Hash{13835143483548054507}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -927,6 +927,7 @@ o
 		b %Active{1}
 		Vec3 %CustomTangentIn{f{0,0,0}}
 		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %LinkCustomTangents{0}
 		Angle %Roll{f{0}}
 		s %TangentModeIn{"ezSplineTangentMode::Auto"}
 		s %TangentModeOut{"ezSplineTangentMode::Auto"}
@@ -5941,6 +5942,7 @@ o
 		b %Active{1}
 		Vec3 %CustomTangentIn{f{0,0,0}}
 		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %LinkCustomTangents{0}
 		Angle %Roll{f{0}}
 		s %TangentModeIn{"ezSplineTangentMode::Auto"}
 		s %TangentModeOut{"ezSplineTangentMode::Auto"}
@@ -10096,7 +10098,7 @@ o
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::ForceDynamic"}
-		s %Name{"asdf"}
+		s %Name{""}
 		VarArray %Tags
 		{
 			s{"CastShadow"}
@@ -14510,6 +14512,7 @@ o
 		b %Active{1}
 		Vec3 %CustomTangentIn{f{0,0,0}}
 		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %LinkCustomTangents{0}
 		Angle %Roll{f{0}}
 		s %TangentModeIn{"ezSplineTangentMode::Auto"}
 		s %TangentModeOut{"ezSplineTangentMode::Auto"}
@@ -18197,6 +18200,7 @@ o
 		b %Active{1}
 		Vec3 %CustomTangentIn{f{0,0,0}}
 		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %LinkCustomTangents{0}
 		Angle %Roll{f{0}}
 		s %TangentModeIn{"ezSplineTangentMode::Auto"}
 		s %TangentModeOut{"ezSplineTangentMode::Auto"}
@@ -24597,6 +24601,7 @@ o
 		b %Active{1}
 		Vec3 %CustomTangentIn{f{0,0,0}}
 		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %LinkCustomTangents{0}
 		Angle %Roll{f{0}}
 		s %TangentModeIn{"ezSplineTangentMode::Auto"}
 		s %TangentModeOut{"ezSplineTangentMode::Auto"}
@@ -27233,6 +27238,7 @@ o
 		b %Active{1}
 		Vec3 %CustomTangentIn{f{0,0,0}}
 		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %LinkCustomTangents{0}
 		Angle %Roll{f{0}}
 		s %TangentModeIn{"ezSplineTangentMode::Auto"}
 		s %TangentModeOut{"ezSplineTangentMode::Auto"}
@@ -33084,6 +33090,7 @@ o
 		b %Active{1}
 		Vec3 %CustomTangentIn{f{0,0,0}}
 		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %LinkCustomTangents{0}
 		Angle %Roll{f{0}}
 		s %TangentModeIn{"ezSplineTangentMode::Auto"}
 		s %TangentModeOut{"ezSplineTangentMode::Auto"}
@@ -35172,6 +35179,23 @@ o
 }
 o
 {
+	Uuid %id{u4{8654430645282539645,3990045288992136643}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSplineComponentSpace"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{10436287537458291866,4104850229502638426}}
 	s %t{"ezDefaultValueAttribute"}
 	u3 %v{1}
@@ -36253,6 +36277,23 @@ o
 			Uuid{u4{175585461870260746,5885483319571961131}}
 		}
 		s %TypeName{"ezJoltBreakableSlabFlags"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{4655660492459501943,8090873753673120907}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezManipulatorAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSplineTangentManipulatorAttribute"}
 		u3 %TypeVersion{1}
 	}
 }
@@ -38049,23 +38090,6 @@ o
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"Size"}
 		s %Type{"ezVec2"}
-	}
-}
-o
-{
-	Uuid %id{u4{3477397724192825265,13467442718353903955}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezManipulatorAttribute"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezSplineNodeManipulatorAttribute"}
-		u3 %TypeVersion{1}
 	}
 }
 o
