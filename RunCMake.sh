@@ -97,10 +97,10 @@ verlt() {
     [ "$1" = "$2" ] && return 1 || verlte $1 $2
 }
 
-if [ "$Distribution" = "Ubuntu" -a "$Version" = "22" ] || [ "$Distribution" = "Ubuntu" -a "$Version" = "24" ] || [ "$Distribution" = "Mint" -a "$Version" = "21" ]; then
+if [ "$Distribution" = "Ubuntu" -a \( "$Version" = "22" -o "$Version" = "24" -o "$Version" = "25" \) ] || [ "$Distribution" = "Mint" -a "$Version" = "21" ]; then
   packages=(cmake build-essential ninja-build libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev uuid-dev mold libfreetype-dev libxkbcommon-dev)
 
-  if [ "$Distribution" = "Ubuntu" -a "$Version" = "24" ]; then
+  if [ "$Distribution" = "Ubuntu" -a \( "$Version" = "24" -o "$Version" = "25" \) ]; then
     packages+=(libtinfo6)
   else  
     packages+=(libtinfo5)
