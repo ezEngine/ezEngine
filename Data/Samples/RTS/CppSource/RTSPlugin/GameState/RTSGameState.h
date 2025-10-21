@@ -15,8 +15,8 @@ enum class RtsActiveGameMode
 {
   None,
   MainMenuMode,
-  BattleMode,
   EditLevelMode,
+  BattleMode,
 };
 
 // the ezFallbackGameState adds a free flying camera and a scene switching menu, so can be useful in the very beginning
@@ -66,12 +66,14 @@ public:
 public:
   void SwitchToGameMode(RtsActiveGameMode mode);
   RtsActiveGameMode GetActiveGameMode() const { return m_GameModeToSwitchTo; }
+  RtsActiveGameMode GetPrevGameMode() const { return m_PrevGameMode; }
 
 private:
-  void ActivateQueuedGameMode();
-  void SetActiveGameMode(RtsGameMode* pMode);
+  void SetActiveGameMode(RtsActiveGameMode mode);
 
   RtsActiveGameMode m_GameModeToSwitchTo = RtsActiveGameMode::None;
+  RtsActiveGameMode m_PrevGameMode = RtsActiveGameMode::None;
+  RtsActiveGameMode m_ActiveGameMode = RtsActiveGameMode::None;
   RtsGameMode* m_pActiveGameMode = nullptr;
 
   // all the modes that the game has

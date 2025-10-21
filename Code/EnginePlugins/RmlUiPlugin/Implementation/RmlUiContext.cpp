@@ -68,6 +68,8 @@ void ezRmlUiContext::HideDocument()
   {
     GetDocument(0)->Hide();
   }
+
+  m_bWantsInput = false;
 }
 
 bool ezRmlUiContext::UpdateInput(const ezVec2& vMousePos)
@@ -75,7 +77,8 @@ bool ezRmlUiContext::UpdateInput(const ezVec2& vMousePos)
   const float width = static_cast<float>(GetDimensions().x);
   const float height = static_cast<float>(GetDimensions().y);
 
-  const bool bMouseOverContext = vMousePos.x >= 0.0f && vMousePos.x <= width && vMousePos.y >= 0.0f && vMousePos.y <= height;
+  // const bool bMouseOverContext = vMousePos.x >= 0.0f && vMousePos.x <= width && vMousePos.y >= 0.0f && vMousePos.y <= height;
+
   bool bMouseInputConsumed = false;
   bool bKeyboardInputConsumed = false;
 
@@ -147,7 +150,7 @@ bool ezRmlUiContext::UpdateInput(const ezVec2& vMousePos)
     }
   }
 
-  m_bWantsInput = bMouseOverContext || bKeyboardInputConsumed;
+  m_bWantsInput = bMouseInputConsumed || bKeyboardInputConsumed;
 
   return bMouseInputConsumed || bKeyboardInputConsumed;
 }

@@ -37,13 +37,14 @@ void RtsGameMode::DeactivateMode()
 
 void RtsGameMode::ProcessInput(const RtsMouseInputState& mouseInput)
 {
+  bool bUiWantsInput = false;
+
   if (s_bUseRmlUi)
   {
     if (ezRmlUi::GetSingleton() != nullptr)
     {
       // do not process input, when RmlUi already wants to work with it
-      if (ezRmlUi::GetSingleton()->AnyContextWantsInput())
-        return;
+      bUiWantsInput = ezRmlUi::GetSingleton()->AnyContextWantsInput();
     }
   }
   else
@@ -54,12 +55,11 @@ void RtsGameMode::ProcessInput(const RtsMouseInputState& mouseInput)
       ezImgui::GetSingleton()->SetPassInputToImgui(true);
 
       // do not process input, when Imgui already wants to work with it
-      if (ezImgui::GetSingleton()->WantsInput())
-        return;
+      bUiWantsInput = ezImgui::GetSingleton()->WantsInput();
     }
   }
 
-  OnProcessInput(mouseInput);
+  OnProcessInput(mouseInput, bUiWantsInput);
 }
 
 void RtsGameMode::BeforeWorldUpdate()

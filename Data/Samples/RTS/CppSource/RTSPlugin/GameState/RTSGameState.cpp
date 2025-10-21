@@ -25,18 +25,16 @@ void RTSGameState::RequestQuit(ezStringView sRequestedBy)
 {
   if (sRequestedBy == "window")
   {
-    // we could do something when the window close button gets pressed
-    // for example show the main menu with the option to quit the game
+    SUPER::RequestQuit(sRequestedBy);
+    return;
   }
 
   if (sRequestedBy == "editor-esc")
   {
-    // sent when the ESC key was pressed while playing in the editor
-    // but only when ezGameApplicationInputFlags::Dev_EscapeToClose is used
-    // by default this is on, but deactivated in this sample in RTSGameState::ConfigureInputActions()
+    SwitchToGameMode(RtsActiveGameMode::MainMenuMode);
+    return;
   }
 
-  // by default, just quit, but we could filter this out in certain cases
   SUPER::RequestQuit(sRequestedBy);
 }
 
@@ -89,7 +87,7 @@ void RTSGameState::OnDeactivation()
 {
   EZ_LOG_BLOCK("GameState::Deactivate");
 
-  SetActiveGameMode(nullptr);
+  SetActiveGameMode(RtsActiveGameMode::None);
 
   if (ezImgui::GetSingleton() != nullptr)
   {
@@ -131,7 +129,7 @@ void RTSGameState::BeforeWorldUpdate()
 
   EZ_LOCK(m_pMainWorld->GetWriteMarker());
 
-  ActivateQueuedGameMode();
+  SetActiveGameMode(m_GameModeToSwitchTo);
 
   m_SelectedUnits.RemoveDeadObjects();
 
@@ -148,28 +146,6 @@ void RTSGameState::BeforeWorldUpdate()
     const ezVec3 up = m_MainCamera.GetCenterDirUp();
 
     pSoundInterface->SetListener(0, pos, dir, up, ezVec3::MakeZero());
-  }
-}
-
-void RTSGameState::ActivateQueuedGameMode()
-{
-  switch (m_GameModeToSwitchTo)
-  {
-    case RtsActiveGameMode::None:
-      SetActiveGameMode(nullptr);
-      break;
-    case RtsActiveGameMode::MainMenuMode:
-      SetActiveGameMode(&m_MainMenuMode);
-      break;
-    case RtsActiveGameMode::BattleMode:
-      SetActiveGameMode(&m_BattleMode);
-      break;
-    case RtsActiveGameMode::EditLevelMode:
-      SetActiveGameMode(&m_EditLevelMode);
-      break;
-
-    default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
   }
 }
 
@@ -212,18 +188,43 @@ void RTSGameState::SwitchToGameMode(RtsActiveGameMode mode)
   m_GameModeToSwitchTo = mode;
 }
 
-void RTSGameState::SetActiveGameMode(RtsGameMode* pMode)
+void RTSGameState::SetActiveGameMode(RtsActiveGameMode mode)
 {
-  if (m_pActiveGameMode == pMode)
+  if (m_ActiveGameMode == mode)
     return;
 
   if (m_pActiveGameMode)
+  {
     m_pActiveGameMode->DeactivateMode();
+  }
 
-  m_pActiveGameMode = pMode;
+  m_PrevGameMode = m_ActiveGameMode;
+  m_ActiveGameMode = mode;
+
+  switch (m_ActiveGameMode)
+  {
+    case RtsActiveGameMode::None:
+      m_pActiveGameMode = nullptr;
+      break;
+
+    case RtsActiveGameMode::MainMenuMode:
+      m_pActiveGameMode = &m_MainMenuMode;
+      break;
+
+    case RtsActiveGameMode::BattleMode:
+      m_pActiveGameMode = &m_BattleMode;
+      break;
+
+    case RtsActiveGameMode::EditLevelMode:
+      m_pActiveGameMode = &m_EditLevelMode;
+      break;
+  }
+
 
   if (m_pActiveGameMode)
+  {
     m_pActiveGameMode->ActivateMode(m_pMainWorld, m_hMainView, &m_MainCamera);
+  }
 }
 
 ezGameObject* RTSGameState::DetectHoveredSelectable()

@@ -37,7 +37,7 @@ protected:
   virtual void OnActivateMode() {}
   virtual void OnDeactivateMode() {}
   virtual void RegisterInputActions() {}
-  virtual void OnProcessInput(const RtsMouseInputState& MouseInput) {}
+  virtual void OnProcessInput(const RtsMouseInputState& MouseInput, bool bUiWantsInput) {}
   virtual void OnBeforeWorldUpdate() {}
 
   RTSGameState* m_pGameState = nullptr;

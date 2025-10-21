@@ -30,6 +30,9 @@ void ezQtDynamicStringEnumPropertyWidget::OnInit()
 {
   EZ_ASSERT_DEV(m_pProp->GetAttributeByType<ezDynamicStringEnumAttribute>() != nullptr,
     "ezQtDynamicStringEnumPropertyWidget was created without a ezDynamicStringEnumAttribute!");
+  ezVariantType::Enum type = m_pProp->GetSpecificType()->GetVariantType();
+  EZ_IGNORE_UNUSED(type);
+  EZ_ASSERT_DEV(type == ezVariantType::String || type == ezVariantType::HashedString || type == ezVariantType::StringView, "ezDynamicStringEnumAttribute can only be used with string types");
 
   const ezDynamicStringEnumAttribute* pAttr = m_pProp->GetAttributeByType<ezDynamicStringEnumAttribute>();
 

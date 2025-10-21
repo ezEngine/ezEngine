@@ -15,4 +15,4 @@ void RtsMainMenuMode::OnBeforeWorldUpdate()
   DisplaySelectModeUI();
 }
 
-void RtsMainMenuMode::OnProcessInput(const RtsMouseInputState& MouseInput) {}
+void RtsMainMenuMode::OnProcessInput(const RtsMouseInputState& MouseInput, bool bUiWantsInput) {}

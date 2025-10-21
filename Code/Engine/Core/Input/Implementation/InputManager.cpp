@@ -232,7 +232,15 @@ void ezInputManager::GatherDeviceInputSlotValues()
         {
           Slot.m_fValue = ezMath::Max(Slot.m_fValue, it.Value()); // 'accumulate' the values for one slot from all the connected devices
 
-          pDevice->m_bGeneratedInputRecently = true;
+          // Only count as recent input if the slot represents something the user actively interacted with.
+          // This includes buttons/keys (Pressable/Holdable)
+          // This excludes passive position tracking (mouse position, touch position) which maintain
+          // non-zero values even when no actual user interaction is happening.
+          // Mouse move events are also excluded, as they could easily happen accidentally
+          if (Slot.m_SlotFlags.IsAnySet(ezInputSlotFlags::Pressable | ezInputSlotFlags::Holdable))
+          {
+            pDevice->m_bGeneratedInputRecently = true;
+          }
         }
       }
     }

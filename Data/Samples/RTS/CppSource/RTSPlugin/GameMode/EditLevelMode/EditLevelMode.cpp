@@ -140,8 +140,17 @@ void RtsEditLevelMode::RegisterInputActions()
   }
 }
 
-void RtsEditLevelMode::OnProcessInput(const RtsMouseInputState& MouseInput)
+void RtsEditLevelMode::OnProcessInput(const RtsMouseInputState& MouseInput, bool bUiWantsInput)
 {
+  if (ezInputManager::GetInputSlotState(ezInputSlot_KeyEscape) == ezKeyState::Pressed)
+  {
+    m_pGameState->SwitchToGameMode(RtsActiveGameMode::MainMenuMode);
+    return;
+  }
+
+  if (bUiWantsInput)
+    return;
+
   DoDefaultCameraInput(MouseInput);
 
   ezVec3 vPickedGroundPlanePos;
