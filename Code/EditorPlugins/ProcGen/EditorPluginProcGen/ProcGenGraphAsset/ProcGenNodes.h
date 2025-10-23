@@ -166,6 +166,25 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
+class ezProcGen_Remap : public ezProcGenNodeBase
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcGen_Remap, ezProcGenNodeBase);
+
+public:
+  virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_ast, GraphContext& ref_context) override;
+
+  float m_fInputMin = 0.0f;
+  float m_fInputMax = 1.0f;
+  float m_fOutputMin = 0.0f;
+  float m_fOutputMax = 1.0f;
+  bool m_bClampIntermediate = false;
+
+  ezRenderPipelineNodeInputPin m_InputValuePin;
+  ezRenderPipelineNodeOutputPin m_OutputValuePin;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
 class ezProcGen_Contrast : public ezProcGenNodeBase
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezProcGen_Contrast, ezProcGenNodeBase);

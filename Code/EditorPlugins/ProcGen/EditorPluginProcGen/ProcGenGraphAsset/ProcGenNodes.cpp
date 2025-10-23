@@ -484,6 +484,75 @@ ezExpressionAST::Node* ezProcGen_Blend::GenerateExpressionASTNode(ezTempHashedSt
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Remap, 1, ezRTTIDefaultAllocator<ezProcGen_Remap>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("InputMin", m_fInputMin),
+    EZ_MEMBER_PROPERTY("InputMax", m_fInputMax)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
+    EZ_MEMBER_PROPERTY("ClampIntermediate", m_bClampIntermediate),
+    EZ_MEMBER_PROPERTY("OutputMin", m_fOutputMin),
+    EZ_MEMBER_PROPERTY("OutputMax", m_fOutputMax)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
+
+    EZ_MEMBER_PROPERTY("X", m_InputValuePin),
+    EZ_MEMBER_PROPERTY("Value", m_OutputValuePin)
+  }
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezTitleAttribute("Remap: [{InputMin}, {InputMax}] -> [{OutputMin}, {OutputMax}]"),
+    new ezCategoryAttribute("Math"),
+  }
+  EZ_END_ATTRIBUTES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezExpressionAST::Node* ezProcGen_Remap::GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_ast, GraphContext& ref_context)
+{
+  EZ_ASSERT_DEBUG(sOutputName == "Value", "Implementation error");
+
+  auto pInput = inputs[0];
+  if (pInput == nullptr)
+  {
+    pInput = out_ast.CreateConstant(0.0f);
+  }
+
+  ezExpressionAST::Node* p01Value = nullptr;
+  if (m_fInputMin == 0.0f && m_fInputMax == 1.0f)
+  {
+    p01Value = pInput;
+  }
+  else if (ezMath::IsEqual(m_fInputMin, m_fInputMax, ezMath::DefaultEpsilon<float>()))
+  {
+    p01Value = out_ast.CreateConstant(1.0f);
+  }
+  else
+  {
+    auto pOffset = out_ast.CreateConstant(m_fInputMin);
+    auto pValue = out_ast.CreateBinaryOperator(ezExpressionAST::NodeType::Subtract, pInput, pOffset);
+    auto pScale = out_ast.CreateConstant(1.0f / (m_fInputMax - m_fInputMin));
+    p01Value = out_ast.CreateBinaryOperator(ezExpressionAST::NodeType::Multiply, pValue, pScale);
+  }
+
+  if (m_bClampIntermediate)
+  {
+    p01Value = out_ast.CreateUnaryOperator(ezExpressionAST::NodeType::Saturate, p01Value);
+  }
+
+  if (m_fOutputMin == 0.0f && m_fOutputMax == 1.0f)
+  {
+    return p01Value;
+  }
+
+  auto remapFrom01 = CreateRemapFrom01(p01Value, m_fOutputMin, m_fOutputMax, out_ast);
+
+  return remapFrom01;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Contrast, 1, ezRTTIDefaultAllocator<ezProcGen_Contrast>)
 {
   EZ_BEGIN_PROPERTIES
