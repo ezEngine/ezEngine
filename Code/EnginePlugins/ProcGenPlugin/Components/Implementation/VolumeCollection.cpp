@@ -158,7 +158,7 @@ float ezVolumeCollection::EvaluateAtGlobalPosition(const ezSimdVec4f& vPosition,
 
       float fT = 0.0f;
       float fDistanceSquared = 0.0f;
-      const ezSimdVec4f pointOnSpline = spline.m_Spline.FindClosestPoint(localPos, fT, fDistanceSquared, spline.m_fMaxError);
+      spline.m_Spline.FindClosestPoint(localPos, fT, fDistanceSquared, spline.m_fMaxError);
       const ezSimdMat4f t = spline.m_Spline.EvaluateTransform(fT).GetAsMat4().GetInverse();
       const float fNormalizedDistance = float(t.TransformPosition(localPos).GetLength<3>()) * spline.m_fInvRadius;
       if (fNormalizedDistance <= 1.0f)
@@ -293,7 +293,7 @@ void ezVolumeCollection::AddSpline(const ezSimdTransform& transform, const ezSpl
   pSpline->m_BoundingBox = ezSimdConversion::ToBBox(box);
   pSpline->m_fInvRadius = 1.0f / ezMath::Max(fRadius, 0.0001f);
   pSpline->m_fFadeOut = -1.0f / ezMath::Max(fFalloff, 0.0001f);
-  pSpline->m_fMaxError = ezMath::Max(fRadius / 5.0f, 0.1f);
+  pSpline->m_fMaxError = ezMath::Max(fRadius / 20.0f, 0.1f);
 
   m_SortedShapes.PushBack(pSpline);
 }
