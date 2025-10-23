@@ -23,6 +23,7 @@ using namespace ezProcGenInternal;
 ezCVarInt cvar_ProcGenProcessingMaxTiles("ProcGen.Processing.MaxTiles", 8, ezCVarFlags::Default, "Maximum number of tiles in process");
 ezCVarInt cvar_ProcGenProcessingMaxNewObjectsPerFrame("ProcGen.Processing.MaxNewObjectsPerFrame", 256, ezCVarFlags::Default, "Maximum number of objects placed per frame");
 ezCVarBool cvar_ProcGenVisTiles("ProcGen.VisTiles", false, ezCVarFlags::Default, "Enables debug visualization of procedural placement tiles");
+ezCVarString cvar_ProcGenOutputFilter("ProcGen.VisTiles.OutputFilter", "", ezCVarFlags::Default, "When set only tiles form the matching output are shown");
 
 ezProcPlacementComponentManager::ezProcPlacementComponentManager(ezWorld* pWorld)
   : ezComponentManager<ezProcPlacementComponent, ezBlockStorageType::Compact>(pWorld)
@@ -382,21 +383,28 @@ void ezProcPlacementComponentManager::DebugDrawTile(const ezProcGenInternal::Pla
   const ezProcPlacementComponent* pComponent = nullptr;
   if (!TryGetComponent(desc.m_hComponent, pComponent))
     return;
+  
+  auto& outputContext = pComponent->m_OutputContexts[desc.m_uiOutputIndex];
+
+  ezStringView sOutputFilter = cvar_ProcGenOutputFilter.GetValue();
+  if (sOutputFilter.IsEmpty() == false && outputContext.m_pOutput->m_sName.GetView().FindSubString_NoCase(sOutputFilter) == nullptr)
+    return;
 
   ezBoundingBox bbox = desc.GetBoundingBox();
   ezDebugRenderer::DrawLineBox(GetWorld(), bbox, color);
 
+  const ezUInt64 uiTileKey = GetTileKey(desc.m_iPosX, desc.m_iPosY);
   ezUInt64 uiAge = -1;
-  auto& outputContext = pComponent->m_OutputContexts[desc.m_uiOutputIndex];
-  if (auto pTile = outputContext.m_TileIndices.GetValue(GetTileKey(desc.m_iPosX, desc.m_iPosY)))
+  if (auto pTile = outputContext.m_TileIndices.GetValue(uiTileKey))
   {
     uiAge = ezRenderWorld::GetFrameCounter() - pTile->m_uiLastSeenFrame;
   }
 
   ezStringBuilder sb;
+  sb.SetFormat("Tile: {}x{}\n", desc.m_iPosX, desc.m_iPosY);
   if (uiQueueIndex != ezInvalidIndex)
   {
-    sb.SetFormat("Queue Index: {}\n", uiQueueIndex);
+    sb.AppendFormat("Queue Index: {}\n", uiQueueIndex);
   }
   sb.AppendFormat("Age: {}\nDistance: {}", uiAge, desc.m_fDistanceToCamera);
   ezDebugRenderer::Draw3DText(GetWorld(), sb, bbox.GetCenter(), color);
