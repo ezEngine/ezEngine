@@ -5,6 +5,19 @@
 
 class ezPin;
 
+class ezProcGenGraphAssetProperties : public ezReflectedClass
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcGenGraphAssetProperties, ezReflectedClass);
+
+public:
+  ezString m_sDebugPrefab;
+  ezString m_sDebugColorGradient;
+  ezString m_sDebugSurface;
+  float m_fDebugFootprint = 1.0f;
+  float m_fDebugAlignToNormal = 1.0f;
+  ezEnum<ezProcPlacementPattern> m_DebugPlacementPattern = ezProcPlacementPattern::RegularGrid;
+};
+
 class ezProcGenGraphAssetDocument : public ezAssetDocument
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezProcGenGraphAssetDocument, ezAssetDocument);
@@ -13,10 +26,12 @@ public:
   ezProcGenGraphAssetDocument(ezStringView sDocumentPath);
 
   void SetDebugPin(const ezPin* pDebugPin);
+  void UpdateDebugNode();
 
   ezStatus WriteAsset(ezStreamWriter& inout_stream, const ezPlatformProfile* pAssetProfile, bool bAllowDebug) const;
 
 protected:
+  virtual void InitializeAfterLoading(bool bFirstTimeCreation) override;
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
   virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
     const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
@@ -42,8 +57,6 @@ private:
   ezExpressionAST::Node* GenerateDebugExpressionAST(GenerateContext& context, ezExpressionAST& out_Ast) const;
 
   void DumpSelectedOutput(bool bAst, bool bDisassembly) const;
-
-  void CreateDebugNode();
 
   const ezPin* m_pDebugPin = nullptr;
   ezUniquePtr<ezProcGen_PlacementOutput> m_pDebugNode;

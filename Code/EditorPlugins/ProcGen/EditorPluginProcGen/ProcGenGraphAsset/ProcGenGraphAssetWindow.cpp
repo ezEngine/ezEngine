@@ -16,8 +16,9 @@
 ezProcGenGraphAssetDocumentWindow::ezProcGenGraphAssetDocumentWindow(ezProcGenGraphAssetDocument* pDocument)
   : ezQtDocumentWindow(pDocument)
 {
-  GetDocument()->GetCommandHistory()->m_Events.AddEventHandler(ezMakeDelegate(&ezProcGenGraphAssetDocumentWindow::TransationEventHandler, this));
+  GetDocument()->GetCommandHistory()->m_Events.AddEventHandler(ezMakeDelegate(&ezProcGenGraphAssetDocumentWindow::TransactionEventHandler, this));
   GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezProcGenGraphAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezProcGenGraphAssetDocumentWindow::SelectionEventHandler, this));
 
   // Menu Bar
   {
@@ -82,12 +83,18 @@ ezProcGenGraphAssetDocumentWindow::ezProcGenGraphAssetDocumentWindow(ezProcGenGr
   UpdatePreview();
 
   FinishWindowCreation();
+
+  SelectionEventHandler(ezSelectionManagerEvent());
 }
 
 ezProcGenGraphAssetDocumentWindow::~ezProcGenGraphAssetDocumentWindow()
 {
-  GetDocument()->GetCommandHistory()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezProcGenGraphAssetDocumentWindow::TransationEventHandler, this));
-  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezProcGenGraphAssetDocumentWindow::PropertyEventHandler, this));
+  if (GetDocument() != nullptr)
+  {
+    GetDocument()->GetCommandHistory()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezProcGenGraphAssetDocumentWindow::TransactionEventHandler, this));
+    GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezProcGenGraphAssetDocumentWindow::PropertyEventHandler, this));
+    GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezProcGenGraphAssetDocumentWindow::SelectionEventHandler, this));
+  }
 
   RestoreResource();
 }
@@ -147,12 +154,37 @@ void ezProcGenGraphAssetDocumentWindow::PropertyEventHandler(const ezDocumentObj
   {
     UpdatePreview();
   }
+  else if (e.m_pObject->GetType() == ezGetStaticRTTI<ezProcGenGraphAssetProperties>())
+  {
+    GetProcGenGraphDocument()->UpdateDebugNode();
+    UpdatePreview();
+  }
 }
 
-void ezProcGenGraphAssetDocumentWindow::TransationEventHandler(const ezCommandHistoryEvent& e)
+void ezProcGenGraphAssetDocumentWindow::TransactionEventHandler(const ezCommandHistoryEvent& e)
 {
   if (e.m_Type == ezCommandHistoryEvent::Type::TransactionEnded || e.m_Type == ezCommandHistoryEvent::Type::UndoEnded || e.m_Type == ezCommandHistoryEvent::Type::RedoEnded)
   {
     UpdatePreview();
+  }
+}
+
+void ezProcGenGraphAssetDocumentWindow::SelectionEventHandler(const ezSelectionManagerEvent& e)
+{
+  if (GetDocument()->GetSelectionManager()->IsSelectionEmpty())
+  {
+    // delayed execution
+    QTimer::singleShot(1,
+      [this]()
+      {
+        auto pDocument = GetDocument();
+        auto pSelectionManager = pDocument->GetSelectionManager();
+
+        // Check again if the selection is empty. This could have changed due to the delayed execution.
+        if (pSelectionManager->IsSelectionEmpty())
+        {
+          pSelectionManager->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
+        }
+      });
   }
 }

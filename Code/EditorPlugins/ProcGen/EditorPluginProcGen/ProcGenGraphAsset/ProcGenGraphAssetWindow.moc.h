@@ -30,7 +30,9 @@ private:
 
   // needed for setting the debug pin
   void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
-  void TransationEventHandler(const ezCommandHistoryEvent& e);
+  void TransactionEventHandler(const ezCommandHistoryEvent& e);
+
+  void SelectionEventHandler(const ezSelectionManagerEvent& e);
 
   ezQtNodeScene* m_pScene;
   ezQtNodeView* m_pView;

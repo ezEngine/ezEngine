@@ -18,3 +18,4 @@
 
 #include <QLabel>
 #include <QLayout>
+#include <QTimer>
