@@ -22,7 +22,7 @@ namespace ozz::animation
   class Skeleton;
 }
 
-/// \brief What shape is used to approximate a bone's geometry
+/// What shape is used to approximate a bone's geometry
 struct ezSkeletonJointGeometryType
 {
   using StorageType = ezUInt8;
@@ -40,10 +40,20 @@ struct ezSkeletonJointGeometryType
   };
 };
 
-/// \brief Used by components that skin a mesh to inform children whenever a new pose is being prepared.
+/// Sent before converting local-space poses to model-space, allowing last-minute modifications.
 ///
-/// The pose matrices are still in local space and in the ozz internal structure-of-arrays format.
-/// At this point individual bones can still be modified, to propagate the effect to the child bones.
+/// This message is sent during pose generation after all blending is complete but before the
+/// local to model space conversion. The transforms are still in local space (relative to parent)
+/// and in ozz's Structure-of-Arrays (SoA) format.
+///
+/// **Use cases:**
+/// - Modify specific bones before final pose computation
+/// - Apply procedural adjustments that need to propagate to children
+/// - Override animation data for specific joints
+///
+/// **Timing:** Sent from ezAnimPoseGenerator during UpdatePose(), before LocalToModelPose command execution
+///
+/// **Note:** Modifications at this stage will affect all child bones in the hierarchy.
 struct EZ_RENDERERCORE_DLL ezMsgAnimationPosePreparing : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgAnimationPosePreparing, ezMessage);
@@ -52,41 +62,70 @@ struct EZ_RENDERERCORE_DLL ezMsgAnimationPosePreparing : public ezMessage
   ezArrayPtr<ozz::math::SoaTransform> m_LocalTransforms;
 };
 
-/// \brief Sent to objects when a parent component is generating an animation pose, to inject additional pose commands, for instance to apply inverse kinematics (IK).
+/// Sent during pose generation to allow components to inject additional commands (IK, constraints, etc.).
 ///
-/// The message contains the ezAnimPoseGenerator that is currently being built.
-/// Usually it has already been executed once and generated a pose (in model space), which can be queried to build upon.
-/// Additional commands can then be added to modify the pose.
-/// This is mainly meant for inverse kinematics use cases.
-struct EZ_RENDERERCORE_DLL ezMsgAnimationPoseGeneration : public ezMessage
+/// This message provides access to the ezAnimPoseGenerator during pose construction, allowing components
+/// to add their own commands to the command DAG. This is the primary extension point for inverse kinematics,
+/// powered ragdolls, and other pose modifications that need access to the current pose.
+///
+/// **Typical workflow:**
+/// 1. Base pose is generated and converted to model space
+/// 2. This message is sent to child components with the pose generator
+/// 3. Components query the current pose via m_pGenerator->GetCurrentPose()
+/// 4. Components add IK or other commands (AimIK, TwoBoneIK, custom constraints)
+/// 5. New commands reference the existing final command as input
+/// 6. Component updates the final command via SetFinalCommand()
+/// 7. Pose generator re-evaluates with the additional commands
+///
+/// **Timing:** Sent from ezAnimController::Update() after initial pose generation but before final output
+/// ```
+struct EZ_RENDERERCORE_DLL ezMsgInjectPoseCommands : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgAnimationPoseGeneration, ezMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgInjectPoseCommands, ezMessage);
 
   ezAnimPoseGenerator* m_pGenerator = nullptr;
+
+  /// Current execution pass number. Components compare this against their m_uiOrder property to determine if they should execute in this pass.
   ezUInt16 m_uiOrderNow = 0;
+
+  /// Lowest order number that any component wants to be executed at. Components set this to schedule a future pass. 0xFFFF means no further passes needed.
   ezUInt16 m_uiOrderNext = 0xFFFF;
 };
 
-/// \brief Used by components that skin a mesh to inform children whenever a new pose has been computed.
+/// Sent after a new animation pose has been fully computed, providing the final bone transforms.
 ///
-/// This can be used by child nodes/components to synchronize their state to the new animation pose.
-/// The message is sent while the pose is in object space.
-/// Both skeleton and pose pointer are always valid.
+/// This message is sent to child components after all pose generation, blending, and IK have been applied.
+/// The transforms are in model space (relative to skeleton root) and ready for rendering or further processing.
+///
+/// **Use cases:**
+/// - Apply pose to ezSkinnedMeshComponent for rendering
+/// - Attach objects to specific bones (weapons, accessories)
+/// - Sync particle effects to animation state
+/// - Update physics bodies for animated bones
+///
+/// **Timing:** Sent from the component that owns the animation controller after UpdatePose() completes
 struct EZ_RENDERERCORE_DLL ezMsgAnimationPoseUpdated : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgAnimationPoseUpdated, ezMessage);
 
+  /// Calculates world space transform.
+  ///
+  /// mRootTransform may contain (non-uniform) scaling and mirroring, which the quaternion can't represent.
+  /// Therefore ref_mFullTransform is a full 4x4 matrix and ref_qRotationOnly gets reconstructed from it in a more elaborate way.
   static void ComputeFullBoneTransform(const ezMat4& mRootTransform, const ezMat4& mModelTransform, ezMat4& ref_mFullTransform, ezQuat& ref_qRotationOnly);
   void ComputeFullBoneTransform(ezUInt32 uiJointIndex, ezMat4& ref_mFullTransform) const;
   void ComputeFullBoneTransform(ezUInt32 uiJointIndex, ezMat4& ref_mFullTransform, ezQuat& ref_qRotationOnly) const;
 
+  /// World transform of the skeleton root
   const ezTransform* m_pRootTransform = nullptr;
   const ezSkeleton* m_pSkeleton = nullptr;
+
+  /// Bone transforms relative to skeleton root
   ezArrayPtr<const ezMat4> m_ModelTransforms;
   bool m_bContinueAnimating = true;
 };
 
-/// \brief Used by components that do rope simulation and rendering.
+/// Used by components that do rope simulation and rendering.
 ///
 /// The rope simulation component sends this message to components attached to the same game object,
 /// every time there is a new rope pose. There is no skeleton information, since all joints/bones are
@@ -100,7 +139,7 @@ struct EZ_RENDERERCORE_DLL ezMsgRopePoseUpdated : public ezMessage
   ezArrayPtr<const ezTransform> m_LinkTransforms;
 };
 
-/// \brief The animated mesh component listens to this message and 'answers' by filling out the skeleton resource handle.
+/// The animated mesh component listens to this message and 'answers' by filling out the skeleton resource handle.
 ///
 /// This can be used by components that require a skeleton, to ask the nearby components to provide it to them.
 struct EZ_RENDERERCORE_DLL ezMsgQueryAnimationSkeleton : public ezMessage
@@ -110,9 +149,13 @@ struct EZ_RENDERERCORE_DLL ezMsgQueryAnimationSkeleton : public ezMessage
   ezSkeletonResourceHandle m_hSkeleton;
 };
 
-/// \brief This message is sent when animation root motion data is available.
+/// Sent when root motion has been extracted from animations, providing movement data for the character.
 ///
-/// Listening components can use this to move a character.
+/// Root motion is the translation and rotation of the skeleton root extracted from animation clips.
+/// It allows animations to drive character movement in the world, preventing "sliding feet" and
+/// enabling animation-driven locomotion.
+///
+/// **Note:** Root motion must be enabled on animation sampling nodes via m_fRootMotionAmount (0-1 blend factor).
 struct EZ_RENDERERCORE_DLL ezMsgApplyRootMotion : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgApplyRootMotion, ezMessage);
@@ -123,7 +166,7 @@ struct EZ_RENDERERCORE_DLL ezMsgApplyRootMotion : public ezMessage
   ezAngle m_RotationZ;
 };
 
-/// \brief Queries the local transforms of each bone in an object with a skeleton
+/// Queries the local transforms of each bone in an object with a skeleton
 ///
 /// Used to retrieve the pose of a ragdoll after simulation.
 struct EZ_RENDERERCORE_DLL ezMsgRetrieveBoneState : public ezMessage
@@ -134,7 +177,7 @@ struct EZ_RENDERERCORE_DLL ezMsgRetrieveBoneState : public ezMessage
   ezMap<ezString, ezTransform> m_BoneTransforms;
 };
 
-/// \brief What type of physics constraint to use for a bone.
+/// What type of physics constraint to use for a bone.
 struct ezSkeletonJointType
 {
   using StorageType = ezUInt8;
@@ -154,7 +197,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezSkeletonJointType);
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief What to do when an animated object is not visible.
+/// What to do when an animated object is not visible.
 ///
 /// It is often important to still update animated meshes, so that animation events get handled.
 /// Also even though a mesh may be invisible itself, its shadow or reflection may still be visible.

@@ -60,7 +60,7 @@ public:
   float GetDebugVisScale() const;
 
 protected:
-  void OnMsgAnimationPoseGeneration(ezMsgAnimationPoseGeneration& msg) const; // [ msg handler ]
+  void OnInjectPoseCommands(ezMsgInjectPoseCommands& msg) const; // [ msg handler ]
 
   ezUInt8 m_uiDebugVisScale = 0;
 

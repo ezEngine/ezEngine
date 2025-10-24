@@ -69,7 +69,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltRagdollComponent, 5, ezComponentMode::Dynamic)
     EZ_MESSAGE_HANDLER(ezMsgAnimationPoseUpdated, OnAnimationPoseUpdated),
     EZ_MESSAGE_HANDLER(ezMsgRetrieveBoneState, OnRetrieveBoneState),
     EZ_MESSAGE_HANDLER(ezMsgPhysicsAddImpulse, OnMsgPhysicsAddImpulse),
-    EZ_MESSAGE_HANDLER(ezMsgAnimationPoseGeneration, OnMsgAnimationPoseGeneration),
+    EZ_MESSAGE_HANDLER(ezMsgInjectPoseCommands, OnInjectPoseCommands),
   }
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
@@ -561,7 +561,7 @@ void ezJoltRagdollComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& r
   if (HasCreatedLimbs())
   {
     // Note: if this code is reached, although the ragdoll is supposed to use the animation (controlled or powered anim mode)
-    // then the component that generates the animation doesn't have "Apply IK" enabled, ie it doesn't send ezMsgAnimationPoseGeneration
+    // then the component that generates the animation doesn't have "Apply IK" enabled, ie it doesn't send ezMsgInjectPoseCommands
     ref_poseMsg.m_bContinueAnimating = false;
 
     // TODO: if at some point we can layer ragdolls with detail animations, we should
@@ -615,7 +615,7 @@ static void ComputeFullBoneTransform(const ezMat4& mRootTransform, const ezMat4&
   out_transform.m_vPosition = mFullTransform.GetTranslationVector();
 }
 
-void ezJoltRagdollComponent::OnMsgAnimationPoseGeneration(ezMsgAnimationPoseGeneration& ref_msg)
+void ezJoltRagdollComponent::OnInjectPoseCommands(ezMsgInjectPoseCommands& ref_msg)
 {
   if (m_AnimMode == ezJoltRagdollAnimMode::Limp)
     return;
@@ -623,9 +623,11 @@ void ezJoltRagdollComponent::OnMsgAnimationPoseGeneration(ezMsgAnimationPoseGene
   if (!HasCreatedLimbs())
     return;
 
+  // if we are already past this, just return
   if (ref_msg.m_uiOrderNow > 0xFF00)
     return;
 
+  // if we haven't reached this yet, put it in the queue
   if (ref_msg.m_uiOrderNow < 0xFF00)
   {
     ref_msg.m_uiOrderNext = ezMath::Min<ezUInt16>(ref_msg.m_uiOrderNext, 0xFF00);

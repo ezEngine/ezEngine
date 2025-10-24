@@ -256,7 +256,7 @@ void ezAnimPoseGenerator::UpdatePose(bool bRequestExternalPoseGeneration)
 
   if (bRequestExternalPoseGeneration && m_pTargetGameObject)
   {
-    ezMsgAnimationPoseGeneration poseGenMsg;
+    ezMsgInjectPoseCommands poseGenMsg;
     poseGenMsg.m_pGenerator = this;
 
     while (true)

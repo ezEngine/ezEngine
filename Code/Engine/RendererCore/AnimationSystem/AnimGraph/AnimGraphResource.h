@@ -16,6 +16,16 @@ class ezAnimGraphNode;
 
 using ezAnimGraphResourceHandle = ezTypedResourceHandle<class ezAnimGraphResource>;
 
+/// Maps a logical animation clip name to an actual animation clip resource.
+///
+/// Animation graphs reference clips by name (e.g., "Walk", "Jump") rather than directly referencing
+/// resources. This allows the same graph to be used with different animation sets by remapping the clip
+/// names to different resources.
+///
+/// This indirection allows:
+/// - Same graph with different animation sets (e.g., male/female characters)
+/// - Runtime clip swapping for character customization
+/// - Graph reuse across different character types
 struct EZ_RENDERERCORE_DLL ezAnimationClipMapping : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezAnimationClipMapping, ezReflectedClass);
@@ -27,6 +37,22 @@ struct EZ_RENDERERCORE_DLL ezAnimationClipMapping : public ezReflectedClass
   void SetClipName(const char* szName) { m_sClipName.Assign(szName); }
 };
 
+/// Resource containing an animation graph definition (ezAnimGraph) and its animation clip mappings (ezAnimationClipMapping).
+///
+/// ## Content
+///
+/// - **Animation Graph**: The node graph structure (ezAnimGraph)
+/// - **Clip Mappings**: Maps logical names like "Walk" to actual animation clip resources
+/// - **Include Graphs**: References to other graph resources to compose larger graphs
+///
+/// ## Usage Pattern
+///
+/// Resources are loaded via the resource manager and shared across multiple characters:
+///
+/// ```cpp
+/// ezAnimGraphResourceHandle hGraph = ezResourceManager::LoadResource<ezAnimGraphResource>("Character.ezAnimGraph");
+/// controller.AddAnimGraph(hGraph);
+/// ```
 class EZ_RENDERERCORE_DLL ezAnimGraphResource : public ezResource
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezAnimGraphResource, ezResource);
@@ -38,7 +64,14 @@ public:
 
   const ezAnimGraph& GetAnimationGraph() const { return m_AnimGraph; }
 
+  /// References to other animation graph resources that should be included.
+  ///
+  /// Used to compose complex graphs from smaller reusable pieces.
   ezArrayPtr<const ezString> GetIncludeGraphs() const { return m_IncludeGraphs; }
+
+  /// Default mappings from clip names to animation resources.
+  ///
+  /// These can be overridden at runtime via ezAnimController::SetAnimationClipInfo().
   const ezDynamicArray<ezAnimationClipMapping>& GetAnimationClipMapping() const { return m_AnimationClipMapping; }
 
 private:

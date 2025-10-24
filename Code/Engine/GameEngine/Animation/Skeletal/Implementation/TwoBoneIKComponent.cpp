@@ -32,7 +32,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezTwoBoneIKComponent, 3, ezComponentMode::Dynamic);
 
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgAnimationPoseGeneration, OnMsgAnimationPoseGeneration)
+    EZ_MESSAGE_HANDLER(ezMsgInjectPoseCommands, OnInjectPoseCommands)
   }
   EZ_END_MESSAGEHANDLERS;
 }
@@ -113,7 +113,7 @@ void ezTwoBoneIKComponent::DeserializeComponent(ezWorldReader& inout_stream)
   }
 }
 
-void ezTwoBoneIKComponent::OnMsgAnimationPoseGeneration(ezMsgAnimationPoseGeneration& msg) const
+void ezTwoBoneIKComponent::OnInjectPoseCommands(ezMsgInjectPoseCommands& msg) const
 {
   if (m_fWeight <= 0.0f && m_uiDebugVisScale == 0)
     return;

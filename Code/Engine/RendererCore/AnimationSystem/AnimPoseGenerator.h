@@ -21,7 +21,7 @@ using ezAnimPoseGeneratorLocalPoseID = ezUInt32;
 using ezAnimPoseGeneratorModelPoseID = ezUInt32;
 using ezAnimPoseGeneratorCommandID = ezUInt32;
 
-/// \brief The type of ezAnimPoseGeneratorCommand
+/// The type of ezAnimPoseGeneratorCommand
 enum class ezAnimPoseGeneratorCommandType
 {
   Invalid,
@@ -44,7 +44,7 @@ enum class ezAnimPoseEventTrackSampleMode : ezUInt8
   BounceAtStart ///< Sample the event track between PrevSamplePos and Start, then Start and SamplePos
 };
 
-/// \brief Base class for all pose generator commands
+/// Base class for all pose generator commands
 ///
 /// All commands have a unique command ID with which they are referenced.
 /// All commands can have zero or N other commands set as *inputs*.
@@ -68,7 +68,7 @@ private:
   ezAnimPoseGeneratorCommandType m_Type = ezAnimPoseGeneratorCommandType::Invalid;
 };
 
-/// \brief Returns the rest pose (also often called 'bind pose').
+/// Returns the rest pose (also often called 'bind pose').
 ///
 /// The command has to be added as an input to one of
 /// * ezAnimPoseGeneratorCommandCombinePoses
@@ -81,7 +81,7 @@ private:
   ezAnimPoseGeneratorLocalPoseID m_LocalPoseOutput = ezInvalidIndex;
 };
 
-/// \brief Samples an animation clip at a given time and optionally also its event track.
+/// Samples an animation clip at a given time and optionally also its event track.
 ///
 /// The command has to be added as an input to one of
 /// * ezAnimPoseGeneratorCommandCombinePoses
@@ -106,7 +106,7 @@ private:
   ezAnimPoseGeneratorLocalPoseID m_LocalPoseOutput = ezInvalidIndex;
 };
 
-/// \brief Combines all the local space poses that are given as input into one local pose.
+/// Combines all the local space poses that are given as input into one local pose.
 ///
 /// The input commands must be of type
 /// * ezAnimPoseGeneratorCommandSampleTrack
@@ -126,7 +126,7 @@ private:
   ezAnimPoseGeneratorLocalPoseID m_LocalPoseOutput = ezInvalidIndex;
 };
 
-/// \brief Samples the event track of an animation clip but doesn't generate an animation pose.
+/// Samples the event track of an animation clip but doesn't generate an animation pose.
 ///
 /// Commands of this type can be added as inputs to commands of type
 /// * ezAnimPoseGeneratorCommandSampleTrack
@@ -147,7 +147,7 @@ private:
   ezUInt32 m_uiUniqueID = 0;
 };
 
-/// \brief Base class for commands that produce or update a model pose.
+/// Base class for commands that produce or update a model pose.
 struct EZ_RENDERERCORE_DLL ezAnimPoseGeneratorCommandModelPose : public ezAnimPoseGeneratorCommand
 {
 protected:
@@ -157,7 +157,7 @@ protected:
   ezAnimPoseGeneratorLocalPoseID m_LocalPoseOutput = ezInvalidIndex;
 };
 
-/// \brief Accepts a single input in local space and converts it to model space.
+/// Accepts a single input in local space and converts it to model space.
 ///
 /// The input command must be of type
 /// * ezAnimPoseGeneratorCommandSampleTrack
@@ -168,7 +168,7 @@ struct EZ_RENDERERCORE_DLL ezAnimPoseGeneratorCommandLocalToModelPose final : pu
   ezGameObject* m_pSendLocalPoseMsgTo = nullptr;
 };
 
-/// \brief Accepts a single input in model space and applies aim IK (inverse kinematics) on it. Updates the model pose in place.
+/// Accepts a single input in model space and applies aim IK (inverse kinematics) on it. Updates the model pose in place.
 ///
 /// The input command must be of type
 /// * ezAnimPoseGeneratorCommandLocalToModelPose
@@ -187,7 +187,7 @@ struct EZ_RENDERERCORE_DLL ezAnimPoseGeneratorCommandAimIK final : public ezAnim
   bool m_bInversePoleVector = false;                            ///< If true, the pole vector direction will point away from the pole vector position, rather than towards it. Useful in an aim IK chain to have all bones point away from a central point.
 };
 
-/// \brief Accepts a single input in model space and applies two-bone IK (inverse kinematics) on it. Updates the model pose in place.
+/// Accepts a single input in model space and applies two-bone IK (inverse kinematics) on it. Updates the model pose in place.
 ///
 /// The input command must be of type
 /// * ezAnimPoseGeneratorCommandLocalToModelPose
@@ -208,10 +208,44 @@ struct EZ_RENDERERCORE_DLL ezAnimPoseGeneratorCommandTwoBoneIK final : public ez
   ezAngle m_TwistAngle;                                         ///< After IK how much to rotate the chain. Seems to be redundant with the pole vector. See OZZ for details.
 };
 
-/// \brief Low-level infrastructure to generate animation poses from animation clips and other inputs.
+/// Low-level infrastructure to generate animation poses using a command-based DAG (directed acyclic graph).
 ///
-/// Even though instances of this class should be reused over frames, it is assumed that all commands are recreated every frame, to build a new pose.
-/// Some commands take predecessor commands as inputs to combine. If a command turns out not be actually needed, it won't be evaluated.
+/// ## Architecture
+///
+/// The pose generator uses a command pattern to build a dependency graph for pose generation.
+/// Commands are allocated and connected to form a DAG where each command can have zero or more input commands.
+/// This architecture provides two key benefits:
+/// 1. Efficient evaluation: Only commands reachable from the "final command" are executed
+/// 2. Avoid redundant work: Each command executes exactly once, even if multiple commands depend on it
+///
+/// ## Command Types
+///
+/// These command types are currently available:
+/// - **SampleTrack**: Sample an animation clip at a specific time position
+/// - **RestPose**: Output the skeleton's rest/bind pose
+/// - **CombinePoses**: Blend multiple local-space poses with weights and optional per-bone masks
+/// - **LocalToModelPose**: Convert local-space transforms to model-space (concatenate hierarchy)
+/// - **SampleEventTrack**: Sample animation events without generating pose data
+/// - **AimIK**: Point a bone at a target position (inverse kinematics)
+/// - **TwoBoneIK**: Solve a two-bone chain to reach a target (arm/leg IK)
+///
+/// ## Data Flow
+///
+/// Commands operate on two types of pose data:
+/// - **Local poses**: Joint transforms relative to parent (ozz::math::SoaTransform format for SIMD efficiency)
+/// - **Model poses**: Joint transforms relative to skeleton root (ezMat4 format)
+///
+/// Typical flow:
+/// 1. Sample/RestPose commands generate local poses
+/// 2. CombinePoses blends local poses together
+/// 3. LocalToModelPose converts to model space
+/// 4. IK commands modify model-space transforms
+/// 5. Final model pose is retrieved via GetCurrentPose()
+///
+/// ## Usage Pattern
+///
+/// The generator is reused across frames for efficiency (caches sampling contexts), but commands
+/// are recreated each frame to build a new pose.
 class EZ_RENDERERCORE_DLL ezAnimPoseGenerator final
 {
 public:
@@ -234,24 +268,24 @@ public:
   const ezAnimPoseGeneratorCommand& GetCommand(ezAnimPoseGeneratorCommandID id) const;
   ezAnimPoseGeneratorCommand& GetCommand(ezAnimPoseGeneratorCommandID id);
 
-  /// \brief Calculates the pose, using the final command as reference where to start.
+  /// Calculates the pose, using the final command as reference where to start.
   ///
   /// If bRequestExternalPoseGeneration is true, inverse-kinematics (IK) and powered ragdolls are also used.
   void UpdatePose(bool bRequestExternalPoseGeneration);
 
   ezArrayPtr<ezMat4> GetCurrentPose() const { return m_OutputPose; }
 
-  /// \brief Sets the (currently) final command in the pose generation.
+  /// Sets the (currently) final command in the pose generation.
   ///
   /// This will be used to determine which other commands are necessary to calculate.
   void SetFinalCommand(ezAnimPoseGeneratorCommandID cmdId) { m_FinalCommand = cmdId; }
 
-  /// \brief Returns the (currently) final command.
+  /// Returns the (currently) final command.
   ///
   /// Can be used to inject further commands after it. Call SetFinalCommand() afterwards.
   ezAnimPoseGeneratorCommandID GetFinalCommand() const { return m_FinalCommand; }
 
-  /// \brief Whether the caller should send ezMsgAnimationPoseUpdated to its children.
+  /// Whether the caller should send ezMsgAnimationPoseUpdated to its children.
   ///
   /// Typically this should be done, to forward the calculated pose to the animated mesh components.
   /// However, when some other component takes over control (usually a ragdoll),

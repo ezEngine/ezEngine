@@ -25,13 +25,23 @@ namespace ozz
   }
 } // namespace ozz
 
-/// \brief Base class for all nodes in an ezAnimGraphInstance
+/// Base class for all nodes in an ezAnimGraph
 ///
-/// These nodes are used to configure which skeletal animations can be played on an object,
-/// and how they would be played back exactly.
-/// The nodes implement different functionality. For example logic nodes are used to figure out how to play an animation,
-/// other nodes then sample and combining animation poses, and yet other nodes can inform the user about events
-/// or they write state back to the animation graph's blackboard.
+/// Animation graph nodes implement different operations in the animation system such as sampling clips,
+/// blending poses, logic operations, or even outputting debug information.
+///
+/// Nodes define:
+/// - Input and output pins (typed connections to other nodes)
+/// - Behavior in the Step() method (called each frame during graph evaluation)
+/// - Optional per-instance state data (playback time, blend weights, etc.)
+///
+/// Nodes that need to store state across frames (like playback time or transition progress) should use
+/// the instance data pattern. This allows one graph definition (ezAnimGraph) to be shared by many
+/// runtime instances (ezAnimGraphInstance), where each instance has its own state data.
+///
+/// The same ezAnimGraph can be used by hundreds of characters, each with their own
+/// ezAnimGraphInstance and instance data. The graph definition (nodes, connections, pins) is shared
+/// to minimize memory overhead.
 class EZ_RENDERERCORE_DLL ezAnimGraphNode : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezAnimGraphNode, ezReflectedClass);
@@ -60,4 +70,3 @@ protected:
   virtual void Step(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezTime tDiff, const ezSkeletonResource* pSkeleton, ezGameObject* pTarget) const = 0;
   virtual bool GetInstanceDataDesc(ezInstanceDataDesc& out_desc) const { return false; }
 };
-

@@ -1357,7 +1357,7 @@ class ezMessage
   ezMsgSetColor@ opCast();
   ezMsgSetCustomData@ opCast();
   ezMsgAnimationPosePreparing@ opCast();
-  ezMsgAnimationPoseGeneration@ opCast();
+  ezMsgInjectPoseCommands@ opCast();
   ezMsgAnimationPoseUpdated@ opCast();
   ezMsgRopePoseUpdated@ opCast();
   ezMsgQueryAnimationSkeleton@ opCast();
@@ -3020,7 +3020,7 @@ class ezMsgAnimationPosePreparing : ezMessage
 {
 }
 
-class ezMsgAnimationPoseGeneration : ezMessage
+class ezMsgInjectPoseCommands : ezMessage
 {
 }
 

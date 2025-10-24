@@ -42,7 +42,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezAimIKComponent, 3, ezComponentMode::Dynamic);
 
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgAnimationPoseGeneration, OnMsgAnimationPoseGeneration)
+    EZ_MESSAGE_HANDLER(ezMsgInjectPoseCommands, OnInjectPoseCommands)
   }
   EZ_END_MESSAGEHANDLERS;
 }
@@ -128,7 +128,7 @@ void ezAimIKComponent::DeserializeComponent(ezWorldReader& inout_stream)
   }
 }
 
-void ezAimIKComponent::OnMsgAnimationPoseGeneration(ezMsgAnimationPoseGeneration& msg) const
+void ezAimIKComponent::OnInjectPoseCommands(ezMsgInjectPoseCommands& msg) const
 {
   if ((m_fWeight <= 0.0f && m_uiDebugVisScale == 0) || m_Joints.IsEmpty())
     return;

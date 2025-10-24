@@ -4,8 +4,8 @@
 #include <EditorPluginAssets/AnimationGraphAsset/AnimationGraphQt.h>
 #include <Foundation/Math/ColorScheme.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraph.h>
-#include <RendererCore/AnimationSystem/AnimGraph/AnimNodes2/PoseResultAnimNode.h>
-#include <RendererCore/AnimationSystem/AnimGraph/AnimNodes2/SampleFrameAnimNode.h>
+#include <RendererCore/AnimationSystem/AnimGraph/Nodes/Output/PoseResultAnimNode.h>
+#include <RendererCore/AnimationSystem/AnimGraph/Nodes/Pose/SampleFrameAnimNode.h>
 #include <ToolsFoundation/NodeObject/NodeCommandAccessor.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 #include <ToolsFoundation/Serialization/ToolsSerializationUtils.h>
@@ -149,30 +149,10 @@ void ezAnimationGraphNodeManager::InternalCreatePins(const ezDocumentObject* pOb
         pPin->m_DataType = ezAnimGraphPin::LocalPose;
         ref_node.m_Inputs.PushBack(pPin);
       }
-      else if (pProp->GetSpecificType()->IsDerivedFrom<ezAnimGraphLocalPoseMultiInputPin>())
-      {
-        auto pPin = EZ_DEFAULT_NEW(ezAnimationGraphNodePin, ezPin::Type::Input, pinName, localPosePinColor, pObject);
-        pPin->m_DataType = ezAnimGraphPin::LocalPose;
-        pPin->m_bMultiInputPin = true;
-        pPin->m_Shape = ezPin::Shape::RoundRect;
-        ref_node.m_Inputs.PushBack(pPin);
-      }
       else if (pProp->GetSpecificType()->IsDerivedFrom<ezAnimGraphLocalPoseOutputPin>())
       {
         auto pPin = EZ_DEFAULT_NEW(ezAnimationGraphNodePin, ezPin::Type::Output, pinName, localPosePinColor, pObject);
         pPin->m_DataType = ezAnimGraphPin::LocalPose;
-        ref_node.m_Outputs.PushBack(pPin);
-      }
-      else if (pProp->GetSpecificType()->IsDerivedFrom<ezAnimGraphModelPoseInputPin>())
-      {
-        auto pPin = EZ_DEFAULT_NEW(ezAnimationGraphNodePin, ezPin::Type::Input, pinName, modelPosePinColor, pObject);
-        pPin->m_DataType = ezAnimGraphPin::ModelPose;
-        ref_node.m_Inputs.PushBack(pPin);
-      }
-      else if (pProp->GetSpecificType()->IsDerivedFrom<ezAnimGraphModelPoseOutputPin>())
-      {
-        auto pPin = EZ_DEFAULT_NEW(ezAnimationGraphNodePin, ezPin::Type::Output, pinName, modelPosePinColor, pObject);
-        pPin->m_DataType = ezAnimGraphPin::ModelPose;
         ref_node.m_Outputs.PushBack(pPin);
       }
       else

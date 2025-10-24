@@ -129,7 +129,7 @@ ezMeshComponentBase
 ezMeshDecalComponent
 ezMessage
 ezMoveToComponent
-ezMsgAnimationPoseGeneration
+ezMsgInjectPoseCommands
 ezMsgAnimationPosePreparing
 ezMsgAnimationPoseUpdated
 ezMsgAnimationReachedEnd

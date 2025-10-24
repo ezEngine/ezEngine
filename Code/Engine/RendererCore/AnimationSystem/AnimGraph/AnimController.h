@@ -20,6 +20,9 @@ using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>
 
 EZ_DEFINE_AS_POD_TYPE(ozz::math::SimdFloat4);
 
+/// Runtime data for bone weight pins, controlling which bones are affected by animations.
+///
+/// Used to mask out specific bones from animation influence, allowing selective animation blending.
 struct ezAnimGraphPinDataBoneWeights
 {
   ezUInt16 m_uiOwnIndex = 0xFFFF;
@@ -27,6 +30,9 @@ struct ezAnimGraphPinDataBoneWeights
   const ezAnimGraphSharedBoneWeights* m_pSharedBoneWeights = nullptr;
 };
 
+/// Runtime data for local pose pins, containing bone transforms in local space (relative to parent).
+///
+/// Local poses are the output of pose sampling and blending nodes before forward kinematics is applied.
 struct ezAnimGraphPinDataLocalTransforms
 {
   ezUInt16 m_uiOwnIndex = 0xFFFF;
@@ -37,6 +43,9 @@ struct ezAnimGraphPinDataLocalTransforms
   bool m_bUseRootMotion = false;
 };
 
+/// Runtime data for model pose pins, containing bone transforms in model space (relative to skeleton root).
+///
+/// Model poses are the output after forward kinematics has been applied, ready for final rendering.
 struct ezAnimGraphPinDataModelTransforms
 {
   ezUInt16 m_uiOwnIndex = 0xFFFF;
@@ -48,6 +57,48 @@ struct ezAnimGraphPinDataModelTransforms
   bool m_bUseRootMotion = false;
 };
 
+/// Manages and updates animation graph instances to generate animation poses.
+///
+/// This is the runtime bridge between animation graphs (ezAnimGraph) and the pose generation system
+/// (ezAnimPoseGenerator). It owns graph instances, manages their execution, handles data flow between
+/// graph nodes, and forwards the final pose to the renderer.
+///
+/// ## Responsibilities
+///
+/// - Creates and updates an ezAnimGraphInstance object for each loaded graph
+/// - Allocates and manages pin data storage (bone weights, local poses, model poses)
+/// - Accumulates root motion from animations for character movement
+/// - Forwards the provided blackboard for data sharing between graph nodes and gameplay code
+/// - Maps animation clip names to actual animation clip resources
+/// - Manages shared bone weight masks across all characters
+///
+/// ## Usage Pattern
+///
+/// Typically owned by ezAnimationControllerComponent. The component calls Initialize() once,
+/// then Update() every frame to generate new animation poses.
+///
+/// **Basic workflow:**
+/// ```cpp
+/// ezAnimController controller;
+/// controller.Initialize(skeletonHandle, poseGenerator, blackboard);
+/// controller.AddAnimGraph(animGraphHandle);
+/// controller.SetAnimationClipInfo("Walk", walkClipInfo);
+///
+/// // Each frame:
+/// controller.Update(deltaTime, pGameObject, bEnableIK);
+/// controller.GetRootMotion(translation, rotX, rotY, rotZ);
+/// ```
+///
+/// ## Blackboard Integration
+///
+/// The blackboard is used for communication between gameplay code and animation graphs.
+/// Nodes can read blackboard values (movement speed, aim direction) to drive blending,
+/// and write values (footstep events, animation state) back to gameplay.
+///
+/// ## Multiple Graphs
+///
+/// Multiple animation graphs can be added to create layered animations (e.g., base locomotion
+/// + upper body aim).
 class EZ_RENDERERCORE_DLL ezAnimController
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezAnimController);
@@ -56,16 +107,34 @@ public:
   ezAnimController();
   ~ezAnimController();
 
+  /// Initializes the controller with a skeleton and pose generator.
+  ///
+  /// Must be called before adding graphs or updating. The optional blackboard is used for
+  /// data sharing between animation graphs and gameplay code.
   void Initialize(const ezSkeletonResourceHandle& hSkeleton, ezAnimPoseGenerator& ref_poseGenerator, const ezSharedPtr<ezBlackboard>& pBlackboard = nullptr);
 
+  /// Updates all animation graph instances and generates the final pose.
+  ///
+  /// Steps all nodes in all graphs, accumulates results, forwards the final pose to the pose generator,
+  /// and sends ezMsgAnimationPoseUpdated to the target object and its children.
+  ///
+  /// Returns false if the target requested to stop animating via msg.m_bContinueAnimating.
   bool Update(ezTime diff, ezGameObject* pTarget, bool bEnableIK);
 
+  /// Retrieves accumulated root motion from the last Update().
+  ///
+  /// Root motion is the translation and rotation extracted from animations, used to move characters
+  /// based on their animation. This could be applied to the character controller or entity.
   void GetRootMotion(ezVec3& ref_vTranslation, ezAngle& ref_rotationX, ezAngle& ref_rotationY, ezAngle& ref_rotationZ) const;
 
   const ezSharedPtr<ezBlackboard>& GetBlackboard() { return m_pBlackboard; }
 
   ezAnimPoseGenerator& GetPoseGenerator() { return *m_pPoseGenerator; }
 
+  /// Creates or retrieves a shared bone weight mask.
+  ///
+  /// Bone weights are shared globally across all characters to save memory. The fill delegate is called
+  /// only once when the weights are first created. Subsequent calls with the same name return the cached weights.
   static ezSharedPtr<ezAnimGraphSharedBoneWeights> CreateBoneWeights(const char* szUniqueName, const ezSkeletonResource& skeleton, ezDelegate<void(ezAnimGraphSharedBoneWeights&)> fill);
 
   void SetOutputModelTransform(ezAnimGraphPinDataModelTransforms* pModelTransform);
@@ -77,8 +146,10 @@ public:
   ezAnimGraphPinDataLocalTransforms* AddPinDataLocalTransforms();
   ezAnimGraphPinDataModelTransforms* AddPinDataModelTransforms();
 
+  /// Loads an animation graph and creates a runtime instance for it.
+  ///
+  /// Multiple graphs can be added to layer animations. They are evaluated in the order added.
   void AddAnimGraph(const ezAnimGraphResourceHandle& hGraph);
-  // TODO void RemoveAnimGraph(const ezAnimGraphResource& hGraph);
 
   struct AnimClipInfo
   {
@@ -132,9 +203,6 @@ private:
   friend class ezAnimGraphBoneWeightsOutputPin;
   friend class ezAnimGraphLocalPoseInputPin;
   friend class ezAnimGraphLocalPoseOutputPin;
-  friend class ezAnimGraphModelPoseInputPin;
-  friend class ezAnimGraphModelPoseOutputPin;
-  friend class ezAnimGraphLocalPoseMultiInputPin;
   friend class ezAnimGraphNumberInputPin;
   friend class ezAnimGraphNumberOutputPin;
   friend class ezAnimGraphBoolInputPin;
