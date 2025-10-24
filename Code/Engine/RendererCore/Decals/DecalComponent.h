@@ -148,7 +148,7 @@ protected:
   void OnTriggered(ezMsgComponentInternalTrigger& msg);
   void OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg);
   void OnMsgOnlyApplyToObject(ezMsgOnlyApplyToObject& msg);
-  void OnMsgSetColor(ezMsgSetColor& msg);
+  void OnMsgSetColor(ezMsgSetColor& ref_msg);
 
   ezVec3 m_vExtents = ezVec3(1.0f);
   float m_fSizeVariance = 0;

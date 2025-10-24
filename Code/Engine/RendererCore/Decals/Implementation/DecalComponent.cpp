@@ -581,9 +581,17 @@ void ezDecalComponent::OnMsgOnlyApplyToObject(ezMsgOnlyApplyToObject& msg)
   SetApplyOnlyTo(msg.m_hObject);
 }
 
-void ezDecalComponent::OnMsgSetColor(ezMsgSetColor& msg)
+void ezDecalComponent::OnMsgSetColor(ezMsgSetColor& ref_msg)
 {
-  msg.ModifyColor(m_Color);
+  ezColor newColor = m_Color;
+  ref_msg.ModifyColor(newColor);
+
+  if (m_Color != newColor)
+  {
+    m_Color = newColor;
+
+    InvalidateCachedRenderData();
+  }
 }
 
 ezUInt32 ezDecalComponent::DecalFile_GetCount() const
