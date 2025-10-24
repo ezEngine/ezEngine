@@ -23,7 +23,9 @@ using namespace ezProcGenInternal;
 ezCVarInt cvar_ProcGenProcessingMaxTiles("ProcGen.Processing.MaxTiles", 8, ezCVarFlags::Default, "Maximum number of tiles in process");
 ezCVarInt cvar_ProcGenProcessingMaxNewObjectsPerFrame("ProcGen.Processing.MaxNewObjectsPerFrame", 256, ezCVarFlags::Default, "Maximum number of objects placed per frame");
 ezCVarBool cvar_ProcGenVisTiles("ProcGen.VisTiles", false, ezCVarFlags::Default, "Enables debug visualization of procedural placement tiles");
-ezCVarString cvar_ProcGenOutputFilter("ProcGen.VisTiles.OutputFilter", "", ezCVarFlags::Default, "When set only tiles form the matching output are shown");
+ezCVarString cvar_ProcGenVisTilesOutputFilter("ProcGen.VisTiles.OutputFilter", "", ezCVarFlags::Default, "When set only tiles form the matching output are shown");
+ezCVarInt cvar_ProcGenVisTileTileX("ProcGen.VisTiles.PosX", ezMath::MaxValue<int>(), ezCVarFlags::Default, "The x position of the tile to visualize");
+ezCVarInt cvar_ProcGenVisTileTileY("ProcGen.VisTiles.PosY", ezMath::MaxValue<int>(), ezCVarFlags::Default, "The y position of the tile to visualize");
 
 ezProcPlacementComponentManager::ezProcPlacementComponentManager(ezWorld* pWorld)
   : ezComponentManager<ezProcPlacementComponent, ezBlockStorageType::Compact>(pWorld)
@@ -234,29 +236,6 @@ void ezProcPlacementComponentManager::PreparePlace(const ezWorldModule::UpdateCo
     ClearVisibleComponents();
   }
 
-  // Debug draw tiles
-  if (cvar_ProcGenVisTiles)
-  {
-    ezStringBuilder sb;
-    sb.SetFormat("Procedural Placement Stats:\nNum Tiles to process: {}", m_NewTiles.GetCount());
-
-    ezColor textColor = ezColorScheme::LightUI(ezColorScheme::Grape);
-    ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugTextPlacement::TopLeft, "ProcPlaceStats", sb, textColor);
-
-    for (ezUInt32 i = 0; i < m_NewTiles.GetCount(); ++i)
-    {
-      DebugDrawTile(m_NewTiles[i], textColor, m_NewTiles.GetCount() - i - 1);
-    }
-
-    for (auto& activeTile : m_ActiveTiles)
-    {
-      if (!activeTile.IsValid())
-        continue;
-
-      DebugDrawTile(activeTile.GetDesc(), activeTile.GetDebugColor());
-    }
-  }
-
   // Allocate new tiles and placement tasks
   {
     EZ_PROFILE_SCOPE("Allocate new tiles");
@@ -278,6 +257,29 @@ void ezProcPlacementComponentManager::PreparePlace(const ezWorldModule::UpdateCo
     }
   }
 
+  // Debug draw tiles
+  ezHashSet<ezUInt32> debugDrawnTiles(ezFrameAllocator::GetCurrentAllocator());
+  if (cvar_ProcGenVisTiles)
+  {
+    ezStringBuilder sb;
+    sb.SetFormat("Procedural Placement Stats:\nNum Tiles to process: {}", m_ProcessingTasks.GetCount());
+
+    ezColor textColor = ezColorScheme::LightUI(ezColorScheme::Grape);
+    ezDebugRenderer::DrawInfoText(GetWorld(), ezDebugTextPlacement::TopLeft, "ProcPlaceStats", sb, textColor);
+
+    for (ezUInt32 uiTileIndex = 0; uiTileIndex < m_ActiveTiles.GetCount(); ++uiTileIndex)
+    {
+      auto& activeTile = m_ActiveTiles[uiTileIndex];
+      if (!activeTile.IsValid())
+        continue;
+
+      if (DebugDrawTile(activeTile.GetDesc(), activeTile.GetDebugColor()))
+      {
+        debugDrawnTiles.Insert(uiTileIndex);
+      }
+    }
+  }
+
   const ezWorld* pWorld = GetWorld();
 
   // Update processing tasks
@@ -292,7 +294,8 @@ void ezProcPlacementComponentManager::PreparePlace(const ezWorldModule::UpdateCo
         continue;
 
       auto& activeTile = m_ActiveTiles[processingTask.m_uiTileIndex];
-      activeTile.PreparePlacementData(pWorld, pWorld->GetModuleReadOnly<ezPhysicsWorldModuleInterface>(), *processingTask.m_pData);
+      const bool bDebugVisualization = debugDrawnTiles.Contains(processingTask.m_uiTileIndex);
+      activeTile.PreparePlacementData(pWorld, pWorld->GetModuleReadOnly<ezPhysicsWorldModuleInterface>(), bDebugVisualization, *processingTask.m_pData);
 
       ezTaskSystem::AddTaskToGroup(prepareTaskGroupID, processingTask.m_pPrepareTask);
     }
@@ -378,17 +381,23 @@ void ezProcPlacementComponentManager::PlaceObjects(const ezWorldModule::UpdateCo
   }
 }
 
-void ezProcPlacementComponentManager::DebugDrawTile(const ezProcGenInternal::PlacementTileDesc& desc, const ezColor& color, ezUInt32 uiQueueIndex)
+bool ezProcPlacementComponentManager::DebugDrawTile(const ezProcGenInternal::PlacementTileDesc& desc, const ezColor& color, ezUInt32 uiQueueIndex)
 {
   const ezProcPlacementComponent* pComponent = nullptr;
   if (!TryGetComponent(desc.m_hComponent, pComponent))
-    return;
-  
+    return false;
+
   auto& outputContext = pComponent->m_OutputContexts[desc.m_uiOutputIndex];
 
-  ezStringView sOutputFilter = cvar_ProcGenOutputFilter.GetValue();
+  ezStringView sOutputFilter = cvar_ProcGenVisTilesOutputFilter.GetValue();
   if (sOutputFilter.IsEmpty() == false && outputContext.m_pOutput->m_sName.GetView().FindSubString_NoCase(sOutputFilter) == nullptr)
-    return;
+    return false;
+
+  if ((cvar_ProcGenVisTileTileX != ezMath::MaxValue<int>() && desc.m_iPosX != cvar_ProcGenVisTileTileX) ||
+      (cvar_ProcGenVisTileTileY != ezMath::MaxValue<int>() && desc.m_iPosY != cvar_ProcGenVisTileTileY))
+  {
+    return false;
+  }
 
   ezBoundingBox bbox = desc.GetBoundingBox();
   ezDebugRenderer::DrawLineBox(GetWorld(), bbox, color);
@@ -408,6 +417,8 @@ void ezProcPlacementComponentManager::DebugDrawTile(const ezProcGenInternal::Pla
   }
   sb.AppendFormat("Age: {}\nDistance: {}", uiAge, desc.m_fDistanceToCamera);
   ezDebugRenderer::Draw3DText(GetWorld(), sb, bbox.GetCenter(), color);
+
+  return true;
 }
 
 void ezProcPlacementComponentManager::AddComponent(ezProcPlacementComponent* pComponent)

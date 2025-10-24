@@ -16,6 +16,7 @@ namespace ezProcGenInternal
     m_pOutput = nullptr;
     m_uiTileSeed = 0;
     m_TileBoundingBox = ezBoundingBox::MakeInvalid();
+    m_bDebugVisualization = false;
     m_GlobalToLocalBoxTransforms.Clear();
 
     m_VolumeCollections.Clear();
