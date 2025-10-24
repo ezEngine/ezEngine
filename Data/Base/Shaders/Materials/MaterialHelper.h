@@ -55,6 +55,10 @@ static PS_GLOBALS G;
 void FillCustomGlobals();
 #endif
 
+#if defined(USE_FINALIZE_MATERIAL)
+void FinalizeMaterial(inout ezMaterialData matData);
+#endif
+
 #if defined(USE_CUSTOM_DITHER_NOISE)
 float4 GetDitherNoise(float2 pixelCoord);
 #endif

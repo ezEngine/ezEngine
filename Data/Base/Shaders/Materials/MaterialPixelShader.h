@@ -97,6 +97,10 @@ PS_OUT main(PS_IN Input)
 #  endif
 #endif
 
+#if defined(USE_FINALIZE_MATERIAL)
+  FinalizeMaterial(matData);
+#endif
+
 #if RENDER_PASS == RENDER_PASS_EDITOR
   if (RenderPass == EDITOR_RENDER_PASS_DIFFUSE_LIT_ONLY)
   {
