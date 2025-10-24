@@ -9,6 +9,10 @@
 
 class ezGeometry;
 
+/// Represents a mesh for CPU-based software rasterization and occlusion culling.
+///
+/// Used for occlusion testing in ezRasterizerView. Objects are cached by name and shared across users.
+/// Internally uses a software rasterizer to determine if objects are occluded by other geometry.
 class EZ_RENDERERCORE_DLL ezRasterizerObject : public ezRefCounted
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezRasterizerObject);

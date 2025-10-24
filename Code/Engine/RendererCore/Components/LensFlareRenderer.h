@@ -7,7 +7,11 @@ struct ezPerLensFlareData;
 class ezRenderDataBatch;
 using ezShaderResourceHandle = ezTypedResourceHandle<class ezShaderResource>;
 
-/// \brief Implements rendering of lens flares
+/// Implements rendering of lens flares.
+///
+/// Renders lens flare effects that simulate camera lens artifacts when looking at bright lights.
+/// Uses instanced rendering to draw multiple flare elements along a line from the light source
+/// through the screen center.
 class EZ_RENDERERCORE_DLL ezLensFlareRenderer : public ezRenderer
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezLensFlareRenderer, ezRenderer);
@@ -24,8 +28,15 @@ public:
     const ezRenderViewContext& renderContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const override;
 
 protected:
+  /// Creates a GPU buffer for per-flare-element instance data.
   ezGALBufferHandle CreateLensFlareDataBuffer(ezUInt32 uiBufferSize) const;
+
+  /// Destroys a previously created lens flare data buffer.
   void DeleteLensFlareDataBuffer(ezGALBufferHandle hBuffer) const;
+
+  /// Fills the lens flare data array with per-instance information from the batch.
+  ///
+  /// Can be overridden to customize flare element data layout.
   virtual void FillLensFlareData(const ezRenderDataBatch& batch) const;
 
   ezShaderResourceHandle m_hShader;

@@ -16,20 +16,24 @@ public:
   ~ezHistorySourcePass();
 
   virtual bool GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs) override;
+
+  /// Provides the history texture handle for the output pin.
   virtual ezGALTextureHandle QueryTextureProvider(const ezRenderPipelineNodePin* pPin, const ezGALTextureCreationDescription& desc) override;
   virtual void Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
   virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
   virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
 
 protected:
-  ezRenderPipelineNodeOutputProviderPin m_PinOutput;
-  ezEnum<ezSourceFormat> m_Format = ezSourceFormat::Default;
-  ezEnum<ezGALMSAASampleCount> m_MsaaMode = ezGALMSAASampleCount::None;
-  ezColor m_ClearColor = ezColor::Black;
+  ezRenderPipelineNodeOutputProviderPin m_PinOutput;                    ///< Provides previous frame's texture.
 
-  bool m_bFirstExecute = true;
+  ezEnum<ezSourceFormat> m_Format = ezSourceFormat::Default;            ///< Texture format for the history buffer.
+  ezEnum<ezGALMSAASampleCount> m_MsaaMode = ezGALMSAASampleCount::None; ///< MSAA sample count.
+  ezColor m_ClearColor = ezColor::Black;                                ///< Initial clear color for first frame.
+
+  bool m_bFirstExecute = true;                                          ///< Whether this is the first frame (clears to m_ClearColor).
 };
 
+/// Frame data provider that manages history texture storage across frames.
 class EZ_RENDERERCORE_DLL ezHistorySourcePassTextureDataProvider : public ezFrameDataProviderBase
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezHistorySourcePassTextureDataProvider, ezFrameDataProviderBase);
@@ -38,11 +42,14 @@ public:
   ezHistorySourcePassTextureDataProvider();
   ~ezHistorySourcePassTextureDataProvider();
 
+  /// Clears the history texture for a given source pass.
   void ResetTexture(ezStringView sSourcePassName);
+
+  /// Retrieves or creates a history texture for a given source pass.
   ezGALTextureHandle GetOrCreateTexture(ezStringView sSourcePassName, const ezGALTextureCreationDescription& desc);
 
 public:
-  ezHashTable<ezString, ezGALTextureHandle> m_Data;
+  ezHashTable<ezString, ezGALTextureHandle> m_Data; ///< Maps source pass names to history textures.
 
 private:
   // We ignore the frame-based logic for this data provider as we only want to store cross frame data.

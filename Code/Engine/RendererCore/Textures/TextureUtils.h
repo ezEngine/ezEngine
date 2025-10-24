@@ -5,13 +5,25 @@
 #include <RendererFoundation/Resources/ResourceFormats.h>
 #include <Texture/Image/Image.h>
 
+/// Utility functions for texture format conversion and manipulation.
 struct EZ_RENDERERCORE_DLL ezTextureUtils
 {
+  /// Converts an image format to the corresponding GPU texture format.
+  ///
+  /// The bSRGB parameter determines whether to use sRGB or linear variants.
   static ezGALResourceFormat::Enum ImageFormatToGalFormat(ezImageFormat::Enum format, bool bSRGB);
+
+  /// Converts a GPU texture format to the corresponding image format.
+  ///
+  /// If bRemoveSRGB is true, sRGB formats are converted to their linear equivalents.
   static ezImageFormat::Enum GalFormatToImageFormat(ezGALResourceFormat::Enum format, bool bRemoveSRGB);
+
+  /// Converts a GPU texture format to the corresponding image format.
   static ezImageFormat::Enum GalFormatToImageFormat(ezGALResourceFormat::Enum format);
 
-
+  /// Configures a sampler state based on a texture filter setting.
+  ///
+  /// Sets up filtering mode, addressing, and anisotropy based on the filter enum.
   static void ConfigureSampler(ezTextureFilterSetting::Enum filter, ezGALSamplerStateCreationDescription& out_sampler);
 
   /// \brief Copies the given texture subresource from `memory` into `out_image` according to the texture description.

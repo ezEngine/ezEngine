@@ -2,6 +2,10 @@
 
 #include <RendererCore/Pipeline/Extractor.h>
 
+/// Minimal CPU-side lighting data for simplified rendering.
+///
+/// Used when clustered rendering is not needed or available. Contains only basic
+/// lighting information like sky irradiance.
 class ezSimplifiedDataCPU : public ezRenderData
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSimplifiedDataCPU, ezRenderData);
@@ -14,6 +18,11 @@ public:
   ezEnum<ezCameraUsageHint> m_cameraUsageHint = ezCameraUsageHint::Default;
 };
 
+/// Extracts minimal lighting data for simplified rendering.
+///
+/// Alternative to ezClusteredDataExtractor for cases where full clustered rendering
+/// is not required. Provides basic lighting information without the overhead of
+/// spatial clustering. Used for lower-end rendering paths or specific view types.
 class EZ_RENDERERCORE_DLL ezSimplifiedDataExtractor : public ezExtractor
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSimplifiedDataExtractor, ezExtractor);

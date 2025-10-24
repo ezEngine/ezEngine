@@ -3,6 +3,10 @@
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererCore/Shader/ShaderResource.h>
 
+/// Render pass that upscales a texture to a multi-sampled render target.
+///
+/// Converts a regular texture to an MSAA texture by replicating samples. Used when
+/// transitioning from non-MSAA to MSAA rendering in the pipeline.
 class EZ_RENDERERCORE_DLL ezMsaaUpscalePass : public ezRenderPipelinePass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezMsaaUpscalePass, ezRenderPipelinePass);

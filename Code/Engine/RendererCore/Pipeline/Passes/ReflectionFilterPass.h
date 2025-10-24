@@ -5,6 +5,11 @@
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 #include <RendererCore/Shader/ShaderResource.h>
 
+/// Render pass that pre-filters cubemaps for image-based lighting.
+///
+/// Generates filtered specular reflections and irradiance data from an input cubemap.
+/// Creates mipmap chains with increasing roughness for specular reflections and computes
+/// diffuse irradiance. Used for physically-based rendering with environment maps.
 class EZ_RENDERERCORE_DLL ezReflectionFilterPass : public ezRenderPipelinePass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezReflectionFilterPass, ezRenderPipelinePass);

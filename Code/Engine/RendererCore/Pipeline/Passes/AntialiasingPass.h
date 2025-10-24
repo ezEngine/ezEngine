@@ -3,6 +3,10 @@
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererCore/Shader/ShaderResource.h>
 
+/// Render pass that applies post-process anti-aliasing.
+///
+/// Applies screen-space anti-aliasing techniques like FXAA or SMAA to reduce aliasing artifacts.
+/// Takes a rendered image as input and outputs an anti-aliased version.
 class EZ_RENDERERCORE_DLL ezAntialiasingPass : public ezRenderPipelinePass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezAntialiasingPass, ezRenderPipelinePass);

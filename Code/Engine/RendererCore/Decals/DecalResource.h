@@ -6,10 +6,17 @@
 
 using ezDecalResourceHandle = ezTypedResourceHandle<class ezDecalResource>;
 
+/// Descriptor for creating a decal resource.
+///
+/// Currently empty as decals are typically loaded from asset files.
 struct ezDecalResourceDescriptor
 {
 };
 
+/// Resource representing a single decal that references regions in a decal atlas.
+///
+/// Decal resources are lightweight and reference textures stored in ezDecalAtlasResource.
+/// The actual texture data and UV mapping is managed by the atlas.
 class EZ_RENDERERCORE_DLL ezDecalResource : public ezResource
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezDecalResource, ezResource);
@@ -25,6 +32,10 @@ private:
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 };
 
+/// Resource loader for decal resources.
+///
+/// Loads decal metadata from asset files. The actual texture data is loaded separately
+/// through the decal atlas system.
 class EZ_RENDERERCORE_DLL ezDecalResourceLoader : public ezResourceTypeLoader
 {
 public:

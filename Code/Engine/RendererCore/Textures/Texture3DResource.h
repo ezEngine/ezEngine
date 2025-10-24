@@ -35,6 +35,10 @@ struct EZ_RENDERERCORE_DLL ezTexture3DResourceDescriptor
   ezArrayPtr<ezGALSystemMemoryDescription> m_InitialContent;
 };
 
+/// Resource for 3D volume textures.
+///
+/// 3D textures have width, height, and depth dimensions. They are sampled using 3D coordinates
+/// and are commonly used for volumetric effects like fog, clouds, or 3D lookup tables.
 class EZ_RENDERERCORE_DLL ezTexture3DResource : public ezResource
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezTexture3DResource, ezResource);
@@ -51,6 +55,9 @@ public:
   EZ_ALWAYS_INLINE ezUInt32 GetDepth() const { return m_uiDepth; }
   EZ_ALWAYS_INLINE ezGALTextureType::Enum GetType() const { return m_Type; }
 
+  /// Fills a descriptor from image data, preparing it for texture creation.
+  ///
+  /// Configures format, dimensions, mipmaps, and sets up initial content from the image.
   static void FillOutDescriptor(ezTexture3DResourceDescriptor& ref_td, const ezImage* pImage, bool bSRGB, ezUInt32 uiNumMipLevels,
     ezUInt32& out_uiMemoryUsed, ezHybridArray<ezGALSystemMemoryDescription, 32>& ref_initData);
 

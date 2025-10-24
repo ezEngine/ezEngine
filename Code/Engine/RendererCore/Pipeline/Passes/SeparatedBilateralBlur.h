@@ -5,10 +5,11 @@
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 #include <RendererCore/Shader/ShaderResource.h>
 
-/// \brief Depth aware blur on input and writes it to an output buffer of the same format.
+/// Render pass that applies depth-aware blur to preserve edges.
 ///
-/// In theory it is mathematical nonsense to separate a bilateral blur, but it is common praxis and works good enough.
-/// (Thus the name "separated" in contrast to "separable")
+/// Uses a bilateral filter that considers both spatial distance and depth difference
+/// to avoid blurring across edges. Implemented as a two-pass separable filter, which
+/// is technically approximate but works well in practice (hence "separated" not "separable").
 class EZ_RENDERERCORE_DLL ezSeparatedBilateralBlurPass : public ezRenderPipelinePass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSeparatedBilateralBlurPass, ezRenderPipelinePass);
@@ -23,23 +24,23 @@ public:
   virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
   virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
 
-  void SetRadius(ezUInt32 uiRadius);
+  void SetRadius(ezUInt32 uiRadius);   ///< Sets the blur kernel radius in pixels.
   ezUInt32 GetRadius() const;
 
-  void SetGaussianSigma(float fSigma);
+  void SetGaussianSigma(float fSigma); ///< Sets the gaussian distribution sigma.
   float GetGaussianSigma() const;
 
-  void SetSharpness(float fSharpness);
+  void SetSharpness(float fSharpness); ///< Sets edge preservation strength.
   float GetSharpness() const;
 
 protected:
-  ezRenderPipelineNodeInputPin m_PinBlurSourceInput;
-  ezRenderPipelineNodeInputPin m_PinDepthInput;
-  ezRenderPipelineNodeOutputPin m_PinOutput;
+  ezRenderPipelineNodeInputPin m_PinBlurSourceInput; ///< Source texture to blur.
+  ezRenderPipelineNodeInputPin m_PinDepthInput;      ///< Depth buffer for edge detection.
+  ezRenderPipelineNodeOutputPin m_PinOutput;         ///< Blurred output.
 
-  ezUInt32 m_uiRadius = 7;
-  float m_fGaussianSigma = 3.5f;
-  float m_fSharpness = 120.0f;
-  ezConstantBufferStorageHandle m_hBilateralBlurCB;
-  ezShaderResourceHandle m_hShader;
+  ezUInt32 m_uiRadius = 7;                           ///< Blur kernel radius in pixels.
+  float m_fGaussianSigma = 3.5f;                     ///< Gaussian distribution sigma.
+  float m_fSharpness = 120.0f;                       ///< Edge preservation strength (higher = sharper edges).
+  ezConstantBufferStorageHandle m_hBilateralBlurCB;  ///< Constant buffer for blur parameters.
+  ezShaderResourceHandle m_hShader;                  ///< Bilateral blur shader.
 };

@@ -5,6 +5,10 @@
 
 using ezMaterialResourceHandle = ezTypedResourceHandle<class ezMaterialResource>;
 
+/// Resource representing a renderable mesh.
+///
+/// Contains sub-meshes with materials, references a mesh buffer for vertex/index data,
+/// and stores bounding information. For skinned meshes, also includes skeleton and bone data.
 class EZ_RENDERERCORE_DLL ezMeshResource : public ezResource
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezMeshResource, ezResource);

@@ -148,7 +148,7 @@ void ezTonemapPass::Execute(const ezRenderViewContext& renderViewContext, const 
     constants->Saturation = m_fSaturation;
     constants->Lut1Strength = lutStrengths[0];
     constants->Lut2Strength = lutStrengths[1];
-    constants->WhitePoint  = m_fWhitePoint;
+    constants->WhitePoint = m_fWhitePoint;
 
     // Pre-calculate factors of a s-shaped polynomial-function
     const float m = (0.5f - 0.5f * m_fContrast) / (0.5f + 0.5f * m_fContrast);
@@ -225,7 +225,7 @@ ezResult ezTonemapPass::Deserialize(ezStreamReader& inout_stream)
   {
     inout_stream >> m_fWhitePoint;
   }
-  
+
   return EZ_SUCCESS;
 }
 

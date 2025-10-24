@@ -5,6 +5,11 @@
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 #include <RendererCore/Shader/ShaderResource.h>
 
+/// Render pass that applies a bloom effect to bright areas of the image.
+///
+/// Extracts bright pixels above a threshold, blurs them, and composites them back onto the image
+/// to create a glow effect. Supports configurable radius, threshold, intensity, and tint colors
+/// for inner, mid, and outer bloom regions.
 class EZ_RENDERERCORE_DLL ezBloomPass : public ezRenderPipelinePass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezBloomPass, ezRenderPipelinePass);

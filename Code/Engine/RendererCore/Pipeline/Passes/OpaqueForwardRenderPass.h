@@ -2,7 +2,10 @@
 
 #include <RendererCore/Pipeline/Passes/ForwardRenderPass.h>
 
-/// \brief A forward render pass that renders all opaque objects into the color target.
+/// Forward render pass that renders opaque objects.
+///
+/// Renders all opaque geometry with full lighting and shading.
+/// Optionally accepts an ambient occlusion input for enhanced shading.
 class EZ_RENDERERCORE_DLL ezOpaqueForwardRenderPass : public ezForwardRenderPass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezOpaqueForwardRenderPass, ezForwardRenderPass);
@@ -19,11 +22,9 @@ protected:
 
   virtual void RenderObjects(const ezRenderViewContext& renderViewContext) override;
 
-  ezRenderPipelineNodeInputPin m_PinSSAO;
-  // ezRenderPipelineNodeOutputPin m_PinNormal;
-  // ezRenderPipelineNodeOutputPin m_PinSpecularColorRoughness;
+  ezRenderPipelineNodeInputPin m_PinSSAO;    ///< Optional SSAO input for ambient occlusion.
 
-  bool m_bWriteDepth = true;
+  bool m_bWriteDepth = true;                 ///< Whether to write to the depth buffer.
 
-  ezTexture2DResourceHandle m_hWhiteTexture;
+  ezTexture2DResourceHandle m_hWhiteTexture; ///< Fallback white texture for unbound inputs.
 };

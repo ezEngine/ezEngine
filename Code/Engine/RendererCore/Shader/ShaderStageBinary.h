@@ -10,20 +10,24 @@
 #include <Foundation/Types/SharedPtr.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 
-/// Serializes ezGALShaderByteCode and provides access to the shader cache via LoadStageBinary.
+/// Serializes ezGALShaderByteCode and provides access to the shader cache.
+///
+/// Compiled shader stage binaries are cached on disk and accessed via LoadStageBinary using a hash.
+/// This allows shader permutations to share compiled stage binaries when they use the same code.
 class EZ_RENDERERCORE_DLL ezShaderStageBinary
 {
 public:
+  /// Serialization version for shader stage binaries.
   enum Version
   {
     Version0,
     Version1,
     Version2,
-    Version3, // Added Material Parameters
-    Version4, // Constant buffer layouts
-    Version5, // Debug flag
-    Version6, // Rewrite, no backwards compatibility. Moves all data into ezGALShaderByteCode.
-    Version7, // Added tessellation support (m_uiTessellationPatchControlPoints)
+    Version3, ///< Added Material Parameters
+    Version4, ///< Constant buffer layouts
+    Version5, ///< Debug flag
+    Version6, ///< Rewrite, no backwards compatibility. Moves all data into ezGALShaderByteCode.
+    Version7, ///< Added tessellation support (m_uiTessellationPatchControlPoints)
 
     ENUM_COUNT,
     VersionCurrent = ENUM_COUNT - 1
@@ -32,6 +36,7 @@ public:
   ezShaderStageBinary();
   ~ezShaderStageBinary();
 
+  /// Returns the compiled shader bytecode.
   ezSharedPtr<const ezGALShaderByteCode> GetByteCode() const;
 
 private:
@@ -51,6 +56,9 @@ private:
   ezSharedPtr<ezGALShaderByteCode> m_pGALByteCode;
 
 private: // statics
+  /// Loads a shader stage binary from the cache by hash.
+  ///
+  /// Returns nullptr if the binary is not in the cache. Binaries are cached per stage and platform.
   static ezShaderStageBinary* LoadStageBinary(ezGALShaderStage::Enum Stage, ezUInt32 uiHash, ezStringView sPlatform);
 
   static void OnEngineShutdown();

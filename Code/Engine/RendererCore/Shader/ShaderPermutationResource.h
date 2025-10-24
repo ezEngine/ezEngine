@@ -10,10 +10,17 @@
 using ezShaderPermutationResourceHandle = ezTypedResourceHandle<class ezShaderPermutationResource>;
 using ezShaderStateResourceHandle = ezTypedResourceHandle<class ezShaderStateResource>;
 
+/// Descriptor for shader permutation resources.
 struct ezShaderPermutationResourceDescriptor
 {
+  // empty
 };
 
+/// Runtime resource representing a specific shader permutation variant.
+///
+/// Shaders use permutation variables to create variants for different features (e.g., with/without shadows,
+/// skinning, etc.). Each unique combination of permutation values results in a separate compiled shader.
+/// This resource holds the compiled shader bytecode, render states, and permutation variable values.
 class EZ_RENDERERCORE_DLL ezShaderPermutationResource : public ezResource
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezShaderPermutationResource, ezResource);
@@ -30,8 +37,10 @@ public:
   ezGALDepthStencilStateHandle GetDepthStencilState() const { return m_hDepthStencilState; }
   ezGALRasterizerStateHandle GetRasterizerState() const { return m_hRasterizerState; }
 
+  /// Returns true if the shader compiled successfully.
   bool IsShaderValid() const { return m_bShaderPermutationValid; }
 
+  /// Returns the permutation variable values that define this shader variant.
   ezArrayPtr<const ezPermutationVar> GetPermutationVars() const { return m_PermutationVars; }
 
 private:
@@ -56,6 +65,10 @@ private:
 };
 
 
+/// Resource loader for shader permutation resources.
+///
+/// Handles loading compiled shader bytecode. If the permutation is not found or outdated,
+/// it triggers shader compilation on-demand.
 class ezShaderPermutationResourceLoader : public ezResourceTypeLoader
 {
 public:

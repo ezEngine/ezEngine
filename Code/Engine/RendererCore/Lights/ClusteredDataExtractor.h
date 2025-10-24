@@ -8,6 +8,10 @@ struct ezPerDecalData;
 struct ezPerReflectionProbeData;
 struct ezPerClusterData;
 
+/// CPU-side data for clustered rendering containing lights, decals, and reflection probes.
+///
+/// Used by the clustered rendering system to organize lights, decals, and probes into spatial clusters
+/// for efficient per-pixel lookup during shading. The clusters divide the view frustum into a 3D grid.
 class ezClusteredDataCPU : public ezRenderData
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezClusteredDataCPU, ezRenderData);
@@ -43,6 +47,11 @@ public:
   ezColor m_FogColor = ezColor::Black;
 };
 
+/// Extracts lights, decals, and reflection probes into a clustered data structure.
+///
+/// Divides the view frustum into a 3D grid of clusters and assigns visible lights, decals,
+/// and reflection probes to each cluster. This enables efficient per-pixel light lookup during
+/// rendering. Runs after visibility determination in PostSortAndBatch().
 class EZ_RENDERERCORE_DLL ezClusteredDataExtractor : public ezExtractor
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezClusteredDataExtractor, ezExtractor);
