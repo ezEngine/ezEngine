@@ -18,6 +18,7 @@ public:
   float m_fDensity;
   float m_fHeightFalloff;
   float m_fInvSkyDistance;
+  float m_fFogStartDistance;
 };
 
 class EZ_RENDERERCORE_DLL ezFogComponent : public ezSettingsComponent
@@ -59,6 +60,9 @@ public:
   void SetSkyDistance(float fDistance);         // [ property ]
   float GetSkyDistance() const;                 // [ property ]
 
+  void SetStartDistance(float fDistance);       // [ property ]
+  float GetStartDistance() const;               // [ property ]
+
 protected:
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
@@ -67,5 +71,6 @@ protected:
   float m_fDensity = 1.0f;
   float m_fHeightFalloff = 10.0f;
   float m_fSkyDistance = 1000.0f;
+  float m_fStartDistance = 0.0f;
   bool m_bModulateWithSkyColor = false;
 };

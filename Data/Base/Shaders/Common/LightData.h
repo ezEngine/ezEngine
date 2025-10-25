@@ -178,6 +178,7 @@ struct ezPerDecalAtlasData
     FLOAT1(FogDensity);
     COLOR4F(FogColor);
     FLOAT1(FogInvSkyDistance);
+    FLOAT1(FogStartDistance);
 };
 
 #define NUM_CLUSTERS_X 16

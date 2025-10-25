@@ -834,7 +834,7 @@ float GetFogAmount(float3 worldPosition)
     fogDensity *= saturate((exp(FogHeightFalloff * worldPosition.z + FogHeight) - FogDensityAtCameraPos) / range);
   }
 
-  return saturate(exp(-fogDensity * length(cameraToWorldPos)));
+  return saturate(exp(-fogDensity * max(0, length(cameraToWorldPos) - FogStartDistance)));
 }
 
 float3 ApplyFog(float3 color, float3 worldPosition, float fogAmount)
