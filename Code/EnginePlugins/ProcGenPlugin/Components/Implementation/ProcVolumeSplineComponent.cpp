@@ -224,4 +224,3 @@ void ezProcVolumeSplineComponent::OnMsgExtractRenderData(ezMsgExtractRenderData&
 
 
 EZ_STATICLINK_FILE(ProcGenPlugin, ProcGenPlugin_Components_Implementation_ProcVolumeSplineComponent);
-
