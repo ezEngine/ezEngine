@@ -334,4 +334,4 @@ void ezBoolToTriggerAnimNode::Step(ezAnimController& ref_controller, ezAnimGraph
   }
 }
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes_MathAnimNodes);
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Nodes_Math_MathAnimNodes);

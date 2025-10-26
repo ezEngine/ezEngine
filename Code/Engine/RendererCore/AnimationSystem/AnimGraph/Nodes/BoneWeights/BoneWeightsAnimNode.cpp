@@ -190,4 +190,4 @@ bool ezBoneWeightsAnimNode::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) co
   return true;
 }
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes_BoneWeightsAnimNode);
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Nodes_BoneWeights_BoneWeightsAnimNode);

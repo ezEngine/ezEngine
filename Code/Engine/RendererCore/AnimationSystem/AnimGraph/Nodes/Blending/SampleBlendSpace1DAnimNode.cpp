@@ -360,4 +360,4 @@ public:
 
 ezSampleBlendSpace1DAnimNodePatch_1_2 g_ezSampleBlendSpace1DAnimNodePatch_1_2;
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes2_SampleBlendSpace1DAnimNode);
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Nodes_Blending_SampleBlendSpace1DAnimNode);

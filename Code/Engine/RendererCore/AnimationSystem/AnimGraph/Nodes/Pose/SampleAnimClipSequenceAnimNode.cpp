@@ -495,4 +495,4 @@ public:
 
 ezSampleAnimClipSequenceAnimNodePatch_1_2 g_ezSampleAnimClipSequenceAnimNodePatch_1_2;
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes2_SampleAnimClipSequenceAnimNode);
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Nodes_Pose_SampleAnimClipSequenceAnimNode);

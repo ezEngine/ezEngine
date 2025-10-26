@@ -66,4 +66,4 @@ void ezSendEventAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInst
 }
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes_EventAnimNode);
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Nodes_Events_EventAnimNode);

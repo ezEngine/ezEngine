@@ -137,4 +137,4 @@ void ezLerpPosesAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInst
 }
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes2_LerpPosesAnimNode);
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Nodes_Blending_LerpPosesAnimNode);

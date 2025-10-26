@@ -264,4 +264,4 @@ void ezLogicNotAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInsta
   m_OutBool.SetBool(ref_graph, !value);
 }
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes_LogicAnimNodes);
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Nodes_Logic_LogicAnimNodes);

@@ -70,4 +70,4 @@ void ezRestPoseAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInsta
 }
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes2_RestPoseAnimNode);
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Nodes_Pose_RestPoseAnimNode);

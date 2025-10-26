@@ -157,4 +157,4 @@ void ezControllerInputAnimNode::Step(ezAnimController& ref_controller, ezAnimGra
   }
 }
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes_ControllerInputAnimNode);
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Nodes_Input_ControllerInputAnimNode);

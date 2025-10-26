@@ -140,4 +140,4 @@ void ezLogErrorAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInsta
 }
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes_DebugAnimNodes);
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Nodes_Debug_DebugAnimNodes);

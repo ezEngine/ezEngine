@@ -171,4 +171,4 @@ bool ezPoseResultAnimNode::GetInstanceDataDesc(ezInstanceDataDesc& out_desc) con
 }
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes2_PoseResultAnimNode);
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Nodes_Output_PoseResultAnimNode);

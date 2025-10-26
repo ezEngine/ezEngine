@@ -669,4 +669,4 @@ bool ezOnBlackboardValueChangedAnimNode::GetInstanceDataDesc(ezInstanceDataDesc&
 //////////////////////////////////////////////////////////////////////////
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_AnimNodes_BlackboardAnimNodes);
+EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Nodes_Blackboard_BlackboardAnimNodes);
