@@ -194,7 +194,7 @@ public:
 
   void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& ref_msg);          // [ msg handler ]
   void OnRetrieveBoneState(ezMsgRetrieveBoneState& ref_msg) const;          // [ msg handler ]
-  void OnInjectPoseCommands(ezMsgInjectPoseCommands& ref_msg); // [ msg handler ]
+  void OnInjectPoseCommands(ezMsgInjectPoseCommands& ref_msg);              // [ msg handler ]
 
   void SetJointMotorStrength(float fStrength);                              // [ scriptable ]
   float GetJointMotorStrength() const;                                      // [ scriptable ]
