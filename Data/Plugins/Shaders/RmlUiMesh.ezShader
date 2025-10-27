@@ -1,0 +1,76 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+BLEND_MODE = BLEND_MODE_OPAQUE
+SHADING_MODE = SHADING_MODE_FULLBRIGHT
+TWO_SIDED = FALSE
+FLIP_WINDING
+RENDER_PASS
+FORWARD_PASS_WRITE_DEPTH
+MSAA
+CAMERA_MODE
+SHADING_QUALITY
+VERTEX_SKINNING
+VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
+
+[RENDERSTATE]
+BlendingEnabled0 = true
+DestBlend0 = Blend_InvSrcAlpha
+SourceBlend0 = Blend_One
+DestBlendAlpha0 = Blend_InvSrcAlpha
+SourceBlendAlpha0 = Blend_One
+DepthTest = true
+DepthWrite = true
+CullMode = CullMode_Back
+
+[SHADER]
+#define USE_TEXCOORD0
+
+#if RENDER_PASS == RENDER_PASS_EDITOR
+  #define USE_DEBUG_INTERPOLATOR
+#endif
+
+[VERTEXSHADER]
+#include <Shaders/Materials/MaterialVertexShader.h>
+
+VS_OUT main(VS_IN Input)
+{
+  VS_OUT Output = FillVertexData(Input);
+  return Output;
+}
+
+
+[GEOMETRYSHADER]
+#include <Shaders/Materials/MaterialStereoGeometryShader.h>
+
+
+[PIXELSHADER]
+//#define USE_DECALS
+//#define USE_FOG
+
+#include <Shaders/Materials/MaterialPixelShader.h>
+
+Texture2D BaseTexture;
+SamplerState BaseTexture_AutoSampler;
+
+float3 GetDiffuseColor()
+{
+  float2 uv = G.Input.TexCoord0.xy;
+  // TODO: figure out why uvs are flipped
+  uv.x = 1 - uv.x;
+  uv.y = 1 - uv.y;
+  float3 baseColor = BaseTexture.Sample(BaseTexture_AutoSampler, uv).rgb;
+
+  return baseColor;
+}
+
+float GetOpacity()
+{
+  return 1.0;
+}
+
+float3 GetEmissiveColor()
+{
+  return 0.0;
+}
