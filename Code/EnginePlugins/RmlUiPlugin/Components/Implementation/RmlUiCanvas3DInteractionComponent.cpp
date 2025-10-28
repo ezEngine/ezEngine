@@ -135,9 +135,9 @@ void ezRmlUiCanvas3DInteractionComponent::Update()
   // TODO: this is just for testing, delete later
   ezRmlUiInputState input;
   ezKeyState::Enum state = ezInputManager::GetInputSlotState(ezInputSlot_MouseButton1);
-  if (state == ezKeyState::Pressed)
+  //if (state == ezKeyState::Pressed)
   {
-    input.m_uiMouseButton0Pressed = 1;
+    input.m_uiMouseButton0Pressed = state == ezKeyState::Pressed;
     Interact(input, 2.0f);
   }
 }
