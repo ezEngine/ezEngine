@@ -5,8 +5,7 @@
 
 /// Render pass that applies post-process anti-aliasing.
 ///
-/// Applies screen-space anti-aliasing techniques like FXAA or SMAA to reduce aliasing artifacts.
-/// Takes a rendered image as input and outputs an anti-aliased version.
+/// Currently it only does an advanced resolve of MSAA render targets using a two pixel wide bspline filter.
 class EZ_RENDERERCORE_DLL ezAntialiasingPass : public ezRenderPipelinePass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezAntialiasingPass, ezRenderPipelinePass);

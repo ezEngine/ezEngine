@@ -62,7 +62,7 @@ public:
 
   /// Caches render data for an object to avoid re-extraction if unchanged.
   ///
-  /// Render data is only re-extracted when the component version changes.
+  /// Cached render data needs to be deleted/invalidated manually if any data changes.
   static void CacheRenderData(const ezView& view, const ezGameObjectHandle& hOwnerObject, const ezComponentHandle& hOwnerComponent, ezUInt16 uiComponentVersion, ezArrayPtr<ezInternal::RenderDataCacheEntry> cacheEntries);
 
   /// Deletes all cached render data globally.

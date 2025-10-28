@@ -19,8 +19,8 @@ struct EZ_RENDERERCORE_DLL ezViewRenderMode
     WireframeMonochrome, ///< Monochrome wireframe
     DiffuseLitOnly,      ///< Show only diffuse lighting
     SpecularLitOnly,     ///< Show only specular lighting
-    LightCount,          ///< Visualize number of lights affecting each pixel
-    DecalCount,          ///< Visualize number of decals affecting each pixel
+    LightCount,          ///< Visualize number of lights in the cluster affecting each pixel
+    DecalCount,          ///< Visualize number of decals in the cluster affecting each pixel
     TexCoordsUV0,        ///< Show UV0 texture coordinates
     TexCoordsUV1,        ///< Show UV1 texture coordinates
     VertexColors0,       ///< Show vertex color channel 0

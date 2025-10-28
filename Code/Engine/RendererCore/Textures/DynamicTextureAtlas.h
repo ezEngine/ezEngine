@@ -7,7 +7,7 @@
 /// Manages dynamic allocation of rectangular regions within a GPU texture.
 ///
 /// Uses a binary tree structure with guillotine algorithm for efficient 2D bin packing.
-/// Useful for atlasing frequently updated textures like fonts, UI elements, or particle sprites.
+/// Useful for atlasing frequently updated textures like runtime generated decals, fonts or UI elements.
 /// Supports alignment requirements and can visualize allocations for debugging.
 class EZ_RENDERERCORE_DLL ezDynamicTextureAtlas
 {

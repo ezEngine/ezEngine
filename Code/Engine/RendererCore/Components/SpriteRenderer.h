@@ -9,8 +9,7 @@ using ezShaderResourceHandle = ezTypedResourceHandle<class ezShaderResource>;
 
 /// Implements rendering of sprites.
 ///
-/// Renders billboarded sprites using instanced rendering. Sprites are rendered as quads
-/// that always face the camera. Supports batching multiple sprites in a single draw call.
+/// Sprites are rendered as quads that always face the camera. All sprites in a batch are rendered with a single draw call.
 class EZ_RENDERERCORE_DLL ezSpriteRenderer : public ezRenderer
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSpriteRenderer, ezRenderer);
@@ -34,9 +33,7 @@ protected:
   void DeleteSpriteDataBuffer(ezGALBufferHandle hBuffer) const;
 
   /// Fills the sprite data array with per-instance information from the batch.
-  ///
-  /// Can be overridden to customize sprite data layout.
-  virtual void FillSpriteData(const ezRenderDataBatch& batch) const;
+  void FillSpriteData(const ezRenderDataBatch& batch) const;
 
   ezShaderResourceHandle m_hShader;
   mutable ezDynamicArray<ezPerSpriteData, ezAlignedAllocatorWrapper> m_SpriteData;

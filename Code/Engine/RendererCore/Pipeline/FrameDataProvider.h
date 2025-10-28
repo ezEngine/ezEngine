@@ -4,8 +4,8 @@
 
 /// Base class for frame data providers.
 ///
-/// Frame data providers supply per-frame data to the rendering pipeline (e.g., clustered light data,
-/// material data buffers). The data is computed once per frame and cached. Derived classes implement
+/// Frame data providers supply per-frame data to the rendering pipeline (e.g., clustered light data).
+/// The data is computed once per frame and cached. Derived classes implement
 /// UpdateData() to create or update the data. The pipeline calls GetData() to retrieve it.
 class EZ_RENDERERCORE_DLL ezFrameDataProviderBase : public ezReflectedClass
 {

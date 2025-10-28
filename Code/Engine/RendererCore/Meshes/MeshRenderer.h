@@ -7,8 +7,7 @@ struct ezPerInstanceData;
 
 /// Implements rendering of static meshes.
 ///
-/// Renders meshes using instanced rendering when possible. Supports materials with different
-/// render modes and handles per-instance data like transformations and colors.
+/// All meshes in one batch are rendered with a single instanced draw call.
 class EZ_RENDERERCORE_DLL ezMeshRenderer : public ezRenderer
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezMeshRenderer, ezRenderer);

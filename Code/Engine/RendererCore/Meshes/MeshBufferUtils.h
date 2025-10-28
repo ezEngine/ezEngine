@@ -45,6 +45,7 @@ struct EZ_RENDERERCORE_DLL ezMeshBufferUtils
   /// Encodes a vertex color with optional color space conversion.
   static ezResult EncodeColor(const ezColor& color, ezByteArrayPtr dest, ezGALResourceFormat::Enum destFormat, ezMeshVertexColorConversion::Enum conversion);
 
+
   /// Decodes a normal vector from the specified GPU buffer format.
   static ezResult DecodeNormal(ezConstByteArrayPtr source, ezGALResourceFormat::Enum sourceFormat, ezVec3& out_vDestNormal);
 
@@ -60,6 +61,7 @@ struct EZ_RENDERERCORE_DLL ezMeshBufferUtils
   /// Decodes a vertex color from the specified GPU buffer format.
   static ezResult DecodeColor(ezConstByteArrayPtr source, ezGALResourceFormat::Enum sourceFormat, ezColor& out_destColor);
 
+
   /// Low-level function to encode a float value to the specified GPU buffer format.
   static ezResult EncodeFromFloat(const float fSource, ezByteArrayPtr dest, ezGALResourceFormat::Enum destFormat);
 
@@ -74,6 +76,7 @@ struct EZ_RENDERERCORE_DLL ezMeshBufferUtils
 
   /// Low-level function to decode a float value from the specified GPU buffer format.
   static ezResult DecodeToFloat(ezConstByteArrayPtr source, ezGALResourceFormat::Enum sourceFormat, float& out_fDest);
+
 
   /// Low-level function to decode a 2D vector from the specified GPU buffer format.
   static ezResult DecodeToVec2(ezConstByteArrayPtr source, ezGALResourceFormat::Enum sourceFormat, ezVec2& out_vDest);

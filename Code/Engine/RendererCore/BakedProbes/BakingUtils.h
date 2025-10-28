@@ -6,7 +6,7 @@
 /// Compressed representation of ambient cube sky visibility data.
 ///
 /// Packs 6 directional visibility values into a 32-bit integer using variable bit depths
-/// (5 bits for the first 4 directions, 6 bits for the last 2 directions).
+/// (5 bits for the 4 horizontal directions, 6 bits for the 2 vertical directions).
 using ezCompressedSkyVisibility = ezUInt32;
 
 namespace ezBakingUtils

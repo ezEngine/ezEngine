@@ -16,6 +16,6 @@ public:
 
   /// Sorts by depth back-to-front, then by render data type.
   ///
-  /// Used for transparent geometry to ensure correct alpha blending order.
+  /// Used for transparent geometry to ensure correct blending order.
   static ezUInt64 BackToFrontThenByRenderData(const ezRenderData* pRenderData, const ezCamera& camera);
 };

@@ -4,7 +4,6 @@
 
 /// Forward render pass that renders transparent objects with proper blending.
 ///
-/// Renders all transparent geometry sorted back-to-front with alpha blending.
 /// Provides access to the scene color for refraction and distortion effects.
 class EZ_RENDERERCORE_DLL ezTransparentForwardRenderPass : public ezForwardRenderPass
 {

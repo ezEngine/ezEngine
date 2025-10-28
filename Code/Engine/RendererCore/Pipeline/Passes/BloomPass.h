@@ -7,9 +7,9 @@
 
 /// Render pass that applies a bloom effect to bright areas of the image.
 ///
-/// Extracts bright pixels above a threshold, blurs them, and composites them back onto the image
-/// to create a glow effect. Supports configurable radius, threshold, intensity, and tint colors
-/// for inner, mid, and outer bloom regions.
+/// Extracts bright pixels above a threshold, blurs them, and outputs them to a separate render target.
+/// This render target can then be combined with the original image to create a glow effect which is typically done in the tone mapping pass.
+/// Supports configurable radius, threshold, intensity, and tint colors for inner, mid, and outer bloom regions.
 class EZ_RENDERERCORE_DLL ezBloomPass : public ezRenderPipelinePass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezBloomPass, ezRenderPipelinePass);
