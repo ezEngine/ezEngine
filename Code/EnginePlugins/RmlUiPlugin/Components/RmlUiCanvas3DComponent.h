@@ -2,10 +2,10 @@
 
 #include <RmlUiPlugin/Components/RmlUiMessages.h>
 #include <RmlUiPlugin/Resources/RmlUiResource.h>
+#include <RmlUiPlugin/RmlUiInputState.h>
 
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <RendererCore/Components/RenderComponent.h>
-#include <RendererFoundation/RendererFoundationDLL.h>
 
 struct ezMsgExtractGeometry;
 struct ezMsgExtractRenderData;
@@ -34,6 +34,7 @@ public:
   virtual void OnDeactivated() override;
 
   void Update();
+  void ApplyInput(const ezRmlUiInputState& input);
 
   void SetRmlResource(const ezRmlUiResourceHandle& hResource);                // [ property ]
   const ezRmlUiResourceHandle& GetRmlResource() const { return m_hResource; } // [ property ]
@@ -94,6 +95,8 @@ protected:
   ezVec2U32 m_vReferenceResolution = ezVec2U32::MakeZero();
   bool m_bAutobindBlackboards = true;
   bool m_bOnDemandUpdate = true;
+  bool m_bDirty = false;
+  ezRmlUiInputState m_LastInput;
 
   ezGALTextureHandle m_hTexture;
   ezVec2 m_vFinalOffset = ezVec2::MakeZero();

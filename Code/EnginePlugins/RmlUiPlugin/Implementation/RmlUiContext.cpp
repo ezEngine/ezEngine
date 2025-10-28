@@ -155,6 +155,33 @@ bool ezRmlUiContext::UpdateInput(const ezVec2& vMousePos)
   return bMouseInputConsumed || bKeyboardInputConsumed;
 }
 
+bool ezRmlUiContext::UpdateInput(const ezRmlUiInputState& prevInput, const ezRmlUiInputState& input)
+{
+  const float width = static_cast<float>(GetDimensions().x);
+  const float height = static_cast<float>(GetDimensions().y);
+
+  bool bMouseInputConsumed = false;
+  bool bKeyboardInputConsumed = false;
+
+  // Mouse
+  {
+    bMouseInputConsumed |= !ProcessMouseMove(static_cast<int>(input.m_vCursorPos.x), static_cast<int>(input.m_vCursorPos.y), 0);
+
+    if (input.m_uiMouseButton0Pressed > 0 && prevInput.m_uiMouseButton0Pressed == 0)
+    {
+      bMouseInputConsumed |= !ProcessMouseButtonDown(0, 0);
+    }
+    else if (input.m_uiMouseButton0Pressed == 0 && prevInput.m_uiMouseButton0Pressed > 0)
+    {
+      bMouseInputConsumed |= !ProcessMouseButtonUp(0, 0);
+    }
+  }
+
+  m_bWantsInput = bMouseInputConsumed || bKeyboardInputConsumed;
+
+  return bMouseInputConsumed || bKeyboardInputConsumed;
+}
+
 void ezRmlUiContext::SetSize(const ezVec2U32& vSize)
 {
   SetDimensions(Rml::Vector2i(vSize.x, vSize.y));

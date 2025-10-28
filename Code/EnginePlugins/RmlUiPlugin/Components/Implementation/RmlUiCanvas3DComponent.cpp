@@ -46,7 +46,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezRmlUiCanvas3DComponent, 1, ezComponentMode::Static)
   EZ_END_ATTRIBUTES;
 }
 EZ_END_COMPONENT_TYPE
-  // clang-format on
+// clang-format on
 
 ezRmlUiCanvas3DComponent::ezRmlUiCanvas3DComponent() = default;
 ezRmlUiCanvas3DComponent::~ezRmlUiCanvas3DComponent() = default;
@@ -93,11 +93,14 @@ void ezRmlUiCanvas3DComponent::OnDeactivated()
 
 void ezRmlUiCanvas3DComponent::Update()
 {
+  bool bNeedsUpdate = m_bDirty;
+  m_bDirty = false;
+
   if (m_pContext == nullptr)
     return;
 
   const ezTime tDiff = ezClock::GetGlobalClock()->GetTimeDiff();
-  bool bNeedsUpdate = m_pContext->GetNextUpdateDelay() < ezMath::Max(tDiff.GetSeconds(), 1.0 / 240.0);
+  bNeedsUpdate |= m_pContext->GetNextUpdateDelay() < ezMath::Max(tDiff.GetSeconds(), 1.0 / 240.0);
 
   ezVec2 viewSize = ezVec2::MakeZero();
   bNeedsUpdate |= UpdateSizeOffsetAndTexture(viewSize);
@@ -114,6 +117,17 @@ void ezRmlUiCanvas3DComponent::Update()
   {
     m_pContext->Update();
   }
+}
+
+void ezRmlUiCanvas3DComponent::ApplyInput(const ezRmlUiInputState& input)
+{
+  if (input == m_LastInput)
+  {
+    return;
+  }
+
+  m_bDirty |= m_pContext->UpdateInput(m_LastInput, input);
+  m_LastInput = input;
 }
 
 void ezRmlUiCanvas3DComponent::SetRmlResource(const ezRmlUiResourceHandle& hResource)
