@@ -126,6 +126,74 @@ namespace
 
     return EZ_FAILURE;
   }
+
+  //////////////////////////////////////////////////////////////////////////
+
+  static ezHashedString s_sCurves = ezMakeHashedString("Curves");
+
+  static const ezEnum<ezExpression::RegisterType> s_SampleCurvesTypes[] = {
+    ezExpression::RegisterType::Float, // X
+    ezExpression::RegisterType::Int,   // CurveIndex
+  };
+
+  static void SampleCurve(ezExpression::Inputs inputs, ezExpression::Output output, const ezExpression::GlobalData& globalData)
+  {
+    const ezVariantArray& curves = globalData.GetValue(s_sCurves)->Get<ezVariantArray>();
+    if (curves.IsEmpty())
+      return;
+
+    ezUInt32 uiCurveIndex = inputs[1].GetPtr()->i.x();
+    auto pCurveData = ezDynamicCast<const CurveData*>(curves[uiCurveIndex].Get<ezReflectedClass*>());
+    if (pCurveData == nullptr)
+      return;
+
+    const ezUInt32 uiMaxIdx = pCurveData->m_Samples.GetCount() - 1;
+    const ezSimdVec4f vOffsetX = ezSimdVec4f(-pCurveData->m_fMinX);
+    const ezSimdVec4f vScale = ezSimdVec4f(static_cast<float>(uiMaxIdx) / (pCurveData->m_fMaxX - pCurveData->m_fMinX));
+    const ezSimdVec4i vMaxIdx = ezSimdVec4i(uiMaxIdx);
+    const float* samples = pCurveData->m_Samples.GetData();
+
+    const ezExpression::Register* pX = inputs[0].GetPtr();
+    const ezExpression::Register* pXEnd = inputs[0].GetEndPtr();
+    ezExpression::Register* pOutput = output.GetPtr();
+
+    while (pX < pXEnd)
+    {
+      const ezSimdVec4f vT = (pX->f + vOffsetX).CompMul(vScale);
+      const ezSimdVec4i vIdx0 = ezSimdVec4i::Truncate(vT).CompMax(ezSimdVec4i::MakeZero()).CompMin(vMaxIdx);
+      const ezSimdVec4i vIdx1 = (vIdx0 + ezSimdVec4i(1)).CompMin(vMaxIdx);
+      const ezSimdVec4f vFrac = vT - vIdx0.ToFloat();
+
+      const float sample0[] = {samples[vIdx0.x()], samples[vIdx0.y()], samples[vIdx0.z()], samples[vIdx0.w()]};
+      const float sample1[] = {samples[vIdx1.x()], samples[vIdx1.y()], samples[vIdx1.z()], samples[vIdx1.w()]};
+      ezSimdVec4f vSample0, vSample1;
+      vSample0.Load<4>(sample0);
+      vSample1.Load<4>(sample1);
+
+      const ezSimdVec4f vResult = ezSimdVec4f::Lerp(vSample0, vSample1, vFrac);
+      pOutput->f = vResult;
+
+      ++pX;
+      ++pOutput;
+    }    
+  }
+
+  static ezResult SampleCurveValidate(const ezExpression::GlobalData& globalData)
+  {
+    if (!globalData.IsEmpty())
+    {
+      if (const ezVariant* pValue = globalData.GetValue(s_sCurves))
+      {
+        if (pValue->GetType() == ezVariantType::VariantArray)
+        {
+          return EZ_SUCCESS;
+        }
+      }
+    }
+
+    return EZ_FAILURE;
+  }
+
 } // namespace
 
 ezExpressionFunction ezProcGenExpressionFunctions::s_ApplyVolumesFunc = {
@@ -138,6 +206,12 @@ ezExpressionFunction ezProcGenExpressionFunctions::s_GetInstanceSeedFunc = {
   {ezMakeHashedString("GetInstanceSeed"), ezExpression::FunctionDesc::TypeList(), 0, ezExpression::RegisterType::Int},
   &GetInstanceSeed,
   &GetInstanceSeedValidate,
+};
+
+ezExpressionFunction ezProcGenExpressionFunctions::s_SampleCurveFunc = {
+  {ezMakeHashedString("SampleCurve"), ezExpression::FunctionDesc::TypeList(s_SampleCurvesTypes), 2, ezExpression::RegisterType::Float},
+  &SampleCurve,
+  &SampleCurveValidate,
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -177,4 +251,33 @@ void ezProcGenInternal::ExtractVolumeCollections(const ezWorld& world, const ezB
 void ezProcGenInternal::SetInstanceSeed(ezUInt32 uiSeed, ezExpression::GlobalData& ref_globalData)
 {
   ref_globalData.Insert(s_sInstanceSeed, (int)uiSeed);
+}
+
+void ezProcGenInternal::SetCurves(const Output& output, ezExpression::GlobalData& ref_globalData)
+{
+  auto& curveIndices = output.m_CurveIndices;
+  if (curveIndices.IsEmpty())
+    return;
+
+  ezVariantArray curves;
+  if (ezVariant* curvesVar = ref_globalData.GetValue(s_sCurves))
+  {
+    curves = curvesVar->Get<ezVariantArray>();
+  }
+
+  for (ezUInt8 curveIndex : curveIndices)
+  {
+    if (curveIndex < curves.GetCount() && curves[curveIndex].IsValid())
+    {
+      continue;
+    }
+
+    auto pGraphSharedData = static_cast<const ezProcGenInternal::GraphSharedData*>(output.m_pGraphSharedData.Borrow());
+    auto& curveData = pGraphSharedData->GetCurve(curveIndex);
+
+    curves.EnsureCount(curveIndex + 1);
+    curves[curveIndex] = ezVariant(&curveData);
+  }
+
+  ref_globalData.Insert(s_sCurves, curves);
 }

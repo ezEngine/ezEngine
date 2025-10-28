@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{3226945670279355712,10942718405346696582}}
-		u4 %Hash{10776307676397936969}
+		u4 %Hash{5255862671939846500}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -196,7 +196,7 @@ o
 	p
 	{
 		Uuid %Mapping{u4{2950945429702373363,6853304130212836950}}
-		s %Name{"Test"}
+		HashedString %Name{s{"VertexColorsTest"}}
 	}
 }
 o
@@ -249,6 +249,7 @@ o
 		f %SpecularMultiplier{0x0000803F}
 		f %SplitModeWeight{0x3333333F}
 		u3 %Temperature{6550}
+		b %TransparentShadows{0}
 		b %UseColorTemperature{0}
 	}
 }
@@ -881,7 +882,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezLightComponent"}
-		u3 %TypeVersion{5}
+		u3 %TypeVersion{6}
 	}
 }
 o

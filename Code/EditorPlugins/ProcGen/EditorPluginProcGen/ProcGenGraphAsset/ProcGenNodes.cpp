@@ -127,6 +127,13 @@ void ezProcGenOutput::Save(ezStreamWriter& inout_stream)
 {
   inout_stream << m_sName;
   inout_stream.WriteArray(m_VolumeTagSetIndices).IgnoreResult();
+  inout_stream.WriteArray(m_CurveIndices).IgnoreResult();
+}
+
+void ezProcGenOutput::CopyValuesFromContext(const GraphContext& context)
+{
+  m_VolumeTagSetIndices = context.m_VolumeTagSetIndices;
+  m_CurveIndices = context.m_CurveIndices;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -553,6 +560,74 @@ ezExpressionAST::Node* ezProcGen_Remap::GenerateExpressionASTNode(ezTempHashedSt
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Curve, 1, ezRTTIDefaultAllocator<ezProcGen_Curve>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Curve", m_CurveData),
+    EZ_MEMBER_PROPERTY("NumSamples", m_uiNumSamples)->AddAttributes(new ezClampValueAttribute(8, 256), new ezDefaultValueAttribute(32)),
+    
+    EZ_MEMBER_PROPERTY("X", m_InputValuePin),
+    EZ_MEMBER_PROPERTY("Value", m_OutputValuePin)
+  }
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Math"),
+  }
+  EZ_END_ATTRIBUTES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezExpressionAST::Node* ezProcGen_Curve::GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_ast, GraphContext& ref_context)
+{
+  EZ_ASSERT_DEBUG(sOutputName == "Value", "Implementation error");
+
+  auto pInput = inputs[0];
+  if (pInput == nullptr)
+  {
+    pInput = out_ast.CreateConstant(0.0f);
+  }
+
+  ezUInt32 uiCurveIndex = 0;
+  {
+    ezCurve1D curve;
+    m_CurveData.ConvertToRuntimeData(curve);
+    curve.SortControlPoints();
+    curve.CreateLinearApproximation();
+
+    double fMinX, fMaxX;
+    curve.QueryExtents(fMinX, fMaxX);
+    float fStep = static_cast<float>(fMaxX - fMinX) / static_cast<float>(m_uiNumSamples - 1);
+
+    ezDynamicArray<float> samples;
+    samples.SetCount(m_uiNumSamples);
+    for (ezUInt32 i = 0; i < m_uiNumSamples; ++i)
+    {
+      float x = static_cast<float>(fMinX + fStep * i);
+      samples[i] = curve.Evaluate(x);
+    }
+
+    uiCurveIndex = ref_context.m_SharedData.AddCurve(std::move(samples), fMinX, fMaxX);
+    EZ_ASSERT_DEV(uiCurveIndex <= 255, "Too many curves");
+    if (!ref_context.m_CurveIndices.Contains(uiCurveIndex))
+    {
+      ref_context.m_CurveIndices.PushBack(uiCurveIndex);
+    }
+  }
+
+  ezExpressionAST::Node* arguments[] = {
+    pInput,
+    out_ast.CreateConstant(uiCurveIndex, ezExpressionAST::DataType::Int),
+  };
+
+  return out_ast.CreateFunctionCall(ezProcGenExpressionFunctions::s_SampleCurveFunc.m_Desc, arguments);
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Contrast, 1, ezRTTIDefaultAllocator<ezProcGen_Contrast>)
 {
   EZ_BEGIN_PROPERTIES
@@ -660,6 +735,84 @@ ezExpressionAST::Node* ezProcGen_Slope::GenerateExpressionASTNode(ezTempHashedSt
   auto pClampedNormalZ = out_ast.CreateBinaryOperator(ezExpressionAST::NodeType::Min, out_ast.CreateConstant(1.0f), pNormalZ);
   auto pAngle = out_ast.CreateUnaryOperator(ezExpressionAST::NodeType::ACos, pClampedNormalZ);
   return CreateRemapTo01WithFadeout(pAngle, m_MinSlope.GetRadian(), m_MaxSlope.GetRadian(), m_fLowerFade, m_fUpperFade, out_ast);
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Position, 1, ezRTTIDefaultAllocator<ezProcGen_Position>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("X", m_XPin)->AddAttributes(new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Red))),
+    EZ_MEMBER_PROPERTY("Y", m_YPin)->AddAttributes(new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Green))),
+    EZ_MEMBER_PROPERTY("Z", m_ZPin)->AddAttributes(new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Blue))),
+  }
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezTitleAttribute("Position"),
+    new ezCategoryAttribute("Input"),
+  }
+  EZ_END_ATTRIBUTES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezExpressionAST::Node* ezProcGen_Position::GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_ast, GraphContext& ref_context)
+{
+  if (sOutputName == "X")
+  {
+    return out_ast.CreateInput({ezProcGenInternal::ExpressionInputs::s_sPositionX, ezProcessingStream::DataType::Float});
+  }
+  else if (sOutputName == "Y")
+  {
+    return out_ast.CreateInput({ezProcGenInternal::ExpressionInputs::s_sPositionY, ezProcessingStream::DataType::Float});
+  }
+  else
+  {
+    EZ_ASSERT_DEBUG(sOutputName == "Z", "Implementation error");
+    return out_ast.CreateInput({ezProcGenInternal::ExpressionInputs::s_sPositionZ, ezProcessingStream::DataType::Float});
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Normal, 1, ezRTTIDefaultAllocator<ezProcGen_Normal>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("X", m_XPin)->AddAttributes(new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Red))),
+    EZ_MEMBER_PROPERTY("Y", m_YPin)->AddAttributes(new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Green))),
+    EZ_MEMBER_PROPERTY("Z", m_ZPin)->AddAttributes(new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Blue))),
+  }
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezTitleAttribute("Normal"),
+    new ezCategoryAttribute("Input"),
+  }
+  EZ_END_ATTRIBUTES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezExpressionAST::Node* ezProcGen_Normal::GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_ast, GraphContext& ref_context)
+{
+  if (sOutputName == "X")
+  {
+    return out_ast.CreateInput({ezProcGenInternal::ExpressionInputs::s_sNormalX, ezProcessingStream::DataType::Float});
+  }
+  else if (sOutputName == "Y")
+  {
+    return out_ast.CreateInput({ezProcGenInternal::ExpressionInputs::s_sNormalY, ezProcessingStream::DataType::Float});
+  }
+  else
+  {
+    EZ_ASSERT_DEBUG(sOutputName == "Z", "Implementation error");
+    return out_ast.CreateInput({ezProcGenInternal::ExpressionInputs::s_sNormalZ, ezProcessingStream::DataType::Float});
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////

@@ -12,6 +12,16 @@ namespace ezProcGenInternal
   class VertexColorTask final : public ezTask
   {
   public:
+    struct InputVertex
+    {
+      EZ_DECLARE_POD_TYPE();
+
+      ezVec3 m_vPosition;
+      ezVec3 m_vNormal;
+      ezColor m_Color;
+      ezUInt32 m_uiIndex;
+    };    
+
     VertexColorTask();
     ~VertexColorTask();
 
@@ -22,16 +32,6 @@ namespace ezProcGenInternal
 
     ezHybridArray<ezSharedPtr<const VertexColorOutput>, 2> m_Outputs;
     ezHybridArray<ezProcVertexColorMapping, 2> m_OutputMappings;
-
-    struct InputVertex
-    {
-      EZ_DECLARE_POD_TYPE();
-
-      ezVec3 m_vPosition;
-      ezVec3 m_vNormal;
-      ezColor m_Color;
-      ezUInt32 m_uiIndex;
-    };
 
     ezDynamicArray<InputVertex> m_InputVertices;
 

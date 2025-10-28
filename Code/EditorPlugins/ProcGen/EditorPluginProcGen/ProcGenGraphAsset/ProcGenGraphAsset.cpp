@@ -97,7 +97,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenGraphAssetProperties, 1, ezRTTIDefaultA
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenGraphAssetDocument, 8, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenGraphAssetDocument, 9, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezProcGenGraphAssetDocument::ezProcGenGraphAssetDocument(ezStringView sDocumentPath)
@@ -201,7 +201,7 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& inout_stream, c
   };
 
   {
-    chunk.BeginChunk("PlacementOutputs", 8);
+    chunk.BeginChunk("PlacementOutputs", 9);
 
     if (!bDebug)
     {
@@ -214,7 +214,7 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& inout_stream, c
         auto pPGNode = context.m_DocObjToProcGenNodeTable.GetValue(pPlacementNode);
         auto pPlacementOutput = ezStaticCast<ezProcGen_PlacementOutput*>(pPGNode->Borrow());
 
-        pPlacementOutput->m_VolumeTagSetIndices = context.m_GraphContext.m_VolumeTagSetIndices;
+        pPlacementOutput->CopyValuesFromContext(context.m_GraphContext);
         pPlacementOutput->Save(chunk);
       }
     }
@@ -224,6 +224,7 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& inout_stream, c
       chunk << uiNumNodes;
 
       context.m_GraphContext.m_VolumeTagSetIndices.Clear();
+      context.m_GraphContext.m_CurveIndices.Clear();
       context.m_GraphContext.m_OutputType = ezProcGenNodeBase::GraphContext::Placement;
 
       ezExpressionAST ast;
@@ -238,7 +239,7 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& inout_stream, c
 
       EZ_SUCCEED_OR_RETURN(byteCode.Save(chunk));
 
-      m_pDebugNode->m_VolumeTagSetIndices = context.m_GraphContext.m_VolumeTagSetIndices;
+      m_pDebugNode->CopyValuesFromContext(context.m_GraphContext);
       m_pDebugNode->Save(chunk);
     }
 
@@ -246,7 +247,7 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& inout_stream, c
   }
 
   {
-    chunk.BeginChunk("VertexColorOutputs", 2);
+    chunk.BeginChunk("VertexColorOutputs", 3);
 
     chunk << vertexColorNodes.GetCount();
 
@@ -257,7 +258,7 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& inout_stream, c
       auto pPGNode = context.m_DocObjToProcGenNodeTable.GetValue(pVertexColorNode);
       auto pVertexColorOutput = ezStaticCast<ezProcGen_VertexColorOutput*>(pPGNode->Borrow());
 
-      pVertexColorOutput->m_VolumeTagSetIndices = context.m_GraphContext.m_VolumeTagSetIndices;
+      pVertexColorOutput->CopyValuesFromContext(context.m_GraphContext);
       pVertexColorOutput->Save(chunk);
     }
 

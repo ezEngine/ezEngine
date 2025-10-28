@@ -23,4 +23,5 @@ void PreparePlacementTask::Execute()
 
   ezProcGenInternal::ExtractVolumeCollections(world, box, output, m_pData->m_VolumeCollections, m_pData->m_GlobalData);
   ezProcGenInternal::SetInstanceSeed(m_pData->m_uiTileSeed, m_pData->m_GlobalData);
+  ezProcGenInternal::SetCurves(output, m_pData->m_GlobalData);
 }

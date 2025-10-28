@@ -14,6 +14,7 @@ target_link_libraries(${PROJECT_NAME}
   RendererCore
   Utilities
   ParticlePlugin
+  ProcGenPlugin
   VisualScriptPlugin  
 )
 

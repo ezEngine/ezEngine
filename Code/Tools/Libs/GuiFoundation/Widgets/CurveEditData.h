@@ -83,7 +83,7 @@ class EZ_GUIFOUNDATION_DLL ezSingleCurveData : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezSingleCurveData, ezReflectedClass);
 
 public:
-  ezColorGammaUB m_CurveColor;
+  ezColorGammaUB m_CurveColor = ezColor::White;
   ezDynamicArray<ezCurveControlPointData> m_ControlPoints;
 
   void ConvertToRuntimeData(ezCurve1D& out_result) const;

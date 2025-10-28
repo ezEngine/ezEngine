@@ -104,9 +104,9 @@ ezResourceLoadDesc ezProcGenGraphResource::UpdateContent(ezStreamReader* Stream)
       }
       else if (chunk.GetCurrentChunk().m_sChunkName == "PlacementOutputs")
       {
-        if (chunk.GetCurrentChunk().m_uiChunkVersion < 4)
+        if (chunk.GetCurrentChunk().m_uiChunkVersion < 9)
         {
-          ezLog::Error("Invalid PlacementOutputs Chunk Version {0}. Expected >= 4", chunk.GetCurrentChunk().m_uiChunkVersion);
+          ezLog::Error("Invalid PlacementOutputs Chunk Version {0}. Expected >= 9", chunk.GetCurrentChunk().m_uiChunkVersion);
           chunk.NextChunk();
           continue;
         }
@@ -128,6 +128,7 @@ ezResourceLoadDesc ezProcGenGraphResource::UpdateContent(ezStreamReader* Stream)
 
           chunk >> pOutput->m_sName;
           chunk.ReadArray(pOutput->m_VolumeTagSetIndices).IgnoreResult();
+          chunk.ReadArray(pOutput->m_CurveIndices).IgnoreResult();
 
           ezUInt64 uiNumObjectsToPlace = 0;
           chunk >> uiNumObjectsToPlace;
@@ -192,9 +193,9 @@ ezResourceLoadDesc ezProcGenGraphResource::UpdateContent(ezStreamReader* Stream)
       }
       else if (chunk.GetCurrentChunk().m_sChunkName == "VertexColorOutputs")
       {
-        if (chunk.GetCurrentChunk().m_uiChunkVersion < 2)
+        if (chunk.GetCurrentChunk().m_uiChunkVersion < 3)
         {
-          ezLog::Error("Invalid VertexColorOutputs Chunk Version {0}. Expected >= 2", chunk.GetCurrentChunk().m_uiChunkVersion);
+          ezLog::Error("Invalid VertexColorOutputs Chunk Version {0}. Expected >= 3", chunk.GetCurrentChunk().m_uiChunkVersion);
           chunk.NextChunk();
           continue;
         }
@@ -216,6 +217,7 @@ ezResourceLoadDesc ezProcGenGraphResource::UpdateContent(ezStreamReader* Stream)
 
           chunk >> pOutput->m_sName;
           chunk.ReadArray(pOutput->m_VolumeTagSetIndices).IgnoreResult();
+          chunk.ReadArray(pOutput->m_CurveIndices).IgnoreResult();
 
           m_VertexColorOutputs.PushBack(pOutput);
         }
