@@ -412,6 +412,11 @@ bool ezRmlUiCanvas3DComponent::UpdateSizeOffsetAndTexture(ezVec2& out_viewSize)
     desc.m_uiHeight = sizeU32.y;
     desc.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
     desc.m_ResourceAccess.m_bImmutable = false;
+    if (ezMath::IsPowerOf2(sizeU32.x) && ezMath::IsPowerOf2(sizeU32.y))
+    {
+      desc.m_uiMipLevelCount = ezMath::Max(ezMath::Log2i(sizeU32.x), ezMath::Log2i(sizeU32.y)) - 2;
+      desc.m_bAllowDynamicMipGeneration = true;
+    }
 
     m_hTexture = pDevice->CreateTexture(desc);
 
