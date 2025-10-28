@@ -21,6 +21,8 @@ protected:
   virtual void OnInit() override;
   virtual void InternalSetValue(const ezVariant& value) override;
 
+  void SetNewValue(ezStringView sNewValue);
+
 protected:
   QHBoxLayout* m_pLayout = nullptr;
   ezDynamicStringEnum* m_pEnum = nullptr;

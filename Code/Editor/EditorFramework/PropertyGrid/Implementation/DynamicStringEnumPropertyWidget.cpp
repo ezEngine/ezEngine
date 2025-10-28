@@ -56,6 +56,29 @@ void ezQtDynamicStringEnumPropertyWidget::InternalSetValue(const ezVariant& valu
   m_pButton->setText(value.ConvertTo<ezString>().GetData());
 }
 
+void ezQtDynamicStringEnumPropertyWidget::SetNewValue(ezStringView sNewValue)
+{
+  ezVariant v;
+  ezVariantType::Enum type = m_pProp->GetSpecificType()->GetVariantType();
+  if (type == ezVariantType::String || type == ezVariantType::StringView)
+  {
+    v = ezVariant(sNewValue);
+  }
+  else if (type == ezVariantType::HashedString)
+  {
+    ezHashedString s;
+    s.Assign(sNewValue);
+    v = s;
+  }
+  else
+  {
+    EZ_ASSERT_NOT_IMPLEMENTED;
+  }
+
+  InternalSetValue(v);
+  BroadcastValueChanged(v);
+}
+
 void ezQtDynamicStringEnumPropertyWidget::onMenuAboutToShow()
 {
   m_pMenu->clear();
@@ -66,20 +89,17 @@ void ezQtDynamicStringEnumPropertyWidget::onMenuAboutToShow()
     {
       if (variant.toString() == "<item>")
       {
-        InternalSetValue(sName.toUtf8().data());
-        BroadcastValueChanged(sName.toUtf8().data());
+        SetNewValue(sName.toUtf8().data());
       }
       else if (variant.toString() == "<edit>")
       {
-
         ezQtEditDynamicEnumsDlg dlg(m_pEnum, this);
         if (dlg.exec() == QDialog::Accepted)
         {
           ezInt32 iEnum = dlg.GetSelectedItem();
           if (iEnum >= 0)
           {
-            InternalSetValue(m_pEnum->GetAllValidValues()[iEnum]);
-            BroadcastValueChanged(m_pEnum->GetAllValidValues()[iEnum]);
+            SetNewValue(m_pEnum->GetAllValidValues()[iEnum]);
           }
         }
       }
