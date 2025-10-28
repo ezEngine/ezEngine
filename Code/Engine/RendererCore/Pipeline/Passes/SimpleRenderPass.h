@@ -5,7 +5,7 @@
 /// Basic render pass that renders into a color target.
 ///
 /// Can work as passthrough or directly render into the view's render target if no input is present.
-/// It is responsible for rendering unlit objects, all debug rendering and also GUI elements. 
+/// It is responsible for rendering unlit objects, all debug rendering and also GUI elements.
 class EZ_RENDERERCORE_DLL ezSimpleRenderPass : public ezRenderPipelinePass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSimpleRenderPass, ezRenderPipelinePass);
