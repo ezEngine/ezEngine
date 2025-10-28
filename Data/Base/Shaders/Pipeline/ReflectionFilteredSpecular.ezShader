@@ -207,5 +207,7 @@ void main(uint3 groupID : SV_GroupID, uint3 groupThreadID : SV_GroupThreadID)
     inputColor = integrateCubeLDOnly(CubeMapDirection(dir), CubeMapDirection(dir), roughness);
   }
 
+  inputColor.rgb *= Intensity;
+
   ReflectionOutput[uint3(pixelIndex, faceIndex)] = inputColor;
 }

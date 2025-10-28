@@ -12,15 +12,16 @@
 #include <RendererCore/../../../Data/Base/Shaders/Pipeline/ReflectionIrradianceConstants.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezReflectionFilterPass, 1, ezRTTIDefaultAllocator<ezReflectionFilterPass>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezReflectionFilterPass, 2, ezRTTIDefaultAllocator<ezReflectionFilterPass>)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("FilteredSpecular", m_PinFilteredSpecular),
     EZ_MEMBER_PROPERTY("AvgLuminance", m_PinAvgLuminance),
     EZ_MEMBER_PROPERTY("IrradianceData", m_PinIrradianceData),
-    EZ_MEMBER_PROPERTY("Intensity", m_fIntensity)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
-    EZ_MEMBER_PROPERTY("Saturation", m_fSaturation)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
+    EZ_MEMBER_PROPERTY("DiffuseIntensity", m_fDiffuseIntensity)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
+    EZ_MEMBER_PROPERTY("DiffuseSaturation", m_fDiffuseSaturation)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
+    EZ_MEMBER_PROPERTY("SpecularIntensity", m_fSpecularIntensity)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_MEMBER_PROPERTY("SpecularOutputIndex", m_uiSpecularOutputIndex),
     EZ_MEMBER_PROPERTY("IrradianceOutputIndex", m_uiIrradianceOutputIndex),
     EZ_ACCESSOR_PROPERTY("InputCubemap", GetInputCubemap, SetInputCubemap)
@@ -153,8 +154,9 @@ void ezReflectionFilterPass::Execute(const ezRenderViewContext& renderViewContex
 ezResult ezReflectionFilterPass::Serialize(ezStreamWriter& inout_stream) const
 {
   EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
-  inout_stream << m_fIntensity;
-  inout_stream << m_fSaturation;
+  inout_stream << m_fDiffuseIntensity;
+  inout_stream << m_fDiffuseSaturation;
+  inout_stream << m_fSpecularIntensity;
   inout_stream << m_uiSpecularOutputIndex;
   inout_stream << m_uiIrradianceOutputIndex;
   // inout_stream << m_hInputCubemap; Runtime only property
@@ -165,9 +167,13 @@ ezResult ezReflectionFilterPass::Deserialize(ezStreamReader& inout_stream)
 {
   EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
   const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
-  EZ_IGNORE_UNUSED(uiVersion);
-  inout_stream >> m_fIntensity;
-  inout_stream >> m_fSaturation;
+
+  inout_stream >> m_fDiffuseIntensity;
+  inout_stream >> m_fDiffuseSaturation;
+  if (uiVersion >= 2)
+  {
+    inout_stream >> m_fSpecularIntensity;
+  }
   inout_stream >> m_uiSpecularOutputIndex;
   inout_stream >> m_uiIrradianceOutputIndex;
   return EZ_SUCCESS;
@@ -189,16 +195,15 @@ void ezReflectionFilterPass::UpdateFilteredSpecularConstantBuffer(ezUInt32 uiMip
   constants->MipLevel = uiMipMapIndex;
   constants->OutputWidth = uiWidth;
   constants->OutputHeight = uiHeight;
-  constants->Intensity = m_fIntensity;
-  constants->Saturation = m_fSaturation;
+  constants->Intensity = m_fSpecularIntensity;
 }
 
 void ezReflectionFilterPass::UpdateIrradianceConstantBuffer()
 {
   auto constants = ezRenderContext::GetConstantBufferData<ezReflectionIrradianceConstants>(m_hIrradianceConstantBuffer);
   constants->LodLevel = 6; // TODO: calculate from cubemap size and number of samples
-  constants->Intensity = m_fIntensity;
-  constants->Saturation = m_fSaturation;
+  constants->Intensity = m_fDiffuseIntensity;
+  constants->Saturation = m_fDiffuseSaturation;
   constants->OutputIndex = m_uiIrradianceOutputIndex;
 }
 
