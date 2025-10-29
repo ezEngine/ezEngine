@@ -304,6 +304,12 @@ public:
       e.m_sDisplay = ezTranslate("Gizmo.Rotation.Snap.45_Degree");
       e.m_UserValue = 45.0f;
     }
+    {
+      auto& e = out_entries.ExpandAndGetRef();
+      e.m_CheckState = ezMath::IsEqual(fValue, 90.0f, 0.1f) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
+      e.m_sDisplay = ezTranslate("Gizmo.Rotation.Snap.90_Degree");
+      e.m_UserValue = 90.0f;
+    }
   }
 
   virtual void Execute(const ezVariant& value) override
@@ -331,6 +337,8 @@ public:
       SetIconPath(":EditorFramework/Icons/Snap30deg.svg");
     else if (ezMath::IsEqual(fValue, 45.0f, 0.1f))
       SetIconPath(":EditorFramework/Icons/Snap45deg.svg");
+    else if (ezMath::IsEqual(fValue, 90.0f, 0.1f))
+      SetIconPath(":EditorFramework/Icons/Snap90deg.svg");
 
     TriggerUpdate();
   }

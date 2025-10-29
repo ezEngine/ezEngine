@@ -31,6 +31,7 @@ ezQtSnapSettingsDlg::ezQtSnapSettingsDlg(QWidget* pParent)
   m_Rotation.PushBack(KeyValue{"Gizmo.Rotation.Snap.22_5_Degree", 22.5f});
   m_Rotation.PushBack(KeyValue{"Gizmo.Rotation.Snap.30_Degree", 30.0f});
   m_Rotation.PushBack(KeyValue{"Gizmo.Rotation.Snap.45_Degree", 45.0f});
+  m_Rotation.PushBack(KeyValue{"Gizmo.Rotation.Snap.90_Degree", 90.0f});
 
   m_Scale.PushBack(KeyValue{"Gizmo.Scale.Snap.0", 0.0f});
   m_Scale.PushBack(KeyValue{"Gizmo.Scale.Snap.0_125", 0.125f});

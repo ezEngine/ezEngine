@@ -208,6 +208,7 @@ Gizmo.Rotation.Snap.15_Degree;15 Degree
 Gizmo.Rotation.Snap.30_Degree;30 Degree
 Gizmo.Rotation.Snap.22_5_Degree;22.5 Degree
 Gizmo.Rotation.Snap.45_Degree;45 Degree
+Gizmo.Rotation.Snap.90_Degree;90 Degree
 Gizmo.Scale.Snap.0;No Scale Snap
 Gizmo.Scale.Snap.4;4
 Gizmo.Scale.Snap.2;2
