@@ -228,6 +228,13 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
+      <widget class="QCheckBox" name="CheckBoxSnapping">
+       <property name="text">
+        <string>Use Current Snap Settings</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -270,6 +277,7 @@
   <tabstop>Value1</tabstop>
   <tabstop>Value2</tabstop>
   <tabstop>Value3</tabstop>
+  <tabstop>CheckBoxSnapping</tabstop>
   <tabstop>ButtonUndo</tabstop>
   <tabstop>ButtonApply</tabstop>
  </tabstops>

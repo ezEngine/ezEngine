@@ -35,6 +35,11 @@ struct ezTextureCubeResourceDescriptor
   ezArrayPtr<ezGALSystemMemoryDescription> m_InitialContent;
 };
 
+/// Resource for cube map textures.
+///
+/// Cube maps consist of 6 square texture faces representing the sides of a cube.
+/// They are sampled using 3D direction vectors and are commonly used for skyboxes,
+/// environment reflections, and irradiance maps.
 class EZ_RENDERERCORE_DLL ezTextureCubeResource : public ezResource
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezTextureCubeResource, ezResource);
@@ -45,6 +50,8 @@ public:
   ezTextureCubeResource();
 
   EZ_ALWAYS_INLINE ezGALResourceFormat::Enum GetFormat() const { return m_Format; }
+
+  /// Returns the size of each cube face (width and height are always equal).
   EZ_ALWAYS_INLINE ezUInt32 GetWidthAndHeight() const { return m_uiWidthAndHeight; }
 
   const ezGALTextureHandle& GetGALTexture() const { return m_hGALTexture[m_uiLoadedTextures - 1]; }

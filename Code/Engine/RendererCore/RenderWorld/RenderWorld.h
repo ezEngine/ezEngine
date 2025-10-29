@@ -5,14 +5,15 @@
 
 using ezRenderPipelineResourceHandle = ezTypedResourceHandle<class ezRenderPipelineResource>;
 
+/// Event data for render data extraction phase.
 struct ezRenderWorldExtractionEvent
 {
   enum class Type
   {
-    BeginExtraction,
-    BeforeViewExtraction,
-    AfterViewExtraction,
-    EndExtraction
+    BeginExtraction,      ///< Fired before any view extraction begins.
+    BeforeViewExtraction, ///< Fired before extracting data for a specific view.
+    AfterViewExtraction,  ///< Fired after extracting data for a specific view.
+    EndExtraction         ///< Fired after all views have been extracted.
   };
 
   Type m_Type;
@@ -20,14 +21,15 @@ struct ezRenderWorldExtractionEvent
   ezUInt64 m_uiFrameCounter = 0;
 };
 
+/// Event data for render execution phase.
 struct ezRenderWorldRenderEvent
 {
   enum class Type
   {
-    BeginRender,
-    BeforePipelineExecution,
-    AfterPipelineExecution,
-    EndRender,
+    BeginRender,             ///< Fired before rendering begins.
+    BeforePipelineExecution, ///< Fired before executing a render pipeline.
+    AfterPipelineExecution,  ///< Fired after executing a render pipeline.
+    EndRender,               ///< Fired after rendering is complete.
   };
 
   Type m_Type;
@@ -36,6 +38,11 @@ struct ezRenderWorldRenderEvent
   ezUInt64 m_uiFrameCounter = 0;
 };
 
+/// Central hub for rendering operations and view management.
+///
+/// Manages views, render data extraction, and rendering execution. Handles double-buffering
+/// of render data when multithreaded rendering is enabled. Provides events for hooking into
+/// various stages of the rendering pipeline.
 class EZ_RENDERERCORE_DLL ezRenderWorld
 {
 public:
@@ -53,13 +60,27 @@ public:
   static ezArrayPtr<ezViewHandle> GetMainViews();
   static bool IsRenderingScheduled();
 
+  /// Caches render data for an object to avoid re-extraction if unchanged.
+  ///
+  /// Cached render data needs to be deleted/invalidated manually if any data changes.
   static void CacheRenderData(const ezView& view, const ezGameObjectHandle& hOwnerObject, const ezComponentHandle& hOwnerComponent, ezUInt16 uiComponentVersion, ezArrayPtr<ezInternal::RenderDataCacheEntry> cacheEntries);
 
+  /// Deletes all cached render data globally.
   static void DeleteAllCachedRenderData();
+
+  /// Deletes cached render data for a specific component.
   static void DeleteCachedRenderData(const ezGameObjectHandle& hOwnerObject, const ezComponentHandle& hOwnerComponent);
+
+  /// Deletes cached render data for a game object.
   static void DeleteCachedRenderDataForObject(const ezGameObject* pOwnerObject);
+
+  /// Recursively deletes cached render data for a game object and all its children.
   static void DeleteCachedRenderDataForObjectRecursive(const ezGameObject* pOwnerObject);
+
+  /// Resets the render data cache for a specific view.
   static void ResetRenderDataCache(ezView& ref_view);
+
+  /// Retrieves cached render data if available and still valid.
   static ezArrayPtr<const ezInternal::RenderDataCacheEntry> GetCachedRenderData(const ezView& view, const ezGameObjectHandle& hOwner, ezUInt16 uiComponentVersion);
 
   static void AddViewToRender(const ezViewHandle& hView);

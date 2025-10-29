@@ -48,6 +48,7 @@ private Q_SLOTS:
   void on_Value1_valueChanged(double value);
   void on_Value2_valueChanged(double value);
   void on_Value3_valueChanged(double value);
+  void on_CheckBoxSnapping_stateChanged(int state);
 
 private:
   void QueryUI();
@@ -65,6 +66,7 @@ private:
   static ezVec3 s_vRotateRandom;
   static ezVec3 s_vRotateDeviation;
   static float s_fNaturalDeviationZ;
+  static bool s_bUseCurrentSnapSettings;
 
   ezUInt32 m_uiActionsApplied = 0;
   ezSceneDocument* m_pSceneDocument = nullptr;

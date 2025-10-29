@@ -1,0 +1,193 @@
+<rml>
+
+  <head>
+    <!-- The default RML template is in the RmlUI plugin folder.
+         It sets up a default style for common widgets.
+         Override the style with your own RCSS files as needed. -->
+    <link type="text/template" href="RmlUI/rmlui-default/template.rml" />
+    <link type="text/css" href="app-settings.rcss" />
+  </head>
+
+  <body class="app-settings" id="doc-app-settings">
+    <!-- Semi-transparent background covering the entire screen -->
+    <div class="background">
+
+      <!-- Centered modal window -->
+      <div class="modal-window" data-model="app-settings">
+
+        <tabset>
+          <tab>Options</tab>
+          <panel>
+
+            <table style="width: 100%">
+              <thead>
+                <tr>
+                  <td>Setting</td>
+                  <td>Value</td>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Show FPS</td>
+                  <td>
+                    <input type="checkbox" id="check-fps" onchange="toggle-fps" />
+                  </td>
+                </tr>
+                <tr>
+                  <td>V-Sync</td>
+                  <td>
+                    <input type="checkbox" id="check-vsync" onchange="toggle-vsync" />
+                  </td>
+                </tr>
+                  <tr>
+                    <td>UI Scale</td>
+                    <td>
+                      <input type="range" min="50" max="200" value="100" id="ui-scale" onchange="ui-scale-change" />
+                    </td>
+                  </tr>
+              </tbody>
+            </table>
+          </panel>
+
+          <tab>Examples: Widgets</tab>
+          <panel>
+
+            <form>
+              <table>
+                <thead>
+                  <tr>
+                    <td>Type</td>
+                    <td>Widget</td>
+                    <td>Effect</td>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Button</td>
+                    <td>
+                      <button onclick="example-button">Click Me</button>
+                    </td>
+                    <td id="button-counter">
+                      Clicks: 0
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Text Input</td>
+                    <td>
+                      <input type="text" placeholder="Enter text here..." id="example-text-input" onchange="example-text-change" />
+                    </td>
+                    <td id="text-input-mirror">
+
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Checkbox</td>
+                    <td>
+                      <input type="checkbox" id="example-checkbox" onchange="example-checkbox-change" />
+                      <label for="example-checkbox">Enable option</label>
+                    </td>
+                    <td id="checkbox-status">
+                      unchecked
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Radio Buttons</td>
+                    <td>
+                      <!-- The <form> around the table is needed for the radio buttons to properly act as a group -->
+                      <input type="radio" name="example-radio" id="radio-1" onchange="example-radio-change" />
+                      <label for="radio-1">Option 1</label>
+                      <input type="radio" name="example-radio" id="radio-2" onchange="example-radio-change" />
+                      <label for="radio-2">Option 2</label>
+                    </td>
+                    <td id="radio-status">
+                      none selected
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Range Slider</td>
+                    <td>
+                      <input type="range" min="0" max="100" value="50" id="example-range" onchange="example-range-change" />
+                    </td>
+                    <td id="range-value">
+                      50
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Text Area</td>
+                    <td>
+                      <textarea rows="3" cols="20" id="example-textarea" onchange="example-textarea-change">Multiline
+text
+input</textarea>
+                    </td>
+                    <td id="textarea-mirror">
+                      Multiline
+text
+input
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Select Dropdown</td>
+                    <td>
+                      <select id="example-select" onchange="example-select-change">
+                        <option>Option 1</option>
+                        <option>Option 2</option>
+                        <option>Option 3</option>
+                        <option>Option 4</option>
+                        <option>Option 5</option>
+                        <option>Option 6</option>
+                        <option>Option 7</option>
+                        <option>Option 8</option>
+                        <option>Option 9</option>
+                        <option>Option 10</option>
+                        <option>Option 11</option>
+                      </select>
+                    </td>
+                    <td id="select-value">
+                      Option 1
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </form>
+          </panel>
+
+          <tab>Examples: Images</tab>
+          <panel>
+
+            <table>
+              <thead>
+                <tr>
+                  <td>Type</td>
+                  <td>Widget</td>
+                  <td>Effect</td>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Image (PNG)</td>
+                  <td>
+                    <img src="ez.png" />
+                  </td>
+                  <td>
+                    Raster image format
+                  </td>
+                </tr>
+                <tr>
+                  <td>Image (SVG)</td>
+                  <td>
+                    <svg src="ez.svg" />
+                  </td>
+                  <td>
+                    Vector image format
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </panel>
+
+        </tabset>
+      </div>
+
+    </div>
+  </body>
+</rml>

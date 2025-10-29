@@ -5,8 +5,10 @@
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 #include <RendererCore/Shader/ShaderResource.h>
 
-/// \brief Blends the two inputs by the given blend factor and writes the result to output.
-/// Note that while the output format is taken from InputA, both inputs really should have the same size and format.
+/// Render pass that blends two input textures together.
+///
+/// Linearly interpolates between two input textures using a blend factor.
+/// The output format matches InputA. Both inputs should have the same size and format.
 class EZ_RENDERERCORE_DLL ezBlendPass : public ezRenderPipelinePass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezBlendPass, ezRenderPipelinePass);
@@ -22,10 +24,10 @@ public:
   virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
 
 protected:
-  ezRenderPipelineNodeInputPin m_PinInputA;
-  ezRenderPipelineNodeInputPin m_PinInputB;
-  ezRenderPipelineNodeOutputPin m_PinOutput;
+  ezRenderPipelineNodeInputPin m_PinInputA;  ///< First input texture.
+  ezRenderPipelineNodeInputPin m_PinInputB;  ///< Second input texture.
+  ezRenderPipelineNodeOutputPin m_PinOutput; ///< Blended output.
 
-  float m_fBlendFactor = 0.5f;
-  ezShaderResourceHandle m_hShader;
+  float m_fBlendFactor = 0.5f;               ///< Blend factor between inputs (0 = full A, 1 = full B).
+  ezShaderResourceHandle m_hShader;          ///< Shader for blending operation.
 };

@@ -7,7 +7,9 @@ struct ezPerSpriteData;
 class ezRenderDataBatch;
 using ezShaderResourceHandle = ezTypedResourceHandle<class ezShaderResource>;
 
-/// \brief Implements rendering of sprites
+/// Implements rendering of sprites.
+///
+/// Sprites are rendered as quads that always face the camera. All sprites in a batch are rendered with a single draw call.
 class EZ_RENDERERCORE_DLL ezSpriteRenderer : public ezRenderer
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSpriteRenderer, ezRenderer);
@@ -24,9 +26,14 @@ public:
     const ezRenderViewContext& renderContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const override;
 
 protected:
+  /// Creates a GPU buffer for per-sprite instance data.
   ezGALBufferHandle CreateSpriteDataBuffer(ezUInt32 uiBufferSize) const;
+
+  /// Destroys a previously created sprite data buffer.
   void DeleteSpriteDataBuffer(ezGALBufferHandle hBuffer) const;
-  virtual void FillSpriteData(const ezRenderDataBatch& batch) const;
+
+  /// Fills the sprite data array with per-instance information from the batch.
+  void FillSpriteData(const ezRenderDataBatch& batch) const;
 
   ezShaderResourceHandle m_hShader;
   mutable ezDynamicArray<ezPerSpriteData, ezAlignedAllocatorWrapper> m_SpriteData;

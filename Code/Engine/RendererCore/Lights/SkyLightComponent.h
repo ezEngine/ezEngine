@@ -37,11 +37,14 @@ public:
   void SetReflectionProbeMode(ezEnum<ezReflectionProbeMode> mode); // [ property ]
   ezEnum<ezReflectionProbeMode> GetReflectionProbeMode() const;    // [ property ]
 
-  void SetIntensity(float fIntensity);                             // [ property ]
-  float GetIntensity() const;                                      // [ property ]
+  void SetDiffuseIntensity(float fIntensity);                      // [ property ]
+  float GetDiffuseIntensity() const;                               // [ property ]
 
-  void SetSaturation(float fSaturation);                           // [ property ]
-  float GetSaturation() const;                                     // [ property ]
+  void SetDiffuseSaturation(float fSaturation);                    // [ property ]
+  float GetDiffuseSaturation() const;                              // [ property ]
+
+  void SetSpecularIntensity(float fIntensity);                     // [ property ]
+  float GetSpecularIntensity() const;                              // [ property ]
 
   const ezTagSet& GetIncludeTags() const;                          // [ property ]
   void InsertIncludeTag(const char* szTag);                        // [ property ]

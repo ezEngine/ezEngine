@@ -2,22 +2,25 @@
 
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <GameEngine/GameState/FallbackGameState.h>
-#include <RTSPlugin/GameMode/BattleMode/BattleMode.h>
-#include <RTSPlugin/GameMode/EditLevelMode/EditLevelMode.h>
-#include <RTSPlugin/GameMode/MainMenuMode/MainMenuMode.h>
-#include <RTSPlugin/RTSPluginDLL.h>
+#include <RTSPlugin/GameMode/GameMode.h>
 #include <Utilities/DataStructures/ObjectSelection.h>
-
-class RtsGameMode;
-using ezCollectionResourceHandle = ezTypedResourceHandle<class ezCollectionResource>;
 
 enum class RtsActiveGameMode
 {
   None,
   MainMenuMode,
+  SettingsMenuMode,
   EditLevelMode,
   BattleMode,
 };
+
+class RtsGameMode;
+class RtsMainMenuMode;
+class RtsSettingsMenuMode;
+class RtsBattleMode;
+class RtsEditLevelMode;
+
+using ezCollectionResourceHandle = ezTypedResourceHandle<class ezCollectionResource>;
 
 // the ezFallbackGameState adds a free flying camera and a scene switching menu, so can be useful in the very beginning
 // but generally it's better to use ezGameState instead
@@ -62,6 +65,10 @@ public:
   float SetCameraZoom(float fZoom);
 
   //////////////////////////////////////////////////////////////////////////
+  // UI
+  float m_fUiScale = 1.0f;
+
+  //////////////////////////////////////////////////////////////////////////
   // Game Mode
 public:
   void SwitchToGameMode(RtsActiveGameMode mode);
@@ -77,9 +84,10 @@ private:
   RtsGameMode* m_pActiveGameMode = nullptr;
 
   // all the modes that the game has
-  RtsMainMenuMode m_MainMenuMode;
-  RtsBattleMode m_BattleMode;
-  RtsEditLevelMode m_EditLevelMode;
+  ezUniquePtr<RtsMainMenuMode> m_pMainMenuMode;
+  ezUniquePtr<RtsSettingsMenuMode> m_pSettingsMenuMode;
+  ezUniquePtr<RtsBattleMode> m_pBattleMode;
+  ezUniquePtr<RtsEditLevelMode> m_pEditLevelMode;
 
   //////////////////////////////////////////////////////////////////////////
   // Input Handling

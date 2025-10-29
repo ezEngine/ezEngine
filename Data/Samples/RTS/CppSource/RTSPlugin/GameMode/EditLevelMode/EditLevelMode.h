@@ -11,9 +11,9 @@ public:
   ~RtsEditLevelMode();
 
 protected:
+  virtual void OnFirstActivation() override;
   virtual void OnActivateMode() override;
   virtual void OnDeactivateMode() override;
-  virtual void RegisterInputActions() override;
   virtual void OnProcessInput(const RtsMouseInputState& MouseInput, bool bUiWantsInput) override;
   virtual void OnBeforeWorldUpdate() override;
 
@@ -21,7 +21,6 @@ protected:
 
 private:
   void SetupEditUI();
-  void DisplayEditUI();
 
   ezComponentHandle m_hEditUIComponent;
 

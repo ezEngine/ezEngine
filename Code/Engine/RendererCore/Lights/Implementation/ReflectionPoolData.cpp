@@ -132,10 +132,10 @@ bool ezReflectionPool::Data::UpdateSkyLightData(ProbeData& ref_probeData, const 
   ref_probeData.m_desc = desc;
   ref_probeData.m_GlobalTransform = pComponent->GetOwner()->GetGlobalTransform();
 
-  if (auto pSkyLight = ezDynamicCast<const ezSkyLightComponent*>(pComponent))
+  if (pComponent != nullptr)
   {
     ref_probeData.m_Flags = ezProbeFlags::SkyLight;
-    ref_probeData.m_hCubeMap = pSkyLight->GetCubeMap();
+    ref_probeData.m_hCubeMap = pComponent->GetCubeMap();
     if (ref_probeData.m_desc.m_Mode == ezReflectionProbeMode::Dynamic)
     {
       ref_probeData.m_Flags |= ezProbeFlags::Dynamic;

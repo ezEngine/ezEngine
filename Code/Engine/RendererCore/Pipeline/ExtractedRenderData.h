@@ -6,6 +6,11 @@
 #include <RendererCore/Pipeline/RenderDataBatch.h>
 #include <RendererCore/Pipeline/ViewData.h>
 
+/// Contains all render data extracted from a view for one frame.
+///
+/// During the extraction phase, render components add their render data to this container,
+/// organized by category (opaque, transparent, etc.). The data is then sorted and batched
+/// for efficient rendering. Also stores camera data, view data, world time, and debug contexts.
 class EZ_RENDERERCORE_DLL ezExtractedRenderData
 {
 public:
@@ -29,15 +34,21 @@ public:
   EZ_ALWAYS_INLINE void SetViewDebugContext(const ezDebugRendererContext& debugContext) { m_ViewDebugContext = debugContext; }
   EZ_ALWAYS_INLINE const ezDebugRendererContext& GetViewDebugContext() const { return m_ViewDebugContext; }
 
+  /// Adds render data for a specific rendering category.
   void AddRenderData(const ezRenderData* pRenderData, ezRenderData::Category category);
+
+  /// Adds frame-level data that is not tied to a specific render category.
   void AddFrameData(const ezRenderData* pFrameData);
 
+  /// Sorts and batches all render data by category and sorting key for efficient rendering.
   void SortAndBatch();
 
   void Clear();
 
+  /// Returns all render data batches for a specific category.
   ezRenderDataBatchList GetRenderDataBatchesWithCategory(ezRenderData::Category category) const;
 
+  /// Returns raw unsorted render data for a specific category.
   ezArrayPtr<const ezRenderDataBatch::SortableRenderData> GetRawRenderDataWithCategory(ezRenderData::Category category) const;
 
   template <typename T>

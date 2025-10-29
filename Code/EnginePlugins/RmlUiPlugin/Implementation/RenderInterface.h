@@ -91,6 +91,7 @@ namespace ezRmlUiInternal
     ezTexture2DResourceHandle m_hFallbackTexture;
 
     ezMat4 m_mTransform = ezMat4::MakeIdentity();
+    bool m_bUseStencilTest = false;
 
     ezDynamicArray<ezUniquePtr<CommandBuffer>> m_FreeCommandBuffers;
     ezDynamicArray<ezUniquePtr<CommandBuffer>> m_SubmittedCommandBuffers[2];

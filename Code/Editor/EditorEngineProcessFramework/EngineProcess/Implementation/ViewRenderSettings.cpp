@@ -272,7 +272,8 @@ void ezEngineViewLightSettings::UpdateForEngine(ezWorld* pWorld)
 
     if (ezSkyLightComponent* pSkyLight = SyncComponent<ezSkyLightComponent>(m_pWorld, pParent, m_hSkyLight, m_bSkyLight))
     {
-      pSkyLight->SetIntensity(m_fSkyLightIntensity);
+      pSkyLight->SetDiffuseIntensity(m_fSkyLightIntensity);
+      pSkyLight->SetSpecularIntensity(m_fSkyLightIntensity);
       pSkyLight->SetReflectionProbeMode(ezReflectionProbeMode::Static);
       pSkyLight->SetCubeMapFile(m_sSkyLightCubeMap);
     }

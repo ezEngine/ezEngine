@@ -5,7 +5,10 @@
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 #include <RendererCore/Shader/ShaderResource.h>
 
-/// \brief Blurs input and writes it to an output buffer of the same format.
+/// Render pass that applies a gaussian blur to an input texture.
+///
+/// Performs a two-pass separable gaussian blur with configurable radius.
+/// Output has the same format as the input.
 class EZ_RENDERERCORE_DLL ezBlurPass : public ezRenderPipelinePass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezBlurPass, ezRenderPipelinePass);
@@ -20,14 +23,14 @@ public:
   virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
   virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
 
-  void SetRadius(ezInt32 iRadius);
-  ezInt32 GetRadius() const;
+  void SetRadius(ezInt32 iRadius);           ///< Sets the blur radius in pixels.
+  ezInt32 GetRadius() const;                 ///< Returns the current blur radius.
 
 protected:
-  ezRenderPipelineNodeInputPin m_PinInput;
-  ezRenderPipelineNodeOutputPin m_PinOutput;
+  ezRenderPipelineNodeInputPin m_PinInput;   ///< Input texture to blur.
+  ezRenderPipelineNodeOutputPin m_PinOutput; ///< Blurred output texture.
 
-  ezInt32 m_iRadius = 15;
-  ezConstantBufferStorageHandle m_hBlurCB;
-  ezShaderResourceHandle m_hShader;
+  ezInt32 m_iRadius = 15;                    ///< Blur radius in pixels.
+  ezConstantBufferStorageHandle m_hBlurCB;   ///< Constant buffer for blur parameters.
+  ezShaderResourceHandle m_hShader;          ///< Blur shader.
 };

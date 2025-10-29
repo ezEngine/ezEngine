@@ -23,14 +23,15 @@ namespace
 } // namespace
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezSkyLightComponent, 3, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezSkyLightComponent, 4, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ENUM_ACCESSOR_PROPERTY("ReflectionProbeMode", ezReflectionProbeMode, GetReflectionProbeMode, SetReflectionProbeMode)->AddAttributes(new ezGroupAttribute("Capture Description")),
     EZ_ACCESSOR_PROPERTY("CubeMap", GetCubeMapFile, SetCubeMapFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_Cube")),
-    EZ_ACCESSOR_PROPERTY("Intensity", GetIntensity, SetIntensity)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(0.4f)),
-    EZ_ACCESSOR_PROPERTY("Saturation", GetSaturation, SetSaturation)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(0.3f)),
+    EZ_ACCESSOR_PROPERTY("DiffuseIntensity", GetDiffuseIntensity, SetDiffuseIntensity)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(0.4f)),
+    EZ_ACCESSOR_PROPERTY("DiffuseSaturation", GetDiffuseSaturation, SetDiffuseSaturation)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(0.3f)),
+    EZ_ACCESSOR_PROPERTY("SpecularIntensity", GetSpecularIntensity, SetSpecularIntensity)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1.0f)),
     EZ_SET_ACCESSOR_PROPERTY("IncludeTags", GetIncludeTags, InsertIncludeTag, RemoveIncludeTag)->AddAttributes(new ezTagSetWidgetAttribute("Default"), new ezDefaultValueAttribute(GetDefaultTags())),
     EZ_SET_ACCESSOR_PROPERTY("ExcludeTags", GetExcludeTags, InsertExcludeTag, RemoveExcludeTag)->AddAttributes(new ezTagSetWidgetAttribute("Default")),
     EZ_ACCESSOR_PROPERTY("NearPlane", GetNearPlane, SetNearPlane)->AddAttributes(new ezDefaultValueAttribute(0.0f), new ezClampValueAttribute(0.0f, {}), new ezMinValueTextAttribute("Auto")),
@@ -89,26 +90,37 @@ ezEnum<ezReflectionProbeMode> ezSkyLightComponent::GetReflectionProbeMode() cons
   return m_Desc.m_Mode;
 }
 
-void ezSkyLightComponent::SetIntensity(float fIntensity)
+void ezSkyLightComponent::SetDiffuseIntensity(float fIntensity)
 {
-  m_Desc.m_fIntensity = fIntensity;
+  m_Desc.m_fDiffuseIntensity = fIntensity;
   m_bStatesDirty = true;
 }
 
-float ezSkyLightComponent::GetIntensity() const
+float ezSkyLightComponent::GetDiffuseIntensity() const
 {
-  return m_Desc.m_fIntensity;
+  return m_Desc.m_fDiffuseIntensity;
 }
 
-void ezSkyLightComponent::SetSaturation(float fSaturation)
+void ezSkyLightComponent::SetDiffuseSaturation(float fSaturation)
 {
-  m_Desc.m_fSaturation = fSaturation;
+  m_Desc.m_fDiffuseSaturation = fSaturation;
   m_bStatesDirty = true;
 }
 
-float ezSkyLightComponent::GetSaturation() const
+float ezSkyLightComponent::GetDiffuseSaturation() const
 {
-  return m_Desc.m_fSaturation;
+  return m_Desc.m_fDiffuseSaturation;
+}
+
+void ezSkyLightComponent::SetSpecularIntensity(float fIntensity)
+{
+  m_Desc.m_fSpecularIntensity = fIntensity;
+  m_bStatesDirty = true;
+}
+
+float ezSkyLightComponent::GetSpecularIntensity() const
+{
+  return m_Desc.m_fSpecularIntensity;
 }
 
 const ezTagSet& ezSkyLightComponent::GetIncludeTags() const
@@ -232,8 +244,9 @@ void ezSkyLightComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   m_Desc.m_ExcludeTags.Save(s);
   s << m_Desc.m_Mode;
   s << m_Desc.m_bShowDebugInfo;
-  s << m_Desc.m_fIntensity;
-  s << m_Desc.m_fSaturation;
+  s << m_Desc.m_fDiffuseIntensity;
+  s << m_Desc.m_fDiffuseSaturation;
+  s << m_Desc.m_fSpecularIntensity;
   s << m_hCubeMap;
   s << m_Desc.m_fNearPlane;
   s << m_Desc.m_fFarPlane;
@@ -249,8 +262,13 @@ void ezSkyLightComponent::DeserializeComponent(ezWorldReader& inout_stream)
   m_Desc.m_ExcludeTags.Load(s, ezTagRegistry::GetGlobalRegistry());
   s >> m_Desc.m_Mode;
   s >> m_Desc.m_bShowDebugInfo;
-  s >> m_Desc.m_fIntensity;
-  s >> m_Desc.m_fSaturation;
+  s >> m_Desc.m_fDiffuseIntensity;
+  s >> m_Desc.m_fDiffuseSaturation;
+  if (uiVersion >= 4)
+  {
+    s >> m_Desc.m_fSpecularIntensity;
+  }
+
   if (uiVersion >= 2)
   {
     s >> m_hCubeMap;
@@ -296,5 +314,24 @@ public:
 };
 
 ezSkyLightComponentPatch_2_3 g_ezSkyLightComponentPatch_2_3;
+
+///////////////////////////////////////////////////////////////////////////
+
+class ezSkyLightComponentPatch_3_4 : public ezGraphPatch
+{
+public:
+  ezSkyLightComponentPatch_3_4()
+    : ezGraphPatch("ezSkyLightComponent", 4)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    pNode->RenameProperty("Intensity", "DiffuseIntensity");
+    pNode->RenameProperty("Saturation", "DiffuseSaturation");
+  }
+};
+
+ezSkyLightComponentPatch_3_4 g_ezSkyLightComponentPatch_3_4;
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_SkyLightComponent);

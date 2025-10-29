@@ -1,0 +1,18 @@
+<rml>
+  <head>
+    <!-- The default RML template is in the RmlUI plugin folder.
+         It sets up a default style for common widgets.
+         Override the style with your own RCSS files as needed. -->
+    <link type="text/template" href="RmlUI/rmlui-default/template.rml"/>
+    <link type="text/css" href="app-menu.rcss"/>
+  </head>
+  <body class="app-menu">
+    <div class="content">
+      <!-- Buttons are stacked vertically due to the .app-menu.content class -->
+      <button onclick="Game-Resume">Resume Game</button>
+      <button onclick="Game-Settings">Settings</button>
+      <button onclick="Game-Exit">Exit</button>
+    </div>
+  </body>
+</rml>
+

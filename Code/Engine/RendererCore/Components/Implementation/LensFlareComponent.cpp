@@ -228,8 +228,8 @@ void ezLensFlareComponent::FindLightComponent()
 
 void ezLensFlareComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
-  // Don't render in shadow views
-  if (msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow)
+  // Don't render in shadow and reflection views
+  if (msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow || msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Reflection)
     return;
 
   // Don't extract render data for selection.

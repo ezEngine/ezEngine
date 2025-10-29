@@ -2,7 +2,10 @@
 
 #include <RendererCore/Pipeline/Passes/ForwardRenderPass.h>
 
-/// \brief A forward render pass that renders all sky objects into the color target.
+/// Forward render pass that renders skybox and sky objects.
+///
+/// Renders the skybox and other sky-related objects at infinite distance.
+/// Typically rendered after opaque objects but before transparent objects.
 class EZ_RENDERERCORE_DLL ezSkyRenderPass : public ezForwardRenderPass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSkyRenderPass, ezForwardRenderPass);

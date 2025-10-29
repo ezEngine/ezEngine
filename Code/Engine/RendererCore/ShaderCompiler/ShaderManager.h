@@ -5,19 +5,35 @@
 #include <RendererCore/ShaderCompiler/PermutationGenerator.h>
 #include <RendererCore/ShaderCompiler/ShaderParser.h>
 
+/// Manages shader compilation, permutations, and caching.
+///
+/// Handles shader permutation variable configurations, validates permutation combinations,
+/// and manages shader compilation both at runtime and from cache. Platform-specific shader
+/// compilation is supported through the active platform setting.
 class EZ_RENDERERCORE_DLL ezShaderManager
 {
 public:
+  /// Configures the shader manager with platform and compilation settings.
+  ///
+  /// Must be called during initialization. The active platform determines which shader binaries
+  /// to load. Runtime compilation allows shaders to be compiled on demand if not found in cache.
   static void Configure(const char* szActivePlatform, bool bEnableRuntimeCompilation, const char* szShaderCacheDirectory = ":shadercache/ShaderCache",
     const char* szPermVarSubDirectory = "Shaders/PermutationVars");
+
   static const ezString& GetPermutationVarSubDirectory() { return s_sPermVarSubDir; }
   static const ezString& GetActivePlatform() { return s_sPlatform; }
   static const ezString& GetCacheDirectory() { return s_sShaderCacheDirectory; }
   static bool IsRuntimeCompilationEnabled() { return s_bEnableRuntimeCompilation; }
 
+  /// Reloads the permutation variable configuration for a specific variable.
   static void ReloadPermutationVarConfig(const char* szName, const ezTempHashedString& sHashedName);
+
+  /// Checks if a permutation variable value is valid according to its configuration.
+  ///
+  /// Returns false if the value is not allowed for the given variable.
   static bool IsPermutationValueAllowed(const char* szName, const ezTempHashedString& sHashedName, const ezTempHashedString& sValue,
     ezHashedString& out_sName, ezHashedString& out_sValue);
+
   static bool IsPermutationValueAllowed(const ezHashedString& sName, const ezHashedString& sValue);
 
   /// \brief If the given permutation variable is an enum variable, this returns the possible values.
@@ -28,8 +44,17 @@ public:
   /// E.g. returns TRUE and FALSE for boolean variables.
   static void GetPermutationValues(const ezHashedString& sName, ezDynamicArray<ezHashedString>& out_values);
 
+  /// Begins preloading multiple shader permutations asynchronously.
+  ///
+  /// The permutations should be available within the specified time. This is a hint for the
+  /// resource system to prioritize loading.
   static void PreloadPermutations(
     ezShaderResourceHandle hShader, const ezHashTable<ezHashedString, ezHashedString>& permVars, ezTime shouldBeAvailableIn);
+
+  /// Preloads a single shader permutation and returns its resource handle.
+  ///
+  /// If bAllowFallback is true and the exact permutation is not available, a fallback
+  /// permutation may be returned.
   static ezShaderPermutationResourceHandle PreloadSinglePermutation(
     ezShaderResourceHandle hShader, const ezHashTable<ezHashedString, ezHashedString>& permVars, bool bAllowFallback);
 

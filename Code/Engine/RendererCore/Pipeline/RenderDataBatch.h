@@ -2,6 +2,11 @@
 
 #include <RendererCore/Pipeline/Declarations.h>
 
+/// Represents a batch of render data that can be rendered together.
+///
+/// Render data is grouped into batches to minimize state changes during rendering.
+/// Each batch contains render data of the same type, sorted by a sorting key.
+/// Provides iterator access to iterate through the typed render data.
 class ezRenderDataBatch
 {
 private:
@@ -16,6 +21,7 @@ private:
 public:
   EZ_DECLARE_POD_TYPE();
 
+  /// Iterator for traversing typed render data within a batch.
   template <typename T>
   class Iterator
   {
@@ -25,8 +31,10 @@ public:
 
     operator const T*() const;
 
+    /// Advances to the next element.
     void Next();
 
+    /// Returns true if the iterator points to a valid element.
     bool IsValid() const;
 
     void operator++();
@@ -55,6 +63,9 @@ private:
   ezArrayPtr<SortableRenderData> m_Data;
 };
 
+/// Contains a list of render data batches for a specific render category.
+///
+/// Used to access all batches that need to be rendered for a particular category.
 class ezRenderDataBatchList
 {
 public:

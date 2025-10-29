@@ -2,11 +2,10 @@
 
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 
-/// \brief A very basic render pass that renders into the color target.
+/// Basic render pass that renders into a color target.
 ///
-/// Can either works as passthrough or if no input is present creates
-/// output targets matching the view's render target.
-/// Needs to be connected to a ezTargetPass to function.
+/// Can work as passthrough or directly render into the view's render target if no input is present.
+/// It is responsible for rendering unlit objects, all debug rendering and also GUI elements.
 class EZ_RENDERERCORE_DLL ezSimpleRenderPass : public ezRenderPipelinePass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSimpleRenderPass, ezRenderPipelinePass);
@@ -20,11 +19,12 @@ public:
   virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
   virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
 
+  /// Sets a debug message that can be displayed during rendering.
   void SetMessage(const char* szMessage);
 
 protected:
-  ezRenderPipelineNodePassThroughPin m_PinColor;
-  ezRenderPipelineNodePassThroughPin m_PinDepthStencil;
+  ezRenderPipelineNodePassThroughPin m_PinColor;        ///< Color target pass-through.
+  ezRenderPipelineNodePassThroughPin m_PinDepthStencil; ///< Depth-stencil target pass-through.
 
-  ezString m_sMessage;
+  ezString m_sMessage;                                  ///< Debug message string.
 };

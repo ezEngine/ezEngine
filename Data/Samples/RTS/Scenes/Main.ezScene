@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9619871107370611331,5240437655261466261}}
-		u4 %Hash{5294681019735684323}
+		u4 %Hash{14379997456122478363}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -19,20 +19,22 @@ o
 			s{"{ 04e4bc2b-20b1-4909-a98a-b2de0d9a86d7 }"}
 			s{"{ 4e4e4c34-8bf0-473e-a1ff-a179328e4a7b }"}
 			s{"{ 5a8a3951-adf5-41fb-841d-cd998d883132 }"}
-			s{"{ 5c9dacbb-e862-4b7d-b43e-7ad5c08d9397 }"}
 			s{"{ 6c0ea18c-489d-4375-b949-3da2ec5fcdde }"}
 			s{"{ a82e5a3e-a6b4-4a58-8fdd-e09ec9f5ff66 }"}
-			s{"{ b718f666-139b-4ebb-8b5b-5b19e5321d12 }"}
+			s{"{ abdc4bc5-c415-4bab-950d-4694da12df44 }"}
+			s{"{ cd604591-198d-4616-babd-5627f6a55340 }"}
+			s{"{ e8b8b287-eb2b-40d5-95f8-4b0a390f89e0 }"}
 		}
 		VarArray %References
 		{
 			s{"{ 04e4bc2b-20b1-4909-a98a-b2de0d9a86d7 }"}
 			s{"{ 4e4e4c34-8bf0-473e-a1ff-a179328e4a7b }"}
 			s{"{ 5a8a3951-adf5-41fb-841d-cd998d883132 }"}
-			s{"{ 5c9dacbb-e862-4b7d-b43e-7ad5c08d9397 }"}
 			s{"{ 6c0ea18c-489d-4375-b949-3da2ec5fcdde }"}
 			s{"{ a82e5a3e-a6b4-4a58-8fdd-e09ec9f5ff66 }"}
-			s{"{ b718f666-139b-4ebb-8b5b-5b19e5321d12 }"}
+			s{"{ abdc4bc5-c415-4bab-950d-4694da12df44 }"}
+			s{"{ cd604591-198d-4616-babd-5627f6a55340 }"}
+			s{"{ e8b8b287-eb2b-40d5-95f8-4b0a390f89e0 }"}
 		}
 		s %Tags{""}
 	}
@@ -104,6 +106,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ a82e5a3e-a6b4-4a58-8fdd-e09ec9f5ff66 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -116,6 +119,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 5a8a3951-adf5-41fb-841d-cd998d883132 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -146,45 +150,6 @@ o
 }
 o
 {
-	Uuid %id{u4{7293175959485453971,4829438311764547551}}
-	s %t{"ezGameObject"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		VarArray %Children{}
-		VarArray %Components
-		{
-			Uuid{u4{9055208520684024498,4843744205851761460}}
-		}
-		s %GlobalKey{"EditUI"}
-		Vec3 %LocalPosition{f{0,0,0}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
-		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{"EditUI"}
-		VarArray %Tags{}
-	}
-}
-o
-{
-	Uuid %id{u4{9055208520684024498,4843744205851761460}}
-	s %t{"ezRmlUiCanvas2DComponent"}
-	u3 %v{2}
-	p
-	{
-		b %Active{1}
-		Vec2 %AnchorPoint{f{0x0000803F,0}}
-		b %AutobindBlackboards{1}
-		Vec2i %Offset{i3{10,10}}
-		b %PassInput{1}
-		s %RmlFile{"{ 5c9dacbb-e862-4b7d-b43e-7ad5c08d9397 }"}
-		Vec2u %Size{u3{200,200}}
-	}
-}
-o
-{
 	Uuid %id{u4{112090577650709939,4917051080922554452}}
 	s %t{"ezSceneLayer"}
 	u3 %v{1}
@@ -208,6 +173,16 @@ o
 }
 o
 {
+	Uuid %id{u4{9234796422083062925,4979656867782626529}}
+	s %t{"ezShapeIconComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+	}
+}
+o
+{
 	Uuid %id{u4{14052830942546332566,5011227346324986469}}
 	s %t{"ezPrefabReferenceComponent"}
 	u3 %v{4}
@@ -216,6 +191,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 4e4e4c34-8bf0-473e-a1ff-a179328e4a7b }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -228,6 +204,38 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 6c0ea18c-489d-4375-b949-3da2ec5fcdde }"}
+		b %ShowShapeIcons{0}
+	}
+}
+o
+{
+	Uuid %id{u4{16451018556211636148,5192132215875463629}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children
+		{
+			Uuid{u4{13589832603954530531,15869644218244333186}}
+			Uuid{u4{9050715308625283643,10388930118688874221}}
+			Uuid{u4{8823630105236498365,5523259662539904765}}
+		}
+		VarArray %Components
+		{
+			Uuid{u4{9234796422083062925,4979656867782626529}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"UI Elements"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
 	}
 }
 o
@@ -299,25 +307,19 @@ o
 }
 o
 {
-	Uuid %id{u4{6382272415044446599,5355585275346804828}}
-	s %t{"ezGameObject"}
-	u3 %v{1}
+	Uuid %id{u4{15477976202109791398,5408314821706083937}}
+	s %t{"ezRmlUiCanvas2DComponent"}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
-		VarArray %Children{}
-		VarArray %Components
-		{
-			Uuid{u4{7229683353374316169,5677765923182134215}}
-		}
-		s %GlobalKey{"SelectModeUI"}
-		Vec3 %LocalPosition{f{0,0,0}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
-		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{"SelectModeUI"}
-		VarArray %Tags{}
+		Vec2 %AnchorPoint{f{0,0}}
+		b %AutobindBlackboards{1}
+		Vec2i %Offset{i3{0,0}}
+		b %OnDemandUpdate{1}
+		b %PassInput{1}
+		s %RmlFile{"{ e8b8b287-eb2b-40d5-95f8-4b0a390f89e0 }"}
+		Vec2u %Size{u3{0,0}}
 	}
 }
 o
@@ -386,6 +388,33 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 5a8a3951-adf5-41fb-841d-cd998d883132 }"}
+		b %ShowShapeIcons{0}
+	}
+}
+o
+{
+	Uuid %id{u4{8823630105236498365,5523259662539904765}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{15477976202109791398,5408314821706083937}}
+		}
+		s %GlobalKey{"game-ui"}
+		Vec3 %LocalPosition{f{0,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"game-ui"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
 	}
 }
 o
@@ -425,6 +454,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ a82e5a3e-a6b4-4a58-8fdd-e09ec9f5ff66 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -490,22 +520,6 @@ o
 }
 o
 {
-	Uuid %id{u4{7229683353374316169,5677765923182134215}}
-	s %t{"ezRmlUiCanvas2DComponent"}
-	u3 %v{2}
-	p
-	{
-		b %Active{1}
-		Vec2 %AnchorPoint{f{0,0}}
-		b %AutobindBlackboards{1}
-		Vec2i %Offset{i3{10,10}}
-		b %PassInput{1}
-		s %RmlFile{"{ b718f666-139b-4ebb-8b5b-5b19e5321d12 }"}
-		Vec2u %Size{u3{140,130}}
-	}
-}
-o
-{
 	Uuid %id{u4{18096612296587978288,6449934965513159559}}
 	s %t{"ezSceneDocumentRoot"}
 	u3 %v{2}
@@ -530,8 +544,7 @@ o
 			Uuid{u4{2693043281307044131,8143924256959791598}}
 			Uuid{u4{17171131790596593599,12892584997883065107}}
 			Uuid{u4{1269060923509772659,17719187312888884762}}
-			Uuid{u4{6382272415044446599,5355585275346804828}}
-			Uuid{u4{7293175959485453971,4829438311764547551}}
+			Uuid{u4{16451018556211636148,5192132215875463629}}
 		}
 		Uuid %Settings{u4{12395792110627696549,4931489385025110831}}
 	}
@@ -573,6 +586,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ a82e5a3e-a6b4-4a58-8fdd-e09ec9f5ff66 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -612,6 +626,47 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 5a8a3951-adf5-41fb-841d-cd998d883132 }"}
+		b %ShowShapeIcons{0}
+	}
+}
+o
+{
+	Uuid %id{u4{9050715308625283643,10388930118688874221}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{10812747869823854170,10403236012776088130}}
+		}
+		s %GlobalKey{"app-menu"}
+		Vec3 %LocalPosition{f{0,0x0000803F,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"app-menu"}
+		VarArray %Tags{}
+	}
+}
+o
+{
+	Uuid %id{u4{10812747869823854170,10403236012776088130}}
+	s %t{"ezRmlUiCanvas2DComponent"}
+	u3 %v{3}
+	p
+	{
+		b %Active{0}
+		Vec2 %AnchorPoint{f{0,0}}
+		b %AutobindBlackboards{1}
+		Vec2i %Offset{i3{0,0}}
+		b %OnDemandUpdate{1}
+		b %PassInput{1}
+		s %RmlFile{"{ abdc4bc5-c415-4bab-950d-4694da12df44 }"}
+		Vec2u %Size{u3{0,0}}
 	}
 }
 o
@@ -651,6 +706,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 4e4e4c34-8bf0-473e-a1ff-a179328e4a7b }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -663,6 +719,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ a82e5a3e-a6b4-4a58-8fdd-e09ec9f5ff66 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -729,6 +786,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ a82e5a3e-a6b4-4a58-8fdd-e09ec9f5ff66 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -760,6 +818,46 @@ o
 }
 o
 {
+	Uuid %id{u4{13589832603954530531,15869644218244333186}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{15351865165153101058,15883950112331547095}}
+		}
+		s %GlobalKey{"app-settings"}
+		Vec3 %LocalPosition{f{0,0x0000803F,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"app-settings"}
+		VarArray %Tags{}
+	}
+}
+o
+{
+	Uuid %id{u4{15351865165153101058,15883950112331547095}}
+	s %t{"ezRmlUiCanvas2DComponent"}
+	u3 %v{3}
+	p
+	{
+		b %Active{0}
+		Vec2 %AnchorPoint{f{0,0}}
+		b %AutobindBlackboards{1}
+		Vec2i %Offset{i3{0,0}}
+		b %OnDemandUpdate{1}
+		b %PassInput{1}
+		s %RmlFile{"{ cd604591-198d-4616-babd-5627f6a55340 }"}
+		Vec2u %Size{u3{0,0}}
+	}
+}
+o
+{
 	Uuid %id{u4{7997290115652699325,15927839615233610185}}
 	s %t{"ezPrefabReferenceComponent"}
 	u3 %v{4}
@@ -768,6 +866,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 5a8a3951-adf5-41fb-841d-cd998d883132 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -807,6 +906,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ a82e5a3e-a6b4-4a58-8fdd-e09ec9f5ff66 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -846,6 +946,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ a82e5a3e-a6b4-4a58-8fdd-e09ec9f5ff66 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 }
@@ -899,7 +1000,7 @@ o
 		s %PluginName{"ezEditorPluginRmlUi"}
 		VarArray %Properties{}
 		s %TypeName{"ezRmlUiCanvas2DComponent"}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -934,6 +1035,16 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezCategoryAttribute"}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{11135730192525964575,4819325472927372842}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Editing"}
 	}
 }
 o
@@ -1171,6 +1282,26 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezRenderComponent"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{12548802506357991701,12127202460150289855}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{11135730192525964575,4819325472927372842}}
+		}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"ezEnginePluginScene"}
+		VarArray %Properties{}
+		s %TypeName{"ezShapeIconComponent"}
 		u3 %TypeVersion{1}
 	}
 }

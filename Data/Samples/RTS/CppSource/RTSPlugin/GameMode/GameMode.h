@@ -3,6 +3,7 @@
 class ezWorld;
 class ezCamera;
 class RTSGameState;
+class ezRmlUiContext;
 
 struct RtsMouseInputState
 {
@@ -34,9 +35,9 @@ public:
   virtual void AfterProcessInput() {}
 
 protected:
+  virtual void OnFirstActivation() {}
   virtual void OnActivateMode() {}
   virtual void OnDeactivateMode() {}
-  virtual void RegisterInputActions() {}
   virtual void OnProcessInput(const RtsMouseInputState& MouseInput, bool bUiWantsInput) {}
   virtual void OnBeforeWorldUpdate() {}
 
@@ -45,7 +46,7 @@ protected:
   ezViewHandle m_hMainView;
 
 private:
-  bool m_bInitialized = false;
+  bool m_bFirstActivation = true;
 
   //////////////////////////////////////////////////////////////////////////
   // Camera
@@ -58,12 +59,10 @@ protected:
   // User Interface
 public:
   static ezColor GetTeamColor(ezUInt16 uiTeam);
-
+  static ezRmlUiContext* SetUiActive(ezWorld* pWorld, ezTempHashedString sName, bool bActive);
 
 protected:
   void SetupSelectModeUI();
-  void DisplaySelectModeUI();
 
-  static bool s_bUseRmlUi;
   ezComponentHandle m_hSelectModeUIComponent;
 };

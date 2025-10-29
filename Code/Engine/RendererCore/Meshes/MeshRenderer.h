@@ -5,7 +5,9 @@
 class ezMeshRenderData;
 struct ezPerInstanceData;
 
-/// \brief Implements rendering of static meshes
+/// Implements rendering of static meshes.
+///
+/// All meshes in one batch are rendered with a single instanced draw call.
 class EZ_RENDERERCORE_DLL ezMeshRenderer : public ezRenderer
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezMeshRenderer, ezRenderer);
@@ -22,7 +24,14 @@ public:
     const ezRenderViewContext& renderContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const override;
 
 protected:
+  /// Sets additional shader data specific to the current render data.
+  ///
+  /// Can be overridden to bind custom per-object data.
   virtual void SetAdditionalData(const ezRenderViewContext& renderViewContext, const ezMeshRenderData* pRenderData) const;
+
+  /// Fills the instance data buffer from the render data batch.
+  ///
+  /// Filters out instances and returns the actual count written. Can be overridden to customize instance data layout.
   virtual void FillPerInstanceData(
     ezArrayPtr<ezPerInstanceData> instanceData, const ezRenderDataBatch& batch, ezUInt32 uiStartIndex, ezUInt32& out_uiFilteredCount) const;
 };

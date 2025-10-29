@@ -23,6 +23,11 @@ namespace ozz::animation
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezSkeletonJointGeometryType);
 
+/// \brief Describes the collision geometry shape for a bone.
+///
+/// Used during skeleton editing to define physics collision shapes for bones.
+/// The shape can be a box, capsule, or sphere. If m_fLength is 0, it automatically
+/// uses the distance from the parent joint to this joint.
 struct EZ_RENDERERCORE_DLL ezEditableSkeletonBoneShape : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezEditableSkeletonBoneShape, ezReflectedClass);
@@ -32,11 +37,15 @@ struct EZ_RENDERERCORE_DLL ezEditableSkeletonBoneShape : public ezReflectedClass
   ezVec3 m_vOffset = ezVec3::MakeZero();
   ezQuat m_qRotation = ezQuat::MakeIdentity();
 
-  float m_fLength = 0;    // Box, Capsule; 0 means parent joint to this joint (auto mode)
-  float m_fWidth = 0;     // Box
-  float m_fThickness = 0; // Sphere radius, Capsule radius
+  float m_fLength = 0;    ///< Box, Capsule; 0 means parent joint to this joint (auto mode)
+  float m_fWidth = 0;     ///< Box
+  float m_fThickness = 0; ///< Sphere radius, Capsule radius
 };
 
+/// \brief Defines a convex mesh collider for a bone.
+///
+/// Stores vertex positions and triangle indices that define a convex collision mesh
+/// for a bone. Used when more complex collision shapes than simple primitives are needed.
 struct EZ_RENDERERCORE_DLL ezEditableSkeletonBoneCollider : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezEditableSkeletonBoneCollider, ezReflectedClass);
@@ -46,6 +55,11 @@ struct EZ_RENDERERCORE_DLL ezEditableSkeletonBoneCollider : public ezReflectedCl
   ezDynamicArray<ezUInt8> m_TriangleIndices;
 };
 
+/// \brief Represents a single joint in an editable skeleton.
+///
+/// Used during skeleton editing and import. Contains the joint's transform, collision shapes,
+/// physics properties like joint limits and stiffness, and references to child joints.
+/// This is the editable representation which gets converted to the runtime ezSkeletonJoint.
 class EZ_RENDERERCORE_DLL ezEditableSkeletonJoint : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezEditableSkeletonJoint, ezReflectedClass);
@@ -59,8 +73,9 @@ public:
 
   void ClearJoints();
 
-  // copies the properties for geometry etc. from another joint
-  // does NOT copy the name, the transform or the children
+  /// \brief Copies the properties for geometry, physics, and collision from another joint.
+  ///
+  /// Does NOT copy the name, the transform or the children.
   void CopyPropertiesFrom(const ezEditableSkeletonJoint* pJoint);
 
   ezHashedString m_sName;
@@ -90,6 +105,11 @@ public:
   ezUInt8 m_uiCollisionLayerOverride;
 };
 
+/// \brief Editable representation of a skeleton used in the editor and import pipeline.
+///
+/// Contains the full hierarchy of joints with all their properties. Used for skeleton editing,
+/// mesh import, and for generating the runtime skeleton resource.
+/// Can convert itself into ezSkeletonResourceDescriptor and ozz::animation::Skeleton formats.
 class EZ_RENDERERCORE_DLL ezEditableSkeleton : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezEditableSkeleton, ezReflectedClass);
@@ -99,9 +119,16 @@ public:
   ~ezEditableSkeleton();
 
   void ClearJoints();
+
+  /// \brief Fills the given resource descriptor with data from this editable skeleton.
   void FillResourceDescriptor(ezSkeletonResourceDescriptor& ref_desc) const;
+
+  /// \brief Generates a raw ozz skeleton, which can then be compiled to the final ozz format.
   void GenerateRawOzzSkeleton(ozz::animation::offline::RawSkeleton& out_skeleton) const;
+
+  /// \brief Generates a fully compiled ozz skeleton directly.
   void GenerateOzzSkeleton(ozz::animation::Skeleton& out_skeleton) const;
+
   void CreateJointsRecursive(ezSkeletonBuilder& ref_sb, ezSkeletonResourceDescriptor& ref_desc, const ezEditableSkeletonJoint* pParentJoint, const ezEditableSkeletonJoint* pThisJoint, ezUInt16 uiThisJointIdx, const ezQuat& qParentAccuRot, const ezMat4& mRootTransform) const;
 
   ezString m_sSourceFile;
@@ -126,6 +153,10 @@ public:
   ezString m_sRightFootJoint;
 };
 
+/// \brief Represents a bone that is exposed for external use, typically for attachments.
+///
+/// Used to define attachment points on a skeleton where other objects can be attached.
+/// Stores the bone name, parent bone, and the transform relative to the parent.
 struct EZ_RENDERERCORE_DLL ezExposedBone
 {
   ezString m_sName;

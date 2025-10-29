@@ -4,6 +4,11 @@
 #include <Foundation/Math/Rect.h>
 #include <RendererCore/Debug/DebugRendererContext.h>
 
+/// Manages dynamic allocation of rectangular regions within a GPU texture.
+///
+/// Uses a binary tree structure with guillotine algorithm for efficient 2D bin packing.
+/// Useful for atlasing frequently updated textures like runtime generated decals, fonts or UI elements.
+/// Supports alignment requirements and can visualize allocations for debugging.
 class EZ_RENDERERCORE_DLL ezDynamicTextureAtlas
 {
 public:
@@ -12,18 +17,38 @@ public:
   ezDynamicTextureAtlas();
   ~ezDynamicTextureAtlas();
 
+  /// Initializes the atlas with the given texture description and alignment.
+  ///
+  /// The texture must not be immutable. Width and height must be multiples of alignment.
+  /// Alignment must be a power of 2. Returns failure if already initialized.
   ezResult Initialize(const ezGALTextureCreationDescription& textureDesc, ezUInt32 uiAlignment = 16);
+
+  /// Destroys the GPU texture and clears all allocations.
   void Deinitialize();
+
   bool IsInitialized() const { return m_hTexture.IsInvalidated() == false; }
 
+  /// Allocates a rectangular region of the specified size.
+  ///
+  /// Dimensions are aligned up to the atlas alignment. Returns invalid ID if the allocation fails
+  /// due to insufficient space. The name is used for debugging visualization.
   AllocationId Allocate(ezUInt32 uiWidth, ezUInt32 uiHeight, ezStringView sName, ezRectU16* out_pRect = nullptr);
+
+  /// Deallocates a previously allocated region and invalidates the ID.
   void Deallocate(AllocationId& ref_allocationId);
 
+  /// Clears all allocations without destroying the texture.
   void Clear();
 
   ezGALTextureHandle GetTexture() const { return m_hTexture; }
+
+  /// Returns the rectangle for a given allocation ID.
   ezRectU16 GetAllocationRect(AllocationId id) const;
 
+  /// Renders a debug visualization of the atlas layout.
+  ///
+  /// Shows allocated regions with their names.
+  /// If bBlackOutFreeAreas is true, free space is rendered as black rectangles.
   void DebugDraw(const ezDebugRendererContext& debugContext, float fViewWidth, float fViewHeight, bool bBlackOutFreeAreas = true) const;
 
 private:

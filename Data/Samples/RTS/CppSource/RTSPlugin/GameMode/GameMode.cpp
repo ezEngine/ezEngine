@@ -1,21 +1,37 @@
 #include <RTSPlugin/RTSPluginPCH.h>
 
-#include <GameEngine/DearImgui/DearImgui.h>
 #include <RTSPlugin/GameMode/GameMode.h>
 #include <RTSPlugin/GameState/RTSGameState.h>
 #include <RmlUiPlugin/Components/RmlUiCanvas2DComponent.h>
 #include <RmlUiPlugin/RmlUiContext.h>
 #include <RmlUiPlugin/RmlUiSingleton.h>
 
-bool RtsGameMode::s_bUseRmlUi = true;
-
 RtsGameMode::RtsGameMode() = default;
 RtsGameMode::~RtsGameMode() = default;
 
+ezRmlUiContext* RtsGameMode::SetUiActive(ezWorld* pWorld, ezTempHashedString sName, bool bActive)
+{
+  ezGameObject* pUIObject = nullptr;
+  if (pWorld->TryGetObjectWithGlobalKey(sName, pUIObject))
+  {
+    ezRmlUiCanvas2DComponent* pUiComponent = nullptr;
+    if (pUIObject->TryGetComponentOfBaseType(pUiComponent))
+    {
+      pUiComponent->SetActiveFlag(bActive);
+
+      return pUiComponent->GetRmlContext();
+    }
+  }
+
+  return nullptr;
+}
+
 void RtsGameMode::ActivateMode(ezWorld* pMainWorld, ezViewHandle hView, ezCamera* pMainCamera)
 {
-  if (!m_bInitialized)
+  if (m_bFirstActivation)
   {
+    m_bFirstActivation = false;
+
     m_pGameState = RTSGameState::GetSingleton();
     m_pMainWorld = pMainWorld;
     m_hMainView = hView;
@@ -23,8 +39,7 @@ void RtsGameMode::ActivateMode(ezWorld* pMainWorld, ezViewHandle hView, ezCamera
 
     SetupSelectModeUI();
 
-    m_bInitialized = true;
-    RegisterInputActions();
+    OnFirstActivation();
   }
 
   OnActivateMode();
@@ -39,24 +54,10 @@ void RtsGameMode::ProcessInput(const RtsMouseInputState& mouseInput)
 {
   bool bUiWantsInput = false;
 
-  if (s_bUseRmlUi)
+  if (ezRmlUi::GetSingleton() != nullptr)
   {
-    if (ezRmlUi::GetSingleton() != nullptr)
-    {
-      // do not process input, when RmlUi already wants to work with it
-      bUiWantsInput = ezRmlUi::GetSingleton()->AnyContextWantsInput();
-    }
-  }
-  else
-  {
-    if (ezImgui::GetSingleton() != nullptr)
-    {
-      // we got input (ie. this function was called), so let Imgui know that it can use the input
-      ezImgui::GetSingleton()->SetPassInputToImgui(true);
-
-      // do not process input, when Imgui already wants to work with it
-      bUiWantsInput = ezImgui::GetSingleton()->WantsInput();
-    }
+    // do not process input, when RmlUi already wants to work with it
+    bUiWantsInput = ezRmlUi::GetSingleton()->AnyContextWantsInput();
   }
 
   OnProcessInput(mouseInput, bUiWantsInput);
@@ -146,46 +147,45 @@ ezColor RtsGameMode::GetTeamColor(ezUInt16 uiTeam)
 
 void RtsGameMode::SetupSelectModeUI()
 {
-  ezGameObject* pSelectModeUIObject = nullptr;
-  if (!m_pMainWorld->TryGetObjectWithGlobalKey(ezTempHashedString("SelectModeUI"), pSelectModeUIObject))
-    return;
-
-  ezRmlUiCanvas2DComponent* pUiComponent = nullptr;
-  if (!pSelectModeUIObject->TryGetComponentOfBaseType(pUiComponent))
-    return;
-
-  ezRmlUiContext* pRmlContext = pUiComponent->GetOrCreateRmlContext();
-
-  pRmlContext->RegisterEventHandler("switchToImGui", [](Rml::Event& e)
-    { s_bUseRmlUi = false; });
-  pRmlContext->RegisterEventHandler("switchMode", [](Rml::Event& e)
-    {
-    auto& sValue = e.GetTargetElement()->GetId();
-    if (sValue == "battle")
-    {
-      RTSGameState::GetSingleton()->SwitchToGameMode(RtsActiveGameMode::BattleMode);
-    }
-    else if (sValue == "edit")
-    {
-      RTSGameState::GetSingleton()->SwitchToGameMode(RtsActiveGameMode::EditLevelMode);
-    }
-    else if (sValue == "mainmenu")
-    {
-      RTSGameState::GetSingleton()->SwitchToGameMode(RtsActiveGameMode::MainMenuMode);
-    } });
-
-  m_hSelectModeUIComponent = pUiComponent->GetHandle();
-}
-
-void RtsGameMode::DisplaySelectModeUI()
-{
-  ezRmlUiCanvas2DComponent* pUiComponent = nullptr;
-  if (m_pMainWorld->TryGetComponent(m_hSelectModeUIComponent, pUiComponent))
+  if (m_hSelectModeUIComponent.IsInvalidated())
   {
-    pUiComponent->SetActiveFlag(s_bUseRmlUi);
+    ezGameObject* pSelectModeUIObject = nullptr;
+    if (!m_pMainWorld->TryGetObjectWithGlobalKey(ezTempHashedString("game-ui"), pSelectModeUIObject))
+      return;
+
+    ezRmlUiCanvas2DComponent* pUiComponent = nullptr;
+    if (!pSelectModeUIObject->TryGetComponentOfBaseType(pUiComponent))
+      return;
+
+    ezRmlUiContext* pRmlContext = pUiComponent->GetOrCreateRmlContext();
+
+    pRmlContext->RegisterEventHandler("switchMode", [](Rml::Event& e)
+      {
+        auto& sValue = e.GetTargetElement()->GetId();
+        if (sValue == "battle")
+        {
+          RTSGameState::GetSingleton()->SwitchToGameMode(RtsActiveGameMode::BattleMode);
+        }
+        else if (sValue == "edit")
+        {
+          RTSGameState::GetSingleton()->SwitchToGameMode(RtsActiveGameMode::EditLevelMode);
+        }
+        else if (sValue == "mainmenu")
+        {
+          RTSGameState::GetSingleton()->SwitchToGameMode(RtsActiveGameMode::MainMenuMode);
+        }
+        else if (sValue == "settingsmenu")
+        {
+          RTSGameState::GetSingleton()->SwitchToGameMode(RtsActiveGameMode::SettingsMenuMode);
+        }
+        //
+      });
+
+    m_hSelectModeUIComponent = pUiComponent->GetHandle();
   }
 
-  if (s_bUseRmlUi && pUiComponent != nullptr)
+  ezRmlUiCanvas2DComponent* pUiComponent = nullptr;
+  if (m_pMainWorld->TryGetComponent(m_hSelectModeUIComponent, pUiComponent))
   {
     const RtsActiveGameMode mode = RTSGameState::GetSingleton()->GetActiveGameMode();
     const char* szActiveModeId = "battle";
@@ -197,35 +197,14 @@ void RtsGameMode::DisplaySelectModeUI()
     {
       szActiveModeId = "mainmenu";
     }
+    else if (mode == RtsActiveGameMode::SettingsMenuMode)
+    {
+      szActiveModeId = "settingsmenu";
+    }
 
     if (auto pActiveModeElement = pUiComponent->GetRmlContext()->GetDocument(0)->GetElementById(szActiveModeId))
     {
       pActiveModeElement->SetAttribute("checked", "");
     }
-  }
-  else
-  {
-    ezImgui::GetSingleton()->SetCurrentContextForView(m_hMainView);
-
-    ImGui::SetNextWindowPos(ImVec2(10, 10));
-    ImGui::SetNextWindowSize(ImVec2(140, 130));
-    ImGui::Begin(
-      "Game Mode", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings);
-
-    const RtsActiveGameMode mode = RTSGameState::GetSingleton()->GetActiveGameMode();
-
-    if (ImGui::RadioButton("Battle", mode == RtsActiveGameMode::BattleMode))
-      RTSGameState::GetSingleton()->SwitchToGameMode(RtsActiveGameMode::BattleMode);
-
-    if (ImGui::RadioButton("Edit", mode == RtsActiveGameMode::EditLevelMode))
-      RTSGameState::GetSingleton()->SwitchToGameMode(RtsActiveGameMode::EditLevelMode);
-
-    if (ImGui::RadioButton("Main Menu", mode == RtsActiveGameMode::MainMenuMode))
-      RTSGameState::GetSingleton()->SwitchToGameMode(RtsActiveGameMode::MainMenuMode);
-
-    if (ImGui::Button("Switch to RmlUi"))
-      s_bUseRmlUi = true;
-
-    ImGui::End();
   }
 }

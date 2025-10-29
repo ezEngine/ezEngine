@@ -5,6 +5,11 @@
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 #include <RendererCore/Shader/ShaderResource.h>
 
+/// Render pass that computes screen-space ambient occlusion (SSAO).
+///
+/// Generates an ambient occlusion texture from the depth buffer. The effect darkens areas
+/// where geometry is close together, simulating indirect lighting occlusion. Supports distance-based
+/// fade-out and various quality parameters.
 class EZ_RENDERERCORE_DLL ezAOPass : public ezRenderPipelinePass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezAOPass, ezRenderPipelinePass);

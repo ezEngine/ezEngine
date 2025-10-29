@@ -1,0 +1,72 @@
+table {
+	display: table;
+	box-sizing: border-box;
+}
+
+tbody {
+	/* Margin left/right only affects the background positioning for the decorator, not the cell placement */
+	margin-left: 5dp;
+	margin-right: 4dp;
+
+	/* Padding top/bottom adds extra spacing between the header row and the body, and between the body and table bottom */
+	padding-top: 4dp;
+	padding-bottom: 4dp;
+
+	decorator: tiled-box(selectbox-tl, selectbox-t, selectbox-tr,
+			selectbox-l, selectbox-c, auto,
+			/* auto mirrors left */
+			selectbox-bl, selectbox-b, selectbox-br);
+}
+
+tbody tr {
+	margin-left: 9dp;
+	margin-right: 8dp;
+	color: rgb(0, 0, 0);
+	/* text color */
+}
+
+tr {
+	box-sizing: border-box;
+	display: table-row;
+	height: 32dp;
+}
+
+tr:nth-child(odd) {
+	/* alternating row colors */
+	background: #cccccca0;
+}
+
+tr:nth-child(even) {
+	/* alternating row colors */
+	background: #ffffffa0;
+}
+
+td {
+	box-sizing: border-box;
+	display: table-cell;
+	vertical-align: middle;
+}
+
+col {
+	box-sizing: border-box;
+	display: table-column;
+}
+
+colgroup {
+	display: table-column-group;
+}
+
+thead,
+tbody,
+tfoot {
+	display: table-row-group;
+}
+
+thead tr {
+	/* use an image for the background decoration */
+	decorator: tiled-horizontal(tableheader-l, tableheader-c, tableheader-r);
+}
+
+thead td {
+	padding-top: 11dp;
+}

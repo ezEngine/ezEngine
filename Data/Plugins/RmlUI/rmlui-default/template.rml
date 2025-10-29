@@ -1,0 +1,25 @@
+<!-- RmlUI default theme template.
+     This template includes all stylesheets and serves as the base for UI documents using this theme.
+-->
+<template name="rmlui-default" content="content">
+<head>
+    <link type="text/rcss" href="assets.rcss"/>
+    <link type="text/rcss" href="button.rcss"/>
+    <link type="text/rcss" href="common.rcss"/>
+    <link type="text/rcss" href="expand.rcss"/>
+    <link type="text/rcss" href="input-checkbox.rcss"/>
+    <link type="text/rcss" href="input-radio.rcss"/>
+    <link type="text/rcss" href="input-range.rcss"/>
+    <link type="text/rcss" href="input-submit.rcss"/>
+    <link type="text/rcss" href="input-text.rcss"/>
+    <link type="text/rcss" href="progress.rcss"/>
+    <link type="text/rcss" href="scrollbar.rcss"/>
+    <link type="text/rcss" href="select.rcss"/>
+    <link type="text/rcss" href="table.rcss"/>
+    <link type="text/rcss" href="tabs.rcss"/>
+    <link type="text/rcss" href="textarea.rcss"/>
+    <link type="text/rcss" href="window.rcss"/>
+</head>
+<body>
+</body>
+</template>

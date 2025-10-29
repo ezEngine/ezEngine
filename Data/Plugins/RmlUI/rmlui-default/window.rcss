@@ -1,0 +1,11 @@
+/* Styles for window container elements with nine-patch border decoration. */
+
+window {
+	width: auto;
+	height: auto;
+	padding: 10dp 15dp;
+
+	decorator: tiled-box(window-tl, window-t, window-tr,
+			window-l, window-c, window-r,
+			window-bl, window-b, window-br);
+}

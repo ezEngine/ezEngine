@@ -1,6 +1,7 @@
 #include <EditorPluginScene/EditorPluginScenePCH.h>
 
 #include <Core/World/GameObject.h>
+#include <EditorFramework/Gizmos/SnapProvider.h>
 #include <EditorPluginScene/Dialogs/DeltaTransformDlg.moc.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
 #include <Foundation/Math/Random.h>
@@ -21,6 +22,8 @@ ezVec3 ezQtDeltaTransformDlg::s_vRotateRandom(180.0f);
 ezVec3 ezQtDeltaTransformDlg::s_vRotateDeviation(180.0f);
 
 float ezQtDeltaTransformDlg::s_fNaturalDeviationZ = 10.0f;
+
+bool ezQtDeltaTransformDlg::s_bUseCurrentSnapSettings = false;
 
 ezQtDeltaTransformDlg::ezQtDeltaTransformDlg(QWidget* pParent, ezSceneDocument* pSceneDoc)
   : QDialog(pParent)
@@ -288,6 +291,20 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
         break;
     }
 
+    ezAngle angleX = ezAngle::MakeFromDegree(vRotate.x);
+    ezAngle angleY = ezAngle::MakeFromDegree(vRotate.y);
+    ezAngle angleZ = ezAngle::MakeFromDegree(vRotate.z);
+
+    if (s_bUseCurrentSnapSettings)
+    {
+      ezSnapProvider::SnapTranslation(vTranslate);
+      ezSnapProvider::SnapRotation(angleX);
+      ezSnapProvider::SnapRotation(angleY);
+      ezSnapProvider::SnapRotation(angleZ);
+      ezSnapProvider::SnapScale(vScale);
+      ezSnapProvider::SnapScale(fUniformScale);
+    }
+
     if (space == Space::LocalEach)
     {
       tReference = m_pSceneDocument->GetGlobalTransform(entry.m_pObject);
@@ -308,7 +325,7 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
       case Mode::RotateX:
       case Mode::RotateXRandom:
       case Mode::RotateXDeviation:
-        qRot = ezQuat::MakeFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::MakeFromDegree(vRotate.x));
+        qRot = ezQuat::MakeFromAxisAndAngle(ezVec3(1, 0, 0), angleX);
         localTrans.m_qRotation = qRot * localTrans.m_qRotation;
         localTrans.m_vPosition = qRot * localTrans.m_vPosition;
         trans = tReference * localTrans;
@@ -319,7 +336,7 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
       case Mode::RotateY:
       case Mode::RotateYRandom:
       case Mode::RotateYDeviation:
-        qRot = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(vRotate.y));
+        qRot = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), angleY);
         localTrans.m_qRotation = qRot * localTrans.m_qRotation;
         localTrans.m_vPosition = qRot * localTrans.m_vPosition;
         trans = tReference * localTrans;
@@ -330,7 +347,7 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
       case Mode::RotateZ:
       case Mode::RotateZRandom:
       case Mode::RotateZDeviation:
-        qRot = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::MakeFromDegree(vRotate.z));
+        qRot = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 0, 1), angleZ);
         localTrans.m_qRotation = qRot * localTrans.m_qRotation;
         localTrans.m_vPosition = qRot * localTrans.m_vPosition;
         trans = tReference * localTrans;
@@ -347,11 +364,7 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
       case Mode::UniformScale:
       case Mode::UniformScaleDeviation:
         trans.m_vScale *= fUniformScale;
-
-        if (trans.m_vScale.x == trans.m_vScale.y && trans.m_vScale.x == trans.m_vScale.z)
-          m_pSceneDocument->SetGlobalTransform(entry.m_pObject, trans, TransformationChanges::UniformScale);
-        else
-          m_pSceneDocument->SetGlobalTransform(entry.m_pObject, trans, TransformationChanges::Scale);
+        m_pSceneDocument->SetGlobalTransform(entry.m_pObject, trans, TransformationChanges::Scale);
 
         break;
 
@@ -492,6 +505,9 @@ void ezQtDeltaTransformDlg::UpdateUI()
   Label1->setText("X:");
   Label2->setText("Y:");
   Label3->setText("Z:");
+
+  CheckBoxSnapping->setVisible(true);
+  CheckBoxSnapping->setChecked(s_bUseCurrentSnapSettings);
 
   switch (s_Mode)
   {
@@ -643,6 +659,7 @@ void ezQtDeltaTransformDlg::UpdateUI()
       Label1->setText("Max Tilt:");
       Value1->setValue(s_fNaturalDeviationZ);
       Value1->setSingleStep(1.0f);
+      CheckBoxSnapping->setVisible(false);
       break;
   }
 }
@@ -768,4 +785,9 @@ void ezQtDeltaTransformDlg::on_Value3_valueChanged(double value)
     default:
       break;
   }
+}
+
+void ezQtDeltaTransformDlg::on_CheckBoxSnapping_stateChanged(int state)
+{
+  s_bUseCurrentSnapSettings = (state != 0);
 }

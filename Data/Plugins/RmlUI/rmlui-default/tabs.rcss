@@ -1,0 +1,40 @@
+tabset {
+	display: block;
+}
+
+tabs {
+	display: flex;
+	/* Flexbox makes tab layout easier */
+	flex-direction: row;
+	gap: 1dp;
+	/* Spacing between tabs */
+	position: relative;
+	clip: none;
+	margin-bottom: 0dp;
+	/* Space between tabs and content */
+}
+
+tab {
+	width: 90dp;
+	padding: 0 20dp;
+	line-height: 40dp;
+	display: inline-block;
+
+	font-size: 15dp;
+	color: #ddd;
+	text-align: center;
+
+	decorator: tiled-horizontal(tableheader-l, tableheader-c, tableheader-r);
+	image-color: #cffc;
+}
+
+tab:hover {
+	image-color: #fffe;
+	color: #fff;
+}
+
+tab:active,
+tab:selected {
+	image-color: #fff;
+	color: #fff;
+}

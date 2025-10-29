@@ -1,0 +1,43 @@
+body {
+	font-family: LatoLatin;
+	font-weight: normal;
+	font-style: normal;
+	font-size: 15dp;
+	color: white;
+	nav: auto;
+
+	/* all RML UI elements should cover the entire area that they are given by the engine
+	   then they can position their divs internally as needed */
+	width: 100%;
+	height: 100%;
+
+	/* IMPORTANT: for most game UI we just want to cover the entire screen.
+	   We then place widgets using DIVs.
+	   Therefore the body itself should not block pointer events, ie RML UI should report
+	   "does not want input" as long as the mouse isn't over any child element.
+	   We re-enable pointer events on divs below.
+	*/
+	pointer-events: none;
+}
+
+div {
+	display: block;
+	
+	/* Once we are in a DIV (not the body anymore) re-enable pointer events, 
+	to pass mouse input to the UI. */
+	pointer-events: auto;
+}
+
+p {
+	text-align: left;
+	margin-bottom: 1em;
+}
+
+h1 {
+	margin-left: 0.4em;
+	margin-bottom: 0.4em;
+
+	text-align: left;
+	font-size: 16dp;
+	font-weight: bold;
+}

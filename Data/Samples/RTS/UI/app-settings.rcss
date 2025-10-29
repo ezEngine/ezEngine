@@ -1,0 +1,80 @@
+/* Overall settings for the body of the app-settings */
+body.app-settings {
+  /* cover the entire screen */
+  width: 100%;
+  height: 100%;
+
+  /* semi-transparent dark background */
+  background-color: rgba(100, 100, 120, 180);
+}
+
+/* Center the content div within the app-settings body */
+.app-settings .background {
+  width: 100%;
+  height: 100%;
+}
+
+.app-settings .modal-window {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90vw;
+  height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+
+  /* Use tiled images to decorate the window. */
+  decorator: tiled-box(window-tl, window-t, window-tr,
+      window-l, window-c, window-r,
+      window-bl, window-b, window-br);
+}
+
+.app-settings tabs {
+
+  /* move tabs up so that they appear at the top of the content div */
+  top: -37dp;
+}
+
+/* Make tabs scale to content with a minimum width */
+.app-settings tab {
+  min-width: 100dp;
+  width: auto;
+}
+
+/* Auto-scale tables to content */
+.app-settings table {
+  width: auto;
+  table-layout: auto;
+}
+
+/* Ensure table rows and cells scale to content size */
+.app-settings tr {
+  width: auto;
+  height: auto;
+}
+
+.app-settings td {
+  width: auto;
+  height: auto;
+  vertical-align: middle;
+  padding-top: 8dp;
+  padding-bottom: 8dp;
+}
+
+/* Right-align the first column in the settings table */
+.app-settings td:first-child {
+  text-align: right;
+  padding-right: 16dp;
+}
+
+/* Center align the second column (Widget) header */
+.app-settings thead td:nth-child(2) {
+  text-align: center;
+}
+
+/* Left-align text in input fields */
+.app-settings input[type="text"] {
+  text-align: left;
+}

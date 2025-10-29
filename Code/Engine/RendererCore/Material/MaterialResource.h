@@ -13,28 +13,35 @@ using ezMaterialResourceHandle = ezTypedResourceHandle<class ezMaterialResource>
 using ezTexture2DResourceHandle = ezTypedResourceHandle<class ezTexture2DResource>;
 using ezTextureCubeResourceHandle = ezTypedResourceHandle<class ezTextureCubeResource>;
 
+/// Descriptor for creating material resources.
+///
+/// Materials can inherit from a base material and override shader, parameters, and textures.
+/// Supports shader permutation variables, numeric/color parameters, and 2D/cube texture bindings.
 struct ezMaterialResourceDescriptor
 {
+  /// A shader parameter name-value pair.
   struct Parameter
   {
-    ezHashedString m_Name;
-    ezVariant m_Value;
+    ezHashedString m_Name; ///< Parameter name (must match shader constant).
+    ezVariant m_Value;     ///< Parameter value (numeric or color).
 
     EZ_FORCE_INLINE bool operator==(const Parameter& other) const { return m_Name == other.m_Name && m_Value == other.m_Value; }
   };
 
+  /// A 2D texture binding.
   struct Texture2DBinding
   {
-    ezHashedString m_Name;
-    ezTexture2DResourceHandle m_Value;
+    ezHashedString m_Name;             ///< Texture slot name (must match shader resource).
+    ezTexture2DResourceHandle m_Value; ///< Texture resource handle.
 
     EZ_FORCE_INLINE bool operator==(const Texture2DBinding& other) const { return m_Name == other.m_Name && m_Value == other.m_Value; }
   };
 
+  /// A cube texture binding.
   struct TextureCubeBinding
   {
-    ezHashedString m_Name;
-    ezTextureCubeResourceHandle m_Value;
+    ezHashedString m_Name;               ///< Texture slot name (must match shader resource).
+    ezTextureCubeResourceHandle m_Value; ///< Cube map resource handle.
 
     EZ_FORCE_INLINE bool operator==(const TextureCubeBinding& other) const { return m_Name == other.m_Name && m_Value == other.m_Value; }
   };
@@ -44,18 +51,20 @@ struct ezMaterialResourceDescriptor
   bool operator==(const ezMaterialResourceDescriptor& other) const;
   EZ_FORCE_INLINE bool operator!=(const ezMaterialResourceDescriptor& other) const { return !(*this == other); }
 
-  ezMaterialResourceHandle m_hBaseMaterial;
-  // ezSurfaceResource is not linked into this project (not true anymore -> could be changed)
-  // this is not used for game purposes but rather for automatic collision mesh generation, so we only store the asset ID here
-  ezHashedString m_sSurface;
-  ezShaderResourceHandle m_hShader;
-  ezDynamicArray<ezPermutationVar> m_PermutationVars;
-  ezDynamicArray<Parameter> m_Parameters;
-  ezDynamicArray<Texture2DBinding> m_Texture2DBindings;
-  ezDynamicArray<TextureCubeBinding> m_TextureCubeBindings;
-  ezRenderData::Category m_RenderDataCategory;
+  ezMaterialResourceHandle m_hBaseMaterial;                 ///< Base material to inherit from (optional).
+  ezHashedString m_sSurface;                                ///< Surface type for physics/collision properties.
+  ezShaderResourceHandle m_hShader;                         ///< Shader used for rendering.
+  ezDynamicArray<ezPermutationVar> m_PermutationVars;       ///< Shader permutation variable values.
+  ezDynamicArray<Parameter> m_Parameters;                   ///< Shader constant parameters.
+  ezDynamicArray<Texture2DBinding> m_Texture2DBindings;     ///< 2D texture bindings.
+  ezDynamicArray<TextureCubeBinding> m_TextureCubeBindings; ///< Cube texture bindings.
+  ezRenderData::Category m_RenderDataCategory;              ///< Render data category (opaque, transparent, etc.).
 };
 
+/// Resource representing a material with shader, parameters, and textures.
+///
+/// Materials define the visual appearance of rendered objects. They reference a shader and provide
+/// values for shader parameters and texture slots. Supports material inheritance through base materials.
 class EZ_RENDERERCORE_DLL ezMaterialResource final : public ezResource
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezMaterialResource, ezResource);
@@ -63,15 +72,17 @@ class EZ_RENDERERCORE_DLL ezMaterialResource final : public ezResource
   EZ_RESOURCE_DECLARE_CREATEABLE(ezMaterialResource, ezMaterialResourceDescriptor);
 
 public:
-  /// \brief Use these enum values together with GetDefaultMaterialFileName() to get the default file names for these material types.
+  /// Default material types with pre-defined shaders.
+  ///
+  /// Use with GetDefaultMaterialFileName() to get file paths for these materials.
   enum class DefaultMaterialType
   {
-    Fullbright,
-    FullbrightAlphaTest,
-    Lit,
-    LitAlphaTest,
-    Sky,
-    MissingMaterial
+    Fullbright,          ///< Unlit material without lighting calculations.
+    FullbrightAlphaTest, ///< Unlit material with alpha testing.
+    Lit,                 ///< Standard lit material.
+    LitAlphaTest,        ///< Lit material with alpha testing.
+    Sky,                 ///< Sky material for skyboxes.
+    MissingMaterial      ///< Placeholder for missing materials.
   };
 
   using ezMaterialId = ezGenericId<24, 8>;
