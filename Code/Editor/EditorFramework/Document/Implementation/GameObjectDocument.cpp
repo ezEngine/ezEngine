@@ -511,11 +511,6 @@ void ezGameObjectDocument::SetGlobalTransform(const ezDocumentObject* pObject, c
   if ((uiTransformationChanges & TransformationChanges::Scale) != 0)
   {
     pAccessor->SetValueByName(pObject, "LocalScaling", vLocalScale).LogFailure();
-  }
-
-  // if (pObject->GetTypeAccessor().GetValue("LocalUniformScaling").ConvertTo<float>() != fUniformScale)
-  if ((uiTransformationChanges & TransformationChanges::UniformScale) != 0)
-  {
     pAccessor->SetValueByName(pObject, "LocalUniformScaling", fUniformScale).LogFailure();
   }
 

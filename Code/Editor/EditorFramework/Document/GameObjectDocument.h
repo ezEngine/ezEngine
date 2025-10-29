@@ -19,7 +19,6 @@ struct EZ_EDITORFRAMEWORK_DLL TransformationChanges
     Translation = EZ_BIT(0),
     Rotation = EZ_BIT(1),
     Scale = EZ_BIT(2),
-    UniformScale = EZ_BIT(3),
     All = 0xFF
   };
 };

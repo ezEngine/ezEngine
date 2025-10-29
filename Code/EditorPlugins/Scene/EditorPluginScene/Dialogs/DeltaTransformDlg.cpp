@@ -347,11 +347,7 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
       case Mode::UniformScale:
       case Mode::UniformScaleDeviation:
         trans.m_vScale *= fUniformScale;
-
-        if (trans.m_vScale.x == trans.m_vScale.y && trans.m_vScale.x == trans.m_vScale.z)
-          m_pSceneDocument->SetGlobalTransform(entry.m_pObject, trans, TransformationChanges::UniformScale);
-        else
-          m_pSceneDocument->SetGlobalTransform(entry.m_pObject, trans, TransformationChanges::Scale);
+        m_pSceneDocument->SetGlobalTransform(entry.m_pObject, trans, TransformationChanges::Scale);
 
         break;
 
