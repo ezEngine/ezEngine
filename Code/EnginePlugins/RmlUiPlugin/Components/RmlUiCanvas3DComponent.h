@@ -34,7 +34,7 @@ public:
   virtual void OnDeactivated() override;
 
   void Update();
-  void ApplyInput(const ezVec2& vMousePos, ezRmlUiInputSnapshot input);
+  void ReceiveInput(const ezVec2& vMousePos, ezRmlUiInputSnapshot input);
 
   void SetRmlResource(const ezRmlUiResourceHandle& hResource);                     // [ property ]
   const ezRmlUiResourceHandle& GetRmlResource() const { return m_hResource; }      // [ property ]
@@ -48,6 +48,12 @@ public:
 
   void SetOnDemandUpdate(bool bOnDemandUpdate);                                    // [ property ]
   bool GetOnDemandUpdate() const { return m_bOnDemandUpdate; }                     // [ property ]
+
+  void SetClearStaleInput(bool bClearStaleInput);                                  // [ property ]
+  bool GetClearStaleInput() const { return m_bClearStaleInput; }                   // [ property ]
+
+  void SetInteractive(bool bIsInteractive);                                        // [ property ]
+  bool IsInteractive() const { return m_bIsInteractive; }                          // [ property ]
 
   /// \brief Changes which mesh to render.
   void SetMesh(const ezMeshResourceHandle& hMesh);                                 // [ property ]
@@ -86,7 +92,10 @@ protected:
   ezVec2U32 m_vTextureSize = ezVec2U32(512, 512);
   bool m_bAutobindBlackboards = true;
   bool m_bOnDemandUpdate = true;
+  bool m_bClearStaleInput = true;
   bool m_bNeedsUpdate = false;
+  bool m_bIsInteractive = true;
+  ezInt8 m_iInputAge = -1;
 
   ezMeshResourceHandle m_hMesh;
   ezGALTextureHandle m_hTexture;

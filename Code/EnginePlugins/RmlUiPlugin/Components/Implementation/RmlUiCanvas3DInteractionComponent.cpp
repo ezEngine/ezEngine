@@ -85,7 +85,11 @@ void ezRmlUiCanvas3DInteractionComponent::Interact(ezRmlUiInputSnapshot input, f
   ezRmlUiCanvas3DComponent* pCanvas = nullptr;
   if (!pGameObject->TryGetComponentOfBaseType(pCanvas))
   {
-    ezLog::Dev("ezRmlUiCanvas3DInteractionComponent: raycast result is not a canvas");
+    return;
+  }
+
+  if (!pCanvas->IsInteractive())
+  {
     return;
   }
 
@@ -124,7 +128,7 @@ void ezRmlUiCanvas3DInteractionComponent::Interact(ezRmlUiInputSnapshot input, f
   vCursorPos.x = static_cast<float>(pCanvas->GetTextureSize().x) * vTexCoords.x;
   vCursorPos.y = static_cast<float>(pCanvas->GetTextureSize().y) * vTexCoords.y;
 
-  pCanvas->ApplyInput(vCursorPos, input);
+  pCanvas->ReceiveInput(vCursorPos, input);
 }
 
 void ezRmlUiCanvas3DInteractionComponent::Update()

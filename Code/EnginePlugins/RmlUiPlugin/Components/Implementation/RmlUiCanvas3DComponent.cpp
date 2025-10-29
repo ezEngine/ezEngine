@@ -19,7 +19,7 @@
 #include <RendererFoundation/Resources/Texture.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezRmlUiCanvas3DComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezRmlUiCanvas3DComponent, 3, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -28,6 +28,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezRmlUiCanvas3DComponent, 1, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("TextureSize", GetTextureSize, SetTextureSize)->AddAttributes(new ezSuffixAttribute("px"), new ezDefaultValueAttribute(ezVec2U32(512, 512)), new ezClampValueAttribute(ezVec2U32(0), ezVec2U32(4096))),
     EZ_ACCESSOR_PROPERTY("AutobindBlackboards", GetAutobindBlackboards, SetAutobindBlackboards)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_ACCESSOR_PROPERTY("OnDemandUpdate", GetOnDemandUpdate, SetOnDemandUpdate)->AddAttributes(new ezDefaultValueAttribute(true)),
+    EZ_ACCESSOR_PROPERTY("ClearStaleInput", GetClearStaleInput, SetClearStaleInput)->AddAttributes(new ezDefaultValueAttribute(true)),
+    EZ_ACCESSOR_PROPERTY("IsInteractive", IsInteractive, SetInteractive)->AddAttributes(new ezDefaultValueAttribute(true)),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -91,38 +93,49 @@ void ezRmlUiCanvas3DComponent::OnDeactivated()
 
 void ezRmlUiCanvas3DComponent::Update()
 {
-  bool bNeedsUpdate = m_bNeedsUpdate;
-  m_bNeedsUpdate = false;
-
   if (m_pContext == nullptr)
     return;
 
-  const ezTime tDiff = ezClock::GetGlobalClock()->GetTimeDiff();
-  bNeedsUpdate |= m_pContext->GetNextUpdateDelay() < ezMath::Max(tDiff.GetSeconds(), 1.0 / 240.0);
+  if (m_bClearStaleInput && m_iInputAge >= 0)
+  {
+    m_iInputAge += 1;
+    if (m_iInputAge > 3)
+    {
+      m_InputProvider.Update(ezRmlUiInputSnapshot{});
+      m_bNeedsUpdate |= m_pContext->UpdateInput(ezVec2::MakeZero(), m_InputProvider);
+      m_iInputAge = -1;
+    }
+  }
 
-  bNeedsUpdate |= UpdateTexture();
+  const ezTime tDiff = ezClock::GetGlobalClock()->GetTimeDiff();
+  m_bNeedsUpdate |= m_pContext->GetNextUpdateDelay() < ezMath::Max(tDiff.GetSeconds(), 1.0 / 240.0);
+
+  m_bNeedsUpdate |= UpdateTexture();
 
   for (auto& pDataBinding : m_DataBindings)
   {
     if (pDataBinding != nullptr)
     {
-      bNeedsUpdate |= pDataBinding->Update();
+      m_bNeedsUpdate |= pDataBinding->Update();
     }
   }
 
-  if (bNeedsUpdate || m_bOnDemandUpdate == false)
+  if (m_bNeedsUpdate || m_bOnDemandUpdate == false)
   {
     m_pContext->Update();
   }
+
+  m_bNeedsUpdate = false;
 }
 
-void ezRmlUiCanvas3DComponent::ApplyInput(const ezVec2& vMousePos, ezRmlUiInputSnapshot input)
+void ezRmlUiCanvas3DComponent::ReceiveInput(const ezVec2& vMousePos, ezRmlUiInputSnapshot input)
 {
   if (m_pContext == nullptr)
     return;
 
   m_InputProvider.Update(input);
   m_bNeedsUpdate |= m_pContext->UpdateInput(vMousePos, m_InputProvider);
+  m_iInputAge = 0;
 }
 
 void ezRmlUiCanvas3DComponent::SetRmlResource(const ezRmlUiResourceHandle& hResource)
@@ -170,6 +183,16 @@ void ezRmlUiCanvas3DComponent::SetAutobindBlackboards(bool bAutobind)
 void ezRmlUiCanvas3DComponent::SetOnDemandUpdate(bool bOnDemandUpdate)
 {
   m_bOnDemandUpdate = bOnDemandUpdate;
+}
+
+void ezRmlUiCanvas3DComponent::SetClearStaleInput(bool bClearStaleInput)
+{
+  m_bClearStaleInput = bClearStaleInput;
+}
+
+void ezRmlUiCanvas3DComponent::SetInteractive(bool bIsInteractive)
+{
+  m_bIsInteractive = bIsInteractive;
 }
 
 ezUInt32 ezRmlUiCanvas3DComponent::AddDataBinding(ezUniquePtr<ezRmlUiDataBinding>&& pDataBinding)
@@ -262,6 +285,8 @@ void ezRmlUiCanvas3DComponent::SerializeComponent(ezWorldWriter& inout_stream) c
   s << m_vTextureSize;
   s << m_bAutobindBlackboards;
   s << m_bOnDemandUpdate;
+  s << m_bClearStaleInput;
+  s << m_bIsInteractive;
 }
 
 void ezRmlUiCanvas3DComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -277,6 +302,10 @@ void ezRmlUiCanvas3DComponent::DeserializeComponent(ezWorldReader& inout_stream)
   s >> m_vTextureSize;
   s >> m_bAutobindBlackboards;
   s >> m_bOnDemandUpdate;
+  if (uiVersion >= 2)
+    s >> m_bClearStaleInput;
+  if (uiVersion >= 3)
+    s >> m_bIsInteractive;
 }
 
 ezResult ezRmlUiCanvas3DComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
