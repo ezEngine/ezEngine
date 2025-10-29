@@ -39,9 +39,6 @@ VS_OUT main(VS_IN Input)
 
 
 [PIXELSHADER]
-//#define USE_DECALS
-//#define USE_FOG
-
 #include <Shaders/Materials/MaterialPixelShader.h>
 
 Texture2D BaseTexture;

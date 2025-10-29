@@ -195,7 +195,7 @@ bool ezRmlUiCanvas3DComponent::RaycastMeshTexCoords(const ezCpuMeshResource* pMe
   ezUInt32 uiNumIndices = mesh.GetIndexBufferData().GetCount() / 2;
   EZ_ASSERT_DEV(mesh.Uses32BitIndices() == false, "not implemented yet");
 
-  for (ezUInt32 uiIndex = 0; uiIndex + 2 < uiNumIndices; ++uiIndex)
+  for (ezUInt32 uiIndex = 0; uiIndex + 2 < uiNumIndices; uiIndex += 3)
   {
     // perform ray-triangle intersection test as described in https://www.graphics.cornell.edu/pubs/1997/MT97.pdf
 
