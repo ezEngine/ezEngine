@@ -34,7 +34,9 @@ public:
   virtual void OnDeactivated() override;
 
   void Update();
-  void ReceiveInput(const ezVec2& vMousePos, ezRmlUiInputSnapshot input);
+
+  void ReceiveInput(const ezVec2& vMousePosInsideCanvas, ezRmlUiInputSnapshot input);
+  void RaycastInput(const ezVec3& vRayOrigin, const ezVec3& vRayDir, ezRmlUiInputSnapshot input);
 
   void SetRmlResource(const ezRmlUiResourceHandle& hResource);                     // [ property ]
   const ezRmlUiResourceHandle& GetRmlResource() const { return m_hResource; }      // [ property ]
@@ -85,6 +87,8 @@ protected:
   bool UpdateTexture();
   void UpdateCachedValues();
   void UpdateAutobinding();
+
+  static bool RaycastMeshTexCoords(const class ezCpuMeshResource* pMesh, const ezVec3& vRayOrigin, const ezVec3& vRayDir, ezVec2& out_vTexCoords, float fEpsilon = 0.00001f);
 
   ezRmlUiResourceHandle m_hResource;
   ezEvent<const ezResourceEvent&, ezMutex>::Unsubscriber m_ResourceEventUnsubscriber;

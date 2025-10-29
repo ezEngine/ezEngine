@@ -128,14 +128,121 @@ void ezRmlUiCanvas3DComponent::Update()
   m_bNeedsUpdate = false;
 }
 
-void ezRmlUiCanvas3DComponent::ReceiveInput(const ezVec2& vMousePos, ezRmlUiInputSnapshot input)
+void ezRmlUiCanvas3DComponent::ReceiveInput(const ezVec2& vMousePosInsideCanvas, ezRmlUiInputSnapshot input)
 {
-  if (m_pContext == nullptr)
+  if (m_pContext == nullptr || !IsInteractive())
     return;
 
   m_InputProvider.Update(input);
-  m_bNeedsUpdate |= m_pContext->UpdateInput(vMousePos, m_InputProvider);
+  m_bNeedsUpdate |= m_pContext->UpdateInput(vMousePosInsideCanvas, m_InputProvider);
   m_iInputAge = 0;
+}
+
+void ezRmlUiCanvas3DComponent::RaycastInput(const ezVec3& vRayOrigin, const ezVec3& vRayDir, ezRmlUiInputSnapshot input)
+{
+  if (m_pContext == nullptr || !IsInteractive())
+    return;
+
+  if (!GetMesh().IsValid())
+  {
+    ezLog::Dev("ezRmlUiCanvas3DComponent: a canvas doesn't have a mesh");
+    return;
+  }
+
+  ezCpuMeshResourceHandle hMesh = ezResourceManager::LoadResource<ezCpuMeshResource>(GetMesh().GetResourceID());
+  if (!hMesh.IsValid())
+  {
+    ezLog::Dev("ezRmlUiCanvas3DComponent: canvas mesh is not valid");
+    return;
+  }
+
+  ezResourceLock<ezCpuMeshResource> pMesh(hMesh, ezResourceAcquireMode::AllowLoadingFallback);
+  if (pMesh.GetAcquireResult() == ezResourceAcquireResult::LoadingFallback)
+  {
+    ezLog::Dev("ezRmlUiCanvas3DComponent: canvas mesh is not loaded yet");
+    return;
+  }
+
+  ezTransform worldToLocal = GetOwner()->GetGlobalTransform().GetInverse();
+  ezVec3 vRayOriginMeshSpace = worldToLocal.TransformPosition(vRayOrigin);
+  ezVec3 vRayDirMeshSpace = worldToLocal.TransformDirection(vRayDir).GetNormalized();
+
+  ezVec2 vTexCoords;
+  if (!RaycastMeshTexCoords(pMesh.GetPointer(), vRayOriginMeshSpace, vRayDirMeshSpace, vTexCoords))
+  {
+    ezLog::Dev("ezRmlUiCanvas3DComponent: raycast failed to hit any triangles");
+    return;
+  }
+
+  ezVec2 vCursorPos;
+  vCursorPos.x = static_cast<float>(m_vTextureSize.x) * vTexCoords.x;
+  vCursorPos.y = static_cast<float>(m_vTextureSize.y) * vTexCoords.y;
+
+  ReceiveInput(vCursorPos, input);
+}
+
+bool ezRmlUiCanvas3DComponent::RaycastMeshTexCoords(const ezCpuMeshResource* pMesh, const ezVec3& vRayOrigin, const ezVec3& vRayDir, ezVec2& out_vTexCoords, float FEpsilon)
+{
+  const ezMeshBufferResourceDescriptor& mesh = pMesh->GetDescriptor().MeshBufferDesc();
+
+  if (mesh.GetTopology() != ezGALPrimitiveTopology::Triangles)
+  {
+    ezLog::Dev("RaycastMeshTexCoords: topology {} not supported", mesh.GetTopology());
+    return false;
+  }
+
+  const ezUInt16* pIndexBuffer = reinterpret_cast<const ezUInt16*>(mesh.GetIndexBufferData().GetPtr());
+  ezUInt32 uiNumIndices = mesh.GetIndexBufferData().GetCount() / 2;
+  EZ_ASSERT_DEV(mesh.Uses32BitIndices() == false, "not implemented yet");
+
+  for (ezUInt32 uiIndex = 0; uiIndex + 2 < uiNumIndices; ++uiIndex)
+  {
+    // perform ray-triangle intersection test as described in https://www.graphics.cornell.edu/pubs/1997/MT97.pdf
+
+    ezUInt16 i0 = pIndexBuffer[uiIndex];
+    ezUInt16 i1 = pIndexBuffer[uiIndex + 1];
+    ezUInt16 i2 = pIndexBuffer[uiIndex + 2];
+
+    ezVec3 v0 = mesh.GetPosition(i0);
+    ezVec3 v1 = mesh.GetPosition(i1);
+    ezVec3 v2 = mesh.GetPosition(i2);
+
+    ezVec3 edge1 = v1 - v0;
+    ezVec3 edge2 = v2 - v0;
+
+    ezVec3 pvec = vRayDir.CrossRH(edge2);
+
+    float det = edge1.Dot(pvec);
+    if (det < FEpsilon)
+      continue;
+
+    ezVec3 tvec = vRayOrigin - v0;
+
+    float u = tvec.Dot(pvec);
+    if (u < 0 || u > det)
+      continue;
+
+    ezVec3 qvec = tvec.CrossRH(edge1);
+
+    float v = qvec.Dot(vRayDir);
+    if (v < 0 || u + v > det)
+      continue;
+
+    float t = edge2.Dot(qvec);
+    float inv_det = 1.0f / det;
+    t *= inv_det;
+    u *= inv_det;
+    v *= inv_det;
+
+    out_vTexCoords = ezVec2::MakeZero();
+    out_vTexCoords += mesh.GetTexCoord0(i0) * (1.0f - u - v);
+    out_vTexCoords += mesh.GetTexCoord0(i1) * u;
+    out_vTexCoords += mesh.GetTexCoord0(i2) * v;
+
+    return true;
+  }
+
+  return false;
 }
 
 void ezRmlUiCanvas3DComponent::SetRmlResource(const ezRmlUiResourceHandle& hResource)
