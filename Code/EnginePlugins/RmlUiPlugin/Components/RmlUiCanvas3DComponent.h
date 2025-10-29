@@ -2,7 +2,7 @@
 
 #include <RmlUiPlugin/Components/RmlUiMessages.h>
 #include <RmlUiPlugin/Resources/RmlUiResource.h>
-#include <RmlUiPlugin/RmlUiInputState.h>
+#include <RmlUiPlugin/RmlUiInputSnapshot.h>
 
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <RendererCore/Components/RenderComponent.h>
@@ -34,7 +34,7 @@ public:
   virtual void OnDeactivated() override;
 
   void Update();
-  void ApplyInput(const ezRmlUiInputState& input);
+  void ApplyInput(const ezVec2& vMousePos, ezRmlUiInputSnapshot input);
 
   void SetRmlResource(const ezRmlUiResourceHandle& hResource);                // [ property ]
   const ezRmlUiResourceHandle& GetRmlResource() const { return m_hResource; } // [ property ]
@@ -95,8 +95,8 @@ protected:
   ezVec2U32 m_vReferenceResolution = ezVec2U32::MakeZero();
   bool m_bAutobindBlackboards = true;
   bool m_bOnDemandUpdate = true;
-  bool m_bDirty = false;
-  ezRmlUiInputState m_LastInput;
+  bool m_bNeedsUpdate = false;
+  ezRmlUiInputProvider m_InputProvider;
 
   ezGALTextureHandle m_hTexture;
   ezVec2 m_vFinalOffset = ezVec2::MakeZero();

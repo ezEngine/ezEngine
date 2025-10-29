@@ -54,7 +54,7 @@ void ezRmlUiCanvas3DInteractionComponent::OnSimulationStarted()
   m_pPhysicsWorldModule = GetWorld()->GetOrCreateModule<ezPhysicsWorldModuleInterface>();
 }
 
-void ezRmlUiCanvas3DInteractionComponent::Interact(ezRmlUiInputState input, float fMaxDistance)
+void ezRmlUiCanvas3DInteractionComponent::Interact(ezRmlUiInputSnapshot input, float fMaxDistance)
 {
   if (!m_pPhysicsWorldModule)
   {
@@ -72,7 +72,6 @@ void ezRmlUiCanvas3DInteractionComponent::Interact(ezRmlUiInputState input, floa
 
   if (!m_pPhysicsWorldModule->Raycast(hit, vRayOrigin, vRayDir, fMaxDistance, queryParams))
   {
-    ezLog::Dev("ezRmlUiCanvas3DInteractionComponent: raycast failed");
     return;
   }
   
@@ -122,24 +121,26 @@ void ezRmlUiCanvas3DInteractionComponent::Interact(ezRmlUiInputState input, floa
   }
 
   // flip tex coords because we do the same thing in the shader TODO: why?
-  input.m_vCursorPos.x = static_cast<float>(pCanvas->GetSize().x) * (1.0f - vTexCoords.x);
-  input.m_vCursorPos.y = static_cast<float>(pCanvas->GetSize().y) * (1.0f - vTexCoords.y);
+  ezVec2 vCursorPos;
+  vCursorPos.x = static_cast<float>(pCanvas->GetSize().x) * (1.0f - vTexCoords.x);
+  vCursorPos.y = static_cast<float>(pCanvas->GetSize().y) * (1.0f - vTexCoords.y);
 
-  ezLog::Dev("ezRmlUiCanvas3DInteractionComponent: canvas was hit at {}", input.m_vCursorPos);
-
-  pCanvas->ApplyInput(input);
+  pCanvas->ApplyInput(vCursorPos, input);
 }
 
 void ezRmlUiCanvas3DInteractionComponent::Update()
 {
   // TODO: this is just for testing, delete later
-  ezRmlUiInputState input;
-  ezKeyState::Enum state = ezInputManager::GetInputSlotState(ezInputSlot_MouseButton1);
-  //if (state == ezKeyState::Pressed)
-  {
-    input.m_uiMouseButton0Pressed = state == ezKeyState::Pressed;
-    Interact(input, 2.0f);
-  }
+  ezRmlUiInputSnapshot input{};
+  if (ezInputManager::GetInputSlotState(ezInputSlot_MouseButton1) == ezKeyState::Down)
+    input.m_Buttons |= ezRmlUiInputButtons::Mouse0;
+  if (ezInputManager::GetInputSlotState(ezInputSlot_MouseWheelUp) == ezKeyState::Pressed)
+    input.m_Buttons |= ezRmlUiInputButtons::MouseWheelUp;
+  if (ezInputManager::GetInputSlotState(ezInputSlot_MouseWheelDown) == ezKeyState::Pressed)
+    input.m_Buttons |= ezRmlUiInputButtons::MouseWheelDown;
+  input.m_uiLastCharacter = ezInputManager::RetrieveLastCharacter(false);
+
+  Interact(input, 2.0f);
 }
 
 bool ezRmlUiCanvas3DInteractionComponent::RaycastMeshTexCoords(const ezCpuMeshResource* pMesh, const ezVec3& vRayOrigin, const ezVec3& vRayDir, ezVec2& out_vTexCoords, float FEpsilon)
@@ -199,8 +200,6 @@ bool ezRmlUiCanvas3DInteractionComponent::RaycastMeshTexCoords(const ezCpuMeshRe
     out_vTexCoords += mesh.GetTexCoord0(i0) * (1.0f - u - v);
     out_vTexCoords += mesh.GetTexCoord0(i1) * u;
     out_vTexCoords += mesh.GetTexCoord0(i2) * v;
-
-    ezLog::Dev("RaycastMeshTexCoords - success {}", out_vTexCoords);
 
     return true;
   }

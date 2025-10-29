@@ -18,7 +18,13 @@ namespace
     Rml::Input::KI_END, Rml::Input::KI_DELETE, Rml::Input::KI_BACK, Rml::Input::KI_RETURN, Rml::Input::KI_RETURN,
     Rml::Input::KI_ESCAPE};
 
+  static ezRmlUiInputButtons::Enum s_uiEzInputButtons[] = {ezRmlUiInputButtons::Tab, ezRmlUiInputButtons::Left, ezRmlUiInputButtons::Up,
+    ezRmlUiInputButtons::Right, ezRmlUiInputButtons::Down, ezRmlUiInputButtons::PageUp, ezRmlUiInputButtons::PageDown,
+    ezRmlUiInputButtons::Home, ezRmlUiInputButtons::End, ezRmlUiInputButtons::Delete, ezRmlUiInputButtons::Backspace,
+    ezRmlUiInputButtons::Return, ezRmlUiInputButtons::NumpadEnter, ezRmlUiInputButtons::Escape};
+
   static_assert(EZ_ARRAY_SIZE(s_szEzKeys) == EZ_ARRAY_SIZE(s_rmlKeys));
+  static_assert(EZ_ARRAY_SIZE(s_uiEzInputButtons) == EZ_ARRAY_SIZE(s_rmlKeys));
 } // namespace
 
 ezRmlUiContext::ezRmlUiContext(const Rml::String& sName, Rml::RenderManager* pRenderManager, Rml::TextInputHandler* pTextInputHandler)
@@ -155,7 +161,7 @@ bool ezRmlUiContext::UpdateInput(const ezVec2& vMousePos)
   return bMouseInputConsumed || bKeyboardInputConsumed;
 }
 
-bool ezRmlUiContext::UpdateInput(const ezRmlUiInputState& prevInput, const ezRmlUiInputState& input)
+bool ezRmlUiContext::UpdateInput(const ezVec2& vMousePos, const ezRmlUiInputProvider& input)
 {
   const float width = static_cast<float>(GetDimensions().x);
   const float height = static_cast<float>(GetDimensions().y);
@@ -163,17 +169,64 @@ bool ezRmlUiContext::UpdateInput(const ezRmlUiInputState& prevInput, const ezRml
   bool bMouseInputConsumed = false;
   bool bKeyboardInputConsumed = false;
 
+  int modifierState = 0;
+  modifierState |= input.IsButtonDown(ezRmlUiInputButtons::Alt) ? Rml::Input::KM_ALT : 0;
+  modifierState |= input.IsButtonDown(ezRmlUiInputButtons::Ctrl) ? Rml::Input::KM_CTRL : 0;
+  modifierState |= input.IsButtonDown(ezRmlUiInputButtons::Shift) ? Rml::Input::KM_SHIFT : 0;
+
   // Mouse
   {
-    bMouseInputConsumed |= !ProcessMouseMove(static_cast<int>(input.m_vCursorPos.x), static_cast<int>(input.m_vCursorPos.y), 0);
+    bMouseInputConsumed |= !ProcessMouseMove(static_cast<int>(vMousePos.x), static_cast<int>(vMousePos.y), modifierState);
 
-    if (input.m_uiMouseButton0Pressed > 0 && prevInput.m_uiMouseButton0Pressed == 0)
+    static ezRmlUiInputButtons::Enum uiMouseButtons[] = {ezRmlUiInputButtons::Mouse0, ezRmlUiInputButtons::Mouse1, ezRmlUiInputButtons::Mouse2};
+    for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(uiMouseButtons); ++i)
     {
-      bMouseInputConsumed |= !ProcessMouseButtonDown(0, 0);
+      ezKeyState::Enum state = input.GetButtonState(uiMouseButtons[i]);
+      if (state == ezKeyState::Pressed)
+      {
+        bMouseInputConsumed |= !ProcessMouseButtonDown(i, modifierState);
+      }
+      else if (state == ezKeyState::Released)
+      {
+        bMouseInputConsumed |= !ProcessMouseButtonUp(i, modifierState);
+      }
     }
-    else if (input.m_uiMouseButton0Pressed == 0 && prevInput.m_uiMouseButton0Pressed > 0)
+
+    if (input.IsButtonDown(ezRmlUiInputButtons::MouseWheelDown))
     {
-      bMouseInputConsumed |= !ProcessMouseButtonUp(0, 0);
+      bKeyboardInputConsumed |= !ProcessMouseWheel(1.0f, modifierState);
+    }
+    if (input.IsButtonDown(ezRmlUiInputButtons::MouseWheelUp))
+    {
+      bKeyboardInputConsumed |= !ProcessMouseWheel(-1.0f, modifierState);
+    }
+  }
+
+  // Keyboard
+  {
+    ezUInt32 uiLastChar = input.m_uiLastCharacter;
+    if (uiLastChar >= 32) // >= space
+    {
+      char szUtf8[8] = "";
+      char* pChar = szUtf8;
+      ezUnicodeUtils::EncodeUtf32ToUtf8(uiLastChar, pChar);
+      if (!ezStringUtils::IsNullOrEmpty(szUtf8))
+      {
+        bKeyboardInputConsumed |= !ProcessTextInput(szUtf8);
+      }
+    }
+
+    for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(s_uiEzInputButtons); ++i)
+    {
+      ezKeyState::Enum state = input.GetButtonState(s_uiEzInputButtons[i]);
+      if (state == ezKeyState::Pressed)
+      {
+        bKeyboardInputConsumed |= !ProcessKeyDown(s_rmlKeys[i], modifierState);
+      }
+      else if (state == ezKeyState::Released)
+      {
+        bKeyboardInputConsumed |= !ProcessKeyUp(s_rmlKeys[i], modifierState);
+      }
     }
   }
 

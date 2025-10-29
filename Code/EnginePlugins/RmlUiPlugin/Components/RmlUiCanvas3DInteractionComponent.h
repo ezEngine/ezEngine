@@ -2,7 +2,7 @@
 
 #include <Core/World/Component.h>
 #include <Core/World/World.h>
-#include <RmlUiPlugin/RmlUiInputState.h>
+#include <RmlUiPlugin/RmlUiInputSnapshot.h>
 
 using ezRmlUiCanvas3DInteractionComponentManager = ezComponentManagerSimple<class ezRmlUiCanvas3DInteractionComponent, ezComponentUpdateType::WhenSimulating, ezBlockStorageType::Compact, ezWorldUpdatePhase::PostTransform>;
 
@@ -27,7 +27,7 @@ public:
   ~ezRmlUiCanvas3DInteractionComponent();
 
   void Update();
-  void Interact(ezRmlUiInputState input, float fMaxDistance);
+  void Interact(ezRmlUiInputSnapshot input, float fMaxDistance);
 
 private:
   static bool RaycastMeshTexCoords(const ezCpuMeshResource* pMesh, const ezVec3& vRayOrigin, const ezVec3& vRayDir, ezVec2& out_vTexCoords, float fEpsilon = 0.00001f);

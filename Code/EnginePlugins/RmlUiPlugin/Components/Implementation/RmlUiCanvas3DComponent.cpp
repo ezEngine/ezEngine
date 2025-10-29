@@ -93,8 +93,8 @@ void ezRmlUiCanvas3DComponent::OnDeactivated()
 
 void ezRmlUiCanvas3DComponent::Update()
 {
-  bool bNeedsUpdate = m_bDirty;
-  m_bDirty = false;
+  bool bNeedsUpdate = m_bNeedsUpdate;
+  m_bNeedsUpdate = false;
 
   if (m_pContext == nullptr)
     return;
@@ -119,15 +119,13 @@ void ezRmlUiCanvas3DComponent::Update()
   }
 }
 
-void ezRmlUiCanvas3DComponent::ApplyInput(const ezRmlUiInputState& input)
+void ezRmlUiCanvas3DComponent::ApplyInput(const ezVec2& vMousePos, ezRmlUiInputSnapshot input)
 {
-  if (input == m_LastInput)
-  {
+  if (m_pContext == nullptr)
     return;
-  }
 
-  m_bDirty |= m_pContext->UpdateInput(m_LastInput, input);
-  m_LastInput = input;
+  m_InputProvider.Update(input);
+  m_bNeedsUpdate |= m_pContext->UpdateInput(vMousePos, m_InputProvider);
 }
 
 void ezRmlUiCanvas3DComponent::SetRmlResource(const ezRmlUiResourceHandle& hResource)
