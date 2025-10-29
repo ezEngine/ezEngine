@@ -120,10 +120,9 @@ void ezRmlUiCanvas3DInteractionComponent::Interact(ezRmlUiInputSnapshot input, f
     return;
   }
 
-  // flip tex coords because we do the same thing in the shader TODO: why?
   ezVec2 vCursorPos;
-  vCursorPos.x = static_cast<float>(pCanvas->GetSize().x) * (1.0f - vTexCoords.x);
-  vCursorPos.y = static_cast<float>(pCanvas->GetSize().y) * (1.0f - vTexCoords.y);
+  vCursorPos.x = static_cast<float>(pCanvas->GetTextureSize().x) * vTexCoords.x;
+  vCursorPos.y = static_cast<float>(pCanvas->GetTextureSize().y) * vTexCoords.y;
 
   pCanvas->ApplyInput(vCursorPos, input);
 }

@@ -36,24 +36,25 @@ public:
   void Update();
   void ApplyInput(const ezVec2& vMousePos, ezRmlUiInputSnapshot input);
 
-  void SetRmlResource(const ezRmlUiResourceHandle& hResource);                // [ property ]
-  const ezRmlUiResourceHandle& GetRmlResource() const { return m_hResource; } // [ property ]
+  void SetRmlResource(const ezRmlUiResourceHandle& hResource);                     // [ property ]
+  const ezRmlUiResourceHandle& GetRmlResource() const { return m_hResource; }      // [ property ]
 
-  void SetOffset(const ezVec2I32& vOffset);                                   // [ property ]
-  const ezVec2I32& GetOffset() const { return m_vOffset; }                    // [ property ]
-
-  void SetSize(const ezVec2U32& vSize);                                       // [ property ]
-  const ezVec2U32& GetSize() const { return m_vSize; }                        // [ property ]
-
-  void SetAnchorPoint(const ezVec2& vAnchorPoint);                            // [ property ]
-  const ezVec2& GetAnchorPoint() const { return m_vAnchorPoint; }             // [ property ]
+  void SetTextureSize(const ezVec2U32& vSize);                                     // [ property ]
+  const ezVec2U32& GetTextureSize() const { return m_vTextureSize; }               // [ property ]
 
   /// \brief Look for a blackboard component on the owner object and its parent and bind their blackboards during initialization of this component.
-  void SetAutobindBlackboards(bool bAutobind);                           // [ property ]
-  bool GetAutobindBlackboards() const { return m_bAutobindBlackboards; } // [ property ]
+  void SetAutobindBlackboards(bool bAutobind);                                     // [ property ]
+  bool GetAutobindBlackboards() const { return m_bAutobindBlackboards; }           // [ property ]
 
-  void SetOnDemandUpdate(bool bOnDemandUpdate);                          // [ property ]
-  bool GetOnDemandUpdate() const { return m_bOnDemandUpdate; }           // [ property ]
+  void SetOnDemandUpdate(bool bOnDemandUpdate);                                    // [ property ]
+  bool GetOnDemandUpdate() const { return m_bOnDemandUpdate; }                     // [ property ]
+
+  /// \brief Changes which mesh to render.
+  void SetMesh(const ezMeshResourceHandle& hMesh);                                 // [ property ]
+  EZ_ALWAYS_INLINE const ezMeshResourceHandle& GetMesh() const { return m_hMesh; } // [ property ]
+
+  // adds SetMeshFile() and GetMeshFile() for convenience
+  EZ_ADD_RESOURCEHANDLE_ACCESSORS_WITH_SETTER(Mesh, m_hMesh, SetMesh);
 
   ezUInt32 AddDataBinding(ezUniquePtr<ezRmlUiDataBinding>&& pDataBinding);
   void RemoveDataBinding(ezUInt32 uiDataBindingIndex);
@@ -70,41 +71,29 @@ public:
 
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
 
-  /// \brief Changes which mesh to render.
-  void SetMesh(const ezMeshResourceHandle& hMesh);                                 // [ property ]
-  EZ_ALWAYS_INLINE const ezMeshResourceHandle& GetMesh() const { return m_hMesh; } // [ property ]
-
-  // adds SetMeshFile() and GetMeshFile() for convenience
-  EZ_ADD_RESOURCEHANDLE_ACCESSORS_WITH_SETTER(Mesh, m_hMesh, SetMesh);
-
-  void OnMsgExtractGeometry(ezMsgExtractGeometry& ref_msg) const; // [ msg handler ]
-
 protected:
-  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
-  void OnMsgReload(ezMsgRmlUiReload& msg);
-  bool UpdateSizeOffsetAndTexture(ezVec2& out_viewSize);
+  void OnMsgExtractGeometry(ezMsgExtractGeometry& ref_msg) const;                  // [ msg handler ]
+  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;                  // [ msg handler ]
+  void OnMsgReload(ezMsgRmlUiReload& msg);                                         // [ msg handler ]
+
+  bool UpdateTexture();
   void UpdateCachedValues();
   void UpdateAutobinding();
 
   ezRmlUiResourceHandle m_hResource;
   ezEvent<const ezResourceEvent&, ezMutex>::Unsubscriber m_ResourceEventUnsubscriber;
 
-  ezVec2I32 m_vOffset = ezVec2I32::MakeZero();
-  ezVec2U32 m_vSize = ezVec2U32::MakeZero();
-  ezVec2 m_vAnchorPoint = ezVec2::MakeZero();
-  ezVec2U32 m_vReferenceResolution = ezVec2U32::MakeZero();
+  ezVec2U32 m_vTextureSize = ezVec2U32(512, 512);
   bool m_bAutobindBlackboards = true;
   bool m_bOnDemandUpdate = true;
   bool m_bNeedsUpdate = false;
-  ezRmlUiInputProvider m_InputProvider;
 
+  ezMeshResourceHandle m_hMesh;
   ezGALTextureHandle m_hTexture;
-  ezVec2 m_vFinalOffset = ezVec2::MakeZero();
 
   ezRmlUiContext* m_pContext = nullptr;
+  ezRmlUiInputProvider m_InputProvider;
 
   ezDynamicArray<ezUniquePtr<ezRmlUiDataBinding>> m_DataBindings;
   ezDynamicArray<ezUInt32> m_AutoBindings;
-
-  ezMeshResourceHandle m_hMesh;
 };

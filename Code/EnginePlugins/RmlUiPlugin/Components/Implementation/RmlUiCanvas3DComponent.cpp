@@ -25,9 +25,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezRmlUiCanvas3DComponent, 1, ezComponentMode::Static)
   {
     EZ_RESOURCE_ACCESSOR_PROPERTY("Mesh", GetMesh, SetMesh)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Static")),
     EZ_RESOURCE_ACCESSOR_PROPERTY("RmlFile", GetRmlResource, SetRmlResource)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Rml_UI")),
-    EZ_ACCESSOR_PROPERTY("AnchorPoint", GetAnchorPoint, SetAnchorPoint)->AddAttributes(new ezClampValueAttribute(ezVec2(0), ezVec2(1))),
-    EZ_ACCESSOR_PROPERTY("Size", GetSize, SetSize)->AddAttributes(new ezSuffixAttribute("px"), new ezMinValueTextAttribute("Auto")),
-    EZ_ACCESSOR_PROPERTY("Offset", GetOffset, SetOffset)->AddAttributes(new ezDefaultValueAttribute(ezVec2::MakeZero()), new ezSuffixAttribute("px")),    
+    EZ_ACCESSOR_PROPERTY("TextureSize", GetTextureSize, SetTextureSize)->AddAttributes(new ezSuffixAttribute("px"), new ezDefaultValueAttribute(ezVec2U32(512, 512)), new ezClampValueAttribute(ezVec2U32(0), ezVec2U32(4096))),
     EZ_ACCESSOR_PROPERTY("AutobindBlackboards", GetAutobindBlackboards, SetAutobindBlackboards)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_ACCESSOR_PROPERTY("OnDemandUpdate", GetOnDemandUpdate, SetOnDemandUpdate)->AddAttributes(new ezDefaultValueAttribute(true)),
   }
@@ -102,8 +100,7 @@ void ezRmlUiCanvas3DComponent::Update()
   const ezTime tDiff = ezClock::GetGlobalClock()->GetTimeDiff();
   bNeedsUpdate |= m_pContext->GetNextUpdateDelay() < ezMath::Max(tDiff.GetSeconds(), 1.0 / 240.0);
 
-  ezVec2 viewSize = ezVec2::MakeZero();
-  bNeedsUpdate |= UpdateSizeOffsetAndTexture(viewSize);
+  bNeedsUpdate |= UpdateTexture();
 
   for (auto& pDataBinding : m_DataBindings)
   {
@@ -146,27 +143,18 @@ void ezRmlUiCanvas3DComponent::SetRmlResource(const ezRmlUiResourceHandle& hReso
   }
 }
 
-void ezRmlUiCanvas3DComponent::SetOffset(const ezVec2I32& vOffset)
+void ezRmlUiCanvas3DComponent::SetTextureSize(const ezVec2U32& vSize)
 {
-  m_vOffset = vOffset;
-}
-
-void ezRmlUiCanvas3DComponent::SetSize(const ezVec2U32& vSize)
-{
-  if (m_vSize != vSize)
+  if (m_vTextureSize != vSize)
   {
-    m_vSize = vSize;
+    m_vTextureSize.x = ezMath::Min(vSize.x, 4096u);
+    m_vTextureSize.y = ezMath::Min(vSize.y, 4096u);
 
     if (m_pContext != nullptr)
     {
-      m_pContext->SetSize(m_vSize);
+      m_pContext->SetSize(m_vTextureSize);
     }
   }
-}
-
-void ezRmlUiCanvas3DComponent::SetAnchorPoint(const ezVec2& vAnchorPoint)
-{
-  m_vAnchorPoint = vAnchorPoint;
 }
 
 void ezRmlUiCanvas3DComponent::SetAutobindBlackboards(bool bAutobind)
@@ -250,7 +238,7 @@ ezRmlUiContext* ezRmlUiCanvas3DComponent::GetOrCreateRmlContext()
   }
   sName.AppendFormat("_{}", ezArgP(this));
 
-  m_pContext = ezRmlUi::GetSingleton()->CreateContext(sName, m_vSize);
+  m_pContext = ezRmlUi::GetSingleton()->CreateContext(sName, m_vTextureSize);
 
   for (auto& pDataBinding : m_DataBindings)
   {
@@ -271,9 +259,7 @@ void ezRmlUiCanvas3DComponent::SerializeComponent(ezWorldWriter& inout_stream) c
   ezStreamWriter& s = inout_stream.GetStream();
 
   s << m_hResource;
-  s << m_vOffset;
-  s << m_vSize;
-  s << m_vAnchorPoint;
+  s << m_vTextureSize;
   s << m_bAutobindBlackboards;
   s << m_bOnDemandUpdate;
 }
@@ -284,10 +270,11 @@ void ezRmlUiCanvas3DComponent::DeserializeComponent(ezWorldReader& inout_stream)
   const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = inout_stream.GetStream();
 
+  ezVec2I32 vOffset;
+  ezVec2 vAnchorPoint;
+
   s >> m_hResource;
-  s >> m_vOffset;
-  s >> m_vSize;
-  s >> m_vAnchorPoint;
+  s >> m_vTextureSize;
   s >> m_bAutobindBlackboards;
   s >> m_bOnDemandUpdate;
 }
@@ -311,10 +298,6 @@ void ezRmlUiCanvas3DComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& ms
 
   if (msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::MainView || msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::EditorView)
   {
-    // Don't extract render data for selection.
-    //if (msg.m_OverrideCategory != ezInvalidRenderDataCategory)
-    //  return;
-
     if (m_pContext != nullptr && m_hTexture.IsInvalidated() == false)
     {
       ezRmlUi::GetSingleton()->ExtractContext(*m_pContext, m_hTexture);
@@ -339,9 +322,7 @@ void ezRmlUiCanvas3DComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& ms
       pRenderData->FillSortingKey();
     }
 
-    ezRenderData::Category category = ezDefaultRenderDataCategories::SimpleOpaque;
-
-    msg.AddRenderData(pRenderData, category, ezRenderData::Caching::Never);
+    msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::SimpleOpaque, ezRenderData::Caching::Never);
   }
 }
 
@@ -386,19 +367,14 @@ void ezRmlUiCanvas3DComponent::OnMsgReload(ezMsgRmlUiReload& msg)
   }
 }
 
-bool ezRmlUiCanvas3DComponent::UpdateSizeOffsetAndTexture(ezVec2& out_viewSize)
+bool ezRmlUiCanvas3DComponent::UpdateTexture()
 {
-  const ezVec2U32 sizeU32 = ezVec2U32(static_cast<ezUInt32>(m_vSize.x), static_cast<ezUInt32>(m_vSize.y));
-  if (sizeU32.x == 0 || sizeU32.y == 0)
+  if (m_vTextureSize.x == 0 || m_vTextureSize.y == 0)
     return false;
 
-  m_pContext->SetSize(sizeU32);
-  m_pContext->SetDpiScale(1.0f);
-
-  // Recreate texture if necessary
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   const ezGALTexture* pTexture = pDevice->GetTexture(m_hTexture);
-  if (pTexture == nullptr || pTexture->GetDescription().m_uiWidth != sizeU32.x || pTexture->GetDescription().m_uiHeight != sizeU32.y)
+  if (pTexture == nullptr || pTexture->GetDescription().m_uiWidth != m_vTextureSize.x || pTexture->GetDescription().m_uiHeight != m_vTextureSize.y)
   {
     if (pTexture != nullptr)
     {
@@ -406,17 +382,20 @@ bool ezRmlUiCanvas3DComponent::UpdateSizeOffsetAndTexture(ezVec2& out_viewSize)
     }
 
     ezGALTextureCreationDescription desc;
-    desc.m_uiWidth = sizeU32.x;
-    desc.m_uiHeight = sizeU32.y;
+    desc.m_uiWidth = m_vTextureSize.x;
+    desc.m_uiHeight = m_vTextureSize.y;
     desc.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
     desc.m_ResourceAccess.m_bImmutable = false;
-    if (ezMath::IsPowerOf2(sizeU32.x) && ezMath::IsPowerOf2(sizeU32.y))
+    if (ezMath::IsPowerOf2(m_vTextureSize.x) && ezMath::IsPowerOf2(m_vTextureSize.y))
     {
-      desc.m_uiMipLevelCount = ezMath::Max(ezMath::Log2i(sizeU32.x), ezMath::Log2i(sizeU32.y)) - 2;
+      desc.m_uiMipLevelCount = ezMath::Max(ezMath::Log2i(m_vTextureSize.x), ezMath::Log2i(m_vTextureSize.y)) - 2;
       desc.m_bAllowDynamicMipGeneration = true;
     }
 
     m_hTexture = pDevice->CreateTexture(desc);
+
+    m_pContext->SetSize(m_vTextureSize);
+    m_pContext->SetDpiScale(1.0f);
 
     return true;
   }
@@ -427,32 +406,20 @@ bool ezRmlUiCanvas3DComponent::UpdateSizeOffsetAndTexture(ezVec2& out_viewSize)
 void ezRmlUiCanvas3DComponent::UpdateCachedValues()
 {
   m_ResourceEventUnsubscriber.Unsubscribe();
-  m_vReferenceResolution.SetZero();
 
   if (m_hResource.IsValid())
   {
-    {
-      ezResourceLock pResource(m_hResource, ezResourceAcquireMode::BlockTillLoaded);
+    ezResourceLock pResource(m_hResource, ezResourceAcquireMode::PointerOnly);
 
-      if (pResource->GetScaleMode() == ezRmlUiScaleMode::WithScreenSize)
+    pResource->m_ResourceEvents.AddEventHandler(
+      [hComponent = GetHandle(), pWorld = GetWorld()](const ezResourceEvent& e)
       {
-        m_vReferenceResolution = pResource->GetReferenceResolution();
-      }
-    }
-
-    {
-      ezResourceLock pResource(m_hResource, ezResourceAcquireMode::PointerOnly);
-
-      pResource->m_ResourceEvents.AddEventHandler(
-        [hComponent = GetHandle(), pWorld = GetWorld()](const ezResourceEvent& e)
+        if (e.m_Type == ezResourceEvent::Type::ResourceContentUnloading)
         {
-          if (e.m_Type == ezResourceEvent::Type::ResourceContentUnloading)
-          {
-            pWorld->PostMessage(hComponent, ezMsgRmlUiReload(), ezTime::MakeZero());
-          }
-        },
-        m_ResourceEventUnsubscriber);
-    }
+          pWorld->PostMessage(hComponent, ezMsgRmlUiReload(), ezTime::MakeZero());
+        }
+      },
+      m_ResourceEventUnsubscriber);
   }
 }
 

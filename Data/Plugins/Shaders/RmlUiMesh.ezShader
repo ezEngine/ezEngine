@@ -11,7 +11,7 @@ FORWARD_PASS_WRITE_DEPTH
 MSAA
 CAMERA_MODE
 SHADING_QUALITY
-VERTEX_SKINNING
+VERTEX_SKINNING = FALSE
 VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
 
 [RENDERSTATE]
@@ -57,9 +57,6 @@ SamplerState BaseTexture_AutoSampler;
 float3 GetDiffuseColor()
 {
   float2 uv = G.Input.TexCoord0.xy;
-  // TODO: figure out why uvs are flipped
-  uv.x = 1 - uv.x;
-  uv.y = 1 - uv.y;
   float3 baseColor = BaseTexture.Sample(BaseTexture_AutoSampler, uv).rgb;
 
   return baseColor;
