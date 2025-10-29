@@ -15,14 +15,7 @@ VERTEX_SKINNING = FALSE
 VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
 
 [RENDERSTATE]
-BlendingEnabled0 = true
-DestBlend0 = Blend_InvSrcAlpha
-SourceBlend0 = Blend_One
-DestBlendAlpha0 = Blend_InvSrcAlpha
-SourceBlendAlpha0 = Blend_One
-DepthTest = true
-DepthWrite = true
-CullMode = CullMode_Back
+#include <Shaders/Materials/MaterialState.h>
 
 [SHADER]
 #define USE_TEXCOORD0

@@ -21,10 +21,8 @@ public:
   void FillSortingKey();
   virtual bool CanBatch(const ezRenderData& other) const override;
 
-  ezGALTextureHandle m_hTexture;
-  ezVec2 m_vOffset = ezVec2::MakeZero();
-
   ezMeshResourceHandle m_hMesh;
+  ezGALTextureHandle m_hTexture;
 
   ezUInt32 m_uiSubMeshIndex : 30;
   ezUInt32 m_uiFlipWinding : 1;
