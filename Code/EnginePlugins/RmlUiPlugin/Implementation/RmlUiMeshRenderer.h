@@ -33,5 +33,4 @@ protected:
 
 private:
   ezShaderResourceHandle m_hShader;
-  //ezConstantBufferStorageHandle m_hConstantBuffer;
 };

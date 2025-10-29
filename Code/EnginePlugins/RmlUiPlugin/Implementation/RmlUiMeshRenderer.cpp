@@ -16,10 +16,10 @@
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRmlUiMeshRenderData, 1, ezRTTINoAllocator)
-  EZ_END_DYNAMIC_REFLECTED_TYPE;
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRmlUiMeshRenderer, 1, ezRTTIDefaultAllocator<ezRmlUiMeshRenderer>)
-  EZ_END_DYNAMIC_REFLECTED_TYPE;
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 bool ezRmlUiMeshRenderData::CanBatch(const ezRenderData& other0) const
@@ -45,13 +45,9 @@ void ezRmlUiMeshRenderData::FillSortingKey()
 ezRmlUiMeshRenderer::ezRmlUiMeshRenderer()
 {
   m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/RmlUiMesh.ezShader");
-  //m_hConstantBuffer = ezRenderContext::CreateConstantBufferStorage<ezRmlUiBlitConstants>();
 }
 
-ezRmlUiMeshRenderer::~ezRmlUiMeshRenderer()
-{
-  //ezRenderContext::DeleteConstantBufferStorage(m_hConstantBuffer);
-}
+ezRmlUiMeshRenderer::~ezRmlUiMeshRenderer() = default;
 
 void ezRmlUiMeshRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& ref_types) const
 {
