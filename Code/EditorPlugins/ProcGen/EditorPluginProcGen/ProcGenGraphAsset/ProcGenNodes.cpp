@@ -599,7 +599,9 @@ ezExpressionAST::Node* ezProcGen_Curve::GenerateExpressionASTNode(ezTempHashedSt
 
     double fMinX, fMaxX;
     curve.QueryExtents(fMinX, fMaxX);
-    float fStep = static_cast<float>(fMaxX - fMinX) / static_cast<float>(m_uiNumSamples - 1);
+    fMinX = ezMath::Min(fMinX, 0.0);
+    fMaxX = ezMath::Max(fMaxX, 1.0);
+    const float fStep = static_cast<float>(fMaxX - fMinX) / static_cast<float>(m_uiNumSamples - 1);
 
     ezDynamicArray<float> samples;
     samples.SetCount(m_uiNumSamples);
