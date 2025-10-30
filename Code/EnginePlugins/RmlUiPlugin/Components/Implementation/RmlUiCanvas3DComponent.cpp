@@ -138,29 +138,29 @@ void ezRmlUiCanvas3DComponent::ReceiveInput(const ezVec2& vMousePosInsideCanvas,
   m_iInputAge = 0;
 }
 
-void ezRmlUiCanvas3DComponent::RaycastInput(const ezVec3& vRayOrigin, const ezVec3& vRayDir, ezRmlUiInputSnapshot input)
+bool ezRmlUiCanvas3DComponent::RaycastInput(const ezVec3& vRayOrigin, const ezVec3& vRayDir, ezRmlUiInputSnapshot input)
 {
   if (m_pContext == nullptr || !IsInteractive())
-    return;
+    return false;
 
   if (!GetMesh().IsValid())
   {
     ezLog::Dev("ezRmlUiCanvas3DComponent: a canvas doesn't have a mesh");
-    return;
+    return false;
   }
 
   ezCpuMeshResourceHandle hMesh = ezResourceManager::LoadResource<ezCpuMeshResource>(GetMesh().GetResourceID());
   if (!hMesh.IsValid())
   {
     ezLog::Dev("ezRmlUiCanvas3DComponent: canvas mesh is not valid");
-    return;
+    return false;
   }
 
   ezResourceLock<ezCpuMeshResource> pMesh(hMesh, ezResourceAcquireMode::AllowLoadingFallback);
   if (pMesh.GetAcquireResult() == ezResourceAcquireResult::LoadingFallback)
   {
     ezLog::Dev("ezRmlUiCanvas3DComponent: canvas mesh is not loaded yet");
-    return;
+    return false;
   }
 
   ezTransform worldToLocal = GetOwner()->GetGlobalTransform().GetInverse();
@@ -171,7 +171,7 @@ void ezRmlUiCanvas3DComponent::RaycastInput(const ezVec3& vRayOrigin, const ezVe
   if (!RaycastMeshTexCoords(pMesh.GetPointer(), vRayOriginMeshSpace, vRayDirMeshSpace, vTexCoords))
   {
     ezLog::Dev("ezRmlUiCanvas3DComponent: raycast failed to hit any triangles");
-    return;
+    return false;
   }
 
   ezVec2 vCursorPos;
@@ -179,6 +179,8 @@ void ezRmlUiCanvas3DComponent::RaycastInput(const ezVec3& vRayOrigin, const ezVe
   vCursorPos.y = static_cast<float>(m_vTextureSize.y) * vTexCoords.y;
 
   ReceiveInput(vCursorPos, input);
+
+  return true;
 }
 
 bool ezRmlUiCanvas3DComponent::RaycastMeshTexCoords(const ezCpuMeshResource* pMesh, const ezVec3& vRayOrigin, const ezVec3& vRayDir, ezVec2& out_vTexCoords, float FEpsilon)

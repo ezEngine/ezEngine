@@ -36,7 +36,7 @@ public:
   void Update();
 
   void ReceiveInput(const ezVec2& vMousePosInsideCanvas, ezRmlUiInputSnapshot input);
-  void RaycastInput(const ezVec3& vRayOrigin, const ezVec3& vRayDir, ezRmlUiInputSnapshot input);
+  bool RaycastInput(const ezVec3& vRayOrigin, const ezVec3& vRayDir, ezRmlUiInputSnapshot input);
 
   void SetRmlResource(const ezRmlUiResourceHandle& hResource);                     // [ property ]
   const ezRmlUiResourceHandle& GetRmlResource() const { return m_hResource; }      // [ property ]
