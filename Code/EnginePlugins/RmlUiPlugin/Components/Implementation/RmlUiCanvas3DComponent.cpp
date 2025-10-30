@@ -195,6 +195,10 @@ bool ezRmlUiCanvas3DComponent::RaycastMeshTexCoords(const ezCpuMeshResource* pMe
   ezUInt32 uiNumIndices = mesh.GetIndexBufferData().GetCount() / 2;
   EZ_ASSERT_DEV(mesh.Uses32BitIndices() == false, "not implemented yet");
 
+  float rdist = 1e20f;
+  ezUInt16 r0, r1, r2;
+  float ru, rv;
+
   for (ezUInt32 uiIndex = 0; uiIndex + 2 < uiNumIndices; uiIndex += 3)
   {
     // perform ray-triangle intersection test as described in https://www.graphics.cornell.edu/pubs/1997/MT97.pdf
@@ -234,10 +238,25 @@ bool ezRmlUiCanvas3DComponent::RaycastMeshTexCoords(const ezCpuMeshResource* pMe
     u *= inv_det;
     v *= inv_det;
 
+    if (t > rdist)
+      continue;
+
+    rdist = t;
+    r0 = i0;
+    r1 = i1;
+    r2 = i2;
+    ru = u;
+    rv = v;
+  }
+
+  if (rdist < 1e20f)
+  {
     out_vTexCoords = ezVec2::MakeZero();
-    out_vTexCoords += mesh.GetTexCoord0(i0) * (1.0f - u - v);
-    out_vTexCoords += mesh.GetTexCoord0(i1) * u;
-    out_vTexCoords += mesh.GetTexCoord0(i2) * v;
+    out_vTexCoords += mesh.GetTexCoord0(r0) * (1.0f - ru - rv);
+    out_vTexCoords += mesh.GetTexCoord0(r1) * ru;
+    out_vTexCoords += mesh.GetTexCoord0(r2) * rv;
+    out_vTexCoords.x = ezMath::Fraction(ezMath::Abs(out_vTexCoords.x));
+    out_vTexCoords.y = ezMath::Fraction(ezMath::Abs(out_vTexCoords.y));
 
     return true;
   }
