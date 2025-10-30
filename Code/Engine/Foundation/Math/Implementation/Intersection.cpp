@@ -46,7 +46,47 @@ bool ezIntersectionUtils::RayTriangleIntersection(const ezVec3& vRayStartPos, co
   return true;
 }
 
-bool ezIntersectionUtils::RayTriangleIntersectionBarycentric(const ezVec3& vRayOrigin, const ezVec3& vRayDir, const ezVec3& vVertex0, const ezVec3& vVertex1, const ezVec3& vVertex2, float* out_pIntersectionTime, ezVec3* out_pBarycentricCoords)
+bool ezIntersectionUtils::RayTriangleIntersection(const ezVec3& vRayOrigin, const ezVec3& vRayDir, const ezVec3& vVertex0, const ezVec3& vVertex1, const ezVec3& vVertex2, ezVec3& out_vBarycentricCoords, float* out_pIntersectionTime, ezVec3* out_pIntersectionPoint)
+{
+  // source: https://www.graphics.cornell.edu/pubs/1997/MT97.pdf
+
+  constexpr float fEpsilon = 0.00001f;
+
+  ezVec3 edge1 = vVertex1 - vVertex0;
+  ezVec3 edge2 = vVertex2 - vVertex0;
+
+  ezVec3 pvec = vRayDir.CrossRH(edge2);
+
+  float det = edge1.Dot(pvec);
+  if (det > -fEpsilon && det < fEpsilon)
+    return false;
+
+  float inv_det = 1.0f / det;
+
+  ezVec3 tvec = vRayOrigin - vVertex0;
+
+  float u = tvec.Dot(pvec) * inv_det;
+  if (u < 0.0f || u > 1.0f)
+    return false;
+
+  ezVec3 qvec = tvec.CrossRH(edge1);
+
+  float v = vRayDir.Dot(qvec) * inv_det;
+  if (v < 0.0f || v > 1.0f)
+    return false;
+
+  out_vBarycentricCoords = ezVec3(1.0f - u - v, u, v);
+
+  if (out_pIntersectionTime)
+    *out_pIntersectionTime = edge2.Dot(qvec) * inv_det;
+
+  if (out_pIntersectionPoint)
+    *out_pIntersectionPoint = vVertex0 * (1.0f - u - v) + vVertex1 * u + vVertex2 * v;
+
+  return true;
+}
+
+bool ezIntersectionUtils::RayTriangleIntersectionCullBackface(const ezVec3& vRayOrigin, const ezVec3& vRayDir, const ezVec3& vVertex0, const ezVec3& vVertex1, const ezVec3& vVertex2, ezVec3& out_vBarycentricCoords, float* out_pIntersectionTime, ezVec3* out_pIntersectionPoint)
 {
   // source: https://www.graphics.cornell.edu/pubs/1997/MT97.pdf
 
@@ -73,17 +113,17 @@ bool ezIntersectionUtils::RayTriangleIntersectionBarycentric(const ezVec3& vRayO
   if (v < 0 || u + v > det)
     return false;
 
-  float t = edge2.Dot(qvec);
   float inv_det = 1.0f / det;
-  t *= inv_det;
   u *= inv_det;
   v *= inv_det;
 
-  if (out_pIntersectionTime)
-    *out_pIntersectionTime = t;
+  out_vBarycentricCoords = ezVec3(1.0f - u - v, u, v);
 
-  if (out_pBarycentricCoords)
-    *out_pBarycentricCoords = ezVec3(1.0f - u - v, u, v);
+  if (out_pIntersectionTime)
+    *out_pIntersectionTime = edge2.Dot(qvec) * inv_det;
+
+  if (out_pIntersectionPoint)
+    *out_pIntersectionPoint = vVertex0 * (1.0f - u - v) + vVertex1 * u + vVertex2 * v;
 
   return true;
 }

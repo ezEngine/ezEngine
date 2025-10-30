@@ -216,7 +216,7 @@ bool ezRmlUiCanvas3DComponent::RaycastMeshTexCoords(const ezCpuMeshResource* pMe
     float fDist;
     ezVec3 vPos;
 
-    bool bHit = ezIntersectionUtils::RayTriangleIntersectionBarycentric(vRayOrigin, vRayDir, vVertex0, vVertex1, vVertex2, &fDist, &vPos);
+    bool bHit = ezIntersectionUtils::RayTriangleIntersectionCullBackface(vRayOrigin, vRayDir, vVertex0, vVertex1, vVertex2, vPos, &fDist, nullptr);
     if (!bHit || fDist > fClosestDist)
       continue;
 
