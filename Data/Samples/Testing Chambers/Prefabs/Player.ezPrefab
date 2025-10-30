@@ -4,10 +4,11 @@ o
 {
 	Uuid %id{u4{5217645760467530089,740916499361678004}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		b %DefaultValue{0}
 		s %Name{"Invincible"}
 		s %Type{""}
@@ -17,10 +18,11 @@ o
 {
 	Uuid %id{u4{6590470116425382476,2685973930379754625}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		b %DefaultValue{0}
 		s %Name{"GiveAllWeapons"}
 		s %Type{""}
@@ -51,7 +53,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8325318639183543703,4757176779305952111}}
-		u4 %Hash{8660283175205394553}
+		u4 %Hash{12928302428804993828}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{14146522745554303380,2902865256510917925}}
@@ -197,6 +199,7 @@ o
 		{
 			Uuid{u4{17183932176149474540,14437762879067406406}}
 			Uuid{u4{6640024761792138632,1016865748585375154}}
+			Uuid{u4{4932684702722962840,5660518879483753173}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0,0,0xCDCCCC3F}}
@@ -771,14 +774,27 @@ o
 {
 	Uuid %id{u4{1746141424200519828,5640401124028596311}}
 	s %t{"ezAnimationControllerComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		s %AnimGraph{"{ bcc4c94a-a2d5-4809-a8a5-717195e17e6e }"}
+		VarArray %AnimationClipOverrides{}
 		b %EnableIK{0}
 		s %InvisibleUpdateRate{"ezAnimationInvisibleUpdateRate::Max60FPS"}
 		s %RootMotionMode{"ezRootMotionMode::Ignore"}
+	}
+}
+o
+{
+	Uuid %id{u4{4932684702722962840,5660518879483753173}}
+	s %t{"ezRmlUiCanvas3DInteractionExampleComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		u3 %CollisionLayer{8}
+		f %MaxDistance{0x00000040}
 	}
 }
 o
@@ -2094,6 +2110,20 @@ o
 }
 o
 {
+	Uuid %id{u4{15535061556396936120,4941497403054456719}}
+	s %t{"ezFunctionArgumentAttributes"}
+	u3 %v{1}
+	p
+	{
+		VarArray %ArgAttributes
+		{
+			Uuid{u4{9641696946908588482,18118221714347744119}}
+		}
+		u3 %ArgIndex{0}
+	}
+}
+o
+{
 	Uuid %id{u4{17449938494334932034,4959565430320447596}}
 	s %t{"ezScriptableFunctionAttribute"}
 	u3 %v{1}
@@ -2598,7 +2628,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezAnimationControllerComponent"}
-		u3 %TypeVersion{3}
+		u3 %TypeVersion{4}
 	}
 }
 o
@@ -2925,6 +2955,17 @@ o
 	p
 	{
 		f %Value{0x0000A040}
+	}
+}
+o
+{
+	Uuid %id{u4{8400659617985477685,8518104757807612837}}
+	s %t{"ezFunctionArgumentDescriptor"}
+	u3 %v{1}
+	p
+	{
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Type{"ezUInt8"}
 	}
 }
 o
@@ -4107,10 +4148,14 @@ o
 	u3 %v{1}
 	p
 	{
-		VarArray %Arguments{}
+		VarArray %Arguments
+		{
+			Uuid{u4{8400659617985477685,8518104757807612837}}
+		}
 		VarArray %Attributes
 		{
 			Uuid{u4{6593933852172833454,17304029527958967954}}
+			Uuid{u4{15535061556396936120,4941497403054456719}}
 		}
 		s %Flags{"ezPropertyFlags::Phantom"}
 		s %Name{"DropGrabbedObject"}
@@ -4669,6 +4714,23 @@ o
 }
 o
 {
+	Uuid %id{u4{15660913317575787618,15774688230227138260}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezAnimationClipMapping"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{17779299188105832332,15834962022850149140}}
 	s %t{"ezScriptableFunctionAttribute"}
 	u3 %v{1}
@@ -4703,6 +4765,23 @@ o
 	{
 		s %Flags{"ezPropertyFlags::StandardType"}
 		s %Type{"bool"}
+	}
+}
+o
+{
+	Uuid %id{u4{18080735872745683219,16047288405050534700}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"ezEditorPluginRmlUi"}
+		VarArray %Properties{}
+		s %TypeName{"ezRmlUiCanvas3DInteractionExampleComponent"}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -5055,8 +5134,14 @@ o
 	u3 %v{1}
 	p
 	{
-		VarArray %ArgNames{}
-		VarArray %ArgTypes{}
+		VarArray %ArgNames
+		{
+			s{"uiImpulseType"}
+		}
+		VarArray %ArgTypes
+		{
+			u1{0}
+		}
 	}
 }
 o
@@ -5264,6 +5349,16 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezConeLengthManipulatorAttribute"}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{9641696946908588482,18118221714347744119}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		i3 %Value{0}
 	}
 }
 o
