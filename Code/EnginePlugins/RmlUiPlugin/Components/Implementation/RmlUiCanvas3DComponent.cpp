@@ -10,6 +10,7 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/Gameplay/BlackboardComponent.h>
+#include <Foundation/Math/Intersection.h>
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
@@ -197,66 +198,40 @@ bool ezRmlUiCanvas3DComponent::RaycastMeshTexCoords(const ezCpuMeshResource* pMe
   ezUInt32 uiNumIndices = mesh.GetIndexBufferData().GetCount() / 2;
   EZ_ASSERT_DEV(mesh.Uses32BitIndices() == false, "not implemented yet");
 
-  float rdist = 1e20f;
-  ezUInt16 r0, r1, r2;
-  float ru, rv;
+  float fClosestDist = 1e20f;
+  ezUInt16 uiClosestIndex0, uiClosestIndex1, uiClosestIndex2;
+  ezVec3 vClosestPos;
 
-  for (ezUInt32 uiIndex = 0; uiIndex + 2 < uiNumIndices; uiIndex += 3)
+  for (ezUInt32 i = 0; i + 2 < uiNumIndices; i += 3)
   {
-    // perform ray-triangle intersection test as described in https://www.graphics.cornell.edu/pubs/1997/MT97.pdf
+    ezUInt16 uiIndex0 = pIndexBuffer[i];
+    ezUInt16 uiIndex1 = pIndexBuffer[i + 1];
+    ezUInt16 uiIndex2 = pIndexBuffer[i + 2];
 
-    ezUInt16 i0 = pIndexBuffer[uiIndex];
-    ezUInt16 i1 = pIndexBuffer[uiIndex + 1];
-    ezUInt16 i2 = pIndexBuffer[uiIndex + 2];
+    ezVec3 vVertex0 = mesh.GetPosition(uiIndex0);
+    ezVec3 vVertex1 = mesh.GetPosition(uiIndex1);
+    ezVec3 vVertex2 = mesh.GetPosition(uiIndex2);
 
-    ezVec3 v0 = mesh.GetPosition(i0);
-    ezVec3 v1 = mesh.GetPosition(i1);
-    ezVec3 v2 = mesh.GetPosition(i2);
+    float fDist;
+    ezVec3 vPos;
 
-    ezVec3 edge1 = v1 - v0;
-    ezVec3 edge2 = v2 - v0;
-
-    ezVec3 pvec = vRayDir.CrossRH(edge2);
-
-    float det = edge1.Dot(pvec);
-    if (det < FEpsilon)
+    bool bHit = ezIntersectionUtils::RayTriangleIntersectionBarycentric(vRayOrigin, vRayDir, vVertex0, vVertex1, vVertex2, &fDist, &vPos);
+    if (!bHit || fDist > fClosestDist)
       continue;
 
-    ezVec3 tvec = vRayOrigin - v0;
-
-    float u = tvec.Dot(pvec);
-    if (u < 0 || u > det)
-      continue;
-
-    ezVec3 qvec = tvec.CrossRH(edge1);
-
-    float v = qvec.Dot(vRayDir);
-    if (v < 0 || u + v > det)
-      continue;
-
-    float t = edge2.Dot(qvec);
-    float inv_det = 1.0f / det;
-    t *= inv_det;
-    u *= inv_det;
-    v *= inv_det;
-
-    if (t > rdist)
-      continue;
-
-    rdist = t;
-    r0 = i0;
-    r1 = i1;
-    r2 = i2;
-    ru = u;
-    rv = v;
+    fClosestDist = fDist;
+    uiClosestIndex0 = uiIndex0;
+    uiClosestIndex1 = uiIndex1;
+    uiClosestIndex2 = uiIndex2;
+    vClosestPos = vPos;
   }
 
-  if (rdist < 1e20f)
+  if (fClosestDist < 1e20f)
   {
     out_vTexCoords = ezVec2::MakeZero();
-    out_vTexCoords += mesh.GetTexCoord0(r0) * (1.0f - ru - rv);
-    out_vTexCoords += mesh.GetTexCoord0(r1) * ru;
-    out_vTexCoords += mesh.GetTexCoord0(r2) * rv;
+    out_vTexCoords += mesh.GetTexCoord0(uiClosestIndex0) * vClosestPos.x;
+    out_vTexCoords += mesh.GetTexCoord0(uiClosestIndex1) * vClosestPos.y;
+    out_vTexCoords += mesh.GetTexCoord0(uiClosestIndex2) * vClosestPos.z;
     out_vTexCoords.x = ezMath::Fraction(ezMath::Abs(out_vTexCoords.x));
     out_vTexCoords.y = ezMath::Fraction(ezMath::Abs(out_vTexCoords.y));
 

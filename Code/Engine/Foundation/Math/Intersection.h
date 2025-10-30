@@ -28,6 +28,28 @@ namespace ezIntersectionUtils
   ///   True, if the ray intersects the triangle, false otherwise.
   EZ_FOUNDATION_DLL bool RayTriangleIntersection(const ezVec3& vRayStartPos, const ezVec3& vRayDir, const ezVec3& vVertex0, const ezVec3& vVertex1, const ezVec3& vVertex2, float* out_pIntersectionTime = nullptr, ezVec3* out_pIntersectionPoint = nullptr); // [tested]
 
+  /// \brief Checks whether a ray intersects with a triangle.
+  ///
+  /// The vertex winding order DOES matter, triangles will not be hit from the back side.
+  ///
+  /// \param vRayOrigin
+  ///   The start position of the ray.
+  /// \param vRayDir
+  ///   The direction of the ray. This does not need to be normalized. Depending on its length, out_fIntersectionTime will be scaled differently.
+  /// \param vVertex0, vVertex1, vVertex2
+  ///   The three vertices forming the triangle.
+  /// \param out_fIntersectionTime
+  ///   The 'time' at which the ray intersects the triangle. If \a vRayDir is normalized, this is the exact distance.
+  ///   IntersectionPoint == vRayOrigin + vRayDir * out_fIntersectionTime
+  ///   This parameter is optional and may be set to nullptr.
+  /// \param out_pBarycentricCoords
+  ///   The barycentric coordinates of the point where the ray intersects the triangle.
+  ///   This parameter is optional and may be set to nullptr.
+  ///
+  /// \return
+  ///   True, if the ray intersects the triangle, false otherwise.
+  EZ_FOUNDATION_DLL bool RayTriangleIntersectionBarycentric(const ezVec3& vRayOrigin, const ezVec3& vRayDir, const ezVec3& vVertex0, const ezVec3& vVertex1, const ezVec3& vVertex2, float* out_pIntersectionTime = nullptr, ezVec3* out_pBarycentricCoords = nullptr);
+
   /// \brief Checks whether a ray intersects with a polygon.
   ///
   /// The vertex winding order does not matter, polygons will be hit from both sides.

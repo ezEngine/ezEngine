@@ -46,6 +46,48 @@ bool ezIntersectionUtils::RayTriangleIntersection(const ezVec3& vRayStartPos, co
   return true;
 }
 
+bool ezIntersectionUtils::RayTriangleIntersectionBarycentric(const ezVec3& vRayOrigin, const ezVec3& vRayDir, const ezVec3& vVertex0, const ezVec3& vVertex1, const ezVec3& vVertex2, float* out_pIntersectionTime, ezVec3* out_pBarycentricCoords)
+{
+  // source: https://www.graphics.cornell.edu/pubs/1997/MT97.pdf
+
+  constexpr float fEpsilon = 0.00001f;
+
+  ezVec3 edge1 = vVertex1 - vVertex0;
+  ezVec3 edge2 = vVertex2 - vVertex0;
+
+  ezVec3 pvec = vRayDir.CrossRH(edge2);
+
+  float det = edge1.Dot(pvec);
+  if (det < fEpsilon)
+    return false;
+
+  ezVec3 tvec = vRayOrigin - vVertex0;
+
+  float u = tvec.Dot(pvec);
+  if (u < 0 || u > det)
+    return false;
+
+  ezVec3 qvec = tvec.CrossRH(edge1);
+
+  float v = qvec.Dot(vRayDir);
+  if (v < 0 || u + v > det)
+    return false;
+
+  float t = edge2.Dot(qvec);
+  float inv_det = 1.0f / det;
+  t *= inv_det;
+  u *= inv_det;
+  v *= inv_det;
+
+  if (out_pIntersectionTime)
+    *out_pIntersectionTime = t;
+
+  if (out_pBarycentricCoords)
+    *out_pBarycentricCoords = ezVec3(1.0f - u - v, u, v);
+
+  return true;
+}
+
 bool ezIntersectionUtils::RayPolygonIntersection(const ezVec3& vRayStartPos, const ezVec3& vRayDir, const ezVec3* pPolygonVertices,
   ezUInt32 uiNumVertices, float* out_pIntersectionTime, ezVec3* out_pIntersectionPoint, ezUInt32 uiVertexStride)
 {
