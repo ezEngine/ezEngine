@@ -13,6 +13,8 @@ EZ_STATICLINK_LIBRARY(ProcGenPlugin)
   EZ_STATICLINK_REFERENCE(ProcGenPlugin_Components_Implementation_VolumeCollection);
   EZ_STATICLINK_REFERENCE(ProcGenPlugin_Declarations);
   EZ_STATICLINK_REFERENCE(ProcGenPlugin_Resources_Implementation_ProcGenGraphResource);
+  EZ_STATICLINK_REFERENCE(ProcGenPlugin_Resources_Implementation_ProcGenGraphSharedData);
   EZ_STATICLINK_REFERENCE(ProcGenPlugin_Startup);
   EZ_STATICLINK_REFERENCE(ProcGenPlugin_Tasks_Implementation_FindPlacementTilesTask);
+  EZ_STATICLINK_REFERENCE(ProcGenPlugin_Tasks_Implementation_PlacementTask);
 }

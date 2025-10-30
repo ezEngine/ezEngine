@@ -124,3 +124,7 @@ namespace ezProcGenInternal
   }
 
 } // namespace ezProcGenInternal
+
+
+EZ_STATICLINK_FILE(ProcGenPlugin, ProcGenPlugin_Resources_Implementation_ProcGenGraphSharedData);
+
