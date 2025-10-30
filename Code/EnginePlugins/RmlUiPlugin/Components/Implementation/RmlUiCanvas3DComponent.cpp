@@ -20,13 +20,14 @@
 #include <RendererFoundation/Resources/Texture.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezRmlUiCanvas3DComponent, 3, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezRmlUiCanvas3DComponent, 4, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_RESOURCE_ACCESSOR_PROPERTY("Mesh", GetMesh, SetMesh)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Static")),
     EZ_RESOURCE_ACCESSOR_PROPERTY("RmlFile", GetRmlResource, SetRmlResource)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Rml_UI")),
     EZ_ACCESSOR_PROPERTY("TextureSize", GetTextureSize, SetTextureSize)->AddAttributes(new ezSuffixAttribute("px"), new ezDefaultValueAttribute(ezVec2U32(512, 512)), new ezClampValueAttribute(ezVec2U32(0), ezVec2U32(4096))),
+    EZ_ACCESSOR_PROPERTY("DpiScale", GetDpiScale, SetDpiScale)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_ACCESSOR_PROPERTY("AutobindBlackboards", GetAutobindBlackboards, SetAutobindBlackboards)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_ACCESSOR_PROPERTY("OnDemandUpdate", GetOnDemandUpdate, SetOnDemandUpdate)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_ACCESSOR_PROPERTY("ClearStaleInput", GetClearStaleInput, SetClearStaleInput)->AddAttributes(new ezDefaultValueAttribute(true)),
@@ -273,6 +274,22 @@ void ezRmlUiCanvas3DComponent::SetTextureSize(const ezVec2U32& vSize)
   }
 }
 
+void ezRmlUiCanvas3DComponent::SetDpiScale(float fDpiScale)
+{
+  fDpiScale = fDpiScale > 0.0f ? fDpiScale : 1.0f;
+
+  if (fDpiScale == m_fDpiScale)
+    return;
+
+  m_fDpiScale = fDpiScale;
+  m_bNeedsUpdate = true;
+
+  if (m_pContext != nullptr)
+  {
+    m_pContext->SetDpiScale(m_fDpiScale);
+  }
+}
+
 void ezRmlUiCanvas3DComponent::SetAutobindBlackboards(bool bAutobind)
 {
   if (m_bAutobindBlackboards != bAutobind)
@@ -390,6 +407,7 @@ void ezRmlUiCanvas3DComponent::SerializeComponent(ezWorldWriter& inout_stream) c
   s << m_bOnDemandUpdate;
   s << m_bClearStaleInput;
   s << m_bIsInteractive;
+  s << m_fDpiScale;
 }
 
 void ezRmlUiCanvas3DComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -397,9 +415,6 @@ void ezRmlUiCanvas3DComponent::DeserializeComponent(ezWorldReader& inout_stream)
   SUPER::DeserializeComponent(inout_stream);
   const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = inout_stream.GetStream();
-
-  ezVec2I32 vOffset;
-  ezVec2 vAnchorPoint;
 
   s >> m_hResource;
   s >> m_vTextureSize;
@@ -409,6 +424,8 @@ void ezRmlUiCanvas3DComponent::DeserializeComponent(ezWorldReader& inout_stream)
     s >> m_bClearStaleInput;
   if (uiVersion >= 3)
     s >> m_bIsInteractive;
+  if (uiVersion >= 4)
+    s >> m_fDpiScale;
 }
 
 ezResult ezRmlUiCanvas3DComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
@@ -527,7 +544,7 @@ bool ezRmlUiCanvas3DComponent::UpdateTexture()
     m_hTexture = pDevice->CreateTexture(desc);
 
     m_pContext->SetSize(m_vTextureSize);
-    m_pContext->SetDpiScale(1.0f);
+    m_pContext->SetDpiScale(m_fDpiScale);
 
     return true;
   }

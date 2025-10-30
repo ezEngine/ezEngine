@@ -44,6 +44,9 @@ public:
   void SetTextureSize(const ezVec2U32& vSize);                                     // [ property ]
   const ezVec2U32& GetTextureSize() const { return m_vTextureSize; }               // [ property ]
 
+  void SetDpiScale(float fDpiScale);                                               // [ property ]
+  float GetDpiScale() const { return m_fDpiScale; }                                // [ property ]
+
   /// \brief Look for a blackboard component on the owner object and its parent and bind their blackboards during initialization of this component.
   void SetAutobindBlackboards(bool bAutobind);                                     // [ property ]
   bool GetAutobindBlackboards() const { return m_bAutobindBlackboards; }           // [ property ]
@@ -94,6 +97,7 @@ protected:
   ezEvent<const ezResourceEvent&, ezMutex>::Unsubscriber m_ResourceEventUnsubscriber;
 
   ezVec2U32 m_vTextureSize = ezVec2U32(512, 512);
+  float m_fDpiScale = 1.0f;
   bool m_bAutobindBlackboards = true;
   bool m_bOnDemandUpdate = true;
   bool m_bClearStaleInput = true;
