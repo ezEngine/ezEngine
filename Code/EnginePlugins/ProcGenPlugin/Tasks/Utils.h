@@ -11,13 +11,12 @@ struct EZ_PROCGENPLUGIN_DLL ezProcGenExpressionFunctions
   static ezExpressionFunction s_SampleCurveFunc;
 };
 
-namespace ezProcGenInternal
+class EZ_PROCGENPLUGIN_DLL ezProcGenGlobalData
 {
-  class GraphSharedData;
+public:
+  static void ExtractVolumeCollections(const ezWorld& world, const ezBoundingBox& box, const ezProcGenInternal::Output& output, ezDeque<ezVolumeCollection>& ref_volumeCollections, ezExpression::GlobalData& ref_globalData);
 
-  void EZ_PROCGENPLUGIN_DLL ExtractVolumeCollections(const ezWorld& world, const ezBoundingBox& box, const Output& output, ezDeque<ezVolumeCollection>& ref_volumeCollections, ezExpression::GlobalData& ref_globalData);
+  static void SetInstanceSeed(ezUInt32 uiSeed, ezExpression::GlobalData& ref_globalData);
 
-  void EZ_PROCGENPLUGIN_DLL SetInstanceSeed(ezUInt32 uiSeed, ezExpression::GlobalData& ref_globalData);
-
-  void EZ_PROCGENPLUGIN_DLL SetCurves(const Output& output, ezExpression::GlobalData& ref_globalData);
-} // namespace ezProcGenInternal
+  static void SetCurves(const ezProcGenInternal::Output& output, ezExpression::GlobalData& ref_globalData);
+};

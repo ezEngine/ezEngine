@@ -179,7 +179,7 @@ ezResult ezGameEngineTestProcGen::TestOutput(const ezHashedString& sOutputName, 
   }
 
   m_GlobalData.Clear();
-  ezProcGenInternal::SetCurves(*pOutput, m_GlobalData);
+  ezProcGenGlobalData::SetCurves(*pOutput, m_GlobalData);
 
   EZ_SUCCEED_OR_RETURN(m_pVM->Execute(*(pOutput->m_pByteCode), inputs, outputs, inputVertices.GetCount(), m_GlobalData, ezExpressionVM::Flags::BestPerformance));
 

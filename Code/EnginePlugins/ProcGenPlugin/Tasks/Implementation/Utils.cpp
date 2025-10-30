@@ -216,7 +216,8 @@ ezExpressionFunction ezProcGenExpressionFunctions::s_SampleCurveFunc = {
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezProcGenInternal::ExtractVolumeCollections(const ezWorld& world, const ezBoundingBox& box, const Output& output, ezDeque<ezVolumeCollection>& ref_volumeCollections, ezExpression::GlobalData& ref_globalData)
+// static
+void ezProcGenGlobalData::ExtractVolumeCollections(const ezWorld& world, const ezBoundingBox& box, const ezProcGenInternal::Output& output, ezDeque<ezVolumeCollection>& ref_volumeCollections, ezExpression::GlobalData& ref_globalData)
 {
   auto& volumeTagSetIndices = output.m_VolumeTagSetIndices;
   if (volumeTagSetIndices.IsEmpty())
@@ -248,12 +249,14 @@ void ezProcGenInternal::ExtractVolumeCollections(const ezWorld& world, const ezB
   ref_globalData.Insert(s_sVolumes, volumes);
 }
 
-void ezProcGenInternal::SetInstanceSeed(ezUInt32 uiSeed, ezExpression::GlobalData& ref_globalData)
+// static
+void ezProcGenGlobalData::SetInstanceSeed(ezUInt32 uiSeed, ezExpression::GlobalData& ref_globalData)
 {
   ref_globalData.Insert(s_sInstanceSeed, (int)uiSeed);
 }
 
-void ezProcGenInternal::SetCurves(const Output& output, ezExpression::GlobalData& ref_globalData)
+// static
+void ezProcGenGlobalData::SetCurves(const ezProcGenInternal::Output& output, ezExpression::GlobalData& ref_globalData)
 {
   auto& curveIndices = output.m_CurveIndices;
   if (curveIndices.IsEmpty())
