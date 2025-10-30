@@ -83,18 +83,17 @@ struct ezProcGenGraphAssetDocument::GenerateContext
 ////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenGraphAssetProperties, 1, ezRTTIDefaultAllocator<ezProcGenGraphAssetProperties>)
-{
-  EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("DebugPrefab", m_sDebugPrefab)->AddAttributes(new ezDefaultValueAttribute(ezStringView(s_szSphereAssetId)), new ezAssetBrowserAttribute("CompatibleAsset_Prefab", ezDependencyFlags::None)),
-    EZ_MEMBER_PROPERTY("DebugFootprint", m_fDebugFootprint)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_MEMBER_PROPERTY("DebugAlignToNormal", m_fDebugAlignToNormal)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 1.0f)),
-    EZ_MEMBER_PROPERTY("DebugColorGradient", m_sDebugColorGradient)->AddAttributes(new ezDefaultValueAttribute(ezStringView(s_szBWGradientAssetId)), new ezAssetBrowserAttribute("CompatibleAsset_Data_Gradient", ezDependencyFlags::None)),
-    EZ_ENUM_MEMBER_PROPERTY("DebugPlacementPattern", ezProcPlacementPattern, m_DebugPlacementPattern)->AddAttributes(new ezDefaultValueAttribute(ezProcPlacementPattern::RegularGrid)),
-    EZ_MEMBER_PROPERTY("DebugSurface", m_sDebugSurface)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::None)),
+    EZ_BEGIN_PROPERTIES
+    {
+      EZ_MEMBER_PROPERTY("DebugPrefab", m_sDebugPrefab)->AddAttributes(new ezDefaultValueAttribute(ezStringView(s_szSphereAssetId)), new ezAssetBrowserAttribute("CompatibleAsset_Prefab", ezDependencyFlags::None)),
+      EZ_MEMBER_PROPERTY("DebugFootprint", m_fDebugFootprint)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, ezVariant())),
+      EZ_MEMBER_PROPERTY("DebugAlignToNormal", m_fDebugAlignToNormal)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 1.0f)),
+      EZ_MEMBER_PROPERTY("DebugColorGradient", m_sDebugColorGradient)->AddAttributes(new ezDefaultValueAttribute(ezStringView(s_szBWGradientAssetId)), new ezAssetBrowserAttribute("CompatibleAsset_Data_Gradient", ezDependencyFlags::None)),
+      EZ_ENUM_MEMBER_PROPERTY("DebugPlacementPattern", ezProcPlacementPattern, m_DebugPlacementPattern)->AddAttributes(new ezDefaultValueAttribute(ezProcPlacementPattern::RegularGrid)),
+      EZ_MEMBER_PROPERTY("DebugSurface", m_sDebugSurface)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::None)),
+    } EZ_END_PROPERTIES;
   }
-  EZ_END_PROPERTIES;
-}
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenGraphAssetDocument, 9, ezRTTINoAllocator)

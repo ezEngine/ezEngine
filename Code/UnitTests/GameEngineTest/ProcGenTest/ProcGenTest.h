@@ -1,7 +1,7 @@
 #pragma once
 
-#include <TestFramework/Utilities/TestLogInterface.h>
 #include <ProcGenPlugin/Tasks/VertexColorTask.h>
+#include <TestFramework/Utilities/TestLogInterface.h>
 
 #include "../TestClass/TestClass.h"
 

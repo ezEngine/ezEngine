@@ -175,7 +175,7 @@ namespace
 
       ++pX;
       ++pOutput;
-    }    
+    }
   }
 
   static ezResult SampleCurveValidate(const ezExpression::GlobalData& globalData)

@@ -20,7 +20,7 @@ namespace ezProcGenInternal
       ezVec3 m_vNormal;
       ezColor m_Color;
       ezUInt32 m_uiIndex;
-    };    
+    };
 
     VertexColorTask();
     ~VertexColorTask();
