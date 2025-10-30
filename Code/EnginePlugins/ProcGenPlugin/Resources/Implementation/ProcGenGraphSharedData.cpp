@@ -114,7 +114,9 @@ namespace ezProcGenInternal
 
       for (ezUInt32 i = 0; i < uiCount; ++i)
       {
-        m_Curves.ExpandAndGetRef().Load(inout_stream);
+        CurveData curveData;
+        EZ_SUCCEED_OR_RETURN(curveData.Load(inout_stream));
+        m_Curves.PushBack(std::move(curveData));
       }
     }
 

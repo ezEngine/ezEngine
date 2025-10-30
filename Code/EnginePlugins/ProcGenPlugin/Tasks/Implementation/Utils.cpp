@@ -143,7 +143,7 @@ namespace
       return;
 
     ezUInt32 uiCurveIndex = inputs[1].GetPtr()->i.x();
-    auto pCurveData = ezDynamicCast<const CurveData*>(curves[uiCurveIndex].Get<ezReflectedClass*>());
+    auto pCurveData = ezDynamicCast<const ezProcGenInternal::CurveData*>(curves[uiCurveIndex].Get<ezReflectedClass*>());
     if (pCurveData == nullptr)
       return;
 

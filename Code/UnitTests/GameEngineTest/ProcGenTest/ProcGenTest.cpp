@@ -44,19 +44,19 @@ ezResult ezGameEngineTestProcGen::InitializeSubTest(ezInt32 iIdentifier)
   else if (iIdentifier == SubTests::CurveNode)
   {
     InputVertex inputVertices[] = {
-      {ezVec3(0.0), ezVec3(0, 0, 1), ezColor::White, 0},
-      {ezVec3(0.25), ezVec3(0, 0, 1), ezColor::White, 1},
-      {ezVec3(0.5), ezVec3(0, 0, 1), ezColor::White, 2},
-      {ezVec3(1.0), ezVec3(0, 0, 1), ezColor::White, 3},
-      {ezVec3(2.0), ezVec3(0, 0, 1), ezColor::White, 4},
+      {ezVec3(0.0f), ezVec3(0, 0, 1), ezColor::White, 0},
+      {ezVec3(0.25f), ezVec3(0, 0, 1), ezColor::White, 1},
+      {ezVec3(0.5f), ezVec3(0, 0, 1), ezColor::White, 2},
+      {ezVec3(1.0f), ezVec3(0, 0, 1), ezColor::White, 3},
+      {ezVec3(2.0f), ezVec3(0, 0, 1), ezColor::White, 4},
     };
 
     ezVec4 expectedOutputs[] = {
-      ezVec4(1.0, 0, 0, 1),
-      ezVec4(0.375, 1, 0.02, 1),
-      ezVec4(0.0, 0, 0.274, 1),
-      ezVec4(1.0, 0, 2, 1),
-      ezVec4(1.0, 0, 2, 0),
+      ezVec4(1.0f, 0, 0, 1),
+      ezVec4(0.375f, 1, 0.02f, 1),
+      ezVec4(0.0f, 0, 0.274f, 1),
+      ezVec4(1.0f, 0, 2, 1),
+      ezVec4(1.0f, 0, 2, 0),
     };
 
     EZ_SUCCEED_OR_RETURN(TestOutput(ezMakeHashedString("CurveNodeTest"), ezMakeArrayPtr(inputVertices), ezMakeArrayPtr(expectedOutputs)));

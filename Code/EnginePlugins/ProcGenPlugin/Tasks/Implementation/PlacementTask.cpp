@@ -3,6 +3,7 @@
 #include <Core/Curves/ColorGradientResource.h>
 #include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Core/Physics/SurfaceResource.h>
+#include <Foundation/Configuration/CVar.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/SimdMath/SimdConversion.h>
 #include <Foundation/SimdMath/SimdRandom.h>
