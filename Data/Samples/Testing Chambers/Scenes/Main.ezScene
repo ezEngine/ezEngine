@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7297922959506964864,5177324930371449723}}
-		u4 %Hash{18095887016695046552}
+		u4 %Hash{11164380081208983110}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -8267,7 +8267,7 @@ o
 	{
 		b %Active{1}
 		s %CubeMap{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
-		f %ExposureBias{0x0000803F}
+		f %ExposureBias{0x0000003F}
 		b %InverseTonemap{0}
 		b %UseFog{1}
 		f %VirtualDistance{0x00007A44}
@@ -10849,7 +10849,7 @@ o
 {
 	Uuid %id{u4{5198555597195852468,5373674782750531365}}
 	s %t{"ezLensFlareComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -10862,6 +10862,7 @@ o
 			Uuid{u4{14895633945553448356,5718830767270041425}}
 		}
 		f %Intensity{0x9A99993E}
+		ColorGamma %LightColor{u1{255,255,255,255}}
 		b %LinkToLightShape{1}
 		f %OcclusionDepthOffset{0}
 		f %OcclusionSampleRadius{0xCDCCCC3D}
@@ -11314,7 +11315,7 @@ o
 	u3 %v{1}
 	p
 	{
-		f %DefaultValue{0x3333333F}
+		f %DefaultValue{0x9A99993E}
 		Time %InterpolationDuration{d{0x0000000000000040}}
 		HashedString %Property{s{"MoodStrength"}}
 		HashedString %RenderPass{s{"TonemapPass"}}
@@ -12701,7 +12702,7 @@ o
 {
 	Uuid %id{u4{2031542018259647167,5562180747678007274}}
 	s %t{"ezLensFlareComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -12711,6 +12712,7 @@ o
 			Uuid{u4{15807339594180983717,5178511041438784801}}
 		}
 		f %Intensity{0x0000803F}
+		ColorGamma %LightColor{u1{255,255,255,255}}
 		b %LinkToLightShape{1}
 		f %OcclusionDepthOffset{0}
 		f %OcclusionSampleRadius{0xCDCC4C3D}
@@ -12957,7 +12959,6 @@ o
 		{
 			Uuid{u4{14697461357033298823,4614707846192188290}}
 			Uuid{u4{14861961278534461611,5429287421616888847}}
-			Uuid{u4{4675024263073621918,5653410995292447235}}
 		}
 		s %VolumeType{"GenericVolume"}
 	}
@@ -13211,7 +13212,7 @@ o
 		f %ConstantBias{0x9A99193E}
 		ColorGamma %EffectiveColor{u1{255,255,255,255}}
 		f %FadeOutStart{0xCDCC4C3F}
-		f %Intensity{0x00002041}
+		f %Intensity{0x00007041}
 		ColorGamma %LightColor{u1{255,255,255,255}}
 		f %MinShadowRange{0x0000F041}
 		f %NearPlaneOffset{0x0000C842}
@@ -13219,7 +13220,7 @@ o
 		f %PenumbraSize{0xCDCC4C3D}
 		f %SlopeBias{0x0000803E}
 		f %SpecularMultiplier{0x0000803F}
-		f %SplitModeWeight{0x9A99193F}
+		f %SplitModeWeight{0x3333333F}
 		u3 %Temperature{6550}
 		b %TransparentShadows{0}
 		b %UseColorTemperature{0}
@@ -13556,20 +13557,6 @@ o
 		b %ReverseAtStart{1}
 		b %Running{1}
 		f %Speed{0x0000803F}
-	}
-}
-o
-{
-	Uuid %id{u4{4675024263073621918,5653410995292447235}}
-	s %t{"ezPostProcessingValueMapping"}
-	u3 %v{1}
-	p
-	{
-		f %DefaultValue{0xCDCCCC3D}
-		Time %InterpolationDuration{d{0}}
-		HashedString %Property{s{"Contrast"}}
-		HashedString %RenderPass{s{"TonemapPass"}}
-		HashedString %VolumeValue{s{""}}
 	}
 }
 o
@@ -36818,7 +36805,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezLensFlareComponent"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
