@@ -1,7 +1,7 @@
 #pragma once
 
 #include <RmlUiPlugin/Resources/RmlUiResource.h>
-#include <RmlUiPlugin/RmlUiInputSnapshot.h>
+#include <RmlUiPlugin/RmlUiInput.h>
 #include <RmlUiPlugin/RmlUiPluginDLL.h>
 
 #include <RmlUi/Include/RmlUi/Core.h>
@@ -36,7 +36,6 @@ public:
   void HideDocument();
 
   /// \brief Returns true if the input was consumed
-  bool UpdateInput(const ezVec2& vMousePos);
   bool UpdateInput(const ezVec2& vMousePos, const ezRmlUiInputProvider& input);
   bool WantsInput() const { return m_bWantsInput; }
 

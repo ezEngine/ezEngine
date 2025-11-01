@@ -2,7 +2,7 @@
 
 #include <RmlUiPlugin/Components/RmlUiMessages.h>
 #include <RmlUiPlugin/Resources/RmlUiResource.h>
-#include <RmlUiPlugin/RmlUiInputSnapshot.h>
+#include <RmlUiPlugin/RmlUiInput.h>
 
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <RendererCore/Components/RenderComponent.h>

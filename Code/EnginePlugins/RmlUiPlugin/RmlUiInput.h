@@ -64,6 +64,43 @@ struct ezRmlUiInputButtons
     StorageType Ctrl            : 1;
     StorageType Shift           : 1;
   };
+
+  struct MouseButtonMapping
+  {
+    Enum uiEzButton;
+    ezUInt32 uiRmlButton;
+    const char* szEzButton;
+  };
+
+  struct KeyMapping
+  {
+    Enum uiEzKey;
+    Rml::Input::KeyIdentifier uiRmlKey;
+    const char* szEzKey;
+  };
+
+  constexpr static MouseButtonMapping s_MouseButtonMappings[] = {
+    { ezRmlUiInputButtons::Mouse0, 0, ezInputSlot_MouseButton0 },
+    { ezRmlUiInputButtons::Mouse1, 1, ezInputSlot_MouseButton1 },
+    { ezRmlUiInputButtons::Mouse2, 2, ezInputSlot_MouseButton2 },
+  };
+
+  constexpr static KeyMapping s_KeyMappings[] = {
+    { ezRmlUiInputButtons::Tab, Rml::Input::KI_TAB, ezInputSlot_KeyTab },
+    { ezRmlUiInputButtons::Left, Rml::Input::KI_LEFT, ezInputSlot_KeyLeft },
+    { ezRmlUiInputButtons::Up, Rml::Input::KI_UP, ezInputSlot_KeyUp },
+    { ezRmlUiInputButtons::Right, Rml::Input::KI_RIGHT, ezInputSlot_KeyRight },
+    { ezRmlUiInputButtons::Down, Rml::Input::KI_DOWN, ezInputSlot_KeyDown },
+    { ezRmlUiInputButtons::PageUp, Rml::Input::KI_PRIOR, ezInputSlot_KeyPageUp },
+    { ezRmlUiInputButtons::PageDown, Rml::Input::KI_NEXT, ezInputSlot_KeyPageDown },
+    { ezRmlUiInputButtons::Home, Rml::Input::KI_HOME, ezInputSlot_KeyHome },
+    { ezRmlUiInputButtons::End, Rml::Input::KI_END, ezInputSlot_KeyEnd },
+    { ezRmlUiInputButtons::Delete, Rml::Input::KI_DELETE, ezInputSlot_KeyDelete },
+    { ezRmlUiInputButtons::Backspace, Rml::Input::KI_BACK, ezInputSlot_KeyBackspace },
+    { ezRmlUiInputButtons::Return, Rml::Input::KI_RETURN, ezInputSlot_KeyReturn },
+    { ezRmlUiInputButtons::NumpadEnter, Rml::Input::KI_NUMPADENTER, ezInputSlot_KeyNumpadEnter },
+    { ezRmlUiInputButtons::Escape, Rml::Input::KI_ESCAPE, ezInputSlot_KeyEscape },
+  };
 };
 
 EZ_DECLARE_FLAGS_OPERATORS(ezRmlUiInputButtons);
@@ -79,34 +116,16 @@ struct EZ_RMLUIPLUGIN_DLL ezRmlUiInputSnapshot
   }
 
   EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezRmlUiInputSnapshot&);
+
+  [[nodiscard]] EZ_ALWAYS_INLINE static ezRmlUiInputSnapshot MakeEmpty() { return ezRmlUiInputSnapshot(); }
+  [[nodiscard]] static ezRmlUiInputSnapshot MakeFromCurrentInput();
 };
 
 struct EZ_RMLUIPLUGIN_DLL ezRmlUiInputProvider
 {
-  EZ_ALWAYS_INLINE bool Update(ezRmlUiInputSnapshot input)
-  {
-    bool bHasChanged = m_Buttons != input.m_Buttons || m_uiLastCharacter != input.m_uiLastCharacter;
-    m_PrevButtons = m_Buttons;
-    m_Buttons = input.m_Buttons;
-    m_uiLastCharacter = input.m_uiLastCharacter;
-    return bHasChanged;
-  }
+  bool Update(ezRmlUiInputSnapshot input);
 
-  EZ_ALWAYS_INLINE ezKeyState::Enum GetButtonState(ezRmlUiInputButtons::Enum button) const
-  {
-    if (m_Buttons.IsSet(button))
-    {
-      if (!m_PrevButtons.IsSet(button))
-        return ezKeyState::Pressed;
-      return ezKeyState::Down;
-    }
-    else
-    {
-      if (m_PrevButtons.IsSet(button))
-        return ezKeyState::Released;
-      return ezKeyState::Up;
-    }
-  }
+  ezKeyState::Enum GetButtonState(ezRmlUiInputButtons::Enum button) const;
 
   EZ_ALWAYS_INLINE bool IsButtonDown(ezRmlUiInputButtons::Enum button) const
   {

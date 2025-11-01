@@ -7,25 +7,6 @@
 #include <RmlUiPlugin/RmlUiContext.h>
 #include <RmlUiPlugin/RmlUiSingleton.h>
 
-namespace
-{
-  static const char* s_szEzKeys[] = {ezInputSlot_KeyTab, ezInputSlot_KeyLeft, ezInputSlot_KeyUp, ezInputSlot_KeyRight, ezInputSlot_KeyDown,
-    ezInputSlot_KeyPageUp, ezInputSlot_KeyPageDown, ezInputSlot_KeyHome, ezInputSlot_KeyEnd, ezInputSlot_KeyDelete, ezInputSlot_KeyBackspace,
-    ezInputSlot_KeyReturn, ezInputSlot_KeyNumpadEnter, ezInputSlot_KeyEscape};
-
-  static Rml::Input::KeyIdentifier s_rmlKeys[] = {Rml::Input::KI_TAB, Rml::Input::KI_LEFT, Rml::Input::KI_UP,
-    Rml::Input::KI_RIGHT, Rml::Input::KI_DOWN, Rml::Input::KI_PRIOR, Rml::Input::KI_NEXT, Rml::Input::KI_HOME,
-    Rml::Input::KI_END, Rml::Input::KI_DELETE, Rml::Input::KI_BACK, Rml::Input::KI_RETURN, Rml::Input::KI_NUMPADENTER,
-    Rml::Input::KI_ESCAPE};
-
-  static ezRmlUiInputButtons::Enum s_uiEzInputButtons[] = {ezRmlUiInputButtons::Tab, ezRmlUiInputButtons::Left, ezRmlUiInputButtons::Up,
-    ezRmlUiInputButtons::Right, ezRmlUiInputButtons::Down, ezRmlUiInputButtons::PageUp, ezRmlUiInputButtons::PageDown,
-    ezRmlUiInputButtons::Home, ezRmlUiInputButtons::End, ezRmlUiInputButtons::Delete, ezRmlUiInputButtons::Backspace,
-    ezRmlUiInputButtons::Return, ezRmlUiInputButtons::NumpadEnter, ezRmlUiInputButtons::Escape};
-
-  static_assert(EZ_ARRAY_SIZE(s_szEzKeys) == EZ_ARRAY_SIZE(s_rmlKeys));
-  static_assert(EZ_ARRAY_SIZE(s_uiEzInputButtons) == EZ_ARRAY_SIZE(s_rmlKeys));
-} // namespace
 
 ezRmlUiContext::ezRmlUiContext(const Rml::String& sName, Rml::RenderManager* pRenderManager, Rml::TextInputHandler* pTextInputHandler)
   : Rml::Context(sName, pRenderManager, pTextInputHandler)
@@ -80,95 +61,8 @@ void ezRmlUiContext::HideDocument()
   m_bWantsInput = false;
 }
 
-bool ezRmlUiContext::UpdateInput(const ezVec2& vMousePos)
-{
-  const float width = static_cast<float>(GetDimensions().x);
-  const float height = static_cast<float>(GetDimensions().y);
-
-  // const bool bMouseOverContext = vMousePos.x >= 0.0f && vMousePos.x <= width && vMousePos.y >= 0.0f && vMousePos.y <= height;
-
-  bool bMouseInputConsumed = false;
-  bool bKeyboardInputConsumed = false;
-
-  const bool bCtrlPressed = ezInputManager::GetInputSlotState(ezInputSlot_KeyLeftCtrl) >= ezKeyState::Pressed ||
-                            ezInputManager::GetInputSlotState(ezInputSlot_KeyRightCtrl) >= ezKeyState::Pressed;
-  const bool bShiftPressed = ezInputManager::GetInputSlotState(ezInputSlot_KeyLeftShift) >= ezKeyState::Pressed ||
-                             ezInputManager::GetInputSlotState(ezInputSlot_KeyRightShift) >= ezKeyState::Pressed;
-  const bool bAltPressed = ezInputManager::GetInputSlotState(ezInputSlot_KeyLeftAlt) >= ezKeyState::Pressed ||
-                           ezInputManager::GetInputSlotState(ezInputSlot_KeyRightAlt) >= ezKeyState::Pressed;
-
-  int modifierState = 0;
-  modifierState |= bCtrlPressed ? Rml::Input::KM_CTRL : 0;
-  modifierState |= bShiftPressed ? Rml::Input::KM_SHIFT : 0;
-  modifierState |= bAltPressed ? Rml::Input::KM_ALT : 0;
-
-  // Mouse
-  {
-    bMouseInputConsumed |= !ProcessMouseMove(static_cast<int>(vMousePos.x), static_cast<int>(vMousePos.y), modifierState);
-
-    static const char* szMouseButtons[] = {ezInputSlot_MouseButton0, ezInputSlot_MouseButton1, ezInputSlot_MouseButton2};
-    for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(szMouseButtons); ++i)
-    {
-      ezKeyState::Enum state = ezInputManager::GetInputSlotState(szMouseButtons[i]);
-      if (state == ezKeyState::Pressed)
-      {
-        bMouseInputConsumed |= !ProcessMouseButtonDown(i, modifierState);
-      }
-      else if (state == ezKeyState::Released)
-      {
-        bMouseInputConsumed |= !ProcessMouseButtonUp(i, modifierState);
-      }
-    }
-
-    if (ezInputManager::GetInputSlotState(ezInputSlot_MouseWheelDown) == ezKeyState::Pressed)
-    {
-      bKeyboardInputConsumed |= !ProcessMouseWheel(1.0f, modifierState);
-    }
-    if (ezInputManager::GetInputSlotState(ezInputSlot_MouseWheelUp) == ezKeyState::Pressed)
-    {
-      bKeyboardInputConsumed |= !ProcessMouseWheel(-1.0f, modifierState);
-    }
-  }
-
-  // Keyboard
-  {
-    ezUInt32 uiLastChar = ezInputManager::RetrieveLastCharacter(false);
-
-    if (uiLastChar >= 32 || uiLastChar == '\n') // >= space (+ enter/return)
-    {
-      char szUtf8[8] = "";
-      char* pChar = szUtf8;
-      ezUnicodeUtils::EncodeUtf32ToUtf8(uiLastChar, pChar);
-      if (!ezStringUtils::IsNullOrEmpty(szUtf8))
-      {
-        bKeyboardInputConsumed |= !ProcessTextInput(szUtf8);
-      }
-    }
-
-    for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(s_szEzKeys); ++i)
-    {
-      ezKeyState::Enum state = ezInputManager::GetInputSlotState(s_szEzKeys[i]);
-      if (state == ezKeyState::Pressed)
-      {
-        bKeyboardInputConsumed |= !ProcessKeyDown(s_rmlKeys[i], modifierState);
-      }
-      else if (state == ezKeyState::Released)
-      {
-        bKeyboardInputConsumed |= !ProcessKeyUp(s_rmlKeys[i], modifierState);
-      }
-    }
-  }
-
-  m_bWantsInput = bMouseInputConsumed || bKeyboardInputConsumed;
-
-  return bMouseInputConsumed || bKeyboardInputConsumed;
-}
-
 bool ezRmlUiContext::UpdateInput(const ezVec2& vMousePos, const ezRmlUiInputProvider& input)
 {
-  const float width = static_cast<float>(GetDimensions().x);
-  const float height = static_cast<float>(GetDimensions().y);
-
   bool bMouseInputConsumed = false;
   bool bKeyboardInputConsumed = false;
 
@@ -181,17 +75,17 @@ bool ezRmlUiContext::UpdateInput(const ezVec2& vMousePos, const ezRmlUiInputProv
   {
     bMouseInputConsumed |= !ProcessMouseMove(static_cast<int>(vMousePos.x), static_cast<int>(vMousePos.y), modifierState);
 
-    static ezRmlUiInputButtons::Enum uiMouseButtons[] = {ezRmlUiInputButtons::Mouse0, ezRmlUiInputButtons::Mouse1, ezRmlUiInputButtons::Mouse2};
-    for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(uiMouseButtons); ++i)
+    for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(ezRmlUiInputButtons::s_MouseButtonMappings); ++i)
     {
-      ezKeyState::Enum state = input.GetButtonState(uiMouseButtons[i]);
+      ezRmlUiInputButtons::MouseButtonMapping mbm = ezRmlUiInputButtons::s_MouseButtonMappings[i];
+      ezKeyState::Enum state = input.GetButtonState(mbm.uiEzButton);
       if (state == ezKeyState::Pressed)
       {
-        bMouseInputConsumed |= !ProcessMouseButtonDown(i, modifierState);
+        bMouseInputConsumed |= !ProcessMouseButtonDown(mbm.uiRmlButton, modifierState);
       }
       else if (state == ezKeyState::Released)
       {
-        bMouseInputConsumed |= !ProcessMouseButtonUp(i, modifierState);
+        bMouseInputConsumed |= !ProcessMouseButtonUp(mbm.uiRmlButton, modifierState);
       }
     }
 
@@ -219,16 +113,17 @@ bool ezRmlUiContext::UpdateInput(const ezVec2& vMousePos, const ezRmlUiInputProv
       }
     }
 
-    for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(s_uiEzInputButtons); ++i)
+    for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(ezRmlUiInputButtons::s_KeyMappings); ++i)
     {
-      ezKeyState::Enum state = input.GetButtonState(s_uiEzInputButtons[i]);
+      ezRmlUiInputButtons::KeyMapping km = ezRmlUiInputButtons::s_KeyMappings[i];
+      ezKeyState::Enum state = input.GetButtonState(km.uiEzKey);
       if (state == ezKeyState::Pressed)
       {
-        bKeyboardInputConsumed |= !ProcessKeyDown(s_rmlKeys[i], modifierState);
+        bKeyboardInputConsumed |= !ProcessKeyDown(km.uiRmlKey, modifierState);
       }
       else if (state == ezKeyState::Released)
       {
-        bKeyboardInputConsumed |= !ProcessKeyUp(s_rmlKeys[i], modifierState);
+        bKeyboardInputConsumed |= !ProcessKeyUp(km.uiRmlKey, modifierState);
       }
     }
   }

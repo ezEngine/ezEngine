@@ -56,7 +56,7 @@ void ezRmlUiCanvas2DComponent::Update()
     ezInputManager::GetInputSlotState(ezInputSlot_MousePositionY, &mousePos.y);
 
     mousePos = mousePos.CompMul(viewSize) - m_vFinalOffset;
-    m_bNeedsUpdate |= m_pContext->UpdateInput(mousePos);
+    ReceiveInput(mousePos, ezRmlUiInputSnapshot::MakeFromCurrentInput());
   }
 
   SUPER::Update();

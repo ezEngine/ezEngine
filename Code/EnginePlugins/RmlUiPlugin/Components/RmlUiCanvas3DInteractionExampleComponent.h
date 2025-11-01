@@ -2,7 +2,7 @@
 
 #include <Core/World/Component.h>
 #include <Core/World/World.h>
-#include <RmlUiPlugin/RmlUiInputSnapshot.h>
+#include <RmlUiPlugin/RmlUiInput.h>
 
 using ezRmlUiCanvas3DInteractionComponentManager = ezComponentManagerSimple<class ezRmlUiCanvas3DInteractionExampleComponent, ezComponentUpdateType::WhenSimulating, ezBlockStorageType::Compact, ezWorldUpdatePhase::PostTransform>;
 
