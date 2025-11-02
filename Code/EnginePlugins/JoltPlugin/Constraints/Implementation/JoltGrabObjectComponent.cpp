@@ -14,13 +14,14 @@
 #include <RendererCore/Debug/DebugRenderer.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezJoltGrabObjectComponent, 2, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezJoltGrabObjectComponent, 3, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("MaxGrabPointDistance", m_fMaxGrabPointDistance)->AddAttributes(new ezDefaultValueAttribute(2.0f)),
     EZ_MEMBER_PROPERTY("CastRadius", m_fCastRadius)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
+    EZ_BITFLAGS_MEMBER_PROPERTY("ShapeTypes", ezPhysicsShapeType, m_ShapeTypes)->AddAttributes(new ezDefaultValueAttribute(ezVariant((ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic).GetValue()))),
     EZ_MEMBER_PROPERTY("SpringStiffness", m_fSpringStiffness)->AddAttributes(new ezDefaultValueAttribute(2.0f), new ezClampValueAttribute(1.0f, 60.0f)),
     EZ_MEMBER_PROPERTY("SpringDamping", m_fSpringDamping)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_MEMBER_PROPERTY("BreakDistance", m_fBreakDistance)->AddAttributes(new ezDefaultValueAttribute(0.5f)),
@@ -66,6 +67,7 @@ void ezJoltGrabObjectComponent::SerializeComponent(ezWorldWriter& inout_stream) 
   s << m_fMaxGrabPointDistance;
   s << m_fCastRadius;
   s << m_uiCollisionLayer;
+  s << m_ShapeTypes;
   s << m_fAllowGrabAnyObjectWithSize;
 
   inout_stream.WriteGameObjectHandle(m_hAttachTo);
@@ -87,6 +89,10 @@ void ezJoltGrabObjectComponent::DeserializeComponent(ezWorldReader& inout_stream
     s >> m_fCastRadius;
   }
   s >> m_uiCollisionLayer;
+  if (uiVersion >= 3)
+  {
+    s >> m_ShapeTypes;
+  }
   s >> m_fAllowGrabAnyObjectWithSize;
 
   m_hAttachTo = inout_stream.ReadGameObjectHandle();
@@ -104,7 +110,7 @@ bool ezJoltGrabObjectComponent::FindNearbyObject(ezGameObject*& out_pObject, ezT
   ezPhysicsQueryParameters queryParam;
   queryParam.m_bIgnoreInitialOverlap = true;
   queryParam.m_uiCollisionLayer = m_uiCollisionLayer;
-  queryParam.m_ShapeTypes = ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic;
+  queryParam.m_ShapeTypes = m_ShapeTypes;
 
   if (bIgnoreGrabbedActor)
   {

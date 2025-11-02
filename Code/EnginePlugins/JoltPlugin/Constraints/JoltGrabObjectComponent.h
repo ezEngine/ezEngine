@@ -101,6 +101,9 @@ public:
   /// The collision layer to use for the raycast.
   ezUInt8 m_uiCollisionLayer = 0; // [ property ]
 
+  /// The shape types to raycast against. Although one cannot grab static shapes it is needed to prevent raycasting through walls.
+  ezBitflags<ezPhysicsShapeType> m_ShapeTypes = ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic; // [ property ]
+
   /// If non-zero, the player can pick up objects that have no ezGrabbableItemComponent, if their bounding box extents are below this value.
   float m_fAllowGrabAnyObjectWithSize = 0.75f;        // [ property ]
 
