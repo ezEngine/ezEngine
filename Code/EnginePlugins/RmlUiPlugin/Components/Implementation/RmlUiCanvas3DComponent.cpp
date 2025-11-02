@@ -135,21 +135,21 @@ bool ezRmlUiCanvas3DComponent::RaycastInput(const ezVec3& vRayOrigin, const ezVe
 
   if (!hMesh.IsValid())
   {
-    ezLog::Dev("ezRmlUiCanvas3DComponent: a canvas doesn't have a mesh");
+    ezLog::Warning("ezRmlUiCanvas3DComponent '{0}' has no mesh to raycast against.", GetOwner()->GetName());
     return false;
   }
 
   ezCpuMeshResourceHandle hCpuMesh = ezResourceManager::LoadResource<ezCpuMeshResource>(hMesh.GetResourceID());
   if (!hCpuMesh.IsValid())
   {
-    ezLog::Dev("ezRmlUiCanvas3DComponent: canvas mesh is not valid");
+    ezLog::Warning("Raycast against '{0}' failed because mesh resource is invalid.", GetOwner()->GetName());
     return false;
   }
 
   ezResourceLock<ezCpuMeshResource> pMesh(hCpuMesh, ezResourceAcquireMode::AllowLoadingFallback);
   if (pMesh.GetAcquireResult() == ezResourceAcquireResult::LoadingFallback)
   {
-    ezLog::Dev("ezRmlUiCanvas3DComponent: canvas mesh is not loaded yet");
+    ezLog::Warning("Raycast against '{0}' failed because mesh resource was not available.", GetOwner()->GetName());
     return false;
   }
 
@@ -176,7 +176,6 @@ bool ezRmlUiCanvas3DComponent::RaycastInput(const ezVec3& vRayOrigin, const ezVe
     return true;
   }
 
-  ezLog::Dev("ezRmlUiCanvas3DComponent: raycast failed to hit any triangles");
   return false;
 }
 
@@ -186,13 +185,17 @@ bool ezRmlUiCanvas3DComponent::RaycastMeshTexCoords(const ezCpuMeshResource* pMe
 
   if (mesh.GetTopology() != ezGALPrimitiveTopology::Triangles)
   {
-    ezLog::Dev("RaycastMeshTexCoords: topology {} not supported", mesh.GetTopology());
+    ezLog::Warning("Topology '{}' is not supported for raycasting.", mesh.GetTopology());
     return false;
   }
 
   const ezUInt16* pIndexBuffer = reinterpret_cast<const ezUInt16*>(mesh.GetIndexBufferData().GetPtr());
   ezUInt32 uiNumIndices = mesh.GetIndexBufferData().GetCount() / 2;
-  EZ_ASSERT_DEV(mesh.Uses32BitIndices() == false, "not implemented yet");
+  if (mesh.Uses32BitIndices())
+  {
+    ezLog::Warning("Meshes with 32 bit indices are not supported for raycasting.");
+    return false;
+  }
 
   ezMeshResourceDescriptor::SubMesh submesh = pMesh->GetDescriptor().GetSubMeshes()[uiSubMeshIndex];
   ezUInt32 uiFirstIndex = submesh.m_uiFirstPrimitive * 3;
