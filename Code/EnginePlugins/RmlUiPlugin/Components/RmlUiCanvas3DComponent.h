@@ -14,6 +14,9 @@ public:
 
   ezRmlUiCanvas3DComponent& operator=(ezRmlUiCanvas3DComponent&& rhs);
 
+  virtual void OnActivated() override;
+  virtual void OnDeactivated() override;
+
   void Update() final override;
 
   bool ReceiveInput(const ezVec2& vMousePosInsideCanvas, ezRmlUiInputSnapshot input) override;
@@ -55,7 +58,6 @@ protected:
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const override;            // [ msg handler ]
 
   bool UpdateTextureAndMaterial();
-  void UpdateMaterial(bool bForceRecreateMaterial = false);
 
   static bool RaycastMeshTexCoords(const class ezCpuMeshResource* pMesh, ezUInt32 uiSubMeshIndex, const ezVec3& vRayOrigin, const ezVec3& vRayDir, ezVec2& out_vTexCoords, float fEpsilon = 0.00001f);
 
@@ -66,6 +68,7 @@ protected:
   bool m_bClearStaleInput = true;
   bool m_bIsInteractive = true;
   ezInt8 m_iInputAge = -1;
+  bool m_bRebindTexture = false;
   
   ezMeshResourceHandle m_hProxyMesh;
   ezMaterialResourceHandle m_hMaterial;
