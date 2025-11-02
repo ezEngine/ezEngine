@@ -19,6 +19,12 @@ public:
   bool ReceiveInput(const ezVec2& vMousePosInsideCanvas, ezRmlUiInputSnapshot input) final override;
   bool RaycastInput(const ezVec3& vRayOrigin, const ezVec3& vRayDir, ezRmlUiInputSnapshot input);
 
+  /// \brief Changes which mesh will be used for hit testing.
+  void SetProxyMesh(const ezMeshResourceHandle& hMesh) { m_hProxyMesh = hMesh; }             // [ property ]
+  EZ_ALWAYS_INLINE const ezMeshResourceHandle& GetProxyMesh() const { return m_hProxyMesh; } // [ property ]
+
+  EZ_ADD_RESOURCEHANDLE_ACCESSORS_WITH_SETTER(ProxyMesh, m_hProxyMesh, SetProxyMesh);
+
   void SetTextureSlotName(const char* szName) { m_sTextureSlotName.Assign(szName); }
   const char* GetTextureSlotName() const { return m_sTextureSlotName; }
 
@@ -39,7 +45,6 @@ public:
 
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
 
-  // adds SetMaterialFile() and GetMaterialFile() for convenience
   EZ_ADD_RESOURCEHANDLE_ACCESSORS(BaseMaterial, m_hBaseMaterial);
 
 protected:
@@ -57,6 +62,7 @@ protected:
   bool m_bIsInteractive = true;
   ezInt8 m_iInputAge = -1;
   
+  ezMeshResourceHandle m_hProxyMesh;
   ezMaterialResourceHandle m_hMaterial;
   ezTexture2DResourceHandle m_hTexture;
 };

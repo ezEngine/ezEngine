@@ -16,17 +16,18 @@
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 #include <RendererCore/Meshes/CpuMeshResource.h>
-#include <RendererCore/Meshes/MeshComponentBase.h>
+#include <RendererCore/Meshes/MeshComponent.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/Texture.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezRmlUiCanvas3DComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezRmlUiCanvas3DComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
+    EZ_RESOURCE_ACCESSOR_PROPERTY("ProxyMesh", GetProxyMesh, SetProxyMesh)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Static")),
     EZ_RESOURCE_MEMBER_PROPERTY("BaseMaterial", m_hBaseMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
     EZ_MEMBER_PROPERTY("MaterialIndex", m_uiMaterialIndex)->AddAttributes(new ezDefaultValueAttribute(0)),
     EZ_ACCESSOR_PROPERTY("TextureSlotName", GetTextureSlotName, SetTextureSlotName)->AddAttributes(new ezDefaultValueAttribute("BaseTexture")),
@@ -66,6 +67,7 @@ void ezRmlUiCanvas3DComponent::SerializeComponent(ezWorldWriter& inout_stream) c
   s << m_bClearStaleInput;
   s << m_bIsInteractive;
   s << m_fDpiScale;
+  s << m_hProxyMesh;
 }
 
 void ezRmlUiCanvas3DComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -81,6 +83,8 @@ void ezRmlUiCanvas3DComponent::DeserializeComponent(ezWorldReader& inout_stream)
   s >> m_bClearStaleInput;
   s >> m_bIsInteractive;
   s >> m_fDpiScale;
+  if (uiVersion >= 2)
+    s >> m_hProxyMesh;
 }
 
 void ezRmlUiCanvas3DComponent::Update()
@@ -119,7 +123,15 @@ bool ezRmlUiCanvas3DComponent::RaycastInput(const ezVec3& vRayOrigin, const ezVe
   if (m_pContext == nullptr || !IsInteractive())
     return false;
 
-  ezMeshResourceHandle hMesh; // TODO
+  ezMeshResourceHandle hMesh = m_hProxyMesh;
+  bool bUsingProxyMesh = m_hProxyMesh.IsValid();
+
+  if (!bUsingProxyMesh)
+  {
+    ezMeshComponent* pMeshComponent = nullptr;
+    if (GetOwner()->TryGetComponentOfBaseType(pMeshComponent))
+      hMesh = pMeshComponent->GetMesh();
+  }
 
   if (!hMesh.IsValid())
   {
@@ -148,7 +160,7 @@ bool ezRmlUiCanvas3DComponent::RaycastInput(const ezVec3& vRayOrigin, const ezVe
   const ezMeshResourceDescriptor& desc = pMesh->GetDescriptor();
   for (ezUInt32 uiSubMeshIndex = 0; uiSubMeshIndex < desc.GetSubMeshes().GetCount(); ++uiSubMeshIndex) {
     const ezMeshResourceDescriptor::SubMesh& submesh = desc.GetSubMeshes()[uiSubMeshIndex];
-    if (submesh.m_uiMaterialIndex != m_uiMaterialIndex)
+    if (!bUsingProxyMesh && submesh.m_uiMaterialIndex != m_uiMaterialIndex)
       continue;
 
     ezVec2 vTexCoords;
@@ -355,7 +367,6 @@ bool ezRmlUiCanvas3DComponent::UpdateTextureAndMaterial(bool bForceUpdateMateria
   else if (bShouldRecreateTexture)
   {
     ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial, ezResourceAcquireMode::BlockTillLoaded);
-    EZ_ASSERT_DEV(pMaterial.GetAcquireResult() == ezResourceAcquireResult::Final, "why");
 
     pMaterial->SetTexture2DBinding(m_sTextureSlotName, m_hTexture);
   }
