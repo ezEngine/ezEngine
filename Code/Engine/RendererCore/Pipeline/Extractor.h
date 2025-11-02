@@ -102,8 +102,8 @@ public:
   ~ezSelectedObjectsContext();
 
   void RemoveDeadObjects(const ezWorld& world);
-  void AddObjectAndChildren(const ezWorld& world, const ezGameObjectHandle& hObject);
-  void AddObjectAndChildren(const ezWorld& world, const ezGameObject* pObject);
+  void AddObjectAndChildren(const ezGameObjectHandle& hObject);
+  void AddObjectAndChildren(const ezGameObject* pObject);
 
   ezDeque<ezGameObjectHandle> m_Objects;
 };

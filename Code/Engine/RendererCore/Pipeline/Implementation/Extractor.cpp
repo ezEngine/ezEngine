@@ -434,27 +434,27 @@ void ezSelectedObjectsContext::RemoveDeadObjects(const ezWorld& world)
   }
 }
 
-void ezSelectedObjectsContext::AddObjectAndChildren(const ezWorld& world, const ezGameObjectHandle& hObject)
+void ezSelectedObjectsContext::AddObjectAndChildren(const ezGameObjectHandle& hObject)
 {
   const ezGameObject* pObj;
-  if (world.TryGetObject(hObject, pObj))
+  if (ezWorld::GetWorld(hObject)->TryGetObject(hObject, pObj))
   {
     m_Objects.PushBack(hObject);
 
     for (auto it = pObj->GetChildren(); it.IsValid(); ++it)
     {
-      AddObjectAndChildren(world, it);
+      AddObjectAndChildren(it);
     }
   }
 }
 
-void ezSelectedObjectsContext::AddObjectAndChildren(const ezWorld& world, const ezGameObject* pObject)
+void ezSelectedObjectsContext::AddObjectAndChildren(const ezGameObject* pObject)
 {
   m_Objects.PushBack(pObject->GetHandle());
 
   for (auto it = pObject->GetChildren(); it.IsValid(); ++it)
   {
-    AddObjectAndChildren(world, it);
+    AddObjectAndChildren(it);
   }
 }
 
