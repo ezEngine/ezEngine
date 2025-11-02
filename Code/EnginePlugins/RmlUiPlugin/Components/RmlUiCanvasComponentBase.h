@@ -73,8 +73,6 @@ protected:
   bool m_bOnDemandUpdate = true;
   bool m_bNeedsUpdate = false;
 
-  ezGALTextureHandle m_hTexture;
-
   ezRmlUiContext* m_pContext = nullptr;
   ezRmlUiInputProvider m_InputProvider;
 

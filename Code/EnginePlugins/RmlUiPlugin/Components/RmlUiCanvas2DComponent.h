@@ -14,6 +14,8 @@ public:
 
   ezRmlUiCanvas2DComponent& operator=(ezRmlUiCanvas2DComponent&& rhs);
 
+  virtual void Deinitialize() override;
+
   void Update() final override;
 
   void SetOffset(const ezVec2I32& vOffset);                                   // [ property ]
@@ -47,4 +49,5 @@ protected:
   bool m_bPassInput = true;
 
   ezVec2 m_vFinalOffset = ezVec2::MakeZero();
+  ezGALTextureHandle m_hTexture;
 };

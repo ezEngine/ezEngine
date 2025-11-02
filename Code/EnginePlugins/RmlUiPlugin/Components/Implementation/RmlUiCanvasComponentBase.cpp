@@ -72,8 +72,6 @@ void ezRmlUiCanvasComponentBase::Deinitialize()
 {
   SUPER::Deinitialize();
 
-  ezGALDevice::GetDefaultDevice()->DestroyTexture(m_hTexture);
-
   if (m_pContext != nullptr)
   {
     ezRmlUi::GetSingleton()->DeleteContext(m_pContext);

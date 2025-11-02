@@ -41,6 +41,13 @@ ezRmlUiCanvas2DComponent::ezRmlUiCanvas2DComponent() = default;
 ezRmlUiCanvas2DComponent::~ezRmlUiCanvas2DComponent() = default;
 ezRmlUiCanvas2DComponent& ezRmlUiCanvas2DComponent::operator=(ezRmlUiCanvas2DComponent&& rhs) = default;
 
+void ezRmlUiCanvas2DComponent::Deinitialize()
+{
+  SUPER::Deinitialize();
+
+  ezGALDevice::GetDefaultDevice()->DestroyTexture(m_hTexture);
+}
+
 void ezRmlUiCanvas2DComponent::Update()
 {
   if (m_pContext == nullptr)
