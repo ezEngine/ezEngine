@@ -158,12 +158,6 @@ void ezRmlUiCanvas2DComponent::DeserializeComponent(ezWorldReader& inout_stream)
   }
 }
 
-ezResult ezRmlUiCanvas2DComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
-{
-  ref_bAlwaysVisible = true;
-  return EZ_SUCCESS;
-}
-
 void ezRmlUiCanvas2DComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   if (msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::MainView && msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::EditorView && msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::Thumbnail)

@@ -217,6 +217,12 @@ void ezRmlUiCanvasComponentBase::RemoveBlackboardBinding(ezUInt32 uiDataBindingI
   RemoveDataBinding(uiDataBindingIndex);
 }
 
+ezResult ezRmlUiCanvasComponentBase::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
+{
+  ref_bAlwaysVisible = true;
+  return EZ_SUCCESS;
+}
+
 ezRmlUiContext* ezRmlUiCanvasComponentBase::GetOrCreateRmlContext()
 {
   if (m_pContext != nullptr)

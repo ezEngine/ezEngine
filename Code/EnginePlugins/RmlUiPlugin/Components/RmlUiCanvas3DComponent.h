@@ -16,7 +16,7 @@ public:
 
   void Update() final override;
 
-  bool ReceiveInput(const ezVec2& vMousePosInsideCanvas, ezRmlUiInputSnapshot input) final override;
+  bool ReceiveInput(const ezVec2& vMousePosInsideCanvas, ezRmlUiInputSnapshot input) override;
   bool RaycastInput(const ezVec3& vRayOrigin, const ezVec3& vRayDir, ezRmlUiInputSnapshot input);
 
   /// \brief Changes which mesh will be used for hit testing.
@@ -43,12 +43,10 @@ public:
   virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
   virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
-
   EZ_ADD_RESOURCEHANDLE_ACCESSORS(BaseMaterial, m_hBaseMaterial);
 
 protected:
-  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const final override;   // [ msg handler ]
+  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const override;   // [ msg handler ]
 
   bool UpdateTextureAndMaterial(bool bForceUpdateMaterial = false);
 

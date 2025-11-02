@@ -58,6 +58,8 @@ public:
   ezRmlUiContext* GetOrCreateRmlContext();
   ezRmlUiContext* GetRmlContext() { return m_pContext; }
 
+  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
+
 protected:
   void OnMsgReload(ezMsgRmlUiReload& msg);                                         // [ msg handler ]
   virtual void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const = 0;      // [ msg handler ]

@@ -36,10 +36,8 @@ public:
   virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
   virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
-
 protected:
-  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const final override;
+  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const override;
   bool UpdateSizeOffsetAndTexture(ezVec2& out_viewSize);
 
   float m_fCustomScale = 1.0f;
