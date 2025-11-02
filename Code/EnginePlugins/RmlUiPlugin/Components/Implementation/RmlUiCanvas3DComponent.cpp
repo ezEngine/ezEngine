@@ -263,13 +263,18 @@ void ezRmlUiCanvas3DComponent::SetMaterialIndex(ezUInt32 uiMaterialIndex)
   if (uiMaterialIndex == m_uiMaterialIndex)
     return;
 
+  ezUInt32 uiPrevIndex = m_uiMaterialIndex;
   m_uiMaterialIndex = uiMaterialIndex;
 
   if (m_hMaterial.IsValid())
   {
     ezMsgSetMeshMaterial msg;
-    msg.m_hMaterial = m_hMaterial;
+
+    msg.m_uiMaterialSlot = uiPrevIndex;
+    GetOwner()->SendMessage(msg);
+
     msg.m_uiMaterialSlot = m_uiMaterialIndex;
+    msg.m_hMaterial = m_hMaterial;
     GetOwner()->SendMessage(msg);
   }
 }
