@@ -1,6 +1,8 @@
 #pragma once
 
 #include <RmlUiPlugin/Components/RmlUiCanvasComponentBase.h>
+#include <RendererCore/Material/MaterialResource.h>
+#include <RendererCore/Meshes/MeshResource.h>
 
 using ezRmlUiCanvas3DComponentManager = ezComponentManagerSimple<class ezRmlUiCanvas3DComponent, ezComponentUpdateType::Always, ezBlockStorageType::Compact, ezWorldUpdatePhase::PostTransform>;
 
