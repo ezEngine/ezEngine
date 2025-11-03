@@ -232,7 +232,7 @@ bool ezRmlUiCanvas3DComponent::RaycastMeshTexCoords(const ezCpuMeshResource* pMe
   EZ_ASSERT_DEV(uiLastIndex <= uiNumIndices, "something is wrong");
 
   float fClosestDist = 1e20f;
-  ezUInt16 uiClosestIndex0, uiClosestIndex1, uiClosestIndex2;
+  ezUInt16 uiClosestIndex0 = 0, uiClosestIndex1 = 0, uiClosestIndex2 = 0;
   ezVec3 vClosestPos;
 
   for (ezUInt32 i = uiFirstIndex; i + 2 < uiLastIndex; i += 3)
