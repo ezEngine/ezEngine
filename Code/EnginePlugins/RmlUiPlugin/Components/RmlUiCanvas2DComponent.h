@@ -43,7 +43,6 @@ protected:
   float m_fCustomScale = 1.0f;
   ezVec2I32 m_vOffset = ezVec2I32::MakeZero();
   ezVec2 m_vAnchorPoint = ezVec2::MakeZero();
-  ezVec2U32 m_vReferenceResolution = ezVec2U32::MakeZero();
   bool m_bPassInput = true;
 
   ezVec2 m_vFinalOffset = ezVec2::MakeZero();
