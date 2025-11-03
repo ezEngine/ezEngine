@@ -102,7 +102,7 @@ bool ezRmlUiContext::UpdateInput(const ezVec2& vMousePos, const ezRmlUiInputProv
   // Keyboard
   {
     ezUInt32 uiLastChar = input.m_uiLastCharacter;
-    if (uiLastChar >= 32) // >= space
+    if (uiLastChar >= 32 || uiLastChar == '\n') // >= space (+ enter/return)
     {
       char szUtf8[8] = "";
       char* pChar = szUtf8;

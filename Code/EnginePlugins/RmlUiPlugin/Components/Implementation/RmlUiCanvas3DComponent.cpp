@@ -431,9 +431,7 @@ bool ezRmlUiCanvas3DComponent::UpdateTextureAndMaterial()
 
   if (m_bRebindTexture)
   {
-    ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
-    if (pMaterial.GetAcquireResult() != ezResourceAcquireResult::Final)
-      return bShouldRecreateTexture;
+    ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial, ezResourceAcquireMode::BlockTillLoaded);
 
     pMaterial->ResetResource();
     pMaterial->SetTexture2DBinding(m_sTextureSlotName, m_hTexture);
