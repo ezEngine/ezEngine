@@ -42,10 +42,12 @@ public:
 
   /// \brief Checks whether there is an object nearby. Note that this function reports static and dynamic objects that are within reach.
   /// Whether these objects are interact able or not is up to the caller.
-  bool FindNearbyObject(ezGameObject*& out_pObject, ezTransform& out_localGrabPoint, bool bIgnoreGrabbedActor = true) const;
+  bool FindNearbyObject(ezGameObject*& out_pObject, ezTransform& out_localGrabPoint, ezUInt32& uiJoltBodyID, bool bIgnoreGrabbedActor = true) const;
 
   /// \brief Grabs the given object at the given grab point if possible.
   bool GrabObject(ezGameObject* pObjectToGrab, const ezTransform& localGrabPoint);
+
+  bool GrabRagdoll(ezGameObject* pObjectToGrab, const ezTransform& localGrabPoint, ezUInt32 uiJoltBodyID);
 
   /// \brief Tries to find an object to pick up and do so.
   bool GrabNearbyObject(); // [ scriptable ]
@@ -116,10 +118,11 @@ public:
 protected:
   void Update();
   void ReleaseGrabbedObject(float fMaxAllowedImpulse);
-
+  
   ezJoltDynamicActorComponent* GetAttachToActor();
   ezResult DetermineGrabPoint(const ezComponent* pActor, ezTransform& out_LocalGrabPoint) const;
   void CreateJoint(ezJoltDynamicActorComponent* pParent, ezJoltDynamicActorComponent* pChild);
+  void CreateJoint(ezJoltDynamicActorComponent* pParent, ezUInt32 uiChildBodyID);
   void DetectDistanceViolation(ezJoltDynamicActorComponent* pGrabbedActor);
   bool IsCharacterStandingOnObject(ezGameObjectHandle hActorToGrab) const;
 

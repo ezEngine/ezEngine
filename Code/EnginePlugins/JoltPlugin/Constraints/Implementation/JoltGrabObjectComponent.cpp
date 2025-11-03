@@ -12,6 +12,7 @@
 #include <JoltPlugin/System/JoltWorldModule.h>
 #include <Physics/Constraints/SixDOFConstraint.h>
 #include <RendererCore/Debug/DebugRenderer.h>
+#include <JoltPlugin/Components/JoltRagdollComponent.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezJoltGrabObjectComponent, 3, ezComponentMode::Static)
@@ -98,7 +99,7 @@ void ezJoltGrabObjectComponent::DeserializeComponent(ezWorldReader& inout_stream
   m_hAttachTo = inout_stream.ReadGameObjectHandle();
 }
 
-bool ezJoltGrabObjectComponent::FindNearbyObject(ezGameObject*& out_pObject, ezTransform& out_localGrabPoint, bool bIgnoreGrabbedActor /*= true*/) const
+bool ezJoltGrabObjectComponent::FindNearbyObject(ezGameObject*& out_pObject, ezTransform& out_localGrabPoint, ezUInt32& uiJoltBodyID, bool bIgnoreGrabbedActor /*= true*/) const
 {
   const ezPhysicsWorldModuleInterface* pPhysicsModule = GetWorld()->GetModuleReadOnly<ezPhysicsWorldModuleInterface>();
 
@@ -151,9 +152,60 @@ bool ezJoltGrabObjectComponent::FindNearbyObject(ezGameObject*& out_pObject, ezT
       return false;
 
     out_localGrabPoint = ezTransform::MakeIdentity();
+
+    uiJoltBodyID = reinterpret_cast<ezUInt32>(hit.m_pInternalPhysicsActor);
   }
 
   out_pObject = const_cast<ezGameObject*>(pActorObj);
+  return true;
+}
+
+bool ezJoltGrabObjectComponent::GrabRagdoll(ezGameObject* pObjectToGrab, const ezTransform& localGrabPoint, ezUInt32 uiJoltBodyID)
+{
+  if (m_pConstraint != nullptr || pObjectToGrab == nullptr)
+    return false;
+
+  const ezTime curTime = GetWorld()->GetClock().GetAccumulatedTime();
+
+  // a cooldown to grab something again after we stood on the held object
+  if (m_LastValidTime > curTime)
+    return false;
+
+  ezJoltDynamicActorComponent* pAttachToActor = GetAttachToActor();
+  if (pAttachToActor == nullptr)
+  {
+    ezLog::Error("Can't grab object, no target actor to attach it to is set.");
+    return false;
+  }
+
+  ezJoltRagdollComponent* pActorToGrab = nullptr;
+  if (!pObjectToGrab->TryGetComponentOfBaseType(pActorToGrab))
+    return false;
+
+  //if (pActorToGrab->GetKinematic())
+  //  return false;
+
+  //if (IsCharacterStandingOnObject(pObjectToGrab->GetHandle()))
+  //  return false;
+
+  //ezJoltCharacterControllerComponent* pController;
+  //if (GetWorld()->TryGetComponent(m_hCharacterControllerComponent, pController))
+  //{
+  //  pController->SetObjectToIgnore(pActorToGrab->GetObjectFilterID());
+  //}
+
+  m_ChildAnchorLocal = localGrabPoint;
+  m_hGrabbedActor = pActorToGrab->GetHandle();
+
+  CreateJoint(pAttachToActor, uiJoltBodyID);
+
+  ezMsgObjectGrabbed msg;
+  msg.m_bGotGrabbed = true;
+  msg.m_hGrabbedBy = GetOwner()->GetHandle();
+  pActorToGrab->GetOwner()->SendMessage(msg);
+
+  m_LastValidTime = curTime;
+
   return true;
 }
 
@@ -210,8 +262,14 @@ bool ezJoltGrabObjectComponent::GrabNearbyObject()
 {
   ezGameObject* pActorToGrab = nullptr;
   ezTransform localGrabPoint;
-  if (!FindNearbyObject(pActorToGrab, localGrabPoint))
+  ezUInt32 uiJoltBodyID = 0;
+  if (!FindNearbyObject(pActorToGrab, localGrabPoint, uiJoltBodyID))
     return false;
+
+  if (GrabRagdoll(pActorToGrab, localGrabPoint, uiJoltBodyID))
+  {
+    return true;
+  }
 
   return GrabObject(pActorToGrab, localGrabPoint);
 }
@@ -453,9 +511,14 @@ ezResult ezJoltGrabObjectComponent::DetermineGrabPoint(const ezComponent* pActor
 
 void ezJoltGrabObjectComponent::CreateJoint(ezJoltDynamicActorComponent* pParent, ezJoltDynamicActorComponent* pChild)
 {
+  CreateJoint(pParent, pChild->GetJoltBodyID());
+}
+
+void ezJoltGrabObjectComponent::CreateJoint(ezJoltDynamicActorComponent* pParent, ezUInt32 uiChildBodyID)
+{
   ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
 
-  JPH::BodyID bodies[2] = {JPH::BodyID(pParent->GetJoltBodyID()), JPH::BodyID(pChild->GetJoltBodyID())};
+  JPH::BodyID bodies[2] = {JPH::BodyID(pParent->GetJoltBodyID()), JPH::BodyID(uiChildBodyID)};
   JPH::BodyLockMultiWrite bodyLock(pModule->GetJoltSystem()->GetBodyLockInterface(), bodies, 2);
 
   auto pBody0 = bodyLock.GetBody(0);
@@ -606,6 +669,13 @@ void ezJoltGrabObjectComponent::Update()
 {
   if (m_pConstraint == nullptr)
     return;
+
+  ezJoltRagdollComponent* pRagdoll;
+  if (GetWorld()->TryGetComponent(m_hGrabbedActor, pRagdoll))
+  {
+    // BreakObjectGrab();
+    return;
+  }
 
   ezJoltDynamicActorComponent* pGrabbedActor;
   if (!GetWorld()->TryGetComponent(m_hGrabbedActor, pGrabbedActor))
