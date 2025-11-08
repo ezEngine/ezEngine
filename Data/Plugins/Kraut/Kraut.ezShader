@@ -13,7 +13,6 @@ CAMERA_MODE
 SHADING_QUALITY
 FORWARD_PASS_WRITE_DEPTH
 MATERIAL_PREVIEW
-VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
 
 [MATERIALPARAMETER]
 
@@ -238,12 +237,6 @@ VS_OUT main(VS_IN Input)
 
   return result;
 }
-
-[GEOMETRYSHADER]
-
-#define CopyCustomInterpolators(output, input) output.LeafNormal = input.LeafNormal;
-
-#include <Shaders/Materials/MaterialStereoGeometryShader.h>
 
 [PIXELSHADER]
 

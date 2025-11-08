@@ -7,7 +7,6 @@ RENDER_PASS
 GIZMO_CONSTANT_SIZE
 PREPARE_DEPTH
 CAMERA_MODE
-VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX = TRUE
 GIZMO_FACE_CAMERA
 
 [RENDERSTATE]
@@ -92,9 +91,7 @@ VS_OUT main(VS_IN Input)
 	VS_OUT RetVal;
 #if defined(CAMERA_MODE)
 #  if CAMERA_MODE == CAMERA_MODE_STEREO
-#    if VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX == TRUE
     RetVal.RenderTargetArrayIndex = Input.InstanceID % 2;
-#    endif
 #  endif
 #endif
 	RetVal.Position = mul(GetWorldToScreenMatrix(), worldSpacePos);

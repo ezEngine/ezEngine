@@ -4,7 +4,6 @@ ALL
 [PERMUTATIONS]
 
 CAMERA_MODE
-VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
 LUT_MODE
 
 [RENDERSTATE]
@@ -16,10 +15,6 @@ CullMode = CullMode_None
 [VERTEXSHADER]
 
 #include <Shaders/Pipeline/FullscreenTriangleVertexShader.h>
-
-[GEOMETRYSHADER]
-
-#include <Shaders/Pipeline/FullscreenTriangleStereoGeometryShader.h>
 
 [PIXELSHADER]
 

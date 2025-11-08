@@ -10,7 +10,6 @@ MSAA
 TWO_SIDED = FALSE
 FLIP_WINDING = FALSE
 CAMERA_MODE
-VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
 SHADING_MODE = SHADING_MODE_FULLBRIGHT
 
 [RENDERSTATE]
@@ -56,7 +55,7 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
   };
 
   VS_OUT Output;
-  #if VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX == TRUE && CAMERA_MODE == CAMERA_MODE_STEREO
+  #if CAMERA_MODE == CAMERA_MODE_STEREO
     Output.RenderTargetArrayIndex = InstanceID;
   #else
     Output.InstanceID = InstanceID;
@@ -101,12 +100,6 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
 
   return Output;
 }
-
-[GEOMETRYSHADER]
-
-#define CopyCustomInterpolators(output, input) output.GameObjectID = input.GameObjectID;
-
-#include <Shaders/Materials/MaterialStereoGeometryShader.h>
 
 [PIXELSHADER]
 

@@ -5,7 +5,6 @@ ALL
 BLEND_MODE = BLEND_MODE_TRANSPARENT
 SHADING_MODE = SHADING_MODE_FULLBRIGHT
 TWO_SIDED = TRUE
-VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
 
 // SYSTEM permutations:
 // all of these are automatically set by the engine
@@ -58,10 +57,6 @@ VS_OUT main(VS_IN Input)
 
   return Output;
 }
-
-[GEOMETRYSHADER]
-
-#include <Shaders/Materials/MaterialStereoGeometryShader.h>
 
 [PIXELSHADER]
 #include <Shaders/Materials/MaterialPixelShader.h>

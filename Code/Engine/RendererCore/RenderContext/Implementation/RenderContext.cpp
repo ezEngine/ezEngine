@@ -762,7 +762,6 @@ void ezRenderContext::LoadBuiltinShader(ezShaderUtils::ezBuiltinShaderType type,
   EZ_ASSERT_DEV(hActiveShader.IsValid(), "Could not load builtin shader!");
 
   ezHashTable<ezHashedString, ezHashedString> permutationVariables;
-  static ezHashedString sVSRTAI = ezMakeHashedString("VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX");
   static ezHashedString sTrue = ezMakeHashedString("TRUE");
   static ezHashedString sFalse = ezMakeHashedString("FALSE");
   static ezHashedString sCameraMode = ezMakeHashedString("CAMERA_MODE");
@@ -770,11 +769,6 @@ void ezRenderContext::LoadBuiltinShader(ezShaderUtils::ezBuiltinShaderType type,
   static ezHashedString sStereo = ezMakeHashedString("CAMERA_MODE_STEREO");
 
   permutationVariables.Insert(sCameraMode, bStereo ? sStereo : sPerspective);
-  if (ezGALDevice::GetDefaultDevice()->GetCapabilities().m_bSupportsVSRenderTargetArrayIndex)
-    permutationVariables.Insert(sVSRTAI, sTrue);
-  else
-    permutationVariables.Insert(sVSRTAI, sFalse);
-
 
   ezShaderPermutationResourceHandle hActiveShaderPermutation = ezShaderManager::PreloadSinglePermutation(hActiveShader, permutationVariables, false);
 

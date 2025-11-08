@@ -4,7 +4,6 @@ ALL
 [PERMUTATIONS]
 
 CAMERA_MODE
-VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
 TOPOLOGY
 
 [RENDERSTATE]
@@ -69,20 +68,11 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
 	RetVal.InstanceID = InstanceID;
 #if defined(CAMERA_MODE)
 #  if CAMERA_MODE == CAMERA_MODE_STEREO
-#    if VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX == TRUE
     RetVal.RenderTargetArrayIndex = InstanceID % 2;
-#    endif
 #  endif
 #endif
 	return RetVal;
 }
-
-[GEOMETRYSHADER]
-
-#define USE_TEXCOORD0
-#define USE_COLOR0
-
-#include <Shaders/Materials/StereoGeometryShader.h>
 
 [PIXELSHADER]
 

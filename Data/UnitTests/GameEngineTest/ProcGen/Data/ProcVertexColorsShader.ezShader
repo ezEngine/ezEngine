@@ -24,7 +24,6 @@ MSAA
 CAMERA_MODE
 SHADING_QUALITY
 VERTEX_SKINNING
-VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
 // SYSTEM permutations
 
 [MATERIALPARAMETER]
@@ -98,14 +97,6 @@ VS_OUT main(VS_IN Input)
 
   return Output;
 }
-
-
-[GEOMETRYSHADER]
-// This section contains the geometry shader code.
-// Note that code from the [SHADER] section is prepended, as well.
-
-#include <Shaders/Materials/MaterialStereoGeometryShader.h>
-
 
 [PIXELSHADER]
 // This section contains the pixel shader code.

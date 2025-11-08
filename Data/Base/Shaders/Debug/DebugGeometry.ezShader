@@ -4,7 +4,6 @@ ALL
 [PERMUTATIONS]
 
 CAMERA_MODE
-VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
 TOPOLOGY
 
 [RENDERSTATE]
@@ -56,9 +55,7 @@ VS_OUT main(VS_IN_POS_ONLY Input)
   RetVal.Position = mul(GetWorldToScreenMatrix(), worldPos);
   #if defined(CAMERA_MODE) && CAMERA_MODE == CAMERA_MODE_STEREO
     RetVal.Color0 = boxData[Input.InstanceID / 2].color;
-    #if VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX == TRUE
-      RetVal.RenderTargetArrayIndex = Input.InstanceID % 2;
-    #endif
+    RetVal.RenderTargetArrayIndex = Input.InstanceID % 2;
   #else
     RetVal.Color0 = boxData[Input.InstanceID].color;
   #endif
@@ -67,12 +64,6 @@ VS_OUT main(VS_IN_POS_ONLY Input)
 
   return RetVal;
 }
-
-[GEOMETRYSHADER]
-
-#define USE_COLOR0
-
-#include <Shaders/Materials/StereoGeometryShader.h>
 
 [PIXELSHADER]
 

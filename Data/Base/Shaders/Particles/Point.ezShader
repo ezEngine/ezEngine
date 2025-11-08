@@ -4,7 +4,6 @@ ALL
 [PERMUTATIONS]
 
 CAMERA_MODE
-VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
 
 [RENDERSTATE]
 
@@ -35,7 +34,7 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
 #endif
 
   VS_OUT ret;
-#if VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX == TRUE && CAMERA_MODE == CAMERA_MODE_STEREO    
+#if CAMERA_MODE == CAMERA_MODE_STEREO    
   ret.RenderTargetArrayIndex = InstanceID;
 #endif
 
@@ -56,14 +55,6 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
 #endif
   return ret;
 }
-
-[GEOMETRYSHADER]
-
-#if EZ_ENABLED(PLATFORM_VULKAN)
-  #define CopyCustomInterpolators(output, input) output.PointSize = input.PointSize;
-#endif 
-
-#include <Shaders/Materials/MaterialStereoGeometryShader.h>
 
 [PIXELSHADER]
 

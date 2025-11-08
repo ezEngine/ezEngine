@@ -9,7 +9,6 @@ PARTICLE_QUAD_MODE
 PARTICLE_LIGHTING_MODE
 SHADING_QUALITY
 CAMERA_MODE
-VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
 
 [RENDERSTATE]
 
@@ -62,7 +61,7 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
 #endif
 
   VS_OUT ret;
-#if VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX == TRUE && CAMERA_MODE == CAMERA_MODE_STEREO    
+#if CAMERA_MODE == CAMERA_MODE_STEREO    
   ret.RenderTargetArrayIndex = InstanceID;
 #endif
 
@@ -122,12 +121,6 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
   ret.FogAmount = GetFogAmount(quad.worldPosition.xyz);
   return ret;
 }
-
-[GEOMETRYSHADER]
-
-#define CopyCustomInterpolators(output, input) output.FogAmount = input.FogAmount;
-
-#include <Shaders/Materials/MaterialStereoGeometryShader.h>
 
 [PIXELSHADER]
 
