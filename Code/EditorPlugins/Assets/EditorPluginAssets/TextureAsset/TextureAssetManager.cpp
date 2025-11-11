@@ -111,6 +111,7 @@ ezString ezTextureAssetDocumentManager::GetRelativeOutputFileName(const ezAssetD
     sRelativePath.MakeRelativeTo(sDataDirectory).IgnoreResult();
     sRelativePath.RemoveFileExtension();
     sRelativePath.Append("-lowres");
+    sRelativePath.Append(".ext"); // dummy extension, so that the next function knows which part to modify
     ezAssetDocumentManager::GenerateOutputFilename(sRelativePath, pAssetProfile, "ezBinTexture2D", true);
     return sRelativePath;
   }
