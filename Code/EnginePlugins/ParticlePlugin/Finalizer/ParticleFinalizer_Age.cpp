@@ -78,7 +78,7 @@ void ezParticleFinalizer_Age::InitializeElements(ezUInt64 uiStartIndex, ezUInt64
 
   if (m_LifeTime.m_fVariance == 0)
   {
-    const float tLifeTime = (fLifeScale * (float)m_LifeTime.m_Value.GetSeconds()) + 0.01f; // make sure it's not zero
+    const float tLifeTime = ezMath::Max(fLifeScale * (float)m_LifeTime.m_Value.GetSeconds(), 0.01f); // make sure it's not zero
     const float tInvLifeTime = 1.0f / tLifeTime;
 
     for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
@@ -94,7 +94,7 @@ void ezParticleFinalizer_Age::InitializeElements(ezUInt64 uiStartIndex, ezUInt64
     for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
     {
       const float tLifeTime =
-        (fLifeScale * (float)rng.DoubleVariance(m_LifeTime.m_Value.GetSeconds(), m_LifeTime.m_fVariance)) + 0.01f; // make sure it's not zero
+        ezMath::Max(fLifeScale * (float)rng.DoubleVariance(m_LifeTime.m_Value.GetSeconds(), m_LifeTime.m_fVariance), 0.01f); // make sure it's not zero
       const float tInvLifeTime = 1.0f / tLifeTime;
 
       pLifeTime[i].x = tLifeTime;
