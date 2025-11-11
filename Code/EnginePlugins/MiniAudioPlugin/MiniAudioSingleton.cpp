@@ -108,11 +108,21 @@ void ezMiniAudioSingleton::UpdateSound()
 
   if (cvar_MiniAudioPause)
   {
-    EZ_MA_CHECK(ma_engine_stop(&m_pData->m_Engine));
+    const ma_result res = ma_engine_stop(&m_pData->m_Engine);
+
+    if (res == MA_UNAVAILABLE)
+      return;
+
+    EZ_MA_CHECK(res);
   }
   else
   {
-    EZ_MA_CHECK(ma_engine_start(&m_pData->m_Engine));
+    const ma_result res = ma_engine_start(&m_pData->m_Engine);
+
+    if (res == MA_UNAVAILABLE)
+      return;
+
+    EZ_MA_CHECK(res);
 
     if (cvar_MiniAudioMute)
     {
