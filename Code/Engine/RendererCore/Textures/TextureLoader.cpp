@@ -1,5 +1,6 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <Core/Curves/ColorGradientResource.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
@@ -101,43 +102,105 @@ ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResource* pRe
     if (File.Open(pResource->GetResourceID()).Failed())
       return res;
 
-    const ezStringBuilder sAbsolutePath = File.GetFilePathAbsolute();
-    res.m_sResourceDescription = File.GetFilePathRelative().GetView();
+    if (File.GetFilePathAbsolute().HasExtension("ezBinColorGradient"))
+    {
+      res.m_sResourceDescription = File.GetFilePathRelative().GetView();
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
-    {
-      ezFileStats stat;
-      if (ezFileSystem::GetFileStats(pResource->GetResourceID(), stat).Succeeded())
       {
-        res.m_LoadedFileModificationDate = stat.m_LastModificationTime;
+        ezFileStats stat;
+        if (ezFileSystem::GetFileStats(pResource->GetResourceID(), stat).Succeeded())
+        {
+          res.m_LoadedFileModificationDate = stat.m_LastModificationTime;
+        }
       }
-    }
 #endif
 
-    /// In case this is not a proper asset (ezTextureXX format), this is a hack to get the SRGB information for the texture
-    const ezStringBuilder sName = ezPathUtils::GetFileName(sAbsolutePath);
-    pData->m_TexFormat.m_bSRGB = (sName.EndsWith_NoCase("_D") || sName.EndsWith_NoCase("_SRGB") || sName.EndsWith_NoCase("_diff"));
-
-    if (sAbsolutePath.HasExtension("ezBinTexture2D") || sAbsolutePath.HasExtension("ezBinTexture3D") || sAbsolutePath.HasExtension("ezBinTextureCube") || sAbsolutePath.HasExtension("ezBinRenderTarget") || sAbsolutePath.HasExtension("ezBinLUT"))
-    {
-      if (LoadTexFile(File, *pData).Failed())
+      // skip the asset file header at the start of the file
+      ezAssetFileHeader AssetHash;
+      if (AssetHash.Read(File).Failed())
         return res;
+
+      ezColorGradientResourceDescriptor desc;
+      desc.Load(File);
+
+      pData->m_TexFormat.m_bSRGB = true;
+
+      const ezUInt32 uiHeight = 1;
+
+      // set up a 1024 * 4 uncompressed RGBA texture
+      ezImageHeader header;
+      header.SetWidth(1024);
+      header.SetHeight(uiHeight);
+      header.SetDepth(1);
+      header.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM_SRGB);
+      header.SetNumMipLevels(1);
+      header.SetNumFaces(1);
+      pData->m_Image.ResetAndAlloc(header);
+      ezUInt8* pPixels = pData->m_Image.GetPixelPointer<ezUInt8>();
+
+      // fill each pixel with the color gradient from left to right, duplicate along the vertical pixels
+      for (ezUInt32 x = 0; x < 1024; ++x)
+      {
+        const double fGradientPos = (double)x / 1023.0; // normalize to [0, 1]
+
+        ezColor color;
+        desc.m_Gradient.Evaluate(fGradientPos, color);
+
+        // convert to gamma space
+        ezColorGammaUB gammaColor = color;
+
+        // duplicate along the vertical pixels
+        for (ezUInt32 y = 0; y < uiHeight; ++y)
+        {
+          const ezUInt32 pixelIndex = (y * 1024 + x) * 4;
+          pPixels[pixelIndex + 0] = gammaColor.r;
+          pPixels[pixelIndex + 1] = gammaColor.g;
+          pPixels[pixelIndex + 2] = gammaColor.b;
+          pPixels[pixelIndex + 3] = gammaColor.a;
+        }
+      }
     }
     else
     {
-      // read whatever format, as long as ezImage supports it
-      File.Close();
+      const ezStringBuilder sAbsolutePath = File.GetFilePathAbsolute();
+      res.m_sResourceDescription = File.GetFilePathRelative().GetView();
 
-      if (pData->m_Image.LoadFrom(pResource->GetResourceID()).Failed())
-        return res;
-
-      if (pData->m_Image.GetImageFormat() == ezImageFormat::B8G8R8_UNORM)
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
       {
-        /// \todo A conversion to B8G8R8X8_UNORM currently fails
+        ezFileStats stat;
+        if (ezFileSystem::GetFileStats(pResource->GetResourceID(), stat).Succeeded())
+        {
+          res.m_LoadedFileModificationDate = stat.m_LastModificationTime;
+        }
+      }
+#endif
 
-        ezLog::Warning("Texture resource uses inefficient BGR format, converting to BGRX: '{0}'", sAbsolutePath);
-        if (ezImageConversion::Convert(pData->m_Image, pData->m_Image, ezImageFormat::B8G8R8A8_UNORM).Failed())
+      /// In case this is not a proper asset (ezTextureXX format), this is a hack to get the SRGB information for the texture
+      const ezStringBuilder sName = ezPathUtils::GetFileName(sAbsolutePath);
+      pData->m_TexFormat.m_bSRGB = (sName.EndsWith_NoCase("_D") || sName.EndsWith_NoCase("_SRGB") || sName.EndsWith_NoCase("_diff"));
+
+      if (sAbsolutePath.HasExtension("ezBinTexture2D") || sAbsolutePath.HasExtension("ezBinTexture3D") || sAbsolutePath.HasExtension("ezBinTextureCube") || sAbsolutePath.HasExtension("ezBinRenderTarget") || sAbsolutePath.HasExtension("ezBinLUT"))
+      {
+        if (LoadTexFile(File, *pData).Failed())
           return res;
+      }
+      else
+      {
+        // read whatever format, as long as ezImage supports it
+        File.Close();
+
+        if (pData->m_Image.LoadFrom(pResource->GetResourceID()).Failed())
+          return res;
+
+        if (pData->m_Image.GetImageFormat() == ezImageFormat::B8G8R8_UNORM)
+        {
+          /// \todo A conversion to B8G8R8X8_UNORM currently fails
+
+          ezLog::Warning("Texture resource uses inefficient BGR format, converting to BGRX: '{0}'", sAbsolutePath);
+          if (ezImageConversion::Convert(pData->m_Image, pData->m_Image, ezImageFormat::B8G8R8A8_UNORM).Failed())
+            return res;
+        }
       }
     }
   }
@@ -168,6 +231,12 @@ bool ezTextureResourceLoader::IsResourceOutdated(const ezResource* pResource) co
 {
   // solid color textures are never outdated
   if (ezPathUtils::HasExtension(pResource->GetResourceID(), "color"))
+    return false;
+
+  ezStringView sResourceID = pResource->GetResourceID();
+
+  // procedurally generated textures (color names, hex codes) are never outdated
+  if (sResourceID.StartsWith("#") || (!sResourceID.HasAnyExtension() && !ezConversionUtils::IsStringUuid(sResourceID)))
     return false;
 
   // don't try to reload a file that cannot be found

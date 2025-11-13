@@ -267,7 +267,15 @@ namespace
     {
       EZ_IGNORE_UNUSED(pProp);
 
-      m_ptr = value.Get<ezTypedPointer>();
+      if (!value.IsValid() || (value.IsString() && value.Get<ezString>().IsEmpty()))
+      {
+        m_ptr.m_pType = nullptr;
+        m_ptr.m_pObject = nullptr;
+      }
+      else
+      {
+        m_ptr = value.Get<ezTypedPointer>();
+      }
       EZ_ASSERT_DEBUG(!m_ptr.m_pType || m_ptr.m_pType->IsDerivedFrom(pProp->GetSpecificType()),
         "Pointer of type '{0}' does not derive from '{}'", m_ptr.m_pType->GetTypeName(), pProp->GetSpecificType()->GetTypeName());
     }

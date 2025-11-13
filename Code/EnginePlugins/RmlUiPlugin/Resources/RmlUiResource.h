@@ -13,7 +13,7 @@ struct EZ_RMLUIPLUGIN_DLL ezRmlUiScaleMode
     Fixed,
     WithScreenSize,
 
-    Default = Fixed
+    Default = WithScreenSize
   };
 };
 

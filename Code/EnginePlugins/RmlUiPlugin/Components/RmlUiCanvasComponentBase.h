@@ -38,6 +38,7 @@ public:
 
   virtual bool ReceiveInput(const ezVec2& vMousePosInsideCanvas, ezRmlUiInputSnapshot input);
 
+  EZ_ADD_RESOURCEHANDLE_ACCESSORS_WITH_SETTER(RmlFile, m_hResource, SetRmlResource);
   void SetRmlResource(const ezRmlUiResourceHandle& hResource);                     // [ property ]
   const ezRmlUiResourceHandle& GetRmlResource() const { return m_hResource; }      // [ property ]
 

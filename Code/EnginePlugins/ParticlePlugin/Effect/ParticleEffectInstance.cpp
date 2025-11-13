@@ -83,6 +83,8 @@ void ezParticleEffectInstance::Destruct()
 
   m_WindSampleGrids[0] = nullptr;
   m_WindSampleGrids[1] = nullptr;
+
+  m_EventQueue.Clear();
 }
 
 void ezParticleEffectInstance::Interrupt()
