@@ -5,8 +5,6 @@
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
-#include <vulkan/vulkan.hpp>
-
 EZ_DEFINE_AS_POD_TYPE(vk::PresentModeKHR);
 
 /// \brief Helper functions to convert and extract Vulkan objects from EZ objects.

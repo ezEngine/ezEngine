@@ -1,14 +1,5 @@
 #include <RendererVulkan/RendererVulkanPCH.h>
 
-
-VKAPI_ATTR void VKAPI_CALL vkGetDeviceBufferMemoryRequirements(
-  VkDevice device,
-  const VkDeviceBufferMemoryRequirements* pInfo,
-  VkMemoryRequirements2* pMemoryRequirements)
-{
-  EZ_REPORT_FAILURE("FIXME: Added to prevent the error: The procedure entry point vkGetDeviceBufferMemoryRequirements could not be located in the dynamic link library ezRendererVulkan.dll.");
-}
-
 #include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #include <Foundation/Types/UniquePtr.h>
 
@@ -32,7 +23,7 @@ VKAPI_ATTR void VKAPI_CALL vkGetDeviceBufferMemoryRequirements(
 #define VMA_IMPLEMENTATION
 
 #ifndef VA_IGNORE_THIS_FILE
-#  define VA_INCLUDE_HIDDEN <vma/vk_mem_alloc.h>
+#  define VA_INCLUDE_HIDDEN <vk_mem_alloc.h>
 #else
 #  define VA_INCLUDE_HIDDEN ""
 #endif
@@ -82,14 +73,14 @@ struct ezMemoryAllocatorVulkan::Impl
 
 ezMemoryAllocatorVulkan::Impl* ezMemoryAllocatorVulkan::m_pImpl = nullptr;
 
-vk::Result ezMemoryAllocatorVulkan::Initialize(vk::PhysicalDevice physicalDevice, vk::Device device, vk::Instance instance)
+vk::Result ezMemoryAllocatorVulkan::Initialize(vk::PhysicalDevice physicalDevice, vk::Device device, vk::Instance instance, vk::detail::DispatchLoaderDynamic& loader)
 {
   EZ_ASSERT_DEV(m_pImpl == nullptr, "ezMemoryAllocatorVulkan::Initialize was already called");
   m_pImpl = EZ_DEFAULT_NEW(Impl);
 
   VmaVulkanFunctions vulkanFunctions = {};
-  vulkanFunctions.vkGetInstanceProcAddr = &vkGetInstanceProcAddr;
-  vulkanFunctions.vkGetDeviceProcAddr = &vkGetDeviceProcAddr;
+  vulkanFunctions.vkGetInstanceProcAddr = loader.vkGetInstanceProcAddr;
+  vulkanFunctions.vkGetDeviceProcAddr = loader.vkGetDeviceProcAddr;
 
   VmaAllocatorCreateInfo allocatorCreateInfo = {};
   allocatorCreateInfo.vulkanApiVersion = VK_API_VERSION_1_1;

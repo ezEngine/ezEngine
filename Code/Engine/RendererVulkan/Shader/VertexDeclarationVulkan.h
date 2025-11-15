@@ -1,11 +1,10 @@
 
 #pragma once
 
-#include <RendererFoundation/RendererFoundationDLL.h>
-#include <RendererFoundation/Shader/VertexDeclaration.h>
 #include <RendererVulkan/RendererVulkanDLL.h>
 
-#include <vulkan/vulkan.hpp>
+#include <RendererFoundation/RendererFoundationDLL.h>
+#include <RendererFoundation/Shader/VertexDeclaration.h>
 
 class ezGALVertexDeclarationVulkan : public ezGALVertexDeclaration
 {

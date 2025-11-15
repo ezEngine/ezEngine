@@ -4,7 +4,6 @@
 #include <RendererFoundation/Shader/BindGroup.h>
 #include <RendererVulkan/Pools/DescriptorSetPoolVulkan.h>
 #include <RendererVulkan/RendererVulkanDLL.h>
-#include <vulkan/vulkan.hpp>
 
 class ezGALBindGroupVulkan : public ezGALBindGroup
 {

@@ -2,6 +2,7 @@
 
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/Resources/ReadbackTextureVulkan.h>
+#include <RendererVulkan/Resources/TextureVulkan.h>
 
 ezGALReadbackTextureVulkan::ezGALReadbackTextureVulkan(const ezGALTextureCreationDescription& Description)
   : ezGALReadbackTexture(Description)

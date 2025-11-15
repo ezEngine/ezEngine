@@ -3,6 +3,7 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Logging/Log.h>
 #include <RendererVulkan/RendererVulkanDLL.h>
+
 #include <vulkan/vulkan_format_traits.hpp>
 
 

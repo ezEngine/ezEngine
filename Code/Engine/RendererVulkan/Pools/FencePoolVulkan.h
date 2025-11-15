@@ -4,8 +4,6 @@
 
 #include <Foundation/Time/Timestamp.h>
 
-#include <vulkan/vulkan.hpp>
-
 /// \brief Simple pool for fences
 ///
 /// Do not call ReclaimFence manually, instead call ezGALDeviceVulkan::ReclaimLater which will make sure to reclaim the fence once it is no longer in use.

@@ -15,11 +15,10 @@ endif()
 target_link_libraries(${PROJECT_NAME}
   PUBLIC
   RendererCore
+  SPIRV-Reflect
 )
 
 ez_link_target_dxc(${PROJECT_NAME})
-ez_link_target_vulkan(${PROJECT_NAME})
-ez_sources_target_spirv_reflect(${PROJECT_NAME})
 
 if (EZ_CMAKE_PLATFORM_WINDOWS)
     target_compile_definitions(${PROJECT_NAME} PRIVATE "_CRT_SECURE_NO_WARNINGS")

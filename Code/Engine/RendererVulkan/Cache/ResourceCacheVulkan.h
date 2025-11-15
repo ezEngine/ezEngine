@@ -3,13 +3,9 @@
 #include <RendererVulkan/RendererVulkanDLL.h>
 
 #include <Foundation/Algorithm/HashStream.h>
-#include <Foundation/Math/Size.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <RendererVulkan/Device/DeviceVulkan.h>
-#include <RendererVulkan/Resources/RenderTargetViewVulkan.h>
 #include <RendererVulkan/Shader/ShaderVulkan.h>
-
-#include <vulkan/vulkan.hpp>
 
 class ezGALRasterizerStateVulkan;
 class ezGALBlendStateVulkan;

@@ -16,6 +16,8 @@
 #endif
 
 #define VULKAN_HPP_NO_NODISCARD_WARNINGS // TODO: temporarily disable warnings to make it compile. Need to fix all the warnings later.
+
+#define VULKAN_HPP_DISPATCH_LOADER_DYNAMIC 1
 #include <vulkan/vulkan.hpp>
 
 #if EZ_ENABLED(EZ_PLATFORM_ANDROID)

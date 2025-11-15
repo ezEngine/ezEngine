@@ -1,10 +1,8 @@
 #pragma once
 
+#include <RendererVulkan/RendererVulkanDLL.h>
+
 #include <RendererFoundation/Resources/ReadbackTexture.h>
-
-#include <RendererVulkan/Resources/TextureVulkan.h>
-
-#include <vulkan/vulkan.hpp>
 
 class ezGALBufferVulkan;
 class ezGALDeviceVulkan;

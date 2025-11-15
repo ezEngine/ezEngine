@@ -1,7 +1,5 @@
 #pragma once
 
-#include <vulkan/vulkan.h>
-
 class ezGALDeviceVulkan;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)

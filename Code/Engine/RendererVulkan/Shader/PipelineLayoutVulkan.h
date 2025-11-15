@@ -4,8 +4,6 @@
 #include <RendererFoundation/Shader/PipelineLayout.h>
 #include <RendererVulkan/RendererVulkanDLL.h>
 
-#include <vulkan/vulkan.hpp>
-
 class ezGALPipelineLayoutVulkan : public ezGALPipelineLayout
 {
 public:

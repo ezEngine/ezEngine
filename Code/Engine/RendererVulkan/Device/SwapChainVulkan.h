@@ -1,13 +1,12 @@
 
 #pragma once
 
-#include <RendererFoundation/Descriptors/Descriptors.h>
-#include <RendererFoundation/Device/SwapChain.h>
 #include <RendererVulkan/RendererVulkanDLL.h>
 
-#include <vulkan/vulkan.hpp>
+#include <RendererFoundation/Device/SwapChain.h>
 
 class ezGALDeviceVulkan;
+struct ezGALWindowSwapChainCreationDescription;
 
 class ezGALSwapChainVulkan : public ezGALWindowSwapChain
 {

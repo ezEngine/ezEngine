@@ -4,8 +4,6 @@
 
 #include <Foundation/Containers/Bitfield.h>
 
-#include <vulkan/vulkan.hpp>
-
 class ezGALBufferVulkan;
 class ezGALTextureVulkan;
 class ezGALRenderTargetViewVulkan;

@@ -8,7 +8,6 @@
 #include <RendererFoundation/Shader/BindGroup.h>
 #include <RendererVulkan/Cache/ResourceCacheVulkan.h>
 #include <RendererVulkan/Pools/UniformBufferPoolVulkan.h>
-#include <vulkan/vulkan.hpp>
 
 class ezGALBlendStateVulkan;
 class ezGALBufferVulkan;

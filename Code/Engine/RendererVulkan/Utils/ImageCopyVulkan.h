@@ -5,8 +5,6 @@
 #include <RendererFoundation/Shader/ShaderUtils.h>
 #include <RendererVulkan/Cache/ResourceCacheVulkan.h>
 
-#include <vulkan/vulkan.hpp>
-
 class ezGALBufferVulkan;
 class ezGALTextureVulkan;
 class ezGALRenderTargetViewVulkan;

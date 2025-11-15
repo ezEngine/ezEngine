@@ -1,7 +1,6 @@
 #pragma once
 
 #include <RendererVulkan/RendererVulkanDLL.h>
-#include <vulkan/vulkan.hpp>
 
 class ezGALDeviceVulkan;
 class ezUniformBufferPoolVulkan;

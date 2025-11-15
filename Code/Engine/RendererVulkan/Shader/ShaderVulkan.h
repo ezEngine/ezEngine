@@ -7,7 +7,6 @@
 #include <RendererFoundation/Shader/Shader.h>
 
 #include <RendererCore/Shader/ShaderStageBinary.h>
-#include <vulkan/vulkan.hpp>
 
 class EZ_RENDERERVULKAN_DLL ezGALShaderVulkan : public ezGALShader
 {

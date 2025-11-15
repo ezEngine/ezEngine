@@ -1,0 +1,14 @@
+{
+  "Registrations": [
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/KhronosGroup/Vulkan-Headers",
+          "commitHash": "9a0f3099c8a9607a7c0f3127d8abfdc19a93e8c5"
+        }
+      }
+    }
+  ],
+  "$schema": "https://json.schemastore.org/component-detection-manifest.json"
+}

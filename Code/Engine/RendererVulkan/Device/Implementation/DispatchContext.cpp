@@ -12,14 +12,14 @@ void ezVulkanDispatchContext::Init(ezGALDeviceVulkan& device)
 #if EZ_ENABLED(EZ_PLATFORM_LINUX)
   if (extensions.m_bExternalMemoryFd)
   {
-    EZ_DISPATCH_CONTEXT_MEMBER_NAME(vkGetMemoryFdKHR) = (PFN_vkGetMemoryFdKHR)vkGetDeviceProcAddr(nativeDevice, "vkGetMemoryFdKHR");
-    EZ_DISPATCH_CONTEXT_MEMBER_NAME(vkGetMemoryFdPropertiesKHR) = (PFN_vkGetMemoryFdPropertiesKHR)vkGetDeviceProcAddr(nativeDevice, "vkGetMemoryFdPropertiesKHR");
+    EZ_DISPATCH_CONTEXT_MEMBER_NAME(vkGetMemoryFdKHR) = (PFN_vkGetMemoryFdKHR)device.GetVulkanDevice().getProcAddr("vkGetMemoryFdKHR");
+    EZ_DISPATCH_CONTEXT_MEMBER_NAME(vkGetMemoryFdPropertiesKHR) = (PFN_vkGetMemoryFdPropertiesKHR)device.GetVulkanDevice().getProcAddr( "vkGetMemoryFdPropertiesKHR");
   }
 
   if (extensions.m_bExternalSemaphoreFd)
   {
-    EZ_DISPATCH_CONTEXT_MEMBER_NAME(vkGetSemaphoreFdKHR) = (PFN_vkGetSemaphoreFdKHR)vkGetDeviceProcAddr(nativeDevice, "vkGetSemaphoreFdKHR");
-    EZ_DISPATCH_CONTEXT_MEMBER_NAME(vkImportSemaphoreFdKHR) = (PFN_vkImportSemaphoreFdKHR)vkGetDeviceProcAddr(nativeDevice, "vkImportSemaphoreFdKHR");
+    EZ_DISPATCH_CONTEXT_MEMBER_NAME(vkGetSemaphoreFdKHR) = (PFN_vkGetSemaphoreFdKHR)device.GetVulkanDevice().getProcAddr("vkGetSemaphoreFdKHR");
+    EZ_DISPATCH_CONTEXT_MEMBER_NAME(vkImportSemaphoreFdKHR) = (PFN_vkImportSemaphoreFdKHR)device.GetVulkanDevice().getProcAddr("vkImportSemaphoreFdKHR");
   }
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   if (extensions.m_bExternalMemoryWin32)

@@ -3,8 +3,6 @@
 #include <RendererFoundation/Descriptors/Enumerations.h>
 #include <RendererVulkan/RendererVulkanDLL.h>
 
-#include <vulkan/vulkan.hpp>
-
 class ezGALDeviceVulkan;
 
 /// \brief Pool for GPU queries.

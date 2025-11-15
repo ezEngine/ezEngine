@@ -73,41 +73,24 @@ macro (ez_platformhook_make_windowapp TARGET_NAME)
 endmacro()
 
 macro(ez_platformhook_find_vulkan)
-    if(EZ_CMAKE_ARCHITECTURE_64BIT)
-        if((EZ_VULKAN_DIR STREQUAL "EZ_VULKAN_DIR-NOTFOUND") OR(EZ_VULKAN_DIR STREQUAL ""))
-            # set(CMAKE_FIND_DEBUG_MODE TRUE)
-            unset(EZ_VULKAN_DIR CACHE)
-            unset(EzVulkan_DIR CACHE)
-            find_path(EZ_VULKAN_DIR Config/vk_layer_settings.txt
-                PATHS
-                ${EZ_VULKAN_DIR}
-                $ENV{VULKAN_SDK}
-                REQUIRED
-            )
-
-            # set(CMAKE_FIND_DEBUG_MODE FALSE)
-        endif()
+    if(EZ_CMAKE_ARCHITECTURE_64BIT AND EZ_CMAKE_ARCHITECTURE_X86)
+        set(EZ_DXC_DIR "${EZ_ROOT}/Workspace/shared/DXC-WinX64-${EZ_CONFIG_DIRECTXSHADERCOMPILER_WINX64_VERSION}")
+        ez_download_and_extract("${EZ_CONFIG_DIRECTXSHADERCOMPILER_WINX64_URL}" "${EZ_DXC_DIR}" "DXC-WinX64-${EZ_CONFIG_DIRECTXSHADERCOMPILER_WINX64_VERSION}")
     else()
         message(FATAL_ERROR "TODO: Vulkan is not yet supported on this platform and/or architecture.")
     endif()
 
     include(FindPackageHandleStandardArgs)
-    find_package_handle_standard_args(EzVulkan DEFAULT_MSG EZ_VULKAN_DIR)
+    find_package_handle_standard_args(EzVulkan DEFAULT_MSG EZ_DXC_DIR)
 
-    if(EZVULKAN_FOUND)
-        if(EZ_CMAKE_ARCHITECTURE_64BIT)
-            add_library(EzVulkan::Loader STATIC IMPORTED)
-            set_target_properties(EzVulkan::Loader PROPERTIES IMPORTED_LOCATION "${EZ_VULKAN_DIR}/Lib/vulkan-1.lib")
-            set_target_properties(EzVulkan::Loader PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${EZ_VULKAN_DIR}/Include")
-
-            add_library(EzVulkan::DXC SHARED IMPORTED)
-            set_target_properties(EzVulkan::DXC PROPERTIES IMPORTED_LOCATION "${EZ_VULKAN_DIR}/Bin/dxcompiler.dll")
-            set_target_properties(EzVulkan::DXC PROPERTIES IMPORTED_IMPLIB "${EZ_VULKAN_DIR}/Lib/dxcompiler.lib")
-            set_target_properties(EzVulkan::DXC PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${EZ_VULKAN_DIR}/Include")
-        else()
-            message(FATAL_ERROR "TODO: Vulkan is not yet supported on this platform and/or architecture.")
-        endif()
-    endif()    
+    if(EZ_CMAKE_ARCHITECTURE_64BIT AND EZ_CMAKE_ARCHITECTURE_X86)
+        add_library(EzVulkan::DXC SHARED IMPORTED)
+        set_target_properties(EzVulkan::DXC PROPERTIES IMPORTED_LOCATION "${EZ_DXC_DIR}/bin/x64/dxcompiler.dll")
+        set_target_properties(EzVulkan::DXC PROPERTIES IMPORTED_IMPLIB "${EZ_DXC_DIR}/lib/x64/dxcompiler.lib")
+        set_target_properties(EzVulkan::DXC PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${EZ_DXC_DIR}/inc")
+    else()
+        message(FATAL_ERROR "TODO: Vulkan is not yet supported on this platform and/or architecture.")
+    endif() 
 endmacro()
 
 macro(ez_platformhook_find_qt)

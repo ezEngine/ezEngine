@@ -1,8 +1,8 @@
 #pragma once
 
-#include <RendererFoundation/Resources/ReadbackBuffer.h>
+#include <RendererVulkan/RendererVulkanDLL.h>
 
-#include <vulkan/vulkan.hpp>
+#include <RendererFoundation/Resources/ReadbackBuffer.h>
 
 class ezGALDeviceVulkan;
 

@@ -12,8 +12,6 @@ if (EZ_CMAKE_PLATFORM_LINUX)
 	target_compile_options(${PROJECT_NAME} PRIVATE "-Wno-nullability-completeness" "-Wno-enum-compare" "-Wno-switch")
 endif()
 
-ez_link_target_vulkan(${PROJECT_NAME})
-
 target_link_libraries(${PROJECT_NAME}
   PRIVATE
 )
@@ -22,6 +20,8 @@ target_link_libraries(${PROJECT_NAME}
   PUBLIC
   Foundation
   RendererFoundation
+  Vulkan-Headers
+  VMA
 )
 
 if(EZ_3RDPARTY_GLFW_SUPPORT)

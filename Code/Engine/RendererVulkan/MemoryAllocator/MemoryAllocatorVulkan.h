@@ -101,7 +101,7 @@ struct ezVulkanMemoryStatistics
 class EZ_RENDERERVULKAN_DLL ezMemoryAllocatorVulkan
 {
 public:
-  static vk::Result Initialize(vk::PhysicalDevice physicalDevice, vk::Device device, vk::Instance instance);
+  static vk::Result Initialize(vk::PhysicalDevice physicalDevice, vk::Device device, vk::Instance instance, vk::detail::DispatchLoaderDynamic& loader);
   static void DeInitialize();
 
   static vk::Result CreateImage(const vk::ImageCreateInfo& imageCreateInfo, const ezVulkanAllocationCreateInfo& allocationCreateInfo, vk::Image& out_image, ezVulkanAllocation& out_alloc, ezVulkanAllocationInfo* pAllocInfo = nullptr);

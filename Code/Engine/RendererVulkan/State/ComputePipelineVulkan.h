@@ -3,7 +3,6 @@
 #include <Foundation/Basics.h>
 #include <RendererFoundation/State/ComputePipeline.h>
 #include <RendererVulkan/RendererVulkanDLL.h>
-#include <vulkan/vulkan.hpp>
 
 class ezGALDeviceVulkan;
 

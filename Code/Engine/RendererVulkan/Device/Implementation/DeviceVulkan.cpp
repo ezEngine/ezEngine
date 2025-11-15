@@ -55,6 +55,12 @@
 
 EZ_DEFINE_AS_POD_TYPE(VkLayerProperties);
 
+namespace vk {
+  namespace detail {
+    DispatchLoaderDynamic defaultDispatchLoaderDynamic;
+  }
+}
+
 namespace
 {
   VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)
@@ -83,11 +89,11 @@ namespace
   bool isInstanceLayerPresent(const char* layerName)
   {
     uint32_t layerCount = 0;
-    vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+    vk::enumerateInstanceLayerProperties(&layerCount, nullptr);
 
-    ezDynamicArray<VkLayerProperties> availableLayers;
-    availableLayers.SetCountUninitialized(layerCount);
-    vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.GetData());
+    ezDynamicArray<vk::LayerProperties> availableLayers;
+    availableLayers.SetCount(layerCount);
+    vk::enumerateInstanceLayerProperties(&layerCount, availableLayers.GetData());
 
     for (const auto& layerProperties : availableLayers)
     {
@@ -101,50 +107,6 @@ namespace
   }
 } // namespace
 
-// Need to implement these extension functions so vulkan hpp can call them.
-// They're basically just adapters calling the function pointer retrieved previously.
-
-PFN_vkSetDebugUtilsObjectNameEXT vkSetDebugUtilsObjectNameEXTFunc;
-PFN_vkQueueBeginDebugUtilsLabelEXT vkQueueBeginDebugUtilsLabelEXTFunc;
-PFN_vkQueueEndDebugUtilsLabelEXT vkQueueEndDebugUtilsLabelEXTFunc;
-PFN_vkCmdBeginDebugUtilsLabelEXT vkCmdBeginDebugUtilsLabelEXTFunc;
-PFN_vkCmdEndDebugUtilsLabelEXT vkCmdEndDebugUtilsLabelEXTFunc;
-PFN_vkCmdInsertDebugUtilsLabelEXT vkCmdInsertDebugUtilsLabelEXTFunc;
-
-VkResult vkSetDebugUtilsObjectNameEXT(VkDevice device, const VkDebugUtilsObjectNameInfoEXT* pObjectName)
-{
-  return vkSetDebugUtilsObjectNameEXTFunc(device, pObjectName);
-}
-
-void vkQueueBeginDebugUtilsLabelEXT(VkQueue queue, const VkDebugUtilsLabelEXT* pLabelInfo)
-{
-  return vkQueueBeginDebugUtilsLabelEXTFunc(queue, pLabelInfo);
-}
-
-void vkQueueEndDebugUtilsLabelEXT(VkQueue queue)
-{
-  return vkQueueEndDebugUtilsLabelEXTFunc(queue);
-}
-//
-// void vkQueueInsertDebugUtilsLabelEXT(VkQueue queue, const VkDebugUtilsLabelEXT* pLabelInfo)
-//{
-//  return vkQueueInsertDebugUtilsLabelEXTFunc(queue, pLabelInfo);
-//}
-
-void vkCmdBeginDebugUtilsLabelEXT(VkCommandBuffer commandBuffer, const VkDebugUtilsLabelEXT* pLabelInfo)
-{
-  return vkCmdBeginDebugUtilsLabelEXTFunc(commandBuffer, pLabelInfo);
-}
-
-void vkCmdEndDebugUtilsLabelEXT(VkCommandBuffer commandBuffer)
-{
-  return vkCmdEndDebugUtilsLabelEXTFunc(commandBuffer);
-}
-
-void vkCmdInsertDebugUtilsLabelEXT(VkCommandBuffer commandBuffer, const VkDebugUtilsLabelEXT* pLabelInfo)
-{
-  return vkCmdInsertDebugUtilsLabelEXTFunc(commandBuffer, pLabelInfo);
-}
 
 ezInternal::NewInstance<ezGALDevice> CreateVulkanDevice(ezAllocator* pAllocator, const ezGALDeviceCreationDescription& Description)
 {
@@ -335,7 +297,7 @@ vk::Result ezGALDeviceVulkan::SelectDeviceExtensions(vk::DeviceCreateInfo& devic
   return vk::Result::eSuccess;
 }
 
-#define EZ_GET_INSTANCE_PROC_ADDR(name) m_extensions.pfn_##name = reinterpret_cast<PFN_##name>(vkGetInstanceProcAddr(m_instance, #name));
+#define EZ_GET_INSTANCE_PROC_ADDR(name) m_extensions.pfn_##name = reinterpret_cast<PFN_##name>(m_instance.getProcAddr(#name));
 
 ezStringView ezGALDeviceVulkan::GetRendererPlatform()
 {
@@ -345,6 +307,10 @@ ezStringView ezGALDeviceVulkan::GetRendererPlatform()
 ezResult ezGALDeviceVulkan::InitPlatform()
 {
   EZ_LOG_BLOCK("ezGALDeviceVulkan::InitPlatform");
+
+  {
+    vk::detail::defaultDispatchLoaderDynamic.init();
+  }
 
   const char* layers[] = {"VK_LAYER_KHRONOS_validation"};
   {
@@ -431,6 +397,7 @@ ezResult ezGALDeviceVulkan::InitPlatform()
     }
 
     m_instance = vk::createInstance(instanceCreateInfo);
+    vk::detail::defaultDispatchLoaderDynamic.init( m_instance );
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
     if (m_extensions.m_bDebugUtils)
@@ -574,6 +541,8 @@ ezResult ezGALDeviceVulkan::InitPlatform()
     deviceCreateInfo.pQueueCreateInfos = queues.GetData();
 
     VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_physicalDevice.createDevice(&deviceCreateInfo, nullptr, &m_device));
+    vk::detail::defaultDispatchLoaderDynamic.init( m_device );
+
     m_device.getQueue(m_graphicsQueue.m_uiQueueFamily, m_graphicsQueue.m_uiQueueIndex, &m_graphicsQueue.m_queue);
 
     if (m_graphicsQueue.m_uiQueueFamily != m_transferQueue.m_uiQueueFamily && m_transferQueue.m_uiQueueFamily != -1)
@@ -584,14 +553,7 @@ ezResult ezGALDeviceVulkan::InitPlatform()
     m_dispatchContext.Init(*this);
   }
 
-  vkSetDebugUtilsObjectNameEXTFunc = (PFN_vkSetDebugUtilsObjectNameEXT)m_device.getProcAddr("vkSetDebugUtilsObjectNameEXT");
-  vkQueueBeginDebugUtilsLabelEXTFunc = (PFN_vkQueueBeginDebugUtilsLabelEXT)m_device.getProcAddr("vkQueueBeginDebugUtilsLabelEXT");
-  vkQueueEndDebugUtilsLabelEXTFunc = (PFN_vkQueueEndDebugUtilsLabelEXT)m_device.getProcAddr("vkQueueEndDebugUtilsLabelEXT");
-  vkCmdBeginDebugUtilsLabelEXTFunc = (PFN_vkCmdBeginDebugUtilsLabelEXT)m_device.getProcAddr("vkCmdBeginDebugUtilsLabelEXT");
-  vkCmdEndDebugUtilsLabelEXTFunc = (PFN_vkCmdEndDebugUtilsLabelEXT)m_device.getProcAddr("vkCmdEndDebugUtilsLabelEXT");
-  vkCmdInsertDebugUtilsLabelEXTFunc = (PFN_vkCmdInsertDebugUtilsLabelEXT)m_device.getProcAddr("vkCmdInsertDebugUtilsLabelEXT");
-
-  VK_SUCCEED_OR_RETURN_EZ_FAILURE(ezMemoryAllocatorVulkan::Initialize(m_physicalDevice, m_device, m_instance));
+  VK_SUCCEED_OR_RETURN_EZ_FAILURE(ezMemoryAllocatorVulkan::Initialize(m_physicalDevice, m_device, m_instance, vk::detail::defaultDispatchLoaderDynamic));
 
   m_memoryProperties = m_physicalDevice.getMemoryProperties();
 
