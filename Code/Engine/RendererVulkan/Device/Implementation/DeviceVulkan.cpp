@@ -55,11 +55,13 @@
 
 EZ_DEFINE_AS_POD_TYPE(VkLayerProperties);
 
-namespace vk {
-  namespace detail {
+namespace vk
+{
+  namespace detail
+  {
     DispatchLoaderDynamic defaultDispatchLoaderDynamic;
   }
-}
+} // namespace vk
 
 namespace
 {
@@ -397,7 +399,7 @@ ezResult ezGALDeviceVulkan::InitPlatform()
     }
 
     m_instance = vk::createInstance(instanceCreateInfo);
-    vk::detail::defaultDispatchLoaderDynamic.init( m_instance );
+    vk::detail::defaultDispatchLoaderDynamic.init(m_instance);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
     if (m_extensions.m_bDebugUtils)
@@ -541,7 +543,7 @@ ezResult ezGALDeviceVulkan::InitPlatform()
     deviceCreateInfo.pQueueCreateInfos = queues.GetData();
 
     VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_physicalDevice.createDevice(&deviceCreateInfo, nullptr, &m_device));
-    vk::detail::defaultDispatchLoaderDynamic.init( m_device );
+    vk::detail::defaultDispatchLoaderDynamic.init(m_device);
 
     m_device.getQueue(m_graphicsQueue.m_uiQueueFamily, m_graphicsQueue.m_uiQueueIndex, &m_graphicsQueue.m_queue);
 

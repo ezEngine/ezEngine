@@ -7,8 +7,8 @@
 #include <Foundation/IO/OSFile.h>
 #include <RendererFoundation/Resources/Texture.h>
 #include <RendererVulkan/Cache/ResourceCacheVulkan.h>
-#include <RendererVulkan/Resources/TextureVulkan.h>
 #include <RendererVulkan/Resources/RenderTargetViewVulkan.h>
+#include <RendererVulkan/Resources/TextureVulkan.h>
 #include <RendererVulkan/Shader/ShaderVulkan.h>
 #include <RendererVulkan/Shader/VertexDeclarationVulkan.h>
 #include <RendererVulkan/State/StateVulkan.h>

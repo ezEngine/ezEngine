@@ -13,7 +13,7 @@ void ezVulkanDispatchContext::Init(ezGALDeviceVulkan& device)
   if (extensions.m_bExternalMemoryFd)
   {
     EZ_DISPATCH_CONTEXT_MEMBER_NAME(vkGetMemoryFdKHR) = (PFN_vkGetMemoryFdKHR)device.GetVulkanDevice().getProcAddr("vkGetMemoryFdKHR");
-    EZ_DISPATCH_CONTEXT_MEMBER_NAME(vkGetMemoryFdPropertiesKHR) = (PFN_vkGetMemoryFdPropertiesKHR)device.GetVulkanDevice().getProcAddr( "vkGetMemoryFdPropertiesKHR");
+    EZ_DISPATCH_CONTEXT_MEMBER_NAME(vkGetMemoryFdPropertiesKHR) = (PFN_vkGetMemoryFdPropertiesKHR)device.GetVulkanDevice().getProcAddr("vkGetMemoryFdPropertiesKHR");
   }
 
   if (extensions.m_bExternalSemaphoreFd)
