@@ -11,7 +11,7 @@
 #  include <d3dcompiler.h>
 #endif
 
-#include <dxc/dxcapi.h>
+#include <dxcapi.h>
 
 template <typename T>
 struct ezComPtr
