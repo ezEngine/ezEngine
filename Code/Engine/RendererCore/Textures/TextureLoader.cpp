@@ -5,6 +5,7 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/Math/Float16.h>
 #include <Foundation/Utilities/AssetFileHeader.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Textures/Texture3DResource.h>
@@ -124,40 +125,35 @@ ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResource* pRe
       ezColorGradientResourceDescriptor desc;
       desc.Load(File);
 
-      pData->m_TexFormat.m_bSRGB = true;
+      constexpr ezUInt32 uiWidth = 512;
+      constexpr ezUInt32 uiHeight = 1;
 
-      const ezUInt32 uiHeight = 1;
-
-      // set up a 1024 * 4 uncompressed RGBA texture
       ezImageHeader header;
-      header.SetWidth(1024);
+      header.SetWidth(uiWidth);
       header.SetHeight(uiHeight);
       header.SetDepth(1);
-      header.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM_SRGB);
+      header.SetImageFormat(ezImageFormat::R16G16B16A16_FLOAT);
       header.SetNumMipLevels(1);
       header.SetNumFaces(1);
       pData->m_Image.ResetAndAlloc(header);
-      ezUInt8* pPixels = pData->m_Image.GetPixelPointer<ezUInt8>();
+      ezFloat16* pPixels = pData->m_Image.GetPixelPointer<ezFloat16>();
 
       // fill each pixel with the color gradient from left to right, duplicate along the vertical pixels
-      for (ezUInt32 x = 0; x < 1024; ++x)
+      for (ezUInt32 x = 0; x < uiWidth; ++x)
       {
-        const double fGradientPos = (double)x / 1023.0; // normalize to [0, 1]
+        const double fGradientPos = (double)x / (double)(uiWidth - 1); // normalize to [0, 1]
 
         ezColor color;
         desc.m_Gradient.Evaluate(fGradientPos, color);
-
-        // convert to gamma space
-        ezColorGammaUB gammaColor = color;
 
         // duplicate along the vertical pixels
         for (ezUInt32 y = 0; y < uiHeight; ++y)
         {
           const ezUInt32 pixelIndex = (y * 1024 + x) * 4;
-          pPixels[pixelIndex + 0] = gammaColor.r;
-          pPixels[pixelIndex + 1] = gammaColor.g;
-          pPixels[pixelIndex + 2] = gammaColor.b;
-          pPixels[pixelIndex + 3] = gammaColor.a;
+          pPixels[pixelIndex + 0] = color.r;
+          pPixels[pixelIndex + 1] = color.g;
+          pPixels[pixelIndex + 2] = color.b;
+          pPixels[pixelIndex + 3] = color.a;
         }
       }
     }
