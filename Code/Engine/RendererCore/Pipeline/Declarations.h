@@ -51,7 +51,6 @@ namespace ezInternal
 struct ezRenderViewContext
 {
   const ezCamera* m_pCamera = nullptr;
-  const ezCamera* m_pLodCamera = nullptr;
   const ezViewData* m_pViewData = nullptr;
   ezRenderContext* m_pRenderContext = nullptr;
 

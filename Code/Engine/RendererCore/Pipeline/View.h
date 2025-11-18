@@ -157,7 +157,6 @@ private:
   friend class ezMemoryUtils;
 
   ezViewId m_InternalId;
-  ezHashedString m_sName;
 
   ezSharedPtr<ezTask> m_pExtractTask;
 

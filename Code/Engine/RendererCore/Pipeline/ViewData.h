@@ -25,7 +25,9 @@ struct EZ_RENDERERCORE_DLL ezViewData
     }
   }
 
-  ezGALRenderTargets m_renderTargets;
+  ezHashedString m_sName;
+
+  ezGALRenderTargets m_RenderTargets;
   ezGALSwapChainHandle m_hSwapChain;
   ezRectFloat m_ViewPortRect;
   ezEnum<ezViewRenderMode> m_ViewRenderMode;

@@ -43,7 +43,7 @@ ezView::~ezView() = default;
 
 void ezView::SetName(ezStringView sName)
 {
-  m_sName.Assign(sName);
+  m_Data.m_sName.Assign(sName);
 
   ezStringBuilder sb = sName;
   sb.Append(".ExtractData");
@@ -66,7 +66,7 @@ void ezView::SetSwapChain(ezGALSwapChainHandle hSwapChain)
   {
     // Swap chain and render target setup are mutually exclusive.
     m_Data.m_hSwapChain = hSwapChain;
-    m_Data.m_renderTargets = ezGALRenderTargets();
+    m_Data.m_RenderTargets = ezGALRenderTargets();
     if (m_pRenderPipeline)
     {
       ezRenderWorld::AddRenderPipelineToRebuild(m_pRenderPipeline, GetHandle());
@@ -76,11 +76,11 @@ void ezView::SetSwapChain(ezGALSwapChainHandle hSwapChain)
 
 void ezView::SetRenderTargets(const ezGALRenderTargets& renderTargets)
 {
-  if (m_Data.m_renderTargets != renderTargets)
+  if (m_Data.m_RenderTargets != renderTargets)
   {
     // Swap chain and render target setup are mutually exclusive.
     m_Data.m_hSwapChain = ezGALSwapChainHandle();
-    m_Data.m_renderTargets = renderTargets;
+    m_Data.m_RenderTargets = renderTargets;
     if (m_pRenderPipeline)
     {
       ezRenderWorld::AddRenderPipelineToRebuild(m_pRenderPipeline, GetHandle());
@@ -94,7 +94,7 @@ const ezGALRenderTargets& ezView::GetActiveRenderTargets() const
   {
     return pSwapChain->GetRenderTargets();
   }
-  return m_Data.m_renderTargets;
+  return m_Data.m_RenderTargets;
 }
 
 void ezView::SetRenderPipelineResource(ezRenderPipelineResourceHandle hPipeline)
@@ -154,7 +154,7 @@ void ezView::ExtractData()
   ezRenderWorld::s_ExtractionEvent.Broadcast(extractionEvent);
 
 
-  m_pRenderPipeline->m_sName = m_sName;
+  m_pRenderPipeline->m_sName = m_Data.m_sName;
   m_pRenderPipeline->ExtractData(*this);
 
   extractionEvent.m_Type = ezRenderWorldExtractionEvent::Type::AfterViewExtraction;

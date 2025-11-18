@@ -6,7 +6,7 @@ EZ_ALWAYS_INLINE ezViewHandle ezView::GetHandle() const
 
 EZ_ALWAYS_INLINE ezStringView ezView::GetName() const
 {
-  return m_sName.GetView();
+  return m_Data.m_sName.GetView();
 }
 
 EZ_ALWAYS_INLINE ezWorld* ezView::GetWorld()
@@ -26,7 +26,7 @@ EZ_ALWAYS_INLINE ezGALSwapChainHandle ezView::GetSwapChain() const
 
 EZ_ALWAYS_INLINE const ezGALRenderTargets& ezView::GetRenderTargets() const
 {
-  return m_Data.m_renderTargets;
+  return m_Data.m_RenderTargets;
 }
 
 EZ_ALWAYS_INLINE void ezView::SetCamera(ezCamera* pCamera)

@@ -115,6 +115,9 @@ void ezExtractedRenderData::SortAndBatchCategory(DataPerCategory& dataPerCategor
   // Sort
   data.Sort(RenderDataComparer());
 
+  const bool bIsStereo = m_Camera.GetCameraMode() == ezCameraMode::Stereo;
+  const ezUInt32 uiStereoCorrectionShift = bIsStereo ? 1 : 0;
+
   auto FillDataOffsets = [&](const ezRenderData* pRenderData, const ezRTTI* pType)
   {
     if (!pType->IsDerivedFrom<ezInstanceableRenderData>())
@@ -131,6 +134,12 @@ void ezExtractedRenderData::SortAndBatchCategory(DataPerCategory& dataPerCategor
         instanceDataOffset.m_uiCustomInstance = dataOffsets.m_uiCustomInstance + uiInstanceIndex;
         instanceDataOffset.m_uiMaterial = dataOffsets.m_uiMaterial;
         instanceDataOffset.m_uiSkinning = dataOffsets.m_uiSkinning;
+
+        // Stereo rendering uses twice the number of instances so we need to duplicate the data offsets
+        if (bIsStereo)
+        {
+          dataPerCategory.m_DataOffsets.PushBack(instanceDataOffset);
+        }
       }
     }
   };
@@ -152,7 +161,7 @@ void ezExtractedRenderData::SortAndBatchCategory(DataPerCategory& dataPerCategor
       auto& batch = dataPerCategory.m_Batches.ExpandAndGetRef();
       batch.m_Data = ezMakeArrayPtr(&data[uiCurrentBatchStartIndex], uiRenderDataIndex - uiCurrentBatchStartIndex);
       batch.m_uiFirstDataOffsetIndex = uiCurrentDataOffsetIndex;
-      batch.m_uiInstanceCount = dataPerCategory.m_DataOffsets.GetCount() - uiCurrentDataOffsetIndex;
+      batch.m_uiInstanceCount = (dataPerCategory.m_DataOffsets.GetCount() - uiCurrentDataOffsetIndex) >> uiStereoCorrectionShift;
 
       pCurrentBatchRenderData = pRenderData;
       pCurrentBatchType = pRenderDataType;
@@ -166,7 +175,7 @@ void ezExtractedRenderData::SortAndBatchCategory(DataPerCategory& dataPerCategor
   auto& batch = dataPerCategory.m_Batches.ExpandAndGetRef();
   batch.m_Data = ezMakeArrayPtr(&data[uiCurrentBatchStartIndex], data.GetCount() - uiCurrentBatchStartIndex);
   batch.m_uiFirstDataOffsetIndex = uiCurrentDataOffsetIndex;
-  batch.m_uiInstanceCount = dataPerCategory.m_DataOffsets.GetCount() - uiCurrentDataOffsetIndex;
+  batch.m_uiInstanceCount = (dataPerCategory.m_DataOffsets.GetCount() - uiCurrentDataOffsetIndex) >> uiStereoCorrectionShift;
 
   // Create or update data offsets buffer
   if (dataPerCategory.m_DataOffsets.IsEmpty() == false)
@@ -197,7 +206,9 @@ void ezExtractedRenderData::SortAndBatchCategory(DataPerCategory& dataPerCategor
       dataPerCategory.m_hDataOffsetsBuffer = pDevice->CreateBuffer(bufferDesc, dataPerCategory.m_DataOffsets.GetByteArrayPtr());
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-      ezStringBuilder sb = ezRenderData::GetCategoryName(category).GetView();
+      ezStringBuilder sb = m_ViewData.m_sName.GetView();
+      sb.Append(" - ");
+      sb.Append(ezRenderData::GetCategoryName(category).GetView());
       sb.Append(" - Data Offsets");
 
       pDevice->GetBuffer(dataPerCategory.m_hDataOffsetsBuffer)->SetDebugName(sb);
