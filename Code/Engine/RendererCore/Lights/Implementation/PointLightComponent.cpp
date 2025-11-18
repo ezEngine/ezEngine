@@ -4,8 +4,8 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <RendererCore/Lights/Implementation/ShadowPool.h>
 #include <RendererCore/Lights/PointLightComponent.h>
-#include <RendererCore/Pipeline/View.h>
 #include <RendererCore/Pipeline/RenderDataManager.h>
+#include <RendererCore/Pipeline/View.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPointLightRenderData, 1, ezRTTIDefaultAllocator<ezPointLightRenderData>)

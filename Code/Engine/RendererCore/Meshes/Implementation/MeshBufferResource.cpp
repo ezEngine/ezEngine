@@ -15,8 +15,7 @@ namespace
     "Color0",
     "Color1",
     "SkinningData",
-    "DataOffsets"
-  };
+    "DataOffsets"};
 
   static_assert(EZ_ARRAY_SIZE(s_szMeshVertexStreamTypeNames) == ezMeshVertexStreamType::Count);
 } // namespace

@@ -2,9 +2,9 @@
 
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/World/World.h>
+#include <Foundation/Math/Color16f.h>
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/Pipeline/RenderData.h>
-#include <Foundation/Math/Color16f.h>
 
 struct ezMsgSetColor;
 using ezTexture2DResourceHandle = ezTypedResourceHandle<class ezTexture2DResource>;
@@ -42,7 +42,7 @@ public:
   float m_fSize;
   float m_fMaxScreenSize;
   float m_fAspectRatio;
-  
+
   ezColorLinear16f m_color;
 
   ezFloat16Vec2 m_texCoordScale;

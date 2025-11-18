@@ -304,7 +304,7 @@ void ezGALDynamicBuffer::UploadChangesForNextFrame()
     auto& allocation = it.Value();
     if (allocation.m_uiDataIndex == 0)
       break;
-    
+
     allocation.m_uiDataIndex = 0;
   }
 

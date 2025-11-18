@@ -599,7 +599,7 @@ void ezGALDeviceDX11::DestroyBufferPlatform(ezGALBuffer* pBuffer)
       --i;
     }
   }
-  
+
   pDX11Buffer->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pDX11Buffer);
 }

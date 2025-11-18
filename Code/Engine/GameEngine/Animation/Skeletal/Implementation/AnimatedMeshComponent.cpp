@@ -167,7 +167,7 @@ ezTransform ezAnimatedMeshComponent::GetFinalGlobalTransform() const
 ezMeshRenderData* ezAnimatedMeshComponent::CreateRenderData(const ezRenderDataManager* pRenderDataManager) const
 {
   auto pRenderData = pRenderDataManager->CreateRenderDataForThisFrame<ezSkinnedMeshRenderData>(GetOwner());
-  
+
   pRenderData->m_DataOffsets.m_uiSkinning = m_SkinningState.m_DataOffset.m_uiOffset;
   pRenderData->m_hSkinningBuffer = pRenderDataManager->GetSkinningDataBuffer();
 

@@ -101,7 +101,7 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, c
 
   pContext->SetShaderPermutationVariable("VERTEX_SKINNING", bUseSkinning ? sTrue : sFalse);
   pContext->SetShaderPermutationVariable("FLIP_WINDING", pRenderData->FlipWinding() ? sTrue : sFalse);
-  
+
   if (auto pInstanceDataBuffer = pDevice->GetDynamicBuffer(pRenderData->m_hInstanceDataBuffer))
   {
     bg.BindBuffer("perInstanceData", pInstanceDataBuffer->GetBufferForRendering());

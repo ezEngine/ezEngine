@@ -26,7 +26,7 @@ ezRenderDataManager::ezRenderDataManager(ezWorld* pWorld)
   desc.m_uiTotalSize = 1024 * desc.m_uiStructSize; // TODO: make initial size configurable
   desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
   desc.m_ResourceAccess.m_bImmutable = false;
-  
+
   m_hBuffers.PushBack(pDevice->CreateDynamicBuffer(desc, "Static Instance Data"));
   m_hBuffers.PushBack(pDevice->CreateDynamicBuffer(desc, "Dynamic Instance Data"));
 
@@ -121,7 +121,7 @@ ezUInt32 ezRenderDataManager::RegisterCustomInstanceData(const ezGALBufferCreati
     m_BeforeUploadCallbacks.EnsureCount(uiBufferIndex + 1);
     m_BeforeUploadCallbacks[uiBufferIndex] = beforeUploadCallback;
   }
-  
+
   return uiBufferIndex;
 }
 
