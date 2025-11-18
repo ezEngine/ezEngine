@@ -124,7 +124,7 @@ void ezReflectionPool::ExtractReflectionProbe(const ezComponent* pComponent, ezM
       return;
 
     const ezGameObject* pOwner = pComponent->GetOwner();
-    const ezUInt32 uiUniqueID = ezRenderComponent::GetUniqueIdForRendering(*pComponent, 0);
+    const ezUInt32 uiUniqueID = ezRenderComponent::GetUniqueIdForRendering(*pComponent);
 
     // This is debug rendering code so we don't want to trash the static instance data buffer every frame.
     const bool bDynamic = true;
@@ -146,7 +146,7 @@ void ezReflectionPool::ExtractReflectionProbe(const ezComponent* pComponent, ezM
     }
 
     ezMeshRenderData* pRenderData = ref_msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezMeshRenderData>(pOwner);
-    pRenderData->Fill(probeData.m_DebugInstanceDataOffset, hInstanceDataBuffer, s_pData->m_hDebugMaterial, s_pData->m_hDebugSphere, 0, uiMipLevelsToRender);
+    pRenderData->Fill(probeData.m_DebugInstanceDataOffset, hInstanceDataBuffer, s_pData->m_hDebugMaterial, s_pData->m_hDebugSphere, 0, 0, uiMipLevelsToRender);
 
     ref_msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitOpaque, ezRenderData::Caching::Never);
   }

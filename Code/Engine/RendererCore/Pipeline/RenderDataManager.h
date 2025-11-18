@@ -25,6 +25,7 @@ public:
   ezRenderDataManager(ezWorld* pWorld);
   virtual ~ezRenderDataManager();
 
+  virtual void Initialize() override;
 
   /// \brief Creates render data that is only valid for this frame. The data is automatically deleted after the frame has been rendered.
   template <typename T>
@@ -99,6 +100,7 @@ public:
 private:
   ezByteArrayPtr GetOrCreateCustomInstanceData(ezUInt32 uiCustomDataIndex, ezUInt32 uiStructByteSize, const ezComponent* pOwnerComponent, ezGALDynamicBufferHandle& out_hBuffer, ezCustomInstanceDataOffset& inout_instanceDataOffset, ezUInt32 uiCount) const;
 
+  void CompactSkinningDataBuffer(const UpdateContext& context);
   void OnExtractionEvent(const ezRenderWorldExtractionEvent& e);
 
   mutable ezMutex m_Mutex;

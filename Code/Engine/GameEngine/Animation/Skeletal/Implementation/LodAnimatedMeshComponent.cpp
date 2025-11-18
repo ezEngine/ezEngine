@@ -5,8 +5,8 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/Animation/Skeletal/LodAnimatedMeshComponent.h>
 #include <RendererCore/Debug/DebugRenderer.h>
-#include <RendererCore/Pipeline/View.h>
 #include <RendererCore/Pipeline/RenderDataManager.h>
+#include <RendererCore/Pipeline/View.h>
 #include <ozz/animation/runtime/local_to_model_job.h>
 #include <ozz/animation/runtime/skeleton.h>
 #include <ozz/base/containers/vector.h>
@@ -193,7 +193,8 @@ void ezLodAnimatedMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& 
       pRenderData->m_DataOffsets.m_uiSkinning = m_SkinningState.m_DataOffset.m_uiOffset;
       pRenderData->m_hSkinningBuffer = msg.m_pRenderDataManager->GetSkinningDataBuffer();
 
-      pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, hMaterial, hMesh, uiPartIndex, 1, GetOwner()->GetGlobalBounds().GetBox());
+      pRenderData->SetFallbackGlobalBoundingBox(GetOwner()->GetGlobalBounds().GetBox());
+      pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, hMaterial, hMesh, uiMaterialIndex, uiPartIndex);
     }
 
     ezRenderData::Category category = ezMaterialResource::GetRenderDataCategory(hMaterial);

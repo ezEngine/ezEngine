@@ -18,7 +18,7 @@ public:
   ezUInt32 m_uiNumPrimitives = 0xFFFFFFFF;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  ezBoundingBox m_GlobalBoundingBox;
+  ezBoundingBox m_FallbackGlobalBBox = ezBoundingBox::MakeInvalid();
 #endif
 };
 

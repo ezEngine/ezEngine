@@ -258,7 +258,7 @@ void ezBakedProbesComponent::OnExtractRenderData(ezMsgExtractRenderData& ref_msg
 
   const ezGameObject* pOwner = GetOwner();
   const bool bDynamic = true;
-  const ezUInt32 uiUniqueID = ezRenderComponent::GetUniqueIdForRendering(*this, 0);
+  const ezUInt32 uiUniqueID = ezRenderComponent::GetUniqueIdForRendering(*this);
   const ezUInt32 uiMaxNumProbes = 1024;
 
   ezGALDynamicBufferHandle hInstanceDataBuffer;
@@ -322,7 +322,7 @@ void ezBakedProbesComponent::OnExtractRenderData(ezMsgExtractRenderData& ref_msg
   auto pManager = static_cast<const ezBakedProbesComponentManager*>(GetOwningManager());
 
   ezMeshRenderData* pRenderData = ref_msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezMeshRenderData>(pOwner);
-  pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, pManager->m_hDebugMaterial, pManager->m_hDebugSphere, 0, uiNumProbes);
+  pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, pManager->m_hDebugMaterial, pManager->m_hDebugSphere, 0, 0, uiNumProbes);
 
   ref_msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::SimpleOpaque, m_bUseTestPosition ? ezRenderData::Caching::Never : ezRenderData::Caching::IfStatic);
 }

@@ -184,7 +184,8 @@ void ezLodMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) con
 
     ezMeshRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner());
     pRenderData->m_fSortingDepthOffset = m_fSortingDepthOffset;
-    pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, hMaterial, hMesh, uiPartIndex, 1, GetOwner()->GetGlobalBounds().GetBox());
+    pRenderData->SetFallbackGlobalBoundingBox(GetOwner()->GetGlobalBounds().GetBox());
+    pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, hMaterial, hMesh, uiMaterialIndex, uiPartIndex);
 
     ezRenderData::Category category = ezMaterialResource::GetRenderDataCategory(hMaterial);
 

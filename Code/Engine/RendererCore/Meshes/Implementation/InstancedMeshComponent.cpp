@@ -178,7 +178,8 @@ void ezInstancedMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& ms
       hMaterial = pMesh->GetMaterials()[uiMaterialIndex];
 
     ezMeshRenderData* pRenderData = CreateRenderData(msg.m_pRenderDataManager);
-    pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, hMaterial, m_hMesh, uiPartIndex, m_RawInstancedData.GetCount(), GetOwner()->GetGlobalBounds().GetBox());
+    pRenderData->SetFallbackGlobalBoundingBox(GetOwner()->GetGlobalBounds().GetBox());
+    pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, hMaterial, m_hMesh, uiMaterialIndex, uiPartIndex, m_RawInstancedData.GetCount());
 
     bool bDontCacheYet = false;
     ezRenderData::Category category = ezMaterialResource::GetRenderDataCategory(hMaterial, &bDontCacheYet);

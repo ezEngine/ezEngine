@@ -182,7 +182,7 @@ void ezJoltClothSheetComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& m
     pRenderData->m_uiNumPrimitives = (m_vNumVertices.x - 1) * (m_vNumVertices.y - 1) * 2;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-    pRenderData->m_GlobalBoundingBox = GetOwner()->GetGlobalBounds().GetBox();
+    pRenderData->m_FallbackGlobalBBox = GetOwner()->GetGlobalBounds().GetBox();
 #endif
 
     pRenderData->FillSortingKey();

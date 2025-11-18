@@ -35,12 +35,12 @@ public:
   void TriggerLocalBoundsUpdate();
 
   /// \brief Computes a unique ID for the given component, that is usually given to the renderer to distinguish objects.
-  static ezUInt32 GetUniqueIdForRendering(const ezComponent& component, ezUInt32 uiInnerIndex = 0, ezUInt32 uiInnerIndexShift = 24);
+  static ezUInt32 GetUniqueIdForRendering(const ezComponent& component);
 
   /// \brief Computes a unique ID for the given component, that is usually given to the renderer to distinguish objects.
-  EZ_ALWAYS_INLINE ezUInt32 GetUniqueIdForRendering(ezUInt32 uiInnerIndex = 0, ezUInt32 uiInnerIndexShift = 24) const
+  EZ_ALWAYS_INLINE ezUInt32 GetUniqueIdForRendering() const
   {
-    return GetUniqueIdForRendering(*this, uiInnerIndex, uiInnerIndexShift);
+    return GetUniqueIdForRendering(*this);
   }
 
 protected:

@@ -13,21 +13,25 @@ class EZ_RENDERERCORE_DLL ezMeshRenderData : public ezInstanceableRenderData
   EZ_ADD_DYNAMIC_REFLECTION(ezMeshRenderData, ezInstanceableRenderData);
 
 public:
-  EZ_FORCE_INLINE void Fill(ezInstanceDataOffset instanceDataOffset, ezGALDynamicBufferHandle hInstanceDataBuffer, ezMaterialResourceHandle hMaterial, ezMeshResourceHandle hMesh, ezUInt32 uiSubMeshIndex = 0, ezUInt32 uiNumInstances = 1, const ezBoundingBox& globalBoundingBox = ezBoundingBox::MakeInvalid())
+  EZ_FORCE_INLINE void Fill(ezInstanceDataOffset instanceDataOffset, ezGALDynamicBufferHandle hInstanceDataBuffer, ezMaterialResourceHandle hMaterial, ezMeshResourceHandle hMesh, ezUInt32 uiMaterialSlotIndex = 0, ezUInt32 uiSubMeshIndex = 0, ezUInt32 uiNumInstances = 1)
   {
     m_uiNumInstances = uiNumInstances;
     m_DataOffsets.m_uiInstance = instanceDataOffset.m_uiOffset;
+    m_DataOffsets.m_uiMaterial = uiMaterialSlotIndex << 24; // Encode the material slot index into the upper byte for picking purposes.
     m_hInstanceDataBuffer = hInstanceDataBuffer;
 
     m_hMaterial = hMaterial;
     m_hMesh = hMesh;
     m_uiSubMeshIndex = uiSubMeshIndex;
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-    m_GlobalBoundingBox = globalBoundingBox;
-#endif
-
     FillSortingKey();
+  }
+
+  EZ_ALWAYS_INLINE void SetFallbackGlobalBoundingBox(const ezBoundingBox& globalBoundingBox)
+  {
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+    m_FallbackGlobalBBox = globalBoundingBox;
+#endif
   }
 
   void FillSortingKey();
@@ -40,7 +44,7 @@ public:
   ezGALDynamicBufferHandle m_hCustomInstanceDataBuffer;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  ezBoundingBox m_GlobalBoundingBox = ezBoundingBox::MakeInvalid();
+  ezBoundingBox m_FallbackGlobalBBox = ezBoundingBox::MakeInvalid();
 #endif
 };
 
@@ -123,6 +127,10 @@ public:
   ///
   /// Typically another component besides this mesh component would create and manage the buffer that holds the custom instance data.
   /// See ezRenderDataManager how to create and fill such a buffer.
+  /// The renderer will bind the buffer to the 'perInstanceDataCustom' shader resource slot, so add something like this to your shader code:
+  /// StructuredBuffer<MyCustomDataStruct> perInstanceDataCustom BIND_GROUP(BG_DRAW_CALL);
+  /// and access the data with the corresponding data offset:
+  /// perInstanceDataCustom[G.Input.DataOffsets.y]
   void SetCustomInstanceData(ezCustomInstanceDataOffset offset, ezGALDynamicBufferHandle hBuffer);
   ezCustomInstanceDataOffset GetCustomInstanceDataOffset() const { return m_CustomInstanceDataOffset; }
   ezGALDynamicBufferHandle GetCustomInstanceDataBuffer() const { return m_hCustomInstanceDataBuffer; }

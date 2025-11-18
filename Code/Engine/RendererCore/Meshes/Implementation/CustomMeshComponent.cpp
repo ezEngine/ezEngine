@@ -278,7 +278,7 @@ void ezCustomMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
     pRenderData->m_uiNumPrimitives = ezMath::Min(m_uiNumPrimitives, pMesh->GetDescriptor().m_uiMaxPrimitives - pRenderData->m_uiFirstPrimitive);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-    pRenderData->m_GlobalBoundingBox = GetOwner()->GetGlobalBounds().GetBox();
+    pRenderData->m_FallbackGlobalBBox = GetOwner()->GetGlobalBounds().GetBox();
 #endif
 
     pRenderData->FillSortingKey();

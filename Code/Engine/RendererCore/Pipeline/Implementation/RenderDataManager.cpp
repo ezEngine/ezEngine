@@ -49,6 +49,17 @@ ezRenderDataManager::~ezRenderDataManager()
   }
 }
 
+void ezRenderDataManager::Initialize()
+{
+  {
+    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezRenderDataManager::CompactSkinningDataBuffer, this);
+    desc.m_Phase = ezWorldUpdatePhase::PostTransform;
+    desc.m_fPriority = -1000.0f;
+
+    RegisterUpdateFunction(desc);
+  }
+}
+
 ezArrayPtr<ezPerInstanceData> ezRenderDataManager::GetOrCreateInstanceData(const ezComponent* pOwnerComponent, bool bDynamic, ezGALDynamicBufferHandle& out_hBuffer, ezInstanceDataOffset& inout_instanceDataOffset, ezUInt32 uiCount /*= 1*/) const
 {
   EZ_LOCK(m_Mutex);
@@ -195,6 +206,11 @@ ezGALDynamicBufferHandle ezRenderDataManager::GetSkinningDataBuffer() const
   return GetCustomInstanceDataBuffer(s_uiSkinningBufferIndex);
 }
 
+void ezRenderDataManager::CompactSkinningDataBuffer(const UpdateContext& context)
+{
+  CompactCustomInstanceDataBuffer(s_uiSkinningBufferIndex);
+}
+
 void ezRenderDataManager::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
@@ -206,13 +222,6 @@ void ezRenderDataManager::OnExtractionEvent(const ezRenderWorldExtractionEvent& 
     for (ezUInt32 i = 0; i < m_hBuffers.GetCount(); ++i)
     {
       m_ExtractionData.m_pBuffers[i] = pDevice->GetDynamicBuffer(m_hBuffers[i]);
-    }
-
-    // Compact skinning buffer
-    {
-      EZ_LOCK(GetWorld()->GetWriteMarker());
-
-      CompactCustomInstanceDataBuffer(s_uiSkinningBufferIndex);
     }
   }
   else if (e.m_Type == ezRenderWorldExtractionEvent::Type::EndExtraction)

@@ -242,7 +242,7 @@ void ezParticleTypeMesh::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, 
     {
       ezMeshRenderData* pRenderData = ref_msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezMeshRenderData>(nullptr);
       pRenderData->m_vGlobalPosition = GetOwnerSystem()->GetTransform().m_vPosition;
-      pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, m_hMaterial, m_hMesh, 0, numParticles);
+      pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, m_hMaterial, m_hMesh, 0, 0, numParticles);
 
       ref_msg.AddRenderData(pRenderData, m_RenderCategory, ezRenderData::Caching::Never);
     }

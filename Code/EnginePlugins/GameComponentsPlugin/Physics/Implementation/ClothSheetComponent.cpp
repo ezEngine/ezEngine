@@ -167,7 +167,7 @@ void ezClothSheetComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
     pRenderData->m_uiNumPrimitives = m_vSegments.x * m_vSegments.y * 2;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-    pRenderData->m_GlobalBoundingBox = GetOwner()->GetGlobalBounds().GetBox();
+    pRenderData->m_FallbackGlobalBBox = GetOwner()->GetGlobalBounds().GetBox();
 #endif
 
     pRenderData->FillSortingKey();

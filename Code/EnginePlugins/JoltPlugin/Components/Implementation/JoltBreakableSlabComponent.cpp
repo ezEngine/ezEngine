@@ -1016,7 +1016,7 @@ void ezJoltBreakableSlabComponent::CreateShardColliders(ezUInt32 uiFirstShard, e
   // GetOrCreateBoneTransformsForWriting will resize as necessary but will lose existing data so we need to make a copy here
   ezDynamicArray<ezShaderTransform> oldTransforms(ezFrameAllocator::GetCurrentAllocator());
   oldTransforms = m_SkinningState.GetBoneTransformsForReading();
-  
+
   auto transforms = m_SkinningState.GetOrCreateBoneTransformsForWriting(*this, m_Breakable.m_Shards.GetCount());
   ezMemoryUtils::Copy(transforms.GetPtr(), oldTransforms.GetData(), oldTransforms.GetCount());
 
@@ -1029,7 +1029,7 @@ void ezJoltBreakableSlabComponent::CreateShardColliders(ezUInt32 uiFirstShard, e
     const auto& shard = m_Breakable.m_Shards[uiShardIdx];
 
     if (shard.m_bShattered)
-      continue;    
+      continue;
 
     JPH::ConvexShape* pShape = shapes[uiShardIdx - uiFirstShard];
     if (pShape == nullptr)
@@ -1285,7 +1285,8 @@ void ezJoltBreakableSlabComponent::OnMsgExtractRenderData(ezMsgExtractRenderData
     const bool bDynamic = GetOwner()->IsDynamic();
     auto hInstanceBuffer = msg.m_pRenderDataManager->GetOrCreateInstanceDataAndFill(*this, bDynamic, globalTransform, m_InstanceDataOffset, GetUniqueIdForRendering());
 
-    pRenderData->Fill(m_InstanceDataOffset, hInstanceBuffer, m_hMaterial, m_hMesh, 0, 1, GetOwner()->GetGlobalBounds().GetBox());
+    pRenderData->SetFallbackGlobalBoundingBox(GetOwner()->GetGlobalBounds().GetBox());
+    pRenderData->Fill(m_InstanceDataOffset, hInstanceBuffer, m_hMaterial, m_hMesh);
 
     ezRenderData::Category category = ezMaterialResource::GetRenderDataCategory(m_hMaterial);
 

@@ -115,17 +115,17 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, c
     {
       if (auto pMeshRenderData = ezDynamicCast<const ezMeshRenderData*>(it))
       {
-        if (pMeshRenderData->m_GlobalBoundingBox.IsValid())
+        if (pMeshRenderData->m_FallbackGlobalBBox.IsValid())
         {
-          ezDebugRenderer::DrawLineBox(*renderViewContext.m_pViewDebugContext, pMeshRenderData->m_GlobalBoundingBox, ezColor::Magenta);
+          ezDebugRenderer::DrawLineBox(*renderViewContext.m_pViewDebugContext, pMeshRenderData->m_FallbackGlobalBBox, ezColor::Magenta);
         }
       }
       else if (auto pCustomMeshRenderData = ezDynamicCast<const ezCustomMeshRenderData*>(it))
       {
         // draw bounding box instead
-        if (pCustomMeshRenderData->m_GlobalBoundingBox.IsValid())
+        if (pCustomMeshRenderData->m_FallbackGlobalBBox.IsValid())
         {
-          ezDebugRenderer::DrawLineBox(*renderViewContext.m_pViewDebugContext, pCustomMeshRenderData->m_GlobalBoundingBox, ezColor::Magenta);
+          ezDebugRenderer::DrawLineBox(*renderViewContext.m_pViewDebugContext, pCustomMeshRenderData->m_FallbackGlobalBBox, ezColor::Magenta);
         }
       }
     }

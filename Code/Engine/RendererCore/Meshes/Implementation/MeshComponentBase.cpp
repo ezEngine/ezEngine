@@ -206,7 +206,8 @@ void ezMeshComponentBase::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) co
       pRenderData->m_DataOffsets.m_uiCustomInstance = m_CustomInstanceDataOffset.m_uiOffset;
       pRenderData->m_hCustomInstanceDataBuffer = m_hCustomInstanceDataBuffer;
 
-      pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, hMaterial, m_hMesh, uiPartIndex, 1, GetOwner()->GetGlobalBounds().GetBox());
+      pRenderData->SetFallbackGlobalBoundingBox(GetOwner()->GetGlobalBounds().GetBox());
+      pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, hMaterial, m_hMesh, uiMaterialIndex, uiPartIndex);
     }
 
     bool bDontCacheYet = false;

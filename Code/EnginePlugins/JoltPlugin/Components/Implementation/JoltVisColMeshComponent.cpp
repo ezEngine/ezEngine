@@ -167,7 +167,8 @@ void ezJoltVisColMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& m
     ezMaterialResourceHandle hMaterial = pMesh->GetMaterials()[uiMaterialIndex];
 
     ezMeshRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner());
-    pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, hMaterial, m_hMesh, uiPartIndex, 1, GetOwner()->GetGlobalBounds().GetBox());
+    pRenderData->SetFallbackGlobalBoundingBox(GetOwner()->GetGlobalBounds().GetBox());
+    pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, hMaterial, m_hMesh, uiMaterialIndex, uiPartIndex);
     
     msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitOpaque, ezRenderData::Caching::IfStatic);
   }
