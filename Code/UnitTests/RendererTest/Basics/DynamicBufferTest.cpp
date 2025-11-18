@@ -9,6 +9,7 @@ void ezRendererTestDynamicBuffer::SetupSubTests()
   AddSubTest("Allocations", SubTests::ST_Allocations);
   AddSubTest("Deallocations", SubTests::ST_Deallocations);
   AddSubTest("Compaction", SubTests::ST_Compaction);
+  AddSubTest("Resize While Mapped", SubTests::ST_ResizeWhileMapped);
 }
 
 ezResult ezRendererTestDynamicBuffer::InitializeSubTest(ezInt32 iIdentifier)
@@ -197,6 +198,77 @@ ezTestAppRun ezRendererTestDynamicBuffer::RunSubTest(ezInt32 iIdentifier, ezUInt
 
     ezUInt32 uiOffset = pDynamicBuffer->Allocate(400, 20);
     EZ_TEST_INT(uiOffset, offsets[6]);
+  }
+  else if (iIdentifier == SubTests::ST_ResizeWhileMapped)
+  {
+    auto pDevice = ezGALDevice::GetDefaultDevice();
+    auto pDynamicBuffer = pDevice->GetDynamicBuffer(m_hDynamicBuffer);
+
+    ezHybridArray<ezUInt32, 16> offsets;
+    ezHybridArray<ezArrayPtr<ezUInt64>, 16> mappings;
+    offsets.SetCount(6);
+    mappings.SetCount(6);
+
+    offsets[0] = pDynamicBuffer->Allocate(0, 7);
+    offsets[1] = pDynamicBuffer->Allocate(1, 7);
+    mappings[0] = pDynamicBuffer->MapForWriting<ezUInt64>(offsets[0]);
+    mappings[1] = pDynamicBuffer->MapForWriting<ezUInt64>(offsets[1]);
+
+    // The next allocation will resize the internal buffer
+    offsets[2] = pDynamicBuffer->Allocate(2, 120);
+    offsets[3] = pDynamicBuffer->Allocate(3, 120);
+    mappings[2] = pDynamicBuffer->MapForWriting<ezUInt64>(offsets[2]);
+    mappings[3] = pDynamicBuffer->MapForWriting<ezUInt64>(offsets[3]);
+
+    // The next allocation will resize the internal buffer again
+    offsets[4] = pDynamicBuffer->Allocate(4, 120);
+    offsets[5] = pDynamicBuffer->Allocate(5, 138);
+    mappings[4] = pDynamicBuffer->MapForWriting<ezUInt64>(offsets[4]);
+    mappings[5] = pDynamicBuffer->MapForWriting<ezUInt64>(offsets[5]);
+
+    for (ezUInt32 i = 0; i < mappings.GetCount(); ++i)
+    {
+      for (auto& v : mappings[i])
+      {
+        v = i + 1;
+      }
+    }
+
+    for (ezUInt32 i = 0; i < mappings.GetCount(); ++i)
+    {
+      // Reading will give us temp memory until the next upload
+      auto data = pDynamicBuffer->MapForReading<ezUInt64>(offsets[i]);
+      EZ_TEST_INT(data.GetCount(), mappings[i].GetCount());
+      for (auto& v : data)
+      {
+        EZ_TEST_INT(v, i + 1);
+      }
+    }
+
+    pDynamicBuffer->UploadChangesForNextFrame();
+
+    const ezUInt64* pBasePtr = nullptr;
+    for (ezUInt32 i = 0; i < mappings.GetCount(); ++i)
+    {
+      auto data = pDynamicBuffer->MapForReading<ezUInt64>(offsets[i]);
+      EZ_TEST_INT(data.GetCount(), mappings[i].GetCount());
+
+      if (i == 0)
+      {
+        EZ_TEST_INT(offsets[i], 0);
+        pBasePtr = data.GetPtr();
+      }
+      else
+      {
+        // Memory should be contiguous now
+        EZ_TEST_BOOL(data.GetPtr() == pBasePtr + offsets[i]);
+      }
+
+      for (auto& v : data)
+      {
+        EZ_TEST_INT(v, i + 1);
+      }
+    }
   }
 
   return ezTestAppRun::Quit;

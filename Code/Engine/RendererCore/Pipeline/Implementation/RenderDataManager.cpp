@@ -65,7 +65,7 @@ ezArrayPtr<ezPerInstanceData> ezRenderDataManager::GetOrCreateInstanceData(const
   if (inout_instanceDataOffset.IsInvalidated())
   {
     ezComponentHandle hOwnerComponent = pOwnerComponent != nullptr ? pOwnerComponent->GetHandle() : ezComponentHandle();
-    inout_instanceDataOffset.m_uiOffset = pInstanceDataBuffer->Allocate(hOwnerComponent, uiCount);
+    inout_instanceDataOffset.m_uiOffset = pInstanceDataBuffer->Allocate(hOwnerComponent, uiCount, ezGALDynamicBuffer::AllocateFlags::None, ezFrameAllocator::GetCurrentAllocator());
     inout_instanceDataOffset.m_uiIsDynamic = uiBufferIndex;
   }
 
@@ -130,7 +130,7 @@ ezByteArrayPtr ezRenderDataManager::GetOrCreateCustomInstanceData(ezUInt32 uiCus
 
   if (inout_instanceDataOffset.IsInvalidated())
   {
-    inout_instanceDataOffset.m_uiOffset = pInstanceDataBuffer->Allocate(pOwnerComponent->GetHandle(), uiCount);
+    inout_instanceDataOffset.m_uiOffset = pInstanceDataBuffer->Allocate(pOwnerComponent->GetHandle(), uiCount, ezGALDynamicBuffer::AllocateFlags::None, ezFrameAllocator::GetCurrentAllocator());
   }
 
   return pInstanceDataBuffer->MapBytesForWriting(inout_instanceDataOffset.m_uiOffset);

@@ -38,13 +38,13 @@ public:
   ///
   /// The user data can be used to store additional information, typically the owner of the allocation, like e.g. a component handle.
   template <typename U>
-  ezUInt32 Allocate(const U& userData, ezUInt32 uiCount = 1, ezBitflags<AllocateFlags> allocateFlags = AllocateFlags::None)
+  ezUInt32 Allocate(const U& userData, ezUInt32 uiCount = 1, ezBitflags<AllocateFlags> allocateFlags = AllocateFlags::None, ezAllocator* pTempAllocator = nullptr)
   {
     static_assert(sizeof(U) <= sizeof(ezUInt64), "userData is too large");
     ezUInt64 uiUserData = 0;
     *reinterpret_cast<U*>(&uiUserData) = userData;
 
-    return Allocate(uiUserData, uiCount, allocateFlags);
+    return Allocate(uiUserData, uiCount, allocateFlags, pTempAllocator);
   }
 
   /// \brief Removes an allocation at the given offset. The offset must have been returned by Allocate.
@@ -117,11 +117,11 @@ private:
   void Initialize(const ezGALBufferCreationDescription& desc, ezStringView sDebugName);
   void Deinitialize();
 
-  ezUInt32 Allocate(ezUInt64 uiUserData, ezUInt32 uiCount, ezBitflags<AllocateFlags> allocateFlags);
+  ezUInt32 Allocate(ezUInt64 uiUserData, ezUInt32 uiCount, ezBitflags<AllocateFlags> allocateFlags, ezAllocator* pTempAllocator);
   ezByteArrayPtr MapForWriting(ezUInt32 uiOffset, ezUInt32& out_uiCount);
   ezConstByteArrayPtr MapForReading(ezUInt32 uiOffset, ezUInt32& out_uiCount) const;
 
-  void Resize(ezUInt32 uiNewCount);
+  ezUInt32 AllocateTempData(ezUInt32 uiStartOffset, ezUInt32 uiNewCount, ezAllocator* pTempAllocator);
 
   void SwapBuffers()
   {
@@ -130,14 +130,26 @@ private:
 
   mutable ezMutex m_Mutex;
 
-  ezDynamicArray<ezUInt8, ezAlignedAllocatorWrapper> m_Data;
   ezUInt32 m_uiCapacity = 0;   ///< in number of elements
   ezUInt32 m_uiNextOffset = 0; ///< in number of elements
+
+  ezDynamicArray<ezUInt8, ezAlignedAllocatorWrapper> m_Data;
+
+  struct TempData
+  {
+    ezAllocator* m_pAllocator = nullptr;
+    ezUInt8* m_pData = nullptr;
+    ezUInt32 m_uiStartByteOffset = 0;
+    ezUInt32 m_uiByteSize = 0;
+  };
+
+  ezSmallArray<TempData, 2> m_TempData;
 
   struct Allocation
   {
     ezUInt64 m_uiUserData = 0;
     ezUInt32 m_uiCount = 0;
+    ezUInt32 m_uiDataIndex = 0; ///< 0 is full buffer, greater than 0 are temp buffers
   };
 
   ezMap<ezUInt32, Allocation> m_Allocations;
