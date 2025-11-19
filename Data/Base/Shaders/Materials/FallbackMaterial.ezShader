@@ -27,6 +27,8 @@ MSAA = FALSE
   #define USE_NORMAL
 #endif
 
+#define PASS_THROUGH_INSTANCE_ID
+
 #include <Shaders/Materials/MaterialVertexShader.h>
 
 VS_OUT main(VS_IN Input)
@@ -52,7 +54,6 @@ struct GS_OUT
   float3 WorldPos : WORLDPOS;
   float3 Normal : NORMAL;
   nointerpolation uint3 DataOffsets : DATAOFFSETS;
-  uint InstanceID : SV_InstanceID;
 #if CAMERA_MODE == CAMERA_MODE_STEREO
   uint RenderTargetArrayIndex : SV_RenderTargetArrayIndex;
 #endif
@@ -73,7 +74,6 @@ void main( triangle GS_IN input[3], inout TriangleStream<GS_OUT> outputStream )
     output.WorldPos = input[i].WorldPos;
     output.Normal = normal;
     output.DataOffsets = input[i].DataOffsets;
-    output.InstanceID = input[i].InstanceID;
 #if CAMERA_MODE == CAMERA_MODE_STEREO
     output.RenderTargetArrayIndex = input[i].InstanceID % 2;
 #endif

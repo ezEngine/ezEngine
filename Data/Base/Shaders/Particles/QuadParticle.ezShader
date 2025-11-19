@@ -65,8 +65,6 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
   ret.RenderTargetArrayIndex = InstanceID;
 #endif
 
-  ret.InstanceID = InstanceID;
-
   uint dataIndex = CalcQuadParticleDataIndex(VertexID);
   uint vertexIndex = CalcQuadParticleVertexIndex(VertexID);
 

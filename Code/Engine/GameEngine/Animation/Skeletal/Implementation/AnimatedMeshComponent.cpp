@@ -16,8 +16,7 @@
 #include <ozz/base/span.h>
 
 // clang-format off
-// Dynamic because root motion can be applied to owner position
-EZ_BEGIN_COMPONENT_TYPE(ezAnimatedMeshComponent, 13, ezComponentMode::Dynamic);
+EZ_BEGIN_COMPONENT_TYPE(ezAnimatedMeshComponent, 13, ezComponentMode::Static);
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -243,6 +242,8 @@ void ezAnimatedMeshComponent::OnQueryAnimationSkeleton(ezMsgQueryAnimationSkelet
 void ezAnimatedMeshComponent::OnMsgCustomInstanceDataOffsetChanged(ezMsgCustomInstanceDataOffsetChanged& msg)
 {
   m_SkinningState.m_DataOffset = msg.m_NewOffset;
+
+  InvalidateCachedRenderData();
 }
 
 ezResult ezAnimatedMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)

@@ -144,6 +144,8 @@ ezResult ezShaderCompilerDXC::Initialize()
     m_VertexInputMapping["in.var.BONEINDICES1"] = ezGALVertexAttributeSemantic::BoneIndices1;
     m_VertexInputMapping["in.var.BONEWEIGHTS0"] = ezGALVertexAttributeSemantic::BoneWeights0;
     m_VertexInputMapping["in.var.BONEWEIGHTS1"] = ezGALVertexAttributeSemantic::BoneWeights1;
+
+    m_VertexInputMapping["in.var.DATAOFFSETS"] = ezGALVertexAttributeSemantic::DataOffsets;
   }
 
   EZ_ASSERT_DEV(s_pDxcUtils != nullptr && s_pDxcCompiler != nullptr, "ShaderCompiler SubSystem init should have initialized library pointers.");

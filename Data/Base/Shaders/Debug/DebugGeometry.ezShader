@@ -60,8 +60,6 @@ VS_OUT main(VS_IN_POS_ONLY Input)
     RetVal.Color0 = boxData[Input.InstanceID].color;
   #endif
 
-  RetVal.InstanceID = Input.InstanceID;
-
   return RetVal;
 }
 

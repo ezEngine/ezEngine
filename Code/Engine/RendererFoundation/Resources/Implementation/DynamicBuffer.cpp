@@ -65,8 +65,14 @@ void ezGALDynamicBuffer::Deinitialize()
 
 void ezGALDynamicBuffer::Clear()
 {
-  m_Data.Clear();
+  m_Data.SetCountUninitialized(m_Desc.m_uiTotalSize);
   m_uiNextOffset = 0;
+
+  for (auto& tempData : m_TempData)
+  {
+    tempData.m_pAllocator->Deallocate(tempData.m_pData);
+  }
+  m_TempData.Clear();
 
   m_Allocations.Clear();
   m_FreeRanges.Clear();

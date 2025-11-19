@@ -246,9 +246,12 @@ namespace
 
   void FillDecalData(ezPerDecalData& out_perDecalData, const ezDecalRenderData* pDecalRenderData)
   {
+    const ezVec4 rotationValues = pDecalRenderData->m_qGlobalRotation;
+    const ezQuat rotation(rotationValues.x, rotationValues.y, rotationValues.z, rotationValues.w);
+
     const ezVec3 position = pDecalRenderData->m_vGlobalPosition;
-    const ezVec3 dirForwards = pDecalRenderData->m_qGlobalRotation * ezVec3(1.0f, 0.0, 0.0f);
-    const ezVec3 dirUp = pDecalRenderData->m_qGlobalRotation * ezVec3(0.0f, 0.0, 1.0f);
+    const ezVec3 dirForwards = rotation * ezVec3(1.0f, 0.0, 0.0f);
+    const ezVec3 dirUp = rotation * ezVec3(0.0f, 0.0, 1.0f);
     ezVec3 scale = pDecalRenderData->m_vGlobalScale;
 
     // the CompMax prevents division by zero (thus inf, thus NaN later, then crash)

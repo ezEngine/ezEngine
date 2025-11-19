@@ -152,6 +152,9 @@ ezTestAppRun ezRendererTestDynamicBuffer::RunSubTest(ezInt32 iIdentifier, ezUInt
       offsets.PushBack(pDynamicBuffer->Allocate(i, uiAllocationSizes[i]));
     }
 
+    // Upload changes to get rid of any temporary data
+    pDynamicBuffer->UploadChangesForNextFrame();
+
     // Create some holes out of order
     pDynamicBuffer->Deallocate(offsets[5]);
     pDynamicBuffer->Deallocate(offsets[1]);

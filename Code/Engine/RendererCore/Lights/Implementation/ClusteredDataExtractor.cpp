@@ -358,7 +358,9 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
         {
           FillDecalData(m_TempDecalData.ExpandAndGetRef(), pDecalRenderData);
 
-          ezTransform decalTransform = ezTransform::Make(pDecalRenderData->m_vGlobalPosition, pDecalRenderData->m_qGlobalRotation, pDecalRenderData->m_vGlobalScale);
+          const ezVec4 rotationValues = pDecalRenderData->m_qGlobalRotation;
+          const ezQuat rotation(rotationValues.x, rotationValues.y, rotationValues.z, rotationValues.w);
+          const ezTransform decalTransform = ezTransform::Make(pDecalRenderData->m_vGlobalPosition, rotation, pDecalRenderData->m_vGlobalScale);
           RasterizeBox(decalTransform, uiDecalIndex, viewMatrix, viewProjectionMatrix, m_TempDecalsClusters.GetData(), m_ClusterBoundingSpheres.GetData());
         }
         else
