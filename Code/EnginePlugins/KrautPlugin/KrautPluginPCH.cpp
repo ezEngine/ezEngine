@@ -64,7 +64,6 @@ EZ_STATICLINK_LIBRARY(KrautPlugin)
     return;
 
   EZ_STATICLINK_REFERENCE(KrautPlugin_Components_KrautTreeComponent);
-  EZ_STATICLINK_REFERENCE(KrautPlugin_Renderer_KrautRenderer);
   EZ_STATICLINK_REFERENCE(KrautPlugin_Resources_KrautGeneratorResource);
   EZ_STATICLINK_REFERENCE(KrautPlugin_Resources_KrautTreeResource);
 }

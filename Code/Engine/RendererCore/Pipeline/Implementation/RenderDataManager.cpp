@@ -27,15 +27,15 @@ ezRenderDataManager::ezRenderDataManager(ezWorld* pWorld)
   desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
   desc.m_ResourceAccess.m_bImmutable = false;
 
-  m_hBuffers.PushBack(pDevice->CreateDynamicBuffer(desc, "Static Instance Data"));
-  m_hBuffers.PushBack(pDevice->CreateDynamicBuffer(desc, "Dynamic Instance Data"));
+  m_Buffers.PushBack(pDevice->CreateDynamicBuffer(desc, "Static Instance Data"));
+  m_Buffers.PushBack(pDevice->CreateDynamicBuffer(desc, "Dynamic Instance Data"));
 
   // Skinning buffer
   desc.m_uiStructSize = sizeof(ezShaderTransform);
   desc.m_uiTotalSize = 1024 * desc.m_uiStructSize; // TODO: make initial size configurable
 
-  EZ_ASSERT_DEBUG(m_hBuffers.GetCount() == s_uiSkinningBufferIndex, "Unexpected buffer index");
-  m_hBuffers.PushBack(pDevice->CreateDynamicBuffer(desc, "Skinning Data"));
+  EZ_ASSERT_DEBUG(m_Buffers.GetCount() == s_uiSkinningBufferIndex, "Unexpected buffer index");
+  m_Buffers.PushBack(pDevice->CreateDynamicBuffer(desc, "Skinning Data"));
 }
 
 ezRenderDataManager::~ezRenderDataManager()
@@ -43,7 +43,7 @@ ezRenderDataManager::~ezRenderDataManager()
   ezRenderWorld::GetExtractionEvent().RemoveEventHandler(ezMakeDelegate(&ezRenderDataManager::OnExtractionEvent, this));
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  for (auto& hBuffer : m_hBuffers)
+  for (auto& hBuffer : m_Buffers)
   {
     pDevice->DestroyDynamicBuffer(hBuffer);
   }
@@ -65,7 +65,7 @@ ezArrayPtr<ezPerInstanceData> ezRenderDataManager::GetOrCreateInstanceData(const
   EZ_LOCK(m_Mutex);
 
   const ezUInt32 uiBufferIndex = bDynamic ? 1 : 0;
-  out_hBuffer = m_hBuffers[uiBufferIndex];
+  out_hBuffer = m_Buffers[uiBufferIndex];
 
   auto pInstanceDataBuffer = m_ExtractionData.m_pBuffers.GetCount() > uiBufferIndex ? m_ExtractionData.m_pBuffers[uiBufferIndex] : nullptr;
   if (pInstanceDataBuffer == nullptr)
@@ -91,7 +91,7 @@ void ezRenderDataManager::DeleteInstanceData(ezInstanceDataOffset& inout_instanc
   {
     const ezUInt32 uiBufferIndex = inout_instanceDataOffset.m_uiIsDynamic;
 
-    auto pInstanceDataBuffer = ezGALDevice::GetDefaultDevice()->GetDynamicBuffer(m_hBuffers[uiBufferIndex]);
+    auto pInstanceDataBuffer = ezGALDevice::GetDefaultDevice()->GetDynamicBuffer(m_Buffers[uiBufferIndex]);
 
     pInstanceDataBuffer->Deallocate(inout_instanceDataOffset.m_uiOffset);
     inout_instanceDataOffset = {};
@@ -102,19 +102,19 @@ ezUInt32 ezRenderDataManager::RegisterCustomInstanceData(const ezGALBufferCreati
 {
   EZ_LOCK(m_Mutex);
 
-  for (ezUInt32 i = 0; i < m_hBuffers.GetCount(); ++i)
+  for (ezUInt32 i = 0; i < m_Buffers.GetCount(); ++i)
   {
-    auto pBuffer = ezGALDevice::GetDefaultDevice()->GetDynamicBuffer(m_hBuffers[i]);
+    auto pBuffer = ezGALDevice::GetDefaultDevice()->GetDynamicBuffer(m_Buffers[i]);
     if (pBuffer->GetDescription() == desc && pBuffer->GetDebugName() == sDebugName)
     {
       return i;
     }
   }
 
-  ezUInt32 uiBufferIndex = m_hBuffers.GetCount();
+  ezUInt32 uiBufferIndex = m_Buffers.GetCount();
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  m_hBuffers.PushBack(pDevice->CreateDynamicBuffer(desc, sDebugName));
+  m_Buffers.PushBack(pDevice->CreateDynamicBuffer(desc, sDebugName));
 
   if (beforeUploadCallback.IsValid())
   {
@@ -129,7 +129,7 @@ ezByteArrayPtr ezRenderDataManager::GetOrCreateCustomInstanceData(ezUInt32 uiCus
 {
   EZ_LOCK(m_Mutex);
 
-  out_hBuffer = m_hBuffers[uiCustomDataIndex];
+  out_hBuffer = m_Buffers[uiCustomDataIndex];
 
   auto pInstanceDataBuffer = m_ExtractionData.m_pBuffers.GetCount() > uiCustomDataIndex ? m_ExtractionData.m_pBuffers[uiCustomDataIndex] : nullptr;
   if (pInstanceDataBuffer == nullptr)
@@ -153,7 +153,7 @@ void ezRenderDataManager::DeleteCustomInstanceData(ezUInt32 uiCustomDataIndex, e
 
   if (inout_instanceDataOffset.IsInvalidated() == false)
   {
-    auto pInstanceDataBuffer = ezGALDevice::GetDefaultDevice()->GetDynamicBuffer(m_hBuffers[uiCustomDataIndex]);
+    auto pInstanceDataBuffer = ezGALDevice::GetDefaultDevice()->GetDynamicBuffer(m_Buffers[uiCustomDataIndex]);
 
     pInstanceDataBuffer->Deallocate(inout_instanceDataOffset.m_uiOffset);
     inout_instanceDataOffset = {};
@@ -164,7 +164,7 @@ void ezRenderDataManager::CompactCustomInstanceDataBuffer(ezUInt32 uiCustomDataI
 {
   EZ_LOCK(m_Mutex);
 
-  auto pInstanceDataBuffer = ezGALDevice::GetDefaultDevice()->GetDynamicBuffer(m_hBuffers[uiCustomDataIndex]);
+  auto pInstanceDataBuffer = ezGALDevice::GetDefaultDevice()->GetDynamicBuffer(m_Buffers[uiCustomDataIndex]);
 
   ezHybridArray<ezGALDynamicBuffer::ChangedAllocation, 16> changedAllocations;
   pInstanceDataBuffer->RunCompactionSteps(changedAllocations, uiMaxSteps);
@@ -191,7 +191,7 @@ ezArrayPtr<const ezShaderTransform> ezRenderDataManager::GetSkinningData(const e
 {
   EZ_LOCK(m_Mutex);
 
-  auto pInstanceDataBuffer = ezGALDevice::GetDefaultDevice()->GetDynamicBuffer(m_hBuffers[s_uiSkinningBufferIndex]);
+  auto pInstanceDataBuffer = ezGALDevice::GetDefaultDevice()->GetDynamicBuffer(m_Buffers[s_uiSkinningBufferIndex]);
 
   return pInstanceDataBuffer->MapForReading<ezShaderTransform>(instanceDataOffset.m_uiOffset);
 }
@@ -217,16 +217,16 @@ void ezRenderDataManager::OnExtractionEvent(const ezRenderWorldExtractionEvent& 
 
   if (e.m_Type == ezRenderWorldExtractionEvent::Type::BeginExtraction)
   {
-    m_ExtractionData.m_pBuffers.SetCount(m_hBuffers.GetCount());
+    m_ExtractionData.m_pBuffers.SetCount(m_Buffers.GetCount());
 
-    for (ezUInt32 i = 0; i < m_hBuffers.GetCount(); ++i)
+    for (ezUInt32 i = 0; i < m_Buffers.GetCount(); ++i)
     {
-      m_ExtractionData.m_pBuffers[i] = pDevice->GetDynamicBuffer(m_hBuffers[i]);
+      m_ExtractionData.m_pBuffers[i] = pDevice->GetDynamicBuffer(m_Buffers[i]);
     }
   }
   else if (e.m_Type == ezRenderWorldExtractionEvent::Type::EndExtraction)
   {
-    for (ezUInt32 i = 0; i < m_hBuffers.GetCount(); ++i)
+    for (ezUInt32 i = 0; i < m_Buffers.GetCount(); ++i)
     {
       if (m_BeforeUploadCallbacks.GetCount() > i && m_BeforeUploadCallbacks[i].IsValid())
       {
@@ -239,3 +239,6 @@ void ezRenderDataManager::OnExtractionEvent(const ezRenderWorldExtractionEvent& 
     m_ExtractionData.m_pBuffers.Clear();
   }
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RenderDataManager);

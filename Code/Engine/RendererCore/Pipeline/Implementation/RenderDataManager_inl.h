@@ -92,5 +92,5 @@ EZ_FORCE_INLINE ezGALDynamicBufferHandle ezRenderDataManager::GetOrCreateCustomI
 
 EZ_ALWAYS_INLINE ezGALDynamicBufferHandle ezRenderDataManager::GetCustomInstanceDataBuffer(ezUInt32 uiCustomDataIndex) const
 {
-  return m_hBuffers[uiCustomDataIndex];
+  return m_Buffers[uiCustomDataIndex];
 }

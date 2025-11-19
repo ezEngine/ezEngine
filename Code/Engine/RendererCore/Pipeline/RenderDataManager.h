@@ -105,7 +105,7 @@ private:
 
   mutable ezMutex m_Mutex;
 
-  ezHybridArray<ezGALDynamicBufferHandle, 16> m_hBuffers;
+  ezHybridArray<ezGALDynamicBufferHandle, 16> m_Buffers;
   ezDynamicArray<ezDelegate<void()>> m_BeforeUploadCallbacks;
 
   struct ExtractionData

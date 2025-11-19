@@ -222,7 +222,7 @@ struct ezInstanceDataOffset
   EZ_DECLARE_POD_TYPE();
 
   ezInstanceDataOffset()
-    : m_uiOffset(ezInvalidIndex)
+    : m_uiOffset(ezMath::Bitmask_LowN<ezUInt32>(31))
     , m_uiIsDynamic(0)
   {
   }
