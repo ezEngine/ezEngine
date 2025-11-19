@@ -153,7 +153,7 @@ void ezCompilerPreferences_PropertyMetaStateEventHandler(ezPropertyMetaStateEven
   }
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   auto compiler = typeAccessor.GetValue("Compiler").Get<ezInt64>();
-  if (compiler == ezCompiler::Vs2022)
+  if (compiler == ezCompiler::Vs2022 || compiler == ezCompiler::Vs2026)
   {
     compilerFieldsVisibility = ezPropertyUiState::Invisible;
   }
@@ -166,6 +166,6 @@ void ezCompilerPreferences_PropertyMetaStateEventHandler(ezPropertyMetaStateEven
 #if EZ_ENABLED(EZ_PLATFORM_LINUX)
   props["RcCompiler"].m_Visibility = ezPropertyUiState::Invisible;
 #else
-  props["RcCompiler"].m_Visibility = (compiler == ezCompiler::Vs2022) ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
+  props["RcCompiler"].m_Visibility = (compiler == ezCompiler::Vs2022 || compiler == ezCompiler::Vs2026) ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
 #endif
 }

@@ -33,6 +33,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezCompiler, 1)
   EZ_ENUM_CONSTANT(ezCompiler::Gcc),
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   EZ_ENUM_CONSTANT(ezCompiler::Vs2022),
+  EZ_ENUM_CONSTANT(ezCompiler::Vs2026),
 #endif
 EZ_END_STATIC_REFLECTED_ENUM;
 
@@ -201,6 +202,8 @@ ezString ezCppProject::GetGeneratorFolderName(const ezCppSettings& cfg)
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     case ezCompiler::Vs2022:
       return "Vs2022x64";
+    case ezCompiler::Vs2026:
+      return "Vs2026x64";
 #endif
     case ezCompiler::Clang:
       return "Clangx64";
@@ -223,6 +226,8 @@ ezString ezCppProject::GetCMakeGeneratorName(const ezCppSettings& cfg)
   {
     case ezCompiler::Vs2022:
       return "Visual Studio 17 2022";
+    case ezCompiler::Vs2026:
+      return "Visual Studio 18 2026";
     case ezCompiler::Clang:
       return "Ninja";
   }
@@ -261,6 +266,12 @@ ezString ezCppProject::GetSolutionPath(const ezCppSettings& cfg)
   {
     sSolutionFile.AppendPath(cfg.m_sPluginName);
     sSolutionFile.Append(".sln");
+    return sSolutionFile;
+  }
+  if (preferences->m_CompilerPreferences.m_Compiler == ezCompiler::Vs2026)
+  {
+    sSolutionFile.AppendPath(cfg.m_sPluginName);
+    sSolutionFile.Append(".slnx");
     return sSolutionFile;
   }
 #endif
@@ -400,6 +411,8 @@ ezStringView ezCppProject::CompilerToString(ezCompiler::Enum compiler)
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     case ezCompiler::Vs2022:
       return "Vs2022";
+    case ezCompiler::Vs2026:
+      return "Vs2026";
 #endif
     case ezCompiler::Clang:
       return "Clang";
@@ -421,7 +434,11 @@ ezCompiler::Enum ezCppProject::GetSdkCompiler()
 #elif EZ_ENABLED(EZ_COMPILER_GCC)
   return ezCompiler::Gcc;
 #elif EZ_ENABLED(EZ_COMPILER_MSVC)
+#  if _MSC_VER >= 1950
+  return ezCompiler::Vs2026;
+#  else
   return ezCompiler::Vs2022;
+#  endif
 #else
 #  error Unknown compiler
 #endif
@@ -454,7 +471,7 @@ ezStatus ezCppProject::TestCompiler()
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   // As CMake is selecting the compiler it is hard to do a version check, for now just assume they are compatible.
-  if (GetSdkCompiler() == ezCompiler::Vs2022)
+  if (GetSdkCompiler() == ezCompiler::Vs2022 || GetSdkCompiler() == ezCompiler::Vs2026)
   {
     return ezStatus(EZ_SUCCESS);
   }
@@ -836,7 +853,7 @@ ezResult ezCppProject::CompileSolution(const ezCppSettings& cfg)
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   const ezCppProject* preferences = ezPreferences::QueryPreferences<ezCppProject>();
 
-  if (preferences->m_CompilerPreferences.m_Compiler == ezCompiler::Vs2022)
+  if (preferences->m_CompilerPreferences.m_Compiler == ezCompiler::Vs2022 || preferences->m_CompilerPreferences.m_Compiler == ezCompiler::Vs2026)
   {
     po.AddArgument("--config");
     po.AddArgument(BUILDSYSTEM_BUILDTYPE);
@@ -1080,7 +1097,7 @@ ezCppProject::ModifyResult ezCppProject::ModifyCMakeUserPresetsJson(const ezCppS
 
     bool needsCompilerPaths = true;
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-    if (preferences->m_CompilerPreferences.m_Compiler == ezCompiler::Vs2022)
+    if (preferences->m_CompilerPreferences.m_Compiler == ezCompiler::Vs2022 || preferences->m_CompilerPreferences.m_Compiler == ezCompiler::Vs2026)
     {
       needsCompilerPaths = false;
     }
@@ -1108,7 +1125,7 @@ ezCppProject::ModifyResult ezCppProject::ModifyCMakeUserPresetsJson(const ezCppS
     Modify(presetDict, "generator", GetCMakeGeneratorName(cfg), result);
     Modify(presetDict, "binaryDir", GetBuildDir(cfg), result);
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-    if (preferences->m_CompilerPreferences.m_Compiler == ezCompiler::Vs2022)
+    if (preferences->m_CompilerPreferences.m_Compiler == ezCompiler::Vs2022 || preferences->m_CompilerPreferences.m_Compiler == ezCompiler::Vs2026)
     {
       Modify(presetDict, "architecture", "x64", result);
     }
@@ -1137,6 +1154,10 @@ void ezCppProject::LoadPreferences()
   if (sdkCompiler == ezCompiler::Vs2022)
   {
     s_MachineSpecificCompilers.PushBack({"Visual Studio 2022 (system default)", ezCompiler::Vs2022, "", "", false});
+  }
+  if (sdkCompiler == ezCompiler::Vs2026)
+  {
+    s_MachineSpecificCompilers.PushBack({"Visual Studio 2026 (system default)", ezCompiler::Vs2026, "", "", false});
   }
 
 #  if EZ_ENABLED(EZ_COMPILER_CLANG)
