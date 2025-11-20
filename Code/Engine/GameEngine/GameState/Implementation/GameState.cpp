@@ -64,12 +64,13 @@ void ezGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition, con
   }
   else
   {
-    ezStringBuilder sSceneFile = GetStartupSceneFile();
+    ezString sSceneFile;
+    ezString sPreloadCollection;
+    GetStartupOptions(sSceneFile, sPreloadCollection);
 
     if (!sSceneFile.IsEmpty())
     {
-      // TODO: also pass along a preload collection
-      LoadScene(sSceneFile, {}, sStartPosition, startPositionOffset);
+      LoadScene(sSceneFile, sPreloadCollection, sStartPosition, startPositionOffset);
     }
   }
 }
@@ -522,9 +523,16 @@ ezUniquePtr<ezWindowOutputTargetGAL> ezGameState::CreateMainOutputTarget(ezWindo
   return pOutput;
 }
 
-ezString ezGameState::GetStartupSceneFile()
+void ezGameState::GetStartupOptions(ezString& out_sScene, ezString& out_sPreloadCollection)
 {
-  return ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-scene");
+  out_sScene = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-scene");
+
+  ezStringBuilder sPreloadCollection = out_sScene;
+  sPreloadCollection.ChangeFileExtension("ezBinCollection");
+  if (ezFileSystem::ExistsFile(sPreloadCollection))
+  {
+    out_sPreloadCollection = sPreloadCollection;
+  }
 }
 
 void ezGameState::LoadScene(ezStringView sSceneFile, ezStringView sPreloadCollection, ezStringView sStartPosition, const ezTransform& startPositionOffset)

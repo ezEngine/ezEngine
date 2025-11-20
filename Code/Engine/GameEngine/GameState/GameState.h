@@ -183,11 +183,11 @@ protected:
   /// Called by CreateActors() with the result of CreateMainWindow().
   virtual void ConfigureMainWindowInputDevices(ezWindow* pWindow);
 
-  /// \brief Returns the path to the scene file to load at startup.
+  /// \brief Returns the path to the scene file and the corresponding preload collection to load at startup.
   ///
   /// By default this is taken from the command line '-scene' option.
   /// Override this function to define a custom startup scene (e.g. for the main menu) or load a saved state.
-  virtual ezString GetStartupSceneFile();
+  virtual void GetStartupOptions(ezString& out_sScene, ezString& out_sPreloadCollection);
 
   /// \brief Called by SwitchToLoadingScreen() to set up a new loading screen world.
   ///
