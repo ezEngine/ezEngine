@@ -11,7 +11,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8464864066885685894,5738673529103748961}}
-		u4 %Hash{7254109943571331919}
+		u4 %Hash{4622478597015770156}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{7733054106453483602,16089986760246323274}}
@@ -77,7 +77,7 @@ o
 		ezVarianceTypeFloat %Size
 		{
 			f %Variance{0xE17A143F}
-			f %Value{0x0AD7233D}
+			f %Value{0xCDCC4C3D}
 		}
 		s %SizeCurve{""}
 	}
@@ -97,6 +97,7 @@ o
 			Uuid{u4{14702774825399238287,4986900486414067376}}
 		}
 		VarDict %FloatParameters{}
+		Vec3u %NumWindSamples{u3{1,1,1}}
 		VarArray %ParticleSystems
 		{
 			Uuid{u4{3490689055456393639,5709501697680352805}}
@@ -116,9 +117,12 @@ o
 		Angle %Deviation{f{0}}
 		f %DistortionStrength{0x0000C842}
 		s %DistortionTexture{""}
+		f %LightDirectionality{0x0000003F}
+		s %LightingMode{"ezParticleLightingMode::Fullbright"}
+		f %NormalCurvature{0x0000003F}
 		u1 %NumSpritesX{2}
 		u1 %NumSpritesY{2}
-		s %Orientation{"ezQuadParticleOrientation::FixedAxis_ParticleDir"}
+		s %Orientation{"ezQuadParticleOrientation::FixedAxis_EmitterDir"}
 		f %ParticleStretch{0x00002041}
 		s %RenderMode{"ezParticleTypeRenderMode::Blended"}
 		s %Texture{"{ 85040ea2-01ac-49a2-9d6d-1d89c6f6c3a2 }"}
@@ -185,6 +189,8 @@ o
 		u1 %CollisionLayer{8}
 		s %OnCollideEvent{"drop"}
 		s %Reaction{"ezParticleRaycastHitReaction::Die"}
+		f %SizeFactor{0xCDCCCC3D}
+		f %SlideFactor{0x0000003F}
 	}
 }
 o
@@ -336,6 +342,23 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleBehaviorFactory"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{9692001477283607726,5375904088218900509}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleLightingMode"}
 		u3 %TypeVersion{1}
 	}
 }

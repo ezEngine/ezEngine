@@ -25,7 +25,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{10281641925491493550,5465572635547954389}}
-		u4 %Hash{9426052235993566451}
+		u4 %Hash{4225548632769078244}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{17591377397262831892,3226929628638535679}}
@@ -46,10 +46,11 @@ o
 {
 	Uuid %id{u4{9119338468921822310,10506236995415389660}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		f %DefaultValue{0xCDCC4C3F}
 		s %Name{"SpawnCountScale"}
 		s %Type{""}
@@ -59,10 +60,11 @@ o
 {
 	Uuid %id{u4{12721880073759861295,10616572382321293228}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		Color %DefaultValue{f{0xC7EFCF40,0xC7EFCF40,0xC7EFCF40,0x0000803F}}
 		s %Name{"Color"}
 		s %Type{""}
@@ -104,6 +106,7 @@ o
 		{
 			f %SpawnCountScale{0xCDCC4C3F}
 		}
+		Vec3u %NumWindSamples{u3{1,1,1}}
 		VarArray %ParticleSystems
 		{
 			Uuid{u4{15463267957664723354,5360488271358722044}}
@@ -155,10 +158,13 @@ o
 		Angle %Deviation{f{0}}
 		f %DistortionStrength{0x0000C842}
 		s %DistortionTexture{""}
+		f %LightDirectionality{0x0000003F}
+		s %LightingMode{"ezParticleLightingMode::Fullbright"}
+		f %NormalCurvature{0x0000003F}
 		u1 %NumSpritesX{6}
 		u1 %NumSpritesY{6}
 		s %Orientation{"ezQuadParticleOrientation::FixedAxis_ParticleDir"}
-		f %ParticleStretch{0x000000C1}
+		f %ParticleStretch{0x00000041}
 		s %RenderMode{"ezParticleTypeRenderMode::Additive"}
 		s %Texture{"{ 6c8b8f33-81da-4447-bb19-86b437fed5da }"}
 		s %TextureAtlas{"ezParticleTextureAtlasType::FlipbookAnimation"}
@@ -263,6 +269,23 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleBehaviorFactory"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{9692001477283607726,5375904088218900509}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleLightingMode"}
 		u3 %TypeVersion{1}
 	}
 }
