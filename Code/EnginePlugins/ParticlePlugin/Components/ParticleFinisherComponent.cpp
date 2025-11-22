@@ -1,5 +1,6 @@
 #include <ParticlePlugin/ParticlePluginPCH.h>
 
+#include <Core/Messages/CommonMessages.h>
 #include <Core/Messages/UpdateLocalBoundsMessage.h>
 #include <ParticlePlugin/Components/ParticleFinisherComponent.h>
 #include <ParticlePlugin/Resources/ParticleEffectResource.h>
