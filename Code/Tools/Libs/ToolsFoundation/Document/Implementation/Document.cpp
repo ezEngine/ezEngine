@@ -101,6 +101,7 @@ void ezDocument::SetModified(bool b)
     return;
 
   m_bModified = b;
+  m_ModifiedTime = b ? ezTime::Now() : ezTime();
 
   ezDocumentEvent e;
   e.m_pDocument = this;

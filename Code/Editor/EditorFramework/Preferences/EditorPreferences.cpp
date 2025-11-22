@@ -33,6 +33,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorPreferencesUser, 1, ezRTTIDefaultAllocat
     EZ_MEMBER_PROPERTY("CombinedEditorAndEngineLogs", m_bCombinedEditorAndEngineLogs)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_ACCESSOR_PROPERTY("HighlightUntranslatedUI", GetHighlightUntranslatedUI, SetHighlightUntranslatedUI),
     EZ_MEMBER_PROPERTY("AssetBrowserShowItemsInSubFolders", m_bAssetBrowserShowItemsInSubFolders)->AddAttributes(new ezDefaultValueAttribute(true), new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("AutoSaveMinutes", m_uiAutoSaveMinutes)->AddAttributes(new ezDefaultValueAttribute(5), new ezClampValueAttribute(0, 24 * 60)),
 
     // START GROUP Engine View Light Settings
     EZ_MEMBER_PROPERTY("SkyBox", m_bSkyBox)->AddAttributes(new ezDefaultValueAttribute(true), new ezGroupAttribute("Engine View Light Settings")),

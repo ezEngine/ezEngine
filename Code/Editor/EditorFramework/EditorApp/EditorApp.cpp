@@ -3,6 +3,7 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/CheckVersion.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorFramework/Preferences/EditorPreferences.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/IO/OpenDdlReader.h>
@@ -26,12 +27,16 @@ ezQtEditorApp::ezQtEditorApp()
   m_pVersionChecker = EZ_DEFAULT_NEW(ezQtVersionChecker);
 
   m_pTimer = new QTimer(nullptr);
+  m_pAutoSaveTimer = new QTimer(nullptr);
 }
 
 ezQtEditorApp::~ezQtEditorApp()
 {
   delete m_pTimer;
   m_pTimer = nullptr;
+
+  delete m_pAutoSaveTimer;
+  m_pAutoSaveTimer = nullptr;
 
   CloseSplashScreen();
 }
@@ -66,6 +71,46 @@ void ezQtEditorApp::SlotTimedUpdate()
 void ezQtEditorApp::SlotSaveSettings()
 {
   SaveSettings();
+}
+
+void ezQtEditorApp::SlotAutoSave()
+{
+  const auto* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+  if (!pPreferences || pPreferences->m_uiAutoSaveMinutes == 0)
+    return;
+
+  const ezTime tAutoSaveThreshold = ezTime::MakeFromMinutes(pPreferences->m_uiAutoSaveMinutes);
+  const ezTime tNow = ezTime::Now();
+
+  // Find the oldest modified document that exceeds the auto-save threshold.
+  ezDocument* pOldestDoc = nullptr;
+  ezTime tOldestTime = tNow;
+
+  for (auto pMan : ezDocumentManager::GetAllDocumentManagers())
+  {
+    for (auto pDoc : pMan->ezDocumentManager::GetAllOpenDocuments())
+    {
+      const ezTime tModified = pDoc->GetModifiedTime();
+      if (tModified.IsPositive() && (tNow - tModified) >= tAutoSaveThreshold && tModified < tOldestTime)
+      {
+        pOldestDoc = pDoc;
+        tOldestTime = tModified;
+      }
+    }
+  }
+
+  if (pOldestDoc == nullptr)
+    return;
+
+  ezQtDocumentWindow* pWnd = ezQtDocumentWindow::FindWindowByDocument(pOldestDoc);
+  if (pWnd && pWnd->GetDocument() == pOldestDoc)
+  {
+    pWnd->SaveDocument().IgnoreResult();
+  }
+  else
+  {
+    pOldestDoc->SaveDocument().IgnoreResult();
+  }
 }
 
 void ezQtEditorApp::SlotVersionCheckCompleted(bool bNewVersionReleased, bool bForced)
