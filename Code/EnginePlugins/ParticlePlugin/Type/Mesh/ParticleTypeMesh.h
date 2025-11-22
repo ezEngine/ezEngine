@@ -21,6 +21,7 @@ public:
 
   ezString m_sMesh;
   ezString m_sMaterial;
+  float m_fScale = 1.0f;
   ezString m_sTintColorParameter;
 };
 
@@ -36,6 +37,7 @@ public:
 
   ezMeshResourceHandle m_hMesh;
   mutable ezMaterialResourceHandle m_hMaterial;
+  float m_fScale = 1.0f;
   ezTempHashedString m_sTintColorParameter;
 
   virtual void ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const override;
@@ -58,8 +60,12 @@ protected:
   ezProcessingStream* m_pStreamRotationSpeed = nullptr;
   ezProcessingStream* m_pStreamRotationOffset = nullptr;
   ezProcessingStream* m_pStreamAxis = nullptr;
+  ezProcessingStream* m_pStreamVariation = nullptr;
 
   mutable bool m_bRenderDataCached = false;
   mutable ezRenderData::Category m_RenderCategory;
   mutable ezInstanceDataOffset m_InstanceDataOffset;
+  mutable ezUInt8 m_uiNumSubMeshes = 0;
+  mutable ezDynamicArray<ezMaterialResourceHandle> m_CachedSubMeshMaterials;
+  bool m_bMaterialOverride = false;
 };
