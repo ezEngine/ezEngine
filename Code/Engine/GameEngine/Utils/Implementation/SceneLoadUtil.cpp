@@ -11,52 +11,52 @@ constexpr float fCollectionPreloadPiece = 0.9f;
 ezSceneLoadUtility::ezSceneLoadUtility() = default;
 ezSceneLoadUtility::~ezSceneLoadUtility() = default;
 
-ezStatus ezSceneLoadUtility::FindRedirectedSceneFile(ezStringBuilder& sFinalSceneFile, ezStringView sSceneFile)
+ezStatus ezSceneLoadUtility::FindRedirectedSceneFile(ezStringBuilder& ref_sFinalPath, ezStringView sSceneFile)
 {
-  sFinalSceneFile = sSceneFile;
+  ref_sFinalPath = sSceneFile;
 
-  if (sFinalSceneFile.IsEmpty())
+  if (ref_sFinalPath.IsEmpty())
   {
     return ezStatus("No scene file specified.");
   }
 
-  if (sFinalSceneFile.IsAbsolutePath())
+  if (ref_sFinalPath.IsAbsolutePath())
   {
     // this can fail if the scene is in a different data directory than the project directory
     // shouldn't stop us from loading it anyway
-    sFinalSceneFile.MakeRelativeTo(ezGameApplication::GetGameApplicationInstance()->GetAppProjectPath()).IgnoreResult();
+    ref_sFinalPath.MakeRelativeTo(ezGameApplication::GetGameApplicationInstance()->GetAppProjectPath()).IgnoreResult();
   }
 
-  if (sFinalSceneFile.HasExtension("ezScene") || sFinalSceneFile.HasExtension("ezPrefab"))
+  if (ref_sFinalPath.HasExtension("ezScene") || ref_sFinalPath.HasExtension("ezPrefab"))
   {
-    if (sFinalSceneFile.IsAbsolutePath())
+    if (ref_sFinalPath.IsAbsolutePath())
     {
-      if (ezFileSystem::ResolvePath(sFinalSceneFile, nullptr, &sFinalSceneFile).Failed())
+      if (ezFileSystem::ResolvePath(ref_sFinalPath, nullptr, &ref_sFinalPath).Failed())
       {
-        return ezStatus(ezFmt("Scene path is not located in any data directory: '{}'", sFinalSceneFile));
+        return ezStatus(ezFmt("Scene path is not located in any data directory: '{}'", ref_sFinalPath));
       }
     }
 
     // if this is a path to the non-transformed source file, redirect it to the transformed file in the asset cache
-    sFinalSceneFile.Prepend("AssetCache/Common/");
+    ref_sFinalPath.Prepend("AssetCache/Common/");
 
-    if (sFinalSceneFile.HasExtension("ezScene"))
-      sFinalSceneFile.ChangeFileExtension("ezBinScene");
+    if (ref_sFinalPath.HasExtension("ezScene"))
+      ref_sFinalPath.ChangeFileExtension("ezBinScene");
     else
-      sFinalSceneFile.ChangeFileExtension("ezBinPrefab");
+      ref_sFinalPath.ChangeFileExtension("ezBinPrefab");
   }
 
   return EZ_SUCCESS;
 }
 
-ezStatus ezSceneLoadUtility::LoadSceneImmediate(ezWorld& targetWorld, ezStringView sSceneFile)
+ezStatus ezSceneLoadUtility::LoadSceneImmediate(ezWorld& inout_targetWorld, ezStringView sSceneFile)
 {
-  ezStringBuilder sFinalSceneFile;
-  EZ_SUCCEED_OR_RETURN(FindRedirectedSceneFile(sFinalSceneFile, sSceneFile));
+  ezStringBuilder ref_sFinalPath;
+  EZ_SUCCEED_OR_RETURN(FindRedirectedSceneFile(ref_sFinalPath, sSceneFile));
 
   ezFileReader fileReader;
 
-  if (fileReader.Open(sFinalSceneFile).Failed())
+  if (fileReader.Open(ref_sFinalPath).Failed())
     return ezStatus("Failed to open the file.");
 
   // Read and skip the asset file header
@@ -73,7 +73,7 @@ ezStatus ezSceneLoadUtility::LoadSceneImmediate(ezWorld& targetWorld, ezStringVi
   if (worldReader.ReadWorldDescription(fileReader).Failed())
     return ezStatus("Error reading world description.");
 
-  worldReader.InstantiateWorld(targetWorld, nullptr);
+  worldReader.InstantiateWorld(inout_targetWorld, nullptr);
 
   return EZ_SUCCESS;
 }
@@ -90,8 +90,8 @@ void ezSceneLoadUtility::StartSceneLoading(ezStringView sSceneFile, ezStringView
 
   m_sRequestedFile = sSceneFile;
 
-  ezStringBuilder sFinalSceneFile;
-  auto res = FindRedirectedSceneFile(sFinalSceneFile, sSceneFile);
+  ezStringBuilder ref_sFinalPath;
+  auto res = FindRedirectedSceneFile(ref_sFinalPath, sSceneFile);
 
   if (res.Failed())
   {
@@ -99,12 +99,12 @@ void ezSceneLoadUtility::StartSceneLoading(ezStringView sSceneFile, ezStringView
     return;
   }
 
-  if (sFinalSceneFile != sSceneFile)
+  if (ref_sFinalPath != sSceneFile)
   {
-    ezLog::Dev("Redirecting scene file from '{}' to '{}'", sSceneFile, sFinalSceneFile);
+    ezLog::Dev("Redirecting scene file from '{}' to '{}'", sSceneFile, ref_sFinalPath);
   }
 
-  m_sRedirectedFile = sFinalSceneFile;
+  m_sRedirectedFile = ref_sFinalPath;
 
   if (!sPreloadCollectionFile.IsEmpty())
   {

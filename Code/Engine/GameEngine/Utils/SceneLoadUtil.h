@@ -20,13 +20,13 @@ public:
   ~ezSceneLoadUtility();
 
   /// Redirects a scene path to the actual binary scene file, if necessary.
-  static ezStatus FindRedirectedSceneFile(ezStringBuilder& sFinalPath, ezStringView sSceneFile);
+  static ezStatus FindRedirectedSceneFile(ezStringBuilder& ref_sFinalPath, ezStringView sSceneFile);
 
   /// Loads a scene immediately into the given target world.
   ///
   /// Doesn't clear the world beforehand.
   /// Does call FindRedirectedSceneFile() on the scene path first.
-  static ezStatus LoadSceneImmediate(ezWorld& targetWorld, ezStringView sSceneFile);
+  static ezStatus LoadSceneImmediate(ezWorld& inout_targetWorld, ezStringView sSceneFile);
 
   enum class LoadingState
   {
