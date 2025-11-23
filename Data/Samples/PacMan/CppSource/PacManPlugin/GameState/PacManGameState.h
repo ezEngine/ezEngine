@@ -34,7 +34,7 @@ private:
   virtual void OnDeactivation() override;
   virtual void AfterWorldUpdate() override;
   virtual ezResult SpawnPlayer(ezStringView sStartPosition, const ezTransform& startPositionOffset) override;
-  virtual ezString GetStartupSceneFile() override;
+  virtual void GetStartupOptions(ezString& out_sScene, ezString& out_sPreloadCollection) override;
 
   void ResetState();
 
