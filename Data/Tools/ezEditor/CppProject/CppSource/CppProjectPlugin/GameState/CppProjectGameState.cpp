@@ -17,7 +17,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 CppProjectGameState::CppProjectGameState() = default;
 CppProjectGameState::~CppProjectGameState() = default;
 
-ezString CppProjectGameState::GetStartupSceneFile()
+void CppProjectGameState::GetStartupOptions(ezString& out_sScene, ezString& out_sPreloadCollection)
 {
   // replace this to load a certain scene at startup
   // the default implementation looks at the command line "-scene" argument
@@ -25,13 +25,22 @@ ezString CppProjectGameState::GetStartupSceneFile()
   // if we have a "-scene" command line argument, it was launched from the editor and we should load that
   if (ezCommandLineUtils::GetGlobalInstance()->HasOption("-scene"))
   {
-    return ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-scene");
+    out_sScene = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-scene");
+  }
+  else
+  {
+    // otherwise, we use the hardcoded 'Main.ezScene'
+    // if that doesn't exist, this function has to be adjusted
+    // note that you can return an asset GUID here, instead of a path
+    out_sScene = "AssetCache/Common/Scenes/Main.ezBinScene";
   }
 
-  // otherwise, we use the hardcoded 'Main.ezScene'
-  // if that doesn't exist, this function has to be adjusted
-  // note that you can return an asset GUID here, instead of a path
-  return "AssetCache/Common/Scenes/Main.ezBinScene";
+  ezStringBuilder sPreloadCollection = out_sScene;
+  sPreloadCollection.ChangeFileExtension("ezBinCollection");
+  if (ezFileSystem::ExistsFile(sPreloadCollection))
+  {
+    out_sPreloadCollection = sPreloadCollection;
+  }
 }
 
 void CppProjectGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset)

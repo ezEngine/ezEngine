@@ -41,7 +41,7 @@ void RTSGameState::RequestQuit(ezStringView sRequestedBy)
   SUPER::RequestQuit(sRequestedBy);
 }
 
-ezString RTSGameState::GetStartupSceneFile()
+void RTSGameState::GetStartupOptions(ezString& out_sScene, ezString& out_sPreloadCollection)
 {
   // replace this to load a certain scene at startup
   // the default implementation looks at the command line "-scene" argument
@@ -49,13 +49,15 @@ ezString RTSGameState::GetStartupSceneFile()
   // if we have a "-scene" command line argument, it was launched from the editor and we should load that
   if (ezCommandLineUtils::GetGlobalInstance()->HasOption("-scene"))
   {
-    return ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-scene");
+    out_sScene = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-scene");
   }
-
-  // otherwise, we use the hardcoded 'Main.ezScene'
-  // if that doesn't exist, this function has to be adjusted
-  // note that you can return an asset GUID here, instead of a path
-  return "AssetCache/Common/Scenes/Main.ezBinScene";
+  else
+  {
+    // otherwise, we use the hardcoded 'Main.ezScene'
+    // if that doesn't exist, this function has to be adjusted
+    // note that you can return an asset GUID here, instead of a path
+    out_sScene = "AssetCache/Common/Scenes/Main.ezBinScene";
+  }
 }
 
 float RTSGameState::GetCameraZoom() const

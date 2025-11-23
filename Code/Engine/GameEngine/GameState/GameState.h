@@ -72,7 +72,7 @@ public:
   ///
   /// Calls CreateActors() to create the game's main window and setup input devices.
   /// Calls ConfigureInputActions() to setup input actions.
-  /// Finally switches to pWorld (if available) or starts loading the scene that GetStartupSceneFile() returns.
+  /// Finally switches to pWorld (if available) or starts loading the scene that GetStartupOptions() returns.
   ///
   /// Override any of the above functions to customize them.
   virtual void OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset) override;
