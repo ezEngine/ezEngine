@@ -58,6 +58,8 @@ void ezSpotLightComponent::OnActivated()
 void ezSpotLightComponent::OnDeactivated()
 {
   DeleteCookie();
+
+  SUPER::OnDeactivated();
 }
 
 void ezSpotLightComponent::SerializeComponent(ezWorldWriter& inout_stream) const

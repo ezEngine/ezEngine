@@ -148,6 +148,8 @@ void ezJoltVisColMeshComponent::OnDeactivated()
 {
   ezRenderDataManager* pRenderDataManager = GetWorld()->GetModule<ezRenderDataManager>();
   pRenderDataManager->DeleteInstanceData(m_InstanceDataOffset);
+
+  SUPER::OnDeactivated();
 }
 
 void ezJoltVisColMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const

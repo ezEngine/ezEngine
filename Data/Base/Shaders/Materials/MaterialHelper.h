@@ -214,13 +214,7 @@ ezMaterialData FillMaterialData()
   matData.roughness = RoughnessFromPerceptualRoughness(matData.perceptualRoughness);
 
 #if defined(USE_MATERIAL_OCCLUSION)
-#  if defined(USE_NORMAL)
-  float3 viewVector = normalize(GetCameraPosition() - matData.worldPosition);
-  float occlusionFade = saturate(dot(matData.vertexNormal, viewVector));
-#  else
-  float occlusionFade = 1.0f;
-#  endif
-  matData.occlusion = lerp(1.0f, GetOcclusion(), occlusionFade);
+  matData.occlusion = GetOcclusion();
 #else
   matData.occlusion = 1.0f;
 #endif
@@ -294,4 +288,12 @@ float4 SampleColorPalette(Texture2D paletteTex, uint row, float column)
 
   float2 uv = float2(column, (row + 0.5f) / height);
   return paletteTex.SampleLevel(LinearClampSampler, uv, 0);
+}
+
+float AOFresnel(float3 worldPosition, float3 vertexNormal, float ao, float fresnelStrength)
+{
+  float3 viewVector = normalize(GetCameraPosition() - worldPosition);
+  float occlusionFade = saturate(saturate(dot(vertexNormal, viewVector)) - fresnelStrength + 1);
+
+  return lerp(1.0f, ao, occlusionFade);
 }
