@@ -83,7 +83,7 @@ EZ_ALWAYS_INLINE bool ezTransformTemplate<Type>::HasMirrorScaling() const
 }
 
 template <typename Type>
-EZ_ALWAYS_INLINE bool ezTransformTemplate<Type>::ContainsUniformScale() const
+EZ_ALWAYS_INLINE bool ezTransformTemplate<Type>::HasOnlyUniformScaling() const
 {
   const Type fEpsilon = ezMath::DefaultEpsilon<Type>();
   return ezMath::IsEqual(m_vScale.x, m_vScale.y, fEpsilon) && ezMath::IsEqual(m_vScale.x, m_vScale.z, fEpsilon);

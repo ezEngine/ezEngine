@@ -61,7 +61,7 @@ EZ_ALWAYS_INLINE bool ezSimdTransform::HasMirrorScaling() const
   return (m_Scale.x() * m_Scale.y() * m_Scale.z()) < ezSimdFloat::MakeZero();
 }
 
-EZ_ALWAYS_INLINE bool ezSimdTransform::ContainsUniformScale() const
+EZ_ALWAYS_INLINE bool ezSimdTransform::HasOnlyUniformScaling() const
 {
   const ezSimdFloat fEpsilon = ezMath::DefaultEpsilon<float>();
   return m_Scale.x().IsEqual(m_Scale.y(), fEpsilon) && m_Scale.x().IsEqual(m_Scale.z(), fEpsilon);
