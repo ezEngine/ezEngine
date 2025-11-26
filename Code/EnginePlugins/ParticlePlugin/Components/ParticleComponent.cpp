@@ -339,9 +339,15 @@ ezResult ezParticleComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bo
 
 void ezParticleComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
-  // do not extract particles during shadow map rendering
-  if (msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow)
-    return;
+  switch (msg.m_pView->GetCameraUsageHint())
+  {
+    case ezCameraUsageHint::Shadow:
+    case ezCameraUsageHint::Reflection:
+      return;
+
+    default:
+      break;
+  }
 
   m_EffectController.ExtractRenderData(msg, GetPfxTransform());
 }

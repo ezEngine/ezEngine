@@ -70,9 +70,15 @@ ezResult ezParticleFinisherComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bo
 
 void ezParticleFinisherComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
-  // do not extract particles during shadow map rendering
-  if (msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow)
-    return;
+  switch (msg.m_pView->GetCameraUsageHint())
+  {
+    case ezCameraUsageHint::Shadow:
+    case ezCameraUsageHint::Reflection:
+      return;
+
+    default:
+      break;
+  }
 
   m_EffectController.ExtractRenderData(msg, GetOwner()->GetGlobalTransform());
 }
@@ -81,6 +87,8 @@ void ezParticleFinisherComponent::UpdateBounds()
 {
   if (m_EffectController.IsAlive())
   {
+    m_EffectController.CombineSystemBoundingVolumes();
+
     // This function is called in the post-transform phase so the global bounds and transform have already been calculated at this point.
     // Therefore we need to manually update the global bounds again to ensure correct bounds for culling and rendering.
     GetOwner()->UpdateLocalBounds();
