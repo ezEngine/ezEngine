@@ -88,7 +88,7 @@ jobs:
       xcodeDeveloperDir: $(BuildParameters.xcodeDeveloperDir)
       destinationPlatformOption: macOS
       destinationSimulators: iPhone 7
-      args: -scheme ALL_BUILD
+      args: -scheme ALL_BUILD -verbose
   - task: PowerShell@2
     displayName: PowerShell Script
     inputs:
