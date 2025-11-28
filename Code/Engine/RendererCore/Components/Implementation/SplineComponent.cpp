@@ -257,6 +257,29 @@ ezTransform ezSplineComponent::GetTransformAtKey(float fKey, ezEnum<ezSplineComp
   return t;
 }
 
+float ezSplineComponent::GetSegmentLength(ezUInt32 uiSegmentIndex) const
+{
+  const float fSegmentKey = static_cast<float>(uiSegmentIndex);
+  const float fNextSegmentKey = static_cast<float>(uiSegmentIndex + 1);
+
+  float fStartDistance = 0.0f;
+  float fEndDistance = 0.0f;
+  for (auto it : m_DistanceToKey)
+  {
+    if (ezMath::IsEqual(it.value, fSegmentKey, ezMath::DefaultEpsilon<float>()))
+    {
+      fStartDistance = it.key;
+    }
+    if (ezMath::IsEqual(it.value, fNextSegmentKey, ezMath::DefaultEpsilon<float>()))
+    {
+      fEndDistance = it.key;
+      break;
+    }
+  }
+
+  return fEndDistance - fStartDistance;
+}
+
 float ezSplineComponent::GetKeyAtDistance(float fDistance) const
 {
   if (m_DistanceToKey.IsEmpty())

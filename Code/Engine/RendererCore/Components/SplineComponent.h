@@ -123,6 +123,10 @@ public:
   /// \brief Returns the total length of the spline (in local space)
   float GetTotalLength() const { return m_fTotalLength; } // [ scriptable ]
 
+  /// \brief Returns the segment length for the given segment index (in local space)
+  float GetSegmentLength(ezUInt32 uiSegmentIndex) const; // [ scriptable ]
+
+
   /// \brief Returns the spline key (segment index + t) for the given distance along the spline
   float GetKeyAtDistance(float fDistance) const; // [ scriptable ]
 

@@ -5,6 +5,7 @@
 struct ezMsgSplineChanged;
 struct ezMsgExtractRenderData;
 struct ezDebugRendererLine;
+class ezSplineComponent;
 
 using ezProcVolumeSplineComponentManager = ezComponentManager<class ezProcVolumeSplineComponent, ezBlockStorageType::Compact>;
 
@@ -31,6 +32,8 @@ public:
   void OnMsgExtractRenderData(ezMsgExtractRenderData& ref_msg) const;
 
 protected:
+  const ezSplineComponent* GetSplineComponent() const;
+
   float m_fRadius = 5.0f;
   float m_fFalloff = 0.5f;
 

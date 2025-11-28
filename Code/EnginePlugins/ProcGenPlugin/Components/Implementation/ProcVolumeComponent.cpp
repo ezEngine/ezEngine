@@ -133,6 +133,9 @@ void ezProcVolumeComponent::DeserializeComponent(ezWorldReader& inout_stream)
 void ezProcVolumeComponent::OnTransformChanged(ezMsgTransformChanged& ref_msg)
 {
   ezBoundingBoxSphere combined = GetOwner()->GetLocalBounds();
+  if (!combined.IsValid())
+    return;
+
   combined.Transform(ref_msg.m_OldGlobalTransform.GetAsMat4());
 
   combined.ExpandToInclude(GetOwner()->GetGlobalBounds());

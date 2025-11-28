@@ -120,7 +120,7 @@ void ezProcVertexColorComponentManager::UpdateVertexColors(const ezWorldModule::
     for (ezUInt32 i = 0; i < m_ComponentsToUpdate.GetCount(); ++i)
     {
       ezProcVertexColorComponent* pComponent = nullptr;
-      if (!TryGetComponent(m_ComponentsToUpdate[i], pComponent))
+      if (!TryGetComponent(m_ComponentsToUpdate[i], pComponent) || !pComponent->IsActiveAndInitialized())
         continue;
 
       if (!UpdateComponentOutputs(*pComponent))
@@ -257,11 +257,8 @@ void ezProcVertexColorComponentManager::UpdateComponentVertexColors(const Update
 
 void ezProcVertexColorComponentManager::EnqueueUpdate(ezProcVertexColorComponent& component)
 {
-  auto& hResource = component.GetResource();
-  if (!hResource.IsValid())
-  {
+  if (!component.IsActiveAndInitialized() || !component.GetResource().IsValid())
     return;
-  }
 
   if (!m_ComponentsToUpdate.Contains(component.GetHandle()))
   {
