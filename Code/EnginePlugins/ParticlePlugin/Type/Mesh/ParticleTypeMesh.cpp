@@ -118,13 +118,20 @@ ezParticleTypeMesh::~ezParticleTypeMesh()
 
 void ezParticleTypeMesh::CreateRequiredStreams()
 {
+  QueryMeshAndMaterialInfo();
+
   CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
   CreateStream("Size", ezProcessingStream::DataType::Half, &m_pStreamSize, false);
   CreateStream("Color", ezProcessingStream::DataType::Half4, &m_pStreamColor, false);
   CreateStream("RotationSpeed", ezProcessingStream::DataType::Half, &m_pStreamRotationSpeed, false);
   CreateStream("RotationOffset", ezProcessingStream::DataType::Half, &m_pStreamRotationOffset, false);
   CreateStream("Axis", ezProcessingStream::DataType::Float3, &m_pStreamAxis, true);
-  CreateStream("Variation", ezProcessingStream::DataType::Int, &m_pStreamVariation, false);
+
+  if (m_uiNumSubMeshes > 1)
+  {
+    // only create this stream when necessary
+    CreateStream("Variation", ezProcessingStream::DataType::Int, &m_pStreamVariation, false);
+  }
 }
 
 void ezParticleTypeMesh::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
@@ -244,7 +251,7 @@ void ezParticleTypeMesh::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, 
   const ezFloat16* pRotationSpeed = m_pStreamRotationSpeed->GetData<ezFloat16>();
   const ezFloat16* pRotationOffset = m_pStreamRotationOffset->GetData<ezFloat16>();
   const ezVec3* pAxis = m_pStreamAxis->GetData<ezVec3>();
-  const ezInt32* pVariation = m_pStreamVariation->GetData<ezInt32>();
+  const ezInt32* pVariation = (m_pStreamVariation != nullptr) ? m_pStreamVariation->GetData<ezInt32>() : nullptr;
 
   const bool bIsOpaque = m_RenderCategory == ezDefaultRenderDataCategories::LitOpaque ||
                          m_RenderCategory == ezDefaultRenderDataCategories::LitMasked ||
@@ -258,74 +265,61 @@ void ezParticleTypeMesh::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, 
     const ezUInt32 uiMaxNumParticles = (ezUInt32)GetOwnerSystem()->GetMaxParticles();
     auto instanceData = ref_msg.m_pRenderDataManager->GetOrCreateInstanceData(nullptr, bDynamic, hInstanceDataBuffer, m_InstanceDataOffset, uiMaxNumParticles);
 
-    for (ezUInt32 p = 0; p < numParticles; ++p)
+    // Opaque particles with a single submesh can be batched into one render data
+    if (bIsOpaque && uiNumSubMeshes == 1)
     {
-      const ezUInt32 idx = p;
-
-      ezTransform trans;
-      trans.m_qRotation = ezQuat::MakeFromAxisAndAngle(pAxis[p], ezAngle::MakeFromRadian((float)(tCur.GetSeconds() * pRotationSpeed[idx]) + pRotationOffset[idx]));
-      trans.m_vPosition = pPosition[idx].GetAsVec3();
-      trans.m_vScale.Set(pSize[idx] * m_fScale);
-
-      ezRenderDataManager::FillPerInstanceData(instanceData[p], nullptr, trans, ezInvalidIndex, pColor[idx].ToLinearFloat() * tintColor);
-
-      // If not rendered as opaque we need one render data per particle to allow for proper sorting
-      if (!bIsOpaque)
+      for (ezUInt32 p = 0; p < numParticles; ++p)
       {
+        const ezUInt32 idx = p;
+
+        ezTransform trans;
+        trans.m_qRotation = ezQuat::MakeFromAxisAndAngle(pAxis[p], ezAngle::MakeFromRadian((float)(tCur.GetSeconds() * pRotationSpeed[idx]) + pRotationOffset[idx]));
+        trans.m_vPosition = pPosition[idx].GetAsVec3();
+        trans.m_vScale.Set(pSize[idx] * m_fScale);
+
+        ezRenderDataManager::FillPerInstanceData(instanceData[p], nullptr, trans, ezInvalidIndex, pColor[idx].ToLinearFloat() * tintColor);
+      }
+
+      ezMeshRenderData* pRenderData = ref_msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezMeshRenderData>(nullptr);
+      pRenderData->m_vGlobalPosition = GetOwnerSystem()->GetTransform().m_vPosition;
+      pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, m_hMaterial, m_hMesh, 0, 0, numParticles);
+
+      ref_msg.AddRenderData(pRenderData, m_RenderCategory, ezRenderData::Caching::Never);
+    }
+    else
+    {
+      EZ_ASSERT_DEBUG(pVariation != nullptr, "Variation stream should be set up");
+
+      // Non-opaque particles or multiple submeshes require per-particle render data
+      for (ezUInt32 p = 0; p < numParticles; ++p)
+      {
+        const ezUInt32 idx = p;
+
+        ezTransform trans;
+        trans.m_qRotation = ezQuat::MakeFromAxisAndAngle(pAxis[p], ezAngle::MakeFromRadian((float)(tCur.GetSeconds() * pRotationSpeed[idx]) + pRotationOffset[idx]));
+        trans.m_vPosition = pPosition[idx].GetAsVec3();
+        trans.m_vScale.Set(pSize[idx] * m_fScale);
+
+        ezRenderDataManager::FillPerInstanceData(instanceData[p], nullptr, trans, ezInvalidIndex, pColor[idx].ToLinearFloat() * tintColor);
+
         // Determine submesh index from variation
         const ezUInt32 uiSubMeshIdx = static_cast<ezUInt32>(ezMath::Abs(pVariation[idx])) % uiNumSubMeshes;
+
+        // Determine material for this submesh
+        ezMaterialResourceHandle hMaterial = m_hMaterial;
+        if (!m_bMaterialOverride && uiSubMeshIdx < m_CachedSubMeshMaterials.GetCount())
+        {
+          hMaterial = m_CachedSubMeshMaterials[uiSubMeshIdx];
+        }
 
         ezInstanceDataOffset perParticleOffset = m_InstanceDataOffset;
         perParticleOffset.m_uiOffset += p;
 
         ezMeshRenderData* pRenderData = ref_msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezMeshRenderData>(nullptr);
         pRenderData->m_vGlobalPosition = trans.m_vPosition;
-        pRenderData->Fill(perParticleOffset, hInstanceDataBuffer, m_hMaterial, m_hMesh, 0, uiSubMeshIdx);
+        pRenderData->Fill(perParticleOffset, hInstanceDataBuffer, hMaterial, m_hMesh, 0, uiSubMeshIdx);
 
         ref_msg.AddRenderData(pRenderData, m_RenderCategory, ezRenderData::Caching::Never);
-      }
-    }
-
-    // If rendered as opaque
-    if (bIsOpaque)
-    {
-      // When there's only 1 submesh, batch all particles into one render data
-      if (uiNumSubMeshes == 1)
-      {
-        ezMeshRenderData* pRenderData = ref_msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezMeshRenderData>(nullptr);
-        pRenderData->m_vGlobalPosition = GetOwnerSystem()->GetTransform().m_vPosition;
-        pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, m_hMaterial, m_hMesh, 0, 0, numParticles);
-
-        ref_msg.AddRenderData(pRenderData, m_RenderCategory, ezRenderData::Caching::Never);
-      }
-      else
-      {
-        // Multi-submesh path: need to create render data per particle with correct submesh
-        for (ezUInt32 p = 0; p < numParticles; ++p)
-        {
-          const ezUInt32 idx = p;
-
-          // Determine submesh index from variation
-          const ezUInt32 uiSubMeshIdx = static_cast<ezUInt32>(ezMath::Abs(pVariation[idx])) % uiNumSubMeshes;
-
-          // Determine material for this submesh
-          // If a material override was specified, use it for all particles
-          // Otherwise, use the cached material for the submesh
-          ezMaterialResourceHandle hMaterial = m_hMaterial;
-          if (!m_bMaterialOverride && uiSubMeshIdx < m_CachedSubMeshMaterials.GetCount())
-          {
-            hMaterial = m_CachedSubMeshMaterials[uiSubMeshIdx];
-          }
-
-          ezInstanceDataOffset perParticleOffset = m_InstanceDataOffset;
-          perParticleOffset.m_uiOffset += p;
-
-          ezMeshRenderData* pRenderData = ref_msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezMeshRenderData>(nullptr);
-          pRenderData->m_vGlobalPosition = pPosition[idx].GetAsVec3();
-          pRenderData->Fill(perParticleOffset, hInstanceDataBuffer, hMaterial, m_hMesh, 0, uiSubMeshIdx);
-
-          ref_msg.AddRenderData(pRenderData, m_RenderCategory, ezRenderData::Caching::Never);
-        }
       }
     }
   }
