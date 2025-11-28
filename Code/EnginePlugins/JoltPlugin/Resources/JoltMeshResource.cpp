@@ -150,8 +150,7 @@ ezResourceLoadDesc ezJoltMeshResource::UpdateContent(ezStreamReader* Stream)
   ezAssetFileHeader AssetHash;
   AssetHash.Read(*Stream).IgnoreResult();
 
-  // version specified in ezJoltCollisionMeshAssetDocument::InternalTransformAsset()
-  // and also in ezSceneExportModifier_JoltStaticMeshConversion::ModifyWorld() !
+  // version specified in ezJoltCollisionMeshWriter::WriteMeshResource
   ezUInt8 uiVersion = 0;
   ezUInt8 uiCompressionMode = 0;
 
@@ -373,6 +372,11 @@ ezCpuMeshResourceHandle ezJoltMeshResource::ConvertToCpuMesh() const
 
   if (positions.IsEmpty())
     return {};
+
+  for (ezUInt32 i = 0; i < m_Surfaces.GetCount(); ++i)
+  {
+    desc.SetMaterial(i, m_Surfaces[i].GetResourceID());
+  }
 
   desc.MeshBufferDesc().AllocateStreams(positions.GetCount(), ezGALPrimitiveTopology::Triangles);
   desc.MeshBufferDesc().GetPositionData().CopyFrom(positions);

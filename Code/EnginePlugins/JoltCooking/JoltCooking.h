@@ -1,18 +1,17 @@
 #pragma once
 
-#include <Foundation/Types/Status.h>
 #include <JoltCooking/JoltCookingDLL.h>
+
+#include <Foundation/Types/Status.h>
 
 class ezStreamWriter;
 class ezChunkStreamWriter;
 
 struct EZ_JOLTCOOKING_DLL ezJoltCookingMesh
 {
-  bool m_bFlipNormals = false;
   ezDynamicArray<ezVec3> m_Vertices;
-  ezDynamicArray<ezUInt8> m_VerticesInPolygon;
-  ezDynamicArray<ezUInt32> m_PolygonIndices;
-  ezDynamicArray<ezUInt16> m_PolygonSurfaceID;
+  ezDynamicArray<ezUInt32> m_TriangleIndices;
+  ezDynamicArray<ezUInt16> m_TriangleSurfaceID;
 };
 
 class EZ_JOLTCOOKING_DLL ezJoltCooking

@@ -53,7 +53,7 @@ public:
   void AddSubMesh(ezUInt32 uiPrimitiveCount, ezUInt32 uiFirstPrimitive, ezUInt32 uiMaterialIndex);
 
   /// Sets the material path for a material slot.
-  void SetMaterial(ezUInt32 uiMaterialIndex, const char* szPathToMaterial);
+  void SetMaterial(ezUInt32 uiMaterialIndex, ezStringView sPathToMaterial);
 
   void Save(ezStreamWriter& inout_stream);
   ezResult Save(const char* szFile);

@@ -221,6 +221,14 @@ void ezMeshBufferResourceDescriptor::AddCommonStreams(bool bUseHighPrecision /*=
   AddStream(ezMeshVertexStreamType::NormalTangentAndTexCoord0, bUseHighPrecision);
 }
 
+void ezMeshBufferResourceDescriptor::AddStreamConfig(const ezMeshVertexStreamConfig& streamConfig)
+{
+  EZ_ASSERT_DEV(m_VertexStreamsData.IsEmpty(), "This function can only be called before 'AllocateStreams' is called");
+
+  m_VertexStreamConfig.m_uiTypesMask |= streamConfig.m_uiTypesMask;
+  m_VertexStreamConfig.m_bUseHighPrecision |= streamConfig.m_bUseHighPrecision;
+}
+
 void ezMeshBufferResourceDescriptor::AllocateStreams(ezUInt32 uiNumVertices, ezGALPrimitiveTopology::Enum topology, ezUInt32 uiNumPrimitives, bool bZeroFill /*= false*/)
 {
   EZ_ASSERT_DEV(m_VertexStreamConfig.m_uiTypesMask != 0, "You have to add streams via 'AddStream' before calling this function");

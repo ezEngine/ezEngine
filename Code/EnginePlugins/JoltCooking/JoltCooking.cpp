@@ -68,70 +68,44 @@ ezResult ezJoltCooking::CookTriangleMesh(const ezJoltCookingMesh& mesh, ezStream
 
   ezUInt32 uiMaxMaterialIndex = 0;
 
-  // compute number of triangles
+  // copy triangles
   {
-    ezUInt32 uiTriangles = 0;
-
-    for (ezUInt32 i = 0; i < mesh.m_VerticesInPolygon.GetCount(); ++i)
+    triangleList.reserve(mesh.m_TriangleSurfaceID.GetCount());
+    for (ezUInt32 i = 0; i < mesh.m_TriangleSurfaceID.GetCount(); ++i)
     {
-      if (mesh.m_PolygonSurfaceID[i] == 0xFFFF)
+      const ezUInt32 uiMaterialID = mesh.m_TriangleSurfaceID[i];
+      if (uiMaterialID == 0xFFFF)
         continue;
+      
+      uiMaxMaterialIndex = ezMath::Max(uiMaxMaterialIndex, uiMaterialID);
 
-      uiTriangles += mesh.m_VerticesInPolygon[i] - 2;
-    }
+      const ezUInt32 idx0 = mesh.m_TriangleIndices[i * 3 + 0];
+      const ezUInt32 idx1 = mesh.m_TriangleIndices[i * 3 + 1];
+      const ezUInt32 idx2 = mesh.m_TriangleIndices[i * 3 + 2];
 
-    triangleList.resize(uiTriangles);
-  }
-
-  // triangulate
-  {
-    ezUInt32 uiIdxOffset = 0;
-    ezUInt32 uiTriIdx = 0;
-
-    for (ezUInt32 poly = 0; poly < mesh.m_VerticesInPolygon.GetCount(); ++poly)
-    {
-      const ezUInt32 polyVerts = mesh.m_VerticesInPolygon[poly];
-
-      if (mesh.m_PolygonSurfaceID[poly] != 0xFFFF)
+      if (idx0 == idx1 || idx0 == idx2 || idx1 == idx2)
       {
-        for (ezUInt32 tri = 0; tri < polyVerts - 2; ++tri)
-        {
-          const ezUInt32 uiMaterialID = mesh.m_PolygonSurfaceID[poly];
-
-          uiMaxMaterialIndex = ezMath::Max(uiMaxMaterialIndex, uiMaterialID);
-
-          const ezUInt32 idx0 = mesh.m_PolygonIndices[uiIdxOffset + 0];
-          const ezUInt32 idx1 = mesh.m_PolygonIndices[uiIdxOffset + tri + 1];
-          const ezUInt32 idx2 = mesh.m_PolygonIndices[uiIdxOffset + tri + 2];
-
-          if (idx0 == idx1 || idx0 == idx2 || idx1 == idx2)
-          {
-            // triangle is degenerate, remove it from the list
-            triangleList.resize(triangleList.size() - 1);
-            continue;
-          }
-
-          const ezVec3 v0 = ezJoltConversionUtils::ToVec3(vertexList[idx0]);
-          const ezVec3 v1 = ezJoltConversionUtils::ToVec3(vertexList[idx1]);
-          const ezVec3 v2 = ezJoltConversionUtils::ToVec3(vertexList[idx2]);
-
-          if (v0.IsEqual(v1, 0.001f) || v0.IsEqual(v2, 0.001f) || v1.IsEqual(v2, 0.001f))
-          {
-            // triangle is degenerate, remove it from the list
-            triangleList.resize(triangleList.size() - 1);
-            continue;
-          }
-
-          triangleList[uiTriIdx].mMaterialIndex = uiMaterialID;
-          triangleList[uiTriIdx].mIdx[0] = idx0;
-          triangleList[uiTriIdx].mIdx[1] = idx1;
-          triangleList[uiTriIdx].mIdx[2] = idx2;
-
-          ++uiTriIdx;
-        }
+        // triangle is degenerate, remove it from the list
+        triangleList.resize(triangleList.size() - 1);
+        continue;
       }
 
-      uiIdxOffset += polyVerts;
+      const ezVec3 v0 = ezJoltConversionUtils::ToVec3(vertexList[idx0]);
+      const ezVec3 v1 = ezJoltConversionUtils::ToVec3(vertexList[idx1]);
+      const ezVec3 v2 = ezJoltConversionUtils::ToVec3(vertexList[idx2]);
+
+      if (v0.IsEqual(v1, 0.001f) || v0.IsEqual(v2, 0.001f) || v1.IsEqual(v2, 0.001f))
+      {
+        // triangle is degenerate, remove it from the list
+        triangleList.resize(triangleList.size() - 1);
+        continue;
+      }
+
+      auto& triangle = triangleList.emplace_back();
+      triangle.mMaterialIndex = uiMaterialID;
+      triangle.mIdx[0] = idx0;
+      triangle.mIdx[1] = idx1;
+      triangle.mIdx[2] = idx2;
     }
   }
 
@@ -234,9 +208,6 @@ ezResult ezJoltCooking::ComputeConvexHull(const ezJoltCookingMesh& mesh, ezJoltC
 {
   ezStopwatch timer;
 
-  out_mesh.m_bFlipNormals = mesh.m_bFlipNormals;
-
-
   ezConvexHullGenerator gen;
   if (gen.Build(mesh.m_Vertices).Failed())
   {
@@ -266,11 +237,10 @@ ezResult ezJoltCooking::ComputeConvexHull(const ezJoltCookingMesh& mesh, ezJoltC
 
   for (const auto& face : faces)
   {
-    out_mesh.m_VerticesInPolygon.ExpandAndGetRef() = 3;
-    out_mesh.m_PolygonSurfaceID.ExpandAndGetRef() = 0;
+    out_mesh.m_TriangleSurfaceID.ExpandAndGetRef() = 0;
 
     for (int vert = 0; vert < 3; ++vert)
-      out_mesh.m_PolygonIndices.ExpandAndGetRef() = face.m_uiVertexIdx[vert];
+      out_mesh.m_TriangleIndices.ExpandAndGetRef() = face.m_uiVertexIdx[vert];
   }
 
   ezLog::Dev("Computed the convex hull in {0} milliseconds", ezArgF(timer.GetRunningTotal().GetMilliseconds(), 1));
@@ -390,7 +360,7 @@ ezResult ezJoltCooking::CookDecomposedConvexMesh(const ezJoltCookingMesh& mesh, 
     params.m_resolution = 100 * 100 * 100;
   }
 
-  if (!pConDec->Compute(mesh.m_Vertices.GetData()->GetData(), mesh.m_Vertices.GetCount(), mesh.m_PolygonIndices.GetData(), mesh.m_VerticesInPolygon.GetCount(), params))
+  if (!pConDec->Compute(mesh.m_Vertices.GetData()->GetData(), mesh.m_Vertices.GetCount(), mesh.m_TriangleIndices.GetData(), mesh.m_TriangleSurfaceID.GetCount(), params))
   {
     ezLog::Error("Failed to compute convex decomposition");
     return EZ_FAILURE;
@@ -430,18 +400,16 @@ ezResult ezJoltCooking::CookDecomposedConvexMesh(const ezJoltCookingMesh& mesh, 
       chm.m_Vertices[v].Set((float)ch.m_points[v].mX, (float)ch.m_points[v].mY, (float)ch.m_points[v].mZ);
     }
 
-    chm.m_VerticesInPolygon.SetCount((ezUInt32)ch.m_triangles.size());
-    chm.m_PolygonSurfaceID.SetCount((ezUInt32)ch.m_triangles.size());
-    chm.m_PolygonIndices.SetCount((ezUInt32)ch.m_triangles.size() * 3);
+    chm.m_TriangleSurfaceID.SetCount((ezUInt32)ch.m_triangles.size());
+    chm.m_TriangleIndices.SetCount((ezUInt32)ch.m_triangles.size() * 3);
 
     for (ezUInt32 t = 0; t < (ezUInt32)ch.m_triangles.size(); ++t)
     {
-      chm.m_VerticesInPolygon[t] = 3;
-      chm.m_PolygonSurfaceID[t] = 0;
+      chm.m_TriangleSurfaceID[t] = 0;
 
-      chm.m_PolygonIndices[t * 3 + 0] = ch.m_triangles[t].mI0;
-      chm.m_PolygonIndices[t * 3 + 1] = ch.m_triangles[t].mI1;
-      chm.m_PolygonIndices[t * 3 + 2] = ch.m_triangles[t].mI2;
+      chm.m_TriangleIndices[t * 3 + 0] = ch.m_triangles[t].mI0;
+      chm.m_TriangleIndices[t * 3 + 1] = ch.m_triangles[t].mI1;
+      chm.m_TriangleIndices[t * 3 + 2] = ch.m_triangles[t].mI2;
     }
 
     EZ_SUCCEED_OR_RETURN(CookSingleConvexJoltMesh(chm, ref_outputStream));
@@ -459,19 +427,18 @@ ezResult ezJoltCooking::CookConvexHullGroup(const ezJoltCookingMesh& meshSrc, ez
   ezMap<ezUInt16, ezJoltCookingMesh> parts;
 
   ezUInt32 uiVertexIdx = 0;
-  for (ezUInt32 faceIdx = 0; faceIdx < meshSrc.m_VerticesInPolygon.GetCount(); ++faceIdx)
+  for (ezUInt32 faceIdx = 0; faceIdx < meshSrc.m_TriangleSurfaceID.GetCount(); ++faceIdx)
   {
-    const ezUInt8 numVertices = meshSrc.m_VerticesInPolygon[faceIdx];
-    const ezUInt16 materialID = meshSrc.m_PolygonSurfaceID[faceIdx];
+    const ezUInt16 materialID = meshSrc.m_TriangleSurfaceID[faceIdx];
 
     if (materialID == 0xFFFF)
       continue;
 
     ezJoltCookingMesh& meshPart = parts[materialID];
 
-    for (ezUInt8 v = 0; v < numVertices; ++v)
+    for (ezUInt8 v = 0; v < 3; ++v)
     {
-      const ezUInt32 vtxIdx = meshSrc.m_PolygonIndices[uiVertexIdx++];
+      const ezUInt32 vtxIdx = meshSrc.m_TriangleIndices[uiVertexIdx++];
 
       meshPart.m_Vertices.PushBack(meshSrc.m_Vertices[vtxIdx]);
     }
