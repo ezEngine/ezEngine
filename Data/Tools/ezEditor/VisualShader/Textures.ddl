@@ -334,7 +334,7 @@ SamplerState $prop0_AutoSampler BIND_GROUP(BG_MATERIAL);
   {
     string %Type { "float4" }
     unsigned_int8 %Color { 200, 200, 200 }
-    string %Inline { "SampleTexture3Way($prop0, $prop0_AutoSampler, $in1, $in0, $prop2)" }
+    string %Inline { "SampleTexture3Way($prop0, $prop0_AutoSampler, $in1, $in0, $prop1)" }
   }
 }
 
