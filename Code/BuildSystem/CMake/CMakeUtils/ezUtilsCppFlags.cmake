@@ -241,7 +241,13 @@ function(ez_set_build_flags_gcc TARGET_NAME)
 	target_compile_options(${TARGET_NAME} PRIVATE -fPIC -Wno-enum-compare -gdwarf-3 -pthread -fno-gnu-unique)
 
 	if(EZ_CMAKE_ARCHITECTURE_X86)
-		target_compile_options(${TARGET_NAME} PRIVATE -mssse3 -mfpmath=sse -mavx)
+
+		if(${EZ_REQUESTED_SIMD_LEVEL} STREQUAL "1")
+			target_compile_options(${TARGET_NAME} PRIVATE -mssse3 -mfpmath=sse)
+		elseif(${EZ_REQUESTED_SIMD_LEVEL} STREQUAL "2")
+			target_compile_options(${TARGET_NAME} PRIVATE -mssse3 -mfpmath=sse -mavx)
+		endif()
+
 	endif()
 
 	# dynamic linking will fail without fPIC (plugins)
