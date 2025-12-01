@@ -220,6 +220,9 @@ function(ez_set_common_target_definitions TARGET_NAME)
 		target_compile_definitions(${TARGET_NAME} PRIVATE BUILDSYSTEM_ENABLE_WEBGPU_SUPPORT)
 	endif()
 
+	# set the BUILDSYSTEM_REQUESTED_SIMD_LEVEL
+	target_compile_definitions(${TARGET_NAME} PRIVATE BUILDSYSTEM_REQUESTED_SIMD_LEVEL=${EZ_REQUESTED_SIMD_LEVEL})
+
 	# on Windows, make sure to use the Unicode API
 	target_compile_definitions(${TARGET_NAME} PUBLIC UNICODE _UNICODE)
 endfunction()

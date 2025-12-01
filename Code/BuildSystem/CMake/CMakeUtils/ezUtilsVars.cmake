@@ -37,3 +37,12 @@ mark_as_advanced(FORCE EZ_ENABLE_PVS_STUDIO_HEADER_IN_UNITY_FILES)
 set(EZ_ENABLE_COMPILER_STATIC_ANALYSIS OFF CACHE BOOL "Enables static analysis in the compiler options")
 
 mark_as_advanced(FORCE EZ_ENABLE_COMPILER_STATIC_ANALYSIS)
+
+# #####################################
+# ## SIMD support
+# #####################################
+set(EZ_REQUESTED_SIMD_LEVEL "1" CACHE STRING "Requests Compilation with SIMD instrinsics Supported Values: (0: FPU, 1: SSE, 2: SSE+AVX1)")
+
+mark_as_advanced(FORCE EZ_REQUESTED_SIMD_LEVEL)
+
+

@@ -100,8 +100,11 @@
 #define EZ_SSE_31 0x31
 #define EZ_SSE_41 0x41
 #define EZ_SSE_42 0x42
-#define EZ_SSE_AVX 0x50
-#define EZ_SSE_AVX2 0x51
+
+// AVX levels
+#define EZ_AVX_1 0x50
+#define EZ_AVX_2 0x51
+
 
 #define EZ_SIMD_IMPLEMENTATION 0
 
