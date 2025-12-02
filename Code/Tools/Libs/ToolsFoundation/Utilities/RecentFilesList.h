@@ -1,3 +1,5 @@
+#pragma once
+
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Strings/String.h>
 #include <ToolsFoundation/ToolsFoundationDLL.h>
