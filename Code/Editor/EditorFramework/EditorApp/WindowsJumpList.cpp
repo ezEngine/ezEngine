@@ -12,31 +12,31 @@
 #  include <shobjidl.h>
 
 // Helper to create a shell link
-static HRESULT CreateShellLink(const wchar_t* szPath, const wchar_t* szArguments, const wchar_t* szTitle, const wchar_t* szDescription, IShellLink*& pShellLink)
+static HRESULT CreateShellLink(const wchar_t* pPath, const wchar_t* pArguments, const wchar_t* pTitle, const wchar_t* pDescription, IShellLink*& out_pShellLink)
 {
-  HRESULT hr = CoCreateInstance(CLSID_ShellLink, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pShellLink));
+  HRESULT hr = CoCreateInstance(CLSID_ShellLink, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&out_pShellLink));
   if (SUCCEEDED(hr))
   {
     // Set the path and arguments
-    hr = pShellLink->SetPath(szPath);
+    hr = out_pShellLink->SetPath(pPath);
     if (SUCCEEDED(hr))
     {
-      hr = pShellLink->SetArguments(szArguments);
+      hr = out_pShellLink->SetArguments(pArguments);
       if (SUCCEEDED(hr))
       {
         // Set the description (tooltip)
-        if (szDescription != nullptr)
+        if (pDescription != nullptr)
         {
-          pShellLink->SetDescription(szDescription);
+          out_pShellLink->SetDescription(pDescription);
         }
 
         // Set the title using the property store
         IPropertyStore* pPropertyStore = nullptr;
-        hr = pShellLink->QueryInterface(IID_PPV_ARGS(&pPropertyStore));
+        hr = out_pShellLink->QueryInterface(IID_PPV_ARGS(&pPropertyStore));
         if (SUCCEEDED(hr))
         {
           PROPVARIANT propVariant;
-          hr = InitPropVariantFromString(szTitle, &propVariant);
+          hr = InitPropVariantFromString(pTitle, &propVariant);
           if (SUCCEEDED(hr))
           {
             hr = pPropertyStore->SetValue(PKEY_Title, propVariant);
@@ -54,8 +54,8 @@ static HRESULT CreateShellLink(const wchar_t* szPath, const wchar_t* szArguments
 
   if (FAILED(hr))
   {
-    pShellLink->Release();
-    pShellLink = nullptr;
+    out_pShellLink->Release();
+    out_pShellLink = nullptr;
   }
 
   return hr;
