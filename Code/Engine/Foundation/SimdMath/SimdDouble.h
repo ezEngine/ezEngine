@@ -105,6 +105,7 @@ public:
 #elif EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_FPU
 #  include <Foundation/SimdMath/Implementation/FPU/FPUDouble_inl.h>
 #elif EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_NEON
+// Could also redirect to fpu version for the time being
 #  include <Foundation/SimdMath/Implementation/NEON/NEONDouble_inl.h>
 #else
 #  error "Unknown SIMD implementation."
