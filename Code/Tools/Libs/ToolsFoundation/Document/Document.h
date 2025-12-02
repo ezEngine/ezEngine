@@ -4,6 +4,7 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Threading/Implementation/TaskSystemDeclarations.h>
+#include <Foundation/Time/Time.h>
 #include <Foundation/Types/Status.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <ToolsFoundation/CommandHistory/CommandHistory.h>
@@ -68,6 +69,10 @@ public:
 
   bool IsModified() const { return m_bModified; }
   bool IsReadOnly() const { return m_bReadOnly; }
+
+  /// Returns when the document was last marked as modified. Invalid if the document is not modified.
+  ezTime GetModifiedTime() const { return m_ModifiedTime; }
+
   const ezUuid GetGuid() const { return m_pDocumentInfo ? m_pDocumentInfo->m_DocumentID : ezUuid(); }
 
   const ezDocumentObjectManager* GetObjectManager() const { return m_pObjectManager.Borrow(); }
@@ -325,6 +330,7 @@ private:
   bool m_bReadOnly = false;
   bool m_bWindowRequested = false;
   bool m_bAddToRecentFilesList = true;
+  ezTime m_ModifiedTime;
 
   /// \brief Set of unknown object types encountered during loading.
   ezSet<ezString> m_UnknownObjectTypes;

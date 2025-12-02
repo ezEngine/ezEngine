@@ -32,7 +32,7 @@ EZ_FORCE_INLINE void ezRenderDataManager::FillPerInstanceData(ezPerInstanceData&
   ezMat4 objectToWorld = globalTransform.GetAsMat4();
   out_perInstanceData.ObjectToWorld = objectToWorld;
 
-  if (globalTransform.ContainsUniformScale())
+  if (globalTransform.HasOnlyUniformScaling())
   {
     out_perInstanceData.ObjectToWorldNormal = objectToWorld;
   }

@@ -86,7 +86,7 @@ Quad CalcQuadOutputPositionWithAlignedAxis(uint vertexIndex, float3 inPosition, 
   float3 orthoDir = normalize(cross(inTangentXws, GetCameraDirForwards()));
 
   float3 offsetRight = orthoDir * ((QuadPosOffsets[vertexIndex].x - 0.5) * inSize);
-  float3 offsetUp = axisDir * ((1.0 - QuadPosOffsets[vertexIndex].y) * inSize * stretch);
+  float3 offsetUp = axisDir * (QuadPosOffsets[vertexIndex].y * inSize * -stretch);
 
   Quad quad;
   quad.worldPosition = mul(ObjectToWorldMatrix, float4(inPosition, 1));

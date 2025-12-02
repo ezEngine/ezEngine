@@ -260,7 +260,7 @@ bool ezTime::IsZero() const
 bool ezTime::IsZeroOrNegative() const
 bool ezTime::IsZeroOrPositive() const
 bool ezTime::opEquals(const ezTime&in) const
-bool ezTransform::ContainsUniformScale() const
+bool ezTransform::HasOnlyUniformScaling() const
 bool ezTransform::HasMirrorScaling() const
 bool ezTransform::IsEqual(const ezTransform&in, float fEpsilon) const
 bool ezTransform::IsIdentical(const ezTransform&in) const

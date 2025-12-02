@@ -246,28 +246,28 @@ ezResult ezGameGrid<CellData>::Deserialize(ezStreamReader& ref_stream)
 //////////////////////////////////////////////////////////////////////////
 
 template <class CellData, class EdgeData>
-void ezGameGridWithEdges<CellData, EdgeData>::ConvertEdgeIndexToCellCoords(ezUInt32 uiEdgeIndex, ezVec2I32& out_Cell1, ezVec2I32& out_Cell2) const
+void ezGameGridWithEdges<CellData, EdgeData>::ConvertEdgeIndexToCellCoords(ezUInt32 uiEdgeIndex, ezVec2I32& out_vCell1, ezVec2I32& out_vCell2) const
 {
   const ezUInt32 uiOffsetY = (this->m_uiGridSizeX + 1) * this->m_uiGridSizeY;
 
 
   if (uiEdgeIndex < uiOffsetY)
   {
-    out_Cell1.y = uiEdgeIndex / (this->m_uiGridSizeX + 1);
-    out_Cell1.x = uiEdgeIndex - out_Cell1.y * (this->m_uiGridSizeX + 1);
+    out_vCell1.y = uiEdgeIndex / (this->m_uiGridSizeX + 1);
+    out_vCell1.x = uiEdgeIndex - out_vCell1.y * (this->m_uiGridSizeX + 1);
 
-    out_Cell2 = out_Cell1;
-    out_Cell2.x += 1;
+    out_vCell2 = out_vCell1;
+    out_vCell2.x += 1;
   }
   else
   {
     uiEdgeIndex -= uiOffsetY;
 
-    out_Cell1.x = uiEdgeIndex / (this->m_uiGridSizeY + 1);
-    out_Cell1.y = uiEdgeIndex - out_Cell1.x * (this->m_uiGridSizeY + 1);
+    out_vCell1.x = uiEdgeIndex / (this->m_uiGridSizeY + 1);
+    out_vCell1.y = uiEdgeIndex - out_vCell1.x * (this->m_uiGridSizeY + 1);
 
-    out_Cell2 = out_Cell1;
-    out_Cell2.y += 1;
+    out_vCell2 = out_vCell1;
+    out_vCell2.y += 1;
   }
 }
 

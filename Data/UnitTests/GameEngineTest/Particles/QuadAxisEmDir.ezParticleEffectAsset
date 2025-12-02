@@ -4,10 +4,11 @@ o
 {
 	Uuid %id{u4{15018704448026460709,1500403662349537574}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		Color %DefaultValue{f{0x2D53E841,0x2D53E841,0x2D53E841,0x0000803F}}
 		s %Name{"Color"}
 		s %Type{""}
@@ -24,7 +25,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{4339798721938895542,5641875984446346290}}
-		u4 %Hash{10029372612207202856}
+		u4 %Hash{13530644161757399277}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{2334540031715980174,8297151821936505012}}
@@ -102,6 +103,7 @@ o
 		}
 		VarArray %EventReactions{}
 		VarDict %FloatParameters{}
+		Vec3u %NumWindSamples{u3{1,1,1}}
 		VarArray %ParticleSystems
 		{
 			Uuid{u4{16792834299109505190,6240746715785254060}}
@@ -133,10 +135,13 @@ o
 		Angle %Deviation{f{0}}
 		f %DistortionStrength{0x0000C842}
 		s %DistortionTexture{""}
+		f %LightDirectionality{0x0000003F}
+		s %LightingMode{"ezParticleLightingMode::Fullbright"}
+		f %NormalCurvature{0x0000003F}
 		u1 %NumSpritesX{4}
 		u1 %NumSpritesY{4}
 		s %Orientation{"ezQuadParticleOrientation::FixedAxis_EmitterDir"}
-		f %ParticleStretch{0x000040C0}
+		f %ParticleStretch{0x00004040}
 		s %RenderMode{"ezParticleTypeRenderMode::Additive"}
 		s %Texture{"{ eb1b7c7d-236f-4601-a92e-4903567d7ad3 }"}
 		s %TextureAtlas{"ezParticleTextureAtlasType::None"}
@@ -271,6 +276,23 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleBehaviorFactory"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{9692001477283607726,5375904088218900509}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleLightingMode"}
 		u3 %TypeVersion{1}
 	}
 }

@@ -13,7 +13,6 @@ class EZ_RENDERERCORE_DLL ezRenderComponent : public ezComponent
   // ezComponent
 
 protected:
-  virtual void Deinitialize() override;
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
 

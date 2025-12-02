@@ -5,18 +5,12 @@ Node %BaseTexture
   string %Color { "Blue" }
   string %Docs { "Samples the material's base texture." }
 
-  string %CodeMaterialParams { "Texture2D BaseTexture @Default(\"$prop0\");" }
+  string %CodeMaterialParams { "Texture2D BaseTexture;" }
 
   string %CodePixelSamplers { "
 Texture2D BaseTexture BIND_GROUP(BG_MATERIAL);
 SamplerState BaseTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 " }
-
-  Property %Texture
-  {
-    string %Type { "Texture2D" }
-    string %DefaultValue { "RebeccaPurple.color" }
-  }
 
   InputPin %UV
   {
@@ -70,7 +64,7 @@ Node %NormalTexture
   string %Docs { "Samples the material's normal map." }
 
   string %CodeMaterialParams { "
-Texture2D $prop0 @Default(\"$prop1\");
+Texture2D $prop0;
 " }
 
   string %CodePixelSamplers { "
@@ -82,12 +76,6 @@ SamplerState $prop0_AutoSampler BIND_GROUP(BG_MATERIAL);
   {
     string %Type { "identifier" }
     string %DefaultValue { "NormalTexture" }
-  }
-
-  Property %Texture
-  {
-    string %Type { "Texture2D" }
-    string %DefaultValue {"{ 4dc82890-39e3-4bfc-a97d-86a984d4d3db }" }// Neutral normal map
   }
 
   InputPin %UV
@@ -115,18 +103,12 @@ Node %EmissiveTexture
   string %Color { "Blue" }
   string %Docs { "Samples the material's emissive texture." }
 
-  string %CodeMaterialParams {"Texture2D EmissiveTexture @Default(\"$prop0\"); " }
+  string %CodeMaterialParams {"Texture2D EmissiveTexture; " }
 
   string %CodePixelSamplers { "
 Texture2D EmissiveTexture BIND_GROUP(BG_MATERIAL);
 SamplerState EmissiveTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 " }
-
-  Property %Texture
-  {
-    string %Type { "Texture2D" }
-    string %DefaultValue { "" }
-  }
 
   InputPin %UV
   {
@@ -173,18 +155,12 @@ Node %MetallicTexture
   string %Color { "Blue" }
   string %Docs { "Samples the material's metalness texture." }
 
-  string %CodeMaterialParams { "Texture2D MetallicTexture @Default(\"$prop0\"); " }
+  string %CodeMaterialParams { "Texture2D MetallicTexture; " }
 
   string %CodePixelSamplers { "
 Texture2D MetallicTexture BIND_GROUP(BG_MATERIAL);
 SamplerState MetallicTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 " }
-
-  Property %Texture
-  {
-    string %Type { "Texture2D" }
-    string %DefaultValue { "" }
-  }
 
   InputPin %UV
   {
@@ -210,18 +186,12 @@ Node %RoughnessTexture
   string %Color { "Blue" }
   string %Docs { "Samples the material's roughness texture." }
 
-  string %CodeMaterialParams { "Texture2D RoughnessTexture @Default(\"$prop0\"); " }
+  string %CodeMaterialParams { "Texture2D RoughnessTexture; " }
 
   string %CodePixelSamplers { "
 Texture2D RoughnessTexture BIND_GROUP(BG_MATERIAL);
 SamplerState RoughnessTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 " }
-
-  Property %Texture
-  {
-    string %Type { "Texture2D" }
-    string %DefaultValue { "" }
-  }
 
   InputPin %UV
   {
@@ -251,7 +221,7 @@ Node %Texture2D
   string %Docs { "Samples a custom 2D texture." }
 
   string %CodeMaterialParams { "
-Texture2D $prop0 @Default(\"$prop1\");
+Texture2D $prop0;
 " }
 
   string %CodePixelSamplers { "
@@ -263,12 +233,6 @@ SamplerState $prop0_AutoSampler BIND_GROUP(BG_MATERIAL);
   {
     string %Type { "identifier" }
     string %DefaultValue { "CustomTexture" }
-  }
-
-  Property %Texture
-  {
-    string %Type { "Texture2D" }
-    string %DefaultValue { "" }
   }
 
   InputPin %UV
@@ -331,7 +295,7 @@ Node %Texture3Way
   string %Docs { "Samples a custom 2D texture 3 times and projects it from 3 sides according to the given normal." }
 
   string %CodeMaterialParams { "
-Texture2D $prop0 @Default(\"$prop1\");
+Texture2D $prop0;
 " }
 
   string %CodePixelSamplers { "
@@ -343,12 +307,6 @@ SamplerState $prop0_AutoSampler BIND_GROUP(BG_MATERIAL);
   {
     string %Type { "identifier" }
     string %DefaultValue { "CustomTexture" }
-  }
-
-  Property %Texture
-  {
-    string %Type { "Texture2D" }
-    string %DefaultValue {"" }
   }
 
   Property %Tiling
@@ -376,7 +334,7 @@ SamplerState $prop0_AutoSampler BIND_GROUP(BG_MATERIAL);
   {
     string %Type { "float4" }
     unsigned_int8 %Color { 200, 200, 200 }
-    string %Inline { "SampleTexture3Way($prop0, $prop0_AutoSampler, $in1, $in0, $prop2)" }
+    string %Inline { "SampleTexture3Way($prop0, $prop0_AutoSampler, $in1, $in0, $prop1)" }
   }
 }
 

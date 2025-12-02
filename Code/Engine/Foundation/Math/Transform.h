@@ -86,10 +86,10 @@ public:
   /// Important for correct normal vector transformations and culling operations.
   bool HasMirrorScaling() const;
 
-  /// \brief Returns whether this transform contains uniform scaling.
+  /// \brief Returns whether this transform contains only uniform scaling (including scale == 1).
   ///
   /// Returns true if all three scale components have the same absolute value.
-  bool ContainsUniformScale() const;
+  bool HasOnlyUniformScaling() const;
 
   /// \brief Checks that all components are valid (no NaN, only finite numbers).
   bool IsValid() const;

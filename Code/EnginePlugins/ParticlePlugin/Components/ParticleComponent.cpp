@@ -108,6 +108,7 @@ ezParticleComponent::~ezParticleComponent() = default;
 void ezParticleComponent::OnDeactivated()
 {
   m_EffectController.Invalidate();
+  SetUserFlag(0, false);
 
   ezRenderComponent::OnDeactivated();
 }
@@ -338,9 +339,15 @@ ezResult ezParticleComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bo
 
 void ezParticleComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
-  // do not extract particles during shadow map rendering
-  if (msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow)
-    return;
+  switch (msg.m_pView->GetCameraUsageHint())
+  {
+    case ezCameraUsageHint::Shadow:
+    case ezCameraUsageHint::Reflection:
+      return;
+
+    default:
+      break;
+  }
 
   m_EffectController.ExtractRenderData(msg, GetPfxTransform());
 }
@@ -352,11 +359,11 @@ void ezParticleComponent::OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg)
 
 void ezParticleComponent::Update()
 {
-  if (!m_EffectController.IsAlive() && m_bSpawnAtStart)
+  if (!m_EffectController.IsAlive() && m_bSpawnAtStart && !GetUserFlag(0))
   {
     if (StartEffect())
     {
-      m_bSpawnAtStart = false;
+      SetUserFlag(0, true); // already spawned
 
       if (m_EffectController.IsContinuousEffect())
       {
@@ -366,7 +373,7 @@ void ezParticleComponent::Update()
         }
         else
         {
-          m_bSpawnAtStart = true;
+          SetUserFlag(0, false);
         }
       }
     }

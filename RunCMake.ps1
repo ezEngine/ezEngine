@@ -1,6 +1,6 @@
 param
 (
-    [Parameter(Mandatory = $True)] [ValidateSet('Win64vs2022', 'Uwp64vs2022')][string] $Target,
+    [Parameter(Mandatory = $True)] [ValidateSet('Win64vs2022', 'Win64vs2026')][string] $Target,
     [switch]$NoUnityBuild,
     [switch]$NoSubmoduleUpdate,
     [string]$SolutionName,
@@ -74,21 +74,17 @@ if ($Target -eq "Win64vs2022") {
         $WorkspaceDir = "vs2022x64"
     }
 }
-elseif ($Target -eq "Uwp64vs2022") {
+elseif ($Target -eq "Win64vs2026") {
 
-    Write-Host "=== Generating Solution for Visual Studio 2022 x64 UWP ==="
+    Write-Host "=== Generating Solution for Visual Studio 2026 x64 ==="
 
-    $CMAKE_ARGS += "Visual Studio 17 2022"
+    $CMAKE_ARGS += "Visual Studio 18 2026"
     $CMAKE_ARGS += "-A"
     $CMAKE_ARGS += "x64"
 
     if (-not $CustomWorkspace) {
-        $WorkspaceDir = "vs2022x64uwp"
+        $WorkspaceDir = "vs2026x64"
     }
-
-    $CMAKE_ARGS += "-DCMAKE_TOOLCHAIN_FILE=$PSScriptRoot\Code\BuildSystem\CMake\toolchain-winstore.cmake"
-    $CMAKE_ARGS += "-DEZ_ENABLE_QT_SUPPORT:BOOL=OFF"
-    $CMAKE_ARGS += "-DEZ_BUILD_FILTER='UwpProjects'"
 }
 else {
     throw "Unknown target '$Target'."

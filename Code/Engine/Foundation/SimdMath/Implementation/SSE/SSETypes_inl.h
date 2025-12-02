@@ -32,6 +32,20 @@
 
 namespace ezInternal
 {
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
+  using QuadDouble = __m256d;
+#else
+  struct QuadDouble
+  {
+    __m128d xy;
+    __m128d zw;
+  };
+
+  // or for the time being
+  // using QuadDouble = ezVec4d;
+
+#endif
+
   using QuadFloat = __m128;
   using QuadBool = __m128;
   using QuadInt = __m128i;

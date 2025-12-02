@@ -4,19 +4,13 @@ Node %Parameter1f
   string %Color { "Red" }
   string %Docs { "Outputs a 1-component value that can be configured on the material." }
 
-  string %CodeMaterialParams { "float $prop0 @Default($prop1);" }
+  string %CodeMaterialParams { "float $prop0;" }
   string %CodeMaterialCB { "FLOAT1($prop0);" }
 
   Property %ParamName
   {
     string %Type { "identifier" }
     string %DefaultValue { "Parameter" }
-  }
-
-  Property %Default
-  {
-    string %Type { "float" }
-    string %DefaultValue { "0" }
   }
 
   OutputPin %Value
@@ -32,19 +26,13 @@ Node %Parameter2f
   string %Color { "Red" }
   string %Docs { "Outputs a 2-component value that can be configured on the material." }
 
-  string %CodeMaterialParams { "float2 $prop0 @Default($prop1);" }
+  string %CodeMaterialParams { "float2 $prop0;" }
   string %CodeMaterialCB { "FLOAT2($prop0);" }
 
   Property %ParamName
   {
     string %Type { "identifier" }
     string %DefaultValue { "Parameter" }
-  }
-
-  Property %Default
-  {
-    string %Type { "float2" }
-    string %DefaultValue { "0, 0" }
   }
 
   OutputPin %Value
@@ -60,19 +48,13 @@ Node %Parameter3f
   string %Color { "Red" }
   string %Docs { "Outputs a 3-component value that can be configured on the material." }
 
-  string %CodeMaterialParams { "float3 $prop0 @Default($prop1);" }
+  string %CodeMaterialParams { "float3 $prop0;" }
   string %CodeMaterialCB { "FLOAT3($prop0);" }
 
   Property %ParamName
   {
     string %Type { "identifier" }
     string %DefaultValue { "Parameter" }
-  }
-
-  Property %Default
-  {
-    string %Type { "float3" }
-    string %DefaultValue { "0, 0, 0" }
   }
 
   OutputPin %Value
@@ -88,19 +70,13 @@ Node %Parameter4f
   string %Color { "Red" }
   string %Docs { "Outputs a 4-component value that can be configured on the material." }
 
-  string %CodeMaterialParams { "float4 $prop0 @Default($prop1);" }
+  string %CodeMaterialParams { "float4 $prop0;" }
   string %CodeMaterialCB { "FLOAT4($prop0);" }
 
   Property %ParamName
   {
     string %Type { "identifier" }
     string %DefaultValue { "Parameter" }
-  }
-
-  Property %Default
-  {
-    string %Type { "float4" }
-    string %DefaultValue { "0, 0, 0, 0" }
   }
 
   OutputPin %Value
@@ -117,19 +93,13 @@ Node %ParameterColor
   string %Color { "Red" }
   string %Docs { "Outputs a color value that can be configured on the material." }
 
-  string %CodeMaterialParams { "Color $prop0 @Default($prop1);" }
+  string %CodeMaterialParams { "Color $prop0;" }
   string %CodeMaterialCB { "COLOR4F($prop0);" }
 
   Property %ParamName
   {
     string %Type { "identifier" }
     string %DefaultValue { "Parameter" }
-  }
-
-  Property %Default
-  {
-    string %Type { "color" }
-    string %DefaultValue { "255, 255, 255, 255" }
   }
 
   OutputPin %Value

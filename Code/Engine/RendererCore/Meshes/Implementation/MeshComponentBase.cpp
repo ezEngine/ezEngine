@@ -49,7 +49,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 static_assert(sizeof(ezMeshRenderData) == 120);
 #else
-static_assert(sizeof(ezMeshRenderData) == 96);
+static_assert(sizeof(ezMeshRenderData) == 88);
 #endif
 
 void ezMeshRenderData::FillSortingKey()

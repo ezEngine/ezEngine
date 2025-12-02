@@ -34,13 +34,14 @@ private:
   virtual void OnDeactivation() override;
   virtual void AfterWorldUpdate() override;
   virtual ezResult SpawnPlayer(ezStringView sStartPosition, const ezTransform& startPositionOffset) override;
-  virtual ezString GetStartupSceneFile() override;
+  virtual void GetStartupOptions(ezString& out_sScene, ezString& out_sPreloadCollection) override;
 
   void ResetState();
 
   // How many coins we have in the scene, in total.
   ezUInt32 m_uiNumCoinsTotal = 0;
   bool m_bTouchInput = false;
+  bool m_bShowSceneExportError = false;
 
   ezUniquePtr<ezVirtualThumbStick> m_pLeftStick;
   ezUniquePtr<ezVirtualThumbStick> m_pRightStick;

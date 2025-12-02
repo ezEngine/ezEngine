@@ -215,7 +215,7 @@ void ezImGuiConsole::RenderCommandWindow(bool bSetFocus)
   ImGui::SetNextWindowSize(ImVec2(commandWidth, commandHeight), (m_uiResetLayout > 0) ? ImGuiCond_Always : ImGuiCond_FirstUseEver);
   ImGui::SetNextWindowPos(ImVec2(commandPosX, commandPosY), (m_uiResetLayout > 0) ? ImGuiCond_Always : ImGuiCond_FirstUseEver);
 
-  if (!ImGui::Begin("Commands", nullptr, ImGuiWindowFlags_MenuBar))
+  if (!ImGui::Begin("Commands", nullptr, ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoSavedSettings))
   {
     ImGui::End();
     return;
@@ -333,7 +333,7 @@ void ezImGuiConsole::RenderCVarWindow()
   ImGui::SetNextWindowSize(ImVec2(cvarWidth, cvarHeight), (m_uiResetLayout > 0) ? ImGuiCond_Always : ImGuiCond_FirstUseEver);
   ImGui::SetNextWindowPos(ImVec2(cvarPosX, cvarPosY), (m_uiResetLayout > 0) ? ImGuiCond_Always : ImGuiCond_FirstUseEver);
 
-  if (!ImGui::Begin("CVars", &m_bCVarWindowOpen))
+  if (!ImGui::Begin("CVars", &m_bCVarWindowOpen, ImGuiWindowFlags_NoSavedSettings))
   {
     ImGui::End();
     return;
@@ -387,7 +387,7 @@ void ezImGuiConsole::RenderStatsWindow(bool bFull)
 
   ImGui::SetNextWindowPos(ImVec2(statsPosX, statsPosY), (m_uiResetLayout > 0) ? ImGuiCond_Always : ImGuiCond_FirstUseEver);
 
-  ImGuiWindowFlags flags = 0;
+  ImGuiWindowFlags flags = ImGuiWindowFlags_NoSavedSettings;
   if (!bFull)
   {
     flags |= ImGuiWindowFlags_NoDecoration;
@@ -871,7 +871,7 @@ void ezImGuiConsole::RenderLogWindow(bool bFull)
   ImGui::SetNextWindowSize(ImVec2(logWidth, logHeight), (m_uiResetLayout > 0) ? ImGuiCond_Always : ImGuiCond_FirstUseEver);
   ImGui::SetNextWindowPos(ImVec2(logPosX, logPosY), (m_uiResetLayout > 0) ? ImGuiCond_Always : ImGuiCond_FirstUseEver);
 
-  ImGuiWindowFlags flags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
+  ImGuiWindowFlags flags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoSavedSettings;
   if (!bFull)
   {
     flags |= ImGuiWindowFlags_NoDecoration;

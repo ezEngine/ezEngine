@@ -39,10 +39,11 @@ void ezFallbackGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosit
   }
   else
   {
-    ezStringBuilder sScenePath = GetStartupSceneFile();
-    sScenePath.MakeCleanPath();
+    ezString sSceneFile;
+    ezString sPreloadCollection;
+    GetStartupOptions(sSceneFile, sPreloadCollection);
 
-    if (sScenePath.IsEmpty())
+    if (sSceneFile.IsEmpty())
     {
       SwitchToLoadingScreen("");
 

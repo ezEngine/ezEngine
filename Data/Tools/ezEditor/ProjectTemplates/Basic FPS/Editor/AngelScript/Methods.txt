@@ -39,7 +39,7 @@ Compare_NoCase
 ComputeHdrExposureValue
 ComputeHdrMultiplier
 Contains
-ContainsUniformScale
+HasOnlyUniformScaling
 CreateComponent
 CreateObject
 CrossRH

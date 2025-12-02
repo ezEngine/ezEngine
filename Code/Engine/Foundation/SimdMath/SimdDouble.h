@@ -3,67 +3,66 @@
 #include <Foundation/Math/Angle.h>
 #include <Foundation/SimdMath/SimdTypes.h>
 
-
 class EZ_FOUNDATION_DLL ezSimdDouble
 {
 public:
   EZ_DECLARE_POD_TYPE();
 
   /// \brief Default constructor, leaves the data uninitialized.
-  ezSimdDouble(); 
+  ezSimdDouble();
 
   /// \brief Constructs from a given float.
-  ezSimdDouble(float f); 
+  ezSimdDouble(float f);
 
   /// \brief Constructs from a given double.
-  ezSimdDouble(double f); 
+  ezSimdDouble(double f);
 
   /// \brief Constructs from a given integer.
-  ezSimdDouble(ezInt32 i); 
+  ezSimdDouble(ezInt32 i);
 
   /// \brief Constructs from a given integer.
-  ezSimdDouble(ezUInt32 i); 
+  ezSimdDouble(ezUInt32 i);
 
   /// \brief Constructs from given angle.
-  ezSimdDouble(ezAngle a); 
+  ezSimdDouble(ezAngle a);
 
   /// \brief Constructs from smaller SIMD
-  ezSimdDouble(ezInternal::QuadFloat v); 
+  ezSimdDouble(ezInternal::QuadFloat v);
 
-    /// \brief Constructs from the internal implementation type.
-  ezSimdDouble(ezInternal::QuadDouble v); 
+  /// \brief Constructs from the internal implementation type.
+  ezSimdDouble(ezInternal::QuadDouble v);
 
   // /// \brief Returns the stored number as a standard float.
-  // operator float() const; 
+  // operator float() const;
 
-    /// \brief Returns the stored number as a standard double.
-  operator double() const; 
+  /// \brief Returns the stored number as a standard double.
+  operator double() const;
 
   /// \brief Creates an ezSimdDouble that is initialized to zero.
-  [[nodiscard]] static ezSimdDouble MakeZero(); 
+  [[nodiscard]] static ezSimdDouble MakeZero();
 
   /// \brief Creates an ezSimdDouble that is initialized to Not-A-Number (NaN).
-  [[nodiscard]] static ezSimdDouble MakeNaN();        
+  [[nodiscard]] static ezSimdDouble MakeNaN();
 
 public:
-  ezSimdDouble operator+(const ezSimdDouble& f) const; 
-  ezSimdDouble operator-(const ezSimdDouble& f) const; 
-  ezSimdDouble operator*(const ezSimdDouble& f) const; 
-  ezSimdDouble operator/(const ezSimdDouble& f) const; 
+  ezSimdDouble operator+(const ezSimdDouble& f) const;
+  ezSimdDouble operator-(const ezSimdDouble& f) const;
+  ezSimdDouble operator*(const ezSimdDouble& f) const;
+  ezSimdDouble operator/(const ezSimdDouble& f) const;
 
-  ezSimdDouble& operator+=(const ezSimdDouble& f);     
-  ezSimdDouble& operator-=(const ezSimdDouble& f);     
-  ezSimdDouble& operator*=(const ezSimdDouble& f);     
-  ezSimdDouble& operator/=(const ezSimdDouble& f);     
+  ezSimdDouble& operator+=(const ezSimdDouble& f);
+  ezSimdDouble& operator-=(const ezSimdDouble& f);
+  ezSimdDouble& operator*=(const ezSimdDouble& f);
+  ezSimdDouble& operator/=(const ezSimdDouble& f);
 
   bool IsEqual(const ezSimdDouble& rhs, const ezSimdDouble& dEpsilon) const;
 
-  bool operator==(const ezSimdDouble& f) const;               
-  bool operator!=(const ezSimdDouble& f) const;               
-  bool operator>(const ezSimdDouble& f) const;                
-  bool operator>=(const ezSimdDouble& f) const;               
-  bool operator<(const ezSimdDouble& f) const;                
-  bool operator<=(const ezSimdDouble& f) const;               
+  bool operator==(const ezSimdDouble& f) const;
+  bool operator!=(const ezSimdDouble& f) const;
+  bool operator>(const ezSimdDouble& f) const;
+  bool operator>=(const ezSimdDouble& f) const;
+  bool operator<(const ezSimdDouble& f) const;
+  bool operator<=(const ezSimdDouble& f) const;
 
   bool operator==(double f) const;
   bool operator!=(double f) const;
@@ -80,29 +79,33 @@ public:
   bool operator<=(float f) const;
 
   template <ezMathAcc::Enum acc = ezMathAcc::FULL>
-  ezSimdDouble GetReciprocal() const;                         
+  ezSimdDouble GetReciprocal() const;
 
   template <ezMathAcc::Enum acc = ezMathAcc::FULL>
-  ezSimdDouble GetSqrt() const;                               
+  ezSimdDouble GetSqrt() const;
 
   template <ezMathAcc::Enum acc = ezMathAcc::FULL>
-  ezSimdDouble GetInvSqrt() const;                            
+  ezSimdDouble GetInvSqrt() const;
 
-  [[nodiscard]] ezSimdDouble Max(const ezSimdDouble& d) const; 
-  [[nodiscard]] ezSimdDouble Min(const ezSimdDouble& d) const; 
-  [[nodiscard]] ezSimdDouble Abs() const;                     
+  [[nodiscard]] ezSimdDouble Max(const ezSimdDouble& d) const;
+  [[nodiscard]] ezSimdDouble Min(const ezSimdDouble& d) const;
+  [[nodiscard]] ezSimdDouble Abs() const;
 
 public:
   ezInternal::QuadDouble m_v;
 };
 
 #if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
-#  include <Foundation/SimdMath/Implementation/SSE/SSEDouble_inl.h>
-#elif EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_AVX
-#  include <Foundation/SimdMath/Implementation/AVX/AVXDouble_inl.h>
+#  if EZ_SSE_LEVEL >= EZ_SSE_AVX
+#    include <Foundation/SimdMath/Implementation/SSE/SSEDouble_AVX_inl.h>
+#  else
+// Could also redirect to fpu version for the time being
+#    include <Foundation/SimdMath/Implementation/SSE/SSEDouble_inl.h>
+#  endif
 #elif EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_FPU
 #  include <Foundation/SimdMath/Implementation/FPU/FPUDouble_inl.h>
 #elif EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_NEON
+// Could also redirect to fpu version for the time being
 #  include <Foundation/SimdMath/Implementation/NEON/NEONDouble_inl.h>
 #else
 #  error "Unknown SIMD implementation."

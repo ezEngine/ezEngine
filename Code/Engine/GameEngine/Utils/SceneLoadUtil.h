@@ -3,6 +3,7 @@
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/Types/Status.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <Foundation/Utilities/Progress.h>
 #include <GameEngine/GameEngineDLL.h>
@@ -17,6 +18,15 @@ class EZ_GAMEENGINE_DLL ezSceneLoadUtility
 public:
   ezSceneLoadUtility();
   ~ezSceneLoadUtility();
+
+  /// Redirects a scene path to the actual binary scene file, if necessary.
+  static ezStatus FindRedirectedSceneFile(ezStringBuilder& ref_sFinalPath, ezStringView sSceneFile);
+
+  /// Loads a scene immediately into the given target world.
+  ///
+  /// Doesn't clear the world beforehand.
+  /// Does call FindRedirectedSceneFile() on the scene path first.
+  static ezStatus LoadSceneImmediate(ezWorld& inout_targetWorld, ezStringView sSceneFile);
 
   enum class LoadingState
   {

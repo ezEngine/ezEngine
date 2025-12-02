@@ -11,58 +11,100 @@ constexpr float fCollectionPreloadPiece = 0.9f;
 ezSceneLoadUtility::ezSceneLoadUtility() = default;
 ezSceneLoadUtility::~ezSceneLoadUtility() = default;
 
+ezStatus ezSceneLoadUtility::FindRedirectedSceneFile(ezStringBuilder& ref_sFinalPath, ezStringView sSceneFile)
+{
+  ref_sFinalPath = sSceneFile;
+
+  if (ref_sFinalPath.IsEmpty())
+  {
+    return ezStatus("No scene file specified.");
+  }
+
+  if (ref_sFinalPath.IsAbsolutePath())
+  {
+    // this can fail if the scene is in a different data directory than the project directory
+    // shouldn't stop us from loading it anyway
+    ref_sFinalPath.MakeRelativeTo(ezGameApplication::GetGameApplicationInstance()->GetAppProjectPath()).IgnoreResult();
+  }
+
+  if (ref_sFinalPath.HasExtension("ezScene") || ref_sFinalPath.HasExtension("ezPrefab"))
+  {
+    if (ref_sFinalPath.IsAbsolutePath())
+    {
+      if (ezFileSystem::ResolvePath(ref_sFinalPath, nullptr, &ref_sFinalPath).Failed())
+      {
+        return ezStatus(ezFmt("Scene path is not located in any data directory: '{}'", ref_sFinalPath));
+      }
+    }
+
+    // if this is a path to the non-transformed source file, redirect it to the transformed file in the asset cache
+    ref_sFinalPath.Prepend("AssetCache/Common/");
+
+    if (ref_sFinalPath.HasExtension("ezScene"))
+      ref_sFinalPath.ChangeFileExtension("ezBinScene");
+    else
+      ref_sFinalPath.ChangeFileExtension("ezBinPrefab");
+  }
+
+  return EZ_SUCCESS;
+}
+
+ezStatus ezSceneLoadUtility::LoadSceneImmediate(ezWorld& inout_targetWorld, ezStringView sSceneFile)
+{
+  ezStringBuilder ref_sFinalPath;
+  EZ_SUCCEED_OR_RETURN(FindRedirectedSceneFile(ref_sFinalPath, sSceneFile));
+
+  ezFileReader fileReader;
+
+  if (fileReader.Open(ref_sFinalPath).Failed())
+    return ezStatus("Failed to open the file.");
+
+  // Read and skip the asset file header
+  ezAssetFileHeader header;
+  header.Read(fileReader).AssertSuccess();
+
+  char szSceneTag[16];
+  fileReader.ReadBytes(szSceneTag, sizeof(char) * 16);
+
+  if (!ezStringUtils::IsEqualN(szSceneTag, "[ezBinaryScene]", 16))
+    return ezStatus("The given file isn't an object-graph file.");
+
+  ezWorldReader worldReader;
+  if (worldReader.ReadWorldDescription(fileReader).Failed())
+    return ezStatus("Error reading world description.");
+
+  worldReader.InstantiateWorld(inout_targetWorld, nullptr);
+
+  return EZ_SUCCESS;
+}
+
 void ezSceneLoadUtility::StartSceneLoading(ezStringView sSceneFile, ezStringView sPreloadCollectionFile)
 {
   EZ_ASSERT_DEV(m_LoadingState == LoadingState::NotStarted, "Can't reuse an ezSceneLoadUtility.");
 
   EZ_LOG_BLOCK("StartSceneLoading");
 
+  ezLog::Info("Loading scene '{}'.", sSceneFile);
+
   m_LoadingState = LoadingState::Ongoing;
 
   m_sRequestedFile = sSceneFile;
-  ezStringBuilder sFinalSceneFile = sSceneFile;
 
-  if (sFinalSceneFile.IsEmpty())
+  ezStringBuilder ref_sFinalPath;
+  auto res = FindRedirectedSceneFile(ref_sFinalPath, sSceneFile);
+
+  if (res.Failed())
   {
-    LoadingFailed("No scene file specified.");
+    LoadingFailed(res.GetMessageString().GetView());
     return;
   }
 
-  ezLog::Info("Loading scene '{}'.", sSceneFile);
-
-  if (sFinalSceneFile.IsAbsolutePath())
+  if (ref_sFinalPath != sSceneFile)
   {
-    // this can fail if the scene is in a different data directory than the project directory
-    // shouldn't stop us from loading it anyway
-    sFinalSceneFile.MakeRelativeTo(ezGameApplication::GetGameApplicationInstance()->GetAppProjectPath()).IgnoreResult();
+    ezLog::Dev("Redirecting scene file from '{}' to '{}'", sSceneFile, ref_sFinalPath);
   }
 
-  if (sFinalSceneFile.HasExtension("ezScene") || sFinalSceneFile.HasExtension("ezPrefab"))
-  {
-    if (sFinalSceneFile.IsAbsolutePath())
-    {
-      if (ezFileSystem::ResolvePath(sFinalSceneFile, nullptr, &sFinalSceneFile).Failed())
-      {
-        LoadingFailed(ezFmt("Scene path is not located in any data directory: '{}'", sFinalSceneFile));
-        return;
-      }
-    }
-
-    // if this is a path to the non-transformed source file, redirect it to the transformed file in the asset cache
-    sFinalSceneFile.Prepend("AssetCache/Common/");
-
-    if (sFinalSceneFile.HasExtension("ezScene"))
-      sFinalSceneFile.ChangeFileExtension("ezBinScene");
-    else
-      sFinalSceneFile.ChangeFileExtension("ezBinPrefab");
-  }
-
-  if (sFinalSceneFile != sSceneFile)
-  {
-    ezLog::Dev("Redirecting scene file from '{}' to '{}'", sSceneFile, sFinalSceneFile);
-  }
-
-  m_sRedirectedFile = sFinalSceneFile;
+  m_sRedirectedFile = ref_sFinalPath;
 
   if (!sPreloadCollectionFile.IsEmpty())
   {

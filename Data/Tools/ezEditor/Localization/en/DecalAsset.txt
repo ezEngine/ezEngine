@@ -1,10 +1,10 @@
 # Asset Types
 
-Decal;Decal;;https://ezengine.net/pages/docs/effects/decals.html
+Decal;Decal;;https://ezengine.net/pages/docs/effects/decals/projected-decals.html
 
 # Component Types
 
-ezDecalComponent;Decal;;https://ezengine.net/pages/docs/effects/decals.html
+ezDecalComponent;Decal;;https://ezengine.net/pages/docs/effects/decals/projected-decals.html
 
 # UI
 

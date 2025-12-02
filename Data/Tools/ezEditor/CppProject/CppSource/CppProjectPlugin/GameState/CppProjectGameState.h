@@ -27,7 +27,7 @@ protected:
   virtual void ConfigureMainCamera() override;
   virtual ezResult SpawnPlayer(ezStringView sStartPosition, const ezTransform& startPositionOffset) override;
   virtual void OnChangedMainWorld(ezWorld* pPrevWorld, ezWorld* pNewWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset) override;
-  virtual ezString GetStartupSceneFile() override;
+  virtual void GetStartupOptions(ezString& out_sScene, ezString& out_sPreloadCollection) override;
 
 private:
   virtual void OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset) override;

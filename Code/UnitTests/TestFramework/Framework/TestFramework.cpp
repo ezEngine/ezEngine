@@ -1353,30 +1353,6 @@ bool ezTestFramework::PerformImageComparison(ezStringBuilder sImgName, const ezI
   auto SaveResultImage = [&]()
   {
     imgRgba.SaveTo(sImgPathResult).IgnoreResult();
-
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-    ezStringBuilder sAbsPath;
-    if (ezFileSystem::ResolvePath(sImgPathResult, &sAbsPath, nullptr).Failed())
-    {
-      ezLog::Warning("Failed to resolve absolute path of '{}'. Image will not be compressed with optipng.", sImgPathResult);
-      return;
-    }
-
-    ezStringBuilder sOptiPng = ezFileSystem::GetSdkRootDirectory();
-    sOptiPng.AppendPath("Data/Tools/Precompiled/optipng/optipng.exe");
-
-    if (ezOSFile::ExistsFile(sOptiPng))
-    {
-      ezProcessOptions opt;
-      opt.m_sProcess = sOptiPng;
-      opt.m_Arguments.PushBack(sAbsPath);
-      ezInt32 iReturnCode = 0;
-      if (ezProcess::Execute(opt, &iReturnCode).Failed() || iReturnCode != 0)
-      {
-        ezLog::Warning("Failed to run optipng with return code {}. Image will not be compressed with optipng.", iReturnCode);
-      }
-    }
-#endif
   };
 
   // if a previous output image exists, get rid of it

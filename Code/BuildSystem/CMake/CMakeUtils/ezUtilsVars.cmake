@@ -39,10 +39,11 @@ set(EZ_ENABLE_COMPILER_STATIC_ANALYSIS OFF CACHE BOOL "Enables static analysis i
 mark_as_advanced(FORCE EZ_ENABLE_COMPILER_STATIC_ANALYSIS)
 
 # #####################################
-# ## SIMD support
+# ## SSE level
 # #####################################
-set(EZ_REQUESTED_SIMD_LEVEL "1" CACHE STRING "Requests Compilation with SIMD instrinsics Supported Values: (0: FPU, 1: SSE, 2: SSE+AVX1)")
 
-mark_as_advanced(FORCE EZ_REQUESTED_SIMD_LEVEL)
+set(EZ_MIN_REQUIRED_SSE_LEVEL_VALUES "SSE2;SSE41;AVX")
+set(EZ_MIN_REQUIRED_SSE_LEVEL "SSE41" CACHE STRING "Sets the minimum required SSE level")
+set_property(CACHE EZ_MIN_REQUIRED_SSE_LEVEL PROPERTY STRINGS ${EZ_MIN_REQUIRED_SSE_LEVEL_VALUES})
 
-
+mark_as_advanced(FORCE EZ_MIN_REQUIRED_SSE_LEVEL)

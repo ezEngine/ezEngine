@@ -4,6 +4,7 @@
 
 namespace ezInternal
 {
+  using QuadDouble = ezVec4d;
   using QuadFloat = ezVec4;
   using QuadInt = ezVec4I32;
   using QuadUInt = ezVec4U32;

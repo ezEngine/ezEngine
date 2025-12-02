@@ -262,8 +262,6 @@ void ezParticleStream_Variation::InitializeElements(ezUInt64 uiStartIndex, ezUIn
 {
   ezProcessingStreamIterator<ezUInt32> itData(m_pStream, uiNumElements, uiStartIndex);
 
-  const ezVec3 startVel = m_pOwner->GetParticleStartVelocity();
-
   ezRandom& rng = m_pOwner->GetOwnerEffect()->GetRNG();
 
   while (!itData.HasReachedEnd())

@@ -24,13 +24,6 @@ EZ_END_ABSTRACT_COMPONENT_TYPE;
 ezRenderComponent::ezRenderComponent() = default;
 ezRenderComponent::~ezRenderComponent() = default;
 
-void ezRenderComponent::Deinitialize()
-{
-  ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
-
-  SUPER::Deinitialize();
-}
-
 void ezRenderComponent::OnActivated()
 {
   // Ensure that the render data manager exists.
@@ -41,6 +34,9 @@ void ezRenderComponent::OnActivated()
 
 void ezRenderComponent::OnDeactivated()
 {
+  // Can't call InvalidateCachedRenderData because it checks whether we are active, which is not the case anymore.
+  ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
+
   // Can't call TriggerLocalBoundsUpdate because it checks whether we are active, which is not the case anymore.
   GetOwner()->UpdateLocalBounds();
 }

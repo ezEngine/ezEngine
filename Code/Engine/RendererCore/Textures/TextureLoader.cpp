@@ -135,6 +135,9 @@ ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResource* pRe
       header.SetImageFormat(ezImageFormat::R16G16B16A16_FLOAT);
       header.SetNumMipLevels(1);
       header.SetNumFaces(1);
+      pData->m_TexFormat.m_AddressModeU = ezImageAddressMode::Clamp;
+      pData->m_TexFormat.m_AddressModeV = ezImageAddressMode::Clamp;
+      pData->m_TexFormat.m_TextureFilter = ezTextureFilterSetting::FixedBilinear;
       pData->m_Image.ResetAndAlloc(header);
       ezFloat16* pPixels = pData->m_Image.GetPixelPointer<ezFloat16>();
 

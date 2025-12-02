@@ -512,7 +512,6 @@ void ezQtParticleEffectAssetDocumentWindow::onRenameSystem(bool)
   cmd2.m_Object = pObject->GetGuid();
   cmd2.m_NewValue = sName.toUtf8().data();
   cmd2.m_sProperty = "Name";
-  cmd2.m_Index = 0;
 
   if (GetDocument()->GetCommandHistory()->AddCommand(cmd2).Failed())
   {
@@ -560,6 +559,11 @@ void ezQtParticleEffectAssetDocumentWindow::SendLiveResourcePreview()
 void ezQtParticleEffectAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
   m_bDoLiveResourceUpdate = true;
+
+  if (e.m_sProperty == "Name" && e.m_pObject->GetParentProperty() == "ParticleSystems")
+  {
+    UpdateSystemList();
+  }
 }
 
 void ezQtParticleEffectAssetDocumentWindow::StructureEventHandler(const ezDocumentObjectStructureEvent& e)

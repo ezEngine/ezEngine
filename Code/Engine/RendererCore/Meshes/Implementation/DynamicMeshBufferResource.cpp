@@ -233,7 +233,7 @@ void ezDynamicMeshBufferResource::UploadChangesForNextFrame()
   {
     auto data = m_ColorData.GetArrayPtr().GetSubArray(m_ModifiedColorDataRange.m_uiMin, m_ModifiedColorDataRange.GetCount());
 
-    pDevice->UpdateBufferForNextFrame(m_hVertexBuffers[ezMeshVertexStreamType::NormalTangentAndTexCoord0], data.ToByteArray(), m_ModifiedColorDataRange.m_uiMin);
+    pDevice->UpdateBufferForNextFrame(m_hVertexBuffers[ezMeshVertexStreamType::Color0], data.ToByteArray(), m_ModifiedColorDataRange.m_uiMin);
 
     m_ModifiedColorDataRange.Reset();
   }

@@ -122,6 +122,13 @@ retry:
     static_assert(EZ_ARRAY_SIZE(FeatureLevels) == EZ_ARRAY_SIZE(FeatureLevelNames));
 
     ezLog::Success("Initialized D3D11 device with feature level {0}.", FeatureLevelNames[FeatureLevelIdx]);
+
+    // Validate that we got the minimum required feature level
+    if (m_uiFeatureLevel < D3D_FEATURE_LEVEL_11_1)
+    {
+      EZ_REPORT_FAILURE("The graphics hardware only supports Direct3D feature level {0}, but ezEngine requires feature level 11.1 or higher. ", FeatureLevelNames[FeatureLevelIdx]);
+      return EZ_FAILURE;
+    }
   }
 
   if (m_Description.m_bDebugDevice)
@@ -1037,7 +1044,7 @@ void ezGALDeviceDX11::FillCapabilitiesPlatform()
       // case D3D_FEATURE_LEVEL_9_3:
 
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      EZ_ASSERT_ALWAYS(false, "Unsupported Direct3D feature level. This should have been caught during device initialization.");
       break;
   }
 

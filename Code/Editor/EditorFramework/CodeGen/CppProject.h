@@ -38,6 +38,7 @@ struct EZ_EDITORFRAMEWORK_DLL ezCompiler
     Gcc,
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     Vs2022,
+    Vs2026,
 #endif
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)

@@ -72,7 +72,7 @@ public:
   ///
   /// Calls CreateActors() to create the game's main window and setup input devices.
   /// Calls ConfigureInputActions() to setup input actions.
-  /// Finally switches to pWorld (if available) or starts loading the scene that GetStartupSceneFile() returns.
+  /// Finally switches to pWorld (if available) or starts loading the scene that GetStartupOptions() returns.
   ///
   /// Override any of the above functions to customize them.
   virtual void OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset) override;
@@ -183,11 +183,11 @@ protected:
   /// Called by CreateActors() with the result of CreateMainWindow().
   virtual void ConfigureMainWindowInputDevices(ezWindow* pWindow);
 
-  /// \brief Returns the path to the scene file to load at startup.
+  /// \brief Returns the path to the scene file and the corresponding preload collection to load at startup.
   ///
   /// By default this is taken from the command line '-scene' option.
   /// Override this function to define a custom startup scene (e.g. for the main menu) or load a saved state.
-  virtual ezString GetStartupSceneFile();
+  virtual void GetStartupOptions(ezString& out_sScene, ezString& out_sPreloadCollection);
 
   /// \brief Called by SwitchToLoadingScreen() to set up a new loading screen world.
   ///

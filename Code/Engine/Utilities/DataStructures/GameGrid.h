@@ -185,7 +185,7 @@ public:
   /// These might be left/right or top/bottom of the edge, depending on which edge is referred to.
   /// Returns invalid cell coordinates, if the edge refers to an outer edge.
   /// This can be checked with IsValidCellCoordinate().
-  void ConvertEdgeIndexToCellCoords(ezUInt32 uiEdgeIndex, ezVec2I32& out_Cell1, ezVec2I32& out_Cell2) const;
+  void ConvertEdgeIndexToCellCoords(ezUInt32 uiEdgeIndex, ezVec2I32& out_vCell1, ezVec2I32& out_vCell2) const;
 
   /// Casts a ray through the grid and determines which cell is hit and which edge is closest.
   ///

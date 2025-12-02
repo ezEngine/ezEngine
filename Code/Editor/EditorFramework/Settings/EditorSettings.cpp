@@ -5,6 +5,10 @@
 #include <EditorFramework/Preferences/Preferences.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#  include <EditorFramework/EditorApp/WindowsJumpList.h>
+#endif
+
 void ezQtEditorApp::SaveRecentFiles()
 {
   if (m_StartupFlags.IsAnySet(StartupFlags::Headless | StartupFlags::UnitTest | StartupFlags::Background))
@@ -12,6 +16,11 @@ void ezQtEditorApp::SaveRecentFiles()
 
   m_RecentProjects.Save(":appdata/Settings/RecentProjects.txt");
   m_RecentDocuments.Save(":appdata/Settings/RecentDocuments.txt");
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+  // Update Windows taskbar jump list with recent projects
+  ezWindowsJumpList::UpdateJumpList(m_RecentProjects);
+#endif
 }
 
 void ezQtEditorApp::LoadRecentFiles()

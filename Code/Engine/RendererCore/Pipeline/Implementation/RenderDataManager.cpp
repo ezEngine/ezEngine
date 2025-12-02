@@ -65,6 +65,15 @@ ezArrayPtr<ezPerInstanceData> ezRenderDataManager::GetOrCreateInstanceData(const
   EZ_LOCK(m_Mutex);
 
   const ezUInt32 uiBufferIndex = bDynamic ? 1 : 0;
+
+  if (inout_instanceDataOffset.IsInvalidated() == false && inout_instanceDataOffset.m_uiIsDynamic != uiBufferIndex)
+  {
+    // The instance data was allocated in a different buffer, need to re-allocate.
+    auto pOldInstanceDataBuffer = ezGALDevice::GetDefaultDevice()->GetDynamicBuffer(m_Buffers[inout_instanceDataOffset.m_uiIsDynamic]);
+    pOldInstanceDataBuffer->Deallocate(inout_instanceDataOffset.m_uiOffset);
+    inout_instanceDataOffset = {};
+  }
+
   out_hBuffer = m_Buffers[uiBufferIndex];
 
   auto pInstanceDataBuffer = m_ExtractionData.m_pBuffers.GetCount() > uiBufferIndex ? m_ExtractionData.m_pBuffers[uiBufferIndex] : nullptr;

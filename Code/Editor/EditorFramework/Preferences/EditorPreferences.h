@@ -32,6 +32,9 @@ public:
   bool m_bHighlightUntranslatedUI = false;
   bool m_bAssetBrowserShowItemsInSubFolders = true;
 
+  // Auto-save interval in minutes. 0 = off.
+  ezUInt32 m_uiAutoSaveMinutes = 5;
+
   bool m_bSkyBox = true;
   bool m_bSkyLight = true;
   ezString m_sSkyLightCubeMap = "{ 0b202e08-a64f-465d-b38e-15b81d161822 }";

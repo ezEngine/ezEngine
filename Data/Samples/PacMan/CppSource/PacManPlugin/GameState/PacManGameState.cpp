@@ -6,6 +6,7 @@
 #include <Core/Utils/Blackboard.h>
 #include <Core/World/World.h>
 #include <Foundation/Configuration/CVar.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/Logging/Log.h>
 #include <GameEngine/Input/InputDebugVis.h>
 #include <PacManPlugin/GameState/PacManGameState.h>
@@ -22,16 +23,18 @@ ezHashedString PacManGameState::s_sStats = ezMakeHashedString("Stat");
 ezHashedString PacManGameState::s_sCoinsEaten = ezMakeHashedString("CoinsEaten");
 ezHashedString PacManGameState::s_sPacManState = ezMakeHashedString("PacManState");
 
-ezString PacManGameState::GetStartupSceneFile()
+void PacManGameState::GetStartupOptions(ezString& out_sScene, ezString& out_sPreloadCollection)
 {
   // if we have a "-scene" command line argument, it was launched from the editor and we should load that
   // otherwise, we use the hardcoded 'Main.ezScene' of the PacMan project
   if (ezCommandLineUtils::GetGlobalInstance()->HasOption("-scene"))
   {
-    return ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-scene");
+    out_sScene = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-scene");
   }
-
-  return "AssetCache/Common/Scenes/Main.ezBinScene";
+  else
+  {
+    out_sScene = "AssetCache/Common/Scenes/Main.ezBinScene";
+  }
 }
 
 void PacManGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset)
@@ -128,7 +131,11 @@ void PacManGameState::AfterWorldUpdate()
     ezSoundInterface::PlaySound(m_pMainWorld, "{ 2281d82a-cf87-4747-b664-a41ebc74c052 }", ezTransform::MakeIdentity()).IgnoreResult(); // MiniAudio
   }
 
-  if (iPacManState == PacManState::EatenByGhost)
+  if (m_bShowSceneExportError)
+  {
+    ezDebugRenderer::DrawInfoText(m_pMainWorld, ezDebugTextPlacement::TopCenter, "Stats", "Cannot reload scene!\n\nThe scene must be transformed/exported first.\nUse 'Transform All' in the editor or export the scene.", ezColor::OrangeRed);
+  }
+  else if (iPacManState == PacManState::EatenByGhost)
   {
     if (m_bTouchInput)
     {
@@ -139,8 +146,7 @@ void PacManGameState::AfterWorldUpdate()
       ezDebugRenderer::DrawInfoText(m_pMainWorld, ezDebugTextPlacement::TopCenter, "Stats", "YOU LOST!\n\nPress SPACE to play again.", ezColor::Red);
     }
   }
-
-  if (iPacManState == PacManState::WonGame)
+  else if (iPacManState == PacManState::WonGame)
   {
     if (m_bTouchInput)
     {
@@ -195,7 +201,7 @@ ezResult PacManGameState::SpawnPlayer(ezStringView sStartPosition, const ezTrans
 
 void PacManGameState::ResetState()
 {
-  // we use a global blackboard to store the overall state of the game (https://ezengine.net/pages/docs/Miscellaneous/blackboards.html)
+  // we use a global blackboard to store the overall state of the game (https://ezengine.net/pages/docs/misc/blackboards.html)
 
   m_uiNumCoinsTotal = 0;
 
@@ -239,9 +245,24 @@ void PacManGameState::ProcessInput()
     ResetState();
 
     // We just kick off a scene load. The 'scene file' is the asset GUID of the 'Level1.ezScene' document.
-    LoadScene(GetStartupSceneFile(), {}, {}, ezTransform::MakeIdentity());
+    ezString sScene;
+    ezString sPreloadCollection;
+    GetStartupOptions(sScene, sPreloadCollection);
 
-    // scene loading happens in the background, and once it is ready, will switch automatically to the new scene
+    // Check if the exported scene file exists before attempting to load it
+    if (!ezFileSystem::ExistsFile(sScene))
+    {
+      // The scene hasn't been exported yet, show an error message
+      ezLog::Warning("Cannot reload scene '{}'. The scene must be transformed/exported before it can be reloaded.", sScene);
+      m_bShowSceneExportError = true;
+    }
+    else
+    {
+      m_bShowSceneExportError = false;
+      LoadScene(sScene, sPreloadCollection, {}, ezTransform::MakeIdentity());
+
+      // scene loading happens in the background, and once it is ready, will switch automatically to the new scene
+    }
   }
 }
 

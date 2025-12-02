@@ -704,7 +704,7 @@ class ezTransform
   void SetIdentity();
   float GetMaxScale() const;
   bool HasMirrorScaling() const;
-  bool ContainsUniformScale() const;
+  bool HasOnlyUniformScaling() const;
   bool IsValid() const;
   bool IsIdentical(const ezTransform&in) const;
   bool IsEqual(const ezTransform&in, float fEpsilon) const;

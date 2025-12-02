@@ -580,7 +580,7 @@ void ezAngelScriptEngineSingleton::Register_Transform()
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezTransform", "void SetIdentity()", asMETHOD(ezTransform, SetIdentity), asCALL_THISCALL));
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezTransform", "float GetMaxScale() const", asMETHOD(ezTransform, GetMaxScale), asCALL_THISCALL));
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezTransform", "bool HasMirrorScaling() const", asMETHOD(ezTransform, HasMirrorScaling), asCALL_THISCALL));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTransform", "bool ContainsUniformScale() const", asMETHOD(ezTransform, ContainsUniformScale), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezTransform", "bool HasOnlyUniformScaling() const", asMETHOD(ezTransform, HasOnlyUniformScaling), asCALL_THISCALL));
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezTransform", "bool IsValid() const", asMETHOD(ezTransform, IsValid), asCALL_THISCALL));
 
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezTransform", "bool IsIdentical(const ezTransform& in) const", asMETHOD(ezTransform, IsIdentical), asCALL_THISCALL));
