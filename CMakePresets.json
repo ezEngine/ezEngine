@@ -15,8 +15,7 @@
       "cacheVariables": {
         "EZ_BUILD_EXPERIMENTAL_VULKAN": "ON",
         "EZ_ENABLE_FOLDER_UNITY_FILES" : "ON",
-        "EZ_COMPILE_ENGINE_AS_DLL" : "ON",
-        "EZ_REQUESTED_SIMD_LEVEL" : "1"
+        "EZ_COMPILE_ENGINE_AS_DLL" : "ON"
       },
       "environment": {}
     },
@@ -30,7 +29,6 @@
         "EZ_BUILD_EXPERIMENTAL_VULKAN": "ON",
         "EZ_ENABLE_FOLDER_UNITY_FILES" : "ON",
         "EZ_COMPILE_ENGINE_AS_DLL" : "ON",
-        "EZ_REQUESTED_SIMD_LEVEL" : "1",
         "CMAKE_EXPORT_COMPILE_COMMANDS" : "ON"
       },
       "environment": {
