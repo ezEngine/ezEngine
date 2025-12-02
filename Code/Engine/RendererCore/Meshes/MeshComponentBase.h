@@ -27,10 +27,13 @@ public:
     FillSortingKey();
   }
 
-  EZ_ALWAYS_INLINE void SetFallbackGlobalBoundingBox(const ezBoundingBox& globalBoundingBox)
+  EZ_ALWAYS_INLINE void SetFallbackGlobalBounds(const ezBoundingBoxSphere& globalBounds)
   {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-    m_FallbackGlobalBBox = globalBoundingBox;
+    if (globalBounds.IsValid())
+    {
+      m_FallbackGlobalBBox = globalBounds.GetBox();
+    }
 #endif
   }
 
