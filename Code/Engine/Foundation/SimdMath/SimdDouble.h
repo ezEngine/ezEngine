@@ -97,11 +97,11 @@ public:
 
 #if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
 #  if EZ_SSE_LEVEL >= EZ_SSE_AVX
-#  include <Foundation/SimdMath/Implementation/SSE/SSEDouble_AVX_inl.h>
-#else
+#    include <Foundation/SimdMath/Implementation/SSE/SSEDouble_AVX_inl.h>
+#  else
 // Could also redirect to fpu version for the time being
-#  include <Foundation/SimdMath/Implementation/SSE/SSEDouble_inl.h>
-#endif
+#    include <Foundation/SimdMath/Implementation/SSE/SSEDouble_inl.h>
+#  endif
 #elif EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_FPU
 #  include <Foundation/SimdMath/Implementation/FPU/FPUDouble_inl.h>
 #elif EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_NEON
