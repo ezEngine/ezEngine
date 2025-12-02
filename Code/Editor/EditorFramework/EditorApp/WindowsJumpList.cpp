@@ -12,23 +12,22 @@
 #  include <shobjidl.h>
 
 // Helper to create a shell link
-static HRESULT CreateShellLink(const wchar_t* pszPath, const wchar_t* pszArguments, const wchar_t* pszTitle, const wchar_t* pszDescription, IShellLink** ppShellLink)
+static HRESULT CreateShellLink(const wchar_t* szPath, const wchar_t* szArguments, const wchar_t* szTitle, const wchar_t* szDescription, IShellLink*& pShellLink)
 {
-  IShellLink* pShellLink = nullptr;
   HRESULT hr = CoCreateInstance(CLSID_ShellLink, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pShellLink));
   if (SUCCEEDED(hr))
   {
     // Set the path and arguments
-    hr = pShellLink->SetPath(pszPath);
+    hr = pShellLink->SetPath(szPath);
     if (SUCCEEDED(hr))
     {
-      hr = pShellLink->SetArguments(pszArguments);
+      hr = pShellLink->SetArguments(szArguments);
       if (SUCCEEDED(hr))
       {
         // Set the description (tooltip)
-        if (pszDescription != nullptr)
+        if (szDescription != nullptr)
         {
-          pShellLink->SetDescription(pszDescription);
+          pShellLink->SetDescription(szDescription);
         }
 
         // Set the title using the property store
@@ -37,7 +36,7 @@ static HRESULT CreateShellLink(const wchar_t* pszPath, const wchar_t* pszArgumen
         if (SUCCEEDED(hr))
         {
           PROPVARIANT propVariant;
-          hr = InitPropVariantFromString(pszTitle, &propVariant);
+          hr = InitPropVariantFromString(szTitle, &propVariant);
           if (SUCCEEDED(hr))
           {
             hr = pPropertyStore->SetValue(PKEY_Title, propVariant);
@@ -53,13 +52,10 @@ static HRESULT CreateShellLink(const wchar_t* pszPath, const wchar_t* pszArgumen
     }
   }
 
-  if (SUCCEEDED(hr))
-  {
-    *ppShellLink = pShellLink;
-  }
-  else if (pShellLink)
+  if (FAILED(hr))
   {
     pShellLink->Release();
+    pShellLink = nullptr;
   }
 
   return hr;
@@ -151,7 +147,7 @@ void ezWindowsJumpList::UpdateJumpList(const ezRecentFilesList& recentProjects)
 
     // Create shell link
     IShellLink* pShellLink = nullptr;
-    hr = CreateShellLink(szExePath, szArguments.GetData(), szProjectName.GetData(), szProjectPath.GetData(), &pShellLink);
+    hr = CreateShellLink(szExePath, szArguments.GetData(), szProjectName.GetData(), szProjectPath.GetData(), pShellLink);
     if (SUCCEEDED(hr))
     {
       // Set the working directory to the project directory
@@ -181,7 +177,7 @@ void ezWindowsJumpList::UpdateJumpList(const ezRecentFilesList& recentProjects)
   {
     // Create "New Window" task
     IShellLink* pNewWindowLink = nullptr;
-    hr = CreateShellLink(szExePath, L"-noRecent", L"New Window", L"Open editor without loading a project", &pNewWindowLink);
+    hr = CreateShellLink(szExePath, L"-noRecent", L"New Window", L"Open editor without loading a project", pNewWindowLink);
     if (SUCCEEDED(hr))
     {
       pTasksCollection->AddObject(pNewWindowLink);
@@ -190,7 +186,7 @@ void ezWindowsJumpList::UpdateJumpList(const ezRecentFilesList& recentProjects)
 
     // Create "Start in Safe Mode" task
     IShellLink* pSafeModeLink = nullptr;
-    hr = CreateShellLink(szExePath, L"-safe", L"Start in Safe Mode", L"Start editor in safe mode (no automatic project/scene loading)", &pSafeModeLink);
+    hr = CreateShellLink(szExePath, L"-safe", L"Start in Safe Mode", L"Start editor in safe mode (no automatic project/scene loading)", pSafeModeLink);
     if (SUCCEEDED(hr))
     {
       pTasksCollection->AddObject(pSafeModeLink);
