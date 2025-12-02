@@ -220,6 +220,15 @@ function(ez_set_common_target_definitions TARGET_NAME)
 		target_compile_definitions(${TARGET_NAME} PRIVATE BUILDSYSTEM_ENABLE_WEBGPU_SUPPORT)
 	endif()
 
+	# set the BUILDSYSTEM_MIN_REQUIRED_SSE_LEVEL
+	if (EZ_MIN_REQUIRED_SSE_LEVEL STREQUAL "SSE2")
+		target_compile_definitions(${TARGET_NAME} PRIVATE BUILDSYSTEM_MIN_REQUIRED_SSE_LEVEL=20)
+	elseif (EZ_MIN_REQUIRED_SSE_LEVEL STREQUAL "SSE41")
+		target_compile_definitions(${TARGET_NAME} PRIVATE BUILDSYSTEM_MIN_REQUIRED_SSE_LEVEL=41)
+	elseif (EZ_MIN_REQUIRED_SSE_LEVEL STREQUAL "AVX")
+		target_compile_definitions(${TARGET_NAME} PRIVATE BUILDSYSTEM_MIN_REQUIRED_SSE_LEVEL=50)
+	endif()
+
 	# on Windows, make sure to use the Unicode API
 	target_compile_definitions(${TARGET_NAME} PUBLIC UNICODE _UNICODE)
 endfunction()

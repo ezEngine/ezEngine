@@ -95,11 +95,6 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 		set(OPT_CPP_PRIVATE ${OPT_CPP_PRIVATE} "/w14996")
 	endif()
 
-	if((CMAKE_SIZEOF_VOID_P EQUAL 4) AND EZ_CMAKE_ARCHITECTURE_X86)
-		# enable SSE2 (incompatible with /fp:except)
-		set(OPT_CPP_PRIVATE ${OPT_CPP_PRIVATE} "/arch:SSE2")
-	endif()
-
 	# /Zo: Improved debugging of optimized code
 	set(OPT_CPP_PRIVATE ${OPT_CPP_PRIVATE} "$<$<CONFIG:${EZ_BUILDTYPENAME_RELEASE_UPPER}>:/Zo>")
 	set(OPT_CPP_PRIVATE ${OPT_CPP_PRIVATE} "$<$<CONFIG:${EZ_BUILDTYPENAME_DEV_UPPER}>:/Zo>")
@@ -116,10 +111,29 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 	# /Oi: Replace some functions with intrinsics or other special forms of the function
 	set(OPT_CPP_PRIVATE ${OPT_CPP_PRIVATE} "$<$<CONFIG:${EZ_BUILDTYPENAME_RELEASE_UPPER}>:/Oi>")
 
-	# Enable SSE4.1 for Clang on Windows.
-	# Todo: In general we should make this configurable. As of writing SSE4.1 is always active for windows builds (independent of the compiler)
-	if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND EZ_CMAKE_ARCHITECTURE_X86)
-		set(OPT_CPP_PRIVATE ${OPT_CPP_PRIVATE} "-msse4.1")
+	if(EZ_CMAKE_ARCHITECTURE_X86)
+
+		if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+
+			if(${EZ_MIN_REQUIRED_SSE_LEVEL} STREQUAL "SSE41")
+				set(OPT_CPP_PRIVATE ${OPT_CPP_PRIVATE} "-msse4.1")
+			elseif(${EZ_MIN_REQUIRED_SSE_LEVEL} STREQUAL "AVX")
+				set(OPT_CPP_PRIVATE ${OPT_CPP_PRIVATE} "-mavx")
+			else()
+				set(OPT_CPP_PRIVATE ${OPT_CPP_PRIVATE} "-msse2")
+			endif()
+
+		else()
+
+			if(${EZ_MIN_REQUIRED_SSE_LEVEL} STREQUAL "AVX")
+				set(OPT_CPP_PRIVATE ${OPT_CPP_PRIVATE} "/arch:AVX")
+			else()
+				# enable SSE2 (incompatible with /fp:except)
+				set(OPT_CPP_PRIVATE ${OPT_CPP_PRIVATE} "/arch:SSE2")
+			endif()
+
+		endif()
+
 	endif()
 
 	set(LINKER_FLAGS_DEBUG "")
@@ -193,7 +207,15 @@ endfunction()
 # #####################################
 function(ez_set_build_flags_clang TARGET_NAME)
 	if(EZ_CMAKE_ARCHITECTURE_X86)
-		target_compile_options(${TARGET_NAME} PRIVATE "-msse4.1")
+
+		if(${EZ_MIN_REQUIRED_SSE_LEVEL} STREQUAL "SSE41")
+			target_compile_options(${TARGET_NAME} PRIVATE "-msse4.1")
+		elseif(${EZ_MIN_REQUIRED_SSE_LEVEL} STREQUAL "AVX")
+			target_compile_options(${TARGET_NAME} PRIVATE "-mavx")
+		else()
+			target_compile_options(${TARGET_NAME} PRIVATE "-msse2")
+		endif()
+		
 	endif()
 	if(EZ_3RDPARTY_LIVEPP_SUPPORT)
 		target_compile_options(${TARGET_NAME} PRIVATE 
@@ -240,17 +262,21 @@ function(ez_set_build_flags_gcc TARGET_NAME)
 	# -fno-gnu-unique prevents symbols like static inline or static templates to be marked with STB_GNU_UNIQUE, preventing the owning dll from being unloaded.
 	target_compile_options(${TARGET_NAME} PRIVATE -fPIC -Wno-enum-compare -gdwarf-3 -pthread -fno-gnu-unique)
 
-	if(EZ_CMAKE_ARCHITECTURE_X86)
-		target_compile_options(${TARGET_NAME} PRIVATE -mssse3 -mfpmath=sse)
-	endif()
-
 	# dynamic linking will fail without fPIC (plugins)
 	# gdwarf-3 will use the old debug info which is compatible with older gdb versions.
 	# these were previously set as CMAKE_C_FLAGS (not CPP)
 	target_compile_options(${TARGET_NAME} PRIVATE -fPIC -gdwarf-3)
 
 	if(EZ_CMAKE_ARCHITECTURE_X86)
-		target_compile_options(${TARGET_NAME} PRIVATE -msse4.1)
+
+		if(${EZ_MIN_REQUIRED_SSE_LEVEL} STREQUAL "SSE41")
+			target_compile_options(${TARGET_NAME} PRIVATE -msse4.1 -mfpmath=sse)
+		elseif(${EZ_MIN_REQUIRED_SSE_LEVEL} STREQUAL "AVX")
+			target_compile_options(${TARGET_NAME} PRIVATE -mavx -mfpmath=sse)
+		else()
+			target_compile_options(${TARGET_NAME} PRIVATE -msse2 -mfpmath=sse)
+		endif()
+		
 	endif()
 
 	# Disable warning: multi-character character constant

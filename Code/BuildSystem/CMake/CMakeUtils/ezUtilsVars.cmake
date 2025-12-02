@@ -37,3 +37,13 @@ mark_as_advanced(FORCE EZ_ENABLE_PVS_STUDIO_HEADER_IN_UNITY_FILES)
 set(EZ_ENABLE_COMPILER_STATIC_ANALYSIS OFF CACHE BOOL "Enables static analysis in the compiler options")
 
 mark_as_advanced(FORCE EZ_ENABLE_COMPILER_STATIC_ANALYSIS)
+
+# #####################################
+# ## SSE level
+# #####################################
+
+set(EZ_MIN_REQUIRED_SSE_LEVEL_VALUES "SSE2;SSE41;AVX")
+set(EZ_MIN_REQUIRED_SSE_LEVEL "SSE41" CACHE STRING "Sets the minimum required SSE level")
+set_property(CACHE EZ_MIN_REQUIRED_SSE_LEVEL PROPERTY STRINGS ${EZ_MIN_REQUIRED_SSE_LEVEL_VALUES})
+
+mark_as_advanced(FORCE EZ_MIN_REQUIRED_SSE_LEVEL)
