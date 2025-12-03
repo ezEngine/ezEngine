@@ -559,7 +559,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4d)
       c = a.CompMul(b);
       EZ_TEST_BOOL(c.x() == -24.0 && c.y() == 30.0 && c.z() == -28.0 && c.w() == 18.0);
 
-      ezSimdVec4d divRes(-0.375, 5.0 / 6.0, -1.75f, 4.5);
+      ezSimdVec4d divRes(-0.375, 5.0 / 6.0, -1.75, 4.5);
       ezSimdVec4d d1 = a.CompDiv(b);
       ezSimdVec4d d2 = a.CompDiv<ezMathAcc::FULL>(b);
       ezSimdVec4d d3 = a.CompDiv<ezMathAcc::BITS_23>(b);

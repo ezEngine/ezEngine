@@ -1,10 +1,7 @@
 #pragma once
 
 
-EZ_ALWAYS_INLINE ezSimdVec4d::ezSimdVec4d(ezInternal::QuadFloat v)
-{
-  m_v = v;
-}
+
 EZ_ALWAYS_INLINE ezSimdVec4d::ezSimdVec4d(ezInternal::QuadDouble v)
 {
   m_v = v;
