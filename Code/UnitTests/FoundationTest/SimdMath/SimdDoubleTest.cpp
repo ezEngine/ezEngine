@@ -24,7 +24,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdDouble)
 #endif
 
     // Make sure the class didn't accidentally change in size.
-#if (EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_AVX) && EZ_ENABLED(EZ_COMPILER_MSVC)
+#if (EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE) && (EZ_SSE_LEVEL >= EZ_SSE_AVX) && EZ_ENABLED(EZ_COMPILER_MSVC)
     static_assert(sizeof(ezSimdDouble) == 32);
     static_assert(alignof(ezSimdDouble) == 32);
 #elif (EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE) && EZ_ENABLED(EZ_COMPILER_MSVC)
@@ -36,7 +36,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdDouble)
     EZ_TEST_BOOL(vInit1F == 2.0f);
 
     // Make sure all components are set to the same value
-#if (EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_AVX) && EZ_ENABLED(EZ_COMPILER_MSVC)
+#if (EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE) && (EZ_SSE_LEVEL >= EZ_SSE_AVX) && EZ_ENABLED(EZ_COMPILER_MSVC)
     EZ_TEST_BOOL(
       vInit1F.m_v.m256d_f64[0] == 2.0 && vInit1F.m_v.m256d_f64[1] == 2.0 && vInit1F.m_v.m256d_f64[2] == 2.0 && vInit1F.m_v.m256d_f64[3] == 2.0);
 #endif
@@ -51,7 +51,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdDouble)
     EZ_TEST_BOOL(vInit1I == 1.0);
 
     // Make sure all components are set to the same value
-#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_AVX && EZ_ENABLED(EZ_COMPILER_MSVC)
+#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && (EZ_SSE_LEVEL >= EZ_SSE_AVX) && EZ_ENABLED(EZ_COMPILER_MSVC)
     EZ_TEST_BOOL(
       vInit1I.m_v.m256d_f64[0] == 1.0 && vInit1I.m_v.m256d_f64[1] == 1.0 && vInit1I.m_v.m256d_f64[2] == 1.0 && vInit1I.m_v.m256d_f64[3] == 1.0);
 #endif
@@ -64,11 +64,11 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdDouble)
     EZ_TEST_BOOL(vInit1U == 4553.0);
 
     // Make sure all components are set to the same value
-#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_AVX && EZ_ENABLED(EZ_COMPILER_MSVC)
+#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && (EZ_SSE_LEVEL >= EZ_SSE_AVX) && EZ_ENABLED(EZ_COMPILER_MSVC)
     EZ_TEST_BOOL(vInit1U.m_v.m256d_f64[0] == 4553.0 && vInit1U.m_v.m256d_f64[1] == 4553.0 && vInit1U.m_v.m256d_f64[2] == 4553.0 &&
                  vInit1U.m_v.m256d_f64[3] == 4553.0);
 #endif
-#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && EZ_ENABLED(EZ_COMPILER_MSVC)
+#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && (EZ_SSE_LEVEL >= EZ_SSE_AVX) && EZ_ENABLED(EZ_COMPILER_MSVC)
     EZ_TEST_BOOL(vInit1U.m_v.xy.m128d_f64[0] == 4553.0 && vInit1U.m_v.xy.m128d_f64[1] == 4553.0 && vInit1U.m_v.zw.m128d_f64[0] == 4553.0 &&
                  vInit1U.m_v.zw.m128d_f64[1] == 4553.0);
 #endif
@@ -80,7 +80,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdDouble)
     EZ_TEST_BOOL(z.m_v.xy.m128d_f64[0] == 0.0 && z.m_v.xy.m128d_f64[1] == 0.0 && z.m_v.zw.m128d_f64[0] == 0.0 && z.m_v.zw.m128d_f64[1] == 0.0);
 #endif
     // Make sure all components are set to the same value
-#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_AVX && EZ_ENABLED(EZ_COMPILER_MSVC)
+#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && (EZ_SSE_LEVEL >= EZ_SSE_AVX) && EZ_ENABLED(EZ_COMPILER_MSVC)
     EZ_TEST_BOOL(z.m_v.m256d_f64[0] == 0.0 && z.m_v.m256d_f64[1] == 0.0 && z.m_v.m256d_f64[2] == 0.0 && z.m_v.m256d_f64[3] == 0.0);
 #endif
   }
@@ -93,7 +93,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdDouble)
     EZ_TEST_BOOL(z == 0.0);
 
     // Make sure all components are set to the same value
-#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_AVX && EZ_ENABLED(EZ_COMPILER_MSVC)
+#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && (EZ_SSE_LEVEL >= EZ_SSE_AVX) && EZ_ENABLED(EZ_COMPILER_MSVC)
     EZ_TEST_BOOL(z.m_v.m256d_f64[0] == 0.0 && z.m_v.m256d_f64[1] == 0.0 && z.m_v.m256d_f64[2] == 0.0 && z.m_v.m256d_f64[3] == 0.0);
 #endif
   }
@@ -103,7 +103,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdDouble)
     ezSimdDouble z = ezSimdDouble::MakeNaN();
 
     // Make sure all components are set to the same value
-#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_AVX && EZ_ENABLED(EZ_COMPILER_MSVC)
+#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && (EZ_SSE_LEVEL >= EZ_SSE_AVX) && EZ_ENABLED(EZ_COMPILER_MSVC)
     EZ_TEST_BOOL(ezMath::IsNaN(z.m_v.m256d_f64[0]));
     EZ_TEST_BOOL(ezMath::IsNaN(z.m_v.m256d_f64[1]));
     EZ_TEST_BOOL(ezMath::IsNaN(z.m_v.m256d_f64[2]));

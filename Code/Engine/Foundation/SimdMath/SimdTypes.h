@@ -13,9 +13,11 @@ struct ezMathAcc
 };
 
 #if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
+# if EZ_SSE_LEVEL < EZ_SSE_AVX
 #  include <Foundation/SimdMath/Implementation/SSE/SSETypes_inl.h>
-#elif EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_AVX
+# else
 #  include <Foundation/SimdMath/Implementation/AVX/AVXTypes_inl.h>
+#endif
 #elif EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_FPU
 #  include <Foundation/SimdMath/Implementation/FPU/FPUTypes_inl.h>
 #elif EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_NEON

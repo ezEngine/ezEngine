@@ -104,8 +104,6 @@ public:
 
 #if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
 #  include <Foundation/SimdMath/Implementation/SSE/SSEVec4i_inl.h>
-#elif EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_AVX
-#  include <Foundation/SimdMath/Implementation/SSE/SSEVec4i_inl.h>
 #elif EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_FPU
 #  include <Foundation/SimdMath/Implementation/FPU/FPUVec4i_inl.h>
 #elif EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_NEON
