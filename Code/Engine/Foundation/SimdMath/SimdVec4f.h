@@ -92,9 +92,11 @@ public:
   bool IsValid() const;                                                                                               // [tested]
 
 public:
+  /// \brief Creates an ezSimdFloat with all elements set to the given component
   template <int N>
   ezSimdFloat GetComponent() const;      // [tested]
 
+  /// \brief Creates an ezSimdFloat with all elements set to the given component
   ezSimdFloat GetComponent(int i) const; // [tested]
 
   ezSimdFloat x() const;                 // [tested]
