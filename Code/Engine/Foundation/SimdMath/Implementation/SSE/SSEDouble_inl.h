@@ -7,7 +7,7 @@ EZ_ALWAYS_INLINE ezSimdDouble::ezSimdDouble()
 #if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   // Initialize all data to NaN in debug mode to find problems with uninitialized data easier.
   m_v.xy = _mm_set1_pd(ezMath::NaN<double>());
-  m_v.zw = _mm_set1_pd(ezMath::NaN<double>());
+  m_v.zw = m_v.xy;
 #endif
 
 
@@ -18,7 +18,7 @@ EZ_ALWAYS_INLINE ezSimdDouble::ezSimdDouble(float f)
   EZ_CHECK_SIMD_ALIGNMENT(this);
 
   m_v.xy = _mm_set1_pd(double(f));
-  m_v.zw = _mm_set1_pd(double(f));
+  m_v.zw = m_v.xy;
 }
 
 EZ_ALWAYS_INLINE ezSimdDouble::ezSimdDouble(double d)
@@ -26,7 +26,7 @@ EZ_ALWAYS_INLINE ezSimdDouble::ezSimdDouble(double d)
   EZ_CHECK_SIMD_ALIGNMENT(this);
 
   m_v.xy = _mm_set1_pd(d);
-  m_v.zw = _mm_set1_pd(d);
+  m_v.zw = m_v.xy;
 }
 
 EZ_ALWAYS_INLINE ezSimdDouble::ezSimdDouble(ezInt32 i)
@@ -35,7 +35,7 @@ EZ_ALWAYS_INLINE ezSimdDouble::ezSimdDouble(ezInt32 i)
 
   __m128i packedInt32 = _mm_set1_epi32(i);
   m_v.xy = _mm_cvtepi32_pd(packedInt32);
-  m_v.zw = _mm_cvtepi32_pd(packedInt32);
+  m_v.zw = m_v.xy;
 }
 
 EZ_ALWAYS_INLINE ezSimdDouble::ezSimdDouble(ezUInt32 i)
@@ -43,7 +43,7 @@ EZ_ALWAYS_INLINE ezSimdDouble::ezSimdDouble(ezUInt32 i)
   EZ_CHECK_SIMD_ALIGNMENT(this);
 
   m_v.xy = _mm_set1_pd(static_cast<double>(i));
-  m_v.zw = _mm_set1_pd(static_cast<double>(i));
+  m_v.zw = m_v.xy;
 }
 
 EZ_ALWAYS_INLINE ezSimdDouble::ezSimdDouble(ezAngle a)
@@ -51,7 +51,7 @@ EZ_ALWAYS_INLINE ezSimdDouble::ezSimdDouble(ezAngle a)
   EZ_CHECK_SIMD_ALIGNMENT(this);
 
   m_v.xy = _mm_set1_pd(a.GetRadian());
-  m_v.zw = _mm_set1_pd(a.GetRadian());
+  m_v.zw = m_v.xy;
 }
 
 EZ_ALWAYS_INLINE ezSimdDouble::ezSimdDouble(ezInternal::QuadFloat v)
@@ -85,7 +85,7 @@ EZ_ALWAYS_INLINE ezSimdDouble ezSimdDouble::MakeZero()
 {
   ezSimdDouble result;
   result.m_v.xy = _mm_setzero_pd();
-  result.m_v.zw = _mm_setzero_pd();
+  result.m_v.zw = result.m_v.xy;
   return result;
 }
 
@@ -94,7 +94,7 @@ EZ_ALWAYS_INLINE ezSimdDouble ezSimdDouble::MakeNaN()
 {
   ezSimdDouble result;
   result.m_v.xy = _mm_set1_pd(ezMath::NaN<double>());
-  result.m_v.zw = _mm_set1_pd(ezMath::NaN<double>());
+  result.m_v.zw = result.m_v.xy;
   return result;
 }
 
@@ -102,7 +102,7 @@ EZ_ALWAYS_INLINE ezSimdDouble ezSimdDouble::operator+(const ezSimdDouble& d) con
 {
   ezSimdDouble result;
   result.m_v.xy = _mm_add_pd(m_v.xy, d.m_v.xy);
-  result.m_v.zw = _mm_add_pd(m_v.zw, d.m_v.zw);
+  result.m_v.zw = result.m_v.xy;
   return result;
 }
 
@@ -110,7 +110,7 @@ EZ_ALWAYS_INLINE ezSimdDouble ezSimdDouble::operator-(const ezSimdDouble& d) con
 {
   ezSimdDouble result;
   result.m_v.xy = _mm_sub_pd(m_v.xy, d.m_v.xy);
-  result.m_v.zw = _mm_sub_pd(m_v.zw, d.m_v.zw);
+  result.m_v.zw = result.m_v.xy;
   return result;
 }
 
@@ -118,7 +118,7 @@ EZ_ALWAYS_INLINE ezSimdDouble ezSimdDouble::operator*(const ezSimdDouble& d) con
 {
   ezSimdDouble result;
   result.m_v.xy = _mm_mul_pd(m_v.xy, d.m_v.xy);
-  result.m_v.zw = _mm_mul_pd(m_v.zw, d.m_v.zw);
+  result.m_v.zw = result.m_v.xy;
   return result;
 }
 
@@ -126,35 +126,35 @@ EZ_ALWAYS_INLINE ezSimdDouble ezSimdDouble::operator/(const ezSimdDouble& d) con
 {
   ezSimdDouble result;
   result.m_v.xy = _mm_div_pd(m_v.xy, d.m_v.xy);
-  result.m_v.zw = _mm_div_pd(m_v.zw, d.m_v.zw);
+  result.m_v.zw = result.m_v.xy;
   return result;
 }
 
 EZ_ALWAYS_INLINE ezSimdDouble& ezSimdDouble::operator+=(const ezSimdDouble& d)
 {
   m_v.xy = _mm_add_pd(m_v.xy, d.m_v.xy);
-  m_v.zw = _mm_add_pd(m_v.zw, d.m_v.zw);
+  m_v.zw = m_v.xy;
   return *this;
 }
 
 EZ_ALWAYS_INLINE ezSimdDouble& ezSimdDouble::operator-=(const ezSimdDouble& d)
 {
   m_v.xy = _mm_sub_pd(m_v.xy, d.m_v.xy);
-  m_v.zw = _mm_sub_pd(m_v.zw, d.m_v.zw);
+  m_v.zw = m_v.xy;
   return *this;
 }
 
 EZ_ALWAYS_INLINE ezSimdDouble& ezSimdDouble::operator*=(const ezSimdDouble& d)
 {
   m_v.xy = _mm_mul_pd(m_v.xy, d.m_v.xy);
-  m_v.zw = _mm_mul_pd(m_v.zw, d.m_v.zw);
+  m_v.zw = m_v.xy;
   return *this;
 }
 
 EZ_ALWAYS_INLINE ezSimdDouble& ezSimdDouble::operator/=(const ezSimdDouble& d)
 {
   m_v.xy = _mm_div_pd(m_v.xy, d.m_v.xy);
-  m_v.zw = _mm_div_pd(m_v.zw, d.m_v.zw);
+  m_v.zw = m_v.xy;
   return *this;
 }
 
@@ -261,7 +261,7 @@ EZ_ALWAYS_INLINE ezSimdDouble ezSimdDouble::GetReciprocal<ezMathAcc::FULL>() con
   ezSimdDouble result;
   __m128d one = _mm_set1_pd(1.0);
   result.m_v.xy = _mm_div_pd(one, m_v.xy);
-  result.m_v.zw = _mm_div_pd(one, m_v.zw);
+  result.m_v.zw = result.m_v.xy;
   return result;
 }
 
@@ -269,17 +269,16 @@ template <>
 EZ_ALWAYS_INLINE ezSimdDouble ezSimdDouble::GetReciprocal<ezMathAcc::BITS_23>() const
 {
   // Convert double to float, get reciprocal approximation, convert back to double
-  __m128 floatVal = _mm_movelh_ps(_mm_cvtpd_ps(m_v.xy), _mm_cvtpd_ps(m_v.zw));
+  __m128 floatVal = _mm_cvtpd_ps(m_v.xy);
   __m128 floatRcp = _mm_rcp_ps(floatVal);
   
   ezSimdDouble result;
   result.m_v.xy = _mm_cvtps_pd(floatRcp);
-  result.m_v.zw = _mm_cvtps_pd(_mm_movehl_ps(floatRcp, floatRcp));
 
   // One iteration of Newton-Raphson: x1 = x0 * (2 - m_v * x0)
   __m128d two = _mm_set1_pd(2.0);
   result.m_v.xy = _mm_mul_pd(result.m_v.xy, _mm_sub_pd(two, _mm_mul_pd(m_v.xy, result.m_v.xy)));
-  result.m_v.zw = _mm_mul_pd(result.m_v.zw, _mm_sub_pd(two, _mm_mul_pd(m_v.zw, result.m_v.zw)));
+  result.m_v.zw = result.m_v.xy;
 
   return result;
 }
@@ -288,12 +287,12 @@ template <>
 EZ_ALWAYS_INLINE ezSimdDouble ezSimdDouble::GetReciprocal<ezMathAcc::BITS_12>() const
 {
   // Convert double to float, get fast reciprocal approximation, convert back to double
-  __m128 floatVal = _mm_movelh_ps(_mm_cvtpd_ps(m_v.xy), _mm_cvtpd_ps(m_v.zw));
+  __m128 floatVal = _mm_cvtpd_ps(m_v.xy);
   __m128 floatRcp = _mm_rcp_ps(floatVal);
   
   ezSimdDouble result;
   result.m_v.xy = _mm_cvtps_pd(floatRcp);
-  result.m_v.zw = _mm_cvtps_pd(_mm_movehl_ps(floatRcp, floatRcp));
+  result.m_v.zw = result.m_v.xy;
   return result;
 }
 
@@ -303,7 +302,7 @@ EZ_ALWAYS_INLINE ezSimdDouble ezSimdDouble::GetInvSqrt<ezMathAcc::FULL>() const
   ezSimdDouble result;
   __m128d one = _mm_set1_pd(1.0);
   result.m_v.xy = _mm_div_pd(one, _mm_sqrt_pd(m_v.xy));
-  result.m_v.zw = _mm_div_pd(one, _mm_sqrt_pd(m_v.zw));
+  result.m_v.zw = result.m_v.xy;
   return result;
 }
 
@@ -311,24 +310,20 @@ template <>
 EZ_ALWAYS_INLINE ezSimdDouble ezSimdDouble::GetInvSqrt<ezMathAcc::BITS_23>() const
 {
   // Convert double to float, get inverse sqrt approximation, convert back to double
-  __m128 floatVal = _mm_movelh_ps(_mm_cvtpd_ps(m_v.xy), _mm_cvtpd_ps(m_v.zw));
+  __m128 floatVal = _mm_cvtpd_ps(m_v.xy);
   __m128 floatInvSqrt = _mm_rsqrt_ps(floatVal);
   
   ezSimdDouble result;
   result.m_v.xy = _mm_cvtps_pd(floatInvSqrt);
-  result.m_v.zw = _mm_cvtps_pd(_mm_movehl_ps(floatInvSqrt, floatInvSqrt));
 
   // One iteration of Newton-Raphson: x1 = 0.5 * x0 * (3 - m_v * x0 * x0)
   __m128d half = _mm_set1_pd(0.5);
   __m128d three = _mm_set1_pd(3.0);
   
-  __m128d x0_squared_xy = _mm_mul_pd(result.m_v.xy, result.m_v.xy);
-  __m128d three_minus_xy = _mm_sub_pd(three, _mm_mul_pd(m_v.xy, x0_squared_xy));
-  result.m_v.xy = _mm_mul_pd(_mm_mul_pd(half, result.m_v.xy), three_minus_xy);
-  
-  __m128d x0_squared_zw = _mm_mul_pd(result.m_v.zw, result.m_v.zw);
-  __m128d three_minus_zw = _mm_sub_pd(three, _mm_mul_pd(m_v.zw, x0_squared_zw));
-  result.m_v.zw = _mm_mul_pd(_mm_mul_pd(half, result.m_v.zw), three_minus_zw);
+  __m128d x0_squared = _mm_mul_pd(result.m_v.xy, result.m_v.xy);
+  __m128d three_minus = _mm_sub_pd(three, _mm_mul_pd(m_v.xy, x0_squared));
+  result.m_v.xy = _mm_mul_pd(_mm_mul_pd(half, result.m_v.xy), three_minus);
+  result.m_v.zw = result.m_v.xy;
   
   return result;
 }
@@ -337,12 +332,12 @@ template <>
 EZ_ALWAYS_INLINE ezSimdDouble ezSimdDouble::GetInvSqrt<ezMathAcc::BITS_12>() const
 {
   // Convert double to float, get fast inverse sqrt approximation, convert back to double
-  __m128 floatVal = _mm_movelh_ps(_mm_cvtpd_ps(m_v.xy), _mm_cvtpd_ps(m_v.zw));
+  __m128 floatVal = _mm_cvtpd_ps(m_v.xy);
   __m128 floatInvSqrt = _mm_rsqrt_ps(floatVal);
   
   ezSimdDouble result;
   result.m_v.xy = _mm_cvtps_pd(floatInvSqrt);
-  result.m_v.zw = _mm_cvtps_pd(_mm_movehl_ps(floatInvSqrt, floatInvSqrt));
+  result.m_v.zw = result.m_v.xy;
   return result;
 }
 
@@ -351,7 +346,7 @@ EZ_ALWAYS_INLINE ezSimdDouble ezSimdDouble::GetSqrt<ezMathAcc::FULL>() const
 {
   ezSimdDouble result;
   result.m_v.xy = _mm_sqrt_pd(m_v.xy);
-  result.m_v.zw = _mm_sqrt_pd(m_v.zw);
+  result.m_v.zw = result.m_v.xy;
   return result;
 }
 
@@ -371,7 +366,7 @@ EZ_ALWAYS_INLINE ezSimdDouble ezSimdDouble::Max(const ezSimdDouble& f) const
 {
   ezSimdDouble result;
   result.m_v.xy = _mm_max_pd(m_v.xy, f.m_v.xy);
-  result.m_v.zw = _mm_max_pd(m_v.zw, f.m_v.zw);
+  result.m_v.zw = result.m_v.xy;
   return result;
 }
 
@@ -379,7 +374,7 @@ EZ_ALWAYS_INLINE ezSimdDouble ezSimdDouble::Min(const ezSimdDouble& f) const
 {
   ezSimdDouble result;
   result.m_v.xy = _mm_min_pd(m_v.xy, f.m_v.xy);
-  result.m_v.zw = _mm_min_pd(m_v.zw, f.m_v.zw);
+  result.m_v.zw = result.m_v.xy;
   return result;
 }
 
@@ -388,6 +383,6 @@ EZ_ALWAYS_INLINE ezSimdDouble ezSimdDouble::Abs() const
   ezSimdDouble result;
   __m128d sign_mask = _mm_set1_pd(-0.0);
   result.m_v.xy = _mm_andnot_pd(sign_mask, m_v.xy);
-  result.m_v.zw = _mm_andnot_pd(sign_mask, m_v.zw);
+  result.m_v.zw = result.m_v.xy;
   return result;
 }

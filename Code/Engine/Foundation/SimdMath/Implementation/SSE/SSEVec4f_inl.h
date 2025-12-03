@@ -578,25 +578,41 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::CrossRH(const ezSimdVec4f& v) const
 // static
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::MulAdd(const ezSimdVec4f& a, const ezSimdVec4f& b, const ezSimdVec4f& c)
 {
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX2
+  return _mm_fmadd_ps(a.m_v, b.m_v, c.m_v);
+#else
   return a.CompMul(b) + c;
+#endif
 }
 
 // static
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::MulAdd(const ezSimdVec4f& a, const ezSimdFloat& b, const ezSimdVec4f& c)
 {
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX2
+  return _mm_fmadd_ps(a.m_v, b.m_v, c.m_v);
+#else
   return a * b + c;
+#endif
 }
 
 // static
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::MulSub(const ezSimdVec4f& a, const ezSimdVec4f& b, const ezSimdVec4f& c)
 {
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX2
+  return _mm_fmsub_ps(a.m_v, b.m_v, c.m_v);
+#else
   return a.CompMul(b) - c;
+#endif
 }
 
 // static
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::MulSub(const ezSimdVec4f& a, const ezSimdFloat& b, const ezSimdVec4f& c)
 {
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX2
+  return _mm_fmsub_ps(a.m_v, b.m_v, c.m_v);
+#else
   return a * b - c;
+#endif
 }
 
 // static
