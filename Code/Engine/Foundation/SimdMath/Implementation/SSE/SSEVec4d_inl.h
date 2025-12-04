@@ -558,56 +558,14 @@ EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::GetInvSqrt<ezMathAcc::BITS_12>() const
 template <int N>
 EZ_ALWAYS_INLINE ezSimdDouble ezSimdVec4d::GetComponent() const
 {
-  if constexpr (N == 0)
-  {
-    ezSimdDouble result;
+
 #if EZ_SSE_LEVEL >= EZ_SSE_41
-    __m128d val = _mm256_castpd256_pd128(m_v);
-    __m128d broadcast = _mm_shuffle_pd(val, val, 0);
-    result.m_v = _mm256_insertf128_pd(_mm256_castpd128_pd256(broadcast), broadcast, 1);
+#error
 #else
-    result.m_v.xy = _mm_shuffle_pd(m_v.xy, m_v.xy, 0);
-    result.m_v.zw = result.m_v.xy;
+
+#error
 #endif
-    return result;
-  }
-  else if constexpr (N == 1)
-  {
-    ezSimdDouble result;
-#if EZ_SSE_LEVEL >= EZ_SSE_41
-    __m128d temp = _mm_shuffle_pd(_mm256_castpd256_pd128(m_v), _mm256_castpd256_pd128(m_v), _MM_SHUFFLE2(1, 1));
-    result.m_v = _mm256_insertf128_pd(_mm256_castpd128_pd256(temp), temp, 1);
-#else
-    result.m_v.xy = _mm_shuffle_pd(m_v.xy, m_v.xy, _MM_SHUFFLE2(1, 1));
-    result.m_v.zw = result.m_v.xy;
-#endif
-    return result;
-  }
-  else if constexpr (N == 2)
-  {
-    ezSimdDouble result;
-#if EZ_SSE_LEVEL >= EZ_SSE_41
-    __m128d val = _mm256_extractf128_pd(m_v, 1);
-    __m128d broadcast = _mm_shuffle_pd(val, val, 0);
-    result.m_v = _mm256_insertf128_pd(_mm256_castpd128_pd256(broadcast), broadcast, 1);
-#else
-    result.m_v.xy = _mm_shuffle_pd(m_v.zw, m_v.zw, 0);
-    result.m_v.zw = result.m_v.xy;
-#endif
-    return result;
-  }
-  else // N == 3
-  {
-    ezSimdDouble result;
-#if EZ_SSE_LEVEL >= EZ_SSE_41
-    __m128d temp = _mm_shuffle_pd(_mm256_extractf128_pd(m_v, 1), _mm256_extractf128_pd(m_v, 1), _MM_SHUFFLE2(1, 1));
-    result.m_v = _mm256_insertf128_pd(_mm256_castpd128_pd256(temp), temp, 1);
-#else
-    result.m_v.xy = _mm_shuffle_pd(m_v.zw, m_v.zw, _MM_SHUFFLE2(1, 1));
-    result.m_v.zw = result.m_v.xy;
-#endif
-    return result;
-  }
+
 }
 
 EZ_ALWAYS_INLINE ezSimdDouble ezSimdVec4d::x() const
@@ -1049,15 +1007,9 @@ EZ_ALWAYS_INLINE ezSimdDouble ezSimdVec4d::HorizontalSum<3>() const
 template <>
 EZ_ALWAYS_INLINE ezSimdDouble ezSimdVec4d::HorizontalSum<4>() const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
-  __m256d temp = _mm256_hadd_pd(m_v, m_v);
-  __m256d sum = _mm256_hadd_pd(temp, temp);
-  ezSimdDouble result;
-  result.m_v = sum;
-  return result;
-#else
+
   return (GetComponent<0>() + GetComponent<1>()) + (GetComponent<2>() + GetComponent<3>());
-#endif
+
 }
 
 template <>
@@ -1159,33 +1111,9 @@ template <ezSwizzle::Enum s>
 EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::Get() const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_41
-  // For AVX: use shuffle + permute2f128 (AVX1 instruction)
-  // First shuffle within each 128-bit lane
-  const int s0 = (s & 0x3);
-  const int s1 = ((s >> 4) & 0x3);
-  const int s2 = ((s >> 8) & 0x3);
-  const int s3 = ((s >> 12) & 0x3);
-  
-  const int shuffle_lo = (s0 & 1) | ((s1 & 1) << 1);
-  const int shuffle_hi = (s2 & 1) | ((s3 & 1) << 1);
-  __m256d shuffled = _mm256_shuffle_pd(m_v, m_v, shuffle_lo | (shuffle_hi << 2));
-  
-  // Decide if we need to swap lanes
-  const int lane_lo = ((s0 >> 1) | ((s1 >> 1) << 1)) & 0x3;
-  const int lane_hi = ((s2 >> 1) | ((s3 >> 1) << 1)) & 0x3;
-  const int permute_lanes = lane_lo | (lane_hi << 4);
-  
-  return _mm256_permute2f128_pd(shuffled, shuffled, permute_lanes);
+  return _mm256_shuffle_pd(m_v, m_v, EZ_TO_SHUFFLE(s));
 #else
-  ezSimdDouble c0 = GetComponent<(s & 0x3)>();
-  ezSimdDouble c1 = GetComponent<((s >> 4) & 0x3)>();
-  ezSimdDouble c2 = GetComponent<((s >> 8) & 0x3)>();
-  ezSimdDouble c3 = GetComponent<((s >> 12) & 0x3)>();
-  
-  ezSimdVec4d result;
-  result.m_v.xy = _mm_setr_pd(static_cast<double>(c0), static_cast<double>(c1));
-  result.m_v.zw = _mm_setr_pd(static_cast<double>(c2), static_cast<double>(c3));
-  return result;
+  return _mm_shuffle_ps(m_v, m_v, EZ_TO_SHUFFLE(s));
 #endif
 }
 
