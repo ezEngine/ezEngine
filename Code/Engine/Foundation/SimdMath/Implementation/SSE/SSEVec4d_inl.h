@@ -6,7 +6,7 @@ EZ_ALWAYS_INLINE ezSimdVec4d::ezSimdVec4d()
 
 #if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   // Initialize all data to NaN in debug mode to find problems with uninitialized data easier.
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   m_v = _mm256_set1_pd(ezMath::NaN<double>());
 #else
   m_v.xy = _mm_set1_pd(ezMath::NaN<double>());
@@ -19,7 +19,7 @@ EZ_ALWAYS_INLINE ezSimdVec4d::ezSimdVec4d(float fXyzw)
 {
   EZ_CHECK_SIMD_ALIGNMENT(this);
 
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   m_v = _mm256_set1_pd(static_cast<double>(fXyzw));
 #else
   m_v.xy = _mm_set1_pd(static_cast<double>(fXyzw));
@@ -30,7 +30,7 @@ EZ_ALWAYS_INLINE ezSimdVec4d::ezSimdVec4d(float fXyzw)
 EZ_ALWAYS_INLINE ezSimdVec4d::ezSimdVec4d(double dXyzw)
 {
   EZ_CHECK_SIMD_ALIGNMENT(this);
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   m_v = _mm256_set1_pd(dXyzw);
 #else
   m_v.xy = _mm_set1_pd(dXyzw);
@@ -49,7 +49,7 @@ EZ_ALWAYS_INLINE ezSimdVec4d::ezSimdVec4d(float x, float y, float z, float w)
 {
   EZ_CHECK_SIMD_ALIGNMENT(this);
 
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   m_v = _mm256_setr_pd(static_cast<double>(x), static_cast<double>(y), static_cast<double>(z), static_cast<double>(w));
 #else
   m_v.xy = _mm_setr_pd(static_cast<double>(x), static_cast<double>(y));
@@ -61,7 +61,7 @@ EZ_ALWAYS_INLINE ezSimdVec4d::ezSimdVec4d(double x, double y, double z, double w
 {
   EZ_CHECK_SIMD_ALIGNMENT(this);
 
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   m_v = _mm256_setr_pd(x, y, z, w);
 #else
   m_v.xy = _mm_setr_pd(x, y);
@@ -71,7 +71,7 @@ EZ_ALWAYS_INLINE ezSimdVec4d::ezSimdVec4d(double x, double y, double z, double w
 
 EZ_ALWAYS_INLINE void ezSimdVec4d::Set(float fXyzw)
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   m_v = _mm256_set1_pd(static_cast<double>(fXyzw));
 #else
   m_v.xy = _mm_set1_pd(static_cast<double>(fXyzw));
@@ -81,7 +81,7 @@ EZ_ALWAYS_INLINE void ezSimdVec4d::Set(float fXyzw)
 
 EZ_ALWAYS_INLINE void ezSimdVec4d::Set(double fXyzw)
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   m_v = _mm256_set1_pd(fXyzw);
 #else
   m_v.xy = _mm_set1_pd(fXyzw);
@@ -91,7 +91,7 @@ EZ_ALWAYS_INLINE void ezSimdVec4d::Set(double fXyzw)
 
 EZ_ALWAYS_INLINE void ezSimdVec4d::Set(float x, float y, float z, float w)
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   m_v = _mm256_setr_pd(static_cast<double>(x), static_cast<double>(y), static_cast<double>(z), static_cast<double>(w));
 #else
   m_v.xy = _mm_setr_pd(static_cast<double>(x), static_cast<double>(y));
@@ -101,7 +101,7 @@ EZ_ALWAYS_INLINE void ezSimdVec4d::Set(float x, float y, float z, float w)
 
 EZ_ALWAYS_INLINE void ezSimdVec4d::Set(double x, double y, double z, double w)
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   m_v = _mm256_setr_pd(x, y, z, w);
 #else
   m_v.xy = _mm_setr_pd(x, y);
@@ -111,51 +111,43 @@ EZ_ALWAYS_INLINE void ezSimdVec4d::Set(double x, double y, double z, double w)
 
 EZ_ALWAYS_INLINE void ezSimdVec4d::SetX(const ezSimdDouble& f)
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
-  m_v = _mm256_blend_pd(m_v, f.m_v, 0x1);
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
+#error
 #else
-  m_v.xy = _mm_move_sd(m_v.xy, f.m_v.xy);
+m_v.xy = _mm_shuffle_pd(f.m_v.xy, m_v.xy, EZ_SHUFFLE_2(0, 1));
 #endif
 }
 
 EZ_ALWAYS_INLINE void ezSimdVec4d::SetY(const ezSimdDouble& f)
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
-  m_v = _mm256_blend_pd(m_v, f.m_v, 0x2);
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
+#error
 #else
-  __m128d fVal = f.m_v.xy;
-  m_v.xy = _mm_shuffle_pd(m_v.xy, fVal, 1);
+m_v.xy = _mm_shuffle_pd(m_v.xy, f.m_v.xy, EZ_SHUFFLE_2(0, 1));
 #endif
 }
 
 EZ_ALWAYS_INLINE void ezSimdVec4d::SetZ(const ezSimdDouble& f)
 {
-  __m128d fVal;
-#if EZ_SSE_LEVEL >= EZ_SSE_41
-  fVal = _mm256_castpd256_pd128(f.m_v);
-  __m128d lo = _mm256_castpd256_pd128(m_v);
-  __m128d hi = _mm256_extractf128_pd(m_v, 1);
-  hi = _mm_move_sd(hi, fVal);
-  m_v = _mm256_insertf128_pd(_mm256_castpd128_pd256(lo), hi, 1);
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
+#error
 #else
-  fVal = f.m_v.xy;
-  m_v.zw = _mm_move_sd(m_v.zw, fVal);
+m_v.zw = _mm_shuffle_pd(f.m_v.zw, m_v.zw, EZ_SHUFFLE_2(0, 1));
 #endif
 }
 
 EZ_ALWAYS_INLINE void ezSimdVec4d::SetW(const ezSimdDouble& f)
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
-  m_v = _mm256_blend_pd(m_v, f.m_v, 0x8);
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
+#error
 #else
-  __m128d fVal = f.m_v.xy;
-  m_v.zw = _mm_shuffle_pd(m_v.zw, fVal, 3);
+m_v.zw = _mm_shuffle_pd(m_v.zw, f.m_v.zw, EZ_SHUFFLE_2(0, 1));
 #endif
 }
 
 EZ_ALWAYS_INLINE void ezSimdVec4d::SetZero()
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   m_v = _mm256_setzero_pd();
 #else
   m_v.xy = _mm_setzero_pd();
@@ -166,7 +158,7 @@ EZ_ALWAYS_INLINE void ezSimdVec4d::SetZero()
 template <>
 EZ_ALWAYS_INLINE void ezSimdVec4d::Load<1>(const float* pFloat)
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   __m128 temp = _mm_load_ss(pFloat);
   m_v = _mm256_cvtps_pd(temp);
 #else
@@ -178,7 +170,7 @@ EZ_ALWAYS_INLINE void ezSimdVec4d::Load<1>(const float* pFloat)
 template <>
 EZ_ALWAYS_INLINE void ezSimdVec4d::Load<2>(const float* pFloat)
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   __m128 temp = _mm_setr_ps(pFloat[0], pFloat[1], 0.0f, 0.0f);
   m_v = _mm256_cvtps_pd(temp);
 #else
@@ -191,7 +183,7 @@ EZ_ALWAYS_INLINE void ezSimdVec4d::Load<2>(const float* pFloat)
 template <>
 EZ_ALWAYS_INLINE void ezSimdVec4d::Load<3>(const float* pFloat)
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   __m128 temp = _mm_set_ps(0.0f, pFloat[2], pFloat[1], pFloat[0]);
   m_v = _mm256_cvtps_pd(temp);
 #else
@@ -204,7 +196,7 @@ EZ_ALWAYS_INLINE void ezSimdVec4d::Load<3>(const float* pFloat)
 template <>
 EZ_ALWAYS_INLINE void ezSimdVec4d::Load<4>(const float* pFloat)
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   m_v = _mm256_cvtps_pd(_mm_loadu_ps(pFloat));
 #else
   __m128 temp = _mm_loadu_ps(pFloat);
@@ -216,7 +208,7 @@ EZ_ALWAYS_INLINE void ezSimdVec4d::Load<4>(const float* pFloat)
 template <>
 EZ_ALWAYS_INLINE void ezSimdVec4d::Load<1>(const double* pDouble)
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   __m128d val = _mm_load_sd(pDouble);
   m_v = _mm256_insertf128_pd(_mm256_castpd128_pd256(val), _mm_setzero_pd(), 1);
 #else
@@ -228,7 +220,7 @@ EZ_ALWAYS_INLINE void ezSimdVec4d::Load<1>(const double* pDouble)
 template <>
 EZ_ALWAYS_INLINE void ezSimdVec4d::Load<2>(const double* pDouble)
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   __m128d vals = _mm_loadu_pd(pDouble);
   m_v = _mm256_insertf128_pd(_mm256_castpd128_pd256(vals), _mm_setzero_pd(), 1);
 #else
@@ -240,7 +232,7 @@ EZ_ALWAYS_INLINE void ezSimdVec4d::Load<2>(const double* pDouble)
 template <>
 EZ_ALWAYS_INLINE void ezSimdVec4d::Load<3>(const double* pDouble)
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   m_v = _mm256_setr_pd(pDouble[0], pDouble[1], pDouble[2], 0.0);
 #else
   m_v.xy = _mm_loadu_pd(pDouble);
@@ -251,7 +243,7 @@ EZ_ALWAYS_INLINE void ezSimdVec4d::Load<3>(const double* pDouble)
 template <>
 EZ_ALWAYS_INLINE void ezSimdVec4d::Load<4>(const double* pDouble)
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   m_v = _mm256_loadu_pd(pDouble);
 #else
   m_v.xy = _mm_loadu_pd(pDouble);
@@ -262,7 +254,7 @@ EZ_ALWAYS_INLINE void ezSimdVec4d::Load<4>(const double* pDouble)
 template <>
 EZ_ALWAYS_INLINE void ezSimdVec4d::Store<1>(float* pFloat) const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   __m128 temp = _mm256_cvtpd_ps(m_v);
   _mm_store_ss(pFloat, temp);
 #else
@@ -274,7 +266,7 @@ EZ_ALWAYS_INLINE void ezSimdVec4d::Store<1>(float* pFloat) const
 template <>
 EZ_ALWAYS_INLINE void ezSimdVec4d::Store<2>(float* pFloat) const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   __m128 temp = _mm256_cvtpd_ps(m_v);
   _mm_store_ss(pFloat, temp);
   _mm_store_ss(pFloat + 1, _mm_shuffle_ps(temp, temp, _MM_SHUFFLE(1, 1, 1, 1)));
@@ -288,7 +280,7 @@ EZ_ALWAYS_INLINE void ezSimdVec4d::Store<2>(float* pFloat) const
 template <>
 EZ_ALWAYS_INLINE void ezSimdVec4d::Store<3>(float* pFloat) const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   __m128 temp = _mm256_cvtpd_ps(m_v);
   _mm_store_ss(pFloat, temp);
   _mm_store_ss(pFloat + 1, _mm_shuffle_ps(temp, temp, _MM_SHUFFLE(1, 1, 1, 1)));
@@ -305,7 +297,7 @@ EZ_ALWAYS_INLINE void ezSimdVec4d::Store<3>(float* pFloat) const
 template <>
 EZ_ALWAYS_INLINE void ezSimdVec4d::Store<4>(float* pFloat) const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   _mm_storeu_ps(pFloat, _mm256_cvtpd_ps(m_v));
 #else
   __m128 temp_xy = _mm_cvtpd_ps(m_v.xy);
@@ -318,7 +310,7 @@ EZ_ALWAYS_INLINE void ezSimdVec4d::Store<4>(float* pFloat) const
 template <>
 EZ_ALWAYS_INLINE void ezSimdVec4d::Store<1>(double* pDouble) const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   _mm_store_sd(pDouble, _mm256_castpd256_pd128(m_v));
 #else
   _mm_store_sd(pDouble, m_v.xy);
@@ -328,7 +320,7 @@ EZ_ALWAYS_INLINE void ezSimdVec4d::Store<1>(double* pDouble) const
 template <>
 EZ_ALWAYS_INLINE void ezSimdVec4d::Store<2>(double* pDouble) const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   _mm_storeu_pd(pDouble, _mm256_castpd256_pd128(m_v));
 #else
   _mm_storeu_pd(pDouble, m_v.xy);
@@ -338,7 +330,7 @@ EZ_ALWAYS_INLINE void ezSimdVec4d::Store<2>(double* pDouble) const
 template <>
 EZ_ALWAYS_INLINE void ezSimdVec4d::Store<3>(double* pDouble) const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   _mm_storeu_pd(pDouble, _mm256_castpd256_pd128(m_v));
   _mm_store_sd(pDouble + 2, _mm256_extractf128_pd(m_v, 1));
 #else
@@ -350,7 +342,7 @@ EZ_ALWAYS_INLINE void ezSimdVec4d::Store<3>(double* pDouble) const
 template <>
 EZ_ALWAYS_INLINE void ezSimdVec4d::Store<4>(double* pDouble) const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   _mm256_storeu_pd(pDouble, m_v);
 #else
   _mm_storeu_pd(pDouble, m_v.xy);
@@ -358,116 +350,17 @@ EZ_ALWAYS_INLINE void ezSimdVec4d::Store<4>(double* pDouble) const
 #endif
 }
 
-template <>
-EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::GetReciprocal<ezMathAcc::BITS_12>() const
-{
-#if EZ_SSE_LEVEL >= EZ_SSE_41
-  // Convert double to float, get fast reciprocal, convert back to double
-  __m128 floatVal = _mm256_cvtpd_ps(m_v);
-  __m128 floatRcp = _mm_rcp_ps(floatVal);
-  return _mm256_cvtps_pd(floatRcp);
-#else
-  // Convert double to float, get fast reciprocal, convert back to double
-  __m128 floatVal = _mm_cvtpd_ps(m_v.xy);
-  __m128 floatRcp = _mm_rcp_ps(floatVal);
-  
-  ezSimdVec4d result;
-  result.m_v.xy = _mm_cvtps_pd(floatRcp);
-  result.m_v.zw = result.m_v.xy;
-  return result;
-
-  //TODO check if precision adequate.
-#endif
-}
-
-template <>
-EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::GetReciprocal<ezMathAcc::BITS_23>() const
-{
-#if EZ_SSE_LEVEL >= EZ_SSE_41
-  // Convert double to float, get reciprocal approximation, convert back to double
-  __m128 floatVal = _mm256_cvtpd_ps(m_v);
-  __m128 floatRcp = _mm_rcp_ps(floatVal);
-  __m256d x0 = _mm256_cvtps_pd(floatRcp);
-
-  // One iteration of Newton-Raphson: x1 = x0 * (2 - m_v * x0)
-  __m256d two = _mm256_set1_pd(2.0);
-  return _mm256_mul_pd(x0, _mm256_sub_pd(two, _mm256_mul_pd(m_v, x0)));
-#else
-  // Convert double to float, get reciprocal approximation, convert back to double
-  __m128 floatVal = _mm_cvtpd_ps(m_v.xy);
-  __m128 floatRcp = _mm_rcp_ps(floatVal);
-  
-  ezSimdVec4d result;
-  result.m_v.xy = _mm_cvtps_pd(floatRcp);
-
-  // One iteration of Newton-Raphson: x1 = x0 * (2 - m_v * x0)
-  __m128d two = _mm_set1_pd(2.0);
-  result.m_v.xy = _mm_mul_pd(result.m_v.xy, _mm_sub_pd(two, _mm_mul_pd(m_v.xy, result.m_v.xy)));
-  result.m_v.zw = result.m_v.xy;
-
-  return result;
-#endif
-}
 
 template <>
 EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::GetReciprocal<ezMathAcc::FULL>() const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   return _mm256_div_pd(_mm256_set1_pd(1.0), m_v);
 #else
   ezSimdVec4d result;
   __m128d one = _mm_set1_pd(1.0);
   result.m_v.xy = _mm_div_pd(one, m_v.xy);
-  result.m_v.zw = result.m_v.xy;
-  return result;
-#endif
-}
-
-template <>
-EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::GetSqrt<ezMathAcc::BITS_12>() const
-{
-#if EZ_SSE_LEVEL >= EZ_SSE_41
-  // Convert double to float, get fast sqrt via rsqrt, convert back to double
-  __m128 floatVal = _mm256_cvtpd_ps(m_v);
-  __m128 floatSqrt = _mm_mul_ps(floatVal, _mm_rsqrt_ps(floatVal));
-  return _mm256_cvtps_pd(floatSqrt);
-#else
-  // Convert double to float, get fast sqrt via rsqrt, convert back to double
-  __m128 floatVal = _mm_cvtpd_ps(m_v.xy);
-  __m128 floatSqrt = _mm_mul_ps(floatVal, _mm_rsqrt_ps(floatVal));
-  
-  ezSimdVec4d result;
-  result.m_v.xy = _mm_cvtps_pd(floatSqrt);
-  result.m_v.zw = result.m_v.xy;
-  return result;
-#endif
-}
-
-template <>
-EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::GetSqrt<ezMathAcc::BITS_23>() const
-{
-#if EZ_SSE_LEVEL >= EZ_SSE_41
-  // Convert double to float, get inverse sqrt, apply Newton-Raphson, convert back to double
-  __m128 floatVal = _mm256_cvtpd_ps(m_v);
-  __m128 x0 = _mm_rsqrt_ps(floatVal);
-
-  // One iteration of Newton-Raphson
-  __m128 x1 = _mm_mul_ps(_mm_mul_ps(_mm_set1_ps(0.5f), x0), _mm_sub_ps(_mm_set1_ps(3.0f), _mm_mul_ps(_mm_mul_ps(floatVal, x0), x0)));
-  __m128 floatSqrt = _mm_mul_ps(floatVal, x1);
-  
-  return _mm256_cvtps_pd(floatSqrt);
-#else
-  // Convert double to float, get inverse sqrt, apply Newton-Raphson, convert back to double
-  __m128 floatVal = _mm_cvtpd_ps(m_v.xy);
-  __m128 x0 = _mm_rsqrt_ps(floatVal);
-
-  // One iteration of Newton-Raphson
-  __m128 x1 = _mm_mul_ps(_mm_mul_ps(_mm_set1_ps(0.5f), x0), _mm_sub_ps(_mm_set1_ps(3.0f), _mm_mul_ps(_mm_mul_ps(floatVal, x0), x0)));
-  __m128 floatSqrt = _mm_mul_ps(floatVal, x1);
-  
-  ezSimdVec4d result;
-  result.m_v.xy = _mm_cvtps_pd(floatSqrt);
-  result.m_v.zw = result.m_v.xy;
+  result.m_v.zw = _mm_div_pd(one, m_v.zw);
   return result;
 #endif
 }
@@ -475,12 +368,12 @@ EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::GetSqrt<ezMathAcc::BITS_23>() const
 template <>
 EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::GetSqrt<ezMathAcc::FULL>() const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   return _mm256_sqrt_pd(m_v);
 #else
   ezSimdVec4d result;
   result.m_v.xy = _mm_sqrt_pd(m_v.xy);
-  result.m_v.zw = result.m_v.xy;
+  result.m_v.zw = _mm_sqrt_pd(m_v.zw);
   return result;
 #endif
 }
@@ -488,82 +381,42 @@ EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::GetSqrt<ezMathAcc::FULL>() const
 template <>
 EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::GetInvSqrt<ezMathAcc::FULL>() const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   return _mm256_div_pd(_mm256_set1_pd(1.0), _mm256_sqrt_pd(m_v));
 #else
   ezSimdVec4d result;
   __m128d one = _mm_set1_pd(1.0);
   result.m_v.xy = _mm_div_pd(one, _mm_sqrt_pd(m_v.xy));
-  result.m_v.zw = result.m_v.xy;
+  result.m_v.zw = _mm_div_pd(one, _mm_sqrt_pd(m_v.zw));
   return result;
 #endif
 }
 
-template <>
-EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::GetInvSqrt<ezMathAcc::BITS_23>() const
-{
-#if EZ_SSE_LEVEL >= EZ_SSE_41
-  // Convert double to float, get inverse sqrt approximation, convert back to double
-  __m128 floatVal = _mm256_cvtpd_ps(m_v);
-  __m128 floatInvSqrt = _mm_rsqrt_ps(floatVal);
-  __m256d x0 = _mm256_cvtps_pd(floatInvSqrt);
-
-  // One iteration of Newton-Raphson: x1 = 0.5 * x0 * (3 - m_v * x0 * x0)
-  __m256d half = _mm256_set1_pd(0.5);
-  __m256d three = _mm256_set1_pd(3.0);
-  __m256d x0_squared = _mm256_mul_pd(x0, x0);
-  __m256d three_minus = _mm256_sub_pd(three, _mm256_mul_pd(m_v, x0_squared));
-  return _mm256_mul_pd(_mm256_mul_pd(half, x0), three_minus);
-#else
-  // Convert double to float, get inverse sqrt approximation, convert back to double
-  __m128 floatVal = _mm_cvtpd_ps(m_v.xy);
-  __m128 floatInvSqrt = _mm_rsqrt_ps(floatVal);
-  
-  ezSimdVec4d result;
-  result.m_v.xy = _mm_cvtps_pd(floatInvSqrt);
-
-  // One iteration of Newton-Raphson: x1 = 0.5 * x0 * (3 - m_v * x0 * x0)
-  __m128d half = _mm_set1_pd(0.5);
-  __m128d three = _mm_set1_pd(3.0);
-  
-  __m128d x0_squared = _mm_mul_pd(result.m_v.xy, result.m_v.xy);
-  __m128d three_minus = _mm_sub_pd(three, _mm_mul_pd(m_v.xy, x0_squared));
-  result.m_v.xy = _mm_mul_pd(_mm_mul_pd(half, result.m_v.xy), three_minus);
-  result.m_v.zw = result.m_v.xy;
-  
-  return result;
-#endif
-}
-
-template <>
-EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::GetInvSqrt<ezMathAcc::BITS_12>() const
-{
-#if EZ_SSE_LEVEL >= EZ_SSE_41
-  // Convert double to float, get fast inverse sqrt approximation, convert back to double
-  __m128 floatVal = _mm256_cvtpd_ps(m_v);
-  __m128 floatInvSqrt = _mm_rsqrt_ps(floatVal);
-  return _mm256_cvtps_pd(floatInvSqrt);
-#else
-  // Convert double to float, get fast inverse sqrt approximation, convert back to double
-  __m128 floatVal = _mm_cvtpd_ps(m_v.xy);
-  __m128 floatInvSqrt = _mm_rsqrt_ps(floatVal);
-  
-  ezSimdVec4d result;
-  result.m_v.xy = _mm_cvtps_pd(floatInvSqrt);
-  result.m_v.zw = result.m_v.xy;
-  return result;
-#endif
-}
 
 template <int N>
 EZ_ALWAYS_INLINE ezSimdDouble ezSimdVec4d::GetComponent() const
 {
+ezSimdDouble result;
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
 
-#if EZ_SSE_LEVEL >= EZ_SSE_41
-#error
+  result.m_v =_mm256_shuffle_pd(m_v,m_v,EZ_SHUFFLE(N,N,N,N))
+  return result;
 #else
 
-#error
+  if constexpr (N < 2)
+  {
+    //broadcast from 0 or 1 to result
+    result.m_v.xy = _mm_shuffle_pd(m_v.xy, m_v.xy, EZ_SHUFFLE_2(N,N));
+    result.m_v.zw = result.m_v.xy;
+  }
+  else
+  {
+    //broadcast from 2 or 3 to result
+    result.m_v.xy = _mm_shuffle_pd(m_v.zw, m_v.zw, EZ_SHUFFLE_2(N+2,N+2));
+    result.m_v.zw = result.m_v.xy;
+  }
+  return result;
+
 #endif
 
 }
@@ -590,7 +443,7 @@ EZ_ALWAYS_INLINE ezSimdDouble ezSimdVec4d::w() const
 
 EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::operator-() const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   return _mm256_sub_pd(_mm256_setzero_pd(), m_v);
 #else
   ezSimdVec4d result;
@@ -603,7 +456,7 @@ EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::operator-() const
 
 EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::operator+(const ezSimdVec4d& v) const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   return _mm256_add_pd(m_v, v.m_v);
 #else
   ezSimdVec4d result;
@@ -615,7 +468,7 @@ EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::operator+(const ezSimdVec4d& v) const
 
 EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::operator-(const ezSimdVec4d& v) const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   return _mm256_sub_pd(m_v, v.m_v);
 #else
   ezSimdVec4d result;
@@ -627,7 +480,7 @@ EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::operator-(const ezSimdVec4d& v) const
 
 EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::operator*(const ezSimdDouble& f) const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   return _mm256_mul_pd(m_v, f.m_v);
 #else
   ezSimdVec4d result;
@@ -639,7 +492,7 @@ EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::operator*(const ezSimdDouble& f) const
 
 EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::operator/(const ezSimdDouble& f) const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   return _mm256_div_pd(m_v, f.m_v);
 #else
   ezSimdVec4d result;
@@ -651,7 +504,7 @@ EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::operator/(const ezSimdDouble& f) const
 
 EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::CompMul(const ezSimdVec4d& v) const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   return _mm256_mul_pd(m_v, v.m_v);
 #else
   ezSimdVec4d result;
@@ -664,7 +517,7 @@ EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::CompMul(const ezSimdVec4d& v) const
 template <>
 EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::CompDiv<ezMathAcc::FULL>(const ezSimdVec4d& v) const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   return _mm256_div_pd(m_v, v.m_v);
 #else
   ezSimdVec4d result;
@@ -688,7 +541,7 @@ EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::CompDiv<ezMathAcc::BITS_12>(const ezSi
 
 EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::CompMin(const ezSimdVec4d& v) const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   return _mm256_min_pd(m_v, v.m_v);
 #else
   ezSimdVec4d result;
@@ -700,7 +553,7 @@ EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::CompMin(const ezSimdVec4d& v) const
 
 EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::CompMax(const ezSimdVec4d& v) const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   return _mm256_max_pd(m_v, v.m_v);
 #else
   ezSimdVec4d result;
@@ -712,7 +565,7 @@ EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::CompMax(const ezSimdVec4d& v) const
 
 EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::Abs() const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   return _mm256_andnot_pd(_mm256_set1_pd(-0.0), m_v);
 #else
   ezSimdVec4d result;
@@ -725,7 +578,7 @@ EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::Abs() const
 
 EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::Round() const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   return _mm256_round_pd(m_v, _MM_FROUND_NINT);
 #else
   return ezSimdVec4d(floor(static_cast<double>(x()) + 0.5), floor(static_cast<double>(y()) + 0.5), floor(static_cast<double>(z()) + 0.5), floor(static_cast<double>(w()) + 0.5));
@@ -734,7 +587,7 @@ EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::Round() const
 
 EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::Floor() const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   return _mm256_round_pd(m_v, _MM_FROUND_FLOOR);
 #else
   return ezSimdVec4d(floor(static_cast<double>(x())), floor(static_cast<double>(y())), floor(static_cast<double>(z())), floor(static_cast<double>(w())));
@@ -743,7 +596,7 @@ EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::Floor() const
 
 EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::Ceil() const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   return _mm256_round_pd(m_v, _MM_FROUND_CEIL);
 #else
   return ezSimdVec4d(ceil(static_cast<double>(x())), ceil(static_cast<double>(y())), ceil(static_cast<double>(z())), ceil(static_cast<double>(w())));
@@ -752,16 +605,16 @@ EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::Ceil() const
 
 EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::Trunc() const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   return _mm256_round_pd(m_v, _MM_FROUND_TRUNC);
 #else
-  return ezSimdVec4d(int(x()), int(y()), int(z()), int(w()));
+  return ezSimdVec4d(double(int(x())), double(int(y())), double(int(z())), double(int(w())));
 #endif
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::FlipSign(const ezSimdVec4b& vCmp) const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   // Convert QuadBool (__m128 with 4x32-bit masks) to __m256d (4x64-bit masks)
   // Cast __m128 to __m128d, then broadcast to __m256d
   __m128d cmpLo = _mm_castps_pd(vCmp.m_v);
@@ -781,7 +634,7 @@ EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::FlipSign(const ezSimdVec4b& vCmp) cons
 // static
 EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::Select(const ezSimdVec4b& vCmp, const ezSimdVec4d& vTrue, const ezSimdVec4d& vFalse)
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   __m128d cmpMask = _mm_castps_pd(vCmp.m_v);
   return _mm256_blendv_pd(vFalse.m_v, vTrue.m_v, _mm256_castpd128_pd256(cmpMask));
 #else
@@ -795,7 +648,7 @@ EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::Select(const ezSimdVec4b& vCmp, const 
 
 EZ_ALWAYS_INLINE ezSimdVec4d& ezSimdVec4d::operator+=(const ezSimdVec4d& v)
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   m_v = _mm256_add_pd(m_v, v.m_v);
 #else
   m_v.xy = _mm_add_pd(m_v.xy, v.m_v.xy);
@@ -806,7 +659,7 @@ EZ_ALWAYS_INLINE ezSimdVec4d& ezSimdVec4d::operator+=(const ezSimdVec4d& v)
 
 EZ_ALWAYS_INLINE ezSimdVec4d& ezSimdVec4d::operator-=(const ezSimdVec4d& v)
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   m_v = _mm256_sub_pd(m_v, v.m_v);
 #else
   m_v.xy = _mm_sub_pd(m_v.xy, v.m_v.xy);
@@ -817,7 +670,7 @@ EZ_ALWAYS_INLINE ezSimdVec4d& ezSimdVec4d::operator-=(const ezSimdVec4d& v)
 
 EZ_ALWAYS_INLINE ezSimdVec4d& ezSimdVec4d::operator*=(const ezSimdDouble& f)
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   m_v = _mm256_mul_pd(m_v, f.m_v);
 #else
   m_v.xy = _mm_mul_pd(m_v.xy, f.m_v.xy);
@@ -828,7 +681,7 @@ EZ_ALWAYS_INLINE ezSimdVec4d& ezSimdVec4d::operator*=(const ezSimdDouble& f)
 
 EZ_ALWAYS_INLINE ezSimdVec4d& ezSimdVec4d::operator/=(const ezSimdDouble& f)
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   m_v = _mm256_div_pd(m_v, f.m_v);
 #else
   m_v.xy = _mm_div_pd(m_v.xy, f.m_v.xy);
@@ -839,7 +692,7 @@ EZ_ALWAYS_INLINE ezSimdVec4d& ezSimdVec4d::operator/=(const ezSimdDouble& f)
 
 EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4d::operator==(const ezSimdVec4d& v) const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   __m256d cmpResult = _mm256_cmp_pd(m_v, v.m_v, _CMP_EQ_OQ);
   return _mm256_cvtpd_ps(cmpResult);
 #else
@@ -851,7 +704,7 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4d::operator==(const ezSimdVec4d& v) const
 
 EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4d::operator!=(const ezSimdVec4d& v) const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   __m256d cmpResult = _mm256_cmp_pd(m_v, v.m_v, _CMP_NEQ_OQ);
   return _mm256_cvtpd_ps(cmpResult);
 #else
@@ -863,7 +716,7 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4d::operator!=(const ezSimdVec4d& v) const
 
 EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4d::operator<=(const ezSimdVec4d& v) const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   __m256d cmpResult = _mm256_cmp_pd(m_v, v.m_v, _CMP_LE_OQ);
   return _mm256_cvtpd_ps(cmpResult);
 #else
@@ -875,7 +728,7 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4d::operator<=(const ezSimdVec4d& v) const
 
 EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4d::operator<(const ezSimdVec4d& v) const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   __m256d cmpResult = _mm256_cmp_pd(m_v, v.m_v, _CMP_LT_OQ);
   return _mm256_cvtpd_ps(cmpResult);
 #else
@@ -887,7 +740,7 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4d::operator<(const ezSimdVec4d& v) const
 
 EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4d::operator>=(const ezSimdVec4d& v) const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   __m256d cmpResult = _mm256_cmp_pd(m_v, v.m_v, _CMP_GE_OQ);
   return _mm256_cvtpd_ps(cmpResult);
 #else
@@ -899,7 +752,7 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4d::operator>=(const ezSimdVec4d& v) const
 
 EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4d::operator>(const ezSimdVec4d& v) const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   __m256d cmpResult = _mm256_cmp_pd(m_v, v.m_v, _CMP_GT_OQ);
   return _mm256_cvtpd_ps(cmpResult);
 #else
@@ -952,7 +805,7 @@ EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::MulSub(const ezSimdVec4d& a, const ezS
 // static
 EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::CopySign(const ezSimdVec4d& vMagnitude, const ezSimdVec4d& vSign)
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   __m256d minusZero = _mm256_set1_pd(-0.0);
   return _mm256_or_pd(_mm256_andnot_pd(minusZero, vMagnitude.m_v), _mm256_and_pd(minusZero, vSign.m_v));
 #else
@@ -974,7 +827,7 @@ EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::CrossRH(const ezSimdVec4d& v) const
   double y2 = static_cast<double>(v.y());
   double z2 = static_cast<double>(v.z());
   
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   __m256d temp = _mm256_setr_pd(y1 * z2 - z1 * y2, z1 * x2 - x1 * z2, x1 * y2 - y1 * x2, 0.0);
   result.m_v = temp;
 #else
@@ -987,7 +840,7 @@ EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::CrossRH(const ezSimdVec4d& v) const
 template <>
 EZ_ALWAYS_INLINE ezSimdDouble ezSimdVec4d::HorizontalSum<2>() const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   __m256d temp = _mm256_hadd_pd(m_v, m_v);
   __m128d sum = _mm256_castpd256_pd128(temp);
   ezSimdDouble result;
@@ -1032,7 +885,7 @@ EZ_ALWAYS_INLINE ezSimdDouble ezSimdVec4d::HorizontalMin<3>() const
 template <>
 EZ_ALWAYS_INLINE ezSimdDouble ezSimdVec4d::HorizontalMin<4>() const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   __m128d lo = _mm256_castpd256_pd128(m_v);
   __m128d hi = _mm256_extractf128_pd(m_v, 1);
   __m128d minXYZW = _mm_min_pd(lo, hi);
@@ -1067,7 +920,7 @@ EZ_ALWAYS_INLINE ezSimdDouble ezSimdVec4d::HorizontalMax<3>() const
 template <>
 EZ_ALWAYS_INLINE ezSimdDouble ezSimdVec4d::HorizontalMax<4>() const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   __m128d lo = _mm256_castpd256_pd128(m_v);
   __m128d hi = _mm256_extractf128_pd(m_v, 1);
   __m128d maxXYZW = _mm_max_pd(lo, hi);
@@ -1110,10 +963,15 @@ EZ_ALWAYS_INLINE ezSimdDouble ezSimdVec4d::Dot<4>(const ezSimdVec4d& v) const
 template <ezSwizzle::Enum s>
 EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::Get() const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   return _mm256_shuffle_pd(m_v, m_v, EZ_TO_SHUFFLE(s));
 #else
-  return _mm_shuffle_ps(m_v, m_v, EZ_TO_SHUFFLE(s));
+  ezSimdVec4d result;
+
+  //use shuffles
+  
+
+  return result;
 #endif
 }
 
@@ -1121,7 +979,7 @@ EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::Get() const
 template <int N>
 EZ_ALWAYS_INLINE bool ezSimdVec4d::IsZero() const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   const int mask = EZ_BIT(N) - 1;
   __m256d zero = _mm256_setzero_pd();
   __m256d cmp = _mm256_cmp_pd(m_v, zero, _CMP_EQ_OQ);
@@ -1137,7 +995,7 @@ EZ_ALWAYS_INLINE bool ezSimdVec4d::IsZero() const
 template <int N>
 EZ_ALWAYS_INLINE bool ezSimdVec4d::IsZero(const ezSimdDouble& fEpsilon) const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   const int mask = EZ_BIT(N) - 1;
   __m256d absVal = _mm256_andnot_pd(_mm256_set1_pd(-0.0), m_v);
   __m256d cmp = _mm256_cmp_pd(absVal, fEpsilon.m_v, _CMP_LT_OQ);
@@ -1159,7 +1017,7 @@ inline bool ezSimdVec4d::IsNaN() const
   // NAN -> (exponent = all 1, mantissa = non-zero)
   // For double: exponent = 11 bits, sign bit mask = 0x7FF0000000000000
   
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   alignas(32) const ezUInt64 s_exponentMask[4] = {0x7FF0000000000000ULL, 0x7FF0000000000000ULL, 0x7FF0000000000000ULL, 0x7FF0000000000000ULL};
   alignas(32) const ezUInt64 s_mantissaMask[4] = {0x000FFFFFFFFFFFFFULL, 0x000FFFFFFFFFFFFFULL, 0x000FFFFFFFFFFFFFULL, 0x000FFFFFFFFFFFFFULL};
 
@@ -1198,7 +1056,7 @@ EZ_ALWAYS_INLINE bool ezSimdVec4d::IsValid() const
   // NAN -> (exponent = all 1, mantissa = non-zero)
   // INF -> (exponent = all 1, mantissa = zero)
 
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   alignas(32) const ezUInt64 s_exponentMask[4] = {0x7FF0000000000000ULL, 0x7FF0000000000000ULL, 0x7FF0000000000000ULL, 0x7FF0000000000000ULL};
 
   __m256d exponentMask = _mm256_load_pd(reinterpret_cast<const double*>(s_exponentMask));
@@ -1227,7 +1085,7 @@ void ezSimdVec4d::NormalizeIfNotZero(const ezSimdDouble& fEpsilon)
 {
   ezSimdDouble sqLength = GetLengthSquared<N>();
   
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   __m256d isNotZero = _mm256_cmp_pd(sqLength.m_v, fEpsilon.m_v, _CMP_GT_OQ);
   m_v = _mm256_mul_pd(m_v, sqLength.GetInvSqrt<acc>().m_v);
   m_v = _mm256_and_pd(isNotZero, m_v);
@@ -1244,7 +1102,7 @@ void ezSimdVec4d::NormalizeIfNotZero(const ezSimdDouble& fEpsilon)
 template <ezSwizzle::Enum s>
 EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::GetCombined(const ezSimdVec4d& other) const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
   // For AVX: directly work with m_v components using shuffle + permute2f128
   const int s0 = (s & 0x3);
   const int s1 = ((s >> 4) & 0x3);
