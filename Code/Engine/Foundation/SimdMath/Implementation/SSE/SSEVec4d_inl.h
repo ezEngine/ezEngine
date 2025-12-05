@@ -615,18 +615,11 @@ EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::Trunc() const
 EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::FlipSign(const ezSimdVec4b& vCmp) const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
-  // Convert QuadBool (__m128 with 4x32-bit masks) to __m256d (4x64-bit masks)
-  // Cast __m128 to __m128d, then broadcast to __m256d
-  __m128d cmpLo = _mm_castps_pd(vCmp.m_v);
-  __m128d cmpHi = _mm_castps_pd(_mm_movehl_ps(vCmp.m_v, vCmp.m_v));
-  __m256d cmpMask = _mm256_insertf128_pd(_mm256_castpd128_pd256(cmpLo), cmpHi, 1);
-  return _mm256_xor_pd(m_v, _mm256_and_pd(cmpMask, _mm256_set1_pd(-0.0)));
+#error
 #else
   ezSimdVec4d result;
-  __m128d signMask = _mm_set1_pd(-0.0);
-  __m128d cmpMask = _mm_castps_pd(vCmp.m_v);
-  result.m_v.xy = _mm_xor_pd(m_v.xy, _mm_and_pd(cmpMask, signMask));
-  result.m_v.zw = _mm_xor_pd(m_v.zw, _mm_and_pd(cmpMask, signMask));
+  result.m_v.xy = _mm_xor_pd(m_v.xy, _mm_and_pd(vCmp.m_v, _mm_set1_pd(-0.0)));
+  result.m_v.zw = _mm_xor_pd(m_v.zw, _mm_and_pd(vCmp.m_v, _mm_set1_pd(-0.0)));
   return result;
 #endif
 }
