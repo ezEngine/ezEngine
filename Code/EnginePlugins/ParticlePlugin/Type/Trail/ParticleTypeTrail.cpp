@@ -5,6 +5,7 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <ParticlePlugin/Type/Trail/ParticleTypeTrail.h>
+#include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
@@ -17,6 +18,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeTrailFactory, 1, ezRTTIDefaultAllo
     EZ_ENUM_MEMBER_PROPERTY("LightingMode", ezParticleLightingMode, m_LightingMode),
     EZ_MEMBER_PROPERTY("NormalCurvature", m_fNormalCurvature)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0, 1)),
     EZ_MEMBER_PROPERTY("LightDirectionality", m_fLightDirectionality)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0, 1)),
+    EZ_MEMBER_PROPERTY("UseCustomMaterial", m_bUseCustomMaterial),
+    EZ_MEMBER_PROPERTY("CustomMaterial", m_sCustomMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material", "TrailParticle")),
     EZ_MEMBER_PROPERTY("Texture", m_sTexture)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_2D"), new ezDefaultValueAttribute(ezStringView("{ e00262e8-58f5-42f5-880d-569257047201 }"))),// wrap in ezStringView to prevent a memory leak report
     EZ_MEMBER_PROPERTY("Segments", m_uiMaxPoints)->AddAttributes(new ezDefaultValueAttribute(6), new ezClampValueAttribute(3, 64)),
     EZ_ENUM_MEMBER_PROPERTY("TextureAtlas", ezParticleTextureAtlasType, m_TextureAtlasType),
@@ -55,14 +58,24 @@ void ezParticleTypeTrailFactory::CopyTypeProperties(ezParticleType* pObject, boo
   pType->m_LightingMode = m_LightingMode;
   pType->m_fNormalCurvature = m_fNormalCurvature;
   pType->m_fLightDirectionality = m_fLightDirectionality;
+  pType->m_hCustomMaterial.Invalidate();
+
+  if (m_bUseCustomMaterial)
+  {
+    if (!m_sCustomMaterial.IsEmpty())
+      pType->m_hCustomMaterial = ezResourceManager::LoadResource<ezMaterialResource>(m_sCustomMaterial);
+  }
+  else
+  {
+    if (!m_sTexture.IsEmpty())
+      pType->m_hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(m_sTexture);
+
+    if (!m_sDistortionTexture.IsEmpty())
+      pType->m_hDistortionTexture = ezResourceManager::LoadResource<ezTexture2DResource>(m_sDistortionTexture);
+  }
 
   // fixed 25 FPS for the update rate
   pType->m_UpdateDiff = ezTime::MakeFromSeconds(1.0 / 25.0); // m_UpdateDiff;
-
-  if (!m_sTexture.IsEmpty())
-    pType->m_hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(m_sTexture);
-  if (!m_sDistortionTexture.IsEmpty())
-    pType->m_hDistortionTexture = ezResourceManager::LoadResource<ezTexture2DResource>(m_sDistortionTexture);
 
   if (bFirstTime)
   {
@@ -88,6 +101,7 @@ enum class TypeTrailVersion
   Version_4, // added tint color
   Version_5, // added distortion mode
   Version_6, // added particle lighting
+  Version_7, // added custom material support
 
   // insert new version numbers above
   Version_Count,
@@ -120,6 +134,10 @@ void ezParticleTypeTrailFactory::Save(ezStreamWriter& inout_stream) const
   inout_stream << m_LightingMode;
   inout_stream << m_fNormalCurvature;
   inout_stream << m_fLightDirectionality;
+
+  // Version 7
+  inout_stream << m_bUseCustomMaterial;
+  inout_stream << m_sCustomMaterial;
 }
 
 void ezParticleTypeTrailFactory::Load(ezStreamReader& inout_stream)
@@ -168,6 +186,12 @@ void ezParticleTypeTrailFactory::Load(ezStreamReader& inout_stream)
     inout_stream >> m_fNormalCurvature;
     inout_stream >> m_fLightDirectionality;
   }
+
+  if (uiVersion >= 7)
+  {
+    inout_stream >> m_bUseCustomMaterial;
+    inout_stream >> m_sCustomMaterial;
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -202,7 +226,7 @@ void ezParticleTypeTrail::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg,
 {
   EZ_PROFILE_SCOPE("PFX: Trail");
 
-  if (!m_hTexture.IsValid())
+  if (!m_hTexture.IsValid() && !m_hCustomMaterial.IsValid())
     return;
 
   const ezUInt32 numActiveParticles = (ezUInt32)GetOwnerSystem()->GetNumActiveParticles();
@@ -266,7 +290,15 @@ void ezParticleTypeTrail::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg,
 
   auto pRenderData = ref_msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezParticleTrailRenderData>(nullptr);
 
-  pRenderData->m_uiSortingKey = ComputeSortingKey(m_RenderMode, m_hTexture.GetResourceIDHash());
+  if (m_hCustomMaterial.IsValid())
+  {
+    pRenderData->m_uiSortingKey = ComputeSortingKey(m_RenderMode, m_hCustomMaterial.GetResourceIDHash(), 0);
+  }
+  else
+  {
+    pRenderData->m_uiSortingKey = ComputeSortingKey(m_RenderMode, m_hTexture.GetResourceIDHash(), m_hDistortionTexture.GetResourceIDHash());
+  }
+
   pRenderData->m_vGlobalPosition = instanceTransform.m_vPosition;
 
   pRenderData->m_GlobalTransform = GetOwnerEffect()->NeedsToApplyTransform() ? instanceTransform : ezTransform::MakeIdentity();
@@ -283,6 +315,7 @@ void ezParticleTypeTrail::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg,
   pRenderData->m_LightingMode = m_LightingMode;
   pRenderData->m_fNormalCurvature = m_fNormalCurvature;
   pRenderData->m_fLightDirectionality = m_fLightDirectionality;
+  pRenderData->m_hCustomMaterial = m_hCustomMaterial;
 
   pRenderData->m_uiNumVariationsX = 1;
   pRenderData->m_uiNumVariationsY = 1;

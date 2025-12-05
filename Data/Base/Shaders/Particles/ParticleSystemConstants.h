@@ -3,7 +3,7 @@
 #include "../Common/ConstantBufferMacros.h"
 #include "../Common/Platforms.h"
 
-CONSTANT_BUFFER2(ezParticleSystemConstants, 2, BG_MATERIAL)
+CONSTANT_BUFFER2(ezParticleSystemConstants, 2, BG_DRAW_CALL)
 {
   MAT4(ObjectToWorldMatrix);
 

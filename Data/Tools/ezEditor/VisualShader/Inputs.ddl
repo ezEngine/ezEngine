@@ -25,19 +25,7 @@ Node %UV
   string %Color { "Teal" }
   string %Docs { "Outputs the first vertex texture coordinate (UV0). " }
 
-  string %CodeVertexShader { "
-#ifndef USE_TEXCOORD0
-  #define USE_TEXCOORD0
-#endif
-" }
-
-  string %CodeGeometryShader { "
-#ifndef USE_TEXCOORD0
-  #define USE_TEXCOORD0
-#endif
-" }
-
-  string %CodePixelDefines { "
+  string %CodeShaderShared { "
 #ifndef USE_TEXCOORD0
   #define USE_TEXCOORD0
 #endif
@@ -58,25 +46,7 @@ Node %UV2
   string %Color { "Teal" }
   string %Docs { "Outputs the second vertex texture coordinate (UV1). " }
 
-  string %CodeVertexShader { "
-#ifndef USE_TEXCOORD0
-  #define USE_TEXCOORD0
-#endif
-#ifndef USE_TEXCOORD1
-  #define USE_TEXCOORD1
-#endif
-" }
-
-  string %CodeGeometryShader { "
-#ifndef USE_TEXCOORD0
-  #define USE_TEXCOORD0
-#endif
-#ifndef USE_TEXCOORD1
-  #define USE_TEXCOORD1
-#endif
-" }
-  
-  string %CodePixelDefines { "
+  string %CodeShaderShared { "
 #ifndef USE_TEXCOORD0
   #define USE_TEXCOORD0
 #endif
@@ -100,19 +70,7 @@ Node %UV_Scroll
   string %Color { "Green" }
   string %Docs { "Outputs the first vertex texture coordinate (UV0) and applies a scrolling effect, using the world time. " }
 
-  string %CodeVertexShader { "
-#ifndef USE_TEXCOORD0
-  #define USE_TEXCOORD0
-#endif
-" }
-
-  string %CodeGeometryShader { "
-#ifndef USE_TEXCOORD0
-  #define USE_TEXCOORD0
-#endif
-" }
-
-  string %CodePixelDefines { "
+  string %CodeShaderShared { "
 #ifndef USE_TEXCOORD0
   #define USE_TEXCOORD0
 #endif
@@ -161,6 +119,27 @@ Node %VertexPosition
     string %Inline { "G.Input.Position" }
     string %Tooltip { "The vertex position. For vertex shaders this is the local position, for pixel shaders it is the transformed position." }
   }
+
+  OutputPin %X
+  {
+    string %Type { "float" }
+    string %Color { "Red" }
+    string %Inline { "G.Input.Position.x" }
+  }
+
+  OutputPin %Y
+  {
+    string %Type { "float" }
+    string %Color { "Green" }
+    string %Inline { "G.Input.Position.y" }
+  }
+
+  OutputPin %Z
+  {
+    string %Type { "float" }
+    string %Color { "Blue" }
+    string %Inline { "G.Input.Position.z" }
+  }
 }
 
 Node %VertexWorldPosition
@@ -176,6 +155,27 @@ Node %VertexWorldPosition
     string %Inline { "G.Input.WorldPosition" }
     string %Tooltip { "The vertex world space position." }
   }
+
+  OutputPin %X
+  {
+    string %Type { "float" }
+    string %Color { "Red" }
+    string %Inline { "G.Input.Position.x" }
+  }
+
+  OutputPin %Y
+  {
+    string %Type { "float" }
+    string %Color { "Green" }
+    string %Inline { "G.Input.Position.y" }
+  }
+
+  OutputPin %Z
+  {
+    string %Type { "float" }
+    string %Color { "Blue" }
+    string %Inline { "G.Input.Position.z" }
+  }
 }
 
 Node %VertexNormal
@@ -184,19 +184,7 @@ Node %VertexNormal
   string %Color { "Green" }
   string %Docs { "Outputs the vertex normal.\nFor vertex shaders this is in local space, for pixel shaders it is in world space." }
 
-  string %CodeVertexShader { "
-#ifndef USE_NORMAL
-  #define USE_NORMAL
-#endif
-" }
-
-  string %CodeGeometryShader { "
-#ifndef USE_NORMAL
-  #define USE_NORMAL
-#endif
-" }
-
-  string %CodePixelDefines { "
+  string %CodeShaderShared { "
 #ifndef USE_NORMAL
   #define USE_NORMAL
 #endif
@@ -209,6 +197,27 @@ Node %VertexNormal
     string %Inline { "G.Input.Normal" }
     string %Tooltip { "The vertex normal. For vertex shaders this is in local space, for pixel shaders it is in world space." }
   }
+
+  OutputPin %X
+  {
+    string %Type { "float" }
+    string %Color { "Red" }
+    string %Inline { "G.Input.Normal.x" }
+  }
+
+  OutputPin %Y
+  {
+    string %Type { "float" }
+    string %Color { "Green" }
+    string %Inline { "G.Input.Normal.y" }
+  }
+
+  OutputPin %Z
+  {
+    string %Type { "float" }
+    string %Color { "Blue" }
+    string %Inline { "G.Input.Normal.z" }
+  }
 }
 
 Node %VertexTangent
@@ -217,19 +226,7 @@ Node %VertexTangent
   string %Color { "Green" }
   string %Docs { "Outputs the vertex tangent.\nFor vertex shaders this is in local space, for pixel shaders it is in world space." }
 
-  string %CodeVertexShader { "
-#ifndef USE_TANGENT
-  #define USE_TANGENT
-#endif
-" }
-
-  string %CodeGeometryShader { "
-#ifndef USE_TANGENT
-  #define USE_TANGENT
-#endif
-" }
-
-  string %CodePixelDefines { "
+  string %CodeShaderShared { "
 #ifndef USE_TANGENT
   #define USE_TANGENT
 #endif
@@ -250,19 +247,7 @@ Node %VertexColor
   string %Color { "Green" }
   string %Docs { "Outputs the first vertex color value (Color0)." }
 
-  string %CodeVertexShader { "
-#ifndef USE_COLOR0
-  #define USE_COLOR0
-#endif
-" }
-
-  string %CodeGeometryShader { "
-#ifndef USE_COLOR0
-  #define USE_COLOR0
-#endif
-" }
-  
-  string %CodePixelDefines { "
+  string %CodeShaderShared { "
 #ifndef USE_COLOR0
   #define USE_COLOR0
 #endif
@@ -275,6 +260,33 @@ Node %VertexColor
     string %Inline { "G.Input.Color0" }
     string %Tooltip { "The vertex color" }
   }
+
+  OutputPin %Red
+  {
+    string %Type { "float" }
+    string %Color { "Red" }
+    string %Inline { "G.Input.Color0.x" }
+  }
+
+  OutputPin %Green
+  {
+    string %Type { "float" }
+    string %Color { "Green" }
+    string %Inline { "G.Input.Color0.y" }
+  }
+
+  OutputPin %Blue
+  {
+    string %Type { "float" }
+    string %Color { "Blue" }
+    string %Inline { "G.Input.Color0.z" }
+  }
+
+  OutputPin %Alpha
+  {
+    string %Type { "float" }
+    string %Inline { "G.Input.Color0.w" }
+  }
 }
 
 Node %VertexColor2
@@ -283,25 +295,7 @@ Node %VertexColor2
   string %Color { "Green" }
   string %Docs { "Outputs the second vertex color value (Color1)." }
 
-  string %CodeVertexShader { "
-#ifndef USE_COLOR0
-  #define USE_COLOR0
-#endif
-#ifndef USE_COLOR1
-  #define USE_COLOR1
-#endif
-" }
-
-  string %CodeGeometryShader { "
-#ifndef USE_COLOR0
-  #define USE_COLOR0
-#endif
-#ifndef USE_COLOR1
-  #define USE_COLOR1
-#endif
-" }
-  
-  string %CodePixelDefines { "
+  string %CodeShaderShared { "
 #ifndef USE_COLOR0
   #define USE_COLOR0
 #endif
@@ -316,6 +310,33 @@ Node %VertexColor2
     unsigned_int8 %Color { 200, 200, 200 }
     string %Inline { "G.Input.Color1" }
     string %Tooltip { "The second vertex color" }
+  }
+
+  OutputPin %Red
+  {
+    string %Type { "float" }
+    string %Color { "Red" }
+    string %Inline { "G.Input.Color0.x" }
+  }
+
+  OutputPin %Green
+  {
+    string %Type { "float" }
+    string %Color { "Green" }
+    string %Inline { "G.Input.Color0.y" }
+  }
+
+  OutputPin %Blue
+  {
+    string %Type { "float" }
+    string %Color { "Blue" }
+    string %Inline { "G.Input.Color0.z" }
+  }
+
+  OutputPin %Alpha
+  {
+    string %Type { "float" }
+    string %Inline { "G.Input.Color0.w" }
   }
 }
 
@@ -388,3 +409,17 @@ Node %Camera
   }
 }
 
+Node %ScreenCoord
+{
+  string %Category { "Input" }
+  string %Color { "Green" }
+  string %Docs { "Outputs the integer screen coordinate of the pixel. Values are in range 0 to resolution x/y." }
+
+  OutputPin %Position
+  {
+    string %Type { "float2" }
+    string %Color { "Indigo" }
+    string %Inline { "G.Input.Position.xy" }
+    string %Tooltip { "The integer screen coordiante of the pixel from 0 to resolution x/y." }
+  }
+}

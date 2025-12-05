@@ -26,6 +26,10 @@ namespace ezShaderHelper
     for (ezUInt32 s = 0; s < m_Sections.GetCount(); ++s)
     {
       m_Sections[s].m_szSectionStart = m_sText.FindSubString_NoCase(m_Sections[s].m_sName.GetData());
+      while ((m_Sections[s].m_szSectionStart != nullptr) && (m_Sections[s].m_szSectionStart != m_sText.GetData()) && (*(m_Sections[s].m_szSectionStart - 1) != '\n'))
+      {
+        m_Sections[s].m_szSectionStart = m_sText.FindSubString_NoCase(m_Sections[s].m_sName.GetData(), m_Sections[s].m_szSectionStart + 1);
+      }
 
       if (m_Sections[s].m_szSectionStart != nullptr)
         m_Sections[s].m_Content = ezStringView(m_Sections[s].m_szSectionStart + m_Sections[s].m_sName.GetElementCount());

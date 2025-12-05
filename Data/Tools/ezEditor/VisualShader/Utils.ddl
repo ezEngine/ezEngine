@@ -4,11 +4,11 @@ Node %SceneColor
   string %Color { "Green" }
   string %Docs { "Samples and outputs the color of the rendered scene at a specified screen-space position.\nUseful for effects that require access to the underlying scene color, such as post-processing or custom blending." }
 
-  InputPin %ScreenPosition
+  InputPin %ScreenCoord
   {
     string %Type { "float2" }
     string %DefaultValue { "G.Input.Position.xy" }
-    string %Tooltip { "Screen-space position (X, Y) to sample the scene color from." }
+    string %Tooltip { "Screen coordinate (X, Y) to sample the scene color from." }
   }
 
   OutputPin %Color
@@ -16,7 +16,7 @@ Node %SceneColor
     string %Type { "float3" }
     unsigned_int8 %Color { 200, 200, 200 }
     string %Inline { "SampleSceneColor(ToFloat2($in0))" }
-    string %Tooltip { "The color sampled from the scene at the given screen-space position." }
+    string %Tooltip { "The color sampled from the scene at the given screen coordinate." }
   }
 }
 
@@ -24,20 +24,20 @@ Node %SceneDepth
 {
   string %Category { "Utils" }
   string %Color { "Green" }
-  string %Docs { "Samples and outputs the depth value from the scene at a specified screen-space position.\nThis can be used for depth-based effects, such as fog, fading, or custom depth comparisons." }
+  string %Docs { "Samples and outputs the depth value from the scene at a specified screen coordinate.\nThis can be used for depth-based effects, such as fog, fading, or custom depth comparisons." }
 
-  InputPin %ScreenPosition
+  InputPin %ScreenCoord
   {
     string %Type { "float2" }
     string %DefaultValue { "G.Input.Position.xy" }
-    string %Tooltip { "Screen-space position (X, Y) to sample the scene depth from." }
+    string %Tooltip { "Screen coordinate (X, Y) to sample the scene depth from." }
   }
 
   OutputPin %Depth
   {
     string %Type { "float3" }
     string %Inline { "SampleSceneDepth(ToFloat2($in0))" }
-    string %Tooltip { "The depth value sampled from the scene at the given screen-space position." }
+    string %Tooltip { "The depth value sampled from the scene at the given screen coordinate." }
   }
 }
 
@@ -45,13 +45,13 @@ Node %ScenePosition
 {
   string %Category { "Utils" }
   string %Color { "Green" }
-  string %Docs { "Outputs the world-space position corresponding to a given screen-space position. Useful for reconstructing 3D positions from screen coordinates, enabling advanced effects like screen-space reflections or custom geometry manipulation." }
+  string %Docs { "Outputs the world-space position corresponding to a given screen coordinate. Useful for reconstructing 3D positions from screen coordinates, enabling advanced effects like screen-space reflections or custom geometry manipulation." }
 
-  InputPin %ScreenPosition
+  InputPin %ScreenCoord
   {
     string %Type { "float2" }
     string %DefaultValue { "G.Input.Position.xy" }
-    string %Tooltip { "Screen-space position (X, Y) to sample the world position from." }
+    string %Tooltip { "Screen coordinate (X, Y) to sample the world position from." }
   }
 
   OutputPin %Position
@@ -59,7 +59,7 @@ Node %ScenePosition
     string %Type { "float3" }
     string %Color { "Indigo" }
     string %Inline { "SampleScenePosition(ToFloat2($in0))" }
-    string %Tooltip { "The world-space position at the given screen-space position." }
+    string %Tooltip { "The world-space position at the given screen coordinate position." }
   }
 }
 

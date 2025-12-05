@@ -32,6 +32,8 @@ public:
   ezEnum<ezParticleLightingMode> m_LightingMode;
   float m_fNormalCurvature = 0.5f;
   float m_fLightDirectionality = 0.5f;
+  bool m_bUseCustomMaterial = false;
+  ezString m_sCustomMaterial;
 };
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleTypeTrail final : public ezParticleType
@@ -55,6 +57,7 @@ public:
   ezEnum<ezParticleLightingMode> m_LightingMode;
   float m_fNormalCurvature = 0.5f;
   float m_fLightDirectionality = 0.5f;
+  ezMaterialResourceHandle m_hCustomMaterial;
 
   virtual void CreateRequiredStreams() override;
   virtual void ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const override;

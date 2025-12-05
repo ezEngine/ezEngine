@@ -15,7 +15,7 @@ o
 			s{":app/VisualShader/Textures.ddl"}
 		}
 		Uuid %DocumentID{u4{17382043958124326024,5158265456709497371}}
-		u4 %Hash{5431848676247043229}
+		u4 %Hash{7530041287726830816}
 		VarArray %MetaInfo{}
 		VarArray %Outputs
 		{
@@ -48,7 +48,6 @@ o
 		f %MaskThreshold{0x0000803E}
 		s %SHADING_MODE{"SHADING_MODE::SHADING_MODE_LIT"}
 		b %TWO_SIDED{0}
-		b %VERTEX_SKINNING{0}
 	}
 }
 o
@@ -89,23 +88,12 @@ o
 }
 o
 {
-	Uuid %id{u4{6459206307361955508,5325624753748905821}}
-	s %t{"ShaderNode::BaseTexture"}
-	u3 %v{1}
-	p
-	{
-		Vec2 %Node::Pos{f{0xF08D2E43,0x10726B42}}
-		s %Texture{"{ 2fe9db45-6e52-4e17-8e27-5744f9e8ada6 }"}
-	}
-}
-o
-{
-	Uuid %id{u4{9453805622836314274,5357034066313014922}}
+	Uuid %id{u4{691570808451901104,5307066522215029371}}
 	s %t{"ezDocumentObject_ConnectionBase"}
 	u3 %v{1}
 	p
 	{
-		Uuid %Source{u4{6459206307361955508,5325624753748905821}}
+		Uuid %Source{u4{10268718835577251114,10294252354022164981}}
 		s %SourcePin{"RGBA"}
 		Uuid %Target{u4{1472925947280966046,4689080094941531782}}
 		s %TargetPin{"BaseColor"}
@@ -123,24 +111,25 @@ o
 		{
 			Uuid{u4{12825864250698177724,4718996857234948425}}
 			Uuid{u4{1472925947280966046,4689080094941531782}}
-			Uuid{u4{6459206307361955508,5325624753748905821}}
-			Uuid{u4{9453805622836314274,5357034066313014922}}
+			Uuid{u4{10268718835577251114,10294252354022164981}}
+			Uuid{u4{691570808451901104,5307066522215029371}}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{10268718835577251114,10294252354022164981}}
+	s %t{"ShaderNode::Texture2D"}
+	u3 %v{1}
+	p
+	{
+		s %Name{"BaseTexture"}
+		Vec2 %Node::Pos{f{0x8D27AE43,0xD4ED9B42}}
 	}
 }
 }
 Types
 {
-o
-{
-	Uuid %id{u4{8226303773878154013,957293613596245151}}
-	s %t{"ezDefaultValueAttribute"}
-	u3 %v{1}
-	p
-	{
-		d %Value{0x000000000000D03F}
-	}
-}
 o
 {
 	Uuid %id{u4{11040065101175624628,1662539785884692449}}
@@ -310,16 +299,6 @@ o
 }
 o
 {
-	Uuid %id{u4{1187097818350157749,3916026496545596680}}
-	s %t{"ezDefaultValueAttribute"}
-	u3 %v{1}
-	p
-	{
-		s %Value{"RebeccaPurple.color"}
-	}
-}
-o
-{
 	Uuid %id{u4{2493142764329470971,4237250110264931902}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
@@ -368,6 +347,16 @@ o
 }
 o
 {
+	Uuid %id{u4{6578081666434076975,4946780050709061779}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Value{"CustomTexture"}
+	}
+}
+o
+{
 	Uuid %id{u4{17888293823252574217,5278584362329602531}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
@@ -382,6 +371,16 @@ o
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"SubsurfaceColor"}
 		s %Type{"ezVec3"}
+	}
+}
+o
+{
+	Uuid %id{u4{7555191491908849179,5284447877362517162}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		d %Value{0x000000000000D03F}
 	}
 }
 o
@@ -415,18 +414,6 @@ o
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
 		s %Name{"BLEND_MODE::BLEND_MODE_MASKED"}
 		s %Type{"ezInt32"}
-	}
-}
-o
-{
-	Uuid %id{u4{12714164492891217967,5611009265493262825}}
-	s %t{"ezAssetBrowserAttribute"}
-	u3 %v{1}
-	p
-	{
-		s %DependencyFlags{""}
-		s %Filter{";CompatibleAsset_Texture_2D;"}
-		s %RequiredTag{""}
 	}
 }
 o
@@ -481,7 +468,6 @@ o
 			Uuid{u4{11322127516389856506,13896019921490488662}}
 			Uuid{u4{5859929904363818017,1847268326937240491}}
 			Uuid{u4{682391690540385619,15432695086473682525}}
-			Uuid{u4{1007955238600875333,12167462992048278196}}
 		}
 		s %TypeName{"AssetCache/Common/Features/RenderToTexture/Monitor.autogen.ezShader"}
 		u3 %TypeVersion{2}
@@ -657,7 +643,6 @@ o
 		{
 			Uuid{u4{7652018498724554973,13148047924191188064}}
 			Uuid{u4{124788569403009544,12052245754021608919}}
-			Uuid{u4{16348856940645882568,13682265103795851488}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
@@ -678,25 +663,6 @@ o
 }
 o
 {
-	Uuid %id{u4{8907094334953621914,9741013989145803045}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Attributes
-		{
-			Uuid{u4{12714164492891217967,5611009265493262825}}
-			Uuid{u4{1187097818350157749,3916026496545596680}}
-		}
-		s %Category{"ezPropertyCategory::Member"}
-		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"Texture"}
-		s %Type{"ezString"}
-	}
-}
-o
-{
 	Uuid %id{u4{8531456234757106898,9843359760009772741}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
@@ -711,6 +677,24 @@ o
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"Metallic"}
 		s %Type{"float"}
+	}
+}
+o
+{
+	Uuid %id{u4{7566946888615057369,10895726355449621559}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{6578081666434076975,4946780050709061779}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"Name"}
+		s %Type{"ezString"}
 	}
 }
 o
@@ -745,51 +729,12 @@ o
 }
 o
 {
-	Uuid %id{u4{1007955238600875333,12167462992048278196}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Attributes
-		{
-			Uuid{u4{18082565785335842056,15446560550727365684}}
-			Uuid{u4{8226303773878154013,957293613596245151}}
-		}
-		s %Category{"ezPropertyCategory::Member"}
-		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"MaskThreshold"}
-		s %Type{"float"}
-	}
-}
-o
-{
 	Uuid %id{u4{7652018498724554973,13148047924191188064}}
 	s %t{"ezCategoryAttribute"}
 	u3 %v{1}
 	p
 	{
 		s %Category{"Texture 2D"}
-	}
-}
-o
-{
-	Uuid %id{u4{5084061046237204050,13385781945507335679}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezVisualShaderNodeBase"}
-		s %PluginName{"VisualShaderTypes"}
-		VarArray %Properties
-		{
-			Uuid{u4{8907094334953621914,9741013989145803045}}
-		}
-		s %TypeName{"ShaderNode::BaseTexture"}
-		u3 %TypeVersion{1}
 	}
 }
 o
@@ -808,16 +753,6 @@ o
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"BaseColor"}
 		s %Type{"ezVec3"}
-	}
-}
-o
-{
-	Uuid %id{u4{16348856940645882568,13682265103795851488}}
-	s %t{"ezDefaultValueAttribute"}
-	u3 %v{1}
-	p
-	{
-		s %Value{"{ 2fe9db45-6e52-4e17-8e27-5744f9e8ada6 }"}
 	}
 }
 o
@@ -913,22 +848,33 @@ o
 		VarArray %Attributes
 		{
 			Uuid{u4{894012993490155857,17886578192263772348}}
+			Uuid{u4{7555191491908849179,5284447877362517162}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"VERTEX_SKINNING"}
-		s %Type{"bool"}
+		s %Name{"MaskThreshold"}
+		s %Type{"float"}
 	}
 }
 o
 {
-	Uuid %id{u4{18082565785335842056,15446560550727365684}}
-	s %t{"ezCategoryAttribute"}
+	Uuid %id{u4{12465950896141984421,15760915466871037192}}
+	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
 	{
-		s %Category{"Constant"}
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezVisualShaderNodeBase"}
+		s %PluginName{"VisualShaderTypes"}
+		VarArray %Properties
+		{
+			Uuid{u4{7566946888615057369,10895726355449621559}}
+		}
+		s %TypeName{"ShaderNode::Texture2D"}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -1055,7 +1001,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Category{"Permutation"}
+		s %Category{"Constant"}
 	}
 }
 o

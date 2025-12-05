@@ -35,6 +35,7 @@ public:
   ezEnum<ezParticleLightingMode> m_LightingMode;
   float m_fNormalCurvature = 0.5f;
   float m_fLightDirectionality = 0.5f;
+  ezMaterialResourceHandle m_hCustomMaterial;
 };
 
 /// \brief Implements rendering of particle systems

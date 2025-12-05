@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7297922959506964864,5177324930371449723}}
-		u4 %Hash{15901162673720234273}
+		u4 %Hash{12721122281920259769}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -75,6 +75,7 @@ o
 			s{"{ c74a6e50-d1be-4105-ab3d-1ddf7235cc68 }"}
 			s{"{ c75fd9fb-43d7-4023-a5c0-ccb045a9fd76 }"}
 			s{"{ c957b7d8-fb52-449e-abe6-c6c15e3f4316 }"}
+			s{"{ ca5777db-dfca-46c0-a1c4-e31372a875ad }"}
 			s{"{ cb3fcb70-258b-4b4e-a79e-0537ace7d7e3 }"}
 			s{"{ cb429221-40ae-4e6d-842b-b37b3709cd58 }"}
 			s{"{ cdcc5813-2f08-4542-b310-fdcc84dc134e }"}
@@ -4837,6 +4838,26 @@ o
 }
 o
 {
+	Uuid %id{u4{16531020568684779447,4692223754808102904}}
+	s %t{"ezParticleComponent"}
+	u3 %v{5}
+	p
+	{
+		b %Active{1}
+		s %Effect{"{ ca5777db-dfca-46c0-a1c4-e31372a875ad }"}
+		b %IgnoreOwnerRotation{0}
+		Time %MinRestartDelay{d{0}}
+		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
+		VarDict %Parameters{}
+		u4 %RandomSeed{0}
+		Time %RestartDelayRange{d{0}}
+		s %SharedInstanceName{""}
+		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
+	}
+}
+o
+{
 	Uuid %id{u4{10776967613857005993,4692297229788690450}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -5932,6 +5953,32 @@ o
 		{
 			s{"CastShadow"}
 			s{"AutoColMesh"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{1778919280459753151,4840405745262177921}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{16531020568684779447,4692223754808102904}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x9A9909C0,0xCDCCB4C0,0x6766263F}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
 		}
 	}
 }
@@ -10957,7 +11004,7 @@ o
 {
 	Uuid %id{u4{5198555597195852468,5373674782750531365}}
 	s %t{"ezLensFlareComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -10970,6 +11017,7 @@ o
 			Uuid{u4{14895633945553448356,5718830767270041425}}
 		}
 		f %Intensity{0x9A99993E}
+		ColorGamma %LightColor{u1{255,255,255,255}}
 		b %LinkToLightShape{1}
 		f %OcclusionDepthOffset{0}
 		f %OcclusionSampleRadius{0xCDCCCC3D}
@@ -12809,7 +12857,7 @@ o
 {
 	Uuid %id{u4{2031542018259647167,5562180747678007274}}
 	s %t{"ezLensFlareComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -12819,6 +12867,7 @@ o
 			Uuid{u4{15807339594180983717,5178511041438784801}}
 		}
 		f %Intensity{0x0000803F}
+		ColorGamma %LightColor{u1{255,255,255,255}}
 		b %LinkToLightShape{1}
 		f %OcclusionDepthOffset{0}
 		f %OcclusionSampleRadius{0xCDCC4C3D}
@@ -15216,6 +15265,7 @@ o
 			Uuid{u4{9466076154862504583,5216630948189107896}}
 			Uuid{u4{15536528723240958112,5118218595794246475}}
 			Uuid{u4{4012970955276113321,5241426715688777744}}
+			Uuid{u4{1778919280459753151,4840405745262177921}}
 		}
 		Uuid %Settings{u4{11204937990389899402,5417500911553874876}}
 	}
@@ -36955,7 +37005,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezLensFlareComponent"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o

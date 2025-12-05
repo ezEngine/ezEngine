@@ -17,6 +17,7 @@ public:
   virtual bool CanBatch(const ezRenderData& other) const override;
 
   ezTexture2DResourceHandle m_hTexture;
+  ezMaterialResourceHandle m_hCustomMaterial;
   ezUInt16 m_uiMaxTrailPoints;
   float m_fSnapshotFraction;
   ezArrayPtr<ezBaseParticleShaderData> m_BaseParticleData;

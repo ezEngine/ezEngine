@@ -37,6 +37,7 @@ void ezParticleEffectAssetDocument::PropertyMetaStateEventHandler(ezPropertyMeta
   {
     auto& props = *e.m_pPropertyStates;
 
+    bool useMaterial = e.m_pObject->GetTypeAccessor().GetValue("UseCustomMaterial").ConvertTo<bool>();
     ezInt64 orientation = e.m_pObject->GetTypeAccessor().GetValue("Orientation").ConvertTo<ezInt64>();
     ezInt64 renderMode = e.m_pObject->GetTypeAccessor().GetValue("RenderMode").ConvertTo<ezInt64>();
     ezInt64 lightingMode = e.m_pObject->GetTypeAccessor().GetValue("LightingMode").ConvertTo<ezInt64>();
@@ -53,13 +54,15 @@ void ezParticleEffectAssetDocument::PropertyMetaStateEventHandler(ezPropertyMeta
     props["NumSpritesY"].m_Visibility = (textureAtlas == (int)ezParticleTextureAtlasType::None) ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
     props["NormalCurvature"].m_Visibility = ezPropertyUiState::Invisible;
     props["LightDirectionality"].m_Visibility = ezPropertyUiState::Invisible;
+    props["Texture"].m_Visibility = useMaterial ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
+    props["CustomMaterial"].m_Visibility = useMaterial ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
 
     if (orientation == ezQuadParticleOrientation::Fixed_EmitterDir || orientation == ezQuadParticleOrientation::Fixed_WorldUp)
     {
       props["Deviation"].m_Visibility = ezPropertyUiState::Default;
     }
 
-    if (renderMode == ezParticleTypeRenderMode::Distortion)
+    if (renderMode == ezParticleTypeRenderMode::Distortion && !useMaterial)
     {
       props["DistortionTexture"].m_Visibility = ezPropertyUiState::Default;
       props["DistortionStrength"].m_Visibility = ezPropertyUiState::Default;
@@ -75,6 +78,7 @@ void ezParticleEffectAssetDocument::PropertyMetaStateEventHandler(ezPropertyMeta
   {
     auto& props = *e.m_pPropertyStates;
 
+    bool useMaterial = e.m_pObject->GetTypeAccessor().GetValue("UseCustomMaterial").ConvertTo<bool>();
     ezInt64 renderMode = e.m_pObject->GetTypeAccessor().GetValue("RenderMode").ConvertTo<ezInt64>();
     ezInt64 lightingMode = e.m_pObject->GetTypeAccessor().GetValue("LightingMode").ConvertTo<ezInt64>();
     ezInt64 textureAtlas = e.m_pObject->GetTypeAccessor().GetValue("TextureAtlas").ConvertTo<ezInt64>();
@@ -87,8 +91,10 @@ void ezParticleEffectAssetDocument::PropertyMetaStateEventHandler(ezPropertyMeta
       (textureAtlas == (int)ezParticleTextureAtlasType::None) ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
     props["NormalCurvature"].m_Visibility = ezPropertyUiState::Invisible;
     props["LightDirectionality"].m_Visibility = ezPropertyUiState::Invisible;
+    props["Texture"].m_Visibility = useMaterial ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
+    props["CustomMaterial"].m_Visibility = useMaterial ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
 
-    if (renderMode == ezParticleTypeRenderMode::Distortion)
+    if (renderMode == ezParticleTypeRenderMode::Distortion && !useMaterial)
     {
       props["DistortionTexture"].m_Visibility = ezPropertyUiState::Default;
       props["DistortionStrength"].m_Visibility = ezPropertyUiState::Default;

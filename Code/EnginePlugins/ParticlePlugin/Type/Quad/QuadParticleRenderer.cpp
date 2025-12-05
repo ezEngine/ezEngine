@@ -17,7 +17,7 @@ bool ezParticleQuadRenderData::CanBatch(const ezRenderData& other0) const
 {
   const auto& other = ezStaticCast<const ezParticleQuadRenderData&>(other0);
 
-  return m_RenderMode == other.m_RenderMode && m_hTexture == other.m_hTexture;
+  return m_RenderMode == other.m_RenderMode && m_hTexture == other.m_hTexture && m_hCustomMaterial == other.m_hCustomMaterial && m_hDistortionTexture == other.m_hDistortionTexture;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -28,7 +28,7 @@ ezParticleQuadRenderer::ezParticleQuadRenderer()
   CreateParticleDataBuffer(m_BillboardDataBuffer, sizeof(ezBillboardQuadParticleShaderData), s_uiParticlesPerBatch);
   CreateParticleDataBuffer(m_TangentDataBuffer, sizeof(ezTangentQuadParticleShaderData), s_uiParticlesPerBatch);
 
-  m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Particles/QuadParticle.ezShader");
+  m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Particles/DefaultQuadParticle.ezShader");
 }
 
 ezParticleQuadRenderer::~ezParticleQuadRenderer()
@@ -51,26 +51,45 @@ void ezParticleQuadRenderer::RenderBatch(const ezRenderViewContext& renderViewCo
 
   TempSystemCB systemConstants(pRenderContext);
 
-  pRenderContext->BindShader(m_hShader);
+  bool bBindShader = true;
 
   // Bind mesh buffer
   {
     pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, s_uiParticlesPerBatch * 2);
   }
 
+  ezBindGroupBuilder& bindGroupMaterial = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_DRAW_CALL);
+
   // now render all particle effects of type Quad
   for (auto it = batch.GetIterator<ezParticleQuadRenderData>(0, batch.GetDataCount()); it.IsValid(); ++it)
   {
     const ezParticleQuadRenderData* pRenderData = it;
+
+    if (pRenderData->m_hCustomMaterial.IsValid())
+    {
+      pRenderContext->BindMaterial(pRenderData->m_hCustomMaterial);
+    }
+    else
+    {
+      if (bBindShader)
+      {
+        bBindShader = false;
+        pRenderContext->BindShader(m_hShader);
+      }
+
+      bindGroupMaterial.BindTexture("ParticleTexture", pRenderData->m_hTexture);
+
+      if (pRenderData->m_RenderMode == ezParticleTypeRenderMode::Distortion)
+      {
+        bindGroupMaterial.BindTexture("ParticleDistortionTexture", pRenderData->m_hDistortionTexture);
+      }
+    }
 
     const ezBaseParticleShaderData* pParticleBaseData = pRenderData->m_BaseParticleData.GetPtr();
     const ezBillboardQuadParticleShaderData* pParticleBillboardData = pRenderData->m_BillboardParticleData.GetPtr();
     const ezTangentQuadParticleShaderData* pParticleTangentData = pRenderData->m_TangentParticleData.GetPtr();
 
     ezUInt32 uiNumParticles = pRenderData->m_BaseParticleData.GetCount();
-
-    ezBindGroupBuilder& bindGroupMaterial = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_MATERIAL);
-    bindGroupMaterial.BindTexture("ParticleTexture", pRenderData->m_hTexture);
 
     ConfigureRenderMode(pRenderData, pRenderContext);
 
@@ -131,12 +150,8 @@ void ezParticleQuadRenderer::ConfigureRenderMode(const ezParticleQuadRenderData*
       pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "PARTICLE_RENDER_MODE_OPAQUE");
       break;
     case ezParticleTypeRenderMode::Distortion:
-    {
       pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "PARTICLE_RENDER_MODE_DISTORTION");
-      ezBindGroupBuilder& bindGroupMaterial = pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_MATERIAL);
-      bindGroupMaterial.BindTexture("ParticleDistortionTexture", pRenderData->m_hDistortionTexture);
-    }
-    break;
+      break;
     case ezParticleTypeRenderMode::BlendAdd:
       pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "PARTICLE_RENDER_MODE_BLENDADD");
       break;

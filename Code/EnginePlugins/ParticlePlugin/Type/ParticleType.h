@@ -51,7 +51,7 @@ protected:
   virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override {}
   virtual void StepParticleSystem(const ezTime& tDiff, ezUInt32 uiNumNewParticles) { m_TimeDiff = tDiff; }
 
-  static ezUInt32 ComputeSortingKey(ezParticleTypeRenderMode::Enum mode, ezUInt64 uiTextureHash);
+  static ezUInt32 ComputeSortingKey(ezParticleTypeRenderMode::Enum mode, ezUInt64 uiResource1Hash, ezUInt64 uiResource2Hash);
 
   ezTime m_TimeDiff;
   mutable ezUInt64 m_uiLastExtractedFrame;

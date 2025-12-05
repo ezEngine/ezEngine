@@ -1,0 +1,97 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+RENDER_PASS
+PARTICLE_RENDER_MODE
+PARTICLE_TRAIL_POINTS
+PARTICLE_LIGHTING_MODE
+SHADING_QUALITY
+CAMERA_MODE
+
+[MATERIALPARAMETER]
+
+// The default particle shader isn't used through a material, so it doesn't define material parameters.
+
+[RENDERSTATE]
+
+#include <Shaders/Particles/ParticleRenderState.h>
+
+[SHADER]
+
+#define CUSTOM_INTERPOLATOR float FogAmount : FOG; float Life : TEXCOORD1; float Variation : TEXCOORD2;
+#define USE_TEXCOORD0
+#define USE_COLOR0
+
+[VERTEXSHADER]
+
+#include <Shaders/Particles/TrailParticleVertexShader.h>
+
+[PIXELSHADER]
+
+#include <Shaders/Particles/ParticlePixelShader.h>
+
+// The default shader has to use BG_DRAW_CALL, but custom materials must use BG_MATERIAL.
+Texture2D ParticleTexture BIND_GROUP(BG_DRAW_CALL);
+SamplerState ParticleTexture_AutoSampler BIND_GROUP(BG_DRAW_CALL);
+
+#if PARTICLE_RENDER_MODE == PARTICLE_RENDER_MODE_DISTORTION
+  Texture2D ParticleDistortionTexture BIND_GROUP(BG_DRAW_CALL);
+  SamplerState ParticleDistortionTexture_AutoSampler BIND_GROUP(BG_DRAW_CALL);
+#endif
+
+// Global values use the 'static' keyword so that they can be shared between functions
+static float4 g_BaseColor = float4(0.0, 0.0, 0.0, 0.0);
+
+/* === Available input data ===
+
+G.Input looks like this:
+struct PS_IN
+{
+  float4 Position : SV_Position;
+  float2 TexCoord0 : TEXCOORD0;
+  float4 Color0 : COLOR0;
+  float FogAmount : FOG;
+  float Life : TEXCOORD1;
+  float Variation : TEXCOORD2;
+};
+
+Particle System constants can be accessed through the ezParticleSystemConstants buffer, see
+  Data/Base/Shaders/Particles/ParticleSystemConstants.h
+
+*/
+
+void FillCustomGlobals()
+{
+#if PARTICLE_RENDER_MODE == PARTICLE_RENDER_MODE_NONE
+  // this code path isn't really necessary, but if someone tries to use the default shader in a material
+  // this makes sure it at least shows something visible
+  g_BaseColor = float4(G.Input.TexCoord0.xy, 1.0, 1.0);
+#else
+  g_BaseColor = ParticleTexture.Sample(ParticleTexture_AutoSampler, G.Input.TexCoord0.xy);
+#endif
+}
+
+float GetParticleOpacity()
+{
+  return g_BaseColor.a * G.Input.Color0.a;
+}
+
+float3 GetParticleColor()
+{
+  float3 particleColor;
+
+#if PARTICLE_RENDER_MODE == PARTICLE_RENDER_MODE_DISTORTION
+  float4 texDistort = ParticleDistortionTexture.Sample(ParticleDistortionTexture_AutoSampler, Input.TexCoord0.xy);
+  particleColor = SampleSceneColor(Input.Position.xy + (texDistort - 0.5) * float2(DistortionStrength, DistortionStrength));
+
+  return sceneColor.rgb * Input.Color0.rgb;
+#else
+  particleColor = g_BaseColor.rgb;
+#endif
+
+  return particleColor.rgb * G.Input.Color0.rgb;
+}
+
+
