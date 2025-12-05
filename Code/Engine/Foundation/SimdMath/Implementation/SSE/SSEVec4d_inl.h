@@ -968,8 +968,37 @@ EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::Get() const
 #else
   ezSimdVec4d result;
 
-  //use shuffles
-  
+  // For xy (result x and y, which are s3 and s2)
+  if ((((s) >> 12) & 3) < 2 && (((s) >> 8) & 3) < 2)
+  {
+    result.m_v.xy = _mm_shuffle_pd(m_v.xy, m_v.xy, ((((s) >> 12) & 3) & 1) | (((((s) >> 8) & 3) & 1) << 1));
+  }
+  else if ((((s) >> 12) & 3) >= 2 && (((s) >> 8) & 3) >= 2)
+  {
+    result.m_v.xy = _mm_shuffle_pd(m_v.zw, m_v.zw, (((((s) >> 12) & 3) - 2) & 1) | (((((s) >> 8) & 3) - 2) & 1) << 1);
+  }
+  else
+  {
+    __m128d comp0 = ((((s) >> 12) & 3) < 2) ? _mm_shuffle_pd(m_v.xy, m_v.xy, (((s) >> 12) & 3) & 1) : _mm_shuffle_pd(m_v.zw, m_v.zw, ((((s) >> 12) & 3) - 2) & 1);
+    __m128d comp1 = ((((s) >> 8) & 3) < 2) ? _mm_shuffle_pd(m_v.xy, m_v.xy, (((s) >> 8) & 3) & 1) : _mm_shuffle_pd(m_v.zw, m_v.zw, ((((s) >> 8) & 3) - 2) & 1);
+    result.m_v.xy = _mm_unpacklo_pd(comp0, comp1);
+  }
+
+  // For zw (result z and w, which are s1 and s0)
+  if ((((s) >> 4) & 3) < 2 && ((s) & 3) < 2)
+  {
+    result.m_v.zw = _mm_shuffle_pd(m_v.xy, m_v.xy, ((((s) >> 4) & 3) & 1) | ((((s) & 3) & 1) << 1));
+  }
+  else if ((((s) >> 4) & 3) >= 2 && ((s) & 3) >= 2)
+  {
+    result.m_v.zw = _mm_shuffle_pd(m_v.zw, m_v.zw, (((((s) >> 4) & 3) - 2) & 1) | ((((s) & 3) - 2) & 1) << 1);
+  }
+  else
+  {
+    __m128d comp2 = ((((s) >> 4) & 3) < 2) ? _mm_shuffle_pd(m_v.xy, m_v.xy, (((s) >> 4) & 3) & 1) : _mm_shuffle_pd(m_v.zw, m_v.zw, ((((s) >> 4) & 3) - 2) & 1);
+    __m128d comp3 = (((s) & 3) < 2) ? _mm_shuffle_pd(m_v.xy, m_v.xy, ((s) & 3) & 1) : _mm_shuffle_pd(m_v.zw, m_v.zw, (((s) & 3) - 2) & 1);
+    result.m_v.zw = _mm_unpacklo_pd(comp2, comp3);
+  }
 
   return result;
 #endif
