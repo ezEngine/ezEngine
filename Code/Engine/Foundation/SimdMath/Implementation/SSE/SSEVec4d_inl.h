@@ -1179,48 +1179,98 @@ void ezSimdVec4d::NormalizeIfNotZero(const ezSimdDouble& fEpsilon)
 #endif
 }
 
+  ///\brief x = this[s0], y = this[s1], z = other[s2], w = other[s3]
 template <ezSwizzle::Enum s>
 EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::GetCombined(const ezSimdVec4d& other) const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
-  // For AVX: directly work with m_v components using shuffle + permute2f128
-  const int s0 = (s & 0x3);
-  const int s1 = ((s >> 4) & 0x3);
-  const int s2 = ((s >> 8) & 0x3) + 4;  // Add 4 to indicate "other" vector
-  const int s3 = ((s >> 12) & 0x3) + 4;
-  
-  // Use shuffle within lanes + permute between vectors
-  const int shuffle_lo = (s0 & 1) | ((s1 & 1) << 1);
-  const int shuffle_hi = ((s2 - 4) & 1) | (((s3 - 4) & 1) << 1);
-  
-  __m256d thisShuffled = _mm256_shuffle_pd(m_v, m_v, shuffle_lo | (shuffle_lo << 2));
-  __m256d otherShuffled = _mm256_shuffle_pd(other.m_v, other.m_v, shuffle_hi | (shuffle_hi << 2));
-  
-  // Extract lanes
-  __m128d lo = ((s0 >> 1) == 0) ? _mm256_castpd256_pd128(thisShuffled) : _mm256_extractf128_pd(thisShuffled, 1);
-  if ((s1 >> 1) != (s0 >> 1))
-  {
-    __m128d temp = ((s1 >> 1) == 0) ? _mm256_castpd256_pd128(thisShuffled) : _mm256_extractf128_pd(thisShuffled, 1);
-    lo = _mm_unpacklo_pd(lo, temp);
-  }
-  
-  __m128d hi = ((s2 >> 1) == 0) ? _mm256_castpd256_pd128(otherShuffled) : _mm256_extractf128_pd(otherShuffled, 1);
-  if ((s3 >> 1) != (s2 >> 1))
-  {
-    __m128d temp = ((s3 >> 1) == 0) ? _mm256_castpd256_pd128(otherShuffled) : _mm256_extractf128_pd(otherShuffled, 1);
-    hi = _mm_unpacklo_pd(hi, temp);
-  }
-  
-  return _mm256_insertf128_pd(_mm256_castpd128_pd256(lo), hi, 1);
+  #error
 #else
-  ezSimdDouble c0 = GetComponent<(s & 0x3)>();
-  ezSimdDouble c1 = GetComponent<((s >> 4) & 0x3)>();
-  ezSimdDouble c2 = other.GetComponent<((s >> 8) & 0x3)>();
-  ezSimdDouble c3 = other.GetComponent<((s >> 12) & 0x3)>();
-  
   ezSimdVec4d result;
-  result.m_v.xy = _mm_setr_pd(static_cast<double>(c0), static_cast<double>(c1));
-  result.m_v.zw = _mm_setr_pd(static_cast<double>(c2), static_cast<double>(c3));
+
+  const int x_idx = ((s) >> 12) & 3;
+  const int y_idx = ((s) >> 8) & 3;
+  const int z_idx = ((s) >> 4) & 3;
+  const int w_idx = (s) & 3;
+
+  const int x_shuffle = x_idx & 1;
+  const int y_shuffle = y_idx & 1;
+  const int z_shuffle = z_idx & 1;
+  const int w_shuffle = w_idx & 1;
+
+  const int x_shuffle_zw = (x_idx - 2) & 1;
+  const int y_shuffle_zw = (y_idx - 2) & 1;
+  const int z_shuffle_zw = (z_idx - 2) & 1;
+  const int w_shuffle_zw = (w_idx - 2) & 1;
+
+  // For xy (from this)
+  if constexpr (x_idx < 2 && y_idx < 2)
+  {
+    result.m_v.xy = _mm_shuffle_pd(m_v.xy, m_v.xy, x_shuffle | (y_shuffle << 1));
+  }
+  else if constexpr (x_idx >= 2 && y_idx >= 2)
+  {
+    result.m_v.xy = _mm_shuffle_pd(m_v.zw, m_v.zw, x_shuffle_zw | (y_shuffle_zw << 1));
+  }
+  else
+  {
+    __m128d comp0;
+    if constexpr (x_idx < 2)
+    {
+      comp0 = _mm_shuffle_pd(m_v.xy, m_v.xy, x_shuffle);
+    }
+    else
+    {
+      comp0 = _mm_shuffle_pd(m_v.zw, m_v.zw, x_shuffle_zw);
+    }
+
+    __m128d comp1;
+    if constexpr (y_idx < 2)
+    {
+      comp1 = _mm_shuffle_pd(m_v.xy, m_v.xy, y_shuffle);
+    }
+    else
+    {
+      comp1 = _mm_shuffle_pd(m_v.zw, m_v.zw, y_shuffle_zw);
+    }
+
+    result.m_v.xy = _mm_unpacklo_pd(comp0, comp1);
+  }
+
+  // For zw (from other)
+  if constexpr (z_idx < 2 && w_idx < 2)
+  {
+    result.m_v.zw = _mm_shuffle_pd(other.m_v.xy, other.m_v.xy, z_shuffle | (w_shuffle << 1));
+  }
+  else if constexpr (z_idx >= 2 && w_idx >= 2)
+  {
+    result.m_v.zw = _mm_shuffle_pd(other.m_v.zw, other.m_v.zw, z_shuffle_zw | (w_shuffle_zw << 1));
+  }
+  else
+  {
+    __m128d comp2;
+    if constexpr (z_idx < 2)
+    {
+      comp2 = _mm_shuffle_pd(other.m_v.xy, other.m_v.xy, z_shuffle);
+    }
+    else
+    {
+      comp2 = _mm_shuffle_pd(other.m_v.zw, other.m_v.zw, z_shuffle_zw);
+    }
+
+    __m128d comp3;
+    if constexpr (w_idx < 2)
+    {
+      comp3 = _mm_shuffle_pd(other.m_v.xy, other.m_v.xy, w_shuffle);
+    }
+    else
+    {
+      comp3 = _mm_shuffle_pd(other.m_v.zw, other.m_v.zw, w_shuffle_zw);
+    }
+
+    result.m_v.zw = _mm_unpacklo_pd(comp2, comp3);
+  }
+
   return result;
 #endif
 }
