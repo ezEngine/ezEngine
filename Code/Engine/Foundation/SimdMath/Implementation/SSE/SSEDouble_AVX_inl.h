@@ -226,22 +226,17 @@ EZ_ALWAYS_INLINE bool ezSimdDouble::operator<=(float f) const
   return (*this) <= ezSimdDouble(f);
 }
 
-template <>
-EZ_ALWAYS_INLINE ezSimdDouble ezSimdDouble::GetReciprocal<ezMathAcc::FULL>() const
+EZ_ALWAYS_INLINE ezSimdDouble ezSimdDouble::GetReciprocal() const
 {
   return _mm256_div_pd(_mm256_set1_pd(1.0), m_v);
 }
 
-
-template <>
-EZ_ALWAYS_INLINE ezSimdDouble ezSimdDouble::GetInvSqrt<ezMathAcc::FULL>() const
+EZ_ALWAYS_INLINE ezSimdDouble ezSimdDouble::GetInvSqrt() const
 {
   return _mm256_div_pd(_mm256_set1_pd(1.0), _mm256_sqrt_pd(m_v));
 }
 
-
-template <>
-EZ_ALWAYS_INLINE ezSimdDouble ezSimdDouble::GetSqrt<ezMathAcc::FULL>() const
+EZ_ALWAYS_INLINE ezSimdDouble ezSimdDouble::GetSqrt() const
 {
   return _mm256_sqrt_pd(m_v);
 }
@@ -259,5 +254,5 @@ EZ_ALWAYS_INLINE ezSimdDouble ezSimdDouble::Min(const ezSimdDouble& f) const
 
 EZ_ALWAYS_INLINE ezSimdDouble ezSimdDouble::Abs() const
 {
-  return _mm256_andnot_pd(_mm256_set1_pd(-0.0d), m_v);
+  return _mm256_andnot_pd(_mm256_set1_pd(-0.0), m_v);
 }

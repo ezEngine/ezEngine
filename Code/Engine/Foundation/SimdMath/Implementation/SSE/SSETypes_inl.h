@@ -32,9 +32,6 @@
 
 namespace ezInternal
 {
-
-
-
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
   using QuadDouble = __m256d;
 #else

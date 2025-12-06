@@ -127,7 +127,7 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 
 			if(${EZ_MIN_REQUIRED_SSE_LEVEL} STREQUAL "AVX")
 				set(OPT_CPP_PRIVATE ${OPT_CPP_PRIVATE} "/arch:AVX")
-			else()
+			elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
 				# enable SSE2 (incompatible with /fp:except)
 				set(OPT_CPP_PRIVATE ${OPT_CPP_PRIVATE} "/arch:SSE2")
 			endif()

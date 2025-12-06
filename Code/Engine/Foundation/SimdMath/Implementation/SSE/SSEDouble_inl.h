@@ -255,8 +255,7 @@ EZ_ALWAYS_INLINE bool ezSimdDouble::operator<=(float f) const
   return (*this) <= ezSimdDouble(f);
 }
 
-template <>
-EZ_ALWAYS_INLINE ezSimdDouble ezSimdDouble::GetReciprocal<ezMathAcc::FULL>() const
+EZ_ALWAYS_INLINE ezSimdDouble ezSimdDouble::GetReciprocal() const
 {
   ezSimdDouble result;
   __m128d one = _mm_set1_pd(1.0);
@@ -265,39 +264,7 @@ EZ_ALWAYS_INLINE ezSimdDouble ezSimdDouble::GetReciprocal<ezMathAcc::FULL>() con
   return result;
 }
 
-template <>
-EZ_ALWAYS_INLINE ezSimdDouble ezSimdDouble::GetReciprocal<ezMathAcc::BITS_23>() const
-{
-  // Convert double to float, get reciprocal approximation, convert back to double
-  __m128 floatVal = _mm_cvtpd_ps(m_v.xy);
-  __m128 floatRcp = _mm_rcp_ps(floatVal);
-  
-  ezSimdDouble result;
-  result.m_v.xy = _mm_cvtps_pd(floatRcp);
-
-  // One iteration of Newton-Raphson: x1 = x0 * (2 - m_v * x0)
-  __m128d two = _mm_set1_pd(2.0);
-  result.m_v.xy = _mm_mul_pd(result.m_v.xy, _mm_sub_pd(two, _mm_mul_pd(m_v.xy, result.m_v.xy)));
-  result.m_v.zw = result.m_v.xy;
-
-  return result;
-}
-
-template <>
-EZ_ALWAYS_INLINE ezSimdDouble ezSimdDouble::GetReciprocal<ezMathAcc::BITS_12>() const
-{
-  // Convert double to float, get fast reciprocal approximation, convert back to double
-  __m128 floatVal = _mm_cvtpd_ps(m_v.xy);
-  __m128 floatRcp = _mm_rcp_ps(floatVal);
-  
-  ezSimdDouble result;
-  result.m_v.xy = _mm_cvtps_pd(floatRcp);
-  result.m_v.zw = result.m_v.xy;
-  return result;
-}
-
-template <>
-EZ_ALWAYS_INLINE ezSimdDouble ezSimdDouble::GetInvSqrt<ezMathAcc::FULL>() const
+EZ_ALWAYS_INLINE ezSimdDouble ezSimdDouble::GetInvSqrt() const
 {
   ezSimdDouble result;
   __m128d one = _mm_set1_pd(1.0);
@@ -306,60 +273,12 @@ EZ_ALWAYS_INLINE ezSimdDouble ezSimdDouble::GetInvSqrt<ezMathAcc::FULL>() const
   return result;
 }
 
-template <>
-EZ_ALWAYS_INLINE ezSimdDouble ezSimdDouble::GetInvSqrt<ezMathAcc::BITS_23>() const
-{
-  // Convert double to float, get inverse sqrt approximation, convert back to double
-  __m128 floatVal = _mm_cvtpd_ps(m_v.xy);
-  __m128 floatInvSqrt = _mm_rsqrt_ps(floatVal);
-  
-  ezSimdDouble result;
-  result.m_v.xy = _mm_cvtps_pd(floatInvSqrt);
-
-  // One iteration of Newton-Raphson: x1 = 0.5 * x0 * (3 - m_v * x0 * x0)
-  __m128d half = _mm_set1_pd(0.5);
-  __m128d three = _mm_set1_pd(3.0);
-  
-  __m128d x0_squared = _mm_mul_pd(result.m_v.xy, result.m_v.xy);
-  __m128d three_minus = _mm_sub_pd(three, _mm_mul_pd(m_v.xy, x0_squared));
-  result.m_v.xy = _mm_mul_pd(_mm_mul_pd(half, result.m_v.xy), three_minus);
-  result.m_v.zw = result.m_v.xy;
-  
-  return result;
-}
-
-template <>
-EZ_ALWAYS_INLINE ezSimdDouble ezSimdDouble::GetInvSqrt<ezMathAcc::BITS_12>() const
-{
-  // Convert double to float, get fast inverse sqrt approximation, convert back to double
-  __m128 floatVal = _mm_cvtpd_ps(m_v.xy);
-  __m128 floatInvSqrt = _mm_rsqrt_ps(floatVal);
-  
-  ezSimdDouble result;
-  result.m_v.xy = _mm_cvtps_pd(floatInvSqrt);
-  result.m_v.zw = result.m_v.xy;
-  return result;
-}
-
-template <>
-EZ_ALWAYS_INLINE ezSimdDouble ezSimdDouble::GetSqrt<ezMathAcc::FULL>() const
+EZ_ALWAYS_INLINE ezSimdDouble ezSimdDouble::GetSqrt() const
 {
   ezSimdDouble result;
   result.m_v.xy = _mm_sqrt_pd(m_v.xy);
   result.m_v.zw = result.m_v.xy;
   return result;
-}
-
-template <>
-EZ_ALWAYS_INLINE ezSimdDouble ezSimdDouble::GetSqrt<ezMathAcc::BITS_23>() const
-{
-  return (*this) * GetInvSqrt<ezMathAcc::BITS_23>();
-}
-
-template <>
-EZ_ALWAYS_INLINE ezSimdDouble ezSimdDouble::GetSqrt<ezMathAcc::BITS_12>() const
-{
-  return (*this) * GetInvSqrt<ezMathAcc::BITS_12>();
 }
 
 EZ_ALWAYS_INLINE ezSimdDouble ezSimdDouble::Max(const ezSimdDouble& f) const

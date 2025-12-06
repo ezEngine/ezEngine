@@ -193,19 +193,16 @@ EZ_ALWAYS_INLINE bool ezSimdDouble::operator<=(float f) const
   return m_v.x <= (double)f;
 }
 
-template <ezMathAcc::Enum acc>
 EZ_ALWAYS_INLINE ezSimdDouble ezSimdDouble::GetReciprocal() const
 {
   return ezSimdDouble(1.0 / m_v.x);
 }
 
-template <ezMathAcc::Enum acc>
 EZ_ALWAYS_INLINE ezSimdDouble ezSimdDouble::GetSqrt() const
 {
   return ezSimdDouble(ezMath::Sqrt(m_v.x));
 }
 
-template <ezMathAcc::Enum acc>
 EZ_ALWAYS_INLINE ezSimdDouble ezSimdDouble::GetInvSqrt() const
 {
   return ezSimdDouble(1.0 / ezMath::Sqrt(m_v.x));

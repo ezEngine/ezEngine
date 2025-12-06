@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Foundation/Math/Vec4.h>
+
 #include <arm_neon.h>
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
@@ -10,6 +12,7 @@
 
 namespace ezInternal
 {
+  using QuadDouble = ezVec4d;
   using QuadFloat = float32x4_t;
   using QuadBool = uint32x4_t;
   using QuadInt = int32x4_t;

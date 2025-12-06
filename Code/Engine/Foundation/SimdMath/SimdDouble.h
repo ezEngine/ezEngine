@@ -78,13 +78,10 @@ public:
   bool operator<(float f) const;
   bool operator<=(float f) const;
 
-  template <ezMathAcc::Enum acc = ezMathAcc::FULL>
   ezSimdDouble GetReciprocal() const;
 
-  template <ezMathAcc::Enum acc = ezMathAcc::FULL>
   ezSimdDouble GetSqrt() const;
 
-  template <ezMathAcc::Enum acc = ezMathAcc::FULL>
   ezSimdDouble GetInvSqrt() const;
 
   [[nodiscard]] ezSimdDouble Max(const ezSimdDouble& d) const;
@@ -104,8 +101,7 @@ public:
 #elif EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_FPU
 #  include <Foundation/SimdMath/Implementation/FPU/FPUDouble_inl.h>
 #elif EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_NEON
-// redirect to fpu version for the time being
-#  include <Foundation/SimdMath/Implementation/FPU/FPUDouble_inl.h>
+#  include <Foundation/SimdMath/Implementation/NEON/NEONDouble_inl.h>
 #else
 #  error "Unknown SIMD implementation."
 #endif

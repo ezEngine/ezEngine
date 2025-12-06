@@ -66,16 +66,6 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdFloat)
   }
 
   {
-    ezSimdFloat z = ezSimdFloat::MakeZero();
-    EZ_TEST_BOOL(z == 0.0f);
-
-    // Make sure all components are set to the same value
-#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && EZ_ENABLED(EZ_COMPILER_MSVC)
-    EZ_TEST_BOOL(z.m_v.m128_f32[0] == 0.0f && z.m_v.m128_f32[1] == 0.0f && z.m_v.m128_f32[2] == 0.0f && z.m_v.m128_f32[3] == 0.0f);
-#endif
-  }
-
-  {
     ezSimdFloat z = ezSimdFloat::MakeNaN();
 
     // Make sure all components are set to the same value
