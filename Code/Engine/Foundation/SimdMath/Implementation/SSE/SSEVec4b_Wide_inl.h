@@ -11,7 +11,18 @@ EZ_ALWAYS_INLINE ezSimdVec4bWide::ezSimdVec4bWide(bool b)
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
 #error
 #else
-  __m128d val = _mm_set1_pd(b ? -1.0 : 0.0);
+
+  __m128d val;
+  if(b)
+  {
+    alignas(16) ezUInt64 trueVal[2] = {0xFFFFFFFFFFFFFFFFULL,0xFFFFFFFFFFFFFFFFULL};
+    val = _mm_load_pd(((double*)(&trueVal)));
+  }
+  else
+  {
+    val = _mm_set1_pd(0.0);
+  }
+
   m_v.xy = val;
   m_v.zw = val;
 #endif
