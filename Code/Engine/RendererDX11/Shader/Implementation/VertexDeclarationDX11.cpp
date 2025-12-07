@@ -117,6 +117,11 @@ ezResult ezGALVertexDeclarationDX11::InitPlatform(ezGALDevice* pDevice)
     DXInputElementDescs.PushBack(DXDesc);
   }
 
+  if (DXInputElementDescs.IsEmpty())
+  {
+    return EZ_FAILURE;
+  }
+
   m_VertexBufferStrides.SetCount(m_Description.m_VertexBindings.GetCount());
   for (ezUInt32 i = 0; i < m_Description.m_VertexBindings.GetCount(); i++)
   {

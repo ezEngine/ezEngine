@@ -1107,7 +1107,7 @@ void ezRenderContext::ApplyMaterialState()
     }
 
     m_hMaterial = m_hNewMaterial;
-    // We don't know the permutation to use yet and thus also not the correct bind group layout. Therefore, we store the raw address of the material to be able to look up the correct bind group in ApplyBindGroup. We can't acquire the resource lock again as that might result in a different address (fallback vs real) and we would missmatch the material data and bind group from two different materials.
+    // We don't know the permutation to use yet and thus also not the correct bind group layout. Therefore, we store the raw address of the material to be able to look up the correct bind group in ApplyBindGroup. We can't acquire the resource lock again as that might result in a different address (fallback vs real) and we would mismatch the material data and bind group from two different materials.
     m_pMaterial = pMaterial.GetPointer();
   }
 }

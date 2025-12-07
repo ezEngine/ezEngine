@@ -52,6 +52,7 @@ VERTEX_SKINNING
 // Permutation options let the user choose the value of a permutation variable.
 // bool / float / int / Color options let the user set a fixed value for a CONSTANT_BUFFER variable.
 // Texture2D options let the user choose a texture for that slot.
+// See https://ezengine.net/pages/docs/graphics/shaders/shaders-overview.html#material-sections
 
 %if TEMPLATE_BLEND_MODE == TEMPLATE_BLEND_MODE_SELECTABLE
 // exposes the BLEND_MODE option in the material UI
@@ -89,6 +90,26 @@ Texture2D OcclusionTexture;
 
 bool UseOrmTexture;
 Texture2D OrmTexture;
+
+[MATERIALCONSTANTS]
+// This section defines the material constants. A sub-set of these can be exposed in the GUI via the [MATERIALPARAMETER] section.
+// Only parameter macros defined in Data/Base/Shaders/Common/ConstantBufferMacros.h are allowed in this section.
+// The shader compiler will use the parameters in this section to define an ezMaterialConstants struct and prepend it
+// to every shader stage, e.g. VERTEXSHADER, GEOMETRYSHADER and PIXELSHADER even before the [SHADER] section is prepended.
+// See https://ezengine.net/pages/docs/graphics/shaders/shaders-overview.html#material-sections
+
+COLOR4F(BaseColor);
+COLOR4F(EmissiveColor);
+FLOAT1(MetallicValue);
+FLOAT1(RoughnessValue);
+FLOAT1(MaskThreshold);
+BOOL1(UseBaseTexture);
+BOOL1(UseNormalTexture);
+BOOL1(UseRoughnessTexture);
+BOOL1(UseMetallicTexture);
+BOOL1(UseEmissiveTexture);
+BOOL1(UseOcclusionTexture);
+BOOL1(UseOrmTexture);
 
 [RENDERSTATE]
 // This section defines the render pipeline state with which to execute this shader.
@@ -132,25 +153,6 @@ Texture2D OrmTexture;
 // It is up to you to decide what to do with the vertex colors.
 #define CUSTOM_INTERPOLATOR float4 ProcColor : PROC_COLOR;
 %endif
-
-[MATERIALCONSTANTS]
-// This section defines the material constants. A sub-set of these can be exposed in the GUI via the [MATERIALPARAMETER] section.
-// Only parameter macros defined in Data/Base/Shaders/Common/ConstantBufferMacros.h are allowed in this section.
-// The shader compiler will use the parameters in this section to define an ezMaterialConstants struct and prepend it
-// to every shader stage, e.g. VERTEXSHADER, GEOMETRYSHADER and PIXELSHADER even before the [SHADER] section is prepended.
-
-  COLOR4F(BaseColor);
-  COLOR4F(EmissiveColor);
-  FLOAT1(MetallicValue);
-  FLOAT1(RoughnessValue);
-  FLOAT1(MaskThreshold);
-  BOOL1(UseBaseTexture);
-  BOOL1(UseNormalTexture);
-  BOOL1(UseRoughnessTexture);
-  BOOL1(UseMetallicTexture);
-  BOOL1(UseEmissiveTexture);
-  BOOL1(UseOcclusionTexture);
-  BOOL1(UseOrmTexture);
 
 [VERTEXSHADER]
 // This section contains the vertex shader code.

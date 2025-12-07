@@ -869,6 +869,10 @@ void ezMaterialAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo
 
     pInfo->m_sAssetsDocumentTags = tags;
   }
+  else
+  {
+    pInfo->m_sAssetsDocumentTags.Clear();
+  }
 
   if (GetProperties()->m_ShaderMode != ezMaterialShaderMode::BaseMaterial)
   {

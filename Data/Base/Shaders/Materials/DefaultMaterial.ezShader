@@ -58,18 +58,18 @@ Texture2D EmissiveTexture;
 
 [MATERIALCONSTANTS]
 
-  COLOR4F(BaseColor);
-  COLOR4F(EmissiveColor);
-  FLOAT1(MetallicValue);
-  FLOAT1(RoughnessValue);
-  FLOAT1(MaskThreshold);
-  BOOL1(UseBaseTexture);
-  BOOL1(UseNormalTexture);
-  BOOL1(UseRoughnessTexture);
-  BOOL1(UseMetallicTexture);
-  BOOL1(UseEmissiveTexture);
-  BOOL1(UseOcclusionTexture);
-  BOOL1(UseOrmTexture);
+COLOR4F(BaseColor);
+COLOR4F(EmissiveColor);
+FLOAT1(MetallicValue);
+FLOAT1(RoughnessValue);
+FLOAT1(MaskThreshold);
+BOOL1(UseBaseTexture);
+BOOL1(UseNormalTexture);
+BOOL1(UseRoughnessTexture);
+BOOL1(UseMetallicTexture);
+BOOL1(UseEmissiveTexture);
+BOOL1(UseOcclusionTexture);
+BOOL1(UseOrmTexture);
 
 [VERTEXSHADER]
 
