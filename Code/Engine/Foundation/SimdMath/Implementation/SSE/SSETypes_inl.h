@@ -51,5 +51,8 @@ namespace ezInternal
 #include <Foundation/SimdMath/SimdSwizzle.h>
 
 #define EZ_SHUFFLE(a0, a1, b2, b3) ((a0) | ((a1) << 2) | ((b2) << 4) | ((b3) << 6))
+#define EZ_SHUFFLE_2(a0, b1) ((a0) | ((b1) << 1))
 
+
+//swizzle to shuffle
 #define EZ_TO_SHUFFLE(s) ((((s) >> 12) & 0x03) | (((s) >> 6) & 0x0c) | ((s) & 0x30) | (((s) << 6) & 0xc0))
