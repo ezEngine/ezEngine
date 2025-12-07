@@ -633,13 +633,13 @@ EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::FlipSign(const ezSimdVec4b& vCmp) cons
 EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::Select(const ezSimdVec4b& vCmp, const ezSimdVec4d& vTrue, const ezSimdVec4d& vFalse)
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
-  __m128d cmpMask = _mm_castps_pd(vCmp.m_v);
-  return _mm256_blendv_pd(vFalse.m_v, vTrue.m_v, _mm256_castpd128_pd256(cmpMask));
+#error
 #else
   ezSimdVec4d result;
-  __m128d cmpMask = _mm_castps_pd(vCmp.m_v);
-  result.m_v.xy = _mm_or_pd(_mm_andnot_pd(cmpMask, vFalse.m_v.xy), _mm_and_pd(cmpMask, vTrue.m_v.xy));
-  result.m_v.zw = _mm_or_pd(_mm_andnot_pd(cmpMask, vFalse.m_v.zw), _mm_and_pd(cmpMask, vTrue.m_v.zw));
+  __m128d cmpXY = _mm_cvtps_pd(vCmp.m_v);
+  __m128d cmpZW = _mm_cvtps_pd(_mm_movehl_ps(vCmp.m_v, vCmp.m_v));
+  result.m_v.xy = _mm_or_pd(_mm_andnot_pd(cmpXY, vFalse.m_v.xy), _mm_and_pd(cmpXY, vTrue.m_v.xy));
+  result.m_v.zw = _mm_or_pd(_mm_andnot_pd(cmpZW, vFalse.m_v.zw), _mm_and_pd(cmpZW, vTrue.m_v.zw));
   return result;
 #endif
 }
