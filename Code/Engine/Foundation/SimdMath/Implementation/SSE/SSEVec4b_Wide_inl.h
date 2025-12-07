@@ -77,35 +77,15 @@ EZ_ALWAYS_INLINE bool ezSimdVec4bWide::w() const
   return GetComponent<3>();
 }
 
+
 template <ezSwizzle::Enum s>
 EZ_ALWAYS_INLINE ezSimdVec4bWide ezSimdVec4bWide::Get() const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
 #error
 #else
-  constexpr int s0 = (s >> 12) & 3;
-  constexpr int s1 = (s >> 8) & 3;
-  constexpr int s2 = (s >> 4) & 3;
-  constexpr int s3 = s & 3;
-
   ezSimdVec4bWide result;
-
-  // xy
-  int idx_a_xy = s0 / 2;
-  int idx_b_xy = s1 / 2;
-  __m128d a_xy = (idx_a_xy == 0) ? m_v.xy : m_v.zw;
-  __m128d b_xy = (idx_b_xy == 0) ? m_v.xy : m_v.zw;
-  int mask_xy = (s0 % 2) | ((s1 % 2) << 1);
-  result.m_v.xy = _mm_shuffle_pd(a_xy, b_xy, mask_xy);
-
-  // zw
-  int idx_a_zw = s2 / 2;
-  int idx_b_zw = s3 / 2;
-  __m128d a_zw = (idx_a_zw == 0) ? m_v.xy : m_v.zw;
-  __m128d b_zw = (idx_b_zw == 0) ? m_v.xy : m_v.zw;
-  int mask_zw = (s2 % 2) | ((s3 % 2) << 1);
-  result.m_v.zw = _mm_shuffle_pd(a_zw, b_zw, mask_zw);
-
+  EZ_WIDE_SHUFFLE_SSE(m_v.xy, m_v.zw, m_v.xy, m_v.zw, EZ_TO_SHUFFLE(s), result.m_v.xy, result.m_v.zw);
   return result;
 #endif
 }

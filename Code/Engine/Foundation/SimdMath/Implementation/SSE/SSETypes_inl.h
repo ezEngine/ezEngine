@@ -63,3 +63,30 @@ namespace ezInternal
 
 //swizzle to shuffle
 #define EZ_TO_SHUFFLE(s) ((((s) >> 12) & 0x03) | (((s) >> 6) & 0x0c) | ((s) & 0x30) | (((s) << 6) & 0xc0))
+
+/// \brief Shuffles doubles in the same manner as _mm_shuffle_ps but for doubles using sse intrinsics on high and low parts.
+EZ_ALWAYS_INLINE void EZ_WIDE_SHUFFLE_SSE(__m128d aLow, __m128d aHigh, __m128d bLow, __m128d bHigh, int imm8, __m128d& outLow, __m128d& outHigh)
+{
+  __m128d sources[2] = {aLow, aHigh};
+  int sel0 = imm8 & 3;
+  int sel1 = (imm8 >> 2) & 3;
+  int sel2 = (imm8 >> 4) & 3;
+  int sel3 = (imm8 >> 6) & 3;
+
+  auto get_double = [&](int sel) -> __m128d {
+    int source_idx = sel / 2;
+    int double_idx = sel % 2;
+    __m128d temp0 = _mm_shuffle_pd(sources[source_idx], sources[source_idx], 0);
+    __m128d temp1 = _mm_shuffle_pd(sources[source_idx], sources[source_idx], 3);
+    __m128d mask = _mm_cmpeq_pd(_mm_set1_pd(double_idx), _mm_set1_pd(0));
+    return _mm_or_pd(_mm_andnot_pd(mask, temp1), _mm_and_pd(mask, temp0));
+  };
+
+  __m128d d0 = get_double(sel0);
+  __m128d d1 = get_double(sel1);
+  __m128d d2 = get_double(sel2);
+  __m128d d3 = get_double(sel3);
+
+  outLow = _mm_shuffle_pd(d0, d1, 0);
+  outHigh = _mm_shuffle_pd(d2, d3, 0);
+}
