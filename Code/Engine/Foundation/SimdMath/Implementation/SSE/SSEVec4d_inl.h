@@ -691,10 +691,15 @@ EZ_ALWAYS_INLINE ezSimdVec4d& ezSimdVec4d::operator/=(const ezSimdDouble& f)
 EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4d::operator==(const ezSimdVec4d& v) const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
-#error
-#else
+  __m256d cmpResult = _mm256_cmp_pd(m_v, v.m_v, _CMP_EQ_OQ);
   ezSimdVec4b result;
-  result.m_v = _mm_movelh_ps(_mm_castpd_ps(_mm_cmpeq_pd(m_v.xy, v.m_v.xy)), _mm_castpd_ps(_mm_cmpeq_pd(m_v.zw, v.m_v.zw)));
+  result.m_v = _mm256_cvtpd_ps(cmpResult);
+  return result;
+#else
+  __m128 cmp_xy = _mm_cvtpd_ps(_mm_cmpeq_pd(m_v.xy, v.m_v.xy));
+  __m128 cmp_zw = _mm_cvtpd_ps(_mm_cmpeq_pd(m_v.zw, v.m_v.zw));
+  ezSimdVec4b result;
+  result.m_v = _mm_movelh_ps(cmp_xy, cmp_zw);
   return result;
 #endif
 }
@@ -703,10 +708,14 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4d::operator!=(const ezSimdVec4d& v) const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
   __m256d cmpResult = _mm256_cmp_pd(m_v, v.m_v, _CMP_NEQ_OQ);
-  return _mm256_cvtpd_ps(cmpResult);
-#else
   ezSimdVec4b result;
-  result.m_v = _mm_movelh_ps(_mm_castpd_ps(_mm_cmpneq_pd(m_v.xy, v.m_v.xy)), _mm_castpd_ps(_mm_cmpneq_pd(m_v.zw, v.m_v.zw)));
+  result.m_v = _mm256_cvtpd_ps(cmpResult);
+  return result;
+#else
+  __m128 cmp_xy = _mm_cvtpd_ps(_mm_cmpneq_pd(m_v.xy, v.m_v.xy));
+  __m128 cmp_zw = _mm_cvtpd_ps(_mm_cmpneq_pd(m_v.zw, v.m_v.zw));
+  ezSimdVec4b result;
+  result.m_v = _mm_movelh_ps(cmp_xy, cmp_zw);
   return result;
 #endif
 }
@@ -715,10 +724,14 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4d::operator<=(const ezSimdVec4d& v) const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
   __m256d cmpResult = _mm256_cmp_pd(m_v, v.m_v, _CMP_LE_OQ);
-  return _mm256_cvtpd_ps(cmpResult);
-#else
   ezSimdVec4b result;
-  result.m_v = _mm_movelh_ps(_mm_castpd_ps(_mm_cmple_pd(m_v.xy, v.m_v.xy)), _mm_castpd_ps(_mm_cmple_pd(m_v.zw, v.m_v.zw)));
+  result.m_v = _mm256_cvtpd_ps(cmpResult);
+  return result;
+#else
+  __m128 cmp_xy = _mm_cvtpd_ps(_mm_cmple_pd(m_v.xy, v.m_v.xy));
+  __m128 cmp_zw = _mm_cvtpd_ps(_mm_cmple_pd(m_v.zw, v.m_v.zw));
+  ezSimdVec4b result;
+  result.m_v = _mm_movelh_ps(cmp_xy, cmp_zw);
   return result;
 #endif
 }
@@ -727,10 +740,14 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4d::operator<(const ezSimdVec4d& v) const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
   __m256d cmpResult = _mm256_cmp_pd(m_v, v.m_v, _CMP_LT_OQ);
-  return _mm256_cvtpd_ps(cmpResult);
-#else
   ezSimdVec4b result;
-  result.m_v = _mm_movelh_ps(_mm_castpd_ps(_mm_cmplt_pd(m_v.xy, v.m_v.xy)), _mm_castpd_ps(_mm_cmplt_pd(m_v.zw, v.m_v.zw)));
+  result.m_v = _mm256_cvtpd_ps(cmpResult);
+  return result;
+#else
+  __m128 cmp_xy = _mm_cvtpd_ps(_mm_cmplt_pd(m_v.xy, v.m_v.xy));
+  __m128 cmp_zw = _mm_cvtpd_ps(_mm_cmplt_pd(m_v.zw, v.m_v.zw));
+  ezSimdVec4b result;
+  result.m_v = _mm_movelh_ps(cmp_xy, cmp_zw);
   return result;
 #endif
 }
@@ -739,10 +756,14 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4d::operator>=(const ezSimdVec4d& v) const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
   __m256d cmpResult = _mm256_cmp_pd(m_v, v.m_v, _CMP_GE_OQ);
-  return _mm256_cvtpd_ps(cmpResult);
-#else
   ezSimdVec4b result;
-  result.m_v = _mm_movelh_ps(_mm_castpd_ps(_mm_cmpge_pd(m_v.xy, v.m_v.xy)), _mm_castpd_ps(_mm_cmpge_pd(m_v.zw, v.m_v.zw)));
+  result.m_v = _mm256_cvtpd_ps(cmpResult);
+  return result;
+#else
+  __m128 cmp_xy = _mm_cvtpd_ps(_mm_cmpge_pd(m_v.xy, v.m_v.xy));
+  __m128 cmp_zw = _mm_cvtpd_ps(_mm_cmpge_pd(m_v.zw, v.m_v.zw));
+  ezSimdVec4b result;
+  result.m_v = _mm_movelh_ps(cmp_xy, cmp_zw);
   return result;
 #endif
 }
@@ -751,10 +772,14 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4d::operator>(const ezSimdVec4d& v) const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
   __m256d cmpResult = _mm256_cmp_pd(m_v, v.m_v, _CMP_GT_OQ);
-  return _mm256_cvtpd_ps(cmpResult);
-#else
   ezSimdVec4b result;
-  result.m_v = _mm_movelh_ps(_mm_castpd_ps(_mm_cmpgt_pd(m_v.xy, v.m_v.xy)), _mm_castpd_ps(_mm_cmpgt_pd(m_v.zw, v.m_v.zw)));
+  result.m_v = _mm256_cvtpd_ps(cmpResult);
+  return result;
+#else
+  __m128 cmp_xy = _mm_cvtpd_ps(_mm_cmpgt_pd(m_v.xy, v.m_v.xy));
+  __m128 cmp_zw = _mm_cvtpd_ps(_mm_cmpgt_pd(m_v.zw, v.m_v.zw));
+  ezSimdVec4b result;
+  result.m_v = _mm_movelh_ps(cmp_xy, cmp_zw);
   return result;
 #endif
 }
