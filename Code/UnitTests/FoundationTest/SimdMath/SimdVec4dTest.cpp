@@ -140,6 +140,7 @@ namespace
     ezSimdVec4d vNorm = a;
     vNorm.Normalize<3>();
 
+
     ezSimdVec4d vNormCond = vNorm * (fEps * ezSimdDouble(0.1));
     vNormCond.NormalizeIfNotZero<3, acc>(a, fEps);
     EZ_TEST_BOOL((vNormCond == a).AllSet());
@@ -345,15 +346,12 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4d)
       r[2] = ezVec3d(a.x(), a.y(), a.z()).GetLength();
       r[3] = ezVec4d(a.x(), a.y(), a.z(), a.w()).GetLength();
 
+
       EZ_TEST_DOUBLE(a.GetLength<1>(), r[0], ezMath::SmallEpsilon<double>());
       EZ_TEST_DOUBLE(a.GetLength<2>(), r[1], ezMath::SmallEpsilon<double>());
       EZ_TEST_DOUBLE(a.GetLength<3>(), r[2], ezMath::SmallEpsilon<double>());
       EZ_TEST_DOUBLE(a.GetLength<4>(), r[3], ezMath::SmallEpsilon<double>());
 
-      printf("a.GetLength<1>() %lf vs %lf\n", a.GetLength<1>(), r[0]);
-      printf("a.GetLength<2>() %lf vs %lf\n", a.GetLength<2>(), r[1]);
-      printf("a.GetLength<3>() %lf vs %lf\n", a.GetLength<3>(), r[2]);
-      printf("a.GetLength<4>() %lf vs %lf\n", a.GetLength<4>(), r[3]);
 
       TestLength<ezMathAcc::FULL>(a, r, ezMath::SmallEpsilon<double>());
       TestLength<ezMathAcc::BITS_23>(a, r, ezMath::DefaultEpsilon<double>());
@@ -496,7 +494,6 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4d)
     ezSimdVec4d a(3.0, 5.0, 7.0, 9.0);
 
     ezSimdVec4d b = a.Get<ezSwizzle::XXXX>();
-    printf("Swizzle: %lf, %lf,%lf,%lf\n", b.x(), b.y(), b.z(),b.w());
     EZ_TEST_BOOL(b.x() == 3.0 && b.y() == 3.0 && b.z() == 3.0 && b.w() == 3.0);
 
     b = a.Get<ezSwizzle::YYYX>();

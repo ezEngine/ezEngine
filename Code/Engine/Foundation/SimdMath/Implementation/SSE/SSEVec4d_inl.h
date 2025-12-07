@@ -396,10 +396,9 @@ EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::GetInvSqrt<ezMathAcc::FULL>() const
 template <int N>
 EZ_ALWAYS_INLINE ezSimdDouble ezSimdVec4d::GetComponent() const
 {
-ezSimdDouble result;
+  ezSimdDouble result;
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
-
-  result.m_v =_mm256_shuffle_pd(m_v,m_v,EZ_SHUFFLE(N,N,N,N))
+  result.m_v = _mm256_shuffle_pd(m_v, m_v, EZ_SHUFFLE(N, N, N, N));
   return result;
 #else
 
@@ -412,7 +411,7 @@ ezSimdDouble result;
   else
   {
     //broadcast from 2 or 3 to result
-    result.m_v.xy = _mm_shuffle_pd(m_v.zw, m_v.zw, EZ_SHUFFLE_2(N+2,N+2));
+    result.m_v.xy = _mm_shuffle_pd(m_v.zw, m_v.zw, EZ_SHUFFLE_2(N-2,N-2));
     result.m_v.zw = result.m_v.xy;
   }
   return result;
@@ -863,11 +862,7 @@ template <>
 EZ_ALWAYS_INLINE ezSimdDouble ezSimdVec4d::HorizontalSum<2>() const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
-  __m256d temp = _mm256_hadd_pd(m_v, m_v);
-  __m128d sum = _mm256_castpd256_pd128(temp);
-  ezSimdDouble result;
-  result.m_v = _mm256_insertf128_pd(_mm256_castpd128_pd256(sum), sum, 1);
-  return result;
+#error
 #else
   return GetComponent<0>() + GetComponent<1>();
 #endif
@@ -1186,18 +1181,16 @@ template <int N, ezMathAcc::Enum acc>
 void ezSimdVec4d::NormalizeIfNotZero(const ezSimdDouble& fEpsilon)
 {
   ezSimdDouble sqLength = GetLengthSquared<N>();
-  
+
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
   __m256d isNotZero = _mm256_cmp_pd(sqLength.m_v, fEpsilon.m_v, _CMP_GT_OQ);
-  m_v = _mm256_mul_pd(m_v, sqLength.GetInvSqrt<acc>().m_v);
-  m_v = _mm256_and_pd(isNotZero, m_v);
+  __m256d invSqrt = sqLength.GetInvSqrt<acc>().m_v;
+  m_v = _mm256_and_pd(_mm256_mul_pd(m_v, invSqrt), isNotZero);
 #else
   __m128d isNotZero = _mm_cmpgt_pd(sqLength.m_v.xy, fEpsilon.m_v.xy);
-  ezSimdDouble invSqrt = sqLength.GetInvSqrt();
-  m_v.xy = _mm_mul_pd(m_v.xy, invSqrt.m_v.xy);
-  m_v.zw = _mm_mul_pd(m_v.zw, invSqrt.m_v.xy);
-  m_v.xy = _mm_and_pd(isNotZero, m_v.xy);
-  m_v.zw = _mm_and_pd(isNotZero, m_v.zw);
+  __m128d invSqrt = sqLength.GetInvSqrt().m_v.xy;
+  m_v.xy = _mm_and_pd(_mm_mul_pd(m_v.xy, invSqrt), isNotZero);
+  m_v.zw = _mm_and_pd(_mm_mul_pd(m_v.zw, invSqrt), isNotZero);
 #endif
 }
 

@@ -61,7 +61,7 @@ EZ_ALWAYS_INLINE void ezSimdVec4d::Normalize()
 template <int N, ezMathAcc::Enum acc>
 EZ_ALWAYS_INLINE void ezSimdVec4d::NormalizeIfNotZero(const ezSimdVec4d& vFallback, const ezSimdDouble& fEpsilon)
 {
-  ezSimdVec4b bIsZero = IsZero<N>(fEpsilon);
+  ezSimdVec4b bIsZero(IsZero<N>(fEpsilon));
   *this = Select(bIsZero, vFallback, GetNormalized<N, acc>());
 }
 
