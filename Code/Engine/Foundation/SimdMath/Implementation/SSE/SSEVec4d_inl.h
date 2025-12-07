@@ -635,7 +635,7 @@ EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::Select(const ezSimdVec4b& vCmp, const 
 #error
 #else
   ezSimdVec4d result;
-  __m128d cmpXY = _mm_cvtps_pd(vCmp.m_v);
+  __m128d cmpXY = _mm_cvtps_pd(vCmp.m_v);//bad conversion
   __m128d cmpZW = _mm_cvtps_pd(_mm_movehl_ps(vCmp.m_v, vCmp.m_v));
   result.m_v.xy = _mm_or_pd(_mm_andnot_pd(cmpXY, vFalse.m_v.xy), _mm_and_pd(cmpXY, vTrue.m_v.xy));
   result.m_v.zw = _mm_or_pd(_mm_andnot_pd(cmpZW, vFalse.m_v.zw), _mm_and_pd(cmpZW, vTrue.m_v.zw));
@@ -1187,10 +1187,12 @@ void ezSimdVec4d::NormalizeIfNotZero(const ezSimdDouble& fEpsilon)
   __m256d invSqrt = sqLength.GetInvSqrt<acc>().m_v;
   m_v = _mm256_and_pd(_mm256_mul_pd(m_v, invSqrt), isNotZero);
 #else
-  __m128d isNotZero = _mm_cmpgt_pd(sqLength.m_v.xy, fEpsilon.m_v.xy);
+  __m128d isNotZeroXY = _mm_cmpgt_pd(sqLength.m_v.xy, fEpsilon.m_v.xy);
+  __m128d isNotZeroZW = _mm_cmpgt_pd(sqLength.m_v.zw, fEpsilon.m_v.zw);
+
   __m128d invSqrt = sqLength.GetInvSqrt().m_v.xy;
-  m_v.xy = _mm_and_pd(_mm_mul_pd(m_v.xy, invSqrt), isNotZero);
-  m_v.zw = _mm_and_pd(_mm_mul_pd(m_v.zw, invSqrt), isNotZero);
+  m_v.xy = _mm_and_pd(_mm_mul_pd(m_v.xy, invSqrt), isNotZeroXY);
+  m_v.zw = _mm_and_pd(_mm_mul_pd(m_v.zw, invSqrt), isNotZeroZW);
 #endif
 }
 
