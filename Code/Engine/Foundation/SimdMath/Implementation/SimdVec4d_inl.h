@@ -61,7 +61,7 @@ EZ_ALWAYS_INLINE void ezSimdVec4d::Normalize()
 template <int N, ezMathAcc::Enum acc>
 EZ_ALWAYS_INLINE void ezSimdVec4d::NormalizeIfNotZero(const ezSimdVec4d& vFallback, const ezSimdDouble& fEpsilon)
 {
-  ezSimdVec4b bIsZero(IsZero<N>(fEpsilon));
+  ezSimdVec4bWide bIsZero(IsZero<N>(fEpsilon));
   *this = Select(bIsZero, vFallback, GetNormalized<N, acc>());
 }
 
@@ -101,7 +101,7 @@ EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::Lerp(const ezSimdVec4d& a, const ezSim
   return a + t.CompMul(b - a);
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4d::IsEqual(const ezSimdVec4d& rhs, const ezSimdDouble& fEpsilon) const
+EZ_ALWAYS_INLINE ezSimdVec4bWide ezSimdVec4d::IsEqual(const ezSimdVec4d& rhs, const ezSimdDouble& fEpsilon) const
 {
   ezSimdVec4d minusEps = rhs - ezSimdVec4d(fEpsilon);
   ezSimdVec4d plusEps = rhs + ezSimdVec4d(fEpsilon);
@@ -128,7 +128,7 @@ EZ_ALWAYS_INLINE ezSimdDouble ezSimdVec4d::HorizontalMax<1>() const
 
 EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::GetOrthogonalVector() const
 {
-  const ezSimdVec4b bIsLessThan = Get<ezSwizzle::YYYY>() < ezSimdVec4d(0.99);
+  const ezSimdVec4bWide bIsLessThan = Get<ezSwizzle::YYYY>() < ezSimdVec4d(0.99);
   return CrossRH(Select(bIsLessThan, ezSimdVec4d(0.0, 1.0, 0.0, 0.0), ezSimdVec4d(1.0, 0.0, 0.0, 0.0)));
 }
 
