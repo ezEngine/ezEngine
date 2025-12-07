@@ -29,7 +29,7 @@ EZ_ALWAYS_INLINE ezSimdVec4bWide::ezSimdVec4bWide(bool x, bool y, bool z, bool w
 #endif
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4bWide::ezSimdVec4bWide(ezInternal::QuadBool v)
+EZ_ALWAYS_INLINE ezSimdVec4bWide::ezSimdVec4bWide(ezInternal::QuadBoolWide v)
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
 #error
