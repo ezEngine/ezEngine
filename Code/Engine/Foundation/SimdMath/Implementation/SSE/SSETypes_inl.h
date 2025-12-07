@@ -44,8 +44,8 @@ namespace ezInternal
   };
   struct QuadBoolWide
   {
-    __m128 xy;
-    __m128 zw;
+    __m128d xy;
+    __m128d zw;
   };
 #endif
 

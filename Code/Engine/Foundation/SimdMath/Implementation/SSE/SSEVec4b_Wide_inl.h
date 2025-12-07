@@ -11,9 +11,9 @@ EZ_ALWAYS_INLINE ezSimdVec4bWide::ezSimdVec4bWide(bool b)
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
 #error
 #else
-  ezUInt32 mask = b ? 0xFFFFFFFF : 0;
-  __m128 tmp = _mm_load_ss((float*)&mask);
-  m_v = _mm_shuffle_ps(tmp, tmp, EZ_TO_SHUFFLE(ezSwizzle::XXXX));
+  __m128d val = _mm_set1_pd(b ? -1.0 : 0.0);
+  m_v.xy = val;
+  m_v.zw = val;
 #endif
 }
 
@@ -23,8 +23,9 @@ EZ_ALWAYS_INLINE ezSimdVec4bWide::ezSimdVec4bWide(bool x, bool y, bool z, bool w
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
 #error
 #else
-  alignas(16) ezUInt32 mask[4] = {x ? 0xFFFFFFFF : 0, y ? 0xFFFFFFFF : 0, z ? 0xFFFFFFFF : 0, w ? 0xFFFFFFFF : 0};
-  m_v = _mm_load_ps((float*)mask);
+  alignas(16) ezUInt64 mask[4] = {x ? 0xFFFFFFFFFFFFFFFFULL : 0ULL, y ? 0xFFFFFFFFFFFFFFFFULL : 0ULL, z ? 0xFFFFFFFFFFFFFFFFULL : 0ULL, w ? 0xFFFFFFFFFFFFFFFFULL : 0ULL};
+  m_v.xy = _mm_load_pd((double*)&mask[0]);
+  m_v.zw = _mm_load_pd((double*)&mask[2]);
 #endif
 }
 
@@ -43,7 +44,16 @@ EZ_ALWAYS_INLINE bool ezSimdVec4bWide::GetComponent() const
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
 #error
 #else
-  return _mm_movemask_ps(_mm_shuffle_ps(m_v, m_v, EZ_SHUFFLE(N, N, N, N))) != 0;
+  if constexpr (N < 2)
+  {
+    __m128d shuffled = _mm_shuffle_pd(m_v.xy, m_v.xy, N == 0 ? 0 : 3);
+    return (_mm_movemask_pd(shuffled) & 1) != 0;
+  }
+  else
+  {
+    __m128d shuffled = _mm_shuffle_pd(m_v.zw, m_v.zw, N == 2 ? 0 : 3);
+    return (_mm_movemask_pd(shuffled) & 1) != 0;
+  }
 #endif
 }
 
@@ -73,7 +83,30 @@ EZ_ALWAYS_INLINE ezSimdVec4bWide ezSimdVec4bWide::Get() const
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
 #error
 #else
-  return _mm_shuffle_ps(m_v, m_v, EZ_TO_SHUFFLE(s));
+  constexpr int s0 = (s >> 12) & 3;
+  constexpr int s1 = (s >> 8) & 3;
+  constexpr int s2 = (s >> 4) & 3;
+  constexpr int s3 = s & 3;
+
+  ezSimdVec4bWide result;
+
+  // xy
+  int idx_a_xy = s0 / 2;
+  int idx_b_xy = s1 / 2;
+  __m128d a_xy = (idx_a_xy == 0) ? m_v.xy : m_v.zw;
+  __m128d b_xy = (idx_b_xy == 0) ? m_v.xy : m_v.zw;
+  int mask_xy = (s0 % 2) | ((s1 % 2) << 1);
+  result.m_v.xy = _mm_shuffle_pd(a_xy, b_xy, mask_xy);
+
+  // zw
+  int idx_a_zw = s2 / 2;
+  int idx_b_zw = s3 / 2;
+  __m128d a_zw = (idx_a_zw == 0) ? m_v.xy : m_v.zw;
+  __m128d b_zw = (idx_b_zw == 0) ? m_v.xy : m_v.zw;
+  int mask_zw = (s2 % 2) | ((s3 % 2) << 1);
+  result.m_v.zw = _mm_shuffle_pd(a_zw, b_zw, mask_zw);
+
+  return result;
 #endif
 }
 
@@ -82,7 +115,10 @@ EZ_ALWAYS_INLINE ezSimdVec4bWide ezSimdVec4bWide::operator&&(const ezSimdVec4bWi
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
 #error
 #else
-  return _mm_and_ps(m_v, rhs.m_v);
+  ezSimdVec4bWide result;
+  result.m_v.xy = _mm_and_pd(m_v.xy, rhs.m_v.xy);
+  result.m_v.zw = _mm_and_pd(m_v.zw, rhs.m_v.zw);
+  return result;
 #endif
 }
 
@@ -91,7 +127,10 @@ EZ_ALWAYS_INLINE ezSimdVec4bWide ezSimdVec4bWide::operator||(const ezSimdVec4bWi
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
 #error
 #else
-  return _mm_or_ps(m_v, rhs.m_v);
+  ezSimdVec4bWide result;
+  result.m_v.xy = _mm_or_pd(m_v.xy, rhs.m_v.xy);
+  result.m_v.zw = _mm_or_pd(m_v.zw, rhs.m_v.zw);
+  return result;
 #endif
 }
 
@@ -100,8 +139,11 @@ EZ_ALWAYS_INLINE ezSimdVec4bWide ezSimdVec4bWide::operator!() const
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
 #error
 #else
-  __m128 allTrue = _mm_cmpeq_ps(_mm_setzero_ps(), _mm_setzero_ps());
-  return _mm_xor_ps(m_v, allTrue);
+  __m128d allTrue = _mm_cmpeq_pd(_mm_setzero_pd(), _mm_setzero_pd());
+  ezSimdVec4bWide result;
+  result.m_v.xy = _mm_xor_pd(m_v.xy, allTrue);
+  result.m_v.zw = _mm_xor_pd(m_v.zw, allTrue);
+  return result;
 #endif
 }
 
@@ -115,7 +157,10 @@ EZ_ALWAYS_INLINE ezSimdVec4bWide ezSimdVec4bWide::operator!=(const ezSimdVec4bWi
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
 #error
 #else
-  return _mm_xor_ps(m_v, rhs.m_v);
+  ezSimdVec4bWide result;
+  result.m_v.xy = _mm_xor_pd(m_v.xy, rhs.m_v.xy);
+  result.m_v.zw = _mm_xor_pd(m_v.zw, rhs.m_v.zw);
+  return result;
 #endif
 }
 
@@ -125,8 +170,11 @@ EZ_ALWAYS_INLINE bool ezSimdVec4bWide::AllSet() const
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
 #error
 #else
+  int xy_bits = _mm_movemask_pd(m_v.xy);
+  int zw_bits = _mm_movemask_pd(m_v.zw);
+  int combined = (zw_bits << 2) | xy_bits;
   const int mask = EZ_BIT(N) - 1;
-  return (_mm_movemask_ps(m_v) & mask) == mask;
+  return (combined & mask) == mask;
 #endif
 }
 
@@ -136,8 +184,11 @@ EZ_ALWAYS_INLINE bool ezSimdVec4bWide::AnySet() const
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
 #error
 #else
+  int xy_bits = _mm_movemask_pd(m_v.xy);
+  int zw_bits = _mm_movemask_pd(m_v.zw);
+  int combined = (zw_bits << 2) | xy_bits;
   const int mask = EZ_BIT(N) - 1;
-  return (_mm_movemask_ps(m_v) & mask) != 0;
+  return (combined & mask) != 0;
 #endif
 }
 
@@ -147,9 +198,12 @@ EZ_ALWAYS_INLINE bool ezSimdVec4bWide::NoneSet() const
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
 #error
 #else
+  int xy_bits = _mm_movemask_pd(m_v.xy);
+  int zw_bits = _mm_movemask_pd(m_v.zw);
+  int combined = (zw_bits << 2) | xy_bits;
   const int mask = EZ_BIT(N) - 1;
-  return (_mm_movemask_ps(m_v) & mask) == 0;
-  #endif
+  return (combined & mask) == 0;
+#endif
 }
 
 // static
@@ -158,12 +212,14 @@ EZ_ALWAYS_INLINE ezSimdVec4bWide ezSimdVec4bWide::Select(const ezSimdVec4bWide& 
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
 #error
 #else
-
+  ezSimdVec4bWide result;
 #if EZ_SSE_LEVEL >= EZ_SSE_41
-  return _mm_blendv_ps(vFalse.m_v, vTrue.m_v, vCmp.m_v);
+  result.m_v.xy = _mm_blendv_pd(vFalse.m_v.xy, vTrue.m_v.xy, vCmp.m_v.xy);
+  result.m_v.zw = _mm_blendv_pd(vFalse.m_v.zw, vTrue.m_v.zw, vCmp.m_v.zw);
 #else
-  return _mm_or_ps(_mm_andnot_ps(vCmp.m_v, vFalse.m_v), _mm_and_ps(vCmp.m_v, vTrue.m_v));
+  result.m_v.xy = _mm_or_pd(_mm_andnot_pd(vCmp.m_v.xy, vFalse.m_v.xy), _mm_and_pd(vCmp.m_v.xy, vTrue.m_v.xy));
+  result.m_v.zw = _mm_or_pd(_mm_andnot_pd(vCmp.m_v.zw, vFalse.m_v.zw), _mm_and_pd(vCmp.m_v.zw, vTrue.m_v.zw));
 #endif
-
+  return result;
 #endif
 }

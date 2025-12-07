@@ -142,9 +142,9 @@ public:
   [[nodiscard]] ezSimdVec4d Trunc() const;
   [[nodiscard]] ezSimdVec4d Fraction() const;
 
-  [[nodiscard]] ezSimdVec4d FlipSign(const ezSimdVec4b& vCmp) const;
+  [[nodiscard]] ezSimdVec4d FlipSign(const ezSimdVec4bWide& vCmp) const;
 
-  [[nodiscard]] static ezSimdVec4d Select(const ezSimdVec4b& vCmp, const ezSimdVec4d& vTrue, const ezSimdVec4d& vFalse);
+  [[nodiscard]] static ezSimdVec4d Select(const ezSimdVec4bWide& vCmp, const ezSimdVec4d& vTrue, const ezSimdVec4d& vFalse);
 
   [[nodiscard]] static ezSimdVec4d Lerp(const ezSimdVec4d& a, const ezSimdVec4d& b, const ezSimdVec4d& t);
 
@@ -154,14 +154,14 @@ public:
   ezSimdVec4d& operator*=(const ezSimdDouble& f);
   ezSimdVec4d& operator/=(const ezSimdDouble& f);
 
-  ezSimdVec4b IsEqual(const ezSimdVec4d& rhs, const ezSimdDouble& fEpsilon) const;
+  ezSimdVec4bWide IsEqual(const ezSimdVec4d& rhs, const ezSimdDouble& fEpsilon) const;
 
-  [[nodiscard]] ezSimdVec4b operator==(const ezSimdVec4d& v) const;
-  [[nodiscard]] ezSimdVec4b operator!=(const ezSimdVec4d& v) const;
-  [[nodiscard]] ezSimdVec4b operator<=(const ezSimdVec4d& v) const;
-  [[nodiscard]] ezSimdVec4b operator<(const ezSimdVec4d& v) const;
-  [[nodiscard]] ezSimdVec4b operator>=(const ezSimdVec4d& v) const;
-  [[nodiscard]] ezSimdVec4b operator>(const ezSimdVec4d& v) const;
+  [[nodiscard]] ezSimdVec4bWide operator==(const ezSimdVec4d& v) const;
+  [[nodiscard]] ezSimdVec4bWide operator!=(const ezSimdVec4d& v) const;
+  [[nodiscard]] ezSimdVec4bWide operator<=(const ezSimdVec4d& v) const;
+  [[nodiscard]] ezSimdVec4bWide operator<(const ezSimdVec4d& v) const;
+  [[nodiscard]] ezSimdVec4bWide operator>=(const ezSimdVec4d& v) const;
+  [[nodiscard]] ezSimdVec4bWide operator>(const ezSimdVec4d& v) const;
 
   template <int N>
   [[nodiscard]] ezSimdDouble HorizontalSum() const;

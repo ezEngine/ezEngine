@@ -611,7 +611,7 @@ EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::Trunc() const
 #endif
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::FlipSign(const ezSimdVec4b& vCmp) const
+EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::FlipSign(const ezSimdVec4bWide& vCmp) const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
 #error
@@ -629,7 +629,7 @@ EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::FlipSign(const ezSimdVec4b& vCmp) cons
 }
 
 // static
-EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::Select(const ezSimdVec4b& vCmp, const ezSimdVec4d& vTrue, const ezSimdVec4d& vFalse)
+EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::Select(const ezSimdVec4bWide& vCmp, const ezSimdVec4d& vTrue, const ezSimdVec4d& vFalse)
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
 #error
@@ -687,97 +687,97 @@ EZ_ALWAYS_INLINE ezSimdVec4d& ezSimdVec4d::operator/=(const ezSimdDouble& f)
   return *this;
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4d::operator==(const ezSimdVec4d& v) const
+EZ_ALWAYS_INLINE ezSimdVec4bWide ezSimdVec4d::operator==(const ezSimdVec4d& v) const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
   __m256d cmpResult = _mm256_cmp_pd(m_v, v.m_v, _CMP_EQ_OQ);
-  ezSimdVec4b result;
+  ezSimdVec4bWide result;
   result.m_v = _mm256_cvtpd_ps(cmpResult);
   return result;
 #else
   __m128 cmp_xy = _mm_cvtpd_ps(_mm_cmpeq_pd(m_v.xy, v.m_v.xy));
   __m128 cmp_zw = _mm_cvtpd_ps(_mm_cmpeq_pd(m_v.zw, v.m_v.zw));
-  ezSimdVec4b result;
+  ezSimdVec4bWide result;
   result.m_v = _mm_movelh_ps(cmp_xy, cmp_zw);
   return result;
 #endif
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4d::operator!=(const ezSimdVec4d& v) const
+EZ_ALWAYS_INLINE ezSimdVec4bWide ezSimdVec4d::operator!=(const ezSimdVec4d& v) const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
   __m256d cmpResult = _mm256_cmp_pd(m_v, v.m_v, _CMP_NEQ_OQ);
-  ezSimdVec4b result;
+  ezSimdVec4bWide result;
   result.m_v = _mm256_cvtpd_ps(cmpResult);
   return result;
 #else
   __m128 cmp_xy = _mm_cvtpd_ps(_mm_cmpneq_pd(m_v.xy, v.m_v.xy));
   __m128 cmp_zw = _mm_cvtpd_ps(_mm_cmpneq_pd(m_v.zw, v.m_v.zw));
-  ezSimdVec4b result;
+  ezSimdVec4bWide result;
   result.m_v = _mm_movelh_ps(cmp_xy, cmp_zw);
   return result;
 #endif
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4d::operator<=(const ezSimdVec4d& v) const
+EZ_ALWAYS_INLINE ezSimdVec4bWide ezSimdVec4d::operator<=(const ezSimdVec4d& v) const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
   __m256d cmpResult = _mm256_cmp_pd(m_v, v.m_v, _CMP_LE_OQ);
-  ezSimdVec4b result;
+  ezSimdVec4bWide result;
   result.m_v = _mm256_cvtpd_ps(cmpResult);
   return result;
 #else
   __m128 cmp_xy = _mm_cvtpd_ps(_mm_cmple_pd(m_v.xy, v.m_v.xy));
   __m128 cmp_zw = _mm_cvtpd_ps(_mm_cmple_pd(m_v.zw, v.m_v.zw));
-  ezSimdVec4b result;
+  ezSimdVec4bWide result;
   result.m_v = _mm_movelh_ps(cmp_xy, cmp_zw);
   return result;
 #endif
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4d::operator<(const ezSimdVec4d& v) const
+EZ_ALWAYS_INLINE ezSimdVec4bWide ezSimdVec4d::operator<(const ezSimdVec4d& v) const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
   __m256d cmpResult = _mm256_cmp_pd(m_v, v.m_v, _CMP_LT_OQ);
-  ezSimdVec4b result;
+  ezSimdVec4bWide result;
   result.m_v = _mm256_cvtpd_ps(cmpResult);
   return result;
 #else
   __m128 cmp_xy = _mm_cvtpd_ps(_mm_cmplt_pd(m_v.xy, v.m_v.xy));
   __m128 cmp_zw = _mm_cvtpd_ps(_mm_cmplt_pd(m_v.zw, v.m_v.zw));
-  ezSimdVec4b result;
+  ezSimdVec4bWide result;
   result.m_v = _mm_movelh_ps(cmp_xy, cmp_zw);
   return result;
 #endif
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4d::operator>=(const ezSimdVec4d& v) const
+EZ_ALWAYS_INLINE ezSimdVec4bWide ezSimdVec4d::operator>=(const ezSimdVec4d& v) const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
   __m256d cmpResult = _mm256_cmp_pd(m_v, v.m_v, _CMP_GE_OQ);
-  ezSimdVec4b result;
+  ezSimdVec4bWide result;
   result.m_v = _mm256_cvtpd_ps(cmpResult);
   return result;
 #else
   __m128 cmp_xy = _mm_cvtpd_ps(_mm_cmpge_pd(m_v.xy, v.m_v.xy));
   __m128 cmp_zw = _mm_cvtpd_ps(_mm_cmpge_pd(m_v.zw, v.m_v.zw));
-  ezSimdVec4b result;
+  ezSimdVec4bWide result;
   result.m_v = _mm_movelh_ps(cmp_xy, cmp_zw);
   return result;
 #endif
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4d::operator>(const ezSimdVec4d& v) const
+EZ_ALWAYS_INLINE ezSimdVec4bWide ezSimdVec4d::operator>(const ezSimdVec4d& v) const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
   __m256d cmpResult = _mm256_cmp_pd(m_v, v.m_v, _CMP_GT_OQ);
-  ezSimdVec4b result;
+  ezSimdVec4bWide result;
   result.m_v = _mm256_cvtpd_ps(cmpResult);
   return result;
 #else
   __m128 cmp_xy = _mm_cvtpd_ps(_mm_cmpgt_pd(m_v.xy, v.m_v.xy));
   __m128 cmp_zw = _mm_cvtpd_ps(_mm_cmpgt_pd(m_v.zw, v.m_v.zw));
-  ezSimdVec4b result;
+  ezSimdVec4bWide result;
   result.m_v = _mm_movelh_ps(cmp_xy, cmp_zw);
   return result;
 #endif
