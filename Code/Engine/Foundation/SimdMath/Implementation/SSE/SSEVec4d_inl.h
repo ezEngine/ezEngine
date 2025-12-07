@@ -691,8 +691,7 @@ EZ_ALWAYS_INLINE ezSimdVec4d& ezSimdVec4d::operator/=(const ezSimdDouble& f)
 EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4d::operator==(const ezSimdVec4d& v) const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
-  __m256d cmpResult = _mm256_cmp_pd(m_v, v.m_v, _CMP_EQ_OQ);
-  return _mm256_cvtpd_ps(cmpResult);
+#error
 #else
   ezSimdVec4b result;
   result.m_v = _mm_movelh_ps(_mm_castpd_ps(_mm_cmpeq_pd(m_v.xy, v.m_v.xy)), _mm_castpd_ps(_mm_cmpeq_pd(m_v.zw, v.m_v.zw)));
