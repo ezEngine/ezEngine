@@ -610,7 +610,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4d)
       ezSimdVec4d a(-3.0, 5.0, -7.0, 9.0);
       ezSimdVec4d b(8.0, 6.0, 4.0, 2.0);
 
-      ezSimdVec4b cmp(true, false, false, true);
+      ezSimdVec4bWide cmp(true, false, false, true);
       ezSimdVec4d c;
 
       c = a.FlipSign(cmp);
@@ -649,7 +649,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4d)
   {
     ezSimdVec4d a(7.0, 5.0, 4.0, 3.0);
     ezSimdVec4d b(8.0, 6.0, 4.0, 2.0);
-    ezSimdVec4b cmp;
+    ezSimdVec4bWide cmp;
 
     cmp = a == b;
     EZ_TEST_BOOL(!cmp.x() && !cmp.y() && cmp.z() && !cmp.w());
