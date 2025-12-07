@@ -21,14 +21,14 @@ template <int N, ezMathAcc::Enum acc>
 EZ_ALWAYS_INLINE ezSimdDouble ezSimdVec4d::GetLength() const
 {
   const ezSimdDouble squaredLen = GetLengthSquared<N>();
-  return squaredLen.GetSqrt<acc>();
+  return squaredLen.GetSqrt();
 }
 
 template <int N, ezMathAcc::Enum acc>
 EZ_ALWAYS_INLINE ezSimdDouble ezSimdVec4d::GetInvLength() const
 {
   const ezSimdDouble squaredLen = GetLengthSquared<N>();
-  return squaredLen.GetInvSqrt<acc>();
+  return squaredLen.GetInvSqrt();
 }
 
 template <int N>
@@ -41,7 +41,7 @@ template <int N, ezMathAcc::Enum acc>
 EZ_ALWAYS_INLINE ezSimdDouble ezSimdVec4d::GetLengthAndNormalize()
 {
   const ezSimdDouble squaredLen = GetLengthSquared<N>();
-  const ezSimdDouble reciprocalLen = squaredLen.GetInvSqrt<acc>();
+  const ezSimdDouble reciprocalLen = squaredLen.GetInvSqrt();
   *this = (*this) * reciprocalLen;
   return squaredLen * reciprocalLen;
 }

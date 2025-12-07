@@ -618,8 +618,13 @@ EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::FlipSign(const ezSimdVec4b& vCmp) cons
 #error
 #else
   ezSimdVec4d result;
-  result.m_v.xy = _mm_xor_pd(m_v.xy, _mm_and_pd(vCmp.m_v, _mm_set1_pd(-0.0)));
-  result.m_v.zw = _mm_xor_pd(m_v.zw, _mm_and_pd(vCmp.m_v, _mm_set1_pd(-0.0)));
+
+
+  __m128d cmpLo = _mm_cvtps_pd(vCmp.m_v);
+  __m128d cmpHi = _mm_cvtps_pd(_mm_movehl_ps(vCmp.m_v, vCmp.m_v));
+
+  result.m_v.xy = _mm_xor_pd(m_v.xy, _mm_and_pd(cmpLo, _mm_set1_pd(-0.0)));
+  result.m_v.zw = _mm_xor_pd(m_v.zw, _mm_and_pd(cmpHi, _mm_set1_pd(-0.0)));
   return result;
 #endif
 }
@@ -1164,7 +1169,7 @@ void ezSimdVec4d::NormalizeIfNotZero(const ezSimdDouble& fEpsilon)
   m_v = _mm256_and_pd(isNotZero, m_v);
 #else
   __m128d isNotZero = _mm_cmpgt_pd(sqLength.m_v.xy, fEpsilon.m_v.xy);
-  ezSimdDouble invSqrt = sqLength.GetInvSqrt<acc>();
+  ezSimdDouble invSqrt = sqLength.GetInvSqrt();
   m_v.xy = _mm_mul_pd(m_v.xy, invSqrt.m_v.xy);
   m_v.zw = _mm_mul_pd(m_v.zw, invSqrt.m_v.xy);
   m_v.xy = _mm_and_pd(isNotZero, m_v.xy);
