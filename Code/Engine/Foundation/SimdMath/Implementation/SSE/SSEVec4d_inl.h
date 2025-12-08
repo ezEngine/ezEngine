@@ -371,8 +371,8 @@ EZ_ALWAYS_INLINE void ezSimdVec4d::Store<4>(double* pDouble) const
 }
 
 
-template <>
-EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::GetReciprocal<ezMathAcc::FULL>() const
+
+EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::GetReciprocal() const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
   return _mm256_div_pd(_mm256_set1_pd(1.0), m_v);
@@ -385,8 +385,8 @@ EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::GetReciprocal<ezMathAcc::FULL>() const
 #endif
 }
 
-template <>
-EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::GetSqrt<ezMathAcc::FULL>() const
+
+EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::GetSqrt() const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
   return _mm256_sqrt_pd(m_v);
@@ -398,8 +398,8 @@ EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::GetSqrt<ezMathAcc::FULL>() const
 #endif
 }
 
-template <>
-EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::GetInvSqrt<ezMathAcc::FULL>() const
+
+EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::GetInvSqrt() const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
   return _mm256_div_pd(_mm256_set1_pd(1.0), _mm256_sqrt_pd(m_v));
@@ -533,8 +533,8 @@ EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::CompMul(const ezSimdVec4d& v) const
 #endif
 }
 
-template <>
-EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::CompDiv<ezMathAcc::FULL>(const ezSimdVec4d& v) const
+
+EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::CompDiv(const ezSimdVec4d& v) const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
   return _mm256_div_pd(m_v, v.m_v);
@@ -546,17 +546,7 @@ EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::CompDiv<ezMathAcc::FULL>(const ezSimdV
 #endif
 }
 
-template <>
-EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::CompDiv<ezMathAcc::BITS_23>(const ezSimdVec4d& v) const
-{
-  return CompMul(v.GetReciprocal<ezMathAcc::BITS_23>());
-}
 
-template <>
-EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::CompDiv<ezMathAcc::BITS_12>(const ezSimdVec4d& v) const
-{
-  return CompMul(v.GetReciprocal<ezMathAcc::BITS_12>());
-}
 
 EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::CompMin(const ezSimdVec4d& v) const
 {
@@ -1176,7 +1166,7 @@ EZ_ALWAYS_INLINE bool ezSimdVec4d::IsValid() const
 #endif
 }
 
-template <int N, ezMathAcc::Enum acc>
+template <int N>
 void ezSimdVec4d::NormalizeIfNotZero(const ezSimdDouble& fEpsilon)
 {
   ezSimdDouble sqLength = GetLengthSquared<N>();
