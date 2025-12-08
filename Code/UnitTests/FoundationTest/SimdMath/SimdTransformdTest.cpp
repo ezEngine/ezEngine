@@ -147,7 +147,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdTransformd)
     // reference
     ezSimdMat4d refM;
     {
-      ezQuatd q = ezQuatd::MakeFromAxisAndAngle(ezVec3d(0, 1, 0), ezAngle::MakeFromDegree(34)));
+      ezQuatd q = ezQuatd::MakeFromAxisAndAngle(ezVec3d(0, 1, 0), ezAngle::MakeFromDegree(34));
 
       ezTransformd referenceTransform(ezVec3d(1, 2, 3), q, ezVec3d(2, -1, 5));
       ezMat4d tmp = referenceTransform.GetAsMat4();
