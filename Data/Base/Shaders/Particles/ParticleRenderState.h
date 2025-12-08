@@ -30,4 +30,4 @@ CullMode = CullMode_None
       DestBlendAlpha0 = Blend_InvSrcAlpha
 #endif
 
-// clang-format on
+  // clang-format on
