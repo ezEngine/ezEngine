@@ -424,6 +424,7 @@ protected:
   virtual void OnInit() override;
   virtual void DoPrepareToDie() override;
   void UpdatePreview();
+  void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
 
 protected:
   QHBoxLayout* m_pLayout = nullptr;

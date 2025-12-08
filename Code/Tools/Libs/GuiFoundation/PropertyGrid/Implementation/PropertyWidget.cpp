@@ -1990,8 +1990,35 @@ void ezQtPropertyEditorCurve1DWidget::SetSelection(const ezHybridArray<ezPropert
   UpdatePreview();
 }
 
-void ezQtPropertyEditorCurve1DWidget::OnInit() {}
-void ezQtPropertyEditorCurve1DWidget::DoPrepareToDie() {}
+void ezQtPropertyEditorCurve1DWidget::OnInit()
+{
+  m_pObjectAccessor->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyEditorCurve1DWidget::PropertyEventHandler, this));
+}
+
+void ezQtPropertyEditorCurve1DWidget::DoPrepareToDie()
+{
+  m_pObjectAccessor->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyEditorCurve1DWidget::PropertyEventHandler, this));
+}
+
+void ezQtPropertyEditorCurve1DWidget::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+{
+  if (IsUndead())
+    return;
+
+  if (m_Items.IsEmpty())
+    return;
+
+  const ezDocumentObject* pParent = m_Items[0].m_pObject;
+  const ezDocumentObject* pCurve = m_pObjectAccessor->GetChildObjectByName(pParent, m_pProp->GetPropertyName(), {});
+
+  if (pCurve == nullptr)
+    return;
+
+  if (e.m_pObject == pCurve || e.m_pObject->GetParent() == pCurve)
+  {
+    UpdatePreview();
+  }
+}
 
 void ezQtPropertyEditorCurve1DWidget::UpdatePreview()
 {

@@ -40,6 +40,8 @@ ezQtCurveEditDlg::ezQtCurveEditDlg(ezObjectAccessorBase* pObjectAccessor, const 
   RetrieveCurveState();
 
   m_uiActionsUndoBaseline = m_pObjectAccessor->GetObjectManager()->GetDocument()->GetCommandHistory()->GetUndoStackSize();
+
+  UpdateUndoRedoState();
 }
 
 void ezQtCurveEditDlg::RetrieveCurveState()
@@ -222,6 +224,10 @@ void ezQtCurveEditDlg::OnInsertCpEvent(ezUInt32 curveIdx, ezInt64 tickX, double 
     m_pObjectAccessor->SetValueByName(pPoint, "Tick", tickX).AssertSuccess();
     m_pObjectAccessor->SetValueByName(pPoint, "Value", value).AssertSuccess();
   }
+
+  // Record which point was inserted (will be at the end of the array)
+  m_iInsertedCurveIdx = curveIdx;
+  m_uiInsertedPointIdx = m_Curves.m_Curves[curveIdx]->m_ControlPoints.GetCount() - 1;
 }
 
 void ezQtCurveEditDlg::OnTangentLinkEvent(ezUInt32 curveIdx, ezUInt32 cpIdx, bool bLink)
@@ -273,6 +279,20 @@ void ezQtCurveEditDlg::OnEndCpChangesEvent()
   m_pObjectAccessor->FinishTransaction();
 
   UpdatePreview();
+  UpdateUndoRedoState();
+
+  // If a control point was inserted, select it now that the operation is complete
+  if (m_iInsertedCurveIdx >= 0)
+  {
+    ezSelectedCurveCP sel;
+    sel.m_uiCurve = static_cast<ezUInt16>(m_iInsertedCurveIdx);
+    sel.m_uiPoint = static_cast<ezUInt16>(m_uiInsertedPointIdx);
+
+    CurveEditor->CurveEdit->ClearSelection();
+    CurveEditor->CurveEdit->SetSelection(sel);
+
+    m_iInsertedCurveIdx = -1;
+  }
 }
 
 void ezQtCurveEditDlg::OnBeginOperationEvent(QString name)
@@ -288,6 +308,7 @@ void ezQtCurveEditDlg::OnEndOperationEvent(bool commit)
     m_pObjectAccessor->CancelTemporaryCommands();
 
   UpdatePreview();
+  UpdateUndoRedoState();
 }
 
 void ezQtCurveEditDlg::on_actionUndo_triggered()
@@ -300,6 +321,7 @@ void ezQtCurveEditDlg::on_actionUndo_triggered()
 
     RetrieveCurveState();
     UpdatePreview();
+    UpdateUndoRedoState();
   }
 }
 
@@ -313,6 +335,7 @@ void ezQtCurveEditDlg::on_actionRedo_triggered()
 
     RetrieveCurveState();
     UpdatePreview();
+    UpdateUndoRedoState();
   }
 }
 
@@ -324,4 +347,25 @@ void ezQtCurveEditDlg::on_ButtonOk_clicked()
 void ezQtCurveEditDlg::on_ButtonCancel_clicked()
 {
   cancel();
+}
+
+void ezQtCurveEditDlg::on_ButtonUndo_clicked()
+{
+  on_actionUndo_triggered();
+}
+
+void ezQtCurveEditDlg::on_ButtonRedo_clicked()
+{
+  on_actionRedo_triggered();
+}
+
+void ezQtCurveEditDlg::UpdateUndoRedoState()
+{
+  auto& cmd = *m_pObjectAccessor->GetObjectManager()->GetDocument()->GetCommandHistory();
+
+  const bool canUndo = cmd.CanUndo() && cmd.GetUndoStackSize() > m_uiActionsUndoBaseline;
+  const bool canRedo = cmd.CanRedo();
+
+  ButtonUndo->setEnabled(canUndo);
+  ButtonRedo->setEnabled(canRedo);
 }
