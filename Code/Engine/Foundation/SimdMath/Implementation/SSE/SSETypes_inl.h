@@ -90,3 +90,8 @@ EZ_ALWAYS_INLINE void EZ_WIDE_SHUFFLE_SSE(__m128d aLow, __m128d aHigh, __m128d b
   outLow = _mm_shuffle_pd(d0, d1, 0);
   outHigh = _mm_shuffle_pd(d2, d3, 0);
 }
+
+EZ_ALWAYS_INLINE __m256d EZ_WIDE_SHUFFLE_AVX(__m256d a, __m256d b, int imm8)
+{
+
+}
