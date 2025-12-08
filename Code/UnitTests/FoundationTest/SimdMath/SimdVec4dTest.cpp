@@ -190,7 +190,6 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4d)
     EZ_TEST_BOOL(vInit1SF.x() == 3.0 && vInit1SF.y() == 3.0 && vInit1SF.z() == 3.0 && vInit1SF.w() == 3.0);
 
     ezSimdVec4d vInit4D(1.0, 2.0, 3.0, 4.0);
-    printf("%lf,%lf,%lf,%lf\n",vInit4D.x(),vInit4D.x(),vInit4D.x(),vInit4D.x());
     EZ_TEST_BOOL(vInit4D.x() == 1.0 && vInit4D.y() == 2.0 && vInit4D.z() == 3.0 && vInit4D.w() == 4.0);
 
     // Make sure all components have the correct values
