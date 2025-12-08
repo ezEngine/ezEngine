@@ -67,18 +67,8 @@ ezQtTestGUI::ezQtTestGUI(ezQtTestFramework& ref_testFramework)
   TestSettings settings = m_pTestFramework->GetSettings();
   this->actionAssertOnTestFail->setChecked(settings.m_AssertOnTestFail != AssertOnTestFail::DoNotAssert);
   this->actionOpenHTMLOutput->setChecked(settings.m_bOpenHtmlOutputOnError);
-  this->actionKeepConsoleOpen->setChecked(settings.m_bKeepConsoleOpen);
   this->actionShowMessageBox->setChecked(settings.m_bShowMessageBox);
   this->actionDisableSuccessfulTests->setChecked(settings.m_bAutoDisableSuccessfulTests);
-
-  // Hide the Windows console if we are its owner
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  DWORD consoleOwner = 0;
-  HWND console = GetConsoleWindow();
-  GetWindowThreadProcessId(console, &consoleOwner);
-  if (consoleOwner == GetCurrentProcessId() && !settings.m_bKeepConsoleOpen)
-    ShowWindow(console, SW_HIDE);
-#  endif
 
   connect(m_pTestFramework, SIGNAL(TestResultReceived(qint32, qint32)), this, SLOT(onTestFrameworkTestResultReceived(qint32, qint32)));
 
@@ -128,31 +118,6 @@ void ezQtTestGUI::on_actionOpenHTMLOutput_triggered(bool bChecked)
   TestSettings settings = m_pTestFramework->GetSettings();
   settings.m_bOpenHtmlOutputOnError = bChecked;
   m_pTestFramework->SetSettings(settings);
-}
-
-void ezQtTestGUI::on_actionKeepConsoleOpen_triggered(bool bChecked)
-{
-  TestSettings settings = m_pTestFramework->GetSettings();
-  settings.m_bKeepConsoleOpen = bChecked;
-  m_pTestFramework->SetSettings(settings);
-
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  // We should only allow hiding of the console window if this application
-  // is actually the console owner, otherwise we will for example hide all
-  // cmd.exe windows that launch a test framework based application. This
-  // also has another ugly side effect in that the cmd.exe process stays
-  // alive but the console window will never be visible again.
-  DWORD consoleOwner = 0;
-  HWND console = GetConsoleWindow();
-  GetWindowThreadProcessId(console, &consoleOwner);
-  if (consoleOwner == GetCurrentProcessId())
-  {
-    if (!settings.m_bKeepConsoleOpen)
-      ShowWindow(console, SW_HIDE);
-    else
-      ShowWindow(console, SW_SHOW);
-  }
-#  endif
 }
 
 void ezQtTestGUI::on_actionShowMessageBox_triggered(bool bChecked)

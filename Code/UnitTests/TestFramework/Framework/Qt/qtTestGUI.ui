@@ -112,7 +112,6 @@
     </property>
     <addaction name="actionAssertOnTestFail"/>
     <addaction name="actionOpenHTMLOutput"/>
-    <addaction name="actionKeepConsoleOpen"/>
     <addaction name="actionShowMessageBox"/>
     <addaction name="actionDisableSuccessfulTests"/>
     <addaction name="separator"/>
@@ -146,14 +145,6 @@
    </property>
    <property name="text">
     <string>Open HTML on Error</string>
-   </property>
-  </action>
-  <action name="actionKeepConsoleOpen">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Keep Console Open</string>
    </property>
   </action>
   <action name="actionRunTests">
