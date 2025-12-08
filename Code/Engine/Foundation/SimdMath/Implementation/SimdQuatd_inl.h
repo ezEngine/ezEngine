@@ -20,9 +20,9 @@ EZ_ALWAYS_INLINE ezSimdQuatd ezSimdQuatd::MakeFromElements(ezSimdDouble x, ezSim
 inline ezSimdQuatd ezSimdQuatd::MakeFromAxisAndAngle(const ezSimdVec4d& vRotationAxis, const ezSimdDouble& fAngle)
 {
   ///\todo optimize
-  const ezAngle halfAngle = ezAngle::MakeFromRadian(fAngle) * 0.5f;
-  float s = ezMath::Sin(halfAngle);
-  float c = ezMath::Cos(halfAngle);
+  const ezAngled halfAngle = ezAngled::MakeFromRadian(fAngle) * 0.5;
+  double s = ezMath::Sin(halfAngle);
+  double c = ezMath::Cos(halfAngle);
 
   ezSimdQuatd res;
   res.m_v = vRotationAxis * s;
@@ -38,8 +38,8 @@ EZ_ALWAYS_INLINE void ezSimdQuatd::Normalize()
 inline ezResult ezSimdQuatd::GetRotationAxisAndAngle(ezSimdVec4d& ref_vAxis, ezSimdDouble& ref_fAngle, const ezSimdDouble& fEpsilon) const
 {
   ///\todo optimize
-  const ezAngle acos = ezMath::ACos(m_v.w().Max(-1).Min(1));
-  const float d = ezMath::Sin(acos);
+  const ezAngled acos = ezMath::ACos(double(m_v.w().Max(-1).Min(1)));
+  const double d = ezMath::Sin(acos);
 
   if (d < fEpsilon)
   {
@@ -50,7 +50,7 @@ inline ezResult ezSimdQuatd::GetRotationAxisAndAngle(ezSimdVec4d& ref_vAxis, ezS
     ref_vAxis = m_v / d;
   }
 
-  ref_fAngle = acos * 2;
+  ref_fAngle = (acos * 2.0).GetRadian();
 
   return EZ_SUCCESS;
 }

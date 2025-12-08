@@ -1395,7 +1395,7 @@ void ezGeometry::AddTorus(float fInnerRadius, float fOuterRadius, ezUInt16 uiSeg
   {
     float fU = ((float)seg / (float)uiSegments) * 2.0f;
 
-    const ezAngle fAngle = seg * fAngleStepSegment;
+    const ezAngle fAngle = float(seg) * fAngleStepSegment;
 
     const float fSinAngle = ezMath::Sin(fAngle);
     const float fCosAngle = ezMath::Cos(fAngle);
@@ -1407,7 +1407,7 @@ void ezGeometry::AddTorus(float fInnerRadius, float fOuterRadius, ezUInt16 uiSeg
     {
       float fV = (float)p / (float)uiSegmentDetail;
 
-      const ezAngle fCylinderAngle = p * fAngleStepCylinder;
+      const ezAngle fCylinderAngle = float(p) * fAngleStepCylinder;
 
       const ezVec3 vDir(ezMath::Cos(fCylinderAngle) * fSinAngle, ezMath::Cos(fCylinderAngle) * fCosAngle, ezMath::Sin(fCylinderAngle));
 

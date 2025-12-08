@@ -1,5 +1,4 @@
 #pragma once
-#include <Foundation/Math/Math.h>
 
 template <typename Type>
 constexpr EZ_ALWAYS_INLINE Type ezAngleTemplate<Type>::Pi()
@@ -44,13 +43,13 @@ constexpr EZ_ALWAYS_INLINE ezAngleTemplate<Type> ezAngleTemplate<Type>::MakeFrom
 }
 
 template <typename Type>
-constexpr inline float ezAngleTemplate<Type>::GetDegree() const
+constexpr inline Type ezAngleTemplate<Type>::GetDegree() const
 {
   return RadToDeg(m_fRadian);
 }
 
 template <typename Type>
-constexpr EZ_ALWAYS_INLINE float ezAngleTemplate<Type>::GetRadian() const
+constexpr EZ_ALWAYS_INLINE Type ezAngleTemplate<Type>::GetRadian() const
 {
   return m_fRadian;
 }
@@ -166,14 +165,39 @@ constexpr inline ezAngleTemplate<Type> operator/(const ezAngleTemplate<Type>& a,
 }
 
 template <typename Type>
-constexpr inline float operator/(const ezAngleTemplate<Type>& a, const ezAngleTemplate<Type>& b)
+constexpr inline Type operator/(const ezAngleTemplate<Type>& a, const ezAngleTemplate<Type>& b)
 {
   return a.GetRadian() / b.GetRadian();
 }
 
 template <typename Type>
-constexpr inline  ezAngleTemplate<Type> ezAngleTemplate<Type>::AngleBetween(ezAngleTemplate<Type> a, ezAngleTemplate<Type> b)
+constexpr inline ezAngleTemplate<Type> ezAngleTemplate<Type>::AngleBetween(ezAngleTemplate<Type> a, ezAngleTemplate<Type> b)
 {
   // taken from http://gamedev.stackexchange.com/questions/4467/comparing-angles-and-working-out-the-difference
-  return ezAngleTemplate<Type> (Pi<Type>() - ezMath::Abs<Type>(ezMath::Abs<Type>(a.GetRadian<Type>() - b.GetRadian<Type>()) - Pi<Type>()));
+
+  return ezAngleTemplate<Type>(Pi() - ezMath::Abs(ezMath::Abs(a.GetRadian() - b.GetRadian()) - Pi()));
+}
+
+
+
+template <typename Type>
+inline void ezAngleTemplate<Type>::NormalizeRange()
+{
+  constexpr float fTwoPi = Type(2.0) * Pi();
+  constexpr float fTwoPiTen = Type(10.0) * Pi();
+
+  if (m_fRadian > fTwoPiTen || m_fRadian < -fTwoPiTen)
+  {
+    m_fRadian = ezMath::Mod(m_fRadian, fTwoPi);
+  }
+
+  while (m_fRadian >= fTwoPi)
+  {
+    m_fRadian -= fTwoPi;
+  }
+
+  while (m_fRadian < Type(0.0))
+  {
+    m_fRadian += fTwoPi;
+  }
 }

@@ -51,7 +51,7 @@ ezSimdQuatd ezSimdQuatd::MakeSlerp(const ezSimdQuatd& qFrom, const ezSimdQuatd& 
 
   if (cosTheta < qdelta)
   {
-    ezAngle theta = ezMath::ACos(cosTheta);
+    ezAngle theta = ezMath::ACos(float(cosTheta));
 
     // use sqrtInv(1+c^2) instead of 1.0/sin(theta)
     const ezSimdDouble iSinTheta = (one - (cosTheta * cosTheta)).GetInvSqrt();

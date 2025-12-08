@@ -1,7 +1,8 @@
 #pragma once
 
+#include <Foundation/Math/Math.h>
 
-/// \brief Float wrapper struct for a safe usage and conversions of angles.
+/// \brief Float/double wrapper struct for a safe usage and conversions of angles.
 ///
 /// Uses radian internally. Will <b>not</b> automatically keep its range between 0 degree - 360 degree (0 - 2PI) but you can call NormalizeRange to do
 /// so.
@@ -38,11 +39,20 @@ public:
   {
   } // [tested]
 
+  /// \brief For internal use only.
+  constexpr explicit ezAngleTemplate<Type>(Type fRadian)
+    : m_fRadian(fRadian)
+  {
+  }
+
+
+
   /// \brief Returns the degree value. (Performs a conversion)
-  constexpr float GetDegree() const; // [tested]
+  constexpr Type GetDegree() const; // [tested]
 
   /// \brief Returns the radian value. (No need for any conversion)
-  constexpr float GetRadian() const; // [tested]
+  constexpr Type GetRadian() const; // [tested]
+
 
   /// \brief Sets the radian value. (No need for any conversion)
   EZ_ALWAYS_INLINE void SetRadian(Type fRad) { m_fRadian = fRad; };
@@ -90,11 +100,6 @@ public:
   // Note: relational operators on angles are not really possible - is 0 degree smaller or bigger than 359 degree?
 
 private:
-  /// \brief For internal use only.
-  constexpr explicit ezAngleTemplate<Type>(Type fRadian)
-    : m_fRadian(fRadian)
-  {
-  }
 
   /// The ezRadian value
   Type m_fRadian;
@@ -103,11 +108,11 @@ private:
   constexpr static Type Pi();
 };
 
-// Mathematical operators with float
+// Mathematical operators with Type
 
 /// \brief Returns f times angle a.
 template <typename Type>
-constexpr ezAngleTemplate<Type> operator*(const ezAngleTemplate<Type>& a, float f); // [tested]
+constexpr ezAngleTemplate<Type> operator*(const ezAngleTemplate<Type>& a, Type f); // [tested]
 /// \brief Returns f times angle a.
 template <typename Type>
 constexpr ezAngleTemplate<Type> operator*(Type f, const ezAngleTemplate<Type>& a); // [tested]
@@ -117,6 +122,6 @@ template <typename Type>
 constexpr ezAngleTemplate<Type> operator/(const ezAngleTemplate<Type>& a, Type f); // [tested]
 /// \brief Returns the fraction of angle a divided by angle b.
 template <typename Type>
-constexpr float operator/(const ezAngleTemplate<Type>& a, const ezAngleTemplate<Type>& b); // [tested]
+constexpr Type operator/(const ezAngleTemplate<Type>& a, const ezAngleTemplate<Type>& b); // [tested]
 
 #include <Foundation/Math/Implementation/Angle_inl.h>

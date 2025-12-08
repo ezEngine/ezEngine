@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Foundation/Math/Angle.h>
 #include <Foundation/Math/Constants.h>
 #include <Foundation/Math/Declarations.h>
 
@@ -31,25 +30,32 @@ namespace ezMath
   /// ***** Trigonometric Functions *****
 
   /// \brief Takes an angle, returns its sine
-  [[nodiscard]] float Sin(ezAngle a); // [tested]
+  template <typename Type>
+  [[nodiscard]] Type Sin(ezAngleTemplate<Type> a); // [tested]
 
   /// \brief Takes an angle, returns its cosine
-  [[nodiscard]] float Cos(ezAngle a); // [tested]
+  template <typename Type>
+  [[nodiscard]] Type Cos(ezAngleTemplate<Type> a); // [tested]
 
   /// \brief Takes an angle, returns its tangent
-  [[nodiscard]] float Tan(ezAngle a); // [tested]
+  template <typename Type>
+  [[nodiscard]] Type Tan(ezAngleTemplate<Type> a); // [tested]
 
   /// \brief Returns the arcus sinus of f
-  [[nodiscard]] ezAngle ASin(float f); // [tested]
+  template <typename Type>
+  [[nodiscard]] ezAngleTemplate<Type> ASin(Type f); // [tested]
 
   /// \brief Returns the arcus cosinus of f
-  [[nodiscard]] ezAngle ACos(float f); // [tested]
+  template <typename Type>
+  [[nodiscard]] ezAngleTemplate<Type> ACos(Type f); // [tested]
 
   /// \brief Returns the arcus tangent of f
-  [[nodiscard]] ezAngle ATan(float f); // [tested]
+  template <typename Type>
+  [[nodiscard]] ezAngleTemplate<Type> ATan(Type f); // [tested]
 
   /// \brief Returns the atan2 of x and y
-  [[nodiscard]] ezAngle ATan2(float y, float x); // [tested]
+  template <typename Type>
+  [[nodiscard]] ezAngleTemplate<Type> ATan2(Type y, Type x); // [tested]
 
   /// \brief Returns e^f
   [[nodiscard]] float Exp(float f); // [tested]
@@ -458,6 +464,8 @@ namespace ezMath
   [[nodiscard]] constexpr ezUInt64 MakeUInt64(ezUInt32 uiHigh32, ezUInt32 uiLow32);
 
 } // namespace ezMath
+
+#include <Foundation/Math/Angle.h>
 
 #include <Foundation/Math/Implementation/MathDouble_inl.h>
 #include <Foundation/Math/Implementation/MathFixedPoint_inl.h>

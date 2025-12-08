@@ -75,11 +75,11 @@ void ezQuatTemplate<Type>::Normalize()
 }
 
 template <typename Type>
-void ezQuatTemplate<Type>::GetRotationAxisAndAngle(ezVec3Template<Type>& out_vAxis, ezAngle& out_angle, Type fEpsilon) const
+void ezQuatTemplate<Type>::GetRotationAxisAndAngle(ezVec3Template<Type>& out_vAxis, ezAngleTemplate<Type>& out_angle, Type fEpsilon) const
 {
   EZ_NAN_ASSERT(this);
 
-  out_angle = 2 * ezMath::ACos(static_cast<float>(w));
+  out_angle = 2.0f * ezMath::ACos(static_cast<float>(w));
 
   const float s = ezMath::Sqrt(1 - w * w);
 
@@ -476,7 +476,7 @@ EZ_ALWAYS_INLINE bool operator!=(const ezQuatTemplate<Type>& q1, const ezQuatTem
 }
 
 template <typename Type>
-void ezQuatTemplate<Type>::GetAsEulerAngles(ezAngle& out_x, ezAngle& out_y, ezAngle& out_z) const
+void ezQuatTemplate<Type>::GetAsEulerAngles(ezAngleTemplate<Type>& out_x, ezAngleTemplate<Type>& out_y, ezAngleTemplate<Type>& out_z) const
 {
   // Taken from https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
   // and http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/
@@ -519,19 +519,19 @@ void ezQuatTemplate<Type>::GetAsEulerAngles(ezAngle& out_x, ezAngle& out_y, ezAn
 }
 
 template <typename Type>
-ezQuatTemplate<Type> ezQuatTemplate<Type>::MakeFromEulerAngles(const ezAngle& x, const ezAngle& y, const ezAngle& z)
+ezQuatTemplate<Type> ezQuatTemplate<Type>::MakeFromEulerAngles(const ezAngleTemplate<Type>& x, const ezAngleTemplate<Type>& y, const ezAngleTemplate<Type>& z)
 {
   /// Taken from here (yaw->pitch->roll, ZYX order or 3-2-1 order):
   /// https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
   const auto& yaw = z;
   const auto& pitch = y;
   const auto& roll = x;
-  const double cy = ezMath::Cos(yaw * 0.5);
-  const double sy = ezMath::Sin(yaw * 0.5);
-  const double cp = ezMath::Cos(pitch * 0.5);
-  const double sp = ezMath::Sin(pitch * 0.5);
-  const double cr = ezMath::Cos(roll * 0.5);
-  const double sr = ezMath::Sin(roll * 0.5);
+  const double cy = ezMath::Cos(yaw * Type(0.5));
+  const double sy = ezMath::Sin(yaw * Type(0.5));
+  const double cp = ezMath::Cos(pitch * Type(0.5));
+  const double sp = ezMath::Sin(pitch * Type(0.5));
+  const double cr = ezMath::Cos(roll * Type(0.5));
+  const double sr = ezMath::Sin(roll * Type(0.5));
 
   ezQuatTemplate<Type> q;
   q.w = (float)(cy * cp * cr + sy * sp * sr);

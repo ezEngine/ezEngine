@@ -1302,8 +1302,8 @@ void ezDebugRenderer::DrawLimitCone(const ezDebugRendererContext& context, ezAng
   {
     float scale = 1.0f;
 
-    const float tanQSwingZ = ezMath::Tan(halfAngle1 / 4);
-    const float tanQSwingY = ezMath::Tan(halfAngle2 / 4);
+    const float tanQSwingZ = ezMath::Tan(halfAngle1 / 4.0f);
+    const float tanQSwingY = ezMath::Tan(halfAngle2 / 4.0f);
 
     ezVec3 prev(0);
     for (ezUInt32 i = 0; i <= NUM_LINES; i++)
@@ -1357,7 +1357,7 @@ void ezDebugRenderer::DrawCylinder(const ezDebugRendererContext& context, float 
   ezHybridArray<ezDebugRendererLine, NUM_SEGMENTS * 3> lines;
   ezHybridArray<ezDebugRendererTriangle, NUM_SEGMENTS * 2 * 2> tris;
 
-  const ezAngle step = ezAngle::MakeFromDegree(360) / NUM_SEGMENTS;
+  const ezAngle step = ezAngle::MakeFromDegree(360) / float(NUM_SEGMENTS);
   ezAngle angle = {};
 
   ezVec3 vCurCircle(0, 1 /*ezMath::Cos(angle)*/, 0 /*ezMath::Sin(angle)*/);

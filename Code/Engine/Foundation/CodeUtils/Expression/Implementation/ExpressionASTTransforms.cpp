@@ -312,14 +312,14 @@ ezExpressionAST::Node* ezExpressionAST::ReplaceUnsupportedInstructions(Node* pNo
   {
     auto pUnaryNode = static_cast<const UnaryOperator*>(pNode);
     auto pValue = pUnaryNode->m_pOperand;
-    auto pMultiplier = CreateConstant(ezAngle::RadToDegMultiplier<float>(), returnType);
+    auto pMultiplier = CreateConstant(ezAngle::RadToDegMultiplier(), returnType);
     return CreateBinaryOperator(NodeType::Multiply, pValue, pMultiplier);
   }
   else if (nodeType == NodeType::DegToRad)
   {
     auto pUnaryNode = static_cast<const UnaryOperator*>(pNode);
     auto pValue = pUnaryNode->m_pOperand;
-    auto pMultiplier = CreateConstant(ezAngle::DegToRadMultiplier<float>(), returnType);
+    auto pMultiplier = CreateConstant(ezAngle::DegToRadMultiplier(), returnType);
     return CreateBinaryOperator(NodeType::Multiply, pValue, pMultiplier);
   }
   else if (nodeType == NodeType::Frac)
