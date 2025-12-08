@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Foundation/SimdMath/SimdDouble.h>
-#include <Foundation/SimdMath/SimdVec4b.h>
+#include <Foundation/SimdMath/SimdVec4b_Wide.h>
 
 /// \brief A 4-component SIMD vector class using doubles
 class EZ_FOUNDATION_DLL ezSimdVec4d
@@ -16,6 +16,7 @@ public:
 
   explicit ezSimdVec4d(const ezSimdDouble& fXyzw);
 
+  ezSimdVec4d(int x, int y, int z, int w = 1);
   ezSimdVec4d(float x, float y, float z, float w = 1.0f);
   ezSimdVec4d(double x, double y, double z, double w = 1.0);
 
@@ -30,6 +31,7 @@ public:
   void Set(float fXyzw);
   void Set(double fXyzw);
 
+  void Set(int x, int y, int z, int w);
   void Set(float x, float y, float z, float w);
   void Set(double x, double y, double z, double w);
 
