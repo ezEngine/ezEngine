@@ -19,33 +19,33 @@ struct TMP_VS_OUT
 
 TMP_VS_OUT main(TMP_VS_IN input)
 {
-    float4 outPosition = mul(GetWorldToScreenMatrix(), float4(input.Position, 1.0));
+  float4 outPosition = mul(GetWorldToScreenMatrix(), float4(input.Position, 1.0));
 
-    TMP_VS_OUT ret;
-    ret.Position = outPosition;
-    ret.TexCoord0 = input.TexCoord0;
-    ret.Color0 = float4(1,1,1,1);
-    ret.FogAmount = 1.0; // 1 == no fog
+  TMP_VS_OUT ret;
+  ret.Position = outPosition;
+  ret.TexCoord0 = input.TexCoord0;
+  ret.Color0 = float4(1, 1, 1, 1);
+  ret.FogAmount = 1.0; // 1 == no fog
 
-    return ret;
+  return ret;
 }
 
 #else
 
-#define TRAIL_SEGMENTS (PARTICLE_TRAIL_POINTS - 1)
+#  define TRAIL_SEGMENTS (PARTICLE_TRAIL_POINTS - 1)
 
 VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
 {
-#if CAMERA_MODE == CAMERA_MODE_STEREO
+#  if CAMERA_MODE == CAMERA_MODE_STEREO
   s_ActiveCameraEyeIndex = InstanceID % 2;
-#endif
+#  endif
 
   VS_OUT ret;
-#if CAMERA_MODE == CAMERA_MODE_STEREO    
+#  if CAMERA_MODE == CAMERA_MODE_STEREO
   ret.RenderTargetArrayIndex = InstanceID;
-#endif
+#  endif
 
-  int trailIndexOffset[6] = { 0, 1, 1, 0, 1, 0 };
+  int trailIndexOffset[6] = {0, 1, 1, 0, 1, 0};
 
   // TODO: We could use NumUsedTrailPoints instead of TRAIL_SEGMENTS and then render fewer triangles
   // However, TRAIL_SEGMENTS is a compile time constant, so not clear what might be more efficient.
@@ -72,7 +72,7 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
   else
   {
     // doing this and then accessing the data will silently not work on nVidia cards and just result in the drawcall being ignored
-    //ezTrailParticlePointsData trail = particlePointsData[particleIndex];
+    // ezTrailParticlePointsData trail = particlePointsData[particleIndex];
 
     float fVariation = (baseParticle.Variation & 255) / 255.0;
     float4 textureAtlasRect = ComputeAtlasRectRandomAnimated(TextureAtlasVariationFramesX, TextureAtlasVariationFramesY, fVariation, TextureAtlasFlipbookFramesX, TextureAtlasFlipbookFramesY, 1.0f - particleLife);
@@ -118,13 +118,13 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
     float3 cornerNormal = normalize(offsetUp.xyz);
     float3 normal = normalize(lerp(centerNormal, cornerNormal, NormalCurvature));
 
-#if PARTICLE_LIGHTING_MODE == PARTICLE_LIGHTING_MODE_VERTEX_LIT
+#  if PARTICLE_LIGHTING_MODE == PARTICLE_LIGHTING_MODE_VERTEX_LIT
     float3 diffuseLight = CalculateParticleLighting(screenPosition, worldPosition, normal);
-#else
+#  else
     float3 diffuseLight = 1;
-#endif
+#  endif
 
-#if RENDER_PASS == RENDER_PASS_EDITOR
+#  if RENDER_PASS == RENDER_PASS_EDITOR
     if (RenderPass == EDITOR_RENDER_PASS_DIFFUSE_LIT_ONLY)
     {
       ret.Color0 = float4(diffuseLight * 0.5, 1);
@@ -133,9 +133,9 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
     {
       ret.Color0 = float4(normal, 1);
     }
-#else
+#  else
     ret.Color0.rgb *= diffuseLight;
-#endif
+#  endif
 
     ret.FogAmount = GetFogAmount(worldPosition.xyz);
     ret.Life = particleLife;
