@@ -29,15 +29,17 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4bWide)
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
     alignas(32) ezUInt64 vals[4];
     _mm256_store_si256((__m256i*)vals, _mm256_castpd_si256(vInit1B.m_v));
+
     EZ_TEST_BOOL(vals[0] == 0xFFFFFFFFFFFFFFFFULL
       && vals[1] == 0xFFFFFFFFFFFFFFFFULL
       && vals[2] == 0xFFFFFFFFFFFFFFFFULL
       && vals[3] == 0xFFFFFFFFFFFFFFFFULL);
 #else
     alignas(16) ezUInt64 valsXY[2];
-    _mm_store_si128((__m128i*)valsXY, _mm_castpd_si128(vInit1B.m_v.xy));
     alignas(16) ezUInt64 valsZW[2];
+    _mm_store_si128((__m128i*)valsXY, _mm_castpd_si128(vInit1B.m_v.xy));
     _mm_store_si128((__m128i*)valsZW, _mm_castpd_si128(vInit1B.m_v.zw));
+
     EZ_TEST_BOOL(valsXY[0] == 0xFFFFFFFFFFFFFFFFULL
       && valsXY[1] == 0xFFFFFFFFFFFFFFFFULL
       && valsZW[0] == 0xFFFFFFFFFFFFFFFFULL
@@ -55,10 +57,9 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4bWide)
       && vals[2] == 0
       && vals[3] == 0xFFFFFFFFFFFFFFFFULL);
 #else
-    alignas(16) ezUInt64 valsXY[2];
     _mm_store_si128((__m128i*)valsXY, _mm_castpd_si128(vInit4B.m_v.xy));
-    alignas(16) ezUInt64 valsZW[2];
     _mm_store_si128((__m128i*)valsZW, _mm_castpd_si128(vInit4B.m_v.zw));
+    
     EZ_TEST_BOOL(valsXY[0] == 0
       && valsXY[1] == 0xFFFFFFFFFFFFFFFFULL
       && valsZW[0] == 0

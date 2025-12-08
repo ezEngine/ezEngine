@@ -64,6 +64,10 @@ namespace ezInternal
 //swizzle to shuffle
 #define EZ_TO_SHUFFLE(s) ((((s) >> 12) & 0x03) | (((s) >> 6) & 0x0c) | ((s) & 0x30) | (((s) << 6) & 0xc0))
 
+
+
+
+
 /// \brief Shuffles doubles in the same manner as _mm_shuffle_ps but for doubles using sse intrinsics on high and low parts.
 EZ_ALWAYS_INLINE void EZ_WIDE_SHUFFLE_SSE(__m128d aLow, __m128d aHigh, __m128d bLow, __m128d bHigh, int imm8, __m128d& outLow, __m128d& outHigh)
 {
@@ -91,7 +95,33 @@ EZ_ALWAYS_INLINE void EZ_WIDE_SHUFFLE_SSE(__m128d aLow, __m128d aHigh, __m128d b
   outHigh = _mm_shuffle_pd(d2, d3, 0);
 }
 
-EZ_ALWAYS_INLINE __m256d EZ_WIDE_SHUFFLE_AVX(__m256d a, __m256d b, int imm8)
-{
 
-}
+
+#define _MM_TRANSPOSE4_PD(row0lo, row0hi, row1lo, row1hi, row2lo, row2hi, row3lo, row3hi) \
+do { \
+  __m128d tmp0, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7; \
+  \
+  /* Gather x and y components from lo registers */ \
+  tmp0 = _mm_unpacklo_pd((row0lo), (row1lo)); /* [x0, x1] */ \
+  tmp1 = _mm_unpackhi_pd((row0lo), (row1lo)); /* [y0, y1] */ \
+  tmp2 = _mm_unpacklo_pd((row2lo), (row3lo)); /* [x2, x3] */ \
+  tmp3 = _mm_unpackhi_pd((row2lo), (row3lo)); /* [y2, y3] */ \
+  \
+  /* Gather z and w components from hi registers */ \
+  tmp4 = _mm_unpacklo_pd((row0hi), (row1hi)); /* [z0, z1] */ \
+  tmp5 = _mm_unpackhi_pd((row0hi), (row1hi)); /* [w0, w1] */ \
+  tmp6 = _mm_unpacklo_pd((row2hi), (row3hi)); /* [z2, z3] */ \
+  tmp7 = _mm_unpackhi_pd((row2hi), (row3hi)); /* [w2, w3] */ \
+  \
+  /* Assign results */ \
+  (row0lo) = tmp0; /* x components [x0, x1] */ \
+  (row0hi) = tmp2; /* x components [x2, x3] */ \
+  (row1lo) = tmp1; /* y components [y0, y1] */ \
+  (row1hi) = tmp3; /* y components [y2, y3] */ \
+  (row2lo) = tmp4; /* z components [z0, z1] */ \
+  (row2hi) = tmp6; /* z components [z2, z3] */ \
+  (row3lo) = tmp5; /* w components [w0, w1] */ \
+  (row3hi) = tmp7; /* w components [w2, w3] */ \
+} while (0)
+
+

@@ -44,7 +44,18 @@ EZ_ALWAYS_INLINE ezSimdVec4d::ezSimdVec4d(const ezSimdDouble& fXyzw)
 
   m_v = fXyzw.m_v;
 }
+EZ_ALWAYS_INLINE ezSimdVec4d::ezSimdVec4d(int x, int y, int z, int w)
+{
+    EZ_CHECK_SIMD_ALIGNMENT(this);
 
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
+  m_v = _mm256_setr_pd(static_cast<double>(x), static_cast<double>(y), static_cast<double>(z), static_cast<double>(w));
+#else
+  m_v.xy = _mm_setr_pd(static_cast<double>(x), static_cast<double>(y));
+  m_v.zw = _mm_setr_pd(static_cast<double>(z), static_cast<double>(w));
+#endif
+
+}
 EZ_ALWAYS_INLINE ezSimdVec4d::ezSimdVec4d(float x, float y, float z, float w)
 {
   EZ_CHECK_SIMD_ALIGNMENT(this);
@@ -86,6 +97,15 @@ EZ_ALWAYS_INLINE void ezSimdVec4d::Set(double fXyzw)
 #else
   m_v.xy = _mm_set1_pd(fXyzw);
   m_v.zw = m_v.xy;
+#endif
+}
+EZ_ALWAYS_INLINE void ezSimdVec4d::Set(int x, int y, int z, int w)
+{
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
+  m_v = _mm256_setr_pd(static_cast<double>(x), static_cast<double>(y), static_cast<double>(z), static_cast<double>(w));
+#else
+  m_v.xy = _mm_setr_pd(static_cast<double>(x), static_cast<double>(y));
+  m_v.zw = _mm_setr_pd(static_cast<double>(z), static_cast<double>(w));
 #endif
 }
 
