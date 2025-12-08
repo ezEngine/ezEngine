@@ -7,7 +7,7 @@
 
 ezResult ezSimdMat4d::Invert(const ezSimdDouble& fEpsilon)
 {
-  ezMat4 tmp;
+  ezMat4d tmp;
   GetAsArray(tmp.m_fElementsCM, ezMatrixLayout::ColumnMajor);
 
   if (tmp.Invert(fEpsilon).Failed())

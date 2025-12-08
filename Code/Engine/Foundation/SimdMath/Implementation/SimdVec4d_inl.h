@@ -17,14 +17,14 @@ EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::MakeNaN()
   return ezSimdVec4d(ezSimdDouble::MakeNaN());
 }
 
-template <int N, ezMathAcc::Enum acc>
+template <int N>
 EZ_ALWAYS_INLINE ezSimdDouble ezSimdVec4d::GetLength() const
 {
   const ezSimdDouble squaredLen = GetLengthSquared<N>();
   return squaredLen.GetSqrt();
 }
 
-template <int N, ezMathAcc::Enum acc>
+template <int N>
 EZ_ALWAYS_INLINE ezSimdDouble ezSimdVec4d::GetInvLength() const
 {
   const ezSimdDouble squaredLen = GetLengthSquared<N>();
@@ -37,7 +37,7 @@ EZ_ALWAYS_INLINE ezSimdDouble ezSimdVec4d::GetLengthSquared() const
   return Dot<N>(*this);
 }
 
-template <int N, ezMathAcc::Enum acc>
+template <int N>
 EZ_ALWAYS_INLINE ezSimdDouble ezSimdVec4d::GetLengthAndNormalize()
 {
   const ezSimdDouble squaredLen = GetLengthSquared<N>();
@@ -46,23 +46,23 @@ EZ_ALWAYS_INLINE ezSimdDouble ezSimdVec4d::GetLengthAndNormalize()
   return squaredLen * reciprocalLen;
 }
 
-template <int N, ezMathAcc::Enum acc>
+template <int N>
 EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::GetNormalized() const
 {
-  return (*this) * GetInvLength<N, acc>();
+  return (*this) * GetInvLength<N>();
 }
 
-template <int N, ezMathAcc::Enum acc>
+template <int N>
 EZ_ALWAYS_INLINE void ezSimdVec4d::Normalize()
 {
-  *this = GetNormalized<N, acc>();
+  *this = GetNormalized<N>();
 }
 
-template <int N, ezMathAcc::Enum acc>
+template <int N>
 EZ_ALWAYS_INLINE void ezSimdVec4d::NormalizeIfNotZero(const ezSimdVec4d& vFallback, const ezSimdDouble& fEpsilon)
 {
   ezSimdVec4bWide bIsZero(IsZero<N>(fEpsilon));
-  *this = Select(bIsZero, vFallback, GetNormalized<N, acc>());
+  *this = Select(bIsZero, vFallback, GetNormalized<N>());
 }
 
 template <int N>
