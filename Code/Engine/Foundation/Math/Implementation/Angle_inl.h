@@ -1,149 +1,179 @@
 #pragma once
+#include <Foundation/Math/Math.h>
 
 template <typename Type>
-constexpr EZ_ALWAYS_INLINE Type ezAngle::Pi()
+constexpr EZ_ALWAYS_INLINE Type ezAngleTemplate<Type>::Pi()
 {
   return static_cast<Type>(3.1415926535897932384626433832795);
 }
 
 template <typename Type>
-constexpr EZ_ALWAYS_INLINE Type ezAngle::DegToRadMultiplier()
+constexpr EZ_ALWAYS_INLINE Type ezAngleTemplate<Type>::DegToRadMultiplier()
 {
-  return Pi<Type>() / (Type)180;
+  return Pi() / (Type)180;
 }
 
 template <typename Type>
-constexpr EZ_ALWAYS_INLINE Type ezAngle::RadToDegMultiplier()
+constexpr EZ_ALWAYS_INLINE Type ezAngleTemplate<Type>::RadToDegMultiplier()
 {
-  return ((Type)180) / Pi<Type>();
+  return ((Type)180) / Pi();
 }
 
 template <typename Type>
-constexpr Type ezAngle::DegToRad(Type f)
+constexpr Type ezAngleTemplate<Type>::DegToRad(Type f)
 {
-  return f * DegToRadMultiplier<Type>();
+  return f * DegToRadMultiplier();
 }
 
 template <typename Type>
-constexpr Type ezAngle::RadToDeg(Type f)
+constexpr Type ezAngleTemplate<Type>::RadToDeg(Type f)
 {
-  return f * RadToDegMultiplier<Type>();
+  return f * RadToDegMultiplier();
 }
 
-constexpr inline ezAngle ezAngle::MakeFromDegree(float fDegree)
+template <typename Type>
+constexpr inline ezAngleTemplate<Type> ezAngleTemplate<Type>::MakeFromDegree(Type fDegree)
 {
-  return ezAngle(DegToRad(fDegree));
+  return ezAngleTemplate<Type>(DegToRad(fDegree));
 }
 
-constexpr EZ_ALWAYS_INLINE ezAngle ezAngle::MakeFromRadian(float fRadian)
+template <typename Type>
+constexpr EZ_ALWAYS_INLINE ezAngleTemplate<Type> ezAngleTemplate<Type>::MakeFromRadian(Type fRadian)
 {
-  return ezAngle(fRadian);
+  return ezAngleTemplate<Type>(fRadian);
 }
 
-constexpr inline float ezAngle::GetDegree() const
+template <typename Type>
+constexpr inline float ezAngleTemplate<Type>::GetDegree() const
 {
   return RadToDeg(m_fRadian);
 }
 
-constexpr EZ_ALWAYS_INLINE float ezAngle::GetRadian() const
+template <typename Type>
+constexpr EZ_ALWAYS_INLINE float ezAngleTemplate<Type>::GetRadian() const
 {
   return m_fRadian;
 }
 
-inline ezAngle ezAngle::GetNormalizedRange() const
+template <typename Type>
+inline ezAngleTemplate<Type> ezAngleTemplate<Type>::GetNormalizedRange() const
 {
-  ezAngle out(m_fRadian);
+  ezAngleTemplate<Type> out(m_fRadian);
   out.NormalizeRange();
   return out;
 }
 
-inline bool ezAngle::IsEqualSimple(ezAngle rhs, ezAngle epsilon) const
+template <typename Type>
+inline bool ezAngleTemplate<Type>::IsEqualSimple(ezAngleTemplate<Type> rhs, ezAngleTemplate<Type> epsilon) const
 {
-  const ezAngle diff = AngleBetween(*this, rhs);
+  const ezAngleTemplate<Type> diff = AngleBetween(*this, rhs);
 
   return ((diff.m_fRadian >= -epsilon.m_fRadian) && (diff.m_fRadian <= epsilon.m_fRadian));
 }
 
-inline bool ezAngle::IsEqualNormalized(ezAngle rhs, ezAngle epsilon) const
+template <typename Type>
+inline bool ezAngleTemplate<Type>::IsEqualNormalized(ezAngleTemplate<Type> rhs, ezAngleTemplate<Type> epsilon) const
 {
   // equality between normalized angles
-  const ezAngle aNorm = GetNormalizedRange();
-  const ezAngle bNorm = rhs.GetNormalizedRange();
+  const ezAngleTemplate<Type> aNorm = GetNormalizedRange();
+  const ezAngleTemplate<Type> bNorm = rhs.GetNormalizedRange();
 
   return aNorm.IsEqualSimple(bNorm, epsilon);
 }
 
-constexpr EZ_ALWAYS_INLINE ezAngle ezAngle::operator-() const
+template <typename Type>
+constexpr EZ_ALWAYS_INLINE ezAngleTemplate<Type> ezAngleTemplate<Type>::operator-() const
 {
-  return ezAngle(-m_fRadian);
+  return ezAngleTemplate<Type>(-m_fRadian);
 }
 
-EZ_ALWAYS_INLINE void ezAngle::operator+=(ezAngle r)
+template <typename Type>
+EZ_ALWAYS_INLINE void ezAngleTemplate<Type>::operator+=(ezAngleTemplate<Type> r)
 {
   m_fRadian += r.m_fRadian;
 }
 
-EZ_ALWAYS_INLINE void ezAngle::operator-=(ezAngle r)
+template <typename Type>
+EZ_ALWAYS_INLINE void ezAngleTemplate<Type>::operator-=(ezAngleTemplate<Type> r)
 {
   m_fRadian -= r.m_fRadian;
 }
 
-constexpr inline ezAngle ezAngle::operator+(ezAngle r) const
+template <typename Type>
+constexpr inline ezAngleTemplate<Type> ezAngleTemplate<Type>::operator+(ezAngleTemplate<Type> r) const
 {
-  return ezAngle(m_fRadian + r.m_fRadian);
+  return ezAngleTemplate<Type>(m_fRadian + r.m_fRadian);
 }
 
-constexpr inline ezAngle ezAngle::operator-(ezAngle r) const
+template <typename Type>
+constexpr inline ezAngleTemplate<Type> ezAngleTemplate<Type>::operator-(ezAngleTemplate<Type> r) const
 {
-  return ezAngle(m_fRadian - r.m_fRadian);
+  return ezAngleTemplate<Type>(m_fRadian - r.m_fRadian);
 }
 
-constexpr EZ_ALWAYS_INLINE bool ezAngle::operator==(const ezAngle& r) const
+template <typename Type>
+constexpr EZ_ALWAYS_INLINE bool ezAngleTemplate<Type>::operator==(const ezAngleTemplate<Type>& r) const
 {
   return m_fRadian == r.m_fRadian;
 }
 
-constexpr EZ_ALWAYS_INLINE bool ezAngle::operator!=(const ezAngle& r) const
+template <typename Type>
+constexpr EZ_ALWAYS_INLINE bool ezAngleTemplate<Type>::operator!=(const ezAngleTemplate<Type>& r) const
 {
   return m_fRadian != r.m_fRadian;
 }
 
-constexpr EZ_ALWAYS_INLINE bool ezAngle::operator<(const ezAngle& r) const
+template <typename Type>
+constexpr EZ_ALWAYS_INLINE bool ezAngleTemplate<Type>::operator<(const ezAngleTemplate<Type>& r) const
 {
   return m_fRadian < r.m_fRadian;
 }
 
-constexpr EZ_ALWAYS_INLINE bool ezAngle::operator>(const ezAngle& r) const
+template <typename Type>
+constexpr EZ_ALWAYS_INLINE bool ezAngleTemplate<Type>::operator>(const ezAngleTemplate<Type>& r) const
 {
   return m_fRadian > r.m_fRadian;
 }
 
-constexpr EZ_ALWAYS_INLINE bool ezAngle::operator<=(const ezAngle& r) const
+template <typename Type>
+constexpr EZ_ALWAYS_INLINE bool ezAngleTemplate<Type>::operator<=(const ezAngleTemplate<Type>& r) const
 {
   return m_fRadian <= r.m_fRadian;
 }
 
-constexpr EZ_ALWAYS_INLINE bool ezAngle::operator>=(const ezAngle& r) const
+template <typename Type>
+constexpr EZ_ALWAYS_INLINE bool ezAngleTemplate<Type>::operator>=(const ezAngleTemplate<Type>& r) const
 {
   return m_fRadian >= r.m_fRadian;
 }
 
-constexpr inline ezAngle operator*(const ezAngle& a, float f)
+template <typename Type>
+constexpr inline ezAngleTemplate<Type> operator*(const ezAngleTemplate<Type>& a, Type f)
 {
-  return ezAngle::MakeFromRadian(a.GetRadian() * f);
+  return ezAngleTemplate<Type>::MakeFromRadian(a.GetRadian() * f);
 }
 
-constexpr inline ezAngle operator*(float f, const ezAngle& a)
+template <typename Type>
+constexpr inline ezAngleTemplate<Type> operator*(Type f, const ezAngleTemplate<Type>& a)
 {
-  return ezAngle::MakeFromRadian(a.GetRadian() * f);
+  return ezAngleTemplate<Type>::MakeFromRadian(a.GetRadian() * f);
 }
 
-constexpr inline ezAngle operator/(const ezAngle& a, float f)
+template <typename Type>
+constexpr inline ezAngleTemplate<Type> operator/(const ezAngleTemplate<Type>& a, Type f)
 {
-  return ezAngle::MakeFromRadian(a.GetRadian() / f);
+  return ezAngleTemplate<Type>::MakeFromRadian(a.GetRadian() / f);
 }
 
-constexpr inline float operator/(const ezAngle& a, const ezAngle& b)
+template <typename Type>
+constexpr inline float operator/(const ezAngleTemplate<Type>& a, const ezAngleTemplate<Type>& b)
 {
   return a.GetRadian() / b.GetRadian();
+}
+
+template <typename Type>
+constexpr inline  ezAngleTemplate<Type> ezAngleTemplate<Type>::AngleBetween(ezAngleTemplate<Type> a, ezAngleTemplate<Type> b)
+{
+  // taken from http://gamedev.stackexchange.com/questions/4467/comparing-angles-and-working-out-the-difference
+  return ezAngleTemplate<Type> (Pi<Type>() - ezMath::Abs<Type>(ezMath::Abs<Type>(a.GetRadian<Type>() - b.GetRadian<Type>()) - Pi<Type>()));
 }

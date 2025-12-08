@@ -184,6 +184,13 @@ using ezQuat = ezQuatTemplate<float>;
 using ezQuatd = ezQuatTemplate<double>;
 
 template <typename Type>
+class ezAngleTemplate;
+
+using ezAngle = ezAngleTemplate<float>;
+using ezAngled = ezAngleTemplate<double>;
+
+
+template <typename Type>
 class ezBoundingBoxTemplate;
 
 using ezBoundingBox = ezBoundingBoxTemplate<float>;
@@ -205,7 +212,6 @@ using ezBoundingSphered = ezBoundingSphereTemplate<double>;
 template <ezUInt8 DecimalBits>
 class ezFixedPoint;
 
-class ezAngle;
 
 template <typename Type>
 class ezTransformTemplate;

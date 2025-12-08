@@ -2,7 +2,6 @@
 
 #include <Foundation/SimdMath/SimdTransformd.h>
 
-
 EZ_CREATE_SIMPLE_TEST(SimdMath, SimdMat4d)
 {
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeFromColumnMajorArray / MakeFromRowMajorArray")
