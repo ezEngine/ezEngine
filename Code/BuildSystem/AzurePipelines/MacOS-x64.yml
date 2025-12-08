@@ -27,7 +27,7 @@ jobs:
 - job: Job_1
   displayName: MacOS-x64
   pool:
-    vmImage: 'macOS-15'
+    vmImage: 'macOS-14'
   steps:
   - checkout: self
     submodules: true
@@ -88,7 +88,7 @@ jobs:
       xcodeDeveloperDir: $(BuildParameters.xcodeDeveloperDir)
       destinationPlatformOption: macOS
       destinationSimulators: iPhone 7
-      args: -scheme ALL_BUILD -verbose
+      args: -scheme ALL_BUILD
   - task: PowerShell@2
     displayName: PowerShell Script
     inputs:
