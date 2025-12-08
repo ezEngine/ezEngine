@@ -55,37 +55,34 @@ public:
   void Store(double* pDoubles) const;
 
 public:
-  template <ezMathAcc::Enum acc = ezMathAcc::FULL>
   ezSimdVec4d GetReciprocal() const;
 
-  template <ezMathAcc::Enum acc = ezMathAcc::FULL>
   ezSimdVec4d GetSqrt() const;
 
-  template <ezMathAcc::Enum acc = ezMathAcc::FULL>
   ezSimdVec4d GetInvSqrt() const;
 
-  template <int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
+  template <int N>
   ezSimdDouble GetLength() const;
 
-  template <int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
+  template <int N>
   ezSimdDouble GetInvLength() const;
 
   template <int N>
   ezSimdDouble GetLengthSquared() const;
 
-  template <int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
+  template <int N>
   ezSimdDouble GetLengthAndNormalize();
 
-  template <int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
+  template <int N>
   ezSimdVec4d GetNormalized() const;
 
-  template <int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
+  template <int N>
   void Normalize();
 
-  template <int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
+  template <int N>
   void NormalizeIfNotZero(const ezSimdDouble& fEpsilon = ezMath::SmallEpsilon<double>());
 
-  template <int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
+  template <int N>
   void NormalizeIfNotZero(const ezSimdVec4d& vFallback, const ezSimdDouble& fEpsilon = ezMath::SmallEpsilon<double>());
 
   template <int N>
@@ -131,7 +128,6 @@ public:
 
   [[nodiscard]] ezSimdVec4d CompMul(const ezSimdVec4d& v) const;
 
-  template <ezMathAcc::Enum acc = ezMathAcc::FULL>
   [[nodiscard]] ezSimdVec4d CompDiv(const ezSimdVec4d& v) const;
 
   [[nodiscard]] ezSimdVec4d CompMin(const ezSimdVec4d& rhs) const;
