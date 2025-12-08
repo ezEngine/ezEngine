@@ -9,7 +9,11 @@ EZ_ALWAYS_INLINE ezSimdVec4bWide::ezSimdVec4bWide(bool b)
 {
   EZ_CHECK_SIMD_ALIGNMENT(this);
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
-#error
+
+  alignas(16) ezUInt64 mask[4] = {b ? 0xFFFFFFFFFFFFFFFFULL : 0, b ? 0xFFFFFFFFFFFFFFFFULL : 0, b ? 0xFFFFFFFFFFFFFFFFULL : 0, b ? 0xFFFFFFFFFFFFFFFFULL : 0};
+  m_v = _mm256_load_pd((double*)mask);
+
+
 #else
 
   __m128d val;
@@ -32,7 +36,8 @@ EZ_ALWAYS_INLINE ezSimdVec4bWide::ezSimdVec4bWide(bool x, bool y, bool z, bool w
 {
   EZ_CHECK_SIMD_ALIGNMENT(this);
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
-#error
+  alignas(32) ezUInt64 mask[4] = {x ? 0xFFFFFFFFFFFFFFFFULL : 0ULL, y ? 0xFFFFFFFFFFFFFFFFULL : 0ULL, z ? 0xFFFFFFFFFFFFFFFFULL : 0ULL, w ? 0xFFFFFFFFFFFFFFFFULL : 0ULL};
+  m_v = _mm256_load_pd((double*)mask);
 #else
   alignas(16) ezUInt64 mask[4] = {x ? 0xFFFFFFFFFFFFFFFFULL : 0ULL, y ? 0xFFFFFFFFFFFFFFFFULL : 0ULL, z ? 0xFFFFFFFFFFFFFFFFULL : 0ULL, w ? 0xFFFFFFFFFFFFFFFFULL : 0ULL};
   m_v.xy = _mm_load_pd((double*)&mask[0]);
@@ -42,18 +47,14 @@ EZ_ALWAYS_INLINE ezSimdVec4bWide::ezSimdVec4bWide(bool x, bool y, bool z, bool w
 
 EZ_ALWAYS_INLINE ezSimdVec4bWide::ezSimdVec4bWide(ezInternal::QuadBoolWide v)
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_AVX
-#error
-#else
   m_v = v;
-#endif
 }
 
 template <int N>
 EZ_ALWAYS_INLINE bool ezSimdVec4bWide::GetComponent() const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
-#error
+  return (_mm256_movemask_pd(m_v) & (1 << N)) != 0;
 #else
   if constexpr (N < 2)
   {
@@ -93,7 +94,7 @@ template <ezSwizzle::Enum s>
 EZ_ALWAYS_INLINE ezSimdVec4bWide ezSimdVec4bWide::Get() const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
-#error
+  return EZ_WIDE_SHUFFLE_AVX(m_v, m_v, EZ_TO_SHUFFLE(s));
 #else
   ezSimdVec4bWide result;
   EZ_WIDE_SHUFFLE_SSE(m_v.xy, m_v.zw, m_v.xy, m_v.zw, EZ_TO_SHUFFLE(s), result.m_v.xy, result.m_v.zw);
@@ -104,7 +105,7 @@ EZ_ALWAYS_INLINE ezSimdVec4bWide ezSimdVec4bWide::Get() const
 EZ_ALWAYS_INLINE ezSimdVec4bWide ezSimdVec4bWide::operator&&(const ezSimdVec4bWide& rhs) const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
-#error
+  return _mm256_and_pd(m_v, rhs.m_v);
 #else
   ezSimdVec4bWide result;
   result.m_v.xy = _mm_and_pd(m_v.xy, rhs.m_v.xy);
@@ -116,7 +117,7 @@ EZ_ALWAYS_INLINE ezSimdVec4bWide ezSimdVec4bWide::operator&&(const ezSimdVec4bWi
 EZ_ALWAYS_INLINE ezSimdVec4bWide ezSimdVec4bWide::operator||(const ezSimdVec4bWide& rhs) const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
-#error
+  return _mm256_or_pd(m_v, rhs.m_v);
 #else
   ezSimdVec4bWide result;
   result.m_v.xy = _mm_or_pd(m_v.xy, rhs.m_v.xy);
@@ -128,7 +129,8 @@ EZ_ALWAYS_INLINE ezSimdVec4bWide ezSimdVec4bWide::operator||(const ezSimdVec4bWi
 EZ_ALWAYS_INLINE ezSimdVec4bWide ezSimdVec4bWide::operator!() const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
-#error
+  __m256d allTrue = _mm256_cmp_pd(_mm256_setzero_pd(), _mm256_setzero_pd(), _CMP_EQ_OQ);
+  return _mm256_xor_pd(m_v, allTrue);
 #else
   __m128d allTrue = _mm_cmpeq_pd(_mm_setzero_pd(), _mm_setzero_pd());
   ezSimdVec4bWide result;
@@ -146,7 +148,7 @@ EZ_ALWAYS_INLINE ezSimdVec4bWide ezSimdVec4bWide::operator==(const ezSimdVec4bWi
 EZ_ALWAYS_INLINE ezSimdVec4bWide ezSimdVec4bWide::operator!=(const ezSimdVec4bWide& rhs) const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
-#error
+  return _mm256_xor_pd(m_v, rhs.m_v);
 #else
   ezSimdVec4bWide result;
   result.m_v.xy = _mm_xor_pd(m_v.xy, rhs.m_v.xy);
@@ -159,7 +161,8 @@ template <int N>
 EZ_ALWAYS_INLINE bool ezSimdVec4bWide::AllSet() const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
-#error
+  const int mask = EZ_BIT(N) - 1;
+  return (_mm256_movemask_pd(m_v) & mask) == mask;
 #else
   int xy_bits = _mm_movemask_pd(m_v.xy);
   int zw_bits = _mm_movemask_pd(m_v.zw);
@@ -173,7 +176,8 @@ template <int N>
 EZ_ALWAYS_INLINE bool ezSimdVec4bWide::AnySet() const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
-#error
+  const int mask = EZ_BIT(N) - 1;
+  return (_mm256_movemask_pd(m_v) & mask) != 0;
 #else
   int xy_bits = _mm_movemask_pd(m_v.xy);
   int zw_bits = _mm_movemask_pd(m_v.zw);
@@ -187,7 +191,8 @@ template <int N>
 EZ_ALWAYS_INLINE bool ezSimdVec4bWide::NoneSet() const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
-#error
+  const int mask = EZ_BIT(N) - 1;
+  return (_mm256_movemask_pd(m_v) & mask) == 0;
 #else
   int xy_bits = _mm_movemask_pd(m_v.xy);
   int zw_bits = _mm_movemask_pd(m_v.zw);
@@ -201,7 +206,7 @@ EZ_ALWAYS_INLINE bool ezSimdVec4bWide::NoneSet() const
 EZ_ALWAYS_INLINE ezSimdVec4bWide ezSimdVec4bWide::Select(const ezSimdVec4bWide& vCmp, const ezSimdVec4bWide& vTrue, const ezSimdVec4bWide& vFalse)
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
-#error
+  return _mm256_blendv_pd(vFalse.m_v, vTrue.m_v, vCmp.m_v);
 #else
   ezSimdVec4bWide result;
 #if EZ_SSE_LEVEL >= EZ_SSE_41

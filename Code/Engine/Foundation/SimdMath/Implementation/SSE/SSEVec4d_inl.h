@@ -112,7 +112,7 @@ EZ_ALWAYS_INLINE void ezSimdVec4d::Set(double x, double y, double z, double w)
 EZ_ALWAYS_INLINE void ezSimdVec4d::SetX(const ezSimdDouble& f)
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
-#error
+  m_v = _mm256_blend_pd(m_v, f.m_v, 0x1);
 #else
 m_v.xy = _mm_shuffle_pd(f.m_v.xy, m_v.xy, EZ_SHUFFLE_2(0, 1));
 #endif
@@ -121,7 +121,7 @@ m_v.xy = _mm_shuffle_pd(f.m_v.xy, m_v.xy, EZ_SHUFFLE_2(0, 1));
 EZ_ALWAYS_INLINE void ezSimdVec4d::SetY(const ezSimdDouble& f)
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
-#error
+  m_v = _mm256_blend_pd(m_v, f.m_v, 0x2);
 #else
 m_v.xy = _mm_shuffle_pd(m_v.xy, f.m_v.xy, EZ_SHUFFLE_2(0, 1));
 #endif
@@ -130,7 +130,7 @@ m_v.xy = _mm_shuffle_pd(m_v.xy, f.m_v.xy, EZ_SHUFFLE_2(0, 1));
 EZ_ALWAYS_INLINE void ezSimdVec4d::SetZ(const ezSimdDouble& f)
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
-#error
+  m_v = _mm256_blend_pd(m_v, f.m_v, 0x4);
 #else
 m_v.zw = _mm_shuffle_pd(f.m_v.zw, m_v.zw, EZ_SHUFFLE_2(0, 1));
 #endif
@@ -139,7 +139,7 @@ m_v.zw = _mm_shuffle_pd(f.m_v.zw, m_v.zw, EZ_SHUFFLE_2(0, 1));
 EZ_ALWAYS_INLINE void ezSimdVec4d::SetW(const ezSimdDouble& f)
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
-#error
+  m_v = _mm256_blend_pd(m_v, f.m_v, 0x8);
 #else
 m_v.zw = _mm_shuffle_pd(m_v.zw, f.m_v.zw, EZ_SHUFFLE_2(0, 1));
 #endif
@@ -614,7 +614,7 @@ EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::Trunc() const
 EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::FlipSign(const ezSimdVec4bWide& vCmp) const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
-#error
+  return _mm256_xor_pd(m_v, _mm256_and_pd(vCmp.m_v, _mm256_set1_pd(-0.0)));
 #else
   ezSimdVec4d result;
 
@@ -628,7 +628,7 @@ EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::FlipSign(const ezSimdVec4bWide& vCmp) 
 EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::Select(const ezSimdVec4bWide& vCmp, const ezSimdVec4d& vTrue, const ezSimdVec4d& vFalse)
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
-#error
+  return _mm256_blendv_pd(vFalse.m_v, vTrue.m_v, vCmp.m_v);
 #else
   ezSimdVec4d result;
   result.m_v.xy = _mm_or_pd(_mm_andnot_pd(vCmp.m_v.xy, vFalse.m_v.xy), _mm_and_pd(vCmp.m_v.xy, vTrue.m_v.xy));
@@ -684,7 +684,9 @@ EZ_ALWAYS_INLINE ezSimdVec4d& ezSimdVec4d::operator/=(const ezSimdDouble& f)
 EZ_ALWAYS_INLINE ezSimdVec4bWide ezSimdVec4d::operator==(const ezSimdVec4d& v) const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
-#error
+  ezSimdVec4bWide result;
+  result.m_v = _mm256_cmp_pd(m_v, v.m_v, _CMP_EQ_OQ);
+  return result;
 #else
   ezSimdVec4bWide result;
   result.m_v.xy = _mm_cmpeq_pd(m_v.xy, v.m_v.xy);
@@ -696,7 +698,9 @@ EZ_ALWAYS_INLINE ezSimdVec4bWide ezSimdVec4d::operator==(const ezSimdVec4d& v) c
 EZ_ALWAYS_INLINE ezSimdVec4bWide ezSimdVec4d::operator!=(const ezSimdVec4d& v) const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
-#error
+  ezSimdVec4bWide result;
+  result.m_v = _mm256_cmp_pd(m_v, v.m_v, _CMP_NEQ_OQ);
+  return result;
 #else
   ezSimdVec4bWide result;
   result.m_v.xy = _mm_cmpneq_pd(m_v.xy, v.m_v.xy);
@@ -708,7 +712,9 @@ EZ_ALWAYS_INLINE ezSimdVec4bWide ezSimdVec4d::operator!=(const ezSimdVec4d& v) c
 EZ_ALWAYS_INLINE ezSimdVec4bWide ezSimdVec4d::operator<=(const ezSimdVec4d& v) const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
-#error
+  ezSimdVec4bWide result;
+  result.m_v = _mm256_cmp_pd(m_v, v.m_v, _CMP_LE_OQ);
+  return result;
 #else
   ezSimdVec4bWide result;
   result.m_v.xy = _mm_cmple_pd(m_v.xy, v.m_v.xy);
@@ -720,7 +726,9 @@ EZ_ALWAYS_INLINE ezSimdVec4bWide ezSimdVec4d::operator<=(const ezSimdVec4d& v) c
 EZ_ALWAYS_INLINE ezSimdVec4bWide ezSimdVec4d::operator<(const ezSimdVec4d& v) const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
-#error
+  ezSimdVec4bWide result;
+  result.m_v = _mm256_cmp_pd(m_v, v.m_v, _CMP_LT_OQ);
+  return result;
 #else
   ezSimdVec4bWide result;
   result.m_v.xy = _mm_cmplt_pd(m_v.xy, v.m_v.xy);
@@ -732,7 +740,9 @@ EZ_ALWAYS_INLINE ezSimdVec4bWide ezSimdVec4d::operator<(const ezSimdVec4d& v) co
 EZ_ALWAYS_INLINE ezSimdVec4bWide ezSimdVec4d::operator>=(const ezSimdVec4d& v) const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
-#error
+  ezSimdVec4bWide result;
+  result.m_v = _mm256_cmp_pd(m_v, v.m_v, _CMP_GE_OQ);
+  return result;
 #else
   ezSimdVec4bWide result;
   result.m_v.xy = _mm_cmpge_pd(m_v.xy, v.m_v.xy);
@@ -744,7 +754,9 @@ EZ_ALWAYS_INLINE ezSimdVec4bWide ezSimdVec4d::operator>=(const ezSimdVec4d& v) c
 EZ_ALWAYS_INLINE ezSimdVec4bWide ezSimdVec4d::operator>(const ezSimdVec4d& v) const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
-#error
+  ezSimdVec4bWide result;
+  result.m_v = _mm256_cmp_pd(m_v, v.m_v, _CMP_GT_OQ);
+  return result;
 #else
   ezSimdVec4bWide result;
   result.m_v.xy = _mm_cmpgt_pd(m_v.xy, v.m_v.xy);
@@ -831,11 +843,8 @@ EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::CrossRH(const ezSimdVec4d& v) const
 template <>
 EZ_ALWAYS_INLINE ezSimdDouble ezSimdVec4d::HorizontalSum<2>() const
 {
-#if EZ_SSE_LEVEL >= EZ_SSE_AVX
-#error
-#else
+
   return GetComponent<0>() + GetComponent<1>();
-#endif
 }
 
 template <>
@@ -1154,7 +1163,7 @@ void ezSimdVec4d::NormalizeIfNotZero(const ezSimdDouble& fEpsilon)
 
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
   __m256d isNotZero = _mm256_cmp_pd(sqLength.m_v, fEpsilon.m_v, _CMP_GT_OQ);
-  __m256d invSqrt = sqLength.GetInvSqrt<acc>().m_v;
+  __m256d invSqrt = sqLength.GetInvSqrt().m_v;
   m_v = _mm256_and_pd(_mm256_mul_pd(m_v, invSqrt), isNotZero);
 #else
   __m128d isNotZero = _mm_cmpgt_pd(sqLength.m_v.xy, fEpsilon.m_v.xy);
@@ -1169,7 +1178,7 @@ template <ezSwizzle::Enum s>
 EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::GetCombined(const ezSimdVec4d& other) const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
-  #error
+    return _mm256_shuffle_pd(m_v, other.m_v, EZ_TO_SHUFFLE(s));
 #else
   ezSimdVec4d result;
 
