@@ -18,14 +18,14 @@ void ezAngelScriptEngineSingleton::Register_Math()
   AS_CHECK(m_pEngine->RegisterGlobalFunction("bool IsFinite(float value)", asFUNCTION(ezMath::IsFinite<float>), asCALL_CDECL));
   AS_CHECK(m_pEngine->RegisterGlobalFunction("bool IsFinite(double value)", asFUNCTION(ezMath::IsFinite<double>), asCALL_CDECL));
 
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("float Sin(ezAngle a)", asFUNCTION(ezMath::Sin), asCALL_CDECL));
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("float Cos(ezAngle a)", asFUNCTION(ezMath::Cos), asCALL_CDECL));
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("float Tan(ezAngle a)", asFUNCTION(ezMath::Tan), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("float Sin(ezAngle a)", asFUNCTION(ezMath::Sin<float>), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("float Cos(ezAngle a)", asFUNCTION(ezMath::Cos<float>), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("float Tan(ezAngle a)", asFUNCTION(ezMath::Tan<float>), asCALL_CDECL));
 
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("ezAngle ASin(float f)", asFUNCTION(ezMath::ASin), asCALL_CDECL));
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("ezAngle ACos(float f)", asFUNCTION(ezMath::ACos), asCALL_CDECL));
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("ezAngle ATan(float f)", asFUNCTION(ezMath::ATan), asCALL_CDECL));
-  AS_CHECK(m_pEngine->RegisterGlobalFunction("ezAngle ATan2(float x, float y)", asFUNCTION(ezMath::ATan2), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("ezAngle ASin(float f)", asFUNCTION(ezMath::ASin<float>), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("ezAngle ACos(float f)", asFUNCTION(ezMath::ACos<float>), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("ezAngle ATan(float f)", asFUNCTION(ezMath::ATan<float>), asCALL_CDECL));
+  AS_CHECK(m_pEngine->RegisterGlobalFunction("ezAngle ATan2(float x, float y)", asFUNCTION(ezMath::ATan2<float>), asCALL_CDECL));
 
   AS_CHECK(m_pEngine->RegisterGlobalFunction("float Exp(float f)", asFUNCTIONPR(ezMath::Exp, (float), float), asCALL_CDECL));
   AS_CHECK(m_pEngine->RegisterGlobalFunction("float Ln(float f)", asFUNCTIONPR(ezMath::Ln, (float), float), asCALL_CDECL));
@@ -165,8 +165,8 @@ void ezAngelScriptEngineSingleton::Register_Angle()
   {
     m_pEngine->SetDefaultNamespace("ezAngle");
 
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("float DegToRad(float fDegree)", asFUNCTION(ezAngle::DegToRad<float>), asCALL_CDECL));
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("float RadToDeg(float fRadians)", asFUNCTION(ezAngle::RadToDeg<float>), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("float DegToRad(float fDegree)", asFUNCTION(ezAngleTemplate<float>::DegToRad), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("float RadToDeg(float fRadians)", asFUNCTION(ezAngleTemplate<float>::RadToDeg), asCALL_CDECL));
     AS_CHECK(m_pEngine->RegisterGlobalFunction("ezAngle MakeZero()", asFUNCTION(ezAngle::MakeZero), asCALL_CDECL));
     AS_CHECK(m_pEngine->RegisterGlobalFunction("ezAngle MakeFromDegree(float fDegree)", asFUNCTION(ezAngle::MakeFromDegree), asCALL_CDECL));
     AS_CHECK(m_pEngine->RegisterGlobalFunction("ezAngle MakeFromRadian(float fRadians)", asFUNCTION(ezAngle::MakeFromRadian), asCALL_CDECL));

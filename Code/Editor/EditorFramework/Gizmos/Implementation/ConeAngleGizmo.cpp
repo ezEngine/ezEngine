@@ -126,8 +126,8 @@ ezEditorInput ezConeAngleGizmo::DoMouseMoveEvent(QMouseEvent* e)
   const ezAngle aSpeed = ezAngle::MakeFromDegree(1.0f);
 
   {
-    m_Angle += vDiff.x * aSpeed;
-    m_Angle -= vDiff.y * aSpeed;
+    m_Angle += float(vDiff.x) * aSpeed;
+    m_Angle -= float(vDiff.y) * aSpeed;
 
     m_Angle = ezMath::Clamp(m_Angle, ezAngle(), ezAngle::MakeFromDegree(179.0f));
 
