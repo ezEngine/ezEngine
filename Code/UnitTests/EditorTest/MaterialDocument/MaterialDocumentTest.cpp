@@ -323,7 +323,7 @@ void ezMaterialDocumentTest::CreateMaterialFromVSE()
   const ezDocumentObject* pShaderProperties = GetShaderProperties(pProperties);
   pAccessor->StartTransaction("Change Properties");
   EZ_TEST_STATUS(pAccessor->SetValueByName(pShaderProperties, "SHADING_MODE", 1));
-  EZ_TEST_STATUS(pAccessor->SetValueByName(pShaderProperties, "Parameter", ezColor::DarkGoldenRod));
+  EZ_TEST_STATUS(pAccessor->SetValueByName(pShaderProperties, "CustomColor", ezColor::DarkGoldenRod));
   pAccessor->FinishTransaction();
 
   ProcessEvents();
