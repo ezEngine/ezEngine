@@ -69,6 +69,7 @@ Node %UV_Scroll
   string %Category { "Input" }
   string %Color { "Green" }
   string %Docs { "Outputs the first vertex texture coordinate (UV0) and applies a scrolling effect, using the world time. " }
+  string %Title { "UV Scroll: {$in1}" }
 
   string %CodeShaderShared { "
 #ifndef USE_TEXCOORD0

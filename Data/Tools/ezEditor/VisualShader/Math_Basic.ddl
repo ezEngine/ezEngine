@@ -2,6 +2,7 @@ Node %Add
 {
   string %Category { "Math/Basic" }
   string %Color { "Yellow" }
+  string %Title { "{$in0} + {$in1}" }
   string %Docs { "Adds two values, outputs the larger type." }
 
   InputPin %a
@@ -30,6 +31,7 @@ Node %Subtract
 {
   string %Category { "Math/Basic" }
   string %Color { "Yellow" }
+  string %Title { "{$in0} - {$in1}" }
   string %Docs { "Subtracts two values, outputs the larger type." }
 
   InputPin %a
@@ -58,6 +60,7 @@ Node %Multiply
 {
   string %Category { "Math/Basic" }
   string %Color { "Yellow" }
+  string %Title { "{$in0} * {$in1}" }
   string %Docs { "Multiplies two values component-wise, outputs the larger type." }
 
   InputPin %a
@@ -86,6 +89,7 @@ Node %Divide
 {
   string %Category { "Math/Basic" }
   string %Color { "Yellow" }
+  string %Title { "{$in0} / {$in1}" }
   string %Docs { "Divides two values component-wise, outputs the larger type." }
 
   InputPin %a
@@ -114,6 +118,7 @@ Node %Modulo
 {
   string %Category { "Math/Basic" }
   string %Color { "Yellow" }
+  string %Title { "{$in0} % {$in1}" }
   string %Docs { "Component-wise modulo (remainder after division), outputs the larger type." }
 
   InputPin %a

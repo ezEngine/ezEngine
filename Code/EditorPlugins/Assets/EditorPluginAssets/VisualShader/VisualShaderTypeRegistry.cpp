@@ -566,6 +566,10 @@ void ezVisualShaderTypeRegistry::ExtractNodeConfig(const ezOpenDdlReaderElement*
       {
         nd.m_sDocs = pElement->GetPrimitivesString()[0];
       }
+      else if (pElement->GetName() == "Title")
+      {
+        nd.m_sTitle = pElement->GetPrimitivesString()[0];
+      }
       else if (pElement->GetName() == "CheckPermutations")
       {
         temp = pElement->GetPrimitivesString()[0];

@@ -4,6 +4,7 @@ Node %Lerp
   string %Category { "Math/Interpolation" }
   string %Color { "Yellow" }
   string %Docs { "Outputs the linear interpolation of 'x' and 'y' according to 'factor'." }
+  string %Title { "Lerp: {$in0} -> {$in1} ({$in2})" }
 
   InputPin %x
   {
@@ -41,6 +42,7 @@ Node %Step
   string %Category { "Math/Interpolation" }
   string %Color { "Yellow" }
   string %Docs { "Outputs 0 when 'x' is smaller than 'edge', 1 otherwise." }
+  string %Title { "Step: {$in1} > {$in0}" }
 
   InputPin %edge
   {
@@ -72,6 +74,7 @@ Node %SmoothStep
   string %Category { "Math/Interpolation" }
   string %Color { "Yellow" }
   string %Docs { "Outputs 0 when 'x' is smaller than 'edge0', 1 when 'x' is larger than 'edge1' and the hermite interpoliation in between." }
+  string %Title { "Smooth Step: {$in0} < {$in2} < {$in1}" }
 
   InputPin %edge0
   {

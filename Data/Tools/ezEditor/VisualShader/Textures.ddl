@@ -4,6 +4,7 @@ Node %NormalTexture
   string %NodeType { "Texture" }
   string %Color { "Blue" }
   string %Docs { "Samples the material's normal map." }
+  string %Title { "Normalmap: {$Name}" }
 
   string %CodeMaterialParams { "
 Texture2D $prop0;
@@ -43,6 +44,7 @@ Node %Texture2D
   string %NodeType { "Texture" }
   string %Color { "Blue" }
   string %Docs { "Samples a custom 2D texture." }
+  string %Title { "Texture2D: {$Name}" }
 
   string %CodeMaterialParams { "
 Texture2D $prop0;
@@ -117,6 +119,7 @@ Node %Texture3Way
   string %NodeType { "Texture" }
   string %Color { "Blue" }
   string %Docs { "Samples a custom 2D texture 3 times and projects it from 3 sides according to the given normal." }
+  string %Title { "Texture 3-Way: {$Name}" }
 
   string %CodeMaterialParams { "
 Texture2D $prop0;

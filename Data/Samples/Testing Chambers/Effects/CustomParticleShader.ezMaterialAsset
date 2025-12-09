@@ -20,7 +20,7 @@ o
 			s{":app/VisualShader/Textures.ddl"}
 		}
 		Uuid %DocumentID{u4{14076228792859157427,5732885960892469629}}
-		u4 %Hash{5895313860830484688}
+		u4 %Hash{17614664837984927426}
 		VarArray %MetaInfo{}
 		VarArray %Outputs
 		{
@@ -52,7 +52,7 @@ o
 	p
 	{
 		s %Name{"Noise1"}
-		Vec2 %Node::Pos{f{0xD4339B43,0xDF36CD41}}
+		Vec2 %Node::Pos{f{0x10D43844,0x231AD4C1}}
 	}
 }
 o
@@ -62,7 +62,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Vec2 %Node::Pos{f{0xD3585E44,0x9F3AA442}}
+		Vec2 %Node::Pos{f{0xE53C9C44,0xE0580A42}}
 		f %a{0x0000803F}
 		f %b{0xCDCC4C3E}
 	}
@@ -87,7 +87,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Vec2 %Node::Pos{f{0x44EDC1C2,0xAC2E15C3}}
+		Vec2 %Node::Pos{f{0x537C8543,0x95D90FC3}}
 	}
 }
 o
@@ -123,7 +123,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Vec2 %Node::Pos{f{0x05FB8744,0x4EC0FC42}}
+		Vec2 %Node::Pos{f{0x465AA244,0x9F4A3F43}}
 		f %a{0}
 		f %b{0}
 	}
@@ -135,7 +135,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Vec2 %Node::Pos{f{0x43982F44,0x12208943}}
+		Vec2 %Node::Pos{f{0x89708F44,0x03165E43}}
 	}
 }
 o
@@ -145,7 +145,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Vec2 %Node::Pos{f{0x6C173043,0x2FA83AC2}}
+		Vec2 %Node::Pos{f{0xC3AB1344,0x3F56F5C1}}
 		f %a{0}
 		f %b{0}
 	}
@@ -158,7 +158,7 @@ o
 	p
 	{
 		Vec3 %Color{f{0x0000803F,0x0000803F,0x0000803F}}
-		Vec2 %Node::Pos{f{0x14440E45,0x7BDBB742}}
+		Vec2 %Node::Pos{f{0xDF9C0845,0x09732243}}
 		f %Opacity{0x0000803F}
 	}
 }
@@ -176,23 +176,13 @@ o
 }
 o
 {
-	Uuid %id{u4{8136492905670925487,5034684606900069502}}
-	s %t{"ShaderNode::Split"}
-	u3 %v{1}
-	p
-	{
-		Vec2 %Node::Pos{f{0x60D3C444,0xF6266643}}
-	}
-}
-o
-{
 	Uuid %id{u4{16555891134089649836,5036769292053150763}}
 	s %t{"ShaderNode::Texture2D"}
 	u3 %v{1}
 	p
 	{
 		s %Name{"Gradient"}
-		Vec2 %Node::Pos{f{0xC605D444,0x7D1647C1}}
+		Vec2 %Node::Pos{f{0xDBEBDA44,0x5E61AD3F}}
 	}
 }
 o
@@ -249,12 +239,25 @@ o
 }
 o
 {
+	Uuid %id{u4{13061678561759540609,5215816955474350942}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{8371936191923445389,5564570034414527065}}
+		s %SourcePin{"Alpha"}
+		Uuid %Target{u4{10220244284063048100,10056141235293546882}}
+		s %TargetPin{"a"}
+	}
+}
+o
+{
 	Uuid %id{u4{8071046265704712844,5345644415993285931}}
 	s %t{"ShaderNode::Multiply"}
 	u3 %v{1}
 	p
 	{
-		Vec2 %Node::Pos{f{0x439BB444,0xEA1CB6C2}}
+		Vec2 %Node::Pos{f{0x56BAC844,0xCD1AE4C2}}
 		f %a{0x0000803F}
 		f %b{0x0000803F}
 	}
@@ -320,7 +323,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Vec2 %Node::Pos{f{0x220A0D44,0xEFB62A43}}
+		Vec2 %Node::Pos{f{0x82626C44,0x19C8EA42}}
 		Vec2 %Value{f{0xCDCC4C3E,0xCDCC4C3E}}
 	}
 }
@@ -383,7 +386,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Vec2 %Node::Pos{f{0x41AFB444,0x65F16643}}
+		Vec2 %Node::Pos{f{0x22E6EF44,0xC4D30443}}
 	}
 }
 o
@@ -406,7 +409,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Vec2 %Node::Pos{f{0xDEB73744,0xED0A9842}}
+		Vec2 %Node::Pos{f{0x6AEC8844,0xB86E1242}}
 		f %a{0}
 		f %b{0}
 	}
@@ -422,19 +425,6 @@ o
 		s %SourcePin{"result"}
 		Uuid %Target{u4{1628816799203776011,15193067188542993342}}
 		s %TargetPin{"UV"}
-	}
-}
-o
-{
-	Uuid %id{u4{3581719628461317563,5649347571833982311}}
-	s %t{"ezDocumentObject_ConnectionBase"}
-	u3 %v{1}
-	p
-	{
-		Uuid %Source{u4{8371936191923445389,5564570034414527065}}
-		s %SourcePin{"Color"}
-		Uuid %Target{u4{8136492905670925487,5034684606900069502}}
-		s %TargetPin{"a"}
 	}
 }
 o
@@ -457,7 +447,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Vec2 %Node::Pos{f{0xB8C94F42,0x38DAB1C2}}
+		Vec2 %Node::Pos{f{0xF245D543,0xB0DB91C2}}
 		f %a{0x0000803F}
 		f %b{0x0AD7A33C}
 	}
@@ -469,22 +459,9 @@ o
 	u3 %v{1}
 	p
 	{
-		Vec2 %Node::Pos{f{0x6D2A0B44,0x9B594842}}
+		Vec2 %Node::Pos{f{0xCD826A44,0xDD1E4FC0}}
 		f %x{0}
 		f %y{0}
-	}
-}
-o
-{
-	Uuid %id{u4{9691185476356189342,5731124050312557833}}
-	s %t{"ezDocumentObject_ConnectionBase"}
-	u3 %v{1}
-	p
-	{
-		Uuid %Source{u4{8136492905670925487,5034684606900069502}}
-		s %SourcePin{"w"}
-		Uuid %Target{u4{10220244284063048100,10056141235293546882}}
-		s %TargetPin{"a"}
 	}
 }
 o
@@ -529,8 +506,6 @@ o
 			Uuid{u4{16555891134089649836,5036769292053150763}}
 			Uuid{u4{10111928471109082783,1986545695851381667}}
 			Uuid{u4{8371936191923445389,5564570034414527065}}
-			Uuid{u4{8136492905670925487,5034684606900069502}}
-			Uuid{u4{3581719628461317563,5649347571833982311}}
 			Uuid{u4{18047790002961758510,10225871948574216028}}
 			Uuid{u4{1533181728427393956,5725915632874216599}}
 			Uuid{u4{11760006513941428138,5576539411094463664}}
@@ -545,7 +520,6 @@ o
 			Uuid{u4{2615943869757326759,5749525258413326301}}
 			Uuid{u4{7124515926861128337,5578728243602988196}}
 			Uuid{u4{10220244284063048100,10056141235293546882}}
-			Uuid{u4{9691185476356189342,5731124050312557833}}
 			Uuid{u4{6439420532539871892,5453723746353086704}}
 			Uuid{u4{6055067835608335148,15550206198953750664}}
 			Uuid{u4{6528105216469325469,5364275769678083495}}
@@ -564,6 +538,7 @@ o
 			Uuid{u4{9633643410220906419,5684047400420224981}}
 			Uuid{u4{7478740586210614401,5568277709528618553}}
 			Uuid{u4{11517230929702188193,5527529118246723892}}
+			Uuid{u4{13061678561759540609,5215816955474350942}}
 		}
 	}
 }
@@ -574,7 +549,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Vec2 %Node::Pos{f{0xAE06F844,0x16459F43}}
+		Vec2 %Node::Pos{f{0xD21DFF44,0xE9818743}}
 		f %a{0x0000803F}
 		f %b{0x0000803F}
 	}
@@ -586,7 +561,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Vec2 %Node::Pos{f{0x3E9AC0C2,0xB950D141}}
+		Vec2 %Node::Pos{f{0x82CEBD43,0x82508442}}
 		Vec2 %Offset{f{0,0}}
 		Vec2 %Scale{f{0x00000040,0x00000040}}
 		Vec2 %Speed{f{0,0x9A99993E}}
@@ -600,7 +575,7 @@ o
 	p
 	{
 		s %Name{"Color"}
-		Vec2 %Node::Pos{f{0x39549E44,0x76AEBF41}}
+		Vec2 %Node::Pos{f{0x6AD5B244,0x31214243}}
 	}
 }
 o
@@ -610,7 +585,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Vec2 %Node::Pos{f{0x22D4F444,0x5AC09440}}
+		Vec2 %Node::Pos{f{0xE906FE44,0x19634740}}
 		f %a{0x0000803F}
 		f %b{0x0000A040}
 	}
@@ -1370,23 +1345,6 @@ o
 	p
 	{
 		s %Category{"Texture 2D"}
-	}
-}
-o
-{
-	Uuid %id{u4{574185834121239378,15422088015066052787}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezVisualShaderNodeBase"}
-		s %PluginName{"VisualShaderTypes"}
-		VarArray %Properties{}
-		s %TypeName{"ShaderNode::Split"}
-		u3 %TypeVersion{1}
 	}
 }
 o
