@@ -94,9 +94,9 @@ template <ezSwizzle::Enum s>
 EZ_ALWAYS_INLINE ezSimdVec4bWide ezSimdVec4bWide::Get() const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
-
-EZ_ASSERT_NOT_IMPLEMENTED
-
+  ezSimdVec4bWide result;
+  EZ_WIDE_SWIZZLE_AVX1(m_v, s, result.m_v);
+  return result;
 #else
   ezSimdVec4bWide result;
   EZ_WIDE_SHUFFLE_SSE(m_v.xy, m_v.zw, m_v.xy, m_v.zw, EZ_TO_SHUFFLE(s), result.m_v.xy, result.m_v.zw);
