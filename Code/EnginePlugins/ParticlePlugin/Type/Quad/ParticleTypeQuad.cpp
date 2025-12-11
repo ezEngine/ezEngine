@@ -39,8 +39,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeQuadFactory, 2, ezRTTIDefaultAlloc
     EZ_MEMBER_PROPERTY("NumSpritesX", m_uiNumSpritesX)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(1, 16)),
     EZ_MEMBER_PROPERTY("NumSpritesY", m_uiNumSpritesY)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(1, 16)),
     EZ_MEMBER_PROPERTY("TintColorParam", m_sTintColorParameter),
-    EZ_MEMBER_PROPERTY("DistortionTexture", m_sDistortionTexture)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_2D")),
-    EZ_MEMBER_PROPERTY("DistortionStrength", m_fDistortionStrength)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezClampValueAttribute(0.0f, 500.0f)),
     EZ_MEMBER_PROPERTY("ParticleStretch", m_fStretch)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(-100.0f, 100.0f)),
   }
   EZ_END_PROPERTIES;
@@ -67,8 +65,6 @@ void ezParticleTypeQuadFactory::CopyTypeProperties(ezParticleType* pObject, bool
   pType->m_uiNumSpritesX = m_uiNumSpritesX;
   pType->m_uiNumSpritesY = m_uiNumSpritesY;
   pType->m_sTintColorParameter = ezTempHashedString(m_sTintColorParameter.GetData());
-  pType->m_hDistortionTexture.Invalidate();
-  pType->m_fDistortionStrength = m_fDistortionStrength;
   pType->m_TextureAtlasType = m_TextureAtlasType;
   pType->m_fStretch = m_fStretch;
   pType->m_LightingMode = m_LightingMode;
@@ -85,9 +81,6 @@ void ezParticleTypeQuadFactory::CopyTypeProperties(ezParticleType* pObject, bool
   {
     if (!m_sTexture.IsEmpty())
       pType->m_hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(m_sTexture);
-
-    if (!m_sDistortionTexture.IsEmpty())
-      pType->m_hDistortionTexture = ezResourceManager::LoadResource<ezTexture2DResource>(m_sDistortionTexture);
   }
 }
 
@@ -119,8 +112,11 @@ void ezParticleTypeQuadFactory::Save(ezStreamWriter& inout_stream) const
   inout_stream << m_uiNumSpritesY;
   inout_stream << m_sTintColorParameter;
   inout_stream << m_MaxDeviation;
-  inout_stream << m_sDistortionTexture;
-  inout_stream << m_fDistortionStrength;
+
+  ezString sDistortionTexture;
+  float fDistortionStrength = 0;
+  inout_stream << sDistortionTexture;
+  inout_stream << fDistortionStrength;
   inout_stream << m_TextureAtlasType;
 
   // Version 5
@@ -157,8 +153,10 @@ void ezParticleTypeQuadFactory::Load(ezStreamReader& inout_stream)
 
   if (uiVersion >= 3)
   {
-    inout_stream >> m_sDistortionTexture;
-    inout_stream >> m_fDistortionStrength;
+    ezString sDistortionTexture;
+    float fDistortionStrength;
+    inout_stream >> sDistortionTexture;
+    inout_stream >> fDistortionStrength;
   }
 
   if (uiVersion >= 4)
@@ -247,7 +245,7 @@ void ezParticleTypeQuad::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, 
   if (numParticles == 0)
     return;
 
-  const bool bNeedsSorting = (m_RenderMode == ezParticleTypeRenderMode::Blended) || (m_RenderMode == ezParticleTypeRenderMode::BlendedForeground) || (m_RenderMode == ezParticleTypeRenderMode::BlendedBackground) || (m_RenderMode == ezParticleTypeRenderMode::BlendAdd);
+  const bool bNeedsSorting = (m_RenderMode == ezParticleTypeRenderMode::Blended) || (m_RenderMode == ezParticleTypeRenderMode::BlendedForeground) || (m_RenderMode == ezParticleTypeRenderMode::BlendedBackground);
 
   // don't copy the data multiple times in the same frame, if the effect is instanced
   if ((m_uiLastExtractedFrame != ezRenderWorld::GetFrameCounter())
@@ -464,7 +462,7 @@ void ezParticleTypeQuad::AddParticleRenderData(ezMsgExtractRenderData& msg, cons
   }
   else
   {
-    pRenderData->m_uiSortingKey = ComputeSortingKey(m_RenderMode, m_hTexture.GetResourceIDHash(), m_hDistortionTexture.GetResourceIDHash());
+    pRenderData->m_uiSortingKey = ComputeSortingKey(m_RenderMode, m_hTexture.GetResourceIDHash(), 0);
   }
 
   pRenderData->m_vGlobalPosition = instanceTransform.m_vPosition;
@@ -480,8 +478,6 @@ void ezParticleTypeQuad::AddParticleRenderData(ezMsgExtractRenderData& msg, cons
   pRenderData->m_uiNumVariationsY = 1;
   pRenderData->m_uiNumFlipbookAnimationsX = 1;
   pRenderData->m_uiNumFlipbookAnimationsY = 1;
-  pRenderData->m_hDistortionTexture = m_hDistortionTexture;
-  pRenderData->m_fDistortionStrength = m_fDistortionStrength;
   pRenderData->m_LightingMode = m_LightingMode;
   pRenderData->m_fNormalCurvature = m_fNormalCurvature;
   pRenderData->m_fLightDirectionality = m_fLightDirectionality;

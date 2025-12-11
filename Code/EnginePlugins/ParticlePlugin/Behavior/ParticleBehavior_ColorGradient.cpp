@@ -15,6 +15,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_ColorGradient, 1, ezRT
     EZ_MEMBER_PROPERTY("TintColor", m_TintColor)->AddAttributes(new ezExposeColorAlphaAttribute()),
     EZ_ENUM_MEMBER_PROPERTY("ColorGradientMode", ezParticleColorGradientMode, m_GradientMode),
     EZ_MEMBER_PROPERTY("GradientMaxSpeed", m_fMaxSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 100.0f)),
+    EZ_MEMBER_PROPERTY("ApplyAlpha", m_bApplyAlpha)->AddAttributes(new ezDefaultValueAttribute(true)),
   }
   EZ_END_PROPERTIES;
 }
@@ -37,6 +38,7 @@ void ezParticleBehaviorFactory_ColorGradient::CopyBehaviorProperties(ezParticleB
   pBehavior->m_GradientMode = m_GradientMode;
   pBehavior->m_fMaxSpeed = m_fMaxSpeed;
   pBehavior->m_TintColor = m_TintColor;
+  pBehavior->m_bApplyAlpha = m_bApplyAlpha;
 
   // the gradient resource may not be specified yet, so defer evaluation until an element is created
   pBehavior->m_InitColor = ezColor::RebeccaPurple;
@@ -44,7 +46,7 @@ void ezParticleBehaviorFactory_ColorGradient::CopyBehaviorProperties(ezParticleB
 
 void ezParticleBehaviorFactory_ColorGradient::Save(ezStreamWriter& inout_stream) const
 {
-  const ezUInt8 uiVersion = 4;
+  const ezUInt8 uiVersion = 5;
   inout_stream << uiVersion;
 
   inout_stream << m_hGradient;
@@ -55,6 +57,9 @@ void ezParticleBehaviorFactory_ColorGradient::Save(ezStreamWriter& inout_stream)
 
   // Version 4
   inout_stream << m_TintColor;
+
+  // Version 5
+  inout_stream << m_bApplyAlpha;
 }
 
 void ezParticleBehaviorFactory_ColorGradient::Load(ezStreamReader& inout_stream)
@@ -74,6 +79,11 @@ void ezParticleBehaviorFactory_ColorGradient::Load(ezStreamReader& inout_stream)
   {
     inout_stream >> m_TintColor;
   }
+
+  if (uiVersion >= 5)
+  {
+    inout_stream >> m_bApplyAlpha;
+  }
 }
 
 void ezParticleBehavior_ColorGradient::CreateRequiredStreams()
@@ -89,7 +99,7 @@ void ezParticleBehavior_ColorGradient::CreateRequiredStreams()
   }
   else if (m_GradientMode == ezParticleColorGradientMode::Speed)
   {
-    CreateStream("Velocity", ezProcessingStream::DataType::Float3, &m_pStreamVelocity, false);
+    CreateStream("Velocity", ezProcessingStream::DataType::Half4, &m_pStreamVelocity, false);
   }
 }
 
@@ -112,10 +122,18 @@ void ezParticleBehavior_ColorGradient::InitializeElements(ezUInt64 uiStartIndex,
       const ezColorGradient& gradient = pGradient->GetDescriptor().m_Gradient;
 
       ezColor rgba;
-      ezUInt8 alpha;
       gradient.EvaluateColor(0, rgba);
-      gradient.EvaluateAlpha(0, alpha);
-      rgba.a = ezMath::ColorByteToFloat(alpha);
+
+      if (m_bApplyAlpha)
+      {
+        ezUInt8 alpha;
+        gradient.EvaluateAlpha(0, alpha);
+        rgba.a = ezMath::ColorByteToFloat(alpha);
+      }
+      else
+      {
+        rgba.a = m_TintColor.a;
+      }
 
       m_InitColor = rgba;
     }
@@ -174,10 +192,18 @@ void ezParticleBehavior_ColorGradient::Process(ezUInt64 uiNumElements)
         const float posx = 1.0f - fLifeTimeFraction;
 
         ezColor rgba;
-        ezUInt8 alpha;
         gradient.EvaluateColor(posx, rgba);
-        gradient.EvaluateAlpha(posx, alpha);
-        rgba.a = ezMath::ColorByteToFloat(alpha);
+
+        if (m_bApplyAlpha)
+        {
+          ezUInt8 alpha;
+          gradient.EvaluateAlpha(posx, alpha);
+          rgba.a = ezMath::ColorByteToFloat(alpha);
+        }
+        else
+        {
+          rgba.a = itColor.Current().a;
+        }
 
         itColor.Current() = rgba * m_TintColor;
       }
@@ -191,7 +217,7 @@ void ezParticleBehavior_ColorGradient::Process(ezUInt64 uiNumElements)
   }
   else if (m_GradientMode == ezParticleColorGradientMode::Speed)
   {
-    ezProcessingStreamIterator<ezVec3> itVelocity(m_pStreamVelocity, uiNumElements, 0);
+    ezProcessingStreamIterator<const ezFloat16Vec4> itVelocity(m_pStreamVelocity, uiNumElements, 0);
 
     // skip the first n particles
     itVelocity.Advance(m_uiFirstToUpdate);
@@ -200,14 +226,23 @@ void ezParticleBehavior_ColorGradient::Process(ezUInt64 uiNumElements)
     {
       // if (itLifeTime.Current().y > 0)
       {
-        const float fSpeed = itVelocity.Current().GetLength();
+        const ezVec4 vel = itVelocity.Current();
+        const float fSpeed = vel.w;
         const float posx = fSpeed / m_fMaxSpeed; // no need to clamp the range, the color lookup will already do that
 
         ezColor rgba;
-        ezUInt8 alpha;
         gradient.EvaluateColor(posx, rgba);
-        gradient.EvaluateAlpha(posx, alpha);
-        rgba.a = ezMath::ColorByteToFloat(alpha);
+
+        if (m_bApplyAlpha)
+        {
+          ezUInt8 alpha;
+          gradient.EvaluateAlpha(posx, alpha);
+          rgba.a = ezMath::ColorByteToFloat(alpha);
+        }
+        else
+        {
+          rgba.a = itColor.Current().a;
+        }
 
         itColor.Current() = rgba * m_TintColor;
       }

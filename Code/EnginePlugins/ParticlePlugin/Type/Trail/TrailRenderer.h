@@ -31,9 +31,6 @@ public:
   ezUInt8 m_uiNumFlipbookAnimationsX = 1;
   ezUInt8 m_uiNumFlipbookAnimationsY = 1;
 
-  float m_fDistortionStrength = 0;
-  ezTexture2DResourceHandle m_hDistortionTexture;
-
   ezEnum<ezParticleTypeRenderMode> m_RenderMode;
   ezEnum<ezParticleLightingMode> m_LightingMode;
   float m_fNormalCurvature = 0.5f;

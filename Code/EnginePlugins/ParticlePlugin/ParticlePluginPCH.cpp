@@ -14,8 +14,6 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezParticleTypeRenderMode, 1)
   EZ_ENUM_CONSTANT(ezParticleTypeRenderMode::Blended),
   EZ_ENUM_CONSTANT(ezParticleTypeRenderMode::BlendedForeground),
   EZ_ENUM_CONSTANT(ezParticleTypeRenderMode::BlendedBackground),
-  EZ_ENUM_CONSTANT(ezParticleTypeRenderMode::Distortion),
-  EZ_ENUM_CONSTANT(ezParticleTypeRenderMode::BlendAdd),
 EZ_END_STATIC_REFLECTED_ENUM;
 
 //////////////////////////////////////////////////////////////////////////
@@ -54,6 +52,13 @@ EZ_END_STATIC_REFLECTED_ENUM;
 
 //////////////////////////////////////////////////////////////////////////
 
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezCurveSource, 1)
+  EZ_ENUM_CONSTANT(ezCurveSource::CustomCurve),
+  EZ_ENUM_CONSTANT(ezCurveSource::SharedCurve),
+EZ_END_STATIC_REFLECTED_ENUM;
+
+//////////////////////////////////////////////////////////////////////////
+
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezParticleOutOfBoundsMode, 1)
   EZ_ENUM_CONSTANT(ezParticleOutOfBoundsMode::Teleport),
   EZ_ENUM_CONSTANT(ezParticleOutOfBoundsMode::Die),
@@ -74,6 +79,7 @@ EZ_STATICLINK_LIBRARY(ParticlePlugin)
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_FadeOut);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_Flies);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_Gravity);
+  EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_Opacity);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_PullAlong);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_Raycast);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_SizeCurve);

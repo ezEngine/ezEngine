@@ -76,17 +76,8 @@ void ezParticleBehavior_FadeOut::Process(ezUInt64 uiNumElements)
   ezProcessingStreamIterator<ezColorLinear16f> itColor(m_pStreamColor, uiNumElements, 0);
 
   // skip the first n particles
-  {
-    for (ezUInt32 i = 0; i < m_uiFirstToUpdate; ++i)
-    {
-      itLifeTime.Advance();
-      itColor.Advance();
-    }
-
-    ++m_uiFirstToUpdate;
-    if (m_uiFirstToUpdate >= m_uiCurrentUpdateInterval)
-      m_uiFirstToUpdate = 0;
-  }
+  itLifeTime.Advance(m_uiFirstToUpdate);
+  itColor.Advance(m_uiFirstToUpdate);
 
   if (m_fStartAlpha <= 1.0f)
   {
@@ -95,11 +86,10 @@ void ezParticleBehavior_FadeOut::Process(ezUInt64 uiNumElements)
       const float fLifeTimeFraction = itLifeTime.Current().x * itLifeTime.Current().y;
       itColor.Current().a = m_fStartAlpha * ezMath::Pow(fLifeTimeFraction, m_fExponent);
 
-      for (ezUInt32 i = 0; i < m_uiCurrentUpdateInterval; ++i)
-      {
-        itLifeTime.Advance();
-        itColor.Advance();
-      }
+      // skip the next n items
+      // this is to reduce the number of particles that need to be fully evaluated
+      itLifeTime.Advance(m_uiCurrentUpdateInterval);
+      itColor.Advance(m_uiCurrentUpdateInterval);
     }
   }
   else
@@ -110,12 +100,18 @@ void ezParticleBehavior_FadeOut::Process(ezUInt64 uiNumElements)
       const float fLifeTimeFraction = itLifeTime.Current().x * itLifeTime.Current().y;
       itColor.Current().a = ezMath::Min(1.0f, m_fStartAlpha * ezMath::Pow(fLifeTimeFraction, m_fExponent));
 
-      for (ezUInt32 i = 0; i < m_uiCurrentUpdateInterval; ++i)
-      {
-        itLifeTime.Advance();
-        itColor.Advance();
-      }
+      // skip the next n items
+      // this is to reduce the number of particles that need to be fully evaluated
+      itLifeTime.Advance(m_uiCurrentUpdateInterval);
+      itColor.Advance(m_uiCurrentUpdateInterval);
     }
+  }
+
+  // adjust which index is the first to update
+  {
+    ++m_uiFirstToUpdate;
+    if (m_uiFirstToUpdate >= m_uiCurrentUpdateInterval)
+      m_uiFirstToUpdate = 0;
   }
 
   /// \todo Use level of detail to reduce the update interval further

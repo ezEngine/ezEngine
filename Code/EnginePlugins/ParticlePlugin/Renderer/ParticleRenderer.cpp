@@ -24,7 +24,7 @@ ezParticleRenderer::TempSystemCB::~TempSystemCB()
   ezRenderContext::DeleteConstantBufferStorage(m_hConstantBuffer);
 }
 
-void ezParticleRenderer::TempSystemCB::SetGenericData(const ezTransform& objectTransform, ezTime effectLifeTime, ezUInt8 uiNumVariationsX, ezUInt8 uiNumVariationsY, ezUInt8 uiNumFlipbookAnimsX, ezUInt8 uiNumFlipbookAnimsY, float fDistortionStrength, float fNormalCurvature, float fLightDirectionality)
+void ezParticleRenderer::TempSystemCB::SetGenericData(const ezTransform& objectTransform, ezTime effectLifeTime, ezUInt8 uiNumVariationsX, ezUInt8 uiNumVariationsY, ezUInt8 uiNumFlipbookAnimsX, ezUInt8 uiNumFlipbookAnimsY, float fNormalCurvature, float fLightDirectionality)
 {
   ezParticleSystemConstants& cb = m_pConstants->GetDataForWriting();
   cb.ObjectToWorldMatrix = objectTransform.GetAsMat4();
@@ -32,7 +32,6 @@ void ezParticleRenderer::TempSystemCB::SetGenericData(const ezTransform& objectT
   cb.TextureAtlasVariationFramesY = uiNumVariationsY;
   cb.TextureAtlasFlipbookFramesX = uiNumFlipbookAnimsX;
   cb.TextureAtlasFlipbookFramesY = uiNumFlipbookAnimsY;
-  cb.DistortionStrength = fDistortionStrength;
   cb.TotalEffectLifeTime = effectLifeTime.AsFloatInSeconds();
   cb.NormalCurvature = fNormalCurvature;
   cb.LightDirectionality = fLightDirectionality;

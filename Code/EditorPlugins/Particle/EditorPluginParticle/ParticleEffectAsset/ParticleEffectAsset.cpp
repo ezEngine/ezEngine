@@ -5,6 +5,10 @@
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <GuiFoundation/PropertyGrid/VisualizerManager.h>
 #include <ParticlePlugin/Behavior/ParticleBehavior_ColorGradient.h>
+#include <ParticlePlugin/Behavior/ParticleBehavior_Move.h>
+#include <ParticlePlugin/Behavior/ParticleBehavior_Opacity.h>
+#include <ParticlePlugin/Behavior/ParticleBehavior_SizeCurve.h>
+#include <ParticlePlugin/Behavior/ParticleBehavior_Velocity.h>
 #include <ParticlePlugin/Initializer/ParticleInitializer_CylinderPosition.h>
 #include <ParticlePlugin/Initializer/ParticleInitializer_SpherePosition.h>
 #include <ParticlePlugin/System/ParticleSystemDescriptor.h>
@@ -12,7 +16,7 @@
 #include <ParticlePlugin/Type/Trail/ParticleTypeTrail.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEffectAssetDocument, 6, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEffectAssetDocument, 7, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -62,12 +66,6 @@ void ezParticleEffectAssetDocument::PropertyMetaStateEventHandler(ezPropertyMeta
       props["Deviation"].m_Visibility = ezPropertyUiState::Default;
     }
 
-    if (renderMode == ezParticleTypeRenderMode::Distortion && !useMaterial)
-    {
-      props["DistortionTexture"].m_Visibility = ezPropertyUiState::Default;
-      props["DistortionStrength"].m_Visibility = ezPropertyUiState::Default;
-    }
-
     if (lightingMode == ezParticleLightingMode::VertexLit)
     {
       props["NormalCurvature"].m_Visibility = ezPropertyUiState::Default;
@@ -94,12 +92,6 @@ void ezParticleEffectAssetDocument::PropertyMetaStateEventHandler(ezPropertyMeta
     props["Texture"].m_Visibility = useMaterial ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
     props["CustomMaterial"].m_Visibility = useMaterial ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
 
-    if (renderMode == ezParticleTypeRenderMode::Distortion && !useMaterial)
-    {
-      props["DistortionTexture"].m_Visibility = ezPropertyUiState::Default;
-      props["DistortionStrength"].m_Visibility = ezPropertyUiState::Default;
-    }
-
     if (lightingMode == ezParticleLightingMode::VertexLit)
     {
       props["NormalCurvature"].m_Visibility = ezPropertyUiState::Default;
@@ -113,6 +105,62 @@ void ezParticleEffectAssetDocument::PropertyMetaStateEventHandler(ezPropertyMeta
     ezInt64 mode = e.m_pObject->GetTypeAccessor().GetValue("ColorGradientMode").ConvertTo<ezInt64>();
 
     props["GradientMaxSpeed"].m_Visibility = (mode == ezParticleColorGradientMode::Speed) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+  }
+  else if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezParticleBehaviorFactory_Opacity>())
+  {
+    auto& props = *e.m_pPropertyStates;
+
+    ezInt64 curveSource = e.m_pObject->GetTypeAccessor().GetValue("ChangeOpacityWith").ConvertTo<ezInt64>();
+
+    props["OpacityCurve"].m_Visibility = (curveSource == ezCurveSource::CustomCurve) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["SharedOpacityCurve"].m_Visibility = (curveSource == ezCurveSource::SharedCurve) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+  }
+  else if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezParticleBehaviorFactory_SizeCurve>())
+  {
+    auto& props = *e.m_pPropertyStates;
+
+    ezInt64 curveSource = e.m_pObject->GetTypeAccessor().GetValue("ChangeSizeWith").ConvertTo<ezInt64>();
+
+    props["SizeCurve"].m_Visibility = (curveSource == ezCurveSource::CustomCurve) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["SharedSizeCurve"].m_Visibility = (curveSource == ezCurveSource::SharedCurve) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+  }
+  else if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezParticleBehaviorFactory_Velocity>())
+  {
+    auto& props = *e.m_pPropertyStates;
+
+    ezInt64 changeSpeedWith = e.m_pObject->GetTypeAccessor().GetValue("ChangeSpeedWith").ConvertTo<ezInt64>();
+
+    props["Friction"].m_Visibility = (changeSpeedWith == ezVelocityChangeMode::Friction) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["SpeedCurve"].m_Visibility = (changeSpeedWith == ezVelocityChangeMode::CustomCurve) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["SharedSpeedCurve"].m_Visibility = (changeSpeedWith == ezVelocityChangeMode::SharedCurve) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["SpeedCurveOffset"].m_Visibility = (changeSpeedWith == ezVelocityChangeMode::CustomCurve || changeSpeedWith == ezVelocityChangeMode::SharedCurve) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["SpeedCurveScale"].m_Visibility = (changeSpeedWith == ezVelocityChangeMode::CustomCurve || changeSpeedWith == ezVelocityChangeMode::SharedCurve) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+  }
+  else if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezParticleBehaviorFactory_Move>())
+  {
+    auto& props = *e.m_pPropertyStates;
+
+    ezInt64 moveX_Mode = e.m_pObject->GetTypeAccessor().GetValue("MoveX_Mode").ConvertTo<ezInt64>();
+    ezInt64 moveY_Mode = e.m_pObject->GetTypeAccessor().GetValue("MoveY_Mode").ConvertTo<ezInt64>();
+    ezInt64 moveZ_Mode = e.m_pObject->GetTypeAccessor().GetValue("MoveZ_Mode").ConvertTo<ezInt64>();
+
+    props["MoveX_Speed"].m_Visibility = (moveX_Mode == ezMovementMode::Constant) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["MoveX_Curve"].m_Visibility = (moveX_Mode == ezMovementMode::CustomCurve) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["MoveX_SharedCurve"].m_Visibility = (moveX_Mode == ezMovementMode::SharedCurve) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["MoveX_CurveOffset"].m_Visibility = (moveX_Mode == ezMovementMode::CustomCurve || moveX_Mode == ezMovementMode::SharedCurve) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["MoveX_CurveScale"].m_Visibility = (moveX_Mode == ezMovementMode::CustomCurve || moveX_Mode == ezMovementMode::SharedCurve) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+
+    props["MoveY_Speed"].m_Visibility = (moveY_Mode == ezMovementMode::Constant) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["MoveY_Curve"].m_Visibility = (moveY_Mode == ezMovementMode::CustomCurve) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["MoveY_SharedCurve"].m_Visibility = (moveY_Mode == ezMovementMode::SharedCurve) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["MoveY_CurveOffset"].m_Visibility = (moveY_Mode == ezMovementMode::CustomCurve || moveY_Mode == ezMovementMode::SharedCurve) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["MoveY_CurveScale"].m_Visibility = (moveY_Mode == ezMovementMode::CustomCurve || moveY_Mode == ezMovementMode::SharedCurve) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+
+    props["MoveZ_Speed"].m_Visibility = (moveZ_Mode == ezMovementMode::Constant) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["MoveZ_Curve"].m_Visibility = (moveZ_Mode == ezMovementMode::CustomCurve) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["MoveZ_SharedCurve"].m_Visibility = (moveZ_Mode == ezMovementMode::SharedCurve) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["MoveZ_CurveOffset"].m_Visibility = (moveZ_Mode == ezMovementMode::CustomCurve || moveZ_Mode == ezMovementMode::SharedCurve) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["MoveZ_CurveScale"].m_Visibility = (moveZ_Mode == ezMovementMode::CustomCurve || moveZ_Mode == ezMovementMode::SharedCurve) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
   }
   else if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezParticleInitializerFactory_CylinderPosition>())
   {
@@ -229,19 +277,27 @@ void ezParticleEffectAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo*
     {
       if (auto* pType = ezDynamicCast<ezParticleTypeQuadFactory*>(type))
       {
-        if (pType->m_RenderMode != ezParticleTypeRenderMode::Distortion)
+        // remove unused dependencies
+        if (pType->m_bUseCustomMaterial)
         {
-          // remove unused dependencies
-          pInfo->m_TransformDependencies.Remove(pType->m_sDistortionTexture);
+          pInfo->m_TransformDependencies.Remove(pType->m_sTexture);
+        }
+        else
+        {
+          pInfo->m_TransformDependencies.Remove(pType->m_sCustomMaterial);
         }
       }
 
       if (auto* pType = ezDynamicCast<ezParticleTypeTrailFactory*>(type))
       {
-        if (pType->m_RenderMode != ezParticleTypeRenderMode::Distortion)
+        // remove unused dependencies
+        if (pType->m_bUseCustomMaterial)
         {
-          // remove unused dependencies
-          pInfo->m_TransformDependencies.Remove(pType->m_sDistortionTexture);
+          pInfo->m_TransformDependencies.Remove(pType->m_sTexture);
+        }
+        else
+        {
+          pInfo->m_TransformDependencies.Remove(pType->m_sCustomMaterial);
         }
       }
     }

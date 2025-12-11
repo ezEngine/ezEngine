@@ -19,9 +19,6 @@ CONSTANT_BUFFER2(ezParticleSystemConstants, 2, BG_DRAW_CALL)
   FLOAT1(SnapshotFraction);
   INT1(NumUsedTrailPoints);
 
-  // heat haze distortion (pixel offset in screen-space)
-  FLOAT1(DistortionStrength);
-
   // use this instead of world clock for determinism
   FLOAT1(TotalEffectLifeTime);
 
@@ -29,5 +26,5 @@ CONSTANT_BUFFER2(ezParticleSystemConstants, 2, BG_DRAW_CALL)
   FLOAT1(NormalCurvature);
   FLOAT1(LightDirectionality);
 
-  INT2(ParticlePadding);
+  INT3(ParticlePadding);
 };

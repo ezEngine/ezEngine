@@ -80,13 +80,13 @@ struct EZ_PARTICLEPLUGIN_DLL ezParticleTypeRenderMode
 
   enum Enum
   {
-    Additive,
-    Blended,
-    Opaque,
-    Distortion,
-    BlendedBackground,
-    BlendedForeground,
-    BlendAdd,
+    Additive,          ///< Additive blending
+    Blended,           ///< Alpha blending
+    Opaque,            ///< Opaque rendering
+    Unused,
+    BlendedBackground, ///< Alpha blending in background pass
+    BlendedForeground, ///< Alpha blending in foreground pass
+    Unused2,
     Default = Additive
   };
 };
@@ -171,6 +171,23 @@ struct EZ_PARTICLEPLUGIN_DLL ezParticleColorGradientMode
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezParticleColorGradientMode);
 
+//////////////////////////////////////////////////////////////////////////
+
+/// Source of curve data
+struct EZ_PARTICLEPLUGIN_DLL ezCurveSource
+{
+  using StorageType = ezUInt8;
+
+  enum Enum
+  {
+    CustomCurve, ///< Use embedded curve data
+    SharedCurve, ///< Reference shared curve resource
+
+    Default = CustomCurve
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezCurveSource);
 
 //////////////////////////////////////////////////////////////////////////
 

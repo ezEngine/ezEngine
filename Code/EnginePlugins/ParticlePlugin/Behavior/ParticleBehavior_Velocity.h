@@ -1,9 +1,28 @@
 #pragma once
 
+#include <Core/Curves/Curve1DResource.h>
+#include <Foundation/Tracks/Curve1D.h>
+#include <Foundation/Tracks/CurveEditData.h>
 #include <ParticlePlugin/Behavior/ParticleBehavior.h>
 
 class ezPhysicsWorldModuleInterface;
-class ezWindWorldModuleInterface;
+
+/// How velocity behavior changes particle speed
+struct EZ_PARTICLEPLUGIN_DLL ezVelocityChangeMode
+{
+  using StorageType = ezUInt8;
+
+  enum Enum
+  {
+    CustomCurve, ///< Use embedded curve data
+    SharedCurve, ///< Reference shared curve resource
+    Friction,    ///< Apply friction to reduce speed
+
+    Default = Friction
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezVelocityChangeMode);
 
 /// Behavior that applies friction and rise/fall forces to particles
 ///
@@ -25,9 +44,13 @@ public:
 
   virtual void QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const override;
 
-  float m_fRiseSpeed = 0;
   float m_fFriction = 0;
-  float m_fWindInfluence = 0;
+  ezEnum<ezVelocityChangeMode> m_ChangeSpeedWith;
+  ezSingleCurveData m_SpeedCurve;
+  ezCurve1DResourceHandle m_hSpeedSharedCurve;
+  float m_fSpeedCurveOffset = 0.0f;
+  float m_fSpeedCurveScale = 1.0f;
+  mutable ezCurve1D m_RuntimeSpeedCurve;
 };
 
 
@@ -38,9 +61,11 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_Velocity final : public ezParticl
 public:
   virtual void CreateRequiredStreams() override;
 
-  float m_fRiseSpeed = 0;
+  ezEnum<ezVelocityChangeMode> m_ChangeSpeedWith;
+  const ezCurve1D* m_pCurve = nullptr;
+  float m_fSpeedCurveOffset = 0;
+  float m_fSpeedCurveScale = 1;
   float m_fFriction = 0;
-  float m_fWindInfluence = 0;
 
 protected:
   friend class ezParticleBehaviorFactory_Velocity;
@@ -49,9 +74,6 @@ protected:
 
   void RequestRequiredWorldModulesForCache(ezParticleWorldModule* pParticleModule) override;
 
-  // used to rise/fall along the gravity vector
-  ezPhysicsWorldModuleInterface* m_pPhysicsModule = nullptr;
-
-  ezProcessingStream* m_pStreamPosition;
-  ezProcessingStream* m_pStreamVelocity;
+  ezProcessingStream* m_pStreamVelocity = nullptr;
+  ezProcessingStream* m_pStreamLifeTime = nullptr;
 };

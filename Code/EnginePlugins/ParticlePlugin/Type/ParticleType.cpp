@@ -57,14 +57,6 @@ ezUInt32 ezParticleType::ComputeSortingKey(ezParticleTypeRenderMode::Enum mode, 
       key = ezParticleTypeSortingKey::Opaque;
       break;
 
-    case ezParticleTypeRenderMode::BlendAdd:
-      key = ezParticleTypeSortingKey::BlendAdd;
-      break;
-
-    case ezParticleTypeRenderMode::Distortion:
-      key = ezParticleTypeSortingKey::Distortion;
-      break;
-
       EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
 

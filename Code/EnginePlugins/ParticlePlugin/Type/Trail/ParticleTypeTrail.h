@@ -28,8 +28,6 @@ public:
   ezUInt8 m_uiNumSpritesX = 1;
   ezUInt8 m_uiNumSpritesY = 1;
   ezString m_sTintColorParameter;
-  ezString m_sDistortionTexture;
-  float m_fDistortionStrength = 0;
   ezEnum<ezParticleLightingMode> m_LightingMode;
   float m_fNormalCurvature = 0.5f;
   float m_fLightDirectionality = 0.5f;
@@ -59,8 +57,6 @@ public:
   ezUInt8 m_uiNumSpritesX = 1;
   ezUInt8 m_uiNumSpritesY = 1;
   ezTempHashedString m_sTintColorParameter;
-  ezTexture2DResourceHandle m_hDistortionTexture;
-  float m_fDistortionStrength = 0;
   ezEnum<ezParticleLightingMode> m_LightingMode;
   float m_fNormalCurvature = 0.5f;
   float m_fLightDirectionality = 0.5f;

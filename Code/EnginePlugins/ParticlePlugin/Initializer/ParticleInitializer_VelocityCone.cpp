@@ -77,7 +77,7 @@ void ezParticleInitializerFactory_VelocityCone::QueryFinalizerDependencies(ezSet
 
 void ezParticleInitializer_VelocityCone::CreateRequiredStreams()
 {
-  CreateStream("Velocity", ezProcessingStream::DataType::Float3, &m_pStreamVelocity, true);
+  CreateStream("Velocity", ezProcessingStream::DataType::Half4, &m_pStreamVelocity, true);
 }
 
 void ezParticleInitializer_VelocityCone::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
@@ -86,7 +86,7 @@ void ezParticleInitializer_VelocityCone::InitializeElements(ezUInt64 uiStartInde
 
   const ezVec3 startVel = GetOwnerSystem()->GetParticleStartVelocity();
 
-  ezVec3* pVelocity = m_pStreamVelocity->GetWritableData<ezVec3>();
+  ezFloat16Vec4* pVelocity = m_pStreamVelocity->GetWritableData<ezFloat16Vec4>();
 
   ezRandom& rng = GetRNG();
 
@@ -113,7 +113,11 @@ void ezParticleInitializer_VelocityCone::InitializeElements(ezUInt64 uiStartInde
 
     const float fSpeed = (float)rng.DoubleVariance(m_Speed.m_Value, m_Speed.m_fVariance);
 
-    pVelocity[i] = startVel + GetOwnerSystem()->GetTransform().m_qRotation * dir * fSpeed;
+    const ezVec3 vel = startVel + GetOwnerSystem()->GetTransform().m_qRotation * dir * fSpeed;
+    const float fVelLength = vel.GetLength();
+    const ezVec3 velDir = fVelLength > 0.0f ? vel / fVelLength : ezVec3(0, 0, 1);
+
+    pVelocity[i] = ezVec4(velDir.x, velDir.y, velDir.z, fVelLength);
   }
 }
 

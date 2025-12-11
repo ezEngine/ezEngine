@@ -113,7 +113,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleStream_Velocity, 1, ezRTTIDefaultAlloc
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezParticleStreamFactory_Velocity::ezParticleStreamFactory_Velocity()
-  : ezParticleStreamFactory("Velocity", ezProcessingStream::DataType::Float3, ezGetStaticRTTI<ezParticleStream_Velocity>())
+  : ezParticleStreamFactory("Velocity", ezProcessingStream::DataType::Half4, ezGetStaticRTTI<ezParticleStream_Velocity>())
 {
 }
 
@@ -124,13 +124,15 @@ void ezParticleStream_Velocity::Initialize(ezParticleSystemInstance* pOwner)
 
 void ezParticleStream_Velocity::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
 {
-  ezProcessingStreamIterator<ezVec3> itData(m_pStream, uiNumElements, uiStartIndex);
+  ezProcessingStreamIterator<ezFloat16Vec4> itData(m_pStream, uiNumElements, uiStartIndex);
 
   const ezVec3 startVel = m_pOwner->GetParticleStartVelocity();
+  const float fSpeed = startVel.GetLength();
+  const ezVec3 dir = fSpeed > 0.0f ? startVel / fSpeed : ezVec3(0, 0, 1);
 
   while (!itData.HasReachedEnd())
   {
-    itData.Current() = startVel;
+    itData.Current() = ezVec4(dir.x, dir.y, dir.z, fSpeed);
     itData.Advance();
   }
 }
@@ -191,7 +193,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleStreamFactory_OnOff, 1, ezRTTIDefaultA
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezParticleStreamFactory_OnOff::ezParticleStreamFactory_OnOff()
-  : ezParticleStreamFactory("OnOff", ezProcessingStream::DataType::Int, ezGetStaticRTTI<ezParticleStream_ZeroInit>())
+  : ezParticleStreamFactory("OnOff", ezProcessingStream::DataType::Byte, ezGetStaticRTTI<ezParticleStream_ZeroInit>())
 {
   // TODO: smaller data type
   // TODO: "Byte" type results in memory corruptions

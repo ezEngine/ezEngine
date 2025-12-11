@@ -10,11 +10,9 @@ struct ezMsgExtractRenderData;
 /// Sorting key values used to order particles during rendering.
 enum ezParticleTypeSortingKey
 {
-  Distortion, // samples the back-buffer, so doing this later would overwrite their result
   Opaque,
   BlendedBackground,
   Additive,
-  BlendAdd,
   Blended,
   BlendedForeground,
 };
