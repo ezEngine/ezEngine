@@ -144,6 +144,12 @@ void ezParticleQuadRenderer::ConfigureRenderMode(const ezParticleQuadRenderData*
     case ezParticleTypeRenderMode::Opaque:
       pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "PARTICLE_RENDER_MODE_OPAQUE");
       break;
+
+    case ezParticleTypeRenderMode::Unused:
+    case ezParticleTypeRenderMode::Unused2:
+      break;
+
+      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
 
   switch (pRenderData->m_LightingMode)
