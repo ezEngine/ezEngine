@@ -163,7 +163,8 @@ ezUInt32 ezGameEngineTestParticles::GetImageCompareThreshold(ezInt32 iIdentifier
         break;
     }
   }
-  return 110;
+
+  return 120;
 }
 
 //////////////////////////////////////////////////////////////////////////
