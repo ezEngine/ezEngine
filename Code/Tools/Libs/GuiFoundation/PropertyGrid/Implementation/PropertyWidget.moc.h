@@ -429,4 +429,5 @@ protected:
 protected:
   QHBoxLayout* m_pLayout = nullptr;
   ezQtCurve1DButtonWidget* m_pButton = nullptr;
+  ezCopyOnBroadcastEvent<const ezDocumentObjectPropertyEvent&>::Unsubscriber m_Unsub;
 };

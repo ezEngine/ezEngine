@@ -7,6 +7,7 @@
 
 struct ezMsgExtractRenderData;
 
+/// Sorting key values used to order particles during rendering.
 enum ezParticleTypeSortingKey
 {
   Distortion, // samples the back-buffer, so doing this later would overwrite their result
@@ -18,6 +19,10 @@ enum ezParticleTypeSortingKey
   BlendedForeground,
 };
 
+/// Factory for creating particle type instances.
+///
+/// Each particle type factory stores the configuration for a particle type
+/// and can create instances of that type for particle system instances.
 class EZ_PARTICLEPLUGIN_DLL ezParticleTypeFactory : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleTypeFactory, ezReflectedClass);
@@ -28,12 +33,18 @@ public:
 
   ezParticleType* CreateType(ezParticleSystemInstance* pOwner) const;
 
+  /// Allows the type to register any finalizers it depends on.
   virtual void QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const {}
 
   virtual void Save(ezStreamWriter& inout_stream) const = 0;
   virtual void Load(ezStreamReader& inout_stream) = 0;
 };
 
+/// Base class for particle types that define how particles are rendered.
+///
+/// Each particle type handles a specific rendering method such as billboards,
+/// trails, meshes, or lights. Types process particle data each frame and
+/// generate render data for the renderer.
 class EZ_PARTICLEPLUGIN_DLL ezParticleType : public ezParticleModule
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleType, ezParticleModule);
@@ -41,8 +52,15 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleType : public ezParticleModule
   friend class ezParticleSystemInstance;
 
 public:
+  /// Returns the maximum radius a particle can occupy for culling purposes.
+  ///
+  /// Used to compute bounding volumes for frustum culling. The default implementation
+  /// returns half the particle size, assuming spherical particles.
   virtual float GetMaxParticleRadius(float fParticleSize) const { return fParticleSize * 0.5f; }
 
+  /// Generates render data for all active particles.
+  ///
+  /// Called during render data extraction to create render objects for this particle type.
   virtual void ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const = 0;
 
 protected:

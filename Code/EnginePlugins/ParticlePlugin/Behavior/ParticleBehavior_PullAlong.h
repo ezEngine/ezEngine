@@ -4,6 +4,10 @@
 
 class ezPhysicsWorldModuleInterface;
 
+/// Behavior that pulls particles along when the effect moves
+///
+/// Useful for effects attached to moving objects where particles should
+/// follow the movement to some degree rather than staying in world space.
 class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_PullAlong final : public ezParticleBehaviorFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory_PullAlong, ezParticleBehaviorFactory);
@@ -17,7 +21,7 @@ public:
   virtual void Save(ezStreamWriter& inout_stream) const override;
   virtual void Load(ezStreamReader& inout_stream) override;
 
-  float m_fStrength;
+  float m_fStrength; ///< How much particles follow the effect movement (0-1 range)
 };
 
 

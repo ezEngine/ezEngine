@@ -4,7 +4,7 @@
 #include <Foundation/Math/Vec2.h>
 #include <Foundation/Tracks/Curve1D.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
-#include <GuiFoundation/Widgets/CurveEditData.h>
+#include <Foundation/Tracks/CurveEditData.h>
 
 #include <QBrush>
 #include <QPen>

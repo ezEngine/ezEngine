@@ -5,6 +5,10 @@
 class ezPhysicsWorldModuleInterface;
 class ezWindWorldModuleInterface;
 
+/// Behavior that applies friction and rise/fall forces to particles
+///
+/// Friction reduces particle velocity over time.
+/// Rise speed makes particles move along the inverse gravity direction.
 class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_Velocity final : public ezParticleBehaviorFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory_Velocity, ezParticleBehaviorFactory);

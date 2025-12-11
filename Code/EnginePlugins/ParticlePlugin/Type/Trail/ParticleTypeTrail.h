@@ -8,6 +8,7 @@
 using ezTexture2DResourceHandle = ezTypedResourceHandle<class ezTexture2DResource>;
 struct ezTrailParticleData;
 
+/// Factory for creating trail particle types.
 class EZ_PARTICLEPLUGIN_DLL ezParticleTypeTrailFactory final : public ezParticleTypeFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleTypeTrailFactory, ezParticleTypeFactory);
@@ -36,6 +37,12 @@ public:
   ezString m_sCustomMaterial;
 };
 
+/// Renders particles as textured ribbons following their movement path.
+///
+/// Trails record particle positions over time and render a ribbon connecting
+/// the trail points. The trail length is determined by the maximum number of
+/// points and the update interval. Older trail points fade out automatically.
+/// Trails can be lit or fullbright and support texture atlases.
 class EZ_PARTICLEPLUGIN_DLL ezParticleTypeTrail final : public ezParticleType
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleTypeTrail, ezParticleType);
@@ -61,9 +68,14 @@ public:
 
   virtual void CreateRequiredStreams() override;
   virtual void ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const override;
-  /// \todo This is a hacky guess, one would actually need to inspect the trail positions
+
+  /// Returns an approximation of the maximum trail radius.
+  ///
+  /// This is an estimate based on particle size and maximum trail length.
+  /// Inspecting actual trail positions would be more accurate but costly.
   virtual float GetMaxParticleRadius(float fParticleSize) const override { return fParticleSize + m_uiMaxPoints * 0.05f; }
 
+  /// Computes the memory bucket size needed for storing trail points.
   static ezUInt16 ComputeTrailPointBucketSize(ezUInt16 uiMaxTrailPoints);
 
 protected:
@@ -97,10 +109,7 @@ protected:
   const ezVec4* GetTrailPointsPositions(ezUInt32 index) const;
   ezVec4* GetTrailPointsPositions(ezUInt32 index);
 
-  /// \todo Use a shared freelist across effects instead
-  // ezDynamicArray<ezTrailParticlePointsData8> m_TrailPoints8;
-  // ezDynamicArray<ezTrailParticlePointsData16> m_TrailPoints16;
-  // ezDynamicArray<ezTrailParticlePointsData32> m_TrailPoints32;
-  ezDynamicArray<ezTrailParticlePointsData64, ezAlignedAllocatorWrapper> m_TrailPoints64;
-  ezDynamicArray<ezUInt16> m_FreeTrailData;
+  // Currently only 64-point trails are used. Smaller bucket sizes are reserved for future use.
+  ezDynamicArray<ezTrailParticlePointsData64, ezAlignedAllocatorWrapper> m_TrailPoints64; ///< Storage for trail points
+  ezDynamicArray<ezUInt16> m_FreeTrailData;                                               ///< Freelist for trail data allocation
 };

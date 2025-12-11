@@ -6,23 +6,24 @@
 
 using ezTexture2DResourceHandle = ezTypedResourceHandle<class ezTexture2DResource>;
 
+/// Orientation modes for quad particles.
 struct EZ_PARTICLEPLUGIN_DLL ezQuadParticleOrientation
 {
   using StorageType = ezUInt8;
 
   enum Enum
   {
-    Billboard,
+    Billboard,                ///< Always faces the camera
 
-    Rotating_OrthoEmitterDir,
-    Rotating_EmitterDir,
+    Rotating_OrthoEmitterDir, ///< Rotates around axis orthogonal to emitter direction
+    Rotating_EmitterDir,      ///< Rotates around emitter direction
 
-    Fixed_EmitterDir,
-    Fixed_WorldUp,
-    Fixed_RandomDir,
+    Fixed_EmitterDir,         ///< Fixed orientation based on emitter direction
+    Fixed_WorldUp,            ///< Fixed orientation aligned with world up
+    Fixed_RandomDir,          ///< Fixed random orientation per particle
 
-    FixedAxis_EmitterDir,
-    FixedAxis_ParticleDir,
+    FixedAxis_EmitterDir,     ///< Fixed axis aligned with emitter direction
+    FixedAxis_ParticleDir,    ///< Fixed axis aligned with particle direction
 
     Default = Billboard
   };
@@ -30,6 +31,7 @@ struct EZ_PARTICLEPLUGIN_DLL ezQuadParticleOrientation
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezQuadParticleOrientation);
 
+/// Factory for creating quad particle types.
 class EZ_PARTICLEPLUGIN_DLL ezParticleTypeQuadFactory final : public ezParticleTypeFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleTypeQuadFactory, ezParticleTypeFactory);
@@ -61,6 +63,13 @@ public:
   ezString m_sCustomMaterial;
 };
 
+/// Renders particles as camera-facing or oriented textured quads.
+///
+/// This is the most common particle type, rendering each particle as a textured
+/// quad. Quads can be billboarded to face the camera or oriented in various ways.
+/// Supports texture atlases for sprite animations and variations. Can be lit or
+/// fullbright. The stretch parameter allows elongating particles along their
+/// velocity direction for motion blur effects.
 class EZ_PARTICLEPLUGIN_DLL ezParticleTypeQuad final : public ezParticleType
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleTypeQuad, ezParticleType);
@@ -89,12 +98,13 @@ public:
 
   virtual void ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const override;
 
+  /// Helper struct for depth sorting particles.
   struct sod
   {
     EZ_DECLARE_POD_TYPE();
 
-    float dist;
-    ezUInt32 index;
+    float dist;     ///< Distance from camera
+    ezUInt32 index; ///< Particle index
   };
 
 

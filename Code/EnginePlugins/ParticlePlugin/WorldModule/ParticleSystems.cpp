@@ -33,5 +33,3 @@ void ezParticleWorldModule::DestroySystemInstance(ezParticleSystemInstance* pIns
   pInstance->Destruct();
   m_ParticleSystemFreeList.PushBack(pInstance);
 }
-
-

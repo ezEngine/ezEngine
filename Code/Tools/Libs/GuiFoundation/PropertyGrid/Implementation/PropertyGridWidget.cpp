@@ -7,7 +7,7 @@
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <GuiFoundation/Widgets/CollapsibleGroupBox.moc.h>
-#include <GuiFoundation/Widgets/CurveEditData.h>
+#include <Foundation/Tracks/CurveEditData.h>
 
 #include <ToolsFoundation/Document/Document.h>
 

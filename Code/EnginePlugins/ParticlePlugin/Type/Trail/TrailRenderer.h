@@ -9,6 +9,7 @@
 
 #include <RendererCore/../../../Data/Base/Shaders/Particles/TrailShaderData.h>
 
+/// Render data for trail particles.
 class EZ_PARTICLEPLUGIN_DLL ezParticleTrailRenderData final : public ezRenderData
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleTrailRenderData, ezRenderData);

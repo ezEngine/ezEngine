@@ -3,6 +3,10 @@
 #include <Core/Curves/Curve1DResource.h>
 #include <ParticlePlugin/Behavior/ParticleBehavior.h>
 
+/// Behavior that modifies particle size over their lifetime using a curve
+///
+/// The curve is sampled based on the particle's normalized lifetime (0-1).
+/// The final size is: base size + (curve value * curve scale).
 class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_SizeCurve final : public ezParticleBehaviorFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory_SizeCurve, ezParticleBehaviorFactory);

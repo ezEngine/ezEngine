@@ -5,15 +5,16 @@
 
 class ezPhysicsWorldModuleInterface;
 
+/// How particles react when hitting a physics surface
 struct EZ_PARTICLEPLUGIN_DLL ezParticleRaycastHitReaction
 {
   using StorageType = ezUInt8;
 
   enum Enum
   {
-    Bounce,
-    Die,
-    Stop,
+    Bounce, ///< Particle bounces off the surface
+    Die,    ///< Particle is killed on impact
+    Stop,   ///< Particle stops moving
 
     Default = Bounce
   };
@@ -21,6 +22,11 @@ struct EZ_PARTICLEPLUGIN_DLL ezParticleRaycastHitReaction
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezParticleRaycastHitReaction);
 
+/// Behavior that performs physics raycasts to detect collisions
+///
+/// Raycasts from the particle's last position to its current position.
+/// On collision, particles can bounce, die, or stop.
+/// Optionally triggers an event on collision.
 class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_Raycast final : public ezParticleBehaviorFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory_Raycast, ezParticleBehaviorFactory);
@@ -37,12 +43,12 @@ public:
   virtual void Save(ezStreamWriter& inout_stream) const override;
   virtual void Load(ezStreamReader& inout_stream) override;
 
-  ezEnum<ezParticleRaycastHitReaction> m_Reaction;
-  ezUInt8 m_uiCollisionLayer = 0;
-  ezString m_sOnCollideEvent;
-  float m_fBounceFactor = 0.5f;
-  float m_fSlideFactor = 0.5f;
-  float m_fSizeFactor = 0.1f;
+  ezEnum<ezParticleRaycastHitReaction> m_Reaction; ///< How particles react to collisions
+  ezUInt8 m_uiCollisionLayer = 0;                  ///< Physics collision layer to raycast against
+  ezString m_sOnCollideEvent;                      ///< Optional event name to raise on collision
+  float m_fBounceFactor = 0.5f;                    ///< Velocity multiplier when bouncing (energy loss)
+  float m_fSlideFactor = 0.5f;                     ///< How much particles slide along the surface
+  float m_fSizeFactor = 0.1f;                      ///< Multiplier for particle size used in raycast length
 };
 
 

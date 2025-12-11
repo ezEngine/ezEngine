@@ -4,6 +4,10 @@
 
 class ezPhysicsWorldModuleInterface;
 
+/// Behavior that applies gravity to particles
+///
+/// Uses the world's gravity vector from the physics module.
+/// The gravity factor scales the applied gravity force.
 class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_Gravity final : public ezParticleBehaviorFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory_Gravity, ezParticleBehaviorFactory);

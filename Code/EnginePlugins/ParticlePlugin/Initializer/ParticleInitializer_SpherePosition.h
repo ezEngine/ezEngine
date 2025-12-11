@@ -3,6 +3,10 @@
 #include <Foundation/Types/VarianceTypes.h>
 #include <ParticlePlugin/Initializer/ParticleInitializer.h>
 
+/// Initializer that spawns particles in a sphere volume
+///
+/// Can spawn throughout the volume or only on the surface.
+/// Optionally sets initial velocity pointing outward from the center.
 class EZ_PARTICLEPLUGIN_DLL ezParticleInitializerFactory_SpherePosition final : public ezParticleInitializerFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializerFactory_SpherePosition, ezParticleInitializerFactory);
@@ -20,12 +24,12 @@ public:
   virtual void QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const override;
 
 public:
-  ezVec3 m_vPositionOffset;
-  float m_fRadius;
-  bool m_bSpawnOnSurface;
-  bool m_bSetVelocity;
-  ezVarianceTypeFloat m_Speed;
-  ezString m_sScaleRadiusParameter;
+  ezVec3 m_vPositionOffset;         ///< Center of the sphere
+  float m_fRadius;                  ///< Sphere radius
+  bool m_bSpawnOnSurface;           ///< If true, spawn only on sphere surface
+  bool m_bSetVelocity;              ///< If true, set velocity pointing outward from center
+  ezVarianceTypeFloat m_Speed;      ///< Speed value when setting velocity
+  ezString m_sScaleRadiusParameter; ///< Optional parameter name to scale radius
 };
 
 

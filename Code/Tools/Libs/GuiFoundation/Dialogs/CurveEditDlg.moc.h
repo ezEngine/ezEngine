@@ -1,7 +1,7 @@
 #pragma once
 
 #include <GuiFoundation/GuiFoundationDLL.h>
-#include <GuiFoundation/Widgets/CurveEditData.h>
+#include <Foundation/Tracks/CurveEditData.h>
 #include <GuiFoundation/ui_CurveEditDlg.h>
 #include <QDialog>
 
@@ -13,7 +13,7 @@ class EZ_GUIFOUNDATION_DLL ezQtCurveEditDlg : public QDialog, Ui_CurveEditDlg
 {
   Q_OBJECT
 public:
-  ezQtCurveEditDlg(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pCurveObject, QWidget* pParent);
+  ezQtCurveEditDlg(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pCurveObject, QWidget* pParent, ezStringView sTitle = {});
   ~ezQtCurveEditDlg();
 
   static QByteArray GetLastDialogGeometry() { return s_LastDialogGeometry; }

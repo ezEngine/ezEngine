@@ -5,6 +5,9 @@
 
 using ezColorGradientResourceHandle = ezTypedResourceHandle<class ezColorGradientResource>;
 
+/// Initializer that sets random particle colors
+///
+/// Colors are picked randomly between Color1 and Color2, or sampled from a gradient.
 class EZ_PARTICLEPLUGIN_DLL ezParticleInitializerFactory_RandomColor final : public ezParticleInitializerFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializerFactory_RandomColor, ezParticleInitializerFactory);

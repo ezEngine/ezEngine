@@ -2,7 +2,7 @@
 
 #include <Foundation/CodeUtils/Expression/ExpressionAST.h>
 #include <Foundation/Types/TagSet.h>
-#include <GuiFoundation/Widgets/CurveEditData.h>
+#include <Foundation/Tracks/CurveEditData.h>
 #include <ProcGenPlugin/Resources/ProcGenGraphSharedData.h>
 #include <RendererCore/Pipeline/RenderPipelineNode.h>
 

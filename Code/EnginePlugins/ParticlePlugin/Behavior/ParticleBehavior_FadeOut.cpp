@@ -63,8 +63,8 @@ void ezParticleBehavior_FadeOut::Process(ezUInt64 uiNumElements)
 {
   if (!GetOwnerEffect()->IsVisible())
   {
-    // set the update interval such that once the effect becomes visible,
-    // all particles get fully updated
+    // When invisible, don't update at all. Set the interval to 1 so that once
+    // the effect becomes visible, all particles get fully updated on the next frame.
     m_uiCurrentUpdateInterval = 1;
     m_uiFirstToUpdate = 0;
     return;

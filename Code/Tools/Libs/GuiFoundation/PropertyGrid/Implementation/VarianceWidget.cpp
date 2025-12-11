@@ -21,7 +21,8 @@ ezQtVarianceTypeWidget::ezQtVarianceTypeWidget()
   m_pValueWidget->setMaximum(ezMath::Infinity<double>());
   m_pValueWidget->setSingleStep(0.1f);
   m_pValueWidget->setAccelerated(true);
-  m_pValueWidget->setDecimals(2);
+  m_pValueWidget->setDecimals(3);
+  m_pValueWidget->setMinimumWidth(60);
 
   m_pVarianceWidget = new QSlider(this);
   m_pVarianceWidget->setOrientation(Qt::Orientation::Horizontal);

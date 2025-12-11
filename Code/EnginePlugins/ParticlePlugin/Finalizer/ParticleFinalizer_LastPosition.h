@@ -2,6 +2,7 @@
 
 #include <ParticlePlugin/Finalizer/ParticleFinalizer.h>
 
+/// Factory for last position finalizers.
 class EZ_PARTICLEPLUGIN_DLL ezParticleFinalizerFactory_LastPosition final : public ezParticleFinalizerFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleFinalizerFactory_LastPosition, ezParticleFinalizerFactory);
@@ -14,6 +15,12 @@ public:
 };
 
 
+/// Records the previous frame's particle position for motion-based effects.
+///
+/// Copies the current position to the last position stream each frame. This data is used
+/// by renderers to create motion blur trails or stretched particles. The finalizer has a
+/// very low priority (-499) to run early in the frame, after initializers but before
+/// most other processing.
 class EZ_PARTICLEPLUGIN_DLL ezParticleFinalizer_LastPosition final : public ezParticleFinalizer
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleFinalizer_LastPosition, ezParticleFinalizer);

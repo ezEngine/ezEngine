@@ -6,6 +6,9 @@
 
 using ezParticleEffectResourceHandle = ezTypedResourceHandle<class ezParticleEffectResource>;
 
+/// Descriptor for particle effect resources
+///
+/// Contains the particle effect configuration data.
 struct EZ_PARTICLEPLUGIN_DLL ezParticleEffectResourceDescriptor
 {
   virtual void Save(ezStreamWriter& inout_stream) const;

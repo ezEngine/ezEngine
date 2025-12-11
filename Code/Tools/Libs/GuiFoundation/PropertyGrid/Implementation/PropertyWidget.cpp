@@ -1,10 +1,10 @@
 #include <GuiFoundation/GuiFoundationPCH.h>
 
 #include <Foundation/Strings/TranslationLookup.h>
+#include <Foundation/Tracks/CurveEditData.h>
 #include <GuiFoundation/Dialogs/CurveEditDlg.moc.h>
 #include <GuiFoundation/PropertyGrid/Implementation/PropertyWidget.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <GuiFoundation/Widgets/CurveEditData.h>
 #include <GuiFoundation/Widgets/DoubleSpinBox.moc.h>
 #include <QComboBox>
 #include <QLineEdit>
@@ -1992,12 +1992,12 @@ void ezQtPropertyEditorCurve1DWidget::SetSelection(const ezHybridArray<ezPropert
 
 void ezQtPropertyEditorCurve1DWidget::OnInit()
 {
-  m_pObjectAccessor->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyEditorCurve1DWidget::PropertyEventHandler, this));
+  m_pObjectAccessor->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyEditorCurve1DWidget::PropertyEventHandler, this), m_Unsub);
 }
 
 void ezQtPropertyEditorCurve1DWidget::DoPrepareToDie()
 {
-  m_pObjectAccessor->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyEditorCurve1DWidget::PropertyEventHandler, this));
+  m_Unsub.Unsubscribe();
 }
 
 void ezQtPropertyEditorCurve1DWidget::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
@@ -2056,7 +2056,8 @@ void ezQtPropertyEditorCurve1DWidget::on_Button_triggered()
   // but also be able to undo individual steps while editing
   // m_pObjectAccessor->GetObjectManager()->GetDocument()->GetCommandHistory()->StartTransaction("Edit Curve");
 
-  ezQtCurveEditDlg* pDlg = new ezQtCurveEditDlg(m_pObjectAccessor, pCurve, this);
+  ezStringBuilder sTitle = ezTranslate(m_pProp->GetPropertyName());
+  ezQtCurveEditDlg* pDlg = new ezQtCurveEditDlg(m_pObjectAccessor, pCurve, this, sTitle);
   pDlg->restoreGeometry(ezQtCurveEditDlg::GetLastDialogGeometry());
 
   if (pColorAttr)

@@ -2,7 +2,7 @@
 
 #include <Core/Curves/ColorGradientResource.h>
 #include <EditorPluginAssets/ColorGradientAsset/ColorGradientAsset.h>
-#include <GuiFoundation/Widgets/CurveEditData.h>
+#include <Foundation/Tracks/CurveEditData.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezColorControlPoint, 2, ezRTTIDefaultAllocator<ezColorControlPoint>)

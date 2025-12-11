@@ -3,6 +3,10 @@
 #include <Core/Curves/ColorGradientResource.h>
 #include <ParticlePlugin/Behavior/ParticleBehavior.h>
 
+/// Behavior that applies a color gradient to particles
+///
+/// The gradient can be sampled based on particle lifetime or speed.
+/// The final color is multiplied by the tint color.
 class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_ColorGradient final : public ezParticleBehaviorFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory_ColorGradient, ezParticleBehaviorFactory);

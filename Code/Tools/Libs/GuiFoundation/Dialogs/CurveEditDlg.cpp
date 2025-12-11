@@ -1,20 +1,26 @@
 #include <GuiFoundation/GuiFoundationPCH.h>
 
+#include <Foundation/Tracks/CurveEditData.h>
 #include <GuiFoundation/Dialogs/CurveEditDlg.moc.h>
 #include <GuiFoundation/Widgets/Curve1DEditorWidget.moc.h>
-#include <GuiFoundation/Widgets/CurveEditData.h>
 #include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 QByteArray ezQtCurveEditDlg::s_LastDialogGeometry;
 
-ezQtCurveEditDlg::ezQtCurveEditDlg(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pCurveObject, QWidget* pParent)
+ezQtCurveEditDlg::ezQtCurveEditDlg(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pCurveObject, QWidget* pParent, ezStringView sTitle)
   : QDialog(pParent)
 {
   m_pObjectAccessor = pObjectAccessor;
   m_pCurveObject = pCurveObject;
 
   setupUi(this);
+
+  if (!sTitle.IsEmpty())
+  {
+    ezStringBuilder tmp;
+    setWindowTitle(sTitle.GetData(tmp));
+  }
 
   ezQtCurve1DEditorWidget* pEdit = CurveEditor;
 

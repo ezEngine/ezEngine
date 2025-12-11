@@ -1,8 +1,8 @@
-#include <GuiFoundation/GuiFoundationPCH.h>
+#include <Foundation/FoundationPCH.h>
 
 #include <Foundation/Math/Math.h>
 #include <Foundation/Tracks/Curve1D.h>
-#include <GuiFoundation/Widgets/CurveEditData.h>
+#include <Foundation/Tracks/CurveEditData.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezCurveTangentMode, 1)

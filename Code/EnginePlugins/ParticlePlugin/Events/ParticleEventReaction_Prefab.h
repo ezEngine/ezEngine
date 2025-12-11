@@ -6,6 +6,9 @@
 
 using ezPrefabResourceHandle = ezTypedResourceHandle<class ezPrefabResource>;
 
+/// Factory for creating prefab spawn reactions.
+///
+/// Configures reactions that instantiate a prefab at the event location.
 class EZ_PARTICLEPLUGIN_DLL ezParticleEventReactionFactory_Prefab final : public ezParticleEventReactionFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleEventReactionFactory_Prefab, ezParticleEventReactionFactory);
@@ -34,6 +37,10 @@ private:
   // ezSharedPtr<ezParticlePrefabParameters> m_Parameters;
 };
 
+/// Event reaction that instantiates a prefab.
+///
+/// When triggered, spawns the configured prefab at the event's position and orientation.
+/// The prefab can be aligned according to the event's direction and normal vectors.
 class EZ_PARTICLEPLUGIN_DLL ezParticleEventReaction_Prefab final : public ezParticleEventReaction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleEventReaction_Prefab, ezParticleEventReaction);

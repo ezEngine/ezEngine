@@ -6,7 +6,7 @@
 #include <EditorPluginAssets/ColorGradientAsset/ColorGradientAsset.h>
 #include <Foundation/Communication/Event.h>
 #include <GameEngine/Animation/PropertyAnimResource.h>
-#include <GuiFoundation/Widgets/CurveEditData.h>
+#include <Foundation/Tracks/CurveEditData.h>
 #include <GuiFoundation/Widgets/EventTrackEditData.h>
 
 struct ezGameObjectContextEvent;

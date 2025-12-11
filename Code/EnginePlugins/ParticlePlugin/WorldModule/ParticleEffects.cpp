@@ -202,5 +202,3 @@ void ezParticleWorldModule::ReconfigureEffects()
 
   m_EffectsToReconfigure.Clear();
 }
-
-

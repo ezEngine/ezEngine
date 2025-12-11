@@ -7,7 +7,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEventReactionFactory, 1, ezRTTINoAlloc
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("EventType", m_sEventType),
+    EZ_MEMBER_PROPERTY("EventType", m_sEventType)->AddAttributes(new ezDynamicStringEnumAttribute("ParticleEventNamesEnum")),
     EZ_MEMBER_PROPERTY("Probability", m_uiProbability)->AddAttributes(new ezDefaultValueAttribute(100), new ezClampValueAttribute(1, 100)),
   }
   EZ_END_PROPERTIES;

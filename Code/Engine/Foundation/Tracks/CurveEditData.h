@@ -5,11 +5,10 @@
 #include <Foundation/Math/Vec2.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Tracks/Curve1D.h>
-#include <GuiFoundation/GuiFoundationDLL.h>
 
 class ezCurve1D;
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_GUIFOUNDATION_DLL, ezCurveTangentMode);
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezCurveTangentMode);
 
 template <typename T>
 void FindNearestControlPoints(ezArrayPtr<T> cps, ezInt64 iTick, T*& ref_pLlhs, T*& lhs, T*& rhs, T*& ref_pRrhs)
@@ -61,7 +60,7 @@ void FindNearestControlPoints(ezArrayPtr<T> cps, ezInt64 iTick, T*& ref_pLlhs, T
   }
 }
 
-class EZ_GUIFOUNDATION_DLL ezCurveControlPointData : public ezReflectedClass
+class EZ_FOUNDATION_DLL ezCurveControlPointData : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezCurveControlPointData, ezReflectedClass);
 
@@ -78,7 +77,7 @@ public:
   ezEnum<ezCurveTangentMode> m_RightTangentMode;
 };
 
-class EZ_GUIFOUNDATION_DLL ezSingleCurveData : public ezReflectedClass
+class EZ_FOUNDATION_DLL ezSingleCurveData : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSingleCurveData, ezReflectedClass);
 
@@ -90,7 +89,7 @@ public:
   double Evaluate(ezInt64 iTick) const;
 };
 
-class EZ_GUIFOUNDATION_DLL ezCurveExtentsAttribute : public ezPropertyAttribute
+class EZ_FOUNDATION_DLL ezCurveExtentsAttribute : public ezPropertyAttribute
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezCurveExtentsAttribute, ezPropertyAttribute);
 
@@ -105,7 +104,7 @@ public:
 };
 
 
-class EZ_GUIFOUNDATION_DLL ezCurveGroupData : public ezReflectedClass
+class EZ_FOUNDATION_DLL ezCurveGroupData : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezCurveGroupData, ezReflectedClass);
 
@@ -131,7 +130,7 @@ public:
   void ConvertToRuntimeData(ezUInt32 uiCurveIdx, ezCurve1D& out_result) const;
 };
 
-struct EZ_GUIFOUNDATION_DLL ezSelectedCurveCP
+struct EZ_FOUNDATION_DLL ezSelectedCurveCP
 {
   EZ_DECLARE_POD_TYPE();
 

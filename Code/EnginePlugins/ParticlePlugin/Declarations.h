@@ -34,21 +34,22 @@ using ezParticleEffectResourceHandle = ezTypedResourceHandle<class ezParticleEff
 
 using ezParticleEffectId = ezGenericId<22, 10>;
 
-/// \brief A handle to a particle effect
+/// Handle to a particle effect instance
 class EZ_PARTICLEPLUGIN_DLL ezParticleEffectHandle
 {
   EZ_DECLARE_HANDLE_TYPE(ezParticleEffectHandle, ezParticleEffectId);
 };
 
 
+/// Current state of a particle system
 struct EZ_PARTICLEPLUGIN_DLL ezParticleSystemState
 {
   enum Enum
   {
-    Active,
-    EmittersFinished,
-    OnlyReacting,
-    Inactive,
+    Active,           ///< System is actively emitting and processing particles
+    EmittersFinished, ///< Emitters stopped, particles still alive
+    OnlyReacting,     ///< Only reacting to events, otherwise finished
+    Inactive,         ///< System is inactive
   };
 };
 
@@ -72,6 +73,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
+/// Blending mode for particle rendering
 struct EZ_PARTICLEPLUGIN_DLL ezParticleTypeRenderMode
 {
   using StorageType = ezUInt8;
@@ -93,14 +95,15 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezParticleTypeRenderMode);
 
 //////////////////////////////////////////////////////////////////////////
 
+/// Lighting mode for particles
 struct EZ_PARTICLEPLUGIN_DLL ezParticleLightingMode
 {
   using StorageType = ezUInt8;
 
   enum Enum
   {
-    Fullbright,
-    VertexLit,
+    Fullbright, ///< No lighting applied
+    VertexLit,  ///< Simple vertex lighting
     Default = Fullbright
   };
 };
@@ -109,19 +112,19 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezParticleLightingMode);
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief What to do when an effect is not visible.
+/// Update rate for effects that are not visible
 struct EZ_PARTICLEPLUGIN_DLL ezEffectInvisibleUpdateRate
 {
   using StorageType = ezUInt8;
 
   enum Enum
   {
-    FullUpdate,
-    Max20fps,
-    Max10fps,
-    Max5fps,
-    Pause,
-    Discard,
+    FullUpdate, ///< Continue updating at full rate
+    Max20fps,   ///< Update at most 20 times per second
+    Max10fps,   ///< Update at most 10 times per second
+    Max5fps,    ///< Update at most 5 times per second
+    Pause,      ///< Pause simulation completely
+    Discard,    ///< Delete the effect
 
     Default = Max10fps
   };
@@ -131,17 +134,18 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezEffectInvisibleUpdateRate);
 
 //////////////////////////////////////////////////////////////////////////
 
+/// How to use texture atlas for particle sprites
 struct EZ_PARTICLEPLUGIN_DLL ezParticleTextureAtlasType
 {
   using StorageType = ezUInt8;
 
   enum Enum
   {
-    None,
+    None,              ///< No atlas, use full texture
 
-    RandomVariations,
-    FlipbookAnimation,
-    RandomYAnimatedX,
+    RandomVariations,  ///< Pick random tile for variation
+    FlipbookAnimation, ///< Animate through tiles over lifetime
+    RandomYAnimatedX,  ///< Random Y row, animate X over lifetime
 
     Default = None
   };
@@ -151,14 +155,15 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezParticleTextureAtlasType);
 
 //////////////////////////////////////////////////////////////////////////
 
+/// How to sample color gradients for particles
 struct EZ_PARTICLEPLUGIN_DLL ezParticleColorGradientMode
 {
   using StorageType = ezUInt8;
 
   enum Enum
   {
-    Age,
-    Speed,
+    Age,   ///< Sample based on normalized particle lifetime (0-1)
+    Speed, ///< Sample based on particle speed
 
     Default = Age
   };
@@ -169,14 +174,15 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezParticleColorGradientMode);
 
 //////////////////////////////////////////////////////////////////////////
 
+/// Action when particles leave bounds
 struct EZ_PARTICLEPLUGIN_DLL ezParticleOutOfBoundsMode
 {
   using StorageType = ezUInt8;
 
   enum Enum
   {
-    Teleport,
-    Die,
+    Teleport, ///< Wrap particle to opposite side
+    Die,      ///< Kill the particle
 
     Default = Teleport
   };
