@@ -1,7 +1,7 @@
 #pragma once
 
-#include <GuiFoundation/GuiFoundationDLL.h>
 #include <Foundation/Tracks/CurveEditData.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/ui_CurveEditDlg.h>
 #include <QDialog>
 

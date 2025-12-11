@@ -3,8 +3,8 @@
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Math/Vec2.h>
 #include <Foundation/Tracks/Curve1D.h>
-#include <GuiFoundation/GuiFoundationDLL.h>
 #include <Foundation/Tracks/CurveEditData.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 
 #include <QBrush>
 #include <QPen>

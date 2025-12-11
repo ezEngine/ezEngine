@@ -1,5 +1,6 @@
 #include <GuiFoundation/GuiFoundationPCH.h>
 
+#include <Foundation/Tracks/CurveEditData.h>
 #include <GuiFoundation/PropertyGrid/Implementation/ExpressionPropertyWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/Implementation/PropertyWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/Implementation/TagSetPropertyWidget.moc.h>
@@ -7,7 +8,6 @@
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <GuiFoundation/Widgets/CollapsibleGroupBox.moc.h>
-#include <Foundation/Tracks/CurveEditData.h>
 
 #include <ToolsFoundation/Document/Document.h>
 
