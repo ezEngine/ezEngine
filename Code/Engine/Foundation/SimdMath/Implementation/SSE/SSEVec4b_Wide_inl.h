@@ -94,8 +94,8 @@ template <ezSwizzle::Enum s>
 EZ_ALWAYS_INLINE ezSimdVec4bWide ezSimdVec4bWide::Get() const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
-#error
 
+EZ_ASSERT_NOT_IMPLEMENTED
 
 #else
   ezSimdVec4bWide result;
