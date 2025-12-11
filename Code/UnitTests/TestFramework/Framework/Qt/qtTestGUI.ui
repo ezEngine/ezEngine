@@ -60,7 +60,7 @@
       <item>
        <spacer name="horizontalSpacer">
         <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+         <enum>Qt::Orientation::Horizontal</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
@@ -94,7 +94,7 @@
      <x>0</x>
      <y>0</y>
      <width>951</width>
-     <height>21</height>
+     <height>33</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuRun">
@@ -111,8 +111,6 @@
      <string>Settings</string>
     </property>
     <addaction name="actionAssertOnTestFail"/>
-    <addaction name="actionOpenHTMLOutput"/>
-    <addaction name="actionShowMessageBox"/>
     <addaction name="actionDisableSuccessfulTests"/>
     <addaction name="separator"/>
     <addaction name="actionSaveTestSettingsAs"/>
@@ -137,14 +135,6 @@
    </property>
    <property name="text">
     <string>Break on Test Failure</string>
-   </property>
-  </action>
-  <action name="actionOpenHTMLOutput">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Open HTML on Error</string>
    </property>
   </action>
   <action name="actionRunTests">
@@ -220,14 +210,6 @@
    </property>
    <property name="toolTip">
     <string>Enables all children of the selected test.</string>
-   </property>
-  </action>
-  <action name="actionShowMessageBox">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Show MessageBoxes</string>
    </property>
   </action>
   <action name="actionSaveTestSettingsAs">

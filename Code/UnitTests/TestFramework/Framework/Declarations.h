@@ -36,14 +36,12 @@ enum class AssertOnTestFail
   AssertIfDebuggerAttached,
   AlwaysAssert,
 };
+
 struct TestSettings
 {
   // The following settings are stored in the settings file.
   AssertOnTestFail m_AssertOnTestFail = AssertOnTestFail::DoNotAssert;
-  bool m_bOpenHtmlOutputOnError = false;
-  bool m_bKeepConsoleOpen = false;
   bool m_bShowTimestampsInLog = false;
-  bool m_bShowMessageBox = false;
   bool m_bAutoDisableSuccessfulTests = false;
 
   // The following settings are only set via command-line.
@@ -55,5 +53,4 @@ struct TestSettings
   std::string m_sJsonOutput;         /// Absolute path to the json file the results should be written to.
   bool m_bEnableAllTests = false;    /// Enables all test.
   std::string m_sTestFilter;         /// Filter that does a 'contains' test on each test name.
-  ezUInt8 m_uiFullPasses = 1;        /// All tests are done this often, to check whether some tests fail only when executed multiple times.
 };

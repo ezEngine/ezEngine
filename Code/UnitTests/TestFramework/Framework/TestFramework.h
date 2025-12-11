@@ -201,7 +201,6 @@ private:
   ezUInt32 m_uiExecutingSubTest = 0;
   bool m_bSubTestInitialized = false;
   bool m_bAbortTests = false;
-  ezUInt8 m_uiPassesLeft = 0;
   double m_fTotalTestDuration = 0.0;
   double m_fTotalSubTestDuration = 0.0;
   ezInt32 m_iErrorCountBeforeTest = 0;
