@@ -154,28 +154,28 @@ void ezColorGradient::UpdatePointOrder() const
   // Create remapping arrays instead of sorting the actual arrays.
   // This preserves indices so editing operations in the UI don't break when control points are moved.
 
-  m_ColorOrder.SetCount(m_ColorCPs.GetCount());
-  for (ezUInt32 i = 0; i < m_ColorCPs.GetCount(); ++i)
+  m_ColorOrder.SetCount((ezUInt16)m_ColorCPs.GetCount());
+  for (ezUInt8 i = 0; i < m_ColorCPs.GetCount(); ++i)
   {
-    m_ColorOrder[i] = i;
+    m_ColorOrder[i] = static_cast<ezUInt8>(i);
   }
   m_ColorOrder.Sort([this](ezUInt32 a, ezUInt32 b)
     { return m_ColorCPs[a] < m_ColorCPs[b]; });
 
   // Alpha CPs
-  m_AlphaOrder.SetCount(m_AlphaCPs.GetCount());
-  for (ezUInt32 i = 0; i < m_AlphaCPs.GetCount(); ++i)
+  m_AlphaOrder.SetCount((ezUInt16)m_AlphaCPs.GetCount());
+  for (ezUInt8 i = 0; i < m_AlphaCPs.GetCount(); ++i)
   {
-    m_AlphaOrder[i] = i;
+    m_AlphaOrder[i] = static_cast<ezUInt8>(i);
   }
   m_AlphaOrder.Sort([this](ezUInt32 a, ezUInt32 b)
     { return m_AlphaCPs[a] < m_AlphaCPs[b]; });
 
   // Intensity CPs
-  m_IntensityOrder.SetCount(m_IntensityCPs.GetCount());
-  for (ezUInt32 i = 0; i < m_IntensityCPs.GetCount(); ++i)
+  m_IntensityOrder.SetCount((ezUInt16)m_IntensityCPs.GetCount());
+  for (ezUInt8 i = 0; i < m_IntensityCPs.GetCount(); ++i)
   {
-    m_IntensityOrder[i] = i;
+    m_IntensityOrder[i] = static_cast<ezUInt8>(i);
   }
   m_IntensityOrder.Sort([this](ezUInt32 a, ezUInt32 b)
     { return m_IntensityCPs[a] < m_IntensityCPs[b]; });
