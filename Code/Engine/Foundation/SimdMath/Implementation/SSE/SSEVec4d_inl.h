@@ -1119,7 +1119,7 @@ EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::GetCombined(const ezSimdVec4d& other) 
   return result;
 #else
   ezSimdVec4d result;
-  EZ_WIDE_SHUFFLE_SSE(m_v.xy, m_v.zw, other.xy, other.zw, EZ_TO_SHUFFLE(s), result.m_v.xy, result.m_v.zw);
+  EZ_WIDE_SHUFFLE_SSE(m_v.xy, m_v.zw, other.m_v.xy, other.m_v.zw, EZ_TO_SHUFFLE(s), result.m_v.xy, result.m_v.zw);
   return result;
 
 #endif

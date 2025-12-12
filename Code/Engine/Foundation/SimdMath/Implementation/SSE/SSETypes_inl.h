@@ -98,6 +98,8 @@ EZ_ALWAYS_INLINE void EZ_WIDE_SHUFFLE_SSE(__m128d aLow, __m128d aHigh, __m128d b
   outHigh = _mm_unpacklo_pd(d2, d3);
 }
 
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
+
 /// @brief directly swizzle a 4 double __m256d to the output. AVX1
 EZ_ALWAYS_INLINE void EZ_WIDE_SWIZZLE_AVX1(__m256d a, ezSwizzle::Enum swizzle, __m256d& out)
 {
@@ -140,6 +142,7 @@ do { \
   (row3) = _mm256_permute2f128_pd(tmp1, tmp3, 0x31); \
 } while (0)
 
+#endif
 
 #define _MM_TRANSPOSE4_PD(row0lo, row0hi, row1lo, row1hi, row2lo, row2hi, row3lo, row3hi) \
 do { \
