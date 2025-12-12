@@ -51,7 +51,7 @@ ezSimdQuatd ezSimdQuatd::MakeSlerp(const ezSimdQuatd& qFrom, const ezSimdQuatd& 
 
   if (cosTheta < qdelta)
   {
-    ezAngle theta = ezMath::ACos(cosTheta);
+    ezAngle theta = ezMath::ACos(float(cosTheta));
 
     // use sqrtInv(1+c^2) instead of 1.0/sin(theta)
     const ezSimdDouble iSinTheta = (one - (cosTheta * cosTheta)).GetInvSqrt();
@@ -89,13 +89,13 @@ bool ezSimdQuatd::IsEqualRotation(const ezSimdQuatd& qOther, const ezSimdDouble&
   if (qOther.GetRotationAxisAndAngle(vA2, fA2) == EZ_FAILURE)
     return false;
 
-  ezAngle A1 = ezAngle::MakeFromRadian(fA1);
-  ezAngle A2 = ezAngle::MakeFromRadian(fA2);
+  ezAngle A1 = ezAngle::MakeFromRadian(float(fA1));
+  ezAngle A2 = ezAngle::MakeFromRadian(float(fA2));
 
-  if ((A1.IsEqualSimple(A2, ezAngle::MakeFromDegree(fEpsilon))) && (vA1.IsEqual(vA2, fEpsilon).AllSet<3>()))
+  if ((A1.IsEqualSimple(A2, ezAngle::MakeFromDegree(float(fEpsilon)))) && (vA1.IsEqual(vA2, fEpsilon).AllSet<3>()))
     return true;
 
-  if ((A1.IsEqualSimple(-A2, ezAngle::MakeFromDegree(fEpsilon))) && (vA1.IsEqual(-vA2, fEpsilon).AllSet<3>()))
+  if ((A1.IsEqualSimple(-A2, ezAngle::MakeFromDegree(float(fEpsilon)))) && (vA1.IsEqual(-vA2, fEpsilon).AllSet<3>()))
     return true;
 
   return false;
