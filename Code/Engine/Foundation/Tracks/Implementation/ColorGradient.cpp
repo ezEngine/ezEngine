@@ -53,19 +53,6 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezColorGradient, ezNoBase, 1, ezRTTIDefaultAlloca
 EZ_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-/// 4800 ticks per second allows precise timing while fitting common frame rates (24, 25, 30, 50, 60, 120 fps)
-static constexpr double s_fTicksPerSecond = 4800.0;
-
-static inline ezInt64 TimeToTick(double time)
-{
-  return static_cast<ezInt64>(ezMath::Round(time * s_fTicksPerSecond));
-}
-
-static inline double TickToTime(ezInt64 tick)
-{
-  return tick / s_fTicksPerSecond;
-}
-
 ezColorGradient::ezColorGradient()
 {
   Clear();
@@ -520,9 +507,9 @@ void ezColorGradient::Load(ezStreamReader& inout_stream)
   inout_stream >> numAlpha;
   inout_stream >> numIntensity;
 
-  m_ColorCPs.SetCountUninitialized(numColor);
-  m_AlphaCPs.SetCountUninitialized(numAlpha);
-  m_IntensityCPs.SetCountUninitialized(numIntensity);
+  m_ColorCPs.SetCountUninitialized((ezUInt16)numColor);
+  m_AlphaCPs.SetCountUninitialized((ezUInt16)numAlpha);
+  m_IntensityCPs.SetCountUninitialized((ezUInt16)numIntensity);
 
   if (uiVersion == 1)
   {
