@@ -10,6 +10,7 @@
 #include <ParticlePlugin/Behavior/ParticleBehavior_SizeCurve.h>
 #include <ParticlePlugin/Behavior/ParticleBehavior_Velocity.h>
 #include <ParticlePlugin/Initializer/ParticleInitializer_CylinderPosition.h>
+#include <ParticlePlugin/Initializer/ParticleInitializer_RandomColor.h>
 #include <ParticlePlugin/Initializer/ParticleInitializer_SpherePosition.h>
 #include <ParticlePlugin/System/ParticleSystemDescriptor.h>
 #include <ParticlePlugin/Type/Quad/ParticleTypeQuad.h>
@@ -102,8 +103,11 @@ void ezParticleEffectAssetDocument::PropertyMetaStateEventHandler(ezPropertyMeta
   {
     auto& props = *e.m_pPropertyStates;
 
+    ezInt64 gradientSource = e.m_pObject->GetTypeAccessor().GetValue("GradientSource").ConvertTo<ezInt64>();
     ezInt64 mode = e.m_pObject->GetTypeAccessor().GetValue("ColorGradientMode").ConvertTo<ezInt64>();
 
+    props["Gradient"].m_Visibility = (gradientSource == ezGradientSource::CustomGradient) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["SharedGradient"].m_Visibility = (gradientSource == ezGradientSource::SharedGradient) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
     props["GradientMaxSpeed"].m_Visibility = (mode == ezParticleColorGradientMode::Speed) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
   }
   else if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezParticleBehaviorFactory_Opacity>())
@@ -177,6 +181,15 @@ void ezParticleEffectAssetDocument::PropertyMetaStateEventHandler(ezPropertyMeta
     bool bSetVelocity = e.m_pObject->GetTypeAccessor().GetValue("SetVelocity").ConvertTo<bool>();
 
     props["Speed"].m_Visibility = bSetVelocity ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+  }
+  else if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezParticleInitializerFactory_RandomColor>())
+  {
+    auto& props = *e.m_pPropertyStates;
+
+    ezInt64 gradientSource = e.m_pObject->GetTypeAccessor().GetValue("GradientSource").ConvertTo<ezInt64>();
+
+    props["Gradient"].m_Visibility = (gradientSource == ezGradientSource::CustomGradient) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["SharedGradient"].m_Visibility = (gradientSource == ezGradientSource::SharedGradient) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
   }
 }
 

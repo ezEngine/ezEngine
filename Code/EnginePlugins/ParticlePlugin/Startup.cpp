@@ -1,5 +1,6 @@
 #include <ParticlePlugin/ParticlePluginPCH.h>
 
+#include <Core/Curves/ColorGradientResource.h>
 #include <Core/Curves/Curve1DResource.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Foundation/Configuration/Startup.h>
@@ -22,6 +23,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Particle, ParticlePlugin)
     ezResourceManager::SetResourceTypeMissingFallback<ezParticleEffectResource>(hEffect);
 
     ezResourceManager::AllowResourceTypeAcquireDuringUpdateContent<ezParticleEffectResource, ezCurve1DResource>();
+    ezResourceManager::AllowResourceTypeAcquireDuringUpdateContent<ezParticleEffectResource, ezColorGradientResource>();
   }
 
   ON_CORESYSTEMS_SHUTDOWN

@@ -191,6 +191,24 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezCurveSource);
 
 //////////////////////////////////////////////////////////////////////////
 
+/// Source of gradient data
+struct EZ_PARTICLEPLUGIN_DLL ezGradientSource
+{
+  using StorageType = ezUInt8;
+
+  enum Enum
+  {
+    CustomGradient, ///< Use embedded gradient data
+    SharedGradient, ///< Reference shared gradient resource
+
+    Default = CustomGradient
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezGradientSource);
+
+//////////////////////////////////////////////////////////////////////////
+
 /// Action when particles leave bounds
 struct EZ_PARTICLEPLUGIN_DLL ezParticleOutOfBoundsMode
 {

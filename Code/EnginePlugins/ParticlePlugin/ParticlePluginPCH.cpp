@@ -59,6 +59,13 @@ EZ_END_STATIC_REFLECTED_ENUM;
 
 //////////////////////////////////////////////////////////////////////////
 
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGradientSource, 1)
+  EZ_ENUM_CONSTANT(ezGradientSource::CustomGradient),
+  EZ_ENUM_CONSTANT(ezGradientSource::SharedGradient),
+EZ_END_STATIC_REFLECTED_ENUM;
+
+//////////////////////////////////////////////////////////////////////////
+
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezParticleOutOfBoundsMode, 1)
   EZ_ENUM_CONSTANT(ezParticleOutOfBoundsMode::Teleport),
   EZ_ENUM_CONSTANT(ezParticleOutOfBoundsMode::Die),

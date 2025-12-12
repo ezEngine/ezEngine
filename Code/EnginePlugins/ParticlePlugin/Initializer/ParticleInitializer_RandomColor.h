@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/ResourceManager/ResourceHandle.h>
+#include <Foundation/Tracks/ColorGradient.h>
 #include <ParticlePlugin/Initializer/ParticleInitializer.h>
 
 using ezColorGradientResourceHandle = ezTypedResourceHandle<class ezColorGradientResource>;
@@ -21,7 +22,9 @@ public:
 
   ezColor m_Color1;
   ezColor m_Color2;
-  ezColorGradientResourceHandle m_hGradient;
+  ezEnum<ezGradientSource> m_GradientSource;
+  ezColorGradient m_Gradient;
+  ezColorGradientResourceHandle m_hSharedGradient;
 };
 
 
@@ -32,14 +35,12 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleInitializer_RandomColor final : public ezP
 public:
   ezColor m_Color1;
   ezColor m_Color2;
-
-  ezColorGradientResourceHandle m_hGradient;
-
+  const ezColorGradient* m_pGradient = nullptr;
 
   virtual void CreateRequiredStreams() override;
 
 protected:
   virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
 
-  ezProcessingStream* m_pStreamColor;
+  ezProcessingStream* m_pStreamColor = nullptr;
 };

@@ -114,3 +114,69 @@ public:
 };
 
 ezParticleBehaviorFactory_Velocity_1_2 g_ezParticleBehaviorFactory_Velocity_1_2;
+
+//////////////////////////////////////////////////////////////////////////
+
+/// Migrates ColorGradient behavior from old hGradient to new GradientSource system
+class ezParticleBehaviorFactory_ColorGradient_2_3 : public ezGraphPatch
+{
+public:
+  ezParticleBehaviorFactory_ColorGradient_2_3()
+    : ezGraphPatch("ezParticleBehaviorFactory_ColorGradient", 3)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    // Check if there's an old hGradient property (from version 2)
+    auto* pGradientHandle = pNode->FindProperty("Gradient");
+    if (pGradientHandle)
+    {
+      // Rename the old property to the new SharedGradient name
+      pNode->RenameProperty("Gradient", "SharedGradient");
+
+      // Set GradientSource to SharedGradient (1) for backward compatibility
+      pNode->AddProperty("GradientSource", (ezInt32)1);
+    }
+    else
+    {
+      // If no old property exists, default to CustomGradient (0)
+      pNode->AddProperty("GradientSource", (ezInt32)0);
+    }
+  }
+};
+
+ezParticleBehaviorFactory_ColorGradient_2_3 g_ezParticleBehaviorFactory_ColorGradient_2_3;
+
+//////////////////////////////////////////////////////////////////////////
+
+/// Migrates RandomColor initializer from old hGradient to new GradientSource system
+class ezParticleInitializerFactory_RandomColor_2_3 : public ezGraphPatch
+{
+public:
+  ezParticleInitializerFactory_RandomColor_2_3()
+    : ezGraphPatch("ezParticleInitializerFactory_RandomColor", 3)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    // Check if there's an old hGradient property (from version 2)
+    auto* pGradientHandle = pNode->FindProperty("Gradient");
+    if (pGradientHandle)
+    {
+      // Rename the old property to the new SharedGradient name
+      pNode->RenameProperty("Gradient", "SharedGradient");
+
+      // Set GradientSource to SharedGradient (1) for backward compatibility
+      pNode->AddProperty("GradientSource", (ezInt32)1);
+    }
+    else
+    {
+      // If no old property exists, default to CustomGradient (0)
+      pNode->AddProperty("GradientSource", (ezInt32)0);
+    }
+  }
+};
+
+ezParticleInitializerFactory_RandomColor_2_3 g_ezParticleInitializerFactory_RandomColor_2_3;

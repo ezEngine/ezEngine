@@ -194,6 +194,7 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, const ezAbstractPropert
           const ezUuid temp = ezUuid::MakeUuid();
 
           void* pValuePtr = m_pContext->CreateObject(temp, pPropType);
+          EZ_ASSERT_DEBUG(pValuePtr != nullptr, "Failed to create value object. No allocator?");
 
           for (ezUInt32 i = 0; i < array.GetCount(); ++i)
           {

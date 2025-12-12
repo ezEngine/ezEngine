@@ -2,55 +2,13 @@
 
 #include <Core/Curves/ColorGradientResource.h>
 #include <EditorPluginAssets/ColorGradientAsset/ColorGradientAsset.h>
-#include <Foundation/Tracks/CurveEditData.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezColorControlPoint, 2, ezRTTIDefaultAllocator<ezColorControlPoint>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezColorGradientAssetData, 3, ezRTTIDefaultAllocator<ezColorGradientAssetData>)
 {
   EZ_BEGIN_PROPERTIES
   {
-    //EZ_MEMBER_PROPERTY("Position", m_fPositionX),
-    EZ_MEMBER_PROPERTY("Tick", m_iTick),
-    EZ_MEMBER_PROPERTY("Red", m_Red)->AddAttributes(new ezDefaultValueAttribute(255)),
-    EZ_MEMBER_PROPERTY("Green", m_Green)->AddAttributes(new ezDefaultValueAttribute(255)),
-    EZ_MEMBER_PROPERTY("Blue", m_Blue)->AddAttributes(new ezDefaultValueAttribute(255)),
-  }
-  EZ_END_PROPERTIES;
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAlphaControlPoint, 2, ezRTTIDefaultAllocator<ezAlphaControlPoint>)
-{
-  EZ_BEGIN_PROPERTIES
-  {
-    //EZ_MEMBER_PROPERTY("Position", m_fPositionX),
-    EZ_MEMBER_PROPERTY("Tick", m_iTick),
-    EZ_MEMBER_PROPERTY("Alpha", m_Alpha)->AddAttributes(new ezDefaultValueAttribute(255)),
-  }
-  EZ_END_PROPERTIES;
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezIntensityControlPoint, 2, ezRTTIDefaultAllocator<ezIntensityControlPoint>)
-{
-  EZ_BEGIN_PROPERTIES
-  {
-    //EZ_MEMBER_PROPERTY("Position", m_fPositionX),
-    EZ_MEMBER_PROPERTY("Tick", m_iTick),
-    EZ_MEMBER_PROPERTY("Intensity", m_fIntensity)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
-  }
-  EZ_END_PROPERTIES;
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezColorGradientAssetData, 2, ezRTTIDefaultAllocator<ezColorGradientAssetData>)
-{
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_ARRAY_MEMBER_PROPERTY("ColorCPs", m_ColorCPs),
-    EZ_ARRAY_MEMBER_PROPERTY("AlphaCPs", m_AlphaCPs),
-    EZ_ARRAY_MEMBER_PROPERTY("IntensityCPs", m_IntensityCPs),
+    EZ_MEMBER_PROPERTY("Gradient", m_Gradient),
   }
   EZ_END_PROPERTIES;
 }
@@ -59,24 +17,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezColorGradientAssetDocument, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
-
-void ezColorControlPoint::SetTickFromTime(ezTime time, ezInt64 iFps)
-{
-  const ezUInt32 uiTicksPerStep = 4800 / iFps;
-  m_iTick = (ezInt64)ezMath::RoundToMultiple(time.GetSeconds() * 4800.0, (double)uiTicksPerStep);
-}
-
-void ezAlphaControlPoint::SetTickFromTime(ezTime time, ezInt64 iFps)
-{
-  const ezUInt32 uiTicksPerStep = 4800 / iFps;
-  m_iTick = (ezInt64)ezMath::RoundToMultiple(time.GetSeconds() * 4800.0, (double)uiTicksPerStep);
-}
-
-void ezIntensityControlPoint::SetTickFromTime(ezTime time, ezInt64 iFps)
-{
-  const ezUInt32 uiTicksPerStep = 4800 / iFps;
-  m_iTick = (ezInt64)ezMath::RoundToMultiple(time.GetSeconds() * 4800.0, (double)uiTicksPerStep);
-}
 
 ezColorGradientAssetDocument::ezColorGradientAssetDocument(ezStringView sDocumentPath)
   : ezSimpleAssetDocument<ezColorGradientAssetData>(sDocumentPath, ezAssetDocEngineConnection::None)
@@ -89,92 +29,21 @@ void ezColorGradientAssetDocument::WriteResource(ezStreamWriter& inout_stream) c
 
   ezColorGradientResourceDescriptor desc;
   pProp->FillGradientData(desc.m_Gradient);
-  desc.m_Gradient.SortControlPoints();
 
   desc.Save(inout_stream);
 }
 
-ezInt64 ezColorGradientAssetData::TickFromTime(ezTime time)
-{
-  /// \todo Make this a property ?
-  const ezUInt32 uiFramesPerSecond = 60;
-  const ezUInt32 uiTicksPerStep = 4800 / uiFramesPerSecond;
-  return (ezInt64)ezMath::RoundToMultiple(time.GetSeconds() * 4800.0, (double)uiTicksPerStep);
-}
-
 void ezColorGradientAssetData::FillGradientData(ezColorGradient& out_result) const
 {
-  for (const auto& cp : m_ColorCPs)
-  {
-    out_result.AddColorControlPoint(cp.GetTickAsTime().GetSeconds(), ezColorGammaUB(cp.m_Red, cp.m_Green, cp.m_Blue));
-  }
-
-  for (const auto& cp : m_AlphaCPs)
-  {
-    out_result.AddAlphaControlPoint(cp.GetTickAsTime().GetSeconds(), cp.m_Alpha);
-  }
-
-  for (const auto& cp : m_IntensityCPs)
-  {
-    out_result.AddIntensityControlPoint(cp.GetTickAsTime().GetSeconds(), cp.m_fIntensity);
-  }
+  out_result = m_Gradient;
 }
 
 ezColor ezColorGradientAssetData::Evaluate(ezInt64 iTick) const
 {
-  ezColorGradient temp;
-  {
-    const ezColorControlPoint* llhs = nullptr;
-    const ezColorControlPoint* lhs = nullptr;
-    const ezColorControlPoint* rhs = nullptr;
-    const ezColorControlPoint* rrhs = nullptr;
-    FindNearestControlPoints(m_ColorCPs.GetArrayPtr(), iTick, llhs, lhs, rhs, rrhs);
+  ezColorGradient temp = m_Gradient;
 
-    if (llhs)
-      temp.AddColorControlPoint(llhs->GetTickAsTime().GetSeconds(), ezColorGammaUB(llhs->m_Red, llhs->m_Green, llhs->m_Blue));
-    if (lhs)
-      temp.AddColorControlPoint(lhs->GetTickAsTime().GetSeconds(), ezColorGammaUB(lhs->m_Red, lhs->m_Green, lhs->m_Blue));
-    if (rhs)
-      temp.AddColorControlPoint(rhs->GetTickAsTime().GetSeconds(), ezColorGammaUB(rhs->m_Red, rhs->m_Green, rhs->m_Blue));
-    if (rrhs)
-      temp.AddColorControlPoint(rrhs->GetTickAsTime().GetSeconds(), ezColorGammaUB(rrhs->m_Red, rrhs->m_Green, rrhs->m_Blue));
-  }
-  {
-    const ezAlphaControlPoint* llhs = nullptr;
-    const ezAlphaControlPoint* lhs = nullptr;
-    const ezAlphaControlPoint* rhs = nullptr;
-    const ezAlphaControlPoint* rrhs = nullptr;
-    FindNearestControlPoints(m_AlphaCPs.GetArrayPtr(), iTick, llhs, lhs, rhs, rrhs);
-
-    if (llhs)
-      temp.AddAlphaControlPoint(llhs->GetTickAsTime().GetSeconds(), llhs->m_Alpha);
-    if (lhs)
-      temp.AddAlphaControlPoint(lhs->GetTickAsTime().GetSeconds(), lhs->m_Alpha);
-    if (rhs)
-      temp.AddAlphaControlPoint(rhs->GetTickAsTime().GetSeconds(), rhs->m_Alpha);
-    if (rrhs)
-      temp.AddAlphaControlPoint(rrhs->GetTickAsTime().GetSeconds(), rrhs->m_Alpha);
-  }
-  {
-    const ezIntensityControlPoint* llhs = nullptr;
-    const ezIntensityControlPoint* lhs = nullptr;
-    const ezIntensityControlPoint* rhs = nullptr;
-    const ezIntensityControlPoint* rrhs = nullptr;
-    FindNearestControlPoints(m_IntensityCPs.GetArrayPtr(), iTick, llhs, lhs, rhs, rrhs);
-
-    if (llhs)
-      temp.AddIntensityControlPoint(llhs->GetTickAsTime().GetSeconds(), llhs->m_fIntensity);
-    if (lhs)
-      temp.AddIntensityControlPoint(lhs->GetTickAsTime().GetSeconds(), lhs->m_fIntensity);
-    if (rhs)
-      temp.AddIntensityControlPoint(rhs->GetTickAsTime().GetSeconds(), rhs->m_fIntensity);
-    if (rrhs)
-      temp.AddIntensityControlPoint(rrhs->GetTickAsTime().GetSeconds(), rrhs->m_fIntensity);
-  }
   ezColor color;
-  // #TODO: This is rather slow as we eval lots of points but only need one
-  temp.SortControlPoints();
-  temp.Evaluate(iTick / 4800.0, color);
+  temp.Evaluate(ezColorGradient::TickToTime(iTick), color);
   return color;
 }
 
@@ -197,7 +66,6 @@ ezTransformStatus ezColorGradientAssetDocument::InternalCreateThumbnail(const Th
 
   ezColorGradient gradient;
   pProp->FillGradientData(gradient);
-  gradient.SortControlPoints();
 
   double fMin, fMax;
   gradient.GetExtents(fMin, fMax);
@@ -286,7 +154,7 @@ public:
     if (pPoint && pPoint->m_Value.IsA<float>())
     {
       const float fTime = pPoint->m_Value.Get<float>();
-      pNode->AddProperty("Tick", (ezInt64)ezMath::RoundToMultiple(fTime * 4800.0, 4800.0 / 60.0));
+      pNode->AddProperty("Tick", ezColorGradient::SnapTimeToTick(fTime));
     }
   }
 };
@@ -309,7 +177,7 @@ public:
     if (pPoint && pPoint->m_Value.IsA<float>())
     {
       const float fTime = pPoint->m_Value.Get<float>();
-      pNode->AddProperty("Tick", (ezInt64)ezMath::RoundToMultiple(fTime * 4800.0, 4800.0 / 60.0));
+      pNode->AddProperty("Tick", ezColorGradient::SnapTimeToTick(fTime));
     }
   }
 };
@@ -332,9 +200,164 @@ public:
     if (pPoint && pPoint->m_Value.IsA<float>())
     {
       const float fTime = pPoint->m_Value.Get<float>();
-      pNode->AddProperty("Tick", (ezInt64)ezMath::RoundToMultiple(fTime * 4800.0, 4800.0 / 60.0));
+      pNode->AddProperty("Tick", ezColorGradient::SnapTimeToTick(fTime));
     }
   }
 };
 
 ezIntensityControlPoint_1_2 g_ezIntensityControlPoint_1_2;
+
+//////////////////////////////////////////////////////////////////////////
+
+// Patch to rename old control point types to new standalone types
+class ezColorControlPoint_2_3 : public ezGraphPatch
+{
+public:
+  ezColorControlPoint_2_3()
+    : ezGraphPatch("ezColorControlPoint", 3)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    ref_context.RenameClass("ezColorGradientColorCP");
+  }
+};
+
+ezColorControlPoint_2_3 g_ezColorControlPoint_2_3;
+
+//////////////////////////////////////////////////////////////////////////
+
+class ezAlphaControlPoint_2_3 : public ezGraphPatch
+{
+public:
+  ezAlphaControlPoint_2_3()
+    : ezGraphPatch("ezAlphaControlPoint", 3)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    ref_context.RenameClass("ezColorGradientAlphaCP");
+  }
+};
+
+ezAlphaControlPoint_2_3 g_ezAlphaControlPoint_2_3;
+
+//////////////////////////////////////////////////////////////////////////
+
+class ezIntensityControlPoint_2_3 : public ezGraphPatch
+{
+public:
+  ezIntensityControlPoint_2_3()
+    : ezGraphPatch("ezIntensityControlPoint", 3)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    ref_context.RenameClass("ezColorGradientIntensityCP");
+  }
+};
+
+ezIntensityControlPoint_2_3 g_ezIntensityControlPoint_2_3;
+
+//////////////////////////////////////////////////////////////////////////
+
+class ezColorGradientAssetDataPatch_2_3 : public ezGraphPatch
+{
+public:
+  ezColorGradientAssetDataPatch_2_3()
+    : ezGraphPatch("ezColorGradientAssetData", 3)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    // Create new Gradient node
+    ezUuid gradientGuid = ezUuid::MakeUuid();
+    auto* pGradientNode = pGraph->AddNode(gradientGuid, "ezColorGradient", 1);
+
+    // Migrate ColorCPs
+    auto* pColorCPs = pNode->FindProperty("ColorCPs");
+    if (pColorCPs && pColorCPs->m_Value.IsA<ezVariantArray>())
+    {
+      const ezVariantArray& oldCPs = pColorCPs->m_Value.Get<ezVariantArray>();
+      ezVariantArray newCPs;
+
+      for (const auto& cpGuid : oldCPs)
+      {
+        auto* pOldCP = pGraph->GetNode(cpGuid.Get<ezUuid>());
+        if (pOldCP)
+        {
+          ezUuid newCPGuid = ezUuid::MakeUuid();
+          auto* pNewCP = pGraph->AddNode(newCPGuid, "ezColorGradientColorCP", 1);
+
+          pNewCP->AddProperty("Tick", pOldCP->FindProperty("Tick")->m_Value);
+          pNewCP->AddProperty("Red", pOldCP->FindProperty("Red")->m_Value);
+          pNewCP->AddProperty("Green", pOldCP->FindProperty("Green")->m_Value);
+          pNewCP->AddProperty("Blue", pOldCP->FindProperty("Blue")->m_Value);
+
+          newCPs.PushBack(newCPGuid);
+        }
+      }
+      pGradientNode->AddProperty("ColorCPs", newCPs);
+    }
+
+    // Migrate AlphaCPs
+    auto* pAlphaCPs = pNode->FindProperty("AlphaCPs");
+    if (pAlphaCPs && pAlphaCPs->m_Value.IsA<ezVariantArray>())
+    {
+      const ezVariantArray& oldCPs = pAlphaCPs->m_Value.Get<ezVariantArray>();
+      ezVariantArray newCPs;
+
+      for (const auto& cpGuid : oldCPs)
+      {
+        auto* pOldCP = pGraph->GetNode(cpGuid.Get<ezUuid>());
+        if (pOldCP)
+        {
+          ezUuid newCPGuid = ezUuid::MakeUuid();
+          auto* pNewCP = pGraph->AddNode(newCPGuid, "ezColorGradientAlphaCP", 1);
+
+          pNewCP->AddProperty("Tick", pOldCP->FindProperty("Tick")->m_Value);
+          pNewCP->AddProperty("Alpha", pOldCP->FindProperty("Alpha")->m_Value);
+
+          newCPs.PushBack(newCPGuid);
+        }
+      }
+      pGradientNode->AddProperty("AlphaCPs", newCPs);
+    }
+
+    // Migrate IntensityCPs
+    auto* pIntensityCPs = pNode->FindProperty("IntensityCPs");
+    if (pIntensityCPs && pIntensityCPs->m_Value.IsA<ezVariantArray>())
+    {
+      const ezVariantArray& oldCPs = pIntensityCPs->m_Value.Get<ezVariantArray>();
+      ezVariantArray newCPs;
+
+      for (const auto& cpGuid : oldCPs)
+      {
+        auto* pOldCP = pGraph->GetNode(cpGuid.Get<ezUuid>());
+        if (pOldCP)
+        {
+          ezUuid newCPGuid = ezUuid::MakeUuid();
+          auto* pNewCP = pGraph->AddNode(newCPGuid, "ezColorGradientIntensityCP", 1);
+
+          pNewCP->AddProperty("Tick", pOldCP->FindProperty("Tick")->m_Value);
+          pNewCP->AddProperty("Intensity", pOldCP->FindProperty("Intensity")->m_Value);
+
+          newCPs.PushBack(newCPGuid);
+        }
+      }
+      pGradientNode->AddProperty("IntensityCPs", newCPs);
+    }
+
+    // Replace old structure with new
+    pNode->RemoveProperty("ColorCPs");
+    pNode->RemoveProperty("AlphaCPs");
+    pNode->RemoveProperty("IntensityCPs");
+    pNode->AddProperty("Gradient", gradientGuid);
+  }
+};
+
+ezColorGradientAssetDataPatch_2_3 g_ezColorGradientAssetDataPatch_2_3;

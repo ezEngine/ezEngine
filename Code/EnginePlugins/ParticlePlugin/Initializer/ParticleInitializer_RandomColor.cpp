@@ -9,11 +9,13 @@
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_RandomColor, 1, ezRTTIDefaultAllocator<ezParticleInitializerFactory_RandomColor>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_RandomColor, 3, ezRTTIDefaultAllocator<ezParticleInitializerFactory_RandomColor>)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_RESOURCE_MEMBER_PROPERTY("Gradient", m_hGradient)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Data_Gradient")),
+    EZ_ENUM_MEMBER_PROPERTY("GradientSource", ezGradientSource, m_GradientSource),
+    EZ_MEMBER_PROPERTY("Gradient", m_Gradient),
+    EZ_RESOURCE_MEMBER_PROPERTY("SharedGradient", m_hSharedGradient)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Data_Gradient")),
     EZ_MEMBER_PROPERTY("Color1", m_Color1)->AddAttributes(new ezDefaultValueAttribute(ezColor::White), new ezExposeColorAlphaAttribute()),
     EZ_MEMBER_PROPERTY("Color2", m_Color2)->AddAttributes(new ezDefaultValueAttribute(ezColor::White), new ezExposeColorAlphaAttribute()),
   }
@@ -34,19 +36,21 @@ void ezParticleInitializerFactory_RandomColor::CopyInitializerProperties(ezParti
 {
   ezParticleInitializer_RandomColor* pInitializer = static_cast<ezParticleInitializer_RandomColor*>(pInitializer0);
 
-  pInitializer->m_hGradient = m_hGradient;
+  pInitializer->m_pGradient = &m_Gradient;
   pInitializer->m_Color1 = m_Color1;
   pInitializer->m_Color2 = m_Color2;
 }
 
 void ezParticleInitializerFactory_RandomColor::Save(ezStreamWriter& inout_stream) const
 {
-  const ezUInt8 uiVersion = 1;
+  const ezUInt8 uiVersion = 2;
   inout_stream << uiVersion;
 
-  inout_stream << m_hGradient;
   inout_stream << m_Color1;
   inout_stream << m_Color2;
+  inout_stream << m_GradientSource;
+  inout_stream << m_hSharedGradient;
+  m_Gradient.Save(inout_stream);
 }
 
 void ezParticleInitializerFactory_RandomColor::Load(ezStreamReader& inout_stream)
@@ -54,9 +58,35 @@ void ezParticleInitializerFactory_RandomColor::Load(ezStreamReader& inout_stream
   ezUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
 
-  inout_stream >> m_hGradient;
+  if (uiVersion == 1)
+  {
+    // Old version: read the gradient handle
+    ezColorGradientResourceHandle hGradient;
+    inout_stream >> hGradient;
+
+    // Convert to new format using shared gradient
+    m_GradientSource = ezGradientSource::SharedGradient;
+    m_hSharedGradient = hGradient;
+  }
+
   inout_stream >> m_Color1;
   inout_stream >> m_Color2;
+
+  if (uiVersion >= 2)
+  {
+    inout_stream >> m_GradientSource;
+    inout_stream >> m_hSharedGradient;
+    m_Gradient.Load(inout_stream);
+  }
+
+  if (m_GradientSource == ezGradientSource::SharedGradient && m_hSharedGradient.IsValid())
+  {
+    ezResourceLock<ezColorGradientResource> pGradientResource(m_hSharedGradient, ezResourceAcquireMode::BlockTillLoaded);
+    if (pGradientResource.GetAcquireResult() == ezResourceAcquireResult::Final)
+    {
+      m_Gradient = pGradientResource->GetDescriptor().m_Gradient;
+    }
+  }
 }
 
 
@@ -73,7 +103,7 @@ void ezParticleInitializer_RandomColor::InitializeElements(ezUInt64 uiStartIndex
 
   ezRandom& rng = GetRNG();
 
-  if (!m_hGradient.IsValid())
+  if (m_pGradient == nullptr || m_pGradient->IsEmpty())
   {
     for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
     {
@@ -83,27 +113,17 @@ void ezParticleInitializer_RandomColor::InitializeElements(ezUInt64 uiStartIndex
   }
   else
   {
-    ezResourceLock<ezColorGradientResource> pResource(m_hGradient, ezResourceAcquireMode::BlockTillLoaded);
-
-    double fMinValue, fMaxValue;
-    const ezColorGradient& gradient = pResource->GetDescriptor().m_Gradient;
-    gradient.GetExtents(fMinValue, fMaxValue);
-
     ezColorGammaUB color;
     float intensity;
 
-    const bool bMulColor = (m_Color1 != ezColor::White) && (m_Color2 != ezColor::White);
+    const bool bMulColor = (m_Color1 != ezColor::White) || (m_Color2 != ezColor::White);
 
     for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
     {
-      const double f = rng.DoubleMinMax(fMinValue, fMaxValue);
-
-      gradient.Evaluate(f, color, intensity);
+      m_pGradient->Evaluate(rng.DoubleZeroToOneInclusive(), color, intensity);
 
       ezColor result = color;
-      result.r *= intensity;
-      result.g *= intensity;
-      result.b *= intensity;
+      result.ScaleRGB(intensity);
 
       if (bMulColor)
       {

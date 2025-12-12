@@ -1,5 +1,6 @@
 #include <GuiFoundation/GuiFoundationPCH.h>
 
+#include <Foundation/Tracks/ColorGradient.h>
 #include <Foundation/Tracks/CurveEditData.h>
 #include <GuiFoundation/PropertyGrid/Implementation/ExpressionPropertyWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/Implementation/PropertyWidget.moc.h>
@@ -145,6 +146,11 @@ static ezQtPropertyWidget* Curve1DTypeCreator(const ezRTTI* pRtti)
   return new ezQtPropertyEditorCurve1DWidget();
 }
 
+static ezQtPropertyWidget* ColorGradientTypeCreator(const ezRTTI* pRtti)
+{
+  return new ezQtPropertyEditorColorGradientWidget();
+}
+
 static ezQtPropertyWidget* ExpressionTypeCreator(const ezRTTI* pRtti)
 {
   return new ezQtPropertyEditorExpressionWidget();
@@ -199,6 +205,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, PropertyGrid)
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezTagSetWidgetAttribute>(), TagSetCreator);
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVarianceTypeBase>(), VarianceTypeCreator);
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezSingleCurveData>(), Curve1DTypeCreator);
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezColorGradient>(), ColorGradientTypeCreator);
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezExpressionWidgetAttribute>(), ExpressionTypeCreator);
   }
 
@@ -241,6 +248,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, PropertyGrid)
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezTagSetWidgetAttribute>());
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezVarianceTypeBase>());
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezSingleCurveData>());
+    ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezColorGradient>());
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezExpressionWidgetAttribute>());
   }
 

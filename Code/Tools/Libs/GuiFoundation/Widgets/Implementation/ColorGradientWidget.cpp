@@ -193,7 +193,6 @@ void ezQtColorGradientWidget::PaintColorGradient(QPainter& p) const
 
   ezColorGradient GradientFinal;
   GradientFinal = *m_pColorGradientData;
-  GradientFinal.SortControlPoints();
 
   p.drawTiledPixmap(GradientArea, m_AlphaPattern);
 
@@ -428,8 +427,7 @@ void ezQtColorGradientWidget::PaintColorCPs(QPainter& p) const
 
     const bool selected = (i == m_iSelectedColorCP);
 
-    PaintControlPoint(
-      p, area, cp.m_PosX, selected ? ezColor::White : ezColor::Black, ezColorGammaUB(cp.m_GammaRed, cp.m_GammaGreen, cp.m_GammaBlue), selected);
+    PaintControlPoint(p, area, ezColorGradient::TickToTime(cp.m_iTick), selected ? ezColor::White : ezColor::Black, ezColorGammaUB(cp.m_GammaRed, cp.m_GammaGreen, cp.m_GammaBlue), selected);
   }
 }
 
@@ -452,7 +450,7 @@ void ezQtColorGradientWidget::PaintAlphaCPs(QPainter& p) const
 
     const bool selected = i == m_iSelectedAlphaCP;
 
-    PaintControlPoint(p, area, cp.m_PosX, selected ? ezColor::White : ezColor::Black, ezColorGammaUB(cp.m_Alpha, cp.m_Alpha, cp.m_Alpha), selected);
+    PaintControlPoint(p, area, ezColorGradient::TickToTime(cp.m_iTick), selected ? ezColor::White : ezColor::Black, ezColorGammaUB(cp.m_Alpha, cp.m_Alpha, cp.m_Alpha), selected);
   }
 }
 
@@ -484,7 +482,7 @@ void ezQtColorGradientWidget::PaintIntensityCPs(QPainter& p) const
     const bool selected = i == m_iSelectedIntensityCP;
 
     float fIntensity = cp.m_Intensity * fInvMaxIntensity;
-    PaintControlPoint(p, area, cp.m_PosX, selected ? ezColor::White : ezColor::Black, ezColor(fIntensity, fIntensity, fIntensity), selected);
+    PaintControlPoint(p, area, ezColorGradient::TickToTime(cp.m_iTick), selected ? ezColor::White : ezColor::Black, ezColor(fIntensity, fIntensity, fIntensity), selected);
   }
 }
 
@@ -895,7 +893,7 @@ ezInt32 ezQtColorGradientWidget::FindClosestColorCp(ezInt32 iWindowPosX) const
   {
     const auto& cp = m_pColorGradientData->GetColorControlPoint(i);
 
-    const ezInt32 iCpPos = GradientToWindowCoord(cp.m_PosX);
+    const ezInt32 iCpPos = GradientToWindowCoord(ezColorGradient::TickToTime(cp.m_iTick));
     const ezInt32 iDist = ezMath::Abs(iCpPos - iWindowPosX);
 
     if (iDist < iBestDistance)
@@ -922,7 +920,7 @@ ezInt32 ezQtColorGradientWidget::FindClosestAlphaCp(ezInt32 iWindowPosX) const
   {
     const auto& cp = m_pColorGradientData->GetAlphaControlPoint(i);
 
-    const ezInt32 iCpPos = GradientToWindowCoord(cp.m_PosX);
+    const ezInt32 iCpPos = GradientToWindowCoord(ezColorGradient::TickToTime(cp.m_iTick));
     const ezInt32 iDist = ezMath::Abs(iCpPos - iWindowPosX);
 
     if (iDist < iBestDistance)
@@ -949,7 +947,7 @@ ezInt32 ezQtColorGradientWidget::FindClosestIntensityCp(ezInt32 iWindowPosX) con
   {
     const auto& cp = m_pColorGradientData->GetIntensityControlPoint(i);
 
-    const ezInt32 iCpPos = GradientToWindowCoord(cp.m_PosX);
+    const ezInt32 iCpPos = GradientToWindowCoord(ezColorGradient::TickToTime(cp.m_iTick));
     const ezInt32 iDist = ezMath::Abs(iCpPos - iWindowPosX);
 
     if (iDist < iBestDistance)
@@ -1034,7 +1032,6 @@ void ezQtColorGradientWidget::EvaluateAt(ezInt32 windowPos, ezColorGammaUB& rgba
 {
   ezColorGradient GradientFinal;
   GradientFinal = *m_pColorGradientData;
-  GradientFinal.SortControlPoints();
 
   const double range = m_fDisplayExtentMaxX - m_fDisplayExtentMinX;
 

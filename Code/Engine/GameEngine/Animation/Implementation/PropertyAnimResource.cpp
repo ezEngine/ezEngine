@@ -131,7 +131,6 @@ void ezPropertyAnimResourceDescriptor::Save(ezStreamWriter& inout_stream) const
     inout_stream << m_ColorAnimations[i].m_Target;
 
     tmpGradient = m_ColorAnimations[i].m_Gradient;
-    tmpGradient.SortControlPoints();
     tmpGradient.Save(inout_stream);
   }
 

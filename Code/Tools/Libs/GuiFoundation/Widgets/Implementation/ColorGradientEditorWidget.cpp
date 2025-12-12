@@ -1,6 +1,5 @@
 #include <GuiFoundation/GuiFoundationPCH.h>
 
-#include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <GuiFoundation/Widgets/ColorGradientEditorWidget.moc.h>
 
 ezQtColorGradientEditorWidget::ezQtColorGradientEditorWidget(QWidget* pParent)
@@ -93,7 +92,7 @@ void ezQtColorGradientEditorWidget::SetColorGradient(const ezColorGradient& grad
 
 void ezQtColorGradientEditorWidget::SetScrubberPosition(ezUInt64 uiTick)
 {
-  GradientWidget->SetScrubberPosition(uiTick / 4800.0);
+  GradientWidget->SetScrubberPosition(ezColorGradient::TickToTime(uiTick));
 }
 
 void ezQtColorGradientEditorWidget::FrameGradient()
@@ -109,6 +108,13 @@ void ezQtColorGradientEditorWidget::on_ButtonFrame_clicked()
 
 void ezQtColorGradientEditorWidget::on_GradientWidget_selectionChanged(ezInt32 colorCP, ezInt32 alphaCP, ezInt32 intensityCP)
 {
+  // End any temporary command when selection changes
+  if (m_bTemporaryTransaction)
+  {
+    Q_EMIT EndOperation(true);
+    m_bTemporaryTransaction = false;
+  }
+
   m_iSelectedColorCP = colorCP;
   m_iSelectedAlphaCP = alphaCP;
   m_iSelectedIntensityCP = intensityCP;
@@ -128,9 +134,16 @@ void ezQtColorGradientEditorWidget::on_GradientWidget_selectionChanged(ezInt32 c
   UpdateCpUi();
 }
 
-
 void ezQtColorGradientEditorWidget::on_SpinPosition_valueChanged(double value)
 {
+  if (!m_bTemporaryTransaction)
+  {
+    Q_EMIT BeginOperation();
+    m_bTemporaryTransaction = true;
+  }
+
+  value = ezColorGradient::SnapTimeToTick(value);
+
   if (m_iSelectedColorCP != -1)
   {
     Q_EMIT ColorCpMoved(m_iSelectedColorCP, value);
@@ -143,6 +156,16 @@ void ezQtColorGradientEditorWidget::on_SpinPosition_valueChanged(double value)
   {
     Q_EMIT IntensityCpMoved(m_iSelectedIntensityCP, value);
   }
+}
+
+void ezQtColorGradientEditorWidget::on_SpinPosition_editingFinished()
+{
+  if (m_bTemporaryTransaction)
+  {
+    Q_EMIT EndOperation(true);
+  }
+
+  m_bTemporaryTransaction = false;
 }
 
 
@@ -176,10 +199,26 @@ void ezQtColorGradientEditorWidget::on_SliderAlpha_sliderReleased()
 
 void ezQtColorGradientEditorWidget::on_SpinIntensity_valueChanged(double value)
 {
+  if (!m_bTemporaryTransaction)
+  {
+    Q_EMIT BeginOperation();
+    m_bTemporaryTransaction = true;
+  }
+
   if (m_iSelectedIntensityCP != -1)
   {
     Q_EMIT IntensityCpChanged(m_iSelectedIntensityCP, value);
   }
+}
+
+void ezQtColorGradientEditorWidget::on_SpinIntensity_editingFinished()
+{
+  if (m_bTemporaryTransaction)
+  {
+    Q_EMIT EndOperation(true);
+  }
+
+  m_bTemporaryTransaction = false;
 }
 
 
@@ -247,11 +286,16 @@ void ezQtColorGradientEditorWidget::UpdateCpUi()
   ezQtScopedBlockSignals bs(this);
   ezQtScopedUpdatesDisabled ud(this);
 
+  ezQtScopedBlockSignals bs2(SpinPosition);
+  ezQtScopedBlockSignals bs3(SpinAlpha);
+  ezQtScopedBlockSignals bs4(SliderAlpha);
+  ezQtScopedBlockSignals bs5(SpinIntensity);
+
   if (m_iSelectedColorCP != -1)
   {
     const auto& cp = m_Gradient.GetColorControlPoint(m_iSelectedColorCP);
 
-    SpinPosition->setValue(cp.m_PosX);
+    SpinPosition->setValue(ezColorGradient::TickToTime(cp.m_iTick));
 
     QColor col;
     col.setRgb(cp.m_GammaRed, cp.m_GammaGreen, cp.m_GammaBlue);
@@ -263,14 +307,14 @@ void ezQtColorGradientEditorWidget::UpdateCpUi()
 
   if (m_iSelectedAlphaCP != -1)
   {
-    SpinPosition->setValue(m_Gradient.GetAlphaControlPoint(m_iSelectedAlphaCP).m_PosX);
+    SpinPosition->setValue(ezColorGradient::TickToTime(m_Gradient.GetAlphaControlPoint(m_iSelectedAlphaCP).m_iTick));
     SpinAlpha->setValue(m_Gradient.GetAlphaControlPoint(m_iSelectedAlphaCP).m_Alpha);
     SliderAlpha->setValue(m_Gradient.GetAlphaControlPoint(m_iSelectedAlphaCP).m_Alpha);
   }
 
   if (m_iSelectedIntensityCP != -1)
   {
-    SpinPosition->setValue(m_Gradient.GetIntensityControlPoint(m_iSelectedIntensityCP).m_PosX);
+    SpinPosition->setValue(ezColorGradient::TickToTime(m_Gradient.GetIntensityControlPoint(m_iSelectedIntensityCP).m_iTick));
     SpinIntensity->setValue(m_Gradient.GetIntensityControlPoint(m_iSelectedIntensityCP).m_Intensity);
   }
 }

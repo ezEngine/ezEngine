@@ -431,3 +431,47 @@ protected:
   ezQtCurve1DButtonWidget* m_pButton = nullptr;
   ezCopyOnBroadcastEvent<const ezDocumentObjectPropertyEvent&>::Unsubscriber m_Unsub;
 };
+
+/// *** COLOR GRADIENT ***
+
+class EZ_GUIFOUNDATION_DLL ezQtColorGradientButtonWidget : public QLabel
+{
+  Q_OBJECT
+
+public:
+  explicit ezQtColorGradientButtonWidget(QWidget* pParent);
+
+  void UpdatePreview(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pGradientObject);
+
+Q_SIGNALS:
+  void clicked();
+
+protected:
+  virtual void mouseReleaseEvent(QMouseEvent* event) override;
+};
+
+class EZ_GUIFOUNDATION_DLL ezQtPropertyEditorColorGradientWidget : public ezQtPropertyWidget
+{
+  Q_OBJECT
+
+public:
+  ezQtPropertyEditorColorGradientWidget();
+
+private Q_SLOTS:
+  void on_Button_triggered();
+
+protected:
+  virtual void SetSelection(const ezHybridArray<ezPropertySelection, 8>& items) override;
+  virtual void OnInit() override;
+  virtual void DoPrepareToDie() override;
+  void UpdatePreview();
+  void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
+  void ObjectEventHandler(const ezDocumentObjectEvent& e);
+
+
+protected:
+  QHBoxLayout* m_pLayout = nullptr;
+  ezQtColorGradientButtonWidget* m_pButton = nullptr;
+  ezCopyOnBroadcastEvent<const ezDocumentObjectPropertyEvent&>::Unsubscriber m_Unsub;
+  ezEvent<const ezDocumentObjectEvent&>::Unsubscriber m_Unsub2;
+};

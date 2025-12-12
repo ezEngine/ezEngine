@@ -1,7 +1,9 @@
 #include <GuiFoundation/GuiFoundationPCH.h>
 
 #include <Foundation/Strings/TranslationLookup.h>
+#include <Foundation/Tracks/ColorGradient.h>
 #include <Foundation/Tracks/CurveEditData.h>
+#include <GuiFoundation/Dialogs/ColorGradientEditDlg.moc.h>
 #include <GuiFoundation/Dialogs/CurveEditDlg.moc.h>
 #include <GuiFoundation/PropertyGrid/Implementation/PropertyWidget.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
@@ -1871,8 +1873,8 @@ void ezQtCurve1DButtonWidget::UpdatePreview(ezObjectAccessorBase* pObjectAccesso
   ezHybridArray<ezVec2d, 32> points;
   points.Reserve(iNumPoints);
 
-  double minX = fLowerExtents * 4800.0;
-  double maxX = fUpperExtents * 4800.0;
+  double minX = static_cast<double>(ezColorGradient::TimeToTick(fLowerExtents));
+  double maxX = static_cast<double>(ezColorGradient::TimeToTick(fUpperExtents));
 
   double minY = fLowerRange;
   double maxY = fUpperRange;
@@ -2089,5 +2091,200 @@ void ezQtPropertyEditorCurve1DWidget::on_Button_triggered()
     // m_pObjectAccessor->GetObjectManager()->GetDocument()->GetCommandHistory()->CancelTransaction();
   }
 
+  delete pDlg;
+}
+
+
+/// *** COLOR GRADIENT ***
+
+ezQtColorGradientButtonWidget::ezQtColorGradientButtonWidget(QWidget* pParent)
+  : QLabel(pParent)
+{
+  setAutoFillBackground(true);
+  setCursor(Qt::PointingHandCursor);
+  setScaledContents(true);
+  setMinimumHeight(24);
+}
+
+void ezQtColorGradientButtonWidget::UpdatePreview(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pGradientObject)
+{
+  if (pGradientObject == nullptr)
+  {
+    setPixmap(QPixmap());
+    return;
+  }
+
+  // Reconstruct gradient from document object
+  ezColorGradient gradient;
+
+  // Read ColorCPs array
+  ezInt32 iNumColorCPs = 0;
+  pObjectAccessor->GetCountByName(pGradientObject, "ColorCPs", iNumColorCPs).AssertSuccess();
+
+  for (ezInt32 i = 0; i < iNumColorCPs; ++i)
+  {
+    const ezDocumentObject* pCP = pObjectAccessor->GetChildObjectByName(pGradientObject, "ColorCPs", i);
+    ezVariant v;
+
+    pObjectAccessor->GetValueByName(pCP, "Tick", v).AssertSuccess();
+    ezInt64 tick = v.ConvertTo<ezInt64>();
+
+    pObjectAccessor->GetValueByName(pCP, "Red", v).AssertSuccess();
+    ezUInt8 r = v.ConvertTo<ezUInt8>();
+    pObjectAccessor->GetValueByName(pCP, "Green", v).AssertSuccess();
+    ezUInt8 g = v.ConvertTo<ezUInt8>();
+    pObjectAccessor->GetValueByName(pCP, "Blue", v).AssertSuccess();
+    ezUInt8 b = v.ConvertTo<ezUInt8>();
+
+    gradient.AddColorControlPoint(ezColorGradient::TickToTime(tick), ezColorGammaUB(r, g, b));
+  }
+
+  // Read AlphaCPs array
+  ezInt32 iNumAlphaCPs = 0;
+  pObjectAccessor->GetCountByName(pGradientObject, "AlphaCPs", iNumAlphaCPs).AssertSuccess();
+
+  for (ezInt32 i = 0; i < iNumAlphaCPs; ++i)
+  {
+    const ezDocumentObject* pCP = pObjectAccessor->GetChildObjectByName(pGradientObject, "AlphaCPs", i);
+    ezVariant v;
+
+    pObjectAccessor->GetValueByName(pCP, "Tick", v).AssertSuccess();
+    ezInt64 tick = v.ConvertTo<ezInt64>();
+    pObjectAccessor->GetValueByName(pCP, "Alpha", v).AssertSuccess();
+    ezUInt8 alpha = v.ConvertTo<ezUInt8>();
+
+    gradient.AddAlphaControlPoint(ezColorGradient::TickToTime(tick), alpha);
+  }
+
+  // Read IntensityCPs array
+  ezInt32 iNumIntensityCPs = 0;
+  pObjectAccessor->GetCountByName(pGradientObject, "IntensityCPs", iNumIntensityCPs).AssertSuccess();
+
+  for (ezInt32 i = 0; i < iNumIntensityCPs; ++i)
+  {
+    const ezDocumentObject* pCP = pObjectAccessor->GetChildObjectByName(pGradientObject, "IntensityCPs", i);
+    ezVariant v;
+
+    pObjectAccessor->GetValueByName(pCP, "Tick", v).AssertSuccess();
+    ezInt64 tick = v.ConvertTo<ezInt64>();
+    pObjectAccessor->GetValueByName(pCP, "Intensity", v).AssertSuccess();
+    float intensity = v.ConvertTo<float>();
+
+    gradient.AddIntensityControlPoint(ezColorGradient::TickToTime(tick), intensity);
+  }
+
+  // Generate preview image
+  const int pW = 64;
+  const int pH = 24;
+
+  QPixmap pixmap(pW, pH);
+  QPainter pt(&pixmap);
+
+  pt.fillRect(0, 0, pW, pH, Qt::white);
+
+  if (!gradient.IsEmpty())
+  {
+    // Draw gradient preview
+    for (int x = 0; x < pW; ++x)
+    {
+      const double t = (double)x / (double)(pW - 1);
+
+      ezColorGammaUB rgba;
+      float fIntensity;
+      gradient.Evaluate(t, rgba, fIntensity);
+
+      // Apply intensity to get final color
+      ezColor hdrColor = rgba;
+      hdrColor.r *= fIntensity;
+      hdrColor.g *= fIntensity;
+      hdrColor.b *= fIntensity;
+
+      // Convert to LDR for display
+      ezColorGammaUB ldrColor = hdrColor;
+
+      pt.setPen(QColor(ldrColor.r, ldrColor.g, ldrColor.b, ldrColor.a));
+      pt.drawLine(x, 0, x, pH);
+    }
+  }
+
+  setPixmap(pixmap);
+}
+
+void ezQtColorGradientButtonWidget::mouseReleaseEvent(QMouseEvent* event)
+{
+  Q_EMIT clicked();
+}
+
+
+ezQtPropertyEditorColorGradientWidget::ezQtPropertyEditorColorGradientWidget()
+  : ezQtPropertyWidget()
+{
+  m_pLayout = new QHBoxLayout(this);
+  m_pLayout->setContentsMargins(0, 0, 0, 0);
+  setLayout(m_pLayout);
+
+  m_pButton = new ezQtColorGradientButtonWidget(this);
+  m_pButton->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
+
+  m_pLayout->addWidget(m_pButton);
+
+  EZ_VERIFY(connect(m_pButton, SIGNAL(clicked()), this, SLOT(on_Button_triggered())) != nullptr, "signal/slot connection failed");
+}
+
+void ezQtPropertyEditorColorGradientWidget::SetSelection(const ezHybridArray<ezPropertySelection, 8>& items)
+{
+  ezQtPropertyWidget::SetSelection(items);
+  UpdatePreview();
+}
+
+void ezQtPropertyEditorColorGradientWidget::OnInit()
+{
+  m_pObjectAccessor->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyEditorColorGradientWidget::PropertyEventHandler, this), m_Unsub);
+  m_pObjectAccessor->GetObjectManager()->m_ObjectEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyEditorColorGradientWidget::ObjectEventHandler, this), m_Unsub2);
+}
+
+void ezQtPropertyEditorColorGradientWidget::DoPrepareToDie()
+{
+  m_Unsub.Unsubscribe();
+  m_Unsub2.Unsubscribe();
+}
+
+void ezQtPropertyEditorColorGradientWidget::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+{
+  if (IsUndead())
+    return;
+
+  UpdatePreview();
+}
+
+void ezQtPropertyEditorColorGradientWidget::ObjectEventHandler(const ezDocumentObjectEvent& e)
+{
+  if (IsUndead())
+    return;
+
+  UpdatePreview();
+}
+
+void ezQtPropertyEditorColorGradientWidget::UpdatePreview()
+{
+  if (m_Items.IsEmpty())
+    return;
+
+  const ezDocumentObject* pParent = m_Items[0].m_pObject;
+  const ezDocumentObject* pGradient = m_pObjectAccessor->GetChildObjectByName(pParent, m_pProp->GetPropertyName(), {});
+
+  m_pButton->UpdatePreview(m_pObjectAccessor, pGradient);
+}
+
+void ezQtPropertyEditorColorGradientWidget::on_Button_triggered()
+{
+  const ezDocumentObject* pParent = m_Items[0].m_pObject;
+  const ezDocumentObject* pGradient = m_pObjectAccessor->GetChildObjectByName(pParent, m_pProp->GetPropertyName(), {});
+
+  ezStringBuilder sTitle = ezTranslate(m_pProp->GetPropertyName());
+  ezQtColorGradientEditDlg* pDlg = new ezQtColorGradientEditDlg(m_pObjectAccessor, pGradient, this, sTitle);
+  pDlg->restoreGeometry(ezQtColorGradientEditDlg::GetLastDialogGeometry());
+
+  pDlg->exec();
   delete pDlg;
 }
