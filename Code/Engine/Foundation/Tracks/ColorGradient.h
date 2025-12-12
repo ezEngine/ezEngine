@@ -29,7 +29,7 @@ struct EZ_FOUNDATION_DLL ezColorGradientAlphaCP
 {
   EZ_DECLARE_POD_TYPE();
 
-  ezInt64 m_iTick; ///< Position in time. 4800 ticks per second.
+  ezInt64 m_iTick;                  ///< Position in time. 4800 ticks per second.
   ezUInt8 m_Alpha;
   mutable float m_fInvDistToNextCp; ///< Cached 1/distance to next control point for faster interpolation
 
@@ -43,7 +43,7 @@ struct EZ_FOUNDATION_DLL ezColorGradientIntensityCP
 {
   EZ_DECLARE_POD_TYPE();
 
-  ezInt64 m_iTick; ///< Position in time. 4800 ticks per second.
+  ezInt64 m_iTick;                  ///< Position in time. 4800 ticks per second.
   float m_Intensity;
   mutable float m_fInvDistToNextCp; ///< Cached 1/distance to next control point for faster interpolation
 
