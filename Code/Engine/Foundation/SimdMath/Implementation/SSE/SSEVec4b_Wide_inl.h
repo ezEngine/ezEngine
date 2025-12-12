@@ -95,7 +95,7 @@ EZ_ALWAYS_INLINE ezSimdVec4bWide ezSimdVec4bWide::Get() const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
   ezSimdVec4bWide result;
-  EZ_WIDE_SWIZZLE_AVX1(m_v, s, result.m_v);
+  EZ_WIDE_SHUFFLE_AVX1(m_v, m_v, EZ_TO_SHUFFLE(s), result.m_v);
   return result;
 #else
   ezSimdVec4bWide result;
