@@ -1,5 +1,6 @@
 #include <GuiFoundation/GuiFoundationPCH.h>
 
+#include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <GuiFoundation/Widgets/ColorGradientEditorWidget.moc.h>
 
 ezQtColorGradientEditorWidget::ezQtColorGradientEditorWidget(QWidget* pParent)
@@ -233,8 +234,7 @@ void ezQtColorGradientEditorWidget::on_ButtonColor_clicked()
 
     Q_EMIT BeginOperation();
 
-    ezQtUiServices::GetSingleton()->ShowColorDialog(
-      m_PickColorStart, false, false, this, SLOT(onCurrentColorChanged(const ezColor&)), SLOT(onColorAccepted()), SLOT(onColorReset()));
+    ezQtUiServices::GetSingleton()->ShowColorDialog(m_PickColorStart, false, false, this, SLOT(onCurrentColorChanged(const ezColor&)), SLOT(onColorAccepted()), SLOT(onColorReset()));
   }
 }
 
