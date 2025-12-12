@@ -135,8 +135,8 @@ do { \
   __m256d tmp2 = _mm256_unpacklo_pd((row2), (row3)); \
   __m256d tmp3 = _mm256_unpackhi_pd((row2), (row3)); \
   (row0) = _mm256_permute2f128_pd(tmp0, tmp2, 0x20); \
-  (row1) = _mm256_permute2f128_pd(tmp0, tmp2, 0x31); \
-  (row2) = _mm256_permute2f128_pd(tmp1, tmp3, 0x20); \
+  (row2) = _mm256_permute2f128_pd(tmp0, tmp2, 0x31); \
+  (row1) = _mm256_permute2f128_pd(tmp1, tmp3, 0x20); \
   (row3) = _mm256_permute2f128_pd(tmp1, tmp3, 0x31); \
 } while (0)
 
