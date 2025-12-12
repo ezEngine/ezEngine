@@ -418,7 +418,13 @@ EZ_ALWAYS_INLINE ezSimdDouble ezSimdVec4d::GetComponent() const
 {
   ezSimdDouble result;
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
-  result.m_v = _mm256_shuffle_pd(m_v, m_v, EZ_SHUFFLE(N, N, N, N));
+
+  const int lane_selector = 0x11 * (N >> 1); 
+  const int permute_mask = 0xF * (N & 1);     
+
+  result.m_v = _mm256_permute2f128_pd(m_v, m_v, lane_selector);
+  result.m_v = _mm256_permute_pd(result.m_v, permute_mask);
+
   return result;
 #else
 

@@ -100,6 +100,7 @@ EZ_ALWAYS_INLINE void EZ_WIDE_SHUFFLE_SSE(__m128d aLow, __m128d aHigh, __m128d b
 /// \brief Shuffles doubles in the same manner as _mm_shuffle_ps but for doubles using avx1 intrinsics on high and low parts.
 EZ_ALWAYS_INLINE void EZ_WIDE_SWIZZLE_AVX1(__m256d a, ezSwizzle::Enum swizzle, __m256d& out)
 {
+  /// \todo use direct intrinsics. - remove EZ_WIDE_SHUFFLE_SSE
   __m128d a_lo = _mm256_castpd256_pd128(a);
   __m128d a_hi = _mm256_extractf128_pd(a, 1);
   __m128d out_lo;

@@ -10,7 +10,7 @@ EZ_ALWAYS_INLINE ezSimdVec4bWide::ezSimdVec4bWide(bool b)
   EZ_CHECK_SIMD_ALIGNMENT(this);
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
 
-  alignas(16) ezUInt64 mask[4] = {b ? 0xFFFFFFFFFFFFFFFFULL : 0, b ? 0xFFFFFFFFFFFFFFFFULL : 0, b ? 0xFFFFFFFFFFFFFFFFULL : 0, b ? 0xFFFFFFFFFFFFFFFFULL : 0};
+  alignas(32) ezUInt64 mask[4] = {b ? 0xFFFFFFFFFFFFFFFFULL : 0, b ? 0xFFFFFFFFFFFFFFFFULL : 0, b ? 0xFFFFFFFFFFFFFFFFULL : 0, b ? 0xFFFFFFFFFFFFFFFFULL : 0};
   m_v = _mm256_load_pd((double*)mask);
 
 
