@@ -18,9 +18,16 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4bWide)
     static_assert(sizeof(ezSimdVec4bWide) == 32);
     static_assert(alignof(ezSimdVec4bWide) == 32);
 #else
+
     static_assert(sizeof(ezSimdVec4bWide) == 32);
+
+#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
     static_assert(alignof(ezSimdVec4bWide) == 16);
+#elif EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_FPU
+    static_assert(alignof(ezSimdVec4bWide) == 8);
 #endif
+
+    #endif
 
     ezSimdVec4bWide vInit1B(true);
     EZ_TEST_BOOL(vInit1B.x() == true && vInit1B.y() == true && vInit1B.z() == true && vInit1B.w() == true);
@@ -35,6 +42,8 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4bWide)
       && vals[2] == 0xFFFFFFFFFFFFFFFFULL
       && vals[3] == 0xFFFFFFFFFFFFFFFFULL);
 #else
+
+#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
     alignas(16) ezUInt64 valsXY[2];
     alignas(16) ezUInt64 valsZW[2];
     _mm_store_si128((__m128i*)valsXY, _mm_castpd_si128(vInit1B.m_v.xy));
@@ -44,6 +53,8 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4bWide)
       && valsXY[1] == 0xFFFFFFFFFFFFFFFFULL
       && valsZW[0] == 0xFFFFFFFFFFFFFFFFULL
       && valsZW[1] == 0xFFFFFFFFFFFFFFFFULL);
+#endif
+
 #endif
 
     ezSimdVec4bWide vInit4B(false, true, false, true);
@@ -57,6 +68,8 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4bWide)
       && vals[2] == 0
       && vals[3] == 0xFFFFFFFFFFFFFFFFULL);
 #else
+
+#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
     _mm_store_si128((__m128i*)valsXY, _mm_castpd_si128(vInit4B.m_v.xy));
     _mm_store_si128((__m128i*)valsZW, _mm_castpd_si128(vInit4B.m_v.zw));
     
@@ -64,6 +77,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4bWide)
       && valsXY[1] == 0xFFFFFFFFFFFFFFFFULL
       && valsZW[0] == 0
       && valsZW[1] == 0xFFFFFFFFFFFFFFFFULL);
+#endif
 #endif
 
     ezSimdVec4bWide vCopy(vInit4B);
