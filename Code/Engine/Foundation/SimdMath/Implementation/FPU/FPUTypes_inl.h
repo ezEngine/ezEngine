@@ -9,4 +9,5 @@ namespace ezInternal
   using QuadInt = ezVec4I32;
   using QuadUInt = ezVec4U32;
   using QuadBool = ezVec4U32;
+  using QuadBoolWide = ezVec4U64;
 } // namespace ezInternal
