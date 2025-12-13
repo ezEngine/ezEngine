@@ -195,11 +195,11 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4d)
 #if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && EZ_ENABLED(EZ_COMPILER_MSVC)
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
     EZ_TEST_BOOL(
-      vInit4D.m_v.zw.m128_f32[0] == 1.0 && vInit4D.m_v.zw.m128_f32[1] == 2.0 && vInit4D.m_v.zw.m128_f32[2] == 3.0 && vInit4D.m_v.zw.m128_f32[3] == 4.0);
+      vInit4D.m_v.m256d_f64[0] == 1.0 && vInit4D.m_v.m256d_f64[1] == 2.0 && vInit4D.m_v.m256d_f64[2] == 3.0 && vInit4D.m_v.m256d_f64[3] == 4.0);
 
 #else
     EZ_TEST_BOOL(
-      vInit4D.m_v.xy.m128_f32[0] == 1.0 && vInit4D.m_v.xy.m128_f32[1] == 2.0 && vInit4D.m_v.zw.m128_f32[2] == 3.0 && vInit4D.m_v.zw.m128_f32[3] == 4.0);
+      vInit4D.m_v.xy.m128d_f64[0] == 1.0 && vInit4D.m_v.xy.m128d_f64[1] == 2.0 && vInit4D.m_v.zw.m128d_f64[0] == 3.0 && vInit4D.m_v.zw.m128d_f64[1] == 4.0);
 
 #endif
 #endif
@@ -276,7 +276,11 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4d)
 
       // Make sure all components have the correct values
 #if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && EZ_ENABLED(EZ_COMPILER_MSVC)
-      EZ_TEST_BOOL(xyzw.m_v.m128_f32[0] == 1.0 && xyzw.m_v.m128_f32[1] == 2.0 && xyzw.m_v.m128_f32[2] == 3.0 && xyzw.m_v.m128_f32[3] == 4.0);
+#if EZ_SSE_LEVEL >= EZ_SSE_AVX
+      EZ_TEST_BOOL(xyzw.m_v.m256d_f64[0] == 1.0 && xyzw.m_v.m256d_f64[1] == 2.0 && xyzw.m_v.m256d_f64[2] == 3.0 && xyzw.m_v.m256d_f64[3] == 4.0);
+#else
+      EZ_TEST_BOOL(xyzw.m_v.xy.m128d_f64[0] == 1.0 && xyzw.m_v.xy.m128d_f64[1] == 2.0 && xyzw.m_v.zw.m128d_f64[0] == 3.0 && xyzw.m_v.zw.m128d_f64[1] == 4.0);
+#endif
 #endif
     }
 
