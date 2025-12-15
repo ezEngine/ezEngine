@@ -105,10 +105,15 @@ class ScriptObject : ezAngelScriptClass
                 gunSpawnComp.ScheduleSpawn();
             }
 
-            ezFmodEventComponent@ gunSoundComp;
-            if (GetWorld().TryGetComponent(gunSound, @gunSoundComp))
-            {
-                gunSoundComp.StartOneShot();
+            auto projectile = gunSpawnComp.GetOwner().FindChildByName("", false);
+            if (projectile != null) {
+                projectile.SetName("ProjectileFired");
+
+                ezFmodEventComponent@ gunSoundComp;
+                if (GetWorld().TryGetComponent(gunSound, @gunSoundComp))
+                {
+                    gunSoundComp.StartOneShot();
+                }
             }
         }
     }
