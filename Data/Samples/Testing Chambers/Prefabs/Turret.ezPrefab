@@ -21,7 +21,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{1604195568484542123,4944665773883242456}}
-		u4 %Hash{6527603139026335072}
+		u4 %Hash{3365050637038519861}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{16908388746444736056,1615420986808674110}}
@@ -138,7 +138,7 @@ o
 	p
 	{
 		b %Active{1}
-		b %AttachAsChild{1}
+		b %AttachAsChild{0}
 		Time %DelayRange{d{0}}
 		Angle %Deviation{f{0xDE35FA3D}}
 		Time %MinDelay{d{0x333333333333D33F}}
@@ -218,11 +218,11 @@ o
 		f %OcclusionThreshold{0x0000003F}
 		s %OnFinishedAction{"ezOnComponentFinishedAction::None"}
 		b %Paused{1}
-		f %Pitch{0x00004040}
+		f %Pitch{0x00000040}
 		b %ShowDebugInfo{0}
 		s %SoundEvent{"{ a23314a9-b6dd-4d21-adce-ff4ed20974c6 }"}
 		b %UseOcclusion{0}
-		f %Volume{0x0000003F}
+		f %Volume{0xCDCC4C3F}
 	}
 }
 o
