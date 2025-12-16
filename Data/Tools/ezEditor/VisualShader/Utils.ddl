@@ -85,6 +85,19 @@ Node %DepthFade
   }
 }
 
+Node %PixelDepth
+{
+  string %Category { "Utils" }
+  string %Color { "Green" }
+  string %Docs { "Returns the depth at the current pixel." }
+ 
+  OutputPin %Depth
+  {
+    string %Type { "float" }
+    string %Inline { "G.Input.Position.w" }
+  }
+}
+
 Node %Fresnel
 {
   string %Category { "Utils" }
