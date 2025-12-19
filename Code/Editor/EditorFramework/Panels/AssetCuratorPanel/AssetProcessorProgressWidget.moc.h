@@ -40,6 +40,7 @@ protected:
 private Q_SLOTS:
   void OnUpdateTimer();
   void OnClearHistory();
+  void OnHistoryChanged();
 
 private:
   enum class EditState
@@ -59,6 +60,7 @@ private:
 
   void OnProgressEvent(const ezAssetProcessorProgressEvent& e);
   void OnProcessorEvent(const ezAssetProcessorEvent& e);
+
   void DrawTimeline(QPainter& painter);
   void DrawProcessorRow(QPainter& painter, ezUInt32 uiProcessorID, int y, int rowHeight);
   QString GetShortAssetName(const ezString& sPath) const;
@@ -67,20 +69,27 @@ private:
   QRectF ComputeViewportSceneRect() const;
   ezTime GetLatestTaskTime() const;
 
+  mutable ezMutex m_HistoryMutex; // Protects m_ProcessorHistory from concurrent access
   ezUInt32 m_uiMaxProcessors = 0;
   ezDynamicArray<ezDynamicArray<ProcessorTask>> m_ProcessorHistory; // [processor][task history]
+  // Rendering the current time is a bit cumbersome so we instead subtract an offset to make the graph start at zero seconds.
+  bool m_bCurrentOffsetValid = false;
+  ezTime m_CurrentOffset;
+
   QTimer* m_pUpdateTimer = nullptr;
   QPushButton* m_pClearButton = nullptr;
   ezQGridBarWidget* m_pGridBar = nullptr;
-  
+
   // Display and interaction settings
   EditState m_State = EditState::None;
-  double m_fSceneTranslationX = 0.0; // Scene horizontal pan offset (in seconds)
-  QPointF m_SceneToPixelScale = QPointF(1, 1);
+
+  ezTime m_TimelineLength; // Multiple of 1min, resize when current time exceeds this.
+  double m_fSceneTranslationX = -100.0; // Scene horizontal pan offset (in seconds)
+  QPointF m_SceneToPixelScale = QPointF(20, 1);
   QPoint m_LastMousePos;
-  
+
   static constexpr int s_iRowHeight = 30;
   static constexpr int s_iRowSpacing = 5;
   static constexpr int s_iLeftMargin = 80;
-  static constexpr int s_iTopMargin = 30;
+  static constexpr int s_iTopMargin = 0;
 };

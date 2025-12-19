@@ -1,16 +1,19 @@
+#include "GuiFoundation/Widgets/WidgetUtils.h"
+
+
 #include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <EditorFramework/Assets/AssetProcessor.h>
 #include <EditorFramework/Panels/AssetCuratorPanel/AssetProcessorProgressWidget.moc.h>
 #include <Foundation/Strings/PathUtils.h>
 #include <GuiFoundation/Widgets/GridBarWidget.moc.h>
+#include <QHBoxLayout>
+#include <QMouseEvent>
 #include <QPainter>
 #include <QPushButton>
 #include <QTimer>
 #include <QToolTip>
 #include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QMouseEvent>
 #include <QWheelEvent>
 
 ezQtAssetProcessorProgressWidget::ezQtAssetProcessorProgressWidget(QWidget* pParent)
@@ -20,10 +23,6 @@ ezQtAssetProcessorProgressWidget::ezQtAssetProcessorProgressWidget(QWidget* pPar
   setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
   setMouseTracking(true);
   setFocusPolicy(Qt::FocusPolicy::ClickFocus);
-
-  // Initialize scene transformation
-  m_fSceneTranslationX = 0.0;
-  m_SceneToPixelScale = QPointF(20.0, 1.0); // 20 pixels per second initially
 
   // Create clear button
   m_pClearButton = new QPushButton("Clear History", this);
@@ -60,24 +59,26 @@ ezQtAssetProcessorProgressWidget::~ezQtAssetProcessorProgressWidget()
 
 void ezQtAssetProcessorProgressWidget::SetMaxProcessors(ezUInt32 uiCount)
 {
+  EZ_LOCK(m_HistoryMutex);
+  if (m_uiMaxProcessors == uiCount)
+    return;
+
   m_uiMaxProcessors = uiCount;
   m_ProcessorHistory.SetCount(uiCount);
 
-  // Update widget size based on processor count
-  int minHeight = s_iTopMargin + (s_iRowHeight + s_iRowSpacing) * uiCount + s_iRowSpacing;
-  setMinimumHeight(minHeight);
-
-  update();
+  QMetaObject::invokeMethod(this, &ezQtAssetProcessorProgressWidget::OnHistoryChanged, Qt::QueuedConnection);
 }
 
 void ezQtAssetProcessorProgressWidget::SetGridBarWidget(ezQGridBarWidget* pGridBar)
 {
   m_pGridBar = pGridBar;
-  UpdateGridBarConfig();
+  OnHistoryChanged();
 }
 
 void ezQtAssetProcessorProgressWidget::OnProgressEvent(const ezAssetProcessorProgressEvent& e)
 {
+  EZ_LOCK(m_HistoryMutex);
+
   // Make sure we have space for this processor
   if (e.m_uiProcessorID >= m_ProcessorHistory.GetCount())
   {
@@ -85,15 +86,20 @@ void ezQtAssetProcessorProgressWidget::OnProgressEvent(const ezAssetProcessorPro
   }
 
   auto& history = m_ProcessorHistory[e.m_uiProcessorID];
-  ezTime latestTimeBefore = GetLatestTaskTime();
 
   if (e.m_Type == ezAssetProcessorProgressEvent::Type::ProcessingStarted)
   {
+    if (!m_bCurrentOffsetValid)
+    {
+      m_CurrentOffset = e.m_StartTime;
+      m_bCurrentOffsetValid = true;
+    }
+
     // Add new task
     ProcessorTask task;
     task.m_AssetGuid = e.m_AssetGuid;
     task.m_sAssetPath = e.m_sAssetPath;
-    task.m_StartTime = e.m_StartTime;
+    task.m_StartTime = e.m_StartTime - m_CurrentOffset;
     task.m_bFinished = false;
     history.PushBack(task);
   }
@@ -104,7 +110,7 @@ void ezQtAssetProcessorProgressWidget::OnProgressEvent(const ezAssetProcessorPro
     {
       if (history[i].m_AssetGuid == e.m_AssetGuid && !history[i].m_bFinished)
       {
-        history[i].m_EndTime = e.m_EndTime;
+        history[i].m_EndTime = e.m_EndTime - m_CurrentOffset;
         history[i].m_bFinished = true;
         history[i].m_bSuccess = e.m_Result.Succeeded();
         break;
@@ -112,39 +118,56 @@ void ezQtAssetProcessorProgressWidget::OnProgressEvent(const ezAssetProcessorPro
     }
   }
 
-  // Auto-scroll only if the new item doesn't fit in current view
-  ezTime latestTimeAfter = GetLatestTaskTime();
-  if (latestTimeAfter > latestTimeBefore)
-  {
-    QRectF viewportRect = ComputeViewportSceneRect();
-    double latestSeconds = latestTimeAfter.GetSeconds();
-    double viewportEnd = viewportRect.right();
-    
-    // If the new item is outside the visible area, scroll to show it
-    if (latestSeconds > viewportEnd)
-    {
-      m_fSceneTranslationX = latestSeconds - viewportRect.width();
-      ClampZoomPan();
-      UpdateGridBarConfig();
-    }
-  }
-
-  update();
+  QMetaObject::invokeMethod(this, &ezQtAssetProcessorProgressWidget::OnHistoryChanged, Qt::QueuedConnection);
 }
 
 void ezQtAssetProcessorProgressWidget::OnUpdateTimer()
 {
   // Trigger repaint for smooth timeline scrolling
-  UpdateGridBarConfig();
   update();
 }
 
 void ezQtAssetProcessorProgressWidget::OnClearHistory()
 {
+  EZ_LOCK(m_HistoryMutex);
+
   for (auto& history : m_ProcessorHistory)
   {
     history.Clear();
   }
+  OnHistoryChanged();
+}
+void ezQtAssetProcessorProgressWidget::OnHistoryChanged()
+{
+  EZ_ASSERT_DEBUG(ezThreadUtils::IsMainThread(), "OnHistoryChanged must be called on the main thread via queued connection");
+  EZ_LOCK(m_HistoryMutex);
+
+  {
+    // Update widget size based on processor count
+    int minHeight = s_iTopMargin + (s_iRowHeight + s_iRowSpacing) * m_uiMaxProcessors + s_iRowSpacing;
+    setMinimumHeight(minHeight);
+  }
+
+  // Auto-scroll only if the new item doesn't fit in current view
+  ezTime latestTime = GetLatestTaskTime();
+  ezUInt32 minutes = ezMath::Max(1, ezMath::CeilToInt(latestTime.GetMinutes()));
+  ezTime newTimelineLength = ezTime::MakeFromMinutes(minutes);
+  if (newTimelineLength != m_TimelineLength)
+  {
+    m_TimelineLength = newTimelineLength;
+    QRectF viewportRect = ComputeViewportSceneRect();
+    double latestSeconds = latestTime.GetSeconds();
+    double viewportEnd = viewportRect.right();
+
+    // If the new item is outside the visible area, scroll to show it
+    if (latestSeconds > viewportEnd)
+    {
+      m_fSceneTranslationX = latestSeconds - viewportRect.width();
+    }
+    ClampZoomPan();
+    UpdateGridBarConfig();
+  }
+
   update();
 }
 
@@ -167,7 +190,7 @@ QPoint ezQtAssetProcessorProgressWidget::MapFromScene(const QPointF& pos) const
   double y = pos.y();
   x *= m_SceneToPixelScale.x();
   y *= m_SceneToPixelScale.y();
-  
+
   return QPoint(static_cast<int>(x), static_cast<int>(y));
 }
 
@@ -177,40 +200,32 @@ QPointF ezQtAssetProcessorProgressWidget::MapToScene(const QPoint& pos) const
   double y = pos.y();
   x /= m_SceneToPixelScale.x();
   y /= m_SceneToPixelScale.y();
-  
+
   return QPointF(x + m_fSceneTranslationX, y);
 }
 
 void ezQtAssetProcessorProgressWidget::ClampZoomPan()
 {
-  m_SceneToPixelScale.setX(ezMath::Clamp(m_SceneToPixelScale.x(), 1.0, 200.0)); // 1-200 pixels per second
-  m_fSceneTranslationX = ezMath::Max(m_fSceneTranslationX, 0.0);
+  double minPixelPerSecond = width() / m_TimelineLength.GetSeconds();
+  m_SceneToPixelScale.setX(ezMath::Clamp(m_SceneToPixelScale.x(), minPixelPerSecond, 200.0)); // 1-200 pixels per second
+
+  double leftLimit = -s_iLeftMargin / m_SceneToPixelScale.x();
+  m_fSceneTranslationX = ezMath::Clamp(m_fSceneTranslationX, leftLimit, m_TimelineLength.GetSeconds());
 }
 
 void ezQtAssetProcessorProgressWidget::UpdateGridBarConfig()
 {
+  EZ_ASSERT_DEBUG(ezThreadUtils::IsMainThread(), "");
   if (m_pGridBar == nullptr)
     return;
 
-  QRectF viewportRect = ComputeViewportSceneRect();
-  
-  // Calculate grid stops based on zoom level
-  double viewWidthSeconds = viewportRect.width();
-  double fineGridStops = 1.0; // 1 second
-  double textGridStops = 10.0; // 10 seconds
-  
-  if (viewWidthSeconds > 120.0)
-  {
-    fineGridStops = 10.0;
-    textGridStops = 60.0;
-  }
-  else if (viewWidthSeconds > 60.0)
-  {
-    fineGridStops = 5.0;
-    textGridStops = 30.0;
-  }
-  
-  m_pGridBar->SetConfig(viewportRect, textGridStops, fineGridStops,
+  QRectF viewportSceneRect = ComputeViewportSceneRect();
+
+  double fFineGridDensity = 0.01;
+  double fRoughGridDensity = 0.01;
+  ezWidgetUtils::AdjustGridDensity(fFineGridDensity, fRoughGridDensity, rect().width(), viewportSceneRect.width(), 20);
+
+  m_pGridBar->SetConfig(viewportSceneRect, fRoughGridDensity, fFineGridDensity,
     [this](const QPointF& pt) -> QPointF
     {
       return MapFromScene(pt);
@@ -219,28 +234,30 @@ void ezQtAssetProcessorProgressWidget::UpdateGridBarConfig()
 
 QRectF ezQtAssetProcessorProgressWidget::ComputeViewportSceneRect() const
 {
-  int timelineWidth = width() - s_iLeftMargin;
+  int timelineWidth = width();
   double viewWidthSeconds = timelineWidth / m_SceneToPixelScale.x();
-  
+
   return QRectF(m_fSceneTranslationX, 0, viewWidthSeconds, 1);
 }
 
 ezTime ezQtAssetProcessorProgressWidget::GetLatestTaskTime() const
 {
+  EZ_LOCK(m_HistoryMutex);
+
   ezTime latest = ezTime::MakeZero();
-  
+
   for (const auto& history : m_ProcessorHistory)
   {
     for (const auto& task : history)
     {
-      ezTime taskTime = task.m_bFinished ? task.m_EndTime : ezTime::Now();
+      ezTime taskTime = task.m_bFinished ? task.m_EndTime : (ezTime::Now() - m_CurrentOffset);
       if (taskTime > latest)
       {
         latest = taskTime;
       }
     }
   }
-  
+
   return latest;
 }
 
@@ -266,13 +283,13 @@ void ezQtAssetProcessorProgressWidget::DrawTimeline(QPainter& painter)
 {
   // Note: Time axis is now drawn by the grid bar widget
   // We only draw the processor rows here
-  
+
   for (ezUInt32 i = 0; i < m_uiMaxProcessors; ++i)
   {
     int rowY = s_iTopMargin + i * (s_iRowHeight + s_iRowSpacing);
     DrawProcessorRow(painter, i, rowY, s_iRowHeight);
   }
-  
+
   // Position clear button in bottom right corner
   if (m_pClearButton)
   {
@@ -309,12 +326,14 @@ void ezQtAssetProcessorProgressWidget::DrawProcessorRow(QPainter& painter, ezUIn
   painter.drawLine(s_iLeftMargin, y + rowHeight, widgetWidth, y + rowHeight);
 
   // Draw tasks for this processor
+  EZ_LOCK(m_HistoryMutex);
+
   if (uiProcessorID >= m_ProcessorHistory.GetCount())
     return;
 
   const auto& history = m_ProcessorHistory[uiProcessorID];
-  ezTime currentTime = ezTime::Now();
-  
+  ezTime currentTime = ezTime::Now() - m_CurrentOffset;
+
   for (const auto& task : history)
   {
     ezTime taskStartTime = task.m_StartTime;
@@ -376,8 +395,8 @@ void ezQtAssetProcessorProgressWidget::DrawProcessorRow(QPainter& painter, ezUIn
       QString shortName = GetShortAssetName(task.m_sAssetPath);
       QFontMetrics fm(taskFont);
       QString elidedName = fm.elidedText(shortName, Qt::ElideRight, barWidth - 6);
-      
-      painter.drawText(startX + 3, y + 2, barWidth - 6, rowHeight - 4, 
+
+      painter.drawText(startX + 3, y + 2, barWidth - 6, rowHeight - 4,
         Qt::AlignVCenter | Qt::AlignLeft, elidedName);
     }
   }
@@ -459,7 +478,7 @@ void ezQtAssetProcessorProgressWidget::wheelEvent(QWheelEvent* e)
 #else
   const double ptAtX = MapToScene(mapFromGlobal(e->globalPos())).x();
 #endif
-  
+
   double posDiff = m_fSceneTranslationX - ptAtX;
   double changeX = 1.2;
 
