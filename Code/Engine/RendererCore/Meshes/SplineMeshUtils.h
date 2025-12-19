@@ -55,6 +55,5 @@ struct EZ_RENDERERCORE_DLL ezSplineMeshDescriptor
 private:
   ezUInt32 FindBestMiddlePart(float fSegmentLength, ezArrayPtr<const ezVec2> middleLengthAndOffset, ezUInt32 uiRandomPos) const;
 
-  ezVec2 MakeFinalScaleOffsetFromDistance(const ezSplineComponent& splineComponent, float fStartDistance, float fEndDistance, const ezVec2& vLengthAndOffset) const;
-  ezVec2 MakeFinalScaleOffsetFromSegment(ezUInt32 uiSegmentIndex, const ezVec2& vLengthAndOffset) const;
+  ezVec2 MakeFinalScaleOffsetFromDistance(float fStartDistance, float fEndDistance, const ezVec2& vLengthAndOffset) const;
 };

@@ -150,12 +150,16 @@ ezResult ezSplineMeshDescriptor::GenerateDistribution(const ezSplineComponent& s
     const ezUInt32 uiNumSegments = splineComponent.GetSpline().GetNumSegments();
     ezUInt32 uiSegmentIndex = 0;
 
+    float fStartDistance = 0.0f;
     if (m_StartPart.IsValid())
     {
       out_Meshes.PushBack(m_StartPart.m_hMesh);
-      out_scaleOffsets.PushBack(MakeFinalScaleOffsetFromSegment(0, paddedStartLengthAndOffset));
+
+      const float fEndDistance = fStartDistance + splineComponent.GetSegmentLength(uiSegmentIndex);
+      out_scaleOffsets.PushBack(MakeFinalScaleOffsetFromDistance(fStartDistance, fEndDistance, paddedStartLengthAndOffset));
 
       ++uiSegmentIndex;
+      fStartDistance = fEndDistance;
     }
 
     const ezUInt32 uiMiddlePartsEndSegment = uiNumSegments - (m_EndPart.IsValid() ? 1 : 0);
@@ -167,16 +171,21 @@ ezResult ezSplineMeshDescriptor::GenerateDistribution(const ezSplineComponent& s
       auto& part = m_MiddleParts[uiPartIndex];
       out_Meshes.PushBack(part.m_hMesh);
 
+      const float fEndDistance = fStartDistance + fSegmentLength;
       const bool bAllowOverlapFront = uiSegmentIndex > 0;
       const bool bAllowOverlapBack = uiSegmentIndex < uiNumSegments - 1;
       const ezVec2 paddedLengthAndOffset = part.AddPadding(middleLengthAndOffset[uiPartIndex], bAllowOverlapFront, bAllowOverlapBack);
-      out_scaleOffsets.PushBack(MakeFinalScaleOffsetFromSegment(uiSegmentIndex, paddedLengthAndOffset));
+      out_scaleOffsets.PushBack(MakeFinalScaleOffsetFromDistance(fStartDistance, fEndDistance, paddedLengthAndOffset));
+
+      fStartDistance = fEndDistance;
     }
 
     if (m_EndPart.IsValid())
     {
       out_Meshes.PushBack(m_EndPart.m_hMesh);
-      out_scaleOffsets.PushBack(MakeFinalScaleOffsetFromSegment(uiSegmentIndex, paddedEndLengthAndOffset));
+
+      const float fEndDistance = splineComponent.GetTotalLength();
+      out_scaleOffsets.PushBack(MakeFinalScaleOffsetFromDistance(fStartDistance, fEndDistance, paddedEndLengthAndOffset));
     }
   }
   else if (m_DistributionMode == ezSplineMeshDistributionMode::ScaleEvenly)
@@ -229,7 +238,7 @@ ezResult ezSplineMeshDescriptor::GenerateDistribution(const ezSplineComponent& s
       out_Meshes.PushBack(m_StartPart.m_hMesh);
 
       const float fEndDistance = fStartDistance + paddedStartLengthAndOffset.x * fScale;
-      out_scaleOffsets.PushBack(MakeFinalScaleOffsetFromDistance(splineComponent, fStartDistance, fEndDistance, paddedStartLengthAndOffset));
+      out_scaleOffsets.PushBack(MakeFinalScaleOffsetFromDistance(fStartDistance, fEndDistance, paddedStartLengthAndOffset));
 
       fStartDistance = fEndDistance;
     }
@@ -247,7 +256,7 @@ ezResult ezSplineMeshDescriptor::GenerateDistribution(const ezSplineComponent& s
       const ezVec2 paddedLengthAndOffset = part.AddPadding(middleLengthAndOffset[uiPartIndex], bAllowOverlapFront, bAllowOverlapBack);
 
       const float fEndDistance = fStartDistance + paddedLengthAndOffset.x * fScale;
-      out_scaleOffsets.PushBack(MakeFinalScaleOffsetFromDistance(splineComponent, fStartDistance, fEndDistance, paddedLengthAndOffset));
+      out_scaleOffsets.PushBack(MakeFinalScaleOffsetFromDistance(fStartDistance, fEndDistance, paddedLengthAndOffset));
 
       fStartDistance = fEndDistance;
     }
@@ -257,7 +266,7 @@ ezResult ezSplineMeshDescriptor::GenerateDistribution(const ezSplineComponent& s
       out_Meshes.PushBack(m_EndPart.m_hMesh);
 
       const float fEndDistance = fStartDistance + paddedEndLengthAndOffset.x * fScale;
-      out_scaleOffsets.PushBack(MakeFinalScaleOffsetFromDistance(splineComponent, fStartDistance, fEndDistance, paddedEndLengthAndOffset));
+      out_scaleOffsets.PushBack(MakeFinalScaleOffsetFromDistance(fStartDistance, fEndDistance, paddedEndLengthAndOffset));
     }
   }
   else if (m_DistributionMode == ezSplineMeshDistributionMode::ScaleEvenlyPerSegment)
@@ -275,24 +284,13 @@ ezUInt32 ezSplineMeshDescriptor::FindBestMiddlePart(float fSegmentLength, ezArra
   return 0;
 }
 
-ezVec2 ezSplineMeshDescriptor::MakeFinalScaleOffsetFromDistance(const ezSplineComponent& splineComponent, float fStartDistance, float fEndDistance, const ezVec2& vLengthAndOffset) const
+ezVec2 ezSplineMeshDescriptor::MakeFinalScaleOffsetFromDistance(float fStartDistance, float fEndDistance, const ezVec2& vLengthAndOffset) const
 {
-  const float fStartKey = splineComponent.GetKeyAtDistance(fStartDistance);
-  const float fEndKey = splineComponent.GetKeyAtDistance(fEndDistance);
-  const float fKeyRange = fEndKey - fStartKey;
+  const float fRange = fEndDistance - fStartDistance;
 
   const float fInvLength = 1.0f / vLengthAndOffset.x;
-  const float fScale = fKeyRange * fInvLength;
-  const float fOffset = (vLengthAndOffset.y * fInvLength) * fKeyRange + fStartKey;
-
-  return ezVec2(fScale, fOffset);
-}
-
-ezVec2 ezSplineMeshDescriptor::MakeFinalScaleOffsetFromSegment(ezUInt32 uiSegmentIndex, const ezVec2& vLengthAndOffset) const
-{
-  const float fInvLength = 1.0f / vLengthAndOffset.x;
-  const float fScale = fInvLength;
-  const float fOffset = (vLengthAndOffset.y * fInvLength) + uiSegmentIndex;
+  const float fScale = fRange * fInvLength;
+  const float fOffset = (vLengthAndOffset.y * fInvLength) * fRange + fStartDistance;
 
   return ezVec2(fScale, fOffset);
 }

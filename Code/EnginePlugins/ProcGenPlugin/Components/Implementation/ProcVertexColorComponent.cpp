@@ -521,6 +521,13 @@ void ezProcVertexColorComponent::OnMsgCustomInstanceDataOffsetChanged(ezMsgCusto
   }
 }
 
+void ezProcVertexColorComponent::OnMsgGenerateSplineMeshCollision(ezMsgGenerateSplineMeshCollision& ref_msg)
+{
+  // Although we don't generate any collision meshes here, we use this as a signal that a spline mesh has changed and we need to update our vertex colors.
+  auto pManager = static_cast<ezProcVertexColorComponentManager*>(GetOwningManager());
+  pManager->EnqueueUpdate(*this);
+}
+
 ezUInt32 ezProcVertexColorComponent::OutputDescs_GetCount() const
 {
   return m_OutputDescs.GetCount();

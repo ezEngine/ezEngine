@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12640593572254555674,10304997345485202463}}
-		u4 %Hash{12521992949575808666}
+		u4 %Hash{9839971877231749725}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -98,6 +98,7 @@ o
 		{
 			Uuid{u4{16860525285257686406,5565113602506043286}}
 			Uuid{u4{948268150556366254,5328771466921970600}}
+			Uuid{u4{7398741980933746105,5087335259099240879}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0x00000442,0x00000040,0}}
@@ -276,6 +277,17 @@ o
 		{
 			s{"CastShadow"}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{4898210761515694217,4785387480103292592}}
+	s %t{"ezJoltMeshMapping"}
+	u3 %v{1}
+	p
+	{
+		s %CollisionMesh{"{ d17d2824-6c89-46cc-bbd0-2c3ba1e2bde5 }"}
+		s %RenderMesh{"{ 5ef01d39-c289-450e-82ad-dfc5426c7988 }"}
 	}
 }
 o
@@ -602,6 +614,20 @@ o
 }
 o
 {
+	Uuid %id{u4{7398741980933746105,5087335259099240879}}
+	s %t{"ezJoltGenerateCollisionComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %MeshMappings
+		{
+			Uuid{u4{4898210761515694217,4785387480103292592}}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{13636774643499570592,5103048791026357334}}
 	s %t{"ezSplineNodeComponent"}
 	u3 %v{1}
@@ -904,7 +930,7 @@ o
 {
 	Uuid %id{u4{11676693873414250416,5325950715755226940}}
 	s %t{"ezSplineComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -944,6 +970,8 @@ o
 		{
 			Uuid{u4{3891848606969240239,5504509823965182797}}
 		}
+		f %OffsetY{0}
+		f %OffsetZ{0}
 		i3 %Seed{-1}
 		f %SortingDepthOffset{0}
 		Uuid %StartPart{u4{16299605789792333670,16476838305196319284}}
@@ -953,7 +981,7 @@ o
 {
 	Uuid %id{u4{1319762727039280794,5418212138779544410}}
 	s %t{"ezSplineComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -995,7 +1023,8 @@ o
 	p
 	{
 		s %Mesh{"{ 5ef01d39-c289-450e-82ad-dfc5426c7988 }"}
-		Vec2 %Padding{f{0,0}}
+		f %PaddingBack{0}
+		f %PaddingFront{0}
 	}
 }
 o
@@ -1028,7 +1057,7 @@ o
 {
 	Uuid %id{u4{16860525285257686406,5565113602506043286}}
 	s %t{"ezSplineComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -1679,7 +1708,8 @@ o
 	p
 	{
 		s %Mesh{"{ 2a5d16b1-6867-4b5b-89b2-8436f11381cb }"}
-		Vec2 %Padding{f{0,0}}
+		f %PaddingBack{0}
+		f %PaddingFront{0}
 	}
 }
 o
@@ -1690,7 +1720,8 @@ o
 	p
 	{
 		s %Mesh{"{ 2a5d16b1-6867-4b5b-89b2-8436f11381cb }"}
-		Vec2 %Padding{f{0,0}}
+		f %PaddingBack{0}
+		f %PaddingFront{0}
 	}
 }
 }
@@ -2390,7 +2421,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSplineComponent"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -2458,6 +2489,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezPropertyAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{17053152474095539046,14562368218605611316}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"ezEditorPluginJolt"}
+		VarArray %Properties{}
+		s %TypeName{"ezJoltMeshMapping"}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2543,6 +2591,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEnumBase"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{8136856440711211988,15432418591559875229}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"ezEditorPluginJolt"}
+		VarArray %Properties{}
+		s %TypeName{"ezJoltGenerateCollisionComponent"}
 		u3 %TypeVersion{1}
 	}
 }

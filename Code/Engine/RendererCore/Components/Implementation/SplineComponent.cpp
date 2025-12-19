@@ -73,7 +73,7 @@ void ezSplineComponentManager::Update(const ezWorldModule::UpdateContext& contex
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezSplineComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezSplineComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -109,6 +109,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezSplineComponent, 1, ezComponentMode::Static)
       new ezFunctionArgumentAttributes(3, new ezDefaultValueAttribute(0.1))),
 
     EZ_SCRIPT_FUNCTION_PROPERTY(GetChangeCounter),
+
+    EZ_FUNCTION_PROPERTY(OnObjectCreated),
   }
   EZ_END_FUNCTIONS;
   EZ_BEGIN_ATTRIBUTES
@@ -136,15 +138,23 @@ void ezSplineComponent::SerializeComponent(ezWorldWriter& ref_stream) const
   auto& s = ref_stream.GetStream();
   s << m_SplineFlags;
   m_Spline.Serialize(s).AssertSuccess();
+
+  s << m_Uuid;
 }
 
 void ezSplineComponent::DeserializeComponent(ezWorldReader& ref_stream)
 {
   SUPER::DeserializeComponent(ref_stream);
+  ezUInt32 uiVersion = ref_stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = ref_stream.GetStream();
   s >> m_SplineFlags;
   m_Spline.Deserialize(s).AssertSuccess();
+
+  if (uiVersion >= 2)
+  {
+    s >> m_Uuid;
+  }
 
   // This is to prevent the spline from getting cleared in the Editor when it is deserialized as part of a prefab.
   // In this case it still has a unique id so the 'in editor' check in UpdateSpline alone would not be sufficient.
@@ -280,22 +290,6 @@ float ezSplineComponent::GetSegmentLength(ezUInt32 uiSegmentIndex) const
   return fEndDistance - fStartDistance;
 }
 
-float ezSplineComponent::GetKeyAtDistance(float fDistance) const
-{
-  if (m_DistanceToKey.IsEmpty())
-    return 0.0f;
-
-  const ezUInt32 uiUpperIndex = ezMath::Min(m_DistanceToKey.UpperBound(fDistance), m_DistanceToKey.GetCount() - 1);
-  const ezUInt32 uiLowerIndex = uiUpperIndex > 0 ? uiUpperIndex - 1 : 0;
-
-  const float fLowerDistance = m_DistanceToKey.GetKey(uiLowerIndex);
-  const float fUpperDistance = m_DistanceToKey.GetKey(uiUpperIndex);
-  const float fLowerKey = m_DistanceToKey.GetValue(uiLowerIndex);
-  const float fUpperKey = m_DistanceToKey.GetValue(uiUpperIndex);
-
-  return ezMath::Lerp(fLowerKey, fUpperKey, ezMath::Saturate(ezMath::Unlerp(fLowerDistance, fUpperDistance, fDistance)));
-}
-
 ezVec3 ezSplineComponent::GetPositionAtDistance(float fDistance, ezEnum<ezSplineComponentSpace> space /* = ezSplineComponentSpace::Default*/) const
 {
   const float fKey = GetKeyAtDistance(fDistance);
@@ -351,7 +345,23 @@ void ezSplineComponent::SetSpline(ezSpline&& spline)
 
   CreateDistanceToKeyRemapping();
 
-  ForwardSplineChangedEvent();
+  SendSplineChangedEvent();
+}
+
+float ezSplineComponent::GetKeyAtDistanceHelper(const ezArrayMap<float, float>& distanceToKey, float fDistance)
+{
+  if (distanceToKey.IsEmpty())
+    return 0.0f;
+
+  const ezUInt32 uiUpperIndex = ezMath::Min(distanceToKey.UpperBound(fDistance), distanceToKey.GetCount() - 1);
+  const ezUInt32 uiLowerIndex = uiUpperIndex > 0 ? uiUpperIndex - 1 : 0;
+
+  const float fLowerDistance = distanceToKey.GetKey(uiLowerIndex);
+  const float fUpperDistance = distanceToKey.GetKey(uiUpperIndex);
+  const float fLowerKey = distanceToKey.GetValue(uiLowerIndex);
+  const float fUpperKey = distanceToKey.GetValue(uiUpperIndex);
+
+  return ezMath::Lerp(fLowerKey, fUpperKey, ezMath::Saturate(ezMath::Unlerp(fLowerDistance, fUpperDistance, fDistance)));
 }
 
 void ezSplineComponent::OnMsgSplineChanged(ezMsgSplineChanged& ref_msg)
@@ -359,7 +369,7 @@ void ezSplineComponent::OnMsgSplineChanged(ezMsgSplineChanged& ref_msg)
   UpdateSpline();
 }
 
-void ezSplineComponent::ForwardSplineChangedEvent()
+void ezSplineComponent::SendSplineChangedEvent()
 {
   ezMsgSplineChanged msg;
   msg.FillFromSenderComponent(this);
@@ -401,7 +411,7 @@ void ezSplineComponent::Nodes_Remove(ezUInt32 uiIndex)
   UpdateSpline();
 }
 
-void ezSplineComponent::UpdateSpline(bool bForwardChangedEvent /* = true*/)
+void ezSplineComponent::UpdateSpline(bool bSendChangedEvent /* = true*/)
 {
   if (!IsActiveAndInitialized())
     return;
@@ -414,9 +424,9 @@ void ezSplineComponent::UpdateSpline(bool bForwardChangedEvent /* = true*/)
 
   CreateDistanceToKeyRemapping();
 
-  if (bForwardChangedEvent)
+  if (bSendChangedEvent)
   {
-    ForwardSplineChangedEvent();
+    SendSplineChangedEvent();
   }
 }
 
@@ -664,6 +674,11 @@ void ezSplineComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) cons
     return;
 
   DrawSplineOnSelection();
+}
+
+void ezSplineComponent::OnObjectCreated(const ezAbstractObjectNode& node)
+{
+  m_Uuid = node.GetGuid();
 }
 
 //////////////////////////////////////////////////////////////////////////

@@ -83,6 +83,7 @@ void ezProcVolumeSplineComponent::DeserializeComponent(ezWorldReader& inout_stre
 
 void ezProcVolumeSplineComponent::OnMsgSplineChanged(ezMsgSplineChanged& ref_msg)
 {
+  // An invalid change counter indicates that this msg came from a spline node before the actual spline has been updated. Ignore that here.
   if (ref_msg.m_uiChangeCounter == ezInvalidIndex || ref_msg.m_uiChangeCounter == m_uiLastChangeCounter)
     return;
 

@@ -10,6 +10,21 @@
 /////////////////////////////////////////////////////////////////////////////
 
 // clang-format off
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgGenerateSplineMeshCollision);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgGenerateSplineMeshCollision, 1, ezRTTIDefaultAllocator<ezMsgGenerateSplineMeshCollision>)
+{
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezExcludeFromScript()
+  }
+  EZ_END_ATTRIBUTES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+/////////////////////////////////////////////////////////////////////////////
+
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezSplineMeshComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
@@ -92,12 +107,6 @@ void ezSplineMeshComponent::DeserializeComponent(ezWorldReader& inout_stream)
   s >> m_fSortingDepthOffset;
 }
 
-ezResult ezSplineMeshComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
-{
-  // TODO:
-  return SUPER::GetLocalBounds(ref_bounds, ref_bAlwaysVisible, ref_msg);
-}
-
 void ezSplineMeshComponent::SetStartPart(const ezSplineMeshPart& part)
 {
   m_Desc.m_StartPart = part;
@@ -174,87 +183,11 @@ void ezSplineMeshComponent::SetOffsetZ(float fOffsetZ)
   }
 }
 
-void ezSplineMeshComponent::MiddleParts_SetValue(ezUInt32 uiIndex, const ezSplineMeshPart& value)
+ezResult ezSplineMeshComponent::GenerateSplineMeshDesc(const ezSpline& spline, const ezArrayMap<float, float>& distanceToKey, ezArrayPtr<ezCpuMeshResource*> meshes, ezArrayPtr<ezVec2> scaleOffsets, float fLocalOffsetY, float fLocalOffsetZ, ezMeshResourceDescriptor& out_splineMeshDesc)
 {
-  m_Desc.m_MiddleParts.EnsureCount(uiIndex + 1);
-  m_Desc.m_MiddleParts[uiIndex] = value;
+  ezHashTable<ezString, ezUInt32> materialMapping;
 
-  if (IsActiveAndInitialized())
-  {
-    UpdateSplineMesh();
-  }
-}
-
-void ezSplineMeshComponent::MiddleParts_Insert(ezUInt32 uiIndex, const ezSplineMeshPart& value)
-{
-  m_Desc.m_MiddleParts.InsertAt(uiIndex, value);
-
-  if (IsActiveAndInitialized())
-  {
-    UpdateSplineMesh();
-  }
-}
-
-void ezSplineMeshComponent::MiddleParts_Remove(ezUInt32 uiIndex)
-{
-  m_Desc.m_MiddleParts.RemoveAtAndCopy(uiIndex);
-
-  if (IsActiveAndInitialized())
-  {
-    UpdateSplineMesh();
-  }
-}
-
-void ezSplineMeshComponent::OnMsgSplineChanged(ezMsgSplineChanged& ref_msg)
-{
-  UpdateSplineMesh();
-}
-
-void ezSplineMeshComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& ref_msg) const
-{
-  if (ref_msg.m_Mode != ezWorldGeoExtractionUtil::ExtractionMode::RenderMesh)
-    return;
-
-  ezMeshResourceDescriptor splineMeshDesc;
-  if (GenerateSplineMesh(splineMeshDesc).Succeeded())
-  {
-    ezStringBuilder sGuid;
-    sGuid.SetFormat("SplineMeshCpu_{}", s_iSplineMeshResources.Increment());
-
-    auto hMeshCpu = ezResourceManager::CreateResource<ezCpuMeshResource>(sGuid, std::move(splineMeshDesc));
-
-    ref_msg.AddMeshObject(GetOwner()->GetGlobalTransform(), hMeshCpu);
-  }
-}
-
-ezResult ezSplineMeshComponent::GenerateSplineMesh(ezMeshResourceDescriptor& out_splineMeshDesc) const
-{
-  const ezSplineComponent* pSplineComponent = GetSplineComponent();
-  if (pSplineComponent == nullptr)
-    return EZ_FAILURE;
-
-  ezHybridArray<ezMeshResourceHandle, 16> meshes(ezFrameAllocator::GetCurrentAllocator());
-  ezHybridArray<ezVec2, 16> scaleOffsets(ezFrameAllocator::GetCurrentAllocator());
-  EZ_SUCCEED_OR_RETURN(m_Desc.GenerateDistribution(*pSplineComponent, meshes, scaleOffsets));
-
-  ezHybridArray<ezCpuMeshResource*, 16> cpuMeshes(ezFrameAllocator::GetCurrentAllocator());
-
-  for (auto& hMesh : meshes)
-  {
-    auto hMeshCpu = ezResourceManager::LoadResource<ezCpuMeshResource>(hMesh.GetResourceID());
-    ezCpuMeshResource* pMeshCpu = ezResourceManager::BeginAcquireResource<ezCpuMeshResource>(hMeshCpu, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-    EZ_ASSERT_DEV(pMeshCpu != nullptr, "Failed to load cpu mesh resource for spline mesh generation");
-    cpuMeshes.PushBack(pMeshCpu);
-  }
-
-  EZ_SCOPE_EXIT(
-    for (auto pMeshCpu : cpuMeshes) {
-      ezResourceManager::EndAcquireResource(pMeshCpu);
-    });
-
-  ezHashTable<ezString, ezUInt32> materialMapping(ezFrameAllocator::GetCurrentAllocator());
-
-  for (auto& pMesh : cpuMeshes)
+  for (auto& pMesh : meshes)
   {
     for (auto& mat : pMesh->GetDescriptor().GetMaterials())
     {
@@ -296,7 +229,7 @@ ezResult ezSplineMeshComponent::GenerateSplineMesh(ezMeshResourceDescriptor& out
   ezHybridArray<SubMeshInfo, 32> subMeshInfos(ezFrameAllocator::GetCurrentAllocator());
   for (ezUInt32 uiMeshIndex = 0; uiMeshIndex < uiNumMeshes; ++uiMeshIndex)
   {
-    auto pMesh = cpuMeshes[uiMeshIndex];
+    auto pMesh = meshes[uiMeshIndex];
     auto materials = pMesh->GetDescriptor().GetMaterials();
 
     for (auto& subMesh : pMesh->GetDescriptor().GetSubMeshes())
@@ -310,7 +243,10 @@ ezResult ezSplineMeshComponent::GenerateSplineMesh(ezMeshResourceDescriptor& out
 
     auto& meshBufferDesc = pMesh->GetDescriptor().MeshBufferDesc();
     uiNumVertices += meshBufferDesc.GetVertexCount();
-    uiNumPrimitives += meshBufferDesc.GetPrimitiveCount();
+    if (meshBufferDesc.HasIndexBuffer())
+    {
+      uiNumPrimitives += meshBufferDesc.GetPrimitiveCount();
+    }
 
     splineMeshBufferDesc.AddStreamConfig(meshBufferDesc.GetVertexStreamConfig());
   }
@@ -324,40 +260,51 @@ ezResult ezSplineMeshComponent::GenerateSplineMesh(ezMeshResourceDescriptor& out
   ezHybridArray<ezUInt32, 16> firstVertexPerMesh(ezFrameAllocator::GetCurrentAllocator());
   firstVertexPerMesh.SetCount(uiNumMeshes);
 
+  const bool bHasNTT = splineMeshBufferDesc.GetVertexStreamConfig().HasNormalTangentAndTexCoord0();
+  const bool bHasTexCoord1 = splineMeshBufferDesc.GetVertexStreamConfig().HasTexCoord1();
+  const bool bHasColor0 = splineMeshBufferDesc.GetVertexStreamConfig().HasColor0();
+  const bool bHasColor1 = splineMeshBufferDesc.GetVertexStreamConfig().HasColor1();
+
   for (ezUInt32 uiMeshIndex = 0; uiMeshIndex < uiNumMeshes; ++uiMeshIndex)
   {
-    auto& meshBufferDesc = cpuMeshes[uiMeshIndex]->GetDescriptor().MeshBufferDesc();
+    auto& meshBufferDesc = meshes[uiMeshIndex]->GetDescriptor().MeshBufferDesc();
     const ezVec2& scaleOffset = scaleOffsets[uiMeshIndex];
 
     for (ezUInt32 v = 0; v < meshBufferDesc.GetVertexCount(); ++v)
     {
       ezVec3 pos = meshBufferDesc.GetPosition(v);
-      const float fKey = pos.x * scaleOffset.x + scaleOffset.y;
-      const ezTransform transform = pSplineComponent->GetTransformAtKey(fKey);
-
-      pos = transform.TransformPosition(ezVec3(0, pos.y + m_fOffsetY, pos.z + m_fOffsetZ));
-      const ezVec3 normal = transform.TransformDirection(meshBufferDesc.GetNormal(v));
-
-      ezVec4 tangent = meshBufferDesc.GetTangent(v);
-      tangent = transform.TransformDirection(tangent.GetAsVec3()).GetAsVec4(tangent.w);
+      const float fDistance = pos.x * scaleOffset.x + scaleOffset.y;
+      const float fKey = ezSplineComponent::GetKeyAtDistanceHelper(distanceToKey, fDistance);
+      const ezTransform transform = ezSimdConversion::ToTransform(spline.EvaluateTransform(fKey));
 
       const ezUInt32 uiTargetVertex = uiFirstVertex + v;
-      splineMeshBufferDesc.SetPosition(uiTargetVertex, pos);
-      splineMeshBufferDesc.SetNormal(uiTargetVertex, normal);
-      splineMeshBufferDesc.SetTangent(uiTargetVertex, tangent);
-      splineMeshBufferDesc.SetTexCoord0(uiTargetVertex, meshBufferDesc.GetTexCoord0(v));
 
-      if (meshBufferDesc.GetVertexStreamConfig().HasTexCoord1())
+      pos = transform.TransformPosition(ezVec3(0, pos.y + fLocalOffsetY, pos.z + fLocalOffsetZ));
+      splineMeshBufferDesc.SetPosition(uiTargetVertex, pos);
+
+      if (bHasNTT)
+      {
+        const ezVec3 normal = transform.TransformDirection(meshBufferDesc.GetNormal(v));
+
+        ezVec4 tangent = meshBufferDesc.GetTangent(v);
+        tangent = transform.TransformDirection(tangent.GetAsVec3()).GetAsVec4(tangent.w);
+
+        splineMeshBufferDesc.SetNormal(uiTargetVertex, normal);
+        splineMeshBufferDesc.SetTangent(uiTargetVertex, tangent);
+        splineMeshBufferDesc.SetTexCoord0(uiTargetVertex, meshBufferDesc.GetTexCoord0(v));
+      }
+
+      if (bHasTexCoord1)
       {
         splineMeshBufferDesc.SetTexCoord1(uiTargetVertex, meshBufferDesc.GetTexCoord1(v));
       }
 
-      if (meshBufferDesc.GetVertexStreamConfig().HasColor0())
+      if (bHasColor0)
       {
         splineMeshBufferDesc.SetColor0(uiTargetVertex, meshBufferDesc.GetColor0(v));
       }
 
-      if (meshBufferDesc.GetVertexStreamConfig().HasColor1())
+      if (bHasColor1)
       {
         splineMeshBufferDesc.SetColor1(uiTargetVertex, meshBufferDesc.GetColor1(v));
       }
@@ -376,34 +323,37 @@ ezResult ezSplineMeshComponent::GenerateSplineMesh(ezMeshResourceDescriptor& out
   {
     auto& subMeshInfo = subMeshInfos[uiSubMeshInfoIndex];
 
-    auto& meshBufferDesc = cpuMeshes[subMeshInfo.uiMeshIndex]->GetDescriptor().MeshBufferDesc();
-    auto sourceIndices = meshBufferDesc.GetIndexBufferData();
-    EZ_ASSERT_DEV(meshBufferDesc.Uses32BitIndices() == splineMeshBufferDesc.Uses32BitIndices(), "Index buffer format mismatch");
-
-    const ezUInt32 uiFirstVertex = firstVertexPerMesh[subMeshInfo.uiMeshIndex];
-    const ezUInt32 uiSourceFirstIndex = ezGALPrimitiveTopology::GetIndexCount(topology, subMeshInfo.uiFirstPrimitive);
-    const ezUInt32 uiSourceIndexCount = ezGALPrimitiveTopology::GetIndexCount(topology, subMeshInfo.uiPrimitiveCount);
-
-    uiTargetPrimitiveCount += subMeshInfo.uiPrimitiveCount;
-
-    if (splineMeshBufferDesc.Uses32BitIndices())
+    auto& meshBufferDesc = meshes[subMeshInfo.uiMeshIndex]->GetDescriptor().MeshBufferDesc();
+    if (meshBufferDesc.HasIndexBuffer())
     {
-      auto pSourceIndices32 = reinterpret_cast<const ezUInt32*>(sourceIndices.GetPtr());
-      auto pTargetIndices32 = reinterpret_cast<ezUInt32*>(targetIndices.GetData());
-      for (ezUInt32 i = 0; i < uiSourceIndexCount; ++i)
+      auto sourceIndices = meshBufferDesc.GetIndexBufferData();
+      EZ_ASSERT_DEV(meshBufferDesc.Uses32BitIndices() == splineMeshBufferDesc.Uses32BitIndices(), "Index buffer format mismatch");
+
+      const ezUInt32 uiFirstVertex = firstVertexPerMesh[subMeshInfo.uiMeshIndex];
+      const ezUInt32 uiSourceFirstIndex = ezGALPrimitiveTopology::GetIndexCount(topology, subMeshInfo.uiFirstPrimitive);
+      const ezUInt32 uiSourceIndexCount = ezGALPrimitiveTopology::GetIndexCount(topology, subMeshInfo.uiPrimitiveCount);
+
+      uiTargetPrimitiveCount += subMeshInfo.uiPrimitiveCount;
+
+      if (splineMeshBufferDesc.Uses32BitIndices())
       {
-        pTargetIndices32[uiTargetIndex] = pSourceIndices32[i + uiSourceFirstIndex] + uiFirstVertex;
-        ++uiTargetIndex;
+        auto pSourceIndices32 = reinterpret_cast<const ezUInt32*>(sourceIndices.GetPtr());
+        auto pTargetIndices32 = reinterpret_cast<ezUInt32*>(targetIndices.GetData());
+        for (ezUInt32 i = 0; i < uiSourceIndexCount; ++i)
+        {
+          pTargetIndices32[uiTargetIndex] = pSourceIndices32[i + uiSourceFirstIndex] + uiFirstVertex;
+          ++uiTargetIndex;
+        }
       }
-    }
-    else
-    {
-      auto pSourceIndices16 = reinterpret_cast<const ezUInt16*>(sourceIndices.GetPtr());
-      auto pTargetIndices16 = reinterpret_cast<ezUInt16*>(targetIndices.GetData());
-      for (ezUInt32 i = 0; i < uiSourceIndexCount; ++i)
+      else
       {
-        pTargetIndices16[uiTargetIndex] = pSourceIndices16[i + uiSourceFirstIndex] + uiFirstVertex;
-        ++uiTargetIndex;
+        auto pSourceIndices16 = reinterpret_cast<const ezUInt16*>(sourceIndices.GetPtr());
+        auto pTargetIndices16 = reinterpret_cast<ezUInt16*>(targetIndices.GetData());
+        for (ezUInt32 i = 0; i < uiSourceIndexCount; ++i)
+        {
+          pTargetIndices16[uiTargetIndex] = pSourceIndices16[i + uiSourceFirstIndex] + uiFirstVertex;
+          ++uiTargetIndex;
+        }
       }
     }
 
@@ -421,11 +371,108 @@ ezResult ezSplineMeshComponent::GenerateSplineMesh(ezMeshResourceDescriptor& out
   return EZ_SUCCESS;
 }
 
+void ezSplineMeshComponent::MiddleParts_SetValue(ezUInt32 uiIndex, const ezSplineMeshPart& value)
+{
+  m_Desc.m_MiddleParts.EnsureCount(uiIndex + 1);
+  m_Desc.m_MiddleParts[uiIndex] = value;
+
+  if (IsActiveAndInitialized())
+  {
+    UpdateSplineMesh();
+  }
+}
+
+void ezSplineMeshComponent::MiddleParts_Insert(ezUInt32 uiIndex, const ezSplineMeshPart& value)
+{
+  m_Desc.m_MiddleParts.InsertAt(uiIndex, value);
+
+  if (IsActiveAndInitialized())
+  {
+    UpdateSplineMesh();
+  }
+}
+
+void ezSplineMeshComponent::MiddleParts_Remove(ezUInt32 uiIndex)
+{
+  m_Desc.m_MiddleParts.RemoveAtAndCopy(uiIndex);
+
+  if (IsActiveAndInitialized())
+  {
+    UpdateSplineMesh();
+  }
+}
+
+void ezSplineMeshComponent::OnMsgSplineChanged(ezMsgSplineChanged& ref_msg)
+{
+  // An invalid change counter indicates that this msg came from a spline node before the actual spline has been updated. Ignore that here.
+  if (ref_msg.m_uiChangeCounter == ezInvalidIndex || ref_msg.m_uiChangeCounter == m_uiLastChangeCounter)
+    return;
+
+  UpdateSplineMesh();
+}
+
+void ezSplineMeshComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& ref_msg) const
+{
+  if (ref_msg.m_Mode != ezWorldGeoExtractionUtil::ExtractionMode::RenderMesh)
+    return;
+
+  ezMeshResourceDescriptor splineMeshDesc;
+  if (GenerateSplineMesh(splineMeshDesc).Succeeded())
+  {
+    ezStringBuilder sGuid;
+    sGuid.SetFormat("SplineMeshCpu_{}", s_iSplineMeshResources.Increment());
+
+    auto hMeshCpu = ezResourceManager::CreateResource<ezCpuMeshResource>(sGuid, std::move(splineMeshDesc));
+
+    ref_msg.AddMeshObject(GetOwner()->GetGlobalTransform(), hMeshCpu);
+  }
+}
+
+ezResult ezSplineMeshComponent::GenerateSplineMesh(ezMeshResourceDescriptor& out_splineMeshDesc, ezMsgGenerateSplineMeshCollision* out_pMsg /*= nullptr*/) const
+{
+  const ezSplineComponent* pSplineComponent = GetSplineComponent();
+  if (pSplineComponent == nullptr)
+    return EZ_FAILURE;
+
+  ezHybridArray<ezMeshResourceHandle, 16> meshes(ezFrameAllocator::GetCurrentAllocator());
+  ezHybridArray<ezVec2, 16> scaleOffsets(ezFrameAllocator::GetCurrentAllocator());
+  EZ_SUCCEED_OR_RETURN(m_Desc.GenerateDistribution(*pSplineComponent, meshes, scaleOffsets));
+
+  if (out_pMsg != nullptr)
+  {
+    out_pMsg->m_hSplineComponent = pSplineComponent->GetHandle();
+    out_pMsg->m_RenderMeshes = meshes;
+    out_pMsg->m_ScaleOffsets = scaleOffsets;
+    out_pMsg->m_fLocalOffsetY = m_fOffsetY;
+    out_pMsg->m_fLocalOffsetZ = m_fOffsetZ;
+  }
+
+  ezHybridArray<ezCpuMeshResource*, 16> cpuMeshes(ezFrameAllocator::GetCurrentAllocator());
+
+  for (auto& hMesh : meshes)
+  {
+    auto hMeshCpu = ezResourceManager::LoadResource<ezCpuMeshResource>(hMesh.GetResourceID());
+    ezCpuMeshResource* pMeshCpu = ezResourceManager::BeginAcquireResource<ezCpuMeshResource>(hMeshCpu, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+    EZ_ASSERT_DEV(pMeshCpu != nullptr, "Failed to load cpu mesh resource for spline mesh generation");
+    cpuMeshes.PushBack(pMeshCpu);
+  }
+
+  EZ_SCOPE_EXIT(
+    for (auto pMeshCpu : cpuMeshes) {
+      ezResourceManager::EndAcquireResource(pMeshCpu);
+    });
+
+  return GenerateSplineMeshDesc(pSplineComponent->GetSpline(), pSplineComponent->GetDistanceToKeyRemapping(), cpuMeshes, scaleOffsets, m_fOffsetY, m_fOffsetZ, out_splineMeshDesc);
+}
+
 void ezSplineMeshComponent::UpdateSplineMesh()
 {
   ezMeshResourceDescriptor splineMeshDesc;
-  if (GenerateSplineMesh(splineMeshDesc).Failed())
+  ezMsgGenerateSplineMeshCollision genColMsg;
+  if (GenerateSplineMesh(splineMeshDesc, &genColMsg).Failed())
     return;
+
+  m_uiLastChangeCounter = GetSplineComponent()->GetChangeCounter();
 
   ezStringBuilder sGuid;
   sGuid.SetFormat("SplineMesh_{}", s_iSplineMeshResources.Increment());
@@ -434,11 +481,7 @@ void ezSplineMeshComponent::UpdateSplineMesh()
 
   SetMesh(hSplineMesh);
 
-  // TODO: gen spline collision message
-  {
-    //ezMsgTransformChanged msg;
-    //GetOwner()->SendMessage(msg);
-  }
+  GetOwner()->PostMessage(genColMsg, ezTime::MakeZero());
 }
 
 const ezSplineComponent* ezSplineMeshComponent::GetSplineComponent() const

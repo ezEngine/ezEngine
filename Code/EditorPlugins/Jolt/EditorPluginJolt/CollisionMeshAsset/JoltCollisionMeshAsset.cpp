@@ -205,19 +205,14 @@ ezStatus ezJoltCollisionMeshAssetDocument::CreateMeshFromFile(ezJoltMeshDesc& ou
 
   // Extract indices
   {
-    outMesh.m_TriangleIndices.SetCountUninitialized(uiNumTriangles * 3);
-
     if (meshBuffer.Uses32BitIndices())
     {
-      const ezUInt32* pIndices = reinterpret_cast<const ezUInt32*>(meshBuffer.GetIndexBufferData().GetPtr());
-
-      for (ezUInt32 tri = 0; tri < uiNumTriangles * 3; ++tri)
-      {
-        outMesh.m_TriangleIndices[tri] = pIndices[tri];
-      }
+      ezArrayPtr<const ezUInt32> indices = ezMakeArrayPtr(reinterpret_cast<const ezUInt32*>(meshBuffer.GetIndexBufferData().GetPtr()), uiNumTriangles * 3);
+      outMesh.m_TriangleIndices = indices;
     }
     else
     {
+      outMesh.m_TriangleIndices.SetCountUninitialized(uiNumTriangles * 3);
       const ezUInt16* pIndices = reinterpret_cast<const ezUInt16*>(meshBuffer.GetIndexBufferData().GetPtr());
 
       for (ezUInt32 tri = 0; tri < uiNumTriangles * 3; ++tri)

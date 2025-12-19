@@ -11,6 +11,7 @@
 struct ezMsgTransformChanged;
 struct ezMsgParentChanged;
 struct ezMsgExtractRenderData;
+class ezAbstractObjectNode;
 class ezSplineComponent;
 class ezSplineNodeComponent;
 
@@ -128,7 +129,7 @@ public:
 
 
   /// \brief Returns the spline key (segment index + t) for the given distance along the spline
-  float GetKeyAtDistance(float fDistance) const; // [ scriptable ]
+  float GetKeyAtDistance(float fDistance) const { return GetKeyAtDistanceHelper(m_DistanceToKey, fDistance); } // [ scriptable ]
 
   /// \brief Returns the position of the spline at the given distance along the spline.
   ezVec3 GetPositionAtDistance(float fDistance, ezEnum<ezSplineComponentSpace> space = ezSplineComponentSpace::Default) const; // [ scriptable ]
@@ -154,7 +155,14 @@ public:
   const ezSpline& GetSpline() const { return m_Spline; }
   void SetSpline(ezSpline&& spline);
 
+  /// \brief Returns the underlying mapping of distances to spline keys.
+  const ezArrayMap<float, float>& GetDistanceToKeyRemapping() const { return m_DistanceToKey; }
+  static float GetKeyAtDistanceHelper(const ezArrayMap<float, float>& distanceToKey, float fDistance);
+
   ezUInt32 GetChangeCounter() const { return m_Spline.m_uiChangeCounter; } // [ scriptable ]
+
+  /// \brief Returns the unique identifier of this spline component. This is only valid for spline components created in the editor.
+  const ezUuid& GetUuid() const { return m_Uuid; }
 
 protected:
   friend class ezSplineNodeComponent;
@@ -162,7 +170,7 @@ protected:
   /// \brief Informs the spline component, that its shape has changed. Sent by spline nodes when they are modified.
   void OnMsgSplineChanged(ezMsgSplineChanged& ref_msg); // [ message handler ]
 
-  void ForwardSplineChangedEvent();
+  void SendSplineChangedEvent();
 
   ezUInt32 Nodes_GetCount() const { return m_Nodes.GetCount(); }                           // [ property ]
   const ezHashedString& Nodes_GetNode(ezUInt32 uiIndex) const { return m_Nodes[uiIndex]; } // [ property ]
@@ -170,7 +178,7 @@ protected:
   void Nodes_Insert(ezUInt32 uiIndex, const ezHashedString& sNodeName);                    // [ property ]
   void Nodes_Remove(ezUInt32 uiIndex);                                                     // [ property ]
 
-  void UpdateSpline(bool bForwardChangedEvent = true);
+  void UpdateSpline(bool bSendChangedEvent = true);
 
   ezSplineNodeComponent* FindNodeComponent(const ezHashedString& sNodeName);
   void UpdateFromNodeObjects();
@@ -182,7 +190,10 @@ protected:
   void DrawDebugVisualizations(ezBitflags<ezSplineComponentFlags> flags) const;
   void DrawDebugTangents(ezUInt32 uiPointIndex, ezSplineTangentMode::Enum tangentModeIn = ezSplineTangentMode::Default, ezSplineTangentMode::Enum tangentModeOut = ezSplineTangentMode::Default) const;
   bool DrawSplineOnSelection() const;
+
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
+
+  void OnObjectCreated(const ezAbstractObjectNode& node);
 
   ezSpline m_Spline;
 
@@ -194,6 +205,8 @@ protected:
   ezBitflags<ezSplineComponentFlags> m_SplineFlags; // [ property ]
   ezUInt8 m_uiDummy = 0;
   mutable ezUInt16 m_uiExtractedFrame = 0;
+
+  ezUuid m_Uuid;
 };
 
 //////////////////////////////////////////////////////////////////////////

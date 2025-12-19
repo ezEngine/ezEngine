@@ -5,6 +5,20 @@
 
 struct ezMsgSplineChanged;
 
+/// \brief Message sent by the ezSplineMeshComponent to request collision mesh generation.
+struct EZ_RENDERERCORE_DLL ezMsgGenerateSplineMeshCollision : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgGenerateSplineMeshCollision, ezMessage);
+
+  ezComponentHandle m_hSplineComponent;
+  ezSmallArray<ezMeshResourceHandle, 4> m_RenderMeshes;
+  ezSmallArray<ezVec2, 4> m_ScaleOffsets;
+  float m_fLocalOffsetY = 0.0f;
+  float m_fLocalOffsetZ = 0.0f;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
 using ezSplineMeshComponentManager = ezComponentManager<class ezSplineMeshComponent, ezBlockStorageType::Compact>;
 
 /// \brief TODO: Documentation
@@ -21,12 +35,6 @@ public:
 
   virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
   virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
-
-  //////////////////////////////////////////////////////////////////////////
-  // ezRenderComponent
-
-public:
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezSplineMeshComponent
@@ -56,6 +64,8 @@ public:
   void SetOffsetZ(float fOffsetZ);                                                                       // [ property ]
   float GetOffsetZ() const { return m_fOffsetZ; }                                                        // [ property ]
 
+  static ezResult GenerateSplineMeshDesc(const ezSpline& spline, const ezArrayMap<float, float>& distanceToKey, ezArrayPtr<ezCpuMeshResource*> meshes, ezArrayPtr<ezVec2> scaleOffsets, float fLocalOffsetY, float fLocalOffsetZ, ezMeshResourceDescriptor& out_splineMeshDesc);
+
 private:
   ezUInt32 MiddleParts_GetCount() const { return m_Desc.m_MiddleParts.GetCount(); }
   const ezSplineMeshPart& MiddleParts_GetValue(ezUInt32 uiIndex) const { return m_Desc.m_MiddleParts[uiIndex]; }
@@ -66,7 +76,7 @@ private:
   void OnMsgSplineChanged(ezMsgSplineChanged& ref_msg);           // [ msg handler ]
   void OnMsgExtractGeometry(ezMsgExtractGeometry& ref_msg) const; // [ msg handler ]
 
-  ezResult GenerateSplineMesh(ezMeshResourceDescriptor& out_splineMeshDesc) const;
+  ezResult GenerateSplineMesh(ezMeshResourceDescriptor& out_splineMeshDesc, ezMsgGenerateSplineMeshCollision* out_pMsg = nullptr) const;
   void UpdateSplineMesh();
 
   const ezSplineComponent* GetSplineComponent() const;
@@ -75,4 +85,6 @@ private:
 
   float m_fOffsetY = 0.0f;
   float m_fOffsetZ = 0.0f;
+
+  ezUInt32 m_uiLastChangeCounter = 0;
 };
