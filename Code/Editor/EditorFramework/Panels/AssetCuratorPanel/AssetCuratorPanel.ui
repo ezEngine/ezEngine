@@ -72,6 +72,22 @@
            </widget>
           </item>
           <item>
+           <widget class="ezQGridBarWidget" name="ProcessorProgressGridBar" native="true">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>20</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="ezQtAssetProcessorProgressWidget" name="ProcessorProgress" native="true">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -180,6 +196,12 @@
    <class>ezQtAssetProcessorProgressWidget</class>
    <extends>QWidget</extends>
    <header location="global">EditorFramework/Panels/AssetCuratorPanel/AssetProcessorProgressWidget.moc.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ezQGridBarWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">GuiFoundation/Widgets/GridBarWidget.moc.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

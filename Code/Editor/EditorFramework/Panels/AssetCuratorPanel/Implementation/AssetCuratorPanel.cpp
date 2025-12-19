@@ -88,6 +88,7 @@ ezQtAssetCuratorPanel::ezQtAssetCuratorPanel(ads::CDockManager* pDockManager)
   ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
   ezUInt32 uiMaxProcessors = ezMath::Min<ezUInt32>(ezTaskSystem::GetWorkerThreadCount(ezWorkerThreadType::LongTasks), pPreferences->m_uiMaxAssetProcessors);
   ProcessorProgress->SetMaxProcessors(uiMaxProcessors);
+  ProcessorProgress->SetGridBarWidget(ProcessorProgressGridBar);
 
   m_pFilter = new ezQtAssetCuratorFilter(this);
   m_Model = QSharedPointer<ezQtAssetBrowserModel>(new ezQtAssetBrowserModel(this, m_pFilter));
