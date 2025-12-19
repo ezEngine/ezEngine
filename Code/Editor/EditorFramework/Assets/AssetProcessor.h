@@ -38,6 +38,23 @@ struct ezAssetProcessorEvent
   Type m_Type;
 };
 
+struct ezAssetProcessorProgressEvent
+{
+  enum class Type
+  {
+    ProcessingStarted, ///< A processor started working on an asset
+    ProcessingFinished ///< A processor finished working on an asset
+  };
+
+  Type m_Type;
+  ezUInt32 m_uiProcessorID;
+  ezUuid m_AssetGuid;
+  ezString m_sAssetPath;
+  ezTime m_StartTime;
+  ezTime m_EndTime;
+  ezTransformStatus m_Result; ///< Only valid when m_Type == ProcessingFinished
+};
+
 
 class ezProcessThread : public ezThread
 {
@@ -68,6 +85,7 @@ public:
   ~ezProcessTask();
 
   ezUInt32 m_uiProcessorID;
+  ezTime m_ProcessingStartTime;
 
   bool Tick(bool bStartNewWork); // returns false, if all processing is done, otherwise call Tick again.
 
@@ -132,7 +150,8 @@ public:
 
 public:
   // Can be called from worker threads!
-  ezEvent<const ezAssetProcessorEvent&> m_Events;
+  ezCopyOnBroadcastEvent<const ezAssetProcessorEvent&, ezMutex> m_Events;
+  ezCopyOnBroadcastEvent<const ezAssetProcessorProgressEvent&, ezMutex> m_ProgressEvents;
 
 private:
   friend class ezProcessTask;

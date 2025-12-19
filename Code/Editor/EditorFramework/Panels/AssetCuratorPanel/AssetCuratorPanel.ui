@@ -72,6 +72,22 @@
            </widget>
           </item>
           <item>
+           <widget class="ezQtAssetProcessorProgressWidget" name="ProcessorProgress" native="true">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>200</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="ezQtLogWidget" name="CuratorLog" native="true"/>
           </item>
          </layout>
@@ -158,6 +174,12 @@
    <class>ezQtCuratorControl</class>
    <extends>QWidget</extends>
    <header location="global">EditorFramework/Panels/AssetBrowserPanel/CuratorControl.moc.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ezQtAssetProcessorProgressWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">EditorFramework/Panels/AssetCuratorPanel/AssetProcessorProgressWidget.moc.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

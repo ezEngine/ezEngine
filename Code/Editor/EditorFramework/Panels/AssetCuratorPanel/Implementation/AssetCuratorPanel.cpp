@@ -4,6 +4,8 @@
 #include <EditorFramework/Assets/AssetProcessor.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Panels/AssetCuratorPanel/AssetCuratorPanel.moc.h>
+#include <EditorFramework/Preferences/EditorPreferences.h>
+#include <Foundation/Threading/TaskSystem.h>
 #include <GuiFoundation/Models/LogModel.moc.h>
 
 ezQtAssetCuratorFilter::ezQtAssetCuratorFilter(QObject* pParent)
@@ -81,6 +83,11 @@ ezQtAssetCuratorPanel::ezQtAssetCuratorPanel(ads::CDockManager* pDockManager)
   connect(CheckIndirect, &QCheckBox::toggled, this, &ezQtAssetCuratorPanel::onCheckIndirectToggled);
 
   ezAssetProcessor::GetSingleton()->AddLogWriter(ezMakeDelegate(&ezQtAssetCuratorPanel::LogWriter, this));
+  
+  // Initialize progress widget with the max number of processors
+  ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+  ezUInt32 uiMaxProcessors = ezMath::Min<ezUInt32>(ezTaskSystem::GetWorkerThreadCount(ezWorkerThreadType::LongTasks), pPreferences->m_uiMaxAssetProcessors);
+  ProcessorProgress->SetMaxProcessors(uiMaxProcessors);
 
   m_pFilter = new ezQtAssetCuratorFilter(this);
   m_Model = QSharedPointer<ezQtAssetBrowserModel>(new ezQtAssetBrowserModel(this, m_pFilter));

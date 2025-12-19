@@ -501,6 +501,19 @@ bool ezProcessTask::Tick(bool bStartNewWork)
       case State::Ready:
       {
         ezLog::Info(&ezAssetProcessor::GetSingleton()->m_CuratorLog, "Processing '{0}'", m_AssetPath.GetDataDirRelativePath());
+        
+        // Fire progress event for processing started
+        m_ProcessingStartTime = ezTime::Now();
+        {
+          ezAssetProcessorProgressEvent e;
+          e.m_Type = ezAssetProcessorProgressEvent::Type::ProcessingStarted;
+          e.m_uiProcessorID = m_uiProcessorID;
+          e.m_AssetGuid = m_AssetGuid;
+          e.m_sAssetPath = m_AssetPath.GetDataDirRelativePath();
+          e.m_StartTime = m_ProcessingStartTime;
+          ezAssetProcessor::GetSingleton()->m_ProgressEvents.Broadcast(e);
+        }
+        
         // Send and wait
         ezProcessAssetMsg msg;
         msg.m_AssetGuid = m_AssetGuid;
@@ -535,6 +548,19 @@ bool ezProcessTask::Tick(bool bStartNewWork)
       break;
       case State::ReportResult:
       {
+        // Fire progress event for processing finished
+        {
+          ezAssetProcessorProgressEvent e;
+          e.m_Type = ezAssetProcessorProgressEvent::Type::ProcessingFinished;
+          e.m_uiProcessorID = m_uiProcessorID;
+          e.m_AssetGuid = m_AssetGuid;
+          e.m_sAssetPath = m_AssetPath.GetDataDirRelativePath();
+          e.m_StartTime = m_ProcessingStartTime;
+          e.m_EndTime = ezTime::Now();
+          e.m_Result = m_Status;
+          ezAssetProcessor::GetSingleton()->m_ProgressEvents.Broadcast(e);
+        }
+        
         if (m_Status.Succeeded())
         {
           ezAssetCurator::GetSingleton()->NotifyOfAssetChange(m_AssetGuid);
