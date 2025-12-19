@@ -75,6 +75,7 @@ private:
   // Rendering the current time is a bit cumbersome so we instead subtract an offset to make the graph start at zero seconds.
   bool m_bCurrentOffsetValid = false;
   ezTime m_CurrentOffset;
+  ezDynamicArray<ezTime> m_SkipOffsets;
 
   QTimer* m_pUpdateTimer = nullptr;
   QPushButton* m_pClearButton = nullptr;

@@ -91,7 +91,14 @@ void ezQtAssetProcessorProgressWidget::OnProgressEvent(const ezAssetProcessorPro
   {
     if (!m_bCurrentOffsetValid)
     {
-      m_CurrentOffset = e.m_StartTime;
+      if (m_CurrentOffset.IsZero())
+      {
+        m_CurrentOffset = e.m_StartTime - (GetLatestTaskTime());
+      }
+      else
+      {
+        m_CurrentOffset = e.m_StartTime - (GetLatestTaskTime() + ezTime::MakeFromSeconds(1));
+      }
       m_bCurrentOffsetValid = true;
     }
 
@@ -123,6 +130,19 @@ void ezQtAssetProcessorProgressWidget::OnProgressEvent(const ezAssetProcessorPro
 
 void ezQtAssetProcessorProgressWidget::OnUpdateTimer()
 {
+  EZ_LOCK(m_HistoryMutex);
+  if (m_bCurrentOffsetValid)
+  {
+    // If 1 second has passed and no asset is processing anymore, we cut the timeline here and add a Skip offset. This means that when the next event comes in, we recompute m_CurrentOffset so new transforms are appended right after the previous transforms. Basically we are cutting out downtime out of the graph in which nothing happens so it's nice to scroll through. We indicate that we cut the timeline by drawing a pattern in the background for one second that shows the timeline was cut.
+    ezTime currentPos = ezTime::Now() - m_CurrentOffset;
+    ezTime latestTaskTime = GetLatestTaskTime();
+    if ((currentPos - latestTaskTime) >= ezTime::MakeFromSeconds(1))
+    {
+      EZ_LOCK(m_HistoryMutex);
+      m_bCurrentOffsetValid = false;
+      m_SkipOffsets.PushBack(latestTaskTime);
+    }
+  }
   // Trigger repaint for smooth timeline scrolling
   update();
 }
@@ -248,8 +268,9 @@ ezTime ezQtAssetProcessorProgressWidget::GetLatestTaskTime() const
 
   for (const auto& history : m_ProcessorHistory)
   {
-    for (const auto& task : history)
+    if (!history.IsEmpty())
     {
+      auto& task = history.PeekBack();
       ezTime taskTime = task.m_bFinished ? task.m_EndTime : (ezTime::Now() - m_CurrentOffset);
       if (taskTime > latest)
       {
@@ -320,6 +341,14 @@ void ezQtAssetProcessorProgressWidget::DrawProcessorRow(QPainter& painter, ezUIn
 
   // Draw row background
   painter.fillRect(s_iLeftMargin, y, timelineWidth, rowHeight, QColor(30, 30, 35));
+
+  for (const auto& skipOffset : m_SkipOffsets)
+  {
+    QPoint startPt = MapFromScene(QPointF(skipOffset.GetSeconds(), y));
+    QPoint endPt = MapFromScene(QPointF(skipOffset.GetSeconds() + 1, y + rowHeight));
+    painter.fillRect(QRectF(startPt, endPt), QColor(60, 60, 65));
+  }
+
 
   // Draw grid lines
   painter.setPen(QPen(QColor(50, 50, 55), 1, Qt::DotLine));
