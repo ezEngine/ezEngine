@@ -18,6 +18,8 @@ EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezRenderTargetFormat, 1)
   EZ_ENUM_CONSTANTS(ezRenderTargetFormat::RGBA8sRgb, ezRenderTargetFormat::RGBA8, ezRenderTargetFormat::RGB10, ezRenderTargetFormat::RGBA16)
+  EZ_ENUM_CONSTANTS(ezRenderTargetFormat::R8, ezRenderTargetFormat::R16, ezRenderTargetFormat::R32)
+  EZ_ENUM_CONSTANTS(ezRenderTargetFormat::RG8, ezRenderTargetFormat::RG16, ezRenderTargetFormat::RG32)
 EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetProperties, 5, ezRTTIDefaultAllocator<ezTextureAssetProperties>)

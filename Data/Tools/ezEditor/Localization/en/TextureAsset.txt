@@ -33,6 +33,12 @@ ezRenderTargetFormat::RGBA8;RGBA8 (linear)
 ezRenderTargetFormat::RGBA8sRgb;RGBA8 (sRGB)
 ezRenderTargetFormat::RGB10;RGB10
 ezRenderTargetFormat::RGBA16;RGBA16
+ezRenderTargetFormat::R8;R8 (normalized)
+ezRenderTargetFormat::R16;R16 (half float)
+ezRenderTargetFormat::R32;R32 (full float)
+ezRenderTargetFormat::RG8;RG8 (normalized)
+ezRenderTargetFormat::RG16;RG16 (half float)
+ezRenderTargetFormat::RG32;RG32 (full float)
 
 ezTextureFilterSetting::FixedNearest;Fixed: Nearest
 ezTextureFilterSetting::FixedBilinear;Fixed: Bilinear
