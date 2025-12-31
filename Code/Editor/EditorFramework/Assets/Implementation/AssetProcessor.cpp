@@ -281,7 +281,7 @@ void ezProcessTask::EventHandlerIPC(const ezProcessCommunicationChannel::Event& 
   }
 }
 
-bool ezProcessTask::GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, ezDataDirPath& out_path)
+bool ezProcessTask::GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, ezDataDirPath& out_path, ezAssetInfo::TransformState& out_transformState)
 {
   bool bComplete = true;
 
@@ -334,12 +334,12 @@ bool ezProcessTask::GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, 
 
   if (ezAssetInfo* pDepInfo = TestFunc(pInfo->m_Info->m_TransformDependencies))
   {
-    return GetNextAssetToProcess(pDepInfo, out_guid, out_path);
+    return GetNextAssetToProcess(pDepInfo, out_guid, out_path, out_transformState);
   }
 
   if (ezAssetInfo* pDepInfo = TestFunc(pInfo->m_Info->m_ThumbnailDependencies))
   {
-    return GetNextAssetToProcess(pDepInfo, out_guid, out_path);
+    return GetNextAssetToProcess(pDepInfo, out_guid, out_path, out_transformState);
   }
 
   // not needed to go through package dependencies here
@@ -350,13 +350,14 @@ bool ezProcessTask::GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, 
     ezAssetCurator::GetSingleton()->m_Updating.Insert(pInfo->m_Info->m_DocumentID);
     out_guid = pInfo->m_Info->m_DocumentID;
     out_path = pInfo->m_Path;
+    out_transformState = pInfo->m_TransformState;
     return true;
   }
 
   return false;
 }
 
-bool ezProcessTask::GetNextAssetToProcess(ezUuid& out_guid, ezDataDirPath& out_path)
+bool ezProcessTask::GetNextAssetToProcess(ezUuid& out_guid, ezDataDirPath& out_path, ezAssetInfo::TransformState& out_transformState)
 {
   EZ_LOCK(ezAssetCurator::GetSingleton()->m_CuratorMutex);
 
@@ -365,7 +366,7 @@ bool ezProcessTask::GetNextAssetToProcess(ezUuid& out_guid, ezDataDirPath& out_p
     ezAssetInfo* pInfo = ezAssetCurator::GetSingleton()->GetAssetInfo(it.Key());
     if (pInfo)
     {
-      bool bRes = GetNextAssetToProcess(pInfo, out_guid, out_path);
+      bool bRes = GetNextAssetToProcess(pInfo, out_guid, out_path, out_transformState);
       if (bRes)
         return true;
     }
@@ -376,7 +377,7 @@ bool ezProcessTask::GetNextAssetToProcess(ezUuid& out_guid, ezDataDirPath& out_p
     ezAssetInfo* pInfo = ezAssetCurator::GetSingleton()->GetAssetInfo(it.Key());
     if (pInfo)
     {
-      bool bRes = GetNextAssetToProcess(pInfo, out_guid, out_path);
+      bool bRes = GetNextAssetToProcess(pInfo, out_guid, out_path, out_transformState);
       if (bRes)
         return true;
     }
@@ -426,7 +427,7 @@ bool ezProcessTask::Tick(bool bStartNewWork)
 
           EZ_LOCK(pCurator->m_CuratorMutex);
 
-          if (!GetNextAssetToProcess(m_AssetGuid, m_AssetPath))
+          if (!GetNextAssetToProcess(m_AssetGuid, m_AssetPath, m_TransformState))
           {
             m_AssetGuid = ezUuid();
             m_AssetPath.Clear();
@@ -501,19 +502,20 @@ bool ezProcessTask::Tick(bool bStartNewWork)
       case State::Ready:
       {
         ezLog::Info(&ezAssetProcessor::GetSingleton()->m_CuratorLog, "Processing '{0}'", m_AssetPath.GetDataDirRelativePath());
-        
+
         // Fire progress event for processing started
         m_ProcessingStartTime = ezTime::Now();
         {
           ezAssetProcessorProgressEvent e;
           e.m_Type = ezAssetProcessorProgressEvent::Type::ProcessingStarted;
-          e.m_uiProcessorID = m_uiProcessorID;
+          e.m_TransformState = m_TransformState;
+          e.m_uiProcessorID = (ezUInt8)m_uiProcessorID;
           e.m_AssetGuid = m_AssetGuid;
           e.m_sAssetPath = m_AssetPath.GetDataDirRelativePath();
           e.m_StartTime = m_ProcessingStartTime;
           ezAssetProcessor::GetSingleton()->m_ProgressEvents.Broadcast(e);
         }
-        
+
         // Send and wait
         ezProcessAssetMsg msg;
         msg.m_AssetGuid = m_AssetGuid;
@@ -560,7 +562,7 @@ bool ezProcessTask::Tick(bool bStartNewWork)
           e.m_Result = m_Status;
           ezAssetProcessor::GetSingleton()->m_ProgressEvents.Broadcast(e);
         }
-        
+
         if (m_Status.Succeeded())
         {
           ezAssetCurator::GetSingleton()->NotifyOfAssetChange(m_AssetGuid);

@@ -107,6 +107,7 @@ void ezQtAssetProcessorProgressWidget::OnProgressEvent(const ezAssetProcessorPro
     task.m_AssetGuid = e.m_AssetGuid;
     task.m_sAssetPath = e.m_sAssetPath;
     task.m_StartTime = e.m_StartTime - m_CurrentOffset;
+    task.m_TransformState = e.m_TransformState;
     task.m_bFinished = false;
     history.PushBack(task);
   }
@@ -119,7 +120,7 @@ void ezQtAssetProcessorProgressWidget::OnProgressEvent(const ezAssetProcessorPro
       {
         history[i].m_EndTime = e.m_EndTime - m_CurrentOffset;
         history[i].m_bFinished = true;
-        history[i].m_bSuccess = e.m_Result.Succeeded();
+        history[i].m_Result = e.m_Result;
         break;
       }
     }
@@ -282,17 +283,70 @@ ezTime ezQtAssetProcessorProgressWidget::GetLatestTaskTime() const
   return latest;
 }
 
+const ezQtAssetProcessorProgressWidget::ProcessorTask* ezQtAssetProcessorProgressWidget::FindTaskAtPosition(const QPoint& pos, ezUInt32& out_uiProcessorID) const
+{
+  EZ_LOCK(m_HistoryMutex);
+
+  // Check if we're in the timeline area
+  if (pos.x() < s_iLeftMargin)
+    return nullptr;
+
+  // Determine which processor row we're in
+  int relativeY = pos.y() - s_iTopMargin;
+  if (relativeY < 0)
+    return nullptr;
+
+  ezUInt32 uiProcessorID = relativeY / (s_iRowHeight + s_iRowSpacing);
+  if (uiProcessorID >= m_uiMaxProcessors || uiProcessorID >= m_ProcessorHistory.GetCount())
+    return nullptr;
+
+  // Check if we're within the row bounds (not in the spacing)
+  int rowStartY = s_iTopMargin + uiProcessorID * (s_iRowHeight + s_iRowSpacing);
+  if (pos.y() < rowStartY || pos.y() > rowStartY + s_iRowHeight)
+    return nullptr;
+
+  // Convert mouse position to scene time
+  QPointF scenePos = MapToScene(pos);
+  double mouseTime = scenePos.x();
+
+  // Search for a task at this position
+  const ezDynamicArray<ProcessorTask>& history = m_ProcessorHistory[uiProcessorID];
+  const ezTime currentTime = ezTime::Now() - m_CurrentOffset;
+
+  // Use binary search to find the task at mouseTime
+  auto it = std::upper_bound(begin(history), end(history), mouseTime,
+    [&](double time, const ProcessorTask& task)
+    {
+      return time < task.m_StartTime.GetSeconds();
+    });
+
+  if (it != begin(history))
+  {
+    --it;
+    double startTime = it->m_StartTime.GetSeconds();
+    double endTime = it->m_bFinished ? it->m_EndTime.GetSeconds() : currentTime.GetSeconds();
+
+    if (mouseTime >= startTime && mouseTime <= endTime)
+    {
+      out_uiProcessorID = uiProcessorID;
+      return &(*it);
+    }
+  }
+
+  return nullptr;
+}
+
 void ezQtAssetProcessorProgressWidget::paintEvent(QPaintEvent* event)
 {
   QPainter painter(this);
   painter.setRenderHint(QPainter::Antialiasing);
 
   // Fill background
-  painter.fillRect(rect(), QColor(45, 45, 48));
+  painter.fillRect(rect(), palette().color(QPalette::Window));
 
   if (m_uiMaxProcessors == 0)
   {
-    painter.setPen(QColor(200, 200, 200));
+    painter.setPen(palette().color(QPalette::Text));
     painter.drawText(rect(), Qt::AlignCenter, "No asset processors running");
     return;
   }
@@ -329,10 +383,10 @@ void ezQtAssetProcessorProgressWidget::DrawProcessorRow(QPainter& painter, ezUIn
   QRectF viewportRect = ComputeViewportSceneRect();
 
   // Draw processor label background
-  painter.fillRect(0, y, s_iLeftMargin - 5, rowHeight, QColor(60, 60, 65));
+  painter.fillRect(0, y, s_iLeftMargin - 5, rowHeight, palette().color(QPalette::Window));
 
   // Draw processor label
-  painter.setPen(QColor(200, 200, 200));
+  painter.setPen(palette().color(QPalette::Text));
   QFont labelFont = painter.font();
   labelFont.setPointSize(9);
   painter.setFont(labelFont);
@@ -340,19 +394,24 @@ void ezQtAssetProcessorProgressWidget::DrawProcessorRow(QPainter& painter, ezUIn
     QString("Processor %1").arg(uiProcessorID));
 
   // Draw row background
-  painter.fillRect(s_iLeftMargin, y, timelineWidth, rowHeight, QColor(30, 30, 35));
+  painter.fillRect(s_iLeftMargin, y, timelineWidth, rowHeight, palette().color(QPalette::Base));
+
+  QPixmap pixmap(16, 16);
+  pixmap.fill(Qt::transparent);
+  QPainter pixPainter(&pixmap);
+  pixPainter.setPen(QPen(palette().color(QPalette::AlternateBase), 5));
+  pixPainter.setRenderHint(QPainter::Antialiasing);
+  pixPainter.drawLine(-16, -16, 32, 32);
+  pixPainter.drawLine(-32, -16, 16, 32);
+  pixPainter.drawLine(0, -16, 48, 32);
+  pixPainter.end();
 
   for (const auto& skipOffset : m_SkipOffsets)
   {
     QPoint startPt = MapFromScene(QPointF(skipOffset.GetSeconds(), y));
     QPoint endPt = MapFromScene(QPointF(skipOffset.GetSeconds() + 1, y + rowHeight));
-    painter.fillRect(QRectF(startPt, endPt), QColor(60, 60, 65));
+    painter.fillRect(QRectF(startPt, endPt), QBrush(pixmap));
   }
-
-
-  // Draw grid lines
-  painter.setPen(QPen(QColor(50, 50, 55), 1, Qt::DotLine));
-  painter.drawLine(s_iLeftMargin, y + rowHeight, widgetWidth, y + rowHeight);
 
   // Draw tasks for this processor
   EZ_LOCK(m_HistoryMutex);
@@ -392,18 +451,27 @@ void ezQtAssetProcessorProgressWidget::DrawProcessorRow(QPainter& painter, ezUIn
 
     // Choose color based on status
     QColor barColor;
+    switch (task.m_TransformState)
+    {
+      case ezAssetInfo::NeedsTransform:
+        barColor = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Blue));
+        break;
+      case ezAssetInfo::NeedsThumbnail:
+        barColor = ezToQtColor(ezColorScheme::DarkUI(float(ezColorScheme::Blue + ezColorScheme::Green) * 0.5f * ezColorScheme::s_fIndexNormalizer));
+        break;
+      default:
+        barColor = palette().color(QPalette::Highlight);
+        break;
+    }
+
     if (!task.m_bFinished)
     {
       // Currently processing - animate with a gradient
-      barColor = QColor(50, 150, 250); // Blue for in-progress
+      barColor = barColor.darker(100);
     }
-    else if (task.m_bSuccess)
+    else if (!task.m_Result.Succeeded())
     {
-      barColor = QColor(80, 200, 120); // Green for success
-    }
-    else
-    {
-      barColor = QColor(220, 80, 80); // Red for failure
+      barColor = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Red));
     }
 
     // Draw task bar
@@ -416,7 +484,7 @@ void ezQtAssetProcessorProgressWidget::DrawProcessorRow(QPainter& painter, ezUIn
     // Draw asset name if there's enough space
     if (barWidth > 30)
     {
-      painter.setPen(QColor(255, 255, 255));
+      painter.setPen(palette().color(QPalette::BrightText));
       QFont taskFont = painter.font();
       taskFont.setPointSize(8);
       painter.setFont(taskFont);
@@ -495,6 +563,36 @@ void ezQtAssetProcessorProgressWidget::mouseMoveEvent(QMouseEvent* e)
   else
   {
     setCursor(Qt::ArrowCursor);
+
+    // Show tooltip when hovering over a task
+    ezUInt32 uiProcessorID = 0;
+    const ProcessorTask* pTask = FindTaskAtPosition(e->pos(), uiProcessorID);
+    if (pTask != nullptr)
+    {
+      QString tooltip = GetShortAssetName(pTask->m_sAssetPath);
+      tooltip += "\n\nPath: " + QString::fromUtf8(pTask->m_sAssetPath.GetData());
+
+      if (pTask->m_bFinished)
+      {
+        ezTime duration = pTask->m_EndTime - pTask->m_StartTime;
+        tooltip += QString("\nDuration: %1s").arg(duration.GetSeconds(), 0, 'f', 3);
+
+        if (pTask->m_Result.Failed() && !pTask->m_Result.m_sMessage.IsEmpty())
+        {
+          tooltip += "\n\nError:\n" + QString::fromUtf8(pTask->m_Result.m_sMessage.GetData());
+        }
+      }
+      else
+      {
+        tooltip += "\n\nStatus: Processing...";
+      }
+
+      QToolTip::showText(e->globalPos(), tooltip, this);
+    }
+    else
+    {
+      QToolTip::hideText();
+    }
   }
 
   m_LastMousePos = e->pos();

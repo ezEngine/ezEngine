@@ -1,6 +1,9 @@
 #pragma once
 
 #include <EditorFramework/EditorFrameworkDLL.h>
+
+#include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/Assets/Declarations.h>
 #include <Foundation/Time/Time.h>
 #include <Foundation/Types/Uuid.h>
 #include <QWidget>
@@ -54,8 +57,9 @@ private:
     ezString m_sAssetPath;
     ezTime m_StartTime;
     ezTime m_EndTime;
+    ezTransformStatus m_Result;
+    ezAssetInfo::TransformState m_TransformState = ezAssetInfo::Unknown;
     bool m_bFinished = false;
-    bool m_bSuccess = false;
   };
 
   void OnProgressEvent(const ezAssetProcessorProgressEvent& e);
@@ -68,6 +72,7 @@ private:
   void UpdateGridBarConfig();
   QRectF ComputeViewportSceneRect() const;
   ezTime GetLatestTaskTime() const;
+  const ProcessorTask* FindTaskAtPosition(const QPoint& pos, ezUInt32& out_uiProcessorID) const;
 
   mutable ezMutex m_HistoryMutex; // Protects m_ProcessorHistory from concurrent access
   ezUInt32 m_uiMaxProcessors = 0;

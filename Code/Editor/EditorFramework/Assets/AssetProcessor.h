@@ -40,14 +40,15 @@ struct ezAssetProcessorEvent
 
 struct ezAssetProcessorProgressEvent
 {
-  enum class Type
+  enum class Type : ezUInt8
   {
     ProcessingStarted, ///< A processor started working on an asset
     ProcessingFinished ///< A processor finished working on an asset
   };
 
   Type m_Type;
-  ezUInt32 m_uiProcessorID;
+  ezAssetInfo::TransformState m_TransformState = ezAssetInfo::Unknown;
+  ezUInt8 m_uiProcessorID;
   ezUuid m_AssetGuid;
   ezString m_sAssetPath;
   ezTime m_StartTime;
@@ -100,17 +101,19 @@ public:
 private:
   void EventHandlerIPC(const ezProcessCommunicationChannel::Event& e);
 
-  bool GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, ezDataDirPath& out_path);
-  bool GetNextAssetToProcess(ezUuid& out_guid, ezDataDirPath& out_path);
+  bool GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, ezDataDirPath& out_path, ezAssetInfo::TransformState& out_transformState);
+  bool GetNextAssetToProcess(ezUuid& out_guid, ezDataDirPath& out_path, ezAssetInfo::TransformState& out_transformState);
   void OnProcessCrashed(ezStringView message);
 
 
   State m_State = State::LookingForWork;
   ezUuid m_AssetGuid;
+  ezDataDirPath m_AssetPath;
+  ezAssetInfo::TransformState m_TransformState = ezAssetInfo::TransformState::Unknown;
+
   ezUInt64 m_uiAssetHash = 0;
   ezUInt64 m_uiThumbHash = 0;
   ezUInt64 m_uiPackageHash = 0;
-  ezDataDirPath m_AssetPath;
   ezEditorProcessCommunicationChannel* m_pIPC;
   bool m_bProcessShouldBeRunning = false;
   ezTransformStatus m_Status;
