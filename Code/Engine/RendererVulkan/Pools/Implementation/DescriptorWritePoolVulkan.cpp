@@ -49,7 +49,7 @@ void ezDescriptorWritePoolVulkan::WriteDescriptor(vk::DescriptorSet descriptorSe
     vk::WriteDescriptorSet& write = WriteBindGroupItem(descriptorSet, binding, item, nullptr);
     if (binding.m_ResourceType == ezGALShaderResourceType::ConstantBuffer)
     {
-      out_Offsets.PushBack(write.pBufferInfo->offset);
+      out_Offsets.PushBack(static_cast<ezUInt32>(write.pBufferInfo->offset));
       const_cast<vk::DescriptorBufferInfo*>(write.pBufferInfo)->offset = 0;
     }
   }

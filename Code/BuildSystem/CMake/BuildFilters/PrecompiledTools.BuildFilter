@@ -11,7 +11,10 @@ set_property(GLOBAL PROPERTY EZ_BUILD_FILTER_PrecompiledTools
     RendererCore
     RendererDX11
     RendererFoundation
+    RendererVulkan
+    ShaderCompilerDXC
     ShaderCompilerHLSL
+    ShaderCompilerVulkan
     ToolsFoundation
     Fileserve
     FileservePlugin
@@ -26,6 +29,7 @@ set_property(GLOBAL PROPERTY EZ_BUILD_FILTER_PrecompiledTools
     mikktspace
     Utilities
     ads
+    SPIRV-Reflect
     stb
     tinyexr
     DependencyAnalysis

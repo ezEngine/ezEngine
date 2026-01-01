@@ -520,22 +520,12 @@ ezResult ezGALDeviceVulkan::InitPlatform()
       transferQueueCreateInfo.queueFamilyIndex = m_transferQueue.m_uiQueueFamily;
     }
 
-    // #TODO_VULKAN test that this returns the same as 'layers' passed into the instance.
-    ezUInt32 uiLayers;
-    VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_physicalDevice.enumerateDeviceLayerProperties(&uiLayers, nullptr));
-    ezDynamicArray<vk::LayerProperties> deviceLayers;
-    deviceLayers.SetCount(uiLayers);
-    VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_physicalDevice.enumerateDeviceLayerProperties(&uiLayers, deviceLayers.GetData()));
-
     vk::DeviceCreateInfo deviceCreateInfo = {};
     ezHybridArray<const char*, 6> deviceExtensions;
     VK_SUCCEED_OR_RETURN_EZ_FAILURE(SelectDeviceExtensions(deviceCreateInfo, deviceExtensions));
 
     deviceCreateInfo.enabledExtensionCount = deviceExtensions.GetCount();
     deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions.GetData();
-    // Device layers are deprecated but provided (same as in instance) for backwards compatibility.
-    deviceCreateInfo.enabledLayerCount = EZ_ARRAY_SIZE(layers);
-    deviceCreateInfo.ppEnabledLayerNames = layers;
 
     vk::PhysicalDeviceFeatures physicalDeviceFeatures = m_physicalDevice.getFeatures();
     deviceCreateInfo.pEnabledFeatures = &physicalDeviceFeatures; // Enabling all available features for now
