@@ -196,12 +196,16 @@ public:
     m_Getter(static_cast<Class*>(pInstance)).Clear();
   }
 
+  // Suppress conversion warning from ezUInt32 to ezUInt16 for SetCount when using ezSmallArray as container
+#pragma warning(push)
+#pragma warning(disable : 4244)
   virtual void SetCount(void* pInstance, ezUInt32 uiCount) const override
   {
     EZ_ASSERT_DEBUG(m_Getter != nullptr, "The property '{0}' has no non-const array accessor function, thus it is read-only.",
       ezAbstractProperty::GetPropertyName());
     m_Getter(static_cast<Class*>(pInstance)).SetCount(uiCount);
   }
+#pragma warning(pop)
 
   virtual void* GetValuePointer(void* pInstance, ezUInt32 uiIndex) const override
   {
