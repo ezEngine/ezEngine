@@ -6,11 +6,11 @@
 
 ```shell
 # Generate and build Debug configuration
-powershell -NoProfile -ExecutionPolicy ByPass ./RunCMake.ps1 -Target Win64vs2022 -SolutionName "ClaudeBuild" -WorkspaceDir "claude-build"
+powershell -NoProfile -ExecutionPolicy ByPass ./RunCMake.ps1 -Target vs2022x64 -SolutionName "ClaudeBuild" -WorkspaceDir "claude-build"
 cmake --build Workspace/claude-build --config Debug
 
 # Generate and build Dev configuration
-powershell -NoProfile -ExecutionPolicy ByPass ./RunCMake.ps1 -Target Win64vs2022 -SolutionName "ClaudeBuild" -WorkspaceDir "claude-build"
+powershell -NoProfile -ExecutionPolicy ByPass ./RunCMake.ps1 -Target vs2022x64 -SolutionName "ClaudeBuild" -WorkspaceDir "claude-build"
 cmake --build Workspace/claude-build --config Dev
 
 # Clean build

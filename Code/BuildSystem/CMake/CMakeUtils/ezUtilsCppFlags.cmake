@@ -206,6 +206,9 @@ endfunction()
 # ## ez_set_build_flags_clang(<target>)
 # #####################################
 function(ez_set_build_flags_clang TARGET_NAME)
+	# Enable debug info
+	target_compile_options(${TARGET_NAME} PRIVATE -g)
+
 	if(EZ_CMAKE_ARCHITECTURE_X86)
 
 		if(${EZ_MIN_REQUIRED_SSE_LEVEL} STREQUAL "SSE41")
@@ -219,7 +222,6 @@ function(ez_set_build_flags_clang TARGET_NAME)
 	endif()
 	if(EZ_3RDPARTY_LIVEPP_SUPPORT)
 		target_compile_options(${TARGET_NAME} PRIVATE 
-		"-g"
 		"-gcodeview"
 		"-fms-hotpatch"
 		"-ffunction-sections"
