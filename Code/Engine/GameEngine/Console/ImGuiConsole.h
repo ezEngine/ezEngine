@@ -4,6 +4,7 @@
 
 #  include <Core/Console/Console.h>
 #  include <Core/Input/DeviceTypes/MouseKeyboard.h>
+#  include <Foundation/Logging/Log.h>
 #  include <GameEngine/GameEngineDLL.h>
 
 struct ezLoggingEventData;

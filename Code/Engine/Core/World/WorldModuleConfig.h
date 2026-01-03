@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/CoreDLL.h>
 #include <Foundation/Basics.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Strings/String.h>

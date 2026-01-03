@@ -1,13 +1,12 @@
 #pragma once
 
 #include <Foundation/Strings/HashedString.h>
+#include <Foundation/Time/Clock.h>
 #include <Foundation/Types/SharedPtr.h>
 #include <Foundation/Types/UniquePtr.h>
 
 #include <Core/World/CoordinateSystem.h>
 #include <Core/World/SpatialSystem.h>
-
-class ezTimeStepSmoothing;
 
 /// \brief Describes the initial state of a world.
 struct ezWorldDesc
