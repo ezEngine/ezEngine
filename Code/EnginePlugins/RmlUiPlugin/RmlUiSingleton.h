@@ -2,10 +2,10 @@
 
 #include <RmlUiPlugin/RmlUiPluginDLL.h>
 
+#include <Core/ResourceManager/ResourceHandle.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
-#include <Core/ResourceManager/ResourceHandle.h>
 
 class ezRmlUiContext;
 struct ezMsgExtractRenderData;

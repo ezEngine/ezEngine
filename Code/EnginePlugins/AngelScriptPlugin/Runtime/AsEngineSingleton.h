@@ -1,11 +1,11 @@
 #pragma once
 
+#include <AngelScript/include/angelscript.h>
 #include <AngelScriptPlugin/AngelScriptPluginDLL.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Memory/CommonAllocators.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Types/UniquePtr.h>
-#include <AngelScript/include/angelscript.h>
 
 class asIScriptEngine;
 class asIScriptModule;
