@@ -90,6 +90,7 @@ if ($startEmulator) {
 
 # Stop Emulator
 if ($stopEmulator) {
+    $adb = Get-Adb
     & $adb -s $deviceAdb emu kill
     return 0
 }

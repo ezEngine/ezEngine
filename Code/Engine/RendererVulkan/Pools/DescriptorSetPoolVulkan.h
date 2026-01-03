@@ -2,6 +2,7 @@
 
 #include <RendererVulkan/Device/DeclarationsVulkan.h>
 #include <RendererVulkan/RendererVulkanDLL.h>
+#include <Foundation/Types/SharedPtr.h>
 
 class ezGALDeviceVulkan;
 

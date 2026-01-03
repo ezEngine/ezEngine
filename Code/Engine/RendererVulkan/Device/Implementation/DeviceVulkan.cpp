@@ -10,6 +10,7 @@
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <Foundation/Utilities/Stats.h>
 #include <RendererFoundation/CommandEncoder/CommandEncoder.h>
+#include <RendererFoundation/RendererReflection.h>
 #include <RendererFoundation/Device/DeviceFactory.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <RendererFoundation/Profiling/Profiling.h>

@@ -6,7 +6,9 @@
 #include <RendererVulkan/Pools/UniformBufferPoolVulkan.h>
 #include <RendererVulkan/Resources/BufferVulkan.h>
 #include <RendererVulkan/Resources/TextureVulkan.h>
+#include <RendererVulkan/Shader/BindGroupLayoutVulkan.h>
 #include <RendererVulkan/State/StateVulkan.h>
+#include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
 
 ezDescriptorWritePoolVulkan::ezDescriptorWritePoolVulkan(ezGALDeviceVulkan* pDevice)
   : m_pDevice(pDevice)
