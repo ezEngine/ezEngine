@@ -1,5 +1,8 @@
 #pragma once
 
+#include <RendererFoundation/Descriptors/Descriptors.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
+
 class ezGALDevice;
 
 /// \brief Manages a growing ring buffer of one or more buffers.

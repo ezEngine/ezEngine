@@ -4,6 +4,7 @@
 #include <Foundation/Math/Transform.h>
 #include <Foundation/Threading/Mutex.h>
 #include <Foundation/Types/ArrayPtr.h>
+#include <Foundation/Types/UniquePtr.h>
 #include <RendererCore/RendererCoreDLL.h>
 
 class Rasterizer;

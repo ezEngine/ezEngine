@@ -1,7 +1,10 @@
 #pragma once
 
+#include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
+#include <Foundation/Types/Delegate.h>
+#include <Foundation/Types/Variant.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 
 /// \brief Stores the valid values and names for 'dynamic' enums.
