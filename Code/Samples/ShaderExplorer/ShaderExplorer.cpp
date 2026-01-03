@@ -2,8 +2,8 @@
 
 #include <Core/Graphics/Camera.h>
 #include <Core/Graphics/Geometry.h>
-#include <Core/Input/InputManager.h>
 #include <Core/Input/DeviceTypes/MouseKeyboard.h>
+#include <Core/Input/InputManager.h>
 #include <Core/Input/VirtualThumbStick.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/System/Window.h>

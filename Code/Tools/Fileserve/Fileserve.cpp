@@ -16,7 +16,7 @@
 #endif
 
 #ifdef EZ_USE_QT
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
 #else
 int main(int argc, const char** argv)
@@ -25,11 +25,11 @@ int main(int argc, const char** argv)
   ezFileserverApp* pApp = new ezFileserverApp();
 
 #ifdef EZ_USE_QT
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   ezCommandLineUtils::GetGlobalInstance()->SetCommandLine();
-#else
+#  else
   ezCommandLineUtils::GetGlobalInstance()->SetCommandLine(argc, argv);
-#endif
+#  endif
   int dummyArgc = 0;
   char** dummyArgv = nullptr;
   QApplication* pQtApplication = new QApplication(dummyArgc, const_cast<char**>(dummyArgv));
