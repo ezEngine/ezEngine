@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/World/Component.h>
 #include <Core/World/ComponentManager.h>
 #include <MiniAudioPlugin/MiniAudioPluginDLL.h>
@@ -115,5 +116,4 @@ protected:
   bool m_bPaused = false;
 
   ezMiniAudioSoundInstance* m_pInstance = nullptr;
-
 };

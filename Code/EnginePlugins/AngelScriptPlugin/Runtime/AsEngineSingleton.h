@@ -5,12 +5,14 @@
 #include <Foundation/Memory/CommonAllocators.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Types/UniquePtr.h>
+#include <AngelScript/include/angelscript.h>
 
 class asIScriptEngine;
 class asIScriptModule;
 class asIStringFactory;
 struct asSMessageInfo;
 class ezAsStringFactory;
+class asITypeInfo;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 using ezAsAllocatorType = ezAllocatorWithPolicy<ezAllocPolicyHeap, ezAllocatorTrackingMode::AllocationStats>;

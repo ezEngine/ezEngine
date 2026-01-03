@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include <Core/Interfaces/PhysicsQuery.h>
 #include <Core/Messages/TriggerMessage.h>
 #include <Core/World/Component.h>
 #include <Core/World/World.h>

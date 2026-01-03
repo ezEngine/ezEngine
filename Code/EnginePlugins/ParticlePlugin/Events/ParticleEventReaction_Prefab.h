@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Physics/SurfaceResourceDescriptor.h>
 #include <Foundation/Types/RangeView.h>
 #include <Foundation/Types/SharedPtr.h>
 #include <ParticlePlugin/Events/ParticleEventReaction.h>

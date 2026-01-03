@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Interfaces/PhysicsQuery.h>
 #include <Core/Physics/SurfaceResource.h>
 #include <Core/World/Component.h>
 #include <Core/World/World.h>

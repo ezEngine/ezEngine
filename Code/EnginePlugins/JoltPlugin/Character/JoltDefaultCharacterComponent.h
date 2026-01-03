@@ -4,6 +4,11 @@
 
 struct ezMsgApplyRootMotion;
 
+namespace JPH
+{
+  class CharacterContactListener;
+}
+
 using ezJoltDefaultCharacterComponentManager = ezComponentManager<class ezJoltDefaultCharacterComponent, ezBlockStorageType::FreeList>;
 
 /// \brief An example character controller (CC) implementation build upon ezJoltCharacterControllerComponent

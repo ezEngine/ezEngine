@@ -1,6 +1,8 @@
 #pragma once
 
-#include <JoltPlugin/JoltPluginDLL.h>
+#include <JoltPlugin/Declarations.h>
+
+#include <Foundation/Types/Bitflags.h>
 
 class ezComponent;
 class ezJoltDynamicActorComponent;

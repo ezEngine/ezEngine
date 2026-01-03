@@ -1,8 +1,16 @@
 #pragma once
 
+#include <ProcGenPlugin/ProcGenPluginDLL.h>
+
 #include <Foundation/CodeUtils/Expression/ExpressionDeclarations.h>
 
 class ezVolumeCollection;
+class ezWorld;
+
+namespace ezProcGenInternal
+{
+  struct Output;
+}
 
 struct EZ_PROCGENPLUGIN_DLL ezProcGenExpressionFunctions
 {

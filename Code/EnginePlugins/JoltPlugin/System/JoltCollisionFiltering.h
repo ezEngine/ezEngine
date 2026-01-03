@@ -2,9 +2,11 @@
 
 #include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Foundation/Basics.h>
+#include <Jolt/Jolt.h>
+#include <Jolt/Physics/Body/Body.h>
+#include <Jolt/Physics/Body/BodyFilter.h>
 #include <Jolt/Physics/Collision/BroadPhase/BroadPhaseLayer.h>
 #include <JoltPlugin/JoltPluginDLL.h>
-#include <Physics/Body/BodyFilter.h>
 
 class ezCollisionFilterConfig;
 

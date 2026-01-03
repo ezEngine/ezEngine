@@ -4,6 +4,13 @@
 
 #include <RmlUi/Include/RmlUi/Core.h>
 
+#include <Foundation/Basics.h>
+
+namespace Rml
+{
+  class Context;
+}
+
 class EZ_RMLUIPLUGIN_DLL ezRmlUiDataBinding
 {
 public:
