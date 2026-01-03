@@ -84,8 +84,8 @@ jobs:
       targetType: filepath
       pwsh: true
       filePath: $(System.DefaultWorkingDirectory)/Utilities/Android/InstallAndroidDependencies.ps1
-      arguments: "-acceptLicence"
-      
+      arguments: "-acceptLicence -installEmulator"
+
   - task: CMake@1
     displayName: CMake android-x64-dev
     inputs:
