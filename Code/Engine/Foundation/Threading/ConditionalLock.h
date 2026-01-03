@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Foundation/Basics.h>
+
 /// \brief RAII lock guard that conditionally acquires and releases locks based on runtime conditions
 ///
 /// Provides the same automatic lock management as ezLock but only performs the actual locking
