@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/Containers/Deque.h>
+#include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Math/Vec3.h>
 #include <Utilities/UtilitiesDLL.h>
 
