@@ -13,7 +13,6 @@
       "architecture": "x64",
       "binaryDir": "${sourceDir}/Workspace/${presetName}",
       "cacheVariables": {
-        "EZ_BUILD_EXPERIMENTAL_VULKAN": "ON",
         "EZ_ENABLE_FOLDER_UNITY_FILES" : "ON",
         "EZ_COMPILE_ENGINE_AS_DLL" : "ON"
       },
@@ -26,7 +25,6 @@
       "architecture": "x64",
       "binaryDir": "${sourceDir}/Workspace/${presetName}",
       "cacheVariables": {
-        "EZ_BUILD_EXPERIMENTAL_VULKAN": "ON",
         "EZ_ENABLE_FOLDER_UNITY_FILES" : "ON",
         "EZ_COMPILE_ENGINE_AS_DLL" : "ON"
       },

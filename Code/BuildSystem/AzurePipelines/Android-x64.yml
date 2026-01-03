@@ -2,7 +2,7 @@ parameters:
   - name: compileShaderCompiler
     displayName: 'Compile Shader Compiler'
     type: boolean
-    default: false # For now, we use the precompiled ShaderCompiler for Windows to speed up testing.
+    default: true # For now, we use the precompiled ShaderCompiler for Windows to speed up testing.
 
 trigger:
   branches:

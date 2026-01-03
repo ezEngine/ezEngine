@@ -100,7 +100,7 @@ jobs:
     inputs:
       targetType: filePath
       filePath: "$(System.DefaultWorkingDirectory)/RunCMake.ps1"
-      arguments: "-Target vs2022x64 -NoUnityBuild -NoSubmoduleUpdate -SolutionName solution"
+      arguments: "-Target vs2022x64 -NoUnityBuild -NoSubmoduleUpdate -VulkanSupport 0 -SolutionName solution"
   - task: MSBuild@1
     displayName: Build Solution
     inputs:
