@@ -1,11 +1,11 @@
 #pragma once
 
+#include <RendererCore/../../../Data/Base/Shaders/Pipeline/LSAOConstants.h>
 #include <RendererCore/Declarations.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
-#include <RendererCore/../../../Data/Base/Shaders/Pipeline/LSAOConstants.h>
 
 /// \brief Defines the depth compare function to be used to decide sample weights.
 struct EZ_RENDERERCORE_DLL ezLSAODepthCompareFunction
