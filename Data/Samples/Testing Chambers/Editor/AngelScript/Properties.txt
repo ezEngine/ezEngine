@@ -34,6 +34,7 @@ AutobindBlackboards
 Axis
 AxisDeviation
 Azure
+BaseMaterial
 Beige
 BendStiffness
 Bisque
@@ -67,6 +68,7 @@ CenterAngularVelocity
 CenterOfMass
 CenterPosition
 CenterVelocity
+ChangeCounter
 ChangeNotificationMsg
 Character
 CharacterGravity
@@ -75,6 +77,7 @@ Chartreuse
 ChildActor
 ChildActorAnchor
 Chocolate
+ClearStaleInput
 Closed
 Collection
 CollisionLayer
@@ -103,6 +106,9 @@ CubeMap
 Curvature
 CustomCenterOfMass
 CustomData
+CustomScale
+CustomTangentIn
+CustomTangentOut
 Cyan
 Damage
 Damping
@@ -142,6 +148,8 @@ Density
 Detail
 Deviation
 DeviceType
+DiffuseIntensity
+DiffuseSaturation
 DimGray
 DimGrey
 Dimensions
@@ -151,11 +159,13 @@ Distance
 DocumentGuid
 DocumentType
 DodgerBlue
+DpiScale
 DriveMode
 DriveStrength
 DriveTargetValue
 Duration
 EditBones
+EditNodes
 EditorShortcut
 Effect
 EffectiveColor
@@ -238,6 +248,7 @@ Intensity
 InversePoleVector
 InverseTonemap
 InvisibleUpdateRate
+IsInteractive
 Ivory
 JointEnd
 JointMiddle
@@ -277,6 +288,7 @@ LimeGreen
 LimitMode
 LinearDamping
 Linen
+LinkCustomTangents
 LinkToLightShape
 ListenerIndex
 LocalPosition
@@ -293,6 +305,7 @@ Marker
 Maroon
 Mass
 Material
+MaterialIndex
 MaterialResolution
 MaterialSlot
 MaterialUpdateInterval
@@ -398,7 +411,6 @@ PapayaWhip
 ParentActor
 PassInput
 PassThroughUnhandledEvents
-Path
 PathEnd
 PathSearchConfig
 Paused
@@ -425,6 +437,7 @@ PresenceCollisionLayer
 PrevValue
 Preview
 ProjectionAxis
+ProxyMesh
 PullSurfacesFromGraphicsMesh
 Purple
 QueryShapeOnly
@@ -475,7 +488,6 @@ Running
 SaddleBrown
 Salmon
 SandyBrown
-Saturation
 Scale
 ScriptClass
 SeaGreen
@@ -528,9 +540,11 @@ SpawnCountRange
 SpawnDirection
 SpawnPoint
 SpawnPrefabOnStatic
+SpecularIntensity
 SpecularMultiplier
 Speed
 SphereProjection
+Spline
 SplitModeWeight
 SpringDamping
 SpringGreen
@@ -554,8 +568,8 @@ SweepWidth
 SwingLimitY
 SwingLimitZ
 Tan
-Tangent1
-Tangent2
+TangentModeIn
+TangentModeOut
 Target
 TargetObject
 TargetOffsetHigh
@@ -571,6 +585,7 @@ TexCoordScale
 Text
 Texture
 TextureScale
+TextureSlotName
 Thickness
 Thistle
 TiltAmount

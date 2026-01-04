@@ -26,6 +26,7 @@ Cone
 Continuing
 Controlled
 Culling
+Custom
 CustomPose
 Deactivated
 Debris
@@ -195,7 +196,8 @@ VisPathCorridor
 VisPathLine
 VisShape
 VisTarget
-VisualizePath
+VisualizeSpline
+VisualizeTangents
 VisualizeUpDir
 Vortex
 WeakShockwave
