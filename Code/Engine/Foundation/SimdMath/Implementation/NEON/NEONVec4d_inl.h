@@ -359,25 +359,23 @@ EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::Trunc() const
 
 EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::FlipSign(const ezSimdVec4bWide& cmp) const
 {
-  ezSimdVec4d result;
-  result.m_v.x = cmp.m_v.x ? -m_v.x : m_v.x;
-  result.m_v.y = cmp.m_v.y ? -m_v.y : m_v.y;
-  result.m_v.z = cmp.m_v.z ? -m_v.z : m_v.z;
-  result.m_v.w = cmp.m_v.w ? -m_v.w : m_v.w;
-
-  return result;
+  ezSimdVec4d r;
+  r.m_v.x = vgetq_lane_u64(cmp.m_v.xy, 0) ? -m_v.x : m_v.x;
+  r.m_v.y = vgetq_lane_u64(cmp.m_v.xy, 1) ? -m_v.y : m_v.y;
+  r.m_v.z = vgetq_lane_u64(cmp.m_v.zw, 0) ? -m_v.z : m_v.z;
+  r.m_v.w = vgetq_lane_u64(cmp.m_v.zw, 1) ? -m_v.w : m_v.w;
+  return r;
 }
 
 // static
 EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::Select(const ezSimdVec4bWide& cmp, const ezSimdVec4d& ifTrue, const ezSimdVec4d& ifFalse)
 {
-  ezSimdVec4d result;
-  result.m_v.x = cmp.m_v.x ? ifTrue.m_v.x : ifFalse.m_v.x;
-  result.m_v.y = cmp.m_v.y ? ifTrue.m_v.y : ifFalse.m_v.y;
-  result.m_v.z = cmp.m_v.z ? ifTrue.m_v.z : ifFalse.m_v.z;
-  result.m_v.w = cmp.m_v.w ? ifTrue.m_v.w : ifFalse.m_v.w;
-
-  return result;
+  ezSimdVec4d r;
+  r.m_v.x = vgetq_lane_u64(cmp.m_v.xy, 0) ? ifTrue.m_v.x : ifFalse.m_v.x;
+  r.m_v.y = vgetq_lane_u64(cmp.m_v.xy, 1) ? ifTrue.m_v.y : ifFalse.m_v.y;
+  r.m_v.z = vgetq_lane_u64(cmp.m_v.zw, 0) ? ifTrue.m_v.z : ifFalse.m_v.z;
+  r.m_v.w = vgetq_lane_u64(cmp.m_v.zw, 1) ? ifTrue.m_v.w : ifFalse.m_v.w;
+  return r;
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4d& ezSimdVec4d::operator+=(const ezSimdVec4d& v)
@@ -406,13 +404,10 @@ EZ_ALWAYS_INLINE ezSimdVec4d& ezSimdVec4d::operator/=(const ezSimdDouble& f)
 
 EZ_ALWAYS_INLINE ezSimdVec4bWide ezSimdVec4d::operator==(const ezSimdVec4d& v) const
 {
-  bool result[4];
-  result[0] = m_v.x == v.m_v.x;
-  result[1] = m_v.y == v.m_v.y;
-  result[2] = m_v.z == v.m_v.z;
-  result[3] = m_v.w == v.m_v.w;
-
-  return ezSimdVec4bWide(result[0], result[1], result[2], result[3]);
+  ezSimdVec4bWide r;
+  r.m_v.xy = vceqq_f64(vld1q_f64(&m_v.x), vld1q_f64(&v.m_v.x));
+  r.m_v.zw = vceqq_f64(vld1q_f64(&m_v.z), vld1q_f64(&v.m_v.z));
+  return r;
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4bWide ezSimdVec4d::operator!=(const ezSimdVec4d& v) const
@@ -427,13 +422,10 @@ EZ_ALWAYS_INLINE ezSimdVec4bWide ezSimdVec4d::operator<=(const ezSimdVec4d& v) c
 
 EZ_ALWAYS_INLINE ezSimdVec4bWide ezSimdVec4d::operator<(const ezSimdVec4d& v) const
 {
-  bool result[4];
-  result[0] = m_v.x < v.m_v.x;
-  result[1] = m_v.y < v.m_v.y;
-  result[2] = m_v.z < v.m_v.z;
-  result[3] = m_v.w < v.m_v.w;
-
-  return ezSimdVec4bWide(result[0], result[1], result[2], result[3]);
+  ezSimdVec4bWide r;
+  r.m_v.xy = vcltq_f64(vld1q_f64(&m_v.x), vld1q_f64(&v.m_v.x));
+  r.m_v.zw = vcltq_f64(vld1q_f64(&m_v.z), vld1q_f64(&v.m_v.z));
+  return r;
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4bWide ezSimdVec4d::operator>=(const ezSimdVec4d& v) const
@@ -443,13 +435,10 @@ EZ_ALWAYS_INLINE ezSimdVec4bWide ezSimdVec4d::operator>=(const ezSimdVec4d& v) c
 
 EZ_ALWAYS_INLINE ezSimdVec4bWide ezSimdVec4d::operator>(const ezSimdVec4d& v) const
 {
-  bool result[4];
-  result[0] = m_v.x > v.m_v.x;
-  result[1] = m_v.y > v.m_v.y;
-  result[2] = m_v.z > v.m_v.z;
-  result[3] = m_v.w > v.m_v.w;
-
-  return ezSimdVec4bWide(result[0], result[1], result[2], result[3]);
+  ezSimdVec4bWide r;
+  r.m_v.xy = vcgtq_f64(vld1q_f64(&m_v.x), vld1q_f64(&v.m_v.x));
+  r.m_v.zw = vcgtq_f64(vld1q_f64(&m_v.z), vld1q_f64(&v.m_v.z));
+  return r;
 }
 
 template <>
