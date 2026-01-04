@@ -1,3 +1,4 @@
+#ez-version 1
 cmake_minimum_required(VERSION 3.21)
 
 project (RTS VERSION 1.0 LANGUAGES C CXX)

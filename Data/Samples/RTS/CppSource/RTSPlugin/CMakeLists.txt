@@ -1,3 +1,4 @@
+#ez-version 1
 ez_cmake_init()
 
 # Get the name of this folder as the project name
@@ -15,4 +16,3 @@ target_link_libraries(${PROJECT_NAME}
 # include the EZ natvis file for a better debugging experience
 get_property(EZ_ROOT_DIR GLOBAL PROPERTY EZ_ROOT)
 target_sources(${PROJECT_NAME} PUBLIC "${EZ_ROOT_DIR}/Code/Engine/Foundation/ezEngine.natvis")
-
