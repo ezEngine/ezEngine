@@ -3,6 +3,7 @@
 #include <Foundation/Types/ScopeExit.h>
 #include <ParticlePlugin/Type/Trail/ParticleTypeTrail.h>
 #include <ParticlePlugin/Type/Trail/TrailRenderer.h>
+#include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Pipeline/RenderDataBatch.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Shader/ShaderResource.h>
