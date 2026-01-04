@@ -130,6 +130,9 @@ struct EZ_EDITORFRAMEWORK_DLL ezCppProject : public ezPreferences
 
   static bool ExistsProjectCMakeListsTxt();
 
+  /// Returns true if sDst doesn't exist yet, or for some file types (e.g. CMakeLists.txt), when they got an update.
+  static bool ShouldOverwriteExisting(ezStringView sSrc, ezStringView sDst);
+
   static ezResult PopulateWithDefaultSources(const ezCppSettings& cfg);
 
   static ezResult CleanBuildDir(const ezCppSettings& cfg);

@@ -642,6 +642,71 @@ bool ezCppProject::ExistsProjectCMakeListsTxt()
   return ezOSFile::ExistsFile(sPath);
 }
 
+bool ezCppProject::ShouldOverwriteExisting(ezStringView sSrc, ezStringView sDst)
+{
+  const ezStringView sFilename = sDst.GetFileNameAndExtension();
+
+  // only check certain files
+  // they use a "#ez-version" tag to identify when a file got modified in such a way
+  // that existing files should be overwritten
+  if (sFilename != "CMakeLists.txt" && sFilename != ".clang-format" && sFilename != ".editorconfig" && sFilename != ".gitattributes" && sFilename != ".gitignore")
+  {
+    return false;
+  }
+
+  ezOSFile srcFile;
+  if (srcFile.Open(sSrc, ezFileOpenMode::Read).Failed())
+    return false;
+
+  ezOSFile dstFile;
+  if (dstFile.Open(sDst, ezFileOpenMode::Read).Failed())
+    return true;
+
+  ezDataBuffer sc, dc;
+  srcFile.ReadAll(sc);
+  dstFile.ReadAll(dc);
+
+  if (sc == dc)
+    return false;
+
+  ezStringView srcContent = ezStringView((const char*)sc.GetData(), sc.GetCount());
+  ezStringView dstContent = ezStringView((const char*)dc.GetData(), dc.GetCount());
+
+  ezStringView sVersionSrc, sVersionDst;
+
+  if (const char* vSrc = srcContent.FindSubString("#ez-version"))
+  {
+    const char* srcEnd = srcContent.FindSubString("\n", vSrc);
+
+    if (srcEnd == nullptr)
+    {
+      srcEnd = srcContent.GetEndPointer();
+    }
+
+    sVersionSrc = ezStringView(vSrc + 8, srcEnd);
+    sVersionSrc.Trim();
+  }
+
+  if (const char* vDst = dstContent.FindSubString("#ez-version"))
+  {
+    const char* dstEnd = dstContent.FindSubString("\n", vDst);
+
+    if (dstEnd == nullptr)
+    {
+      dstEnd = dstContent.GetEndPointer();
+    }
+
+    sVersionDst = ezStringView(vDst + 8, dstEnd);
+    sVersionDst.Trim();
+  }
+
+  // don't overwrite the destination file, if it is different, but at the same version
+  if (sVersionSrc == sVersionDst)
+    return false;
+
+  return true;
+}
+
 ezResult ezCppProject::PopulateWithDefaultSources(const ezCppSettings& cfg)
 {
   QApplication::setOverrideCursor(Qt::WaitCursor);
@@ -670,6 +735,8 @@ ezResult ezCppProject::PopulateWithDefaultSources(const ezCppSettings& cfg)
 
   // gather files
   {
+    bool bCheckOverwrite = false;
+
     for (const auto& item : items)
     {
       ezStringBuilder srcPath, dstPath;
@@ -686,8 +753,23 @@ ezResult ezCppProject::PopulateWithDefaultSources(const ezCppSettings& cfg)
       if (ezOSFile::ExistsFile(dstPath))
       {
         // if any file already exists, don't copy non-existing (user might have deleted unwanted sample files)
-        filesCopied.Clear();
-        break;
+        if (!bCheckOverwrite)
+        {
+          // first time we see an existing file, clear the list of files to copy and enter different mode
+          // from now on, we only add files to the copy list, that should get overwritten
+          filesCopied.Clear();
+          bCheckOverwrite = true;
+        }
+      }
+
+      if (bCheckOverwrite)
+      {
+        if (!ShouldOverwriteExisting(srcPath, dstPath))
+        {
+          // in this mode, don't copy files unless they should be overwritten
+          // mostly to update existing CMakeLists.txt files with newer versions
+          continue;
+        }
       }
 
       auto& ftc = filesCopied.ExpandAndGetRef();

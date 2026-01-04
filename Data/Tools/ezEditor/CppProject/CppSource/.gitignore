@@ -1,4 +1,6 @@
-﻿Build/*
+#ez-version 1
+
+Build/*
 AssetCache/
 
 # FMOD specific

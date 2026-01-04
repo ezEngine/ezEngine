@@ -900,6 +900,14 @@ void ezProjectAction::Execute(const ezVariant& value)
       }
       else
       {
+        // most likely the user executes this because there is a problem
+        // so use this opportunity to update the CMake files, if they are outdated
+        if (ezCppProject::PopulateWithDefaultSources(cpp).Failed())
+        {
+          ezQtUiServices::GetSingleton()->MessageBoxWarning("Failed to populate the CppSource directory with the default files.\n\nCheck the log for details.");
+          break;
+        }
+
         if (ezCppProject::RunCMake(cpp).Succeeded())
         {
           ezQtUiServices::GetSingleton()->MessageBoxInformation("Successfully regenerated the C++ solution.");
