@@ -1,3 +1,4 @@
+#ez-version 1
 ez_cmake_init()
 
 # Get the name of this folder as the project name

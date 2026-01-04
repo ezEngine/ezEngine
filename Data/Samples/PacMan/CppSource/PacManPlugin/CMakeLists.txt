@@ -1,3 +1,4 @@
+#ez-version 1
 ez_cmake_init()
 
 # Get the name of this folder as the project name
@@ -10,11 +11,6 @@ target_link_libraries(${PROJECT_NAME}
   GameEngine
   Utilities
 )
-
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/PacManPlugin.ezPluginBundle" $<TARGET_FILE_DIR:${PROJECT_NAME}>
-		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-	  )
 
 # include the EZ natvis file for a better debugging experience
 get_property(EZ_ROOT_DIR GLOBAL PROPERTY EZ_ROOT)

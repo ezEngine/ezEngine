@@ -1,3 +1,5 @@
+#ez-version 1
+
 BasedOnStyle: LLVM
 UseTab: Never
 IndentWidth: 2
