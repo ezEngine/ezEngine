@@ -2,6 +2,7 @@
 
 #include <Foundation/Types/ScopeExit.h>
 #include <ParticlePlugin/Type/Quad/QuadParticleRenderer.h>
+#include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Pipeline/RenderDataBatch.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 
