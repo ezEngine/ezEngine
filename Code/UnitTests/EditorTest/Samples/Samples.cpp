@@ -10,7 +10,10 @@
 #include <RendererCore/Textures/TextureCubeResource.h>
 #include <TestFramework/Framework/TestFramework.h>
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+// only show/enable this test on Windows, since we can only compile game plugins there
 static ezEditorTestSamples s_EditorTestSamples;
+#endif
 
 const char* ezEditorTestSamples::GetTestName() const
 {
