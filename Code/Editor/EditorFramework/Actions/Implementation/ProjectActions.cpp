@@ -874,7 +874,7 @@ void ezProjectAction::Execute(const ezVariant& value)
       {
         if (ezCppProject::BuildCodeIfNecessary(cpp).Succeeded())
         {
-          ezQtUiServices::GetSingleton()->MessageBoxInformation("Successfully compiled the C++ code.");
+          ezQtUiServices::GetSingleton()->MessageBoxInformation("Successfully compiled the C++ code.", "cpp-compile-success");
         }
         else
         {
@@ -910,7 +910,7 @@ void ezProjectAction::Execute(const ezVariant& value)
 
         if (ezCppProject::RunCMake(cpp).Succeeded())
         {
-          ezQtUiServices::GetSingleton()->MessageBoxInformation("Successfully regenerated the C++ solution.");
+          ezQtUiServices::GetSingleton()->MessageBoxInformation("Successfully regenerated the C++ solution.", "cpp-regen-success");
         }
         else
         {

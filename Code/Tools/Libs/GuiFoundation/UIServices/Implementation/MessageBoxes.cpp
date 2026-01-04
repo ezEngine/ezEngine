@@ -5,6 +5,11 @@
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
+const char* ezQtUiServices::GetOwnVersionString()
+{
+  return EZ_PP_STRINGIFY(BUILDSYSTEM_SDKVERSION_MAJOR) "." EZ_PP_STRINGIFY(BUILDSYSTEM_SDKVERSION_MINOR) "." EZ_PP_STRINGIFY(BUILDSYSTEM_SDKVERSION_PATCH);
+}
+
 void ezQtUiServices::MessageBoxStatus(const ezStatus& s, const char* szFailureMsg, const char* szSuccessMsg, bool bOnlySuccessMsgIfDetails)
 {
   ezStringBuilder sResult;
@@ -35,7 +40,7 @@ void ezQtUiServices::MessageBoxStatus(const ezStatus& s, const char* szFailureMs
   }
 }
 
-void ezQtUiServices::MessageBoxInformation(const ezFormatString& msg)
+void ezQtUiServices::MessageBoxInformation(const ezFormatString& msg, ezStringView sDontShowAgainID)
 {
   ezStringBuilder tmp;
 
@@ -43,7 +48,34 @@ void ezQtUiServices::MessageBoxInformation(const ezFormatString& msg)
     ezLog::Info(msg.GetText(tmp));
   else
   {
-    QMessageBox::information(QApplication::activeWindow(), ezApplication::GetApplicationInstance()->GetApplicationName().GetData(), QString::fromUtf8(msg.GetTextCStr(tmp)), QMessageBox::StandardButton::Ok);
+    QMessageBox box(QApplication::activeWindow());
+    box.setWindowTitle(ezApplication::GetApplicationInstance()->GetApplicationName().GetData());
+    box.setText(QString::fromUtf8(msg.GetTextCStr(tmp)));
+    box.setIcon(QMessageBox::Icon::Information);
+
+    QSettings Settings;
+    Settings.beginGroup(GetOwnVersionString());
+    Settings.beginGroup("msgbox-dontshow");
+
+    if (!sDontShowAgainID.IsEmpty())
+    {
+      ShowAllDocumentsTemporaryStatusBarMessage(msg, ezTime::Seconds(3));
+
+      if (Settings.value(sDontShowAgainID.GetData(tmp), 0) != 0)
+      {
+        // don't show the messagebox again was selected at some point
+        return;
+      }
+
+      box.setCheckBox(new QCheckBox("Don't show again"));
+    }
+
+    box.exec();
+
+    if (box.checkBox() && box.checkBox()->isChecked())
+    {
+      Settings.setValue(sDontShowAgainID.GetData(tmp), 1);
+    }
   }
 }
 

@@ -64,6 +64,8 @@ public:
 public:
   ezQtUiServices();
 
+  static const char* GetOwnVersionString();
+
   /// \brief True if the application doesn't show any window and only works in the background
   static bool IsHeadless();
 
@@ -80,7 +82,7 @@ public:
   static void MessageBoxStatus(const ezStatus& s, const char* szFailureMsg, const char* szSuccessMsg = "", bool bOnlySuccessMsgIfDetails = true);
 
   /// \brief Shows an information message box
-  static void MessageBoxInformation(const ezFormatString& msg);
+  static void MessageBoxInformation(const ezFormatString& msg, ezStringView sDontShowAgainID = {});
 
   /// \brief Shows an warning message box
   static void MessageBoxWarning(const ezFormatString& msg);
