@@ -59,7 +59,7 @@ bool ezRmlUiInputProvider::Update(ezRmlUiInputSnapshot input)
   return bHasChanged;
 }
 
-EZ_ALWAYS_INLINE ezKeyState::Enum ezRmlUiInputProvider::GetButtonState(ezRmlUiInputButtons::Enum button) const
+ezKeyState::Enum ezRmlUiInputProvider::GetButtonState(ezRmlUiInputButtons::Enum button) const
 {
   if (m_Buttons.IsSet(button))
   {

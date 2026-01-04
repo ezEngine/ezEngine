@@ -177,7 +177,6 @@ void ezGameApplication::Init_SetupDefaultResources()
     ezColorGradientResourceDescriptor cg;
     cg.m_Gradient.AddColorControlPoint(0, ezColor::RebeccaPurple);
     cg.m_Gradient.AddColorControlPoint(1, ezColor::LawnGreen);
-    cg.m_Gradient.SortControlPoints();
 
     ezColorGradientResourceHandle hResource = ezResourceManager::CreateResource<ezColorGradientResource>("MissingColorGradient", std::move(cg), "Missing Color Gradient Resource");
     ezResourceManager::SetResourceTypeMissingFallback<ezColorGradientResource>(hResource);

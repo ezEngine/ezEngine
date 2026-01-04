@@ -1,8 +1,13 @@
 #pragma once
 
 #include <Core/Curves/ColorGradientResource.h>
+#include <Foundation/Tracks/ColorGradient.h>
 #include <ParticlePlugin/Behavior/ParticleBehavior.h>
 
+/// Behavior that applies a color gradient to particles
+///
+/// The gradient can be sampled based on particle lifetime or speed.
+/// The final color is multiplied by the tint color.
 class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_ColorGradient final : public ezParticleBehaviorFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory_ColorGradient, ezParticleBehaviorFactory);
@@ -19,7 +24,10 @@ public:
   ezEnum<ezParticleColorGradientMode> m_GradientMode;
   float m_fMaxSpeed = 1.0f;
   ezColor m_TintColor = ezColor::White;
-  ezColorGradientResourceHandle m_hGradient;
+  bool m_bApplyAlpha = true;
+  ezEnum<ezGradientSource> m_GradientSource;
+  ezColorGradient m_Gradient;
+  ezColorGradientResourceHandle m_hSharedGradient;
 };
 
 
@@ -28,10 +36,11 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_ColorGradient final : public ezPa
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior_ColorGradient, ezParticleBehavior);
 
 public:
-  ezColorGradientResourceHandle m_hGradient;
+  const ezColorGradient* m_pGradient = nullptr;
   ezEnum<ezParticleColorGradientMode> m_GradientMode;
   float m_fMaxSpeed = 1.0f;
   ezColor m_TintColor;
+  bool m_bApplyAlpha = true;
 
   virtual void CreateRequiredStreams() override;
 
@@ -45,6 +54,9 @@ protected:
   ezProcessingStream* m_pStreamColor = nullptr;
   ezProcessingStream* m_pStreamVelocity = nullptr;
   ezColor m_InitColor;
+
+  /// Staggered update: which particle index to update this frame (cycles from 0 to m_uiCurrentUpdateInterval-1)
   ezUInt8 m_uiFirstToUpdate = 0;
+  /// Staggered update: only update every N-th particle per frame to reduce cost
   ezUInt8 m_uiCurrentUpdateInterval = 8;
 };

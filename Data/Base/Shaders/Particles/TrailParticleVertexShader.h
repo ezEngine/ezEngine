@@ -1,64 +1,51 @@
-[PLATFORMS]
-ALL
-
-[PERMUTATIONS]
-
-RENDER_PASS
-PARTICLE_RENDER_MODE
-PARTICLE_TRAIL_POINTS
-PARTICLE_LIGHTING_MODE
-SHADING_QUALITY
-CAMERA_MODE
-
-[RENDERSTATE]
-
-BlendingEnabled0 = true
-SourceBlend0 = Blend_SrcAlpha
-DepthTest = true
-DepthWrite = false
-CullMode = CullMode_None
-
-#if PARTICLE_RENDER_MODE == PARTICLE_RENDER_MODE_ADDITIVE
-  DestBlend0 = Blend_One
-  DestBlendAlpha0 = Blend_One
-  SourceBlendAlpha0 = Blend_Zero
-#elif PARTICLE_RENDER_MODE == PARTICLE_RENDER_MODE_BLENDED
-  DestBlend0 = Blend_InvSrcAlpha
-  DestBlendAlpha0 = Blend_InvSrcAlpha
-#elif PARTICLE_RENDER_MODE == PARTICLE_RENDER_MODE_OPAQUE
-  BlendingEnabled0 = false
-  DepthWrite = true
-#elif PARTICLE_RENDER_MODE == PARTICLE_RENDER_MODE_BLENDADD
-  SourceBlend0 = Blend_One
-  DestBlend0 = Blend_InvSrcAlpha
-  DestBlendAlpha0 = Blend_InvSrcAlpha
-#endif
-
-[SHADER]
-
-#define CUSTOM_INTERPOLATOR float FogAmount : FOG;
-#define USE_TEXCOORD0
-#define USE_COLOR0
-
-[VERTEXSHADER]
-
 #include <Shaders/Particles/ParticleCommonVS.h>
 #include <Shaders/Particles/TrailShaderData.h>
 
-#define TRAIL_SEGMENTS (PARTICLE_TRAIL_POINTS - 1)
+#if PARTICLE_RENDER_MODE == PARTICLE_RENDER_MODE_NONE
+
+struct TMP_VS_IN
+{
+  float3 Position : POSITION;
+  float2 TexCoord0 : TEXCOORD0;
+};
+
+struct TMP_VS_OUT
+{
+  float4 Position : SV_Position;
+  float2 TexCoord0 : TEXCOORD0;
+  float4 Color0 : COLOR0;
+  float FogAmount : FOG;
+};
+
+TMP_VS_OUT main(TMP_VS_IN input)
+{
+  float4 outPosition = mul(GetWorldToScreenMatrix(), float4(input.Position, 1.0));
+
+  TMP_VS_OUT ret;
+  ret.Position = outPosition;
+  ret.TexCoord0 = input.TexCoord0;
+  ret.Color0 = float4(1, 1, 1, 1);
+  ret.FogAmount = 1.0; // 1 == no fog
+
+  return ret;
+}
+
+#else
+
+#  define TRAIL_SEGMENTS (PARTICLE_TRAIL_POINTS - 1)
 
 VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
 {
-#if CAMERA_MODE == CAMERA_MODE_STEREO
+#  if CAMERA_MODE == CAMERA_MODE_STEREO
   s_ActiveCameraEyeIndex = InstanceID % 2;
-#endif
+#  endif
 
   VS_OUT ret;
-#if CAMERA_MODE == CAMERA_MODE_STEREO    
+#  if CAMERA_MODE == CAMERA_MODE_STEREO
   ret.RenderTargetArrayIndex = InstanceID;
-#endif
+#  endif
 
-  int trailIndexOffset[6] = { 0, 1, 1, 0, 1, 0 };
+  int trailIndexOffset[6] = {0, 1, 1, 0, 1, 0};
 
   // TODO: We could use NumUsedTrailPoints instead of TRAIL_SEGMENTS and then render fewer triangles
   // However, TRAIL_SEGMENTS is a compile time constant, so not clear what might be more efficient.
@@ -79,11 +66,13 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
     ret.TexCoord0 = float2(0, 0);
     ret.Color0 = float4(0, 1, 1, 0);
     ret.FogAmount = 1.0;
+    ret.Life = particleLife;
+    ret.Variation = 0.0;
   }
   else
   {
     // doing this and then accessing the data will silently not work on nVidia cards and just result in the drawcall being ignored
-    //ezTrailParticlePointsData trail = particlePointsData[particleIndex];
+    // ezTrailParticlePointsData trail = particlePointsData[particleIndex];
 
     float fVariation = (baseParticle.Variation & 255) / 255.0;
     float4 textureAtlasRect = ComputeAtlasRectRandomAnimated(TextureAtlasVariationFramesX, TextureAtlasVariationFramesY, fVariation, TextureAtlasFlipbookFramesX, TextureAtlasFlipbookFramesY, 1.0f - particleLife);
@@ -129,13 +118,13 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
     float3 cornerNormal = normalize(offsetUp.xyz);
     float3 normal = normalize(lerp(centerNormal, cornerNormal, NormalCurvature));
 
-#if PARTICLE_LIGHTING_MODE == PARTICLE_LIGHTING_MODE_VERTEX_LIT
+#  if PARTICLE_LIGHTING_MODE == PARTICLE_LIGHTING_MODE_VERTEX_LIT
     float3 diffuseLight = CalculateParticleLighting(screenPosition, worldPosition, normal);
-#else
+#  else
     float3 diffuseLight = 1;
-#endif
+#  endif
 
-#if RENDER_PASS == RENDER_PASS_EDITOR
+#  if RENDER_PASS == RENDER_PASS_EDITOR
     if (RenderPass == EDITOR_RENDER_PASS_DIFFUSE_LIT_ONLY)
     {
       ret.Color0 = float4(diffuseLight * 0.5, 1);
@@ -144,16 +133,16 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
     {
       ret.Color0 = float4(normal, 1);
     }
-#else
+#  else
     ret.Color0.rgb *= diffuseLight;
-#endif
+#  endif
 
     ret.FogAmount = GetFogAmount(worldPosition.xyz);
+    ret.Life = particleLife;
+    ret.Variation = fVariation;
   }
 
   return ret;
 }
 
-[PIXELSHADER]
-
-#include "QuadPixelShader.h"
+#endif

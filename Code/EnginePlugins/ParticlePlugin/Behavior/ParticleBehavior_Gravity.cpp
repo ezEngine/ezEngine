@@ -70,7 +70,7 @@ void ezParticleBehaviorFactory_Gravity::QueryFinalizerDependencies(ezSet<const e
 
 void ezParticleBehavior_Gravity::CreateRequiredStreams()
 {
-  CreateStream("Velocity", ezProcessingStream::DataType::Float3, &m_pStreamVelocity, false);
+  CreateStream("Velocity", ezProcessingStream::DataType::Half4, &m_pStreamVelocity, false);
 }
 
 void ezParticleBehavior_Gravity::Process(ezUInt64 uiNumElements)
@@ -82,11 +82,19 @@ void ezParticleBehavior_Gravity::Process(ezUInt64 uiNumElements)
   const float tDiff = (float)m_TimeDiff.GetSeconds();
   const ezVec3 addGravity = vGravity * m_fGravityFactor * tDiff;
 
-  ezProcessingStreamIterator<ezVec3> itVelocity(m_pStreamVelocity, uiNumElements, 0);
+  ezProcessingStreamIterator<ezFloat16Vec4> itVelocity(m_pStreamVelocity, uiNumElements, 0);
 
   while (!itVelocity.HasReachedEnd())
   {
-    itVelocity.Current() += addGravity;
+    const ezVec4 vel = itVelocity.Current();
+    const ezVec3 dir(vel.x, vel.y, vel.z);
+    const float speed = vel.w;
+
+    const ezVec3 newVel = dir * speed + addGravity;
+    const float newSpeed = newVel.GetLength();
+    const ezVec3 newDir = newSpeed > 0.0f ? newVel / newSpeed : ezVec3(0, 0, 1);
+
+    itVelocity.Current() = ezVec4(newDir.x, newDir.y, newDir.z, newSpeed);
 
     itVelocity.Advance();
   }

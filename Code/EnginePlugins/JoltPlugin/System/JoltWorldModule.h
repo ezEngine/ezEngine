@@ -12,6 +12,9 @@
 #include <JoltPlugin/Utilities/JoltUserData.h>
 #include <RendererCore/Meshes/DynamicMeshBufferResource.h>
 
+#include <Jolt/Jolt.h>
+#include <Jolt/Physics/PhysicsSystem.h>
+
 class ezJoltCharacterControllerComponent;
 class ezJoltContactListener;
 class ezJoltSoftBodyContactListener;

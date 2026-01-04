@@ -9,6 +9,7 @@
 #include <RendererCore/../../../Data/Base/Shaders/Particles/BillboardQuadParticleShaderData.h>
 #include <RendererCore/../../../Data/Base/Shaders/Particles/TangentQuadParticleShaderData.h>
 
+/// Render data for quad particles.
 class EZ_PARTICLEPLUGIN_DLL ezParticleQuadRenderData final : public ezRenderData
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleQuadRenderData, ezRenderData);
@@ -27,17 +28,16 @@ public:
   ezUInt8 m_uiNumFlipbookAnimationsX = 1;
   ezUInt8 m_uiNumFlipbookAnimationsY = 1;
 
-  float m_fDistortionStrength = 0;
-  ezTexture2DResourceHandle m_hDistortionTexture;
   ezTempHashedString m_QuadModePermutation;
 
   ezEnum<ezParticleTypeRenderMode> m_RenderMode;
   ezEnum<ezParticleLightingMode> m_LightingMode;
   float m_fNormalCurvature = 0.5f;
   float m_fLightDirectionality = 0.5f;
+  ezMaterialResourceHandle m_hCustomMaterial;
 };
 
-/// \brief Implements rendering of particle systems
+/// Renderer for quad particle systems.
 class EZ_PARTICLEPLUGIN_DLL ezParticleQuadRenderer final : public ezParticleRenderer
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleQuadRenderer, ezParticleRenderer);

@@ -13,6 +13,7 @@ AssetProfiles
 				{
 					uint32 %MaxShadowMapSize{1024}
 					uint32 %MinShadowMapSize{64}
+					uint32 %RuntimeDecalAtlasTextureSize{3072}
 					uint32 %ShadowAtlasTextureSize{4096}
 				}
 			}
@@ -101,6 +102,7 @@ AssetProfiles
 				{
 					uint32 %MaxShadowMapSize{1024}
 					uint32 %MinShadowMapSize{64}
+					uint32 %RuntimeDecalAtlasTextureSize{3072}
 					uint32 %ShadowAtlasTextureSize{4096}
 				}
 			}

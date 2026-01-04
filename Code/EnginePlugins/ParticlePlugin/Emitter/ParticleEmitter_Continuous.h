@@ -6,6 +6,10 @@
 
 using ezCurve1DResourceHandle = ezTypedResourceHandle<class ezCurve1DResource>;
 
+/// Emitter that continuously spawns particles over time
+///
+/// Spawn rate can be constant or modulated by a curve.
+/// Continues emitting until the effect is stopped.
 class EZ_PARTICLEPLUGIN_DLL ezParticleEmitterFactory_Continuous final : public ezParticleEmitterFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleEmitterFactory_Continuous, ezParticleEmitterFactory);
@@ -21,14 +25,14 @@ public:
   virtual void Load(ezStreamReader& inout_stream) override;
 
 public:
-  ezTime m_StartDelay;
+  ezTime m_StartDelay;                   ///< Delay before emission starts
 
-  ezUInt32 m_uiSpawnCountPerSec;
-  ezUInt32 m_uiSpawnCountPerSecRange;
-  ezString m_sSpawnCountScaleParameter;
+  ezUInt32 m_uiSpawnCountPerSec;         ///< Base spawn rate per second
+  ezUInt32 m_uiSpawnCountPerSecRange;    ///< Random range added to spawn rate
+  ezString m_sSpawnCountScaleParameter;  ///< Optional parameter to scale spawn rate
 
-  ezCurve1DResourceHandle m_hCountCurve;
-  ezTime m_CurveDuration;
+  ezCurve1DResourceHandle m_hCountCurve; ///< Optional curve to modulate spawn rate
+  ezTime m_CurveDuration;                ///< Duration for curve evaluation
 };
 
 

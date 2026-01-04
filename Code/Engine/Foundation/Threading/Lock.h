@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Foundation/Basics.h>
+
 /// \brief Manages a lock (e.g. a mutex) and ensures that it is properly released as the lock object goes out of scope.
 /// Works with any object that implements Lock() and Unlock() methods (ezMutex, etc.).
 /// Use the EZ_LOCK macro for convenient scoped locking.

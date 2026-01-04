@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/IO/Stream.h>
 #include <Foundation/Math/Mat3.h>
 #include <Foundation/Math/Vec2.h>
 #include <Foundation/Math/Vec3.h>
@@ -97,6 +98,16 @@ public:
 
   /// Returns the lower left corner position in world space of the grid
   const ezVec3& GetWorldSpaceOrigin() const { return m_vWorldSpaceOrigin; }
+
+  /// Returns the local space center position of the grid.
+  ///
+  /// The up coordinate is scaled according to fHeight, ie 0 = ground, 0.5 = center, 1 = top.
+  ezVec3 GetLocalSpaceCenter(float fHeight = 0.5f) const { return m_vLocalSpaceCellSize.CompMul(ezVec3(m_uiGridSizeX * 0.5f, m_uiGridSizeY * 0.5f, fHeight)); }
+
+  /// Returns the world space center position of the grid.
+  ///
+  /// The up coordinate is scaled according to fHeight, ie 0 = ground, 0.5 = center, 1 = top.
+  ezVec3 GetWorldSpaceCenter(float fHeight = 0.5f) const { return m_vWorldSpaceOrigin + m_mRotateToWorldspace * GetLocalSpaceCenter(fHeight); }
 
   /// Returns the matrix used to rotate coordinates from grid space to world space
   const ezMat3& GetRotationToWorldSpace() const { return m_mRotateToWorldspace; }

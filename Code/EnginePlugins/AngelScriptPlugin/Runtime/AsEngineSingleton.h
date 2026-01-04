@@ -1,5 +1,6 @@
 #pragma once
 
+#include <AngelScript/include/angelscript.h>
 #include <AngelScriptPlugin/AngelScriptPluginDLL.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Memory/CommonAllocators.h>
@@ -11,6 +12,7 @@ class asIScriptModule;
 class asIStringFactory;
 struct asSMessageInfo;
 class ezAsStringFactory;
+class asITypeInfo;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 using ezAsAllocatorType = ezAllocatorWithPolicy<ezAllocPolicyHeap, ezAllocatorTrackingMode::AllocationStats>;

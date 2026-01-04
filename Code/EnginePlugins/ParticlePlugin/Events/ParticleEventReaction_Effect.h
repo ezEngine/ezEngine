@@ -5,6 +5,9 @@
 #include <Foundation/Types/SharedPtr.h>
 #include <ParticlePlugin/Events/ParticleEventReaction.h>
 
+/// Factory for creating effect spawn reactions.
+///
+/// Configures reactions that spawn a particle effect at the event location.
 class EZ_PARTICLEPLUGIN_DLL ezParticleEventReactionFactory_Effect final : public ezParticleEventReactionFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleEventReactionFactory_Effect, ezParticleEventReactionFactory);
@@ -33,6 +36,10 @@ private:
   ezSharedPtr<ezParticleEffectParameters> m_pParameters;
 };
 
+/// Event reaction that spawns a particle effect.
+///
+/// When triggered, spawns the configured effect at the event's position and orientation.
+/// The effect can be aligned according to the event's direction and normal vectors.
 class EZ_PARTICLEPLUGIN_DLL ezParticleEventReaction_Effect final : public ezParticleEventReaction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleEventReaction_Effect, ezParticleEventReaction);

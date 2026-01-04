@@ -1,69 +1,56 @@
-[PLATFORMS]
-ALL
-
-[PERMUTATIONS]
-
-RENDER_PASS
-PARTICLE_RENDER_MODE
-PARTICLE_QUAD_MODE
-PARTICLE_LIGHTING_MODE
-SHADING_QUALITY
-CAMERA_MODE
-
-[RENDERSTATE]
-
-BlendingEnabled0 = true
-SourceBlend0 = Blend_SrcAlpha
-
-DepthTest = true
-DepthWrite = false
-CullMode = CullMode_None
-
-#if PARTICLE_RENDER_MODE == PARTICLE_RENDER_MODE_ADDITIVE
-  DestBlend0 = Blend_One
-  DestBlendAlpha0 = Blend_One
-  SourceBlendAlpha0 = Blend_Zero
-#elif PARTICLE_RENDER_MODE == PARTICLE_RENDER_MODE_BLENDED
-  DestBlend0 = Blend_InvSrcAlpha
-  DestBlendAlpha0 = Blend_InvSrcAlpha
-#elif PARTICLE_RENDER_MODE == PARTICLE_RENDER_MODE_OPAQUE
-  BlendingEnabled0 = false
-  DepthWrite = true
-#elif PARTICLE_RENDER_MODE == PARTICLE_RENDER_MODE_DISTORTION
-  DestBlend0 = Blend_InvSrcAlpha
-  DestBlendAlpha0 = Blend_InvSrcAlpha
-#elif PARTICLE_RENDER_MODE == PARTICLE_RENDER_MODE_BLENDADD
-  SourceBlend0 = Blend_One
-  DestBlend0 = Blend_InvSrcAlpha
-  DestBlendAlpha0 = Blend_InvSrcAlpha
-#endif
-
-[SHADER]
-
-#define CUSTOM_INTERPOLATOR float FogAmount : FOG;
-#define USE_TEXCOORD0
-#define USE_COLOR0
-
-[VERTEXSHADER]
-
 #include <Shaders/Particles/ParticleCommonVS.h>
 
 #if PARTICLE_QUAD_MODE == PARTICLE_QUAD_MODE_BILLBOARD
-  #include <Shaders/Particles/BillboardQuadParticleShaderData.h>
+#  include <Shaders/Particles/BillboardQuadParticleShaderData.h>
 #else
-  #include <Shaders/Particles/TangentQuadParticleShaderData.h>
+#  include <Shaders/Particles/TangentQuadParticleShaderData.h>
 #endif
+
+#if PARTICLE_RENDER_MODE == PARTICLE_RENDER_MODE_NONE
+
+struct TMP_VS_IN
+{
+  float3 Position : POSITION;
+  float2 TexCoord0 : TEXCOORD0;
+};
+
+struct TMP_VS_OUT
+{
+  float4 Position : SV_Position;
+  float2 TexCoord0 : TEXCOORD0;
+  float4 Color0 : COLOR0;
+  float FogAmount : FOG;
+  float Life : TEXCOORD1;
+  float Variation : TEXCOORD2;
+};
+
+TMP_VS_OUT main(TMP_VS_IN input)
+{
+  float4 outPosition = mul(GetWorldToScreenMatrix(), float4(input.Position, 1.0));
+
+  TMP_VS_OUT ret;
+  ret.Position = outPosition;
+  ret.TexCoord0 = input.TexCoord0;
+  ret.Color0 = float4(1, 1, 1, 1);
+  ret.FogAmount = 1.0;  // 1 == no fog
+  ret.Life = 1.0;       // 1 == just spawned
+  ret.Variation = 42.0; // purely random value
+
+  return ret;
+}
+
+#else
 
 VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
 {
-#if CAMERA_MODE == CAMERA_MODE_STEREO
+#  if CAMERA_MODE == CAMERA_MODE_STEREO
   s_ActiveCameraEyeIndex = InstanceID % 2;
-#endif
+#  endif
 
   VS_OUT ret;
-#if CAMERA_MODE == CAMERA_MODE_STEREO    
+#  if CAMERA_MODE == CAMERA_MODE_STEREO
   ret.RenderTargetArrayIndex = InstanceID;
-#endif
+#  endif
 
   uint dataIndex = CalcQuadParticleDataIndex(VertexID);
   uint vertexIndex = CalcQuadParticleVertexIndex(VertexID);
@@ -74,41 +61,41 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
 
   Quad quad;
 
-#if PARTICLE_QUAD_MODE == PARTICLE_QUAD_MODE_BILLBOARD
+#  if PARTICLE_QUAD_MODE == PARTICLE_QUAD_MODE_BILLBOARD
 
   ezBillboardQuadParticleShaderData billboardData = particleBillboardQuadData[dataIndex];
   UNPACKHALF2(rotationOffset, rotationSpeed, billboardData.RotationOffsetAndSpeed);
   quad = CalcQuadOutputPositionAsBillboard(vertexIndex, billboardData.Position, rotationOffset, rotationSpeed, particleSize);
 
-#elif PARTICLE_QUAD_MODE == PARTICLE_QUAD_MODE_TANGENTS
+#  elif PARTICLE_QUAD_MODE == PARTICLE_QUAD_MODE_TANGENTS
 
   ezTangentQuadParticleShaderData tangentData = particleTangentQuadData[dataIndex];
   quad = CalcQuadOutputPositionWithTangents(vertexIndex, tangentData.Position.xyz, tangentData.TangentX, tangentData.TangentZ, particleSize);
 
-#elif PARTICLE_QUAD_MODE == PARTICLE_QUAD_MODE_AXIS_ALIGNED
+#  elif PARTICLE_QUAD_MODE == PARTICLE_QUAD_MODE_AXIS_ALIGNED
 
   ezTangentQuadParticleShaderData tangentData = particleTangentQuadData[dataIndex];
   quad = CalcQuadOutputPositionWithAlignedAxis(vertexIndex, tangentData.Position.xyz, tangentData.TangentX, tangentData.TangentZ, particleSize);
 
-#endif
+#  endif
 
   ret.Position = quad.screenPosition;
 
   float fVariation = (baseParticle.Variation & 255) / 255.0;
 
-#if PARTICLE_QUAD_MODE == PARTICLE_QUAD_MODE_AXIS_ALIGNED
+#  if PARTICLE_QUAD_MODE == PARTICLE_QUAD_MODE_AXIS_ALIGNED
   ret.TexCoord0 = ComputeAtlasTexCoordRandomAnimated(QuadTexCoordsAxisAligned[vertexIndex], TextureAtlasVariationFramesX, TextureAtlasVariationFramesY, fVariation, TextureAtlasFlipbookFramesX, TextureAtlasFlipbookFramesY, 1.0f - particleLife);
-#else
+#  else
   ret.TexCoord0 = ComputeAtlasTexCoordRandomAnimated(QuadTexCoordsBillboard[vertexIndex], TextureAtlasVariationFramesX, TextureAtlasVariationFramesY, fVariation, TextureAtlasFlipbookFramesX, TextureAtlasFlipbookFramesY, 1.0f - particleLife);
-#endif
+#  endif
 
-#if PARTICLE_LIGHTING_MODE == PARTICLE_LIGHTING_MODE_VERTEX_LIT
+#  if PARTICLE_LIGHTING_MODE == PARTICLE_LIGHTING_MODE_VERTEX_LIT
   float3 diffuseLight = CalculateParticleLighting(quad.screenPosition, quad.worldPosition, quad.normal);
-#else
+#  else
   float3 diffuseLight = 1;
-#endif
+#  endif
 
-#if RENDER_PASS == RENDER_PASS_EDITOR
+#  if RENDER_PASS == RENDER_PASS_EDITOR
   if (RenderPass == EDITOR_RENDER_PASS_DIFFUSE_LIT_ONLY)
   {
     ret.Color0 = float4(diffuseLight * 0.5, 1);
@@ -117,14 +104,14 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
   {
     ret.Color0 = float4(quad.normal, 1);
   }
-#else
+#  else
   ret.Color0.rgb *= diffuseLight;
-#endif
+#  endif
 
   ret.FogAmount = GetFogAmount(quad.worldPosition.xyz);
+  ret.Life = particleLife;
+  ret.Variation = fVariation;
   return ret;
 }
 
-[PIXELSHADER]
-
-#include "QuadPixelShader.h"
+#endif

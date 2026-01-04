@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Foundation/Basics.h>
+
 /// \brief RAII wrapper providing thread-safe access to an object with automatic lock management
 ///
 /// Combines object access with lock acquisition/release in a single type. The lock is acquired

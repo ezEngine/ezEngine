@@ -9,6 +9,7 @@
 
 #include <RendererCore/../../../Data/Base/Shaders/Particles/TrailShaderData.h>
 
+/// Render data for trail particles.
 class EZ_PARTICLEPLUGIN_DLL ezParticleTrailRenderData final : public ezRenderData
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleTrailRenderData, ezRenderData);
@@ -17,6 +18,7 @@ public:
   virtual bool CanBatch(const ezRenderData& other) const override;
 
   ezTexture2DResourceHandle m_hTexture;
+  ezMaterialResourceHandle m_hCustomMaterial;
   ezUInt16 m_uiMaxTrailPoints;
   float m_fSnapshotFraction;
   ezArrayPtr<ezBaseParticleShaderData> m_BaseParticleData;
@@ -28,9 +30,6 @@ public:
   ezUInt8 m_uiNumVariationsY = 1;
   ezUInt8 m_uiNumFlipbookAnimationsX = 1;
   ezUInt8 m_uiNumFlipbookAnimationsY = 1;
-
-  float m_fDistortionStrength = 0;
-  ezTexture2DResourceHandle m_hDistortionTexture;
 
   ezEnum<ezParticleTypeRenderMode> m_RenderMode;
   ezEnum<ezParticleLightingMode> m_LightingMode;

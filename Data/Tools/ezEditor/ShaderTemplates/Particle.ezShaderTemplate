@@ -1,0 +1,121 @@
+[TEMPLATE_VARS]
+
+enum TEMPLATE_TYPE { TEMPLATE_TYPE_QUAD, TEMPLATE_TYPE_TRAIL };
+
+[PLATFORMS]
+// This section lists the platforms on which this shader is supported.
+ALL
+
+[PERMUTATIONS]
+// This section defines which permutation variables are available in this shader.
+// See http://ezengine.net/pages/docs/graphics/shaders/shader-permutation-variables.html
+
+%if TEMPLATE_TYPE == TEMPLATE_TYPE_QUAD
+PARTICLE_QUAD_MODE
+%elif TEMPLATE_TYPE == TEMPLATE_TYPE_TRAIL
+PARTICLE_TRAIL_POINTS
+%endif
+
+PARTICLE_RENDER_MODE
+PARTICLE_LIGHTING_MODE
+
+// SYSTEM permutations:
+// all of these are automatically set by the engine
+RENDER_PASS
+SHADING_QUALITY
+CAMERA_MODE
+// SYSTEM permutations
+
+[MATERIALPARAMETER]
+
+// This section determines which options are shown in the material UI.
+// Permutation options let the user choose the value of a permutation variable.
+// bool / float / int / Color options let the user set a fixed value for a CONSTANT_BUFFER variable.
+// Texture2D options let the user choose a texture for that slot.
+// See https://ezengine.net/pages/docs/graphics/shaders/shaders-overview.html#material-sections
+
+[MATERIALCONSTANTS]
+// This section defines the material constants. A sub-set of these can be exposed in the GUI via the [MATERIALPARAMETER] section.
+// Only parameter macros defined in Data/Base/Shaders/Common/ConstantBufferMacros.h are allowed in this section.
+// The shader compiler will use the parameters in this section to define an ezMaterialConstants struct and prepend it
+// to every shader stage, e.g. VERTEXSHADER, GEOMETRYSHADER and PIXELSHADER even before the [SHADER] section is prepended.
+// See https://ezengine.net/pages/docs/graphics/shaders/shaders-overview.html#material-sections
+
+/* Examples:
+COLOR4F(CustomColor);
+FLOAT1(CustomValue);
+BOOL1(UseCustomTexture);
+*/
+
+[RENDERSTATE]
+// This section defines the render pipeline state with which to execute this shader.
+// See http://ezengine.net/pages/docs/graphics/shaders/shader-render-state.html
+
+#include <Shaders/Particles/ParticleRenderState.h>
+
+[SHADER]
+
+// The code in the SHADER section is prepended to every other shader stage,
+// e.g. VERTEXSHADER, GEOMETRYSHADER and PIXELSHADER all share this.
+// Most code is provided through the #included files.
+// The #defines configure that code and thus always must come before those #includes.
+
+#define CUSTOM_INTERPOLATOR float FogAmount : FOG;
+#define USE_TEXCOORD0
+#define USE_COLOR0
+
+[VERTEXSHADER]
+// This section contains the vertex shader code.
+// Note that code from the [SHADER] section is prepended, as well.
+
+// for particle shaders, there's really nothing else to do here
+%if TEMPLATE_TYPE == TEMPLATE_TYPE_QUAD
+#include <Shaders/Particles/QuadParticleVertexShader.h>
+%elif TEMPLATE_TYPE == TEMPLATE_TYPE_TRAIL
+#include <Shaders/Particles/TrailParticleVertexShader.h>
+%endif
+
+[PIXELSHADER]
+// This section contains the pixel shader code.
+// Note that code from the [SHADER] section is prepended, as well.
+
+#include <Shaders/Particles/ParticlePixelShader.h>
+
+// Global values use the 'static' keyword so that they can be shared between functions
+static float4 g_BaseColor = float4(1.0, 0.0, 1.0, 1.0);
+
+/* === Available input data ===
+
+G.Input looks like this:
+struct PS_IN
+{
+  float4 Position : SV_Position;
+  float2 TexCoord0 : TEXCOORD0;
+  float4 Color0 : COLOR0;
+  float FogAmount : FOG;
+};
+
+Particle System constants can be accessed through the ezParticleSystemConstants buffer, see
+  Data/Base/Shaders/Particles/ParticleSystemConstants.h
+
+*/
+
+void FillCustomGlobals()
+{
+#if PARTICLE_RENDER_MODE == PARTICLE_RENDER_MODE_NONE
+  // this code path can be used to render differently, when rendering a standard mesh or material preview
+  g_BaseColor = float4(0.0, 1.0, 0.0, 1.0);
+#else
+  g_BaseColor = float4(0.0, 1.0, 0.0, 1.0);
+#endif
+}
+
+float GetParticleOpacity()
+{
+  return g_BaseColor.a * G.Input.Color0.a;
+}
+
+float3 GetParticleColor()
+{
+  return g_BaseColor.rgb * G.Input.Color0.rgb;
+}

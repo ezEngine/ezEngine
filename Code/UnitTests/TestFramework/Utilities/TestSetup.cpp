@@ -123,7 +123,7 @@ void ezTestSetup::DeInitTestFramework(bool bSilent /*= false*/)
   ezStartup::ShutdownCoreSystems();
 
   TestSettings settings = pTestFramework->GetSettings();
-  if (settings.m_bKeepConsoleOpen && !bSilent)
+  if (!bSilent)
   {
     if (ezSystemInformation::IsDebuggerAttached())
     {

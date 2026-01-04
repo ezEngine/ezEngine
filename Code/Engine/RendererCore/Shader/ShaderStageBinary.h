@@ -5,7 +5,9 @@
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/IO/Stream.h>
+#include <Foundation/Logging/Log.h>
 #include <Foundation/Strings/HashedString.h>
+#include <Foundation/Threading/Mutex.h>
 #include <Foundation/Types/Enum.h>
 #include <Foundation/Types/SharedPtr.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>

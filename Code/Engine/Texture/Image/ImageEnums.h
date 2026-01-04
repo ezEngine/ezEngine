@@ -1,7 +1,7 @@
 #pragma once
 
+#include <Foundation/Basics.h>
 #include <Foundation/Reflection/Reflection.h>
-#include <Foundation/Types/Types.h>
 #include <Texture/TextureDLL.h>
 
 /// \brief Defines how texture coordinates outside [0,1] are handled during sampling.

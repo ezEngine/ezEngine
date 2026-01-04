@@ -44,7 +44,7 @@ float ezMiniAudioSoundResource::GetPitch(ezRandom& ref_rng) const
   return m_fMinPitch;
 }
 
-ezMiniAudioSoundInstance* ezMiniAudioSoundResource::InstantiateSound(ezRandom* pRng, ezWorld* pWorld, ezComponentHandle hComponent)
+ezMiniAudioSoundInstance* ezMiniAudioSoundResource::InstantiateSound(ezRandom* pRng, ezWorld* pWorld, const ezComponentHandle& hComponent)
 {
   ezMiniAudioSingleton* pMA = ezMiniAudioSingleton::GetSingleton();
 

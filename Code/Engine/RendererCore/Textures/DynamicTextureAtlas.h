@@ -3,6 +3,9 @@
 #include <Foundation/Containers/IdTable.h>
 #include <Foundation/Math/Rect.h>
 #include <RendererCore/Debug/DebugRendererContext.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
+
+struct ezGALTextureCreationDescription;
 
 /// Manages dynamic allocation of rectangular regions within a GPU texture.
 ///

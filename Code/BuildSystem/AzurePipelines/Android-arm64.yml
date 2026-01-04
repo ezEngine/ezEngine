@@ -39,7 +39,7 @@ jobs:
             git clean -dfx
             Copy-Item -Path $pathA -Destination $pathB
         }
-        
+
   - task: CMake@1
     displayName: CMake linux-clang-dev
     inputs:
@@ -55,18 +55,18 @@ jobs:
   - task: PowerShell@2
     displayName: Compile Shaders
     inputs:
-      targetType: inline
-      errorActionPreference: 'stop'
-      failOnStderr: true
-      script: |
-        Set-StrictMode -Version Latest   
-        cd $(System.DefaultWorkingDirectory)/Output/Bin/LinuxNinjaClangDev64
-        ./ezShaderCompiler -renderer Vulkan -platform VULKAN -project $(System.DefaultWorkingDirectory)/Data/Base -shader Shaders/Pipeline
-        if ($LASTEXITCODE -ne 0) { throw "Error compiling Base shaders" }
-        ./ezShaderCompiler -renderer Vulkan -platform VULKAN -project $(System.DefaultWorkingDirectory)/Data/UnitTests -shader RendererTest/Shaders
-        if ($LASTEXITCODE -ne 0) { throw "Error compiling UnitTests shaders" }
-        ./ezShaderCompiler -renderer Vulkan -platform VULKAN -project $(System.DefaultWorkingDirectory)/Data/Samples/ShaderExplorer -shader Shaders
-        if ($LASTEXITCODE -ne 0) { throw "Error compiling ShaderExplorer shaders" }
+      targetType: filepath
+      pwsh: true
+      filePath: $(System.DefaultWorkingDirectory)/Utilities/Android/CompileShaders.ps1
+      arguments: "-BinariesDir $(System.DefaultWorkingDirectory)/Output/Bin/LinuxNinjaClangDev64"
+
+  - task: PowerShell@2
+    displayName: Install Android Dependencies
+    inputs:
+      targetType: filepath
+      pwsh: true
+      filePath: $(System.DefaultWorkingDirectory)/Utilities/Android/InstallAndroidDependencies.ps1
+      arguments: "-acceptLicence"
 
   - task: CMake@1
     displayName: CMake android-arm64-dev

@@ -7,6 +7,7 @@
 #include <GameEngine/Physics/ImpulseType.h>
 #include <GameEngine/Physics/WeightCategory.h>
 #include <JoltPlugin/JoltPluginDLL.h>
+#include <memory>
 
 class ezJoltMaterial;
 struct ezSurfaceResourceEvent;

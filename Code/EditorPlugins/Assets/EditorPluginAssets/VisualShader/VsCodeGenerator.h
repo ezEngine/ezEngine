@@ -58,7 +58,7 @@ private:
   const ezRTTI* m_pNodeBaseRtti;
   ezMap<const ezDocumentObject*, NodeState> m_Nodes;
   ezMap<const ezPin*, OutputPinState> m_OutputPins;
-  ezMap<ezInt8, ezSet<ezString>> m_UsedUniqueValues;
+  ezMap<ezString, ezString> m_UsedIdentifiers; // Maps identifier name to node type name
 
   ezStringBuilder m_sShaderPixelDefines;
   ezStringBuilder m_sShaderPixelIncludes;
@@ -67,8 +67,6 @@ private:
   ezStringBuilder m_sShaderPixelBody;
   ezStringBuilder m_sShaderVertexDefines;
   ezStringBuilder m_sShaderVertex;
-  ezStringBuilder m_sShaderGeometryDefines;
-  ezStringBuilder m_sShaderGeometry;
   ezStringBuilder m_sShaderMaterialParam;
   ezStringBuilder m_sShaderMaterialConstants;
   ezStringBuilder m_sShaderMaterialCB;

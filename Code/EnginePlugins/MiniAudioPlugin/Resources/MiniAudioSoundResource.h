@@ -4,6 +4,9 @@
 #include <MiniAudioPlugin/MiniAudioPluginDLL.h>
 
 class ezRandom;
+class ezWorld;
+struct ezMiniAudioSoundInstance;
+struct ezComponentHandle;
 
 using ezMiniAudioSoundResourceHandle = ezTypedResourceHandle<class ezMiniAudioSoundResource>;
 
@@ -34,7 +37,7 @@ public:
   float GetRolloff() const { return m_fRolloff; }
 
   /// \brief Instantiates the sound, all arguments are optional.
-  ezMiniAudioSoundInstance* InstantiateSound(ezRandom* pRng, ezWorld* pWorld, ezComponentHandle hComponent);
+  ezMiniAudioSoundInstance* InstantiateSound(ezRandom* pRng, ezWorld* pWorld, const ezComponentHandle& hComponent);
 
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;

@@ -17,25 +17,12 @@ $devicePackage = "system-images;android-29;google_apis;x86_64"
 $deviceType = "pixel_7"
 
 if ($installBuildDependencies) {
-    $sdkTools = Get-LatestSdkTools
-    $sdkManager = Join-Path -Path $sdkTools -ChildPath "bin/sdkmanager"
-    if ($IsWindows) {
-        $sdkManager = "$sdkManager.bat"
+    $sdkManager = Get-SdkManager
+    for ($i = 0; $i -lt 8; $i++) {
+        "y`ny`ny`n" | & $sdkManager --licenses | Out-Null
     }
-    if (-not (Test-Path $sdkManager)) {
-        RaiseError "Failed to locate sdkmanager in $sdkManager. Please ensure that the ANDROID_HOME environment variable is correctly set"
-    }
-
-    # build dependencies
-    & $sdkManager "build-tools;34.0.0"
-    & $sdkManager "cmdline-tools;latest"
-    & $sdkManager "ndk;26.1.10909125"
-    & $sdkManager "platform-tools"
-    & $sdkManager "platforms;android-29"
-    # Emulator packages
-    & $sdkManager "emulator"
-    & $sdkManager "extras;google;Android_Emulator_Hypervisor_Driver"
-    & $sdkManager "system-images;android-29;google_apis;x86_64"
+    Install-SdkBuildDependencies -SdkManager $sdkManager
+    Install-SdkEmulatorPackages -SdkManager $sdkManager
 
     for ($i = 0; $i -lt 8; $i++) {
         "y`ny`ny`n" | & $sdkManager --licenses | Out-Null
@@ -103,6 +90,7 @@ if ($startEmulator) {
 
 # Stop Emulator
 if ($stopEmulator) {
+    $adb = Get-Adb
     & $adb -s $deviceAdb emu kill
     return 0
 }

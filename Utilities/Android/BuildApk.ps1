@@ -1,6 +1,9 @@
 param(
 	[Parameter(Mandatory=$true)]
 	[string]$BuildToolsPath,
+
+	[Parameter(Mandatory=$true)]
+	[string]$JavaHome,
 	
 	[Parameter(Mandatory=$true)]
 	[string]$ContentDirectory,
@@ -72,8 +75,20 @@ if($lastexitcode -ne 0)
 
 Write-Host "Signing apk $finalApkPath with key $SignKey ..."
 Write-Host "apksigner:`"$apksigner`", SignKey:`"$SignKey`", SignPassword: `"$SignPassword`""
+Write-Host "JavaHome: `"$JavaHome`""
+$previousPath = $env:PATH
+if ($IsWindows) {
+    $env:PATH = "$JavaHome/bin;$env:PATH"
+} else {
+    $env:PATH = "$JavaHome/bin:$env:PATH"
+}
+try {
+	& $apksigner sign --ks $SignKey --ks-pass $SignPassword $finalApkPath
+}
+finally {
+	$env:PATH = $previousPath
+}
 
-& $apksigner sign --ks $SignKey --ks-pass $SignPassword $finalApkPath
 if($lastexitcode -ne 0)
 {
     Write-Host "FAILED with $lastexitcode"

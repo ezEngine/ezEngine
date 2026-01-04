@@ -5,6 +5,7 @@
 
 class ezPhysicsWorldModuleInterface;
 
+/// Factory for age finalizers.
 class EZ_PARTICLEPLUGIN_DLL ezParticleFinalizerFactory_Age final : public ezParticleFinalizerFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleFinalizerFactory_Age, ezParticleFinalizerFactory);
@@ -21,6 +22,12 @@ public:
 };
 
 
+/// Updates particle age and removes particles that have exceeded their lifetime.
+///
+/// Each frame, the remaining lifetime is decreased by the time delta. When a particle's
+/// lifetime reaches zero, it is removed from the system. If an on-death event is configured,
+/// the event is triggered at the particle's position with its velocity as the direction.
+/// The lifetime is initialized with optional variance and can be scaled by an effect parameter.
 class EZ_PARTICLEPLUGIN_DLL ezParticleFinalizer_Age final : public ezParticleFinalizer
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleFinalizer_Age, ezParticleFinalizer);

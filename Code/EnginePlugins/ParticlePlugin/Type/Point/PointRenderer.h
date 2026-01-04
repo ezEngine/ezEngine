@@ -8,18 +8,19 @@
 #include <RendererCore/../../../Data/Base/Shaders/Particles/BillboardQuadParticleShaderData.h>
 #include <RendererFoundation/Resources/BufferPool.h>
 
+/// Render data for point particles.
 class EZ_PARTICLEPLUGIN_DLL ezParticlePointRenderData final : public ezRenderData
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticlePointRenderData, ezRenderData);
 
 public:
-  ezArrayPtr<ezBaseParticleShaderData> m_BaseParticleData;
-  ezArrayPtr<ezBillboardQuadParticleShaderData> m_BillboardParticleData;
-  ezTransform m_GlobalTransform;
-  ezTime m_TotalEffectLifeTime;
+  ezArrayPtr<ezBaseParticleShaderData> m_BaseParticleData;               ///< Base particle data
+  ezArrayPtr<ezBillboardQuadParticleShaderData> m_BillboardParticleData; ///< Billboard data
+  ezTransform m_GlobalTransform;                                         ///< World transform of the particle system
+  ezTime m_TotalEffectLifeTime;                                          ///< Total lifetime of the effect
 };
 
-/// \brief Implements rendering of particle systems
+/// Renderer for point particle systems.
 class EZ_PARTICLEPLUGIN_DLL ezParticlePointRenderer final : public ezParticleRenderer
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticlePointRenderer, ezParticleRenderer);

@@ -1,8 +1,8 @@
-#include <GuiFoundation/GuiFoundationPCH.h>
+#include <Foundation/FoundationPCH.h>
 
 #include <Foundation/Math/Math.h>
 #include <Foundation/Tracks/Curve1D.h>
-#include <GuiFoundation/Widgets/CurveEditData.h>
+#include <Foundation/Tracks/CurveEditData.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezCurveTangentMode, 1)
@@ -76,8 +76,8 @@ ezCurveExtentsAttribute::ezCurveExtentsAttribute(double fLowerExtent, bool bLowe
 
 void ezCurveControlPointData::SetTickFromTime(ezTime time, ezInt64 iFps)
 {
-  const ezUInt32 uiTicksPerStep = 4800 / iFps;
-  m_iTick = (ezInt64)ezMath::RoundToMultiple(time.GetSeconds() * 4800.0, (double)uiTicksPerStep);
+  const ezInt64 iTicksPerStep = 4800 / iFps;
+  m_iTick = (ezInt64)ezMath::RoundToMultiple(time.GetSeconds() * 4800.0, (double)iTicksPerStep);
 }
 
 ezCurveGroupData::~ezCurveGroupData()
@@ -186,7 +186,7 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& /*ref_context*/, ezAbstractObjectGraph* /*pGraph*/, ezAbstractObjectNode* pNode) const override
   {
     auto* pPoint = pNode->FindProperty("Point");
     if (pPoint && pPoint->m_Value.IsA<ezVec2>())
@@ -212,7 +212,7 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& /*ref_context*/, ezAbstractObjectGraph* /*pGraph*/, ezAbstractObjectNode* pNode) const override
   {
     auto* pPoint = pNode->FindProperty("Time");
     if (pPoint && pPoint->m_Value.IsA<double>())
@@ -235,7 +235,7 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* /*pGraph*/, ezAbstractObjectNode* /*pNode*/) const override
   {
     ref_context.RenameClass("ezCurveControlPointData");
   }
@@ -253,7 +253,7 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* /*pGraph*/, ezAbstractObjectNode* /*pNode*/) const override
   {
     ref_context.RenameClass("ezSingleCurveData");
   }
@@ -271,7 +271,7 @@ public:
   {
   }
 
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* /*pGraph*/, ezAbstractObjectNode* /*pNode*/) const override
   {
     ref_context.RenameClass("ezCurveGroupData");
   }

@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include <Foundation/Containers/ArrayBase.h>
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Containers/Set.h>

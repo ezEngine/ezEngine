@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Foundation/Math/Transform.h>
+#include <Foundation/Types/Id.h>
 #include <GameEngine/GameEngineDLL.h>
 
 using ezXRSpatialAnchorID = ezGenericId<32, 16>;

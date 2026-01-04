@@ -59,7 +59,6 @@ void ezParticleInitializerFactory_RandomSize::Load(ezStreamReader& inout_stream)
   inout_stream >> m_Size.m_fVariance;
 }
 
-
 void ezParticleInitializer_RandomSize::CreateRequiredStreams()
 {
   CreateStream("Size", ezProcessingStream::DataType::Half, &m_pStreamSize, true);
@@ -90,6 +89,10 @@ void ezParticleInitializer_RandomSize::InitializeElements(ezUInt64 uiStartIndex,
 
       double fMinX, fMaxX;
       curve.QueryExtents(fMinX, fMaxX);
+
+      // make sure the curve has a length of at least 1
+      fMinX = ezMath::Min(fMinX, 0.0);
+      fMaxX = ezMath::Max(fMaxX, 1.0);
 
       for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
       {

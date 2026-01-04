@@ -8,6 +8,7 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <ParticlePlugin/Finalizer/ParticleFinalizer_LastPosition.h>
+#include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
@@ -31,13 +32,13 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeQuadFactory, 2, ezRTTIDefaultAlloc
     EZ_ENUM_MEMBER_PROPERTY("LightingMode", ezParticleLightingMode, m_LightingMode),
     EZ_MEMBER_PROPERTY("NormalCurvature", m_fNormalCurvature)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0, 1)),
     EZ_MEMBER_PROPERTY("LightDirectionality", m_fLightDirectionality)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0, 1)),
+    EZ_MEMBER_PROPERTY("UseCustomMaterial", m_bUseCustomMaterial),
+    EZ_MEMBER_PROPERTY("CustomMaterial", m_sCustomMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material", "QuadParticle")),
     EZ_MEMBER_PROPERTY("Texture", m_sTexture)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_2D"), new ezDefaultValueAttribute(ezStringView("{ e00262e8-58f5-42f5-880d-569257047201 }"))),// wrap in ezStringView to prevent a memory leak report
     EZ_ENUM_MEMBER_PROPERTY("TextureAtlas", ezParticleTextureAtlasType, m_TextureAtlasType),
     EZ_MEMBER_PROPERTY("NumSpritesX", m_uiNumSpritesX)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(1, 16)),
     EZ_MEMBER_PROPERTY("NumSpritesY", m_uiNumSpritesY)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(1, 16)),
     EZ_MEMBER_PROPERTY("TintColorParam", m_sTintColorParameter),
-    EZ_MEMBER_PROPERTY("DistortionTexture", m_sDistortionTexture)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_2D")),
-    EZ_MEMBER_PROPERTY("DistortionStrength", m_fDistortionStrength)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezClampValueAttribute(0.0f, 500.0f)),
     EZ_MEMBER_PROPERTY("ParticleStretch", m_fStretch)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(-100.0f, 100.0f)),
   }
   EZ_END_PROPERTIES;
@@ -64,18 +65,23 @@ void ezParticleTypeQuadFactory::CopyTypeProperties(ezParticleType* pObject, bool
   pType->m_uiNumSpritesX = m_uiNumSpritesX;
   pType->m_uiNumSpritesY = m_uiNumSpritesY;
   pType->m_sTintColorParameter = ezTempHashedString(m_sTintColorParameter.GetData());
-  pType->m_hDistortionTexture.Invalidate();
-  pType->m_fDistortionStrength = m_fDistortionStrength;
   pType->m_TextureAtlasType = m_TextureAtlasType;
   pType->m_fStretch = m_fStretch;
   pType->m_LightingMode = m_LightingMode;
   pType->m_fNormalCurvature = m_fNormalCurvature;
   pType->m_fLightDirectionality = m_fLightDirectionality;
+  pType->m_hCustomMaterial.Invalidate();
 
-  if (!m_sTexture.IsEmpty())
-    pType->m_hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(m_sTexture);
-  if (!m_sDistortionTexture.IsEmpty())
-    pType->m_hDistortionTexture = ezResourceManager::LoadResource<ezTexture2DResource>(m_sDistortionTexture);
+  if (m_bUseCustomMaterial)
+  {
+    if (!m_sCustomMaterial.IsEmpty())
+      pType->m_hCustomMaterial = ezResourceManager::LoadResource<ezMaterialResource>(m_sCustomMaterial);
+  }
+  else
+  {
+    if (!m_sTexture.IsEmpty())
+      pType->m_hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(m_sTexture);
+  }
 }
 
 enum class TypeQuadVersion
@@ -87,6 +93,7 @@ enum class TypeQuadVersion
   Version_4, // added texture atlas type
   Version_5, // added particle stretch
   Version_6, // added particle lighting
+  Version_7, // added custom material support
 
   // insert new version numbers above
   Version_Count,
@@ -105,8 +112,11 @@ void ezParticleTypeQuadFactory::Save(ezStreamWriter& inout_stream) const
   inout_stream << m_uiNumSpritesY;
   inout_stream << m_sTintColorParameter;
   inout_stream << m_MaxDeviation;
-  inout_stream << m_sDistortionTexture;
-  inout_stream << m_fDistortionStrength;
+
+  ezString sDistortionTexture;
+  float fDistortionStrength = 0;
+  inout_stream << sDistortionTexture;
+  inout_stream << fDistortionStrength;
   inout_stream << m_TextureAtlasType;
 
   // Version 5
@@ -116,6 +126,10 @@ void ezParticleTypeQuadFactory::Save(ezStreamWriter& inout_stream) const
   inout_stream << m_LightingMode;
   inout_stream << m_fNormalCurvature;
   inout_stream << m_fLightDirectionality;
+
+  // Version 7
+  inout_stream << m_bUseCustomMaterial;
+  inout_stream << m_sCustomMaterial;
 }
 
 void ezParticleTypeQuadFactory::Load(ezStreamReader& inout_stream)
@@ -139,8 +153,10 @@ void ezParticleTypeQuadFactory::Load(ezStreamReader& inout_stream)
 
   if (uiVersion >= 3)
   {
-    inout_stream >> m_sDistortionTexture;
-    inout_stream >> m_fDistortionStrength;
+    ezString sDistortionTexture;
+    float fDistortionStrength;
+    inout_stream >> sDistortionTexture;
+    inout_stream >> fDistortionStrength;
   }
 
   if (uiVersion >= 4)
@@ -164,6 +180,12 @@ void ezParticleTypeQuadFactory::Load(ezStreamReader& inout_stream)
     inout_stream >> m_LightingMode;
     inout_stream >> m_fNormalCurvature;
     inout_stream >> m_fLightDirectionality;
+  }
+
+  if (uiVersion >= 7)
+  {
+    inout_stream >> m_bUseCustomMaterial;
+    inout_stream >> m_sCustomMaterial;
   }
 }
 
@@ -216,11 +238,14 @@ struct sodComparer
 
 void ezParticleTypeQuad::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const
 {
-  const ezUInt32 numParticles = (ezUInt32)GetOwnerSystem()->GetNumActiveParticles();
-  if (!m_hTexture.IsValid() || numParticles == 0)
+  if ((!m_hTexture.IsValid() && !m_hCustomMaterial))
     return;
 
-  const bool bNeedsSorting = (m_RenderMode == ezParticleTypeRenderMode::Blended) || (m_RenderMode == ezParticleTypeRenderMode::BlendedForeground) || (m_RenderMode == ezParticleTypeRenderMode::BlendedBackground) || (m_RenderMode == ezParticleTypeRenderMode::BlendAdd);
+  const ezUInt32 numParticles = (ezUInt32)GetOwnerSystem()->GetNumActiveParticles();
+  if (numParticles == 0)
+    return;
+
+  const bool bNeedsSorting = (m_RenderMode == ezParticleTypeRenderMode::Blended) || (m_RenderMode == ezParticleTypeRenderMode::BlendedForeground) || (m_RenderMode == ezParticleTypeRenderMode::BlendedBackground);
 
   // don't copy the data multiple times in the same frame, if the effect is instanced
   if ((m_uiLastExtractedFrame != ezRenderWorld::GetFrameCounter())
@@ -431,7 +456,15 @@ void ezParticleTypeQuad::AddParticleRenderData(ezMsgExtractRenderData& msg, cons
 {
   auto pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezParticleQuadRenderData>(nullptr);
 
-  pRenderData->m_uiSortingKey = ComputeSortingKey(m_RenderMode, m_hTexture.GetResourceIDHash());
+  if (m_hCustomMaterial.IsValid())
+  {
+    pRenderData->m_uiSortingKey = ComputeSortingKey(m_RenderMode, m_hCustomMaterial.GetResourceIDHash(), 0);
+  }
+  else
+  {
+    pRenderData->m_uiSortingKey = ComputeSortingKey(m_RenderMode, m_hTexture.GetResourceIDHash(), 0);
+  }
+
   pRenderData->m_vGlobalPosition = instanceTransform.m_vPosition;
 
   pRenderData->m_GlobalTransform = GetOwnerEffect()->NeedsToApplyTransform() ? instanceTransform : ezTransform::MakeIdentity();
@@ -445,11 +478,10 @@ void ezParticleTypeQuad::AddParticleRenderData(ezMsgExtractRenderData& msg, cons
   pRenderData->m_uiNumVariationsY = 1;
   pRenderData->m_uiNumFlipbookAnimationsX = 1;
   pRenderData->m_uiNumFlipbookAnimationsY = 1;
-  pRenderData->m_hDistortionTexture = m_hDistortionTexture;
-  pRenderData->m_fDistortionStrength = m_fDistortionStrength;
   pRenderData->m_LightingMode = m_LightingMode;
   pRenderData->m_fNormalCurvature = m_fNormalCurvature;
   pRenderData->m_fLightDirectionality = m_fLightDirectionality;
+  pRenderData->m_hCustomMaterial = m_hCustomMaterial;
 
   switch (m_Orientation)
   {

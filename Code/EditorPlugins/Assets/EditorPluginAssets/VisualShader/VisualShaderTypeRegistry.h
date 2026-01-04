@@ -40,6 +40,7 @@ struct ezVisualShaderNodeDescriptor
   ezEnum<ezVisualShaderNodeType> m_NodeType;
   ezString m_sCfgFile; ///< from which config file this node type was loaded
   ezString m_sName;
+  ezString m_sTitle;
   ezString m_sDocs;
   ezHashedString m_sCategory;
   ezString m_sCheckPermutations;
@@ -54,8 +55,8 @@ struct ezVisualShaderNodeDescriptor
   ezString m_sShaderCodeMaterialConstants;
   ezString m_sShaderCodeMaterialCB;
   ezString m_sShaderCodeRenderState;
+  ezString m_sShaderCodeShaderShared;
   ezString m_sShaderCodeVertexShader;
-  ezString m_sShaderCodeGeometryShader;
 
   ezHybridArray<ezVisualShaderPinDescriptor, 4> m_InputPins;
   ezHybridArray<ezVisualShaderPinDescriptor, 4> m_OutputPins;

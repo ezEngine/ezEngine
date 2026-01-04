@@ -14,7 +14,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEmitterFactory_OnEvent, 1, ezRTTIDefau
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("EventName", m_sEventName),
+    EZ_MEMBER_PROPERTY("EventName", m_sEventName)->AddAttributes(new ezDynamicStringEnumAttribute("ParticleEventNamesEnum")),
     EZ_MEMBER_PROPERTY("MinSpawnCount", m_uiSpawnCountMin)->AddAttributes(new ezDefaultValueAttribute(1)),
     EZ_MEMBER_PROPERTY("SpawnCountRange", m_uiSpawnCountRange),
     EZ_MEMBER_PROPERTY("SpawnCountScaleParam", m_sSpawnCountScaleParameter),

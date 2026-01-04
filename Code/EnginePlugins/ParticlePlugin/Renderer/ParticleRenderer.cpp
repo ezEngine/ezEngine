@@ -15,7 +15,7 @@ ezParticleRenderer::TempSystemCB::TempSystemCB(ezRenderContext* pRenderContext)
   // TODO This pattern looks like it is inefficient. Should it use the GPU pool instead somehow?
   m_hConstantBuffer = ezRenderContext::CreateConstantBufferStorage(m_pConstants);
 
-  ezBindGroupBuilder& bindGroupMaterial = ezRenderContext::GetDefaultInstance()->GetBindGroup(EZ_GAL_BIND_GROUP_MATERIAL);
+  ezBindGroupBuilder& bindGroupMaterial = ezRenderContext::GetDefaultInstance()->GetBindGroup(EZ_GAL_BIND_GROUP_DRAW_CALL);
   bindGroupMaterial.BindBuffer("ezParticleSystemConstants", m_hConstantBuffer);
 }
 
@@ -24,7 +24,7 @@ ezParticleRenderer::TempSystemCB::~TempSystemCB()
   ezRenderContext::DeleteConstantBufferStorage(m_hConstantBuffer);
 }
 
-void ezParticleRenderer::TempSystemCB::SetGenericData(const ezTransform& objectTransform, ezTime effectLifeTime, ezUInt8 uiNumVariationsX, ezUInt8 uiNumVariationsY, ezUInt8 uiNumFlipbookAnimsX, ezUInt8 uiNumFlipbookAnimsY, float fDistortionStrength, float fNormalCurvature, float fLightDirectionality)
+void ezParticleRenderer::TempSystemCB::SetGenericData(const ezTransform& objectTransform, ezTime effectLifeTime, ezUInt8 uiNumVariationsX, ezUInt8 uiNumVariationsY, ezUInt8 uiNumFlipbookAnimsX, ezUInt8 uiNumFlipbookAnimsY, float fNormalCurvature, float fLightDirectionality)
 {
   ezParticleSystemConstants& cb = m_pConstants->GetDataForWriting();
   cb.ObjectToWorldMatrix = objectTransform.GetAsMat4();
@@ -32,7 +32,6 @@ void ezParticleRenderer::TempSystemCB::SetGenericData(const ezTransform& objectT
   cb.TextureAtlasVariationFramesY = uiNumVariationsY;
   cb.TextureAtlasFlipbookFramesX = uiNumFlipbookAnimsX;
   cb.TextureAtlasFlipbookFramesY = uiNumFlipbookAnimsY;
-  cb.DistortionStrength = fDistortionStrength;
   cb.TotalEffectLifeTime = effectLifeTime.AsFloatInSeconds();
   cb.NormalCurvature = fNormalCurvature;
   cb.LightDirectionality = fLightDirectionality;

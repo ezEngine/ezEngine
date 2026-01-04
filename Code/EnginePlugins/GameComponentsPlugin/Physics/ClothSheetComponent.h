@@ -1,5 +1,6 @@
 #pragma once
 
+#include <GameComponentsPlugin/GameComponentsDLL.h>
 #include <GameEngine/Physics/ClothSheetSimulator.h>
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/Pipeline/RenderData.h>

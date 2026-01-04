@@ -79,8 +79,7 @@ ezInt32 ezCurve1D::FindApproxControlPoint(double x) const
   {
     const ezUInt32 uiMidIdx = uiLowIdx + ((uiHighIdx - uiLowIdx) >> 1); // lerp
 
-    // doesn't matter whether to use > or >=
-    if (m_LinearApproximation[uiMidIdx].x > x)
+    if (m_LinearApproximation[uiMidIdx].x >= x)
       uiHighIdx = uiMidIdx;
     else
       uiLowIdx = uiMidIdx;

@@ -5,6 +5,9 @@
 #include <Foundation/Math/Color.h>
 #include <Foundation/Math/Transform.h>
 #include <Foundation/SimdMath/SimdTransform.h>
+
+#include <Jolt/Jolt.h>
+
 #include <Jolt/Core/Color.h>
 #include <Jolt/Math/Float3.h>
 #include <Jolt/Math/Vec3.h>

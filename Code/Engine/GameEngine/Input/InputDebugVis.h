@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Foundation/Math/Vec2.h>
 #include <GameEngine/GameEngineDLL.h>
 
 class ezDebugRendererContext;

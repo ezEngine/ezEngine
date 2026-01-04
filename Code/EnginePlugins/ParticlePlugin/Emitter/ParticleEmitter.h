@@ -9,7 +9,7 @@ class ezParticleSystemInstance;
 class ezProcessingStream;
 class ezParticleEmitter;
 
-/// \brief Base class for all particle emitters
+/// Base class for all particle emitters
 class EZ_PARTICLEPLUGIN_DLL ezParticleEmitterFactory : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleEmitterFactory, ezReflectedClass);
@@ -25,15 +25,17 @@ public:
   virtual void Load(ezStreamReader& inout_stream) = 0;
 };
 
+/// Current state of a particle emitter
 enum class ezParticleEmitterState
 {
-  Active,
-  Finished,
-  OnlyReacting, //< Doesn't do anything, unless there are events that trigger it. That means it is considered finished, when all other emitters are
-                // finished.
+  Active,       ///< Emitter is actively spawning particles
+  Finished,     ///< Emitter will not spawn more particles
+  OnlyReacting, ///< Only spawns on events, considered finished when other emitters finish
 };
 
-/// \brief Base class for stream spawners that are used by ezParticleEmitter's
+/// Base class for particle emitters
+///
+/// Emitters control when and how many particles are spawned.
 class EZ_PARTICLEPLUGIN_DLL ezParticleEmitter : public ezParticleModule
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleEmitter, ezParticleModule);
@@ -45,10 +47,10 @@ protected:
   virtual bool IsContinuous() const;
   virtual void Process(ezUInt64 uiNumElements) final override;
 
-  /// \brief Called once per update. Must return how many new particles are to be spawned.
+  /// Called once per update. Must return how many new particles to spawn.
   virtual ezUInt32 ComputeSpawnCount(const ezTime& tDiff) = 0;
 
-  /// \brief Called before ComputeSpawnCount(). Should return true, if the emitter will never spawn any more particles.
+  /// Called before ComputeSpawnCount(). Returns whether the emitter will spawn more particles.
   virtual ezParticleEmitterState IsFinished() = 0;
 
   virtual void ProcessEventQueue(ezParticleEventQueue queue);

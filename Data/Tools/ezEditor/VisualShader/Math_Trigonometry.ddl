@@ -143,6 +143,7 @@ Node %Pow
   string %Category { "Math/Trigonometry" }
   string %Color { "Yellow" }
   string %Docs { "For each component outputs 'Base' to the power of 'Exponent'." }
+  string %Title { "{$in0} ^ {$in1}" }
 
   InputPin %Base
   {

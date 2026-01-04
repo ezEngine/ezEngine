@@ -1,4 +1,9 @@
-# Variable 'task.MSBuild.status' was defined in the Variables tab
+parameters:
+  - name: compileShaderCompiler
+    displayName: 'Compile Shader Compiler'
+    type: boolean
+    default: true # For now, we use the precompiled ShaderCompiler for Windows to speed up testing.
+
 trigger:
   branches:
     include:
@@ -8,6 +13,10 @@ resources:
   - repository: self
     type: git
     ref: dev
+variables:
+  androidHome: '$(System.DefaultWorkingDirectory)/Workspace/shared/android'
+  androidNdkHome: '$(System.DefaultWorkingDirectory)/Workspace/shared/android/ndk/26.1.10909125'
+  javaHome: '$(System.DefaultWorkingDirectory)/Workspace/shared/android/jdk17'
 jobs:
 - job: Job_1
   displayName: Android-x64
@@ -27,6 +36,7 @@ jobs:
   - task: PowerShell@2
     displayName: Check force clean
     inputs:
+      pwsh: true
       targetType: inline
       script: |
         $pathA = Join-Path $(System.DefaultWorkingDirectory) "gitClean.txt"
@@ -46,29 +56,35 @@ jobs:
       KeyVaultName: ezKeys
       SecretsFilter: AzureBlobPW
 
-  - task: CMake@1
-    displayName: CMake vs2022x64
-    inputs:
-      cwd: $(System.DefaultWorkingDirectory)
-      cmakeArgs: --preset vs2022x64
+  - ${{ if eq(parameters.compileShaderCompiler, true) }}:
+    - task: CMake@1
+      displayName: CMake vs2022x64
+      inputs:
+        cwd: $(System.DefaultWorkingDirectory)
+        cmakeArgs: --preset vs2022x64 -DEZ_BUILD_EXPERIMENTAL_VULKAN:BOOL=ON
 
-  - task: CMake@1
-    displayName: CMake build vs2022x64
-    inputs:
-      cwd: $(System.DefaultWorkingDirectory)/Workspace/vs2022x64
-      cmakeArgs: --build . --target ShaderCompiler --config dev
+    - task: CMake@1
+      displayName: CMake build vs2022x64
+      inputs:
+        cwd: $(System.DefaultWorkingDirectory)/Workspace/vs2022x64
+        cmakeArgs: --build . --target ShaderCompiler --config dev
 
-  - task: CmdLine@2
+  - task: PowerShell@2
     displayName: Compile Shaders
     inputs:
-      script: |
-        cd $(System.DefaultWorkingDirectory)/Output/Bin/WinVs2022Dev64
-        ezShaderCompiler -renderer Vulkan -platform VULKAN -project $(System.DefaultWorkingDirectory)/Data/Base -shader Shaders/Pipeline
-        if %ERRORLEVEL% NEQ 0 exit 1
-        ezShaderCompiler -renderer Vulkan -platform VULKAN -project $(System.DefaultWorkingDirectory)/Data/UnitTests -shader RendererTest/Shaders
-        if %ERRORLEVEL% NEQ 0 exit 1
-        ezShaderCompiler -renderer Vulkan -platform VULKAN -project $(System.DefaultWorkingDirectory)/Data/Samples/ShaderExplorer -shader Shaders
-        if %ERRORLEVEL% NEQ 0 exit 1
+      targetType: filepath
+      pwsh: true
+      filePath: $(System.DefaultWorkingDirectory)/Utilities/Android/CompileShaders.ps1
+      ${{ if eq(parameters.compileShaderCompiler, true) }}:
+        arguments: "-BinariesDir $(System.DefaultWorkingDirectory)/Output/Bin/WinVs2022Dev64"
+
+  - task: PowerShell@2
+    displayName: Install Android Dependencies
+    inputs:
+      targetType: filepath
+      pwsh: true
+      filePath: $(System.DefaultWorkingDirectory)/Utilities/Android/InstallAndroidDependencies.ps1
+      arguments: "-acceptLicence -installEmulator"
 
   - task: CMake@1
     displayName: CMake android-x64-dev
@@ -79,10 +95,9 @@ jobs:
   - task: CmdLine@2
     displayName: Build
     inputs:
-      script: |
-        cd $(System.DefaultWorkingDirectory)/Workspace/android-x64-dev
-        ninja
-
+      targetType: inline
+      script: ninja -C Workspace/android-x64-dev
+        
   - task: PowerShell@2
     displayName: Install Emulator
     inputs:
@@ -90,6 +105,10 @@ jobs:
       pwsh: true
       filePath: $(System.DefaultWorkingDirectory)/Utilities/Android/AndroidEmulator.ps1
       arguments: "-installEmulator"
+    env:
+      ANDROID_HOME: '$(androidHome)'
+      ANDROID_NDK_HOME: '$(androidNdkHome)'
+      JAVA_HOME: '$(javaHome)'
 
   - task: PowerShell@2
     displayName: Start Emulator
@@ -98,6 +117,10 @@ jobs:
       pwsh: true
       filePath: $(System.DefaultWorkingDirectory)/Utilities/Android/AndroidEmulator.ps1
       arguments: "-startEmulator"
+    env:
+      ANDROID_HOME: '$(androidHome)'
+      ANDROID_NDK_HOME: '$(androidNdkHome)'
+      JAVA_HOME: '$(javaHome)'
 
   - task: PowerShell@2
     displayName: Check Ready for Testing
@@ -113,6 +136,10 @@ jobs:
       pwsh: true
       filePath: $(System.DefaultWorkingDirectory)/Utilities/Android/AndroidTest.ps1
       arguments: "-deviceAdb emulator-5555 -packageName com.ezengine.FoundationTest -activityName android.app.NativeActivity -outputFolder $(Build.ArtifactStagingDirectory)/Test/FoundationTest -apk $(System.DefaultWorkingDirectory)/Output/Bin/AndroidNinjaClangDev64/FoundationTest.apk"
+    env:
+      ANDROID_HOME: '$(androidHome)'
+      ANDROID_NDK_HOME: '$(androidNdkHome)'
+      JAVA_HOME: '$(javaHome)'
 
   - task: PowerShell@2
     displayName: CoreTest
@@ -122,6 +149,10 @@ jobs:
       pwsh: true
       filePath: $(System.DefaultWorkingDirectory)/Utilities/Android/AndroidTest.ps1
       arguments: "-deviceAdb emulator-5555 -packageName com.ezengine.CoreTest -activityName android.app.NativeActivity -outputFolder $(Build.ArtifactStagingDirectory)/Test/CoreTest -apk $(System.DefaultWorkingDirectory)/Output/Bin/AndroidNinjaClangDev64/CoreTest.apk"
+    env:
+      ANDROID_HOME: '$(androidHome)'
+      ANDROID_NDK_HOME: '$(androidNdkHome)'
+      JAVA_HOME: '$(javaHome)'
 
   - task: PowerShell@2
     displayName: RendererTest
@@ -131,6 +162,10 @@ jobs:
       pwsh: true
       filePath: $(System.DefaultWorkingDirectory)/Utilities/Android/AndroidTest.ps1
       arguments: "-deviceAdb emulator-5555 -packageName com.ezengine.RendererTest -activityName android.app.NativeActivity -outputFolder $(Build.ArtifactStagingDirectory)/Test/RendererTest -apk $(System.DefaultWorkingDirectory)/Output/Bin/AndroidNinjaClangDev64/RendererTest.apk"
+    env:
+      ANDROID_HOME: '$(androidHome)'
+      ANDROID_NDK_HOME: '$(androidNdkHome)'
+      JAVA_HOME: '$(javaHome)'
 
   - task: PowerShell@2
     displayName: ToolsFoundationTest
@@ -140,6 +175,10 @@ jobs:
       pwsh: true
       filePath: $(System.DefaultWorkingDirectory)/Utilities/Android/AndroidTest.ps1
       arguments: "-deviceAdb emulator-5555 -packageName com.ezengine.ToolsFoundationTest -activityName android.app.NativeActivity -outputFolder $(Build.ArtifactStagingDirectory)/Test/ToolsFoundationTest -apk $(System.DefaultWorkingDirectory)/Output/Bin/AndroidNinjaClangDev64/ToolsFoundationTest.apk"
+    env:
+      ANDROID_HOME: '$(androidHome)'
+      ANDROID_NDK_HOME: '$(androidNdkHome)'
+      JAVA_HOME: '$(javaHome)'
 
   - task: PowerShell@2
     displayName: Stop Emulator
@@ -149,7 +188,11 @@ jobs:
       pwsh: true
       filePath: $(System.DefaultWorkingDirectory)/Utilities/Android/AndroidEmulator.ps1
       arguments: "-stopEmulator"
-
+    env:
+      ANDROID_HOME: '$(androidHome)'
+      ANDROID_NDK_HOME: '$(androidNdkHome)'
+      JAVA_HOME: '$(javaHome)'
+      
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact: TestResults'
     condition: eq(variables['task.MSBuild.status'], 'success')

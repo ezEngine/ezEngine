@@ -143,7 +143,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetProperties, 4, ezRTTIDefaultAlloc
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetDocument, 10, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetDocument, 11, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -1425,3 +1425,55 @@ public:
 };
 
 ezMaterialAssetPropertiesPatch_2_3 g_ezMaterialAssetPropertiesPatch_2_3;
+
+//////////////////////////////////////////////////////////////////////////
+
+class ezMaterialAssetPropertiesPatch_10_11 : public ezGraphPatch
+{
+public:
+  ezMaterialAssetPropertiesPatch_10_11()
+    : ezGraphPatch(nullptr, 11, ezGraphPatch::PatchType::GraphPatch)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode*) const override
+  {
+    auto& nodes = pGraph->GetAllNodes();
+    for (auto it = nodes.GetIterator(); it.IsValid(); ++it)
+    {
+      ezAbstractObjectNode* pNode = it.Value();
+      ezStringView sType = pNode->GetType();
+
+      const char* szNewName = nullptr;
+
+      if (sType == "ShaderNode::BaseTexture")
+      {
+        szNewName = "BaseTexture";
+      }
+      else if (sType == "ShaderNode::EmissiveTexture")
+      {
+        szNewName = "EmissiveTexture";
+      }
+      else if (sType == "ShaderNode::MetallicTexture")
+      {
+        szNewName = "MetallicTexture";
+      }
+
+      if (szNewName != nullptr)
+      {
+        pNode->SetType("ShaderNode::Texture2D");
+
+        if (auto* pNameProp = pNode->FindProperty("Name"))
+        {
+          pNameProp->m_Value = szNewName;
+        }
+        else
+        {
+          pNode->AddProperty("Name", ezVariant(szNewName));
+        }
+      }
+    }
+  }
+};
+
+ezMaterialAssetPropertiesPatch_10_11 g_ezMaterialAssetPropertiesPatch_10_11;

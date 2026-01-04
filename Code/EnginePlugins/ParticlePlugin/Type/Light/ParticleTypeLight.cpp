@@ -109,7 +109,7 @@ void ezParticleTypeLight::CreateRequiredStreams()
 
   if (m_uiPercentage < 100)
   {
-    CreateStream("OnOff", ezProcessingStream::DataType::Int, &m_pStreamOnOff, false); /// \todo Initialize (instead of during extraction)
+    CreateStream("OnOff", ezProcessingStream::DataType::Byte, &m_pStreamOnOff, false); /// \todo Initialize (instead of during extraction)
   }
 }
 
@@ -125,11 +125,11 @@ void ezParticleTypeLight::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg,
   if (pPosition == nullptr || pSize == nullptr || pColor == nullptr)
     return;
 
-  ezInt32* pOnOff = nullptr;
+  ezInt8* pOnOff = nullptr;
 
   if (m_pStreamOnOff)
   {
-    pOnOff = m_pStreamOnOff->GetWritableData<ezInt32>();
+    pOnOff = m_pStreamOnOff->GetWritableData<ezInt8>();
 
     if (pOnOff == nullptr)
       return;

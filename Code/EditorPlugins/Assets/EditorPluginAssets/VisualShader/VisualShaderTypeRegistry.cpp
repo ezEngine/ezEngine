@@ -566,6 +566,10 @@ void ezVisualShaderTypeRegistry::ExtractNodeConfig(const ezOpenDdlReaderElement*
       {
         nd.m_sDocs = pElement->GetPrimitivesString()[0];
       }
+      else if (pElement->GetName() == "Title")
+      {
+        nd.m_sTitle = pElement->GetPrimitivesString()[0];
+      }
       else if (pElement->GetName() == "CheckPermutations")
       {
         temp = pElement->GetPrimitivesString()[0];
@@ -589,19 +593,19 @@ void ezVisualShaderTypeRegistry::ExtractNodeConfig(const ezOpenDdlReaderElement*
           temp.Append("\n");
         nd.m_sShaderCodeRenderState = temp;
       }
+      else if (pElement->GetName() == "CodeShaderShared")
+      {
+        temp = pElement->GetPrimitivesString()[0];
+        if (!temp.IsEmpty() && !temp.EndsWith("\n"))
+          temp.Append("\n");
+        nd.m_sShaderCodeShaderShared = temp;
+      }
       else if (pElement->GetName() == "CodeVertexShader")
       {
         temp = pElement->GetPrimitivesString()[0];
         if (!temp.IsEmpty() && !temp.EndsWith("\n"))
           temp.Append("\n");
         nd.m_sShaderCodeVertexShader = temp;
-      }
-      else if (pElement->GetName() == "CodeGeometryShader")
-      {
-        temp = pElement->GetPrimitivesString()[0];
-        if (!temp.IsEmpty() && !temp.EndsWith("\n"))
-          temp.Append("\n");
-        nd.m_sShaderCodeGeometryShader = temp;
       }
       else if (pElement->GetName() == "CodeMaterialParams")
       {

@@ -10,6 +10,9 @@ class ezParticleStream;
 class ezParticleSystemInstance;
 
 /// \brief Base class for all particle stream factories
+///
+/// Stream factories are responsible for creating and configuring particle streams.
+/// Each factory specifies the stream name, data type, and the actual stream class to instantiate.
 class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory, ezReflectedClass);
@@ -21,8 +24,10 @@ public:
   ezProcessingStream::DataType GetStreamDataType() const;
   const char* GetStreamName() const;
 
+  /// Constructs a full stream name by appending the data type in parentheses (e.g., "Position(3)" for Float4).
   static void GetFullStreamName(const char* szName, ezProcessingStream::DataType type, ezStringBuilder& out_sResult);
 
+  /// Creates and initializes a new particle stream instance for the given particle system.
   ezParticleStream* CreateParticleStream(ezParticleSystemInstance* pOwner) const;
 
 private:
@@ -32,6 +37,10 @@ private:
 };
 
 /// \brief Base class for all particle streams
+///
+/// Particle streams store per-particle data like position, velocity, color, or size.
+/// Each stream type provides initialization logic for new particles.
+/// Streams run with high priority (-1000) to ensure they initialize data before other processors.
 class EZ_PARTICLEPLUGIN_DLL ezParticleStream : public ezProcessingStreamProcessor
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleStream, ezProcessingStreamProcessor);
@@ -41,14 +50,22 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleStream : public ezProcessingStreamProcesso
 
 protected:
   ezParticleStream();
+
+  /// Called once during stream creation to set up any necessary references or state.
   virtual void Initialize(ezParticleSystemInstance* pOwner) {}
+
   virtual ezResult UpdateStreamBindings() final override;
+
+  /// Particle streams do not process existing elements, they only initialize new ones.
   virtual void Process(ezUInt64 uiNumElements) final override {}
 
   /// \brief The default implementation initializes all data with zero.
+  ///
+  /// Override this to provide custom initialization for new particles.
+  /// The implementation should initialize elements in the range [uiStartIndex, uiStartIndex + uiNumElements).
   virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
 
-  ezProcessingStream* m_pStream;
+  ezProcessingStream* m_pStream; ///< The underlying data stream managed by this particle stream
 
 private:
   ezParticleStreamBinding m_StreamBinding;

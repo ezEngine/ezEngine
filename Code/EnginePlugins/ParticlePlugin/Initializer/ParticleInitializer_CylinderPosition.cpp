@@ -149,7 +149,7 @@ void ezParticleInitializer_CylinderPosition::CreateRequiredStreams()
 
   if (m_bSetVelocity)
   {
-    CreateStream("Velocity", ezProcessingStream::DataType::Float3, &m_pStreamVelocity, true);
+    CreateStream("Velocity", ezProcessingStream::DataType::Half4, &m_pStreamVelocity, true);
   }
 }
 
@@ -158,9 +158,11 @@ void ezParticleInitializer_CylinderPosition::InitializeElements(ezUInt64 uiStart
   EZ_PROFILE_SCOPE("PFX: Cylinder Position");
 
   const ezVec3 startVel = GetOwnerSystem()->GetParticleStartVelocity();
+  const float fStartSpeed = startVel.GetLength();
+  const ezVec3 startDir = fStartSpeed > 0.0f ? startVel / fStartSpeed : ezVec3(0, 0, 1);
 
   ezVec4* pPosition = m_pStreamPosition->GetWritableData<ezVec4>();
-  ezVec3* pVelocity = m_bSetVelocity ? m_pStreamVelocity->GetWritableData<ezVec3>() : nullptr;
+  ezFloat16Vec4* pVelocity = m_bSetVelocity ? m_pStreamVelocity->GetWritableData<ezFloat16Vec4>() : nullptr;
 
   ezRandom& rng = GetRNG();
 
@@ -205,7 +207,11 @@ void ezParticleInitializer_CylinderPosition::InitializeElements(ezUInt64 uiStart
     {
       const float fSpeed = (float)rng.DoubleVariance(m_Speed.m_Value, m_Speed.m_fVariance);
 
-      pVelocity[i] = startVel + trans.m_qRotation * normalPos * fSpeed;
+      const ezVec3 vel = startVel + trans.m_qRotation * normalPos * fSpeed;
+      const float fVelLength = vel.GetLength();
+      const ezVec3 velDir = fVelLength > 0.0f ? vel / fVelLength : ezVec3(0, 0, 1);
+
+      pVelocity[i] = ezVec4(velDir.x, velDir.y, velDir.z, fVelLength);
     }
 
     pPosition[i] = (trans * pos).GetAsVec4(0);

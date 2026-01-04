@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/Containers/Map.h>
+#include <Foundation/Types/Delegate.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <ToolsFoundation/Utilities/SearchPatternFilter.h>
 

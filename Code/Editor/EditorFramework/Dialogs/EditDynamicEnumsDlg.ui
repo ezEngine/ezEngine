@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>291</width>
-    <height>315</height>
+    <width>297</width>
+    <height>331</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -28,7 +28,7 @@
        <item>
         <spacer name="verticalSpacer_2">
          <property name="orientation">
-          <enum>Qt::Vertical</enum>
+          <enum>Qt::Orientation::Vertical</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -41,7 +41,7 @@
        <item>
         <widget class="QPushButton" name="ButtonAdd">
          <property name="toolTip">
-          <string>Add another folder as a data directory</string>
+          <string>Add enum string</string>
          </property>
          <property name="text">
           <string/>
@@ -55,7 +55,7 @@
        <item>
         <widget class="QPushButton" name="ButtonRemove">
          <property name="toolTip">
-          <string>Remove the selected data directory</string>
+          <string>Remove selected string</string>
          </property>
          <property name="text">
           <string/>
@@ -69,7 +69,7 @@
        <item>
         <spacer name="verticalSpacer">
          <property name="orientation">
-          <enum>Qt::Vertical</enum>
+          <enum>Qt::Orientation::Vertical</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -86,7 +86,7 @@
    <item>
     <widget class="QDialogButtonBox" name="Buttons">
      <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+      <set>QDialogButtonBox::StandardButton::Cancel|QDialogButtonBox::StandardButton::Ok</set>
      </property>
     </widget>
    </item>

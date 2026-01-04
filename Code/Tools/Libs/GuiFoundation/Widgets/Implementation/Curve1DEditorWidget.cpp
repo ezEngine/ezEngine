@@ -441,6 +441,12 @@ void ezQtCurve1DEditorWidget::onMoveControlPoints(double x, double y)
 
   for (const auto& cpSel : selection)
   {
+    if (cpSel.m_uiCurve >= m_CurvesBackup.m_Curves.GetCount())
+      continue;
+
+    if (cpSel.m_uiPoint >= m_CurvesBackup.m_Curves[cpSel.m_uiCurve]->m_ControlPoints.GetCount())
+      continue;
+
     const auto& cp = m_CurvesBackup.m_Curves[cpSel.m_uiCurve]->m_ControlPoints[cpSel.m_uiPoint];
     ezVec2d newPos = ezVec2d(cp.GetTickAsTime().GetSeconds(), cp.m_fValue) + m_vControlPointMove;
 
@@ -523,6 +529,18 @@ void ezQtCurve1DEditorWidget::onBeginOperation(QString name)
 
 void ezQtCurve1DEditorWidget::onEndOperation(bool commit)
 {
+  if (commit)
+  {
+    // Check if anything actually changed
+    const bool bControlPointsMoved = !m_vControlPointMove.IsZero();
+    const bool bTangentsMoved = !m_vTangentMove.IsZero();
+
+    if (!bControlPointsMoved && !bTangentsMoved)
+    {
+      commit = false;
+    }
+  }
+
   Q_EMIT EndOperationEvent(commit);
 }
 

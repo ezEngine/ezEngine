@@ -1309,14 +1309,14 @@ void ezGALCommandEncoderImplVulkan::FindDynamicUniformBuffers(const ezGALBindGro
           out_offsets.m_DynamicUniformBuffers.PushBack(pBuffer);
           const vk::DescriptorBufferInfo* pBufferInfo = m_pUniformBufferPool->GetBuffer(pBuffer);
           out_offsets.m_DynamicUniformVkBuffers.PushBack(pBufferInfo->buffer);
-          out_offsets.m_DynamicUniformBufferOffsets.PushBack(pBufferInfo->offset);
+          out_offsets.m_DynamicUniformBufferOffsets.PushBack(static_cast<ezUInt32>(pBufferInfo->offset));
         }
         else
         {
           // Non-transient buffers are handled like dynamic uniform buffers but the offset is fixed so no need to track the pointers.
           out_offsets.m_DynamicUniformBuffers.PushBack(nullptr);
           out_offsets.m_DynamicUniformVkBuffers.PushBack(nullptr);
-          out_offsets.m_DynamicUniformBufferOffsets.PushBack(item.m_Buffer.m_BufferRange.m_uiByteOffset);
+          out_offsets.m_DynamicUniformBufferOffsets.PushBack(static_cast<ezUInt32>(item.m_Buffer.m_BufferRange.m_uiByteOffset));
         }
       }
       break;
@@ -1350,7 +1350,7 @@ ezGALCommandEncoderImplVulkan::DynamicUniformBufferChanges ezGALCommandEncoderIm
   bool bBuffersChanged = false;
   bool bOffsetsChanged = false;
   ezUInt32 uiCount = ref_offsets.m_DynamicUniformBuffers.GetCount();
-  for (int i = 0; i < uiCount; ++i)
+  for (ezUInt32 i = 0; i < uiCount; ++i)
   {
     const ezGALBufferVulkan* pBuffer = ref_offsets.m_DynamicUniformBuffers[i];
     if (pBuffer == nullptr)
@@ -1366,7 +1366,7 @@ ezGALCommandEncoderImplVulkan::DynamicUniformBufferChanges ezGALCommandEncoderIm
     }
     if (ref_offsets.m_DynamicUniformBufferOffsets[i] != pBufferInfo->offset)
     {
-      ref_offsets.m_DynamicUniformBufferOffsets[i] = pBufferInfo->offset;
+      ref_offsets.m_DynamicUniformBufferOffsets[i] = static_cast<ezUInt32>(pBufferInfo->offset);
       bOffsetsChanged = true;
     }
   }

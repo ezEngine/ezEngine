@@ -121,7 +121,7 @@ EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::GetSqrt() const
 }
 
 
-ezSimdVec4d ezSimdVec4d::GetInvSqrt() const
+EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::GetInvSqrt() const
 {
   ezSimdVec4d result;
   result.m_v.x = 1.0 / ezMath::Sqrt(m_v.x);

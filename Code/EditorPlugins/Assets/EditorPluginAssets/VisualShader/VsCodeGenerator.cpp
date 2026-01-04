@@ -174,7 +174,6 @@ ezStatus ezVisualShaderCodeGenerator::GenerateVisualShader(const ezDocumentNodeM
   m_sFinalShaderCode.Append("[RENDERSTATE]\n\n", m_sShaderRenderState, "\n");
   m_sFinalShaderCode.Append("[MATERIALCONSTANTS]\n\n", sMaterialConstants, "\n");
   m_sFinalShaderCode.Append("[VERTEXSHADER]\n\n", m_sShaderVertexDefines, "\n", m_sShaderVertex, "\n");
-  m_sFinalShaderCode.Append("[GEOMETRYSHADER]\n\n", m_sShaderGeometryDefines, "\n", m_sShaderGeometry, "\n");
   m_sFinalShaderCode.Append("[PIXELSHADER]\n\n", m_sShaderPixelDefines, "\n", m_sShaderPixelIncludes, "\n");
   m_sFinalShaderCode.Append(m_sShaderPixelConstants, "\n", m_sShaderPixelSamplers, "\n", m_sShaderPixelBody, "\n");
 
@@ -206,30 +205,30 @@ ezStatus ezVisualShaderCodeGenerator::GenerateNode(const ezDocumentObject* pNode
 
   EZ_SUCCEED_OR_RETURN(GenerateInputPinCode(m_pNodeManager->GetInputPins(pNode)));
 
-  ezStringBuilder sConstantsCode, sPsBodyCode, sMaterialParamCode, sMaterialConstantsCode, sPixelSamplersCode, sVsBodyCode, sGsBodyCode, sMaterialCB, sPermutations,
-    sRenderStates, sPixelDefines, sPixelIncludes, sVertexDefines, sGeometryDefines;
+  ezStringBuilder sConstantsCode, sPsBodyCode, sMaterialParamCode, sMaterialConstantsCode, sPixelSamplersCode, sVsBodyCode, sMaterialCB, sPermutations,
+    sRenderStates, sPixelDefines, sPixelIncludes, sVertexDefines;
+
+  sVsBodyCode = pDesc->m_sShaderCodeShaderShared;
+  sPixelDefines = pDesc->m_sShaderCodeShaderShared;
 
   sConstantsCode = pDesc->m_sShaderCodePixelConstants;
   sPsBodyCode = pDesc->m_sShaderCodePixelBody;
   sMaterialParamCode = pDesc->m_sShaderCodeMaterialParams;
   sMaterialConstantsCode = pDesc->m_sShaderCodeMaterialConstants;
   sPixelSamplersCode = pDesc->m_sShaderCodePixelSamplers;
-  sVsBodyCode = pDesc->m_sShaderCodeVertexShader;
-  sGsBodyCode = pDesc->m_sShaderCodeGeometryShader;
+  sVsBodyCode.Append(pDesc->m_sShaderCodeVertexShader);
   sMaterialCB = pDesc->m_sShaderCodeMaterialCB;
   sPermutations = pDesc->m_sShaderCodePermutations;
   sRenderStates = pDesc->m_sShaderCodeRenderState;
-  sPixelDefines = pDesc->m_sShaderCodePixelDefines;
+  sPixelDefines.Append(pDesc->m_sShaderCodePixelDefines);
   sPixelIncludes = pDesc->m_sShaderCodePixelIncludes;
 
   EZ_SUCCEED_OR_RETURN(ReplaceInputPinsByCode(pNode, pDesc, sPsBodyCode, sPixelDefines));
   EZ_SUCCEED_OR_RETURN(ReplaceInputPinsByCode(pNode, pDesc, sVsBodyCode, sVertexDefines));
-  EZ_SUCCEED_OR_RETURN(ReplaceInputPinsByCode(pNode, pDesc, sGsBodyCode, sGeometryDefines));
 
   EZ_SUCCEED_OR_RETURN(CheckPropertyValues(pNode, pDesc));
   EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sConstantsCode));
   EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sVsBodyCode));
-  EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sGsBodyCode));
   EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sPsBodyCode));
   EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sMaterialParamCode));
   EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sMaterialConstantsCode));
@@ -240,7 +239,6 @@ ezStatus ezVisualShaderCodeGenerator::GenerateNode(const ezDocumentObject* pNode
   SetPinDefines(pNode, sPermutations);
   SetPinDefines(pNode, sRenderStates);
   SetPinDefines(pNode, sVsBodyCode);
-  SetPinDefines(pNode, sGsBodyCode);
   SetPinDefines(pNode, sMaterialParamCode);
   SetPinDefines(pNode, sMaterialConstantsCode);
   SetPinDefines(pNode, sPixelDefines);
@@ -255,8 +253,6 @@ ezStatus ezVisualShaderCodeGenerator::GenerateNode(const ezDocumentObject* pNode
     AppendStringIfUnique(m_sShaderRenderState, sRenderStates);
     AppendStringIfUnique(m_sShaderVertexDefines, sVertexDefines);
     AppendStringIfUnique(m_sShaderVertex, sVsBodyCode);
-    AppendStringIfUnique(m_sShaderGeometryDefines, sGeometryDefines);
-    AppendStringIfUnique(m_sShaderGeometry, sGsBodyCode);
     AppendStringIfUnique(m_sShaderMaterialParam, sMaterialParamCode);
     AppendStringIfUnique(m_sShaderMaterialConstants, sMaterialConstantsCode);
     AppendStringIfUnique(m_sShaderPixelDefines, sPixelDefines);
@@ -455,15 +451,22 @@ ezStatus ezVisualShaderCodeGenerator::CheckPropertyValues(const ezDocumentObject
           pDesc->m_sName, props[p].m_sName, sPropValue));
       }
 
-      auto& set = m_UsedUniqueValues[iUniqueValueGroup];
-
-      if (set.Contains(sPropValue))
+      // Check if this identifier is already used by a different node type
+      ezString* pExistingNodeType = m_UsedIdentifiers.GetValue(sPropValue);
+      if (pExistingNodeType != nullptr)
       {
-        return ezStatus(ezFmt(
-          "A '{0}' node has a '{1}' property that has the same value ('{2}') as another parameter.", pDesc->m_sName, props[p].m_sName, sPropValue));
+        if (*pExistingNodeType != pDesc->m_sName)
+        {
+          return ezStatus(ezFmt("Identifier '{0}' is being used both by a '{1}' node and a '{2}' node.",
+            sPropValue, *pExistingNodeType, pDesc->m_sName));
+        }
+        // Same node type is allowed to reuse the identifier
       }
-
-      set.Insert(sPropValue);
+      else
+      {
+        // First time seeing this identifier, store the node type
+        m_UsedIdentifiers.Insert(sPropValue, pDesc->m_sName);
+      }
     }
   }
 

@@ -3,6 +3,7 @@ Node %ConstantColor
   string %Category { "Constants" }
   string %Color { "Orange" }
   string %Docs { "Outputs a constant color value. " }
+  string %Title { "Color: {$prop0}" }
 
   OutputPin %RGBA
   {
@@ -23,6 +24,7 @@ Node %Constant1
   string %Category { "Constants" }
   string %Color { "Orange" }
   string %Docs { "Outputs a constant value. " }
+  string %Title { "{$prop0}" }
 
   OutputPin %Value
   {
@@ -42,6 +44,7 @@ Node %Constant2
   string %Category { "Constants" }
   string %Color { "Orange" }
   string %Docs { "Outputs a constant value with 2 components. " }
+  string %Title { "{$prop0}" }
 
   OutputPin %Value
   {
@@ -61,6 +64,7 @@ Node %Constant3
   string %Category { "Constants" }
   string %Color { "Orange" }
   string %Docs { "Outputs a constant value with 3 components. " }
+  string %Title { "{$prop0}" }
 
   OutputPin %Value
   {
@@ -80,6 +84,7 @@ Node %Constant4
   string %Category { "Constants" }
   string %Color { "Orange" }
   string %Docs { "Outputs a constant value with 4 components. " }
+  string %Title { "{$prop0}" }
 
   OutputPin %Value
   {

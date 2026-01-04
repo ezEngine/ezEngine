@@ -4,6 +4,9 @@
 
 #  include <RendererCore/Debug/DebugRenderer.h>
 
+#  include <Jolt/Jolt.h>
+#  include <Jolt/Renderer/DebugRenderer.h>
+
 class ezJoltDebugRenderer : public JPH::DebugRenderer
 {
 public:

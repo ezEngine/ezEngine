@@ -1,12 +1,15 @@
 #pragma once
 
 #include <Core/World/Declarations.h>
-#include <Physics/Collision/ContactListener.h>
-#include <Physics/SoftBody/SoftBodyContactListener.h>
+#include <Jolt/Jolt.h>
+#include <Jolt/Physics/Collision/ContactListener.h>
+#include <Jolt/Physics/SoftBody/SoftBodyContactListener.h>
 
 class ezWorld;
 class ezJoltTriggerComponent;
 class ezJoltContactEvents;
+class ezSurfaceResource;
+struct ezOnJoltContact;
 
 namespace JPH
 {

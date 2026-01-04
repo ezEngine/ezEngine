@@ -4,7 +4,7 @@
 
 #include <AngelScript/include/angelscript.h>
 #include <Foundation/Containers/Set.h>
-#include <Foundation/Strings/StringView.h>
+#include <Foundation/Strings/String.h>
 #include <Foundation/Threading/Mutex.h>
 
 class ezAsStringFactory : public asIStringFactory

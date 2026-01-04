@@ -3,6 +3,7 @@
 #include <Core/World/World.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamIterator.h>
 #include <Foundation/Math/Declarations.h>
+#include <Foundation/Math/Float16.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <ParticlePlugin/Finalizer/ParticleFinalizer_ApplyVelocity.h>
 
@@ -37,7 +38,7 @@ ezParticleFinalizer_ApplyVelocity::~ezParticleFinalizer_ApplyVelocity() = defaul
 void ezParticleFinalizer_ApplyVelocity::CreateRequiredStreams()
 {
   CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
-  CreateStream("Velocity", ezProcessingStream::DataType::Float3, &m_pStreamVelocity, false);
+  CreateStream("Velocity", ezProcessingStream::DataType::Half4, &m_pStreamVelocity, false);
 }
 
 void ezParticleFinalizer_ApplyVelocity::Process(ezUInt64 uiNumElements)
@@ -47,13 +48,17 @@ void ezParticleFinalizer_ApplyVelocity::Process(ezUInt64 uiNumElements)
   const float tDiff = (float)m_TimeDiff.GetSeconds();
 
   ezProcessingStreamIterator<ezVec4> itPosition(m_pStreamPosition, uiNumElements, 0);
-  ezProcessingStreamIterator<ezVec3> itVelocity(m_pStreamVelocity, uiNumElements, 0);
+  ezProcessingStreamIterator<ezFloat16Vec4> itVelocity(m_pStreamVelocity, uiNumElements, 0);
 
   while (!itPosition.HasReachedEnd())
   {
     ezVec3& pos = reinterpret_cast<ezVec3&>(itPosition.Current());
 
-    pos += itVelocity.Current() * tDiff;
+    const ezVec4 vel = itVelocity.Current();
+    const ezVec3 dir(vel.x, vel.y, vel.z);
+    const float speed = vel.w;
+
+    pos += dir * speed * tDiff;
 
     itPosition.Advance();
     itVelocity.Advance();

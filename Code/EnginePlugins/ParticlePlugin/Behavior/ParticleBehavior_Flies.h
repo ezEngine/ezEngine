@@ -2,6 +2,10 @@
 
 #include <ParticlePlugin/Behavior/ParticleBehavior.h>
 
+/// Behavior that makes particles move like flies or insects
+///
+/// Particles move at a constant speed with random direction changes.
+/// They tend to stay within a certain distance from the effect origin.
 class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_Flies final : public ezParticleBehaviorFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory_Flies, ezParticleBehaviorFactory);
@@ -18,10 +22,10 @@ public:
   virtual void Save(ezStreamWriter& inout_stream) const override;
   virtual void Load(ezStreamReader& inout_stream) override;
 
-  float m_fSpeed = 0.2f;
-  float m_fPathLength = 0.2f;
-  float m_fMaxEmitterDistance = 0.5f;
-  ezAngle m_MaxSteeringAngle = ezAngle::MakeFromDegree(30);
+  float m_fSpeed = 0.2f;                                    ///< Movement speed in units per second
+  float m_fPathLength = 0.2f;                               ///< Distance traveled before changing direction
+  float m_fMaxEmitterDistance = 0.5f;                       ///< Maximum distance from effect origin before turning back
+  ezAngle m_MaxSteeringAngle = ezAngle::MakeFromDegree(30); ///< Maximum angle change per direction update
 };
 
 

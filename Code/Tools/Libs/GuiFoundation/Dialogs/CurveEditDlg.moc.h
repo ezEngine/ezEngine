@@ -1,7 +1,7 @@
 #pragma once
 
+#include <Foundation/Tracks/CurveEditData.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
-#include <GuiFoundation/Widgets/CurveEditData.h>
 #include <GuiFoundation/ui_CurveEditDlg.h>
 #include <QDialog>
 
@@ -13,7 +13,7 @@ class EZ_GUIFOUNDATION_DLL ezQtCurveEditDlg : public QDialog, Ui_CurveEditDlg
 {
   Q_OBJECT
 public:
-  ezQtCurveEditDlg(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pCurveObject, QWidget* pParent);
+  ezQtCurveEditDlg(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pCurveObject, QWidget* pParent, ezStringView sTitle = {});
   ~ezQtCurveEditDlg();
 
   static QByteArray GetLastDialogGeometry() { return s_LastDialogGeometry; }
@@ -47,12 +47,15 @@ private Q_SLOTS:
   void on_actionRedo_triggered();
   void on_ButtonOk_clicked();
   void on_ButtonCancel_clicked();
+  void on_ButtonUndo_clicked();
+  void on_ButtonRedo_clicked();
 
 private:
   static QByteArray s_LastDialogGeometry;
 
   void RetrieveCurveState();
   void UpdatePreview();
+  void UpdateUndoRedoState();
 
   double m_fLowerRange = -ezMath::HighValue<double>();
   double m_fUpperRange = ezMath::HighValue<double>();
@@ -69,6 +72,9 @@ private:
 
   ezObjectAccessorBase* m_pObjectAccessor = nullptr;
   const ezDocumentObject* m_pCurveObject = nullptr;
+
+  ezInt32 m_iInsertedCurveIdx = -1;
+  ezUInt32 m_uiInsertedPointIdx = 0;
 
 protected:
   virtual void closeEvent(QCloseEvent* e) override;
