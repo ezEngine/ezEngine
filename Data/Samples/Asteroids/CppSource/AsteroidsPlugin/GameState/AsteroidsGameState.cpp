@@ -3,7 +3,6 @@
 #include <AsteroidsPlugin/GameState/AsteroidsGameState.h>
 #include <Core/Input/DeviceTypes/Controller.h>
 #include <Core/Input/InputManager.h>
-#include <Core/System/ControllerInput.h>
 #include <Core/System/Window.h>
 #include <Core/World/World.h>
 #include <Foundation/Configuration/CVar.h>
@@ -38,7 +37,7 @@ namespace
 AsteroidsGameState::AsteroidsGameState() = default;
 AsteroidsGameState::~AsteroidsGameState() = default;
 
-ezString AsteroidsGameState::GetStartupSceneFile()
+void AsteroidsGameState::GetStartupOptions(ezString& out_sScene, ezString& out_sPreloadCollection)
 {
   // replace this to load a certain scene at startup
   // the default implementation looks at the command line "-scene" argument
@@ -46,13 +45,15 @@ ezString AsteroidsGameState::GetStartupSceneFile()
   // if we have a "-scene" command line argument, it was launched from the editor and we should load that
   if (ezCommandLineUtils::GetGlobalInstance()->HasOption("-scene"))
   {
-    return ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-scene");
+    out_sScene = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-scene");
   }
-
-  // otherwise, we use the hardcoded 'Main.ezScene'
-  // if that doesn't exist, this function has to be adjusted
-  // note that you can return an asset GUID here, instead of a path
-  return "AssetCache/Common/Scenes/Main.ezBinScene";
+  else
+  {
+    // otherwise, we use the hardcoded 'Main.ezScene'
+    // if that doesn't exist, this function has to be adjusted
+    // note that you can return an asset GUID here, instead of a path
+    out_sScene = "AssetCache/Common/Scenes/Main.ezBinScene";
+  }
 }
 
 void AsteroidsGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset)
@@ -89,12 +90,18 @@ void AsteroidsGameState::OnChangedMainWorld(ezWorld* pPrevWorld, ezWorld* pNewWo
 
 void AsteroidsGameState::ConfigureInputActions()
 {
-  if (ezControllerInput::HasDevice())
+  // calling the base class is necessary to register the default key bindings
+  // e.g. ESC to quit, F1 to open the console
+  // if you want more control, take a look at what ezGameState::ConfigureInputActions() does
+  // and register only specific actions (see ezGameApplication::RegisterGameApplicationInputActions())
+  AsteroidsGameStateBase::ConfigureInputActions();
+
+  if (auto pController = ezInputManager::GetInputDeviceOfType<ezInputDeviceController>())
   {
-    ezControllerInput::GetDevice()->EnableVibration(0, true);
-    ezControllerInput::GetDevice()->EnableVibration(1, true);
-    ezControllerInput::GetDevice()->EnableVibration(2, true);
-    ezControllerInput::GetDevice()->EnableVibration(3, true);
+    pController->EnableVibration(0, true);
+    pController->EnableVibration(1, true);
+    pController->EnableVibration(2, true);
+    pController->EnableVibration(3, true);
   }
 
   // setup all controllers

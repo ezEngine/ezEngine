@@ -7,7 +7,6 @@
 #include <RendererCore/Meshes/MeshComponent.h>
 
 #include <Core/Input/DeviceTypes/Controller.h>
-#include <Core/System/ControllerInput.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ProjectileComponent, 1, ezComponentMode::Dynamic);
@@ -77,9 +76,9 @@ void ProjectileComponent::Update()
           float HitTrack[20] = {
             1.0f, 0.1f, 0.0f, 0.1f, 0.0f, 0.1f, 0.0f, 0.1f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
 
-          if (ezControllerInput::HasDevice())
+          if (auto pController = ezInputManager::GetInputDeviceOfType<ezInputDeviceController>())
           {
-            ezControllerInput::GetDevice()->AddVibrationTrack(static_cast<ezUInt8>(pShipComponent->m_iPlayerIndex), ezInputDeviceController::Motor::LeftMotor, HitTrack, 20);
+            pController->AddVibrationTrack(static_cast<ezUInt8>(pShipComponent->m_iPlayerIndex), ezInputDeviceController::Motor::LeftMotor, HitTrack, 20);
           }
         }
 
