@@ -34,6 +34,7 @@ struct EZ_EDITORFRAMEWORK_DLL ezPluginBundle
   ezHybridArray<ezString, 1> m_RequiredBundles;     ///< The file names (without path or extension) of other bundles that are required for this bundle to work.
   ezHybridArray<ezString, 1> m_ExclusiveFeatures;   ///< If two bundles have the same string in this list, they can't be activated at the same time. So for example only one bundle with the feature 'Sound' or 'Physics' may be activated simultaneously. Only enforced by the UI.
   ezHybridArray<ezString, 1> m_EnabledInTemplates;  ///< In which project templates this plugin should be active by default.
+  ezString m_sCMakeTargetName;                      ///< The CMake target name for linking user plugins against this plugin.
 
   /// \brief Reads the bundle description, but not the state.
   ezResult ReadBundleFromDDL(ezOpenDdlReader& ref_ddl);

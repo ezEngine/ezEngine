@@ -1,0 +1,40 @@
+# CMake Extensions File
+#
+# This file is included by CMakeLists.txt and allows you to extend the build
+# configuration without modifying the template CMakeLists.txt file directly.
+#
+# This file will NOT be overwritten when templates are updated.
+
+# The variable ${PROJECT_NAME} contains the name of the plugin target.
+
+# Examples of what you can add here:
+
+# Add additional link libraries:
+#    target_link_libraries(${PROJECT_NAME}
+#      PRIVATE
+#      MyCustomLibrary
+#      SomeThirdPartyLib
+#    )
+
+# Add include directories:
+#    target_include_directories(${PROJECT_NAME}
+#      PRIVATE
+#      "${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/include"
+#    )
+
+# Add compile definitions:
+#    target_compile_definitions(${PROJECT_NAME}
+#      PRIVATE
+#      MY_PLUGIN_FEATURE=1
+#    )
+
+# Set target-specific properties:
+#    set_target_properties(${PROJECT_NAME} PROPERTIES
+#      CXX_STANDARD 17
+#    )
+
+# Add custom build steps:
+#    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+#      COMMAND ${CMAKE_COMMAND} -E copy_if_different
+#      "source_file" "destination_file"
+#    )

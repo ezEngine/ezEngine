@@ -823,6 +823,8 @@ ezResult ezCppProject::PopulateWithDefaultSources(const ezCppSettings& cfg)
     }
   }
 
+  EZ_SUCCEED_OR_RETURN(UpdateEnginePluginDependencies());
+
   s_ChangeEvents.Broadcast(cfg);
   return EZ_SUCCESS;
 }
@@ -850,6 +852,8 @@ ezResult ezCppProject::RunCMake(const ezCppSettings& cfg)
     ezLog::Error("No CMakeLists.txt exists in target source directory '{}'", GetTargetSourceDir());
     return EZ_FAILURE;
   }
+
+  EZ_SUCCEED_OR_RETURN(UpdateEnginePluginDependencies());
 
   if (auto compilerWorking = TestCompiler(); compilerWorking.Failed())
   {
@@ -1058,6 +1062,85 @@ void ezCppProject::UpdatePluginConfig(const ezCppSettings& cfg)
   plugin.m_RuntimePlugins.PushBack(sPluginName);
 
   ezQtEditorApp::GetSingleton()->WritePluginSelectionStateDDL();
+}
+
+ezResult ezCppProject::UpdateEnginePluginDependencies()
+{
+  // Only update if project has custom C++ code
+  if (!ExistsProjectCMakeListsTxt())
+    return EZ_SUCCESS;
+
+  const ezPluginBundleSet& bundles = ezQtEditorApp::GetSingleton()->GetPluginBundles();
+
+  // Collect selected engine plugin target names
+  ezDynamicArray<ezString> selectedPlugins;
+  for (auto it = bundles.m_Plugins.GetIterator(); it.IsValid(); ++it)
+  {
+    const ezPluginBundle& bundle = it.Value();
+
+    // Filter: selected, not mandatory, not a project plugin, has CMake target name
+    if (bundle.m_bSelected &&
+        !bundle.m_bMandatory &&
+        !bundle.m_ExclusiveFeatures.Contains("ProjectPlugin") &&
+        !bundle.m_sCMakeTargetName.IsEmpty())
+    {
+      selectedPlugins.PushBack(bundle.m_sCMakeTargetName);
+    }
+  }
+
+  // Sort plugins for consistent output
+  selectedPlugins.Sort();
+
+  // Build the CMake file content
+  ezStringBuilder content;
+  content.AppendWithSeparator("# This file is auto-generated, do not modify.\n", "");
+  content.Append("# The ezEditor may modify this file to add build configuration options.\n");
+  content.Append("\n");
+
+  // Only add target_link_libraries if there are selected plugins
+  if (!selectedPlugins.IsEmpty())
+  {
+    content.Append("\n");
+    content.Append("# Link against selected engine plugins\n");
+    content.Append("target_link_libraries(${PROJECT_NAME} PRIVATE\n");
+
+    for (const ezString& plugin : selectedPlugins)
+    {
+      content.Append("  ", plugin, "\n");
+    }
+
+    content.Append(")\n");
+  }
+
+  // Write to file
+  ezStringBuilder sFilePath = GetTargetSourceDir();
+  sFilePath.AppendPath("Configs/CMakeEngineExtensions.txt");
+
+  // Ensure directory exists
+  ezStringBuilder sDir = sFilePath.GetFileDirectory();
+  if (ezOSFile::CreateDirectoryStructure(sDir).Failed())
+  {
+    ezLog::Error("Failed to create directory for CMakeEngineExtensions.txt: '{}'", sDir);
+    return EZ_FAILURE;
+  }
+
+  // Write file
+  ezDeferredFileWriter fileWriter;
+  fileWriter.SetOutput(sFilePath);
+
+  if (fileWriter.WriteBytes(content.GetData(), content.GetElementCount()).Failed())
+  {
+    ezLog::Error("Failed to write CMakeEngineExtensions.txt: '{}'", sFilePath);
+    return EZ_FAILURE;
+  }
+
+  if (fileWriter.Close().Failed())
+  {
+    ezLog::Error("Failed to close CMakeEngineExtensions.txt: '{}'", sFilePath);
+    return EZ_FAILURE;
+  }
+
+  return EZ_SUCCESS;
 }
 
 ezResult ezCppProject::EnsureCppPluginReady()
