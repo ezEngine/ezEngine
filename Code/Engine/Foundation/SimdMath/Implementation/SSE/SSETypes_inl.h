@@ -68,16 +68,16 @@ namespace ezInternal
 
 
 
-/// \brief Shuffles doubles in the same manner as _mm_shuffle_ps but for doubles using sse intrinsics on high and low parts.
-EZ_ALWAYS_INLINE void EZ_WIDE_SHUFFLE_SSE(__m128d aLow, __m128d aHigh, __m128d bLow, __m128d bHigh, int imm8, __m128d& outLow, __m128d& outHigh)
+/// \brief Shuffles doubles in the same manner as _mm_shuffle_ps but for doubles using SSE intrinsics on high and low parts.
+EZ_ALWAYS_INLINE void EZ_WIDE_SHUFFLE_SSE(__m128d lhsLow, __m128d lhsHigh, __m128d rhsLow, __m128d rhsHigh, int iImm8, __m128d& out_low, __m128d& out_high)
 {
-  int sel0 = imm8 & 3;
-  int sel1 = (imm8 >> 2) & 3;
-  int sel2 = (imm8 >> 4) & 3;
-  int sel3 = (imm8 >> 6) & 3;
+  int sel0 = iImm8 & 3;
+  int sel1 = (iImm8 >> 2) & 3;
+  int sel2 = (iImm8 >> 4) & 3;
+  int sel3 = (iImm8 >> 6) & 3;
 
-  __m128d a_sources[2] = {aLow, aHigh};
-  __m128d b_sources[2] = {bLow, bHigh};
+  __m128d a_sources[2] = {lhsLow, lhsHigh};
+  __m128d b_sources[2] = {rhsLow, rhsHigh};
 
   auto get_double = [&](int sel, __m128d (&sources)[2]) -> __m128d {
     int source_idx = sel >> 1;
@@ -94,8 +94,8 @@ EZ_ALWAYS_INLINE void EZ_WIDE_SHUFFLE_SSE(__m128d aLow, __m128d aHigh, __m128d b
   __m128d d2 = get_double(sel2, b_sources);
   __m128d d3 = get_double(sel3, b_sources);
 
-  outLow = _mm_unpacklo_pd(d0, d1);
-  outHigh = _mm_unpacklo_pd(d2, d3);
+  out_low = _mm_unpacklo_pd(d0, d1);
+  out_high = _mm_unpacklo_pd(d2, d3);
 }
 
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX

@@ -27,13 +27,13 @@ EZ_ALWAYS_INLINE ezSimdVec4d::ezSimdVec4d(float fXyzw)
 #endif
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4d::ezSimdVec4d(double dXyzw)
+EZ_ALWAYS_INLINE ezSimdVec4d::ezSimdVec4d(double fXyzw)
 {
   EZ_CHECK_SIMD_ALIGNMENT(this);
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
-  m_v = _mm256_set1_pd(dXyzw);
+  m_v = _mm256_set1_pd(fXyzw);
 #else
-  m_v.xy = _mm_set1_pd(dXyzw);
+  m_v.xy = _mm_set1_pd(fXyzw);
   m_v.zw = m_v.xy;
 #endif
 }
