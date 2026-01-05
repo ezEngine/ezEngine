@@ -30,7 +30,7 @@ Write-Host ""
 # Find all .h files, excluding those with "implementation" in the path
 Write-Host "Scanning for header files..."
 $headerFiles = Get-ChildItem -Path $SourceFolder -Filter *.h -Recurse -File | Where-Object {
-    $_.FullName -inotmatch "\\implementation\\" -and $_.FullName -inotmatch "/implementation/" -and $_.FullName -inotmatch "\\DirectXTex\\" -and $_.FullName -inotmatch "/DirectXTex/" -and $_.FullName -inotmatch "\\Platform\\" -and $_.FullName -inotmatch "/Platform/" -and $_.Name -inotlike "*_inl.h"
+    $_.FullName -inotmatch "\\implementation\\" -and $_.FullName -inotmatch "/implementation/" -and $_.FullName -inotmatch "\\DirectXTex\\" -and $_.FullName -inotmatch "\\Thirdparty\\" -and $_.FullName -inotmatch "/DirectXTex/" -and $_.FullName -inotmatch "\\Platform\\" -and $_.FullName -inotmatch "/Platform/" -and $_.Name -inotlike "*_inl.h"
 }
 
 Write-Host "Found $($headerFiles.Count) header files (excluding implementation folders)"

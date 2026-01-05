@@ -46,9 +46,12 @@ public:
   /// \brief Returns the value that was passed to BeginFrame(). Useful for positioning UI elements.
   ezSizeU32 GetCurrentWindowResolution() const { return m_CurrentWindowResolution; }
 
-  /// \brief When this is disabled, the GUI will be rendered, but it will not react to any input. Useful if something else shall get
-  /// exclusive input.
+  /// \brief When this is disabled, the GUI will be rendered, but it will not react to any input.
+  ///
+  /// Useful if something else shall get exclusive input.
+  /// Be aware that this is global state, that affects ALL ImGui elements for the entire frame.
   void SetPassInputToImgui(bool bPassInput) { m_bPassInputToImgui = bPassInput; }
+  bool GetPassInputToImgui() const { return m_bPassInputToImgui; }
 
   /// \brief If this returns true, the GUI wants to use the input, and thus you might want to not use the input for anything else.
   ///
