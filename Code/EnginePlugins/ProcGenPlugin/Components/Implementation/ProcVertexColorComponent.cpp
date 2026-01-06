@@ -511,16 +511,16 @@ void ezProcVertexColorComponent::OnMsgTransformChanged(ezMsgTransformChanged& re
   pManager->EnqueueUpdate(*this);
 }
 
-void ezProcVertexColorComponent::OnMsgCustomInstanceDataOffsetChanged(ezMsgCustomInstanceDataOffsetChanged& msg)
+void ezProcVertexColorComponent::OnMsgCustomInstanceDataOffsetChanged(ezMsgCustomInstanceDataOffsetChanged& ref_msg)
 {
-  m_CustomInstanceDataOffset = msg.m_NewOffset;
+  m_CustomInstanceDataOffset = ref_msg.m_NewOffset;
 
   if (ezMeshComponentBase* pMeshComponent = GetMeshComponent())
   {
     auto pManager = static_cast<ezProcVertexColorComponentManager*>(GetOwningManager());
 
     const ezUInt32 uiNumOutputs = m_Outputs.GetCount();
-    pMeshComponent->SetCustomInstanceData(EncodeOffset(msg.m_NewOffset, uiNumOutputs), pManager->GetVertexColorBuffer());
+    pMeshComponent->SetCustomInstanceData(EncodeOffset(ref_msg.m_NewOffset, uiNumOutputs), pManager->GetVertexColorBuffer());
   }
 }
 
