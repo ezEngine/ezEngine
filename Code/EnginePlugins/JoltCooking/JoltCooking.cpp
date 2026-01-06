@@ -76,7 +76,7 @@ ezResult ezJoltCooking::CookTriangleMesh(const ezJoltCookingMesh& mesh, ezStream
       const ezUInt32 uiMaterialID = mesh.m_TriangleSurfaceID[i];
       if (uiMaterialID == 0xFFFF)
         continue;
-      
+
       uiMaxMaterialIndex = ezMath::Max(uiMaxMaterialIndex, uiMaterialID);
 
       const ezUInt32 idx0 = mesh.m_TriangleIndices[i * 3 + 0];

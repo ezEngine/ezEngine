@@ -100,7 +100,7 @@ ezTransformStatus ezJoltCollisionMeshAssetDocument::InternalTransformAsset(ezStr
       meshDesc.m_bFlipNormals = ezGraphicsUtils::IsTriangleFlipRequired(mTransformation);
 
       geom.AddCylinderOnePiece(pProp->m_fRadius, pProp->m_fRadius2, pProp->m_fHeight * 0.5f, pProp->m_fHeight * 0.5f, ezMath::Clamp<ezUInt16>(pProp->m_uiDetail, 3, 32), opt);
-      
+
       EZ_SUCCEED_OR_RETURN(CreateMeshFromGeom(geom, meshDesc));
     }
     else
@@ -188,7 +188,7 @@ ezStatus ezJoltCollisionMeshAssetDocument::CreateMeshFromFile(ezJoltMeshDesc& ou
 
   for (ezUInt32 uiTriangle = 0; uiTriangle < uiNumTriangles; ++uiTriangle)
   {
-    outMesh.m_TriangleSurfaceID[uiTriangle] = 0;  // default value, will be updated below when extracting materials.
+    outMesh.m_TriangleSurfaceID[uiTriangle] = 0; // default value, will be updated below when extracting materials.
   }
 
   // Extract vertices
