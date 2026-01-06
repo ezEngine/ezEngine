@@ -1,4 +1,4 @@
-#ez-version 1
+#ez-version 2
 cmake_minimum_required(VERSION 3.21)
 
 project (Asteroids VERSION 1.0 LANGUAGES C CXX)
@@ -29,6 +29,12 @@ if(PROJECT_IS_TOP_LEVEL)
 
 	ez_configure_external_project()
 
+endif()
+
+# Include optional user extensions for custom build configuration
+# This file can be used to add custom CMake logic without modifying this template
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/CMakeExtensions.txt")
+	include("${CMAKE_CURRENT_SOURCE_DIR}/CMakeExtensions.txt")
 endif()
 
 add_subdirectory("AsteroidsPlugin")
