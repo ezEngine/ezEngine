@@ -162,7 +162,7 @@ struct EZ_EDITORFRAMEWORK_DLL ezCppProject : public ezPreferences
   static bool ShouldOverwriteExisting(ezStringView sSrc, ezStringView sDst);
 
   /// Copies default C++ plugin template files to the project's source directory.
-  static ezResult PopulateWithDefaultSources(const ezCppSettings& cfg);
+  static ezResult PopulateWithDefaultSources(const ezCppSettings& cfg, ezUInt32* pNumFilesCopied = nullptr);
 
   static ezResult CleanBuildDir(const ezCppSettings& cfg);
 

@@ -707,7 +707,7 @@ bool ezCppProject::ShouldOverwriteExisting(ezStringView sSrc, ezStringView sDst)
   return true;
 }
 
-ezResult ezCppProject::PopulateWithDefaultSources(const ezCppSettings& cfg)
+ezResult ezCppProject::PopulateWithDefaultSources(const ezCppSettings& cfg, ezUInt32* pNumFilesCopied /*= nullptr*/)
 {
   QApplication::setOverrideCursor(Qt::WaitCursor);
   EZ_SCOPE_EXIT(QApplication::restoreOverrideCursor());
@@ -776,6 +776,11 @@ ezResult ezCppProject::PopulateWithDefaultSources(const ezCppSettings& cfg)
       ftc.m_sSource = srcPath;
       ftc.m_sDestination = dstPath;
     }
+  }
+
+  if (pNumFilesCopied)
+  {
+    *pNumFilesCopied = filesCopied.GetCount();
   }
 
   // Copy files
@@ -1152,6 +1157,12 @@ ezResult ezCppProject::EnsureCppPluginReady()
   if (cppSettings.Load().Failed())
   {
     ezQtUiServices::GetSingleton()->MessageBoxWarning(ezFmt("Failed to load the C++ plugin settings."));
+    return EZ_FAILURE;
+  }
+
+  if (ezCppProject::PopulateWithDefaultSources(cppSettings).Failed())
+  {
+    ezQtUiServices::GetSingleton()->MessageBoxWarning(ezFmt("Failed to update the default source files of the plugin. See log for details."));
     return EZ_FAILURE;
   }
 

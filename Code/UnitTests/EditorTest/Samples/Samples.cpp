@@ -68,6 +68,16 @@ ezResult ezEditorTestSamples::InitializeSubTest(ezInt32 iIdentifier)
     return EZ_FAILURE;
   }
 
+  ezCppSettings cpp;
+  cpp.Load();
+
+  // update sources, in case there was a version change
+  ezUInt32 uiNumFilesCopied = 0;
+  ezCppProject::PopulateWithDefaultSources(cpp, &uiNumFilesCopied);
+
+
+  EZ_TEST_INT_MSG(uiNumFilesCopied, 0, "You need to open the '%s' sample and regenerate the C++ solution.", m_sProjectName.GetData());
+
   ezPreferences::SaveApplicationPreferences();
 
   return EZ_SUCCESS;
