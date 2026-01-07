@@ -69,7 +69,7 @@ ezResult ezEditorTestSamples::InitializeSubTest(ezInt32 iIdentifier)
   }
 
   ezCppSettings cpp;
-  cpp.Load();
+  cpp.Load().AssertSuccess("Failed to load C++ project settings");
 
   // update sources, in case there was a version change
   ezUInt32 uiNumFilesCopied = 0;
