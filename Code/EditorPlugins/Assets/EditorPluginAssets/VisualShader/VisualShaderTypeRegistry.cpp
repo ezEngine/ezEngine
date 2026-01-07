@@ -5,6 +5,7 @@
 #include <EditorPluginAssets/VisualShader/VisualShaderTypeRegistry.h>
 #include <Foundation/IO/OpenDdlReader.h>
 #include <Foundation/IO/OpenDdlUtils.h>
+#include <GuiFoundation/UIServices/DynamicStringEnum.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
 EZ_IMPLEMENT_SINGLETON(ezVisualShaderTypeRegistry);
@@ -499,6 +500,48 @@ void ezVisualShaderTypeRegistry::ExtractNodeProperties(const ezOpenDdlReaderElem
 
           iValueGroup = 1; // currently no way to specify the group
         }
+        else if (sType == "enum")
+        {
+          pRtti = ezGetStaticRTTI<ezString>();
+
+          // Read enum values from EnumValues property
+          const ezOpenDdlReaderElement* pEnumValues = pElement->FindChildOfType(ezOpenDdlPrimitiveType::String, "EnumValues");
+          if (pEnumValues)
+          {
+            // Create a unique enum name based on the node and property name
+            ezStringBuilder sEnumName;
+            sEnumName.SetFormat("{}_{}", nd.m_sName, prop.m_sName);
+
+            ezDynamicStringEnumAttribute* pAttr = EZ_DEFAULT_NEW(ezDynamicStringEnumAttribute, sEnumName);
+            prop.m_Attributes.PushBack(pAttr);
+
+            // Parse and register the enum values with the dynamic enum registry
+            ezStringBuilder enumValuesStr = pEnumValues->GetPrimitivesString()[0];
+
+            // Create or get the dynamic enum
+            auto& dynEnum = ezDynamicStringEnum::CreateDynamicEnum(sEnumName);
+            dynEnum.Clear();
+
+            // Parse comma-separated values
+            ezHybridArray<ezStringView, 32> values;
+            enumValuesStr.Split(false, values, ",");
+
+            for (const ezStringView& value : values)
+            {
+              ezStringBuilder trimmedValue = value;
+              trimmedValue.Trim(" \t\r\n");
+              if (!trimmedValue.IsEmpty())
+              {
+                dynEnum.AddValidValue(trimmedValue, false);
+              }
+            }
+          }
+          else
+          {
+            ezLog::Error("Property '{}' of type 'enum' is missing 'EnumValues'", prop.m_sName);
+            continue;
+          }
+        }
         else if (sType == "Texture2D")
         {
           pRtti = ezGetStaticRTTI<ezString>();
@@ -555,6 +598,8 @@ void ezVisualShaderTypeRegistry::ExtractNodeConfig(const ezOpenDdlReaderElement*
           nd.m_NodeType = ezVisualShaderNodeType::Main;
         else if (pElement->GetPrimitivesString()[0] == "Texture")
           nd.m_NodeType = ezVisualShaderNodeType::Texture;
+        else if (pElement->GetPrimitivesString()[0] == "ShaderState")
+          nd.m_NodeType = ezVisualShaderNodeType::ShaderState;
         else
           nd.m_NodeType = ezVisualShaderNodeType::Generic;
       }

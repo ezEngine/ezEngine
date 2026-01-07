@@ -66,11 +66,8 @@ void ezQtMainWidget::ProcessTelemetry(void* pUnuseed)
         if (!it.IsValid())
           break;
 
-        if (it.Value().m_pItem)
-          delete it.Value().m_pItem;
-
-        if (it.Value().m_pItemFavorite)
-          delete it.Value().m_pItemFavorite;
+        delete it.Value().m_pItem;
+        delete it.Value().m_pItemFavorite;
 
         s_pWidget->m_Stats.Remove(it);
       }

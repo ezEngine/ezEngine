@@ -576,9 +576,16 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
   if (bForce || m_StateFlags.IsSet(ezRenderContextFlags::PipelineChanged))
   {
     if (m_bRendering)
+    {
       m_pGALCommandEncoder->SetGraphicsPipeline(ezGALPipelineCache::GetPipeline(m_GraphicsPipeline));
+
+      // Set stencil reference value from shader
+      m_pGALCommandEncoder->SetStencilReference(m_uiStencilRefValue);
+    }
     else if (m_bCompute)
+    {
       m_pGALCommandEncoder->SetComputePipeline(ezGALPipelineCache::GetPipeline(m_ComputePipeline));
+    }
   }
 
   if (m_pActiveGALShader)
@@ -1072,7 +1079,14 @@ ezResult ezRenderContext::ApplyShaderState()
       m_GraphicsPipeline.m_hRasterizerState = pShaderPermutation->GetRasterizerState();
 
     if (!m_ShaderBindFlags.IsSet(ezShaderBindFlags::NoDepthStencilState))
+    {
       m_GraphicsPipeline.m_hDepthStencilState = pShaderPermutation->GetDepthStencilState();
+      m_uiStencilRefValue = pShaderPermutation->GetStencilRefValue();
+    }
+    else
+    {
+      m_uiStencilRefValue = 0;
+    }
   }
 
   return EZ_SUCCESS;

@@ -11,6 +11,7 @@ public:
 
   static void MapActions(ezStringView sMapping);
 
+  static ezActionDescriptorHandle s_hVisualShaderCategory;
   static ezActionDescriptorHandle s_hCleanGraph;
 };
 
@@ -23,4 +24,7 @@ public:
   ~ezVisualShaderAction();
 
   virtual void Execute(const ezVariant& value) override;
+
+private:
+  void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
 };

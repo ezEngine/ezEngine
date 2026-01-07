@@ -1285,7 +1285,7 @@ void ezMaterialAssetDocument::RemoveDisconnectedNodes()
 
     auto pDesc = ezVisualShaderTypeRegistry::GetSingleton()->GetDescriptorForType(it.Key()->GetType());
 
-    if (pDesc->m_NodeType == ezVisualShaderNodeType::Main)
+    if (pDesc->m_NodeType == ezVisualShaderNodeType::Main || pDesc->m_NodeType == ezVisualShaderNodeType::ShaderState)
     {
       MarkReachableNodes(AllNodes, it.Key(), pNodeManager);
     }

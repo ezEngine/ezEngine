@@ -16,10 +16,10 @@
 #endif
 
 #ifdef EZ_USE_QT
-int main(int iArgc, char** argv)
+int main(int iArgc, char** pArgv)
 {
 #else
-int main(int iArgc, const char** argv)
+int main(int iArgc, const char** pArgv)
 {
 #endif
   ezFileserverApp* pApp = new ezFileserverApp();
@@ -28,7 +28,7 @@ int main(int iArgc, const char** argv)
 #  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   ezCommandLineUtils::GetGlobalInstance()->SetCommandLine();
 #  else
-  ezCommandLineUtils::GetGlobalInstance()->SetCommandLine(iArgc, argv);
+  ezCommandLineUtils::GetGlobalInstance()->SetCommandLine(iArgc, pArgv);
 #  endif
   int dummyArgc = 0;
   char** dummyArgv = nullptr;
@@ -44,7 +44,7 @@ int main(int iArgc, const char** argv)
   pQtApplication->exec();
   ezRun_Shutdown(pApp);
 #else
-  pApp->SetCommandLineArguments((ezUInt32)iArgc, argv);
+  pApp->SetCommandLineArguments((ezUInt32)iArgc, pArgv);
   ezRun(pApp);
 #endif
 

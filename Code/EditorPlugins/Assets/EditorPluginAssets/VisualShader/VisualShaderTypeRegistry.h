@@ -30,6 +30,7 @@ struct ezVisualShaderNodeType
     Generic,
     Main,
     Texture,
+    ShaderState,
 
     Default = Generic
   };

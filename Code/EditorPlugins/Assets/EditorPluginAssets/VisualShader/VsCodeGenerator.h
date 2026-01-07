@@ -53,6 +53,7 @@ private:
   static void AppendStringIfUnique(ezStringBuilder& inout_String, const char* szAppend);
 
   const ezDocumentObject* m_pMainNode;
+  ezHybridArray<const ezDocumentObject*, 4> m_StateNodes;
   const ezVisualShaderTypeRegistry* m_pTypeRegistry;
   const ezDocumentNodeManager* m_pNodeManager;
   const ezRTTI* m_pNodeBaseRtti;

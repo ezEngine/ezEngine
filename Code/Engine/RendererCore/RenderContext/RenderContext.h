@@ -305,6 +305,8 @@ private:
   bool m_bAllowAsyncShaderLoading;
   bool m_bStereoRendering = false;
 
+  ezUInt8 m_uiStencilRefValue = 0;
+
   ezGALGraphicsPipelineCreationDescription m_GraphicsPipeline;
   ezGALComputePipelineCreationDescription m_ComputePipeline;
   ezBindGroupBuilder m_BindGroupBuilders[EZ_GAL_MAX_BIND_GROUPS];

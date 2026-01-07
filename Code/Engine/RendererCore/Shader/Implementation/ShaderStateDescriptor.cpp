@@ -10,6 +10,7 @@ struct ezShaderStateVersion
     Version1,
     Version2,
     Version3,
+    Version4, // Added stencil reference value
 
     ENUM_COUNT,
     Current = ENUM_COUNT - 1
@@ -71,6 +72,11 @@ void ezShaderStateResourceDescriptor::Save(ezStreamWriter& inout_stream) const
     inout_stream << m_RasterizerDesc.m_fSlopeScaledDepthBias;
     inout_stream << m_RasterizerDesc.m_iDepthBias;
     inout_stream << m_RasterizerDesc.m_bConservativeRasterization;
+  }
+
+  // Dynamic States
+  {
+    inout_stream << m_uiStencilRef;
   }
 }
 
@@ -171,11 +177,19 @@ void ezShaderStateResourceDescriptor::Load(ezStreamReader& inout_stream)
       inout_stream >> m_RasterizerDesc.m_bConservativeRasterization;
     }
   }
+
+  // Dynamic States
+  {
+    if (uiVersion >= ezShaderStateVersion::Version4)
+    {
+      inout_stream >> m_uiStencilRef;
+    }
+  }
 }
 
 ezUInt32 ezShaderStateResourceDescriptor::CalculateHash() const
 {
-  return m_BlendDesc.CalculateHash() + m_RasterizerDesc.CalculateHash() + m_DepthStencilDesc.CalculateHash();
+  return m_BlendDesc.CalculateHash() + m_RasterizerDesc.CalculateHash() + m_DepthStencilDesc.CalculateHash() + m_uiStencilRef;
 }
 
 static const char* AppendNumber(const char* szString, ezInt32 iNumber, ezStringBuilder& ref_sTemp)
@@ -451,6 +465,11 @@ ezResult ezShaderStateResourceDescriptor::Parse(const char* szSource)
     m_DepthStencilDesc.m_DepthTestFunc = (ezGALCompareFunc::Enum)GetEnumStateVariable(VariableValues, StateValuesCompareFunc, "DepthTestFunc", m_DepthStencilDesc.m_DepthTestFunc);
     m_DepthStencilDesc.m_uiStencilReadMask = static_cast<ezUInt8>(GetIntStateVariable(VariableValues, "StencilReadMask", m_DepthStencilDesc.m_uiStencilReadMask));
     m_DepthStencilDesc.m_uiStencilWriteMask = static_cast<ezUInt8>(GetIntStateVariable(VariableValues, "StencilWriteMask", m_DepthStencilDesc.m_uiStencilWriteMask));
+  }
+
+  // Dynamic States
+  {
+    m_uiStencilRef = static_cast<ezUInt8>(GetIntStateVariable(VariableValues, "StencilRef", m_uiStencilRef));
   }
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
