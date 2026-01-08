@@ -66,7 +66,7 @@ ezTransformStatus ezJoltCollisionMeshAssetDocument::InternalTransformAsset(ezStr
   ezJoltCollisionMeshAssetProperties* pProp = GetProperties();
 
   ezJoltMeshDesc meshDesc;
-  
+
   if (pProp->m_bIsConvexMesh)
   {
     if (pProp->m_ConvexMeshType == ezJoltConvexCollisionMeshType::ConvexHullGroup)
