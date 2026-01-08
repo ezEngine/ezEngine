@@ -1,11 +1,11 @@
 #include <EditorPluginJolt/EditorPluginJoltPCH.h>
 
 #include <EditorPluginJolt/CollisionMeshAsset/JoltCollisionMeshAsset.h>
-#include <EnginePluginJolt/CollisionMeshAsset/JoltCollisionMeshWriter.h>
 #include <Foundation/IO/ChunkStream.h>
 #include <Foundation/Utilities/AssetFileHeader.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <Foundation/Utilities/Progress.h>
+#include <JoltPlugin/Resources/JoltMeshResourceWriter.h>
 #include <ModelImporter2/ModelImporter.h>
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
 
@@ -66,8 +66,7 @@ ezTransformStatus ezJoltCollisionMeshAssetDocument::InternalTransformAsset(ezStr
   ezJoltCollisionMeshAssetProperties* pProp = GetProperties();
 
   ezJoltMeshDesc meshDesc;
-  meshDesc.m_bWriteAssetHeader = false; // already written by the caller
-
+  
   if (pProp->m_bIsConvexMesh)
   {
     if (pProp->m_ConvexMeshType == ezJoltConvexCollisionMeshType::ConvexHullGroup)
@@ -116,11 +115,13 @@ ezTransformStatus ezJoltCollisionMeshAssetDocument::InternalTransformAsset(ezStr
     }
   }
 
-  // Please check that the code here is in sync with ezJoltCollisionMeshWriter::WriteMeshResource()
+  // Please check that the code here is in sync with ezJoltMeshResourceWriter::WriteMeshResource()
   EZ_ASSERT_DEV(AssetHeader.GetFileVersion() == 10, "Version change");
 
   range.BeginNextStep("Writing Result");
-  return ezJoltCollisionMeshWriter::WriteMeshResource(std::move(meshDesc), stream);
+
+  const bool bWriteAssetHeader = false; // already written outside of InternalTransformAsset
+  return ezJoltMeshResourceWriter::WriteMeshResource(std::move(meshDesc), stream, bWriteAssetHeader);
 }
 
 ezStatus ezJoltCollisionMeshAssetDocument::CreateMeshFromFile(ezJoltMeshDesc& outMesh)

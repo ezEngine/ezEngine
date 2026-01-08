@@ -13,6 +13,8 @@
 #include <Jolt/Math/Vec3.h>
 #include <Jolt/Math/Vec4.h>
 
+EZ_DEFINE_AS_POD_TYPE(JPH::Vec3);
+
 namespace ezJoltConversionUtils
 {
   EZ_ALWAYS_INLINE ezVec3 ToVec3(const JPH::Vec3& v)

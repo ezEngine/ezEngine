@@ -104,8 +104,6 @@ ezResourceLoadDesc ezJoltMeshResource::UnloadData(Unload WhatToUnload)
   return res;
 }
 
-EZ_DEFINE_AS_POD_TYPE(JPH::Vec3);
-
 static void ReadConvexMesh(ezStreamReader& inout_stream, ezDataBuffer* pBuffer)
 {
   ezUInt32 uiSize = 0;
@@ -150,7 +148,7 @@ ezResourceLoadDesc ezJoltMeshResource::UpdateContent(ezStreamReader* Stream)
   ezAssetFileHeader AssetHash;
   AssetHash.Read(*Stream).IgnoreResult();
 
-  // version specified in ezJoltCollisionMeshWriter::WriteMeshResource
+  // version specified in ezJoltMeshResourceWriter::WriteMeshResource
   ezUInt8 uiVersion = 0;
   ezUInt8 uiCompressionMode = 0;
 

@@ -2,6 +2,8 @@
 
 #include <JoltPlugin/JoltPluginDLL.h>
 
+#include <Foundation/Basics.h>
+
 class ezStreamWriter;
 
 struct ezJoltMeshDesc
@@ -16,7 +18,6 @@ struct ezJoltMeshDesc
 
   Type m_Type = Type::Triangle;
   bool m_bFlipNormals = false;
-  bool m_bWriteAssetHeader = true;
   ezUInt32 m_uiMaxConvexPieces = 1;
 
   ezDynamicArray<ezVec3> m_Vertices;
@@ -26,12 +27,22 @@ struct ezJoltMeshDesc
   ezDynamicArray<ezString> m_Surfaces;
 };
 
-/// \brief Interface for writing jolt mesh resources. Used internally by ezJoltMeshResourceUtils::WriteMeshResource.
-class EZ_JOLTPLUGIN_DLL ezJoltMeshResourceWriterInterface
+/// \brief Helper class for writing a ezJoltMeshResource to a stream.
+class EZ_JOLTPLUGIN_DLL ezJoltMeshResourceWriter
 {
 public:
-  static ezResult WriteMeshResource(ezJoltMeshDesc&& meshDesc, ezStreamWriter& inout_stream, ezUInt64 uiAssetHash = 0);
+  /// \brief Writes the given mesh description to the provided stream so that it can be loaded as an ezJoltMeshResource.
+  ///
+  /// Set bWriteAssetHeader to false if the asset header has already been written to the stream, e.g. in case of an asset transformation.
+  static ezResult WriteMeshResource(const ezJoltMeshDesc& meshDesc, ezStreamWriter& inout_stream, bool bWriteAssetHeader = true, ezUInt64 uiAssetHash = 0);
 
-protected:
-  virtual ezResult WriteMeshResourceInternal(ezJoltMeshDesc&& meshDesc, ezStreamWriter& inout_stream, ezUInt64 uiAssetHash) = 0;
+private:
+  static ezResult ComputeConvexHull(const ezDynamicArray<ezVec3>& vertices, ezDynamicArray<ezVec3>& out_hullVertices);
+
+  static ezResult CookSingleConvexJoltMesh(const ezDynamicArray<ezVec3>& vertices, ezStreamWriter& inout_stream);
+
+  static ezResult CookTriangleMesh(const ezJoltMeshDesc& meshDesc, ezStreamWriter& inout_stream);
+  static ezResult CookConvexMesh(const ezJoltMeshDesc& meshDesc, ezStreamWriter& inout_stream);
+  static ezResult CookDecomposedConvexMesh(const ezJoltMeshDesc& meshDesc, ezStreamWriter& inout_stream);
+  static ezResult CookConvexHullGroup(const ezJoltMeshDesc& meshDesc, ezStreamWriter& inout_stream);
 };

@@ -1,9 +1,9 @@
 #include <EnginePluginJolt/EnginePluginJoltPCH.h>
 
-#include <EnginePluginJolt/CollisionMeshAsset/JoltCollisionMeshWriter.h>
 #include <EnginePluginJolt/SceneExport/JoltStaticMeshConversion.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <JoltPlugin/Actors/JoltStaticActorComponent.h>
+#include <JoltPlugin/Resources/JoltMeshResourceWriter.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneExportModifier_JoltStaticMeshConversion, 1, ezRTTIDefaultAllocator<ezSceneExportModifier_JoltStaticMeshConversion>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -93,7 +93,7 @@ void ezSceneExportModifier_JoltStaticMeshConversion::ModifyWorld(ezWorld& ref_wo
   ezDeferredFileWriter file;
   file.SetOutput(sOutputFile);
 
-  if (ezJoltCollisionMeshWriter::WriteMeshResource(std::move(meshDesc), file).Failed())
+  if (ezJoltMeshResourceWriter::WriteMeshResource(std::move(meshDesc), file).Failed())
   {
     ezLog::Error("Could not write to global collision mesh file");
     return;

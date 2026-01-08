@@ -16,7 +16,7 @@ target_link_libraries(${PROJECT_NAME}
   EditorFramework
   GameEngine
   ModelImporter2
-  JoltCooking
+  JoltPlugin
 )
 
 add_dependencies(${PROJECT_NAME}
