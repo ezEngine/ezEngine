@@ -117,12 +117,12 @@ ezResult ezGALDepthStencilStateVulkan::InitPlatform(ezGALDevice* pDevice)
 {
   m_depthStencilState.depthBoundsTestEnable = VK_FALSE;
   m_depthStencilState.depthCompareOp = GALCompareFuncToVulkan[m_Description.m_DepthTestFunc];
-  m_depthStencilState.depthTestEnable = m_Description.m_bDepthTest ? VK_TRUE : VK_FALSE;
+  m_depthStencilState.depthTestEnable = m_Description.m_bDepthEnable ? VK_TRUE : VK_FALSE;
   m_depthStencilState.depthWriteEnable = m_Description.m_bDepthWrite ? VK_TRUE : VK_FALSE;
   m_depthStencilState.minDepthBounds = 0.f;
   m_depthStencilState.maxDepthBounds = 1.f;
 
-  m_depthStencilState.stencilTestEnable = m_Description.m_bStencilTest ? VK_TRUE : VK_FALSE;
+  m_depthStencilState.stencilTestEnable = m_Description.m_bStencilEnable ? VK_TRUE : VK_FALSE;
   m_depthStencilState.front.compareMask = m_Description.m_uiStencilReadMask;
   m_depthStencilState.front.writeMask = m_Description.m_uiStencilWriteMask;
   m_depthStencilState.front.compareOp = GALCompareFuncToVulkan[m_Description.m_FrontFaceStencilOp.m_StencilFunc];
@@ -130,8 +130,7 @@ ezResult ezGALDepthStencilStateVulkan::InitPlatform(ezGALDevice* pDevice)
   m_depthStencilState.front.failOp = GALStencilOpTableIndexToVulkan[m_Description.m_FrontFaceStencilOp.m_FailOp];
   m_depthStencilState.front.passOp = GALStencilOpTableIndexToVulkan[m_Description.m_FrontFaceStencilOp.m_PassOp];
 
-  const ezGALStencilOpDescription& backFaceStencilOp =
-    m_Description.m_bSeparateFrontAndBack ? m_Description.m_BackFaceStencilOp : m_Description.m_FrontFaceStencilOp;
+  const ezGALStencilOpDescription& backFaceStencilOp = m_Description.m_BackFaceStencilOp;
   m_depthStencilState.back.compareOp = GALCompareFuncToVulkan[backFaceStencilOp.m_StencilFunc];
   m_depthStencilState.back.depthFailOp = GALStencilOpTableIndexToVulkan[backFaceStencilOp.m_DepthFailOp];
   m_depthStencilState.back.failOp = GALStencilOpTableIndexToVulkan[backFaceStencilOp.m_FailOp];

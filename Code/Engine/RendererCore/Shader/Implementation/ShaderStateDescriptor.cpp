@@ -44,10 +44,11 @@ void ezShaderStateResourceDescriptor::Save(ezStreamWriter& inout_stream) const
   // Depth Stencil State
   {
     inout_stream << (ezUInt8)m_DepthStencilDesc.m_DepthTestFunc;
-    inout_stream << m_DepthStencilDesc.m_bDepthTest;
+    inout_stream << m_DepthStencilDesc.m_bDepthEnable;
     inout_stream << m_DepthStencilDesc.m_bDepthWrite;
-    inout_stream << m_DepthStencilDesc.m_bSeparateFrontAndBack;
-    inout_stream << m_DepthStencilDesc.m_bStencilTest;
+    bool m_bSeparateFrontAndBack = false;
+    inout_stream << m_bSeparateFrontAndBack;
+    inout_stream << m_DepthStencilDesc.m_bStencilEnable;
     inout_stream << m_DepthStencilDesc.m_uiStencilReadMask;
     inout_stream << m_DepthStencilDesc.m_uiStencilWriteMask;
     inout_stream << (ezUInt8)m_DepthStencilDesc.m_FrontFaceStencilOp.m_DepthFailOp;
@@ -113,10 +114,11 @@ void ezShaderStateResourceDescriptor::Load(ezStreamReader& inout_stream)
     ezUInt8 uiTemp = 0;
     inout_stream >> uiTemp;
     m_DepthStencilDesc.m_DepthTestFunc = (ezGALCompareFunc::Enum)uiTemp;
-    inout_stream >> m_DepthStencilDesc.m_bDepthTest;
+    inout_stream >> m_DepthStencilDesc.m_bDepthEnable;
     inout_stream >> m_DepthStencilDesc.m_bDepthWrite;
-    inout_stream >> m_DepthStencilDesc.m_bSeparateFrontAndBack;
-    inout_stream >> m_DepthStencilDesc.m_bStencilTest;
+    bool m_bSeparateFrontAndBack = false;
+    inout_stream >> m_bSeparateFrontAndBack;
+    inout_stream >> m_DepthStencilDesc.m_bStencilEnable;
     inout_stream >> m_DepthStencilDesc.m_uiStencilReadMask;
     inout_stream >> m_DepthStencilDesc.m_uiStencilWriteMask;
     inout_stream >> uiTemp;
@@ -176,10 +178,16 @@ ezUInt32 ezShaderStateResourceDescriptor::CalculateHash() const
   return m_BlendDesc.CalculateHash() + m_RasterizerDesc.CalculateHash() + m_DepthStencilDesc.CalculateHash();
 }
 
-static const char* InsertNumber(const char* szString, ezUInt32 uiNumber, ezStringBuilder& ref_sTemp)
+static const char* AppendNumber(const char* szString, ezInt32 iNumber, ezStringBuilder& ref_sTemp)
 {
-  ref_sTemp.SetFormat(szString, uiNumber);
-  return ref_sTemp.GetData();
+  if (iNumber >= 0)
+  {
+    ref_sTemp = szString;
+    ref_sTemp.AppendFormat("{}", iNumber);
+    return ref_sTemp;
+  }
+
+  return szString;
 }
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
@@ -386,23 +394,24 @@ ezResult ezShaderStateResourceDescriptor::Parse(const char* szSource)
 
     ezStringBuilder s;
 
-    for (ezUInt32 i = 0; i < 8; ++i)
+    // -1 for when no number is given
+    for (ezInt32 i = -1; i < 8; ++i)
     {
-      m_BlendDesc.m_RenderTargetBlendDescriptions[i].m_bBlendingEnabled = GetBoolStateVariable(
-        VariableValues, InsertNumber("BlendingEnabled{0}", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_bBlendingEnabled);
-      m_BlendDesc.m_RenderTargetBlendDescriptions[i].m_BlendOp = (ezGALBlendOp::Enum)GetEnumStateVariable(
-        VariableValues, StateValuesBlendOp, InsertNumber("BlendOp{0}", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_BlendOp);
-      m_BlendDesc.m_RenderTargetBlendDescriptions[i].m_BlendOpAlpha = (ezGALBlendOp::Enum)GetEnumStateVariable(
-        VariableValues, StateValuesBlendOp, InsertNumber("BlendOpAlpha{0}", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_BlendOpAlpha);
-      m_BlendDesc.m_RenderTargetBlendDescriptions[i].m_DestBlend = (ezGALBlend::Enum)GetEnumStateVariable(
-        VariableValues, StateValuesBlend, InsertNumber("DestBlend{0}", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_DestBlend);
-      m_BlendDesc.m_RenderTargetBlendDescriptions[i].m_DestBlendAlpha = (ezGALBlend::Enum)GetEnumStateVariable(
-        VariableValues, StateValuesBlend, InsertNumber("DestBlendAlpha{0}", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_DestBlendAlpha);
-      m_BlendDesc.m_RenderTargetBlendDescriptions[i].m_SourceBlend = (ezGALBlend::Enum)GetEnumStateVariable(
-        VariableValues, StateValuesBlend, InsertNumber("SourceBlend{0}", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_SourceBlend);
-      m_BlendDesc.m_RenderTargetBlendDescriptions[i].m_SourceBlendAlpha = (ezGALBlend::Enum)GetEnumStateVariable(VariableValues, StateValuesBlend,
-        InsertNumber("SourceBlendAlpha{0}", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_SourceBlendAlpha);
-      m_BlendDesc.m_RenderTargetBlendDescriptions[i].m_uiWriteMask = static_cast<ezUInt8>(GetIntStateVariable(VariableValues, InsertNumber("WriteMask{0}", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_uiWriteMask));
+      const ezInt32 idx = ezMath::Max(i, 0);
+
+      m_BlendDesc.m_RenderTargetBlendDescriptions[idx].m_bBlendingEnabled = GetBoolStateVariable(VariableValues, AppendNumber("BlendingEnabled", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_bBlendingEnabled);
+      m_BlendDesc.m_RenderTargetBlendDescriptions[idx].m_BlendOp = (ezGALBlendOp::Enum)GetEnumStateVariable(VariableValues, StateValuesBlendOp, AppendNumber("BlendOp", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_BlendOp);
+      m_BlendDesc.m_RenderTargetBlendDescriptions[idx].m_BlendOpAlpha = (ezGALBlendOp::Enum)GetEnumStateVariable(VariableValues, StateValuesBlendOp, AppendNumber("BlendOpAlpha", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_BlendOpAlpha);
+      m_BlendDesc.m_RenderTargetBlendDescriptions[idx].m_DestBlend = (ezGALBlend::Enum)GetEnumStateVariable(VariableValues, StateValuesBlend, AppendNumber("DestBlend", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_DestBlend);
+      m_BlendDesc.m_RenderTargetBlendDescriptions[idx].m_DestBlendAlpha = (ezGALBlend::Enum)GetEnumStateVariable(VariableValues, StateValuesBlend, AppendNumber("DestBlendAlpha", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_DestBlendAlpha);
+      m_BlendDesc.m_RenderTargetBlendDescriptions[idx].m_SourceBlend = (ezGALBlend::Enum)GetEnumStateVariable(VariableValues, StateValuesBlend, AppendNumber("SourceBlend", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_SourceBlend);
+      m_BlendDesc.m_RenderTargetBlendDescriptions[idx].m_SourceBlendAlpha = (ezGALBlend::Enum)GetEnumStateVariable(VariableValues, StateValuesBlend, AppendNumber("SourceBlendAlpha", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_SourceBlendAlpha);
+
+      // if WriteMaskN is set, overwrite
+      m_BlendDesc.m_RenderTargetBlendDescriptions[idx].m_uiWriteMask = static_cast<ezUInt8>(GetIntStateVariable(VariableValues, AppendNumber("WriteMask", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[0].m_uiWriteMask)); // deprecated old name
+
+      // if ColorWriteMaskN is set, overwrite
+      m_BlendDesc.m_RenderTargetBlendDescriptions[idx].m_uiWriteMask = static_cast<ezUInt8>(GetIntStateVariable(VariableValues, AppendNumber("ColorWriteMask", i, s), m_BlendDesc.m_RenderTargetBlendDescriptions[idx].m_uiWriteMask));
     }
   }
 
@@ -424,31 +433,22 @@ ezResult ezShaderStateResourceDescriptor::Parse(const char* szSource)
 
   // Retrieve Depth-Stencil State
   {
-    m_DepthStencilDesc.m_BackFaceStencilOp.m_DepthFailOp = (ezGALStencilOp::Enum)GetEnumStateVariable(
-      VariableValues, StateValuesStencilOp, "BackFaceDepthFailOp", m_DepthStencilDesc.m_BackFaceStencilOp.m_DepthFailOp);
-    m_DepthStencilDesc.m_BackFaceStencilOp.m_FailOp = (ezGALStencilOp::Enum)GetEnumStateVariable(
-      VariableValues, StateValuesStencilOp, "BackFaceFailOp", m_DepthStencilDesc.m_BackFaceStencilOp.m_FailOp);
-    m_DepthStencilDesc.m_BackFaceStencilOp.m_PassOp = (ezGALStencilOp::Enum)GetEnumStateVariable(
-      VariableValues, StateValuesStencilOp, "BackFacePassOp", m_DepthStencilDesc.m_BackFaceStencilOp.m_PassOp);
-    m_DepthStencilDesc.m_BackFaceStencilOp.m_StencilFunc = (ezGALCompareFunc::Enum)GetEnumStateVariable(
-      VariableValues, StateValuesCompareFunc, "BackFaceStencilFunc", m_DepthStencilDesc.m_BackFaceStencilOp.m_StencilFunc);
+    m_DepthStencilDesc.m_FrontFaceStencilOp.m_DepthFailOp = (ezGALStencilOp::Enum)GetEnumStateVariable(VariableValues, StateValuesStencilOp, "StencilDepthFailOp", m_DepthStencilDesc.m_FrontFaceStencilOp.m_DepthFailOp);
+    m_DepthStencilDesc.m_FrontFaceStencilOp.m_FailOp = (ezGALStencilOp::Enum)GetEnumStateVariable(VariableValues, StateValuesStencilOp, "StencilFailOp", m_DepthStencilDesc.m_FrontFaceStencilOp.m_FailOp);
+    m_DepthStencilDesc.m_FrontFaceStencilOp.m_PassOp = (ezGALStencilOp::Enum)GetEnumStateVariable(VariableValues, StateValuesStencilOp, "StencilPassOp", m_DepthStencilDesc.m_FrontFaceStencilOp.m_PassOp);
+    m_DepthStencilDesc.m_FrontFaceStencilOp.m_StencilFunc = (ezGALCompareFunc::Enum)GetEnumStateVariable(VariableValues, StateValuesCompareFunc, "StencilCompareFunc", m_DepthStencilDesc.m_FrontFaceStencilOp.m_StencilFunc);
 
-    m_DepthStencilDesc.m_FrontFaceStencilOp.m_DepthFailOp = (ezGALStencilOp::Enum)GetEnumStateVariable(
-      VariableValues, StateValuesStencilOp, "FrontFaceDepthFailOp", m_DepthStencilDesc.m_FrontFaceStencilOp.m_DepthFailOp);
-    m_DepthStencilDesc.m_FrontFaceStencilOp.m_FailOp = (ezGALStencilOp::Enum)GetEnumStateVariable(
-      VariableValues, StateValuesStencilOp, "FrontFaceFailOp", m_DepthStencilDesc.m_FrontFaceStencilOp.m_FailOp);
-    m_DepthStencilDesc.m_FrontFaceStencilOp.m_PassOp = (ezGALStencilOp::Enum)GetEnumStateVariable(
-      VariableValues, StateValuesStencilOp, "FrontFacePassOp", m_DepthStencilDesc.m_FrontFaceStencilOp.m_PassOp);
-    m_DepthStencilDesc.m_FrontFaceStencilOp.m_StencilFunc = (ezGALCompareFunc::Enum)GetEnumStateVariable(
-      VariableValues, StateValuesCompareFunc, "FrontFaceStencilFunc", m_DepthStencilDesc.m_FrontFaceStencilOp.m_StencilFunc);
+    // uses front-face values as fallback, if not overwritten
+    m_DepthStencilDesc.m_BackFaceStencilOp.m_DepthFailOp = (ezGALStencilOp::Enum)GetEnumStateVariable(VariableValues, StateValuesStencilOp, "StencilBackFaceDepthFailOp", m_DepthStencilDesc.m_FrontFaceStencilOp.m_DepthFailOp);
+    m_DepthStencilDesc.m_BackFaceStencilOp.m_FailOp = (ezGALStencilOp::Enum)GetEnumStateVariable(VariableValues, StateValuesStencilOp, "StencilBackFaceFailOp", m_DepthStencilDesc.m_FrontFaceStencilOp.m_FailOp);
+    m_DepthStencilDesc.m_BackFaceStencilOp.m_PassOp = (ezGALStencilOp::Enum)GetEnumStateVariable(VariableValues, StateValuesStencilOp, "StencilBackFacePassOp", m_DepthStencilDesc.m_FrontFaceStencilOp.m_PassOp);
+    m_DepthStencilDesc.m_BackFaceStencilOp.m_StencilFunc = (ezGALCompareFunc::Enum)GetEnumStateVariable(VariableValues, StateValuesCompareFunc, "StencilBackFaceCompareFunc", m_DepthStencilDesc.m_FrontFaceStencilOp.m_StencilFunc);
 
-    m_DepthStencilDesc.m_bDepthTest = GetBoolStateVariable(VariableValues, "DepthTest", m_DepthStencilDesc.m_bDepthTest);
+    m_DepthStencilDesc.m_bDepthEnable = GetBoolStateVariable(VariableValues, "DepthTest", m_DepthStencilDesc.m_bDepthEnable); // deprecated old name
+    m_DepthStencilDesc.m_bDepthEnable = GetBoolStateVariable(VariableValues, "DepthEnable", m_DepthStencilDesc.m_bDepthEnable);
     m_DepthStencilDesc.m_bDepthWrite = GetBoolStateVariable(VariableValues, "DepthWrite", m_DepthStencilDesc.m_bDepthWrite);
-    m_DepthStencilDesc.m_bSeparateFrontAndBack =
-      GetBoolStateVariable(VariableValues, "SeparateFrontAndBack", m_DepthStencilDesc.m_bSeparateFrontAndBack);
-    m_DepthStencilDesc.m_bStencilTest = GetBoolStateVariable(VariableValues, "StencilTest", m_DepthStencilDesc.m_bStencilTest);
-    m_DepthStencilDesc.m_DepthTestFunc =
-      (ezGALCompareFunc::Enum)GetEnumStateVariable(VariableValues, StateValuesCompareFunc, "DepthTestFunc", m_DepthStencilDesc.m_DepthTestFunc);
+    m_DepthStencilDesc.m_bStencilEnable = GetBoolStateVariable(VariableValues, "StencilEnable", m_DepthStencilDesc.m_bStencilEnable);
+    m_DepthStencilDesc.m_DepthTestFunc = (ezGALCompareFunc::Enum)GetEnumStateVariable(VariableValues, StateValuesCompareFunc, "DepthTestFunc", m_DepthStencilDesc.m_DepthTestFunc);
     m_DepthStencilDesc.m_uiStencilReadMask = static_cast<ezUInt8>(GetIntStateVariable(VariableValues, "StencilReadMask", m_DepthStencilDesc.m_uiStencilReadMask));
     m_DepthStencilDesc.m_uiStencilWriteMask = static_cast<ezUInt8>(GetIntStateVariable(VariableValues, "StencilWriteMask", m_DepthStencilDesc.m_uiStencilWriteMask));
   }

@@ -80,7 +80,7 @@ ezResult ezGALGraphicsPipelineVulkan::InitPlatform(ezGALDevice* pDevice)
   ezHybridArray<vk::DynamicState, 3> dynamics;
   dynamics.PushBack(vk::DynamicState::eViewport);
   dynamics.PushBack(vk::DynamicState::eScissor);
-  if (pDepthStencilState->GetDescription().m_bStencilTest)
+  if (pDepthStencilState->GetDescription().m_bStencilEnable)
     dynamics.PushBack(vk::DynamicState::eStencilReference);
 
   vk::PipelineDynamicStateCreateInfo dynamic;

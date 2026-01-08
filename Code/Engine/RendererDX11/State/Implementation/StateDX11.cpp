@@ -132,10 +132,10 @@ ezGALDepthStencilStateDX11::~ezGALDepthStencilStateDX11() = default;
 ezResult ezGALDepthStencilStateDX11::InitPlatform(ezGALDevice* pDevice)
 {
   D3D11_DEPTH_STENCIL_DESC DXDesc;
-  DXDesc.DepthEnable = m_Description.m_bDepthTest;
+  DXDesc.DepthEnable = m_Description.m_bDepthEnable;
   DXDesc.DepthWriteMask = m_Description.m_bDepthWrite ? D3D11_DEPTH_WRITE_MASK_ALL : D3D11_DEPTH_WRITE_MASK_ZERO;
   DXDesc.DepthFunc = GALCompareFuncToDX11[m_Description.m_DepthTestFunc];
-  DXDesc.StencilEnable = m_Description.m_bStencilTest;
+  DXDesc.StencilEnable = m_Description.m_bStencilEnable;
   DXDesc.StencilReadMask = m_Description.m_uiStencilReadMask;
   DXDesc.StencilWriteMask = m_Description.m_uiStencilWriteMask;
 
@@ -144,8 +144,7 @@ ezResult ezGALDepthStencilStateDX11::InitPlatform(ezGALDevice* pDevice)
   DXDesc.FrontFace.StencilPassOp = GALStencilOpTableIndexToDX11[m_Description.m_FrontFaceStencilOp.m_PassOp];
   DXDesc.FrontFace.StencilFunc = GALCompareFuncToDX11[m_Description.m_FrontFaceStencilOp.m_StencilFunc];
 
-  const ezGALStencilOpDescription& backFaceStencilOp =
-    m_Description.m_bSeparateFrontAndBack ? m_Description.m_BackFaceStencilOp : m_Description.m_FrontFaceStencilOp;
+  const ezGALStencilOpDescription& backFaceStencilOp = m_Description.m_BackFaceStencilOp;
   DXDesc.BackFace.StencilFailOp = GALStencilOpTableIndexToDX11[backFaceStencilOp.m_FailOp];
   DXDesc.BackFace.StencilDepthFailOp = GALStencilOpTableIndexToDX11[backFaceStencilOp.m_DepthFailOp];
   DXDesc.BackFace.StencilPassOp = GALStencilOpTableIndexToDX11[backFaceStencilOp.m_PassOp];

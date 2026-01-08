@@ -143,11 +143,9 @@ struct ezGALDepthStencilStateCreationDescription : public ezHashableStruct<ezGAL
 
   ezEnum<ezGALCompareFunc> m_DepthTestFunc = ezGALCompareFunc::Less;
 
-  bool m_bSeparateFrontAndBack = false; ///< If false, DX11 will use front face values for both front & back face values, GL will not call
-                                        ///< gl*Separate() funcs
-  bool m_bDepthTest = true;
+  bool m_bDepthEnable = true;
   bool m_bDepthWrite = true;
-  bool m_bStencilTest = false;
+  bool m_bStencilEnable = false;
   ezUInt8 m_uiStencilReadMask = 0xFF;
   ezUInt8 m_uiStencilWriteMask = 0xFF;
 };

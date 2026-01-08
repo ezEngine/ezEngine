@@ -13,7 +13,7 @@ SourceBlend0 = Blend_One
 DestBlendAlpha0 = Blend_InvSrcAlpha
 SourceBlendAlpha0 = Blend_One
 ScissorTest = true
-DepthTest = false
+DepthEnable = false
 DepthWrite = false
 CullMode = CullMode_None
 StencilReadMask = 1
@@ -21,15 +21,15 @@ StencilWriteMask = 1
 
 #if RMLUI_MODE == RMLUI_MODE_STENCIL_TEST
 
-StencilTest = true
-FrontFaceStencilFunc = CompareFunc_Equal
+StencilEnable = true
+StencilCompareFunc = CompareFunc_Equal
 
 #elif RMLUI_MODE == RMLUI_MODE_STENCIL_SET
 
-StencilTest = true
-FrontFaceStencilFunc = CompareFunc_Always
-FrontFacePassOp = StencilOp_Replace
-WriteMask0 = 0
+StencilEnable = true
+StencilCompareFunc = CompareFunc_Always
+StencilPassOp = StencilOp_Replace
+ColorWriteMask = 0
 
 #endif
 
