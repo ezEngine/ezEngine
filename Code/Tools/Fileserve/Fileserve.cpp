@@ -16,10 +16,10 @@
 #endif
 
 #ifdef EZ_USE_QT
-int main(int argc, char** argv)
+int main(int iArgc, char** argv)
 {
 #else
-int main(int argc, const char** argv)
+int main(int iArgc, const char** argv)
 {
 #endif
   ezFileserverApp* pApp = new ezFileserverApp();
