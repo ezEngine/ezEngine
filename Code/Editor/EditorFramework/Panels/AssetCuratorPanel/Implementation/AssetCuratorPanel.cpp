@@ -83,11 +83,7 @@ ezQtAssetCuratorPanel::ezQtAssetCuratorPanel(ads::CDockManager* pDockManager)
   connect(CheckIndirect, &QCheckBox::toggled, this, &ezQtAssetCuratorPanel::onCheckIndirectToggled);
 
   ezAssetProcessor::GetSingleton()->AddLogWriter(ezMakeDelegate(&ezQtAssetCuratorPanel::LogWriter, this));
-  
-  // Initialize progress widget with the max number of processors
-  ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
-  ezUInt32 uiMaxProcessors = ezMath::Min<ezUInt32>(ezTaskSystem::GetWorkerThreadCount(ezWorkerThreadType::LongTasks), pPreferences->m_uiMaxAssetProcessors);
-  ProcessorProgress->SetMaxProcessors(uiMaxProcessors);
+
   ProcessorProgress->SetGridBarWidget(ProcessorProgressGridBar);
 
   m_pFilter = new ezQtAssetCuratorFilter(this);
@@ -119,6 +115,8 @@ ezQtAssetCuratorPanel::ezQtAssetCuratorPanel(ads::CDockManager* pDockManager)
                 UpdateIssueInfo();
               }),
     "signal/slot connection failed");
+
+  EZ_VERIFY(connect(ClearHistory, &QToolButton::clicked, ProcessorProgress, &ezQtAssetProcessorProgressWidget::ClearHistory), "");
 }
 
 ezQtAssetCuratorPanel::~ezQtAssetCuratorPanel()

@@ -344,7 +344,7 @@ It is advised to compile the plugin now, but you can also do so later.</html>",
         if (pPreferences->m_bBackgroundAssetProcessing)
         {
           QTimer::singleShot(2000, this, [this]()
-            { ezAssetProcessor::GetSingleton()->StartProcessTask(); });
+            { ezAssetProcessor::GetSingleton()->StartProcessor(); });
         }
         else if (!lastTransform.IsValid() || (ezTimestamp::CurrentTimestamp() - lastTransform).GetHours() > 5 * 24)
         {

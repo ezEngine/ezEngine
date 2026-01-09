@@ -28,7 +28,7 @@ class ezUpdateTask;
 class ezTask;
 class ezAssetDocumentManager;
 class ezDirectoryWatcher;
-class ezProcessTask;
+class ezEditorProcessorProcess;
 struct ezFileStats;
 class ezAssetProcessorLog;
 class ezFileSystemWatcher;
@@ -421,7 +421,7 @@ public:
 private:
   friend class ezUpdateTask;
   friend class ezAssetProcessor;
-  friend class ezProcessTask;
+  friend class ezEditorProcessorProcess;
 
   mutable ezCuratorMutex m_CuratorMutex; // Global lock
   ezTaskGroupID m_InitializeCuratorTaskID;

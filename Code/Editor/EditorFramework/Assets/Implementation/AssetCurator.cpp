@@ -205,7 +205,7 @@ void ezAssetCurator::Deinitialize()
   SaveAssetProfiles().IgnoreResult();
 
   ShutdownUpdateTask();
-  ezAssetProcessor::GetSingleton()->StopProcessTask(true);
+  ezAssetProcessor::GetSingleton()->StopProcessor(true);
   ezFileSystemModel* pFiles = ezFileSystemModel::GetSingleton();
   ezFileSystemModel::FilesMap referencedFiles;
   ezFileSystemModel::FoldersMap referencedFolders;
@@ -2126,12 +2126,12 @@ void ezAssetCurator::SaveCaches(const ezFileSystemModel::FilesMap& referencedFil
 
 void ezAssetCurator::ClearAssetCaches(ezAssetDocumentManager::OutputReliability threshold)
 {
-  const bool bWasRunning = ezAssetProcessor::GetSingleton()->GetProcessTaskState() == ezAssetProcessor::ProcessTaskState::Running;
+  const bool bWasRunning = ezAssetProcessor::GetSingleton()->GetProcessorState() == ezAssetProcessor::ProcessorState::Running;
 
   if (bWasRunning)
   {
     // pause background asset processing while we delete files
-    ezAssetProcessor::GetSingleton()->StopProcessTask(true);
+    ezAssetProcessor::GetSingleton()->StopProcessor(true);
   }
 
   {
@@ -2198,6 +2198,6 @@ void ezAssetCurator::ClearAssetCaches(ezAssetDocumentManager::OutputReliability 
   if (bWasRunning)
   {
     // restart background asset processing
-    ezAssetProcessor::GetSingleton()->StartProcessTask();
+    ezAssetProcessor::GetSingleton()->StartProcessor();
   }
 }

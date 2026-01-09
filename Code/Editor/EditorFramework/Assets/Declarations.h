@@ -11,6 +11,7 @@
 
 class ezImage;
 class ezAssetFileHeader;
+using ezOsProcessID = ezUInt32;
 
 struct ezAssetExistanceState
 {
@@ -177,3 +178,19 @@ EZ_ALWAYS_INLINE ezResult ezToResult(const ezTransformStatus& result)
 {
   return result.m_Result == ezTransformResult::Success ? EZ_SUCCESS : EZ_FAILURE;
 }
+
+struct ezEditorProcessorState
+{
+  bool operator==(const ezEditorProcessorState& rhs)
+  {
+    return m_uiProcessID == rhs.m_uiProcessID && m_bConnected == rhs.m_bConnected && m_bRunning == rhs.m_bRunning;
+  }
+  bool operator!=(const ezEditorProcessorState& rhs)
+  {
+    return !(*this == rhs);
+  }
+
+  ezOsProcessID m_uiProcessID;
+  bool m_bConnected = false;
+  bool m_bRunning = false;
+};

@@ -32,10 +32,13 @@ struct ezAssetProcessorEvent
 {
   enum class Type
   {
-    ProcessTaskStateChanged
+    ProcessorStateChanged, ///< ezAssetProcessor::GetProcessorState changed
+    ProcessStateChanged, ///< ezAssetProcessor::GetProcessState changed
   };
 
   Type m_Type;
+  ezUInt8 m_uiProcessCount = 0;
+  ezUInt8 m_uiProcessorID = 0;
 };
 
 struct ezAssetProcessorProgressEvent
@@ -57,10 +60,10 @@ struct ezAssetProcessorProgressEvent
 };
 
 
-class ezProcessThread : public ezThread
+class ezAssetProcessorThread : public ezThread
 {
 public:
-  ezProcessThread()
+  ezAssetProcessorThread()
     : ezThread("ezProcessThread")
   {
   }
@@ -69,7 +72,7 @@ public:
   virtual ezUInt32 Run() override;
 };
 
-class ezProcessTask
+class ezEditorProcessorProcess
 {
 public:
   enum class State
@@ -82,20 +85,20 @@ public:
   };
 
 public:
-  ezProcessTask();
-  ~ezProcessTask();
+  ezEditorProcessorProcess();
+  ~ezEditorProcessorProcess();
 
   ezUInt32 m_uiProcessorID;
   ezTime m_ProcessingStartTime;
 
   bool Tick(bool bStartNewWork); // returns false, if all processing is done, otherwise call Tick again.
 
-  bool IsConnected();
-
+  bool IsConnected() const;
+  bool IsRunning() const;
+  ezOsProcessID GetProcessId() const;
   bool HasProcessCrashed();
 
   ezResult StartProcess();
-
   void ShutdownProcess();
 
 private:
@@ -128,12 +131,14 @@ class EZ_EDITORFRAMEWORK_DLL ezAssetProcessor
   EZ_DECLARE_SINGLETON(ezAssetProcessor);
 
 public:
-  enum class ProcessTaskState : ezUInt8
+  enum class ProcessorState : ezUInt8
   {
     Stopped,  ///< No EditorProcessor or the process thread is running.
     Running,  ///< Everything is active.
     Stopping, ///< Everything is still running but no new tasks are put into the EditorProcessors.
   };
+
+
 
   ezAssetProcessor();
   ~ezAssetProcessor();
@@ -141,12 +146,14 @@ public:
   // used to temporarily not process assets, usually because currently assets get imported
   ezAtomicInteger32 m_iPauseProcessing;
 
-  void StartProcessTask();
-  void StopProcessTask(bool bForce);
-  ProcessTaskState GetProcessTaskState() const
+  void StartProcessor();
+  void StopProcessor(bool bForce);
+  ProcessorState GetProcessorState() const
   {
-    return m_ProcessTaskState;
+    return m_ProcessorState;
   }
+  ezUInt32 GetProcessCount() const;
+  ezEditorProcessorState GetProcessState(ezUInt32 uiProcessIndex) const;
 
   void AddLogWriter(ezLoggingEvent::Handler handler);
   void RemoveLogWriter(ezLoggingEvent::Handler handler);
@@ -157,8 +164,8 @@ public:
   ezCopyOnBroadcastEvent<const ezAssetProcessorProgressEvent&, ezMutex> m_ProgressEvents;
 
 private:
-  friend class ezProcessTask;
-  friend class ezProcessThread;
+  friend class ezEditorProcessorProcess;
+  friend class ezAssetProcessorThread;
   friend class ezAssetCurator;
 
   void Run();
@@ -167,13 +174,14 @@ private:
   ezAssetProcessorLog m_CuratorLog;
 
   // Process thread and its state
-  ezUniquePtr<ezProcessThread> m_pThread;
+  ezUniquePtr<ezAssetProcessorThread> m_pThread;
   std::atomic<bool> m_bForceStop = false; ///< If set, background processes will be killed when stopping without waiting for their current task to finish.
 
   // Locks writes to m_ProcessTaskState to make sure the state machine does not go from running to stopped before having fired stopping.
   mutable ezMutex m_ProcessorMutex;
-  std::atomic<ProcessTaskState> m_ProcessTaskState = ProcessTaskState::Stopped;
+  std::atomic<ProcessorState> m_ProcessorState = ProcessorState::Stopped;
+  ezDynamicArray<ezEditorProcessorState> m_EditorProcessorStates;
 
   // Data owned by the process thread.
-  ezDynamicArray<ezProcessTask> m_ProcessTasks;
+  ezDynamicArray<ezEditorProcessorProcess> m_Processes;
 };
