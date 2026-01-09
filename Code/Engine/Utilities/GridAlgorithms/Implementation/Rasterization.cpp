@@ -501,7 +501,7 @@ static void SortTraceLines(ezDynamicArray<ez2DGridUtils::TraceLinePoint>& out_Re
 
       SortTraceLines(out_Result, pt.ptOuter, pairs);
 
-      newPt.m_uiSkipCount = out_Result.GetCount() - uiStartIdx - 1;
+      newPt.m_uiSkipCount = static_cast<ezUInt16>(out_Result.GetCount() - uiStartIdx - 1);
     }
     else if (bFound)
     {
@@ -535,7 +535,7 @@ void ez2DGridUtils::CalculateVisibilityTraceLines(float fRadius, ezDynamicArray<
   for (auto& point : pairs)
   {
     // find the next point on the line towards the center
-    ez2DGridUtils::ComputePointsOnLine(point.ptOuter.x, point.ptOuter.y, 0, 0, [&](ezInt32 x, ezInt32 y, void* pPassThrough)
+    ez2DGridUtils::ComputePointsOnLine(point.ptOuter.x, point.ptOuter.y, 0, 0, [&](ezInt32 x, ezInt32 y, void* /*pPassThrough*/)
       {
         if (point.ptOuter.x != x || point.ptOuter.y != y)
         {
