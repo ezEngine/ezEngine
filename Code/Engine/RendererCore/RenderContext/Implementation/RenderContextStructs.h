@@ -55,8 +55,9 @@ struct EZ_RENDERERCORE_DLL ezRenderContextFlags
     MeshBufferBindingChanged = EZ_BIT(3),
     MaterialBindingChanged = EZ_BIT(4),
     PipelineChanged = EZ_BIT(5),
+    NonPipelineStateChanged = EZ_BIT(6),
 
-    AllStatesInvalid = ShaderStateChanged | BindGroupChanged | BindGroupLayoutChanged | MeshBufferBindingChanged | PipelineChanged,
+    AllStatesInvalid = ShaderStateChanged | BindGroupChanged | BindGroupLayoutChanged | MeshBufferBindingChanged | PipelineChanged | NonPipelineStateChanged,
     Default = None
   };
 
@@ -68,6 +69,7 @@ struct EZ_RENDERERCORE_DLL ezRenderContextFlags
     StorageType MeshBufferBindingChanged : 1;
     StorageType MaterialBindingChanged : 1;
     StorageType PipelineChanged : 1;
+    StorageType NonPipelineStateChanged : 1;
   };
 };
 

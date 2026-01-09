@@ -302,6 +302,12 @@ void ezRenderContext::SetRasterizerState(ezGALRasterizerStateHandle hRasterizerS
   m_StateFlags.Add(ezRenderContextFlags::PipelineChanged);
 }
 
+void ezRenderContext::SetStencilRefValue(ezUInt8 uiStencilRefValue)
+{
+  m_uiUserStencilRefValue = uiStencilRefValue;
+  m_StateFlags.Add(ezRenderContextFlags::NonPipelineStateChanged);
+}
+
 void ezRenderContext::BindMeshBuffer(const ezMeshBufferResourceHandle& hMeshBuffer, ezGALBufferHandle hDataOffsetsBuffer /*= {}*/, ezUInt32 uiFirstDataOffset /*= 0*/)
 {
   ezResourceLock<ezMeshBufferResource> pMeshBuffer(hMeshBuffer, ezResourceAcquireMode::AllowLoadingFallback);
@@ -573,14 +579,29 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
     m_StateFlags.Remove(ezRenderContextFlags::MeshBufferBindingChanged);
   }
 
+  if (bForce || m_StateFlags.IsSet(ezRenderContextFlags::NonPipelineStateChanged))
+  {
+    if (m_bUseUserStencilRefValue)
+    {
+      // Set the user provided stencil reference value
+      m_pGALCommandEncoder->SetStencilReference(m_uiUserStencilRefValue);
+    }
+    else
+    {
+      // Set stencil reference value from shader
+      m_pGALCommandEncoder->SetStencilReference(m_uiShaderStencilRefValue);
+    }
+
+    m_StateFlags.Remove(ezRenderContextFlags::NonPipelineStateChanged);
+  }
+
   if (bForce || m_StateFlags.IsSet(ezRenderContextFlags::PipelineChanged))
   {
+    m_StateFlags.Remove(ezRenderContextFlags::PipelineChanged);
+
     if (m_bRendering)
     {
       m_pGALCommandEncoder->SetGraphicsPipeline(ezGALPipelineCache::GetPipeline(m_GraphicsPipeline));
-
-      // Set stencil reference value from shader
-      m_pGALCommandEncoder->SetStencilReference(m_uiStencilRefValue);
     }
     else if (m_bCompute)
     {
@@ -1081,12 +1102,15 @@ ezResult ezRenderContext::ApplyShaderState()
     if (!m_ShaderBindFlags.IsSet(ezShaderBindFlags::NoDepthStencilState))
     {
       m_GraphicsPipeline.m_hDepthStencilState = pShaderPermutation->GetDepthStencilState();
-      m_uiStencilRefValue = pShaderPermutation->GetStencilRefValue();
+      m_uiShaderStencilRefValue = pShaderPermutation->GetShaderStencilRefValue();
+      m_bUseUserStencilRefValue = pShaderPermutation->GetUseUserStencilRefValue();
     }
     else
     {
-      m_uiStencilRefValue = 0;
+      m_bUseUserStencilRefValue = true;
     }
+
+    m_StateFlags.Add(ezRenderContextFlags::NonPipelineStateChanged);
   }
 
   return EZ_SUCCESS;

@@ -76,7 +76,8 @@ void ezShaderStateResourceDescriptor::Save(ezStreamWriter& inout_stream) const
 
   // Dynamic States
   {
-    inout_stream << m_uiStencilRef;
+    inout_stream << m_uiShaderStencilRef;
+    inout_stream << m_bUseUserStencilRefValue;
   }
 }
 
@@ -182,14 +183,15 @@ void ezShaderStateResourceDescriptor::Load(ezStreamReader& inout_stream)
   {
     if (uiVersion >= ezShaderStateVersion::Version4)
     {
-      inout_stream >> m_uiStencilRef;
+      inout_stream >> m_uiShaderStencilRef;
+      inout_stream >> m_bUseUserStencilRefValue;
     }
   }
 }
 
 ezUInt32 ezShaderStateResourceDescriptor::CalculateHash() const
 {
-  return m_BlendDesc.CalculateHash() + m_RasterizerDesc.CalculateHash() + m_DepthStencilDesc.CalculateHash() + m_uiStencilRef;
+  return m_BlendDesc.CalculateHash() + m_RasterizerDesc.CalculateHash() + m_DepthStencilDesc.CalculateHash() + m_uiShaderStencilRef + (m_bUseUserStencilRefValue ? 1 : 0);
 }
 
 static const char* AppendNumber(const char* szString, ezInt32 iNumber, ezStringBuilder& ref_sTemp)
@@ -469,7 +471,15 @@ ezResult ezShaderStateResourceDescriptor::Parse(const char* szSource)
 
   // Dynamic States
   {
-    m_uiStencilRef = static_cast<ezUInt8>(GetIntStateVariable(VariableValues, "StencilRef", m_uiStencilRef));
+    m_bUseUserStencilRefValue = GetBoolStateVariable(VariableValues, "UseUserStencilRef", m_bUseUserStencilRefValue);
+    const ezInt32 iStencilRef = GetIntStateVariable(VariableValues, "StencilRef", m_uiShaderStencilRef);
+    m_uiShaderStencilRef = static_cast<ezUInt8>(iStencilRef);
+
+    if (iStencilRef < 0)
+    {
+      // can either use UseUserStencilRef, or can set StencilRef to -1
+      m_bUseUserStencilRefValue = true;
+    }
   }
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)

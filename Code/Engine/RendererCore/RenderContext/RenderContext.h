@@ -161,6 +161,7 @@ public:
   void SetBlendState(ezGALBlendStateHandle hBlendState);
   void SetDepthStencilState(ezGALDepthStencilStateHandle hDepthStencilState);
   void SetRasterizerState(ezGALRasterizerStateHandle hRasterizerState);
+  void SetStencilRefValue(ezUInt8 uiStencilRefValue);
 
   void BindMeshBuffer(const ezMeshBufferResourceHandle& hMeshBuffer, ezGALBufferHandle hDataOffsetsBuffer = {}, ezUInt32 uiFirstDataOffset = 0);
   void BindMeshBuffer(const ezDynamicMeshBufferResourceHandle& hDynamicMeshBuffer, ezGALBufferHandle hDataOffsetsBuffer = {}, ezUInt32 uiFirstDataOffset = 0);
@@ -305,7 +306,9 @@ private:
   bool m_bAllowAsyncShaderLoading;
   bool m_bStereoRendering = false;
 
-  ezUInt8 m_uiStencilRefValue = 0;
+  ezUInt8 m_uiUserStencilRefValue = 0;
+  ezUInt8 m_uiShaderStencilRefValue = 0;
+  bool m_bUseUserStencilRefValue = false;
 
   ezGALGraphicsPipelineCreationDescription m_GraphicsPipeline;
   ezGALComputePipelineCreationDescription m_ComputePipeline;

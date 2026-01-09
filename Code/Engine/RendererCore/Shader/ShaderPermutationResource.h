@@ -38,7 +38,10 @@ public:
   ezGALRasterizerStateHandle GetRasterizerState() const { return m_hRasterizerState; }
 
   /// Returns the stencil reference value for stencil testing.
-  ezUInt8 GetStencilRefValue() const { return m_uiStencilRef; }
+  ezUInt8 GetShaderStencilRefValue() const { return m_uiShaderStencilRef; }
+
+  /// Returns whether the shader wants to use the user provided stencil reference value.
+  bool GetUseUserStencilRefValue() const { return m_bUseUserStencilRef; }
 
   /// Returns true if the shader compiled successfully.
   bool IsShaderValid() const { return m_bShaderPermutationValid; }
@@ -64,7 +67,8 @@ private:
   ezGALDepthStencilStateHandle m_hDepthStencilState;
   ezGALRasterizerStateHandle m_hRasterizerState;
 
-  ezUInt8 m_uiStencilRef = 0;
+  ezUInt8 m_uiShaderStencilRef = 0;
+  bool m_bUseUserStencilRef = false;
 
   ezHybridArray<ezPermutationVar, 16> m_PermutationVars;
 };
