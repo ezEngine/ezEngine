@@ -14,7 +14,7 @@ o
 			s{"Shaders/Materials/DefaultMaterial.ezShader"}
 		}
 		Uuid %DocumentID{u4{6729189396476153997,4946653575954533639}}
-		u4 %Hash{10606300499156191014}
+		u4 %Hash{9732913410344660981}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -57,7 +57,7 @@ o
 		f %RoughnessValue{0x3333333F}
 		s %SHADING_MODE{"SHADING_MODE::SHADING_MODE_FULLBRIGHT"}
 		b %TWO_SIDED{0}
-		b %UseBaseTexture{1}
+		b %UseBaseTexture{0}
 		b %UseEmissiveTexture{0}
 		b %UseMetallicTexture{0}
 		b %UseNormalTexture{0}

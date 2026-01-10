@@ -323,6 +323,8 @@ void ezEditorProcessorProcess::EventHandlerIPC(const ezProcessCommunicationChann
     m_Status = pMsg->m_Status;
     m_State = State::ReportResult;
     m_LogEntries.Swap(pMsg->m_LogEntries);
+    m_TransformDependencies.Swap(pMsg->m_TransformDependencies);
+    m_ThumbnailDependencies.Swap(pMsg->m_ThumbnailDependencies);
   }
 }
 
@@ -480,6 +482,8 @@ bool ezEditorProcessorProcess::Tick(bool bStartNewWork)
         }
         m_LogEntries.Clear();
         m_TransitiveHull.Clear();
+        m_TransformDependencies.Clear();
+        m_ThumbnailDependencies.Clear();
         m_Status = ezStatus(EZ_SUCCESS);
         {
           auto pCurator = ezAssetCurator::GetSingleton();
@@ -609,6 +613,24 @@ bool ezEditorProcessorProcess::Tick(bool bStartNewWork)
       break;
       case State::ReportResult:
       {
+        //
+        if (!m_TransformDependencies.IsEmpty())
+        {
+          ezMap<ezString, ezUInt64> TransformDependencies;
+          ezMap<ezString, ezUInt64> ThumbnailDependencies;
+          {
+            ezSet<ezString> dependencies;
+            ezAssetCurator::GetSingleton()->GenerateTransitiveHull(m_AssetPath.GetAbsolutePath(), dependencies, true, false, false);
+            ezAssetCurator::GetSingleton()->GenerateSettingsHashMap(dependencies, TransformDependencies);
+
+            dependencies.Clear();
+            ezAssetCurator::GetSingleton()->GenerateTransitiveHull(m_AssetPath.GetAbsolutePath(), dependencies, false, true, false);
+            ezAssetCurator::GetSingleton()->GenerateSettingsHashMap(dependencies, ThumbnailDependencies);
+          }
+          // TODO: Compare m_TransformDependencies with TransformDependencies as well as m_ThumbnailDependencies with ThumbnailDependencies. Put any missmatches into the m_LogEntries as warnings.
+    
+        }
+
         // Fire progress event for processing finished
         {
           ezAssetProcessorProgressEvent e;

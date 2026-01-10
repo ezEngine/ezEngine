@@ -1,0 +1,17 @@
+{
+   ignore-memory-leak-scanning
+   Memcheck:Value8
+   ...
+   fun:_ZN15ezMemoryTracker15DumpMemoryLeaksEv
+}
+{
+   ignore-memory-leak-scanning
+   Memcheck:Cond
+   ...
+   fun:_ZN15ezMemoryTracker15DumpMemoryLeaksEv
+}
+{
+   ignore-memory-leak-scanning
+   Memcheck:Cond
+   fun:g_utf8_offset_to_pointer
+}

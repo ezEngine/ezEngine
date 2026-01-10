@@ -122,6 +122,14 @@ public:
           if ((uiAssetHash != pMsg->m_AssetHash) || (uiThumbHash != pMsg->m_ThumbHash) || (uiPackageHash != pMsg->m_PackageHash))
           {
             ezLog::Warning("Asset '{}' of state '{}' in processor with hashes '{}|{}|{}' differs from the state in the editor with hashes '{}|{}|{}'", pMsg->m_sAssetPath, (int)state, uiAssetHash, uiThumbHash, uiPackageHash, pMsg->m_AssetHash, pMsg->m_ThumbHash, pMsg->m_PackageHash);
+
+            ezSet<ezString> dependencies;
+            ezAssetCurator::GetSingleton()->GenerateTransitiveHull(pMsg->m_sAssetPath, dependencies, true, false, false);
+            ezAssetCurator::GetSingleton()->GenerateSettingsHashMap(dependencies, msg.m_TransformDependencies);
+
+            dependencies.Clear();
+            ezAssetCurator::GetSingleton()->GenerateTransitiveHull(pMsg->m_sAssetPath, dependencies, false, true, false);
+            ezAssetCurator::GetSingleton()->GenerateSettingsHashMap(dependencies, msg.m_ThumbnailDependencies);
           }
 
           if (state == ezAssetInfo::NeedsThumbnail || state == ezAssetInfo::NeedsTransform)

@@ -27,6 +27,8 @@ class EZ_EDITORFRAMEWORK_DLL ezProcessAssetResponseMsg : public ezProcessMessage
 public:
   ezTransformStatus m_Status;
   mutable ezDynamicArray<ezLogEntry> m_LogEntries;
+  mutable ezMap<ezString, ezUInt64> m_TransformDependencies;
+  mutable ezMap<ezString, ezUInt64> m_ThumbnailDependencies;
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezFreeAllResourcesMsg : public ezProcessMessage

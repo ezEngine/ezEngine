@@ -122,6 +122,9 @@ private:
   ezTransformStatus m_Status;
   ezDynamicArray<ezLogEntry> m_LogEntries;
   ezDynamicArray<ezString> m_TransitiveHull;
+
+  ezMap<ezString, ezUInt64> m_TransformDependencies;
+  ezMap<ezString, ezUInt64> m_ThumbnailDependencies;
 };
 
 /// \brief Background asset processing is handled by this class.

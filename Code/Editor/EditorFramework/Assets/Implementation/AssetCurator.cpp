@@ -1276,6 +1276,31 @@ void ezAssetCurator::GenerateTransitiveHull(const ezStringView sAssetOrPath, ezS
   }
 }
 
+void ezAssetCurator::GenerateSettingsHashMap(const ezSet<ezString>& deps, ezMap<ezString, ezUInt64>& out_SettingsHashMap) const
+{
+  EZ_LOCK(m_CuratorMutex);
+
+  for (const ezString& sDepOrRef : deps)
+  {
+    ezUInt64 uiAssetHash = 0;
+    if (ezConversionUtils::IsStringUuid(sDepOrRef))
+    {
+      auto it = m_KnownAssets.Find(ezConversionUtils::ConvertStringToUuid(sDepOrRef));
+      if (it.IsValid())
+      {
+        uiAssetHash = it.Value()->m_Info->m_uiSettingsHash;
+      }
+    }
+    else
+    {
+      ezFileStatus fileStatus;
+      ezResult res = ezFileSystemModel::GetSingleton()->HashFile(sDepOrRef, fileStatus);
+      uiAssetHash = res.Failed() ? 1 : fileStatus.m_uiHash;
+    }
+    out_SettingsHashMap.Insert(sDepOrRef, uiAssetHash);
+  }
+}
+
 void ezAssetCurator::GenerateInverseTransitiveHull(const ezAssetInfo* pAssetInfo, ezSet<ezUuid>& inout_inverseDeps, bool bIncludeTransformDebs, bool bIncludeThumbnailDebs) const
 {
   EZ_LOCK(m_CuratorMutex);

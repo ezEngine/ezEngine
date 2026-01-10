@@ -61,7 +61,7 @@ private:
 
   // Perform comparison either with "Less(a,b)" (prefered) or with operator ()(a,b)
   template <typename Element, typename Comparer>
-  EZ_ALWAYS_INLINE constexpr static auto DoCompare(const Comparer& comparer, const Element& a, const Element& b, int) -> decltype(comparer.Less(a, b))
+  __attribute__((noinline)) constexpr static auto DoCompare(const Comparer& comparer, const Element& a, const Element& b, int) -> decltype(comparer.Less(a, b))
   {
     return comparer.Less(a, b);
   }

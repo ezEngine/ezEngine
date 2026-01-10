@@ -579,6 +579,7 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
       m_pGALCommandEncoder->SetGraphicsPipeline(ezGALPipelineCache::GetPipeline(m_GraphicsPipeline));
     else if (m_bCompute)
       m_pGALCommandEncoder->SetComputePipeline(ezGALPipelineCache::GetPipeline(m_ComputePipeline));
+
   }
 
   if (m_pActiveGALShader)

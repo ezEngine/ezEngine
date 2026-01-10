@@ -25,6 +25,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcessAssetResponseMsg, 1, ezRTTIDefaultAlloc
   {
     EZ_MEMBER_PROPERTY("Status", m_Status),
     EZ_ARRAY_MEMBER_PROPERTY("LogEntries", m_LogEntries),
+    EZ_MAP_MEMBER_PROPERTY("TransformDependencies", m_TransformDependencies),
+    EZ_MAP_MEMBER_PROPERTY("ThumbnailDependencies", m_ThumbnailDependencies),
   }
   EZ_END_PROPERTIES;
 }

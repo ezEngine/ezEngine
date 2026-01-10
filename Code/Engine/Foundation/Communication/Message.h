@@ -85,7 +85,7 @@ public:
 protected:
   EZ_ALWAYS_INLINE static ezMessageId GetNextMsgId() { return s_NextMsgId++; }
 
-  ezMessageId m_Id;
+  ezMessageId m_Id = 0;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   ezUInt16 m_uiSize : 15;

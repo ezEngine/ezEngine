@@ -1041,7 +1041,7 @@ class ezVariantSynthProvider:
             ezVariantSynthProvider.variantTargetTypeMap["Matrix3"] = "ezMat3"
             ezVariantSynthProvider.variantTargetTypeMap["Matrix4"] = "ezMat4"
             ezVariantSynthProvider.variantTargetTypeMap["Transform"] = "ezTransform"
-            ezVariantSynthProvider.variantTargetTypeMap["String"] = "ezString"
+            ezVariantSynthProvider.variantTargetTypeMap["String"] = "ezHybridString<32, ezDefaultAllocatorWrapper>"
             ezVariantSynthProvider.variantTargetTypeMap["StringView"] = "ezStringView"
             ezVariantSynthProvider.variantTargetTypeMap["DataBuffer"] = "ezDataBuffer"
             ezVariantSynthProvider.variantTargetTypeMap["Time"] = "ezTime"
@@ -1050,7 +1050,7 @@ class ezVariantSynthProvider:
             ezVariantSynthProvider.variantTargetTypeMap["ColorGamma"] = "ezColorGammaUB"
             ezVariantSynthProvider.variantTargetTypeMap["HashedString"] = "ezHashedString"
             ezVariantSynthProvider.variantTargetTypeMap["TempHashedString"] = "ezTempHashedString"
-            ezVariantSynthProvider.variantTargetTypeMap["VariantArray"] = "ezVariantArray"
+            ezVariantSynthProvider.variantTargetTypeMap["VariantArray"] = "ezDynamicArray<ezVariant, ezDefaultAllocatorWrapper>"
             ezVariantSynthProvider.variantTargetTypeMap["VariantDictionary"] = "ezVariantDictionary"
             ezVariantSynthProvider.variantTargetTypeMap["TypedPointer"] = "ezTypedPointer"
 
