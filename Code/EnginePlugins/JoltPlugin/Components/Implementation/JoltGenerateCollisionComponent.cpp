@@ -10,6 +10,7 @@
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <RendererCore/Components/SplineComponent.h>
+#include <RendererCore/Meshes/CpuMeshResource.h>
 #include <RendererCore/Meshes/SplineMeshComponent.h>
 
 class SplineCollisionGenerationTask : public ezTask
@@ -191,8 +192,8 @@ void ezJoltGenerateCollisionComponent::SerializeComponent(ezWorldWriter& inout_s
   SUPER::SerializeComponent(inout_stream);
   auto& s = inout_stream.GetStream();
 
-  s.WriteArray(m_MeshMappings);
-  s << m_Uuid;
+  s.WriteArray(m_MeshMappings).IgnoreResult();
+  s << m_uiStableId;
 }
 
 void ezJoltGenerateCollisionComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -201,8 +202,8 @@ void ezJoltGenerateCollisionComponent::DeserializeComponent(ezWorldReader& inout
   // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
-  s.ReadArray(m_MeshMappings);
-  s >> m_Uuid;
+  s.ReadArray(m_MeshMappings).IgnoreResult();
+  s >> m_uiStableId;
 }
 
 void ezJoltGenerateCollisionComponent::OnDeactivated()
@@ -247,7 +248,7 @@ ezCpuMeshResourceHandle ezJoltGenerateCollisionComponent::GetCollisionCpuMeshFor
 
 void ezJoltGenerateCollisionComponent::OnObjectCreated(const ezAbstractObjectNode& node)
 {
-  m_Uuid = node.GetGuid();
+  m_uiStableId = ezHashingUtils::xxHash64(&node.GetGuid(), sizeof(ezUuid));
 }
 
 void ezJoltGenerateCollisionComponent::OnMsgGenerateSplineMeshCollision(ezMsgGenerateSplineMeshCollision& ref_msg)
@@ -260,9 +261,11 @@ void ezJoltGenerateCollisionComponent::OnMsgGenerateSplineMeshCollision(ezMsgGen
   if (!GetWorld()->TryGetComponent(ref_msg.m_hSplineComponent, pSplineComponent))
     return;
 
+  const ezUInt64 uiStableSplineId = ezHashingUtils::xxHash64(&pSplineComponent->GetUuid(), sizeof(ezUuid));
+
   ezStringBuilder sb;
-  sb.SetFormat(":project/AssetCache/Generated/GenCol_{}_{}.ezJoltMesh", m_Uuid, pSplineComponent->GetUuid());
-  m_sCollisionMeshPath = sb;
+  sb.SetFormat(":project/AssetCache/Generated/GenCol_{}_{}.ezJoltMesh", ezArgU(m_uiStableId, 16, true, 16, true), ezArgU(uiStableSplineId, 16, true, 16, true));
+  m_sCollisionMeshPath.Assign(sb);
 
   ezHybridArray<ezCpuMeshResourceHandle, 16> cpuMeshes;
   ezHybridArray<ezVec2, 16> scaleOffsets;

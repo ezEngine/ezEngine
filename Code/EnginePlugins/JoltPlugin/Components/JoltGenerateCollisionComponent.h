@@ -8,6 +8,7 @@
 struct ezMsgGenerateSplineMeshCollision;
 struct ezMsgComponentInternalTrigger;
 class ezAbstractObjectNode;
+using ezMeshResourceHandle = ezTypedResourceHandle<class ezMeshResource>;
 
 struct EZ_JOLTPLUGIN_DLL ezJoltMeshMapping
 {
@@ -51,20 +52,20 @@ public:
   ezJoltGenerateCollisionComponent();
   ~ezJoltGenerateCollisionComponent();
 
-  ezArrayPtr<const ezJoltMeshMapping> GetMeshMappings() const { return m_MeshMappings; } // [ property ]
+  ezArrayPtr<const ezJoltMeshMapping> GetMeshMappings() const { return m_MeshMappings; }                         // [ property ]
 
 private:
-  ezUInt32 Reflection_GetMeshMappingCount() const { return m_MeshMappings.GetCount(); }
-  const ezJoltMeshMapping& Reflection_GetMeshMapping(ezUInt32 uiIndex) const { return m_MeshMappings[uiIndex]; }
-  void Reflection_SetMeshMapping(ezUInt32 uiIndex, const ezJoltMeshMapping& mapping);
-  void Reflection_InsertMeshMapping(ezUInt32 uiIndex, const ezJoltMeshMapping& mapping);
-  void Reflection_RemoveMeshMapping(ezUInt32 uiIndex);
+  ezUInt32 Reflection_GetMeshMappingCount() const { return m_MeshMappings.GetCount(); }                          // [ property ]
+  const ezJoltMeshMapping& Reflection_GetMeshMapping(ezUInt32 uiIndex) const { return m_MeshMappings[uiIndex]; } // [ property ]
+  void Reflection_SetMeshMapping(ezUInt32 uiIndex, const ezJoltMeshMapping& mapping);                            // [ property ]
+  void Reflection_InsertMeshMapping(ezUInt32 uiIndex, const ezJoltMeshMapping& mapping);                         // [ property ]
+  void Reflection_RemoveMeshMapping(ezUInt32 uiIndex);                                                           // [ property ]
 
   ezCpuMeshResourceHandle GetCollisionCpuMeshForRenderMesh(ezMeshResourceHandle hRenderMesh) const;
 
   void OnObjectCreated(const ezAbstractObjectNode& node);
-  void OnMsgGenerateSplineMeshCollision(ezMsgGenerateSplineMeshCollision& ref_msg);
-  void OnMsgComponentInternalTrigger(ezMsgComponentInternalTrigger& ref_msg);
+  void OnMsgGenerateSplineMeshCollision(ezMsgGenerateSplineMeshCollision& ref_msg); // [ msg handler ]
+  void OnMsgComponentInternalTrigger(ezMsgComponentInternalTrigger& ref_msg);       // [ msg handler ]
 
   void StartGenerateTask(ezSharedPtr<ezTask>&& pTask);
 
@@ -73,8 +74,8 @@ private:
 
   ezSmallArray<ezJoltMeshMapping, 1> m_MeshMappings;
 
-  ezUuid m_Uuid;
-  ezString m_sCollisionMeshPath;
+  ezUInt64 m_uiStableId = 0;
+  ezHashedString m_sCollisionMeshPath;
 
   ezSharedPtr<ezTask> m_pGenerationTask;
   ezSharedPtr<ezTask> m_pNextGenerationTask;
