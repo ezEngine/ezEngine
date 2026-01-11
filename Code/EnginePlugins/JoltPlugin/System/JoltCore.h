@@ -63,7 +63,7 @@ private:
   static ezUniquePtr<ezProxyAllocator> s_pAllocator;
   static ezUniquePtr<ezProxyAllocator> s_pAllocatorAligned;
 
-  static ezUniquePtr<ezCollisionFilterConfig> s_CollisionFilterConfig;
-  static ezUniquePtr<ezWeightCategoryConfig> s_WeightCategoryConfig;
-  static ezUniquePtr<ezImpulseTypeConfig> s_ImpulseTypeConfig;
+  static ezUniquePtr<ezCollisionFilterConfig> s_pCollisionFilterConfig;
+  static ezUniquePtr<ezWeightCategoryConfig> s_pWeightCategoryConfig;
+  static ezUniquePtr<ezImpulseTypeConfig> s_pImpulseTypeConfig;
 };
