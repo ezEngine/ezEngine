@@ -194,5 +194,5 @@ struct ezEditorProcessorState
 
   ezOsProcessID m_uiProcessID = 0;
   bool m_bConnected = false; ///< The IPC pipe to the process is established.
-  bool m_bRunning = false; ///< The process is currently running working on an asset.
+  bool m_bRunning = false;   ///< The process is currently running working on an asset.
 };

@@ -31,8 +31,8 @@ public:
   // If the fields below are used, the ezEditorProcessor detected a hash missmatch between the editor and its own state. It will send over its own state so the editor can detect differences. See ezEditorProcessorProcess::HandleHashMissmatch.
   mutable ezMap<ezString, ezUInt64> m_MissmatchTransformDependencies; ///< Hashes of all transform dependencies.
   mutable ezMap<ezString, ezUInt64> m_MissmatchThumbnailDependencies; ///< Hashes of all thumbnail dependencies.
-  ezUInt64 m_MissmatchAssetHash = 0; ///< Transform hash observed by the ezEditorProcessor.
-  ezUInt64 m_MissmatchThumbHash = 0; ///< Thumbnail hash observed by the ezEditorProcessor.
+  ezUInt64 m_MissmatchAssetHash = 0;                                  ///< Transform hash observed by the ezEditorProcessor.
+  ezUInt64 m_MissmatchThumbHash = 0;                                  ///< Thumbnail hash observed by the ezEditorProcessor.
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezFreeAllResourcesMsg : public ezProcessMessage

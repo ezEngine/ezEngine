@@ -252,7 +252,7 @@ void ezAssetProcessor::Run()
     m_bForceStop = false;
   }
 
-  for (ezUInt8 uiProcessId = 0 ; uiProcessId < uiProcesses; uiProcessId++)
+  for (ezUInt8 uiProcessId = 0; uiProcessId < uiProcesses; uiProcessId++)
   {
     ezAssetProcessorEvent e;
     e.m_Type = ezAssetProcessorEvent::Type::ProcessStateChanged;

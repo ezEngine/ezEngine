@@ -34,12 +34,12 @@ struct ezAssetProcessorEvent
   enum class Type
   {
     AssetProcessorStateChanged, ///< ezAssetProcessor::GetProcessorState changed
-    ProcessStateChanged, ///< ezAssetProcessor::GetProcessState changed
+    ProcessStateChanged,        ///< ezAssetProcessor::GetProcessState changed
   };
 
   Type m_Type;
   ezUInt8 m_uiProcessCount = 0; ///< Total number of processes. Only valid if ProcessorStateChanged.
-  ezUInt8 m_uiProcessorID = 0; ///< The changed process index. Only valid if ProcessStateChanged.
+  ezUInt8 m_uiProcessorID = 0;  ///< The changed process index. Only valid if ProcessStateChanged.
 };
 
 /// \brief Event type used by ezAssetProcessor::m_ProgressEvents

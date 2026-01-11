@@ -2,8 +2,8 @@
 
 #include <EditorFramework/EditorFrameworkDLL.h>
 
-#include <Foundation/System/Process.h>
 #include <EditorEngineProcessFramework/IPC/ProcessCommunicationChannel.h>
+#include <Foundation/System/Process.h>
 
 template <typename T>
 class QList;
