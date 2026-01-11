@@ -136,7 +136,9 @@ void ezQtAssetProcessorProgressWidget::HistoryState::OnProcessorEvent(const ezAs
   }
   else if (e.m_Type == ezAssetProcessorEvent::Type::ProcessStateChanged)
   {
-    QMetaObject::invokeMethod(m_pParent, &ezQtAssetProcessorProgressWidget::OnProcessStateChanged, Qt::QueuedConnection, e.m_uiProcessorID);
+    const ezUInt8 uiProcId = e.m_uiProcessorID;
+    QMetaObject::invokeMethod(m_pParent, [p = m_pParent, uiProcId]()
+      { p->OnProcessStateChanged(uiProcId); }, Qt::QueuedConnection);
   }
 }
 
