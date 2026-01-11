@@ -129,6 +129,15 @@ ezString ezEditorProcessCommunicationChannel::GetStdoutContents()
   return ezString();
 }
 
+ezOsProcessID ezEditorProcessCommunicationChannel::GetProcessId() const
+{
+  if (m_pClientProcess && m_pClientProcess->state() != QProcess::NotRunning)
+  {
+    return static_cast<ezOsProcessID>(m_pClientProcess->processId());
+  }
+  return {};
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 ezResult ezEditorProcessRemoteCommunicationChannel::ConnectToServer(const char* szAddress)

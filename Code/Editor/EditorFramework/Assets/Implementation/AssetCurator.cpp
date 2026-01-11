@@ -205,7 +205,7 @@ void ezAssetCurator::Deinitialize()
   SaveAssetProfiles().IgnoreResult();
 
   ShutdownUpdateTask();
-  ezAssetProcessor::GetSingleton()->StopProcessTask(true);
+  ezAssetProcessor::GetSingleton()->StopProcessor(true);
   ezFileSystemModel* pFiles = ezFileSystemModel::GetSingleton();
   ezFileSystemModel::FilesMap referencedFiles;
   ezFileSystemModel::FoldersMap referencedFolders;
@@ -775,7 +775,7 @@ const ezAssetCurator::ezLockedAssetTable ezAssetCurator::GetKnownAssets() const
   return ezLockedAssetTable(m_CuratorMutex, &m_KnownAssets);
 }
 
-ezUInt64 ezAssetCurator::GetAssetDependencyHash(ezUuid assetGuid)
+ezUInt64 ezAssetCurator::GetAssetTransformHash(ezUuid assetGuid)
 {
   ezUInt64 assetHash = 0;
   ezUInt64 thumbHash = 0;
@@ -784,7 +784,7 @@ ezUInt64 ezAssetCurator::GetAssetDependencyHash(ezUuid assetGuid)
   return assetHash;
 }
 
-ezUInt64 ezAssetCurator::GetAssetReferenceHash(ezUuid assetGuid)
+ezUInt64 ezAssetCurator::GetAssetThumbnailHash(ezUuid assetGuid)
 {
   ezUInt64 assetHash = 0;
   ezUInt64 packageHash = 0;
@@ -1232,7 +1232,7 @@ void ezAssetCurator::CheckFileSystem()
   ezLog::Debug("Asset Curator Refresh Time: {0} ms", ezArgF(sw.GetRunningTotal().GetMilliseconds(), 3));
 }
 
-void ezAssetCurator::NeedsReloadResources(const ezUuid& assetGuid)
+void ezAssetCurator::NeedsReloadResources(const ezUuid& assetGuid) const
 {
   if (m_pAssetTableWriter)
   {
@@ -1249,13 +1249,32 @@ void ezAssetCurator::NeedsReloadResources(const ezUuid& assetGuid)
   }
 }
 
-void ezAssetCurator::GenerateTransitiveHull(const ezStringView sAssetOrPath, ezSet<ezString>& inout_deps, bool bIncludeTransformDeps, bool bIncludeThumbnailDeps, bool bIncludePackageDeps) const
+void ezAssetCurator::GenerateTransitiveHull(const ezStringView sAssetOrPath, ezSet<ezString>& inout_deps, ezBitflags<ezDependencyFlags> dependencyTypes) const
 {
   EZ_LOCK(m_CuratorMutex);
 
   ezHybridArray<ezString, 6> toDoList;
-  inout_deps.Insert(sAssetOrPath);
-  toDoList.PushBack(sAssetOrPath);
+  if (ezConversionUtils::IsStringUuid(sAssetOrPath))
+  {
+    inout_deps.Insert(sAssetOrPath);
+    toDoList.PushBack(sAssetOrPath);
+  }
+  else
+  {
+    auto subAsset = FindSubAsset(sAssetOrPath);
+    if (subAsset.isValid())
+    {
+      ezStringBuilder sTmp;
+      ezConversionUtils::ToString(subAsset->m_pAssetInfo->m_Info->m_DocumentID, sTmp);
+      inout_deps.Insert(sTmp);
+      toDoList.PushBack(sTmp);
+    }
+    else
+    {
+      inout_deps.Insert(sAssetOrPath);
+      toDoList.PushBack(sAssetOrPath);
+    }
+  }
 
   while (!toDoList.IsEmpty())
   {
@@ -1267,7 +1286,7 @@ void ezAssetCurator::GenerateTransitiveHull(const ezStringView sAssetOrPath, ezS
       auto it = m_KnownSubAssets.Find(ezConversionUtils::ConvertStringToUuid(currentAsset));
       ezAssetInfo* pAssetInfo = it.Value().m_pAssetInfo;
 
-      if (bIncludeTransformDeps)
+      if (dependencyTypes.IsSet(ezDependencyFlags::Transform))
       {
         for (const ezString& dep : pAssetInfo->m_Info->m_TransformDependencies)
         {
@@ -1278,7 +1297,7 @@ void ezAssetCurator::GenerateTransitiveHull(const ezStringView sAssetOrPath, ezS
           }
         }
       }
-      if (bIncludeThumbnailDeps)
+      if (dependencyTypes.IsSet(ezDependencyFlags::Thumbnail))
       {
         for (const ezString& dep : pAssetInfo->m_Info->m_ThumbnailDependencies)
         {
@@ -1289,7 +1308,7 @@ void ezAssetCurator::GenerateTransitiveHull(const ezStringView sAssetOrPath, ezS
           }
         }
       }
-      if (bIncludePackageDeps)
+      if (dependencyTypes.IsSet(ezDependencyFlags::Package))
       {
         for (const ezString& dep : pAssetInfo->m_Info->m_PackageDependencies)
         {
@@ -1301,6 +1320,55 @@ void ezAssetCurator::GenerateTransitiveHull(const ezStringView sAssetOrPath, ezS
         }
       }
     }
+  }
+}
+
+void ezAssetCurator::GenerateSettingsHashMap(const ezSet<ezString>& deps, ezBitflags<ezDependencyFlags> dependencyType, ezMap<ezString, ezUInt64>& out_SettingsHashMap) const
+{
+  EZ_LOCK(m_CuratorMutex);
+
+  for (const ezString& sDepOrRef : deps)
+  {
+    ezUInt64 uiAssetHash = 0;
+    if (ezConversionUtils::IsStringUuid(sDepOrRef))
+    {
+      auto it = m_KnownAssets.Find(ezConversionUtils::ConvertStringToUuid(sDepOrRef));
+      if (it.IsValid())
+      {
+        for (ezDependencyFlags::Enum dep : dependencyType)
+        {
+          switch (dep)
+          {
+            case ezDependencyFlags::Thumbnail:
+              uiAssetHash = it.Value()->m_ThumbHash;
+              break;
+            case ezDependencyFlags::Transform:
+              uiAssetHash = it.Value()->m_AssetHash;
+              break;
+            case ezDependencyFlags::Package:
+              uiAssetHash = it.Value()->m_PackageHash;
+              break;
+            default:
+              break;
+          }
+        }
+      }
+    }
+    else
+    {
+      ezStringBuilder sTmp = sDepOrRef;
+      if (ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sTmp))
+      {
+        ezFileStatus fileStatus;
+        ezResult res = ezFileSystemModel::GetSingleton()->HashFile(sTmp, fileStatus);
+        uiAssetHash = res.Failed() ? 1 : fileStatus.m_uiHash;
+      }
+      else
+      {
+        uiAssetHash = 2;
+      }
+    }
+    out_SettingsHashMap.Insert(sDepOrRef, uiAssetHash);
   }
 }
 
@@ -1365,7 +1433,7 @@ void ezAssetCurator::WriteDependencyDGML(const ezUuid& guid, ezStringView sOutpu
 
   ezSet<ezString> deps;
   ezStringBuilder sTemp;
-  GenerateTransitiveHull(ezConversionUtils::ToString(guid, sTemp), deps, true, true);
+  GenerateTransitiveHull(ezConversionUtils::ToString(guid, sTemp), deps, ezDependencyFlags::Transform | ezDependencyFlags::Thumbnail);
 
   ezHashTable<ezString, ezUInt32> nodeMap;
   nodeMap.Reserve(deps.GetCount());
@@ -2223,12 +2291,12 @@ void ezAssetCurator::SaveCaches(const ezFileSystemModel::FilesMap& referencedFil
 
 void ezAssetCurator::ClearAssetCaches(ezAssetDocumentManager::OutputReliability threshold)
 {
-  const bool bWasRunning = ezAssetProcessor::GetSingleton()->GetProcessTaskState() == ezAssetProcessor::ProcessTaskState::Running;
+  const bool bWasRunning = ezAssetProcessor::GetSingleton()->GetProcessorState() == ezAssetProcessor::ProcessorState::Running;
 
   if (bWasRunning)
   {
     // pause background asset processing while we delete files
-    ezAssetProcessor::GetSingleton()->StopProcessTask(true);
+    ezAssetProcessor::GetSingleton()->StopProcessor(true);
   }
 
   {
@@ -2295,6 +2363,6 @@ void ezAssetCurator::ClearAssetCaches(ezAssetDocumentManager::OutputReliability 
   if (bWasRunning)
   {
     // restart background asset processing
-    ezAssetProcessor::GetSingleton()->StartProcessTask();
+    ezAssetProcessor::GetSingleton()->StartProcessor();
   }
 }

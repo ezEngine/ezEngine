@@ -356,7 +356,7 @@ void ezQtCurve1DAssetDocumentWindow::SendLiveResourcePreview()
 
   // Write Header
   memoryWriter << sAbsFilePath;
-  const ezUInt64 uiHash = ezAssetCurator::GetSingleton()->GetAssetDependencyHash(pDoc->GetGuid());
+  const ezUInt64 uiHash = ezAssetCurator::GetSingleton()->GetAssetTransformHash(pDoc->GetGuid());
   ezAssetFileHeader AssetHeader;
   AssetHeader.SetFileHashAndVersion(uiHash, pDoc->GetAssetTypeVersion());
   AssetHeader.Write(memoryWriter).IgnoreResult();

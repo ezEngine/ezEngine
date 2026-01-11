@@ -110,18 +110,18 @@ void ezQtCuratorControl::mouseReleaseEvent(QMouseEvent* e)
 
 void ezQtCuratorControl::UpdateBackgroundProcessState()
 {
-  ezAssetProcessor::ProcessTaskState state = ezAssetProcessor::GetSingleton()->GetProcessTaskState();
+  ezAssetProcessor::ProcessorState state = ezAssetProcessor::GetSingleton()->GetProcessorState();
   switch (state)
   {
-    case ezAssetProcessor::ProcessTaskState::Stopped:
+    case ezAssetProcessor::ProcessorState::Stopped:
       m_pBackgroundProcess->setToolTip("Start background asset processing");
       m_pBackgroundProcess->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetProcessingStart.svg"));
       break;
-    case ezAssetProcessor::ProcessTaskState::Running:
+    case ezAssetProcessor::ProcessorState::Running:
       m_pBackgroundProcess->setToolTip("Stop background asset processing");
       m_pBackgroundProcess->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetProcessingPause.svg"));
       break;
-    case ezAssetProcessor::ProcessTaskState::Stopping:
+    case ezAssetProcessor::ProcessorState::Stopping:
       m_pBackgroundProcess->setToolTip("Force stop background asset processing");
       m_pBackgroundProcess->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetProcessingForceStop.svg"));
       break;
@@ -130,22 +130,22 @@ void ezQtCuratorControl::UpdateBackgroundProcessState()
   }
 
   m_pBackgroundProcess->setCheckable(true);
-  m_pBackgroundProcess->setChecked(state == ezAssetProcessor::ProcessTaskState::Running);
+  m_pBackgroundProcess->setChecked(state == ezAssetProcessor::ProcessorState::Running);
 }
 
 void ezQtCuratorControl::BackgroundProcessClicked(bool checked)
 {
-  ezAssetProcessor::ProcessTaskState state = ezAssetProcessor::GetSingleton()->GetProcessTaskState();
+  ezAssetProcessor::ProcessorState state = ezAssetProcessor::GetSingleton()->GetProcessorState();
 
-  if (state == ezAssetProcessor::ProcessTaskState::Stopped)
+  if (state == ezAssetProcessor::ProcessorState::Stopped)
   {
     ezAssetCurator::GetSingleton()->CheckFileSystem();
-    ezAssetProcessor::GetSingleton()->StartProcessTask();
+    ezAssetProcessor::GetSingleton()->StartProcessor();
   }
   else
   {
-    bool bForce = state == ezAssetProcessor::ProcessTaskState::Stopping;
-    ezAssetProcessor::GetSingleton()->StopProcessTask(bForce);
+    bool bForce = state == ezAssetProcessor::ProcessorState::Stopping;
+    ezAssetProcessor::GetSingleton()->StopProcessor(bForce);
   }
 }
 
@@ -204,7 +204,7 @@ void ezQtCuratorControl::AssetProcessorEvents(const ezAssetProcessorEvent& e)
 {
   switch (e.m_Type)
   {
-    case ezAssetProcessorEvent::Type::ProcessTaskStateChanged:
+    case ezAssetProcessorEvent::Type::AssetProcessorStateChanged:
     {
       QMetaObject::invokeMethod(this, "UpdateBackgroundProcessState", Qt::QueuedConnection);
     }
