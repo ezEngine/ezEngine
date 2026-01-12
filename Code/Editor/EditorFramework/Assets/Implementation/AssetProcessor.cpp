@@ -341,8 +341,8 @@ void ezEditorProcessorProcess::EventHandlerIPC(const ezProcessCommunicationChann
     m_LogEntries.Swap(pMsg->m_LogEntries);
     m_MissmatchTransformDependencies.Swap(pMsg->m_MissmatchTransformDependencies);
     m_MissmatchThumbnailDependencies.Swap(pMsg->m_MissmatchThumbnailDependencies);
-    m_MissmatchAssetHash = pMsg->m_MissmatchAssetHash;
-    m_MissmatchThumbHash = pMsg->m_MissmatchThumbHash;
+    m_uiMissmatchAssetHash = pMsg->m_uiMissmatchAssetHash;
+    m_uiMissmatchThumbHash = pMsg->m_uiMissmatchThumbHash;
   }
 }
 
@@ -492,8 +492,8 @@ void ezEditorProcessorProcess::HandleHashMissmatch()
     {
       m_MissmatchTransformDependencies.Clear();
       m_MissmatchThumbnailDependencies.Clear();
-      m_MissmatchAssetHash = 0;
-      m_MissmatchThumbHash = 0;
+      m_uiMissmatchAssetHash = 0;
+      m_uiMissmatchThumbHash = 0;
     });
 
   ezUInt64 uiAssetHash = 0;
@@ -505,7 +505,7 @@ void ezEditorProcessorProcess::HandleHashMissmatch()
     // Check the asset hash again but force evaluation to detect cases where the file system watcher did not trigger.
     const ezUInt32 uiPlatform = ezAssetCurator::GetSingleton()->FindAssetProfileByName(m_sPlatform);
     ezAssetCurator::GetSingleton()->IsAssetUpToDate(m_AssetGuid, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform), nullptr, uiAssetHash, uiThumbHash, uiPackageHash, true);
-    if ((uiAssetHash == m_MissmatchAssetHash) || (uiThumbHash == m_MissmatchThumbHash))
+    if ((uiAssetHash == m_uiMissmatchAssetHash) || (uiThumbHash == m_uiMissmatchThumbHash))
     {
       // The newly computed hash now matches the one computed by the ezEditorProcessor.
       return;
@@ -594,8 +594,8 @@ bool ezEditorProcessorProcess::Tick(bool bStartNewWork)
         m_LogEntries.Clear();
         m_MissmatchTransformDependencies.Clear();
         m_MissmatchThumbnailDependencies.Clear();
-        m_MissmatchAssetHash = 0;
-        m_MissmatchThumbHash = 0;
+        m_uiMissmatchAssetHash = 0;
+        m_uiMissmatchThumbHash = 0;
         {
           auto pCurator = ezAssetCurator::GetSingleton();
 

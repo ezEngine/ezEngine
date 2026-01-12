@@ -681,8 +681,12 @@ void ezSubstancePackageAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInf
   // Dependencies
   {
     pInfo->m_TransformDependencies.Insert(pProp->m_sSubstancePackage);
+    pInfo->m_ThumbnailDependencies.Insert(pProp->m_sSubstancePackage);
 
-    ReadDependencies(pProp->m_sSubstancePackage, pInfo->m_TransformDependencies).IgnoreResult();
+    ezSet<ezString> dependencies;
+    ReadDependencies(pProp->m_sSubstancePackage, dependencies).IgnoreResult();
+    pInfo->m_TransformDependencies.Union(dependencies);
+    pInfo->m_ThumbnailDependencies.Union(dependencies);
   }
 
   // Outputs

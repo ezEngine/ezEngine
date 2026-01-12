@@ -1323,7 +1323,7 @@ void ezAssetCurator::GenerateTransitiveHull(const ezStringView sAssetOrPath, ezS
   }
 }
 
-void ezAssetCurator::GenerateSettingsHashMap(const ezSet<ezString>& deps, ezBitflags<ezDependencyFlags> dependencyType, ezMap<ezString, ezUInt64>& out_SettingsHashMap) const
+void ezAssetCurator::GenerateSettingsHashMap(const ezSet<ezString>& deps, ezBitflags<ezDependencyFlags> dependencyType, ezMap<ezString, ezUInt64>& out_settingsHashMap) const
 {
   EZ_LOCK(m_CuratorMutex);
 
@@ -1368,7 +1368,7 @@ void ezAssetCurator::GenerateSettingsHashMap(const ezSet<ezString>& deps, ezBitf
         uiAssetHash = 2;
       }
     }
-    out_SettingsHashMap.Insert(sDepOrRef, uiAssetHash);
+    out_settingsHashMap.Insert(sDepOrRef, uiAssetHash);
   }
 }
 

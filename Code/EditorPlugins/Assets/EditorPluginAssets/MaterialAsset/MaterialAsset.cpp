@@ -909,6 +909,7 @@ void ezMaterialAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo
     for (const auto& sCfgFile : cfgFiles)
     {
       pInfo->m_TransformDependencies.Insert(sCfgFile);
+      pInfo->m_ThumbnailDependencies.Insert(sCfgFile);
     }
 
     pInfo->m_Outputs.Insert(ezMaterialAssetDocumentManager::s_szShaderOutputTag);

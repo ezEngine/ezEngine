@@ -122,8 +122,8 @@ public:
           if ((uiAssetHash != pMsg->m_AssetHash) || (uiThumbHash != pMsg->m_ThumbHash))
           {
             ezLog::Warning("Asset '{}' of state '{}' in processor with hashes '{}|{}' differs from the state in the editor with hashes '{}|{}'", pMsg->m_sAssetPath, (int)state, uiAssetHash, uiThumbHash, pMsg->m_AssetHash, pMsg->m_ThumbHash);
-            msg.m_MissmatchAssetHash = uiAssetHash;
-            msg.m_MissmatchThumbHash = uiThumbHash;
+            msg.m_uiMissmatchAssetHash = uiAssetHash;
+            msg.m_uiMissmatchThumbHash = uiThumbHash;
 
             ezSet<ezString> dependencies;
             ezAssetCurator::GetSingleton()->GenerateTransitiveHull(pMsg->m_sAssetPath, dependencies, ezDependencyFlags::Transform);

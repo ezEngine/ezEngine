@@ -273,7 +273,11 @@ void ezScene2Document::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
   for (auto it = m_Layers.GetIterator(); it.IsValid(); ++it)
   {
     if (it.Key() != this->GetDocumentInfo()->m_DocumentID)
-      pInfo->m_TransformDependencies.Insert(ezConversionUtils::ToString(it.Key(), sTemp));
+    {
+      ezConversionUtils::ToString(it.Key(), sTemp);
+      pInfo->m_TransformDependencies.Insert(sTemp);
+      pInfo->m_ThumbnailDependencies.Insert(sTemp);
+    }
   }
 }
 

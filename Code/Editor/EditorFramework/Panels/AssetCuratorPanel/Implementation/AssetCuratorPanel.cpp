@@ -83,6 +83,7 @@ ezQtAssetCuratorPanel::ezQtAssetCuratorPanel(ads::CDockManager* pDockManager)
   ezAssetProcessor::GetSingleton()->AddLogWriter(ezMakeDelegate(&ezQtAssetCuratorPanel::LogWriter, this));
 
   ProcessorProgress->SetGridBarWidget(ProcessorProgressGridBar);
+  ProcessorProgress->SetScrollBarWidget(ProcessorScrollBar);
 
   m_pFilter = new ezQtAssetCuratorFilter(this);
   m_Model = QSharedPointer<ezQtAssetBrowserModel>(new ezQtAssetBrowserModel(this, m_pFilter));

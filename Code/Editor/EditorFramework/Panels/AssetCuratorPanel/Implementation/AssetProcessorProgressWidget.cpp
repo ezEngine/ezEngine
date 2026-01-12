@@ -142,7 +142,7 @@ void ezQtAssetProcessorProgressWidget::HistoryState::OnProcessorEvent(const ezAs
   }
 }
 
-const ezQtAssetProcessorProgressWidget::ProcessorTask* ezQtAssetProcessorProgressWidget::HistoryState::FindTaskAtTime(ezUInt32 uiProcessorID, double pointInTime) const
+const ezQtAssetProcessorProgressWidget::ProcessorTask* ezQtAssetProcessorProgressWidget::HistoryState::FindTaskAtTime(ezUInt32 uiProcessorID, double fPointInTimeSec) const
 {
   EZ_LOCK(m_HistoryMutex);
 
@@ -150,7 +150,7 @@ const ezQtAssetProcessorProgressWidget::ProcessorTask* ezQtAssetProcessorProgres
   const ezTime currentTime = ezTime::Now() - m_CurrentOffset;
 
   // Use binary search to find the task at pointInTime
-  auto it = std::upper_bound(begin(history), end(history), pointInTime,
+  auto it = std::upper_bound(begin(history), end(history), fPointInTimeSec,
     [&](double time, const ProcessorTask& task)
     {
       return time < task.m_StartTime.GetSeconds();
@@ -162,7 +162,7 @@ const ezQtAssetProcessorProgressWidget::ProcessorTask* ezQtAssetProcessorProgres
     double startTime = it->m_StartTime.GetSeconds();
     double endTime = it->IsFinished() ? it->EndTime().GetSeconds() : currentTime.GetSeconds();
 
-    if (pointInTime >= startTime && pointInTime <= endTime)
+    if (fPointInTimeSec >= startTime && fPointInTimeSec <= endTime)
     {
       return &(*it);
     }
@@ -218,7 +218,28 @@ ezQtAssetProcessorProgressWidget::~ezQtAssetProcessorProgressWidget()
 
 void ezQtAssetProcessorProgressWidget::SetGridBarWidget(ezQGridBarWidget* pGridBar)
 {
+  EZ_ASSERT_DEBUG(m_pGridBar == nullptr, "SetGridBarWidget should only be called once.");
   m_pGridBar = pGridBar;
+  ClampZoomPan();
+  UpdateGridBarConfig();
+  OnHistoryChanged();
+}
+
+void ezQtAssetProcessorProgressWidget::SetScrollBarWidget(QScrollBar* pScrollBar)
+{
+  EZ_ASSERT_DEBUG(m_pScrollBar == nullptr, "SetScrollBarWidget should only be called once.");
+  m_pScrollBar = pScrollBar;
+
+  // When the scrollbar value changes, it provides milliseconds. Convert to seconds.
+  connect(m_pScrollBar, &QScrollBar::valueChanged, this, [this](int v)
+    {
+      m_fSceneTranslationX = static_cast<double>(v) / 1000.0;
+      ClampZoomPan();
+      m_AssetNameCache.Clear();
+      UpdateGridBarConfig();
+      update(); //
+    });
+  
   ClampZoomPan();
   UpdateGridBarConfig();
   OnHistoryChanged();
@@ -229,7 +250,7 @@ void ezQtAssetProcessorProgressWidget::ClearHistory()
   EZ_ASSERT_DEBUG(ezThreadUtils::IsMainThread(), "ClearHistory must be called on the main thread via queued connection");
   m_pHistoryState->ClearHistory();
   m_TimelineLength = ezTime::MakeFromMinutes(1);
-  m_fSceneTranslationX = -100.0;
+  m_fSceneTranslationX = 0;
   ClampZoomPan();
   UpdateGridBarConfig();
   update();
@@ -353,13 +374,13 @@ void ezQtAssetProcessorProgressWidget::wheelEvent(QWheelEvent* e)
 
 QSize ezQtAssetProcessorProgressWidget::sizeHint() const
 {
-  int height = s_iTopMargin + (s_iRowHeight + s_iRowSpacing) * m_uiMaxProcessors + s_iRowSpacing;
+  int height = s_iTopMargin + (s_iRowHeight + s_iRowSpacing) * m_uiMaxProcessors;
   return QSize(800, height);
 }
 
 QSize ezQtAssetProcessorProgressWidget::minimumSizeHint() const
 {
-  int height = s_iTopMargin + (s_iRowHeight + s_iRowSpacing) * m_uiMaxProcessors + s_iRowSpacing;
+  int height = s_iTopMargin + (s_iRowHeight + s_iRowSpacing) * m_uiMaxProcessors;
   return QSize(400, ezMath::Max(200, height));
 }
 
@@ -437,12 +458,12 @@ QPoint ezQtAssetProcessorProgressWidget::MapFromScene(const QPointF& pos) const
   x *= m_SceneToPixelScale.x();
   y *= m_SceneToPixelScale.y();
 
-  return QPoint(static_cast<int>(x), static_cast<int>(y));
+  return QPoint(static_cast<int>(x) + s_iLeftMargin, static_cast<int>(y));
 }
 
 QPointF ezQtAssetProcessorProgressWidget::MapToScene(const QPoint& pos) const
 {
-  double x = pos.x();
+  double x = pos.x() - s_iLeftMargin;
   double y = pos.y();
   x /= m_SceneToPixelScale.x();
   y /= m_SceneToPixelScale.y();
@@ -454,16 +475,16 @@ QRectF ezQtAssetProcessorProgressWidget::ComputeViewportSceneRect() const
 {
   int timelineWidth = width();
   double viewWidthSeconds = timelineWidth / m_SceneToPixelScale.x();
-  return QRectF(m_fSceneTranslationX, 0, viewWidthSeconds, 1);
+
+  double leftLimit = s_iLeftMargin / m_SceneToPixelScale.x();
+  return QRectF(m_fSceneTranslationX - leftLimit, 0, viewWidthSeconds, 1);
 }
 
 void ezQtAssetProcessorProgressWidget::ClampZoomPan()
 {
   double minPixelPerSecond = width() / m_TimelineLength.GetSeconds();
   m_SceneToPixelScale.setX(ezMath::Clamp(m_SceneToPixelScale.x(), minPixelPerSecond, 500.0));
-
-  double leftLimit = -s_iLeftMargin / m_SceneToPixelScale.x();
-  m_fSceneTranslationX = ezMath::Clamp(m_fSceneTranslationX, leftLimit, m_TimelineLength.GetSeconds());
+  m_fSceneTranslationX = ezMath::Clamp(m_fSceneTranslationX, 0.0, m_TimelineLength.GetSeconds());
 }
 
 void ezQtAssetProcessorProgressWidget::UpdateGridBarConfig() const
@@ -483,6 +504,16 @@ void ezQtAssetProcessorProgressWidget::UpdateGridBarConfig() const
     {
       return MapFromScene(pt);
     });
+
+  if (m_pScrollBar == nullptr)
+    return;
+
+  ezQtScopedBlockSignals bs(m_pScrollBar);
+  m_pScrollBar->setMinimum(0);
+  m_pScrollBar->setMaximum((int)m_TimelineLength.GetMilliseconds());
+  m_pScrollBar->setSliderPosition((int)(m_fSceneTranslationX * 1000.0));
+  m_pScrollBar->setSingleStep(100);
+  m_pScrollBar->setPageStep(10000);
 }
 
 const ezString& ezQtAssetProcessorProgressWidget::GetAssetPath(const ezUuid& assetGuid) const
@@ -578,7 +609,7 @@ void ezQtAssetProcessorProgressWidget::DrawTimeline(QPainter& painter) const
 {
   for (ezUInt32 i = 0; i < m_uiMaxProcessors; ++i)
   {
-    int rowY = s_iTopMargin + i * (s_iRowHeight + s_iRowSpacing);
+    int rowY = s_iTopMargin + s_iRowSpacing + i * (s_iRowHeight + s_iRowSpacing);
     DrawProcessorRow(painter, i, rowY);
   }
 }

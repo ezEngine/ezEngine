@@ -133,8 +133,8 @@ private:
   ezDynamicArray<ezLogEntry> m_LogEntries;
   ezMap<ezString, ezUInt64> m_MissmatchTransformDependencies;
   ezMap<ezString, ezUInt64> m_MissmatchThumbnailDependencies;
-  ezUInt64 m_MissmatchAssetHash = 0;
-  ezUInt64 m_MissmatchThumbHash = 0;
+  ezUInt64 m_uiMissmatchAssetHash = 0;
+  ezUInt64 m_uiMissmatchThumbHash = 0;
 };
 
 /// \brief Background asset processing is handled by this class.
