@@ -318,7 +318,7 @@ void RetrieveShapeTriangles(const JPH::Shape* pShape, ezDynamicArray<ShapeTriang
   positionsTmp.SetCountUninitialized(cMaxTriangles * 3);
 
   ezStaticArray<const JPH::PhysicsMaterial*, cMaxTriangles> materialsTmp;
-  materialsTmp.SetCountUninitialized(cMaxTriangles);  
+  materialsTmp.SetCountUninitialized(cMaxTriangles);
 
   JPH::Shape::GetTrianglesContext ctxt;
 
@@ -428,7 +428,7 @@ ezCpuMeshResourceHandle ezJoltMeshResource::ConvertToCpuMesh() const
   const ezUInt32 uiSurfaceIndex = pLastSurface != nullptr ? m_Surfaces.IndexOf(pLastSurface->GetResourceHandle()) : 0;
   EZ_ASSERT_DEV(uiSurfaceIndex != ezInvalidIndex, "Surface not found in surface array.");
 
-  desc.AddSubMesh(uiNumTriangles - uiFirstTriangleOfCurrentSurface, uiFirstTriangleOfCurrentSurface, uiSurfaceIndex);  
+  desc.AddSubMesh(uiNumTriangles - uiFirstTriangleOfCurrentSurface, uiFirstTriangleOfCurrentSurface, uiSurfaceIndex);
 
   desc.MeshBufferDesc().AllocateStreams(positions.GetCount(), ezGALPrimitiveTopology::Triangles, uiNumTriangles);
   desc.MeshBufferDesc().GetPositionData().CopyFrom(positions);

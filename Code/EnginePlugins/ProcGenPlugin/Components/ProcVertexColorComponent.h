@@ -95,7 +95,7 @@ public:
 
   void OnMsgTransformChanged(ezMsgTransformChanged& ref_msg);                               // [ msg handler ]
   void OnMsgCustomInstanceDataOffsetChanged(ezMsgCustomInstanceDataOffsetChanged& ref_msg); // [ msg handler ]
-  void OnMsgGenerateSplineMeshCollision(ezMsgGenerateSplineMeshCollision& ref_msg);     // [ msg handler ]
+  void OnMsgGenerateSplineMeshCollision(ezMsgGenerateSplineMeshCollision& ref_msg);         // [ msg handler ]
 
 private:
   ezUInt32 OutputDescs_GetCount() const;
