@@ -608,6 +608,7 @@ ezResult ezSplineMeshComponent::GenerateDistribution(const ezSplineComponent& sp
   }
 
   int iRandomPos = 46237;
+  ezUInt32 uiSeed = m_iSeed < 0 ? GetOwner()->GetStableRandomSeed() : static_cast<ezUInt32>(m_iSeed);
 
   auto GenerateEvenDistribution = [&](float fStartDistance, float fTotalLength, bool bAllowStartPart, bool bAllowEndPart)
   {
@@ -632,7 +633,7 @@ ezResult ezSplineMeshComponent::GenerateDistribution(const ezSplineComponent& sp
 
       while (true)
       {
-        const ezUInt32 uiPartIndex = RandomUInt(0, m_MiddleParts.GetCount(), iRandomPos, m_iSeed);
+        const ezUInt32 uiPartIndex = RandomUInt(0, m_MiddleParts.GetCount(), iRandomPos, uiSeed);
         const bool bAllowOverlapFront = bHasStartPart || middlePartsIndices.GetCount() > 0;
         const float fPartLength = m_MiddleParts[uiPartIndex].AddPadding(middleLengthAndOffset[uiPartIndex], bAllowOverlapFront, true).x;
 
@@ -648,7 +649,7 @@ ezResult ezSplineMeshComponent::GenerateDistribution(const ezSplineComponent& sp
       {
         const bool bAllowOverlapFront = bHasStartPart || middlePartsIndices.GetCount() > 0;
         const bool bAllowOverlapBack = bHasEndPart;
-        const ezUInt32 uiPartIndex = FindBestMiddlePart(fLastPartLength, middleLengthAndOffset, bAllowOverlapFront, bAllowOverlapBack, iRandomPos);
+        const ezUInt32 uiPartIndex = FindBestMiddlePart(fLastPartLength, middleLengthAndOffset, bAllowOverlapFront, bAllowOverlapBack, iRandomPos, uiSeed);
         middlePartsIndices.PushBack(uiPartIndex);
 
         fCurrentLength += m_MiddleParts[uiPartIndex].AddPadding(middleLengthAndOffset[uiPartIndex], true, m_EndPart.IsValid()).x;
@@ -743,7 +744,7 @@ ezResult ezSplineMeshComponent::GenerateDistribution(const ezSplineComponent& sp
       const float fSegmentLength = splineComponent.GetSegmentLength(uiSegmentIndex);
       const bool bAllowOverlapFront = uiSegmentIndex > 0;
       const bool bAllowOverlapBack = uiSegmentIndex < uiNumSegments - 1;
-      const ezUInt32 uiPartIndex = FindBestMiddlePart(fSegmentLength, middleLengthAndOffset, bAllowOverlapFront, bAllowOverlapBack, iRandomPos);
+      const ezUInt32 uiPartIndex = FindBestMiddlePart(fSegmentLength, middleLengthAndOffset, bAllowOverlapFront, bAllowOverlapBack, iRandomPos, uiSeed);
 
       auto& part = m_MiddleParts[uiPartIndex];
       out_Meshes.PushBack(part.m_hMesh);
@@ -767,7 +768,7 @@ ezResult ezSplineMeshComponent::GenerateDistribution(const ezSplineComponent& sp
   return EZ_SUCCESS;
 }
 
-ezUInt32 ezSplineMeshComponent::FindBestMiddlePart(float fRequestedLength, ezArrayPtr<const ezVec2> middleLengthAndOffset, bool bAllowOverlapFront, bool bAllowOverlapBack, int& inout_iRandomPos) const
+ezUInt32 ezSplineMeshComponent::FindBestMiddlePart(float fRequestedLength, ezArrayPtr<const ezVec2> middleLengthAndOffset, bool bAllowOverlapFront, bool bAllowOverlapBack, int& inout_iRandomPos, ezUInt32 uiSeed) const
 {
   float fBestDiff = ezMath::MaxValue<float>();
   ezHybridArray<ezUInt32, 8> candidateIndices;
@@ -793,7 +794,7 @@ ezUInt32 ezSplineMeshComponent::FindBestMiddlePart(float fRequestedLength, ezArr
   if (candidateIndices.GetCount() == 1)
     return candidateIndices[0];
 
-  const ezUInt32 uiRandom = RandomUInt(0, candidateIndices.GetCount(), inout_iRandomPos, m_iSeed);
+  const ezUInt32 uiRandom = RandomUInt(0, candidateIndices.GetCount(), inout_iRandomPos, uiSeed);
   return candidateIndices[uiRandom];
 }
 

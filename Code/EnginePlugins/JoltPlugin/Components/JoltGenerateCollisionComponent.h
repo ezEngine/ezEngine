@@ -30,7 +30,12 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_JOLTPLUGIN_DLL, ezJoltMeshMapping);
 
 using ezJoltGenerateCollisionComponentManager = ezComponentManager<class ezJoltGenerateCollisionComponent, ezBlockStorageType::Compact>;
 
-/// \brief TODO
+/// \brief A component that generates a static collision mesh from specified render meshes.
+///
+/// The generated collision mesh is written to disk as a JoltMeshResource. During scene export the
+/// ezSceneExportModifier_JoltFinalizeGeneratedCollision export modifier creates a static actor which references the generated collision mesh.
+/// This component has no effect at runtime and is removed from scenes (not prefabs though) by the export modifier.
+/// Currently only supports generation from spline meshes.
 class EZ_JOLTPLUGIN_DLL ezJoltGenerateCollisionComponent : public ezComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezJoltGenerateCollisionComponent, ezComponent, ezJoltGenerateCollisionComponentManager);
@@ -52,6 +57,8 @@ public:
   ezJoltGenerateCollisionComponent();
   ~ezJoltGenerateCollisionComponent();
 
+  /// \brief Mesh mappings define which jolt collision mesh should be used for a corresponding render mesh.
+  /// Render meshes without a mapping won't have collision.
   ezArrayPtr<const ezJoltMeshMapping> GetMeshMappings() const { return m_MeshMappings; }                         // [ property ]
 
 private:

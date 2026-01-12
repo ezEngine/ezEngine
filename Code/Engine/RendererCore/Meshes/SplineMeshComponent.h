@@ -41,8 +41,8 @@ struct EZ_RENDERERCORE_DLL ezMsgGenerateSplineMeshCollision : public ezMessage
 struct EZ_RENDERERCORE_DLL ezSplineMeshPart
 {
   ezMeshResourceHandle m_hMesh;
-  float m_fPaddingFront = 0.0f;
-  float m_fPaddingBack = 0.0f;
+  float m_fPaddingFront = 0.0f; ///< Adds padding in front of this part. Can be negative to overlap parts.
+  float m_fPaddingBack = 0.0f;  ///< Adds padding at the back of this part. Can be negative to overlap parts.
 
   ezResult Serialize(ezStreamWriter& inout_stream) const;
   ezResult Deserialize(ezStreamReader& inout_stream);
@@ -61,7 +61,10 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezSplineMeshPart);
 
 using ezSplineMeshComponentManager = ezComponentManager<class ezSplineMeshComponent, ezBlockStorageType::Compact>;
 
-/// \brief TODO: Documentation
+/// \brief A component that generates a mesh along a spline using the specified mesh parts.
+///
+/// The spline is taken from an ezSplineComponent on the owner game object or one of its parents.
+/// Generation only happens in the editor and the generated mesh is cached to disk so it can be loaded at runtime.
 class EZ_RENDERERCORE_DLL ezSplineMeshComponent : public ezMeshComponentBase
 {
   EZ_DECLARE_COMPONENT_TYPE(ezSplineMeshComponent, ezMeshComponentBase, ezSplineMeshComponentManager);
@@ -83,27 +86,43 @@ public:
   ezSplineMeshComponent();
   ~ezSplineMeshComponent();
 
-  void SetStartPart(const ezSplineMeshPart& part);                                                // [ property ]
-  const ezSplineMeshPart& GetStartPart() const { return m_StartPart; }                            // [ property ]
+  /// \brief Sets a specialized mesh part to be used at the start of the spline. Can be empty.
+  void SetStartPart(const ezSplineMeshPart& part);                     // [ property ]
+  const ezSplineMeshPart& GetStartPart() const { return m_StartPart; } // [ property ]
 
-  void SetMiddleParts(ezArrayPtr<const ezSplineMeshPart> middleParts);                            // [ property ]
-  ezArrayPtr<const ezSplineMeshPart> GetMiddleParts() const { return m_MiddleParts; }             // [ property ]
+  /// \brief Sets the list of mesh parts to be used in the middle of the spline. At least one part must be specified.
+  ///
+  /// If multiple parts are specified either a random one or the best fitting one is chosen,
+  /// depending on the distribution mode and the spline and part length.
+  void SetMiddleParts(ezArrayPtr<const ezSplineMeshPart> middleParts);                // [ property ]
+  ezArrayPtr<const ezSplineMeshPart> GetMiddleParts() const { return m_MiddleParts; } // [ property ]
 
-  void SetEndPart(const ezSplineMeshPart& part);                                                  // [ property ]
-  const ezSplineMeshPart& GetEndPart() const { return m_EndPart; }                                // [ property ]
+  /// \brief Sets a specialized mesh part to be used at the end of the spline. Can be empty.
+  void SetEndPart(const ezSplineMeshPart& part);                   // [ property ]
+  const ezSplineMeshPart& GetEndPart() const { return m_EndPart; } // [ property ]
 
+  /// \brief Sets how the meshes are distributed along the spline.
   void SetDistributionMode(ezEnum<ezSplineMeshDistributionMode> mode);                            // [ property ]
   ezEnum<ezSplineMeshDistributionMode> GetDistributionMode() const { return m_DistributionMode; } // [ property ]
 
-  void SetSeed(ezInt32 iSeed);                                                                    // [ property ]
-  ezInt32 GetSeed() const { return m_iSeed; }                                                     // [ property ]
+  /// \brief Sets the random seed used when selecting middle parts randomly.
+  ///
+  /// Negative values indicate to use the stable random seed from the owner object.
+  /// Positive values or zero specify an explicit seed value.
+  void SetSeed(ezInt32 iSeed);                // [ property ]
+  ezInt32 GetSeed() const { return m_iSeed; } // [ property ]
 
-  void SetOffsetY(float fOffsetY);                                                                // [ property ]
-  float GetOffsetY() const { return m_fOffsetY; }                                                 // [ property ]
+  /// \brief Sets an offset that is applied to each generated mesh vertex in the local Y direction of the spline
+  /// effectively moving the mesh to the left or right of the spline.
+  void SetOffsetY(float fOffsetY);                // [ property ]
+  float GetOffsetY() const { return m_fOffsetY; } // [ property ]
 
-  void SetOffsetZ(float fOffsetZ);                                                                // [ property ]
-  float GetOffsetZ() const { return m_fOffsetZ; }                                                 // [ property ]
+  /// \brief Sets an offset that is applied to each generated mesh vertex in the local Z direction of the spline
+  /// effectively moving the mesh up or down relative to the spline.
+  void SetOffsetZ(float fOffsetZ);                // [ property ]
+  float GetOffsetZ() const { return m_fOffsetZ; } // [ property ]
 
+  /// \brief Helper function to generate a spline mesh descriptor from the given spline and meshes.
   static ezResult GenerateSplineMeshDesc(const ezSpline& spline, const ezArrayMap<float, float>& distanceToKey, ezArrayPtr<ezCpuMeshResource*> meshes, ezArrayPtr<ezVec2> scaleOffsets, float fLocalOffsetY, float fLocalOffsetZ, ezMeshResourceDescriptor& out_splineMeshDesc);
 
 private:
@@ -120,7 +139,7 @@ private:
   void GenerateMeshPath(const ezSplineComponent& splineComponent, ezStringBuilder& out_sSplineMeshPath) const;
 
   ezResult GenerateDistribution(const ezSplineComponent& splineComponent, ezDynamicArray<ezMeshResourceHandle>& out_Meshes, ezDynamicArray<ezVec2>& out_scaleOffsets) const;
-  ezUInt32 FindBestMiddlePart(float fRequestedLength, ezArrayPtr<const ezVec2> middleLengthAndOffset, bool bAllowOverlapFront, bool bAllowOverlapBack, int& inout_iRandomPos) const;
+  ezUInt32 FindBestMiddlePart(float fRequestedLength, ezArrayPtr<const ezVec2> middleLengthAndOffset, bool bAllowOverlapFront, bool bAllowOverlapBack, int& inout_iRandomPos, ezUInt32 uiSeed) const;
 
   ezResult GenerateSplineMesh(const ezSplineComponent& splineComponent, ezMeshResourceDescriptor& out_splineMeshDesc, ezMsgGenerateSplineMeshCollision* out_pMsg = nullptr) const;
   void UpdateSplineMesh();
