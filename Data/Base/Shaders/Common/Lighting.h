@@ -647,7 +647,10 @@ AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clus
   totalLight.diffuseLight += matData.diffuseColor * indirectLightModulation * skyLight * occlusion;
 
   // indirect specular
-  totalLight.specularLight += matData.specularColor * indirectLightModulation * ComputeReflection(matData, viewVector, clusterData) * occlusion;
+  float3 reflection = ComputeReflection(matData, viewVector, clusterData);
+  float NdotV = saturate(dot(matData.worldNormal, viewVector));
+  float3 specularColor = EnvironmentBRDF(matData.specularColor, matData.roughness, NdotV);
+  totalLight.specularLight += specularColor * indirectLightModulation * reflection * occlusion;
 
   // enable once we have proper sky visibility
   /*#if defined(USE_MATERIAL_SUBSURFACE_COLOR)
