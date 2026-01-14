@@ -2,6 +2,7 @@
 
 #include <EditorFramework/Actions/AssetActions.h>
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/Panels/AssetBrowserPanel/AssetBrowserPanel.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 
 ezActionDescriptorHandle ezAssetActions::s_hAssetCategory;
@@ -11,6 +12,7 @@ ezActionDescriptorHandle ezAssetActions::s_hTransformAllAssets;
 ezActionDescriptorHandle ezAssetActions::s_hCheckFileSystem;
 ezActionDescriptorHandle ezAssetActions::s_hWriteDependencyDGML;
 ezActionDescriptorHandle ezAssetActions::s_hCopyAssetGuid;
+ezActionDescriptorHandle ezAssetActions::s_hSelectInAssetBrowser;
 
 void ezAssetActions::RegisterActions()
 {
@@ -21,9 +23,11 @@ void ezAssetActions::RegisterActions()
   s_hCheckFileSystem = EZ_REGISTER_ACTION_1("Asset.CheckFilesystem", ezActionScope::Global, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::CheckFileSystem);
   s_hWriteDependencyDGML = EZ_REGISTER_ACTION_1("Asset.WriteDependencyDGML", ezActionScope::Document, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::WriteDependencyDGML);
   s_hCopyAssetGuid = EZ_REGISTER_ACTION_1("Asset.CopyAssetGuid", ezActionScope::Document, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::CopyAssetGuid);
+  s_hSelectInAssetBrowser = EZ_REGISTER_ACTION_1("Asset.SelectInAssetBrowser", ezActionScope::Document, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::SelectInAssetBrowser);
 
   {
     ezActionMap* pMap = ezActionMapManager::GetActionMap("DocumentWindowTabMenu");
+    pMap->MapAction(s_hSelectInAssetBrowser, "", 11.0f);
     pMap->MapAction(s_hCopyAssetGuid, "", 12.0f);
   }
 }
@@ -37,6 +41,7 @@ void ezAssetActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hCheckFileSystem);
   ezActionManager::UnregisterAction(s_hWriteDependencyDGML);
   ezActionManager::UnregisterAction(s_hCopyAssetGuid);
+  ezActionManager::UnregisterAction(s_hSelectInAssetBrowser);
 }
 
 void ezAssetActions::MapMenuActions(ezStringView sMapping)
@@ -102,6 +107,8 @@ ezAssetAction::ezAssetAction(const ezActionContext& context, const char* szName,
       break;
     case ezAssetAction::ButtonType::CopyAssetGuid:
       SetIconPath(":/GuiFoundation/Icons/Guid.svg");
+      break;
+    case ezAssetAction::ButtonType::SelectInAssetBrowser:
       break;
   }
 }
@@ -185,6 +192,13 @@ void ezAssetAction::Execute(const ezVariant& value)
       clipboard->setMimeData(mimeData);
 
       ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(ezFmt("Copied asset GUID: {}", sGuid), ezTime::MakeFromSeconds(5));
+    }
+    break;
+
+    case ezAssetAction::ButtonType::SelectInAssetBrowser:
+    {
+      ezQtAssetBrowserPanel::GetSingleton()->AssetBrowserWidget->SetSelectedAsset(m_Context.m_pDocument->GetGuid());
+      ezQtAssetBrowserPanel::GetSingleton()->raise();
     }
     break;
   }
