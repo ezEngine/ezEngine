@@ -94,6 +94,7 @@ private Q_SLOTS:
   void DeleteSelection();
   void OnImportAsAboutToShow();
   void OnImportAsClicked();
+  void OnExportAssetWithDependencies();
 
 
 private:

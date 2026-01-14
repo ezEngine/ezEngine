@@ -1012,6 +1012,34 @@ ezString ezAssetCurator::FindDataDirectoryForAsset(ezStringView sAbsoluteAssetPa
   return ezFileSystem::GetSdkRootDirectory();
 }
 
+void ezAssetCurator::GetAllAssetsInFolder(ezStringView sFolderPath, ezDynamicArray<ezString>& out_assetGuids) const
+{
+  EZ_LOCK(m_CuratorMutex);
+
+  ezStringBuilder sFolderPathClean = sFolderPath;
+  sFolderPathClean.MakeCleanPath();
+
+  if (!sFolderPathClean.EndsWith("/"))
+    sFolderPathClean.Append("/");
+
+  ezStringBuilder sTemp;
+
+  for (auto it = m_KnownAssets.GetIterator(); it.IsValid(); ++it)
+  {
+    const ezAssetInfo* pAssetInfo = it.Value();
+    const ezString& sAssetPath = pAssetInfo->m_Path.GetAbsolutePath();
+
+    sTemp = sAssetPath;
+    sTemp.MakeCleanPath();
+
+    if (sTemp.StartsWith_NoCase(sFolderPathClean))
+    {
+      ezConversionUtils::ToString(pAssetInfo->m_Info->m_DocumentID, sTemp);
+      out_assetGuids.PushBack(sTemp);
+    }
+  }
+}
+
 ezResult ezAssetCurator::FindBestMatchForFile(ezStringBuilder& ref_sFile, ezArrayPtr<ezString> allowedFileExtensions) const
 {
   // TODO: Merge with exhaustive search in FindSubAsset
@@ -1418,6 +1446,75 @@ void ezAssetCurator::WriteDependencyDGML(const ezUuid& guid, ezStringView sOutpu
   }
 
   ezDGMLGraphWriter::WriteGraphToFile(sOutputFile, graph).IgnoreResult();
+}
+
+ezAssetCurator::ExportResult ezAssetCurator::ExportAssets(ezArrayPtr<ezString> sources, ezStringView sDestinationFolder, bool bIncludeTransformDeps, bool bIncludeThumbnailDeps, bool bIncludePackageDeps) const
+{
+  EZ_LOCK(m_CuratorMutex);
+
+  ExportResult result;
+
+  ezSet<ezString> allDependencies;
+
+  for (const ezString& source : sources)
+  {
+    GenerateTransitiveHull(source, allDependencies, bIncludeTransformDeps, bIncludeThumbnailDeps, bIncludePackageDeps);
+  }
+
+  ezStringBuilder sDestPath = sDestinationFolder;
+  ezStringBuilder sAbsPath;
+  ezStringBuilder sRelPath;
+  ezStringBuilder sTargetPath;
+  ezStringBuilder sTargetDir;
+
+  for (const ezString& dep : allDependencies)
+  {
+    sAbsPath.Clear();
+    const ezDataDirectoryInfo* ddi = nullptr;
+
+    if (ezConversionUtils::IsStringUuid(dep))
+    {
+      ezUuid depGuid = ezConversionUtils::ConvertStringToUuid(dep);
+      const auto pDepAsset = GetSubAsset(depGuid);
+
+      if (!pDepAsset.isValid())
+        continue;
+
+      sAbsPath = pDepAsset->m_pAssetInfo->m_Path.GetAbsolutePath();
+      sRelPath = pDepAsset->m_pAssetInfo->m_Path.GetDataDirRelativePath();
+
+      // the index in GetDataDirIndex() doesn't seem to match the index of ezFileSystem
+      // ddi = &ezFileSystem::GetDataDirectoryInfo(pDepAsset->m_pAssetInfo->m_Path.GetDataDirIndex());
+
+      if (ezFileSystem::ResolvePath(sAbsPath, &sAbsPath, &sRelPath, &ddi).Failed())
+        continue;
+    }
+    else
+    {
+      if (ezFileSystem::ResolvePath(dep, &sAbsPath, &sRelPath, &ddi).Failed())
+        continue;
+    }
+
+    if (ddi->m_sRootName == "BASE")
+      continue;
+
+    if (!ezOSFile::ExistsFile(sAbsPath))
+      continue;
+
+
+    ezStringBuilder sTargetPath = sDestPath;
+    sTargetPath.AppendPath(sRelPath);
+
+    if (ezOSFile::CopyFile(sAbsPath, sTargetPath).Failed())
+    {
+      result.m_uiFailedFiles++;
+      continue;
+    }
+
+    ++result.m_uiCopiedFiles;
+  }
+
+  return result;
 }
 
 ////////////////////////////////////////////////////////////////////////

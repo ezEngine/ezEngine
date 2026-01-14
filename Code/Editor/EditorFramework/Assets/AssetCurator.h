@@ -274,6 +274,13 @@ public:
   /// \brief Iterates over all known data directories and returns the absolute path to the directory in which this asset is located
   ezString FindDataDirectoryForAsset(ezStringView sAbsoluteAssetPath) const;
 
+  /// \brief Collects all main asset GUIDs located within the specified folder path.
+  ///
+  /// Searches through all known assets and adds the string representation of their GUID
+  /// to the output array if their absolute path starts with the given folder path.
+  /// Only main assets are included (not sub-assets).
+  void GetAllAssetsInFolder(ezStringView sFolderPath, ezDynamicArray<ezString>& out_assetGuids) const;
+
   /// \brief Uses knowledge about all existing files on disk to find the best match for a file. Very slow.
   ///
   /// \param sFile
@@ -334,6 +341,20 @@ public:
 
   /// \brief Generates a DGML graph of all transform and thumbnail dependencies.
   void WriteDependencyDGML(const ezUuid& guid, ezStringView sOutputFile) const;
+
+  struct ExportResult
+  {
+    ezUInt32 m_uiCopiedFiles = 0;
+    ezUInt32 m_uiFailedFiles = 0;
+  };
+
+  /// \brief Exports assets and their dependencies to a destination folder.
+  ///
+  /// Takes an array of source paths (asset GUIDs as strings or file paths) and exports them
+  /// along with all their dependencies to the destination folder. Files are copied preserving
+  /// their relative paths from the data directories. Each file is copied only once, even if
+  /// it appears in multiple dependency trees.
+  ExportResult ExportAssets(ezArrayPtr<ezString> sources, ezStringView sDestinationFolder, bool bIncludeTransformDeps = true, bool bIncludeThumbnailDeps = true, bool bIncludePackageDeps = true) const;
 
   ///@}
 

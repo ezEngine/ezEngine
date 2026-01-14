@@ -1031,6 +1031,8 @@ void ezQtAssetBrowserWidget::on_ListAssets_customContextMenuRequested(const QPoi
     QModelIndexList selection = ListAssets->selectionModel()->selectedIndexes();
     bool bImportable = false;
     bool bAllFiles = true;
+    bool bHasExportableItems = false;
+
     for (const QModelIndex& id : selection)
     {
       bImportable |= id.data(ezQtAssetBrowserModel::UserRoles::Importable).toBool();
@@ -1039,6 +1041,11 @@ void ezQtAssetBrowserWidget::on_ListAssets_customContextMenuRequested(const QPoi
       if (itemType.IsAnySet(ezAssetBrowserItemFlags::SubAsset | ezAssetBrowserItemFlags::DataDirectory))
       {
         bAllFiles = false;
+      }
+
+      if (itemType.IsAnySet(ezAssetBrowserItemFlags::Asset | ezAssetBrowserItemFlags::SubAsset | ezAssetBrowserItemFlags::Folder | ezAssetBrowserItemFlags::DataDirectory))
+      {
+        bHasExportableItems = true;
       }
     }
 
@@ -1072,6 +1079,13 @@ void ezQtAssetBrowserWidget::on_ListAssets_customContextMenuRequested(const QPoi
         pDelete->setEnabled(false);
         pDelete->setToolTip("Sub-assets and data directories can't be deleted.");
       }
+    }
+
+    // Export
+    if (bHasExportableItems)
+    {
+      m.addSeparator();
+      m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Export.svg")), QLatin1String("Export with Dependencies..."), this, SLOT(OnExportAssetWithDependencies()));
     }
 
     // Import assets
@@ -1254,6 +1268,72 @@ void ezQtAssetBrowserWidget::OnAssetSelectionCurrentChanged(const QModelIndex& c
 void ezQtAssetBrowserWidget::OnModelReset()
 {
   Q_EMIT ItemCleared();
+}
+
+void ezQtAssetBrowserWidget::OnExportAssetWithDependencies()
+{
+  if (!ListAssets->selectionModel()->hasSelection())
+    return;
+
+  ezAssetCurator* pCurator = ezAssetCurator::GetSingleton();
+  QModelIndexList selection = ListAssets->selectionModel()->selectedIndexes();
+
+  ezDynamicArray<ezString> sources;
+  ezStringBuilder sTemp;
+
+  for (const QModelIndex& index : selection)
+  {
+    const ezBitflags<ezAssetBrowserItemFlags> itemType = (ezAssetBrowserItemFlags::Enum)index.data(ezQtAssetBrowserModel::UserRoles::ItemFlags).toInt();
+
+    if (itemType.IsAnySet(ezAssetBrowserItemFlags::Folder | ezAssetBrowserItemFlags::DataDirectory))
+    {
+      QString sAbsPath = m_Model->data(index, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString();
+      ezString sFolderPath = sAbsPath.toUtf8().data();
+
+      pCurator->GetAllAssetsInFolder(sFolderPath, sources);
+    }
+    else if (itemType.IsAnySet(ezAssetBrowserItemFlags::Asset | ezAssetBrowserItemFlags::SubAsset))
+    {
+      ezUuid guid = m_Model->data(index, ezQtAssetBrowserModel::UserRoles::SubAssetGuid).value<ezUuid>();
+
+      if (guid.IsValid())
+      {
+        ezConversionUtils::ToString(guid, sTemp);
+        sources.PushBack(sTemp);
+      }
+    }
+  }
+
+  if (sources.IsEmpty())
+  {
+    ezQtUiServices::MessageBoxWarning("No valid assets or folders selected for export.");
+    return;
+  }
+
+  QString sDestination = QFileDialog::getExistingDirectory(
+    this,
+    QLatin1String("Select Export Destination"),
+    QString(),
+    QFileDialog::Option::ShowDirsOnly | QFileDialog::Option::DontResolveSymlinks);
+
+  if (sDestination.isEmpty())
+    return;
+
+  ezStringBuilder sDestPath = sDestination.toUtf8().data();
+  ezAssetCurator::ExportResult result = pCurator->ExportAssets(sources, sDestPath, true, true, true);
+
+  ezStringBuilder sMessage;
+  sMessage.SetFormat("Export completed.\n\nCopied {} file(s).", result.m_uiCopiedFiles);
+
+  if (result.m_uiFailedFiles > 0)
+  {
+    sMessage.AppendFormat("\n\nFailed to copy {} file(s).", result.m_uiFailedFiles);
+    ezQtUiServices::MessageBoxWarning(sMessage);
+  }
+  else
+  {
+    ezQtUiServices::MessageBoxInformation(sMessage);
+  }
 }
 
 
