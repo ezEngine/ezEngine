@@ -1,5 +1,6 @@
 #include <EditorPluginJolt/EditorPluginJoltPCH.h>
 
+#include <EditorPluginAssets/Util/MeshImportUtils.h>
 #include <EditorPluginJolt/CollisionMeshAsset/JoltCollisionMeshAsset.h>
 #include <Foundation/IO/ChunkStream.h>
 #include <Foundation/Utilities/AssetFileHeader.h>
@@ -347,6 +348,11 @@ void ezJoltCollisionMeshAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentIn
     // remove the mesh file dependency, if it is not actually used
     const auto& sMeshFile = GetProperties()->m_sMeshFile;
     pInfo->m_TransformDependencies.Remove(sMeshFile);
+  }
+  else
+  {
+    // For glTF files, add any referenced external buffer files as dependencies
+    ezMeshImportUtils::AddGltfBufferDependencies(GetProperties()->m_sMeshFile, pInfo->m_TransformDependencies);
   }
 }
 

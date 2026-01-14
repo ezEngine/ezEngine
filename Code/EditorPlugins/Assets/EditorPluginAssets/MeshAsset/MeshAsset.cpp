@@ -320,4 +320,9 @@ void ezMeshAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) co
     const auto& sMeshFile = GetProperties()->m_sMeshFile;
     pInfo->m_TransformDependencies.Remove(sMeshFile);
   }
+  else
+  {
+    // For glTF files, add any referenced external buffer files as dependencies
+    ezMeshImportUtils::AddGltfBufferDependencies(GetProperties()->m_sMeshFile, pInfo->m_TransformDependencies);
+  }
 }

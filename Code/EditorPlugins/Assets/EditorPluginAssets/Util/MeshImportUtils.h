@@ -19,4 +19,14 @@ namespace ezMeshImportUtils
   EZ_EDITORPLUGINASSETS_DLL void SetMeshAssetMaterialSlots(ezHybridArray<ezMaterialResourceSlot, 8>& inout_materialSlots, const ezModelImporter2::Importer* pImporter);
   EZ_EDITORPLUGINASSETS_DLL void CopyMeshAssetMaterialSlotToResource(ezMeshResourceDescriptor& ref_desc, const ezHybridArray<ezMaterialResourceSlot, 8>& materialSlots);
   EZ_EDITORPLUGINASSETS_DLL void ImportMeshAssetMaterials(ezHybridArray<ezMaterialResourceSlot, 8>& inout_materialSlots, ezStringView sDocumentDirectory, const ezModelImporter2::Importer* pImporter);
+
+  /// \brief Extracts external buffer file dependencies from a glTF file and adds them to the transform dependencies set.
+  ///
+  /// Parses the glTF JSON to find all external buffer files referenced in the "buffers" array.
+  /// Skips embedded data URIs and only processes external file references.
+  /// All referenced buffer files are converted to data directory relative paths before being added.
+  ///
+  /// \param sMeshFile Data directory relative path to the glTF file
+  /// \param inout_dependencies Set to add the buffer file dependencies to
+  EZ_EDITORPLUGINASSETS_DLL void AddGltfBufferDependencies(ezStringView sMeshFile, ezSet<ezString>& inout_dependencies);
 } // namespace ezMeshImportUtils

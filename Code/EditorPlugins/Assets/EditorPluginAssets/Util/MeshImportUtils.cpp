@@ -5,6 +5,8 @@
 #include <EditorPluginAssets/TextureAsset/TextureAsset.h>
 #include <EditorPluginAssets/Util/MeshImportUtils.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/JSONReader.h>
 #include <Foundation/Utilities/Progress.h>
 #include <ModelImporter2/Importer/Importer.h>
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
@@ -504,6 +506,65 @@ namespace ezMeshImportUtils
     }
 
     WaitForPendingTasks();
+  }
+
+  void AddGltfBufferDependencies(ezStringView sMeshFile, ezSet<ezString>& inout_dependencies)
+  {
+    if (!sMeshFile.HasExtension("gltf"))
+      return;
+
+    ezStringBuilder sAbsFilePath = sMeshFile;
+
+    if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsFilePath))
+      return;
+
+    ezFileReader file;
+    if (file.Open(sAbsFilePath).Failed())
+      return;
+
+    ezJSONReader json;
+    if (json.Parse(file).Failed())
+      return;
+
+    const ezVariantDictionary& root = json.GetTopLevelObject();
+    const ezVariant* pBuffers = root.GetValue("buffers");
+    if (pBuffers == nullptr || !pBuffers->IsA<ezVariantArray>())
+      return;
+
+    const ezVariantArray& buffers = pBuffers->Get<ezVariantArray>();
+    ezStringBuilder sBufferPath;
+    ezStringBuilder sBufferDir = sAbsFilePath.GetFileDirectory();
+
+    for (const ezVariant& buffer : buffers)
+    {
+      if (!buffer.IsA<ezVariantDictionary>())
+        continue;
+
+      const ezVariantDictionary& bufferDict = buffer.Get<ezVariantDictionary>();
+      const ezVariant* pUri = bufferDict.GetValue("uri");
+      if (pUri == nullptr || !pUri->IsA<ezString>())
+        continue;
+
+      const ezString& sUri = pUri->Get<ezString>();
+
+      // Skip data URIs (embedded binary data)
+      if (sUri.StartsWith("data:"))
+        continue;
+
+      // Construct absolute path to the buffer file
+      sBufferPath = sBufferDir;
+      sBufferPath.AppendPath(sUri);
+      sBufferPath.MakeCleanPath();
+
+      if (!ezOSFile::ExistsFile(sBufferPath))
+        continue;
+
+      // Convert to data directory relative path
+      if (ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sBufferPath))
+      {
+        inout_dependencies.Insert(sBufferPath);
+      }
+    }
   }
 
 } // namespace ezMeshImportUtils
