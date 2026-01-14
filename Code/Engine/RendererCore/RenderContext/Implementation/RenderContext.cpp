@@ -758,6 +758,7 @@ bool ezRenderContext::TryGetConstantBufferStorage(ezConstantBufferStorageHandle 
 void ezRenderContext::MarktConstantBufferStorageModified(ezConstantBufferStorageBase* pDirtyStorage)
 {
   EZ_LOCK(s_ConstantBufferStorageMutex);
+
   s_DirtyConstantBuffers.Insert(pDirtyStorage);
 }
 
@@ -915,6 +916,9 @@ void ezRenderContext::GALStaticDeviceEventHandler(const ezGALDeviceEvent& e)
     {
       s_pDefaultInstance->ResetContextState();
     }
+
+    EZ_LOCK(s_ConstantBufferStorageMutex);
+
     for (auto it = s_ConstantBufferStorageTable.GetIterator(); it.IsValid(); ++it)
     {
       it.Value()->BeforeBeginFrame();
@@ -1014,6 +1018,8 @@ void ezRenderContext::UploadConstants()
 {
   ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
   bindGroup.BindBuffer("ezGlobalConstants", m_hGlobalConstantBufferStorage);
+
+  EZ_LOCK(s_ConstantBufferStorageMutex);
 
   for (auto it = s_DirtyConstantBuffers.GetIterator(); it.IsValid(); ++it)
   {
