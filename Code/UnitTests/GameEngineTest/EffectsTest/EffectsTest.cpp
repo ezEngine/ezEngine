@@ -60,7 +60,7 @@ ezResult ezGameEngineTestEffects::InitializeSubTest(ezInt32 iIdentifier)
     case SubTests::WindClothRopes:
     {
       m_ImgCompFrames.PushBack({20, 550});
-      m_ImgCompFrames.PushBack({100, 600});
+      m_ImgCompFrames.PushBack({100, 850});
 
       return m_pOwnApplication->LoadScene("Effects/AssetCache/Common/Scenes/Wind.ezBinScene");
     }
