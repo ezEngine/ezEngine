@@ -819,7 +819,7 @@ float4 CalculateRefraction(float3 worldPosition, float2 screenPosition, float3 w
 
   float2 refractCoords = float2(projectedRefractVector.x, lerp(projectedRefractVector.y, normalizedScreenPosition.y, fadeout));
   float3 refractionColor = SceneColor.SampleLevel(SceneColorSampler, float3(refractCoords, s_ActiveCameraEyeIndex), 0.0f).rgb;
-  
+
   float fresnel = pow(1.0f - NdotV, 5.0f);
   refractionColor *= tintColor * (1.0f - fresnel);
 
