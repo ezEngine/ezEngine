@@ -139,6 +139,7 @@ ezRmlUiContext* ezRmlUi::CreateContext(const char* szName, const ezVec2U32& vIni
   EZ_LOCK(m_pData->m_ContextsMutex);
 
   ezRmlUiContext* pContext = static_cast<ezRmlUiContext*>(Rml::CreateContext(szName, Rml::Vector2i(vInitialSize.x, vInitialSize.y)));
+  EZ_ASSERT_DEV(pContext != nullptr, "RML UI context creation failed");
 
   m_pData->m_Contexts.PushBack(pContext);
 

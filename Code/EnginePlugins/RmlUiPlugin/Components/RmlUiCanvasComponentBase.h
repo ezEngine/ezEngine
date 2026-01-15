@@ -31,7 +31,6 @@ public:
   virtual void Initialize() override;
   virtual void Deinitialize() override;
 
-  virtual void OnActivated() override;
   virtual void OnDeactivated() override;
 
   virtual void Update();
@@ -39,15 +38,15 @@ public:
   virtual bool ReceiveInput(const ezVec2& vMousePosInsideCanvas, ezRmlUiInputSnapshot input);
 
   EZ_ADD_RESOURCEHANDLE_ACCESSORS_WITH_SETTER(RmlFile, m_hResource, SetRmlResource);
-  void SetRmlResource(const ezRmlUiResourceHandle& hResource);                     // [ property ]
-  const ezRmlUiResourceHandle& GetRmlResource() const { return m_hResource; }      // [ property ]
+  void SetRmlResource(const ezRmlUiResourceHandle& hResource);                // [ property ]
+  const ezRmlUiResourceHandle& GetRmlResource() const { return m_hResource; } // [ property ]
 
   /// \brief Look for a blackboard component on the owner object and its parent and bind their blackboards during initialization of this component.
-  void SetAutobindBlackboards(bool bAutobind);                                     // [ property ]
-  bool GetAutobindBlackboards() const { return m_bAutobindBlackboards; }           // [ property ]
+  void SetAutobindBlackboards(bool bAutobind);                           // [ property ]
+  bool GetAutobindBlackboards() const { return m_bAutobindBlackboards; } // [ property ]
 
-  void SetOnDemandUpdate(bool bOnDemandUpdate);                                    // [ property ]
-  bool GetOnDemandUpdate() const { return m_bOnDemandUpdate; }                     // [ property ]
+  void SetOnDemandUpdate(bool bOnDemandUpdate);                          // [ property ]
+  bool GetOnDemandUpdate() const { return m_bOnDemandUpdate; }           // [ property ]
 
   ezUInt32 AddDataBinding(ezUniquePtr<ezRmlUiDataBinding>&& pDataBinding);
   void RemoveDataBinding(ezUInt32 uiDataBindingIndex);
@@ -62,8 +61,8 @@ public:
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
 
 protected:
-  void OnMsgReload(ezMsgRmlUiReload& msg);                                         // [ msg handler ]
-  virtual void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const = 0;      // [ msg handler ]
+  virtual void OnMsgReload(ezMsgRmlUiReload& msg);                            // [ msg handler ]
+  virtual void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const = 0; // [ msg handler ]
 
   void UpdateCachedValues();
   void UpdateAutobinding();
@@ -76,6 +75,7 @@ protected:
   bool m_bAutobindBlackboards = true;
   bool m_bOnDemandUpdate = true;
   bool m_bNeedsUpdate = false;
+  ezUInt16 m_uiContextID = 0;
 
   ezRmlUiContext* m_pContext = nullptr;
   ezRmlUiInputProvider m_InputProvider;

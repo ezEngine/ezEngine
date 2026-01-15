@@ -15,6 +15,7 @@ public:
   ezRmlUiCanvas2DComponent& operator=(ezRmlUiCanvas2DComponent&& rhs);
 
   virtual void Deinitialize() override;
+  virtual void OnActivated() override;
 
   void Update() final override;
 
