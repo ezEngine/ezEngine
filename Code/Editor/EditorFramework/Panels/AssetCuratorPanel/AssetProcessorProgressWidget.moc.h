@@ -130,7 +130,7 @@ private:
   // Display and interaction settings
   EditState m_EditState = EditState::None;
   ezTime m_TimelineLength = ezTime::MakeFromMinutes(1); // Multiple of 1min, resize when current time exceeds this.
-  double m_fSceneTranslationX = 0;                 // Scene horizontal pan offset (in seconds)
+  double m_fSceneTranslationX = 0;                      // Scene horizontal pan offset (in seconds)
   QPointF m_SceneToPixelScale = QPointF(20, 1);
   QPoint m_LastMousePos = {0, 0};
 

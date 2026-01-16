@@ -239,7 +239,7 @@ void ezQtAssetProcessorProgressWidget::SetScrollBarWidget(QScrollBar* pScrollBar
       UpdateGridBarConfig();
       update(); //
     });
-  
+
   ClampZoomPan();
   UpdateGridBarConfig();
   OnHistoryChanged();
