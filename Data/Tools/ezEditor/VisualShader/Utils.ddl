@@ -157,7 +157,7 @@ Node %Refraction
 
 float4 VisualShaderRefraction(float3 worldNormal, float IoR, float thickness, float3 tintColor, float newOpacity)
 {
-  return CalculateRefraction(G.Input.WorldPosition, G.Input.Position.xy, worldNormal, IoR, thickness, tintColor, newOpacity);
+  return CalculateRefraction(G.Input.WorldPosition, G.Input.Position, worldNormal, IoR, thickness, tintColor, newOpacity);
 }
 
 " }
