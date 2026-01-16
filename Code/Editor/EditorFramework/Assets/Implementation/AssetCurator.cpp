@@ -1516,7 +1516,7 @@ void ezAssetCurator::WriteDependencyDGML(const ezUuid& guid, ezStringView sOutpu
   ezDGMLGraphWriter::WriteGraphToFile(sOutputFile, graph).IgnoreResult();
 }
 
-ezAssetCurator::ExportResult ezAssetCurator::ExportAssets(ezArrayPtr<ezString> sources, ezStringView sDestinationFolder, bool bIncludeTransformDeps, bool bIncludeThumbnailDeps, bool bIncludePackageDeps) const
+ezAssetCurator::ExportResult ezAssetCurator::ExportAssets(ezArrayPtr<ezString> sources, ezStringView sDestinationFolder, ezBitflags<ezDependencyFlags> includeDependencyTypes) const
 {
   EZ_LOCK(m_CuratorMutex);
 
@@ -1526,7 +1526,7 @@ ezAssetCurator::ExportResult ezAssetCurator::ExportAssets(ezArrayPtr<ezString> s
 
   for (const ezString& source : sources)
   {
-    GenerateTransitiveHull(source, allDependencies, bIncludeTransformDeps, bIncludeThumbnailDeps, bIncludePackageDeps);
+    GenerateTransitiveHull(source, allDependencies, includeDependencyTypes);
   }
 
   ezStringBuilder sDestPath = sDestinationFolder;

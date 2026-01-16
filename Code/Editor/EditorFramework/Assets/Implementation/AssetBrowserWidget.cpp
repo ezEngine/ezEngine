@@ -1320,7 +1320,7 @@ void ezQtAssetBrowserWidget::OnExportAssetWithDependencies()
     return;
 
   ezStringBuilder sDestPath = sDestination.toUtf8().data();
-  ezAssetCurator::ExportResult result = pCurator->ExportAssets(sources, sDestPath, true, true, true);
+  ezAssetCurator::ExportResult result = pCurator->ExportAssets(sources, sDestPath, ezDependencyFlags::Transform | ezDependencyFlags::Thumbnail | ezDependencyFlags::Package);
 
   ezStringBuilder sMessage;
   sMessage.SetFormat("Export completed.\n\nCopied {} file(s).", result.m_uiCopiedFiles);

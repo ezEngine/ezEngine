@@ -353,7 +353,7 @@ public:
   /// along with all their dependencies to the destination folder. Files are copied preserving
   /// their relative paths from the data directories. Each file is copied only once, even if
   /// it appears in multiple dependency trees.
-  ExportResult ExportAssets(ezArrayPtr<ezString> sources, ezStringView sDestinationFolder, bool bIncludeTransformDeps = true, bool bIncludeThumbnailDeps = true, bool bIncludePackageDeps = true) const;
+  ExportResult ExportAssets(ezArrayPtr<ezString> sources, ezStringView sDestinationFolder, ezBitflags<ezDependencyFlags> includeDependencyTypes = ezDependencyFlags::Transform | ezDependencyFlags::Thumbnail | ezDependencyFlags::Package) const;
 
   ///@}
 
