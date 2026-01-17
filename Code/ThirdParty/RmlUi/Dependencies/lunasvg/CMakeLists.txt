@@ -17,14 +17,15 @@ target_compile_definitions(${PROJECT_NAME}
 
   PUBLIC
   LUNASVG_BUILD_STATIC
+  BUILDSYSTEM_ENABLE_LUNASVG_SUPPORT
 )
 
 target_include_directories(${PROJECT_NAME}
   PRIVATE
-  "plutovg"
+  "${CMAKE_CURRENT_LIST_DIR}/plutovg"
 
   PUBLIC
-  "include"
+  "${CMAKE_CURRENT_LIST_DIR}/include"
 )
 
 if(EZ_CMAKE_COMPILER_MSVC)
