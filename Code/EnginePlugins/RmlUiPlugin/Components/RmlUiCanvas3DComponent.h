@@ -40,7 +40,7 @@ public:
   void SetMaterialIndex(ezUInt32 uiMaterialIndex);                       // [ property ]
   ezUInt32 GetMaterialIndex() const { return m_uiMaterialIndex; }        // [ property ]
 
-  void SetTextureSlotName(ezStringView szName);                          // [ property ]
+  void SetTextureSlotName(ezStringView sName);                           // [ property ]
   ezStringView GetTextureSlotName() const { return m_sTextureSlotName; } // [ property ]
 
   void SetTextureSize(const ezVec2U32& vSize);                           // [ property ]
