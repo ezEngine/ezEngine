@@ -83,6 +83,7 @@ void ezProcVolumeSplineComponent::DeserializeComponent(ezWorldReader& inout_stre
 
 void ezProcVolumeSplineComponent::OnMsgSplineChanged(ezMsgSplineChanged& ref_msg)
 {
+  // An invalid change counter indicates that this msg came from a spline node before the actual spline has been updated. Ignore that here.
   if (ref_msg.m_uiChangeCounter == ezInvalidIndex || ref_msg.m_uiChangeCounter == m_uiLastChangeCounter)
     return;
 
@@ -97,8 +98,8 @@ void ezProcVolumeSplineComponent::OnMsgSplineChanged(ezMsgSplineChanged& ref_msg
 
 void ezProcVolumeSplineComponent::OnMsgUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg) const
 {
-  const ezSplineComponent* pSplineComponent = nullptr;
-  if (!GetOwner()->TryGetComponentOfBaseType(pSplineComponent))
+  const ezSplineComponent* pSplineComponent = GetSplineComponent();
+  if (pSplineComponent == nullptr)
     return;
 
   ezSimdBBoxSphere bounds;
@@ -113,8 +114,8 @@ void ezProcVolumeSplineComponent::OnMsgUpdateLocalBounds(ezMsgUpdateLocalBounds&
 
 void ezProcVolumeSplineComponent::OnMsgExtractVolumes(ezMsgExtractVolumes& ref_msg) const
 {
-  const ezSplineComponent* pSplineComponent = nullptr;
-  if (!GetOwner()->TryGetComponentOfBaseType(pSplineComponent))
+  const ezSplineComponent* pSplineComponent = GetSplineComponent();
+  if (pSplineComponent == nullptr)
     return;
 
   if (pSplineComponent->GetSpline().m_ControlPoints.GetCount() < 2)
@@ -128,8 +129,8 @@ void ezProcVolumeSplineComponent::OnMsgExtractRenderData(ezMsgExtractRenderData&
   if (ref_msg.m_OverrideCategory != ezDefaultRenderDataCategories::Selection)
     return;
 
-  const ezSplineComponent* pSplineComponent = nullptr;
-  if (!GetOwner()->TryGetComponentOfBaseType(pSplineComponent))
+  const ezSplineComponent* pSplineComponent = GetSplineComponent();
+  if (pSplineComponent == nullptr)
     return;
 
   auto& spline = pSplineComponent->GetSpline();
@@ -220,6 +221,22 @@ void ezProcVolumeSplineComponent::OnMsgExtractRenderData(ezMsgExtractRenderData&
 
   ezColor c = ezColorScheme::GetCategoryColor("Construction", ezColorScheme::CategoryColorUsage::ViewportIcon);
   ezDebugRenderer::DrawLines(GetWorld(), m_DebugLines, c, GetOwner()->GetGlobalTransform());
+}
+
+const ezSplineComponent* ezProcVolumeSplineComponent::GetSplineComponent() const
+{
+  const ezGameObject* pObject = GetOwner();
+  while (pObject != nullptr)
+  {
+    const ezSplineComponent* pSplineComponent = nullptr;
+    if (pObject->TryGetComponentOfBaseType(pSplineComponent))
+    {
+      return pSplineComponent;
+    }
+    pObject = pObject->GetParent();
+  }
+
+  return nullptr;
 }
 
 

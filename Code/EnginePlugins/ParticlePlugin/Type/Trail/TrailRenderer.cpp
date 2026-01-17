@@ -3,6 +3,7 @@
 #include <Foundation/Types/ScopeExit.h>
 #include <ParticlePlugin/Type/Trail/ParticleTypeTrail.h>
 #include <ParticlePlugin/Type/Trail/TrailRenderer.h>
+#include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Pipeline/RenderDataBatch.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Shader/ShaderResource.h>
@@ -76,6 +77,14 @@ void ezParticleTrailRenderer::RenderBatch(const ezRenderViewContext& renderViewC
 
     if (pRenderData->m_hCustomMaterial.IsValid())
     {
+      ezResourceLock<ezMaterialResource> pMat(pRenderData->m_hCustomMaterial, ezResourceAcquireMode::AllowLoadingFallback_NeverFail);
+      if (pMat.GetAcquireResult() != ezResourceAcquireResult::Final)
+      {
+        // skip rendering this particle effect in case the custom material is not yet loaded (or fails to load)
+        // otherwise we would get the fallback material, which doesn't work with particle vertex streams
+        return;
+      }
+
       pRenderContext->BindMaterial(pRenderData->m_hCustomMaterial);
     }
     else

@@ -27,7 +27,7 @@ ezAssetInfo::TransformState ezAssetCurator::HashAsset(ezUInt64 uiSettingsHash, c
     for (const auto& dep : assetTransformDeps)
     {
       ezString sPath = dep;
-      if (!AddAssetHash(sPath, false, out_AssetHash, out_ThumbHash, out_PackageHash, bForce))
+      if (!AddAssetHash(sPath, ezDependencyFlags::Transform, out_AssetHash, out_ThumbHash, out_PackageHash, bForce))
       {
         missingTransformDeps.Insert(sPath);
       }
@@ -36,7 +36,7 @@ ezAssetInfo::TransformState ezAssetCurator::HashAsset(ezUInt64 uiSettingsHash, c
     for (const auto& dep : assetThumbnailDeps)
     {
       ezString sPath = dep;
-      if (!AddAssetHash(sPath, true, out_AssetHash, out_ThumbHash, out_PackageHash, bForce))
+      if (!AddAssetHash(sPath, ezDependencyFlags::Thumbnail, out_AssetHash, out_ThumbHash, out_PackageHash, bForce))
       {
         missingThumbnailDeps.Insert(sPath);
       }
@@ -45,7 +45,7 @@ ezAssetInfo::TransformState ezAssetCurator::HashAsset(ezUInt64 uiSettingsHash, c
     for (const auto& dep : assetPackageDeps)
     {
       ezString sPath = dep;
-      if (!AddAssetHash(sPath, true, out_AssetHash, out_ThumbHash, out_PackageHash, bForce))
+      if (!AddAssetHash(sPath, ezDependencyFlags::Package, out_AssetHash, out_ThumbHash, out_PackageHash, bForce))
       {
         missingPackageDeps.Insert(sPath);
       }
@@ -73,7 +73,7 @@ ezAssetInfo::TransformState ezAssetCurator::HashAsset(ezUInt64 uiSettingsHash, c
   return state;
 }
 
-bool ezAssetCurator::AddAssetHash(ezString& sPath, bool bIsReference, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, ezUInt64& out_PackageHash, bool bForce)
+bool ezAssetCurator::AddAssetHash(ezString& sPath, ezBitflags<ezDependencyFlags> dependencyType, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, ezUInt64& out_PackageHash, bool bForce)
 {
   if (sPath.IsEmpty())
     return true;
@@ -91,13 +91,22 @@ bool ezAssetCurator::AddAssetHash(ezString& sPath, bool bIsReference, ezUInt64& 
       return false;
     }
 
-    // Thumbs hash is affected by both transform dependencies and references.
-    out_ThumbHash += thumbHash;
-    out_PackageHash += packageHash;
-    if (!bIsReference)
+    for (ezDependencyFlags::Enum dep : dependencyType)
     {
-      // References do not affect the asset hash.
-      out_AssetHash += assetHash;
+      switch (dep)
+      {
+        case ezDependencyFlags::Thumbnail:
+          out_ThumbHash += thumbHash;
+          break;
+        case ezDependencyFlags::Transform:
+          out_AssetHash += assetHash;
+          break;
+        case ezDependencyFlags::Package:
+          out_PackageHash += packageHash;
+          break;
+        default:
+          break;
+      }
     }
     return true;
   }
@@ -120,12 +129,22 @@ bool ezAssetCurator::AddAssetHash(ezString& sPath, bool bIsReference, ezUInt64& 
     return false;
   }
 
-  // Thumbs hash is affected by both transform dependencies and references.
-  out_ThumbHash += fileStatus.m_uiHash;
-  if (!bIsReference)
+  for (ezDependencyFlags::Enum dep : dependencyType)
   {
-    // References do not affect the asset hash.
-    out_AssetHash += fileStatus.m_uiHash;
+    switch (dep)
+    {
+      case ezDependencyFlags::Thumbnail:
+        out_ThumbHash += fileStatus.m_uiHash;
+        break;
+      case ezDependencyFlags::Transform:
+        out_AssetHash += fileStatus.m_uiHash;
+        break;
+      case ezDependencyFlags::Package:
+        out_PackageHash += fileStatus.m_uiHash;
+        break;
+      default:
+        break;
+    }
   }
   return true;
 }

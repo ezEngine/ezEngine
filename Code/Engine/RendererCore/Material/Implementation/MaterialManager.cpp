@@ -634,7 +634,7 @@ void ezMaterialManager::MaterialShaderConstants::OnResourceEvent(const ezResourc
 void ezMaterialManager::MaterialShaderConstants::OnShaderChanged(ezShaderResource* pShader)
 {
   ezSharedPtr<ezShaderConstantBufferLayout> pNewLayout = pShader->GetMaterialLayout();
-  const bool bChanged = m_pLayout == nullptr || *m_pLayout != *pNewLayout;
+  const bool bChanged = m_pLayout == nullptr || pNewLayout == nullptr || *m_pLayout != *pNewLayout;
   if (bChanged)
   {
     m_bShaderDirty = true;

@@ -65,6 +65,15 @@ function(ez_android_add_default_content TARGET_NAME)
 		set(ANDROID_SDK $ENV{ANDROID_HOME})
 	endif()
 
+	if(NOT JAVA_HOME)
+		if(NOT EXISTS "$ENV{JAVA_HOME}")
+			message(FATAL_ERROR "JAVA_HOME environment variable not set. Please ensure it points to the JDK folder.")
+		else()
+			set(JAVA_HOME $ENV{JAVA_HOME})
+		endif()
+	endif()
+
+
 	get_filename_component(ANDROID_BUILD_TOOLS_ROOT "${ANDROID_SDK}/build-tools" ABSOLUTE)
 	ez_list_subdirs(AVAILABLE_BUILD_TOOLS ${ANDROID_BUILD_TOOLS_ROOT})
 	list(LENGTH AVAILABLE_BUILD_TOOLS NUM_AVAILABLE_BUILD_TOOLS)
@@ -105,7 +114,7 @@ function(ez_android_add_default_content TARGET_NAME)
 		BYPRODUCTS "${APK_OUTPUT_DIR}/${TARGET_NAME}.apk" "${APK_OUTPUT_DIR}/${TARGET_NAME}.unaligned.apk"
 		COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${TARGET_NAME}> ${CONTENT_DIRECTORY_DST}/lib/${ANDROID_ABI}/lib${TARGET_NAME}.so
 		COMMAND ${CMAKE_COMMAND} -E copy "${EZ_VULKAN_VALIDATIONLAYERS_DIR}/${ANDROID_ABI}/libVkLayer_khronos_validation.so" ${CONTENT_DIRECTORY_DST}/lib/${ANDROID_ABI}/libVkLayer_khronos_validation.so
-		COMMAND pwsh -NoLogo -NoProfile -File ${EZ_ROOT}/Utilities/Android/BuildApk.ps1 -BuildToolsPath "${ANDROID_BUILD_TOOLS}" -ContentDirectory "${CONTENT_DIRECTORY_DST}" -Manifest "${CMAKE_CURRENT_BINARY_DIR}/AndroidManifest.xml" -AndroidPlatformRoot "${ANDROID_PLATFORM_ROOT}" -TargetName "${TARGET_NAME}" -OutDir "${APK_OUTPUT_DIR}" -SignKey "${CONTENT_DIRECTORY_SRC}/debug.keystore" -SignPassword "pass:android"
+		COMMAND pwsh -NoLogo -NoProfile -File ${EZ_ROOT}/Utilities/Android/BuildApk.ps1 -BuildToolsPath "${ANDROID_BUILD_TOOLS}" -JavaHome "${JAVA_HOME}" -ContentDirectory "${CONTENT_DIRECTORY_DST}" -Manifest "${CMAKE_CURRENT_BINARY_DIR}/AndroidManifest.xml" -AndroidPlatformRoot "${ANDROID_PLATFORM_ROOT}" -TargetName "${TARGET_NAME}" -OutDir "${APK_OUTPUT_DIR}" -SignKey "${CONTENT_DIRECTORY_SRC}/debug.keystore" -SignPassword "pass:android"
 		USES_TERMINAL
 	)
 endfunction()

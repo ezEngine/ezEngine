@@ -73,6 +73,8 @@ ezResourceLoadDesc ezMeshResource::UpdateContent(ezStreamReader* Stream)
     return res;
   }
 
+  m_uiAssetHash = AssetHash.GetFileHash();
+
   return CreateResource(std::move(desc));
 }
 

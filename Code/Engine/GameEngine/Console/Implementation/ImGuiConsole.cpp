@@ -117,6 +117,7 @@ void ezImGuiConsole::ClearLogStrings()
 {
   EZ_LOCK(GetMutex());
   m_LogStrings.Clear();
+  m_FilteredLogStrings.Clear();
 }
 
 void ezImGuiConsole::LogHandler(const ezLoggingEventData& data)
@@ -338,6 +339,21 @@ void ezImGuiConsole::RenderCVarWindow()
     ImGui::End();
     return;
   }
+
+  // Search filter input
+  ImGui::Text("Search:");
+  ImGui::SameLine();
+
+  char buffer[128];
+  ezStringUtils::Copy(buffer, EZ_ARRAY_SIZE(buffer), m_sCVarFilter);
+
+  ImGui::SetNextItemWidth(-1.0f);
+  if (ImGui::InputTextWithHint("##cvarfilter", "Filter CVars...", buffer, EZ_ARRAY_SIZE(buffer)))
+  {
+    m_sCVarFilter = buffer;
+  }
+
+  ImGui::Separator();
 
   // Build tree structure from CVars
   CVarTreeNode rootNode;
@@ -625,6 +641,10 @@ void ezImGuiConsole::BuildCVarTree(CVarTreeNode& root)
 
 void ezImGuiConsole::RenderCVarTreeNode(const ezString& sNodeName, CVarTreeNode& node)
 {
+  // Skip nodes that don't match the filter
+  if (!m_sCVarFilter.IsEmpty() && !CVarTreeNodeHasMatchingDescendant(node))
+    return;
+
   ImGui::TableNextRow();
   ImGui::TableSetColumnIndex(0);
 
@@ -788,6 +808,64 @@ void ezImGuiConsole::RenderCVarValue(ezCVar* pCVar)
     default:
       break;
   }
+}
+
+bool ezImGuiConsole::CVarNamePassesFilter(ezStringView sCVarName) const
+{
+  if (m_sCVarFilter.IsEmpty())
+    return true;
+
+  // Split filter text by spaces to get individual search parts
+  ezHybridArray<ezStringView, 4> filterParts;
+  ezStringBuilder filterText = m_sCVarFilter;
+  filterText.Split(false, filterParts, " ");
+
+  // Check each part against the CVar name
+  for (const ezStringView& part : filterParts)
+  {
+    if (part.IsEmpty())
+      continue;
+
+    // Check if this is an exclusion pattern (starts with -)
+    if (part.StartsWith("-"))
+    {
+      ezStringView excludePart = part.GetSubString(1, 0xffffff);
+      if (excludePart.IsEmpty())
+        continue;
+
+      // If the name contains this part, filter it out
+      if (sCVarName.FindSubString_NoCase(excludePart) != nullptr)
+        return false;
+    }
+    else
+    {
+      // Normal search part - name must contain it
+      if (sCVarName.FindSubString_NoCase(part) == nullptr)
+        return false;
+    }
+  }
+
+  return true;
+}
+
+bool ezImGuiConsole::CVarTreeNodeHasMatchingDescendant(const CVarTreeNode& node) const
+{
+  // If this is a leaf node with a CVar, check if it passes the filter
+  if (node.m_pCVar != nullptr)
+  {
+    ezStringBuilder sNameTemp;
+    ezStringView sFullName = node.m_pCVar->GetName().GetData(sNameTemp);
+    return CVarNamePassesFilter(sFullName);
+  }
+
+  // For parent nodes, recursively check if any child passes
+  for (auto it = node.m_Children.GetIterator(); it.IsValid(); ++it)
+  {
+    if (CVarTreeNodeHasMatchingDescendant(it.Value()))
+      return true;
+  }
+
+  return false;
 }
 
 void ezImGuiConsole::BuildFilteredLogStrings()
@@ -1065,6 +1143,8 @@ void ezImGuiConsole::RenderConsole(bool bIsOpen)
 
   if (bIsOpen)
   {
+    ezImgui::GetSingleton()->SetPassInputToImgui(true);
+
     RenderCommandWindow(m_uiForceFocus > 0);
     if (m_uiForceFocus > 0)
     {

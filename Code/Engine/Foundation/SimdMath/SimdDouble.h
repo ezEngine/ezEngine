@@ -55,7 +55,7 @@ public:
   ezSimdDouble& operator*=(const ezSimdDouble& f);
   ezSimdDouble& operator/=(const ezSimdDouble& f);
 
-  bool IsEqual(const ezSimdDouble& rhs, const ezSimdDouble& epsilon) const;
+  bool IsEqual(const ezSimdDouble& rhs, const ezSimdDouble& fEpsilon) const;
 
   bool operator==(const ezSimdDouble& f) const;
   bool operator!=(const ezSimdDouble& f) const;

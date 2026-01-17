@@ -2,6 +2,7 @@
 
 #include <RmlUiPlugin/RmlUiPluginDLL.h>
 
+#include <Foundation/Types/Variant.h>
 #include <RmlUi/Include/RmlUi/Core.h>
 
 namespace ezRmlUiConversionUtils

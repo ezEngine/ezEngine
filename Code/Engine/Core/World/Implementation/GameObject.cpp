@@ -956,18 +956,41 @@ bool ezGameObject::SendMessageInternal(ezMessage& msg, bool bWasPostedMsg)
   bool bSentToAny = false;
 
   const ezRTTI* pRtti = ezGetStaticRTTI<ezGameObject>();
-  bSentToAny |= pRtti->DispatchMessage(this, msg);
+  if (pRtti->DispatchMessage(this, msg))
+  {
+    bSentToAny = true;
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+    if (msg.GetDebugMessageRouting())
+    {
+      ezLog::Success("ezGameObject::SendMessage: Messages of type {0} was delivered to ezGameObject.", msg.GetId());
+    }
+#endif
+  }
 
   for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
   {
     ezComponent* pComponent = m_Components[i];
-    bSentToAny |= pComponent->SendMessageInternal(msg, bWasPostedMsg);
+    if (pComponent->SendMessageInternal(msg, bWasPostedMsg))
+    {
+      bSentToAny = true;
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+      if (msg.GetDebugMessageRouting())
+      {
+        ezLog::Success("ezGameObject::SendMessage: Messages of type {0} was delivered to '{}'.", msg.GetId(), pComponent->GetDynamicRTTI()->GetTypeName());
+      }
+#endif
+    }
   }
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-  if (!bSentToAny && msg.GetDebugMessageRouting())
+  if (msg.GetDebugMessageRouting())
   {
-    ezLog::Warning("ezGameObject::SendMessage: None of the target object's components had a handler for messages of type {0}.", msg.GetId());
+    if (!bSentToAny)
+    {
+      ezLog::Warning("ezGameObject::SendMessage: None of the target object's components had a handler for messages of type {0}.", msg.GetId());
+    }
   }
 #endif
 

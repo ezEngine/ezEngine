@@ -681,8 +681,12 @@ void ezSubstancePackageAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInf
   // Dependencies
   {
     pInfo->m_TransformDependencies.Insert(pProp->m_sSubstancePackage);
+    pInfo->m_ThumbnailDependencies.Insert(pProp->m_sSubstancePackage);
 
-    ReadDependencies(pProp->m_sSubstancePackage, pInfo->m_TransformDependencies).IgnoreResult();
+    ezSet<ezString> dependencies;
+    ReadDependencies(pProp->m_sSubstancePackage, dependencies).IgnoreResult();
+    pInfo->m_TransformDependencies.Union(dependencies);
+    pInfo->m_ThumbnailDependencies.Union(dependencies);
   }
 
   // Outputs
@@ -1076,7 +1080,7 @@ ezStatus ezSubstancePackageAssetDocument::RunTexConv(const char* szInputFile, co
 
   if (sThumbnailFile.IsEmpty() == false)
   {
-    ezUInt64 uiThumbnailHash = ezAssetCurator::GetSingleton()->GetAssetReferenceHash(GetGuid());
+    ezUInt64 uiThumbnailHash = ezAssetCurator::GetSingleton()->GetAssetThumbnailHash(GetGuid());
     EZ_ASSERT_DEV(uiThumbnailHash != 0, "Thumbnail hash should never be zero when reaching this point!");
 
     ThumbnailInfo thumbnailInfo;

@@ -4,6 +4,7 @@
 #include <ProcGenPlugin/Resources/ProcGenGraphResource.h>
 #include <RendererCore/Pipeline/RenderData.h>
 
+struct ezMsgGenerateSplineMeshCollision;
 class ezMeshComponentBase;
 class ezProcVertexColorComponent;
 using ezCpuMeshResourceHandle = ezTypedResourceHandle<class ezCpuMeshResource>;
@@ -39,6 +40,8 @@ private:
   void OnResourceEvent(const ezResourceEvent& resourceEvent);
 
   void OnAreaInvalidated(const ezProcGenInternal::InvalidatedArea& area);
+
+  ezGALDynamicBufferHandle GetVertexColorBuffer();
 
   ezDynamicArray<ezComponentHandle> m_ComponentsToUpdate;
   ezDynamicArray<UpdateContext> m_UpdateContexts;
@@ -90,7 +93,9 @@ public:
   virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
   virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
-  void OnTransformChanged(ezMsgTransformChanged& ref_msg);
+  void OnMsgTransformChanged(ezMsgTransformChanged& ref_msg);                               // [ msg handler ]
+  void OnMsgCustomInstanceDataOffsetChanged(ezMsgCustomInstanceDataOffsetChanged& ref_msg); // [ msg handler ]
+  void OnMsgGenerateSplineMeshCollision(ezMsgGenerateSplineMeshCollision& ref_msg);         // [ msg handler ]
 
 private:
   ezUInt32 OutputDescs_GetCount() const;

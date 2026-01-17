@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/Basics.h>
+#include <Foundation/Memory/Allocator.h>
 
 /// \brief Low-level memory allocator that manages whole memory pages from the operating system.
 ///

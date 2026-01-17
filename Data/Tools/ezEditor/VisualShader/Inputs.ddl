@@ -161,21 +161,21 @@ Node %VertexWorldPosition
   {
     string %Type { "float" }
     string %Color { "Red" }
-    string %Inline { "G.Input.Position.x" }
+    string %Inline { "G.Input.WorldPosition.x" }
   }
 
   OutputPin %Y
   {
     string %Type { "float" }
     string %Color { "Green" }
-    string %Inline { "G.Input.Position.y" }
+    string %Inline { "G.Input.WorldPosition.y" }
   }
 
   OutputPin %Z
   {
     string %Type { "float" }
     string %Color { "Blue" }
-    string %Inline { "G.Input.Position.z" }
+    string %Inline { "G.Input.WorldPosition.z" }
   }
 }
 

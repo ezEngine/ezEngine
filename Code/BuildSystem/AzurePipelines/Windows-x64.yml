@@ -3,6 +3,10 @@ parameters:
     displayName: 'Upload Caches'
     type: boolean
     default: false
+  - name: useVM
+    displayName: 'Start VM before build'
+    type: boolean
+    default: false
 
 trigger:
   branches:
@@ -14,25 +18,26 @@ resources:
     type: git
     ref: dev
 jobs:
-- job: Job_3
-  displayName: StartVM
-  pool:
-    vmImage: 'windows-2022'
-  steps:
-  - checkout: none
-  - task: AzureKeyVault@2
-    displayName: 'Azure Key Vault: ezKeys'
-    inputs:
-      ConnectedServiceName: 3c1e6edd-3ce0-4297-9a12-163b037ea7bc
-      KeyVaultName: ezKeys
-      SecretsFilter: AzureFunctionKey
-  - task: PowerShell@2
+- ${{ if eq(parameters.useVM, true) }}:
+  - job: StartVM
     displayName: StartVM
-    continueOnError: true
-    inputs:
-      targetType: inline
-      script: Invoke-RestMethod -Uri "https://ezengineci.azurewebsites.net/api/StartVM?code=$(AzureFunctionKey)&vmname=Windows10-1809"
-- job: Job_1
+    pool:
+      vmImage: 'windows-2022'
+    steps:
+    - checkout: none
+    - task: AzureKeyVault@2
+      displayName: 'Azure Key Vault: ezKeys'
+      inputs:
+        ConnectedServiceName: 3c1e6edd-3ce0-4297-9a12-163b037ea7bc
+        KeyVaultName: ezKeys
+        SecretsFilter: AzureFunctionKey
+    - task: PowerShell@2
+      displayName: StartVM
+      continueOnError: true
+      inputs:
+        targetType: inline
+        script: Invoke-RestMethod -Uri "https://ezengineci.azurewebsites.net/api/StartVM?code=$(AzureFunctionKey)&vmname=Windows10-1809"
+- job: Windows_x64
   displayName: Windows-x64
   timeoutInMinutes: 180
   pool:
@@ -95,7 +100,7 @@ jobs:
     inputs:
       targetType: filePath
       filePath: "$(System.DefaultWorkingDirectory)/RunCMake.ps1"
-      arguments: "-Target Win64vs2022 -NoUnityBuild -NoSubmoduleUpdate -SolutionName solution"
+      arguments: "-Target vs2022x64 -NoUnityBuild -NoSubmoduleUpdate -VulkanSupport 0 -SolutionName solution"
   - task: MSBuild@1
     displayName: Build Solution
     inputs:

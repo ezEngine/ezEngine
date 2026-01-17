@@ -41,6 +41,16 @@ ezRmlUiCanvas2DComponent::ezRmlUiCanvas2DComponent() = default;
 ezRmlUiCanvas2DComponent::~ezRmlUiCanvas2DComponent() = default;
 ezRmlUiCanvas2DComponent& ezRmlUiCanvas2DComponent::operator=(ezRmlUiCanvas2DComponent&& rhs) = default;
 
+void ezRmlUiCanvas2DComponent::OnActivated()
+{
+  SUPER::OnActivated();
+
+  GetOrCreateRmlContext()->ShowDocument();
+
+  // Update once to ensure correct initial state
+  Update();
+}
+
 void ezRmlUiCanvas2DComponent::Deinitialize()
 {
   SUPER::Deinitialize();

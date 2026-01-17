@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Foundation/Containers/Deque.h>
 #include <Foundation/Math/Math.h>
 #include <Utilities/PathFinding/PathState.h>
 #include <Utilities/UtilitiesDLL.h>

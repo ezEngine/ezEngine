@@ -12,4 +12,5 @@ PluginInfo
 	string %RequiredPlugins{}
 	string %ExclusiveFeatures{}
 	string %EnabledInTemplates{"General3D"}
+	string %CMakeTargetName{"KrautPlugin"}
 }

@@ -5,6 +5,7 @@
 #include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
 #include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
 
+#include <ads/AutoHideDockContainer.h>
 #include <ads/DockAreaWidget.h>
 #include <ads/DockContainerWidget.h>
 #include <ads/DockWidgetTab.h>
@@ -43,6 +44,12 @@ void ezQtApplicationPanel::EnsureVisible()
   m_pContainerWindow->EnsureVisible(this).IgnoreResult();
 
   QWidget* pThis = this;
+
+  if (isAutoHide())
+  {
+    // Expand the auto-hide container to make the widget visible
+    autoHideDockContainer()->collapseView(false);
+  }
 
   if (dockAreaWidget())
   {

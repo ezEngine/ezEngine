@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{18057468653562690442,4916190091500798880}}
-		u4 %Hash{13771642216160316128}
+		u4 %Hash{1085890097156849553}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -19,6 +19,7 @@ o
 			s{"{ 0425bf65-7a42-4f20-adfc-56f09ea2cae9 }"}
 			s{"{ 0a1662b9-6b58-46fa-860b-50ad7abee4d6 }"}
 			s{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
+			s{"{ 2d51eb72-1a60-4e54-b5e1-6859a78cbcc3 }"}
 			s{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
 			s{"{ 623110a5-942a-49fc-a684-7e19543468e1 }"}
 			s{"{ 64477407-277f-4867-84b1-2a7e89095f27 }"}
@@ -36,6 +37,7 @@ o
 			s{"{ 0425bf65-7a42-4f20-adfc-56f09ea2cae9 }"}
 			s{"{ 0a1662b9-6b58-46fa-860b-50ad7abee4d6 }"}
 			s{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
+			s{"{ 2d51eb72-1a60-4e54-b5e1-6859a78cbcc3 }"}
 			s{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
 			s{"{ 623110a5-942a-49fc-a684-7e19543468e1 }"}
 			s{"{ 75e2aefb-63ec-4dfb-be0f-7ddaf4e2fe5e }"}
@@ -215,7 +217,6 @@ o
 		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
-		b %IncludeInNavmesh{1}
 		s %Material{""}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000F041}
@@ -511,6 +512,18 @@ o
 }
 o
 {
+	Uuid %id{u4{18076068909273351590,4861659331914401429}}
+	s %t{"ezKrautTreeComponent"}
+	u3 %v{3}
+	p
+	{
+		b %Active{1}
+		s %KrautTree{"{ 2d51eb72-1a60-4e54-b5e1-6859a78cbcc3 }"}
+		u2 %VariationIndex{65535}
+	}
+}
+o
+{
 	Uuid %id{u4{14323096588558594471,4891719477508204702}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -780,23 +793,24 @@ o
 {
 	Uuid %id{u4{11112061978945997207,5086723015717563688}}
 	s %t{"ezSkyLightComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		s %CubeMap{""}
+		f %DiffuseIntensity{0x9A99993E}
+		f %DiffuseSaturation{0x9A99993E}
 		VarArray %ExcludeTags{}
 		f %FarPlane{0x0000C842}
 		VarArray %IncludeTags
 		{
 			s{"SkyLight"}
 		}
-		f %Intensity{0x9A99993E}
 		f %NearPlane{0}
 		s %ReflectionProbeMode{"ezReflectionProbeMode::Dynamic"}
-		f %Saturation{0x9A99993E}
 		b %ShowDebugInfo{0}
 		b %ShowMipMaps{0}
+		f %SpecularIntensity{0x0000803F}
 	}
 }
 o
@@ -940,7 +954,6 @@ o
 		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
-		b %IncludeInNavmesh{1}
 		s %Material{""}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000C842}
@@ -1088,6 +1101,32 @@ o
 		{
 			s{"CastShadow"}
 			s{"AutoColMesh"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{2354954962315579552,5448323387310376558}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{18076068909273351590,4861659331914401429}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x36754FC0,0xBAC54D40,0x9503453C}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
 		}
 	}
 }
@@ -1318,6 +1357,7 @@ o
 			Uuid{u4{6703636500134739314,1980403987555815761}}
 			Uuid{u4{12575710862270363754,9798604085115688225}}
 			Uuid{u4{2328952240938851767,5471553422613047843}}
+			Uuid{u4{2354954962315579552,5448323387310376558}}
 		}
 		Uuid %Settings{u4{2187194980541709488,4571633726886075602}}
 	}
@@ -1868,7 +1908,6 @@ o
 		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
-		b %IncludeInNavmesh{1}
 		s %Material{""}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000F041}
@@ -2519,7 +2558,6 @@ o
 		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
-		b %IncludeInNavmesh{1}
 		s %Material{""}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000F041}
@@ -2578,7 +2616,6 @@ o
 		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		u3 %Detail{16}
 		b %GenerateCollision{1}
-		b %IncludeInNavmesh{1}
 		s %Material{""}
 		s %Shape{"ezGreyBoxShape::Box"}
 		f %SizeNegX{0x0000F041}
@@ -4144,7 +4181,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSkyLightComponent"}
-		u3 %TypeVersion{3}
+		u3 %TypeVersion{4}
 	}
 }
 o

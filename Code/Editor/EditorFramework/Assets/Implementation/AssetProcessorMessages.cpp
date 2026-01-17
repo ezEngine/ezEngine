@@ -25,6 +25,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcessAssetResponseMsg, 1, ezRTTIDefaultAlloc
   {
     EZ_MEMBER_PROPERTY("Status", m_Status),
     EZ_ARRAY_MEMBER_PROPERTY("LogEntries", m_LogEntries),
+    EZ_MAP_MEMBER_PROPERTY("MissmatchTransformDependencies", m_MissmatchTransformDependencies),
+    EZ_MAP_MEMBER_PROPERTY("MissmatchThumbnailDependencies", m_MissmatchThumbnailDependencies),
+    EZ_MEMBER_PROPERTY("MissmatchAssetHash", m_uiMissmatchAssetHash),
+    EZ_MEMBER_PROPERTY("MissmatchThumbHash", m_uiMissmatchThumbHash),
   }
   EZ_END_PROPERTIES;
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/Basics.h>
+#include <Foundation/Memory/Allocator.h>
 
 /// \brief This Allocation policy redirects all operations to its parent.
 ///

@@ -53,8 +53,8 @@ void ezMeshComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& ref_msg) const
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMeshImportTransform, 1)
   EZ_ENUM_CONSTANT(ezMeshImportTransform::Blender_YUp),
-    EZ_ENUM_CONSTANT(ezMeshImportTransform::Blender_ZUp),
-    EZ_ENUM_CONSTANT(ezMeshImportTransform::Custom),
+  EZ_ENUM_CONSTANT(ezMeshImportTransform::Blender_ZUp),
+  EZ_ENUM_CONSTANT(ezMeshImportTransform::Custom),
 EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 

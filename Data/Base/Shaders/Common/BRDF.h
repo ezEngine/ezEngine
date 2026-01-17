@@ -96,9 +96,9 @@ float VisibilitySmithJointApprox(float roughness, float NdotV, float NdotL)
   return 0.5f / (lambdaV + lambdaL);
 }
 
-float3 FresnelSchlick(float3 specularColor, float u)
+float3 FresnelSchlick(float3 specularColor, float VdotH)
 {
-  float f = 1.0f - u;
+  float f = 1.0f - VdotH;
   float ff = f * f;
   float f5 = ff * ff * f;
 
@@ -143,4 +143,20 @@ AccumulatedLight SubsurfaceShading(ezMaterialData matData, float3 L, float3 V)
   float wrappedNdotH = saturate((dot(N, H) * wrapFactor + 1 - wrapFactor)) / (PI * 2);
 
   return InitializeLight(matData.subsurfaceColor * lerp(wrappedNdotH, 1, inScatter), 0.0);
+}
+
+float3 EnvironmentBRDF(float3 specularColor, float roughness, float NoV)
+{
+  // [ Lazarov 2013, "Getting More Physical in Call of Duty: Black Ops II" ]
+  // Adaptation to fit our G term.
+  const float4 c0 = {-1, -0.0275, -0.572, 0.022};
+  const float4 c1 = {1, 0.0425, 1.04, -0.04};
+  float4 r = roughness * c0 + c1;
+  float a004 = min(r.x * r.x, exp2(-9.28 * NoV)) * r.x + r.y;
+  float2 AB = float2(-1.04, 1.04) * a004 + r.zw;
+
+  // specularColor below 2% is considered to be shadowing
+  float F90 = saturate(50.0 * GetLuminance(specularColor));
+
+  return specularColor * AB.x + F90 * AB.y;
 }

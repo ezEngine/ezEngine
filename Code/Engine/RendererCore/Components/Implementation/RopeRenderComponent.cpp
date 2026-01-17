@@ -114,7 +114,7 @@ void ezRopeRenderComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
   {
     pRenderData->m_DataOffsets.m_uiSkinning = m_SkinningState.m_DataOffset.m_uiOffset;
     pRenderData->m_hSkinningBuffer = msg.m_pRenderDataManager->GetSkinningDataBuffer();
-    pRenderData->SetFallbackGlobalBoundingBox(GetOwner()->GetGlobalBounds().GetBox());
+    pRenderData->SetFallbackGlobalBounds(GetOwner()->GetGlobalBounds());
     pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, hMaterial, m_hMesh);
   }
 

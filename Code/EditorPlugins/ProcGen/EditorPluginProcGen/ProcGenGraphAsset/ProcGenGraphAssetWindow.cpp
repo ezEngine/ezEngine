@@ -123,7 +123,7 @@ void ezProcGenGraphAssetDocumentWindow::UpdatePreview()
   sAbsFilePath.ChangeFileExtension("ezProcGenGraph");
   // Write Header
   memoryWriter << sAbsFilePath;
-  const ezUInt64 uiHash = ezAssetCurator::GetSingleton()->GetAssetDependencyHash(GetDocument()->GetGuid());
+  const ezUInt64 uiHash = ezAssetCurator::GetSingleton()->GetAssetTransformHash(GetDocument()->GetGuid());
   ezAssetFileHeader AssetHeader;
   AssetHeader.SetFileHashAndVersion(uiHash, GetProcGenGraphDocument()->GetAssetTypeVersion());
   AssetHeader.Write(memoryWriter).IgnoreResult();

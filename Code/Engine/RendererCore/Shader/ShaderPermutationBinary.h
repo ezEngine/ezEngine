@@ -15,6 +15,9 @@ struct EZ_RENDERERCORE_DLL ezShaderStateResourceDescriptor
   ezGALDepthStencilStateCreationDescription m_DepthStencilDesc;
   ezGALRasterizerStateCreationDescription m_RasterizerDesc;
 
+  ezUInt8 m_uiShaderStencilRef = 0;       ///< Stencil reference value for stencil test comparison
+  bool m_bUseUserStencilRefValue = false; ///< Whether to use the stencil ref value, that is provided externally
+
   /// Parses state descriptions from shader source text.
   ezResult Parse(const char* szSource);
 

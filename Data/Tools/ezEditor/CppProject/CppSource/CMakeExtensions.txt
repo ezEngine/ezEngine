@@ -1,0 +1,17 @@
+# CMake Extensions File
+#
+# This file is included by CMakeLists.txt and allows you to extend the global build
+# configuration without modifying the template CMakeLists.txt file directly.
+#
+# This file will NOT be overwritten when templates are updated.
+#
+# For project specific modifications, there are dedicated extension files in their respective folders.
+
+# Examples of what you can add here:
+
+# Add custom compile definitions:
+#  add_compile_definitions(MY_CUSTOM_DEFINE=1)
+
+# Add custom include directories:
+#  include_directories("${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/MyLib/include")
+

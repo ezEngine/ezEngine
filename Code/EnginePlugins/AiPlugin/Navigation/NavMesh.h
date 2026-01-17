@@ -7,6 +7,7 @@
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Math/Vec2.h>
+#include <Foundation/Threading/Mutex.h>
 #include <Foundation/Types/RefCounted.h>
 #include <Foundation/Types/SharedPtr.h>
 #include <Recast.h>

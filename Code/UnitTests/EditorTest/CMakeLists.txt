@@ -26,6 +26,9 @@ add_dependencies(${PROJECT_NAME}
   EditorPluginAssets
   EditorPluginParticle
   EditorPluginProcGen
+  EditorPluginJolt
+  EditorPluginRmlUi
+  EditorPluginMiniAudio
   ParticlePlugin
   TexConv
   Player

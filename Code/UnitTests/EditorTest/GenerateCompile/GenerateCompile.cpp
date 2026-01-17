@@ -5,21 +5,21 @@
 #include <EditorFramework/CodeGen/CppSettings.h>
 #include <GuiFoundation/Action/ActionManager.h>
 
-static ezEditorTestGenerateCompile s_EditorTestGenerateAndCompile;
+static ezEditorTestGenerateCompilePacMan s_ezEditorTestGenerateCompilePacMan;
 
-const char* ezEditorTestGenerateCompile::GetTestName() const
+const char* ezEditorTestGenerateCompilePacMan::GetTestName() const
 {
   return "Generate and Compile";
 }
 
-void ezEditorTestGenerateCompile::SetupSubTests()
+void ezEditorTestGenerateCompilePacMan::SetupSubTests()
 {
   AddSubTest("01 - Generate and Compile", SubTests::ST_GenerateAndCompile);
   AddSubTest("02 - EditorProcessor: Compile Only", SubTests::ST_EditorProcessorCompileOnly);
   AddSubTest("03 - EditorProcessor: Compile and Transform", SubTests::ST_EditorProcessorCompileAndTransform);
 }
 
-ezResult ezEditorTestGenerateCompile::InitializeTest()
+ezResult ezEditorTestGenerateCompilePacMan::InitializeTest()
 {
   if (SUPER::InitializeTest().Failed())
     return EZ_FAILURE;
@@ -37,7 +37,7 @@ ezResult ezEditorTestGenerateCompile::InitializeTest()
   return EZ_SUCCESS;
 }
 
-ezResult ezEditorTestGenerateCompile::DeInitializeTest()
+ezResult ezEditorTestGenerateCompilePacMan::DeInitializeTest()
 {
   if (!m_sProjectPath.IsEmpty())
   {
@@ -53,24 +53,20 @@ ezResult ezEditorTestGenerateCompile::DeInitializeTest()
   return EZ_SUCCESS;
 }
 
-ezStatus ezEditorTestGenerateCompile::PrepareCompile(ezStringBuilder& dllPath, ezStringBuilder& bundlePath)
+ezStatus ezEditorTestGenerateCompile::PrepareCompile(ezStringBuilder& dllPath)
 {
   // Delete any existing build artifacts
   dllPath = ezOSFile::GetApplicationDirectory();
+  dllPath.AppendPath(m_sProjectName);
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  dllPath.AppendPath("PacManPlugin.dll");
+  dllPath.Append("Plugin.dll");
 #else
-  dllPath.AppendPath("PacManPlugin.so");
+  dllPath.Append("Plugin.so");
 #endif
 
-  bundlePath = ezOSFile::GetApplicationDirectory();
-  bundlePath.AppendPath("PacManPlugin.ezPluginBundle");
-
   ezOSFile::DeleteFile(dllPath).IgnoreResult();
-  ezOSFile::DeleteFile(bundlePath).IgnoreResult();
 
-  if (!EZ_TEST_BOOL(!ezOSFile::ExistsFile(dllPath)) ||
-      !EZ_TEST_BOOL(!ezOSFile::ExistsFile(bundlePath)))
+  if (!EZ_TEST_BOOL(!ezOSFile::ExistsFile(dllPath)))
   {
     return ezStatus("Failed to delete existing build artifacts - DLL or bundle file still exists");
   }
@@ -111,8 +107,8 @@ ezStatus ezEditorTestGenerateCompile::RunEditorProcessor(const ezDynamicArray<ez
 
 ezStatus ezEditorTestGenerateCompile::EditorProcessorCompileOnly()
 {
-  ezStringBuilder dllPath, bundlePath;
-  EZ_SUCCEED_OR_RETURN(PrepareCompile(dllPath, bundlePath));
+  ezStringBuilder dllPath;
+  EZ_SUCCEED_OR_RETURN(PrepareCompile(dllPath));
 
   // Run EditorProcessor with -compile flag
   ezDynamicArray<ezString> arguments;
@@ -129,7 +125,6 @@ ezStatus ezEditorTestGenerateCompile::EditorProcessorCompileOnly()
 
   // Verify that the DLL and bundle files have been created
   EZ_TEST_BOOL(ezOSFile::ExistsFile(dllPath));
-  EZ_TEST_BOOL(ezOSFile::ExistsFile(bundlePath));
 
   return ezStatus(EZ_SUCCESS);
 }
@@ -145,8 +140,8 @@ ezStatus ezEditorTestGenerateCompile::EditorProcessorCompileAndTransform()
     return ezStatus(ezFmt("Failed to delete asset cache folder: {}", assetCachePath));
   }
 
-  ezStringBuilder dllPath, bundlePath;
-  EZ_SUCCEED_OR_RETURN(PrepareCompile(dllPath, bundlePath));
+  ezStringBuilder dllPath;
+  EZ_SUCCEED_OR_RETURN(PrepareCompile(dllPath));
 
   // Run EditorProcessor with -compile and -transform flags
   ezDynamicArray<ezString> arguments;
@@ -173,15 +168,14 @@ ezStatus ezEditorTestGenerateCompile::EditorProcessorCompileAndTransform()
 
   // Verify that the DLL and bundle files have been created
   EZ_TEST_BOOL(ezOSFile::ExistsFile(dllPath));
-  EZ_TEST_BOOL(ezOSFile::ExistsFile(bundlePath));
 
   return ezStatus(EZ_SUCCESS);
 }
 
 ezStatus ezEditorTestGenerateCompile::GenerateAndCompile()
 {
-  ezStringBuilder dllPath, bundlePath;
-  EZ_SUCCEED_OR_RETURN(PrepareCompile(dllPath, bundlePath));
+  ezStringBuilder dllPath;
+  EZ_SUCCEED_OR_RETURN(PrepareCompile(dllPath));
 
   ezCppSettings cpp;
   if (!EZ_TEST_RESULT(cpp.Load()))
@@ -205,7 +199,7 @@ ezStatus ezEditorTestGenerateCompile::GenerateAndCompile()
   return ezStatus(EZ_SUCCESS);
 }
 
-ezTestAppRun ezEditorTestGenerateCompile::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
+ezTestAppRun ezEditorTestGenerateCompilePacMan::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
 {
   ProcessEvents();
   switch (iIdentifier)
@@ -230,12 +224,12 @@ ezTestAppRun ezEditorTestGenerateCompile::RunSubTest(ezInt32 iIdentifier, ezUInt
   return ezTestAppRun::Quit;
 }
 
-ezResult ezEditorTestGenerateCompile::InitializeSubTest(ezInt32 iIdentifier)
+ezResult ezEditorTestGenerateCompilePacMan::InitializeSubTest(ezInt32 iIdentifier)
 {
   return EZ_SUCCESS;
 }
 
-ezResult ezEditorTestGenerateCompile::DeInitializeSubTest(ezInt32 iIdentifier)
+ezResult ezEditorTestGenerateCompilePacMan::DeInitializeSubTest(ezInt32 iIdentifier)
 {
   ezDocumentManager::CloseAllDocuments();
   return EZ_SUCCESS;

@@ -470,7 +470,7 @@ float3 ComputeReflection(inout ezMaterialData matData, float3 viewVector, ezPerC
       }
     }
 
-    // The blob post above assumes that the cube maps are always rendered from world space without any rotation
+    // The blog post above assumes that the cube maps are always rendered from world space without any rotation
     // in the rendering of the cube map itself. However, we do rotate the rendering of the cube maps so we can
     // correctly clamp the far plane for each side of the cube. Thus, we can't take the world space dir and use
     // it as a reflection lookup. We need to transform it into the cube map space. However, the image in the cube
@@ -647,7 +647,10 @@ AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clus
   totalLight.diffuseLight += matData.diffuseColor * indirectLightModulation * skyLight * occlusion;
 
   // indirect specular
-  totalLight.specularLight += matData.specularColor * indirectLightModulation * ComputeReflection(matData, viewVector, clusterData) * occlusion;
+  float3 reflection = ComputeReflection(matData, viewVector, clusterData);
+  float NdotV = saturate(dot(matData.worldNormal, viewVector));
+  float3 specularColor = EnvironmentBRDF(matData.specularColor, matData.roughness, NdotV);
+  totalLight.specularLight += specularColor * indirectLightModulation * reflection * occlusion;
 
   // enable once we have proper sky visibility
   /*#if defined(USE_MATERIAL_SUBSURFACE_COLOR)
@@ -798,22 +801,33 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData, uin
   matData.roughness = RoughnessFromPerceptualRoughness(matData.perceptualRoughness);
 }
 
-float4 CalculateRefraction(float3 worldPosition, float3 worldNormal, float IoR, float thickness, float3 tintColor, float newOpacity = 1.0f)
+float4 CalculateRefraction(float3 worldPosition, float4 screenPosition, float3 worldNormal, float IoR, float thickness, float3 tintColor, float newOpacity = 1.0f)
 {
   float3 normalizedViewVector = normalize(GetCameraPosition() - worldPosition);
-  float r = 1.0f / IoR;
+  float r = 1.0 / IoR;
   float NdotV = dot(worldNormal, normalizedViewVector);
-  float k = 1.0f - r * r * (1.0f - NdotV * NdotV);
+  float k = 1.0 - r * r * (1.0 - NdotV * NdotV);
   float3 refractVector = r * -normalizedViewVector + (r * NdotV - sqrt(k)) * worldNormal;
 
-  float4 projectedRefractVector = mul(GetWorldToScreenMatrix(), float4(worldPosition + refractVector * thickness, 1.0f));
+  float4 projectedRefractVector = mul(GetWorldToScreenMatrix(), float4(worldPosition + refractVector * thickness, 1.0));
   projectedRefractVector.xy /= projectedRefractVector.w;
+  projectedRefractVector.xy = projectedRefractVector.xy * float2(0.5, -0.5) + 0.5;
 
-  float2 refractCoords = projectedRefractVector.xy * float2(0.5f, -0.5f) + 0.5f;
-  float3 refractionColor = SceneColor.SampleLevel(SceneColorSampler, float3(refractCoords, s_ActiveCameraEyeIndex), 0.0f).rgb;
+  float2 normalizedScreenPosition = screenPosition * ViewportSize.zw;
+  float fadeout = saturate(normalizedScreenPosition.y * 3 - 2);
+  fadeout *= fadeout;
 
-  float fresnel = pow(1.0f - NdotV, 5.0f);
-  refractionColor *= tintColor * (1.0f - fresnel);
+  float2 refractCoords = float2(projectedRefractVector.x, lerp(projectedRefractVector.y, normalizedScreenPosition.y, fadeout));
+  float depthFromZBuffer = SceneDepth.SampleLevel(PointSampler, float3(refractCoords, s_ActiveCameraEyeIndex), 0).r;
+  if (LinearizeZBufferDepth(depthFromZBuffer) < screenPosition.w)
+  {
+    refractCoords = normalizedScreenPosition;
+  }
+
+  float3 refractionColor = SceneColor.SampleLevel(SceneColorSampler, float3(refractCoords, s_ActiveCameraEyeIndex), 0).rgb;
+
+  float fresnel = pow(1.0 - NdotV, 5.0);
+  refractionColor *= tintColor * (1.0 - fresnel);
 
   return float4(refractionColor, newOpacity);
 }

@@ -30,6 +30,9 @@ public:
   /// \brief Returns the bounds of this mesh.
   const ezBoundingBoxSphere& GetBounds() const { return m_Bounds; }
 
+  /// \brief Returns the asset hash for this mesh. Returns 0 if the mesh was not loaded from an asset file.
+  ezUInt64 GetAssetHash() const { return m_uiAssetHash; }
+
   // TODO: clean up
   ezSkeletonResourceHandle m_hDefaultSkeleton;
   ezHashTable<ezHashedString, ezMeshResourceDescriptor::BoneData> m_Bones;
@@ -40,11 +43,13 @@ private:
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
+  ezBoundingBoxSphere m_Bounds;
+
   ezDynamicArray<ezMeshResourceDescriptor::SubMesh> m_SubMeshes;
   ezMeshBufferResourceHandle m_hMeshBuffer;
   ezDynamicArray<ezMaterialResourceHandle> m_Materials;
 
-  ezBoundingBoxSphere m_Bounds;
+  ezUInt64 m_uiAssetHash = 0;
 
   static ezUInt32 s_uiMeshBufferNameSuffix;
 };

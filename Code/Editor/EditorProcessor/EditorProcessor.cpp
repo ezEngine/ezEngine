@@ -119,9 +119,19 @@ public:
           // Next, we force checking that the asset is up to date. This EditorProcessor instance might not have observed the generation of the output files of various dependencies yet and incorrectly assume that some dependencies still need to be transformed. To prevent this, we force checking the asset and all its dependencies via the filesystem, ignoring the caching.
           ezAssetInfo::TransformState state = ezAssetCurator::GetSingleton()->IsAssetUpToDate(pMsg->m_AssetGuid, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform), nullptr, uiAssetHash, uiThumbHash, uiPackageHash, true);
 
-          if ((uiAssetHash != pMsg->m_AssetHash) || (uiThumbHash != pMsg->m_ThumbHash) || (uiPackageHash != pMsg->m_PackageHash))
+          if ((uiAssetHash != pMsg->m_AssetHash) || (uiThumbHash != pMsg->m_ThumbHash))
           {
-            ezLog::Warning("Asset '{}' of state '{}' in processor with hashes '{}|{}|{}' differs from the state in the editor with hashes '{}|{}|{}'", pMsg->m_sAssetPath, (int)state, uiAssetHash, uiThumbHash, uiPackageHash, pMsg->m_AssetHash, pMsg->m_ThumbHash, pMsg->m_PackageHash);
+            ezLog::Warning("Asset '{}' of state '{}' in processor with hashes '{}|{}' differs from the state in the editor with hashes '{}|{}'", pMsg->m_sAssetPath, (int)state, uiAssetHash, uiThumbHash, pMsg->m_AssetHash, pMsg->m_ThumbHash);
+            msg.m_uiMissmatchAssetHash = uiAssetHash;
+            msg.m_uiMissmatchThumbHash = uiThumbHash;
+
+            ezSet<ezString> dependencies;
+            ezAssetCurator::GetSingleton()->GenerateTransitiveHull(pMsg->m_sAssetPath, dependencies, ezDependencyFlags::Transform);
+            ezAssetCurator::GetSingleton()->GenerateSettingsHashMap(dependencies, ezDependencyFlags::Transform, msg.m_MissmatchTransformDependencies);
+
+            dependencies.Clear();
+            ezAssetCurator::GetSingleton()->GenerateTransitiveHull(pMsg->m_sAssetPath, dependencies, ezDependencyFlags::Thumbnail);
+            ezAssetCurator::GetSingleton()->GenerateSettingsHashMap(dependencies, ezDependencyFlags::Thumbnail, msg.m_MissmatchThumbnailDependencies);
           }
 
           if (state == ezAssetInfo::NeedsThumbnail || state == ezAssetInfo::NeedsTransform)

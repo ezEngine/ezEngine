@@ -12,4 +12,5 @@ PluginInfo
 	string %RequiredPlugins{}
 	string %ExclusiveFeatures{"Sound"}
 	string %EnabledInTemplates{}
+	string %CMakeTargetName{"MiniAudioPlugin"}
 }

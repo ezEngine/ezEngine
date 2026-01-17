@@ -85,6 +85,19 @@ Node %DepthFade
   }
 }
 
+Node %PixelDepth
+{
+  string %Category { "Utils" }
+  string %Color { "Green" }
+  string %Docs { "Returns the depth at the current pixel." }
+ 
+  OutputPin %Depth
+  {
+    string %Type { "float" }
+    string %Inline { "G.Input.Position.w" }
+  }
+}
+
 Node %Fresnel
 {
   string %Category { "Utils" }
@@ -144,7 +157,7 @@ Node %Refraction
 
 float4 VisualShaderRefraction(float3 worldNormal, float IoR, float thickness, float3 tintColor, float newOpacity)
 {
-  return CalculateRefraction(G.Input.WorldPosition, worldNormal, IoR, thickness, tintColor, newOpacity);
+  return CalculateRefraction(G.Input.WorldPosition, G.Input.Position, worldNormal, IoR, thickness, tintColor, newOpacity);
 }
 
 " }
@@ -153,7 +166,7 @@ float4 VisualShaderRefraction(float3 worldNormal, float IoR, float thickness, fl
   {
     string %Color { "Violet" }
     string %Type { "float3" }
-    string %DefaultValue { "GetNormal()" }
+    string %DefaultValue { "normalize(GetNormal())" }
     string %Tooltip { "Surface normal used to calculate refraction direction." }
   }
   

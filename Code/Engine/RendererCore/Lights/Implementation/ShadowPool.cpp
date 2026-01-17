@@ -62,6 +62,7 @@ struct ShadowView
 {
   ezViewHandle m_hView;
   ezCamera m_Camera;
+  ezCamera m_CullingCamera;
 };
 
 struct ShadowData
@@ -288,6 +289,7 @@ struct ezShadowPool::Data
     if (ezRenderWorld::TryGetView(shadowView.m_hView, out_pView))
     {
       out_pView->SetCamera(&shadowView.m_Camera);
+      out_pView->SetCullingCamera(nullptr);
       out_pView->SetLodCamera(nullptr);
     }
 
@@ -438,6 +440,7 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
       pView->SetName(tmp);
 
       pView->SetWorld(const_cast<ezWorld*>(pDirLight->GetWorld()));
+      pView->SetCullingCamera(&shadowView.m_CullingCamera);
       pView->SetLodCamera(pReferenceCamera);
       pView->SetRenderPassProperty("ShadowDepth", "RenderTransparentObjects", pDirLight->GetTransparentShadows());
       CopyExcludeTagsOnWhiteList(pReferenceView->m_ExcludeTags, pView->m_ExcludeTags);
@@ -497,6 +500,11 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
       offset.y -= ezMath::Floor(offset.y / texelInWorld) * texelInWorld;
 
       camera.MoveLocally(0.0f, offset.x, offset.y);
+
+      // culling camera with pulled back near plane
+      ezCamera& cullingCamera = shadowView.m_CullingCamera;
+      cullingCamera = camera;
+      cullingCamera.SetCameraMode(ezCameraMode::OrthoFixedWidth, radius * 2.0f, -pReferenceCamera->GetFarPlane(), fFarPlane);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
       if (cvar_RenderingShadowsVisCascadeBounds)

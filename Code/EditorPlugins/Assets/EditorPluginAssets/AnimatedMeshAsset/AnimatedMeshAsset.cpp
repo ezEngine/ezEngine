@@ -150,3 +150,11 @@ ezTransformStatus ezAnimatedMeshAssetDocument::InternalCreateThumbnail(const Thu
   ezStatus status = ezAssetDocument::RemoteCreateThumbnail(ThumbnailInfo);
   return status;
 }
+
+void ezAnimatedMeshAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
+{
+  SUPER::UpdateAssetDocumentInfo(pInfo);
+
+  // For glTF files, add any referenced external buffer files as dependencies
+  ezMeshImportUtils::AddGltfBufferDependencies(GetProperties()->m_sMeshFile, pInfo->m_TransformDependencies);
+}

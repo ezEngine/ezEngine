@@ -2,6 +2,8 @@
 
 #include <GameComponentsPlugin/GameComponentsDLL.h>
 
+#include <Core/World/ComponentManager.h>
+
 using ezHeadBoneComponentManager = ezComponentManagerSimple<class ezHeadBoneComponent, ezComponentUpdateType::WhenSimulating>;
 
 /// \brief Applies a vertical rotation in local space (local Y axis) to the owner game object.

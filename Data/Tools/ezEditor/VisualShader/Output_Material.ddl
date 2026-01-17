@@ -96,7 +96,6 @@ float MaskThreshold @Default($prop0);
 #define USE_MATERIAL_EMISSIVE
 #define USE_MATERIAL_OCCLUSION
 #define USE_TWO_SIDED_LIGHTING
-#define USE_DECALS
 
 #if VERTEX_SKINNING
   #define USE_SKINNING
@@ -108,6 +107,10 @@ float MaskThreshold @Default($prop0);
 
 #if $prop1
   #define USE_FOG
+#endif
+
+#if $prop2
+  #define USE_DECALS
 #endif
 
 #if INPUT_PIN_1_CONNECTED
@@ -215,6 +218,12 @@ float3 GetSubsurfaceColor()
   }
   
   Property %ApplyFog
+  {
+    string %Type { "bool" }
+    string %DefaultValue { "true" }
+  }
+
+  Property %ApplyDecals
   {
     string %Type { "bool" }
     string %DefaultValue { "true" }

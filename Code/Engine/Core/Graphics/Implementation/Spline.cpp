@@ -205,6 +205,8 @@ void ezSpline::CalculateUpDirAndAutoTangents(const ezSimdVec4f& vGlobalUpDir, co
     for (ezUInt32 i = 0; i < uiNumPoints; ++i)
     {
       auto& cp = m_ControlPoints[i];
+      if (cp.m_vUpDirAndRoll.IsZero<3>() == false)
+        continue;
 
       ezSimdVec4f forwardDir = EvaluateDerivative(i, 0.0f);
       forwardDir.NormalizeIfNotZero<3>(vGlobalForwardDir);

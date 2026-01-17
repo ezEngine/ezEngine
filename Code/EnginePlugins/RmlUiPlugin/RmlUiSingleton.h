@@ -2,12 +2,15 @@
 
 #include <RmlUiPlugin/RmlUiPluginDLL.h>
 
+#include <Core/ResourceManager/ResourceHandle.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
 class ezRmlUiContext;
 struct ezMsgExtractRenderData;
+
+using ezRmlUiResourceHandle = ezTypedResourceHandle<class ezRmlUiResource>;
 
 /// \brief The RML configuration to be used on a specific platform
 struct EZ_RMLUIPLUGIN_DLL ezRmlUiConfiguration

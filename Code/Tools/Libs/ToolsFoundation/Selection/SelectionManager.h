@@ -1,5 +1,12 @@
 #pragma once
 
+#include <Foundation/Communication/Event.h>
+#include <Foundation/Containers/Deque.h>
+#include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Containers/Set.h>
+#include <Foundation/Types/RefCounted.h>
+#include <Foundation/Types/SharedPtr.h>
+#include <Foundation/Types/Uuid.h>
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 #include <ToolsFoundation/ToolsFoundationDLL.h>
 

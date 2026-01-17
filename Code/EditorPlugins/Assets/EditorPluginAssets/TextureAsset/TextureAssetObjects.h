@@ -63,6 +63,12 @@ struct ezRenderTargetFormat
     RGBA8,
     RGB10,
     RGBA16,
+    R8,
+    R16,
+    R32,
+    RG8,
+    RG16,
+    RG32,
 
     Default = RGBA8sRgb
   };

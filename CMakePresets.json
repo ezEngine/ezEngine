@@ -13,7 +13,18 @@
       "architecture": "x64",
       "binaryDir": "${sourceDir}/Workspace/${presetName}",
       "cacheVariables": {
-        "EZ_BUILD_EXPERIMENTAL_VULKAN": "ON",
+        "EZ_ENABLE_FOLDER_UNITY_FILES" : "ON",
+        "EZ_COMPILE_ENGINE_AS_DLL" : "ON"
+      },
+      "environment": {}
+    },
+    {
+      "name": "vs2026x64",
+      "hidden": false,
+      "generator": "Visual Studio 18 2026",
+      "architecture": "x64",
+      "binaryDir": "${sourceDir}/Workspace/${presetName}",
+      "cacheVariables": {
         "EZ_ENABLE_FOLDER_UNITY_FILES" : "ON",
         "EZ_COMPILE_ENGINE_AS_DLL" : "ON"
       },
@@ -66,7 +77,11 @@
         "ANDROID_PLATFORM" : "29",
         "CMAKE_TOOLCHAIN_FILE" : "$env{ANDROID_NDK_HOME}/build/cmake/android.toolchain.cmake"
       },
-      "environment": {}
+      "environment": {
+        "ANDROID_HOME" : "${sourceDir}/Workspace/shared/android",
+        "ANDROID_NDK_HOME" : "${sourceDir}/Workspace/shared/android/ndk/26.1.10909125",
+        "JAVA_HOME" : "${sourceDir}/Workspace/shared/android/jdk17"
+      }
     },
 
     {

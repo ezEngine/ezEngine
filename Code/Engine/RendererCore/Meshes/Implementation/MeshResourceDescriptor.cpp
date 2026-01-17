@@ -90,11 +90,11 @@ void ezMeshResourceDescriptor::AddSubMesh(ezUInt32 uiPrimitiveCount, ezUInt32 ui
   m_SubMeshes.PushBack(p);
 }
 
-void ezMeshResourceDescriptor::SetMaterial(ezUInt32 uiMaterialIndex, const char* szPathToMaterial)
+void ezMeshResourceDescriptor::SetMaterial(ezUInt32 uiMaterialIndex, ezStringView sPathToMaterial)
 {
   m_Materials.EnsureCount(uiMaterialIndex + 1);
 
-  m_Materials[uiMaterialIndex].m_sPath = szPathToMaterial;
+  m_Materials[uiMaterialIndex].m_sPath = sPathToMaterial;
 }
 
 ezResult ezMeshResourceDescriptor::Save(const char* szFile)

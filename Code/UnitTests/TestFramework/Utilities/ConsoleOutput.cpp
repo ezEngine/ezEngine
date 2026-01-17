@@ -1,4 +1,3 @@
-#pragma once
 
 #include <TestFramework/Framework/TestFramework.h>
 

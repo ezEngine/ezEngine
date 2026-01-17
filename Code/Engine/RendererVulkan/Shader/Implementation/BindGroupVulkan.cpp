@@ -1,6 +1,8 @@
 #include <RendererVulkan/Shader/BindGroupVulkan.h>
 
+#include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/Pools/DescriptorWritePoolVulkan.h>
+#include <RendererVulkan/Shader/BindGroupLayoutVulkan.h>
 
 ezGALBindGroupVulkan::ezGALBindGroupVulkan(const ezGALBindGroupCreationDescription& Description)
   : ezGALBindGroup(Description)

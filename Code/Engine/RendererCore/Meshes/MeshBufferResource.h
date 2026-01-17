@@ -114,6 +114,9 @@ public:
   /// * NormalTangentAndTexCoord0
   void AddCommonStreams(bool bUseHighPrecision = false);
 
+  /// \brief Adds all streams from the given stream config.
+  void AddStreamConfig(const ezMeshVertexStreamConfig& streamConfig);
+
   /// \brief After all streams are added, call this to allocate the data for the streams. If uiNumPrimitives is 0, the mesh buffer will not
   /// use indexed rendering.
   void AllocateStreams(ezUInt32 uiNumVertices, ezGALPrimitiveTopology::Enum topology = ezGALPrimitiveTopology::Triangles, ezUInt32 uiNumPrimitives = 0, bool bZeroFill = false);

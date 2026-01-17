@@ -1,17 +1,15 @@
 #include <RmlUiPlugin/RmlUiPluginPCH.h>
 
-#include <RmlUiPlugin/Components/RmlUiCanvasComponentBase.h>
-#include <RmlUiPlugin/Implementation/BlackboardDataBinding.h>
-#include <RmlUiPlugin/Implementation/RmlUiRenderData.h>
-#include <RmlUiPlugin/RmlUiContext.h>
-#include <RmlUiPlugin/RmlUiSingleton.h>
-
-#include <Core/Input/InputManager.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/Gameplay/BlackboardComponent.h>
-#include <RendererFoundation/Resources/Texture.h>
+#include <RendererCore/Pipeline/RenderData.h>
+#include <RmlUiPlugin/Components/RmlUiCanvasComponentBase.h>
+#include <RmlUiPlugin/Implementation/BlackboardDataBinding.h>
+#include <RmlUiPlugin/RmlUiContext.h>
+#include <RmlUiPlugin/RmlUiSingleton.h>
 
+// clang-format off
 EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezRmlUiCanvasComponentBase, 1)
 {
   EZ_BEGIN_PROPERTIES
@@ -34,6 +32,9 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezRmlUiCanvasComponentBase, 1)
   EZ_END_ATTRIBUTES;
 }
 EZ_END_COMPONENT_TYPE
+// clang-format on
+
+static ezAtomicInteger32 s_RmlContextIdCounter;
 
 ezRmlUiCanvasComponentBase::ezRmlUiCanvasComponentBase() = default;
 ezRmlUiCanvasComponentBase::~ezRmlUiCanvasComponentBase() = default;
@@ -81,16 +82,6 @@ void ezRmlUiCanvasComponentBase::Deinitialize()
   m_DataBindings.Clear();
 }
 
-void ezRmlUiCanvasComponentBase::OnActivated()
-{
-  SUPER::OnActivated();
-
-  GetOrCreateRmlContext()->ShowDocument();
-
-  // Update once to ensure correct initial state
-  Update();
-}
-
 void ezRmlUiCanvasComponentBase::OnDeactivated()
 {
   m_pContext->HideDocument();
@@ -117,9 +108,9 @@ void ezRmlUiCanvasComponentBase::Update()
   if (m_bNeedsUpdate || m_bOnDemandUpdate == false)
   {
     m_pContext->Update();
-  }
 
-  m_bNeedsUpdate = false;
+    m_bNeedsUpdate = false;
+  }
 }
 
 bool ezRmlUiCanvasComponentBase::ReceiveInput(const ezVec2& vMousePosInsideCanvas, ezRmlUiInputSnapshot input)
@@ -164,6 +155,7 @@ void ezRmlUiCanvasComponentBase::SetAutobindBlackboards(bool bAutobind)
 void ezRmlUiCanvasComponentBase::SetOnDemandUpdate(bool bOnDemandUpdate)
 {
   m_bOnDemandUpdate = bOnDemandUpdate;
+  m_bNeedsUpdate = true;
 }
 
 ezUInt32 ezRmlUiCanvasComponentBase::AddDataBinding(ezUniquePtr<ezRmlUiDataBinding>&& pDataBinding)
@@ -236,9 +228,16 @@ ezRmlUiContext* ezRmlUiCanvasComponentBase::GetOrCreateRmlContext()
     ezStringView sResourceID = m_hResource.GetResourceIdOrDescription();
     sName.Append(sResourceID.GetFileName());
   }
-  sName.AppendFormat("_{}", ezArgP(this));
+
+  if (m_uiContextID == 0)
+  {
+    m_uiContextID = s_RmlContextIdCounter.Increment();
+  }
+
+  sName.AppendFormat("_{}", m_uiContextID);
 
   m_pContext = ezRmlUi::GetSingleton()->CreateContext(sName, m_vSize);
+  EZ_ASSERT_DEV(m_pContext != nullptr, "RML UI context creation failed");
 
   for (auto& pDataBinding : m_DataBindings)
   {
@@ -270,28 +269,22 @@ void ezRmlUiCanvasComponentBase::UpdateCachedValues()
 
   if (m_hResource.IsValid())
   {
-    {
-      ezResourceLock pResource(m_hResource, ezResourceAcquireMode::BlockTillLoaded);
+    ezResourceLock pResource(m_hResource, ezResourceAcquireMode::BlockTillLoaded);
 
-      if (pResource->GetScaleMode() == ezRmlUiScaleMode::WithScreenSize)
+    if (pResource->GetScaleMode() == ezRmlUiScaleMode::WithScreenSize)
+    {
+      m_vReferenceResolution = pResource->GetReferenceResolution();
+    }
+
+    pResource->m_ResourceEvents.AddEventHandler(
+      [hComponent = GetHandle(), pWorld = GetWorld()](const ezResourceEvent& e)
       {
-        m_vReferenceResolution = pResource->GetReferenceResolution();
-      }
-    }
-
-    {
-      ezResourceLock pResource(m_hResource, ezResourceAcquireMode::PointerOnly);
-
-      pResource->m_ResourceEvents.AddEventHandler(
-        [hComponent = GetHandle(), pWorld = GetWorld()](const ezResourceEvent& e)
+        if (e.m_Type == ezResourceEvent::Type::ResourceContentUnloading)
         {
-          if (e.m_Type == ezResourceEvent::Type::ResourceContentUnloading)
-          {
-            pWorld->PostMessage(hComponent, ezMsgRmlUiReload(), ezTime::MakeZero());
-          }
-        },
-        m_ResourceEventUnsubscriber);
-    }
+          pWorld->PostMessage(hComponent, ezMsgRmlUiReload(), ezTime::MakeZero());
+        }
+      },
+      m_ResourceEventUnsubscriber);
   }
 }
 

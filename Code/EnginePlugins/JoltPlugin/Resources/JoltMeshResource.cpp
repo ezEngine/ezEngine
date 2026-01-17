@@ -104,8 +104,6 @@ ezResourceLoadDesc ezJoltMeshResource::UnloadData(Unload WhatToUnload)
   return res;
 }
 
-EZ_DEFINE_AS_POD_TYPE(JPH::Vec3);
-
 static void ReadConvexMesh(ezStreamReader& inout_stream, ezDataBuffer* pBuffer)
 {
   ezUInt32 uiSize = 0;
@@ -150,8 +148,7 @@ ezResourceLoadDesc ezJoltMeshResource::UpdateContent(ezStreamReader* Stream)
   ezAssetFileHeader AssetHash;
   AssetHash.Read(*Stream).IgnoreResult();
 
-  // version specified in ezJoltCollisionMeshAssetDocument::InternalTransformAsset()
-  // and also in ezSceneExportModifier_JoltStaticMeshConversion::ModifyWorld() !
+  // version specified in ezJoltMeshResourceWriter::WriteMeshResource
   ezUInt8 uiVersion = 0;
   ezUInt8 uiCompressionMode = 0;
 
@@ -307,12 +304,21 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezJoltMeshResource, ezJoltMeshResourceDescripto
   return res;
 }
 
-void RetrieveShapeTriangles(const JPH::Shape* pShape, ezDynamicArray<ezVec3>& ref_positions)
+struct ShapeTriangle
 {
-  const int iMaxTris = 256;
+  ezVec3 m_Vertices[3];
+  const ezSurfaceResource* m_pSurface = nullptr;
+};
 
-  ezDynamicArray<ezVec3> positionsTmp;
-  positionsTmp.SetCountUninitialized(iMaxTris * 3);
+void RetrieveShapeTriangles(const JPH::Shape* pShape, ezDynamicArray<ShapeTriangle>& out_triangles)
+{
+  constexpr int cMaxTriangles = 128;
+
+  ezStaticArray<ezVec3, cMaxTriangles * 3> positionsTmp;
+  positionsTmp.SetCountUninitialized(cMaxTriangles * 3);
+
+  ezStaticArray<const JPH::PhysicsMaterial*, cMaxTriangles> materialsTmp;
+  materialsTmp.SetCountUninitialized(cMaxTriangles);
 
   JPH::Shape::GetTrianglesContext ctxt;
 
@@ -320,23 +326,24 @@ void RetrieveShapeTriangles(const JPH::Shape* pShape, ezDynamicArray<ezVec3>& re
 
   while (true)
   {
-    int found = pShape->GetTrianglesNext(ctxt, iMaxTris, reinterpret_cast<JPH::Float3*>(positionsTmp.GetData()), nullptr);
+    const int triCount = pShape->GetTrianglesNext(ctxt, cMaxTriangles, reinterpret_cast<JPH::Float3*>(positionsTmp.GetData()), materialsTmp.GetData());
 
-    ref_positions.PushBackRange(positionsTmp.GetArrayPtr().GetSubArray(0, found * 3));
+    if (triCount == 0)
+      break;
 
-    if (found == 0)
-      return;
+    out_triangles.Reserve(out_triangles.GetCount() + triCount);
+
+    for (int i = 0; i < triCount; ++i)
+    {
+      const ezJoltMaterial* pMat = static_cast<const ezJoltMaterial*>(materialsTmp[i]);
+
+      auto& tri = out_triangles.ExpandAndGetRef();
+      tri.m_pSurface = pMat ? pMat->m_pSurface : nullptr;
+      tri.m_Vertices[0] = positionsTmp[i * 3 + 0];
+      tri.m_Vertices[1] = positionsTmp[i * 3 + 1];
+      tri.m_Vertices[2] = positionsTmp[i * 3 + 2];
+    }
   }
-}
-
-void RetrieveShapeTriangles(JPH::ShapeSettings* pShapeOpt, ezDynamicArray<ezVec3>& ref_positions)
-{
-  auto res = pShapeOpt->Create();
-
-  if (res.HasError())
-    return;
-
-  RetrieveShapeTriangles(res.Get(), ref_positions);
 }
 
 ezCpuMeshResourceHandle ezJoltMeshResource::ConvertToCpuMesh() const
@@ -351,15 +358,15 @@ ezCpuMeshResourceHandle ezJoltMeshResource::ConvertToCpuMesh() const
   ezMeshResourceDescriptor desc;
   desc.MeshBufferDesc().AddStream(ezMeshVertexStreamType::Position);
 
-  ezDynamicArray<ezVec3> positions;
-  positions.Reserve(256);
+  ezDynamicArray<ShapeTriangle> triangles;
+  triangles.Reserve(256);
 
   const ezUInt32 uiConvexParts = GetNumConvexParts();
   {
     for (ezUInt32 i = 0; i < uiConvexParts; ++i)
     {
       auto pShape = InstantiateConvexPart(i, 0, nullptr, 1);
-      RetrieveShapeTriangles(pShape, positions);
+      RetrieveShapeTriangles(pShape, triangles);
       pShape->Release();
     }
   }
@@ -367,17 +374,66 @@ ezCpuMeshResourceHandle ezJoltMeshResource::ConvertToCpuMesh() const
   if (m_pTriangleMeshInstance != nullptr || !m_TriangleMeshData.IsEmpty())
   {
     auto pShape = InstantiateTriangleMesh(0, {});
-    RetrieveShapeTriangles(pShape, positions);
+    RetrieveShapeTriangles(pShape, triangles);
     pShape->Release();
   }
 
-  if (positions.IsEmpty())
+  if (triangles.IsEmpty())
     return {};
 
-  desc.MeshBufferDesc().AllocateStreams(positions.GetCount(), ezGALPrimitiveTopology::Triangles);
-  desc.MeshBufferDesc().GetPositionData().CopyFrom(positions);
+  for (ezUInt32 i = 0; i < m_Surfaces.GetCount(); ++i)
+  {
+    desc.SetMaterial(i, m_Surfaces[i].GetResourceID());
+  }
 
-  desc.AddSubMesh(desc.MeshBufferDesc().GetPrimitiveCount(), 0, 0);
+  triangles.Sort([](const ShapeTriangle& a, const ShapeTriangle& b)
+    { return a.m_pSurface < b.m_pSurface; });
+
+  ezDynamicArray<ezVec3> positions;
+  ezDynamicArray<ezUInt16> indices;
+  ezMap<ezVec3, ezUInt16> vertexToIndex;
+  const ezSurfaceResource* pLastSurface = triangles[0].m_pSurface;
+  ezUInt32 uiFirstTriangleOfCurrentSurface = 0;
+
+  const ezUInt32 uiNumTriangles = triangles.GetCount();
+  for (ezUInt32 i = 0; i < uiNumTriangles; ++i)
+  {
+    auto& triangle = triangles[i];
+
+    for (ezUInt32 v = 0; v < 3; ++v)
+    {
+      ezUInt16 uiIndex;
+      if (!vertexToIndex.TryGetValue(triangle.m_Vertices[v], uiIndex))
+      {
+        EZ_ASSERT_DEV((positions.GetCount() + 1) < 0xFFFF, "Jolt mesh has too many unique vertices to be converted to a CPU mesh.");
+        uiIndex = static_cast<ezUInt16>(positions.GetCount());
+        positions.PushBack(triangle.m_Vertices[v]);
+        vertexToIndex.Insert(triangle.m_Vertices[v], uiIndex);
+      }
+
+      indices.PushBack(uiIndex);
+    }
+
+    if (triangle.m_pSurface != pLastSurface)
+    {
+      const ezUInt32 uiSurfaceIndex = pLastSurface != nullptr ? m_Surfaces.IndexOf(pLastSurface->GetResourceHandle()) : 0;
+      EZ_ASSERT_DEV(uiSurfaceIndex != ezInvalidIndex, "Surface not found in surface array.");
+
+      desc.AddSubMesh(i - uiFirstTriangleOfCurrentSurface, uiFirstTriangleOfCurrentSurface, uiSurfaceIndex);
+      pLastSurface = triangle.m_pSurface;
+      uiFirstTriangleOfCurrentSurface = i;
+    }
+  }
+
+  const ezUInt32 uiSurfaceIndex = pLastSurface != nullptr ? m_Surfaces.IndexOf(pLastSurface->GetResourceHandle()) : 0;
+  EZ_ASSERT_DEV(uiSurfaceIndex != ezInvalidIndex, "Surface not found in surface array.");
+
+  desc.AddSubMesh(uiNumTriangles - uiFirstTriangleOfCurrentSurface, uiFirstTriangleOfCurrentSurface, uiSurfaceIndex);
+
+  desc.MeshBufferDesc().AllocateStreams(positions.GetCount(), ezGALPrimitiveTopology::Triangles, uiNumTriangles);
+  desc.MeshBufferDesc().GetPositionData().CopyFrom(positions);
+  desc.MeshBufferDesc().GetIndexBufferData() = indices.GetByteArrayPtr();
+
   desc.ComputeBounds();
 
   return ezResourceManager::GetOrCreateResource<ezCpuMeshResource>(sCpuMeshName, std::move(desc), GetResourceDescription());

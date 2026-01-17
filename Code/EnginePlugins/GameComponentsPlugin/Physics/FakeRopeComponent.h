@@ -1,5 +1,7 @@
 #pragma once
 
+#include <GameComponentsPlugin/GameComponentsDLL.h>
+
 #include <Core/World/ComponentManager.h>
 #include <GameEngine/Physics/RopeSimulator.h>
 

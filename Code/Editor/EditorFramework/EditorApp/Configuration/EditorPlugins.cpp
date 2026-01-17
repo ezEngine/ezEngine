@@ -160,6 +160,9 @@ ezResult ezPluginBundle::ReadBundleFromDDL(ezOpenDdlReader& ref_ddl)
       m_EnabledInTemplates[i] = pElement->GetPrimitivesString()[i];
   }
 
+  if (auto pElement = pInfo->FindChildOfType(ezOpenDdlPrimitiveType::String, "CMakeTargetName"))
+    m_sCMakeTargetName = pElement->GetPrimitivesString()[0];
+
   m_bMissing = false;
 
   return EZ_SUCCESS;

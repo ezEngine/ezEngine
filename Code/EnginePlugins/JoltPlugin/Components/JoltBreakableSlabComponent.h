@@ -8,11 +8,17 @@
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/Meshes/SkinnedMeshRenderData.h>
 
+#include <Jolt/Jolt.h>
+
+#include <Jolt/Core/Reference.h>
+
 using ezMaterialResourceHandle = ezTypedResourceHandle<class ezMaterialResource>;
 using ezMeshResourceHandle = ezTypedResourceHandle<class ezMeshResource>;
 
 struct ezMsgPhysicsAddImpulse;
 struct ezMsgExtractRenderData;
+struct ezMsgPhysicContact;
+struct ezMsgPhysicCharacterContact;
 class ezGeometry;
 class ezMeshResourceDescriptor;
 class ezJoltMaterial;
@@ -20,7 +26,8 @@ class ezJoltMaterial;
 namespace JPH
 {
   class BodyInterface;
-}
+  class ConvexShape;
+} // namespace JPH
 
 /// \brief Flags that define which edges of a breakable slab are fixed/anchored in the world.
 /// A fixed edge means that shards adjacent to that edge will remain stationary and not fall under gravity.

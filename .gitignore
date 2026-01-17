@@ -1,5 +1,6 @@
 .vscode/
 .claude/
+.idea/
 
 # ez specific
 /Workspace
@@ -7,5 +8,4 @@
 AssetCache
 Code/Engine/ezBuildInfo.h
 /llvm/
-
 

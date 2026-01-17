@@ -43,12 +43,12 @@ if (-not $filesPresent) {
 	$lldbStartLocalPath = "$lldbLocalPath/start_lldb_server.sh"
 
 	if (-not (Test-Path $lldbServerLocalPath)) {
-		RaiseError "Could not find lldb-server in expected location: $lldbServerLocalPath. Please ensure that the ANDROID_NDK_HOME environment variable is correctly set."
+		RaiseError "Could not find lldb-server in expected location: $lldbServerLocalPath. Please ensure that the ANDROID_STUDIO environment variable is correctly set."
 	}
 	$lldbServerLocalPath = Resolve-Path $lldbServerLocalPath
 
 	if (-not (Test-Path $lldbStartLocalPath)) {
-		RaiseError "Could not find start_lldb_server.sh in expected location: $lldbStartLocalPath. Please ensure that the ANDROID_NDK_HOME environment variable is correctly set."
+		RaiseError "Could not find start_lldb_server.sh in expected location: $lldbStartLocalPath. Please ensure that the ANDROID_STUDIO environment variable is correctly set."
 	}
 	$lldbStartLocalPath = Resolve-Path $lldbStartLocalPath
 

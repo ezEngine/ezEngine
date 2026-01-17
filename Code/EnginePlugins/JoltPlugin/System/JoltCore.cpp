@@ -40,9 +40,9 @@ ezUniquePtr<JPH::JobSystem> ezJoltCore::s_pJobSystemEZ;
 std::unique_ptr<JPH::JobSystem> ezJoltCore::s_pJobSystemJolt;
 ezUniquePtr<ezProxyAllocator> ezJoltCore::s_pAllocator;
 ezUniquePtr<ezProxyAllocator> ezJoltCore::s_pAllocatorAligned;
-ezCollisionFilterConfig ezJoltCore::s_CollisionFilterConfig;
-ezWeightCategoryConfig ezJoltCore::s_WeightCategoryConfig;
-ezImpulseTypeConfig ezJoltCore::s_ImpulseTypeConfig;
+ezUniquePtr<ezCollisionFilterConfig> ezJoltCore::s_pCollisionFilterConfig;
+ezUniquePtr<ezWeightCategoryConfig> ezJoltCore::s_pWeightCategoryConfig;
+ezUniquePtr<ezImpulseTypeConfig> ezJoltCore::s_pImpulseTypeConfig;
 
 ezJoltMaterial::ezJoltMaterial() = default;
 ezJoltMaterial::~ezJoltMaterial() = default;
@@ -140,17 +140,17 @@ void ezJoltCore::JoltAlignedFree(void* inBlock)
 
 const ezCollisionFilterConfig& ezJoltCore::GetCollisionFilterConfig()
 {
-  return s_CollisionFilterConfig;
+  return *s_pCollisionFilterConfig;
 }
 
 const ezWeightCategoryConfig& ezJoltCore::GetWeightCategoryConfig()
 {
-  return s_WeightCategoryConfig;
+  return *s_pWeightCategoryConfig;
 }
 
 const ezImpulseTypeConfig& ezJoltCore::GetImpulseTypeConfig()
 {
-  return s_ImpulseTypeConfig;
+  return *s_pImpulseTypeConfig;
 }
 
 void ezJoltCore::ReloadConfigs()
@@ -164,14 +164,14 @@ void ezJoltCore::LoadCollisionFilters()
 {
   EZ_LOG_BLOCK("ezJoltCore::LoadCollisionFilters");
 
-  if (s_CollisionFilterConfig.Load().Failed())
+  if (s_pCollisionFilterConfig->Load().Failed())
   {
     ezLog::Info("Collision filter config file could not be found ('{}'). Using default values.", ezCollisionFilterConfig::s_sConfigFile);
 
     // setup some default config
 
-    s_CollisionFilterConfig.SetGroupName(0, "Default");
-    s_CollisionFilterConfig.EnableCollision(0, 0);
+    s_pCollisionFilterConfig->SetGroupName(0, "Default");
+    s_pCollisionFilterConfig->EnableCollision(0, 0);
   }
 }
 
@@ -179,7 +179,7 @@ void ezJoltCore::LoadWeightCategories()
 {
   EZ_LOG_BLOCK("ezJoltCore::LoadWeightCategories");
 
-  if (s_WeightCategoryConfig.Load().Failed())
+  if (s_pWeightCategoryConfig->Load().Failed())
   {
     ezLog::Info("Weight category config file could not be found ('{}').", ezWeightCategoryConfig::s_sConfigFile);
   }
@@ -189,7 +189,7 @@ void ezJoltCore::LoadImpulseTypes()
 {
   EZ_LOG_BLOCK("ezJoltCore::LoadImpulseTypes");
 
-  if (s_ImpulseTypeConfig.Load().Failed())
+  if (s_pImpulseTypeConfig->Load().Failed())
   {
     ezLog::Info("Impulse Types config file could not be found ('{}').", ezImpulseTypeConfig::s_sConfigFile);
   }
@@ -199,6 +199,10 @@ void ezJoltCore::Startup()
 {
   s_pAllocator = EZ_DEFAULT_NEW(ezProxyAllocator, "Jolt-Core", ezFoundation::GetDefaultAllocator());
   s_pAllocatorAligned = EZ_DEFAULT_NEW(ezProxyAllocator, "Jolt-Core-Aligned", ezFoundation::GetAlignedAllocator());
+
+  s_pCollisionFilterConfig = EZ_DEFAULT_NEW(ezCollisionFilterConfig);
+  s_pWeightCategoryConfig = EZ_DEFAULT_NEW(ezWeightCategoryConfig);
+  s_pImpulseTypeConfig = EZ_DEFAULT_NEW(ezImpulseTypeConfig);
 
   JPH::Trace = JoltTraceFunc;
   JPH_IF_ENABLE_ASSERTS(JPH::AssertFailed = JoltAssertFailed);
@@ -246,6 +250,10 @@ void ezJoltCore::Shutdown()
   JPH::Factory::sInstance = nullptr;
 
   JPH::Trace = nullptr;
+
+  s_pCollisionFilterConfig.Clear();
+  s_pWeightCategoryConfig.Clear();
+  s_pImpulseTypeConfig.Clear();
 
   s_pAllocator.Clear();
   s_pAllocatorAligned.Clear();

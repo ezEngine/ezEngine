@@ -4,6 +4,7 @@
 
 #  include <Core/Console/Console.h>
 #  include <Core/Input/DeviceTypes/MouseKeyboard.h>
+#  include <Foundation/Logging/Log.h>
 #  include <GameEngine/GameEngineDLL.h>
 
 struct ezLoggingEventData;
@@ -77,6 +78,8 @@ protected:
   void BuildCVarTree(CVarTreeNode& root);
   void RenderCVarTreeNode(const ezString& sNodeName, CVarTreeNode& node);
   void RenderCVarValue(ezCVar* pCVar);
+  bool CVarNamePassesFilter(ezStringView sCVarName) const;
+  bool CVarTreeNodeHasMatchingDescendant(const CVarTreeNode& node) const;
   void BuildFilteredLogStrings();
   bool FilterLogString(const ezConsoleString& entry) const;
   ezUInt64 CalculateTotalMemoryUsage();
@@ -104,6 +107,9 @@ protected:
   bool m_bFilterLog = false;
   bool m_bLogFilterChanged = false;
   ezLogMsgType::Enum m_LogLevel = ezLogMsgType::DebugMsg;
+
+  // CVar filtering
+  ezStringBuilder m_sCVarFilter;
 
   // Input handling
   ezUInt8 m_uiForceFocus = 3;

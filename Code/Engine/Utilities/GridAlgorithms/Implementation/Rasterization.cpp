@@ -2,8 +2,7 @@
 
 #include <Utilities/GridAlgorithms/Rasterization.h>
 
-ezRasterizationResult::Enum ez2DGridUtils::ComputePointsOnLine(
-  ezInt32 iStartX, ezInt32 iStartY, ezInt32 iEndX, ezInt32 iEndY, EZ_RASTERIZED_POINT_CALLBACK callback, void* pPassThrough /* = nullptr */)
+ezRasterizationResult::Enum ez2DGridUtils::ComputePointsOnLine(ezInt32 iStartX, ezInt32 iStartY, ezInt32 iEndX, ezInt32 iEndY, EZ_RASTERIZED_POINT_CALLBACK callback, void* pPassThrough /* = nullptr */)
 {
   // Implements Bresenham's line algorithm:
   // http://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
@@ -106,8 +105,7 @@ ezRasterizationResult::Enum ez2DGridUtils::ComputePointsOnLineConservative(ezInt
 }
 
 
-ezRasterizationResult::Enum ez2DGridUtils::ComputePointsOnCircle(
-  ezInt32 iStartX, ezInt32 iStartY, ezUInt32 uiRadius, EZ_RASTERIZED_POINT_CALLBACK callback, void* pPassThrough /* = nullptr */)
+ezRasterizationResult::Enum ez2DGridUtils::ComputePointsOnCircle(ezInt32 iStartX, ezInt32 iStartY, ezUInt32 uiRadius, EZ_RASTERIZED_POINT_CALLBACK callback, void* pPassThrough /* = nullptr */)
 {
   int f = 1 - uiRadius;
   int ddF_x = 1;
@@ -244,8 +242,7 @@ static const ezInt32 CircleCenter = 7;
 static const ezUInt8 CircleAreaMin[9] = {7, 6, 6, 5, 4, 3, 2, 1, 0};
 static const ezUInt8 CircleAreaMax[9] = {7, 8, 8, 9, 10, 11, 12, 13, 14};
 
-ezRasterizationResult::Enum ez2DGridUtils::RasterizeBlob(
-  ezInt32 iPosX, ezInt32 iPosY, ezBlobType type, EZ_RASTERIZED_POINT_CALLBACK callback, void* pPassThrough /* = nullptr */)
+ezRasterizationResult::Enum ez2DGridUtils::RasterizeBlob(ezInt32 iPosX, ezInt32 iPosY, ezBlobType type, EZ_RASTERIZED_POINT_CALLBACK callback, void* pPassThrough /* = nullptr */)
 {
   const ezUInt8 uiCircleType = ezMath::Clamp<ezUInt8>(type, 0, 8);
 
@@ -270,8 +267,7 @@ ezRasterizationResult::Enum ez2DGridUtils::RasterizeBlob(
   return ezRasterizationResult::Finished;
 }
 
-ezRasterizationResult::Enum ez2DGridUtils::RasterizeBlobWithDistance(
-  ezInt32 iPosX, ezInt32 iPosY, ezBlobType type, EZ_RASTERIZED_BLOB_CALLBACK callback, void* pPassThrough /*= nullptr*/)
+ezRasterizationResult::Enum ez2DGridUtils::RasterizeBlobWithDistance(ezInt32 iPosX, ezInt32 iPosY, ezBlobType type, EZ_RASTERIZED_BLOB_CALLBACK callback, void* pPassThrough /*= nullptr*/)
 {
   const ezUInt8 uiCircleType = ezMath::Clamp<ezUInt8>(type, 0, 8);
 
@@ -298,8 +294,7 @@ ezRasterizationResult::Enum ez2DGridUtils::RasterizeBlobWithDistance(
   return ezRasterizationResult::Finished;
 }
 
-ezRasterizationResult::Enum ez2DGridUtils::RasterizeCircle(
-  ezInt32 iPosX, ezInt32 iPosY, float fRadius, EZ_RASTERIZED_POINT_CALLBACK callback, void* pPassThrough /* = nullptr */)
+ezRasterizationResult::Enum ez2DGridUtils::RasterizeCircle(ezInt32 iPosX, ezInt32 iPosY, float fRadius, EZ_RASTERIZED_POINT_CALLBACK callback, void* pPassThrough /* = nullptr */)
 {
   const ezVec2 vCenter((float)iPosX, (float)iPosY);
 
@@ -483,4 +478,111 @@ void ez2DGridUtils::ComputeVisibleAreaInCone(ezInt32 iPosX, ezInt32 iPosY, ezUIn
   ld.m_ConeAngle = coneAngle;
 
   ez2DGridUtils::ComputePointsOnCircle(iPosX, iPosY, uiRadius, MarkPointsInConeVisible, &ld);
+}
+
+struct PointPair
+{
+  ezVec2I32 ptInner;
+  ezVec2I32 ptOuter;
+};
+
+static void SortTraceLines(ezDynamicArray<ez2DGridUtils::TraceLinePoint>& out_Result, ezVec2I32 vStart, const ezDynamicArray<PointPair>& pairs)
+{
+  bool bFound = false;
+  for (const auto& pt : pairs)
+  {
+    if (pt.ptInner == vStart)
+    {
+      bFound = true;
+
+      const ezUInt32 uiStartIdx = out_Result.GetCount();
+      auto& newPt = out_Result.ExpandAndGetRef();
+      newPt.m_vCellCoordOffset = pt.ptOuter;
+
+      SortTraceLines(out_Result, pt.ptOuter, pairs);
+
+      newPt.m_uiSkipCount = static_cast<ezUInt16>(out_Result.GetCount() - uiStartIdx - 1);
+    }
+    else if (bFound)
+    {
+      break;
+    }
+  }
+}
+
+void ez2DGridUtils::CalculateVisibilityTraceLines(float fRadius, ezDynamicArray<TraceLinePoint>& out_Result)
+{
+  out_Result.Clear();
+
+  ezDynamicArray<PointPair> pairs;
+  pairs.Reserve(static_cast<ezUInt32>(fRadius * fRadius * 3.2f));
+
+  ez2DGridUtils::RasterizeCircle(0, 0, fRadius, [](ezInt32 x, ezInt32 y, void* pPassThrough) -> ezCallbackResult::Enum
+    {
+      // don't insert the center point, that is implicit
+      if (x != 0 || y != 0)
+      {
+        ezDynamicArray<PointPair>& result = *(ezDynamicArray<PointPair>*)pPassThrough;
+        result.ExpandAndGetRef().ptOuter = ezVec2I32(x, y);
+      }
+
+      return ezCallbackResult::Continue;
+      //
+    },
+    &pairs);
+
+
+  for (auto& point : pairs)
+  {
+    // find the next point on the line towards the center
+    ez2DGridUtils::ComputePointsOnLine(point.ptOuter.x, point.ptOuter.y, 0, 0, [&](ezInt32 x, ezInt32 y, void* /*pPassThrough*/)
+      {
+        if (point.ptOuter.x != x || point.ptOuter.y != y)
+        {
+          point.ptInner.x = x;
+          point.ptInner.y = y;
+          return ezCallbackResult::Stop;
+        }
+
+        return ezCallbackResult::Continue;
+        //
+      },
+      nullptr);
+  }
+
+  // now we have all neighbor points towards the center, so sort them by predecessor (inner)
+  // this way we group all points that have the same predecessor
+  pairs.Sort([](const PointPair& lhs, const PointPair& rhs) -> bool
+    {
+      if (lhs.ptInner.x == rhs.ptInner.x)
+        return lhs.ptInner.y < rhs.ptInner.y;
+
+      return lhs.ptInner.x < rhs.ptInner.x;
+      //
+    });
+
+  out_Result.Reserve(pairs.GetCount() + 1);
+  out_Result.ExpandAndGetRef().m_vCellCoordOffset.Set(0, 0);
+  SortTraceLines(out_Result, ezVec2I32(0, 0), pairs);
+  out_Result[0].m_uiSkipCount = 0xFFFF;
+}
+
+void ez2DGridUtils::VisitVisibilityTraceLines(const ezDynamicArray<TraceLinePoint>& traces, const ezVec2I32& vCenter, EZ_TRACELINE_CHECK check)
+{
+  for (ezUInt32 i = 0; i < traces.GetCount(); ++i)
+  {
+    const auto& trace = traces[i];
+
+    ezVec2I32 pos = vCenter;
+    pos.x += trace.m_vCellCoordOffset.x;
+    pos.y += trace.m_vCellCoordOffset.y;
+
+    const ezUInt32 uiPopBranchesBefore = i;
+    const ezUInt32 uiPushBranchUntil = i + trace.m_uiSkipCount;
+
+    if (check(pos.x, pos.y, uiPopBranchesBefore, uiPushBranchUntil) == ezCallbackResult::Stop)
+    {
+      i += trace.m_uiSkipCount;
+    }
+  }
 }

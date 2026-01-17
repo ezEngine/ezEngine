@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Foundation/Types/SharedPtr.h>
 #include <RendererVulkan/Device/DeclarationsVulkan.h>
 #include <RendererVulkan/RendererVulkanDLL.h>
 

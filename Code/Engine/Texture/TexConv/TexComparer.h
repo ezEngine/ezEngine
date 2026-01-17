@@ -1,5 +1,9 @@
 #pragma once
 
+#include <Foundation/Strings/String.h>
+#include <Texture/Image/Image.h>
+#include <Texture/TextureDLL.h>
+
 /// \brief Input options for ezTexComparer
 class EZ_TEXTURE_DLL ezTexCompareDesc
 {

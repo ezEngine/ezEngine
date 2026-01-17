@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Foundation/Types/Types.h>
+#include <Foundation/Basics.h>
 #include <Texture/Image/ImageEnums.h>
 #include <Texture/TextureDLL.h>
 

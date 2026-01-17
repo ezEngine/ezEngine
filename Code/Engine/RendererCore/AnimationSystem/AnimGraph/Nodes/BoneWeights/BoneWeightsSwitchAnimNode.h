@@ -1,6 +1,9 @@
 #pragma once
 
+#include <Foundation/Types/SharedPtr.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphNode.h>
+
+struct ezAnimGraphSharedBoneWeights;
 
 /// Switches between different bone weight masks with smooth transitions.
 ///

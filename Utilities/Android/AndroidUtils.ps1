@@ -1,22 +1,6 @@
-
-# Find ADB and JDB
-$adb = "$env:ANDROID_HOME/platform-tools/adb"
-if ($IsWindows) {
-	$adb = "$adb.exe"
-}
-if (-not (Test-Path $adb)) {
-	RaiseError "Failed to find adb executable in $adb. Please ensure that the ANDROID_HOME environment variable is correctly set"
-}
-$adb = Resolve-Path $adb
-
-$jdb = "$env:JAVA_HOME/bin/jdb"
-if ($IsWindows) {
-	$jdb = "$jdb.exe"
-}
-if (-not (Test-Path $jdb)) {
-	RaiseError "Failed to find jdb executable in $jdb. Please ensure that the JAVA_HOME environment variable is correctly set."
-}
-$jdb = Resolve-Path $jdb
+## ADB/JDB paths are resolved lazily on first use to avoid module-load failures
+## when ANDROID_HOME or JAVA_HOME are not set.
+## Use Get-Adb and Get-Jdb to retrieve the resolved paths.
 
 $ErrorActionPreference = "Stop"
 if ($MessageBoxOnError -and $IsWindows) {
@@ -56,6 +40,18 @@ function Get-LatestSdkTools {
 	return $highestFloatFolder.FullName
 }
 
+function Get-SdkManager {
+	$sdkTools = Get-LatestSdkTools
+	$sdkManager = Join-Path -Path $sdkTools -ChildPath "bin/sdkmanager"
+	if ($IsWindows) {
+		$sdkManager = "$sdkManager.bat"
+	}
+	if (-not (Test-Path $sdkManager)) {
+		RaiseError "Failed to locate sdkmanager in $sdkManager. Please ensure that the ANDROID_HOME environment variable is correctly set"
+	}
+	return $sdkManager
+}
+
 function RaiseError {
 	param(
 		[string]$msg
@@ -75,6 +71,40 @@ function RaiseError {
 	}
 }
 
+function Get-Adb {
+	# Returns the resolved adb path, resolving once and caching the result.
+	if (-not $script:__adbPath) {
+		$path = "$env:ANDROID_HOME/platform-tools/adb"
+		if ($IsWindows) {
+			$path = "$path.exe"
+		}
+		if (-not (Test-Path $path)) {
+			RaiseError "Failed to find adb executable in $path. Please ensure that the ANDROID_HOME environment variable is correctly set"
+		}
+		$script:__adbPath = (Resolve-Path $path).Path
+		# Also expose as $script:adb for any legacy consumers that expect the variable
+		$script:adb = $script:__adbPath
+	}
+	return $script:__adbPath
+}
+
+function Get-Jdb {
+	# Returns the resolved jdb path, resolving once and caching the result.
+	if (-not $script:__jdbPath) {
+		$path = "$env:JAVA_HOME/bin/jdb"
+		if ($IsWindows) {
+			$path = "$path.exe"
+		}
+		if (-not (Test-Path $path)) {
+			RaiseError "Failed to find jdb executable in $path. Please ensure that the JAVA_HOME environment variable is correctly set."
+		}
+		$script:__jdbPath = (Resolve-Path $path).Path
+		# Also expose as $script:jdb for any legacy consumers that expect the variable
+		$script:jdb = $script:__jdbPath
+	}
+	return $script:__jdbPath
+}
+
 function Adb-Shell {
 	param(
 		[string]$cmd,
@@ -86,10 +116,10 @@ function Adb-Shell {
 	}
 	try {
 		if ($deviceAdb) {
-			$($result = (& $adb -s $deviceAdb shell $cmd *>&1)) | Out-Null
+			$($result = (& (Get-Adb) -s $deviceAdb shell $cmd *>&1)) | Out-Null
 		}
 		else {
-			$($result = (& $adb shell $cmd *>&1)) | Out-Null
+			$($result = (& (Get-Adb) shell $cmd *>&1)) | Out-Null
 		}
 
 	}
@@ -123,7 +153,7 @@ function Adb-Cmd {
 	$errorAction = $ErrorActionPreference
 	try {
 		$ErrorActionPreference = "Continue"
-		$result = (& $adb $cmds *>&1)
+		$result = (& (Get-Adb) $cmds *>&1)
 	}
 	finally {
 		$ErrorActionPreference = $errorAction
@@ -159,35 +189,69 @@ function Adb-CopyDirectory {
 			# Files need to download
 			$outputFileChild = Join-Path -Path $outputFolder -ChildPath $line
 			$deviceFileChild = "$deviceFolder/$line"
-			Start-Process -PassThru -WindowStyle Hidden -FilePath "$adb" -ArgumentList "-s $deviceAdb exec-out run-as $packageName cat `"$deviceFileChild`"" -RedirectStandardOutput $outputFileChild | Out-Null
+			if ($IsWindows) {
+				Start-Process -PassThru -WindowStyle Hidden -FilePath (Get-Adb) -ArgumentList "-s $deviceAdb exec-out run-as $packageName cat `"$deviceFileChild`"" -RedirectStandardOutput $outputFileChild | Out-Null
+			}
+			else {
+				Start-Process -PassThru -FilePath (Get-Adb) -ArgumentList "-s $deviceAdb exec-out run-as $packageName cat `"$deviceFileChild`"" -RedirectStandardOutput $outputFileChild | Out-Null
+			}	
 		}
 	}
 }
 
 function Invoke-WithRetry {
-    param(
-        [Parameter(Mandatory=$true)]
-        [ScriptBlock]$ScriptBlock,
-        [int]$MaxRetryCount = 3
-    )
+	param(
+		[Parameter(Mandatory = $true)]
+		[ScriptBlock]$ScriptBlock,
+		[int]$MaxRetryCount = 3
+	)
 
-    $retryCount = 0
+	$retryCount = 0
 	$sleepInterval = 1
-    do {
-        try {
-            & $ScriptBlock
-            break
-        }
-        catch {
+	do {
+		try {
+			& $ScriptBlock
+			break
+		}
+		catch {
 			Start-Sleep -Seconds $sleepInterval
 			$sleepInterval = $sleepInterval * 2
-            if ($retryCount -ge $MaxRetryCount) {
-                RaiseError("Error: $_")
-            }
-            else {
+			if ($retryCount -ge $MaxRetryCount) {
+				RaiseError("Error: $_")
+			}
+			else {
 				$retryCount++
-                Write-Host "Error: $_`nRetrying ($retryCount/$MaxRetryCount)..."
-            }
-        }
-    } while ($true)
+				Write-Host "Error: $_`nRetrying ($retryCount/$MaxRetryCount)..."
+			}
+		}
+	} while ($true)
 }
+
+# Functions to install sdkmanager packages. Extracted from InstallAndroidDependencies.ps1
+function Install-SdkBuildDependencies {
+	param(
+		[Parameter(Mandatory = $true)][string]$SdkManager
+	)
+
+	& $SdkManager "cmdline-tools;latest"
+	# Check if sdkmanager created a duplicate (latest-2) and replace latest with it
+	$cmdlineLatest2 = Join-Path -Path $SdkManager -ChildPath "latest-2"
+	if (Test-Path $cmdlineLatest2) {
+		Write-Host "Detected latest-2 folder. Replacing latest with latest-2..."
+		Remove-Item -LiteralPath $cmdlineLatest -Recurse -Force -ErrorAction SilentlyContinue
+		Move-Item -Path $cmdlineLatest2 -Destination $cmdlineLatest -Force
+	}
+	& $SdkManager "build-tools;34.0.0" "ndk;26.1.10909125" "platform-tools" "platforms;android-29"
+}
+
+function Install-SdkEmulatorPackages {
+	param(
+		[Parameter(Mandatory = $true)][string]$SdkManager
+	)
+
+	& $SdkManager "emulator" "system-images;android-29;google_apis;x86_64"
+	if ($IsWindows) {
+		& $SdkManager "extras;google;Android_Emulator_Hypervisor_Driver"
+	}
+}
+

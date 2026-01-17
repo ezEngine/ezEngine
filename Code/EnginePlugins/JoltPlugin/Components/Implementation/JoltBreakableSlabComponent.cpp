@@ -1285,7 +1285,7 @@ void ezJoltBreakableSlabComponent::OnMsgExtractRenderData(ezMsgExtractRenderData
     const bool bDynamic = GetOwner()->IsDynamic();
     auto hInstanceBuffer = msg.m_pRenderDataManager->GetOrCreateInstanceDataAndFill(*this, bDynamic, globalTransform, m_InstanceDataOffset, GetUniqueIdForRendering());
 
-    pRenderData->SetFallbackGlobalBoundingBox(GetOwner()->GetGlobalBounds().GetBox());
+    pRenderData->SetFallbackGlobalBounds(GetOwner()->GetGlobalBounds());
     pRenderData->Fill(m_InstanceDataOffset, hInstanceBuffer, m_hMaterial, m_hMesh);
 
     ezRenderData::Category category = ezMaterialResource::GetRenderDataCategory(m_hMaterial);

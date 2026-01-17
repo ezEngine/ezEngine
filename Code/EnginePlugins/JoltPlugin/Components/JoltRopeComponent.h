@@ -1,13 +1,17 @@
 #pragma once
 
 #include <Core/ResourceManager/ResourceHandle.h>
+#include <Core/World/ComponentManager.h>
 #include <JoltPlugin/JoltPluginDLL.h>
 
 struct ezMsgPhysicsAddImpulse;
+struct ezJoltMsgDisconnectConstraints;
+class ezJoltMaterial;
 
 namespace JPH
 {
   class Constraint;
+  class Ragdoll;
 }
 
 using ezSurfaceResourceHandle = ezTypedResourceHandle<class ezSurfaceResource>;

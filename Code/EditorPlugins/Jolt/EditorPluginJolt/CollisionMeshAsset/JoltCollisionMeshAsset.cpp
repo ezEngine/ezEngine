@@ -1,11 +1,12 @@
 #include <EditorPluginJolt/EditorPluginJoltPCH.h>
 
+#include <EditorPluginAssets/Util/MeshImportUtils.h>
 #include <EditorPluginJolt/CollisionMeshAsset/JoltCollisionMeshAsset.h>
 #include <Foundation/IO/ChunkStream.h>
 #include <Foundation/Utilities/AssetFileHeader.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <Foundation/Utilities/Progress.h>
-#include <JoltCooking/JoltCooking.h>
+#include <JoltPlugin/Resources/JoltMeshResourceWriter.h>
 #include <ModelImporter2/ModelImporter.h>
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
 
@@ -65,70 +66,66 @@ ezTransformStatus ezJoltCollisionMeshAssetDocument::InternalTransformAsset(ezStr
 
   ezJoltCollisionMeshAssetProperties* pProp = GetProperties();
 
-  EZ_ASSERT_DEV(AssetHeader.GetFileVersion() == 10, "Version change");
-  // Please check that the code here is in sync with ezSceneExportModifier_JoltStaticMeshConversion::ModifyWorld()
+  ezJoltMeshDesc meshDesc;
 
-  const ezUInt8 uiVersion = 3; // read in ezJoltMeshResource::UpdateContent()
-  stream << uiVersion;
-
-  ezUInt8 uiCompressionMode = 0;
-
-#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
-  uiCompressionMode = 1;
-  ezCompressedStreamWriterZstd compressor(&stream, 0, ezCompressedStreamWriterZstd::Compression::Average);
-  ezChunkStreamWriter chunk(compressor);
-#else
-  ezChunkStreamWriter chunk(stream);
-#endif
-
-  stream << uiCompressionMode;
-
-  chunk.BeginStream(1);
+  if (pProp->m_bIsConvexMesh)
+  {
+    if (pProp->m_ConvexMeshType == ezJoltConvexCollisionMeshType::ConvexHullGroup)
+    {
+      meshDesc.m_Type = ezJoltMeshDesc::Type::ConvexHullGroup;
+    }
+    else if (pProp->m_ConvexMeshType == ezJoltConvexCollisionMeshType::ConvexDecomposition)
+    {
+      meshDesc.m_Type = ezJoltMeshDesc::Type::ConvexDecomposition;
+      meshDesc.m_uiMaxConvexPieces = pProp->m_uiMaxConvexPieces;
+    }
+    else
+    {
+      EZ_ASSERT_DEV(pProp->m_ConvexMeshType == ezJoltConvexCollisionMeshType::ConvexHull || pProp->m_ConvexMeshType == ezJoltConvexCollisionMeshType::Cylinder, "Unknown convex mesh type");
+      meshDesc.m_Type = ezJoltMeshDesc::Type::ConvexHull;
+    }
+  }
 
   {
     range.BeginNextStep("Preparing Mesh");
-
-    ezJoltCookingMesh xMesh;
 
     if (pProp->m_ConvexMeshType == ezJoltConvexCollisionMeshType::Cylinder)
     {
       const ezMat3 mTransformation = CalculateTransformationMatrix(pProp);
 
-      xMesh.m_bFlipNormals = ezGraphicsUtils::IsTriangleFlipRequired(mTransformation);
-
       ezGeometry geom;
       ezGeometry::GeoOptions opt;
       opt.m_Transform = ezMat4(mTransformation, ezVec3::MakeZero());
 
-      if (pProp->m_ConvexMeshType == ezJoltConvexCollisionMeshType::Cylinder)
-      {
-        geom.AddCylinderOnePiece(pProp->m_fRadius, pProp->m_fRadius2, pProp->m_fHeight * 0.5f, pProp->m_fHeight * 0.5f, ezMath::Clamp<ezUInt16>(pProp->m_uiDetail, 3, 32), opt);
-      }
+      meshDesc.m_bFlipNormals = ezGraphicsUtils::IsTriangleFlipRequired(mTransformation);
 
-      EZ_SUCCEED_OR_RETURN(CreateMeshFromGeom(geom, xMesh));
+      geom.AddCylinderOnePiece(pProp->m_fRadius, pProp->m_fRadius2, pProp->m_fHeight * 0.5f, pProp->m_fHeight * 0.5f, ezMath::Clamp<ezUInt16>(pProp->m_uiDetail, 3, 32), opt);
+
+      EZ_SUCCEED_OR_RETURN(CreateMeshFromGeom(geom, meshDesc));
     }
     else
     {
-      EZ_SUCCEED_OR_RETURN(CreateMeshFromFile(xMesh));
+      EZ_SUCCEED_OR_RETURN(CreateMeshFromFile(meshDesc));
     }
 
-    range.BeginNextStep("Writing Result");
-    EZ_SUCCEED_OR_RETURN(WriteToStream(chunk, xMesh, GetProperties()));
+    pProp = GetProperties(); // retrieve again in case they got re-created during mesh creation
+
+    for (const auto& slot : pProp->m_Slots)
+    {
+      meshDesc.m_Surfaces.PushBack(slot.m_sResource);
+    }
   }
 
-  chunk.EndStream();
+  // Please check that the code here is in sync with ezJoltMeshResourceWriter::WriteMeshResource()
+  EZ_ASSERT_DEV(AssetHeader.GetFileVersion() == 10, "Version change");
 
-#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
-  EZ_SUCCEED_OR_RETURN(compressor.FinishCompressedStream());
+  range.BeginNextStep("Writing Result");
 
-  ezLog::Dev("Compressed collision mesh data from {0} KB to {1} KB ({2}%%)", ezArgF((float)compressor.GetUncompressedSize() / 1024.0f, 1), ezArgF((float)compressor.GetCompressedSize() / 1024.0f, 1), ezArgF(100.0f * compressor.GetCompressedSize() / compressor.GetUncompressedSize(), 1));
-
-#endif
-
-  return ezStatus(EZ_SUCCESS);
+  const bool bWriteAssetHeader = false; // already written outside of InternalTransformAsset
+  return ezJoltMeshResourceWriter::WriteMeshResource(std::move(meshDesc), stream, bWriteAssetHeader);
 }
 
-ezStatus ezJoltCollisionMeshAssetDocument::CreateMeshFromFile(ezJoltCookingMesh& outMesh)
+ezStatus ezJoltCollisionMeshAssetDocument::CreateMeshFromFile(ezJoltMeshDesc& outMesh)
 {
   ezJoltCollisionMeshAssetProperties* pProp = GetProperties();
 
@@ -189,13 +186,11 @@ ezStatus ezJoltCollisionMeshAssetDocument::CreateMeshFromFile(ezJoltCookingMesh&
   if (uiNumTriangles < 3 || uiNumVertices < 3)
     return ezStatus("Invalid collision mesh.");
 
-  outMesh.m_PolygonSurfaceID.SetCountUninitialized(uiNumTriangles);
-  outMesh.m_VerticesInPolygon.SetCountUninitialized(uiNumTriangles);
+  outMesh.m_TriangleSurfaceID.SetCountUninitialized(uiNumTriangles);
 
   for (ezUInt32 uiTriangle = 0; uiTriangle < uiNumTriangles; ++uiTriangle)
   {
-    outMesh.m_PolygonSurfaceID[uiTriangle] = 0;  // default value, will be updated below when extracting materials.
-    outMesh.m_VerticesInPolygon[uiTriangle] = 3; // Triangles!
+    outMesh.m_TriangleSurfaceID[uiTriangle] = 0; // default value, will be updated below when extracting materials.
   }
 
   // Extract vertices
@@ -211,24 +206,19 @@ ezStatus ezJoltCollisionMeshAssetDocument::CreateMeshFromFile(ezJoltCookingMesh&
 
   // Extract indices
   {
-    outMesh.m_PolygonIndices.SetCountUninitialized(uiNumTriangles * 3);
-
     if (meshBuffer.Uses32BitIndices())
     {
-      const ezUInt32* pIndices = reinterpret_cast<const ezUInt32*>(meshBuffer.GetIndexBufferData().GetPtr());
-
-      for (ezUInt32 tri = 0; tri < uiNumTriangles * 3; ++tri)
-      {
-        outMesh.m_PolygonIndices[tri] = pIndices[tri];
-      }
+      ezArrayPtr<const ezUInt32> indices = ezMakeArrayPtr(reinterpret_cast<const ezUInt32*>(meshBuffer.GetIndexBufferData().GetPtr()), uiNumTriangles * 3);
+      outMesh.m_TriangleIndices = indices;
     }
     else
     {
+      outMesh.m_TriangleIndices.SetCountUninitialized(uiNumTriangles * 3);
       const ezUInt16* pIndices = reinterpret_cast<const ezUInt16*>(meshBuffer.GetIndexBufferData().GetPtr());
 
       for (ezUInt32 tri = 0; tri < uiNumTriangles * 3; ++tri)
       {
-        outMesh.m_PolygonIndices[tri] = pIndices[tri];
+        outMesh.m_TriangleIndices[tri] = pIndices[tri];
       }
     }
   }
@@ -247,7 +237,7 @@ ezStatus ezJoltCollisionMeshAssetDocument::CreateMeshFromFile(ezJoltCookingMesh&
 
     for (ezUInt32 tri = 0; tri < subMeshInfo.m_uiPrimitiveCount; ++tri)
     {
-      outMesh.m_PolygonSurfaceID[subMeshInfo.m_uiFirstPrimitive + tri] = 0;
+      outMesh.m_TriangleSurfaceID[subMeshInfo.m_uiFirstPrimitive + tri] = 0;
     }
   }
   else
@@ -269,7 +259,7 @@ ezStatus ezJoltCollisionMeshAssetDocument::CreateMeshFromFile(ezJoltCookingMesh&
         // update the triangle material information
         for (ezUInt32 tri = 0; tri < subMeshInfo.m_uiPrimitiveCount; ++tri)
         {
-          outMesh.m_PolygonSurfaceID[subMeshInfo.m_uiFirstPrimitive + tri] = 0xFFFF;
+          outMesh.m_TriangleSurfaceID[subMeshInfo.m_uiFirstPrimitive + tri] = 0xFFFF;
         }
       }
       else
@@ -277,7 +267,7 @@ ezStatus ezJoltCollisionMeshAssetDocument::CreateMeshFromFile(ezJoltCookingMesh&
         // update the triangle material information
         for (ezUInt32 tri = 0; tri < subMeshInfo.m_uiPrimitiveCount; ++tri)
         {
-          outMesh.m_PolygonSurfaceID[subMeshInfo.m_uiFirstPrimitive + tri] = subMeshIdx;
+          outMesh.m_TriangleSurfaceID[subMeshInfo.m_uiFirstPrimitive + tri] = subMeshIdx;
         }
       }
     }
@@ -288,7 +278,7 @@ ezStatus ezJoltCollisionMeshAssetDocument::CreateMeshFromFile(ezJoltCookingMesh&
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezJoltCollisionMeshAssetDocument::CreateMeshFromGeom(ezGeometry& geom, ezJoltCookingMesh& outMesh)
+ezStatus ezJoltCollisionMeshAssetDocument::CreateMeshFromGeom(ezGeometry& geom, ezJoltMeshDesc& outMesh)
 {
   ezJoltCollisionMeshAssetProperties* pProp = GetProperties();
 
@@ -311,6 +301,8 @@ ezStatus ezJoltCollisionMeshAssetDocument::CreateMeshFromGeom(ezGeometry& geom, 
     }
   }
 
+  geom.TriangulatePolygons();
+
   // copy vertex positions
   {
     outMesh.m_Vertices.SetCountUninitialized(geom.GetVertices().GetCount());
@@ -322,54 +314,23 @@ ezStatus ezJoltCollisionMeshAssetDocument::CreateMeshFromGeom(ezGeometry& geom, 
 
   // Copy Polygon Data
   {
-    outMesh.m_PolygonSurfaceID.SetCountUninitialized(geom.GetPolygons().GetCount());
-    outMesh.m_VerticesInPolygon.SetCountUninitialized(geom.GetPolygons().GetCount());
-    outMesh.m_PolygonIndices.Reserve(geom.GetPolygons().GetCount() * 4);
+    outMesh.m_TriangleSurfaceID.SetCountUninitialized(geom.GetPolygons().GetCount());
+    outMesh.m_TriangleIndices.Reserve(geom.GetPolygons().GetCount() * 3);
 
     for (ezUInt32 p = 0; p < geom.GetPolygons().GetCount(); ++p)
     {
       const auto& poly = geom.GetPolygons()[p];
-      outMesh.m_VerticesInPolygon[p] = poly.m_Vertices.GetCount();
-      outMesh.m_PolygonSurfaceID[p] = 0;
+      EZ_ASSERT_DEBUG(poly.m_Vertices.GetCount() == 3, "Expected triangulated polygons.");
+      outMesh.m_TriangleSurfaceID[p] = 0;
 
       for (ezUInt32 posIdx : poly.m_Vertices)
       {
-        outMesh.m_PolygonIndices.PushBack(posIdx);
+        outMesh.m_TriangleIndices.PushBack(posIdx);
       }
     }
   }
 
   return ezStatus(EZ_SUCCESS);
-}
-
-ezStatus ezJoltCollisionMeshAssetDocument::WriteToStream(ezChunkStreamWriter& inout_stream, const ezJoltCookingMesh& mesh, const ezJoltCollisionMeshAssetProperties* pProp)
-{
-  ezHybridArray<ezString, 32> surfaces;
-
-  for (const auto& slot : pProp->m_Slots)
-  {
-    surfaces.PushBack(slot.m_sResource);
-  }
-
-  ezJoltCooking::MeshType meshType = ezJoltCooking::MeshType::Triangle;
-
-  if (pProp->m_bIsConvexMesh)
-  {
-    if (pProp->m_ConvexMeshType == ezJoltConvexCollisionMeshType::ConvexHullGroup)
-    {
-      meshType = ezJoltCooking::MeshType::ConvexHullGroup;
-    }
-    else if (pProp->m_ConvexMeshType == ezJoltConvexCollisionMeshType::ConvexDecomposition)
-    {
-      meshType = ezJoltCooking::MeshType::ConvexDecomposition;
-    }
-    else
-    {
-      meshType = ezJoltCooking::MeshType::ConvexHull;
-    }
-  }
-
-  return ezJoltCooking::WriteResourceToStream(inout_stream, mesh, surfaces, meshType, pProp->m_uiMaxConvexPieces);
 }
 
 ezTransformStatus ezJoltCollisionMeshAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)
@@ -387,6 +348,11 @@ void ezJoltCollisionMeshAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentIn
     // remove the mesh file dependency, if it is not actually used
     const auto& sMeshFile = GetProperties()->m_sMeshFile;
     pInfo->m_TransformDependencies.Remove(sMeshFile);
+  }
+  else
+  {
+    // For glTF files, add any referenced external buffer files as dependencies
+    ezMeshImportUtils::AddGltfBufferDependencies(GetProperties()->m_sMeshFile, pInfo->m_TransformDependencies);
   }
 }
 

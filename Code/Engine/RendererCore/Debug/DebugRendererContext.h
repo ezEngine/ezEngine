@@ -6,6 +6,11 @@
 class ezWorld;
 class ezViewHandle;
 
+/// \brief Value used by containers for indices to indicate an invalid index.
+#ifndef ezInvalidIndex
+#  define ezInvalidIndex 0xFFFFFFFF
+#endif
+
 /// \brief Used in ezDebugRenderer to determine where debug geometry should be rendered
 class EZ_RENDERERCORE_DLL ezDebugRendererContext
 {

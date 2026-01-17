@@ -343,7 +343,7 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
 
   if (bUpdateThumbnail)
   {
-    ezUInt64 uiThumbnailHash = ezAssetCurator::GetSingleton()->GetAssetReferenceHash(GetGuid());
+    ezUInt64 uiThumbnailHash = ezAssetCurator::GetSingleton()->GetAssetThumbnailHash(GetGuid());
     EZ_ASSERT_DEV(uiThumbnailHash != 0, "Thumbnail hash should never be zero when reaching this point!");
 
     ThumbnailInfo thumbnailInfo;
@@ -433,6 +433,32 @@ ezTransformStatus ezTextureAssetDocument::InternalTransformAsset(const char* szT
       case ezRenderTargetFormat::RGBA16:
         format = ezGALResourceFormat::RGBAHalf;
         break;
+
+      case ezRenderTargetFormat::R8:
+        format = ezGALResourceFormat::RUByteNormalized;
+        break;
+
+      case ezRenderTargetFormat::R16:
+        format = ezGALResourceFormat::RHalf;
+        break;
+
+      case ezRenderTargetFormat::R32:
+        format = ezGALResourceFormat::RFloat;
+        break;
+
+      case ezRenderTargetFormat::RG8:
+        format = ezGALResourceFormat::RGUByteNormalized;
+        break;
+
+      case ezRenderTargetFormat::RG16:
+        format = ezGALResourceFormat::RGHalf;
+        break;
+
+      case ezRenderTargetFormat::RG32:
+        format = ezGALResourceFormat::RGFloat;
+        break;
+
+        EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
     }
 
     file << bIsSRGB;

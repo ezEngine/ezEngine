@@ -23,10 +23,17 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, ezSimdQuatd)
 
     // Make sure the class didn't accidentally change in size.
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
-    #error
-#else
     static_assert(sizeof(ezSimdQuatd) == 32);
+    static_assert(alignof(ezSimdQuatd) == 32);
+#else
+
+    static_assert(sizeof(ezSimdQuatd) == 32);
+#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE    
     static_assert(alignof(ezSimdQuatd) == 16);
+#elif EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_FPU
+    static_assert(alignof(ezSimdQuatd) == 8);
+#endif
+
 #endif
 
   }

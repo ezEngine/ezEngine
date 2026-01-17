@@ -1,6 +1,5 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
-#include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetProcessor.h>
 #include <EditorFramework/Assets/AssetProcessorMessages.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
@@ -77,13 +76,13 @@ ezAssetProcessor::~ezAssetProcessor()
     m_pThread->Join();
     m_pThread.Clear();
   }
-  EZ_ASSERT_DEV(m_ProcessTaskState == ProcessTaskState::Stopped, "Call StopProcessTask first before destroying the ezAssetProcessor.");
+  EZ_ASSERT_DEV(m_ProcessorState == ProcessorState::Stopped, "Call StopProcessor first before destroying the ezAssetProcessor.");
 }
 
-void ezAssetProcessor::StartProcessTask()
+void ezAssetProcessor::StartProcessor()
 {
   EZ_LOCK(m_ProcessorMutex);
-  if (m_ProcessTaskState != ProcessTaskState::Stopped)
+  if (m_ProcessorState != ProcessorState::Stopped)
   {
     return;
   }
@@ -95,50 +94,53 @@ void ezAssetProcessor::StartProcessTask()
     m_pThread.Clear();
   }
 
-  m_ProcessTaskState = ProcessTaskState::Running;
+  m_ProcessorState = ProcessorState::Running;
 
   ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
 
   const ezUInt32 uiWorkerCount = ezMath::Min<ezUInt32>(ezTaskSystem::GetWorkerThreadCount(ezWorkerThreadType::LongTasks), pPreferences->m_uiMaxAssetProcessors);
-  m_ProcessTasks.SetCount(uiWorkerCount);
+  m_Processes.SetCount(uiWorkerCount);
+  m_EditorProcessorStates.SetCount(uiWorkerCount);
 
   for (ezUInt32 idx = 0; idx < uiWorkerCount; ++idx)
   {
-    m_ProcessTasks[idx].m_uiProcessorID = idx;
+    m_Processes[idx].m_uiProcessorID = idx;
   }
 
-  m_pThread = EZ_DEFAULT_NEW(ezProcessThread);
+  m_pThread = EZ_DEFAULT_NEW(ezAssetProcessorThread);
   m_pThread->Start();
 
   {
     ezAssetProcessorEvent e;
-    e.m_Type = ezAssetProcessorEvent::Type::ProcessTaskStateChanged;
+    e.m_Type = ezAssetProcessorEvent::Type::AssetProcessorStateChanged;
+    e.m_uiProcessCount = m_EditorProcessorStates.GetCount();
     m_Events.Broadcast(e);
   }
 }
 
-void ezAssetProcessor::StopProcessTask(bool bForce)
+void ezAssetProcessor::StopProcessor(bool bForce)
 {
   {
     EZ_LOCK(m_ProcessorMutex);
-    switch (m_ProcessTaskState)
+    switch (m_ProcessorState)
     {
-      case ProcessTaskState::Running:
+      case ProcessorState::Running:
       {
-        m_ProcessTaskState = ProcessTaskState::Stopping;
+        m_ProcessorState = ProcessorState::Stopping;
         {
           ezAssetProcessorEvent e;
-          e.m_Type = ezAssetProcessorEvent::Type::ProcessTaskStateChanged;
+          e.m_Type = ezAssetProcessorEvent::Type::AssetProcessorStateChanged;
+          e.m_uiProcessCount = m_EditorProcessorStates.GetCount();
           m_Events.Broadcast(e);
         }
       }
       break;
-      case ProcessTaskState::Stopping:
+      case ProcessorState::Stopping:
         if (!bForce)
           return;
         break;
       default:
-      case ProcessTaskState::Stopped:
+      case ProcessorState::Stopped:
         return;
     }
   }
@@ -148,8 +150,24 @@ void ezAssetProcessor::StopProcessTask(bool bForce)
     m_bForceStop = true;
     m_pThread->Join();
     m_pThread.Clear();
-    EZ_ASSERT_DEV(m_ProcessTaskState == ProcessTaskState::Stopped, "Process task shoul have set the state to stopped.");
+    EZ_ASSERT_DEV(m_ProcessorState == ProcessorState::Stopped, "Process task shoul have set the state to stopped.");
   }
+}
+
+ezUInt32 ezAssetProcessor::GetProcessCount() const
+{
+  EZ_LOCK(m_ProcessorMutex);
+  return m_EditorProcessorStates.GetCount();
+}
+
+ezEditorProcessorState ezAssetProcessor::GetProcessState(ezUInt32 uiProcessIndex) const
+{
+  EZ_LOCK(m_ProcessorMutex);
+  if (uiProcessIndex < m_EditorProcessorStates.GetCount())
+  {
+    return m_EditorProcessorStates[uiProcessIndex];
+  }
+  return {};
 }
 
 void ezAssetProcessor::AddLogWriter(ezLoggingEvent::Handler handler)
@@ -162,18 +180,46 @@ void ezAssetProcessor::RemoveLogWriter(ezLoggingEvent::Handler handler)
   m_CuratorLog.RemoveLogWriter(handler);
 }
 
+void ezAssetProcessor::UpdateProcessStates()
+{
+  ezHybridArray<ezUInt8, 8> changedProcesses;
+  {
+    EZ_LOCK(m_ProcessorMutex);
+    for (ezUInt32 i = 0; i < m_Processes.GetCount(); i++)
+    {
+      ezEditorProcessorState state;
+      state.m_bConnected = m_Processes[i].IsConnected();
+      state.m_bRunning = m_Processes[i].IsRunning();
+      state.m_uiProcessID = m_Processes[i].GetProcessId();
+
+      if (m_EditorProcessorStates[i] != state)
+      {
+        m_EditorProcessorStates[i] = state;
+        changedProcesses.PushBack(i);
+      }
+    }
+  }
+  for (ezUInt8 uiProcessId : changedProcesses)
+  {
+    ezAssetProcessorEvent e;
+    e.m_Type = ezAssetProcessorEvent::Type::ProcessStateChanged;
+    e.m_uiProcessorID = uiProcessId;
+    m_Events.Broadcast(e);
+  }
+}
+
 void ezAssetProcessor::Run()
 {
-  while (m_ProcessTaskState == ProcessTaskState::Running)
+  while (m_ProcessorState == ProcessorState::Running)
   {
     if (m_iPauseProcessing == 0)
     {
-      for (ezUInt32 i = 0; i < m_ProcessTasks.GetCount(); i++)
+      for (ezUInt32 i = 0; i < m_Processes.GetCount(); i++)
       {
-        m_ProcessTasks[i].Tick(true);
+        m_Processes[i].Tick(true);
       }
+      UpdateProcessStates();
     }
-
     ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(100));
   }
 
@@ -181,12 +227,12 @@ void ezAssetProcessor::Run()
   {
     bool bAnyRunning = false;
 
-    for (ezUInt32 i = 0; i < m_ProcessTasks.GetCount(); i++)
+    for (ezUInt32 i = 0; i < m_Processes.GetCount(); i++)
     {
       if (m_bForceStop)
-        m_ProcessTasks[i].ShutdownProcess();
+        m_Processes[i].ShutdownProcess();
 
-      bAnyRunning |= m_ProcessTasks[i].Tick(false);
+      bAnyRunning |= m_Processes[i].Tick(false);
     }
 
     if (bAnyRunning)
@@ -195,13 +241,28 @@ void ezAssetProcessor::Run()
       break;
   }
 
-  EZ_LOCK(m_ProcessorMutex);
-  m_ProcessTasks.Clear();
-  m_ProcessTaskState = ProcessTaskState::Stopped;
-  m_bForceStop = false;
+  ezUInt32 uiProcesses = 0;
+  {
+    EZ_LOCK(m_ProcessorMutex);
+    uiProcesses = m_Processes.GetCount();
+    m_Processes.Clear();
+    m_EditorProcessorStates.Clear();
+    m_ProcessorState = ProcessorState::Stopped;
+    m_bForceStop = false;
+  }
+
+  for (ezUInt8 uiProcessId = 0; uiProcessId < uiProcesses; uiProcessId++)
   {
     ezAssetProcessorEvent e;
-    e.m_Type = ezAssetProcessorEvent::Type::ProcessTaskStateChanged;
+    e.m_Type = ezAssetProcessorEvent::Type::ProcessStateChanged;
+    e.m_uiProcessorID = uiProcessId;
+    m_Events.Broadcast(e);
+  }
+
+  {
+    ezAssetProcessorEvent e;
+    e.m_Type = ezAssetProcessorEvent::Type::AssetProcessorStateChanged;
+    e.m_uiProcessCount = m_EditorProcessorStates.GetCount();
     m_Events.Broadcast(e);
   }
 }
@@ -211,22 +272,22 @@ void ezAssetProcessor::Run()
 // ezProcessTask
 ////////////////////////////////////////////////////////////////////////
 
-ezProcessTask::ezProcessTask()
+ezEditorProcessorProcess::ezEditorProcessorProcess()
   : m_Status(EZ_SUCCESS)
 {
   m_pIPC = EZ_DEFAULT_NEW(ezEditorProcessCommunicationChannel);
-  m_pIPC->m_Events.AddEventHandler(ezMakeDelegate(&ezProcessTask::EventHandlerIPC, this));
+  m_pIPC->m_Events.AddEventHandler(ezMakeDelegate(&ezEditorProcessorProcess::EventHandlerIPC, this));
 }
 
-ezProcessTask::~ezProcessTask()
+ezEditorProcessorProcess::~ezEditorProcessorProcess()
 {
   ShutdownProcess();
-  m_pIPC->m_Events.RemoveEventHandler(ezMakeDelegate(&ezProcessTask::EventHandlerIPC, this));
+  m_pIPC->m_Events.RemoveEventHandler(ezMakeDelegate(&ezEditorProcessorProcess::EventHandlerIPC, this));
   EZ_DEFAULT_DELETE(m_pIPC);
 }
 
 
-ezResult ezProcessTask::StartProcess()
+ezResult ezEditorProcessorProcess::StartProcess()
 {
   const ezRTTI* pFirstAllowedMessageType = nullptr;
 
@@ -265,23 +326,27 @@ ezResult ezProcessTask::StartProcess()
   return EZ_SUCCESS;
 }
 
-void ezProcessTask::ShutdownProcess()
+void ezEditorProcessorProcess::ShutdownProcess()
 {
   m_pIPC->CloseConnection();
 }
 
-void ezProcessTask::EventHandlerIPC(const ezProcessCommunicationChannel::Event& e)
+void ezEditorProcessorProcess::EventHandlerIPC(const ezProcessCommunicationChannel::Event& e)
 {
   if (const ezProcessAssetResponseMsg* pMsg = ezDynamicCast<const ezProcessAssetResponseMsg*>(e.m_pMessage))
   {
     EZ_ASSERT_DEV(m_State == State::Processing, "Message handling should only happen when currently processing");
-    m_Status = pMsg->m_Status;
     m_State = State::ReportResult;
+    m_Status = pMsg->m_Status;
     m_LogEntries.Swap(pMsg->m_LogEntries);
+    m_MissmatchTransformDependencies.Swap(pMsg->m_MissmatchTransformDependencies);
+    m_MissmatchThumbnailDependencies.Swap(pMsg->m_MissmatchThumbnailDependencies);
+    m_uiMissmatchAssetHash = pMsg->m_uiMissmatchAssetHash;
+    m_uiMissmatchThumbHash = pMsg->m_uiMissmatchThumbHash;
   }
 }
 
-bool ezProcessTask::GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, ezDataDirPath& out_path)
+bool ezEditorProcessorProcess::GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, ezDataDirPath& out_path, ezAssetInfo::TransformState& out_transformState)
 {
   bool bComplete = true;
 
@@ -334,12 +399,12 @@ bool ezProcessTask::GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, 
 
   if (ezAssetInfo* pDepInfo = TestFunc(pInfo->m_Info->m_TransformDependencies))
   {
-    return GetNextAssetToProcess(pDepInfo, out_guid, out_path);
+    return GetNextAssetToProcess(pDepInfo, out_guid, out_path, out_transformState);
   }
 
   if (ezAssetInfo* pDepInfo = TestFunc(pInfo->m_Info->m_ThumbnailDependencies))
   {
-    return GetNextAssetToProcess(pDepInfo, out_guid, out_path);
+    return GetNextAssetToProcess(pDepInfo, out_guid, out_path, out_transformState);
   }
 
   // not needed to go through package dependencies here
@@ -350,13 +415,14 @@ bool ezProcessTask::GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, 
     ezAssetCurator::GetSingleton()->m_Updating.Insert(pInfo->m_Info->m_DocumentID);
     out_guid = pInfo->m_Info->m_DocumentID;
     out_path = pInfo->m_Path;
+    out_transformState = pInfo->m_TransformState;
     return true;
   }
 
   return false;
 }
 
-bool ezProcessTask::GetNextAssetToProcess(ezUuid& out_guid, ezDataDirPath& out_path)
+bool ezEditorProcessorProcess::GetNextAssetToProcess(ezUuid& out_guid, ezDataDirPath& out_path, ezAssetInfo::TransformState& out_transformState)
 {
   EZ_LOCK(ezAssetCurator::GetSingleton()->m_CuratorMutex);
 
@@ -365,7 +431,7 @@ bool ezProcessTask::GetNextAssetToProcess(ezUuid& out_guid, ezDataDirPath& out_p
     ezAssetInfo* pInfo = ezAssetCurator::GetSingleton()->GetAssetInfo(it.Key());
     if (pInfo)
     {
-      bool bRes = GetNextAssetToProcess(pInfo, out_guid, out_path);
+      bool bRes = GetNextAssetToProcess(pInfo, out_guid, out_path, out_transformState);
       if (bRes)
         return true;
     }
@@ -376,7 +442,7 @@ bool ezProcessTask::GetNextAssetToProcess(ezUuid& out_guid, ezDataDirPath& out_p
     ezAssetInfo* pInfo = ezAssetCurator::GetSingleton()->GetAssetInfo(it.Key());
     if (pInfo)
     {
-      bool bRes = GetNextAssetToProcess(pInfo, out_guid, out_path);
+      bool bRes = GetNextAssetToProcess(pInfo, out_guid, out_path, out_transformState);
       if (bRes)
         return true;
     }
@@ -386,7 +452,7 @@ bool ezProcessTask::GetNextAssetToProcess(ezUuid& out_guid, ezDataDirPath& out_p
 }
 
 
-void ezProcessTask::OnProcessCrashed(ezStringView message)
+void ezEditorProcessorProcess::OnProcessCrashed(ezStringView message)
 {
   ShutdownProcess();
   m_Status = ezStatus(message);
@@ -396,17 +462,112 @@ void ezProcessTask::OnProcessCrashed(ezStringView message)
   ezLog::Error(&ezAssetProcessor::GetSingleton()->m_CuratorLog, message);
 }
 
-bool ezProcessTask::IsConnected()
+bool ezEditorProcessorProcess::IsConnected() const
 {
   return m_pIPC->IsConnected();
 }
 
-bool ezProcessTask::HasProcessCrashed()
+bool ezEditorProcessorProcess::IsRunning() const
+{
+  return m_State == State::Processing;
+}
+
+ezOsProcessID ezEditorProcessorProcess::GetProcessId() const
+{
+  if (m_pIPC)
+  {
+    return m_pIPC->GetProcessId();
+  }
+  return {};
+}
+
+bool ezEditorProcessorProcess::HasProcessCrashed()
 {
   return m_pIPC->IsClientAlive();
 }
 
-bool ezProcessTask::Tick(bool bStartNewWork)
+void ezEditorProcessorProcess::HandleHashMissmatch()
+{
+  EZ_SCOPE_EXIT(
+    {
+      m_MissmatchTransformDependencies.Clear();
+      m_MissmatchThumbnailDependencies.Clear();
+      m_uiMissmatchAssetHash = 0;
+      m_uiMissmatchThumbHash = 0;
+    });
+
+  ezUInt64 uiAssetHash = 0;
+  ezUInt64 uiThumbHash = 0;
+  ezUInt64 uiPackageHash = 0;
+  ezMap<ezString, ezUInt64> TransformDependencies;
+  ezMap<ezString, ezUInt64> ThumbnailDependencies;
+  {
+    // Check the asset hash again but force evaluation to detect cases where the file system watcher did not trigger.
+    const ezUInt32 uiPlatform = ezAssetCurator::GetSingleton()->FindAssetProfileByName(m_sPlatform);
+    ezAssetCurator::GetSingleton()->IsAssetUpToDate(m_AssetGuid, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform), nullptr, uiAssetHash, uiThumbHash, uiPackageHash, true);
+    if ((uiAssetHash == m_uiMissmatchAssetHash) || (uiThumbHash == m_uiMissmatchThumbHash))
+    {
+      // The newly computed hash now matches the one computed by the ezEditorProcessor.
+      return;
+    }
+
+    ezSet<ezString> dependencies;
+    ezAssetCurator::GetSingleton()->GenerateTransitiveHull(m_AssetPath.GetAbsolutePath(), dependencies, ezDependencyFlags::Transform);
+    ezAssetCurator::GetSingleton()->GenerateSettingsHashMap(dependencies, ezDependencyFlags::Transform, TransformDependencies);
+
+    dependencies.Clear();
+    ezAssetCurator::GetSingleton()->GenerateTransitiveHull(m_AssetPath.GetAbsolutePath(), dependencies, ezDependencyFlags::Thumbnail);
+    ezAssetCurator::GetSingleton()->GenerateSettingsHashMap(dependencies, ezDependencyFlags::Thumbnail, ThumbnailDependencies);
+  }
+
+  auto AddLogMessage = [&](ezStringView sMsg)
+  {
+    ezLogEntry le;
+    le.m_sMsg = sMsg;
+    le.m_Type = ezLogMsgType::WarningMsg;
+    m_LogEntries.PushBack(le);
+  };
+
+  auto CompareDependencies = [&](const ezMap<ezString, ezUInt64>& dependencies, const ezMap<ezString, ezUInt64>& missmatchDependencies, ezStringView sDependencyType)
+  {
+    ezStringBuilder sMsg;
+    for (auto it = TransformDependencies.GetIterator(); it.IsValid(); ++it)
+    {
+      const ezString& sKey = it.Key();
+      const ezUInt64 uiExpected = it.Value();
+
+      auto itOld = m_MissmatchTransformDependencies.Find(sKey);
+      if (itOld.IsValid())
+      {
+        const ezUInt64 uiOld = itOld.Value();
+        if (uiOld != uiExpected)
+        {
+          sMsg.SetFormat("{} dependency hash mismatch for '{}': expected {} != recorded {}", sDependencyType, sKey, uiExpected, uiOld);
+          AddLogMessage(sMsg);
+        }
+      }
+      else
+      {
+        sMsg.SetFormat("{} dependency missing in records: '{0}' (hash {1})", sDependencyType, sKey, uiExpected);
+        AddLogMessage(sMsg);
+      }
+    }
+
+    // Check for dependencies that used to be recorded but are no longer expected
+    for (auto it = m_MissmatchTransformDependencies.GetIterator(); it.IsValid(); ++it)
+    {
+      if (!TransformDependencies.Contains(it.Key()))
+      {
+        sMsg.SetFormat("{} dependency no longer present: '{0}' (old hash {1})", sDependencyType, it.Key(), it.Value());
+        AddLogMessage(sMsg);
+      }
+    }
+  };
+  CompareDependencies(TransformDependencies, m_MissmatchTransformDependencies, "Transform");
+  CompareDependencies(ThumbnailDependencies, m_MissmatchThumbnailDependencies, "Thumbnail");
+}
+
+bool ezEditorProcessorProcess::Tick(bool bStartNewWork)
 {
   while (true)
   {
@@ -418,15 +579,29 @@ bool ezProcessTask::Tick(bool bStartNewWork)
         {
           return false; // don't call later
         }
-        m_LogEntries.Clear();
+        // Clear asset to process
+        m_AssetGuid = {};
+        m_AssetPath.Clear();
+        m_TransformState = ezAssetInfo::TransformState::Unknown;
+        m_sPlatform.Clear();
+        m_uiAssetHash = 0;
+        m_uiThumbHash = 0;
+        m_uiPackageHash = 0;
         m_TransitiveHull.Clear();
+
+        // Clear transform result
         m_Status = ezStatus(EZ_SUCCESS);
+        m_LogEntries.Clear();
+        m_MissmatchTransformDependencies.Clear();
+        m_MissmatchThumbnailDependencies.Clear();
+        m_uiMissmatchAssetHash = 0;
+        m_uiMissmatchThumbHash = 0;
         {
           auto pCurator = ezAssetCurator::GetSingleton();
 
           EZ_LOCK(pCurator->m_CuratorMutex);
 
-          if (!GetNextAssetToProcess(m_AssetGuid, m_AssetPath))
+          if (!GetNextAssetToProcess(m_AssetGuid, m_AssetPath, m_TransformState))
           {
             m_AssetGuid = ezUuid();
             m_AssetPath.Clear();
@@ -445,8 +620,9 @@ bool ezProcessTask::Tick(bool bStartNewWork)
 
           ezSet<ezString> dependencies;
           ezStringBuilder sTemp;
-          pCurator->GenerateTransitiveHull(ezConversionUtils::ToString(m_AssetGuid, sTemp), dependencies, true, true);
+          pCurator->GenerateTransitiveHull(ezConversionUtils::ToString(m_AssetGuid, sTemp), dependencies, ezDependencyFlags::Transform | ezDependencyFlags::Thumbnail);
 
+          m_sPlatform = ezAssetCurator::GetSingleton()->GetActiveAssetProfile()->GetConfigName();
           m_TransitiveHull.Reserve(dependencies.GetCount());
           for (const ezString& str : dependencies)
           {
@@ -501,6 +677,20 @@ bool ezProcessTask::Tick(bool bStartNewWork)
       case State::Ready:
       {
         ezLog::Info(&ezAssetProcessor::GetSingleton()->m_CuratorLog, "Processing '{0}'", m_AssetPath.GetDataDirRelativePath());
+
+        // Fire progress event for processing started
+        m_ProcessingStartTime = ezTime::Now();
+        {
+          ezAssetProcessorProgressEvent e;
+          e.m_Type = ezAssetProcessorProgressEvent::Type::ProcessingStarted;
+          e.m_TransformState = m_TransformState;
+          e.m_uiProcessorID = (ezUInt8)m_uiProcessorID;
+          e.m_AssetGuid = m_AssetGuid;
+          e.m_sAssetPath = m_AssetPath.GetDataDirRelativePath();
+          e.m_StartTime = m_ProcessingStartTime;
+          ezAssetProcessor::GetSingleton()->m_ProgressEvents.Broadcast(e);
+        }
+
         // Send and wait
         ezProcessAssetMsg msg;
         msg.m_AssetGuid = m_AssetGuid;
@@ -509,7 +699,7 @@ bool ezProcessTask::Tick(bool bStartNewWork)
         msg.m_PackageHash = m_uiPackageHash;
         msg.m_sAssetPath = m_AssetPath;
         msg.m_DepRefHull.Swap(m_TransitiveHull);
-        msg.m_sPlatform = ezAssetCurator::GetSingleton()->GetActiveAssetProfile()->GetConfigName();
+        msg.m_sPlatform = m_sPlatform;
 
         if (m_pIPC->SendMessage(&msg))
         {
@@ -535,6 +725,24 @@ bool ezProcessTask::Tick(bool bStartNewWork)
       break;
       case State::ReportResult:
       {
+        if (!m_MissmatchTransformDependencies.IsEmpty())
+        {
+          HandleHashMissmatch();
+        }
+
+        // Fire progress event for processing finished
+        {
+          ezAssetProcessorProgressEvent e;
+          e.m_Type = ezAssetProcessorProgressEvent::Type::ProcessingFinished;
+          e.m_uiProcessorID = m_uiProcessorID;
+          e.m_AssetGuid = m_AssetGuid;
+          e.m_sAssetPath = m_AssetPath.GetDataDirRelativePath();
+          e.m_StartTime = m_ProcessingStartTime;
+          e.m_EndTime = ezTime::Now();
+          e.m_Result = m_Status;
+          ezAssetProcessor::GetSingleton()->m_ProgressEvents.Broadcast(e);
+        }
+
         if (m_Status.Succeeded())
         {
           ezAssetCurator::GetSingleton()->NotifyOfAssetChange(m_AssetGuid);
@@ -565,7 +773,7 @@ bool ezProcessTask::Tick(bool bStartNewWork)
   }
 }
 
-ezUInt32 ezProcessThread::Run()
+ezUInt32 ezAssetProcessorThread::Run()
 {
   ezAssetProcessor::GetSingleton()->Run();
   return 0;

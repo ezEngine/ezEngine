@@ -151,7 +151,7 @@ private:
   ezGAL::ModifiedRange m_BoundSamplerStatesRange[ezGALShaderStage::ENUM_COUNT];
 
   ID3D11DeviceChild* m_pBoundShaders[ezGALShaderStage::ENUM_COUNT] = {};
-  ezUInt8 m_uiStencilRefValue = 0xFFu;
+  ezUInt8 m_uiStencilRefValue = 0;
 
   ezGALRenderingSetup m_RenderTargetSetup;
   ID3D11RenderTargetView* m_pBoundRenderTargets[EZ_GAL_MAX_RENDERTARGET_COUNT] = {};

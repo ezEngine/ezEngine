@@ -121,6 +121,10 @@ ezStatus ezVisualShaderCodeGenerator::GatherAllNodes(const ezDocumentObject* pRo
 
       m_pMainNode = pRootObj;
     }
+    else if (pDesc->m_NodeType == ezVisualShaderNodeType::ShaderState)
+    {
+      m_StateNodes.PushBack(pRootObj);
+    }
   }
 
   const auto& children = pRootObj->GetChildren();
@@ -164,6 +168,11 @@ ezStatus ezVisualShaderCodeGenerator::GenerateVisualShader(const ezDocumentNodeM
     return ezStatus("Visual Shader does not contain an output node");
 
   EZ_SUCCEED_OR_RETURN(GenerateNode(m_pMainNode));
+
+  for (auto pStateNode : m_StateNodes)
+  {
+    EZ_SUCCEED_OR_RETURN(GenerateNode(pStateNode));
+  }
 
   ezStringBuilder sMaterialConstants = m_sShaderMaterialConstants;
   sMaterialConstants.ReplaceAll("VSE_CONSTANTS", m_sShaderMaterialCB);
@@ -235,6 +244,7 @@ ezStatus ezVisualShaderCodeGenerator::GenerateNode(const ezDocumentObject* pNode
   EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sPixelDefines));
   EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sMaterialCB));
   EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sPixelSamplersCode));
+  EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sRenderStates));
 
   SetPinDefines(pNode, sPermutations);
   SetPinDefines(pNode, sRenderStates);

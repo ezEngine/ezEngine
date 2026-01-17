@@ -1,0 +1,229 @@
+HeaderV2
+{
+o
+{
+	Uuid %id{u4{14104302783405023669,5644165233381600114}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{2}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Kraut Tree"}
+		VarArray %Dependencies
+		{
+			s{"Prefabs/Vegetation/Trees/Cactus.tree"}
+		}
+		Uuid %DocumentID{u4{14104302783405023669,5644165233381600114}}
+		u4 %Hash{9413925332380332407}
+		VarArray %MetaInfo{}
+		VarArray %Outputs{}
+		VarArray %PackageDeps
+		{
+			s{"{ 1b43d203-e2d7-4c08-a4f3-164be66e6528 }"}
+			s{"{ 35aacf59-410e-4ec8-bde1-e5f801f6a23e }"}
+		}
+		VarArray %References
+		{
+			s{"Prefabs/Vegetation/Trees/Cactus.tree"}
+			s{"{ 1b43d203-e2d7-4c08-a4f3-164be66e6528 }"}
+			s{"{ 35aacf59-410e-4ec8-bde1-e5f801f6a23e }"}
+		}
+		s %Tags{""}
+	}
+}
+}
+Objects
+{
+o
+{
+	Uuid %id{u4{8707809108287411387,4629657640368851112}}
+	s %t{"ezKrautAssetMaterial"}
+	u3 %v{1}
+	p
+	{
+		s %Label{"Branch 1 - Stem"}
+		s %Material{"{ 1b43d203-e2d7-4c08-a4f3-164be66e6528 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{8304730714130191804,4652161846169692572}}
+	s %t{"ezKrautAssetMaterial"}
+	u3 %v{1}
+	p
+	{
+		s %Label{"Branch 2 - Frond"}
+		s %Material{"{ 35aacf59-410e-4ec8-bde1-e5f801f6a23e }"}
+	}
+}
+o
+{
+	Uuid %id{u4{9282600230340061327,4703787962271412985}}
+	s %t{"ezKrautAssetMaterial"}
+	u3 %v{1}
+	p
+	{
+		s %Label{"Trunk 1 - Frond"}
+		s %Material{"{ 35aacf59-410e-4ec8-bde1-e5f801f6a23e }"}
+	}
+}
+o
+{
+	Uuid %id{u4{11636822421732316329,4726364265665249005}}
+	s %t{"ezKrautAssetMaterial"}
+	u3 %v{1}
+	p
+	{
+		s %Label{"Trunk 1 - Stem"}
+		s %Material{"{ 1b43d203-e2d7-4c08-a4f3-164be66e6528 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{5043278666507039400,4916017281986759292}}
+	s %t{"ezKrautAssetMaterial"}
+	u3 %v{1}
+	p
+	{
+		s %Label{"Branch 1 - Frond"}
+		s %Material{"{ 35aacf59-410e-4ec8-bde1-e5f801f6a23e }"}
+	}
+}
+o
+{
+	Uuid %id{u4{5168032821534211762,4938705938119238932}}
+	s %t{"ezKrautAssetMaterial"}
+	u3 %v{1}
+	p
+	{
+		s %Label{"Twig 1 - Stem"}
+		s %Material{"{ 1b43d203-e2d7-4c08-a4f3-164be66e6528 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{16083924442896833979,5012101135109829548}}
+	s %t{"ezKrautTreeAssetProperties"}
+	u3 %v{1}
+	p
+	{
+		u2 %DisplayRandomSeed{8}
+		VarArray %GoodRandomSeeds
+		{
+			u2{8}
+		}
+		s %KrautFile{"Prefabs/Vegetation/Trees/Cactus.tree"}
+		f %LodDistanceScale{0x00004040}
+		VarArray %Materials
+		{
+			Uuid{u4{11636822421732316329,4726364265665249005}}
+			Uuid{u4{9282600230340061327,4703787962271412985}}
+			Uuid{u4{8707809108287411387,4629657640368851112}}
+			Uuid{u4{5043278666507039400,4916017281986759292}}
+			Uuid{u4{17920176298699218343,5268268589670661526}}
+			Uuid{u4{8304730714130191804,4652161846169692572}}
+			Uuid{u4{5168032821534211762,4938705938119238932}}
+		}
+		f %StaticColliderRadius{0xCDCCCC3E}
+		s %Surface{""}
+		f %TreeStiffness{0x00002041}
+		f %UniformScaling{0x0000803F}
+	}
+}
+o
+{
+	Uuid %id{u4{17920176298699218343,5268268589670661526}}
+	s %t{"ezKrautAssetMaterial"}
+	u3 %v{1}
+	p
+	{
+		s %Label{"Branch 2 - Stem"}
+		s %Material{"{ 1b43d203-e2d7-4c08-a4f3-164be66e6528 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{18096612296587978288,6449934965513159559}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{16083924442896833979,5012101135109829548}}
+		}
+	}
+}
+}
+Types
+{
+o
+{
+	Uuid %id{u4{9839103660623915170,1447106120747834331}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"ezEditorPluginKraut"}
+		VarArray %Properties{}
+		s %TypeName{"ezKrautAssetMaterial"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6793836540827978476,3094957657128336037}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginKraut"}
+		VarArray %Properties{}
+		s %TypeName{"ezKrautTreeAssetProperties"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6089094783765586323,8705960867921430659}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentRoot"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{983387834180907111,17935407260904399048}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezReflectedClass"}
+		u3 %TypeVersion{1}
+	}
+}
+}

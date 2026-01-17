@@ -28,7 +28,6 @@ class ezUpdateTask;
 class ezTask;
 class ezAssetDocumentManager;
 class ezDirectoryWatcher;
-class ezProcessTask;
 struct ezFileStats;
 class ezAssetProcessorLog;
 class ezFileSystemWatcher;
@@ -261,11 +260,11 @@ public:
   /// \brief Returns the table of all known assets in a locked structure
   const ezLockedAssetTable GetKnownAssets() const;
 
-  /// \brief Computes the combined hash for the asset and its dependencies. Returns 0 if anything went wrong.
-  ezUInt64 GetAssetDependencyHash(ezUuid assetGuid);
+  /// \brief Computes the transform hash for the asset and its transform dependencies. Returns 0 if anything went wrong.
+  ezUInt64 GetAssetTransformHash(ezUuid assetGuid);
 
-  /// \brief Computes the combined hash for the asset and its references. Returns 0 if anything went wrong.
-  ezUInt64 GetAssetReferenceHash(ezUuid assetGuid);
+  /// \brief Computes the thumbnail hash for the asset and its thumbnail dependencies. Returns 0 if anything went wrong.
+  ezUInt64 GetAssetThumbnailHash(ezUuid assetGuid);
 
   ezAssetInfo::TransformState IsAssetUpToDate(const ezUuid& assetGuid, const ezPlatformProfile* pAssetProfile, const ezAssetDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_uiAssetHash, ezUInt64& out_uiThumbHash, ezUInt64& out_uiPackageHash, bool bForce = false);
   /// \brief Returns the number of assets in the system and how many are in what transform state
@@ -274,15 +273,22 @@ public:
   /// \brief Iterates over all known data directories and returns the absolute path to the directory in which this asset is located
   ezString FindDataDirectoryForAsset(ezStringView sAbsoluteAssetPath) const;
 
+  /// \brief Collects all main asset GUIDs located within the specified folder path.
+  ///
+  /// Searches through all known assets and adds the string representation of their GUID
+  /// to the output array if their absolute path starts with the given folder path.
+  /// Only main assets are included (not sub-assets).
+  void GetAllAssetsInFolder(ezStringView sFolderPath, ezDynamicArray<ezString>& out_assetGuids) const;
+
   /// \brief Uses knowledge about all existing files on disk to find the best match for a file. Very slow.
   ///
   /// \param sFile
   ///   File name (may include a path) to search for. Will be modified both on success and failure to give a 'reasonable' result.
   ezResult FindBestMatchForFile(ezStringBuilder& ref_sFile, ezArrayPtr<ezString> allowedFileExtensions) const;
 
-  /// \brief Finds all uses, either as references or dependencies to a given asset.
+  /// \brief Finds all uses, either as transform or thumbnail dependencies to a given asset.
   ///
-  /// Technically this finds all references and dependencies to this asset but in practice there are no uses of transform dependencies between assets right now so the result is a list of references and can be referred to as such.
+  /// Technically this finds all dependencies to this asset but in practice there are no uses of transform dependencies between assets right now so the result is a list of thumbnail dependencies and can be referred to as simply a list of asset references.
   ///
   /// \param assetGuid
   ///   The asset to find use cases for.
@@ -316,24 +322,38 @@ public:
   /// \brief Checks file system for any changes. Call in case the file system watcher does not pick up certain changes.
   void CheckFileSystem();
 
-  void NeedsReloadResources(const ezUuid& assetGuid);
+  void NeedsReloadResources(const ezUuid& assetGuid) const;
 
   void InvalidateAssetsWithTransformState(ezAssetInfo::TransformState state);
 
-
   ///@}
-
   /// \name Utilities
   ///@{
 
   /// \brief Generates one transitive hull for all the dependencies that are enabled. The set will contain dependencies that are reachable via any combination of enabled reference types.
-  void GenerateTransitiveHull(const ezStringView sAssetOrPath, ezSet<ezString>& inout_deps, bool bIncludeTransformDeps = false, bool bIncludeThumbnailDeps = false, bool bIncludePackageDeps = false) const;
+  void GenerateTransitiveHull(const ezStringView sAssetOrPath, ezSet<ezString>& inout_deps, ezBitflags<ezDependencyFlags> dependencyTypes) const;
+  /// \brief Copies each value of deps into out_SettingsHashMap and fills the value of assets with the hash value of the dependencyType. For files, the file hash is used.
+  void GenerateSettingsHashMap(const ezSet<ezString>& deps, ezBitflags<ezDependencyFlags> dependencyType, ezMap<ezString, ezUInt64>& out_settingsHashMap) const;
 
   /// \brief Generates one inverse transitive hull for all the types dependencies that are enabled. The set will contain inverse dependencies that can reach the given asset (pAssetInfo) via any combination of the enabled reference types. As only assets can have dependencies, the inverse hull is always just asset GUIDs.
   void GenerateInverseTransitiveHull(const ezAssetInfo* pAssetInfo, ezSet<ezUuid>& inout_inverseDeps, bool bIncludeTransformDeps = false, bool bIncludeThumbnailDeps = false) const;
 
   /// \brief Generates a DGML graph of all transform and thumbnail dependencies.
   void WriteDependencyDGML(const ezUuid& guid, ezStringView sOutputFile) const;
+
+  struct ExportResult
+  {
+    ezUInt32 m_uiCopiedFiles = 0;
+    ezUInt32 m_uiFailedFiles = 0;
+  };
+
+  /// \brief Exports assets and their dependencies to a destination folder.
+  ///
+  /// Takes an array of source paths (asset GUIDs as strings or file paths) and exports them
+  /// along with all their dependencies to the destination folder. Files are copied preserving
+  /// their relative paths from the data directories. Each file is copied only once, even if
+  /// it appears in multiple dependency trees.
+  ExportResult ExportAssets(ezArrayPtr<ezString> sources, ezStringView sDestinationFolder, ezBitflags<ezDependencyFlags> includeDependencyTypes = ezDependencyFlags::Transform | ezDependencyFlags::Thumbnail | ezDependencyFlags::Package) const;
 
   ///@}
 
@@ -376,7 +396,7 @@ private:
   /// \name Asset Hashing and Status Updates (AssetUpdates.cpp)
   ///@{
 
-  bool AddAssetHash(ezString& sPath, bool bIsReference, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, ezUInt64& out_PackageHash, bool bForce);
+  bool AddAssetHash(ezString& sPath, ezBitflags<ezDependencyFlags> dependencyType, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, ezUInt64& out_PackageHash, bool bForce);
   ezAssetInfo::TransformState HashAsset(ezUInt64 uiSettingsHash, const ezHybridArray<ezString, 16>& assetTransformDeps, const ezHybridArray<ezString, 16>& assetThumbnailDeps, const ezHybridArray<ezString, 16>& assetPackageDeps, ezSet<ezString>& missingTransformDeps, ezSet<ezString>& missingThumbnailDeps, ezSet<ezString>& missingPackageDeps, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, ezUInt64& out_PackageHash, bool bForce);
 
   ezResult EnsureAssetInfoUpdated(const ezDataDirPath& absFilePath, const ezFileStatus& stat, bool bForce = false);
@@ -421,7 +441,7 @@ public:
 private:
   friend class ezUpdateTask;
   friend class ezAssetProcessor;
-  friend class ezProcessTask;
+  friend class ezEditorProcessorProcess;
 
   mutable ezCuratorMutex m_CuratorMutex; // Global lock
   ezTaskGroupID m_InitializeCuratorTaskID;

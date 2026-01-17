@@ -95,16 +95,3 @@ void AsteroidsGame::AfterCoreSystemsStartup()
   ActivateGameState(nullptr, {}, ezTransform::MakeIdentity());
 }
 
-void AsteroidsGame::Run_InputUpdate()
-{
-  SUPER::Run_InputUpdate();
-
-  if (auto pGameState = GetActiveGameState())
-  {
-    // pass through the closing of the application
-    if (pGameState->WasQuitRequested())
-    {
-      RequestApplicationQuit();
-    }
-  }
-}

@@ -1,10 +1,12 @@
 #pragma once
 
+#include <Foundation/Types/SharedPtr.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphNode.h>
 
 class ezSkeletonResource;
 class ezStreamWriter;
 class ezStreamReader;
+struct ezAnimGraphSharedBoneWeights;
 
 /// Creates per-bone weight masks for partial animation blending.
 ///

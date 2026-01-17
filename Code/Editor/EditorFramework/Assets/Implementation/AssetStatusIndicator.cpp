@@ -74,7 +74,7 @@ void ezQtAssetStatusIndicator::UpdateDisplay()
   {
     auto flags = m_pAsset->GetAssetFlags();
     const bool bTransformOnSave = flags.IsSet(ezAssetDocumentFlags::AutoTransformOnSave);
-    const bool bBgRunning = ezAssetProcessor::GetSingleton()->GetProcessTaskState() == ezAssetProcessor::ProcessTaskState::Running;
+    const bool bBgRunning = ezAssetProcessor::GetSingleton()->GetProcessorState() == ezAssetProcessor::ProcessorState::Running;
 
     // no flag for live preview available (ignore)
 
@@ -108,7 +108,7 @@ void ezQtAssetStatusIndicator::UpdateDisplay()
       case ezAssetInfo::TransformState::NeedsImport:
       case ezAssetInfo::TransformState::NeedsTransform:
       {
-        const bool bBgRunning = ezAssetProcessor::GetSingleton()->GetProcessTaskState() == ezAssetProcessor::ProcessTaskState::Running;
+        const bool bBgRunning = ezAssetProcessor::GetSingleton()->GetProcessorState() == ezAssetProcessor::ProcessorState::Running;
 
         if (bBgRunning)
         {

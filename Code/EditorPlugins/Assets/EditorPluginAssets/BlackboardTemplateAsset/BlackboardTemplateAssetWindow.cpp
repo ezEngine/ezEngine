@@ -94,7 +94,7 @@ void ezQtBlackboardTemplateAssetDocumentWindow::UpdatePreview()
   sAbsFilePath.ChangeFileExtension("ezBlackboardTemplate");
   // Write Header
   memoryWriter << sAbsFilePath;
-  const ezUInt64 uiHash = ezAssetCurator::GetSingleton()->GetAssetDependencyHash(GetDocument()->GetGuid());
+  const ezUInt64 uiHash = ezAssetCurator::GetSingleton()->GetAssetTransformHash(GetDocument()->GetGuid());
   ezAssetFileHeader AssetHeader;
   AssetHeader.SetFileHashAndVersion(uiHash, pDocument->GetAssetTypeVersion());
   AssetHeader.Write(memoryWriter).IgnoreResult();

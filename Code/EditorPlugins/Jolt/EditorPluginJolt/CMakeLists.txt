@@ -14,9 +14,10 @@ ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets)
 target_link_libraries(${PROJECT_NAME}
   PRIVATE
   EditorFramework
+  EditorPluginAssets
   GameEngine
   ModelImporter2
-  JoltCooking
+  JoltPlugin
 )
 
 add_dependencies(${PROJECT_NAME}

@@ -909,6 +909,7 @@ void ezMaterialAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo
     for (const auto& sCfgFile : cfgFiles)
     {
       pInfo->m_TransformDependencies.Insert(sCfgFile);
+      pInfo->m_ThumbnailDependencies.Insert(sCfgFile);
     }
 
     pInfo->m_Outputs.Insert(ezMaterialAssetDocumentManager::s_szShaderOutputTag);
@@ -1285,7 +1286,7 @@ void ezMaterialAssetDocument::RemoveDisconnectedNodes()
 
     auto pDesc = ezVisualShaderTypeRegistry::GetSingleton()->GetDescriptorForType(it.Key()->GetType());
 
-    if (pDesc->m_NodeType == ezVisualShaderNodeType::Main)
+    if (pDesc->m_NodeType == ezVisualShaderNodeType::Main || pDesc->m_NodeType == ezVisualShaderNodeType::ShaderState)
     {
       MarkReachableNodes(AllNodes, it.Key(), pNodeManager);
     }

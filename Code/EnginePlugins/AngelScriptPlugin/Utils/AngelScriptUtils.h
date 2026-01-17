@@ -11,6 +11,7 @@ class asIScriptGeneric;
 class ezAbstractFunctionProperty;
 class asIScriptModule;
 class asIScriptFunction;
+class ezWorld;
 
 struct EZ_ANGELSCRIPTPLUGIN_DLL ezAsInfos
 {

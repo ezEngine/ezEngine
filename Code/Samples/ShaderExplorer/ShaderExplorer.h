@@ -19,7 +19,9 @@
 
 #  if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT) && EZ_DISABLED(EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS)
 // on sandboxed platforms, we can only load data through fileserve, so enforce use of this plugin
-#    define USE_FILESERVE EZ_ON
+// Right now, the only platform that hits this code path is Android, but right now, port forwarding for enet does not seem to work in the emulator so for now this is disabled until this can be debugged further.
+// #    define USE_FILESERVE EZ_ON
+#    define USE_FILESERVE EZ_OFF
 #  else
 #    define USE_FILESERVE EZ_OFF
 #  endif

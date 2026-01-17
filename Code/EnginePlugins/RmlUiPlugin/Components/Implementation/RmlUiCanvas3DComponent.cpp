@@ -1,26 +1,22 @@
 #include <RmlUiPlugin/RmlUiPluginPCH.h>
 
+#include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <Foundation/Math/Intersection.h>
+#include <GameEngine/Gameplay/BlackboardComponent.h>
+#include <RendererCore/Material/MaterialResource.h>
+#include <RendererCore/Meshes/CpuMeshResource.h>
+#include <RendererCore/Meshes/MeshComponent.h>
+#include <RendererCore/Pipeline/RenderData.h>
+#include <RendererCore/Pipeline/View.h>
+#include <RendererCore/Textures/Texture2DResource.h>
+#include <RendererCore/Utils/WorldGeoExtractionUtil.h>
+#include <RendererFoundation/Device/Device.h>
 #include <RmlUiPlugin/Components/RmlUiCanvas3DComponent.h>
-#include <RmlUiPlugin/Implementation/BlackboardDataBinding.h>
-#include <RmlUiPlugin/Implementation/RmlUiRenderData.h>
 #include <RmlUiPlugin/RmlUiContext.h>
 #include <RmlUiPlugin/RmlUiSingleton.h>
 
-#include <Core/Input/InputManager.h>
-#include <Core/WorldSerializer/WorldReader.h>
-#include <Core/WorldSerializer/WorldWriter.h>
-#include <GameEngine/Gameplay/BlackboardComponent.h>
-#include <Foundation/Math/Intersection.h>
-#include <RendererCore/Pipeline/RenderData.h>
-#include <RendererCore/Pipeline/View.h>
-#include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererCore/Utils/WorldGeoExtractionUtil.h>
-#include <RendererCore/Meshes/CpuMeshResource.h>
-#include <RendererCore/Meshes/MeshComponent.h>
-#include <RendererCore/Textures/Texture2DResource.h>
-#include <RendererCore/Material/MaterialResource.h>
-#include <RendererFoundation/Device/Device.h>
-#include <RendererFoundation/Resources/Texture.h>
+static ezAtomicInteger32 s_RmlResourceCounter;
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezRmlUiCanvas3DComponent, 2, ezComponentMode::Static)
@@ -28,7 +24,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezRmlUiCanvas3DComponent, 2, ezComponentMode::Static)
   EZ_BEGIN_PROPERTIES
   {
     EZ_RESOURCE_ACCESSOR_PROPERTY("ProxyMesh", GetProxyMesh, SetProxyMesh)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Static")),
-    EZ_RESOURCE_ACCESSOR_PROPERTY("BaseMaterial", GetBaseMaterial, SetBaseMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
+    EZ_RESOURCE_ACCESSOR_PROPERTY("BaseMaterial", GetBaseMaterial, SetBaseMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material"), new ezDefaultValueAttribute("{ 05af8d07-0b38-44a6-8d50-49731ae2625d }")),
     EZ_ACCESSOR_PROPERTY("MaterialIndex", GetMaterialIndex, SetMaterialIndex)->AddAttributes(new ezDefaultValueAttribute(0)),
     EZ_ACCESSOR_PROPERTY("TextureSlotName", GetTextureSlotName, SetTextureSlotName)->AddAttributes(new ezDefaultValueAttribute("BaseTexture")),
     EZ_ACCESSOR_PROPERTY("TextureSize", GetTextureSize, SetTextureSize)->AddAttributes(new ezSuffixAttribute("px"), new ezDefaultValueAttribute(ezVec2U32(512, 512)), new ezClampValueAttribute(ezVec2U32(0), ezVec2U32(4096))),
@@ -60,7 +56,7 @@ void ezRmlUiCanvas3DComponent::SerializeComponent(ezWorldWriter& inout_stream) c
 
   ezStreamWriter& s = inout_stream.GetStream();
 
-  s << m_hMaterial;
+  s << m_hBaseMaterial;
   s << m_uiMaterialIndex;
   s << m_sTextureSlotName;
   s << m_vSize;
@@ -76,22 +72,38 @@ void ezRmlUiCanvas3DComponent::DeserializeComponent(ezWorldReader& inout_stream)
   const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = inout_stream.GetStream();
 
-  s >> m_hMaterial;
+  s >> m_hBaseMaterial;
   s >> m_uiMaterialIndex;
   s >> m_sTextureSlotName;
   s >> m_vSize;
   s >> m_bClearStaleInput;
   s >> m_bIsInteractive;
   s >> m_fDpiScale;
+
   if (uiVersion >= 2)
+  {
     s >> m_hProxyMesh;
+  }
 }
 
 void ezRmlUiCanvas3DComponent::OnActivated()
 {
   SUPER::OnActivated();
 
-  m_bNeedsUpdate |= UpdateTextureAndMaterial();
+  GetOrCreateRmlContext()->ShowDocument();
+
+  if (m_sTextureSlotName.IsEmpty())
+  {
+    m_sTextureSlotName.Assign("BaseTexture");
+  }
+
+  if (!m_hBaseMaterial.IsValid())
+  {
+    // use the "Fullbright" material as a fallback
+    m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>("{ 05af8d07-0b38-44a6-8d50-49731ae2625d }");
+  }
+
+  Update();
 
   if (m_hMaterial.IsValid())
   {
@@ -99,7 +111,7 @@ void ezRmlUiCanvas3DComponent::OnActivated()
     msg.m_hMaterial = m_hMaterial;
     msg.m_uiMaterialSlot = m_uiMaterialIndex;
 
-    GetOwner()->SendMessage(msg);
+    GetOwner()->PostMessageRecursive(msg, ezTime::MakeZero());
   }
 }
 
@@ -107,13 +119,18 @@ void ezRmlUiCanvas3DComponent::OnDeactivated()
 {
   SUPER::OnDeactivated();
 
-  if (m_hTexture.IsValid())
+  if (m_hMaterial.IsValid())
   {
     ezMsgSetMeshMaterial msg;
     msg.m_uiMaterialSlot = m_uiMaterialIndex;
 
-    GetOwner()->SendMessage(msg);
+    GetOwner()->PostMessageRecursive(msg, ezTime::MakeZero());
   }
+
+  m_iInputAge = -1;
+  m_hTexture.Invalidate();
+  m_hMaterial.Invalidate();
+  m_hCachedCpuMesh.Invalidate();
 }
 
 void ezRmlUiCanvas3DComponent::Update()
@@ -152,44 +169,57 @@ bool ezRmlUiCanvas3DComponent::RaycastInput(const ezVec3& vRayOrigin, const ezVe
   if (m_pContext == nullptr || !IsInteractive())
     return false;
 
-  ezMeshResourceHandle hMesh = m_hProxyMesh;
-  bool bUsingProxyMesh = m_hProxyMesh.IsValid();
-
-  if (!bUsingProxyMesh)
+  if (!m_hCachedCpuMesh.IsValid())
   {
-    ezMeshComponent* pMeshComponent = nullptr;
-    if (GetOwner()->TryGetComponentOfBaseType(pMeshComponent))
-      hMesh = pMeshComponent->GetMesh();
+    ezMeshResourceHandle hMesh = m_hProxyMesh;
+
+    if (m_hProxyMesh.IsValid())
+    {
+      hMesh = m_hProxyMesh;
+    }
+    else
+    {
+      ezMeshComponent* pMeshComponent = nullptr;
+      if (GetOwner()->TryGetComponentOfBaseType(pMeshComponent))
+      {
+        hMesh = pMeshComponent->GetMesh();
+      }
+    }
+
+    if (!hMesh.IsValid())
+    {
+      ezLog::Error("ezRmlUiCanvas3DComponent '{0}' has no mesh to raycast against.", GetOwner()->GetName());
+      SetInteractive(false); // deactivate, to prevent repeated errors
+      return false;
+    }
+
+    m_hCachedCpuMesh = ezResourceManager::LoadResource<ezCpuMeshResource>(hMesh.GetResourceID());
   }
 
-  if (!hMesh.IsValid())
-  {
-    ezLog::Warning("ezRmlUiCanvas3DComponent '{0}' has no mesh to raycast against.", GetOwner()->GetName());
-    return false;
-  }
-
-  ezCpuMeshResourceHandle hCpuMesh = ezResourceManager::LoadResource<ezCpuMeshResource>(hMesh.GetResourceID());
-  if (!hCpuMesh.IsValid())
-  {
-    ezLog::Warning("Raycast against '{0}' failed because mesh resource is invalid.", GetOwner()->GetName());
-    return false;
-  }
-
-  ezResourceLock<ezCpuMeshResource> pMesh(hCpuMesh, ezResourceAcquireMode::AllowLoadingFallback);
+  ezResourceLock<ezCpuMeshResource> pMesh(m_hCachedCpuMesh, ezResourceAcquireMode::AllowLoadingFallback);
   if (pMesh.GetAcquireResult() == ezResourceAcquireResult::LoadingFallback)
   {
-    ezLog::Warning("Raycast against '{0}' failed because mesh resource was not available.", GetOwner()->GetName());
+    // not yet loaded, skip a frame
     return false;
   }
 
-  ezTransform worldToLocal = GetOwner()->GetGlobalTransform().GetInverse();
-  ezVec3 vRayOriginMeshSpace = worldToLocal.TransformPosition(vRayOrigin);
-  ezVec3 vRayDirMeshSpace = worldToLocal.TransformDirection(vRayDir).GetNormalized();
+  if (pMesh.GetAcquireResult() != ezResourceAcquireResult::Final)
+  {
+    ezLog::Error("ezRmlUiCanvas3DComponent '{0}' failed to get CPU mesh for raycast.", GetOwner()->GetName());
+    SetInteractive(false); // deactivate, to prevent repeated errors
+    return false;
+  }
+
+
+  const ezTransform worldToLocal = GetOwner()->GetGlobalTransform().GetInverse();
+  const ezVec3 vRayOriginMeshSpace = worldToLocal.TransformPosition(vRayOrigin);
+  const ezVec3 vRayDirMeshSpace = worldToLocal.TransformDirection(vRayDir).GetNormalized();
 
   const ezMeshResourceDescriptor& desc = pMesh->GetDescriptor();
-  for (ezUInt32 uiSubMeshIndex = 0; uiSubMeshIndex < desc.GetSubMeshes().GetCount(); ++uiSubMeshIndex) {
+  for (ezUInt32 uiSubMeshIndex = 0; uiSubMeshIndex < desc.GetSubMeshes().GetCount(); ++uiSubMeshIndex)
+  {
     const ezMeshResourceDescriptor::SubMesh& submesh = desc.GetSubMeshes()[uiSubMeshIndex];
-    if (!bUsingProxyMesh && submesh.m_uiMaterialIndex != m_uiMaterialIndex)
+    if (submesh.m_uiMaterialIndex != m_uiMaterialIndex)
       continue;
 
     ezVec2 vTexCoords;
@@ -288,7 +318,7 @@ void ezRmlUiCanvas3DComponent::SetMaterialIndex(ezUInt32 uiMaterialIndex)
   if (uiMaterialIndex == m_uiMaterialIndex)
     return;
 
-  ezUInt32 uiPrevIndex = m_uiMaterialIndex;
+  const ezUInt32 uiPrevIndex = m_uiMaterialIndex;
   m_uiMaterialIndex = uiMaterialIndex;
 
   if (m_hMaterial.IsValid() && IsActiveAndInitialized())
@@ -296,21 +326,21 @@ void ezRmlUiCanvas3DComponent::SetMaterialIndex(ezUInt32 uiMaterialIndex)
     ezMsgSetMeshMaterial msg;
 
     msg.m_uiMaterialSlot = uiPrevIndex;
-    GetOwner()->SendMessage(msg);
+    GetOwner()->PostMessageRecursive(msg, ezTime::MakeZero());
 
     msg.m_uiMaterialSlot = m_uiMaterialIndex;
     msg.m_hMaterial = m_hMaterial;
-    GetOwner()->SendMessage(msg);
+    GetOwner()->PostMessageRecursive(msg, ezTime::MakeZero());
   }
 }
 
-void ezRmlUiCanvas3DComponent::SetTextureSlotName(const char* szName)
+void ezRmlUiCanvas3DComponent::SetTextureSlotName(ezStringView sName)
 {
-  ezHashedString sPrevTextureSlotName = m_sTextureSlotName;
-
-  m_sTextureSlotName.Assign(szName);
-
-  m_bRebindTexture = m_sTextureSlotName != sPrevTextureSlotName;
+  if (m_sTextureSlotName != sName)
+  {
+    m_hMaterial.Invalidate();
+    m_sTextureSlotName.Assign(sName);
+  }
 }
 
 void ezRmlUiCanvas3DComponent::SetTextureSize(const ezVec2U32& vSize)
@@ -324,6 +354,9 @@ void ezRmlUiCanvas3DComponent::SetTextureSize(const ezVec2U32& vSize)
     {
       m_pContext->SetSize(m_vSize);
     }
+
+    // recreate the texture next update
+    m_hTexture.Invalidate();
   }
 }
 
@@ -359,87 +392,84 @@ void ezRmlUiCanvas3DComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& ms
   {
     if (m_pContext != nullptr && m_hTexture.IsValid())
     {
-      ezResourceLock<ezTexture2DResource> pTexture(m_hTexture, ezResourceAcquireMode::AllowLoadingFallback);
-      if (pTexture.GetAcquireResult() != ezResourceAcquireResult::Final)
-        return;
+      ezResourceLock<ezTexture2DResource> pTexture(m_hTexture, ezResourceAcquireMode::BlockTillLoaded);
 
       ezRmlUi::GetSingleton()->ExtractContext(*m_pContext, pTexture->GetGALTexture());
     }
   }
 }
 
+void ezRmlUiCanvas3DComponent::OnMsgReload(ezMsgRmlUiReload& msg)
+{
+  SUPER::OnMsgReload(msg);
+
+  m_hMaterial.Invalidate();
+  m_hTexture.Invalidate();
+}
+
 bool ezRmlUiCanvas3DComponent::UpdateTextureAndMaterial()
 {
-  if (m_vSize.x == 0 || m_vSize.y == 0)
+  if (m_vSize.x == 0 || m_vSize.y == 0 || !m_hBaseMaterial.IsValid() || m_sTextureSlotName.IsEmpty())
     return false;
 
-  bool bShouldRecreateTexture = !m_hTexture.IsValid();
+  bool bNeedsUpdate = false;
 
-  if (m_hTexture.IsValid())
+  if (!m_hTexture.IsValid())
   {
-    ezResourceLock<ezTexture2DResource> pTexture(m_hTexture, ezResourceAcquireMode::AllowLoadingFallback);
-    if (pTexture.GetAcquireResult() != ezResourceAcquireResult::Final)
-      return false;
+    bNeedsUpdate = true;
 
-    bShouldRecreateTexture = pTexture->GetWidth() != m_vSize.x || pTexture->GetHeight() != m_vSize.y;
-  }
-
-  if (bShouldRecreateTexture)
-  {
     ezTexture2DResourceDescriptor desc;
     desc.m_DescGAL.m_uiWidth = m_vSize.x;
     desc.m_DescGAL.m_uiHeight = m_vSize.y;
     desc.m_DescGAL.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
     desc.m_DescGAL.m_ResourceAccess.m_bImmutable = false;
+    desc.m_SamplerDesc.m_AddressU = ezImageAddressMode::ClampBorder;
+    desc.m_SamplerDesc.m_AddressV = ezImageAddressMode::ClampBorder;
+    desc.m_SamplerDesc.m_AddressW = ezImageAddressMode::ClampBorder;
+    desc.m_SamplerDesc.m_BorderColor = ezColor::MakeZero();
+    desc.m_SamplerDesc.m_MinFilter = ezGALTextureFilterMode::Anisotropic;
+    desc.m_SamplerDesc.m_MagFilter = ezGALTextureFilterMode::Anisotropic;
+    desc.m_SamplerDesc.m_uiMaxAnisotropy = 8;
+
     if (ezMath::IsPowerOf2(m_vSize.x) && ezMath::IsPowerOf2(m_vSize.y))
     {
       desc.m_DescGAL.m_uiMipLevelCount = ezMath::Max(ezMath::Log2i(m_vSize.x), ezMath::Log2i(m_vSize.y)) - 2;
       desc.m_DescGAL.m_bAllowDynamicMipGeneration = true;
     }
-    
+
     ezStringBuilder resourceName = "RmlUiCanvas3DComponent_Texture";
-    resourceName.AppendFormat("_{0}", ezUuid::MakeUuid());
+    resourceName.AppendFormat("_{0}", s_RmlResourceCounter.Increment());
 
     m_hTexture = ezResourceManager::CreateResource<ezTexture2DResource>(resourceName, std::move(desc));
 
     m_pContext->SetSize(m_vSize);
     m_pContext->SetDpiScale(m_fDpiScale);
 
-    m_bRebindTexture = true;
+    m_hMaterial.Invalidate();
   }
 
   if (!m_hMaterial.IsValid())
   {
-    if (!m_hBaseMaterial.IsValid())
-      return bShouldRecreateTexture;
+    bNeedsUpdate = true;
 
     ezMaterialResourceDescriptor desc;
     desc.m_hBaseMaterial = m_hBaseMaterial;
+    auto& tb = desc.m_Texture2DBindings.ExpandAndGetRef();
+    tb.m_Name = m_sTextureSlotName;
+    tb.m_Value = m_hTexture;
 
     ezStringBuilder resourceName = "RmlUiCanvas3DComponent_Material";
-    resourceName.AppendFormat("_{0}", ezUuid::MakeUuid());
+    resourceName.AppendFormat("_{0}", s_RmlResourceCounter.Increment());
 
     m_hMaterial = ezResourceManager::CreateResource<ezMaterialResource>(resourceName, std::move(desc));
 
     ezMsgSetMeshMaterial msg;
     msg.m_hMaterial = m_hMaterial;
     msg.m_uiMaterialSlot = m_uiMaterialIndex;
-    GetOwner()->SendMessage(msg);
-
-    m_bRebindTexture = true;
+    GetOwner()->PostMessageRecursive(msg, ezTime::MakeZero());
   }
 
-  if (m_bRebindTexture)
-  {
-    ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial, ezResourceAcquireMode::BlockTillLoaded);
-
-    pMaterial->ResetResource();
-    pMaterial->SetTexture2DBinding(m_sTextureSlotName, m_hTexture);
-
-    m_bRebindTexture = false;
-  }
-
-  return bShouldRecreateTexture;
+  return bNeedsUpdate;
 }
 
 EZ_STATICLINK_FILE(RmlUiPlugin, RmlUiPlugin_Components_Implementation_RmlUiCanvas3DComponent);

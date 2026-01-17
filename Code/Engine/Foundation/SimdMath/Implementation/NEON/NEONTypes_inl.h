@@ -15,6 +15,13 @@ namespace ezInternal
   using QuadDouble = ezVec4d;
   using QuadFloat = float32x4_t;
   using QuadBool = uint32x4_t;
+  
+  struct QuadBoolWide
+  {
+    uint64x2_t xy;
+    uint64x2_t zw;
+  };
+
   using QuadInt = int32x4_t;
   using QuadUInt = uint32x4_t;
 

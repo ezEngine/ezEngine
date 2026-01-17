@@ -4,7 +4,6 @@
 #include <AsteroidsPlugin/GameState/Level.h>
 #include <Core/Input/DeviceTypes/Controller.h>
 #include <Core/Messages/SetColorMessage.h>
-#include <Core/System/ControllerInput.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Utilities/Stats.h>
 #include <RendererCore/Meshes/MeshComponent.h>
@@ -182,9 +181,9 @@ void ShipComponent::Update()
 
     float ShootTrack[20] = {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
 
-    if (ezControllerInput::HasDevice())
+    if (auto pController = ezInputManager::GetInputDeviceOfType<ezInputDeviceController>())
     {
-      ezControllerInput::GetDevice()->AddVibrationTrack(static_cast<ezUInt8>(m_iPlayerIndex), ezInputDeviceController::Motor::RightMotor, ShootTrack, 20);
+      pController->AddVibrationTrack(static_cast<ezUInt8>(m_iPlayerIndex), ezInputDeviceController::Motor::RightMotor, ShootTrack, 20);
     }
   }
 

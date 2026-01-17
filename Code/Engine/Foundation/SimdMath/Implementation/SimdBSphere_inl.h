@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Foundation/Memory/MemoryUtils.h>
+
 EZ_ALWAYS_INLINE ezSimdBSphere::ezSimdBSphere() = default;
 
 EZ_ALWAYS_INLINE ezSimdBSphere::ezSimdBSphere(const ezSimdVec4f& vCenter, const ezSimdFloat& fRadius)

@@ -1,14 +1,16 @@
 param
 (
-    [Parameter(Mandatory = $True)] [ValidateSet('Win64vs2022', 'Win64vs2026')][string] $Target,
-    [switch]$NoUnityBuild,
+    [Parameter(Mandatory = $True)] [ValidateSet('vs2022x64', 'vs2026x64', 'android-arm64-debug', 'android-arm64-dev', 'android-arm64-shipping', 'android-x64-debug', 'android-x64-dev', 'android-x64-shipping')][string] $Target,
     [switch]$NoSubmoduleUpdate,
+    [switch]$NoUnityBuild,
+    [Nullable[bool]]$VulkanSupport,
     [string]$SolutionName,
     [string]$WorkspaceDir
 )
 
 Set-Location $PSScriptRoot
 
+#region Submodule Update
 if ($NoSubmoduleUpdate -eq $False) {
     $CURRENT_COMMIT = git log -n 1 --format=%H
 
@@ -30,7 +32,7 @@ if ($NoSubmoduleUpdate -eq $False) {
     }
 
     if ($UPDATE_SUBMODULES) {
-        Write-Host "Updating submodules"
+        Write-Host "Updating submodules..." -ForegroundColor Green
 
         git submodule init
         git submodule update
@@ -38,9 +40,18 @@ if ($NoSubmoduleUpdate -eq $False) {
         Out-File ( New-Item -Path $LAST_UPDATE_FILE -Force) -InputObject $CURRENT_COMMIT
     }
 }
+#endregion
 
-$CMAKE_ARGS = @("-S", "$PSScriptRoot")
+#region Android Dependencies
+if ($Target -like "android*") {
+    Write-Host "Installing Android Dependencies..." -ForegroundColor Green
+    . "$PSScriptRoot/Utilities/Android/InstallAndroidDependencies.ps1"
+    . "$PSScriptRoot/Utilities/Android/CompileShaders.ps1"
+}
+#endregion
 
+#region CMake
+$CMAKE_ARGS = @("-S", "$PSScriptRoot", "--preset", "$Target")
 if ($NoUnityBuild) {
     $CMAKE_ARGS += "-DEZ_ENABLE_FOLDER_UNITY_FILES:BOOL=OFF"
 }
@@ -48,66 +59,38 @@ else {
     $CMAKE_ARGS += "-DEZ_ENABLE_FOLDER_UNITY_FILES:BOOL=ON"
 }
 
+if ($PSBoundParameters.ContainsKey('VulkanSupport') -and $Target -like "android*" -eq $False) {
+    if ($VulkanSupport) {
+        $CMAKE_ARGS += "-DEZ_BUILD_EXPERIMENTAL_VULKAN:BOOL=ON"
+    }
+    else {
+        $CMAKE_ARGS += "-DEZ_BUILD_EXPERIMENTAL_VULKAN:BOOL=OFF"
+    }
+}
+
 if ($SolutionName -ne "") {
     $CMAKE_ARGS += "-DEZ_SOLUTION_NAME:STRING='${SolutionName}'"
 }
 
-$CMAKE_ARGS += "-G"
-
 Write-Host ""
 
-$CustomWorkspace = $False
-
-if ($WorkspaceDir -ne "") {
-    $CustomWorkspace = $True
-}
-
-if ($Target -eq "Win64vs2022") {
-
-    Write-Host "=== Generating Solution for Visual Studio 2022 x64 ==="
-
-    $CMAKE_ARGS += "Visual Studio 17 2022"
-    $CMAKE_ARGS += "-A"
-    $CMAKE_ARGS += "x64"
-
-    if (-not $CustomWorkspace) {
-        $WorkspaceDir = "vs2022x64"
-    }
-}
-elseif ($Target -eq "Win64vs2026") {
-
-    Write-Host "=== Generating Solution for Visual Studio 2026 x64 ==="
-
-    $CMAKE_ARGS += "Visual Studio 18 2026"
-    $CMAKE_ARGS += "-A"
-    $CMAKE_ARGS += "x64"
-
-    if (-not $CustomWorkspace) {
-        $WorkspaceDir = "vs2026x64"
-    }
-}
-else {
-    throw "Unknown target '$Target'."
-}
-
-# Add build directory to CMAKE_ARGS
-$CMAKE_ARGS += "-B"
-$CMAKE_ARGS += "$PSScriptRoot\Workspace\$WorkspaceDir"
-
-Write-Host "Using workspace directory: Workspace\$WorkspaceDir"
-
 # Set custom output directories to avoid conflicts between different workspaces
-if ($CustomWorkspace) {
+if ($WorkspaceDir -ne "") {
+    Write-Host "Using custom workspace directory: Workspace\$WorkspaceDir"
+    $CMAKE_ARGS += "-B"
+    $CMAKE_ARGS += "$PSScriptRoot\Workspace\$WorkspaceDir"
     $CMAKE_ARGS += "-DEZ_OUTPUT_DIRECTORY_DLL:PATH=$PSScriptRoot\Workspace\$WorkspaceDir-output\Bin"
     $CMAKE_ARGS += "-DEZ_OUTPUT_DIRECTORY_LIB:PATH=$PSScriptRoot\Workspace\$WorkspaceDir-output\Lib"
     Write-Host "Custom output directories: Workspace\$WorkspaceDir-output\"
 }
 
 Write-Host ""
-Write-Host "Running cmake.exe $CMAKE_ARGS"
+Write-Host "Running cmake.exe $CMAKE_ARGS" -ForegroundColor Green
 Write-Host ""
 &Data\Tools\Precompiled\cmake\bin\cmake.exe $CMAKE_ARGS
 
 if (!$?) {
     throw "CMake failed with exit code '$LASTEXITCODE'."
 }
+#endregion
+

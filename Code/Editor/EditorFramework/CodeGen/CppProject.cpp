@@ -642,7 +642,72 @@ bool ezCppProject::ExistsProjectCMakeListsTxt()
   return ezOSFile::ExistsFile(sPath);
 }
 
-ezResult ezCppProject::PopulateWithDefaultSources(const ezCppSettings& cfg)
+bool ezCppProject::ShouldOverwriteExisting(ezStringView sSrc, ezStringView sDst)
+{
+  const ezStringView sFilename = sDst.GetFileNameAndExtension();
+
+  // only check certain files
+  // they use a "#ez-version" tag to identify when a file got modified in such a way
+  // that existing files should be overwritten
+  if (sFilename != "CMakeLists.txt" && sFilename != ".clang-format" && sFilename != ".editorconfig" && sFilename != ".gitattributes" && sFilename != ".gitignore")
+  {
+    return false;
+  }
+
+  ezOSFile srcFile;
+  if (srcFile.Open(sSrc, ezFileOpenMode::Read).Failed())
+    return false;
+
+  ezOSFile dstFile;
+  if (dstFile.Open(sDst, ezFileOpenMode::Read).Failed())
+    return true;
+
+  ezDataBuffer sc, dc;
+  srcFile.ReadAll(sc);
+  dstFile.ReadAll(dc);
+
+  if (sc == dc)
+    return false;
+
+  ezStringView srcContent = ezStringView((const char*)sc.GetData(), sc.GetCount());
+  ezStringView dstContent = ezStringView((const char*)dc.GetData(), dc.GetCount());
+
+  ezStringView sVersionSrc, sVersionDst;
+
+  if (const char* vSrc = srcContent.FindSubString("#ez-version"))
+  {
+    const char* srcEnd = srcContent.FindSubString("\n", vSrc);
+
+    if (srcEnd == nullptr)
+    {
+      srcEnd = srcContent.GetEndPointer();
+    }
+
+    sVersionSrc = ezStringView(vSrc + 8, srcEnd);
+    sVersionSrc.Trim();
+  }
+
+  if (const char* vDst = dstContent.FindSubString("#ez-version"))
+  {
+    const char* dstEnd = dstContent.FindSubString("\n", vDst);
+
+    if (dstEnd == nullptr)
+    {
+      dstEnd = dstContent.GetEndPointer();
+    }
+
+    sVersionDst = ezStringView(vDst + 8, dstEnd);
+    sVersionDst.Trim();
+  }
+
+  // don't overwrite the destination file, if it is different, but at the same version
+  if (sVersionSrc == sVersionDst)
+    return false;
+
+  return true;
+}
+
+ezResult ezCppProject::PopulateWithDefaultSources(const ezCppSettings& cfg, ezUInt32* pNumFilesCopied /*= nullptr*/)
 {
   QApplication::setOverrideCursor(Qt::WaitCursor);
   EZ_SCOPE_EXIT(QApplication::restoreOverrideCursor());
@@ -670,6 +735,8 @@ ezResult ezCppProject::PopulateWithDefaultSources(const ezCppSettings& cfg)
 
   // gather files
   {
+    bool bCheckOverwrite = false;
+
     for (const auto& item : items)
     {
       ezStringBuilder srcPath, dstPath;
@@ -686,14 +753,34 @@ ezResult ezCppProject::PopulateWithDefaultSources(const ezCppSettings& cfg)
       if (ezOSFile::ExistsFile(dstPath))
       {
         // if any file already exists, don't copy non-existing (user might have deleted unwanted sample files)
-        filesCopied.Clear();
-        break;
+        if (!bCheckOverwrite)
+        {
+          // first time we see an existing file, clear the list of files to copy and enter different mode
+          // from now on, we only add files to the copy list, that should get overwritten
+          filesCopied.Clear();
+          bCheckOverwrite = true;
+        }
+      }
+
+      if (bCheckOverwrite)
+      {
+        if (!ShouldOverwriteExisting(srcPath, dstPath))
+        {
+          // in this mode, don't copy files unless they should be overwritten
+          // mostly to update existing CMakeLists.txt files with newer versions
+          continue;
+        }
       }
 
       auto& ftc = filesCopied.ExpandAndGetRef();
       ftc.m_sSource = srcPath;
       ftc.m_sDestination = dstPath;
     }
+  }
+
+  if (pNumFilesCopied)
+  {
+    *pNumFilesCopied = filesCopied.GetCount();
   }
 
   // Copy files
@@ -741,6 +828,8 @@ ezResult ezCppProject::PopulateWithDefaultSources(const ezCppSettings& cfg)
     }
   }
 
+  EZ_SUCCEED_OR_RETURN(UpdateEnginePluginDependencies());
+
   s_ChangeEvents.Broadcast(cfg);
   return EZ_SUCCESS;
 }
@@ -768,6 +857,8 @@ ezResult ezCppProject::RunCMake(const ezCppSettings& cfg)
     ezLog::Error("No CMakeLists.txt exists in target source directory '{}'", GetTargetSourceDir());
     return EZ_FAILURE;
   }
+
+  EZ_SUCCEED_OR_RETURN(UpdateEnginePluginDependencies());
 
   if (auto compilerWorking = TestCompiler(); compilerWorking.Failed())
   {
@@ -978,6 +1069,85 @@ void ezCppProject::UpdatePluginConfig(const ezCppSettings& cfg)
   ezQtEditorApp::GetSingleton()->WritePluginSelectionStateDDL();
 }
 
+ezResult ezCppProject::UpdateEnginePluginDependencies()
+{
+  // Only update if project has custom C++ code
+  if (!ExistsProjectCMakeListsTxt())
+    return EZ_SUCCESS;
+
+  const ezPluginBundleSet& bundles = ezQtEditorApp::GetSingleton()->GetPluginBundles();
+
+  // Collect selected engine plugin target names
+  ezDynamicArray<ezString> selectedPlugins;
+  for (auto it = bundles.m_Plugins.GetIterator(); it.IsValid(); ++it)
+  {
+    const ezPluginBundle& bundle = it.Value();
+
+    // Filter: selected, not mandatory, not a project plugin, has CMake target name
+    if (bundle.m_bSelected &&
+        !bundle.m_bMandatory &&
+        !bundle.m_ExclusiveFeatures.Contains("ProjectPlugin") &&
+        !bundle.m_sCMakeTargetName.IsEmpty())
+    {
+      selectedPlugins.PushBack(bundle.m_sCMakeTargetName);
+    }
+  }
+
+  // Sort plugins for consistent output
+  selectedPlugins.Sort();
+
+  // Build the CMake file content
+  ezStringBuilder content;
+  content.AppendWithSeparator("# This file is auto-generated, do not modify.\n", "");
+  content.Append("# The ezEditor may modify this file to add build configuration options.\n");
+  content.Append("\n");
+
+  // Only add target_link_libraries if there are selected plugins
+  if (!selectedPlugins.IsEmpty())
+  {
+    content.Append("\n");
+    content.Append("# Link against selected engine plugins\n");
+    content.Append("target_link_libraries(${PROJECT_NAME} PRIVATE\n");
+
+    for (const ezString& plugin : selectedPlugins)
+    {
+      content.Append("  ", plugin, "\n");
+    }
+
+    content.Append(")\n");
+  }
+
+  // Write to file
+  ezStringBuilder sFilePath = GetTargetSourceDir();
+  sFilePath.AppendPath("Configs/CMakeEngineExtensions.txt");
+
+  // Ensure directory exists
+  ezStringBuilder sDir = sFilePath.GetFileDirectory();
+  if (ezOSFile::CreateDirectoryStructure(sDir).Failed())
+  {
+    ezLog::Error("Failed to create directory for CMakeEngineExtensions.txt: '{}'", sDir);
+    return EZ_FAILURE;
+  }
+
+  // Write file
+  ezDeferredFileWriter fileWriter;
+  fileWriter.SetOutput(sFilePath);
+
+  if (fileWriter.WriteBytes(content.GetData(), content.GetElementCount()).Failed())
+  {
+    ezLog::Error("Failed to write CMakeEngineExtensions.txt: '{}'", sFilePath);
+    return EZ_FAILURE;
+  }
+
+  if (fileWriter.Close().Failed())
+  {
+    ezLog::Error("Failed to close CMakeEngineExtensions.txt: '{}'", sFilePath);
+    return EZ_FAILURE;
+  }
+
+  return EZ_SUCCESS;
+}
+
 ezResult ezCppProject::EnsureCppPluginReady()
 {
   if (!ExistsProjectCMakeListsTxt())
@@ -987,6 +1157,12 @@ ezResult ezCppProject::EnsureCppPluginReady()
   if (cppSettings.Load().Failed())
   {
     ezQtUiServices::GetSingleton()->MessageBoxWarning(ezFmt("Failed to load the C++ plugin settings."));
+    return EZ_FAILURE;
+  }
+
+  if (ezCppProject::PopulateWithDefaultSources(cppSettings).Failed())
+  {
+    ezQtUiServices::GetSingleton()->MessageBoxWarning(ezFmt("Failed to update the default source files of the plugin. See log for details."));
     return EZ_FAILURE;
   }
 

@@ -114,13 +114,13 @@ namespace clang
             *prefixAdded = true;
           return newName.insert(0, "m");
         }
-        else if (typeName.startswith("ezQuat") || typeName == "ezSimdQuat")
+        else if (typeName.startswith("ezQuat") || typeName == "ezSimdQuat" || typeName == "ezSimdQuatd")
         {
           if (prefixAdded)
             *prefixAdded = true;
           return newName.insert(0, "q");
         }
-        else if (typeName == "ezSimdFloat")
+        else if (typeName == "ezSimdFloat" || typeName == "ezSimdDouble")
         {
           if (prefixAdded)
             *prefixAdded = true;

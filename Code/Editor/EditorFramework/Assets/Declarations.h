@@ -11,6 +11,7 @@
 
 class ezImage;
 class ezAssetFileHeader;
+using ezOsProcessID = ezUInt32;
 
 struct ezAssetExistanceState
 {
@@ -177,3 +178,21 @@ EZ_ALWAYS_INLINE ezResult ezToResult(const ezTransformStatus& result)
 {
   return result.m_Result == ezTransformResult::Success ? EZ_SUCCESS : EZ_FAILURE;
 }
+
+/// \brief Used by ezEditorProcessorProcess to define the current state of one of the running ezEditorProcessor processes managed by the ezAssetProcessor.
+/// \sa ezAssetProcessor
+struct ezEditorProcessorState
+{
+  bool operator==(const ezEditorProcessorState& rhs)
+  {
+    return m_uiProcessID == rhs.m_uiProcessID && m_bConnected == rhs.m_bConnected && m_bRunning == rhs.m_bRunning;
+  }
+  bool operator!=(const ezEditorProcessorState& rhs)
+  {
+    return !(*this == rhs);
+  }
+
+  ezOsProcessID m_uiProcessID = 0;
+  bool m_bConnected = false; ///< The IPC pipe to the process is established.
+  bool m_bRunning = false;   ///< The process is currently running working on an asset.
+};

@@ -27,13 +27,13 @@ EZ_ALWAYS_INLINE ezSimdVec4d::ezSimdVec4d(float fXyzw)
 #endif
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4d::ezSimdVec4d(double dXyzw)
+EZ_ALWAYS_INLINE ezSimdVec4d::ezSimdVec4d(double fXyzw)
 {
   EZ_CHECK_SIMD_ALIGNMENT(this);
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
-  m_v = _mm256_set1_pd(dXyzw);
+  m_v = _mm256_set1_pd(fXyzw);
 #else
-  m_v.xy = _mm_set1_pd(dXyzw);
+  m_v.xy = _mm_set1_pd(fXyzw);
   m_v.zw = m_v.xy;
 #endif
 }
@@ -418,7 +418,13 @@ EZ_ALWAYS_INLINE ezSimdDouble ezSimdVec4d::GetComponent() const
 {
   ezSimdDouble result;
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
-  result.m_v = _mm256_shuffle_pd(m_v, m_v, EZ_SHUFFLE(N, N, N, N));
+
+  const int lane_selector = 0x11 * (N >> 1); 
+  const int permute_mask = 0xF * (N & 1);     
+
+  result.m_v = _mm256_permute2f128_pd(m_v, m_v, lane_selector);
+  result.m_v = _mm256_permute_pd(result.m_v, permute_mask);
+
   return result;
 #else
 
@@ -970,94 +976,14 @@ template <ezSwizzle::Enum s>
 EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::Get() const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
-  return _mm256_shuffle_pd(m_v, m_v, EZ_TO_SHUFFLE(s));
+  ezSimdVec4d result;
+  EZ_WIDE_SWIZZLE_AVX1(m_v, s, result.m_v);
+  return result;
 #else
   ezSimdVec4d result;
-
-  const int x_idx = ((s) >> 12) & 3;
-  const int y_idx = ((s) >> 8) & 3;
-  const int z_idx = ((s) >> 4) & 3;
-  const int w_idx = (s) & 3;
-
-  const int x_shuffle = x_idx & 1;
-  const int y_shuffle = y_idx & 1;
-  const int z_shuffle = z_idx & 1;
-  const int w_shuffle = w_idx & 1;
-
-  const int x_shuffle_zw = (x_idx - 2) & 1;
-  const int y_shuffle_zw = (y_idx - 2) & 1;
-  const int z_shuffle_zw = (z_idx - 2) & 1;
-  const int w_shuffle_zw = (w_idx - 2) & 1;
-
-  // For xy (result x and y)
-  if constexpr (x_idx < 2 && y_idx < 2)
-  {
-    result.m_v.xy = _mm_shuffle_pd(m_v.xy, m_v.xy, x_shuffle | (y_shuffle << 1));
-  }
-  else if constexpr (x_idx >= 2 && y_idx >= 2)
-  {
-    result.m_v.xy = _mm_shuffle_pd(m_v.zw, m_v.zw, x_shuffle_zw | (y_shuffle_zw << 1));
-  }
-  else
-  {
-    __m128d comp0;
-    if constexpr (x_idx < 2)
-    {
-      comp0 = _mm_shuffle_pd(m_v.xy, m_v.xy, x_shuffle);
-    }
-    else
-    {
-      comp0 = _mm_shuffle_pd(m_v.zw, m_v.zw, x_shuffle_zw);
-    }
-
-    __m128d comp1;
-    if constexpr (y_idx < 2)
-    {
-      comp1 = _mm_shuffle_pd(m_v.xy, m_v.xy, y_shuffle);
-    }
-    else
-    {
-      comp1 = _mm_shuffle_pd(m_v.zw, m_v.zw, y_shuffle_zw);
-    }
-
-    result.m_v.xy = _mm_unpacklo_pd(comp0, comp1);
-  }
-
-  // For zw (result z and w)
-  if constexpr (z_idx < 2 && w_idx < 2)
-  {
-    result.m_v.zw = _mm_shuffle_pd(m_v.xy, m_v.xy, z_shuffle | (w_shuffle << 1));
-  }
-  else if constexpr (z_idx >= 2 && w_idx >= 2)
-  {
-    result.m_v.zw = _mm_shuffle_pd(m_v.zw, m_v.zw, z_shuffle_zw | (w_shuffle_zw << 1));
-  }
-  else
-  {
-    __m128d comp2;
-    if constexpr (z_idx < 2)
-    {
-      comp2 = _mm_shuffle_pd(m_v.xy, m_v.xy, z_shuffle);
-    }
-    else
-    {
-      comp2 = _mm_shuffle_pd(m_v.zw, m_v.zw, z_shuffle_zw);
-    }
-
-    __m128d comp3;
-    if constexpr (w_idx < 2)
-    {
-      comp3 = _mm_shuffle_pd(m_v.xy, m_v.xy, w_shuffle);
-    }
-    else
-    {
-      comp3 = _mm_shuffle_pd(m_v.zw, m_v.zw, w_shuffle_zw);
-    }
-
-    result.m_v.zw = _mm_unpacklo_pd(comp2, comp3);
-  }
-
+  EZ_WIDE_SHUFFLE_SSE(m_v.xy, m_v.zw, m_v.xy, m_v.zw, EZ_TO_SHUFFLE(s), result.m_v.xy, result.m_v.zw);
   return result;
+
 #endif
 }
 
@@ -1188,93 +1114,13 @@ template <ezSwizzle::Enum s>
 EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::GetCombined(const ezSimdVec4d& other) const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX
-    return _mm256_shuffle_pd(m_v, other.m_v, EZ_TO_SHUFFLE(s));
+  ezSimdVec4d result;
+  EZ_WIDE_SHUFFLE_AVX1(m_v, other.m_v, EZ_TO_SHUFFLE(s), result.m_v);
+  return result;
 #else
   ezSimdVec4d result;
-
-  const int x_idx = ((s) >> 12) & 3;
-  const int y_idx = ((s) >> 8) & 3;
-  const int z_idx = ((s) >> 4) & 3;
-  const int w_idx = (s) & 3;
-
-  const int x_shuffle = x_idx & 1;
-  const int y_shuffle = y_idx & 1;
-  const int z_shuffle = z_idx & 1;
-  const int w_shuffle = w_idx & 1;
-
-  const int x_shuffle_zw = (x_idx - 2) & 1;
-  const int y_shuffle_zw = (y_idx - 2) & 1;
-  const int z_shuffle_zw = (z_idx - 2) & 1;
-  const int w_shuffle_zw = (w_idx - 2) & 1;
-
-  // For xy (from this)
-  if constexpr (x_idx < 2 && y_idx < 2)
-  {
-    result.m_v.xy = _mm_shuffle_pd(m_v.xy, m_v.xy, x_shuffle | (y_shuffle << 1));
-  }
-  else if constexpr (x_idx >= 2 && y_idx >= 2)
-  {
-    result.m_v.xy = _mm_shuffle_pd(m_v.zw, m_v.zw, x_shuffle_zw | (y_shuffle_zw << 1));
-  }
-  else
-  {
-    __m128d comp0;
-    if constexpr (x_idx < 2)
-    {
-      comp0 = _mm_shuffle_pd(m_v.xy, m_v.xy, x_shuffle);
-    }
-    else
-    {
-      comp0 = _mm_shuffle_pd(m_v.zw, m_v.zw, x_shuffle_zw);
-    }
-
-    __m128d comp1;
-    if constexpr (y_idx < 2)
-    {
-      comp1 = _mm_shuffle_pd(m_v.xy, m_v.xy, y_shuffle);
-    }
-    else
-    {
-      comp1 = _mm_shuffle_pd(m_v.zw, m_v.zw, y_shuffle_zw);
-    }
-
-    result.m_v.xy = _mm_unpacklo_pd(comp0, comp1);
-  }
-
-  // For zw (from other)
-  if constexpr (z_idx < 2 && w_idx < 2)
-  {
-    result.m_v.zw = _mm_shuffle_pd(other.m_v.xy, other.m_v.xy, z_shuffle | (w_shuffle << 1));
-  }
-  else if constexpr (z_idx >= 2 && w_idx >= 2)
-  {
-    result.m_v.zw = _mm_shuffle_pd(other.m_v.zw, other.m_v.zw, z_shuffle_zw | (w_shuffle_zw << 1));
-  }
-  else
-  {
-    __m128d comp2;
-    if constexpr (z_idx < 2)
-    {
-      comp2 = _mm_shuffle_pd(other.m_v.xy, other.m_v.xy, z_shuffle);
-    }
-    else
-    {
-      comp2 = _mm_shuffle_pd(other.m_v.zw, other.m_v.zw, z_shuffle_zw);
-    }
-
-    __m128d comp3;
-    if constexpr (w_idx < 2)
-    {
-      comp3 = _mm_shuffle_pd(other.m_v.xy, other.m_v.xy, w_shuffle);
-    }
-    else
-    {
-      comp3 = _mm_shuffle_pd(other.m_v.zw, other.m_v.zw, w_shuffle_zw);
-    }
-
-    result.m_v.zw = _mm_unpacklo_pd(comp2, comp3);
-  }
-
+  EZ_WIDE_SHUFFLE_SSE(m_v.xy, m_v.zw, other.m_v.xy, other.m_v.zw, EZ_TO_SHUFFLE(s), result.m_v.xy, result.m_v.zw);
   return result;
+
 #endif
 }

@@ -158,10 +158,10 @@ EZ_ALWAYS_INLINE ezSimdDouble& ezSimdDouble::operator/=(const ezSimdDouble& d)
   return *this;
 }
 
-EZ_ALWAYS_INLINE bool ezSimdDouble::IsEqual(const ezSimdDouble& rhs, const ezSimdDouble& epsilon) const
+EZ_ALWAYS_INLINE bool ezSimdDouble::IsEqual(const ezSimdDouble& rhs, const ezSimdDouble& fEpsilon) const
 {
-  ezSimdDouble minusEps = rhs - epsilon;
-  ezSimdDouble plusEps = rhs + epsilon;
+  ezSimdDouble minusEps = rhs - fEpsilon;
+  ezSimdDouble plusEps = rhs + fEpsilon;
   return ((*this >= minusEps) && (*this <= plusEps));
 }
 

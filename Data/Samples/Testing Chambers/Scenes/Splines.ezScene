@@ -11,12 +11,14 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12640593572254555674,10304997345485202463}}
-		u4 %Hash{17386938822955522035}
+		u4 %Hash{9839971877231749725}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
 		{
 			s{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
+			s{"{ 2a5d16b1-6867-4b5b-89b2-8436f11381cb }"}
+			s{"{ 5ef01d39-c289-450e-82ad-dfc5426c7988 }"}
 			s{"{ 8044a36f-e313-4204-973d-796231798973 }"}
 			s{"{ 9da1e077-d7d2-4901-9685-f71e3913edb2 }"}
 			s{"{ f631b477-488a-4d0f-b9d8-d067bd8d519e }"}
@@ -24,6 +26,8 @@ o
 		VarArray %References
 		{
 			s{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
+			s{"{ 2a5d16b1-6867-4b5b-89b2-8436f11381cb }"}
+			s{"{ 5ef01d39-c289-450e-82ad-dfc5426c7988 }"}
 			s{"{ f631b477-488a-4d0f-b9d8-d067bd8d519e }"}
 		}
 		s %Tags{""}
@@ -87,10 +91,14 @@ o
 			Uuid{u4{1010983450633002643,5240265596840315111}}
 			Uuid{u4{13986474071260358786,4945549006554539417}}
 			Uuid{u4{1198762662610484373,5641146050703194256}}
+			Uuid{u4{11834224604061649301,5720714961373106363}}
+			Uuid{u4{2906900198562216637,4923766678618658962}}
 		}
 		VarArray %Components
 		{
 			Uuid{u4{16860525285257686406,5565113602506043286}}
+			Uuid{u4{948268150556366254,5328771466921970600}}
+			Uuid{u4{7398741980933746105,5087335259099240879}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0x00000442,0x00000040,0}}
@@ -115,6 +123,22 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %PlayerPrefab{"{ 8044a36f-e313-4204-973d-796231798973 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{6411020353111822747,4705343808431225241}}
+	s %t{"ezSplineNodeComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		Vec3 %CustomTangentIn{f{0,0,0}}
+		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %LinkCustomTangents{0}
+		Angle %Roll{f{0}}
+		s %TangentModeIn{"ezSplineTangentMode::Auto"}
+		s %TangentModeOut{"ezSplineTangentMode::Auto"}
 	}
 }
 o
@@ -257,6 +281,17 @@ o
 }
 o
 {
+	Uuid %id{u4{4898210761515694217,4785387480103292592}}
+	s %t{"ezJoltMeshMapping"}
+	u3 %v{1}
+	p
+	{
+		s %CollisionMesh{"{ d17d2824-6c89-46cc-bbd0-2c3ba1e2bde5 }"}
+		s %RenderMesh{"{ 5ef01d39-c289-450e-82ad-dfc5426c7988 }"}
+	}
+}
+o
+{
 	Uuid %id{u4{11422652515765120155,4815818513437303715}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -384,6 +419,32 @@ o
 }
 o
 {
+	Uuid %id{u4{2906900198562216637,4923766678618658962}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{6411020353111822747,4705343808431225241}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x80AC8CBE,0x7E7F8641,0x8A055140}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"4"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{17627430900995411349,4940307597396386061}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -435,7 +496,7 @@ o
 			Uuid{u4{15648952618086593195,4778860490672539707}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0,0xCDCC8CBF,0xCCCC0C3F}}
+		Vec3 %LocalPosition{f{0x0000E03F,0x9A994940,0x33333340}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -549,6 +610,20 @@ o
 		Angle %Roll{f{0xF3665FBF}}
 		s %TangentModeIn{"ezSplineTangentMode::Custom"}
 		s %TangentModeOut{"ezSplineTangentMode::Custom"}
+	}
+}
+o
+{
+	Uuid %id{u4{7398741980933746105,5087335259099240879}}
+	s %t{"ezJoltGenerateCollisionComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %MeshMappings
+		{
+			Uuid{u4{4898210761515694217,4785387480103292592}}
+		}
 	}
 }
 o
@@ -855,7 +930,7 @@ o
 {
 	Uuid %id{u4{11676693873414250416,5325950715755226940}}
 	s %t{"ezSplineComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -880,9 +955,33 @@ o
 }
 o
 {
+	Uuid %id{u4{948268150556366254,5328771466921970600}}
+	s %t{"ezSplineMeshComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0,0x84CE4F3F,0x483D0840,0x0000803F}}
+		Vec4 %CustomData{f{0x3333333F,0x9A99193F,0x0AD7A33C,0x0000803F}}
+		s %DistributionMode{"ezSplineMeshDistributionMode::ScaleEvenly"}
+		Uuid %EndPart{u4{5103342127232299319,13135327381395966142}}
+		VarArray %Materials{}
+		VarArray %MiddleParts
+		{
+			Uuid{u4{3891848606969240239,5504509823965182797}}
+		}
+		f %OffsetY{0}
+		f %OffsetZ{0}
+		i3 %Seed{-1}
+		f %SortingDepthOffset{0}
+		Uuid %StartPart{u4{16299605789792333670,16476838305196319284}}
+	}
+}
+o
+{
 	Uuid %id{u4{1319762727039280794,5418212138779544410}}
 	s %t{"ezSplineComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -918,6 +1017,18 @@ o
 }
 o
 {
+	Uuid %id{u4{3891848606969240239,5504509823965182797}}
+	s %t{"ezSplineMeshPart"}
+	u3 %v{1}
+	p
+	{
+		s %Mesh{"{ 5ef01d39-c289-450e-82ad-dfc5426c7988 }"}
+		f %PaddingBack{0}
+		f %PaddingFront{0}
+	}
+}
+o
+{
 	Uuid %id{u4{6580370374489193912,5504954784626013618}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -946,7 +1057,7 @@ o
 {
 	Uuid %id{u4{16860525285257686406,5565113602506043286}}
 	s %t{"ezSplineComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -958,6 +1069,8 @@ o
 			HashedString{s{"0.2"}}
 			HashedString{s{"0.1"}}
 			HashedString{s{"0"}}
+			HashedString{s{"3"}}
+			HashedString{s{"4"}}
 		}
 	}
 }
@@ -1053,7 +1166,7 @@ o
 			Uuid{u4{14776507715250889390,4826307061069657103}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0,0,0x0000003F}}
+		Vec3 %LocalPosition{f{0,0x00001C41,0x0000003F}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -1078,6 +1191,22 @@ o
 		b %LinkCustomTangents{0}
 		Angle %Roll{f{0x920A863E}}
 		s %TangentModeIn{"ezSplineTangentMode::Custom"}
+		s %TangentModeOut{"ezSplineTangentMode::Auto"}
+	}
+}
+o
+{
+	Uuid %id{u4{1746729598396142769,5660385339569295162}}
+	s %t{"ezSplineNodeComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		Vec3 %CustomTangentIn{f{0,0,0}}
+		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %LinkCustomTangents{0}
+		Angle %Roll{f{0}}
+		s %TangentModeIn{"ezSplineTangentMode::Auto"}
 		s %TangentModeOut{"ezSplineTangentMode::Auto"}
 	}
 }
@@ -1111,6 +1240,32 @@ o
 		Angle %Roll{f{0}}
 		s %TangentModeIn{"ezSplineTangentMode::Custom"}
 		s %TangentModeOut{"ezSplineTangentMode::Auto"}
+	}
+}
+o
+{
+	Uuid %id{u4{11834224604061649301,5720714961373106363}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{1746729598396142769,5660385339569295162}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x00B966BE,0x22245B41,0xF92A3140}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"3"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
 	}
 }
 o
@@ -1472,23 +1627,24 @@ o
 {
 	Uuid %id{u4{1002150063738177556,10162888628767173564}}
 	s %t{"ezSkyLightComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		s %CubeMap{""}
+		f %DiffuseIntensity{0xCDCCCC3E}
+		f %DiffuseSaturation{0x9A99993E}
 		VarArray %ExcludeTags{}
 		f %FarPlane{0x0000C842}
 		VarArray %IncludeTags
 		{
 			s{"SkyLight"}
 		}
-		f %Intensity{0xCDCCCC3E}
 		f %NearPlane{0}
 		s %ReflectionProbeMode{"ezReflectionProbeMode::Dynamic"}
-		f %Saturation{0x9A99993E}
 		b %ShowDebugInfo{0}
 		b %ShowMipMaps{0}
+		f %SpecularIntensity{0x0000803F}
 	}
 }
 o
@@ -1544,6 +1700,30 @@ o
 		b %UseColorTemperature{0}
 	}
 }
+o
+{
+	Uuid %id{u4{5103342127232299319,13135327381395966142}}
+	s %t{"ezSplineMeshPart"}
+	u3 %v{1}
+	p
+	{
+		s %Mesh{"{ 2a5d16b1-6867-4b5b-89b2-8436f11381cb }"}
+		f %PaddingBack{0}
+		f %PaddingFront{0}
+	}
+}
+o
+{
+	Uuid %id{u4{16299605789792333670,16476838305196319284}}
+	s %t{"ezSplineMeshPart"}
+	u3 %v{1}
+	p
+	{
+		s %Mesh{"{ 2a5d16b1-6867-4b5b-89b2-8436f11381cb }"}
+		f %PaddingBack{0}
+		f %PaddingFront{0}
+	}
+}
 }
 Types
 {
@@ -1595,6 +1775,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezNonUniformBoxManipulatorAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{15388199123637218352,1914060720950627631}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSplineMeshDistributionMode"}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1804,6 +2001,23 @@ o
 }
 o
 {
+	Uuid %id{u4{8654430645282539645,3990045288992136643}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSplineComponentSpace"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{3414595336801375576,4156646965533310725}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -1885,6 +2099,23 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezVisualizerAnchor"}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{7605758958972330253,6687734095884105025}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezMeshComponentBase"}
+		u3 %TypeVersion{4}
 	}
 }
 o
@@ -2025,6 +2256,23 @@ o
 }
 o
 {
+	Uuid %id{u4{15218117170958510790,9219705807120169885}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezMeshComponentBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSplineMeshComponent"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{14543630447052729839,9459039542380974471}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -2055,6 +2303,23 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezCameraComponent"}
 		u3 %TypeVersion{10}
+	}
+}
+o
+{
+	Uuid %id{u4{18012328506811541689,9685144911892260155}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSplineMeshPart"}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -2156,7 +2421,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSplineComponent"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -2229,6 +2494,23 @@ o
 }
 o
 {
+	Uuid %id{u4{17053152474095539046,14562368218605611316}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"ezEditorPluginJolt"}
+		VarArray %Properties{}
+		s %TypeName{"ezJoltMeshMapping"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{14632264051441319294,14723708231366072684}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -2292,7 +2574,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSkyLightComponent"}
-		u3 %TypeVersion{3}
+		u3 %TypeVersion{4}
 	}
 }
 o
@@ -2309,6 +2591,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEnumBase"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{8136856440711211988,15432418591559875229}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"ezEditorPluginJolt"}
+		VarArray %Properties{}
+		s %TypeName{"ezJoltGenerateCollisionComponent"}
 		u3 %TypeVersion{1}
 	}
 }

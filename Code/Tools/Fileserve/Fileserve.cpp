@@ -16,20 +16,23 @@
 #endif
 
 #ifdef EZ_USE_QT
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int iCmdShow)
+int main(int iArgc, char** pArgv)
 {
 #else
-int main(int argc, const char** argv)
+int main(int iArgc, const char** pArgv)
 {
 #endif
   ezFileserverApp* pApp = new ezFileserverApp();
 
 #ifdef EZ_USE_QT
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   ezCommandLineUtils::GetGlobalInstance()->SetCommandLine();
-
-  int argc = 0;
-  char** argv = nullptr;
-  QApplication* pQtApplication = new QApplication(argc, const_cast<char**>(argv));
+#  else
+  ezCommandLineUtils::GetGlobalInstance()->SetCommandLine(iArgc, pArgv);
+#  endif
+  int dummyArgc = 0;
+  char** dummyArgv = nullptr;
+  QApplication* pQtApplication = new QApplication(dummyArgc, const_cast<char**>(dummyArgv));
   pQtApplication->setApplicationName("ezFileserve");
   pQtApplication->setOrganizationDomain("www.ezEngine.net");
   pQtApplication->setOrganizationName("ezEngine Project");
@@ -41,7 +44,7 @@ int main(int argc, const char** argv)
   pQtApplication->exec();
   ezRun_Shutdown(pApp);
 #else
-  pApp->SetCommandLineArguments((ezUInt32)argc, argv);
+  pApp->SetCommandLineArguments((ezUInt32)iArgc, pArgv);
   ezRun(pApp);
 #endif
 

@@ -155,7 +155,7 @@ void ezBeamComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
   auto hInstanceDataBuffer = msg.m_pRenderDataManager->GetOrCreateInstanceDataAndFill(*this, bDynamic, GetOwner()->GetGlobalTransform(), m_InstanceDataOffset, GetUniqueIdForRendering(), m_Color);
 
   ezMeshRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner());
-  pRenderData->SetFallbackGlobalBoundingBox(GetOwner()->GetGlobalBounds().GetBox());
+  pRenderData->SetFallbackGlobalBounds(GetOwner()->GetGlobalBounds());
   pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, m_hMaterial, m_hMesh);
 
   ezRenderData::Category category = ezMaterialResource::GetRenderDataCategory(m_hMaterial);

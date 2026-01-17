@@ -82,6 +82,9 @@ ezQtAssetCuratorPanel::ezQtAssetCuratorPanel(ads::CDockManager* pDockManager)
 
   ezAssetProcessor::GetSingleton()->AddLogWriter(ezMakeDelegate(&ezQtAssetCuratorPanel::LogWriter, this));
 
+  ProcessorProgress->SetGridBarWidget(ProcessorProgressGridBar);
+  ProcessorProgress->SetScrollBarWidget(ProcessorScrollBar);
+
   m_pFilter = new ezQtAssetCuratorFilter(this);
   m_Model = QSharedPointer<ezQtAssetBrowserModel>(new ezQtAssetBrowserModel(this, m_pFilter));
   m_Model->Initialize();
@@ -111,6 +114,8 @@ ezQtAssetCuratorPanel::ezQtAssetCuratorPanel(ads::CDockManager* pDockManager)
                 UpdateIssueInfo();
               }),
     "signal/slot connection failed");
+
+  EZ_VERIFY(connect(ClearHistory, &QToolButton::clicked, ProcessorProgress, &ezQtAssetProcessorProgressWidget::ClearHistory), "");
 }
 
 ezQtAssetCuratorPanel::~ezQtAssetCuratorPanel()

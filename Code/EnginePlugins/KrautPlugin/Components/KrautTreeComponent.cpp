@@ -230,7 +230,7 @@ void ezKrautTreeComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
       ezMaterialResourceHandle hMaterial = pMesh->GetMaterials()[uiMaterialIndex];
 
       ezMeshRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezMeshRenderData>(pOwner);
-      pRenderData->SetFallbackGlobalBoundingBox(GetOwner()->GetGlobalBounds().GetBox());
+      pRenderData->SetFallbackGlobalBounds(GetOwner()->GetGlobalBounds());
       pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, hMaterial, lodData.m_hMesh, uiMaterialIndex, subMeshIdx);
 
       msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitOpaque, ezRenderData::Caching::Never);
