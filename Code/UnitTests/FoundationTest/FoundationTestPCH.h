@@ -26,6 +26,7 @@ using ezVec4T = ezVec4Template<ezMathTestType>;                           ///< T
 using ezMat3T = ezMat3Template<ezMathTestType>;                           ///< This is only for testing purposes
 using ezMat4T = ezMat4Template<ezMathTestType>;                           ///< This is only for testing purposes
 using ezQuatT = ezQuatTemplate<ezMathTestType>;                           ///< This is only for testing purposes
+using ezAngleT = ezAngleTemplate<ezMathTestType>;                         ///< This is only for testing purposes
 using ezPlaneT = ezPlaneTemplate<ezMathTestType>;                         ///< This is only for testing purposes
 using ezBoundingBoxT = ezBoundingBoxTemplate<ezMathTestType>;             ///< This is only for testing purposes
 using ezBoundingBoxSphereT = ezBoundingBoxSphereTemplate<ezMathTestType>; ///< This is only for testing purposes

@@ -66,7 +66,7 @@ public:
   [[nodiscard]] static ezQuatTemplate<Type> MakeFromElements(Type x, Type y, Type z, Type w); // [tested]
 
   /// \brief Creates a quaternion from a rotation-axis and an angle.
-  [[nodiscard]] static ezQuatTemplate<Type> MakeFromAxisAndAngle(const ezVec3Template<Type>& vRotationAxis, ezAngle angle); // [tested]
+  [[nodiscard]] static ezQuatTemplate<Type> MakeFromAxisAndAngle(const ezVec3Template<Type>& vRotationAxis, ezAngleTemplate<Type> angle); // [tested]
 
   /// \brief Creates a quaternion, that rotates through the shortest arc from "vDirFrom" to "vDirTo".
   [[nodiscard]] static ezQuatTemplate<Type> MakeShortestRotation(const ezVec3Template<Type>& vDirFrom, const ezVec3Template<Type>& vDirTo); // [tested]

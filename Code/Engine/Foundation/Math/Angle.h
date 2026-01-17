@@ -12,6 +12,7 @@ class EZ_FOUNDATION_DLL ezAngleTemplate
 public:
   EZ_DECLARE_POD_TYPE();
 
+
   /// \brief Returns the constant to multiply with an angle in degree to convert it to radians.
   constexpr static EZ_ALWAYS_INLINE Type DegToRadMultiplier(); // [tested]
 
@@ -44,6 +45,7 @@ public:
     : m_fRadian(fRadian)
   {
   }
+
 
 
 

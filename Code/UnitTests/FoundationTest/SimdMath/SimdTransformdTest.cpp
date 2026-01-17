@@ -11,7 +11,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdTransformd)
     ezSimdTransformd t0;
 
     {
-      ezSimdQuatd qRot = ezSimdQuatd::MakeFromAxisAndAngle(ezSimdVec4d(1, 2, 3).GetNormalized<3>(), ezAngle::MakeFromDegree(42.0f));
+      ezSimdQuatd qRot = ezSimdQuatd::MakeFromAxisAndAngle(ezSimdVec4d(1, 2, 3).GetNormalized<3>(), ezAngled::MakeFromDegree(42.0).GetRadian());
 
       ezSimdVec4d pos(4, 5, 6);
       ezSimdVec4d scale(7, 8, 9);
@@ -39,7 +39,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdTransformd)
 
     {
       ezSimdQuatd qRot;
-      qRot = ezSimdQuatd::MakeFromAxisAndAngle(ezSimdVec4d(1, 2, 3).GetNormalized<3>(), ezAngle::MakeFromDegree(42.0f));
+      qRot = ezSimdQuatd::MakeFromAxisAndAngle(ezSimdVec4d(1, 2, 3).GetNormalized<3>(), ezAngled::MakeFromDegree(42.0).GetRadian());
 
       ezSimdVec4d pos(4, 5, 6);
       ezSimdVec4d scale(7, 8, 9);
@@ -74,11 +74,11 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdTransformd)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Inverse")
   {
     ezSimdTransformd tParent(ezSimdVec4d(1, 2, 3));
-    tParent.m_Rotation = ezSimdQuatd::MakeFromAxisAndAngle(ezSimdVec4d(0, 1, 0), ezAngle::MakeFromDegree(90));
+    tParent.m_Rotation = ezSimdQuatd::MakeFromAxisAndAngle(ezSimdVec4d(0, 1, 0), ezAngled::MakeFromDegree(90).GetRadian());
     tParent.m_Scale = ezSimdVec4d(2.0);
 
     ezSimdTransformd tToChild(ezSimdVec4d(4, 5, 6));
-    tToChild.m_Rotation = ezSimdQuatd::MakeFromAxisAndAngle(ezSimdVec4d(0, 0, 1), ezAngle::MakeFromDegree(90));
+    tToChild.m_Rotation = ezSimdQuatd::MakeFromAxisAndAngle(ezSimdVec4d(0, 0, 1), ezAngled::MakeFromDegree(90).GetRadian());
     tToChild.m_Scale = ezSimdVec4d(4.0);
 
     ezSimdTransformd tChild;
@@ -101,10 +101,10 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdTransformd)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetLocalTransform")
   {
     ezSimdQuatd q;
-    q = ezSimdQuatd::MakeFromAxisAndAngle(ezSimdVec4d(0, 0, 1), ezAngle::MakeFromDegree(90));
+    q = ezSimdQuatd::MakeFromAxisAndAngle(ezSimdVec4d(0, 0, 1), ezAngled::MakeFromDegree(90).GetRadian());
 
     ezSimdTransformd tParent(ezSimdVec4d(1, 2, 3));
-    tParent.m_Rotation = ezSimdQuatd::MakeFromAxisAndAngle(ezSimdVec4d(0, 1, 0), ezAngle::MakeFromDegree(90));
+    tParent.m_Rotation = ezSimdQuatd::MakeFromAxisAndAngle(ezSimdVec4d(0, 1, 0), ezAngled::MakeFromDegree(90).GetRadian());
     tParent.m_Scale = ezSimdVec4d(2.0);
 
     ezSimdTransformd tChild;
@@ -122,11 +122,11 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdTransformd)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetGlobalTransform")
   {
     ezSimdTransformd tParent(ezSimdVec4d(1, 2, 3));
-    tParent.m_Rotation = ezSimdQuatd::MakeFromAxisAndAngle(ezSimdVec4d(0, 1, 0), ezAngle::MakeFromDegree(90));
+    tParent.m_Rotation = ezSimdQuatd::MakeFromAxisAndAngle(ezSimdVec4d(0, 1, 0), ezAngled::MakeFromDegree(90).GetRadian());
     tParent.m_Scale = ezSimdVec4d(2.0);
 
     ezSimdTransformd tToChild(ezSimdVec4d(4, 5, 6));
-    tToChild.m_Rotation = ezSimdQuatd::MakeFromAxisAndAngle(ezSimdVec4d(0, 0, 1), ezAngle::MakeFromDegree(90));
+    tToChild.m_Rotation = ezSimdQuatd::MakeFromAxisAndAngle(ezSimdVec4d(0, 0, 1), ezAngled::MakeFromDegree(90).GetRadian());
     tToChild.m_Scale = ezSimdVec4d(4.0);
 
     ezSimdTransformd tChild = ezSimdTransformd::MakeGlobalTransform(tParent, tToChild);
@@ -139,7 +139,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdTransformd)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetAsMat4")
   {
     ezSimdTransformd t(ezSimdVec4d(1, 2, 3));
-    t.m_Rotation = ezSimdQuatd::MakeFromAxisAndAngle(ezSimdVec4d(0, 1, 0), ezAngle::MakeFromDegree(34));
+    t.m_Rotation = ezSimdQuatd::MakeFromAxisAndAngle(ezSimdVec4d(0, 1, 0), ezAngled::MakeFromDegree(34).GetRadian());
     t.m_Scale = ezSimdVec4d(2, -1, 5);
 
     ezSimdMat4d m = t.GetAsMat4();
@@ -147,7 +147,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdTransformd)
     // reference
     ezSimdMat4d refM;
     {
-      ezQuatd q = ezQuatd::MakeFromAxisAndAngle(ezVec3d(0, 1, 0), ezAngle::MakeFromDegree(34));
+      ezQuatd q = ezQuatd::MakeFromAxisAndAngle(ezVec3d(0, 1, 0), ezAngled::MakeFromDegree(34));
 
       ezTransformd referenceTransform(ezVec3d(1, 2, 3), q, ezVec3d(2, -1, 5));
       ezMat4d tmp = referenceTransform.GetAsMat4();
@@ -170,8 +170,8 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdTransformd)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "TransformPos / Dir / operator*")
   {
     ezSimdQuatd qRotX, qRotY;
-    qRotX = ezSimdQuatd::MakeFromAxisAndAngle(ezSimdVec4d(1, 0, 0), ezAngle::MakeFromDegree(90.0f));
-    qRotY = ezSimdQuatd::MakeFromAxisAndAngle(ezSimdVec4d(0, 1, 0), ezAngle::MakeFromDegree(90.0f));
+    qRotX = ezSimdQuatd::MakeFromAxisAndAngle(ezSimdVec4d(1, 0, 0), ezAngled::MakeFromDegree(90.0).GetRadian());
+    qRotY = ezSimdQuatd::MakeFromAxisAndAngle(ezSimdVec4d(0, 1, 0), ezAngled::MakeFromDegree(90.0).GetRadian());
 
     ezSimdTransformd t(ezSimdVec4d(1, 2, 3, 10), qRotY * qRotX, ezSimdVec4d(2, -2, 4, 11));
 
@@ -190,11 +190,11 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdTransformd)
   {
     {
       ezSimdTransformd tParent(ezSimdVec4d(1, 2, 3));
-      tParent.m_Rotation = ezSimdQuatd::MakeFromAxisAndAngle(ezSimdVec4d(0, 1, 0), ezAngle::MakeFromDegree(90));
+      tParent.m_Rotation = ezSimdQuatd::MakeFromAxisAndAngle(ezSimdVec4d(0, 1, 0), ezAngled::MakeFromDegree(90).GetRadian());
       tParent.m_Scale = ezSimdVec4d(2.0);
 
       ezSimdTransformd tToChild(ezSimdVec4d(4, 5, 6));
-      tToChild.m_Rotation = ezSimdQuatd::MakeFromAxisAndAngle(ezSimdVec4d(0, 0, 1), ezAngle::MakeFromDegree(90));
+      tToChild.m_Rotation = ezSimdQuatd::MakeFromAxisAndAngle(ezSimdVec4d(0, 0, 1), ezAngled::MakeFromDegree(90).GetRadian());
       tToChild.m_Scale = ezSimdVec4d(4.0);
 
       // this is exactly the same as SetGlobalTransform
@@ -232,10 +232,10 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdTransformd)
 
     {
       ezSimdTransformd t(ezSimdVec4d(1, 2, 3));
-      t.m_Rotation = ezSimdQuatd::MakeFromAxisAndAngle(ezSimdVec4d(0, 1, 0), ezAngle::MakeFromDegree(90));
+      t.m_Rotation = ezSimdQuatd::MakeFromAxisAndAngle(ezSimdVec4d(0, 1, 0), ezAngled::MakeFromDegree(90).GetRadian());
       t.m_Scale = ezSimdVec4d(2.0);
 
-      ezSimdQuatd q = ezSimdQuatd::MakeFromAxisAndAngle(ezSimdVec4d(0, 0, 1), ezAngle::MakeFromDegree(90));
+      ezSimdQuatd q = ezSimdQuatd::MakeFromAxisAndAngle(ezSimdVec4d(0, 0, 1), ezAngled::MakeFromDegree(90).GetRadian());
 
       ezSimdTransformd t2 = t * q;
       ezSimdTransformd t4 = q * t;
@@ -257,7 +257,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdTransformd)
 
     {
       ezSimdTransformd t(ezSimdVec4d(1, 2, 3));
-      t.m_Rotation = ezSimdQuatd::MakeFromAxisAndAngle(ezSimdVec4d(0, 1, 0), ezAngle::MakeFromDegree(90));
+      t.m_Rotation = ezSimdQuatd::MakeFromAxisAndAngle(ezSimdVec4d(0, 1, 0), ezAngle::MakeFromDegree(90).GetRadian());
       t.m_Scale = ezSimdVec4d(2.0);
 
       ezSimdVec4d p(4, 5, 6);
@@ -278,7 +278,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdTransformd)
 
     {
       ezSimdTransformd t(ezSimdVec4d(1, 2, 3));
-      t.m_Rotation = ezSimdQuatd::MakeFromAxisAndAngle(ezSimdVec4d(0, 1, 0), ezAngle::MakeFromDegree(90));
+      t.m_Rotation = ezSimdQuatd::MakeFromAxisAndAngle(ezSimdVec4d(0, 1, 0), ezAngle::MakeFromDegree(90).GetRadian());
       t.m_Scale = ezSimdVec4d(2.0);
 
       ezSimdVec4d p(4, 5, 6);
@@ -301,17 +301,17 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdTransformd)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Comparison")
   {
     ezSimdTransformd t(ezSimdVec4d(1, 2, 3));
-    t.m_Rotation = ezSimdQuatd::MakeFromAxisAndAngle(ezSimdVec4d(0, 1, 0), ezAngle::MakeFromDegree(90));
+    t.m_Rotation = ezSimdQuatd::MakeFromAxisAndAngle(ezSimdVec4d(0, 1, 0), ezAngled::MakeFromDegree(90).GetRadian());
 
     EZ_TEST_BOOL(t == t);
 
     ezSimdTransformd t2(ezSimdVec4d(1, 2, 4));
-    t2.m_Rotation = ezSimdQuatd::MakeFromAxisAndAngle(ezSimdVec4d(0, 1, 0), ezAngle::MakeFromDegree(90));
+    t2.m_Rotation = ezSimdQuatd::MakeFromAxisAndAngle(ezSimdVec4d(0, 1, 0), ezAngled::MakeFromDegree(90).GetRadian());
 
     EZ_TEST_BOOL(t != t2);
 
     ezSimdTransformd t3(ezSimdVec4d(1, 2, 3));
-    t3.m_Rotation = ezSimdQuatd::MakeFromAxisAndAngle(ezSimdVec4d(0, 1, 0), ezAngle::MakeFromDegree(91));
+    t3.m_Rotation = ezSimdQuatd::MakeFromAxisAndAngle(ezSimdVec4d(0, 1, 0), ezAngled::MakeFromDegree(91).GetRadian());
 
     EZ_TEST_BOOL(t != t3);
   }

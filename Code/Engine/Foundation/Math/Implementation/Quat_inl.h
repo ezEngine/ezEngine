@@ -47,10 +47,9 @@ EZ_ALWAYS_INLINE void ezQuatTemplate<Type>::SetIdentity()
 }
 
 template <typename Type>
-ezQuatTemplate<Type> ezQuatTemplate<Type>::MakeFromAxisAndAngle(const ezVec3Template<Type>& vRotationAxis, ezAngle angle)
+ezQuatTemplate<Type> ezQuatTemplate<Type>::MakeFromAxisAndAngle(const ezVec3Template<Type>& vRotationAxis, ezAngleTemplate<Type> angle)
 {
-  //TODO Fix to use ezAngled
-  const ezAngle halfAngle = angle * 0.5f;
+  const ezAngleTemplate<Type> halfAngle = angle * Type(0.5);
 
   ezVec3Template<Type> v = static_cast<Type>(ezMath::Sin(halfAngle)) * vRotationAxis;
   
