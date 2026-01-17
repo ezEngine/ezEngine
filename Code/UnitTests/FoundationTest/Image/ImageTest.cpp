@@ -7,6 +7,7 @@
 #include <Texture/Image/Formats/BmpFileFormat.h>
 #include <Texture/Image/Formats/DdsFileFormat.h>
 #include <Texture/Image/Formats/ImageFileFormat.h>
+#include <Texture/Image/Formats/SvgFileFormat.h>
 #include <Texture/Image/Image.h>
 #include <Texture/Image/ImageConversion.h>
 #include <Texture/Image/ImageUtils.h>
@@ -122,6 +123,29 @@ EZ_CREATE_SIMPLE_TEST(Image, Image)
       }
     }
   }
+
+#ifdef BUILDSYSTEM_ENABLE_LUNASVG_SUPPORT
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SVG")
+  {
+    ezSvgFileFormat svgFormat;
+    svgFormat.m_uiResolutionX = 256;
+    svgFormat.m_uiResolutionY = 256;
+
+    ezImage image;
+
+    ezFileReader fileReader;
+    EZ_TEST_BOOL(fileReader.Open("SVGTestImages/ez.svg") == EZ_SUCCESS);
+    EZ_TEST_BOOL(svgFormat.ReadImage(fileReader, image, "svg") == EZ_SUCCESS);
+
+    EZ_TEST_INT(image.GetWidth(), 256);
+    EZ_TEST_INT(image.GetHeight(), 256);
+    EZ_TEST_BOOL(image.GetImageFormat() == ezImageFormat::R8G8B8A8_UNORM);
+
+    EZ_TEST_BOOL(image.SaveTo(":output/SVGTestImages/ez_out.tga") == EZ_SUCCESS);
+
+    EZ_TEST_FILES(":output/SVGTestImages/ez_out.tga", "SVGTestImages/ez_expected.tga", "");
+  }
+#endif
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Write Image Formats")
   {
