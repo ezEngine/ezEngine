@@ -36,3 +36,8 @@ endif()
 if(EZ_3RDPARTY_TINYEXR_SUPPORT)
   target_link_libraries(${PROJECT_NAME} PRIVATE tinyexr)
 endif()
+
+# everything after this will be skipped, if RmlUI is not available
+ez_requires_rmlui()
+target_link_libraries(${PROJECT_NAME} PUBLIC lunasvg)
+
