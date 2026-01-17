@@ -38,7 +38,7 @@ EZ_ALWAYS_INLINE void ezSimdQuatd::Normalize()
 inline ezResult ezSimdQuatd::GetRotationAxisAndAngle(ezSimdVec4d& ref_vAxis, ezSimdDouble& ref_fAngle, const ezSimdDouble& fEpsilon) const
 {
   ///\todo optimize
-  const ezAngle acos = ezMath::ACos(m_v.w().Max(-1).Min(1));
+  const ezAngleTemplate<double> acos = ezMath::ACos(double(m_v.w().Max(-1).Min(1)));
   const float d = ezMath::Sin(acos);
 
   if (d < fEpsilon)
@@ -50,7 +50,7 @@ inline ezResult ezSimdQuatd::GetRotationAxisAndAngle(ezSimdVec4d& ref_vAxis, ezS
     ref_vAxis = m_v / d;
   }
 
-  ref_fAngle = acos * 2;
+  ref_fAngle = (acos * double(2)).GetRadian();
 
   return EZ_SUCCESS;
 }
