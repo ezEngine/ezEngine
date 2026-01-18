@@ -188,7 +188,7 @@ void ezAssetCurator::WaitForInitialize()
   m_InitializeCuratorTaskID.Invalidate();
 
   EZ_LOCK(m_CuratorMutex);
-  ProcessAllCoreAssets();
+
   // Broadcast reset.
   {
     ezAssetCuratorEvent e;
@@ -196,6 +196,10 @@ void ezAssetCurator::WaitForInitialize()
     e.m_Type = ezAssetCuratorEvent::Type::AssetListReset;
     m_Events.Broadcast(e);
   }
+  // Write Asset tables must happen after the reset as that causes the writer to rebuilt its tables.
+  WriteAssetTables(nullptr, true).IgnoreResult();
+  // This needs to happen after tables are written so that some assets can load their dependencies.
+  ProcessAllCoreAssets();
 }
 
 void ezAssetCurator::Deinitialize()
@@ -1956,7 +1960,7 @@ void ezAssetCurator::ProcessAllCoreAssets()
         // prefer certain asset types over others, to ensure that thumbnail generation works
         ezHybridArray<ezTempHashedString, 4> transformOrder;
         transformOrder.PushBack(ezTempHashedString("RenderPipeline"));
-        transformOrder.PushBack(ezTempHashedString(""));
+        transformOrder.PushBack(ezTempHashedString());
 
         ezTransformStatus resReferences(EZ_SUCCESS);
 
@@ -1966,11 +1970,13 @@ void ezAssetCurator::ProcessAllCoreAssets()
           {
             if (ezAssetInfo* pInfo = GetAssetInfo(ref))
             {
-              if (name.GetHash() == 0ull || pInfo->m_Info->m_sAssetsDocumentTypeName == name)
+              if (name == ezTempHashedString() || pInfo->m_Info->m_sAssetsDocumentTypeName == name)
               {
                 resReferences = ProcessAsset(pInfo, pAssetProfile, ezTransformFlags::TriggeredManually);
                 if (resReferences.Failed())
-                  break;
+                {
+                  ezLog::Error("Core asset '{}' of type '{}' failed transformation.", ref, pInfo->m_Info->m_sAssetsDocumentTypeName);
+                }
               }
             }
           }

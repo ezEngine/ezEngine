@@ -275,6 +275,9 @@ struct ezDecalManager::Data
 
     {
       m_hSimpleCopyMaterial = ezResourceManager::LoadResource<ezMaterialResource>("{ c542b3fa-0c24-4bac-97b7-e481f66f18f1 }"); // DecalCopy.ezMaterialAsset
+      ezResourceLock<ezMaterialResource> pMaterial(m_hSimpleCopyMaterial, ezResourceAcquireMode::BlockTillLoaded);
+      ezShaderResourceHandle hShader = pMaterial->GetCurrentDesc().m_hShader;
+      ezResourceLock<ezShaderResource> pShader(hShader, ezResourceAcquireMode::BlockTillLoaded);
     }
 
     const char* szBufferResourceName = "DecalPlaneMeshBuffer";
