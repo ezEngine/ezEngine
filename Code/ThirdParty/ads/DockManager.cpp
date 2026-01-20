@@ -41,6 +41,7 @@
 #include <QVariant>
 #include <QDebug>
 #include <QFile>
+#include <QDialog>
 #include <QAction>
 #include <QXmlStreamWriter>
 #include <QSettings>
@@ -530,14 +531,42 @@ CDockManager::CDockManager(QWidget *parent) :
 	window()->installEventFilter(this);
 
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
-    connect(qApp, &QApplication::focusWindowChanged, [](QWindow* focusWindow)
+    connect(qApp, &QApplication::focusWindowChanged, this, [this](QWindow* focusWindow)
     {
-        // bring modal dialogs to foreground to ensure that they are in front of any
-        // floating dock widget
-        if (focusWindow && focusWindow->isModal())
+        if (!focusWindow)
         {
-            focusWindow->raise();
+            return;
         }
+
+        auto widget = QWidget::find(focusWindow->winId());
+        if (!widget)
+        {
+            return;
+        }
+
+        // If the user clicks the main window or drags a floating widget or works with a
+        // dialog, then raise the main window, all floating widgets and the focus window
+        // itself to bring it into foregreound of any other application
+        bool raise = qobject_cast<QMainWindow*>(widget)
+            || qobject_cast<QDialog*>(widget)
+            || qobject_cast<ads::CFloatingDockContainer*>(widget);
+        if (!raise)
+        {
+            return;
+        }
+
+        this->raise();
+        for (auto FloatingWidget : d->FloatingWidgets)
+        {
+            if (FloatingWidget)
+            {
+                FloatingWidget->raise();
+            }
+        }
+
+        // ensure that the dragged floating window is in front of the main application window
+        // and any other floating widget - this will also ensure that modal dialogs come to foreground
+        focusWindow->raise();
     });
 #endif
 }
@@ -1520,6 +1549,16 @@ void CDockManager::setConfigParam(CDockManager::eConfigParam Param, QVariant Val
 QVariant CDockManager::configParam(eConfigParam Param, QVariant Default)
 {
 	return StaticConfigParams[Param].isValid() ? StaticConfigParams[Param] : Default;
+}
+
+
+//===========================================================================
+void CDockManager::raise()
+{
+    if (parentWidget())
+    {
+        parentWidget()->raise();
+    }
 }
 
 

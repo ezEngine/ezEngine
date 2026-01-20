@@ -216,6 +216,7 @@ public:
 		DisableTabTextEliding =      0x4000000, //! Set this flag to disable eliding of tab texts in dock area tabs
 		ShowTabTextOnlyForActiveTab =0x8000000, //! Set this flag to show label texts in dock area tabs only for active tabs
 		DoubleClickUndocksWidget = 0x10000000, //!< If the flag is set, a double click on a tab undocks the widget
+		TabsAtBottom = 0x20000000, //!< If the flag is set, tabs will be shown at the bottom instead of in the title bar.
 
 
         DefaultDockAreaButtons = DockAreaHasCloseButton
@@ -769,6 +770,12 @@ public Q_SLOTS:
      * hides the CDockManager but not the floating widgets;
      */
     void hideManagerAndFloatingWidgets();
+
+    /**
+     * Calls raise() for the widget that hosts this dock manager.
+     * This will bring the widget in front of any other application that is running
+     */
+    void raise();
 
 Q_SIGNALS:
 	/**
