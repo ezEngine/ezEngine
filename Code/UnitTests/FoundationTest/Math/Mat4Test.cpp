@@ -932,8 +932,11 @@ void TestMat4()
 }
 
 
-EZ_CREATE_SIMPLE_TEST(Math, Mat4)
+EZ_CREATE_SIMPLE_TEST(Math, Mat4f)
 {
   TestMat4<float>();
+}
+EZ_CREATE_SIMPLE_TEST(Math, Mat4d)
+{
   TestMat4<double>();
 }
