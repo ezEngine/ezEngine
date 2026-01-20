@@ -40,7 +40,7 @@ ezTransformTemplate<Type> ezTransformTemplate<Type>::MakeFromMat4(const ezMat4Te
   res.m_vPosition = mMat.GetTranslationVector();
   res.m_vScale = mRot.GetScalingFactors();
   mRot.SetScalingFactors(ezVec3Template<Type>(1)).IgnoreResult();
-  res.m_qRotation = ezQuat::MakeFromMat3(mRot);
+  res.m_qRotation = ezQuatTemplate<Type>::MakeFromMat3(mRot);
   return res;
 }
 
@@ -163,7 +163,7 @@ EZ_ALWAYS_INLINE ezVec3Template<Type> ezTransformTemplate<Type>::TransformDirect
 template <typename Type>
 EZ_ALWAYS_INLINE const ezTransformTemplate<Type> operator*(const ezQuatTemplate<Type>& q, const ezTransformTemplate<Type>& t)
 {
-  ezTransform r;
+  ezTransformTemplate<Type> r;
 
   r.m_vPosition = t.m_vPosition;
   r.m_qRotation = q * t.m_qRotation;
@@ -175,7 +175,7 @@ EZ_ALWAYS_INLINE const ezTransformTemplate<Type> operator*(const ezQuatTemplate<
 template <typename Type>
 EZ_ALWAYS_INLINE const ezTransformTemplate<Type> operator*(const ezTransformTemplate<Type>& t, const ezQuatTemplate<Type>& q)
 {
-  ezTransform r;
+  ezTransformTemplate<Type> r;
 
   r.m_vPosition = t.m_vPosition;
   r.m_qRotation = t.m_qRotation * q;
