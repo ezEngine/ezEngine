@@ -15,6 +15,7 @@
 #include <Foundation/Utilities/DGMLWriter.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 #include <ToolsFoundation/FileSystem/FileSystemModel.h>
+#include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 #define EZ_CURATOR_CACHE_VERSION 2      // Change this to delete and re-gen all asset caches.
 #define EZ_CURATOR_CACHE_FILE_VERSION 8 // Change this if for cache format changes.
@@ -2371,4 +2372,219 @@ void ezAssetCurator::ClearAssetCaches(ezAssetDocumentManager::OutputReliability 
     // restart background asset processing
     ezAssetProcessor::GetSingleton()->StartProcessor();
   }
+}
+
+ezUInt32 ezAssetCurator::ReplaceAssetReferenceInObject(ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, ezStringView sOldReference, ezStringView sNewReference, ezDynamicArray<ezString>& out_errors)
+{
+  ezUInt32 uiReplacementCount = 0;
+
+  const ezRTTI* pType = pObject->GetTypeAccessor().GetType();
+  ezHybridArray<const ezAbstractProperty*, 32> properties;
+  pType->GetAllProperties(properties);
+
+  for (const ezAbstractProperty* pProp : properties)
+  {
+    // Skip temporary properties
+    if (pProp->GetAttributeByType<ezTemporaryAttribute>() != nullptr)
+      continue;
+
+    // Check if this is an asset reference property
+    const ezAssetBrowserAttribute* pAssetAttr = pProp->GetAttributeByType<ezAssetBrowserAttribute>();
+    if (pAssetAttr == nullptr)
+      continue;
+
+    // Must be string type
+    const auto propVarType = pProp->GetSpecificType()->GetVariantType();
+    if (propVarType != ezVariantType::String && propVarType != ezVariantType::StringView)
+      continue;
+
+    switch (pProp->GetCategory())
+    {
+      case ezPropertyCategory::Member:
+      {
+        if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
+        {
+          ezVariant value;
+          if (pAccessor->GetValue(pObject, pProp, value).Succeeded())
+          {
+            ezString sValue = value.Get<ezString>();
+            if (sValue == sOldReference)
+            {
+              if (pAccessor->SetValue(pObject, pProp, ezVariant(ezString(sNewReference))).Succeeded())
+              {
+                uiReplacementCount++;
+              }
+              else
+              {
+                ezStringBuilder sError;
+                sError.SetFormat("Failed to replace property '{}'", pProp->GetPropertyName());
+                out_errors.PushBack(sError);
+              }
+            }
+          }
+        }
+      }
+      break;
+
+      case ezPropertyCategory::Array:
+      case ezPropertyCategory::Set:
+      {
+        if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
+        {
+          ezInt32 iCount = pAccessor->GetCount(pObject, pProp);
+
+          for (ezInt32 i = 0; i < iCount; ++i)
+          {
+            ezVariant value;
+            if (pAccessor->GetValue(pObject, pProp, value, i).Succeeded())
+            {
+              ezString sValue = value.Get<ezString>();
+              if (sValue == sOldReference)
+              {
+                if (pAccessor->SetValue(pObject, pProp, ezVariant(ezString(sNewReference)), i).Succeeded())
+                {
+                  uiReplacementCount++;
+                }
+                else
+                {
+                  ezStringBuilder sError;
+                  sError.SetFormat("Failed to replace property '{}[{}]'", pProp->GetPropertyName(), i);
+                  out_errors.PushBack(sError);
+                }
+              }
+            }
+          }
+        }
+      }
+      break;
+
+      case ezPropertyCategory::Map:
+      {
+        if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
+        {
+          ezDynamicArray<ezVariant> keys;
+          if (pAccessor->GetKeys(pObject, pProp, keys).Succeeded())
+          {
+            for (const ezVariant& key : keys)
+            {
+              ezVariant value;
+              if (pAccessor->GetValue(pObject, pProp, value, key).Succeeded())
+              {
+                ezString sValue = value.Get<ezString>();
+                if (sValue == sOldReference)
+                {
+                  if (pAccessor->SetValue(pObject, pProp, ezVariant(ezString(sNewReference)), key).Succeeded())
+                  {
+                    uiReplacementCount++;
+                  }
+                  else
+                  {
+                    ezStringBuilder sError;
+                    sError.SetFormat("Failed to replace map property '{}[{}]'", pProp->GetPropertyName(), key.ConvertTo<ezString>());
+                    out_errors.PushBack(sError);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      break;
+
+      default:
+        break;
+    }
+  }
+
+  // Process children recursively
+  for (const ezDocumentObject* pChild : pObject->GetChildren())
+  {
+    if (pChild->GetParentPropertyType() != nullptr &&
+        pChild->GetParentPropertyType()->GetAttributeByType<ezTemporaryAttribute>() != nullptr)
+      continue;
+    uiReplacementCount += ReplaceAssetReferenceInObject(pAccessor, pChild, sOldReference, sNewReference, out_errors);
+  }
+
+  return uiReplacementCount;
+}
+
+ezUInt32 ezAssetCurator::ReplaceAssetReferenceInDocument(ezDocument* pDocument, ezStringView sOldReference, ezStringView sNewReference, ezDynamicArray<ezString>& out_errors)
+{
+  ezObjectAccessorBase* pAccessor = pDocument->GetObjectAccessor();
+
+  pAccessor->StartTransaction("Replace Asset Reference");
+
+  ezUInt32 uiReplacementCount = ReplaceAssetReferenceInObject(
+    pAccessor,
+    pDocument->GetObjectManager()->GetRootObject(),
+    sOldReference,
+    sNewReference,
+    out_errors);
+
+  if (uiReplacementCount > 0)
+    pAccessor->FinishTransaction();
+  else
+    pAccessor->CancelTransaction();
+
+  return uiReplacementCount;
+}
+
+ezAssetCurator::ReplaceAssetResult ezAssetCurator::ReplaceAssetReferenceInUses(ezUuid assetToReplace, ezStringView sOldReference, ezStringView sNewReference)
+{
+  ReplaceAssetResult result;
+
+  // Find all direct uses of this asset
+  ezSet<ezUuid> uses;
+  ezAssetCurator::GetSingleton()->FindAllUses(assetToReplace, uses, false /* bTransitive */);
+
+  for (const ezUuid& useGuid : uses)
+  {
+    // Get the asset info to find the document path
+    const ezAssetCurator::ezLockedSubAsset pSubAsset = ezAssetCurator::GetSingleton()->GetSubAsset(useGuid);
+    if (!pSubAsset.isValid())
+    {
+      result.m_Errors.PushBack("Could not find asset info for a referencing asset");
+      result.m_uiDocumentsFailed++;
+      continue;
+    }
+
+    ezString sDocumentPath = pSubAsset->m_pAssetInfo->m_Path.GetAbsolutePath();
+
+    // Open the document (without requesting a window)
+    ezDocument* pDocument = ezQtEditorApp::GetSingleton()->OpenDocument(sDocumentPath, ezDocumentFlags::None);
+
+    if (pDocument == nullptr)
+    {
+      ezStringBuilder sError;
+      sError.SetFormat("Failed to open document: {}", sDocumentPath);
+      result.m_Errors.PushBack(sError);
+      result.m_uiDocumentsFailed++;
+      continue;
+    }
+
+    ezDynamicArray<ezString> docErrors;
+    ezUInt32 uiReplaced = ReplaceAssetReferenceInDocument(pDocument, sOldReference, sNewReference, docErrors);
+
+    result.m_Errors.PushBackRange(docErrors);
+
+    if (uiReplaced > 0)
+    {
+      // Save the document
+      ezStatus saveStatus = pDocument->SaveDocument(false);
+      if (saveStatus.Failed())
+      {
+        ezStringBuilder sError;
+        sError.SetFormat("Failed to save document: {} - {}", sDocumentPath, saveStatus.GetMessageString());
+        result.m_Errors.PushBack(sError);
+        result.m_uiDocumentsFailed++;
+      }
+      else
+      {
+        result.m_uiDocumentsModified++;
+        result.m_uiPropertiesReplaced += uiReplaced;
+      }
+    }
+  }
+
+  return result;
 }
