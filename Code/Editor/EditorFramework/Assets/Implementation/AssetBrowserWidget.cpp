@@ -1267,14 +1267,16 @@ void ezQtAssetBrowserWidget::on_ListAssets_customContextMenuRequested(const QPoi
         // Single non-asset file or folder - show regular Delete
         QAction* pDelete = m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Delete.svg")), QLatin1String("Delete"));
         pDelete->setShortcut(QKeySequence("Del"));
-        connect(pDelete, &QAction::triggered, this, [this]() { DeleteSelection(true); });
+        connect(pDelete, &QAction::triggered, this, [this]()
+          { DeleteSelection(true); });
       }
     }
     else // Delete (multiple selections)
     {
       QAction* pDelete = m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Delete.svg")), QLatin1String("Delete"));
       pDelete->setShortcut(QKeySequence("Del"));
-      connect(pDelete, &QAction::triggered, this, [this]() { DeleteSelection(true); });
+      connect(pDelete, &QAction::triggered, this, [this]()
+        { DeleteSelection(true); });
       if (!bAllFiles)
       {
         pDelete->setEnabled(false);
