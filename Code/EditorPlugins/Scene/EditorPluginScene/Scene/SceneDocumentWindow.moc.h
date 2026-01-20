@@ -72,6 +72,4 @@ class ezQtSceneDocumentWindow : public ezQtSceneDocumentWindowBase
 public:
   ezQtSceneDocumentWindow(ezSceneDocument* pDocument);
   ~ezQtSceneDocumentWindow();
-
-  virtual const char* GetWindowLayoutGroupName() const override { return "Scene"; }
 };

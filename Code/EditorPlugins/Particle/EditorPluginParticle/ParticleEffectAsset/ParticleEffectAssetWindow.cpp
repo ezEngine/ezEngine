@@ -270,11 +270,6 @@ ezQtParticleEffectAssetDocumentWindow::~ezQtParticleEffectAssetDocumentWindow()
   GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtParticleEffectAssetDocumentWindow::PropertyEventHandler, this));
 }
 
-const char* ezQtParticleEffectAssetDocumentWindow::GetWindowLayoutGroupName() const
-{
-  return "ParticleEffectAsset2";
-}
-
 ezParticleEffectAssetDocument* ezQtParticleEffectAssetDocumentWindow::GetParticleDocument()
 {
   return static_cast<ezParticleEffectAssetDocument*>(GetDocument());

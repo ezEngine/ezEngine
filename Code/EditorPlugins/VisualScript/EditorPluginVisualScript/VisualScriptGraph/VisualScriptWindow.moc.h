@@ -15,8 +15,6 @@ public:
   ezQtVisualScriptWindow(ezDocument* pDocument);
   ~ezQtVisualScriptWindow();
 
-  virtual const char* GetWindowLayoutGroupName() const override { return "VisualScriptGraph"; }
-
 private Q_SLOTS:
 
 private:

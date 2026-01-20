@@ -6,11 +6,8 @@
 #include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
 #include <QCloseEvent>
 #include <QLabel>
-#include <QSettings>
 #include <QStatusBar>
 #include <QTabBar>
-#include <QTimer>
-#include <ToolsFoundation/Application/ApplicationServices.h>
 #include <ads/DockAreaWidget.h>
 #include <ads/DockManager.h>
 #include <ads/DockWidgetTab.h>
@@ -19,44 +16,10 @@
 ezQtContainerWindow* ezQtContainerWindow::s_pContainerWindow = nullptr;
 bool ezQtContainerWindow::s_bForceClose = false;
 
-namespace
-{
-  bool GetProjectLayoutPath(ezStringBuilder& out_sFile, bool bWrite)
-  {
-    if (!ezToolsProject::IsProjectOpen())
-    {
-      out_sFile.Clear();
-      return false;
-    }
-    out_sFile = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
-    out_sFile.AppendPath("layout.settings");
-    if (!bWrite && !QFile::exists(out_sFile.GetData()))
-    {
-      out_sFile.Clear();
-      return false;
-    }
-    return true;
-  }
-
-  bool GetApplicationLayoutPath(ezStringBuilder& out_sFile, bool bWrite)
-  {
-    out_sFile = ezApplicationServices::GetSingleton()->GetApplicationPreferencesFolder();
-    out_sFile.AppendPath("layout.settings");
-    if (!bWrite && !QFile::exists(out_sFile.GetData()))
-    {
-      out_sFile.Clear();
-      return false;
-    }
-    return true;
-  }
-} // namespace
-
 ezQtContainerWindow::ezQtContainerWindow()
 {
   setMinimumSize(QSize(800, 600));
-  m_bWindowLayoutRestored = false;
   m_pStatusBarLabel = nullptr;
-  m_iWindowLayoutRestoreScheduled = 0;
 
   s_pContainerWindow = this;
 
@@ -125,22 +88,8 @@ void ezQtContainerWindow::UpdateWindowTitle()
   setWindowTitle(QString::fromUtf8(sTitle.GetData()));
 }
 
-void ezQtContainerWindow::ScheduleRestoreWindowLayout()
-{
-  m_iWindowLayoutRestoreScheduled++;
-  QTimer::singleShot(0, this, SLOT(SlotRestoreLayout()));
-}
-
-void ezQtContainerWindow::SlotRestoreLayout()
-{
-  RestoreWindowLayout();
-}
-
 void ezQtContainerWindow::closeEvent(QCloseEvent* e)
 {
-  SaveWindowLayout();
-  SaveDocumentLayouts();
-
   if (s_bForceClose)
     return;
 
@@ -162,7 +111,6 @@ void ezQtContainerWindow::closeEvent(QCloseEvent* e)
   ezDynamicArray<ezQtDocumentWindow*> windows = m_DocumentWindows;
   for (ezQtDocumentWindow* pWindow : windows)
   {
-    pWindow->DisableWindowLayoutSaving();
     pWindow->ShutdownDocumentWindow();
   }
 
@@ -170,123 +118,6 @@ void ezQtContainerWindow::closeEvent(QCloseEvent* e)
   m_pDockManager->deleteLater();
   m_pDockManager = nullptr;
   QMainWindow::closeEvent(e);
-}
-
-void ezQtContainerWindow::SaveWindowLayout()
-{
-  if (!m_pDockManager)
-    return;
-
-  ezStringBuilder sFile;
-  GetApplicationLayoutPath(sFile, true);
-
-  ezStringBuilder sProjectFile;
-  GetProjectLayoutPath(sProjectFile, true);
-
-  QSettings Settings(ezToolsProject::IsProjectOpen() ? sProjectFile.GetData() : sFile.GetData(), QSettings::IniFormat);
-  Settings.beginGroup(QString::fromUtf8("ContainerWnd_ezEditor"));
-  {
-    Settings.setValue("DockManagerState", m_pDockManager->saveState(1));
-    Settings.setValue("WindowGeometry", saveGeometry());
-    Settings.setValue("WindowState", saveState());
-  }
-  Settings.endGroup();
-
-  if (ezToolsProject::IsProjectOpen())
-  {
-    // The last open project always serves as the default layout in case
-    // a new project is created or a project without layout data is opened.
-    QFile::remove(sFile.GetData());
-    QFile::copy(sProjectFile.GetData(), sFile.GetData());
-  }
-}
-
-void ezQtContainerWindow::SaveDocumentLayouts()
-{
-  for (ezUInt32 i = 0; i < m_DocumentWindows.GetCount(); ++i)
-    m_DocumentWindows[i]->SaveWindowLayout();
-}
-
-void ezQtContainerWindow::RestoreWindowLayout()
-{
-  --m_iWindowLayoutRestoreScheduled;
-  if (m_iWindowLayoutRestoreScheduled > 0)
-    return;
-
-  bool bCreteDefaultLayout = true;
-  EZ_SCOPE_EXIT(bCreteDefaultLayout ? showMaximized() : show(););
-
-  ezStringBuilder sFile;
-  if (!GetProjectLayoutPath(sFile, false))
-  {
-    if (!GetApplicationLayoutPath(sFile, false))
-    {
-      // No project or app settings file found, exiting.
-      return;
-    }
-  }
-
-  {
-    QSettings Settings(sFile.GetData(), QSettings::IniFormat);
-    Settings.beginGroup(QString::fromUtf8("ContainerWnd_ezEditor"));
-    {
-      QByteArray geom = Settings.value("WindowGeometry", QByteArray()).toByteArray();
-      if (!geom.isEmpty())
-      {
-        bCreteDefaultLayout = false;
-        restoreGeometry(geom);
-        restoreState(Settings.value("WindowState", saveState()).toByteArray());
-        auto dockState = Settings.value("DockManagerState");
-        if (dockState.isValid() && dockState.typeId() == QMetaType::QByteArray)
-        {
-          m_pDockManager->restoreState(dockState.toByteArray(), 1);
-          // As document windows can't be in a closed state (as pressing x destroys them),
-          // we need to fix any document window that was accidentally saved in its closed state.
-          for (ads::CDockWidget* dock : m_DocumentDocks)
-          {
-            if (dock->isClosed())
-            {
-              if (dock->dockContainer() == nullptr)
-              {
-                if (m_DocumentDocks.GetCount() >= 2)
-                {
-                  // If we can (we are not the only dock window), we are going to attach to a window that isn't us, ideally the settings window.
-                  ezUInt32 uiBestIndex = 0;
-                  for (ezUInt32 i = 0; i < m_DocumentDocks.GetCount(); i++)
-                  {
-                    if (ezStringUtils::IsEqual(m_DocumentWindows[i]->GetUniqueName(), "Settings"))
-                    {
-                      uiBestIndex = i;
-                      break;
-                    }
-                    else if (m_DocumentDocks[i] != dock)
-                    {
-                      uiBestIndex = i;
-                    }
-                  }
-
-                  ads::CDockAreaWidget* dockArea = m_DocumentDocks[uiBestIndex]->dockAreaWidget();
-                  m_pDockManager->addDockWidgetTabToArea(dock, dockArea);
-                }
-                else
-                {
-                  m_pDockManager->addDockWidgetTab(ads::CenterDockWidgetArea, dock);
-                }
-              }
-              dock->toggleView();
-            }
-          }
-        }
-      }
-    }
-    Settings.endGroup();
-  }
-
-  // do NOT restore the layouts of the document windows here
-  // the window may be too small at this time, and the layout restoration may thus resize the document widgets to the bare minimum
-  // and destroy the layout
-
-  m_bWindowLayoutRestored = true;
 }
 
 void ezQtContainerWindow::SlotUpdateWindowDecoration(void* pDocWindow)

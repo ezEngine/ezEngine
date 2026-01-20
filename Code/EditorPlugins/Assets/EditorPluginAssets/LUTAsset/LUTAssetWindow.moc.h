@@ -15,8 +15,6 @@ class ezQtLUTAssetDocumentWindow : public ezQtDocumentWindow
 
 public:
   ezQtLUTAssetDocumentWindow(ezLUTAssetDocument* pDocument);
-
-  virtual const char* GetWindowLayoutGroupName() const override { return "LUTAsset"; }
 };
 
 class ezLUTAssetActions

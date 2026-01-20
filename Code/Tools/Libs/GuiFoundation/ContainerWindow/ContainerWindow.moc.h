@@ -45,12 +45,6 @@ public:
 
   void GetDocumentWindows(ezHybridArray<ezQtDocumentWindow*, 16>& ref_windows);
 
-  void SaveWindowLayout();
-  void SaveDocumentLayouts();
-  void RestoreWindowLayout();
-
-  void ScheduleRestoreWindowLayout();
-
 protected:
   virtual bool eventFilter(QObject* obj, QEvent* e) override;
 
@@ -62,12 +56,8 @@ private:
   ezResult EnsureVisible(ezDocument* pDocument);
   ezResult EnsureVisible(ezQtApplicationPanel* pPanel);
 
-  bool m_bWindowLayoutRestored;
-  ezInt32 m_iWindowLayoutRestoreScheduled;
-
 private Q_SLOTS:
   void SlotDocumentTabCloseRequested();
-  void SlotRestoreLayout();
   void SlotTabsContextMenuRequested(const QPoint& pos);
   void SlotUpdateWindowDecoration(void* pDocWindow);
   void SlotFloatingWidgetOpened(ads::CFloatingDockContainer* FloatingWidget);

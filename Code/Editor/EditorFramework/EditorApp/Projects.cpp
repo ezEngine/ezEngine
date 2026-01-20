@@ -247,10 +247,8 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, ezStringView sFile0)
       }
     }
 
-    if (!ezQtEditorApp::GetSingleton()->IsInSafeMode())
-    {
-      ezQtContainerWindow::GetContainerWindow()->ScheduleRestoreWindowLayout();
-    }
+    // Show the window maximized when opening a project
+    ezQtContainerWindow::GetContainerWindow()->showMaximized();
   }
   return EZ_SUCCESS;
 }

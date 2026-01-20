@@ -10,6 +10,4 @@ class ezQtCustomDataAssetDocumentWindow : public ezQtDocumentWindow
 
 public:
   ezQtCustomDataAssetDocumentWindow(ezDocument* pDocument);
-
-  virtual const char* GetWindowLayoutGroupName() const override { return "CustomDataAsset"; }
 };

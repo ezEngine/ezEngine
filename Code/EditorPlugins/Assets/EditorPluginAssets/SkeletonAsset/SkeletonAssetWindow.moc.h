@@ -18,7 +18,6 @@ public:
   ~ezQtSkeletonAssetDocumentWindow();
 
   ezSkeletonAssetDocument* GetSkeletonDocument();
-  virtual const char* GetWindowLayoutGroupName() const override { return "SkeletonAsset"; }
 
 protected:
   virtual void InternalRedraw() override;

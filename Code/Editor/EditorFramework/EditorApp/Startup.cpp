@@ -324,9 +324,6 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 
   ezStartup::StartupCoreSystems();
 
-  // prevent restoration of window layouts when in safe mode
-  ezQtDocumentWindow::s_bAllowRestoreWindowLayout = !IsInSafeMode();
-
   {
     // Make sure that we have at least 4 worker threads for short running and 4 worker threads for long running tasks.
     // Otherwise the Editor might deadlock during asset transform.
@@ -441,11 +438,12 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
       CreateOrOpenProject(false, m_RecentProjects.GetFileList()[0].m_File).IgnoreResult();
     }
   }
-  else if (!IsInHeadlessMode() && !IsInSafeMode())
+  else if (!IsInHeadlessMode())
   {
+    // Show the window maximized when no project is being loaded
     if (ezQtContainerWindow::GetContainerWindow())
     {
-      ezQtContainerWindow::GetContainerWindow()->ScheduleRestoreWindowLayout();
+      ezQtContainerWindow::GetContainerWindow()->showMaximized();
     }
   }
 

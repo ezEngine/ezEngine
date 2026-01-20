@@ -22,7 +22,6 @@ public:
   ezQtParticleEffectAssetDocumentWindow(ezAssetDocument* pDocument);
   ~ezQtParticleEffectAssetDocumentWindow();
 
-  virtual const char* GetWindowLayoutGroupName() const override;
   ezParticleEffectAssetDocument* GetParticleDocument();
 
 private Q_SLOTS:
