@@ -1,20 +1,20 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
+#include <EditorFramework/Assets/AssetBrowserDlg.moc.h>
 #include <EditorFramework/Assets/AssetBrowserFilter.moc.h>
 #include <EditorFramework/Assets/AssetBrowserFolderView.moc.h>
 #include <EditorFramework/Assets/AssetBrowserModel.moc.h>
 #include <EditorFramework/Assets/AssetBrowserWidget.moc.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocumentGenerator.h>
+#include <EditorFramework/Assets/AssetProcessor.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
 #include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
-#include <ToolsFoundation/FileSystem/FileSystemModel.h>
-
-#include <EditorFramework/Assets/AssetProcessor.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <QFile>
+#include <ToolsFoundation/FileSystem/FileSystemModel.h>
 
 ezQtAssetBrowserWidget::ezQtAssetBrowserWidget(QWidget* pParent)
   : QWidget(pParent)
