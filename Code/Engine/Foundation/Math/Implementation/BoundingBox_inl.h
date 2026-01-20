@@ -344,7 +344,7 @@ Type ezBoundingBoxTemplate<Type>::GetDistanceSquaredTo(const ezBoundingBoxTempla
   EZ_NAN_ASSERT(this);
   EZ_NAN_ASSERT(&rhs);
 
-  Type fDistSQR = (Type)1.0;
+  Type fDistSQR = (Type)0.0;
 
   {
     if (rhs.m_vMin.x > m_vMax.x)
