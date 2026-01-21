@@ -229,20 +229,20 @@ void TestPlane()
   {
     {
       ezPlaneType p = ezPlaneType::MakeFromNormalAndPoint(ezVec3Type(1, 0, 0), ezVec3Type(10, 0, 0));
-      EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingBoxType::MakeFromMinMax(ezVec3Type(10.1), ezVec3Type(15))) == ezPositionOnPlane::Front);
-      EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingBoxType::MakeFromMinMax(ezVec3Type(7), ezVec3Type(9.9))) == ezPositionOnPlane::Back);
+      EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingBoxType::MakeFromMinMax(ezVec3Type((Type)10.1), ezVec3Type(15))) == ezPositionOnPlane::Front);
+      EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingBoxType::MakeFromMinMax(ezVec3Type(7), ezVec3Type((Type)9.9))) == ezPositionOnPlane::Back);
       EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingBoxType::MakeFromMinMax(ezVec3Type(7), ezVec3Type(15))) == ezPositionOnPlane::Spanning);
     }
     {
       ezPlaneType p = ezPlaneType::MakeFromNormalAndPoint(ezVec3Type(0, 1, 0), ezVec3Type(0, 10, 0));
-      EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingBoxType::MakeFromMinMax(ezVec3Type(10.1), ezVec3Type(15))) == ezPositionOnPlane::Front);
-      EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingBoxType::MakeFromMinMax(ezVec3Type(7), ezVec3Type(9.9))) == ezPositionOnPlane::Back);
+      EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingBoxType::MakeFromMinMax(ezVec3Type((Type)10.1), ezVec3Type(15))) == ezPositionOnPlane::Front);
+      EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingBoxType::MakeFromMinMax(ezVec3Type(7), ezVec3Type((Type)9.9))) == ezPositionOnPlane::Back);
       EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingBoxType::MakeFromMinMax(ezVec3Type(7), ezVec3Type(15))) == ezPositionOnPlane::Spanning);
     }
     {
       ezPlaneType p = ezPlaneType::MakeFromNormalAndPoint(ezVec3Type(0, 0, 1), ezVec3Type(0, 0, 10));
-      EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingBoxType::MakeFromMinMax(ezVec3Type(10.1), ezVec3Type(15))) == ezPositionOnPlane::Front);
-      EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingBoxType::MakeFromMinMax(ezVec3Type(7), ezVec3Type(9.9))) == ezPositionOnPlane::Back);
+      EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingBoxType::MakeFromMinMax(ezVec3Type((Type)10.1), ezVec3Type(15))) == ezPositionOnPlane::Front);
+      EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingBoxType::MakeFromMinMax(ezVec3Type(7), ezVec3Type((Type)9.9))) == ezPositionOnPlane::Back);
       EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingBoxType::MakeFromMinMax(ezVec3Type(7), ezVec3Type(15))) == ezPositionOnPlane::Spanning);
     }
   }
