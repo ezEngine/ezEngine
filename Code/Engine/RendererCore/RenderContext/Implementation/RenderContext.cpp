@@ -1002,7 +1002,7 @@ ezResult ezRenderContext::BuildVertexDeclaration(ezGALShaderHandle hShader, ezAr
       Otherwise, this is harmless, the renderer will ignore invalid drawcalls and once all the correct stuff is
       available, it will work.
       */
-
+      s_GALVertexDeclarations.Remove(it);
       ezLog::Warning("Failed to create vertex declaration");
       return EZ_FAILURE;
     }

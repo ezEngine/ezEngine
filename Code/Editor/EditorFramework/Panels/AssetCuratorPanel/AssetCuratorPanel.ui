@@ -86,22 +86,6 @@
           </property>
          </widget>
         </item>
-        <item>
-         <widget class="ezQtCuratorControl" name="CuratorControl" native="true">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>20</height>
-           </size>
-          </property>
-         </widget>
-        </item>
        </layout>
       </item>
       <item>
@@ -249,12 +233,6 @@
    <class>ezQtLogWidget</class>
    <extends>QWidget</extends>
    <header location="global">GuiFoundation/Widgets/LogWidget.moc.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>ezQtCuratorControl</class>
-   <extends>QWidget</extends>
-   <header location="global">EditorFramework/Panels/AssetBrowserPanel/CuratorControl.moc.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>

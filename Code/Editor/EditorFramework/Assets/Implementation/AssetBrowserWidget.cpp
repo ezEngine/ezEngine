@@ -1,20 +1,20 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
+#include <EditorFramework/Assets/AssetBrowserDlg.moc.h>
 #include <EditorFramework/Assets/AssetBrowserFilter.moc.h>
 #include <EditorFramework/Assets/AssetBrowserFolderView.moc.h>
 #include <EditorFramework/Assets/AssetBrowserModel.moc.h>
 #include <EditorFramework/Assets/AssetBrowserWidget.moc.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocumentGenerator.h>
+#include <EditorFramework/Assets/AssetProcessor.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
 #include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
-#include <ToolsFoundation/FileSystem/FileSystemModel.h>
-
-#include <EditorFramework/Assets/AssetProcessor.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <QFile>
+#include <ToolsFoundation/FileSystem/FileSystemModel.h>
 
 ezQtAssetBrowserWidget::ezQtAssetBrowserWidget(QWidget* pParent)
   : QWidget(pParent)
@@ -649,7 +649,22 @@ void ezQtAssetBrowserWidget::keyPressEvent(QKeyEvent* e)
   if (e->key() == Qt::Key_Delete && m_Mode == Mode::Browser)
   {
     e->accept();
-    DeleteSelection();
+
+    // For single asset selection, use Delete & Replace to handle references
+    QModelIndexList selection = ListAssets->selectionModel()->selectedIndexes();
+    if (selection.count() == 1)
+    {
+      const ezBitflags<ezAssetBrowserItemFlags> itemType =
+        (ezAssetBrowserItemFlags::Enum)selection[0].data(ezQtAssetBrowserModel::UserRoles::ItemFlags).toInt();
+
+      if (itemType.IsSet(ezAssetBrowserItemFlags::Asset) && !itemType.IsSet(ezAssetBrowserItemFlags::SubAsset))
+      {
+        DeleteAndReplaceSelection();
+        return;
+      }
+    }
+
+    DeleteSelection(true);
     return;
   }
 
@@ -689,7 +704,7 @@ void ezQtAssetBrowserWidget::RenameCurrent()
   }
 }
 
-void ezQtAssetBrowserWidget::DeleteSelection()
+void ezQtAssetBrowserWidget::DeleteSelection(bool bAskUser)
 {
   QModelIndexList selection = ListAssets->selectionModel()->selectedIndexes();
   for (const QModelIndex& id : selection)
@@ -702,9 +717,12 @@ void ezQtAssetBrowserWidget::DeleteSelection()
     }
   }
 
-  QMessageBox::StandardButton choice = ezQtUiServices::MessageBoxQuestion(ezFmt("Delete the selected file?\n\nThis operation cannot be undone."), QMessageBox::StandardButton::Cancel | QMessageBox::StandardButton::Yes, QMessageBox::StandardButton::Cancel);
-  if (choice == QMessageBox::StandardButton::Cancel)
-    return;
+  if (bAskUser)
+  {
+    QMessageBox::StandardButton choice = ezQtUiServices::MessageBoxQuestion(ezFmt("Delete the selected file?\n\nThis operation cannot be undone."), QMessageBox::StandardButton::Cancel | QMessageBox::StandardButton::Yes, QMessageBox::StandardButton::Cancel);
+    if (choice == QMessageBox::StandardButton::Cancel)
+      return;
+  }
 
   for (const QModelIndex& id : selection)
   {
@@ -728,6 +746,166 @@ void ezQtAssetBrowserWidget::DeleteSelection()
     }
     ezFileSystemModel::GetSingleton()->NotifyOfChange(sAbsPath);
   }
+}
+
+void ezQtAssetBrowserWidget::DeleteAndReplaceSelection()
+{
+  // Get the single selected item
+  QModelIndexList selection = ListAssets->selectionModel()->selectedIndexes();
+  if (selection.count() != 1)
+  {
+    ezQtUiServices::MessageBoxWarning("Delete & Replace only works with a single asset selection.");
+    return;
+  }
+
+  const QModelIndex& selectedIndex = selection[0];
+
+  // Verify it's an asset (not sub-asset, folder, etc.)
+  const ezBitflags<ezAssetBrowserItemFlags> itemType = (ezAssetBrowserItemFlags::Enum)selectedIndex.data(ezQtAssetBrowserModel::UserRoles::ItemFlags).toInt();
+  if (!itemType.IsSet(ezAssetBrowserItemFlags::Asset) || itemType.IsSet(ezAssetBrowserItemFlags::SubAsset))
+  {
+    ezQtUiServices::MessageBoxWarning("Delete & Replace only works with main assets, not sub-assets or files.");
+    return;
+  }
+
+  // Get the asset GUID and info
+  ezUuid assetGuid = selectedIndex.data(ezQtAssetBrowserModel::UserRoles::AssetGuid).value<ezUuid>();
+
+  const ezAssetCurator::ezLockedSubAsset pSubAsset = ezAssetCurator::GetSingleton()->GetSubAsset(assetGuid);
+  if (!pSubAsset.isValid())
+  {
+    ezQtUiServices::MessageBoxWarning("Could not retrieve asset information.");
+    return;
+  }
+
+  // Get asset type for filtering the replacement picker
+  ezString sAssetTypeName = pSubAsset->m_pAssetInfo->m_pDocumentTypeDescriptor->m_sDocumentTypeName;
+  ezString sAbsPath = pSubAsset->m_pAssetInfo->m_Path.GetAbsolutePath();
+
+  // Find all uses of this asset
+  ezSet<ezUuid> uses;
+  ezAssetCurator::GetSingleton()->FindAllUses(assetGuid, uses, false /* bTransitive */);
+
+  if (uses.IsEmpty())
+  {
+    // No references - just offer regular delete
+    QMessageBox::StandardButton choice = ezQtUiServices::MessageBoxQuestion(
+      "This asset is not referenced by any other assets.\n\nDo you want to delete it?",
+      QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::Cancel,
+      QMessageBox::StandardButton::Cancel);
+
+    if (choice == QMessageBox::StandardButton::Yes)
+    {
+      DeleteSelection(false);
+    }
+    return;
+  }
+
+  // Show warning about number of references
+  // Yes = choose replacement, No = delete without replacement, Cancel = abort
+  QMessageBox::StandardButton choice = ezQtUiServices::MessageBoxQuestion(
+    ezFmt("This asset is referenced by {} other asset(s).\n\n"
+          "Do you want to choose a replacement asset and update all references before deleting?",
+      uses.GetCount()),
+    QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No | QMessageBox::StandardButton::Cancel,
+    QMessageBox::StandardButton::Yes);
+
+  if (choice == QMessageBox::StandardButton::Cancel)
+    return;
+
+  if (choice == QMessageBox::StandardButton::No)
+  {
+    // Delete without replacement
+    DeleteSelection(false);
+    return;
+  }
+
+  // Show asset browser dialog to pick replacement (filtered to same asset type)
+  ezQtAssetBrowserDlg dlg(this, assetGuid, sAssetTypeName, "Select Replacement Asset");
+
+  if (dlg.exec() != QDialog::Accepted)
+    return;
+
+  ezUuid replacementGuid = dlg.GetSelectedAssetGuid();
+
+  // Verify replacement is valid and different
+  if (!replacementGuid.IsValid())
+  {
+    ezQtUiServices::MessageBoxWarning("No replacement asset was selected.");
+    return;
+  }
+
+  if (replacementGuid == assetGuid)
+  {
+    ezQtUiServices::MessageBoxWarning("The replacement asset must be different from the asset being deleted.");
+    return;
+  }
+
+  // Build reference strings (assets store references as UUID strings)
+  ezStringBuilder sOldReference;
+  ezConversionUtils::ToString(assetGuid, sOldReference);
+
+  ezStringBuilder sNewReference;
+  ezConversionUtils::ToString(replacementGuid, sNewReference);
+
+  // Perform replacements in all using documents
+  ezAssetCurator::ReplaceAssetResult result = ezAssetCurator::GetSingleton()->ReplaceAssetReferenceInUses(assetGuid, sOldReference, sNewReference);
+
+  // Build result message
+  ezStringBuilder sResultMsg;
+
+  if (result.m_uiDocumentsFailed > 0)
+  {
+    sResultMsg.SetFormat(
+      "Replacement partially completed:\n\n"
+      "- {} document(s) modified successfully\n"
+      "- {} document(s) failed\n"
+      "- {} property reference(s) replaced\n\n"
+      "The original asset was NOT deleted due to errors.\n\n"
+      "Errors:\n",
+      result.m_uiDocumentsModified,
+      result.m_uiDocumentsFailed,
+      result.m_uiPropertiesReplaced);
+
+    for (const ezString& error : result.m_Errors)
+    {
+      sResultMsg.Append("- ", error, "\n");
+    }
+
+    ezQtUiServices::MessageBoxWarning(sResultMsg);
+    return;
+  }
+
+  // All replacements succeeded - delete the original asset
+  QString sQtAbsPath = ezMakeQString(sAbsPath);
+  if (!QFile::moveToTrash(sQtAbsPath))
+  {
+    sResultMsg.SetFormat(
+      "Replacements completed successfully:\n"
+      "- {} document(s) modified\n"
+      "- {} property reference(s) replaced\n\n"
+      "However, failed to delete the original file:\n{}\n\n"
+      "You may need to delete it manually.",
+      result.m_uiDocumentsModified,
+      result.m_uiPropertiesReplaced,
+      sAbsPath);
+
+    ezQtUiServices::MessageBoxWarning(sResultMsg);
+    return;
+  }
+
+  ezFileSystemModel::GetSingleton()->NotifyOfChange(sAbsPath);
+
+  // Complete success
+  sResultMsg.SetFormat(
+    "Delete & Replace completed successfully:\n\n"
+    "- {} document(s) modified\n"
+    "- {} property reference(s) replaced\n"
+    "- Original asset deleted",
+    result.m_uiDocumentsModified,
+    result.m_uiPropertiesReplaced);
+
+  ezQtUiServices::MessageBoxInformation(sResultMsg);
 }
 
 void ezQtAssetBrowserWidget::OnImportAsAboutToShow()
@@ -1070,10 +1248,35 @@ void ezQtAssetBrowserWidget::on_ListAssets_customContextMenuRequested(const QPoi
       }
     }
 
-    // Delete
+    // Delete & Replace (single main asset only)
+    if (selection.count() == 1)
     {
-      QAction* pDelete = m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Delete.svg")), QLatin1String("Delete"), this, SLOT(DeleteSelection()));
+      const QModelIndex& firstItem = selection[0];
+      const ezBitflags<ezAssetBrowserItemFlags> firstItemType =
+        (ezAssetBrowserItemFlags::Enum)firstItem.data(ezQtAssetBrowserModel::UserRoles::ItemFlags).toInt();
+
+      if (firstItemType.IsSet(ezAssetBrowserItemFlags::Asset) &&
+          !firstItemType.IsSet(ezAssetBrowserItemFlags::SubAsset))
+      {
+        m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Delete.svg")),
+          QLatin1String("Delete && Replace..."),
+          this, SLOT(DeleteAndReplaceSelection()));
+      }
+      else if (bAllFiles)
+      {
+        // Single non-asset file or folder - show regular Delete
+        QAction* pDelete = m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Delete.svg")), QLatin1String("Delete"));
+        pDelete->setShortcut(QKeySequence("Del"));
+        connect(pDelete, &QAction::triggered, this, [this]()
+          { DeleteSelection(true); });
+      }
+    }
+    else // Delete (multiple selections)
+    {
+      QAction* pDelete = m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Delete.svg")), QLatin1String("Delete"));
       pDelete->setShortcut(QKeySequence("Del"));
+      connect(pDelete, &QAction::triggered, this, [this]()
+        { DeleteSelection(true); });
       if (!bAllFiles)
       {
         pDelete->setEnabled(false);

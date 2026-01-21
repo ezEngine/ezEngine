@@ -8,7 +8,6 @@
 class QStatusBar;
 class QLabel;
 struct ezToolsProjectEvent;
-class ezQtCuratorControl;
 
 /// \brief The application wide panel that shows and asset browser.
 class EZ_EDITORFRAMEWORK_DLL ezQtAssetBrowserPanel : public ezQtApplicationPanel, public Ui_AssetBrowserPanel
@@ -33,6 +32,4 @@ private:
   void ProjectEvents(const ezToolsProjectEvent& e);
 
   ezUuid m_LastSelected;
-  QStatusBar* m_pStatusBar;
-  ezQtCuratorControl* m_pCuratorControl;
 };

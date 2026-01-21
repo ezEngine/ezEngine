@@ -524,8 +524,6 @@ void ezJoltClothSheetComponent::SetupCloth()
 
     JPH::Ref<JPH::SoftBodySharedSettings> settings = CreateCloth(m_vNumVertices, m_vSize.CompDiv(ezVec2(static_cast<float>(m_vNumVertices.x - 1), static_cast<float>(m_vNumVertices.y - 1))), m_Flags, fPerVertexMass);
 
-    settings->mVertexRadius = m_fThickness;
-
     ezTransform t = GetOwner()->GetGlobalTransform();
 
     ezJoltUserData* pUserData = nullptr;
@@ -534,6 +532,7 @@ void ezJoltClothSheetComponent::SetupCloth()
 
     JPH::SoftBodyCreationSettings cloth(settings, ezJoltConversionUtils::ToVec3(t.m_vPosition), ezJoltConversionUtils::ToQuat(t.m_qRotation), ezJoltCollisionFiltering::ConstructObjectLayer(m_uiCollisionLayer, ezJoltBroadphaseLayer::Cloth));
 
+    cloth.mVertexRadius = m_fThickness;
     cloth.mPressure = 0.0f;
     cloth.mLinearDamping = m_fDamping;
     cloth.mGravityFactor = m_fGravityFactor;

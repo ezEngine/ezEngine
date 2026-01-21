@@ -2,6 +2,7 @@
 
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
+#include <EditorFramework/Panels/AssetBrowserPanel/CuratorControl.moc.h>
 
 #include <EditorFramework/Assets/AssetDocument.h>
 
@@ -10,6 +11,9 @@ ezQtEngineDocumentWindow::ezQtEngineDocumentWindow(ezAssetDocument* pDocument)
 {
   pDocument->m_ProcessMessageEvent.AddEventHandler(ezMakeDelegate(&ezQtEngineDocumentWindow::ProcessMessageEventHandler, this));
   pDocument->m_CommonAssetUiChangeEvent.AddEventHandler(ezMakeDelegate(&ezQtEngineDocumentWindow::CommonAssetUiEventHandler, this));
+
+  m_pCuratorControl = new ezQtCuratorControl(this);
+  statusBar()->addPermanentWidget(m_pCuratorControl, 0);
 }
 
 ezQtEngineDocumentWindow::~ezQtEngineDocumentWindow()

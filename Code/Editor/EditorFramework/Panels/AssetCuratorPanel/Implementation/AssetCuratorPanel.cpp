@@ -92,6 +92,8 @@ ezQtAssetCuratorPanel::ezQtAssetCuratorPanel(ads::CDockManager* pDockManager)
 
   TransformLog->ShowControls(false);
 
+  CuratorLog->setVisible(false);
+
   ListAssets->setModel(m_Model.data());
   ListAssets->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
   EZ_VERIFY(

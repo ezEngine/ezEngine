@@ -12,6 +12,7 @@ class QPushButton;
 class ezQtEngineViewWidget;
 class ezAssetDocument;
 class ezEditorEngineDocumentMsg;
+class ezQtCuratorControl;
 struct ezObjectPickingResult;
 struct ezEngineViewConfig;
 struct ezCommonAssetUiState;
@@ -66,6 +67,7 @@ public:
 protected:
   friend class ezQtEngineViewWidget;
   ezHybridArray<ezQtEngineViewWidget*, 4> m_ViewWidgets;
+  ezQtCuratorControl* m_pCuratorControl = nullptr;
 
   virtual void CommonAssetUiEventHandler(const ezCommonAssetUiState& e);
 

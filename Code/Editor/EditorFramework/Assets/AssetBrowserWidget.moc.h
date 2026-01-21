@@ -91,7 +91,8 @@ private Q_SLOTS:
   void ImportSelection();
   void OnOpenImportReferenceAsset();
   void RenameCurrent();
-  void DeleteSelection();
+  void DeleteSelection(bool bAskUser);
+  void DeleteAndReplaceSelection();
   void OnImportAsAboutToShow();
   void OnImportAsClicked();
   void OnExportAssetWithDependencies();

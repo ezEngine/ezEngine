@@ -6,7 +6,6 @@
 #include <Foundation/Basics.h>
 #include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
 
-class ezQtCuratorControl;
 struct ezLoggingEventData;
 
 class EZ_EDITORFRAMEWORK_DLL ezQtAssetCuratorFilter : public ezQtAssetFilter
