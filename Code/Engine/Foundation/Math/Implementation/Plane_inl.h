@@ -101,7 +101,7 @@ void ezPlaneTemplate<Type>::Transform(const ezMat3Template<Type>& m)
   }
   else
   {
-    *this = ezPlane::MakeFromNormalAndPoint(vTransformedNormal, m * vPointOnPlane);
+    *this = ezPlaneTemplate<Type>::MakeFromNormalAndPoint(vTransformedNormal, m * vPointOnPlane);
   }
 }
 
@@ -126,7 +126,7 @@ void ezPlaneTemplate<Type>::Transform(const ezMat4Template<Type>& m)
   }
   else
   {
-    *this = ezPlane::MakeFromNormalAndPoint(vTransformedNormal, m * vPointOnPlane);
+    *this = ezPlaneTemplate<Type>::MakeFromNormalAndPoint(vTransformedNormal, m * vPointOnPlane);
   }
 }
 
@@ -373,7 +373,7 @@ bool ezPlaneTemplate<Type>::GetRayIntersection(const ezVec3Template<Type>& vRayS
   const Type fPlaneSide = GetDistanceTo(vRayStartPos);
   const Type fCosAlpha = m_vNormal.Dot(vRayDir);
 
-  if (ezMath::IsZero(fCosAlpha, 0.00001f))                 // ray is orthogonal to plane
+  if (ezMath::IsZero(fCosAlpha, (Type)0.00001))                 // ray is orthogonal to plane
     return false;
 
   if (ezMath::Sign(fPlaneSide) == ezMath::Sign(fCosAlpha)) // ray points away from the plane
@@ -399,7 +399,7 @@ bool ezPlaneTemplate<Type>::GetRayIntersectionBiDirectional(const ezVec3Template
   const Type fPlaneSide = GetDistanceTo(vRayStartPos);
   const Type fCosAlpha = m_vNormal.Dot(vRayDir);
 
-  if (ezMath::IsZero(fCosAlpha, 0.00001f)) // ray is orthogonal to plane
+  if (ezMath::IsZero(fCosAlpha, (Type)0.00001)) // ray is orthogonal to plane
     return false;
 
   const Type fTime = -fPlaneSide / fCosAlpha;
