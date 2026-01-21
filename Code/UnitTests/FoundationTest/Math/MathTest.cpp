@@ -687,10 +687,10 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsZero")
   {
-    EZ_TEST_BOOL(ezMath::IsZero(0.009f, 0.01f) == true);
-    EZ_TEST_BOOL(ezMath::IsZero(0.001f, 0.01f) == true);
-    EZ_TEST_BOOL(ezMath::IsZero(0.009f, 0.0001f) == false);
-    EZ_TEST_BOOL(ezMath::IsZero(0.001f, 0.0001f) == false);
+    EZ_TEST_BOOL(ezMath::IsZero(0.009f, ezMath::HugeEpsilon<float>()) == true);
+    EZ_TEST_BOOL(ezMath::IsZero(0.001f, ezMath::HugeEpsilon<float>()) == true);
+    EZ_TEST_BOOL(ezMath::IsZero(0.009f, ezMath::SmallEpsilon<float>()) == false);
+    EZ_TEST_BOOL(ezMath::IsZero(0.001f, ezMath::SmallEpsilon<float>()) == false);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ColorFloatToByte")
