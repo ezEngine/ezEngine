@@ -290,7 +290,7 @@ void TestVec2()
     ezVec2Type v1(1, 2);
     ezVec2Type v2 = v1;
 
-    EZ_TEST_BOOL(v1.IsEqual(v2, (Type)0.00001));
+    EZ_TEST_BOOL(v1.IsEqual(v2, ezMath::DefaultEpsilon<Type>()));
 
     v2.x += (Type)0.001;
     EZ_TEST_BOOL(!v1.IsEqual(v2, (Type)0.0001));

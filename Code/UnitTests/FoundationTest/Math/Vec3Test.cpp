@@ -325,7 +325,7 @@ void TestVec3()
     {
       for (int j = 0; j < 3; ++j)
       {
-        EZ_TEST_FLOAT(compArray[i].GetAngleBetween(compArray[j]).GetDegree(), i == j ? 0.0f : 90.0f, 0.00001f);
+        EZ_TEST_FLOAT(compArray[i].GetAngleBetween(compArray[j]).GetDegree(), i == j ? 0.0f : 90.0f, ezMath::DefaultEpsilon<float>());
       }
     }
 

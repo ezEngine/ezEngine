@@ -205,8 +205,8 @@ void TestTransform()
     ezTransformType t3(ezVec3Type(1, 2, 3));
     t3.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngle::MakeFromDegree(90.01f));
 
-    EZ_TEST_BOOL(t.IsEqual(t3, (Type)0.01));
-    EZ_TEST_BOOL(!t.IsEqual(t3, (Type)0.00001));
+    EZ_TEST_BOOL(t.IsEqual(t3, ezMath::LargeEpsilon<Type>()));
+    EZ_TEST_BOOL(!t.IsEqual(t3, ezMath::DefaultEpsilon<Type>()));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator*(ezTransformType, ezTransformType)")
@@ -445,7 +445,7 @@ void TestTransform()
       ezMat4Type tmp = referenceTransform.GetAsMat4();
       refM = ezMat4Type::MakeFromColumnMajorArray(tmp.m_fElementsCM);
     }
-    EZ_TEST_BOOL(m.IsEqual(refM, (Type)0.00001));
+    EZ_TEST_BOOL(m.IsEqual(refM, ezMath::DefaultEpsilon<Type>()));
 
     ezVec3Type p[8] = {
       ezVec3Type(-4, 0, 0), ezVec3Type(5, 0, 0), ezVec3Type(0, -6, 0), ezVec3Type(0, 7, 0), ezVec3Type(0, 0, -8), ezVec3Type(0, 0, 9), ezVec3Type(1, -2, 3), ezVec3Type(-4, 5, 7)};
@@ -455,7 +455,7 @@ void TestTransform()
       ezVec3Type pt = t.TransformPosition(p[i]);
       ezVec3Type pm = m.TransformPosition(p[i]);
 
-      EZ_TEST_BOOL(pt.IsEqual(pm, (Type)0.00001));
+      EZ_TEST_BOOL(pt.IsEqual(pm, ezMath::DefaultEpsilon<Type>()));
     }
   }
 

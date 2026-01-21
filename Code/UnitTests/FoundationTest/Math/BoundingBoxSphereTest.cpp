@@ -34,7 +34,7 @@ void TestBoundingBoxSphere()
 
     EZ_TEST_BOOL(b.m_vCenter == ezVec3Type(2, 2, 2));
     EZ_TEST_BOOL(b.m_vBoxHalfExtents == ezVec3Type(1, 1, 1));
-    EZ_TEST_FLOAT(b.m_fSphereRadius, ezMath::Sqrt(Type(3)), Type(0.00001));
+    EZ_TEST_FLOAT(b.m_fSphereRadius, ezMath::Sqrt(Type(3)), ezMath::DefaultEpsilon<Type>());
     EZ_TEST_BOOL(b.GetBox() == box);
 
     b = ezBoundingBoxSphereType::MakeFromSphere(sphere);
@@ -60,7 +60,7 @@ void TestBoundingBoxSphere()
 
     EZ_TEST_BOOL(b.m_vCenter == ezVec3Type(0.5, 0.5, 0.5));
     EZ_TEST_BOOL(b.m_vBoxHalfExtents == ezVec3Type(4.5, 6.5, 8.5));
-    EZ_TEST_FLOAT(b.m_fSphereRadius, ezVec3Type(0.5, 0.5, 8.5).GetLength(), Type(0.00001));
+    EZ_TEST_FLOAT(b.m_fSphereRadius, ezVec3Type(0.5, 0.5, 8.5).GetLength(), ezMath::DefaultEpsilon<Type>());
     EZ_TEST_BOOL(b.m_fSphereRadius <= b.m_vBoxHalfExtents.GetLength());
   }
 
@@ -87,7 +87,7 @@ void TestBoundingBoxSphere()
 
     EZ_TEST_BOOL(b1.m_vCenter == ezVec3Type(2, 2, 2));
     EZ_TEST_BOOL(b1.m_vBoxHalfExtents == ezVec3Type(2, 2, 2));
-    EZ_TEST_FLOAT(b1.m_fSphereRadius, ezMath::Sqrt(Type(3)) * 2, Type(0.00001));
+    EZ_TEST_FLOAT(b1.m_fSphereRadius, ezMath::Sqrt(Type(3)) * 2, ezMath::DefaultEpsilon<Type>());
     EZ_TEST_BOOL(b1.m_fSphereRadius <= b1.m_vBoxHalfExtents.GetLength());
 
     b1 = ezBoundingBoxSphereType::MakeInvalid();
