@@ -332,7 +332,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Frustum)
 
     for (ezUInt32 i = 0; i < 8; ++i)
     {
-      EZ_TEST_BOOL(corners[i].IsEqual(corners2[i], 0.01f));
+      EZ_TEST_BOOL(corners[i].IsEqual(corners2[i], ezMath::HugeEpsilon<float>()));
     }
   }
 

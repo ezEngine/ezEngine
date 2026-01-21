@@ -302,6 +302,22 @@ namespace ezMath
   }
 
 
+    template <typename TYPE>
+  constexpr TYPE VeryVerySmallEpsilon()
+  {
+    if constexpr (std::is_same_v<TYPE, float>)
+    {
+      return (TYPE)0.00000001;  
+    }
+    else if constexpr (std::is_same_v<TYPE, double>)
+    {
+      return (TYPE)DBL_EPSILON*1.0;  
+    }
+    else
+    {
+      return (TYPE)0.00000001;  
+    }
+  }
   template <typename TYPE>
   constexpr TYPE VerySmallEpsilon()
   {

@@ -128,8 +128,8 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     EZ_TEST_FLOAT(ezMath::ASin(1.0f).GetDegree(), 90.0f, ezMath::DefaultEpsilon<float>());
     EZ_TEST_FLOAT(ezMath::ASin(-1.0f).GetDegree(), -90.0f, ezMath::DefaultEpsilon<float>());
 
-    EZ_TEST_FLOAT(ezMath::ASin(0.7071067f).GetDegree(), 45.0f, 0.0001f);
-    EZ_TEST_FLOAT(ezMath::ASin(-0.7071067f).GetDegree(), -45.0f, 0.0001f);
+    EZ_TEST_FLOAT(ezMath::ASin(0.7071067f).GetDegree(), 45.0f, ezMath::SmallEpsilon<float>());
+    EZ_TEST_FLOAT(ezMath::ASin(-0.7071067f).GetDegree(), -45.0f, ezMath::SmallEpsilon<float>());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ACos")
@@ -138,8 +138,8 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     EZ_TEST_FLOAT(ezMath::ACos(1.0f).GetDegree(), 0.0f, ezMath::DefaultEpsilon<float>());
     EZ_TEST_FLOAT(ezMath::ACos(-1.0f).GetDegree(), 180.0f, ezMath::LargeEpsilon<float>());
 
-    EZ_TEST_FLOAT(ezMath::ACos(0.7071067f).GetDegree(), 45.0f, 0.0001f);
-    EZ_TEST_FLOAT(ezMath::ACos(-0.7071067f).GetDegree(), 135.0f, 0.0001f);
+    EZ_TEST_FLOAT(ezMath::ACos(0.7071067f).GetDegree(), 45.0f, ezMath::SmallEpsilon<float>());
+    EZ_TEST_FLOAT(ezMath::ACos(-0.7071067f).GetDegree(), 135.0f, ezMath::SmallEpsilon<float>());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ATan")
@@ -273,9 +273,9 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Sign")
   {
-    EZ_TEST_FLOAT(0.0f, ezMath::Sign(0.0f), 0.00000001f);
-    EZ_TEST_FLOAT(1.0f, ezMath::Sign(0.01f), 0.00000001f);
-    EZ_TEST_FLOAT(-1.0f, ezMath::Sign(-0.01f), 0.00000001f);
+    EZ_TEST_FLOAT(0.0f, ezMath::Sign(0.0f), ezMath::VeryVerySmallEpsilon<float>());
+    EZ_TEST_FLOAT(1.0f, ezMath::Sign(0.01f), ezMath::VeryVerySmallEpsilon<float>());
+    EZ_TEST_FLOAT(-1.0f, ezMath::Sign(-0.01f), ezMath::VeryVerySmallEpsilon<float>());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Abs")
@@ -652,10 +652,10 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsEqual")
   {
-    EZ_TEST_BOOL(ezMath::IsEqual(1.0f, 0.999f, 0.01f) == true);
-    EZ_TEST_BOOL(ezMath::IsEqual(1.0f, 1.001f, 0.01f) == true);
-    EZ_TEST_BOOL(ezMath::IsEqual(1.0f, 0.999f, 0.0001f) == false);
-    EZ_TEST_BOOL(ezMath::IsEqual(1.0f, 1.001f, 0.0001f) == false);
+    EZ_TEST_BOOL(ezMath::IsEqual(1.0f, 0.999f, ezMath::HugeEpsilon<float>()) == true);
+    EZ_TEST_BOOL(ezMath::IsEqual(1.0f, 1.001f, ezMath::HugeEpsilon<float>()) == true);
+    EZ_TEST_BOOL(ezMath::IsEqual(1.0f, 0.999f, ezMath::SmallEpsilon<float>()) == false);
+    EZ_TEST_BOOL(ezMath::IsEqual(1.0f, 1.001f, ezMath::SmallEpsilon<float>()) == false);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "NaN_Infinity")
