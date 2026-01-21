@@ -6,34 +6,34 @@ EZ_CREATE_SIMPLE_TEST(Math, Angle)
 {
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "DegToRad")
   {
-    EZ_TEST_FLOAT(ezAngleT::DegToRad(0.0f), 0.0f, ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(ezAngleT::DegToRad(45.0f), 0.785398163f, ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(ezAngleT::DegToRad(90.0f), 1.570796327f, ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(ezAngleT::DegToRad(120.0f), 2.094395102f, ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(ezAngleT::DegToRad(170.0f), 2.967059728f, ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(ezAngleT::DegToRad(180.0f), 3.141592654f, ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(ezAngleT::DegToRad(250.0f), 4.36332313f, ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(ezAngleT::DegToRad(320.0f), 5.585053606f, ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(ezAngleT::DegToRad(360.0f), 6.283185307f, ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(ezAngleT::DegToRad(700.0f), 12.217304764f, ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(ezAngleT::DegToRad(-123.0f), -2.14675498f, ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(ezAngleT::DegToRad(-1234.0f), -21.53736297f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(ezAngle::DegToRad(0.0f), 0.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(ezAngle::DegToRad(45.0f), 0.785398163f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(ezAngle::DegToRad(90.0f), 1.570796327f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(ezAngle::DegToRad(120.0f), 2.094395102f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(ezAngle::DegToRad(170.0f), 2.967059728f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(ezAngle::DegToRad(180.0f), 3.141592654f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(ezAngle::DegToRad(250.0f), 4.36332313f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(ezAngle::DegToRad(320.0f), 5.585053606f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(ezAngle::DegToRad(360.0f), 6.283185307f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(ezAngle::DegToRad(700.0f), 12.217304764f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(ezAngle::DegToRad(-123.0f), -2.14675498f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(ezAngle::DegToRad(-1234.0f), -21.53736297f, ezMath::DefaultEpsilon<float>());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "RadToDeg")
   {
-    EZ_TEST_FLOAT(ezAngleT::RadToDeg(0.0f), 0.0f, ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(ezAngleT::RadToDeg(0.785398163f), 45.0f, ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(ezAngleT::RadToDeg(1.570796327f), 90.0f, ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(ezAngleT::RadToDeg(2.094395102f), 120.0f, ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(ezAngleT::RadToDeg(2.967059728f), 170.0f, ezMath::LargeEpsilon<float>());
-    EZ_TEST_FLOAT(ezAngleT::RadToDeg(3.141592654f), 180.0f, ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(ezAngleT::RadToDeg(4.36332313f), 250.0f, ezMath::LargeEpsilon<float>());
-    EZ_TEST_FLOAT(ezAngleT::RadToDeg(5.585053606f), 320.0f, ezMath::LargeEpsilon<float>());
-    EZ_TEST_FLOAT(ezAngleT::RadToDeg(6.283185307f), 360.0f, ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(ezAngleT::RadToDeg(12.217304764f), 700.0f, ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(ezAngleT::RadToDeg(-2.14675498f), -123.0f, ezMath::DefaultEpsilon<float>());
-    EZ_TEST_FLOAT(ezAngleT::RadToDeg(-21.53736297f), -1234.0f, ezMath::HugeEpsilon<float>());
+    EZ_TEST_FLOAT(ezAngle::RadToDeg(0.0f), 0.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(ezAngle::RadToDeg(0.785398163f), 45.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(ezAngle::RadToDeg(1.570796327f), 90.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(ezAngle::RadToDeg(2.094395102f), 120.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(ezAngle::RadToDeg(2.967059728f), 170.0f, ezMath::LargeEpsilon<float>());
+    EZ_TEST_FLOAT(ezAngle::RadToDeg(3.141592654f), 180.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(ezAngle::RadToDeg(4.36332313f), 250.0f, ezMath::LargeEpsilon<float>());
+    EZ_TEST_FLOAT(ezAngle::RadToDeg(5.585053606f), 320.0f, ezMath::LargeEpsilon<float>());
+    EZ_TEST_FLOAT(ezAngle::RadToDeg(6.283185307f), 360.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(ezAngle::RadToDeg(12.217304764f), 700.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(ezAngle::RadToDeg(-2.14675498f), -123.0f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(ezAngle::RadToDeg(-21.53736297f), -1234.0f, ezMath::HugeEpsilon<float>());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Init")
@@ -42,11 +42,11 @@ EZ_CREATE_SIMPLE_TEST(Math, Angle)
     EZ_TEST_FLOAT(a0.GetRadian(), 0.0f, 0.0f);
     EZ_TEST_FLOAT(a0.GetDegree(), 0.0f, 0.0f);
 
-    ezAngleT a1 = ezAngleT::MakeFromRadian(1.570796327f);
+    ezAngle a1 = ezAngle::MakeFromRadian(1.570796327f);
     EZ_TEST_FLOAT(a1.GetRadian(), 1.570796327f, ezMath::DefaultEpsilon<float>());
     EZ_TEST_FLOAT(a1.GetDegree(), 90.0f, ezMath::DefaultEpsilon<float>());
 
-    ezAngleT a2 = ezAngleT::MakeFromDegree(90);
+    ezAngle a2 = ezAngle::MakeFromDegree(90);
     EZ_TEST_FLOAT(a2.GetRadian(), 1.570796327f, ezMath::DefaultEpsilon<float>());
     EZ_TEST_FLOAT(a2.GetDegree(), 90.0f, ezMath::DefaultEpsilon<float>());
   }
