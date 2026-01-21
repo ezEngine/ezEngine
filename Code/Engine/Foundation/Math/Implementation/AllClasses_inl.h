@@ -35,15 +35,15 @@ template <typename Type>
 void ezBoundingSphereTemplate<Type>::ExpandToInclude(const ezBoundingBoxTemplate<Type>& rhs)
 {
   // compute the min and max extends of the AABB relative to the sphere (sphere center is the new origin)
-  const ezVec3 vDiffMax = rhs.m_vMax - m_vCenter;
-  const ezVec3 vDiffMin = rhs.m_vMin - m_vCenter;
+  const ezVec3Template<Type> vDiffMax = rhs.m_vMax - m_vCenter;
+  const ezVec3Template<Type> vDiffMin = rhs.m_vMin - m_vCenter;
 
   // compute the absolute distance to each AABB extremum, per axis
-  const ezVec3 vDiffMaxAbs(ezMath::Abs(vDiffMax.x), ezMath::Abs(vDiffMax.y), ezMath::Abs(vDiffMax.z));
-  const ezVec3 vDiffMinAbs(ezMath::Abs(vDiffMin.x), ezMath::Abs(vDiffMin.y), ezMath::Abs(vDiffMin.z));
+  const ezVec3Template<Type> vDiffMaxAbs(ezMath::Abs(vDiffMax.x), ezMath::Abs(vDiffMax.y), ezMath::Abs(vDiffMax.z));
+  const ezVec3Template<Type> vDiffMinAbs(ezMath::Abs(vDiffMin.x), ezMath::Abs(vDiffMin.y), ezMath::Abs(vDiffMin.z));
 
   // take the maximum distance for each axis, to compute the point that is the farthest away from the sphere
-  const ezVec3 vMostDistantPoint = vDiffMinAbs.CompMax(vDiffMaxAbs);
+  const ezVec3Template<Type> vMostDistantPoint = vDiffMinAbs.CompMax(vDiffMaxAbs);
 
   const Type fDistSQR = vMostDistantPoint.GetLengthSquared();
 
@@ -63,15 +63,15 @@ template <typename Type>
 bool ezBoundingSphereTemplate<Type>::Contains(const ezBoundingBoxTemplate<Type>& rhs) const
 {
   // compute the min and max extends of the AABB relative to the sphere (sphere center is the new origin)
-  const ezVec3 vDiffMax = rhs.m_vMax - m_vCenter;
-  const ezVec3 vDiffMin = rhs.m_vMin - m_vCenter;
+  const ezVec3Template<Type> vDiffMax = rhs.m_vMax - m_vCenter;
+  const ezVec3Template<Type> vDiffMin = rhs.m_vMin - m_vCenter;
 
   // compute the absolute distance to each AABB extremum, per axis
-  const ezVec3 vDiffMaxAbs(ezMath::Abs(vDiffMax.x), ezMath::Abs(vDiffMax.y), ezMath::Abs(vDiffMax.z));
-  const ezVec3 vDiffMinAbs(ezMath::Abs(vDiffMin.x), ezMath::Abs(vDiffMin.y), ezMath::Abs(vDiffMin.z));
+  const ezVec3Template<Type> vDiffMaxAbs(ezMath::Abs(vDiffMax.x), ezMath::Abs(vDiffMax.y), ezMath::Abs(vDiffMax.z));
+  const ezVec3Template<Type> vDiffMinAbs(ezMath::Abs(vDiffMin.x), ezMath::Abs(vDiffMin.y), ezMath::Abs(vDiffMin.z));
 
   // take the maximum distance for each axis, to compute the point that is the farthest away from the sphere
-  const ezVec3 vMostDistantPoint = vDiffMinAbs.CompMax(vDiffMaxAbs);
+  const ezVec3Template<Type> vMostDistantPoint = vDiffMinAbs.CompMax(vDiffMaxAbs);
 
   // if the squared length of that point is still smaller than the sphere radius, it is inside the sphere
   // and thus the whole AABB is inside the sphere

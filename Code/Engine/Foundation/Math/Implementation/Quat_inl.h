@@ -148,10 +148,10 @@ EZ_ALWAYS_INLINE const ezQuatTemplate<Type> operator*(const ezQuatTemplate<Type>
 
   q.w = q1.w * q2.w - (q1.x * q2.x + q1.y * q2.y + q1.z * q2.z);
 
-  const ezVec3 v1 = q1.GetVectorPart();
-  const ezVec3 v2 = q2.GetVectorPart();
+  const ezVec3Template<Type> v1 = q1.GetVectorPart();
+  const ezVec3Template<Type> v2 = q2.GetVectorPart();
 
-  const ezVec3 vr = q1.w * v2 + q2.w * v1 + v1.CrossRH(v2);
+  const ezVec3Template<Type> vr = q1.w * v2 + q2.w * v1 + v1.CrossRH(v2);
   q.x = vr.x;
   q.y = vr.y;
   q.z = vr.z;

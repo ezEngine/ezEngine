@@ -270,8 +270,8 @@ template <typename Type>
 void ezBoundingBoxTemplate<Type>::ScaleFromCenter(const ezVec3Template<Type>& vScale)
 {
   const ezVec3Template<Type> vCenter = GetCenter();
-  const ezVec3 vNewMin = vCenter + (m_vMin - vCenter).CompMul(vScale);
-  const ezVec3 vNewMax = vCenter + (m_vMax - vCenter).CompMul(vScale);
+  const ezVec3Template<Type> vNewMin = vCenter + (m_vMin - vCenter).CompMul(vScale);
+  const ezVec3Template<Type> vNewMax = vCenter + (m_vMax - vCenter).CompMul(vScale);
 
   // this is necessary for negative scalings to work as expected
   m_vMin = vNewMin.CompMin(vNewMax);
@@ -281,8 +281,8 @@ void ezBoundingBoxTemplate<Type>::ScaleFromCenter(const ezVec3Template<Type>& vS
 template <typename Type>
 EZ_FORCE_INLINE void ezBoundingBoxTemplate<Type>::ScaleFromOrigin(const ezVec3Template<Type>& vScale)
 {
-  const ezVec3 vNewMin = m_vMin.CompMul(vScale);
-  const ezVec3 vNewMax = m_vMax.CompMul(vScale);
+  const ezVec3Template<Type> vNewMin = m_vMin.CompMul(vScale);
+  const ezVec3Template<Type> vNewMax = m_vMax.CompMul(vScale);
 
   // this is necessary for negative scalings to work as expected
   m_vMin = vNewMin.CompMin(vNewMax);
@@ -344,7 +344,7 @@ Type ezBoundingBoxTemplate<Type>::GetDistanceSquaredTo(const ezBoundingBoxTempla
   EZ_NAN_ASSERT(this);
   EZ_NAN_ASSERT(&rhs);
 
-  Type fDistSQR = 0.0f;
+  Type fDistSQR = (Type)0.0;
 
   {
     if (rhs.m_vMin.x > m_vMax.x)
@@ -402,16 +402,16 @@ bool ezBoundingBoxTemplate<Type>::GetRayIntersection(const ezVec3Template<Type>&
 
   EZ_NAN_ASSERT(this);
 
-  float tMin, tMax;
+  Type tMin, tMax;
 
   // Compare along X and Z axis, find intersection point
   {
-    float tMinY, tMaxY;
+    Type tMinY, tMaxY;
 
-    const float fDivX = 1.0f / vRayDir.x;
-    const float fDivY = 1.0f / vRayDir.y;
+    const Type fDivX = (Type)1.0 / vRayDir.x;
+    const Type fDivY = (Type)1.0 / vRayDir.y;
 
-    if (vRayDir.x >= 0.0f)
+    if (vRayDir.x >= (Type)0.0)
     {
       tMin = (m_vMin.x - vStartPos.x) * fDivX;
       tMax = (m_vMax.x - vStartPos.x) * fDivX;
@@ -422,7 +422,7 @@ bool ezBoundingBoxTemplate<Type>::GetRayIntersection(const ezVec3Template<Type>&
       tMax = (m_vMin.x - vStartPos.x) * fDivX;
     }
 
-    if (vRayDir.y >= 0.0f)
+    if (vRayDir.y >= (Type)0.0)
     {
       tMinY = (m_vMin.y - vStartPos.y) * fDivY;
       tMaxY = (m_vMax.y - vStartPos.y) * fDivY;
@@ -444,11 +444,11 @@ bool ezBoundingBoxTemplate<Type>::GetRayIntersection(const ezVec3Template<Type>&
 
   // Compare along Z axis and previous result, find intersection point
   {
-    float tMinZ, tMaxZ;
+    Type tMinZ, tMaxZ;
 
-    const float fDivZ = 1.0f / vRayDir.z;
+    const Type fDivZ = (Type)1.0 / vRayDir.z;
 
-    if (vRayDir.z >= 0.0f)
+    if (vRayDir.z >= (Type)0.0)
     {
       tMinZ = (m_vMin.z - vStartPos.z) * fDivZ;
       tMaxZ = (m_vMax.z - vStartPos.z) * fDivZ;
@@ -469,7 +469,7 @@ bool ezBoundingBoxTemplate<Type>::GetRayIntersection(const ezVec3Template<Type>&
   }
 
   // rays that start inside the box are considered as not hitting the box
-  if (tMax <= 0.0f)
+  if (tMax <= (Type)0.0)
     return false;
 
   if (out_pIntersectionDistance)
@@ -486,14 +486,14 @@ bool ezBoundingBoxTemplate<Type>::GetLineSegmentIntersection(const ezVec3Templat
 {
   const ezVec3Template<Type> vRayDir = vEndPos - vStartPos;
 
-  Type fIntersection = 0.0f;
+  Type fIntersection = (Type)0.0;
   if (!GetRayIntersection(vStartPos, vRayDir, &fIntersection, out_pIntersection))
     return false;
 
   if (out_pLineFraction)
     *out_pLineFraction = fIntersection;
 
-  return fIntersection <= 1.0f;
+  return fIntersection <= (Type)1.0;
 }
 
 

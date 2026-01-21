@@ -348,7 +348,7 @@ ezAngle ezVec3Template<Type>::GetAngleBetween(const ezVec3Template<Type>& vForwa
   EZ_ASSERT_DEBUG(vForward.IsNormalized(), "The other vector must be normalized. Length is: {}", vForward.GetLength());
   EZ_ASSERT_DEBUG(vUp.IsNormalized(), "The other vector must be normalized. Length is: {}", vUp.GetLength());
 
-  const ezVec3 vRight = vForward.CrossRH(vUp).GetNormalized();
+  const ezVec3Template<Type> vRight = vForward.CrossRH(vUp).GetNormalized();
   const ezAngle shortAngle = GetAngleBetween(vForward);
 
   if (this->Dot(vRight) < 0) // more than 90 degrees away from it
