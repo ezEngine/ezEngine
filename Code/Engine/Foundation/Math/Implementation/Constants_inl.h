@@ -401,6 +401,23 @@ namespace ezMath
       return (TYPE)0.001; 
     }
   }
+  template <typename TYPE>
+  constexpr TYPE VeryHugeEpsilon()
+  {
+    if constexpr (std::is_same_v<TYPE, float>)
+    {
+      return (TYPE)0.01; 
+    }
+    else if constexpr (std::is_same_v<TYPE, double>)
+    {
+      return (TYPE)DBL_EPSILON*100000.0; 
+    }
+    else
+    {
+      return (TYPE)0.01; 
+    }
+  }
+
 
   //////////////////////////////////////////////////////////////////////////
 
