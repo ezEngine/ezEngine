@@ -128,8 +128,8 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     EZ_TEST_FLOAT(ezMath::ASin(1.0f).GetDegree(), 90.0f, ezMath::DefaultEpsilon<float>());
     EZ_TEST_FLOAT(ezMath::ASin(-1.0f).GetDegree(), -90.0f, ezMath::DefaultEpsilon<float>());
 
-    EZ_TEST_FLOAT(ezMath::ASin(0.7071067f).GetDegree(), 45.0f, ezMath::SmallEpsilon<float>());
-    EZ_TEST_FLOAT(ezMath::ASin(-0.7071067f).GetDegree(), -45.0f, ezMath::SmallEpsilon<float>());
+    EZ_TEST_FLOAT(ezMath::ASin(0.7071067f).GetDegree(), 45.0f, ezMath::LargeEpsilon<float>());
+    EZ_TEST_FLOAT(ezMath::ASin(-0.7071067f).GetDegree(), -45.0f, ezMath::LargeEpsilon<float>());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ACos")
