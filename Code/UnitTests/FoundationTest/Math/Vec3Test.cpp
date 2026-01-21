@@ -315,17 +315,17 @@ void TestVec3()
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Common")
   {
-    const ezVec3Type vOp1(-4.0, 0.2f, -7.0f);
-    const ezVec3Type vOp2(2.0, -0.3f, 0.5f);
+    const ezVec3Type vOp1((Type)-4.0, (Type)0.2, (Type)-7.0);
+    const ezVec3Type vOp2((Type)2.0, (Type)-0.3, (Type)0.5);
 
-    const ezVec3Type compArray[3] = {ezVec3Type(1.0f, 0.0f, 0.0f), ezVec3Type(0.0f, 1.0f, 0.0f), ezVec3Type(0.0f, 0.0f, 1.0f)};
+    const ezVec3Type compArray[3] = {ezVec3Type((Type)1.0, (Type)0.0, (Type)0.0), ezVec3Type((Type)0.0, (Type)1.0, (Type)0.0), ezVec3Type((Type)0.0, (Type)0.0, (Type)1.0)};
 
     // GetAngleBetween
     for (int i = 0; i < 3; ++i)
     {
       for (int j = 0; j < 3; ++j)
       {
-        EZ_TEST_FLOAT(compArray[i].GetAngleBetween(compArray[j]).GetDegree(), i == j ? 0.0f : 90.0f, ezMath::DefaultEpsilon<float>());
+        EZ_TEST_FLOAT(compArray[i].GetAngleBetween(compArray[j]).GetDegree(), i == j ? (Type)0.0 : (Type)90.0, ezMath::DefaultEpsilon<float>());
       }
     }
 
@@ -334,11 +334,11 @@ void TestVec3()
     {
       for (int j = 0; j < 3; ++j)
       {
-        EZ_TEST_FLOAT(compArray[i].Dot(compArray[j]), i == j ? 1.0f : 0.0f, ezMath::SmallEpsilon<Type>());
+        EZ_TEST_FLOAT(compArray[i].Dot(compArray[j]), i == j ? (Type)1.0 : (Type)0.0, ezMath::SmallEpsilon<Type>());
       }
     }
-    EZ_TEST_FLOAT(vOp1.Dot(vOp2), -11.56f, ezMath::SmallEpsilon<Type>());
-    EZ_TEST_FLOAT(vOp2.Dot(vOp1), -11.56f, ezMath::SmallEpsilon<Type>());
+    EZ_TEST_FLOAT(vOp1.Dot(vOp2), (Type)-11.56, ezMath::SmallEpsilon<Type>());
+    EZ_TEST_FLOAT(vOp2.Dot(vOp1), (Type)-11.56, ezMath::SmallEpsilon<Type>());
 
     // Cross
     // Right-handed coordinate system check
