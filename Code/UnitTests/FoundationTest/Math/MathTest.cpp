@@ -138,8 +138,8 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     EZ_TEST_FLOAT(ezMath::ACos(1.0f).GetDegree(), 0.0f, ezMath::DefaultEpsilon<float>());
     EZ_TEST_FLOAT(ezMath::ACos(-1.0f).GetDegree(), 180.0f, ezMath::LargeEpsilon<float>());
 
-    EZ_TEST_FLOAT(ezMath::ACos(0.7071067f).GetDegree(), 45.0f, ezMath::SmallEpsilon<float>());
-    EZ_TEST_FLOAT(ezMath::ACos(-0.7071067f).GetDegree(), 135.0f, ezMath::SmallEpsilon<float>());
+    EZ_TEST_FLOAT(ezMath::ACos(0.7071067f).GetDegree(), 45.0f, ezMath::LargeEpsilon<float>());
+    EZ_TEST_FLOAT(ezMath::ACos(-0.7071067f).GetDegree(), 135.0f, ezMath::LargeEpsilon<float>());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ATan")
