@@ -154,13 +154,15 @@ namespace ezMath
   /// Wrapping happens in both positive and negative direction. Ie -0.1f will be wrapped to 0.9f and 1.1f will be wrapped to 0.1f.
   /// Note that here the value 1.0f is included in the range. Only values larger than 1.0f get wrapped back to zero.
   /// Therefore it is different to what 'Fraction' would return.
-  [[nodiscard]] float WrapFloat01(float fValue); // [tested]
+    template <typename T>
+  [[nodiscard]] T WrapFloat01(T fValue); // [tested]
 
   /// \brief Wraps a float value around to stay within the [min; max] range.
   ///
   /// Both fMinValue and fMaxValue are inclusive.
   /// Both values may be negative, but fMinValue has to be strictly smaller than fMaxValue.
-  [[nodiscard]] float WrapFloat(float fValue, float fMinValue, float fMaxValue); // [tested]
+    template <typename T>
+  [[nodiscard]] T WrapFloat(T fValue, T fMinValue, T fMaxValue); // [tested]
 
   /// \brief Clamps "value" to the range [0; 1]. Returns "value", if it is inside the range already
   template <typename T>

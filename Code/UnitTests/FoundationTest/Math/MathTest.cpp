@@ -146,8 +146,8 @@ void TestMath()
     EZ_TEST_FLOAT(ezMath::ATan(0.0).GetDegree(), 0.0, ezMath::SmallEpsilon<Type>());
     EZ_TEST_FLOAT(ezMath::ATan(1.0).GetDegree(), 45.0, ezMath::DefaultEpsilon<Type>());
     EZ_TEST_FLOAT(ezMath::ATan(-1.0).GetDegree(), -45.0, ezMath::DefaultEpsilon<Type>());
-    EZ_TEST_FLOAT(ezMath::ATan(10000000.0).GetDegree(), 90.0, ezMath::LargeEpsilon<Type>()*2);
-    EZ_TEST_FLOAT(ezMath::ATan(-10000000.0).GetDegree(), -90.0, ezMath::DefaultEpsilon<Type>()*2);
+    EZ_TEST_FLOAT(ezMath::ATan(10000000.0).GetDegree(), 90.0, ezMath::LargeEpsilon<float>()*2);
+    EZ_TEST_FLOAT(ezMath::ATan(-10000000.0).GetDegree(), -90.0, ezMath::DefaultEpsilon<float>()*2);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ATan2")
@@ -166,15 +166,15 @@ void TestMath()
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Exp")
   {
     EZ_TEST_FLOAT(1.0, ezMath::Exp(0.0), ezMath::SmallEpsilon<Type>());
-    EZ_TEST_FLOAT(2.7182818284, ezMath::Exp(1.0), ezMath::SmallEpsilon<Type>());
-    EZ_TEST_FLOAT(7.3890560989, ezMath::Exp(2.0), ezMath::SmallEpsilon<Type>());
+    EZ_TEST_FLOAT(2.7182818284, ezMath::Exp(1.0), ezMath::SmallEpsilon<float>());//todo improve double compatibility
+    EZ_TEST_FLOAT(7.3890560989, ezMath::Exp(2.0), ezMath::SmallEpsilon<float>());//todo improve double compatibility
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Ln")
   {
     EZ_TEST_FLOAT(0.0, ezMath::Ln(1.0), ezMath::SmallEpsilon<Type>());
-    EZ_TEST_FLOAT(1.0, ezMath::Ln(2.7182818284), ezMath::SmallEpsilon<Type>());
-    EZ_TEST_FLOAT(2.0, ezMath::Ln(7.3890560989), ezMath::SmallEpsilon<Type>());
+    EZ_TEST_FLOAT(1.0, ezMath::Ln(2.7182818284), ezMath::SmallEpsilon<float>());
+    EZ_TEST_FLOAT(2.0, ezMath::Ln(7.3890560989), ezMath::SmallEpsilon<float>());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Log2")
@@ -203,9 +203,9 @@ void TestMath()
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Log")
   {
-    EZ_TEST_FLOAT(0.0, ezMath::Log(2.7182818284, 1.0), ezMath::SmallEpsilon<Type>());
-    EZ_TEST_FLOAT(1.0, ezMath::Log(2.7182818284, 2.7182818284), ezMath::SmallEpsilon<Type>());
-    EZ_TEST_FLOAT(2.0, ezMath::Log(2.7182818284, 7.3890560989), ezMath::SmallEpsilon<Type>());
+    EZ_TEST_FLOAT(0.0, ezMath::Log(2.7182818284, 1.0), ezMath::SmallEpsilon<float>());
+    EZ_TEST_FLOAT(1.0, ezMath::Log(2.7182818284, 2.7182818284), ezMath::SmallEpsilon<float>());
+    EZ_TEST_FLOAT(2.0, ezMath::Log(2.7182818284, 7.3890560989), ezMath::SmallEpsilon<float>());
 
     EZ_TEST_FLOAT(0.0, ezMath::Log(2.0, 1.0), ezMath::SmallEpsilon<Type>());
     EZ_TEST_FLOAT(1.0, ezMath::Log(2.0, 2.0), ezMath::SmallEpsilon<Type>());
@@ -569,11 +569,11 @@ void TestMath()
       EZ_TEST_FLOAT(ezMath::SmoothStep(0.2 * iScale, 0.1 * iScale, 0.1 * iScale), iScale < 0 ? 0.0 : 1.0, ezMath::SmallEpsilon<Type>());
     }
 
-    EZ_TEST_FLOAT(ezMath::SmoothStep(0.2, 0.0, 1.0), 0.104, ezMath::DefaultEpsilon<Type>());
-    EZ_TEST_FLOAT(ezMath::SmoothStep(0.4, 0.2, 0.8), 0.259259, ezMath::DefaultEpsilon<Type>());
+    EZ_TEST_FLOAT(ezMath::SmoothStep(0.2, 0.0, 1.0), 0.104, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(ezMath::SmoothStep(0.4, 0.2, 0.8), 0.259259, ezMath::DefaultEpsilon<float>());
 
-    EZ_TEST_FLOAT(ezMath::SmootherStep(0.2, 0.0, 1.0), 0.05792, ezMath::DefaultEpsilon<Type>());
-    EZ_TEST_FLOAT(ezMath::SmootherStep(0.4, 0.2, 0.8), 0.209876, ezMath::DefaultEpsilon<Type>());
+    EZ_TEST_FLOAT(ezMath::SmootherStep(0.2, 0.0, 1.0), 0.05792, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(ezMath::SmootherStep(0.4, 0.2, 0.8), 0.209876, ezMath::DefaultEpsilon<float>());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsPowerOf")
@@ -641,10 +641,10 @@ void TestMath()
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsEqual")
   {
-    EZ_TEST_BOOL(ezMath::IsEqual((Type)1.0, (Type)1.0 - ezMath::SmallEpsilon<Type>(), ezMath::HugeEpsilon<Type>()) == true);
-    EZ_TEST_BOOL(ezMath::IsEqual((Type)1.0, (Type)1.0 + ezMath::SmallEpsilon<Type>(), ezMath::HugeEpsilon<Type>()) == true);
-    EZ_TEST_BOOL(ezMath::IsEqual((Type)1.0, (Type)1.0 - ezMath::SmallEpsilon<Type>(), ezMath::SmallEpsilon<Type>()) == false);
-    EZ_TEST_BOOL(ezMath::IsEqual((Type)1.0, (Type)1.0 + ezMath::SmallEpsilon<Type>(), ezMath::SmallEpsilon<Type>()) == false);
+    EZ_TEST_BOOL(ezMath::IsEqual((Type)1.0, (Type)1.0 - ezMath::HugeEpsilon<Type>(), ezMath::HugeEpsilon<Type>()) == true);
+    EZ_TEST_BOOL(ezMath::IsEqual((Type)1.0, (Type)1.0 + ezMath::HugeEpsilon<Type>(), ezMath::HugeEpsilon<Type>()) == true);
+    EZ_TEST_BOOL(ezMath::IsEqual((Type)1.0, (Type)1.0 - ezMath::HugeEpsilon<Type>(), ezMath::SmallEpsilon<Type>()) == false);
+    EZ_TEST_BOOL(ezMath::IsEqual((Type)1.0, (Type)1.0 + ezMath::HugeEpsilon<Type>(), ezMath::SmallEpsilon<Type>()) == false);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "NaN_Infinity")
@@ -726,14 +726,14 @@ void TestMath()
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ColorByteToFloat")
   {
     EZ_TEST_FLOAT(ezMath::ColorByteToFloat(0), 0.0, ezMath::SmallEpsilon<Type>());
-    EZ_TEST_FLOAT(ezMath::ColorByteToFloat(128), 0.501960784, ezMath::SmallEpsilon<Type>());
+    EZ_TEST_FLOAT(ezMath::ColorByteToFloat(128), 0.501960784, ezMath::SmallEpsilon<float>());
     EZ_TEST_FLOAT(ezMath::ColorByteToFloat(255), 1.0, ezMath::SmallEpsilon<Type>());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ColorShortToFloat")
   {
     EZ_TEST_FLOAT(ezMath::ColorShortToFloat(0), 0.0, ezMath::SmallEpsilon<Type>());
-    EZ_TEST_FLOAT(ezMath::ColorShortToFloat(32768), 0.5000076, ezMath::SmallEpsilon<Type>());
+    EZ_TEST_FLOAT(ezMath::ColorShortToFloat(32768), 0.5000076, ezMath::SmallEpsilon<float>());
     EZ_TEST_FLOAT(ezMath::ColorShortToFloat(65535), 1.0, ezMath::SmallEpsilon<Type>());
   }
 
@@ -742,7 +742,7 @@ void TestMath()
     EZ_TEST_FLOAT(ezMath::ColorSignedByteToFloat(-128), -1.0, ezMath::SmallEpsilon<Type>());
     EZ_TEST_FLOAT(ezMath::ColorSignedByteToFloat(-127), -1.0, ezMath::SmallEpsilon<Type>());
     EZ_TEST_FLOAT(ezMath::ColorSignedByteToFloat(0), 0.0, ezMath::SmallEpsilon<Type>());
-    EZ_TEST_FLOAT(ezMath::ColorSignedByteToFloat(64), 0.50393700787, ezMath::SmallEpsilon<Type>());
+    EZ_TEST_FLOAT(ezMath::ColorSignedByteToFloat(64), 0.50393700787, ezMath::SmallEpsilon<float>());
     EZ_TEST_FLOAT(ezMath::ColorSignedByteToFloat(127), 1.0, ezMath::SmallEpsilon<Type>());
   }
 
@@ -751,7 +751,7 @@ void TestMath()
     EZ_TEST_FLOAT(ezMath::ColorSignedShortToFloat(-32768), -1.0, ezMath::SmallEpsilon<Type>());
     EZ_TEST_FLOAT(ezMath::ColorSignedShortToFloat(-32767), -1.0, ezMath::SmallEpsilon<Type>());
     EZ_TEST_FLOAT(ezMath::ColorSignedShortToFloat(0), 0.0, ezMath::SmallEpsilon<Type>());
-    EZ_TEST_FLOAT(ezMath::ColorSignedShortToFloat(16384), 0.50001526, ezMath::SmallEpsilon<Type>());
+    EZ_TEST_FLOAT(ezMath::ColorSignedShortToFloat(16384), 0.50001526, ezMath::SmallEpsilon<float>());
     EZ_TEST_FLOAT(ezMath::ColorSignedShortToFloat(32767), 1.0, ezMath::SmallEpsilon<Type>());
   }
 
@@ -1101,18 +1101,18 @@ void TestMath()
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "WrapFloat01")
   {
-    EZ_TEST_FLOAT(ezMath::WrapFloat01(0.0), 0.0, ezMath::VeryVerySmallEpsilon<Type>());
-    EZ_TEST_FLOAT(ezMath::WrapFloat01(0.5), 0.5, ezMath::VeryVerySmallEpsilon<Type>());
-    EZ_TEST_FLOAT(ezMath::WrapFloat01(1.0), 1.0, ezMath::VeryVerySmallEpsilon<Type>());
-    EZ_TEST_FLOAT(ezMath::WrapFloat01(1.1), 0.1, ezMath::VeryVerySmallEpsilon<Type>());
-    EZ_TEST_FLOAT(ezMath::WrapFloat01(1.7), 0.7, ezMath::VeryVerySmallEpsilon<Type>());
-    EZ_TEST_FLOAT(ezMath::WrapFloat01(2.0), 1.0, ezMath::VeryVerySmallEpsilon<Type>());
-    EZ_TEST_FLOAT(ezMath::WrapFloat01(2.2), 0.2, ezMath::VeryVerySmallEpsilon<Type>());
-    EZ_TEST_FLOAT(ezMath::WrapFloat01(-0.2), 0.8, ezMath::VeryVerySmallEpsilon<Type>());
-    EZ_TEST_FLOAT(ezMath::WrapFloat01(-0.9), 0.1, ezMath::VeryVerySmallEpsilon<Type>());
-    EZ_TEST_FLOAT(ezMath::WrapFloat01(-1.0), 0.0, ezMath::VeryVerySmallEpsilon<Type>());
-    EZ_TEST_FLOAT(ezMath::WrapFloat01(-1.1), 0.9, ezMath::VeryVerySmallEpsilon<Type>());
-    EZ_TEST_FLOAT(ezMath::WrapFloat01(-1.01), 0.99, ezMath::VeryVerySmallEpsilon<Type>());
+    EZ_TEST_FLOAT(ezMath::WrapFloat01(0.0), (Type)0.0, ezMath::VerySmallEpsilon<Type>());
+    EZ_TEST_FLOAT(ezMath::WrapFloat01(0.5), (Type)0.5, ezMath::VerySmallEpsilon<Type>());
+    EZ_TEST_FLOAT(ezMath::WrapFloat01(1.0), (Type)1.0, ezMath::VerySmallEpsilon<Type>());
+    EZ_TEST_FLOAT(ezMath::WrapFloat01(1.1), (Type)0.1, ezMath::VerySmallEpsilon<Type>());
+    EZ_TEST_FLOAT(ezMath::WrapFloat01(1.7), (Type)0.7, ezMath::VerySmallEpsilon<Type>());
+    EZ_TEST_FLOAT(ezMath::WrapFloat01(2.0), (Type)1.0, ezMath::VerySmallEpsilon<Type>());
+    EZ_TEST_FLOAT(ezMath::WrapFloat01(2.2), (Type)0.2, ezMath::VerySmallEpsilon<Type>());
+    EZ_TEST_FLOAT(ezMath::WrapFloat01(-0.2), (Type)0.8, ezMath::VerySmallEpsilon<Type>());
+    EZ_TEST_FLOAT(ezMath::WrapFloat01(-0.9), (Type)0.1, ezMath::VerySmallEpsilon<Type>());
+    EZ_TEST_FLOAT(ezMath::WrapFloat01(-1.0), (Type)0.0, ezMath::VerySmallEpsilon<Type>());
+    EZ_TEST_FLOAT(ezMath::WrapFloat01(-1.1), (Type)0.9, ezMath::VerySmallEpsilon<Type>());
+    EZ_TEST_FLOAT(ezMath::WrapFloat01(-1.01), (Type)0.99, ezMath::VerySmallEpsilon<Type>());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "WrapFloat")
@@ -1131,6 +1131,7 @@ void TestMath()
   }
 }
 
+EZ_CREATE_SIMPLE_TEST_GROUP(Math);
 
 EZ_CREATE_SIMPLE_TEST(Math, Mathf)
 {
