@@ -302,7 +302,27 @@ namespace ezMath
   }
 
 
-    template <typename TYPE>
+
+  template <typename TYPE>
+  constexpr TYPE SqrtEpsilon()
+  {
+    if constexpr (std::is_same_v<TYPE, float>)
+    {
+      return (TYPE)0.000001; 
+    }
+    else if constexpr (std::is_same_v<TYPE, double>)
+    {
+      return (TYPE)0.000001; 
+    }
+    else
+    {
+      return (TYPE)0.000001; 
+    }
+  }
+
+
+
+  template <typename TYPE>
   constexpr TYPE VeryVerySmallEpsilon()
   {
     if constexpr (std::is_same_v<TYPE, float>)
