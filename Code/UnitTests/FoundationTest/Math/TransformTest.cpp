@@ -194,18 +194,18 @@ void TestTransform()
     ezTransformType t(ezVec3Type(1, 2, 3));
     t.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngleTemplate<Type>::MakeFromDegree(90));
 
-    EZ_TEST_BOOL(t.IsEqual(t, (Type)0.0001));
+    EZ_TEST_BOOL(t.IsEqual(t, ezMath::DefaultEpsilon<Type>()));
 
-    ezTransformType t2(ezVec3Type(1, 2, (Type)3.0002));
+    ezTransformType t2(ezVec3Type(1, 2, (Type)3 + 2*ezMath::DefaultEpsilon<Type>()));
     t2.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngleTemplate<Type>::MakeFromDegree(90));
 
-    EZ_TEST_BOOL(t.IsEqual(t2, (Type)0.001));
-    EZ_TEST_BOOL(!t.IsEqual(t2, (Type)0.0001));
+    EZ_TEST_BOOL(t.IsEqual(t2, ezMath::LargeEpsilon<Type>()));
+    EZ_TEST_BOOL(!t.IsEqual(t2, ezMath::DefaultEpsilon<Type>()));
 
     ezTransformType t3(ezVec3Type(1, 2, 3));
-    t3.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngleTemplate<Type>::MakeFromDegree(90.01f));
+    t3.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngleTemplate<Type>::MakeFromDegree(90 + ezMath::VeryHugeEpsilon<Type>()));
 
-    EZ_TEST_BOOL(t.IsEqual(t3, ezMath::LargeEpsilon<Type>()));
+    EZ_TEST_BOOL(t.IsEqual(t3, ezMath::VeryHugeEpsilon<Type>()));
     EZ_TEST_BOOL(!t.IsEqual(t3, ezMath::DefaultEpsilon<Type>()));
   }
 

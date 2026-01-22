@@ -31,7 +31,7 @@ EZ_IMPLEMENT_IF_FLOAT_TYPE ezVec3Template<Type> ezVec3Template<Type>::MakeRandom
 }
 
 template <typename Type>
-EZ_IMPLEMENT_IF_FLOAT_TYPE ezVec3Template<Type> ezVec3Template<Type>::MakeRandomDeviationX(ezRandom& inout_rng, const ezAngle& maxDeviation)
+EZ_IMPLEMENT_IF_FLOAT_TYPE ezVec3Template<Type> ezVec3Template<Type>::MakeRandomDeviationX(ezRandom& inout_rng, const ezAngleTemplate<Type>& maxDeviation)
 {
   const double twoPi = 2.0 * ezMath::Pi<double>();
 
@@ -47,7 +47,7 @@ EZ_IMPLEMENT_IF_FLOAT_TYPE ezVec3Template<Type> ezVec3Template<Type>::MakeRandom
 }
 
 template <typename Type>
-EZ_IMPLEMENT_IF_FLOAT_TYPE ezVec3Template<Type> ezVec3Template<Type>::MakeRandomDeviationY(ezRandom& inout_rng, const ezAngle& maxDeviation)
+EZ_IMPLEMENT_IF_FLOAT_TYPE ezVec3Template<Type> ezVec3Template<Type>::MakeRandomDeviationY(ezRandom& inout_rng, const ezAngleTemplate<Type>& maxDeviation)
 {
   ezVec3Template<Type> vec = MakeRandomDeviationX(inout_rng, maxDeviation);
   ezMath::Swap(vec.x, vec.y);
@@ -55,7 +55,7 @@ EZ_IMPLEMENT_IF_FLOAT_TYPE ezVec3Template<Type> ezVec3Template<Type>::MakeRandom
 }
 
 template <typename Type>
-EZ_IMPLEMENT_IF_FLOAT_TYPE ezVec3Template<Type> ezVec3Template<Type>::MakeRandomDeviationZ(ezRandom& inout_rng, const ezAngle& maxDeviation)
+EZ_IMPLEMENT_IF_FLOAT_TYPE ezVec3Template<Type> ezVec3Template<Type>::MakeRandomDeviationZ(ezRandom& inout_rng, const ezAngleTemplate<Type>& maxDeviation)
 {
   ezVec3Template<Type> vec = MakeRandomDeviationX(inout_rng, maxDeviation);
   ezMath::Swap(vec.x, vec.z);
@@ -63,7 +63,7 @@ EZ_IMPLEMENT_IF_FLOAT_TYPE ezVec3Template<Type> ezVec3Template<Type>::MakeRandom
 }
 
 template <typename Type>
-EZ_IMPLEMENT_IF_FLOAT_TYPE ezVec3Template<Type> ezVec3Template<Type>::MakeRandomDeviation(ezRandom& inout_rng, const ezAngle& maxDeviation, const ezVec3Template<Type>& vNormal)
+EZ_IMPLEMENT_IF_FLOAT_TYPE ezVec3Template<Type> ezVec3Template<Type>::MakeRandomDeviation(ezRandom& inout_rng, const ezAngleTemplate<Type>& maxDeviation, const ezVec3Template<Type>& vNormal)
 {
   // If you need to do this very often:
   // *** Pre-compute this once: ***

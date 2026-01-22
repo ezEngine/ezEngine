@@ -333,23 +333,23 @@ const ezVec3Template<Type> ezVec3Template<Type>::CrossRH(const ezVec3Template<Ty
 }
 
 template <typename Type>
-ezAngle ezVec3Template<Type>::GetAngleBetween(const ezVec3Template<Type>& rhs) const
+ezAngleTemplate<Type> ezVec3Template<Type>::GetAngleBetween(const ezVec3Template<Type>& rhs) const
 {
   EZ_ASSERT_DEBUG(this->IsNormalized(), "This vector must be normalized. Length is: {}", this->GetLength());
   EZ_ASSERT_DEBUG(rhs.IsNormalized(), "The other vector must be normalized. Length is: {}", rhs.GetLength());
 
-  return ezMath::ACos(static_cast<float>(ezMath::Clamp(this->Dot(rhs), (Type)-1, (Type)1)));
+  return ezMath::ACos<Type>(static_cast<Type>(ezMath::Clamp(this->Dot(rhs), (Type)-1, (Type)1)));
 }
 
 template <typename Type>
-ezAngle ezVec3Template<Type>::GetAngleBetween(const ezVec3Template<Type>& vForward, const ezVec3Template<Type>& vUp) const
+ezAngleTemplate<Type> ezVec3Template<Type>::GetAngleBetween(const ezVec3Template<Type>& vForward, const ezVec3Template<Type>& vUp) const
 {
   EZ_ASSERT_DEBUG(this->IsNormalized(), "This vector must be normalized. Length is: {}", this->GetLength());
   EZ_ASSERT_DEBUG(vForward.IsNormalized(), "The other vector must be normalized. Length is: {}", vForward.GetLength());
   EZ_ASSERT_DEBUG(vUp.IsNormalized(), "The other vector must be normalized. Length is: {}", vUp.GetLength());
 
   const ezVec3Template<Type> vRight = vForward.CrossRH(vUp).GetNormalized();
-  const ezAngle shortAngle = GetAngleBetween(vForward);
+  const ezAngleTemplate<Type> shortAngle = GetAngleBetween(vForward);
 
   if (this->Dot(vRight) < 0) // more than 90 degrees away from it
   {
