@@ -389,7 +389,7 @@ void TestBoundingSphere()
     for (ezUInt32 i = 0; i < 10000; ++i)
     {
       const ezVec3Type vDir =
-        ezVec3Type(ezMath::Sin(ezAngle::MakeFromDegree(i * 1.0f)), ezMath::Cos(ezAngle::MakeFromDegree(i * 3.0f)), ezMath::Cos(ezAngle::MakeFromDegree(i * 1.0f)))
+        ezVec3Type(ezMath::Sin(ezAngleTemplate<Type>::MakeFromDegree(i * 1.0f)), ezMath::Cos(ezAngleTemplate<Type>::MakeFromDegree(i * 3.0f)), ezMath::Cos(ezAngleTemplate<Type>::MakeFromDegree(i * 1.0f)))
           .GetNormalized();
       const ezVec3Type vTarget = vDir * s.m_fRadius + s.m_vCenter;
       const ezVec3Type vSource = vTarget + vDir * Type(5);
@@ -416,8 +416,8 @@ void TestBoundingSphere()
 
     for (ezUInt32 i = 0; i < 10000; ++i)
     {
-      const ezVec3Type vDir = ezVec3Type(ezMath::Sin(ezAngle::MakeFromDegree(i * Type(1))), ezMath::Cos(ezAngle::MakeFromDegree(i * Type(3))),
-        ezMath::Cos(ezAngle::MakeFromDegree(i * Type(1))))
+      const ezVec3Type vDir = ezVec3Type(ezMath::Sin(ezAngleTemplate<Type>::MakeFromDegree(i * Type(1))), ezMath::Cos(ezAngleTemplate<Type>::MakeFromDegree(i * Type(3))),
+        ezMath::Cos(ezAngleTemplate<Type>::MakeFromDegree(i * Type(1))))
                              .GetNormalized();
       const ezVec3Type vTarget = vDir * s.m_fRadius + s.m_vCenter - vDir;
       const ezVec3Type vSource = vTarget + vDir * Type(5);
