@@ -45,6 +45,19 @@ public:
 
   void GetDocumentWindows(ezHybridArray<ezQtDocumentWindow*, 16>& ref_windows);
 
+  struct DocumentWindowState
+  {
+    bool m_bFloating = false;
+  };
+
+  /// Saves the current state (floating/docked) of all document windows.
+  /// Call before restoring a layout.
+  void SaveDocumentWindowStates(ezMap<ads::CDockWidget*, DocumentWindowState>& out_states);
+
+  /// Restores document windows to their previous states after a layout change.
+  /// Call after restoring a layout.
+  void RestoreDocumentWindowStates(const ezMap<ads::CDockWidget*, DocumentWindowState>& states);
+
 protected:
   virtual bool eventFilter(QObject* obj, QEvent* e) override;
 

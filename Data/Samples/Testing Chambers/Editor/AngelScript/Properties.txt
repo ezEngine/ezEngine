@@ -156,6 +156,7 @@ Dimensions
 Directionality
 DisableTargetObjectOnNoHit
 Distance
+DistributionMode
 DocumentGuid
 DocumentType
 DodgerBlue
@@ -381,6 +382,8 @@ OcclusionDepthOffset
 OcclusionSampleRadius
 OcclusionSampleSpread
 OcclusionThreshold
+OffsetY
+OffsetZ
 OldLace
 OldStateName
 Olive
@@ -492,6 +495,7 @@ Scale
 ScriptClass
 SeaGreen
 SeaShell
+Seed
 SelfCollision
 SendEntryChangedMessage
 SetColorMode

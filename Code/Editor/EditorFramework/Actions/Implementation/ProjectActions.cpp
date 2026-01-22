@@ -1,6 +1,7 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <EditorFramework/Actions/ProjectActions.h>
+#include <EditorFramework/Actions/WindowLayoutActions.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocumentGenerator.h>
 #include <EditorFramework/CodeGen/CppProject.h>
@@ -257,6 +258,8 @@ void ezProjectActions::MapActions(ezStringView sMapping, const ezBitflags<ezStan
 
   pMap->MapAction(s_hShortcutEditor, "G.Editor.Settings", 1.0f);
   pMap->MapAction(s_hPreferencesDlg, "G.Editor.Settings", 2.0f);
+
+  ezWindowLayoutActions::MapActions(sMapping);
 
   if (menus.IsSet(ezStandardMenuTypes::Help))
   {

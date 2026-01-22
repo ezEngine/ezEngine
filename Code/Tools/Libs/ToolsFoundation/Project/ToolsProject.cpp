@@ -120,8 +120,6 @@ void ezToolsProject::SaveProjectState()
 {
   if (GetSingleton())
   {
-    GetSingleton()->m_bIsClosing = true;
-
     ezToolsProjectEvent e;
     e.m_pProject = GetSingleton();
     e.m_Type = ezToolsProjectEvent::Type::ProjectSaveState;

@@ -40,6 +40,9 @@ G.Help;&Help
 G.Project.Settings;Project Settings
 G.Plugins.Settings;Plugin Settings
 
+
+Panels.All;Show Panels
+
 # Engine
 
 Engine.ReloadResources;Reload Resources;Reloads resources, such as textures, if they have changed on disk.
@@ -286,3 +289,10 @@ ezVariantType::ColorGamma;ColorGamma
 
 ezCppProject::CppIDE;C++ IDE
 ezCompilerPreferences::CppCompiler;C++ Compiler
+
+
+# Window Layouts
+WindowLayout;Editor Layout
+Layout.DefaultPinned;Default (Pinned)
+Layout.DefaultUnpinned;Default (Unpinned)
+Layout.AbBottom;Asset Browser at Bottom

@@ -61,6 +61,7 @@ ExtremeShockwave
 Failed
 Fallen
 Falling
+FitToSegment
 Fixed
 FixedCornerBottomLeft
 FixedCornerBottomRight
@@ -158,6 +159,8 @@ RollXReactions
 RollYReactions
 RollZReactions
 Rope
+ScaleEvenly
+ScaleEvenlyPerSegment
 Seated
 SemiFixed
 SendMoveCharacterMsg

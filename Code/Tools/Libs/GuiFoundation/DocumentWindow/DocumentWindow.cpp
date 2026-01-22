@@ -12,6 +12,7 @@
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <QLabel>
 #include <QMessageBox>
+#include <QSettings>
 #include <QStatusBar>
 #include <ToolsFoundation/Document/Document.h>
 #include <ads/DockManager.h>
@@ -50,6 +51,9 @@ void ezQtDocumentWindow::Constructor()
 
   ezQtUiServices::s_Events.AddEventHandler(ezMakeDelegate(&ezQtDocumentWindow::UIServicesEventHandler, this));
   ezQtUiServices::s_TickEvent.AddEventHandler(ezMakeDelegate(&ezQtDocumentWindow::UIServicesTickEventHandler, this));
+
+  // Automatically restore the saved nested layout for this document window type
+  QMetaObject::invokeMethod(this, "SlotRestoreDocumentLayout", Qt::ConnectionType::QueuedConnection);
 }
 
 ezQtDocumentWindow::ezQtDocumentWindow(ezDocument* pDocument)
@@ -475,8 +479,64 @@ void ezQtDocumentWindow::OnStatusBarMessageChanged(const QString& sNewText)
   statusBar()->setPalette(pal);
 }
 
+void ezQtDocumentWindow::SlotRestoreDocumentLayout()
+{
+  if (m_pDockManager == nullptr)
+    return;
+
+  const char* szTypeName = metaObject()->className();
+
+  QSettings settings;
+  settings.beginGroup("DocumentWindowLayouts");
+  QByteArray state = settings.value(szTypeName).toByteArray();
+  settings.endGroup();
+
+  if (!state.isEmpty())
+  {
+    m_pDockManager->restoreState(state);
+  }
+
+  // Schedule capturing the initial state after the layout has stabilized
+  // This needs to happen after the window becomes visible and Qt does its layout adjustments
+  QMetaObject::invokeMethod(this, "SlotCaptureInitialLayoutState", Qt::ConnectionType::QueuedConnection);
+}
+
+void ezQtDocumentWindow::SlotCaptureInitialLayoutState()
+{
+  if (m_pDockManager == nullptr || !m_InitialDocumentLayoutState.isEmpty())
+    return;
+
+  // Only capture once the window is actually visible and layouts have stabilized
+  if (!isVisible())
+  {
+    // If not visible yet, try again later
+    QMetaObject::invokeMethod(this, "SlotCaptureInitialLayoutState", Qt::ConnectionType::QueuedConnection);
+    return;
+  }
+
+  // Capture the baseline state after Qt has done its layout adjustments
+  m_InitialDocumentLayoutState = m_pDockManager->saveState();
+}
+
 void ezQtDocumentWindow::ShutdownDocumentWindow()
 {
+  // Auto-save the document layout if it changed
+  if (m_pDockManager != nullptr && !m_InitialDocumentLayoutState.isEmpty())
+  {
+    QByteArray currentState = m_pDockManager->saveState();
+
+    // Only save if the layout actually changed
+    if (currentState != m_InitialDocumentLayoutState)
+    {
+      const char* szTypeName = metaObject()->className();
+
+      QSettings settings;
+      settings.beginGroup("DocumentWindowLayouts");
+      settings.setValue(szTypeName, currentState);
+      settings.endGroup();
+    }
+  }
+
   InternalCloseDocumentWindow();
 
   ezQtDocumentWindowEvent e;

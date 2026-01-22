@@ -153,15 +153,6 @@ void ezQtContainerWindow::UpdateWindowDecoration(ezQtDocumentWindow* pDocWindow)
   dock->setIcon(ezQtUiServices::GetCachedIconResource(pDocWindow->GetWindowIcon().GetData()));
   dock->setWindowTitle(QString::fromUtf8(pDocWindow->GetDisplayNameShort().GetData()));
 
-  // this is a hacky way to detect the ezQtSettingsTab
-  if (pDocWindow->GetDisplayNameShort().IsEmpty())
-  {
-    dock->setFeature(ads::CDockWidget::DockWidgetClosable, false);
-    dock->setFeature(ads::CDockWidget::DockWidgetMovable, false);
-    dock->setFeature(ads::CDockWidget::DockWidgetFloatable, false);
-    dock->setFeature(ads::CDockWidget::NoTab, true);
-  }
-
   if (dock->isFloating())
   {
     dock->dockContainer()->floatingWidget()->setWindowTitle(dock->windowTitle());
@@ -205,7 +196,7 @@ void ezQtContainerWindow::RemoveDocumentWindow(ezQtDocumentWindow* pDocWindow)
   {
     for (auto pDocWindow2 : m_DocumentWindows)
     {
-      UpdateWindowDecoration(pDocWindow);
+      UpdateWindowDecoration(pDocWindow2);
     }
   }
 }
@@ -247,6 +238,15 @@ void ezQtContainerWindow::AddDocumentWindow(ezQtDocumentWindow* pDocWindow)
 
   dock->setFeature(ads::CDockWidget::CustomCloseHandling, true);
   dock->setFeature(ads::CDockWidget::DockWidgetPinnable, false);
+
+  // this is a hacky way to detect the ezQtSettingsTab
+  if (displayName == "Settings")
+  {
+    dock->setFeature(ads::CDockWidget::DockWidgetClosable, false);
+    dock->setFeature(ads::CDockWidget::DockWidgetMovable, false);
+    dock->setFeature(ads::CDockWidget::DockWidgetFloatable, false);
+    dock->setFeature(ads::CDockWidget::NoTab, true);
+  }
 
   dock->setObjectName(pDocWindow->GetUniqueName());
   EZ_ASSERT_DEV(!dock->objectName().isEmpty(), "Dock name must not be empty.");
@@ -343,6 +343,69 @@ ezResult ezQtContainerWindow::EnsureVisible(ezQtApplicationPanel* pPanel)
   }
   pPanel->raise();
   return EZ_SUCCESS;
+}
+
+void ezQtContainerWindow::SaveDocumentWindowStates(ezMap<ads::CDockWidget*, DocumentWindowState>& out_states)
+{
+  out_states.Clear();
+  for (ads::CDockWidget* pDock : m_DocumentDocks)
+  {
+    DocumentWindowState state;
+    state.m_bFloating = pDock->isFloating();
+    out_states[pDock] = state;
+  }
+}
+
+void ezQtContainerWindow::RestoreDocumentWindowStates(const ezMap<ads::CDockWidget*, DocumentWindowState>& states)
+{
+  if (m_DocumentDocks.IsEmpty())
+    return;
+
+  // Find a dock area where documents are docked (not floating, not closed)
+  ads::CDockAreaWidget* pDocumentArea = nullptr;
+  for (ads::CDockWidget* pDock : m_DocumentDocks)
+  {
+    if (!pDock->isClosed() && !pDock->isFloating())
+    {
+      pDocumentArea = pDock->dockAreaWidget();
+      break;
+    }
+  }
+
+  // Restore each document window to its previous state
+  for (ads::CDockWidget* pDock : m_DocumentDocks)
+  {
+    auto it = states.Find(pDock);
+    const bool bWasFloating = it.IsValid() ? it.Value().m_bFloating : false;
+
+    if (pDock->isClosed())
+    {
+      if (bWasFloating)
+      {
+        // Was floating, make it floating again
+        m_pDockManager->addDockWidgetFloating(pDock);
+      }
+      else
+      {
+        // Was docked, re-dock it
+        if (pDocumentArea != nullptr)
+        {
+          m_pDockManager->addDockWidgetTabToArea(pDock, pDocumentArea);
+        }
+        else
+        {
+          // No area yet, add to center and use that as the document area
+          pDocumentArea = m_pDockManager->addDockWidgetTab(ads::CenterDockWidgetArea, pDock);
+        }
+      }
+    }
+    // If not closed, leave it as-is (it's already visible, either floating or docked)
+  }
+
+  for (auto pDocWindow : m_DocumentWindows)
+  {
+    UpdateWindowDecoration(pDocWindow);
+  }
 }
 
 ezResult ezQtContainerWindow::EnsureVisibleAnyContainer(ezDocument* pDocument)

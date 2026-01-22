@@ -27,7 +27,7 @@ struct ezQtDocumentWindowEvent
   };
 
   Type m_Type;
-  ezQtDocumentWindow* m_pWindow;
+  ezQtDocumentWindow* m_pWindow = nullptr;
 };
 
 /// \brief Base class for all document windows. Handles the most basic document window management.
@@ -95,6 +95,8 @@ private Q_SLOTS:
   void SlotQueuedDelete();
   void OnPermanentGlobalStatusClicked(bool);
   void OnStatusBarMessageChanged(const QString& sNewText);
+  void SlotRestoreDocumentLayout();
+  void SlotCaptureInitialLayoutState();
 
 private:
   void ShutdownDocumentWindow();
@@ -113,6 +115,7 @@ private:
   ezQtContainerWindow* m_pContainerWindow = nullptr;
   QLabel* m_pPermanentDocumentStatusText = nullptr;
   QToolButton* m_pPermanentGlobalStatusButton = nullptr;
+  QByteArray m_InitialDocumentLayoutState;
 
 private:
   void Constructor();

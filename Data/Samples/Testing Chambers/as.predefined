@@ -114,6 +114,13 @@ enum ezFillLightMode
   ModulateIndirect = 2,
 }
 
+enum ezSplineMeshDistributionMode
+{
+  FitToSegment = 0,
+  ScaleEvenly = 1,
+  ScaleEvenlyPerSegment = 2,
+}
+
 enum ezUpdateRate
 {
   EveryFrame = 0,
@@ -1210,6 +1217,7 @@ class ezComponent
   ezLodMeshComponent@ opCast();
   ezMeshComponent@ opCast();
   ezMeshComponentBase@ opCast();
+  ezSplineMeshComponent@ opCast();
   ezSensorComponent@ opCast();
   ezSensorSphereComponent@ opCast();
   ezSensorCylinderComponent@ opCast();
@@ -1288,6 +1296,7 @@ class ezComponent
   ezJoltDefaultCharacterComponent@ opCast();
   ezJoltBreakableSlabComponent@ opCast();
   ezJoltClothSheetComponent@ opCast();
+  ezJoltGenerateCollisionComponent@ opCast();
   ezJoltHitboxComponent@ opCast();
   ezJoltRagdollComponent@ opCast();
   ezJoltRopeComponent@ opCast();
@@ -1520,6 +1529,7 @@ class ezRenderComponent : ezComponent
   ezLodMeshComponent@ opCast();
   ezMeshComponent@ opCast();
   ezMeshComponentBase@ opCast();
+  ezSplineMeshComponent@ opCast();
   ezAnimatedMeshComponent@ opCast();
   ezLodAnimatedMeshComponent@ opCast();
   ezGreyBoxComponent@ opCast();
@@ -1846,6 +1856,7 @@ class ezMeshComponentBase : ezRenderComponent
 {
   ezInstancedMeshComponent@ opCast();
   ezMeshComponent@ opCast();
+  ezSplineMeshComponent@ opCast();
   ezAnimatedMeshComponent@ opCast();
 }
 
@@ -1870,6 +1881,17 @@ class ezLodMeshComponent : ezRenderComponent
 class ezMeshComponent : ezMeshComponentBase
 {
   ezStringView Mesh;
+  ezColor Color;
+  ezVec4 CustomData;
+  float SortingDepthOffset;
+}
+
+class ezSplineMeshComponent : ezMeshComponentBase
+{
+  ezSplineMeshDistributionMode DistributionMode;
+  int32 Seed;
+  float OffsetY;
+  float OffsetZ;
   ezColor Color;
   ezVec4 CustomData;
   float SortingDepthOffset;
@@ -2679,6 +2701,10 @@ class ezJoltClothSheetComponent : ezRenderComponent
   ezColor Color;
 }
 
+class ezJoltGenerateCollisionComponent : ezComponent
+{
+}
+
 class ezJoltHitboxComponent : ezComponent
 {
   uint GetObjectFilterID() const;
@@ -2960,7 +2986,7 @@ class ezRmlUiCanvas3DComponent : ezRmlUiCanvasComponentBase
   ezStringView ProxyMesh;
   ezStringView BaseMaterial;
   uint32 MaterialIndex;
-  ezString TextureSlotName;
+  ezStringView TextureSlotName;
   float DpiScale;
   bool ClearStaleInput;
   bool IsInteractive;

@@ -10,6 +10,7 @@
 #include <EditorFramework/Actions/TransformGizmoActions.h>
 #include <EditorFramework/Actions/ViewActions.h>
 #include <EditorFramework/Actions/ViewLightActions.h>
+#include <EditorFramework/Actions/WindowLayoutActions.h>
 #include <EditorFramework/CodeGen/CodeEditorPreferencesWidget.moc.h>
 #include <EditorFramework/CodeGen/CompilerPreferencesWidget.moc.h>
 #include <EditorFramework/CodeGen/CppProject.h>
@@ -103,6 +104,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezTransformGizmoActions::RegisterActions();
     ezTranslateGizmoAction::RegisterActions();
     ezCommonAssetActions::RegisterActions();
+    ezWindowLayoutActions::RegisterActions();
 
     // Default Asset Menu Bar
     // All asset menu bar mappings should derive from this to allow for actions to be defined that show up in every asset document editor's menu bar.
@@ -197,6 +199,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezTransformGizmoActions::UnregisterActions();
     ezTranslateGizmoAction::UnregisterActions();
     ezCommonAssetActions::UnregisterActions();
+    ezWindowLayoutActions::UnregisterActions();
 
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezFileBrowserAttribute>());
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezExternalFileBrowserAttribute>());
@@ -406,6 +409,12 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
   }
 
   LoadEditorPlugins();
+
+  if (!IsInHeadlessMode() && !IsInSafeMode())
+  {
+    ezWindowLayoutActions::RestoreUserLayout();
+  }
+
   CloseSplashScreen();
 
   m_bIsRunning = true;
@@ -479,7 +488,7 @@ void ezQtEditorApp::ShutdownEditor()
   m_bIsRunning = false;
   ezStackTraceLogParser::Unregister();
 
-  ezToolsProject::SaveProjectState();
+  // ezToolsProject::SaveProjectState();
 
   m_pTimer->stop();
 

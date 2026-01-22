@@ -16,7 +16,7 @@ ezString ezQtSettingsTab::GetWindowIcon() const
 
 ezString ezQtSettingsTab::GetDisplayNameShort() const
 {
-  return "";
+  return "Settings";
 }
 
 void ezQtEditorApp::ShowSettingsDocument()
