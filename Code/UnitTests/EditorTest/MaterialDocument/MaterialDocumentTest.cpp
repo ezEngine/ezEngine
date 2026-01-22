@@ -161,7 +161,7 @@ void ezMaterialDocumentTest::CaptureMaterialImage()
   ProcessEvents();
 
   // give the engine a bit of time to load the data
-  for (int i = 0; i < 40; ++i)
+  for (int i = 0; i < 100; ++i)
   {
     ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(50));
     ProcessEvents();
