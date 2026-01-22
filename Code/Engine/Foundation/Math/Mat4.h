@@ -1,7 +1,8 @@
 #pragma once
 
-#include <Foundation/Math/Angle.h>
+
 #include <Foundation/Math/Math.h>
+#include <Foundation/Math/Angle.h>
 #include <Foundation/Math/Vec3.h>
 #include <Foundation/Math/Vec4.h>
 
@@ -88,16 +89,16 @@ public:
   [[nodiscard]] static ezMat4Template<Type> MakeScaling(const ezVec3Template<Type>& vScale);
 
   /// \brief Creates a matrix that is a rotation matrix around the X-axis.
-  [[nodiscard]] static ezMat4Template<Type> MakeRotationX(ezAngle angle);
+  [[nodiscard]] static ezMat4Template<Type> MakeRotationX(ezAngleTemplate<Type> angle);
 
   /// \brief Creates a matrix that is a rotation matrix around the Y-axis.
-  [[nodiscard]] static ezMat4Template<Type> MakeRotationY(ezAngle angle);
+  [[nodiscard]] static ezMat4Template<Type> MakeRotationY(ezAngleTemplate<Type> angle);
 
   /// \brief Creates a matrix that is a rotation matrix around the Z-axis.
-  [[nodiscard]] static ezMat4Template<Type> MakeRotationZ(ezAngle angle);
+  [[nodiscard]] static ezMat4Template<Type> MakeRotationZ(ezAngleTemplate<Type> angle);
 
   /// \brief Creates a matrix that is a rotation matrix around the given axis.
-  [[nodiscard]] static ezMat4Template<Type> MakeAxisRotation(const ezVec3Template<Type>& vAxis, ezAngle angle);
+  [[nodiscard]] static ezMat4Template<Type> MakeAxisRotation(const ezVec3Template<Type>& vAxis, ezAngleTemplate<Type> angle);
 
   /// \brief Copies the 16 values of this matrix into the given array. 'layout' defines whether the data should end up in column-major or
   /// row-major format.

@@ -301,16 +301,16 @@ void TestMat4()
   {
     ezMat4Type m;
 
-    m = ezMat4Type::MakeRotationX(ezAngle::MakeFromDegree(90));
+    m = ezMat4Type::MakeRotationX(ezAngleTemplate<Type>::MakeFromDegree(90));
     EZ_TEST_BOOL((m * ezVec3Type(1, 2, 3)).IsEqual(ezVec3Type(1, -3, 2), ezMath::DefaultEpsilon<Type>()));
 
-    m = ezMat4Type::MakeRotationX(ezAngle::MakeFromDegree(180));
+    m = ezMat4Type::MakeRotationX(ezAngleTemplate<Type>::MakeFromDegree(180));
     EZ_TEST_BOOL((m * ezVec3Type(1, 2, 3)).IsEqual(ezVec3Type(1, -2, -3), ezMath::DefaultEpsilon<Type>()));
 
-    m = ezMat4Type::MakeRotationX(ezAngle::MakeFromDegree(270));
+    m = ezMat4Type::MakeRotationX(ezAngleTemplate<Type>::MakeFromDegree(270));
     EZ_TEST_BOOL((m * ezVec3Type(1, 2, 3)).IsEqual(ezVec3Type(1, 3, -2), ezMath::DefaultEpsilon<Type>()));
 
-    m = ezMat4Type::MakeRotationX(ezAngle::MakeFromDegree(360));
+    m = ezMat4Type::MakeRotationX(ezAngleTemplate<Type>::MakeFromDegree(360));
     EZ_TEST_BOOL((m * ezVec3Type(1, 2, 3)).IsEqual(ezVec3Type(1, 2, 3), ezMath::DefaultEpsilon<Type>()));
   }
 
@@ -318,16 +318,16 @@ void TestMat4()
   {
     ezMat4Type m;
 
-    m = ezMat4Type::MakeRotationY(ezAngle::MakeFromDegree(90));
+    m = ezMat4Type::MakeRotationY(ezAngleTemplate<Type>::MakeFromDegree(90));
     EZ_TEST_BOOL((m * ezVec3Type(1, 2, 3)).IsEqual(ezVec3Type(3, 2, -1), ezMath::DefaultEpsilon<Type>()));
 
-    m = ezMat4Type::MakeRotationY(ezAngle::MakeFromDegree(180));
+    m = ezMat4Type::MakeRotationY(ezAngleTemplate<Type>::MakeFromDegree(180));
     EZ_TEST_BOOL((m * ezVec3Type(1, 2, 3)).IsEqual(ezVec3Type(-1, 2, -3), ezMath::DefaultEpsilon<Type>()));
 
-    m = ezMat4Type::MakeRotationY(ezAngle::MakeFromDegree(270));
+    m = ezMat4Type::MakeRotationY(ezAngleTemplate<Type>::MakeFromDegree(270));
     EZ_TEST_BOOL((m * ezVec3Type(1, 2, 3)).IsEqual(ezVec3Type(-3, 2, 1), ezMath::DefaultEpsilon<Type>()));
 
-    m = ezMat4Type::MakeRotationY(ezAngle::MakeFromDegree(360));
+    m = ezMat4Type::MakeRotationY(ezAngleTemplate<Type>::MakeFromDegree(360));
     EZ_TEST_BOOL((m * ezVec3Type(1, 2, 3)).IsEqual(ezVec3Type(1, 2, 3), ezMath::DefaultEpsilon<Type>()));
   }
 
@@ -335,16 +335,16 @@ void TestMat4()
   {
     ezMat4Type m;
 
-    m = ezMat4Type::MakeRotationZ(ezAngle::MakeFromDegree(90));
+    m = ezMat4Type::MakeRotationZ(ezAngleTemplate<Type>::MakeFromDegree(90));
     EZ_TEST_BOOL((m * ezVec3Type(1, 2, 3)).IsEqual(ezVec3Type(-2, 1, 3), ezMath::DefaultEpsilon<Type>()));
 
-    m = ezMat4Type::MakeRotationZ(ezAngle::MakeFromDegree(180));
+    m = ezMat4Type::MakeRotationZ(ezAngleTemplate<Type>::MakeFromDegree(180));
     EZ_TEST_BOOL((m * ezVec3Type(1, 2, 3)).IsEqual(ezVec3Type(-1, -2, 3), ezMath::DefaultEpsilon<Type>()));
 
-    m = ezMat4Type::MakeRotationZ(ezAngle::MakeFromDegree(270));
+    m = ezMat4Type::MakeRotationZ(ezAngleTemplate<Type>::MakeFromDegree(270));
     EZ_TEST_BOOL((m * ezVec3Type(1, 2, 3)).IsEqual(ezVec3Type(2, -1, 3), ezMath::DefaultEpsilon<Type>()));
 
-    m = ezMat4Type::MakeRotationZ(ezAngle::MakeFromDegree(360));
+    m = ezMat4Type::MakeRotationZ(ezAngleTemplate<Type>::MakeFromDegree(360));
     EZ_TEST_BOOL((m * ezVec3Type(1, 2, 3)).IsEqual(ezVec3Type(1, 2, 3), ezMath::DefaultEpsilon<Type>()));
   }
 
@@ -352,31 +352,31 @@ void TestMat4()
   {
     ezMat4Type m;
 
-    m = ezMat4Type::MakeAxisRotation(ezVec3Type(1, 0, 0), ezAngle::MakeFromDegree(90));
+    m = ezMat4Type::MakeAxisRotation(ezVec3Type(1, 0, 0), ezAngleTemplate<Type>::MakeFromDegree(90));
     EZ_TEST_BOOL((m * ezVec3Type(1, 2, 3)).IsEqual(ezVec3Type(1, -3, 2), ezMath::DefaultEpsilon<Type>()));
 
-    m = ezMat4Type::MakeAxisRotation(ezVec3Type(1, 0, 0), ezAngle::MakeFromDegree(180));
+    m = ezMat4Type::MakeAxisRotation(ezVec3Type(1, 0, 0), ezAngleTemplate<Type>::MakeFromDegree(180));
     EZ_TEST_BOOL((m * ezVec3Type(1, 2, 3)).IsEqual(ezVec3Type(1, -2, -3), ezMath::DefaultEpsilon<Type>()));
 
-    m = ezMat4Type::MakeAxisRotation(ezVec3Type(1, 0, 0), ezAngle::MakeFromDegree(270));
+    m = ezMat4Type::MakeAxisRotation(ezVec3Type(1, 0, 0), ezAngleTemplate<Type>::MakeFromDegree(270));
     EZ_TEST_BOOL((m * ezVec3Type(1, 2, 3)).IsEqual(ezVec3Type(1, 3, -2), ezMath::DefaultEpsilon<Type>()));
 
-    m = ezMat4Type::MakeAxisRotation(ezVec3Type(0, 1, 0), ezAngle::MakeFromDegree(90));
+    m = ezMat4Type::MakeAxisRotation(ezVec3Type(0, 1, 0), ezAngleTemplate<Type>::MakeFromDegree(90));
     EZ_TEST_BOOL((m * ezVec3Type(1, 2, 3)).IsEqual(ezVec3Type(3, 2, -1), ezMath::DefaultEpsilon<Type>()));
 
-    m = ezMat4Type::MakeAxisRotation(ezVec3Type(0, 1, 0), ezAngle::MakeFromDegree(180));
+    m = ezMat4Type::MakeAxisRotation(ezVec3Type(0, 1, 0), ezAngleTemplate<Type>::MakeFromDegree(180));
     EZ_TEST_BOOL((m * ezVec3Type(1, 2, 3)).IsEqual(ezVec3Type(-1, 2, -3), ezMath::DefaultEpsilon<Type>()));
 
-    m = ezMat4Type::MakeAxisRotation(ezVec3Type(0, 1, 0), ezAngle::MakeFromDegree(270));
+    m = ezMat4Type::MakeAxisRotation(ezVec3Type(0, 1, 0), ezAngleTemplate<Type>::MakeFromDegree(270));
     EZ_TEST_BOOL((m * ezVec3Type(1, 2, 3)).IsEqual(ezVec3Type(-3, 2, 1), ezMath::DefaultEpsilon<Type>()));
 
-    m = ezMat4Type::MakeAxisRotation(ezVec3Type(0, 0, 1), ezAngle::MakeFromDegree(90));
+    m = ezMat4Type::MakeAxisRotation(ezVec3Type(0, 0, 1), ezAngleTemplate<Type>::MakeFromDegree(90));
     EZ_TEST_BOOL((m * ezVec3Type(1, 2, 3)).IsEqual(ezVec3Type(-2, 1, 3), ezMath::DefaultEpsilon<Type>()));
 
-    m = ezMat4Type::MakeAxisRotation(ezVec3Type(0, 0, 1), ezAngle::MakeFromDegree(180));
+    m = ezMat4Type::MakeAxisRotation(ezVec3Type(0, 0, 1), ezAngleTemplate<Type>::MakeFromDegree(180));
     EZ_TEST_BOOL((m * ezVec3Type(1, 2, 3)).IsEqual(ezVec3Type(-1, -2, 3), ezMath::DefaultEpsilon<Type>()));
 
-    m = ezMat4Type::MakeAxisRotation(ezVec3Type(0, 0, 1), ezAngle::MakeFromDegree(270));
+    m = ezMat4Type::MakeAxisRotation(ezVec3Type(0, 0, 1), ezAngleTemplate<Type>::MakeFromDegree(270));
     EZ_TEST_BOOL((m * ezVec3Type(1, 2, 3)).IsEqual(ezVec3Type(2, -1, 3), ezMath::DefaultEpsilon<Type>()));
   }
 
@@ -481,7 +481,7 @@ void TestMat4()
         for (Type z = (Type)3.0; z < (Type)360.0; z += (Type)23.0)
         {
           ezMat4Type m, inv;
-          m = ezMat4Type::MakeAxisRotation(ezVec3Type(x, y, z).GetNormalized(), ezAngle::MakeFromDegree((Type)19.0));
+          m = ezMat4Type::MakeAxisRotation(ezVec3Type(x, y, z).GetNormalized(), ezAngleTemplate<Type>::MakeFromDegree((Type)19.0));
           inv = m;
           EZ_TEST_BOOL(inv.Invert() == EZ_SUCCESS);
 
@@ -503,7 +503,7 @@ void TestMat4()
         for (Type z = (Type)3.0; z < (Type)360.0; z += (Type)21.0)
         {
           ezMat4Type m, inv;
-          m = ezMat4Type::MakeAxisRotation(ezVec3Type(x, y, z).GetNormalized(), ezAngle::MakeFromDegree((Type)83.0));
+          m = ezMat4Type::MakeAxisRotation(ezVec3Type(x, y, z).GetNormalized(), ezAngleTemplate<Type>::MakeFromDegree((Type)83.0));
           inv = m.GetInverse();
 
           ezVec3Type v = m * ezVec3Type(1, 1, 1);

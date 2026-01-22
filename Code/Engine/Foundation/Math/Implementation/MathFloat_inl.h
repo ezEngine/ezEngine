@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <type_traits>
 
 namespace ezMath
 {
@@ -73,40 +74,67 @@ namespace ezMath
     float fFactor = Ceil(fDivides);
     return fFactor * fMultiple;
   }
-
-  EZ_ALWAYS_INLINE float Sin(ezAngle a)
+  template <typename Type>
+  EZ_ALWAYS_INLINE Type Sin(ezAngleTemplate<Type> a)
   {
-    return sinf(a.GetRadian());
+    if constexpr (std::is_same_v<Type, float>)
+      return sinf(a.GetRadian());
+    else
+      return sin(a.GetRadian());
   }
 
-  EZ_ALWAYS_INLINE float Cos(ezAngle a)
+  template <typename Type>
+  EZ_ALWAYS_INLINE Type Cos(ezAngleTemplate<Type> a)
   {
-    return cosf(a.GetRadian());
+    if constexpr (std::is_same_v<Type, float>)
+      return cosf(a.GetRadian());
+    else
+      return cos(a.GetRadian());
   }
 
-  EZ_ALWAYS_INLINE float Tan(ezAngle a)
+  template <typename Type>
+  EZ_ALWAYS_INLINE Type Tan(ezAngleTemplate<Type> a)
   {
-    return tanf(a.GetRadian());
+    if constexpr (std::is_same_v<Type, float>)
+      return tanf(a.GetRadian());
+    else
+      return tan(a.GetRadian());
+  }
+  
+  template <typename Type>
+  EZ_ALWAYS_INLINE ezAngleTemplate<Type> ASin(Type f)
+  {
+    if constexpr (std::is_same_v<Type, float>)
+      return ezAngleTemplate<Type>::MakeFromRadian(asinf(f));
+    else
+      return ezAngleTemplate<Type>::MakeFromRadian(asin(f));
   }
 
-  EZ_ALWAYS_INLINE ezAngle ASin(float f)
+  template <typename Type>
+  EZ_ALWAYS_INLINE ezAngleTemplate<Type> ACos(Type f)
   {
-    return ezAngle::MakeFromRadian(asinf(f));
+    if constexpr (std::is_same_v<Type, float>)
+      return ezAngleTemplate<Type>::MakeFromRadian(acosf(f));
+    else
+      return ezAngleTemplate<Type>::MakeFromRadian(acos(f));
   }
 
-  EZ_ALWAYS_INLINE ezAngle ACos(float f)
+  template <typename Type>
+  EZ_ALWAYS_INLINE ezAngleTemplate<Type> ATan(Type f)
   {
-    return ezAngle::MakeFromRadian(acosf(f));
+    if constexpr (std::is_same_v<Type, float>)
+      return ezAngleTemplate<Type>::MakeFromRadian(atanf(f));
+    else
+      return ezAngleTemplate<Type>::MakeFromRadian(atan(f));
   }
 
-  EZ_ALWAYS_INLINE ezAngle ATan(float f)
+  template <typename Type>
+  EZ_ALWAYS_INLINE ezAngleTemplate<Type> ATan2(Type y, Type x)
   {
-    return ezAngle::MakeFromRadian(atanf(f));
-  }
-
-  EZ_ALWAYS_INLINE ezAngle ATan2(float y, float x)
-  {
-    return ezAngle::MakeFromRadian(atan2f(y, x));
+    if constexpr (std::is_same_v<Type, float>)
+      return ezAngleTemplate<Type>::MakeFromRadian(atan2f(y, x));
+    else
+      return ezAngleTemplate<Type>::MakeFromRadian(atan2(y, x));
   }
 
   EZ_ALWAYS_INLINE float Exp(float f)

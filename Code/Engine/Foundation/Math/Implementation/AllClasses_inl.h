@@ -186,7 +186,7 @@ Type ezPlaneTemplate<Type>::GetMaximumDistanceTo(const ezBoundingBoxTemplate<Typ
 
 
 template <typename Type>
-ezMat3Template<Type> ezMat3Template<Type>::MakeAxisRotation(const ezVec3Template<Type>& vAxis, ezAngle angle)
+ezMat3Template<Type> ezMat3Template<Type>::MakeAxisRotation(const ezVec3Template<Type>& vAxis, ezAngleTemplate<Type> angle)
 {
   EZ_ASSERT_DEBUG(vAxis.IsNormalized(0.1f), "vAxis must be normalized.");
 
@@ -257,7 +257,7 @@ ezResult ezMat3Template<Type>::Invert(Type fEpsilon)
 }
 
 template <typename Type>
-ezMat4Template<Type> ezMat4Template<Type>::MakeAxisRotation(const ezVec3Template<Type>& vAxis, ezAngle angle)
+ezMat4Template<Type> ezMat4Template<Type>::MakeAxisRotation(const ezVec3Template<Type>& vAxis, ezAngleTemplate<Type> angle)
 {
   EZ_ASSERT_DEBUG(vAxis.IsNormalized(), "vAxis must be normalized.");
 

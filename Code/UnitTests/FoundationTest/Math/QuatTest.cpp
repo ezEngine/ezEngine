@@ -67,21 +67,21 @@ void TestQuat()
   {
     {
       ezQuatType q;
-      q = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)1, (Type)0, (Type)0), ezAngle::MakeFromDegree((Type)90));
+      q = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)1, (Type)0, (Type)0), ezAngleTemplate<Type>::MakeFromDegree((Type)90));
 
       EZ_TEST_VEC3(q * ezVec3Type((Type)0, (Type)1, (Type)0), ezVec3Type((Type)0, (Type)0, (Type)1), (Type)0.0001);
     }
 
     {
       ezQuatType q;
-      q = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)1, (Type)0), ezAngle::MakeFromDegree((Type)90));
+      q = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)1, (Type)0), ezAngleTemplate<Type>::MakeFromDegree((Type)90));
 
       EZ_TEST_VEC3(q * ezVec3Type((Type)1, (Type)0, (Type)0), ezVec3Type((Type)0, (Type)0, (Type)-1), (Type)0.0001);
     }
 
     {
       ezQuatType q;
-      q = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)0, (Type)1), ezAngle::MakeFromDegree((Type)90));
+      q = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)0, (Type)1), ezAngleTemplate<Type>::MakeFromDegree((Type)90));
 
       EZ_TEST_VEC3(q * ezVec3Type((Type)0, (Type)1, (Type)0), ezVec3Type((Type)-1, (Type)0, (Type)0), (Type)0.0001);
     }
@@ -91,8 +91,8 @@ void TestQuat()
   {
     ezQuatType q1, q2, q3;
     q1 = ezQuatType::MakeShortestRotation(ezVec3Type((Type)0, (Type)1, (Type)0), ezVec3Type((Type)1, (Type)0, (Type)0));
-    q2 = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)0, (Type)-1), ezAngle::MakeFromDegree((Type)90));
-    q3 = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)0, (Type)1), ezAngle::MakeFromDegree((Type)-90));
+    q2 = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)0, (Type)-1), ezAngleTemplate<Type>::MakeFromDegree((Type)90));
+    q3 = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)0, (Type)1), ezAngleTemplate<Type>::MakeFromDegree((Type)-90));
 
     EZ_TEST_BOOL(q1.IsEqualRotation(q2, ezMath::LargeEpsilon<Type>()));
     EZ_TEST_BOOL(q1.IsEqualRotation(q3, ezMath::LargeEpsilon<Type>()));
@@ -108,12 +108,12 @@ void TestQuat()
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetFromMat3")
   {
     ezMat3Type m;
-    m = ezMat3Type::MakeRotationZ(ezAngle::MakeFromDegree((Type)-90));
+    m = ezMat3Type::MakeRotationZ(ezAngleTemplate<Type>::MakeFromDegree((Type)-90));
 
     ezQuatType q1, q2, q3;
     q1 = ezQuatType::MakeFromMat3(m);
-    q2 = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)0, (Type)-1), ezAngle::MakeFromDegree((Type)90));
-    q3 = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)0, (Type)1), ezAngle::MakeFromDegree((Type)-90));
+    q2 = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)0, (Type)-1), ezAngleTemplate<Type>::MakeFromDegree((Type)90));
+    q3 = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)0, (Type)1), ezAngleTemplate<Type>::MakeFromDegree((Type)-90));
 
     EZ_TEST_BOOL(q1.IsEqualRotation(q2, ezMath::LargeEpsilon<Type>()));
     EZ_TEST_BOOL(q1.IsEqualRotation(q3, ezMath::LargeEpsilon<Type>()));
@@ -122,9 +122,9 @@ void TestQuat()
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetSlerp")
   {
     ezQuatType q1, q2, q3, qr;
-    q1 = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)0, (Type)1), ezAngle::MakeFromDegree((Type)45));
-    q2 = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)0, (Type)1), ezAngle::MakeFromDegree((Type)0));
-    q3 = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)0, (Type)1), ezAngle::MakeFromDegree((Type)90));
+    q1 = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)0, (Type)1), ezAngleTemplate<Type>::MakeFromDegree((Type)45));
+    q2 = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)0, (Type)1), ezAngleTemplate<Type>::MakeFromDegree((Type)0));
+    q3 = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)0, (Type)1), ezAngleTemplate<Type>::MakeFromDegree((Type)90));
 
     qr = ezQuatType::MakeSlerp(q2, q3, (Type)0.5);
 
@@ -135,11 +135,11 @@ void TestQuat()
   {
     ezQuatType q1, q2, q3;
     q1 = ezQuatType::MakeShortestRotation(ezVec3Type((Type)0, (Type)1, (Type)0), ezVec3Type((Type)1, (Type)0, (Type)0));
-    q2 = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)0, (Type)-1), ezAngle::MakeFromDegree((Type)90));
-    q3 = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)0, (Type)1), ezAngle::MakeFromDegree((Type)-90));
+    q2 = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)0, (Type)-1), ezAngleTemplate<Type>::MakeFromDegree((Type)90));
+    q3 = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)0, (Type)1), ezAngleTemplate<Type>::MakeFromDegree((Type)-90));
 
     ezVec3Type axis;
-    ezAngle angle;
+    ezAngleTemplate<Type> angle;
 
     q1.GetRotationAxisAndAngle(axis, angle);
     EZ_TEST_VEC3(axis, ezVec3Type((Type)0, (Type)0, (Type)-1), (Type)0.001);
@@ -166,10 +166,10 @@ void TestQuat()
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetAsMat3")
   {
     ezQuatType q;
-    q = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)0, (Type)1), ezAngle::MakeFromDegree((Type)90));
+    q = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)0, (Type)1), ezAngleTemplate<Type>::MakeFromDegree((Type)90));
 
     ezMat3Type mr;
-    mr = ezMat3Type::MakeRotationZ(ezAngle::MakeFromDegree((Type)90));
+    mr = ezMat3Type::MakeRotationZ(ezAngleTemplate<Type>::MakeFromDegree((Type)90));
 
     ezMat3Type m = q.GetAsMat3();
 
@@ -179,10 +179,10 @@ void TestQuat()
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetAsMat4")
   {
     ezQuatType q;
-    q = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)0, (Type)1), ezAngle::MakeFromDegree((Type)90));
+    q = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)0, (Type)1), ezAngleTemplate<Type>::MakeFromDegree((Type)90));
 
     ezMat4Type mr;
-    mr = ezMat4Type::MakeRotationZ(ezAngle::MakeFromDegree((Type)90));
+    mr = ezMat4Type::MakeRotationZ(ezAngleTemplate<Type>::MakeFromDegree((Type)90));
 
     ezMat4Type m = q.GetAsMat4();
 
@@ -201,8 +201,8 @@ void TestQuat()
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetInverse / Invert")
   {
     ezQuatType q, q1;
-    q = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)0, (Type)1), ezAngle::MakeFromDegree((Type)90));
-    q1 = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)0, (Type)1), ezAngle::MakeFromDegree((Type)-90));
+    q = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)0, (Type)1), ezAngleTemplate<Type>::MakeFromDegree((Type)90));
+    q1 = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)0, (Type)1), ezAngleTemplate<Type>::MakeFromDegree((Type)-90));
 
     ezQuatType q2 = q.GetInverse();
     EZ_TEST_BOOL(q1.IsEqualRotation(q2, (Type)0.0001));
@@ -215,21 +215,21 @@ void TestQuat()
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Dot")
   {
     ezQuatType q, q1, q2;
-    q = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)0, (Type)1), ezAngle::MakeFromDegree((Type)90));
-    q1 = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)0, (Type)1), ezAngle::MakeFromDegree((Type)-90));
-    q2 = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)1, (Type)0), ezAngle::MakeFromDegree((Type)45));
+    q = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)0, (Type)1), ezAngleTemplate<Type>::MakeFromDegree((Type)90));
+    q1 = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)0, (Type)1), ezAngleTemplate<Type>::MakeFromDegree((Type)-90));
+    q2 = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)1, (Type)0), ezAngleTemplate<Type>::MakeFromDegree((Type)45));
 
     EZ_TEST_FLOAT(q.Dot(q), (Type)1.0, (Type)0.0001);
-    EZ_TEST_FLOAT(q.Dot(ezQuatType::MakeIdentity()), ezMath::Cos(ezAngle::MakeFromRadian(ezAngle::DegToRad((Type)90.0 / (Type)2.0))), (Type)0.0001);
+    EZ_TEST_FLOAT(q.Dot(ezQuatType::MakeIdentity()), ezMath::Cos(ezAngleTemplate<Type>::MakeFromRadian(ezAngleTemplate<Type>::DegToRad((Type)90.0 / (Type)2.0))), (Type)0.0001);
     EZ_TEST_FLOAT(q.Dot(q1), (Type)0.0, (Type)0.0001);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator*(quat, quat)")
   {
     ezQuatType q1, q2, qr, q3;
-    q1 = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)0, (Type)1), ezAngle::MakeFromDegree((Type)60));
-    q2 = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)0, (Type)1), ezAngle::MakeFromDegree((Type)30));
-    q3 = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)0, (Type)1), ezAngle::MakeFromDegree((Type)90));
+    q1 = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)0, (Type)1), ezAngleTemplate<Type>::MakeFromDegree((Type)60));
+    q2 = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)0, (Type)1), ezAngleTemplate<Type>::MakeFromDegree((Type)30));
+    q3 = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)0, (Type)1), ezAngleTemplate<Type>::MakeFromDegree((Type)90));
 
     qr = q1 * q2;
 
@@ -239,14 +239,14 @@ void TestQuat()
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator==/!=")
   {
     ezQuatType q1, q2;
-    q1 = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)0, (Type)1), ezAngle::MakeFromDegree((Type)60));
-    q2 = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)0, (Type)1), ezAngle::MakeFromDegree((Type)30));
+    q1 = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)0, (Type)1), ezAngleTemplate<Type>::MakeFromDegree((Type)60));
+    q2 = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)0, (Type)1), ezAngleTemplate<Type>::MakeFromDegree((Type)30));
     EZ_TEST_BOOL(q1 != q2);
 
-    q2 = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)1, (Type)0, (Type)0), ezAngle::MakeFromDegree((Type)60));
+    q2 = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)1, (Type)0, (Type)0), ezAngleTemplate<Type>::MakeFromDegree((Type)60));
     EZ_TEST_BOOL(q1 != q2);
 
-    q2 = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)0, (Type)1), ezAngle::MakeFromDegree((Type)60));
+    q2 = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)0, (Type)1), ezAngleTemplate<Type>::MakeFromDegree((Type)60));
     EZ_TEST_BOOL(q1 == q2);
   }
 
@@ -280,10 +280,10 @@ void TestQuat()
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "rotation direction")
   {
     ezMat3Type m;
-    m = ezMat3Type::MakeRotationZ(ezAngle::MakeFromDegree((Type)90.0));
+    m = ezMat3Type::MakeRotationZ(ezAngleTemplate<Type>::MakeFromDegree((Type)90.0));
 
     ezQuatType q;
-    q = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)0, (Type)1), ezAngle::MakeFromDegree((Type)90.0));
+    q = ezQuatType::MakeFromAxisAndAngle(ezVec3Type((Type)0, (Type)0, (Type)1), ezAngleTemplate<Type>::MakeFromDegree((Type)90.0));
 
     ezVec3Type xAxis((Type)1, (Type)0, (Type)0);
 
@@ -295,41 +295,41 @@ void TestQuat()
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetAsEulerAngles / SetFromEulerAngles")
   {
-    ezAngle ax, ay, az;
+    ezAngleTemplate<Type> ax, ay, az;
 
     for (ezUInt32 x = 0; x < 360; x += 15)
     {
-      ezQuatType q = ezQuatType::MakeFromEulerAngles(ezAngle::MakeFromDegree((Type)x), {}, {});
+      ezQuatType q = ezQuatType::MakeFromEulerAngles(ezAngleTemplate<Type>::MakeFromDegree((Type)x), {}, {});
 
       ezMat3Type m;
-      m = ezMat3Type::MakeRotationX(ezAngle::MakeFromDegree((Type)x));
+      m = ezMat3Type::MakeRotationX(ezAngleTemplate<Type>::MakeFromDegree((Type)x));
       ezQuatType qm;
       qm = ezQuatType::MakeFromMat3(m);
       EZ_TEST_BOOL(q.IsEqualRotation(qm, (Type)0.01));
 
       ezVec3Type axis;
-      ezAngle angle;
+      ezAngleTemplate<Type> angle;
       q.GetRotationAxisAndAngle(axis, angle, (Type)0.01);
 
       EZ_TEST_VEC3(axis, ezVec3Type::MakeAxisX(), (Type)0.001);
       EZ_TEST_FLOAT(angle.GetDegree(), (Type)x, (Type)0.1);
 
       q.GetAsEulerAngles(ax, ay, az);
-      EZ_TEST_BOOL(ax.IsEqualNormalized(ezAngle::MakeFromDegree((Type)x), ezAngle::MakeFromDegree((Type)0.1)));
+      EZ_TEST_BOOL(ax.IsEqualNormalized(ezAngleTemplate<Type>::MakeFromDegree((Type)x), ezAngleTemplate<Type>::MakeFromDegree((Type)0.1)));
     }
 
     for (ezInt32 y = -90; y < 360; y += 15)
     {
-      ezQuatType q = ezQuatType::MakeFromEulerAngles({}, ezAngle::MakeFromDegree((Type)y), {});
+      ezQuatType q = ezQuatType::MakeFromEulerAngles({}, ezAngleTemplate<Type>::MakeFromDegree((Type)y), {});
 
       ezMat3Type m;
-      m = ezMat3Type::MakeRotationY(ezAngle::MakeFromDegree((Type)y));
+      m = ezMat3Type::MakeRotationY(ezAngleTemplate<Type>::MakeFromDegree((Type)y));
       ezQuatType qm;
       qm = ezQuatType::MakeFromMat3(m);
       EZ_TEST_BOOL(q.IsEqualRotation(qm, (Type)0.01));
 
       ezVec3Type axis;
-      ezAngle angle;
+      ezAngleTemplate<Type> angle;
       q.GetRotationAxisAndAngle(axis, angle, (Type)0.01);
 
       if (y < 0)
@@ -353,23 +353,23 @@ void TestQuat()
 
     for (ezUInt32 z = 15; z < 360; z += 15)
     {
-      ezQuatType q = ezQuatType::MakeFromEulerAngles({}, {}, ezAngle::MakeFromDegree((Type)z));
+      ezQuatType q = ezQuatType::MakeFromEulerAngles({}, {}, ezAngleTemplate<Type>::MakeFromDegree((Type)z));
 
       ezMat3Type m;
-      m = ezMat3Type::MakeRotationZ(ezAngle::MakeFromDegree((Type)z));
+      m = ezMat3Type::MakeRotationZ(ezAngleTemplate<Type>::MakeFromDegree((Type)z));
       ezQuatType qm;
       qm = ezQuatType::MakeFromMat3(m);
       EZ_TEST_BOOL(q.IsEqualRotation(qm, (Type)0.01));
 
       ezVec3Type axis;
-      ezAngle angle;
+      ezAngleTemplate<Type> angle;
       q.GetRotationAxisAndAngle(axis, angle, (Type)0.01);
 
       EZ_TEST_VEC3(axis, ezVec3Type::MakeAxisZ(), (Type)0.001);
       EZ_TEST_FLOAT(angle.GetDegree(), (Type)z, (Type)0.1);
 
       q.GetAsEulerAngles(ax, ay, az);
-      EZ_TEST_BOOL(az.IsEqualNormalized(ezAngle::MakeFromDegree((Type)z), ezAngle::MakeFromDegree((Type)0.1)));
+      EZ_TEST_BOOL(az.IsEqualNormalized(ezAngleTemplate<Type>::MakeFromDegree((Type)z), ezAngleTemplate<Type>::MakeFromDegree((Type)0.1)));
     }
 
     for (ezUInt32 x = 0; x < 360; x += 15)
@@ -378,7 +378,7 @@ void TestQuat()
       {
         for (ezUInt32 z = 0; z < 360; z += 30)
         {
-          ezQuatType q1 = ezQuatType::MakeFromEulerAngles(ezAngle::MakeFromDegree((Type)x), ezAngle::MakeFromDegree((Type)y), ezAngle::MakeFromDegree((Type)z));
+          ezQuatType q1 = ezQuatType::MakeFromEulerAngles(ezAngleTemplate<Type>::MakeFromDegree((Type)x), ezAngleTemplate<Type>::MakeFromDegree((Type)y), ezAngleTemplate<Type>::MakeFromDegree((Type)z));
 
           q1.GetAsEulerAngles(ax, ay, az);
 
@@ -390,9 +390,9 @@ void TestQuat()
           ezQuatType q3;
           {
             ezQuatType xRot, yRot, zRot;
-            xRot = ezQuatType::MakeFromAxisAndAngle(ezVec3Type::MakeAxisX(), ezAngle::MakeFromDegree((Type)x));
-            yRot = ezQuatType::MakeFromAxisAndAngle(ezVec3Type::MakeAxisY(), ezAngle::MakeFromDegree((Type)y));
-            zRot = ezQuatType::MakeFromAxisAndAngle(ezVec3Type::MakeAxisZ(), ezAngle::MakeFromDegree((Type)z));
+            xRot = ezQuatType::MakeFromAxisAndAngle(ezVec3Type::MakeAxisX(), ezAngleTemplate<Type>::MakeFromDegree((Type)x));
+            yRot = ezQuatType::MakeFromAxisAndAngle(ezVec3Type::MakeAxisY(), ezAngleTemplate<Type>::MakeFromDegree((Type)y));
+            zRot = ezQuatType::MakeFromAxisAndAngle(ezVec3Type::MakeAxisZ(), ezAngleTemplate<Type>::MakeFromDegree((Type)z));
 
             q3 = zRot * yRot * xRot;
           }

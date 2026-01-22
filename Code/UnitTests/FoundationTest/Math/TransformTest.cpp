@@ -22,7 +22,7 @@ void TestTransform()
 
     {
       ezQuatType qRot;
-      qRot = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(1, 2, 3).GetNormalized(), ezAngle::MakeFromDegree(42.0f));
+      qRot = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(1, 2, 3).GetNormalized(), ezAngleTemplate<Type>::MakeFromDegree(42.0f));
 
       ezTransformType t(ezVec3Type(4, 5, 6), qRot);
       EZ_TEST_VEC3(t.m_vPosition, ezVec3Type(4, 5, 6), 0);
@@ -30,7 +30,7 @@ void TestTransform()
     }
 
     {
-      ezMat3Type mRot = ezMat3Type::MakeAxisRotation(ezVec3Type(1, 2, 3).GetNormalized(), ezAngle::MakeFromDegree(42.0f));
+      ezMat3Type mRot = ezMat3Type::MakeAxisRotation(ezVec3Type(1, 2, 3).GetNormalized(), ezAngleTemplate<Type>::MakeFromDegree(42.0f));
 
       ezQuatType q;
       q = ezQuatType::MakeFromMat3(mRot);
@@ -51,7 +51,7 @@ void TestTransform()
     }
 
     {
-      ezMat3Type mRot = ezMat3Type::MakeAxisRotation(ezVec3Type(1, 2, 3).GetNormalized(), ezAngle::MakeFromDegree(42.0f));
+      ezMat3Type mRot = ezMat3Type::MakeAxisRotation(ezVec3Type(1, 2, 3).GetNormalized(), ezAngleTemplate<Type>::MakeFromDegree(42.0f));
       ezMat4Type mTrans;
       mTrans.SetTransformationMatrix(mRot, ezVec3Type(1, 2, 3));
 
@@ -96,8 +96,8 @@ void TestTransform()
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator * (quat)")
   {
     ezQuatType qRotX, qRotY;
-    qRotX = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(1, 0, 0), ezAngle::MakeFromRadian(1.57079637f));
-    qRotY = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngle::MakeFromRadian(1.57079637f));
+    qRotX = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(1, 0, 0), ezAngleTemplate<Type>::MakeFromRadian(1.57079637f));
+    qRotY = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngleTemplate<Type>::MakeFromRadian(1.57079637f));
 
     ezTransformType t0, t1;
     t0.SetIdentity();
@@ -119,8 +119,8 @@ void TestTransform()
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator * (vec3)")
   {
     ezQuatType qRotX, qRotY;
-    qRotX = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(1, 0, 0), ezAngle::MakeFromRadian(1.57079637f));
-    qRotY = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngle::MakeFromRadian(1.57079637f));
+    qRotX = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(1, 0, 0), ezAngleTemplate<Type>::MakeFromRadian(1.57079637f));
+    qRotY = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngleTemplate<Type>::MakeFromRadian(1.57079637f));
 
     ezTransformType t;
     t.SetIdentity();
@@ -156,17 +156,17 @@ void TestTransform()
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsIdentical")
   {
     ezTransformType t(ezVec3Type(1, 2, 3));
-    t.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngle::MakeFromDegree(90));
+    t.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngleTemplate<Type>::MakeFromDegree(90));
 
     EZ_TEST_BOOL(t.IsIdentical(t));
 
     ezTransformType t2(ezVec3Type(1, 2, 4));
-    t2.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngle::MakeFromDegree(90));
+    t2.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngleTemplate<Type>::MakeFromDegree(90));
 
     EZ_TEST_BOOL(!t.IsIdentical(t2));
 
     ezTransformType t3(ezVec3Type(1, 2, 3));
-    t3.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngle::MakeFromDegree(91));
+    t3.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngleTemplate<Type>::MakeFromDegree(91));
 
     EZ_TEST_BOOL(!t.IsIdentical(t3));
   }
@@ -174,17 +174,17 @@ void TestTransform()
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator == / !=")
   {
     ezTransformType t(ezVec3Type(1, 2, 3));
-    t.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngle::MakeFromDegree(90));
+    t.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngleTemplate<Type>::MakeFromDegree(90));
 
     EZ_TEST_BOOL(t == t);
 
     ezTransformType t2(ezVec3Type(1, 2, 4));
-    t2.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngle::MakeFromDegree(90));
+    t2.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngleTemplate<Type>::MakeFromDegree(90));
 
     EZ_TEST_BOOL(t != t2);
 
     ezTransformType t3(ezVec3Type(1, 2, 3));
-    t3.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngle::MakeFromDegree(91));
+    t3.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngleTemplate<Type>::MakeFromDegree(91));
 
     EZ_TEST_BOOL(t != t3);
   }
@@ -192,31 +192,31 @@ void TestTransform()
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsEqual")
   {
     ezTransformType t(ezVec3Type(1, 2, 3));
-    t.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngle::MakeFromDegree(90));
+    t.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngleTemplate<Type>::MakeFromDegree(90));
 
-    EZ_TEST_BOOL(t.IsEqual(t, (Type)0.0001));
+    EZ_TEST_BOOL(t.IsEqual(t, ezMath::DefaultEpsilon<Type>()));
 
-    ezTransformType t2(ezVec3Type(1, 2, (Type)3.0002));
-    t2.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngle::MakeFromDegree(90));
+    ezTransformType t2(ezVec3Type(1, 2, (Type)3 + 2*ezMath::DefaultEpsilon<Type>()));
+    t2.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngleTemplate<Type>::MakeFromDegree(90));
 
-    EZ_TEST_BOOL(t.IsEqual(t2, (Type)0.001));
-    EZ_TEST_BOOL(!t.IsEqual(t2, (Type)0.0001));
+    EZ_TEST_BOOL(t.IsEqual(t2, ezMath::LargeEpsilon<Type>()));
+    EZ_TEST_BOOL(!t.IsEqual(t2, ezMath::DefaultEpsilon<Type>()));
 
     ezTransformType t3(ezVec3Type(1, 2, 3));
-    t3.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngle::MakeFromDegree(90.01f));
+    t3.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngleTemplate<Type>::MakeFromDegree(90 + ezMath::VeryHugeEpsilon<Type>()));
 
-    EZ_TEST_BOOL(t.IsEqual(t3, ezMath::LargeEpsilon<Type>()));
+    EZ_TEST_BOOL(t.IsEqual(t3, ezMath::VeryHugeEpsilon<Type>()));
     EZ_TEST_BOOL(!t.IsEqual(t3, ezMath::DefaultEpsilon<Type>()));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator*(ezTransformType, ezTransformType)")
   {
     ezTransformType tParent(ezVec3Type(1, 2, 3));
-    tParent.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngle::MakeFromRadian(1.57079637f));
+    tParent.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngleTemplate<Type>::MakeFromRadian(1.57079637f));
     tParent.m_vScale.Set(2);
 
     ezTransformType tToChild(ezVec3Type(4, 5, 6));
-    tToChild.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 0, 1), ezAngle::MakeFromRadian(1.57079637f));
+    tToChild.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 0, 1), ezAngleTemplate<Type>::MakeFromRadian(1.57079637f));
     tToChild.m_vScale.Set(4);
 
     // this is exactly the same as SetGlobalTransform
@@ -238,11 +238,11 @@ void TestTransform()
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator*(ezTransformType, ezMat4)")
   {
     ezTransformType tParent(ezVec3Type(1, 2, 3));
-    tParent.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngle::MakeFromDegree(90));
+    tParent.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngleTemplate<Type>::MakeFromDegree(90));
     tParent.m_vScale.Set(2);
 
     ezTransformType tToChild(ezVec3Type(4, 5, 6));
-    tToChild.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 0, 1), ezAngle::MakeFromDegree(90));
+    tToChild.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 0, 1), ezAngleTemplate<Type>::MakeFromDegree(90));
     tToChild.m_vScale.Set(4);
 
     // this is exactly the same as SetGlobalTransform
@@ -264,11 +264,11 @@ void TestTransform()
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator*(ezMat4, ezTransformType)")
   {
     ezTransformType tParent(ezVec3Type(1, 2, 3));
-    tParent.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngle::MakeFromDegree(90));
+    tParent.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngleTemplate<Type>::MakeFromDegree(90));
     tParent.m_vScale.Set(2);
 
     ezTransformType tToChild(ezVec3Type(4, 5, 6));
-    tToChild.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 0, 1), ezAngle::MakeFromDegree(90));
+    tToChild.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 0, 1), ezAngleTemplate<Type>::MakeFromDegree(90));
     tToChild.m_vScale.Set(4);
 
     // this is exactly the same as SetGlobalTransform
@@ -290,11 +290,11 @@ void TestTransform()
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Invert / GetInverse")
   {
     ezTransformType tParent(ezVec3Type(1, 2, 3));
-    tParent.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngle::MakeFromDegree(90));
+    tParent.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngleTemplate<Type>::MakeFromDegree(90));
     tParent.m_vScale.Set(2);
 
     ezTransformType tToChild(ezVec3Type(4, 5, 6));
-    tToChild.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 0, 1), ezAngle::MakeFromDegree(90));
+    tToChild.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 0, 1), ezAngleTemplate<Type>::MakeFromDegree(90));
     tToChild.m_vScale.Set(4);
 
     ezTransformType tChild;
@@ -322,7 +322,7 @@ void TestTransform()
 
     {
       ezQuatType qRot;
-      qRot = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(1, 2, 3).GetNormalized(), ezAngle::MakeFromDegree(42.0f));
+      qRot = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(1, 2, 3).GetNormalized(), ezAngleTemplate<Type>::MakeFromDegree(42.0f));
 
       ezVec3Type pos(4, 5, 6);
       ezVec3Type scale(7, 8, 9);
@@ -363,11 +363,11 @@ void TestTransform()
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Inverse")
   {
     ezTransformType tParent(ezVec3Type(1, 2, 3));
-    tParent.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngle::MakeFromDegree(90));
+    tParent.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngleTemplate<Type>::MakeFromDegree(90));
     tParent.m_vScale = ezVec3Type(2);
 
     ezTransformType tToChild(ezVec3Type(4, 5, 6));
-    tToChild.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 0, 1), ezAngle::MakeFromDegree(90));
+    tToChild.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 0, 1), ezAngleTemplate<Type>::MakeFromDegree(90));
     tToChild.m_vScale = ezVec3Type(4);
 
     ezTransformType tChild;
@@ -390,10 +390,10 @@ void TestTransform()
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetLocalTransform")
   {
     ezQuatType q;
-    q = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 0, 1), ezAngle::MakeFromDegree(90));
+    q = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 0, 1), ezAngleTemplate<Type>::MakeFromDegree(90));
 
     ezTransformType tParent(ezVec3Type(1, 2, 3));
-    tParent.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngle::MakeFromDegree(90));
+    tParent.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngleTemplate<Type>::MakeFromDegree(90));
     tParent.m_vScale = ezVec3Type(2);
 
     ezTransformType tChild;
@@ -412,11 +412,11 @@ void TestTransform()
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetGlobalTransform")
   {
     ezTransformType tParent(ezVec3Type(1, 2, 3));
-    tParent.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngle::MakeFromDegree(90));
+    tParent.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngleTemplate<Type>::MakeFromDegree(90));
     tParent.m_vScale = ezVec3Type(2);
 
     ezTransformType tToChild(ezVec3Type(4, 5, 6));
-    tToChild.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 0, 1), ezAngle::MakeFromDegree(90));
+    tToChild.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 0, 1), ezAngleTemplate<Type>::MakeFromDegree(90));
     tToChild.m_vScale = ezVec3Type(4);
 
     ezTransformType tChild;
@@ -430,7 +430,7 @@ void TestTransform()
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetAsMat4")
   {
     ezTransformType t(ezVec3Type(1, 2, 3));
-    t.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngle::MakeFromDegree(34));
+    t.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngleTemplate<Type>::MakeFromDegree(34));
     t.m_vScale = ezVec3Type(2, -1, 5);
 
     ezMat4Type m = t.GetAsMat4();
@@ -439,7 +439,7 @@ void TestTransform()
     refM.SetZero();
     {
       ezQuatType q;
-      q = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngle::MakeFromDegree(34));
+      q = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngleTemplate<Type>::MakeFromDegree(34));
 
       ezTransformType referenceTransform(ezVec3Type(1, 2, 3), q, ezVec3Type(2, -1, 5));
       ezMat4Type tmp = referenceTransform.GetAsMat4();
@@ -462,8 +462,8 @@ void TestTransform()
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "TransformPos / Dir / operator*")
   {
     ezQuatType qRotX, qRotY;
-    qRotX = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(1, 0, 0), ezAngle::MakeFromDegree(90.0f));
-    qRotY = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngle::MakeFromDegree(90.0f));
+    qRotX = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(1, 0, 0), ezAngleTemplate<Type>::MakeFromDegree(90.0f));
+    qRotY = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngleTemplate<Type>::MakeFromDegree(90.0f));
 
     ezTransformType t(ezVec3Type(1, 2, 3), qRotY * qRotX, ezVec3Type(2, -2, 4));
 
@@ -482,11 +482,11 @@ void TestTransform()
   {
     {
       ezTransformType tParent(ezVec3Type(1, 2, 3));
-      tParent.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngle::MakeFromDegree(90));
+      tParent.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngleTemplate<Type>::MakeFromDegree(90));
       tParent.m_vScale = ezVec3Type(2);
 
       ezTransformType tToChild(ezVec3Type(4, 5, 6));
-      tToChild.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 0, 1), ezAngle::MakeFromDegree(90));
+      tToChild.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 0, 1), ezAngleTemplate<Type>::MakeFromDegree(90));
       tToChild.m_vScale = ezVec3Type(4);
 
       // this is exactly the same as SetGlobalTransform
@@ -524,11 +524,11 @@ void TestTransform()
 
     {
       ezTransformType t(ezVec3Type(1, 2, 3));
-      t.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngle::MakeFromDegree(90));
+      t.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngleTemplate<Type>::MakeFromDegree(90));
       t.m_vScale = ezVec3Type(2);
 
       ezQuatType q;
-      q = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 0, 1), ezAngle::MakeFromDegree(90));
+      q = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 0, 1), ezAngleTemplate<Type>::MakeFromDegree(90));
 
       ezTransformType t2 = t * q;
       ezTransformType t4 = q * t;
@@ -550,7 +550,7 @@ void TestTransform()
 
     {
       ezTransformType t(ezVec3Type(1, 2, 3));
-      t.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngle::MakeFromDegree(90));
+      t.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngleTemplate<Type>::MakeFromDegree(90));
       t.m_vScale = ezVec3Type(2);
 
       ezVec3Type p(4, 5, 6);
@@ -571,7 +571,7 @@ void TestTransform()
 
     {
       ezTransformType t(ezVec3Type(1, 2, 3));
-      t.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngle::MakeFromDegree(90));
+      t.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngleTemplate<Type>::MakeFromDegree(90));
       t.m_vScale = ezVec3Type(2);
 
       ezVec3Type p(4, 5, 6);
@@ -594,17 +594,17 @@ void TestTransform()
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Comparison")
   {
     ezTransformType t(ezVec3Type(1, 2, 3));
-    t.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngle::MakeFromDegree(90));
+    t.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngleTemplate<Type>::MakeFromDegree(90));
 
     EZ_TEST_BOOL(t == t);
 
     ezTransformType t2(ezVec3Type(1, 2, 4));
-    t2.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngle::MakeFromDegree(90));
+    t2.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngleTemplate<Type>::MakeFromDegree(90));
 
     EZ_TEST_BOOL(t != t2);
 
     ezTransformType t3(ezVec3Type(1, 2, 3));
-    t3.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngle::MakeFromDegree(91));
+    t3.m_qRotation = ezQuatType::MakeFromAxisAndAngle(ezVec3Type(0, 1, 0), ezAngleTemplate<Type>::MakeFromDegree(91));
 
     EZ_TEST_BOOL(t != t3);
   }

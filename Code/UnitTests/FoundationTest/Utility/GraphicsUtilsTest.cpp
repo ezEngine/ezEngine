@@ -163,8 +163,8 @@ EZ_CREATE_SIMPLE_TEST(Utility, GraphicsUtils)
 
               {
                 const float fMinDepth = ezMath::Min(depthRange.fNear, depthRange.fFar);
-                const ezAngle right = ezAngle::MakeFromDegree((float)angle) / 2;
-                const ezAngle top = ezAngle::MakeFromDegree((float)angle) / 2;
+                const ezAngle right = ezAngle::MakeFromDegree((float)angle) / 2.0f;
+                const ezAngle top = ezAngle::MakeFromDegree((float)angle) / 2.0f;
                 const float fLeft = ezMath::Tan(-right) * fMinDepth;
                 const float fRight = ezMath::Tan(right) * fMinDepth * 0.8f;
                 const float fBottom = ezMath::Tan(-top) * fMinDepth;

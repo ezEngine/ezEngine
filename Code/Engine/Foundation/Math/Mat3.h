@@ -55,16 +55,16 @@ public:
   [[nodiscard]] static ezMat3Template<Type> MakeScaling(const ezVec3Template<Type>& vScale);
 
   /// \brief Creates a matrix that is a rotation matrix around the X-axis.
-  [[nodiscard]] static ezMat3Template<Type> MakeRotationX(ezAngle angle);
+  [[nodiscard]] static ezMat3Template<Type> MakeRotationX(ezAngleTemplate<Type> angle);
 
   /// \brief Creates a matrix that is a rotation matrix around the Y-axis.
-  [[nodiscard]] static ezMat3Template<Type> MakeRotationY(ezAngle angle);
+  [[nodiscard]] static ezMat3Template<Type> MakeRotationY(ezAngleTemplate<Type> angle);
 
   /// \brief Creates a matrix that is a rotation matrix around the Z-axis.
-  [[nodiscard]] static ezMat3Template<Type> MakeRotationZ(ezAngle angle);
+  [[nodiscard]] static ezMat3Template<Type> MakeRotationZ(ezAngleTemplate<Type> angle);
 
   /// \brief Creates a matrix that is a rotation matrix around the given axis.
-  [[nodiscard]] static ezMat3Template<Type> MakeAxisRotation(const ezVec3Template<Type>& vAxis, ezAngle angle);
+  [[nodiscard]] static ezMat3Template<Type> MakeAxisRotation(const ezVec3Template<Type>& vAxis, ezAngleTemplate<Type> angle);
 
 #if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   void AssertNotNaN() const

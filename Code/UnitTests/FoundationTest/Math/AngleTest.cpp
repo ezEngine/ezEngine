@@ -38,7 +38,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Angle)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Init")
   {
-    ezAngle a0;
+    ezAngleT a0;
     EZ_TEST_FLOAT(a0.GetRadian(), 0.0f, 0.0f);
     EZ_TEST_FLOAT(a0.GetDegree(), 0.0f, 0.0f);
 
@@ -53,94 +53,94 @@ EZ_CREATE_SIMPLE_TEST(Math, Angle)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "NormalizeRange / IsEqual ")
   {
-    ezAngle a;
+    ezAngleT a;
 
     for (ezInt32 i = 1; i < 359; i++)
     {
-      a = ezAngle::MakeFromDegree((float)i);
+      a = ezAngleT::MakeFromDegree((float)i);
       a.NormalizeRange();
       EZ_TEST_FLOAT(a.GetDegree(), (float)i, 0.01f);
-      a = ezAngle::MakeFromDegree((float)i);
+      a = ezAngleT::MakeFromDegree((float)i);
       a.NormalizeRange();
       EZ_TEST_FLOAT(a.GetDegree(), (float)i, 0.01f);
-      a = ezAngle::MakeFromDegree((float)i + 360.0f);
+      a = ezAngleT::MakeFromDegree((float)i + 360.0f);
       a.NormalizeRange();
       EZ_TEST_FLOAT(a.GetDegree(), (float)i, 0.01f);
-      a = ezAngle::MakeFromDegree((float)i - 360.0f);
+      a = ezAngleT::MakeFromDegree((float)i - 360.0f);
       a.NormalizeRange();
       EZ_TEST_FLOAT(a.GetDegree(), (float)i, 0.01f);
-      a = ezAngle::MakeFromDegree((float)i + 3600.0f);
+      a = ezAngleT::MakeFromDegree((float)i + 3600.0f);
       a.NormalizeRange();
       EZ_TEST_FLOAT(a.GetDegree(), (float)i, 0.01f);
-      a = ezAngle::MakeFromDegree((float)i - 3600.0f);
+      a = ezAngleT::MakeFromDegree((float)i - 3600.0f);
       a.NormalizeRange();
       EZ_TEST_FLOAT(a.GetDegree(), (float)i, 0.01f);
-      a = ezAngle::MakeFromDegree((float)i + 36000.0f);
+      a = ezAngleT::MakeFromDegree((float)i + 36000.0f);
       a.NormalizeRange();
       EZ_TEST_FLOAT(a.GetDegree(), (float)i, 0.01f);
-      a = ezAngle::MakeFromDegree((float)i - 36000.0f);
+      a = ezAngleT::MakeFromDegree((float)i - 36000.0f);
       a.NormalizeRange();
       EZ_TEST_FLOAT(a.GetDegree(), (float)i, 0.01f);
     }
 
     for (ezInt32 i = 0; i < 360; i++)
     {
-      a = ezAngle::MakeFromDegree((float)i);
-      EZ_TEST_BOOL(a.GetNormalizedRange().IsEqualSimple(ezAngle::MakeFromDegree((float)i), ezAngle::MakeFromDegree(0.01f)));
-      a = ezAngle::MakeFromDegree((float)i);
-      EZ_TEST_BOOL(a.GetNormalizedRange().IsEqualSimple(ezAngle::MakeFromDegree((float)i), ezAngle::MakeFromDegree(0.01f)));
-      a = ezAngle::MakeFromDegree((float)i + 360.0f);
-      EZ_TEST_BOOL(a.GetNormalizedRange().IsEqualSimple(ezAngle::MakeFromDegree((float)i), ezAngle::MakeFromDegree(0.01f)));
-      a = ezAngle::MakeFromDegree((float)i - 360.0f);
-      EZ_TEST_BOOL(a.GetNormalizedRange().IsEqualSimple(ezAngle::MakeFromDegree((float)i), ezAngle::MakeFromDegree(0.01f)));
-      a = ezAngle::MakeFromDegree((float)i + 3600.0f);
-      EZ_TEST_BOOL(a.GetNormalizedRange().IsEqualSimple(ezAngle::MakeFromDegree((float)i), ezAngle::MakeFromDegree(0.01f)));
-      a = ezAngle::MakeFromDegree((float)i - 3600.0f);
-      EZ_TEST_BOOL(a.GetNormalizedRange().IsEqualSimple(ezAngle::MakeFromDegree((float)i), ezAngle::MakeFromDegree(0.01f)));
-      a = ezAngle::MakeFromDegree((float)i + 36000.0f);
-      EZ_TEST_BOOL(a.GetNormalizedRange().IsEqualSimple(ezAngle::MakeFromDegree((float)i), ezAngle::MakeFromDegree(0.01f)));
-      a = ezAngle::MakeFromDegree((float)i - 36000.0f);
-      EZ_TEST_BOOL(a.GetNormalizedRange().IsEqualSimple(ezAngle::MakeFromDegree((float)i), ezAngle::MakeFromDegree(0.01f)));
+      a = ezAngleT::MakeFromDegree((float)i);
+      EZ_TEST_BOOL(a.GetNormalizedRange().IsEqualSimple(ezAngleT::MakeFromDegree((float)i), ezAngleT::MakeFromDegree(0.01f)));
+      a = ezAngleT::MakeFromDegree((float)i);
+      EZ_TEST_BOOL(a.GetNormalizedRange().IsEqualSimple(ezAngleT::MakeFromDegree((float)i), ezAngleT::MakeFromDegree(0.01f)));
+      a = ezAngleT::MakeFromDegree((float)i + 360.0f);
+      EZ_TEST_BOOL(a.GetNormalizedRange().IsEqualSimple(ezAngleT::MakeFromDegree((float)i), ezAngleT::MakeFromDegree(0.01f)));
+      a = ezAngleT::MakeFromDegree((float)i - 360.0f);
+      EZ_TEST_BOOL(a.GetNormalizedRange().IsEqualSimple(ezAngleT::MakeFromDegree((float)i), ezAngleT::MakeFromDegree(0.01f)));
+      a = ezAngleT::MakeFromDegree((float)i + 3600.0f);
+      EZ_TEST_BOOL(a.GetNormalizedRange().IsEqualSimple(ezAngleT::MakeFromDegree((float)i), ezAngleT::MakeFromDegree(0.01f)));
+      a = ezAngleT::MakeFromDegree((float)i - 3600.0f);
+      EZ_TEST_BOOL(a.GetNormalizedRange().IsEqualSimple(ezAngleT::MakeFromDegree((float)i), ezAngleT::MakeFromDegree(0.01f)));
+      a = ezAngleT::MakeFromDegree((float)i + 36000.0f);
+      EZ_TEST_BOOL(a.GetNormalizedRange().IsEqualSimple(ezAngleT::MakeFromDegree((float)i), ezAngleT::MakeFromDegree(0.01f)));
+      a = ezAngleT::MakeFromDegree((float)i - 36000.0f);
+      EZ_TEST_BOOL(a.GetNormalizedRange().IsEqualSimple(ezAngleT::MakeFromDegree((float)i), ezAngleT::MakeFromDegree(0.01f)));
     }
 
     for (ezInt32 i = 0; i < 360; i++)
     {
-      a = ezAngle::MakeFromDegree((float)i);
-      EZ_TEST_BOOL(a.IsEqualNormalized(ezAngle::MakeFromDegree((float)i), ezAngle::MakeFromDegree(0.01f)));
-      a = ezAngle::MakeFromDegree((float)i);
-      EZ_TEST_BOOL(a.IsEqualNormalized(ezAngle::MakeFromDegree((float)i), ezAngle::MakeFromDegree(0.01f)));
-      a = ezAngle::MakeFromDegree((float)i + 360.0f);
-      EZ_TEST_BOOL(a.IsEqualNormalized(ezAngle::MakeFromDegree((float)i), ezAngle::MakeFromDegree(0.01f)));
-      a = ezAngle::MakeFromDegree((float)i - 360.0f);
-      EZ_TEST_BOOL(a.IsEqualNormalized(ezAngle::MakeFromDegree((float)i), ezAngle::MakeFromDegree(0.01f)));
-      a = ezAngle::MakeFromDegree((float)i + 3600.0f);
-      EZ_TEST_BOOL(a.IsEqualNormalized(ezAngle::MakeFromDegree((float)i), ezAngle::MakeFromDegree(0.01f)));
-      a = ezAngle::MakeFromDegree((float)i - 3600.0f);
-      EZ_TEST_BOOL(a.IsEqualNormalized(ezAngle::MakeFromDegree((float)i), ezAngle::MakeFromDegree(0.01f)));
-      a = ezAngle::MakeFromDegree((float)i + 36000.0f);
-      EZ_TEST_BOOL(a.IsEqualNormalized(ezAngle::MakeFromDegree((float)i), ezAngle::MakeFromDegree(0.01f)));
-      a = ezAngle::MakeFromDegree((float)i - 36000.0f);
-      EZ_TEST_BOOL(a.IsEqualNormalized(ezAngle::MakeFromDegree((float)i), ezAngle::MakeFromDegree(0.01f)));
+      a = ezAngleT::MakeFromDegree((float)i);
+      EZ_TEST_BOOL(a.IsEqualNormalized(ezAngleT::MakeFromDegree((float)i), ezAngleT::MakeFromDegree(0.01f)));
+      a = ezAngleT::MakeFromDegree((float)i);
+      EZ_TEST_BOOL(a.IsEqualNormalized(ezAngleT::MakeFromDegree((float)i), ezAngleT::MakeFromDegree(0.01f)));
+      a = ezAngleT::MakeFromDegree((float)i + 360.0f);
+      EZ_TEST_BOOL(a.IsEqualNormalized(ezAngleT::MakeFromDegree((float)i), ezAngleT::MakeFromDegree(0.01f)));
+      a = ezAngleT::MakeFromDegree((float)i - 360.0f);
+      EZ_TEST_BOOL(a.IsEqualNormalized(ezAngleT::MakeFromDegree((float)i), ezAngleT::MakeFromDegree(0.01f)));
+      a = ezAngleT::MakeFromDegree((float)i + 3600.0f);
+      EZ_TEST_BOOL(a.IsEqualNormalized(ezAngleT::MakeFromDegree((float)i), ezAngleT::MakeFromDegree(0.01f)));
+      a = ezAngleT::MakeFromDegree((float)i - 3600.0f);
+      EZ_TEST_BOOL(a.IsEqualNormalized(ezAngleT::MakeFromDegree((float)i), ezAngleT::MakeFromDegree(0.01f)));
+      a = ezAngleT::MakeFromDegree((float)i + 36000.0f);
+      EZ_TEST_BOOL(a.IsEqualNormalized(ezAngleT::MakeFromDegree((float)i), ezAngleT::MakeFromDegree(0.01f)));
+      a = ezAngleT::MakeFromDegree((float)i - 36000.0f);
+      EZ_TEST_BOOL(a.IsEqualNormalized(ezAngleT::MakeFromDegree((float)i), ezAngleT::MakeFromDegree(0.01f)));
     }
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AngleBetween")
   {
-    EZ_TEST_FLOAT(ezAngle::AngleBetween(ezAngle::MakeFromDegree(0), ezAngle::MakeFromDegree(0)).GetDegree(), 0.0f, 0.0001f);
-    EZ_TEST_FLOAT(ezAngle::AngleBetween(ezAngle::MakeFromDegree(0), ezAngle::MakeFromDegree(360)).GetDegree(), 0.0f, 0.0001f);
-    EZ_TEST_FLOAT(ezAngle::AngleBetween(ezAngle::MakeFromDegree(360), ezAngle::MakeFromDegree(360)).GetDegree(), 0.0f, 0.0001f);
-    EZ_TEST_FLOAT(ezAngle::AngleBetween(ezAngle::MakeFromDegree(360), ezAngle::MakeFromDegree(0)).GetDegree(), 0.0f, 0.0001f);
+    EZ_TEST_FLOAT(ezAngleT::AngleBetween(ezAngleT::MakeFromDegree(0), ezAngleT::MakeFromDegree(0)).GetDegree(), 0.0f, 0.0001f);
+    EZ_TEST_FLOAT(ezAngleT::AngleBetween(ezAngleT::MakeFromDegree(0), ezAngleT::MakeFromDegree(360)).GetDegree(), 0.0f, 0.0001f);
+    EZ_TEST_FLOAT(ezAngleT::AngleBetween(ezAngleT::MakeFromDegree(360), ezAngleT::MakeFromDegree(360)).GetDegree(), 0.0f, 0.0001f);
+    EZ_TEST_FLOAT(ezAngleT::AngleBetween(ezAngleT::MakeFromDegree(360), ezAngleT::MakeFromDegree(0)).GetDegree(), 0.0f, 0.0001f);
 
-    EZ_TEST_FLOAT(ezAngle::AngleBetween(ezAngle::MakeFromDegree(5), ezAngle::MakeFromDegree(186)).GetDegree(), 179.0f, 0.0001f);
-    EZ_TEST_FLOAT(ezAngle::AngleBetween(ezAngle::MakeFromDegree(-5), ezAngle::MakeFromDegree(-186)).GetDegree(), 179.0f, 0.0001f);
+    EZ_TEST_FLOAT(ezAngleT::AngleBetween(ezAngleT::MakeFromDegree(5), ezAngleT::MakeFromDegree(186)).GetDegree(), 179.0f, 0.0001f);
+    EZ_TEST_FLOAT(ezAngleT::AngleBetween(ezAngleT::MakeFromDegree(-5), ezAngleT::MakeFromDegree(-186)).GetDegree(), 179.0f, 0.0001f);
 
-    EZ_TEST_FLOAT(ezAngle::AngleBetween(ezAngle::MakeFromDegree(360.0f + 5), ezAngle::MakeFromDegree(360.0f + 186)).GetDegree(), 179.0f, 0.0001f);
-    EZ_TEST_FLOAT(ezAngle::AngleBetween(ezAngle::MakeFromDegree(360.0f + -5), ezAngle::MakeFromDegree(360.0f - 186)).GetDegree(), 179.0f, 0.0001f);
+    EZ_TEST_FLOAT(ezAngleT::AngleBetween(ezAngleT::MakeFromDegree(360.0f + 5), ezAngleT::MakeFromDegree(360.0f + 186)).GetDegree(), 179.0f, 0.0001f);
+    EZ_TEST_FLOAT(ezAngleT::AngleBetween(ezAngleT::MakeFromDegree(360.0f + -5), ezAngleT::MakeFromDegree(360.0f - 186)).GetDegree(), 179.0f, 0.0001f);
 
     for (ezInt32 i = 0; i <= 179; ++i)
-      EZ_TEST_FLOAT(ezAngle::AngleBetween(ezAngle::MakeFromDegree((float)i), ezAngle::MakeFromDegree((float)(i + i))).GetDegree(), (float)i, 0.0001f);
+      EZ_TEST_FLOAT(ezAngleT::AngleBetween(ezAngleT::MakeFromDegree((float)i), ezAngleT::MakeFromDegree((float)(i + i))).GetDegree(), (float)i, 0.0001f);
 
     for (ezInt32 i = -179; i <= 0; ++i)
-      EZ_TEST_FLOAT(ezAngle::AngleBetween(ezAngle::MakeFromDegree((float)i), ezAngle::MakeFromDegree((float)(i + i))).GetDegree(), (float)-i, 0.0001f);
+      EZ_TEST_FLOAT(ezAngleT::AngleBetween(ezAngleT::MakeFromDegree((float)i), ezAngleT::MakeFromDegree((float)(i + i))).GetDegree(), (float)-i, 0.0001f);
   }
 }

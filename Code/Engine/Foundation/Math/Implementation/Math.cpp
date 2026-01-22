@@ -223,26 +223,6 @@ size_t ezMath::SafeConvertToSizeT(ezUInt64 uiValue)
 }
 #endif
 
-void ezAngle::NormalizeRange()
-{
-  constexpr float fTwoPi = 2.0f * Pi<float>();
-  constexpr float fTwoPiTen = 10.0f * Pi<float>();
-
-  if (m_fRadian > fTwoPiTen || m_fRadian < -fTwoPiTen)
-  {
-    m_fRadian = ezMath::Mod(m_fRadian, fTwoPi);
-  }
-
-  while (m_fRadian >= fTwoPi)
-  {
-    m_fRadian -= fTwoPi;
-  }
-
-  while (m_fRadian < 0.0f)
-  {
-    m_fRadian += fTwoPi;
-  }
-}
 
 float ezMath::ReplaceNaN(float fValue, float fFallback)
 {

@@ -341,7 +341,7 @@ ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(ezAngle fieldO
 {
   // Taking the minimum allows the function to be used to create
   // inverse z matrices (fNearZ > fFarZ) as well.
-  const float ym = ezMath::Min(fNearZ, fFarZ) * ezMath::Tan(fieldOfViewY * 0.5);
+  const float ym = ezMath::Min(fNearZ, fFarZ) * ezMath::Tan(fieldOfViewY * 0.5f);
   const float xm = ym * fAspectRatioWidthDivHeight;
 
   return CreatePerspectiveProjectionMatrix(-xm, xm, -ym, ym, fNearZ, fFarZ, depthRange, range, handedness);

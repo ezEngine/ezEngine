@@ -190,8 +190,8 @@ void ezQtGameObjectDocumentWindow::HandleFocusOnSelection(const ezQuerySelection
 
       const float fRadius = bbox.GetBoundingSphere().m_fRadius * 1.5f;
 
-      const float dist1 = fRadius / ezMath::Sin(fovX * 0.75);
-      const float dist2 = fRadius / ezMath::Sin(fovY * 0.75);
+      const float dist1 = fRadius / ezMath::Sin(fovX * 0.75f);
+      const float dist2 = fRadius / ezMath::Sin(fovY * 0.75f);
       const float distBest = ezMath::Max(dist1, dist2);
 
       vNewCameraPosition = vPivotPoint - vNewCameraDirection * ezMath::Max(fMinDistance, distBest);

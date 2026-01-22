@@ -472,11 +472,7 @@ namespace ezMath
   }
 } // namespace ezMath
 
-constexpr EZ_FORCE_INLINE ezAngle ezAngle::AngleBetween(ezAngle a, ezAngle b)
-{
-  // taken from http://gamedev.stackexchange.com/questions/4467/comparing-angles-and-working-out-the-difference
-  return ezAngle(Pi<float>() - ezMath::Abs(ezMath::Abs(a.GetRadian() - b.GetRadian()) - Pi<float>()));
-}
+
 
 constexpr EZ_FORCE_INLINE ezInt32 ezMath::FloatToInt(float value)
 {

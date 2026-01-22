@@ -4,9 +4,10 @@
 #  error "Please don't include FormatStringArgs.h directly, but instead include Foundation/Basics.h"
 #endif
 
+#include <Foundation/Math/Declarations.h>
+
 class ezStringBuilder;
 class ezVariant;
-class ezAngle;
 class ezRational;
 struct ezTime;
 
