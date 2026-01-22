@@ -201,9 +201,9 @@ void TestVec3()
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Operators")
   {
-    const ezVec3Type vOp1(-4.0, 0.2f, -7.0f);
-    const ezVec3Type vOp2(2.0, 0.3f, 0.0f);
-    const ezVec3Type compArray[3] = {ezVec3Type(1.0f, 0.0f, 0.0f), ezVec3Type(0.0f, 1.0f, 0.0f), ezVec3Type(0.0f, 0.0f, 1.0f)};
+    const ezVec3Type vOp1(-4.0, 0.2, -7.0);
+    const ezVec3Type vOp2(2.0, 0.3, 0.0);
+    const ezVec3Type compArray[3] = {ezVec3Type(1.0, 0.0, 0.0), ezVec3Type(0.0, 1.0, 0.0), ezVec3Type(0.0, 0.0, 1.0)};
     // IsIdentical
     EZ_TEST_BOOL(vOp1.IsIdentical(vOp1));
     for (int i = 0; i < 3; ++i)
@@ -213,7 +213,7 @@ void TestVec3()
     }
 
     // IsEqual
-    EZ_TEST_BOOL(vOp1.IsEqual(vOp1, 0.0f));
+    EZ_TEST_BOOL(vOp1.IsEqual(vOp1, 0.0));
     for (int i = 0; i < 3; ++i)
     {
       EZ_TEST_BOOL(vOp1.IsEqual(vOp1 + ezMath::SmallEpsilon<Type>() * compArray[i], 2 * ezMath::SmallEpsilon<Type>()));
@@ -229,32 +229,32 @@ void TestVec3()
     // operator+= (ezVec3Type)
     ezVec3Type vPlusAssign = vOp1;
     vPlusAssign += vOp2;
-    EZ_TEST_BOOL(vPlusAssign.IsEqual(ezVec3Type(-2.0f, 0.5f, -7.0f), ezMath::SmallEpsilon<Type>()));
+    EZ_TEST_BOOL(vPlusAssign.IsEqual(ezVec3Type((Type)-2.0, (Type)0.5, (Type)-7.0), ezMath::SmallEpsilon<Type>()));
 
     // operator-= (ezVec3Type)
     ezVec3Type vMinusAssign = vOp1;
     vMinusAssign -= vOp2;
-    EZ_TEST_BOOL(vMinusAssign.IsEqual(ezVec3Type(-6.0f, -0.1f, -7.0f), ezMath::SmallEpsilon<Type>()));
+    EZ_TEST_BOOL(vMinusAssign.IsEqual(ezVec3Type((Type)-6.0, (Type)-0.1, (Type)-7.0), ezMath::SmallEpsilon<Type>()));
 
     // operator*= (float)
     ezVec3Type vMulFloat = vOp1;
-    vMulFloat *= 2.0f;
-    EZ_TEST_BOOL(vMulFloat.IsEqual(ezVec3Type(-8.0f, 0.4f, -14.0f), ezMath::SmallEpsilon<Type>()));
-    vMulFloat *= 0.0f;
+    vMulFloat *= (Type)2.0;
+    EZ_TEST_BOOL(vMulFloat.IsEqual(ezVec3Type((Type)-8.0, (Type)0.4, (Type)-14.0), ezMath::SmallEpsilon<Type>()));
+    vMulFloat *= (Type)0.0;
     EZ_TEST_BOOL(vMulFloat.IsEqual(ezVec3Type::MakeZero(), ezMath::SmallEpsilon<Type>()));
 
     // operator/= (float)
     ezVec3Type vDivFloat = vOp1;
-    vDivFloat /= 2.0f;
-    EZ_TEST_BOOL(vDivFloat.IsEqual(ezVec3Type(-2.0f, 0.1f, -3.5f), ezMath::SmallEpsilon<Type>()));
+    vDivFloat /= (Type)2.0;
+    EZ_TEST_BOOL(vDivFloat.IsEqual(ezVec3Type((Type)-2.0, (Type)0.1, (Type)-3.5), ezMath::SmallEpsilon<Type>()));
 
     // operator+ (ezVec3Type, ezVec3Type)
     ezVec3Type vPlus = (vOp1 + vOp2);
-    EZ_TEST_BOOL(vPlus.IsEqual(ezVec3Type(-2.0f, 0.5f, -7.0f), ezMath::SmallEpsilon<Type>()));
+    EZ_TEST_BOOL(vPlus.IsEqual(ezVec3Type((Type)-2.0, (Type)0.5, (Type)-7.0), ezMath::SmallEpsilon<Type>()));
 
     // operator- (ezVec3Type, ezVec3Type)
     ezVec3Type vMinus = (vOp1 - vOp2);
-    EZ_TEST_BOOL(vMinus.IsEqual(ezVec3Type(-6.0f, -0.1f, -7.0f), ezMath::SmallEpsilon<Type>()));
+    EZ_TEST_BOOL(vMinus.IsEqual(ezVec3Type((Type)-6.0, (Type)-0.1, (Type)-7.0), ezMath::SmallEpsilon<Type>()));
 
     // operator* (float, ezVec3Type)
     ezVec3Type vMulFloatVec3 = ((Type)2 * vOp1);
@@ -265,13 +265,13 @@ void TestVec3()
 
     // operator* (ezVec3Type, float)
     ezVec3Type vMulVec3Float = (vOp1 * (Type)2);
-    EZ_TEST_BOOL(vMulVec3Float.IsEqual(ezVec3Type(-8.0f, 0.4f, -14.0f), ezMath::SmallEpsilon<Type>()));
+    EZ_TEST_BOOL(vMulVec3Float.IsEqual(ezVec3Type((Type)-8.0, (Type)0.4, (Type)-14.0), ezMath::SmallEpsilon<Type>()));
     vMulVec3Float = (vOp1 * (Type)0);
     EZ_TEST_BOOL(vMulVec3Float.IsEqual(ezVec3Type::MakeZero(), ezMath::SmallEpsilon<Type>()));
 
     // operator/ (ezVec3Type, float)
     ezVec3Type vDivVec3Float = (vOp1 / (Type)2);
-    EZ_TEST_BOOL(vDivVec3Float.IsEqual(ezVec3Type(-2.0f, 0.1f, -3.5f), ezMath::SmallEpsilon<Type>()));
+    EZ_TEST_BOOL(vDivVec3Float.IsEqual(ezVec3Type((Type)-2.0, (Type)0.1, (Type)-3.5), ezMath::SmallEpsilon<Type>()));
 
     // operator== (ezVec3Type, ezVec3Type)
     EZ_TEST_BOOL(vOp1 == vOp1);
@@ -347,26 +347,26 @@ void TestVec3()
     EZ_TEST_BOOL(compArray[2].CrossRH(compArray[0]).IsEqual(compArray[1], ezMath::SmallEpsilon<Type>()));
 
     // CompMin
-    EZ_TEST_BOOL(vOp1.CompMin(vOp2).IsEqual(ezVec3Type(-4.0f, -0.3f, -7.0f), ezMath::SmallEpsilon<Type>()));
-    EZ_TEST_BOOL(vOp2.CompMin(vOp1).IsEqual(ezVec3Type(-4.0f, -0.3f, -7.0f), ezMath::SmallEpsilon<Type>()));
+    EZ_TEST_BOOL(vOp1.CompMin(vOp2).IsEqual(ezVec3Type((Type)-4.0, (Type)-0.3, (Type)-7.0), ezMath::SmallEpsilon<Type>()));
+    EZ_TEST_BOOL(vOp2.CompMin(vOp1).IsEqual(ezVec3Type((Type)-4.0, (Type)-0.3, (Type)-7.0), ezMath::SmallEpsilon<Type>()));
 
     // CompMax
-    EZ_TEST_BOOL(vOp1.CompMax(vOp2).IsEqual(ezVec3Type(2.0f, 0.2f, 0.5f), ezMath::SmallEpsilon<Type>()));
-    EZ_TEST_BOOL(vOp2.CompMax(vOp1).IsEqual(ezVec3Type(2.0f, 0.2f, 0.5f), ezMath::SmallEpsilon<Type>()));
+    EZ_TEST_BOOL(vOp1.CompMax(vOp2).IsEqual(ezVec3Type((Type)2.0, (Type)0.2, (Type)0.5), ezMath::SmallEpsilon<Type>()));
+    EZ_TEST_BOOL(vOp2.CompMax(vOp1).IsEqual(ezVec3Type((Type)2.0, (Type)0.2, (Type)0.5), ezMath::SmallEpsilon<Type>()));
 
     // CompClamp
-    EZ_TEST_BOOL(vOp1.CompClamp(vOp1, vOp2).IsEqual(ezVec3Type(-4.0f, -0.3f, -7.0f), ezMath::SmallEpsilon<Type>()));
-    EZ_TEST_BOOL(vOp2.CompClamp(vOp1, vOp2).IsEqual(ezVec3Type(2.0f, 0.2f, 0.5f), ezMath::SmallEpsilon<Type>()));
+    EZ_TEST_BOOL(vOp1.CompClamp(vOp1, vOp2).IsEqual(ezVec3Type((Type)-4.0, (Type)-0.3, (Type)-7.0), ezMath::SmallEpsilon<Type>()));
+    EZ_TEST_BOOL(vOp2.CompClamp(vOp1, vOp2).IsEqual(ezVec3Type((Type)2.0, (Type)0.2, (Type)0.5), ezMath::SmallEpsilon<Type>()));
 
     // CompMul
-    EZ_TEST_BOOL(vOp1.CompMul(vOp2).IsEqual(ezVec3Type(-8.0f, -0.06f, -3.5f), ezMath::SmallEpsilon<Type>()));
-    EZ_TEST_BOOL(vOp2.CompMul(vOp1).IsEqual(ezVec3Type(-8.0f, -0.06f, -3.5f), ezMath::SmallEpsilon<Type>()));
+    EZ_TEST_BOOL(vOp1.CompMul(vOp2).IsEqual(ezVec3Type((Type)-8.0, (Type)-0.06, (Type)-3.5), ezMath::SmallEpsilon<Type>()));
+    EZ_TEST_BOOL(vOp2.CompMul(vOp1).IsEqual(ezVec3Type((Type)-8.0, (Type)-0.06, (Type)-3.5), ezMath::SmallEpsilon<Type>()));
 
     // CompDiv
-    EZ_TEST_BOOL(vOp1.CompDiv(vOp2).IsEqual(ezVec3Type(-2.0f, -0.66666666f, -14.0f), ezMath::SmallEpsilon<Type>()));
+    EZ_TEST_BOOL(vOp1.CompDiv(vOp2).IsEqual(ezVec3Type((Type)-2.0, (Type)(-2.0/3.0), (Type)-14.0), ezMath::SmallEpsilon<Type>()));
 
     // Abs
-    EZ_TEST_VEC3(vOp1.Abs(), ezVec3Type(4.0, 0.2f, 7.0f), ezMath::SmallEpsilon<Type>());
+    EZ_TEST_VEC3(vOp1.Abs(), ezVec3Type(4.0, 0.2, 7.0), ezMath::SmallEpsilon<Type>());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetAngleBetween")
@@ -457,7 +457,7 @@ void TestVec3()
     {
       v = ezVec3Type::MakeRandomPointInSphere(rng);
 
-      EZ_TEST_BOOL(v.GetLength() <= 1.0f + ezMath::SmallEpsilon<float>());
+      EZ_TEST_BOOL(v.GetLength() <= (Type)1.0 + ezMath::SmallEpsilon<Type>());
       EZ_TEST_BOOL(!v.IsZero());
 
       avg += v;
@@ -467,7 +467,7 @@ void TestVec3()
 
     // the average point cloud center should be within at least 10% of the sphere's center
     // otherwise the points aren't equally distributed
-    EZ_TEST_BOOL(avg.IsZero(0.1f));
+    EZ_TEST_BOOL(avg.IsZero((Type)0.1));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeRandomDirection")
@@ -494,7 +494,7 @@ void TestVec3()
 
     // the average point cloud center should be within at least 10% of the sphere's center
     // otherwise the points aren't equally distributed
-    EZ_TEST_BOOL(avg.IsZero(0.1f));
+    EZ_TEST_BOOL(avg.IsZero((Type)0.1));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeRandomDeviationX")
@@ -523,7 +523,7 @@ void TestVec3()
 
     // average direction should be close to the main axis
     avg.Normalize();
-    EZ_TEST_BOOL(avg.IsEqual(vAxis, 0.1f));
+    EZ_TEST_BOOL(avg.IsEqual(vAxis, (Type)0.1));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeRandomDeviationY")
@@ -552,7 +552,7 @@ void TestVec3()
 
     // average direction should be close to the main axis
     avg.Normalize();
-    EZ_TEST_BOOL(avg.IsEqual(vAxis, 0.1f));
+    EZ_TEST_BOOL(avg.IsEqual(vAxis, (Type)0.1));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeRandomDeviationZ")
@@ -581,7 +581,7 @@ void TestVec3()
 
     // average direction should be close to the main axis
     avg.Normalize();
-    EZ_TEST_BOOL(avg.IsEqual(vAxis, 0.1f));
+    EZ_TEST_BOOL(avg.IsEqual(vAxis, (Type)0.1));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeRandomDeviation")
@@ -603,7 +603,7 @@ void TestVec3()
 
       EZ_TEST_BOOL(v.IsNormalized());
 
-      EZ_TEST_BOOL(vAxis.GetAngleBetween(v).GetDegree() <= dev.GetDegree() + 1.0f);
+      EZ_TEST_BOOL(vAxis.GetAngleBetween(v).GetDegree() <= dev.GetDegree() + (Type)1.0);
     }
   }
 

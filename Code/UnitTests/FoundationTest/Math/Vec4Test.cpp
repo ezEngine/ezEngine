@@ -165,10 +165,10 @@ void TestVec4()
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Operators")
   {
-    const ezVec4Type vOp1(-4.0, 0.2f, -7.0f, -0.0f);
-    const ezVec4Type vOp2(2.0, 0.3f, 0.0f, 1.0f);
+    const ezVec4Type vOp1(-4.0, 0.2, -7.0, -0.0);
+    const ezVec4Type vOp2(2.0, 0.3, 0.0, 1.0);
     const ezVec4Type compArray[4] = {
-      ezVec4Type(1.0f, 0.0f, 0.0f, 0.0f), ezVec4Type(0.0f, 1.0f, 0.0f, 0.0f), ezVec4Type(0.0f, 0.0f, 1.0f, 0.0f), ezVec4Type(0.0f, 0.0f, 0.0f, 1.0f)};
+      ezVec4Type(1.0, 0.0, 0.0, 0.0), ezVec4Type(0.0, 1.0, 0.0, 0.0), ezVec4Type(0.0, 0.0, 1.0, 0.0), ezVec4Type(0.0, 0.0, 0.0, 1.0)};
     // IsIdentical
     EZ_TEST_BOOL(vOp1.IsIdentical(vOp1));
     for (int i = 0; i < 4; ++i)
@@ -194,48 +194,48 @@ void TestVec4()
     // operator+= (ezVec4Type)
     ezVec4Type vPlusAssign = vOp1;
     vPlusAssign += vOp2;
-    EZ_TEST_BOOL(vPlusAssign.IsEqual(ezVec4Type(-2.0f, 0.5f, -7.0f, 1.0f), ezMath::SmallEpsilon<Type>()));
+    EZ_TEST_BOOL(vPlusAssign.IsEqual(ezVec4Type(-2.0, 0.5, -7.0, 1.0), ezMath::SmallEpsilon<Type>()));
 
     // operator-= (ezVec4Type)
     ezVec4Type vMinusAssign = vOp1;
     vMinusAssign -= vOp2;
-    EZ_TEST_BOOL(vMinusAssign.IsEqual(ezVec4Type(-6.0f, -0.1f, -7.0f, -1.0f), ezMath::SmallEpsilon<Type>()));
+    EZ_TEST_BOOL(vMinusAssign.IsEqual(ezVec4Type(-6.0, -0.1, -7.0, -1.0), ezMath::SmallEpsilon<Type>()));
 
     // operator*= (float)
     ezVec4Type vMulFloat = vOp1;
     vMulFloat *= 2.0f;
-    EZ_TEST_BOOL(vMulFloat.IsEqual(ezVec4Type(-8.0f, 0.4f, -14.0f, -0.0f), ezMath::SmallEpsilon<Type>()));
+    EZ_TEST_BOOL(vMulFloat.IsEqual(ezVec4Type(-8.0, 0.4, -14.0, -0.0), ezMath::SmallEpsilon<Type>()));
     vMulFloat *= 0.0f;
     EZ_TEST_BOOL(vMulFloat.IsEqual(ezVec4Type::MakeZero(), ezMath::SmallEpsilon<Type>()));
 
     // operator/= (float)
     ezVec4Type vDivFloat = vOp1;
     vDivFloat /= 2.0f;
-    EZ_TEST_BOOL(vDivFloat.IsEqual(ezVec4Type(-2.0f, 0.1f, -3.5f, -0.0f), ezMath::SmallEpsilon<Type>()));
+    EZ_TEST_BOOL(vDivFloat.IsEqual(ezVec4Type(-2.0, 0.1, -3.5, -0.0), ezMath::SmallEpsilon<Type>()));
 
     // operator+ (ezVec4Type, ezVec4Type)
     ezVec4Type vPlus = (vOp1 + vOp2);
-    EZ_TEST_BOOL(vPlus.IsEqual(ezVec4Type(-2.0f, 0.5f, -7.0f, 1.0f), ezMath::SmallEpsilon<Type>()));
+    EZ_TEST_BOOL(vPlus.IsEqual(ezVec4Type(-2.0, 0.5, -7.0, 1.0), ezMath::SmallEpsilon<Type>()));
 
     // operator- (ezVec4Type, ezVec4Type)
     ezVec4Type vMinus = (vOp1 - vOp2);
-    EZ_TEST_BOOL(vMinus.IsEqual(ezVec4Type(-6.0f, -0.1f, -7.0f, -1.0f), ezMath::SmallEpsilon<Type>()));
+    EZ_TEST_BOOL(vMinus.IsEqual(ezVec4Type(-6.0, -0.1, -7.0, -1.0), ezMath::SmallEpsilon<Type>()));
 
     // operator* (float, ezVec4Type)
     ezVec4Type vMulFloatVec4 = ((Type)2 * vOp1);
-    EZ_TEST_BOOL(vMulFloatVec4.IsEqual(ezVec4Type(-8.0f, 0.4f, -14.0f, -0.0f), ezMath::SmallEpsilon<Type>()));
+    EZ_TEST_BOOL(vMulFloatVec4.IsEqual(ezVec4Type(-8.0, 0.4, -14.0, -0.0), ezMath::SmallEpsilon<Type>()));
     vMulFloatVec4 = ((Type)0 * vOp1);
     EZ_TEST_BOOL(vMulFloatVec4.IsEqual(ezVec4Type::MakeZero(), ezMath::SmallEpsilon<Type>()));
 
     // operator* (ezVec4Type, float)
     ezVec4Type vMulVec4Float = (vOp1 * (Type)2);
-    EZ_TEST_BOOL(vMulVec4Float.IsEqual(ezVec4Type(-8.0f, 0.4f, -14.0f, -0.0f), ezMath::SmallEpsilon<Type>()));
+    EZ_TEST_BOOL(vMulVec4Float.IsEqual(ezVec4Type(-8.0, 0.4, -14.0, -0.0), ezMath::SmallEpsilon<Type>()));
     vMulVec4Float = (vOp1 * (Type)0);
     EZ_TEST_BOOL(vMulVec4Float.IsEqual(ezVec4Type::MakeZero(), ezMath::SmallEpsilon<Type>()));
 
     // operator/ (ezVec4Type, float)
     ezVec4Type vDivVec4Float = (vOp1 / (Type)2);
-    EZ_TEST_BOOL(vDivVec4Float.IsEqual(ezVec4Type(-2.0f, 0.1f, -3.5f, -0.0f), ezMath::SmallEpsilon<Type>()));
+    EZ_TEST_BOOL(vDivVec4Float.IsEqual(ezVec4Type(-2.0, 0.1, -3.5, -0.0), ezMath::SmallEpsilon<Type>()));
 
     // operator== (ezVec4Type, ezVec4Type)
     EZ_TEST_BOOL(vOp1 == vOp1);
@@ -279,34 +279,34 @@ void TestVec4()
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Common")
   {
-    const ezVec4Type vOp1(-4.0, 0.2f, -7.0f, -0.0f);
-    const ezVec4Type vOp2(2.0, -0.3f, 0.5f, 1.0f);
+    const ezVec4Type vOp1(-4.0, 0.2, -7.0, -0.0);
+    const ezVec4Type vOp2(2.0, -0.3, 0.5, 1.0);
 
     // Dot
-    EZ_TEST_FLOAT(vOp1.Dot(vOp2), -11.56f, ezMath::SmallEpsilon<Type>());
-    EZ_TEST_FLOAT(vOp2.Dot(vOp1), -11.56f, ezMath::SmallEpsilon<Type>());
+    EZ_TEST_FLOAT(vOp1.Dot(vOp2), (Type)-11.56, ezMath::SmallEpsilon<Type>());
+    EZ_TEST_FLOAT(vOp2.Dot(vOp1), (Type)-11.56, ezMath::SmallEpsilon<Type>());
 
     // CompMin
-    EZ_TEST_BOOL(vOp1.CompMin(vOp2).IsEqual(ezVec4Type(-4.0f, -0.3f, -7.0f, -0.0f), ezMath::SmallEpsilon<Type>()));
-    EZ_TEST_BOOL(vOp2.CompMin(vOp1).IsEqual(ezVec4Type(-4.0f, -0.3f, -7.0f, -0.0f), ezMath::SmallEpsilon<Type>()));
+    EZ_TEST_BOOL(vOp1.CompMin(vOp2).IsEqual(ezVec4Type(-4.0, -0.3, -7.0, -0.0), ezMath::SmallEpsilon<Type>()));
+    EZ_TEST_BOOL(vOp2.CompMin(vOp1).IsEqual(ezVec4Type(-4.0, -0.3, -7.0, -0.0), ezMath::SmallEpsilon<Type>()));
 
     // CompMax
-    EZ_TEST_BOOL(vOp1.CompMax(vOp2).IsEqual(ezVec4Type(2.0f, 0.2f, 0.5f, 1.0f), ezMath::SmallEpsilon<Type>()));
-    EZ_TEST_BOOL(vOp2.CompMax(vOp1).IsEqual(ezVec4Type(2.0f, 0.2f, 0.5f, 1.0f), ezMath::SmallEpsilon<Type>()));
+    EZ_TEST_BOOL(vOp1.CompMax(vOp2).IsEqual(ezVec4Type(2.0, 0.2, 0.5, 1.0), ezMath::SmallEpsilon<Type>()));
+    EZ_TEST_BOOL(vOp2.CompMax(vOp1).IsEqual(ezVec4Type(2.0, 0.2, 0.5, 1.0), ezMath::SmallEpsilon<Type>()));
 
     // CompClamp
-    EZ_TEST_BOOL(vOp1.CompClamp(vOp1, vOp2).IsEqual(ezVec4Type(-4.0f, -0.3f, -7.0f, -0.0f), ezMath::SmallEpsilon<Type>()));
-    EZ_TEST_BOOL(vOp2.CompClamp(vOp1, vOp2).IsEqual(ezVec4Type(2.0f, 0.2f, 0.5f, 1.0f), ezMath::SmallEpsilon<Type>()));
+    EZ_TEST_BOOL(vOp1.CompClamp(vOp1, vOp2).IsEqual(ezVec4Type(-4.0, -0.3, -7.0, -0.0), ezMath::SmallEpsilon<Type>()));
+    EZ_TEST_BOOL(vOp2.CompClamp(vOp1, vOp2).IsEqual(ezVec4Type(2.0, 0.2, 0.5, 1.0), ezMath::SmallEpsilon<Type>()));
 
     // CompMul
-    EZ_TEST_BOOL(vOp1.CompMul(vOp2).IsEqual(ezVec4Type(-8.0f, -0.06f, -3.5f, 0.0f), ezMath::SmallEpsilon<Type>()));
-    EZ_TEST_BOOL(vOp2.CompMul(vOp1).IsEqual(ezVec4Type(-8.0f, -0.06f, -3.5f, 0.0f), ezMath::SmallEpsilon<Type>()));
+    EZ_TEST_BOOL(vOp1.CompMul(vOp2).IsEqual(ezVec4Type(-8.0, -0.06, -3.5, 0.0), ezMath::SmallEpsilon<Type>()));
+    EZ_TEST_BOOL(vOp2.CompMul(vOp1).IsEqual(ezVec4Type(-8.0, -0.06, -3.5, 0.0), ezMath::SmallEpsilon<Type>()));
 
     // CompDiv
-    EZ_TEST_BOOL(vOp1.CompDiv(vOp2).IsEqual(ezVec4Type(-2.0f, -0.66666666f, -14.0f, 0.0f), ezMath::SmallEpsilon<Type>()));
+    EZ_TEST_BOOL(vOp1.CompDiv(vOp2).IsEqual(ezVec4Type(-2.0, -2.0/3.0, -14.0, 0.0), ezMath::SmallEpsilon<Type>()));
 
     // Abs
-    EZ_TEST_VEC4(vOp1.Abs(), ezVec4Type(4.0, 0.2f, 7.0f, 0.0f), ezMath::SmallEpsilon<Type>());
+    EZ_TEST_VEC4(vOp1.Abs(), ezVec4Type(4.0, 0.2, 7.0, 0.0), ezMath::SmallEpsilon<Type>());
   }
 }
 
