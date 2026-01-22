@@ -78,9 +78,9 @@ void ezQuatTemplate<Type>::GetRotationAxisAndAngle(ezVec3Template<Type>& out_vAx
 {
   EZ_NAN_ASSERT(this);
 
-  out_angle = 2.0f * ezMath::ACos(static_cast<float>(w));
+  out_angle = (Type)2.0 * ezMath::ACos<Type>(static_cast<Type>(w));
 
-  const float s = ezMath::Sqrt(1 - w * w);
+  const Type s = ezMath::Sqrt(1 - w * w);
 
   if (s < fEpsilon)
   {
@@ -88,7 +88,7 @@ void ezQuatTemplate<Type>::GetRotationAxisAndAngle(ezVec3Template<Type>& out_vAx
   }
   else
   {
-    const float ds = 1.0f / s;
+    const Type ds = 1.0 / s;
     out_vAxis.x = x * ds;
     out_vAxis.y = y * ds;
     out_vAxis.z = z * ds;
@@ -187,15 +187,15 @@ bool ezQuatTemplate<Type>::IsEqualRotation(const ezQuatTemplate<Type>& qOther, T
   }
 
   ezVec3Template<Type> vA1, vA2;
-  ezAngle A1, A2;
+  ezAngleTemplate<Type> A1, A2;
 
   GetRotationAxisAndAngle(vA1, A1);
   qOther.GetRotationAxisAndAngle(vA2, A2);
 
-  if ((A1.IsEqualSimple(A2, ezAngle::MakeFromDegree(static_cast<float>(360.0f * fEpsilon)))) && (vA1.IsEqual(vA2, fEpsilon)))
+  if ((A1.IsEqualSimple(A2, ezAngleTemplate<Type>::MakeFromDegree(static_cast<Type>((Type)360.0 * fEpsilon)))) && (vA1.IsEqual(vA2, fEpsilon)))
     return true;
 
-  if ((A1.IsEqualSimple(-A2, ezAngle::MakeFromDegree(static_cast<float>(360.0f * fEpsilon)))) && (vA1.IsEqual(-vA2, fEpsilon)))
+  if ((A1.IsEqualSimple(-A2, ezAngleTemplate<Type>::MakeFromDegree(static_cast<Type>((Type)360.0 * fEpsilon)))) && (vA1.IsEqual(-vA2, fEpsilon)))
     return true;
 
   return false;
@@ -377,9 +377,9 @@ ezQuatTemplate<Type> ezQuatTemplate<Type>::MakeShortestRotation(const ezVec3Temp
   {
     // find an axis, that is not identical and not opposing, ezVec3Template::Cross-product to find perpendicular vector, rotate around that
     if (ezMath::Abs(v0.Dot(ezVec3Template<Type>(1, 0, 0))) < (Type)0.8)
-      return MakeFromAxisAndAngle(v0.CrossRH(ezVec3Template<Type>(1, 0, 0)).GetNormalized(), ezAngle::MakeFromRadian(ezMath::Pi<float>()));
+      return MakeFromAxisAndAngle(v0.CrossRH(ezVec3Template<Type>(1, 0, 0)).GetNormalized(), ezAngleTemplate<Type>::MakeFromRadian(ezMath::Pi<Type>()));
     else
-      return MakeFromAxisAndAngle(v0.CrossRH(ezVec3Template<Type>(0, 1, 0)).GetNormalized(), ezAngle::MakeFromRadian(ezMath::Pi<float>()));
+      return MakeFromAxisAndAngle(v0.CrossRH(ezVec3Template<Type>(0, 1, 0)).GetNormalized(), ezAngleTemplate<Type>::MakeFromRadian(ezMath::Pi<Type>()));
   }
 
   const ezVec3Template<Type> c = v0.CrossRH(v1);
@@ -423,11 +423,11 @@ ezQuatTemplate<Type> ezQuatTemplate<Type>::MakeSlerp(const ezQuatTemplate<Type>&
 
   if (cosTheta < qdelta)
   {
-    ezAngle theta = ezMath::ACos((float)cosTheta);
+    ezAngleTemplate<Type> theta = ezMath::ACos((Type)cosTheta);
 
     // use sqrtInv(1+c^2) instead of 1.0/sin(theta)
     const Type iSinTheta = (Type)1 / ezMath::Sqrt(one - (cosTheta * cosTheta));
-    const ezAngle tTheta = static_cast<float>(t) * theta;
+    const ezAngleTemplate<Type> tTheta = static_cast<Type>(t) * theta;
 
     Type s0 = ezMath::Sin(theta - tTheta);
     Type s1 = ezMath::Sin(tTheta);
@@ -490,30 +490,30 @@ void ezQuatTemplate<Type>::GetAsEulerAngles(ezAngleTemplate<Type>& out_x, ezAngl
 
   if (fSingularityTest > fSingularityThreshold) // singularity at north pole
   {
-    yaw = -2.0f * ezMath::ATan2(x, w);
-    pitch = ezAngle::MakeFromDegree(90.0f);
-    roll = ezAngle::MakeFromDegree(0.0f);
+    yaw = (Type)-2.0 * ezMath::ATan2<Type>(x, w);
+    pitch = ezAngleTemplate<Type>::MakeFromDegree(90.0f);
+    roll = ezAngleTemplate<Type>::MakeFromDegree(0.0f);
   }
   else if (fSingularityTest < -fSingularityThreshold) // singularity at south pole
   {
-    yaw = 2.0f * ezMath::ATan2(x, w);
-    pitch = ezAngle::MakeFromDegree(-90.0f);
-    roll = ezAngle::MakeFromDegree(0.0f);
+    yaw = (Type)2.0 * ezMath::ATan2<Type>(x, w);
+    pitch = ezAngleTemplate<Type>::MakeFromDegree(-90.0f);
+    roll = ezAngleTemplate<Type>::MakeFromDegree(0.0f);
   }
   else
   {
     // yaw (z-axis rotation)
     const double siny = 2.0 * (w * z + x * y);
     const double cosy = 1.0 - 2.0 * (y * y + z * z);
-    yaw = ezMath::ATan2((float)siny, (float)cosy);
+    yaw = ezMath::ATan2<Type>((Type)siny, (Type)cosy);
 
     // pitch (y-axis rotation)
-    pitch = ezMath::ASin(2.0f * (float)fSingularityTest);
+    pitch = ezMath::ASin<Type>(2.0f * (Type)fSingularityTest);
 
     // roll (x-axis rotation)
     const double sinr = 2.0 * (w * x + y * z);
     const double cosr = 1.0 - 2.0 * (x * x + y * y);
-    roll = ezMath::ATan2((float)sinr, (float)cosr);
+    roll = ezMath::ATan2<Type>((Type)sinr, (Type)cosr);
   }
 }
 
@@ -533,9 +533,9 @@ ezQuatTemplate<Type> ezQuatTemplate<Type>::MakeFromEulerAngles(const ezAngleTemp
   const double sr = ezMath::Sin(roll * Type(0.5));
 
   ezQuatTemplate<Type> q;
-  q.w = (float)(cy * cp * cr + sy * sp * sr);
-  q.x = (float)(cy * cp * sr - sy * sp * cr);
-  q.y = (float)(cy * sp * cr + sy * cp * sr);
-  q.z = (float)(sy * cp * cr - cy * sp * sr);
+  q.w = (Type)(cy * cp * cr + sy * sp * sr);
+  q.x = (Type)(cy * cp * sr - sy * sp * cr);
+  q.y = (Type)(cy * sp * cr + sy * cp * sr);
+  q.z = (Type)(sy * cp * cr - cy * sp * sr);
   return q;
 }

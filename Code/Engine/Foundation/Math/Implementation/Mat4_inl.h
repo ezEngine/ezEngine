@@ -178,7 +178,7 @@ ezMat4Template<Type> ezMat4Template<Type>::MakeScaling(const ezVec3Template<Type
 }
 
 template <typename Type>
-ezMat4Template<Type> ezMat4Template<Type>::MakeRotationX(ezAngle angle)
+ezMat4Template<Type> ezMat4Template<Type>::MakeRotationX(ezAngleTemplate<Type> angle)
 {
   const Type fSin = ezMath::Sin(angle);
   const Type fCos = ezMath::Cos(angle);
@@ -187,7 +187,7 @@ ezMat4Template<Type> ezMat4Template<Type>::MakeRotationX(ezAngle angle)
 }
 
 template <typename Type>
-ezMat4Template<Type> ezMat4Template<Type>::MakeRotationY(ezAngle angle)
+ezMat4Template<Type> ezMat4Template<Type>::MakeRotationY(ezAngleTemplate<Type> angle)
 {
   const Type fSin = ezMath::Sin(angle);
   const Type fCos = ezMath::Cos(angle);
@@ -196,7 +196,7 @@ ezMat4Template<Type> ezMat4Template<Type>::MakeRotationY(ezAngle angle)
 }
 
 template <typename Type>
-ezMat4Template<Type> ezMat4Template<Type>::MakeRotationZ(ezAngle angle)
+ezMat4Template<Type> ezMat4Template<Type>::MakeRotationZ(ezAngleTemplate<Type> angle)
 {
   const Type fSin = ezMath::Sin(angle);
   const Type fCos = ezMath::Cos(angle);

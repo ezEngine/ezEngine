@@ -335,7 +335,7 @@ void TestPlane()
 
       ezMat3Type m;
       {
-        m = ezMat3Type::MakeRotationX(ezAngle::MakeFromDegree((Type)90));
+        m = ezMat3Type::MakeRotationX(ezAngleTemplate<Type>::MakeFromDegree((Type)90));
 
         ezMat3Type rot = ezMat3Type::MakeScaling(ezVec3Type(1) * matrixScale[loopIndex]);
         m = m * rot;
@@ -359,7 +359,7 @@ void TestPlane()
 
         ezMat4Type m;
         {
-          m = ezMat4Type::MakeRotationX(ezAngle::MakeFromDegree((Type)90));
+          m = ezMat4Type::MakeRotationX(ezAngleTemplate<Type>::MakeFromDegree((Type)90));
           m.SetTranslationVector(ezVec3Type(0, 5, 0));
 
           ezMat4Type rot = ezMat4Type::MakeScaling(ezVec3Type(1) * matrixScale[loopIndex]);
@@ -377,7 +377,7 @@ void TestPlane()
 
         ezMat4Type m;
         {
-          m = ezMat4Type::MakeRotationX(ezAngle::MakeFromDegree((Type)90));
+          m = ezMat4Type::MakeRotationX(ezAngleTemplate<Type>::MakeFromDegree((Type)90));
           m.SetTranslationVector(ezVec3Type(0, 0, 5));
 
           ezMat4Type rot = ezMat4Type::MakeScaling(ezVec3Type(1) * matrixScale[loopIndex]);
