@@ -540,7 +540,7 @@ void TestMat3()
 
     m2.m_fElementsCM[0] += ezMath::DefaultEpsilon<Type>();
     EZ_TEST_BOOL(m.IsEqual(m2, ezMath::LargeEpsilon<Type>()));
-    EZ_TEST_BOOL(!m.IsEqual(m2, (Type)0.000001));
+    EZ_TEST_BOOL(!m.IsEqual(m2, ezMath::SmallEpsilon<Type>()));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator*(mat, mat)")
