@@ -19,19 +19,31 @@ namespace ezModelImporter2
   class aiLogStreamError : public Assimp::LogStream
   {
   public:
-    void write(const char* szMessage) { ezLog::Warning("AssImp: {0}", szMessage); }
+    void write(const char* szMessage)
+    {
+      if (ezStringUtils::FindSubString(szMessage, "unexpected illumination model") != nullptr)
+        return;
+
+      ezLog::Warning("AssImp: {0}", szMessage);
+    }
   };
 
   class aiLogStreamWarning : public Assimp::LogStream
   {
   public:
-    void write(const char* szMessage) { ezLog::Warning("AssImp: {0}", szMessage); }
+    void write(const char* szMessage)
+    {
+      ezLog::Warning("AssImp: {0}", szMessage);
+    }
   };
 
   class aiLogStreamInfo : public Assimp::LogStream
   {
   public:
-    void write(const char* szMessage) { ezLog::Debug("AssImp: {0}", szMessage); }
+    void write(const char* szMessage)
+    {
+      ezLog::Debug("AssImp: {0}", szMessage);
+    }
   };
 
   ezResult ImporterAssimp::DoImport()

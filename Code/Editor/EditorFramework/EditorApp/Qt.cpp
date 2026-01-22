@@ -157,6 +157,8 @@ static void QtDebugMessageHandler(QtMsgType type, const QMessageLogContext& cont
       // I just hate this pointless message
       if (sMsg.FindSubString("iCCP") != nullptr)
         return;
+      if (sMsg.FindSubString("Unable to set geometry") != nullptr)
+        return;
 
       ezLog::Warning("|Qt| {0} ({1}:{2}, {3})", sMsg, context.file, context.line, context.function);
       break;
