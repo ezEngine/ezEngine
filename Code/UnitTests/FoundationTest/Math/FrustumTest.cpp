@@ -53,8 +53,8 @@ EZ_CREATE_SIMPLE_TEST(Math, Frustum)
       EZ_TEST_BOOL(f.GetTransformedFrustum(mTransform).GetPlane(planeIndex) == tf.GetPlane(planeIndex));
     }
 
-    EZ_TEST_BOOL(tf.GetPlane(0).IsEqual(p[0], 0.001f));
-    EZ_TEST_BOOL(tf.GetPlane(1).IsEqual(p[1], 0.001f));
+    EZ_TEST_BOOL(tf.GetPlane(0).IsEqual(p[0], ezMath::LargeEpsilon<float>()));
+    EZ_TEST_BOOL(tf.GetPlane(1).IsEqual(p[1], ezMath::LargeEpsilon<float>()));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "InvertFrustum")
@@ -332,7 +332,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Frustum)
 
     for (ezUInt32 i = 0; i < 8; ++i)
     {
-      EZ_TEST_BOOL(corners[i].IsEqual(corners2[i], 0.01f));
+      EZ_TEST_BOOL(corners[i].IsEqual(corners2[i], ezMath::HugeEpsilon<float>()));
     }
   }
 

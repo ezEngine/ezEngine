@@ -302,6 +302,38 @@ namespace ezMath
   }
 
 
+    template <typename TYPE>
+  constexpr TYPE VeryVerySmallEpsilon()
+  {
+    if constexpr (std::is_same_v<TYPE, float>)
+    {
+      return (TYPE)0.00000001;  
+    }
+    else if constexpr (std::is_same_v<TYPE, double>)
+    {
+      return (TYPE)DBL_EPSILON*1.0;  
+    }
+    else
+    {
+      return (TYPE)0.00000001;  
+    }
+  }
+  template <typename TYPE>
+  constexpr TYPE VerySmallEpsilon()
+  {
+    if constexpr (std::is_same_v<TYPE, float>)
+    {
+      return (TYPE)0.0000001;  
+    }
+    else if constexpr (std::is_same_v<TYPE, double>)
+    {
+      return (TYPE)DBL_EPSILON*1.0;  
+    }
+    else
+    {
+      return (TYPE)0.0000001;  
+    }
+  }
   template <typename TYPE>
   constexpr TYPE SmallEpsilon()
   {
@@ -369,6 +401,23 @@ namespace ezMath
       return (TYPE)0.001; 
     }
   }
+  template <typename TYPE>
+  constexpr TYPE VeryHugeEpsilon()
+  {
+    if constexpr (std::is_same_v<TYPE, float>)
+    {
+      return (TYPE)0.01; 
+    }
+    else if constexpr (std::is_same_v<TYPE, double>)
+    {
+      return (TYPE)DBL_EPSILON*100000.0; 
+    }
+    else
+    {
+      return (TYPE)0.01; 
+    }
+  }
+
 
   //////////////////////////////////////////////////////////////////////////
 

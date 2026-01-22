@@ -133,7 +133,7 @@ template <typename Type>
 EZ_IMPLEMENT_IF_FLOAT_TYPE EZ_FORCE_INLINE bool ezVec3Template<Type>::IsNormalized(Type fEpsilon /* = ezMath::HugeEpsilon<Type>() */) const
 {
   const Type t = GetLength();
-  return ezMath::IsEqual(t, (Type)1, fEpsilon);
+  return ezMath::IsEqual<Type>(t, (Type)1, fEpsilon);
 }
 
 template <typename Type>

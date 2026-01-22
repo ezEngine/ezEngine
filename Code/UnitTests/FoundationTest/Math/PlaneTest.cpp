@@ -278,7 +278,7 @@ void TestPlane()
   {
     ezPlaneType p1 = ezPlaneType::MakeFromNormalAndPoint(ezVec3Type(0, 1, 0), ezVec3Type(0, 10, 0));
     ezPlaneType p2 = ezPlaneType::MakeFromNormalAndPoint(ezVec3Type(0, 1, 0), ezVec3Type(0, 10, 0));
-    ezPlaneType p3 = ezPlaneType::MakeFromNormalAndPoint(ezVec3Type(0, 1, 0), ezVec3Type(0, 10.00001, 0));
+    ezPlaneType p3 = ezPlaneType::MakeFromNormalAndPoint(ezVec3Type(0, 1, 0), ezVec3Type(0, 10 + ezMath::DefaultEpsilon<Type>(), 0));
 
     EZ_TEST_BOOL(p1.IsIdentical(p1));
     EZ_TEST_BOOL(p2.IsIdentical(p2));
@@ -302,7 +302,7 @@ void TestPlane()
   {
     ezPlaneType p1 = ezPlaneType::MakeFromNormalAndPoint(ezVec3Type(0, 1, 0), ezVec3Type(0, 10, 0));
     ezPlaneType p2 = ezPlaneType::MakeFromNormalAndPoint(ezVec3Type(0, 1, 0), ezVec3Type(0, 10, 0));
-    ezPlaneType p3 = ezPlaneType::MakeFromNormalAndPoint(ezVec3Type(0, 1, 0), ezVec3Type(0, 10.00001, 0));
+    ezPlaneType p3 = ezPlaneType::MakeFromNormalAndPoint(ezVec3Type(0, 1, 0), ezVec3Type(0, 10 + ezMath::DefaultEpsilon<Type>(), 0));
 
     EZ_TEST_BOOL(p1.IsEqual(p1));
     EZ_TEST_BOOL(p2.IsEqual(p2));

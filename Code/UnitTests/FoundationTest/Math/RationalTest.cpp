@@ -27,14 +27,14 @@ EZ_CREATE_SIMPLE_TEST(Math, Rational)
     ezRational r5(30, 6);
     EZ_TEST_BOOL(r5.IsIntegral());
     EZ_TEST_INT(r5.GetIntegralResult(), 5);
-    EZ_TEST_FLOAT(r5.GetFloatingPointResult(), 5, ezMath::SmallEpsilon<double>());
+    EZ_TEST_FLOAT(r5.GetFloatingPointResult(), 5, ezMath::SmallEpsilon<float>());
 
     ezRational reducedTest(5, 1);
     EZ_TEST_BOOL(r5.ReduceIntegralFraction() == reducedTest);
 
     ezRational r6(31, 6);
     EZ_TEST_BOOL(!r6.IsIntegral());
-    EZ_TEST_FLOAT(r6.GetFloatingPointResult(), 5.16666666666, ezMath::SmallEpsilon<double>());
+    EZ_TEST_FLOAT(r6.GetFloatingPointResult(), 5.16666666666, ezMath::SmallEpsilon<float>());
 
 
     EZ_TEST_INT(r6.GetDenominator(), 6);

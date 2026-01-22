@@ -57,17 +57,17 @@ void TestMat3()
   {
     ezMat3Type m = ezMat3Type::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9);
 
-    EZ_TEST_FLOAT(m.Element(0, 0), 1, (Type)0.00001);
-    EZ_TEST_FLOAT(m.Element(1, 0), 2, (Type)0.00001);
-    EZ_TEST_FLOAT(m.Element(2, 0), 3, (Type)0.00001);
-    EZ_TEST_FLOAT(m.Element(0, 1), 4, (Type)0.00001);
-    EZ_TEST_FLOAT(m.Element(1, 1), 5, (Type)0.00001);
-    EZ_TEST_FLOAT(m.Element(2, 1), 6, (Type)0.00001);
-    EZ_TEST_FLOAT(m.Element(0, 2), 7, (Type)0.00001);
-    EZ_TEST_FLOAT(m.Element(1, 2), 8, (Type)0.00001);
-    EZ_TEST_FLOAT(m.Element(2, 2), 9, (Type)0.00001);
-  }
-
+    
+        EZ_TEST_FLOAT(m.Element(0, 0), 1, ezMath::DefaultEpsilon<Type>());
+        EZ_TEST_FLOAT(m.Element(1, 0), 2, ezMath::DefaultEpsilon<Type>());
+        EZ_TEST_FLOAT(m.Element(2, 0), 3, ezMath::DefaultEpsilon<Type>());
+        EZ_TEST_FLOAT(m.Element(0, 1), 4, ezMath::DefaultEpsilon<Type>());
+        EZ_TEST_FLOAT(m.Element(1, 1), 5, ezMath::DefaultEpsilon<Type>());
+        EZ_TEST_FLOAT(m.Element(2, 1), 6, ezMath::DefaultEpsilon<Type>());
+        EZ_TEST_FLOAT(m.Element(0, 2), 7, ezMath::DefaultEpsilon<Type>());
+        EZ_TEST_FLOAT(m.Element(1, 2), 8, ezMath::DefaultEpsilon<Type>());
+        EZ_TEST_FLOAT(m.Element(2, 2), 9, ezMath::DefaultEpsilon<Type>());
+      }
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetFromArray")
   {
     const Type data[9] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
@@ -93,17 +93,17 @@ void TestMat3()
   {
     ezMat3Type m = ezMat3Type::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9);
 
-    EZ_TEST_FLOAT(m.Element(0, 0), 1, (Type)0.00001);
-    EZ_TEST_FLOAT(m.Element(1, 0), 2, (Type)0.00001);
-    EZ_TEST_FLOAT(m.Element(2, 0), 3, (Type)0.00001);
-    EZ_TEST_FLOAT(m.Element(0, 1), 4, (Type)0.00001);
-    EZ_TEST_FLOAT(m.Element(1, 1), 5, (Type)0.00001);
-    EZ_TEST_FLOAT(m.Element(2, 1), 6, (Type)0.00001);
-    EZ_TEST_FLOAT(m.Element(0, 2), 7, (Type)0.00001);
-    EZ_TEST_FLOAT(m.Element(1, 2), 8, (Type)0.00001);
-    EZ_TEST_FLOAT(m.Element(2, 2), 9, (Type)0.00001);
-  }
-
+    
+        EZ_TEST_FLOAT(m.Element(0, 0), 1, ezMath::DefaultEpsilon<Type>());
+        EZ_TEST_FLOAT(m.Element(1, 0), 2, ezMath::DefaultEpsilon<Type>());
+        EZ_TEST_FLOAT(m.Element(2, 0), 3, ezMath::DefaultEpsilon<Type>());
+        EZ_TEST_FLOAT(m.Element(0, 1), 4, ezMath::DefaultEpsilon<Type>());
+        EZ_TEST_FLOAT(m.Element(1, 1), 5, ezMath::DefaultEpsilon<Type>());
+        EZ_TEST_FLOAT(m.Element(2, 1), 6, ezMath::DefaultEpsilon<Type>());
+        EZ_TEST_FLOAT(m.Element(0, 2), 7, ezMath::DefaultEpsilon<Type>());
+        EZ_TEST_FLOAT(m.Element(1, 2), 8, ezMath::DefaultEpsilon<Type>());
+        EZ_TEST_FLOAT(m.Element(2, 2), 9, ezMath::DefaultEpsilon<Type>());
+      }
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetAsArray")
   {
     ezMat3Type m = ezMat3Type::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9);
@@ -111,26 +111,26 @@ void TestMat3()
     Type data[9];
 
     m.GetAsArray(data, ezMatrixLayout::ColumnMajor);
-    EZ_TEST_FLOAT(data[0], 1, (Type)0.0001);
-    EZ_TEST_FLOAT(data[1], 4, (Type)0.0001);
-    EZ_TEST_FLOAT(data[2], 7, (Type)0.0001);
-    EZ_TEST_FLOAT(data[3], 2, (Type)0.0001);
-    EZ_TEST_FLOAT(data[4], 5, (Type)0.0001);
-    EZ_TEST_FLOAT(data[5], 8, (Type)0.0001);
-    EZ_TEST_FLOAT(data[6], 3, (Type)0.0001);
-    EZ_TEST_FLOAT(data[7], 6, (Type)0.0001);
-    EZ_TEST_FLOAT(data[8], 9, (Type)0.0001);
+    EZ_TEST_FLOAT(data[0], 1, ezMath::LargeEpsilon<Type>());
+    EZ_TEST_FLOAT(data[1], 4, ezMath::LargeEpsilon<Type>());
+    EZ_TEST_FLOAT(data[2], 7, ezMath::LargeEpsilon<Type>());
+    EZ_TEST_FLOAT(data[3], 2, ezMath::LargeEpsilon<Type>());
+    EZ_TEST_FLOAT(data[4], 5, ezMath::LargeEpsilon<Type>());
+    EZ_TEST_FLOAT(data[5], 8, ezMath::LargeEpsilon<Type>());
+    EZ_TEST_FLOAT(data[6], 3, ezMath::LargeEpsilon<Type>());
+    EZ_TEST_FLOAT(data[7], 6, ezMath::LargeEpsilon<Type>());
+    EZ_TEST_FLOAT(data[8], 9, ezMath::LargeEpsilon<Type>());
 
     m.GetAsArray(data, ezMatrixLayout::RowMajor);
-    EZ_TEST_FLOAT(data[0], 1, (Type)0.0001);
-    EZ_TEST_FLOAT(data[1], 2, (Type)0.0001);
-    EZ_TEST_FLOAT(data[2], 3, (Type)0.0001);
-    EZ_TEST_FLOAT(data[3], 4, (Type)0.0001);
-    EZ_TEST_FLOAT(data[4], 5, (Type)0.0001);
-    EZ_TEST_FLOAT(data[5], 6, (Type)0.0001);
-    EZ_TEST_FLOAT(data[6], 7, (Type)0.0001);
-    EZ_TEST_FLOAT(data[7], 8, (Type)0.0001);
-    EZ_TEST_FLOAT(data[8], 9, (Type)0.0001);
+    EZ_TEST_FLOAT(data[0], 1, ezMath::LargeEpsilon<Type>());
+    EZ_TEST_FLOAT(data[1], 2, ezMath::LargeEpsilon<Type>());
+    EZ_TEST_FLOAT(data[2], 3, ezMath::LargeEpsilon<Type>());
+    EZ_TEST_FLOAT(data[3], 4, ezMath::LargeEpsilon<Type>());
+    EZ_TEST_FLOAT(data[4], 5, ezMath::LargeEpsilon<Type>());
+    EZ_TEST_FLOAT(data[5], 6, ezMath::LargeEpsilon<Type>());
+    EZ_TEST_FLOAT(data[6], 7, ezMath::LargeEpsilon<Type>());
+    EZ_TEST_FLOAT(data[7], 8, ezMath::LargeEpsilon<Type>());
+    EZ_TEST_FLOAT(data[8], 9, ezMath::LargeEpsilon<Type>());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetZero")
@@ -178,16 +178,16 @@ void TestMat3()
     ezMat3Type m;
 
     m = ezMat3Type::MakeRotationX(ezAngle::MakeFromDegree(90));
-    EZ_TEST_BOOL((m * ezVec3Type(1, 2, 3)).IsEqual(ezVec3Type(1, -3, 2), (Type)0.0001));
+    EZ_TEST_BOOL((m * ezVec3Type(1, 2, 3)).IsEqual(ezVec3Type(1, -3, 2), ezMath::LargeEpsilon<Type>()));
 
     m = ezMat3Type::MakeRotationX(ezAngle::MakeFromDegree(180));
-    EZ_TEST_BOOL((m * ezVec3Type(1, 2, 3)).IsEqual(ezVec3Type(1, -2, -3), (Type)0.0001));
+    EZ_TEST_BOOL((m * ezVec3Type(1, 2, 3)).IsEqual(ezVec3Type(1, -2, -3), ezMath::LargeEpsilon<Type>()));
 
     m = ezMat3Type::MakeRotationX(ezAngle::MakeFromDegree(270));
-    EZ_TEST_BOOL((m * ezVec3Type(1, 2, 3)).IsEqual(ezVec3Type(1, 3, -2), (Type)0.0001));
+    EZ_TEST_BOOL((m * ezVec3Type(1, 2, 3)).IsEqual(ezVec3Type(1, 3, -2), ezMath::LargeEpsilon<Type>()));
 
     m = ezMat3Type::MakeRotationX(ezAngle::MakeFromDegree(360));
-    EZ_TEST_BOOL((m * ezVec3Type(1, 2, 3)).IsEqual(ezVec3Type(1, 2, 3), (Type)0.0001));
+    EZ_TEST_BOOL((m * ezVec3Type(1, 2, 3)).IsEqual(ezVec3Type(1, 2, 3), ezMath::LargeEpsilon<Type>()));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetRotationMatrixY")
@@ -195,16 +195,16 @@ void TestMat3()
     ezMat3Type m;
 
     m = ezMat3Type::MakeRotationY(ezAngle::MakeFromDegree(90));
-    EZ_TEST_BOOL((m * ezVec3Type(1, 2, 3)).IsEqual(ezVec3Type(3, 2, -1), (Type)0.0001));
+    EZ_TEST_BOOL((m * ezVec3Type(1, 2, 3)).IsEqual(ezVec3Type(3, 2, -1), ezMath::LargeEpsilon<Type>()));
 
     m = ezMat3Type::MakeRotationY(ezAngle::MakeFromDegree(180));
-    EZ_TEST_BOOL((m * ezVec3Type(1, 2, 3)).IsEqual(ezVec3Type(-1, 2, -3), (Type)0.0001));
+    EZ_TEST_BOOL((m * ezVec3Type(1, 2, 3)).IsEqual(ezVec3Type(-1, 2, -3), ezMath::LargeEpsilon<Type>()));
 
     m = ezMat3Type::MakeRotationY(ezAngle::MakeFromDegree(270));
-    EZ_TEST_BOOL((m * ezVec3Type(1, 2, 3)).IsEqual(ezVec3Type(-3, 2, 1), (Type)0.0001));
+    EZ_TEST_BOOL((m * ezVec3Type(1, 2, 3)).IsEqual(ezVec3Type(-3, 2, 1), ezMath::LargeEpsilon<Type>()));
 
     m = ezMat3Type::MakeRotationY(ezAngle::MakeFromDegree(360));
-    EZ_TEST_BOOL((m * ezVec3Type(1, 2, 3)).IsEqual(ezVec3Type(1, 2, 3), (Type)0.0001));
+    EZ_TEST_BOOL((m * ezVec3Type(1, 2, 3)).IsEqual(ezVec3Type(1, 2, 3), ezMath::LargeEpsilon<Type>()));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetRotationMatrixZ")
@@ -212,16 +212,16 @@ void TestMat3()
     ezMat3Type m;
 
     m = ezMat3Type::MakeRotationZ(ezAngle::MakeFromDegree(90));
-    EZ_TEST_BOOL((m * ezVec3Type(1, 2, 3)).IsEqual(ezVec3Type(-2, 1, 3), (Type)0.0001));
+    EZ_TEST_BOOL((m * ezVec3Type(1, 2, 3)).IsEqual(ezVec3Type(-2, 1, 3), ezMath::LargeEpsilon<Type>()));
 
     m = ezMat3Type::MakeRotationZ(ezAngle::MakeFromDegree(180));
-    EZ_TEST_BOOL((m * ezVec3Type(1, 2, 3)).IsEqual(ezVec3Type(-1, -2, 3), (Type)0.0001));
+    EZ_TEST_BOOL((m * ezVec3Type(1, 2, 3)).IsEqual(ezVec3Type(-1, -2, 3), ezMath::LargeEpsilon<Type>()));
 
     m = ezMat3Type::MakeRotationZ(ezAngle::MakeFromDegree(270));
-    EZ_TEST_BOOL((m * ezVec3Type(1, 2, 3)).IsEqual(ezVec3Type(2, -1, 3), (Type)0.0001));
+    EZ_TEST_BOOL((m * ezVec3Type(1, 2, 3)).IsEqual(ezVec3Type(2, -1, 3), ezMath::LargeEpsilon<Type>()));
 
     m = ezMat3Type::MakeRotationZ(ezAngle::MakeFromDegree(360));
-    EZ_TEST_BOOL((m * ezVec3Type(1, 2, 3)).IsEqual(ezVec3Type(1, 2, 3), (Type)0.0001));
+    EZ_TEST_BOOL((m * ezVec3Type(1, 2, 3)).IsEqual(ezVec3Type(1, 2, 3), ezMath::LargeEpsilon<Type>()));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetRotationMatrix")
@@ -292,34 +292,34 @@ void TestMat3()
 
     m.Transpose();
 
-    EZ_TEST_FLOAT(m.Element(0, 0), 1, (Type)0.00001);
-    EZ_TEST_FLOAT(m.Element(1, 0), 4, (Type)0.00001);
-    EZ_TEST_FLOAT(m.Element(2, 0), 7, (Type)0.00001);
-    EZ_TEST_FLOAT(m.Element(0, 1), 2, (Type)0.00001);
-    EZ_TEST_FLOAT(m.Element(1, 1), 5, (Type)0.00001);
-    EZ_TEST_FLOAT(m.Element(2, 1), 8, (Type)0.00001);
-    EZ_TEST_FLOAT(m.Element(0, 2), 3, (Type)0.00001);
-    EZ_TEST_FLOAT(m.Element(1, 2), 6, (Type)0.00001);
-    EZ_TEST_FLOAT(m.Element(2, 2), 9, (Type)0.00001);
-  }
-
+    
+        EZ_TEST_FLOAT(m.Element(0, 0), 1, ezMath::DefaultEpsilon<Type>());
+        EZ_TEST_FLOAT(m.Element(1, 0), 4, ezMath::DefaultEpsilon<Type>());
+        EZ_TEST_FLOAT(m.Element(2, 0), 7, ezMath::DefaultEpsilon<Type>());
+        EZ_TEST_FLOAT(m.Element(0, 1), 2, ezMath::DefaultEpsilon<Type>());
+        EZ_TEST_FLOAT(m.Element(1, 1), 5, ezMath::DefaultEpsilon<Type>());
+        EZ_TEST_FLOAT(m.Element(2, 1), 8, ezMath::DefaultEpsilon<Type>());
+        EZ_TEST_FLOAT(m.Element(0, 2), 3, ezMath::DefaultEpsilon<Type>());
+        EZ_TEST_FLOAT(m.Element(1, 2), 6, ezMath::DefaultEpsilon<Type>());
+        EZ_TEST_FLOAT(m.Element(2, 2), 9, ezMath::DefaultEpsilon<Type>());
+      }
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetTranspose")
   {
     ezMat3Type m0 = ezMat3Type::MakeFromValues(1, 2, 3, 4, 5, 6, 7, 8, 9);
 
     ezMat3Type m = m0.GetTranspose();
 
-    EZ_TEST_FLOAT(m.Element(0, 0), 1, (Type)0.00001);
-    EZ_TEST_FLOAT(m.Element(1, 0), 4, (Type)0.00001);
-    EZ_TEST_FLOAT(m.Element(2, 0), 7, (Type)0.00001);
-    EZ_TEST_FLOAT(m.Element(0, 1), 2, (Type)0.00001);
-    EZ_TEST_FLOAT(m.Element(1, 1), 5, (Type)0.00001);
-    EZ_TEST_FLOAT(m.Element(2, 1), 8, (Type)0.00001);
-    EZ_TEST_FLOAT(m.Element(0, 2), 3, (Type)0.00001);
-    EZ_TEST_FLOAT(m.Element(1, 2), 6, (Type)0.00001);
-    EZ_TEST_FLOAT(m.Element(2, 2), 9, (Type)0.00001);
-  }
-
+    
+        EZ_TEST_FLOAT(m.Element(0, 0), 1, ezMath::DefaultEpsilon<Type>());
+        EZ_TEST_FLOAT(m.Element(1, 0), 4, ezMath::DefaultEpsilon<Type>());
+        EZ_TEST_FLOAT(m.Element(2, 0), 7, ezMath::DefaultEpsilon<Type>());
+        EZ_TEST_FLOAT(m.Element(0, 1), 2, ezMath::DefaultEpsilon<Type>());
+        EZ_TEST_FLOAT(m.Element(1, 1), 5, ezMath::DefaultEpsilon<Type>());
+        EZ_TEST_FLOAT(m.Element(2, 1), 8, ezMath::DefaultEpsilon<Type>());
+        EZ_TEST_FLOAT(m.Element(0, 2), 3, ezMath::DefaultEpsilon<Type>());
+        EZ_TEST_FLOAT(m.Element(1, 2), 6, ezMath::DefaultEpsilon<Type>());
+        EZ_TEST_FLOAT(m.Element(2, 2), 9, ezMath::DefaultEpsilon<Type>());
+      }
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Invert")
   {
     for (Type x = (Type)1.0; x < (Type)360.0; x += (Type)10.0)
@@ -473,7 +473,7 @@ void TestMat3()
     EZ_TEST_VEC3(s,
       ezVec3Type(ezMath::Sqrt((Type)(1 * 1 + 5 * 5 + 9 * 9)), ezMath::Sqrt((Type)(2 * 2 + 6 * 6 + 10 * 10)),
         ezMath::Sqrt((Type)(3 * 3 + 7 * 7 + 11 * 11))),
-      (Type)0.0001);
+      ezMath::LargeEpsilon<Type>());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetScalingFactors")
@@ -483,7 +483,7 @@ void TestMat3()
     EZ_TEST_BOOL(m.SetScalingFactors(ezVec3Type(1, 2, 3)) == EZ_SUCCESS);
 
     ezVec3Type s = m.GetScalingFactors();
-    EZ_TEST_VEC3(s, ezVec3Type(1, 2, 3), (Type)0.0001);
+    EZ_TEST_VEC3(s, ezVec3Type(1, 2, 3), ezMath::LargeEpsilon<Type>());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "TransformDirection")
@@ -492,7 +492,7 @@ void TestMat3()
 
     const ezVec3Type r = m.TransformDirection(ezVec3Type(1, 2, 3));
 
-    EZ_TEST_VEC3(r, ezVec3Type(1 * 1 + 2 * 2 + 3 * 3, 1 * 4 + 2 * 5 + 3 * 6, 1 * 7 + 2 * 8 + 3 * 9), (Type)0.0001);
+    EZ_TEST_VEC3(r, ezVec3Type(1 * 1 + 2 * 2 + 3 * 3, 1 * 4 + 2 * 5 + 3 * 6, 1 * 7 + 2 * 8 + 3 * 9), ezMath::LargeEpsilon<Type>());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator*=")
@@ -501,9 +501,9 @@ void TestMat3()
 
     m *= (Type)2;
 
-    EZ_TEST_VEC3(m.GetRow(0), ezVec3Type(2, 4, 6), (Type)0.0001);
-    EZ_TEST_VEC3(m.GetRow(1), ezVec3Type(8, 10, 12), (Type)0.0001);
-    EZ_TEST_VEC3(m.GetRow(2), ezVec3Type(14, 16, 18), (Type)0.0001);
+    EZ_TEST_VEC3(m.GetRow(0), ezVec3Type(2, 4, 6), ezMath::LargeEpsilon<Type>());
+    EZ_TEST_VEC3(m.GetRow(1), ezVec3Type(8, 10, 12), ezMath::LargeEpsilon<Type>());
+    EZ_TEST_VEC3(m.GetRow(2), ezVec3Type(14, 16, 18), ezMath::LargeEpsilon<Type>());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator/=")
@@ -513,9 +513,9 @@ void TestMat3()
     m *= (Type)4;
     m /= (Type)2;
 
-    EZ_TEST_VEC3(m.GetRow(0), ezVec3Type(2, 4, 6), (Type)0.0001);
-    EZ_TEST_VEC3(m.GetRow(1), ezVec3Type(8, 10, 12), (Type)0.0001);
-    EZ_TEST_VEC3(m.GetRow(2), ezVec3Type(14, 16, 18), (Type)0.0001);
+    EZ_TEST_VEC3(m.GetRow(0), ezVec3Type(2, 4, 6), ezMath::LargeEpsilon<Type>());
+    EZ_TEST_VEC3(m.GetRow(1), ezVec3Type(8, 10, 12), ezMath::LargeEpsilon<Type>());
+    EZ_TEST_VEC3(m.GetRow(2), ezVec3Type(14, 16, 18), ezMath::LargeEpsilon<Type>());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsIdentical")
@@ -526,7 +526,7 @@ void TestMat3()
 
     EZ_TEST_BOOL(m.IsIdentical(m2));
 
-    m2.m_fElementsCM[0] += (Type)0.00001;
+    m2.m_fElementsCM[0] += ezMath::DefaultEpsilon<Type>();
     EZ_TEST_BOOL(!m.IsIdentical(m2));
   }
 
@@ -536,10 +536,10 @@ void TestMat3()
 
     ezMat3Type m2 = m;
 
-    EZ_TEST_BOOL(m.IsEqual(m2, (Type)0.0001));
+    EZ_TEST_BOOL(m.IsEqual(m2, ezMath::LargeEpsilon<Type>()));
 
-    m2.m_fElementsCM[0] += (Type)0.00001;
-    EZ_TEST_BOOL(m.IsEqual(m2, (Type)0.0001));
+    m2.m_fElementsCM[0] += ezMath::DefaultEpsilon<Type>();
+    EZ_TEST_BOOL(m.IsEqual(m2, ezMath::LargeEpsilon<Type>()));
     EZ_TEST_BOOL(!m.IsEqual(m2, (Type)0.000001));
   }
 
@@ -551,9 +551,9 @@ void TestMat3()
 
     ezMat3Type r = m1 * m2;
 
-    EZ_TEST_VEC3(r.GetColumn(0), ezVec3Type(-1 * 1 + -4 * 2 + -7 * 3, -1 * 4 + -4 * 5 + -7 * 6, -1 * 7 + -4 * 8 + -7 * 9), (Type)0.001);
-    EZ_TEST_VEC3(r.GetColumn(1), ezVec3Type(-2 * 1 + -5 * 2 + -8 * 3, -2 * 4 + -5 * 5 + -8 * 6, -2 * 7 + -5 * 8 + -8 * 9), (Type)0.001);
-    EZ_TEST_VEC3(r.GetColumn(2), ezVec3Type(-3 * 1 + -6 * 2 + -9 * 3, -3 * 4 + -6 * 5 + -9 * 6, -3 * 7 + -6 * 8 + -9 * 9), (Type)0.001);
+    EZ_TEST_VEC3(r.GetColumn(0), ezVec3Type(-1 * 1 + -4 * 2 + -7 * 3, -1 * 4 + -4 * 5 + -7 * 6, -1 * 7 + -4 * 8 + -7 * 9), ezMath::LargeEpsilon<Type>());
+    EZ_TEST_VEC3(r.GetColumn(1), ezVec3Type(-2 * 1 + -5 * 2 + -8 * 3, -2 * 4 + -5 * 5 + -8 * 6, -2 * 7 + -5 * 8 + -8 * 9), ezMath::LargeEpsilon<Type>());
+    EZ_TEST_VEC3(r.GetColumn(2), ezVec3Type(-3 * 1 + -6 * 2 + -9 * 3, -3 * 4 + -6 * 5 + -9 * 6, -3 * 7 + -6 * 8 + -9 * 9), ezMath::LargeEpsilon<Type>());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator*(mat, vec)")
@@ -562,7 +562,7 @@ void TestMat3()
 
     const ezVec3Type r = m * (ezVec3Type(1, 2, 3));
 
-    EZ_TEST_VEC3(r, ezVec3Type(1 * 1 + 2 * 2 + 3 * 3, 1 * 4 + 2 * 5 + 3 * 6, 1 * 7 + 2 * 8 + 3 * 9), (Type)0.0001);
+    EZ_TEST_VEC3(r, ezVec3Type(1 * 1 + 2 * 2 + 3 * 3, 1 * 4 + 2 * 5 + 3 * 6, 1 * 7 + 2 * 8 + 3 * 9), ezMath::LargeEpsilon<Type>());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator*(mat, float) | operator*(float, mat)")
@@ -572,13 +572,13 @@ void TestMat3()
     ezMat3Type m = m0 * (Type)2;
     ezMat3Type m2 = (Type)2 * m0;
 
-    EZ_TEST_VEC3(m.GetRow(0), ezVec3Type(2, 4, 6), (Type)0.0001);
-    EZ_TEST_VEC3(m.GetRow(1), ezVec3Type(8, 10, 12), (Type)0.0001);
-    EZ_TEST_VEC3(m.GetRow(2), ezVec3Type(14, 16, 18), (Type)0.0001);
+    EZ_TEST_VEC3(m.GetRow(0), ezVec3Type(2, 4, 6), ezMath::LargeEpsilon<Type>());
+    EZ_TEST_VEC3(m.GetRow(1), ezVec3Type(8, 10, 12), ezMath::LargeEpsilon<Type>());
+    EZ_TEST_VEC3(m.GetRow(2), ezVec3Type(14, 16, 18), ezMath::LargeEpsilon<Type>());
 
-    EZ_TEST_VEC3(m2.GetRow(0), ezVec3Type(2, 4, 6), (Type)0.0001);
-    EZ_TEST_VEC3(m2.GetRow(1), ezVec3Type(8, 10, 12), (Type)0.0001);
-    EZ_TEST_VEC3(m2.GetRow(2), ezVec3Type(14, 16, 18), (Type)0.0001);
+    EZ_TEST_VEC3(m2.GetRow(0), ezVec3Type(2, 4, 6), ezMath::LargeEpsilon<Type>());
+    EZ_TEST_VEC3(m2.GetRow(1), ezVec3Type(8, 10, 12), ezMath::LargeEpsilon<Type>());
+    EZ_TEST_VEC3(m2.GetRow(2), ezVec3Type(14, 16, 18), ezMath::LargeEpsilon<Type>());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator/(mat, float)")
@@ -589,9 +589,9 @@ void TestMat3()
 
     ezMat3Type m = m0 / (Type)2;
 
-    EZ_TEST_VEC3(m.GetRow(0), ezVec3Type(2, 4, 6), (Type)0.0001);
-    EZ_TEST_VEC3(m.GetRow(1), ezVec3Type(8, 10, 12), (Type)0.0001);
-    EZ_TEST_VEC3(m.GetRow(2), ezVec3Type(14, 16, 18), (Type)0.0001);
+    EZ_TEST_VEC3(m.GetRow(0), ezVec3Type(2, 4, 6), ezMath::LargeEpsilon<Type>());
+    EZ_TEST_VEC3(m.GetRow(1), ezVec3Type(8, 10, 12), ezMath::LargeEpsilon<Type>());
+    EZ_TEST_VEC3(m.GetRow(2), ezVec3Type(14, 16, 18), ezMath::LargeEpsilon<Type>());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator+(mat, mat) | operator-(mat, mat)")
@@ -601,7 +601,7 @@ void TestMat3()
     ezMat3Type m1 = ezMat3Type::MakeFromValues(-1, -2, -3, -4, -5, -6, -7, -8, -9);
 
     EZ_TEST_BOOL((m0 + m1).IsZero());
-    EZ_TEST_BOOL((m0 - m1).IsEqual(m0 * (Type)2, (Type)0.0001));
+    EZ_TEST_BOOL((m0 - m1).IsEqual(m0 * (Type)2, ezMath::LargeEpsilon<Type>()));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator== (mat, mat) | operator!= (mat, mat)")
@@ -612,7 +612,7 @@ void TestMat3()
 
     EZ_TEST_BOOL(m == m2);
 
-    m2.m_fElementsCM[0] += (Type)0.00001;
+    m2.m_fElementsCM[0] += ezMath::DefaultEpsilon<Type>();
 
     EZ_TEST_BOOL(m != m2);
   }
