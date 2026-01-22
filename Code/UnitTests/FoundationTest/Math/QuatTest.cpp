@@ -100,8 +100,8 @@ void TestQuat()
     EZ_TEST_BOOL(ezQuatType::MakeIdentity().IsEqualRotation(ezQuatType::MakeIdentity(), ezMath::LargeEpsilon<Type>()));
     EZ_TEST_BOOL(ezQuatType::MakeIdentity().IsEqualRotation(ezQuatType((Type)0, (Type)0, (Type)0, (Type)-1), ezMath::LargeEpsilon<Type>()));
 
-    ezQuatType q4((Type)0, (Type)0, (Type)0, (Type)1.00000012);
-    ezQuatType q5((Type)0, (Type)0, (Type)0, (Type)1.00000023);
+    ezQuatType q4((Type)0, (Type)0, (Type)0, (Type)1 + ezMath::VerySmallEpsilon<Type>()*1.2);
+    ezQuatType q5((Type)0, (Type)0, (Type)0, (Type)1 + ezMath::VerySmallEpsilon<Type>()*2.3);
     EZ_TEST_BOOL(q4.IsEqualRotation(q5, ezMath::LargeEpsilon<Type>()));
   }
 
