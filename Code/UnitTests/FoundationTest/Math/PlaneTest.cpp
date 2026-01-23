@@ -219,7 +219,7 @@ void TestPlane()
 
     EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type(15, 2, 3), (Type)3.0)) == ezPositionOnPlane::Front);
     EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type(5, 2, 3), (Type)3.0)) == ezPositionOnPlane::Back);
-    EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type(15, 2, 4.999), (Type)3.0)) == ezPositionOnPlane::Front);
+    EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type((Type)15, (Type)2, (Type)4.999), (Type)3.0)) == ezPositionOnPlane::Front);
     EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type(5, 2, 3), (Type)4.999)) == ezPositionOnPlane::Back);
     EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type(8, 2, 3), (Type)3.0)) == ezPositionOnPlane::Spanning);
     EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type(12, 2, 3), (Type)3.0)) == ezPositionOnPlane::Spanning);
