@@ -204,6 +204,7 @@ namespace ezMath
   ///
   /// \sa Trunc, Round, Floor, Ceil
   [[nodiscard]] constexpr ezInt32 FloatToInt(float value);
+  [[nodiscard]] constexpr ezInt32 FloatToInt(double value);
 
   // There is a compiler bug in VS 2019 targeting 32-bit that causes an internal compiler error when casting double to long long.
   // FloatToInt(double) is not available on these version of the MSVC compiler.
