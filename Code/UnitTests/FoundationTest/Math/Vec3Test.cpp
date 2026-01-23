@@ -366,7 +366,7 @@ void TestVec3()
     EZ_TEST_BOOL(vOp1.CompDiv(vOp2).IsEqual(ezVec3Type((Type)-2.0, (Type)(-2.0/3.0), (Type)-14.0), ezMath::SmallEpsilon<Type>()));
 
     // Abs
-    EZ_TEST_VEC3(vOp1.Abs(), ezVec3Type(4.0, 0.2, 7.0), ezMath::SmallEpsilon<Type>());
+    EZ_TEST_VEC3(vOp1.Abs(), ezVec3Type((Type)4.0, (Type)0.2, (Type)7.0), ezMath::SmallEpsilon<Type>());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetAngleBetween")
