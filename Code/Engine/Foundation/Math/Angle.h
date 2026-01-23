@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Foundation/Math/Math.h>
+//#include <Foundation/Math/Math.h>
 
 /// \brief Float/double wrapper struct for a safe usage and conversions of angles.
 ///
