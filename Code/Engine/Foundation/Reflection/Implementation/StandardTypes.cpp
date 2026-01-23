@@ -1,6 +1,7 @@
 #include <Foundation/FoundationPCH.h>
 
 #include <Foundation/Math/Transform.h>
+#include <Foundation/Math/Angle.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Strings/HashedString.h>
 

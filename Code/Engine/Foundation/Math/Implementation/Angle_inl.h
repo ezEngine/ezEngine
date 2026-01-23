@@ -183,8 +183,8 @@ constexpr inline ezAngleTemplate<Type> ezAngleTemplate<Type>::AngleBetween(ezAng
 template <typename Type>
 inline void ezAngleTemplate<Type>::NormalizeRange()
 {
-  constexpr float fTwoPi = Type(2.0) * Pi();
-  constexpr float fTwoPiTen = Type(10.0) * Pi();
+  constexpr Type fTwoPi = Type(2.0) * Pi();
+  constexpr Type fTwoPiTen = Type(10.0) * Pi();
 
   if (m_fRadian > fTwoPiTen || m_fRadian < -fTwoPiTen)
   {
