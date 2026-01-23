@@ -47,6 +47,8 @@ namespace
 template <typename Type>
 void TestMath()
 {
+  using ezVec2Type = ezVec2Template<Type>;
+
   // EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constants")
   //{
   //  // Macro test
@@ -759,13 +761,13 @@ void TestMath()
   {
     // Determined through the scientific method of manually comparing the result of the function with an online Bezier curve generator:
     // https://www.desmos.com/calculator/cahqdxeshd
-    const ezVec2 res[] = {ezVec2((Type)1, (Type)5), ezVec2((Type)0.893, (Type)4.455), ezVec2((Type)1.112, (Type)4.008), ezVec2((Type)1.557, (Type)3.631), ezVec2((Type)2.136, (Type)3.304), ezVec2((Type)2.750, (Type)3.000),
-      ezVec2((Type)3.303, (Type)2.695), ezVec2((Type)3.701, (Type)2.368), ezVec2((Type)3.847, (Type)1.991), ezVec2((Type)3.645, (Type)1.543), ezVec2((Type)3, (Type)1)};
+    const ezVec2Type res[] = {ezVec2Type((Type)1, (Type)5), ezVec2Type((Type)0.893, (Type)4.455), ezVec2Type((Type)1.112, (Type)4.008), ezVec2Type((Type)1.557, (Type)3.631), ezVec2Type((Type)2.136, (Type)3.304), ezVec2Type((Type)2.750, (Type)3.000),
+      ezVec2Type((Type)3.303, (Type)2.695), ezVec2Type((Type)3.701, (Type)2.368), ezVec2Type((Type)3.847, (Type)1.991), ezVec2Type((Type)3.645, (Type)1.543), ezVec2Type((Type)3, (Type)1)};
 
     const Type step = (Type)1.0 / (EZ_ARRAY_SIZE(res) - 1);
     for (int i = 0; i < EZ_ARRAY_SIZE(res); ++i)
     {
-      const ezVec2 r = ezMath::EvaluateBezierCurve<ezVec2>(step * i, ezVec2((Type)1, (Type)5), ezVec2((Type)0, (Type)3), ezVec2((Type)6, (Type)3), ezVec2((Type)3, (Type)1));
+      const ezVec2Type r = ezMath::EvaluateBezierCurve<ezVec2Type>(step * i, ezVec2Type((Type)1, (Type)5), ezVec2Type((Type)0, (Type)3), ezVec2Type((Type)6, (Type)3), ezVec2Type((Type)3, (Type)1));
       EZ_TEST_VEC2(r, res[i], (Type)0.002);
     }
   }
