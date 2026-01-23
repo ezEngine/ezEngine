@@ -226,13 +226,13 @@ void ezQtLogModel::ProcessNewMessages()
 
   {
     EZ_LOCK(m_NewMessagesMutex);
-    
+
     // Reset processing flag so new messages can trigger another ProcessNewMessages
     m_bProcessingPending = false;
-    
+
     if (m_NewMessages.IsEmpty())
       return;
-    
+
     ezStringBuilder s;
     for (const auto& msg : m_NewMessages)
     {
@@ -320,7 +320,7 @@ void ezQtLogModel::ProcessNewMessages()
   {
     const int iFirstRow = static_cast<int>(m_VisibleMessages.GetCount());
     const int iLastRow = iFirstRow + static_cast<int>(messagesToAdd.GetCount()) - 1;
-    
+
     beginInsertRows(QModelIndex(), iFirstRow, iLastRow);
     for (auto pMsg : messagesToAdd)
     {

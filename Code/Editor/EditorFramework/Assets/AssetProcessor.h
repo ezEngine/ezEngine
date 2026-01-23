@@ -8,8 +8,8 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Logging/LogEntry.h>
 #include <Foundation/Threading/AtomicInteger.h>
-#include <Foundation/Threading/ThreadSignal.h>
 #include <Foundation/Threading/Thread.h>
+#include <Foundation/Threading/ThreadSignal.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <ToolsFoundation/FileSystem/DataDirPath.h>
 #include <atomic>

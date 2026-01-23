@@ -223,16 +223,16 @@ void ezQtAssetProcessorProgressWidget::InitializePaintCaches() const
 {
   if (m_bCachesInitialized)
     return;
-  
+
   m_bCachesInitialized = true;
-  
+
   // Initialize fonts
   m_ProcessorLabelFont = font();
   m_ProcessorLabelFont.setPointSize(9);
-  
+
   m_TaskLabelFont = font();
   m_TaskLabelFont.setPointSize(8);
-  
+
   // Create skip offset pattern pixmap
   m_SkipOffsetPattern = QPixmap(16, 16);
   m_SkipOffsetPattern.fill(Qt::transparent);
@@ -281,9 +281,7 @@ void ezQtAssetProcessorProgressWidget::SetScrollBarWidget(QScrollBar* pScrollBar
       update(); //
     });
   connect(m_pScrollBar, &QScrollBar::sliderReleased, this, [this]()
-    {
-      m_AssetNameCache.Clear();
-    });
+    { m_AssetNameCache.Clear(); });
 
   ClampZoomPan();
   UpdateGridBarConfig();
@@ -304,10 +302,10 @@ void ezQtAssetProcessorProgressWidget::ClearHistory()
 void ezQtAssetProcessorProgressWidget::paintEvent(QPaintEvent* event)
 {
   EZ_PROFILE_SCOPE("ezQtAssetProcessorProgressWidget::paintEvent");
- 
+
   // Initialize caches on first paint
   InitializePaintCaches();
-  
+
   QPainter painter(this);
   painter.setRenderHint(QPainter::Antialiasing, false);
   DrawTimeline(painter);
@@ -426,7 +424,7 @@ void ezQtAssetProcessorProgressWidget::wheelEvent(QWheelEvent* e)
 void ezQtAssetProcessorProgressWidget::changeEvent(QEvent* e)
 {
   QWidget::changeEvent(e);
-  
+
   if (e->type() == QEvent::PaletteChange || e->type() == QEvent::StyleChange)
   {
     InvalidatePaintCaches();
@@ -650,7 +648,7 @@ void ezQtAssetProcessorProgressWidget::ShowTooltip(QMouseEvent* e)
   if (pTask->IsFinished())
   {
     sTooltip.AppendFormat("\n{} duration: {}s", pTask->m_TransformState == ezAssetInfo::TransformState::NeedsTransform ? "Transform" : "Thumbnail", ezArgF(pTask->m_fDurationInSeconds, 3));
-    sTooltip.AppendFormat("\nTime spent on curator updates: {}s",  ezArgF(pTask->m_fTransformStartTimeInSeconds - pTask->m_fStartTimeInSeconds, 3));
+    sTooltip.AppendFormat("\nTime spent on curator updates: {}s", ezArgF(pTask->m_fTransformStartTimeInSeconds - pTask->m_fStartTimeInSeconds, 3));
 
     if (pTask->Failed())
     {
@@ -685,10 +683,10 @@ void ezQtAssetProcessorProgressWidget::DrawProcessorRow(QPainter& painter, ezUIn
   ezDynamicArray<ProcessorTask> visibleTasks;
   ezHybridArray<ezTime, 8> skipOffsets;
   ezTime currentTime;
-  
+
   {
     EZ_LOCK(m_pHistoryState->m_HistoryMutex);
-    
+
     if (uiProcessorID < m_pHistoryState->m_ProcessStates.GetCount())
     {
       state = m_pHistoryState->m_ProcessStates[uiProcessorID];
@@ -696,7 +694,7 @@ void ezQtAssetProcessorProgressWidget::DrawProcessorRow(QPainter& painter, ezUIn
 
     skipOffsets = m_pHistoryState->m_SkipOffsets;
     currentTime = ezTime::Now() - m_pHistoryState->m_CurrentOffset;
-    
+
     // Copy only visible tasks
     if (uiProcessorID < m_pHistoryState->m_ProcessorHistory.GetCount())
     {
@@ -704,7 +702,7 @@ void ezQtAssetProcessorProgressWidget::DrawProcessorRow(QPainter& painter, ezUIn
       visibleTasks.Reserve(history.GetCount());
       const float fStartTimeView = static_cast<float>(MapToScene({s_iLeftMargin, 0}).x());
       const float fCurrentTimeSeconds = static_cast<float>(currentTime.GetSeconds());
-      
+
       auto it = std::upper_bound(begin(history), end(history), fStartTimeView,
         [&](float time, const ProcessorTask& task)
         {
@@ -712,17 +710,17 @@ void ezQtAssetProcessorProgressWidget::DrawProcessorRow(QPainter& painter, ezUIn
         });
       if (it != begin(history))
         it--;
-      
+
       for (; it != end(history); ++it)
       {
         const ProcessorTask& task = *it;
         float fTaskEndTime = task.IsFinished() ? task.EndTime() : fCurrentTimeSeconds;
-        
+
         if (fTaskEndTime < viewportRect.left())
           continue;
         if (task.m_fStartTimeInSeconds > viewportRect.right())
           break;
-        
+
         visibleTasks.PushBack(task);
       }
     }
@@ -750,13 +748,13 @@ void ezQtAssetProcessorProgressWidget::DrawProcessorRow(QPainter& painter, ezUIn
   {
     painter.setPen(palette().color(QPalette::Text));
     painter.setFont(m_ProcessorLabelFont);
-    
+
     // Ensure we have a cached label for this processor
     while (m_ProcessorLabels.GetCount() <= uiProcessorID)
     {
       m_ProcessorLabels.PushBack(QString("Process %1").arg(m_ProcessorLabels.GetCount()));
     }
-    
+
     painter.drawText(5 + s_iIndicatorSize + 8, y, s_iLeftMargin - 23 - s_iIndicatorSize, s_iRowHeight, Qt::AlignVCenter | Qt::AlignLeft,
       m_ProcessorLabels[uiProcessorID]);
   }

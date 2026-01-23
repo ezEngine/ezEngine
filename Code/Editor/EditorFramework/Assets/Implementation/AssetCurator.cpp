@@ -809,7 +809,7 @@ ezAssetInfo::TransformState ezAssetCurator::IsAssetUpToDate(const ezUuid& assetG
     for (auto& asset : transitiveHull)
     {
       InvalidateAssetTransformState(asset);
-      //UpdateAssetTransformState(asset, ezAssetInfo::TransformState::Unknown);
+      // UpdateAssetTransformState(asset, ezAssetInfo::TransformState::Unknown);
     }
   }
 

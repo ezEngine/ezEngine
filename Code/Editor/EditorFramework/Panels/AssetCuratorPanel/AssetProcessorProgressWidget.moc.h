@@ -139,10 +139,10 @@ private:
   // Cache for asset names so we don't have to store the name in ProcessorTask and also don't SPAM the ezAssetCurator.
   mutable ezMap<ezUuid, ezString> m_AssetNameCache;
   ezString m_sUnknownAsset = "<DELETED>";
-  
+
   // Paint performance tracking
   mutable double m_fLastPaintTimeMs = 0.0;
-  
+
   // Paint performance caches
   mutable QPixmap m_SkipOffsetPattern;
   mutable QFont m_ProcessorLabelFont;
@@ -152,7 +152,7 @@ private:
   mutable QColor m_ErrorColor[2];
   mutable bool m_bCachesInitialized = false;
   mutable ezDynamicArray<QString> m_ProcessorLabels; // Cached "Process N" strings
-  
+
   void InitializePaintCaches() const;
   void InvalidatePaintCaches();
 };
