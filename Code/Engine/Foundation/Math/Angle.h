@@ -1,7 +1,5 @@
 #pragma once
 
-//#include <Foundation/Math/Math.h>
-
 /// \brief Float/double wrapper struct for a safe usage and conversions of angles.
 ///
 /// Uses radian internally. Will <b>not</b> automatically keep its range between 0 degree - 360 degree (0 - 2PI) but you can call NormalizeRange to do
@@ -125,5 +123,7 @@ constexpr ezAngleTemplate<Type> operator/(const ezAngleTemplate<Type>& a, Type f
 /// \brief Returns the fraction of angle a divided by angle b.
 template <typename Type>
 constexpr Type operator/(const ezAngleTemplate<Type>& a, const ezAngleTemplate<Type>& b); // [tested]
+
+#include <Foundation/Math/Math.h>
 
 #include <Foundation/Math/Implementation/Angle_inl.h>
