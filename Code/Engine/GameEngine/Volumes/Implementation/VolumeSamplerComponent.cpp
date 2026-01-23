@@ -216,4 +216,3 @@ void ezVolumeSamplerComponent::Update()
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Volumes_Implementation_VolumeSamplerComponent);
-
