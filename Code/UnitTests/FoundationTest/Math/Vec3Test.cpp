@@ -201,8 +201,8 @@ void TestVec3()
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Operators")
   {
-    const ezVec3Type vOp1(-4.0, 0.2, -7.0);
-    const ezVec3Type vOp2(2.0, 0.3, 0.0);
+    const ezVec3Type vOp1((Type)-4.0, (Type)0.2, (Type)-7.0);
+    const ezVec3Type vOp2((Type)2.0, (Type)0.3, (Type)0.0);
     const ezVec3Type compArray[3] = {ezVec3Type((Type)1.0, (Type)0.0, (Type)0.0), ezVec3Type((Type)0.0, (Type)1.0, (Type)0.0), ezVec3Type((Type)0.0, (Type)0.0, (Type)1.0)};
     // IsIdentical
     EZ_TEST_BOOL(vOp1.IsIdentical(vOp1));
