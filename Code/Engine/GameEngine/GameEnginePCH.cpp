@@ -57,6 +57,7 @@ EZ_STATICLINK_LIBRARY(GameEngine)
   EZ_STATICLINK_REFERENCE(GameEngine_Utils_Implementation_BlackboardTemplateResource);
   EZ_STATICLINK_REFERENCE(GameEngine_Utils_Implementation_ImageDataResource);
   EZ_STATICLINK_REFERENCE(GameEngine_Volumes_Implementation_VolumeComponent);
+  EZ_STATICLINK_REFERENCE(GameEngine_Volumes_Implementation_VolumeSamplerComponent);
   EZ_STATICLINK_REFERENCE(GameEngine_XR_Implementation_Declaration);
   EZ_STATICLINK_REFERENCE(GameEngine_XR_Implementation_DeviceTrackingComponent);
   EZ_STATICLINK_REFERENCE(GameEngine_XR_Implementation_SpatialAnchorComponent);
