@@ -974,11 +974,11 @@ void TestMath()
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReplaceNaN")
   {
     EZ_TEST_FLOAT(ezMath::ReplaceNaN(0.0, 42.0), 0.0, 0);
-    EZ_TEST_FLOAT(ezMath::ReplaceNaN(ezMath::HighValue<Type>(), 2.0), ezMath::HighValue<Type>(), 0);
-    EZ_TEST_FLOAT(ezMath::ReplaceNaN(-ezMath::HighValue<Type>(), 2.0), -ezMath::HighValue<Type>(), 0);
+    EZ_TEST_FLOAT(ezMath::ReplaceNaN(ezMath::HighValue<Type>(), (Type)2.0), ezMath::HighValue<Type>(), 0);
+    EZ_TEST_FLOAT(ezMath::ReplaceNaN(-ezMath::HighValue<Type>(), (Type)2.0), -ezMath::HighValue<Type>(), 0);
 
-    EZ_TEST_FLOAT(ezMath::ReplaceNaN(ezMath::NaN<Type>(), 2.0), 2.0, 0);
-    EZ_TEST_FLOAT(ezMath::ReplaceNaN(ezMath::NaN<double>(), 3.0), 3.0, 0);
+    EZ_TEST_FLOAT(ezMath::ReplaceNaN(ezMath::NaN<Type>(), (Type)2.0), 2.0, 0);
+    EZ_TEST_FLOAT(ezMath::ReplaceNaN(ezMath::NaN<double>(), (double)3.0), 3.0, 0);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ComparisonOperator")
