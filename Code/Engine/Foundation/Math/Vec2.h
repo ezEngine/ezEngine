@@ -167,7 +167,7 @@ public:
   // *** Common vector operations ***
 public:
   /// \brief Returns the positive angle between *this and rhs.
-  ezAngle GetAngleBetween(const ezVec2Template<Type>& rhs) const; // [tested]
+  ezAngleTemplate<Type> GetAngleBetween(const ezVec2Template<Type>& rhs) const; // [tested]
 
   /// \brief Returns the Dot-product of the two vectors (commutative, order does not matter)
   Type Dot(const ezVec2Template<Type>& rhs) const; // [tested]
