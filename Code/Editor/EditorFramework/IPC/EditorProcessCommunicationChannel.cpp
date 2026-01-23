@@ -26,15 +26,12 @@ ezResult ezEditorProcessCommunicationChannel::StartClientProcess(const char* szP
 
   if (bRemote)
   {
-    m_pChannel = ezIpcChannel::CreateNetworkChannel("172.16.80.3:1050", ezIpcChannel::Mode::Client);
+    CreateAndConnectChannel(ezIpcChannel::CreateNetworkChannel("172.16.80.3:1050", ezIpcChannel::Mode::Client));
   }
   else
   {
-    m_pChannel = ezIpcChannel::CreatePipeChannel(sMemName, ezIpcChannel::Mode::Server);
+    CreateAndConnectChannel(ezIpcChannel::CreatePipeChannel(sMemName, ezIpcChannel::Mode::Server));
   }
-  m_pProtocol = EZ_DEFAULT_NEW(ezIpcProcessMessageProtocol, m_pChannel.Borrow());
-  m_pProtocol->m_MessageEvent.AddEventHandler(ezMakeDelegate(&ezProcessCommunicationChannel::MessageFunc, this));
-  m_pChannel->Connect();
   for (ezUInt32 i = 0; i < 100; i++)
   {
     if (m_pChannel->GetConnectionState() == ezIpcChannel::ConnectionState::Connecting)
@@ -77,12 +74,7 @@ ezResult ezEditorProcessCommunicationChannel::StartClientProcess(const char* szP
 
     if (!m_pClientProcess->waitForStarted())
     {
-      delete m_pClientProcess;
-      m_pClientProcess = nullptr;
-
-      m_pProtocol.Clear();
-      m_pChannel.Clear();
-
+      CloseConnection();
       ezLog::Error("Failed to start process '{0}'", sPath);
       return EZ_FAILURE;
     }
@@ -104,12 +96,7 @@ bool ezEditorProcessCommunicationChannel::IsClientAlive() const
 
 void ezEditorProcessCommunicationChannel::CloseConnection()
 {
-  if (m_pProtocol)
-  {
-    m_pProtocol->m_MessageEvent.RemoveEventHandler(ezMakeDelegate(&ezProcessCommunicationChannel::MessageFunc, this));
-    m_pProtocol.Clear();
-  }
-  m_pChannel.Clear();
+  DestroyChannel();
 
   if (m_pClientProcess)
   {
@@ -143,16 +130,9 @@ ezOsProcessID ezEditorProcessCommunicationChannel::GetProcessId() const
 ezResult ezEditorProcessRemoteCommunicationChannel::ConnectToServer(const char* szAddress)
 {
   EZ_LOG_BLOCK("ezEditorProcessRemoteCommunicationChannel::ConnectToServer");
-
   EZ_ASSERT_DEV(m_pChannel == nullptr, "ProcessCommunication object already in use");
-
   m_pFirstAllowedMessageType = nullptr;
-
-  m_pChannel = ezIpcChannel::CreateNetworkChannel(szAddress, ezIpcChannel::Mode::Client);
-  m_pProtocol = EZ_DEFAULT_NEW(ezIpcProcessMessageProtocol, m_pChannel.Borrow());
-  m_pProtocol->m_MessageEvent.AddEventHandler(ezMakeDelegate(&ezProcessCommunicationChannel::MessageFunc, this));
-  m_pChannel->Connect();
-
+  CreateAndConnectChannel(ezIpcChannel::CreateNetworkChannel(szAddress, ezIpcChannel::Mode::Client));
   return EZ_SUCCESS;
 }
 
@@ -163,12 +143,7 @@ bool ezEditorProcessRemoteCommunicationChannel::IsConnected() const
 
 void ezEditorProcessRemoteCommunicationChannel::CloseConnection()
 {
-  if (m_pProtocol)
-  {
-    m_pProtocol->m_MessageEvent.RemoveEventHandler(ezMakeDelegate(&ezProcessCommunicationChannel::MessageFunc, this));
-    m_pProtocol.Clear();
-  }
-  m_pChannel.Clear();
+  DestroyChannel();
 }
 
 void ezEditorProcessRemoteCommunicationChannel::TryConnect()

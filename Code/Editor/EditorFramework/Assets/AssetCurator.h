@@ -362,7 +362,11 @@ public:
 
   /// Generates one transitive hull for all the dependencies that are enabled. The set will contain dependencies that are reachable via any combination of enabled reference types.
   void GenerateTransitiveHull(const ezStringView sAssetOrPath, ezSet<ezString>& inout_deps, ezBitflags<ezDependencyFlags> dependencyTypes) const;
-  /// Copies each value of deps into out_SettingsHashMap and fills the value of assets with the hash value of the dependencyType. For files, the file hash is used.
+
+  /// \brief Generates one transitive hull for all the asset dependencies that are enabled. The set will contain dependencies that are reachable via any combination of enabled reference types.
+  void GenerateTransitiveAssetHull(const ezUuid& assetGuid, ezSet<ezUuid>& inout_deps, ezBitflags<ezDependencyFlags> dependencyTypes);
+
+  /// \brief Copies each value of deps into out_SettingsHashMap and fills the value of assets with the hash value of the dependencyType. For files, the file hash is used.
   void GenerateSettingsHashMap(const ezSet<ezString>& deps, ezBitflags<ezDependencyFlags> dependencyType, ezMap<ezString, ezUInt64>& out_settingsHashMap) const;
 
   /// Generates one inverse transitive hull for all the types dependencies that are enabled. The set will contain inverse dependencies that can reach the given asset (pAssetInfo) via any combination of the enabled reference types. As only assets can have dependencies, the inverse hull is always just asset GUIDs.

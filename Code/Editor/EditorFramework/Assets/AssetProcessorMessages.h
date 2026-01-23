@@ -33,6 +33,9 @@ public:
   mutable ezMap<ezString, ezUInt64> m_MissmatchThumbnailDependencies; ///< Hashes of all thumbnail dependencies.
   ezUInt64 m_uiMissmatchAssetHash = 0;                                ///< Transform hash observed by the ezEditorProcessor.
   ezUInt64 m_uiMissmatchThumbHash = 0;                                ///< Thumbnail hash observed by the ezEditorProcessor.
+  ezTime m_StartedProcessing;
+  ezTime m_StartedTransform;
+  ezTime m_FinishedProcessing;
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezFreeAllResourcesMsg : public ezProcessMessage

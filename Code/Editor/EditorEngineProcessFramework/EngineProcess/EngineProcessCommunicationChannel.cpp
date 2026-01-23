@@ -67,15 +67,11 @@ ezResult ezEngineProcessCommunicationChannel::ConnectToHostProcess()
 
     ezLog::Debug("Host Process ID: {0}", m_iHostPID);
 
-    m_pChannel = ezIpcChannel::CreatePipeChannel(ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-IPC"), ezIpcChannel::Mode::Client);
+    CreateAndConnectChannel(ezIpcChannel::CreatePipeChannel(ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-IPC"), ezIpcChannel::Mode::Client));
   }
   else
   {
-    m_pChannel = ezIpcChannel::CreateNetworkChannel("localhost:1050", ezIpcChannel::Mode::Server);
+    CreateAndConnectChannel(ezIpcChannel::CreateNetworkChannel("localhost:1050", ezIpcChannel::Mode::Server));
   }
-  m_pProtocol = EZ_DEFAULT_NEW(ezIpcProcessMessageProtocol, m_pChannel.Borrow());
-  m_pProtocol->m_MessageEvent.AddEventHandler(ezMakeDelegate(&ezProcessCommunicationChannel::MessageFunc, this));
-  m_pChannel->Connect();
-
   return EZ_SUCCESS;
 }

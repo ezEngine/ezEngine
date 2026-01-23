@@ -29,6 +29,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcessAssetResponseMsg, 1, ezRTTIDefaultAlloc
     EZ_MAP_MEMBER_PROPERTY("MissmatchThumbnailDependencies", m_MissmatchThumbnailDependencies),
     EZ_MEMBER_PROPERTY("MissmatchAssetHash", m_uiMissmatchAssetHash),
     EZ_MEMBER_PROPERTY("MissmatchThumbHash", m_uiMissmatchThumbHash),
+    EZ_MEMBER_PROPERTY("StartedProcessing", m_StartedProcessing),
+    EZ_MEMBER_PROPERTY("StartedTransform", m_StartedTransform),
+    EZ_MEMBER_PROPERTY("FinishedProcessing", m_FinishedProcessing),
   }
   EZ_END_PROPERTIES;
 }

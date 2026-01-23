@@ -77,6 +77,7 @@ public:
       }
 
       ezProcessAssetResponseMsg msg;
+      msg.m_StartedProcessing = ezTime::Now();
       {
         ezLogEntryDelegate logger([&msg](ezLogEntry& ref_entry) -> void
           { msg.m_LogEntries.PushBack(std::move(ref_entry)); },
@@ -118,6 +119,7 @@ public:
 
           // Next, we force checking that the asset is up to date. This EditorProcessor instance might not have observed the generation of the output files of various dependencies yet and incorrectly assume that some dependencies still need to be transformed. To prevent this, we force checking the asset and all its dependencies via the filesystem, ignoring the caching.
           ezAssetInfo::TransformState state = ezAssetCurator::GetSingleton()->IsAssetUpToDate(pMsg->m_AssetGuid, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform), nullptr, uiAssetHash, uiThumbHash, uiPackageHash, true);
+          msg.m_StartedTransform = ezTime::Now();
 
           if ((uiAssetHash != pMsg->m_AssetHash) || (uiThumbHash != pMsg->m_ThumbHash))
           {
@@ -161,6 +163,7 @@ public:
           }
         }
       }
+      msg.m_FinishedProcessing = ezTime::Now();
       m_IPC.SendMessage(&msg);
     }
     else if (const ezFreeAllResourcesMsg* pMsg = ezDynamicCast<const ezFreeAllResourcesMsg*>(e.m_pMessage))

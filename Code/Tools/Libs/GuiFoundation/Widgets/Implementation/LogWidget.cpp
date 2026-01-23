@@ -117,18 +117,16 @@ bool ezQtLogWidget::RemoveLogItemContextActionCallback(const ezStringView& sName
   return s_LogCallbacks.Remove(sName);
 }
 
-void ezQtLogWidget::ScrollToBottomIfAtEnd(int iNumElements)
+void ezQtLogWidget::ScrollToBottomIfAtEnd(int iFirstNewRow)
 {
   if (ListViewLog->selectionModel()->hasSelection())
   {
-    if (ListViewLog->selectionModel()->selectedIndexes()[0].row() + 1 >= iNumElements)
-    {
-      ListViewLog->selectionModel()->clearSelection();
-      ListViewLog->scrollToBottom();
-    }
+    if (ListViewLog->selectionModel()->selectedIndexes()[0].row() + 1 < iFirstNewRow)
+      return;
+
+    ListViewLog->selectionModel()->clearSelection();
   }
-  else
-    ListViewLog->scrollToBottom();
+  ListViewLog->scrollToBottom();
 }
 
 void ezQtLogWidget::on_ButtonClearLog_clicked()
