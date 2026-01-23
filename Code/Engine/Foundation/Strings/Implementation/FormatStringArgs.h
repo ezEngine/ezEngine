@@ -4,7 +4,12 @@
 #  error "Please don't include FormatStringArgs.h directly, but instead include Foundation/Basics.h"
 #endif
 
-#include <Foundation/Math/Declarations.h>
+//Note: duplicate from Foundation/Math/Declarations.h
+template <typename Type>
+class ezAngleTemplate;
+using ezAngle = ezAngleTemplate<float>;
+using ezAngled = ezAngleTemplate<double>;
+
 
 class ezStringBuilder;
 class ezVariant;
