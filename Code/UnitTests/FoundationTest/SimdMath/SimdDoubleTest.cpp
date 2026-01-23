@@ -128,10 +128,10 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdDouble)
     c /= a;
     EZ_TEST_DOUBLE(c, 0.2, ezMath::SmallEpsilon<double>());
 
-    EZ_TEST_BOOL(c.IsEqual(0.201, ezMath::HugeEpsilon<float>()));
-    EZ_TEST_BOOL(c.IsEqual(0.199, ezMath::HugeEpsilon<float>()));
-    EZ_TEST_BOOL(!c.IsEqual(0.202, ezMath::HugeEpsilon<float>()));
-    EZ_TEST_BOOL(!c.IsEqual(0.198, ezMath::HugeEpsilon<float>()));
+    EZ_TEST_BOOL(c.IsEqual(0.201, 0.001));
+    EZ_TEST_BOOL(c.IsEqual(0.199, 0.001));
+    EZ_TEST_BOOL(!c.IsEqual(0.202, 0.001));
+    EZ_TEST_BOOL(!c.IsEqual(0.198, 0.001));
 
     c = b;
     EZ_TEST_BOOL(c == b);
