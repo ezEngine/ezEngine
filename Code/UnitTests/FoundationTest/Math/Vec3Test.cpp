@@ -203,7 +203,7 @@ void TestVec3()
   {
     const ezVec3Type vOp1(-4.0, 0.2, -7.0);
     const ezVec3Type vOp2(2.0, 0.3, 0.0);
-    const ezVec3Type compArray[3] = {ezVec3Type(1.0, 0.0, 0.0), ezVec3Type(0.0, 1.0, 0.0), ezVec3Type(0.0, 0.0, 1.0)};
+    const ezVec3Type compArray[3] = {ezVec3Type((Type)1.0, (Type)0.0, (Type)0.0), ezVec3Type((Type)0.0, (Type)1.0, (Type)0.0), ezVec3Type((Type)0.0, (Type)0.0, (Type)1.0)};
     // IsIdentical
     EZ_TEST_BOOL(vOp1.IsIdentical(vOp1));
     for (int i = 0; i < 3; ++i)
