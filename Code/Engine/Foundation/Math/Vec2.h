@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/Math/Math.h>
+#include <Foundation/Math/Angle.h>
 
 #if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
 #  define EZ_VEC2_CHECK_FOR_NAN(obj) (obj)->AssertNotNaN();

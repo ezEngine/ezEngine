@@ -467,7 +467,6 @@ namespace ezMath
 
 } // namespace ezMath
 
-#include <Foundation/Math/Angle.h>
 
 #include <Foundation/Math/Implementation/MathDouble_inl.h>
 #include <Foundation/Math/Implementation/MathFixedPoint_inl.h>
