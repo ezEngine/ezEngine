@@ -104,7 +104,7 @@ void TestMath()
     EZ_TEST_FLOAT(ezMath::Tan(ezAngleTemplate<Type>::MakeFromDegree(45.0)), 1.0, ezMath::SmallEpsilon<Type>());
     EZ_TEST_FLOAT(ezMath::Tan(ezAngleTemplate<Type>::MakeFromDegree(-45.0)), -1.0, ezMath::SmallEpsilon<Type>());
     EZ_TEST_BOOL(ezMath::Tan(ezAngleTemplate<Type>::MakeFromDegree(90 + ezMath::DefaultEpsilon<Type>())) < (Type)1000000.0);
-    EZ_TEST_BOOL(ezMath::Tan(ezAngleTemplate<Type>::MakeFromDegree(89.9999)) > (Type)100000.0);
+    EZ_TEST_BOOL(ezMath::Tan(ezAngleTemplate<Type>::MakeFromDegree((Type)89.9999)) > (Type)100000.0);
 
     // Testing the period of tan(x) centered at 0 and the adjacent ones
     ezAngleTemplate<Type> angle = ezAngleTemplate<Type>::MakeFromDegree(-89.0);
@@ -119,7 +119,7 @@ void TestMath()
       EZ_TEST_FLOAT(fTan - fTanPrev, 0.0, (Type)0.002);
       EZ_TEST_FLOAT(fTan - fTanNext, 0.0, (Type)0.002);
       EZ_TEST_FLOAT(fTan - (fSin / fCos), 0.0, (Type)0.0005);
-      angle += ezAngleTemplate<Type>::MakeFromDegree(1.234);
+      angle += ezAngleTemplate<Type>::MakeFromDegree((Type)1.234);
     }
   }
 
@@ -687,42 +687,42 @@ void TestMath()
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ColorFloatToByte")
   {
     EZ_TEST_INT(ezMath::ColorFloatToByte(ezMath::NaN<float>()), 0);
-    EZ_TEST_INT(ezMath::ColorFloatToByte((Type)-1.0), 0);
-    EZ_TEST_INT(ezMath::ColorFloatToByte((Type)0.0), 0);
-    EZ_TEST_INT(ezMath::ColorFloatToByte((Type)0.4), 102);
-    EZ_TEST_INT(ezMath::ColorFloatToByte((Type)1.0), 255);
-    EZ_TEST_INT(ezMath::ColorFloatToByte((Type)1.5), 255);
+    EZ_TEST_INT(ezMath::ColorFloatToByte((float)-1.0), 0);
+    EZ_TEST_INT(ezMath::ColorFloatToByte((float)0.0), 0);
+    EZ_TEST_INT(ezMath::ColorFloatToByte((float)0.4), 102);
+    EZ_TEST_INT(ezMath::ColorFloatToByte((float)1.0), 255);
+    EZ_TEST_INT(ezMath::ColorFloatToByte((float)1.5), 255);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ColorFloatToShort")
   {
     EZ_TEST_INT(ezMath::ColorFloatToShort(ezMath::NaN<float>()), 0);
-    EZ_TEST_INT(ezMath::ColorFloatToShort((Type)-1.0), 0);
-    EZ_TEST_INT(ezMath::ColorFloatToShort((Type)0.0), 0);
-    EZ_TEST_INT(ezMath::ColorFloatToShort((Type)0.4), 26214);
-    EZ_TEST_INT(ezMath::ColorFloatToShort((Type)1.0), 65535);
-    EZ_TEST_INT(ezMath::ColorFloatToShort((Type)1.5), 65535);
+    EZ_TEST_INT(ezMath::ColorFloatToShort((float)-1.0), 0);
+    EZ_TEST_INT(ezMath::ColorFloatToShort((float)0.0), 0);
+    EZ_TEST_INT(ezMath::ColorFloatToShort((float)0.4), 26214);
+    EZ_TEST_INT(ezMath::ColorFloatToShort((float)1.0), 65535);
+    EZ_TEST_INT(ezMath::ColorFloatToShort((float)1.5), 65535);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ColorFloatToSignedByte")
   {
     EZ_TEST_INT(ezMath::ColorFloatToSignedByte(ezMath::NaN<float>()), 0);
-    EZ_TEST_INT(ezMath::ColorFloatToSignedByte((Type)-1.0), -127);
-    EZ_TEST_INT(ezMath::ColorFloatToSignedByte((Type)0.0), 0);
-    EZ_TEST_INT(ezMath::ColorFloatToSignedByte((Type)0.4), 51);
-    EZ_TEST_INT(ezMath::ColorFloatToSignedByte((Type)1.0), 127);
-    EZ_TEST_INT(ezMath::ColorFloatToSignedByte((Type)1.5), 127);
+    EZ_TEST_INT(ezMath::ColorFloatToSignedByte((float)-1.0), -127);
+    EZ_TEST_INT(ezMath::ColorFloatToSignedByte((float)0.0), 0);
+    EZ_TEST_INT(ezMath::ColorFloatToSignedByte((float)0.4), 51);
+    EZ_TEST_INT(ezMath::ColorFloatToSignedByte((float)1.0), 127);
+    EZ_TEST_INT(ezMath::ColorFloatToSignedByte((float)1.5), 127);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ColorFloatToSignedShort")
   {
     EZ_TEST_INT(ezMath::ColorFloatToSignedShort(ezMath::NaN<float>()), 0);
-    EZ_TEST_INT(ezMath::ColorFloatToSignedShort((Type)-1.0), -32767);
-    EZ_TEST_INT(ezMath::ColorFloatToSignedShort((Type)0.0), 0);
-    EZ_TEST_INT(ezMath::ColorFloatToSignedShort((Type)0.4), 13107);
-    EZ_TEST_INT(ezMath::ColorFloatToSignedShort((Type)0.5), 16384);
-    EZ_TEST_INT(ezMath::ColorFloatToSignedShort((Type)1.0), 32767);
-    EZ_TEST_INT(ezMath::ColorFloatToSignedShort((Type)1.5), 32767);
+    EZ_TEST_INT(ezMath::ColorFloatToSignedShort((float)-1.0), -32767);
+    EZ_TEST_INT(ezMath::ColorFloatToSignedShort((float)0.0), 0);
+    EZ_TEST_INT(ezMath::ColorFloatToSignedShort((float)0.4), 13107);
+    EZ_TEST_INT(ezMath::ColorFloatToSignedShort((float)0.5), 16384);
+    EZ_TEST_INT(ezMath::ColorFloatToSignedShort((float)1.0), 32767);
+    EZ_TEST_INT(ezMath::ColorFloatToSignedShort((float)1.5), 32767);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ColorByteToFloat")
