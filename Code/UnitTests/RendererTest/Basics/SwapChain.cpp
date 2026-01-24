@@ -1,8 +1,8 @@
 #include <RendererTest/RendererTestPCH.h>
 
 #include <Core/Graphics/Camera.h>
-#include <RendererTest/Basics/SwapChain.h>
 #include <Foundation/Configuration/Startup.h>
+#include <RendererTest/Basics/SwapChain.h>
 
 ezResult ezRendererTestSwapChain::InitializeTest()
 {
