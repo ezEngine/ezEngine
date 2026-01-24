@@ -20,7 +20,7 @@ public:
   virtual const char* GetName() const = 0;
 
   /// \brief Adds the required graphics API extension to the list of extensions to enable.
-  virtual XrResult SelectExtension(ezHybridArray<const char*, 6>& extensions, const ezDynamicArray<XrExtensionProperties>& extensionProperties) = 0;
+  virtual XrResult SelectExtension(ezDynamicArray<const char*>& extensions, const ezDynamicArray<XrExtensionProperties>& extensionProperties) = 0;
 
   /// \brief Loads the graphics API specific OpenXR function pointers.
   virtual void LoadFunctionPointers(XrInstance instance) = 0;
@@ -39,9 +39,6 @@ public:
 
   /// \brief Creates texture handles from swapchain images.
   virtual XrResult CreateSwapchainImages(XrSwapchain swapchainHandle, int64_t format, ezUInt32 imageCount, ezSizeU32 size, ezGALMSAASampleCount::Enum msaaCount, bool bIsDepth, ezGALDevice* pDevice, ezDynamicArray<ezGALTextureHandle>& out_textures) = 0;
-
-  /// \brief Converts a graphics API specific format to ezGALResourceFormat.
-  virtual ezGALResourceFormat::Enum ConvertTextureFormat(int64_t format) const = 0;
 
   /// \brief Cleans up any internal swapchain image storage.
   virtual void CleanupSwapchainImages() = 0;

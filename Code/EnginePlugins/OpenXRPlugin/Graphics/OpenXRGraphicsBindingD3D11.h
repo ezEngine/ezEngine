@@ -15,7 +15,7 @@ public:
 
   virtual const char* GetName() const override { return "D3D11"; }
 
-  virtual XrResult SelectExtension(ezHybridArray<const char*, 6>& extensions, const ezDynamicArray<XrExtensionProperties>& extensionProperties) override;
+  virtual XrResult SelectExtension(ezDynamicArray<const char*>& extensions, const ezDynamicArray<XrExtensionProperties>& extensionProperties) override;
 
   virtual void LoadFunctionPointers(XrInstance instance) override;
 
@@ -29,11 +29,11 @@ public:
 
   virtual XrResult CreateSwapchainImages(XrSwapchain swapchainHandle, int64_t format, ezUInt32 imageCount, ezSizeU32 size, ezGALMSAASampleCount::Enum msaaCount, bool bIsDepth, ezGALDevice* pDevice, ezDynamicArray<ezGALTextureHandle>& out_textures) override;
 
-  virtual ezGALResourceFormat::Enum ConvertTextureFormat(int64_t format) const override;
-
   virtual void CleanupSwapchainImages() override;
 
 private:
+  ezGALResourceFormat::Enum ConvertTextureFormat(int64_t format) const;
+
   XrGraphicsBindingD3D11KHR m_GraphicsBinding{XR_TYPE_GRAPHICS_BINDING_D3D11_KHR};
   PFN_xrGetD3D11GraphicsRequirementsKHR m_pfnGetD3D11GraphicsRequirementsKHR = nullptr;
 

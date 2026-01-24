@@ -16,7 +16,7 @@ ezOpenXRGraphicsBindingVulkan::~ezOpenXRGraphicsBindingVulkan()
   Deinitialize();
 }
 
-XrResult ezOpenXRGraphicsBindingVulkan::SelectExtension(ezHybridArray<const char*, 6>& extensions, const ezDynamicArray<XrExtensionProperties>& extensionProperties)
+XrResult ezOpenXRGraphicsBindingVulkan::SelectExtension(ezDynamicArray<const char*>& extensions, const ezDynamicArray<XrExtensionProperties>& extensionProperties)
 {
   // Check for vulkan_enable (v1) first - preferred because it allows using existing Vulkan instance/device
   bool bFoundV1 = false;

@@ -18,7 +18,7 @@ ezOpenXRGraphicsBindingD3D11::~ezOpenXRGraphicsBindingD3D11()
   Deinitialize();
 }
 
-XrResult ezOpenXRGraphicsBindingD3D11::SelectExtension(ezHybridArray<const char*, 6>& extensions, const ezDynamicArray<XrExtensionProperties>& extensionProperties)
+XrResult ezOpenXRGraphicsBindingD3D11::SelectExtension(ezDynamicArray<const char*>& extensions, const ezDynamicArray<XrExtensionProperties>& extensionProperties)
 {
   bool bFound = false;
   for (const XrExtensionProperties& prop : extensionProperties)

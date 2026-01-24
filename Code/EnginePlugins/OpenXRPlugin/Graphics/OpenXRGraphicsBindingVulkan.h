@@ -15,7 +15,7 @@ public:
 
   virtual const char* GetName() const override { return "Vulkan"; }
 
-  virtual XrResult SelectExtension(ezHybridArray<const char*, 6>& extensions, const ezDynamicArray<XrExtensionProperties>& extensionProperties) override;
+  virtual XrResult SelectExtension(ezDynamicArray<const char*>& extensions, const ezDynamicArray<XrExtensionProperties>& extensionProperties) override;
 
   virtual void LoadFunctionPointers(XrInstance instance) override;
 
@@ -29,14 +29,14 @@ public:
 
   virtual XrResult CreateSwapchainImages(XrSwapchain swapchainHandle, int64_t format, ezUInt32 imageCount, ezSizeU32 size, ezGALMSAASampleCount::Enum msaaCount, bool bIsDepth, ezGALDevice* pDevice, ezDynamicArray<ezGALTextureHandle>& out_textures) override;
 
-  virtual ezGALResourceFormat::Enum ConvertTextureFormat(int64_t format) const override;
-
   virtual void CleanupSwapchainImages() override;
 
   /// \brief Returns whether the vulkan_enable (v1) extension is being used vs vulkan_enable2.
   bool IsUsingVulkanEnable() const { return m_bUsingVulkanEnable; }
 
 private:
+  ezGALResourceFormat::Enum ConvertTextureFormat(int64_t format) const;
+
   XrGraphicsBindingVulkanKHR m_GraphicsBinding{XR_TYPE_GRAPHICS_BINDING_VULKAN_KHR};
 
   // Extension flags
