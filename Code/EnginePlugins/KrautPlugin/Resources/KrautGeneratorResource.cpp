@@ -260,9 +260,9 @@ void ezKrautGeneratorResource::GenerateTreeDescriptor(ezKrautTreeResourceDescrip
     constexpr float fDivCluster = 1.0f / fCluster;
 
     ezVec3I32 ipos;
-    ipos.x = ezMath::FloatToInt(vPos.x * fCluster);
-    ipos.y = ezMath::FloatToInt(vPos.y * fCluster);
-    ipos.z = ezMath::FloatToInt(vPos.z * fCluster);
+    ipos.x = ezMath::FloatToInt32(vPos.x * fCluster);
+    ipos.y = ezMath::FloatToInt32(vPos.y * fCluster);
+    ipos.z = ezMath::FloatToInt32(vPos.z * fCluster);
 
     for (ezUInt32 i = aoResults.GetCount(); i > 0; --i)
     {
