@@ -30,7 +30,31 @@
 
 #include <d3d11.h>
 #include <d3d11_3.h>
+#include <dxgi1_6.h>
 #include <dxgidebug.h>
+
+namespace
+{
+  IDXGIAdapter1* CreateHighPerformanceAdapter()
+  {
+    IDXGIFactory1* pFactory1 = nullptr;
+    IDXGIFactory6* pFactory6 = nullptr;
+    IDXGIAdapter1* pAdapter = nullptr;
+    EZ_SCOPE_EXIT(EZ_GAL_DX11_RELEASE(pFactory1));
+    EZ_SCOPE_EXIT(EZ_GAL_DX11_RELEASE(pFactory6));
+
+    if (FAILED(CreateDXGIFactory1(IID_PPV_ARGS(&pFactory1))))
+      return nullptr;
+
+    if (FAILED(pFactory1->QueryInterface(IID_PPV_ARGS(&pFactory6))))
+      return nullptr;
+
+    if (pFactory6->EnumAdapterByGpuPreference(0, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(&pAdapter)) == DXGI_ERROR_NOT_FOUND)
+      return nullptr;
+
+    return pAdapter;
+  }
+}
 
 ezInternal::NewInstance<ezGALDevice> CreateDX11Device(ezAllocator* pAllocator, const ezGALDeviceCreationDescription& description)
 {
@@ -247,7 +271,9 @@ ezStringView ezGALDeviceDX11::GetRendererPlatform()
 
 ezResult ezGALDeviceDX11::InitPlatform()
 {
-  return InitPlatform(0, nullptr);
+  IDXGIAdapter1* pAdapter = CreateHighPerformanceAdapter();
+  EZ_SCOPE_EXIT(EZ_GAL_DX11_RELEASE(pAdapter));
+  return InitPlatform(0, pAdapter);
 }
 
 void ezGALDeviceDX11::ReportLiveGpuObjects()

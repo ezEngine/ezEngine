@@ -26,6 +26,7 @@ ezCVarBool cvar_TexturePenalizeDXConversions("Texture.PenalizeDXConversions", fa
 #  include <Texture/DirectXTex/DirectXTex.h>
 #  include <d3d11.h>
 #  include <dxgi.h>
+#  include <dxgi1_6.h>
 #  include <dxgiformat.h>
 #  include <wrl\client.h>
 
@@ -60,6 +61,51 @@ namespace
     return SUCCEEDED(s_CreateDXGIFactory1(IID_PPV_ARGS(pFactory)));
   }
 
+  ComPtr<IDXGIAdapter1> CreateHighPerformanceAdapter()
+  {
+    ComPtr<IDXGIAdapter1> pAdapter;
+    ComPtr<IDXGIFactory1> pFactory1;
+    ComPtr<IDXGIFactory6> pFactory6;
+    if (!GetDXGIFactory(pFactory1.GetAddressOf()))
+      return {};
+
+    if (FAILED(pFactory1->QueryInterface(IID_PPV_ARGS(pFactory6.GetAddressOf()))))
+      return {};
+
+    if (pFactory6->EnumAdapterByGpuPreference(0, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(pAdapter.ReleaseAndGetAddressOf())) == DXGI_ERROR_NOT_FOUND)
+      return {};
+
+    return pAdapter;
+  }
+
+  bool TryCreateD3D11Device(IDXGIAdapter* pAdapter, D3D_DRIVER_TYPE driverType, ComPtr<ID3D11Device>& ref_device)
+  {
+    static PFN_D3D11_CREATE_DEVICE s_DynamicD3D11CreateDevice = nullptr;
+
+    if (!s_DynamicD3D11CreateDevice)
+    {
+      HMODULE hModD3D11 = LoadLibraryA("d3d11.dll");
+      if (!hModD3D11)
+        return false;
+
+      s_DynamicD3D11CreateDevice = reinterpret_cast<PFN_D3D11_CREATE_DEVICE>(reinterpret_cast<void*>(GetProcAddress(hModD3D11, "D3D11CreateDevice")));
+      if (!s_DynamicD3D11CreateDevice)
+        return false;
+    }
+
+    static const D3D_FEATURE_LEVEL FeatureLevels[] = {D3D_FEATURE_LEVEL_11_1, D3D_FEATURE_LEVEL_11_0};
+    D3D_FEATURE_LEVEL SelectedFeatureLevel;
+
+    for (int featureLevelIdx = 0; featureLevelIdx < EZ_ARRAY_SIZE(FeatureLevels); ++featureLevelIdx)
+    {
+      if (SUCCEEDED(s_DynamicD3D11CreateDevice(pAdapter, driverType, nullptr, 0, &FeatureLevels[featureLevelIdx], 1, D3D11_SDK_VERSION, ref_device.ReleaseAndGetAddressOf(), &SelectedFeatureLevel, nullptr)))
+      {
+        return true;
+      }
+    }
+    return false;
+  }
+
   enum class TypeOfDeviceCreated
   {
     None,
@@ -71,146 +117,45 @@ namespace
   TypeOfDeviceCreated CreateDevice(ComPtr<ID3D11Device>& ref_device)
   {
     ref_device = nullptr;
-
-    // Find a hardware adapter if possible, otherwise find any adapter.
-    ComPtr<IDXGIAdapter1> pHardwareAdapter1;
-    ComPtr<IDXGIAdapter1> pFallbackAdapter1;
-    {
-      int adapter = 0;
-      ComPtr<IDXGIFactory1> dxgiFactory;
-      if (GetDXGIFactory(dxgiFactory.GetAddressOf()))
-      {
-        ComPtr<IDXGIAdapter1> pAdapter1;
-        while (dxgiFactory->EnumAdapters1(adapter, pAdapter1.ReleaseAndGetAddressOf()) != DXGI_ERROR_NOT_FOUND)
-        {
-          DXGI_ADAPTER_DESC1 desc1;
-#  if !NDEBUG
-          const HRESULT descResult =
-#  endif
-            pAdapter1->GetDesc1(&desc1);
-          assert(SUCCEEDED(descResult));
-          constexpr auto basicDriverString = L"Microsoft Basic Render Driver";
-          if ((desc1.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) == 0 && _wcsicmp(basicDriverString, desc1.Description) != 0)
-          {
-            if (pHardwareAdapter1 == nullptr)
-            {
-              pHardwareAdapter1 = pAdapter1;
-            }
-          }
-          else if (pFallbackAdapter1 == nullptr)
-          {
-            pFallbackAdapter1 = pAdapter1;
-          }
-
-          ++adapter;
-        }
-      }
-    }
-
-    ComPtr<IDXGIAdapter1> pAdapter1;
     TypeOfDeviceCreated deviceType = TypeOfDeviceCreated::None;
-    if (pHardwareAdapter1 != nullptr)
+
+    ComPtr<IDXGIAdapter1> pAdapter = CreateHighPerformanceAdapter();
+    if (pAdapter != nullptr && TryCreateD3D11Device(pAdapter.Get(), D3D_DRIVER_TYPE_UNKNOWN, ref_device))
     {
-      pAdapter1 = std::move(pHardwareAdapter1);
       deviceType = TypeOfDeviceCreated::Hardware;
     }
-    else if (pFallbackAdapter1 != nullptr)
+
+    // Fallback: try to create a hardware device without specifying an adapter
+    if (ref_device == nullptr && TryCreateD3D11Device(nullptr, D3D_DRIVER_TYPE_HARDWARE, ref_device))
     {
-      pAdapter1 = std::move(pFallbackAdapter1);
+      deviceType = TypeOfDeviceCreated::Hardware;
+    }
+
+    // Fallback: try to create a WARP software device
+    if (ref_device == nullptr && TryCreateD3D11Device(nullptr, D3D_DRIVER_TYPE_WARP, ref_device))
+    {
       deviceType = TypeOfDeviceCreated::Software;
     }
 
-    if (pAdapter1 == nullptr)
-    {
+    if (ref_device == nullptr)
       return TypeOfDeviceCreated::None;
-    }
 
-    // Get the IDXGIAdapter interface from the IDXGIAdapter1.
-    ComPtr<IDXGIAdapter> pAdapter;
+    auto GetDeviceName = [&]() -> ezString
     {
-#  if !NDEBUG
-      const HRESULT castResult =
-#  endif
-        pAdapter1->QueryInterface(pAdapter.GetAddressOf());
-      assert(SUCCEEDED(castResult));
-    }
-
-    {
-      DXGI_ADAPTER_DESC1 desc1;
-      pAdapter1->GetDesc1(&desc1);
-
-      ezLog::Info("D3D11 Device used for texture compression: '{}'", desc1.Description);
-    }
-
-    static PFN_D3D11_CREATE_DEVICE s_DynamicD3D11CreateDevice = nullptr;
-
-    if (!s_DynamicD3D11CreateDevice)
-    {
-      HMODULE hModD3D11 = LoadLibraryA("d3d11.dll");
-      if (!hModD3D11)
-        return TypeOfDeviceCreated::None;
-
-      s_DynamicD3D11CreateDevice = reinterpret_cast<PFN_D3D11_CREATE_DEVICE>(reinterpret_cast<void*>(GetProcAddress(hModD3D11, "D3D11CreateDevice")));
-      if (!s_DynamicD3D11CreateDevice)
-        return TypeOfDeviceCreated::None;
-    }
-
-    D3D_FEATURE_LEVEL featureLevels[] = {
-      D3D_FEATURE_LEVEL_11_0,
-      D3D_FEATURE_LEVEL_10_1,
-      D3D_FEATURE_LEVEL_10_0,
-    };
-
-    UINT createDeviceFlags = 0;
-    // #  ifdef _DEBUG
-    //     don't do this (especially not without a fallback for failure), not needed for texture conversion
-    //     createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
-    // #  endif
-
-    D3D_FEATURE_LEVEL fl;
-    HRESULT hr = s_DynamicD3D11CreateDevice(pAdapter.Get(), D3D_DRIVER_TYPE_UNKNOWN, nullptr, createDeviceFlags, featureLevels,
-      _countof(featureLevels), D3D11_SDK_VERSION, &ref_device, &fl, nullptr);
-
-    if (FAILED(hr) && (createDeviceFlags & D3D11_CREATE_DEVICE_DEBUG))
-    {
-      createDeviceFlags = createDeviceFlags & ~D3D11_CREATE_DEVICE_DEBUG;
-      hr = s_DynamicD3D11CreateDevice(pAdapter.Get(), D3D_DRIVER_TYPE_UNKNOWN, nullptr, createDeviceFlags, featureLevels,
-        _countof(featureLevels), D3D11_SDK_VERSION, &ref_device, &fl, nullptr);
-    }
-
-    if (SUCCEEDED(hr))
-    {
-      if (fl < D3D_FEATURE_LEVEL_11_0)
-      {
-        D3D11_FEATURE_DATA_D3D10_X_HARDWARE_OPTIONS hwopts;
-        hr = ref_device->CheckFeatureSupport(D3D11_FEATURE_D3D10_X_HARDWARE_OPTIONS, &hwopts, sizeof(hwopts));
-        if (FAILED(hr))
-          memset(&hwopts, 0, sizeof(hwopts));
-
-        if (!hwopts.ComputeShaders_Plus_RawAndStructuredBuffers_Via_Shader_4_x)
-        {
-          ref_device = nullptr;
-          hr = HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED);
-        }
-      }
-    }
-
-    if (SUCCEEDED(hr))
-    {
+      ComPtr<IDXGIDevice> pDXGIDevice;
+      if (FAILED(ref_device.As(&pDXGIDevice)))
+        return "<No IDXGIDevice interface>"_ezsv;
+      ComPtr<IDXGIAdapter> pAdapter;
+      if (FAILED(pDXGIDevice->GetAdapter(pAdapter.GetAddressOf())))
+        return "<GetAdapter Failed>"_ezsv;
       DXGI_ADAPTER_DESC desc;
-      hr = pAdapter->GetDesc(&desc);
-      if (SUCCEEDED(hr))
-      {
-        ezStringUtf8 sDesc(desc.Description);
-        ezLog::Dev("Using DirectCompute on \"{0}\"", sDesc.GetData());
-      }
-
-      return deviceType;
-    }
-    else
-    {
-      return TypeOfDeviceCreated::None;
-    }
+      if (FAILED(pAdapter->GetDesc(&desc)))
+        return "<GetDesc Failed>"_ezsv;
+      ezStringUtf8 sDesc(desc.Description);
+      return ezString(sDesc.GetData());
+    };
+    ezLog::Dev("Using DirectCompute on \"{0}\"", GetDeviceName());
+    return deviceType;
   }
 
   /// Ensures a device and its corresponding conversion table are constructed together.

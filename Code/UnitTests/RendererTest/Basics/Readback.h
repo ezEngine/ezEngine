@@ -22,6 +22,8 @@ public:
 private:
   virtual void SetupSubTests() override;
 
+  virtual ezResult InitializeTest() override;
+  virtual ezResult DeInitializeTest() override;
   virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
   virtual ezResult DeInitializeSubTest(ezInt32 iIdentifier) override;
   virtual ezResult GetImage(ezImage& ref_img, const ezSubTestEntry& subTest, ezUInt32 uiImageNumber) override;

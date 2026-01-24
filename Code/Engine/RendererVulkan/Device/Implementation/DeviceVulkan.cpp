@@ -445,7 +445,16 @@ ezResult ezGALDeviceVulkan::InitPlatform()
     {
       m_extensions.m_bDebugUtilsMarkers = false;
     }
-    // TODO call vkGetPhysicalDeviceFeatures2 with VkPhysicalDeviceTimelineSemaphoreFeatures and figure out if timeline semaphores are supported
+
+    {
+      vk::PhysicalDeviceTimelineSemaphoreFeatures timelineFeatures;
+      vk::PhysicalDeviceFeatures2 features2;
+      features2.pNext = &timelineFeatures;
+      m_physicalDevice.getFeatures2(&features2);
+
+      m_extensions.m_bTimelineSemaphore = static_cast<bool>(timelineFeatures.timelineSemaphore);
+      m_extensions.m_timelineSemaphoresEXT = timelineFeatures;
+    }
   }
 
   ezHybridArray<vk::QueueFamilyProperties, 4> queueFamilyProperties;

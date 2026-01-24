@@ -100,7 +100,7 @@ jobs:
     inputs:
       targetType: filePath
       filePath: "$(System.DefaultWorkingDirectory)/RunCMake.ps1"
-      arguments: "-Target vs2022x64 -NoUnityBuild -NoSubmoduleUpdate -VulkanSupport 0 -SolutionName solution"
+      arguments: "-Target vs2022x64 -NoUnityBuild -NoSubmoduleUpdate -VulkanSupport 1 -SolutionName solution"
   - task: MSBuild@1
     displayName: Build Solution
     inputs:
@@ -127,28 +127,35 @@ jobs:
     env:
       TRACY_NO_INVARIANT_CHECK: 1
     inputs:
-      script: Output\Bin\WinVs2022Dev64\FoundationTest.exe -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\FoundationTest
+      script: Output\Bin\WinVs2022Dev64\FoundationTest.exe -renderer DX11 -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\FoundationTest
   - task: CmdLine@2
     displayName: CoreTest
     condition: eq(variables['task.MSBuild.status'], 'success')
     env:
       TRACY_NO_INVARIANT_CHECK: 1
     inputs:
-      script: Output\Bin\WinVs2022Dev64\CoreTest.exe -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\CoreTest
+      script: Output\Bin\WinVs2022Dev64\CoreTest.exe -renderer DX11 -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\CoreTest
   - task: CmdLine@2
     displayName: ToolsFoundationTest
     condition: eq(variables['task.MSBuild.status'], 'success')
     env:
       TRACY_NO_INVARIANT_CHECK: 1
     inputs:
-      script: Output\Bin\WinVs2022Dev64\ToolsFoundationTest.exe -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\ToolsFoundationTest
+      script: Output\Bin\WinVs2022Dev64\ToolsFoundationTest.exe -renderer DX11 -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\ToolsFoundationTest
   - task: CmdLine@2
     displayName: RendererTest
     condition: eq(variables['task.MSBuild.status'], 'success')
     env:
       TRACY_NO_INVARIANT_CHECK: 1
     inputs:
-      script: Output\Bin\WinVs2022Dev64\RendererTest.exe -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\RendererTest
+      script: Output\Bin\WinVs2022Dev64\RendererTest.exe -renderer DX11 -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\RendererTest
+  - task: CmdLine@2
+    displayName: RendererTest Vulkan
+    condition: eq(variables['task.MSBuild.status'], 'success')
+    env:
+      TRACY_NO_INVARIANT_CHECK: 1
+    inputs:
+      script: Output\Bin\WinVs2022Dev64\RendererTest.exe -renderer Vulkan -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\RendererTestVulkan
   - task: CmdLine@2
     displayName: EditorTest
     condition: eq(variables['task.MSBuild.status'], 'success')
@@ -157,14 +164,14 @@ jobs:
     inputs:
       script: |
         set QT_PLUGIN_PATH=Output\Bin\WinVs2022Dev64
-        Output\Bin\WinVs2022Dev64\EditorTest.exe -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\EditorTest
+        Output\Bin\WinVs2022Dev64\EditorTest.exe -renderer DX11 -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\EditorTest
   - task: CmdLine@2
     displayName: GameEngineTest
     condition: eq(variables['task.MSBuild.status'], 'success')
     env:
       TRACY_NO_INVARIANT_CHECK: 1
     inputs:
-      script: Output\Bin\WinVs2022Dev64\GameEngineTest.exe -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\GameEngineTest
+      script: Output\Bin\WinVs2022Dev64\GameEngineTest.exe -renderer DX11 -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\GameEngineTest
   - task: PowerShell@2
     displayName: Copy Dumps
     condition: eq(variables['task.MSBuild.status'], 'success')
