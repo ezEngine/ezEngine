@@ -99,18 +99,23 @@ struct ezXRDeviceFeatures
   enum Enum : ezUInt32
   {
     None = 0,
-    Trigger = EZ_BIT(0),                   ///< Float input. If fully pressed, will also trigger 'Select'.
-    Select = EZ_BIT(1),                    ///< Bool input.
-    Menu = EZ_BIT(2),                      ///< Bool input.
-    Squeeze = EZ_BIT(3),                   ///< Bool input.
-    PrimaryAnalogStick = EZ_BIT(4),        ///< 2D axis input.
-    PrimaryAnalogStickClick = EZ_BIT(5),   ///< Bool input.
-    PrimaryAnalogStickTouch = EZ_BIT(6),   ///< Bool input.
-    SecondaryAnalogStick = EZ_BIT(7),      ///< 2D axis input.
-    SecondaryAnalogStickClick = EZ_BIT(8), ///< Bool input.
-    SecondaryAnalogStickTouch = EZ_BIT(9), ///< Bool input.
-    GripPose = EZ_BIT(10),                 ///< 3D Pose input.
-    AimPose = EZ_BIT(11),                  ///< 3D Pose input.
+    Trigger = EZ_BIT(0),                   ///< Float input. Analog trigger value 0-1.
+    Select = EZ_BIT(1),                    ///< Bool input. Trigger fully pressed.
+    Menu = EZ_BIT(2),                      ///< Bool input. Menu/Start button.
+    Squeeze = EZ_BIT(3),                   ///< Bool input. Grip button pressed.
+    Grip = EZ_BIT(4),                      ///< Float input. Analog grip value 0-1.
+    PrimaryAnalogStick = EZ_BIT(5),        ///< 2D axis input. Thumbstick/joystick.
+    PrimaryAnalogStickClick = EZ_BIT(6),   ///< Bool input. Thumbstick pressed.
+    PrimaryAnalogStickTouch = EZ_BIT(7),   ///< Bool input. Thumbstick touched.
+    SecondaryAnalogStick = EZ_BIT(8),      ///< 2D axis input. Trackpad or secondary joystick.
+    SecondaryAnalogStickClick = EZ_BIT(9), ///< Bool input. Trackpad/secondary joystick pressed.
+    SecondaryAnalogStickTouch = EZ_BIT(10), ///< Bool input. Trackpad/secondary joystick touched.
+    PrimaryButton = EZ_BIT(11),            ///< Bool input. Primary face button (X/A).
+    PrimaryButtonTouch = EZ_BIT(12),       ///< Bool input. Primary face button touched.
+    SecondaryButton = EZ_BIT(13),          ///< Bool input. Secondary face button (Y/B).
+    SecondaryButtonTouch = EZ_BIT(14),     ///< Bool input. Secondary face button touched.
+    GripPose = EZ_BIT(15),                 ///< 3D Pose input. Grip/hand position.
+    AimPose = EZ_BIT(16),                  ///< 3D Pose input. Aim/pointer direction.
     Default = None
   };
 
@@ -120,12 +125,17 @@ struct ezXRDeviceFeatures
     StorageType Select : 1;
     StorageType Menu : 1;
     StorageType Squeeze : 1;
+    StorageType Grip : 1;
     StorageType PrimaryAnalogStick : 1;
     StorageType PrimaryAnalogStickClick : 1;
     StorageType PrimaryAnalogStickTouch : 1;
     StorageType SecondaryAnalogStick : 1;
     StorageType SecondaryAnalogStickClick : 1;
     StorageType SecondaryAnalogStickTouch : 1;
+    StorageType PrimaryButton : 1;
+    StorageType PrimaryButtonTouch : 1;
+    StorageType SecondaryButton : 1;
+    StorageType SecondaryButtonTouch : 1;
     StorageType GripPose : 1;
     StorageType AimPose : 1;
   };

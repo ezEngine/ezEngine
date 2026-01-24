@@ -15,10 +15,16 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
 #define XR_Trigger "trigger_value"
+#define XR_Grip "grip_value"
 
 #define XR_Select_Click "select_click"
 #define XR_Menu_Click "menu_click"
 #define XR_Squeeze_Click "squeeze_click"
+
+#define XR_Primary_Button_Click "primary_button_click"
+#define XR_Primary_Button_Touch "primary_button_touch"
+#define XR_Secondary_Button_Click "secondary_button_click"
+#define XR_Secondary_Button_Touch "secondary_button_touch"
 
 #define XR_Primary_Analog_Stick_Axis "primary_analog_stick"
 #define XR_Primary_Analog_Stick_Click "primary_analog_stick_click"
@@ -133,9 +139,15 @@ XrResult ezOpenXRInputDevice::CreateActions(XrSession session, XrSpace sceneSpac
   m_SubActionPath[1] = CreatePath("/user/hand/right");
 
   XrAction Trigger = XR_NULL_HANDLE;
+  XrAction GripValue = XR_NULL_HANDLE;
   XrAction SelectClick = XR_NULL_HANDLE;
   XrAction MenuClick = XR_NULL_HANDLE;
   XrAction SqueezeClick = XR_NULL_HANDLE;
+
+  XrAction PrimaryButtonClick = XR_NULL_HANDLE;
+  XrAction PrimaryButtonTouch = XR_NULL_HANDLE;
+  XrAction SecondaryButtonClick = XR_NULL_HANDLE;
+  XrAction SecondaryButtonTouch = XR_NULL_HANDLE;
 
   XrAction PrimaryAnalogStickAxis = XR_NULL_HANDLE;
   XrAction PrimaryAnalogStickClick = XR_NULL_HANDLE;
@@ -149,10 +161,16 @@ XrResult ezOpenXRInputDevice::CreateActions(XrSession session, XrSpace sceneSpac
   XrAction AimPose = XR_NULL_HANDLE;
 
   XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::Trigger, XR_Trigger, XR_ACTION_TYPE_FLOAT_INPUT, Trigger), DestroyActions);
+  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::Grip, XR_Grip, XR_ACTION_TYPE_FLOAT_INPUT, GripValue), DestroyActions);
 
   XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::Select, XR_Select_Click, XR_ACTION_TYPE_BOOLEAN_INPUT, SelectClick), DestroyActions);
   XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::Menu, XR_Menu_Click, XR_ACTION_TYPE_BOOLEAN_INPUT, MenuClick), DestroyActions);
   XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::Squeeze, XR_Squeeze_Click, XR_ACTION_TYPE_BOOLEAN_INPUT, SqueezeClick), DestroyActions);
+
+  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::PrimaryButton, XR_Primary_Button_Click, XR_ACTION_TYPE_BOOLEAN_INPUT, PrimaryButtonClick), DestroyActions);
+  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::PrimaryButtonTouch, XR_Primary_Button_Touch, XR_ACTION_TYPE_BOOLEAN_INPUT, PrimaryButtonTouch), DestroyActions);
+  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::SecondaryButton, XR_Secondary_Button_Click, XR_ACTION_TYPE_BOOLEAN_INPUT, SecondaryButtonClick), DestroyActions);
+  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::SecondaryButtonTouch, XR_Secondary_Button_Touch, XR_ACTION_TYPE_BOOLEAN_INPUT, SecondaryButtonTouch), DestroyActions);
 
   XR_SUCCEED_OR_CLEANUP_LOG(
     CreateAction(ezXRDeviceFeatures::PrimaryAnalogStick, XR_Primary_Analog_Stick_Axis, XR_ACTION_TYPE_VECTOR2F_INPUT, PrimaryAnalogStickAxis),
@@ -190,32 +208,156 @@ XrResult ezOpenXRInputDevice::CreateActions(XrSession session, XrSpace sceneSpac
   };
   SuggestInteractionProfileBindings("/interaction_profiles/khr/simple_controller", "Simple Controller", simpleController);
 
+  // Microsoft Mixed Reality Motion Controller (WMR, first gen)
   Bind motionController[] = {
-    {Trigger, "/user/hand/left/input/trigger"},
-    {SelectClick, "/user/hand/left/input/trigger"},
-    {MenuClick, "/user/hand/left/input/menu"},
-    {SqueezeClick, "/user/hand/left/input/squeeze"},
+    {Trigger, "/user/hand/left/input/trigger/value"},
+    {GripValue, "/user/hand/left/input/squeeze/click"},
+    {SelectClick, "/user/hand/left/input/trigger/value"},
+    {MenuClick, "/user/hand/left/input/menu/click"},
+    {SqueezeClick, "/user/hand/left/input/squeeze/click"},
     {PrimaryAnalogStickAxis, "/user/hand/left/input/thumbstick"},
-    {PrimaryAnalogStickClick, "/user/hand/left/input/thumbstick"},
+    {PrimaryAnalogStickClick, "/user/hand/left/input/thumbstick/click"},
     {SecondaryAnalogStickAxis, "/user/hand/left/input/trackpad"},
     {SecondaryAnalogStickClick, "/user/hand/left/input/trackpad/click"},
     {SecondaryAnalogStickTouch, "/user/hand/left/input/trackpad/touch"},
-    {GripPose, "/user/hand/left/input/grip"},
-    {AimPose, "/user/hand/left/input/aim"},
+    {GripPose, "/user/hand/left/input/grip/pose"},
+    {AimPose, "/user/hand/left/input/aim/pose"},
 
-    {Trigger, "/user/hand/right/input/trigger"},
-    {SelectClick, "/user/hand/right/input/trigger"},
-    {MenuClick, "/user/hand/right/input/menu"},
-    {SqueezeClick, "/user/hand/right/input/squeeze"},
+    {Trigger, "/user/hand/right/input/trigger/value"},
+    {GripValue, "/user/hand/right/input/squeeze/click"},
+    {SelectClick, "/user/hand/right/input/trigger/value"},
+    {MenuClick, "/user/hand/right/input/menu/click"},
+    {SqueezeClick, "/user/hand/right/input/squeeze/click"},
     {PrimaryAnalogStickAxis, "/user/hand/right/input/thumbstick"},
-    {PrimaryAnalogStickClick, "/user/hand/right/input/thumbstick"},
+    {PrimaryAnalogStickClick, "/user/hand/right/input/thumbstick/click"},
     {SecondaryAnalogStickAxis, "/user/hand/right/input/trackpad"},
     {SecondaryAnalogStickClick, "/user/hand/right/input/trackpad/click"},
     {SecondaryAnalogStickTouch, "/user/hand/right/input/trackpad/touch"},
-    {GripPose, "/user/hand/right/input/grip"},
-    {AimPose, "/user/hand/right/input/aim"},
+    {GripPose, "/user/hand/right/input/grip/pose"},
+    {AimPose, "/user/hand/right/input/aim/pose"},
   };
   SuggestInteractionProfileBindings("/interaction_profiles/microsoft/motion_controller", "Mixed Reality Motion Controller", motionController);
+
+  // Meta Quest Touch Controllers (Quest 1, 2, 3, Pro)
+  Bind questTouchController[] = {
+    {Trigger, "/user/hand/left/input/trigger/value"},
+    {GripValue, "/user/hand/left/input/squeeze/value"},
+    {SelectClick, "/user/hand/left/input/trigger/value"},
+    {MenuClick, "/user/hand/left/input/menu/click"},
+    {SqueezeClick, "/user/hand/left/input/squeeze/value"},
+    {PrimaryButtonClick, "/user/hand/left/input/x/click"},
+    {PrimaryButtonTouch, "/user/hand/left/input/x/touch"},
+    {SecondaryButtonClick, "/user/hand/left/input/y/click"},
+    {SecondaryButtonTouch, "/user/hand/left/input/y/touch"},
+    {PrimaryAnalogStickAxis, "/user/hand/left/input/thumbstick"},
+    {PrimaryAnalogStickClick, "/user/hand/left/input/thumbstick/click"},
+    {PrimaryAnalogStickTouch, "/user/hand/left/input/thumbstick/touch"},
+    {GripPose, "/user/hand/left/input/grip/pose"},
+    {AimPose, "/user/hand/left/input/aim/pose"},
+
+    {Trigger, "/user/hand/right/input/trigger/value"},
+    {GripValue, "/user/hand/right/input/squeeze/value"},
+    {SelectClick, "/user/hand/right/input/trigger/value"},
+    {SqueezeClick, "/user/hand/right/input/squeeze/value"},
+    {PrimaryButtonClick, "/user/hand/right/input/a/click"},
+    {PrimaryButtonTouch, "/user/hand/right/input/a/touch"},
+    {SecondaryButtonClick, "/user/hand/right/input/b/click"},
+    {SecondaryButtonTouch, "/user/hand/right/input/b/touch"},
+    {PrimaryAnalogStickAxis, "/user/hand/right/input/thumbstick"},
+    {PrimaryAnalogStickClick, "/user/hand/right/input/thumbstick/click"},
+    {PrimaryAnalogStickTouch, "/user/hand/right/input/thumbstick/touch"},
+    {GripPose, "/user/hand/right/input/grip/pose"},
+    {AimPose, "/user/hand/right/input/aim/pose"},
+  };
+  SuggestInteractionProfileBindings("/interaction_profiles/oculus/touch_controller", "Quest Touch Controller", questTouchController);
+
+  // Valve Index Controllers
+  Bind valveIndexController[] = {
+    {Trigger, "/user/hand/left/input/trigger/value"},
+    {GripValue, "/user/hand/left/input/squeeze/value"},
+    {SelectClick, "/user/hand/left/input/trigger/click"},
+    {SqueezeClick, "/user/hand/left/input/squeeze/force"},
+    {PrimaryButtonClick, "/user/hand/left/input/a/click"},
+    {PrimaryButtonTouch, "/user/hand/left/input/a/touch"},
+    {SecondaryButtonClick, "/user/hand/left/input/b/click"},
+    {SecondaryButtonTouch, "/user/hand/left/input/b/touch"},
+    {PrimaryAnalogStickAxis, "/user/hand/left/input/thumbstick"},
+    {PrimaryAnalogStickClick, "/user/hand/left/input/thumbstick/click"},
+    {PrimaryAnalogStickTouch, "/user/hand/left/input/thumbstick/touch"},
+    {SecondaryAnalogStickAxis, "/user/hand/left/input/trackpad"},
+    {SecondaryAnalogStickTouch, "/user/hand/left/input/trackpad/touch"},
+    {GripPose, "/user/hand/left/input/grip/pose"},
+    {AimPose, "/user/hand/left/input/aim/pose"},
+
+    {Trigger, "/user/hand/right/input/trigger/value"},
+    {GripValue, "/user/hand/right/input/squeeze/value"},
+    {SelectClick, "/user/hand/right/input/trigger/click"},
+    {SqueezeClick, "/user/hand/right/input/squeeze/force"},
+    {PrimaryButtonClick, "/user/hand/right/input/a/click"},
+    {PrimaryButtonTouch, "/user/hand/right/input/a/touch"},
+    {SecondaryButtonClick, "/user/hand/right/input/b/click"},
+    {SecondaryButtonTouch, "/user/hand/right/input/b/touch"},
+    {PrimaryAnalogStickAxis, "/user/hand/right/input/thumbstick"},
+    {PrimaryAnalogStickClick, "/user/hand/right/input/thumbstick/click"},
+    {PrimaryAnalogStickTouch, "/user/hand/right/input/thumbstick/touch"},
+    {SecondaryAnalogStickAxis, "/user/hand/right/input/trackpad"},
+    {SecondaryAnalogStickTouch, "/user/hand/right/input/trackpad/touch"},
+    {GripPose, "/user/hand/right/input/grip/pose"},
+    {AimPose, "/user/hand/right/input/aim/pose"},
+  };
+  SuggestInteractionProfileBindings("/interaction_profiles/valve/index_controller", "Valve Index Controller", valveIndexController);
+
+  // HTC Vive Controller (no face buttons, only trackpad)
+  Bind viveController[] = {
+    {Trigger, "/user/hand/left/input/trigger/value"},
+    {SelectClick, "/user/hand/left/input/trigger/click"},
+    {MenuClick, "/user/hand/left/input/menu/click"},
+    {SqueezeClick, "/user/hand/left/input/squeeze/click"},
+    {SecondaryAnalogStickAxis, "/user/hand/left/input/trackpad"},
+    {SecondaryAnalogStickClick, "/user/hand/left/input/trackpad/click"},
+    {SecondaryAnalogStickTouch, "/user/hand/left/input/trackpad/touch"},
+    {GripPose, "/user/hand/left/input/grip/pose"},
+    {AimPose, "/user/hand/left/input/aim/pose"},
+
+    {Trigger, "/user/hand/right/input/trigger/value"},
+    {SelectClick, "/user/hand/right/input/trigger/click"},
+    {MenuClick, "/user/hand/right/input/menu/click"},
+    {SqueezeClick, "/user/hand/right/input/squeeze/click"},
+    {SecondaryAnalogStickAxis, "/user/hand/right/input/trackpad"},
+    {SecondaryAnalogStickClick, "/user/hand/right/input/trackpad/click"},
+    {SecondaryAnalogStickTouch, "/user/hand/right/input/trackpad/touch"},
+    {GripPose, "/user/hand/right/input/grip/pose"},
+    {AimPose, "/user/hand/right/input/aim/pose"},
+  };
+  SuggestInteractionProfileBindings("/interaction_profiles/htc/vive_controller", "HTC Vive Controller", viveController);
+
+  // HP Mixed Reality Controller (HP Reverb G2) - has X/Y and A/B buttons
+  Bind hpMixedRealityController[] = {
+    {Trigger, "/user/hand/left/input/trigger/value"},
+    {GripValue, "/user/hand/left/input/squeeze/value"},
+    {SelectClick, "/user/hand/left/input/trigger/value"},
+    {MenuClick, "/user/hand/left/input/menu/click"},
+    {SqueezeClick, "/user/hand/left/input/squeeze/value"},
+    {PrimaryButtonClick, "/user/hand/left/input/x/click"},
+    {SecondaryButtonClick, "/user/hand/left/input/y/click"},
+    {PrimaryAnalogStickAxis, "/user/hand/left/input/thumbstick"},
+    {PrimaryAnalogStickClick, "/user/hand/left/input/thumbstick/click"},
+    {GripPose, "/user/hand/left/input/grip/pose"},
+    {AimPose, "/user/hand/left/input/aim/pose"},
+
+    {Trigger, "/user/hand/right/input/trigger/value"},
+    {GripValue, "/user/hand/right/input/squeeze/value"},
+    {SelectClick, "/user/hand/right/input/trigger/value"},
+    {MenuClick, "/user/hand/right/input/menu/click"},
+    {SqueezeClick, "/user/hand/right/input/squeeze/value"},
+    {PrimaryButtonClick, "/user/hand/right/input/a/click"},
+    {SecondaryButtonClick, "/user/hand/right/input/b/click"},
+    {PrimaryAnalogStickAxis, "/user/hand/right/input/thumbstick"},
+    {PrimaryAnalogStickClick, "/user/hand/right/input/thumbstick/click"},
+    {GripPose, "/user/hand/right/input/grip/pose"},
+    {AimPose, "/user/hand/right/input/aim/pose"},
+  };
+  SuggestInteractionProfileBindings("/interaction_profiles/hp/mixed_reality_controller", "HP Reverb G2 Controller", hpMixedRealityController);
 
   if (m_pOpenXR->m_Extensions.m_bHandInteraction)
   {
