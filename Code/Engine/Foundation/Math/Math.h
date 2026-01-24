@@ -203,8 +203,9 @@ namespace ezMath
   /// \brief Casts the float to an integer, removes the fractional part
   ///
   /// \sa Trunc, Round, Floor, Ceil
-  [[nodiscard]] constexpr ezInt32 FloatToInt(float value);
-  [[nodiscard]] constexpr ezInt32 FloatToInt(double value);
+  template <typename T>
+  [[nodiscard]] constexpr ezInt32 FloatToInt32(T value);
+
 
   // There is a compiler bug in VS 2019 targeting 32-bit that causes an internal compiler error when casting double to long long.
   // FloatToInt(double) is not available on these version of the MSVC compiler.

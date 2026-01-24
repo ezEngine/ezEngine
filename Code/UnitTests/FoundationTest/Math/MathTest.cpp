@@ -382,8 +382,8 @@ void TestMath()
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "FloatToInt")
   {
-    EZ_TEST_BOOL(ezMath::FloatToInt((Type)12.34) == 12);
-    EZ_TEST_BOOL(ezMath::FloatToInt((Type)-12.34) == -12);
+    EZ_TEST_BOOL(ezMath::FloatToInt32((Type)12.34) == 12);
+    EZ_TEST_BOOL(ezMath::FloatToInt32((Type)-12.34) == -12);
 
 #if EZ_DISABLED(EZ_PLATFORM_ARCH_X86) || (_MSC_VER <= 1916)
     EZ_TEST_BOOL(ezMath::FloatToInt(12000000000000.34) == 12000000000000);
