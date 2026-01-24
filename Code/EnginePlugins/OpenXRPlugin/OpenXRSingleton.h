@@ -15,12 +15,15 @@
 class ezOpenXRInputDevice;
 class ezOpenXRSpatialAnchors;
 class ezOpenXRHandTracking;
+class ezOpenXRGraphicsBinding;
 class ezWindowOutputTargetXR;
 struct ezGameApplicationExecutionEvent;
 struct ezRenderWorldRenderEvent;
 
 EZ_DEFINE_AS_POD_TYPE(XrViewConfigurationView);
 EZ_DEFINE_AS_POD_TYPE(XrEnvironmentBlendMode);
+EZ_DEFINE_AS_POD_TYPE(XrExtensionProperties);
+EZ_DEFINE_AS_POD_TYPE(XrApiLayerProperties);
 
 class EZ_OPENXRPLUGIN_DLL ezOpenXR : public ezXRInterface
 {
@@ -35,7 +38,9 @@ public:
   XrSession GetSession() const { return m_pSession; }
   XrViewConfigurationType GetViewType() const { return m_PrimaryViewConfigurationType; }
   bool GetDepthComposition() const;
-  bool IsUsingVulkan() const { return m_bUsingVulkan; }
+
+  /// \brief Returns the graphics binding interface (D3D11, Vulkan, etc.)
+  ezOpenXRGraphicsBinding* GetGraphicsBinding() const { return m_pGraphicsBinding.Borrow(); }
 
   virtual bool IsHmdPresent() const override;
 
@@ -83,15 +88,6 @@ private:
 
   ezWorld* GetWorld();
 
-public:
-  static XrPosef ConvertTransform(const ezTransform& tr);
-  static XrQuaternionf ConvertOrientation(const ezQuat& q);
-  static XrVector3f ConvertPosition(const ezVec3& vPos);
-  static ezQuat ConvertOrientation(const XrQuaternionf& q);
-  static ezVec3 ConvertPosition(const XrVector3f& pos);
-  static ezMat4 ConvertPoseToMatrix(const XrPosef& pose);
-  static ezGALResourceFormat::Enum ConvertTextureFormat(int64_t format);
-
 private:
   friend class ezOpenXRInputDevice;
   friend class ezOpenXRSpatialAnchors;
@@ -103,48 +99,30 @@ private:
   {
     bool m_bValidation = false;
     bool m_bDebugUtils = false;
-    PFN_xrCreateDebugUtilsMessengerEXT pfn_xrCreateDebugUtilsMessengerEXT;
-    PFN_xrDestroyDebugUtilsMessengerEXT pfn_xrDestroyDebugUtilsMessengerEXT;
-
-    bool m_bD3D11 = false;
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-    PFN_xrGetD3D11GraphicsRequirementsKHR pfn_xrGetD3D11GraphicsRequirementsKHR = nullptr;
-#endif
-
-    // Vulkan support - available on Windows, Linux, and Android
-    bool m_bVulkanEnable2 = false;
-    bool m_bVulkanEnable = false;
-#if EZ_OPENXR_HAS_VULKAN_RENDERER
-    PFN_xrGetVulkanGraphicsRequirementsKHR pfn_xrGetVulkanGraphicsRequirementsKHR = nullptr;
-    PFN_xrGetVulkanGraphicsRequirements2KHR pfn_xrGetVulkanGraphicsRequirements2KHR = nullptr;
-    PFN_xrGetVulkanInstanceExtensionsKHR pfn_xrGetVulkanInstanceExtensionsKHR = nullptr;
-    PFN_xrGetVulkanDeviceExtensionsKHR pfn_xrGetVulkanDeviceExtensionsKHR = nullptr;
-    PFN_xrGetVulkanGraphicsDeviceKHR pfn_xrGetVulkanGraphicsDeviceKHR = nullptr;
-#endif
+    PFN_xrCreateDebugUtilsMessengerEXT pfn_xrCreateDebugUtilsMessengerEXT = nullptr;
+    PFN_xrDestroyDebugUtilsMessengerEXT pfn_xrDestroyDebugUtilsMessengerEXT = nullptr;
 
     bool m_bDepthComposition = false;
 
     bool m_bUnboundedReferenceSpace = false;
 
     bool m_bSpatialAnchor = false;
-    PFN_xrCreateSpatialAnchorMSFT pfn_xrCreateSpatialAnchorMSFT;
-    PFN_xrCreateSpatialAnchorSpaceMSFT pfn_xrCreateSpatialAnchorSpaceMSFT;
-    PFN_xrDestroySpatialAnchorMSFT pfn_xrDestroySpatialAnchorMSFT;
+    PFN_xrCreateSpatialAnchorMSFT pfn_xrCreateSpatialAnchorMSFT = nullptr;
+    PFN_xrCreateSpatialAnchorSpaceMSFT pfn_xrCreateSpatialAnchorSpaceMSFT = nullptr;
+    PFN_xrDestroySpatialAnchorMSFT pfn_xrDestroySpatialAnchorMSFT = nullptr;
 
     bool m_bHandInteraction = false;
 
     bool m_bHandTracking = false;
-    PFN_xrCreateHandTrackerEXT pfn_xrCreateHandTrackerEXT;
-    PFN_xrDestroyHandTrackerEXT pfn_xrDestroyHandTrackerEXT;
-    PFN_xrLocateHandJointsEXT pfn_xrLocateHandJointsEXT;
+    PFN_xrCreateHandTrackerEXT pfn_xrCreateHandTrackerEXT = nullptr;
+    PFN_xrDestroyHandTrackerEXT pfn_xrDestroyHandTrackerEXT = nullptr;
+    PFN_xrLocateHandJointsEXT pfn_xrLocateHandJointsEXT = nullptr;
 
     bool m_bHandTrackingMesh = false;
-    PFN_xrCreateHandMeshSpaceMSFT pfn_xrCreateHandMeshSpaceMSFT;
-    PFN_xrUpdateHandMeshMSFT pfn_xrUpdateHandMeshMSFT;
+    PFN_xrCreateHandMeshSpaceMSFT pfn_xrCreateHandMeshSpaceMSFT = nullptr;
+    PFN_xrUpdateHandMeshMSFT pfn_xrUpdateHandMeshMSFT = nullptr;
 
     bool m_bHolographicWindowAttachment = false;
-
-    // Remoting support removed.
   };
 
   // Instance
@@ -165,16 +143,9 @@ private:
   ezEventSubscriptionID m_RenderWorldEventId = 0;
   XrDebugUtilsMessengerEXT m_pDebugMessenger = XR_NULL_HANDLE;
 
-  // Graphics plugin
+  // Graphics binding (abstracts D3D11, Vulkan, etc.)
   XrEnvironmentBlendMode m_BlendMode = XR_ENVIRONMENT_BLEND_MODE_OPAQUE;
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  XrGraphicsBindingD3D11KHR m_XrGraphicsBindingD3D11{XR_TYPE_GRAPHICS_BINDING_D3D11_KHR};
-#endif
-#if EZ_OPENXR_HAS_VULKAN_RENDERER
-  // Vulkan graphics binding - available when Vulkan renderer is built
-  XrGraphicsBindingVulkanKHR m_XrGraphicsBindingVulkan{XR_TYPE_GRAPHICS_BINDING_VULKAN_KHR};
-#endif
-  bool m_bUsingVulkan = false;
+  ezUniquePtr<ezOpenXRGraphicsBinding> m_pGraphicsBinding;
   XrFormFactor m_FormFactor{XR_FORM_FACTOR_HEAD_MOUNTED_DISPLAY};
   XrViewConfigurationType m_PrimaryViewConfigurationType{XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO};
 

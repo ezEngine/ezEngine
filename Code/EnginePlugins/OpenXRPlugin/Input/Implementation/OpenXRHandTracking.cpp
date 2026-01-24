@@ -3,9 +3,10 @@
 #include <Core/World/World.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <GameEngine/XR/StageSpaceComponent.h>
+#include <OpenXRPlugin/Input/OpenXRHandTracking.h>
 #include <OpenXRPlugin/OpenXRDeclarations.h>
-#include <OpenXRPlugin/OpenXRHandTracking.h>
 #include <OpenXRPlugin/OpenXRSingleton.h>
+#include <OpenXRPlugin/Utils/OpenXRConversionUtils.h>
 
 EZ_IMPLEMENT_SINGLETON(ezOpenXRHandTracking);
 
@@ -169,8 +170,8 @@ void ezOpenXRHandTracking::UpdateJointTransforms()
         {
           m_JointData[uiSide][i].m_bValid = true;
           m_JointData[uiSide][i].m_Bone.m_fRadius = spaceLocation.radius;
-          m_JointData[uiSide][i].m_Bone.m_Transform.m_vPosition = ezOpenXR::ConvertPosition(spaceLocation.pose.position);
-          m_JointData[uiSide][i].m_Bone.m_Transform.m_qRotation = ezOpenXR::ConvertOrientation(spaceLocation.pose.orientation);
+          m_JointData[uiSide][i].m_Bone.m_Transform.m_vPosition = ezOpenXRConversionUtils::ConvertPosition(spaceLocation.pose.position);
+          m_JointData[uiSide][i].m_Bone.m_Transform.m_qRotation = ezOpenXRConversionUtils::ConvertOrientation(spaceLocation.pose.orientation);
         }
         else
         {

@@ -5,6 +5,7 @@
 #include <OpenXRPlugin/OpenXRDeclarations.h>
 #include <OpenXRPlugin/OpenXRSingleton.h>
 #include <OpenXRPlugin/OpenXRSpatialAnchors.h>
+#include <OpenXRPlugin/Utils/OpenXRConversionUtils.h>
 
 EZ_IMPLEMENT_SINGLETON(ezOpenXRSpatialAnchors);
 
@@ -48,8 +49,8 @@ ezXRSpatialAnchorID ezOpenXRSpatialAnchors::CreateAnchor(const ezTransform& glob
 
   XrSpatialAnchorCreateInfoMSFT createInfo{XR_TYPE_SPATIAL_ANCHOR_CREATE_INFO_MSFT};
   createInfo.space = m_pOpenXR->GetBaseSpace();
-  createInfo.pose.position = ezOpenXR::ConvertPosition(local.m_vPosition);
-  createInfo.pose.orientation = ezOpenXR::ConvertOrientation(local.m_qRotation);
+  createInfo.pose.position = ezOpenXRConversionUtils::ConvertPosition(local.m_vPosition);
+  createInfo.pose.orientation = ezOpenXRConversionUtils::ConvertOrientation(local.m_qRotation);
   createInfo.time = m_pOpenXR->m_FrameState.predictedDisplayTime;
 
   XrSpatialAnchorMSFT anchor;
@@ -59,7 +60,7 @@ ezXRSpatialAnchorID ezOpenXRSpatialAnchors::CreateAnchor(const ezTransform& glob
 
   XrSpatialAnchorSpaceCreateInfoMSFT createSpaceInfo{XR_TYPE_SPATIAL_ANCHOR_SPACE_CREATE_INFO_MSFT};
   createSpaceInfo.anchor = anchor;
-  createSpaceInfo.poseInAnchorSpace = ezOpenXR::ConvertTransform(ezTransform::MakeIdentity());
+  createSpaceInfo.poseInAnchorSpace = ezOpenXRConversionUtils::ConvertTransform(ezTransform::MakeIdentity());
 
   XrSpace space;
   res = m_pOpenXR->m_Extensions.pfn_xrCreateSpatialAnchorSpaceMSFT(m_pOpenXR->m_pSession, &createSpaceInfo, &space);
@@ -108,7 +109,7 @@ ezResult ezOpenXRSpatialAnchors::TryGetAnchorTransform(ezXRSpatialAnchorID id, e
         globalStageTransform = pStage->GetOwner()->GetGlobalTransform();
       }
     }
-    ezTransform local(ezOpenXR::ConvertPosition(viewInScene.pose.position), ezOpenXR::ConvertOrientation(viewInScene.pose.orientation));
+    ezTransform local(ezOpenXRConversionUtils::ConvertPosition(viewInScene.pose.position), ezOpenXRConversionUtils::ConvertOrientation(viewInScene.pose.orientation));
     out_globalTransform = ezTransform::MakeGlobalTransform(globalStageTransform, local);
 
     return EZ_SUCCESS;

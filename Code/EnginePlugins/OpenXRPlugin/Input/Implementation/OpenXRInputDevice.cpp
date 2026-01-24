@@ -2,9 +2,10 @@
 
 #include <Core/Input/InputManager.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <OpenXRPlugin/Input/OpenXRInputDevice.h>
 #include <OpenXRPlugin/OpenXRDeclarations.h>
-#include <OpenXRPlugin/OpenXRInputDevice.h>
 #include <OpenXRPlugin/OpenXRSingleton.h>
+#include <OpenXRPlugin/Utils/OpenXRConversionUtils.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezOpenXRInputDevice, 1, ezRTTINoAllocator);
@@ -232,7 +233,7 @@ XrResult ezOpenXRInputDevice::CreateActions(XrSession session, XrSpace sceneSpac
 
 
   XrActionSpaceCreateInfo spaceCreateInfo{XR_TYPE_ACTION_SPACE_CREATE_INFO};
-  spaceCreateInfo.poseInActionSpace = m_pOpenXR->ConvertTransform(ezTransform::MakeIdentity());
+  spaceCreateInfo.poseInActionSpace = ezOpenXRConversionUtils::ConvertTransform(ezTransform::MakeIdentity());
   for (ezUInt32 uiSide : {0, 1})
   {
     spaceCreateInfo.subactionPath = m_SubActionPath[uiSide];
@@ -528,8 +529,8 @@ XrResult ezOpenXRInputDevice::UpdateActions()
       if ((viewInScene.locationFlags & (XR_SPACE_LOCATION_POSITION_VALID_BIT | XR_SPACE_LOCATION_ORIENTATION_VALID_BIT)) ==
           (XR_SPACE_LOCATION_POSITION_VALID_BIT | XR_SPACE_LOCATION_ORIENTATION_VALID_BIT))
       {
-        vPosition = ezOpenXR::ConvertPosition(viewInScene.pose.position);
-        qRotation = ezOpenXR::ConvertOrientation(viewInScene.pose.orientation);
+        vPosition = ezOpenXRConversionUtils::ConvertPosition(viewInScene.pose.position);
+        qRotation = ezOpenXRConversionUtils::ConvertOrientation(viewInScene.pose.orientation);
         m_bIsValid = true;
       }
       else

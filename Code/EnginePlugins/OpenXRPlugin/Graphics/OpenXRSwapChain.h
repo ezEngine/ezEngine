@@ -6,14 +6,6 @@
 
 class ezOpenXR;
 
-// Swapchain image types
-#if EZ_OPENXR_HAS_VULKAN_RENDERER
-EZ_DEFINE_AS_POD_TYPE(XrSwapchainImageVulkanKHR);
-#endif
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-EZ_DEFINE_AS_POD_TYPE(XrSwapchainImageD3D11KHR);
-#endif
-
 class EZ_OPENXRPLUGIN_DLL ezGALOpenXRSwapChain : public ezGALXRSwapChain
 {
 public:
@@ -36,19 +28,11 @@ private:
     XrSwapchain handle = 0;
     int64_t format = 0;
     ezUInt32 imageCount = 0;
-    XrSwapchainImageBaseHeader* images = nullptr;
     uint32_t imageIndex = 0;
-  };
-  enum class SwapchainType
-  {
-    Color,
-    Depth,
   };
 
 private:
   ezGALOpenXRSwapChain(ezOpenXR* pXrInterface, ezGALMSAASampleCount::Enum msaaCount);
-  XrResult SelectSwapchainFormat(int64_t& colorFormat, int64_t& depthFormat);
-  XrResult CreateSwapchainImages(Swapchain& swapchain, SwapchainType type);
   XrResult InitSwapChain(ezGALMSAASampleCount::Enum msaaCount);
   void DeinitSwapChain();
 
@@ -63,18 +47,7 @@ private:
   Swapchain m_ColorSwapchain;
   Swapchain m_DepthSwapchain;
 
-#if EZ_OPENXR_HAS_VULKAN_RENDERER
-  // Vulkan swapchain images
-  ezHybridArray<XrSwapchainImageVulkanKHR, 3> m_ColorSwapChainImagesVulkan;
-  ezHybridArray<XrSwapchainImageVulkanKHR, 3> m_DepthSwapChainImagesVulkan;
-#endif
-
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  // D3D11 swapchain images - Windows only
-  ezHybridArray<XrSwapchainImageD3D11KHR, 3> m_ColorSwapChainImagesD3D11;
-  ezHybridArray<XrSwapchainImageD3D11KHR, 3> m_DepthSwapChainImagesD3D11;
-#endif
-
+  // Render targets - created by the graphics binding
   ezHybridArray<ezGALTextureHandle, 3> m_ColorRTs;
   ezHybridArray<ezGALTextureHandle, 3> m_DepthRTs;
 
