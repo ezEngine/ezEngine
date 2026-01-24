@@ -198,7 +198,12 @@ vk::Result ezGALDeviceVulkan::SelectInstanceExtensions(ezHybridArray<const char*
   m_extensions.m_bDebugUtilsMarkers = m_extensions.m_bDebugUtils;
 
   AddExtIfSupported(VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME, m_extensions.m_bExternalMemoryCapabilities);
+  AddExtIfSupported(VK_KHR_EXTERNAL_FENCE_CAPABILITIES_EXTENSION_NAME, m_extensions.m_bExternalFenceCapabilities);
   AddExtIfSupported(VK_KHR_EXTERNAL_SEMAPHORE_CAPABILITIES_EXTENSION_NAME, m_extensions.m_bExternalSemaphoreCapabilities);
+
+  bool supported = false;
+  AddExtIfSupported(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME, supported);
+  AddExtIfSupported(VK_NV_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME, supported);
 
   return vk::Result::eSuccess;
 }
@@ -295,6 +300,11 @@ vk::Result ezGALDeviceVulkan::SelectDeviceExtensions(vk::DeviceCreateInfo& devic
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   AddExtIfSupported(VK_KHR_EXTERNAL_MEMORY_WIN32_EXTENSION_NAME, m_extensions.m_bExternalMemoryWin32);
   AddExtIfSupported(VK_KHR_EXTERNAL_SEMAPHORE_WIN32_EXTENSION_NAME, m_extensions.m_bExternalSemaphoreWin32);
+
+  bool supported;
+  AddExtIfSupported(VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME, supported);
+  AddExtIfSupported(VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME, supported);
+  AddExtIfSupported(VK_KHR_WIN32_KEYED_MUTEX_EXTENSION_NAME, supported);
 #endif
 
   return vk::Result::eSuccess;

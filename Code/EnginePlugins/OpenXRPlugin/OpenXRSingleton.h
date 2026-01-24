@@ -17,6 +17,7 @@ class ezOpenXRSpatialAnchors;
 class ezOpenXRHandTracking;
 class ezWindowOutputTargetXR;
 struct ezGameApplicationExecutionEvent;
+struct ezRenderWorldRenderEvent;
 
 EZ_DEFINE_AS_POD_TYPE(XrViewConfigurationView);
 EZ_DEFINE_AS_POD_TYPE(XrEnvironmentBlendMode);
@@ -34,6 +35,7 @@ public:
   XrSession GetSession() const { return m_pSession; }
   XrViewConfigurationType GetViewType() const { return m_PrimaryViewConfigurationType; }
   bool GetDepthComposition() const;
+  bool IsUsingVulkan() const { return m_bUsingVulkan; }
 
   virtual bool IsHmdPresent() const override;
 
@@ -45,10 +47,6 @@ public:
   virtual ezXRInputDevice& GetXRInput() const override;
 
   virtual ezGALTextureHandle GetCurrentTexture() override;
-
-  void DelayPresent();
-  void Present();
-  void EndFrame();
 
   virtual ezRegisteredWndHandle CreateXRWindow(ezView* pView, ezGALMSAASampleCount::Enum msaaCount = ezGALMSAASampleCount::None,
     ezUniquePtr<ezWindowBase> pCompanionWindow = nullptr, ezUniquePtr<ezWindowOutputTargetGAL> pCompanionWindowOutput = nullptr) override;
@@ -71,11 +69,14 @@ private:
 
   void GameApplicationEventHandler(const ezGameApplicationExecutionEvent& e);
   void GALDeviceEventHandler(const ezGALDeviceEvent& e);
+  void OnRenderWorldEvent(const ezRenderWorldRenderEvent& e);
 
   void BeforeUpdatePlugins();
   void UpdatePoses();
   void UpdateCamera();
   void BeginFrame();
+  void EndRender();
+  void EndFrame();
 
   void SetStageSpace(ezXRStageSpace::Enum space);
   void SetHMDCamera(ezCamera* pCamera);
@@ -106,7 +107,20 @@ private:
     PFN_xrDestroyDebugUtilsMessengerEXT pfn_xrDestroyDebugUtilsMessengerEXT;
 
     bool m_bD3D11 = false;
-    PFN_xrGetD3D11GraphicsRequirementsKHR pfn_xrGetD3D11GraphicsRequirementsKHR;
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+    PFN_xrGetD3D11GraphicsRequirementsKHR pfn_xrGetD3D11GraphicsRequirementsKHR = nullptr;
+#endif
+
+    // Vulkan support - available on Windows, Linux, and Android
+    bool m_bVulkanEnable2 = false;
+    bool m_bVulkanEnable = false;
+#if EZ_OPENXR_HAS_VULKAN_RENDERER
+    PFN_xrGetVulkanGraphicsRequirementsKHR pfn_xrGetVulkanGraphicsRequirementsKHR = nullptr;
+    PFN_xrGetVulkanGraphicsRequirements2KHR pfn_xrGetVulkanGraphicsRequirements2KHR = nullptr;
+    PFN_xrGetVulkanInstanceExtensionsKHR pfn_xrGetVulkanInstanceExtensionsKHR = nullptr;
+    PFN_xrGetVulkanDeviceExtensionsKHR pfn_xrGetVulkanDeviceExtensionsKHR = nullptr;
+    PFN_xrGetVulkanGraphicsDeviceKHR pfn_xrGetVulkanGraphicsDeviceKHR = nullptr;
+#endif
 
     bool m_bDepthComposition = false;
 
@@ -130,21 +144,13 @@ private:
 
     bool m_bHolographicWindowAttachment = false;
 
-    bool m_bRemoting = false;
-#ifdef BUILDSYSTEM_ENABLE_OPENXR_REMOTING_SUPPORT
-    PFN_xrRemotingSetContextPropertiesMSFT pfn_xrRemotingSetContextPropertiesMSFT;
-    PFN_xrRemotingConnectMSFT pfn_xrRemotingConnectMSFT;
-    PFN_xrRemotingDisconnectMSFT pfn_xrRemotingDisconnectMSFT;
-    PFN_xrRemotingGetConnectionStateMSFT pfn_xrRemotingGetConnectionStateMSFT;
-#endif
+    // Remoting support removed.
   };
 
   // Instance
   XrInstance m_pInstance = XR_NULL_HANDLE;
   Extensions m_Extensions;
-#ifdef BUILDSYSTEM_ENABLE_OPENXR_REMOTING_SUPPORT
-  ezUniquePtr<class ezOpenXRRemoting> m_pRemoting;
-#endif
+  // Remoting support removed.
 
   // System
   uint64_t m_SystemId = XR_NULL_SYSTEM_ID;
@@ -156,11 +162,19 @@ private:
   ezEventSubscriptionID m_ExecutionEventsId = 0;
   ezEventSubscriptionID m_BeginRenderEventsId = 0;
   ezEventSubscriptionID m_GALdeviceEventsId = 0;
+  ezEventSubscriptionID m_RenderWorldEventId = 0;
   XrDebugUtilsMessengerEXT m_pDebugMessenger = XR_NULL_HANDLE;
 
   // Graphics plugin
   XrEnvironmentBlendMode m_BlendMode = XR_ENVIRONMENT_BLEND_MODE_OPAQUE;
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   XrGraphicsBindingD3D11KHR m_XrGraphicsBindingD3D11{XR_TYPE_GRAPHICS_BINDING_D3D11_KHR};
+#endif
+#if EZ_OPENXR_HAS_VULKAN_RENDERER
+  // Vulkan graphics binding - available when Vulkan renderer is built
+  XrGraphicsBindingVulkanKHR m_XrGraphicsBindingVulkan{XR_TYPE_GRAPHICS_BINDING_VULKAN_KHR};
+#endif
+  bool m_bUsingVulkan = false;
   XrFormFactor m_FormFactor{XR_FORM_FACTOR_HEAD_MOUNTED_DISPLAY};
   XrViewConfigurationType m_PrimaryViewConfigurationType{XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO};
 
@@ -197,5 +211,4 @@ private:
   ezViewHandle m_hView;
 
   ezWindowOutputTargetXR* m_pCompanion = nullptr;
-  bool m_bPresentDelayed = false;
 };

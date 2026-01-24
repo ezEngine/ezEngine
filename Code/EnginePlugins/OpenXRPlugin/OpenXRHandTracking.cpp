@@ -33,18 +33,21 @@ ezOpenXRHandTracking::ezOpenXRHandTracking(ezOpenXR* pOpenXR)
     XR_LOG_ERROR(m_pOpenXR->m_Extensions.pfn_xrCreateHandTrackerEXT(pOpenXR->m_pSession, &createInfo, &m_HandTracker[uiSide]));
 
     m_Locations[uiSide].type = XR_TYPE_HAND_JOINT_LOCATIONS_EXT;
-    m_Locations[uiSide].next = &m_Velocities;
+    m_Locations[uiSide].next = &m_Velocities[uiSide];
     m_Locations[uiSide].jointCount = XR_HAND_JOINT_COUNT_EXT;
     m_Locations[uiSide].jointLocations = m_JointLocations[uiSide];
+    ezMemoryUtils::ZeroFill(&m_JointLocations[uiSide][0], XR_HAND_JOINT_COUNT_EXT);
 
     m_Velocities[uiSide].type = XR_TYPE_HAND_JOINT_VELOCITIES_EXT;
     m_Velocities[uiSide].jointCount = XR_HAND_JOINT_COUNT_EXT;
     m_Velocities[uiSide].jointVelocities = m_JointVelocities[uiSide];
-
+    ezMemoryUtils::ZeroFill(&m_JointVelocities[uiSide][0], XR_HAND_JOINT_COUNT_EXT);
+    
     m_JointData[uiSide].SetCount(XR_HAND_JOINT_LITTLE_TIP_EXT + 1);
     for (ezUInt32 i = 0; i <= XR_HAND_JOINT_LITTLE_TIP_EXT; ++i)
     {
       m_JointData[uiSide][i].m_Bone.m_Transform.SetIdentity();
+      m_JointVelocities[uiSide][i].velocityFlags = XR_SPACE_VELOCITY_LINEAR_VALID_BIT | XR_SPACE_VELOCITY_ANGULAR_VALID_BIT;
     }
   }
 
@@ -141,6 +144,15 @@ void ezOpenXRHandTracking::UpdateJointTransforms()
   XrHandJointsLocateInfoEXT locateInfo{XR_TYPE_HAND_JOINTS_LOCATE_INFO_EXT};
   locateInfo.baseSpace = m_pOpenXR->GetBaseSpace();
   locateInfo.time = time;
+
+  for (ezUInt32 uiSide : {0, 1})
+  {
+    for (ezUInt32 i = 0; i <= XR_HAND_JOINT_LITTLE_TIP_EXT; ++i)
+    {
+      m_JointData[uiSide][i].m_Bone.m_Transform.SetIdentity();
+      m_JointVelocities[uiSide][i].velocityFlags = XR_SPACE_VELOCITY_LINEAR_VALID_BIT | XR_SPACE_VELOCITY_ANGULAR_VALID_BIT;
+    }
+  }
 
   for (ezUInt32 uiSide : {0, 1})
   {

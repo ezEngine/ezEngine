@@ -366,7 +366,7 @@ XrResult ezOpenXRInputDevice::SuggestInteractionProfileBindings(const char* szIn
   profileBindings.countSuggestedBindings = xrBindings.GetCount();
   XR_SUCCEED_OR_RETURN_LOG(xrSuggestInteractionProfileBindings(instance, &profileBindings));
 
-  m_InteractionProfileToNiceName[InteractionProfile] = szNiceName;
+  m_InteractionProfileToNiceName[static_cast<ezUInt64>(InteractionProfile)] = szNiceName;
 
   return XR_SUCCESS;
 }
@@ -397,7 +397,7 @@ XrResult ezOpenXRInputDevice::UpdateCurrentInteractionProfile()
     if (res == XR_SUCCESS)
     {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-      if (state.interactionProfile != XR_NULL_PATH && !m_InteractionProfileToNiceName.Contains(state.interactionProfile))
+      if (state.interactionProfile != XR_NULL_PATH && !m_InteractionProfileToNiceName.Contains(static_cast<ezUInt64>(state.interactionProfile)))
       {
         char buffer[256];
         ezUInt32 temp;
@@ -414,7 +414,7 @@ XrResult ezOpenXRInputDevice::UpdateCurrentInteractionProfile()
   {
     const ezUInt32 uiControllerId = uiSide == 0 ? m_iLeftControllerDeviceID : m_iRightControllerDeviceID;
     XrPath path = GetActiveControllerProfile(uiSide);
-    m_sActiveProfile[uiControllerId] = m_InteractionProfileToNiceName[path];
+    m_sActiveProfile[uiControllerId] = m_InteractionProfileToNiceName[static_cast<ezUInt64>(path)];
   }
 
   UpdateActions();

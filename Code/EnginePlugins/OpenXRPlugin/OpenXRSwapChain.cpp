@@ -7,6 +7,7 @@
 #include <RendererFoundation/Device/Device.h>
 #include <vector>
 
+
 void ezGALOpenXRSwapChain::AcquireNextRenderTarget(ezGALDevice* pDevice)
 {
   EZ_PROFILE_SCOPE("AcquireNextRenderTarget");
@@ -44,17 +45,7 @@ void ezGALOpenXRSwapChain::AcquireNextRenderTarget(ezGALDevice* pDevice)
 void ezGALOpenXRSwapChain::PresentRenderTarget(ezGALDevice* pDevice)
 {
   EZ_PROFILE_SCOPE("PresentRenderTarget");
-  auto pOpenXR = static_cast<ezOpenXR*>(m_pXrInterface);
-  // If we have a companion view we can't let go of the current swap chain image yet as we need to use it as the input to render to the companion window.
-  // Thus, we delay PresentRenderTarget here and ezOpenXR will call PresentRenderTarget instead after the companion window was updated.
-  if (pOpenXR->m_pCompanion)
-  {
-    pOpenXR->DelayPresent();
-  }
-  else
-  {
-    PresentRenderTarget();
-  }
+  PresentRenderTarget();
   m_bImageAcquired = false;
 }
 
@@ -104,7 +95,49 @@ XrResult ezGALOpenXRSwapChain::SelectSwapchainFormat(int64_t& colorFormat, int64
   std::vector<int64_t> swapchainFormats(swapchainFormatCount);
   XR_SUCCEED_OR_CLEANUP_LOG(xrEnumerateSwapchainFormats(m_pSession, (uint32_t)swapchainFormats.size(), &swapchainFormatCount, swapchainFormats.data()), voidFunction);
 
-  // List of supported color swapchain formats, in priority order.
+#if EZ_OPENXR_HAS_VULKAN_RENDERER
+  // Check if we're using Vulkan
+  if (pOpenXR->IsUsingVulkan())
+  {
+    // Vulkan format selection
+    constexpr VkFormat SupportedColorSwapchainFormats[] = {
+      VK_FORMAT_R8G8B8A8_SRGB,
+      VK_FORMAT_B8G8R8A8_SRGB,
+      VK_FORMAT_R8G8B8A8_UNORM,
+      VK_FORMAT_B8G8R8A8_UNORM,
+    };
+
+    constexpr VkFormat SupportedDepthSwapchainFormats[] = {
+      VK_FORMAT_D32_SFLOAT,
+      VK_FORMAT_D24_UNORM_S8_UINT,
+      VK_FORMAT_D16_UNORM,
+      VK_FORMAT_D32_SFLOAT_S8_UINT,
+    };
+
+    auto swapchainFormatIt = std::find_first_of(std::begin(SupportedColorSwapchainFormats), std::end(SupportedColorSwapchainFormats), swapchainFormats.begin(), swapchainFormats.end());
+    if (swapchainFormatIt == std::end(SupportedColorSwapchainFormats))
+    {
+      ezLog::Error("No supported Vulkan color swapchain format found");
+      return XrResult::XR_ERROR_INITIALIZATION_FAILED;
+    }
+    colorFormat = *swapchainFormatIt;
+
+    if (pOpenXR->GetDepthComposition())
+    {
+      auto depthSwapchainFormatIt = std::find_first_of(std::begin(SupportedDepthSwapchainFormats), std::end(SupportedDepthSwapchainFormats), swapchainFormats.begin(), swapchainFormats.end());
+      if (depthSwapchainFormatIt == std::end(SupportedDepthSwapchainFormats))
+      {
+        ezLog::Error("No supported Vulkan depth swapchain format found");
+        return XrResult::XR_ERROR_INITIALIZATION_FAILED;
+      }
+      depthFormat = *depthSwapchainFormatIt;
+    }
+    return XrResult::XR_SUCCESS;
+  }
+#endif
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  // D3D11 / DXGI format selection
   constexpr DXGI_FORMAT SupportedColorSwapchainFormats[] = {
     DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
     DXGI_FORMAT_B8G8R8A8_UNORM_SRGB,
@@ -119,6 +152,7 @@ XrResult ezGALOpenXRSwapChain::SelectSwapchainFormat(int64_t& colorFormat, int64
   auto swapchainFormatIt = std::find_first_of(std::begin(SupportedColorSwapchainFormats), std::end(SupportedColorSwapchainFormats), swapchainFormats.begin(), swapchainFormats.end());
   if (swapchainFormatIt == std::end(SupportedColorSwapchainFormats))
   {
+    ezLog::Error("No supported D3D11 color swapchain format found");
     return XrResult::XR_ERROR_INITIALIZATION_FAILED;
   }
   colorFormat = *swapchainFormatIt;
@@ -128,59 +162,121 @@ XrResult ezGALOpenXRSwapChain::SelectSwapchainFormat(int64_t& colorFormat, int64
     auto depthSwapchainFormatIt = std::find_first_of(std::begin(SupportedDepthSwapchainFormats), std::end(SupportedDepthSwapchainFormats), swapchainFormats.begin(), swapchainFormats.end());
     if (depthSwapchainFormatIt == std::end(SupportedDepthSwapchainFormats))
     {
+      ezLog::Error("No supported D3D11 depth swapchain format found");
       return XrResult::XR_ERROR_INITIALIZATION_FAILED;
     }
     depthFormat = *depthSwapchainFormatIt;
   }
   return XrResult::XR_SUCCESS;
+#else
+  ezLog::Error("No graphics API available for swapchain format selection");
+  return XrResult::XR_ERROR_INITIALIZATION_FAILED;
+#endif
 }
 
 XrResult ezGALOpenXRSwapChain::CreateSwapchainImages(Swapchain& swapchain, SwapchainType type)
 {
-  if (type == SwapchainType::Color)
-  {
-    m_ColorSwapChainImagesD3D11.SetCount(swapchain.imageCount, {XR_TYPE_SWAPCHAIN_IMAGE_D3D11_KHR});
-    swapchain.images = reinterpret_cast<XrSwapchainImageBaseHeader*>(m_ColorSwapChainImagesD3D11.GetData());
-  }
-  else
-  {
-    m_DepthSwapChainImagesD3D11.SetCount(swapchain.imageCount, {XR_TYPE_SWAPCHAIN_IMAGE_D3D11_KHR});
-    swapchain.images = reinterpret_cast<XrSwapchainImageBaseHeader*>(m_DepthSwapChainImagesD3D11.GetData());
-  }
-  XR_SUCCEED_OR_CLEANUP_LOG(xrEnumerateSwapchainImages(swapchain.handle, swapchain.imageCount, &swapchain.imageCount, swapchain.images), voidFunction);
-
+  auto pOpenXR = static_cast<ezOpenXR*>(m_pXrInterface);
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
-  for (ezUInt32 i = 0; i < swapchain.imageCount; i++)
+#if EZ_OPENXR_HAS_VULKAN_RENDERER
+  if (pOpenXR->IsUsingVulkan())
   {
-    ID3D11Texture2D* pTex = nullptr;
+    // Vulkan swapchain image handling
     if (type == SwapchainType::Color)
     {
-      pTex = m_ColorSwapChainImagesD3D11[i].texture;
+      m_ColorSwapChainImagesVulkan.SetCount(swapchain.imageCount, {XR_TYPE_SWAPCHAIN_IMAGE_VULKAN_KHR});
+      swapchain.images = reinterpret_cast<XrSwapchainImageBaseHeader*>(m_ColorSwapChainImagesVulkan.GetData());
     }
     else
     {
-      pTex = m_DepthSwapChainImagesD3D11[i].texture;
+      m_DepthSwapChainImagesVulkan.SetCount(swapchain.imageCount, {XR_TYPE_SWAPCHAIN_IMAGE_VULKAN_KHR});
+      swapchain.images = reinterpret_cast<XrSwapchainImageBaseHeader*>(m_DepthSwapChainImagesVulkan.GetData());
     }
+    XR_SUCCEED_OR_CLEANUP_LOG(xrEnumerateSwapchainImages(swapchain.handle, swapchain.imageCount, &swapchain.imageCount, swapchain.images), voidFunction);
 
-    D3D11_TEXTURE2D_DESC backBufferDesc;
-    pTex->GetDesc(&backBufferDesc);
+    for (ezUInt32 i = 0; i < swapchain.imageCount; i++)
+    {
+      VkImage vkImage = VK_NULL_HANDLE;
+      if (type == SwapchainType::Color)
+      {
+        vkImage = m_ColorSwapChainImagesVulkan[i].image;
+      }
+      else
+      {
+        vkImage = m_DepthSwapChainImagesVulkan[i].image;
+      }
 
-    ezGALTextureCreationDescription textureDesc;
-    textureDesc.SetAsRenderTarget(backBufferDesc.Width, backBufferDesc.Height, ezOpenXR::ConvertTextureFormat(swapchain.format), ezGALMSAASampleCount::Enum(backBufferDesc.SampleDesc.Count));
-    textureDesc.m_uiArraySize = backBufferDesc.ArraySize;
-    textureDesc.m_pExisitingNativeObject = pTex;
-    // Need to add a ref as the EZ texture will always remove one on destruction.
-    pTex->AddRef();
-    if (type == SwapchainType::Color)
-    {
-      m_ColorRTs.PushBack(pDevice->CreateTexture(textureDesc));
-    }
-    else
-    {
-      m_DepthRTs.PushBack(pDevice->CreateTexture(textureDesc));
+      ezGALTextureCreationDescription textureDesc;
+      textureDesc.SetAsRenderTarget(m_CurrentSize.width, m_CurrentSize.height, ezOpenXR::ConvertTextureFormat(swapchain.format), m_MsaaCount);
+      textureDesc.m_uiArraySize = 2;
+      textureDesc.m_pExisitingNativeObject = (void*)vkImage;
+      textureDesc.m_Type = ezGALTextureType::Texture2DArray;
+      textureDesc.m_bAllowRenderTargetView = true;
+      textureDesc.m_ResourceAccess.m_bImmutable = true;
+
+      ezGALTextureHandle hTex = pDevice->CreateTexture(textureDesc, ezArrayPtr<ezGALSystemMemoryDescription>());
+      if (type == SwapchainType::Color)
+      {
+        m_ColorRTs.PushBack(hTex);
+      }
+      else
+      {
+        m_DepthRTs.PushBack(hTex);
+      }
     }
   }
+  else
+#endif
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  {
+    // D3D11 swapchain image handling
+    if (type == SwapchainType::Color)
+    {
+      m_ColorSwapChainImagesD3D11.SetCount(swapchain.imageCount, {XR_TYPE_SWAPCHAIN_IMAGE_D3D11_KHR});
+      swapchain.images = reinterpret_cast<XrSwapchainImageBaseHeader*>(m_ColorSwapChainImagesD3D11.GetData());
+    }
+    else
+    {
+      m_DepthSwapChainImagesD3D11.SetCount(swapchain.imageCount, {XR_TYPE_SWAPCHAIN_IMAGE_D3D11_KHR});
+      swapchain.images = reinterpret_cast<XrSwapchainImageBaseHeader*>(m_DepthSwapChainImagesD3D11.GetData());
+    }
+    XR_SUCCEED_OR_CLEANUP_LOG(xrEnumerateSwapchainImages(swapchain.handle, swapchain.imageCount, &swapchain.imageCount, swapchain.images), voidFunction);
+
+    for (ezUInt32 i = 0; i < swapchain.imageCount; i++)
+    {
+      ID3D11Texture2D* pTex = nullptr;
+      if (type == SwapchainType::Color)
+      {
+        pTex = m_ColorSwapChainImagesD3D11[i].texture;
+      }
+      else
+      {
+        pTex = m_DepthSwapChainImagesD3D11[i].texture;
+      }
+
+      D3D11_TEXTURE2D_DESC backBufferDesc;
+      pTex->GetDesc(&backBufferDesc);
+
+      ezGALTextureCreationDescription textureDesc;
+      textureDesc.SetAsRenderTarget(backBufferDesc.Width, backBufferDesc.Height, ezOpenXR::ConvertTextureFormat(swapchain.format), ezGALMSAASampleCount::Enum(backBufferDesc.SampleDesc.Count));
+      textureDesc.m_uiArraySize = backBufferDesc.ArraySize;
+      textureDesc.m_pExisitingNativeObject = pTex;
+      textureDesc.m_Type = ezGALTextureType::Texture2DArray;
+      // Need to add a ref as the EZ texture will always remove one on destruction.
+      pTex->AddRef();
+      if (type == SwapchainType::Color)
+      {
+        m_ColorRTs.PushBack(pDevice->CreateTexture(textureDesc));
+      }
+      else
+      {
+        m_DepthRTs.PushBack(pDevice->CreateTexture(textureDesc));
+      }
+    }
+  }
+#endif
+
   if (type == SwapchainType::Color)
     m_hColorRT = m_ColorRTs[0];
   else
@@ -299,6 +395,15 @@ void ezGALOpenXRSwapChain::DeinitSwapChain()
   DeleteSwapchain(m_ColorSwapchain);
   DeleteSwapchain(m_DepthSwapchain);
 
+#if EZ_OPENXR_HAS_VULKAN_RENDERER
+  // Clear Vulkan swapchain images
+  m_ColorSwapChainImagesVulkan.Clear();
+  m_DepthSwapChainImagesVulkan.Clear();
+#endif
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  // Clear D3D11 swapchain images
   m_ColorSwapChainImagesD3D11.Clear();
   m_DepthSwapChainImagesD3D11.Clear();
+#endif
 }

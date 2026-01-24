@@ -136,6 +136,7 @@ public:
 
     bool m_bExternalMemoryCapabilities = false;
     bool m_bExternalSemaphoreCapabilities = false;
+    bool m_bExternalFenceCapabilities = false;
 
     bool m_bExternalMemory = false;
     bool m_bExternalSemaphore = false;

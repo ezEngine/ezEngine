@@ -30,6 +30,11 @@ Plugin
 }
 Plugin
 {
+	string %Path{"ezOpenXRPlugin"}
+	bool %LoadCopy{false}
+}
+Plugin
+{
 	string %Path{"ezParticlePlugin"}
 	bool %LoadCopy{false}
 }

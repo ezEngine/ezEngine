@@ -6,7 +6,13 @@
 
 class ezOpenXR;
 
+// Swapchain image types
+#if EZ_OPENXR_HAS_VULKAN_RENDERER
+EZ_DEFINE_AS_POD_TYPE(XrSwapchainImageVulkanKHR);
+#endif
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 EZ_DEFINE_AS_POD_TYPE(XrSwapchainImageD3D11KHR);
+#endif
 
 class EZ_OPENXRPLUGIN_DLL ezGALOpenXRSwapChain : public ezGALXRSwapChain
 {
@@ -57,8 +63,18 @@ private:
   Swapchain m_ColorSwapchain;
   Swapchain m_DepthSwapchain;
 
+#if EZ_OPENXR_HAS_VULKAN_RENDERER
+  // Vulkan swapchain images
+  ezHybridArray<XrSwapchainImageVulkanKHR, 3> m_ColorSwapChainImagesVulkan;
+  ezHybridArray<XrSwapchainImageVulkanKHR, 3> m_DepthSwapChainImagesVulkan;
+#endif
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  // D3D11 swapchain images - Windows only
   ezHybridArray<XrSwapchainImageD3D11KHR, 3> m_ColorSwapChainImagesD3D11;
   ezHybridArray<XrSwapchainImageD3D11KHR, 3> m_DepthSwapChainImagesD3D11;
+#endif
+
   ezHybridArray<ezGALTextureHandle, 3> m_ColorRTs;
   ezHybridArray<ezGALTextureHandle, 3> m_DepthRTs;
 

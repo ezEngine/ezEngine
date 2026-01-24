@@ -48,7 +48,7 @@ AssetProfiles
 				uint32 %v{2}
 				p
 				{
-					bool %EnableXR{false}
+					bool %EnableXR{true}
 					string %XRRenderPipeline{"{ 2fe25ded-776c-7f9e-354f-e4c52a33d125 }"}
 				}
 			}

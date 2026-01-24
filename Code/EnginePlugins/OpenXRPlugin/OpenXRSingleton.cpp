@@ -8,18 +8,24 @@
 #include <OpenXRPlugin/OpenXRDeclarations.h>
 #include <OpenXRPlugin/OpenXRHandTracking.h>
 #include <OpenXRPlugin/OpenXRInputDevice.h>
-#include <OpenXRPlugin/OpenXRRemoting.h>
 #include <OpenXRPlugin/OpenXRSingleton.h>
+#include <RendererFoundation/Device/Device.h>
 #include <OpenXRPlugin/OpenXRSpatialAnchors.h>
 #include <OpenXRPlugin/OpenXRSwapChain.h>
 #include <RendererCore/Components/CameraComponent.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Textures/TextureUtils.h>
+#include <RendererFoundation/Device/Device.h>
 #include <Texture/Image/Formats/ImageFormatMappings.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 #  include <RendererDX11/Device/DeviceDX11.h>
+#endif
+
+// Vulkan device header - only included when Vulkan renderer is available
+#if EZ_OPENXR_HAS_VULKAN_RENDERER
+#  include <RendererVulkan/Device/DeviceVulkan.h>
 #endif
 
 #include <vector>
@@ -59,9 +65,6 @@ XrBool32 XRAPI_CALL xrDebugCallback(XrDebugUtilsMessageSeverityFlagsEXT messageS
 ezOpenXR::ezOpenXR()
   : m_SingletonRegistrar(this)
 {
-#ifdef BUILDSYSTEM_ENABLE_OPENXR_REMOTING_SUPPORT
-  m_pRemoting = EZ_DEFAULT_NEW(ezOpenXRRemoting, this);
-#endif
 }
 
 ezOpenXR::~ezOpenXR() = default;
@@ -104,8 +107,41 @@ XrResult ezOpenXR::SelectExtensions(ezHybridArray<const char*, 6>& extensions)
     return XR_ERROR_EXTENSION_NOT_PRESENT;
   };
 
-  // D3D11 extension is required so check that it was added.
-  XR_SUCCEED_OR_RETURN_LOG(AddExtIfSupported(XR_KHR_D3D11_ENABLE_EXTENSION_NAME, m_Extensions.m_bD3D11));
+  // Platform-specific required graphics extension
+  // Detect which renderer is being used
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  [[maybe_unused]] const bool bUsingVulkanRenderer = (pDevice != nullptr && pDevice->GetRenderer() == "Vulkan");
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#  if EZ_OPENXR_HAS_VULKAN_RENDERER
+  if (bUsingVulkanRenderer)
+  {
+    // Using Vulkan renderer on Windows - enable Vulkan OpenXR extensions
+    // Prefer vulkan_enable (v1) because it allows using an existing Vulkan instance/device
+    // vulkan_enable2 requires the runtime to create the instance/device which doesn't fit our architecture
+    if (AddExtIfSupported(XR_KHR_VULKAN_ENABLE_EXTENSION_NAME, m_Extensions.m_bVulkanEnable) != XR_SUCCESS)
+    {
+      // Fall back to vulkan_enable2 if v1 is not available
+      XR_SUCCEED_OR_RETURN_LOG(AddExtIfSupported(XR_KHR_VULKAN_ENABLE2_EXTENSION_NAME, m_Extensions.m_bVulkanEnable2));
+    }
+  }
+  else
+#  endif
+  {
+    // Using D3D11 renderer on Windows
+    XR_SUCCEED_OR_RETURN_LOG(AddExtIfSupported(XR_KHR_D3D11_ENABLE_EXTENSION_NAME, m_Extensions.m_bD3D11));
+  }
+#elif EZ_OPENXR_HAS_VULKAN_RENDERER
+  // Linux/Android: Always use Vulkan
+  // Prefer vulkan_enable (v1) because it allows using an existing Vulkan instance/device
+  if (AddExtIfSupported(XR_KHR_VULKAN_ENABLE_EXTENSION_NAME, m_Extensions.m_bVulkanEnable) != XR_SUCCESS)
+  {
+    XR_SUCCEED_OR_RETURN_LOG(AddExtIfSupported(XR_KHR_VULKAN_ENABLE2_EXTENSION_NAME, m_Extensions.m_bVulkanEnable2));
+  }
+#else
+  ezLog::Error("OpenXR: No supported graphics API available");
+  return XR_ERROR_GRAPHICS_DEVICE_INVALID;
+#endif
 
   AddExtIfSupported(XR_KHR_COMPOSITION_LAYER_DEPTH_EXTENSION_NAME, m_Extensions.m_bDepthComposition);
   AddExtIfSupported(XR_MSFT_UNBOUNDED_REFERENCE_SPACE_EXTENSION_NAME, m_Extensions.m_bUnboundedReferenceSpace);
@@ -118,12 +154,6 @@ XrResult ezOpenXR::SelectExtensions(ezHybridArray<const char*, 6>& extensions)
   AddExtIfSupported(XR_EXT_DEBUG_UTILS_EXTENSION_NAME, m_Extensions.m_bDebugUtils);
 #endif
 
-#ifdef BUILDSYSTEM_ENABLE_OPENXR_REMOTING_SUPPORT
-  AddExtIfSupported(XR_MSFT_HOLOGRAPHIC_REMOTING_EXTENSION_NAME, m_Extensions.m_bRemoting);
-#endif
-
-#ifdef BUILDSYSTEM_ENABLE_OPENXR_PREVIEW_SUPPORT
-#endif
   return XR_SUCCESS;
 }
 
@@ -182,7 +212,7 @@ ezResult ezOpenXR::Initialize()
   ezStringUtils::Copy(createInfo.applicationInfo.applicationName, EZ_ARRAY_SIZE(createInfo.applicationInfo.applicationName), ezApplication::GetApplicationInstance()->GetApplicationName());
   ezStringUtils::Copy(createInfo.applicationInfo.engineName, EZ_ARRAY_SIZE(createInfo.applicationInfo.engineName), "ezEngine");
   createInfo.applicationInfo.engineVersion = 1;
-  createInfo.applicationInfo.apiVersion = XR_CURRENT_API_VERSION;
+  createInfo.applicationInfo.apiVersion = XR_API_VERSION_1_0;
   createInfo.applicationInfo.applicationVersion = 1;
   XrResult res = xrCreateInstance(&createInfo, &m_pInstance);
   if (res != XR_SUCCESS)
@@ -203,7 +233,29 @@ ezResult ezOpenXR::Initialize()
   ezStringBuilder sTemp;
   m_Info.m_sDeviceDriver = ezConversionUtils::ToString(instanceProperties.runtimeVersion, sTemp);
 
-  EZ_GET_INSTANCE_PROC_ADDR(xrGetD3D11GraphicsRequirementsKHR);
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  if (m_Extensions.m_bD3D11)
+  {
+    EZ_GET_INSTANCE_PROC_ADDR(xrGetD3D11GraphicsRequirementsKHR);
+  }
+#endif
+
+#if EZ_OPENXR_HAS_VULKAN_RENDERER
+  // Load Vulkan function pointers if Vulkan extension is enabled
+  // Note: xrGetVulkanInstanceExtensionsKHR and xrGetVulkanDeviceExtensionsKHR are only in vulkan_enable (v1), not vulkan_enable2
+  if (m_Extensions.m_bVulkanEnable)
+  {
+    (void)xrGetInstanceProcAddr(m_pInstance, "xrGetVulkanGraphicsRequirementsKHR", reinterpret_cast<PFN_xrVoidFunction*>(&m_Extensions.pfn_xrGetVulkanGraphicsRequirementsKHR));
+    (void)xrGetInstanceProcAddr(m_pInstance, "xrGetVulkanInstanceExtensionsKHR", reinterpret_cast<PFN_xrVoidFunction*>(&m_Extensions.pfn_xrGetVulkanInstanceExtensionsKHR));
+    (void)xrGetInstanceProcAddr(m_pInstance, "xrGetVulkanDeviceExtensionsKHR", reinterpret_cast<PFN_xrVoidFunction*>(&m_Extensions.pfn_xrGetVulkanDeviceExtensionsKHR));
+    (void)xrGetInstanceProcAddr(m_pInstance, "xrGetVulkanGraphicsDeviceKHR", reinterpret_cast<PFN_xrVoidFunction*>(&m_Extensions.pfn_xrGetVulkanGraphicsDeviceKHR));
+  }
+  if (m_Extensions.m_bVulkanEnable2)
+  {
+    (void)xrGetInstanceProcAddr(m_pInstance, "xrGetVulkanGraphicsRequirements2KHR", reinterpret_cast<PFN_xrVoidFunction*>(&m_Extensions.pfn_xrGetVulkanGraphicsRequirements2KHR));
+    // vulkan_enable2 uses xrCreateVulkanInstanceKHR and xrCreateVulkanDeviceKHR instead of the extension query functions
+  }
+#endif
 
   if (m_Extensions.m_bSpatialAnchor)
   {
@@ -233,15 +285,7 @@ ezResult ezOpenXR::Initialize()
   }
 #endif
 
-#ifdef BUILDSYSTEM_ENABLE_OPENXR_REMOTING_SUPPORT
-  if (m_Extensions.m_bRemoting)
-  {
-    EZ_GET_INSTANCE_PROC_ADDR(xrRemotingSetContextPropertiesMSFT);
-    EZ_GET_INSTANCE_PROC_ADDR(xrRemotingConnectMSFT);
-    EZ_GET_INSTANCE_PROC_ADDR(xrRemotingDisconnectMSFT);
-    EZ_GET_INSTANCE_PROC_ADDR(xrRemotingGetConnectionStateMSFT);
-  }
-#endif
+  // OpenXR remoting support removed.
 
   m_pInput = EZ_DEFAULT_NEW(ezOpenXRInputDevice, this);
 
@@ -261,9 +305,6 @@ ezResult ezOpenXR::Initialize()
 
 void ezOpenXR::Deinitialize()
 {
-#ifdef BUILDSYSTEM_ENABLE_OPENXR_REMOTING_SUPPORT
-  m_pRemoting->Disconnect().IgnoreResult();
-#endif
 
   if (m_ExecutionEventsId != 0)
   {
@@ -432,7 +473,23 @@ XrResult ezOpenXR::InitSession()
 
   XrSessionCreateInfo sessionCreateInfo{XR_TYPE_SESSION_CREATE_INFO};
   sessionCreateInfo.systemId = m_SystemId;
-  sessionCreateInfo.next = &m_XrGraphicsBindingD3D11;
+
+  // Set the appropriate graphics binding based on the active renderer
+#if EZ_OPENXR_HAS_VULKAN_RENDERER
+  if (m_bUsingVulkan)
+  {
+    sessionCreateInfo.next = &m_XrGraphicsBindingVulkan;
+  }
+  else
+#endif
+  {
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+    sessionCreateInfo.next = &m_XrGraphicsBindingD3D11;
+#else
+    ezLog::Error("No graphics API available for OpenXR session");
+    return XrResult::XR_ERROR_GRAPHICS_DEVICE_INVALID;
+#endif
+  }
 
   XR_SUCCEED_OR_CLEANUP_LOG(xrCreateSession(m_pInstance, &sessionCreateInfo, &m_pSession), DeinitSession);
 
@@ -448,6 +505,7 @@ XrResult ezOpenXR::InitSession()
   XR_SUCCEED_OR_CLEANUP_LOG(m_pInput->AttachSessionActionSets(m_pSession), DeinitSession);
 
   m_GALdeviceEventsId = ezGALDevice::s_Events.AddEventHandler(ezMakeDelegate(&ezOpenXR::GALDeviceEventHandler, this));
+  m_RenderWorldEventId = ezRenderWorld::GetRenderEvent().AddEventHandler(ezMakeDelegate(&ezOpenXR::OnRenderWorldEvent, this));
 
   SetStageSpace(ezXRStageSpace::Standing);
   if (m_Extensions.m_bSpatialAnchor)
@@ -475,6 +533,10 @@ void ezOpenXR::DeinitSession()
   if (m_GALdeviceEventsId != 0)
   {
     ezGALDevice::s_Events.RemoveEventHandler(m_GALdeviceEventsId);
+  }
+  if (m_RenderWorldEventId != 0)
+  {
+    ezRenderWorld::GetRenderEvent().RemoveEventHandler(m_RenderWorldEventId);
   }
 
   if (m_pSceneSpace)
@@ -504,21 +566,175 @@ void ezOpenXR::DeinitSession()
 
 XrResult ezOpenXR::InitGraphicsPlugin()
 {
-  EZ_ASSERT_DEV(m_XrGraphicsBindingD3D11.device == nullptr, "");
-  // Hard-coded to d3d
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+
+  // Check if we're using Vulkan renderer based on extension flags
+  // (which were set based on actual renderer detection in SelectExtensions)
+  m_bUsingVulkan = (m_Extensions.m_bVulkanEnable || m_Extensions.m_bVulkanEnable2);
+
+#if EZ_OPENXR_HAS_VULKAN_RENDERER
+  if (m_bUsingVulkan)
+  {
+    // Initialize Vulkan graphics binding
+    ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
+
+    // Query and log required Vulkan instance extensions
+    if (m_Extensions.pfn_xrGetVulkanInstanceExtensionsKHR)
+    {
+      uint32_t extensionsLength = 0;
+      XrResult res = m_Extensions.pfn_xrGetVulkanInstanceExtensionsKHR(m_pInstance, m_SystemId, 0, &extensionsLength, nullptr);
+      if (res == XR_SUCCESS && extensionsLength > 0)
+      {
+        ezDynamicArray<char> extensionsBuffer;
+        extensionsBuffer.SetCountUninitialized(extensionsLength);
+        res = m_Extensions.pfn_xrGetVulkanInstanceExtensionsKHR(m_pInstance, m_SystemId, extensionsLength, &extensionsLength, extensionsBuffer.GetData());
+        if (res == XR_SUCCESS)
+        {
+          ezLog::Info("OpenXR required Vulkan instance extensions: {}", extensionsBuffer.GetData());
+        }
+      }
+    }
+
+    // Query and log required Vulkan device extensions
+    if (m_Extensions.pfn_xrGetVulkanDeviceExtensionsKHR)
+    {
+      uint32_t extensionsLength = 0;
+      XrResult res = m_Extensions.pfn_xrGetVulkanDeviceExtensionsKHR(m_pInstance, m_SystemId, 0, &extensionsLength, nullptr);
+      if (res == XR_SUCCESS && extensionsLength > 0)
+      {
+        ezDynamicArray<char> extensionsBuffer;
+        extensionsBuffer.SetCountUninitialized(extensionsLength);
+        res = m_Extensions.pfn_xrGetVulkanDeviceExtensionsKHR(m_pInstance, m_SystemId, extensionsLength, &extensionsLength, extensionsBuffer.GetData());
+        if (res == XR_SUCCESS)
+        {
+          ezLog::Info("OpenXR required Vulkan device extensions: {}", extensionsBuffer.GetData());
+        }
+      }
+    }
+
+    // Query Vulkan graphics requirements
+    if (m_Extensions.m_bVulkanEnable2 && m_Extensions.pfn_xrGetVulkanGraphicsRequirements2KHR)
+    {
+      XrGraphicsRequirementsVulkan2KHR graphicsRequirements{XR_TYPE_GRAPHICS_REQUIREMENTS_VULKAN2_KHR};
+      graphicsRequirements.next = nullptr;
+      XR_SUCCEED_OR_CLEANUP_LOG(m_Extensions.pfn_xrGetVulkanGraphicsRequirements2KHR(m_pInstance, m_SystemId, &graphicsRequirements), DeinitGraphicsPlugin);
+      
+      ezLog::Info("OpenXR Vulkan requirements: minApiVersion={}.{}.{}, maxApiVersion={}.{}.{}",
+        VK_API_VERSION_MAJOR(graphicsRequirements.minApiVersionSupported),
+        VK_API_VERSION_MINOR(graphicsRequirements.minApiVersionSupported),
+        VK_API_VERSION_PATCH(graphicsRequirements.minApiVersionSupported),
+        VK_API_VERSION_MAJOR(graphicsRequirements.maxApiVersionSupported),
+        VK_API_VERSION_MINOR(graphicsRequirements.maxApiVersionSupported),
+        VK_API_VERSION_PATCH(graphicsRequirements.maxApiVersionSupported));
+    }
+    else if (m_Extensions.pfn_xrGetVulkanGraphicsRequirementsKHR)
+    {
+      XrGraphicsRequirementsVulkanKHR graphicsRequirements{XR_TYPE_GRAPHICS_REQUIREMENTS_VULKAN_KHR};
+      graphicsRequirements.next = nullptr;
+      XR_SUCCEED_OR_CLEANUP_LOG(m_Extensions.pfn_xrGetVulkanGraphicsRequirementsKHR(m_pInstance, m_SystemId, &graphicsRequirements), DeinitGraphicsPlugin);
+      
+      ezLog::Info("OpenXR Vulkan requirements: minApiVersion={}.{}.{}, maxApiVersion={}.{}.{}",
+        VK_API_VERSION_MAJOR(graphicsRequirements.minApiVersionSupported),
+        VK_API_VERSION_MINOR(graphicsRequirements.minApiVersionSupported),
+        VK_API_VERSION_PATCH(graphicsRequirements.minApiVersionSupported),
+        VK_API_VERSION_MAJOR(graphicsRequirements.maxApiVersionSupported),
+        VK_API_VERSION_MINOR(graphicsRequirements.maxApiVersionSupported),
+        VK_API_VERSION_PATCH(graphicsRequirements.maxApiVersionSupported));
+    }
+
+    // Fill in the Vulkan graphics binding - ensure all fields are set
+    m_XrGraphicsBindingVulkan.type = XR_TYPE_GRAPHICS_BINDING_VULKAN_KHR;
+    m_XrGraphicsBindingVulkan.next = nullptr;
+    m_XrGraphicsBindingVulkan.instance = pVulkanDevice->GetVulkanInstance();
+    m_XrGraphicsBindingVulkan.physicalDevice = pVulkanDevice->GetVulkanPhysicalDevice();
+    m_XrGraphicsBindingVulkan.device = pVulkanDevice->GetVulkanDevice();
+    m_XrGraphicsBindingVulkan.queueFamilyIndex = pVulkanDevice->GetGraphicsQueue().m_uiQueueFamily;
+    m_XrGraphicsBindingVulkan.queueIndex = pVulkanDevice->GetGraphicsQueue().m_uiQueueIndex;
+
+    ezLog::Info("OpenXR Vulkan binding: instance={}, physicalDevice={}, device={}, queueFamily={}, queueIndex={}",
+      ezArgP(m_XrGraphicsBindingVulkan.instance),
+      ezArgP(m_XrGraphicsBindingVulkan.physicalDevice),
+      ezArgP(m_XrGraphicsBindingVulkan.device),
+      m_XrGraphicsBindingVulkan.queueFamilyIndex,
+      m_XrGraphicsBindingVulkan.queueIndex);
+
+    // Validate: Check if OpenXR wants a specific physical device
+    if (m_Extensions.pfn_xrGetVulkanGraphicsDeviceKHR)
+    {
+      VkPhysicalDevice xrPhysicalDevice = VK_NULL_HANDLE;
+      XrResult res = m_Extensions.pfn_xrGetVulkanGraphicsDeviceKHR(m_pInstance, m_SystemId, m_XrGraphicsBindingVulkan.instance, &xrPhysicalDevice);
+      if (res == XR_SUCCESS)
+      {
+        if (xrPhysicalDevice != m_XrGraphicsBindingVulkan.physicalDevice)
+        {
+          const auto& ezDeviceProps = pVulkanDevice->GetPhysicalDeviceProperties();
+          ezLog::Error("OpenXR physical device mismatch! OpenXR wants {}, but ezEngine is using {} ('{}')",
+            ezArgP(xrPhysicalDevice), ezArgP(m_XrGraphicsBindingVulkan.physicalDevice), ezDeviceProps.deviceName.data());
+        }
+        else
+        {
+          ezLog::Info("OpenXR physical device matches ezEngine's device");
+        }
+      }
+      else
+      {
+        ezLog::Warning("Failed to query OpenXR preferred physical device: {}", (int)res);
+      }
+    }
+
+    // Log queue info
+    const auto& graphicsQueue = pVulkanDevice->GetGraphicsQueue();
+    ezLog::Info("Using graphics queue: family={}, index={}", graphicsQueue.m_uiQueueFamily, graphicsQueue.m_uiQueueIndex);
+
+    // Log Vulkan API version from cached properties
+    {
+      const auto& deviceProps = pVulkanDevice->GetPhysicalDeviceProperties();
+      ezLog::Info("Vulkan device '{}' API version: {}.{}.{}",
+        deviceProps.deviceName.data(),
+        VK_API_VERSION_MAJOR(deviceProps.apiVersion),
+        VK_API_VERSION_MINOR(deviceProps.apiVersion),
+        VK_API_VERSION_PATCH(deviceProps.apiVersion));
+    }
+
+    return XrResult::XR_SUCCESS;
+  }
+#endif
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  // D3D11 initialization on Windows
+  EZ_ASSERT_DEV(m_XrGraphicsBindingD3D11.device == nullptr, "D3D11 graphics binding already initialized");
   XrGraphicsRequirementsD3D11KHR graphicsRequirements{XR_TYPE_GRAPHICS_REQUIREMENTS_D3D11_KHR};
   XR_SUCCEED_OR_CLEANUP_LOG(m_Extensions.pfn_xrGetD3D11GraphicsRequirementsKHR(m_pInstance, m_SystemId, &graphicsRequirements), DeinitGraphicsPlugin);
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  ezGALDeviceDX11* pD3dDevice = static_cast<ezGALDeviceDX11*>(pDevice);
 
+  ezGALDeviceDX11* pD3dDevice = static_cast<ezGALDeviceDX11*>(pDevice);
   m_XrGraphicsBindingD3D11.device = pD3dDevice->GetDXDevice();
 
   return XrResult::XR_SUCCESS;
+#else
+  ezLog::Error("No graphics API available for OpenXR");
+  return XrResult::XR_ERROR_GRAPHICS_DEVICE_INVALID;
+#endif
 }
 
 void ezOpenXR::DeinitGraphicsPlugin()
 {
-  m_XrGraphicsBindingD3D11.device = nullptr;
+#if EZ_OPENXR_HAS_VULKAN_RENDERER
+  if (m_bUsingVulkan)
+  {
+    m_XrGraphicsBindingVulkan.instance = VK_NULL_HANDLE;
+    m_XrGraphicsBindingVulkan.physicalDevice = VK_NULL_HANDLE;
+    m_XrGraphicsBindingVulkan.device = VK_NULL_HANDLE;
+    m_XrGraphicsBindingVulkan.queueFamilyIndex = 0;
+    m_XrGraphicsBindingVulkan.queueIndex = 0;
+  }
+#endif
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  if (!m_bUsingVulkan)
+  {
+    m_XrGraphicsBindingD3D11.device = nullptr;
+  }
+#endif
+  m_bUsingVulkan = false;
 }
 
 XrResult ezOpenXR::InitDebugMessenger()
@@ -568,9 +784,6 @@ void ezOpenXR::BeforeUpdatePlugins()
 
   while (xrPollEvent(m_pInstance, &event) == XR_SUCCESS)
   {
-#ifdef BUILDSYSTEM_ENABLE_OPENXR_REMOTING_SUPPORT
-    m_pRemoting->HandleEvent(event);
-#endif
     switch (event.type)
     {
       case XR_TYPE_EVENT_DATA_INTERACTION_PROFILE_CHANGED:
@@ -832,8 +1045,13 @@ void ezOpenXR::BeginFrame()
     EZ_PROFILE_SCOPE("xrBeginFrame");
     m_FrameBeginInfo = XrFrameBeginInfo{XR_TYPE_FRAME_BEGIN_INFO};
     XrResult result = xrBeginFrame(m_pSession, &m_FrameBeginInfo);
-    if (result != XR_SUCCESS)
+    if (result == XR_FRAME_DISCARDED)
     {
+      ezLog::Error("OpenXR call '{0}' failed with: XR_FRAME_DISCARDED", "xrBeginFrame");
+    }
+    else if (result != XR_SUCCESS)
+    {
+      ezLog::Error("OpenXR call '{0}' failed with: {1}", "xrBeginFrame", (int)result);
       m_bRenderInProgress = false;
       return;
     }
@@ -858,19 +1076,8 @@ void ezOpenXR::BeginFrame()
   m_bRenderInProgress = true;
 }
 
-void ezOpenXR::DelayPresent()
+void ezOpenXR::EndRender()
 {
-  EZ_ASSERT_DEBUG(!m_bPresentDelayed, "Last present was not flushed");
-  m_bPresentDelayed = true;
-}
-
-void ezOpenXR::Present()
-{
-  if (!m_bPresentDelayed)
-    return;
-
-  m_bPresentDelayed = false;
-
   const ezGALOpenXRSwapChain* pSwapChain = static_cast<const ezGALOpenXRSwapChain*>(ezGALDevice::GetDefaultDevice()->GetSwapChain(m_hSwapChain));
   if (!m_bRenderInProgress || !pSwapChain)
     return;
@@ -878,7 +1085,6 @@ void ezOpenXR::Present()
   if (m_pCompanion)
   {
     m_pCompanion->CompanionViewEndFrame();
-    pSwapChain->PresentRenderTarget();
   }
 }
 
@@ -953,10 +1159,17 @@ void ezOpenXR::GALDeviceEventHandler(const ezGALDeviceEvent& e)
   {
     BeginFrame();
   }
-  else if (e.m_Type == ezGALDeviceEvent::Type::BeforeEndFrame)
+  else if (e.m_Type == ezGALDeviceEvent::Type::AfterEndFrame)
   {
-    Present();
     EndFrame();
+  }
+}
+
+void ezOpenXR::OnRenderWorldEvent(const ezRenderWorldRenderEvent& e)
+{
+  if (e.m_Type == ezRenderWorldRenderEvent::Type::EndRender)
+  {
+    EndRender();
   }
 }
 
@@ -1039,6 +1252,41 @@ ezMat4 ezOpenXR::ConvertPoseToMatrix(const XrPosef& pose)
 
 ezGALResourceFormat::Enum ezOpenXR::ConvertTextureFormat(int64_t format)
 {
+#if EZ_OPENXR_HAS_VULKAN_RENDERER
+  // Check if we're using Vulkan - if so, interpret as VkFormat
+  ezOpenXR* pOpenXR = ezSingletonRegistry::GetSingletonInstance<ezOpenXR>();
+  const bool bIsVulkan = pOpenXR && pOpenXR->IsUsingVulkan();
+
+  if (bIsVulkan)
+  {
+    // Vulkan format interpretation
+    switch (static_cast<VkFormat>(format))
+    {
+      case VK_FORMAT_D32_SFLOAT:
+        return ezGALResourceFormat::DFloat;
+      case VK_FORMAT_D16_UNORM:
+        return ezGALResourceFormat::D16;
+      case VK_FORMAT_D24_UNORM_S8_UINT:
+        return ezGALResourceFormat::D24S8;
+      case VK_FORMAT_D32_SFLOAT_S8_UINT:
+        return ezGALResourceFormat::D24S8; // Closest match
+      case VK_FORMAT_B8G8R8A8_SRGB:
+        return ezGALResourceFormat::BGRAUByteNormalizedsRGB;
+      case VK_FORMAT_R8G8B8A8_SRGB:
+        return ezGALResourceFormat::RGBAUByteNormalizedsRGB;
+      case VK_FORMAT_B8G8R8A8_UNORM:
+        return ezGALResourceFormat::BGRAUByteNormalized;
+      case VK_FORMAT_R8G8B8A8_UNORM:
+        return ezGALResourceFormat::RGBAUByteNormalized;
+      default:
+        ezLog::Warning("Unknown Vulkan format {} for OpenXR texture", static_cast<ezUInt32>(format));
+        return ezGALResourceFormat::RGBAUByteNormalizedsRGB;
+    }
+  }
+#endif // EZ_OPENXR_HAS_VULKAN_RENDERER
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  // D3D11 / DXGI format interpretation
   switch (format)
   {
     case DXGI_FORMAT_D32_FLOAT:
@@ -1052,4 +1300,10 @@ ezGALResourceFormat::Enum ezOpenXR::ConvertTextureFormat(int64_t format)
       ezGALResourceFormat::Enum galFormat = ezTextureUtils::ImageFormatToGalFormat(imageFormat, false);
       return galFormat;
   }
+#else
+  // Generic fallback
+  ezImageFormat::Enum imageFormat = ezImageFormatMappings::FromDxgiFormat(static_cast<ezUInt32>(format));
+  ezGALResourceFormat::Enum galFormat = ezTextureUtils::ImageFormatToGalFormat(imageFormat, false);
+  return galFormat;
+#endif
 }

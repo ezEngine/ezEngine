@@ -2,7 +2,75 @@
 
 ## Build Instructions
 
-### Build Commands
+### Linux Build Commands
+
+```shell
+# Configure and build Debug configuration
+cmake --preset linux-gcc-debug
+cmake --build --preset linux-gcc-debug
+
+# Configure and build Dev configuration
+cmake --preset linux-gcc-dev
+cmake --build --preset linux-gcc-dev
+
+# Clean build
+cmake --build --preset linux-gcc-debug --target clean
+```
+
+### Linux Build Outputs
+
+- **Build Location**: `Workspace/linux-gcc-debug/`
+- **Binary Output**: `Output/Bin/LinuxNinjaGccDebug64/`
+- **Library Output**: `Output/Lib/LinuxNinjaGccDebug64/`
+
+### Running Tests on Linux
+
+```shell
+# Build and run specific test
+cmake --build --preset linux-gcc-debug --target FoundationTest
+ctest --test-dir Workspace/linux-gcc-debug -R FoundationTest
+
+# Run all available tests
+ctest --test-dir Workspace/linux-gcc-debug
+
+# Run tests with verbose output
+ctest --test-dir Workspace/linux-gcc-debug -V
+```
+
+To find more arguments for the test framework, run `FoundationTest -help -close`.
+
+### Running Tests Directly on Linux
+
+For more control over test execution, run test executables directly instead of through ctest. This allows passing custom command-line arguments to control test behavior.
+
+Test executables are located in: `Output/Bin/LinuxNinjaGccDebug64/`
+
+**Common Test Arguments:**
+
+- `-run` - Execute tests immediately (without GUI interaction)
+- `-close` - Close automatically after tests finish
+- `-filter <string>` - Run only tests matching the filter pattern
+- `-noGui` - Never show a GUI (for headless execution)
+- `-all` - Enable all tests
+- `-json <path>` - Write results to a JSON file
+- `-outputDir <path>` - Specify output directory for test artifacts
+- `-assert <0|1|2>` - Control assertion behavior (0=never, 1=if debugger attached, 2=always)
+- `-help` - Show all available arguments
+
+**Examples:**
+
+```shell
+# Run all foundation tests without showing the GUI
+Output/Bin/LinuxNinjaGccDebug64/FoundationTest -run -noGui -all
+
+# Run only renderer tests matching "Readback" in their name without showing the GUI
+Output/Bin/LinuxNinjaGccDebug64/RendererTest -run -noGui -filter "Readback"
+
+# Show all available arguments
+Output/Bin/LinuxNinjaGccDebug64/FoundationTest -help
+```
+
+### Windows Build Commands
 
 ```shell
 # Generate and build Debug configuration
@@ -17,13 +85,13 @@ cmake --build Workspace/claude-build --config Dev
 cmake --build Workspace/claude-build --target clean
 ```
 
-### Build Outputs
+### Windows Build Outputs
 
 - **Solution Location**: `Workspace/claude-build/`
 - **Binary Output**: `Workspace/claude-build-output/Bin/WinVs2022[Config]64/`
 - **Library Output**: `Workspace/claude-build-output/Lib/WinVs2022[Config]64/`
 
-### Running Tests
+### Running Tests on Windows
 
 ```shell
 # Build and run specific test
@@ -39,11 +107,51 @@ ctest --test-dir Workspace/claude-build -C Debug -V
 
 To find more arguments for the test framework, run `FoundationTest.exe -help -close`.
 
+### Running Tests Directly on Windows
+
+For more control over test execution, run test executables directly instead of through ctest. This allows passing custom command-line arguments to control test behavior.
+
+Test executables are located in: `Workspace/claude-build-output/Bin/WinVs2022[Config]64/`
+(Replace `[Config]` with `Debug`, `Dev`, etc.)
+
+**Common Test Arguments:**
+
+- `-run` - Execute tests immediately (without GUI interaction)
+- `-close` - Close automatically after tests finish
+- `-filter <string>` - Run only tests matching the filter pattern
+- `-noGui` - Never show a GUI (for headless execution)
+- `-all` - Enable all tests
+- `-json <path>` - Write results to a JSON file
+- `-outputDir <path>` - Specify output directory for test artifacts
+- `-assert <0|1|2>` - Control assertion behavior (0=never, 1=if debugger attached, 2=always)
+- `-help` - Show all available arguments
+
+**Examples:**
+
+```shell
+# Run all tests in FoundationTest and close automatically
+Workspace/claude-build-output/Bin/WinVs2022Debug64/FoundationTest.exe -run -close
+
+# Run only tests matching "String" in their name
+Workspace/claude-build-output/Bin/WinVs2022Debug64/FoundationTest.exe -run -close -filter "String"
+
+# Run tests without GUI and export results to JSON
+Workspace/claude-build-output/Bin/WinVs2022Debug64/FoundationTest.exe -run -close -noGui -json results.json
+
+# Run RendererTest in headless mode
+Workspace/claude-build-output/Bin/WinVs2022Debug64/RendererTest.exe -run -close -noGui
+
+# Show all available arguments
+Workspace/claude-build-output/Bin/WinVs2022Debug64/FoundationTest.exe -help -close
+```
+
 ### Important Notes
 
-- **Isolated Builds**: Using `-WorkspaceDir "claude-build"` creates a completely separate build environment, avoiding any conflicts with other builds
+- **Linux Presets**: Uses cmake presets (`linux-gcc-debug`, `linux-gcc-dev`, `linux-gcc-shipping`) for standardized builds
 
-- **Workspace Cleanup**: To clean up, simply delete the `Workspace/claude-build/` directory and regenerate
+- **Windows Isolated Builds**: Using `-WorkspaceDir "claude-build"` creates a completely separate build environment, avoiding any conflicts with other builds
+
+- **Workspace Cleanup**: To clean up, simply delete the workspace directory (`Workspace/linux-gcc-debug/` or `Workspace/claude-build/`) and regenerate
 
 - **When adding a file**: CMake has to be run again, to make the file part of the build.
 
