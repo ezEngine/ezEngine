@@ -54,7 +54,7 @@ namespace
 
     return pAdapter;
   }
-}
+} // namespace
 
 ezInternal::NewInstance<ezGALDevice> CreateDX11Device(ezAllocator* pAllocator, const ezGALDeviceCreationDescription& description)
 {

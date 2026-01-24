@@ -1,8 +1,8 @@
 #include <RendererTest/RendererTestPCH.h>
 
 #include <Core/Graphics/Camera.h>
-#include <Foundation/Math/ColorScheme.h>
 #include <Foundation/Configuration/Startup.h>
+#include <Foundation/Math/ColorScheme.h>
 
 #include <RendererTest/Basics/PipelineStates.h>
 #include <RendererTest/Basics/RendererTestUtils.h>

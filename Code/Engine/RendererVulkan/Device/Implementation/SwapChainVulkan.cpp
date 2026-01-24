@@ -411,7 +411,7 @@ void ezGALSwapChainVulkan::DestroySwapChainInternal(ezGALDeviceVulkan* pVulkanDe
 
   for (vk::Semaphore& sem : m_imageRenderFinishedSemaphores)
   {
-      pVulkanDevice->DeleteLater(sem);
+    pVulkanDevice->DeleteLater(sem);
   }
   m_imageRenderFinishedSemaphores.Clear();
 

@@ -7,7 +7,6 @@
 #include <RendererFoundation/RendererReflection.h>
 #include <RendererFoundation/Resources/Texture.h>
 #include <RendererTest/Basics/Readback.h>
-#include <Foundation/Configuration/Startup.h>
 
 ezResult ezRendererTestReadback::InitializeTest()
 {
