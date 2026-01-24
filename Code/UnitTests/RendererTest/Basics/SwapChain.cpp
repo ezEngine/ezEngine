@@ -2,6 +2,7 @@
 
 #include <Core/Graphics/Camera.h>
 #include <RendererTest/Basics/SwapChain.h>
+#include <Foundation/Configuration/Startup.h>
 
 ezResult ezRendererTestSwapChain::InitializeTest()
 {
