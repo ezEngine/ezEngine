@@ -471,12 +471,13 @@ void ezInputDeviceMouseKeyboard_GLFW::OnCursorPosition(double xpos, double ypos)
 
   if (m_LastPos.x != ezMath::MaxValue<double>())
   {
+    const float fMouseScale = 1.0f / 10.0f;
     ezVec2d diff = ezVec2d(xpos, ypos) - m_LastPos;
 
-    m_InputSlotValues[ezInputSlot_MouseMoveNegX] += ((diff.x < 0) ? (float)-diff.x : 0.0f) * GetMouseSpeed().x;
-    m_InputSlotValues[ezInputSlot_MouseMovePosX] += ((diff.x > 0) ? (float)diff.x : 0.0f) * GetMouseSpeed().x;
-    m_InputSlotValues[ezInputSlot_MouseMoveNegY] += ((diff.y < 0) ? (float)-diff.y : 0.0f) * GetMouseSpeed().y;
-    m_InputSlotValues[ezInputSlot_MouseMovePosY] += ((diff.y > 0) ? (float)diff.y : 0.0f) * GetMouseSpeed().y;
+    m_InputSlotValues[ezInputSlot_MouseMoveNegX] += ((diff.x < 0) ? (float)-diff.x : 0.0f) * GetMouseSpeed().x * fMouseScale;
+    m_InputSlotValues[ezInputSlot_MouseMovePosX] += ((diff.x > 0) ? (float)diff.x : 0.0f) * GetMouseSpeed().x * fMouseScale;
+    m_InputSlotValues[ezInputSlot_MouseMoveNegY] += ((diff.y < 0) ? (float)-diff.y : 0.0f) * GetMouseSpeed().y * fMouseScale;
+    m_InputSlotValues[ezInputSlot_MouseMovePosY] += ((diff.y > 0) ? (float)diff.y : 0.0f) * GetMouseSpeed().y * fMouseScale;
   }
   m_LastPos = ezVec2d(xpos, ypos);
 }

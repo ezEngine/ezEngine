@@ -1,6 +1,6 @@
 #include <GameEngineTest/GameEngineTestPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP) || EZ_ENABLED(EZ_PLATFORM_LINUX)
 
 #  include <Core/World/World.h>
 #  include <Core/WorldSerializer/WorldReader.h>

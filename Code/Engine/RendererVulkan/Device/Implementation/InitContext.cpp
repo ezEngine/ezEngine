@@ -47,7 +47,7 @@ vk::CommandBuffer ezInitContextVulkan::GetFinishedCommandBuffer()
     m_pPipelineBarrier->Submit();
     if (m_pDevice->GetExtensions().m_bDebugUtilsMarkers)
     {
-      m_currentCommandBuffer.endDebugUtilsLabelEXT();
+      m_currentCommandBuffer.endDebugUtilsLabelEXT(m_pDevice->GetDispatchContext());
     }
     vk::CommandBuffer res = m_currentCommandBuffer;
     res.end();
@@ -74,7 +74,7 @@ void ezInitContextVulkan::EnsureCommandBufferExists()
       ezMemoryUtils::Copy(markerInfo.color.data(), markerColor, EZ_ARRAY_SIZE(markerColor));
       markerInfo.pLabelName = "InitContext";
 
-      m_currentCommandBuffer.beginDebugUtilsLabelEXT(markerInfo);
+      m_currentCommandBuffer.beginDebugUtilsLabelEXT(markerInfo, m_pDevice->GetDispatchContext());
     }
   }
 }

@@ -132,6 +132,13 @@ ezResult ezGALDevice::Init()
 {
   EZ_LOG_BLOCK("ezGALDevice::Init");
 
+  {
+    ezGALDeviceEvent e;
+    e.m_pDevice = this;
+    e.m_Type = ezGALDeviceEvent::BeforeInit;
+    s_Events.Broadcast(e);
+  }
+
   ezResult PlatformInitResult = InitPlatform();
 
   if (PlatformInitResult == EZ_FAILURE)
@@ -201,7 +208,16 @@ ezResult ezGALDevice::Shutdown()
   EZ_ASSERT_DEBUG(m_uiGraphicsPipelines == 0, "Error in counting deduplicated GAL resources");
   EZ_ASSERT_DEBUG(m_uiComputePipelines == 0, "Error in counting deduplicated GAL resources");
 
-  return ShutdownPlatform();
+  ezResult res = ShutdownPlatform();
+
+  {
+    ezGALDeviceEvent e;
+    e.m_pDevice = this;
+    e.m_Type = ezGALDeviceEvent::AfterShutdown;
+    s_Events.Broadcast(e);
+  }
+
+  return res;
 }
 
 ezStringView ezGALDevice::GetRenderer()

@@ -2,9 +2,10 @@
 
 #include <Core/Input/InputManager.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <OpenXRPlugin/Input/OpenXRInputDevice.h>
 #include <OpenXRPlugin/OpenXRDeclarations.h>
-#include <OpenXRPlugin/OpenXRInputDevice.h>
 #include <OpenXRPlugin/OpenXRSingleton.h>
+#include <OpenXRPlugin/Utils/OpenXRConversionUtils.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezOpenXRInputDevice, 1, ezRTTINoAllocator);
@@ -14,10 +15,15 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
 #define XR_Trigger "trigger_value"
+#define XR_Squeeze "squeeze_value"
 
 #define XR_Select_Click "select_click"
 #define XR_Menu_Click "menu_click"
-#define XR_Squeeze_Click "squeeze_click"
+
+#define XR_Primary_Button_Click "primary_button_click"
+#define XR_Primary_Button_Touch "primary_button_touch"
+#define XR_Secondary_Button_Click "secondary_button_click"
+#define XR_Secondary_Button_Touch "secondary_button_touch"
 
 #define XR_Primary_Analog_Stick_Axis "primary_analog_stick"
 #define XR_Primary_Analog_Stick_Click "primary_analog_stick_click"
@@ -134,7 +140,7 @@ XrResult ezOpenXRInputDevice::CreateActions(XrSession session, XrSpace sceneSpac
   XrAction Trigger = XR_NULL_HANDLE;
   XrAction SelectClick = XR_NULL_HANDLE;
   XrAction MenuClick = XR_NULL_HANDLE;
-  XrAction SqueezeClick = XR_NULL_HANDLE;
+  XrAction SqueezeValue = XR_NULL_HANDLE;
 
   XrAction PrimaryAnalogStickAxis = XR_NULL_HANDLE;
   XrAction PrimaryAnalogStickClick = XR_NULL_HANDLE;
@@ -144,34 +150,31 @@ XrResult ezOpenXRInputDevice::CreateActions(XrSession session, XrSpace sceneSpac
   XrAction SecondaryAnalogStickClick = XR_NULL_HANDLE;
   XrAction SecondaryAnalogStickTouch = XR_NULL_HANDLE;
 
+  XrAction PrimaryButtonClick = XR_NULL_HANDLE;
+  XrAction PrimaryButtonTouch = XR_NULL_HANDLE;
+  XrAction SecondaryButtonClick = XR_NULL_HANDLE;
+  XrAction SecondaryButtonTouch = XR_NULL_HANDLE;
+
   XrAction GripPose = XR_NULL_HANDLE;
   XrAction AimPose = XR_NULL_HANDLE;
 
   XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::Trigger, XR_Trigger, XR_ACTION_TYPE_FLOAT_INPUT, Trigger), DestroyActions);
-
   XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::Select, XR_Select_Click, XR_ACTION_TYPE_BOOLEAN_INPUT, SelectClick), DestroyActions);
   XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::Menu, XR_Menu_Click, XR_ACTION_TYPE_BOOLEAN_INPUT, MenuClick), DestroyActions);
-  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::Squeeze, XR_Squeeze_Click, XR_ACTION_TYPE_BOOLEAN_INPUT, SqueezeClick), DestroyActions);
+  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::Squeeze, XR_Squeeze, XR_ACTION_TYPE_FLOAT_INPUT, SqueezeValue), DestroyActions);
 
-  XR_SUCCEED_OR_CLEANUP_LOG(
-    CreateAction(ezXRDeviceFeatures::PrimaryAnalogStick, XR_Primary_Analog_Stick_Axis, XR_ACTION_TYPE_VECTOR2F_INPUT, PrimaryAnalogStickAxis),
-    DestroyActions);
-  XR_SUCCEED_OR_CLEANUP_LOG(
-    CreateAction(ezXRDeviceFeatures::PrimaryAnalogStickClick, XR_Primary_Analog_Stick_Click, XR_ACTION_TYPE_BOOLEAN_INPUT, PrimaryAnalogStickClick),
-    DestroyActions);
-  XR_SUCCEED_OR_CLEANUP_LOG(
-    CreateAction(ezXRDeviceFeatures::PrimaryAnalogStickTouch, XR_Primary_Analog_Stick_Touch, XR_ACTION_TYPE_BOOLEAN_INPUT, PrimaryAnalogStickTouch),
-    DestroyActions);
+  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::PrimaryAnalogStick, XR_Primary_Analog_Stick_Axis, XR_ACTION_TYPE_VECTOR2F_INPUT, PrimaryAnalogStickAxis), DestroyActions);
+  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::PrimaryAnalogStickClick, XR_Primary_Analog_Stick_Click, XR_ACTION_TYPE_BOOLEAN_INPUT, PrimaryAnalogStickClick), DestroyActions);
+  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::PrimaryAnalogStickTouch, XR_Primary_Analog_Stick_Touch, XR_ACTION_TYPE_BOOLEAN_INPUT, PrimaryAnalogStickTouch), DestroyActions);
 
-  XR_SUCCEED_OR_CLEANUP_LOG(
-    CreateAction(ezXRDeviceFeatures::SecondaryAnalogStick, XR_Secondary_Analog_Stick_Axis, XR_ACTION_TYPE_VECTOR2F_INPUT, SecondaryAnalogStickAxis),
-    DestroyActions);
-  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::SecondaryAnalogStickClick, XR_Secondary_Analog_Stick_Click, XR_ACTION_TYPE_BOOLEAN_INPUT,
-                              SecondaryAnalogStickClick),
-    DestroyActions);
-  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::SecondaryAnalogStickTouch, XR_Secondary_Analog_Stick_Touch, XR_ACTION_TYPE_BOOLEAN_INPUT,
-                              SecondaryAnalogStickTouch),
-    DestroyActions);
+  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::SecondaryAnalogStick, XR_Secondary_Analog_Stick_Axis, XR_ACTION_TYPE_VECTOR2F_INPUT, SecondaryAnalogStickAxis), DestroyActions);
+  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::SecondaryAnalogStickClick, XR_Secondary_Analog_Stick_Click, XR_ACTION_TYPE_BOOLEAN_INPUT, SecondaryAnalogStickClick), DestroyActions);
+  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::SecondaryAnalogStickTouch, XR_Secondary_Analog_Stick_Touch, XR_ACTION_TYPE_BOOLEAN_INPUT, SecondaryAnalogStickTouch), DestroyActions);
+
+  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::PrimaryButton, XR_Primary_Button_Click, XR_ACTION_TYPE_BOOLEAN_INPUT, PrimaryButtonClick), DestroyActions);
+  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::PrimaryButtonTouch, XR_Primary_Button_Touch, XR_ACTION_TYPE_BOOLEAN_INPUT, PrimaryButtonTouch), DestroyActions);
+  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::SecondaryButton, XR_Secondary_Button_Click, XR_ACTION_TYPE_BOOLEAN_INPUT, SecondaryButtonClick), DestroyActions);
+  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::SecondaryButtonTouch, XR_Secondary_Button_Touch, XR_ACTION_TYPE_BOOLEAN_INPUT, SecondaryButtonTouch), DestroyActions);
 
   XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::GripPose, XR_Grip_Pose, XR_ACTION_TYPE_POSE_INPUT, GripPose), DestroyActions);
   XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::AimPose, XR_Aim_Pose, XR_ACTION_TYPE_POSE_INPUT, AimPose), DestroyActions);
@@ -189,32 +192,150 @@ XrResult ezOpenXRInputDevice::CreateActions(XrSession session, XrSpace sceneSpac
   };
   SuggestInteractionProfileBindings("/interaction_profiles/khr/simple_controller", "Simple Controller", simpleController);
 
+  // Microsoft Mixed Reality Motion Controller (WMR, first gen)
   Bind motionController[] = {
-    {Trigger, "/user/hand/left/input/trigger"},
-    {SelectClick, "/user/hand/left/input/trigger"},
-    {MenuClick, "/user/hand/left/input/menu"},
-    {SqueezeClick, "/user/hand/left/input/squeeze"},
+    {Trigger, "/user/hand/left/input/trigger/value"},
+    {SqueezeValue, "/user/hand/left/input/squeeze/click"},
+    {SelectClick, "/user/hand/left/input/trigger/value"},
+    {MenuClick, "/user/hand/left/input/menu/click"},
     {PrimaryAnalogStickAxis, "/user/hand/left/input/thumbstick"},
-    {PrimaryAnalogStickClick, "/user/hand/left/input/thumbstick"},
+    {PrimaryAnalogStickClick, "/user/hand/left/input/thumbstick/click"},
     {SecondaryAnalogStickAxis, "/user/hand/left/input/trackpad"},
     {SecondaryAnalogStickClick, "/user/hand/left/input/trackpad/click"},
     {SecondaryAnalogStickTouch, "/user/hand/left/input/trackpad/touch"},
-    {GripPose, "/user/hand/left/input/grip"},
-    {AimPose, "/user/hand/left/input/aim"},
+    {GripPose, "/user/hand/left/input/grip/pose"},
+    {AimPose, "/user/hand/left/input/aim/pose"},
 
-    {Trigger, "/user/hand/right/input/trigger"},
-    {SelectClick, "/user/hand/right/input/trigger"},
-    {MenuClick, "/user/hand/right/input/menu"},
-    {SqueezeClick, "/user/hand/right/input/squeeze"},
+    {Trigger, "/user/hand/right/input/trigger/value"},
+    {SqueezeValue, "/user/hand/right/input/squeeze/click"},
+    {SelectClick, "/user/hand/right/input/trigger/value"},
+    {MenuClick, "/user/hand/right/input/menu/click"},
     {PrimaryAnalogStickAxis, "/user/hand/right/input/thumbstick"},
-    {PrimaryAnalogStickClick, "/user/hand/right/input/thumbstick"},
+    {PrimaryAnalogStickClick, "/user/hand/right/input/thumbstick/click"},
     {SecondaryAnalogStickAxis, "/user/hand/right/input/trackpad"},
     {SecondaryAnalogStickClick, "/user/hand/right/input/trackpad/click"},
     {SecondaryAnalogStickTouch, "/user/hand/right/input/trackpad/touch"},
-    {GripPose, "/user/hand/right/input/grip"},
-    {AimPose, "/user/hand/right/input/aim"},
+    {GripPose, "/user/hand/right/input/grip/pose"},
+    {AimPose, "/user/hand/right/input/aim/pose"},
   };
   SuggestInteractionProfileBindings("/interaction_profiles/microsoft/motion_controller", "Mixed Reality Motion Controller", motionController);
+
+  // Meta Quest Touch Controllers (Quest 1, 2, 3, Pro)
+  Bind questTouchController[] = {
+    {Trigger, "/user/hand/left/input/trigger/value"},
+    {SqueezeValue, "/user/hand/left/input/squeeze/value"},
+    {SelectClick, "/user/hand/left/input/trigger/value"},
+    {MenuClick, "/user/hand/left/input/menu/click"},
+    {PrimaryButtonClick, "/user/hand/left/input/x/click"},
+    {PrimaryButtonTouch, "/user/hand/left/input/x/touch"},
+    {SecondaryButtonClick, "/user/hand/left/input/y/click"},
+    {SecondaryButtonTouch, "/user/hand/left/input/y/touch"},
+    {PrimaryAnalogStickAxis, "/user/hand/left/input/thumbstick"},
+    {PrimaryAnalogStickClick, "/user/hand/left/input/thumbstick/click"},
+    {PrimaryAnalogStickTouch, "/user/hand/left/input/thumbstick/touch"},
+    {GripPose, "/user/hand/left/input/grip/pose"},
+    {AimPose, "/user/hand/left/input/aim/pose"},
+
+    {Trigger, "/user/hand/right/input/trigger/value"},
+    {SqueezeValue, "/user/hand/right/input/squeeze/value"},
+    {SelectClick, "/user/hand/right/input/trigger/value"},
+    {PrimaryButtonClick, "/user/hand/right/input/a/click"},
+    {PrimaryButtonTouch, "/user/hand/right/input/a/touch"},
+    {SecondaryButtonClick, "/user/hand/right/input/b/click"},
+    {SecondaryButtonTouch, "/user/hand/right/input/b/touch"},
+    {PrimaryAnalogStickAxis, "/user/hand/right/input/thumbstick"},
+    {PrimaryAnalogStickClick, "/user/hand/right/input/thumbstick/click"},
+    {PrimaryAnalogStickTouch, "/user/hand/right/input/thumbstick/touch"},
+    {GripPose, "/user/hand/right/input/grip/pose"},
+    {AimPose, "/user/hand/right/input/aim/pose"},
+  };
+  SuggestInteractionProfileBindings("/interaction_profiles/oculus/touch_controller", "Quest Touch Controller", questTouchController);
+
+  // Valve Index Controllers
+  Bind valveIndexController[] = {
+    {Trigger, "/user/hand/left/input/trigger/value"},
+    {SqueezeValue, "/user/hand/left/input/squeeze/value"},
+    {SelectClick, "/user/hand/left/input/trigger/click"},
+    {PrimaryButtonClick, "/user/hand/left/input/a/click"},
+    {PrimaryButtonTouch, "/user/hand/left/input/a/touch"},
+    {SecondaryButtonClick, "/user/hand/left/input/b/click"},
+    {SecondaryButtonTouch, "/user/hand/left/input/b/touch"},
+    {PrimaryAnalogStickAxis, "/user/hand/left/input/thumbstick"},
+    {PrimaryAnalogStickClick, "/user/hand/left/input/thumbstick/click"},
+    {PrimaryAnalogStickTouch, "/user/hand/left/input/thumbstick/touch"},
+    {SecondaryAnalogStickAxis, "/user/hand/left/input/trackpad"},
+    {SecondaryAnalogStickTouch, "/user/hand/left/input/trackpad/touch"},
+    {GripPose, "/user/hand/left/input/grip/pose"},
+    {AimPose, "/user/hand/left/input/aim/pose"},
+
+    {Trigger, "/user/hand/right/input/trigger/value"},
+    {SqueezeValue, "/user/hand/right/input/squeeze/value"},
+    {SelectClick, "/user/hand/right/input/trigger/click"},
+    {PrimaryButtonClick, "/user/hand/right/input/a/click"},
+    {PrimaryButtonTouch, "/user/hand/right/input/a/touch"},
+    {SecondaryButtonClick, "/user/hand/right/input/b/click"},
+    {SecondaryButtonTouch, "/user/hand/right/input/b/touch"},
+    {PrimaryAnalogStickAxis, "/user/hand/right/input/thumbstick"},
+    {PrimaryAnalogStickClick, "/user/hand/right/input/thumbstick/click"},
+    {PrimaryAnalogStickTouch, "/user/hand/right/input/thumbstick/touch"},
+    {SecondaryAnalogStickAxis, "/user/hand/right/input/trackpad"},
+    {SecondaryAnalogStickTouch, "/user/hand/right/input/trackpad/touch"},
+    {GripPose, "/user/hand/right/input/grip/pose"},
+    {AimPose, "/user/hand/right/input/aim/pose"},
+  };
+  SuggestInteractionProfileBindings("/interaction_profiles/valve/index_controller", "Valve Index Controller", valveIndexController);
+
+  // HTC Vive Controller (no face buttons, only trackpad)
+  // Note: Vive only has squeeze/click (boolean), no analog squeeze value.
+  // We map squeeze/click to SqueezeValue so squeeze input is still available.
+  Bind viveController[] = {
+    {Trigger, "/user/hand/left/input/trigger/value"},
+    {SqueezeValue, "/user/hand/left/input/squeeze/click"},
+    {SelectClick, "/user/hand/left/input/trigger/click"},
+    {MenuClick, "/user/hand/left/input/menu/click"},
+    {SecondaryAnalogStickAxis, "/user/hand/left/input/trackpad"},
+    {SecondaryAnalogStickClick, "/user/hand/left/input/trackpad/click"},
+    {SecondaryAnalogStickTouch, "/user/hand/left/input/trackpad/touch"},
+    {GripPose, "/user/hand/left/input/grip/pose"},
+    {AimPose, "/user/hand/left/input/aim/pose"},
+
+    {Trigger, "/user/hand/right/input/trigger/value"},
+    {SqueezeValue, "/user/hand/right/input/squeeze/click"},
+    {SelectClick, "/user/hand/right/input/trigger/click"},
+    {MenuClick, "/user/hand/right/input/menu/click"},
+    {SecondaryAnalogStickAxis, "/user/hand/right/input/trackpad"},
+    {SecondaryAnalogStickClick, "/user/hand/right/input/trackpad/click"},
+    {SecondaryAnalogStickTouch, "/user/hand/right/input/trackpad/touch"},
+    {GripPose, "/user/hand/right/input/grip/pose"},
+    {AimPose, "/user/hand/right/input/aim/pose"},
+  };
+  SuggestInteractionProfileBindings("/interaction_profiles/htc/vive_controller", "HTC Vive Controller", viveController);
+
+  // HP Mixed Reality Controller (HP Reverb G2) - has X/Y and A/B buttons
+  Bind hpMixedRealityController[] = {
+    {Trigger, "/user/hand/left/input/trigger/value"},
+    {SqueezeValue, "/user/hand/left/input/squeeze/value"},
+    {SelectClick, "/user/hand/left/input/trigger/value"},
+    {MenuClick, "/user/hand/left/input/menu/click"},
+    {PrimaryButtonClick, "/user/hand/left/input/x/click"},
+    {SecondaryButtonClick, "/user/hand/left/input/y/click"},
+    {PrimaryAnalogStickAxis, "/user/hand/left/input/thumbstick"},
+    {PrimaryAnalogStickClick, "/user/hand/left/input/thumbstick/click"},
+    {GripPose, "/user/hand/left/input/grip/pose"},
+    {AimPose, "/user/hand/left/input/aim/pose"},
+
+    {Trigger, "/user/hand/right/input/trigger/value"},
+    {SqueezeValue, "/user/hand/right/input/squeeze/value"},
+    {SelectClick, "/user/hand/right/input/trigger/value"},
+    {MenuClick, "/user/hand/right/input/menu/click"},
+    {PrimaryButtonClick, "/user/hand/right/input/a/click"},
+    {SecondaryButtonClick, "/user/hand/right/input/b/click"},
+    {PrimaryAnalogStickAxis, "/user/hand/right/input/thumbstick"},
+    {PrimaryAnalogStickClick, "/user/hand/right/input/thumbstick/click"},
+    {GripPose, "/user/hand/right/input/grip/pose"},
+    {AimPose, "/user/hand/right/input/aim/pose"},
+  };
+  SuggestInteractionProfileBindings("/interaction_profiles/hp/mixed_reality_controller", "HP Reverb G2 Controller", hpMixedRealityController);
 
   if (m_pOpenXR->m_Extensions.m_bHandInteraction)
   {
@@ -232,7 +353,7 @@ XrResult ezOpenXRInputDevice::CreateActions(XrSession session, XrSpace sceneSpac
 
 
   XrActionSpaceCreateInfo spaceCreateInfo{XR_TYPE_ACTION_SPACE_CREATE_INFO};
-  spaceCreateInfo.poseInActionSpace = m_pOpenXR->ConvertTransform(ezTransform::MakeIdentity());
+  spaceCreateInfo.poseInActionSpace = ezOpenXRConversionUtils::ConvertTransform(ezTransform::MakeIdentity());
   for (ezUInt32 uiSide : {0, 1})
   {
     spaceCreateInfo.subactionPath = m_SubActionPath[uiSide];
@@ -366,7 +487,7 @@ XrResult ezOpenXRInputDevice::SuggestInteractionProfileBindings(const char* szIn
   profileBindings.countSuggestedBindings = xrBindings.GetCount();
   XR_SUCCEED_OR_RETURN_LOG(xrSuggestInteractionProfileBindings(instance, &profileBindings));
 
-  m_InteractionProfileToNiceName[InteractionProfile] = szNiceName;
+  m_InteractionProfileToNiceName[static_cast<ezUInt64>(InteractionProfile)] = szNiceName;
 
   return XR_SUCCESS;
 }
@@ -397,7 +518,7 @@ XrResult ezOpenXRInputDevice::UpdateCurrentInteractionProfile()
     if (res == XR_SUCCESS)
     {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-      if (state.interactionProfile != XR_NULL_PATH && !m_InteractionProfileToNiceName.Contains(state.interactionProfile))
+      if (state.interactionProfile != XR_NULL_PATH && !m_InteractionProfileToNiceName.Contains(static_cast<ezUInt64>(state.interactionProfile)))
       {
         char buffer[256];
         ezUInt32 temp;
@@ -414,7 +535,7 @@ XrResult ezOpenXRInputDevice::UpdateCurrentInteractionProfile()
   {
     const ezUInt32 uiControllerId = uiSide == 0 ? m_iLeftControllerDeviceID : m_iRightControllerDeviceID;
     XrPath path = GetActiveControllerProfile(uiSide);
-    m_sActiveProfile[uiControllerId] = m_InteractionProfileToNiceName[path];
+    m_sActiveProfile[uiControllerId] = m_InteractionProfileToNiceName[static_cast<ezUInt64>(path)];
   }
 
   UpdateActions();
@@ -528,8 +649,8 @@ XrResult ezOpenXRInputDevice::UpdateActions()
       if ((viewInScene.locationFlags & (XR_SPACE_LOCATION_POSITION_VALID_BIT | XR_SPACE_LOCATION_ORIENTATION_VALID_BIT)) ==
           (XR_SPACE_LOCATION_POSITION_VALID_BIT | XR_SPACE_LOCATION_ORIENTATION_VALID_BIT))
       {
-        vPosition = ezOpenXR::ConvertPosition(viewInScene.pose.position);
-        qRotation = ezOpenXR::ConvertOrientation(viewInScene.pose.orientation);
+        vPosition = ezOpenXRConversionUtils::ConvertPosition(viewInScene.pose.position);
+        qRotation = ezOpenXRConversionUtils::ConvertOrientation(viewInScene.pose.orientation);
         m_bIsValid = true;
       }
       else

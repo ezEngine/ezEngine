@@ -73,14 +73,14 @@ struct ezMemoryAllocatorVulkan::Impl
 
 ezMemoryAllocatorVulkan::Impl* ezMemoryAllocatorVulkan::m_pImpl = nullptr;
 
-vk::Result ezMemoryAllocatorVulkan::Initialize(vk::PhysicalDevice physicalDevice, vk::Device device, vk::Instance instance, vk::detail::DispatchLoaderDynamic& loader)
+vk::Result ezMemoryAllocatorVulkan::Initialize(vk::PhysicalDevice physicalDevice, vk::Device device, vk::Instance instance, PFN_vkGetInstanceProcAddr instanceProcAddr, PFN_vkGetDeviceProcAddr deviceProcAddr)
 {
   EZ_ASSERT_DEV(m_pImpl == nullptr, "ezMemoryAllocatorVulkan::Initialize was already called");
   m_pImpl = EZ_DEFAULT_NEW(Impl);
 
   VmaVulkanFunctions vulkanFunctions = {};
-  vulkanFunctions.vkGetInstanceProcAddr = loader.vkGetInstanceProcAddr;
-  vulkanFunctions.vkGetDeviceProcAddr = loader.vkGetDeviceProcAddr;
+  vulkanFunctions.vkGetInstanceProcAddr = instanceProcAddr;
+  vulkanFunctions.vkGetDeviceProcAddr = deviceProcAddr;
 
   VmaAllocatorCreateInfo allocatorCreateInfo = {};
   allocatorCreateInfo.vulkanApiVersion = VK_API_VERSION_1_1;

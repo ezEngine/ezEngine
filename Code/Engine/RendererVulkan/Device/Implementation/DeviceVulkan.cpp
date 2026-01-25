@@ -5,6 +5,7 @@
 #endif
 
 #include <Core/System/Window.h>
+#include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
@@ -19,6 +20,7 @@
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/Device/InitContext.h>
 #include <RendererVulkan/Device/SwapChainVulkan.h>
+#include <RendererVulkan/Device/ezVulkanInitInterface.h>
 #include <RendererVulkan/Pools/CommandBufferPoolVulkan.h>
 #include <RendererVulkan/Pools/DescriptorSetPoolVulkan.h>
 #include <RendererVulkan/Pools/FencePoolVulkan.h>
@@ -56,6 +58,7 @@
 
 EZ_DEFINE_AS_POD_TYPE(VkLayerProperties);
 
+#if VULKAN_HPP_DISPATCH_LOADER_DYNAMIC == 1
 namespace vk
 {
   namespace detail
@@ -63,6 +66,7 @@ namespace vk
     DispatchLoaderDynamic defaultDispatchLoaderDynamic;
   }
 } // namespace vk
+#endif
 
 namespace
 {
@@ -142,7 +146,7 @@ ezGALDeviceVulkan::~ezGALDeviceVulkan() = default;
 // Init & shutdown functions
 
 
-vk::Result ezGALDeviceVulkan::SelectInstanceExtensions(ezHybridArray<const char*, 6>& extensions)
+vk::Result ezGALDeviceVulkan::SelectInstanceExtensions(ezDynamicArray<ezString>& extensions)
 {
   // Fetch the list of extensions supported by the runtime.
   ezUInt32 extensionCount;
@@ -199,12 +203,20 @@ vk::Result ezGALDeviceVulkan::SelectInstanceExtensions(ezHybridArray<const char*
 
   AddExtIfSupported(VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME, m_extensions.m_bExternalMemoryCapabilities);
   AddExtIfSupported(VK_KHR_EXTERNAL_SEMAPHORE_CAPABILITIES_EXTENSION_NAME, m_extensions.m_bExternalSemaphoreCapabilities);
+  AddExtIfSupported(VK_KHR_EXTERNAL_FENCE_CAPABILITIES_EXTENSION_NAME, m_extensions.m_bExternalFenceCapabilities);
+  AddExtIfSupported(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME, m_extensions.m_bPhysicalDeviceProperties2);
+
+  // Allow OpenXR to extend instance extensions (for vulkan_enable v1)
+  if (ezVulkanInitInterface* pInitInterface = ezSingletonRegistry::GetSingletonInstance<ezVulkanInitInterface>())
+  {
+    pInitInterface->ExtendInstanceExtensions(extensionProperties, extensions);
+  }
 
   return vk::Result::eSuccess;
 }
 
 
-vk::Result ezGALDeviceVulkan::SelectDeviceExtensions(vk::DeviceCreateInfo& deviceCreateInfo, ezHybridArray<const char*, 6>& extensions)
+vk::Result ezGALDeviceVulkan::SelectDeviceExtensions(vk::DeviceCreateInfo& deviceCreateInfo, ezDynamicArray<ezString>& extensions)
 {
   // Fetch the list of extensions supported by the runtime.
   ezUInt32 extensionCount;
@@ -297,10 +309,14 @@ vk::Result ezGALDeviceVulkan::SelectDeviceExtensions(vk::DeviceCreateInfo& devic
   AddExtIfSupported(VK_KHR_EXTERNAL_SEMAPHORE_WIN32_EXTENSION_NAME, m_extensions.m_bExternalSemaphoreWin32);
 #endif
 
+  // Allow OpenXR to extend device extensions (for vulkan_enable v1)
+  if (ezVulkanInitInterface* pInitInterface = ezSingletonRegistry::GetSingletonInstance<ezVulkanInitInterface>())
+  {
+    pInitInterface->ExtendDeviceExtensions(extensionProperties, extensions);
+  }
+
   return vk::Result::eSuccess;
 }
-
-#define EZ_GET_INSTANCE_PROC_ADDR(name) m_extensions.pfn_##name = reinterpret_cast<PFN_##name>(m_instance.getProcAddr(#name));
 
 ezStringView ezGALDeviceVulkan::GetRendererPlatform()
 {
@@ -311,10 +327,10 @@ ezResult ezGALDeviceVulkan::InitPlatform()
 {
   EZ_LOG_BLOCK("ezGALDeviceVulkan::InitPlatform");
 
-  {
-    vk::detail::defaultDispatchLoaderDynamic.init();
-  }
-
+#if VULKAN_HPP_DISPATCH_LOADER_DYNAMIC == 1
+  vk::detail::defaultDispatchLoaderDynamic.init();
+#endif
+  ezVulkanInitInterface* pInitInterface = ezSingletonRegistry::GetSingletonInstance<ezVulkanInitInterface>();
   const char* layers[] = {"VK_LAYER_KHRONOS_validation"};
   {
     // Create instance
@@ -329,15 +345,18 @@ ezResult ezGALDeviceVulkan::InitPlatform()
     applicationInfo.pApplicationName = "ezEngine";
     applicationInfo.pEngineName = "ezEngine";
 
-    ezHybridArray<const char*, 6> instanceExtensions;
+    ezHybridArray<ezString, 8> instanceExtensions;
     VK_SUCCEED_OR_RETURN_EZ_FAILURE(SelectInstanceExtensions(instanceExtensions));
+    ezHybridArray<const char*, 6> instanceExtensionsPtr;
+    for (const ezString& ext : instanceExtensions)
+      instanceExtensionsPtr.PushBack(ext.GetData());
 
     vk::InstanceCreateInfo instanceCreateInfo;
     // enabling support for win32 surfaces
     instanceCreateInfo.pApplicationInfo = &applicationInfo;
 
-    instanceCreateInfo.enabledExtensionCount = instanceExtensions.GetCount();
-    instanceCreateInfo.ppEnabledExtensionNames = instanceExtensions.GetData();
+    instanceCreateInfo.enabledExtensionCount = instanceExtensionsPtr.GetCount();
+    instanceCreateInfo.ppEnabledExtensionNames = instanceExtensionsPtr.GetData();
 
     instanceCreateInfo.enabledLayerCount = 0;
 
@@ -399,16 +418,23 @@ ezResult ezGALDeviceVulkan::InitPlatform()
       }
     }
 
-    m_instance = vk::createInstance(instanceCreateInfo);
+    if (pInitInterface)
+    {
+      m_instance = pInitInterface->CreateInstance(instanceCreateInfo);
+    }
+    if (!m_instance)
+    {
+      m_instance = vk::createInstance(instanceCreateInfo);
+    }
+#if VULKAN_HPP_DISPATCH_LOADER_DYNAMIC == 1
     vk::detail::defaultDispatchLoaderDynamic.init(m_instance);
-
+#endif
+    m_dispatchContext.InitInstance(m_instance, &m_extensions);
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
     if (m_extensions.m_bDebugUtils)
     {
-      EZ_GET_INSTANCE_PROC_ADDR(vkCreateDebugUtilsMessengerEXT);
-      EZ_GET_INSTANCE_PROC_ADDR(vkDestroyDebugUtilsMessengerEXT);
-      EZ_GET_INSTANCE_PROC_ADDR(vkSetDebugUtilsObjectNameEXT);
-      VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_extensions.pfn_vkCreateDebugUtilsMessengerEXT(m_instance, &debugCreateInfo, nullptr, &m_debugMessenger));
+      vk::DebugUtilsMessengerCreateInfoEXT createInfo(debugCreateInfo);
+      m_debugMessenger = m_instance.createDebugUtilsMessengerEXT(createInfo, nullptr, m_dispatchContext);
     }
 #endif
 
@@ -419,6 +445,11 @@ ezResult ezGALDeviceVulkan::InitPlatform()
     }
   }
 
+  if (pInitInterface)
+  {
+    m_physicalDevice = pInitInterface->GetPhysicalDevice(m_instance);
+  }
+  if (!m_physicalDevice)
   {
     // physical device
     ezUInt32 physicalDeviceCount = 0;
@@ -436,11 +467,13 @@ ezResult ezGALDeviceVulkan::InitPlatform()
     // TODO choosable physical device?
     // TODO making sure we have a hardware device?
     m_physicalDevice = physicalDevices[0];
-    m_properties = m_physicalDevice.getProperties();
-    ezLog::Warning("Selected physical device \"{}\" for device creation.", m_properties.deviceName);
+  }
+  {
+    m_properties = m_physicalDevice.getProperties2();
+    ezLog::Warning("Selected physical device \"{}\" for device creation.", m_properties.properties.deviceName);
 
     // This is a workaround for broken lavapipe drivers which cannot handle label scopes that span across multiple command buffers.
-    ezStringBuilder sDeviceName = ezStringUtf8(m_properties.deviceName).GetView();
+    ezStringBuilder sDeviceName = ezStringUtf8(m_properties.properties.deviceName).GetView();
     if (sDeviceName.FindSubString_NoCase("LLVMPIPE") != nullptr)
     {
       m_extensions.m_bDebugUtilsMarkers = false;
@@ -531,20 +564,31 @@ ezResult ezGALDeviceVulkan::InitPlatform()
     }
 
     vk::DeviceCreateInfo deviceCreateInfo = {};
-    ezHybridArray<const char*, 6> deviceExtensions;
+    ezHybridArray<ezString, 6> deviceExtensions;
     VK_SUCCEED_OR_RETURN_EZ_FAILURE(SelectDeviceExtensions(deviceCreateInfo, deviceExtensions));
+    ezHybridArray<const char*, 6> deviceExtensionsPtr;
+    for (const ezString& ext : deviceExtensions)
+      deviceExtensionsPtr.PushBack(ext.GetData());
 
-    deviceCreateInfo.enabledExtensionCount = deviceExtensions.GetCount();
-    deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions.GetData();
+    deviceCreateInfo.enabledExtensionCount = deviceExtensionsPtr.GetCount();
+    deviceCreateInfo.ppEnabledExtensionNames = deviceExtensionsPtr.GetData();
 
     vk::PhysicalDeviceFeatures physicalDeviceFeatures = m_physicalDevice.getFeatures();
     deviceCreateInfo.pEnabledFeatures = &physicalDeviceFeatures; // Enabling all available features for now
     deviceCreateInfo.queueCreateInfoCount = queues.GetCount();
     deviceCreateInfo.pQueueCreateInfos = queues.GetData();
 
-    VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_physicalDevice.createDevice(&deviceCreateInfo, nullptr, &m_device));
+    if (pInitInterface)
+    {
+      m_device = pInitInterface->CreateDevice(deviceCreateInfo);
+    }
+    if (!m_device)
+    {
+      VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_physicalDevice.createDevice(&deviceCreateInfo, nullptr, &m_device));
+    }
+#if VULKAN_HPP_DISPATCH_LOADER_DYNAMIC == 1
     vk::detail::defaultDispatchLoaderDynamic.init(m_device);
-
+#endif
     m_device.getQueue(m_graphicsQueue.m_uiQueueFamily, m_graphicsQueue.m_uiQueueIndex, &m_graphicsQueue.m_queue);
 
     if (m_graphicsQueue.m_uiQueueFamily != m_transferQueue.m_uiQueueFamily && m_transferQueue.m_uiQueueFamily != -1)
@@ -552,11 +596,14 @@ ezResult ezGALDeviceVulkan::InitPlatform()
       m_device.getQueue(m_transferQueue.m_uiQueueFamily, m_transferQueue.m_uiQueueIndex, &m_transferQueue.m_queue);
     }
 
-    m_dispatchContext.Init(*this);
+    m_dispatchContext.InitDevice(m_device, &m_extensions);
   }
 
-  VK_SUCCEED_OR_RETURN_EZ_FAILURE(ezMemoryAllocatorVulkan::Initialize(m_physicalDevice, m_device, m_instance, vk::detail::defaultDispatchLoaderDynamic));
-
+#if VULKAN_HPP_DISPATCH_LOADER_DYNAMIC == 1
+  VK_SUCCEED_OR_RETURN_EZ_FAILURE(ezMemoryAllocatorVulkan::Initialize(m_physicalDevice, m_device, m_instance, vk::detail::defaultDispatchLoaderDynamic.vkGetInstanceProcAddr, vk::detail::defaultDispatchLoaderDynamic.vkGetDeviceProcAddr));
+#else
+  VK_SUCCEED_OR_RETURN_EZ_FAILURE(ezMemoryAllocatorVulkan::Initialize(m_physicalDevice, m_device, m_instance, vkGetInstanceProcAddr, vkGetDeviceProcAddr));
+#endif
   m_memoryProperties = m_physicalDevice.getMemoryProperties();
 
   // Fill lookup table
@@ -600,7 +647,7 @@ void ezGALDeviceVulkan::SetDebugName(const vk::DebugUtilsObjectNameInfoEXT& info
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   if (m_extensions.m_bDebugUtils)
   {
-    m_device.setDebugUtilsObjectNameEXT(info);
+    m_device.setDebugUtilsObjectNameEXT(info, m_dispatchContext);
   }
   if (allocation)
     ezMemoryAllocatorVulkan::SetAllocationUserData(allocation, info.pObjectName);
@@ -732,9 +779,9 @@ ezResult ezGALDeviceVulkan::ShutdownPlatform()
   m_device.destroy();
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  if (m_extensions.m_bDebugUtils && m_extensions.pfn_vkDestroyDebugUtilsMessengerEXT != nullptr)
+  if (m_extensions.m_bDebugUtils && m_dispatchContext.vkDestroyDebugUtilsMessengerEXT != nullptr)
   {
-    m_extensions.pfn_vkDestroyDebugUtilsMessengerEXT(m_instance, m_debugMessenger, nullptr);
+    m_instance.destroyDebugUtilsMessengerEXT(m_debugMessenger, nullptr, m_dispatchContext);
   }
 #endif
 
@@ -1630,11 +1677,11 @@ void ezGALDeviceVulkan::FillCapabilitiesPlatform()
   }
 
   {
-    m_Capabilities.m_sAdapterName = ezStringUtf8(m_properties.deviceName).GetData();
+    m_Capabilities.m_sAdapterName = ezStringUtf8(m_properties.properties.deviceName).GetData();
     m_Capabilities.m_uiDedicatedVRAM = static_cast<ezUInt64>(dedicatedMemory);
     m_Capabilities.m_uiDedicatedSystemRAM = static_cast<ezUInt64>(systemMemory);
     m_Capabilities.m_uiSharedSystemRAM = static_cast<ezUInt64>(0); // TODO
-    m_Capabilities.m_bHardwareAccelerated = m_properties.deviceType == vk::PhysicalDeviceType::eDiscreteGpu;
+    m_Capabilities.m_bHardwareAccelerated = m_properties.properties.deviceType == vk::PhysicalDeviceType::eDiscreteGpu;
     m_Capabilities.m_bSupportsTexelBuffer = true;
     m_Capabilities.m_bSupportsMultiSampledArrays = true;
   }
@@ -1650,7 +1697,7 @@ void ezGALDeviceVulkan::FillCapabilitiesPlatform()
   m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::PixelShader] = true;
   m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::ComputeShader] = true; // we check this when creating the queue, always has to be supported
   m_Capabilities.m_bSupportsIndirectDraw = true;
-  m_Capabilities.m_uiMaxPushConstantsSize = ezMath::Min(m_properties.limits.maxPushConstantsSize, (ezUInt32)ezMath::MaxValue<ezUInt16>());
+  m_Capabilities.m_uiMaxPushConstantsSize = ezMath::Min(m_properties.properties.limits.maxPushConstantsSize, (ezUInt32)ezMath::MaxValue<ezUInt16>());
   ;
 #if EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
   m_Capabilities.m_bSupportsSharedTextures = m_extensions.m_bTimelineSemaphore && m_extensions.m_bExternalMemoryFd && m_extensions.m_bExternalSemaphoreFd;

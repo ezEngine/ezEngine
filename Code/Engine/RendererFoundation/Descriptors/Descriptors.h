@@ -272,8 +272,10 @@ struct ezGALDeviceEvent
 {
   enum Type
   {
+    BeforeInit,
     AfterInit,
     BeforeShutdown,
+    AfterShutdown,
     BeforeBeginFrame,
     AfterBeginFrame,
     BeforeEndFrame,

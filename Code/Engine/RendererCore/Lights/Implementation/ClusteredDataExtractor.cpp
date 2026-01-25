@@ -191,6 +191,7 @@ ezClusteredDataExtractor::ezClusteredDataExtractor(const char* szName)
   ezMemoryUtils::ZeroFill(m_TempReflectionProbeClusters.GetData(), NUM_CLUSTERS);
 
   m_ClusterBoundingSpheres.SetCountUninitialized(NUM_CLUSTERS);
+  m_ClusterBoundingSpheresRightEye.SetCountUninitialized(NUM_CLUSTERS);
 }
 
 ezClusteredDataExtractor::~ezClusteredDataExtractor() = default;
@@ -201,9 +202,10 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
 
   const ezCamera* pCamera = view.GetCullingCamera();
   const float fAspectRatio = view.GetViewport().width / view.GetViewport().height;
+  const bool bIsStereo = pCamera->IsStereoscopic();
 
   ezMat4 mProj;
-  pCamera->GetProjectionMatrix(fAspectRatio, mProj);
+  pCamera->GetProjectionMatrix(fAspectRatio, mProj, ezCameraEye::Left);
   if (m_mProjection != mProj)
   {
     m_mProjection = mProj;
@@ -211,15 +213,42 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
     FillClusterBoundingSpheres(*pCamera, mProj, m_ClusterBoundingSpheres);
   }
 
+  // For stereo rendering, also compute right eye cluster bounding spheres
+  ezMat4 mProjRight;
+  if (bIsStereo)
+  {
+    pCamera->GetProjectionMatrix(fAspectRatio, mProjRight, ezCameraEye::Right);
+    if (m_mProjectionRightEye != mProjRight)
+    {
+      m_mProjectionRightEye = mProjRight;
+
+      FillClusterBoundingSpheres(*pCamera, mProjRight, m_ClusterBoundingSpheresRightEye);
+    }
+  }
+
   ezClusteredDataCPU* pData = EZ_NEW(ezFrameAllocator::GetCurrentAllocator(), ezClusteredDataCPU);
   pData->m_ClusterData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezPerClusterData, NUM_CLUSTERS);
 
-  ezMat4 tmp = pCamera->GetViewMatrix();
+  ezMat4 tmp = pCamera->GetViewMatrix(ezCameraEye::Left);
   ezSimdMat4f viewMatrix = ezSimdConversion::ToMat4(tmp);
 
-  pCamera->GetProjectionMatrix(fAspectRatio, tmp);
+  pCamera->GetProjectionMatrix(fAspectRatio, tmp, ezCameraEye::Left);
   ezSimdMat4f projectionMatrix = ezSimdConversion::ToMat4(tmp);
   ezSimdMat4f viewProjectionMatrix = projectionMatrix * viewMatrix;
+
+  // For stereo, also prepare the right eye matrices
+  ezSimdMat4f viewMatrixRight;
+  ezSimdMat4f projectionMatrixRight;
+  ezSimdMat4f viewProjectionMatrixRight;
+  if (bIsStereo)
+  {
+    tmp = pCamera->GetViewMatrix(ezCameraEye::Right);
+    viewMatrixRight = ezSimdConversion::ToMat4(tmp);
+
+    pCamera->GetProjectionMatrix(fAspectRatio, tmp, ezCameraEye::Right);
+    projectionMatrixRight = ezSimdConversion::ToMat4(tmp);
+    viewProjectionMatrixRight = projectionMatrixRight * viewMatrixRight;
+  }
 
   // Lights
   {
@@ -252,6 +281,12 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
           ezSimdBSphere pointLightSphere = ezSimdBSphere(ezSimdConversion::ToVec3(pPointLightRenderData->m_vGlobalPosition), pPointLightRenderData->m_fRange);
           RasterizeSphere(pointLightSphere, uiLightIndex, viewMatrix, projectionMatrix, m_TempLightsClusters.GetData(), m_ClusterBoundingSpheres.GetData());
 
+          // For stereo, also rasterize against right eye clusters (union of both eyes)
+          if (bIsStereo)
+          {
+            RasterizeSphere(pointLightSphere, uiLightIndex, viewMatrixRight, projectionMatrixRight, m_TempLightsClusters.GetData(), m_ClusterBoundingSpheresRightEye.GetData());
+          }
+
           if (false)
           {
             ezSimdBSphere viewSpaceSphere(viewMatrix.TransformPosition(pointLightSphere.GetCenter()), pointLightSphere.GetRadius());
@@ -277,12 +312,19 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
           cone.m_ForwardDir = ezSimdConversion::ToVec3(pSpotLightRenderData->m_qGlobalRotation * ezVec3(1.0f, 0.0f, 0.0f));
           cone.m_SinCosAngle = ezSimdVec4f(ezMath::Sin(halfAngle), ezMath::Cos(halfAngle), 0.0f);
           RasterizeSpotLight(cone, uiLightIndex, viewMatrix, projectionMatrix, m_TempLightsClusters.GetData(), m_ClusterBoundingSpheres.GetData());
+
+          // For stereo, also rasterize against right eye clusters (union of both eyes)
+          if (bIsStereo)
+          {
+            RasterizeSpotLight(cone, uiLightIndex, viewMatrixRight, projectionMatrixRight, m_TempLightsClusters.GetData(), m_ClusterBoundingSpheresRightEye.GetData());
+          }
         }
         else if (auto pDirLightRenderData = ezDynamicCast<const ezDirectionalLightRenderData*>(it))
         {
           FillDirLightData(m_TempLightData.ExpandAndGetRef(), pDirLightRenderData);
 
           RasterizeDirLight(pDirLightRenderData, uiLightIndex, m_TempLightsClusters.GetArrayPtr());
+          // Note: Directional lights affect all clusters, so no need for separate stereo handling
 
           const float fIntensity = pDirLightRenderData->m_fIntensity * ezColor(pDirLightRenderData->m_LightColor).GetLuminance();
           if (fIntensity > fBrightestDirectionalLightIntensity)
@@ -297,6 +339,12 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
 
           ezSimdBSphere fillLightSphere = ezSimdBSphere(ezSimdConversion::ToVec3(pFillLightRenderData->m_vGlobalPosition), pFillLightRenderData->m_fRange);
           RasterizeSphere(fillLightSphere, uiLightIndex, viewMatrix, projectionMatrix, m_TempLightsClusters.GetData(), m_ClusterBoundingSpheres.GetData());
+
+          // For stereo, also rasterize against right eye clusters (union of both eyes)
+          if (bIsStereo)
+          {
+            RasterizeSphere(fillLightSphere, uiLightIndex, viewMatrixRight, projectionMatrixRight, m_TempLightsClusters.GetData(), m_ClusterBoundingSpheresRightEye.GetData());
+          }
         }
         else if (auto pFogRenderData = ezDynamicCast<const ezFogRenderData*>(it))
         {
@@ -362,6 +410,12 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
           const ezQuat rotation(rotationValues.x, rotationValues.y, rotationValues.z, rotationValues.w);
           const ezTransform decalTransform = ezTransform::Make(pDecalRenderData->m_vGlobalPosition, rotation, pDecalRenderData->m_vGlobalScale);
           RasterizeBox(decalTransform, uiDecalIndex, viewMatrix, viewProjectionMatrix, m_TempDecalsClusters.GetData(), m_ClusterBoundingSpheres.GetData());
+
+          // For stereo, also rasterize against right eye clusters (union of both eyes)
+          if (bIsStereo)
+          {
+            RasterizeBox(decalTransform, uiDecalIndex, viewMatrixRight, viewProjectionMatrixRight, m_TempDecalsClusters.GetData(), m_ClusterBoundingSpheresRightEye.GetData());
+          }
         }
         else
         {
@@ -423,6 +477,13 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
               ezSimdBSphere(ezSimdConversion::ToVec3(pReflectionProbeRenderData->m_GlobalTransform.m_vPosition), fMaxRadius);
             RasterizeSphere(
               pointLightSphere, uiProbeIndex, viewMatrix, projectionMatrix, m_TempReflectionProbeClusters.GetData(), m_ClusterBoundingSpheres.GetData());
+
+            // For stereo, also rasterize against right eye clusters (union of both eyes)
+            if (bIsStereo)
+            {
+              RasterizeSphere(
+                pointLightSphere, uiProbeIndex, viewMatrixRight, projectionMatrixRight, m_TempReflectionProbeClusters.GetData(), m_ClusterBoundingSpheresRightEye.GetData());
+            }
           }
           else
           {
@@ -434,6 +495,12 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
             // ezDebugRenderer::DrawLineBox(view.GetHandle(), aabb, ezColor::DarkBlue, transform);
 
             RasterizeBox(transform, uiProbeIndex, viewMatrix, viewProjectionMatrix, m_TempReflectionProbeClusters.GetData(), m_ClusterBoundingSpheres.GetData());
+
+            // For stereo, also rasterize against right eye clusters (union of both eyes)
+            if (bIsStereo)
+            {
+              RasterizeBox(transform, uiProbeIndex, viewMatrixRight, viewProjectionMatrixRight, m_TempReflectionProbeClusters.GetData(), m_ClusterBoundingSpheresRightEye.GetData());
+            }
           }
         }
         else

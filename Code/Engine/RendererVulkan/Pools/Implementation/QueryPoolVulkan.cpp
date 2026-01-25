@@ -95,7 +95,7 @@ void ezQueryPoolVulkan::Calibrate()
     vk::SemaphoreSignalInfo signalInfo;
     signalInfo.semaphore = timelineSemaphore;
     signalInfo.value = 1;
-    VK_ASSERT_DEV(m_TimestampPool.m_device.signalSemaphore(&signalInfo));
+    VK_ASSERT_DEV(m_TimestampPool.m_device.signalSemaphore(&signalInfo, m_pDevice->GetDispatchContext()));
     const ezTime systemTS = ezTime::Now();
 
     VK_ASSERT_DEV(m_TimestampPool.m_device.waitForFences(1, &fence, true, ezMath::MaxValue<ezUInt64>()));

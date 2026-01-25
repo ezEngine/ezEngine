@@ -2,6 +2,8 @@
 
 #include <KrautGenerator/KrautGeneratorDLL.h>
 
+#define KRAUT_RAND_MAX 0x7fff
+
 namespace Kraut
 {
   /// \brief A very simple random number generator, that works like the standard "rand" function.
@@ -50,7 +52,7 @@ namespace Kraut
     //!  Returns a pseudo-random float in range [0; max). All values for "max" are allowed, even 0 and negative numbers.
     float Randf(float max)
     {
-      return ((float(GetRandomNumber() % RAND_MAX - 1) / float(RAND_MAX - 2)) * max);
+      return ((float(GetRandomNumber() % KRAUT_RAND_MAX - 1) / float(KRAUT_RAND_MAX - 2)) * max);
     }
 
     //!  Returns a pseudo-random float in range [min; max).

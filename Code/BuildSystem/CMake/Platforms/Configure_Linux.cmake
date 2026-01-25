@@ -67,6 +67,12 @@ macro(ez_platformhook_set_application_properties TARGET_NAME)
     # We need to link against pthread and rt last or linker errors will occur.
 	target_link_libraries(${TARGET_NAME} PRIVATE pthread rt)
 
+	# Set RPATH so the executable can find shared libraries in its own directory
+	set_target_properties(${TARGET_NAME} PROPERTIES
+		BUILD_RPATH "$ORIGIN"
+		INSTALL_RPATH "$ORIGIN"
+	)
+
 endmacro()
 
 macro(ez_platform_detect_generator)
@@ -101,6 +107,12 @@ macro(ez_platformhook_set_library_properties TARGET_NAME)
         # Workaround for: https://bugs.launchpad.net/ubuntu/+source/gcc-5/+bug/1568899
 	target_link_libraries(${TARGET_NAME} PRIVATE -lgcc)
     endif()
+
+    # Set RPATH so shared libraries can find other shared libraries in the same directory
+    set_target_properties(${TARGET_NAME} PROPERTIES
+        BUILD_RPATH "$ORIGIN"
+        INSTALL_RPATH "$ORIGIN"
+    )
 endmacro()
 
 macro(ez_platformhook_find_vulkan)

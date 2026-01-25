@@ -17,7 +17,6 @@
 #include <GameEngine/Gameplay/PlayerStartPointComponent.h>
 #include <GameEngine/XR/DummyXR.h>
 #include <GameEngine/XR/XRInterface.h>
-#include <GameEngine/XR/XRRemotingInterface.h>
 #include <RendererCore/Components/CameraComponent.h>
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
 #include <RendererCore/Pipeline/View.h>
@@ -85,14 +84,6 @@ void ezGameState::OnDeactivation()
     ezXRInterface* pXRInterface = ezSingletonRegistry::GetSingletonInstance<ezXRInterface>();
     ezWindowManager::GetSingleton()->CloseAll(pXRInterface); // maybe do this inside Deinitialize ?
     pXRInterface->Deinitialize();
-
-    if (ezXRRemotingInterface* pXRRemotingInterface = ezSingletonRegistry::GetSingletonInstance<ezXRRemotingInterface>())
-    {
-      if (pXRRemotingInterface->Deinitialize().Failed())
-      {
-        ezLog::Error("Failed to deinitialize ezXRRemotingInterface, make sure all actors are destroyed and ezXRInterface deinitialized.");
-      }
-    }
 
     m_pDummyXR = nullptr;
   }
@@ -183,26 +174,6 @@ ezRegisteredWndHandle ezGameState::CreateXRWindow()
     EZ_ASSERT_DEV(pXRInterface, "Creating dummyXR did not register the ezXRInterface.");
   }
 
-  ezXRRemotingInterface* pXRRemotingInterface = ezSingletonRegistry::GetSingletonInstance<ezXRRemotingInterface>();
-  if (ezXRRemotingInterface::cvar_XrRemoting)
-  {
-    if (pXRRemotingInterface)
-    {
-      if (pXRRemotingInterface->Initialize().Failed())
-      {
-        ezLog::Error("ezXRRemotingInterface could not be initialized. See log for details.");
-      }
-      else
-      {
-        m_bXRRemotingEnabled = true;
-      }
-    }
-    else
-    {
-      ezLog::Error("No ezXRRemotingInterface interface found. Please load a XR remoting plugin to enable XR Remoting.");
-    }
-  }
-
   if (pXRInterface->Initialize().Failed())
   {
     ezLog::Error("ezXRInterface could not be initialized. See log for details.");
@@ -230,14 +201,6 @@ ezRegisteredWndHandle ezGameState::CreateXRWindow()
     // XR Window (no companion window)
     CreateMainView();
     SetupMainView({}, {});
-  }
-
-  if (m_bXRRemotingEnabled)
-  {
-    if (pXRRemotingInterface->Connect(ezXRRemotingInterface::cvar_XrRemotingHostName.GetValue().GetData()).Failed())
-    {
-      ezLog::Error("Failed to connect XR Remoting.");
-    }
   }
 
   ezView* pView = nullptr;

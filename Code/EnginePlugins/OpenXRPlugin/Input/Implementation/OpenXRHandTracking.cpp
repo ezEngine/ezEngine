@@ -3,9 +3,10 @@
 #include <Core/World/World.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <GameEngine/XR/StageSpaceComponent.h>
+#include <OpenXRPlugin/Input/OpenXRHandTracking.h>
 #include <OpenXRPlugin/OpenXRDeclarations.h>
-#include <OpenXRPlugin/OpenXRHandTracking.h>
 #include <OpenXRPlugin/OpenXRSingleton.h>
+#include <OpenXRPlugin/Utils/OpenXRConversionUtils.h>
 
 EZ_IMPLEMENT_SINGLETON(ezOpenXRHandTracking);
 
@@ -33,18 +34,21 @@ ezOpenXRHandTracking::ezOpenXRHandTracking(ezOpenXR* pOpenXR)
     XR_LOG_ERROR(m_pOpenXR->m_Extensions.pfn_xrCreateHandTrackerEXT(pOpenXR->m_pSession, &createInfo, &m_HandTracker[uiSide]));
 
     m_Locations[uiSide].type = XR_TYPE_HAND_JOINT_LOCATIONS_EXT;
-    m_Locations[uiSide].next = &m_Velocities;
+    m_Locations[uiSide].next = &m_Velocities[uiSide];
     m_Locations[uiSide].jointCount = XR_HAND_JOINT_COUNT_EXT;
     m_Locations[uiSide].jointLocations = m_JointLocations[uiSide];
+    ezMemoryUtils::ZeroFill(&m_JointLocations[uiSide][0], XR_HAND_JOINT_COUNT_EXT);
 
     m_Velocities[uiSide].type = XR_TYPE_HAND_JOINT_VELOCITIES_EXT;
     m_Velocities[uiSide].jointCount = XR_HAND_JOINT_COUNT_EXT;
     m_Velocities[uiSide].jointVelocities = m_JointVelocities[uiSide];
-
+    ezMemoryUtils::ZeroFill(&m_JointVelocities[uiSide][0], XR_HAND_JOINT_COUNT_EXT);
+    
     m_JointData[uiSide].SetCount(XR_HAND_JOINT_LITTLE_TIP_EXT + 1);
     for (ezUInt32 i = 0; i <= XR_HAND_JOINT_LITTLE_TIP_EXT; ++i)
     {
       m_JointData[uiSide][i].m_Bone.m_Transform.SetIdentity();
+      m_JointVelocities[uiSide][i].velocityFlags = XR_SPACE_VELOCITY_LINEAR_VALID_BIT | XR_SPACE_VELOCITY_ANGULAR_VALID_BIT;
     }
   }
 
@@ -144,6 +148,15 @@ void ezOpenXRHandTracking::UpdateJointTransforms()
 
   for (ezUInt32 uiSide : {0, 1})
   {
+    for (ezUInt32 i = 0; i <= XR_HAND_JOINT_LITTLE_TIP_EXT; ++i)
+    {
+      m_JointData[uiSide][i].m_Bone.m_Transform.SetIdentity();
+      m_JointVelocities[uiSide][i].velocityFlags = XR_SPACE_VELOCITY_LINEAR_VALID_BIT | XR_SPACE_VELOCITY_ANGULAR_VALID_BIT;
+    }
+  }
+
+  for (ezUInt32 uiSide : {0, 1})
+  {
     if (m_pOpenXR->m_Extensions.pfn_xrLocateHandJointsEXT(m_HandTracker[uiSide], &locateInfo, &m_Locations[uiSide]) != XrResult::XR_SUCCESS)
       m_Locations[uiSide].isActive = false;
 
@@ -157,8 +170,8 @@ void ezOpenXRHandTracking::UpdateJointTransforms()
         {
           m_JointData[uiSide][i].m_bValid = true;
           m_JointData[uiSide][i].m_Bone.m_fRadius = spaceLocation.radius;
-          m_JointData[uiSide][i].m_Bone.m_Transform.m_vPosition = ezOpenXR::ConvertPosition(spaceLocation.pose.position);
-          m_JointData[uiSide][i].m_Bone.m_Transform.m_qRotation = ezOpenXR::ConvertOrientation(spaceLocation.pose.orientation);
+          m_JointData[uiSide][i].m_Bone.m_Transform.m_vPosition = ezOpenXRConversionUtils::ConvertPosition(spaceLocation.pose.position);
+          m_JointData[uiSide][i].m_Bone.m_Transform.m_qRotation = ezOpenXRConversionUtils::ConvertOrientation(spaceLocation.pose.orientation);
         }
         else
         {

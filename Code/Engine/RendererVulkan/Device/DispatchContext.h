@@ -2,58 +2,48 @@
 
 class ezGALDeviceVulkan;
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-#  define EZ_DISPATCH_CONTEXT_MEMBER_NAME(Name) m_p##Name
-#else
-#  define EZ_DISPATCH_CONTEXT_MEMBER_NAME(Name) Name
-#endif
-
 // A vulkan hpp compatible dispatch context.
 class ezVulkanDispatchContext
 {
 public:
-  void Init(ezGALDeviceVulkan& device);
+  void InitInstance(vk::Instance instance, const void* pExtensions);
+  void InitDevice(vk::Device device, const void* pExtensions);
 
   ezUInt32 getVkHeaderVersion() const { return VK_HEADER_VERSION; }
 
+  // VK_EXT_debug_utils (instance functions)
+  PFN_vkCreateDebugUtilsMessengerEXT vkCreateDebugUtilsMessengerEXT = nullptr;
+  PFN_vkDestroyDebugUtilsMessengerEXT vkDestroyDebugUtilsMessengerEXT = nullptr;
+
+  // VK_EXT_debug_utils (device functions)
+  PFN_vkSetDebugUtilsObjectNameEXT vkSetDebugUtilsObjectNameEXT = nullptr;
+  PFN_vkCmdBeginDebugUtilsLabelEXT vkCmdBeginDebugUtilsLabelEXT = nullptr;
+  PFN_vkCmdEndDebugUtilsLabelEXT vkCmdEndDebugUtilsLabelEXT = nullptr;
+  PFN_vkCmdInsertDebugUtilsLabelEXT vkCmdInsertDebugUtilsLabelEXT = nullptr;
+
+  // VK_KHR_timeline_semaphore
+  PFN_vkSignalSemaphore vkSignalSemaphoreKHR = nullptr;
+  PFN_vkSignalSemaphore vkSignalSemaphore = nullptr;  // Alias for Vulkan-Hpp compatibility
+  PFN_vkWaitSemaphores vkWaitSemaphoresKHR = nullptr;
+  PFN_vkWaitSemaphores vkWaitSemaphores = nullptr;  // Alias for Vulkan-Hpp compatibility
+  PFN_vkGetSemaphoreCounterValue vkGetSemaphoreCounterValueKHR = nullptr;
+  PFN_vkGetSemaphoreCounterValue vkGetSemaphoreCounterValue = nullptr;  // Alias for Vulkan-Hpp compatibility
+
 #if EZ_ENABLED(EZ_PLATFORM_LINUX)
   // VK_KHR_external_memory_fd
-  PFN_vkGetMemoryFdKHR EZ_DISPATCH_CONTEXT_MEMBER_NAME(vkGetMemoryFdKHR) = nullptr;
-  PFN_vkGetMemoryFdPropertiesKHR EZ_DISPATCH_CONTEXT_MEMBER_NAME(vkGetMemoryFdPropertiesKHR) = nullptr;
+  PFN_vkGetMemoryFdKHR vkGetMemoryFdKHR = nullptr;
+  PFN_vkGetMemoryFdPropertiesKHR vkGetMemoryFdPropertiesKHR = nullptr;
 
   // VK_KHR_external_semaphore_fd
-  PFN_vkGetSemaphoreFdKHR EZ_DISPATCH_CONTEXT_MEMBER_NAME(vkGetSemaphoreFdKHR) = nullptr;
-  PFN_vkImportSemaphoreFdKHR EZ_DISPATCH_CONTEXT_MEMBER_NAME(vkImportSemaphoreFdKHR) = nullptr;
+  PFN_vkGetSemaphoreFdKHR vkGetSemaphoreFdKHR = nullptr;
+  PFN_vkImportSemaphoreFdKHR vkImportSemaphoreFdKHR = nullptr;
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   // VK_KHR_external_memory_win32
-  PFN_vkGetMemoryWin32HandleKHR EZ_DISPATCH_CONTEXT_MEMBER_NAME(vkGetMemoryWin32HandleKHR) = nullptr;
-  PFN_vkGetMemoryWin32HandlePropertiesKHR EZ_DISPATCH_CONTEXT_MEMBER_NAME(vkGetMemoryWin32HandlePropertiesKHR) = nullptr;
+  PFN_vkGetMemoryWin32HandleKHR vkGetMemoryWin32HandleKHR = nullptr;
+  PFN_vkGetMemoryWin32HandlePropertiesKHR vkGetMemoryWin32HandlePropertiesKHR = nullptr;
 
   // VK_KHR_external_semaphore_win32
-  PFN_vkGetSemaphoreWin32HandleKHR EZ_DISPATCH_CONTEXT_MEMBER_NAME(vkGetSemaphoreWin32HandleKHR) = nullptr;
-  PFN_vkImportSemaphoreWin32HandleKHR EZ_DISPATCH_CONTEXT_MEMBER_NAME(vkImportSemaphoreWin32HandleKHR) = nullptr;
+  PFN_vkGetSemaphoreWin32HandleKHR vkGetSemaphoreWin32HandleKHR = nullptr;
+  PFN_vkImportSemaphoreWin32HandleKHR vkImportSemaphoreWin32HandleKHR = nullptr;
 #endif
-
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-#  if EZ_ENABLED(EZ_PLATFORM_LINUX)
-  // VK_KHR_external_memory_fd
-  VkResult vkGetMemoryFdKHR(VkDevice device, const VkMemoryGetFdInfoKHR* pGetFdInfo, int* pFd) const;
-  VkResult vkGetMemoryFdPropertiesKHR(VkDevice device, VkExternalMemoryHandleTypeFlagBits handleType, int fd, VkMemoryFdPropertiesKHR* pMemoryFdProperties) const;
-
-  // VK_KHR_external_semaphore_fd
-  VkResult vkGetSemaphoreFdKHR(VkDevice device, const VkSemaphoreGetFdInfoKHR* pGetFdInfo, int* pFd) const;
-  VkResult vkImportSemaphoreFdKHR(VkDevice device, const VkImportSemaphoreFdInfoKHR* pImportSemaphoreFdInfo) const;
-#  elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  // VK_KHR_external_memory_win32
-  VkResult vkGetMemoryWin32HandleKHR(VkDevice device, const VkMemoryGetWin32HandleInfoKHR* pGetWin32HandleInfo, HANDLE* pWin32Handle) const;
-  VkResult vkGetMemoryWin32HandlePropertiesKHR(VkDevice device, VkExternalMemoryHandleTypeFlagBits handleType, HANDLE Win32Handle, VkMemoryWin32HandlePropertiesKHR* pMemoryWin32HandleProperties) const;
-
-  // VK_KHR_external_semaphore_win32
-  VkResult vkGetSemaphoreWin32HandleKHR(VkDevice device, const VkSemaphoreGetWin32HandleInfoKHR* pGetWin32HandleInfo, HANDLE* pWin32Handle) const;
-  VkResult vkImportSemaphoreWin32HandleKHR(VkDevice device, const VkImportSemaphoreWin32HandleInfoKHR* pImportSemaphoreWin32HandleInfo) const;
-#  endif
-#endif
-
-private:
-  ezGALDeviceVulkan* m_pDevice = nullptr;
 };

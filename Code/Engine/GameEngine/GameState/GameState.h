@@ -225,7 +225,6 @@ protected:
   ezUniquePtr<ezDummyXR> m_pDummyXR;
   bool m_bStateWantsToQuit = false;
   bool m_bXREnabled = false;
-  bool m_bXRRemotingEnabled = false;
 
   bool m_bTransitionWhenReady = false;
   ezUniquePtr<ezSceneLoadUtility> m_pBackgroundSceneLoad;

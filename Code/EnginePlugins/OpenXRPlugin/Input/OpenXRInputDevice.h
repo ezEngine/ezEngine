@@ -77,16 +77,16 @@ private:
   const ezInt8 m_iRightControllerDeviceID = 2;
 
   XrActionSet m_pActionSet = XR_NULL_HANDLE;
-  ezHashTable<XrPath, ezString> m_InteractionProfileToNiceName;
+  ezHashTable<ezUInt64, ezString> m_InteractionProfileToNiceName;
 
   ezStaticArray<const char*, 2> m_SubActionPrefix;
-  ezStaticArray<XrPath, 2> m_SubActionPath;
+  ezStaticArray<XrPath, 2> m_SubActionPath = {};
 
   ezHybridArray<Action, 4> m_BooleanActions;
   ezHybridArray<Action, 4> m_FloatActions;
   ezHybridArray<Vec2Action, 4> m_Vec2Actions;
   ezHybridArray<Action, 4> m_PoseActions;
 
-  XrSpace m_gripSpace[2];
-  XrSpace m_aimSpace[2];
+  XrSpace m_gripSpace[2] = {};
+  XrSpace m_aimSpace[2] = {};
 };

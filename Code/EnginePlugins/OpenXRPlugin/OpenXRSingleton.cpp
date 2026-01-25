@@ -5,33 +5,48 @@
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/XR/StageSpaceComponent.h>
 #include <GameEngine/XR/XRWindow.h>
+#include <OpenXRPlugin/Graphics/OpenXRGraphicsBinding.h>
+#include <OpenXRPlugin/Graphics/OpenXRSwapChain.h>
+#include <OpenXRPlugin/Input/OpenXRHandTracking.h>
+#include <OpenXRPlugin/Input/OpenXRInputDevice.h>
 #include <OpenXRPlugin/OpenXRDeclarations.h>
-#include <OpenXRPlugin/OpenXRHandTracking.h>
-#include <OpenXRPlugin/OpenXRInputDevice.h>
-#include <OpenXRPlugin/OpenXRRemoting.h>
 #include <OpenXRPlugin/OpenXRSingleton.h>
 #include <OpenXRPlugin/OpenXRSpatialAnchors.h>
-#include <OpenXRPlugin/OpenXRSwapChain.h>
+#include <OpenXRPlugin/Utils/OpenXRConversionUtils.h>
 #include <RendererCore/Components/CameraComponent.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererCore/Textures/TextureUtils.h>
-#include <Texture/Image/Formats/ImageFormatMappings.h>
-
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#  include <RendererDX11/Device/DeviceDX11.h>
-#endif
-
-#include <vector>
+#include <RendererFoundation/Device/Device.h>
 
 static_assert(ezGALMSAASampleCount::None == 1);
 static_assert(ezGALMSAASampleCount::TwoSamples == 2);
 static_assert(ezGALMSAASampleCount::FourSamples == 4);
 static_assert(ezGALMSAASampleCount::EightSamples == 8);
 
-EZ_IMPLEMENT_SINGLETON(ezOpenXR);
-
 static ezOpenXR g_OpenXRSingleton;
+
+// clang-format off
+EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererFoundation, OpenXR)
+
+  BEGIN_SUBSYSTEM_DEPENDENCIES
+    "Foundation",
+    "Core"
+  END_SUBSYSTEM_DEPENDENCIES
+
+  ON_CORESYSTEMS_STARTUP
+  {
+    g_OpenXRSingleton.OnEngineStartup();
+  }
+
+  ON_CORESYSTEMS_SHUTDOWN
+  {
+    g_OpenXRSingleton.OnEngineShutdown();
+  }
+
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
+
+EZ_IMPLEMENT_SINGLETON(ezOpenXR);
 
 XrBool32 XRAPI_CALL xrDebugCallback(XrDebugUtilsMessageSeverityFlagsEXT messageSeverity, XrDebugUtilsMessageTypeFlagsEXT messageTypes, const XrDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)
 {
@@ -59,9 +74,6 @@ XrBool32 XRAPI_CALL xrDebugCallback(XrDebugUtilsMessageSeverityFlagsEXT messageS
 ezOpenXR::ezOpenXR()
   : m_SingletonRegistrar(this)
 {
-#ifdef BUILDSYSTEM_ENABLE_OPENXR_REMOTING_SUPPORT
-  m_pRemoting = EZ_DEFAULT_NEW(ezOpenXRRemoting, this);
-#endif
 }
 
 ezOpenXR::~ezOpenXR() = default;
@@ -86,26 +98,33 @@ XrResult ezOpenXR::SelectExtensions(ezHybridArray<const char*, 6>& extensions)
   // Fetch the list of extensions supported by the runtime.
   ezUInt32 extensionCount;
   XR_SUCCEED_OR_RETURN_LOG(xrEnumerateInstanceExtensionProperties(nullptr, 0, &extensionCount, nullptr));
-  std::vector<XrExtensionProperties> extensionProperties(extensionCount, {XR_TYPE_EXTENSION_PROPERTIES});
-  XR_SUCCEED_OR_RETURN_LOG(xrEnumerateInstanceExtensionProperties(nullptr, extensionCount, &extensionCount, extensionProperties.data()));
+  ezDynamicArray<XrExtensionProperties> extensionProperties;
+  extensionProperties.SetCount(extensionCount, {XR_TYPE_EXTENSION_PROPERTIES});
+  XR_SUCCEED_OR_RETURN_LOG(xrEnumerateInstanceExtensionProperties(nullptr, extensionCount, &extensionCount, extensionProperties.GetData()));
 
   // Add a specific extension to the list of extensions to be enabled, if it is supported.
   auto AddExtIfSupported = [&](const char* extensionName, bool& enableFlag) -> XrResult
   {
-    auto it = std::find_if(begin(extensionProperties), end(extensionProperties), [&](const XrExtensionProperties& prop)
-      { return ezStringUtils::IsEqual(prop.extensionName, extensionName); });
-    if (it != end(extensionProperties))
+    for (const XrExtensionProperties& prop : extensionProperties)
     {
-      extensions.PushBack(extensionName);
-      enableFlag = true;
-      return XR_SUCCESS;
+      if (ezStringUtils::IsEqual(prop.extensionName, extensionName))
+      {
+        extensions.PushBack(extensionName);
+        enableFlag = true;
+        return XR_SUCCESS;
+      }
     }
     enableFlag = false;
     return XR_ERROR_EXTENSION_NOT_PRESENT;
   };
 
-  // D3D11 extension is required so check that it was added.
-  XR_SUCCEED_OR_RETURN_LOG(AddExtIfSupported(XR_KHR_D3D11_ENABLE_EXTENSION_NAME, m_Extensions.m_bD3D11));
+  // Let the graphics binding add its required extension
+  XrResult graphicsExtResult = m_pGraphicsBinding->SelectExtension(extensions, extensionProperties);
+  if (graphicsExtResult != XR_SUCCESS)
+  {
+    m_pGraphicsBinding.Clear();
+    return graphicsExtResult;
+  }
 
   AddExtIfSupported(XR_KHR_COMPOSITION_LAYER_DEPTH_EXTENSION_NAME, m_Extensions.m_bDepthComposition);
   AddExtIfSupported(XR_MSFT_UNBOUNDED_REFERENCE_SPACE_EXTENSION_NAME, m_Extensions.m_bUnboundedReferenceSpace);
@@ -118,12 +137,6 @@ XrResult ezOpenXR::SelectExtensions(ezHybridArray<const char*, 6>& extensions)
   AddExtIfSupported(XR_EXT_DEBUG_UTILS_EXTENSION_NAME, m_Extensions.m_bDebugUtils);
 #endif
 
-#ifdef BUILDSYSTEM_ENABLE_OPENXR_REMOTING_SUPPORT
-  AddExtIfSupported(XR_MSFT_HOLOGRAPHIC_REMOTING_EXTENSION_NAME, m_Extensions.m_bRemoting);
-#endif
-
-#ifdef BUILDSYSTEM_ENABLE_OPENXR_PREVIEW_SUPPORT
-#endif
   return XR_SUCCESS;
 }
 
@@ -131,37 +144,48 @@ XrResult ezOpenXR::SelectLayers(ezHybridArray<const char*, 6>& layers)
 {
   ezUInt32 layerCount;
   XR_SUCCEED_OR_RETURN_LOG(xrEnumerateApiLayerProperties(0, &layerCount, nullptr));
-  std::vector<XrApiLayerProperties> layerProperties(layerCount, {XR_TYPE_API_LAYER_PROPERTIES});
-  XR_SUCCEED_OR_RETURN_LOG(xrEnumerateApiLayerProperties(layerCount, &layerCount, layerProperties.data()));
+  ezDynamicArray<XrApiLayerProperties> layerProperties;
+  layerProperties.SetCount(layerCount, {XR_TYPE_API_LAYER_PROPERTIES});
+  XR_SUCCEED_OR_RETURN_LOG(xrEnumerateApiLayerProperties(layerCount, &layerCount, layerProperties.GetData()));
 
-  // Add a specific extension to the list of extensions to be enabled, if it is supported.
-  auto AddExtIfSupported = [&](const char* layerName, bool& enableFlag) -> XrResult
+  // Add a specific layer to the list of layers to be enabled, if it is supported.
+  auto AddLayerIfSupported = [&](const char* layerName, bool& enableFlag) -> XrResult
   {
-    auto it = std::find_if(begin(layerProperties), end(layerProperties), [&](const XrApiLayerProperties& prop)
-      { return ezStringUtils::IsEqual(prop.layerName, layerName); });
-    if (it != end(layerProperties))
+    for (const XrApiLayerProperties& prop : layerProperties)
     {
-      layers.PushBack(layerName);
-      enableFlag = true;
-      return XR_SUCCESS;
+      if (ezStringUtils::IsEqual(prop.layerName, layerName))
+      {
+        layers.PushBack(layerName);
+        enableFlag = true;
+        return XR_SUCCESS;
+      }
     }
     enableFlag = false;
     return XR_ERROR_EXTENSION_NOT_PRESENT;
   };
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-  AddExtIfSupported("XR_APILAYER_LUNARG_core_validation", m_Extensions.m_bValidation);
+  AddLayerIfSupported("XR_APILAYER_LUNARG_core_validation", m_Extensions.m_bValidation);
 #endif
 
   return XR_SUCCESS;
 }
 
+
 #define EZ_GET_INSTANCE_PROC_ADDR(name) (void)xrGetInstanceProcAddr(m_pInstance, #name, reinterpret_cast<PFN_xrVoidFunction*>(&m_Extensions.pfn_##name));
 
-ezResult ezOpenXR::Initialize()
+ezResult ezOpenXR::InitInstance(ezGALDevice* pDevice)
 {
   if (m_pInstance != XR_NULL_HANDLE)
     return EZ_SUCCESS;
+
+  // Create the graphics binding based on the current renderer
+  m_pGraphicsBinding = ezOpenXRGraphicsBinding::Create(this, pDevice);
+  if (!m_pGraphicsBinding)
+  {
+    ezLog::Error("OpenXR: Failed to create graphics binding for current renderer");
+    return EZ_SUCCESS;
+  }
 
   // Build out the extensions to enable. Some extensions are required and some are optional.
   ezHybridArray<const char*, 6> enabledExtensions;
@@ -182,13 +206,13 @@ ezResult ezOpenXR::Initialize()
   ezStringUtils::Copy(createInfo.applicationInfo.applicationName, EZ_ARRAY_SIZE(createInfo.applicationInfo.applicationName), ezApplication::GetApplicationInstance()->GetApplicationName());
   ezStringUtils::Copy(createInfo.applicationInfo.engineName, EZ_ARRAY_SIZE(createInfo.applicationInfo.engineName), "ezEngine");
   createInfo.applicationInfo.engineVersion = 1;
-  createInfo.applicationInfo.apiVersion = XR_CURRENT_API_VERSION;
+  createInfo.applicationInfo.apiVersion = XR_API_VERSION_1_0;
   createInfo.applicationInfo.applicationVersion = 1;
   XrResult res = xrCreateInstance(&createInfo, &m_pInstance);
   if (res != XR_SUCCESS)
   {
     ezLog::Error("InitSystem xrCreateInstance failed: {}", res);
-    Deinitialize();
+    DeinitInstance();
     return EZ_FAILURE;
   }
   XrInstanceProperties instanceProperties{XR_TYPE_INSTANCE_PROPERTIES};
@@ -196,14 +220,14 @@ ezResult ezOpenXR::Initialize()
   if (res != XR_SUCCESS)
   {
     ezLog::Error("InitSystem xrGetInstanceProperties failed: {}", res);
-    Deinitialize();
+    DeinitInstance();
     return EZ_FAILURE;
   }
 
   ezStringBuilder sTemp;
   m_Info.m_sDeviceDriver = ezConversionUtils::ToString(instanceProperties.runtimeVersion, sTemp);
 
-  EZ_GET_INSTANCE_PROC_ADDR(xrGetD3D11GraphicsRequirementsKHR);
+  m_pGraphicsBinding->LoadFunctionPointers(m_pInstance);
 
   if (m_Extensions.m_bSpatialAnchor)
   {
@@ -233,38 +257,42 @@ ezResult ezOpenXR::Initialize()
   }
 #endif
 
-#ifdef BUILDSYSTEM_ENABLE_OPENXR_REMOTING_SUPPORT
-  if (m_Extensions.m_bRemoting)
-  {
-    EZ_GET_INSTANCE_PROC_ADDR(xrRemotingSetContextPropertiesMSFT);
-    EZ_GET_INSTANCE_PROC_ADDR(xrRemotingConnectMSFT);
-    EZ_GET_INSTANCE_PROC_ADDR(xrRemotingDisconnectMSFT);
-    EZ_GET_INSTANCE_PROC_ADDR(xrRemotingGetConnectionStateMSFT);
-  }
-#endif
+  ezLog::Success("OpenXR: {0} v{1} initialized successfully.", instanceProperties.runtimeName, instanceProperties.runtimeVersion);
+  return EZ_SUCCESS;
+}
 
+void ezOpenXR::DeinitInstance()
+{
+  m_pGraphicsBinding.Clear();
+
+  if (m_pInstance)
+  {
+    xrDestroyInstance(m_pInstance);
+    m_pInstance = XR_NULL_HANDLE;
+  }
+}
+
+ezResult ezOpenXR::Initialize()
+{
+  if (!m_pInstance)
+  {
+    ezLog::Error("OpenXR: Instance creation failed");
+    return EZ_FAILURE;
+  }
+  if (!m_SystemId)
+  {
+    ezLog::Error("OpenXR: system creation failed");
+    return EZ_FAILURE;
+  }
   m_pInput = EZ_DEFAULT_NEW(ezOpenXRInputDevice, this);
 
   m_ExecutionEventsId = ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.AddEventHandler(ezMakeDelegate(&ezOpenXR::GameApplicationEventHandler, this));
 
-  res = InitSystem();
-  if (res != XR_SUCCESS)
-  {
-    ezLog::Error("InitSystem failed: {}", res);
-    Deinitialize();
-    return EZ_FAILURE;
-  }
-
-  ezLog::Success("OpenXR {0} v{1} initialized successfully.", instanceProperties.runtimeName, instanceProperties.runtimeVersion);
   return EZ_SUCCESS;
 }
 
 void ezOpenXR::Deinitialize()
 {
-#ifdef BUILDSYSTEM_ENABLE_OPENXR_REMOTING_SUPPORT
-  m_pRemoting->Disconnect().IgnoreResult();
-#endif
-
   if (m_ExecutionEventsId != 0)
   {
     ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.RemoveEventHandler(m_ExecutionEventsId);
@@ -274,15 +302,7 @@ void ezOpenXR::Deinitialize()
   m_hSwapChain.Invalidate();
 
   DeinitSession();
-  DeinitSystem();
-
   m_pInput = nullptr;
-
-  if (m_pInstance)
-  {
-    xrDestroyInstance(m_pInstance);
-    m_pInstance = XR_NULL_HANDLE;
-  }
 }
 
 bool ezOpenXR::IsInitialized() const
@@ -371,16 +391,16 @@ void ezOpenXR::OnActorDestroyed()
   ezRenderWorld::RemoveMainView(m_hView);
   m_hView.Invalidate();
 
-  // #TODO_XR DestroySwapChain will only queue the destruction. We either need to flush it somehow or postpone DeinitSession.
-  ezGALDevice::GetDefaultDevice()->DestroySwapChain(m_hSwapChain);
+  pDevice->DestroySwapChain(m_hSwapChain);
   m_hSwapChain.Invalidate();
+  pDevice->WaitIdle();
 
   DeinitSession();
 }
 
 bool ezOpenXR::SupportsCompanionView()
 {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP) || EZ_ENABLED(EZ_PLATFORM_LINUX)
   return true;
 #else
   // E.g. on UWP OpenXR creates its own main window and other resources that conflict with our window.
@@ -392,6 +412,19 @@ bool ezOpenXR::SupportsCompanionView()
 XrSpace ezOpenXR::GetBaseSpace() const
 {
   return m_StageSpace == ezXRStageSpace::Standing ? m_pSceneSpace : m_pLocalSpace;
+}
+
+void ezOpenXR::OnEngineStartup()
+{
+  m_GALdeviceEventsId = ezGALDevice::s_Events.AddEventHandler(ezMakeDelegate(&ezOpenXR::GALDeviceEventHandler, this));
+}
+
+void ezOpenXR::OnEngineShutdown()
+{
+  if (m_GALdeviceEventsId != 0)
+  {
+    ezGALDevice::s_Events.RemoveEventHandler(m_GALdeviceEventsId);
+  }
 }
 
 XrResult ezOpenXR::InitSystem()
@@ -432,13 +465,20 @@ XrResult ezOpenXR::InitSession()
 
   XrSessionCreateInfo sessionCreateInfo{XR_TYPE_SESSION_CREATE_INFO};
   sessionCreateInfo.systemId = m_SystemId;
-  sessionCreateInfo.next = &m_XrGraphicsBindingD3D11;
+
+  // Set the graphics binding from the abstraction
+  if (!m_pGraphicsBinding)
+  {
+    ezLog::Error("No graphics binding available for OpenXR session");
+    return XrResult::XR_ERROR_GRAPHICS_DEVICE_INVALID;
+  }
+  sessionCreateInfo.next = m_pGraphicsBinding->GetGraphicsBinding();
 
   XR_SUCCEED_OR_CLEANUP_LOG(xrCreateSession(m_pInstance, &sessionCreateInfo, &m_pSession), DeinitSession);
 
   XrReferenceSpaceCreateInfo spaceCreateInfo{XR_TYPE_REFERENCE_SPACE_CREATE_INFO};
   spaceCreateInfo.referenceSpaceType = XR_REFERENCE_SPACE_TYPE_STAGE;
-  spaceCreateInfo.poseInReferenceSpace = ConvertTransform(ezTransform::MakeIdentity());
+  spaceCreateInfo.poseInReferenceSpace = ezOpenXRConversionUtils::ConvertTransform(ezTransform::MakeIdentity());
   XR_SUCCEED_OR_CLEANUP_LOG(xrCreateReferenceSpace(m_pSession, &spaceCreateInfo, &m_pSceneSpace), DeinitSession);
 
   spaceCreateInfo.referenceSpaceType = XR_REFERENCE_SPACE_TYPE_LOCAL;
@@ -447,7 +487,7 @@ XrResult ezOpenXR::InitSession()
   XR_SUCCEED_OR_CLEANUP_LOG(m_pInput->CreateActions(m_pSession, m_pSceneSpace), DeinitSession);
   XR_SUCCEED_OR_CLEANUP_LOG(m_pInput->AttachSessionActionSets(m_pSession), DeinitSession);
 
-  m_GALdeviceEventsId = ezGALDevice::s_Events.AddEventHandler(ezMakeDelegate(&ezOpenXR::GALDeviceEventHandler, this));
+  m_RenderWorldEventId = ezRenderWorld::GetRenderEvent().AddEventHandler(ezMakeDelegate(&ezOpenXR::OnRenderWorldEvent, this));
 
   SetStageSpace(ezXRStageSpace::Standing);
   if (m_Extensions.m_bSpatialAnchor)
@@ -472,9 +512,10 @@ void ezOpenXR::DeinitSession()
 
   m_pHandTracking = nullptr;
   m_pAnchors = nullptr;
-  if (m_GALdeviceEventsId != 0)
+
+  if (m_RenderWorldEventId != 0)
   {
-    ezGALDevice::s_Events.RemoveEventHandler(m_GALdeviceEventsId);
+    ezRenderWorld::GetRenderEvent().RemoveEventHandler(m_RenderWorldEventId);
   }
 
   if (m_pSceneSpace)
@@ -504,21 +545,30 @@ void ezOpenXR::DeinitSession()
 
 XrResult ezOpenXR::InitGraphicsPlugin()
 {
-  EZ_ASSERT_DEV(m_XrGraphicsBindingD3D11.device == nullptr, "");
-  // Hard-coded to d3d
-  XrGraphicsRequirementsD3D11KHR graphicsRequirements{XR_TYPE_GRAPHICS_REQUIREMENTS_D3D11_KHR};
-  XR_SUCCEED_OR_CLEANUP_LOG(m_Extensions.pfn_xrGetD3D11GraphicsRequirementsKHR(m_pInstance, m_SystemId, &graphicsRequirements), DeinitGraphicsPlugin);
+  if (!m_pGraphicsBinding)
+  {
+    ezLog::Error("No graphics binding available");
+    return XR_ERROR_GRAPHICS_DEVICE_INVALID;
+  }
+
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  ezGALDeviceDX11* pD3dDevice = static_cast<ezGALDeviceDX11*>(pDevice);
+  XrResult result = m_pGraphicsBinding->Initialize(m_pInstance, m_SystemId, pDevice);
+  if (result != XR_SUCCESS)
+  {
+    ezLog::Error("Failed to initialize graphics binding: {}", (int)result);
+    return result;
+  }
 
-  m_XrGraphicsBindingD3D11.device = pD3dDevice->GetDXDevice();
-
-  return XrResult::XR_SUCCESS;
+  ezLog::Info("OpenXR graphics binding initialized: {}", m_pGraphicsBinding->GetName());
+  return XR_SUCCESS;
 }
 
 void ezOpenXR::DeinitGraphicsPlugin()
 {
-  m_XrGraphicsBindingD3D11.device = nullptr;
+  if (m_pGraphicsBinding)
+  {
+    m_pGraphicsBinding->Deinitialize();
+  }
 }
 
 XrResult ezOpenXR::InitDebugMessenger()
@@ -568,9 +618,6 @@ void ezOpenXR::BeforeUpdatePlugins()
 
   while (xrPollEvent(m_pInstance, &event) == XR_SUCCESS)
   {
-#ifdef BUILDSYSTEM_ENABLE_OPENXR_REMOTING_SUPPORT
-    m_pRemoting->HandleEvent(event);
-#endif
     switch (event.type)
     {
       case XR_TYPE_EVENT_DATA_INTERACTION_PROFILE_CHANGED:
@@ -714,7 +761,7 @@ void ezOpenXR::UpdatePoses()
 
   for (ezUInt32 uiEyeIndex : {0, 1})
   {
-    ezQuat rot = ConvertOrientation(m_Views[uiEyeIndex].pose.orientation);
+    ezQuat rot = ezOpenXRConversionUtils::ConvertOrientation(m_Views[uiEyeIndex].pose.orientation);
     if (!rot.IsValid())
     {
       m_Views[uiEyeIndex].pose.orientation = XrQuaternionf{0, 0, 0, 1};
@@ -780,8 +827,8 @@ void ezOpenXR::UpdateCamera()
     if (m_pInput->m_DeviceState[0].m_bGripPoseIsValid)
     {
       // Update device state (average of both eyes).
-      const ezQuat rot = ezQuat::MakeSlerp(ConvertOrientation(m_Views[0].pose.orientation), ConvertOrientation(m_Views[1].pose.orientation), 0.5f);
-      const ezVec3 pos = ezMath::Lerp(ConvertPosition(m_Views[0].pose.position), ConvertPosition(m_Views[1].pose.position), 0.5f);
+      const ezQuat rot = ezQuat::MakeSlerp(ezOpenXRConversionUtils::ConvertOrientation(m_Views[0].pose.orientation), ezOpenXRConversionUtils::ConvertOrientation(m_Views[1].pose.orientation), 0.5f);
+      const ezVec3 pos = ezMath::Lerp(ezOpenXRConversionUtils::ConvertPosition(m_Views[0].pose.position), ezOpenXRConversionUtils::ConvertPosition(m_Views[1].pose.position), 0.5f);
 
       m_pInput->m_DeviceState[0].m_vGripPosition = pos;
       m_pInput->m_DeviceState[0].m_qGripRotation = rot;
@@ -797,8 +844,8 @@ void ezOpenXR::UpdateCamera()
     if (m_pInput->m_DeviceState[0].m_bGripPoseIsValid)
     {
       const ezMat4 mStageTransform = add.GetAsMat4();
-      const ezMat4 poseLeft = mStageTransform * ConvertPoseToMatrix(m_Views[0].pose);
-      const ezMat4 poseRight = mStageTransform * ConvertPoseToMatrix(m_Views[1].pose);
+      const ezMat4 poseLeft = mStageTransform * ezOpenXRConversionUtils::ConvertPoseToMatrix(m_Views[0].pose);
+      const ezMat4 poseRight = mStageTransform * ezOpenXRConversionUtils::ConvertPoseToMatrix(m_Views[1].pose);
 
       // EZ Forward is +X, need to add this to align the forward projection
       const ezMat4 viewMatrix = ezGraphicsUtils::CreateLookAtViewMatrix(ezVec3::MakeZero(), ezVec3(1, 0, 0), ezVec3(0, 0, 1));
@@ -832,8 +879,13 @@ void ezOpenXR::BeginFrame()
     EZ_PROFILE_SCOPE("xrBeginFrame");
     m_FrameBeginInfo = XrFrameBeginInfo{XR_TYPE_FRAME_BEGIN_INFO};
     XrResult result = xrBeginFrame(m_pSession, &m_FrameBeginInfo);
-    if (result != XR_SUCCESS)
+    if (result == XR_FRAME_DISCARDED)
     {
+      ezLog::Error("OpenXR call '{0}' failed with: XR_FRAME_DISCARDED", "xrBeginFrame");
+    }
+    else if (result != XR_SUCCESS)
+    {
+      ezLog::Error("OpenXR call '{0}' failed with: {1}", "xrBeginFrame", (int)result);
       m_bRenderInProgress = false;
       return;
     }
@@ -858,19 +910,8 @@ void ezOpenXR::BeginFrame()
   m_bRenderInProgress = true;
 }
 
-void ezOpenXR::DelayPresent()
+void ezOpenXR::EndRender()
 {
-  EZ_ASSERT_DEBUG(!m_bPresentDelayed, "Last present was not flushed");
-  m_bPresentDelayed = true;
-}
-
-void ezOpenXR::Present()
-{
-  if (!m_bPresentDelayed)
-    return;
-
-  m_bPresentDelayed = false;
-
   const ezGALOpenXRSwapChain* pSwapChain = static_cast<const ezGALOpenXRSwapChain*>(ezGALDevice::GetDefaultDevice()->GetSwapChain(m_hSwapChain));
   if (!m_bRenderInProgress || !pSwapChain)
     return;
@@ -878,7 +919,6 @@ void ezOpenXR::Present()
   if (m_pCompanion)
   {
     m_pCompanion->CompanionViewEndFrame();
-    pSwapChain->PresentRenderTarget();
   }
 }
 
@@ -948,15 +988,45 @@ void ezOpenXR::EndFrame()
 
 void ezOpenXR::GALDeviceEventHandler(const ezGALDeviceEvent& e)
 {
+  if (e.m_Type == ezGALDeviceEvent::Type::BeforeInit)
+  {
+    if (InitInstance(e.m_pDevice).Failed())
+    {
+      ezLog::Error("OpenXR: InitInstance failed");
+      return;
+    }
+    XrResult res = InitSystem();
+    if (res != XR_SUCCESS)
+    {
+      ezLog::Error("OpenXR: InitSystem failed: {}", res);
+      return;
+    }
+  }
+  else if (e.m_Type == ezGALDeviceEvent::Type::AfterShutdown)
+  {
+    DeinitSystem();
+    DeinitInstance();
+  }
+
+  if (!m_pSession)
+    return;
+
   // Begin frame and end frame need to be encompassing all workload, XR and otherwise as xrWaitFrame will use this time interval to decide when to wake up the application.
   if (e.m_Type == ezGALDeviceEvent::Type::BeforeBeginFrame)
   {
     BeginFrame();
   }
-  else if (e.m_Type == ezGALDeviceEvent::Type::BeforeEndFrame)
+  else if (e.m_Type == ezGALDeviceEvent::Type::AfterEndFrame)
   {
-    Present();
     EndFrame();
+  }
+}
+
+void ezOpenXR::OnRenderWorldEvent(const ezRenderWorldRenderEvent& e)
+{
+  if (e.m_Type == ezRenderWorldRenderEvent::Type::EndRender)
+  {
+    EndRender();
   }
 }
 
@@ -998,58 +1068,4 @@ ezWorld* ezOpenXR::GetWorld()
     return pView->GetWorld();
   }
   return nullptr;
-}
-
-XrPosef ezOpenXR::ConvertTransform(const ezTransform& tr)
-{
-  XrPosef pose;
-  pose.orientation = ConvertOrientation(tr.m_qRotation);
-  pose.position = ConvertPosition(tr.m_vPosition);
-  return pose;
-}
-
-XrQuaternionf ezOpenXR::ConvertOrientation(const ezQuat& q)
-{
-  return {q.y, q.z, -q.x, -q.w};
-}
-
-XrVector3f ezOpenXR::ConvertPosition(const ezVec3& vPos)
-{
-  return {vPos.y, vPos.z, -vPos.x};
-}
-
-ezQuat ezOpenXR::ConvertOrientation(const XrQuaternionf& q)
-{
-  return {-q.z, q.x, q.y, -q.w};
-}
-
-ezVec3 ezOpenXR::ConvertPosition(const XrVector3f& pos)
-{
-  return {-pos.z, pos.x, pos.y};
-}
-
-ezMat4 ezOpenXR::ConvertPoseToMatrix(const XrPosef& pose)
-{
-  ezMat4 m;
-  ezMat3 rot = ConvertOrientation(pose.orientation).GetAsMat3();
-  ezVec3 pos = ConvertPosition(pose.position);
-  m.SetTransformationMatrix(rot, pos);
-  return m;
-}
-
-ezGALResourceFormat::Enum ezOpenXR::ConvertTextureFormat(int64_t format)
-{
-  switch (format)
-  {
-    case DXGI_FORMAT_D32_FLOAT:
-      return ezGALResourceFormat::DFloat;
-    case DXGI_FORMAT_D16_UNORM:
-      return ezGALResourceFormat::D16;
-    case DXGI_FORMAT_D24_UNORM_S8_UINT:
-      return ezGALResourceFormat::D24S8;
-    default:
-      ezImageFormat::Enum imageFormat = ezImageFormatMappings::FromDxgiFormat(static_cast<ezUInt32>(format));
-      ezGALResourceFormat::Enum galFormat = ezTextureUtils::ImageFormatToGalFormat(imageFormat, false);
-      return galFormat;
-  }
 }

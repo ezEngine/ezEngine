@@ -15,11 +15,16 @@
 class ezOpenXRInputDevice;
 class ezOpenXRSpatialAnchors;
 class ezOpenXRHandTracking;
+class ezOpenXRGraphicsBinding;
 class ezWindowOutputTargetXR;
 struct ezGameApplicationExecutionEvent;
+struct ezRenderWorldRenderEvent;
+class ezGALDevice;
 
 EZ_DEFINE_AS_POD_TYPE(XrViewConfigurationView);
 EZ_DEFINE_AS_POD_TYPE(XrEnvironmentBlendMode);
+EZ_DEFINE_AS_POD_TYPE(XrExtensionProperties);
+EZ_DEFINE_AS_POD_TYPE(XrApiLayerProperties);
 
 class EZ_OPENXRPLUGIN_DLL ezOpenXR : public ezXRInterface
 {
@@ -35,6 +40,9 @@ public:
   XrViewConfigurationType GetViewType() const { return m_PrimaryViewConfigurationType; }
   bool GetDepthComposition() const;
 
+  /// \brief Returns the graphics binding interface (D3D11, Vulkan, etc.)
+  ezOpenXRGraphicsBinding* GetGraphicsBinding() const { return m_pGraphicsBinding.Borrow(); }
+
   virtual bool IsHmdPresent() const override;
 
   virtual ezResult Initialize() override;
@@ -46,10 +54,6 @@ public:
 
   virtual ezGALTextureHandle GetCurrentTexture() override;
 
-  void DelayPresent();
-  void Present();
-  void EndFrame();
-
   virtual ezRegisteredWndHandle CreateXRWindow(ezView* pView, ezGALMSAASampleCount::Enum msaaCount = ezGALMSAASampleCount::None,
     ezUniquePtr<ezWindowBase> pCompanionWindow = nullptr, ezUniquePtr<ezWindowOutputTargetGAL> pCompanionWindowOutput = nullptr) override;
   virtual void OnActorDestroyed() override;
@@ -58,8 +62,14 @@ public:
   XrSpace GetBaseSpace() const;
 
 private:
+  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererFoundation, OpenXR);
+
+  void OnEngineStartup();
+  void OnEngineShutdown();
   XrResult SelectExtensions(ezHybridArray<const char*, 6>& extensions);
   XrResult SelectLayers(ezHybridArray<const char*, 6>& layers);
+  ezResult InitInstance(ezGALDevice* pDevice);
+  void DeinitInstance();
   XrResult InitSystem();
   void DeinitSystem();
   XrResult InitSession();
@@ -71,25 +81,19 @@ private:
 
   void GameApplicationEventHandler(const ezGameApplicationExecutionEvent& e);
   void GALDeviceEventHandler(const ezGALDeviceEvent& e);
+  void OnRenderWorldEvent(const ezRenderWorldRenderEvent& e);
 
   void BeforeUpdatePlugins();
   void UpdatePoses();
   void UpdateCamera();
   void BeginFrame();
+  void EndRender();
+  void EndFrame();
 
   void SetStageSpace(ezXRStageSpace::Enum space);
   void SetHMDCamera(ezCamera* pCamera);
 
   ezWorld* GetWorld();
-
-public:
-  static XrPosef ConvertTransform(const ezTransform& tr);
-  static XrQuaternionf ConvertOrientation(const ezQuat& q);
-  static XrVector3f ConvertPosition(const ezVec3& vPos);
-  static ezQuat ConvertOrientation(const XrQuaternionf& q);
-  static ezVec3 ConvertPosition(const XrVector3f& pos);
-  static ezMat4 ConvertPoseToMatrix(const XrPosef& pose);
-  static ezGALResourceFormat::Enum ConvertTextureFormat(int64_t format);
 
 private:
   friend class ezOpenXRInputDevice;
@@ -102,49 +106,35 @@ private:
   {
     bool m_bValidation = false;
     bool m_bDebugUtils = false;
-    PFN_xrCreateDebugUtilsMessengerEXT pfn_xrCreateDebugUtilsMessengerEXT;
-    PFN_xrDestroyDebugUtilsMessengerEXT pfn_xrDestroyDebugUtilsMessengerEXT;
-
-    bool m_bD3D11 = false;
-    PFN_xrGetD3D11GraphicsRequirementsKHR pfn_xrGetD3D11GraphicsRequirementsKHR;
+    PFN_xrCreateDebugUtilsMessengerEXT pfn_xrCreateDebugUtilsMessengerEXT = nullptr;
+    PFN_xrDestroyDebugUtilsMessengerEXT pfn_xrDestroyDebugUtilsMessengerEXT = nullptr;
 
     bool m_bDepthComposition = false;
 
     bool m_bUnboundedReferenceSpace = false;
 
     bool m_bSpatialAnchor = false;
-    PFN_xrCreateSpatialAnchorMSFT pfn_xrCreateSpatialAnchorMSFT;
-    PFN_xrCreateSpatialAnchorSpaceMSFT pfn_xrCreateSpatialAnchorSpaceMSFT;
-    PFN_xrDestroySpatialAnchorMSFT pfn_xrDestroySpatialAnchorMSFT;
+    PFN_xrCreateSpatialAnchorMSFT pfn_xrCreateSpatialAnchorMSFT = nullptr;
+    PFN_xrCreateSpatialAnchorSpaceMSFT pfn_xrCreateSpatialAnchorSpaceMSFT = nullptr;
+    PFN_xrDestroySpatialAnchorMSFT pfn_xrDestroySpatialAnchorMSFT = nullptr;
 
     bool m_bHandInteraction = false;
 
     bool m_bHandTracking = false;
-    PFN_xrCreateHandTrackerEXT pfn_xrCreateHandTrackerEXT;
-    PFN_xrDestroyHandTrackerEXT pfn_xrDestroyHandTrackerEXT;
-    PFN_xrLocateHandJointsEXT pfn_xrLocateHandJointsEXT;
+    PFN_xrCreateHandTrackerEXT pfn_xrCreateHandTrackerEXT = nullptr;
+    PFN_xrDestroyHandTrackerEXT pfn_xrDestroyHandTrackerEXT = nullptr;
+    PFN_xrLocateHandJointsEXT pfn_xrLocateHandJointsEXT = nullptr;
 
     bool m_bHandTrackingMesh = false;
-    PFN_xrCreateHandMeshSpaceMSFT pfn_xrCreateHandMeshSpaceMSFT;
-    PFN_xrUpdateHandMeshMSFT pfn_xrUpdateHandMeshMSFT;
+    PFN_xrCreateHandMeshSpaceMSFT pfn_xrCreateHandMeshSpaceMSFT = nullptr;
+    PFN_xrUpdateHandMeshMSFT pfn_xrUpdateHandMeshMSFT = nullptr;
 
     bool m_bHolographicWindowAttachment = false;
-
-    bool m_bRemoting = false;
-#ifdef BUILDSYSTEM_ENABLE_OPENXR_REMOTING_SUPPORT
-    PFN_xrRemotingSetContextPropertiesMSFT pfn_xrRemotingSetContextPropertiesMSFT;
-    PFN_xrRemotingConnectMSFT pfn_xrRemotingConnectMSFT;
-    PFN_xrRemotingDisconnectMSFT pfn_xrRemotingDisconnectMSFT;
-    PFN_xrRemotingGetConnectionStateMSFT pfn_xrRemotingGetConnectionStateMSFT;
-#endif
   };
 
   // Instance
   XrInstance m_pInstance = XR_NULL_HANDLE;
   Extensions m_Extensions;
-#ifdef BUILDSYSTEM_ENABLE_OPENXR_REMOTING_SUPPORT
-  ezUniquePtr<class ezOpenXRRemoting> m_pRemoting;
-#endif
 
   // System
   uint64_t m_SystemId = XR_NULL_SYSTEM_ID;
@@ -156,11 +146,12 @@ private:
   ezEventSubscriptionID m_ExecutionEventsId = 0;
   ezEventSubscriptionID m_BeginRenderEventsId = 0;
   ezEventSubscriptionID m_GALdeviceEventsId = 0;
+  ezEventSubscriptionID m_RenderWorldEventId = 0;
   XrDebugUtilsMessengerEXT m_pDebugMessenger = XR_NULL_HANDLE;
 
-  // Graphics plugin
+  // Graphics binding (abstracts D3D11, Vulkan, etc.)
   XrEnvironmentBlendMode m_BlendMode = XR_ENVIRONMENT_BLEND_MODE_OPAQUE;
-  XrGraphicsBindingD3D11KHR m_XrGraphicsBindingD3D11{XR_TYPE_GRAPHICS_BINDING_D3D11_KHR};
+  ezUniquePtr<ezOpenXRGraphicsBinding> m_pGraphicsBinding;
   XrFormFactor m_FormFactor{XR_FORM_FACTOR_HEAD_MOUNTED_DISPLAY};
   XrViewConfigurationType m_PrimaryViewConfigurationType{XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO};
 
@@ -197,5 +188,4 @@ private:
   ezViewHandle m_hView;
 
   ezWindowOutputTargetXR* m_pCompanion = nullptr;
-  bool m_bPresentDelayed = false;
 };

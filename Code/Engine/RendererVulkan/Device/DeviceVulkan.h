@@ -120,9 +120,6 @@ public:
 
     bool m_bDebugUtils = false;
     bool m_bDebugUtilsMarkers = false;
-    PFN_vkCreateDebugUtilsMessengerEXT pfn_vkCreateDebugUtilsMessengerEXT = nullptr;
-    PFN_vkDestroyDebugUtilsMessengerEXT pfn_vkDestroyDebugUtilsMessengerEXT = nullptr;
-    PFN_vkSetDebugUtilsObjectNameEXT pfn_vkSetDebugUtilsObjectNameEXT = nullptr;
 
     bool m_bDeviceSwapChain = false;
     bool m_bShaderViewportIndexLayer = false;
@@ -136,6 +133,7 @@ public:
 
     bool m_bExternalMemoryCapabilities = false;
     bool m_bExternalSemaphoreCapabilities = false;
+    bool m_bExternalFenceCapabilities = false;
 
     bool m_bExternalMemory = false;
     bool m_bExternalSemaphore = false;
@@ -145,6 +143,8 @@ public:
 
     bool m_bExternalMemoryWin32 = false;
     bool m_bExternalSemaphoreWin32 = false;
+
+    bool m_bPhysicalDeviceProperties2 = false;
   };
 
   struct Queue
@@ -160,7 +160,7 @@ public:
   const Queue& GetTransferQueue() const;
 
   vk::PhysicalDevice GetVulkanPhysicalDevice() const;
-  const vk::PhysicalDeviceProperties& GetPhysicalDeviceProperties() const { return m_properties; }
+  EZ_ALWAYS_INLINE const vk::PhysicalDeviceProperties& GetPhysicalDeviceProperties() const { return m_properties.properties; }
   const Extensions& GetExtensions() const { return m_extensions; }
   const ezVulkanDispatchContext& GetDispatchContext() const { return m_dispatchContext; }
   vk::PipelineStageFlags GetSupportedStages() const;
@@ -295,8 +295,8 @@ public:
 protected:
   // Init & shutdown functions
 
-  vk::Result SelectInstanceExtensions(ezHybridArray<const char*, 6>& extensions);
-  vk::Result SelectDeviceExtensions(vk::DeviceCreateInfo& deviceCreateInfo, ezHybridArray<const char*, 6>& extensions);
+  vk::Result SelectInstanceExtensions(ezDynamicArray<ezString>& extensions);
+  vk::Result SelectDeviceExtensions(vk::DeviceCreateInfo& deviceCreateInfo, ezDynamicArray<ezString>& extensions);
 
   virtual ezStringView GetRendererPlatform() override;
   virtual ezResult InitPlatform() override;
@@ -427,7 +427,7 @@ private:
 
   vk::Instance m_instance;
   vk::PhysicalDevice m_physicalDevice;
-  vk::PhysicalDeviceProperties m_properties;
+  vk::PhysicalDeviceProperties2 m_properties;
   vk::Device m_device;
   Queue m_graphicsQueue;
   Queue m_transferQueue;
@@ -463,7 +463,7 @@ private:
   Extensions m_extensions;
   ezVulkanDispatchContext m_dispatchContext;
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  VkDebugUtilsMessengerEXT m_debugMessenger = VK_NULL_HANDLE;
+  vk::DebugUtilsMessengerEXT m_debugMessenger = nullptr;
 #endif
   ezHybridArray<SemaphoreInfo, 3> m_waitSemaphores;
   ezHybridArray<SemaphoreInfo, 3> m_signalSemaphores;

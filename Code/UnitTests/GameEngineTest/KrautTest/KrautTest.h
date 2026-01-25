@@ -4,7 +4,7 @@
 
 #include "../TestClass/TestClass.h"
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP) || EZ_ENABLED(EZ_PLATFORM_LINUX)
 
 class ezGameEngineTestKraut : public ezGameEngineTest
 {

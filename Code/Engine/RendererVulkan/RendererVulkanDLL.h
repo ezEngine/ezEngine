@@ -11,13 +11,20 @@
 #  define VK_USE_PLATFORM_WIN32_KHR
 #elif EZ_ENABLED(EZ_PLATFORM_LINUX)
 #  define VK_USE_PLATFORM_XCB_KHR
+#  include <xcb/xcb.h>
+
+#  include <vulkan/vulkan_core.h>
+#  include <vulkan/vulkan_xcb.h>
 #elif EZ_ENABLED(EZ_PLATFORM_ANDROID)
 #  define VK_USE_PLATFORM_ANDROID_KHR
 #endif
 
 #define VULKAN_HPP_NO_NODISCARD_WARNINGS // TODO: temporarily disable warnings to make it compile. Need to fix all the warnings later.
 
-#define VULKAN_HPP_DISPATCH_LOADER_DYNAMIC 1
+#if EZ_ENABLED(EZ_VULKAN_DYNAMIC_DISPATCH)
+#  define VULKAN_HPP_DISPATCH_LOADER_DYNAMIC 1
+#endif
+
 #include <vulkan/vulkan.hpp>
 
 #if EZ_ENABLED(EZ_PLATFORM_ANDROID)
@@ -39,16 +46,6 @@
 
 // Uncomment to log all layout transitions.
 // #define VK_LOG_LAYOUT_CHANGES
-
-#define EZ_GAL_VULKAN_RELEASE(vulkanObj) \
-  do                                     \
-  {                                      \
-    if ((vulkanObj) != nullptr)          \
-    {                                    \
-      (vulkanObj)->Release();            \
-      (vulkanObj) = nullptr;             \
-    }                                    \
-  } while (0)
 
 #define VK_ASSERT_DEBUG(code)                                                                                           \
   do                                                                                                                    \
