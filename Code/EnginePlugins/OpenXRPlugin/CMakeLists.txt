@@ -1,6 +1,7 @@
 ez_cmake_init()
 
 ez_requires(EZ_BUILD_OPENXR)
+ez_requires_assimp()
 
 # Get the name of this folder as the project name
 get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
@@ -11,6 +12,9 @@ target_link_libraries(${PROJECT_NAME}
   PUBLIC
   GameEngine
   OpenXR
+
+  PRIVATE
+  assimp
 )
 
 # Link Vulkan support if available (for RendererVulkan integration)

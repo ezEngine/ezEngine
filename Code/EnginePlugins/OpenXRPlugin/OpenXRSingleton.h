@@ -17,6 +17,7 @@ class ezOpenXRSpatialAnchors;
 class ezOpenXRHandTracking;
 class ezOpenXRGraphicsBinding;
 class ezWindowOutputTargetXR;
+class ezOpenXRRenderModelManager;
 struct ezGameApplicationExecutionEvent;
 struct ezRenderWorldRenderEvent;
 
@@ -93,6 +94,7 @@ private:
   friend class ezOpenXRSpatialAnchors;
   friend class ezOpenXRHandTracking;
   friend class ezOpenXRRemoting;
+  friend class ezOpenXRRenderModelManager;
   friend class ezGALOpenXRSwapChain;
 
   struct Extensions
@@ -123,6 +125,10 @@ private:
     PFN_xrUpdateHandMeshMSFT pfn_xrUpdateHandMeshMSFT = nullptr;
 
     bool m_bHolographicWindowAttachment = false;
+
+    bool m_bExtUuid = false;
+    bool m_bExtRenderModel = false;
+    bool m_bExtInteractionRenderModel = false;
   };
 
   // Instance
@@ -175,6 +181,7 @@ private:
   mutable ezUniquePtr<ezOpenXRInputDevice> m_pInput;
   ezUniquePtr<ezOpenXRSpatialAnchors> m_pAnchors;
   ezUniquePtr<ezOpenXRHandTracking> m_pHandTracking;
+  ezUniquePtr<ezOpenXRRenderModelManager> m_pRenderModelManager;
 
   ezCamera* m_pCameraToSynchronize = nullptr;
   ezEnum<ezXRStageSpace> m_StageSpace;

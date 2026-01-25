@@ -36,3 +36,12 @@ EZ_ALWAYS_INLINE ezMat4 ezOpenXRConversionUtils::ConvertPoseToMatrix(const XrPos
   m.SetTransformationMatrix(rot, pos);
   return m;
 }
+
+EZ_ALWAYS_INLINE ezTransform ezOpenXRConversionUtils::ConvertPoseToTransform(const XrPosef& pose)
+{
+  ezTransform tr;
+  tr.m_qRotation = ConvertOrientation(pose.orientation);
+  tr.m_vPosition = ConvertPosition(pose.position);
+  tr.m_vScale = ezVec3(1.0f);
+  return tr;
+}

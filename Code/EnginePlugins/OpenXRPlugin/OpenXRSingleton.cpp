@@ -12,7 +12,9 @@
 #include <OpenXRPlugin/OpenXRDeclarations.h>
 #include <OpenXRPlugin/OpenXRSingleton.h>
 #include <OpenXRPlugin/OpenXRSpatialAnchors.h>
+#include <OpenXRPlugin/RenderModels/OpenXRRenderModelManager.h>
 #include <OpenXRPlugin/Utils/OpenXRConversionUtils.h>
+
 #include <RendererCore/Components/CameraComponent.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
@@ -120,6 +122,10 @@ XrResult ezOpenXR::SelectExtensions(ezHybridArray<const char*, 6>& extensions)
   AddExtIfSupported(XR_EXT_HAND_TRACKING_EXTENSION_NAME, m_Extensions.m_bHandTracking);
   AddExtIfSupported(XR_MSFT_HAND_INTERACTION_EXTENSION_NAME, m_Extensions.m_bHandInteraction);
   AddExtIfSupported(XR_MSFT_HAND_TRACKING_MESH_EXTENSION_NAME, m_Extensions.m_bHandTrackingMesh);
+  AddExtIfSupported(XR_EXT_RENDER_MODEL_EXTENSION_NAME, m_Extensions.m_bExtRenderModel);
+  AddExtIfSupported(XR_EXT_INTERACTION_RENDER_MODEL_EXTENSION_NAME, m_Extensions.m_bExtInteractionRenderModel);
+  AddExtIfSupported(XR_EXT_UUID_EXTENSION_NAME, m_Extensions.m_bExtUuid);
+
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   AddExtIfSupported(XR_EXT_DEBUG_UTILS_EXTENSION_NAME, m_Extensions.m_bDebugUtils);
@@ -153,7 +159,7 @@ XrResult ezOpenXR::SelectLayers(ezHybridArray<const char*, 6>& layers)
   };
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-  AddLayerIfSupported("XR_APILAYER_LUNARG_core_validation", m_Extensions.m_bValidation);
+ // AddLayerIfSupported("XR_APILAYER_LUNARG_core_validation", m_Extensions.m_bValidation);
 #endif
 
   return XR_SUCCESS;
@@ -241,6 +247,7 @@ ezResult ezOpenXR::Initialize()
 #endif
 
   m_pInput = EZ_DEFAULT_NEW(ezOpenXRInputDevice, this);
+  m_pRenderModelManager = EZ_DEFAULT_NEW(ezOpenXRRenderModelManager, this);
 
   m_ExecutionEventsId = ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.AddEventHandler(ezMakeDelegate(&ezOpenXR::GameApplicationEventHandler, this));
 
@@ -269,6 +276,8 @@ void ezOpenXR::Deinitialize()
   DeinitSession();
   DeinitSystem();
 
+
+  m_pRenderModelManager = nullptr;
   m_pInput = nullptr;
 
   // Cleanup graphics binding
@@ -462,11 +471,16 @@ XrResult ezOpenXR::InitSession()
   {
     m_pHandTracking = EZ_DEFAULT_NEW(ezOpenXRHandTracking, this);
   }
+  m_pRenderModelManager->Initialize(m_pSession);
+
   return XrResult::XR_SUCCESS;
 }
 
 void ezOpenXR::DeinitSession()
 {
+  if (m_pRenderModelManager)
+    m_pRenderModelManager->Deinitialize();
+
   m_pCompanion = nullptr;
   m_bSessionRunning = false;
   m_bExitRenderLoop = false;

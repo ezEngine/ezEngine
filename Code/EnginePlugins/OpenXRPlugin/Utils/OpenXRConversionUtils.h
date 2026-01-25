@@ -18,6 +18,7 @@ public:
   static ezQuat ConvertOrientation(const XrQuaternionf& q);
   static ezVec3 ConvertPosition(const XrVector3f& pos);
   static ezMat4 ConvertPoseToMatrix(const XrPosef& pose);
+  static ezTransform ConvertPoseToTransform(const XrPosef& pose);
 };
 
 #include <OpenXRPlugin/Utils/Implementation/OpenXRConversionUtils.inl.h>
