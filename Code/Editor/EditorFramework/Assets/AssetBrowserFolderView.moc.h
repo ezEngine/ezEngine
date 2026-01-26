@@ -3,6 +3,7 @@
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <ToolsFoundation/FileSystem/FileSystemModel.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
+#include <Foundation/Types/SharedPtr.h>
 
 #include <QItemDelegate>
 #include <QTreeWidget>
@@ -90,16 +91,27 @@ private:
   void BuildDirectoryTree(const ezDataDirPath& path, ezStringView sCurPath, QTreeWidgetItem* pParent, ezStringView sCurPathToItem, bool bIsHidden);
   void RemoveDirectoryTreeItem(ezStringView sCurPath, QTreeWidgetItem* pParent, ezStringView sCurPathToItem);
   QTreeWidgetItem* FindDirectoryTreeItem(ezStringView sCurPath, QTreeWidgetItem* pParent, ezStringView sCurPathToItem);
-  void FileSystemModelFolderEventHandler(const ezFolderChangedEvent& e);
   void ProjectEventHandler(const ezToolsProjectEvent& e);
 
 private:
+  // Shared object as the event handler can be called after this object is destroyed due to the use of ezCopyOnBroadcastEvent in ezFileSystemModel.
+  // This is the only way to prevent race conditions and allow safe add/remove calls to multithreaded event broadcasters.
+  class QueuedFolderEvents : public ezRefCounted
+  {
+  public:
+    void FileSystemModelFolderEventHandler(const ezFolderChangedEvent& e);
+
+    ezMutex m_FolderStructureMutex;
+    eqQtAssetBrowserFolderView* m_pParent = nullptr;
+    ezHybridArray<ezFolderChangedEvent, 2> m_Events;
+  };
+
   bool m_bDialogMode = false;
   ezUInt32 m_uiKnownAssetFolderCount = 0;
   bool m_bTreeSelectionChangeInProgress = false;
 
   ezQtAssetBrowserFilter* m_pFilter = nullptr;
+  ezSharedPtr<QueuedFolderEvents> m_pFolderEvents;
 
-  ezMutex m_FolderStructureMutex;
-  ezHybridArray<ezFolderChangedEvent, 2> m_QueuedFolderEvents;
+  ezEventSubscriptionID m_FolderChangedSubscription = 0;
 };

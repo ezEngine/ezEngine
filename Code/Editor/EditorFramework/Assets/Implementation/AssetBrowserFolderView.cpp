@@ -81,7 +81,11 @@ eqQtAssetBrowserFolderView::eqQtAssetBrowserFolderView(QWidget* pParent)
   EZ_VERIFY(connect(pDelegate, &ezFolderNameDelegate::editingFinished, this, &eqQtAssetBrowserFolderView::OnFolderEditingFinished, Qt::QueuedConnection), "signal/slot connection failed");
   setItemDelegate(pDelegate);
 
-  ezFileSystemModel::GetSingleton()->m_FolderChangedEvents.AddEventHandler(ezMakeDelegate(&eqQtAssetBrowserFolderView::FileSystemModelFolderEventHandler, this));
+  m_pFolderEvents = EZ_DEFAULT_NEW(QueuedFolderEvents);
+  m_pFolderEvents->m_pParent = this;
+
+  m_FolderChangedSubscription = ezFileSystemModel::GetSingleton()->m_FolderChangedEvents.AddEventHandler([pFolderEvents = m_pFolderEvents](const ezFolderChangedEvent& e)
+    { pFolderEvents->FileSystemModelFolderEventHandler(e); });
   ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&eqQtAssetBrowserFolderView::ProjectEventHandler, this));
 
   EZ_VERIFY(connect(this, SIGNAL(itemSelectionChanged()), this, SLOT(OnItemSelectionChanged())) != nullptr, "signal/slot connection failed");
@@ -91,8 +95,11 @@ eqQtAssetBrowserFolderView::eqQtAssetBrowserFolderView(QWidget* pParent)
 
 eqQtAssetBrowserFolderView::~eqQtAssetBrowserFolderView()
 {
+  ezFileSystemModel::GetSingleton()->m_FolderChangedEvents.RemoveEventHandler(m_FolderChangedSubscription);
   ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&eqQtAssetBrowserFolderView::ProjectEventHandler, this));
-  ezFileSystemModel::GetSingleton()->m_FolderChangedEvents.RemoveEventHandler(ezMakeDelegate(&eqQtAssetBrowserFolderView::FileSystemModelFolderEventHandler, this));
+
+  EZ_LOCK(m_pFolderEvents->m_FolderStructureMutex);
+  m_pFolderEvents->m_pParent = nullptr;
 }
 
 
@@ -194,12 +201,14 @@ void eqQtAssetBrowserFolderView::OnFolderEditingFinished(const QString& sAbsPath
   }
 }
 
-void eqQtAssetBrowserFolderView::FileSystemModelFolderEventHandler(const ezFolderChangedEvent& e)
+void eqQtAssetBrowserFolderView::QueuedFolderEvents::FileSystemModelFolderEventHandler(const ezFolderChangedEvent& e)
 {
   EZ_LOCK(m_FolderStructureMutex);
-  m_QueuedFolderEvents.PushBack(e);
+  if (m_pParent == nullptr)
+    return;
 
-  QTimer::singleShot(0, this, SLOT(OnFlushFileSystemEvents()));
+  m_Events.PushBack(e);
+  QMetaObject::invokeMethod(m_pParent, &eqQtAssetBrowserFolderView::OnFlushFileSystemEvents, Qt::QueuedConnection);
 }
 
 void eqQtAssetBrowserFolderView::ProjectEventHandler(const ezToolsProjectEvent& e)
@@ -407,9 +416,9 @@ void eqQtAssetBrowserFolderView::DeleteFolder()
 
 void eqQtAssetBrowserFolderView::OnFlushFileSystemEvents()
 {
-  EZ_LOCK(m_FolderStructureMutex);
+  EZ_LOCK(m_pFolderEvents->m_FolderStructureMutex);
 
-  for (const auto& e : m_QueuedFolderEvents)
+  for (const auto& e : m_pFolderEvents->m_Events)
   {
     switch (e.m_Type)
     {
@@ -434,7 +443,7 @@ void eqQtAssetBrowserFolderView::OnFlushFileSystemEvents()
     }
   }
 
-  m_QueuedFolderEvents.Clear();
+  m_pFolderEvents->m_Events.Clear();
 }
 
 void eqQtAssetBrowserFolderView::mouseDoubleClickEvent(QMouseEvent* e)
