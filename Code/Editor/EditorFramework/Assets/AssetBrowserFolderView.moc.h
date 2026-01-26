@@ -1,9 +1,9 @@
 #pragma once
 
 #include <EditorFramework/EditorFrameworkDLL.h>
+#include <Foundation/Types/SharedPtr.h>
 #include <ToolsFoundation/FileSystem/FileSystemModel.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
-#include <Foundation/Types/SharedPtr.h>
 
 #include <QItemDelegate>
 #include <QTreeWidget>
