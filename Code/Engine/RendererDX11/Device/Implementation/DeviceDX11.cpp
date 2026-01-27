@@ -820,14 +820,14 @@ void ezGALDeviceDX11::UpdateBufferForNextFramePlatform(const ezGALBuffer* pBuffe
   }
   else
   {
-    copy.m_SourceData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezUInt8, sourceData.GetCount());
-    copy.m_SourceData.CopyFrom(sourceData);
+    auto sourceDataCopy = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezUInt8, sourceData.GetCount());
+    ezMemoryUtils::Copy(sourceDataCopy.GetPtr(), sourceData.GetPtr(), sourceData.GetCount());
+    copy.m_SourceData.m_pData = sourceDataCopy;
   }
   copy.m_pDestResource = pBufferDX11->GetDXBuffer();
   copy.m_vDestPoint.Set(uiDestOffset, 0, 0);
-
-  const bool bWholeBuffer = uiDestOffset == 0 && copy.m_SourceResource.m_uiRowPitch == uiDestBufferSize;
-  copy.m_vSourceSize = ezVec3U32(bWholeBuffer ? ezInvalidIndex : sourceData.GetCount(), 1, 1);
+  copy.m_vSourceSize = ezVec3U32(sourceData.GetCount(), 1, 1);
+  copy.m_bCopySubresource = uiDestOffset != 0 || copy.m_SourceResource.m_uiRowPitch != uiDestBufferSize;
 }
 
 void ezGALDeviceDX11::UpdateTextureForNextFramePlatform(const ezGALTexture* pTexture, const ezGALSystemMemoryDescription& sourceData, const ezGALTextureSubresource& destinationSubResource, const ezBoundingBoxu32& destinationBox)
@@ -850,14 +850,26 @@ void ezGALDeviceDX11::UpdateTextureForNextFramePlatform(const ezGALTexture* pTex
   const ezUInt32 uiWidth = destinationBox.m_vMax.x - destinationBox.m_vMin.x;
   const ezUInt32 uiHeight = destinationBox.m_vMax.y - destinationBox.m_vMin.y;
   const ezUInt32 uiDepth = destinationBox.m_vMax.z - destinationBox.m_vMin.z;
-  bool bWholeTexture = destinationBox.m_vMin.IsZero() && destinationBox.m_vMax == ezVec3U32(desc.m_uiWidth, desc.m_uiHeight, desc.m_uiDepth);
 
   auto& copy = m_PendingCopies.ExpandAndGetRef();
-  copy.m_SourceResource = CopyToTempTexture(sourceData, uiWidth, uiHeight, uiDepth, desc.m_Format, m_uiFrameCounter + 1);
+  if (m_bSupportsAlwaysMappedTempResources)
+  {
+    copy.m_SourceResource = CopyToTempTexture(sourceData, uiWidth, uiHeight, uiDepth, desc.m_Format, m_uiFrameCounter + 1);
+  }
+  else
+  {
+    auto sourceDataCopy = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezUInt8, sourceData.m_pData.GetCount());
+    ezMemoryUtils::Copy(sourceDataCopy.GetPtr(), sourceData.m_pData.GetPtr(), sourceData.m_pData.GetCount());
+    copy.m_SourceData.m_pData = sourceDataCopy;
+    copy.m_SourceData.m_uiRowPitch = sourceData.m_uiRowPitch;
+    copy.m_SourceData.m_uiSlicePitch = sourceData.m_uiSlicePitch;
+    copy.m_SourceFormat = desc.m_Format;
+  }
   copy.m_pDestResource = pTextureDX11->GetDXTexture();
   copy.m_uiDestSubResource = D3D11CalcSubresource(destinationSubResource.m_uiMipLevel, destinationSubResource.m_uiArraySlice, desc.m_uiMipLevelCount);
   copy.m_vDestPoint = destinationBox.m_vMin;
-  copy.m_vSourceSize = bWholeTexture ? ezVec3U32(ezInvalidIndex) : ezVec3U32(uiWidth, uiHeight, uiDepth);
+  copy.m_vSourceSize = ezVec3U32(uiWidth, uiHeight, uiDepth);
+  copy.m_bCopySubresource = !destinationBox.m_vMin.IsZero() || destinationBox.m_vMax != ezVec3U32(desc.m_uiWidth, desc.m_uiHeight, desc.m_uiDepth);
 }
 
 ezEnum<ezGALAsyncResult> ezGALDeviceDX11::GetTimestampResultPlatform(ezGALTimestampHandle hTimestamp, ezTime& out_result)
@@ -1428,18 +1440,25 @@ void ezGALDeviceDX11::ProcessPendingCopies()
 
     if (!m_bSupportsAlwaysMappedTempResources)
     {
-      tempResource = CopyToTempBuffer(copy.m_SourceData, m_uiFrameCounter);
+      if (copy.m_SourceData.m_uiRowPitch == 0)
+      {
+        tempResource = CopyToTempBuffer(ezMakeArrayPtr(copy.m_SourceData.m_pData.GetPtr(), copy.m_SourceData.m_pData.GetCount()), m_uiFrameCounter);
+      }
+      else
+      {
+        tempResource = CopyToTempTexture(copy.m_SourceData, copy.m_vSourceSize.x, copy.m_vSourceSize.y, copy.m_vSourceSize.z, copy.m_SourceFormat, m_uiFrameCounter);
+      }      
     }
     UnmapTempResource(tempResource);
 
-    if (copy.m_vSourceSize.x == ezInvalidIndex)
-    {
-      m_pImmediateContext->CopyResource(copy.m_pDestResource, tempResource.m_pResource);
-    }
-    else
+    if (copy.m_bCopySubresource)
     {
       D3D11_BOX srcBox = {0, 0, 0, copy.m_vSourceSize.x, copy.m_vSourceSize.y, copy.m_vSourceSize.z};
       m_pImmediateContext->CopySubresourceRegion(copy.m_pDestResource, copy.m_uiDestSubResource, copy.m_vDestPoint.x, copy.m_vDestPoint.y, copy.m_vDestPoint.z, tempResource.m_pResource, 0, &srcBox);
+    }
+    else
+    {
+      m_pImmediateContext->CopyResource(copy.m_pDestResource, tempResource.m_pResource);
     }
   }
   m_PendingCopies.Clear();

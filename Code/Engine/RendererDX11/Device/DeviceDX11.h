@@ -252,12 +252,14 @@ private:
   struct PendingCopy
   {
     TempResource m_SourceResource = {};
-    ezByteArrayPtr m_SourceData; // Used in case always mapped temp resources are not supported
+    ezGALSystemMemoryDescription m_SourceData; // Used in case always mapped temp resources are not supported
 
     ID3D11Resource* m_pDestResource = nullptr;
     ezUInt32 m_uiDestSubResource = 0;
     ezVec3U32 m_vDestPoint = ezVec3U32::MakeZero();
     ezVec3U32 m_vSourceSize = ezVec3U32::MakeZero();
+    bool m_bCopySubresource = false;
+    ezGALResourceFormat::Enum m_SourceFormat = ezGALResourceFormat::Invalid;
   };
 
   ezDynamicArray<PendingCopy, ezLocalAllocatorWrapper> m_PendingCopies;
