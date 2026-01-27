@@ -27,7 +27,7 @@ struct ezQtDocumentWindowEvent
   };
 
   Type m_Type;
-  ezQtDocumentWindow* m_pWindow;
+  ezQtDocumentWindow* m_pWindow = nullptr;
 };
 
 /// \brief Base class for all document windows. Handles the most basic document window management.
@@ -53,17 +53,12 @@ public:
 
   const char* GetUniqueName() const { return m_sUniqueName; }
 
-  /// \brief The 'GroupName' is used for serializing window layouts. It should be unique among different window types.
-  virtual const char* GetWindowLayoutGroupName() const = 0;
-
   ezDocument* GetDocument() const { return m_pDocument; }
 
   ezStatus SaveDocument();
 
   bool CanCloseWindow();
   void CloseDocumentWindow();
-
-  void ScheduleRestoreWindowLayout();
 
   bool IsVisibleInContainer() const { return m_bIsVisibleInContainer; }
   void SetTargetFramerate(ezInt16 iTargetFPS);
@@ -87,9 +82,6 @@ public:
   /// \brief For unit tests to take a screenshot of the window (may include multiple views) to do image comparisons.
   virtual void CreateImageCapture(const char* szOutputPath);
 
-  /// \brief In 'safe' mode we want to prevent the documents from using the stored window layout state
-  static bool s_bAllowRestoreWindowLayout;
-
 protected:
   virtual void showEvent(QShowEvent* event) override;
   virtual void hideEvent(QHideEvent* event) override;
@@ -99,17 +91,14 @@ protected:
   void FinishWindowCreation();
 
 private Q_SLOTS:
-  void SlotRestoreLayout();
   void SlotRedraw();
   void SlotQueuedDelete();
   void OnPermanentGlobalStatusClicked(bool);
   void OnStatusBarMessageChanged(const QString& sNewText);
+  void SlotRestoreDocumentLayout();
+  void SlotCaptureInitialLayoutState();
 
 private:
-  void SaveWindowLayout();
-  void RestoreWindowLayout(bool bForce);
-  void DisableWindowLayoutSaving();
-
   void ShutdownDocumentWindow();
 
 private:
@@ -117,17 +106,16 @@ private:
 
   void SetVisibleInContainer(bool bVisible);
 
-  bool m_bWindowRestored = false;
   bool m_bIsVisibleInContainer = false;
   bool m_bRedrawIsTriggered = false;
   bool m_bIsDrawingATM = false;
   bool m_bTriggerRedrawQueued = false;
-  bool m_bAllowSaveWindowLayout = true;
   ezInt16 m_iTargetFramerate = 0;
   ezDocument* m_pDocument = nullptr;
   ezQtContainerWindow* m_pContainerWindow = nullptr;
   QLabel* m_pPermanentDocumentStatusText = nullptr;
   QToolButton* m_pPermanentGlobalStatusButton = nullptr;
+  QByteArray m_InitialDocumentLayoutState;
 
 private:
   void Constructor();

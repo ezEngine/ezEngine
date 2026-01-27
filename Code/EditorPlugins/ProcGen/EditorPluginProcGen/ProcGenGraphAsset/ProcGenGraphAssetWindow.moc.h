@@ -19,8 +19,6 @@ public:
 
   ezProcGenGraphAssetDocument* GetProcGenGraphDocument();
 
-  virtual const char* GetWindowLayoutGroupName() const override { return "ProcGenAsset"; }
-
 private Q_SLOTS:
 
 

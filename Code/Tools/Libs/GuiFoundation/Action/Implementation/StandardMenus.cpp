@@ -10,6 +10,7 @@ ezActionDescriptorHandle ezStandardMenus::s_hMenuProject;
 ezActionDescriptorHandle ezStandardMenus::s_hMenuFile;
 ezActionDescriptorHandle ezStandardMenus::s_hMenuEdit;
 ezActionDescriptorHandle ezStandardMenus::s_hMenuPanels;
+ezActionDescriptorHandle ezStandardMenus::s_hMenuPanelsAll;
 ezActionDescriptorHandle ezStandardMenus::s_hMenuScene;
 ezActionDescriptorHandle ezStandardMenus::s_hMenuAsset;
 ezActionDescriptorHandle ezStandardMenus::s_hMenuView;
@@ -24,7 +25,8 @@ void ezStandardMenus::RegisterActions()
   s_hMenuProject = EZ_REGISTER_MENU("G.Project");
   s_hMenuFile = EZ_REGISTER_MENU("G.File");
   s_hMenuEdit = EZ_REGISTER_MENU("G.Edit");
-  s_hMenuPanels = EZ_REGISTER_DYNAMIC_MENU("G.Panels", ezApplicationPanelsMenuAction, "");
+  s_hMenuPanels = EZ_REGISTER_MENU("G.Panels");
+  s_hMenuPanelsAll = EZ_REGISTER_DYNAMIC_MENU("Panels.All", ezApplicationPanelsMenuAction, "Show Panels");
   s_hMenuScene = EZ_REGISTER_MENU("G.Scene");
   s_hMenuAsset = EZ_REGISTER_MENU("G.Asset");
   s_hMenuView = EZ_REGISTER_MENU("G.View");
@@ -41,6 +43,7 @@ void ezStandardMenus::UnregisterActions()
   ezActionManager::UnregisterAction(s_hMenuFile);
   ezActionManager::UnregisterAction(s_hMenuEdit);
   ezActionManager::UnregisterAction(s_hMenuPanels);
+  ezActionManager::UnregisterAction(s_hMenuPanelsAll);
   ezActionManager::UnregisterAction(s_hMenuScene);
   ezActionManager::UnregisterAction(s_hMenuAsset);
   ezActionManager::UnregisterAction(s_hMenuView);
@@ -80,7 +83,10 @@ void ezStandardMenus::MapActions(ezStringView sMapping, const ezBitflags<ezStand
     pMap->MapAction(s_hMenuTools, "", 6.0f);
 
   if (menus.IsAnySet(ezStandardMenuTypes::Panels))
+  {
     pMap->MapAction(s_hMenuPanels, "", 7.0f);
+    pMap->MapAction(s_hMenuPanelsAll, "G.Panels", 1.0f);
+  }
 
   if (menus.IsAnySet(ezStandardMenuTypes::Help))
   {

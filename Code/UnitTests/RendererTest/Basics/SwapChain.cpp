@@ -1,14 +1,33 @@
 #include <RendererTest/RendererTestPCH.h>
 
 #include <Core/Graphics/Camera.h>
+#include <Foundation/Configuration/Startup.h>
 #include <RendererTest/Basics/SwapChain.h>
+
+ezResult ezRendererTestSwapChain::InitializeTest()
+{
+  ezStartup::StartupCoreSystems();
+
+  if (SetupRenderer().Failed())
+    return EZ_FAILURE;
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezRendererTestSwapChain::DeInitializeTest()
+{
+  ShutdownRenderer();
+  ezStartup::ShutdownCoreSystems();
+  ezMemoryTracker::DumpMemoryLeaks();
+
+  return EZ_SUCCESS;
+}
 
 ezResult ezRendererTestSwapChain::InitializeSubTest(ezInt32 iIdentifier)
 {
   m_iFrame = -1;
-
-  if (ezGraphicsTest::InitializeSubTest(iIdentifier).Failed())
-    return EZ_FAILURE;
+  m_bCaptureImage = false;
+  m_ImgCompFrames.Clear();
 
   m_CurrentWindowSize = ezSizeU32(320, 240);
 
@@ -25,12 +44,11 @@ ezResult ezRendererTestSwapChain::InitializeSubTest(ezInt32 iIdentifier)
     m_pWindow->Initialize(WindowCreationDesc).AssertSuccess("Window creation failed");
   }
 
-  // SwapChain
   {
     ezGALWindowSwapChainCreationDescription swapChainDesc;
     swapChainDesc.m_pWindow = m_pWindow;
     swapChainDesc.m_SampleCount = ezGALMSAASampleCount::None;
-    swapChainDesc.m_InitialPresentMode = (iIdentifier == SubTests::ST_NoVSync) ? ezGALPresentMode::Immediate : ezGALPresentMode::VSync;
+    swapChainDesc.m_InitialPresentMode = (iIdentifier == SubTests::ST_VSync) ? ezGALPresentMode::VSync : ezGALPresentMode::Immediate;
     m_hSwapChain = ezGALWindowSwapChain::Create(swapChainDesc);
   }
 
@@ -65,8 +83,7 @@ ezResult ezRendererTestSwapChain::DeInitializeSubTest(ezInt32 iIdentifier)
 {
   DestroyWindow();
 
-  if (ezGraphicsTest::DeInitializeSubTest(iIdentifier).Failed())
-    return EZ_FAILURE;
+  // Don't call parent's DeInitializeSubTest - renderer shutdown happens in DeInitializeTest
 
   return EZ_SUCCESS;
 }

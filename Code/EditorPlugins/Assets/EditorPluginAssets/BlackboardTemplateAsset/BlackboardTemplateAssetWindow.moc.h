@@ -12,8 +12,6 @@ public:
   ezQtBlackboardTemplateAssetDocumentWindow(ezDocument* pDocument);
   ~ezQtBlackboardTemplateAssetDocumentWindow();
 
-  virtual const char* GetWindowLayoutGroupName() const override { return "BlackboardTemplateAsset"; }
-
 private:
   void UpdatePreview();
   void RestoreResource();

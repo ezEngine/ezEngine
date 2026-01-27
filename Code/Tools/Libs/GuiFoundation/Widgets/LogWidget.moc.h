@@ -39,7 +39,7 @@ private Q_SLOTS:
 
 private:
   ezQtLogModel* m_pLog;
-  void ScrollToBottomIfAtEnd(int iNumElements);
+  void ScrollToBottomIfAtEnd(int iFirstNewRow);
 
   /// \brief List of callbacks invoked when the user double clicks a log message
   static ezMap<ezString, LogItemContextActionCallback> s_LogCallbacks;

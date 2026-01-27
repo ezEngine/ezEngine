@@ -36,11 +36,12 @@ protected:
 
   vk::SurfaceKHR m_vulkanSurface;
   vk::SwapchainKHR m_vulkanSwapChain;
-  ezHybridArray<vk::Image, 3> m_swapChainImages;
-  ezHybridArray<ezGALTextureHandle, 3> m_swapChainTextures;
+  ezHybridArray<vk::Image, 4> m_swapChainImages;
+  ezHybridArray<ezGALTextureHandle, 4> m_swapChainTextures;
   ezUInt32 m_uiCurrentSwapChainImage = 0;
 
   vk::Semaphore m_currentPipelineImageAvailableSemaphore;
+  ezHybridArray<vk::Semaphore, 4> m_imageRenderFinishedSemaphores;
 };
 
 #include <RendererVulkan/Device/Implementation/SwapChainVulkan_inl.h>

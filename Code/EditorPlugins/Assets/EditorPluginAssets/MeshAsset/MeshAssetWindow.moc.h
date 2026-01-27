@@ -20,7 +20,6 @@ public:
   ~ezQtMeshAssetDocumentWindow();
 
   ezMeshAssetDocument* GetMeshDocument();
-  virtual const char* GetWindowLayoutGroupName() const override { return "MeshAsset"; }
 
 protected:
   virtual void InternalRedraw() override;

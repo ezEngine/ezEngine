@@ -1,8 +1,9 @@
 #include <RendererTest/RendererTestPCH.h>
 
 #include <Core/Graphics/Camera.h>
+#include <Foundation/Configuration/Startup.h>
 #include <Foundation/Math/ColorScheme.h>
-#include <Foundation/Threading/ThreadUtils.h>
+
 #include <RendererTest/Basics/PipelineStates.h>
 #include <RendererTest/Basics/RendererTestUtils.h>
 
@@ -35,31 +36,25 @@ void ezRendererTestPipelineStates::SetupSubTests()
   AddSubTest("14 - CustomVertexStreams", SubTests::ST_CustomVertexStreams);
 }
 
-ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
+ezResult ezRendererTestPipelineStates::InitializeTest()
 {
-  {
-    m_iDelay = 0;
-    m_CPUTime[0] = {};
-    m_CPUTime[1] = {};
-    m_GPUTime[0] = {};
-    m_GPUTime[1] = {};
-    m_timestamps[0] = {};
-    m_timestamps[1] = {};
-    m_queries[0] = {};
-    m_queries[1] = {};
-    m_queries[2] = {};
-    m_queries[3] = {};
-    m_hFence = {};
-  }
+  // Initialize core systems and renderer once for all sub-tests
+  ezStartup::StartupCoreSystems();
 
-  EZ_SUCCEED_OR_RETURN(ezGraphicsTest::InitializeSubTest(iIdentifier));
+  if (SetupRenderer().Failed())
+    return EZ_FAILURE;
+
+  // Create window once for all sub-tests
   EZ_SUCCEED_OR_RETURN(CreateWindow(320, 240));
+
+  // Load shaders that are used across multiple sub-tests
   m_hMostBasicTriangleShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/MostBasicTriangle.ezShader");
   m_hNDCPositionOnlyShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/NDCPositionOnly.ezShader");
   m_hConstantBufferShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/ConstantBuffer.ezShader");
   m_hPushConstantsShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/PushConstants.ezShader");
   m_hCustomVertexStreamShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/CustomVertexStreams.ezShader");
 
+  // Create meshes that are used across multiple sub-tests
   {
     ezMeshBufferResourceDescriptor desc;
     desc.AddStream(ezMeshVertexStreamType::Position);
@@ -90,9 +85,63 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
 
     m_hSphereMesh = ezResourceManager::CreateResource<ezMeshBufferResource>("UnitTest-SphereMesh", std::move(desc), "SphereMesh");
   }
+
+  // Create constant buffers that are used across multiple sub-tests
   m_hTestPerFrameConstantBuffer = ezRenderContext::CreateConstantBufferStorage<ezTestPerFrame>();
   m_hTestColorsConstantBuffer = ezRenderContext::CreateConstantBufferStorage<ezTestColors>();
   m_hTestPositionsConstantBuffer = ezRenderContext::CreateConstantBufferStorage<ezTestPositions>();
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezRendererTestPipelineStates::DeInitializeTest()
+{
+  // Clean up resources created in InitializeTest
+  m_hTriangleMesh.Invalidate();
+  m_hSphereMesh.Invalidate();
+
+  m_hMostBasicTriangleShader.Invalidate();
+  m_hNDCPositionOnlyShader.Invalidate();
+  m_hConstantBufferShader.Invalidate();
+  m_hPushConstantsShader.Invalidate();
+  m_hCustomVertexStreamShader.Invalidate();
+
+  m_hTestPerFrameConstantBuffer.Invalidate();
+  m_hTestColorsConstantBuffer.Invalidate();
+  m_hTestPositionsConstantBuffer.Invalidate();
+
+  // Destroy window once after all sub-tests
+  DestroyWindow();
+
+  // Shut down renderer and core systems once after all sub-tests
+  ShutdownRenderer();
+  ezStartup::ShutdownCoreSystems();
+  ezMemoryTracker::DumpMemoryLeaks();
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
+{
+  // Reset per-sub-test state
+  m_iFrame = -1;
+  m_bCaptureImage = false;
+  m_ImgCompFrames.Clear();
+
+  {
+    m_iDelay = 0;
+    m_CPUTime[0] = {};
+    m_CPUTime[1] = {};
+    m_GPUTime[0] = {};
+    m_GPUTime[1] = {};
+    m_timestamps[0] = {};
+    m_timestamps[1] = {};
+    m_queries[0] = {};
+    m_queries[1] = {};
+    m_queries[2] = {};
+    m_queries[3] = {};
+    m_hFence = {};
+  }
 
   if (iIdentifier == SubTests::ST_StructuredBuffer || iIdentifier == SubTests::ST_TexelBuffer || iIdentifier == SubTests::ST_ByteAddressBuffer)
   {
@@ -337,20 +386,9 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
 
 ezResult ezRendererTestPipelineStates::DeInitializeSubTest(ezInt32 iIdentifier)
 {
-  m_hTriangleMesh.Invalidate();
-  m_hSphereMesh.Invalidate();
-
-  m_hMostBasicTriangleShader.Invalidate();
-  m_hNDCPositionOnlyShader.Invalidate();
-  m_hConstantBufferShader.Invalidate();
-  m_hPushConstantsShader.Invalidate();
+  // Clean up per-sub-test resources (shaders and meshes shared across sub-tests are cleaned up in DeInitializeTest)
   m_hInstancingShader.Invalidate();
   m_hCopyBufferShader.Invalidate();
-  m_hCustomVertexStreamShader.Invalidate();
-
-  m_hTestPerFrameConstantBuffer.Invalidate();
-  m_hTestColorsConstantBuffer.Invalidate();
-  m_hTestPositionsConstantBuffer.Invalidate();
 
   if (!m_hInstancingData.IsInvalidated())
   {
@@ -393,8 +431,8 @@ ezResult ezRendererTestPipelineStates::DeInitializeSubTest(ezInt32 iIdentifier)
   }
   m_hFence = {};
 
-  DestroyWindow();
-  EZ_SUCCEED_OR_RETURN(ezGraphicsTest::DeInitializeSubTest(iIdentifier));
+  // Don't call parent's DeInitializeSubTest - renderer shutdown happens in DeInitializeTest
+
   return EZ_SUCCESS;
 }
 

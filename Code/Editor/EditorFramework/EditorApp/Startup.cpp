@@ -10,6 +10,7 @@
 #include <EditorFramework/Actions/TransformGizmoActions.h>
 #include <EditorFramework/Actions/ViewActions.h>
 #include <EditorFramework/Actions/ViewLightActions.h>
+#include <EditorFramework/Actions/WindowLayoutActions.h>
 #include <EditorFramework/CodeGen/CodeEditorPreferencesWidget.moc.h>
 #include <EditorFramework/CodeGen/CompilerPreferencesWidget.moc.h>
 #include <EditorFramework/CodeGen/CppProject.h>
@@ -103,6 +104,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezTransformGizmoActions::RegisterActions();
     ezTranslateGizmoAction::RegisterActions();
     ezCommonAssetActions::RegisterActions();
+    ezWindowLayoutActions::RegisterActions();
 
     // Default Asset Menu Bar
     // All asset menu bar mappings should derive from this to allow for actions to be defined that show up in every asset document editor's menu bar.
@@ -197,6 +199,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezTransformGizmoActions::UnregisterActions();
     ezTranslateGizmoAction::UnregisterActions();
     ezCommonAssetActions::UnregisterActions();
+    ezWindowLayoutActions::UnregisterActions();
 
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezFileBrowserAttribute>());
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezExternalFileBrowserAttribute>());
@@ -324,9 +327,6 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 
   ezStartup::StartupCoreSystems();
 
-  // prevent restoration of window layouts when in safe mode
-  ezQtDocumentWindow::s_bAllowRestoreWindowLayout = !IsInSafeMode();
-
   {
     // Make sure that we have at least 4 worker threads for short running and 4 worker threads for long running tasks.
     // Otherwise the Editor might deadlock during asset transform.
@@ -409,6 +409,12 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
   }
 
   LoadEditorPlugins();
+
+  if (!IsInHeadlessMode() && !IsInSafeMode())
+  {
+    ezWindowLayoutActions::RestoreUserLayout();
+  }
+
   CloseSplashScreen();
 
   m_bIsRunning = true;
@@ -441,11 +447,12 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
       CreateOrOpenProject(false, m_RecentProjects.GetFileList()[0].m_File).IgnoreResult();
     }
   }
-  else if (!IsInHeadlessMode() && !IsInSafeMode())
+  else if (!IsInHeadlessMode())
   {
+    // Show the window maximized when no project is being loaded
     if (ezQtContainerWindow::GetContainerWindow())
     {
-      ezQtContainerWindow::GetContainerWindow()->ScheduleRestoreWindowLayout();
+      ezQtContainerWindow::GetContainerWindow()->showMaximized();
     }
   }
 
@@ -481,7 +488,7 @@ void ezQtEditorApp::ShutdownEditor()
   m_bIsRunning = false;
   ezStackTraceLogParser::Unregister();
 
-  ezToolsProject::SaveProjectState();
+  // ezToolsProject::SaveProjectState();
 
   m_pTimer->stop();
 

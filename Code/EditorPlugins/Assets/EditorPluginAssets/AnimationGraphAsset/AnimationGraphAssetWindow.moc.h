@@ -15,8 +15,6 @@ public:
   ezQtAnimationGraphAssetDocumentWindow(ezDocument* pDocument);
   ~ezQtAnimationGraphAssetDocumentWindow();
 
-  virtual const char* GetWindowLayoutGroupName() const override { return "AnimationGraphAsset"; }
-
 private Q_SLOTS:
 
 private:

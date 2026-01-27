@@ -58,8 +58,6 @@ public:
   ezQtPropertyAnimAssetDocumentWindow(ezPropertyAnimAssetDocument* pDocument);
   ~ezQtPropertyAnimAssetDocumentWindow();
 
-  virtual const char* GetWindowLayoutGroupName() const override { return "PropertyAnimAsset"; }
-
 public Q_SLOTS:
   void ToggleViews(QWidget* pView);
 

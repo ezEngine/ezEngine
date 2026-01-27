@@ -19,8 +19,6 @@ public:
   ezQtAngelScriptAssetDocumentWindow(ezAngelScriptAssetDocument* pDocument);
   ~ezQtAngelScriptAssetDocumentWindow();
 
-  virtual const char* GetWindowLayoutGroupName() const override { return "AngelScript"; }
-
 private Q_SLOTS:
   void onTextEditTextChanged();
   void onEditTimer();

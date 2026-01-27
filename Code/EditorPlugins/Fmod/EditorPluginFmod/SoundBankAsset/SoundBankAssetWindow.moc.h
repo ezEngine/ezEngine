@@ -17,7 +17,6 @@ public:
   ezSoundBankAssetDocumentWindow(ezDocument* pDocument);
 
   virtual const char* GetGroupName() const { return "SoundBankAsset"; }
-  virtual const char* GetWindowLayoutGroupName() const override { return "SoundBankAsset"; }
 
 private:
   ezSoundBankAssetDocument* m_pAssetDoc;

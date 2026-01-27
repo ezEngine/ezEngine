@@ -1,6 +1,7 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <Core/System/Window.h>
+#include <EditorFramework/Actions/WindowLayoutActions.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetProcessor.h>
 #include <EditorFramework/CodeGen/CppProject.h>
@@ -247,10 +248,8 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, ezStringView sFile0)
       }
     }
 
-    if (!ezQtEditorApp::GetSingleton()->IsInSafeMode())
-    {
-      ezQtContainerWindow::GetContainerWindow()->ScheduleRestoreWindowLayout();
-    }
+    // Show the window maximized when opening a project
+    ezQtContainerWindow::GetContainerWindow()->showMaximized();
   }
   return EZ_SUCCESS;
 }
@@ -371,6 +370,12 @@ Explanation: For assets to work properly, they must be <a href='https://ezengine
     {
       m_RecentProjects.Insert(ezToolsProject::GetSingleton()->GetProjectFile(), 0);
       SaveSettings();
+
+      // Auto-save the global editor layout before documents are closed
+      if (!IsInHeadlessMode() && !IsInSafeMode() && !ezToolsProject::GetSingleton()->IsProjectClosing())
+      {
+        ezWindowLayoutActions::SaveUserLayout();
+      }
       break;
     }
 

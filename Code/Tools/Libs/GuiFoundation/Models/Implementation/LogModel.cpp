@@ -64,6 +64,7 @@ void ezQtLogModel::SetSearchText(const char* szText)
 
 void ezQtLogModel::AddLogMsg(const ezLogEntry& msg)
 {
+  bool bNeedInvoke = false;
   {
     EZ_LOCK(m_NewMessagesMutex);
 
@@ -75,13 +76,21 @@ void ezQtLogModel::AddLogMsg(const ezLogEntry& msg)
     }
 
     m_NewMessages.PushBack(msg);
+
+    // Only queue ProcessNewMessages if not already pending
+    if (!m_bProcessingPending)
+    {
+      m_bProcessingPending = true;
+      bNeedInvoke = true;
+    }
   }
 
   // always queue the message processing, otherwise it can happen that an error during this
   // triggers recursive logging, which is forbidden
-  QMetaObject::invokeMethod(this, "ProcessNewMessages", Qt::ConnectionType::QueuedConnection);
-
-  return;
+  if (bNeedInvoke)
+  {
+    QMetaObject::invokeMethod(this, "ProcessNewMessages", Qt::ConnectionType::QueuedConnection);
+  }
 }
 
 bool ezQtLogModel::IsFiltered(const ezLogEntry& lm) const
@@ -212,8 +221,18 @@ void ezQtLogModel::ProcessNewMessages()
   ezStringBuilder sLatestWarning;
   ezStringBuilder sLatestError;
 
+  // Collect messages to add to visible list
+  ezHybridArray<const ezLogEntry*, 64> messagesToAdd;
+
   {
     EZ_LOCK(m_NewMessagesMutex);
+
+    // Reset processing flag so new messages can trigger another ProcessNewMessages
+    m_bProcessingPending = false;
+
+    if (m_NewMessages.IsEmpty())
+      return;
+
     ezStringBuilder s;
     for (const auto& msg : m_NewMessages)
     {
@@ -282,21 +301,32 @@ void ezQtLogModel::ProcessNewMessages()
         }
       }
 
+      // Add any queued block messages
       for (auto pMsg : m_BlockQueue)
       {
-        beginInsertRows(QModelIndex(), m_VisibleMessages.GetCount(), m_VisibleMessages.GetCount());
-        m_VisibleMessages.PushBack(pMsg);
-        endInsertRows();
+        messagesToAdd.PushBack(pMsg);
       }
-
       m_BlockQueue.Clear();
 
-      beginInsertRows(QModelIndex(), m_VisibleMessages.GetCount(), m_VisibleMessages.GetCount());
-      m_VisibleMessages.PushBack(&m_AllMessages.PeekBack());
-      endInsertRows();
+      // Add the current message
+      messagesToAdd.PushBack(&m_AllMessages.PeekBack());
     }
 
     m_NewMessages.Clear();
+  }
+
+  // Batch insert all visible messages at once
+  if (!messagesToAdd.IsEmpty())
+  {
+    const int iFirstRow = static_cast<int>(m_VisibleMessages.GetCount());
+    const int iLastRow = iFirstRow + static_cast<int>(messagesToAdd.GetCount()) - 1;
+
+    beginInsertRows(QModelIndex(), iFirstRow, iLastRow);
+    for (auto pMsg : messagesToAdd)
+    {
+      m_VisibleMessages.PushBack(pMsg);
+    }
+    endInsertRows();
   }
 
   if (bNewErrors)

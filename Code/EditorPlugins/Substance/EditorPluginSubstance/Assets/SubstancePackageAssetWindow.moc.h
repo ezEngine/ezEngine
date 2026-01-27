@@ -15,8 +15,6 @@ class ezQtSubstancePackageAssetWindow : public ezQtEngineDocumentWindow
 public:
   ezQtSubstancePackageAssetWindow(ezSubstancePackageAssetDocument* pDocument);
 
-  virtual const char* GetWindowLayoutGroupName() const override { return "SubstancePackageAsset"; }
-
 private:
   virtual void InternalRedraw() override;
   void SendRedrawMsg();

@@ -136,8 +136,7 @@ void ezGALSwapChainVulkan::PresentRenderTarget(ezGALDevice* pDevice)
   }
 
   // Submit command buffer
-  vk::Semaphore currentPipelineRenderFinishedSemaphore = ezSemaphorePoolVulkan::RequestSemaphore();
-
+  vk::Semaphore currentPipelineRenderFinishedSemaphore = m_imageRenderFinishedSemaphores[m_uiCurrentSwapChainImage];
 
   pVulkanDevice->AddSignalSemaphore(ezGALDeviceVulkan::SemaphoreInfo::MakeSignalSemaphore(currentPipelineRenderFinishedSemaphore));
   pVulkanDevice->Submit();
@@ -157,8 +156,6 @@ void ezGALSwapChainVulkan::PresentRenderTarget(ezGALDevice* pDevice)
     ezLog::Warning("PresentInfoKHR {}", ezArgP(m_swapChainImages[m_uiCurrentSwapChainImage]));
 #endif
   }
-
-  pVulkanDevice->ReclaimLater(currentPipelineRenderFinishedSemaphore);
 }
 
 ezResult ezGALSwapChainVulkan::UpdateSwapChain(ezGALDevice* pDevice, ezEnum<ezGALPresentMode> newPresentMode)
@@ -373,6 +370,14 @@ ezResult ezGALSwapChainVulkan::CreateSwapChainInternal()
   m_swapChainImages.SetCount(uiSwapChainImages);
   VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_pVulkanDevice->GetVulkanDevice().getSwapchainImagesKHR(m_vulkanSwapChain, &uiSwapChainImages, m_swapChainImages.GetData()));
 
+  // We can't use our pool here as the frame fence is not sufficient to reclaim swapchain semaphores. Thus, we create unique ones for every image.
+  m_imageRenderFinishedSemaphores.SetCount(uiSwapChainImages);
+  for (ezUInt32 i = 0; i < uiSwapChainImages; ++i)
+  {
+    vk::SemaphoreCreateInfo semaphoreCreateInfo;
+    VK_ASSERT_DEV(m_pVulkanDevice->GetVulkanDevice().createSemaphore(&semaphoreCreateInfo, nullptr, &m_imageRenderFinishedSemaphores[i]));
+  }
+
   for (ezUInt32 i = 0; i < uiSwapChainImages; i++)
   {
     m_pVulkanDevice->SetDebugName("SwapChainImage", m_swapChainImages[i]);
@@ -403,6 +408,12 @@ void ezGALSwapChainVulkan::DestroySwapChainInternal(ezGALDeviceVulkan* pVulkanDe
     pVulkanDevice->DestroyTexture(m_swapChainTextures[i]);
   }
   m_swapChainTextures.Clear();
+
+  for (vk::Semaphore& sem : m_imageRenderFinishedSemaphores)
+  {
+    pVulkanDevice->DeleteLater(sem);
+  }
+  m_imageRenderFinishedSemaphores.Clear();
 
   if (m_vulkanSwapChain)
   {

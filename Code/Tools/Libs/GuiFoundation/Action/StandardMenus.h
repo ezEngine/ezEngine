@@ -51,6 +51,7 @@ public:
   static ezActionDescriptorHandle s_hMenuFile;
   static ezActionDescriptorHandle s_hMenuEdit;
   static ezActionDescriptorHandle s_hMenuPanels;
+  static ezActionDescriptorHandle s_hMenuPanelsAll;
   static ezActionDescriptorHandle s_hMenuScene;
   static ezActionDescriptorHandle s_hMenuAsset;
   static ezActionDescriptorHandle s_hMenuView;

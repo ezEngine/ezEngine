@@ -10,6 +10,7 @@
 class ezIpcChannel;
 class ezProcessMessage;
 class ezIpcProcessMessageProtocol;
+struct ezIpcChannelEvent;
 
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezProcessCommunicationChannel
 {
@@ -38,10 +39,13 @@ public:
   };
 
   ezEvent<const Event&> m_Events;
-
-  void MessageFunc(const ezIpcProcessMessageProtocol::Event& msg);
+  ezEvent<const ezIpcChannelEvent&, ezMutex> m_IpcChannelEvents;
 
 protected:
+  void OnIpcProtocolEvent(const ezIpcProcessMessageProtocol::Event& msg);
+  void OnIpcChannelEvent(const ezIpcChannelEvent& msg);
+  void CreateAndConnectChannel(ezInternal::NewInstance<ezIpcChannel>&& channel);
+  void DestroyChannel();
   ezUniquePtr<ezIpcProcessMessageProtocol> m_pProtocol;
   ezUniquePtr<ezIpcChannel> m_pChannel;
   const ezRTTI* m_pFirstAllowedMessageType = nullptr;

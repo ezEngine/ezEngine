@@ -41,6 +41,7 @@ protected:
   virtual void mouseReleaseEvent(QMouseEvent* e) override;
   virtual void mouseDoubleClickEvent(QMouseEvent* e) override;
   virtual void wheelEvent(QWheelEvent* e) override;
+  virtual void changeEvent(QEvent* e) override;
   virtual QSize sizeHint() const override;
   virtual QSize minimumSizeHint() const override;
 
@@ -57,10 +58,11 @@ private:
     static constexpr ezUInt16 SuccessResult = 0xFFFF;
     EZ_ALWAYS_INLINE bool IsFinished() const { return m_fDurationInSeconds != -1; }
     EZ_ALWAYS_INLINE bool Failed() const { return m_uiResultIndex != SuccessResult; }
-    EZ_ALWAYS_INLINE ezTime EndTime() const { return IsFinished() ? m_StartTime + ezTime::MakeFromSeconds(m_fDurationInSeconds) : ezTime::MakeZero(); }
+    EZ_ALWAYS_INLINE float EndTime() const { return IsFinished() ? m_fStartTimeInSeconds + m_fDurationInSeconds : 0.0f; }
 
     ezUuid m_AssetGuid;
-    ezTime m_StartTime;
+    float m_fStartTimeInSeconds = 0.0f;
+    float m_fTransformStartTimeInSeconds = 0.0f;
     float m_fDurationInSeconds = -1;
     ezUInt16 m_uiResultIndex = -1; //< We only store failed results to safe space. Index points to m_FailedTransforms
     ezAssetInfo::TransformState m_TransformState = ezAssetInfo::Unknown;
@@ -115,7 +117,7 @@ private:
 
   void DrawTimeline(QPainter& painter) const;
   void DrawProcessorRow(QPainter& painter, ezUInt32 uiProcessorID, int y) const;
-  void DrawProcessorTask(QPainter& painter, const ProcessorTask& task, QRect rect) const;
+  void DrawProcessorTask(QPainter& painter, const ProcessorTask& task, const QRect& rect, const QRect& actualWork) const;
 
 private:
   ezEventSubscriptionID m_ProgressEventsID;
@@ -137,4 +139,20 @@ private:
   // Cache for asset names so we don't have to store the name in ProcessorTask and also don't SPAM the ezAssetCurator.
   mutable ezMap<ezUuid, ezString> m_AssetNameCache;
   ezString m_sUnknownAsset = "<DELETED>";
+
+  // Paint performance tracking
+  mutable double m_fLastPaintTimeMs = 0.0;
+
+  // Paint performance caches
+  mutable QPixmap m_SkipOffsetPattern;
+  mutable QFont m_ProcessorLabelFont;
+  mutable QFont m_TaskLabelFont;
+  mutable QColor m_NeedsTransformColor[2];
+  mutable QColor m_NeedsThumbnailColor[2];
+  mutable QColor m_ErrorColor[2];
+  mutable bool m_bCachesInitialized = false;
+  mutable ezDynamicArray<QString> m_ProcessorLabels; // Cached "Process N" strings
+
+  void InitializePaintCaches() const;
+  void InvalidatePaintCaches();
 };

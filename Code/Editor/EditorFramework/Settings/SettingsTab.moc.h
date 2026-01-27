@@ -18,8 +18,6 @@ public:
   virtual ezString GetWindowIcon() const override;
   virtual ezString GetDisplayNameShort() const override;
 
-  virtual const char* GetWindowLayoutGroupName() const override { return "Settings"; }
-
 private:
   virtual bool InternalCanCloseWindow() override;
   virtual void InternalCloseDocumentWindow() override;

@@ -31,7 +31,6 @@ void ezQtEditorApp::LoadRecentFiles()
 
 void ezQtEditorApp::SaveOpenDocumentsList()
 {
-  ezQtContainerWindow::GetContainerWindow()->SaveWindowLayout();
   const ezDynamicArray<ezQtDocumentWindow*>& windows = ezQtDocumentWindow::GetAllDocumentWindows();
 
   if (windows.IsEmpty())

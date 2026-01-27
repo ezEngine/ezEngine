@@ -800,7 +800,21 @@ ezUInt64 ezAssetCurator::GetAssetThumbnailHash(ezUuid assetGuid)
 
 ezAssetInfo::TransformState ezAssetCurator::IsAssetUpToDate(const ezUuid& assetGuid, const ezPlatformProfile*, const ezAssetDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_uiAssetHash, ezUInt64& out_uiThumbHash, ezUInt64& out_uiPackageHash, bool bForce)
 {
-  return ezAssetCurator::UpdateAssetTransformState(assetGuid, out_uiAssetHash, out_uiThumbHash, out_uiPackageHash, bForce);
+  if (bForce)
+  {
+    ezSet<ezUuid> transitiveHull;
+    GenerateTransitiveAssetHull(assetGuid, transitiveHull, ezDependencyFlags::Transform | ezDependencyFlags::Thumbnail | ezDependencyFlags::Package);
+    // Mark hull as not up to date
+    EZ_LOCK(m_CuratorMutex);
+    for (auto& asset : transitiveHull)
+    {
+      InvalidateAssetTransformState(asset);
+      // UpdateAssetTransformState(asset, ezAssetInfo::TransformState::Unknown);
+    }
+  }
+
+  // Running this will update the state of every asset marked as Unknown in the transitive hull.
+  return ezAssetCurator::UpdateAssetTransformState(assetGuid, out_uiAssetHash, out_uiThumbHash, out_uiPackageHash, false);
 }
 
 void ezAssetCurator::InvalidateAssetsWithTransformState(ezAssetInfo::TransformState state)
@@ -1328,6 +1342,59 @@ void ezAssetCurator::GenerateTransitiveHull(const ezStringView sAssetOrPath, ezS
   }
 }
 
+void ezAssetCurator::GenerateTransitiveAssetHull(const ezUuid& assetGuid, ezSet<ezUuid>& inout_deps, ezBitflags<ezDependencyFlags> dependencyTypes)
+{
+  ezHybridArray<ezUuid, 6> toDoList;
+
+  auto AddDependencies = [&](const ezSet<ezString>& dependencies)
+  {
+    for (const ezString& dep : dependencies)
+    {
+      if (!ezConversionUtils::IsStringUuid(dep))
+        continue;
+      ezUuid guid = ezConversionUtils::ConvertStringToUuid(dep);
+      if (!inout_deps.Contains(guid))
+      {
+        inout_deps.Insert(guid);
+        toDoList.PushBack(guid);
+      }
+    }
+  };
+
+  // Build the transitive hull of all assets under 'assetGuid'.
+  inout_deps.Insert(assetGuid);
+  toDoList.PushBack(assetGuid);
+  ezStringBuilder sAbsAssetPath;
+  while (!toDoList.IsEmpty())
+  {
+    ezUuid currentAsset = toDoList.PeekBack();
+    toDoList.PopBack();
+    {
+      EZ_LOCK(m_CuratorMutex);
+      auto it = m_KnownSubAssets.Find(currentAsset);
+      if (!it.IsValid())
+        continue;
+      sAbsAssetPath = it.Value().m_pAssetInfo->m_Path;
+    }
+    // To make sure the dependencies of the asset are up-to-date, we need to check for modifications.
+    // This must be done outside the lock to prevent deadlocks.
+    ezFileSystemModel::GetSingleton()->NotifyOfChange(sAbsAssetPath);
+
+    EZ_LOCK(m_CuratorMutex);
+    auto it = m_KnownSubAssets.Find(currentAsset);
+    if (!it.IsValid())
+      continue;
+
+    ezAssetInfo* pAssetInfo = it.Value().m_pAssetInfo;
+    if (dependencyTypes.IsSet(ezDependencyFlags::Transform))
+      AddDependencies(pAssetInfo->m_Info->m_TransformDependencies);
+    if (dependencyTypes.IsSet(ezDependencyFlags::Thumbnail))
+      AddDependencies(pAssetInfo->m_Info->m_ThumbnailDependencies);
+    if (dependencyTypes.IsSet(ezDependencyFlags::Package))
+      AddDependencies(pAssetInfo->m_Info->m_PackageDependencies);
+  }
+}
+
 void ezAssetCurator::GenerateSettingsHashMap(const ezSet<ezString>& deps, ezBitflags<ezDependencyFlags> dependencyType, ezMap<ezString, ezUInt64>& out_settingsHashMap) const
 {
   EZ_LOCK(m_CuratorMutex);
@@ -1666,13 +1733,13 @@ ezTransformStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ez
     ezAssetInfo::TransformState state2 = IsAssetUpToDate(pAssetInfo->m_Info->m_DocumentID, pAssetProfile, pTypeDesc, uiHash2, uiThumbHash2, uiPackageHash2);
 
     if (uiHash != uiHash2)
-      return ezTransformStatus(ezFmt("Asset hash changed while prosessing dependencies from {} to {}", uiHash, uiHash2));
+      return ezTransformStatus(ezFmt("Asset hash changed while processing dependencies from {} to {}", uiHash, uiHash2));
     if (uiThumbHash != uiThumbHash2)
-      return ezTransformStatus(ezFmt("Asset thumbnail hash changed while prosessing dependencies from {} to {}", uiThumbHash, uiThumbHash2));
+      return ezTransformStatus(ezFmt("Asset thumbnail hash changed while processing dependencies from {} to {}", uiThumbHash, uiThumbHash2));
     if (uiPackageHash != uiPackageHash2)
-      return ezTransformStatus(ezFmt("Asset package hash changed while prosessing dependencies from {} to {}", uiPackageHash, uiPackageHash2));
+      return ezTransformStatus(ezFmt("Asset package hash changed while processing dependencies from {} to {}", uiPackageHash, uiPackageHash2));
     if (state != state2)
-      return ezTransformStatus(ezFmt("Asset state changed while prosessing dependencies from {} to {}", state, state2));
+      return ezTransformStatus(ezFmt("Asset state changed while processing dependencies from {} to {}", state, state2));
   }
 #endif
 

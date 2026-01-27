@@ -30,7 +30,31 @@
 
 #include <d3d11.h>
 #include <d3d11_3.h>
+#include <dxgi1_6.h>
 #include <dxgidebug.h>
+
+namespace
+{
+  IDXGIAdapter1* CreateHighPerformanceAdapter()
+  {
+    IDXGIFactory1* pFactory1 = nullptr;
+    IDXGIFactory6* pFactory6 = nullptr;
+    IDXGIAdapter1* pAdapter = nullptr;
+    EZ_SCOPE_EXIT(EZ_GAL_DX11_RELEASE(pFactory1));
+    EZ_SCOPE_EXIT(EZ_GAL_DX11_RELEASE(pFactory6));
+
+    if (FAILED(CreateDXGIFactory1(IID_PPV_ARGS(&pFactory1))))
+      return nullptr;
+
+    if (FAILED(pFactory1->QueryInterface(IID_PPV_ARGS(&pFactory6))))
+      return nullptr;
+
+    if (pFactory6->EnumAdapterByGpuPreference(0, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(&pAdapter)) == DXGI_ERROR_NOT_FOUND)
+      return nullptr;
+
+    return pAdapter;
+  }
+} // namespace
 
 ezInternal::NewInstance<ezGALDevice> CreateDX11Device(ezAllocator* pAllocator, const ezGALDeviceCreationDescription& description)
 {
@@ -121,7 +145,22 @@ retry:
 
     static_assert(EZ_ARRAY_SIZE(FeatureLevels) == EZ_ARRAY_SIZE(FeatureLevelNames));
 
-    ezLog::Success("Initialized D3D11 device with feature level {0}.", FeatureLevelNames[FeatureLevelIdx]);
+    // Get the adapter from the device
+    IDXGIDevice* pDXGIDevice = nullptr;
+    IDXGIAdapter* pAdapter = nullptr;
+    DXGI_ADAPTER_DESC desc1 = {};
+
+    if (SUCCEEDED(m_pDevice->QueryInterface(__uuidof(IDXGIDevice), (void**)&pDXGIDevice)))
+    {
+      if (SUCCEEDED(pDXGIDevice->GetAdapter(&pAdapter)))
+      {
+        pAdapter->GetDesc(&desc1);
+        pAdapter->Release();
+      }
+      pDXGIDevice->Release();
+    }
+
+    ezLog::Success("Initialized D3D11 device '{}' with feature level {}.", desc1.Description, FeatureLevelNames[FeatureLevelIdx]);
 
     // Validate that we got the minimum required feature level
     if (m_uiFeatureLevel < D3D_FEATURE_LEVEL_11_1)
@@ -232,7 +271,9 @@ ezStringView ezGALDeviceDX11::GetRendererPlatform()
 
 ezResult ezGALDeviceDX11::InitPlatform()
 {
-  return InitPlatform(0, nullptr);
+  IDXGIAdapter1* pAdapter = CreateHighPerformanceAdapter();
+  EZ_SCOPE_EXIT(EZ_GAL_DX11_RELEASE(pAdapter));
+  return InitPlatform(0, pAdapter);
 }
 
 void ezGALDeviceDX11::ReportLiveGpuObjects()

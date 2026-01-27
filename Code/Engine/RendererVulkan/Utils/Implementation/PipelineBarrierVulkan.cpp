@@ -430,6 +430,9 @@ void ezPipelineBarrierVulkan::FullBarrier()
   vk::MemoryBarrier memoryBarrier;
   memoryBarrier.srcAccessMask = s_writeAccess | s_readAccess;
   memoryBarrier.dstAccessMask = s_writeAccess | s_readAccess;
+  memoryBarrier.srcAccessMask &= ~(vk::AccessFlagBits::eHostRead | vk::AccessFlagBits::eHostWrite);
+  memoryBarrier.dstAccessMask &= ~(vk::AccessFlagBits::eHostRead | vk::AccessFlagBits::eHostWrite);
+
 
   m_pCommandBuffer->pipelineBarrier(vk::PipelineStageFlagBits::eAllCommands, vk::PipelineStageFlagBits::eAllCommands, vk::DependencyFlags(), 1, &memoryBarrier, 0, nullptr, 0, nullptr);
 }

@@ -8,6 +8,48 @@
 #include <RendererFoundation/Resources/Texture.h>
 #include <RendererTest/Basics/Readback.h>
 
+ezResult ezRendererTestReadback::InitializeTest()
+{
+  ezStartup::StartupCoreSystems();
+
+  if (SetupRenderer().Failed())
+    return EZ_FAILURE;
+
+  EZ_SUCCEED_OR_RETURN(CreateWindow(320, 240));
+
+  m_hUVColorShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/ReadbackFloat.ezShader");
+  m_hUVColorIntShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/ReadbackInt.ezShader");
+  m_hUVColorUIntShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/ReadbackUInt.ezShader");
+  m_hUVColorDepthShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/ReadbackDepth.ezShader");
+
+  m_hTexture2DShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2D.ezShader");
+  m_hTexture2DDepthShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2DReadbackDepth.ezShader");
+  m_hTexture2DIntShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2DReadbackInt.ezShader");
+  m_hTexture2DUIntShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2DReadbackUInt.ezShader");
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezRendererTestReadback::DeInitializeTest()
+{
+  m_hShader.Invalidate();
+  m_hUVColorShader.Invalidate();
+  m_hUVColorIntShader.Invalidate();
+  m_hUVColorUIntShader.Invalidate();
+  m_hUVColorDepthShader.Invalidate();
+  m_hTexture2DShader.Invalidate();
+  m_hTexture2DDepthShader.Invalidate();
+  m_hTexture2DIntShader.Invalidate();
+  m_hTexture2DUIntShader.Invalidate();
+
+  DestroyWindow();
+  ShutdownRenderer();
+  ezStartup::ShutdownCoreSystems();
+  ezMemoryTracker::DumpMemoryLeaks();
+
+  return EZ_SUCCESS;
+}
+
 void ezRendererTestReadback::SetupSubTests()
 {
   const ezGALDeviceCapabilities& caps = GetDeviceCapabilities();
@@ -46,20 +88,9 @@ void ezRendererTestReadback::SetupSubTests()
 ezResult ezRendererTestReadback::InitializeSubTest(ezInt32 iIdentifier)
 {
   m_iFrame = -1;
+  m_bCaptureImage = false;
+  m_ImgCompFrames.Clear();
   m_bReadbackInProgress = true;
-
-  EZ_SUCCEED_OR_RETURN(ezGraphicsTest::InitializeSubTest(iIdentifier));
-  EZ_SUCCEED_OR_RETURN(CreateWindow(320, 240));
-
-  m_hUVColorShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/ReadbackFloat.ezShader");
-  m_hUVColorIntShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/ReadbackInt.ezShader");
-  m_hUVColorUIntShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/ReadbackUInt.ezShader");
-  m_hUVColorDepthShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/ReadbackDepth.ezShader");
-
-  m_hTexture2DShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2D.ezShader");
-  m_hTexture2DDepthShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2DReadbackDepth.ezShader");
-  m_hTexture2DIntShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2DReadbackInt.ezShader");
-  m_hTexture2DUIntShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2DReadbackUInt.ezShader");
 
   // Texture2D
   {
@@ -88,20 +119,8 @@ ezResult ezRendererTestReadback::DeInitializeSubTest(ezInt32 iIdentifier)
     m_pDevice->DestroyTexture(m_hTexture2DUpload);
     m_hTexture2DUpload.Invalidate();
   }
-  m_hShader.Invalidate();
-  m_hUVColorShader.Invalidate();
-  m_hUVColorIntShader.Invalidate();
-  m_hUVColorUIntShader.Invalidate();
-  m_hTexture2DShader.Invalidate();
-  m_hTexture2DDepthShader.Invalidate();
-  m_hTexture2DIntShader.Invalidate();
-  m_hTexture2DUIntShader.Invalidate();
-  m_hUVColorDepthShader.Invalidate();
 
-  DestroyWindow();
-
-  if (ezGraphicsTest::DeInitializeSubTest(iIdentifier).Failed())
-    return EZ_FAILURE;
+  // Don't call parent's DeInitializeSubTest - renderer shutdown happens in DeInitializeTest
 
   return EZ_SUCCESS;
 }

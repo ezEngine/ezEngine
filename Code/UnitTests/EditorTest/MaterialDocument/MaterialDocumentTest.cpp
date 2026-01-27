@@ -160,9 +160,10 @@ void ezMaterialDocumentTest::CaptureMaterialImage()
   ezActionManager::ExecuteAction(nullptr, "View.SkyBox", ctx2, false).AssertSuccess();
   ProcessEvents();
 
-  for (int i = 0; i < 10; ++i)
+  // give the engine a bit of time to load the data
+  for (int i = 0; i < 60; ++i)
   {
-    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(100));
+    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(50));
     ProcessEvents();
   }
 

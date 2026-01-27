@@ -111,22 +111,22 @@ public:
 
 
   /// \brief Returns the current projection matrix.
-  const ezMat4& GetProjectionMatrix(ezCameraEye eye) const;
+  const ezMat4& GetProjectionMatrix(ezCameraEye eye = ezCameraEye::Left) const;
 
   /// \brief Returns the current inverse projection matrix.
-  const ezMat4& GetInverseProjectionMatrix(ezCameraEye eye) const;
+  const ezMat4& GetInverseProjectionMatrix(ezCameraEye eye = ezCameraEye::Left) const;
 
   /// \brief Returns the current view matrix (camera orientation).
-  const ezMat4& GetViewMatrix(ezCameraEye eye) const;
+  const ezMat4& GetViewMatrix(ezCameraEye eye = ezCameraEye::Left) const;
 
   /// \brief Returns the current inverse view matrix (inverse camera orientation).
-  const ezMat4& GetInverseViewMatrix(ezCameraEye eye) const;
+  const ezMat4& GetInverseViewMatrix(ezCameraEye eye = ezCameraEye::Left) const;
 
   /// \brief Returns the current view-projection matrix.
-  const ezMat4& GetViewProjectionMatrix(ezCameraEye eye) const;
+  const ezMat4& GetViewProjectionMatrix(ezCameraEye eye = ezCameraEye::Left) const;
 
   /// \brief Returns the current inverse view-projection matrix.
-  const ezMat4& GetInverseViewProjectionMatrix(ezCameraEye eye) const;
+  const ezMat4& GetInverseViewProjectionMatrix(ezCameraEye eye = ezCameraEye::Left) const;
 
   /// \brief Returns the frustum that should be used for determine visible objects for this view.
   void ComputeCullingFrustum(ezFrustum& out_frustum) const;

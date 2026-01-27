@@ -210,8 +210,15 @@ bool ezRmlUiCanvas3DComponent::RaycastInput(const ezVec3& vRayOrigin, const ezVe
     return false;
   }
 
+  const ezTransform tOwner = GetOwner()->GetGlobalTransform();
 
-  const ezTransform worldToLocal = GetOwner()->GetGlobalTransform().GetInverse();
+  if (ezMath::IsZero(tOwner.GetMaxScale(), 0.001f))
+  {
+    // object was scaled to zero
+    return false;
+  }
+
+  const ezTransform worldToLocal = tOwner.GetInverse();
   const ezVec3 vRayOriginMeshSpace = worldToLocal.TransformPosition(vRayOrigin);
   const ezVec3 vRayDirMeshSpace = worldToLocal.TransformDirection(vRayDir).GetNormalized();
 

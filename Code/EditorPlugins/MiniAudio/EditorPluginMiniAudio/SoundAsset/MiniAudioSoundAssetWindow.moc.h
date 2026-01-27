@@ -17,7 +17,6 @@ public:
   ezMiniAudioSoundAssetDocumentWindow(ezDocument* pDocument);
 
   virtual const char* GetGroupName() const { return "MiniAudioSoundAsset"; }
-  virtual const char* GetWindowLayoutGroupName() const override { return "MiniAudioSoundAsset"; }
 
 private:
   ezMiniAudioSoundAssetDocument* m_pAssetDoc;

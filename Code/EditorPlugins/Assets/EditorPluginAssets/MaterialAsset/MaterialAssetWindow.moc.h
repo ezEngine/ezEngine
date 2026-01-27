@@ -27,7 +27,6 @@ public:
   ~ezQtMaterialAssetDocumentWindow();
 
   ezMaterialAssetDocument* GetMaterialDocument();
-  virtual const char* GetWindowLayoutGroupName() const override { return "MaterialAsset"; }
 
 protected:
   virtual void InternalRedraw() override;

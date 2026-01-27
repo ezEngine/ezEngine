@@ -20,8 +20,6 @@ class ezQtImageDataAssetDocumentWindow : public ezQtDocumentWindow
 public:
   ezQtImageDataAssetDocumentWindow(ezImageDataAssetDocument* pDocument);
 
-  virtual const char* GetWindowLayoutGroupName() const override { return "ImageDataAsset"; }
-
 private:
   void ImageDataAssetEventHandler(const ezImageDataAssetEvent& e);
   ezEvent<const ezImageDataAssetEvent&>::Unsubscriber m_EventUnsubscriper;

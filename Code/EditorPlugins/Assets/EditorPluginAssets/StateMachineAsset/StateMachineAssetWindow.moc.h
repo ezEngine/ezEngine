@@ -15,8 +15,6 @@ public:
   ezQtStateMachineAssetDocumentWindow(ezDocument* pDocument);
   ~ezQtStateMachineAssetDocumentWindow();
 
-  virtual const char* GetWindowLayoutGroupName() const override { return "StateMachineAsset"; }
-
 private Q_SLOTS:
 
 private:

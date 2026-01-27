@@ -89,6 +89,7 @@ ezJoltDefaultCharacterComponent
 ezJoltDistanceConstraintComponent
 ezJoltDynamicActorComponent
 ezJoltFixedConstraintComponent
+ezJoltGenerateCollisionComponent
 ezJoltGrabObjectComponent
 ezJoltHingeConstraintComponent
 ezJoltHitboxComponent
@@ -228,6 +229,8 @@ ezSphereReflectionProbeComponent
 ezSplineComponent
 ezSplineComponentFlags
 ezSplineComponentSpace
+ezSplineMeshComponent
+ezSplineMeshDistributionMode
 ezSplineNodeComponent
 ezSplineTangentMode
 ezSpotLightComponent

@@ -8,8 +8,8 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Logging/LogEntry.h>
 #include <Foundation/Threading/AtomicInteger.h>
-#include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Threading/Thread.h>
+#include <Foundation/Threading/ThreadSignal.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <ToolsFoundation/FileSystem/DataDirPath.h>
 #include <atomic>
@@ -58,6 +58,7 @@ struct ezAssetProcessorProgressEvent
   ezUuid m_AssetGuid;
   ezString m_sAssetPath;
   ezTime m_StartTime;
+  ezTime m_TransformStartTime;
   ezTime m_EndTime;
   ezTransformStatus m_Result; ///< Only valid when m_Type == ProcessingFinished
 };
@@ -94,6 +95,7 @@ public:
 
   ezUInt32 m_uiProcessorID;
   ezTime m_ProcessingStartTime;
+  ezThreadSignal* m_pNewWorkSignal = nullptr;
 
   bool Tick(bool bStartNewWork); // returns false, if all processing is done, otherwise call Tick again.
 
@@ -108,6 +110,7 @@ public:
 
 private:
   void EventHandlerIPC(const ezProcessCommunicationChannel::Event& e);
+  void ChannelEventHandler(const ezIpcChannelEvent& e);
 
   bool GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, ezDataDirPath& out_path, ezAssetInfo::TransformState& out_transformState);
   bool GetNextAssetToProcess(ezUuid& out_guid, ezDataDirPath& out_path, ezAssetInfo::TransformState& out_transformState);
@@ -117,6 +120,7 @@ private:
   State m_State = State::LookingForWork;
   ezEditorProcessCommunicationChannel* m_pIPC;
   bool m_bProcessShouldBeRunning = false;
+  bool m_bIsIdle = false;
 
   // New asset to process
   ezUuid m_AssetGuid;
@@ -135,6 +139,9 @@ private:
   ezMap<ezString, ezUInt64> m_MissmatchThumbnailDependencies;
   ezUInt64 m_uiMissmatchAssetHash = 0;
   ezUInt64 m_uiMissmatchThumbHash = 0;
+  ezTime m_StartedProcessing;
+  ezTime m_StartedTransform;
+  ezTime m_FinishedProcessing;
 };
 
 /// \brief Background asset processing is handled by this class.
@@ -192,6 +199,7 @@ private:
   ezAssetProcessorLog m_CuratorLog;
 
   // Process thread and its state
+  ezThreadSignal m_NewWorkSignal;
   ezUniquePtr<ezAssetProcessorThread> m_pThread;
   std::atomic<bool> m_bForceStop = false; ///< If set, background processes will be killed when stopping without waiting for their current task to finish.
 

@@ -10,9 +10,47 @@ param
 
 Set-Location $PSScriptRoot
 
+#region Helper Functions
+function Show-RepositorySetupError {
+    param(
+        [string]$ErrorReason
+    )
+
+    Write-Host ""
+    Write-Host "ERROR: $ErrorReason" -ForegroundColor Red
+    Write-Host ""
+    Write-Host "The ezEngine repository must be cloned using Git." -ForegroundColor Yellow
+    Write-Host ""
+    Write-Host "Please follow these steps:" -ForegroundColor Yellow
+    Write-Host "  1. Install Git from: https://git-scm.com/downloads" -ForegroundColor White
+    Write-Host "  2. Clone the ezEngine repository using:" -ForegroundColor White
+    Write-Host "     git clone https://github.com/ezEngine/ezEngine.git" -ForegroundColor White
+    Write-Host ""
+    Write-Host "Do NOT download the repository as a ZIP file from GitHub," -ForegroundColor Red
+    Write-Host "as this will not include the necessary data." -ForegroundColor Yellow
+    Write-Host ""
+    throw "Repository setup is invalid. Please clone with Git."
+}
+#endregion
+
+#region Git Availability Check
+Write-Host "Verifying repository setup..." -ForegroundColor Cyan
+
+# Check if git is available
+$gitCommand = Get-Command git -ErrorAction SilentlyContinue
+if ($null -eq $gitCommand) {
+    Show-RepositorySetupError -ErrorReason "Git is not installed or not available in PATH"
+}
+#endregion
+
 #region Submodule Update
 if ($NoSubmoduleUpdate -eq $False) {
-    $CURRENT_COMMIT = git log -n 1 --format=%H
+    # Verify this is a valid Git repository
+    $CURRENT_COMMIT = git log -n 1 --format=%H 2>&1
+
+    if ($LASTEXITCODE -ne 0) {
+        Show-RepositorySetupError -ErrorReason "This directory is not a valid Git repository"
+    }
 
     Write-Host "Current commit: $CURRENT_COMMIT"
 
@@ -40,6 +78,15 @@ if ($NoSubmoduleUpdate -eq $False) {
         Out-File ( New-Item -Path $LAST_UPDATE_FILE -Force) -InputObject $CURRENT_COMMIT
     }
 }
+#endregion
+
+#region Repository Sanity Check
+# Verify that essential precompiled tools are present (indicates proper git clone with submodules)
+$licenseFile = "$PSScriptRoot\Data\Tools\Precompiled\LICENSE.md"
+if (-not (Test-Path $licenseFile -PathType Leaf)) {
+    Show-RepositorySetupError -ErrorReason "Required submodule files are missing (Data\Tools\Precompiled\LICENSE.md not found)"
+}
+
 #endregion
 
 #region Android Dependencies

@@ -14,8 +14,6 @@ class ezQtJoltCollisionMeshAssetDocumentWindow : public ezQtEngineDocumentWindow
 public:
   ezQtJoltCollisionMeshAssetDocumentWindow(ezAssetDocument* pDocument);
 
-  virtual const char* GetWindowLayoutGroupName() const override { return "JoltCollisionMeshAsset"; }
-
 protected:
   virtual void InternalRedraw() override;
   virtual void ProcessMessageEventHandler(const ezEditorEngineDocumentMsg* pMsg) override;

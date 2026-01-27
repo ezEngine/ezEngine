@@ -8,6 +8,28 @@
 #include <RendererFoundation/Resources/Texture.h>
 #include <RendererTest/Basics/ReadbackBuffer.h>
 
+ezResult ezRendererTestReadbackBuffer::InitializeTest()
+{
+  ezStartup::StartupCoreSystems();
+
+  if (SetupRenderer().Failed())
+    return EZ_FAILURE;
+
+  EZ_SUCCEED_OR_RETURN(CreateWindow(320, 240));
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezRendererTestReadbackBuffer::DeInitializeTest()
+{
+  DestroyWindow();
+  ShutdownRenderer();
+  ezStartup::ShutdownCoreSystems();
+  ezMemoryTracker::DumpMemoryLeaks();
+
+  return EZ_SUCCESS;
+}
+
 void ezRendererTestReadbackBuffer::SetupSubTests()
 {
   const ezGALDeviceCapabilities& caps = GetDeviceCapabilities();
@@ -25,10 +47,9 @@ void ezRendererTestReadbackBuffer::SetupSubTests()
 ezResult ezRendererTestReadbackBuffer::InitializeSubTest(ezInt32 iIdentifier)
 {
   m_iFrame = -1;
+  m_bCaptureImage = false;
+  m_ImgCompFrames.Clear();
   m_bReadbackInProgress = true;
-
-  EZ_SUCCEED_OR_RETURN(ezGraphicsTest::InitializeSubTest(iIdentifier));
-  EZ_SUCCEED_OR_RETURN(CreateWindow(320, 240));
 
   // m_hUVColorShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/ReadbackFloat.ezShader");
 
@@ -138,10 +159,7 @@ ezResult ezRendererTestReadbackBuffer::DeInitializeSubTest(ezInt32 iIdentifier)
 
   m_hComputeShader.Invalidate();
 
-  DestroyWindow();
-
-  if (ezGraphicsTest::DeInitializeSubTest(iIdentifier).Failed())
-    return EZ_FAILURE;
+  // Don't call parent's DeInitializeSubTest - renderer shutdown happens in DeInitializeTest
 
   return EZ_SUCCESS;
 }

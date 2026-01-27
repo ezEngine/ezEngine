@@ -45,11 +45,18 @@ public:
 
   void GetDocumentWindows(ezHybridArray<ezQtDocumentWindow*, 16>& ref_windows);
 
-  void SaveWindowLayout();
-  void SaveDocumentLayouts();
-  void RestoreWindowLayout();
+  struct DocumentWindowState
+  {
+    bool m_bFloating = false;
+  };
 
-  void ScheduleRestoreWindowLayout();
+  /// Saves the current state (floating/docked) of all document windows.
+  /// Call before restoring a layout.
+  void SaveDocumentWindowStates(ezMap<ads::CDockWidget*, DocumentWindowState>& out_states);
+
+  /// Restores document windows to their previous states after a layout change.
+  /// Call after restoring a layout.
+  void RestoreDocumentWindowStates(const ezMap<ads::CDockWidget*, DocumentWindowState>& states);
 
 protected:
   virtual bool eventFilter(QObject* obj, QEvent* e) override;
@@ -62,12 +69,8 @@ private:
   ezResult EnsureVisible(ezDocument* pDocument);
   ezResult EnsureVisible(ezQtApplicationPanel* pPanel);
 
-  bool m_bWindowLayoutRestored;
-  ezInt32 m_iWindowLayoutRestoreScheduled;
-
 private Q_SLOTS:
   void SlotDocumentTabCloseRequested();
-  void SlotRestoreLayout();
   void SlotTabsContextMenuRequested(const QPoint& pos);
   void SlotUpdateWindowDecoration(void* pDocWindow);
   void SlotFloatingWidgetOpened(ads::CFloatingDockContainer* FloatingWidget);

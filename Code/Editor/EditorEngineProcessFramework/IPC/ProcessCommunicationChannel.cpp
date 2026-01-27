@@ -53,7 +53,7 @@ void ezProcessCommunicationChannel::WaitForMessages()
   m_pProtocol->WaitForMessages().IgnoreResult();
 }
 
-void ezProcessCommunicationChannel::MessageFunc(const ezIpcProcessMessageProtocol::Event& msg)
+void ezProcessCommunicationChannel::OnIpcProtocolEvent(const ezIpcProcessMessageProtocol::Event& msg)
 {
   const ezProcessMessage* pMsg = msg.m_pMessage;
   const ezRTTI* pRtti = pMsg->GetDynamicRTTI();
@@ -83,6 +83,35 @@ void ezProcessCommunicationChannel::MessageFunc(const ezIpcProcessMessageProtoco
   e.m_bInterruptMessageProcessing = msg.m_bInterruptMessageProcessing;
   m_Events.Broadcast(e);
   msg.m_bInterruptMessageProcessing = e.m_bInterruptMessageProcessing;
+}
+
+void ezProcessCommunicationChannel::OnIpcChannelEvent(const ezIpcChannelEvent& msg)
+{
+  m_IpcChannelEvents.Broadcast(msg);
+}
+
+void ezProcessCommunicationChannel::CreateAndConnectChannel(ezInternal::NewInstance<ezIpcChannel>&& channel)
+{
+  EZ_ASSERT_DEBUG(m_pChannel == nullptr, "Channel already created");
+  m_pChannel = channel;
+  m_pProtocol = EZ_DEFAULT_NEW(ezIpcProcessMessageProtocol, m_pChannel.Borrow());
+  m_pProtocol->m_MessageEvent.AddEventHandler(ezMakeDelegate(&ezProcessCommunicationChannel::OnIpcProtocolEvent, this));
+  m_pChannel->m_Events.AddEventHandler(ezMakeDelegate(&ezProcessCommunicationChannel::OnIpcChannelEvent, this));
+  m_pChannel->Connect();
+}
+
+void ezProcessCommunicationChannel::DestroyChannel()
+{
+  if (m_pProtocol)
+  {
+    m_pProtocol->m_MessageEvent.RemoveEventHandler(ezMakeDelegate(&ezProcessCommunicationChannel::OnIpcProtocolEvent, this));
+    m_pProtocol.Clear();
+  }
+  if (m_pChannel)
+  {
+    m_pChannel->m_Events.RemoveEventHandler(ezMakeDelegate(&ezProcessCommunicationChannel::OnIpcChannelEvent, this));
+    m_pChannel.Clear();
+  }
 }
 
 ezResult ezProcessCommunicationChannel::WaitForMessage(const ezRTTI* pMessageType, ezTime timeout, WaitForMessageCallback* pMessageCallack)

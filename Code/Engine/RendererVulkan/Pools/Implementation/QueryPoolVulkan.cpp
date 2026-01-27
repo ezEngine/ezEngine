@@ -65,30 +65,64 @@ void ezQueryPoolVulkan::Calibrate()
 {
   EZ_PROFILE_SCOPE("Calibrate");
   // #TODO_VULKAN Replace with VK_KHR_calibrated_timestamps
-  // To correlate CPU to GPU time, we create an event, wait a bit for the GPU to get stuck on it and then signal it.
-  // We then observe the time right after on the CPU and on the GPU via a timestamp query.
-  vk::EventCreateInfo eventCreateInfo;
-  vk::Event event;
-  VK_ASSERT_DEV(m_TimestampPool.m_device.createEvent(&eventCreateInfo, nullptr, &event));
+  // Prefer a host-signaled timeline semaphore so the GPU can wait on the host.
+  if (m_pDevice->GetExtensions().m_bTimelineSemaphore)
+  {
+    vk::SemaphoreTypeCreateInfo timelineTypeInfo;
+    timelineTypeInfo.semaphoreType = vk::SemaphoreType::eTimeline;
+    timelineTypeInfo.initialValue = 0;
 
-  m_TimestampPool.m_device.waitIdle();
-  vk::CommandBuffer cb = m_pDevice->GetCurrentCommandBuffer();
-  cb.waitEvents(1, &event, vk::PipelineStageFlagBits::eHost, vk::PipelineStageFlagBits::eHost | vk::PipelineStageFlagBits::eTopOfPipe, 0, nullptr, 0, nullptr, 0, nullptr);
-  auto hTimestamp = InsertTimestamp(cb, vk::PipelineStageFlagBits::eTopOfPipe);
-  vk::Fence fence = m_pDevice->Submit();
+    vk::SemaphoreCreateInfo semCreateInfo;
+    semCreateInfo.pNext = &timelineTypeInfo;
 
-  ezTime systemTS;
-  ezThreadUtils::Sleep(ezTime::Milliseconds(100)); // Waiting for 100ms should be enough for the GPU to have gotten stuck on the event right?
-  m_TimestampPool.m_device.setEvent(event);
-  systemTS = ezTime::Now();
+    vk::Semaphore timelineSemaphore;
+    VK_ASSERT_DEV(m_TimestampPool.m_device.createSemaphore(&semCreateInfo, nullptr, &timelineSemaphore));
 
-  VK_ASSERT_DEV(m_TimestampPool.m_device.waitForFences(1, &fence, true, ezMath::MaxValue<ezUInt64>()));
+    m_TimestampPool.m_device.waitIdle();
+    vk::CommandBuffer cb = m_pDevice->GetCurrentCommandBuffer();
 
-  ezTime gpuTS;
-  EZ_VERIFY(GetTimestampResult(hTimestamp, gpuTS, true) == ezGALAsyncResult::Ready, "");
-  m_gpuToCpuDelta = systemTS - gpuTS;
+    // Insert the timestamp into the command buffer which will wait for the
+    // timeline semaphore to be signaled by the host before executing.
+    auto hTimestamp = InsertTimestamp(cb, vk::PipelineStageFlagBits::eTopOfPipe);
 
-  m_TimestampPool.m_device.destroyEvent(event);
+    m_pDevice->AddWaitSemaphore(ezGALDeviceVulkan::SemaphoreInfo::MakeWaitSemaphore(timelineSemaphore, vk::PipelineStageFlagBits::eTopOfPipe, vk::SemaphoreType::eTimeline, 1));
+
+    vk::Fence fence = m_pDevice->Submit();
+
+    // Signal the timeline semaphore from the host to let the GPU continue.
+    ezThreadUtils::Sleep(ezTime::Milliseconds(10));
+
+    vk::SemaphoreSignalInfo signalInfo;
+    signalInfo.semaphore = timelineSemaphore;
+    signalInfo.value = 1;
+    VK_ASSERT_DEV(m_TimestampPool.m_device.signalSemaphore(&signalInfo));
+    const ezTime systemTS = ezTime::Now();
+
+    VK_ASSERT_DEV(m_TimestampPool.m_device.waitForFences(1, &fence, true, ezMath::MaxValue<ezUInt64>()));
+
+    ezTime gpuTS;
+    EZ_VERIFY(GetTimestampResult(hTimestamp, gpuTS, true) == ezGALAsyncResult::Ready, "");
+    m_gpuToCpuDelta = systemTS - gpuTS;
+
+    m_TimestampPool.m_device.destroySemaphore(timelineSemaphore);
+  }
+  else
+  {
+    // Fallback for hardware without timeline semaphore support:
+    // Insert a timestamp, submit and wait for the fence, then sample host time.
+    // This provides a usable (though possibly less precise) GPU->CPU delta.
+    m_TimestampPool.m_device.waitIdle();
+    vk::CommandBuffer cb = m_pDevice->GetCurrentCommandBuffer();
+    auto hTimestamp = InsertTimestamp(cb, vk::PipelineStageFlagBits::eTopOfPipe);
+    vk::Fence fence = m_pDevice->Submit();
+
+    VK_ASSERT_DEV(m_TimestampPool.m_device.waitForFences(1, &fence, true, ezMath::MaxValue<ezUInt64>()));
+
+    const ezTime systemTS = ezTime::Now();
+    ezTime gpuTS;
+    EZ_VERIFY(GetTimestampResult(hTimestamp, gpuTS, true) == ezGALAsyncResult::Ready, "");
+    m_gpuToCpuDelta = systemTS - gpuTS;
+  }
 }
 
 void ezQueryPoolVulkan::AfterBeginFrame(vk::CommandBuffer commandBuffer)

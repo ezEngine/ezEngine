@@ -4,6 +4,7 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/EditorFrameworkPCH.h>
 #include <Foundation/Strings/PathUtils.h>
+#include <Foundation/Time/Stopwatch.h>
 #include <GuiFoundation/Widgets/GridBarWidget.moc.h>
 #include <GuiFoundation/Widgets/WidgetUtils.h>
 #include <QMouseEvent>
@@ -52,7 +53,7 @@ ezTime ezQtAssetProcessorProgressWidget::HistoryState::GetLatestTaskTime() const
     if (!history.IsEmpty())
     {
       auto& task = history.PeekBack();
-      ezTime taskTime = task.IsFinished() ? task.EndTime() : (ezTime::Now() - m_CurrentOffset);
+      ezTime taskTime = task.IsFinished() ? ezTime::MakeFromSeconds(task.EndTime()) : (ezTime::Now() - m_CurrentOffset);
       if (taskTime > latest)
       {
         latest = taskTime;
@@ -99,7 +100,8 @@ void ezQtAssetProcessorProgressWidget::HistoryState::OnProgressEvent(const ezAss
     // Add new task
     ProcessorTask task;
     task.m_AssetGuid = e.m_AssetGuid;
-    task.m_StartTime = e.m_StartTime - m_CurrentOffset;
+    task.m_fStartTimeInSeconds = static_cast<float>((e.m_StartTime - m_CurrentOffset).GetSeconds());
+    task.m_fTransformStartTimeInSeconds = task.m_fStartTimeInSeconds;
     task.m_TransformState = e.m_TransformState;
     history.PushBack(task);
   }
@@ -109,6 +111,7 @@ void ezQtAssetProcessorProgressWidget::HistoryState::OnProgressEvent(const ezAss
     EZ_ASSERT_DEBUG(task.m_AssetGuid == e.m_AssetGuid, "Processing finished should always map to the previously started asset");
     EZ_ASSERT_DEBUG(!task.IsFinished(), "Last task should not be finished if ProcessingFinished is emitted");
     task.m_fDurationInSeconds = static_cast<float>((e.m_EndTime - e.m_StartTime).GetSeconds());
+    task.m_fTransformStartTimeInSeconds = static_cast<float>((e.m_TransformStartTime - m_CurrentOffset).GetSeconds());
     if (e.m_Result.Failed())
     {
       m_FailedTransforms.PushBack(e.m_Result);
@@ -147,22 +150,22 @@ const ezQtAssetProcessorProgressWidget::ProcessorTask* ezQtAssetProcessorProgres
   EZ_LOCK(m_HistoryMutex);
 
   const ezDynamicArray<ProcessorTask>& history = m_ProcessorHistory[uiProcessorID];
-  const ezTime currentTime = ezTime::Now() - m_CurrentOffset;
+  const float fCurrentTime = static_cast<float>((ezTime::Now() - m_CurrentOffset).GetSeconds());
 
   // Use binary search to find the task at pointInTime
   auto it = std::upper_bound(begin(history), end(history), fPointInTimeSec,
     [&](double time, const ProcessorTask& task)
     {
-      return time < task.m_StartTime.GetSeconds();
+      return time < task.m_fStartTimeInSeconds;
     });
 
   if (it != begin(history))
   {
     --it;
-    double startTime = it->m_StartTime.GetSeconds();
-    double endTime = it->IsFinished() ? it->EndTime().GetSeconds() : currentTime.GetSeconds();
+    float fStartTime = it->m_fStartTimeInSeconds;
+    float fEndTime = it->IsFinished() ? it->EndTime() : fCurrentTime;
 
-    if (fPointInTimeSec >= startTime && fPointInTimeSec <= endTime)
+    if (fPointInTimeSec >= fStartTime && fPointInTimeSec <= fEndTime)
     {
       return &(*it);
     }
@@ -216,6 +219,45 @@ ezQtAssetProcessorProgressWidget::~ezQtAssetProcessorProgressWidget()
   m_pHistoryState->m_pParent = nullptr;
 }
 
+void ezQtAssetProcessorProgressWidget::InitializePaintCaches() const
+{
+  if (m_bCachesInitialized)
+    return;
+
+  m_bCachesInitialized = true;
+
+  // Initialize fonts
+  m_ProcessorLabelFont = font();
+  m_ProcessorLabelFont.setPointSize(9);
+
+  m_TaskLabelFont = font();
+  m_TaskLabelFont.setPointSize(8);
+
+  // Create skip offset pattern pixmap
+  m_SkipOffsetPattern = QPixmap(16, 16);
+  m_SkipOffsetPattern.fill(Qt::transparent);
+  QPainter pixPainter(&m_SkipOffsetPattern);
+  pixPainter.setPen(QPen(palette().color(QPalette::AlternateBase), 5));
+  pixPainter.drawLine(-16, -16, 32, 32);
+  pixPainter.drawLine(-32, -16, 16, 32);
+  pixPainter.drawLine(0, -16, 48, 32);
+  pixPainter.end();
+
+  // Cache task colors
+  m_NeedsTransformColor[0] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Blue));
+  m_NeedsTransformColor[1] = m_NeedsTransformColor[0].darker(150);
+  m_NeedsThumbnailColor[0] = ezToQtColor(ezColorScheme::DarkUI(float(ezColorScheme::Blue + ezColorScheme::Green) * 0.5f * ezColorScheme::s_fIndexNormalizer));
+  m_NeedsThumbnailColor[1] = m_NeedsThumbnailColor[0].darker(150);
+  m_ErrorColor[0] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Red));
+  m_ErrorColor[1] = m_ErrorColor[0].darker(150);
+}
+
+void ezQtAssetProcessorProgressWidget::InvalidatePaintCaches()
+{
+  m_bCachesInitialized = false;
+  m_ProcessorLabels.Clear();
+}
+
 void ezQtAssetProcessorProgressWidget::SetGridBarWidget(ezQGridBarWidget* pGridBar)
 {
   EZ_ASSERT_DEBUG(m_pGridBar == nullptr, "SetGridBarWidget should only be called once.");
@@ -235,10 +277,11 @@ void ezQtAssetProcessorProgressWidget::SetScrollBarWidget(QScrollBar* pScrollBar
     {
       m_fSceneTranslationX = static_cast<double>(v) / 1000.0;
       ClampZoomPan();
-      m_AssetNameCache.Clear();
       UpdateGridBarConfig();
       update(); //
     });
+  connect(m_pScrollBar, &QScrollBar::sliderReleased, this, [this]()
+    { m_AssetNameCache.Clear(); });
 
   ClampZoomPan();
   UpdateGridBarConfig();
@@ -258,7 +301,13 @@ void ezQtAssetProcessorProgressWidget::ClearHistory()
 
 void ezQtAssetProcessorProgressWidget::paintEvent(QPaintEvent* event)
 {
+  EZ_PROFILE_SCOPE("ezQtAssetProcessorProgressWidget::paintEvent");
+
+  // Initialize caches on first paint
+  InitializePaintCaches();
+
   QPainter painter(this);
+  painter.setRenderHint(QPainter::Antialiasing, false);
   DrawTimeline(painter);
 }
 
@@ -372,6 +421,16 @@ void ezQtAssetProcessorProgressWidget::wheelEvent(QWheelEvent* e)
   update();
 }
 
+void ezQtAssetProcessorProgressWidget::changeEvent(QEvent* e)
+{
+  QWidget::changeEvent(e);
+
+  if (e->type() == QEvent::PaletteChange || e->type() == QEvent::StyleChange)
+  {
+    InvalidatePaintCaches();
+  }
+}
+
 QSize ezQtAssetProcessorProgressWidget::sizeHint() const
 {
   int height = s_iTopMargin + (s_iRowHeight + s_iRowSpacing) * m_uiMaxProcessors;
@@ -425,8 +484,6 @@ void ezQtAssetProcessorProgressWidget::OnHistoryChanged()
     ClampZoomPan();
     UpdateGridBarConfig();
   }
-
-  update();
 }
 
 void ezQtAssetProcessorProgressWidget::OnProcessorStateChanged()
@@ -591,6 +648,7 @@ void ezQtAssetProcessorProgressWidget::ShowTooltip(QMouseEvent* e)
   if (pTask->IsFinished())
   {
     sTooltip.AppendFormat("\n{} duration: {}s", pTask->m_TransformState == ezAssetInfo::TransformState::NeedsTransform ? "Transform" : "Thumbnail", ezArgF(pTask->m_fDurationInSeconds, 3));
+    sTooltip.AppendFormat("\nTime spent on curator updates: {}s", ezArgF(pTask->m_fTransformStartTimeInSeconds - pTask->m_fStartTimeInSeconds, 3));
 
     if (pTask->Failed())
     {
@@ -620,8 +678,53 @@ void ezQtAssetProcessorProgressWidget::DrawProcessorRow(QPainter& painter, ezUIn
   const int timelineWidth = widgetWidth - s_iLeftMargin;
   const QRectF viewportRect = ComputeViewportSceneRect();
 
-  EZ_LOCK(m_pHistoryState->m_HistoryMutex);
-  const ezEditorProcessorState state = m_pHistoryState->m_ProcessStates[uiProcessorID];
+  // Copy state data and history under lock, then draw without lock
+  ezEditorProcessorState state;
+  ezDynamicArray<ProcessorTask> visibleTasks;
+  ezHybridArray<ezTime, 8> skipOffsets;
+  ezTime currentTime;
+
+  {
+    EZ_LOCK(m_pHistoryState->m_HistoryMutex);
+
+    if (uiProcessorID < m_pHistoryState->m_ProcessStates.GetCount())
+    {
+      state = m_pHistoryState->m_ProcessStates[uiProcessorID];
+    }
+
+    skipOffsets = m_pHistoryState->m_SkipOffsets;
+    currentTime = ezTime::Now() - m_pHistoryState->m_CurrentOffset;
+
+    // Copy only visible tasks
+    if (uiProcessorID < m_pHistoryState->m_ProcessorHistory.GetCount())
+    {
+      const auto& history = m_pHistoryState->m_ProcessorHistory[uiProcessorID];
+      visibleTasks.Reserve(history.GetCount());
+      const float fStartTimeView = static_cast<float>(MapToScene({s_iLeftMargin, 0}).x());
+      const float fCurrentTimeSeconds = static_cast<float>(currentTime.GetSeconds());
+
+      auto it = std::upper_bound(begin(history), end(history), fStartTimeView,
+        [&](float time, const ProcessorTask& task)
+        {
+          return time < task.m_fStartTimeInSeconds;
+        });
+      if (it != begin(history))
+        it--;
+
+      for (; it != end(history); ++it)
+      {
+        const ProcessorTask& task = *it;
+        float fTaskEndTime = task.IsFinished() ? task.EndTime() : fCurrentTimeSeconds;
+
+        if (fTaskEndTime < viewportRect.left())
+          continue;
+        if (task.m_fStartTimeInSeconds > viewportRect.right())
+          break;
+
+        visibleTasks.PushBack(task);
+      }
+    }
+  }
 
   // Draw processor label background
   painter.fillRect(0, y, s_iLeftMargin - 5, s_iRowHeight, palette().color(QPalette::Window));
@@ -635,22 +738,25 @@ void ezQtAssetProcessorProgressWidget::DrawProcessorRow(QPainter& painter, ezUIn
     {
       indicatorColor = state.m_bRunning ? ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Green)) : ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Yellow));
     }
-    painter.setRenderHint(QPainter::Antialiasing);
     painter.setBrush(indicatorColor);
     painter.setPen(indicatorColor.darker(150));
     painter.drawEllipse(indicatorX, indicatorY, s_iIndicatorSize, s_iIndicatorSize);
     painter.setBrush(Qt::NoBrush);
-    painter.setRenderHint(QPainter::Antialiasing, false);
   }
 
   // Draw processor label
   {
     painter.setPen(palette().color(QPalette::Text));
-    QFont labelFont = painter.font();
-    labelFont.setPointSize(9);
-    painter.setFont(labelFont);
+    painter.setFont(m_ProcessorLabelFont);
+
+    // Ensure we have a cached label for this processor
+    while (m_ProcessorLabels.GetCount() <= uiProcessorID)
+    {
+      m_ProcessorLabels.PushBack(QString("Process %1").arg(m_ProcessorLabels.GetCount()));
+    }
+
     painter.drawText(5 + s_iIndicatorSize + 8, y, s_iLeftMargin - 23 - s_iIndicatorSize, s_iRowHeight, Qt::AlignVCenter | Qt::AlignLeft,
-      QString("Process %1").arg(uiProcessorID));
+      m_ProcessorLabels[uiProcessorID]);
   }
 
   // Draw row background
@@ -658,16 +764,7 @@ void ezQtAssetProcessorProgressWidget::DrawProcessorRow(QPainter& painter, ezUIn
 
   // Draw skip offsets
   {
-    QPixmap pixmap(16, 16);
-    pixmap.fill(Qt::transparent);
-    QPainter pixPainter(&pixmap);
-    pixPainter.setPen(QPen(palette().color(QPalette::AlternateBase), 5));
-    pixPainter.drawLine(-16, -16, 32, 32);
-    pixPainter.drawLine(-32, -16, 16, 32);
-    pixPainter.drawLine(0, -16, 48, 32);
-    pixPainter.end();
-
-    for (const auto& skipOffset : m_pHistoryState->m_SkipOffsets)
+    for (const auto& skipOffset : skipOffsets)
     {
       QPoint startPt = MapFromScene(QPointF(skipOffset.GetSeconds(), y));
       if (startPt.x() < s_iLeftMargin)
@@ -676,47 +773,22 @@ void ezQtAssetProcessorProgressWidget::DrawProcessorRow(QPainter& painter, ezUIn
       }
       QPoint endPt = MapFromScene(QPointF(skipOffset.GetSeconds() + 1, y + s_iRowHeight));
       if (startPt.x() < endPt.x())
-        painter.fillRect(QRectF(startPt, endPt), QBrush(pixmap));
+        painter.fillRect(QRectF(startPt, endPt), QBrush(m_SkipOffsetPattern));
     }
   }
 
   // Draw tasks for this processor
-  if (uiProcessorID >= m_pHistoryState->m_ProcessorHistory.GetCount())
-    return;
-
-  const auto& history = m_pHistoryState->m_ProcessorHistory[uiProcessorID];
-  const ezTime currentTime = ezTime::Now() - m_pHistoryState->m_CurrentOffset;
-
-  // Find first visible task
-  const double startTime = MapToScene({s_iLeftMargin, 0}).x();
-  auto it = std::upper_bound(begin(history), end(history), startTime,
-    [&](double time, const ProcessorTask& task)
-    {
-      return time < task.m_StartTime.GetSeconds();
-    });
-  if (it != begin(history))
-    it--;
-
-  for (; it != end(history); ++it)
+  for (const ProcessorTask& task : visibleTasks)
   {
-    const ProcessorTask& task = *it;
-    ezTime taskStartTime = task.m_StartTime;
-    ezTime taskEndTime = task.IsFinished() ? task.EndTime() : currentTime;
-
-    double startSeconds = taskStartTime.GetSeconds();
-    double endSeconds = taskEndTime.GetSeconds();
-
-    // Skip if outside visible window
-    if (endSeconds < viewportRect.left())
-      continue;
-
-    if (startSeconds > viewportRect.right())
-      break;
+    float fTaskStartTime = task.m_fStartTimeInSeconds;
+    float fTaskEndTime = task.IsFinished() ? task.EndTime() : static_cast<float>(currentTime.GetSeconds());
 
     // Map to screen coordinates
-    QPoint startPt = MapFromScene(QPointF(startSeconds, y + 2));
-    QPoint endPt = MapFromScene(QPointF(endSeconds, y + s_iRowHeight - 4));
+    QPoint startPt = MapFromScene(QPointF(fTaskStartTime, y + 2));
+    QPoint transformPt = MapFromScene(QPointF(task.m_fTransformStartTimeInSeconds, y + 2));
+    QPoint endPt = MapFromScene(QPointF(fTaskEndTime, y + s_iRowHeight - 4));
     startPt.setX(ezMath::Max(startPt.x(), s_iLeftMargin));
+    transformPt.setX(ezMath::Max(transformPt.x(), s_iLeftMargin));
     endPt.setX(ezMath::Min(endPt.x(), widgetWidth));
     if (startPt.x() > endPt.x())
       continue;
@@ -725,55 +797,52 @@ void ezQtAssetProcessorProgressWidget::DrawProcessorRow(QPainter& painter, ezUIn
       endPt.setX(endPt.x() + 1);
 
     const QRect rect(startPt, endPt);
-    DrawProcessorTask(painter, task, rect);
+    const QRect actualWork(transformPt, endPt);
+    DrawProcessorTask(painter, task, rect, actualWork);
   }
 }
 
-void ezQtAssetProcessorProgressWidget::DrawProcessorTask(QPainter& painter, const ProcessorTask& task, QRect rect) const
+void ezQtAssetProcessorProgressWidget::DrawProcessorTask(QPainter& painter, const ProcessorTask& task, const QRect& rect, const QRect& actualWork) const
 {
   // Choose color based on status
   QColor barColor;
+  QColor barColorDarker;
   switch (task.m_TransformState)
   {
     case ezAssetInfo::NeedsTransform:
-      barColor = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Blue));
+      barColor = m_NeedsTransformColor[0];
+      barColorDarker = m_NeedsTransformColor[1];
       break;
     case ezAssetInfo::NeedsThumbnail:
-      barColor = ezToQtColor(ezColorScheme::DarkUI(float(ezColorScheme::Blue + ezColorScheme::Green) * 0.5f * ezColorScheme::s_fIndexNormalizer));
+      barColor = m_NeedsThumbnailColor[0];
+      barColorDarker = m_NeedsThumbnailColor[1];
       break;
     default:
       barColor = palette().color(QPalette::Highlight);
+      barColorDarker = barColor.darker(150);
       break;
   }
-
-  if (!task.IsFinished())
+  if (task.Failed())
   {
-    barColor = barColor.darker(150);
-  }
-  else if (task.Failed())
-  {
-    barColor = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Red));
+    barColor = m_ErrorColor[0];
+    barColorDarker = m_ErrorColor[1];
   }
 
-  // Draw task bar
-  painter.fillRect(rect, barColor);
-
-  // Draw border
-  painter.setPen(barColor.darker(120));
-  painter.drawRect(rect);
+  // Draw task bar. The rect is over the entire task runtime
+  painter.fillRect(rect, barColorDarker);
+  // The actual work is when the task was actually processing instead of checking the asset curator for up-to-date info. We adjust the rect so we get a convenient border from the rect above.
+  painter.fillRect(actualWork.adjusted(1, 1, -1, -1), task.IsFinished() ? barColor : barColorDarker);
 
   // Draw asset name if there's enough space
   int barWidth = rect.width();
   if (barWidth > 30)
   {
     painter.setPen(palette().color(QPalette::BrightText));
-    QFont taskFont = painter.font();
-    taskFont.setPointSize(8);
-    painter.setFont(taskFont);
+    painter.setFont(m_TaskLabelFont);
 
     ezStringView fileName = ezPathUtils::GetFileNameAndExtension(GetAssetPath(task.m_AssetGuid));
     QString shortName = ezMakeQString(fileName);
-    QFontMetrics fm(taskFont);
+    QFontMetrics fm(m_TaskLabelFont);
     QString elidedName = fm.elidedText(shortName, Qt::ElideRight, barWidth - 6);
     QRect textRect = rect.adjusted(3, 0, -3, 0);
     painter.drawText(textRect, Qt::AlignVCenter | Qt::AlignLeft, elidedName);

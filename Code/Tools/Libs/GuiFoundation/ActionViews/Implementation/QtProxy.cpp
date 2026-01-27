@@ -378,11 +378,14 @@ void SetupQAction(ezAction* pAction, QPointer<QAction>& ref_pQtAction, QObject* 
       break;
       case ezActionScope::Document:
       {
-        // Parent is set to the window belonging to the document.
-        ezQtDocumentWindow* pWindow = ezQtDocumentWindow::FindWindowByDocument(pAction->GetContext().m_pDocument);
-        EZ_ASSERT_DEBUG(pWindow != nullptr, "You can't map a ezActionScope::Document action without that document existing!");
-        ref_pQtAction->setParent(pWindow);
-        ref_pQtAction->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+        if (pAction->GetContext().m_pDocument)
+        {
+          // Parent is set to the window belonging to the document.
+          ezQtDocumentWindow* pWindow = ezQtDocumentWindow::FindWindowByDocument(pAction->GetContext().m_pDocument);
+          EZ_ASSERT_DEBUG(pWindow != nullptr, "You can't map a ezActionScope::Document action without that document existing!");
+          ref_pQtAction->setParent(pWindow);
+          ref_pQtAction->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+        }
       }
       break;
       case ezActionScope::Window:
