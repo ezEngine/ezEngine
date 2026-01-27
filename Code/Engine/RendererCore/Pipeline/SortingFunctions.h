@@ -19,7 +19,7 @@ public:
   /// Used for transparent geometry to ensure correct blending order.
   static ezUInt64 BackToFrontThenByRenderData(const ezRenderData* pRenderData, const ezCamera& camera);
 
-  /// \brief Sorts only by the render data's depth offset and ignores position, type and sorting key.
+  /// \brief Sorts only by the render data's depth offset back-to-front, meaning render data with a higher depth offset is rendered first.
   ///
   /// This can be used for special cases like full-screen effects where the render order needs to be fully deterministic.
   static ezUInt64 ByDepthOffsetOnly(const ezRenderData* pRenderData, const ezCamera& camera);

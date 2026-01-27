@@ -55,7 +55,7 @@ ezUInt64 ezRenderSortingFunctions::ByDepthOffsetOnly(const ezRenderData* pRender
 {
   const float fMidDistance = camera.GetFarPlane() * 0.5f;
   const float fDistance = fMidDistance + pRenderData->m_fSortingDepthOffset;
-  const ezUInt64 uiDistance = NormalizeDistance<32>(fDistance, camera.GetFarPlane());
+  const ezUInt64 uiInvDistance = 0xFFFFFFFF - NormalizeDistance<32>(fDistance, camera.GetFarPlane());
 
-  return uiDistance;
+  return uiInvDistance;
 }
