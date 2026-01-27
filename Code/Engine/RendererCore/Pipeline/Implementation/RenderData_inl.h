@@ -30,25 +30,6 @@ EZ_FORCE_INLINE ezHashedString ezRenderData::GetCategoryName(Category category)
   return ezHashedString();
 }
 
-// static
-EZ_FORCE_INLINE const ezRenderer* ezRenderData::GetCategoryRenderer(Category category, const ezRTTI* pRenderDataType)
-{
-  if (s_bRendererInstancesDirty)
-  {
-    CreateRendererInstances();
-  }
-
-  auto& categoryData = s_CategoryData[category.m_uiValue];
-
-  ezUInt32 uiIndex = 0;
-  if (categoryData.m_TypeToRendererIndex.TryGetValue(pRenderDataType, uiIndex))
-  {
-    return s_RendererInstances[uiIndex].Borrow();
-  }
-
-  return nullptr;
-}
-
 //////////////////////////////////////////////////////////////////////////
 
 EZ_ALWAYS_INLINE bool ezRenderData::IsDynamic() const

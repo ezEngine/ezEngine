@@ -32,9 +32,9 @@ ezParticlePointRenderer::~ezParticlePointRenderer()
   DestroyParticleDataBuffer(m_BillboardDataBuffer);
 }
 
-void ezParticlePointRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& ref_types) const
+void ezParticlePointRenderer::GetSupportedRenderDataTypes(ezDynamicArray<const ezRTTI*>& out_types) const
 {
-  ref_types.PushBack(ezGetStaticRTTI<ezParticlePointRenderData>());
+  out_types.PushBack(ezGetStaticRTTI<ezParticlePointRenderData>());
 }
 
 void ezParticlePointRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const

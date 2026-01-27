@@ -1,41 +1,13 @@
 #include <RendererCore/RendererCorePCH.h>
 
 #include <RendererCore/Pipeline/RenderData.h>
-#include <RendererCore/Pipeline/Renderer.h>
 #include <RendererCore/Pipeline/SortingFunctions.h>
-
-// clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, RenderData)
-
-  BEGIN_SUBSYSTEM_DEPENDENCIES
-    "Foundation"
-  END_SUBSYSTEM_DEPENDENCIES
-
-  ON_HIGHLEVELSYSTEMS_STARTUP
-  {
-    ezRenderData::UpdateRendererTypes();
-
-    ezPlugin::Events().AddEventHandler(ezRenderData::PluginEventHandler);
-  }
-
-  ON_HIGHLEVELSYSTEMS_SHUTDOWN
-  {
-    ezPlugin::Events().RemoveEventHandler(ezRenderData::PluginEventHandler);
-
-    ezRenderData::ClearRendererInstances();
-  }
-
-EZ_END_SUBSYSTEM_DECLARATION;
-// clang-format on
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInstanceableRenderData, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderer, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgExtractRenderData);
@@ -70,7 +42,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgCustomInstanceDataOffsetChanged, 1, ezRTTIN
   EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
 // clang-format on
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
@@ -82,10 +53,6 @@ static_assert(sizeof(ezInstanceableRenderData) == 64);
 #endif
 
 ezHybridArray<ezRenderData::CategoryData, 32> ezRenderData::s_CategoryData;
-
-ezHybridArray<const ezRTTI*, 16> ezRenderData::s_RendererTypes;
-ezDynamicArray<ezUniquePtr<ezRenderer>> ezRenderData::s_RendererInstances;
-bool ezRenderData::s_bRendererInstancesDirty = false;
 
 // static
 ezRenderData::Category ezRenderData::RegisterCategory(const char* szCategoryName, SortingKeyFunc sortingKeyFunc)
@@ -159,94 +126,6 @@ void ezRenderData::GetAllCategoryNames(ezDynamicArray<ezHashedString>& out_categ
   for (auto& data : s_CategoryData)
   {
     out_categoryNames.PushBack(data.m_sName);
-  }
-}
-
-// static
-void ezRenderData::PluginEventHandler(const ezPluginEvent& e)
-{
-  switch (e.m_EventType)
-  {
-    case ezPluginEvent::AfterPluginChanges:
-      UpdateRendererTypes();
-      break;
-
-    default:
-      break;
-  }
-}
-
-// static
-void ezRenderData::UpdateRendererTypes()
-{
-  s_RendererTypes.Clear();
-
-  ezRTTI::ForEachDerivedType<ezRenderer>([](const ezRTTI* pRtti)
-    { s_RendererTypes.PushBack(pRtti); },
-    ezRTTI::ForEachOptions::ExcludeNonAllocatable);
-
-  s_bRendererInstancesDirty = true;
-}
-
-// static
-void ezRenderData::CreateRendererInstances()
-{
-  ClearRendererInstances();
-
-  for (auto pRendererType : s_RendererTypes)
-  {
-    EZ_ASSERT_DEV(pRendererType->IsDerivedFrom(ezGetStaticRTTI<ezRenderer>()), "Renderer type '{}' must be derived from ezRenderer",
-      pRendererType->GetTypeName());
-
-    auto pRenderer = pRendererType->GetAllocator()->Allocate<ezRenderer>();
-
-    ezUInt32 uiIndex = s_RendererInstances.GetCount();
-    s_RendererInstances.PushBack(pRenderer);
-
-    ezHybridArray<Category, 8> supportedCategories;
-    pRenderer->GetSupportedRenderDataCategories(supportedCategories);
-
-    ezHybridArray<const ezRTTI*, 8> supportedTypes;
-    pRenderer->GetSupportedRenderDataTypes(supportedTypes);
-
-    for (auto pType : supportedTypes)
-    {
-      for (Category category : supportedCategories)
-      {
-        auto& categoryData = s_CategoryData[category.m_uiValue];
-        if (categoryData.m_staticCategory != ezInvalidRenderDataCategory)
-        {
-          s_CategoryData[categoryData.m_staticCategory.m_uiValue].m_TypeToRendererIndex.Insert(pType, uiIndex);
-          s_CategoryData[categoryData.m_dynamicCategory.m_uiValue].m_TypeToRendererIndex.Insert(pType, uiIndex);
-        }
-        else
-        {
-          categoryData.m_TypeToRendererIndex.Insert(pType, uiIndex);
-        }
-      }
-    }
-  }
-
-  // Copy the renderer types to derived categories
-  for (auto& categoryData : s_CategoryData)
-  {
-    if (categoryData.m_baseCategory == ezInvalidRenderDataCategory)
-      continue;
-
-    categoryData.m_TypeToRendererIndex = s_CategoryData[categoryData.m_baseCategory.m_uiValue].m_TypeToRendererIndex;
-  }
-
-  s_bRendererInstancesDirty = false;
-}
-
-// static
-void ezRenderData::ClearRendererInstances()
-{
-  s_RendererInstances.Clear();
-
-  for (auto& categoryData : s_CategoryData)
-  {
-    categoryData.m_TypeToRendererIndex.Clear();
   }
 }
 

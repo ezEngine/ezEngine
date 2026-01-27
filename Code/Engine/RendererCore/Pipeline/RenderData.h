@@ -38,8 +38,6 @@ public:
   static ezHashedString GetCategoryName(Category category);
   static void GetAllCategoryNames(ezDynamicArray<ezHashedString>& out_categoryNames);
 
-  static const ezRenderer* GetCategoryRenderer(Category category, const ezRTTI* pRenderDataType);
-
 public:
   struct Caching
   {
@@ -94,14 +92,6 @@ public:
 #endif
 
 private:
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererCore, RenderData);
-
-  static void PluginEventHandler(const ezPluginEvent& e);
-  static void UpdateRendererTypes();
-
-  static void CreateRendererInstances();
-  static void ClearRendererInstances();
-
   struct CategoryData
   {
     Category m_baseCategory;
@@ -110,15 +100,9 @@ private:
 
     ezHashedString m_sName;
     SortingKeyFunc m_sortingKeyFunc;
-
-    ezHashTable<const ezRTTI*, ezUInt32> m_TypeToRendererIndex;
   };
 
   static ezHybridArray<CategoryData, 32> s_CategoryData;
-
-  static ezHybridArray<const ezRTTI*, 16> s_RendererTypes;
-  static ezDynamicArray<ezUniquePtr<ezRenderer>> s_RendererInstances;
-  static bool s_bRendererInstancesDirty;
 };
 
 /// \brief Base class for render data that make uses of the instance data offset buffer which will be generated during the extraction phase.

@@ -49,11 +49,6 @@ void ezParticleRenderer::TempSystemCB::SetTrailData(float fSnapshotFraction, ezI
 ezParticleRenderer::ezParticleRenderer() = default;
 ezParticleRenderer::~ezParticleRenderer() = default;
 
-void ezParticleRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& ref_categories) const
-{
-  ref_categories.PushBack(ezDefaultRenderDataCategories::LitTransparent);
-}
-
 void ezParticleRenderer::CreateParticleDataBuffer(ezGALBufferPool& inout_Buffer, ezUInt32 uiDataTypeSize, ezUInt32 uiNumParticlesPerBatch)
 {
   if (!inout_Buffer.IsInitialized())

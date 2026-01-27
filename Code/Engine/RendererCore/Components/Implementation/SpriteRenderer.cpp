@@ -23,18 +23,9 @@ ezSpriteRenderer::ezSpriteRenderer()
 
 ezSpriteRenderer::~ezSpriteRenderer() = default;
 
-void ezSpriteRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& ref_types) const
+void ezSpriteRenderer::GetSupportedRenderDataTypes(ezDynamicArray<const ezRTTI*>& out_types) const
 {
-  ref_types.PushBack(ezGetStaticRTTI<ezSpriteRenderData>());
-}
-
-void ezSpriteRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& ref_categories) const
-{
-  ref_categories.PushBack(ezDefaultRenderDataCategories::LitMasked);
-  ref_categories.PushBack(ezDefaultRenderDataCategories::LitTransparent);
-  ref_categories.PushBack(ezDefaultRenderDataCategories::SimpleOpaque);
-  ref_categories.PushBack(ezDefaultRenderDataCategories::SimpleTransparent);
-  ref_categories.PushBack(ezDefaultRenderDataCategories::Selection);
+  out_types.PushBack(ezGetStaticRTTI<ezSpriteRenderData>());
 }
 
 void ezSpriteRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const

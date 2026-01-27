@@ -91,6 +91,7 @@ EZ_STATICLINK_LIBRARY(RendererCore)
   EZ_STATICLINK_REFERENCE(RendererCore_Meshes_Implementation_MeshRenderer);
   EZ_STATICLINK_REFERENCE(RendererCore_Meshes_Implementation_MeshResource);
   EZ_STATICLINK_REFERENCE(RendererCore_Meshes_Implementation_SkinnedMeshRenderData);
+  EZ_STATICLINK_REFERENCE(RendererCore_Meshes_Implementation_SplineMeshComponent);
   EZ_STATICLINK_REFERENCE(RendererCore_Pipeline_Implementation_Extractor);
   EZ_STATICLINK_REFERENCE(RendererCore_Pipeline_Implementation_FrameDataProvider);
   EZ_STATICLINK_REFERENCE(RendererCore_Pipeline_Implementation_Passes_AOPass);
@@ -124,6 +125,7 @@ EZ_STATICLINK_LIBRARY(RendererCore)
   EZ_STATICLINK_REFERENCE(RendererCore_Pipeline_Implementation_RenderPipelinePass);
   EZ_STATICLINK_REFERENCE(RendererCore_Pipeline_Implementation_RenderPipelineResource);
   EZ_STATICLINK_REFERENCE(RendererCore_Pipeline_Implementation_RenderPipelineResourceLoader);
+  EZ_STATICLINK_REFERENCE(RendererCore_Pipeline_Implementation_RendererRegistry);
   EZ_STATICLINK_REFERENCE(RendererCore_Pipeline_Implementation_View);
   EZ_STATICLINK_REFERENCE(RendererCore_Pipeline_Implementation_ViewRenderMode);
   EZ_STATICLINK_REFERENCE(RendererCore_Rasterizer_Implementation_RasterizerView);

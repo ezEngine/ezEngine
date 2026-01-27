@@ -147,14 +147,9 @@ ezImguiRenderer::~ezImguiRenderer()
   m_hShader.Invalidate();
 }
 
-void ezImguiRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& ref_types) const
+void ezImguiRenderer::GetSupportedRenderDataTypes(ezDynamicArray<const ezRTTI*>& out_types) const
 {
-  ref_types.PushBack(ezGetStaticRTTI<ezImguiRenderData>());
-}
-
-void ezImguiRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& ref_categories) const
-{
-  ref_categories.PushBack(ezDefaultRenderDataCategories::GUI);
+  out_types.PushBack(ezGetStaticRTTI<ezImguiRenderData>());
 }
 
 void ezImguiRenderer::RenderBatch(const ezRenderViewContext& renderContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const

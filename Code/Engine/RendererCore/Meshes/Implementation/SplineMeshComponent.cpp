@@ -894,3 +894,7 @@ const ezSplineComponent* ezSplineMeshComponent::GetSplineComponent() const
 
   return nullptr;
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_SplineMeshComponent);
+

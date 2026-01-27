@@ -23,14 +23,9 @@ ezLensFlareRenderer::ezLensFlareRenderer()
 
 ezLensFlareRenderer::~ezLensFlareRenderer() = default;
 
-void ezLensFlareRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& ref_types) const
+void ezLensFlareRenderer::GetSupportedRenderDataTypes(ezDynamicArray<const ezRTTI*>& out_types) const
 {
-  ref_types.PushBack(ezGetStaticRTTI<ezLensFlareRenderData>());
-}
-
-void ezLensFlareRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& ref_categories) const
-{
-  ref_categories.PushBack(ezDefaultRenderDataCategories::LitTransparent);
+  out_types.PushBack(ezGetStaticRTTI<ezLensFlareRenderData>());
 }
 
 void ezLensFlareRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const

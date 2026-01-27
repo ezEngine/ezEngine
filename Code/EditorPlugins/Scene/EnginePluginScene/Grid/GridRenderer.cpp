@@ -35,14 +35,9 @@ ezGridRenderer::ezGridRenderer()
   CreateVertexBuffer();
 }
 
-void ezGridRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& ref_types) const
+void ezGridRenderer::GetSupportedRenderDataTypes(ezDynamicArray<const ezRTTI*>& out_types) const
 {
-  ref_types.PushBack(ezGetStaticRTTI<ezGridRenderData>());
-}
-
-void ezGridRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& ref_categories) const
-{
-  ref_categories.PushBack(ezDefaultRenderDataCategories::SimpleTransparent);
+  out_types.PushBack(ezGetStaticRTTI<ezGridRenderData>());
 }
 
 void ezGridRenderer::CreateVertexBuffer()

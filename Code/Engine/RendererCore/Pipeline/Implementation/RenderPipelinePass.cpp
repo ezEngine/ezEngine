@@ -3,7 +3,7 @@
 #include <Foundation/IO/TypeVersionContext.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
-#include <RendererCore/Pipeline/Renderer.h>
+#include <RendererCore/Pipeline/RendererRegistry.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 
 #include <Foundation/IO/TypeVersionContext.h>
@@ -86,7 +86,7 @@ void ezRenderPipelinePass::RenderDataWithCategory(const ezRenderViewContext& ren
     {
       const ezRTTI* pType = pRenderData->GetDynamicRTTI();
 
-      if (const ezRenderer* pRenderer = ezRenderData::GetCategoryRenderer(category, pType))
+      if (const ezRenderer* pRenderer = ezRendererRegistry::GetRenderer(pType))
       {
         pRenderer->RenderBatch(renderViewContext, this, batch);
       }

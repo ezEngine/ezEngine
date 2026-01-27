@@ -16,26 +16,11 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezMeshRenderer::ezMeshRenderer() = default;
 ezMeshRenderer::~ezMeshRenderer() = default;
 
-void ezMeshRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& ref_types) const
+void ezMeshRenderer::GetSupportedRenderDataTypes(ezDynamicArray<const ezRTTI*>& out_types) const
 {
-  ref_types.PushBack(ezGetStaticRTTI<ezMeshRenderData>());
-  ref_types.PushBack(ezGetStaticRTTI<ezCustomMeshRenderData>());
-  ref_types.PushBack(ezGetStaticRTTI<ezSkinnedMeshRenderData>());
-}
-
-void ezMeshRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& ref_categories) const
-{
-  ref_categories.PushBack(ezDefaultRenderDataCategories::Sky);
-  ref_categories.PushBack(ezDefaultRenderDataCategories::LitOpaque);
-  ref_categories.PushBack(ezDefaultRenderDataCategories::LitMasked);
-  ref_categories.PushBack(ezDefaultRenderDataCategories::LitTransparent);
-  ref_categories.PushBack(ezDefaultRenderDataCategories::LitForeground);
-  ref_categories.PushBack(ezDefaultRenderDataCategories::LitScreenFX);
-  ref_categories.PushBack(ezDefaultRenderDataCategories::SimpleOpaque);
-  ref_categories.PushBack(ezDefaultRenderDataCategories::SimpleTransparent);
-  ref_categories.PushBack(ezDefaultRenderDataCategories::SimpleForeground);
-  ref_categories.PushBack(ezDefaultRenderDataCategories::Selection);
-  ref_categories.PushBack(ezDefaultRenderDataCategories::GUI);
+  out_types.PushBack(ezGetStaticRTTI<ezMeshRenderData>());
+  out_types.PushBack(ezGetStaticRTTI<ezCustomMeshRenderData>());
+  out_types.PushBack(ezGetStaticRTTI<ezSkinnedMeshRenderData>());
 }
 
 void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const

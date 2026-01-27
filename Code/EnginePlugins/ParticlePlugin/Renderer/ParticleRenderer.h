@@ -25,8 +25,6 @@ public:
   ezParticleRenderer();
   ~ezParticleRenderer();
 
-  virtual void GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& ref_categories) const override;
-
 protected:
   /// Helper for managing per-particle-system constant buffer data during rendering.
   ///
