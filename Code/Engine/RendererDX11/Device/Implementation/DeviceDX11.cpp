@@ -1447,7 +1447,7 @@ void ezGALDeviceDX11::ProcessPendingCopies()
       else
       {
         tempResource = CopyToTempTexture(copy.m_SourceData, copy.m_vSourceSize.x, copy.m_vSourceSize.y, copy.m_vSourceSize.z, copy.m_SourceFormat, m_uiFrameCounter);
-      }      
+      }
     }
     UnmapTempResource(tempResource);
 
