@@ -858,8 +858,10 @@ void ezGALDeviceDX11::UpdateTextureForNextFramePlatform(const ezGALTexture* pTex
   }
   else
   {
-    auto sourceDataCopy = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezUInt8, sourceData.m_pData.GetCount());
-    ezMemoryUtils::Copy(sourceDataCopy.GetPtr(), sourceData.m_pData.GetPtr(), sourceData.m_pData.GetCount());
+    const ezUInt32 uiSourceDataCount = static_cast<ezUInt32>(sourceData.m_pData.GetCount());
+
+    auto sourceDataCopy = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezUInt8, uiSourceDataCount);
+    ezMemoryUtils::Copy(sourceDataCopy.GetPtr(), sourceData.m_pData.GetPtr(), uiSourceDataCount);
     copy.m_SourceData.m_pData = sourceDataCopy;
     copy.m_SourceData.m_uiRowPitch = sourceData.m_uiRowPitch;
     copy.m_SourceData.m_uiSlicePitch = sourceData.m_uiSlicePitch;
@@ -1442,7 +1444,7 @@ void ezGALDeviceDX11::ProcessPendingCopies()
     {
       if (copy.m_SourceData.m_uiRowPitch == 0)
       {
-        tempResource = CopyToTempBuffer(ezMakeArrayPtr(copy.m_SourceData.m_pData.GetPtr(), copy.m_SourceData.m_pData.GetCount()), m_uiFrameCounter);
+        tempResource = CopyToTempBuffer(ezMakeArrayPtr(copy.m_SourceData.m_pData.GetPtr(), static_cast<ezUInt32>(copy.m_SourceData.m_pData.GetCount())), m_uiFrameCounter);
       }
       else
       {
