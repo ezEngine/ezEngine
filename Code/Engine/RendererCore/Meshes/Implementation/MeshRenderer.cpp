@@ -30,6 +30,7 @@ void ezMeshRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderData
   ref_categories.PushBack(ezDefaultRenderDataCategories::LitMasked);
   ref_categories.PushBack(ezDefaultRenderDataCategories::LitTransparent);
   ref_categories.PushBack(ezDefaultRenderDataCategories::LitForeground);
+  ref_categories.PushBack(ezDefaultRenderDataCategories::LitScreenFX);
   ref_categories.PushBack(ezDefaultRenderDataCategories::SimpleOpaque);
   ref_categories.PushBack(ezDefaultRenderDataCategories::SimpleTransparent);
   ref_categories.PushBack(ezDefaultRenderDataCategories::SimpleForeground);
