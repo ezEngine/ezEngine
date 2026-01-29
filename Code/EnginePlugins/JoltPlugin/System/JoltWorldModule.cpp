@@ -9,6 +9,7 @@
 #include <JoltPlugin/Character/JoltCharacterControllerComponent.h>
 #include <JoltPlugin/Components/JoltRagdollComponent.h>
 #include <JoltPlugin/Components/JoltSettingsComponent.h>
+#include <JoltPlugin/Components/JoltWaterVolumeComponent.h>
 #include <JoltPlugin/Constraints/JoltConstraintComponent.h>
 #include <JoltPlugin/Constraints/JoltFixedConstraintComponent.h>
 #include <JoltPlugin/Shapes/JoltShapeBoxComponent.h>
@@ -745,6 +746,11 @@ void ezJoltWorldModule::StartSimulation(const ezWorldModule::UpdateContext& cont
   if (ezJoltRagdollComponentManager* pRagdollManager = GetWorld()->GetComponentManager<ezJoltRagdollComponentManager>())
   {
     pRagdollManager->DriveAnimatedRagdolls(m_SimulatedTimeStep);
+  }
+
+  if (ezJoltWaterVolumeComponentManager* pWaterVolumeManager = GetWorld()->GetComponentManager<ezJoltWaterVolumeComponentManager>())
+  {
+    pWaterVolumeManager->UpdateWaterVolumes(m_SimulatedTimeStep);
   }
 
   ApplyImpulses();

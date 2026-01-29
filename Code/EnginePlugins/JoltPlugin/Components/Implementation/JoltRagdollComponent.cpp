@@ -89,7 +89,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltRagdollComponent, 5, ezComponentMode::Dynamic)
   }
   EZ_END_FUNCTIONS;
 }
-EZ_END_ABSTRACT_COMPONENT_TYPE;
+EZ_END_COMPONENT_TYPE;
 // clang-format on
 
 //////////////////////////////////////////////////////////////////////////
