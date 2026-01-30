@@ -167,6 +167,7 @@ private:
   // Cache flags.
   bool m_bPipelineStateDirty = true;
   bool m_bViewportDirty = true;
+  bool m_bStencilRefDirty = false;
   bool m_bIndexBufferDirty = false;
   bool m_BindGroupDirty[EZ_GAL_MAX_BIND_GROUPS] = {};
   bool m_bDynamicOffsetsDirty = false;
@@ -189,6 +190,7 @@ private:
   vk::Viewport m_viewport;
   vk::Rect2D m_scissor;
   bool m_bScissorEnabled = false;
+  ezUInt8 m_uiStencilRefValue = 0;
 
   const ezGALRenderTargetView* m_pBoundRenderTargets[EZ_GAL_MAX_RENDERTARGET_COUNT] = {};
   const ezGALRenderTargetView* m_pBoundDepthStencilTarget = nullptr;

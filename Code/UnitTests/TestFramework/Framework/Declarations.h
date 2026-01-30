@@ -49,6 +49,8 @@ struct TestSettings
   bool m_bNoAutomaticSaving = false; /// Allows to run the test with settings through the command line without saving those settings for later.
   bool m_bCloseOnSuccess = false;    /// Closes the application upon success immediately.
   bool m_bNoGUI = false;             /// Starts the tests in console mode, test are started automatically.
+  bool m_bListTests = false;         /// List all test names and exit.
+  bool m_bShowHelp = false;          /// Show command line help.
   int m_iRevision = -1;              /// Revision in the RCS of this test run. Will be written into the test results json file for later reference.
   std::string m_sJsonOutput;         /// Absolute path to the json file the results should be written to.
   bool m_bEnableAllTests = false;    /// Enables all test.

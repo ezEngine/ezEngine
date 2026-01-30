@@ -69,6 +69,7 @@ void ezGALCommandEncoderImplVulkan::Reset()
 
   m_bPipelineStateDirty = true;
   m_bViewportDirty = true;
+  m_bStencilRefDirty = false;
   m_bIndexBufferDirty = true;
   m_bDynamicOffsetsDirty = true;
   m_BoundVertexBuffersRange.Reset();
@@ -79,6 +80,7 @@ void ezGALCommandEncoderImplVulkan::Reset()
 
   m_viewport = vk::Viewport();
   m_scissor = vk::Rect2D();
+  m_uiStencilRefValue = 0;
 
   for (ezUInt32 i = 0; i < EZ_GAL_MAX_RENDERTARGET_COUNT; i++)
   {
@@ -800,6 +802,8 @@ void ezGALCommandEncoderImplVulkan::BeginRenderingPlatform(const ezGALRenderingS
 
   m_bPipelineStateDirty = true;
   m_bViewportDirty = true;
+  // Mark stencil ref dirty to ensure it gets set in the new render pass. This is needed because Vulkan requires vkCmdSetStencilReference to be called after vkCmdBeginRenderPass when using dynamic stencil reference state.
+  m_bStencilRefDirty = true;
 }
 
 void ezGALCommandEncoderImplVulkan::EndRenderingPlatform()
@@ -1008,7 +1012,12 @@ void ezGALCommandEncoderImplVulkan::SetScissorRectPlatform(const ezRectU32& rect
 
 void ezGALCommandEncoderImplVulkan::SetStencilReferencePlatform(ezUInt8 uiStencilRefValue)
 {
-  m_pCommandBuffer->setStencilReference(vk::StencilFaceFlagBits::eFrontAndBack, uiStencilRefValue);
+  // Defer the stencil reference setting until the render pass is active since vkCmdSetStencilReference must be called inside a render pass
+  if (m_uiStencilRefValue != uiStencilRefValue)
+  {
+    m_uiStencilRefValue = uiStencilRefValue;
+    m_bStencilRefDirty = true;
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -1232,6 +1241,14 @@ ezResult ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges()
     m_bClearSubmitted = true;
     m_bRenderPassActive = true;
   }
+
+  // Set stencil reference after render pass is active (Vulkan requires dynamic state to be set inside render pass)
+  if (!m_bInsideCompute && m_bStencilRefDirty && m_pGraphicsPipeline && m_pGraphicsPipeline->HasStencilTest())
+  {
+    m_pCommandBuffer->setStencilReference(vk::StencilFaceFlagBits::eFrontAndBack, m_uiStencilRefValue);
+    m_bStencilRefDirty = false;
+  }
+
   return EZ_SUCCESS;
 }
 

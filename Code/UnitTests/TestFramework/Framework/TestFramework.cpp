@@ -11,6 +11,7 @@
 #include <TestFramework/Utilities/TestOrder.h>
 #include <Texture/Image/Formats/ImageFileFormat.h>
 #include <cstdlib>
+#include <regex>
 #include <stdexcept>
 
 #ifdef EZ_TESTFRAMEWORK_USE_FILESERVE
@@ -40,6 +41,7 @@ ezCommandLineOptionInt opt_Assert("_TestFramework", "-assert", "Whether to asser
 ezCommandLineOptionString opt_Filter("_TestFramework", "-filter", "Filter to execute only certain tests.", "");
 ezCommandLineOptionPath opt_Json("_TestFramework", "-json", "JSON file to write.", "");
 ezCommandLineOptionPath opt_OutputDir("_TestFramework", "-outputDir", "Output directory", "");
+ezCommandLineOptionBool opt_List("_TestFramework", "-list", "List all test names and exit.", false);
 
 constexpr int s_iMaxErrorMessageLength = 512;
 
@@ -98,6 +100,7 @@ void ezTestFramework::Initialize()
       ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("true");
 
       ezLog::Print(cmdHelp);
+      m_Settings.m_bShowHelp = true;
     }
   }
 
@@ -122,6 +125,10 @@ void ezTestFramework::Initialize()
   ezStartup::StartupCoreSystems();
   EZ_SCOPE_EXIT(ezStartup::ShutdownCoreSystems());
 
+  // We have exit here after the core systems logic, or we hit issues with allocators of RTTI types.
+  if (m_Settings.m_bShowHelp)
+    return;
+
   // if tests need to write data back through Fileserve (e.g. image comparison results), they can do that through a data dir mounted with
   // this path
   ezFileSystem::SetSpecialDirectory("eztest", ezTestFramework::GetInstance()->GetAbsOutputPath());
@@ -136,6 +143,20 @@ void ezTestFramework::Initialize()
   ezCommandLineUtils& cmd = *ezCommandLineUtils::GetGlobalInstance();
   // figure out which tests exist
   GatherAllTests();
+
+  // Handle -list option: print all test names and exit
+  if (opt_List.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd))
+  {
+    for (const auto& testEntry : m_TestEntries)
+    {
+      ezStringBuilder line;
+      line.SetFormat("{}\n", testEntry.m_szTestName);
+      ezLog::Print(line);
+    }
+    m_Settings.m_bListTests = true;
+    m_bIsInitialized = true;
+    return;
+  }
 
   if (!m_Settings.m_bNoGUI || opt_OrderFile.IsOptionSpecified(nullptr, &cmd))
   {
@@ -366,10 +387,21 @@ void ezTestFramework::ApplyTestOrderFromCommandLine(const ezCommandLineUtils& cm
     SetAllTestsEnabledStatus(true);
   if (!m_Settings.m_sTestFilter.empty())
   {
+    std::regex filterRegex;
+    try
+    {
+      filterRegex.assign(m_Settings.m_sTestFilter.c_str(), std::regex_constants::icase);
+    }
+    catch (const std::regex_error&)
+    {
+      ezLog::Print("Invalid regex provided via -filter\n");
+      return;
+    }
+
     const ezUInt32 uiTestCount = GetTestCount();
     for (ezUInt32 uiTestIdx = 0; uiTestIdx < uiTestCount; ++uiTestIdx)
     {
-      const bool bEnable = ezStringUtils::FindSubString_NoCase(m_TestEntries[uiTestIdx].m_szTestName, m_Settings.m_sTestFilter.c_str()) != nullptr;
+      const bool bEnable = std::regex_search(m_TestEntries[uiTestIdx].m_szTestName, filterRegex);
       m_TestEntries[uiTestIdx].m_bEnableTest = bEnable;
       const ezUInt32 uiSubTestCount = (ezUInt32)m_TestEntries[uiTestIdx].m_SubTests.size();
       for (ezUInt32 uiSubTest = 0; uiSubTest < uiSubTestCount; ++uiSubTest)
@@ -405,12 +437,23 @@ void ezTestFramework::UpdateReferenceImages()
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) && EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
 
+  // Check if optipng is available
+  bool bOptiPngAvailable = false;
+  ezStringBuilder sOptiPng;
 
 #  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-  ezStringBuilder sOptiPng = ezFileSystem::GetSdkRootDirectory();
+  sOptiPng = ezFileSystem::GetSdkRootDirectory();
   sOptiPng.AppendPath("Data/Tools/Precompiled/optipng/optipng.exe");
+  bOptiPngAvailable = ezOSFile::ExistsFile(sOptiPng);
+#  elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+  sOptiPng = "optipng";
+  ezProcessOptions po;
+  po.AddArgument("-h");
+  po.m_sProcess = sOptiPng;
+  bOptiPngAvailable = ezProcess::Execute(po).Succeeded();
+#  endif
 
-  if (ezOSFile::ExistsFile(sOptiPng))
+  if (bOptiPngAvailable)
   {
     ezStringBuilder sPath;
 
@@ -427,10 +470,8 @@ void ezTestFramework::UpdateReferenceImages()
     }
   }
 
-#  endif
-
   // if some target files already exist somewhere (ie. custom folders for the tests)
-  // overwrite the existing files in their location
+  // overwrite the existing files in their location/*  */
   {
     ezHybridArray<ezString, 32> targetFolders;
     ezStringBuilder sFullPath, sTargetPath;

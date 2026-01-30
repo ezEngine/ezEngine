@@ -54,9 +54,15 @@ ezTestAppRun ezTestSetup::RunTests()
 {
   ezTestFramework* pTestFramework = ezTestFramework::GetInstance();
 
+  // If -list or -help was specified, just quit as these are not supposed to be combined with actual test runs.
+  TestSettings settings = pTestFramework->GetSettings();
+  if (settings.m_bListTests || settings.m_bShowHelp)
+  {
+    return ezTestAppRun::Quit;
+  }
+
   // Todo: Incorporate all the below in a virtual call of testFramework?
 #ifdef EZ_USE_QT
-  TestSettings settings = pTestFramework->GetSettings();
   if (settings.m_bNoGUI)
   {
     return pTestFramework->RunTestExecutionLoop();

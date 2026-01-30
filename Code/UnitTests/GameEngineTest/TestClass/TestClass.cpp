@@ -174,6 +174,8 @@ void ezGameEngineTestApplication::AfterCoreSystemsStartup()
 
   m_pWorld = EZ_DEFAULT_NEW(ezWorld, desc);
   m_pWorld->GetClock().SetFixedTimeStep(ezTime::MakeFromSeconds(1.0 / 30.0));
+  // Disable VSync. Tests run at a fixed time step so this makes tests much faster without changing the outcome.
+  ezGameApplication::cvar_AppVSync = false;
 
   ActivateGameState(m_pWorld.Borrow(), {}, ezTransform::MakeIdentity());
 }

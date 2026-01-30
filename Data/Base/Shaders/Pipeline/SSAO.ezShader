@@ -181,7 +181,8 @@ float4 main(PS_IN Input) : SV_Target
 
   occlusion = 1 - (1 - pow(abs(occlusion), Contrast)) * Intensity * fadeOutFactor;
 
-  #if 1
+  // Disabling this code path on spirv. It produces random NaN values on AMD and the workaround below does not work anymore.
+  #if EZ_ENABLED(PLATFORM_DX11)
     float2 thisPixel = float2(occlusion, linearCenterDepth);
 
     float2 deltaX = ddx_fine(thisPixel);

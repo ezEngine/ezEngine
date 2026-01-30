@@ -81,8 +81,10 @@ ezResult ezGALGraphicsPipelineVulkan::InitPlatform(ezGALDevice* pDevice)
   dynamics.PushBack(vk::DynamicState::eViewport);
   dynamics.PushBack(vk::DynamicState::eScissor);
   if (pDepthStencilState->GetDescription().m_bStencilEnable)
+  {
+    m_bStencilTest = true;
     dynamics.PushBack(vk::DynamicState::eStencilReference);
-
+  }
   vk::PipelineDynamicStateCreateInfo dynamic;
   dynamic.pDynamicStates = dynamics.GetData();
   dynamic.dynamicStateCount = dynamics.GetCount();
