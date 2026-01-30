@@ -23,7 +23,7 @@ o
 			s{":app/VisualShader/Utils.ddl"}
 		}
 		Uuid %DocumentID{u4{13501307380740068006,5386818146636628353}}
-		u4 %Hash{4081412743215642914}
+		u4 %Hash{15367538532589646178}
 		VarArray %MetaInfo{}
 		VarArray %Outputs
 		{
@@ -276,6 +276,19 @@ o
 }
 o
 {
+	Uuid %id{u4{572500064124816776,4881917712579328481}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{4800242289541587248,10308452193788306944}}
+		s %SourcePin{"result"}
+		Uuid %Target{u4{10848306402550574241,4958079943892453864}}
+		s %TargetPin{"a"}
+	}
+}
+o
+{
 	Uuid %id{u4{16925561964688903857,4889582885861250430}}
 	s %t{"ezDocumentObject_ConnectionBase"}
 	u3 %v{1}
@@ -361,6 +374,18 @@ o
 }
 o
 {
+	Uuid %id{u4{14331916605069010846,4940749077372898687}}
+	s %t{"ShaderNode::Multiply"}
+	u3 %v{1}
+	p
+	{
+		Vec2 %Node::Pos{f{0x9AD206C5,0xF2740744}}
+		f %a{0x0000803F}
+		f %b{0xCDCCCC3D}
+	}
+}
+o
+{
 	Uuid %id{u4{13498227306147901326,4945211235577630557}}
 	s %t{"ShaderNode::Multiply"}
 	u3 %v{1}
@@ -369,6 +394,19 @@ o
 		Vec2 %Node::Pos{f{0xFB2D71C4,0x09B819C4}}
 		f %a{0x0000803F}
 		f %b{0xAE47A13F}
+	}
+}
+o
+{
+	Uuid %id{u4{7296562667701628838,4956376492110580701}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{10848306402550574241,4958079943892453864}}
+		s %SourcePin{"result"}
+		Uuid %Target{u4{14331916605069010846,4940749077372898687}}
+		s %TargetPin{"a"}
 	}
 }
 o
@@ -382,6 +420,16 @@ o
 		s %SourcePin{"result"}
 		Uuid %Target{u4{13444642014243158200,5208376116967605958}}
 		s %TargetPin{"Normal"}
+	}
+}
+o
+{
+	Uuid %id{u4{10848306402550574241,4958079943892453864}}
+	s %t{"ShaderNode::Saturate"}
+	u3 %v{1}
+	p
+	{
+		Vec2 %Node::Pos{f{0x17110FC5,0xF2740744}}
 	}
 }
 o
@@ -563,8 +611,8 @@ o
 		Vec2 %Wave1Speed{f{0x0AD7233D,0x0AD7A33D}}
 		f %Wave1Strength{0xCDCCCC3E}
 		s %Wave1Texture{"{ 7b03a52d-73f4-40bd-9ac3-47ad341bd23b }"}
-		f %Wave2Scale{0xCDCC4C3D}
-		Vec2 %Wave2Speed{f{0x0AD723BC,0x0AD7233C}}
+		f %Wave2Scale{0xCDCCCC3C}
+		Vec2 %Wave2Speed{f{0x0AD7A3BB,0x0AD7A33B}}
 		f %Wave2Strength{0xCDCC4C3F}
 		s %Wave2Texture{"{ 1ce4366f-d898-4a91-977e-82f8f9acdc18 }"}
 	}
@@ -1166,6 +1214,19 @@ o
 }
 o
 {
+	Uuid %id{u4{17428255043727727786,5585662783716723452}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{14331916605069010846,4940749077372898687}}
+		s %SourcePin{"result"}
+		Uuid %Target{u4{5036716153144865207,5210872038122497651}}
+		s %TargetPin{"Distortion"}
+	}
+}
+o
+{
 	Uuid %id{u4{3954757447421109416,5596229755314709150}}
 	s %t{"ShaderNode::Parameter1f"}
 	u3 %v{1}
@@ -1499,6 +1560,18 @@ o
 			Uuid{u4{906547211309501326,5660653617912768132}}
 			Uuid{u4{8724015869740402848,5068920322147319041}}
 			Uuid{u4{14155419665022031537,5747344081291889787}}
+			Uuid{u4{16925391149436084829,10646310531299571412}}
+			Uuid{u4{7390527609371726679,10509797618324986645}}
+			Uuid{u4{15443105071595643579,16020392120171563630}}
+			Uuid{u4{5021020750391385426,10657210422426225494}}
+			Uuid{u4{1835173716221042735,10081003031854267578}}
+			Uuid{u4{10654295238948385839,10115373506074712569}}
+			Uuid{u4{4800242289541587248,10308452193788306944}}
+			Uuid{u4{10848306402550574241,4958079943892453864}}
+			Uuid{u4{572500064124816776,4881917712579328481}}
+			Uuid{u4{14331916605069010846,4940749077372898687}}
+			Uuid{u4{7296562667701628838,4956376492110580701}}
+			Uuid{u4{17428255043727727786,5585662783716723452}}
 		}
 	}
 }
@@ -1524,6 +1597,29 @@ o
 		Vec2 %Node::Pos{f{0xB52775C4,0xD585B9C3}}
 		f %a{0x0000803F}
 		f %b{0x0000803F}
+	}
+}
+o
+{
+	Uuid %id{u4{1835173716221042735,10081003031854267578}}
+	s %t{"ShaderNode::ScenePosition"}
+	u3 %v{1}
+	p
+	{
+		Vec2 %Node::Pos{f{0xB6F22EC5,0xBEFC1744}}
+	}
+}
+o
+{
+	Uuid %id{u4{10654295238948385839,10115373506074712569}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{15443105071595643579,16020392120171563630}}
+		s %SourcePin{"Z"}
+		Uuid %Target{u4{4800242289541587248,10308452193788306944}}
+		s %TargetPin{"a"}
 	}
 }
 o
@@ -1562,6 +1658,18 @@ o
 }
 o
 {
+	Uuid %id{u4{4800242289541587248,10308452193788306944}}
+	s %t{"ShaderNode::Subtract"}
+	u3 %v{1}
+	p
+	{
+		Vec2 %Node::Pos{f{0xBA2D17C5,0xB5450744}}
+		f %a{0}
+		f %b{0}
+	}
+}
+o
+{
 	Uuid %id{u4{2190823287437931603,10396503308573058663}}
 	s %t{"ezDocumentObject_ConnectionBase"}
 	u3 %v{1}
@@ -1571,6 +1679,42 @@ o
 		s %SourcePin{"World"}
 		Uuid %Target{u4{17278977604892450643,10031938707848363743}}
 		s %TargetPin{"b"}
+	}
+}
+o
+{
+	Uuid %id{u4{7390527609371726679,10509797618324986645}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{5021020750391385426,10657210422426225494}}
+		s %SourcePin{"z"}
+		Uuid %Target{u4{4800242289541587248,10308452193788306944}}
+		s %TargetPin{"b"}
+	}
+}
+o
+{
+	Uuid %id{u4{16925391149436084829,10646310531299571412}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{1835173716221042735,10081003031854267578}}
+		s %SourcePin{"Position"}
+		Uuid %Target{u4{5021020750391385426,10657210422426225494}}
+		s %TargetPin{"a"}
+	}
+}
+o
+{
+	Uuid %id{u4{5021020750391385426,10657210422426225494}}
+	s %t{"ShaderNode::Split"}
+	u3 %v{1}
+	p
+	{
+		Vec2 %Node::Pos{f{0xF9BF21C5,0x46A61244}}
 	}
 }
 o
@@ -1614,6 +1758,16 @@ o
 	p
 	{
 		Vec2 %Node::Pos{f{0xF71A91C4,0x027345C4}}
+	}
+}
+o
+{
+	Uuid %id{u4{15443105071595643579,16020392120171563630}}
+	s %t{"ShaderNode::VertexWorldPosition"}
+	u3 %v{1}
+	p
+	{
+		Vec2 %Node::Pos{f{0x420E25C5,0x23D6D743}}
 	}
 }
 }
