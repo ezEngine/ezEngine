@@ -1,8 +1,8 @@
 #include <RendererTest/RendererTestPCH.h>
 
-#include <RendererTest/Basics/StencilStates.h>
 #include <Core/Graphics/Camera.h>
 #include <Core/Graphics/Geometry.h>
+#include <RendererTest/Basics/StencilStates.h>
 
 static ezRendererTestStencilStates g_StencilStatesTest;
 
@@ -389,9 +389,9 @@ ezTestAppRun ezRendererTestStencilStates::SubtestStencilCompareFunctions()
 
 ezTestAppRun ezRendererTestStencilStates::SubtestStencilRefValue()
 {
-        if (m_iFrame == 1)
+  if (m_iFrame == 1)
   {
-        BeginFrame();
+    BeginFrame();
     EndFrame();
   }
 
