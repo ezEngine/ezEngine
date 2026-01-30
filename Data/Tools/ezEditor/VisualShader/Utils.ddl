@@ -155,9 +155,25 @@ Node %Refraction
 
   string %CodePixelBody { "
 
-float4 VisualShaderRefraction(float3 worldNormal, float IoR, float thickness, float3 tintColor, float newOpacity)
+float4 VisualShaderRefraction(float3 worldNormal, float distortionAmount, float newOpacity)
 {
-  return CalculateRefraction(G.Input.WorldPosition, G.Input.Position, worldNormal, IoR, thickness, tintColor, newOpacity);
+  float2 distortion;
+  distortion.x = dot(worldNormal, G.Input.Tangent) * distortionAmount;
+  distortion.y = dot(worldNormal, G.Input.BiTangent) * distortionAmount;
+
+  float2 dummy;
+  return CalculateRefraction(G.Input.WorldPosition, G.Input.Position, worldNormal, distortion, newOpacity, dummy);
+}
+
+float2 VisualShaderRefractedScreenCoord(float3 worldNormal, float distortionAmount)
+{
+  float2 distortion;
+  distortion.x = dot(worldNormal, G.Input.Tangent) * distortionAmount;
+  distortion.y = dot(worldNormal, G.Input.BiTangent) * distortionAmount;
+
+  float2 coord;
+  CalculateRefraction(G.Input.WorldPosition, G.Input.Position, worldNormal, distortion, 1, coord);
+  return coord;
 }
 
 " }
@@ -170,29 +186,12 @@ float4 VisualShaderRefraction(float3 worldNormal, float IoR, float thickness, fl
     string %Tooltip { "Surface normal used to calculate refraction direction." }
   }
   
-  InputPin %IoR
+  InputPin %Distortion
   {
     string %Type { "float" }
     bool %Expose { true }
-    string %DefaultValue { "1.3f" }
-    string %Tooltip { "Index of Refraction. Controls how much light bends when passing through the material." }
-  }
-  
-  InputPin %Thickness
-  {
-    string %Type { "float" }
-    bool %Expose { true }
-    string %DefaultValue { "1.0f" }
-    string %Tooltip { "Thickness of the refractive object. Affects distortion and color absorption." }
-  }
-  
-  InputPin %TintColor
-  {
-    string %Type { "float3" }
-    unsigned_int8 %Color { 200, 200, 200 }
-    bool %Expose { true }
-    string %DefaultValue { "1, 1, 1" }
-    string %Tooltip { "Color tint applied to refracted light as it passes through the material." }
+    string %DefaultValue { "0.1f" }
+    string %Tooltip { "The amount of distortion." }
   }
   
   InputPin %NewOpacity
@@ -208,7 +207,14 @@ float4 VisualShaderRefraction(float3 worldNormal, float IoR, float thickness, fl
   {
     string %Type { "float4" }
     unsigned_int8 %Color { 200, 200, 200 }
-    string %Inline { "VisualShaderRefraction(ToFloat3($in0), ToFloat1($in1), ToFloat1($in2), ToFloat3($in3), ToFloat1($in4))" }
+    string %Inline { "VisualShaderRefraction(ToFloat3($in0), ToFloat1($in1), ToFloat1($in2))" }
     string %Tooltip { "Resulting color and opacity after applying refraction, simulating light bending through the material." }
+  }
+
+  OutputPin %RefractedScreenCoord
+  {
+    string %Type { "float2" }
+    string %Inline { "VisualShaderRefractedScreenCoord(ToFloat3($in0), ToFloat1($in1))" }
+    string %Tooltip { "Screen coordinate after the refraction has been applied." }
   }
 }

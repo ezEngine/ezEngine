@@ -801,33 +801,22 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData, uin
   matData.roughness = RoughnessFromPerceptualRoughness(matData.perceptualRoughness);
 }
 
-float4 CalculateRefraction(float3 worldPosition, float4 screenPosition, float3 worldNormal, float IoR, float thickness, float3 tintColor, float newOpacity = 1.0f)
+float4 CalculateRefraction(float3 worldPosition, float4 screenPosition, float3 worldNormal, float2 distortion, float newOpacity, out float2 refractedScreenPosition)
 {
-  float3 normalizedViewVector = normalize(GetCameraPosition() - worldPosition);
-  float r = 1.0 / IoR;
-  float NdotV = dot(worldNormal, normalizedViewVector);
-  float k = 1.0 - r * r * (1.0 - NdotV * NdotV);
-  float3 refractVector = r * -normalizedViewVector + (r * NdotV - sqrt(k)) * worldNormal;
+  float2 screenCoords = screenPosition.xy * ViewportSize.zw;
+  float2 refractCoords = screenCoords + distortion;  
 
-  float4 projectedRefractVector = mul(GetWorldToScreenMatrix(), float4(worldPosition + refractVector * thickness, 1.0));
-  projectedRefractVector.xy /= projectedRefractVector.w;
-  projectedRefractVector.xy = projectedRefractVector.xy * float2(0.5, -0.5) + 0.5;
-
-  float2 normalizedScreenPosition = screenPosition * ViewportSize.zw;
-  float fadeout = saturate(normalizedScreenPosition.y * 3 - 2);
-  fadeout *= fadeout;
-
-  float2 refractCoords = float2(projectedRefractVector.x, lerp(projectedRefractVector.y, normalizedScreenPosition.y, fadeout));
   float depthFromZBuffer = SceneDepth.SampleLevel(PointSampler, float3(refractCoords, s_ActiveCameraEyeIndex), 0).r;
-  if (LinearizeZBufferDepth(depthFromZBuffer) < screenPosition.w)
-  {
-    refractCoords = normalizedScreenPosition;
-  }
+  float depthDiff = LinearizeZBufferDepth(depthFromZBuffer) - screenPosition.w;
+  refractCoords = lerp(screenCoords, refractCoords, saturate(depthDiff * 0.5));
+  refractedScreenPosition = refractCoords * ViewportSize.xy;
 
   float3 refractionColor = SceneColor.SampleLevel(SceneColorSampler, float3(refractCoords, s_ActiveCameraEyeIndex), 0).rgb;
 
+  float3 normalizedViewVector = normalize(GetCameraPosition() - worldPosition);
+  float NdotV = max(dot(worldNormal, normalizedViewVector), 1e-5f);
   float fresnel = pow(1.0 - NdotV, 5.0);
-  refractionColor *= tintColor * (1.0 - fresnel);
+  refractionColor *= (1.0 - fresnel);
 
   return float4(refractionColor, newOpacity);
 }
