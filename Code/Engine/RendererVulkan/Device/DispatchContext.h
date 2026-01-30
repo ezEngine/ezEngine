@@ -23,11 +23,11 @@ public:
 
   // VK_KHR_timeline_semaphore
   PFN_vkSignalSemaphore vkSignalSemaphoreKHR = nullptr;
-  PFN_vkSignalSemaphore vkSignalSemaphore = nullptr;  // Alias for Vulkan-Hpp compatibility
+  PFN_vkSignalSemaphore vkSignalSemaphore = nullptr;                   // Alias for Vulkan-Hpp compatibility
   PFN_vkWaitSemaphores vkWaitSemaphoresKHR = nullptr;
-  PFN_vkWaitSemaphores vkWaitSemaphores = nullptr;  // Alias for Vulkan-Hpp compatibility
+  PFN_vkWaitSemaphores vkWaitSemaphores = nullptr;                     // Alias for Vulkan-Hpp compatibility
   PFN_vkGetSemaphoreCounterValue vkGetSemaphoreCounterValueKHR = nullptr;
-  PFN_vkGetSemaphoreCounterValue vkGetSemaphoreCounterValue = nullptr;  // Alias for Vulkan-Hpp compatibility
+  PFN_vkGetSemaphoreCounterValue vkGetSemaphoreCounterValue = nullptr; // Alias for Vulkan-Hpp compatibility
 
 #if EZ_ENABLED(EZ_PLATFORM_LINUX)
   // VK_KHR_external_memory_fd

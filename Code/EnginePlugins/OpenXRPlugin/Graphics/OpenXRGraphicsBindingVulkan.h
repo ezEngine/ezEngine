@@ -1,11 +1,11 @@
 #pragma once
 
-#include <OpenXRPlugin/Graphics/OpenXRGraphicsBinding.h>
 #include <Foundation/Configuration/Singleton.h>
+#include <OpenXRPlugin/Graphics/OpenXRGraphicsBinding.h>
 
 #ifdef BUILDSYSTEM_ENABLE_VULKAN_SUPPORT
 
-#include <RendererVulkan/Device/ezVulkanInitInterface.h>
+#  include <RendererVulkan/Device/ezVulkanInitInterface.h>
 
 EZ_DEFINE_AS_POD_TYPE(XrSwapchainImageVulkanKHR);
 
@@ -15,6 +15,7 @@ class ezOpenXR;
 class EZ_OPENXRPLUGIN_DLL ezOpenXRGraphicsBindingVulkan final : public ezOpenXRGraphicsBinding, public ezVulkanInitInterface
 {
   EZ_DECLARE_SINGLETON_OF_INTERFACE(ezOpenXRGraphicsBindingVulkan, ezVulkanInitInterface);
+
 public:
   ezOpenXRGraphicsBindingVulkan(ezOpenXR* pOpenXR);
   ~ezOpenXRGraphicsBindingVulkan();
@@ -39,6 +40,7 @@ public:
   virtual void ExtendInstanceExtensions(const ezDynamicArray<vk::ExtensionProperties>& availableExtensions, ezDynamicArray<ezString>& ref_extensions) override;
   /// \brief Extends the device extensions required for OpenXR (for vulkan_enable v1)
   virtual void ExtendDeviceExtensions(const ezDynamicArray<vk::ExtensionProperties>& availableExtensions, ezDynamicArray<ezString>& ref_extensions) override;
+
 private:
   ezOpenXR* m_pOpenXR = nullptr;
   ezGALResourceFormat::Enum ConvertTextureFormat(int64_t format) const;

@@ -90,7 +90,7 @@ XrResult ezGALOpenXRSwapChain::InitSwapChain(ezGALMSAASampleCount::Enum msaaCoun
 {
   auto pOpenXR = static_cast<ezOpenXR*>(m_pXrInterface);
   ezOpenXRGraphicsBinding* pGraphicsBinding = pOpenXR->GetGraphicsBinding();
-  
+
   if (!pGraphicsBinding)
   {
     ezLog::Error("No graphics binding available for swapchain creation");
@@ -137,16 +137,16 @@ XrResult ezGALOpenXRSwapChain::InitSwapChain(ezGALMSAASampleCount::Enum msaaCoun
   {
     XR_SUCCEED_OR_CLEANUP_LOG(xrCreateSwapchain(m_pSession, &swapchainCreateInfo, &m_ColorSwapchain.handle), DeinitSwapChain);
     XR_SUCCEED_OR_CLEANUP_LOG(xrEnumerateSwapchainImages(m_ColorSwapchain.handle, 0, &m_ColorSwapchain.imageCount, nullptr), DeinitSwapChain);
-    
+
     // Use graphics binding to create the swapchain images
     XrResult result = pGraphicsBinding->CreateSwapchainImages(m_ColorSwapchain.handle, m_ColorSwapchain.format, m_ColorSwapchain.imageCount, m_CurrentSize, msaaCount, false, pDevice, m_ColorRTs);
-    
+
     if (result != XR_SUCCESS)
     {
       DeinitSwapChain();
       return result;
     }
-    
+
     m_hColorRT = m_ColorRTs[0];
   }
 
@@ -155,19 +155,19 @@ XrResult ezGALOpenXRSwapChain::InitSwapChain(ezGALMSAASampleCount::Enum msaaCoun
   {
     swapchainCreateInfo.format = m_DepthSwapchain.format;
     swapchainCreateInfo.usageFlags = XR_SWAPCHAIN_USAGE_SAMPLED_BIT | XR_SWAPCHAIN_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | XR_SWAPCHAIN_USAGE_TRANSFER_SRC_BIT | XR_SWAPCHAIN_USAGE_TRANSFER_DST_BIT;
-    
+
     XR_SUCCEED_OR_CLEANUP_LOG(xrCreateSwapchain(m_pSession, &swapchainCreateInfo, &m_DepthSwapchain.handle), DeinitSwapChain);
     XR_SUCCEED_OR_CLEANUP_LOG(xrEnumerateSwapchainImages(m_DepthSwapchain.handle, 0, &m_DepthSwapchain.imageCount, nullptr), DeinitSwapChain);
-    
+
     // Use graphics binding to create the swapchain images
     XrResult result = pGraphicsBinding->CreateSwapchainImages(m_DepthSwapchain.handle, m_DepthSwapchain.format, m_DepthSwapchain.imageCount, m_CurrentSize, msaaCount, true, pDevice, m_DepthRTs);
-    
+
     if (result != XR_SUCCESS)
     {
       DeinitSwapChain();
       return result;
     }
-    
+
     m_hDepthRT = m_DepthRTs[0];
   }
   else

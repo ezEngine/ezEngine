@@ -43,7 +43,7 @@ ezOpenXRHandTracking::ezOpenXRHandTracking(ezOpenXR* pOpenXR)
     m_Velocities[uiSide].jointCount = XR_HAND_JOINT_COUNT_EXT;
     m_Velocities[uiSide].jointVelocities = m_JointVelocities[uiSide];
     ezMemoryUtils::ZeroFill(&m_JointVelocities[uiSide][0], XR_HAND_JOINT_COUNT_EXT);
-    
+
     m_JointData[uiSide].SetCount(XR_HAND_JOINT_LITTLE_TIP_EXT + 1);
     for (ezUInt32 i = 0; i <= XR_HAND_JOINT_LITTLE_TIP_EXT; ++i)
     {

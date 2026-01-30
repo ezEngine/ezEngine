@@ -4,12 +4,12 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 
-#include <Foundation/Logging/Log.h>
-#include <OpenXRPlugin/OpenXRDeclarations.h>
-#include <RendererCore/Textures/TextureUtils.h>
-#include <RendererDX11/Device/DeviceDX11.h>
-#include <RendererFoundation/Device/Device.h>
-#include <Texture/Image/Formats/ImageFormatMappings.h>
+#  include <Foundation/Logging/Log.h>
+#  include <OpenXRPlugin/OpenXRDeclarations.h>
+#  include <RendererCore/Textures/TextureUtils.h>
+#  include <RendererDX11/Device/DeviceDX11.h>
+#  include <RendererFoundation/Device/Device.h>
+#  include <Texture/Image/Formats/ImageFormatMappings.h>
 
 ezOpenXRGraphicsBindingD3D11::ezOpenXRGraphicsBindingD3D11() = default;
 

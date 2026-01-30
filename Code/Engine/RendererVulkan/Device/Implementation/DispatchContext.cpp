@@ -30,11 +30,11 @@ void ezVulkanDispatchContext::InitDevice(vk::Device device, const void* pExtensi
   if (extensions.m_bTimelineSemaphore)
   {
     vkSignalSemaphoreKHR = (PFN_vkSignalSemaphore)device.getProcAddr("vkSignalSemaphoreKHR");
-    vkSignalSemaphore = vkSignalSemaphoreKHR;  // Alias
+    vkSignalSemaphore = vkSignalSemaphoreKHR;                   // Alias
     vkWaitSemaphoresKHR = (PFN_vkWaitSemaphores)device.getProcAddr("vkWaitSemaphoresKHR");
-    vkWaitSemaphores = vkWaitSemaphoresKHR;  // Alias
+    vkWaitSemaphores = vkWaitSemaphoresKHR;                     // Alias
     vkGetSemaphoreCounterValueKHR = (PFN_vkGetSemaphoreCounterValue)device.getProcAddr("vkGetSemaphoreCounterValueKHR");
-    vkGetSemaphoreCounterValue = vkGetSemaphoreCounterValueKHR;  // Alias
+    vkGetSemaphoreCounterValue = vkGetSemaphoreCounterValueKHR; // Alias
   }
 
 #if EZ_ENABLED(EZ_PLATFORM_LINUX)
@@ -63,5 +63,3 @@ void ezVulkanDispatchContext::InitDevice(vk::Device device, const void* pExtensi
   }
 #endif
 }
-
-
