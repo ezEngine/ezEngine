@@ -30,7 +30,8 @@ struct ezVisualShaderNodeType
     Generic,
     Main,
     Texture,
-    ShaderState,
+    ShaderState, ///< These have no connections, but must be part of the shader
+    Parameter,   ///< Will be added to the shader, even if there's no connection, to prevent that data is lost while editing
 
     Default = Generic
   };

@@ -121,10 +121,6 @@ ezStatus ezVisualShaderCodeGenerator::GatherAllNodes(const ezDocumentObject* pRo
 
       m_pMainNode = pRootObj;
     }
-    else if (pDesc->m_NodeType == ezVisualShaderNodeType::ShaderState)
-    {
-      m_StateNodes.PushBack(pRootObj);
-    }
   }
 
   const auto& children = pRootObj->GetChildren();
@@ -169,9 +165,22 @@ ezStatus ezVisualShaderCodeGenerator::GenerateVisualShader(const ezDocumentNodeM
 
   EZ_SUCCEED_OR_RETURN(GenerateNode(m_pMainNode));
 
-  for (auto pStateNode : m_StateNodes)
+  // now also generate code for certain nodes, even if they have no connections
+  // ShaderState nodes generally have no connections
+  // Parameter and Texture nodes are user inputs, if we don't output them, the UI won't show them
+  // and previously selected values get lost. That's very undesirable, so we always add them to the shader,
+  // even if they are currently not used.
+  for (auto itNode : m_Nodes)
   {
-    EZ_SUCCEED_OR_RETURN(GenerateNode(pStateNode));
+    if (itNode.Value().m_bCodeGenerated)
+      continue;
+
+    auto pDesc = m_pTypeRegistry->GetDescriptorForType(itNode.Key()->GetType());
+
+    if (pDesc->m_NodeType == ezVisualShaderNodeType::ShaderState || pDesc->m_NodeType == ezVisualShaderNodeType::Parameter || pDesc->m_NodeType == ezVisualShaderNodeType::Texture)
+    {
+      EZ_SUCCEED_OR_RETURN(GenerateNode(itNode.Key()));
+    }
   }
 
   ezStringBuilder sMaterialConstants = m_sShaderMaterialConstants;

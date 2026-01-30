@@ -600,6 +600,8 @@ void ezVisualShaderTypeRegistry::ExtractNodeConfig(const ezOpenDdlReaderElement*
           nd.m_NodeType = ezVisualShaderNodeType::Texture;
         else if (pElement->GetPrimitivesString()[0] == "ShaderState")
           nd.m_NodeType = ezVisualShaderNodeType::ShaderState;
+        else if (pElement->GetPrimitivesString()[0] == "Parameter")
+          nd.m_NodeType = ezVisualShaderNodeType::Parameter;
         else
           nd.m_NodeType = ezVisualShaderNodeType::Generic;
       }

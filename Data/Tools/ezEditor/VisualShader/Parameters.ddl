@@ -1,5 +1,6 @@
 Node %Parameter1f
 {
+  string %NodeType { "Parameter" }
   string %Category { "Parameters" }
   string %Color { "Red" }
   string %Docs { "Outputs a 1-component value that can be configured on the material." }
@@ -23,6 +24,7 @@ Node %Parameter1f
 
 Node %Parameter2f
 {
+  string %NodeType { "Parameter" }
   string %Category { "Parameters" }
   string %Color { "Red" }
   string %Docs { "Outputs a 2-component value that can be configured on the material." }
@@ -46,6 +48,7 @@ Node %Parameter2f
 
 Node %Parameter3f
 {
+  string %NodeType { "Parameter" }
   string %Category { "Parameters" }
   string %Color { "Red" }
   string %Docs { "Outputs a 3-component value that can be configured on the material." }
@@ -69,6 +72,7 @@ Node %Parameter3f
 
 Node %Parameter4f
 {
+  string %NodeType { "Parameter" }
   string %Category { "Parameters" }
   string %Color { "Red" }
   string %Docs { "Outputs a 4-component value that can be configured on the material." }
@@ -93,6 +97,7 @@ Node %Parameter4f
 
 Node %ParameterColor
 {
+  string %NodeType { "Parameter" }
   string %Category { "Parameters" }
   string %Color { "Red" }
   string %Docs { "Outputs a color value that can be configured on the material." }

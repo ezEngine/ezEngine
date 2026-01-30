@@ -347,6 +347,9 @@ void ezShaderTypeRegistry::UpdateShaderType(ShaderData& data)
     GetEnumType(enumDef);
   }
 
+  parameters.Sort([](const ezShaderParser::ParameterDefinition& lhs, const ezShaderParser::ParameterDefinition& rhs)
+    { return lhs.m_sName.Compare_NoCase(rhs.m_sName) < 0; });
+
   for (auto& parameter : parameters)
   {
     const ezRTTI* pType = GetType(parameter);
