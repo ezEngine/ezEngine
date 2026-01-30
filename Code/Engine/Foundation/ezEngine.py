@@ -1,3 +1,12 @@
+# LLDB Pretty Printers for ezEngine
+# 
+# Related files:
+#   - ezEngine.natvis  - Visual Studio / VS Code (MSVC) debugger visualizers
+#   - ezEngine-gdb.py  - GDB debugger visualizers
+#
+# To use with LLDB, add to your ~/.lldbinit:
+#   command script import /path/to/ezEngine/Code/Engine/Foundation/ezEngine.py
+
 import lldb.formatters.Logger
 import lldb
 try:
