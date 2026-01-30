@@ -9,7 +9,7 @@ class EZ_RENDERERCORE_DLL ezCustomRenderDataPass : public ezRenderPipelinePass
   EZ_ADD_DYNAMIC_REFLECTION(ezCustomRenderDataPass, ezRenderPipelinePass);
 
 public:
-  ezCustomRenderDataPass();
+  ezCustomRenderDataPass(const char* szName = "CustomRenderDataPass");
   ~ezCustomRenderDataPass();
 
   virtual bool GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs) override;

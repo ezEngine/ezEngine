@@ -27,8 +27,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCustomRenderDataPass, 1, ezRTTIDefaultAllocato
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezCustomRenderDataPass::ezCustomRenderDataPass()
-  : ezRenderPipelinePass("CustomRenderDataPass")
+ezCustomRenderDataPass::ezCustomRenderDataPass(const char* szName)
+  : ezRenderPipelinePass(szName, true)
 {
 }
 
