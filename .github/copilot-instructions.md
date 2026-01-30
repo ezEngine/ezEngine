@@ -22,21 +22,21 @@ Always run CMake configure before building after adding new source files.
 ### Linux
 
 ```shell
-cmake --preset linux-gcc-debug && cmake --build Workspace/linux-gcc-debug
+./RunCMake.sh --target linux-gcc-debug --solution-name Copilot --workspace-dir copilot && cmake --build Workspace/copilot
 ```
 
-Build outputs: `Output/Bin/LinuxNinjaGccDebug64/` and `Output/Lib/LinuxNinjaGccDebug64/`
+Build outputs: `Workspace/copilot-output/Bin/LinuxNinjaGccDebug64/` and `Workspace/copilot-output/Lib/LinuxNinjaGccDebug64/`
 
 Available presets: `linux-gcc-debug`, `linux-gcc-dev`, `linux-clang-debug`, `linux-clang-dev`
 
 ### Windows
 
 ```shell
-powershell -NoProfile -ExecutionPolicy ByPass ./RunCMake.ps1 -Target vs2022x64 -SolutionName "Build" -WorkspaceDir "build"
-cmake --build Workspace/build --config Debug
+powershell -NoProfile -ExecutionPolicy ByPass ./RunCMake.ps1 -Target vs2022x64 -SolutionName Copilot -WorkspaceDir copilot
+cmake --build Workspace/copilot --config Debug
 ```
 
-Build outputs: `Workspace/build-output/Bin/WinVs2022Debug64/`
+Build outputs: `Workspace/copilot-output/Bin/WinVs2022Debug64/`
 
 ## Running Tests
 
@@ -45,15 +45,15 @@ For basic validation, build and run **FoundationTest**. Use `-run -noGui -all` f
 ### Linux
 
 ```shell
-cmake --build Workspace/linux-gcc-debug --target FoundationTest
-Output/Bin/LinuxNinjaGccDebug64/FoundationTest -run -noGui -all
+cmake --build Workspace/copilot --target FoundationTest
+Workspace/copilot-output/Bin/LinuxNinjaGccDebug64/FoundationTest -run -noGui -all
 ```
 
 ### Windows
 
 ```shell
-cmake --build Workspace/build --config Debug --target FoundationTest
-Workspace/build-output/Bin/WinVs2022Debug64/FoundationTest.exe -run -noGui -all
+cmake --build Workspace/copilot --config Debug --target FoundationTest
+Workspace/copilot-output/Bin/WinVs2022Debug64/FoundationTest.exe -run -noGui -all
 ```
 
 ### Test Arguments
