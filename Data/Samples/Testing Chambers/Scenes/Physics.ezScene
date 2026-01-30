@@ -11,13 +11,14 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{16033299415433335720,5748835052109362040}}
-		u4 %Hash{9942544770446043112}
+		u4 %Hash{2985907780165611405}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
 		{
 			s{"{ 0af8fc54-92ce-464e-b825-661c83f34a3a }"}
 			s{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
+			s{"{ 0f1377ce-df3d-4462-afab-c46a83f30fe5 }"}
 			s{"{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"}
 			s{"{ 2a5d16b1-6867-4b5b-89b2-8436f11381cb }"}
 			s{"{ 317e4b00-3e99-4f42-a175-2f7cdfc3fd7f }"}
@@ -4851,6 +4852,19 @@ o
 }
 o
 {
+	Uuid %id{u4{5044692545412340883,4624207426687530776}}
+	s %t{"ezVolumeSamplerComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		b %AttachToMainCamera{1}
+		VarArray %Values{}
+		s %VolumeType{"GenericVolume"}
+	}
+}
+o
+{
 	Uuid %id{u4{9604360060652291774,4626353524496667384}}
 	s %t{"ezJoltDynamicActorComponent"}
 	u3 %v{7}
@@ -6163,6 +6177,22 @@ o
 		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{"{ 7a669036-919c-f4ec-2cab-01b1b184bc44 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{10138297956610252470,4731913511085823801}}
+	s %t{"ezFogComponent"}
+	u3 %v{3}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0xEBE30040,0xEBE30040,0xEBE30040,0x0000803F}}
+		f %Density{0xCDCC4C3E}
+		f %HeightFalloff{0x00002041}
+		b %ModulateWithSkyColor{0}
+		f %SkyDistance{0x00401C46}
+		f %StartDistance{0}
 	}
 }
 o
@@ -8843,6 +8873,25 @@ o
 			s{"CastShadow"}
 			s{"AutoColMesh"}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{18424144877312063132,5049693322631703209}}
+	s %t{"ezScriptComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		b %HandleGlobalEvents{0}
+		VarDict %Parameters
+		{
+			Time %InterpolationDuration{d{0}}
+		}
+		b %PassThroughUnhandledEvents{0}
+		s %ScriptClass{"{ 0f1377ce-df3d-4462-afab-c46a83f30fe5 }"}
+		Time %UpdateInterval{d{0}}
+		b %UpdateOnlyWhenSimulating{0}
 	}
 }
 o
@@ -12598,6 +12647,26 @@ o
 }
 o
 {
+	Uuid %id{u4{9499519384257743012,5523994287519348517}}
+	s %t{"ezVolumeBoxComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		Vec3 %Extents{f{0x0000C041,0x0000C041,0x33332341}}
+		Vec3 %Falloff{f{0,0,0xCDCC4C3D}}
+		f %SortOrder{0}
+		s %Template{""}
+		s %Type{"GenericVolume"}
+		VarDict %Values
+		{
+			Color %FogColor{f{0x6416683D,0x94BEBD3D,0xA30E083E,0x0000803F}}
+			f %FogDensity{0x00002042}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{9480657871084273313,5524780528579017962}}
 	s %t{"ezJoltFixedConstraintComponent"}
 	u3 %v{1}
@@ -13524,6 +13593,31 @@ o
 }
 o
 {
+	Uuid %id{u4{4867977916421681314,5613440934209396133}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{10138297956610252470,4731913511085823801}}
+			Uuid{u4{5044692545412340883,4624207426687530776}}
+			Uuid{u4{18424144877312063132,5049693322631703209}}
+		}
+		s %GlobalKey{"Fog"}
+		Vec3 %LocalPosition{f{0,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"Fog"}
+		VarArray %Tags{}
+	}
+}
+o
+{
 	Uuid %id{u4{1769822605001026698,5614068641314183065}}
 	s %t{"ezJoltShapeCapsuleComponent"}
 	u3 %v{1}
@@ -13584,6 +13678,7 @@ o
 		VarArray %Components
 		{
 			Uuid{u4{12017690171585523889,4636180543211923442}}
+			Uuid{u4{9499519384257743012,5523994287519348517}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0,0,0}}
@@ -15255,6 +15350,7 @@ o
 			Uuid{u4{1574542424891590816,4934785444043847285}}
 			Uuid{u4{5645514703857992853,5746048108495037991}}
 			Uuid{u4{4364524368742340543,4621356167221899837}}
+			Uuid{u4{4867977916421681314,5613440934209396133}}
 			Uuid{u4{7540764372658095539,4613898391692869152}}
 			Uuid{u4{12050305579415135126,5025283834644155960}}
 			Uuid{u4{18015203693568410537,5244151211994291075}}
@@ -39532,6 +39628,23 @@ o
 }
 o
 {
+	Uuid %id{u4{6161677211509627277,651371000033257414}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezVolumeSamplerValue"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{18145823255500990886,658922949661762930}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -39545,6 +39658,23 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezManipulatorAttribute"}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{5071404559084149669,954820518351224209}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezSettingsComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezFogComponent"}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -39766,6 +39896,23 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezBoxReflectionProbeComponent"}
 		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{3980230224161591675,3041268465719915513}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezVolumeComponent"}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -41029,6 +41176,23 @@ o
 }
 o
 {
+	Uuid %id{u4{6169849928063894646,16900549634985428877}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezVolumeComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezVolumeBoxComponent"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{14469700887475489738,16951777026318265606}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -41092,6 +41256,23 @@ o
 		s %PluginName{"ezEditorPluginJolt"}
 		VarArray %Properties{}
 		s %TypeName{"ezOnJoltContact"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{13100141249835514763,17498544913734763641}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezVolumeSamplerComponent"}
 		u3 %TypeVersion{1}
 	}
 }
