@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{15507879570940844990,5062162254587685694}}
-		u4 %Hash{16507172011984903731}
+		u4 %Hash{528601575498468533}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
@@ -80,6 +80,13 @@ o
 }
 o
 {
+	Uuid %id{u4{17308854356254774996,2985742118640247828}}
+	s %t{"ezRenderPipelineNodePassThroughPin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
 	Uuid %id{u4{10595549824126491381,4370258425242549633}}
 	s %t{"ezRenderPipelineNodePassThroughPin"}
 	u3 %v{1}
@@ -95,7 +102,7 @@ o
 		b %Active{1}
 		Uuid %Input{u4{15979557900930756743,15301544558070750362}}
 		s %Name{""}
-		Vec2 %Node::Pos{f{0x62AE7543,0x3A9D15C4}}
+		Vec2 %Node::Pos{f{0xB3C2DA43,0x56C303C4}}
 		Uuid %Output{u4{16194502608287932435,11774659519477416323}}
 	}
 }
@@ -111,20 +118,7 @@ o
 		Uuid %DepthStencil{u4{14123438881861949690,12337044987432749122}}
 		s %Message{""}
 		s %Name{"SimplePass"}
-		Vec2 %Node::Pos{f{0x00007BC3,0x004017C4}}
-	}
-}
-o
-{
-	Uuid %id{u4{8557690204334961803,4668439763129160093}}
-	s %t{"ezDocumentObject_ConnectionBase"}
-	u3 %v{1}
-	p
-	{
-		Uuid %Source{u4{10889004687494879139,5575773074875235436}}
-		s %SourcePin{"DepthStencil"}
-		Uuid %Target{u4{16246312026800188290,4661069980728115750}}
-		s %TargetPin{"DepthStencil"}
+		Vec2 %Node::Pos{f{0xF3A36CC2,0x1C6605C4}}
 	}
 }
 o
@@ -145,7 +139,7 @@ o
 		Uuid %Color7{u4{1882383531854882164,2868685346905570095}}
 		Uuid %DepthStencil{u4{880926667688341349,11367579072065247955}}
 		s %Name{""}
-		Vec2 %Node::Pos{f{0xEABCE743,0xE92C1CC4}}
+		Vec2 %Node::Pos{f{0x36D42344,0x05530AC4}}
 	}
 }
 o
@@ -172,19 +166,6 @@ o
 		s %SourcePin{"Output"}
 		Uuid %Target{u4{5838920634544973977,4736227885877821259}}
 		s %TargetPin{"Color0"}
-	}
-}
-o
-{
-	Uuid %id{u4{7877607181112915586,4764695830100124319}}
-	s %t{"ezDocumentObject_ConnectionBase"}
-	u3 %v{1}
-	p
-	{
-		Uuid %Source{u4{10889004687494879139,5575773074875235436}}
-		s %SourcePin{"Color"}
-		Uuid %Target{u4{16246312026800188290,4661069980728115750}}
-		s %TargetPin{"Color"}
 	}
 }
 o
@@ -338,6 +319,19 @@ o
 }
 o
 {
+	Uuid %id{u4{12880398477918777247,5000671905328483477}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{13953005379888452994,5588286543726681588}}
+		s %SourcePin{"Color"}
+		Uuid %Target{u4{16246312026800188290,4661069980728115750}}
+		s %TargetPin{"Color"}
+	}
+}
+o
+{
 	Uuid %id{u4{7114058908794278826,5021955926615518407}}
 	s %t{"ezDocumentObject_ConnectionBase"}
 	u3 %v{1}
@@ -446,6 +440,19 @@ o
 }
 o
 {
+	Uuid %id{u4{14038410018254631343,5248004762224456875}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{13953005379888452994,5588286543726681588}}
+		s %SourcePin{"DepthStencil"}
+		Uuid %Target{u4{16246312026800188290,4661069980728115750}}
+		s %TargetPin{"DepthStencil"}
+	}
+}
+o
+{
 	Uuid %id{u4{859776259124534447,5270913087526612809}}
 	s %t{"ezLSAOPass"}
 	u3 %v{1}
@@ -509,6 +516,19 @@ o
 }
 o
 {
+	Uuid %id{u4{18387868556048083379,5374604908592312478}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{10889004687494879139,5575773074875235436}}
+		s %SourcePin{"DepthStencil"}
+		Uuid %Target{u4{13953005379888452994,5588286543726681588}}
+		s %TargetPin{"DepthStencil"}
+	}
+}
+o
+{
 	Uuid %id{u4{17239446906444175508,5394726875655774798}}
 	s %t{"ezSelectionHighlightPass"}
 	u3 %v{1}
@@ -519,7 +539,7 @@ o
 		Uuid %DepthStencil{u4{1994856511405970754,6089640682213672007}}
 		Color %HighlightColor{f{0xB2B1313F,0x8887073F,0xD9D8D83D,0x0000803F}}
 		s %Name{"EditorSelectionPass"}
-		Vec2 %Node::Pos{f{0xFA293341,0xF55B17C4}}
+		Vec2 %Node::Pos{f{0xA3094B43,0x118205C4}}
 		f %OverlayOpacity{0}
 	}
 }
@@ -590,6 +610,19 @@ o
 }
 o
 {
+	Uuid %id{u4{6191331937002180229,5555715096002622789}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{10889004687494879139,5575773074875235436}}
+		s %SourcePin{"Color"}
+		Uuid %Target{u4{13953005379888452994,5588286543726681588}}
+		s %TargetPin{"Color"}
+	}
+}
+o
+{
 	Uuid %id{u4{13836367698555260666,5575662801616087061}}
 	s %t{"ezRenderPipelineNodeOutputPin"}
 	u3 %v{1}
@@ -609,6 +642,22 @@ o
 		Vec2 %Node::Pos{f{0xCABE09C4,0x033B06C4}}
 		Uuid %ResolvedDepth{u4{9495999238453666896,10626838854587317545}}
 		s %ShadingQuality{"ezForwardRenderShadingQuality::Normal"}
+	}
+}
+o
+{
+	Uuid %id{u4{13953005379888452994,5588286543726681588}}
+	s %t{"ezCustomRenderDataPass"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		Uuid %Color{u4{11955328021977069971,10142815961094478992}}
+		Uuid %DepthStencil{u4{17308854356254774996,2985742118640247828}}
+		s %Name{"LitScreenFX"}
+		Vec2 %Node::Pos{f{0xF8D492C3,0x02C205C4}}
+		s %RenderDataCategory{"LitScreenFX"}
+		s %SortingFunction{"ezRenderSortingFunctions::BackToFrontThenByRenderData"}
 	}
 }
 o
@@ -717,6 +766,7 @@ o
 		s %Name{"InitLit"}
 		Vec2 %Node::Pos{f{0xEE3CA4C4,0xAD1616C4}}
 		s %RenderDataCategory{"InitLit"}
+		s %SortingFunction{"ezRenderSortingFunctions::ByDepthOffsetOnly"}
 	}
 }
 o
@@ -749,12 +799,10 @@ o
 			Uuid{u4{4674440161327112839,4768092829658701786}}
 			Uuid{u4{10889004687494879139,5575773074875235436}}
 			Uuid{u4{12431454583293133493,4745683836649385959}}
-			Uuid{u4{8557690204334961803,4668439763129160093}}
 			Uuid{u4{8279073308666904469,4839339246623485756}}
 			Uuid{u4{1303867233212158371,5502934314336316414}}
 			Uuid{u4{6955615692507461566,5047820939109178426}}
 			Uuid{u4{14375040292509317768,5506014074111015610}}
-			Uuid{u4{7877607181112915586,4764695830100124319}}
 			Uuid{u4{9819854601522501007,4963339925674521650}}
 			Uuid{u4{9262561505840316049,4789797470050212464}}
 			Uuid{u4{11995079581171877048,4752732530988239542}}
@@ -771,6 +819,11 @@ o
 			Uuid{u4{14177825023002653583,5440273261344689175}}
 			Uuid{u4{7114058908794278826,5021955926615518407}}
 			Uuid{u4{16977020100306245537,4813630042280528241}}
+			Uuid{u4{13953005379888452994,5588286543726681588}}
+			Uuid{u4{6191331937002180229,5555715096002622789}}
+			Uuid{u4{18387868556048083379,5374604908592312478}}
+			Uuid{u4{12880398477918777247,5000671905328483477}}
+			Uuid{u4{14038410018254631343,5248004762224456875}}
 		}
 	}
 }
@@ -792,6 +845,13 @@ o
 {
 	Uuid %id{u4{11669331867603469393,9454679715653354898}}
 	s %t{"ezRenderPipelineNodeInputProviderPin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{11955328021977069971,10142815961094478992}}
+	s %t{"ezRenderPipelineNodePassThroughPin"}
 	u3 %v{1}
 	p{}
 }
@@ -885,6 +945,7 @@ o
 		s %Name{"InitDepth"}
 		Vec2 %Node::Pos{f{0x733F01C5,0x662BDEC3}}
 		s %RenderDataCategory{"InitDepth"}
+		s %SortingFunction{"ezRenderSortingFunctions::ByDepthOffsetOnly"}
 	}
 }
 o
@@ -939,6 +1000,23 @@ o
 }
 Types
 {
+o
+{
+	Uuid %id{u4{13021126745212556623,225614834054553209}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezRenderSortingFunctions"}
+		u3 %TypeVersion{1}
+	}
+}
 o
 {
 	Uuid %id{u4{17427250445677561954,512496194011972452}}

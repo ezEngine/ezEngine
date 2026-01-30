@@ -1,6 +1,7 @@
 #pragma once
 
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
+#include <RendererCore/Pipeline/SortingFunctions.h>
 
 /// Render pass that renders render data with a custom render data category.
 class EZ_RENDERERCORE_DLL ezCustomRenderDataPass : public ezRenderPipelinePass
@@ -22,6 +23,7 @@ protected:
   ezRenderPipelineNodePassThroughPin m_PinColor;        ///< Color target for rendering.
   ezRenderPipelineNodePassThroughPin m_PinDepthStencil; ///< Depth-stencil target.
 
-  ezString m_sRenderDataCategoryName;       
+  ezString m_sRenderDataCategoryName;
   ezRenderData::Category m_RenderDataCategory;
+  ezEnum<ezRenderSortingFunctions> m_SortingFunction;
 };

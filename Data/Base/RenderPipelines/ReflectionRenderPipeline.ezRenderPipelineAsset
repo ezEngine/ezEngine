@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{3403762621888900804,982542979997145320}}
-		u4 %Hash{11410397208810690118}
+		u4 %Hash{15992525729191974030}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
@@ -421,8 +421,9 @@ o
 		Uuid %Color{u4{4277980411070214491,12197382759930924451}}
 		Uuid %DepthStencil{u4{8708558027099170515,3172837809249374170}}
 		s %Name{"InitLit"}
-		Vec2 %Node::Pos{f{0xEF20A7C4,0x916B7FC3}}
+		Vec2 %Node::Pos{f{0xEF20A7C4,0x833680C3}}
 		s %RenderDataCategory{"InitLit"}
+		s %SortingFunction{"ezRenderSortingFunctions::ByDepthOffsetOnly"}
 	}
 }
 o
@@ -597,6 +598,7 @@ o
 		s %Name{"InitDepth"}
 		Vec2 %Node::Pos{f{0x3FFFE4C4,0xAE4F61C3}}
 		s %RenderDataCategory{"InitDepth"}
+		s %SortingFunction{"ezRenderSortingFunctions::ByDepthOffsetOnly"}
 	}
 }
 o
@@ -644,6 +646,23 @@ o
 }
 Types
 {
+o
+{
+	Uuid %id{u4{13021126745212556623,225614834054553209}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezRenderSortingFunctions"}
+		u3 %TypeVersion{1}
+	}
+}
 o
 {
 	Uuid %id{u4{14133610285564967323,2793680294626796657}}

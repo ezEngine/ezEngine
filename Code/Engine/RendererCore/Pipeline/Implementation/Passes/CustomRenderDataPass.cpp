@@ -2,7 +2,6 @@
 
 #include <Foundation/IO/TypeVersionContext.h>
 #include <RendererCore/Pipeline/Passes/CustomRenderDataPass.h>
-#include <RendererCore/Pipeline/SortingFunctions.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererFoundation/Resources/RenderTargetView.h>
@@ -16,6 +15,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCustomRenderDataPass, 1, ezRTTIDefaultAllocato
     EZ_MEMBER_PROPERTY("Color", m_PinColor),
     EZ_MEMBER_PROPERTY("DepthStencil", m_PinDepthStencil),
     EZ_MEMBER_PROPERTY("RenderDataCategory", m_sRenderDataCategoryName),
+    EZ_ENUM_MEMBER_PROPERTY("SortingFunction", ezRenderSortingFunctions, m_SortingFunction),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -85,6 +85,7 @@ ezResult ezCustomRenderDataPass::Serialize(ezStreamWriter& inout_stream) const
 {
   EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
   inout_stream << m_sRenderDataCategoryName;
+  inout_stream << m_SortingFunction;
   return EZ_SUCCESS;
 }
 
@@ -94,10 +95,11 @@ ezResult ezCustomRenderDataPass::Deserialize(ezStreamReader& inout_stream)
   const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
   EZ_IGNORE_UNUSED(uiVersion);
   inout_stream >> m_sRenderDataCategoryName;
+  inout_stream >> m_SortingFunction;
 
   if (m_sRenderDataCategoryName.IsEmpty() == false)
   {
-    m_RenderDataCategory = ezRenderData::RegisterCategory(m_sRenderDataCategoryName, &ezRenderSortingFunctions::ByDepthOffsetOnly);
+    m_RenderDataCategory = ezRenderData::RegisterCategory(m_sRenderDataCategoryName, ezRenderSortingFunctions::GetFunction(m_SortingFunction));
   }
 
   return EZ_SUCCESS;

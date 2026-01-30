@@ -4,6 +4,12 @@
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Pipeline/SortingFunctions.h>
 
+// clang-format off
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezRenderSortingFunctions, 1)
+  EZ_ENUM_CONSTANTS(ezRenderSortingFunctions::ByRenderDataThenFrontToBack, ezRenderSortingFunctions::BackToFrontThenByRenderData, ezRenderSortingFunctions::ByDepthOffsetOnly)
+EZ_END_STATIC_REFLECTED_ENUM;
+// clang-format on
+
 namespace
 {
   EZ_ALWAYS_INLINE ezUInt32 CalculateTypeHash(const ezRenderData* pRenderData)
@@ -29,7 +35,7 @@ namespace
 } // namespace
 
 // static
-ezUInt64 ezRenderSortingFunctions::ByRenderDataThenFrontToBack(const ezRenderData* pRenderData, const ezCamera& camera)
+ezUInt64 ezRenderSortingFunctions::ByRenderDataThenFrontToBackFunc(const ezRenderData* pRenderData, const ezCamera& camera)
 {
   const ezUInt64 uiTypeHash = CalculateTypeHash(pRenderData);
   const ezUInt64 uiRenderDataSortingKey64 = pRenderData->m_uiSortingKey;
@@ -40,7 +46,7 @@ ezUInt64 ezRenderSortingFunctions::ByRenderDataThenFrontToBack(const ezRenderDat
 }
 
 // static
-ezUInt64 ezRenderSortingFunctions::BackToFrontThenByRenderData(const ezRenderData* pRenderData, const ezCamera& camera)
+ezUInt64 ezRenderSortingFunctions::BackToFrontThenByRenderDataFunc(const ezRenderData* pRenderData, const ezCamera& camera)
 {
   const ezUInt64 uiTypeHash = CalculateTypeHash(pRenderData);
   const ezUInt64 uiRenderDataSortingKey64 = pRenderData->m_uiSortingKey;
@@ -51,11 +57,29 @@ ezUInt64 ezRenderSortingFunctions::BackToFrontThenByRenderData(const ezRenderDat
 }
 
 // static
-ezUInt64 ezRenderSortingFunctions::ByDepthOffsetOnly(const ezRenderData* pRenderData, const ezCamera& camera)
+ezUInt64 ezRenderSortingFunctions::ByDepthOffsetOnlyFunc(const ezRenderData* pRenderData, const ezCamera& camera)
 {
   const float fMidDistance = camera.GetFarPlane() * 0.5f;
   const float fDistance = fMidDistance + pRenderData->m_fSortingDepthOffset;
   const ezUInt64 uiInvDistance = 0xFFFFFFFF - NormalizeDistance<32>(fDistance, camera.GetFarPlane());
 
   return uiInvDistance;
+}
+
+// static
+ezRenderSortingFunctions::Func ezRenderSortingFunctions::GetFunction(Enum sortingFunction)
+{
+  switch (sortingFunction)
+  {
+    case ByRenderDataThenFrontToBack:
+      return &ByRenderDataThenFrontToBackFunc;
+    case BackToFrontThenByRenderData:
+      return &BackToFrontThenByRenderDataFunc;
+    case ByDepthOffsetOnly:
+      return &ByDepthOffsetOnlyFunc;
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+  }
+
+  return nullptr;
 }
