@@ -17,10 +17,10 @@ EZ_ALWAYS_INLINE ezSimdQuatd ezSimdQuatd::MakeFromElements(ezSimdDouble x, ezSim
   return ezSimdQuatd(ezSimdVec4d(x, y, z, w));
 }
 
-inline ezSimdQuatd ezSimdQuatd::MakeFromAxisAndAngle(const ezSimdVec4d& vRotationAxis, const ezSimdDouble& dAngle)
+inline ezSimdQuatd ezSimdQuatd::MakeFromAxisAndAngle(const ezSimdVec4d& vRotationAxis, const ezSimdDouble& fAngle)
 {
   ///\todo optimize
-  const ezAngled halfAngle = ezAngled::MakeFromRadian(dAngle) * 0.5;
+  const ezAngled halfAngle = ezAngled::MakeFromRadian(fAngle) * 0.5;
   double s = ezMath::Sin(halfAngle);
   double c = ezMath::Cos(halfAngle);
 

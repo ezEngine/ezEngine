@@ -50,7 +50,7 @@ EZ_ALWAYS_INLINE void ezSimdVec4d::Set(float x, float y, float z, float w)
 
 EZ_ALWAYS_INLINE void ezSimdVec4d::Set(double x, double y, double z, double w)
 {
-  m_v.Set(float(x), float(y), float(z), float(w));
+  m_v.Set(x, y, z, w);
 }
 
 EZ_ALWAYS_INLINE void ezSimdVec4d::Set(int x, int y, int z, int w)
@@ -99,6 +99,25 @@ EZ_ALWAYS_INLINE void ezSimdVec4d::Store(double* pDoubles) const
   for (int i = 0; i < N; ++i)
   {
     pDoubles[i] = (&m_v.x)[i];
+  }
+}
+
+template <int N>
+EZ_ALWAYS_INLINE void ezSimdVec4d::Load(const float* pFloats)
+{
+  m_v.SetZero();
+  for (int i = 0; i < N; ++i)
+  {
+    (&m_v.x)[i] = static_cast<double>(pFloats[i]);
+  }
+}
+
+template <int N>
+EZ_ALWAYS_INLINE void ezSimdVec4d::Store(float* pFloats) const
+{
+  for (int i = 0; i < N; ++i)
+  {
+    pFloats[i] = static_cast<float>((&m_v.x)[i]);
   }
 }
 
@@ -552,10 +571,11 @@ EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::MulSub(const ezSimdVec4d& a, const ezS
 EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::CopySign(const ezSimdVec4d& magnitude, const ezSimdVec4d& sign)
 {
   ezSimdVec4d result;
-  result.m_v.x = sign.m_v.x < 0.0 ? -magnitude.m_v.x : magnitude.m_v.x;
-  result.m_v.y = sign.m_v.y < 0.0 ? -magnitude.m_v.y : magnitude.m_v.y;
-  result.m_v.z = sign.m_v.z < 0.0 ? -magnitude.m_v.z : magnitude.m_v.z;
-  result.m_v.w = sign.m_v.w < 0.0 ? -magnitude.m_v.w : magnitude.m_v.w;
+  // Use std::copysign to properly handle -0.0
+  result.m_v.x = std::copysign(magnitude.m_v.x, sign.m_v.x);
+  result.m_v.y = std::copysign(magnitude.m_v.y, sign.m_v.y);
+  result.m_v.z = std::copysign(magnitude.m_v.z, sign.m_v.z);
+  result.m_v.w = std::copysign(magnitude.m_v.w, sign.m_v.w);
 
   return result;
 }

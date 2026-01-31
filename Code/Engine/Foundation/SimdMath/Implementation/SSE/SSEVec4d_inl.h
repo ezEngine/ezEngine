@@ -183,7 +183,7 @@ EZ_ALWAYS_INLINE void ezSimdVec4d::Load<1>(const float* pFloat)
   m_v = _mm256_cvtps_pd(temp);
 #else
   m_v.xy = _mm_cvtps_pd(_mm_load_ss(pFloat));
-  m_v.zw = m_v.xy;
+  m_v.zw = _mm_setzero_pd();
 #endif
 }
 
@@ -196,7 +196,7 @@ EZ_ALWAYS_INLINE void ezSimdVec4d::Load<2>(const float* pFloat)
 #else
   __m128 temp = _mm_setr_ps(pFloat[0], pFloat[1], 0.0f, 0.0f);
   m_v.xy = _mm_cvtps_pd(temp);
-  m_v.zw = m_v.xy;
+  m_v.zw = _mm_setzero_pd();
 #endif
 }
 

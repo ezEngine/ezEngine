@@ -172,13 +172,13 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4d)
 
     // Make sure the class didn't accidentally change in size.
 #if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
-#if EZ_SSE_LEVEL >= EZ_SSE_AVX
+#  if EZ_SSE_LEVEL >= EZ_SSE_AVX
     static_assert(sizeof(ezSimdVec4d) == 32);
     static_assert(alignof(ezSimdVec4d) == 32);
-#else
+#  else
     static_assert(sizeof(ezSimdVec4d) == 32);
     static_assert(alignof(ezSimdVec4d) == 16);
-#endif
+#  endif
 #endif
 
     ezSimdVec4d vInit1F(2.0);
@@ -193,15 +193,15 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4d)
 
     // Make sure all components have the correct values
 #if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && EZ_ENABLED(EZ_COMPILER_MSVC)
-#if EZ_SSE_LEVEL >= EZ_SSE_AVX
+#  if EZ_SSE_LEVEL >= EZ_SSE_AVX
     EZ_TEST_BOOL(
       vInit4D.m_v.m256d_f64[0] == 1.0 && vInit4D.m_v.m256d_f64[1] == 2.0 && vInit4D.m_v.m256d_f64[2] == 3.0 && vInit4D.m_v.m256d_f64[3] == 4.0);
 
-#else
+#  else
     EZ_TEST_BOOL(
       vInit4D.m_v.xy.m128d_f64[0] == 1.0 && vInit4D.m_v.xy.m128d_f64[1] == 2.0 && vInit4D.m_v.zw.m128d_f64[0] == 3.0 && vInit4D.m_v.zw.m128d_f64[1] == 4.0);
 
-#endif
+#  endif
 #endif
 
     ezSimdVec4d vCopy(vInit4D);
@@ -276,12 +276,33 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4d)
 
       // Make sure all components have the correct values
 #if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && EZ_ENABLED(EZ_COMPILER_MSVC)
-#if EZ_SSE_LEVEL >= EZ_SSE_AVX
+#  if EZ_SSE_LEVEL >= EZ_SSE_AVX
       EZ_TEST_BOOL(xyzw.m_v.m256d_f64[0] == 1.0 && xyzw.m_v.m256d_f64[1] == 2.0 && xyzw.m_v.m256d_f64[2] == 3.0 && xyzw.m_v.m256d_f64[3] == 4.0);
-#else
+#  else
       EZ_TEST_BOOL(xyzw.m_v.xy.m128d_f64[0] == 1.0 && xyzw.m_v.xy.m128d_f64[1] == 2.0 && xyzw.m_v.zw.m128d_f64[0] == 3.0 && xyzw.m_v.zw.m128d_f64[1] == 4.0);
+#  endif
 #endif
-#endif
+    }
+
+    // Test Load from float array - should zero unused components just like Load from double
+    {
+      float testBlockF[4] = {1.0f, 2.0f, 3.0f, 4.0f};
+
+      ezSimdVec4d x;
+      x.Load<1>(testBlockF);
+      EZ_TEST_BOOL(x.x() == 1.0 && x.y() == 0.0 && x.z() == 0.0 && x.w() == 0.0);
+
+      ezSimdVec4d xy;
+      xy.Load<2>(testBlockF);
+      EZ_TEST_BOOL(xy.x() == 1.0 && xy.y() == 2.0 && xy.z() == 0.0 && xy.w() == 0.0);
+
+      ezSimdVec4d xyz;
+      xyz.Load<3>(testBlockF);
+      EZ_TEST_BOOL(xyz.x() == 1.0 && xyz.y() == 2.0 && xyz.z() == 3.0 && xyz.w() == 0.0);
+
+      ezSimdVec4d xyzw;
+      xyzw.Load<4>(testBlockF);
+      EZ_TEST_BOOL(xyzw.x() == 1.0 && xyzw.y() == 2.0 && xyzw.z() == 3.0 && xyzw.w() == 4.0);
     }
 
     {
@@ -305,6 +326,30 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4d)
       memcpy(mem, testBlock, 32);
       b2.Store<4>(mem);
       EZ_TEST_BOOL(mem[0] == 1.0 && mem[1] == 2.0 && mem[2] == 3.0 && mem[3] == 4.0);
+    }
+
+    // Test Store to float array
+    {
+      float testBlockF[4] = {7.0f, 7.0f, 7.0f, 7.0f};
+      float memF[4] = {};
+
+      ezSimdVec4d b2(1.0, 2.0, 3.0, 4.0);
+
+      memcpy(memF, testBlockF, 16);
+      b2.Store<1>(memF);
+      EZ_TEST_BOOL(memF[0] == 1.0f && memF[1] == 7.0f && memF[2] == 7.0f && memF[3] == 7.0f);
+
+      memcpy(memF, testBlockF, 16);
+      b2.Store<2>(memF);
+      EZ_TEST_BOOL(memF[0] == 1.0f && memF[1] == 2.0f && memF[2] == 7.0f && memF[3] == 7.0f);
+
+      memcpy(memF, testBlockF, 16);
+      b2.Store<3>(memF);
+      EZ_TEST_BOOL(memF[0] == 1.0f && memF[1] == 2.0f && memF[2] == 3.0f && memF[3] == 7.0f);
+
+      memcpy(memF, testBlockF, 16);
+      b2.Store<4>(memF);
+      EZ_TEST_BOOL(memF[0] == 1.0f && memF[1] == 2.0f && memF[2] == 3.0f && memF[3] == 4.0f);
     }
   }
 
@@ -332,7 +377,14 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4d)
 
       EZ_TEST_BOOL(a.GetInvSqrt().IsEqual(b, ezMath::SmallEpsilon<double>()).AllSet());
       EZ_TEST_BOOL(a.GetInvSqrt().IsEqual(b, ezMath::SmallEpsilon<double>()).AllSet());
+    }
 
+    // IsEqual with epsilon edge cases
+    {
+      ezSimdVec4d a(1.0, 2.0, 3.0, 4.0);
+      ezSimdVec4d b = a;
+      // Equal with zero epsilon should work for identical values
+      EZ_TEST_BOOL(a.IsEqual(b, 0.0).AllSet());
     }
 
     {
@@ -400,7 +452,6 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4d)
       n[3] = a / r[3];
 
       TestNormalize(a, n, r, ezMath::SmallEpsilon<double>());
-
     }
 
     {
@@ -412,7 +463,6 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4d)
       n[3] = a / ezVec4d(a.x(), a.y(), a.z(), a.w()).GetLength();
 
       TestNormalizeIfNotZero(a, n, ezMath::SmallEpsilon<double>());
-
     }
 
     {
@@ -560,7 +610,6 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4d)
 
 
       EZ_TEST_BOOL(d1.IsEqual(divRes, ezMath::SmallEpsilon<double>()).AllSet());
-
     }
 
     {
@@ -608,6 +657,25 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4d)
 
       c = ezSimdVec4d::Select(cmp, a, b);
       EZ_TEST_BOOL(c.x() == -3.0 && c.y() == 6.0 && c.z() == 4.0 && c.w() == 9.0);
+
+      ezSimdVec4d a2(1.0, 2.0, 3.0, 4.0);
+      ezSimdVec4d b2(10.0, 20.0, 30.0, 40.0);
+      ezSimdVec4bWide alternating(true, false, true, false);
+      ezSimdVec4d result = ezSimdVec4d::Select(alternating, a2, b2);
+      EZ_TEST_BOOL(result.x() == 1.0 && result.y() == 20.0 && result.z() == 3.0 && result.w() == 40.0);
+    }
+
+    // FlipSign all components
+    {
+      ezSimdVec4d a(-3.0, 5.0, -7.0, 9.0);
+      ezSimdVec4bWide allTrue(true, true, true, true);
+      ezSimdVec4bWide allFalse(false, false, false, false);
+
+      ezSimdVec4d flippedAll = a.FlipSign(allTrue);
+      EZ_TEST_BOOL(flippedAll.x() == 3.0 && flippedAll.y() == -5.0 && flippedAll.z() == 7.0 && flippedAll.w() == -9.0);
+
+      ezSimdVec4d flippedNone = a.FlipSign(allFalse);
+      EZ_TEST_BOOL((flippedNone == a).AllSet());
     }
 
     {
@@ -728,6 +796,25 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4d)
       EZ_TEST_BOOL(c.z() == res.z);
     }
 
+    // Cross product edge cases
+    {
+      // Parallel vectors (should produce zero)
+      ezSimdVec4d a(1.0, 2.0, 3.0, 0.0);
+      ezSimdVec4d b(2.0, 4.0, 6.0, 0.0); // parallel to a
+      ezSimdVec4d c = a.CrossRH(b);
+      EZ_TEST_BOOL(c.IsZero<3>(ezMath::SmallEpsilon<double>()));
+
+      // Anti-parallel
+      ezSimdVec4d d(-1.0, -2.0, -3.0, 0.0);
+      ezSimdVec4d e = a.CrossRH(d);
+      EZ_TEST_BOOL(e.IsZero<3>(ezMath::SmallEpsilon<double>()));
+
+      // Cross with zero
+      ezSimdVec4d zero = ezSimdVec4d::MakeZero();
+      ezSimdVec4d f = a.CrossRH(zero);
+      EZ_TEST_BOOL(f.IsZero<3>());
+    }
+
     {
       ezSimdVec4d a(-3.0, 5.0, -7.0, 0.0);
       ezSimdVec4d b = a.GetOrthogonalVector();
@@ -746,6 +833,17 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4d)
 
       EZ_TEST_BOOL(!b.IsZero<3>());
       EZ_TEST_DOUBLE(a.Dot<3>(b), 0.0, 0.0);
+    }
+
+    // GetOrthogonalVector edge cases
+    {
+      // Near-axis-aligned vectors
+      ezSimdVec4d a(1e-10, 0.9999999999, 1e-10, 0.0);
+      a.Normalize<3>();
+      ezSimdVec4d b = a.GetOrthogonalVector();
+
+      EZ_TEST_BOOL(!b.IsZero<3>());
+      EZ_TEST_DOUBLE(a.Dot<3>(b), 0.0, ezMath::SmallEpsilon<double>());
     }
 
     {
@@ -768,6 +866,34 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4d)
 
       d = ezSimdVec4d::CopySign(b, a);
       EZ_TEST_BOOL(d.x() == -8.0 && d.y() == 6.0 && d.z() == -4.0 && d.w() == 2.0);
+
+      // Negative zero handling with CopySign
+      ezSimdVec4d mag(1.0, 2.0, 3.0, 4.0);
+      ezSimdVec4d negZero(-0.0, 0.0, -0.0, 0.0);
+      ezSimdVec4d result = ezSimdVec4d::CopySign(mag, negZero);
+      EZ_TEST_BOOL(result.x() == -1.0 && result.y() == 2.0 && result.z() == -3.0 && result.w() == 4.0);
+    }
+
+    // Lerp edge cases
+    {
+      ezSimdVec4d a(1.0, 2.0, 3.0, 4.0);
+      ezSimdVec4d b(5.0, 6.0, 7.0, 8.0);
+
+      // t = 0 should give a
+      ezSimdVec4d t0 = ezSimdVec4d::Lerp(a, b, ezSimdVec4d(0.0));
+      EZ_TEST_BOOL((t0 == a).AllSet());
+
+      // t = 1 should give b
+      ezSimdVec4d t1 = ezSimdVec4d::Lerp(a, b, ezSimdVec4d(1.0));
+      EZ_TEST_BOOL((t1 == b).AllSet());
+
+      // t = 0.5 should give midpoint
+      ezSimdVec4d tHalf = ezSimdVec4d::Lerp(a, b, ezSimdVec4d(0.5));
+      EZ_TEST_BOOL(tHalf.IsEqual(ezSimdVec4d(3.0, 4.0, 5.0, 6.0), ezMath::SmallEpsilon<double>()).AllSet());
+
+      // t outside [0,1] - extrapolation
+      ezSimdVec4d tNeg = ezSimdVec4d::Lerp(a, b, ezSimdVec4d(-1.0));
+      EZ_TEST_BOOL(tNeg.IsEqual(ezSimdVec4d(-3.0, -2.0, -1.0, 0.0), ezMath::SmallEpsilon<double>()).AllSet());
     }
   }
 }

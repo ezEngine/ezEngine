@@ -42,15 +42,23 @@ public:
 
   void SetZero();
 
+  /// \brief Loads N floats from pFloats, converts them to double, and stores in the vector.
+  /// N must be between 1 and 4. Unused components are set to zero.
   template <int N>
   void Load(const float* pFloats);
 
+  /// \brief Loads N doubles from pDoubles into the vector.
+  /// N must be between 1 and 4. Unused components are set to zero.
   template <int N>
   void Load(const double* pDoubles);
 
+  /// \brief Converts the first N components to float and stores them to pFloats.
+  /// N must be between 1 and 4.
   template <int N>
   void Store(float* pFloats) const;
 
+  /// \brief Stores the first N components to pDoubles.
+  /// N must be between 1 and 4.
   template <int N>
   void Store(double* pDoubles) const;
 
@@ -79,9 +87,11 @@ public:
   template <int N>
   void Normalize();
 
+  /// \brief Normalizes the first N components if the squared length is greater than fEpsilon, otherwise sets the vector to zero.
   template <int N>
   void NormalizeIfNotZero(const ezSimdDouble& fEpsilon = ezMath::SmallEpsilon<double>());
 
+  /// \brief Normalizes the first N components if the squared length is greater than fEpsilon, otherwise sets the vector to vFallback.
   template <int N>
   void NormalizeIfNotZero(const ezSimdVec4d& vFallback, const ezSimdDouble& fEpsilon = ezMath::SmallEpsilon<double>());
 
@@ -161,15 +171,19 @@ public:
   [[nodiscard]] ezSimdVec4bWide operator>=(const ezSimdVec4d& v) const;
   [[nodiscard]] ezSimdVec4bWide operator>(const ezSimdVec4d& v) const;
 
+  /// \brief Returns the sum of the first N components.
   template <int N>
   [[nodiscard]] ezSimdDouble HorizontalSum() const;
 
+  /// \brief Returns the minimum of the first N components.
   template <int N>
   [[nodiscard]] ezSimdDouble HorizontalMin() const;
 
+  /// \brief Returns the maximum of the first N components.
   template <int N>
   [[nodiscard]] ezSimdDouble HorizontalMax() const;
 
+  /// \brief Returns the dot product of the first N components of this vector and v.
   template <int N>
   [[nodiscard]] ezSimdDouble Dot(const ezSimdVec4d& v) const;
 
@@ -179,12 +193,15 @@ public:
   ///\brief Generates an arbitrary vector such that Dot<3>(GetOrthogonalVector()) == 0
   [[nodiscard]] ezSimdVec4d GetOrthogonalVector() const;
 
+  /// \brief Returns a * b + c
   [[nodiscard]] static ezSimdVec4d MulAdd(const ezSimdVec4d& a, const ezSimdVec4d& b, const ezSimdVec4d& c);
   [[nodiscard]] static ezSimdVec4d MulAdd(const ezSimdVec4d& a, const ezSimdDouble& b, const ezSimdVec4d& c);
 
+  /// \brief Returns a * b - c
   [[nodiscard]] static ezSimdVec4d MulSub(const ezSimdVec4d& a, const ezSimdVec4d& b, const ezSimdVec4d& c);
   [[nodiscard]] static ezSimdVec4d MulSub(const ezSimdVec4d& a, const ezSimdDouble& b, const ezSimdVec4d& c);
 
+  /// \brief Returns a vector with the magnitude from vMagnitude and the sign from vSign.
   [[nodiscard]] static ezSimdVec4d CopySign(const ezSimdVec4d& vMagnitude, const ezSimdVec4d& vSign);
 
 public:

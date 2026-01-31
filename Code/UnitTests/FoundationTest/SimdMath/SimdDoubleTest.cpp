@@ -147,6 +147,14 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdDouble)
     EZ_TEST_BOOL(c >= 2.0);
     EZ_TEST_BOOL(b < 5.0);
     EZ_TEST_BOOL(b <= 2.0);
+
+    // Test float overloads explicitly
+    EZ_TEST_BOOL(c == 2.0f);
+    EZ_TEST_BOOL(c != 5.0f);
+    EZ_TEST_BOOL(a > 2.0f);
+    EZ_TEST_BOOL(c >= 2.0f);
+    EZ_TEST_BOOL(b < 5.0f);
+    EZ_TEST_BOOL(b <= 2.0f);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Misc")

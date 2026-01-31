@@ -12,7 +12,12 @@
 
 namespace ezInternal
 {
-  using QuadDouble = ezVec4d;
+  struct QuadDouble
+  {
+    float64x2_t xy;
+    float64x2_t zw;
+  };
+
   using QuadFloat = float32x4_t;
   using QuadBool = uint32x4_t;
   
