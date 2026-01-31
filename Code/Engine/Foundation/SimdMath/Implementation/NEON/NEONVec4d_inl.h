@@ -322,7 +322,7 @@ EZ_ALWAYS_INLINE bool ezSimdVec4d::IsValid() const
 
   uint64x2_t bitsXY = vreinterpretq_u64_f64(m_v.xy);
   uint64x2_t bitsZW = vreinterpretq_u64_f64(m_v.zw);
-  
+
   // Check if exponent is NOT all 1s
   uint64x2_t maskedXY = vandq_u64(bitsXY, exponentMask);
   uint64x2_t maskedZW = vandq_u64(bitsZW, exponentMask);
@@ -383,17 +383,17 @@ template <ezSwizzle::Enum s>
 EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::Get() const
 {
   ezSimdVec4d result;
-  
+
   alignas(16) double vals[4];
   vst1q_f64(vals, m_v.xy);
   vst1q_f64(vals + 2, m_v.zw);
-  
+
   alignas(16) double out[4];
   out[0] = vals[(s & 0x3000) >> 12];
   out[1] = vals[(s & 0x0300) >> 8];
   out[2] = vals[(s & 0x0030) >> 4];
   out[3] = vals[(s & 0x0003)];
-  
+
   result.m_v.xy = vld1q_f64(out);
   result.m_v.zw = vld1q_f64(out + 2);
   return result;
@@ -403,20 +403,20 @@ template <ezSwizzle::Enum s>
 EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::GetCombined(const ezSimdVec4d& other) const
 {
   ezSimdVec4d result;
-  
+
   alignas(16) double vals[4];
   alignas(16) double otherVals[4];
   vst1q_f64(vals, m_v.xy);
   vst1q_f64(vals + 2, m_v.zw);
   vst1q_f64(otherVals, other.m_v.xy);
   vst1q_f64(otherVals + 2, other.m_v.zw);
-  
+
   alignas(16) double out[4];
   out[0] = vals[(s & 0x3000) >> 12];
   out[1] = vals[(s & 0x0300) >> 8];
   out[2] = otherVals[(s & 0x0030) >> 4];
   out[3] = otherVals[(s & 0x0003)];
-  
+
   result.m_v.xy = vld1q_f64(out);
   result.m_v.zw = vld1q_f64(out + 2);
   return result;
@@ -643,7 +643,7 @@ template <>
 EZ_ALWAYS_INLINE ezSimdDouble ezSimdVec4d::HorizontalSum<3>() const
 {
   // First reduce xy pair, then add z
-  float64x2_t sumXY = vpaddq_f64(m_v.xy, m_v.xy);  // [x+y, x+y]
+  float64x2_t sumXY = vpaddq_f64(m_v.xy, m_v.xy); // [x+y, x+y]
   double z = vgetq_lane_f64(m_v.zw, 0);
   return ezSimdDouble(vgetq_lane_f64(sumXY, 0) + z);
 }
@@ -653,8 +653,8 @@ EZ_ALWAYS_INLINE ezSimdDouble ezSimdVec4d::HorizontalSum<4>() const
 {
   // vpaddq_f64: [x,y], [z,w] -> [x+y, z+w]
   // Then pairwise add again to get final sum
-  float64x2_t pair = vpaddq_f64(m_v.xy, m_v.zw);   // [x+y, z+w]
-  float64x2_t total = vpaddq_f64(pair, pair);      // [x+y+z+w, x+y+z+w]
+  float64x2_t pair = vpaddq_f64(m_v.xy, m_v.zw); // [x+y, z+w]
+  float64x2_t total = vpaddq_f64(pair, pair);    // [x+y+z+w, x+y+z+w]
   return ezSimdDouble(vgetq_lane_f64(total, 0));
 }
 
@@ -671,7 +671,7 @@ template <>
 EZ_ALWAYS_INLINE ezSimdDouble ezSimdVec4d::HorizontalMin<3>() const
 {
   // First reduce xy pair, then compare with z
-  float64x2_t minXY = vpminq_f64(m_v.xy, m_v.xy);  // [min(x,y), min(x,y)]
+  float64x2_t minXY = vpminq_f64(m_v.xy, m_v.xy); // [min(x,y), min(x,y)]
   double z = vgetq_lane_f64(m_v.zw, 0);
   double minXYVal = vgetq_lane_f64(minXY, 0);
   return ezSimdDouble(minXYVal < z ? minXYVal : z);
@@ -682,8 +682,8 @@ EZ_ALWAYS_INLINE ezSimdDouble ezSimdVec4d::HorizontalMin<4>() const
 {
   // vpminq_f64: [x,y], [z,w] -> [min(x,y), min(z,w)]
   // Then pairwise min again to get final minimum
-  float64x2_t pair = vpminq_f64(m_v.xy, m_v.zw);   // [min(x,y), min(z,w)]
-  float64x2_t minAll = vpminq_f64(pair, pair);     // [min(x,y,z,w), min(x,y,z,w)]
+  float64x2_t pair = vpminq_f64(m_v.xy, m_v.zw); // [min(x,y), min(z,w)]
+  float64x2_t minAll = vpminq_f64(pair, pair);   // [min(x,y,z,w), min(x,y,z,w)]
   return ezSimdDouble(vgetq_lane_f64(minAll, 0));
 }
 
@@ -700,7 +700,7 @@ template <>
 EZ_ALWAYS_INLINE ezSimdDouble ezSimdVec4d::HorizontalMax<3>() const
 {
   // First reduce xy pair, then compare with z
-  float64x2_t maxXY = vpmaxq_f64(m_v.xy, m_v.xy);  // [max(x,y), max(x,y)]
+  float64x2_t maxXY = vpmaxq_f64(m_v.xy, m_v.xy); // [max(x,y), max(x,y)]
   double z = vgetq_lane_f64(m_v.zw, 0);
   double maxXYVal = vgetq_lane_f64(maxXY, 0);
   return ezSimdDouble(maxXYVal > z ? maxXYVal : z);
@@ -711,8 +711,8 @@ EZ_ALWAYS_INLINE ezSimdDouble ezSimdVec4d::HorizontalMax<4>() const
 {
   // vpmaxq_f64: [x,y], [z,w] -> [max(x,y), max(z,w)]
   // Then pairwise max again to get final maximum
-  float64x2_t pair = vpmaxq_f64(m_v.xy, m_v.zw);   // [max(x,y), max(z,w)]
-  float64x2_t maxAll = vpmaxq_f64(pair, pair);     // [max(x,y,z,w), max(x,y,z,w)]
+  float64x2_t pair = vpmaxq_f64(m_v.xy, m_v.zw); // [max(x,y), max(z,w)]
+  float64x2_t maxAll = vpmaxq_f64(pair, pair);   // [max(x,y,z,w), max(x,y,z,w)]
   return ezSimdDouble(vgetq_lane_f64(maxAll, 0));
 }
 
@@ -749,14 +749,13 @@ EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::CrossRH(const ezSimdVec4d& v) const
   double x2 = vgetq_lane_f64(v.m_v.xy, 0);
   double y2 = vgetq_lane_f64(v.m_v.xy, 1);
   double z2 = vgetq_lane_f64(v.m_v.zw, 0);
-  
+
   alignas(16) double result[4] = {
     y1 * z2 - z1 * y2,
     z1 * x2 - x1 * z2,
     x1 * y2 - y1 * x2,
-    0.0
-  };
-  
+    0.0};
+
   ezSimdVec4d r;
   r.m_v.xy = vld1q_f64(result);
   r.m_v.zw = vld1q_f64(result + 2);
@@ -820,4 +819,3 @@ EZ_ALWAYS_INLINE ezSimdVec4d ezSimdVec4d::CopySign(const ezSimdVec4d& vMagnitude
   result.m_v.zw = vreinterpretq_f64_u64(vorrq_u64(magBitsZW, signBitsZW));
   return result;
 }
-

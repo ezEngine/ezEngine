@@ -21,17 +21,17 @@ EZ_ALWAYS_INLINE void ezSimdMat4d::Transpose()
   // [z0 w0]   [z1 w1] --> [z0 z1]   [w0 w1]
   // [x2 y2]   [x3 y3]     [x2 x3]   [y2 y3]
   // [z2 w2]   [z3 w3]     [z2 z3]   [w2 w3]
-  
+
   // vtrn/vzip for 2-element pairs
-  float64x2_t x0x1 = vzip1q_f64(c0xy, c1xy);  // [x0, x1]
-  float64x2_t y0y1 = vzip2q_f64(c0xy, c1xy);  // [y0, y1]
-  float64x2_t z0z1 = vzip1q_f64(c0zw, c1zw);  // [z0, z1]
-  float64x2_t w0w1 = vzip2q_f64(c0zw, c1zw);  // [w0, w1]
-  
-  float64x2_t x2x3 = vzip1q_f64(c2xy, c3xy);  // [x2, x3]
-  float64x2_t y2y3 = vzip2q_f64(c2xy, c3xy);  // [y2, y3]
-  float64x2_t z2z3 = vzip1q_f64(c2zw, c3zw);  // [z2, z3]
-  float64x2_t w2w3 = vzip2q_f64(c2zw, c3zw);  // [w2, w3]
+  float64x2_t x0x1 = vzip1q_f64(c0xy, c1xy); // [x0, x1]
+  float64x2_t y0y1 = vzip2q_f64(c0xy, c1xy); // [y0, y1]
+  float64x2_t z0z1 = vzip1q_f64(c0zw, c1zw); // [z0, z1]
+  float64x2_t w0w1 = vzip2q_f64(c0zw, c1zw); // [w0, w1]
+
+  float64x2_t x2x3 = vzip1q_f64(c2xy, c3xy); // [x2, x3]
+  float64x2_t y2y3 = vzip2q_f64(c2xy, c3xy); // [y2, y3]
+  float64x2_t z2z3 = vzip1q_f64(c2zw, c3zw); // [z2, z3]
+  float64x2_t w2w3 = vzip2q_f64(c2zw, c3zw); // [w2, w3]
 
   // Assign result
   m_col0.m_v.xy = x0x1;
