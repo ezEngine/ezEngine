@@ -14,7 +14,6 @@ class EZ_JOLTPLUGIN_DLL ezJoltWaterVolumeComponentManager : public ezComponentMa
 public:
   ezJoltWaterVolumeComponentManager(ezWorld* pWorld);
   ~ezJoltWaterVolumeComponentManager();
-  // virtual void Initialize() override;
 
   void UpdateWaterVolumes(ezTime deltaTime);
 };
@@ -40,9 +39,14 @@ public:
   ezJoltWaterVolumeComponent();
   ~ezJoltWaterVolumeComponent();
 
-  ezVec3 m_vExtents = ezVec3(10.0f);        // [ property ]
-  ezVec2 m_vLocalFlow = ezVec2::MakeZero(); // [ property ]
+  ezVec3 m_vExtents = ezVec3(10.0f);   // [ property ]
+  ezVec3 m_vFlow = ezVec3::MakeZero(); // [ property ]
 
 private:
   void Update(JPH::PhysicsSystem& joltSystem, ezTime deltaTime);
+
+  void UpdateWaterPlane(const ezVec3& vGravity);
+
+  ezPlane m_surfacePlane;
+  ezVec3 m_vGravity = ezVec3::MakeZero();
 };
