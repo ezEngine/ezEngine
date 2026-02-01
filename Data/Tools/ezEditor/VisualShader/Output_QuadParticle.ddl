@@ -35,9 +35,13 @@ PARTICLE_LIGHTING_MODE=PARTICLE_LIGHTING_MODE_FULLBRIGHT
 #endif
 " }
 
-  string %CodeVertexShader { "
+  string %CodeVertexDefines { "" }
+
+  string %CodeVertexIncludes { "
 #include <Shaders/Particles/QuadParticleVertexShader.h>
 " }
+
+  string %CodeVertexBody { "" }
 
   string %CodeMaterialParams { "" }
 

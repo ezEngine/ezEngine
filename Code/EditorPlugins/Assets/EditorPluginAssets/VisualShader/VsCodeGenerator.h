@@ -49,8 +49,25 @@ private:
   ezStatus GenerateOutputPinCode(const ezDocumentObject* pOwnerNode, const ezPin& pinSource);
 
   ezStatus ReplaceInputPinsByCode(const ezDocumentObject* pOwnerNode, const ezVisualShaderNodeDescriptor* pNodeDesc, ezStringBuilder& sInlineCode, ezStringBuilder& sCodeForPlacingDefines);
+  void ReplaceMainNodeInputPins(const ezDocumentObject* pMainNode, const ezVisualShaderNodeDescriptor* pNodeDesc, ezStringBuilder& sInlineCode, ezStringBuilder& sCodeForPlacingDefines, ezStringBuilder& out_sHelperFunctions);
   void SetPinDefines(const ezDocumentObject* pOwnerNode, ezStringBuilder& sInlineCode);
-  static void AppendStringIfUnique(ezStringBuilder& inout_String, const char* szAppend);
+  static void AppendStringIfUnique(ezStringBuilder& inout_String, ezStringView sAppend);
+
+  // Generates the transitive hull of nodes connected via input pins to pNode.
+  void CollectReachableNodes(const ezDocumentObject* pNode, ezHashSet<const ezDocumentObject*>& out_Nodes) const;
+
+  // Gets the value to use for an unconnected input pin (either from property or default value)
+  // Optionally appends defines to pDefinesOut when using a default value
+  ezString GetInputPinDefaultValue(const ezDocumentObject* pNode, const ezVisualShaderPinDescriptor& pinDesc, ezStringBuilder* pDefinesOut = nullptr);
+
+  // Collects all nodes that are connected to the given connection. out_Sorted is sorted with the first element being the source pin of pStartConnection.
+  ezResult CollectNodesInTopologicalOrder(const ezDocumentObject* pRootNode, ezDynamicArray<const ezDocumentObject*>& out_Sorted) const;
+
+  // Computes the effective output type dimension for all output pins and stores in m_OutputPinDimensions
+  void ComputeOutputPinDimensions();
+
+  // Generates a helper function for a main node input pin, returns the function code and the function name
+  void GenerateInputHelperFunction(const ezPin* pInputPin, ezUInt32 uiInputIndex, ezStringBuilder& out_sFunctionCode, ezStringBuilder& out_sFunctionCall);
 
   const ezDocumentObject* m_pMainNode;
   const ezVisualShaderTypeRegistry* m_pTypeRegistry;
@@ -58,6 +75,7 @@ private:
   const ezRTTI* m_pNodeBaseRtti;
   ezMap<const ezDocumentObject*, NodeState> m_Nodes;
   ezMap<const ezPin*, OutputPinState> m_OutputPins;
+  ezMap<const ezPin*, ezUInt8> m_OutputPinDimensions; // Effective output type dimension for each output pin (1-4 for float-float4)
   ezMap<ezString, ezString> m_UsedIdentifiers; // Maps identifier name to node type name
 
   ezStringBuilder m_sShaderPixelDefines;
@@ -66,7 +84,8 @@ private:
   ezStringBuilder m_sShaderPixelSamplers;
   ezStringBuilder m_sShaderPixelBody;
   ezStringBuilder m_sShaderVertexDefines;
-  ezStringBuilder m_sShaderVertex;
+  ezStringBuilder m_sShaderVertexIncludes;
+  ezStringBuilder m_sShaderVertexBody;
   ezStringBuilder m_sShaderMaterialParam;
   ezStringBuilder m_sShaderMaterialConstants;
   ezStringBuilder m_sShaderMaterialCB;

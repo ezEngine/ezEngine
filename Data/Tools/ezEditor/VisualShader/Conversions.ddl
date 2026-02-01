@@ -6,7 +6,7 @@ Node %Split
 
   InputPin %a
   {
-    string %Type { "float" }
+    string %Type { "auto" }
     unsigned_int8 %Color { 200, 200, 200 }
     string %Tooltip { "Value that should be split into components.\nCan be of any type, missing components output zero." }
   }
@@ -69,7 +69,7 @@ Node %MergeFloat2
 
   OutputPin %result
   {
-      string %Type { "float" }
+      string %Type { "float2" }
       unsigned_int8 %Color { 200, 200, 200 }
       string %Inline { "float2(ToFloat1($in0), ToFloat1($in1))" }
       string %Tooltip { "The first component of each input is put into the respective component of the output." }
@@ -111,7 +111,7 @@ Node %MergeFloat3
 
   OutputPin %result
   {
-      string %Type { "float" }
+      string %Type { "float3" }
       unsigned_int8 %Color { 200, 200, 200 }
       string %Inline { "float3(ToFloat1($in0), ToFloat1($in1), ToFloat1($in2))" }
       string %Tooltip { "The first component of each input is put into the respective component of the output." }
@@ -161,7 +161,7 @@ Node %MergeFloat4
 
   OutputPin %result
   {
-    string %Type { "float" }
+    string %Type { "float4" }
     unsigned_int8 %Color { 200, 200, 200 }
     string %Inline { "float4(ToFloat1($in0), ToFloat1($in1), ToFloat1($in2), ToFloat1($in3))" }
     string %Tooltip { "The first component of each input is put into the respective component of the output." }

@@ -58,7 +58,9 @@ struct ezVisualShaderNodeDescriptor
   ezString m_sShaderCodeMaterialCB;
   ezString m_sShaderCodeRenderState;
   ezString m_sShaderCodeShaderShared;
-  ezString m_sShaderCodeVertexShader;
+  ezString m_sShaderCodeVertexDefines;
+  ezString m_sShaderCodeVertexIncludes;
+  ezString m_sShaderCodeVertexBody;
 
   ezHybridArray<ezVisualShaderPinDescriptor, 4> m_InputPins;
   ezHybridArray<ezVisualShaderPinDescriptor, 4> m_OutputPins;

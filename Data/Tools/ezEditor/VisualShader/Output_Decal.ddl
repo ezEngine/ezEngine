@@ -10,15 +10,18 @@ Node %DecalOutput
   string %CheckPermutations {""}
 
   string %CodeRenderStates { "#include <Shaders/Decals/DecalState.h>" }
-  string %CodeVertexShader { "
 
+  string %CodeVertexDefines { "" }
+
+  string %CodeVertexIncludes { "
 #include <Shaders/Decals/DecalVertexShader.h>
+" }
 
+  string %CodeVertexBody { "
 VS_OUT main(VS_IN Input)
 {
   return FillVertexData(Input);
 }
-
 " }
 
   string %CodeMaterialParams { "" }

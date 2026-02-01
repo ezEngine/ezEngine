@@ -32,8 +32,8 @@ VERTEX_SKINNING=FALSE
 "}
 
   string %CodeRenderStates { "#include <Shaders/Materials/MaterialState.h>" }
-  string %CodeVertexShader { "
 
+  string %CodeVertexDefines { "
 #if VERTEX_SKINNING
   #define USE_SKINNING
 #endif
@@ -49,7 +49,6 @@ VERTEX_SKINNING=FALSE
 #if !defined(USE_TANGENT)
   #define USE_TANGENT
 #endif
-
 #endif
 
 #if INPUT_PIN_10_CONNECTED
@@ -59,10 +58,14 @@ VERTEX_SKINNING=FALSE
 #if INPUT_PIN_11_CONNECTED
   #define USE_WORLD_POSITION_OFFSET
 #endif
+" }
 
+  string %CodeVertexIncludes { "
 #include <Shaders/Materials/MaterialVertexShader.h>
 #include <Shaders/Common/VisualShaderUtil.h>
+" }
 
+  string %CodeVertexBody { "
 VS_OUT main(VS_IN Input)
 {
   return FillVertexData(Input);
@@ -81,7 +84,6 @@ float3 GetWorldPositionOffset(ezPerInstanceData data, float3 worldPosition)
   return ToFloat3($in11);
 }
 #endif
-
 " }
 
   string %CodeMaterialParams { "
@@ -146,7 +148,6 @@ float MaskThreshold @Default($prop0);
 " }
 
   string %CodePixelBody { "
-  
 float3 GetBaseColor()
 {
   return ToColor3($in0);

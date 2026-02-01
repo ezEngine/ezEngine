@@ -7,21 +7,21 @@ Node %Max
 
   InputPin %a
   {
-    string %Type { "float" }
+    string %Type { "auto" }
     bool %Expose { true }
     string %DefaultValue { "0" }
   }
 
   InputPin %b
   {
-    string %Type { "float" }
+    string %Type { "auto" }
     bool %Expose { true }
     string %DefaultValue { "0" }
   }
 
   OutputPin %result
   {
-    string %Type { "float" }
+    string %Type { "auto" }
     string %Inline { "max(ToBiggerType($in0, $in1), ToBiggerType($in1, $in0))" }
     string %Tooltip { "The larger of the two input values (component-wise)." }
   }
@@ -36,21 +36,21 @@ Node %Min
 
   InputPin %a
   {
-    string %Type { "float" }
+    string %Type { "auto" }
     bool %Expose { true }
     string %DefaultValue { "0" }
   }
 
   InputPin %b
   {
-    string %Type { "float" }
+    string %Type { "auto" }
     bool %Expose { true }
     string %DefaultValue { "0" }
   }
 
   OutputPin %result
   {
-    string %Type { "float" }
+    string %Type { "auto" }
     string %Inline { "min(ToBiggerType($in0, $in1), ToBiggerType($in1, $in0))" }
     string %Tooltip { "The smaller of the two input values (component-wise)." }
   }
@@ -64,12 +64,12 @@ Node %Saturate
 
   InputPin %a
   {
-    string %Type { "float" }
+    string %Type { "auto" }
   }
 
   OutputPin %result
   {
-    string %Type { "float" }
+    string %Type { "auto" }
     string %Inline { "saturate($in0)" }
     string %Tooltip { "Clamps the input to the range [0, 1] (component-wise)." }
   }
@@ -84,13 +84,13 @@ Node %Clamp
 
   InputPin %x
   {
-    string %Type { "float" }
+    string %Type { "auto" }
     string %Tooltip { "The value to clamp." }
   }
 
   InputPin %min
   {
-    string %Type { "float" }
+    string %Type { "auto" }
     bool %Expose { true }
     string %DefaultValue { "0" }
     string %Tooltip { "The minimum value to clamp against." }
@@ -98,7 +98,7 @@ Node %Clamp
 
   InputPin %max
   {
-    string %Type { "float" }
+    string %Type { "auto" }
     bool %Expose { true }
     string %DefaultValue { "1" }
     string %Tooltip { "The maximum value to clamp against." }
@@ -106,7 +106,7 @@ Node %Clamp
 
   OutputPin %result
   {
-    string %Type { "float" }
+    string %Type { "auto" }
     string %Inline { "clamp($in0, ToSameType($in1, $in0), ToSameType($in2, $in0))" }
     string %Tooltip { "All output values will be clamped to be between Min and Max." }
   }

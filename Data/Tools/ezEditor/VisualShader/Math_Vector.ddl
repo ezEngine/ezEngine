@@ -6,12 +6,12 @@ Node %Distance
 
   InputPin %a
   {
-    string %Type { "float" }
+    string %Type { "auto" }
   }
 
   InputPin %b
   {
-    string %Type { "float" }
+    string %Type { "auto" }
   }
 
   OutputPin %result
@@ -30,7 +30,7 @@ Node %Length
 
   InputPin %a
   {
-    string %Type { "float" }
+    string %Type { "auto" }
   }
 
   OutputPin %result
@@ -49,13 +49,13 @@ Node %Dot
 
   InputPin %a
   {
-    string %Type { "float" }
+    string %Type { "auto" }
     string %DefaultValue { "0" }
   }
 
   InputPin %b
   {
-    string %Type { "float" }
+    string %Type { "auto" }
     string %DefaultValue { "0" }
   }
 
@@ -101,13 +101,13 @@ Node %Normalize
 
   InputPin %vector
   {
-    string %Type { "float" }
+    string %Type { "auto" }
     string %Tooltip { "A vector. Avoid zero vectors to prevent NaN's." }
   }
 
   OutputPin %result
   {
-    string %Type { "float" }
+    string %Type { "auto" }
     string %Inline { "normalize($in0)" }
     string %Tooltip { "The normalized vector." }
   }

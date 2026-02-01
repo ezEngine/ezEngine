@@ -354,6 +354,8 @@ void ezVisualShaderTypeRegistry::ExtractNodePins(const ezOpenDdlReaderElement* p
           pin.m_pDataType = ezGetStaticRTTI<ezString>();
         else if (sType == "sampler")
           pin.m_pDataType = m_pSamplerPinType;
+        else if (sType == "auto")
+          pin.m_pDataType = nullptr; // nullptr indicates "auto" type - computed from inputs at code generation time
         else
         {
           ezLog::Error("Invalid pin type '{0}'", sType);
@@ -411,9 +413,12 @@ void ezVisualShaderTypeRegistry::ExtractNodePins(const ezOpenDdlReaderElement* p
         pin.m_PropertyDesc.m_sName = pin.m_sName;
         pin.m_PropertyDesc.m_Category = ezPropertyCategory::Member;
         pin.m_PropertyDesc.m_Flags.SetValue((ezUInt16)ezPropertyFlags::Phantom | (ezUInt16)ezPropertyFlags::StandardType);
-        pin.m_PropertyDesc.m_sType = pin.m_pDataType->GetTypeName();
 
-        const ezVariant def = ExtractDefaultValue(pin.m_pDataType, pin.m_sDefaultValue);
+        // For "auto" type pins, use float as the fallback type for the property GUI
+        const ezRTTI* pPropertyType = pin.m_pDataType != nullptr ? pin.m_pDataType : ezGetStaticRTTI<float>();
+        pin.m_PropertyDesc.m_sType = pPropertyType->GetTypeName();
+
+        const ezVariant def = ExtractDefaultValue(pPropertyType, pin.m_sDefaultValue);
 
         if (def.IsValid())
         {
@@ -647,12 +652,26 @@ void ezVisualShaderTypeRegistry::ExtractNodeConfig(const ezOpenDdlReaderElement*
           temp.Append("\n");
         nd.m_sShaderCodeShaderShared = temp;
       }
-      else if (pElement->GetName() == "CodeVertexShader")
+      else if (pElement->GetName() == "CodeVertexDefines")
       {
         temp = pElement->GetPrimitivesString()[0];
         if (!temp.IsEmpty() && !temp.EndsWith("\n"))
           temp.Append("\n");
-        nd.m_sShaderCodeVertexShader = temp;
+        nd.m_sShaderCodeVertexDefines = temp;
+      }
+      else if (pElement->GetName() == "CodeVertexIncludes")
+      {
+        temp = pElement->GetPrimitivesString()[0];
+        if (!temp.IsEmpty() && !temp.EndsWith("\n"))
+          temp.Append("\n");
+        nd.m_sShaderCodeVertexIncludes = temp;
+      }
+      else if (pElement->GetName() == "CodeVertexBody")
+      {
+        temp = pElement->GetPrimitivesString()[0];
+        if (!temp.IsEmpty() && !temp.EndsWith("\n"))
+          temp.Append("\n");
+        nd.m_sShaderCodeVertexBody = temp;
       }
       else if (pElement->GetName() == "CodeMaterialParams")
       {
