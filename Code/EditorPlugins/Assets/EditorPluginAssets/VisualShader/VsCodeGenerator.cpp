@@ -15,13 +15,18 @@ namespace
       return 3;
     if (pType == ezGetStaticRTTI<ezVec4>() || pType == ezGetStaticRTTI<ezColor>())
       return 4;
+    // We treat 'auto' as float as all the default values for auto fields are float.
+    if (pType == nullptr)
+      return 1;
+
+    EZ_REPORT_FAILURE("Unknown RTTI type found in VSE type");
     return 0;
   }
 
   // Returns the HLSL type string for a given dimension
-  const char* DimensionToHlslType(ezUInt8 dimension)
+  const char* DimensionToHlslType(ezUInt8 uiDimension)
   {
-    switch (dimension)
+    switch (uiDimension)
     {
       case 1:
         return "float";
@@ -30,7 +35,9 @@ namespace
       case 3:
         return "float3";
       case 4:
+        return "float4";
       default:
+        EZ_REPORT_FAILURE("Unknown vector dimension found in HLSL type");
         return "float4";
     }
   }
@@ -188,6 +195,7 @@ ezString ezVisualShaderCodeGenerator::GetInputPinDefaultValue(const ezDocumentOb
 
 ezResult ezVisualShaderCodeGenerator::CollectNodesInTopologicalOrder(const ezDocumentObject* pRootNode, ezDynamicArray<const ezDocumentObject*>& out_Sorted) const
 {
+  // We need the reachable nodes to ignore connections that go out of this subtree as they are not relevant.
   ezHashSet<const ezDocumentObject*> reachableNodes;
   CollectReachableNodes(pRootNode, reachableNodes);
 
@@ -198,13 +206,13 @@ ezResult ezVisualShaderCodeGenerator::CollectNodesInTopologicalOrder(const ezDoc
 
   while (!nodeStack.IsEmpty())
   {
-    // Find next node with all execution dependencies visited
-    const ezDocumentObject* pAstNode = nullptr;
+    // Find the next node in which all outgoing connections are visited nodes or nodes outside the reachable nodes.
+    const ezDocumentObject* pNode = nullptr;
     for (ezUInt32 i = nodeStack.GetCount(); i-- > 0;)
     {
-      const ezDocumentObject* pCandidateAstNode = nodeStack[i];
+      const ezDocumentObject* pCandidateNode = nodeStack[i];
       bool bAllVisited = true;
-      ezArrayPtr<const ezUniquePtr<const ezPin>> outputPins = m_pNodeManager->GetOutputPins(pCandidateAstNode);
+      ezArrayPtr<const ezUniquePtr<const ezPin>> outputPins = m_pNodeManager->GetOutputPins(pCandidateNode);
       for (auto& pOutputPin : outputPins)
       {
         ezArrayPtr<const ezConnection* const> connections = m_pNodeManager->GetConnections(*pOutputPin);
@@ -223,22 +231,23 @@ ezResult ezVisualShaderCodeGenerator::CollectNodesInTopologicalOrder(const ezDoc
 
       if (bAllVisited)
       {
-        pAstNode = pCandidateAstNode;
+        pNode = pCandidateNode;
         nodeStack.RemoveAtAndCopy(i);
         break;
       }
     }
 
-    if (pAstNode == nullptr)
+    if (pNode == nullptr)
     {
       EZ_REPORT_FAILURE("Execution connection corrupted or loop detected");
       return EZ_FAILURE;
     }
 
-    EZ_VERIFY(visitedNodes.Insert(pAstNode) == false, "");
-    out_Sorted.PushBack(pAstNode);
+    EZ_VERIFY(visitedNodes.Insert(pNode) == false, "Every node should only be visited once");
+    out_Sorted.PushBack(pNode);
 
-    ezArrayPtr<const ezUniquePtr<const ezPin>> inputPins = m_pNodeManager->GetInputPins(pAstNode);
+    // Add all incoming connections of the node to the nodeStack.
+    ezArrayPtr<const ezUniquePtr<const ezPin>> inputPins = m_pNodeManager->GetInputPins(pNode);
     for (ezUInt32 i = 0; i < inputPins.GetCount(); ++i)
     {
       const ezUniquePtr<const ezPin>& pInputPin = inputPins[i];
@@ -246,13 +255,8 @@ ezResult ezVisualShaderCodeGenerator::CollectNodesInTopologicalOrder(const ezDoc
       for (const auto* pConnection : connections)
       {
         const ezDocumentObject* pParentNode = pConnection->GetSourcePin().GetParent();
-        if (visitedNodes.Contains(pParentNode))
-          continue;
-
         if (nodeStack.Contains(pParentNode) == false)
-        {
           nodeStack.PushBack(pParentNode);
-        }
       }
     }
   }
@@ -411,7 +415,7 @@ void ezVisualShaderCodeGenerator::GenerateInputHelperFunction(const ezPin* pInpu
 
       // Generate local variable with descriptive name including node type
       ezStringBuilder sVarName;
-      sVarName.SetFormat("_{0}_{1}_{2}", pDesc->m_sName, pOutPin->GetName(), nodeState.m_uiNodeId);
+      sVarName.SetFormat("_{0}_{1}_{2}", pDesc->m_sName, nodeState.m_uiNodeId, pOutPin->GetName());
       pinToVarName[pOutPin] = sVarName;
 
       // Add local variable declaration with the computed type
@@ -707,24 +711,27 @@ void ezVisualShaderCodeGenerator::ReplaceMainNodeInputPins(const ezDocumentObjec
     sPinPlaceholder.SetFormat("$in{0}", i);
 
     // Check if this shader section uses this placeholder
-    if (sInlineCode.FindSubString(sPinPlaceholder) == nullptr)
-      continue;
-
+    const bool bPresentInCode = sInlineCode.FindSubString(sPinPlaceholder) != nullptr;
+    // Even if this shader section is not using this placeholder, we need to insert the defines into sCodeForPlacingDefines as these must be equal between shader stages.
     auto connections = m_pNodeManager->GetConnections(*inputPins[i]);
     if (connections.IsEmpty())
     {
       ezString sValue = GetInputPinDefaultValue(pMainNode, pNodeDesc->m_InputPins[i], &sCodeForPlacingDefines);
-      sInlineCode.ReplaceAll(sPinPlaceholder, sValue);
+      if (bPresentInCode)
+        sInlineCode.ReplaceAll(sPinPlaceholder, sValue);
+      continue;
     }
-    else
-    {
-      // Generate the helper function for this input's subgraph
-      ezStringBuilder sHelperFunc, sFuncCall;
-      GenerateInputHelperFunction(inputPins[i].Borrow(), i, sHelperFunc, sFuncCall);
 
-      out_sHelperFunctions.Append(sHelperFunc);
-      sInlineCode.ReplaceAll(sPinPlaceholder, sFuncCall);
-    }
+    // Do generate and add the helper function to a shader stage that does not call the function.
+    if (!bPresentInCode)
+      continue;
+
+    // Generate the helper function for this input's subgraph
+    ezStringBuilder sHelperFunc, sFuncCall;
+    GenerateInputHelperFunction(inputPins[i].Borrow(), i, sHelperFunc, sFuncCall);
+
+    out_sHelperFunctions.Append(sHelperFunc);
+    sInlineCode.ReplaceAll(sPinPlaceholder, sFuncCall);
   }
 }
 
