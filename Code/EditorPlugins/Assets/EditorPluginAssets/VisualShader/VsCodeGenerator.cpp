@@ -525,6 +525,12 @@ ezStatus ezVisualShaderCodeGenerator::GenerateVisualShader(const ezDocumentNodeM
   m_sFinalShaderCode.Set("[PLATFORMS]\nALL\n\n");
   m_sFinalShaderCode.Append("[PERMUTATIONS]\n\n", m_sShaderPermutations, "\n");
   m_sFinalShaderCode.Append("[MATERIALPARAMETER]\n\n", m_sShaderMaterialParam, "\n");
+  for (auto it : m_MaterialParameter)
+  {
+    m_sFinalShaderCode.Append(it.Value());
+  }
+  m_sFinalShaderCode.Append("\n");
+
   m_sFinalShaderCode.Append("[RENDERSTATE]\n\n", m_sShaderRenderState, "\n");
   m_sFinalShaderCode.Append("[MATERIALCONSTANTS]\n\n", sMaterialConstants, "\n");
 
@@ -633,7 +639,6 @@ ezStatus ezVisualShaderCodeGenerator::GenerateNode(const ezDocumentObject* pNode
     AppendStringIfUnique(m_sShaderRenderState, sRenderStates);
     AppendStringIfUnique(m_sShaderVertexDefines, sVertexDefines);
     AppendStringIfUnique(m_sShaderVertexIncludes, sVertexIncludes);
-    AppendStringIfUnique(m_sShaderMaterialParam, sMaterialParamCode);
     AppendStringIfUnique(m_sShaderMaterialConstants, sMaterialConstantsCode);
     AppendStringIfUnique(m_sShaderPixelDefines, sPixelDefines);
     AppendStringIfUnique(m_sShaderPixelIncludes, sPixelIncludes);
@@ -642,6 +647,20 @@ ezStatus ezVisualShaderCodeGenerator::GenerateNode(const ezDocumentObject* pNode
     AppendStringIfUnique(m_sShaderPixelConstants, sPixelConstantsCode);
     AppendStringIfUnique(m_sShaderPixelSamplers, sPixelSamplersCode);
     AppendStringIfUnique(m_sShaderMaterialCB, sMaterialCB);
+  }
+
+  if (pDesc->m_NodeType == ezVisualShaderNodeType::Texture || pDesc->m_NodeType == ezVisualShaderNodeType::Parameter)
+  {
+    const ezStringView sPropertyName = (pDesc->m_NodeType == ezVisualShaderNodeType::Texture) ? "Name" : "ParamName";
+    const ezVariant value = pNode->GetTypeAccessor().GetValue(sPropertyName);
+    if (value.IsString() || value.IsHashedString())
+    {
+      m_MaterialParameter.Insert(value.ConvertTo<ezString>(), sMaterialParamCode);
+    }
+  }
+  else
+  {
+    AppendStringIfUnique(m_sShaderMaterialParam, sMaterialParamCode);
   }
 
   return ezStatus(EZ_SUCCESS);

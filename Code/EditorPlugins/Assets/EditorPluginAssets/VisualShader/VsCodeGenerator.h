@@ -77,6 +77,7 @@ private:
   ezMap<const ezPin*, OutputPinState> m_OutputPins;
   ezMap<const ezPin*, ezUInt8> m_OutputPinDimensions; // Effective output type dimension for each output pin (1-4 for float-float4)
   ezMap<ezString, ezString> m_UsedIdentifiers; // Maps identifier name to node type name
+  ezMap<ezString, ezString> m_MaterialParameter;
 
   ezStringBuilder m_sShaderPixelDefines;
   ezStringBuilder m_sShaderPixelIncludes;
