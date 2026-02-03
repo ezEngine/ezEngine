@@ -804,7 +804,7 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData, uin
 float4 CalculateRefraction(float3 worldPosition, float4 screenPosition, float3 worldNormal, float2 distortion, float newOpacity, out float2 refractedScreenPosition)
 {
   float2 screenCoords = screenPosition.xy * ViewportSize.zw;
-  float2 refractCoords = screenCoords + distortion;  
+  float2 refractCoords = screenCoords + distortion;
 
   float depthFromZBuffer = SceneDepth.SampleLevel(PointSampler, float3(refractCoords, s_ActiveCameraEyeIndex), 0).r;
   float depthDiff = LinearizeZBufferDepth(depthFromZBuffer) - screenPosition.w;

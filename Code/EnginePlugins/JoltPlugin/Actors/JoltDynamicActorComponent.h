@@ -94,7 +94,7 @@ public:
   ezFloat16 m_fWeightScale = 1.0f;     // [ property ]
 
   /// \brief How much buoyancy to apply when the actor is submerged in a fluid. 1.0 means neutral buoyancy, <1.0 sinks, >1.0 floats.
-  ezFloat16 m_fBuoyancyFactor = 1.1f;        // [ property ]
+  ezFloat16 m_fBuoyancyFactor = 1.1f; // [ property ]
 
   /// \brief How much to dampen linear motion. The higher the value, the quicker a moving object comes to rest.
   float m_fLinearDamping = 0.1f; // [ property ]
