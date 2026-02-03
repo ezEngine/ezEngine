@@ -125,18 +125,18 @@ void ezJoltWaterVolumeComponent::OnMsgTriggerTriggered(ezMsgTriggerTriggered& ms
     {
       ezResourceLock<ezSurfaceResource> pSurface(m_hSurface, ezResourceAcquireMode::BlockTillLoaded);
 
-      const ezVec3 vPos = m_surfacePlane.ProjectOntoPlane(pSubmergedObject->GetGlobalPosition());
-      const ezVec3 vNormal = m_surfacePlane.m_vNormal;
+      const ezVec3 vPos = m_SurfacePlane.ProjectOntoPlane(pSubmergedObject->GetGlobalPosition());
+      const ezVec3 vNormal = m_SurfacePlane.m_vNormal;
       const ezVec3 vDirection = pSubmergedObject->GetLinearVelocity();
 
       pSurface->InteractWithSurface(GetWorld(), ezGameObjectHandle(), vPos, vNormal, vDirection, m_sInteraction, &GetOwner()->GetTeamID());
     }
 
-    m_submergedActors.Insert(pActorComponent->GetHandle());
+    m_SubmergedActors.Insert(pActorComponent->GetHandle());
   }
   else if (msg.m_TriggerState == ezTriggerState::Deactivated)
   {
-    m_submergedActors.Remove(pActorComponent->GetHandle());
+    m_SubmergedActors.Remove(pActorComponent->GetHandle());
   }
 }
 
@@ -177,8 +177,8 @@ void ezJoltWaterVolumeComponent::Update(JPH::PhysicsSystem& joltSystem, ezTime d
   const JPH::Vec3 flow = ezJoltConversionUtils::ToVec3(globalTransform.TransformDirection(m_vFlow));
   const float fDeltaTime = deltaTime.AsFloatInSeconds();
 
-  const ezVec3 vSurfaceTangent = m_surfacePlane.m_vNormal.GetOrthogonalVector().GetNormalized();
-  const ezVec3 vSurfaceBitangent = m_surfacePlane.m_vNormal.CrossRH(vSurfaceTangent).GetNormalized();
+  const ezVec3 vSurfaceTangent = m_SurfacePlane.m_vNormal.GetOrthogonalVector().GetNormalized();
+  const ezVec3 vSurfaceBitangent = m_SurfacePlane.m_vNormal.CrossRH(vSurfaceTangent).GetNormalized();
 
   m_fNoiseTime += fDeltaTime * 0.5f;
   if (m_fNoiseTime > 1000.0f)
@@ -186,7 +186,7 @@ void ezJoltWaterVolumeComponent::Update(JPH::PhysicsSystem& joltSystem, ezTime d
 
   auto& noise = static_cast<ezJoltWaterVolumeComponentManager*>(GetOwningManager())->m_Noise;
 
-  for (auto it : m_submergedActors)
+  for (auto it : m_SubmergedActors)
   {
     ezJoltDynamicActorComponent* pActorComponent = nullptr;
     if (!GetWorld()->TryGetComponent(it, pActorComponent) || pActorComponent->IsActiveAndSimulating() == false)
@@ -197,7 +197,7 @@ void ezJoltWaterVolumeComponent::Update(JPH::PhysicsSystem& joltSystem, ezTime d
     if (body.IsActive() && body.IsDynamic())
     {
       const ezVec3 pos = ezJoltConversionUtils::ToVec3(body.GetCenterOfMassPosition());
-      ezVec3 surfacePosition = m_surfacePlane.ProjectOntoPlane(pos);
+      ezVec3 surfacePosition = m_SurfacePlane.ProjectOntoPlane(pos);
 
       if (m_fNoiseStrength != 0.0f)
       {
@@ -207,13 +207,13 @@ void ezJoltWaterVolumeComponent::Update(JPH::PhysicsSystem& joltSystem, ezTime d
         ezSimdVec4f noisePos = ezSimdConversion::ToVec3(ezVec3(noisePosX, noisePosY, m_fNoiseTime));
         ezSimdVec4f noiseValue = noise.NoiseZeroToOne(ezSimdVec4f(noisePos.x()), ezSimdVec4f(noisePos.y()), ezSimdVec4f(noisePos.z()));
 
-        surfacePosition += m_surfacePlane.m_vNormal * (float(noiseValue.x()) * 2 - 1) * m_fNoiseStrength;
+        surfacePosition += m_SurfacePlane.m_vNormal * (float(noiseValue.x()) * 2 - 1) * m_fNoiseStrength;
 
         body.ResetSleepTimer();
       }
 
       const JPH::Vec3 surfacePositionJolt = ezJoltConversionUtils::ToVec3(surfacePosition);
-      const JPH::Vec3 surfaceNormal = ezJoltConversionUtils::ToVec3(m_surfacePlane.m_vNormal);
+      const JPH::Vec3 surfaceNormal = ezJoltConversionUtils::ToVec3(m_SurfacePlane.m_vNormal);
       const float fBuoyancyFactor = pActorComponent->m_fBuoyancyFactor;
 
       body.ApplyBuoyancyImpulse(surfacePositionJolt, surfaceNormal, fBuoyancyFactor, 0.3f, 0.05f, flow, joltSystem.GetGravity(), fDeltaTime);
@@ -238,7 +238,7 @@ void ezJoltWaterVolumeComponent::UpdateWaterPlane(const ezVec3& vGravity)
     if (fDot < fMinDot)
     {
       vPoint = globalTransform.TransformPosition(vPoint);
-      m_surfacePlane = ezPlane::MakeFromNormalAndPoint(vNormal, vPoint);
+      m_SurfacePlane = ezPlane::MakeFromNormalAndPoint(vNormal, vPoint);
 
       fMinDot = fDot;
     }

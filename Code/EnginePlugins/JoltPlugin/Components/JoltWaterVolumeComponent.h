@@ -67,9 +67,9 @@ private:
   void Update(JPH::PhysicsSystem& joltSystem, ezTime deltaTime);
   void UpdateWaterPlane(const ezVec3& vGravity);
 
-  ezPlane m_surfacePlane = ezPlane::MakeFromNormalAndPoint(ezVec3::MakeAxisZ(), ezVec3::MakeZero());
+  ezPlane m_SurfacePlane = ezPlane::MakeFromNormalAndPoint(ezVec3::MakeAxisZ(), ezVec3::MakeZero());
   ezVec3 m_vGravity = ezVec3::MakeZero();
   float m_fNoiseTime = 0.0f;
 
-  ezHashSet<ezComponentHandle> m_submergedActors;
+  ezHashSet<ezComponentHandle> m_SubmergedActors;
 };
