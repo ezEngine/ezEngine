@@ -22,7 +22,9 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief TODO
+/// \brief Creates a water volume that applies a buoyancy force to submerged dynamic actors and triggers surface interactions.
+///
+/// This component needs a trigger component besides it to detect when actors enter or leave the water volume.
 class EZ_JOLTPLUGIN_DLL ezJoltWaterVolumeComponent : public ezJoltShapeComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezJoltWaterVolumeComponent, ezJoltShapeComponent, ezJoltWaterVolumeComponentManager);
