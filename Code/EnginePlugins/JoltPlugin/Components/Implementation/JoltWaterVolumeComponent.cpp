@@ -1,48 +1,14 @@
 #include <JoltPlugin/JoltPluginPCH.h>
 
+#include <JoltPlugin/Actors/JoltDynamicActorComponent.h>
+#include <JoltPlugin/Actors/JoltTriggerComponent.h>
 #include <JoltPlugin/Components/JoltWaterVolumeComponent.h>
+#include <JoltPlugin/Resources/JoltMaterial.h>
 #include <JoltPlugin/System/JoltWorldModule.h>
 
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Profiling/Profiling.h>
-
-namespace
-{
-  class WaterCollector : public JPH::CollideShapeBodyCollector
-  {
-  public:
-    WaterCollector(JPH::PhysicsSystem& system, const ezPlane& surfacePlane, const ezVec3& vFlow, float fDeltaTime)
-      : m_system(system)
-      , m_surfacePlane(surfacePlane)
-      , m_flow(ezJoltConversionUtils::ToVec3(vFlow))
-      , m_fDeltaTime(fDeltaTime)
-    {
-    }
-
-    virtual void AddHit(const JPH::BodyID& inBodyID) override
-    {
-      JPH::BodyLockWrite lock(m_system.GetBodyLockInterface(), inBodyID);
-      JPH::Body& body = lock.GetBody();
-      if (body.IsActive() && body.IsDynamic())
-      {
-        const ezVec3 pos = ezJoltConversionUtils::ToVec3(body.GetCenterOfMassPosition());
-        const ezVec3 surfacePosition = m_surfacePlane.ProjectOntoPlane(pos);
-
-        const JPH::Vec3 surfacePositionJolt = ezJoltConversionUtils::ToVec3(surfacePosition);
-        const JPH::Vec3 surfaceNormal = ezJoltConversionUtils::ToVec3(m_surfacePlane.m_vNormal);
-
-        body.ApplyBuoyancyImpulse(surfacePositionJolt, surfaceNormal, 1.1f, 0.3f, 0.05f, m_flow, m_system.GetGravity(), m_fDeltaTime);
-      }
-    }
-
-  private:
-    JPH::PhysicsSystem& m_system;
-    ezPlane m_surfacePlane;
-    JPH::Vec3 m_flow;
-    float m_fDeltaTime;
-  };
-}
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezJoltWaterVolumeComponent, 1, ezComponentMode::Static)
@@ -51,8 +17,16 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltWaterVolumeComponent, 1, ezComponentMode::Static)
   {
     EZ_MEMBER_PROPERTY("Extents", m_vExtents)->AddAttributes(new ezDefaultValueAttribute(ezVec3(10.0f)), new ezClampValueAttribute(ezVec3(0.0f), ezVariant())),
     EZ_MEMBER_PROPERTY("Flow", m_vFlow),
+    EZ_MEMBER_PROPERTY("NoiseStrength", m_fNoiseStrength)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_RESOURCE_MEMBER_PROPERTY("Surface", m_hSurface)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
+    EZ_MEMBER_PROPERTY("Interaction", m_sInteraction)->AddAttributes(new ezDynamicStringEnumAttribute("SurfaceInteractionTypeEnum")),
   }
   EZ_END_PROPERTIES;
+  EZ_BEGIN_MESSAGEHANDLERS
+  {
+    EZ_MESSAGE_HANDLER(ezMsgTriggerTriggered, OnMsgTriggerTriggered),
+  }
+  EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Physics/Jolt/Effects"),
@@ -69,6 +43,7 @@ EZ_END_COMPONENT_TYPE;
 
 ezJoltWaterVolumeComponentManager::ezJoltWaterVolumeComponentManager(ezWorld* pWorld)
   : ezComponentManager<ezJoltWaterVolumeComponent, ezBlockStorageType::FreeList>(pWorld)
+  , m_Noise(12345)
 {
 }
 
@@ -94,6 +69,18 @@ void ezJoltWaterVolumeComponentManager::UpdateWaterVolumes(ezTime deltaTime)
 ezJoltWaterVolumeComponent::ezJoltWaterVolumeComponent() = default;
 ezJoltWaterVolumeComponent::~ezJoltWaterVolumeComponent() = default;
 
+void ezJoltWaterVolumeComponent::OnSimulationStarted()
+{
+  ezJoltTriggerComponent* pTriggerComponent = nullptr;
+  if (GetOwner()->TryGetComponentOfBaseType(pTriggerComponent) == false)
+  {
+    ezLog::Warning("ezJoltWaterVolumeComponent requires an ezJoltTriggerComponent on the same game object.");
+  }
+
+  auto pJoltSystem = GetWorld()->GetOrCreateModule<ezJoltWorldModule>()->GetJoltSystem();
+  UpdateWaterPlane(ezJoltConversionUtils::ToVec3(pJoltSystem->GetGravity()));
+}
+
 void ezJoltWaterVolumeComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
@@ -101,6 +88,9 @@ void ezJoltWaterVolumeComponent::SerializeComponent(ezWorldWriter& inout_stream)
 
   s << m_vExtents;
   s << m_vFlow;
+  s << m_fNoiseStrength;
+  s << m_hSurface;
+  s << m_sInteraction;
 }
 
 void ezJoltWaterVolumeComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -111,6 +101,62 @@ void ezJoltWaterVolumeComponent::DeserializeComponent(ezWorldReader& inout_strea
 
   s >> m_vExtents;
   s >> m_vFlow;
+  s >> m_fNoiseStrength;
+  s >> m_hSurface;
+  s >> m_sInteraction;
+}
+
+void ezJoltWaterVolumeComponent::OnMsgTriggerTriggered(ezMsgTriggerTriggered& msg)
+{
+  if (msg.m_TriggerState != ezTriggerState::Activated && msg.m_TriggerState != ezTriggerState::Deactivated)
+    return;
+
+  ezGameObject* pSubmergedObject = nullptr;
+  if (!GetWorld()->TryGetObject(msg.m_hTriggeringObject, pSubmergedObject))
+    return;
+
+  ezJoltDynamicActorComponent* pActorComponent = nullptr;
+  if (!pSubmergedObject->TryGetComponentOfBaseType(pActorComponent) || pActorComponent->GetKinematic())
+    return;
+
+  if (msg.m_TriggerState == ezTriggerState::Activated)
+  {
+    if (m_hSurface.IsValid() && m_sInteraction.IsEmpty() == false)
+    {
+      ezResourceLock<ezSurfaceResource> pSurface(m_hSurface, ezResourceAcquireMode::BlockTillLoaded);
+
+      const ezVec3 vPos = m_surfacePlane.ProjectOntoPlane(pSubmergedObject->GetGlobalPosition());
+      const ezVec3 vNormal = m_surfacePlane.m_vNormal;
+      const ezVec3 vDirection = pSubmergedObject->GetLinearVelocity();
+
+      pSurface->InteractWithSurface(GetWorld(), ezGameObjectHandle(), vPos, vNormal, vDirection, m_sInteraction, &GetOwner()->GetTeamID());
+    }
+
+    m_submergedActors.Insert(pActorComponent->GetHandle());
+  }
+  else if (msg.m_TriggerState == ezTriggerState::Deactivated)
+  {
+    m_submergedActors.Remove(pActorComponent->GetHandle());
+  }
+}
+
+void ezJoltWaterVolumeComponent::CreateShapes(ezDynamicArray<ezJoltSubShape>& out_Shapes, const ezTransform& rootTransform, float fDensity, const ezJoltMaterial* pMaterial)
+{
+  // can't create boxes smaller than this
+  ezVec3 size = m_vExtents * 0.5f;
+  size.x = ezMath::Max(size.x, JPH::cDefaultConvexRadius);
+  size.y = ezMath::Max(size.y, JPH::cDefaultConvexRadius);
+  size.z = ezMath::Max(size.z, JPH::cDefaultConvexRadius);
+
+  auto pNewShape = new JPH::BoxShape(ezJoltConversionUtils::ToVec3(size));
+  pNewShape->AddRef();
+  pNewShape->SetDensity(fDensity);
+  pNewShape->SetUserData(reinterpret_cast<ezUInt64>(GetUserData()));
+  pNewShape->SetMaterial(pMaterial);
+
+  ezJoltSubShape& sub = out_Shapes.ExpandAndGetRef();
+  sub.m_pShape = pNewShape;
+  sub.m_Transform = ezTransform::MakeLocalTransform(rootTransform, GetOwner()->GetGlobalTransform());
 }
 
 void ezJoltWaterVolumeComponent::Update(JPH::PhysicsSystem& joltSystem, ezTime deltaTime)
@@ -128,18 +174,53 @@ void ezJoltWaterVolumeComponent::Update(JPH::PhysicsSystem& joltSystem, ezTime d
     UpdateWaterPlane(gravity);
   }
 
-  const ezVec3 halfExtents = vScaledExtents * 0.5f;
-  const ezVec3 flow = globalTransform.TransformDirection(m_vFlow);
+  const JPH::Vec3 flow = ezJoltConversionUtils::ToVec3(globalTransform.TransformDirection(m_vFlow));
+  const float fDeltaTime = deltaTime.AsFloatInSeconds();
 
-  JPH::Vec3 joltHalfExtents = ezJoltConversionUtils::ToVec3(halfExtents);
-  JPH::AABox waterBox(-joltHalfExtents, joltHalfExtents);
-  waterBox.Translate(ezJoltConversionUtils::ToVec3(globalTransform.m_vPosition));
+  const ezVec3 vSurfaceTangent = m_surfacePlane.m_vNormal.GetOrthogonalVector().GetNormalized();
+  const ezVec3 vSurfaceBitangent = m_surfacePlane.m_vNormal.CrossRH(vSurfaceTangent).GetNormalized();
 
-  WaterCollector collector(joltSystem, m_surfacePlane, flow, deltaTime.AsFloatInSeconds());
-  ezJoltBroadPhaseLayerFilter broadphaseFilter(ezPhysicsShapeType::Dynamic);
-  // TODO: collision layer
+  m_fNoiseTime += fDeltaTime * 0.5f;
+  if (m_fNoiseTime > 1000.0f)
+    m_fNoiseTime -= 1000.0f;
 
-  joltSystem.GetBroadPhaseQuery().CollideAABox(waterBox, collector, broadphaseFilter);
+  auto& noise = static_cast<ezJoltWaterVolumeComponentManager*>(GetOwningManager())->m_Noise;
+
+  for (auto it : m_submergedActors)
+  {
+    ezJoltDynamicActorComponent* pActorComponent = nullptr;
+    if (!GetWorld()->TryGetComponent(it, pActorComponent) || pActorComponent->IsActiveAndSimulating() == false)
+      continue;
+
+    const float fBouyancyFactor = 1.1f; // could be a property
+
+
+    JPH::BodyLockWrite lock(joltSystem.GetBodyLockInterface(), JPH::BodyID(pActorComponent->GetJoltBodyID()));
+    JPH::Body& body = lock.GetBody();
+    if (body.IsActive() && body.IsDynamic())
+    {
+      const ezVec3 pos = ezJoltConversionUtils::ToVec3(body.GetCenterOfMassPosition());
+      ezVec3 surfacePosition = m_surfacePlane.ProjectOntoPlane(pos);
+
+      if (m_fNoiseStrength != 0.0f)
+      {
+        const float noisePosX = vSurfaceTangent.Dot(surfacePosition);
+        const float noisePosY = vSurfaceBitangent.Dot(surfacePosition);
+
+        ezSimdVec4f noisePos = ezSimdConversion::ToVec3(ezVec3(noisePosX, noisePosY, m_fNoiseTime));
+        ezSimdVec4f noiseValue = noise.NoiseZeroToOne(ezSimdVec4f(noisePos.x()), ezSimdVec4f(noisePos.y()), ezSimdVec4f(noisePos.z()));
+
+        surfacePosition += m_surfacePlane.m_vNormal * (float(noiseValue.x()) * 2 - 1) * m_fNoiseStrength;
+
+        body.ResetSleepTimer();
+      }
+
+      const JPH::Vec3 surfacePositionJolt = ezJoltConversionUtils::ToVec3(surfacePosition);
+      const JPH::Vec3 surfaceNormal = ezJoltConversionUtils::ToVec3(m_surfacePlane.m_vNormal);
+
+      body.ApplyBuoyancyImpulse(surfacePositionJolt, surfaceNormal, fBouyancyFactor, 0.3f, 0.05f, flow, joltSystem.GetGravity(), fDeltaTime);
+    }
+  }
 }
 
 void ezJoltWaterVolumeComponent::UpdateWaterPlane(const ezVec3& vGravity)
@@ -149,7 +230,7 @@ void ezJoltWaterVolumeComponent::UpdateWaterPlane(const ezVec3& vGravity)
   const ezVec3 vGravityDir = vGravity.GetNormalized();
   float fMinDot = 1000.0f;
 
-  for (ezUInt32 i = 0; i< 6; ++i)
+  for (ezUInt32 i = 0; i < 6; ++i)
   {
     ezVec3 vNormal = ezBasisAxis::GetBasisVector(static_cast<ezBasisAxis::Enum>(i));
     ezVec3 vPoint = vNormal.CompMul(halfExtents);

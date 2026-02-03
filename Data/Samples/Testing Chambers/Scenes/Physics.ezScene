@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{16033299415433335720,5748835052109362040}}
-		u4 %Hash{6019716430563838028}
+		u4 %Hash{10779724345724485718}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -40,6 +40,7 @@ o
 			s{"{ 6d2f2203-1c29-417b-bb1b-b434080e8fed }"}
 			s{"{ 72748b9e-00b2-4899-ac1f-57d64866228b }"}
 			s{"{ 75e2aefb-63ec-4dfb-be0f-7ddaf4e2fe5e }"}
+			s{"{ 7dd16d0c-a7cf-47d4-8356-0ad854b37c24 }"}
 			s{"{ 8044a36f-e313-4204-973d-796231798973 }"}
 			s{"{ 8156b4eb-9610-4b40-8053-67211496cad5 }"}
 			s{"{ 9fc82cb4-e800-cc3d-feed-61a7c88e2a20 }"}
@@ -4975,6 +4976,9 @@ o
 		b %Active{1}
 		Vec3 %Extents{f{0x0000C041,0x0000C041,0x0000C040}}
 		Vec3 %Flow{f{0,0xCDCCCCBE,0}}
+		HashedString %Interaction{s{"Splash"}}
+		f %NoiseStrength{0xCDCC4C3D}
+		s %Surface{"{ 7dd16d0c-a7cf-47d4-8356-0ad854b37c24 }"}
 	}
 }
 o
@@ -6282,12 +6286,12 @@ o
 		VarArray %Children{}
 		VarArray %Components
 		{
-			Uuid{u4{184392368481195178,4849459812615440880}}
+			Uuid{u4{7804759828593693315,4983622782671311638}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0,0,0}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
-		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000C041,0x0000C041,0x00002041}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{"WaterPlane"}
@@ -6993,33 +6997,6 @@ o
 			s{"CastShadow"}
 			s{"AutoColMesh"}
 		}
-	}
-}
-o
-{
-	Uuid %id{u4{184392368481195178,4849459812615440880}}
-	s %t{"ezGreyBoxComponent"}
-	u3 %v{7}
-	p
-	{
-		b %Active{1}
-		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-		Angle %Curvature{f{0}}
-		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
-		u3 %Detail{16}
-		b %GenerateCollision{0}
-		s %Material{"{ 53e78181-d290-4ac1-a612-5fa087475ebb }"}
-		s %Shape{"ezGreyBoxShape::Box"}
-		f %SizeNegX{0x00004041}
-		f %SizeNegY{0x00004041}
-		f %SizeNegZ{0x0000A040}
-		f %SizePosX{0x00004041}
-		f %SizePosY{0x00004041}
-		f %SizePosZ{0x0000A040}
-		b %SlopedBottom{0}
-		b %SlopedTop{0}
-		f %Thickness{0x0000003F}
-		b %UseAsOccluder{0}
 	}
 }
 o
@@ -8313,6 +8290,24 @@ o
 }
 o
 {
+	Uuid %id{u4{7804759828593693315,4983622782671311638}}
+	s %t{"ezMeshComponent"}
+	u3 %v{3}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
+		VarArray %Materials
+		{
+			s{"{ 53e78181-d290-4ac1-a612-5fa087475ebb }"}
+		}
+		s %Mesh{"{ 2a5d16b1-6867-4b5b-89b2-8436f11381cb }"}
+		f %SortingDepthOffset{0x00007A44}
+	}
+}
+o
+{
 	Uuid %id{u4{3916005442666673800,4986595962939491999}}
 	s %t{"ezMeshComponent"}
 	u3 %v{3}
@@ -8786,6 +8781,18 @@ o
 			b %Invincible{1}
 		}
 		s %PlayerPrefab{"{ 8044a36f-e313-4204-973d-796231798973 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{1750799863963233201,5042801126935887131}}
+	s %t{"ezJoltTriggerComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		u1 %CollisionLayer{0}
+		s %TriggerMessage{""}
 	}
 }
 o
@@ -13678,6 +13685,7 @@ o
 		VarArray %Components
 		{
 			Uuid{u4{12017690171585523889,4636180543211923442}}
+			Uuid{u4{1750799863963233201,5042801126935887131}}
 			Uuid{u4{9499519384257743012,5523994287519348517}}
 		}
 		s %GlobalKey{""}
@@ -40156,7 +40164,7 @@ o
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
-		s %ParentTypeName{"ezComponent"}
+		s %ParentTypeName{"ezJoltShapeComponent"}
 		s %PluginName{"ezEditorPluginJolt"}
 		VarArray %Properties{}
 		s %TypeName{"ezJoltWaterVolumeComponent"}
