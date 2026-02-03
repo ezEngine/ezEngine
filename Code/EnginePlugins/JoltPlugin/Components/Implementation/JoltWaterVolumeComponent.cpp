@@ -192,9 +192,6 @@ void ezJoltWaterVolumeComponent::Update(JPH::PhysicsSystem& joltSystem, ezTime d
     if (!GetWorld()->TryGetComponent(it, pActorComponent) || pActorComponent->IsActiveAndSimulating() == false)
       continue;
 
-    const float fBouyancyFactor = 1.1f; // could be a property
-
-
     JPH::BodyLockWrite lock(joltSystem.GetBodyLockInterface(), JPH::BodyID(pActorComponent->GetJoltBodyID()));
     JPH::Body& body = lock.GetBody();
     if (body.IsActive() && body.IsDynamic())
@@ -217,8 +214,9 @@ void ezJoltWaterVolumeComponent::Update(JPH::PhysicsSystem& joltSystem, ezTime d
 
       const JPH::Vec3 surfacePositionJolt = ezJoltConversionUtils::ToVec3(surfacePosition);
       const JPH::Vec3 surfaceNormal = ezJoltConversionUtils::ToVec3(m_surfacePlane.m_vNormal);
+      const float fBuoyancyFactor = pActorComponent->m_fBuoyancyFactor;
 
-      body.ApplyBuoyancyImpulse(surfacePositionJolt, surfaceNormal, fBouyancyFactor, 0.3f, 0.05f, flow, joltSystem.GetGravity(), fDeltaTime);
+      body.ApplyBuoyancyImpulse(surfacePositionJolt, surfaceNormal, fBuoyancyFactor, 0.3f, 0.05f, flow, joltSystem.GetGravity(), fDeltaTime);
     }
   }
 }

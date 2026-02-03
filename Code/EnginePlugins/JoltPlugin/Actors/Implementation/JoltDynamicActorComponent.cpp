@@ -85,7 +85,7 @@ void ezJoltDynamicActorComponentManager::UpdateKinematicActors(ezTime deltaTime)
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezJoltDynamicActorComponent, 7, ezComponentMode::Dynamic)
+EZ_BEGIN_COMPONENT_TYPE(ezJoltDynamicActorComponent, 8, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -98,6 +98,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltDynamicActorComponent, 7, ezComponentMode::Dynamic
       EZ_ACCESSOR_PROPERTY("Density", GetWeight_Density, SetWeight_Density)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezSuffixAttribute(" kg/m^3")),
       EZ_ACCESSOR_PROPERTY("Surface", GetSurfaceFile, SetSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
       EZ_ACCESSOR_PROPERTY("GravityFactor", GetGravityFactor, SetGravityFactor)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
+      EZ_ACCESSOR_PROPERTY("BuoyancyFactor", GetBuoyancyFactor, SetBuoyancyFactor)->AddAttributes(new ezDefaultValueAttribute(1.1f), new ezClampValueAttribute(0.1f, 10.0f)),
       EZ_MEMBER_PROPERTY("LinearDamping", m_fLinearDamping)->AddAttributes(new ezDefaultValueAttribute(0.2f)),
       EZ_MEMBER_PROPERTY("AngularDamping", m_fAngularDamping)->AddAttributes(new ezDefaultValueAttribute(0.2f)),
       EZ_MEMBER_PROPERTY("ContinuousCollisionDetection", m_bCCD),
@@ -156,6 +157,7 @@ void ezJoltDynamicActorComponent::SerializeComponent(ezWorldWriter& inout_stream
   s << (float)m_fWeightScale;
   s << (float)m_fWeightMass;
   s << (float)m_fWeightDensity;
+  s << (float)m_fBuoyancyFactor;
 }
 
 void ezJoltDynamicActorComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -197,6 +199,13 @@ void ezJoltDynamicActorComponent::DeserializeComponent(ezWorldReader& inout_stre
     m_fWeightMass = f;
     s >> f;
     m_fWeightDensity = f;
+  }
+
+  if (uiVersion >= 8)
+  {
+    float f;
+    s >> f;
+    m_fBuoyancyFactor = f;
   }
 }
 
