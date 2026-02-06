@@ -348,7 +348,7 @@ ezWorldReader::InstantiationContext::InstantiationContext(ezWorldReader& ref_wor
     m_ComponentTypeStates.PushBack(ComponentTypeState(pAllocator));
 
     auto& ct = m_ComponentTypeStates.PeekBack();
-    ct.m_ComponentIndexToHandle.Reserve(m_WorldReader.m_ComponentTypes[i].m_uiNumComponents);
+    ct.m_ComponentIndexToHandle.Reserve(m_WorldReader.m_ComponentTypes[i].m_uiNumComponents + 1);
     ct.m_ComponentIndexToHandle.PushBack(ezComponentHandle());
   }
 
