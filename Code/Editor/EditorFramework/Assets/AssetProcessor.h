@@ -95,7 +95,7 @@ public:
   ~ezEditorProcessorProcess();
 
   ezUInt32 m_uiProcessorID;
-  ezTime m_ProcessingStartTime; // When a work item was started.
+  ezTime m_ProcessingStartTime;  // When a work item was started.
   ezThreadSignal* m_pNewWorkSignal = nullptr;
 
   bool Tick(bool bStartNewWork); // returns false, if all processing is done, otherwise call Tick again.
