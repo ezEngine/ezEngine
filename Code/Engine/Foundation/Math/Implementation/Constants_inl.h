@@ -331,7 +331,7 @@ namespace ezMath
     }
     else if constexpr (std::is_same_v<TYPE, double>)
     {
-      return (TYPE)0.0000000000001;  
+      return (TYPE)0.000000000001;
     }
     else
     {
@@ -347,7 +347,7 @@ namespace ezMath
     }
     else if constexpr (std::is_same_v<TYPE, double>)
     {
-      return (TYPE)0.000000000001;  
+      return (TYPE)0.00000000001;
     }
     else
     {
@@ -363,7 +363,7 @@ namespace ezMath
     }
     else if constexpr (std::is_same_v<TYPE, double>)
     {
-      return (TYPE)0.00000000001;  
+      return (TYPE)0.0000000001;
     }
     else
     {
@@ -380,7 +380,7 @@ namespace ezMath
     }
     else if constexpr (std::is_same_v<TYPE, double>)
     {
-      return (TYPE)0.0000000001;  
+      return (TYPE)0.000000001;
     }
     else
     {
@@ -397,7 +397,7 @@ namespace ezMath
     }
     else if constexpr (std::is_same_v<TYPE, double>)
     {
-      return (TYPE)0.000000001;  
+      return (TYPE)0.00000001;
     }
     else
     {
@@ -414,7 +414,7 @@ namespace ezMath
     }
     else if constexpr (std::is_same_v<TYPE, double>)
     {
-      return (TYPE)0.00000001; 
+      return (TYPE)0.0000001;
     }
     else
     {
@@ -430,7 +430,7 @@ namespace ezMath
     }
     else if constexpr (std::is_same_v<TYPE, double>)
     {
-      return (TYPE)0.0000001; 
+      return (TYPE)0.000001;
     }
     else
     {
