@@ -101,6 +101,7 @@ void ezAssetProcessor::StartProcessor()
   const ezUInt32 uiWorkerCount = ezMath::Min<ezUInt32>(ezTaskSystem::GetWorkerThreadCount(ezWorkerThreadType::LongTasks), pPreferences->m_uiMaxAssetProcessors);
   m_Processes.SetCount(uiWorkerCount);
   m_EditorProcessorStates.SetCount(uiWorkerCount);
+  m_RestartRequests.SetCount(uiWorkerCount);
 
   for (ezUInt32 idx = 0; idx < uiWorkerCount; ++idx)
   {
@@ -860,7 +861,7 @@ bool ezEditorProcessorProcess::Tick(bool bStartNewWork)
       break;
       case State::Crashed:
       {
-          return false;
+        return false;
       }
       break;
     }

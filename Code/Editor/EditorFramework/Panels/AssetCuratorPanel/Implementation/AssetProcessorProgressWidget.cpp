@@ -390,9 +390,7 @@ void ezQtAssetProcessorProgressWidget::mouseReleaseEvent(QMouseEvent* e)
   {
     QMenu menu;
     menu.addAction("Open Document", this, [&]()
-    {
-      ezQtEditorApp::GetSingleton()->OpenDocumentQueued(sAssetPath);
-    });
+      { ezQtEditorApp::GetSingleton()->OpenDocumentQueued(sAssetPath); });
     menu.exec(e->globalPosition().toPoint());
   }
   else if (e->pos().x() < s_iLeftMargin && uiProcessorID != ezInvalidIndex)
@@ -402,15 +400,12 @@ void ezQtAssetProcessorProgressWidget::mouseReleaseEvent(QMouseEvent* e)
 
     QMenu menu;
     menu.addAction("Restart Process", this, [uiProcessorID]()
-    {
-      ezAssetProcessor::GetSingleton()->RequestRestartProcess(uiProcessorID);
-    });
+      { ezAssetProcessor::GetSingleton()->RequestRestartProcess(uiProcessorID); });
     menu.addAction("Open Crash Dump Location", this, []()
-    {
+      {
       ezStringBuilder sCrashDumpFolder = ezApplicationServices::GetSingleton()->GetApplicationUserDataFolder();
       sCrashDumpFolder.AppendPath("CrashDumps");
-      QDesktopServices::openUrl(QUrl::fromLocalFile(ezMakeQString(sCrashDumpFolder)));
-    });
+      QDesktopServices::openUrl(QUrl::fromLocalFile(ezMakeQString(sCrashDumpFolder))); });
     menu.exec(e->globalPosition().toPoint());
   }
 }

@@ -146,7 +146,7 @@ public:
 
   /// \brief Returns, whether the squared length of this vector is very close to 1 within the given epsilon
   EZ_DECLARE_IF_FLOAT_TYPE
-  bool IsNormalized(Type fEpsilon = ezMath::HugeEpsilon<Type>()) const; // [tested]
+  bool IsNormalized(Type fEpsilon = ezMath::SqrtEpsilon<Type>()) const; // [tested]
 
   /// \brief Returns true, if any of x, y or z is NaN
   bool IsNaN() const; // [tested]
