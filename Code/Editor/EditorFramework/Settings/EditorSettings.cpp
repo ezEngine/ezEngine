@@ -3,8 +3,8 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
 #include <EditorFramework/Preferences/Preferences.h>
-#include <ToolsFoundation/Application/ApplicationServices.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <ToolsFoundation/Application/ApplicationServices.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 #  include <EditorFramework/EditorApp/WindowsJumpList.h>
