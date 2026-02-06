@@ -1,31 +1,3 @@
-/*
- * This source file is part of RmlUi, the HTML/CSS Interface Middleware
- *
- * For the latest information, see http://github.com/mikke89/RmlUi
- *
- * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019-2023 The RmlUi Team, and contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
- */
-
 #include "../../Include/RmlUi/Core/Factory.h"
 #include "../../Include/RmlUi/Core/Context.h"
 #include "../../Include/RmlUi/Core/ContextInstancer.h"
@@ -163,8 +135,7 @@ struct FactoryData {
 	UnorderedMap<String, FontEffectInstancer*> font_effect_instancers;
 	UnorderedMap<String, DataViewInstancer*> data_view_instancers;
 	UnorderedMap<String, DataControllerInstancer*> data_controller_instancers;
-	SmallUnorderedMap<String, DataViewInstancer*> structural_data_view_instancers;
-	StringList structural_data_view_attribute_names;
+	SmallUnorderedSet<String> structural_data_view_attribute_names;
 };
 
 static ControlledLifetimeResource<FactoryData> factory_data;
@@ -280,6 +251,10 @@ void Factory::Initialise()
 	RegisterDataControllerInstancer(&default_instancers.data_controller_value, "checked");
 	RegisterDataControllerInstancer(&default_instancers.data_controller_event, "event");
 	RegisterDataControllerInstancer(&default_instancers.data_controller_value, "value");
+
+	// XML nodes that only contain CDATA
+	XMLParser::RegisterPersistentCDATATag("script");
+	XMLParser::RegisterPersistentCDATATag("style");
 
 	// XML node handlers
 	XMLParser::RegisterNodeHandler("", MakeShared<XMLNodeHandlerDefault>());
@@ -585,20 +560,14 @@ EventListener* Factory::InstanceEventListener(const String& value, Element* elem
 
 void Factory::RegisterDataViewInstancer(DataViewInstancer* instancer, const String& name, bool is_structural_view)
 {
-	bool inserted = false;
-	if (is_structural_view)
-	{
-		inserted = factory_data->structural_data_view_instancers.emplace(name, instancer).second;
-		if (inserted)
-			factory_data->structural_data_view_attribute_names.push_back(String("data-") + name);
-	}
-	else
-	{
-		inserted = factory_data->data_view_instancers.emplace(name, instancer).second;
-	}
-
+	const bool inserted = factory_data->data_view_instancers.emplace(name, instancer).second;
 	if (!inserted)
+	{
 		Log::Message(Log::LT_WARNING, "Could not register data view instancer '%s'. The given name is already registered.", name.c_str());
+		return;
+	}
+	if (is_structural_view)
+		factory_data->structural_data_view_attribute_names.emplace("data-" + name);
 }
 
 void Factory::RegisterDataControllerInstancer(DataControllerInstancer* instancer, const String& name)
@@ -608,39 +577,30 @@ void Factory::RegisterDataControllerInstancer(DataControllerInstancer* instancer
 		Log::Message(Log::LT_WARNING, "Could not register data controller instancer '%s'. The given name is already registered.", name.c_str());
 }
 
-DataViewPtr Factory::InstanceDataView(const String& type_name, Element* element, bool is_structural_view)
+DataViewPtr Factory::InstanceDataView(const String& type_name, Element* element)
 {
 	RMLUI_ASSERT(element);
-
-	if (is_structural_view)
-	{
-		auto it = factory_data->structural_data_view_instancers.find(type_name);
-		if (it != factory_data->structural_data_view_instancers.end())
-			return it->second->InstanceView(element);
-	}
-	else
-	{
-		auto it = factory_data->data_view_instancers.find(type_name);
-		if (it != factory_data->data_view_instancers.end())
-			return it->second->InstanceView(element);
-	}
+	const auto it = factory_data->data_view_instancers.find(type_name);
+	if (it != factory_data->data_view_instancers.end())
+		return it->second->InstanceView(element);
 	return nullptr;
 }
 
 DataControllerPtr Factory::InstanceDataController(const String& type_name, Element* element)
 {
-	auto it = factory_data->data_controller_instancers.find(type_name);
+	const auto it = factory_data->data_controller_instancers.find(type_name);
 	if (it != factory_data->data_controller_instancers.end())
 		return it->second->InstanceController(element);
-	return DataControllerPtr();
+	return nullptr;
 }
 
 bool Factory::IsStructuralDataView(const String& type_name)
 {
-	return factory_data->structural_data_view_instancers.find(type_name) != factory_data->structural_data_view_instancers.end();
+	const String attribute = "data-" + type_name;
+	return factory_data->structural_data_view_attribute_names.find(attribute) != factory_data->structural_data_view_attribute_names.end();
 }
 
-const StringList& Factory::GetStructuralDataViewAttributeNames()
+const SmallUnorderedSet<String>& Factory::GetStructuralDataViewAttributeNames()
 {
 	return factory_data->structural_data_view_attribute_names;
 }

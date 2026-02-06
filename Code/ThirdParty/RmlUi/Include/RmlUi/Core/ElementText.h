@@ -1,43 +1,10 @@
-/*
- * This source file is part of RmlUi, the HTML/CSS Interface Middleware
- *
- * For the latest information, see http://github.com/mikke89/RmlUi
- *
- * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019-2023 The RmlUi Team, and contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
- */
-
-#ifndef RMLUI_CORE_ELEMENTTEXT_H
-#define RMLUI_CORE_ELEMENTTEXT_H
+#pragma once
 
 #include "Element.h"
 #include "Geometry.h"
 #include "Header.h"
 
 namespace Rml {
-
-/**
-    @author Peter Curry
- */
 
 class RMLUICORE_API ElementText final : public Element {
 public:
@@ -57,7 +24,7 @@ public:
 	/// line.size()!
 	/// @param[out] line_width The width (in pixels) of the generated line.
 	/// @param[in] line_begin The index of the first character to be rendered in the line.
-	/// @param[in] maximum_line_width The width (in pixels) of space allowed for the line, or -1 for unlimited space.
+	/// @param[in] maximum_line_width The width (in pixels) of space allowed for the line, or infinite for unlimited space.
 	/// @param[in] right_spacing_width The width (in pixels) of the spacing (consisting of margins, padding, etc.) that must be remaining on the right
 	/// of the line if the last of the text is rendered onto this line.
 	/// @param[in] trim_whitespace_prefix If we're collapsing whitespace, true to remove all prefixing whitespace, or false to collapse it down to a
@@ -78,6 +45,19 @@ public:
 	/// Prevents the element from dirtying its document's layout when its text is changed.
 	void SuppressAutoLayout();
 
+	// Used to store the position and length of each line we have geometry for.
+	struct Line {
+		Line(String text, Vector2f position) : text(std::move(text)), position(position), width(0) {}
+		String text;
+		Vector2f position;
+		int width;
+	};
+
+	using LineList = Vector<Line>;
+
+	// Returns the current list of lines.
+	const LineList& GetLines() const { return lines; }
+
 protected:
 	void OnRender() override;
 
@@ -89,14 +69,6 @@ private:
 	// Prepares the font effects this element uses for its font.
 	bool UpdateFontEffects();
 
-	// Used to store the position and length of each line we have geometry for.
-	struct Line {
-		Line(String text, Vector2f position) : text(std::move(text)), position(position), width(0) {}
-		String text;
-		Vector2f position;
-		int width;
-	};
-
 	// Clears and regenerates all of the text's geometry.
 	void GenerateGeometry(RenderManager& render_manager, FontFaceHandle font_face_handle);
 	// Generates any geometry necessary for rendering decoration (underline, strike-through, etc).
@@ -104,7 +76,6 @@ private:
 
 	String text;
 
-	using LineList = Vector<Line>;
 	LineList lines;
 
 	struct TexturedGeometry {
@@ -137,4 +108,3 @@ private:
 };
 
 } // namespace Rml
-#endif

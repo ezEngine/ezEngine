@@ -1,31 +1,3 @@
-/*
- * This source file is part of RmlUi, the HTML/CSS Interface Middleware
- *
- * For the latest information, see http://github.com/mikke89/RmlUi
- *
- * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019-2023 The RmlUi Team, and contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
- */
-
 #include "../../Include/RmlUi/Core/StringUtilities.h"
 #include "../../Include/RmlUi/Core/Log.h"
 #include <algorithm>
@@ -61,17 +33,22 @@ static int FormatString(String& string, const char* format, va_list argument_lis
 			return 0;
 		}
 
-		if ((size_t)length < max_size || i > 0)
+		if (i > 0)
+		{
+			RMLUI_ASSERT(string.size() == (size_t)length);
 			break;
+		}
 
+		if ((size_t)length < max_size)
+		{
+			string = buffer_ptr;
+			break;
+		}
+
+		string.resize((size_t)length);
 		max_size = (size_t)length + 1;
-		buffer_ptr = new char[max_size];
+		buffer_ptr = &(*string.begin()); // C++17 Upgrade: Replace with string.data()
 	}
-
-	string = buffer_ptr;
-
-	if (buffer_ptr != buffer)
-		delete[] buffer_ptr;
 
 	return length;
 }
@@ -84,6 +61,7 @@ int FormatString(String& string, const char* format, ...)
 	va_end(argument_list);
 	return result;
 }
+
 String CreateString(const char* format, ...)
 {
 	String result;
@@ -249,7 +227,7 @@ String StringUtilities::Replace(String subject, char search, char replace)
 	return subject;
 }
 
-void StringUtilities::ExpandString(StringList& string_list, const String& string, const char delimiter)
+void StringUtilities::ExpandString(StringList& string_list, const String& string, const char delimiter, bool ignore_repeated_delimiters)
 {
 	char quote = 0;
 	bool last_char_delimiter = true;
@@ -283,7 +261,7 @@ void StringUtilities::ExpandString(StringList& string_list, const String& string
 		{
 			if (start_ptr)
 				string_list.emplace_back(start_ptr, end_ptr + 1);
-			else
+			else if (!ignore_repeated_delimiters)
 				string_list.emplace_back();
 			last_char_delimiter = true;
 			start_ptr = nullptr;
@@ -412,6 +390,15 @@ bool StringUtilities::StartsWith(StringView string, StringView start)
 	return substring == start;
 }
 
+bool StringUtilities::EndsWith(StringView string, StringView end)
+{
+	if (string.size() < end.size())
+		return false;
+
+	StringView substring(string.end() - end.size(), string.end());
+	return substring == end;
+}
+
 bool StringUtilities::StringCompareCaseInsensitive(const StringView lhs, const StringView rhs)
 {
 	if (lhs.size() != rhs.size())
@@ -477,6 +464,23 @@ Character StringUtilities::ToCharacter(const char* p, const char* p_end)
 	}
 
 	return static_cast<Character>(code);
+}
+
+size_t StringUtilities::BytesUTF8(Character character)
+{
+	char32_t c = (char32_t)character;
+
+	if (c < 0x80)
+		return 1;
+	else if (c < 0x800)
+		return 2;
+	else if (c < 0x10000)
+		return 3;
+	else if (c <= 0x10FFFF)
+		return 4;
+	else
+		// Invalid character.
+		return 0;
 }
 
 String StringUtilities::ToUTF8(Character character)

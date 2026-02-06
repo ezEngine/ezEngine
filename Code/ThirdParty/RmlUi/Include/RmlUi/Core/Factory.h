@@ -1,33 +1,4 @@
-/*
- * This source file is part of RmlUi, the HTML/CSS Interface Middleware
- *
- * For the latest information, see http://github.com/mikke89/RmlUi
- *
- * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019-2023 The RmlUi Team, and contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
- */
-
-#ifndef RMLUI_CORE_FACTORY_H
-#define RMLUI_CORE_FACTORY_H
+#pragma once
 
 #include "Header.h"
 #include "XMLParser.h"
@@ -61,8 +32,6 @@ enum class EventId : uint16_t;
 
 /**
     The Factory contains a registry of instancers for different types.
-
-    @author Lloyd Weehuizen
  */
 
 class RMLUICORE_API Factory {
@@ -203,7 +172,7 @@ public:
 	static void RegisterDataControllerInstancer(DataControllerInstancer* instancer, const String& type_name);
 
 	/// Instance the data view with the given type name.
-	static DataViewPtr InstanceDataView(const String& type_name, Element* element, bool is_structural_view);
+	static DataViewPtr InstanceDataView(const String& type_name, Element* element);
 
 	/// Instance the data controller with the given type name.
 	static DataControllerPtr InstanceDataController(const String& type_name, Element* element);
@@ -212,7 +181,7 @@ public:
 	static bool IsStructuralDataView(const String& type_name);
 
 	/// Returns the list of element attribute names with an associated structural data view instancer.
-	static const StringList& GetStructuralDataViewAttributeNames();
+	static const SmallUnorderedSet<String>& GetStructuralDataViewAttributeNames();
 
 private:
 	Factory();
@@ -220,4 +189,3 @@ private:
 };
 
 } // namespace Rml
-#endif

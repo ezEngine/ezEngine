@@ -1,33 +1,4 @@
-/*
- * This source file is part of RmlUi, the HTML/CSS Interface Middleware
- *
- * For the latest information, see http://github.com/mikke89/RmlUi
- *
- * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019-2023 The RmlUi Team, and contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
- */
-
-#ifndef RMLUI_CORE_STRINGUTILITIES_H
-#define RMLUI_CORE_STRINGUTILITIES_H
+#pragma once
 
 #include "Header.h"
 #include "Types.h"
@@ -36,7 +7,6 @@ namespace Rml {
 
 /**
     Helper functions for string manipulation.
-    @author Lloyd Weehuizen
  */
 
 class StringView;
@@ -53,7 +23,9 @@ namespace StringUtilities {
 	/// @param[out] string_list Resulting list of values.
 	/// @param[in] string String to expand.
 	/// @param[in] delimiter Delimiter found between entries in the string list.
-	RMLUICORE_API void ExpandString(StringList& string_list, const String& string, const char delimiter = ',');
+	/// @param[in] ignore_repeated_delimiters If true, repeated values of the delimiter will not add additional entries to the list.
+	RMLUICORE_API void ExpandString(StringList& string_list, const String& string, const char delimiter = ',',
+		bool ignore_repeated_delimiters = false);
 	/// Expands character-delimited list of values with custom quote characters.
 	/// @param[out] string_list Resulting list of values.
 	/// @param[in] string String to expand.
@@ -103,12 +75,17 @@ namespace StringUtilities {
 
 	/// Returns true if the string starts with the given value.
 	RMLUICORE_API bool StartsWith(StringView string, StringView start);
+	/// Returns true if the string ends with the given value.
+	RMLUICORE_API bool EndsWith(StringView string, StringView end);
 
 	/// Case insensitive string comparison. Returns true if they compare equal.
 	RMLUICORE_API bool StringCompareCaseInsensitive(StringView lhs, StringView rhs);
 
 	// Decode the first code point in a zero-terminated UTF-8 string.
 	RMLUICORE_API Character ToCharacter(const char* p, const char* p_end);
+
+	/// Returns number of bytes in a UTF-8 character.
+	RMLUICORE_API size_t BytesUTF8(Character character);
 
 	// Encode a single code point as a UTF-8 string.
 	RMLUICORE_API String ToUTF8(Character character);
@@ -225,4 +202,3 @@ private:
 };
 
 } // namespace Rml
-#endif

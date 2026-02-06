@@ -1,31 +1,3 @@
-/*
- * This source file is part of RmlUi, the HTML/CSS Interface Middleware
- *
- * For the latest information, see http://github.com/mikke89/RmlUi
- *
- * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019-2023 The RmlUi Team, and contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
- */
-
 #include "ScrollController.h"
 #include "../../Include/RmlUi/Core/ComputedValues.h"
 #include "../../Include/RmlUi/Core/Core.h"
@@ -35,16 +7,20 @@
 namespace Rml {
 
 static constexpr float AUTOSCROLL_SPEED_FACTOR = 0.09f;
-static constexpr float AUTOSCROLL_DEADZONE = 10.0f; // [dp]
+static constexpr float AUTOSCROLL_DEADZONE = 10.0f;            // [dp]
 
-static constexpr float SMOOTHSCROLL_WINDOW_SIZE = 50.f;        // The window where smoothing is applied, as a distance from scroll start and end. [dp]
+static constexpr float SMOOTHSCROLL_WINDOW_SIZE = 100.f;       // The window where smoothing is applied, as a distance from scroll start and end. [dp]
 static constexpr float SMOOTHSCROLL_MAX_VELOCITY = 10'000.f;   // [dp/s]
 static constexpr float SMOOTHSCROLL_VELOCITY_CONSTANT = 800.f; // [dp/s]
 static constexpr float SMOOTHSCROLL_VELOCITY_SQUARE_FACTOR = 0.05f;
+static constexpr float SMOOTHSCROLL_FIRST_FRAME_DELTA_TIME_MIN = 1.f / 100.f; // To make the scroll feel a bit more responsive. [s]
 
-// Clamp the delta time to some reasonable FPS range, to avoid large steps in case of stuttering or freezing.
-static constexpr float DELTA_TIME_CLAMP_LOW = 1.f / 500.f; // [s]
-static constexpr float DELTA_TIME_CLAMP_HIGH = 1.f / 15.f; // [s]
+// Factor to multiply friction by before applying to velocity.
+static constexpr float INERTIA_FRICTION_FACTOR = 5.0f;
+static constexpr float INERTIA_VELOCITY_CUTOFF = 30.0f;
+
+// Saturate the delta time to some reasonable FPS value, to avoid large steps in case of stuttering or freezing.
+static constexpr float DELTA_TIME_MAX = 1.f / 15.f; // [s]
 
 // Determines the autoscroll velocity based on the distance from the scroll-start mouse position. [px/s]
 static Vector2f CalculateAutoscrollVelocity(Vector2f target_delta, float dp_ratio)
@@ -76,8 +52,8 @@ static Vector2f CalculateSmoothscrollVelocity(Vector2f target_delta, Vector2f sc
 	const Vector2f alpha_in = Math::Min(scrolled_distance / SMOOTHSCROLL_WINDOW_SIZE, Vector2f(1.f));
 	const Vector2f alpha_out = Math::Min(target_delta_abs / SMOOTHSCROLL_WINDOW_SIZE, Vector2f(1.f));
 	const Vector2f smooth_window = {
-		0.2f + 0.8f * tween(alpha_in.x) * tween(alpha_out.x),
-		0.2f + 0.8f * tween(alpha_in.y) * tween(alpha_out.y),
+		0.35f + 0.65f * tween(alpha_in.x) * tween(alpha_out.x),
+		0.35f + 0.65f * tween(alpha_in.y) * tween(alpha_out.y),
 	};
 
 	const Vector2f velocity_constant = Vector2f(SMOOTHSCROLL_VELOCITY_CONSTANT);
@@ -123,21 +99,50 @@ void ScrollController::ActivateSmoothscroll(Element* in_target, Vector2f delta_d
 		Reset();
 }
 
+void ScrollController::ActivateInertia(Element* in_target, Vector2f velocity)
+{
+	Reset();
+	if (!in_target || (velocity.x == 0 && velocity.y == 0))
+		return;
+
+	target = in_target;
+	inertia_scroll_velocity = velocity;
+	mode = Mode::Inertia;
+	UpdateTime();
+}
+
+void ScrollController::InstantScrollOnTarget(Element* in_target, Vector2f delta_distance)
+{
+	if (!in_target)
+		return;
+
+	// instant scroll element without changing the current target
+
+	Element* safe_target = target;
+
+	target = in_target;
+	PerformScrollOnTarget(delta_distance);
+	target = safe_target;
+}
+
 bool ScrollController::Update(Vector2i mouse_position, float dp_ratio)
 {
-	if (mode == Mode::Autoscroll)
-		UpdateAutoscroll(mouse_position, dp_ratio);
-	else if (mode == Mode::Smoothscroll)
-		UpdateSmoothscroll(dp_ratio);
+	const float dt = (mode == Mode::None ? 0.f : UpdateTime());
+
+	switch (mode)
+	{
+	case Mode::Smoothscroll: UpdateSmoothscroll(dt, dp_ratio); break;
+	case Mode::Autoscroll: UpdateAutoscroll(dt, mouse_position, dp_ratio); break;
+	case Mode::Inertia: UpdateInertia(dt); break;
+	case Mode::None: break;
+	}
 
 	return mode != Mode::None;
 }
 
-void ScrollController::UpdateAutoscroll(Vector2i mouse_position, float dp_ratio)
+void ScrollController::UpdateAutoscroll(float dt, Vector2i mouse_position, float dp_ratio)
 {
 	RMLUI_ASSERT(mode == Mode::Autoscroll && target);
-
-	const float dt = UpdateTime();
 
 	const Vector2f scroll_delta = Vector2f(mouse_position - autoscroll_start_position);
 	const Vector2f scroll_velocity = CalculateAutoscrollVelocity(scroll_delta, dp_ratio);
@@ -145,7 +150,7 @@ void ScrollController::UpdateAutoscroll(Vector2i mouse_position, float dp_ratio)
 	autoscroll_accumulated_length += scroll_velocity * dt;
 
 	// Only submit the integer part of the scroll length, accumulate and store fractional parts to enable sub-pixel-per-frame scrolling speeds.
-	Vector2f scroll_length_integral = autoscroll_accumulated_length;
+	Vector2f scroll_length_integral;
 	autoscroll_accumulated_length.x = Math::DecomposeFractionalIntegral(autoscroll_accumulated_length.x, &scroll_length_integral.x);
 	autoscroll_accumulated_length.y = Math::DecomposeFractionalIntegral(autoscroll_accumulated_length.y, &scroll_length_integral.y);
 
@@ -155,39 +160,67 @@ void ScrollController::UpdateAutoscroll(Vector2i mouse_position, float dp_ratio)
 	PerformScrollOnTarget(scroll_length_integral);
 }
 
-void ScrollController::UpdateSmoothscroll(float dp_ratio)
+void ScrollController::UpdateSmoothscroll(float dt, float dp_ratio)
 {
 	RMLUI_ASSERT(mode == Mode::Smoothscroll && target);
 
 	const Vector2f target_delta = Vector2f(smoothscroll_target_distance - smoothscroll_scrolled_distance);
 	const Vector2f velocity = CalculateSmoothscrollVelocity(target_delta, smoothscroll_scrolled_distance, dp_ratio);
 
-	const float dt = UpdateTime();
-	Vector2f scroll_distance = (smoothscroll_speed_factor * velocity * dt).Round();
+	if (smoothscroll_scrolled_distance == Vector2f{0})
+		dt = Math::Max(dt, SMOOTHSCROLL_FIRST_FRAME_DELTA_TIME_MIN);
+
+	Vector2f scroll_distance_fractional = smoothscroll_speed_factor * velocity * dt + smoothscroll_accumulated_fractional_distance;
+
+	Vector2f scroll_distance_integral;
+	smoothscroll_accumulated_fractional_distance.x = Math::DecomposeFractionalIntegral(scroll_distance_fractional.x, &scroll_distance_integral.x);
+	smoothscroll_accumulated_fractional_distance.y = Math::DecomposeFractionalIntegral(scroll_distance_fractional.y, &scroll_distance_integral.y);
 
 	for (int i = 0; i < 2; i++)
 	{
-		// Ensure minimum scroll speed of 1px/frame, and clamp the distance to the target in case of overshooting
-		// integration. As opposed to autoscroll, we don't care about fractional speeds here since we want to be fast.
+		// Clamp the distance to the target in case of overshooting integration.
 		if (target_delta[i] > 0.f)
-			scroll_distance[i] = Math::Min(Math::Max(scroll_distance[i], 1.f), target_delta[i]);
+			scroll_distance_integral[i] = Math::Min(scroll_distance_integral[i], target_delta[i]);
 		else if (target_delta[i] < 0.f)
-			scroll_distance[i] = Math::Max(Math::Min(scroll_distance[i], -1.f), target_delta[i]);
+			scroll_distance_integral[i] = Math::Max(scroll_distance_integral[i], target_delta[i]);
 		else
-			scroll_distance[i] = 0.f;
+			scroll_distance_integral[i] = 0.f;
 	}
 
 #if 0
 	// Useful debugging output for velocity model tuning.
-	Log::Message(Log::LT_INFO, "Scroll  y0 %8.2f   y1 %8.2f   v %8.2f   d %8.2f", smoothscroll_scrolled_distance.y, target_delta.y, velocity.y,
-		scroll_distance.y);
+	Log::Message(Log::LT_INFO, "Scroll  y0 %8.2f   y1 %8.2f    dt %1.4f   v %8.2f   dy %8.2f    frac %1.2f", smoothscroll_scrolled_distance.y,
+		target_delta.y, dt, velocity.y, scroll_distance_integral.y, smoothscroll_accumulated_fractional_distance.y);
 #endif
 
-	smoothscroll_scrolled_distance += scroll_distance;
-	PerformScrollOnTarget(scroll_distance);
+	smoothscroll_scrolled_distance += scroll_distance_integral;
+	PerformScrollOnTarget(scroll_distance_integral);
 
 	if (HasSmoothscrollReachedTarget())
 		Reset();
+}
+
+void ScrollController::UpdateInertia(float dt)
+{
+	RMLUI_ASSERT(mode == Mode::Inertia && target);
+
+	if (inertia_scroll_velocity.x == 0.0f && inertia_scroll_velocity.y == 0.0f)
+	{
+		Reset();
+		return;
+	}
+
+	// Apply and dampen inertia.
+	Vector2f scroll_delta = inertia_scroll_velocity * dt;
+	PerformScrollOnTarget(scroll_delta);
+
+	float dampening = 1.0f - INERTIA_FRICTION_FACTOR * dt;
+	inertia_scroll_velocity *= dampening;
+
+	if (Math::Absolute(inertia_scroll_velocity.x) < INERTIA_VELOCITY_CUTOFF)
+		inertia_scroll_velocity.x = 0.0f;
+	if (Math::Absolute(inertia_scroll_velocity.y) < INERTIA_VELOCITY_CUTOFF)
+		inertia_scroll_velocity.y = 0.0f;
 }
 
 bool ScrollController::HasSmoothscrollReachedTarget() const
@@ -220,6 +253,7 @@ void ScrollController::IncrementSmoothscrollTarget(Vector2f delta_distance)
 		{
 			smoothscroll_target_distance[i] = 0.f;
 			smoothscroll_scrolled_distance[i] = 0.f;
+			smoothscroll_accumulated_fractional_distance[i] = 0.f;
 		}
 	}
 
@@ -244,7 +278,10 @@ void ScrollController::Reset()
 
 	smoothscroll_target_distance = Vector2f{};
 	smoothscroll_scrolled_distance = Vector2f{};
+	smoothscroll_accumulated_fractional_distance = Vector2f{};
 	// Keep smoothscroll configuration parameters.
+
+	inertia_scroll_velocity = Vector2f{};
 }
 
 void ScrollController::SetDefaultScrollBehavior(ScrollBehavior scroll_behavior, float speed_factor)
@@ -289,7 +326,7 @@ float ScrollController::UpdateTime()
 	previous_update_time = GetSystemInterface()->GetElapsedTime();
 
 	const float dt = float(previous_update_time - previous_tick);
-	return Math::Clamp(dt, DELTA_TIME_CLAMP_LOW, DELTA_TIME_CLAMP_HIGH);
+	return Math::Min(dt, DELTA_TIME_MAX);
 }
 
 } // namespace Rml

@@ -1,31 +1,3 @@
-/*
- * This source file is part of RmlUi, the HTML/CSS Interface Middleware
- *
- * For the latest information, see http://github.com/mikke89/RmlUi
- *
- * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019-2023 The RmlUi Team, and contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
- */
-
 #include "DataViewDefault.h"
 #include "../../Include/RmlUi/Core/Core.h"
 #include "../../Include/RmlUi/Core/DataVariable.h"
@@ -52,7 +24,7 @@ DataViewCommon::DataViewCommon(Element* element, String override_modifier, int s
 
 bool DataViewCommon::Initialize(DataModel& model, Element* element, const String& expression_str, const String& in_modifier)
 {
-	// The modifier can be overriden in the constructor
+	// The modifier can be overridden in the constructor
 	if (modifier.empty())
 		modifier = in_modifier;
 
@@ -454,10 +426,8 @@ String DataViewText::BuildText() const
 
 DataViewFor::DataViewFor(Element* element) : DataView(element, 0) {}
 
-bool DataViewFor::Initialize(DataModel& model, Element* element, const String& in_expression, const String& in_rml_content)
+bool DataViewFor::Initialize(DataModel& model, Element* element, const String& in_expression, const String& /*modifier*/)
 {
-	rml_contents = in_rml_content;
-
 	StringList iterator_container_pair;
 	StringUtilities::ExpandString(iterator_container_pair, in_expression, ':');
 
@@ -503,15 +473,21 @@ bool DataViewFor::Initialize(DataModel& model, Element* element, const String& i
 
 	element->SetProperty(PropertyId::Display, Property(Style::Display::None));
 
-	// Copy over the attributes, but remove the 'data-for' which would otherwise recreate the data-for loop on all constructed children recursively.
-	attributes = element->GetAttributes();
-	for (auto it = attributes.begin(); it != attributes.end(); ++it)
+	// Copy over the attributes, but remove the 'data-for' which would otherwise recreate the data-for loop on all
+	// constructed children recursively. There is also no need for the 'rmlui-inner-rml' attribute if that is present.
+	const ElementAttributes& element_attributes = element->GetAttributes();
+	constexpr size_t num_data_for_attributes = 1;
+	if (element_attributes.size() < num_data_for_attributes)
 	{
-		if (it->first == "data-for")
-		{
-			attributes.erase(it);
-			break;
-		}
+		Log::Message(Log::LT_WARNING, "Expected attributes for data-for view missing from element: %s", element->GetAddress().c_str());
+		return false;
+	}
+	attributes.reserve(element_attributes.size() - num_data_for_attributes);
+	for (const auto& attribute : element->GetAttributes())
+	{
+		if (attribute.first == "data-for" || attribute.first == "rmlui-inner-rml")
+			continue;
+		attributes.emplace(attribute.first, attribute.second);
 	}
 
 	return true;
@@ -547,7 +523,8 @@ bool DataViewFor::Update(DataModel& model)
 			Element* new_element = element->GetParentNode()->InsertBefore(std::move(new_element_ptr), element);
 			elements.push_back(new_element);
 
-			elements[i]->SetInnerRML(rml_contents);
+			const String* rml_contents = RMLContents();
+			elements[i]->SetInnerRML(rml_contents ? *rml_contents : "");
 
 			RMLUI_ASSERT(i < (int)elements.size());
 		}
@@ -574,6 +551,24 @@ StringList DataViewFor::GetVariableNameList() const
 void DataViewFor::Release()
 {
 	delete this;
+}
+
+const String* DataViewFor::RMLContents() const
+{
+	if (Element* element = GetElement())
+	{
+		if (Variant* attribute = element->GetAttribute("rmlui-inner-rml"))
+		{
+			if (attribute->GetType() == Variant::STRING)
+				return &attribute->GetReference<String>();
+		}
+		Log::Message(Log::LT_WARNING, "Missing or invalid RML contents in data-for view on element %s", element->GetAddress().c_str());
+	}
+	else
+	{
+		Log::Message(Log::LT_WARNING, "Invalid element in data-for view");
+	}
+	return nullptr;
 }
 
 DataViewAlias::DataViewAlias(Element* element) : DataView(element, 0) {}

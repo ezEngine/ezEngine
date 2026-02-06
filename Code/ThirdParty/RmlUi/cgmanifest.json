@@ -4,9 +4,9 @@
       "component": {
         "type": "git",
         "git": {
-          "version": "6.1.0",
+          "version": "6.2.0",
           "repositoryUrl": "https://github.com/ezEngine/RmlUi.git",
-          "commitHash": "58c751531f4c1a1eb2dc56f409b8e8a323a0c9ad"
+          "commitHash": "2230d1a6e8e0848ed87a5761e2a5160b2a175ba4"
         }
       }
     }

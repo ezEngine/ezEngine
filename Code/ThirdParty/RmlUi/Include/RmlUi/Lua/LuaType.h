@@ -1,33 +1,4 @@
-/*
- * This source file is part of RmlUi, the HTML/CSS Interface Middleware
- *
- * For the latest information, see http://github.com/mikke89/RmlUi
- *
- * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019-2023 The RmlUi Team, and contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
- */
-
-#ifndef RMLUI_LUA_LUATYPE_H
-#define RMLUI_LUA_LUATYPE_H
+#pragma once
 
 #include "Header.h"
 #include "IncludeLua.h"
@@ -37,26 +8,17 @@
 // it would result in code that looks like
 //{ "GetId", UnitGetId },
 // Which would force you to create a global function named UnitGetId in C with the correct function signature, usually int(*)(lua_State*,type*);
-#define RMLUI_LUAMETHOD(type, name) \
-	{                               \
-		#name, type##name           \
-	}
+#define RMLUI_LUAMETHOD(type, name) {#name, type##name}
 
 // See above, but the method must match the function signature int(*)(lua_State*) and as example:
 // RMLUI_LUAGETTER(Unit,Id), would mean you need a function named UnitGetAttrId
 // The first stack position will be the userdata
-#define RMLUI_LUAGETTER(type, varname)   \
-	{                                    \
-		#varname, type##GetAttr##varname \
-	}
+#define RMLUI_LUAGETTER(type, varname) {#varname, type##GetAttr##varname}
 
 // Same method signature as above, but as example:
 // RMLUI_LUASETTER(Unit,Id) would mean you need a function named UnitSetAttrId
 // The first stack position will be the userdata, and the second will be value on the other side of the equal sign
-#define RMLUI_LUASETTER(type, varname)   \
-	{                                    \
-		#varname, type##SetAttr##varname \
-	}
+#define RMLUI_LUASETTER(type, varname) {#varname, type##SetAttr##varname}
 
 #define RMLUI_CHECK_BOOL(L, narg) (lua_toboolean((L), (narg)) > 0 ? true : false)
 #define RMLUI_CHECK_OBJ(obj) \
@@ -139,8 +101,6 @@ namespace Lua {
 	/**
 	    This is mostly the definition of the Lua userdata that C++ gives to the user, plus
 	    some helper functions.
-
-	    @author Nathan Starkey
 	*/
 	template <typename T>
 	class RMLUILUA_API LuaType {
@@ -210,4 +170,3 @@ namespace Lua {
 } // namespace Rml
 
 #include "LuaType.inl"
-#endif

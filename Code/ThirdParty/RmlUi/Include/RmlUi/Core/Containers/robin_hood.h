@@ -40,6 +40,7 @@
 
 #include <limits>
 #include <algorithm>
+#include <cstdint>
 #include <cstdlib>
 #include <cstring>
 #include <functional>
@@ -48,7 +49,6 @@
 #include <string>
 #include <type_traits>
 #include <utility>
-#include <stdint.h>
 #if __cplusplus >= 201703L
 #    include <string_view>
 #endif

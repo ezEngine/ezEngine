@@ -49,9 +49,17 @@ endif()
 # Enable SVG support
 target_compile_definitions(${PROJECT_NAME} PRIVATE RMLUI_SVG_PLUGIN)
 target_sources(${PROJECT_NAME} PRIVATE
+  ../SVG/DecoratorSVG.cpp
   ../SVG/ElementSVG.cpp
+  ../SVG/SVGCache.cpp
   ../SVG/SVGPlugin.cpp
+  ../SVG/XMLNodeHandlerSVG.cpp
 )
 
 #lunasvg
 target_link_libraries(${PROJECT_NAME} PRIVATE lunasvg)
+
+# Add RmlUi specific natvis file
+target_sources(${PROJECT_NAME} PRIVATE
+  ../../Utilities/natvis/RmlUi.natvis
+)
