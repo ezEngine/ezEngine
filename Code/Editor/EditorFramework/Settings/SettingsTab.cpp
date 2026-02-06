@@ -21,6 +21,7 @@ ezString ezQtSettingsTab::GetDisplayNameShort() const
 
 void ezQtEditorApp::ShowSettingsDocument()
 {
+  EZ_PROFILE_SCOPE("ShowSettingsDocument");
   ezQtSettingsTab* pSettingsTab = ezQtSettingsTab::GetSingleton();
 
   if (pSettingsTab == nullptr)

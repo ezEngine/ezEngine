@@ -33,8 +33,8 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezVisualScriptVariableType, 1)
 EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
-static_assert(ezVisualScriptVariableType::Variant == ezVisualScriptDataType::Variant);
-static_assert(ezVisualScriptVariableType::Resource == ezVisualScriptDataType::Resource);
+static_assert(static_cast<int>(ezVisualScriptVariableType::Variant) == static_cast<int>(ezVisualScriptDataType::Variant));
+static_assert(static_cast<int>(ezVisualScriptVariableType::Resource) == static_cast<int>(ezVisualScriptDataType::Resource));
 
 ///////////////////////////////////////////////////////////////////////////
 

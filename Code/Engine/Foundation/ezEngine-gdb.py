@@ -43,6 +43,9 @@ def build_pretty_printers():
     pp.add_printer('ezMap', r'^ezMap<.*>$', ezMapPrinter)
     pp.add_printer('ezSetBase', r'^ezSetBase<.*>$', ezMapPrinter)
     pp.add_printer('ezSet', r'^ezSet<.*>$', ezMapPrinter)
+    pp.add_printer('ezHashTableBase::Entry', r'^ezHashTableBase<.*>::Entry$', ezHashTableEntryPrinter)
+    pp.add_printer('ezMapBase::Node', r'^ezMapBase<.*>::Node$', ezMapNodePrinter)
+    pp.add_printer('ezSetBase::Node', r'^ezSetBase<.*>::Node$', ezSetNodePrinter)
     pp.add_printer('ezStaticRingBuffer', r'^ezStaticRingBuffer<.*>$', ezStaticRingBufferPrinter)
 
     # Basic Types
@@ -84,11 +87,26 @@ class ezHybridStringPrinter:
     def __init__(self, val):
         self.val = val
 
+    def _get_string_data(self):
+        """Extract string data, returning (pointer, count) or raises exception."""
+        m_Data = self.val['m_Data']
+        m_uiCount = int(m_Data['m_uiCount'])
+        m_uiCapacity = int(m_Data['m_uiCapacity'])
+        local_storage_size = m_Data['m_StaticData'].type.sizeof
+
+        if m_uiCapacity <= local_storage_size:
+            # Using inline storage - cast to char* for string() method
+            char_ptr_type = gdb.lookup_type('char').pointer()
+            ptr = m_Data['m_StaticData'].address.cast(char_ptr_type)
+        else:
+            # Using heap storage
+            ptr = m_Data['m_pElements']
+
+        return ptr, m_uiCount
+
     def to_string(self):
         try:
-            m_Data = self.val['m_Data']
-            m_pElements = m_Data['m_pElements']
-            m_uiCount = int(m_Data['m_uiCount'])
+            ptr, m_uiCount = self._get_string_data()
 
             if m_uiCount == 0:
                 return '""'
@@ -97,9 +115,26 @@ class ezHybridStringPrinter:
 
             # String length excludes null terminator for display
             str_len = m_uiCount - 1 if m_uiCount > 0 else 0
-            return m_pElements.string(length=str_len)
+            return ptr.string(length=str_len)
         except Exception as e:
             return f"<error: {e}>"
+
+    def children(self):
+        try:
+            m_Data = self.val['m_Data']
+            ptr, m_uiCount = self._get_string_data()
+
+            # Create contents as char array
+            if m_uiCount > 0 and m_uiCount <= 0x10000000:
+                char_type = gdb.lookup_type('char')
+                char_array_type = char_type.array(m_uiCount - 1)
+                contents = ptr.cast(char_array_type.pointer()).dereference()
+                yield 'contents', contents
+
+            yield 'm_uiCount', m_Data['m_uiCount']
+            yield 'm_pAllocator', m_Data['m_pAllocator']
+        except Exception as e:
+            yield 'error', str(e)
 
     def display_hint(self):
         return 'string'
@@ -124,6 +159,21 @@ class ezStringViewPrinter:
         except Exception as e:
             return f"<error: {e}>"
 
+    def children(self):
+        try:
+            m_pStart = self.val['m_pStart']
+            m_uiElementCount = int(self.val['m_uiElementCount'])
+
+            if m_pStart != 0 and m_uiElementCount > 0:
+                char_type = gdb.lookup_type('char')
+                char_array_type = char_type.array(m_uiElementCount - 1)
+                contents = m_pStart.cast(char_array_type.pointer()).dereference()
+                yield 'contents', contents
+
+            yield 'm_uiElementCount', self.val['m_uiElementCount']
+        except Exception as e:
+            yield 'error', str(e)
+
     def display_hint(self):
         return 'string'
 
@@ -144,6 +194,15 @@ class ezHashedStringPrinter:
             return ezHybridStringPrinter(m_sString).to_string()
         except Exception as e:
             return f"<error: {e}>"
+
+    def children(self):
+        try:
+            m_Data = self.val['m_Data']
+            m_pElement = m_Data['m_pElement']
+            yield 'm_sString', m_pElement['m_Value']['m_sString']
+            yield 'm_uiHash', m_pElement['m_Key']
+        except Exception as e:
+            yield 'error', str(e)
 
     def display_hint(self):
         return 'string'
@@ -207,6 +266,10 @@ class ezDynamicArrayPrinter:
 
     def children(self):
         try:
+            yield 'm_uiCount', self.val['m_uiCount']
+            yield 'm_uiCapacity', self.val['m_uiCapacity']
+            yield 'm_pAllocator', self.val['m_pAllocator']
+
             count = int(self.val['m_uiCount'])
             m_pElements = self.val['m_pElements']
 
@@ -231,6 +294,10 @@ class ezSmallArrayPrinter:
 
     def children(self):
         try:
+            yield 'm_uiCount', self.val['m_uiCount']
+            yield 'm_uiCapacity', self.val['m_uiCapacity']
+            yield 'm_uiUserData', self.val['m_uiUserData']
+
             count = int(self.val['m_uiCount'])
             capacity = int(self.val['m_uiCapacity'])
 
@@ -277,6 +344,9 @@ class ezStaticArrayPrinter:
 
     def children(self):
         try:
+            yield 'm_uiCount', self.val['m_uiCount']
+            yield 'm_uiCapacity', self.val['m_uiCapacity']
+
             count = int(self.val['m_uiCount'])
             m_Data = self.val['m_Data']
 
@@ -306,6 +376,8 @@ class ezArrayPtrPrinter:
 
     def children(self):
         try:
+            yield 'm_uiCount', self.val['m_uiCount']
+
             count = int(self.val['m_uiCount'])
             m_pPtr = self.val['m_pPtr']
 
@@ -330,6 +402,10 @@ class ezHashTablePrinter:
 
     def children(self):
         try:
+            yield 'm_uiCount', self.val['m_uiCount']
+            yield 'm_uiCapacity', self.val['m_uiCapacity']
+            yield 'm_pAllocator', self.val['m_pAllocator']
+
             count = int(self.val['m_uiCount'])
             capacity = int(self.val['m_uiCapacity'])
             m_pEntries = self.val['m_pEntries']
@@ -360,6 +436,31 @@ class ezHashTablePrinter:
         return 'array'
 
 
+class ezHashTableEntryPrinter:
+    """Pretty printer for ezHashTableBase<K, V>::Entry."""
+
+    def __init__(self, val):
+        self.val = val
+
+    def to_string(self):
+        try:
+            key = self.val['key']
+            value = self.val['value']
+            # Use summary=True to get only the to_string() output, not full expansion
+            key_str = key.format_string(summary=True)
+            value_str = value.format_string(summary=True)
+            return f"key = {key_str}, value = {value_str}"
+        except Exception as e:
+            return f"<error: {e}>"
+
+    def children(self):
+        try:
+            yield 'key', self.val['key']
+            yield 'value', self.val['value']
+        except Exception as e:
+            yield 'error', str(e)
+
+
 class ezListPrinter:
     """Pretty printer for ezListBase<T> and ezList<T>."""
 
@@ -372,6 +473,8 @@ class ezListPrinter:
 
     def children(self):
         try:
+            yield 'm_uiCount', self.val['m_uiCount']
+
             count = int(self.val['m_uiCount'])
             m_First = self.val['m_First']
             current = m_First['m_pNext']
@@ -399,6 +502,9 @@ class ezDequePrinter:
 
     def children(self):
         try:
+            yield 'm_uiCount', self.val['m_uiCount']
+            yield 'm_pAllocator', self.val['m_pAllocator']
+
             count = int(self.val['m_uiCount'])
             m_pChunks = self.val['m_pChunks']
             first_element = int(self.val['m_uiFirstElement'])
@@ -501,6 +607,8 @@ class ezMapPrinter:
 
     def children(self):
         try:
+            yield 'm_uiCount', self.val['m_uiCount']
+
             if self.m_uiCount == 0:
                 return
 
@@ -532,6 +640,51 @@ class ezMapPrinter:
         return 'array'
 
 
+class ezMapNodePrinter:
+    """Pretty printer for ezMapBase<K, V>::Node."""
+
+    def __init__(self, val):
+        self.val = val
+
+    def to_string(self):
+        try:
+            key = self.val['m_Key']
+            value = self.val['m_Value']
+            # Use summary=True to get only the to_string() output, not full expansion
+            key_str = key.format_string(summary=True)
+            value_str = value.format_string(summary=True)
+            return f"key = {key_str}, value = {value_str}"
+        except Exception as e:
+            return f"<error: {e}>"
+
+    def children(self):
+        try:
+            yield 'm_Key', self.val['m_Key']
+            yield 'm_Value', self.val['m_Value']
+        except Exception as e:
+            yield 'error', str(e)
+
+
+class ezSetNodePrinter:
+    """Pretty printer for ezSetBase<K>::Node."""
+
+    def __init__(self, val):
+        self.val = val
+
+    def to_string(self):
+        try:
+            key = self.val['m_Key']
+            return key.format_string(summary=True)
+        except Exception as e:
+            return f"<error: {e}>"
+
+    def children(self):
+        try:
+            yield 'm_Key', self.val['m_Key']
+        except Exception as e:
+            yield 'error', str(e)
+
+
 class ezStaticRingBufferPrinter:
     """Pretty printer for ezStaticRingBuffer<T, N>."""
 
@@ -548,8 +701,8 @@ class ezStaticRingBufferPrinter:
             first = int(self.val['m_uiFirstElement'])
             m_pElements = self.val['m_pElements']
             capacity = self.val.type.template_argument(1)
-            yield 'count', count
-            yield 'first', first
+            yield 'm_uiCount', self.val['m_uiCount']
+            yield 'm_uiFirstElement', self.val['m_uiFirstElement']
 
             for i in range(count):
                 actual_index = (first + i) % capacity

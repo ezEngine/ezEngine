@@ -80,7 +80,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, VisualizerZoo)
     ezString c;
   };
   EZ_TEST_BOOL(true);
-  // Strings
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Strings")
   {
     ezString stringEmpty;
     ezString string = u8"こんにちは 世界";
@@ -101,7 +101,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, VisualizerZoo)
     EZ_TEST_BOOL(true);
   }
 
-  // Containers
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Containers")
   {
     ezDynamicArray<ezString> dynamicArray;
     dynamicArray.PushBack("Item1");
@@ -169,7 +169,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, VisualizerZoo)
     EZ_TEST_BOOL(true);
   }
 
-  // ezVariant
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezVariant")
   {
     ezVariant variantInvalid; // Default constructor creates Invalid type
     ezVariant variantBool = ezVariant(true);
@@ -234,7 +234,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, VisualizerZoo)
     EZ_TEST_BOOL(true);
   }
 
-  // Enum
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Enum")
   {
     ezEnum<ezVariantType> enumTest = ezVariantType::Angle;
     ezEnum<ezVariantType> enumArray[3] = {ezVariantType::Int32, ezVariantType::String, ezVariantType::Color};
@@ -244,7 +244,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, VisualizerZoo)
     EZ_TEST_BOOL(true);
   }
 
-  // Bitflags
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Bitflags")
   {
     TestFlags::Enum rawBitflags = TestFlags::Bit1;
     TestFlags::Enum rawBitflags2 = (TestFlags::Enum)(TestFlags::Bit1 | TestFlags::Bit2).GetValue();
@@ -264,7 +264,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, VisualizerZoo)
     EZ_TEST_BOOL(true);
   }
 
-  // Math
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Math")
   {
     ezVec2 vec2(1.0f, 2.0f);
     ezVec3 vec3(1.0f, 2.0f, 3.0f);
@@ -293,7 +293,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, VisualizerZoo)
     EZ_TEST_BOOL(true);
   }
 
-  // UniquePtr
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "UniquePtr")
   {
     ezUniquePtr<ReflectedTest> uniquePtr = EZ_DEFAULT_NEW(ReflectedTest);
     uniquePtr->u = 1.0f;
@@ -307,7 +307,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, VisualizerZoo)
     EZ_TEST_BOOL(true);
   }
 
-  // Mutex
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Mutex")
   {
     ezMutex mutex;
     EZ_LOCK(mutex);

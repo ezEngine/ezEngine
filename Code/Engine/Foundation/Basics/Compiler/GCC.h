@@ -15,9 +15,14 @@
         __builtin_debugtrap(); \
       }
 #  elif defined(__i386__) || defined(__x86_64__)
-#    define EZ_DEBUG_BREAK            \
-      {                               \
-        __asm__ __volatile__("int3"); \
+// Use a non-inline function to avoid C++20 extension warnings when EZ_ASSERT is used in constexpr contexts
+[[gnu::noinline]] inline void ezGccDebugBreak()
+{
+  __asm__ __volatile__("int3");
+}
+#    define EZ_DEBUG_BREAK \
+      {                    \
+        ezGccDebugBreak(); \
       }
 #  else
 #    include <signal.h>

@@ -468,7 +468,11 @@ void ezQtJoltProjectSettingsDlg::on_ImpulsesTable_itemSelectionChanged()
     pCheck->setChecked(bOverride);
     pCheck->setProperty("ImpulseKey", uiImpulseKey);
     pCheck->setProperty("WeightKey", uiWeightKey);
+    EZ_WARNING_PUSH()
+    EZ_WARNING_DISABLE_GCC("-Wdeprecated-declarations")
+    EZ_WARNING_DISABLE_CLANG("-Wdeprecated-declarations")
     connect(pCheck, &QCheckBox::stateChanged, this, &ezQtJoltProjectSettingsDlg::onImpulseOverrideChecked);
+    EZ_WARNING_POP()
 
     ezQtDoubleSpinBox* pNumber = new ezQtDoubleSpinBox(nullptr);
     pNumber->setProperty("ImpulseKey", uiImpulseKey);

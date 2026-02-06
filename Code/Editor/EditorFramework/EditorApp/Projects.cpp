@@ -55,6 +55,7 @@ void ezQtEditorApp::SlotQueuedOpenProject(QString sProject)
 
 ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, ezStringView sFile0)
 {
+  EZ_PROFILE_SCOPE("CreateOrOpenProject");
   ezStringBuilder sFile = sFile0;
   if (!bCreate)
   {
@@ -93,7 +94,7 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, ezStringView sFile0)
     }
   }
 
-  EZ_PROFILE_SCOPE("CreateOrOpenProject");
+
   m_bLoadingProjectInProgress = true;
   EZ_SCOPE_EXIT(m_bLoadingProjectInProgress = false;);
 

@@ -216,6 +216,7 @@ void ezQtContainerWindow::RemoveApplicationPanel(ezQtApplicationPanel* pPanel)
 
 void ezQtContainerWindow::AddDocumentWindow(ezQtDocumentWindow* pDocWindow)
 {
+  EZ_PROFILE_SCOPE("AddDocumentWindow");
   EZ_ASSERT_DEV(!pDocWindow->objectName().isEmpty(), "Panel name must be unique and not empty.");
 
   if (m_DocumentWindows.IndexOf(pDocWindow) != ezInvalidIndex)
@@ -261,6 +262,7 @@ void ezQtContainerWindow::AddDocumentWindow(ezQtDocumentWindow* pDocWindow)
   }
   else
   {
+    EZ_PROFILE_SCOPE("AddDocumentWindow - addDockWidgetTab");
     m_pDockManager->addDockWidgetTab(ads::CenterDockWidgetArea, dock);
   }
   m_DocumentDocks.PushBack(dock);

@@ -52,7 +52,7 @@ static_assert(sizeof(ezVulkanAllocationInfo) == sizeof(VmaAllocationInfo));
 
 EZ_DEFINE_AS_POD_TYPE(VkExportMemoryAllocateInfo);
 
-namespace
+namespace ezMemoryAllocatorVulkanInternal
 {
   struct ExportedSharedPool
   {
@@ -68,8 +68,10 @@ struct ezMemoryAllocatorVulkan::Impl
 {
   VmaAllocator m_allocator;
   ezMutex m_exportedSharedPoolsMutex;
-  ezHashTable<uint32_t, ExportedSharedPool> m_exportedSharedPools;
+  ezHashTable<uint32_t, ezMemoryAllocatorVulkanInternal::ExportedSharedPool> m_exportedSharedPools;
 };
+
+using ExportedSharedPool = ezMemoryAllocatorVulkanInternal::ExportedSharedPool;
 
 ezMemoryAllocatorVulkan::Impl* ezMemoryAllocatorVulkan::m_pImpl = nullptr;
 

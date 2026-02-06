@@ -41,6 +41,11 @@ macro(ez_fetch_openxr)
 	set_target_properties(openxr_loader PROPERTIES FOLDER "ThirdParty")
 	set_target_properties(XrApiLayer_core_validation PROPERTIES FOLDER "ThirdParty")
 
+	# Suppress warnings in third-party generated code
+	if(EZ_CMAKE_COMPILER_GCC OR EZ_CMAKE_COMPILER_CLANG)
+		target_compile_options(XrApiLayer_core_validation PRIVATE -Wno-address)
+	endif()
+
 endmacro()
 
 ######################################

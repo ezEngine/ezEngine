@@ -22,7 +22,7 @@ namespace
   EZ_ALWAYS_INLINE ezUInt64 NormalizeDistance(float fDistance, float fMaxDistance)
   {
     const float fNormalizedDistance = ezMath::Saturate(fDistance / fMaxDistance);
-    return static_cast<ezUInt64>(fNormalizedDistance * (EZ_BIT(Bits) - 1));
+    return static_cast<ezUInt64>(fNormalizedDistance * static_cast<float>(EZ_BIT(Bits) - 1));
   }
 
   template <ezUInt32 Bits>

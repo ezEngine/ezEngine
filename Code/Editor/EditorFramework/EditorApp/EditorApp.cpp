@@ -538,6 +538,7 @@ void ezQtEditorApp::CreatePluginSelectionDDL(const char* szProjectFile, const ch
 
 void ezQtEditorApp::LoadPluginBundleDlls(const char* szProjectFile)
 {
+  EZ_PROFILE_SCOPE("LoadPluginBundleDlls");
   ezStringBuilder sPath = szProjectFile;
   sPath.PathParentDirectory();
   sPath.AppendPath("Editor/PluginSelection.ddl");
@@ -612,6 +613,7 @@ void ezQtEditorApp::LoadPluginBundleDlls(const char* szProjectFile)
   ezSet<ezString> NotLoaded;
   for (const ezApplicationPluginConfig::PluginConfig& it : order)
   {
+    EZ_PROFILE_SCOPE(it.m_sAppDirRelativePath.GetData());
     if (ezPlugin::LoadPlugin(it.m_sAppDirRelativePath, it.m_bLoadCopy ? ezPluginLoadFlags::LoadCopy : ezPluginLoadFlags::Default).Failed())
     {
       NotLoaded.Insert(it.m_sAppDirRelativePath);

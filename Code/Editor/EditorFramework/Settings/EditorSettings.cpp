@@ -4,6 +4,7 @@
 #include <EditorFramework/Preferences/EditorPreferences.h>
 #include <EditorFramework/Preferences/Preferences.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
+#include <Foundation/Profiling/Profiling.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 #  include <EditorFramework/EditorApp/WindowsJumpList.h>
@@ -11,6 +12,7 @@
 
 void ezQtEditorApp::SaveRecentFiles()
 {
+  EZ_PROFILE_SCOPE("SaveRecentFiles");
   if (m_StartupFlags.IsAnySet(StartupFlags::Headless | StartupFlags::UnitTest | StartupFlags::Background))
     return;
 
@@ -25,6 +27,7 @@ void ezQtEditorApp::SaveRecentFiles()
 
 void ezQtEditorApp::LoadRecentFiles()
 {
+  EZ_PROFILE_SCOPE("LoadRecentFiles");
   m_RecentProjects.Load(":appdata/Settings/RecentProjects.txt");
   m_RecentDocuments.Load(":appdata/Settings/RecentDocuments.txt");
 }
