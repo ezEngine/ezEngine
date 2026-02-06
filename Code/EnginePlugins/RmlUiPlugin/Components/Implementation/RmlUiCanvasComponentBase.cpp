@@ -10,12 +10,13 @@
 #include <RmlUiPlugin/RmlUiSingleton.h>
 
 // clang-format off
-EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezRmlUiCanvasComponentBase, 1)
+EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezRmlUiCanvasComponentBase, 2)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_RESOURCE_ACCESSOR_PROPERTY("RmlFile", GetRmlResource, SetRmlResource)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Rml_UI")),
     EZ_ACCESSOR_PROPERTY("AutobindBlackboards", GetAutobindBlackboards, SetAutobindBlackboards),
+    EZ_ACCESSOR_PROPERTY("SendEventMessage", GetSendEventMessage, SetSendEventMessage),
     EZ_ACCESSOR_PROPERTY("OnDemandUpdate", GetOnDemandUpdate, SetOnDemandUpdate)->AddAttributes(new ezDefaultValueAttribute(true)),
   }
   EZ_END_PROPERTIES;
@@ -48,6 +49,7 @@ void ezRmlUiCanvasComponentBase::SerializeComponent(ezWorldWriter& inout_stream)
 
   s << m_hResource;
   s << m_bAutobindBlackboards;
+  s << m_bSendEventMessage;
   s << m_bOnDemandUpdate;
 }
 
@@ -59,6 +61,12 @@ void ezRmlUiCanvasComponentBase::DeserializeComponent(ezWorldReader& inout_strea
 
   s >> m_hResource;
   s >> m_bAutobindBlackboards;
+
+  if (uiVersion >= 2)
+  {
+    s >> m_bSendEventMessage;
+  }
+
   s >> m_bOnDemandUpdate;
 }
 
@@ -149,6 +157,16 @@ void ezRmlUiCanvasComponentBase::SetAutobindBlackboards(bool bAutobind)
     m_bAutobindBlackboards = bAutobind;
 
     UpdateAutobinding();
+  }
+}
+
+void ezRmlUiCanvasComponentBase::SetSendEventMessage(bool bSendEventMessage)
+{
+  if (m_bSendEventMessage != bSendEventMessage)
+  {
+    m_bSendEventMessage = bSendEventMessage;
+
+    UpdateEventHandler();
   }
 }
 
@@ -247,6 +265,7 @@ ezRmlUiContext* ezRmlUiCanvasComponentBase::GetOrCreateRmlContext()
   m_pContext->LoadDocumentFromResource(m_hResource).IgnoreResult();
 
   UpdateCachedValues();
+  UpdateEventHandler();
 
   return m_pContext;
 }
@@ -316,6 +335,30 @@ void ezRmlUiCanvasComponentBase::UpdateAutobinding()
       pObject = pObject->GetParent();
     }
   }
+}
+
+void ezRmlUiCanvasComponentBase::UpdateEventHandler()
+{
+  if (m_pContext != nullptr)
+  {
+    if (m_bSendEventMessage)
+    {
+      m_pContext->RegisterFallbackEventHandler(ezMakeDelegate(&ezRmlUiCanvasComponentBase::EventHandler, this));
+    }
+    else
+    {
+      m_pContext->DeregisterFallbackEventHandler();
+    }
+  }
+}
+
+void ezRmlUiCanvasComponentBase::EventHandler(const ezHashedString& sIdentifier, Rml::Event& event)
+{
+  ezMsgRmlUiEvent msg;
+  msg.m_sIdentifier = sIdentifier;
+  msg.m_sType.Assign(ezRmlUiConversionUtils::ToStringView(event.GetType()));
+
+  m_EventMessageSender.SendEventMessage(msg, this, GetOwner());
 }
 
 

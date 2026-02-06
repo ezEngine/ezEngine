@@ -1,8 +1,11 @@
 #include <RmlUiPlugin/RmlUiPluginPCH.h>
 
-#include <Foundation/IO/FileSystem/FileSystem.h>
-#include <Foundation/Time/Clock.h>
 #include <RmlUiPlugin/Implementation/SystemInterface.h>
+#include <RmlUiPlugin/RmlUiConversionUtils.h>
+
+#include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Foundation/Strings/TranslationLookup.h>
+#include <Foundation/Time/Clock.h>
 
 namespace ezRmlUiInternal
 {
@@ -11,9 +14,23 @@ namespace ezRmlUiInternal
     return ezClock::GetGlobalClock()->GetAccumulatedTime().GetSeconds();
   }
 
+  int SystemInterface::TranslateString(Rml::String& translated, const Rml::String& input)
+  {
+    ezStringView sInput = ezRmlUiConversionUtils::ToString(input);
+    sInput.Trim(" \t\r\n");
+    if (sInput.IsEmpty() == false)
+    {
+      translated = ezRmlUiConversionUtils::ToString(ezTranslate(sInput));
+      return 1;
+    }
+
+    translated = input;
+    return 0;
+  }
+
   void SystemInterface::JoinPath(Rml::String& ref_sTranslated_path, const Rml::String& sDocument_path, const Rml::String& sPath)
   {
-    if (ezFileSystem::ExistsFile(sPath.c_str()))
+    if (ezFileSystem::ExistsFile(ezRmlUiConversionUtils::ToStringView(sPath)))
     {
       // path is already a valid path for ez file system so don't join with document path
       ref_sTranslated_path = sPath;
@@ -28,7 +45,7 @@ namespace ezRmlUiInternal
     switch (type)
     {
       case Rml::Log::LT_ERROR:
-        ezLog::Error("{}", sMessage.c_str());
+        ezLog::Error("{}", ezRmlUiConversionUtils::ToStringView(sMessage));
         break;
 
       case Rml::Log::LT_ASSERT:
@@ -36,16 +53,16 @@ namespace ezRmlUiInternal
         break;
 
       case Rml::Log::LT_WARNING:
-        ezLog::Warning("{}", sMessage.c_str());
+        ezLog::Warning("{}", ezRmlUiConversionUtils::ToStringView(sMessage));
         break;
 
       case Rml::Log::LT_ALWAYS:
       case Rml::Log::LT_INFO:
-        ezLog::Info("{}", sMessage.c_str());
+        ezLog::Info("{}", ezRmlUiConversionUtils::ToStringView(sMessage));
         break;
 
       case Rml::Log::LT_DEBUG:
-        ezLog::Debug("{}", sMessage.c_str());
+        ezLog::Debug("{}", ezRmlUiConversionUtils::ToStringView(sMessage));
         break;
       default:
         break;

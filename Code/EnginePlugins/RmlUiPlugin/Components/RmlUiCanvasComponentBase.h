@@ -37,7 +37,7 @@ public:
 
   virtual bool ReceiveInput(const ezVec2& vMousePosInsideCanvas, ezRmlUiInputSnapshot input);
 
-  EZ_ADD_RESOURCEHANDLE_ACCESSORS_WITH_SETTER(RmlFile, m_hResource, SetRmlResource);
+  EZ_ADD_RESOURCEHANDLE_ACCESSORS_WITH_SETTER(RmlResource, m_hResource, SetRmlResource);
   void SetRmlResource(const ezRmlUiResourceHandle& hResource);                // [ property ]
   const ezRmlUiResourceHandle& GetRmlResource() const { return m_hResource; } // [ property ]
 
@@ -45,8 +45,12 @@ public:
   void SetAutobindBlackboards(bool bAutobind);                           // [ property ]
   bool GetAutobindBlackboards() const { return m_bAutobindBlackboards; } // [ property ]
 
-  void SetOnDemandUpdate(bool bOnDemandUpdate);                          // [ property ]
-  bool GetOnDemandUpdate() const { return m_bOnDemandUpdate; }           // [ property ]
+  /// \brief If enabled, the component will send an ezMsgRmlUiEventMessage for each RmlUI event that is triggered on the context.
+  void SetSendEventMessage(bool bSendEventMessage);                // [ property ]
+  bool GetSendEventMessage() const { return m_bSendEventMessage; } // [ property ]
+
+  void SetOnDemandUpdate(bool bOnDemandUpdate);                    // [ property ]
+  bool GetOnDemandUpdate() const { return m_bOnDemandUpdate; }     // [ property ]
 
   ezUInt32 AddDataBinding(ezUniquePtr<ezRmlUiDataBinding>&& pDataBinding);
   void RemoveDataBinding(ezUInt32 uiDataBindingIndex);
@@ -66,6 +70,9 @@ protected:
 
   void UpdateCachedValues();
   void UpdateAutobinding();
+  void UpdateEventHandler();
+
+  void EventHandler(const ezHashedString& sIdentifier, Rml::Event& event);
 
   ezRmlUiResourceHandle m_hResource;
   ezEvent<const ezResourceEvent&, ezMutex>::Unsubscriber m_ResourceEventUnsubscriber;
@@ -73,6 +80,7 @@ protected:
   ezVec2U32 m_vSize = ezVec2U32::MakeZero();
   ezVec2U32 m_vReferenceResolution = ezVec2U32::MakeZero();
   bool m_bAutobindBlackboards = false;
+  bool m_bSendEventMessage = false;
   bool m_bOnDemandUpdate = true;
   bool m_bNeedsUpdate = false;
   ezUInt16 m_uiContextID = 0;
@@ -82,4 +90,6 @@ protected:
 
   ezDynamicArray<ezUniquePtr<ezRmlUiDataBinding>> m_DataBindings;
   ezDynamicArray<ezUInt32> m_AutoBindings;
+
+  ezEventMessageSender<ezMsgRmlUiEvent> m_EventMessageSender; // [ event ]
 };

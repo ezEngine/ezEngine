@@ -44,14 +44,22 @@ public:
 
   using EventHandler = ezDelegate<void(Rml::Event&)>;
 
-  /// Registers an event handler for a RmlUI event (such as 'onclick')
+  /// \brief Registers an event handler for a RmlUI event (such as 'onclick')
   ///
   /// There can only be one event handler for each event type.
   /// If called multiple times, the existing event handler is overridden.
   void RegisterEventHandler(const char* szIdentifier, EventHandler handler);
 
-  /// Removes a previously registered RmlUI event handler.
+  /// \brief Removes a previously registered RmlUI event handler.
   void DeregisterEventHandler(const char* szIdentifier);
+
+  using FallbackEventHandler = ezDelegate<void(const ezHashedString&, Rml::Event&)>;
+
+  /// \brief Registers a fallback event handler for RmlUI events which is called when no specific event handler is registered for the event's type.
+  void RegisterFallbackEventHandler(FallbackEventHandler handler);
+
+  /// \brief Removes the previously registered fallback event handler.
+  void DeregisterFallbackEventHandler();
 
   void Update();
 
@@ -63,6 +71,7 @@ private:
   void ProcessEvent(const ezHashedString& sIdentifier, Rml::Event& event);
 
   ezHashTable<ezHashedString, EventHandler> m_EventHandler;
+  FallbackEventHandler m_FallbackEventHandler;
 
   ezUInt64 m_uiUpdatedFrame = ezUInt64(-1);
   ezUInt64 m_uiExtractedFrame = ezUInt64(-1);

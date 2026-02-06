@@ -156,6 +156,16 @@ void ezRmlUiContext::DeregisterEventHandler(const char* szIdentifier)
   m_EventHandler.Remove(ezTempHashedString(szIdentifier));
 }
 
+void ezRmlUiContext::RegisterFallbackEventHandler(FallbackEventHandler handler)
+{
+  m_FallbackEventHandler = std::move(handler);
+}
+
+void ezRmlUiContext::DeregisterFallbackEventHandler()
+{
+  m_FallbackEventHandler.Invalidate();
+}
+
 void ezRmlUiContext::Update()
 {
   EZ_LOCK(ezRmlUi::GetSingleton()->GetContextMutex());
@@ -170,7 +180,7 @@ void ezRmlUiContext::ExtractRenderData(ezRmlUiInternal::RenderInterface& renderI
   if (m_uiExtractedFrame != m_uiUpdatedFrame)
   {
     ezHashedString sName;
-    sName.Assign(GetName().c_str());
+    sName.Assign(ezRmlUiConversionUtils::ToStringView(GetName()));
 
     renderInterface.BeginExtraction(sName, hTexture);
 
@@ -188,6 +198,10 @@ void ezRmlUiContext::ProcessEvent(const ezHashedString& sIdentifier, Rml::Event&
   if (m_EventHandler.TryGetValue(sIdentifier, pEventHandler))
   {
     (*pEventHandler)(event);
+  }
+  else if (m_FallbackEventHandler.IsValid())
+  {
+    m_FallbackEventHandler(sIdentifier, event);
   }
 }
 

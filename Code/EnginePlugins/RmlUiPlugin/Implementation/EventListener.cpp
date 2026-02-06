@@ -49,7 +49,7 @@ namespace ezRmlUiInternal
       pListener = &m_EventListenerPool[uiIndex];
     }
 
-    pListener->m_sIdentifier.Assign(value.c_str());
+    pListener->m_sIdentifier.Assign(ezRmlUiConversionUtils::ToStringView(value));
     return pListener;
   }
 

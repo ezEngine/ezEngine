@@ -235,7 +235,7 @@ namespace ezRmlUiInternal
 
   Rml::TextureHandle RenderInterface::LoadTexture(Rml::Vector2i& out_textureSize, const Rml::String& sSource)
   {
-    ezTexture2DResourceHandle hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(sSource.c_str());
+    ezTexture2DResourceHandle hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(ezRmlUiConversionUtils::ToStringView(sSource));
 
     ezResourceLock<ezTexture2DResource> pTexture(hTexture, ezResourceAcquireMode::BlockTillLoaded);
     if (pTexture.GetAcquireResult() == ezResourceAcquireResult::Final)

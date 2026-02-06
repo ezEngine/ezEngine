@@ -16,7 +16,7 @@ namespace ezRmlUiInternal
   Rml::FileHandle FileInterface::Open(const Rml::String& sPath)
   {
     ezFileReader fileReader;
-    if (fileReader.Open(sPath.c_str()).Failed())
+    if (fileReader.Open(ezRmlUiConversionUtils::ToStringView(sPath)).Failed())
     {
       return 0;
     }
