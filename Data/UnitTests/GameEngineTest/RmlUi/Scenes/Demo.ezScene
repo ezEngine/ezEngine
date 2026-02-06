@@ -11,12 +11,13 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{3667610956660949061,10076447021010321389}}
-		u4 %Hash{8613721746226226624}
+		u4 %Hash{16999337589989277389}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
 		{
 			s{"{ 3a360a07-31c8-494b-a5ba-ce4adcdcea44 }"}
+			s{"{ 4a03e92d-6c09-40e7-a12d-4d608a1a5e09 }"}
 			s{"{ 6f52ba5d-c2bf-4e7a-83b2-e6ba9da6fe8f }"}
 			s{"{ b81db567-6ef4-452f-8a8c-b374efd45a67 }"}
 			s{"{ e719a2b9-059b-474a-90fc-415037e55827 }"}
@@ -24,6 +25,7 @@ o
 		VarArray %References
 		{
 			s{"{ 3a360a07-31c8-494b-a5ba-ce4adcdcea44 }"}
+			s{"{ 4a03e92d-6c09-40e7-a12d-4d608a1a5e09 }"}
 			s{"{ 6f52ba5d-c2bf-4e7a-83b2-e6ba9da6fe8f }"}
 			s{"{ e719a2b9-059b-474a-90fc-415037e55827 }"}
 		}
@@ -33,6 +35,50 @@ o
 }
 Objects
 {
+o
+{
+	Uuid %id{u4{9869834696544175999,2029298654234671863}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{0}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{782671795324582505,2561817186341161383}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"DemoUi4"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{782671795324582505,2561817186341161383}}
+	s %t{"ezRmlUiCanvas2DComponent"}
+	u3 %v{5}
+	p
+	{
+		b %Active{1}
+		Vec2 %AnchorPoint{f{0,0}}
+		b %AutobindBlackboards{1}
+		f %CustomScale{0x0000803F}
+		Vec2i %Offset{i3{0,0}}
+		b %OnDemandUpdate{1}
+		b %PassInput{1}
+		s %RmlFile{"{ 4a03e92d-6c09-40e7-a12d-4d608a1a5e09 }"}
+		Vec2u %Size{u3{0,0}}
+	}
+}
 o
 {
 	Uuid %id{u4{9256710423990868143,5053157219294416548}}
@@ -72,6 +118,7 @@ o
 			Uuid{u4{9256710423990868143,5053157219294416548}}
 			Uuid{u4{5767842084527288908,10145685247372224283}}
 			Uuid{u4{17502700390169993458,15364194562371257505}}
+			Uuid{u4{9869834696544175999,2029298654234671863}}
 		}
 		VarArray %Components
 		{
@@ -107,12 +154,13 @@ o
 {
 	Uuid %id{u4{169547522771274649,5585675751400906068}}
 	s %t{"ezRmlUiCanvas2DComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		Vec2 %AnchorPoint{f{0,0}}
 		b %AutobindBlackboards{1}
+		f %CustomScale{0x0000803F}
 		Vec2i %Offset{i3{0,0}}
 		b %OnDemandUpdate{1}
 		b %PassInput{1}
@@ -172,7 +220,7 @@ o
 			Uuid{u4{15127423257017247030,10678203779478713803}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0xDDDDDDDD,0xDDDDDDDD,0xDDDDDDDD}}
+		Vec3 %LocalPosition{f{0,0,0}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -188,12 +236,13 @@ o
 {
 	Uuid %id{u4{15127423257017247030,10678203779478713803}}
 	s %t{"ezRmlUiCanvas2DComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		Vec2 %AnchorPoint{f{0,0}}
 		b %AutobindBlackboards{1}
+		f %CustomScale{0x0000803F}
 		Vec2i %Offset{i3{0,0}}
 		b %OnDemandUpdate{1}
 		b %PassInput{1}
@@ -215,7 +264,7 @@ o
 			Uuid{u4{8415537488950399964,15896713094477747025}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0xDDDDDDDD,0xDDDDDDDD,0xDDDDDDDD}}
+		Vec3 %LocalPosition{f{0,0,0}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -231,12 +280,13 @@ o
 {
 	Uuid %id{u4{8415537488950399964,15896713094477747025}}
 	s %t{"ezRmlUiCanvas2DComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		Vec2 %AnchorPoint{f{0,0}}
 		b %AutobindBlackboards{1}
+		f %CustomScale{0x0000803F}
 		Vec2i %Offset{i3{0,0}}
 		b %OnDemandUpdate{1}
 		b %PassInput{1}
@@ -274,11 +324,11 @@ o
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
-		s %ParentTypeName{"ezRenderComponent"}
+		s %ParentTypeName{"ezRmlUiCanvasComponentBase"}
 		s %PluginName{"ezEditorPluginRmlUi"}
 		VarArray %Properties{}
 		s %TypeName{"ezRmlUiCanvas2DComponent"}
-		u3 %TypeVersion{3}
+		u3 %TypeVersion{5}
 	}
 }
 o
@@ -364,6 +414,23 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezSceneDocumentSettings"}
 		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{12154821427648791411,8421033311880761472}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderComponent"}
+		s %PluginName{"ezEditorPluginRmlUi"}
+		VarArray %Properties{}
+		s %TypeName{"ezRmlUiCanvasComponentBase"}
+		u3 %TypeVersion{1}
 	}
 }
 o

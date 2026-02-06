@@ -11,7 +11,7 @@ o
 		s %AssetType{"StateMachine"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7447499058730732682,4985325309862458727}}
-		u4 %Hash{7836703345442696130}
+		u4 %Hash{3822383239210898219}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
@@ -22,6 +22,45 @@ o
 }
 Objects
 {
+o
+{
+	Uuid %id{u4{3600806294996713124,2246298531540370070}}
+	s %t{"ezStateMachineNode"}
+	u3 %v{1}
+	p
+	{
+		b %IsInitialState{0}
+		s %Name{"DemoUi4"}
+		Vec2 %Node::Pos{f{0xD2204744,0x8191BC43}}
+		Uuid %Type{u4{7176277645013407889,2416561837475886731}}
+	}
+}
+o
+{
+	Uuid %id{u4{7176277645013407889,2416561837475886731}}
+	s %t{"ezStateMachineState_SwitchObject"}
+	u3 %v{1}
+	p
+	{
+		b %DeactivateOthers{1}
+		s %ObjectToEnable{"DemoUi4"}
+		s %PathToGroup{""}
+	}
+}
+o
+{
+	Uuid %id{u4{2759432823495765176,4810259828394159454}}
+	s %t{"ezStateMachineConnection"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{12912753119653605148,15590135587410222193}}
+		s %SourcePin{"Exit"}
+		Uuid %Target{u4{3600806294996713124,2246298531540370070}}
+		s %TargetPin{"Enter"}
+		Uuid %Type{u4{9655034241397590668,5270328438804238753}}
+	}
+}
 o
 {
 	Uuid %id{u4{13206956299881133702,4894326749222393309}}
@@ -75,6 +114,16 @@ o
 }
 o
 {
+	Uuid %id{u4{9655034241397590668,5270328438804238753}}
+	s %t{"ezStateMachineTransition_Timeout"}
+	u3 %v{1}
+	p
+	{
+		Time %Timeout{d{0x9A9999999999B93F}}
+	}
+}
+o
+{
 	Uuid %id{u4{10879187001907084970,5376311506702305267}}
 	s %t{"ezStateMachineState_SwitchObject"}
 	u3 %v{1}
@@ -110,6 +159,8 @@ o
 			Uuid{u4{13206956299881133702,4894326749222393309}}
 			Uuid{u4{12912753119653605148,15590135587410222193}}
 			Uuid{u4{11982616679671493000,5082516918392241338}}
+			Uuid{u4{3600806294996713124,2246298531540370070}}
+			Uuid{u4{2759432823495765176,4810259828394159454}}
 		}
 	}
 }
