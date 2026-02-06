@@ -119,6 +119,8 @@ void ezSimpleAnimationComponent::Update()
   if (m_ElapsedTimeSinceUpdate < tMinStep)
     return;
 
+  EZ_PROFILE_SCOPE("ezSimpleAnimationComponent::Update");
+
   // if we did this, the animation would fully stop, when the component is really invisible (not even indirectly visible)
   // this breaks the setting 'InvisibleUpdateRate', which is supposed to let the user override the update rate for this case
   const bool bVisible = true; // visType != ezVisibilityState::Invisible;
@@ -303,5 +305,39 @@ bool ezSimpleAnimationComponent::UpdatePlaybackTime(ezTime tDiff, const ezEventT
   return tPrefNorm != m_fNormalizedPlaybackPosition;
 }
 
+
+//////////////////////////////////////////////////////////////////////////
+
+ezSimpleAnimationComponentManager::ezSimpleAnimationComponentManager(ezWorld* pWorld)
+  : ezComponentManager(pWorld)
+{
+}
+
+ezSimpleAnimationComponentManager::~ezSimpleAnimationComponentManager() = default;
+
+void ezSimpleAnimationComponentManager::Initialize()
+{
+  SUPER::Initialize();
+
+  {
+    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezSimpleAnimationComponentManager::Update, this);
+    desc.m_Phase = ezWorldUpdatePhase::Async;
+    desc.m_bOnlyUpdateWhenSimulating = true;
+    desc.m_uiAsyncPhaseBatchSize = 2;
+
+    this->RegisterUpdateFunction(desc);
+  }
+}
+
+void ezSimpleAnimationComponentManager::Update(const ezWorldModule::UpdateContext& context)
+{
+  for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
+  {
+    if (it->IsActiveAndInitialized())
+    {
+      it->Update();
+    }
+  }
+}
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Skeletal_Implementation_SimpleAnimationComponent);

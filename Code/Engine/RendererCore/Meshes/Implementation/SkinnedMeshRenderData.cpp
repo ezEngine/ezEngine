@@ -48,7 +48,7 @@ ezArrayPtr<ezShaderTransform> ezSkinningState::GetOrCreateBoneTransformsForWriti
   EZ_ASSERT_DEV(m_pWorld == nullptr || m_pWorld == pWorld, "ezSkinningState used with different worlds simultaneously, which is not supported.");
   m_pWorld = pWorld;
 
-  auto pRenderDataManager = m_pWorld->GetOrCreateModule<ezRenderDataManager>();
+  auto pRenderDataManager = m_pWorld->GetModuleReadOnly<ezRenderDataManager>();
 
   if (m_uiNumBones > 0 && m_uiNumBones != uiNumBones)
   {

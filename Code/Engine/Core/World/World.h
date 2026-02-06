@@ -457,6 +457,11 @@ private:
 
   float GetInvDeltaSeconds() const;
 
+  /// \brief Adds hObject to the deferred bounds update queue. Thread-safe.
+  void QueueLocalBoundsUpdate(ezGameObjectHandle hObject);
+  /// \brief Drains the deferred bounds update queue and calls UpdateLocalBounds() on each object.
+  void ProcessLocalBoundsUpdateQueue();
+
   ezSharedPtr<ezTask> m_pUpdateTask;
 
   ezInternal::WorldData m_Data;

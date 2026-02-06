@@ -17,7 +17,22 @@ struct ezMsgGenericEvent;
 using ezAnimationClipResourceHandle = ezTypedResourceHandle<class ezAnimationClipResource>;
 using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>;
 
-using ezSimpleAnimationComponentManager = ezComponentManagerSimple<class ezSimpleAnimationComponent, ezComponentUpdateType::WhenSimulating, ezBlockStorageType::FreeList>;
+
+/// \brief Component manager for ezSimpleAnimationComponent.
+///
+/// Schedules updates in the async world update phase so that multiple instances can be evaluated in parallel.
+class EZ_GAMEENGINE_DLL ezSimpleAnimationComponentManager : public ezComponentManager<class ezSimpleAnimationComponent, ezBlockStorageType::FreeList>
+{
+public:
+  ezSimpleAnimationComponentManager(ezWorld* pWorld);
+  ~ezSimpleAnimationComponentManager();
+
+  virtual void Initialize() override;
+
+private:
+  void Update(const ezWorldModule::UpdateContext& context);
+};
+
 
 /// \brief Plays a single animation clip on an animated mesh.
 ///

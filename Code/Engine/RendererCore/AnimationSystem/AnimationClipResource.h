@@ -78,6 +78,7 @@ public:
   bool m_bAdditive = false;
 
 private:
+  mutable ezMutex m_Mutex; ///< Guards m_JointInfos and m_pOzzImpl against concurrent access during async animation sampling.
   ezArrayMap<ezHashedString, JointInfo> m_JointInfos;
   ezDataBuffer m_Transforms;
   ezUInt32 m_uiNumTotalPositions = 0;

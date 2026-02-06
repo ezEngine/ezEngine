@@ -79,6 +79,14 @@ void ezRenderComponent::TriggerLocalBoundsUpdate()
   }
 }
 
+void ezRenderComponent::QueueLocalBoundsUpdate()
+{
+  if (IsActiveAndInitialized())
+  {
+    GetOwner()->QueueLocalBoundsUpdate();
+  }
+}
+
 // static
 ezUInt32 ezRenderComponent::GetUniqueIdForRendering(const ezComponent& component)
 {

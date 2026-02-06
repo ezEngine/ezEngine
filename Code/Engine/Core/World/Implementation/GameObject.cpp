@@ -827,6 +827,11 @@ void ezGameObject::UpdateLocalBounds()
   }
 }
 
+void ezGameObject::QueueLocalBoundsUpdate()
+{
+  GetWorld()->QueueLocalBoundsUpdate(GetHandle());
+}
+
 void ezGameObject::UpdateGlobalTransformAndBounds()
 {
   m_pTransformationData->UpdateGlobalTransformRecursive(GetWorld()->GetUpdateCounter());

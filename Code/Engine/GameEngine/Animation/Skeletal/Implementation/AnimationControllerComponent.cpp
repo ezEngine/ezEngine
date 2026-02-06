@@ -147,6 +147,8 @@ void ezAnimationControllerComponent::Update()
   if (m_ElapsedTimeSinceUpdate < tMinStep)
     return;
 
+  EZ_PROFILE_SCOPE("ezAnimationControllerComponent::Update");
+
   if (!m_AnimController.Update(m_ElapsedTimeSinceUpdate, GetOwner(), m_bEnableIK))
   {
     // if there is an error, OR something else completely took over the animation (usually a ragdoll)
@@ -177,7 +179,8 @@ void ezAnimationControllerComponentManager::Initialize()
 {
   auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezAnimationControllerComponentManager::Update, this);
   desc.m_bOnlyUpdateWhenSimulating = true;
-  desc.m_Phase = ezWorldUpdatePhase::PreAsync; // TODO: currently can't run in Async phase
+  desc.m_Phase = ezWorldUpdatePhase::Async;
+  desc.m_uiAsyncPhaseBatchSize = 2;
 
   this->RegisterUpdateFunction(desc);
 
@@ -194,7 +197,7 @@ void ezAnimationControllerComponentManager::Update(const ezWorldModule::UpdateCo
   {
     for (auto hComponent : m_ComponentsToReset)
     {
-      ezAnimationControllerComponent* pComp;
+      ezAnimationControllerComponent* pComp = nullptr;
       if (GetWorld()->TryGetComponent(hComponent, pComp))
       {
         pComp->OnSimulationStarted(); // just run this again

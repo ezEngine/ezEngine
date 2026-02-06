@@ -33,6 +33,9 @@ public:
   /// \brief Call this when some value was modified that affects the size of the local bounding box and it should be recomputed.
   void TriggerLocalBoundsUpdate();
 
+  /// \brief Like TriggerLocalBoundsUpdate(), but defers the update and is safe to call from async update functions.
+  void QueueLocalBoundsUpdate();
+
   /// \brief Computes a unique ID for the given component, that is usually given to the renderer to distinguish objects.
   static ezUInt32 GetUniqueIdForRendering(const ezComponent& component);
 

@@ -216,12 +216,12 @@ void ezAnimatedMeshComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& 
   if (poseBounds.IsValid() && (!m_MaxBounds.IsValid() || !m_MaxBounds.Contains(poseBounds)))
   {
     m_MaxBounds.ExpandToInclude(poseBounds);
-    TriggerLocalBoundsUpdate();
+    QueueLocalBoundsUpdate();
   }
   else if (((ezRenderWorld::GetFrameCounter() + GetUniqueIdForRendering()) & (EZ_BIT(10) - 1)) == 0) // reset the bbox every once in a while
   {
     m_MaxBounds = poseBounds;
-    TriggerLocalBoundsUpdate();
+    QueueLocalBoundsUpdate();
   }
 }
 

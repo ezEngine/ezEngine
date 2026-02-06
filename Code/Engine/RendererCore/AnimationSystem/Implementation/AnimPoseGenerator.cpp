@@ -847,7 +847,7 @@ void ezAnimPoseGenerator::SampleEventTrack(const ezAnimationClipResource* pResou
   {
     msg.m_sMessage = hs;
 
-    m_pTargetGameObject->SendEventMessage(msg, nullptr);
+    m_pTargetGameObject->PostEventMessage(msg, nullptr, ezTime::MakeZero());
   }
 }
 

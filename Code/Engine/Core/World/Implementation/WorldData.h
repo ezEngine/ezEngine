@@ -301,6 +301,11 @@ namespace ezInternal
     WriteMarker m_WriteMarker;
 
     void* m_pUserData = nullptr;
+
+    /// Protects m_BoundsUpdateQueue for concurrent access during the async update phase.
+    ezMutex m_BoundsUpdateMutex;
+    /// Game objects whose local bounds need to be recomputed at the end of the current update phase.
+    ezDynamicArray<ezGameObjectHandle> m_BoundsUpdateQueue;
   };
 } // namespace ezInternal
 

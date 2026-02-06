@@ -383,6 +383,11 @@ public:
   /// \brief Invalidates the local bounds and sends a message to all components so they can add their bounds.
   void UpdateLocalBounds();
 
+  /// \brief Schedules a local bounds update to be processed at the end of the current update phase.
+  ///
+  /// Unlike UpdateLocalBounds(), this function is safe to call from async update functions.
+  void QueueLocalBoundsUpdate();
+
   /// \brief Updates the global bounds immediately. Usually this done during the world update after the "Post-async" phase.
   /// Note that this function does not ensure that the global transform is up-to-date. Use UpdateGlobalTransformAndBounds if you want to update both.
   void UpdateGlobalBounds();

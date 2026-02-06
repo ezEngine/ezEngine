@@ -516,6 +516,7 @@ void ezWorld::Update()
     ProcessUpdateFunctionsToRegister();
 
     ProcessQueuedMessages(ezObjectMsgQueueType::AfterInitialized);
+    ProcessLocalBoundsUpdateQueue();
   }
 
   // pre-async phase
@@ -542,6 +543,7 @@ void ezWorld::Update()
     EZ_PROFILE_SCOPE("Post-Async Phase");
     ProcessQueuedMessages(ezObjectMsgQueueType::PostAsync);
     UpdateSynchronous(m_Data.m_UpdateFunctions[ezWorldUpdatePhase::PostAsync]);
+    ProcessLocalBoundsUpdateQueue();
   }
 
   // delete dead objects and update the object hierarchy
@@ -802,11 +804,11 @@ void ezWorld::SetObjectGlobalKey(ezGameObject* pObject, const ezHashedString& sG
     if (it.Value() == pObject->m_InternalId) // same object, same global key ?
       return;
 
-                                             // we allow overwriting a global key to a different object here
-      // so that we can delete an object in a frame and spawn a new one in the same frame, that takes over
-      // due to the delayed deletion at the end of the frame, this would otherwise not work
-      // the only work-around would be to manually clear the global key before deleting an object
-      // but that would effectively do the same as this, it's just more complicated for the user
+    // we allow overwriting a global key to a different object here
+    // so that we can delete an object in a frame and spawn a new one in the same frame, that takes over
+    // due to the delayed deletion at the end of the frame, this would otherwise not work
+    // the only work-around would be to manually clear the global key before deleting an object
+    // but that would effectively do the same as this, it's just more complicated for the user
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
     ezLog::Warning("An object with the global key '{}' already exists. Overwriting with different object reference.", sGlobalKey);
@@ -1547,6 +1549,27 @@ void ezWorld::ProcessResourceReloadFunctions()
   }
 
   m_Data.m_NeedReload.Clear();
+}
+
+void ezWorld::QueueLocalBoundsUpdate(ezGameObjectHandle hObject)
+{
+  EZ_LOCK(m_Data.m_BoundsUpdateMutex);
+  m_Data.m_BoundsUpdateQueue.PushBack(hObject);
+}
+
+void ezWorld::ProcessLocalBoundsUpdateQueue()
+{
+  EZ_LOCK(m_Data.m_BoundsUpdateMutex);
+  for (auto& hObj : m_Data.m_BoundsUpdateQueue)
+  {
+    ezGameObject* pObj;
+    if (TryGetObject(hObj, pObj))
+    {
+      pObj->UpdateLocalBounds();
+    }
+  }
+
+  m_Data.m_BoundsUpdateQueue.Clear();
 }
 
 void ezWorld::SetMaxInitializationTimePerFrame(ezTime maxInitTime)

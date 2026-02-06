@@ -221,6 +221,7 @@ ezResult ezAnimationClipResourceDescriptor::Deserialize(ezStreamReader& inout_st
 
 ezUInt64 ezAnimationClipResourceDescriptor::GetHeapMemoryUsage() const
 {
+  EZ_LOCK(m_Mutex);
   return m_Transforms.GetHeapMemoryUsage() + m_JointInfos.GetHeapMemoryUsage() + m_pOzzImpl->m_MappedOzzAnimations.GetHeapMemoryUsage();
 }
 
@@ -352,6 +353,7 @@ void ezAnimationClipResourceDescriptor::CreateMappedOzzAnimation(ozz::unique_ptr
 
 const ozz::animation::Animation& ezAnimationClipResourceDescriptor::GetMappedOzzAnimation(const ezSkeletonResource& skeleton) const
 {
+  EZ_LOCK(m_Mutex);
   auto it = m_pOzzImpl->m_MappedOzzAnimations.Find(&skeleton);
   if (it.IsValid())
   {
