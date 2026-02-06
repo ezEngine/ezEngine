@@ -55,6 +55,23 @@ void plutovg_span_buffer_copy(plutovg_span_buffer_t* span_buffer, const plutovg_
     span_buffer->h = source->h;
 }
 
+bool plutovg_span_buffer_contains(const plutovg_span_buffer_t* span_buffer, float x, float y)
+{
+    const int ix = (int)floorf(x);
+    const int iy = (int)floorf(y);
+
+    for(int i = 0; i < span_buffer->spans.size; i++) {
+        plutovg_span_t* span = &span_buffer->spans.data[i];
+        if(span->y != iy)
+            continue;
+        if(ix >= span->x && ix < (span->x + span->len)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 static void plutovg_span_buffer_update_extents(plutovg_span_buffer_t* span_buffer)
 {
     if(span_buffer->w != -1 && span_buffer->h != -1)
@@ -172,7 +189,7 @@ static void ft_outline_destroy(PVG_FT_Outline* outline)
     free(outline);
 }
 
-#define FT_COORD(x) (PVG_FT_Pos)((x) * 64)
+#define FT_COORD(x) (PVG_FT_Pos)(roundf(x * 64))
 static void ft_outline_move_to(PVG_FT_Outline* ft, float x, float y)
 {
     ft->points[ft->n_points].x = FT_COORD(x);

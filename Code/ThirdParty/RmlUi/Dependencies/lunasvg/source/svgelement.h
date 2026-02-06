@@ -120,6 +120,8 @@ class SVGPaintElement;
 class SVGLayoutState;
 class SVGRenderState;
 
+extern const std::string emptyString;
+
 class SVGElement : public SVGNode {
 public:
     static std::unique_ptr<SVGElement> create(Document* document, ElementID id);
@@ -162,6 +164,8 @@ public:
     SVGMaskElement* getMasker(const std::string_view& id) const;
     SVGPaintElement* getPainter(const std::string_view& id) const;
 
+    SVGElement* elementFromPoint(float x, float y);
+
     template<typename T>
     void transverse(T callback);
 
@@ -187,6 +191,7 @@ public:
     bool isVisibilityHidden() const { return m_visibility != Visibility::Visible; }
 
     bool isHiddenElement() const;
+    bool isPointableElement() const;
 
     const SVGClipPathElement* clipper() const { return m_clipper; }
     const SVGMaskElement* masker() const { return m_masker; }
@@ -204,6 +209,7 @@ private:
     Display m_display = Display::Inline;
     Overflow m_overflow = Overflow::Visible;
     Visibility m_visibility = Visibility::Visible;
+    PointerEvents m_pointer_events = PointerEvents::Auto;
 
     ElementID m_id;
     AttributeList m_attributes;
@@ -338,7 +344,7 @@ public:
     void setNeedsLayout() { m_intrinsicWidth = -1.f; }
     bool needsLayout() const { return m_intrinsicWidth == -1.f; }
 
-    SVGRootElement* updateLayout();
+    SVGRootElement* layoutIfNeeded();
 
     SVGElement* getElementById(const std::string_view& id) const;
     void addElementById(const std::string& id, SVGElement* element);

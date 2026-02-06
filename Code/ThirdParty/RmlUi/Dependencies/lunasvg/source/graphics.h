@@ -10,7 +10,6 @@
 #include <vector>
 #include <array>
 #include <string>
-#include <map>
 
 namespace lunasvg {
 
@@ -198,6 +197,9 @@ public:
 
     constexpr void inflate(float dx, float dy) { x -= dx; y -= dy; w += dx * 2.f; h += dy * 2.f; }
     constexpr void inflate(float d) { inflate(d, d); }
+
+    constexpr bool contains(float px, float py) const { return px >= x && px <= x + w && py >= y && py <= y + h; }
+    constexpr bool contains(const Point& p) const { return contains(p.x, p.y); }
 
     constexpr Rect intersected(const Rect& rect) const;
     constexpr Rect united(const Rect& rect) const;
@@ -392,12 +394,10 @@ private:
     int m_index;
 };
 
-extern const std::string emptyString;
-
 class FontFace {
 public:
     FontFace() = default;
-    FontFace(plutovg_font_face_t* face);
+    explicit FontFace(plutovg_font_face_t* face);
     FontFace(const void* data, size_t length, plutovg_destroy_func_t destroy_func, void* closure);
     FontFace(const char* filename);
     FontFace(const FontFace& face);
@@ -420,12 +420,11 @@ private:
 class FontFaceCache {
 public:
     bool addFontFace(const std::string& family, bool bold, bool italic, const FontFace& face);
-    FontFace getFontFace(const std::string_view& family, bool bold, bool italic);
+    FontFace getFontFace(const std::string& family, bool bold, bool italic) const;
 
 private:
     FontFaceCache();
-    using FontFaceEntry = std::tuple<bool, bool, FontFace>;
-    std::map<std::string, std::vector<FontFaceEntry>, std::less<>> m_table;
+    plutovg_font_face_cache_t* m_cache;
     friend FontFaceCache* fontFaceCache();
 };
 
@@ -436,9 +435,10 @@ public:
     Font() = default;
     Font(const FontFace& face, float size);
 
-    float ascent() const;
-    float descent() const;
-    float height() const;
+    float ascent() const { return m_ascent; }
+    float descent() const { return m_descent; }
+    float height() const { return m_ascent - m_descent; }
+    float lineGap() const { return m_lineGap; }
     float xHeight() const;
 
     float measureText(const std::u32string_view& text) const;
@@ -451,6 +451,9 @@ public:
 private:
     FontFace m_face;
     float m_size = 0.f;
+    float m_ascent = 0.f;
+    float m_descent = 0.f;
+    float m_lineGap = 0.f;
 };
 
 enum class TextureType {
@@ -549,6 +552,7 @@ private:
     Canvas(int x, int y, int width, int height);
     plutovg_surface_t* m_surface;
     plutovg_canvas_t* m_canvas;
+    plutovg_matrix_t m_translation;
     const int m_x;
     const int m_y;
 };

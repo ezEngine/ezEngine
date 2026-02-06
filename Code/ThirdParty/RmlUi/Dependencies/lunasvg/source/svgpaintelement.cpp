@@ -115,9 +115,13 @@ SVGLinearGradientAttributes SVGLinearGradientElement::collectGradientAttributes(
 static GradientStops buildGradientStops(const SVGGradientElement* element, float opacity)
 {
     GradientStops gradientStops;
-    for(const auto& child : element->children()) {
-        if(auto element = toSVGElement(child); element && element->id() == ElementID::Stop) {
-            auto stopElement = static_cast<SVGStopElement*>(element);
+
+    const auto& children = element->children();
+    gradientStops.reserve(children.size());
+    for(const auto& child : children) {
+        auto childElement = toSVGElement(child);
+        if(childElement && childElement->id() == ElementID::Stop) {
+            auto stopElement = static_cast<SVGStopElement*>(childElement);
             gradientStops.push_back(stopElement->gradientStop(opacity));
         }
     }

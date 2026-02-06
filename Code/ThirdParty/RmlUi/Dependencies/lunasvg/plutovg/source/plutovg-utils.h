@@ -16,7 +16,7 @@
 
 #define plutovg_min(a, b) ((a) < (b) ? (a) : (b))
 #define plutovg_max(a, b) ((a) > (b) ? (a) : (b))
-#define plutovg_clamp(v, lo, hi) ((v) < (lo) ? (lo) : (hi) < (v) ? (hi) : (v))
+#define plutovg_clamp(v, lo, hi) ((v) < (lo) ? (lo) : ((v) > (hi) ? (hi) : (v)))
 
 #define plutovg_alpha(c) (((c) >> 24) & 0xff)
 #define plutovg_red(c) (((c) >> 16) & 0xff)
