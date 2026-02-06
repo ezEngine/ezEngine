@@ -93,7 +93,14 @@ void ezCrashHandler::SetCrashHandler(ezCrashHandler* pHandler)
 
 bool ezCrashHandler_WriteMiniDump::WriteOwnProcessMiniDump(void* pOsSpecificData)
 {
+#if EZ_ENABLED(EZ_SUPPORTS_CRASH_DUMPS)
+  ezStatus res = ezMiniDumpUtils::WriteOwnProcessMiniDump(m_sDumpFilePath, pOsSpecificData);
+  if (res.Failed())
+    ezLog::Printf("WriteOwnProcessMiniDump failed: %s\n", res.GetMessageString().GetData());
+  return res.Succeeded();
+#else
   return false;
+#endif
 }
 
 void ezCrashHandler_WriteMiniDump::PrintStackTrace(void* pOsSpecificData)

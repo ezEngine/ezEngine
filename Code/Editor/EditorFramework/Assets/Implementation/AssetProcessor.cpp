@@ -174,6 +174,16 @@ ezEditorProcessorState ezAssetProcessor::GetProcessState(ezUInt32 uiProcessIndex
   return {};
 }
 
+void ezAssetProcessor::RequestRestartProcess(ezUInt32 uiProcessIndex)
+{
+  EZ_LOCK(m_ProcessorMutex);
+  if (uiProcessIndex < m_RestartRequests.GetCount())
+  {
+    m_RestartRequests[uiProcessIndex].Set(true);
+    m_NewWorkSignal.RaiseSignal();
+  }
+}
+
 void ezAssetProcessor::AddLogWriter(ezLoggingEvent::Handler handler)
 {
   m_CuratorLog.AddLogWriter(handler);
@@ -194,6 +204,7 @@ void ezAssetProcessor::UpdateProcessStates()
       ezEditorProcessorState state;
       state.m_bConnected = m_Processes[i].IsConnected();
       state.m_bRunning = m_Processes[i].IsRunning();
+      state.m_bCrashed = m_Processes[i].IsCrashed();
       state.m_uiProcessID = m_Processes[i].GetProcessId();
 
       if (m_EditorProcessorStates[i] != state)
@@ -214,25 +225,36 @@ void ezAssetProcessor::UpdateProcessStates()
 
 void ezAssetProcessor::Run()
 {
+  QEventLoop loop;
   while (m_ProcessorState == ProcessorState::Running)
   {
+    loop.processEvents(QEventLoop::AllEvents);
     if (m_iPauseProcessing == 0)
     {
       EZ_PROFILE_SCOPE("ezAssetProcessor::Run");
+
+      // Check for restart requests
+      for (ezUInt32 i = 0; i < m_Processes.GetCount(); i++)
+      {
+        if (m_RestartRequests[i].TestAndSet(true, false))
+        {
+          m_Processes[i].RequestRestart();
+        }
+      }
+
       for (ezUInt32 i = 0; i < m_Processes.GetCount(); i++)
       {
         m_Processes[i].Tick(true);
       }
       UpdateProcessStates();
-
-      m_NewWorkSignal.WaitForSignal(ezTime::MakeFromSeconds(1));
     }
+    m_NewWorkSignal.WaitForSignal(ezTime::MakeFromSeconds(1));
   }
 
   while (true)
   {
     bool bAnyRunning = false;
-
+    loop.processEvents(QEventLoop::AllEvents);
     for (ezUInt32 i = 0; i < m_Processes.GetCount(); i++)
     {
       if (m_bForceStop)
@@ -331,6 +353,7 @@ ezResult ezEditorProcessorProcess::StartProcess()
   {
     return EZ_FAILURE;
   }
+  m_CurrentProcessID = m_pIPC->GetProcessId();
   return EZ_SUCCESS;
 }
 
@@ -480,6 +503,16 @@ void ezEditorProcessorProcess::OnProcessCrashed(ezStringView message)
     { m_LogEntries.PushBack(std::move(ref_entry)); });
   ezLog::Error(&logger, message);
   ezLog::Error(&ezAssetProcessor::GetSingleton()->m_CuratorLog, message);
+  ezLog::Error("EditorProcessor with pid '{}' crashed. Right-click on the crashed instance in the curator panel to go to the crashdumps.", m_CurrentProcessID);
+}
+
+void ezEditorProcessorProcess::RequestRestart()
+{
+  if (m_State == State::Crashed)
+  {
+    ezLog::Info(&ezAssetProcessor::GetSingleton()->m_CuratorLog, "Restarting crashed processor {}", m_uiProcessorID);
+    m_State = State::LookingForWork;
+  }
 }
 
 bool ezEditorProcessorProcess::IsConnected() const
@@ -492,18 +525,19 @@ bool ezEditorProcessorProcess::IsRunning() const
   return m_State == State::Processing;
 }
 
+bool ezEditorProcessorProcess::IsCrashed() const
+{
+  return m_State == State::Crashed;
+}
+
 ezOsProcessID ezEditorProcessorProcess::GetProcessId() const
 {
-  if (m_pIPC)
-  {
-    return m_pIPC->GetProcessId();
-  }
-  return {};
+  return m_CurrentProcessID;
 }
 
 bool ezEditorProcessorProcess::HasProcessCrashed()
 {
-  return m_pIPC->IsClientAlive();
+  return !m_pIPC->IsClientAlive();
 }
 
 void ezEditorProcessorProcess::HandleHashMissmatch()
@@ -600,6 +634,7 @@ bool ezEditorProcessorProcess::Tick(bool bStartNewWork)
         {
           return false; // don't call later
         }
+        m_ProcessingStartTime = ezTime::MakeZero();
         // Clear asset to process
         m_AssetGuid = {};
         m_AssetPath.Clear();
@@ -754,21 +789,28 @@ bool ezEditorProcessorProcess::Tick(bool bStartNewWork)
       break;
       case State::ReportResult:
       {
+        const bool bProcessCrashed = !m_pIPC->IsClientAlive();
+
         if (!m_MissmatchTransformDependencies.IsEmpty())
         {
           HandleHashMissmatch();
         }
 
-        // Fire progress event for processing finished
+        // Fire progress event only if we actually started processing.
+        const bool bDidStartWork = !m_ProcessingStartTime.IsZero();
+        if (bDidStartWork)
         {
+          // The actual start times are only available if we receive a response message. If we crash, fall back to the range of [m_ProcessingStartTime, now()] as an estimate of the work time.
+          ezTime processingEndTime = ezTime::Now();
+
           ezAssetProcessorProgressEvent e;
           e.m_Type = ezAssetProcessorProgressEvent::Type::ProcessingFinished;
           e.m_uiProcessorID = m_uiProcessorID;
           e.m_AssetGuid = m_AssetGuid;
           e.m_sAssetPath = m_AssetPath.GetDataDirRelativePath();
-          e.m_StartTime = m_StartedProcessing;
-          e.m_TransformStartTime = m_StartedTransform;
-          e.m_EndTime = m_FinishedProcessing;
+          e.m_StartTime = bProcessCrashed ? m_ProcessingStartTime : m_StartedProcessing;
+          e.m_TransformStartTime = bProcessCrashed ? m_ProcessingStartTime : m_StartedTransform;
+          e.m_EndTime = bProcessCrashed ? processingEndTime : m_FinishedProcessing;
           e.m_Result = m_Status;
           ezAssetProcessor::GetSingleton()->m_ProgressEvents.Broadcast(e);
         }
@@ -790,7 +832,14 @@ bool ezEditorProcessorProcess::Tick(bool bStartNewWork)
           {
             ezAssetCurator::GetSingleton()->UpdateAssetTransformLog(m_AssetGuid, m_LogEntries);
             ezAssetCurator::GetSingleton()->UpdateAssetTransformState(m_AssetGuid, ezAssetInfo::TransformState::TransformError);
-            ezLog::Error(&ezAssetProcessor::GetSingleton()->m_CuratorLog, "Failed '{0}'", m_AssetPath.GetDataDirRelativePath());
+            if (bProcessCrashed)
+            {
+              ezLog::Error(&ezAssetProcessor::GetSingleton()->m_CuratorLog, "Failed '{0}' (process crashed)", m_AssetPath.GetDataDirRelativePath());
+            }
+            else
+            {
+              ezLog::Error(&ezAssetProcessor::GetSingleton()->m_CuratorLog, "Failed '{0}'", m_AssetPath.GetDataDirRelativePath());
+            }
           }
         }
 
@@ -799,7 +848,19 @@ bool ezEditorProcessorProcess::Tick(bool bStartNewWork)
           ezAssetCurator::GetSingleton()->m_Updating.Remove(m_AssetGuid);
         }
 
-        m_State = State::LookingForWork;
+        if (bProcessCrashed)
+        {
+          m_State = State::Crashed;
+        }
+        else
+        {
+          m_State = State::LookingForWork;
+        }
+      }
+      break;
+      case State::Crashed:
+      {
+          return false;
       }
       break;
     }

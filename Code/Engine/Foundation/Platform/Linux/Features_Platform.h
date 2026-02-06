@@ -95,3 +95,7 @@
 #else
 #  error "Unknown architecture."
 #endif
+
+/// Crash dumps are supported on Linux.
+#undef EZ_SUPPORTS_CRASH_DUMPS
+#define EZ_SUPPORTS_CRASH_DUMPS EZ_ON

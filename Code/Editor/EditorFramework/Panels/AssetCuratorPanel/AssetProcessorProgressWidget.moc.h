@@ -94,8 +94,8 @@ private:
 
   static constexpr int s_iRowHeight = 30;
   static constexpr int s_iRowSpacing = 5;
-  static constexpr int s_iLeftMargin = 90;
-  static constexpr int s_iIndicatorSize = 10;
+  static constexpr int s_iLeftMargin = 100;
+  static constexpr int s_iIndicatorSize = 20;
   static constexpr int s_iTopMargin = 0;
 
 private Q_SLOTS:
@@ -131,9 +131,11 @@ private:
 
   // Display and interaction settings
   EditState m_EditState = EditState::None;
+
   ezTime m_TimelineLength = ezTime::MakeFromMinutes(1); // Multiple of 1min, resize when current time exceeds this.
   double m_fSceneTranslationX = 0;                      // Scene horizontal pan offset (in seconds)
   QPointF m_SceneToPixelScale = QPointF(20, 1);
+  QPoint m_StartMousePos = {0, 0};
   QPoint m_LastMousePos = {0, 0};
 
   // Cache for asset names so we don't have to store the name in ProcessorTask and also don't SPAM the ezAssetCurator.

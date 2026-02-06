@@ -86,7 +86,8 @@ public:
     WaitingForConnection,
     Ready,
     Processing,
-    ReportResult
+    ReportResult,
+    Crashed
   };
 
 public:
@@ -94,13 +95,17 @@ public:
   ~ezEditorProcessorProcess();
 
   ezUInt32 m_uiProcessorID;
-  ezTime m_ProcessingStartTime;
+  ezTime m_ProcessingStartTime; // When a work item was started.
   ezThreadSignal* m_pNewWorkSignal = nullptr;
 
   bool Tick(bool bStartNewWork); // returns false, if all processing is done, otherwise call Tick again.
 
+  /// \brief Called by the worker thread to restart a crashed process.
+  void RequestRestart();
+
   bool IsConnected() const;
   bool IsRunning() const;
+  bool IsCrashed() const;
   ezOsProcessID GetProcessId() const;
   bool HasProcessCrashed();
   void HandleHashMissmatch();
@@ -121,6 +126,7 @@ private:
   ezEditorProcessCommunicationChannel* m_pIPC;
   bool m_bProcessShouldBeRunning = false;
   bool m_bIsIdle = false;
+  ezOsProcessID m_CurrentProcessID = {};
 
   // New asset to process
   ezUuid m_AssetGuid;
@@ -179,6 +185,11 @@ public:
   /// \param uiProcessIndex The index of the process. Must be smaller than GetProcessCount.
   ezEditorProcessorState GetProcessState(ezUInt32 uiProcessIndex) const;
 
+  /// \brief Requests a restart of a crashed processor.
+  /// This is safe to call from any thread. The restart will be handled by the worker thread.
+  /// \param uiProcessIndex The index of the crashed process to restart. Must be smaller than GetProcessCount.
+  void RequestRestartProcess(ezUInt32 uiProcessIndex);
+
   void AddLogWriter(ezLoggingEvent::Handler handler);
   void RemoveLogWriter(ezLoggingEvent::Handler handler);
   void UpdateProcessStates();
@@ -207,6 +218,7 @@ private:
   mutable ezMutex m_ProcessorMutex;
   std::atomic<ProcessorState> m_ProcessorState = ProcessorState::Stopped;
   ezDynamicArray<ezEditorProcessorState> m_EditorProcessorStates;
+  ezDynamicArray<ezAtomicBool> m_RestartRequests; ///< Set by main thread, read by worker thread
 
   // Data owned by the process thread.
   ezDynamicArray<ezEditorProcessorProcess> m_Processes;

@@ -185,7 +185,7 @@ struct ezEditorProcessorState
 {
   bool operator==(const ezEditorProcessorState& rhs)
   {
-    return m_uiProcessID == rhs.m_uiProcessID && m_bConnected == rhs.m_bConnected && m_bRunning == rhs.m_bRunning;
+    return m_uiProcessID == rhs.m_uiProcessID && m_bConnected == rhs.m_bConnected && m_bRunning == rhs.m_bRunning && m_bCrashed == rhs.m_bCrashed;
   }
   bool operator!=(const ezEditorProcessorState& rhs)
   {
@@ -195,4 +195,5 @@ struct ezEditorProcessorState
   ezOsProcessID m_uiProcessID = 0;
   bool m_bConnected = false; ///< The IPC pipe to the process is established.
   bool m_bRunning = false;   ///< The process is currently running working on an asset.
+  bool m_bCrashed = false;   ///< The process has crashed.
 };

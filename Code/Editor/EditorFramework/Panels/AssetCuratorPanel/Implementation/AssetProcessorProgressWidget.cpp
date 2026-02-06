@@ -7,11 +7,14 @@
 #include <Foundation/Time/Stopwatch.h>
 #include <GuiFoundation/Widgets/GridBarWidget.moc.h>
 #include <GuiFoundation/Widgets/WidgetUtils.h>
+#include <QDesktopServices>
+#include <QMenu>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QTimer>
 #include <QToolTip>
 #include <QWheelEvent>
+#include <ToolsFoundation/Application/ApplicationServices.h>
 
 ///////////////////////////////////////////
 // ezQtAssetProcessorProgressWidget::HistoryState
@@ -314,6 +317,7 @@ void ezQtAssetProcessorProgressWidget::paintEvent(QPaintEvent* event)
 void ezQtAssetProcessorProgressWidget::mousePressEvent(QMouseEvent* e)
 {
   QWidget::mousePressEvent(e);
+  m_StartMousePos = e->pos();
   m_LastMousePos = e->pos();
 
   if (m_EditState != EditState::None)
@@ -353,13 +357,61 @@ void ezQtAssetProcessorProgressWidget::mouseReleaseEvent(QMouseEvent* e)
 {
   QWidget::mouseReleaseEvent(e);
 
-  if (e->button() == Qt::RightButton)
+  if (e->button() != Qt::RightButton)
+    return;
+
+  if (m_EditState == EditState::Panning)
   {
-    if (m_EditState == EditState::Panning)
+    m_AssetNameCache.Clear();
+    m_EditState = EditState::None;
+  }
+
+  // Create Context menu
+  if (m_StartMousePos != m_LastMousePos)
+    return;
+
+  ezUInt32 uiProcessorID = 0;
+  ezStringBuilder sAssetPath;
+  ezEditorProcessorState state;
+  {
+    EZ_LOCK(m_pHistoryState->m_HistoryMutex);
+    const ProcessorTask* pTask = FindTaskAtPosition(e->pos(), uiProcessorID);
+    if (pTask)
     {
-      m_AssetNameCache.Clear();
-      m_EditState = EditState::None;
+      sAssetPath = GetAssetPath(pTask->m_AssetGuid);
     }
+    if (uiProcessorID != ezInvalidIndex)
+    {
+      state = m_pHistoryState->m_ProcessStates[uiProcessorID];
+    }
+  }
+
+  if (!sAssetPath.IsEmpty())
+  {
+    QMenu menu;
+    menu.addAction("Open Document", this, [&]()
+    {
+      ezQtEditorApp::GetSingleton()->OpenDocumentQueued(sAssetPath);
+    });
+    menu.exec(e->globalPosition().toPoint());
+  }
+  else if (e->pos().x() < s_iLeftMargin && uiProcessorID != ezInvalidIndex)
+  {
+    if (!state.m_bCrashed)
+      return;
+
+    QMenu menu;
+    menu.addAction("Restart Process", this, [uiProcessorID]()
+    {
+      ezAssetProcessor::GetSingleton()->RequestRestartProcess(uiProcessorID);
+    });
+    menu.addAction("Open Crash Dump Location", this, []()
+    {
+      ezStringBuilder sCrashDumpFolder = ezApplicationServices::GetSingleton()->GetApplicationUserDataFolder();
+      sCrashDumpFolder.AppendPath("CrashDumps");
+      QDesktopServices::openUrl(QUrl::fromLocalFile(ezMakeQString(sCrashDumpFolder)));
+    });
+    menu.exec(e->globalPosition().toPoint());
   }
 }
 
@@ -631,7 +683,11 @@ void ezQtAssetProcessorProgressWidget::ShowTooltip(QMouseEvent* e)
   {
     ezEditorProcessorState state = m_pHistoryState->m_ProcessStates[uiProcessorID];
     ezStringBuilder sTooltip;
-    sTooltip.SetFormat("ezEditorProcessor {}\nProcessID: {}\nConnected: {}\nRunning: {}", uiProcessorID, state.m_uiProcessID, state.m_bConnected, state.m_bRunning);
+    sTooltip.SetFormat("ezEditorProcessor {}\nProcessID: {}\nConnected: {}\nRunning: {}\n", uiProcessorID, state.m_uiProcessID, state.m_bConnected, state.m_bRunning);
+    if (state.m_bCrashed)
+    {
+      sTooltip.AppendFormat("Process has crashed!");
+    }
     QToolTip::showText(e->globalPosition().toPoint(), ezMakeQString(sTooltip), this);
     return;
   }
@@ -729,19 +785,24 @@ void ezQtAssetProcessorProgressWidget::DrawProcessorRow(QPainter& painter, ezUIn
   // Draw processor label background
   painter.fillRect(0, y, s_iLeftMargin - 5, s_iRowHeight, palette().color(QPalette::Window));
 
-  // Draw state indicator
+  // Draw state indicator icon
   {
     const int indicatorX = 5;
-    const int indicatorY = y + (s_iRowHeight - 10) / 2;
-    QColor indicatorColor = palette().color(QPalette::Mid);
-    if (state.m_bConnected)
+    const int indicatorY = y + (s_iRowHeight - s_iIndicatorSize) / 2;
+    const QRect iconRect(indicatorX, indicatorY, s_iIndicatorSize, s_iIndicatorSize);
+
+    const char* szIconPath = ":/EditorFramework/Icons/AssetProcessingForceStop.svg"; // Not connected
+    if (state.m_bCrashed)
     {
-      indicatorColor = state.m_bRunning ? ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Green)) : ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Yellow));
+      szIconPath = ":/EditorFramework/Icons/AssetFailedTransform.svg";               // Crashed
     }
-    painter.setBrush(indicatorColor);
-    painter.setPen(indicatorColor.darker(150));
-    painter.drawEllipse(indicatorX, indicatorY, s_iIndicatorSize, s_iIndicatorSize);
-    painter.setBrush(Qt::NoBrush);
+    else if (state.m_bConnected)
+    {
+      szIconPath = state.m_bRunning
+                     ? ":/EditorFramework/Icons/AssetProcessingStart.svg"  // Running
+                     : ":/EditorFramework/Icons/AssetProcessingPause.svg"; // Not running
+    }
+    ezQtUiServices::GetSingleton()->GetCachedIconResource(szIconPath).paint(&painter, iconRect, Qt::AlignCenter);
   }
 
   // Draw processor label
