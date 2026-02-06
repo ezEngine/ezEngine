@@ -141,17 +141,7 @@ void ezStateMachineState_SwitchObject::OnEnter(ezStateMachineInstance& ref_insta
   {
     if (ezGameObject* pOwnerGO = pOwner->GetOwner()->FindChildByPath(m_sGroupPath))
     {
-      for (auto it = pOwnerGO->GetChildren(); it.IsValid(); ++it)
-      {
-        if (it->GetName() == m_sObjectToEnable)
-        {
-          it->SetActiveFlag(true);
-        }
-        else if (m_bDeactivateOthers)
-        {
-          it->SetActiveFlag(false);
-        }
-      }
+      pOwnerGO->ActivateChildByName(ezTempHashedString(m_sObjectToEnable), m_bDeactivateOthers);
     }
   }
 }

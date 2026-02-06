@@ -53,6 +53,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, 1, ezRTTINoAllocator)
     EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_GetParent),
     EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_FindChildByName, In, "Name", In, "Recursive")->AddFlags(ezPropertyFlags::PureFunction),
     EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_FindChildByPath, In, "Path")->AddFlags(ezPropertyFlags::PureFunction),
+    EZ_SCRIPT_FUNCTION_PROPERTY(ActivateChildByName, In, "Name", In, "DeactivateOthers")->AddAttributes(new ezFunctionArgumentAttributes(1, new ezDefaultValueAttribute(true))),
 
     EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_SetGlobalPosition, In, "Position"),
     EZ_SCRIPT_FUNCTION_PROPERTY(GetGlobalPosition),
@@ -666,6 +667,21 @@ void ezGameObject::SearchForChildrenByNameSequence(ezStringView sObjectSequence,
     if (it->m_sName != name) // TODO: in this function it is actually debatable whether to skip these or not
     {
       it->SearchForChildrenByNameSequence(sObjectSequence, pExpectedComponent, out_objects);
+    }
+  }
+}
+
+void ezGameObject::ActivateChildByName(const ezTempHashedString& sName, bool bDeactivateOthers)
+{
+  for (auto it = GetChildren(); it.IsValid(); ++it)
+  {
+    if (it->m_sName == sName)
+    {
+      it->SetActiveFlag(true);
+    }
+    else if (bDeactivateOthers)
+    {
+      it->SetActiveFlag(false);
     }
   }
 }
