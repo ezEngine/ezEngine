@@ -71,7 +71,7 @@ public:
       ProcessShutdown,
       ProcessMessage,
       ProcessRestarted,
-      ProcessStuck, ///< Engine process is not responding
+      ProcessStuck,   ///< Engine process is not responding
       ProcessUnstuck, ///< Engine process started responding again after ProcessStuck was triggered
     };
 

@@ -127,7 +127,7 @@ void ezQtDocumentWindow::TriggerRedraw()
 
 void ezQtDocumentWindow::UIServicesTickEventHandler(const ezQtUiServices::TickEvent& e)
 {
-  auto ShouldRender = [&]()-> bool
+  auto ShouldRender = [&]() -> bool
   {
     if (!m_bIsVisibleInContainer)
       return false;

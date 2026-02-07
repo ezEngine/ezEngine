@@ -58,7 +58,7 @@ public:
     ezUInt32 m_uiFrame = 0;
     ezTime m_Time;
     double m_fRefreshRate = 60.0;
-    mutable ezUInt32 m_uiFrameRequest = 0; ///< Only valid for Type::BeforeFrame. Increased by an event handler to request a frame. If zero after the broadcast, no frame is started.
+    mutable ezUInt32 m_uiFrameRequest = 0;     ///< Only valid for Type::BeforeFrame. Increased by an event handler to request a frame. If zero after the broadcast, no frame is started.
     mutable ezUInt32 m_uiForceCancelFrame = 0; ///< Only valid for Type::BeforeFrame. Increased by an event handler to cancel the frame. Regardless of m_uiFrameRequest, no frame is started if != zero.
   };
 
