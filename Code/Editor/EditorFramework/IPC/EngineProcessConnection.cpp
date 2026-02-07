@@ -35,6 +35,13 @@ void ezEditorEngineProcessConnection::HandleIPCEvent(const ezProcessCommunicatio
   {
     const ezSyncWithProcessMsgToEditor* msg = static_cast<const ezSyncWithProcessMsgToEditor*>(e.m_pMessage);
     m_uiRedrawCountReceived = msg->m_uiRedrawCount;
+    if (m_uiFailedRedrawCount >= s_uiMaxFailedRedrawCount)
+    {
+      Event e;
+      e.m_Type = Event::Type::ProcessUnstuck;
+      s_Events.Broadcast(e);
+    }
+    m_uiFailedRedrawCount = 0;
   }
   if (e.m_pMessage->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineDocumentMsg>())
   {
@@ -58,22 +65,36 @@ void ezEditorEngineProcessConnection::HandleIPCEvent(const ezProcessCommunicatio
 
 void ezEditorEngineProcessConnection::UIServicesTickEventHandler(const ezQtUiServices::TickEvent& e)
 {
-  if (e.m_Type == ezQtUiServices::TickEvent::Type::EndFrame)
+  if (e.m_Type == ezQtUiServices::TickEvent::Type::BeforeFrame)
+  {
+    if (IsProcessCrashed())
+    {
+      e.m_uiForceCancelFrame++;
+      return;
+    }
+
+    m_IPC.ProcessMessages();
+    // We still didn't get confirmation from the engine that the frame was drawn, so don't render another frame yet.
+    if (m_uiRedrawCountSent > m_uiRedrawCountReceived)
+    {
+      m_uiFailedRedrawCount++;
+      e.m_uiForceCancelFrame++;
+      if (m_uiFailedRedrawCount == s_uiMaxFailedRedrawCount)
+      {
+        Event e;
+        e.m_Type = Event::Type::ProcessStuck;
+        s_Events.Broadcast(e);
+      }
+      return;
+    }
+  }
+  else if (e.m_Type == ezQtUiServices::TickEvent::Type::EndFrame)
   {
     if (!IsProcessCrashed())
     {
       ezSyncWithProcessMsgToEngine sm;
       sm.m_uiRedrawCount = m_uiRedrawCountSent + 1;
       SendMessage(&sm);
-
-      if (m_uiRedrawCountSent > m_uiRedrawCountReceived)
-      {
-        ezStringBuilder sRedrawScope;
-        sRedrawScope.SetFormat("Wait For Redraw {}", m_uiRedrawCountReceived + 1);
-        EZ_PROFILE_SCOPE(sRedrawScope.GetData());
-        WaitForMessage(ezGetStaticRTTI<ezSyncWithProcessMsgToEditor>(), ezTime::MakeFromSeconds(2.0)).IgnoreResult();
-      }
-
       ++m_uiRedrawCountSent;
     }
   }
@@ -289,6 +310,7 @@ void ezEditorEngineProcessConnection::ShutdownProcess()
 
   m_bClientIsConfigured = false;
   m_bProcessShouldBeRunning = false;
+  m_uiRedrawCountReceived = m_uiRedrawCountSent;
   m_IPC.CloseConnection();
 
   Event e;
@@ -421,6 +443,8 @@ ezResult ezEditorEngineProcessConnection::RestartProcess()
   ezLog::Success("Engine Process is running");
 
   m_bClientIsConfigured = true;
+  // We could have crashed while a render was in flight which will now never complete so reset the received counter.
+  m_uiRedrawCountReceived = m_uiRedrawCountSent;
 
   Event e;
   e.m_Type = Event::Type::ProcessRestarted;

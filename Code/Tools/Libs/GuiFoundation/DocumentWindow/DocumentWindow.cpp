@@ -103,7 +103,7 @@ void ezQtDocumentWindow::SetVisibleInContainer(bool bVisible)
   if (m_bIsVisibleInContainer)
   {
     // if the window is now visible, immediately do a redraw and trigger the timers
-    SlotRedraw();
+    TriggerRedraw();
     // Make sure the window gains focus as well when it becomes visible so that shortcuts will immediately work.
     setFocus();
   }
@@ -117,18 +117,23 @@ void ezQtDocumentWindow::SetTargetFramerate(ezInt16 iTargetFPS)
   m_iTargetFramerate = iTargetFPS;
 
   if (m_iTargetFramerate != 0)
-    SlotRedraw();
+    TriggerRedraw();
 }
 
 void ezQtDocumentWindow::TriggerRedraw()
 {
-  SlotRedraw();
+  m_bRedrawIsTriggered = true;
 }
 
 void ezQtDocumentWindow::UIServicesTickEventHandler(const ezQtUiServices::TickEvent& e)
 {
-  if (e.m_Type == ezQtUiServices::TickEvent::Type::StartFrame && m_bIsVisibleInContainer)
+  auto ShouldRender = [&]()-> bool
   {
+    if (!m_bIsVisibleInContainer)
+      return false;
+    if (m_bRedrawIsTriggered)
+      return true;
+
     const ezInt32 iSystemFramerate = static_cast<ezInt32>(ezMath::Round(e.m_fRefreshRate));
 
     ezInt32 iTargetFramerate = m_iTargetFramerate;
@@ -144,13 +149,26 @@ void ezQtDocumentWindow::UIServicesTickEventHandler(const ezQtUiServices::TickEv
     {
       ezUInt32 mod = ezMath::Max(1u, (ezUInt32)ezMath::Floor(iSystemFramerate / (double)iTargetFramerate));
       if ((e.m_uiFrame % mod) != 0)
-        return;
+        return false;
     }
+    return true;
+  };
 
-    SlotRedraw();
+  if (e.m_Type == ezQtUiServices::TickEvent::Type::BeforeFrame)
+  {
+    if (ShouldRender())
+    {
+      e.m_uiFrameRequest++;
+    }
+  }
+  else if (e.m_Type == ezQtUiServices::TickEvent::Type::StartFrame)
+  {
+    if (ShouldRender())
+    {
+      SlotRedraw();
+    }
   }
 }
-
 
 void ezQtDocumentWindow::SlotRedraw()
 {
@@ -170,6 +188,7 @@ void ezQtDocumentWindow::SlotRedraw()
   m_bIsDrawingATM = true;
   InternalRedraw();
   m_bIsDrawingATM = false;
+  m_bRedrawIsTriggered = false;
 }
 
 void ezQtDocumentWindow::DocumentEventHandler(const ezDocumentEvent& e)

@@ -288,17 +288,27 @@ void ezQtUiServices::TickEventHandler()
 
   EZ_ASSERT_DEV(!m_bIsDrawingATM, "Implementation error");
   ezTime startTime = ezTime::Now();
-
-  m_bIsDrawingATM = true;
   s_LastTickEvent.m_uiFrame++;
   s_LastTickEvent.m_Time = startTime;
-  s_LastTickEvent.m_Type = TickEvent::Type::StartFrame;
-  s_TickEvent.Broadcast(s_LastTickEvent);
 
-  s_LastTickEvent.m_Type = TickEvent::Type::EndFrame;
-  s_TickEvent.Broadcast(s_LastTickEvent);
-  m_bIsDrawingATM = false;
+  bool bFrameRequested = false;
+  {
+    s_LastTickEvent.m_Type = TickEvent::Type::BeforeFrame;
+    s_LastTickEvent.m_uiFrameRequest = 0;
+    s_LastTickEvent.m_uiForceCancelFrame = 0;
+    s_TickEvent.Broadcast(s_LastTickEvent);
+    bFrameRequested = s_LastTickEvent.m_uiFrameRequest != 0 && s_LastTickEvent.m_uiForceCancelFrame == 0;
+  }
 
+  if (bFrameRequested)
+  {
+    m_bIsDrawingATM = true;
+    s_LastTickEvent.m_Type = TickEvent::Type::StartFrame;
+    s_TickEvent.Broadcast(s_LastTickEvent);
+    s_LastTickEvent.m_Type = TickEvent::Type::EndFrame;
+    s_TickEvent.Broadcast(s_LastTickEvent);
+    m_bIsDrawingATM = false;
+  }
   const ezTime endTime = ezTime::Now();
   ezTime lastFrameTime = endTime - startTime;
 
@@ -311,6 +321,7 @@ void ezQtUiServices::TickEventHandler()
 
 void ezQtUiServices::LoadState()
 {
+  EZ_PROFILE_SCOPE("LoadState");
   QSettings Settings;
   Settings.beginGroup("EditorGUI");
   {
@@ -454,63 +465,71 @@ namespace ezQtUtils
 {
   bool IsEquivalentQtKey(const QKeyEvent* e, Qt::Key reference)
   {
+    // X11 (xcb) keycodes are hardware scan codes + 8 offset, Wayland uses raw evdev codes
+#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+    const quint32 SC_OFFSET = (QGuiApplication::platformName() == "xcb") ? 8 : 0;
+#else
+    constexpr quint32 SC_OFFSET = 0;
+#endif
+
+    const quint32 nativeScanCode = e->nativeScanCode();
     switch (reference)
     {
       case Qt::Key_A:
-        return e->nativeScanCode() == 30;
+        return nativeScanCode == 30 + SC_OFFSET;
       case Qt::Key_B:
-        return e->nativeScanCode() == 48;
+        return nativeScanCode == 48 + SC_OFFSET;
       case Qt::Key_C:
-        return e->nativeScanCode() == 46;
+        return nativeScanCode == 46 + SC_OFFSET;
       case Qt::Key_D:
-        return e->nativeScanCode() == 32;
+        return nativeScanCode == 32 + SC_OFFSET;
       case Qt::Key_E:
-        return e->nativeScanCode() == 18;
+        return nativeScanCode == 18 + SC_OFFSET;
       case Qt::Key_F:
-        return e->nativeScanCode() == 33;
+        return nativeScanCode == 33 + SC_OFFSET;
       case Qt::Key_G:
-        return e->nativeScanCode() == 34;
+        return nativeScanCode == 34 + SC_OFFSET;
       case Qt::Key_H:
-        return e->nativeScanCode() == 35;
+        return nativeScanCode == 35 + SC_OFFSET;
       case Qt::Key_I:
-        return e->nativeScanCode() == 23;
+        return nativeScanCode == 23 + SC_OFFSET;
       case Qt::Key_J:
-        return e->nativeScanCode() == 36;
+        return nativeScanCode == 36 + SC_OFFSET;
       case Qt::Key_K:
-        return e->nativeScanCode() == 37;
+        return nativeScanCode == 37 + SC_OFFSET;
       case Qt::Key_L:
-        return e->nativeScanCode() == 38;
+        return nativeScanCode == 38 + SC_OFFSET;
       case Qt::Key_M:
-        return e->nativeScanCode() == 50;
+        return nativeScanCode == 50 + SC_OFFSET;
       case Qt::Key_N:
-        return e->nativeScanCode() == 49;
+        return nativeScanCode == 49 + SC_OFFSET;
       case Qt::Key_O:
-        return e->nativeScanCode() == 24;
+        return nativeScanCode == 24 + SC_OFFSET;
       case Qt::Key_P:
-        return e->nativeScanCode() == 25;
+        return nativeScanCode == 25 + SC_OFFSET;
       case Qt::Key_Q:
-        return e->nativeScanCode() == 16;
+        return nativeScanCode == 16 + SC_OFFSET;
       case Qt::Key_R:
-        return e->nativeScanCode() == 19;
+        return nativeScanCode == 19 + SC_OFFSET;
       case Qt::Key_S:
-        return e->nativeScanCode() == 31;
+        return nativeScanCode == 31 + SC_OFFSET;
       case Qt::Key_T:
-        return e->nativeScanCode() == 20;
+        return nativeScanCode == 20 + SC_OFFSET;
       case Qt::Key_U:
-        return e->nativeScanCode() == 22;
+        return nativeScanCode == 22 + SC_OFFSET;
       case Qt::Key_V:
-        return e->nativeScanCode() == 47;
+        return nativeScanCode == 47 + SC_OFFSET;
       case Qt::Key_W:
-        return e->nativeScanCode() == 17;
+        return nativeScanCode == 17 + SC_OFFSET;
       case Qt::Key_X:
-        return e->nativeScanCode() == 45;
+        return nativeScanCode == 45 + SC_OFFSET;
       case Qt::Key_Y:
-        return e->nativeScanCode() == 21;
+        return nativeScanCode == 21 + SC_OFFSET;
       case Qt::Key_Z:
-        return e->nativeScanCode() == 44;
+        return nativeScanCode == 44 + SC_OFFSET;
 
       default:
-        ezLog::Dev("IsEquivalentQtKey: Undefined scancode mapping for key: {} (pressed: {})", (int)reference, e->nativeScanCode());
+        ezLog::Dev("IsEquivalentQtKey: Undefined scancode mapping for key: {} (pressed: {})", (int)reference, nativeScanCode);
         break;
     }
 

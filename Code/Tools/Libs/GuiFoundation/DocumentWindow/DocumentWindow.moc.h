@@ -105,7 +105,6 @@ private:
   friend class ezQtContainerWindow;
 
   void SetVisibleInContainer(bool bVisible);
-
   bool m_bIsVisibleInContainer = false;
   bool m_bRedrawIsTriggered = false;
   bool m_bIsDrawingATM = false;

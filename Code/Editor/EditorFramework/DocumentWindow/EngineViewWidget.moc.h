@@ -129,6 +129,7 @@ protected:
 protected:
   void EngineViewProcessEventHandler(const ezEditorEngineProcessConnection::Event& e);
   void ShowRestartButton(bool bShow);
+  void ShowProcessStuckIndicator(bool bShow);
   void RecreateEngineViewport();
   virtual void OnOpenContextMenu(QPoint globalPos) {}
   virtual void HandleMarqueePickingResult(const ezViewMarqueePickingResultMsgToEditor* pMsg) {}
@@ -159,6 +160,7 @@ protected:
   QHBoxLayout* m_pMainLayout = nullptr;
   QPushButton* m_pRestartButton = nullptr;
   QWidget* m_pViewportWidget = nullptr;
+  QWidget* m_pStuckIndicator = nullptr;
 
   mutable ezObjectPickingResult m_LastPickingResult;
 

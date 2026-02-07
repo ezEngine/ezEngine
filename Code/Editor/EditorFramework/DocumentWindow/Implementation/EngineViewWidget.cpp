@@ -7,6 +7,7 @@
 #include <EditorFramework/Preferences/EditorPreferences.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
+#include <QLabel>
 
 ezUInt32 ezQtEngineViewWidget::s_uiNextViewID = 0;
 
@@ -639,6 +640,7 @@ void ezQtEngineViewWidget::EngineViewProcessEventHandler(const ezEditorEnginePro
   {
     case ezEditorEngineProcessConnection::Event::Type::ProcessCrashed:
     {
+      ShowProcessStuckIndicator(false);
       ShowRestartButton(true);
     }
     break;
@@ -650,9 +652,6 @@ void ezQtEngineViewWidget::EngineViewProcessEventHandler(const ezEditorEnginePro
     }
     break;
 
-    case ezEditorEngineProcessConnection::Event::Type::ProcessShutdown:
-      break;
-
     case ezEditorEngineProcessConnection::Event::Type::ProcessMessage:
       break;
 
@@ -660,7 +659,14 @@ void ezQtEngineViewWidget::EngineViewProcessEventHandler(const ezEditorEnginePro
       EZ_ASSERT_DEV(false, "Invalid message should never happen");
       break;
 
+    case ezEditorEngineProcessConnection::Event::Type::ProcessShutdown:
     case ezEditorEngineProcessConnection::Event::Type::ProcessRestarted:
+    case ezEditorEngineProcessConnection::Event::Type::ProcessUnstuck:
+      ShowProcessStuckIndicator(false);
+      break;
+
+    case ezEditorEngineProcessConnection::Event::Type::ProcessStuck:
+      ShowProcessStuckIndicator(true);
       break;
   }
 }
@@ -689,6 +695,47 @@ void ezQtEngineViewWidget::ShowRestartButton(bool bShow)
   }
 
   m_pViewportWidget->setVisible(!bShow);
+}
+
+void ezQtEngineViewWidget::ShowProcessStuckIndicator(bool bShow)
+{
+  if (m_pStuckIndicator == nullptr && bShow)
+  {
+    m_pStuckIndicator = new QWidget(m_pViewportWidget);
+    m_pStuckIndicator->setAttribute(Qt::WA_TransparentForMouseEvents);
+
+    QHBoxLayout* pLayout = new QHBoxLayout(m_pStuckIndicator);
+    pLayout->setContentsMargins(8, 8, 8, 8);
+
+    QLabel* pIcon = new QLabel(m_pStuckIndicator);
+    pIcon->setPixmap(QIcon(":/GuiFoundation/Icons/Warning.svg").pixmap(32, 32));
+    pIcon->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    pLayout->addWidget(pIcon);
+
+    ezOsProcessID engineProcess = ezEditorEngineProcessConnection::GetSingleton()->GetEngineProcessID();
+    ezStringBuilder sText;
+    sText.SetFormat("Viewport Stalled, ProcessId: {}\nThe engine process might be busy or ran into a problem.", engineProcess);
+
+    QLabel* pText = new QLabel(ezMakeQString(sText), m_pStuckIndicator);
+    pText->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    pText->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+    pLayout->addWidget(pText);
+
+    m_pStuckIndicator->adjustSize();
+    m_pStuckIndicator->setFixedWidth(5000);
+  }
+
+  if (m_pStuckIndicator)
+  {
+    m_pStuckIndicator->setVisible(bShow);
+
+    if (bShow)
+    {
+      m_pStuckIndicator->move(0, 0);
+      m_pStuckIndicator->raise();
+    }
+  }
 }
 
 void ezQtEngineViewWidget::RecreateEngineViewport()
