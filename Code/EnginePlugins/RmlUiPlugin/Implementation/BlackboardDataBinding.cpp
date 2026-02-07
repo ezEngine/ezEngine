@@ -6,8 +6,95 @@
 
 namespace ezRmlUiInternal
 {
+  VariantVariableDefinition::VariantVariableDefinition()
+    : VariableDefinition(Rml::DataVariableType::Scalar)
+  {
+  }
+
+  bool VariantVariableDefinition::Get(void* ptr, Rml::Variant& variant)
+  {
+    ezVariant* pValue = static_cast<ezVariant*>(ptr);
+    variant = ezRmlUiConversionUtils::ToVariant(*pValue);
+
+    return true;
+  }
+
+  bool VariantVariableDefinition::Set(void* ptr, const Rml::Variant& variant)
+  {
+    ezLog::Warning("Can't set the value of an element in an variantarray. Arrays are read-only.");
+
+    return false;
+  }
+
+  ////////////////////////////////////////////////////////////////
+
+  BlackboardVariableDefinition::BlackboardVariableDefinition(bool bIsArray)
+    : VariableDefinition(bIsArray ? Rml::DataVariableType::Array : Rml::DataVariableType::Scalar)
+  {
+  }
+
+  bool BlackboardVariableDefinition::Get(void* ptr, Rml::Variant& variant)
+  {
+    auto pInfo = static_cast<EntryInfo*>(ptr);
+
+    ezVariant v = pInfo->m_pBlackboard->GetEntryValue(pInfo->m_sName);
+    variant = ezRmlUiConversionUtils::ToVariant(v);
+    return true;
+  }
+
+  bool BlackboardVariableDefinition::Set(void* ptr, const Rml::Variant& variant)
+  {
+    auto pInfo = static_cast<EntryInfo*>(ptr);
+
+    pInfo->m_pBlackboard->SetEntryValue(pInfo->m_sName, ezRmlUiConversionUtils::ToVariant(variant));
+
+    return true;
+  }
+
+  int BlackboardVariableDefinition::Size(void* ptr)
+  {
+    auto pInfo = static_cast<EntryInfo*>(ptr);
+
+    ezVariant v = pInfo->m_pBlackboard->GetEntryValue(pInfo->m_sName);
+    if (v.IsA<ezVariantArray>())
+    {
+      return static_cast<int>(v.Get<ezVariantArray>().GetCount());
+    }
+
+    return 0;
+  }
+
+  Rml::DataVariable BlackboardVariableDefinition::Child(void* ptr, const Rml::DataAddressEntry& address)
+  {
+    auto pInfo = static_cast<EntryInfo*>(ptr);
+
+    ezVariant v = pInfo->m_pBlackboard->GetEntryValue(pInfo->m_sName);
+    if (!v.IsA<ezVariantArray>())
+      return Rml::DataVariable();
+
+    auto& a = v.Get<ezVariantArray>();
+
+    const int index = address.index;
+    const int count = static_cast<int>(a.GetCount());
+    if (index < 0 || index >= count)
+    {
+      if (address.name == "size")
+        return Rml::MakeLiteralIntVariable(count);
+
+      ezLog::Warning("Data array index out of bounds.");
+      return Rml::DataVariable();
+    }
+
+    const ezVariant& element = a[index];
+    return Rml::DataVariable(&m_ScalarDefinition, const_cast<ezVariant*>(&element));
+  }
+
+  //////////////////////////////////////////////////////////////////
+
   BlackboardDataBinding::BlackboardDataBinding(const ezSharedPtr<ezBlackboard>& pBlackboard)
     : m_pBlackboard(pBlackboard)
+    , m_ScalarDefinition(false)
+    , m_ArrayDefinition(true)
   {
   }
 
@@ -33,17 +120,23 @@ namespace ezRmlUiInternal
 
     for (auto it : m_pBlackboard->GetAllEntries())
     {
-      m_EntryWrappers.emplace_back(*m_pBlackboard, it.Key(), it.Value().m_uiChangeCounter);
+      auto type = it.Value().m_Value.GetType();
+      if ((type >= ezVariantType::Invalid && type <= ezVariantType::Double) ||
+          type == ezVariantType::String || type == ezVariantType::HashedString ||
+          type == ezVariantType::VariantArray)
+      {
+        auto& info = m_EntryInfos.ExpandAndGetRef();
+        info.m_pBlackboard = m_pBlackboard;
+        info.m_sName = it.Key();
+        info.m_uiChangeCounter = it.Value().m_uiChangeCounter;
+        info.m_bIsArray = type == ezVariantType::VariantArray;
+      }
     }
 
-    for (auto& wrapper : m_EntryWrappers)
+    for (auto& info : m_EntryInfos)
     {
-      constructor.BindFunc(
-        wrapper.m_sName.GetData(),
-        [&](Rml::Variant& out_value)
-        { wrapper.GetValue(out_value); },
-        [&](const Rml::Variant& value)
-        { wrapper.SetValue(value); });
+      auto pDefinition = info.m_bIsArray ? &m_ArrayDefinition : &m_ScalarDefinition;
+      constructor.BindCustomDataVariable(ezRmlUiConversionUtils::ToString(info.m_sName), Rml::DataVariable(pDefinition, &info));
     }
 
     m_hDataModel = constructor.GetModelHandle();
@@ -74,14 +167,14 @@ namespace ezRmlUiInternal
 
     if (m_uiBlackboardEntryChangeCounter != m_pBlackboard->GetBlackboardEntryChangeCounter())
     {
-      for (auto& wrapper : m_EntryWrappers)
+      for (auto& info : m_EntryInfos)
       {
-        auto pEntry = m_pBlackboard->GetEntry(wrapper.m_sName);
+        auto pEntry = m_pBlackboard->GetEntry(info.m_sName);
 
-        if (pEntry != nullptr && wrapper.m_uiChangeCounter != pEntry->m_uiChangeCounter)
+        if (pEntry != nullptr && info.m_uiChangeCounter != pEntry->m_uiChangeCounter)
         {
-          m_hDataModel.DirtyVariable(wrapper.m_sName.GetData());
-          wrapper.m_uiChangeCounter = pEntry->m_uiChangeCounter;
+          m_hDataModel.DirtyVariable(ezRmlUiConversionUtils::ToString(info.m_sName));
+          info.m_uiChangeCounter = pEntry->m_uiChangeCounter;
           bUpdated = true;
         }
       }
@@ -90,24 +183,6 @@ namespace ezRmlUiInternal
     }
 
     return bUpdated;
-  }
-
-  //////////////////////////////////////////////////////////////////////////
-
-  void BlackboardDataBinding::EntryWrapper::SetValue(const Rml::Variant& value)
-  {
-    ezVariant::Type::Enum targetType = ezVariant::Type::Invalid;
-    if (auto pEntry = m_Blackboard.GetEntry(m_sName))
-    {
-      targetType = pEntry->m_Value.GetType();
-    }
-
-    m_Blackboard.SetEntryValue(m_sName, ezRmlUiConversionUtils::ToVariant(value, targetType));
-  }
-
-  void BlackboardDataBinding::EntryWrapper::GetValue(Rml::Variant& out_value) const
-  {
-    out_value = ezRmlUiConversionUtils::ToVariant(m_Blackboard.GetEntryValue(m_sName));
   }
 
 } // namespace ezRmlUiInternal

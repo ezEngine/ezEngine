@@ -16,7 +16,7 @@ namespace ezRmlUiInternal
 
   int SystemInterface::TranslateString(Rml::String& translated, const Rml::String& input)
   {
-    ezStringView sInput = ezRmlUiConversionUtils::ToString(input);
+    ezStringView sInput = ezRmlUiConversionUtils::ToStringView(input);
     sInput.Trim(" \t\r\n");
     if (sInput.IsEmpty() == false)
     {

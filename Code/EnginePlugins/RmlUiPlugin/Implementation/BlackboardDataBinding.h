@@ -8,6 +8,42 @@ class ezBlackboard;
 
 namespace ezRmlUiInternal
 {
+  struct EntryInfo
+  {
+    ezBlackboard* m_pBlackboard = nullptr;
+    ezHashedString m_sName;
+    ezUInt32 m_uiChangeCounter = 0;
+    bool m_bIsArray = false;
+  };
+
+  class VariantVariableDefinition final : public Rml::VariableDefinition
+  {
+  public:
+    VariantVariableDefinition();
+
+    virtual bool Get(void* ptr, Rml::Variant& variant) override;
+    virtual bool Set(void* ptr, const Rml::Variant& variant) override;
+  };
+
+  //////////////////////////////////////////////////////////////////
+
+  class BlackboardVariableDefinition final : public Rml::VariableDefinition
+  {
+  public:
+    BlackboardVariableDefinition(bool bIsArray);
+
+    virtual bool Get(void* ptr, Rml::Variant& variant) override;
+    virtual bool Set(void* ptr, const Rml::Variant& variant) override;
+    
+    virtual int Size(void* ptr) override;
+    virtual Rml::DataVariable Child(void* ptr, const Rml::DataAddressEntry& address) override;
+
+  private:
+    VariantVariableDefinition m_ScalarDefinition;
+  };
+
+  /////////////////////////////////////////////////////////////////
+
   class BlackboardDataBinding final : public ezRmlUiDataBinding
   {
   public:
@@ -20,29 +56,14 @@ namespace ezRmlUiInternal
 
   private:
     ezSharedPtr<ezBlackboard> m_pBlackboard;
+    ezUInt32 m_uiBlackboardChangeCounter = 0;
+    ezUInt32 m_uiBlackboardEntryChangeCounter = 0;
 
     Rml::DataModelHandle m_hDataModel;
 
-    struct EntryWrapper
-    {
-      EntryWrapper(ezBlackboard& ref_blackboard, const ezHashedString& sName, ezUInt32 uiChangeCounter)
-        : m_Blackboard(ref_blackboard)
-        , m_sName(sName)
-        , m_uiChangeCounter(uiChangeCounter)
-      {
-      }
+    ezDynamicArray<EntryInfo> m_EntryInfos;
 
-      void SetValue(const Rml::Variant& value);
-      void GetValue(Rml::Variant& out_value) const;
-
-      ezBlackboard& m_Blackboard;
-      ezHashedString m_sName;
-      ezUInt32 m_uiChangeCounter;
-    };
-
-    Rml::Vector<EntryWrapper> m_EntryWrappers;
-
-    ezUInt32 m_uiBlackboardChangeCounter = 0;
-    ezUInt32 m_uiBlackboardEntryChangeCounter = 0;
+    BlackboardVariableDefinition m_ScalarDefinition;
+    BlackboardVariableDefinition m_ArrayDefinition;
   };
 } // namespace ezRmlUiInternal
