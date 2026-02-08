@@ -34,7 +34,7 @@ namespace ezRmlUiInternal
 
     virtual bool Get(void* ptr, Rml::Variant& variant) override;
     virtual bool Set(void* ptr, const Rml::Variant& variant) override;
-    
+
     virtual int Size(void* ptr) override;
     virtual Rml::DataVariable Child(void* ptr, const Rml::DataAddressEntry& address) override;
 

@@ -104,4 +104,4 @@ namespace ezRmlUiConversionUtils
     }
   }
 
-  } // namespace ezRmlUiConversionUtils
+} // namespace ezRmlUiConversionUtils
