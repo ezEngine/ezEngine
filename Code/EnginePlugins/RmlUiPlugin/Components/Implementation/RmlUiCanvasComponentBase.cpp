@@ -343,7 +343,15 @@ void ezRmlUiCanvasComponentBase::UpdateEventHandler()
   {
     if (m_bSendEventMessage)
     {
-      m_pContext->RegisterFallbackEventHandler(ezMakeDelegate(&ezRmlUiCanvasComponentBase::EventHandler, this));
+      m_pContext->RegisterFallbackEventHandler(
+        [hComponent = GetHandle()](const ezHashedString& sIdentifier, Rml::Event& event)
+        {
+          ezRmlUiCanvasComponentBase* pComponent = nullptr;
+          if (ezWorld::GetWorld(hComponent)->TryGetComponent(hComponent, pComponent))
+          {
+            pComponent->EventHandler(sIdentifier, event);
+          }
+        });
     }
     else
     {
