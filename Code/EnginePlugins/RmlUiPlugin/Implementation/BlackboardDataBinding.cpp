@@ -11,15 +11,15 @@ namespace ezRmlUiInternal
   {
   }
 
-  bool VariantVariableDefinition::Get(void* ptr, Rml::Variant& variant)
+  bool VariantVariableDefinition::Get(void* pPtr, Rml::Variant& out_variant)
   {
-    ezVariant* pValue = static_cast<ezVariant*>(ptr);
-    variant = ezRmlUiConversionUtils::ToVariant(*pValue);
+    ezVariant* pValue = static_cast<ezVariant*>(pPtr);
+    out_variant = ezRmlUiConversionUtils::ToVariant(*pValue);
 
     return true;
   }
 
-  bool VariantVariableDefinition::Set(void* ptr, const Rml::Variant& variant)
+  bool VariantVariableDefinition::Set(void* pPtr, const Rml::Variant& variant)
   {
     ezLog::Warning("Can't set the value of an element in an variantarray. Arrays are read-only.");
 
@@ -33,27 +33,28 @@ namespace ezRmlUiInternal
   {
   }
 
-  bool BlackboardVariableDefinition::Get(void* ptr, Rml::Variant& variant)
+  bool BlackboardVariableDefinition::Get(void* pPtr, Rml::Variant& out_variant)
   {
-    auto pInfo = static_cast<EntryInfo*>(ptr);
+    auto pInfo = static_cast<EntryInfo*>(pPtr);
 
     ezVariant v = pInfo->m_pBlackboard->GetEntryValue(pInfo->m_sName);
-    variant = ezRmlUiConversionUtils::ToVariant(v);
+    out_variant = ezRmlUiConversionUtils::ToVariant(v);
+
     return true;
   }
 
-  bool BlackboardVariableDefinition::Set(void* ptr, const Rml::Variant& variant)
+  bool BlackboardVariableDefinition::Set(void* pPtr, const Rml::Variant& variant)
   {
-    auto pInfo = static_cast<EntryInfo*>(ptr);
+    auto pInfo = static_cast<EntryInfo*>(pPtr);
 
     pInfo->m_pBlackboard->SetEntryValue(pInfo->m_sName, ezRmlUiConversionUtils::ToVariant(variant));
 
     return true;
   }
 
-  int BlackboardVariableDefinition::Size(void* ptr)
+  int BlackboardVariableDefinition::Size(void* pPtr)
   {
-    auto pInfo = static_cast<EntryInfo*>(ptr);
+    auto pInfo = static_cast<EntryInfo*>(pPtr);
 
     ezVariant v = pInfo->m_pBlackboard->GetEntryValue(pInfo->m_sName);
     if (v.IsA<ezVariantArray>())
@@ -64,9 +65,9 @@ namespace ezRmlUiInternal
     return 0;
   }
 
-  Rml::DataVariable BlackboardVariableDefinition::Child(void* ptr, const Rml::DataAddressEntry& address)
+  Rml::DataVariable BlackboardVariableDefinition::Child(void* pPtr, const Rml::DataAddressEntry& address)
   {
-    auto pInfo = static_cast<EntryInfo*>(ptr);
+    auto pInfo = static_cast<EntryInfo*>(pPtr);
 
     ezVariant v = pInfo->m_pBlackboard->GetEntryValue(pInfo->m_sName);
     if (!v.IsA<ezVariantArray>())

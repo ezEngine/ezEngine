@@ -21,8 +21,8 @@ namespace ezRmlUiInternal
   public:
     VariantVariableDefinition();
 
-    virtual bool Get(void* ptr, Rml::Variant& variant) override;
-    virtual bool Set(void* ptr, const Rml::Variant& variant) override;
+    virtual bool Get(void* pPtr, Rml::Variant& out_variant) override;
+    virtual bool Set(void* pPtr, const Rml::Variant& variant) override;
   };
 
   //////////////////////////////////////////////////////////////////
@@ -32,11 +32,11 @@ namespace ezRmlUiInternal
   public:
     BlackboardVariableDefinition(bool bIsArray);
 
-    virtual bool Get(void* ptr, Rml::Variant& variant) override;
-    virtual bool Set(void* ptr, const Rml::Variant& variant) override;
+    virtual bool Get(void* pPtr, Rml::Variant& variant) override;
+    virtual bool Set(void* pPtr, const Rml::Variant& variant) override;
 
-    virtual int Size(void* ptr) override;
-    virtual Rml::DataVariable Child(void* ptr, const Rml::DataAddressEntry& address) override;
+    virtual int Size(void* pPtr) override;
+    virtual Rml::DataVariable Child(void* pPtr, const Rml::DataAddressEntry& address) override;
 
   private:
     VariantVariableDefinition m_ScalarDefinition;
