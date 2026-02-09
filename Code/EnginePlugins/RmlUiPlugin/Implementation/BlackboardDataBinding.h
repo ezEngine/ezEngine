@@ -32,7 +32,7 @@ namespace ezRmlUiInternal
   public:
     BlackboardVariableDefinition(bool bIsArray);
 
-    virtual bool Get(void* pPtr, Rml::Variant& variant) override;
+    virtual bool Get(void* pPtr, Rml::Variant& out_variant) override;
     virtual bool Set(void* pPtr, const Rml::Variant& variant) override;
 
     virtual int Size(void* pPtr) override;
