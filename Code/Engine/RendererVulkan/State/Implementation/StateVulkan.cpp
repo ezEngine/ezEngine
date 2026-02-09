@@ -131,6 +131,8 @@ ezResult ezGALDepthStencilStateVulkan::InitPlatform(ezGALDevice* pDevice)
   m_depthStencilState.front.passOp = GALStencilOpTableIndexToVulkan[m_Description.m_FrontFaceStencilOp.m_PassOp];
 
   const ezGALStencilOpDescription& backFaceStencilOp = m_Description.m_BackFaceStencilOp;
+  m_depthStencilState.back.compareMask = m_Description.m_uiStencilReadMask;
+  m_depthStencilState.back.writeMask = m_Description.m_uiStencilWriteMask;
   m_depthStencilState.back.compareOp = GALCompareFuncToVulkan[backFaceStencilOp.m_StencilFunc];
   m_depthStencilState.back.depthFailOp = GALStencilOpTableIndexToVulkan[backFaceStencilOp.m_DepthFailOp];
   m_depthStencilState.back.failOp = GALStencilOpTableIndexToVulkan[backFaceStencilOp.m_FailOp];

@@ -7,7 +7,7 @@
     </defs>
     <style>
         .NiceText {
-        font-family: serif;
+        font-family: Arial, sans-serif;
         font-style: italic;
         font-size: 30px;
         fill: #0F0;
