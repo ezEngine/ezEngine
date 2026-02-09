@@ -50,6 +50,10 @@ public:
 
   ezMutex& GetContextMutex();
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  void DebugContext(ezRmlUiContext* pContext);
+#endif
+
 private:
   struct Data;
   ezUniquePtr<Data> m_pData;
