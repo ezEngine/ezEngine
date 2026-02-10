@@ -1,3 +1,9 @@
+parameters:
+- name: runTests
+  displayName: Run Tests
+  type: boolean
+  default: true
+
 trigger:
   branches:
     include:
@@ -8,6 +14,12 @@ resources:
   - repository: self
     type: git
     ref: dev
+
+variables:
+  androidHome: '$(System.DefaultWorkingDirectory)/Workspace/shared/android'
+  androidNdkHome: '$(System.DefaultWorkingDirectory)/Workspace/shared/android/ndk/26.1.10909125'
+  javaHome: '$(System.DefaultWorkingDirectory)/Workspace/shared/android/jdk17'
+  deviceAdb: '192.168.178.77:5555'
 
 jobs:
 - job: Android_arm64
@@ -79,4 +91,92 @@ jobs:
     inputs:
       targetType: inline
       script: ninja -C Workspace/android-arm64-dev
+
+  - ${{ if eq(parameters.runTests, true) }}:
+    - task: PowerShell@2
+      displayName: Connect to Device
+      inputs:
+        pwsh: true
+        targetType: inline
+        script: |
+          & "$(androidHome)/platform-tools/adb" connect $(deviceAdb)
+          & "$(androidHome)/platform-tools/adb" -s $(deviceAdb) wait-for-device
+      env:
+        ANDROID_HOME: '$(androidHome)'
+
+    - task: PowerShell@2
+      displayName: Check Ready for Testing
+      inputs:
+        targetType: inline
+        script: Write-Host "##vso[task.setvariable variable=task.MSBuild.status]success"
+
+    - task: PowerShell@2
+      displayName: FoundationTest
+      condition: eq(variables['task.MSBuild.status'], 'success')
+      inputs:
+        targetType: filepath
+        pwsh: true
+        filePath: $(System.DefaultWorkingDirectory)/Utilities/Android/AndroidTest.ps1
+        arguments: "-deviceAdb $(deviceAdb) -packageName com.ezengine.FoundationTest -activityName android.app.NativeActivity -outputFolder $(Build.ArtifactStagingDirectory)/Test/FoundationTest -apk $(System.DefaultWorkingDirectory)/Output/Bin/AndroidNinjaClangDevArm64/FoundationTest.apk"
+      env:
+        ANDROID_HOME: '$(androidHome)'
+        ANDROID_NDK_HOME: '$(androidNdkHome)'
+        JAVA_HOME: '$(javaHome)'
+
+    - task: PowerShell@2
+      displayName: CoreTest
+      condition: eq(variables['task.MSBuild.status'], 'success')
+      inputs:
+        targetType: filepath
+        pwsh: true
+        filePath: $(System.DefaultWorkingDirectory)/Utilities/Android/AndroidTest.ps1
+        arguments: "-deviceAdb $(deviceAdb) -packageName com.ezengine.CoreTest -activityName android.app.NativeActivity -outputFolder $(Build.ArtifactStagingDirectory)/Test/CoreTest -apk $(System.DefaultWorkingDirectory)/Output/Bin/AndroidNinjaClangDevArm64/CoreTest.apk"
+      env:
+        ANDROID_HOME: '$(androidHome)'
+        ANDROID_NDK_HOME: '$(androidNdkHome)'
+        JAVA_HOME: '$(javaHome)'
+
+    - task: PowerShell@2
+      displayName: RendererTest
+      condition: eq(variables['task.MSBuild.status'], 'success')
+      inputs:
+        targetType: filepath
+        pwsh: true
+        filePath: $(System.DefaultWorkingDirectory)/Utilities/Android/AndroidTest.ps1
+        arguments: "-deviceAdb $(deviceAdb) -packageName com.ezengine.RendererTest -activityName android.app.NativeActivity -outputFolder $(Build.ArtifactStagingDirectory)/Test/RendererTest -apk $(System.DefaultWorkingDirectory)/Output/Bin/AndroidNinjaClangDevArm64/RendererTest.apk"
+      env:
+        ANDROID_HOME: '$(androidHome)'
+        ANDROID_NDK_HOME: '$(androidNdkHome)'
+        JAVA_HOME: '$(javaHome)'
+
+    - task: PowerShell@2
+      displayName: ToolsFoundationTest
+      condition: eq(variables['task.MSBuild.status'], 'success')
+      inputs:
+        targetType: filepath
+        pwsh: true
+        filePath: $(System.DefaultWorkingDirectory)/Utilities/Android/AndroidTest.ps1
+        arguments: "-deviceAdb $(deviceAdb) -packageName com.ezengine.ToolsFoundationTest -activityName android.app.NativeActivity -outputFolder $(Build.ArtifactStagingDirectory)/Test/ToolsFoundationTest -apk $(System.DefaultWorkingDirectory)/Output/Bin/AndroidNinjaClangDevArm64/ToolsFoundationTest.apk"
+      env:
+        ANDROID_HOME: '$(androidHome)'
+        ANDROID_NDK_HOME: '$(androidNdkHome)'
+        JAVA_HOME: '$(javaHome)'
+
+    - task: PowerShell@2
+      displayName: Disconnect from Device
+      condition: always()
+      inputs:
+        pwsh: true
+        targetType: inline
+        script: |
+          & "$(androidHome)/platform-tools/adb" disconnect $(deviceAdb)
+      env:
+        ANDROID_HOME: '$(androidHome)'
+
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Artifact: TestResults'
+      condition: eq(variables['task.MSBuild.status'], 'success')
+      inputs:
+        PathtoPublish: $(Build.ArtifactStagingDirectory)/Test
+        ArtifactName: TestResults
 ...

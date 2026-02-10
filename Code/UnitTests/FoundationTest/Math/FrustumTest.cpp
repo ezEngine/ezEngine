@@ -330,9 +330,18 @@ EZ_CREATE_SIMPLE_TEST(Math, Frustum)
     ezVec3 corners2[8];
     fNew.ComputeCornerPoints(corners2).AssertSuccess();
 
+    // On ARM64, MakeFromCorners uses cross products on nearly-parallel edge vectors (~171 units long, differing by ~0.2),
+    // causing catastrophic cancellation that amplifies small input differences into larger plane normal errors.
+    // The reconstructed far-plane corners end up with ~0.005 error vs ~0.001 on x86.
+#if EZ_ENABLED(EZ_PLATFORM_ARCH_ARM)
+    const float fCornerEpsilon = ezMath::VeryHugeEpsilon<float>();
+#else
+    const float fCornerEpsilon = ezMath::HugeEpsilon<float>();
+#endif
+
     for (ezUInt32 i = 0; i < 8; ++i)
     {
-      EZ_TEST_BOOL(corners[i].IsEqual(corners2[i], ezMath::HugeEpsilon<float>()));
+      EZ_TEST_BOOL(corners[i].IsEqual(corners2[i], fCornerEpsilon));
     }
   }
 

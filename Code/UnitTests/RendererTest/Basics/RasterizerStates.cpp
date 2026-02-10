@@ -67,6 +67,7 @@ ezTestAppRun ezRendererTestBasics::SubtestRasterizerStates()
     RasterStateDesc.m_bScissorTest = true;
   }
 
+
   if (m_iFrame == 7)
   {
     RasterStateDesc.m_bFrontCounterClockwise = false;
@@ -129,10 +130,14 @@ ezTestAppRun ezRendererTestBasics::SubtestRasterizerStates()
   EndRendering();
   if (RasterStateDesc.m_bWireFrame)
   {
-    ezStringView sRendererName = m_pDevice->GetRenderer();
-    const bool bRandomlyChangesLineThicknessOnDriverUpdate = sRendererName.IsEqual_NoCase("DX11") && m_pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("Nvidia");
+    const bool bSupportsWireframe = GetDeviceCapabilities().m_bSupportsWireframe;
+    if (bSupportsWireframe)
+    {
+      ezStringView sRendererName = m_pDevice->GetRenderer();
+      const bool bRandomlyChangesLineThicknessOnDriverUpdate = sRendererName.IsEqual_NoCase("DX11") && m_pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("Nvidia");
 
-    EZ_TEST_LINE_IMAGE(m_iFrame, bRandomlyChangesLineThicknessOnDriverUpdate ? 1000 : 300);
+      EZ_TEST_LINE_IMAGE(m_iFrame, bRandomlyChangesLineThicknessOnDriverUpdate ? 1000 : 300);
+    }
   }
   else
     EZ_TEST_IMAGE(m_iFrame, 200);

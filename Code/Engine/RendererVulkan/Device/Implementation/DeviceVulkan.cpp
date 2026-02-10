@@ -250,10 +250,7 @@ vk::Result ezGALDeviceVulkan::SelectDeviceExtensions(vk::DeviceCreateInfo& devic
   VK_SUCCEED_OR_RETURN_LOG(AddExtIfSupported(VK_KHR_SWAPCHAIN_EXTENSION_NAME, m_extensions.m_bDeviceSwapChain));
   AddExtIfSupported(VK_EXT_SHADER_VIEWPORT_INDEX_LAYER_EXTENSION_NAME, m_extensions.m_bShaderViewportIndexLayer);
 
-  vk::PhysicalDeviceFeatures2 features;
-  features.pNext = &m_extensions.m_borderColorEXT;
-  m_physicalDevice.getFeatures2(&features);
-
+  vk::PhysicalDeviceFeatures2 features = GetPhysicalDeviceFeatures(&m_extensions.m_borderColorEXT);
   m_supportedStages = vk::PipelineStageFlagBits::eVertexShader | vk::PipelineStageFlagBits::eFragmentShader | vk::PipelineStageFlagBits::eComputeShader;
   if (features.features.geometryShader)
   {
@@ -481,10 +478,7 @@ ezResult ezGALDeviceVulkan::InitPlatform()
 
     {
       vk::PhysicalDeviceTimelineSemaphoreFeatures timelineFeatures;
-      vk::PhysicalDeviceFeatures2 features2;
-      features2.pNext = &timelineFeatures;
-      m_physicalDevice.getFeatures2(&features2);
-
+      vk::PhysicalDeviceFeatures2 features2 = GetPhysicalDeviceFeatures(&timelineFeatures);
       m_extensions.m_bTimelineSemaphore = static_cast<bool>(timelineFeatures.timelineSemaphore);
       m_extensions.m_timelineSemaphoresEXT = timelineFeatures;
     }
@@ -573,8 +567,8 @@ ezResult ezGALDeviceVulkan::InitPlatform()
     deviceCreateInfo.enabledExtensionCount = deviceExtensionsPtr.GetCount();
     deviceCreateInfo.ppEnabledExtensionNames = deviceExtensionsPtr.GetData();
 
-    vk::PhysicalDeviceFeatures physicalDeviceFeatures = m_physicalDevice.getFeatures();
-    deviceCreateInfo.pEnabledFeatures = &physicalDeviceFeatures; // Enabling all available features for now
+    vk::PhysicalDeviceFeatures2 physicalDeviceFeatures = GetPhysicalDeviceFeatures();
+    deviceCreateInfo.pEnabledFeatures = &physicalDeviceFeatures.features; // Enabling all available features for now
     deviceCreateInfo.queueCreateInfoCount = queues.GetCount();
     deviceCreateInfo.pQueueCreateInfos = queues.GetData();
 
@@ -1660,7 +1654,7 @@ ezUInt64 ezGALDeviceVulkan::GetSafeFramePlatform() const
 void ezGALDeviceVulkan::FillCapabilitiesPlatform()
 {
   vk::PhysicalDeviceMemoryProperties memProperties = m_physicalDevice.getMemoryProperties();
-  vk::PhysicalDeviceFeatures features = m_physicalDevice.getFeatures();
+  vk::PhysicalDeviceFeatures2 features = GetPhysicalDeviceFeatures();
 
   ezUInt64 dedicatedMemory = 0;
   ezUInt64 systemMemory = 0;
@@ -1691,9 +1685,9 @@ void ezGALDeviceVulkan::FillCapabilitiesPlatform()
   m_Capabilities.m_materialBufferLayout = ezGALBufferLayout::Vulkan_Std430_relaxed;
 
   m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::VertexShader] = true;
-  m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::HullShader] = features.tessellationShader;
-  m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::DomainShader] = features.tessellationShader;
-  m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::GeometryShader] = features.geometryShader;
+  m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::HullShader] = features.features.tessellationShader;
+  m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::DomainShader] = features.features.tessellationShader;
+  m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::GeometryShader] = features.features.geometryShader;
   m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::PixelShader] = true;
   m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::ComputeShader] = true; // we check this when creating the queue, always has to be supported
   m_Capabilities.m_bSupportsIndirectDraw = true;
@@ -1709,6 +1703,7 @@ void ezGALDeviceVulkan::FillCapabilitiesPlatform()
   m_Capabilities.m_bSupportsVSRenderTargetArrayIndex = m_extensions.m_bShaderViewportIndexLayer;
 
   m_Capabilities.m_bSupportsConservativeRasterization = false; // need to query for VK_EXT_CONSERVATIVE_RASTERIZATION
+  m_Capabilities.m_bSupportsWireframe = features.features.fillModeNonSolid;
 
   m_Capabilities.m_FormatSupport.SetCount(ezGALResourceFormat::ENUM_COUNT);
   for (ezUInt32 i = 0; i < ezGALResourceFormat::ENUM_COUNT; i++)
@@ -1797,6 +1792,19 @@ void ezGALDeviceVulkan::WaitIdleInternal(bool bAddUpdateForNextFrameCommands)
       ReclaimResources(m_PerFrameData[i].m_reclaimResources);
     }
   }
+}
+
+vk::PhysicalDeviceFeatures2 ezGALDeviceVulkan::GetPhysicalDeviceFeatures(void* pNext) const
+{
+  vk::PhysicalDeviceFeatures2 features;
+  features.pNext = pNext;
+  m_physicalDevice.getFeatures2(&features);
+
+  ezStringBuilder sDeviceName = ezStringUtf8(m_properties.properties.deviceName).GetView();
+  // Tessellation test crashes on Mali
+  if (sDeviceName == "Mali-G610")
+    features.features.tessellationShader = false;
+  return features;
 }
 
 vk::PipelineStageFlags ezGALDeviceVulkan::GetSupportedStages() const

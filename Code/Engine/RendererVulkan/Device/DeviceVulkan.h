@@ -161,6 +161,8 @@ public:
 
   vk::PhysicalDevice GetVulkanPhysicalDevice() const;
   EZ_ALWAYS_INLINE const vk::PhysicalDeviceProperties& GetPhysicalDeviceProperties() const { return m_properties.properties; }
+  vk::PhysicalDeviceFeatures2 GetPhysicalDeviceFeatures(void* pNext = nullptr) const;
+
   const Extensions& GetExtensions() const { return m_extensions; }
   const ezVulkanDispatchContext& GetDispatchContext() const { return m_dispatchContext; }
   vk::PipelineStageFlags GetSupportedStages() const;

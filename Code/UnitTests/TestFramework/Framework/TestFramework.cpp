@@ -401,13 +401,16 @@ void ezTestFramework::ApplyTestOrderFromCommandLine(const ezCommandLineUtils& cm
     const ezUInt32 uiTestCount = GetTestCount();
     for (ezUInt32 uiTestIdx = 0; uiTestIdx < uiTestCount; ++uiTestIdx)
     {
-      const bool bEnable = std::regex_search(m_TestEntries[uiTestIdx].m_szTestName, filterRegex);
-      m_TestEntries[uiTestIdx].m_bEnableTest = bEnable;
+      const bool bEnableTest = std::regex_search(m_TestEntries[uiTestIdx].m_szTestName, filterRegex);
+      bool bAnySubTestEnabled = bEnableTest;
       const ezUInt32 uiSubTestCount = (ezUInt32)m_TestEntries[uiTestIdx].m_SubTests.size();
       for (ezUInt32 uiSubTest = 0; uiSubTest < uiSubTestCount; ++uiSubTest)
       {
-        m_TestEntries[uiTestIdx].m_SubTests[uiSubTest].m_bEnableTest = bEnable;
+        const bool bEnableSubTest = bEnableTest || std::regex_search(m_TestEntries[uiTestIdx].m_SubTests[uiSubTest].m_szSubTestName, filterRegex);
+        m_TestEntries[uiTestIdx].m_SubTests[uiSubTest].m_bEnableTest = bEnableSubTest;
+        bAnySubTestEnabled |= bEnableSubTest;
       }
+      m_TestEntries[uiTestIdx].m_bEnableTest = bAnySubTestEnabled;
     }
   }
 }
