@@ -13,8 +13,8 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OpenDdlReader.h>
 #include <Foundation/Logging/ConsoleWriter.h>
-#include <Foundation/Logging/VisualStudioWriter.h>
 #include <Foundation/Logging/TraceWriter.h>
+#include <Foundation/Logging/VisualStudioWriter.h>
 #include <Foundation/Platform/PlatformDesc.h>
 #include <Foundation/Types/TagRegistry.h>
 #include <Foundation/Utilities/CommandLineOptions.h>
