@@ -177,6 +177,62 @@ void ezGameObject_PostAsMessageRecursive(asIScriptGeneric* pGen)
   pObj->PostMessageRecursive(msg, delay, static_cast<ezObjectMsgQueueType::Enum>(delivery));
 }
 
+void ezGameObject_SendAsEventMessage(asIScriptGeneric* pGen)
+{
+  ezGameObject* pObj = (ezGameObject*)pGen->GetObject();
+
+  void* pAsMsg = pGen->GetArgObject(0);
+  const ezComponent* pSender = (const ezComponent*)pGen->GetArgObject(1);
+
+  ezMsgDeliverAngelScriptMsg msg;
+  msg.m_pAsMsg = pAsMsg;
+  if (pObj->SendEventMessage(msg, pSender))
+  {
+    pGen->SetReturnByte(1);
+  }
+  else
+  {
+    pGen->SetReturnByte(0);
+  }
+}
+
+void ezGameObject_SendAsEventMessageConst(asIScriptGeneric* pGen)
+{
+  const ezGameObject* pObj = (const ezGameObject*)pGen->GetObject();
+
+  void* pAsMsg = pGen->GetArgObject(0);
+  const ezComponent* pSender = (const ezComponent*)pGen->GetArgObject(1);
+
+  ezMsgDeliverAngelScriptMsg msg;
+  msg.m_pAsMsg = pAsMsg;
+  if (pObj->SendEventMessage(msg, pSender))
+  {
+    pGen->SetReturnByte(1);
+  }
+  else
+  {
+    pGen->SetReturnByte(0);
+  }
+}
+
+void ezGameObject_PostAsEventMessage(asIScriptGeneric* pGen)
+{
+  ezGameObject* pObj = (ezGameObject*)pGen->GetObject();
+  void* pAsMsg = pGen->GetArgObject(0);
+
+  const ezComponent* pSender = (const ezComponent*)pGen->GetArgObject(1);
+  ezTime delay = *((const ezTime*)pGen->GetArgObject(2));
+  ezInt32 delivery = (ezInt32)pGen->GetArgDWord(3);
+
+  void* pMsgCopy = pGen->GetEngine()->CreateScriptObjectCopy(pAsMsg, reinterpret_cast<asIScriptObject*>(pAsMsg)->GetObjectType());
+  EZ_ASSERT_DEV(pMsgCopy != nullptr, "Failed to create copy of message");
+
+  ezMsgDeliverAngelScriptMsg msg;
+  msg.m_bRelease = true;
+  msg.m_pAsMsg = pMsgCopy;
+  pObj->PostEventMessage(msg, pSender, delay, static_cast<ezObjectMsgQueueType::Enum>(delivery));
+}
+
 void ezAngelScriptEngineSingleton::Register_GameObject()
 {
   ezAngelScriptUtils::RegisterEnumType(m_pEngine, ezGetStaticRTTI<ezObjectMsgQueueType>());
@@ -304,9 +360,12 @@ void ezAngelScriptEngineSingleton::Register_GameObject()
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezGameObject", "bool SendMessage(ezAngelScriptMessage& inout) const", asFUNCTION(ezGameObject_SendAsMessageConst), asCALL_GENERIC));
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezGameObject", "bool SendMessageRecursive(ezAngelScriptMessage& inout)", asFUNCTION(ezGameObject_SendAsMessageRecursive), asCALL_GENERIC));
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezGameObject", "bool SendMessageRecursive(ezAngelScriptMessage& inout) const", asFUNCTION(ezGameObject_SendAsMessageRecursiveConst), asCALL_GENERIC));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezGameObject", "bool SendEventMessage(ezAngelScriptMessage& inout, const ezComponent@ pSender)", asFUNCTION(ezGameObject_SendAsEventMessage), asCALL_GENERIC));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezGameObject", "bool SendEventMessage(ezAngelScriptMessage& inout, const ezComponent@ pSender) const", asFUNCTION(ezGameObject_SendAsEventMessageConst), asCALL_GENERIC));
 
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezGameObject", "void PostMessage(const ezAngelScriptMessage& in, ezTime delay, ezObjectMsgQueueType delivery = ezObjectMsgQueueType::NextFrame)", asFUNCTION(ezGameObject_PostAsMessage), asCALL_GENERIC));
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezGameObject", "void PostMessageRecursive(const ezAngelScriptMessage& in, ezTime delay, ezObjectMsgQueueType delivery = ezObjectMsgQueueType::NextFrame)", asFUNCTION(ezGameObject_PostAsMessageRecursive), asCALL_GENERIC));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezGameObject", "bool PostEventMessage(ezAngelScriptMessage& inout, const ezComponent@ pSender, ezTime delay, ezObjectMsgQueueType delivery = ezObjectMsgQueueType::NextFrame)", asFUNCTION(ezGameObject_SendAsEventMessageConst), asCALL_GENERIC));
 }
 
 //////////////////////////////////////////////////////////////////////////
