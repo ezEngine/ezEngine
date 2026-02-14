@@ -369,7 +369,7 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
     ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
     ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
     ezGlobalLog::AddLogWriter(ezLoggingEvent::Handler(&ezLogWriter::HTML::LogMessageHandler, &m_LogHTML));
-    ezGlobalLog::AddLogWriter(ezTraceWriter::LogMessageHandler);
+    ezGlobalLog::AddLogWriter(ezLogWriter::Tracing::LogMessageHandler);
   }
   ezUniquePtr<ezTranslatorFromFiles> pTranslatorEn = EZ_DEFAULT_NEW(ezTranslatorFromFiles);
   m_pTranslatorFromFiles = pTranslatorEn.Borrow();

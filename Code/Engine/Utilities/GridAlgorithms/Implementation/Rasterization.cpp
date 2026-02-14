@@ -510,9 +510,9 @@ static void SortTraceLines(ezDynamicArray<ez2DGridUtils::TraceLinePoint>& out_Re
   }
 }
 
-void ez2DGridUtils::CalculateVisibilityTraceLines(float fRadius, ezDynamicArray<TraceLinePoint>& out_Result)
+void ez2DGridUtils::CalculateVisibilityTraceLines(float fRadius, ezDynamicArray<TraceLinePoint>& out_result)
 {
-  out_Result.Clear();
+  out_result.Clear();
 
   ezDynamicArray<PointPair> pairs;
   pairs.Reserve(static_cast<ezUInt32>(fRadius * fRadius * 3.2f));
@@ -561,10 +561,10 @@ void ez2DGridUtils::CalculateVisibilityTraceLines(float fRadius, ezDynamicArray<
       //
     });
 
-  out_Result.Reserve(pairs.GetCount() + 1);
-  out_Result.ExpandAndGetRef().m_vCellCoordOffset.Set(0, 0);
-  SortTraceLines(out_Result, ezVec2I32(0, 0), pairs);
-  out_Result[0].m_uiSkipCount = 0xFFFF;
+  out_result.Reserve(pairs.GetCount() + 1);
+  out_result.ExpandAndGetRef().m_vCellCoordOffset.Set(0, 0);
+  SortTraceLines(out_result, ezVec2I32(0, 0), pairs);
+  out_result[0].m_uiSkipCount = 0xFFFF;
 }
 
 void ez2DGridUtils::VisitVisibilityTraceLines(const ezDynamicArray<TraceLinePoint>& traces, const ezVec2I32& vCenter, EZ_TRACELINE_CHECK check)

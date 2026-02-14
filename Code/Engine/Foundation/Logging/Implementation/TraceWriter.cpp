@@ -3,7 +3,7 @@
 #include <Foundation/Logging/TraceWriter.h>
 #include <Foundation/Tracing/TraceProvider.h>
 
-void ezTraceWriter::LogMessageHandler(const ezLoggingEventData& eventData)
+void ezLogWriter::Tracing::LogMessageHandler(const ezLoggingEventData& eventData)
 {
   const ezStringBuilder sTemp = eventData.m_sText;
 

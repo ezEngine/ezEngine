@@ -217,6 +217,7 @@ protected:
 
   ezEventSubscriptionID m_LogToConsoleID = 0;
   ezEventSubscriptionID m_LogToVsID = 0;
+  ezEventSubscriptionID m_LogToTracingID = 0;
 
   /// \brief Executes all 'Init_' functions. Typically done after core system startup
   virtual void ExecuteInitFunctions();

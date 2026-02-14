@@ -93,6 +93,12 @@
     Capture a Perfetto trace on a connected Android device via adb.
     Requires 'adb' on the host and a device running Android 9+.
 
+.PARAMETER Cleanup
+    (Android only) Restart the system 'traced' daemon on the device to clear
+    stale producer registrations that can cause empty traces. Requires the
+    device to allow 'adb root'. This is a standalone action and does not
+    start or stop a trace.
+
 .PARAMETER OutputPath
     Path for the trace output. If not specified, the trace is saved in the
     current working directory as ez-trace-YYYY-MM-DDTHH-MM-SS with a
@@ -112,6 +118,10 @@
 .EXAMPLE
     # Capture a Perfetto trace from a connected Android device:
     ./Capture-Trace.ps1 -Android
+
+.EXAMPLE
+    # Clear stale Perfetto state on the Android device:
+    ./Capture-Trace.ps1 -Android -Cleanup
 #>
 
 [CmdletBinding()]
@@ -119,13 +129,12 @@ param(
     [switch]$Start,
     [switch]$Stop,
     [switch]$Android,
+    [switch]$Cleanup,
     [string]$OutputPath
 )
 
 $ErrorActionPreference = 'Stop'
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
-$RepoRoot  = Resolve-Path (Join-Path $ScriptDir '../..')
-. (Join-Path $RepoRoot 'Utilities/Android/AndroidUtils.ps1')
 
 # ---------------------------------------------------------------------------
 # Validation
@@ -133,6 +142,18 @@ $RepoRoot  = Resolve-Path (Join-Path $ScriptDir '../..')
 
 if ($Start -and $Stop) {
     throw 'The -Start and -Stop switches are mutually exclusive.'
+}
+if ($Cleanup -and ($Start -or $Stop)) {
+    throw 'The -Cleanup switch cannot be combined with -Start or -Stop.'
+}
+if ($Cleanup -and -not $Android) {
+    throw 'The -Cleanup switch is only supported with -Android.'
+}
+
+# Import Android helpers when targeting an Android device.
+if ($Android) {
+    $RepoRoot = (Resolve-Path (Join-Path $ScriptDir '../..')).Path
+    . (Join-Path $RepoRoot 'Utilities/Android/AndroidUtils.ps1')
 }
 
 # ---------------------------------------------------------------------------
@@ -156,6 +177,14 @@ function Assert-Command {
     if (-not (Get-Command $Name -ErrorAction SilentlyContinue)) {
         throw "Required command '$Name' not found. Please install it and ensure it is on your PATH."
     }
+}
+
+function Invoke-Adb {
+    # Convenience wrapper: calls adb via Get-Adb without automatic error
+    # checking. Use this for calls where the caller inspects $LASTEXITCODE
+    # or the output directly (e.g. 'adb devices', 'adb pull' with fallback).
+    param([Parameter(ValueFromRemainingArguments)][string[]]$Arguments)
+    return & (Get-Adb) @Arguments
 }
 
 function Get-DefaultOutputPath {
@@ -269,14 +298,13 @@ function Invoke-AndroidTraceBegin {
     }
 
     # Verify a device is connected.
-    $devices = Adb-Cmd devices
+    $devices = (Invoke-Adb devices) -join "`n"
     if ($devices -notmatch '\t(device|emulator)') {
         throw "No Android device connected. Check 'adb devices'."
     }
 
     # Push the config to the device.
     Write-Host 'Preparing config...' -ForegroundColor Cyan
-
     Adb-Cmd push $configPath $script:PerfettoDeviceConfig | Out-Null
 
     # Kill any leftover perfetto process from a previous interrupted run.
@@ -317,14 +345,63 @@ function Invoke-AndroidTraceEnd {
     Start-Sleep -Milliseconds 1000
 
     Write-Host 'Pulling trace from device...' -ForegroundColor Cyan
-    try {
-        Adb-Cmd pull $script:PerfettoDeviceTrace $output
+    # The trace file under /data/misc/perfetto-traces/ is owned by shell with
+    # mode 600. adb pull cannot read it directly, so copy it to /data/local/tmp/
+    # first where adb pull has access.
+    $tmpTrace = '/data/local/tmp/ez-pulled.perfetto-trace'
+    Adb-Shell "cp $($script:PerfettoDeviceTrace) $tmpTrace && chmod 644 $tmpTrace" | Out-Null
+    Invoke-Adb pull $tmpTrace $output
+    if ($LASTEXITCODE -ne 0) {
+        Write-Warning "adb pull failed. The trace may still be on the device at $($script:PerfettoDeviceTrace)."
+    } else {
+        Adb-Shell "rm -f $tmpTrace" | Out-Null
         Write-Host ''
         Write-Host "Trace saved to: $output" -ForegroundColor Yellow
         Write-Host "Open in:        https://ui.perfetto.dev"
-    } catch {
-        Write-Warning "adb pull failed. The trace may still be on the device at $($script:PerfettoDeviceTrace)."
     }
+}
+
+function Invoke-AndroidCleanup {
+    Write-Host 'Restarting the Perfetto traced daemon to clear stale state...' -ForegroundColor Cyan
+    Write-Host '(This requires the device to allow adb root.)' -ForegroundColor DarkGray
+
+    $adb = Get-Adb
+
+    # Switch to root so we can restart system services.
+    $rootResult = & $adb root 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        throw "'adb root' failed. The device may not be rooted or may not allow root access via adb.`nOutput: $rootResult"
+    }
+    Start-Sleep -Seconds 3
+
+    # Reconnect if using a network device (adb root restarts adbd).
+    $devices = (& $adb devices) -join "`n"
+    if ($devices -notmatch '\t(device|emulator)') {
+        # Try to reconnect to the same device.
+        & $adb reconnect 2>&1 | Out-Null
+        Start-Sleep -Seconds 2
+    }
+
+    # Restart traced and traced_probes to clear all stale producer registrations.
+    & $adb shell 'stop traced_probes && stop traced && start traced && start traced_probes' 2>&1 | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        & $adb unroot 2>&1 | Out-Null
+        throw 'Failed to restart traced daemon.'
+    }
+    Start-Sleep -Seconds 1
+
+    # Drop root privileges.
+    & $adb unroot 2>&1 | Out-Null
+    Start-Sleep -Seconds 3
+
+    # Verify connection is still alive after unroot.
+    $devices = (& $adb devices) -join "`n"
+    if ($devices -notmatch '\t(device|emulator)') {
+        & $adb reconnect 2>&1 | Out-Null
+        Start-Sleep -Seconds 2
+    }
+
+    Write-Host 'Perfetto traced daemon restarted. Stale producers cleared.' -ForegroundColor Green
 }
 
 # ---------------------------------------------------------------------------
@@ -346,7 +423,9 @@ if ($Android) {
     exit 1
 }
 
-if ($Start) {
+if ($Cleanup) {
+    Invoke-AndroidCleanup
+} elseif ($Start) {
     # Non-interactive: start recording and return.
     & $beginFunc
 } elseif ($Stop) {

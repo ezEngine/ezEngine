@@ -700,7 +700,6 @@ void ezEngineProcessGameApplication::BaseInit_ConfigureLogging()
 
   ezGlobalLog::AddLogWriter(ezMakeDelegate(&ezEngineProcessGameApplication::LogWriter, this));
   ezGlobalLog::AddLogWriter(ezLoggingEvent::Handler(&ezLogWriter::HTML::LogMessageHandler, &m_LogHTML));
-  ezGlobalLog::AddLogWriter(ezTraceWriter::LogMessageHandler);
 
   ezLog::SetCustomPrintFunction(&EditorPrintFunction);
 

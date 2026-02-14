@@ -168,7 +168,7 @@ namespace ez2DGridUtils
   /// The center point (0, 0) is implied (not part of the array) and assumed to be not occluded.
   /// Points are given relative to the center, so to position the visibility traces somewhere else, add an
   /// offset to each point.
-  EZ_UTILITIES_DLL void CalculateVisibilityTraceLines(float fRadius, ezDynamicArray<TraceLinePoint>& out_Result);
+  EZ_UTILITIES_DLL void CalculateVisibilityTraceLines(float fRadius, ezDynamicArray<TraceLinePoint>& out_result);
 
   /// Args: iCoordX, iCoordY, uiPopBranchesBefore, uiPushBranchUntil
   using EZ_TRACELINE_CHECK = ezDelegate<ezCallbackResult::Enum(ezInt32, ezInt32, ezUInt32, ezUInt32)>;

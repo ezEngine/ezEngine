@@ -12,7 +12,7 @@ void ezLog::Print(const char* szText)
   ezLoggingEventData data;
   data.m_EventType = ezLogMsgType::InfoMsg;
   data.m_sText = szText;
-  ezTraceWriter::LogMessageHandler(data);
+  ezLogWriter::Tracing::LogMessageHandler(data);
 
   if (s_CustomPrintFunction)
   {

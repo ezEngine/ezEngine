@@ -785,7 +785,7 @@ void ezTestFramework::ExecuteNextTest()
       m_uiCurrentTestIndex = m_uiExecutingTest;
       // Log writer translates engine warnings / errors into test framework error messages.
       ezGlobalLog::AddLogWriter(LogWriter);
-      ezGlobalLog::AddLogWriter(ezTraceWriter::LogMessageHandler);
+      ezGlobalLog::AddLogWriter(ezLogWriter::Tracing::LogMessageHandler);
 
       m_iErrorCountBeforeTest = GetTotalErrorCount();
 
@@ -911,7 +911,7 @@ void ezTestFramework::ExecuteNextTest()
       // Third and last flush of assert counter, these are all asserts for the test de-init.
       FlushAsserts();
 
-      ezGlobalLog::RemoveLogWriter(ezTraceWriter::LogMessageHandler);
+      ezGlobalLog::RemoveLogWriter(ezLogWriter::Tracing::LogMessageHandler);
       ezGlobalLog::RemoveLogWriter(LogWriter);
 
       bool bTestSuccess = m_iErrorCountBeforeTest == GetTotalErrorCount();

@@ -3,12 +3,17 @@
 #if EZ_ENABLED(EZ_PLATFORM_ANDROID)
 
 #  include <Foundation/Logging/Log.h>
-
+#  include <Foundation/Logging/TraceWriter.h>
 #  include <android/log.h>
 
 void ezLog::Print(const char* szText)
 {
   printf("%s", szText);
+
+  ezLoggingEventData data;
+  data.m_EventType = ezLogMsgType::InfoMsg;
+  data.m_sText = szText;
+  ezLogWriter::Tracing::LogMessageHandler(data);
 
   __android_log_print(ANDROID_LOG_ERROR, "ezEngine", "%s", szText);
 

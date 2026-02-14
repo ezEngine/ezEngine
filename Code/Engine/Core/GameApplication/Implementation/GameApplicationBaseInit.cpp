@@ -14,6 +14,7 @@
 #include <Foundation/IO/OpenDdlReader.h>
 #include <Foundation/Logging/ConsoleWriter.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
+#include <Foundation/Logging/TraceWriter.h>
 #include <Foundation/Platform/PlatformDesc.h>
 #include <Foundation/Types/TagRegistry.h>
 #include <Foundation/Utilities/CommandLineOptions.h>
@@ -77,6 +78,7 @@ void ezGameApplicationBase::BaseInit_ConfigureLogging()
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   ezGlobalLog::RemoveLogWriter(m_LogToConsoleID);
   ezGlobalLog::RemoveLogWriter(m_LogToVsID);
+  ezGlobalLog::RemoveLogWriter(m_LogToTracingID);
 
   if (!opt_DisableConsoleOutput.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified))
   {
@@ -84,6 +86,7 @@ void ezGameApplicationBase::BaseInit_ConfigureLogging()
   }
 
   m_LogToVsID = ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
+  m_LogToTracingID = ezGlobalLog::AddLogWriter(ezLogWriter::Tracing::LogMessageHandler);
 #endif
 }
 
