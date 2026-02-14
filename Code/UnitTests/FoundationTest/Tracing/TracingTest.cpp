@@ -6,8 +6,8 @@
 #include <Foundation/Threading/Thread.h>
 #include <Foundation/Threading/ThreadUtils.h>
 #include <Foundation/Time/Time.h>
-#include <FoundationTest/Tracing/TraceProvider.h>
 #include <Foundation/Types/UniquePtr.h>
+#include <FoundationTest/Tracing/TraceProvider.h>
 
 namespace
 {

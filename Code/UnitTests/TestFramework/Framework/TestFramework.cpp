@@ -3,10 +3,10 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Logging/Log.h>
+#include <Foundation/Logging/TraceWriter.h>
 #include <Foundation/System/EnvironmentVariableUtils.h>
 #include <Foundation/System/Process.h>
 #include <Foundation/System/StackTracer.h>
-#include <Foundation/Logging/TraceWriter.h>
 #include <Foundation/Types/ScopeExit.h>
 #include <Foundation/Utilities/CommandLineOptions.h>
 #include <TestFramework/Utilities/TestOrder.h>

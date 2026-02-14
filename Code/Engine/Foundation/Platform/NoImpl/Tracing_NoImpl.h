@@ -5,28 +5,28 @@
 #define EZ_TRACE_INTERNAL_VALUE(FieldName, Value)
 
 #define EZ_TRACE_INTERNAL_EVENT(EventName, Level, ...) \
-  do \
-  { \
+  do                                                   \
+  {                                                    \
   } while (false)
 
 #define EZ_TRACE_INTERNAL_SCOPE_BEGIN(EventName, Level, ...) \
-  do \
-  { \
+  do                                                         \
+  {                                                          \
   } while (false)
 
 #define EZ_TRACE_INTERNAL_SCOPE_END(EventName) \
-  do \
-  { \
+  do                                           \
+  {                                            \
   } while (false)
 
 #define EZ_TRACE_INTERNAL_ASYNC_BEGIN(EventName, Id, Level, ...) \
-  do \
-  { \
+  do                                                             \
+  {                                                              \
   } while (false)
 
 #define EZ_TRACE_INTERNAL_ASYNC_END(EventName, Id) \
-  do \
-  { \
+  do                                               \
+  {                                                \
   } while (false)
 
 #ifndef EZ_DECLARE_TRACE_PROVIDER

@@ -140,9 +140,9 @@ struct ezTraceLevel
 /// \endcode
 ///
 /// \sa EZ_TRACE_EVENT, EZ_TRACE_ASYNC_BEGIN, EZ_TRACE_SCOPE_BEGIN
-#  define EZ_TRACE_SCOPE(EventName, Level, ...) \
+#  define EZ_TRACE_SCOPE(EventName, Level, ...)                     \
     EZ_TRACE_INTERNAL_SCOPE_BEGIN(EventName, Level, ##__VA_ARGS__); \
-    EZ_SCOPE_EXIT( EZ_TRACE_INTERNAL_SCOPE_END(EventName));
+    EZ_SCOPE_EXIT(EZ_TRACE_INTERNAL_SCOPE_END(EventName));
 
 /// \brief Manually begins a scoped trace event.
 ///

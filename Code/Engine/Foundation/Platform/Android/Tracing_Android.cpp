@@ -2,14 +2,14 @@
 
 #if defined(BUILDSYSTEM_ENABLE_PERFETTO_SUPPORT)
 
-#include <Foundation/Platform/Android/Tracing_Platform.h>
+#  include <Foundation/Platform/Android/Tracing_Platform.h>
 
-#include <Foundation/Threading/ThreadUtils.h>
-#include <Foundation/Time/Time.h>
+#  include <Foundation/Threading/ThreadUtils.h>
+#  include <Foundation/Time/Time.h>
 
-#include <android/log.h>
+#  include <android/log.h>
 
-#define EZ_PERFETTO_LOG(...) __android_log_print(ANDROID_LOG_INFO, "ezEngine", __VA_ARGS__)
+#  define EZ_PERFETTO_LOG(...) __android_log_print(ANDROID_LOG_INFO, "ezEngine", __VA_ARGS__)
 
 // Allocate storage for the Perfetto track event categories defined in the header.
 PERFETTO_TRACK_EVENT_STATIC_STORAGE();

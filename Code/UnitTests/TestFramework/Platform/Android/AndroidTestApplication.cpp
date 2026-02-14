@@ -5,9 +5,9 @@
 #  include <Foundation/Logging/Log.h>
 #  include <Foundation/Platform/Android/Utils/AndroidJni.h>
 #  include <Foundation/Platform/Android/Utils/AndroidUtils.h>
+#  include <Foundation/Utilities/CommandLineUtils.h>
 #  include <TestFramework/Platform/Android/AndroidTestApplication.h>
 #  include <TestFramework/Utilities/TestSetup.h>
-#  include <Foundation/Utilities/CommandLineUtils.h>
 #  include <android/log.h>
 #  include <android/native_activity.h>
 #  include <android_native_app_glue.h>
