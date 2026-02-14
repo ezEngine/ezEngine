@@ -69,7 +69,11 @@ if(EZ_3RDPARTY_GLFW_SUPPORT)
 endif()
 
 if(EZ_3RDPARTY_TRACELOGGING_LTTNG_SUPPORT)
-  target_link_libraries(${PROJECT_NAME} PRIVATE tracelogging)
+  target_link_libraries(${PROJECT_NAME} PUBLIC tracelogging)
+endif()
+
+if(EZ_3RDPARTY_PERFETTO_SUPPORT)
+  target_link_libraries(${PROJECT_NAME} PUBLIC perfetto)
 endif()
 
 if(EZ_3RDPARTY_TRACY_SUPPORT)

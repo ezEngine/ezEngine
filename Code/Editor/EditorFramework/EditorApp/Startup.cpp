@@ -55,7 +55,7 @@
 #include <Foundation/Application/Application.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Logging/ConsoleWriter.h>
-#include <Foundation/Logging/ETW.h>
+#include <Foundation/Logging/TraceWriter.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Reflection/Implementation/PropertyAttributes.h>
@@ -369,7 +369,7 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
     ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
     ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
     ezGlobalLog::AddLogWriter(ezLoggingEvent::Handler(&ezLogWriter::HTML::LogMessageHandler, &m_LogHTML));
-    ezGlobalLog::AddLogWriter(ezETW::LogMessageHandler);
+    ezGlobalLog::AddLogWriter(ezTraceWriter::LogMessageHandler);
   }
   ezUniquePtr<ezTranslatorFromFiles> pTranslatorEn = EZ_DEFAULT_NEW(ezTranslatorFromFiles);
   m_pTranslatorFromFiles = pTranslatorEn.Borrow();

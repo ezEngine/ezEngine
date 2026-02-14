@@ -96,7 +96,7 @@ verlt() {
 }
 
 if [ "$Distribution" = "Ubuntu" -a \( "$Version" = "22" -o "$Version" = "24" -o "$Version" = "25" \) ] || [ "$Distribution" = "Mint" -a "$Version" = "21" ]; then
-  packages=(cmake build-essential ninja-build libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev uuid-dev mold libfreetype-dev libxkbcommon-dev)
+  packages=(cmake build-essential ninja-build libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev uuid-dev mold libfreetype-dev libxkbcommon-dev liblttng-ust-dev lttng-tools)
 
   if [ "$Distribution" = "Ubuntu" -a \( "$Version" = "24" -o "$Version" = "25" \) ]; then
     packages+=(libtinfo6)

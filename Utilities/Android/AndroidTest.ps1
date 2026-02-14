@@ -1,13 +1,71 @@
+<#
+.SYNOPSIS
+    Deploys and runs an ezEngine test application on an Android device via ADB.
+
+.DESCRIPTION
+    Installs an APK (if provided), launches the specified activity, captures logcat output, and waits for the test framework to report results. Downloads any output artifacts from the device when finished.
+
+    The script exits with code 0 if all tests pass, or 1 on failure/timeout.
+
+.PARAMETER deviceAdb
+    ADB device identifier (serial number or IP:port for wireless debugging).
+
+.PARAMETER packageName
+    Android package name of the test application (e.g. "com.ezengine.FoundationTest").
+
+.PARAMETER activityName
+    Fully qualified activity class name (default: "android.app.NativeActivity").
+
+.PARAMETER outputFolder
+    Local directory where logcat output and downloaded artifacts are stored.
+
+.PARAMETER apk
+    Path to the APK file to install before running. If omitted, the script assumes the app is already installed on the device.
+
+.PARAMETER arguments
+    Extra command-line arguments passed to the test application via Android intent extras. The test framework reads these from the "args" intent string extra.
+
+.PARAMETER MessageBoxOnError
+    (Unused) Reserved for CI pipelines that show a message box on failure.
+
+.EXAMPLE
+    # Run FoundationTest with default settings (install APK + run all tests):
+    pwsh ./Utilities/Android/AndroidTest.ps1 `
+        -deviceAdb 192.168.178.77:5555 `
+        -packageName com.ezengine.FoundationTest `
+        -activityName android.app.NativeActivity `
+        -outputFolder ./Output `
+        -apk "./Output/Bin/AndroidNinjaClangDebugArm64/FoundationTest.apk"
+
+.EXAMPLE
+    # Run only the "Tracing" test group:
+    pwsh ./Utilities/Android/AndroidTest.ps1 `
+        -deviceAdb 192.168.178.77:5555 `
+        -packageName com.ezengine.FoundationTest `
+        -activityName android.app.NativeActivity `
+        -outputFolder ./Output `
+        -apk "./Output/Bin/AndroidNinjaClangDebugArm64/FoundationTest.apk" `
+        -arguments "-run -noGui -all -filter Tracing"
+
+.EXAMPLE
+    # Run without re-installing (app already on device):
+    pwsh ./Utilities/Android/AndroidTest.ps1 `
+        -deviceAdb 192.168.178.77:5555 `
+        -packageName com.ezengine.FoundationTest `
+        -activityName android.app.NativeActivity `
+        -outputFolder ./Output
+#>
 param(
     [Parameter(Mandatory=$true)]
     [string]$deviceAdb,
     [Parameter(Mandatory=$true)]
     [string]$packageName,
-    [Parameter(Mandatory=$true)]
-    [string]$activityName,
+    [Parameter(Mandatory=$false)]
+    [string]$activityName = "android.app.NativeActivity",
     [Parameter(Mandatory=$true)]
     [string]$outputFolder,
     [string]$apk,
+    [string]$arguments,
     [switch]$MessageBoxOnError
 )
 
@@ -29,8 +87,15 @@ Write-Host "Clearing LogCat..."
 Adb-Cmd -s $deviceAdb logcat --clear
 
 Write-Host "Starting $packageName/$activityName..."
-$startFunction = {
-    Adb-Cmd -ErrorAction Continue -s $deviceAdb shell am start -n $packageName/$activityName
+if ($arguments) {
+    Write-Host "With arguments: $arguments"
+    $startFunction = {
+        Adb-Cmd -ErrorAction Continue -s $deviceAdb shell "am start -n $packageName/$activityName --es args '$arguments'"
+    }
+} else {
+    $startFunction = {
+        Adb-Cmd -ErrorAction Continue -s $deviceAdb shell am start -n $packageName/$activityName
+    }
 }
 Invoke-WithRetry -ScriptBlock $startFunction -MaxRetryCount 5
 

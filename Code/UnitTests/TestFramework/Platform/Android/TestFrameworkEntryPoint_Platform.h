@@ -17,7 +17,7 @@
                                                                                                                       \
   int ezAndroidMain(int argc, char** argv)                                                                            \
   {                                                                                                                   \
-    ezTestSetup::InitTestFramework(szTestName, szNiceTestName, 0, nullptr);                                           \
+    ezTestSetup::InitTestFramework(szTestName, szNiceTestName, argc, (const char**)argv);                             \
     /* Execute custom init code here by using the BEGIN/END macros directly */
 
 #define EZ_TESTFRAMEWORK_ENTRY_POINT_END() \

@@ -78,6 +78,7 @@
 
 // Other Features
 #define EZ_USE_PROFILING EZ_OFF
+#define EZ_USE_TRACING EZ_OFF
 #define EZ_USE_STRING_VALIDATION EZ_OFF
 
 // Hashed String

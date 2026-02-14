@@ -16,7 +16,7 @@ ezCommandLineUtils* ezCommandLineUtils::GetGlobalInstance()
   return &g_pCmdLineInstance;
 }
 
-void ezCommandLineUtils::SplitCommandLineString(const char* szCommandString, bool bAddExecutableDir, ezDynamicArray<ezString>& out_args, ezDynamicArray<const char*>& out_argsV)
+void ezCommandLineUtils::SplitCommandLineString(ezStringView sCommandString, bool bAddExecutableDir, ezDynamicArray<ezString>& out_args, ezDynamicArray<const char*>& out_argsV)
 {
   // Add application dir as first argument as customary on other platforms.
   if (bAddExecutableDir)
@@ -31,24 +31,38 @@ void ezCommandLineUtils::SplitCommandLineString(const char* szCommandString, boo
   }
 
   // Simple args splitting. Not as powerful as Win32's CommandLineToArgvW.
-  const char* currentChar = szCommandString;
-  const char* lastEnd = currentChar;
-  bool inQuotes = false;
-  while (*currentChar != '\0')
+  // Supports double-quoted tokens that may contain spaces. Quotes are stripped from the result.
+  bool bInQuotes = false;
+  ezStringBuilder current;
+
+  for (auto it = sCommandString.GetIteratorFront(); it.IsValid(); ++it)
   {
-    if (*currentChar == '\"')
-      inQuotes = !inQuotes;
-    else if (*currentChar == ' ' && !inQuotes)
+    const ezUInt32 uiChar = it.GetCharacter();
+
+    if (uiChar == '\"')
     {
-      ezStringBuilder path = ezStringView(lastEnd, currentChar);
-      path.Trim(" \"");
-      out_args.PushBack(path);
-      lastEnd = currentChar + 1;
+      bInQuotes = !bInQuotes;
     }
-    ezUnicodeUtils::MoveToNextUtf8(currentChar).IgnoreResult();
+    else if (uiChar == ' ' && !bInQuotes)
+    {
+      if (!current.IsEmpty())
+      {
+        out_args.PushBack(current);
+        current.Clear();
+      }
+    }
+    else
+    {
+      current.Append(uiChar);
+    }
   }
 
-  out_argsV.Reserve(out_argsV.GetCount());
+  if (!current.IsEmpty())
+  {
+    out_args.PushBack(current);
+  }
+
+  out_argsV.Reserve(out_args.GetCount());
   for (ezString& str : out_args)
     out_argsV.PushBack(str.GetData());
 }

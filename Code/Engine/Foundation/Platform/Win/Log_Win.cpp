@@ -3,14 +3,18 @@
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 
 #  include <Foundation/Application/Application.h>
-#  include <Foundation/Logging/ETW.h>
 #  include <Foundation/Logging/Log.h>
+#  include <Foundation/Logging/TraceWriter.h>
 
 void ezLog::Print(const char* szText)
 {
   printf("%s", szText);
 
-  ezETW::LogMessage(ezLogMsgType::ErrorMsg, 0, szText);
+  ezLoggingEventData data;
+  data.m_EventType = ezLogMsgType::InfoMsg;
+  data.m_sText = szText;
+  ezTraceWriter::LogMessageHandler(data);
+
   OutputDebugStringW(ezStringWChar(szText).GetData());
 
   if (s_CustomPrintFunction)

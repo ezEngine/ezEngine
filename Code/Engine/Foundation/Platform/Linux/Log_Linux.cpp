@@ -2,14 +2,17 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_LINUX)
 
-#  include <Foundation/Logging/ETW.h>
 #  include <Foundation/Logging/Log.h>
+#  include <Foundation/Logging/TraceWriter.h>
 
 void ezLog::Print(const char* szText)
 {
   printf("%s", szText);
 
-  ezETW::LogMessage(ezLogMsgType::ErrorMsg, 0, szText);
+  ezLoggingEventData data;
+  data.m_EventType = ezLogMsgType::InfoMsg;
+  data.m_sText = szText;
+  ezTraceWriter::LogMessageHandler(data);
 
   if (s_CustomPrintFunction)
   {

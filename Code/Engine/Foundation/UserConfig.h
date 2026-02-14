@@ -24,6 +24,10 @@
 #  undef EZ_USE_PROFILING
 #  define EZ_USE_PROFILING EZ_OFF
 
+// OS tracing features (ETW / LTTNG / Perfetto)
+#  undef EZ_USE_TRACING
+#  define EZ_USE_TRACING EZ_OFF
+
 // Tracking of memory allocations.
 #  undef EZ_ALLOC_TRACKING_DEFAULT
 #  define EZ_ALLOC_TRACKING_DEFAULT ezAllocatorTrackingMode::Nothing
@@ -37,6 +41,10 @@
 // Performance profiling features
 #  undef EZ_USE_PROFILING
 #  define EZ_USE_PROFILING EZ_ON
+
+// OS tracing features (ETW / LTTNG / Perfetto)
+#  undef EZ_USE_TRACING
+#  define EZ_USE_TRACING EZ_ON
 
 // Tracking of memory allocations.
 #  undef EZ_ALLOC_TRACKING_DEFAULT

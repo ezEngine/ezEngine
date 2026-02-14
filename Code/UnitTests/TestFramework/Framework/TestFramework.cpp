@@ -6,6 +6,7 @@
 #include <Foundation/System/EnvironmentVariableUtils.h>
 #include <Foundation/System/Process.h>
 #include <Foundation/System/StackTracer.h>
+#include <Foundation/Logging/TraceWriter.h>
 #include <Foundation/Types/ScopeExit.h>
 #include <Foundation/Utilities/CommandLineOptions.h>
 #include <TestFramework/Utilities/TestOrder.h>
@@ -784,6 +785,7 @@ void ezTestFramework::ExecuteNextTest()
       m_uiCurrentTestIndex = m_uiExecutingTest;
       // Log writer translates engine warnings / errors into test framework error messages.
       ezGlobalLog::AddLogWriter(LogWriter);
+      ezGlobalLog::AddLogWriter(ezTraceWriter::LogMessageHandler);
 
       m_iErrorCountBeforeTest = GetTotalErrorCount();
 
@@ -909,6 +911,7 @@ void ezTestFramework::ExecuteNextTest()
       // Third and last flush of assert counter, these are all asserts for the test de-init.
       FlushAsserts();
 
+      ezGlobalLog::RemoveLogWriter(ezTraceWriter::LogMessageHandler);
       ezGlobalLog::RemoveLogWriter(LogWriter);
 
       bool bTestSuccess = m_iErrorCountBeforeTest == GetTotalErrorCount();

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Windows Performance Recorder Profile for ezEngine Tracing
+
+  This profile configures Windows Performance Recorder (wpr.exe) to capture
+  events from the ezTraceProvider (ETW TraceLogging provider).
+
+  Usage:
+    1. Start recording:
+       wpr -start Utilities\Tracing\ezTraceProvider.wprp -instancename ezEngine
+
+    2. Run your ezEngine application.
+
+    3. Stop recording and save:
+       wpr -stop MyTrace.etl -instancename ezEngine
+
+    4. Open the .etl file in Windows Performance Analyzer (WPA):
+       wpa MyTrace.etl
+
+    5. In WPA, navigate to:
+       System Activity -> Generic Events
+       Filter by Provider Name "ezTraceProvider" to see all events.
+
+  Provider Details:
+    Name: ezTraceProvider
+    GUID: {BFD4350A-BA77-463D-B4BE-E30374E42494}
+-->
+<WindowsPerformanceRecorder Version="1.0" Author="ezEngine" Tag="ezEngine">
+  <Profiles>
+
+    <!-- System Collector: captures kernel-level process/thread information so every event can be matched to a process name and PID. -->
+    <SystemCollector Id="SystemCollector_ezTrace" Name="ezTrace System Collector">
+      <BufferSize Value="256" />
+      <Buffers Value="20" />
+    </SystemCollector>
+
+    <!-- Event Collector: defines the buffer sizes for the ETW session -->
+    <EventCollector Id="EventCollector_ezTrace" Name="ezTrace Event Collector">
+      <BufferSize Value="1024" />
+      <Buffers Value="40" />
+    </EventCollector>
+
+    <!-- System Provider: ProcessThread captures process and thread start/stop events, Loader captures module loads for symbol resolution. -->
+    <SystemProvider Id="SystemProvider_ezTrace">
+      <Keywords>
+        <Keyword Value="ProcessThread" />
+        <Keyword Value="Loader" />
+      </Keywords>
+    </SystemProvider>
+
+    <!-- Event Provider: the ezTraceProvider registered via TraceLogging -->
+    <EventProvider Id="EventProvider_ezTrace"
+                   Name="BFD4350A-BA77-463D-B4BE-E30374E42494" />
+
+    <!-- Profile for verbose capture of all ezEngine trace events -->
+    <Profile Id="ezTraceProfile.Verbose.File"
+             Name="ezTraceProfile"
+             Description="Captures all ezEngine trace events with process information."
+             LoggingMode="File"
+             DetailLevel="Verbose">
+      <Collectors>
+        <SystemCollectorId Value="SystemCollector_ezTrace">
+          <SystemProviderId Value="SystemProvider_ezTrace" />
+        </SystemCollectorId>
+        <EventCollectorId Value="EventCollector_ezTrace">
+          <EventProviders>
+            <EventProviderId Value="EventProvider_ezTrace" />
+          </EventProviders>
+        </EventCollectorId>
+      </Collectors>
+    </Profile>
+
+    <!-- Memory variant for real-time viewing -->
+    <Profile Id="ezTraceProfile.Verbose.Memory"
+             Name="ezTraceProfile"
+             Description="Captures all ezEngine trace events with process information (circular buffer)."
+             LoggingMode="Memory"
+             DetailLevel="Verbose">
+      <Collectors>
+        <SystemCollectorId Value="SystemCollector_ezTrace">
+          <SystemProviderId Value="SystemProvider_ezTrace" />
+        </SystemCollectorId>
+        <EventCollectorId Value="EventCollector_ezTrace">
+          <EventProviders>
+            <EventProviderId Value="EventProvider_ezTrace" />
+          </EventProviders>
+        </EventCollectorId>
+      </Collectors>
+    </Profile>
+
+  </Profiles>
+</WindowsPerformanceRecorder>

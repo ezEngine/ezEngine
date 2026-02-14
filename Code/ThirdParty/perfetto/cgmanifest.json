@@ -1,0 +1,15 @@
+{
+  "Registrations": [
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/google/perfetto",
+          "commitHash": "c1bbc165292877349b219a12498c1e768015a9e8"
+        },
+        "version": "53.0"
+      }
+    }
+  ],
+  "$schema": "https://json.schemastore.org/component-detection-manifest.json"
+}

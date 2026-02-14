@@ -185,4 +185,66 @@ EZ_CREATE_SIMPLE_TEST(Utility, CommandLineUtils)
     EZ_TEST_DOUBLE(CmdLn.GetFloatOption("-Test4", 5.6), -11, 0.0);
     EZ_TEST_DOUBLE(CmdLn.GetFloatOption("-Test5"), 0, 0.0);
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SplitCommandLineString")
+  {
+    // Simple unquoted arguments.
+    {
+      ezDynamicArray<ezString> args;
+      ezDynamicArray<const char*> argv;
+      ezCommandLineUtils::SplitCommandLineString("-run -noGui -all", false, args, argv);
+
+      EZ_TEST_INT(args.GetCount(), 3);
+      EZ_TEST_STRING(args[0], "-run");
+      EZ_TEST_STRING(args[1], "-noGui");
+      EZ_TEST_STRING(args[2], "-all");
+      EZ_TEST_INT(argv.GetCount(), 3);
+    }
+
+    // Quoted argument with spaces.
+    {
+      ezDynamicArray<ezString> args;
+      ezDynamicArray<const char*> argv;
+      ezCommandLineUtils::SplitCommandLineString("-output \"C:/My Folder/file.txt\" -verbose", false, args, argv);
+
+      EZ_TEST_INT(args.GetCount(), 3);
+      EZ_TEST_STRING(args[0], "-output");
+      EZ_TEST_STRING(args[1], "C:/My Folder/file.txt");
+      EZ_TEST_STRING(args[2], "-verbose");
+    }
+
+    // Quoted argument without spaces (quotes should still be stripped).
+    {
+      ezDynamicArray<ezString> args;
+      ezDynamicArray<const char*> argv;
+      ezCommandLineUtils::SplitCommandLineString("-name \"hello\" -count 3", false, args, argv);
+
+      EZ_TEST_INT(args.GetCount(), 4);
+      EZ_TEST_STRING(args[0], "-name");
+      EZ_TEST_STRING(args[1], "hello");
+      EZ_TEST_STRING(args[2], "-count");
+      EZ_TEST_STRING(args[3], "3");
+    }
+
+    // Multiple spaces between arguments.
+    {
+      ezDynamicArray<ezString> args;
+      ezDynamicArray<const char*> argv;
+      ezCommandLineUtils::SplitCommandLineString("  -a   -b  ", false, args, argv);
+
+      EZ_TEST_INT(args.GetCount(), 2);
+      EZ_TEST_STRING(args[0], "-a");
+      EZ_TEST_STRING(args[1], "-b");
+    }
+
+    // Empty string.
+    {
+      ezDynamicArray<ezString> args;
+      ezDynamicArray<const char*> argv;
+      ezCommandLineUtils::SplitCommandLineString("", false, args, argv);
+
+      EZ_TEST_INT(args.GetCount(), 0);
+      EZ_TEST_INT(argv.GetCount(), 0);
+    }
+  }
 }
