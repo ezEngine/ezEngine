@@ -365,7 +365,7 @@ void ezAngelScriptEngineSingleton::Register_GameObject()
 
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezGameObject", "void PostMessage(const ezAngelScriptMessage& in, ezTime delay, ezObjectMsgQueueType delivery = ezObjectMsgQueueType::NextFrame)", asFUNCTION(ezGameObject_PostAsMessage), asCALL_GENERIC));
   AS_CHECK(m_pEngine->RegisterObjectMethod("ezGameObject", "void PostMessageRecursive(const ezAngelScriptMessage& in, ezTime delay, ezObjectMsgQueueType delivery = ezObjectMsgQueueType::NextFrame)", asFUNCTION(ezGameObject_PostAsMessageRecursive), asCALL_GENERIC));
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezGameObject", "bool PostEventMessage(ezAngelScriptMessage& inout, const ezComponent@ pSender, ezTime delay, ezObjectMsgQueueType delivery = ezObjectMsgQueueType::NextFrame)", asFUNCTION(ezGameObject_SendAsEventMessageConst), asCALL_GENERIC));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezGameObject", "bool PostEventMessage(ezAngelScriptMessage& inout, const ezComponent@ pSender, ezTime delay, ezObjectMsgQueueType delivery = ezObjectMsgQueueType::NextFrame)", asFUNCTION(ezGameObject_PostAsEventMessage), asCALL_GENERIC));
 }
 
 //////////////////////////////////////////////////////////////////////////
