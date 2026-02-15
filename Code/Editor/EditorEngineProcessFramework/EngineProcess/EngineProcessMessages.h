@@ -7,6 +7,7 @@
 #include <Foundation/Communication/RemoteMessage.h>
 #include <Foundation/Logging/LogEntry.h>
 #include <RendererCore/Pipeline/Declarations.h>
+#include <RendererFoundation/Resources/Texture.h>
 #include <ToolsFoundation/Object/DocumentObjectMirror.h>
 #include <ToolsFoundation/Reflection/ReflectedType.h>
 
@@ -258,7 +259,12 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezViewRedrawMsgToEngine : public ezEdi
   EZ_ADD_DYNAMIC_REFLECTION(ezViewRedrawMsgToEngine, ezEditorEngineViewMsg);
 
 public:
+#ifdef BUILDSYSTEM_ENGINE_PROCESS_SHARED_TEXTURE
+  ezUInt32 m_uiSharedTextureIndex = 0;
+  ezUInt64 m_uiSemaphoreCurrentValue = 0;
+#else
   ezUInt64 m_uiHWND;
+#endif
   ezUInt16 m_uiWindowWidth;
   ezUInt16 m_uiWindowHeight;
   bool m_bUpdatePickingData;
@@ -607,4 +613,22 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezObjectsForDebugVisMsgToEngine : publ
 
 public:
   ezDataBuffer m_Objects;
+};
+
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezViewOpenSharedTexturesMsgToEngine : public ezEditorEngineViewMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezViewOpenSharedTexturesMsgToEngine, ezEditorEngineViewMsg);
+
+public:
+  ezGALTextureCreationDescription m_TextureDesc;
+  ezHybridArray<ezGALPlatformSharedHandle, 3> m_TextureHandles;
+};
+
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezViewRenderingDoneMsgToEditor : public ezEditorEngineViewMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezViewRenderingDoneMsgToEditor, ezEditorEngineViewMsg);
+
+public:
+  ezUInt32 m_uiCurrentTextureIndex = 0;
+  ezUInt64 m_uiCurrentSemaphoreValue = 0;
 };

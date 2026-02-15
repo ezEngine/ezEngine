@@ -4,6 +4,7 @@
 #include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/IPC/EngineProcessConnection.h>
+#include <Foundation/Types/UniquePtr.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Math/Size.h>
 #include <QWidget>
@@ -15,6 +16,9 @@ class QHBoxLayout;
 class QPushButton;
 class QVBoxLayout;
 class ezViewMarqueePickingResultMsgToEditor;
+#ifdef BUILDSYSTEM_ENGINE_PROCESS_SHARED_TEXTURE
+class ezEngineViewWindow;
+#endif
 
 struct EZ_EDITORFRAMEWORK_DLL ezObjectPickingResult
 {
@@ -131,6 +135,9 @@ protected:
   void ShowRestartButton(bool bShow);
   void ShowProcessStuckIndicator(bool bShow);
   void RecreateEngineViewport();
+#ifdef BUILDSYSTEM_ENGINE_PROCESS_SHARED_TEXTURE
+  void SendSharedTextureOpenMessage();
+#endif
   virtual void OnOpenContextMenu(QPoint globalPos) {}
   virtual void HandleMarqueePickingResult(const ezViewMarqueePickingResultMsgToEditor* pMsg) {}
 
@@ -165,6 +172,10 @@ protected:
   mutable ezObjectPickingResult m_LastPickingResult;
 
   static InteractionContext s_InteractionContext;
+
+#ifdef BUILDSYSTEM_ENGINE_PROCESS_SHARED_TEXTURE
+  ezUniquePtr<ezEngineViewWindow> m_pWindow;
+#endif
 };
 
 /// \brief Wraps and decorates a view widget with a toolbar and layout.

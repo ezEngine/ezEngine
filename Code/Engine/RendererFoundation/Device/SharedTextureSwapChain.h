@@ -33,6 +33,9 @@ public:
   /// \param uiCurrentSemaphoreValue Current semaphore value of the texture.
   void Arm(ezUInt32 uiTextureIndex, ezUInt64 uiCurrentSemaphoreValue);
 
+  /// \brief Returns true if a texture has been armed for the next acquire.
+  bool IsArmed() const;
+
 protected:
   ezGALSharedTextureSwapChain(const ezGALSharedTextureSwapChainCreationDescription& desc);
   virtual void AcquireNextRenderTarget(ezGALDevice* pDevice) override;

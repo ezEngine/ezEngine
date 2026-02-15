@@ -657,6 +657,10 @@ void ezEngineProcessGameApplication::Init_FileSystem_ConfigureDataDirs()
 
   m_CustomFileSystemConfig.Apply();
 
+  // while (!ezSystemInformation::IsDebuggerAttached())
+  // {
+  //   ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
+  // }
   {
     // We need the file system before we can start the html logger.
     ezStringBuilder sLogName = "LogEngine";
@@ -667,6 +671,11 @@ void ezEngineProcessGameApplication::Init_FileSystem_ConfigureDataDirs()
     ezOsProcessID uiProcessID = ezProcess::GetCurrentProcessID();
     ezStringBuilder sLogFile;
     sLogFile.SetFormat(":appdata/Logs/{0}_{1}.htm", sLogName, uiProcessID);
+
+    ezStringBuilder sAbsAppDataPath;
+    ezFileSystem::ResolvePath(":appdata/", &sAbsAppDataPath, nullptr).AssertSuccess();
+    ezLog::Info("Resolved app data path: '{0}'", sAbsAppDataPath);
+    ezCrashHandler_WriteMiniDump::g_Instance.SetDumpFilePath(sAbsAppDataPath, "EngineProcess");
     m_LogHTML.BeginLog(sLogFile, "EditorEngineProcess");
   }
 }

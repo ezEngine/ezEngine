@@ -5,6 +5,9 @@
 #include <Foundation/Communication/IpcProcessMessageProtocol.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/System/Process.h>
+#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+#include <sys/prctl.h>
+#endif
 
 ezResult ezEditorProcessCommunicationChannel::StartClientProcess(const char* szProcess, const QStringList& args, bool bRemote, const ezRTTI* pFirstAllowedMessageType, ezUInt32 uiMemSize)
 {
@@ -78,6 +81,14 @@ ezResult ezEditorProcessCommunicationChannel::StartClientProcess(const char* szP
       ezLog::Error("Failed to start process '{0}'", sPath);
       return EZ_FAILURE;
     }
+
+#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+    // pidfd_getfd which is used to open the shared textures on Linux Vulkan is blocked by Yama ptrace_scope. With this command we allow our child process to ptrace us.
+    if (prctl(PR_SET_PTRACER, m_pClientProcess->processId()) != 0)
+    {
+      ezLog::Error("prctl command failed with: {}", ezArgErrno(errno));
+    }
+#endif
   }
 
   return EZ_SUCCESS;

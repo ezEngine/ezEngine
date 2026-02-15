@@ -9,7 +9,12 @@
 #include <Foundation/Utilities/CommandLineUtils.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererTest/Advanced/AdvancedFeatures.h>
+
 #include <RendererTest/Basics/RendererTestUtils.h>
+#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+//#include <linux/prctl.h>
+#include <sys/prctl.h>
+#endif
 #undef CreateWindow
 
 
@@ -247,13 +252,9 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
     opt.m_Arguments.PushBack(sRendererName);
     opt.m_Arguments.PushBack("-outputDir");
     opt.m_Arguments.PushBack(ezTestFramework::GetInstance()->GetAbsOutputPath());
-
-
     m_pOffscreenProcess = EZ_DEFAULT_NEW(ezProcess);
-    EZ_SUCCEED_OR_RETURN(m_pOffscreenProcess->Launch(opt));
 
-    m_bExiting = false;
-    m_uiReceivedTextures = 0;
+    // Start the IPC server and wait for the "Connecting" state before starting the client process or it will fail to connect.
     m_pChannel = ezIpcChannel::CreatePipeChannel(sIPC, ezIpcChannel::Mode::Server);
     m_pProtocol = EZ_DEFAULT_NEW(ezIpcProcessMessageProtocol, m_pChannel.Borrow());
     m_pProtocol->m_MessageEvent.AddEventHandler(ezMakeDelegate(&ezRendererTestAdvancedFeatures::OffscreenProcessMessageFunc, this));
@@ -262,6 +263,20 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
     {
       ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(16));
     }
+
+    EZ_SUCCEED_OR_RETURN(m_pOffscreenProcess->Launch(opt));
+
+#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+    // pidfd_getfd which is used to open the shared textures on Linux Vulkan is blocked by Yama ptrace_scope. With this command we allow our child process to ptrace us.
+    if (prctl(PR_SET_PTRACER, m_pOffscreenProcess->GetProcessID()) != 0)
+    {
+      ezLog::Error("prctl command failed with: {}", ezArgErrno(errno));
+    }
+#endif
+
+    m_bExiting = false;
+    m_uiReceivedTextures = 0;
+
     m_SharedTextureDesc.SetAsRenderTarget(8, 8, ezGALResourceFormat::BGRAUByteNormalizedsRGB);
     m_SharedTextureDesc.m_Type = ezGALTextureType::Texture2DShared;
 

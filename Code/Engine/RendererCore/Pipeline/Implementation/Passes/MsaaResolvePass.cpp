@@ -74,6 +74,10 @@ void ezMsaaResolvePass::Execute(const ezRenderViewContext& renderViewContext, co
   {
     return;
   }
+  if (pInput->m_TextureHandle.IsInvalidated() || pOutput->m_TextureHandle.IsInvalidated())
+  {
+    return;
+  }
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 

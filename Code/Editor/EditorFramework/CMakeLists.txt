@@ -15,3 +15,8 @@ target_link_libraries(${PROJECT_NAME}
   GuiFoundation
   EditorEngineProcessFramework
 )
+
+if(EZ_CMAKE_PLATFORM_LINUX)
+  ez_add_renderers(${PROJECT_NAME})
+  target_link_libraries(${PROJECT_NAME} PRIVATE xcb)
+endif()

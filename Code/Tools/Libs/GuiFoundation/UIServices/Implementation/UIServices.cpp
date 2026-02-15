@@ -1,3 +1,5 @@
+
+
 #include <GuiFoundation/GuiFoundationPCH.h>
 
 #include <Foundation/Configuration/Startup.h>
@@ -6,6 +8,8 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Time/Stopwatch.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <Core/ResourceManager/ResourceManager.h>
+#include <Foundation/Communication/Telemetry.h>
 #include <QDesktopServices>
 #include <QDir>
 #include <QIcon>
@@ -307,6 +311,13 @@ void ezQtUiServices::TickEventHandler()
     s_TickEvent.Broadcast(s_LastTickEvent);
     s_LastTickEvent.m_Type = TickEvent::Type::EndFrame;
     s_TickEvent.Broadcast(s_LastTickEvent);
+
+    ezTelemetry::PerFrameUpdate();
+    ezResourceManager::PerFrameUpdate();
+    ezTaskSystem::FinishFrameTasks();
+    ezFrameAllocator::Swap();
+    ezProfilingSystem::StartNewFrame();
+
     m_bIsDrawingATM = false;
   }
   const ezTime endTime = ezTime::Now();

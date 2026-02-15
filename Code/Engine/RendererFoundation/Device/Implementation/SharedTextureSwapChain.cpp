@@ -43,6 +43,11 @@ void ezGALSharedTextureSwapChain::Arm(ezUInt32 uiTextureIndex, ezUInt64 uiCurren
   m_RenderTargets.m_hRTs[0] = m_SharedTextureHandles[m_uiCurrentTexture];
 }
 
+bool ezGALSharedTextureSwapChain::IsArmed() const
+{
+  return m_uiCurrentTexture != ezMath::MaxValue<ezUInt32>();
+}
+
 void ezGALSharedTextureSwapChain::AcquireNextRenderTarget(ezGALDevice* pDevice)
 {
   EZ_IGNORE_UNUSED(pDevice);

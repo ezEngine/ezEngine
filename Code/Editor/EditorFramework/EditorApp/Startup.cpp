@@ -328,6 +328,12 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
   ezStartup::StartupCoreSystems();
 
   {
+    ezEditorAppEvent e;
+    e.m_Type = ezEditorAppEvent::Type::AfterCoreSystemStartup;
+    m_Events.Broadcast(e);
+  }
+
+  {
     // Make sure that we have at least 4 worker threads for short running and 4 worker threads for long running tasks.
     // Otherwise the Editor might deadlock during asset transform.
     ezInt32 iLongThreads = ezMath::Max(4, (ezInt32)ezTaskSystem::GetNumAllocatedWorkerThreads(ezWorkerThreadType::LongTasks));
@@ -353,6 +359,7 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
     ezFileSystem::AddDataDirectory(">appdir/", "AppBin", "bin", ezDataDirUsage::AllowWrites).IgnoreResult();     // writing to the binary directory
     ezFileSystem::AddDataDirectory(sAppDir, "AppData", "app").IgnoreResult();                                    // app specific data
     ezFileSystem::AddDataDirectory(sUserData, "AppData", "appdata", ezDataDirUsage::AllowWrites).IgnoreResult(); // for writing app user data
+    ezFileSystem::AddDataDirectory(">appdir/", "AppBin", "shadercache", ezDataDirUsage::AllowWrites).IgnoreResult(); // ":shadercache/" for reading and writing shader files
   }
 
   {
@@ -388,6 +395,8 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
   ezCppProject::LoadPreferences();
 
   ezQtUiServices::GetSingleton()->LoadState();
+
+  // TODO: New event that signals that the editor is fully up and running.
 
   if (!IsInHeadlessMode())
   {
@@ -486,6 +495,7 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 void ezQtEditorApp::ShutdownEditor()
 {
   m_bIsRunning = false;
+
   ezStackTraceLogParser::Unregister();
 
   // ezToolsProject::SaveProjectState();
@@ -538,6 +548,12 @@ void ezQtEditorApp::ShutdownEditor()
   qApp->processEvents();
 
   delete m_pEngineViewProcess;
+
+  {
+    ezEditorAppEvent e;
+    e.m_Type = ezEditorAppEvent::Type::BeforeCoreSystemShutdown;
+    m_Events.Broadcast(e);
+  }
 
   // Unload potential plugin referenced clipboard data to prevent crash on shutdown.
   QApplication::clipboard()->clear();

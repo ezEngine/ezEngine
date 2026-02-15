@@ -11,7 +11,9 @@
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Device/SharedTextureSwapChain.h>
 #include <RendererFoundation/Device/SwapChain.h>
+#include <RendererFoundation/Resources/Texture.h>
 #include <Texture/Image/Image.h>
 
 ezEngineProcessViewContext::ezEngineProcessViewContext(ezEngineProcessDocumentContext* pContext)
@@ -25,7 +27,14 @@ ezEngineProcessViewContext::~ezEngineProcessViewContext()
   ezRenderWorld::DeleteView(m_hView);
   m_hView.Invalidate();
 
+  if (!m_hSwapChain.IsInvalidated())
+  {
+    ezGALDevice::GetDefaultDevice()->DestroySwapChain(m_hSwapChain);
+    m_hSwapChain.Invalidate();
+  }
+
   ezWindowManager::GetSingleton()->CloseAll(this);
+  ezGALDevice::GetDefaultDevice()->WaitIdle();
 }
 
 void ezEngineProcessViewContext::SetViewID(ezUInt32 uiId)
@@ -45,14 +54,33 @@ void ezEngineProcessViewContext::HandleViewMessage(const ezEditorEngineViewMsg* 
 
     if (pMsg2->m_uiWindowWidth > 0 && pMsg2->m_uiWindowHeight > 0)
     {
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#  ifndef BUILDSYSTEM_ENGINE_PROCESS_SHARED_TEXTURE
+#    if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
       HandleWindowUpdate(reinterpret_cast<ezWindowHandle>(pMsg2->m_uiHWND), pMsg2->m_uiWindowWidth, pMsg2->m_uiWindowHeight);
-#  else
+#    else
       ezWindowHandle windowHandle;
       windowHandle.type = ezWindowHandle::Type::XCB;
       windowHandle.xcbWindow.m_Window = static_cast<ezUInt32>(pMsg2->m_uiHWND);
       windowHandle.xcbWindow.m_pConnection = nullptr;
       HandleWindowUpdate(windowHandle, pMsg2->m_uiWindowWidth, pMsg2->m_uiWindowHeight);
+#    endif
+#  else
+      if (!m_hSwapChain.IsInvalidated())
+      {
+        auto pSwapChain = const_cast<ezGALSharedTextureSwapChain*>(ezGALDevice::GetDefaultDevice()->GetSwapChain<ezGALSharedTextureSwapChain>(m_hSwapChain));
+        if (pSwapChain != nullptr)
+        {
+          ezLog::Warning("[SharedTex] Engine RECV redraw: tex={}, sem={}", pMsg2->m_uiSharedTextureIndex, pMsg2->m_uiSemaphoreCurrentValue);
+          pSwapChain->Arm(pMsg2->m_uiSharedTextureIndex, pMsg2->m_uiSemaphoreCurrentValue);
+
+          if (m_bSwapChainDirty)
+          {
+            ezSizeU32 swapChainSize = pSwapChain->GetCurrentSize();
+            SetupRenderTarget(m_hSwapChain, nullptr, static_cast<ezUInt16>(swapChainSize.width), static_cast<ezUInt16>(swapChainSize.height));
+            m_bSwapChainDirty = false;
+          }
+        }
+      }
 #  endif
       Redraw(true);
     }
@@ -64,6 +92,30 @@ void ezEngineProcessViewContext::HandleViewMessage(const ezEditorEngineViewMsg* 
     {
       img.SaveTo(msg->m_sOutputFile).IgnoreResult();
     }
+  }
+  else if (const auto* msg = ezDynamicCast<const ezViewOpenSharedTexturesMsgToEngine*>(pMsg))
+  {
+    ezLog::Warning("[SharedTex] Engine RECV open: textureCount={}, size={}x{}", msg->m_TextureHandles.GetCount(), msg->m_TextureDesc.m_uiWidth, msg->m_TextureDesc.m_uiHeight);
+    ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+
+    if (!m_hSwapChain.IsInvalidated())
+    {
+      pDevice->DestroySwapChain(m_hSwapChain);
+      m_hSwapChain.Invalidate();
+    }
+
+    ezGALSharedTextureSwapChainCreationDescription desc;
+    desc.m_TextureDesc = msg->m_TextureDesc;
+    desc.m_Textures = msg->m_TextureHandles;
+    desc.m_OnPresent = ezMakeDelegate(&ezEngineProcessViewContext::OnPresent, this);
+
+    m_hSwapChain = ezGALSharedTextureSwapChain::Create(desc);
+    if (m_hSwapChain.IsInvalidated())
+    {
+      EZ_REPORT_FAILURE("Failed to create shared texture swapchain");
+    }
+
+    m_bSwapChainDirty = true;
   }
 #else
 #  error "Unsupported platform."
@@ -145,6 +197,15 @@ void ezEngineProcessViewContext::OnSwapChainChanged(ezGALSwapChainHandle hSwapCh
     pView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)size.width, (float)size.height));
     pView->ForceUpdate();
   }
+}
+
+void ezEngineProcessViewContext::OnPresent(ezUInt32 uiCurrentTexture, ezUInt64 uiCurrentSemaphoreValue)
+{
+  ezLog::Warning("[SharedTex] Engine SEND render done: tex={}, sem={}", uiCurrentTexture, uiCurrentSemaphoreValue);
+  ezViewRenderingDoneMsgToEditor msg;
+  msg.m_uiCurrentTextureIndex = uiCurrentTexture;
+  msg.m_uiCurrentSemaphoreValue = uiCurrentSemaphoreValue;
+  SendViewMessage(&msg);
 }
 
 void ezEngineProcessViewContext::SetupRenderTarget(ezGALSwapChainHandle hSwapChain, const ezGALRenderTargets* pRenderTargets, ezUInt16 uiWidth, ezUInt16 uiHeight)

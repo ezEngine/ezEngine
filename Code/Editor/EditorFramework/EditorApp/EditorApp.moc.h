@@ -35,6 +35,8 @@ struct EZ_EDITORFRAMEWORK_DLL ezEditorAppEvent
 {
   enum class Type
   {
+    AfterCoreSystemStartup,  ///< Sent right after ezStartup::StartupCoreSystems() completed.
+    BeforeCoreSystemShutdown, ///< Sent before the editor begins shutting down core systems.
     BeforeApplyDataDirectories, ///< Sent after data directory config was loaded, but before it is applied. Allows to add custom
                                 ///< dependencies at the right moment.
     ReloadResources,            ///< Sent when 'ReloadResources' has been triggered (and a message was sent to the engine)

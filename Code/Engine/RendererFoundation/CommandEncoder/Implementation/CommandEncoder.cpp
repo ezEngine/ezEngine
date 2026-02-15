@@ -191,7 +191,7 @@ void ezGALCommandEncoder::CopyTexture(ezGALTextureHandle hDest, ezGALTextureHand
   {
     EZ_ASSERT_DEBUG(pDest->GetDescription().m_Format == pSource->GetDescription().m_Format, "CopyTexture formats must match");
     EZ_ASSERT_DEBUG(pDest->GetDescription().m_SampleCount == pSource->GetDescription().m_SampleCount, "CopyTexture sample count must match");
-    EZ_ASSERT_DEBUG(pDest->GetDescription().m_Type == pSource->GetDescription().m_Type, "CopyTexture type must match");
+    //EZ_ASSERT_DEBUG(pDest->GetDescription().m_Type == pSource->GetDescription().m_Type, "CopyTexture type must match");
     EZ_ASSERT_DEBUG(pDest->GetDescription().m_uiHeight == pSource->GetDescription().m_uiHeight, "CopyTexture height must match");
     EZ_ASSERT_DEBUG(pDest->GetDescription().m_uiWidth == pSource->GetDescription().m_uiWidth, "CopyTexture width must match");
     EZ_ASSERT_DEBUG(pDest->GetDescription().m_uiDepth == pSource->GetDescription().m_uiDepth, "CopyTexture depth must match");

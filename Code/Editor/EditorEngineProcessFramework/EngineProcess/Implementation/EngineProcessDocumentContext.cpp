@@ -504,7 +504,11 @@ ezStatus ezEngineProcessDocumentContext::ExportDocument(const ezExportDocumentMs
 void ezEngineProcessDocumentContext::CreateThumbnailViewContext(const ezCreateThumbnailMsgToEngine* pMsg)
 {
   EZ_ASSERT_DEV(!ezEditorEngineProcessApp::GetSingleton()->IsRemoteMode(), "Wrong mode for thumbnail creation");
-  EZ_ASSERT_DEV(m_pThumbnailViewContext == nullptr, "Thumbnail rendering already in progress.");
+  if (m_pThumbnailViewContext != nullptr)
+  {
+    ezLog::Warning("Thumbnail rendering already in progress. Cancelling previous thumbnail request.");
+    DestroyThumbnailViewContext();
+  }
   static_assert((ThumbnailSuperscaleFactor & (ThumbnailSuperscaleFactor - 1)) == 0, "ThumbnailSuperscaleFactor must be power of 2.");
   m_uiThumbnailConvergenceFrames = 0;
   m_uiThumbnailWidth = pMsg->m_uiWidth * ThumbnailSuperscaleFactor;

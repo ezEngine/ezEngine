@@ -262,14 +262,15 @@ public:
   // Default sampler state
   static ezGALSamplerStateCreationDescription GetDefaultSamplerState(ezBitflags<ezDefaultSamplerFlags> flags);
 
+  static void OnEngineStartup();
+  static void OnEngineShutdown();
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererCore, RendererContext);
 
   void ResetContextState();
   static void LoadBuiltinShader(ezShaderUtils::ezBuiltinShaderType type, ezShaderUtils::ezBuiltinShader& out_shader);
   static void RegisterImmutableSamplers();
-  static void OnEngineStartup();
-  static void OnEngineShutdown();
+
   static void GALStaticDeviceEventHandler(const ezGALDeviceEvent& e);
 
 private:

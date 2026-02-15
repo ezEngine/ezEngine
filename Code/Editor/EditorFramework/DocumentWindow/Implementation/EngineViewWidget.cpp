@@ -3,11 +3,21 @@
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
+#include <EditorFramework/Renderer/EditorRendererSubsystem.h>
 #include <EditorFramework/InputContexts/EditorInputContext.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <QLabel>
+
+#ifdef BUILDSYSTEM_ENGINE_PROCESS_SHARED_TEXTURE
+#  include <Core/System/Window.h>
+#  include <EditorFramework/Renderer/EngineViewWindow.h>
+
+#  if EZ_ENABLED(EZ_PLATFORM_LINUX)
+#    include <xcb/xcb.h>
+#  endif
+#endif
 
 ezUInt32 ezQtEngineViewWidget::s_uiNextViewID = 0;
 
@@ -65,6 +75,13 @@ ezQtEngineViewWidget::ezQtEngineViewWidget(QWidget* pParent, ezQtEngineDocumentW
   m_pMainLayout->setContentsMargins(0, 0, 0, 0);
   setLayout(m_pMainLayout);
 
+#ifdef BUILDSYSTEM_ENGINE_PROCESS_SHARED_TEXTURE
+  if (auto* pDevice = ezEditorRendererSubsystem::GetDevice())
+  {
+    m_pWindow = EZ_DEFAULT_NEW(ezEngineViewWindow, pDevice);
+  }
+#endif
+
   RecreateEngineViewport();
 
   m_bUpdatePickingData = false;
@@ -80,6 +97,10 @@ ezQtEngineViewWidget::ezQtEngineViewWidget(QWidget* pParent, ezQtEngineDocumentW
 
   if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
     ShowRestartButton(true);
+
+#ifdef BUILDSYSTEM_ENGINE_PROCESS_SHARED_TEXTURE
+  SendSharedTextureOpenMessage();
+#endif
 }
 
 
@@ -137,7 +158,6 @@ void ezQtEngineViewWidget::SyncToEngine()
   cam.m_ViewMatrix = m_pViewConfig->m_Camera.GetViewMatrix();
   m_pViewConfig->m_Camera.GetProjectionMatrix((float)m_pViewportWidget->width() / (float)m_pViewportWidget->height(), cam.m_ProjMatrix);
 
-  cam.m_uiHWND = (ezUInt64)(m_pViewportWidget->winId());
   cam.m_uiWindowWidth = m_pViewportWidget->width() * this->devicePixelRatio();
   cam.m_uiWindowHeight = m_pViewportWidget->height() * this->devicePixelRatio();
   cam.m_bUpdatePickingData = m_bUpdatePickingData;
@@ -149,6 +169,39 @@ void ezQtEngineViewWidget::SyncToEngine()
     cam.m_uiWindowWidth = s_FixedResolution.width;
     cam.m_uiWindowHeight = s_FixedResolution.height;
   }
+
+#ifdef BUILDSYSTEM_ENGINE_PROCESS_SHARED_TEXTURE
+  if (m_pWindow != nullptr)
+  {
+#  if EZ_ENABLED(EZ_PLATFORM_LINUX)
+    ezWindowHandle hWindow = {};
+    hWindow.type = ezWindowHandle::Type::XCB;
+    hWindow.xcbWindow.m_Window = static_cast<ezUInt32>(m_pViewportWidget->winId());
+    hWindow.xcbWindow.m_pConnection = nullptr;
+#  elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+    ezWindowHandle hWindow = reinterpret_cast<ezWindowHandle>(m_pViewportWidget->winId());
+#  endif
+
+    if (m_pWindow->UpdateWindow(hWindow, cam.m_uiWindowWidth, cam.m_uiWindowHeight).Failed())
+    {
+      ezLog::Error("Failed to update editor view window for shared texture rendering");
+      return;
+    }
+
+    SendSharedTextureOpenMessage();
+
+    if (m_pWindow->FillRedrawMessage(cam).Failed())
+    {
+      return;
+    }
+  }
+  else
+  {
+    return;
+  }
+#else
+  cam.m_uiHWND = (ezUInt64)(m_pViewportWidget->winId());
+#endif
 
   m_pDocumentWindow->GetEditorEngineConnection()->SendMessage(&cam);
 }
@@ -315,6 +368,16 @@ void ezQtEngineViewWidget::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
     HandleMarqueePickingResult(pFullMsg);
     return;
   }
+#ifdef BUILDSYSTEM_ENGINE_PROCESS_SHARED_TEXTURE
+  else if (const ezViewRenderingDoneMsgToEditor* pFullMsg = ezDynamicCast<const ezViewRenderingDoneMsgToEditor*>(pMsg))
+  {
+    if (m_pWindow != nullptr)
+    {
+      m_pWindow->Render(pFullMsg->m_uiCurrentTextureIndex, pFullMsg->m_uiCurrentSemaphoreValue);
+    }
+    return;
+  }
+#endif
 }
 
 ezPlane ezQtEngineViewWidget::GetFallbackPickingPlane(ezVec3 vPointOnPlane) const
@@ -331,6 +394,14 @@ ezPlane ezQtEngineViewWidget::GetFallbackPickingPlane(ezVec3 vPointOnPlane) cons
 
 void ezQtEngineViewWidget::TakeScreenshot(const char* szOutputPath) const
 {
+#ifdef BUILDSYSTEM_ENGINE_PROCESS_SHARED_TEXTURE
+  if (m_pWindow != nullptr)
+  {
+    m_pWindow->RequestScreenshot(szOutputPath);
+    m_pDocumentWindow->TriggerRedraw();
+    return;
+  }
+#endif
   ezViewScreenshotMsgToEngine msg;
   msg.m_uiViewID = GetViewID();
   msg.m_sOutputFile = szOutputPath;
@@ -649,6 +720,9 @@ void ezQtEngineViewWidget::EngineViewProcessEventHandler(const ezEditorEnginePro
     {
       RecreateEngineViewport();
       ShowRestartButton(false);
+#ifdef BUILDSYSTEM_ENGINE_PROCESS_SHARED_TEXTURE
+      SendSharedTextureOpenMessage();
+#endif
     }
     break;
 
@@ -764,6 +838,27 @@ void ezQtEngineViewWidget::RecreateEngineViewport()
     m_pMainLayout->addWidget(m_pViewportWidget);
   }
 }
+
+#ifdef BUILDSYSTEM_ENGINE_PROCESS_SHARED_TEXTURE
+void ezQtEngineViewWidget::SendSharedTextureOpenMessage()
+{
+  if (m_pWindow == nullptr || !m_pWindow->IsOpenMessagePending())
+  {
+    return;
+  }
+
+  ezViewOpenSharedTexturesMsgToEngine msg;
+  msg.m_uiViewID = GetViewID();
+  if (m_pWindow->FillOpenMessage(msg).Succeeded())
+  {
+    m_pDocumentWindow->GetDocument()->SendMessageToEngine(&msg);
+  }
+  else
+  {
+    ezLog::Error("Failed to send shared texture initialization message to engine process");
+  }
+}
+#endif
 
 ////////////////////////////////////////////////////////////////////////
 // ezQtEngineViewWidget private slots

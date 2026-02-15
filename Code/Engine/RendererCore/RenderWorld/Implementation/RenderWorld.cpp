@@ -11,9 +11,10 @@
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Device/SharedTextureSwapChain.h>
 #include <RendererFoundation/Profiling/Profiling.h>
 
-ezCVarBool cvar_RenderingMultithreading("Rendering.Multithreading", true, ezCVarFlags::Default, "Enables multi-threaded update and rendering");
+ezCVarBool cvar_RenderingMultithreading("Rendering.Multithreading", false, ezCVarFlags::Default, "Enables multi-threaded update and rendering");
 ezCVarBool cvar_RenderingCachingStaticObjects("Rendering.Caching.StaticObjects", true, ezCVarFlags::Default, "Enables render data caching of static objects");
 
 ezEvent<ezView*, ezMutex> ezRenderWorld::s_ViewCreatedEvent;
@@ -618,6 +619,15 @@ void ezRenderWorld::BeginFrame()
     ezGALSwapChainHandle hSwapChain = pRenderPipeline->GetRenderData().GetViewData().m_hSwapChain;
     if (!hSwapChain.IsInvalidated())
     {
+      if (const auto* pSharedSwapChain = pDevice->GetSwapChain<ezGALSharedTextureSwapChain>(hSwapChain))
+      {
+        if (!pSharedSwapChain->IsArmed())
+        {
+          ezLog::Error("Swapchain not armed");
+          continue;
+        }
+      }
+
       pDevice->EnqueueFrameSwapChain(hSwapChain);
     }
   }

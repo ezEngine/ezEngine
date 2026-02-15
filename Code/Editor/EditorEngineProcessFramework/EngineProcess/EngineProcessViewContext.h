@@ -74,6 +74,7 @@ protected:
   void SendViewMessage(ezEditorEngineViewMsg* pViewMsg);
   void HandleWindowUpdate(ezWindowHandle hWnd, ezUInt16 uiWidth, ezUInt16 uiHeight);
   void OnSwapChainChanged(ezGALSwapChainHandle hSwapChain, ezSizeU32 size);
+  void OnPresent(ezUInt32 uiCurrentTexture, ezUInt64 uiCurrentSemaphoreValue);
 
   virtual void SetCamera(const ezViewRedrawMsgToEngine* pMsg);
 
@@ -89,6 +90,8 @@ protected:
 private:
   ezEngineProcessDocumentContext* m_pDocumentContext;
   ezRegisteredWndHandle m_hEditorWindow;
+  ezGALSwapChainHandle m_hSwapChain;
+  bool m_bSwapChainDirty = false;
 
 protected:
   ezCamera m_Camera;
