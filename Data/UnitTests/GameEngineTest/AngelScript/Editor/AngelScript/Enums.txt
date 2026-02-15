@@ -23,7 +23,9 @@ Cloth
 Column
 Cone
 Continuing
+Controlled
 Culling
+Custom
 CustomPose
 Deactivated
 Debris
@@ -54,6 +56,7 @@ EditorView
 EnsureEntriesExist
 EveryFrame
 ExtremeShockwave
+FitToSegment
 Fixed
 FixedCornerBottomLeft
 FixedCornerBottomRight
@@ -75,6 +78,7 @@ ImpactReactions
 Left
 LeftController
 LightBreeze
+Limp
 Linear
 LoadAndSwitch
 Local
@@ -93,6 +97,7 @@ Max5FPS
 Max5fps
 Max60FPS
 MediumShockwave
+Mesh
 ModerateBreeze
 Modulate
 ModulateIndirect
@@ -104,6 +109,7 @@ NextFrame
 NoDrive
 NoLimit
 None
+Off
 Once
 OnlyPosition
 OrthoFixedHeight
@@ -117,6 +123,7 @@ PositiveY
 PositiveZ
 PostAsync
 PostTransform
+Powered
 Preload
 PreserveGlobal
 PreserveLocal
@@ -141,6 +148,8 @@ RollXReactions
 RollYReactions
 RollZReactions
 Rope
+ScaleEvenly
+ScaleEvenlyPerSegment
 Seated
 SemiFixed
 SendMoveCharacterMsg
@@ -173,7 +182,8 @@ VisContacts
 VisFootCheck
 VisGroundContact
 VisShape
-VisualizePath
+VisualizeSpline
+VisualizeTangents
 VisualizeUpDir
 Vortex
 WeakShockwave

@@ -54,6 +54,27 @@ enum ezOccluderType
 {
   Box = 0,
   QuadPosX = 1,
+  Mesh = 2,
+}
+
+enum ezSplineComponentSpace
+{
+  Local = 0,
+  Global = 1,
+}
+
+enum ezSplineComponentFlags
+{
+  VisualizeSpline = 1,
+  VisualizeUpDir = 2,
+  VisualizeTangents = 4,
+}
+
+enum ezSplineTangentMode
+{
+  Auto = 0,
+  Custom = 1,
+  Linear = 2,
 }
 
 enum ezSpriteBlendMode
@@ -93,6 +114,13 @@ enum ezFillLightMode
   ModulateIndirect = 2,
 }
 
+enum ezSplineMeshDistributionMode
+{
+  FitToSegment = 0,
+  ScaleEvenly = 1,
+  ScaleEvenlyPerSegment = 2,
+}
+
 enum ezUpdateRate
 {
   EveryFrame = 0,
@@ -122,23 +150,11 @@ enum ezPropertyAnimMode
   BackAndForth = 2,
 }
 
-enum ezFollowPathMode
+enum ezFollowSplineMode
 {
   OnlyPosition = 0,
   AlignUpZ = 1,
   FullRotation = 2,
-}
-
-enum ezPathComponentFlags
-{
-  VisualizePath = 1,
-  VisualizeUpDir = 2,
-}
-
-enum ezPathNodeTangentMode
-{
-  Auto = 0,
-  Linear = 1,
 }
 
 enum ezRootMotionMode
@@ -317,6 +333,14 @@ enum ezJoltRagdollStartMode
   WithBindPose = 0,
   WithNextAnimPose = 1,
   WithCurrentMeshPose = 2,
+}
+
+enum ezJoltRagdollAnimMode
+{
+  Off = 0,
+  Limp = 1,
+  Powered = 2,
+  Controlled = 3,
 }
 
 enum ezJoltRopeAnchorConstraintMode
@@ -657,7 +681,7 @@ class ezTransform
   void SetIdentity();
   float GetMaxScale() const;
   bool HasMirrorScaling() const;
-  bool ContainsUniformScale() const;
+  bool HasOnlyUniformScaling() const;
   bool IsValid() const;
   bool IsIdentical(const ezTransform&in) const;
   bool IsEqual(const ezTransform&in, float fEpsilon) const;
@@ -1083,8 +1107,11 @@ class ezGameObject
   bool SendMessage(ezAngelScriptMessage&inout) const;
   bool SendMessageRecursive(ezAngelScriptMessage&inout);
   bool SendMessageRecursive(ezAngelScriptMessage&inout) const;
+  bool SendEventMessage(ezAngelScriptMessage&inout, const ezComponent@ pSender);
+  bool SendEventMessage(ezAngelScriptMessage&inout, const ezComponent@ pSender) const;
   void PostMessage(const ezAngelScriptMessage&in, ezTime delay, ezObjectMsgQueueType delivery = ezObjectMsgQueueType::NextFrame);
   void PostMessageRecursive(const ezAngelScriptMessage&in, ezTime delay, ezObjectMsgQueueType delivery = ezObjectMsgQueueType::NextFrame);
+  void PostEventMessage(ezAngelScriptMessage&inout, const ezComponent@ pSender, ezTime delay, ezObjectMsgQueueType delivery = ezObjectMsgQueueType::NextFrame);
 }
 
 class ezComponent
@@ -1124,6 +1151,8 @@ class ezComponent
   ezRenderTargetActivatorComponent@ opCast();
   ezRopeRenderComponent@ opCast();
   ezSkyBoxComponent@ opCast();
+  ezSplineComponent@ opCast();
+  ezSplineNodeComponent@ opCast();
   ezSpriteComponent@ opCast();
   ezDebugTextComponent@ opCast();
   ezDecalComponent@ opCast();
@@ -1142,14 +1171,13 @@ class ezComponent
   ezLodMeshComponent@ opCast();
   ezMeshComponent@ opCast();
   ezMeshComponentBase@ opCast();
+  ezSplineMeshComponent@ opCast();
   ezSensorComponent@ opCast();
   ezSensorSphereComponent@ opCast();
   ezSensorCylinderComponent@ opCast();
   ezSensorConeComponent@ opCast();
   ezColorAnimationComponent@ opCast();
-  ezFollowPathComponent@ opCast();
-  ezPathComponent@ opCast();
-  ezPathNodeComponent@ opCast();
+  ezFollowSplineComponent@ opCast();
   ezPropertyAnimComponent@ opCast();
   ezResetTransformComponent@ opCast();
   ezRotorComponent@ opCast();
@@ -1186,11 +1214,11 @@ class ezComponent
   ezVolumeComponent@ opCast();
   ezVolumeSphereComponent@ opCast();
   ezVolumeBoxComponent@ opCast();
+  ezVolumeSamplerComponent@ opCast();
   ezDeviceTrackingComponent@ opCast();
   ezSpatialAnchorComponent@ opCast();
   ezStageSpaceComponent@ opCast();
   ezVisualizeHandComponent@ opCast();
-  ezGizmoComponent@ opCast();
   ezJoltActorComponent@ opCast();
   ezJoltDynamicActorComponent@ opCast();
   ezJoltQueryShapeActorComponent@ opCast();
@@ -1200,11 +1228,13 @@ class ezComponent
   ezJoltDefaultCharacterComponent@ opCast();
   ezJoltBreakableSlabComponent@ opCast();
   ezJoltClothSheetComponent@ opCast();
+  ezJoltGenerateCollisionComponent@ opCast();
   ezJoltHitboxComponent@ opCast();
   ezJoltRagdollComponent@ opCast();
   ezJoltRopeComponent@ opCast();
   ezJoltSettingsComponent@ opCast();
   ezJoltVisColMeshComponent@ opCast();
+  ezJoltWaterVolumeComponent@ opCast();
   ezJoltConeConstraintComponent@ opCast();
   ezJoltConstraintComponent@ opCast();
   ezJoltDistanceConstraintComponent@ opCast();
@@ -1265,38 +1295,22 @@ class ezMessage
   ezMsgPhysicsJointBroke@ opCast();
   ezMsgObjectGrabbed@ opCast();
   ezMsgReleaseObjectGrab@ opCast();
-  ezMsgBuildStaticMesh@ opCast();
   ezMsgOnlyApplyToObject@ opCast();
   ezEventMessage@ opCast();
-  ezMsgCollision@ opCast();
   ezMsgDeleteGameObject@ opCast();
   ezMsgComponentInternalTrigger@ opCast();
-  ezMsgUpdateLocalBounds@ opCast();
   ezMsgSetPlaying@ opCast();
   ezMsgInterruptPlaying@ opCast();
-  ezMsgParentChanged@ opCast();
-  ezMsgChildrenChanged@ opCast();
-  ezMsgComponentsChanged@ opCast();
-  ezMsgTransformChanged@ opCast();
   ezMsgSetFloatParameter@ opCast();
   ezMsgGenericEvent@ opCast();
   ezMsgAnimationReachedEnd@ opCast();
   ezMsgTriggerTriggered@ opCast();
   ezMsgSetColor@ opCast();
   ezMsgSetCustomData@ opCast();
-  ezMsgAnimationPosePreparing@ opCast();
-  ezMsgAnimationPoseGeneration@ opCast();
-  ezMsgAnimationPoseUpdated@ opCast();
-  ezMsgRopePoseUpdated@ opCast();
-  ezMsgQueryAnimationSkeleton@ opCast();
   ezMsgApplyRootMotion@ opCast();
-  ezMsgRetrieveBoneState@ opCast();
+  ezMsgSplineChanged@ opCast();
   ezMsgSetMeshMaterial@ opCast();
-  ezMsgExtractRenderData@ opCast();
-  ezMsgExtractOccluderData@ opCast();
-  ezMsgExtractGeometry@ opCast();
   ezMsgSensorDetectedObjectsChanged@ opCast();
-  ezMsgPathChanged@ opCast();
   ezMsgBlackboardEntryChanged@ opCast();
   ezMsgInputActionTriggered@ opCast();
   ezMsgDamage@ opCast();
@@ -1431,10 +1445,10 @@ class ezRenderComponent : ezComponent
   ezLodMeshComponent@ opCast();
   ezMeshComponent@ opCast();
   ezMeshComponentBase@ opCast();
+  ezSplineMeshComponent@ opCast();
   ezAnimatedMeshComponent@ opCast();
   ezLodAnimatedMeshComponent@ opCast();
   ezGreyBoxComponent@ opCast();
-  ezGizmoComponent@ opCast();
   ezJoltBreakableSlabComponent@ opCast();
   ezJoltClothSheetComponent@ opCast();
   ezJoltVisColMeshComponent@ opCast();
@@ -1508,6 +1522,7 @@ class ezFogComponent : ezSettingsComponent
 {
   ezColor Color;
   float Density;
+  float StartDistance;
   float HeightFalloff;
   bool ModulateWithSkyColor;
   float SkyDistance;
@@ -1517,6 +1532,7 @@ class ezLensFlareComponent : ezRenderComponent
 {
   bool LinkToLightShape;
   float Intensity;
+  ezColorGammaUB LightColor;
   float OcclusionSampleRadius;
   float OcclusionSampleSpread;
   float OcclusionDepthOffset;
@@ -1535,6 +1551,7 @@ class ezOccluderComponent : ezComponent
 {
   ezOccluderType Type;
   ezVec3 Extents;
+  ezStringView Mesh;
 }
 
 class ezRenderTargetActivatorComponent : ezRenderComponent
@@ -1559,6 +1576,37 @@ class ezSkyBoxComponent : ezRenderComponent
   bool InverseTonemap;
   bool UseFog;
   float VirtualDistance;
+}
+
+class ezSplineComponent : ezComponent
+{
+  ezVec3 GetPositionAtKey(float Key, ezSplineComponentSpace Space) const;
+  ezVec3 GetForwardDirAtKey(float Key, ezSplineComponentSpace Space) const;
+  ezVec3 GetUpDirAtKey(float Key, ezSplineComponentSpace Space) const;
+  ezVec3 GetScaleAtKey(float Key, ezSplineComponentSpace Space) const;
+  ezTransform GetTransformAtKey(float Key, ezSplineComponentSpace Space) const;
+  float GetTotalLength() const;
+  float GetKeyAtDistance(float Distance) const;
+  ezVec3 GetPositionAtDistance(float Distance, ezSplineComponentSpace Space) const;
+  ezVec3 GetForwardDirAtDistance(float Distance, ezSplineComponentSpace Space) const;
+  ezVec3 GetUpDirAtDistance(float Distance, ezSplineComponentSpace Space) const;
+  ezVec3 GetScaleAtDistance(float Distance, ezSplineComponentSpace Space) const;
+  ezTransform GetTransformAtDistance(float Distance, ezSplineComponentSpace Space) const;
+  float FindKeyClosestToPoint(ezVec3 Point, float&out DistanceToPoint, ezSplineComponentSpace Space, float MaxError = 0.1) const;
+  uint GetChangeCounter() const;
+  ezSplineComponentFlags Flags;
+  bool Closed;
+  uint8 EditNodes;
+}
+
+class ezSplineNodeComponent : ezComponent
+{
+  ezAngle Roll;
+  ezSplineTangentMode TangentModeIn;
+  ezVec3 CustomTangentIn;
+  ezSplineTangentMode TangentModeOut;
+  ezVec3 CustomTangentOut;
+  bool LinkCustomTangents;
 }
 
 class ezSpriteComponent : ezRenderComponent
@@ -1678,8 +1726,9 @@ class ezSkyLightComponent : ezSettingsComponent
 {
   ezReflectionProbeMode ReflectionProbeMode;
   ezStringView CubeMap;
-  float Intensity;
-  float Saturation;
+  float DiffuseIntensity;
+  float DiffuseSaturation;
+  float SpecularIntensity;
   float NearPlane;
   float FarPlane;
   bool ShowDebugInfo;
@@ -1716,14 +1765,15 @@ class ezMeshComponentBase : ezRenderComponent
 {
   ezInstancedMeshComponent@ opCast();
   ezMeshComponent@ opCast();
+  ezSplineMeshComponent@ opCast();
   ezAnimatedMeshComponent@ opCast();
-  ezGizmoComponent@ opCast();
 }
 
 class ezInstancedMeshComponent : ezMeshComponentBase
 {
   ezStringView Mesh;
   ezColor MainColor;
+  ezVec4 CustomData;
 }
 
 class ezLodMeshComponent : ezRenderComponent
@@ -1743,11 +1793,23 @@ class ezMeshComponent : ezMeshComponentBase
   ezColor Color;
   ezVec4 CustomData;
   float SortingDepthOffset;
-  ezGizmoComponent@ opCast();
+}
+
+class ezSplineMeshComponent : ezMeshComponentBase
+{
+  ezSplineMeshDistributionMode DistributionMode;
+  int32 Seed;
+  float OffsetY;
+  float OffsetZ;
+  ezColor Color;
+  ezVec4 CustomData;
+  float SortingDepthOffset;
 }
 
 class ezSensorComponent : ezComponent
 {
+  uint GetDetectedObjectsCount() const;
+  ezGameObjectHandle GetDetectedObject(uint uiIndex) const;
   ezUpdateRate UpdateRate;
   ezString SpatialCategory;
   bool TestVisibility;
@@ -1787,35 +1849,23 @@ class ezColorAnimationComponent : ezComponent
   bool ApplyToChildren;
 }
 
-class ezFollowPathComponent : ezComponent
+class ezFollowSplineComponent : ezComponent
 {
+  void SetCurrentDistance(float Distance);
+  float GetCurrentDistance() const;
   void SetDirectionForwards(bool Forwards);
   bool IsDirectionForwards() const;
   void ToggleDirection();
-  ezString Path;
+  ezString Spline;
   float StartDistance;
   bool Running;
   ezPropertyAnimMode Mode;
   float Speed;
   float LookAhead;
   float Smoothing;
-  ezFollowPathMode FollowMode;
+  ezFollowSplineMode FollowMode;
   float TiltAmount;
   ezAngle MaxTilt;
-}
-
-class ezPathComponent : ezComponent
-{
-  ezPathComponentFlags Flags;
-  bool Closed;
-  float Detail;
-}
-
-class ezPathNodeComponent : ezComponent
-{
-  ezAngle Roll;
-  ezPathNodeTangentMode Tangent1;
-  ezPathNodeTangentMode Tangent2;
 }
 
 class ezPropertyAnimComponent : ezComponent
@@ -1894,6 +1944,7 @@ class ezAnimatedMeshComponent : ezMeshComponentBase
 
 class ezAnimationControllerComponent : ezComponent
 {
+  void SetAnimationClipOverride(ezStringView sAnimationName, ezStringView sAnimationClipResource);
   ezStringView AnimGraph;
   ezRootMotionMode RootMotionMode;
   ezAnimationInvisibleUpdateRate InvisibleUpdateRate;
@@ -2170,6 +2221,28 @@ class ezVolumeBoxComponent : ezVolumeComponent
   ezVec3 Falloff;
 }
 
+class ezVolumeSamplerComponent : ezComponent
+{
+  void RegisterValue(ezHashedString Name, ?&in DefaultValue, ezTime InterpolationDuration);
+  bool GetValue_asBool(ezHashedString Name) const;
+  int GetValue_asInt32(ezHashedString Name) const;
+  float GetValue_asFloat(ezHashedString Name) const;
+  ezTime GetValue_asTime(ezHashedString Name) const;
+  ezAngle GetValue_asAngle(ezHashedString Name) const;
+  ezVec2 GetValue_asVec2(ezHashedString Name) const;
+  ezVec3 GetValue_asVec3(ezHashedString Name) const;
+  ezVec4 GetValue_asVec4(ezHashedString Name) const;
+  ezQuat GetValue_asQuat(ezHashedString Name) const;
+  ezColor GetValue_asColor(ezHashedString Name) const;
+  ezString GetValue_asString(ezHashedString Name) const;
+  ezGameObjectHandle GetValue_asGameObjectHandle(ezHashedString Name) const;
+  ezComponentHandle GetValue_asComponentHandle(ezHashedString Name) const;
+  float GetFloatValue(ezHashedString Name, float FallbackValue) const;
+  ezColor GetColorValue(ezHashedString Name, ezColor FallbackValue) const;
+  ezString VolumeType;
+  bool AttachToMainCamera;
+}
+
 class ezDeviceTrackingComponent : ezComponent
 {
   ezXRDeviceType DeviceType;
@@ -2189,10 +2262,6 @@ class ezStageSpaceComponent : ezComponent
 }
 
 class ezVisualizeHandComponent : ezComponent
-{
-}
-
-class ezGizmoComponent : ezMeshComponent
 {
 }
 
@@ -2221,6 +2290,7 @@ class ezJoltDynamicActorComponent : ezJoltActorComponent
   float Density;
   ezStringView Surface;
   float GravityFactor;
+  float BuoyancyFactor;
   float LinearDamping;
   float AngularDamping;
   bool ContinuousCollisionDetection;
@@ -2324,6 +2394,10 @@ class ezJoltClothSheetComponent : ezRenderComponent
   ezColor Color;
 }
 
+class ezJoltGenerateCollisionComponent : ezComponent
+{
+}
+
 class ezJoltHitboxComponent : ezComponent
 {
   uint GetObjectFilterID() const;
@@ -2337,9 +2411,13 @@ class ezJoltRagdollComponent : ezComponent
   uint GetObjectFilterID() const;
   void SetInitialImpulse(ezVec3 vWorldPosition, ezVec3 vWorldDirectionAndStrength);
   void AddInitialImpulse(ezVec3 vWorldPosition, ezVec3 vWorldDirectionAndStrength);
-  void SetJointTypeOverride(ezStringView JointName, ezSkeletonJointType OverrideType);
+  void SetJointTypeOverride(ezStringView sJointName, ezSkeletonJointType overrideType);
+  void SetJointMotorStrength(float fStrength);
+  float GetJointMotorStrength() const;
+  void FadeJointMotorStrength(float fTargetStrength, ezTime tDuration);
   bool SelfCollision;
   ezJoltRagdollStartMode StartMode;
+  ezJoltRagdollAnimMode AnimMode;
   float GravityFactor;
   uint8 WeightCategory;
   float WeightScale;
@@ -2389,6 +2467,25 @@ class ezJoltVisColMeshComponent : ezRenderComponent
   ezStringView CollisionMesh;
 }
 
+class ezJoltShapeComponent : ezComponent
+{
+  ezJoltWaterVolumeComponent@ opCast();
+  ezJoltShapeBoxComponent@ opCast();
+  ezJoltShapeCapsuleComponent@ opCast();
+  ezJoltShapeConvexHullComponent@ opCast();
+  ezJoltShapeCylinderComponent@ opCast();
+  ezJoltShapeSphereComponent@ opCast();
+}
+
+class ezJoltWaterVolumeComponent : ezJoltShapeComponent
+{
+  ezVec3 Extents;
+  ezVec3 Flow;
+  float NoiseStrength;
+  ezStringView Surface;
+  ezHashedString Interaction;
+}
+
 class ezJoltConstraintComponent : ezComponent
 {
   bool PairCollision;
@@ -2427,7 +2524,7 @@ class ezJoltGrabObjectComponent : ezComponent
 {
   bool GrabNearbyObject();
   bool HasObjectGrabbed() const;
-  void DropGrabbedObject();
+  void DropGrabbedObject(uint8 uiImpulseType = 0);
   void ThrowGrabbedObject(ezVec3 vDirection, uint8 uiImpulseType = 0);
   void BreakObjectGrab();
   float MaxGrabPointDistance;
@@ -2473,15 +2570,6 @@ class ezJoltSwingTwistConstraintComponent : ezJoltConstraintComponent
   float Friction;
   ezAngle LowerTwistLimit;
   ezAngle UpperTwistLimit;
-}
-
-class ezJoltShapeComponent : ezComponent
-{
-  ezJoltShapeBoxComponent@ opCast();
-  ezJoltShapeCapsuleComponent@ opCast();
-  ezJoltShapeConvexHullComponent@ opCast();
-  ezJoltShapeCylinderComponent@ opCast();
-  ezJoltShapeSphereComponent@ opCast();
 }
 
 class ezJoltShapeBoxComponent : ezJoltShapeComponent
@@ -2549,12 +2637,13 @@ class ezEventMessage : ezMessage
   ezMsgGenericEvent@ opCast();
   ezMsgAnimationReachedEnd@ opCast();
   ezMsgTriggerTriggered@ opCast();
+  ezMsgSplineChanged@ opCast();
   ezMsgSensorDetectedObjectsChanged@ opCast();
-  ezMsgPathChanged@ opCast();
   ezMsgBlackboardEntryChanged@ opCast();
   ezMsgInputActionTriggered@ opCast();
   ezMsgDamage@ opCast();
   ezMsgStateMachineStateChanged@ opCast();
+  ezMsgDeliverAngelScriptMsg@ opCast();
 }
 
 class ezMsgPhysicsJointBroke : ezEventMessage
@@ -2573,17 +2662,9 @@ class ezMsgReleaseObjectGrab : ezMessage
   ezGameObjectHandle GrabbedObjectToRelease;
 }
 
-class ezMsgBuildStaticMesh : ezMessage
-{
-}
-
 class ezMsgOnlyApplyToObject : ezMessage
 {
   ezGameObjectHandle Object;
-}
-
-class ezMsgCollision : ezMessage
-{
 }
 
 class ezMsgDeleteGameObject : ezMessage
@@ -2596,32 +2677,12 @@ class ezMsgComponentInternalTrigger : ezMessage
   int32 Payload;
 }
 
-class ezMsgUpdateLocalBounds : ezMessage
-{
-}
-
 class ezMsgSetPlaying : ezMessage
 {
   bool Play;
 }
 
 class ezMsgInterruptPlaying : ezMessage
-{
-}
-
-class ezMsgParentChanged : ezMessage
-{
-}
-
-class ezMsgChildrenChanged : ezMessage
-{
-}
-
-class ezMsgComponentsChanged : ezMessage
-{
-}
-
-class ezMsgTransformChanged : ezMessage
 {
 }
 
@@ -2661,26 +2722,6 @@ class ezMsgSetCustomData : ezMessage
   float Data3;
 }
 
-class ezMsgAnimationPosePreparing : ezMessage
-{
-}
-
-class ezMsgAnimationPoseGeneration : ezMessage
-{
-}
-
-class ezMsgAnimationPoseUpdated : ezMessage
-{
-}
-
-class ezMsgRopePoseUpdated : ezMessage
-{
-}
-
-class ezMsgQueryAnimationSkeleton : ezMessage
-{
-}
-
 class ezMsgApplyRootMotion : ezMessage
 {
   ezVec3 Translation;
@@ -2689,8 +2730,9 @@ class ezMsgApplyRootMotion : ezMessage
   ezAngle RotationZ;
 }
 
-class ezMsgRetrieveBoneState : ezMessage
+class ezMsgSplineChanged : ezEventMessage
 {
+  uint32 ChangeCounter;
 }
 
 class ezMsgSetMeshMaterial : ezMessage
@@ -2699,23 +2741,7 @@ class ezMsgSetMeshMaterial : ezMessage
   uint32 MaterialSlot;
 }
 
-class ezMsgExtractRenderData : ezMessage
-{
-}
-
-class ezMsgExtractOccluderData : ezMessage
-{
-}
-
-class ezMsgExtractGeometry : ezMessage
-{
-}
-
 class ezMsgSensorDetectedObjectsChanged : ezEventMessage
-{
-}
-
-class ezMsgPathChanged : ezEventMessage
 {
 }
 
@@ -2764,7 +2790,7 @@ class ezMsgStateMachineStateChanged : ezEventMessage
   ezString NewStateName;
 }
 
-class ezMsgDeliverAngelScriptMsg : ezMessage
+class ezMsgDeliverAngelScriptMsg : ezEventMessage
 {
 }
 
