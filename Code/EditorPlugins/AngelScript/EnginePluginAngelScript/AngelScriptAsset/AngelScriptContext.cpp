@@ -286,28 +286,28 @@ void ezAngelScriptDocumentContext::RetrieveScriptInfos(ezStringView sBasePath)
 
     ezStringBuilder sFullPath;
 
-    sFullPath.SetPath(sBasePath, "Types.txt");
+    sFullPath.SetPath(sBasePath, "Types.asgen");
     WriteSet(sFullPath, infos.m_Types);
 
-    sFullPath.SetPath(sBasePath, "Namespaces.txt");
+    sFullPath.SetPath(sBasePath, "Namespaces.asgen");
     WriteSet(sFullPath, infos.m_Namespaces);
 
-    sFullPath.SetPath(sBasePath, "GlobalFunctions.txt");
+    sFullPath.SetPath(sBasePath, "GlobalFunctions.asgen");
     WriteSet(sFullPath, infos.m_GlobalFunctions);
 
-    sFullPath.SetPath(sBasePath, "Methods.txt");
+    sFullPath.SetPath(sBasePath, "Methods.asgen");
     WriteSet(sFullPath, infos.m_Methods);
 
-    sFullPath.SetPath(sBasePath, "Properties.txt");
+    sFullPath.SetPath(sBasePath, "Properties.asgen");
     WriteSet(sFullPath, infos.m_Properties);
 
-    sFullPath.SetPath(sBasePath, "Enums.txt");
+    sFullPath.SetPath(sBasePath, "Enums.asgen");
     WriteSet(sFullPath, infos.m_EnumValues);
 
-    sFullPath.SetPath(sBasePath, "AllDeclarations.txt");
+    sFullPath.SetPath(sBasePath, "AllDeclarations.asgen");
     WriteSet(sFullPath, infos.m_AllDeclarations);
 
-    sFullPath.SetPath(sBasePath, "NotRegisteredDecls.txt");
+    sFullPath.SetPath(sBasePath, "NotRegisteredDecls.asgen");
     WriteSet(sFullPath, ezAngelScriptEngineSingleton::GetSingleton()->GetNotRegistered());
   }
 

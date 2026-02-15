@@ -9,3 +9,7 @@ AssetCache
 Code/Engine/ezBuildInfo.h
 /llvm/
 
+# AngelScript auto-generated files
+*.asgen
+as.predefined
+

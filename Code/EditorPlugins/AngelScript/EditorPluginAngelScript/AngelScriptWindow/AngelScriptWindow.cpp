@@ -386,12 +386,12 @@ void ezQtAngelScriptAssetDocumentWindow::RetrieveScriptInfos()
   msg.m_sValue = sBasePath;
   GetDocument()->SendMessageToEngine(&msg);
 
-  ReadSet(sBasePath, "Types.txt", g_KeywordsGreen);
-  ReadSet(sBasePath, "Namespaces.txt", g_KeywordsGreen);
-  ReadSet(sBasePath, "GlobalFunctions.txt", g_BuiltIn);
-  ReadSet(sBasePath, "Methods.txt", g_BuiltIn);
-  ReadSet(sBasePath, "Enums.txt", g_BuiltIn);
-  ReadSet(sBasePath, "Properties.txt", g_BuiltIn);
+  ReadSet(sBasePath, "Types.asgen", g_KeywordsGreen);
+  ReadSet(sBasePath, "Namespaces.asgen", g_KeywordsGreen);
+  ReadSet(sBasePath, "GlobalFunctions.asgen", g_BuiltIn);
+  ReadSet(sBasePath, "Methods.asgen", g_BuiltIn);
+  ReadSet(sBasePath, "Enums.asgen", g_BuiltIn);
+  ReadSet(sBasePath, "Properties.asgen", g_BuiltIn);
 }
 
 ASHighlighter::ASHighlighter(QTextDocument* pParent)
