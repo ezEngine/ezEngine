@@ -32,6 +32,7 @@ void ezGameEngineTestAngelScript::SetupSubTests()
   AddSubTest("EntryPoints", SubTests::EntryPoints);
   AddSubTest("World", SubTests::World);
   AddSubTest("Messaging", SubTests::Messaging);
+  AddSubTest("EventMessaging", SubTests::EventMessaging);
   AddSubTest("GameObject", SubTests::GameObject);
   AddSubTest("Physics", SubTests::Physics);
   AddSubTest("Misc", SubTests::Misc);

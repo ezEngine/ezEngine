@@ -36,6 +36,7 @@ public:
     EntryPoints,
     World,
     Messaging,
+    EventMessaging,
     GameObject,
     Physics,
     Misc,
