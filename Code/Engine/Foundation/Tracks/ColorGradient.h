@@ -4,6 +4,7 @@
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Math/Declarations.h>
 #include <Foundation/Reflection/Implementation/StaticRTTI.h>
+#include <Foundation/Threading/Mutex.h>
 
 class ezStreamWriter;
 class ezStreamReader;
@@ -67,6 +68,12 @@ public:
 
 public:
   ezColorGradient();
+
+  ezColorGradient(const ezColorGradient& rhs);
+  ezColorGradient(ezColorGradient&& rhs) noexcept;
+
+  void operator=(const ezColorGradient& rhs);
+  void operator=(ezColorGradient&& rhs) noexcept;
 
   /// \brief Removes all control points.
   void Clear();
@@ -180,6 +187,9 @@ private:
   mutable ezSmallArray<ezUInt8, 8> m_ColorOrder;
   mutable ezSmallArray<ezUInt8, 8> m_AlphaOrder;
   mutable ezSmallArray<ezUInt8, 8> m_IntensityOrder;
+
+  /// Protects lazy initialization of sort order arrays and precomputed values during evaluation.
+  mutable ezMutex m_InitializationMutex;
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezColorGradient);

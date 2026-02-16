@@ -2,6 +2,7 @@
 
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Threading/Lock.h>
 #include <Foundation/Tracks/ColorGradient.h>
 
 // clang-format off
@@ -58,6 +59,51 @@ ezColorGradient::ezColorGradient()
   Clear();
 }
 
+ezColorGradient::ezColorGradient(const ezColorGradient& rhs)
+{
+  m_ColorCPs = rhs.m_ColorCPs;
+  m_AlphaCPs = rhs.m_AlphaCPs;
+  m_IntensityCPs = rhs.m_IntensityCPs;
+  // Deliberately not copying m_ColorOrder, m_AlphaOrder, m_IntensityOrder, m_InitializationMutex
+  // These will be rebuilt on first evaluation in the new instance
+}
+
+ezColorGradient::ezColorGradient(ezColorGradient&& rhs) noexcept
+{
+  m_ColorCPs = std::move(rhs.m_ColorCPs);
+  m_AlphaCPs = std::move(rhs.m_AlphaCPs);
+  m_IntensityCPs = std::move(rhs.m_IntensityCPs);
+  // Deliberately not moving m_ColorOrder, m_AlphaOrder, m_IntensityOrder, m_InitializationMutex
+  // These will be rebuilt on first evaluation in the new instance
+}
+
+void ezColorGradient::operator=(const ezColorGradient& rhs)
+{
+  if (this == &rhs)
+    return;
+
+  m_ColorCPs = rhs.m_ColorCPs;
+  m_AlphaCPs = rhs.m_AlphaCPs;
+  m_IntensityCPs = rhs.m_IntensityCPs;
+  m_ColorOrder.Clear();
+  m_AlphaOrder.Clear();
+  m_IntensityOrder.Clear();
+  // m_InitializationMutex is not copied
+}
+
+void ezColorGradient::operator=(ezColorGradient&& rhs) noexcept
+{
+  if (this == &rhs)
+    return;
+
+  m_ColorCPs = std::move(rhs.m_ColorCPs);
+  m_AlphaCPs = std::move(rhs.m_AlphaCPs);
+  m_IntensityCPs = std::move(rhs.m_IntensityCPs);
+  m_ColorOrder.Clear();
+  m_AlphaOrder.Clear();
+  m_IntensityOrder.Clear();
+  // m_InitializationMutex is not moved
+}
 
 void ezColorGradient::Clear()
 {
@@ -255,7 +301,12 @@ void ezColorGradient::EvaluateColor(double x, ezColor& ref_rgb) const
 {
   if (m_ColorCPs.GetCount() != m_ColorOrder.GetCount())
   {
-    UpdatePointOrder();
+    EZ_LOCK(m_InitializationMutex);
+    // Double-check after acquiring lock
+    if (m_ColorCPs.GetCount() != m_ColorOrder.GetCount())
+    {
+      UpdatePointOrder();
+    }
   }
 
   ref_rgb.r = 1.0f;
@@ -328,7 +379,12 @@ void ezColorGradient::EvaluateAlpha(double x, ezUInt8& ref_uiAlpha) const
 {
   if (m_AlphaCPs.GetCount() != m_AlphaOrder.GetCount())
   {
-    UpdatePointOrder();
+    EZ_LOCK(m_InitializationMutex);
+    // Double-check after acquiring lock
+    if (m_AlphaCPs.GetCount() != m_AlphaOrder.GetCount())
+    {
+      UpdatePointOrder();
+    }
   }
 
   ref_uiAlpha = 255;
@@ -392,7 +448,12 @@ void ezColorGradient::EvaluateIntensity(double x, float& ref_fIntensity) const
 {
   if (m_IntensityCPs.GetCount() != m_IntensityOrder.GetCount())
   {
-    UpdatePointOrder();
+    EZ_LOCK(m_InitializationMutex);
+    // Double-check after acquiring lock
+    if (m_IntensityCPs.GetCount() != m_IntensityOrder.GetCount())
+    {
+      UpdatePointOrder();
+    }
   }
 
   ref_fIntensity = 1.0f;
