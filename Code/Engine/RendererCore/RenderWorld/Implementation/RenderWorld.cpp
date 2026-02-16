@@ -153,7 +153,6 @@ ezViewHandle ezRenderWorld::CreateView(const char* szName, ezView*& out_pView)
   }
 
   pView->SetName(szName);
-  pView->InitializePins();
 
   pView->m_pRenderDataCache = EZ_NEW(s_pCacheAllocator, ezInternal::RenderDataCache, s_pCacheAllocator);
 

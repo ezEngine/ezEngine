@@ -17,9 +17,9 @@ class ezRenderPipeline;
 
 /// \brief Encapsulates a view on the given world through the given camera
 /// and rendered with the specified RenderPipeline into the given render target setup.
-class EZ_RENDERERCORE_DLL ezView : public ezRenderPipelineNode
+class EZ_RENDERERCORE_DLL ezView : ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezView, ezRenderPipelineNode);
+  EZ_ADD_DYNAMIC_REFLECTION(ezView, ezReflectedClass);
 
 private:
   /// \brief Use ezRenderLoop::CreateView to create a view.
