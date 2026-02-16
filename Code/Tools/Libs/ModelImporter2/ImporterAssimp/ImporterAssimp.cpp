@@ -23,6 +23,8 @@ namespace ezModelImporter2
     {
       if (ezStringUtils::FindSubString(szMessage, "unexpected illumination model") != nullptr)
         return;
+      if (ezStringUtils::FindSubString(szMessage, "This algorithm works on triangle meshes only") != nullptr)
+        return;
 
       ezLog::Warning("AssImp: {0}", szMessage);
     }
