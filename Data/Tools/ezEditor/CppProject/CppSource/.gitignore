@@ -10,3 +10,7 @@ AssetCache/
 
 # VSCode specific
 CMakeUserPresets.json
+
+# AngelScript auto-generated files
+*.asgen
+as.predefined
