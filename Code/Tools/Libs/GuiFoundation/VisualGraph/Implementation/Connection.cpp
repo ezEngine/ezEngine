@@ -1,7 +1,7 @@
 #include <GuiFoundation/GuiFoundationPCH.h>
 
-#include <GuiFoundation/NodeEditor/Connection.h>
-#include <GuiFoundation/NodeEditor/NodeScene.moc.h>
+#include <GuiFoundation/VisualGraph/Connection.h>
+#include <GuiFoundation/VisualGraph/Scene.moc.h>
 #include <QApplication>
 #include <QPalette>
 

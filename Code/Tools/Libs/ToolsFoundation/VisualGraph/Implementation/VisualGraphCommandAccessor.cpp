@@ -1,22 +1,22 @@
 #include <ToolsFoundation/ToolsFoundationPCH.h>
 
-#include <ToolsFoundation/Command/NodeCommands.h>
-#include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
-#include <ToolsFoundation/NodeObject/NodeCommandAccessor.h>
+#include <ToolsFoundation/Command/VisualGraphCommands.h>
+#include <ToolsFoundation/VisualGraph/VisualGraphCommandAccessor.h>
+#include <ToolsFoundation/VisualGraph/VisualGraphObjectManager.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezNodeCommandAccessor, 1, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualGraphCommandAccessor, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezNodeCommandAccessor::ezNodeCommandAccessor(ezCommandHistory* pHistory)
+ezVisualGraphCommandAccessor::ezVisualGraphCommandAccessor(ezCommandHistory* pHistory)
   : ezObjectCommandAccessor(pHistory)
 {
 }
 
-ezNodeCommandAccessor::~ezNodeCommandAccessor() = default;
+ezVisualGraphCommandAccessor::~ezVisualGraphCommandAccessor() = default;
 
-ezStatus ezNodeCommandAccessor::SetValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index /*= ezVariant()*/)
+ezStatus ezVisualGraphCommandAccessor::SetValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index /*= ezVariant()*/)
 {
   if (m_pHistory->InTemporaryTransaction() == false)
   {
@@ -49,7 +49,7 @@ ezStatus ezNodeCommandAccessor::SetValue(const ezDocumentObject* pObject, const 
   return ezObjectCommandAccessor::SetValue(pObject, pProp, newValue, index);
 }
 
-ezStatus ezNodeCommandAccessor::InsertValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index /*= ezVariant()*/)
+ezStatus ezVisualGraphCommandAccessor::InsertValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index /*= ezVariant()*/)
 {
   if (IsDynamicPinProperty(pObject, pProp))
   {
@@ -66,7 +66,7 @@ ezStatus ezNodeCommandAccessor::InsertValue(const ezDocumentObject* pObject, con
   }
 }
 
-ezStatus ezNodeCommandAccessor::RemoveValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index /*= ezVariant()*/)
+ezStatus ezVisualGraphCommandAccessor::RemoveValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index /*= ezVariant()*/)
 {
   if (IsDynamicPinProperty(pObject, pProp))
   {
@@ -83,7 +83,7 @@ ezStatus ezNodeCommandAccessor::RemoveValue(const ezDocumentObject* pObject, con
   }
 }
 
-ezStatus ezNodeCommandAccessor::MoveValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& oldIndex, const ezVariant& newIndex)
+ezStatus ezVisualGraphCommandAccessor::MoveValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& oldIndex, const ezVariant& newIndex)
 {
   if (IsDynamicPinProperty(pObject, pProp))
   {
@@ -102,7 +102,7 @@ ezStatus ezNodeCommandAccessor::MoveValue(const ezDocumentObject* pObject, const
   }
 }
 
-ezStatus ezNodeCommandAccessor::AddObject(const ezDocumentObject* pParent, const ezAbstractProperty* pParentProp, const ezVariant& index, const ezRTTI* pType, ezUuid& inout_objectGuid)
+ezStatus ezVisualGraphCommandAccessor::AddObject(const ezDocumentObject* pParent, const ezAbstractProperty* pParentProp, const ezVariant& index, const ezRTTI* pType, ezUuid& inout_objectGuid)
 {
   if (IsDynamicPinProperty(pParent, pParentProp))
   {
@@ -121,7 +121,7 @@ ezStatus ezNodeCommandAccessor::AddObject(const ezDocumentObject* pParent, const
   }
 }
 
-ezStatus ezNodeCommandAccessor::RemoveObject(const ezDocumentObject* pObject)
+ezStatus ezVisualGraphCommandAccessor::RemoveObject(const ezDocumentObject* pObject)
 {
   if (const ezDocumentObject* pParent = pObject->GetParent())
   {
@@ -143,21 +143,21 @@ ezStatus ezNodeCommandAccessor::RemoveObject(const ezDocumentObject* pObject)
 }
 
 
-bool ezNodeCommandAccessor::IsNode(const ezDocumentObject* pObject) const
+bool ezVisualGraphCommandAccessor::IsNode(const ezDocumentObject* pObject) const
 {
   auto pManager = static_cast<const ezVisualGraphObjectManager*>(pObject->GetDocumentObjectManager());
 
   return pManager->IsNode(pObject);
 }
 
-bool ezNodeCommandAccessor::IsDynamicPinProperty(const ezDocumentObject* pObject, const ezAbstractProperty* pProp) const
+bool ezVisualGraphCommandAccessor::IsDynamicPinProperty(const ezDocumentObject* pObject, const ezAbstractProperty* pProp) const
 {
   auto pManager = static_cast<const ezVisualGraphObjectManager*>(pObject->GetDocumentObjectManager());
 
   return pManager->IsDynamicPinProperty(pObject, pProp);
 }
 
-ezStatus ezNodeCommandAccessor::DisconnectAllPins(const ezDocumentObject* pObject, ezDynamicArray<ConnectionInfo>& out_oldConnections)
+ezStatus ezVisualGraphCommandAccessor::DisconnectAllPins(const ezDocumentObject* pObject, ezDynamicArray<ConnectionInfo>& out_oldConnections)
 {
   auto pManager = static_cast<const ezVisualGraphObjectManager*>(pObject->GetDocumentObjectManager());
 
@@ -192,7 +192,7 @@ ezStatus ezNodeCommandAccessor::DisconnectAllPins(const ezDocumentObject* pObjec
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezNodeCommandAccessor::TryReconnectAllPins(const ezDocumentObject* pObject, const ezDynamicArray<ConnectionInfo>& oldConnections)
+ezStatus ezVisualGraphCommandAccessor::TryReconnectAllPins(const ezDocumentObject* pObject, const ezDynamicArray<ConnectionInfo>& oldConnections)
 {
   auto pManager = static_cast<const ezVisualGraphObjectManager*>(pObject->GetDocumentObjectManager());
   const ezRTTI* pConnectionType = pManager->GetConnectionType();

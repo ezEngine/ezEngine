@@ -1,10 +1,14 @@
 #pragma once
 
 #include <EditorPluginVisualScript/VisualScriptGraph/VisualScriptNodeRegistry.h>
-#include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
+#include <ToolsFoundation/VisualGraph/VisualGraphObjectManager.h>
 
 struct ezVisualScriptVariable;
 
+/// Visual graph pin for visual script nodes.
+///
+/// Extends the base pin with visual scripting metadata including execution flow pins, data type information,
+/// and support for type deduction. Pins can represent both execution flow and data connections.
 class ezVisualScriptPin : public ezVisualGraphPin
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptPin, ezVisualGraphPin);
@@ -39,6 +43,11 @@ private:
   ezUInt32 m_uiElementIndex = 0;
 };
 
+/// Object manager for visual script graphs.
+///
+/// Manages visual script nodes and their connections, including both execution flow and data flow.
+/// Handles complex features such as type deduction, dynamic pin creation, variable management,
+/// and coroutine detection. Validates connections based on script data types and execution flow rules.
 class ezVisualScriptNodeManager : public ezVisualGraphObjectManager
 {
 public:

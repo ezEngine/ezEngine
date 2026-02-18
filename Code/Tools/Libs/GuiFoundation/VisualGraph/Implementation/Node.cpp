@@ -1,8 +1,8 @@
 #include <GuiFoundation/GuiFoundationPCH.h>
 
 #include <Foundation/Strings/TranslationLookup.h>
-#include <GuiFoundation/NodeEditor/Node.h>
-#include <GuiFoundation/NodeEditor/Pin.h>
+#include <GuiFoundation/VisualGraph/Node.h>
+#include <GuiFoundation/VisualGraph/Pin.h>
 #include <ToolsFoundation/Document/Document.h>
 
 #include <QApplication>

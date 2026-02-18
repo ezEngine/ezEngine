@@ -1,11 +1,14 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <GuiFoundation/NodeEditor/Connection.h>
-#include <GuiFoundation/NodeEditor/Node.h>
-#include <GuiFoundation/NodeEditor/NodeScene.moc.h>
-#include <GuiFoundation/NodeEditor/Pin.h>
+#include <GuiFoundation/VisualGraph/Connection.h>
+#include <GuiFoundation/VisualGraph/Node.h>
+#include <GuiFoundation/VisualGraph/Scene.moc.h>
+#include <GuiFoundation/VisualGraph/Pin.h>
 
+/// Visual graph pin for procedural generation nodes.
+///
+/// Basic pin implementation for procedural generation graphs without additional metadata.
 class ezProcGenPin : public ezVisualGraphPin
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezProcGenPin, ezVisualGraphPin);
@@ -14,6 +17,10 @@ public:
   using ezVisualGraphPin::ezVisualGraphPin;
 };
 
+/// Object manager for procedural generation graphs.
+///
+/// Manages nodes and connections for procedural generation systems, such as terrain generation or placement rules.
+/// Validates connections between different types of procedural generation nodes.
 class ezProcGenNodeManager : public ezVisualGraphObjectManager
 {
 public:

@@ -1,8 +1,12 @@
 #pragma once
 
 #include <EditorFramework/Assets/AssetDocument.h>
-#include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
+#include <ToolsFoundation/VisualGraph/VisualGraphObjectManager.h>
 
+/// Object manager for render pipeline graphs.
+///
+/// Manages the node graph that defines a rendering pipeline, including render passes, resources, and their connections.
+/// Validates connections to ensure render pipeline integrity.
 class ezRenderPipelineNodeManager : public ezVisualGraphObjectManager
 {
 public:

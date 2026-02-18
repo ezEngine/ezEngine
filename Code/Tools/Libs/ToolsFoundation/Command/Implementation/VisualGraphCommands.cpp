@@ -1,8 +1,8 @@
 #include <ToolsFoundation/ToolsFoundationPCH.h>
 
-#include <ToolsFoundation/Command/NodeCommands.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
-#include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
+#include <ToolsFoundation/Command/VisualGraphCommands.h>
+#include <ToolsFoundation/VisualGraph/VisualGraphObjectManager.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRemoveNodeCommand, 1, ezRTTIDefaultAllocator<ezRemoveNodeCommand>)

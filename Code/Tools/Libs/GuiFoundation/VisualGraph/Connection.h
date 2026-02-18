@@ -1,11 +1,15 @@
 #pragma once
 
 #include <GuiFoundation/GuiFoundationDLL.h>
-#include <GuiFoundation/NodeEditor/NodeScene.moc.h>
+#include <GuiFoundation/VisualGraph/Scene.moc.h>
 #include <QGraphicsPathItem>
 
 class ezVisualGraphPin;
 
+/// Qt graphics item representing a connection between two pins in a visual graph.
+///
+/// Renders the visual connection path between pins using different styles (bezier curves, straight lines, or subway-style routing).
+/// Updates its geometry automatically when connected pins move.
 class EZ_GUIFOUNDATION_DLL ezQtVisualGraphConnection : public QGraphicsPathItem
 {
 public:

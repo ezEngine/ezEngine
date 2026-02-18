@@ -58,7 +58,7 @@ void ezProcGenNodeManager::InternalCreatePins(const ezDocumentObject* pObject, N
       continue;
 
     const ezRTTI* pPropType = pProp->GetSpecificType();
-    if (!pPropType->IsDerivedFrom<ezRenderPipelineNodePin>())
+    if (!pPropType->IsDerivedFrom<ezProcGenNodePin>())
       continue;
 
     ezColor pinColor = ezColorScheme::DarkUI(ezColorScheme::Gray);
@@ -67,12 +67,12 @@ void ezProcGenNodeManager::InternalCreatePins(const ezDocumentObject* pObject, N
       pinColor = pAttr->GetColor();
     }
 
-    if (pPropType->IsDerivedFrom<ezRenderPipelineNodeInputPin>())
+    if (pPropType->IsDerivedFrom<ezProcGenNodeInputPin>())
     {
       auto pPin = EZ_DEFAULT_NEW(ezProcGenPin, ezVisualGraphPin::Type::Input, pProp->GetPropertyName(), pinColor, pObject);
       ref_node.m_Inputs.PushBack(pPin);
     }
-    else if (pPropType->IsDerivedFrom<ezRenderPipelineNodeOutputPin>())
+    else if (pPropType->IsDerivedFrom<ezProcGenNodeOutputPin>())
     {
       auto pPin = EZ_DEFAULT_NEW(ezProcGenPin, ezVisualGraphPin::Type::Output, pProp->GetPropertyName(), pinColor, pObject);
       ref_node.m_Outputs.PushBack(pPin);

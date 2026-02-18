@@ -14,17 +14,17 @@
 #include <EditorTest/MaterialDocument/MaterialDocumentTest.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Reflection/Implementation/RTTI.h>
-#include <GuiFoundation/PropertyGrid/DefaultState.h>
-#include <RendererCore/Lights/SphereReflectionProbeComponent.h>
-#include <ToolsFoundation/Command/NodeCommands.h>
-#include <ToolsFoundation/Object/ObjectAccessorBase.h>
-
 #include <GuiFoundation/Action/ActionManager.h>
+#include <GuiFoundation/PropertyGrid/DefaultState.h>
 #include <QBackingStore>
 #include <QMimeData>
+#include <RendererCore/Lights/SphereReflectionProbeComponent.h>
 #include <TestFramework/Utilities/TestLogInterface.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
-#include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
+#include <ToolsFoundation/Command/VisualGraphCommands.h>
+#include <ToolsFoundation/Object/ObjectAccessorBase.h>
+#include <ToolsFoundation/VisualGraph/VisualGraphObjectManager.h>
+
 static ezMaterialDocumentTest s_MaterialDocumentTest;
 
 const char* ezMaterialDocumentTest::GetTestName() const
@@ -289,12 +289,12 @@ void ezMaterialDocumentTest::CreateMaterialFromVSE()
 
   {
     pAccessor->StartTransaction("Connect Nodes");
-    auto pNodeManager = static_cast<ezDocumentNodeManager*>(m_pDoc->GetObjectManager());
+    auto pNodeManager = static_cast<ezVisualGraphObjectManager*>(m_pDoc->GetObjectManager());
     auto pMateriaOutput = pAccessor->GetObject(materialOutputGuid);
     auto pParameterColor = pAccessor->GetObject(parameterColorGuid);
 
-    const ezPin* pValue = pNodeManager->GetOutputPinByName(pParameterColor, "Value");
-    const ezPin* pBaseColor = pNodeManager->GetInputPinByName(pMateriaOutput, "BaseColor");
+    const ezVisualGraphPin* pValue = pNodeManager->GetOutputPinByName(pParameterColor, "Value");
+    const ezVisualGraphPin* pBaseColor = pNodeManager->GetInputPinByName(pMateriaOutput, "BaseColor");
     if (EZ_TEST_BOOL(pValue && pBaseColor))
     {
       EZ_TEST_STATUS(ezNodeCommands::AddAndConnectCommand(pHistory, pNodeManager->GetConnectionType(), *pValue, *pBaseColor));

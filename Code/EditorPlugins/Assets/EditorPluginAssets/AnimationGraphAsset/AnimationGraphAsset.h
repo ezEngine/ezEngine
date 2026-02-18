@@ -5,13 +5,16 @@
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphPins.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphResource.h>
-#include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
+#include <ToolsFoundation/VisualGraph/VisualGraphObjectManager.h>
 
 using ezAnimationClipResourceHandle = ezTypedResourceHandle<class ezAnimationClipResource>;
 
 class ezAnimGraphInstance;
 class ezAnimGraphNode;
 
+/// Visual graph pin for animation graph nodes.
+///
+/// Stores animation-specific pin metadata such as the animation data type and whether it supports multiple inputs.
 class ezAnimationGraphNodePin : public ezVisualGraphPin
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezAnimationGraphNodePin, ezVisualGraphPin);
@@ -24,6 +27,10 @@ public:
   ezAnimGraphPin::Type m_DataType = ezAnimGraphPin::Invalid;
 };
 
+/// Object manager for animation graphs.
+///
+/// Manages animation graph nodes and their connections. Handles dynamic pin creation for nodes
+/// that support variable numbers of inputs, and validates connections based on animation data types.
 class ezAnimationGraphNodeManager : public ezVisualGraphObjectManager
 {
 public:

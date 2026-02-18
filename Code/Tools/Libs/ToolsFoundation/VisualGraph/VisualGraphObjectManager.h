@@ -8,6 +8,7 @@
 class ezVisualGraphPin;
 class ezVisualGraphConnection;
 
+/// Event structure for visual graph changes
 struct EZ_TOOLSFOUNDATION_DLL ezVisualGraphObjectManagerEvent
 {
   enum class Type
@@ -33,6 +34,10 @@ struct EZ_TOOLSFOUNDATION_DLL ezVisualGraphObjectManagerEvent
   const ezDocumentObject* m_pObject;
 };
 
+/// Represents an active connection between two pins in a visual graph.
+///
+/// This class is created and managed by ezVisualGraphObjectManager when pins are connected.
+/// It holds references to both the source and target pins.
 class ezVisualGraphConnection final
 {
 public:
@@ -55,6 +60,10 @@ private:
   const ezDocumentObject* m_pParent = nullptr;
 };
 
+/// Represents a connection point (input or output) on a visual graph node.
+///
+/// Pins are created by ezVisualGraphObjectManager for each node based on the node type.
+/// Derived classes can extend pins with additional metadata specific to their graph type.
 class EZ_TOOLSFOUNDATION_DLL ezVisualGraphPin : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualGraphPin, ezReflectedClass);
@@ -101,6 +110,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
+/// A property value that can be pre-filled when creating a node from a template
 struct ezVisualGraphNodeProperty
 {
   ezHashedString m_sPropertyName;
@@ -122,11 +132,13 @@ struct ezVisualGraphNodeDesc
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief Base class for all node connections. Derive from this class and overwrite ezVisualGraphObjectManager::GetConnectionType
-/// if you need custom properties for connections.
-class EZ_TOOLSFOUNDATION_DLL ezVisualGraphObjectConnection : public ezReflectedClass
+/// Serializable base class for storing connection data in documents.
+///
+/// Derive from this class and overwrite ezVisualGraphObjectManager::GetConnectionType if you need custom properties for connections.
+/// This class stores the persistent connection information, while ezVisualGraphConnection holds runtime connection references.
+class EZ_TOOLSFOUNDATION_DLL ezDocumentObject_ConnectionBase : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezVisualGraphObjectConnection, ezReflectedClass);
+  EZ_ADD_DYNAMIC_REFLECTION(ezDocumentObject_ConnectionBase, ezReflectedClass);
 
 public:
   ezUuid m_Source;
@@ -137,6 +149,12 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
+/// Document object manager for node-based visual graphs.
+///
+/// This base class manages the document-side representation of visual graphs, including nodes, pins, and connections.
+/// It handles node creation, pin management, connection validation, and provides events for graph changes.
+/// Derive from this class to implement specific graph types such as visual shaders, state machines, or visual scripts.
+/// The visual representation is handled separately by ezQtVisualGraphScene.
 class EZ_TOOLSFOUNDATION_DLL ezVisualGraphObjectManager : public ezDocumentObjectManager
 {
 public:
@@ -161,6 +179,7 @@ public:
   ezArrayPtr<const ezUniquePtr<const ezVisualGraphPin>> GetInputPins(const ezDocumentObject* pObject) const;
   ezArrayPtr<const ezUniquePtr<const ezVisualGraphPin>> GetOutputPins(const ezDocumentObject* pObject) const;
 
+  /// Specifies how many connections are allowed for a pair of pins
   enum class CanConnectResult
   {
     ConnectNever, ///< Pins can't be connected

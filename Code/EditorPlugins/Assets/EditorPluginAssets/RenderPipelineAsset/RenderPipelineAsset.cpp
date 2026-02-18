@@ -2,7 +2,7 @@
 
 #include <EditorPluginAssets/RenderPipelineAsset/RenderPipelineAsset.h>
 #include <Foundation/Serialization/BinarySerializer.h>
-#include <GuiFoundation/NodeEditor/NodeScene.moc.h>
+#include <GuiFoundation/VisualGraph/Scene.moc.h>
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>

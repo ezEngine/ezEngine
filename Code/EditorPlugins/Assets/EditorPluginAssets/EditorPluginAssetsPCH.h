@@ -28,8 +28,8 @@
 #include <Foundation/Utilities/AssetFileHeader.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
-#include <ToolsFoundation/Command/NodeCommands.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
+#include <ToolsFoundation/Command/VisualGraphCommands.h>
 #include <ToolsFoundation/Reflection/IReflectedTypeAccessor.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 

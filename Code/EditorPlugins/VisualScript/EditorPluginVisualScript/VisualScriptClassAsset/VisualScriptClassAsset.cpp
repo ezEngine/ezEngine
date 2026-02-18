@@ -3,8 +3,8 @@
 #include <EditorFramework/GUI/ExposedParameters.h>
 #include <EditorPluginVisualScript/VisualScriptClassAsset/VisualScriptClassAsset.h>
 #include <EditorPluginVisualScript/VisualScriptGraph/VisualScriptCompiler.h>
-#include <GuiFoundation/NodeEditor/NodeScene.moc.h>
-#include <ToolsFoundation/NodeObject/NodeCommandAccessor.h>
+#include <GuiFoundation/VisualGraph/Scene.moc.h>
+#include <ToolsFoundation/VisualGraph/VisualGraphCommandAccessor.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 // clang-format off
@@ -27,7 +27,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezVisualScriptClassAssetDocument::ezVisualScriptClassAssetDocument(ezStringView sDocumentPath)
   : ezSimpleAssetDocument<ezVisualScriptClassAssetProperties>(EZ_DEFAULT_NEW(ezVisualScriptNodeManager), sDocumentPath, ezAssetDocEngineConnection::None)
 {
-  m_pObjectAccessor = EZ_DEFAULT_NEW(ezNodeCommandAccessor, GetCommandHistory());
+  m_pObjectAccessor = EZ_DEFAULT_NEW(ezVisualGraphCommandAccessor, GetCommandHistory());
 }
 
 ezTransformStatus ezVisualScriptClassAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)

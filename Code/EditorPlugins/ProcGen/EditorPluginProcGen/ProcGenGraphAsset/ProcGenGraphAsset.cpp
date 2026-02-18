@@ -7,7 +7,7 @@
 #include <Foundation/IO/ChunkStream.h>
 #include <Foundation/IO/StringDeduplicationContext.h>
 #include <Foundation/Utilities/DGMLWriter.h>
-#include <ToolsFoundation/Command/NodeCommands.h>
+#include <ToolsFoundation/Command/VisualGraphCommands.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 namespace

@@ -6,6 +6,10 @@
 
 class ezQtVisualGraphScene;
 
+/// Qt view widget for displaying a visual graph scene with panning and zooming support.
+///
+/// Provides viewport controls for navigating the graph, including mouse-based panning and zooming.
+/// Renders a grid background and handles the display of the graph scene.
 class EZ_GUIFOUNDATION_DLL ezQtVisualGraphView : public QGraphicsView
 {
   Q_OBJECT

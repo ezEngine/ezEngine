@@ -139,7 +139,7 @@ void ezProcGenOutput::CopyValuesFromContext(const GraphContext& context)
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_PlacementOutput, 1, ezRTTIDefaultAllocator<ezProcGen_PlacementOutput>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_PlacementOutput, 2, ezRTTIDefaultAllocator<ezProcGen_PlacementOutput>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -282,7 +282,7 @@ void ezProcGen_PlacementOutput::Save(ezStreamWriter& inout_stream)
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_VertexColorOutput, 1, ezRTTIDefaultAllocator<ezProcGen_VertexColorOutput>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_VertexColorOutput, 2, ezRTTIDefaultAllocator<ezProcGen_VertexColorOutput>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -347,7 +347,7 @@ void ezProcGen_VertexColorOutput::Save(ezStreamWriter& inout_stream)
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Random, 1, ezRTTIDefaultAllocator<ezProcGen_Random>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Random, 2, ezRTTIDefaultAllocator<ezProcGen_Random>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -391,7 +391,7 @@ void ezProcGen_Random::OnObjectCreated(const ezAbstractObjectNode& node)
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_PerlinNoise, 1, ezRTTIDefaultAllocator<ezProcGen_PerlinNoise>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_PerlinNoise, 2, ezRTTIDefaultAllocator<ezProcGen_PerlinNoise>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -438,7 +438,7 @@ ezExpressionAST::Node* ezProcGen_PerlinNoise::GenerateExpressionASTNode(ezTempHa
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Blend, 2, ezRTTIDefaultAllocator<ezProcGen_Blend>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Blend, 3, ezRTTIDefaultAllocator<ezProcGen_Blend>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -491,7 +491,7 @@ ezExpressionAST::Node* ezProcGen_Blend::GenerateExpressionASTNode(ezTempHashedSt
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Remap, 1, ezRTTIDefaultAllocator<ezProcGen_Remap>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Remap, 2, ezRTTIDefaultAllocator<ezProcGen_Remap>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -560,7 +560,7 @@ ezExpressionAST::Node* ezProcGen_Remap::GenerateExpressionASTNode(ezTempHashedSt
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Curve, 1, ezRTTIDefaultAllocator<ezProcGen_Curve>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Curve, 2, ezRTTIDefaultAllocator<ezProcGen_Curve>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -630,7 +630,7 @@ ezExpressionAST::Node* ezProcGen_Curve::GenerateExpressionASTNode(ezTempHashedSt
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Contrast, 1, ezRTTIDefaultAllocator<ezProcGen_Contrast>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Contrast, 2, ezRTTIDefaultAllocator<ezProcGen_Contrast>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -672,7 +672,7 @@ ezExpressionAST::Node* ezProcGen_Contrast::GenerateExpressionASTNode(ezTempHashe
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Height, 1, ezRTTIDefaultAllocator<ezProcGen_Height>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Height, 2, ezRTTIDefaultAllocator<ezProcGen_Height>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -705,7 +705,7 @@ ezExpressionAST::Node* ezProcGen_Height::GenerateExpressionASTNode(ezTempHashedS
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Slope, 1, ezRTTIDefaultAllocator<ezProcGen_Slope>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Slope, 2, ezRTTIDefaultAllocator<ezProcGen_Slope>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -742,7 +742,7 @@ ezExpressionAST::Node* ezProcGen_Slope::GenerateExpressionASTNode(ezTempHashedSt
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Position, 1, ezRTTIDefaultAllocator<ezProcGen_Position>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Position, 2, ezRTTIDefaultAllocator<ezProcGen_Position>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -781,7 +781,7 @@ ezExpressionAST::Node* ezProcGen_Position::GenerateExpressionASTNode(ezTempHashe
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Normal, 1, ezRTTIDefaultAllocator<ezProcGen_Normal>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Normal, 2, ezRTTIDefaultAllocator<ezProcGen_Normal>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -820,7 +820,7 @@ ezExpressionAST::Node* ezProcGen_Normal::GenerateExpressionASTNode(ezTempHashedS
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_MeshVertexColor, 1, ezRTTIDefaultAllocator<ezProcGen_MeshVertexColor>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_MeshVertexColor, 2, ezRTTIDefaultAllocator<ezProcGen_MeshVertexColor>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -864,7 +864,7 @@ ezExpressionAST::Node* ezProcGen_MeshVertexColor::GenerateExpressionASTNode(ezTe
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_ApplyVolumes, 1, ezRTTIDefaultAllocator<ezProcGen_ApplyVolumes>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_ApplyVolumes, 2, ezRTTIDefaultAllocator<ezProcGen_ApplyVolumes>)
 {
   EZ_BEGIN_PROPERTIES
   {

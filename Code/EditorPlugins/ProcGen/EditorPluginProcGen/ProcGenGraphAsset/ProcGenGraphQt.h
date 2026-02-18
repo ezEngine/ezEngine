@@ -1,9 +1,12 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <GuiFoundation/NodeEditor/Node.h>
-#include <GuiFoundation/NodeEditor/Pin.h>
+#include <GuiFoundation/VisualGraph/Node.h>
+#include <GuiFoundation/VisualGraph/Pin.h>
 
+/// Qt graphics item for procedural generation nodes.
+///
+/// Visual representation of procedural generation nodes, such as noise generators, modifiers, or output nodes.
 class ezQtProcGenNode : public ezQtVisualGraphNode
 {
 public:
@@ -14,6 +17,10 @@ public:
   virtual void UpdateState() override;
 };
 
+/// Qt graphics item for procedural generation pins.
+///
+/// Extends the base pin with debugging support. Pins can be marked for debug visualization,
+/// allowing users to inspect intermediate results in the procedural generation pipeline.
 class ezQtProcGenPin : public ezQtVisualGraphPin
 {
 public:
@@ -32,6 +39,10 @@ private:
   bool m_bDebug = false;
 };
 
+/// Qt scene for procedural generation graphs.
+///
+/// Manages the visual scene for procedural generation graph editing, including debug pin tracking
+/// for visualizing intermediate generation results.
 class ezQtProcGenScene : public ezQtVisualGraphScene
 {
 public:

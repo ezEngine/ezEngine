@@ -1,7 +1,7 @@
 #pragma once
 
 #include <EditorFramework/Assets/AssetDocument.h>
-#include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
+#include <ToolsFoundation/VisualGraph/VisualGraphObjectManager.h>
 
 class ezStateMachineAssetDocument : public ezAssetDocument
 {

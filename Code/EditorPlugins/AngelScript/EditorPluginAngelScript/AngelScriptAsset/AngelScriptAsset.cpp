@@ -3,9 +3,9 @@
 #include <EditorFramework/GUI/ExposedParameters.h>
 #include <EditorPluginAngelScript/AngelScriptAsset/AngelScriptAsset.h>
 #include <Foundation/CodeUtils/Preprocessor.h>
-#include <GuiFoundation/NodeEditor/NodeScene.moc.h>
+#include <GuiFoundation/VisualGraph/Scene.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
-#include <ToolsFoundation/NodeObject/NodeCommandAccessor.h>
+#include <ToolsFoundation/VisualGraph/VisualGraphCommandAccessor.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 // clang-format off

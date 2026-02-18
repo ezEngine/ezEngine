@@ -2,15 +2,15 @@
 
 #include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
-#include <GuiFoundation/NodeEditor/Connection.h>
-#include <GuiFoundation/NodeEditor/Node.h>
-#include <GuiFoundation/NodeEditor/Pin.h>
+#include <GuiFoundation/VisualGraph/Connection.h>
+#include <GuiFoundation/VisualGraph/Node.h>
+#include <GuiFoundation/VisualGraph/Pin.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <GuiFoundation/Widgets/SearchableMenu.moc.h>
 #include <QGraphicsSceneMouseEvent>
 #include <QMenu>
-#include <ToolsFoundation/Command/NodeCommands.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
+#include <ToolsFoundation/Command/VisualGraphCommands.h>
 
 ezRttiMappedObjectFactory<ezQtVisualGraphNode> ezQtVisualGraphScene::s_NodeFactory;
 ezRttiMappedObjectFactory<ezQtVisualGraphPin> ezQtVisualGraphScene::s_PinFactory;

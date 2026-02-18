@@ -1,10 +1,13 @@
 #pragma once
 
-#include <GuiFoundation/NodeEditor/Connection.h>
-#include <GuiFoundation/NodeEditor/Node.h>
-#include <GuiFoundation/NodeEditor/NodeScene.moc.h>
-#include <GuiFoundation/NodeEditor/Pin.h>
+#include <GuiFoundation/VisualGraph/Connection.h>
+#include <GuiFoundation/VisualGraph/Node.h>
+#include <GuiFoundation/VisualGraph/Scene.moc.h>
+#include <GuiFoundation/VisualGraph/Pin.h>
 
+/// Qt graphics item for state machine pins.
+///
+/// Displays connection points for state transitions with custom rectangular pin geometry.
 class ezQtStateMachinePin : public ezQtVisualGraphPin
 {
 public:
@@ -14,12 +17,19 @@ public:
   virtual QRectF GetPinRect() const override;
 };
 
+/// Qt graphics item for state machine transitions.
+///
+/// Renders the visual connections between states, representing the possible transitions.
 class ezQtStateMachineConnection : public ezQtVisualGraphConnection
 {
 public:
   ezQtStateMachineConnection();
 };
 
+/// Qt graphics item for state machine nodes.
+///
+/// Represents individual states in a state machine. The initial state and "Any State" are displayed
+/// with distinct header colors for easy identification.
 class ezQtStateMachineNode : public ezQtVisualGraphNode
 {
 public:
@@ -37,6 +47,9 @@ private:
   void UpdateHeaderColor();
 };
 
+/// Qt scene for state machine graphs.
+///
+/// Manages the visual scene for state machine editing, including handling the designation of the initial state.
 class ezQtStateMachineAssetScene : public ezQtVisualGraphScene
 {
   Q_OBJECT

@@ -1,13 +1,18 @@
 #pragma once
 #include <ToolsFoundation/Object/ObjectCommandAccessor.h>
 
-class EZ_TOOLSFOUNDATION_DLL ezNodeCommandAccessor : public ezObjectCommandAccessor
+/// Command accessor for visual graph documents.
+///
+/// Extends the base command accessor to handle visual graph-specific operations.
+/// When node properties change (such as adding or removing dynamic pins), it automatically
+/// disconnects and reconnects pins as needed to maintain graph consistency.
+class EZ_TOOLSFOUNDATION_DLL ezVisualGraphCommandAccessor : public ezObjectCommandAccessor
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezNodeCommandAccessor, ezObjectCommandAccessor);
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualGraphCommandAccessor, ezObjectCommandAccessor);
 
 public:
-  ezNodeCommandAccessor(ezCommandHistory* pHistory);
-  ~ezNodeCommandAccessor();
+  ezVisualGraphCommandAccessor(ezCommandHistory* pHistory);
+  ~ezVisualGraphCommandAccessor();
 
   virtual ezStatus SetValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index = ezVariant()) override;
 

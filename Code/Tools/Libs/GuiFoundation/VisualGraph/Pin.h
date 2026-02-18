@@ -1,12 +1,13 @@
 #pragma once
 
 #include <GuiFoundation/GuiFoundationDLL.h>
-#include <GuiFoundation/NodeEditor/NodeScene.moc.h>
+#include <GuiFoundation/VisualGraph/Scene.moc.h>
 #include <QGraphicsPathItem>
 
 class ezVisualGraphPin;
 class ezQtVisualGraphConnection;
 
+/// Visual feedback state for pins during connection dragging
 enum class ezQtVisualGraphPinHighlight
 {
   None,
@@ -16,6 +17,10 @@ enum class ezQtVisualGraphPinHighlight
   CanReplaceConnection,
 };
 
+/// Qt graphics item representing a pin (connection point) on a visual graph node.
+///
+/// Displays the pin shape, color, and label. Manages visual feedback during connection operations
+/// and maintains references to all connections attached to this pin.
 class EZ_GUIFOUNDATION_DLL ezQtVisualGraphPin : public QGraphicsPathItem
 {
 public:

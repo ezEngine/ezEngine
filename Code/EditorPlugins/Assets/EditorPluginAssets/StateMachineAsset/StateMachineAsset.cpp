@@ -2,7 +2,7 @@
 
 #include <EditorPluginAssets/StateMachineAsset/StateMachineAsset.h>
 #include <EditorPluginAssets/StateMachineAsset/StateMachineGraph.h>
-#include <GuiFoundation/NodeEditor/NodeScene.moc.h>
+#include <GuiFoundation/VisualGraph/Scene.moc.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 // clang-format off

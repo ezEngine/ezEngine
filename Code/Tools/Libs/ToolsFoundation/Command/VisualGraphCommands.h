@@ -6,6 +6,9 @@ class ezDocumentObject;
 class ezCommandHistory;
 class ezVisualGraphPin;
 
+/// Command to remove a node from a visual graph.
+///
+/// Removes the specified node and all its connections. The operation is undoable.
 class EZ_TOOLSFOUNDATION_DLL ezRemoveNodeCommand : public ezCommand
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezRemoveNodeCommand, ezCommand);
@@ -25,7 +28,9 @@ private:
   ezDocumentObject* m_pObject = nullptr;
 };
 
-
+/// Command to move a node to a new position in the visual graph.
+///
+/// Changes the node's position in the graph editor. The operation is undoable.
 class EZ_TOOLSFOUNDATION_DLL ezMoveNodeCommand : public ezCommand
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezMoveNodeCommand, ezCommand);
@@ -47,7 +52,9 @@ private:
   ezVec2 m_vOldPos = ezVec2::MakeZero();
 };
 
-
+/// Command to connect two pins in a visual graph.
+///
+/// Creates a connection between an output pin and an input pin. The operation is undoable.
 class EZ_TOOLSFOUNDATION_DLL ezConnectNodePinsCommand : public ezCommand
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezConnectNodePinsCommand, ezCommand);
@@ -73,7 +80,9 @@ private:
   ezDocumentObject* m_pObjectTarget = nullptr;
 };
 
-
+/// Command to disconnect two pins in a visual graph.
+///
+/// Removes an existing connection between pins. The operation is undoable.
 class EZ_TOOLSFOUNDATION_DLL ezDisconnectNodePinsCommand : public ezCommand
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezDisconnectNodePinsCommand, ezCommand);
@@ -97,10 +106,13 @@ private:
   ezString m_sTargetPin;
 };
 
-
+/// Helper class for executing common visual graph command operations.
 class EZ_TOOLSFOUNDATION_DLL ezNodeCommands
 {
 public:
+  /// Creates a connection between two pins by adding a connection object and connecting it.
   static ezStatus AddAndConnectCommand(ezCommandHistory* pHistory, const ezRTTI* pConnectionType, const ezVisualGraphPin& sourcePin, const ezVisualGraphPin& targetPin);
+
+  /// Disconnects pins and removes the connection object.
   static ezStatus DisconnectAndRemoveCommand(ezCommandHistory* pHistory, const ezUuid& connectionObject);
 };

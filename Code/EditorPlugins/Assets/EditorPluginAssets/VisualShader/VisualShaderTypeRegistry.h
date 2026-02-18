@@ -4,10 +4,14 @@
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Strings/String.h>
-#include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
+#include <ToolsFoundation/VisualGraph/VisualGraphObjectManager.h>
 
 class ezOpenDdlReaderElement;
 
+/// Descriptor for a visual shader node pin.
+///
+/// Defines the properties of an input or output pin on a shader node, including its data type,
+/// default value, shader code generation, and visual appearance.
 struct ezVisualShaderPinDescriptor
 {
   ezString m_sName;
@@ -37,6 +41,11 @@ struct ezVisualShaderNodeType
   };
 };
 
+/// Descriptor for a visual shader node type.
+///
+/// Contains all information needed to create and compile a visual shader node, including
+/// its pins, properties, shader code fragments, and compilation settings.
+/// Node types are typically loaded from configuration files at startup.
 struct ezVisualShaderNodeDescriptor
 {
   ezEnum<ezVisualShaderNodeType> m_NodeType;
@@ -68,7 +77,10 @@ struct ezVisualShaderNodeDescriptor
   ezHybridArray<ezInt8, 4> m_UniquePropertyValueGroups; // no property in the same group may share the same value, -1 for disabled
 };
 
-
+/// Registry for all available visual shader node types.
+///
+/// Loads node type definitions from configuration files and provides access to node descriptors.
+/// Node types can be dynamically reloaded during development for rapid iteration.
 class ezVisualShaderTypeRegistry
 {
   EZ_DECLARE_SINGLETON(ezVisualShaderTypeRegistry);

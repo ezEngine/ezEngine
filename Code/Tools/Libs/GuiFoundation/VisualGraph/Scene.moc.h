@@ -5,13 +5,18 @@
 #include <QGraphicsItem>
 #include <QGraphicsScene>
 #include <ToolsFoundation/Factory/RttiMappedObjectFactory.h>
-#include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
+#include <ToolsFoundation/VisualGraph/VisualGraphObjectManager.h>
 
 class ezQtVisualGraphNode;
 class ezQtVisualGraphPin;
 class ezQtVisualGraphConnection;
 struct ezSelectionManagerEvent;
 
+/// Qt graphics scene for displaying and interacting with visual graphs.
+///
+/// This class manages the visual representation of node graphs, including rendering nodes, pins, and connections.
+/// It handles user interactions such as node creation, connection dragging, and selection.
+/// Works in conjunction with ezVisualGraphObjectManager which manages the document-side graph data.
 class EZ_GUIFOUNDATION_DLL ezQtVisualGraphScene : public QGraphicsScene
 {
   Q_OBJECT
@@ -35,6 +40,7 @@ public:
   static ezRttiMappedObjectFactory<ezQtVisualGraphConnection>& GetConnectionFactory();
   static ezVec2 GetLastMouseInteractionPos() { return s_vLastMouseInteraction; }
 
+  /// Visual style for rendering connections between pins
   struct ConnectionStyle
   {
     using StorageType = ezUInt32;

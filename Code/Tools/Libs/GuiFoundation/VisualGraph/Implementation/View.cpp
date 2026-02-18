@@ -1,7 +1,7 @@
 #include <GuiFoundation/GuiFoundationPCH.h>
 
-#include <GuiFoundation/NodeEditor/NodeScene.moc.h>
-#include <GuiFoundation/NodeEditor/NodeView.moc.h>
+#include <GuiFoundation/VisualGraph/Scene.moc.h>
+#include <GuiFoundation/VisualGraph/View.moc.h>
 #include <QMouseEvent>
 
 ezQtVisualGraphView::ezQtVisualGraphView(QWidget* pParent)

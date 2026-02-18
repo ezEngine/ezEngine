@@ -2,11 +2,11 @@
 
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Serialization/RttiConverter.h>
-#include <ToolsFoundation/Command/NodeCommands.h>
+#include <ToolsFoundation/Command/VisualGraphCommands.h>
 #include <ToolsFoundation/CommandHistory/CommandHistory.h>
 #include <ToolsFoundation/Document/Document.h>
-#include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
+#include <ToolsFoundation/VisualGraph/VisualGraphObjectManager.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualGraphPin, 1, ezRTTINoAllocator)
@@ -72,11 +72,11 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ////////////////////////////////////////////////////////////////////////
-// ezVisualGraphObjectConnection
+// ezDocumentObject_ConnectionBase
 ////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualGraphObjectConnection, 1, ezRTTIDefaultAllocator<ezVisualGraphObjectConnection>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentObject_ConnectionBase, 1, ezRTTIDefaultAllocator<ezDocumentObject_ConnectionBase>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -122,7 +122,7 @@ void ezVisualGraphObjectManager::GetNodeCreationTemplates(ezDynamicArray<ezVisua
 
 const ezRTTI* ezVisualGraphObjectManager::GetConnectionType() const
 {
-  return ezGetStaticRTTI<ezVisualGraphObjectConnection>();
+  return ezGetStaticRTTI<ezDocumentObject_ConnectionBase>();
 }
 
 ezVec2 ezVisualGraphObjectManager::GetNodePos(const ezDocumentObject* pObject) const

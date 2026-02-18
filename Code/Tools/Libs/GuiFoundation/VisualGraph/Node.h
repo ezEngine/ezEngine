@@ -2,7 +2,7 @@
 
 #include <Foundation/Containers/HybridArray.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
-#include <GuiFoundation/NodeEditor/NodeScene.moc.h>
+#include <GuiFoundation/VisualGraph/Scene.moc.h>
 #include <QGraphicsWidget>
 
 // Avoid conflicts with windows.
@@ -37,6 +37,11 @@ struct ezQtVisualGraphNodeFlags
   };
 };
 
+/// Qt graphics item representing a single node in a visual graph.
+///
+/// Displays the node's title, optional subtitle, icon, and manages its pins.
+/// Handles rendering, selection, and user interaction for the node.
+/// Derive from this class to customize node appearance for specific graph types.
 class EZ_GUIFOUNDATION_DLL ezQtVisualGraphNode : public QGraphicsPathItem
 {
 public:

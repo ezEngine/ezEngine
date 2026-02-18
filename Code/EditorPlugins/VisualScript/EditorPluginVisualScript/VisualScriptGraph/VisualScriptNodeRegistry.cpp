@@ -5,7 +5,7 @@
 #include <EditorPluginVisualScript/VisualScriptGraph/VisualScriptVariable.moc.h>
 
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
-#include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
+#include <ToolsFoundation/VisualGraph/VisualGraphObjectManager.h>
 
 #include <Core/Messages/EventMessage.h>
 #include <Core/Scripting/ScriptAttributes.h>
