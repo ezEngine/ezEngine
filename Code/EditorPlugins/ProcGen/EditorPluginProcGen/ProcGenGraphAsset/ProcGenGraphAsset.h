@@ -3,7 +3,7 @@
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenNodes.h>
 
-class ezPin;
+class ezVisualGraphPin;
 
 class ezProcGenGraphAssetProperties : public ezReflectedClass
 {
@@ -25,7 +25,7 @@ class ezProcGenGraphAssetDocument : public ezAssetDocument
 public:
   ezProcGenGraphAssetDocument(ezStringView sDocumentPath);
 
-  void SetDebugPin(const ezPin* pDebugPin);
+  void SetDebugPin(const ezVisualGraphPin* pDebugPin);
   void UpdateDebugNode();
 
   ezStatus WriteAsset(ezStreamWriter& inout_stream, const ezPlatformProfile* pAssetProfile, bool bAllowDebug) const;
@@ -58,6 +58,6 @@ private:
 
   void DumpSelectedOutput(bool bAst, bool bDisassembly) const;
 
-  const ezPin* m_pDebugPin = nullptr;
+  const ezVisualGraphPin* m_pDebugPin = nullptr;
   ezUniquePtr<ezProcGen_PlacementOutput> m_pDebugNode;
 };

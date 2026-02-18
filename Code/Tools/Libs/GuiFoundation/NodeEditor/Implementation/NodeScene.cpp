@@ -12,42 +12,42 @@
 #include <ToolsFoundation/Command/NodeCommands.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 
-ezRttiMappedObjectFactory<ezQtNode> ezQtNodeScene::s_NodeFactory;
-ezRttiMappedObjectFactory<ezQtPin> ezQtNodeScene::s_PinFactory;
-ezRttiMappedObjectFactory<ezQtConnection> ezQtNodeScene::s_ConnectionFactory;
-ezVec2 ezQtNodeScene::s_vLastMouseInteraction(0);
+ezRttiMappedObjectFactory<ezQtVisualGraphNode> ezQtVisualGraphScene::s_NodeFactory;
+ezRttiMappedObjectFactory<ezQtVisualGraphPin> ezQtVisualGraphScene::s_PinFactory;
+ezRttiMappedObjectFactory<ezQtVisualGraphConnection> ezQtVisualGraphScene::s_ConnectionFactory;
+ezVec2 ezQtVisualGraphScene::s_vLastMouseInteraction(0);
 
-ezQtNodeScene::ezQtNodeScene(QObject* pParent)
+ezQtVisualGraphScene::ezQtVisualGraphScene(QObject* pParent)
   : QGraphicsScene(pParent)
 {
   setItemIndexMethod(QGraphicsScene::NoIndex);
 
-  connect(this, &QGraphicsScene::selectionChanged, this, &ezQtNodeScene::OnSelectionChanged);
+  connect(this, &QGraphicsScene::selectionChanged, this, &ezQtVisualGraphScene::OnSelectionChanged);
 }
 
-ezQtNodeScene::~ezQtNodeScene()
+ezQtVisualGraphScene::~ezQtVisualGraphScene()
 {
-  disconnect(this, &QGraphicsScene::selectionChanged, this, &ezQtNodeScene::OnSelectionChanged);
+  disconnect(this, &QGraphicsScene::selectionChanged, this, &ezQtVisualGraphScene::OnSelectionChanged);
 
   Clear();
 
   if (m_pManager != nullptr)
   {
-    m_pManager->m_NodeEvents.RemoveEventHandler(ezMakeDelegate(&ezQtNodeScene::NodeEventsHandler, this));
-    m_pManager->GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtNodeScene::SelectionEventsHandler, this));
-    m_pManager->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtNodeScene::PropertyEventsHandler, this));
+    m_pManager->m_NodeEvents.RemoveEventHandler(ezMakeDelegate(&ezQtVisualGraphScene::NodeEventsHandler, this));
+    m_pManager->GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtVisualGraphScene::SelectionEventsHandler, this));
+    m_pManager->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtVisualGraphScene::PropertyEventsHandler, this));
   }
 }
 
-void ezQtNodeScene::InitScene(const ezDocumentNodeManager* pManager)
+void ezQtVisualGraphScene::InitScene(const ezVisualGraphObjectManager* pManager)
 {
   EZ_ASSERT_DEV(pManager != nullptr, "Invalid node manager");
 
   m_pManager = pManager;
 
-  m_pManager->m_NodeEvents.AddEventHandler(ezMakeDelegate(&ezQtNodeScene::NodeEventsHandler, this));
-  m_pManager->GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtNodeScene::SelectionEventsHandler, this));
-  m_pManager->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtNodeScene::PropertyEventsHandler, this));
+  m_pManager->m_NodeEvents.AddEventHandler(ezMakeDelegate(&ezQtVisualGraphScene::NodeEventsHandler, this));
+  m_pManager->GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtVisualGraphScene::SelectionEventsHandler, this));
+  m_pManager->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtVisualGraphScene::PropertyEventsHandler, this));
 
   // Create Nodes
   const auto& rootObjects = pManager->GetRootObject()->GetChildren();
@@ -67,44 +67,44 @@ void ezQtNodeScene::InitScene(const ezDocumentNodeManager* pManager)
   }
 }
 
-const ezDocument* ezQtNodeScene::GetDocument() const
+const ezDocument* ezQtVisualGraphScene::GetDocument() const
 {
   return m_pManager->GetDocument();
 }
 
-const ezDocumentNodeManager* ezQtNodeScene::GetDocumentNodeManager() const
+const ezVisualGraphObjectManager* ezQtVisualGraphScene::GetDocumentNodeManager() const
 {
   return m_pManager;
 }
 
-ezRttiMappedObjectFactory<ezQtNode>& ezQtNodeScene::GetNodeFactory()
+ezRttiMappedObjectFactory<ezQtVisualGraphNode>& ezQtVisualGraphScene::GetNodeFactory()
 {
   return s_NodeFactory;
 }
 
-ezRttiMappedObjectFactory<ezQtPin>& ezQtNodeScene::GetPinFactory()
+ezRttiMappedObjectFactory<ezQtVisualGraphPin>& ezQtVisualGraphScene::GetPinFactory()
 {
   return s_PinFactory;
 }
 
-ezRttiMappedObjectFactory<ezQtConnection>& ezQtNodeScene::GetConnectionFactory()
+ezRttiMappedObjectFactory<ezQtVisualGraphConnection>& ezQtVisualGraphScene::GetConnectionFactory()
 {
   return s_ConnectionFactory;
 }
 
-void ezQtNodeScene::SetConnectionStyle(ezEnum<ConnectionStyle> style)
+void ezQtVisualGraphScene::SetConnectionStyle(ezEnum<ConnectionStyle> style)
 {
   m_ConnectionStyle = style;
   invalidate();
 }
 
-void ezQtNodeScene::SetConnectionDecorationFlags(ezBitflags<ConnectionDecorationFlags> flags)
+void ezQtVisualGraphScene::SetConnectionDecorationFlags(ezBitflags<ConnectionDecorationFlags> flags)
 {
   m_ConnectionDecorationFlags = flags;
   invalidate();
 }
 
-void ezQtNodeScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
+void ezQtVisualGraphScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
   m_vMousePos = ezVec2(event->scenePos().x(), event->scenePos().y());
   s_vLastMouseInteraction = m_vMousePos;
@@ -137,7 +137,7 @@ void ezQtNodeScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
       }
     }
 
-    if (m_pStartPin->GetPin()->GetType() == ezPin::Type::Input)
+    if (m_pStartPin->GetPin()->GetType() == ezVisualGraphPin::Type::Input)
     {
       m_pTempConnection->SetPosOut(QPointF(bestPos.x, bestPos.y));
     }
@@ -151,7 +151,7 @@ void ezQtNodeScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
   QGraphicsScene::mouseMoveEvent(event);
 }
 
-void ezQtNodeScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
+void ezQtVisualGraphScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {
   switch (event->button())
   {
@@ -164,14 +164,14 @@ void ezQtNodeScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
           continue;
 
         event->accept();
-        ezQtPin* pPin = static_cast<ezQtPin*>(item);
+        ezQtVisualGraphPin* pPin = static_cast<ezQtVisualGraphPin*>(item);
         m_pStartPin = pPin;
-        m_pTempConnection = new ezQtConnection(nullptr);
+        m_pTempConnection = new ezQtVisualGraphConnection(nullptr);
         addItem(m_pTempConnection);
         m_pTempConnection->SetPosIn(pPin->GetPinPos());
         m_pTempConnection->SetPosOut(pPin->GetPinPos());
 
-        if (pPin->GetPin()->GetType() == ezPin::Type::Input)
+        if (pPin->GetPin()->GetType() == ezVisualGraphPin::Type::Input)
         {
           m_pTempConnection->SetDirIn(pPin->GetPinDir());
           m_pTempConnection->SetDirOut(-pPin->GetPinDir());
@@ -200,13 +200,13 @@ void ezQtNodeScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
   QGraphicsScene::mousePressEvent(event);
 }
 
-void ezQtNodeScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
+void ezQtVisualGraphScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 {
   if (m_pTempConnection && event->button() == Qt::LeftButton)
   {
     event->accept();
 
-    const bool startWasInput = m_pStartPin->GetPin()->GetType() == ezPin::Type::Input;
+    const bool startWasInput = m_pStartPin->GetPin()->GetType() == ezVisualGraphPin::Type::Input;
     const QPointF releasePos = startWasInput ? m_pTempConnection->GetOutPos() : m_pTempConnection->GetInPos();
 
     QList<QGraphicsItem*> itemList = items(releasePos, Qt::IntersectsItemBoundingRect);
@@ -215,11 +215,11 @@ void ezQtNodeScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
       if (item->type() != Type::Pin)
         continue;
 
-      ezQtPin* pPin = static_cast<ezQtPin*>(item);
+      ezQtVisualGraphPin* pPin = static_cast<ezQtVisualGraphPin*>(item);
       if (pPin != m_pStartPin && pPin->GetPin()->GetType() != m_pStartPin->GetPin()->GetType())
       {
-        const ezPin* pSourcePin = startWasInput ? pPin->GetPin() : m_pStartPin->GetPin();
-        const ezPin* pTargetPin = startWasInput ? m_pStartPin->GetPin() : pPin->GetPin();
+        const ezVisualGraphPin* pSourcePin = startWasInput ? pPin->GetPin() : m_pStartPin->GetPin();
+        const ezVisualGraphPin* pTargetPin = startWasInput ? m_pStartPin->GetPin() : pPin->GetPin();
         ConnectPinsAction(*pSourcePin, *pTargetPin);
         goto cleanup;
       }
@@ -233,9 +233,9 @@ void ezQtNodeScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 
       for (auto& pPin : Pins)
       {
-        const ezPin* pSourcePin = startWasInput ? pPin->GetPin() : m_pStartPin->GetPin();
-        const ezPin* pTargetPin = startWasInput ? m_pStartPin->GetPin() : pPin->GetPin();
-        ezDocumentNodeManager::CanConnectResult connect;
+        const ezVisualGraphPin* pSourcePin = startWasInput ? pPin->GetPin() : m_pStartPin->GetPin();
+        const ezVisualGraphPin* pTargetPin = startWasInput ? m_pStartPin->GetPin() : pPin->GetPin();
+        ezVisualGraphObjectManager::CanConnectResult connect;
         ezStatus res = m_pManager->CanConnect(m_pManager->GetConnectionType(), *pSourcePin, *pTargetPin, connect);
         if (res.Succeeded())
         {
@@ -260,7 +260,7 @@ void ezQtNodeScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
   ezSet<const ezDocumentObject*> moved;
   for (auto it = m_Nodes.GetIterator(); it.IsValid(); ++it)
   {
-    if (it.Value()->GetFlags().IsSet(ezNodeFlags::Moved))
+    if (it.Value()->GetFlags().IsSet(ezQtVisualGraphNodeFlags::Moved))
     {
       moved.Insert(it.Key());
       it.Value()->ResetFlags();
@@ -293,7 +293,7 @@ void ezQtNodeScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
   }
 }
 
-void ezQtNodeScene::contextMenuEvent(QGraphicsSceneContextMenuEvent* contextMenuEvent)
+void ezQtVisualGraphScene::contextMenuEvent(QGraphicsSceneContextMenuEvent* contextMenuEvent)
 {
   QTransform id;
 
@@ -308,7 +308,7 @@ void ezQtNodeScene::contextMenuEvent(QGraphicsSceneContextMenuEvent* contextMenu
   QMenu menu;
   if (iType == Type::Pin)
   {
-    ezQtPin* pPin = static_cast<ezQtPin*>(pItem);
+    ezQtVisualGraphPin* pPin = static_cast<ezQtVisualGraphPin*>(pItem);
     QAction* pAction = new QAction("Disconnect Pin", &menu);
     menu.addAction(pAction);
     connect(pAction, &QAction::triggered, this, [this, pPin](bool bChecked)
@@ -318,7 +318,7 @@ void ezQtNodeScene::contextMenuEvent(QGraphicsSceneContextMenuEvent* contextMenu
   }
   else if (iType == Type::Node)
   {
-    ezQtNode* pNode = static_cast<ezQtNode*>(pItem);
+    ezQtVisualGraphNode* pNode = static_cast<ezQtVisualGraphNode*>(pItem);
 
     // if we clicked on an unselected item, make it the only selected item
     if (!pNode->isSelected())
@@ -339,7 +339,7 @@ void ezQtNodeScene::contextMenuEvent(QGraphicsSceneContextMenuEvent* contextMenu
   }
   else if (iType == Type::Connection)
   {
-    ezQtConnection* pConnection = static_cast<ezQtConnection*>(pItem);
+    ezQtVisualGraphConnection* pConnection = static_cast<ezQtVisualGraphConnection*>(pItem);
     QAction* pAction = new QAction("Delete Connection", &menu);
     menu.addAction(pAction);
     connect(pAction, &QAction::triggered, this, [this, pConnection](bool bChecked)
@@ -356,13 +356,13 @@ void ezQtNodeScene::contextMenuEvent(QGraphicsSceneContextMenuEvent* contextMenu
   menu.exec(contextMenuEvent->screenPos());
 }
 
-void ezQtNodeScene::keyPressEvent(QKeyEvent* event)
+void ezQtVisualGraphScene::keyPressEvent(QKeyEvent* event)
 {
   QTransform id;
   QGraphicsItem* pItem = itemAt(QPointF(m_vMousePos.x, m_vMousePos.y), id);
   if (pItem && pItem->type() == Type::Pin)
   {
-    ezQtPin* pin = static_cast<ezQtPin*>(pItem);
+    ezQtVisualGraphPin* pin = static_cast<ezQtVisualGraphPin*>(pItem);
     if (event->key() == Qt::Key_Delete)
     {
       DisconnectPinsAction(pin);
@@ -387,7 +387,7 @@ void ezQtNodeScene::keyPressEvent(QKeyEvent* event)
   }
 }
 
-void ezQtNodeScene::Clear()
+void ezQtVisualGraphScene::Clear()
 {
   while (!m_Connections.IsEmpty())
   {
@@ -400,14 +400,14 @@ void ezQtNodeScene::Clear()
   }
 }
 
-void ezQtNodeScene::CreateQtNode(const ezDocumentObject* pObject)
+void ezQtVisualGraphScene::CreateQtNode(const ezDocumentObject* pObject)
 {
   ezVec2 vPos = m_pManager->GetNodePos(pObject);
 
-  ezQtNode* pNode = s_NodeFactory.CreateObject(pObject->GetTypeAccessor().GetType());
+  ezQtVisualGraphNode* pNode = s_NodeFactory.CreateObject(pObject->GetTypeAccessor().GetType());
   if (pNode == nullptr)
   {
-    pNode = new ezQtNode();
+    pNode = new ezQtVisualGraphNode();
   }
   m_Nodes[pObject] = pNode;
   addItem(pNode);
@@ -423,31 +423,31 @@ void ezQtNodeScene::CreateQtNode(const ezDocumentObject* pObject)
   }
 }
 
-void ezQtNodeScene::DeleteQtNode(const ezDocumentObject* pObject)
+void ezQtVisualGraphScene::DeleteQtNode(const ezDocumentObject* pObject)
 {
-  ezQtNode* pNode = m_Nodes[pObject];
+  ezQtVisualGraphNode* pNode = m_Nodes[pObject];
   m_Nodes.Remove(pObject);
 
   removeItem(pNode);
   delete pNode;
 }
 
-void ezQtNodeScene::CreateQtConnection(const ezDocumentObject* pObject)
+void ezQtVisualGraphScene::CreateQtConnection(const ezDocumentObject* pObject)
 {
-  const ezConnection& connection = m_pManager->GetConnection(pObject);
-  const ezPin& pinSource = connection.GetSourcePin();
-  const ezPin& pinTarget = connection.GetTargetPin();
+  const ezVisualGraphConnection& connection = m_pManager->GetConnection(pObject);
+  const ezVisualGraphPin& pinSource = connection.GetSourcePin();
+  const ezVisualGraphPin& pinTarget = connection.GetTargetPin();
 
-  ezQtNode* pSource = m_Nodes[pinSource.GetParent()];
-  ezQtNode* pTarget = m_Nodes[pinTarget.GetParent()];
-  ezQtPin* pOutput = pSource->GetOutputPin(pinSource);
-  ezQtPin* pInput = pTarget->GetInputPin(pinTarget);
+  ezQtVisualGraphNode* pSource = m_Nodes[pinSource.GetParent()];
+  ezQtVisualGraphNode* pTarget = m_Nodes[pinTarget.GetParent()];
+  ezQtVisualGraphPin* pOutput = pSource->GetOutputPin(pinSource);
+  ezQtVisualGraphPin* pInput = pTarget->GetInputPin(pinTarget);
   EZ_ASSERT_DEV(pOutput != nullptr && pInput != nullptr, "Node does not contain pin!");
 
-  ezQtConnection* pQtConnection = s_ConnectionFactory.CreateObject(pObject->GetTypeAccessor().GetType());
+  ezQtVisualGraphConnection* pQtConnection = s_ConnectionFactory.CreateObject(pObject->GetTypeAccessor().GetType());
   if (pQtConnection == nullptr)
   {
-    pQtConnection = new ezQtConnection(nullptr);
+    pQtConnection = new ezQtVisualGraphConnection(nullptr);
   }
 
   addItem(pQtConnection);
@@ -461,21 +461,21 @@ void ezQtNodeScene::CreateQtConnection(const ezDocumentObject* pObject)
   pTarget->ResetFlags();
 }
 
-void ezQtNodeScene::DeleteQtConnection(const ezDocumentObject* pObject)
+void ezQtVisualGraphScene::DeleteQtConnection(const ezDocumentObject* pObject)
 {
-  ezQtConnection* pQtConnection = m_Connections[pObject];
+  ezQtVisualGraphConnection* pQtConnection = m_Connections[pObject];
   m_Connections.Remove(pObject);
 
-  const ezConnection* pConnection = pQtConnection->GetConnection();
+  const ezVisualGraphConnection* pConnection = pQtConnection->GetConnection();
   EZ_ASSERT_DEV(pConnection != nullptr, "No connection");
 
-  const ezPin& pinSource = pConnection->GetSourcePin();
-  const ezPin& pinTarget = pConnection->GetTargetPin();
+  const ezVisualGraphPin& pinSource = pConnection->GetSourcePin();
+  const ezVisualGraphPin& pinTarget = pConnection->GetTargetPin();
 
-  ezQtNode* pSource = m_Nodes[pinSource.GetParent()];
-  ezQtNode* pTarget = m_Nodes[pinTarget.GetParent()];
-  ezQtPin* pOutput = pSource->GetOutputPin(pinSource);
-  ezQtPin* pInput = pTarget->GetInputPin(pinTarget);
+  ezQtVisualGraphNode* pSource = m_Nodes[pinSource.GetParent()];
+  ezQtVisualGraphNode* pTarget = m_Nodes[pinTarget.GetParent()];
+  ezQtVisualGraphPin* pOutput = pSource->GetOutputPin(pinSource);
+  ezQtVisualGraphPin* pInput = pTarget->GetInputPin(pinTarget);
   EZ_ASSERT_DEV(pOutput != nullptr && pInput != nullptr, "Node does not contain pin!");
 
   pOutput->RemoveConnection(pQtConnection);
@@ -489,15 +489,15 @@ void ezQtNodeScene::DeleteQtConnection(const ezDocumentObject* pObject)
   pTarget->ResetFlags();
 }
 
-void ezQtNodeScene::RecreateQtPins(const ezDocumentObject* pObject)
+void ezQtVisualGraphScene::RecreateQtPins(const ezDocumentObject* pObject)
 {
-  ezQtNode* pNode = m_Nodes[pObject];
+  ezQtVisualGraphNode* pNode = m_Nodes[pObject];
   pNode->CreatePins();
   pNode->UpdateState();
   pNode->UpdateGeometry();
 }
 
-void ezQtNodeScene::CreateNodeObject(const ezNodeCreationTemplate& nodeTemplate)
+void ezQtVisualGraphScene::CreateNodeObject(const ezVisualGraphNodeDesc& nodeTemplate)
 {
   ezCommandHistory* history = m_pManager->GetDocument()->GetCommandHistory();
   history->StartTransaction("Add Node");
@@ -539,37 +539,37 @@ void ezQtNodeScene::CreateNodeObject(const ezNodeCreationTemplate& nodeTemplate)
   ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Adding sub-element to the property failed.");
 }
 
-void ezQtNodeScene::NodeEventsHandler(const ezDocumentNodeManagerEvent& e)
+void ezQtVisualGraphScene::NodeEventsHandler(const ezVisualGraphObjectManagerEvent& e)
 {
   switch (e.m_EventType)
   {
-    case ezDocumentNodeManagerEvent::Type::NodeMoved:
+    case ezVisualGraphObjectManagerEvent::Type::NodeMoved:
     {
       ezVec2 vPos = m_pManager->GetNodePos(e.m_pObject);
-      ezQtNode* pNode = m_Nodes[e.m_pObject];
+      ezQtVisualGraphNode* pNode = m_Nodes[e.m_pObject];
       pNode->setPos(vPos.x, vPos.y);
     }
     break;
-    case ezDocumentNodeManagerEvent::Type::AfterPinsConnected:
+    case ezVisualGraphObjectManagerEvent::Type::AfterPinsConnected:
       CreateQtConnection(e.m_pObject);
       break;
 
-    case ezDocumentNodeManagerEvent::Type::BeforePinsDisonnected:
+    case ezVisualGraphObjectManagerEvent::Type::BeforePinsDisonnected:
       DeleteQtConnection(e.m_pObject);
       break;
 
-    case ezDocumentNodeManagerEvent::Type::BeforePinsChanged:
+    case ezVisualGraphObjectManagerEvent::Type::BeforePinsChanged:
       break;
 
-    case ezDocumentNodeManagerEvent::Type::AfterPinsChanged:
+    case ezVisualGraphObjectManagerEvent::Type::AfterPinsChanged:
       RecreateQtPins(e.m_pObject);
       break;
 
-    case ezDocumentNodeManagerEvent::Type::AfterNodeAdded:
+    case ezVisualGraphObjectManagerEvent::Type::AfterNodeAdded:
       CreateQtNode(e.m_pObject);
       break;
 
-    case ezDocumentNodeManagerEvent::Type::BeforeNodeRemoved:
+    case ezVisualGraphObjectManagerEvent::Type::BeforeNodeRemoved:
       DeleteQtNode(e.m_pObject);
       break;
 
@@ -578,7 +578,7 @@ void ezQtNodeScene::NodeEventsHandler(const ezDocumentNodeManagerEvent& e)
   }
 }
 
-void ezQtNodeScene::PropertyEventsHandler(const ezDocumentObjectPropertyEvent& e)
+void ezQtVisualGraphScene::PropertyEventsHandler(const ezDocumentObjectPropertyEvent& e)
 {
   auto it = m_Nodes.Find(e.m_pObject);
   if (it.IsValid())
@@ -588,7 +588,7 @@ void ezQtNodeScene::PropertyEventsHandler(const ezDocumentObjectPropertyEvent& e
   }
 }
 
-void ezQtNodeScene::SelectionEventsHandler(const ezSelectionManagerEvent& e)
+void ezQtVisualGraphScene::SelectionEventsHandler(const ezSelectionManagerEvent& e)
 {
   const ezDeque<const ezDocumentObject*>& selection = GetDocument()->GetSelectionManager()->GetSelection();
 
@@ -642,63 +642,63 @@ void ezQtNodeScene::SelectionEventsHandler(const ezSelectionManagerEvent& e)
   }
 }
 
-void ezQtNodeScene::GetSelectedNodes(ezDeque<ezQtNode*>& selection) const
+void ezQtVisualGraphScene::GetSelectedNodes(ezDeque<ezQtVisualGraphNode*>& selection) const
 {
   selection.Clear();
   auto items = selectedItems();
   for (QGraphicsItem* pItem : items)
   {
-    if (pItem->type() == ezQtNodeScene::Node)
+    if (pItem->type() == ezQtVisualGraphScene::Node)
     {
-      ezQtNode* pNode = static_cast<ezQtNode*>(pItem);
+      ezQtVisualGraphNode* pNode = static_cast<ezQtVisualGraphNode*>(pItem);
       selection.PushBack(pNode);
     }
   }
 }
 
-void ezQtNodeScene::MarkupConnectablePins(ezQtPin* pQtSourcePin)
+void ezQtVisualGraphScene::MarkupConnectablePins(ezQtVisualGraphPin* pQtSourcePin)
 {
   m_ConnectablePins.Clear();
 
   const ezRTTI* pConnectionType = m_pManager->GetConnectionType();
 
-  const ezPin* pSourcePin = pQtSourcePin->GetPin();
-  const bool bConnectForward = pSourcePin->GetType() == ezPin::Type::Output;
+  const ezVisualGraphPin* pSourcePin = pQtSourcePin->GetPin();
+  const bool bConnectForward = pSourcePin->GetType() == ezVisualGraphPin::Type::Output;
 
   for (auto it = m_Nodes.GetIterator(); it.IsValid(); ++it)
   {
     const ezDocumentObject* pDocObject = it.Key();
-    ezQtNode* pTargetNode = it.Value();
+    ezQtVisualGraphNode* pTargetNode = it.Value();
 
     {
       auto pinArray = bConnectForward ? m_pManager->GetInputPins(pDocObject) : m_pManager->GetOutputPins(pDocObject);
 
       for (auto& pin : pinArray)
       {
-        ezQtPin* pQtTargetPin = bConnectForward ? pTargetNode->GetInputPin(*pin) : pTargetNode->GetOutputPin(*pin);
+        ezQtVisualGraphPin* pQtTargetPin = bConnectForward ? pTargetNode->GetInputPin(*pin) : pTargetNode->GetOutputPin(*pin);
 
-        ezDocumentNodeManager::CanConnectResult res;
+        ezVisualGraphObjectManager::CanConnectResult res;
 
         if (bConnectForward)
           m_pManager->CanConnect(pConnectionType, *pSourcePin, *pin, res).IgnoreResult();
         else
           m_pManager->CanConnect(pConnectionType, *pin, *pSourcePin, res).IgnoreResult();
 
-        if (res == ezDocumentNodeManager::CanConnectResult::ConnectNever)
+        if (res == ezVisualGraphObjectManager::CanConnectResult::ConnectNever)
         {
-          pQtTargetPin->SetHighlightState(ezQtPinHighlightState::CannotConnect);
+          pQtTargetPin->SetHighlightState(ezQtVisualGraphPinHighlight::CannotConnect);
         }
         else
         {
           m_ConnectablePins.PushBack(pQtTargetPin);
 
-          if (res == ezDocumentNodeManager::CanConnectResult::Connect1toN || res == ezDocumentNodeManager::CanConnectResult::ConnectNtoN)
+          if (res == ezVisualGraphObjectManager::CanConnectResult::Connect1toN || res == ezVisualGraphObjectManager::CanConnectResult::ConnectNtoN)
           {
-            pQtTargetPin->SetHighlightState(ezQtPinHighlightState::CanAddConnection);
+            pQtTargetPin->SetHighlightState(ezQtVisualGraphPinHighlight::CanAddConnection);
           }
           else
           {
-            pQtTargetPin->SetHighlightState(ezQtPinHighlightState::CanReplaceConnection);
+            pQtTargetPin->SetHighlightState(ezQtVisualGraphPinHighlight::CanReplaceConnection);
           }
         }
       }
@@ -709,43 +709,43 @@ void ezQtNodeScene::MarkupConnectablePins(ezQtPin* pQtSourcePin)
 
       for (auto& pin : pinArray)
       {
-        ezQtPin* pQtTargetPin = !bConnectForward ? pTargetNode->GetInputPin(*pin) : pTargetNode->GetOutputPin(*pin);
-        pQtTargetPin->SetHighlightState(ezQtPinHighlightState::CannotConnectSameDirection);
+        ezQtVisualGraphPin* pQtTargetPin = !bConnectForward ? pTargetNode->GetInputPin(*pin) : pTargetNode->GetOutputPin(*pin);
+        pQtTargetPin->SetHighlightState(ezQtVisualGraphPinHighlight::CannotConnectSameDirection);
       }
     }
   }
 }
 
-void ezQtNodeScene::ResetConnectablePinMarkup()
+void ezQtVisualGraphScene::ResetConnectablePinMarkup()
 {
   m_ConnectablePins.Clear();
 
   for (auto it = m_Nodes.GetIterator(); it.IsValid(); ++it)
   {
     const ezDocumentObject* pDocObject = it.Key();
-    ezQtNode* pTargetNode = it.Value();
+    ezQtVisualGraphNode* pTargetNode = it.Value();
 
     for (auto& pin : m_pManager->GetInputPins(pDocObject))
     {
-      ezQtPin* pQtTargetPin = pTargetNode->GetInputPin(*pin);
-      pQtTargetPin->SetHighlightState(ezQtPinHighlightState::None);
+      ezQtVisualGraphPin* pQtTargetPin = pTargetNode->GetInputPin(*pin);
+      pQtTargetPin->SetHighlightState(ezQtVisualGraphPinHighlight::None);
     }
 
     for (auto& pin : m_pManager->GetOutputPins(pDocObject))
     {
-      ezQtPin* pQtTargetPin = pTargetNode->GetOutputPin(*pin);
-      pQtTargetPin->SetHighlightState(ezQtPinHighlightState::None);
+      ezQtVisualGraphPin* pQtTargetPin = pTargetNode->GetOutputPin(*pin);
+      pQtTargetPin->SetHighlightState(ezQtVisualGraphPinHighlight::None);
     }
   }
 }
 
-void ezQtNodeScene::OpenSearchMenu(QPoint screenPos)
+void ezQtVisualGraphScene::OpenSearchMenu(QPoint screenPos)
 {
   QMenu menu;
   ezQtSearchableMenu* pSearchMenu = new ezQtSearchableMenu(&menu);
   menu.addAction(pSearchMenu);
 
-  connect(pSearchMenu, &ezQtSearchableMenu::MenuItemTriggered, this, &ezQtNodeScene::OnMenuItemTriggered);
+  connect(pSearchMenu, &ezQtSearchableMenu::MenuItemTriggered, this, &ezQtVisualGraphScene::OnMenuItemTriggered);
   connect(pSearchMenu, &ezQtSearchableMenu::MenuItemTriggered, this, [&menu]()
     { menu.close(); });
 
@@ -757,7 +757,7 @@ void ezQtNodeScene::OpenSearchMenu(QPoint screenPos)
 
   for (ezUInt32 i = 0; i < m_NodeCreationTemplates.GetCount(); ++i)
   {
-    const ezNodeCreationTemplate& nodeTemplate = m_NodeCreationTemplates[i];
+    const ezVisualGraphNodeDesc& nodeTemplate = m_NodeCreationTemplates[i];
     const ezRTTI* pRtti = nodeTemplate.m_pType;
     ezStringView sCleanName = nodeTemplate.m_sTypeName.IsEmpty() ? pRtti->GetTypeName() : nodeTemplate.m_sTypeName;
 
@@ -792,7 +792,7 @@ void ezQtNodeScene::OpenSearchMenu(QPoint screenPos)
   m_sContextMenuSearchText = pSearchMenu->GetSearchText();
 }
 
-ezStatus ezQtNodeScene::RemoveNode(ezQtNode* pNode)
+ezStatus ezQtVisualGraphScene::RemoveNode(ezQtVisualGraphNode* pNode)
 {
   EZ_SUCCEED_OR_RETURN(m_pManager->CanRemove(pNode->GetObject()));
 
@@ -803,9 +803,9 @@ ezStatus ezQtNodeScene::RemoveNode(ezQtNode* pNode)
   return history->AddCommand(cmd);
 }
 
-void ezQtNodeScene::RemoveSelectedNodesAction()
+void ezQtVisualGraphScene::RemoveSelectedNodesAction()
 {
-  ezDeque<ezQtNode*> selection;
+  ezDeque<ezQtVisualGraphNode*> selection;
   GetSelectedNodes(selection);
 
   if (selection.IsEmpty())
@@ -814,7 +814,7 @@ void ezQtNodeScene::RemoveSelectedNodesAction()
   ezCommandHistory* history = GetDocumentNodeManager()->GetDocument()->GetCommandHistory();
   history->StartTransaction("Remove Nodes");
 
-  for (ezQtNode* pNode : selection)
+  for (ezQtVisualGraphNode* pNode : selection)
   {
     ezStatus res = RemoveNode(pNode);
 
@@ -830,12 +830,12 @@ void ezQtNodeScene::RemoveSelectedNodesAction()
   history->FinishTransaction();
 }
 
-void ezQtNodeScene::ConnectPinsAction(const ezPin& sourcePin, const ezPin& targetPin)
+void ezQtVisualGraphScene::ConnectPinsAction(const ezVisualGraphPin& sourcePin, const ezVisualGraphPin& targetPin)
 {
-  ezDocumentNodeManager::CanConnectResult connect;
+  ezVisualGraphObjectManager::CanConnectResult connect;
   ezStatus res = m_pManager->CanConnect(m_pManager->GetConnectionType(), sourcePin, targetPin, connect);
 
-  if (connect == ezDocumentNodeManager::CanConnectResult::ConnectNever)
+  if (connect == ezVisualGraphObjectManager::CanConnectResult::ConnectNever)
   {
     ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Failed to connect nodes.");
     return;
@@ -845,10 +845,10 @@ void ezQtNodeScene::ConnectPinsAction(const ezPin& sourcePin, const ezPin& targe
   history->StartTransaction("Connect Pins");
 
   // disconnect everything from the source pin
-  if (connect == ezDocumentNodeManager::CanConnectResult::Connect1to1 || connect == ezDocumentNodeManager::CanConnectResult::Connect1toN)
+  if (connect == ezVisualGraphObjectManager::CanConnectResult::Connect1to1 || connect == ezVisualGraphObjectManager::CanConnectResult::Connect1toN)
   {
-    const ezArrayPtr<const ezConnection* const> connections = m_pManager->GetConnections(sourcePin);
-    for (const ezConnection* pConnection : connections)
+    const ezArrayPtr<const ezVisualGraphConnection* const> connections = m_pManager->GetConnections(sourcePin);
+    for (const ezVisualGraphConnection* pConnection : connections)
     {
       res = ezNodeCommands::DisconnectAndRemoveCommand(history, pConnection->GetParent()->GetGuid());
       if (res.Failed())
@@ -860,10 +860,10 @@ void ezQtNodeScene::ConnectPinsAction(const ezPin& sourcePin, const ezPin& targe
   }
 
   // disconnect everything from the target pin
-  if (connect == ezDocumentNodeManager::CanConnectResult::Connect1to1 || connect == ezDocumentNodeManager::CanConnectResult::ConnectNto1)
+  if (connect == ezVisualGraphObjectManager::CanConnectResult::Connect1to1 || connect == ezVisualGraphObjectManager::CanConnectResult::ConnectNto1)
   {
-    const ezArrayPtr<const ezConnection* const> connections = m_pManager->GetConnections(targetPin);
-    for (const ezConnection* pConnection : connections)
+    const ezArrayPtr<const ezVisualGraphConnection* const> connections = m_pManager->GetConnections(targetPin);
+    for (const ezVisualGraphConnection* pConnection : connections)
     {
       res = ezNodeCommands::DisconnectAndRemoveCommand(history, pConnection->GetParent()->GetGuid());
       if (res.Failed())
@@ -887,7 +887,7 @@ void ezQtNodeScene::ConnectPinsAction(const ezPin& sourcePin, const ezPin& targe
   history->FinishTransaction();
 }
 
-void ezQtNodeScene::DisconnectPinsAction(ezQtConnection* pConnection)
+void ezQtVisualGraphScene::DisconnectPinsAction(ezQtVisualGraphConnection* pConnection)
 {
   ezStatus res = m_pManager->CanDisconnect(pConnection->GetConnection());
   if (res.Succeeded())
@@ -905,13 +905,13 @@ void ezQtNodeScene::DisconnectPinsAction(ezQtConnection* pConnection)
   ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Node disconnect failed.");
 }
 
-void ezQtNodeScene::DisconnectPinsAction(ezQtPin* pPin)
+void ezQtVisualGraphScene::DisconnectPinsAction(ezQtVisualGraphPin* pPin)
 {
   ezCommandHistory* history = m_pManager->GetDocument()->GetCommandHistory();
   history->StartTransaction("Disconnect Pins");
 
   ezStatus res = ezStatus(EZ_SUCCESS);
-  for (ezQtConnection* pConnection : pPin->GetConnections())
+  for (ezQtVisualGraphConnection* pConnection : pPin->GetConnections())
   {
     DisconnectPinsAction(pConnection);
   }
@@ -924,7 +924,7 @@ void ezQtNodeScene::DisconnectPinsAction(ezQtPin* pPin)
   ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Adding sub-element to the property failed.");
 }
 
-void ezQtNodeScene::OnMenuItemTriggered(const QString& sName, const QVariant& variant)
+void ezQtVisualGraphScene::OnMenuItemTriggered(const QString& sName, const QVariant& variant)
 {
   ezUInt32 uiTypeIndex = variant.value<ezUInt32>();
   if (uiTypeIndex >= m_NodeCreationTemplates.GetCount())
@@ -933,7 +933,7 @@ void ezQtNodeScene::OnMenuItemTriggered(const QString& sName, const QVariant& va
   CreateNodeObject(m_NodeCreationTemplates[uiTypeIndex]);
 }
 
-void ezQtNodeScene::OnSelectionChanged()
+void ezQtVisualGraphScene::OnSelectionChanged()
 {
   ezCommandHistory* pHistory = m_pManager->GetDocument()->GetCommandHistory();
   if (pHistory->IsInUndoRedo() || pHistory->IsInTransaction())
@@ -943,14 +943,14 @@ void ezQtNodeScene::OnSelectionChanged()
   auto items = selectedItems();
   for (QGraphicsItem* pItem : items)
   {
-    if (pItem->type() == ezQtNodeScene::Node)
+    if (pItem->type() == ezQtVisualGraphScene::Node)
     {
-      ezQtNode* pNode = static_cast<ezQtNode*>(pItem);
+      ezQtVisualGraphNode* pNode = static_cast<ezQtVisualGraphNode*>(pItem);
       m_Selection.PushBack(pNode->GetObject());
     }
-    else if (pItem->type() == ezQtNodeScene::Connection)
+    else if (pItem->type() == ezQtVisualGraphScene::Connection)
     {
-      ezQtConnection* pConnection = static_cast<ezQtConnection*>(pItem);
+      ezQtVisualGraphConnection* pConnection = static_cast<ezQtVisualGraphConnection*>(pItem);
       m_Selection.PushBack(pConnection->GetObject());
     }
   }

@@ -12,9 +12,9 @@ using ezAnimationClipResourceHandle = ezTypedResourceHandle<class ezAnimationCli
 class ezAnimGraphInstance;
 class ezAnimGraphNode;
 
-class ezAnimationGraphNodePin : public ezPin
+class ezAnimationGraphNodePin : public ezVisualGraphPin
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAnimationGraphNodePin, ezPin);
+  EZ_ADD_DYNAMIC_REFLECTION(ezAnimationGraphNodePin, ezVisualGraphPin);
 
 public:
   ezAnimationGraphNodePin(Type type, const char* szName, const ezColorGammaUB& color, const ezDocumentObject* pObject);
@@ -24,14 +24,14 @@ public:
   ezAnimGraphPin::Type m_DataType = ezAnimGraphPin::Invalid;
 };
 
-class ezAnimationGraphNodeManager : public ezDocumentNodeManager
+class ezAnimationGraphNodeManager : public ezVisualGraphObjectManager
 {
 public:
   virtual bool InternalIsNode(const ezDocumentObject* pObject) const override;
   virtual void InternalCreatePins(const ezDocumentObject* pObject, NodeInternal& ref_node) override;
   virtual void GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& ref_types) const override;
 
-  virtual ezStatus InternalCanConnect(const ezPin& source, const ezPin& target, CanConnectResult& out_result) const override;
+  virtual ezStatus InternalCanConnect(const ezVisualGraphPin& source, const ezVisualGraphPin& target, CanConnectResult& out_result) const override;
 
 private:
   virtual bool InternalIsDynamicPinProperty(const ezDocumentObject* pObject, const ezAbstractProperty* pProp) const override;

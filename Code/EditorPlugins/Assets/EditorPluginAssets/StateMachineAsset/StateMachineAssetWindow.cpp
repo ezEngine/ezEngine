@@ -40,9 +40,9 @@ ezQtStateMachineAssetDocumentWindow::ezQtStateMachineAssetDocumentWindow(ezDocum
   // Central Widget
   {
     m_pScene = new ezQtStateMachineAssetScene(this);
-    m_pScene->InitScene(static_cast<const ezDocumentNodeManager*>(pDocument->GetObjectManager()));
+    m_pScene->InitScene(static_cast<const ezVisualGraphObjectManager*>(pDocument->GetObjectManager()));
 
-    m_pView = new ezQtNodeView(this);
+    m_pView = new ezQtVisualGraphView(this);
     m_pView->SetScene(m_pScene);
 
     ezQtDocumentPanel* pCentral = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);

@@ -4,7 +4,7 @@
 
 class ezDocumentObject;
 class ezCommandHistory;
-class ezPin;
+class ezVisualGraphPin;
 
 class EZ_TOOLSFOUNDATION_DLL ezRemoveNodeCommand : public ezCommand
 {
@@ -101,6 +101,6 @@ private:
 class EZ_TOOLSFOUNDATION_DLL ezNodeCommands
 {
 public:
-  static ezStatus AddAndConnectCommand(ezCommandHistory* pHistory, const ezRTTI* pConnectionType, const ezPin& sourcePin, const ezPin& targetPin);
+  static ezStatus AddAndConnectCommand(ezCommandHistory* pHistory, const ezRTTI* pConnectionType, const ezVisualGraphPin& sourcePin, const ezVisualGraphPin& targetPin);
   static ezStatus DisconnectAndRemoveCommand(ezCommandHistory* pHistory, const ezUuid& connectionObject);
 };

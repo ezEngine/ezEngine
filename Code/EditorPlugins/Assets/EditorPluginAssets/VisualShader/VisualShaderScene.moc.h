@@ -6,9 +6,9 @@
 #include <GuiFoundation/NodeEditor/NodeScene.moc.h>
 #include <GuiFoundation/NodeEditor/Pin.h>
 
-class ezQtNodeView;
+class ezQtVisualGraphView;
 
-class ezQtVisualShaderScene : public ezQtNodeScene
+class ezQtVisualShaderScene : public ezQtVisualGraphScene
 {
   Q_OBJECT
 
@@ -17,21 +17,21 @@ public:
   ~ezQtVisualShaderScene();
 };
 
-class ezQtVisualShaderPin : public ezQtPin
+class ezQtVisualShaderPin : public ezQtVisualGraphPin
 {
 public:
   ezQtVisualShaderPin();
 
-  virtual void SetPin(const ezPin& pin) override;
+  virtual void SetPin(const ezVisualGraphPin& pin) override;
   virtual void paint(QPainter* pPainter, const QStyleOptionGraphicsItem* pOption, QWidget* pWidget) override;
 };
 
-class ezQtVisualShaderNode : public ezQtNode
+class ezQtVisualShaderNode : public ezQtVisualGraphNode
 {
 public:
   ezQtVisualShaderNode();
 
-  virtual void InitNode(const ezDocumentNodeManager* pManager, const ezDocumentObject* pObject) override;
+  virtual void InitNode(const ezVisualGraphObjectManager* pManager, const ezDocumentObject* pObject) override;
 
   virtual void UpdateState() override;
 };

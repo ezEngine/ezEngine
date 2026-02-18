@@ -5,7 +5,7 @@
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
 class ezQtRenderPipelineAssetScene;
-class ezQtNodeView;
+class ezQtVisualGraphView;
 
 class ezQtRenderPipelineAssetDocumentWindow : public ezQtDocumentWindow
 {
@@ -19,5 +19,5 @@ private Q_SLOTS:
 
 private:
   ezQtRenderPipelineAssetScene* m_pScene;
-  ezQtNodeView* m_pView;
+  ezQtVisualGraphView* m_pView;
 };

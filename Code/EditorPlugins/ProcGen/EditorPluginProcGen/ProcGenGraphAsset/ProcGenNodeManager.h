@@ -6,20 +6,20 @@
 #include <GuiFoundation/NodeEditor/NodeScene.moc.h>
 #include <GuiFoundation/NodeEditor/Pin.h>
 
-class ezProcGenPin : public ezPin
+class ezProcGenPin : public ezVisualGraphPin
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezProcGenPin, ezPin);
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcGenPin, ezVisualGraphPin);
 
 public:
-  using ezPin::ezPin;
+  using ezVisualGraphPin::ezVisualGraphPin;
 };
 
-class ezProcGenNodeManager : public ezDocumentNodeManager
+class ezProcGenNodeManager : public ezVisualGraphObjectManager
 {
 public:
   virtual bool InternalIsNode(const ezDocumentObject* pObject) const override;
   virtual void InternalCreatePins(const ezDocumentObject* pObject, NodeInternal& ref_node) override;
   virtual void GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& ref_types) const override;
 
-  virtual ezStatus InternalCanConnect(const ezPin& source, const ezPin& target, CanConnectResult& out_result) const override;
+  virtual ezStatus InternalCanConnect(const ezVisualGraphPin& source, const ezVisualGraphPin& target, CanConnectResult& out_result) const override;
 };

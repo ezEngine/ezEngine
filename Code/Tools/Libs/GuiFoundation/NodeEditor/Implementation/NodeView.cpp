@@ -4,7 +4,7 @@
 #include <GuiFoundation/NodeEditor/NodeView.moc.h>
 #include <QMouseEvent>
 
-ezQtNodeView::ezQtNodeView(QWidget* pParent)
+ezQtVisualGraphView::ezQtVisualGraphView(QWidget* pParent)
   : QGraphicsView(pParent)
 
 {
@@ -17,9 +17,9 @@ ezQtNodeView::ezQtNodeView(QWidget* pParent)
   m_ViewScale = QPointF(1, 1);
 }
 
-ezQtNodeView::~ezQtNodeView() = default;
+ezQtVisualGraphView::~ezQtVisualGraphView() = default;
 
-void ezQtNodeView::SetScene(ezQtNodeScene* pScene)
+void ezQtVisualGraphView::SetScene(ezQtVisualGraphScene* pScene)
 {
   m_pScene = pScene;
   setScene(pScene);
@@ -30,12 +30,12 @@ void ezQtNodeView::SetScene(ezQtNodeScene* pScene)
   UpdateView();
 }
 
-ezQtNodeScene* ezQtNodeView::GetScene()
+ezQtVisualGraphScene* ezQtVisualGraphView::GetScene()
 {
   return m_pScene;
 }
 
-void ezQtNodeView::mousePressEvent(QMouseEvent* event)
+void ezQtVisualGraphView::mousePressEvent(QMouseEvent* event)
 {
   QGraphicsView::mousePressEvent(event);
 
@@ -52,7 +52,7 @@ void ezQtNodeView::mousePressEvent(QMouseEvent* event)
   }
 }
 
-void ezQtNodeView::mouseMoveEvent(QMouseEvent* event)
+void ezQtVisualGraphView::mouseMoveEvent(QMouseEvent* event)
 {
   QGraphicsView::mouseMoveEvent(event);
 
@@ -70,7 +70,7 @@ void ezQtNodeView::mouseMoveEvent(QMouseEvent* event)
   }
 }
 
-void ezQtNodeView::mouseReleaseEvent(QMouseEvent* event)
+void ezQtVisualGraphView::mouseReleaseEvent(QMouseEvent* event)
 {
   if (event->button() == Qt::RightButton && m_bPanning)
   {
@@ -84,7 +84,7 @@ void ezQtNodeView::mouseReleaseEvent(QMouseEvent* event)
   QGraphicsView::mouseReleaseEvent(event);
 }
 
-void ezQtNodeView::wheelEvent(QWheelEvent* event)
+void ezQtVisualGraphView::wheelEvent(QWheelEvent* event)
 {
 #if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
   QPointF centerA(event->position().x() / m_ViewScale.x(), event->position().y() / m_ViewScale.y());
@@ -120,7 +120,7 @@ void ezQtNodeView::wheelEvent(QWheelEvent* event)
   UpdateView();
 }
 
-void ezQtNodeView::contextMenuEvent(QContextMenuEvent* event)
+void ezQtVisualGraphView::contextMenuEvent(QContextMenuEvent* event)
 {
   if (m_iPanCounter > 2)
   {
@@ -130,13 +130,13 @@ void ezQtNodeView::contextMenuEvent(QContextMenuEvent* event)
   QGraphicsView::contextMenuEvent(event);
 }
 
-void ezQtNodeView::resizeEvent(QResizeEvent* event)
+void ezQtVisualGraphView::resizeEvent(QResizeEvent* event)
 {
   QGraphicsView::resizeEvent(event);
   UpdateView();
 }
 
-void ezQtNodeView::drawBackground(QPainter* painter, const QRectF& r)
+void ezQtVisualGraphView::drawBackground(QPainter* painter, const QRectF& r)
 {
   QGraphicsView::drawBackground(painter, r);
 
@@ -159,20 +159,20 @@ void ezQtNodeView::drawBackground(QPainter* painter, const QRectF& r)
   }
 
   // Only force constant redraws when doing the debug animation.
-  if (GetScene()->GetConnectionDecorationFlags().IsSet(ezQtNodeScene::ConnectionDecorationFlags::DrawDebugging))
+  if (GetScene()->GetConnectionDecorationFlags().IsSet(ezQtVisualGraphScene::ConnectionDecorationFlags::DrawDebugging))
   {
     UpdateView();
   }
 }
 
-void ezQtNodeView::UpdateView()
+void ezQtVisualGraphView::UpdateView()
 {
   QRectF sceneRect(m_ViewPos.x(), m_ViewPos.y(), width() / m_ViewScale.x(), height() / m_ViewScale.y());
   setSceneRect(sceneRect);
   fitInView(sceneRect, Qt::KeepAspectRatio);
 }
 
-void ezQtNodeView::DrawGrid(QPainter* painter, const double gridStep)
+void ezQtVisualGraphView::DrawGrid(QPainter* painter, const double gridStep)
 {
   const QRectF sceneRect(m_ViewPos.x(), m_ViewPos.y(), width() / m_ViewScale.x(), height() / m_ViewScale.y());
   const QPointF topLeft = sceneRect.topLeft();

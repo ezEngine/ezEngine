@@ -4,17 +4,17 @@
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <QGraphicsView>
 
-class ezQtNodeScene;
+class ezQtVisualGraphScene;
 
-class EZ_GUIFOUNDATION_DLL ezQtNodeView : public QGraphicsView
+class EZ_GUIFOUNDATION_DLL ezQtVisualGraphView : public QGraphicsView
 {
   Q_OBJECT
 public:
-  explicit ezQtNodeView(QWidget* pParent = nullptr);
-  ~ezQtNodeView();
+  explicit ezQtVisualGraphView(QWidget* pParent = nullptr);
+  ~ezQtVisualGraphView();
 
-  void SetScene(ezQtNodeScene* pScene);
-  ezQtNodeScene* GetScene();
+  void SetScene(ezQtVisualGraphScene* pScene);
+  ezQtVisualGraphScene* GetScene();
 
 protected:
   virtual void mousePressEvent(QMouseEvent* event) override;
@@ -32,7 +32,7 @@ private:
   void DrawGrid(QPainter* painter, const double gridStep);
 
 private:
-  ezQtNodeScene* m_pScene = nullptr;
+  ezQtVisualGraphScene* m_pScene = nullptr;
   bool m_bPanning = false;
   ezInt32 m_iPanCounter = 0;
 

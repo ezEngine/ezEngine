@@ -3,18 +3,18 @@
 #include <EditorPluginAssets/MaterialAsset/MaterialAsset.h>
 #include <EditorPluginAssets/VisualShader/VisualShaderTypeRegistry.h>
 
-class ezDocumentNodeManager;
+class ezVisualGraphObjectManager;
 
 class ezVisualShaderCodeGenerator
 {
 public:
   ezVisualShaderCodeGenerator();
 
-  ezStatus GenerateVisualShader(const ezDocumentNodeManager* pNodeMaanger, ezStringBuilder& out_sCheckPerms);
+  ezStatus GenerateVisualShader(const ezVisualGraphObjectManager* pNodeMaanger, ezStringBuilder& out_sCheckPerms);
 
   const char* GetFinalShaderCode() const { return m_sFinalShaderCode; }
 
-  void DetermineConfigFileDependencies(const ezDocumentNodeManager* pNodeManager, ezSet<ezString>& out_cfgFiles);
+  void DetermineConfigFileDependencies(const ezVisualGraphObjectManager* pNodeManager, ezSet<ezString>& out_cfgFiles);
 
 private:
   struct NodeState
@@ -41,12 +41,12 @@ private:
 
 
   ezStatus GatherAllNodes(const ezDocumentObject* pRootObj);
-  ezUInt16 DeterminePinId(const ezDocumentObject* pOwner, const ezPin& pin) const;
+  ezUInt16 DeterminePinId(const ezDocumentObject* pOwner, const ezVisualGraphPin& pin) const;
   ezStatus GenerateNode(const ezDocumentObject* pNode);
-  ezStatus GenerateInputPinCode(ezArrayPtr<const ezUniquePtr<const ezPin>> pins);
+  ezStatus GenerateInputPinCode(ezArrayPtr<const ezUniquePtr<const ezVisualGraphPin>> pins);
   ezStatus CheckPropertyValues(const ezDocumentObject* pNode, const ezVisualShaderNodeDescriptor* pDesc);
   ezStatus InsertPropertyValues(const ezDocumentObject* pNode, const ezVisualShaderNodeDescriptor* pDesc, ezStringBuilder& sString);
-  ezStatus GenerateOutputPinCode(const ezDocumentObject* pOwnerNode, const ezPin& pinSource);
+  ezStatus GenerateOutputPinCode(const ezDocumentObject* pOwnerNode, const ezVisualGraphPin& pinSource);
 
   ezStatus ReplaceInputPinsByCode(const ezDocumentObject* pOwnerNode, const ezVisualShaderNodeDescriptor* pNodeDesc, ezStringBuilder& sInlineCode, ezStringBuilder& sCodeForPlacingDefines);
   void ReplaceMainNodeInputPins(const ezDocumentObject* pMainNode, const ezVisualShaderNodeDescriptor* pNodeDesc, ezStringBuilder& sInlineCode, ezStringBuilder& sCodeForPlacingDefines, ezStringBuilder& out_sHelperFunctions);
@@ -67,15 +67,15 @@ private:
   void ComputeOutputPinDimensions();
 
   // Generates a helper function for a main node input pin, returns the function code and the function name
-  void GenerateInputHelperFunction(const ezPin* pInputPin, ezUInt32 uiInputIndex, ezStringBuilder& out_sFunctionCode, ezStringBuilder& out_sFunctionCall);
+  void GenerateInputHelperFunction(const ezVisualGraphPin* pInputPin, ezUInt32 uiInputIndex, ezStringBuilder& out_sFunctionCode, ezStringBuilder& out_sFunctionCall);
 
   const ezDocumentObject* m_pMainNode;
   const ezVisualShaderTypeRegistry* m_pTypeRegistry;
-  const ezDocumentNodeManager* m_pNodeManager;
+  const ezVisualGraphObjectManager* m_pNodeManager;
   const ezRTTI* m_pNodeBaseRtti;
   ezMap<const ezDocumentObject*, NodeState> m_Nodes;
-  ezMap<const ezPin*, OutputPinState> m_OutputPins;
-  ezMap<const ezPin*, ezUInt8> m_OutputPinDimensions; // Effective output type dimension for each output pin (1-4 for float-float4)
+  ezMap<const ezVisualGraphPin*, OutputPinState> m_OutputPins;
+  ezMap<const ezVisualGraphPin*, ezUInt8> m_OutputPinDimensions; // Effective output type dimension for each output pin (1-4 for float-float4)
   ezMap<ezString, ezString> m_UsedIdentifiers; // Maps identifier name to node type name
   ezMap<ezString, ezString> m_MaterialParameter;
 

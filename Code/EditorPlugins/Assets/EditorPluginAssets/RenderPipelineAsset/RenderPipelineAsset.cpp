@@ -50,19 +50,19 @@ void ezRenderPipelineNodeManager::InternalCreatePins(const ezDocumentObject* pOb
 
     if (pProp->GetSpecificType()->IsDerivedFrom<ezRenderPipelineNodeInputPin>())
     {
-      auto pPin = EZ_DEFAULT_NEW(ezPin, ezPin::Type::Input, pProp->GetPropertyName(), pinColor, pObject);
+      auto pPin = EZ_DEFAULT_NEW(ezVisualGraphPin, ezVisualGraphPin::Type::Input, pProp->GetPropertyName(), pinColor, pObject);
       ref_node.m_Inputs.PushBack(pPin);
     }
     else if (pProp->GetSpecificType()->IsDerivedFrom<ezRenderPipelineNodeOutputPin>())
     {
-      auto pPin = EZ_DEFAULT_NEW(ezPin, ezPin::Type::Output, pProp->GetPropertyName(), pinColor, pObject);
+      auto pPin = EZ_DEFAULT_NEW(ezVisualGraphPin, ezVisualGraphPin::Type::Output, pProp->GetPropertyName(), pinColor, pObject);
       ref_node.m_Outputs.PushBack(pPin);
     }
     else if (pProp->GetSpecificType()->IsDerivedFrom<ezRenderPipelineNodePassThroughPin>())
     {
-      auto pPinIn = EZ_DEFAULT_NEW(ezPin, ezPin::Type::Input, pProp->GetPropertyName(), pinColor, pObject);
+      auto pPinIn = EZ_DEFAULT_NEW(ezVisualGraphPin, ezVisualGraphPin::Type::Input, pProp->GetPropertyName(), pinColor, pObject);
       ref_node.m_Inputs.PushBack(pPinIn);
-      auto pPinOut = EZ_DEFAULT_NEW(ezPin, ezPin::Type::Output, pProp->GetPropertyName(), pinColor, pObject);
+      auto pPinOut = EZ_DEFAULT_NEW(ezVisualGraphPin, ezVisualGraphPin::Type::Output, pProp->GetPropertyName(), pinColor, pObject);
       ref_node.m_Outputs.PushBack(pPinOut);
     }
   }
@@ -83,7 +83,7 @@ void ezRenderPipelineNodeManager::GetCreateableTypes(ezHybridArray<const ezRTTI*
   }
 }
 
-ezStatus ezRenderPipelineNodeManager::InternalCanConnect(const ezPin& source, const ezPin& target, CanConnectResult& out_result) const
+ezStatus ezRenderPipelineNodeManager::InternalCanConnect(const ezVisualGraphPin& source, const ezVisualGraphPin& target, CanConnectResult& out_result) const
 {
   out_result = CanConnectResult::ConnectNto1;
   return ezStatus(EZ_SUCCESS);
@@ -112,21 +112,21 @@ ezTransformStatus ezRenderPipelineAssetDocument::InternalTransformAsset(ezStream
 
 void ezRenderPipelineAssetDocument::InternalGetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const
 {
-  const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
+  const ezVisualGraphObjectManager* pManager = static_cast<const ezVisualGraphObjectManager*>(GetObjectManager());
   pManager->GetMetaDataHash(pObject, inout_uiHash);
 }
 
 void ezRenderPipelineAssetDocument::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const
 {
   SUPER::AttachMetaDataBeforeSaving(graph);
-  const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
+  const ezVisualGraphObjectManager* pManager = static_cast<const ezVisualGraphObjectManager*>(GetObjectManager());
   pManager->AttachMetaDataBeforeSaving(graph);
 }
 
 void ezRenderPipelineAssetDocument::RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph, bool bUndoable)
 {
   SUPER::RestoreMetaDataAfterLoading(graph, bUndoable);
-  ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());
+  ezVisualGraphObjectManager* pManager = static_cast<ezVisualGraphObjectManager*>(GetObjectManager());
   pManager->RestoreMetaDataAfterLoading(graph, bUndoable);
 }
 
@@ -141,12 +141,12 @@ bool ezRenderPipelineAssetDocument::CopySelectedObjects(ezAbstractObjectGraph& o
 {
   out_MimeType = "application/ezEditor.RenderPipelineGraph";
 
-  const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
+  const ezVisualGraphObjectManager* pManager = static_cast<const ezVisualGraphObjectManager*>(GetObjectManager());
   return pManager->CopySelectedObjects(out_objectGraph);
 }
 
 bool ezRenderPipelineAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, ezStringView sMimeType)
 {
-  ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());
-  return pManager->PasteObjects(info, objectGraph, ezQtNodeScene::GetLastMouseInteractionPos(), bAllowPickedPosition);
+  ezVisualGraphObjectManager* pManager = static_cast<ezVisualGraphObjectManager*>(GetObjectManager());
+  return pManager->PasteObjects(info, objectGraph, ezQtVisualGraphScene::GetLastMouseInteractionPos(), bAllowPickedPosition);
 }

@@ -4,17 +4,17 @@
 #include <GuiFoundation/NodeEditor/Node.h>
 #include <GuiFoundation/NodeEditor/Pin.h>
 
-class ezQtProcGenNode : public ezQtNode
+class ezQtProcGenNode : public ezQtVisualGraphNode
 {
 public:
   ezQtProcGenNode();
 
-  virtual void InitNode(const ezDocumentNodeManager* pManager, const ezDocumentObject* pObject) override;
+  virtual void InitNode(const ezVisualGraphObjectManager* pManager, const ezDocumentObject* pObject) override;
 
   virtual void UpdateState() override;
 };
 
-class ezQtProcGenPin : public ezQtPin
+class ezQtProcGenPin : public ezQtVisualGraphPin
 {
 public:
   ezQtProcGenPin();
@@ -32,7 +32,7 @@ private:
   bool m_bDebug = false;
 };
 
-class ezQtProcGenScene : public ezQtNodeScene
+class ezQtProcGenScene : public ezQtVisualGraphScene
 {
 public:
   ezQtProcGenScene(QObject* pParent = nullptr);
@@ -41,7 +41,7 @@ public:
   void SetDebugPin(ezQtProcGenPin* pDebugPin);
 
 private:
-  virtual ezStatus RemoveNode(ezQtNode* pNode) override;
+  virtual ezStatus RemoveNode(ezQtVisualGraphNode* pNode) override;
 
   bool m_bUpdatingDebugPin = false;
   ezQtProcGenPin* m_pDebugPin = nullptr;

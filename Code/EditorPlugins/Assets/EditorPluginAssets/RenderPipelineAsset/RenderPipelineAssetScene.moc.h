@@ -3,10 +3,10 @@
 #include <Foundation/Basics.h>
 #include <GuiFoundation/NodeEditor/NodeScene.moc.h>
 
-class ezQtNodeScene;
-class ezQtNodeView;
+class ezQtVisualGraphScene;
+class ezQtVisualGraphView;
 
-class ezQtRenderPipelineAssetScene : public ezQtNodeScene
+class ezQtRenderPipelineAssetScene : public ezQtVisualGraphScene
 {
   Q_OBJECT
 

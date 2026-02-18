@@ -5,7 +5,7 @@
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
 class ezQtVisualScriptNodeScene;
-class ezQtNodeView;
+class ezQtVisualGraphView;
 
 class ezQtVisualScriptWindow : public ezQtDocumentWindow
 {
@@ -21,5 +21,5 @@ private:
   void SelectionEventHandler(const ezSelectionManagerEvent& e);
 
   ezQtVisualScriptNodeScene* m_pScene;
-  ezQtNodeView* m_pView;
+  ezQtVisualGraphView* m_pView;
 };

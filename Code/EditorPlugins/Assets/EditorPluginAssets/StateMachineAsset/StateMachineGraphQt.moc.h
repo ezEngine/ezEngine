@@ -5,27 +5,27 @@
 #include <GuiFoundation/NodeEditor/NodeScene.moc.h>
 #include <GuiFoundation/NodeEditor/Pin.h>
 
-class ezQtStateMachinePin : public ezQtPin
+class ezQtStateMachinePin : public ezQtVisualGraphPin
 {
 public:
   ezQtStateMachinePin();
 
-  virtual void SetPin(const ezPin& pin) override;
+  virtual void SetPin(const ezVisualGraphPin& pin) override;
   virtual QRectF GetPinRect() const override;
 };
 
-class ezQtStateMachineConnection : public ezQtConnection
+class ezQtStateMachineConnection : public ezQtVisualGraphConnection
 {
 public:
   ezQtStateMachineConnection();
 };
 
-class ezQtStateMachineNode : public ezQtNode
+class ezQtStateMachineNode : public ezQtVisualGraphNode
 {
 public:
   ezQtStateMachineNode();
 
-  virtual void InitNode(const ezDocumentNodeManager* pManager, const ezDocumentObject* pObject) override;
+  virtual void InitNode(const ezVisualGraphObjectManager* pManager, const ezDocumentObject* pObject) override;
   virtual void UpdateGeometry() override;
   virtual void UpdateState() override;
   virtual void ExtendContextMenu(QMenu& ref_menu) override;
@@ -37,7 +37,7 @@ private:
   void UpdateHeaderColor();
 };
 
-class ezQtStateMachineAssetScene : public ezQtNodeScene
+class ezQtStateMachineAssetScene : public ezQtVisualGraphScene
 {
   Q_OBJECT
 
@@ -48,5 +48,5 @@ public:
   void SetInitialState(ezQtStateMachineNode* pNode);
 
 private:
-  virtual ezStatus RemoveNode(ezQtNode* pNode) override;
+  virtual ezStatus RemoveNode(ezQtVisualGraphNode* pNode) override;
 };

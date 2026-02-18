@@ -7,9 +7,9 @@
 
 ezQtStateMachinePin::ezQtStateMachinePin() = default;
 
-void ezQtStateMachinePin::SetPin(const ezPin& pin)
+void ezQtStateMachinePin::SetPin(const ezVisualGraphPin& pin)
 {
-  ezQtPin::SetPin(pin);
+  ezQtVisualGraphPin::SetPin(pin);
 
   constexpr int padding = 3;
 
@@ -23,7 +23,7 @@ void ezQtStateMachinePin::SetPin(const ezPin& pin)
   p.addRect(bounds);
   setPath(p);
 
-  if (pin.GetType() == ezPin::Type::Input)
+  if (pin.GetType() == ezVisualGraphPin::Type::Input)
   {
     m_pLabel->setPlainText("");
   }
@@ -51,9 +51,9 @@ ezQtStateMachineConnection::ezQtStateMachineConnection()
 
 ezQtStateMachineNode::ezQtStateMachineNode() = default;
 
-void ezQtStateMachineNode::InitNode(const ezDocumentNodeManager* pManager, const ezDocumentObject* pObject)
+void ezQtStateMachineNode::InitNode(const ezVisualGraphObjectManager* pManager, const ezDocumentObject* pObject)
 {
-  ezQtNode::InitNode(pManager, pObject);
+  ezQtVisualGraphNode::InitNode(pManager, pObject);
 
   UpdateHeaderColor();
 }
@@ -71,7 +71,7 @@ void ezQtStateMachineNode::UpdateGeometry()
   int h = headerHeight;
   int w = headerWidth;
 
-  for (ezQtPin* pQtPin : GetInputPins())
+  for (ezQtVisualGraphPin* pQtPin : GetInputPins())
   {
     auto rectPin = pQtPin->GetPinRect();
     w = ezMath::Max(w, (int)rectPin.width());
@@ -79,7 +79,7 @@ void ezQtStateMachineNode::UpdateGeometry()
     pQtPin->setPos((w - rectPin.width()) / 2.0, h);
   }
 
-  for (ezQtPin* pQtPin : GetOutputPins())
+  for (ezQtVisualGraphPin* pQtPin : GetOutputPins())
   {
     auto rectPin = pQtPin->GetPinRect();
     w = ezMath::Max(w, (int)rectPin.width());
@@ -183,10 +183,10 @@ void ezQtStateMachineNode::UpdateHeaderColor()
 //////////////////////////////////////////////////////////////////////////
 
 ezQtStateMachineAssetScene::ezQtStateMachineAssetScene(QObject* pParent /*= nullptr*/)
-  : ezQtNodeScene(pParent)
+  : ezQtVisualGraphScene(pParent)
 {
-  SetConnectionStyle(ezQtNodeScene::ConnectionStyle::StraightLine);
-  SetConnectionDecorationFlags(ezQtNodeScene::ConnectionDecorationFlags::DirectionArrows);
+  SetConnectionStyle(ezQtVisualGraphScene::ConnectionStyle::StraightLine);
+  SetConnectionDecorationFlags(ezQtVisualGraphScene::ConnectionDecorationFlags::DirectionArrows);
 }
 
 ezQtStateMachineAssetScene::~ezQtStateMachineAssetScene() = default;
@@ -207,12 +207,12 @@ void ezQtStateMachineAssetScene::SetInitialState(ezQtStateMachineNode* pNode)
     history->FinishTransaction();
 }
 
-ezStatus ezQtStateMachineAssetScene::RemoveNode(ezQtNode* pNode)
+ezStatus ezQtStateMachineAssetScene::RemoveNode(ezQtVisualGraphNode* pNode)
 {
   auto pManager = static_cast<const ezStateMachineNodeManager*>(GetDocumentNodeManager());
   const bool bWasInitialState = pManager->IsInitialState(pNode->GetObject());
 
-  auto res = ezQtNodeScene::RemoveNode(pNode);
+  auto res = ezQtVisualGraphScene::RemoveNode(pNode);
   if (res.Succeeded() && bWasInitialState)
   {
     // Find another node

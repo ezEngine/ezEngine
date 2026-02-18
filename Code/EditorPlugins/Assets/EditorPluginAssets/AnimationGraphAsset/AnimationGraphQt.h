@@ -6,7 +6,7 @@
 #include <GuiFoundation/NodeEditor/NodeScene.moc.h>
 #include <GuiFoundation/NodeEditor/Pin.h>
 
-class ezQtAnimationGraphNode : public ezQtNode
+class ezQtAnimationGraphNode : public ezQtVisualGraphNode
 {
 public:
   ezQtAnimationGraphNode();

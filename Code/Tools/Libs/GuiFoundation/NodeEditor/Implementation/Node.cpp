@@ -10,7 +10,7 @@
 #include <QGraphicsPixmapItem>
 #include <QPainter>
 
-ezQtNode::ezQtNode()
+ezQtVisualGraphNode::ezQtVisualGraphNode()
 {
   auto palette = QApplication::palette();
 
@@ -46,12 +46,12 @@ ezQtNode::ezQtNode()
   m_HeaderColor = palette.alternateBase().color();
 }
 
-ezQtNode::~ezQtNode()
+ezQtVisualGraphNode::~ezQtVisualGraphNode()
 {
   EnableDropShadow(false);
 }
 
-void ezQtNode::EnableDropShadow(bool bEnable)
+void ezQtVisualGraphNode::EnableDropShadow(bool bEnable)
 {
   if (bEnable && m_pShadow == nullptr)
   {
@@ -71,7 +71,7 @@ void ezQtNode::EnableDropShadow(bool bEnable)
   }
 }
 
-void ezQtNode::InitNode(const ezDocumentNodeManager* pManager, const ezDocumentObject* pObject)
+void ezQtVisualGraphNode::InitNode(const ezVisualGraphObjectManager* pManager, const ezDocumentObject* pObject)
 {
   m_pManager = pManager;
   m_pObject = pObject;
@@ -85,10 +85,10 @@ void ezQtNode::InitNode(const ezDocumentNodeManager* pManager, const ezDocumentO
     m_HeaderColor = ezToQtColor(pColorAttr->GetColor());
   }
 
-  m_DirtyFlags.Add(ezNodeFlags::UpdateTitle);
+  m_DirtyFlags.Add(ezQtVisualGraphNodeFlags::UpdateTitle);
 }
 
-void ezQtNode::UpdateGeometry()
+void ezQtVisualGraphNode::UpdateGeometry()
 {
   prepareGeometryChange();
 
@@ -125,7 +125,7 @@ void ezQtNode::UpdateGeometry()
 
   // Align inputs
   int maxInputWidth = 10;
-  for (ezQtPin* pQtPin : m_Inputs)
+  for (ezQtVisualGraphPin* pQtPin : m_Inputs)
   {
     auto rectPin = pQtPin->GetPinRect();
     pQtPin->setPos(QPointF(-rectPin.x(), y - rectPin.y()));
@@ -139,7 +139,7 @@ void ezQtNode::UpdateGeometry()
 
   // Align outputs
   int maxOutputWidth = 10;
-  for (ezQtPin* pQtPin : m_Outputs)
+  for (ezQtVisualGraphPin* pQtPin : m_Outputs)
   {
     auto rectPin = pQtPin->GetPinRect();
     pQtPin->setPos(QPointF(-rectPin.x(), y - rectPin.y()));
@@ -171,7 +171,7 @@ void ezQtNode::UpdateGeometry()
   }
 }
 
-void ezQtNode::UpdateState()
+void ezQtVisualGraphNode::UpdateState()
 {
   auto& typeAccessor = m_pObject->GetTypeAccessor();
 
@@ -187,7 +187,7 @@ void ezQtNode::UpdateState()
   }
 }
 
-void ezQtNode::SetActive(bool bActive)
+void ezQtVisualGraphNode::SetActive(bool bActive)
 {
   if (m_bIsActive != bActive)
   {
@@ -207,7 +207,7 @@ void ezQtNode::SetActive(bool bActive)
   update();
 }
 
-void ezQtNode::CreatePins()
+void ezQtVisualGraphNode::CreatePins()
 {
   for (auto pQtPin : m_Inputs)
   {
@@ -224,10 +224,10 @@ void ezQtNode::CreatePins()
   auto inputs = m_pManager->GetInputPins(m_pObject);
   for (auto& pPinTarget : inputs)
   {
-    ezQtPin* pQtPin = ezQtNodeScene::GetPinFactory().CreateObject(pPinTarget->GetDynamicRTTI());
+    ezQtVisualGraphPin* pQtPin = ezQtVisualGraphScene::GetPinFactory().CreateObject(pPinTarget->GetDynamicRTTI());
     if (pQtPin == nullptr)
     {
-      pQtPin = new ezQtPin();
+      pQtPin = new ezQtVisualGraphPin();
     }
     pQtPin->setParentItem(this);
     m_Inputs.PushBack(pQtPin);
@@ -238,10 +238,10 @@ void ezQtNode::CreatePins()
   auto outputs = m_pManager->GetOutputPins(m_pObject);
   for (auto& pPinSource : outputs)
   {
-    ezQtPin* pQtPin = ezQtNodeScene::GetPinFactory().CreateObject(pPinSource->GetDynamicRTTI());
+    ezQtVisualGraphPin* pQtPin = ezQtVisualGraphScene::GetPinFactory().CreateObject(pPinSource->GetDynamicRTTI());
     if (pQtPin == nullptr)
     {
-      pQtPin = new ezQtPin();
+      pQtPin = new ezQtVisualGraphPin();
     }
 
     pQtPin->setParentItem(this);
@@ -251,9 +251,9 @@ void ezQtNode::CreatePins()
   }
 }
 
-ezQtPin* ezQtNode::GetInputPin(const ezPin& pin)
+ezQtVisualGraphPin* ezQtVisualGraphNode::GetInputPin(const ezVisualGraphPin& pin)
 {
-  for (ezQtPin* pQtPin : m_Inputs)
+  for (ezQtVisualGraphPin* pQtPin : m_Inputs)
   {
     if (pQtPin->GetPin() == &pin)
       return pQtPin;
@@ -261,9 +261,9 @@ ezQtPin* ezQtNode::GetInputPin(const ezPin& pin)
   return nullptr;
 }
 
-ezQtPin* ezQtNode::GetOutputPin(const ezPin& pin)
+ezQtVisualGraphPin* ezQtVisualGraphNode::GetOutputPin(const ezVisualGraphPin& pin)
 {
-  for (ezQtPin* pQtPin : m_Outputs)
+  for (ezQtVisualGraphPin* pQtPin : m_Outputs)
   {
     if (pQtPin->GetPin() == &pin)
       return pQtPin;
@@ -271,23 +271,23 @@ ezQtPin* ezQtNode::GetOutputPin(const ezPin& pin)
   return nullptr;
 }
 
-ezBitflags<ezNodeFlags> ezQtNode::GetFlags() const
+ezBitflags<ezQtVisualGraphNodeFlags> ezQtVisualGraphNode::GetFlags() const
 {
   return m_DirtyFlags;
 }
 
-void ezQtNode::ResetFlags()
+void ezQtVisualGraphNode::ResetFlags()
 {
-  m_DirtyFlags = ezNodeFlags::UpdateTitle;
+  m_DirtyFlags = ezQtVisualGraphNodeFlags::UpdateTitle;
 }
 
-void ezQtNode::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
+void ezQtVisualGraphNode::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
 {
-  if (m_DirtyFlags.IsSet(ezNodeFlags::UpdateTitle))
+  if (m_DirtyFlags.IsSet(ezQtVisualGraphNodeFlags::UpdateTitle))
   {
     UpdateState();
     UpdateGeometry();
-    m_DirtyFlags.Remove(ezNodeFlags::UpdateTitle);
+    m_DirtyFlags.Remove(ezQtVisualGraphNodeFlags::UpdateTitle);
   }
 
   auto palette = QApplication::palette();
@@ -359,7 +359,7 @@ void ezQtNode::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, 
   painter->drawPath(path());
 }
 
-QVariant ezQtNode::itemChange(GraphicsItemChange change, const QVariant& value)
+QVariant ezQtVisualGraphNode::itemChange(GraphicsItemChange change, const QVariant& value)
 {
   if (!m_pObject)
     return QGraphicsPathItem::itemChange(change, value);
@@ -370,7 +370,7 @@ QVariant ezQtNode::itemChange(GraphicsItemChange change, const QVariant& value)
     case QGraphicsItem::ItemPositionHasChanged:
     {
       if (!pHistory->IsInUndoRedo() && !pHistory->IsInTransaction())
-        m_DirtyFlags.Add(ezNodeFlags::Moved);
+        m_DirtyFlags.Add(ezQtVisualGraphNodeFlags::Moved);
     }
     break;
 

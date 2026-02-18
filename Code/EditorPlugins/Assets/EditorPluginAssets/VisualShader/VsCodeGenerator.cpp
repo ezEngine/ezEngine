@@ -122,7 +122,7 @@ ezVisualShaderCodeGenerator::ezVisualShaderCodeGenerator()
   m_pMainNode = nullptr;
 }
 
-void ezVisualShaderCodeGenerator::DetermineConfigFileDependencies(const ezDocumentNodeManager* pNodeManager, ezSet<ezString>& out_cfgFiles)
+void ezVisualShaderCodeGenerator::DetermineConfigFileDependencies(const ezVisualGraphObjectManager* pNodeManager, ezSet<ezString>& out_cfgFiles)
 {
   out_cfgFiles.Clear();
 
@@ -153,11 +153,11 @@ void ezVisualShaderCodeGenerator::CollectReachableNodes(const ezDocumentObject* 
     nodeStack.PopBack();
     out_Nodes.Insert(pNode);
 
-    ezArrayPtr<const ezUniquePtr<const ezPin>> inputPins = m_pNodeManager->GetInputPins(pNode);
+    ezArrayPtr<const ezUniquePtr<const ezVisualGraphPin>> inputPins = m_pNodeManager->GetInputPins(pNode);
     for (ezUInt32 i = 0; i < inputPins.GetCount(); ++i)
     {
-      const ezUniquePtr<const ezPin>& pInputPin = inputPins[i];
-      ezArrayPtr<const ezConnection* const> connections = m_pNodeManager->GetConnections(*pInputPin);
+      const ezUniquePtr<const ezVisualGraphPin>& pInputPin = inputPins[i];
+      ezArrayPtr<const ezVisualGraphConnection* const> connections = m_pNodeManager->GetConnections(*pInputPin);
       for (const auto* pConnection : connections)
       {
         const ezDocumentObject* pParentNode = pConnection->GetSourcePin().GetParent();
@@ -212,10 +212,10 @@ ezResult ezVisualShaderCodeGenerator::CollectNodesInTopologicalOrder(const ezDoc
     {
       const ezDocumentObject* pCandidateNode = nodeStack[i];
       bool bAllVisited = true;
-      ezArrayPtr<const ezUniquePtr<const ezPin>> outputPins = m_pNodeManager->GetOutputPins(pCandidateNode);
+      ezArrayPtr<const ezUniquePtr<const ezVisualGraphPin>> outputPins = m_pNodeManager->GetOutputPins(pCandidateNode);
       for (auto& pOutputPin : outputPins)
       {
-        ezArrayPtr<const ezConnection* const> connections = m_pNodeManager->GetConnections(*pOutputPin);
+        ezArrayPtr<const ezVisualGraphConnection* const> connections = m_pNodeManager->GetConnections(*pOutputPin);
         for (const auto* pConnection : connections)
         {
           const ezDocumentObject* pParentNode = pConnection->GetTargetPin().GetParent();
@@ -247,11 +247,11 @@ ezResult ezVisualShaderCodeGenerator::CollectNodesInTopologicalOrder(const ezDoc
     out_Sorted.PushBack(pNode);
 
     // Add all incoming connections of the node to the nodeStack.
-    ezArrayPtr<const ezUniquePtr<const ezPin>> inputPins = m_pNodeManager->GetInputPins(pNode);
+    ezArrayPtr<const ezUniquePtr<const ezVisualGraphPin>> inputPins = m_pNodeManager->GetInputPins(pNode);
     for (ezUInt32 i = 0; i < inputPins.GetCount(); ++i)
     {
-      const ezUniquePtr<const ezPin>& pInputPin = inputPins[i];
-      ezArrayPtr<const ezConnection* const> connections = m_pNodeManager->GetConnections(*pInputPin);
+      const ezUniquePtr<const ezVisualGraphPin>& pInputPin = inputPins[i];
+      ezArrayPtr<const ezVisualGraphConnection* const> connections = m_pNodeManager->GetConnections(*pInputPin);
       for (const auto* pConnection : connections)
       {
         const ezDocumentObject* pParentNode = pConnection->GetSourcePin().GetParent();
@@ -307,7 +307,7 @@ void ezVisualShaderCodeGenerator::ComputeOutputPinDimensions()
       auto outputPins = m_pNodeManager->GetOutputPins(pNode);
       for (ezUInt32 pinIdx = 0; pinIdx < outputPins.GetCount(); ++pinIdx)
       {
-        const ezPin* pOutPin = outputPins[pinIdx].Borrow();
+        const ezVisualGraphPin* pOutPin = outputPins[pinIdx].Borrow();
 
         // Skip if already computed (node may be shared between subgraphs)
         if (m_OutputPinDimensions.Contains(pOutPin))
@@ -331,7 +331,7 @@ void ezVisualShaderCodeGenerator::ComputeOutputPinDimensions()
           auto inConnections = m_pNodeManager->GetConnections(*inputPins[inIdx]);
           if (!inConnections.IsEmpty())
           {
-            const ezPin* pConnectedPin = &inConnections[0]->GetSourcePin();
+            const ezVisualGraphPin* pConnectedPin = &inConnections[0]->GetSourcePin();
             EZ_ASSERT_DEV(m_OutputPinDimensions.Contains(pConnectedPin), "Topological order should have processed all inputs first");
             effectiveDim = ezMath::Max(effectiveDim, m_OutputPinDimensions[pConnectedPin]);
           }
@@ -350,7 +350,7 @@ void ezVisualShaderCodeGenerator::ComputeOutputPinDimensions()
   }
 }
 
-void ezVisualShaderCodeGenerator::GenerateInputHelperFunction(const ezPin* pInputPin, ezUInt32 uiInputIndex, ezStringBuilder& out_sFunctionCode, ezStringBuilder& out_sFunctionCall)
+void ezVisualShaderCodeGenerator::GenerateInputHelperFunction(const ezVisualGraphPin* pInputPin, ezUInt32 uiInputIndex, ezStringBuilder& out_sFunctionCode, ezStringBuilder& out_sFunctionCall)
 {
   out_sFunctionCode.Clear();
   out_sFunctionCall.Clear();
@@ -360,12 +360,12 @@ void ezVisualShaderCodeGenerator::GenerateInputHelperFunction(const ezPin* pInpu
   if (connections.IsEmpty())
     return;
 
-  const ezPin* pSourcePin = &connections[0]->GetSourcePin();
+  const ezVisualGraphPin* pSourcePin = &connections[0]->GetSourcePin();
   ezDynamicArray<const ezDocumentObject*> sortedNodes;
   CollectNodesInTopologicalOrder(pSourcePin->GetParent(), sortedNodes).AssertSuccess();
 
   // Map from output pin to local variable name
-  ezMap<const ezPin*, ezString> pinToVarName;
+  ezMap<const ezVisualGraphPin*, ezString> pinToVarName;
   ezStringBuilder sLocalVars;
 
   // Generate local variable for each node's outputs in topological order (sortedNodes needs to be reversed as the array starts at pSourcePin's node)
@@ -378,7 +378,7 @@ void ezVisualShaderCodeGenerator::GenerateInputHelperFunction(const ezPin* pInpu
     auto outputPins = m_pNodeManager->GetOutputPins(pNode);
     for (ezUInt32 pinIdx = 0; pinIdx < outputPins.GetCount(); ++pinIdx)
     {
-      const ezPin* pOutPin = outputPins[pinIdx].Borrow();
+      const ezVisualGraphPin* pOutPin = outputPins[pinIdx].Borrow();
 
       // Skip pins that aren't connected within the subgraph
       if (!m_pNodeManager->HasConnections(*pOutPin))
@@ -404,7 +404,7 @@ void ezVisualShaderCodeGenerator::GenerateInputHelperFunction(const ezPin* pInpu
         else
         {
           // Use local variable from connected output pin
-          const ezPin* pConnectedPin = &inConnections[0]->GetSourcePin();
+          const ezVisualGraphPin* pConnectedPin = &inConnections[0]->GetSourcePin();
           EZ_ASSERT_DEV(pinToVarName.Contains(pConnectedPin), "Topological sort should have processed this pin already");
           sExpr.ReplaceAll(sPinPlaceholder, pinToVarName[pConnectedPin].GetData());
         }
@@ -465,7 +465,7 @@ ezStatus ezVisualShaderCodeGenerator::GatherAllNodes(const ezDocumentObject* pRo
   return ezStatus(EZ_SUCCESS);
 }
 
-ezUInt16 ezVisualShaderCodeGenerator::DeterminePinId(const ezDocumentObject* pOwner, const ezPin& pin) const
+ezUInt16 ezVisualShaderCodeGenerator::DeterminePinId(const ezDocumentObject* pOwner, const ezVisualGraphPin& pin) const
 {
   const auto pins = m_pNodeManager->GetOutputPins(pOwner);
 
@@ -478,7 +478,7 @@ ezUInt16 ezVisualShaderCodeGenerator::DeterminePinId(const ezDocumentObject* pOw
   return 0xFFFF;
 }
 
-ezStatus ezVisualShaderCodeGenerator::GenerateVisualShader(const ezDocumentNodeManager* pNodeManager, ezStringBuilder& out_sCheckPerms)
+ezStatus ezVisualShaderCodeGenerator::GenerateVisualShader(const ezVisualGraphObjectManager* pNodeManager, ezStringBuilder& out_sCheckPerms)
 {
   out_sCheckPerms.Clear();
 
@@ -666,7 +666,7 @@ ezStatus ezVisualShaderCodeGenerator::GenerateNode(const ezDocumentObject* pNode
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezVisualShaderCodeGenerator::GenerateInputPinCode(ezArrayPtr<const ezUniquePtr<const ezPin>> pins)
+ezStatus ezVisualShaderCodeGenerator::GenerateInputPinCode(ezArrayPtr<const ezUniquePtr<const ezVisualGraphPin>> pins)
 {
   for (auto& pPin : pins)
   {
@@ -676,7 +676,7 @@ ezStatus ezVisualShaderCodeGenerator::GenerateInputPinCode(ezArrayPtr<const ezUn
     if (connections.IsEmpty())
       continue;
 
-    const ezPin& pinSource = connections[0]->GetSourcePin();
+    const ezVisualGraphPin& pinSource = connections[0]->GetSourcePin();
 
     // recursively generate all dependent code
     const ezDocumentObject* pOwnerNode = pinSource.GetParent();
@@ -689,7 +689,7 @@ ezStatus ezVisualShaderCodeGenerator::GenerateInputPinCode(ezArrayPtr<const ezUn
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezVisualShaderCodeGenerator::GenerateOutputPinCode(const ezDocumentObject* pOwnerNode, const ezPin& pin)
+ezStatus ezVisualShaderCodeGenerator::GenerateOutputPinCode(const ezDocumentObject* pOwnerNode, const ezVisualGraphPin& pin)
 {
   OutputPinState& ps = m_OutputPins[&pin];
 
@@ -782,7 +782,7 @@ ezStatus ezVisualShaderCodeGenerator::ReplaceInputPinsByCode(
     }
     else
     {
-      const ezPin& outputPin = connections[0]->GetSourcePin();
+      const ezVisualGraphPin& outputPin = connections[0]->GetSourcePin();
 
       const OutputPinState& pinState = m_OutputPins[&outputPin];
       EZ_ASSERT_DEBUG(pinState.m_bCodeGenerated, "Pin code should have been generated at this point");

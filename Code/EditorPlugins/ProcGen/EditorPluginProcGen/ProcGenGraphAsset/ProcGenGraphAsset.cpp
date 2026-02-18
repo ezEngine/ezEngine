@@ -107,7 +107,7 @@ ezProcGenGraphAssetDocument::ezProcGenGraphAssetDocument(ezStringView sDocumentP
 {
 }
 
-void ezProcGenGraphAssetDocument::SetDebugPin(const ezPin* pDebugPin)
+void ezProcGenGraphAssetDocument::SetDebugPin(const ezVisualGraphPin* pDebugPin)
 {
   m_pDebugPin = pDebugPin;
 
@@ -352,27 +352,27 @@ bool ezProcGenGraphAssetDocument::CopySelectedObjects(ezAbstractObjectGraph& out
 {
   out_MimeType = "application/ezEditor.ProcGenGraph";
 
-  const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
+  const ezVisualGraphObjectManager* pManager = static_cast<const ezVisualGraphObjectManager*>(GetObjectManager());
   return pManager->CopySelectedObjects(out_objectGraph);
 }
 
 bool ezProcGenGraphAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, ezStringView sMimeType)
 {
-  ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());
-  return pManager->PasteObjects(info, objectGraph, ezQtNodeScene::GetLastMouseInteractionPos(), bAllowPickedPosition);
+  ezVisualGraphObjectManager* pManager = static_cast<ezVisualGraphObjectManager*>(GetObjectManager());
+  return pManager->PasteObjects(info, objectGraph, ezQtVisualGraphScene::GetLastMouseInteractionPos(), bAllowPickedPosition);
 }
 
 void ezProcGenGraphAssetDocument::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const
 {
   SUPER::AttachMetaDataBeforeSaving(graph);
-  const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
+  const ezVisualGraphObjectManager* pManager = static_cast<const ezVisualGraphObjectManager*>(GetObjectManager());
   pManager->AttachMetaDataBeforeSaving(graph);
 }
 
 void ezProcGenGraphAssetDocument::RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph, bool bUndoable)
 {
   SUPER::RestoreMetaDataAfterLoading(graph, bUndoable);
-  ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());
+  ezVisualGraphObjectManager* pManager = static_cast<ezVisualGraphObjectManager*>(GetObjectManager());
   pManager->RestoreMetaDataAfterLoading(graph, bUndoable);
 }
 
@@ -404,13 +404,13 @@ void ezProcGenGraphAssetDocument::GetAllOutputNodes(ezDynamicArray<const ezDocum
 
 void ezProcGenGraphAssetDocument::InternalGetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const
 {
-  const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
+  const ezVisualGraphObjectManager* pManager = static_cast<const ezVisualGraphObjectManager*>(GetObjectManager());
   pManager->GetMetaDataHash(pObject, inout_uiHash);
 }
 
 ezExpressionAST::Node* ezProcGenGraphAssetDocument::GenerateExpressionAST(const ezDocumentObject* outputNode, const char* szOutputName, GenerateContext& context, ezExpressionAST& out_Ast) const
 {
-  const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
+  const ezVisualGraphObjectManager* pManager = static_cast<const ezVisualGraphObjectManager*>(GetObjectManager());
 
   auto inputPins = pManager->GetInputPins(outputNode);
 
@@ -425,7 +425,7 @@ ezExpressionAST::Node* ezProcGenGraphAssetDocument::GenerateExpressionAST(const 
     if (connections.IsEmpty())
       continue;
 
-    const ezPin& pinSource = connections[0]->GetSourcePin();
+    const ezVisualGraphPin& pinSource = connections[0]->GetSourcePin();
 
     DocObjAndOutput key = {pinSource.GetParent(), pinSource.GetName()};
     ezExpressionAST::Node* astNode;
@@ -459,11 +459,11 @@ ezExpressionAST::Node* ezProcGenGraphAssetDocument::GenerateExpressionAST(const 
 
 ezExpressionAST::Node* ezProcGenGraphAssetDocument::GenerateDebugExpressionAST(GenerateContext& context, ezExpressionAST& out_Ast) const
 {
-  const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
+  const ezVisualGraphObjectManager* pManager = static_cast<const ezVisualGraphObjectManager*>(GetObjectManager());
   EZ_ASSERT_DEV(m_pDebugPin != nullptr, "");
 
-  const ezPin* pPinSource = m_pDebugPin;
-  if (pPinSource->GetType() == ezPin::Type::Input)
+  const ezVisualGraphPin* pPinSource = m_pDebugPin;
+  if (pPinSource->GetType() == ezVisualGraphPin::Type::Input)
   {
     auto connections = pManager->GetConnections(*pPinSource);
     EZ_ASSERT_DEBUG(connections.GetCount() <= 1, "Input pin has {0} connections", connections.GetCount());

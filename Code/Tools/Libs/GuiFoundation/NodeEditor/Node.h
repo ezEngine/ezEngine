@@ -10,15 +10,15 @@
 #  undef GetObject
 #endif
 
-class ezQtPin;
-class ezDocumentNodeManager;
+class ezQtVisualGraphPin;
+class ezVisualGraphObjectManager;
 class QLabel;
 class ezDocumentObject;
 class QGraphicsTextItem;
 class QGraphicsPixmapItem;
 class QGraphicsDropShadowEffect;
 
-struct ezNodeFlags
+struct ezQtVisualGraphNodeFlags
 {
   using StorageType = ezUInt8;
 
@@ -37,31 +37,31 @@ struct ezNodeFlags
   };
 };
 
-class EZ_GUIFOUNDATION_DLL ezQtNode : public QGraphicsPathItem
+class EZ_GUIFOUNDATION_DLL ezQtVisualGraphNode : public QGraphicsPathItem
 {
 public:
-  ezQtNode();
-  ~ezQtNode();
-  virtual int type() const override { return ezQtNodeScene::Node; }
+  ezQtVisualGraphNode();
+  ~ezQtVisualGraphNode();
+  virtual int type() const override { return ezQtVisualGraphScene::Node; }
 
   const ezDocumentObject* GetObject() const { return m_pObject; }
-  virtual void InitNode(const ezDocumentNodeManager* pManager, const ezDocumentObject* pObject);
+  virtual void InitNode(const ezVisualGraphObjectManager* pManager, const ezDocumentObject* pObject);
 
   virtual void UpdateGeometry();
 
   void CreatePins();
 
-  ezQtPin* GetInputPin(const ezPin& pin);
-  ezQtPin* GetOutputPin(const ezPin& pin);
+  ezQtVisualGraphPin* GetInputPin(const ezVisualGraphPin& pin);
+  ezQtVisualGraphPin* GetOutputPin(const ezVisualGraphPin& pin);
 
-  ezBitflags<ezNodeFlags> GetFlags() const;
+  ezBitflags<ezQtVisualGraphNodeFlags> GetFlags() const;
   void ResetFlags();
 
   void EnableDropShadow(bool bEnable);
   virtual void UpdateState();
 
-  const ezHybridArray<ezQtPin*, 6>& GetInputPins() const { return m_Inputs; }
-  const ezHybridArray<ezQtPin*, 6>& GetOutputPins() const { return m_Outputs; }
+  const ezHybridArray<ezQtVisualGraphPin*, 6>& GetInputPins() const { return m_Inputs; }
+  const ezHybridArray<ezQtVisualGraphPin*, 6>& GetOutputPins() const { return m_Outputs; }
 
   void SetActive(bool bActive);
 
@@ -78,15 +78,15 @@ protected:
   QGraphicsPixmapItem* m_pIcon = nullptr;
 
 private:
-  const ezDocumentNodeManager* m_pManager = nullptr;
+  const ezVisualGraphObjectManager* m_pManager = nullptr;
   const ezDocumentObject* m_pObject = nullptr;
-  ezBitflags<ezNodeFlags> m_DirtyFlags;
+  ezBitflags<ezQtVisualGraphNodeFlags> m_DirtyFlags;
 
   bool m_bIsActive = true;
 
   QGraphicsDropShadowEffect* m_pShadow = nullptr;
 
   // Pins
-  ezHybridArray<ezQtPin*, 6> m_Inputs;
-  ezHybridArray<ezQtPin*, 6> m_Outputs;
+  ezHybridArray<ezQtVisualGraphPin*, 6> m_Inputs;
+  ezHybridArray<ezQtVisualGraphPin*, 6> m_Outputs;
 };

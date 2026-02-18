@@ -3,14 +3,14 @@
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
 
-class ezRenderPipelineNodeManager : public ezDocumentNodeManager
+class ezRenderPipelineNodeManager : public ezVisualGraphObjectManager
 {
 public:
   virtual bool InternalIsNode(const ezDocumentObject* pObject) const override;
   virtual void InternalCreatePins(const ezDocumentObject* pObject, NodeInternal& ref_node) override;
   virtual void GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& ref_types) const override;
 
-  virtual ezStatus InternalCanConnect(const ezPin& source, const ezPin& target, CanConnectResult& out_result) const override;
+  virtual ezStatus InternalCanConnect(const ezVisualGraphPin& source, const ezVisualGraphPin& target, CanConnectResult& out_result) const override;
 };
 
 class ezRenderPipelineAssetDocument : public ezAssetDocument

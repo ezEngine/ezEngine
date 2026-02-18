@@ -5,7 +5,7 @@
 
 
 ezQtVisualShaderScene::ezQtVisualShaderScene(QObject* pParent)
-  : ezQtNodeScene(pParent)
+  : ezQtVisualGraphScene(pParent)
 {
 }
 
@@ -17,9 +17,9 @@ ezQtVisualShaderScene::~ezQtVisualShaderScene() = default;
 
 ezQtVisualShaderPin::ezQtVisualShaderPin() = default;
 
-void ezQtVisualShaderPin::SetPin(const ezPin& pin)
+void ezQtVisualShaderPin::SetPin(const ezVisualGraphPin& pin)
 {
-  ezQtPin::SetPin(pin);
+  ezQtVisualGraphPin::SetPin(pin);
 
   const ezVisualShaderPin& shaderPin = ezStaticCast<const ezVisualShaderPin&>(pin);
 
@@ -54,7 +54,7 @@ void ezQtVisualShaderPin::paint(QPainter* pPainter, const QStyleOptionGraphicsIt
   pPainter->setBrush(brush());
   pPainter->setPen(pen());
 
-  if (pVsPin->GetType() == ezPin::Type::Input && GetConnections().IsEmpty())
+  if (pVsPin->GetType() == ezVisualGraphPin::Type::Input && GetConnections().IsEmpty())
   {
     if (pVsPin->GetDescriptor()->m_sDefaultValue.IsEmpty())
     {
@@ -85,9 +85,9 @@ void ezQtVisualShaderPin::paint(QPainter* pPainter, const QStyleOptionGraphicsIt
 
 ezQtVisualShaderNode::ezQtVisualShaderNode() = default;
 
-void ezQtVisualShaderNode::InitNode(const ezDocumentNodeManager* pManager, const ezDocumentObject* pObject)
+void ezQtVisualShaderNode::InitNode(const ezVisualGraphObjectManager* pManager, const ezDocumentObject* pObject)
 {
-  ezQtNode::InitNode(pManager, pObject);
+  ezQtVisualGraphNode::InitNode(pManager, pObject);
 
   if (auto pDesc = ezVisualShaderTypeRegistry::GetSingleton()->GetDescriptorForType(pObject->GetType()))
   {

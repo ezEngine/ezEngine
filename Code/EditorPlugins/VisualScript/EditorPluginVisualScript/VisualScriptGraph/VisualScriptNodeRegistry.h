@@ -3,7 +3,7 @@
 #include <Foundation/Configuration/Singleton.h>
 #include <VisualScriptPlugin/Runtime/VisualScript.h>
 
-struct ezNodePropertyValue;
+struct ezVisualGraphNodeProperty;
 class ezVisualScriptPin;
 
 class ezVisualScriptNodeRegistry
@@ -74,7 +74,7 @@ public:
   };
 
   const ezArrayPtr<const NodeCreationTemplate> GetNodeCreationTemplates() const { return m_NodeCreationTemplates; }
-  const ezArrayPtr<const ezNodePropertyValue> GetPropertyValues() const { return m_PropertyValues; }
+  const ezArrayPtr<const ezVisualGraphNodeProperty> GetPropertyValues() const { return m_PropertyValues; }
 
   static constexpr const char* s_szTypeNamePrefix = "VisualScriptNode_";
   static constexpr ezUInt32 s_uiTypeNamePrefixLength = ezStringUtils::GetStringElementCount(s_szTypeNamePrefix);
@@ -117,6 +117,6 @@ private:
   ezHashSet<const ezRTTI*> m_TypesToUpdate;
 
   ezDynamicArray<NodeCreationTemplate> m_NodeCreationTemplates;
-  ezDynamicArray<ezNodePropertyValue> m_PropertyValues;
+  ezDynamicArray<ezVisualGraphNodeProperty> m_PropertyValues;
   ezSet<ezString> m_PropertyNodeTypeNames;
 };

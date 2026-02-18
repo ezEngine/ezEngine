@@ -841,21 +841,21 @@ ezTransformStatus ezMaterialAssetDocument::InternalCreateThumbnail(const Thumbna
 
 void ezMaterialAssetDocument::InternalGetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const
 {
-  const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
+  const ezVisualGraphObjectManager* pManager = static_cast<const ezVisualGraphObjectManager*>(GetObjectManager());
   pManager->GetMetaDataHash(pObject, inout_uiHash);
 }
 
 void ezMaterialAssetDocument::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const
 {
   SUPER::AttachMetaDataBeforeSaving(graph);
-  const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
+  const ezVisualGraphObjectManager* pManager = static_cast<const ezVisualGraphObjectManager*>(GetObjectManager());
   pManager->AttachMetaDataBeforeSaving(graph);
 }
 
 void ezMaterialAssetDocument::RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph, bool bUndoable)
 {
   SUPER::RestoreMetaDataAfterLoading(graph, bUndoable);
-  ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());
+  ezVisualGraphObjectManager* pManager = static_cast<ezVisualGraphObjectManager*>(GetObjectManager());
   pManager->RestoreMetaDataAfterLoading(graph, bUndoable);
 }
 
@@ -904,7 +904,7 @@ void ezMaterialAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo
     ezVisualShaderCodeGenerator codeGen;
 
     ezSet<ezString> cfgFiles;
-    codeGen.DetermineConfigFileDependencies(static_cast<const ezDocumentNodeManager*>(GetObjectManager()), cfgFiles);
+    codeGen.DetermineConfigFileDependencies(static_cast<const ezVisualGraphObjectManager*>(GetObjectManager()), cfgFiles);
 
     for (const auto& sCfgFile : cfgFiles)
     {
@@ -1189,7 +1189,7 @@ ezStatus ezMaterialAssetDocument::RecreateVisualShaderFile(const ezAssetFileHead
 
   ezVisualShaderCodeGenerator codeGen;
 
-  EZ_SUCCEED_OR_RETURN(codeGen.GenerateVisualShader(static_cast<const ezDocumentNodeManager*>(GetObjectManager()), m_sCheckPermutations));
+  EZ_SUCCEED_OR_RETURN(codeGen.GenerateVisualShader(static_cast<const ezVisualGraphObjectManager*>(GetObjectManager()), m_sCheckPermutations));
 
   ezFileWriter file;
   if (file.Open(sAutoGenShader).Succeeded())
@@ -1234,7 +1234,7 @@ void ezMaterialAssetDocument::EditorEventHandler(const ezEditorAppEvent& e)
   }
 }
 
-static void MarkReachableNodes(ezMap<const ezDocumentObject*, bool>& ref_allNodes, const ezDocumentObject* pRoot, ezDocumentNodeManager* pNodeManager)
+static void MarkReachableNodes(ezMap<const ezDocumentObject*, bool>& ref_allNodes, const ezDocumentObject* pRoot, ezVisualGraphObjectManager* pNodeManager)
 {
   if (ref_allNodes[pRoot])
     return;
@@ -1249,10 +1249,10 @@ static void MarkReachableNodes(ezMap<const ezDocumentObject*, bool>& ref_allNode
     auto connections = pNodeManager->GetConnections(*pTargetPin);
 
     // all incoming connections at the input pin, there should only be one though
-    for (const ezConnection* const pConnection : connections)
+    for (const ezVisualGraphConnection* const pConnection : connections)
     {
       // output pin on other node connecting to this node
-      const ezPin& sourcePin = pConnection->GetSourcePin();
+      const ezVisualGraphPin& sourcePin = pConnection->GetSourcePin();
 
       // recurse from here
       MarkReachableNodes(ref_allNodes, sourcePin.GetParent(), pNodeManager);
@@ -1262,7 +1262,7 @@ static void MarkReachableNodes(ezMap<const ezDocumentObject*, bool>& ref_allNode
 
 void ezMaterialAssetDocument::RemoveDisconnectedNodes()
 {
-  ezDocumentNodeManager* pNodeManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());
+  ezVisualGraphObjectManager* pNodeManager = static_cast<ezVisualGraphObjectManager*>(GetObjectManager());
 
   const ezDocumentObject* pRoot = pNodeManager->GetRootObject();
   const ezRTTI* pNodeBaseRtti = ezVisualShaderTypeRegistry::GetSingleton()->GetNodeBaseType();
@@ -1364,14 +1364,14 @@ bool ezMaterialAssetDocument::CopySelectedObjects(ezAbstractObjectGraph& out_obj
 {
   out_sMimeType = "application/ezEditor.NodeGraph";
 
-  const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
+  const ezVisualGraphObjectManager* pManager = static_cast<const ezVisualGraphObjectManager*>(GetObjectManager());
   return pManager->CopySelectedObjects(out_objectGraph);
 }
 
 bool ezMaterialAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, ezStringView sMimeType)
 {
-  ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());
-  return pManager->PasteObjects(info, objectGraph, ezQtNodeScene::GetLastMouseInteractionPos(), bAllowPickedPosition);
+  ezVisualGraphObjectManager* pManager = static_cast<ezVisualGraphObjectManager*>(GetObjectManager());
+  return pManager->PasteObjects(info, objectGraph, ezQtVisualGraphScene::GetLastMouseInteractionPos(), bAllowPickedPosition);
 }
 
 //////////////////////////////////////////////////////////////////////////

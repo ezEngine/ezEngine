@@ -7,7 +7,7 @@ ezQtAnimationGraphNode::ezQtAnimationGraphNode() = default;
 
 void ezQtAnimationGraphNode::UpdateState()
 {
-  ezQtNode::UpdateState();
+  ezQtVisualGraphNode::UpdateState();
 
   ezStringBuilder sTitle;
 

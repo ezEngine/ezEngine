@@ -60,9 +60,9 @@ ezRemoveNodeCommand::ezRemoveNodeCommand() = default;
 ezStatus ezRemoveNodeCommand::DoInternal(bool bRedo)
 {
   ezDocument* pDocument = GetDocument();
-  ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(pDocument->GetObjectManager());
+  ezVisualGraphObjectManager* pManager = static_cast<ezVisualGraphObjectManager*>(pDocument->GetObjectManager());
 
-  auto RemoveConnections = [&](const ezPin& pin)
+  auto RemoveConnections = [&](const ezVisualGraphPin& pin)
   {
     while (true)
     {
@@ -133,7 +133,7 @@ ezMoveNodeCommand::ezMoveNodeCommand() = default;
 ezStatus ezMoveNodeCommand::DoInternal(bool bRedo)
 {
   ezDocument* pDocument = GetDocument();
-  ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(pDocument->GetObjectManager());
+  ezVisualGraphObjectManager* pManager = static_cast<ezVisualGraphObjectManager*>(pDocument->GetObjectManager());
 
   if (!bRedo)
   {
@@ -152,7 +152,7 @@ ezStatus ezMoveNodeCommand::DoInternal(bool bRedo)
 ezStatus ezMoveNodeCommand::UndoInternal(bool bFireEvents)
 {
   ezDocument* pDocument = GetDocument();
-  ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(pDocument->GetObjectManager());
+  ezVisualGraphObjectManager* pManager = static_cast<ezVisualGraphObjectManager*>(pDocument->GetObjectManager());
   EZ_ASSERT_DEV(bFireEvents, "This command does not support temporary commands");
 
   EZ_SUCCEED_OR_RETURN(pManager->CanMoveNode(m_pObject, m_vOldPos));
@@ -172,7 +172,7 @@ ezConnectNodePinsCommand::ezConnectNodePinsCommand() = default;
 ezStatus ezConnectNodePinsCommand::DoInternal(bool bRedo)
 {
   ezDocument* pDocument = GetDocument();
-  ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(pDocument->GetObjectManager());
+  ezVisualGraphObjectManager* pManager = static_cast<ezVisualGraphObjectManager*>(pDocument->GetObjectManager());
 
   if (!bRedo)
   {
@@ -188,15 +188,15 @@ ezStatus ezConnectNodePinsCommand::DoInternal(bool bRedo)
       return ezStatus("Connect Node Pins: The given node does not exist!");
   }
 
-  const ezPin* pOutput = pManager->GetOutputPinByName(m_pObjectSource, m_sSourcePin);
+  const ezVisualGraphPin* pOutput = pManager->GetOutputPinByName(m_pObjectSource, m_sSourcePin);
   if (pOutput == nullptr)
     return ezStatus("Connect Node Pins: The given pin does not exist!");
 
-  const ezPin* pInput = pManager->GetInputPinByName(m_pObjectTarget, m_sTargetPin);
+  const ezVisualGraphPin* pInput = pManager->GetInputPinByName(m_pObjectTarget, m_sTargetPin);
   if (pInput == nullptr)
     return ezStatus("Connect Node Pins: The given pin does not exist!");
 
-  ezDocumentNodeManager::CanConnectResult res;
+  ezVisualGraphObjectManager::CanConnectResult res;
   EZ_SUCCEED_OR_RETURN(pManager->CanConnect(m_pConnectionObject->GetType(), *pOutput, *pInput, res));
 
   pManager->Connect(m_pConnectionObject, *pOutput, *pInput);
@@ -206,7 +206,7 @@ ezStatus ezConnectNodePinsCommand::DoInternal(bool bRedo)
 ezStatus ezConnectNodePinsCommand::UndoInternal(bool bFireEvents)
 {
   ezDocument* pDocument = GetDocument();
-  ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(pDocument->GetObjectManager());
+  ezVisualGraphObjectManager* pManager = static_cast<ezVisualGraphObjectManager*>(pDocument->GetObjectManager());
 
   EZ_SUCCEED_OR_RETURN(pManager->CanDisconnect(m_pConnectionObject));
 
@@ -224,7 +224,7 @@ ezDisconnectNodePinsCommand::ezDisconnectNodePinsCommand() = default;
 ezStatus ezDisconnectNodePinsCommand::DoInternal(bool bRedo)
 {
   ezDocument* pDocument = GetDocument();
-  ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(pDocument->GetObjectManager());
+  ezVisualGraphObjectManager* pManager = static_cast<ezVisualGraphObjectManager*>(pDocument->GetObjectManager());
 
   if (!bRedo)
   {
@@ -234,9 +234,9 @@ ezStatus ezDisconnectNodePinsCommand::DoInternal(bool bRedo)
 
     EZ_SUCCEED_OR_RETURN(pManager->CanRemove(m_pConnectionObject));
 
-    const ezConnection& connection = pManager->GetConnection(m_pConnectionObject);
-    const ezPin& pinSource = connection.GetSourcePin();
-    const ezPin& pinTarget = connection.GetTargetPin();
+    const ezVisualGraphConnection& connection = pManager->GetConnection(m_pConnectionObject);
+    const ezVisualGraphPin& pinSource = connection.GetSourcePin();
+    const ezVisualGraphPin& pinTarget = connection.GetTargetPin();
 
     m_pObjectSource = pinSource.GetParent();
     m_pObjectTarget = pinTarget.GetParent();
@@ -254,17 +254,17 @@ ezStatus ezDisconnectNodePinsCommand::DoInternal(bool bRedo)
 ezStatus ezDisconnectNodePinsCommand::UndoInternal(bool bFireEvents)
 {
   ezDocument* pDocument = GetDocument();
-  ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(pDocument->GetObjectManager());
+  ezVisualGraphObjectManager* pManager = static_cast<ezVisualGraphObjectManager*>(pDocument->GetObjectManager());
 
-  const ezPin* pOutput = pManager->GetOutputPinByName(m_pObjectSource, m_sSourcePin);
+  const ezVisualGraphPin* pOutput = pManager->GetOutputPinByName(m_pObjectSource, m_sSourcePin);
   if (pOutput == nullptr)
     return ezStatus("Connect Node: The given pin does not exist!");
 
-  const ezPin* pInput = pManager->GetInputPinByName(m_pObjectTarget, m_sTargetPin);
+  const ezVisualGraphPin* pInput = pManager->GetInputPinByName(m_pObjectTarget, m_sTargetPin);
   if (pInput == nullptr)
     return ezStatus("Connect Node: The given pin does not exist!");
 
-  ezDocumentNodeManager::CanConnectResult res;
+  ezVisualGraphObjectManager::CanConnectResult res;
   EZ_SUCCEED_OR_RETURN(pManager->CanConnect(m_pConnectionObject->GetType(), *pOutput, *pInput, res));
 
   pManager->Connect(m_pConnectionObject, *pOutput, *pInput);
@@ -277,7 +277,7 @@ ezStatus ezDisconnectNodePinsCommand::UndoInternal(bool bFireEvents)
 ////////////////////////////////////////////////////////////////////////
 
 // static
-ezStatus ezNodeCommands::AddAndConnectCommand(ezCommandHistory* pHistory, const ezRTTI* pConnectionType, const ezPin& sourcePin, const ezPin& targetPin)
+ezStatus ezNodeCommands::AddAndConnectCommand(ezCommandHistory* pHistory, const ezRTTI* pConnectionType, const ezVisualGraphPin& sourcePin, const ezVisualGraphPin& targetPin)
 {
   ezAddObjectCommand addCmd;
   addCmd.m_pType = pConnectionType;

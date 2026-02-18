@@ -5,7 +5,7 @@
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
 class ezQtStateMachineAssetScene;
-class ezQtNodeView;
+class ezQtVisualGraphView;
 
 class ezQtStateMachineAssetDocumentWindow : public ezQtDocumentWindow
 {
@@ -19,5 +19,5 @@ private Q_SLOTS:
 
 private:
   ezQtStateMachineAssetScene* m_pScene;
-  ezQtNodeView* m_pView;
+  ezQtVisualGraphView* m_pView;
 };

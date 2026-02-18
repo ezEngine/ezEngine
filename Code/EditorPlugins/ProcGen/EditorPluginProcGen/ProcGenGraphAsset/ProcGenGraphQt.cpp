@@ -27,9 +27,9 @@ namespace
 
 ezQtProcGenNode::ezQtProcGenNode() = default;
 
-void ezQtProcGenNode::InitNode(const ezDocumentNodeManager* pManager, const ezDocumentObject* pObject)
+void ezQtProcGenNode::InitNode(const ezVisualGraphObjectManager* pManager, const ezDocumentObject* pObject)
 {
-  ezQtNode::InitNode(pManager, pObject);
+  ezQtVisualGraphNode::InitNode(pManager, pObject);
 
   const ezRTTI* pRtti = pObject->GetType();
 
@@ -161,7 +161,7 @@ void ezQtProcGenPin::keyPressEvent(QKeyEvent* pEvent)
 
 void ezQtProcGenPin::paint(QPainter* pPainter, const QStyleOptionGraphicsItem* pOption, QWidget* pWidget)
 {
-  ezQtPin::paint(pPainter, pOption, pWidget);
+  ezQtVisualGraphPin::paint(pPainter, pOption, pWidget);
 
   pPainter->save();
   pPainter->setPen(QPen(QColor(220, 0, 0), 3.5f, Qt::DotLine));
@@ -179,7 +179,7 @@ void ezQtProcGenPin::paint(QPainter* pPainter, const QStyleOptionGraphicsItem* p
 
 QRectF ezQtProcGenPin::boundingRect() const
 {
-  QRectF bounds = ezQtPin::boundingRect();
+  QRectF bounds = ezQtVisualGraphPin::boundingRect();
   return bounds.adjusted(-6, -6, 6, 6);
 }
 
@@ -199,7 +199,7 @@ void ezQtProcGenPin::SetDebug(bool bDebug)
 //////////////////////////////////////////////////////////////////////////
 
 ezQtProcGenScene::ezQtProcGenScene(QObject* pParent /*= nullptr*/)
-  : ezQtNodeScene(pParent)
+  : ezQtVisualGraphScene(pParent)
 {
 }
 
@@ -229,7 +229,7 @@ void ezQtProcGenScene::SetDebugPin(ezQtProcGenPin* pDebugPin)
   }
 }
 
-ezStatus ezQtProcGenScene::RemoveNode(ezQtNode* pNode)
+ezStatus ezQtProcGenScene::RemoveNode(ezQtVisualGraphNode* pNode)
 {
   auto pins = pNode->GetInputPins();
   pins.PushBackRange(pNode->GetOutputPins());
@@ -242,5 +242,5 @@ ezStatus ezQtProcGenScene::RemoveNode(ezQtNode* pNode)
     }
   }
 
-  return ezQtNodeScene::RemoveNode(pNode);
+  return ezQtVisualGraphScene::RemoveNode(pNode);
 }

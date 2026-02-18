@@ -9,7 +9,7 @@
 class ezMaterialAssetDocument;
 class ezQtOrbitCamViewWidget;
 class ezQtVisualShaderScene;
-class ezQtNodeView;
+class ezQtVisualGraphView;
 struct ezSelectionManagerEvent;
 class ezDirectoryWatcher;
 enum class ezDirectoryWatcherAction;
@@ -51,7 +51,7 @@ private:
   ezEngineViewConfig m_ViewConfig;
   ezQtOrbitCamViewWidget* m_pViewWidget = nullptr;
   ezQtVisualShaderScene* m_pScene = nullptr;
-  ezQtNodeView* m_pNodeView = nullptr;
+  ezQtVisualGraphView* m_pNodeView = nullptr;
   ezQtDocumentPanel* m_pVsePanel = nullptr;
   QTextEdit* m_pOutputLine = nullptr;
   QPushButton* m_pOpenShaderButton = nullptr;

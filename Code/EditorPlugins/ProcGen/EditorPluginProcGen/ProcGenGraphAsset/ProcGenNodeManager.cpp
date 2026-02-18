@@ -19,16 +19,16 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorPluginProcGen, ProcGen)
   {
     const ezRTTI* pBaseType = ezGetStaticRTTI<ezProcGenNodeBase>();
 
-    ezQtNodeScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezProcGenPin>(), [](const ezRTTI* pRtti)->ezQtPin* { return new ezQtProcGenPin(); });
-    ezQtNodeScene::GetNodeFactory().RegisterCreator(pBaseType, [](const ezRTTI* pRtti)->ezQtNode* { return new ezQtProcGenNode(); });
+    ezQtVisualGraphScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezProcGenPin>(), [](const ezRTTI* pRtti)->ezQtVisualGraphPin* { return new ezQtProcGenPin(); });
+    ezQtVisualGraphScene::GetNodeFactory().RegisterCreator(pBaseType, [](const ezRTTI* pRtti)->ezQtVisualGraphNode* { return new ezQtProcGenNode(); });
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
     const ezRTTI* pBaseType = ezGetStaticRTTI<ezProcGenNodeBase>();
 
-    ezQtNodeScene::GetPinFactory().UnregisterCreator(ezGetStaticRTTI<ezProcGenPin>());
-    ezQtNodeScene::GetNodeFactory().UnregisterCreator(pBaseType);
+    ezQtVisualGraphScene::GetPinFactory().UnregisterCreator(ezGetStaticRTTI<ezProcGenPin>());
+    ezQtVisualGraphScene::GetNodeFactory().UnregisterCreator(pBaseType);
   }
 
 EZ_END_SUBSYSTEM_DECLARATION;
@@ -69,12 +69,12 @@ void ezProcGenNodeManager::InternalCreatePins(const ezDocumentObject* pObject, N
 
     if (pPropType->IsDerivedFrom<ezRenderPipelineNodeInputPin>())
     {
-      auto pPin = EZ_DEFAULT_NEW(ezProcGenPin, ezPin::Type::Input, pProp->GetPropertyName(), pinColor, pObject);
+      auto pPin = EZ_DEFAULT_NEW(ezProcGenPin, ezVisualGraphPin::Type::Input, pProp->GetPropertyName(), pinColor, pObject);
       ref_node.m_Inputs.PushBack(pPin);
     }
     else if (pPropType->IsDerivedFrom<ezRenderPipelineNodeOutputPin>())
     {
-      auto pPin = EZ_DEFAULT_NEW(ezProcGenPin, ezPin::Type::Output, pProp->GetPropertyName(), pinColor, pObject);
+      auto pPin = EZ_DEFAULT_NEW(ezProcGenPin, ezVisualGraphPin::Type::Output, pProp->GetPropertyName(), pinColor, pObject);
       ref_node.m_Outputs.PushBack(pPin);
     }
   }
@@ -88,7 +88,7 @@ void ezProcGenNodeManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& 
     ezRTTI::ForEachOptions::ExcludeAbstract);
 }
 
-ezStatus ezProcGenNodeManager::InternalCanConnect(const ezPin& source, const ezPin& target, CanConnectResult& out_result) const
+ezStatus ezProcGenNodeManager::InternalCanConnect(const ezVisualGraphPin& source, const ezVisualGraphPin& target, CanConnectResult& out_result) const
 {
   out_result = CanConnectResult::ConnectNto1;
   return ezStatus(EZ_SUCCESS);

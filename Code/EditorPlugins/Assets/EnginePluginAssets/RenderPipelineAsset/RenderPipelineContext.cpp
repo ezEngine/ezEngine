@@ -55,7 +55,7 @@ ezStatus ezRenderPipelineContext::ExportDocument(const ezExportDocumentMsgToEngi
   ezDynamicArray<ezRenderPipelineResourceLoaderConnection> connections;
 
   ezDynamicArray<ezUuid> passUuids;
-  ezDynamicArray<ezDocumentObject_ConnectionBase*> toolConnections;
+  ezDynamicArray<ezVisualGraphObjectConnection*> toolConnections;
 
   m_Context.GetObjectsByType(passes, &passUuids);
   m_Context.GetObjectsByType(extractors);
@@ -69,7 +69,7 @@ ezStatus ezRenderPipelineContext::ExportDocument(const ezExportDocumentMsgToEngi
   connections.SetCount(toolConnections.GetCount());
   for (ezUInt32 i = 0; i < toolConnections.GetCount(); i++)
   {
-    ezDocumentObject_ConnectionBase* pConnection = toolConnections[i];
+    ezVisualGraphObjectConnection* pConnection = toolConnections[i];
     ezRenderPipelineResourceLoaderConnection& engineConnection = connections[i];
     EZ_VERIFY(passUuidToIndex.TryGetValue(pConnection->m_Source, engineConnection.m_uiSource), "");
     EZ_VERIFY(passUuidToIndex.TryGetValue(pConnection->m_Target, engineConnection.m_uiTarget), "");

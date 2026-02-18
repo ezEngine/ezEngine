@@ -6,25 +6,25 @@
 #include <GuiFoundation/NodeEditor/Pin.h>
 #include <VisualScriptPlugin/Runtime/VisualScriptDataType.h>
 
-class ezQtVisualScriptPin : public ezQtPin
+class ezQtVisualScriptPin : public ezQtVisualGraphPin
 {
 public:
   ezQtVisualScriptPin();
 
-  virtual void SetPin(const ezPin& pin) override;
+  virtual void SetPin(const ezVisualGraphPin& pin) override;
   virtual bool UpdatePinColors(const ezColorGammaUB* pOverwriteColor = nullptr) override;
 
 private:
   void UpdateTooltip();
 };
 
-class ezQtVisualScriptConnection : public ezQtConnection
+class ezQtVisualScriptConnection : public ezQtVisualGraphConnection
 {
 public:
   ezQtVisualScriptConnection();
 };
 
-class ezQtVisualScriptNode : public ezQtNode
+class ezQtVisualScriptNode : public ezQtVisualGraphNode
 {
 public:
   ezQtVisualScriptNode();
@@ -32,7 +32,7 @@ public:
   virtual void UpdateState() override;
 };
 
-class ezQtVisualScriptNodeScene : public ezQtNodeScene
+class ezQtVisualScriptNodeScene : public ezQtVisualGraphScene
 {
   Q_OBJECT
 
@@ -40,7 +40,7 @@ public:
   ezQtVisualScriptNodeScene(QObject* pParent = nullptr);
   ~ezQtVisualScriptNodeScene();
 
-  virtual void InitScene(const ezDocumentNodeManager* pManager);
+  virtual void InitScene(const ezVisualGraphObjectManager* pManager);
 
   const QPixmap& GetCoroutineIcon() const { return m_CoroutineIcon; }
   const QPixmap& GetLoopIcon() const { return m_LoopIcon; }

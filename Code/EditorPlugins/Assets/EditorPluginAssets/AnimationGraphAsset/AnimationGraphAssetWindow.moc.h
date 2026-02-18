@@ -5,7 +5,7 @@
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
 class ezQtAnimationGraphAssetScene;
-class ezQtNodeView;
+class ezQtVisualGraphView;
 
 class ezQtAnimationGraphAssetDocumentWindow : public ezQtDocumentWindow
 {
@@ -21,5 +21,5 @@ private:
   void SelectionEventHandler(const ezSelectionManagerEvent& e);
 
   ezQtAnimationGraphAssetScene* m_pScene;
-  ezQtNodeView* m_pView;
+  ezQtVisualGraphView* m_pView;
 };

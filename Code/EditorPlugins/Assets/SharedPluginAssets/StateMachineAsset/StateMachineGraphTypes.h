@@ -9,9 +9,9 @@ class ezStateMachineTransition;
 
 /// \brief A connection that represents a state machine transition. Since we can't chose different connection
 /// types in the Editor we allow the user to switch the type in the properties.
-class EZ_SHAREDPLUGINASSETS_DLL ezStateMachineConnection : public ezDocumentObject_ConnectionBase
+class EZ_SHAREDPLUGINASSETS_DLL ezStateMachineConnection : public ezVisualGraphObjectConnection
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezStateMachineConnection, ezDocumentObject_ConnectionBase);
+  EZ_ADD_DYNAMIC_REFLECTION(ezStateMachineConnection, ezVisualGraphObjectConnection);
 
 public:
   ezStateMachineTransition* m_pType = nullptr;

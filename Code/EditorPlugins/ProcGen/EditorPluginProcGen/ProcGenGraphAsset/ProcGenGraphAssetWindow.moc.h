@@ -5,8 +5,8 @@
 
 class ezProcGenGraphAssetDocument;
 
-class ezQtNodeScene;
-class ezQtNodeView;
+class ezQtVisualGraphScene;
+class ezQtVisualGraphView;
 struct ezCommandHistoryEvent;
 
 class ezProcGenGraphAssetDocumentWindow : public ezQtDocumentWindow
@@ -32,6 +32,6 @@ private:
 
   void SelectionEventHandler(const ezSelectionManagerEvent& e);
 
-  ezQtNodeScene* m_pScene;
-  ezQtNodeView* m_pView;
+  ezQtVisualGraphScene* m_pScene;
+  ezQtVisualGraphView* m_pView;
 };

@@ -145,25 +145,25 @@ ezStatus ezNodeCommandAccessor::RemoveObject(const ezDocumentObject* pObject)
 
 bool ezNodeCommandAccessor::IsNode(const ezDocumentObject* pObject) const
 {
-  auto pManager = static_cast<const ezDocumentNodeManager*>(pObject->GetDocumentObjectManager());
+  auto pManager = static_cast<const ezVisualGraphObjectManager*>(pObject->GetDocumentObjectManager());
 
   return pManager->IsNode(pObject);
 }
 
 bool ezNodeCommandAccessor::IsDynamicPinProperty(const ezDocumentObject* pObject, const ezAbstractProperty* pProp) const
 {
-  auto pManager = static_cast<const ezDocumentNodeManager*>(pObject->GetDocumentObjectManager());
+  auto pManager = static_cast<const ezVisualGraphObjectManager*>(pObject->GetDocumentObjectManager());
 
   return pManager->IsDynamicPinProperty(pObject, pProp);
 }
 
 ezStatus ezNodeCommandAccessor::DisconnectAllPins(const ezDocumentObject* pObject, ezDynamicArray<ConnectionInfo>& out_oldConnections)
 {
-  auto pManager = static_cast<const ezDocumentNodeManager*>(pObject->GetDocumentObjectManager());
+  auto pManager = static_cast<const ezVisualGraphObjectManager*>(pObject->GetDocumentObjectManager());
 
-  auto Disconnect = [&](ezArrayPtr<const ezConnection* const> connections) -> ezStatus
+  auto Disconnect = [&](ezArrayPtr<const ezVisualGraphConnection* const> connections) -> ezStatus
   {
-    for (const ezConnection* pConnection : connections)
+    for (const ezVisualGraphConnection* pConnection : connections)
     {
       auto& connectionInfo = out_oldConnections.ExpandAndGetRef();
       connectionInfo.m_pSource = pConnection->GetSourcePin().GetParent();
@@ -194,20 +194,20 @@ ezStatus ezNodeCommandAccessor::DisconnectAllPins(const ezDocumentObject* pObjec
 
 ezStatus ezNodeCommandAccessor::TryReconnectAllPins(const ezDocumentObject* pObject, const ezDynamicArray<ConnectionInfo>& oldConnections)
 {
-  auto pManager = static_cast<const ezDocumentNodeManager*>(pObject->GetDocumentObjectManager());
+  auto pManager = static_cast<const ezVisualGraphObjectManager*>(pObject->GetDocumentObjectManager());
   const ezRTTI* pConnectionType = pManager->GetConnectionType();
 
   for (auto& connectionInfo : oldConnections)
   {
-    const ezPin* pSourcePin = pManager->GetOutputPinByName(connectionInfo.m_pSource, connectionInfo.m_sSourcePin);
-    const ezPin* pTargetPin = pManager->GetInputPinByName(connectionInfo.m_pTarget, connectionInfo.m_sTargetPin);
+    const ezVisualGraphPin* pSourcePin = pManager->GetOutputPinByName(connectionInfo.m_pSource, connectionInfo.m_sSourcePin);
+    const ezVisualGraphPin* pTargetPin = pManager->GetInputPinByName(connectionInfo.m_pTarget, connectionInfo.m_sTargetPin);
 
     // This connection can't be restored because a pin doesn't exist anymore, which is ok in this case.
     if (pSourcePin == nullptr || pTargetPin == nullptr)
       continue;
 
     // This connection is not valid anymore after pins have changed.
-    ezDocumentNodeManager::CanConnectResult res;
+    ezVisualGraphObjectManager::CanConnectResult res;
     if (pManager->CanConnect(pConnectionType, *pSourcePin, *pTargetPin, res).Failed())
       continue;
 

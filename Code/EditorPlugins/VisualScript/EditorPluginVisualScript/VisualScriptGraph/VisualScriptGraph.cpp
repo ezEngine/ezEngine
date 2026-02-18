@@ -12,7 +12,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezVisualScriptPin::ezVisualScriptPin(Type type, ezStringView sName, const ezVisualScriptNodeRegistry::PinDesc& pinDesc, const ezDocumentObject* pObject, ezUInt32 uiDataPinIndex, ezUInt32 uiElementIndex)
-  : ezPin(type, sName, pinDesc.GetColor(), pObject)
+  : ezVisualGraphPin(type, sName, pinDesc.GetColor(), pObject)
   , m_pDesc(&pinDesc)
   , m_uiDataPinIndex(uiDataPinIndex)
   , m_uiElementIndex(uiElementIndex)
@@ -390,7 +390,7 @@ bool ezVisualScriptNodeManager::InternalIsDynamicPinProperty(const ezDocumentObj
   return false;
 }
 
-ezStatus ezVisualScriptNodeManager::InternalCanConnect(const ezPin& source, const ezPin& target, CanConnectResult& out_result) const
+ezStatus ezVisualScriptNodeManager::InternalCanConnect(const ezVisualGraphPin& source, const ezVisualGraphPin& target, CanConnectResult& out_result) const
 {
   const ezVisualScriptPin& pinSource = ezStaticCast<const ezVisualScriptPin&>(source);
   const ezVisualScriptPin& pinTarget = ezStaticCast<const ezVisualScriptPin&>(target);
@@ -439,7 +439,7 @@ void ezVisualScriptNodeManager::InternalCreatePins(const ezDocumentObject* pObje
     return;
 
   ezHybridArray<ezString, 16> dynamicPinNames;
-  auto CreatePins = [&](const ezVisualScriptNodeRegistry::PinDesc& pinDesc, ezPin::Type type, ezDynamicArray<ezUniquePtr<ezPin>>& out_pins, ezUInt32& inout_dataPinIndex)
+  auto CreatePins = [&](const ezVisualScriptNodeRegistry::PinDesc& pinDesc, ezVisualGraphPin::Type type, ezDynamicArray<ezUniquePtr<ezVisualGraphPin>>& out_pins, ezUInt32& inout_dataPinIndex)
   {
     if (pinDesc.m_sDynamicPinProperty.IsEmpty() == false)
     {
@@ -468,17 +468,17 @@ void ezVisualScriptNodeManager::InternalCreatePins(const ezDocumentObject* pObje
   ezUInt32 uiDataPinIndex = 0;
   for (const auto& pinDesc : pNodeDesc->m_InputPins)
   {
-    CreatePins(pinDesc, ezPin::Type::Input, ref_node.m_Inputs, uiDataPinIndex);
+    CreatePins(pinDesc, ezVisualGraphPin::Type::Input, ref_node.m_Inputs, uiDataPinIndex);
   }
 
   uiDataPinIndex = 0;
   for (const auto& pinDesc : pNodeDesc->m_OutputPins)
   {
-    CreatePins(pinDesc, ezPin::Type::Output, ref_node.m_Outputs, uiDataPinIndex);
+    CreatePins(pinDesc, ezVisualGraphPin::Type::Output, ref_node.m_Outputs, uiDataPinIndex);
   }
 }
 
-void ezVisualScriptNodeManager::GetNodeCreationTemplates(ezDynamicArray<ezNodeCreationTemplate>& out_templates) const
+void ezVisualScriptNodeManager::GetNodeCreationTemplates(ezDynamicArray<ezVisualGraphNodeDesc>& out_templates) const
 {
   auto pRegistry = ezVisualScriptNodeRegistry::GetSingleton();
   auto propertyValues = pRegistry->GetPropertyValues();
@@ -560,11 +560,11 @@ void ezVisualScriptNodeManager::GetNodeCreationTemplates(ezDynamicArray<ezNodeCr
   }
 }
 
-void ezVisualScriptNodeManager::NodeEventsHandler(const ezDocumentNodeManagerEvent& e)
+void ezVisualScriptNodeManager::NodeEventsHandler(const ezVisualGraphObjectManagerEvent& e)
 {
   switch (e.m_EventType)
   {
-    case ezDocumentNodeManagerEvent::Type::AfterPinsConnected:
+    case ezVisualGraphObjectManagerEvent::Type::AfterPinsConnected:
     {
       auto& connection = GetConnection(e.m_pObject);
       auto& targetPin = connection.GetTargetPin();
@@ -573,7 +573,7 @@ void ezVisualScriptNodeManager::NodeEventsHandler(const ezDocumentNodeManagerEve
     }
     break;
 
-    case ezDocumentNodeManagerEvent::Type::BeforePinsDisonnected:
+    case ezVisualGraphObjectManagerEvent::Type::BeforePinsDisonnected:
     {
       auto& connection = GetConnection(e.m_pObject);
       auto& targetPin = connection.GetTargetPin();
@@ -582,13 +582,13 @@ void ezVisualScriptNodeManager::NodeEventsHandler(const ezDocumentNodeManagerEve
     }
     break;
 
-    case ezDocumentNodeManagerEvent::Type::AfterNodeAdded:
+    case ezVisualGraphObjectManagerEvent::Type::AfterNodeAdded:
     {
       DeductNodeTypeAndAllPinTypes(e.m_pObject);
     }
     break;
 
-    case ezDocumentNodeManagerEvent::Type::BeforeNodeRemoved:
+    case ezVisualGraphObjectManagerEvent::Type::BeforeNodeRemoved:
     {
       m_ObjectToDeductedType.Remove(e.m_pObject);
     }
@@ -632,7 +632,7 @@ void ezVisualScriptNodeManager::RemoveDeductedPinType(const ezVisualScriptPin& p
   m_PinToDeductedType.Remove(&pin);
 }
 
-void ezVisualScriptNodeManager::DeductNodeTypeAndAllPinTypes(const ezDocumentObject* pObject, const ezPin* pDisconnectedPin /*= nullptr*/)
+void ezVisualScriptNodeManager::DeductNodeTypeAndAllPinTypes(const ezDocumentObject* pObject, const ezVisualGraphPin* pDisconnectedPin /*= nullptr*/)
 {
   auto pNodeDesc = ezVisualScriptNodeRegistry::GetSingleton()->GetNodeDescForType(pObject->GetType());
   if (pNodeDesc == nullptr || pNodeDesc->NeedsTypeDeduction() == false)
@@ -701,7 +701,7 @@ void ezVisualScriptNodeManager::DeductNodeTypeAndAllPinTypes(const ezDocumentObj
   }
 }
 
-void ezVisualScriptNodeManager::UpdateCoroutine(const ezDocumentObject* pTargetNode, const ezConnection& changedConnection, bool bIsAboutToDisconnect)
+void ezVisualScriptNodeManager::UpdateCoroutine(const ezDocumentObject* pTargetNode, const ezVisualGraphConnection& changedConnection, bool bIsAboutToDisconnect)
 {
   auto vsPin = static_cast<const ezVisualScriptPin&>(changedConnection.GetTargetPin());
   if (vsPin.IsExecutionPin() == false)
@@ -731,7 +731,7 @@ void ezVisualScriptNodeManager::UpdateCoroutine(const ezDocumentObject* pTargetN
   }
 }
 
-bool ezVisualScriptNodeManager::IsConnectedToCoroutine(const ezDocumentObject* pEntryNode, const ezConnection& changedConnection, bool bIsAboutToDisconnect) const
+bool ezVisualScriptNodeManager::IsConnectedToCoroutine(const ezDocumentObject* pEntryNode, const ezVisualGraphConnection& changedConnection, bool bIsAboutToDisconnect) const
 {
   ezHybridArray<const ezDocumentObject*, 64> nodeStack;
   nodeStack.PushBack(pEntryNode);

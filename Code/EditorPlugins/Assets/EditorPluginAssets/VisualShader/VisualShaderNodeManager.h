@@ -5,9 +5,9 @@
 
 struct ezVisualShaderPinDescriptor;
 
-class ezVisualShaderPin : public ezPin
+class ezVisualShaderPin : public ezVisualGraphPin
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezVisualShaderPin, ezPin);
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualShaderPin, ezVisualGraphPin);
 
 public:
   ezVisualShaderPin(Type type, const ezVisualShaderPinDescriptor* pDescriptor, const ezDocumentObject* pObject);
@@ -20,14 +20,14 @@ private:
   const ezVisualShaderPinDescriptor* m_pDescriptor;
 };
 
-class ezVisualShaderNodeManager : public ezDocumentNodeManager
+class ezVisualShaderNodeManager : public ezVisualGraphObjectManager
 {
 public:
   virtual bool InternalIsNode(const ezDocumentObject* pObject) const override;
   virtual void InternalCreatePins(const ezDocumentObject* pObject, NodeInternal& ref_node) override;
-  virtual void GetNodeCreationTemplates(ezDynamicArray<ezNodeCreationTemplate>& out_templates) const override;
+  virtual void GetNodeCreationTemplates(ezDynamicArray<ezVisualGraphNodeDesc>& out_templates) const override;
 
-  virtual ezStatus InternalCanConnect(const ezPin& source, const ezPin& target, CanConnectResult& out_result) const override;
+  virtual ezStatus InternalCanConnect(const ezVisualGraphPin& source, const ezVisualGraphPin& target, CanConnectResult& out_result) const override;
 
 private:
   virtual ezStatus InternalCanAdd(

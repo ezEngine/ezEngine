@@ -24,16 +24,16 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorPluginAssets, VisualShader)
     ezVisualShaderTypeRegistry::GetSingleton()->LoadNodeData();
     const ezRTTI* pBaseType = ezVisualShaderTypeRegistry::GetSingleton()->GetNodeBaseType();
 
-    ezQtNodeScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezVisualShaderPin>(), [](const ezRTTI* pRtti)->ezQtPin* { return new ezQtVisualShaderPin(); });
-    ezQtNodeScene::GetNodeFactory().RegisterCreator(pBaseType, [](const ezRTTI* pRtti)->ezQtNode* { return new ezQtVisualShaderNode(); });
+    ezQtVisualGraphScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezVisualShaderPin>(), [](const ezRTTI* pRtti)->ezQtVisualGraphPin* { return new ezQtVisualShaderPin(); });
+    ezQtVisualGraphScene::GetNodeFactory().RegisterCreator(pBaseType, [](const ezRTTI* pRtti)->ezQtVisualGraphNode* { return new ezQtVisualShaderNode(); });
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
     const ezRTTI* pBaseType = ezVisualShaderTypeRegistry::GetSingleton()->GetNodeBaseType();
 
-    ezQtNodeScene::GetPinFactory().UnregisterCreator(ezGetStaticRTTI<ezVisualShaderPin>());
-    ezQtNodeScene::GetNodeFactory().UnregisterCreator(pBaseType);
+    ezQtVisualGraphScene::GetPinFactory().UnregisterCreator(ezGetStaticRTTI<ezVisualShaderPin>());
+    ezQtVisualGraphScene::GetNodeFactory().UnregisterCreator(pBaseType);
 
     ezVisualShaderTypeRegistry* pDummy = ezVisualShaderTypeRegistry::GetSingleton();
     EZ_DEFAULT_DELETE(pDummy);

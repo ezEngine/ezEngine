@@ -5,10 +5,10 @@
 #include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
-class ezPin;
-class ezConnection;
+class ezVisualGraphPin;
+class ezVisualGraphConnection;
 
-struct EZ_TOOLSFOUNDATION_DLL ezDocumentNodeManagerEvent
+struct EZ_TOOLSFOUNDATION_DLL ezVisualGraphObjectManagerEvent
 {
   enum class Type
   {
@@ -23,7 +23,7 @@ struct EZ_TOOLSFOUNDATION_DLL ezDocumentNodeManagerEvent
     AfterNodeRemoved,
   };
 
-  ezDocumentNodeManagerEvent(Type eventType, const ezDocumentObject* pObject = nullptr)
+  ezVisualGraphObjectManagerEvent(Type eventType, const ezDocumentObject* pObject = nullptr)
     : m_EventType(eventType)
     , m_pObject(pObject)
   {
@@ -33,31 +33,31 @@ struct EZ_TOOLSFOUNDATION_DLL ezDocumentNodeManagerEvent
   const ezDocumentObject* m_pObject;
 };
 
-class ezConnection
+class ezVisualGraphConnection final
 {
 public:
-  const ezPin& GetSourcePin() const { return m_SourcePin; }
-  const ezPin& GetTargetPin() const { return m_TargetPin; }
+  const ezVisualGraphPin& GetSourcePin() const { return m_SourcePin; }
+  const ezVisualGraphPin& GetTargetPin() const { return m_TargetPin; }
   const ezDocumentObject* GetParent() const { return m_pParent; }
 
 private:
-  friend class ezDocumentNodeManager;
+  friend class ezVisualGraphObjectManager;
 
-  ezConnection(const ezPin& sourcePin, const ezPin& targetPin, const ezDocumentObject* pParent)
+  ezVisualGraphConnection(const ezVisualGraphPin& sourcePin, const ezVisualGraphPin& targetPin, const ezDocumentObject* pParent)
     : m_SourcePin(sourcePin)
     , m_TargetPin(targetPin)
     , m_pParent(pParent)
   {
   }
 
-  const ezPin& m_SourcePin;
-  const ezPin& m_TargetPin;
+  const ezVisualGraphPin& m_SourcePin;
+  const ezVisualGraphPin& m_TargetPin;
   const ezDocumentObject* m_pParent = nullptr;
 };
 
-class EZ_TOOLSFOUNDATION_DLL ezPin : public ezReflectedClass
+class EZ_TOOLSFOUNDATION_DLL ezVisualGraphPin : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezPin, ezReflectedClass);
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualGraphPin, ezReflectedClass);
 
 public:
   enum class Type
@@ -75,7 +75,7 @@ public:
     Default = Circle
   };
 
-  ezPin(Type type, ezStringView sName, const ezColorGammaUB& color, const ezDocumentObject* pObject)
+  ezVisualGraphPin(Type type, ezStringView sName, const ezColorGammaUB& color, const ezDocumentObject* pObject)
     : m_Type(type)
     , m_Color(color)
     , m_sName(sName)
@@ -91,7 +91,7 @@ public:
   const ezDocumentObject* GetParent() const { return m_pParent; }
 
 private:
-  friend class ezDocumentNodeManager;
+  friend class ezVisualGraphObjectManager;
 
   Type m_Type;
   ezColorGammaUB m_Color;
@@ -101,7 +101,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-struct ezNodePropertyValue
+struct ezVisualGraphNodeProperty
 {
   ezHashedString m_sPropertyName;
   ezVariant m_Value;
@@ -112,21 +112,21 @@ struct ezNodePropertyValue
 ///
 /// For example in visual script this allows us to have one generic node type for setting reflected properties
 /// but we can expose all relevant reflected properties in the node creation menu so the user does not need to fill out the property name manually.
-struct ezNodeCreationTemplate
+struct ezVisualGraphNodeDesc
 {
   const ezRTTI* m_pType = nullptr;
   ezStringView m_sTypeName;
   ezHashedString m_sCategory;
-  ezArrayPtr<const ezNodePropertyValue> m_PropertyValues;
+  ezArrayPtr<const ezVisualGraphNodeProperty> m_PropertyValues;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief Base class for all node connections. Derive from this class and overwrite ezDocumentNodeManager::GetConnectionType
+/// \brief Base class for all node connections. Derive from this class and overwrite ezVisualGraphObjectManager::GetConnectionType
 /// if you need custom properties for connections.
-class EZ_TOOLSFOUNDATION_DLL ezDocumentObject_ConnectionBase : public ezReflectedClass
+class EZ_TOOLSFOUNDATION_DLL ezVisualGraphObjectConnection : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDocumentObject_ConnectionBase, ezReflectedClass);
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualGraphObjectConnection, ezReflectedClass);
 
 public:
   ezUuid m_Source;
@@ -137,29 +137,29 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_TOOLSFOUNDATION_DLL ezDocumentNodeManager : public ezDocumentObjectManager
+class EZ_TOOLSFOUNDATION_DLL ezVisualGraphObjectManager : public ezDocumentObjectManager
 {
 public:
-  ezEvent<const ezDocumentNodeManagerEvent&> m_NodeEvents;
+  ezEvent<const ezVisualGraphObjectManagerEvent&> m_NodeEvents;
 
-  ezDocumentNodeManager();
-  virtual ~ezDocumentNodeManager();
+  ezVisualGraphObjectManager();
+  virtual ~ezVisualGraphObjectManager();
 
   /// \brief For node documents this function is called instead of GetCreateableTypes to get a list for the node creation menu.
   ///
-  /// \see ezNodeCreationTemplate
-  virtual void GetNodeCreationTemplates(ezDynamicArray<ezNodeCreationTemplate>& out_templates) const;
+  /// \see ezVisualGraphNodeDesc
+  virtual void GetNodeCreationTemplates(ezDynamicArray<ezVisualGraphNodeDesc>& out_templates) const;
 
   virtual const ezRTTI* GetConnectionType() const;
 
   ezVec2 GetNodePos(const ezDocumentObject* pObject) const;
-  const ezConnection& GetConnection(const ezDocumentObject* pObject) const;
-  const ezConnection* GetConnectionIfExists(const ezDocumentObject* pObject) const;
+  const ezVisualGraphConnection& GetConnection(const ezDocumentObject* pObject) const;
+  const ezVisualGraphConnection* GetConnectionIfExists(const ezDocumentObject* pObject) const;
 
-  const ezPin* GetInputPinByName(const ezDocumentObject* pObject, ezStringView sName) const;
-  const ezPin* GetOutputPinByName(const ezDocumentObject* pObject, ezStringView sName) const;
-  ezArrayPtr<const ezUniquePtr<const ezPin>> GetInputPins(const ezDocumentObject* pObject) const;
-  ezArrayPtr<const ezUniquePtr<const ezPin>> GetOutputPins(const ezDocumentObject* pObject) const;
+  const ezVisualGraphPin* GetInputPinByName(const ezDocumentObject* pObject, ezStringView sName) const;
+  const ezVisualGraphPin* GetOutputPinByName(const ezDocumentObject* pObject, ezStringView sName) const;
+  ezArrayPtr<const ezUniquePtr<const ezVisualGraphPin>> GetInputPins(const ezDocumentObject* pObject) const;
+  ezArrayPtr<const ezUniquePtr<const ezVisualGraphPin>> GetOutputPins(const ezDocumentObject* pObject) const;
 
   enum class CanConnectResult
   {
@@ -174,16 +174,16 @@ public:
   bool IsConnection(const ezDocumentObject* pObject) const;
   bool IsDynamicPinProperty(const ezDocumentObject* pObject, const ezAbstractProperty* pProp) const;
 
-  ezArrayPtr<const ezConnection* const> GetConnections(const ezPin& pin) const;
-  bool HasConnections(const ezPin& pin) const;
-  bool IsConnected(const ezPin& source, const ezPin& target) const;
+  ezArrayPtr<const ezVisualGraphConnection* const> GetConnections(const ezVisualGraphPin& pin) const;
+  bool HasConnections(const ezVisualGraphPin& pin) const;
+  bool IsConnected(const ezVisualGraphPin& source, const ezVisualGraphPin& target) const;
 
-  ezStatus CanConnect(const ezRTTI* pObjectType, const ezPin& source, const ezPin& target, CanConnectResult& ref_result) const;
-  ezStatus CanDisconnect(const ezConnection* pConnection) const;
+  ezStatus CanConnect(const ezRTTI* pObjectType, const ezVisualGraphPin& source, const ezVisualGraphPin& target, CanConnectResult& ref_result) const;
+  ezStatus CanDisconnect(const ezVisualGraphConnection* pConnection) const;
   ezStatus CanDisconnect(const ezDocumentObject* pObject) const;
   ezStatus CanMoveNode(const ezDocumentObject* pObject, const ezVec2& vPos) const;
 
-  void Connect(const ezDocumentObject* pObject, const ezPin& source, const ezPin& target);
+  void Connect(const ezDocumentObject* pObject, const ezVisualGraphPin& source, const ezVisualGraphPin& target);
   void Disconnect(const ezDocumentObject* pObject);
   void MoveNode(const ezDocumentObject* pObject, const ezVec2& vPos);
 
@@ -199,9 +199,9 @@ protected:
   bool CanReachNode(const ezDocumentObject* pSource, const ezDocumentObject* pTarget, ezSet<const ezDocumentObject*>& Visited) const;
 
   /// \brief Returns true if adding a connection between the two pins would create a circular graph
-  bool WouldConnectionCreateCircle(const ezPin& source, const ezPin& target) const;
+  bool WouldConnectionCreateCircle(const ezVisualGraphPin& source, const ezVisualGraphPin& target) const;
 
-  ezResult ResolveConnection(const ezUuid& sourceObject, const ezUuid& targetObject, ezStringView sourcePin, ezStringView targetPin, const ezPin*& out_pSourcePin, const ezPin*& out_pTargetPin) const;
+  ezResult ResolveConnection(const ezUuid& sourceObject, const ezUuid& targetObject, ezStringView sourcePin, ezStringView targetPin, const ezVisualGraphPin*& out_pSourcePin, const ezVisualGraphPin*& out_pTargetPin) const;
 
   virtual void GetDynamicPinNames(const ezDocumentObject* pObject, ezStringView sPropertyName, ezStringView sPinName, ezDynamicArray<ezString>& out_Names) const;
   virtual bool TryRecreatePins(const ezDocumentObject* pObject);
@@ -209,16 +209,16 @@ protected:
   struct NodeInternal
   {
     ezVec2 m_vPos = ezVec2::MakeZero();
-    ezHybridArray<ezUniquePtr<ezPin>, 6> m_Inputs;
-    ezHybridArray<ezUniquePtr<ezPin>, 6> m_Outputs;
+    ezHybridArray<ezUniquePtr<ezVisualGraphPin>, 6> m_Inputs;
+    ezHybridArray<ezUniquePtr<ezVisualGraphPin>, 6> m_Outputs;
   };
 
 private:
   virtual bool InternalIsNode(const ezDocumentObject* pObject) const;
   virtual bool InternalIsConnection(const ezDocumentObject* pObject) const;
   virtual bool InternalIsDynamicPinProperty(const ezDocumentObject* pObject, const ezAbstractProperty* pProp) const { return false; }
-  virtual ezStatus InternalCanConnect(const ezPin& source, const ezPin& target, CanConnectResult& out_Result) const;
-  virtual ezStatus InternalCanDisconnect(const ezPin& source, const ezPin& target) const { return ezStatus(EZ_SUCCESS); }
+  virtual ezStatus InternalCanConnect(const ezVisualGraphPin& source, const ezVisualGraphPin& target, CanConnectResult& out_Result) const;
+  virtual ezStatus InternalCanDisconnect(const ezVisualGraphPin& source, const ezVisualGraphPin& target) const { return ezStatus(EZ_SUCCESS); }
   virtual ezStatus InternalCanMoveNode(const ezDocumentObject* pObject, const ezVec2& vPos) const { return ezStatus(EZ_SUCCESS); }
   virtual void InternalCreatePins(const ezDocumentObject* pObject, NodeInternal& node) = 0;
 
@@ -230,6 +230,6 @@ private:
 
 private:
   ezHashTable<ezUuid, NodeInternal> m_ObjectToNode;
-  ezHashTable<ezUuid, ezUniquePtr<ezConnection>> m_ObjectToConnection;
-  ezMap<const ezPin*, ezHybridArray<const ezConnection*, 6>> m_Connections;
+  ezHashTable<ezUuid, ezUniquePtr<ezVisualGraphConnection>> m_ObjectToConnection;
+  ezMap<const ezVisualGraphPin*, ezHybridArray<const ezVisualGraphConnection*, 6>> m_Connections;
 };

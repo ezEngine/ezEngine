@@ -2,15 +2,15 @@
 
 #include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
 
-class ezStateMachinePin : public ezPin
+class ezStateMachinePin : public ezVisualGraphPin
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezStateMachinePin, ezPin);
+  EZ_ADD_DYNAMIC_REFLECTION(ezStateMachinePin, ezVisualGraphPin);
 
 public:
   ezStateMachinePin(Type type, const ezDocumentObject* pObject);
 };
 
-class ezStateMachineNodeManager : public ezDocumentNodeManager
+class ezStateMachineNodeManager : public ezVisualGraphObjectManager
 {
 public:
   ezStateMachineNodeManager();
@@ -23,7 +23,7 @@ public:
 
 private:
   virtual bool InternalIsNode(const ezDocumentObject* pObject) const override;
-  virtual ezStatus InternalCanConnect(const ezPin& source, const ezPin& target, CanConnectResult& out_Result) const override;
+  virtual ezStatus InternalCanConnect(const ezVisualGraphPin& source, const ezVisualGraphPin& target, CanConnectResult& out_Result) const override;
 
   virtual void InternalCreatePins(const ezDocumentObject* pObject, NodeInternal& node) override;
 
