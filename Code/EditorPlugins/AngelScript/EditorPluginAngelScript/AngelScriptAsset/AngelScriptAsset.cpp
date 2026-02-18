@@ -3,10 +3,10 @@
 #include <EditorFramework/GUI/ExposedParameters.h>
 #include <EditorPluginAngelScript/AngelScriptAsset/AngelScriptAsset.h>
 #include <Foundation/CodeUtils/Preprocessor.h>
-#include <GuiFoundation/VisualGraph/Scene.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
-#include <ToolsFoundation/VisualGraph/VisualGraphCommandAccessor.h>
+#include <GuiFoundation/VisualGraph/Scene.moc.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
+#include <ToolsFoundation/VisualGraph/VisualGraphCommandAccessor.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezAngelScriptCodeMode, 1)

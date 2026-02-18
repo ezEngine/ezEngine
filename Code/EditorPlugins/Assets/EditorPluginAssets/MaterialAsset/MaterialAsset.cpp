@@ -5,9 +5,9 @@
 #include <EditorPluginAssets/MaterialAsset/ShaderTypeRegistry.h>
 #include <EditorPluginAssets/VisualShader/VsCodeGenerator.h>
 #include <Foundation/CodeUtils/Preprocessor.h>
-#include <GuiFoundation/VisualGraph/Scene.moc.h>
 #include <GuiFoundation/PropertyGrid/DefaultState.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
+#include <GuiFoundation/VisualGraph/Scene.moc.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/ShaderCompiler/ShaderParser.h>
 #include <ToolsFoundation/Document/PrefabCache.h>

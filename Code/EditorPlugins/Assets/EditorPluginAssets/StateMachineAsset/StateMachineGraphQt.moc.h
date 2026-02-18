@@ -2,8 +2,8 @@
 
 #include <GuiFoundation/VisualGraph/Connection.h>
 #include <GuiFoundation/VisualGraph/Node.h>
-#include <GuiFoundation/VisualGraph/Scene.moc.h>
 #include <GuiFoundation/VisualGraph/Pin.h>
+#include <GuiFoundation/VisualGraph/Scene.moc.h>
 
 /// Qt graphics item for state machine pins.
 ///

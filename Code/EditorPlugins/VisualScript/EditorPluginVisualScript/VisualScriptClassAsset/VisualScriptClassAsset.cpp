@@ -4,8 +4,8 @@
 #include <EditorPluginVisualScript/VisualScriptClassAsset/VisualScriptClassAsset.h>
 #include <EditorPluginVisualScript/VisualScriptGraph/VisualScriptCompiler.h>
 #include <GuiFoundation/VisualGraph/Scene.moc.h>
-#include <ToolsFoundation/VisualGraph/VisualGraphCommandAccessor.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
+#include <ToolsFoundation/VisualGraph/VisualGraphCommandAccessor.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptClassAssetProperties, 1, ezRTTIDefaultAllocator<ezVisualScriptClassAssetProperties>)

@@ -2,10 +2,10 @@
 
 #include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <GuiFoundation/VisualGraph/Connection.h>
 #include <GuiFoundation/VisualGraph/Node.h>
 #include <GuiFoundation/VisualGraph/Pin.h>
-#include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <GuiFoundation/Widgets/SearchableMenu.moc.h>
 #include <QGraphicsSceneMouseEvent>
 #include <QMenu>
