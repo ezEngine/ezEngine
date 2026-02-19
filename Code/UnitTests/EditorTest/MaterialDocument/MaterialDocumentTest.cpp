@@ -309,7 +309,7 @@ void ezMaterialDocumentTest::CreateMaterialFromVSE()
   // Bug: Shader won't update until transformed and shader mode is switched back and forth.
   EZ_TEST_STATUS(m_pDoc->SaveDocument());
   ezAssetCurator::GetSingleton()->TransformAsset(m_MaterialGuid, ezTransformFlags::ForceTransform);
-  ezAssetCurator::GetSingleton()->WriteAssetTables(nullptr, true);
+  ezAssetCurator::GetSingleton()->WriteAssetTables(nullptr, true).AssertSuccess();
   ezResourceManager::ReloadAllResources(false);
 
   // Wait for the resource manager to finish loading the newly compiled shader before toggling ShaderMode.
