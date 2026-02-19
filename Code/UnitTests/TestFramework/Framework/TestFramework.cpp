@@ -1276,7 +1276,7 @@ void ezTestFramework::AddImageReferenceTag(const char* szTag)
     return;
 
   m_ImageReferenceTags.PushBack(szTag);
-  Output(ezTestOutput::Message, "Added ImageReference tag '%s'", szTag);
+  Output(ezTestOutput::Details, "Added ImageReference tag '%s'", szTag);
 }
 
 void ezTestFramework::ClearImageReferenceTags()
