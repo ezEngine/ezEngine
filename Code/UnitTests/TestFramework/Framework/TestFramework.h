@@ -123,6 +123,14 @@ public:
   /// \brief Removes all previously registered image reference tags.
   void ClearImageReferenceTags();
 
+  /// \brief Derives and sets the appropriate image reference tags from platform, renderer, and GPU adapter name.
+  ///
+  /// Clears any previously set tags and adds tags for the current environment, such as the platform name, if it differs from
+  /// windows ("linux", "osx", "android"), the renderer ("vulkan"), and GPU vendor ("amd", "nvidia", "intel"),
+  /// or special renderer variants ("d3dref", "llvmpipe", "swiftshader").
+  /// Pass empty strings for \a sRenderer and \a sAdapterName when not using a renderer.
+  void SetImageReferenceTagsFromEnvironment(ezStringView sPlatform, ezStringView sRenderer, ezStringView sAdapterName);
+
   /// \brief Writes an Html file that contains test information and an image diff view for failed image comparisons.
   void WriteImageDiffHtml(const char* szFileName, const ezImage& referenceImgRgb, const ezImage& referenceImgAlpha, const ezImage& capturedImgRgb, const ezImage& capturedImgAlpha, const ezImage& diffImgRgb, const ezImage& diffImgAlpha, ezUInt32 uiError, ezUInt32 uiThreshold, ezUInt8 uiMinDiffRgb,
     ezUInt8 uiMaxDiffRgb, ezUInt8 uiMinDiffAlpha, ezUInt8 uiMaxDiffAlpha);

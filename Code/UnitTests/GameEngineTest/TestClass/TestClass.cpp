@@ -29,27 +29,12 @@ ezResult ezGameEngineTest::InitializeTest()
 
   EZ_SUCCEED_OR_RETURN(ezRun_Startup(m_pApplication));
 
-  ezTestFramework::GetInstance()->ClearImageReferenceTags();
-  if (ezGameApplication::GetActiveRenderer().IsEqual_NoCase("DX11"))
+  ezStringView sAdapterName;
+  if (ezGALDevice::HasDefaultDevice())
   {
-    if (ezGALDevice::HasDefaultDevice() && (ezGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName == "Microsoft Basic Render Driver" || ezGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName.StartsWith_NoCase("Intel(R) UHD Graphics")))
-    {
-      ezTestFramework::GetInstance()->AddImageReferenceTag("d3dref");
-    }
-    else if (ezGALDevice::HasDefaultDevice() && (ezGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName.FindSubString_NoCase("AMD") || ezGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName.FindSubString_NoCase("Radeon")))
-    {
-      // Line rendering on DX11 is different on AMD and requires separate images for tests rendering lines.
-      ezTestFramework::GetInstance()->AddImageReferenceTag("amd");
-    }
+    sAdapterName = ezGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName;
   }
-  else if (ezGameApplication::GetActiveRenderer().IsEqual_NoCase("Vulkan"))
-  {
-    ezTestFramework::GetInstance()->AddImageReferenceTag("vulkan");
-    if (ezGALDevice::HasDefaultDevice() && ezGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName.FindSubString_NoCase("llvmpipe"))
-    {
-      ezTestFramework::GetInstance()->AddImageReferenceTag("llvmpipe");
-    }
-  }
+  ezTestFramework::GetInstance()->SetImageReferenceTagsFromEnvironment(EZ_PLATFORM_NAME, ezGameApplication::GetActiveRenderer(), sAdapterName);
 
   return EZ_SUCCESS;
 }

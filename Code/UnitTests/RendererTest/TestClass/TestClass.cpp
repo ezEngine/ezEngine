@@ -111,36 +111,7 @@ ezResult ezGraphicsTest::CreateRenderer(ezGALDevice*& out_pDevice)
     ezGALDevice::SetDefaultDevice(out_pDevice);
   }
 
-  ezTestFramework::GetInstance()->ClearImageReferenceTags();
-  if (sRendererName.IsEqual_NoCase("DX11"))
-  {
-    if (out_pDevice->GetCapabilities().m_sAdapterName == "Microsoft Basic Render Driver" || out_pDevice->GetCapabilities().m_sAdapterName.StartsWith_NoCase("Intel(R) UHD Graphics"))
-    {
-      ezTestFramework::GetInstance()->AddImageReferenceTag("d3dref");
-    }
-    else if (out_pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("AMD") || out_pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("Radeon"))
-    {
-      // Line rendering is different on AMD and requires separate images for tests rendering lines.
-      ezTestFramework::GetInstance()->AddImageReferenceTag("amd");
-    }
-    else if (out_pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("Nvidia") || out_pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("GeForce"))
-    {
-      // Line rendering is different on Nvidia and requires separate images for tests rendering lines.
-      ezTestFramework::GetInstance()->AddImageReferenceTag("nvidia");
-    }
-  }
-  else if (sRendererName.IsEqual_NoCase("Vulkan"))
-  {
-    ezTestFramework::GetInstance()->AddImageReferenceTag("vulkan");
-    if (out_pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("llvmpipe"))
-    {
-      ezTestFramework::GetInstance()->AddImageReferenceTag("llvmpipe");
-    }
-    else if (out_pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("SwiftShader"))
-    {
-      ezTestFramework::GetInstance()->AddImageReferenceTag("swiftshader");
-    }
-  }
+  ezTestFramework::GetInstance()->SetImageReferenceTagsFromEnvironment(EZ_PLATFORM_NAME, sRendererName, out_pDevice->GetCapabilities().m_sAdapterName);
   return EZ_SUCCESS;
 }
 

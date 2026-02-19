@@ -134,13 +134,12 @@ ezResult ezEditorTest::InitializeTest()
 
   EZ_SUCCEED_OR_RETURN(ezRun_Startup(m_pApplication));
 
-  static bool s_bCheckedReferenceDriver = false;
-  static bool s_bIsReferenceDriver = false;
-  static bool s_bIsAMDDriver = false;
+  static bool s_bCheckedAdapter = false;
+  static ezString s_sAdapterName;
 
-  if (!s_bCheckedReferenceDriver)
+  if (!s_bCheckedAdapter)
   {
-    s_bCheckedReferenceDriver = true;
+    s_bCheckedAdapter = true;
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     ezUniquePtr<ezGALDevice> pDevice;
@@ -149,31 +148,13 @@ ezResult ezEditorTest::InitializeTest()
     pDevice = ezGALDeviceFactory::CreateDevice(ezGameApplication::GetActiveRenderer(), ezFoundation::GetDefaultAllocator(), DeviceInit);
 
     EZ_SUCCEED_OR_RETURN(pDevice->Init());
-
-    if (pDevice->GetCapabilities().m_sAdapterName == "Microsoft Basic Render Driver" || pDevice->GetCapabilities().m_sAdapterName.StartsWith_NoCase("Intel(R) UHD Graphics"))
-    {
-      s_bIsReferenceDriver = true;
-    }
-    else if (pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("AMD") || pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("Radeon"))
-    {
-      s_bIsAMDDriver = true;
-    }
-
+    s_sAdapterName = pDevice->GetCapabilities().m_sAdapterName;
     EZ_SUCCEED_OR_RETURN(pDevice->Shutdown());
     pDevice.Clear();
 #endif
   }
 
-  ezTestFramework::GetInstance()->ClearImageReferenceTags();
-  if (ezGameApplication::GetActiveRenderer().IsEqual_NoCase("DX11") && s_bIsReferenceDriver)
-  {
-    ezTestFramework::GetInstance()->AddImageReferenceTag("d3dref");
-  }
-  else if (ezGameApplication::GetActiveRenderer().IsEqual_NoCase("DX11") && s_bIsAMDDriver)
-  {
-    // Line rendering on DX11 is different on AMD and requires separate images for tests rendering lines.
-    ezTestFramework::GetInstance()->AddImageReferenceTag("amd");
-  }
+  ezTestFramework::GetInstance()->SetImageReferenceTagsFromEnvironment(EZ_PLATFORM_NAME, ezGameApplication::GetActiveRenderer(), s_sAdapterName);
 
   return EZ_SUCCESS;
 }

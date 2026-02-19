@@ -1284,6 +1284,79 @@ void ezTestFramework::ClearImageReferenceTags()
   m_ImageReferenceTags.Clear();
 }
 
+void ezTestFramework::SetImageReferenceTagsFromEnvironment(ezStringView sPlatform, ezStringView sRenderer, ezStringView sAdapterName)
+{
+  ClearImageReferenceTags();
+
+  // Platform tag
+  {
+    ezStringBuilder sPlatformTag = sPlatform;
+    sPlatformTag.ToLower();
+    if (!sPlatformTag.IsEmpty() && sPlatformTag != "windows") // windows is the default, no tag needed
+    {
+      AddImageReferenceTag(sPlatformTag);
+    }
+  }
+
+  if (sRenderer.IsEmpty())
+    return;
+
+  const bool bIsDX11 = sRenderer.IsEqual_NoCase("DX11");
+  const bool bIsVulkan = sRenderer.IsEqual_NoCase("Vulkan");
+
+  const bool bIsRefDriver = (sAdapterName == "Microsoft Basic Render Driver" || sAdapterName.StartsWith_NoCase("Intel(R) UHD Graphics"));
+  const bool bIsAMD = (sAdapterName.FindSubString_NoCase("AMD") != nullptr || sAdapterName.FindSubString_NoCase("Radeon") != nullptr);
+  const bool bIsNvidia = (sAdapterName.FindSubString_NoCase("Nvidia") != nullptr || sAdapterName.FindSubString_NoCase("GeForce") != nullptr);
+  const bool bIsIntel = (sAdapterName.FindSubString_NoCase("Intel") != nullptr);
+  const bool bIsLLVMPipe = (sAdapterName.FindSubString_NoCase("llvmpipe") != nullptr);
+  const bool bIsSwiftShader = (sAdapterName.FindSubString_NoCase("SwiftShader") != nullptr);
+
+  if (bIsDX11)
+  {
+    if (bIsRefDriver)
+    {
+      AddImageReferenceTag("d3dref");
+    }
+    else if (bIsAMD)
+    {
+      AddImageReferenceTag("amd");
+    }
+    else if (bIsNvidia)
+    {
+      AddImageReferenceTag("nvidia");
+    }
+    else if (bIsIntel)
+    {
+      AddImageReferenceTag("intel");
+    }
+  }
+  else if (bIsVulkan)
+  {
+    AddImageReferenceTag("vulkan");
+
+    if (bIsLLVMPipe)
+    {
+      AddImageReferenceTag("llvmpipe");
+    }
+    else if (bIsSwiftShader)
+    {
+      AddImageReferenceTag("swiftshader");
+    }
+    else if (bIsAMD)
+    {
+      AddImageReferenceTag("amd");
+    }
+    else if (bIsNvidia)
+    {
+      AddImageReferenceTag("nvidia");
+    }
+    else if (bIsIntel)
+    {
+      AddImageReferenceTag("intel");
+    }
+  }
+}
+
 void ezTestFramework::WriteImageDiffHtml(const char* szFileName, const ezImage& referenceImgRgb, const ezImage& referenceImgAlpha, const ezImage& capturedImgRgb, const ezImage& capturedImgAlpha, const ezImage& diffImgRgb, const ezImage& diffImgAlpha, ezUInt32 uiError, ezUInt32 uiThreshold, ezUInt8 uiMinDiffRgb, ezUInt8 uiMaxDiffRgb,
   ezUInt8 uiMinDiffAlpha, ezUInt8 uiMaxDiffAlpha)
 {

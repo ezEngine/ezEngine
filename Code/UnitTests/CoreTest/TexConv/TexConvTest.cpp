@@ -50,6 +50,8 @@ private:
 
     ezFileSystem::AddDataDirectory(">eztest/", "TexConvDataDir", "imgout", ezDataDirUsage::AllowWrites).IgnoreResult();
 
+    ezTestFramework::GetInstance()->SetImageReferenceTagsFromEnvironment(EZ_PLATFORM_NAME, {}, {});
+
     return EZ_SUCCESS;
   }
 
