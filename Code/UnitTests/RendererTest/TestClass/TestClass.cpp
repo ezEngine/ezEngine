@@ -111,41 +111,34 @@ ezResult ezGraphicsTest::CreateRenderer(ezGALDevice*& out_pDevice)
     ezGALDevice::SetDefaultDevice(out_pDevice);
   }
 
+  ezTestFramework::GetInstance()->ClearImageReferenceTags();
   if (sRendererName.IsEqual_NoCase("DX11"))
   {
     if (out_pDevice->GetCapabilities().m_sAdapterName == "Microsoft Basic Render Driver" || out_pDevice->GetCapabilities().m_sAdapterName.StartsWith_NoCase("Intel(R) UHD Graphics"))
     {
-      // Use different images for comparison when running the D3D11 Reference Device
-      ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_D3D11Ref");
+      ezTestFramework::GetInstance()->AddImageReferenceTag("d3dref");
     }
     else if (out_pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("AMD") || out_pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("Radeon"))
     {
       // Line rendering is different on AMD and requires separate images for tests rendering lines.
-      ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_D3D11AMD");
+      ezTestFramework::GetInstance()->AddImageReferenceTag("amd");
     }
     else if (out_pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("Nvidia") || out_pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("GeForce"))
     {
       // Line rendering is different on Nvidia and requires separate images for tests rendering lines.
-      ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_D3D11Nvidia");
-    }
-    else
-    {
-      ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("");
+      ezTestFramework::GetInstance()->AddImageReferenceTag("nvidia");
     }
   }
   else if (sRendererName.IsEqual_NoCase("Vulkan"))
   {
+    ezTestFramework::GetInstance()->AddImageReferenceTag("vulkan");
     if (out_pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("llvmpipe"))
     {
-      ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_LLVMPIPE");
+      ezTestFramework::GetInstance()->AddImageReferenceTag("llvmpipe");
     }
     else if (out_pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("SwiftShader"))
     {
-      ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_SwiftShader");
-    }
-    else
-    {
-      ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_Vulkan");
+      ezTestFramework::GetInstance()->AddImageReferenceTag("swiftshader");
     }
   }
   return EZ_SUCCESS;

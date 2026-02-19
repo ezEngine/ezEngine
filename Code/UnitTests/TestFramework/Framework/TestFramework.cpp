@@ -474,39 +474,31 @@ void ezTestFramework::UpdateReferenceImages()
     }
   }
 
-  // if some target files already exist somewhere (ie. custom folders for the tests)
-  // overwrite the existing files in their location/*  */
+  // If a suffixed variant of a result file already exists in the reference folder, update it in-place.
+  // This handles the case where someone previously captured a suffixed reference image (e.g. "foo-amd.png")
+  // and now wants to update it: the new result "foo.png" gets moved to "foo-amd.png" if that file exists.
   {
-    ezHybridArray<ezString, 32> targetFolders;
-    ezStringBuilder sFullPath, sTargetPath;
-
-    {
-      ezFileSystemIterator it;
-      it.StartSearch(sDir, ezFileSystemIteratorFlags::ReportFoldersRecursive);
-      for (; it.IsValid(); it.Next())
-      {
-        if (it.GetStats().m_sName == m_sImageReferenceFolderName.c_str())
-        {
-          it.GetStats().GetFullPath(sFullPath);
-
-          targetFolders.PushBack(sFullPath);
-        }
-      }
-    }
+    ezStringBuilder sFullPath, sResultFileName, sTargetPath;
 
     ezFileSystemIterator it;
     it.StartSearch(sNewFiles, ezFileSystemIteratorFlags::ReportFiles);
     for (; it.IsValid(); it.Next())
     {
       it.GetStats().GetFullPath(sFullPath);
+      sResultFileName = it.GetStats().m_sName;
+      sResultFileName.RemoveFileExtension(); // e.g. "Basics_Line_Rendering_000"
 
-      for (ezUInt32 i = 0; i < targetFolders.GetCount(); ++i)
+      // Search the reference folder for any file whose name starts with this base name followed by '-'
+      ezFileSystemIterator refIt;
+      refIt.StartSearch(sRefFiles, ezFileSystemIteratorFlags::ReportFiles);
+      for (; refIt.IsValid(); refIt.Next())
       {
-        sTargetPath = targetFolders[i];
-        sTargetPath.AppendPath(it.GetStats().m_sName);
+        ezStringBuilder sRefFileName = refIt.GetStats().m_sName;
+        sRefFileName.RemoveFileExtension();
 
-        if (ezOSFile::ExistsFile(sTargetPath))
+        if (sRefFileName.StartsWith(sResultFileName) && sRefFileName.GetCharacterCount() > sResultFileName.GetCharacterCount() && sRefFileName.GetData()[sResultFileName.GetElementCount()] == '-')
         {
+          refIt.GetStats().GetFullPath(sTargetPath);
           ezOSFile::DeleteFile(sTargetPath).IgnoreResult();
           ezOSFile::MoveFileOrDirectory(sFullPath, sTargetPath).IgnoreResult();
           break;
@@ -1278,14 +1270,18 @@ void ezTestFramework::SetImageReferenceFolderName(const char* szFolderName)
   m_sImageReferenceFolderName = szFolderName;
 }
 
-void ezTestFramework::SetImageReferenceOverrideFolderName(const char* szFolderName)
+void ezTestFramework::AddImageReferenceTag(const char* szTag)
 {
-  m_sImageReferenceOverrideFolderName = szFolderName;
+  if (ezStringUtils::IsNullOrEmpty(szTag))
+    return;
 
-  if (!m_sImageReferenceOverrideFolderName.empty())
-  {
-    Output(ezTestOutput::Message, "Using ImageReference override folder '%s'", szFolderName);
-  }
+  m_ImageReferenceTags.PushBack(szTag);
+  Output(ezTestOutput::Message, "Added ImageReference tag '%s'", szTag);
+}
+
+void ezTestFramework::ClearImageReferenceTags()
+{
+  m_ImageReferenceTags.Clear();
 }
 
 void ezTestFramework::WriteImageDiffHtml(const char* szFileName, const ezImage& referenceImgRgb, const ezImage& referenceImgAlpha, const ezImage& capturedImgRgb, const ezImage& capturedImgAlpha, const ezImage& diffImgRgb, const ezImage& diffImgAlpha, ezUInt32 uiError, ezUInt32 uiThreshold, ezUInt8 uiMinDiffRgb, ezUInt8 uiMaxDiffRgb,
@@ -1337,28 +1333,7 @@ bool ezTestFramework::PerformImageComparison(ezStringBuilder sImgName, const ezI
     return false;
   }
 
-  ezStringBuilder sImgPathReference, sImgPathResult;
-
-  if (!m_sImageReferenceOverrideFolderName.empty())
-  {
-    sImgPathReference = m_sImageReferenceOverrideFolderName.c_str();
-    sImgPathReference.AppendPath(sImgName);
-    sImgPathReference.ChangeFileExtension(".png");
-
-    if (!ezFileSystem::ExistsFile(sImgPathReference))
-    {
-      // try the regular path
-      sImgPathReference.Clear();
-    }
-  }
-
-  if (sImgPathReference.IsEmpty())
-  {
-    sImgPathReference = m_sImageReferenceFolderName.c_str();
-    sImgPathReference.AppendPath(sImgName);
-    sImgPathReference.ChangeFileExtension(".png");
-  }
-
+  ezStringBuilder sImgPathResult;
   sImgPathResult = ":imgout/Images_Result";
   sImgPathResult.AppendPath(sImgName);
   sImgPathResult.ChangeFileExtension(".png");
@@ -1371,82 +1346,180 @@ bool ezTestFramework::PerformImageComparison(ezStringBuilder sImgName, const ezI
   // if a previous output image exists, get rid of it
   ezFileSystem::DeleteFile(sImgPathResult);
 
-  ezImage imgExp, imgExpRgba;
-  if (imgExp.LoadFrom(sImgPathReference).Failed())
+  // Helper: performs the actual pixel comparison against a reference image at the given path.
+  // Returns true if the comparison passes. On failure, populates the out parameters.
+  auto TryCompareWithImage = [&](const ezStringBuilder& sRefPath, ezUInt32& out_uiError, ezImage& out_imgExpRgba, ezImage& out_imgDiffRgba) -> bool
   {
-    SaveResultImage();
+    ezImage imgExp;
+    if (imgExp.LoadFrom(sRefPath).Failed())
+      return false;
 
-    safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "Comparison Image '%s' could not be read", sImgPathReference.GetData());
+    if (ezImageConversion::Convert(imgExp, out_imgExpRgba, ezImageFormat::R8G8B8A8_UNORM).Failed())
+    {
+      safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "Comparison Image '%s' could not be converted to RGBA8", sRefPath.GetData());
+      return false;
+    }
+
+    if (imgRgba.GetWidth() != out_imgExpRgba.GetWidth() || imgRgba.GetHeight() != out_imgExpRgba.GetHeight())
+    {
+      safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "Comparison Image '%s' size (%ix%i) does not match captured image size (%ix%i)", sRefPath.GetData(), out_imgExpRgba.GetWidth(), out_imgExpRgba.GetHeight(), imgRgba.GetWidth(), imgRgba.GetHeight());
+      out_uiError = 0xFFFFFFFFu;
+      return false;
+    }
+
+    if (bIsLineImage)
+      ezImageUtils::ComputeImageDifferenceABSRelaxed(out_imgExpRgba, imgRgba, out_imgDiffRgba);
+    else
+      ezImageUtils::ComputeImageDifferenceABS(out_imgExpRgba, imgRgba, out_imgDiffRgba);
+
+    out_uiError = ezImageUtils::ComputeMeanSquareError(out_imgDiffRgba, 32);
+    return (out_uiError <= uiMaxError);
+  };
+
+  // Build the list of candidate reference paths to try:
+  // 1. Base image (no suffix)
+  // 2. Single-tag suffixes in registration order
+  // 3. Multi-tag combinations (pairs, triples, ...) in registration order
+  ezHybridArray<ezStringBuilder, 8> candidatePaths;
+
+  {
+    // Base path
+    ezStringBuilder sBase = m_sImageReferenceFolderName.c_str();
+    sBase.AppendPath(sImgName);
+    sBase.ChangeFileExtension(".png");
+    candidatePaths.PushBack(sBase);
+  }
+
+  const ezUInt32 uiTagCount = m_ImageReferenceTags.GetCount();
+  if (uiTagCount > 0)
+  {
+    // Generate all non-empty subsets of tags, ordered by subset size (1-tag first, then 2-tag, etc.)
+    // For each subset size k, iterate over all combinations of k tags in registration order.
+    for (ezUInt32 uiSubsetSize = 1; uiSubsetSize <= uiTagCount; ++uiSubsetSize)
+    {
+      // Use a bitmask to enumerate all subsets of the given size
+      // For up to ~20 tags this is efficient enough
+      const ezUInt32 uiFullMask = (1u << uiTagCount) - 1u;
+      for (ezUInt32 uiMask = 0; uiMask <= uiFullMask; ++uiMask)
+      {
+        if (ezMath::CountBits(uiMask) != uiSubsetSize)
+          continue;
+
+        ezStringBuilder sSuffixedName = sImgName;
+        for (ezUInt32 t = 0; t < uiTagCount; ++t)
+        {
+          if ((uiMask & (1u << t)) != 0)
+          {
+            sSuffixedName.Append("-");
+            sSuffixedName.Append(m_ImageReferenceTags[t].GetData());
+          }
+        }
+
+        ezStringBuilder sPath = m_sImageReferenceFolderName.c_str();
+        sPath.AppendPath(sSuffixedName);
+        sPath.ChangeFileExtension(".png");
+        candidatePaths.PushBack(sPath);
+      }
+    }
+  }
+
+  // Track the best (lowest error) failed comparison attempt
+  struct FailureInfo
+  {
+    ezStringBuilder sPath;
+    ezUInt32 uiError = 0xFFFFFFFFu;
+    ezImage imgExpRgba;
+    ezImage imgDiffRgba;
+    bool bWasTried = false; // true if the file existed and comparison ran
+  };
+  FailureInfo bestFailure;
+
+  for (const auto& sRefPath : candidatePaths)
+  {
+    if (!ezFileSystem::ExistsFile(sRefPath))
+      continue;
+
+    ezUInt32 uiError = 0xFFFFFFFFu;
+    ezImage imgExpRgba, imgDiffRgba;
+    const bool bPassed = TryCompareWithImage(sRefPath, uiError, imgExpRgba, imgDiffRgba);
+
+    if (bPassed)
+      return true;
+
+    // Track the best (lowest error) failure for reporting
+    if (!bestFailure.bWasTried || uiError < bestFailure.uiError)
+    {
+      bestFailure.sPath = sRefPath;
+      bestFailure.uiError = uiError;
+      bestFailure.imgExpRgba = std::move(imgExpRgba);
+      bestFailure.imgDiffRgba = std::move(imgDiffRgba);
+      bestFailure.bWasTried = true;
+    }
+  }
+
+  // All candidates either didn't exist or failed comparison
+  SaveResultImage();
+
+  if (!bestFailure.bWasTried)
+  {
+    // No reference image found at all — report the base path
+    safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "Comparison Image '%s' could not be read", candidatePaths[0].GetData());
     return false;
   }
 
-  if (ezImageConversion::Convert(imgExp, imgExpRgba, ezImageFormat::R8G8B8A8_UNORM).Failed())
+  // Report the best (lowest-error) failure, and write diff outputs for it
   {
-    SaveResultImage();
+    ezImage& imgExpRgba = bestFailure.imgExpRgba;
+    ezImage& imgDiffRgba = bestFailure.imgDiffRgba;
+    const ezStringBuilder& sBestPath = bestFailure.sPath;
+    const ezUInt32 uiBestError = bestFailure.uiError;
 
-    safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "Comparison Image '%s' could not be converted to RGBA8", sImgPathReference.GetData());
-    return false;
+    if (uiBestError != 0xFFFFFFFFu) // size mismatch sets error to max; skip diff for those
+    {
+      ezUInt8 uiMinDiffRgb, uiMaxDiffRgb, uiMinDiffAlpha, uiMaxDiffAlpha;
+      ezImageUtils::Normalize(imgDiffRgba, uiMinDiffRgb, uiMaxDiffRgb, uiMinDiffAlpha, uiMaxDiffAlpha);
+
+      ezImage imgDiffRgb;
+      ezImageConversion::Convert(imgDiffRgba, imgDiffRgb, ezImageFormat::R8G8B8_UNORM).IgnoreResult();
+
+      ezStringBuilder sImgDiffName;
+      sImgDiffName.SetFormat(":imgout/Images_Diff/{0}.png", sImgName);
+      imgDiffRgb.SaveTo(sImgDiffName).IgnoreResult();
+
+      ezImage imgDiffAlpha;
+      ezImageUtils::ExtractAlphaChannel(imgDiffRgba, imgDiffAlpha);
+
+      ezStringBuilder sImgDiffAlphaName;
+      sImgDiffAlphaName.SetFormat(":imgout/Images_Diff/{0}_alpha.png", sImgName);
+      imgDiffAlpha.SaveTo(sImgDiffAlphaName).IgnoreResult();
+
+      ezImage imgExpRgb;
+      ezImageConversion::Convert(imgExpRgba, imgExpRgb, ezImageFormat::R8G8B8_UNORM).IgnoreResult();
+      ezImage imgExpAlpha;
+      ezImageUtils::ExtractAlphaChannel(imgExpRgba, imgExpAlpha);
+
+      ezImage imgRgb;
+      ezImageConversion::Convert(imgRgba, imgRgb, ezImageFormat::R8G8B8_UNORM).IgnoreResult();
+      ezImage imgAlpha;
+      ezImageUtils::ExtractAlphaChannel(imgRgba, imgAlpha);
+
+      ezStringBuilder sDiffHtmlPath;
+      sDiffHtmlPath.SetFormat(":imgout/Html_Diff/{0}.html", sImgName);
+      WriteImageDiffHtml(sDiffHtmlPath, imgExpRgb, imgExpAlpha, imgRgb, imgAlpha, imgDiffRgb, imgDiffAlpha, uiBestError, uiMaxError, uiMinDiffRgb, uiMaxDiffRgb, uiMinDiffAlpha, uiMaxDiffAlpha);
+
+      safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "Error: Image Comparison Failed: MSE of %u exceeds threshold of %u for image '%s'.", uiBestError, uiMaxError, sBestPath.GetData());
+
+      ezStringBuilder sDataDirRelativePath;
+      ezFileSystem::ResolvePath(sDiffHtmlPath, nullptr, &sDataDirRelativePath).IgnoreResult();
+      ezTestFramework::Output(ezTestOutput::ImageDiffFile, sDataDirRelativePath);
+    }
+    else
+    {
+      safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "%s", szErrorMsg); // size mismatch message already set by TryCompareWithImage
+    }
   }
 
-  if (imgRgba.GetWidth() != imgExpRgba.GetWidth() || imgRgba.GetHeight() != imgExpRgba.GetHeight())
-  {
-    SaveResultImage();
-
-    safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "Comparison Image '%s' size (%ix%i) does not match captured image size (%ix%i)", sImgPathReference.GetData(), imgExpRgba.GetWidth(), imgExpRgba.GetHeight(), imgRgba.GetWidth(), imgRgba.GetHeight());
-    return false;
-  }
-
-  ezImage imgDiffRgba;
-  if (bIsLineImage)
-    ezImageUtils::ComputeImageDifferenceABSRelaxed(imgExpRgba, imgRgba, imgDiffRgba);
-  else
-    ezImageUtils::ComputeImageDifferenceABS(imgExpRgba, imgRgba, imgDiffRgba);
-
-  const ezUInt32 uiMeanError = ezImageUtils::ComputeMeanSquareError(imgDiffRgba, 32);
-
-  if (uiMeanError > uiMaxError)
-  {
-    SaveResultImage();
-
-    ezUInt8 uiMinDiffRgb, uiMaxDiffRgb, uiMinDiffAlpha, uiMaxDiffAlpha;
-    ezImageUtils::Normalize(imgDiffRgba, uiMinDiffRgb, uiMaxDiffRgb, uiMinDiffAlpha, uiMaxDiffAlpha);
-
-    ezImage imgDiffRgb;
-    ezImageConversion::Convert(imgDiffRgba, imgDiffRgb, ezImageFormat::R8G8B8_UNORM).IgnoreResult();
-
-    ezStringBuilder sImgDiffName;
-    sImgDiffName.SetFormat(":imgout/Images_Diff/{0}.png", sImgName);
-    imgDiffRgb.SaveTo(sImgDiffName).IgnoreResult();
-
-    ezImage imgDiffAlpha;
-    ezImageUtils::ExtractAlphaChannel(imgDiffRgba, imgDiffAlpha);
-
-    ezStringBuilder sImgDiffAlphaName;
-    sImgDiffAlphaName.SetFormat(":imgout/Images_Diff/{0}_alpha.png", sImgName);
-    imgDiffAlpha.SaveTo(sImgDiffAlphaName).IgnoreResult();
-
-    ezImage imgExpRgb;
-    ezImageConversion::Convert(imgExpRgba, imgExpRgb, ezImageFormat::R8G8B8_UNORM).IgnoreResult();
-    ezImage imgExpAlpha;
-    ezImageUtils::ExtractAlphaChannel(imgExpRgba, imgExpAlpha);
-
-    ezImage imgRgb;
-    ezImageConversion::Convert(imgRgba, imgRgb, ezImageFormat::R8G8B8_UNORM).IgnoreResult();
-    ezImage imgAlpha;
-    ezImageUtils::ExtractAlphaChannel(imgRgba, imgAlpha);
-
-    ezStringBuilder sDiffHtmlPath;
-    sDiffHtmlPath.SetFormat(":imgout/Html_Diff/{0}.html", sImgName);
-    WriteImageDiffHtml(sDiffHtmlPath, imgExpRgb, imgExpAlpha, imgRgb, imgAlpha, imgDiffRgb, imgDiffAlpha, uiMeanError, uiMaxError, uiMinDiffRgb, uiMaxDiffRgb, uiMinDiffAlpha, uiMaxDiffAlpha);
-
-    safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "Error: Image Comparison Failed: MSE of %u exceeds threshold of %u for image '%s'.", uiMeanError, uiMaxError, sImgName.GetData());
-
-    ezStringBuilder sDataDirRelativePath;
-    ezFileSystem::ResolvePath(sDiffHtmlPath, nullptr, &sDataDirRelativePath).IgnoreResult();
-    ezTestFramework::Output(ezTestOutput::ImageDiffFile, sDataDirRelativePath);
-    return false;
-  }
-  return true;
+  return false;
 }
 
 bool ezTestFramework::CompareImages(ezUInt32 uiImageNumber, ezUInt32 uiMaxError, char* szErrorMsg, bool bIsDepthImage, bool bIsLineImage)

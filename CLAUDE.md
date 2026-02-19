@@ -41,6 +41,8 @@ To find more arguments for the test framework, run `FoundationTest.exe -help -cl
 
 ### Important Notes
 
+- **cmake location**: The repository ships a precompiled cmake at `Data/Tools/Precompiled/cmake/bin/cmake`. Use the full path when invoking cmake directly: `Data/Tools/Precompiled/cmake/bin/cmake --build ...`
+
 - **Isolated Builds**: Using `-WorkspaceDir "claude-build"` creates a completely separate build environment, avoiding any conflicts with other builds
 
 - **Workspace Cleanup**: To clean up, simply delete the `Workspace/claude-build/` directory and regenerate

@@ -164,19 +164,15 @@ ezResult ezEditorTest::InitializeTest()
 #endif
   }
 
+  ezTestFramework::GetInstance()->ClearImageReferenceTags();
   if (ezGameApplication::GetActiveRenderer().IsEqual_NoCase("DX11") && s_bIsReferenceDriver)
   {
-    // Use different images for comparison when running the D3D11 Reference Device
-    ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_D3D11Ref");
+    ezTestFramework::GetInstance()->AddImageReferenceTag("d3dref");
   }
   else if (ezGameApplication::GetActiveRenderer().IsEqual_NoCase("DX11") && s_bIsAMDDriver)
   {
     // Line rendering on DX11 is different on AMD and requires separate images for tests rendering lines.
-    ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_AMD");
-  }
-  else
-  {
-    ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("");
+    ezTestFramework::GetInstance()->AddImageReferenceTag("amd");
   }
 
   return EZ_SUCCESS;
