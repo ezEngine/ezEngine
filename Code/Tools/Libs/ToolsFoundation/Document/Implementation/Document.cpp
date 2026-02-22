@@ -381,6 +381,11 @@ void ezDocument::SetUnknownObjectTypes(const ezSet<ezString>& Types, ezUInt32 ui
   m_uiUnknownObjectTypeInstances = uiInstances;
 }
 
+void ezDocument::AddLoadingError(ezStringView sError)
+{
+  m_LoadingErrors.PushBack(sError);
+}
+
 
 void ezDocument::BroadcastInterDocumentMessage(ezReflectedClass* pMessage, ezDocument* pSender)
 {

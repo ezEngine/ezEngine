@@ -50,8 +50,8 @@ public:
 /// \brief Strategies for searching for manipulators in the document.
 enum class ezManipulatorSearchStrategy
 {
-  None,                  ///< No manipulator search.
-  SelectedObject,        ///< Search for manipulators on the selected object.
+  None,                    ///< No manipulator search.
+  SelectedObject,          ///< Search for manipulators on the selected object.
   ChildrenOfSelectedObject ///< Search for manipulators on the children of the selected object.
 };
 
@@ -97,7 +97,7 @@ public:
   ezDocument* GetActiveSubDocument() { return m_pActiveSubDocument; }
 
 protected:
-  ezDocument* m_pHostDocument = nullptr; ///< Pointer to the main document if this is a sub-document, otherwise self.
+  ezDocument* m_pHostDocument = nullptr;      ///< Pointer to the main document if this is a sub-document, otherwise self.
   ezDocument* m_pActiveSubDocument = nullptr; ///< Pointer to the currently active sub-document.
 
   ///@}
@@ -215,6 +215,12 @@ public:
   /// \brief Returns the number of unknown object type instances encountered during loading.
   ezUInt32 GetUnknownObjectTypeInstances() const { return m_uiUnknownObjectTypeInstances; }
 
+  /// \brief Returns errors accumulated during loading (e.g. unresolvable connections).
+  ///
+  /// Non-empty after loading means the document is in a broken state. Transforms should fail,
+  /// and the user should be informed when opening the document.
+  const ezDynamicArray<ezString>& GetLoadingErrors() const { return m_LoadingErrors; }
+
   /// \brief If disabled, this document will not be put into the recent files list.
   void SetAddToResetFilesList(bool b) { m_bAddToRecentFilesList = b; }
 
@@ -272,6 +278,11 @@ public:
 
   /// \brief Event for object accessor change notifications.
   mutable ezEvent<const ezObjectAccessorChangeEvent&> m_ObjectAccessorChangeEvents;
+
+  /// \brief Adds an error message to the list of loading errors.
+  ///
+  /// This can be used during loading to accumulate errors, e.g. unresolvable connections, missing prefabs, etc.
+  void AddLoadingError(ezStringView sError);
 
 protected:
   void SetModified(bool b);
@@ -336,6 +347,8 @@ private:
   ezSet<ezString> m_UnknownObjectTypes;
   /// \brief Number of unknown object type instances encountered during loading.
   ezUInt32 m_uiUnknownObjectTypeInstances = 0;
+  /// \brief Errors accumulated during loading, e.g. unresolvable connections.
+  ezDynamicArray<ezString> m_LoadingErrors;
 
   ezTaskGroupID m_ActiveSaveTask;
   ezStatus m_LastSaveResult = EZ_SUCCESS;

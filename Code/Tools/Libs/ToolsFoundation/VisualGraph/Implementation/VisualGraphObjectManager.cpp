@@ -491,6 +491,10 @@ void ezVisualGraphObjectManager::RestoreMetaDataAfterLoading(const ezAbstractObj
       }
       else
       {
+        ezStringBuilder sError;
+        sError.SetFormat("Connection from pin '{}' to pin '{}' could not be restored because a pin no longer exists. The connection has been removed.",
+          sourcePinVar.Get<ezString>(), targetPinVar.Get<ezString>());
+        GetDocument()->AddLoadingError(sError);
         RemoveObject(pObject);
         DestroyObject(pObject);
       }

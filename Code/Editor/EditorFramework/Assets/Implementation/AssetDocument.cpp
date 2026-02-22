@@ -449,6 +449,16 @@ ezTransformStatus ezAssetDocument::DoTransformAsset(const ezPlatformProfile* pAs
   if (flags.IsAnySet(ezAssetDocumentFlags::DisableTransform))
     return ezStatus("Asset transform has been disabled on this asset");
 
+  if (GetUnknownObjectTypeInstances() > 0)
+  {
+    return ezStatus("Asset contains unknown object types. Please open the document and fix the errors.");
+  }
+
+  if (!GetLoadingErrors().IsEmpty())
+  {
+    return ezStatus("Asset had loading errors. Please open the document and fix the errors.");
+  }
+
   const ezPlatformProfile* pAssetProfile = ezAssetDocumentManager::DetermineFinalTargetProfile(pAssetProfile0);
 
   ezUInt64 uiHash = 0;

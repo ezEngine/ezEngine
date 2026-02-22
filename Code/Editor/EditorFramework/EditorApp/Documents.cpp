@@ -61,6 +61,17 @@ The following types are missing:\n",
       }
       ezQtUiServices::MessageBoxWarning(s);
     }
+
+    if (!pDocument->GetLoadingErrors().IsEmpty())
+    {
+      ezStringBuilder s;
+      s.SetFormat("The document '{}' had errors during loading:\n\n", sDocument);
+      for (const ezString& err : pDocument->GetLoadingErrors())
+      {
+        s.Append(err, "\n");
+      }
+      ezQtUiServices::MessageBoxWarning(s);
+    }
   }
 
   if (flags.IsSet(ezDocumentFlags::RequestWindow))
