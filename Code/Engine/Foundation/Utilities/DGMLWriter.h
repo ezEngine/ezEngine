@@ -68,7 +68,7 @@ public:
   CategoryId AddConnectionCategory(ezStringView sName, const ezColor& color);
 
   /// \brief Adds a directed connection to the graph (an arrow pointing from source to target node).
-  ConnectionId AddConnection(NodeId source, NodeId target, ezStringView sLabel = {}, CategoryId uiCategory = ezInvalidIndex);
+  ConnectionId AddConnection(NodeId source, NodeId target, ezStringView sLabel = {}, CategoryId category = ezInvalidIndex);
 
   /// \brief Adds a property type. All properties currently use the data type 'string'
   PropertyId AddPropertyType(ezStringView sName);

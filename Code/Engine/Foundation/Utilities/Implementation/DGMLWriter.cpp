@@ -45,14 +45,14 @@ ezDGMLGraph::CategoryId ezDGMLGraph::AddConnectionCategory(ezStringView sName, c
   return m_ConnectionCategories.GetCount() - 1;
 }
 
-ezDGMLGraph::ConnectionId ezDGMLGraph::AddConnection(ezDGMLGraph::NodeId source, ezDGMLGraph::NodeId target, ezStringView sLabel, CategoryId uiCategory)
+ezDGMLGraph::ConnectionId ezDGMLGraph::AddConnection(ezDGMLGraph::NodeId source, ezDGMLGraph::NodeId target, ezStringView sLabel, CategoryId category)
 {
   ezDGMLGraph::Connection& connection = m_Connections.ExpandAndGetRef();
 
   connection.m_Source = source;
   connection.m_Target = target;
   connection.m_sLabel = sLabel;
-  connection.m_uiCategory = uiCategory;
+  connection.m_uiCategory = category;
 
   return m_Connections.GetCount() - 1;
 }
