@@ -175,15 +175,85 @@ void ezQtVisualGraphNode::UpdateState()
 {
   auto& typeAccessor = m_pObject->GetTypeAccessor();
 
-  ezVariant name = typeAccessor.GetValue("Name");
-  if (name.IsA<ezString>() && name.Get<ezString>().IsEmpty() == false)
+  ezStringBuilder sTitle = ezTranslate(typeAccessor.GetType()->GetTypeName());
+
+  auto pType = GetObject()->GetType();
+
+  if (auto pTitleAttribute = pType->GetAttributeByType<ezTitleAttribute>())
   {
-    m_pTitleLabel->setPlainText(name.Get<ezString>().GetData());
+    sTitle = pTitleAttribute->GetTitle();
+
+    ezHybridArray<const ezAbstractProperty*, 32> properties;
+    GetObject()->GetType()->GetAllProperties(properties);
+
+    ezVariant val;
+    ezStringBuilder sVal, temp;
+    for (const auto& prop : properties)
+    {
+      val = GetObject()->GetTypeAccessor().GetValue(prop->GetPropertyName());
+
+      if (prop->GetSpecificType()->IsDerivedFrom<ezEnumBase>() || prop->GetSpecificType()->IsDerivedFrom<ezBitflagsBase>())
+      {
+        ezReflectionUtils::EnumerationToString(prop->GetSpecificType(), val.ConvertTo<ezInt64>(), sVal);
+        sVal = ezTranslate(sVal);
+      }
+      else if (val.IsA<ezString>() || val.IsA<ezHashedString>())
+      {
+        sVal = val.ConvertTo<ezString>();
+
+        sVal.ReplaceAll("\n", " ");
+        sVal.ReplaceAll("\t", " ");
+
+        if (sVal.GetCharacterCount() > 23)
+        {
+          sVal.Shrink(0, sVal.GetCharacterCount() - 21);
+          sVal.Append("...");
+        }
+
+        if (!sVal.IsEmpty())
+        {
+          sVal.Prepend("\"");
+          sVal.Append("\"");
+        }
+      }
+      else if (val.CanConvertTo<ezString>())
+      {
+        sVal = val.ConvertTo<ezString>();
+      }
+      else
+      {
+        sVal = "<Invalid>";
+      }
+
+      temp.Set("{", prop->GetPropertyName(), "}");
+      sTitle.ReplaceAll(temp, sVal);
+
+      temp.Set("{?", prop->GetPropertyName(), "}");
+      if (val == ezVariant(0))
+      {
+        sTitle.ReplaceAll(temp, "");
+      }
+      else
+      {
+        sTitle.ReplaceAll(temp, sVal);
+      }
+    }
+  }
+
+  sTitle.Trim("\' :");
+
+  if (const char* szSeparator = sTitle.FindSubString("::"))
+  {
+    m_pTitleLabel->setPlainText(szSeparator + 2);
+
+    ezStringBuilder sSubTitle = ezStringView(sTitle.GetData(), szSeparator);
+    sSubTitle.Trim("\"");
+    m_pSubtitleLabel->setPlainText(sSubTitle.GetData());
   }
   else
   {
     ezStringBuilder tmp;
-    m_pTitleLabel->setPlainText(ezMakeQString(ezTranslate(typeAccessor.GetType()->GetTypeName().GetData(tmp))));
+    m_pTitleLabel->setPlainText(ezMakeQString(sTitle));
   }
 }
 

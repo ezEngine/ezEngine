@@ -360,7 +360,6 @@ void ezVisualGraphObjectManager::MoveNode(const ezDocumentObject* pObject, const
 void ezVisualGraphObjectManager::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& ref_graph) const
 {
   auto pNodeMetaDataType = ezGetStaticRTTI<DocumentNodeManager_NodeMetaData>();
-  auto pConnectionMetaDataType = ezGetStaticRTTI<DocumentNodeManager_ConnectionMetaData>();
 
   ezRttiConverterContext context;
   ezRttiConverterWriter rttiConverter(&ref_graph, &context, true, true);
@@ -802,24 +801,48 @@ bool ezVisualGraphObjectManager::TryRecreatePins(const ezDocumentObject* pObject
   if (!IsNode(pObject))
     return false;
 
-  auto& nodeInternal = m_ObjectToNode[pObject->GetGuid()];
-
-  for (auto& pPin : nodeInternal.m_Inputs)
+  // Collect all connection document objects that reference this node, storing enough
+  // information to restore them after the pins have been recreated.
+  struct SavedConnection
   {
-    if (HasConnections(*pPin))
-    {
-      ezLog::Error("Can't re-create pins if they are still connected");
-      return false;
-    }
+    ezUuid m_SourceNode;
+    ezString m_sSourcePin;
+    ezUuid m_TargetNode;
+    ezString m_sTargetPin;
+  };
+
+  ezHybridArray<SavedConnection, 8> savedConnections;
+
+  const ezUuid nodeGuid = pObject->GetGuid();
+  for (auto it = m_ObjectToConnection.GetIterator(); it.IsValid(); ++it)
+  {
+    const ezVisualGraphConnection& conn = *it.Value();
+    if (conn.GetSourcePin().GetParent()->GetGuid() != nodeGuid && conn.GetTargetPin().GetParent()->GetGuid() != nodeGuid)
+      continue;
+
+    auto& saved = savedConnections.ExpandAndGetRef();
+    saved.m_SourceNode = conn.GetSourcePin().GetParent()->GetGuid();
+    saved.m_sSourcePin = conn.GetSourcePin().GetName();
+    saved.m_TargetNode = conn.GetTargetPin().GetParent()->GetGuid();
+    saved.m_sTargetPin = conn.GetTargetPin().GetName();
   }
 
-  for (auto& pPin : nodeInternal.m_Outputs)
+  // Disconnect and destroy all connection objects touching this node.
+  // We collect the objects first since Disconnect modifies m_ObjectToConnection.
+  ezHybridArray<ezDocumentObject*, 8> connObjectsToRemove;
+  for (auto it = m_ObjectToConnection.GetIterator(); it.IsValid(); ++it)
   {
-    if (HasConnections(*pPin))
+    const ezVisualGraphConnection& conn = *it.Value();
+    if (conn.GetSourcePin().GetParent()->GetGuid() == nodeGuid || conn.GetTargetPin().GetParent()->GetGuid() == nodeGuid)
     {
-      ezLog::Error("Can't re-create pins if they are still connected");
-      return false;
+      connObjectsToRemove.PushBack(const_cast<ezDocumentObject*>(conn.GetParent()));
     }
+  }
+  for (ezDocumentObject* pConnObject : connObjectsToRemove)
+  {
+    Disconnect(pConnObject);
+    RemoveObject(pConnObject);
+    DestroyObject(pConnObject);
   }
 
   {
@@ -827,6 +850,7 @@ bool ezVisualGraphObjectManager::TryRecreatePins(const ezDocumentObject* pObject
     m_NodeEvents.Broadcast(e);
   }
 
+  auto& nodeInternal = m_ObjectToNode[nodeGuid];
   nodeInternal.m_Inputs.Clear();
   nodeInternal.m_Outputs.Clear();
   InternalCreatePins(pObject, nodeInternal);
@@ -834,6 +858,28 @@ bool ezVisualGraphObjectManager::TryRecreatePins(const ezDocumentObject* pObject
   {
     ezVisualGraphObjectManagerEvent e(ezVisualGraphObjectManagerEvent::Type::AfterPinsChanged, pObject);
     m_NodeEvents.Broadcast(e);
+  }
+
+  // Recreate connections whose pins still exist under the same names.
+  // Connections to pins that no longer exist are logged as warnings and dropped.
+  for (const SavedConnection& saved : savedConnections)
+  {
+    const ezVisualGraphPin* pSourcePin = nullptr;
+    const ezVisualGraphPin* pTargetPin = nullptr;
+    if (ResolveConnection(saved.m_SourceNode, saved.m_TargetNode, saved.m_sSourcePin, saved.m_sTargetPin, pSourcePin, pTargetPin).Failed())
+    {
+      ezLog::Warning("Connection from pin '{}' to pin '{}' was removed because the pin no longer exists after the node was updated.",
+        saved.m_sSourcePin, saved.m_sTargetPin);
+      continue;
+    }
+
+    ezDocumentObject* pNewConnObject = CreateObject(GetConnectionType());
+    pNewConnObject->GetTypeAccessor().SetValue("Source", saved.m_SourceNode);
+    pNewConnObject->GetTypeAccessor().SetValue("Target", saved.m_TargetNode);
+    pNewConnObject->GetTypeAccessor().SetValue("SourcePin", saved.m_sSourcePin);
+    pNewConnObject->GetTypeAccessor().SetValue("TargetPin", saved.m_sTargetPin);
+    AddObject(pNewConnObject, nullptr, "", -1);
+    Connect(pNewConnObject, *pSourcePin, *pTargetPin);
   }
 
   return true;
