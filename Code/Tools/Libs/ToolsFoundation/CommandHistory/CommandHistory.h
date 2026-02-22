@@ -3,6 +3,7 @@
 #include <Foundation/Types/RefCounted.h>
 #include <Foundation/Types/SharedPtr.h>
 #include <ToolsFoundation/Command/Command.h>
+#include <ToolsFoundation/Document/Implementation/Declarations.h>
 #include <ToolsFoundation/ToolsFoundationDLL.h>
 
 class ezCommandHistory;
@@ -63,6 +64,9 @@ public:
     ezDeque<ezCommandTransaction*> m_RedoHistory;
     ezDocument* m_pDocument = nullptr;
     ezEvent<const ezCommandHistoryEvent&, ezMutex> m_Events;
+
+    /// \brief The undo stack size at the point when the document was last saved. -1 if the saved state is no longer reachable via undo/redo.
+    ezInt32 m_iSavedHistoryIndex = 0;
   };
 
 public:
@@ -126,6 +130,7 @@ private:
   ezSharedPtr<ezCommandHistory::Storage> m_pHistoryStorage;
 
   ezEvent<const ezCommandHistoryEvent&, ezMutex>::Unsubscriber m_EventsUnsubscriber;
+  ezEvent<const ezDocumentEvent&>::Unsubscriber m_DocumentSavedUnsubscriber;
 
   bool m_bFireEventsWhenUndoingTempCommands = false;
   bool m_bTemporaryMode = false;

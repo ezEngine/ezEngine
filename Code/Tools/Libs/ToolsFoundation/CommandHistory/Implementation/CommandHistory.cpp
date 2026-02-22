@@ -147,7 +147,9 @@ ezStatus ezCommandHistory::UndoInternal()
     m_pHistoryStorage->m_UndoHistory.PopBack();
     m_pHistoryStorage->m_RedoHistory.PushBack(pTransaction);
 
-    m_pHistoryStorage->m_pDocument->SetModified(true);
+    const bool bAtSavedState = m_pHistoryStorage->m_iSavedHistoryIndex >= 0 &&
+                               (ezInt32)m_pHistoryStorage->m_UndoHistory.GetCount() == m_pHistoryStorage->m_iSavedHistoryIndex;
+    m_pHistoryStorage->m_pDocument->SetModified(!bAtSavedState);
 
     status = ezStatus(EZ_SUCCESS);
   }
@@ -194,7 +196,9 @@ ezStatus ezCommandHistory::RedoInternal()
     m_pHistoryStorage->m_RedoHistory.PopBack();
     m_pHistoryStorage->m_UndoHistory.PushBack(pTransaction);
 
-    m_pHistoryStorage->m_pDocument->SetModified(true);
+    const bool bAtSavedState = m_pHistoryStorage->m_iSavedHistoryIndex >= 0 &&
+                               (ezInt32)m_pHistoryStorage->m_UndoHistory.GetCount() == m_pHistoryStorage->m_iSavedHistoryIndex;
+    m_pHistoryStorage->m_pDocument->SetModified(!bAtSavedState);
 
     status = ezStatus(EZ_SUCCESS);
   }
@@ -391,6 +395,12 @@ void ezCommandHistory::ClearUndoHistory()
 
     m_pHistoryStorage->m_UndoHistory.PopBack();
   }
+
+  // The saved state may no longer be reachable if it was in the undo history.
+  if (m_pHistoryStorage->m_iSavedHistoryIndex > 0)
+  {
+    m_pHistoryStorage->m_iSavedHistoryIndex = -1;
+  }
 }
 
 void ezCommandHistory::ClearRedoHistory()
@@ -404,6 +414,12 @@ void ezCommandHistory::ClearRedoHistory()
     pTransaction->GetDynamicRTTI()->GetAllocator()->Deallocate(pTransaction);
 
     m_pHistoryStorage->m_RedoHistory.PopBack();
+  }
+
+  // If the saved state is at or beyond the current undo position, it was in the redo stack and is now unreachable.
+  if (m_pHistoryStorage->m_iSavedHistoryIndex >= (ezInt32)m_pHistoryStorage->m_UndoHistory.GetCount())
+  {
+    m_pHistoryStorage->m_iSavedHistoryIndex = -1;
   }
 }
 
@@ -454,12 +470,23 @@ ezSharedPtr<ezCommandHistory::Storage> ezCommandHistory::SwapStorage(ezSharedPtr
   auto retVal = m_pHistoryStorage;
 
   m_EventsUnsubscriber.Unsubscribe();
+  m_DocumentSavedUnsubscriber.Unsubscribe();
 
   m_pHistoryStorage = pNewStorage;
 
   m_pHistoryStorage->m_Events.AddEventHandler([this](const ezCommandHistoryEvent& e)
     { m_Events.Broadcast(e); },
     m_EventsUnsubscriber);
+
+  m_pHistoryStorage->m_pDocument->m_EventsOne.AddEventHandler(
+    [this](const ezDocumentEvent& e)
+    {
+      if (e.m_Type == ezDocumentEvent::Type::DocumentSaved)
+      {
+        m_pHistoryStorage->m_iSavedHistoryIndex = (ezInt32)m_pHistoryStorage->m_UndoHistory.GetCount();
+      }
+    },
+    m_DocumentSavedUnsubscriber);
 
   return retVal;
 }
