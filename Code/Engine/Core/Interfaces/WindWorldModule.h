@@ -12,6 +12,7 @@ struct EZ_CORE_DLL ezWindStrength
 
   enum Enum
   {
+    None,
     Calm,
     LightBreeze,
     GentleBreeze,

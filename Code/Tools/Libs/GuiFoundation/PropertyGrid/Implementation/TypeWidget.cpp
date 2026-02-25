@@ -119,7 +119,6 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const ezMap<ezString, const ez
     else
     {
       pGroupBox->SetTitle(group->m_sGroup.GetData());
-      pGroupBox->SetBoldTitle(true);
 
       m_pGrid->SetCollapseState(pGroupBox);
       connect(pGroupBox, &ezQtGroupBoxBase::CollapseStateChanged, m_pGrid, &ezQtPropertyGridWidget::OnCollapseStateChanged);
@@ -135,7 +134,7 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const ezMap<ezString, const ez
     pLayout->setColumnStretch(1, 0);
     pLayout->setColumnMinimumWidth(1, 5);
     pLayout->setColumnStretch(2, 2);
-    pLayout->setContentsMargins(0, 0, 0, 0);
+    pLayout->setContentsMargins(group->m_sGroup.IsEmpty() ? 0 : 10, 0, 0, 0);
     pLayout->setSpacing(0);
     pGroupBox->GetContent()->setLayout(pLayout);
 
@@ -158,7 +157,7 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const ezMap<ezString, const ez
         ezQtManipulatorLabel* pLabel = new ezQtManipulatorLabel(this);
         pLabel->setText(QString::fromUtf8(pNewWidget->GetLabel(tmp)));
         pLabel->setAlignment(Qt::AlignLeft | Qt::AlignTop);
-        pLabel->setContentsMargins(0, 0, 0, 0); // 18 is a hacked value to align label with group boxes.
+        pLabel->setContentsMargins(0, 0, 0, 0);
         pLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
 
         connect(pLabel, &QWidget::customContextMenuRequested, pNewWidget, &ezQtPropertyWidget::OnCustomContextMenu);

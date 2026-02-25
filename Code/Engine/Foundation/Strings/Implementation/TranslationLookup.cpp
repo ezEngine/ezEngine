@@ -180,6 +180,8 @@ void ezTranslatorFromFiles::LoadTranslationFile(const char* szFullPath)
     sTooltip.Trim(" \t\r\n");
     sHelpUrl.Trim(" \t\r\n");
 
+    sTooltip.ReplaceAll("\\n", "\n");
+
     if (GetHighlightUntranslated())
     {
       sValue.Prepend("# ");

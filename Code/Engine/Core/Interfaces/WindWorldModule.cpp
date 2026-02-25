@@ -8,7 +8,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezWindWorldModuleInterface, 1, ezRTTINoAllocator
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezWindStrength, 1)
-  EZ_ENUM_CONSTANTS(ezWindStrength::Calm, ezWindStrength::LightBreeze, ezWindStrength::GentleBreeze, ezWindStrength::ModerateBreeze, ezWindStrength::StrongBreeze, ezWindStrength::Storm)
+  EZ_ENUM_CONSTANTS(ezWindStrength::None, ezWindStrength::Calm, ezWindStrength::LightBreeze, ezWindStrength::GentleBreeze, ezWindStrength::ModerateBreeze, ezWindStrength::StrongBreeze, ezWindStrength::Storm)
   EZ_ENUM_CONSTANTS(ezWindStrength::WeakShockwave, ezWindStrength::MediumShockwave, ezWindStrength::StrongShockwave, ezWindStrength::ExtremeShockwave)
 EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
@@ -20,6 +20,9 @@ float ezWindStrength::GetInMetersPerSecond(Enum strength)
 
   switch (strength)
   {
+    case None:
+      return 0.0f;
+
     case Calm:
       return 0.5f;
 

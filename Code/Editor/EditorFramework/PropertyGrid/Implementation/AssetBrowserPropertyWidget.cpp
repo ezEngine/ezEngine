@@ -164,7 +164,8 @@ void ezQtAssetPropertyWidget::InternalSetValue(const ezVariant& value)
         m_pButton->setIcon(QIcon());
         m_pButton->setToolButtonStyle(Qt::ToolButtonStyle::ToolButtonTextOnly);
 
-        m_Pal.setColor(QPalette::Text, Qt::red);
+        m_Pal.setColor(QPalette::Active, QPalette::Text, Qt::red);
+        m_Pal.setColor(QPalette::Inactive, QPalette::Text, Qt::red);
         m_pWidget->setPalette(m_Pal);
 
         return;
@@ -211,7 +212,8 @@ void ezQtAssetPropertyWidget::InternalSetValue(const ezVariant& value)
       const QColor validColor = ezToQtColor(ezColorScheme::LightUI(ezColorScheme::Green));
       const QColor invalidColor = ezToQtColor(ezColorScheme::LightUI(ezColorScheme::Red));
 
-      m_Pal.setColor(QPalette::Text, m_AssetGuid.IsValid() ? validColor : invalidColor);
+      m_Pal.setColor(QPalette::Active, QPalette::Text, m_AssetGuid.IsValid() ? validColor : invalidColor);
+      m_Pal.setColor(QPalette::Inactive, QPalette::Text, m_AssetGuid.IsValid() ? validColor : invalidColor);
       m_pWidget->setPalette(m_Pal);
 
       if (m_AssetGuid.IsValid())

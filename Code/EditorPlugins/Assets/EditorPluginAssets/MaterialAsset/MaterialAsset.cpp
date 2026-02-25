@@ -863,9 +863,14 @@ void ezMaterialAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo
 {
   SUPER::UpdateAssetDocumentInfo(pInfo);
 
-  if (!GetProperties()->m_sAssetFilterTags.IsEmpty())
+  const auto pProperties = GetProperties();
+
+  if (!pProperties->m_sAssetFilterTags.IsEmpty())
   {
-    const ezStringBuilder tags(";", GetProperties()->m_sAssetFilterTags, ";");
+    ezStringBuilder tags(";", pProperties->m_sAssetFilterTags, ";");
+    while (tags.ReplaceAll(";;", ";") > 0)
+    {
+    }
 
     pInfo->m_sAssetsDocumentTags = tags;
   }
@@ -874,26 +879,45 @@ void ezMaterialAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo
     pInfo->m_sAssetsDocumentTags.Clear();
   }
 
-  if (GetProperties()->m_ShaderMode != ezMaterialShaderMode::BaseMaterial)
+  if (pProperties->GetShaderMode() == ezMaterialShaderMode::BaseMaterial)
+  {
+    // if we have a base material, copy the document tags from there
+    // TODO: this is problematic, as changes to the tags in the base document would need to be saved in the derived document
+    // it would be better, if the asset curator could store a reference to the base document and pull the tags directly from there, on demand
+
+    if (auto pAsset = ezAssetCurator::GetSingleton()->FindSubAsset(pProperties->GetBaseMaterial()))
+    {
+      const ezStringView baseTags = pAsset->m_pAssetInfo->m_Info->GetAssetsDocumentTags();
+      if (!baseTags.IsEmpty())
+      {
+        ezStringBuilder tmp(pInfo->m_sAssetsDocumentTags, baseTags);
+        while (tmp.ReplaceAll(";;", ";") > 0)
+        {
+        }
+        pInfo->m_sAssetsDocumentTags = tmp;
+      }
+    }
+  }
+  else
   {
     // remove base material dependency, if it isn't used
-    pInfo->m_TransformDependencies.Remove(GetProperties()->GetBaseMaterial());
-    pInfo->m_ThumbnailDependencies.Remove(GetProperties()->GetBaseMaterial());
+    pInfo->m_TransformDependencies.Remove(pProperties->GetBaseMaterial());
+    pInfo->m_ThumbnailDependencies.Remove(pProperties->GetBaseMaterial());
   }
 
-  if (GetProperties()->m_ShaderMode != ezMaterialShaderMode::File)
+  if (pProperties->m_ShaderMode != ezMaterialShaderMode::File)
   {
-    const bool bInUseByBaseMaterial = GetProperties()->m_ShaderMode == ezMaterialShaderMode::BaseMaterial && ezStringUtils::IsEqual(GetProperties()->GetShader(), GetProperties()->GetBaseMaterial());
+    const bool bInUseByBaseMaterial = pProperties->m_ShaderMode == ezMaterialShaderMode::BaseMaterial && ezStringUtils::IsEqual(pProperties->GetShader(), pProperties->GetBaseMaterial());
 
     // remove shader file dependency, if it isn't used and differs from the base material
     if (!bInUseByBaseMaterial)
     {
-      pInfo->m_TransformDependencies.Remove(GetProperties()->GetShader());
-      pInfo->m_ThumbnailDependencies.Remove(GetProperties()->GetShader());
+      pInfo->m_TransformDependencies.Remove(pProperties->GetShader());
+      pInfo->m_ThumbnailDependencies.Remove(pProperties->GetShader());
     }
   }
 
-  if (GetProperties()->m_ShaderMode == ezMaterialShaderMode::Custom)
+  if (pProperties->m_ShaderMode == ezMaterialShaderMode::Custom)
   {
     // We write our own guid into the shader field so BaseMaterial materials can find the shader file.
     // This would cause us to have a dependency to ourselves so we need to remove it.
