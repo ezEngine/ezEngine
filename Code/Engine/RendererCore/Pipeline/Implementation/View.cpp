@@ -389,7 +389,7 @@ void ezView::SetReadBackProperty(ezMap<ezString, PropertyValue>& map, const char
 
 void ezView::ReadBackPassProperties()
 {
-  ezHybridArray<ezRenderPipelinePass*, 16> passes;
+  ezHybridArray<ezRenderPipelinePass*, 32> passes;
   m_pRenderPipeline->GetPasses(passes);
 
   for (auto pPass : passes)

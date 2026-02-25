@@ -69,9 +69,12 @@ ezLightComponent::~ezLightComponent() = default;
 
 void ezLightComponent::SetUsingColorTemperature(bool bUseColorTemperature)
 {
-  m_bUseColorTemperature = bUseColorTemperature;
+  if (m_bUseColorTemperature != bUseColorTemperature)
+  {
+    m_bUseColorTemperature = bUseColorTemperature;
 
-  InvalidateCachedRenderData();
+    InvalidateCachedRenderData();
+  }
 }
 
 bool ezLightComponent::GetUsingColorTemperature() const
@@ -81,9 +84,14 @@ bool ezLightComponent::GetUsingColorTemperature() const
 
 void ezLightComponent::SetTemperature(ezUInt32 uiTemperature)
 {
-  m_uiTemperature = ezMath::Clamp(uiTemperature, 1500u, 40000u);
+  uiTemperature = ezMath::Clamp(uiTemperature, 1500u, 40000u);
 
-  InvalidateCachedRenderData();
+  if (m_uiTemperature != uiTemperature)
+  {
+    m_uiTemperature = uiTemperature;
+
+    InvalidateCachedRenderData();
+  }
 }
 
 ezUInt32 ezLightComponent::GetTemperature() const
@@ -93,9 +101,12 @@ ezUInt32 ezLightComponent::GetTemperature() const
 
 void ezLightComponent::SetLightColor(ezColorGammaUB lightColor)
 {
-  m_LightColor = lightColor;
+  if (m_LightColor != lightColor)
+  {
+    m_LightColor = lightColor;
 
-  InvalidateCachedRenderData();
+    InvalidateCachedRenderData();
+  }
 }
 
 ezColorGammaUB ezLightComponent::GetLightColor() const
@@ -117,9 +128,15 @@ ezColorGammaUB ezLightComponent::GetEffectiveColor() const
 
 void ezLightComponent::SetIntensity(float fIntensity)
 {
-  m_fIntensity = ezMath::Max(fIntensity, 0.0f);
+  fIntensity = ezMath::Max(fIntensity, 0.0f);
 
-  TriggerLocalBoundsUpdate();
+  if (m_fIntensity != fIntensity)
+  {
+    m_fIntensity = fIntensity;
+
+    TriggerLocalBoundsUpdate();
+    InvalidateCachedRenderData();
+  }
 }
 
 float ezLightComponent::GetIntensity() const
@@ -129,9 +146,14 @@ float ezLightComponent::GetIntensity() const
 
 void ezLightComponent::SetSpecularMultiplier(float fSpecularMultiplier)
 {
-  m_fSpecularMultiplier = ezMath::Max(fSpecularMultiplier, 0.0f);
+  fSpecularMultiplier = ezMath::Max(fSpecularMultiplier, 0.0f);
 
-  InvalidateCachedRenderData();
+  if (m_fSpecularMultiplier != fSpecularMultiplier)
+  {
+    m_fSpecularMultiplier = fSpecularMultiplier;
+
+    InvalidateCachedRenderData();
+  }
 }
 
 float ezLightComponent::GetSpecularMultiplier() const
@@ -141,9 +163,12 @@ float ezLightComponent::GetSpecularMultiplier() const
 
 void ezLightComponent::SetCastShadows(bool bCastShadows)
 {
-  m_bCastShadows = bCastShadows;
+  if (m_bCastShadows != bCastShadows)
+  {
+    m_bCastShadows = bCastShadows;
 
-  InvalidateCachedRenderData();
+    InvalidateCachedRenderData();
+  }
 }
 
 bool ezLightComponent::GetCastShadows() const
@@ -153,9 +178,12 @@ bool ezLightComponent::GetCastShadows() const
 
 void ezLightComponent::SetTransparentShadows(bool bShadows)
 {
-  m_bTransparentShadows = bShadows;
+  if (m_bTransparentShadows != bShadows)
+  {
+    m_bTransparentShadows = bShadows;
 
-  InvalidateCachedRenderData();
+    InvalidateCachedRenderData();
+  }
 }
 
 bool ezLightComponent::GetTransparentShadows() const
@@ -165,9 +193,12 @@ bool ezLightComponent::GetTransparentShadows() const
 
 void ezLightComponent::SetPenumbraSize(float fPenumbraSize)
 {
-  m_fPenumbraSize = fPenumbraSize;
+  if (m_fPenumbraSize != fPenumbraSize)
+  {
+    m_fPenumbraSize = fPenumbraSize;
 
-  InvalidateCachedRenderData();
+    InvalidateCachedRenderData();
+  }
 }
 
 float ezLightComponent::GetPenumbraSize() const
@@ -177,9 +208,12 @@ float ezLightComponent::GetPenumbraSize() const
 
 void ezLightComponent::SetSlopeBias(float fBias)
 {
-  m_fSlopeBias = fBias;
+  if (m_fSlopeBias != fBias)
+  {
+    m_fSlopeBias = fBias;
 
-  InvalidateCachedRenderData();
+    InvalidateCachedRenderData();
+  }
 }
 
 float ezLightComponent::GetSlopeBias() const
@@ -189,9 +223,12 @@ float ezLightComponent::GetSlopeBias() const
 
 void ezLightComponent::SetConstantBias(float fBias)
 {
-  m_fConstantBias = fBias;
+  if (m_fConstantBias != fBias)
+  {
+    m_fConstantBias = fBias;
 
-  InvalidateCachedRenderData();
+    InvalidateCachedRenderData();
+  }
 }
 
 float ezLightComponent::GetConstantBias() const
@@ -254,9 +291,15 @@ void ezLightComponent::DeserializeComponent(ezWorldReader& inout_stream)
 
 void ezLightComponent::OnMsgSetColor(ezMsgSetColor& ref_msg)
 {
-  ref_msg.ModifyColor(m_LightColor);
+  ezColor newColor = m_LightColor;
+  ref_msg.ModifyColor(newColor);
 
-  InvalidateCachedRenderData();
+  if (m_LightColor != newColor)
+  {
+    m_LightColor = newColor;
+
+    InvalidateCachedRenderData();
+  }
 }
 
 // static

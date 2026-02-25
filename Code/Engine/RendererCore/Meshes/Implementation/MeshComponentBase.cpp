@@ -278,16 +278,24 @@ void ezMeshComponentBase::SetColor(const ezColor& color)
 
 void ezMeshComponentBase::SetCustomData(const ezVec4& vData)
 {
-  m_vCustomData = vData;
+  // Use a bitwise comparison since some systems store arbitrary data casted to floats which can look like NaNs.
+  // These would compare false or trigger the NaN check in ezMath when comparing the vectors.
+  if (ezMemoryUtils::IsEqual(&m_vCustomData, &vData))
+  {
+    m_vCustomData = vData;
 
-  InvalidateCachedRenderData();
+    InvalidateCachedRenderData();
+  }
 }
 
 void ezMeshComponentBase::SetSortingDepthOffset(float fOffset)
 {
-  m_fSortingDepthOffset = fOffset;
+  if (m_fSortingDepthOffset != fOffset)
+  {
+    m_fSortingDepthOffset = fOffset;
 
-  InvalidateCachedRenderData();
+    InvalidateCachedRenderData();
+  }
 }
 
 void ezMeshComponentBase::OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& ref_msg)
@@ -310,8 +318,16 @@ void ezMeshComponentBase::OnMsgSetColor(ezMsgSetColor& ref_msg)
 
 void ezMeshComponentBase::OnMsgSetCustomData(ezMsgSetCustomData& ref_msg)
 {
-  m_vCustomData.Set(ref_msg.m_fData0, ref_msg.m_fData1, ref_msg.m_fData2, ref_msg.m_fData3);
-  InvalidateCachedRenderData();
+  ezVec4 vNewCustomData(ref_msg.m_fData0, ref_msg.m_fData1, ref_msg.m_fData2, ref_msg.m_fData3);
+
+  // Use a bitwise comparison since some systems store arbitrary data casted to floats which can look like NaNs.
+  // These would compare false or trigger the NaN check in ezMath when comparing the vectors.
+  if (!ezMemoryUtils::IsEqual(&m_vCustomData, &vNewCustomData))
+  {
+    m_vCustomData = vNewCustomData;
+
+    InvalidateCachedRenderData();
+  }
 }
 
 void ezMeshComponentBase::SetCustomInstanceData(ezCustomInstanceDataOffset offset, ezGALDynamicBufferHandle hBuffer)
