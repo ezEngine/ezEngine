@@ -288,6 +288,14 @@ void ezVisualScriptNodeRegistry::PhantomTypeRegistryEventHandler(const ezPhantom
       e.m_Type == ezPhantomRttiManagerEvent::Type::TypeChanged)
   {
     UpdateNodeType(e.m_pChangedType);
+
+    // Also update dependent types
+    for (const ezRTTI* pRtti : m_TypesToUpdate)
+    {
+      if (m_ExposedTypes.Contains(pRtti) == false)
+        UpdateNodeType(pRtti, true);
+    }
+    m_TypesToUpdate.Clear();
   }
 }
 
@@ -318,6 +326,7 @@ void ezVisualScriptNodeRegistry::UpdateNodeTypes()
   ezRTTI::ForEachType([this](const ezRTTI* pRtti)
     { UpdateNodeType(pRtti); });
 
+  // Also update dependent types
   for (const ezRTTI* pRtti : m_TypesToUpdate)
   {
     if (m_ExposedTypes.Contains(pRtti) == false)
