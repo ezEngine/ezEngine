@@ -296,3 +296,5 @@ WindowLayout;Editor Layout
 Layout.DefaultPinned;Default (Pinned)
 Layout.DefaultUnpinned;Default (Unpinned)
 Layout.AbBottom;Asset Browser at Bottom
+Layout.SaveLayout;Save Layout
+Layout.LoadLayout;Load Layout

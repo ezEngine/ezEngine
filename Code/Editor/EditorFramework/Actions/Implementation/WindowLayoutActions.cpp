@@ -20,9 +20,12 @@ ezActionDescriptorHandle ezWindowLayoutActions::s_hCatWindowLayout;
 ezActionDescriptorHandle ezWindowLayoutActions::s_hSetToDefaultPinned;
 ezActionDescriptorHandle ezWindowLayoutActions::s_hSetToDefaultUnpinned;
 ezActionDescriptorHandle ezWindowLayoutActions::s_hSetToAbBottom;
+ezActionDescriptorHandle ezWindowLayoutActions::s_hSaveLayout;
+ezActionDescriptorHandle ezWindowLayoutActions::s_hLoadLayout;
 
 static const char* s_szDefaultLayoutName = "Default";
 static const char* s_szSettingsGroup = "EditorWindowLayouts";
+static const int s_iNumUserLayoutSlots = 3;
 
 static QByteArray s_DefaultLayoutState;
 
@@ -32,6 +35,8 @@ void ezWindowLayoutActions::RegisterActions()
   s_hSetToDefaultPinned = EZ_REGISTER_ACTION_1("Layout.DefaultPinned", ezActionScope::Global, "Layout", "", ezWindowLayoutAction, ezWindowLayoutAction::ButtonType::SetToDefaultPinned);
   s_hSetToDefaultUnpinned = EZ_REGISTER_ACTION_1("Layout.DefaultUnpinned", ezActionScope::Global, "Layout", "", ezWindowLayoutAction, ezWindowLayoutAction::ButtonType::SetToDefaultUnpinned);
   s_hSetToAbBottom = EZ_REGISTER_ACTION_1("Layout.AbBottom", ezActionScope::Global, "Layout", "", ezWindowLayoutAction, ezWindowLayoutAction::ButtonType::SetToAbBottom);
+  s_hSaveLayout = EZ_REGISTER_DYNAMIC_MENU("Layout.SaveLayout", ezSaveLayoutMenuAction, "Save Layout");
+  s_hLoadLayout = EZ_REGISTER_DYNAMIC_MENU("Layout.LoadLayout", ezLoadLayoutMenuAction, "Load Layout");
 }
 
 void ezWindowLayoutActions::UnregisterActions()
@@ -40,6 +45,8 @@ void ezWindowLayoutActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hSetToDefaultPinned);
   ezActionManager::UnregisterAction(s_hSetToDefaultUnpinned);
   ezActionManager::UnregisterAction(s_hSetToAbBottom);
+  ezActionManager::UnregisterAction(s_hSaveLayout);
+  ezActionManager::UnregisterAction(s_hLoadLayout);
 }
 
 void ezWindowLayoutActions::MapActions(ezStringView sMapping)
@@ -51,6 +58,8 @@ void ezWindowLayoutActions::MapActions(ezStringView sMapping)
   pMap->MapAction(s_hSetToDefaultPinned, "WindowLayout", 1.0f);
   pMap->MapAction(s_hSetToDefaultUnpinned, "WindowLayout", 2.0f);
   pMap->MapAction(s_hSetToAbBottom, "WindowLayout", 3.0f);
+  pMap->MapAction(s_hSaveLayout, "G.Panels", 3.0f);
+  pMap->MapAction(s_hLoadLayout, "G.Panels", 4.0f);
 }
 
 void ezWindowLayoutActions::RestoreUserLayout()
@@ -254,5 +263,152 @@ void ezWindowLayoutAction::Execute(const ezVariant& value)
   if (pAssetBrowserPanel)
   {
     pAssetBrowserPanel->EnsureVisible();
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+// ezSaveLayoutMenuAction
+//////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSaveLayoutMenuAction, 1, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+ezSaveLayoutMenuAction::ezSaveLayoutMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath)
+  : ezDynamicMenuAction(context, szName, szIconPath)
+{
+}
+
+void ezSaveLayoutMenuAction::GetEntries(ezDynamicArray<Item>& out_entries)
+{
+  out_entries.Clear();
+
+  QSettings settings;
+  settings.beginGroup(s_szSettingsGroup);
+
+  ezStringBuilder sDisplay;
+  for (int i = 0; i < s_iNumUserLayoutSlots; ++i)
+  {
+    const QString sNameKey = QString("UserSlot_%1_Name").arg(i);
+    const QString sSlotName = settings.value(sNameKey, QString()).toString();
+
+    Item item;
+    if (sSlotName.isEmpty())
+    {
+      sDisplay.SetFormat("Slot {0}: [Empty]", i + 1);
+    }
+    else
+    {
+      sDisplay.SetFormat("Slot {0}: {1}", i + 1, sSlotName.toUtf8().constData());
+    }
+    item.m_sDisplay = sDisplay;
+    item.m_UserValue = i;
+    out_entries.PushBack(item);
+  }
+
+  settings.endGroup();
+}
+
+void ezSaveLayoutMenuAction::Execute(const ezVariant& value)
+{
+  ezQtContainerWindow* pContainer = ezQtContainerWindow::GetContainerWindow();
+  if (pContainer == nullptr)
+    return;
+
+  ads::CDockManager* pDockManager = pContainer->GetDockManager();
+  if (pDockManager == nullptr)
+    return;
+
+  const int iSlot = value.ConvertTo<int>();
+
+  QSettings settings;
+  settings.beginGroup(s_szSettingsGroup);
+
+  const QString sNameKey = QString("UserSlot_%1_Name").arg(iSlot);
+  const QString sStateKey = QString("UserSlot_%1_State").arg(iSlot);
+  const QString sExistingName = settings.value(sNameKey, QString()).toString();
+
+  bool bOk = false;
+  const QString sName = QInputDialog::getText(pContainer, QStringLiteral("Save Layout"), QStringLiteral("Layout name:"), QLineEdit::Normal, sExistingName, &bOk);
+
+  if (!bOk || sName.trimmed().isEmpty())
+  {
+    settings.endGroup();
+    return;
+  }
+
+  settings.setValue(sNameKey, sName.trimmed());
+  settings.setValue(sStateKey, pDockManager->saveState());
+
+  settings.endGroup();
+}
+
+//////////////////////////////////////////////////////////////////////////
+// ezLoadLayoutMenuAction
+//////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLoadLayoutMenuAction, 1, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+ezLoadLayoutMenuAction::ezLoadLayoutMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath)
+  : ezDynamicMenuAction(context, szName, szIconPath)
+{
+}
+
+void ezLoadLayoutMenuAction::GetEntries(ezDynamicArray<Item>& out_entries)
+{
+  out_entries.Clear();
+
+  QSettings settings;
+  settings.beginGroup(s_szSettingsGroup);
+
+  ezStringBuilder sDisplay;
+  for (int i = 0; i < s_iNumUserLayoutSlots; ++i)
+  {
+    const QString sNameKey = QString("UserSlot_%1_Name").arg(i);
+    const QString sSlotName = settings.value(sNameKey, QString()).toString();
+
+    if (sSlotName.isEmpty())
+      continue;
+
+    Item item;
+    sDisplay.SetFormat("Slot {0}: {1}", i + 1, sSlotName.toUtf8().constData());
+    item.m_sDisplay = sDisplay;
+    item.m_UserValue = i;
+    out_entries.PushBack(item);
+  }
+
+  settings.endGroup();
+}
+
+void ezLoadLayoutMenuAction::Execute(const ezVariant& value)
+{
+  ezQtContainerWindow* pContainer = ezQtContainerWindow::GetContainerWindow();
+  if (pContainer == nullptr)
+    return;
+
+  ads::CDockManager* pDockManager = pContainer->GetDockManager();
+  if (pDockManager == nullptr)
+    return;
+
+  const int iSlot = value.ConvertTo<int>();
+
+  QSettings settings;
+  settings.beginGroup(s_szSettingsGroup);
+
+  const QString sNameKey = QString("UserSlot_%1_Name").arg(iSlot);
+  const QString sStateKey = QString("UserSlot_%1_State").arg(iSlot);
+
+  if (settings.value(sNameKey, QString()).toString().isEmpty())
+  {
+    settings.endGroup();
+    return;
+  }
+
+  const QByteArray state = settings.value(sStateKey).toByteArray();
+  settings.endGroup();
+
+  if (!state.isEmpty())
+  {
+    pDockManager->restoreState(state);
   }
 }
