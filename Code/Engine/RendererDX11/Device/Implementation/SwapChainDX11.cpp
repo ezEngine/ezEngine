@@ -121,8 +121,7 @@ ezResult ezGALSwapChainDX11::CreateBackBufferInternal(ezGALDeviceDX11* pDXDevice
   TexDesc.m_uiHeight = m_WindowDesc.m_pWindow->GetClientAreaSize().height;
   TexDesc.m_SampleCount = m_WindowDesc.m_SampleCount;
   TexDesc.m_pExisitingNativeObject = pNativeBackBufferTexture;
-  TexDesc.m_bAllowShaderResourceView = false;
-  TexDesc.m_bAllowRenderTargetView = true;
+  TexDesc.m_TextureFlags = ezGALTextureUsageFlags::RenderTarget;
   TexDesc.m_Format = m_WindowDesc.m_BackBufferFormat;
 
   TexDesc.m_ResourceAccess.m_bImmutable = true;

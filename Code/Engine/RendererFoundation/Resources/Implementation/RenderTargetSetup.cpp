@@ -144,24 +144,4 @@ void ezGALRenderingSetup::Reset()
   *this = ezGALRenderingSetup();
 }
 
-void ezGALRenderingSetup::DestroyAllAttachedViews()
-{
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
-  ezArrayPtr<ezGALRenderTargetViewHandle> colorViews(m_FrameBuffer.m_hColorTarget);
-  for (ezGALRenderTargetViewHandle& hView : colorViews)
-  {
-    if (!hView.IsInvalidated())
-    {
-      pDevice->DestroyRenderTargetView(hView);
-      hView.Invalidate();
-    }
-  }
-
-  if (!m_FrameBuffer.m_hDepthTarget.IsInvalidated())
-  {
-    pDevice->DestroyRenderTargetView(m_FrameBuffer.m_hDepthTarget);
-    m_FrameBuffer.m_hDepthTarget.Invalidate();
-  }
-  Reset();
-}

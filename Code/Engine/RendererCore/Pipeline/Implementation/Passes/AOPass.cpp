@@ -69,7 +69,7 @@ bool ezAOPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<
 {
   if (auto pDepthInput = inputs[m_PinDepthInput.m_uiInputIndex])
   {
-    if (!pDepthInput->m_bAllowShaderResourceView)
+    if (!pDepthInput->m_TextureFlags.IsSet(ezGALTextureUsageFlags::ShaderResource))
     {
       ezLog::Error("'{0}' input must allow shader resource view.", GetName());
       return false;
@@ -132,8 +132,7 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
       desc.m_uiMipLevelCount = 3;
       desc.m_Type = ezGALTextureType::Texture2DArray;
       desc.m_Format = ezGALResourceFormat::RHalf;
-      desc.m_bAllowRenderTargetView = true;
-      desc.m_bAllowShaderResourceView = true;
+      desc.m_TextureFlags.Add(ezGALTextureUsageFlags::RenderTarget | ezGALTextureUsageFlags::ShaderResource);
       desc.m_uiArraySize = pOutput->m_Desc.m_uiArraySize;
 
       hzbTexture = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(desc);
@@ -160,7 +159,7 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
         desc.m_uiMipLevel = i;
         desc.m_uiSliceCount = pOutput->m_Desc.m_uiArraySize;
 
-        hzbRenderTargetViews.PushBack(pDevice->CreateRenderTargetView(desc));
+        hzbRenderTargetViews.PushBack(pDevice->GetRenderTargetView(desc));
       }
     }
 

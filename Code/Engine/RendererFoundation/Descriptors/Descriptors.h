@@ -235,17 +235,14 @@ struct ezGALTextureCreationDescription : public ezHashableStruct<ezGALTextureCre
   ezUInt32 m_uiWidth = 0;
   ezUInt32 m_uiHeight = 0;
   ezUInt32 m_uiDepth = 1;
-  ezUInt32 m_uiMipLevelCount = 1;
   ezUInt32 m_uiArraySize = 1; ///< In case of cube maps, the number of cubes instead of faces.
+  ezUInt8 m_uiMipLevelCount = 1;
 
   ezEnum<ezGALResourceFormat> m_Format = ezGALResourceFormat::Invalid;
   ezEnum<ezGALMSAASampleCount> m_SampleCount = ezGALMSAASampleCount::None;
   ezEnum<ezGALTextureType> m_Type = ezGALTextureType::Texture2D;
 
-  bool m_bAllowShaderResourceView = true;
-  bool m_bAllowUAV = false;
-  bool m_bAllowRenderTargetView = false;
-  bool m_bAllowDynamicMipGeneration = false;
+  ezBitflags<ezGALTextureUsageFlags> m_TextureFlags = ezGALTextureUsageFlags::ShaderResource;
 
   ezGALResourceAccess m_ResourceAccess;
 

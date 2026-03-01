@@ -69,6 +69,20 @@ void ezGALSwapChainVulkan::AcquireNextRenderTarget(ezGALDevice* pDevice)
   EZ_ASSERT_DEV(!m_currentPipelineImageAvailableSemaphore, "Pipeline semaphores leaked");
   m_currentPipelineImageAvailableSemaphore = ezSemaphorePoolVulkan::RequestSemaphore();
 
+  // Check if the surface extent has changed before acquiring. If it has, recreate the swapchain first.
+  // This avoids a Vulkan spec violation: when minImageCount equals the total swapchain image count,
+  // forward progress can't be guaranteed, and using UINT64_MAX as timeout is not allowed.
+  {
+    const vk::SurfaceCapabilitiesKHR surfaceCapabilities = m_pVulkanDevice->GetVulkanPhysicalDevice().getSurfaceCapabilitiesKHR(m_vulkanSurface);
+    if (surfaceCapabilities.currentExtent.width != m_CurrentSize.width || surfaceCapabilities.currentExtent.height != m_CurrentSize.height)
+    {
+      if (CreateSwapChainInternal().Failed())
+      {
+        ezLog::Error("Failed to recreate swapchain after surface resize");
+      }
+    }
+  }
+
   int retryCount = 0;
   while (true)
   {
@@ -388,8 +402,7 @@ ezResult ezGALSwapChainVulkan::CreateSwapChainInternal()
     TexDesc.m_uiHeight = swapChainCreateInfo.imageExtent.height;
     TexDesc.m_SampleCount = m_WindowDesc.m_SampleCount;
     TexDesc.m_pExisitingNativeObject = m_swapChainImages[i];
-    TexDesc.m_bAllowShaderResourceView = false;
-    TexDesc.m_bAllowRenderTargetView = true;
+    TexDesc.m_TextureFlags = ezGALTextureUsageFlags::RenderTarget;
     TexDesc.m_ResourceAccess.m_bImmutable = true;
     m_swapChainTextures.PushBack(m_pVulkanDevice->CreateTextureInternal(TexDesc, ezArrayPtr<ezGALSystemMemoryDescription>()));
   }

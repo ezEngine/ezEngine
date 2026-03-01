@@ -261,7 +261,7 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
     {
       // Clear all mips except the fist one and let them be regenerated.
       desc.m_ResourceAccess.m_bImmutable = false;
-      desc.m_bAllowDynamicMipGeneration = true;
+      desc.m_TextureFlags.Add(ezGALTextureUsageFlags::DynamicMipGeneration);
       for (ezUInt32 m = 1; m < desc.m_uiMipLevelCount; m++)
       {
         const ezUInt32 uiHeight = coloredMips.GetHeight(m);

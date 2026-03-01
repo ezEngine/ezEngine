@@ -108,8 +108,7 @@ public:
 
   /// \brief Same as creating a new instance.
   void Reset();
-  /// \brief Same as Reset, but destroys all attached views first.
-  void DestroyAllAttachedViews();
+
 
 protected:
   ezUInt8 m_uiClearStencil = 0;

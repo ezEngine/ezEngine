@@ -103,6 +103,10 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGALResourceAccess, ezNoBase, 1, ezRTTIDefaultAl
 }
 EZ_END_STATIC_REFLECTED_TYPE;
 
+EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezGALTextureUsageFlags, 1)
+  EZ_BITFLAGS_CONSTANTS(ezGALTextureUsageFlags::ShaderResource, ezGALTextureUsageFlags::UnorderedAccess, ezGALTextureUsageFlags::RenderTarget, ezGALTextureUsageFlags::DynamicMipGeneration)
+EZ_END_STATIC_REFLECTED_BITFLAGS;
+
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGALTextureCreationDescription, ezNoBase, 1, ezRTTIDefaultAllocator<ezGALTextureCreationDescription>)
 {
   EZ_BEGIN_PROPERTIES
@@ -115,10 +119,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGALTextureCreationDescription, ezNoBase, 1, ezR
     EZ_ENUM_MEMBER_PROPERTY("Format", ezGALResourceFormat, m_Format),
     EZ_ENUM_MEMBER_PROPERTY("SampleCount", ezGALMSAASampleCount, m_SampleCount),
     EZ_ENUM_MEMBER_PROPERTY("Type", ezGALTextureType, m_Type),
-    EZ_MEMBER_PROPERTY("AllowShaderResourceView", m_bAllowShaderResourceView),
-    EZ_MEMBER_PROPERTY("AllowUAV", m_bAllowUAV),
-    EZ_MEMBER_PROPERTY("AllowRenderTarget", m_bAllowRenderTargetView),
-    EZ_MEMBER_PROPERTY("AllowDynamicMipGeneration", m_bAllowDynamicMipGeneration),
+    EZ_BITFLAGS_MEMBER_PROPERTY("TextureFlags", ezGALTextureUsageFlags, m_TextureFlags),
     EZ_MEMBER_PROPERTY("ResourceAccess", m_ResourceAccess),
     // m_pExisitingNativeObject deliberately not reflected as it can't be serialized in any meaningful way.
   }

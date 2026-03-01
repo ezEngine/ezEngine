@@ -112,8 +112,7 @@ public:
   // Render target views
   ezGALRenderTargetViewHandle GetDefaultRenderTargetView(ezGALTextureHandle hTexture);
 
-  ezGALRenderTargetViewHandle CreateRenderTargetView(const ezGALRenderTargetViewCreationDescription& description);
-  void DestroyRenderTargetView(ezGALRenderTargetViewHandle& inout_hRenderTargetView);
+  ezGALRenderTargetViewHandle GetRenderTargetView(const ezGALRenderTargetViewCreationDescription& description);
 
   // Other rendering creation functions
 
@@ -274,13 +273,6 @@ protected:
   const ezGALSwapChain* GetSwapChainInternal(ezGALSwapChainHandle hSwapChain, const ezRTTI* pRequestedType) const;
 
   ezGALTextureHandle FinalizeTextureInternal(const ezGALTextureCreationDescription& desc, ezGALTexture* pTexture);
-
-  template <typename Handle, typename View, typename ViewTable, typename CacheTable>
-  Handle TryGetView(ezUInt32 uiHash, ViewTable& viewTable, CacheTable& cacheTable);
-  template <typename Handle, typename View, typename ViewTable, typename CacheTable>
-  Handle InsertView(ezUInt32 uiHash, View* pView, ViewTable& viewTable, CacheTable& cacheTable);
-  template <typename View, typename Handle, typename ViewTable>
-  void DestroyView(Handle& inout_hView, ViewTable& table, ezUInt32 galObjectType);
 
   template <typename Handle, typename Resource, typename Table, typename CacheTable, typename HashType>
   Handle TryGetHashedResource(HashType uiHash, Table& table, CacheTable& cacheTable, ezUInt32 galObjectType, ezUInt32& ref_uiCounter);

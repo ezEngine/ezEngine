@@ -52,7 +52,7 @@ bool ezBlurPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPt
   // Color
   if (inputs[m_PinInput.m_uiInputIndex])
   {
-    if (!inputs[m_PinInput.m_uiInputIndex]->m_bAllowShaderResourceView)
+    if (!inputs[m_PinInput.m_uiInputIndex]->m_TextureFlags.IsSet(ezGALTextureUsageFlags::ShaderResource))
     {
       ezLog::Error("Blur pass input must allow shader resoure view.");
       return false;

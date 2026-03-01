@@ -100,10 +100,7 @@ ezGALFenceHandle ezGALReadbackTextureHelper::ReadbackTexture(ezGALCommandEncoder
   // Reset properties that have no influence on the readback texture.
   desc.m_pExisitingNativeObject = nullptr;
   desc.m_ResourceAccess.m_bImmutable = false;
-  desc.m_bAllowShaderResourceView = false;
-  desc.m_bAllowUAV = false;
-  desc.m_bAllowRenderTargetView = false;
-  desc.m_bAllowDynamicMipGeneration = false;
+  desc.m_TextureFlags = {};
 
 
   if (!m_hReadbackTexture.IsInvalidated())

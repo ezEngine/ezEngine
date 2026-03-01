@@ -124,9 +124,8 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
     ezGALTextureCreationDescription desc;
     desc.SetAsRenderTarget(128, 128, textureFormat, ezGALMSAASampleCount::None);
     desc.m_Type = ezGALTextureType::Texture2DArray;
-    desc.m_bAllowUAV = true;
+    desc.m_TextureFlags = ezGALTextureUsageFlags::ShaderResource | ezGALTextureUsageFlags::UnorderedAccess;
     desc.m_uiArraySize = 2;
-    desc.m_bAllowRenderTargetView = false;
     desc.m_uiMipLevelCount = 6;
     desc.m_ResourceAccess.m_bImmutable = false;
     m_hTexture2D = m_pDevice->CreateTexture(desc);

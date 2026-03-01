@@ -112,17 +112,17 @@ ezResult ezGALTextureDX11::Create2DDesc(const ezGALTextureCreationDescription& d
       EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
 
-  if (description.m_bAllowShaderResourceView || description.m_bAllowDynamicMipGeneration)
+  if (description.m_TextureFlags.IsAnySet(ezGALTextureUsageFlags::ShaderResource | ezGALTextureUsageFlags::DynamicMipGeneration))
     out_tex2DDesc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
-  if (description.m_bAllowUAV)
+  if (description.m_TextureFlags.IsSet(ezGALTextureUsageFlags::UnorderedAccess))
     out_tex2DDesc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
 
-  if (description.m_bAllowRenderTargetView || description.m_bAllowDynamicMipGeneration)
+  if (description.m_TextureFlags.IsAnySet(ezGALTextureUsageFlags::RenderTarget | ezGALTextureUsageFlags::DynamicMipGeneration))
     out_tex2DDesc.BindFlags |= ezGALResourceFormat::IsDepthFormat(description.m_Format) ? D3D11_BIND_DEPTH_STENCIL : D3D11_BIND_RENDER_TARGET;
 
   out_tex2DDesc.Usage = description.m_ResourceAccess.IsImmutable() ? D3D11_USAGE_IMMUTABLE : D3D11_USAGE_DEFAULT;
 
-  if (description.m_bAllowRenderTargetView || description.m_bAllowUAV)
+  if (description.m_TextureFlags.IsAnySet(ezGALTextureUsageFlags::RenderTarget | ezGALTextureUsageFlags::UnorderedAccess))
     out_tex2DDesc.Usage = D3D11_USAGE_DEFAULT;
 
   out_tex2DDesc.Format = pDXDevice->GetFormatLookupTable().GetFormatInfo(description.m_Format).m_eStorage;
@@ -137,7 +137,7 @@ ezResult ezGALTextureDX11::Create2DDesc(const ezGALTextureCreationDescription& d
   out_tex2DDesc.Height = description.m_uiHeight;
   out_tex2DDesc.MipLevels = description.m_uiMipLevelCount;
 
-  if (description.m_bAllowDynamicMipGeneration)
+  if (description.m_TextureFlags.IsSet(ezGALTextureUsageFlags::DynamicMipGeneration))
     out_tex2DDesc.MiscFlags |= D3D11_RESOURCE_MISC_GENERATE_MIPS;
 
   out_tex2DDesc.SampleDesc.Count = description.m_SampleCount;
@@ -150,18 +150,18 @@ ezResult ezGALTextureDX11::Create3DDesc(const ezGALTextureCreationDescription& d
 {
   out_tex3DDesc.BindFlags = 0;
 
-  if (description.m_bAllowShaderResourceView)
+  if (description.m_TextureFlags.IsSet(ezGALTextureUsageFlags::ShaderResource))
     out_tex3DDesc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
-  if (description.m_bAllowUAV)
+  if (description.m_TextureFlags.IsSet(ezGALTextureUsageFlags::UnorderedAccess))
     out_tex3DDesc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
 
-  if (description.m_bAllowRenderTargetView)
+  if (description.m_TextureFlags.IsSet(ezGALTextureUsageFlags::RenderTarget))
     out_tex3DDesc.BindFlags |= ezGALResourceFormat::IsDepthFormat(description.m_Format) ? D3D11_BIND_DEPTH_STENCIL : D3D11_BIND_RENDER_TARGET;
 
   out_tex3DDesc.CPUAccessFlags = 0; // We always use staging textures to update the data
   out_tex3DDesc.Usage = description.m_ResourceAccess.IsImmutable() ? D3D11_USAGE_IMMUTABLE : D3D11_USAGE_DEFAULT;
 
-  if (description.m_bAllowRenderTargetView || description.m_bAllowUAV)
+  if (description.m_TextureFlags.IsAnySet(ezGALTextureUsageFlags::RenderTarget | ezGALTextureUsageFlags::UnorderedAccess))
     out_tex3DDesc.Usage = D3D11_USAGE_DEFAULT;
 
   out_tex3DDesc.Format = pDXDevice->GetFormatLookupTable().GetFormatInfo(description.m_Format).m_eStorage;
@@ -179,7 +179,7 @@ ezResult ezGALTextureDX11::Create3DDesc(const ezGALTextureCreationDescription& d
 
   out_tex3DDesc.MiscFlags = 0;
 
-  if (description.m_bAllowDynamicMipGeneration)
+  if (description.m_TextureFlags.IsSet(ezGALTextureUsageFlags::DynamicMipGeneration))
     out_tex3DDesc.MiscFlags |= D3D11_RESOURCE_MISC_GENERATE_MIPS;
 
   return EZ_SUCCESS;

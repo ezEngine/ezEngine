@@ -955,7 +955,7 @@ ezGALTextureHandle ezGALDevice::CreateTexture(const ezGALTextureCreationDescript
   /// \todo Platform independent validation (desc width & height < platform maximum, format, etc.)
 
   if (desc.m_ResourceAccess.IsImmutable() && (initialData.IsEmpty() || initialData.GetCount() < desc.m_uiMipLevelCount) &&
-      !desc.m_bAllowRenderTargetView)
+      !desc.m_TextureFlags.IsSet(ezGALTextureUsageFlags::RenderTarget))
   {
     ezLog::Error("Trying to create an immutable texture but not supplying initial data (or not enough data pointers) is not possible!");
     return ezGALTextureHandle();
@@ -987,7 +987,7 @@ ezGALTextureHandle ezGALDevice::FinalizeTextureInternal(const ezGALTextureCreati
     ezGALTextureHandle hTexture(m_Textures.Insert(pTexture));
 
     // Create default render target view
-    if (desc.m_bAllowRenderTargetView)
+    if (desc.m_TextureFlags.IsSet(ezGALTextureUsageFlags::RenderTarget))
     {
       ezGALRenderTargetViewCreationDescription rtDesc;
       rtDesc.m_hTexture = hTexture;
@@ -998,7 +998,7 @@ ezGALTextureHandle ezGALDevice::FinalizeTextureInternal(const ezGALTextureCreati
         rtDesc.m_OverrideViewType = ezGALTextureType::Texture2DArray;
       }
 
-      pTexture->m_hDefaultRenderTargetView = CreateRenderTargetView(rtDesc);
+      pTexture->m_hDefaultRenderTargetView = GetRenderTargetView(rtDesc);
     }
 
     return hTexture;
@@ -1045,14 +1045,14 @@ ezGALTextureHandle ezGALDevice::CreateProxyTexture(ezGALTextureHandle hParentTex
   ezGALTextureHandle hProxyTexture(m_Textures.Insert(pProxyTexture));
 
   // Create default render target view
-  // if (desc.m_bAllowRenderTargetView)
+  // if (desc.m_TextureFlags.IsSet(ezGALTextureUsageFlags::RenderTarget))
   {
     ezGALRenderTargetViewCreationDescription rtDesc;
     rtDesc.m_hTexture = hProxyTexture;
     rtDesc.m_uiFirstSlice = uiSlice;
     rtDesc.m_uiSliceCount = 1;
 
-    pProxyTexture->m_hDefaultRenderTargetView = CreateRenderTargetView(rtDesc);
+    pProxyTexture->m_hDefaultRenderTargetView = GetRenderTargetView(rtDesc);
   }
 
   return hProxyTexture;
@@ -1080,7 +1080,7 @@ ezGALTextureHandle ezGALDevice::CreateSharedTexture(const ezGALTextureCreationDe
   /// \todo Platform independent validation (desc width & height < platform maximum, format, etc.)
 
   if (desc.m_ResourceAccess.IsImmutable() && (initialData.IsEmpty() || initialData.GetCount() < desc.m_uiMipLevelCount) &&
-      !desc.m_bAllowRenderTargetView)
+      !desc.m_TextureFlags.IsSet(ezGALTextureUsageFlags::RenderTarget))
   {
     ezLog::Error("Trying to create an immutable texture but not supplying initial data (or not enough data pointers) is not possible!");
     return ezGALTextureHandle();
@@ -1285,51 +1285,6 @@ void ezGALDevice::UpdateTextureForNextFrame(ezGALTextureHandle hTexture, const e
   }
 }
 
-template <typename Handle, typename View, typename ViewTable, typename CacheTable>
-Handle ezGALDevice::TryGetView(ezUInt32 uiHash, ViewTable& viewTable, CacheTable& cacheTable)
-{
-  Handle hView;
-  if (cacheTable.TryGetValue(uiHash, hView))
-  {
-    View* pView = nullptr;
-    EZ_VERIFY(viewTable.TryGetValue(hView, pView), "Implementation error");
-    pView->AddRef();
-    return hView;
-  }
-  return {};
-}
-
-template <typename Handle, typename View, typename ViewTable, typename CacheTable>
-Handle ezGALDevice::InsertView(ezUInt32 uiHash, View* pView, ViewTable& viewTable, CacheTable& cacheTable)
-{
-  if (pView != nullptr)
-  {
-    Handle hResourceView(viewTable.Insert(pView));
-    cacheTable.Insert(uiHash, hResourceView);
-
-    return hResourceView;
-  }
-
-  return Handle();
-}
-
-template <typename View, typename Handle, typename ViewTable>
-void ezGALDevice::DestroyView(Handle& inout_hView, ViewTable& table, ezUInt32 galObjectType)
-{
-  EZ_GALDEVICE_LOCK_AND_CHECK();
-
-  View* pView = nullptr;
-  if (table.TryGetValue(inout_hView, pView))
-  {
-    if (pView->ReleaseRef() == 0)
-    {
-      AddDeadObject((GALObjectType::Enum)galObjectType, inout_hView);
-    }
-  }
-
-  inout_hView.Invalidate();
-}
-
 ezGALRenderTargetViewHandle ezGALDevice::GetDefaultRenderTargetView(ezGALTextureHandle hTexture)
 {
   if (const ezGALTexture* pTexture = GetTexture(hTexture))
@@ -1340,7 +1295,7 @@ ezGALRenderTargetViewHandle ezGALDevice::GetDefaultRenderTargetView(ezGALTexture
   return ezGALRenderTargetViewHandle();
 }
 
-ezGALRenderTargetViewHandle ezGALDevice::CreateRenderTargetView(const ezGALRenderTargetViewCreationDescription& desc)
+ezGALRenderTargetViewHandle ezGALDevice::GetRenderTargetView(const ezGALRenderTargetViewCreationDescription& desc)
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
@@ -1372,16 +1327,21 @@ ezGALRenderTargetViewHandle ezGALDevice::CreateRenderTargetView(const ezGALRende
 
   // Hash desc and return potential existing one
   const ezUInt32 uiHash = desc.CalculateHash();
-  if (auto hRenderTarget = TryGetView<ezGALRenderTargetViewHandle, ezGALRenderTargetView>(uiHash, m_RenderTargetViews, pTexture->m_RenderTargetViews); !hRenderTarget.IsInvalidated())
-    return hRenderTarget;
+  {
+    ezGALRenderTargetViewHandle hRenderTarget;
+    if (pTexture->m_RenderTargetViews.TryGetValue(uiHash, hRenderTarget))
+      return hRenderTarget;
+  }
 
   ezGALRenderTargetView* pRenderTargetView = CreateRenderTargetViewPlatform(pTexture, desc);
-  return InsertView<ezGALRenderTargetViewHandle, ezGALRenderTargetView>(uiHash, pRenderTargetView, m_RenderTargetViews, pTexture->m_RenderTargetViews);
-}
+  if (pRenderTargetView != nullptr)
+  {
+    ezGALRenderTargetViewHandle hView(m_RenderTargetViews.Insert(pRenderTargetView));
+    pTexture->m_RenderTargetViews.Insert(uiHash, hView);
+    return hView;
+  }
 
-void ezGALDevice::DestroyRenderTargetView(ezGALRenderTargetViewHandle& inout_hRenderTargetView)
-{
-  DestroyView<ezGALRenderTargetView>(inout_hRenderTargetView, m_RenderTargetViews, GALObjectType::RenderTargetView);
+  return ezGALRenderTargetViewHandle();
 }
 
 ezGALSwapChainHandle ezGALDevice::CreateSwapChain(const SwapChainFactoryFunction& func)
@@ -1865,22 +1825,7 @@ void ezGALDevice::DestroyDeadObjects()
         DestroyReadbackTexturePlatform(pTexture);
         break;
       }
-      case GALObjectType::RenderTargetView:
-      {
-        ezGALRenderTargetViewHandle hRenderTargetView(ezGAL::ez18_14Id(deadObject.m_uiHandle));
-        ezGALRenderTargetView* pRenderTargetView = nullptr;
 
-        EZ_VERIFY(m_RenderTargetViews.Remove(hRenderTargetView, &pRenderTargetView), "");
-
-        ezGALTexture* pTexture = pRenderTargetView->m_pTexture;
-        EZ_ASSERT_DEBUG(pTexture != nullptr, "");
-        EZ_VERIFY(pTexture->m_RenderTargetViews.Remove(pRenderTargetView->GetDescription().CalculateHash()), "");
-        pRenderTargetView->m_pTexture = nullptr;
-
-        DestroyRenderTargetViewPlatform(pRenderTargetView);
-
-        break;
-      }
       case GALObjectType::SwapChain:
       {
         ezGALSwapChainHandle hSwapChain(ezGAL::ez16_16Id(deadObject.m_uiHandle));

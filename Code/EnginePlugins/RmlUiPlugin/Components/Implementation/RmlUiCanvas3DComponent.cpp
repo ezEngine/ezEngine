@@ -441,7 +441,7 @@ bool ezRmlUiCanvas3DComponent::UpdateTextureAndMaterial()
     if (ezMath::IsPowerOf2(m_vSize.x) && ezMath::IsPowerOf2(m_vSize.y))
     {
       desc.m_DescGAL.m_uiMipLevelCount = ezMath::Max(ezMath::Log2i(m_vSize.x), ezMath::Log2i(m_vSize.y)) - 2;
-      desc.m_DescGAL.m_bAllowDynamicMipGeneration = true;
+      desc.m_DescGAL.m_TextureFlags.Add(ezGALTextureUsageFlags::DynamicMipGeneration);
     }
 
     ezStringBuilder resourceName = "RmlUiCanvas3DComponent_Texture";

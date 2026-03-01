@@ -351,7 +351,7 @@ void ezReflectionPool::OnRenderEvent(const ezRenderWorldRenderEvent& e)
           desc.m_uiSliceCount = 1;
           desc.m_OverrideViewType = ezGALTextureType::Texture2DArray;
 
-          renderingSetup.SetColorTarget(0, pDevice->CreateRenderTargetView(desc));
+          renderingSetup.SetColorTarget(0, pDevice->GetRenderTargetView(desc));
           renderingSetup.SetClearColor(0, ezColor(0, 0, 0, 1));
 
           pCommandEncoder->BeginRendering(renderingSetup, "ClearSkySpecular");

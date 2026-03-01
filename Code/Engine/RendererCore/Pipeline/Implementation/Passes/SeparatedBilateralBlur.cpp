@@ -63,7 +63,7 @@ bool ezSeparatedBilateralBlurPass::GetRenderTargetDescriptions(const ezView& vie
     ezLog::Error("No blur target connected to bilateral blur pass!");
     return false;
   }
-  if (!inputs[m_PinBlurSourceInput.m_uiInputIndex]->m_bAllowShaderResourceView)
+  if (!inputs[m_PinBlurSourceInput.m_uiInputIndex]->m_TextureFlags.IsSet(ezGALTextureUsageFlags::ShaderResource))
   {
     ezLog::Error("All bilateral blur pass inputs must allow shader resoure view.");
     return false;
@@ -75,7 +75,7 @@ bool ezSeparatedBilateralBlurPass::GetRenderTargetDescriptions(const ezView& vie
     ezLog::Error("No depth connected to bilateral blur pass!");
     return false;
   }
-  if (!inputs[m_PinDepthInput.m_uiInputIndex]->m_bAllowShaderResourceView)
+  if (!inputs[m_PinDepthInput.m_uiInputIndex]->m_TextureFlags.IsSet(ezGALTextureUsageFlags::ShaderResource))
   {
     ezLog::Error("All bilateral blur pass inputs must allow shader resoure view.");
     return false;
@@ -101,8 +101,7 @@ void ezSeparatedBilateralBlurPass::Execute(const ezRenderViewContext& renderView
 
     // Get temp texture for horizontal target / vertical source.
     ezGALTextureCreationDescription tempTextureDesc = outputs[m_PinBlurSourceInput.m_uiInputIndex]->m_Desc;
-    tempTextureDesc.m_bAllowShaderResourceView = true;
-    tempTextureDesc.m_bAllowRenderTargetView = true;
+    tempTextureDesc.m_TextureFlags.Add(ezGALTextureUsageFlags::ShaderResource | ezGALTextureUsageFlags::RenderTarget);
     ezGALTextureHandle tempTexture = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(tempTextureDesc);
 
     ezGALRenderingSetup renderingSetup;

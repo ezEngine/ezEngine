@@ -64,7 +64,7 @@ bool ezReflectionFilterPass::GetRenderTargetDescriptions(const ezView& view, con
     desc.m_uiHeight = desc.m_uiWidth;
     desc.m_Format = ezGALResourceFormat::RGBAHalf;
     desc.m_Type = ezGALTextureType::TextureCube;
-    desc.m_bAllowUAV = true;
+    desc.m_TextureFlags.Add(ezGALTextureUsageFlags::UnorderedAccess);
     desc.m_uiMipLevelCount = ezMath::Log2i(desc.m_uiWidth) - 1;
     outputs[m_PinFilteredSpecular.m_uiOutputIndex] = desc;
   }
@@ -91,7 +91,7 @@ void ezReflectionFilterPass::Execute(const ezRenderViewContext& renderViewContex
   EZ_SCOPE_EXIT(
     renderViewContext.m_pRenderContext->SetAllowAsyncShaderLoading(bAllowAsyncShaderLoading));
 
-  if (pInputCubemap->GetDescription().m_bAllowDynamicMipGeneration)
+  if (pInputCubemap->GetDescription().m_TextureFlags.IsSet(ezGALTextureUsageFlags::DynamicMipGeneration))
   {
     renderViewContext.m_pRenderContext->GetCommandEncoder()->GenerateMipMaps(m_hInputCubemap, {});
   }

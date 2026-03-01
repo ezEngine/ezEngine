@@ -214,10 +214,7 @@ void ezPickingRenderPass::CreateTarget()
 
   // Create render target for picking
   ezGALTextureCreationDescription tcd;
-  tcd.m_bAllowDynamicMipGeneration = false;
-  tcd.m_bAllowShaderResourceView = false;
-  tcd.m_bAllowUAV = false;
-  tcd.m_bAllowRenderTargetView = true;
+  tcd.m_TextureFlags = ezGALTextureUsageFlags::RenderTarget;
   tcd.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
   tcd.m_Type = ezGALTextureType::Texture2D;
   tcd.m_uiWidth = (ezUInt32)m_TargetRect.width;
@@ -238,7 +235,7 @@ void ezPickingRenderPass::DestroyTarget()
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
-  m_RenderTargetSetup.DestroyAllAttachedViews();
+  m_RenderTargetSetup.Reset();
   pDevice->DestroyTexture(m_hPickingIdRT);
   pDevice->DestroyTexture(m_hPickingDepthRT);
 }

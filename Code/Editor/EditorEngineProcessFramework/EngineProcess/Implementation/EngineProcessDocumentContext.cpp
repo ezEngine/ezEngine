@@ -522,10 +522,7 @@ void ezEngineProcessDocumentContext::CreateThumbnailViewContext(const ezCreateTh
 
   // Create render target for picking
   ezGALTextureCreationDescription tcd;
-  tcd.m_bAllowDynamicMipGeneration = false;
-  tcd.m_bAllowShaderResourceView = false;
-  tcd.m_bAllowUAV = false;
-  tcd.m_bAllowRenderTargetView = true;
+  tcd.m_TextureFlags = ezGALTextureUsageFlags::RenderTarget;
   tcd.m_Format = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
   tcd.m_Type = ezGALTextureType::Texture2D;
   tcd.m_uiWidth = m_uiThumbnailWidth;

@@ -453,7 +453,7 @@ void ezShaderExplorerApp::UpdateSwapChain()
     texDesc.m_uiWidth = m_pWindow->GetClientAreaSize().width;
     texDesc.m_uiHeight = m_pWindow->GetClientAreaSize().height;
     texDesc.m_Format = ezGALResourceFormat::D24S8;
-    texDesc.m_bAllowRenderTargetView = true;
+    texDesc.m_TextureFlags.Add(ezGALTextureUsageFlags::RenderTarget);
 
     m_hDepthStencilTexture = m_pDevice->CreateTexture(texDesc);
   }

@@ -57,7 +57,7 @@ bool ezBloomPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayP
   // Color
   if (inputs[m_PinInput.m_uiInputIndex])
   {
-    if (!inputs[m_PinInput.m_uiInputIndex]->m_bAllowShaderResourceView)
+    if (!inputs[m_PinInput.m_uiInputIndex]->m_TextureFlags.IsSet(ezGALTextureUsageFlags::ShaderResource))
     {
       ezLog::Error("'{0}' input must allow shader resource view.", GetName());
       return false;

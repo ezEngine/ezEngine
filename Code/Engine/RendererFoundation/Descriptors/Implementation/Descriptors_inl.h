@@ -44,10 +44,7 @@ inline void ezGALTextureCreationDescription::SetAsRenderTarget(ezUInt32 uiWidth,
   m_SampleCount = sampleCount;
   m_Format = format;
   m_Type = ezGALTextureType::Texture2D;
-  m_bAllowShaderResourceView = true;
-  m_bAllowUAV = false;
-  m_bAllowRenderTargetView = true;
-  m_bAllowDynamicMipGeneration = false;
+  m_TextureFlags = ezGALTextureUsageFlags::ShaderResource | ezGALTextureUsageFlags::RenderTarget;
   m_ResourceAccess.m_bImmutable = false;
   m_pExisitingNativeObject = nullptr;
 }

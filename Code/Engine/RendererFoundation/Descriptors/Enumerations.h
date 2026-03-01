@@ -175,6 +175,32 @@ struct ezGALVertexAttributeSemantic
   };
 };
 
+/// \brief Defines for what purpose a texture can be used for.
+/// \sa ezGALTextureCreationDescription
+struct ezGALTextureUsageFlags
+{
+  using StorageType = ezUInt8;
+
+  enum Enum
+  {
+    ShaderResource = EZ_BIT(0),       ///< Can be used for ezGALShaderResourceType in the SRV section.
+    UnorderedAccess = EZ_BIT(1),      ///< Can be used for ezGALShaderResourceType in the UAV section.
+    RenderTarget = EZ_BIT(2),         ///< Can be used as a render target or depth-stencil target.
+    DynamicMipGeneration = EZ_BIT(3), ///< Supports dynamic mipmap generation.
+
+    Default = ShaderResource
+  };
+
+  struct Bits
+  {
+    StorageType ShaderResource : 1;
+    StorageType UnorderedAccess : 1;
+    StorageType RenderTarget : 1;
+    StorageType DynamicMipGeneration : 1;
+  };
+};
+EZ_DECLARE_FLAGS_OPERATORS(ezGALTextureUsageFlags);
+
 /// \brief Defines for what purpose a buffer can be used for.
 /// \sa ezGALBufferCreationDescription
 struct ezGALBufferUsageFlags

@@ -42,7 +42,7 @@ bool ezBlendPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayP
   // Color
   if (inputs[m_PinInputA.m_uiInputIndex] && inputs[m_PinInputB.m_uiInputIndex])
   {
-    if (!inputs[m_PinInputA.m_uiInputIndex]->m_bAllowShaderResourceView || !inputs[m_PinInputB.m_uiInputIndex]->m_bAllowShaderResourceView)
+    if (!inputs[m_PinInputA.m_uiInputIndex]->m_TextureFlags.IsSet(ezGALTextureUsageFlags::ShaderResource) || !inputs[m_PinInputB.m_uiInputIndex]->m_TextureFlags.IsSet(ezGALTextureUsageFlags::ShaderResource))
     {
       ezLog::Error("Blend pass inputs must allow shader resource view.");
       return false;

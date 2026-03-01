@@ -99,7 +99,7 @@ bool ezLSAOPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPt
     ezLog::Error("No depth input connected to ssao pass!");
     return false;
   }
-  if (!inputs[m_PinDepthInput.m_uiInputIndex]->m_bAllowShaderResourceView)
+  if (!inputs[m_PinDepthInput.m_uiInputIndex]->m_TextureFlags.IsSet(ezGALTextureUsageFlags::ShaderResource))
   {
     ezLog::Error("All ssao pass inputs must allow shader resource view.");
     return false;
@@ -148,8 +148,7 @@ void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
   if (m_bDistributedGathering)
   {
     ezGALTextureCreationDescription tempTextureDesc = outputs[m_PinOutput.m_uiOutputIndex]->m_Desc;
-    tempTextureDesc.m_bAllowShaderResourceView = true;
-    tempTextureDesc.m_bAllowRenderTargetView = true;
+    tempTextureDesc.m_TextureFlags.Add(ezGALTextureUsageFlags::ShaderResource | ezGALTextureUsageFlags::RenderTarget);
     tempTexture = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(tempTextureDesc);
     renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(tempTexture));
   }

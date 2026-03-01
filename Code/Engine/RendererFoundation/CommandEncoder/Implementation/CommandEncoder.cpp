@@ -317,8 +317,8 @@ void ezGALCommandEncoder::GenerateMipMaps(ezGALTextureHandle hTexture, ezGALText
   const ezGALTexture* pTexture = m_Device.GetTexture(hTexture);
   if (pTexture != nullptr)
   {
-    EZ_ASSERT_DEV(pTexture->GetDescription().m_bAllowDynamicMipGeneration,
-      "Dynamic mip map generation needs to be enabled (m_bAllowDynamicMipGeneration = true)!");
+    EZ_ASSERT_DEV(pTexture->GetDescription().m_TextureFlags.IsSet(ezGALTextureUsageFlags::DynamicMipGeneration),
+      "Dynamic mip map generation needs to be enabled (ezGALTextureUsageFlags::DynamicMipGeneration)!");
 
     range = pTexture->ClampRange(range);
     m_CommonImpl.GenerateMipMapsPlatform(pTexture, range);

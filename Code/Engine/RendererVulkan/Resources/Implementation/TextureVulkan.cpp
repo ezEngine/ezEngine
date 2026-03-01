@@ -153,8 +153,8 @@ void ezGALTextureVulkan::ComputeCreateInfo(const ezGALDeviceVulkan* m_pDevice, c
 
   createInfo.samples = static_cast<vk::SampleCountFlagBits>(m_Description.m_SampleCount.GetValue());
 
-  // m_bAllowDynamicMipGeneration has to be emulated via a shader so we need to enable shader resource view and render target support.
-  if (m_Description.m_bAllowShaderResourceView || m_Description.m_bAllowDynamicMipGeneration)
+  // DynamicMipGeneration has to be emulated via a shader so we need to enable shader resource view and render target support.
+  if (m_Description.m_TextureFlags.IsAnySet(ezGALTextureUsageFlags::ShaderResource | ezGALTextureUsageFlags::DynamicMipGeneration))
   {
     // Needed for blit-based generation
     createInfo.usage |= vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eTransferSrc;
@@ -173,7 +173,7 @@ void ezGALTextureVulkan::ComputeCreateInfo(const ezGALDeviceVulkan* m_pDevice, c
     createInfo.usage |= vk::ImageUsageFlagBits::eDepthStencilAttachment;
   }
 
-  if (m_Description.m_bAllowRenderTargetView || m_Description.m_bAllowDynamicMipGeneration)
+  if (m_Description.m_TextureFlags.IsAnySet(ezGALTextureUsageFlags::RenderTarget | ezGALTextureUsageFlags::DynamicMipGeneration))
   {
     if (bIsDepth)
     {
@@ -190,7 +190,7 @@ void ezGALTextureVulkan::ComputeCreateInfo(const ezGALDeviceVulkan* m_pDevice, c
     }
   }
 
-  if (m_Description.m_bAllowUAV)
+  if (m_Description.m_TextureFlags.IsSet(ezGALTextureUsageFlags::UnorderedAccess))
   {
     createInfo.usage |= vk::ImageUsageFlagBits::eStorage;
     m_stages |= m_pDevice->GetSupportedStages();
@@ -220,7 +220,7 @@ void ezGALTextureVulkan::ComputeCreateInfo(const ezGALDeviceVulkan* m_pDevice, c
     {
       createInfo.arrayLayers = 1;
       createInfo.imageType = vk::ImageType::e3D;
-      if (m_Description.m_bAllowRenderTargetView)
+      if (m_Description.m_TextureFlags.IsSet(ezGALTextureUsageFlags::RenderTarget))
       {
         createInfo.flags |= vk::ImageCreateFlagBits::e2DArrayCompatible;
       }

@@ -152,11 +152,11 @@ void ezGALBindGroupCreationDescription::AssertValidDescription(const ezGALDevice
 
         if (category.IsSet(ezGALShaderResourceCategory::TextureSRV))
         {
-          EZ_ASSERT_ALWAYS(textureDesc.m_bAllowShaderResourceView, "Texture must have the m_bAllowShaderResourceView bool set to be used as an SRV");
+          EZ_ASSERT_ALWAYS(textureDesc.m_TextureFlags.IsSet(ezGALTextureUsageFlags::ShaderResource), "Texture must have the ShaderResourceView flag set to be used as an SRV");
         }
         if (category.IsSet(ezGALShaderResourceCategory::TextureUAV))
         {
-          EZ_ASSERT_ALWAYS(textureDesc.m_bAllowUAV, "Texture must have the m_bAllowUAV bool set to be used as an UAV");
+          EZ_ASSERT_ALWAYS(textureDesc.m_TextureFlags.IsSet(ezGALTextureUsageFlags::UnorderedAccess), "Texture must have the UnorderedAccess flag set to be used as a UAV");
         }
         const ezUInt32 uiSlices = (textureDesc.m_Type == ezGALTextureType::TextureCube || textureDesc.m_Type == ezGALTextureType::TextureCubeArray) ? textureDesc.m_uiArraySize * 6 : textureDesc.m_uiArraySize;
         EZ_ASSERT_ALWAYS(textureDesc.m_Type != ezGALTextureType::Texture2DProxy, "Proxy textures must be resolved to their base texture before binding");

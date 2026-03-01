@@ -72,7 +72,7 @@ ezResult ezRendererTestSwapChain::InitializeSubTest(ezInt32 iIdentifier)
         break;
     }
 
-    texDesc.m_bAllowRenderTargetView = true;
+    texDesc.m_TextureFlags.Add(ezGALTextureUsageFlags::RenderTarget);
     m_hDepthStencilTexture = m_pDevice->CreateTexture(texDesc);
   }
 
@@ -115,7 +115,7 @@ void ezRendererTestSwapChain::ResizeTest(ezUInt32 uiInvocationCount)
       texDesc.m_uiWidth = m_CurrentWindowSize.width;
       texDesc.m_uiHeight = m_CurrentWindowSize.height;
       texDesc.m_Format = ezGALResourceFormat::DFloat;
-      texDesc.m_bAllowRenderTargetView = true;
+      texDesc.m_TextureFlags.Add(ezGALTextureUsageFlags::RenderTarget);
       m_hDepthStencilTexture = m_pDevice->CreateTexture(texDesc);
     }
   }

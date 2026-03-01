@@ -302,8 +302,7 @@ void ezReflectionPool::Data::CreateReflectionViewsAndResources()
     desc.m_uiArraySize = 1;
     desc.m_Format = ezGALResourceFormat::RGBAHalf;
     desc.m_Type = ezGALTextureType::TextureCubeArray;
-    desc.m_bAllowRenderTargetView = false;
-    desc.m_bAllowUAV = true;
+    desc.m_TextureFlags = ezGALTextureUsageFlags::ShaderResource | ezGALTextureUsageFlags::UnorderedAccess;
     desc.m_ResourceAccess.m_bImmutable = false;
 
     m_hFallbackReflectionSpecularTexture = pDevice->CreateTexture(desc);
@@ -361,8 +360,7 @@ void ezReflectionPool::Data::CreateSkyIrradianceTexture()
     desc.m_uiHeight = 64;
     desc.m_Format = ezGALResourceFormat::RGBAHalf;
     desc.m_Type = ezGALTextureType::Texture2D;
-    desc.m_bAllowRenderTargetView = true;
-    desc.m_bAllowUAV = true;
+    desc.m_TextureFlags.Add(ezGALTextureUsageFlags::RenderTarget | ezGALTextureUsageFlags::UnorderedAccess);
 
     m_hSkyIrradianceTexture = pDevice->CreateTexture(desc);
     pDevice->GetTexture(m_hSkyIrradianceTexture)->SetDebugName("Sky Irradiance Texture");

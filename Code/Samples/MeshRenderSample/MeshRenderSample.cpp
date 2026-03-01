@@ -133,7 +133,7 @@ public:
       texDesc.m_uiWidth = windowSize.width;
       texDesc.m_uiHeight = windowSize.height;
       texDesc.m_Format = ezGALResourceFormat::D24S8;
-      texDesc.m_bAllowRenderTargetView = true;
+      texDesc.m_TextureFlags.Add(ezGALTextureUsageFlags::RenderTarget);
 
       m_hDepthStencilTexture = m_pDevice->CreateTexture(texDesc);
 

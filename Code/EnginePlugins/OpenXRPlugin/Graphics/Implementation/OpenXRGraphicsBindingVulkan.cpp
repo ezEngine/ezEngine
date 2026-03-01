@@ -255,7 +255,7 @@ XrResult ezOpenXRGraphicsBindingVulkan::CreateSwapchainImages(XrSwapchain swapch
     textureDesc.m_uiArraySize = 2;
     textureDesc.m_pExisitingNativeObject = (void*)vkImage;
     textureDesc.m_Type = ezGALTextureType::Texture2DArray;
-    textureDesc.m_bAllowRenderTargetView = true;
+    textureDesc.m_TextureFlags.Add(ezGALTextureUsageFlags::RenderTarget);
     textureDesc.m_ResourceAccess.m_bImmutable = true;
 
     out_textures.PushBack(pDevice->CreateTexture(textureDesc, ezArrayPtr<ezGALSystemMemoryDescription>()));
