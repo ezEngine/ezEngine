@@ -64,7 +64,10 @@ void ezAssetDocumentInfo::ClearMetaData()
 {
   for (auto* pObj : m_MetaInfo)
   {
-    pObj->GetDynamicRTTI()->GetAllocator()->Deallocate(pObj);
+    if (pObj)
+    {
+      pObj->GetDynamicRTTI()->GetAllocator()->Deallocate(pObj);
+    }
   }
   m_MetaInfo.Clear();
 }

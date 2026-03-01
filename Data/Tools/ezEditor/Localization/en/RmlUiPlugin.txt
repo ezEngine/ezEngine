@@ -4,8 +4,11 @@ RmlUi;Rml UI;;https://ezengine.net/pages/docs/ui/rmlui.html
 
 # Component Types
 
-ezRmlUiCanvas2DComponent;RmlUi Canvas 2D;;https://ezengine.net/pages/docs/ui/rmlui-canvas2d-component.html
+ezRmlUiCanvas2DComponent;RmlUi Canvas 2D;;https://ezengine.net/pages/docs/ui/rmlui.html
+
+# These still need dedicated documentation pages
 ezRmlUiCanvas3DComponent;RmlUi Canvas 3D
+ezRmlUiCanvas3DInteractionExampleComponent;RmlUi Canvas 3D Interaction Example
 
 # Properties
 

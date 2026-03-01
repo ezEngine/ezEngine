@@ -1,6 +1,7 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <Core/System/Window.h>
+#include <Core/World/Component.h>
 #include <EditorFramework/Actions/WindowLayoutActions.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetProcessor.h>
@@ -279,6 +280,8 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
         m_pTranslatorFromFiles->AddTranslationFilesFromFolder(":project/Editor/Localization/en");
       }
 
+      LogMissingComponentDocumentation();
+
       // tell the engine process which file system and plugin configuration to use
       ezEditorEngineProcessConnection::GetSingleton()->SetFileSystemConfig(m_FileSystemConfig);
       ezEditorEngineProcessConnection::GetSingleton()->SetPluginConfig(GetRuntimePluginConfig(true));
@@ -534,4 +537,25 @@ void ezQtEditorApp::SetupNewProject()
       file.Close().IgnoreResult();
     }
   }
+}
+
+void ezQtEditorApp::LogMissingComponentDocumentation()
+{
+  EZ_LOG_BLOCK("Missing Component Documentation");
+
+  ezRTTI::ForEachDerivedType<ezComponent>(
+    [](const ezRTTI* pRtti)
+    {
+      if (pRtti->GetAttributeByType<ezInDevelopmentAttribute>() != nullptr)
+        return;
+      if (pRtti->GetAttributeByType<ezHiddenAttribute>() != nullptr)
+        return;
+
+      ezStringView sTypeName = pRtti->GetTypeName();
+      if (ezTranslateHelpURL(sTypeName).IsEmpty())
+      {
+        ezLog::Warning("Component '{}' has no documentation link.", sTypeName);
+      }
+    },
+    ezRTTI::ForEachOptions::ExcludeAbstract);
 }

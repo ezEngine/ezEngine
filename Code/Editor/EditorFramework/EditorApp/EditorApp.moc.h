@@ -260,6 +260,7 @@ private:
   void SetupNewProject();
   void LoadEditorPreferences();
   void LoadProjectPreferences();
+  void LogMissingComponentDocumentation();
   void StoreEnginePluginModificationTimes();
   bool CheckForEnginePluginModifications();
   void SaveAllOpenDocuments();

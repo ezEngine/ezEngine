@@ -72,7 +72,6 @@ ezBakedProbesVolumeComponent;Baked Probes Volume
 ezScriptComponent;Script Component;;https://ezengine.net/pages/docs/custom-code/visual-script/script-component.html
 ezSplineComponent;Spline;;https://ezengine.net/pages/docs/animation/paths/spline-component.html
 ezSplineNodeComponent;Spline Node;;https://ezengine.net/pages/docs/animation/paths/spline-node-component.html
-ezFollowPathComponent;Follow Path;;https://ezengine.net/pages/docs/animation/paths/follow-path-component.html
 ezPowerConnectorComponent;Power Connector;;https://ezengine.net/pages/docs/gameplay/power-connector-component.html
 ezTriggerDelayModifierComponent;Trigger Delay Modifier;;https://ezengine.net/pages/docs/custom-code/game-logic/trigger-delay-modifier-component.html
 ezCommentComponent;Comment;;https://ezengine.net/pages/docs/misc/components/comment-component.html
@@ -86,6 +85,9 @@ ezAimIKComponent;Aim IK;;https://ezengine.net/pages/docs/animation/skeletal-anim
 ezCreatureCrawlComponent;Creature Crawl;;https://ezengine.net/pages/docs/gameplay/creature-crawl-component.html
 ezLodComponent;LOD Component;;https://ezengine.net/pages/docs/graphics/lod-component.html
 ezSceneTransitionComponent;Scene Transition;;https://ezengine.net/pages/docs/gameplay/scene-transition-component.html
+ezSplineMeshComponent;Spline Mesh;;https://ezengine.net/pages/docs/animation/paths/spline-mesh-component.html
+ezFollowSplineComponent;Follow Spline;;https://ezengine.net/pages/docs/animation/paths/follow-path-component.html
+ezVolumeSamplerComponent;Volume Sampler;;https://ezengine.net/pages/docs/gameplay/volume-sampler-component.html
 
 # Properties
 

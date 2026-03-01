@@ -32,6 +32,8 @@ ezJoltDefaultCharacterComponent;Default Character Controller (Jolt);;https://eze
 ezJoltGrabObjectComponent;Grab Object (Jolt);;https://ezengine.net/pages/docs/physics/jolt/special/jolt-grab-object-component.html
 ezJoltClothSheetComponent;Cloth Sheet (Jolt);;https://ezengine.net/pages/docs/physics/jolt/special/jolt-cloth-sheet-component.html
 ezJoltBreakableSlabComponent;Breakable Slab (Jolt);;https://ezengine.net/pages/docs/physics/jolt/special/jolt-breakable-slab-component.html
+ezJoltGenerateCollisionComponent;Generate Collision Mesh (Jolt);;https://ezengine.net/pages/docs/physics/jolt/special/jolt-generate-collision-component.html
+
 
 # UI
 

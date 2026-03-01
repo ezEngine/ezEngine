@@ -9,6 +9,7 @@ ezProcVertexColorComponent;Procedural Vertex Color;;http://ezengine.net/pages/do
 ezProcVolumeSphereComponent;Procedural Volume Sphere;;http://ezengine.net/pages/docs/terrain/procedural/procgen-volume-sphere-component.html
 ezProcVolumeBoxComponent;Procedural Volume Box;;http://ezengine.net/pages/docs/terrain/procedural/procgen-volume-box-component.html
 ezProcVolumeImageComponent;Procedural Volume Image;;http://ezengine.net/pages/docs/terrain/procedural/procgen-volume-image-component.html
+ezProcVolumeSplineComponent;Procedural Volume Spline;;http://ezengine.net/pages/docs/terrain/procedural/procgen-volume-spline-component.html
 
 # Enums
 
