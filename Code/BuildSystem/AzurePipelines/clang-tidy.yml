@@ -17,7 +17,7 @@ jobs:
 - job: StartVM
   displayName: StartVM
   pool:
-    vmImage: 'windows-2022'
+    vmImage: 'windows-latest'
   steps:
   - checkout: none
   - task: AzureKeyVault@2

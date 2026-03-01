@@ -22,13 +22,13 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           path: repo
           submodules: 'recursive'
 
       - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v1.0.2
+        uses: microsoft/setup-msbuild@v2
 
       - name: Run CMake
         run: |
@@ -42,14 +42,14 @@ jobs:
 
       - name: Artifact - Full Binaries
         if: github.event.inputs.full-binaries-artifact == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: full-binaries
           path: repo\Output\Bin\WinVs2022Shipping64
           retention-days: 3
 
       - name: Checkout Precompiled Tools Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: ezEngine/precompiled-tools
           ref: main
@@ -63,7 +63,7 @@ jobs:
 
       - name: Artifact - New Precompiled Tools
         if: github.event.inputs.new-binaries-artifact == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: new-precompiled-tools
           path: _tools
@@ -79,7 +79,7 @@ jobs:
 
       - name: Push to Submodule
         if: github.event.inputs.push-to-dev == 'true'
-        uses: ad-m/github-push-action@master
+        uses: ad-m/github-push-action@v1.0.0
         with:
           github_token: ${{ secrets.API_TOKEN_GITHUB }}
           branch: main

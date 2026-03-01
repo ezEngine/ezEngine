@@ -34,6 +34,7 @@ set_property(GLOBAL PROPERTY EZ_BUILD_FILTER_PrecompiledTools
     tinyexr
     DependencyAnalysis
     Lua
+    lunasvg
     Imgui
     zlib
 )

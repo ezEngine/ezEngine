@@ -15,24 +15,20 @@ on:
         description: 'Transform Projects'
         required: true
         default: 'true'
-      compile-shaders:
-        description: 'Compile Shaders'
-        required: true
-        default: 'true'
 jobs:
   build:
     runs-on: windows-latest
 
     steps:
       - name: Checkout ezEngine repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           path: repo
           submodules: 'recursive'
 
       - name: Read SDK Version
         id: sdk-version
-        uses: juliangruber/read-file-action@v1
+        uses: juliangruber/read-file-action@v1.1.7
         with:
           path: repo/version.txt
 
@@ -40,7 +36,7 @@ jobs:
         run: echo "SDK Version is ${{ steps.sdk-version.outputs.content }}"
 
       - name: Checkout template repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: ezEngine/release-template
           path: template_repo
@@ -62,16 +58,11 @@ jobs:
 
       - name: Artifact - Full Binaries
         if: github.event.inputs.full-binaries-artifact == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: full-binaries
           path: repo\Output\Bin\WinVs2022Dev64
           retention-days: 3
-
-      # - name: Compile Shaders
-      #   if: github.event.inputs.compile-shaders == 'true'
-      #   run: |
-      #     repo\Output\Bin\WinVs2022Dev64\ezShaderCompiler.exe -project repo\Data\Base -shader "Shaders" -IgnoreErrors
 
       - name: Transform All Projects
         if: github.event.inputs.transform-projects == 'true'
@@ -103,7 +94,7 @@ jobs:
 
       - name: Artifact - Release Package
         if: github.event.inputs.release-artifact == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ezEngine.Release.${{ steps.sdk-version.outputs.content }}
           path: ezEngine.Release.${{ steps.sdk-version.outputs.content }}.zip

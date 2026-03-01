@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Run ClangFormat
         id: format_files
@@ -81,7 +81,7 @@ jobs:
 
       - name: Upload Patch File
         if: ${{ steps.format_files.outputs.hasPatch == 'true' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ClangFormatPatch
           path: ${{github.workspace}}/clangFormat.patch
@@ -89,7 +89,7 @@ jobs:
 
       - name: Push Changes
         if: ${{ steps.format_files.outputs.push == 'true' && github.event.pull_request.head.repo.full_name == github.repository }}
-        uses: ad-m/github-push-action@master
+        uses: ad-m/github-push-action@v1.0.0
         with:
           github_token: ${{ secrets.API_TOKEN_GITHUB }}
           branch: ${{github.head_ref}}
