@@ -104,7 +104,7 @@ jobs:
   - task: MSBuild@1
     displayName: Build Solution
     inputs:
-      solution: $(System.DefaultWorkingDirectory)\Workspace\vs2026x64\solution.sln
+      solution: $(System.DefaultWorkingDirectory)\Workspace\vs2026x64\solution.slnx
       msbuildArchitecture: x64
       platform: x64
       configuration: Dev
