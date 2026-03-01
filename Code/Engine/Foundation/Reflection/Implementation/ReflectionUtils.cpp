@@ -10,7 +10,7 @@ namespace
 {
   // for some reason older MSVC versions do not accept the template keyword here
   // For newer MSVC (e.g. Visual Studio 2026 and later) use the `template` form.
-#if EZ_ENABLED(EZ_COMPILER_MSVC_PURE) && (_MSC_VER < 2030)
+#if EZ_ENABLED(EZ_COMPILER_MSVC_PURE) && (_MSC_VER < 1950)
 #  define CALL_FUNCTOR(functor, type) functor.operator()<type>(std::forward<Args>(args)...)
 #else
 #  define CALL_FUNCTOR(functor, type) functor.template operator()<type>(std::forward<Args>(args)...)
