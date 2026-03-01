@@ -58,15 +58,15 @@ jobs:
 
   - ${{ if eq(parameters.compileShaderCompiler, true) }}:
     - task: CMake@1
-      displayName: CMake vs2022x64
+      displayName: CMake vs2026x64
       inputs:
         cwd: $(System.DefaultWorkingDirectory)
-        cmakeArgs: --preset vs2022x64 -DEZ_BUILD_EXPERIMENTAL_VULKAN:BOOL=ON
+        cmakeArgs: --preset vs2026x64 -DEZ_BUILD_EXPERIMENTAL_VULKAN:BOOL=ON
 
     - task: CMake@1
-      displayName: CMake build vs2022x64
+      displayName: CMake build vs2026x64
       inputs:
-        cwd: $(System.DefaultWorkingDirectory)/Workspace/vs2022x64
+        cwd: $(System.DefaultWorkingDirectory)/Workspace/vs2026x64
         cmakeArgs: --build . --target ShaderCompiler --config dev
 
   - task: PowerShell@2
@@ -76,7 +76,7 @@ jobs:
       pwsh: true
       filePath: $(System.DefaultWorkingDirectory)/Utilities/Android/CompileShaders.ps1
       ${{ if eq(parameters.compileShaderCompiler, true) }}:
-        arguments: "-BinariesDir $(System.DefaultWorkingDirectory)/Output/Bin/WinVs2022Dev64"
+        arguments: "-BinariesDir $(System.DefaultWorkingDirectory)/Output/Bin/WinVs2026Dev64"
 
   - task: PowerShell@2
     displayName: Install Android Dependencies
