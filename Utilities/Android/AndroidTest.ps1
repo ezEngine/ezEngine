@@ -109,7 +109,7 @@ $pinfo.FileName = "$adb"
 $pinfo.RedirectStandardError = $false
 $pinfo.RedirectStandardOutput = $true
 $pinfo.UseShellExecute = $false
-$pinfo.Arguments = "-s $deviceAdb logcat"
+$pinfo.Arguments = "-s $deviceAdb logcat -s ezEngine"
 
 $process = New-Object System.Diagnostics.Process
 $process.StartInfo = $pinfo
@@ -117,7 +117,7 @@ $process.Start() | Out-Null
 
 $startTime = Get-Date
 $maxWaitTime = 300
-$outputContent = ""
+$outputLines = [System.Collections.Generic.List[string]]::new()
 $testSuccess = $false;
 $testFinished = $false;
 $checkActivityTime = Get-Date
@@ -148,9 +148,7 @@ while ((Get-Date) -lt ($startTime.AddSeconds($maxWaitTime)) -and !$process.HasEx
         $line = $stdoutTask.Result
         if ( $null -ne $line) {
             # Log to console
-            if ($line -match "ezEngine") {
-                Write-Host "$line"
-            }
+            Write-Host "$line"
 
             if ($line -match "All tests passed.") {
                 $testSuccess = $true
@@ -161,7 +159,7 @@ while ((Get-Date) -lt ($startTime.AddSeconds($maxWaitTime)) -and !$process.HasEx
             }
 
             # Will write to file later
-            $outputContent += "$line`n"
+            $outputLines.Add($line)
         }
         $stdoutTask = $process.StandardOutput.ReadLineAsync()
     }
@@ -181,7 +179,7 @@ else {
 }
 
 # Write logcat output to file
-$outputContent | Out-File -Encoding "UTF8" $outputFilePath
+$outputLines -join "`n" | Out-File -Encoding "UTF8" $outputFilePath
 
 # Download artifacts from device
 Adb-CopyDirectory -deviceAdb $deviceAdb -packageName $packageName -outputFolder $outputFolder -deviceFolder "/data/data/$packageName/files"
