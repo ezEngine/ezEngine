@@ -160,6 +160,7 @@ public:
   ezArrayPtr<ezJoltBreakableSlabComponent*> GetSlabsPutToSleep() { return m_SlabsPutToSleep.GetArrayPtr(); }
 
   void QueueBodyToAdd(JPH::Body* pBody, bool bAwake);
+  void RemoveBodyFromQueue(JPH::BodyID bodyId);
 
   JPH::GroupFilter* GetGroupFilter() const { return m_pGroupFilter; }
   JPH::GroupFilter* GetGroupFilterIgnoreSame() const { return m_pGroupFilterIgnoreSame; }

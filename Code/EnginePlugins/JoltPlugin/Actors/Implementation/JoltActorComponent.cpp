@@ -91,6 +91,10 @@ void ezJoltActorComponent::OnDeactivated()
     {
       pBodies->RemoveBody(bodyId);
     }
+    else
+    {
+      pModule->RemoveBodyFromQueue(bodyId);
+    }
 
     pBodies->DestroyBody(bodyId);
     m_uiJoltBodyID = JPH::BodyID::cInvalidBodyID;

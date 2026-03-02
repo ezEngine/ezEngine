@@ -589,6 +589,14 @@ void ezJoltWorldModule::QueueBodyToAdd(JPH::Body* pBody, bool bAwake)
     m_BodiesToAdd.PushBack(pBody->GetID().GetIndexAndSequenceNumber());
 }
 
+void ezJoltWorldModule::RemoveBodyFromQueue(JPH::BodyID bodyId)
+{
+  const ezUInt32 uiBodyID = bodyId.GetIndexAndSequenceNumber();
+  bool bRemoved = m_BodiesToAdd.RemoveAndSwap(uiBodyID);
+  bRemoved |= m_BodiesToAddAndActivate.RemoveAndSwap(uiBodyID);
+  EZ_ASSERT_DEV(bRemoved, "Body was not in add queue");
+}
+
 void ezJoltWorldModule::EnableJoinedBodiesCollisions(ezUInt32 uiObjectFilterID1, ezUInt32 uiObjectFilterID2, bool bEnable)
 {
   ezJoltGroupFilter* pFilter = static_cast<ezJoltGroupFilter*>(m_pGroupFilter);
