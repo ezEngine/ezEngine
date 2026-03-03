@@ -169,8 +169,8 @@ void ezWorldReader::ClearAndCompact()
 ezUInt64 ezWorldReader::GetHeapMemoryUsage() const
 {
   return m_RootObjectsToCreate.GetHeapMemoryUsage() + m_ChildObjectsToCreate.GetHeapMemoryUsage() +
-    m_ComponentTypes.GetHeapMemoryUsage() + m_ComponentTypeVersions.GetHeapMemoryUsage() +
-    m_ComponentCreationStream.GetHeapMemoryUsage() + m_ComponentDataStream.GetHeapMemoryUsage();
+         m_ComponentTypes.GetHeapMemoryUsage() + m_ComponentTypeVersions.GetHeapMemoryUsage() +
+         m_ComponentCreationStream.GetHeapMemoryUsage() + m_ComponentDataStream.GetHeapMemoryUsage();
 }
 
 ezUInt32 ezWorldReader::GetRootObjectCount() const
@@ -340,7 +340,7 @@ ezWorldReader::InstantiationContext::InstantiationContext(ezWorldReader& ref_wor
   const ezUInt32 uiChildObjectsToCreate = m_WorldReader.m_ChildObjectsToCreate.GetCount();
 
   m_IndexToGameObjectHandle.Reserve(uiRootObjectsToCreate + uiChildObjectsToCreate + 1);
-  m_IndexToGameObjectHandle.PushBack(ezGameObjectHandle());  
+  m_IndexToGameObjectHandle.PushBack(ezGameObjectHandle());
 
   m_ComponentTypeStates.Reserve(m_WorldReader.m_ComponentTypes.GetCount());
   for (ezUInt32 i = 0; i < m_WorldReader.m_ComponentTypes.GetCount(); ++i)
