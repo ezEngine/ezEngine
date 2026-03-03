@@ -84,7 +84,11 @@ struct ezGameObjectHandle
 template <>
 struct ezHashHelper<ezGameObjectHandle>
 {
-  EZ_ALWAYS_INLINE static ezUInt32 Hash(ezGameObjectHandle value) { return ezHashHelper<ezUInt64>::Hash(value.GetInternalID().m_Data); }
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(ezGameObjectHandle value)
+  {
+    const ezUInt64 data = value.GetInternalID().m_Data;
+    return ezHashingUtils::xxHash32(&data, sizeof(data));
+  }
 
   EZ_ALWAYS_INLINE static bool Equal(ezGameObjectHandle a, ezGameObjectHandle b) { return a == b; }
 };
@@ -177,9 +181,8 @@ struct ezHashHelper<ezComponentHandle>
 {
   EZ_ALWAYS_INLINE static ezUInt32 Hash(ezComponentHandle value)
   {
-    ezComponentId id = value.GetInternalID();
-    ezUInt64 data = *reinterpret_cast<ezUInt64*>(&id);
-    return ezHashHelper<ezUInt64>::Hash(data);
+    const ezUInt64 data = value.GetInternalID().m_Data;
+    return ezHashingUtils::xxHash32(&data, sizeof(data));
   }
 
   EZ_ALWAYS_INLINE static bool Equal(ezComponentHandle a, ezComponentHandle b) { return a == b; }

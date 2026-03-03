@@ -818,10 +818,10 @@ void ezGameObject::UpdateLocalBounds()
   ezSpatialSystem* pSpatialSystem = GetWorld()->GetSpatialSystem();
   if (pSpatialSystem != nullptr && (bRecreateSpatialData || m_pTransformationData->m_hSpatialData.IsInvalidated()))
   {
+    // UpdateGlobalBounds is called internally by RecreateSpatialData
     m_pTransformationData->RecreateSpatialData(*pSpatialSystem);
   }
-
-  if (IsStatic())
+  else if (IsStatic())
   {
     m_pTransformationData->UpdateGlobalBounds(pSpatialSystem);
   }
