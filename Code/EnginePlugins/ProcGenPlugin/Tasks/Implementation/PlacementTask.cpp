@@ -363,7 +363,7 @@ void PlacementTask::ExecuteVM()
       objectColor.r *= intensity;
       objectColor.g *= intensity;
       objectColor.b *= intensity;
-      objectColor.a = alpha;
+      objectColor.a = ezMath::ColorByteToFloat(alpha);
 
       placementTransform.m_ObjectColor = objectColor;
       placementTransform.m_bHasValidColor = true;

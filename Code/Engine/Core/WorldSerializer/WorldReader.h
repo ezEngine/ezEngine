@@ -196,7 +196,7 @@ private:
   class InstantiationContext : public InstantiationContextBase
   {
   public:
-    InstantiationContext(ezWorldReader& ref_worldReader, ezWorld* pWorld, bool bUseTransform, const ezTransform& rootTransform, const ezPrefabInstantiationOptions& options);
+    InstantiationContext(ezWorldReader& ref_worldReader, ezWorld* pWorld, bool bUseTransform, const ezTransform& rootTransform, const ezPrefabInstantiationOptions& options, ezAllocator* pAllocator);
     ~InstantiationContext();
 
     virtual StepResult Step() override;
@@ -228,6 +228,11 @@ private:
 
     struct ComponentTypeState
     {
+      ComponentTypeState(ezAllocator* pAllocator)
+        : m_ComponentIndexToHandle(pAllocator)
+      {
+      }
+
       ezUInt64 m_uiDataReadOffset = 0;
       ezDynamicArray<ezComponentHandle> m_ComponentIndexToHandle;
     };

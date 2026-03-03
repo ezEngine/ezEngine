@@ -147,9 +147,6 @@ bool ezWorldReader::HasComponentOfType(const ezRTTI* pRtti) const
 
 void ezWorldReader::ClearAndCompact()
 {
-  // m_IndexToGameObjectHandle.Clear();
-  // m_IndexToGameObjectHandle.Compact();
-
   m_RootObjectsToCreate.Clear();
   m_RootObjectsToCreate.Compact();
 
@@ -171,8 +168,9 @@ void ezWorldReader::ClearAndCompact()
 
 ezUInt64 ezWorldReader::GetHeapMemoryUsage() const
 {
-  return /*m_IndexToGameObjectHandle.GetHeapMemoryUsage() +*/ m_RootObjectsToCreate.GetHeapMemoryUsage() + m_ChildObjectsToCreate.GetHeapMemoryUsage() + m_ComponentTypes.GetHeapMemoryUsage() + m_ComponentTypeVersions.GetHeapMemoryUsage() + m_ComponentCreationStream.GetHeapMemoryUsage() +
-         m_ComponentDataStream.GetHeapMemoryUsage();
+  return m_RootObjectsToCreate.GetHeapMemoryUsage() + m_ChildObjectsToCreate.GetHeapMemoryUsage() +
+    m_ComponentTypes.GetHeapMemoryUsage() + m_ComponentTypeVersions.GetHeapMemoryUsage() +
+    m_ComponentCreationStream.GetHeapMemoryUsage() + m_ComponentDataStream.GetHeapMemoryUsage();
 }
 
 ezUInt32 ezWorldReader::GetRootObjectCount() const
@@ -315,32 +313,42 @@ ezUniquePtr<ezWorldReader::InstantiationContextBase> ezWorldReader::Instantiate(
 {
   if (options.m_MaxStepTime <= ezTime::MakeZero())
   {
-    InstantiationContext context = InstantiationContext(*this, &world, bUseTransform, rootTransform, options);
+    InstantiationContext context = InstantiationContext(*this, &world, bUseTransform, rootTransform, options, ezFrameAllocator::GetCurrentAllocator());
 
     EZ_VERIFY(context.Step() == InstantiationContextBase::StepResult::Finished, "Instantiation should be completed after this call");
     return nullptr;
   }
 
-  ezUniquePtr<InstantiationContext> pContext = EZ_DEFAULT_NEW(InstantiationContext, *this, &world, bUseTransform, rootTransform, options);
+  ezUniquePtr<InstantiationContext> pContext = EZ_DEFAULT_NEW(InstantiationContext, *this, &world, bUseTransform, rootTransform, options, ezFoundation::GetDefaultAllocator());
 
   return std::move(pContext);
 }
 
-ezWorldReader::InstantiationContext::InstantiationContext(ezWorldReader& ref_worldReader, ezWorld* pWorld, bool bUseTransform, const ezTransform& rootTransform, const ezPrefabInstantiationOptions& options)
+ezWorldReader::InstantiationContext::InstantiationContext(ezWorldReader& ref_worldReader, ezWorld* pWorld, bool bUseTransform, const ezTransform& rootTransform, const ezPrefabInstantiationOptions& options, ezAllocator* pAllocator)
   : m_WorldReader(ref_worldReader)
   , m_bUseTransform(bUseTransform)
   , m_RootTransform(rootTransform)
   , m_Options(options)
+  , m_IndexToGameObjectHandle(pAllocator)
+  , m_ComponentTypeStates(pAllocator)
 {
   m_Phase = Phase::CreateRootObjects;
 
   m_pWorld = pWorld;
 
-  m_IndexToGameObjectHandle.PushBack(ezGameObjectHandle());
+  const ezUInt32 uiRootObjectsToCreate = m_WorldReader.m_RootObjectsToCreate.GetCount();
+  const ezUInt32 uiChildObjectsToCreate = m_WorldReader.m_ChildObjectsToCreate.GetCount();
 
-  m_ComponentTypeStates.SetCount(ref_worldReader.m_ComponentTypes.GetCount());
-  for (auto& ct : m_ComponentTypeStates)
+  m_IndexToGameObjectHandle.Reserve(uiRootObjectsToCreate + uiChildObjectsToCreate + 1);
+  m_IndexToGameObjectHandle.PushBack(ezGameObjectHandle());  
+
+  m_ComponentTypeStates.Reserve(m_WorldReader.m_ComponentTypes.GetCount());
+  for (ezUInt32 i = 0; i < m_WorldReader.m_ComponentTypes.GetCount(); ++i)
   {
+    m_ComponentTypeStates.PushBack(ComponentTypeState(pAllocator));
+
+    auto& ct = m_ComponentTypeStates.PeekBack();
+    ct.m_ComponentIndexToHandle.Reserve(m_WorldReader.m_ComponentTypes[i].m_uiNumComponents);
     ct.m_ComponentIndexToHandle.PushBack(ezComponentHandle());
   }
 
@@ -357,8 +365,8 @@ ezWorldReader::InstantiationContext::InstantiationContext(ezWorldReader& ref_wor
   if (options.m_pProgress != nullptr)
   {
     m_pOverallProgressRange = EZ_DEFAULT_NEW(ezProgressRange, "Instantiate", Phase::Count, false, options.m_pProgress);
-    m_pOverallProgressRange->SetStepWeighting(Phase::CreateRootObjects, m_WorldReader.m_RootObjectsToCreate.GetCount() / 100.0f);
-    m_pOverallProgressRange->SetStepWeighting(Phase::CreateChildObjects, m_WorldReader.m_ChildObjectsToCreate.GetCount() / 100.0f);
+    m_pOverallProgressRange->SetStepWeighting(Phase::CreateRootObjects, uiRootObjectsToCreate / 100.0f);
+    m_pOverallProgressRange->SetStepWeighting(Phase::CreateChildObjects, uiChildObjectsToCreate / 100.0f);
     m_pOverallProgressRange->SetStepWeighting(Phase::CreateComponents, m_WorldReader.m_uiTotalNumComponents / 100.0f);
     m_pOverallProgressRange->SetStepWeighting(Phase::DeserializeComponents, m_WorldReader.m_uiTotalNumComponents / 100.0f);
     // Ten times more weight since init components takes way longer than the rest
@@ -396,6 +404,7 @@ ezWorldReader::InstantiationContext::StepResult ezWorldReader::InstantiationCont
       if (m_WorldReader.m_RootObjectsToCreate.GetCount() == 1 && m_WorldReader.m_RootObjectsToCreate[0].m_Desc.m_sName == m_Options.m_ReplaceNamedRootWithParent)
       {
         m_uiCurrentIndex = 1;
+        EZ_ASSERT_DEBUG(m_IndexToGameObjectHandle.GetCapacity() > m_IndexToGameObjectHandle.GetCount(), "m_IndexToGameObjectHandle should have the enough capacity.");
         m_IndexToGameObjectHandle.PushBack(m_Options.m_hParent);
 
         ezGameObject* pParent = nullptr;
@@ -579,6 +588,7 @@ bool ezWorldReader::InstantiationContext::CreateGameObjects(const ezDynamicArray
     }
 
     ezGameObject* pObject = nullptr;
+    EZ_ASSERT_DEBUG(m_IndexToGameObjectHandle.GetCapacity() > m_IndexToGameObjectHandle.GetCount(), "m_IndexToGameObjectHandle should have the enough capacity.");
     m_IndexToGameObjectHandle.PushBack(m_pWorld->CreateObject(desc, pObject));
 
     if (!godesc.m_sGlobalKey.IsEmpty())
@@ -654,6 +664,7 @@ bool ezWorldReader::InstantiationContext::CreateComponents(ezTime endTime)
       }
 
       EZ_ASSERT_DEBUG(uiComponentIdx == compTypeState.m_ComponentIndexToHandle.GetCount(), "Component index doesn't match");
+      EZ_ASSERT_DEBUG(compTypeState.m_ComponentIndexToHandle.GetCapacity() > compTypeState.m_ComponentIndexToHandle.GetCount(), "m_ComponentIndexToHandle should have the enough capacity.");
       compTypeState.m_ComponentIndexToHandle.PushBack(hComponent);
 
       ++m_uiCurrentIndex;

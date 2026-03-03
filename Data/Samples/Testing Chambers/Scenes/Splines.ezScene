@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12640593572254555674,10304997345485202463}}
-		u4 %Hash{9839971877231749725}
+		u4 %Hash{13691878469985653913}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -616,10 +616,11 @@ o
 {
 	Uuid %id{u4{7398741980933746105,5087335259099240879}}
 	s %t{"ezJoltGenerateCollisionComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		u1 %CollisionLayer{0}
 		VarArray %MeshMappings
 		{
 			Uuid{u4{4898210761515694217,4785387480103292592}}
@@ -2608,7 +2609,7 @@ o
 		s %PluginName{"ezEditorPluginJolt"}
 		VarArray %Properties{}
 		s %TypeName{"ezJoltGenerateCollisionComponent"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
