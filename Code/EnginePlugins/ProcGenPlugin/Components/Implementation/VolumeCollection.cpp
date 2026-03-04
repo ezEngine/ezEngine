@@ -59,7 +59,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVolumeCollection, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVolumeCollection::ezVolumeCollection()
-  : m_Allocator("VolumeCollection", ezFoundation::GetAlignedAllocator())
+  : m_Allocator("VolumeCollection", ezFoundation::GetAlignedAllocator(), 4 * 1024)
+  , m_SortedShapes(&m_Allocator)
 {
 }
 

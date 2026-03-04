@@ -45,7 +45,7 @@ namespace ezInternal
     , m_Allocator(desc.m_sName, ezFoundation::GetDefaultAllocator())
     , m_AllocatorWrapper(&m_Allocator)
     , m_BlockAllocator(desc.m_sName, &m_Allocator)
-    , m_StackAllocator(desc.m_sName, ezFoundation::GetAlignedAllocator())
+    , m_LinearAllocator(desc.m_sName, ezFoundation::GetAlignedAllocator())
     , m_ObjectStorage(&m_BlockAllocator, &m_Allocator)
     , m_MaxInitializationTimePerFrame(desc.m_MaxComponentInitializationTimePerFrame)
     , m_Clock(desc.m_sName)

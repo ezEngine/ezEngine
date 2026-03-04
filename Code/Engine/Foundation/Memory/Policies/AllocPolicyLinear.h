@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Foundation/Containers/HybridArray.h>
+#include <Foundation/Containers/SmallArray.h>
 
 /// \brief This policy implements a linear allocator that can only grow and at some point all allocations gets reset at once.
 ///
@@ -30,6 +30,11 @@ public:
     {
       m_pParent->Deallocate(bucket.GetPtr());
     }
+  }
+
+  EZ_FORCE_INLINE void SetNextBucketSize(ezUInt32 uiSize)
+  {
+    m_uiNextBucketSize = uiSize;
   }
 
   EZ_FORCE_INLINE void* Allocate(size_t uiSize, size_t uiAlign)
@@ -121,5 +126,5 @@ private:
 
   ezUInt8* m_pNextAllocation = nullptr;
 
-  ezHybridArray<ezArrayPtr<ezUInt8>, 4> m_Buckets;
+  ezSmallArray<ezArrayPtr<ezUInt8>, 4> m_Buckets;
 };

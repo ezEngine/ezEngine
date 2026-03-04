@@ -7,11 +7,11 @@
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/Mutex.h>
 
-/// \brief Stack-based linear allocator that allocates memory sequentially.
+/// \brief Linear allocator that allocates memory sequentially.
 ///
-/// This allocator allocates memory by simply advancing a pointer within a pre-allocated buffer.
+/// This allocator allocates memory by simply advancing a pointer within pre-allocated chunks.
 /// Individual deallocations are not supported - the entire allocator must be reset at once.
-/// Very efficient for temporary allocations that follow a stack-like pattern.
+/// Very efficient for short lived allocations.
 ///
 /// Template parameters:
 /// - TrackingMode: Controls allocation tracking and debugging features
@@ -31,10 +31,11 @@
 template <ezAllocatorTrackingMode TrackingMode = ezAllocatorTrackingMode::Default, bool OverwriteMemoryOnReset = false>
 class ezLinearAllocator : public ezAllocatorWithPolicy<ezAllocPolicyLinear<OverwriteMemoryOnReset>, TrackingMode>
 {
-  using PolicyStack = ezAllocPolicyLinear<OverwriteMemoryOnReset>;
+  using SUPER = ezAllocatorWithPolicy<ezAllocPolicyLinear<OverwriteMemoryOnReset>, TrackingMode>;
+  using PolicyLinear = ezAllocPolicyLinear<OverwriteMemoryOnReset>;
 
 public:
-  ezLinearAllocator(ezStringView sName, ezAllocator* pParent);
+  ezLinearAllocator(ezStringView sName, ezAllocator* pParent, ezUInt32 uiInitialSize);
   ~ezLinearAllocator();
 
   virtual void* Allocate(size_t uiSize, size_t uiAlign, ezMemoryUtils::DestructorFunction destructorFunc) override;

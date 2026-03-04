@@ -1,9 +1,10 @@
 template <ezAllocatorTrackingMode TrackingMode, bool OverwriteMemoryOnReset>
-ezLinearAllocator<TrackingMode, OverwriteMemoryOnReset>::ezLinearAllocator(ezStringView sName, ezAllocator* pParent)
-  : ezAllocatorWithPolicy<typename ezLinearAllocator<TrackingMode, OverwriteMemoryOnReset>::PolicyStack, TrackingMode>(sName, pParent)
+ezLinearAllocator<TrackingMode, OverwriteMemoryOnReset>::ezLinearAllocator(ezStringView sName, ezAllocator* pParent, ezUInt32 uiInitialSize)
+  : SUPER(sName, pParent)
   , m_DestructData(pParent)
   , m_PtrToDestructDataIndexTable(pParent)
 {
+  this->m_allocator.SetNextBucketSize(uiInitialSize);
 }
 
 template <ezAllocatorTrackingMode TrackingMode, bool OverwriteMemoryOnReset>
@@ -17,7 +18,7 @@ void* ezLinearAllocator<TrackingMode, OverwriteMemoryOnReset>::Allocate(size_t u
 {
   EZ_LOCK(m_Mutex);
 
-  void* ptr = ezAllocatorWithPolicy<typename ezLinearAllocator<TrackingMode, OverwriteMemoryOnReset>::PolicyStack, TrackingMode>::Allocate(uiSize, uiAlign, destructorFunc);
+  void* ptr = SUPER::Allocate(uiSize, uiAlign, destructorFunc);
 
   if (destructorFunc != nullptr)
   {
@@ -45,7 +46,7 @@ void ezLinearAllocator<TrackingMode, OverwriteMemoryOnReset>::Deallocate(void* p
     data.m_Ptr = nullptr;
   }
 
-  ezAllocatorWithPolicy<typename ezLinearAllocator<TrackingMode, OverwriteMemoryOnReset>::PolicyStack, TrackingMode>::Deallocate(pPtr);
+  SUPER::Deallocate(pPtr);
 }
 
 EZ_MSVC_ANALYSIS_WARNING_PUSH

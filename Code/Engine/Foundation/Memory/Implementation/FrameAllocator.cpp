@@ -7,15 +7,17 @@
 
 ezDoubleBufferedLinearAllocator::ezDoubleBufferedLinearAllocator(ezStringView sName0, ezAllocator* pParent)
 {
+  constexpr ezUInt32 uiInitialSize = 1024 * 1024; // 1 MB
+
   ezStringBuilder sName = sName0;
   sName.Append("0");
 
-  m_pCurrentAllocator = EZ_DEFAULT_NEW(LinearAllocatorType, sName, pParent);
+  m_pCurrentAllocator = EZ_DEFAULT_NEW(LinearAllocatorType, sName, pParent, uiInitialSize);
 
   sName = sName0;
   sName.Append("1");
 
-  m_pOtherAllocator = EZ_DEFAULT_NEW(LinearAllocatorType, sName, pParent);
+  m_pOtherAllocator = EZ_DEFAULT_NEW(LinearAllocatorType, sName, pParent, uiInitialSize);
 }
 
 ezDoubleBufferedLinearAllocator::~ezDoubleBufferedLinearAllocator()

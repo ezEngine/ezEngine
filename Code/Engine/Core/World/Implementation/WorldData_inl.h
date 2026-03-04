@@ -37,7 +37,7 @@ namespace ezInternal
     ezParallelForParams parallelForParams;
     parallelForParams.m_uiBinSize = 100;
     parallelForParams.m_uiMaxTasksPerThread = 2;
-    parallelForParams.m_pTaskAllocator = m_StackAllocator.GetCurrentAllocator();
+    parallelForParams.m_pTaskAllocator = m_LinearAllocator.GetCurrentAllocator();
 
     ezTaskSystem::ParallelFor(
       blocks.GetArrayPtr(),

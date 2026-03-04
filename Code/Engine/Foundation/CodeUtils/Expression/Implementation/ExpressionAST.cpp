@@ -445,7 +445,7 @@ ezExpressionAST::VectorComponent::Enum ezExpressionAST::VectorComponent::FromCha
 //////////////////////////////////////////////////////////////////////////
 
 ezExpressionAST::ezExpressionAST()
-  : m_Allocator("Expression AST", ezFoundation::GetAlignedAllocator())
+  : m_Allocator("Expression AST", ezFoundation::GetAlignedAllocator(), 4 * 1024)
 {
   static_assert(sizeof(Node) == 8);
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)

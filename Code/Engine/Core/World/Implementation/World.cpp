@@ -420,7 +420,7 @@ void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, const ezMess
   }
   else
   {
-    ezMessage* pMsgCopy = pMsgRTTIAllocator->Clone<ezMessage>(&msg, m_Data.m_StackAllocator.GetCurrentAllocator());
+    ezMessage* pMsgCopy = pMsgRTTIAllocator->Clone<ezMessage>(&msg, m_Data.m_LinearAllocator.GetCurrentAllocator());
     m_Data.m_MessageQueues[queueType].Enqueue(pMsgCopy, metaData);
   }
 }
@@ -451,7 +451,7 @@ void ezWorld::PostMessage(const ezComponentHandle& hReceiverComponent, const ezM
   }
   else
   {
-    ezMessage* pMsgCopy = pMsgRTTIAllocator->Clone<ezMessage>(&msg, m_Data.m_StackAllocator.GetCurrentAllocator());
+    ezMessage* pMsgCopy = pMsgRTTIAllocator->Clone<ezMessage>(&msg, m_Data.m_LinearAllocator.GetCurrentAllocator());
     m_Data.m_MessageQueues[queueType].Enqueue(pMsgCopy, metaData);
   }
 }
@@ -577,7 +577,7 @@ void ezWorld::Update()
   }
 
   // Swap our double buffered stack allocator
-  m_Data.m_StackAllocator.Swap();
+  m_Data.m_LinearAllocator.Swap();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
