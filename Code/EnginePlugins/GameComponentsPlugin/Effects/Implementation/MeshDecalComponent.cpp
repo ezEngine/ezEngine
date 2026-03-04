@@ -150,7 +150,7 @@ void ezMeshDecalComponent::UpdateDecals()
 
   DeleteDecals();
 
-  ezArrayMap<ezUInt32, ezTexture2DResourceHandle> indexToTexture(ezFrameAllocator::GetCurrentAllocator());
+  ezArrayMap<ezUInt32, ezTexture2DResourceHandle, ezTempAllocatorWrapper> indexToTexture;
   indexToTexture.Reserve(m_DecalDescs.GetCount());
 
   for (auto& desc : m_DecalDescs)

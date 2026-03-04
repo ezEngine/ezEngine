@@ -220,7 +220,7 @@ void ezExtractor::ExtractRenderData(const ezView& view, const ezGameObject* pObj
         // Only cache render data if all parts should be cached otherwise the cache is incomplete and we won't call SendMessage again
         if (msg.m_uiNumCacheIfStatic > 0 && msg.m_ExtractedRenderData.GetCount() == msg.m_uiNumCacheIfStatic)
         {
-          ezHybridArray<ezInternal::RenderDataCacheEntry, 16> newCacheEntries(ezFrameAllocator::GetCurrentAllocator());
+          ezTempHybridArray<ezInternal::RenderDataCacheEntry, 16> newCacheEntries;
 
           for (ezUInt32 uiPartIndex = 0; uiPartIndex < msg.m_ExtractedRenderData.GetCount(); ++uiPartIndex)
           {

@@ -3,6 +3,7 @@
 #include <Foundation/Memory/CommonAllocators.h>
 #include <Foundation/Memory/LargeBlockAllocator.h>
 #include <Foundation/Memory/LinearAllocator.h>
+#include <Foundation/Memory/Policies/AllocPolicyStack.h>
 
 struct alignas(EZ_ALIGNMENT_MINIMUM) NonAlignedVector
 {
@@ -167,9 +168,9 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
     EZ_TEST_BOOL(stats.m_uiAllocationSize == 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "StackAllocator")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "LinearAllocator")
   {
-    ezLinearAllocator<> allocator("TestStackAllocator", ezFoundation::GetAlignedAllocator());
+    ezLinearAllocator<> allocator("TestLinearAllocator", ezFoundation::GetAlignedAllocator(), 4096);
 
     void* blocks[8];
     for (size_t i = 0; i < EZ_ARRAY_SIZE(blocks); i++)
@@ -212,9 +213,9 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
     allocator.Deallocate(allocs[0]);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "StackAllocator with non-PODs")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "LinearAllocator with non-PODs")
   {
-    ezLinearAllocator<> allocator("TestStackAllocator", ezFoundation::GetAlignedAllocator());
+    ezLinearAllocator<> allocator("TestLinearAllocator", ezFoundation::GetAlignedAllocator(), 4096);
 
     ezDynamicArray<ezConstructionCounter*> counters;
     counters.Reserve(100);
@@ -241,5 +242,108 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
     allocator.Reset();
 
     EZ_TEST_BOOL(ezConstructionCounter::HasDestructed(50));
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "TempAllocator")
+  {
+    using TempAllocatorType = ezAllocatorWithPolicy<ezAllocPolicyStack<true>>;
+
+    // Basic LIFO allocate/deallocate
+    {
+      TempAllocatorType allocator("TestTempAllocator", ezFoundation::GetAlignedAllocator());
+
+      ezUInt32* pA = EZ_NEW_RAW_BUFFER(&allocator, ezUInt32, 64);
+      ezUInt32* pB = EZ_NEW_RAW_BUFFER(&allocator, ezUInt32, 128);
+      ezUInt32* pC = EZ_NEW_RAW_BUFFER(&allocator, ezUInt32, 256);
+
+      EZ_TEST_BOOL(pA != nullptr);
+      EZ_TEST_BOOL(pB != nullptr);
+      EZ_TEST_BOOL(pC != nullptr);
+
+      // All within the same bucket, so addresses should be ascending
+      EZ_TEST_BOOL(pA < pB);
+      EZ_TEST_BOOL(pB < pC);
+
+      // make copy of pA to check if it gets reused after deallocation
+      ezUInt32* pExpectedAlloc = pA;
+
+      // Deallocate in LIFO order
+      EZ_DELETE_RAW_BUFFER(&allocator, pC);
+      EZ_DELETE_RAW_BUFFER(&allocator, pB);
+      EZ_DELETE_RAW_BUFFER(&allocator, pA);
+
+      ezUInt32* pD = EZ_NEW_RAW_BUFFER(&allocator, ezUInt32, 64);
+      EZ_TEST_BOOL(pD != nullptr);
+      EZ_TEST_BOOL(pD == pExpectedAlloc); // should reuse the same memory
+
+      EZ_DELETE_RAW_BUFFER(&allocator, pD);
+    }
+
+    // Out-of-order deallocation
+    {
+      TempAllocatorType allocator("TestTempAllocator", ezFoundation::GetAlignedAllocator());
+
+      ezUInt32* ptrs[5];
+      for (int i = 0; i < 5; ++i)
+      {
+        ptrs[i] = EZ_NEW_RAW_BUFFER(&allocator, ezUInt32, 32);
+        EZ_TEST_BOOL(ptrs[i] != nullptr);
+      }
+
+      ezUInt32* pExpectedAlloc = ptrs[1]; // should be reused after free
+
+      // Free indices 1, 2, 3 out of order (all become nullptr entries)
+      EZ_DELETE_RAW_BUFFER(&allocator, ptrs[1]);
+      EZ_DELETE_RAW_BUFFER(&allocator, ptrs[2]);
+      EZ_DELETE_RAW_BUFFER(&allocator, ptrs[3]);
+
+      // Free index 4 (last) - should cascade and also pop the nullptr entries for 3, 2, 1
+      EZ_DELETE_RAW_BUFFER(&allocator, ptrs[4]);
+
+      ezUInt32* pD = EZ_NEW_RAW_BUFFER(&allocator, ezUInt32, 64);
+      EZ_TEST_BOOL(pD != nullptr);
+      EZ_TEST_BOOL(pD == pExpectedAlloc); // should reuse the same memory
+
+      EZ_DELETE_RAW_BUFFER(&allocator, ptrs[0]);
+      EZ_DELETE_RAW_BUFFER(&allocator, pD);
+    }
+
+    // Multiple buckets (allocations that span across bucket boundaries)
+    {
+      TempAllocatorType allocator("TestTempAllocator", ezFoundation::GetAlignedAllocator());
+
+      // Fill first bucket (1024*1024 bytes max)
+      ezUInt32* pA = EZ_NEW_RAW_BUFFER(&allocator, ezUInt32, 128 * 1024);
+      ezUInt32* pB = EZ_NEW_RAW_BUFFER(&allocator, ezUInt32, 128 * 1024);
+      EZ_TEST_BOOL(pA != nullptr);
+      EZ_TEST_BOOL(pB != nullptr);
+
+      // This should trigger a new bucket
+      ezUInt32* pC = EZ_NEW_RAW_BUFFER(&allocator, ezUInt32, 64);
+      EZ_TEST_BOOL(pC != nullptr);
+
+      // Deallocate in LIFO order - should roll back across bucket boundary
+      EZ_DELETE_RAW_BUFFER(&allocator, pC);
+      EZ_DELETE_RAW_BUFFER(&allocator, pB);
+      EZ_DELETE_RAW_BUFFER(&allocator, pA);
+    }
+
+    // Large allocations that exceed max allocation size (parent allocator fallback)
+    {
+      TempAllocatorType allocator("TestTempAllocator", ezFoundation::GetAlignedAllocator());
+
+      // This allocation exceeds the max allocation size, so it goes to the parent allocator
+      ezUInt32* pLarge = EZ_NEW_RAW_BUFFER(&allocator, ezUInt32, 1024 * 1024);
+      EZ_TEST_BOOL(pLarge != nullptr);
+
+      // Mix a normal allocation in between
+      ezUInt32* pSmall = EZ_NEW_RAW_BUFFER(&allocator, ezUInt32, 64);
+      EZ_TEST_BOOL(pSmall != nullptr);
+
+      // Deallocating the large one should go to parent (not found in m_Allocations search, falls through)
+      EZ_DELETE_RAW_BUFFER(&allocator, pLarge);
+
+      EZ_DELETE_RAW_BUFFER(&allocator, pSmall);
+    }
   }
 }

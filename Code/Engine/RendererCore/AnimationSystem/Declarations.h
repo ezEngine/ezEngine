@@ -17,6 +17,8 @@ using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>
 
 #define ezInvalidJointIndex static_cast<ezUInt16>(0xFFFFu)
 
+EZ_DEFINE_AS_POD_TYPE(ozz::math::Float4x4);
+
 namespace ozz::animation
 {
   class Skeleton;

@@ -21,7 +21,7 @@ namespace
 {
   static ezCpuMeshResourceHandle ExtractCpuMeshResource(const ezMeshComponentBase& meshComponent)
   {
-    ezWorldGeoExtractionUtil::MeshObjectList meshObjects(ezFrameAllocator::GetCurrentAllocator());
+    ezWorldGeoExtractionUtil::MeshObjectList meshObjects(ezTempAllocator::Get());
 
     ezMsgExtractGeometry msg;
     msg.m_pMeshObjects = &meshObjects;

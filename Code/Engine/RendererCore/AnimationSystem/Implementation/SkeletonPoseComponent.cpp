@@ -223,13 +223,13 @@ void ezSkeletonPoseComponent::SendRestPose()
   if (skel.GetJointCount() == 0)
     return;
 
-  ezArrayPtr<ozz::math::Float4x4> pFinalTransforms = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ozz::math::Float4x4, skel.GetJointCount());
-  EZ_ASSERT_DEBUG(ezMemoryUtils::IsAligned(pFinalTransforms.GetPtr(), alignof(ozz::math::Float4x4)), "Unaligned cast");
-
+  ezTempArray<ozz::math::Float4x4> poseMatrices;
+  poseMatrices.SetCountUninitialized(skel.GetJointCount());
+  EZ_ASSERT_DEBUG(ezMemoryUtils::IsAligned(poseMatrices.GetData(), alignof(ozz::math::Float4x4)), "Unaligned cast");
   {
     ozz::animation::LocalToModelJob job;
     job.input = skel.GetOzzSkeleton().joint_rest_poses();
-    job.output = ozz::span<ozz::math::Float4x4>(pFinalTransforms.GetPtr(), pFinalTransforms.GetEndPtr());
+    job.output = ozz::span<ozz::math::Float4x4>(poseMatrices.GetData(), poseMatrices.GetCount());
     job.skeleton = &skel.GetOzzSkeleton();
     job.Run();
   }
@@ -237,7 +237,7 @@ void ezSkeletonPoseComponent::SendRestPose()
   ezMsgAnimationPoseUpdated msg;
   msg.m_pRootTransform = &desc.m_RootTransform;
   msg.m_pSkeleton = &skel;
-  msg.m_ModelTransforms = ezMakeArrayPtr(reinterpret_cast<const ezMat4*>(pFinalTransforms.GetPtr()), pFinalTransforms.GetCount());
+  msg.m_ModelTransforms = poseMatrices.GetArrayPtr().Cast<const ezMat4>();
 
   GetOwner()->SendMessageRecursive(msg);
 
@@ -254,12 +254,13 @@ void ezSkeletonPoseComponent::SendCustomPose()
   const auto& desc = pSkeleton->GetDescriptor();
   const auto& skel = desc.m_Skeleton;
 
-  ezArrayPtr<ozz::math::Float4x4> pFinalTransforms = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ozz::math::Float4x4, skel.GetJointCount());
-  EZ_ASSERT_DEBUG(ezMemoryUtils::IsAligned(pFinalTransforms.GetPtr(), alignof(ozz::math::Float4x4)), "Unaligned cast");
+  ezTempArray<ozz::math::Float4x4> finalTransforms;
+  finalTransforms.SetCountUninitialized(skel.GetJointCount());
+  EZ_ASSERT_DEBUG(ezMemoryUtils::IsAligned(finalTransforms.GetData(), alignof(ozz::math::Float4x4)), "Unaligned cast");
 
-  for (ezUInt32 i = 0; i < pFinalTransforms.GetCount(); ++i)
+  for (ezUInt32 i = 0; i < finalTransforms.GetCount(); ++i)
   {
-    pFinalTransforms[i] = ozz::math::Float4x4::identity();
+    finalTransforms[i] = ozz::math::Float4x4::identity();
   }
 
   ozz::vector<ozz::math::SoaTransform> ozzLocalTransforms;
@@ -299,10 +300,9 @@ void ezSkeletonPoseComponent::SendCustomPose()
     reinterpret_cast<float*>(&q.w)[idx1] = boneRot.w;
   }
 
-  EZ_ASSERT_DEBUG(ezMemoryUtils::IsAligned(pFinalTransforms.GetPtr(), alignof(ozz::math::Float4x4)), "Unaligned cast");
   ozz::animation::LocalToModelJob job;
   job.input = ozz::span<const ozz::math::SoaTransform>(ozzLocalTransforms.data(), ozzLocalTransforms.size());
-  job.output = ozz::span<ozz::math::Float4x4>(pFinalTransforms.GetPtr(), pFinalTransforms.GetEndPtr());
+  job.output = ozz::span<ozz::math::Float4x4>(finalTransforms.GetData(), finalTransforms.GetCount());
   job.skeleton = &skel.GetOzzSkeleton();
   EZ_ASSERT_DEBUG(job.Validate(), "");
   job.Run();
@@ -311,7 +311,7 @@ void ezSkeletonPoseComponent::SendCustomPose()
   ezMsgAnimationPoseUpdated msg;
   msg.m_pRootTransform = &desc.m_RootTransform;
   msg.m_pSkeleton = &skel;
-  msg.m_ModelTransforms = ezMakeArrayPtr(reinterpret_cast<const ezMat4*>(pFinalTransforms.GetPtr()), pFinalTransforms.GetCount());
+  msg.m_ModelTransforms = finalTransforms.GetArrayPtr().Cast<const ezMat4>();
 
   GetOwner()->SendMessageRecursive(msg);
 

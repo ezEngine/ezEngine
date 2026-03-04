@@ -1041,7 +1041,7 @@ void ezJoltRagdollComponent::ComputeLimbGlobalTransform(ezTransform& transform, 
 
 void ezJoltRagdollComponent::CreateAllLimbs(const ezSkeletonResource& skeletonResource, const ezMsgAnimationPoseUpdated& pose, ezJoltWorldModule& worldModule, float fObjectScale, JPH::RagdollSettings* pRagdollSettings)
 {
-  ezMap<ezUInt16, LimbConstructionInfo> limbConstructionInfos(ezFrameAllocator::GetCurrentAllocator());
+  ezMap<ezUInt16, LimbConstructionInfo> limbConstructionInfos(ezTempAllocator::Get());
   limbConstructionInfos.FindOrAdd(ezInvalidJointIndex); // dummy root link
 
   ezUInt16 uiLastLimbIdx = ezInvalidJointIndex;

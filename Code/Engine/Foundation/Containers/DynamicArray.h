@@ -2,6 +2,7 @@
 
 #include <Foundation/Containers/ArrayBase.h>
 #include <Foundation/Memory/AllocatorWrapper.h>
+#include <Foundation/Memory/TempAllocator.h>
 #include <Foundation/Types/PointerWithFlags.h>
 
 /// \brief Implementation of a dynamically growing array.
@@ -105,6 +106,21 @@ protected:
     : ezDynamicArrayBase<T>(pInplaceStorage, uiCapacity, pAllocator)
   {
   }
+};
+
+/// A dynamic array that uses the temp allocator.
+/// This is ideal for temporary arrays that are only used within a short scope.
+/// The temp allocator is optimized for short-lived allocations and can be more efficient than the default allocator for this use case.
+template <typename T>
+class ezTempArray : public ezDynamicArray<T>
+{
+public:
+  ezTempArray();
+
+  void operator=(const ezDynamicArrayBase<T>& rhs);
+  void operator=(const ezArrayPtr<const T>& rhs);
+
+  void operator=(ezDynamicArrayBase<T>&& rhs) noexcept;
 };
 
 /// Overload of ezMakeArrayPtr for const dynamic arrays of pointer pointing to const type.

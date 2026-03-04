@@ -173,7 +173,7 @@ namespace ezRmlUiInternal
 
     // vertices
     {
-      ezDynamicArray<Vertex> vertexStorage(ezFrameAllocator::GetCurrentAllocator());
+      ezTempArray<Vertex> vertexStorage;
       vertexStorage.SetCountUninitialized(uiNumVertices);
 
       for (ezUInt32 i = 0; i < vertexStorage.GetCount(); ++i)

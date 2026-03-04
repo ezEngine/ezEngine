@@ -667,3 +667,7 @@ double ezColorGradient::SnapTimeTo(double fTimeInSeconds, ezUInt32 uiFramesPerSe
 {
   return TickToTime(SnapTimeToTick(fTimeInSeconds, uiFramesPerSecond));
 }
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Tracks_Implementation_ColorGradient);
+

@@ -239,6 +239,8 @@ ezUInt64 ezDynamicArrayBase<T>::GetHeapMemoryUsage() const
   return (ezUInt64)this->m_uiCapacity * (ezUInt64)sizeof(T);
 }
 
+//////////////////////////////////////////////////////////////////////////
+
 template <typename T, typename A>
 ezDynamicArray<T, A>::ezDynamicArray()
   : ezDynamicArrayBase<T>(A::GetAllocator())
@@ -310,6 +312,34 @@ void ezDynamicArray<T, A>::operator=(ezDynamicArrayBase<T>&& rhs) noexcept
 {
   ezDynamicArrayBase<T>::operator=(std::move(rhs));
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+template <typename T>
+ezTempArray<T>::ezTempArray()
+  : ezDynamicArray<T>(ezTempAllocator::Get())
+{
+}
+
+template <typename T>
+void ezTempArray<T>::operator=(const ezDynamicArrayBase<T>& rhs)
+{
+  ezDynamicArrayBase<T>::operator=(rhs);
+}
+
+template <typename T>
+void ezTempArray<T>::operator=(const ezArrayPtr<const T>& rhs)
+{
+  ezArrayBase<T, ezDynamicArrayBase<T>>::operator=(rhs);
+}
+
+template <typename T>
+void ezTempArray<T>::operator=(ezDynamicArrayBase<T>&& rhs) noexcept
+{
+  ezDynamicArrayBase<T>::operator=(std::move(rhs));
+}
+
+//////////////////////////////////////////////////////////////////////////
 
 template <typename T, typename AllocatorWrapper>
 ezArrayPtr<const T* const> ezMakeArrayPtr(const ezDynamicArray<T*, AllocatorWrapper>& dynArray)

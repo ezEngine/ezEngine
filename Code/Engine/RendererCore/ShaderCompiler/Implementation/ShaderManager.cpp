@@ -288,7 +288,7 @@ ezShaderPermutationResourceHandle ezShaderManager::PreloadSinglePermutation(ezSh
   if (!pShader->IsShaderValid())
     return ezShaderPermutationResourceHandle();
 
-  ezHybridArray<ezPermutationVar, 64> filteredPermutationVariables(ezFrameAllocator::GetCurrentAllocator());
+  ezTempHybridArray<ezPermutationVar, 64> filteredPermutationVariables;
   ezUInt32 uiPermutationHash = FilterPermutationVars(pShader->GetUsedPermutationVars(), permVars, filteredPermutationVariables);
 
   return PreloadSinglePermutationInternal(pShader->GetResourceID(), pShader->GetResourceIDHash(), uiPermutationHash, filteredPermutationVariables);

@@ -751,7 +751,7 @@ void ezJoltRopeComponent::Update()
   //  }
   //}
 
-  ezHybridArray<ezTransform, 32> poses(ezFrameAllocator::GetCurrentAllocator());
+  ezTempHybridArray<ezTransform, 32> poses;
   poses.SetCountUninitialized(static_cast<ezUInt32>(m_pRagdoll->GetBodyCount()) + 1);
 
   ezMsgRopePoseUpdated poseMsg;
@@ -814,7 +814,7 @@ void ezJoltRopeComponent::SendPreviewPose()
   if (hAnchor1 == hAnchor2)
     return;
 
-  ezDynamicArray<ezTransform> pieces(ezFrameAllocator::GetCurrentAllocator());
+  ezTempArray<ezTransform> pieces;
 
   ezMsgRopePoseUpdated poseMsg;
   float fPieceLength;

@@ -12,7 +12,7 @@ thread_local ezWorldReader::InstantiationContextBase* tl_pReaderContext = nullpt
 ezWorldReader::ezWorldReader() = default;
 ezWorldReader::~ezWorldReader() = default;
 
-ezResult ezWorldReader::ReadWorldDescription(ezStreamReader& inout_stream, bool bWarningOnUknownSkip)
+ezResult ezWorldReader::ReadWorldDescription(ezStreamReader& inout_stream, bool bWarningOnUnknownSkip)
 {
   m_pReadStream = &inout_stream;
 
@@ -71,7 +71,7 @@ ezResult ezWorldReader::ReadWorldDescription(ezStreamReader& inout_stream, bool 
   }
 
   // read all component data
-  ReadComponentDataToMemStream(bWarningOnUknownSkip);
+  ReadComponentDataToMemStream(bWarningOnUnknownSkip);
   m_pStringDedupReadContext->SetActive(false);
 
   return EZ_SUCCESS;
@@ -313,7 +313,7 @@ ezUniquePtr<ezWorldReader::InstantiationContextBase> ezWorldReader::Instantiate(
 {
   if (options.m_MaxStepTime <= ezTime::MakeZero())
   {
-    InstantiationContext context = InstantiationContext(*this, &world, bUseTransform, rootTransform, options, ezFrameAllocator::GetCurrentAllocator());
+    InstantiationContext context = InstantiationContext(*this, &world, bUseTransform, rootTransform, options, ezTempAllocator::Get());
 
     EZ_VERIFY(context.Step() == InstantiationContextBase::StepResult::Finished, "Instantiation should be completed after this call");
     return nullptr;
@@ -404,7 +404,7 @@ ezWorldReader::InstantiationContext::StepResult ezWorldReader::InstantiationCont
       if (m_WorldReader.m_RootObjectsToCreate.GetCount() == 1 && m_WorldReader.m_RootObjectsToCreate[0].m_Desc.m_sName == m_Options.m_ReplaceNamedRootWithParent)
       {
         m_uiCurrentIndex = 1;
-        EZ_ASSERT_DEBUG(m_IndexToGameObjectHandle.GetCapacity() > m_IndexToGameObjectHandle.GetCount(), "m_IndexToGameObjectHandle should have the enough capacity.");
+        EZ_ASSERT_DEBUG(m_IndexToGameObjectHandle.GetCapacity() > m_IndexToGameObjectHandle.GetCount(), "m_IndexToGameObjectHandle should have enough capacity.");
         m_IndexToGameObjectHandle.PushBack(m_Options.m_hParent);
 
         ezGameObject* pParent = nullptr;
@@ -588,7 +588,7 @@ bool ezWorldReader::InstantiationContext::CreateGameObjects(const ezDynamicArray
     }
 
     ezGameObject* pObject = nullptr;
-    EZ_ASSERT_DEBUG(m_IndexToGameObjectHandle.GetCapacity() > m_IndexToGameObjectHandle.GetCount(), "m_IndexToGameObjectHandle should have the enough capacity.");
+    EZ_ASSERT_DEBUG(m_IndexToGameObjectHandle.GetCapacity() > m_IndexToGameObjectHandle.GetCount(), "m_IndexToGameObjectHandle should have enough capacity.");
     m_IndexToGameObjectHandle.PushBack(m_pWorld->CreateObject(desc, pObject));
 
     if (!godesc.m_sGlobalKey.IsEmpty())
@@ -650,7 +650,7 @@ bool ezWorldReader::InstantiationContext::CreateComponents(ezTime endTime)
       ezGameObject* pOwnerObject = nullptr;
       if (!m_pWorld->TryGetObject(hOwner, pOwnerObject))
       {
-        EZ_REPORT_FAILURE("Owner object must be not null");
+        EZ_REPORT_FAILURE("Owner object must not be null");
       }
 
       ezComponent* pComponent = nullptr;
@@ -664,7 +664,7 @@ bool ezWorldReader::InstantiationContext::CreateComponents(ezTime endTime)
       }
 
       EZ_ASSERT_DEBUG(uiComponentIdx == compTypeState.m_ComponentIndexToHandle.GetCount(), "Component index doesn't match");
-      EZ_ASSERT_DEBUG(compTypeState.m_ComponentIndexToHandle.GetCapacity() > compTypeState.m_ComponentIndexToHandle.GetCount(), "m_ComponentIndexToHandle should have the enough capacity.");
+      EZ_ASSERT_DEBUG(compTypeState.m_ComponentIndexToHandle.GetCapacity() > compTypeState.m_ComponentIndexToHandle.GetCount(), "m_ComponentIndexToHandle should have enough capacity.");
       compTypeState.m_ComponentIndexToHandle.PushBack(hComponent);
 
       ++m_uiCurrentIndex;

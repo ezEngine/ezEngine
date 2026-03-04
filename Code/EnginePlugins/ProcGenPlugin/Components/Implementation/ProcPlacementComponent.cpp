@@ -258,7 +258,7 @@ void ezProcPlacementComponentManager::PreparePlace(const ezWorldModule::UpdateCo
   }
 
   // Debug draw tiles
-  ezHashSet<ezUInt32> debugDrawnTiles(ezFrameAllocator::GetCurrentAllocator());
+  ezHashSet<ezUInt32> debugDrawnTiles(ezTempAllocator::Get());
   if (cvar_ProcGenVisTiles)
   {
     ezStringBuilder sb;

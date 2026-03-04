@@ -10,7 +10,6 @@
 #include <Foundation/Memory/Policies/AllocPolicyHeap.h>
 #include <Foundation/Memory/Policies/AllocPolicyProxy.h>
 
-
 /// \brief Default heap allocator with alignment support.
 ///
 /// This allocator supports arbitrary alignment requirements.
@@ -22,7 +21,7 @@ using ezAlignedHeapAllocator = ezAllocatorWithPolicy<ezAllocPolicyAlignedHeap>;
 /// \brief Basic heap allocator without special alignment support.
 ///
 /// Faster than ezAlignedHeapAllocator but only supports natural alignment (alignof(T)).
-/// The is the recommended allocator for general purpose use.
+/// This is the recommended allocator for general purpose use.
 using ezHeapAllocator = ezAllocatorWithPolicy<ezAllocPolicyHeap>;
 
 /// \brief Debug allocator that adds guard pages around allocations.

@@ -22,6 +22,7 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Math_Implementation_Math);
   EZ_STATICLINK_REFERENCE(Foundation_Math_Implementation_Random);
   EZ_STATICLINK_REFERENCE(Foundation_Memory_Implementation_FrameAllocator);
+  EZ_STATICLINK_REFERENCE(Foundation_Memory_Implementation_TempAllocator);
   EZ_STATICLINK_REFERENCE(Foundation_Platform_Win_DirectoryWatcher_Win);
   EZ_STATICLINK_REFERENCE(Foundation_Profiling_Implementation_Profiling);
   EZ_STATICLINK_REFERENCE(Foundation_Reflection_Implementation_AbstractProperty);
@@ -37,6 +38,8 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Time_Implementation_Clock);
   EZ_STATICLINK_REFERENCE(Foundation_Time_Implementation_Time);
   EZ_STATICLINK_REFERENCE(Foundation_Time_Implementation_Timestamp);
+  EZ_STATICLINK_REFERENCE(Foundation_Tracks_Implementation_ColorGradient);
+  EZ_STATICLINK_REFERENCE(Foundation_Tracks_Implementation_CurveEditData);
   EZ_STATICLINK_REFERENCE(Foundation_Types_Implementation_VarianceTypes);
   EZ_STATICLINK_REFERENCE(Foundation_Types_Implementation_VariantTypeRegistry);
 }

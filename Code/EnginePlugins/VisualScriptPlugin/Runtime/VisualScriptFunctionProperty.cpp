@@ -19,7 +19,7 @@ void ezVisualScriptFunctionProperty::Execute(void* pInstance, ezArrayPtr<ezVaria
   EZ_ASSERT_DEBUG(pInstance != nullptr, "Invalid instance");
   auto pVisualScriptInstance = static_cast<ezVisualScriptInstance*>(pInstance);
 
-  ezVisualScriptExecutionContext context(m_pDesc, ezFrameAllocator::GetCurrentAllocator());
+  ezVisualScriptExecutionContext context(m_pDesc, ezTempAllocator::Get());
   context.Initialize(*pVisualScriptInstance, arguments);
 
   auto result = context.Execute(ezTime::MakeZero());
@@ -51,7 +51,7 @@ void ezVisualScriptMessageHandler::Dispatch(ezAbstractMessageHandler* pSelf, voi
   ezHybridArray<ezVariant, 8> arguments;
   pHandler->FillMessagePropertyValues(ref_msg, arguments);
 
-  ezVisualScriptExecutionContext context(pHandler->m_pDesc, ezFrameAllocator::GetCurrentAllocator());
+  ezVisualScriptExecutionContext context(pHandler->m_pDesc, ezTempAllocator::Get());
   context.Initialize(*pVisualScriptInstance, arguments);
 
   auto result = context.Execute(ezTime::MakeZero());

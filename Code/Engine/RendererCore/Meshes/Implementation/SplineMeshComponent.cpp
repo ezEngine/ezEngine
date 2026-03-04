@@ -349,7 +349,7 @@ ezResult ezSplineMeshComponent::GenerateSplineMeshDesc(const ezSpline& spline, c
   constexpr auto topology = ezGALPrimitiveTopology::Triangles;
   ezUInt32 uiNumVertices = 0;
   ezUInt32 uiNumPrimitives = 0;
-  ezHybridArray<SubMeshInfo, 32> subMeshInfos(ezFrameAllocator::GetCurrentAllocator());
+  ezTempHybridArray<SubMeshInfo, 32> subMeshInfos;
   for (ezUInt32 uiMeshIndex = 0; uiMeshIndex < uiNumMeshes; ++uiMeshIndex)
   {
     auto pMesh = meshes[uiMeshIndex];
@@ -380,7 +380,7 @@ ezResult ezSplineMeshComponent::GenerateSplineMeshDesc(const ezSpline& spline, c
 
   ezUInt32 uiFirstVertex = 0;
   ezUInt32 uiIndexByteOffset = 0;
-  ezHybridArray<ezUInt32, 16> firstVertexPerMesh(ezFrameAllocator::GetCurrentAllocator());
+  ezTempHybridArray<ezUInt32, 16> firstVertexPerMesh;
   firstVertexPerMesh.SetCount(uiNumMeshes);
 
   const bool bHasNTT = splineMeshBufferDesc.GetVertexStreamConfig().HasNormalTangentAndTexCoord0();
@@ -584,7 +584,7 @@ ezResult ezSplineMeshComponent::GenerateDistribution(const ezSplineComponent& sp
 
   // Gather part offset and length information
   ezVec2 paddedStartLengthAndOffset = ezVec2::MakeZero();
-  ezHybridArray<ezVec2, 16> middleLengthAndOffset(ezFrameAllocator::GetCurrentAllocator());
+  ezTempHybridArray<ezVec2, 16> middleLengthAndOffset;
   ezVec2 paddedEndLengthAndOffset = ezVec2::MakeZero();
   {
     if (m_StartPart.IsValid())
@@ -617,7 +617,7 @@ ezResult ezSplineMeshComponent::GenerateDistribution(const ezSplineComponent& sp
 
     // First determine the total scale and gather middle part indices
     float fScale = 1.0f;
-    ezHybridArray<ezUInt32, 16> middlePartsIndices(ezFrameAllocator::GetCurrentAllocator());
+    ezTempHybridArray<ezUInt32, 16> middlePartsIndices;
     {
       float fCurrentLength = 0.0f;
 
@@ -800,8 +800,8 @@ ezUInt32 ezSplineMeshComponent::FindBestMiddlePart(float fRequestedLength, ezArr
 
 ezResult ezSplineMeshComponent::GenerateSplineMesh(const ezSplineComponent& splineComponent, ezMeshResourceDescriptor& out_splineMeshDesc, ezMsgGenerateSplineMeshCollision* out_pMsg /*= nullptr*/) const
 {
-  ezHybridArray<ezMeshResourceHandle, 16> meshes(ezFrameAllocator::GetCurrentAllocator());
-  ezHybridArray<ezVec2, 16> scaleOffsets(ezFrameAllocator::GetCurrentAllocator());
+  ezTempHybridArray<ezMeshResourceHandle, 16> meshes;
+  ezTempHybridArray<ezVec2, 16> scaleOffsets;
   EZ_SUCCEED_OR_RETURN(GenerateDistribution(splineComponent, meshes, scaleOffsets));
 
   if (out_pMsg != nullptr)
@@ -813,7 +813,7 @@ ezResult ezSplineMeshComponent::GenerateSplineMesh(const ezSplineComponent& spli
     out_pMsg->m_fLocalOffsetZ = m_fOffsetZ;
   }
 
-  ezHybridArray<ezCpuMeshResource*, 16> cpuMeshes(ezFrameAllocator::GetCurrentAllocator());
+  ezTempHybridArray<ezCpuMeshResource*, 16> cpuMeshes;
 
   for (auto& hMesh : meshes)
   {

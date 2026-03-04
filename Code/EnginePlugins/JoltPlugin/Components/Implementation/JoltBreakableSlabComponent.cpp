@@ -1014,7 +1014,7 @@ void ezJoltBreakableSlabComponent::CreateShardColliders(ezUInt32 uiFirstShard, e
   const ezJoltMaterial* pMaterial = GetPhysicsMaterial();
 
   // GetOrCreateBoneTransformsForWriting will resize as necessary but will lose existing data so we need to make a copy here
-  ezDynamicArray<ezShaderTransform> oldTransforms(ezFrameAllocator::GetCurrentAllocator());
+  ezTempArray<ezShaderTransform> oldTransforms;
   oldTransforms = m_SkinningState.GetBoneTransformsForReading();
 
   auto transforms = m_SkinningState.GetOrCreateBoneTransformsForWriting(*this, m_Breakable.m_Shards.GetCount());

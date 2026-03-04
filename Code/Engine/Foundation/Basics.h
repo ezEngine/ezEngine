@@ -60,9 +60,6 @@
 class EZ_FOUNDATION_DLL ezFoundation
 {
 public:
-  static ezAllocator* s_pDefaultAllocator;
-  static ezAllocator* s_pAlignedAllocator;
-
   /// \brief The default allocator can be used for any kind of allocation if no alignment is required
   EZ_ALWAYS_INLINE static ezAllocator* GetDefaultAllocator()
   {
@@ -91,6 +88,9 @@ private:
 
   static void Initialize();
   static bool s_bIsInitialized;
+  static ezAllocator* s_pDefaultAllocator;
+  static ezAllocator* s_pAlignedAllocator;
+  static ezAllocator* s_pTempAllocator;
 };
 
 #undef EZ_INCLUDING_BASICS_H

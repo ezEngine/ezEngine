@@ -31,7 +31,7 @@ public:
 
   virtual void Execute() override
   {
-    ezHybridArray<ezCpuMeshResource*, 16> cpuMeshes(ezFrameAllocator::GetCurrentAllocator());
+    ezTempHybridArray<ezCpuMeshResource*, 16> cpuMeshes;
 
     for (auto& hMeshCpu : m_Meshes)
     {

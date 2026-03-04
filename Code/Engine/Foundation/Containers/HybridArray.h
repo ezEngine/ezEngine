@@ -47,4 +47,19 @@ protected:
   EZ_ALWAYS_INLINE const T* GetStaticArray() const { return reinterpret_cast<const T*>(m_StaticData); }
 };
 
+/// A hybrid array that uses the temp allocator if it exceeds the in-place storage.
+/// This is ideal for temporary arrays that are only used within a short scope and are not expected to grow beyond the in-place storage size in most cases.
+/// The temp allocator is optimized for short-lived allocations and can be more efficient than the default allocator for this use case.
+template <typename T, ezUInt32 Size>
+class ezTempHybridArray : public ezHybridArray<T, Size>
+{
+public:
+  ezTempHybridArray();
+
+  void operator=(const ezHybridArray<T, Size>& rhs);
+  void operator=(const ezArrayPtr<const T>& rhs);
+
+  void operator=(ezHybridArray<T, Size>&& rhs) noexcept;
+};
+
 #include <Foundation/Containers/Implementation/HybridArray_inl.h>

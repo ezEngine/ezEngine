@@ -126,7 +126,7 @@ void ezRopeRenderComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
   {
     auto boneTransforms = m_SkinningState.GetBoneTransformsForReading();
 
-    ezHybridArray<ezDebugRendererLine, 128> lines(ezFrameAllocator::GetCurrentAllocator());
+    ezTempHybridArray<ezDebugRendererLine, 128> lines;
     lines.Reserve(boneTransforms.GetCount() * 3);
 
     ezMat4 offsetMat;

@@ -333,7 +333,7 @@ void ezFakeRopeComponent::SendCurrentPose()
 {
   ezMsgRopePoseUpdated poseMsg;
 
-  ezDynamicArray<ezTransform> pieces(ezFrameAllocator::GetCurrentAllocator());
+  ezTempArray<ezTransform> pieces;
 
   if (m_RopeSim.m_Nodes.GetCount() >= 2)
   {

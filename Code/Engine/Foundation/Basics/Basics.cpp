@@ -15,7 +15,7 @@ using DefaultStaticsHeapType = ezAllocatorWithPolicy<ezAllocPolicyHeap, ezAlloca
 enum
 {
   HEAP_ALLOCATOR_BUFFER_SIZE = sizeof(DefaultHeapType),
-  ALIGNED_ALLOCATOR_BUFFER_SIZE = sizeof(DefaultAlignedHeapType)
+  ALIGNED_ALLOCATOR_BUFFER_SIZE = sizeof(DefaultAlignedHeapType),
 };
 
 alignas(EZ_ALIGNMENT_MINIMUM) static ezUInt8 s_DefaultAllocatorBuffer[HEAP_ALLOCATOR_BUFFER_SIZE];
