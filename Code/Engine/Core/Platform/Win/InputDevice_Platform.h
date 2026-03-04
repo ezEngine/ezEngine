@@ -28,6 +28,8 @@ public:
   virtual void SetShowMouseCursor(bool bShow) override;
   virtual bool GetShowMouseCursor() const override;
 
+  virtual void SetDisableOSHotkeys(bool bDisable) override;
+
 protected:
   virtual void InitializeDevice() override;
   virtual void RegisterInputSlots() override;
@@ -37,9 +39,11 @@ protected:
 private:
   void ApplyClipRect(ezMouseCursorClipMode::Enum mode);
   void OnFocusLost();
+  void RegisterRawInput();
+
+  static ezInputDeviceMouseKeyboard_Win* s_pGlobalInputHandler;
 
   ezMinWindows::HWND m_hWnd;
-  static ezInputDeviceMouseKeyboard_Win* s_pGlobalInputHandler;
   bool m_bShowCursor = true;
   ezMouseCursorClipMode::Enum m_ClipCursorMode = ezMouseCursorClipMode::NoClip;
   bool m_bApplyClipRect = false;

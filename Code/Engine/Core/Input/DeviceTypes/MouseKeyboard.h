@@ -47,6 +47,15 @@ public:
   /// \brief Returns whether the mouse is confined to the application window or not.
   virtual ezMouseCursorClipMode::Enum GetClipMouseCursor() const = 0;
 
+  /// \brief If enabled, the OS will not handle system hotkeys (e.g. the Windows key) while this device is active.
+  ///
+  /// Can be called before or after device initialization. On platforms that support it, calling this after
+  /// initialization will re-register the input device with the updated setting.
+  virtual void SetDisableOSHotkeys(bool bDisable) { m_bDisableOSHotkeys = bDisable; }
+
+  /// \brief Returns whether OS hotkey suppression is currently requested.
+  bool GetDisableOSHotkeys() const { return m_bDisableOSHotkeys; }
+
   /// \brief Sets the scaling factor that is applied on all (relative) mouse input.
   virtual void SetMouseSpeed(const ezVec2& vScale) { m_vMouseScale = vScale; }
 
@@ -67,13 +76,14 @@ public:
 protected:
   virtual void UpdateInputSlotValues() override;
 
-  ezTime m_DoubleClickTime = ezTime::MakeFromMilliseconds(500);
   static ezInputDevice* s_pMouseOver;
+
+  ezTime m_DoubleClickTime = ezTime::MakeFromMilliseconds(500);
   ezVec2 m_vLocalMouseCoordinates = ezVec2(0.0f);
+  bool m_bDisableOSHotkeys = false;
 
 private:
   ezVec2 m_vMouseScale = ezVec2(1.0f);
-
   bool m_bIsFocused = true;
 
   ezTime m_LastMouseClick[3];

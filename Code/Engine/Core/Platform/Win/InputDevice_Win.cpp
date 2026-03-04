@@ -46,34 +46,54 @@ ezInputDeviceMouseKeyboard_Win::~ezInputDeviceMouseKeyboard_Win()
   }
 }
 
+void ezInputDeviceMouseKeyboard_Win::RegisterRawInput()
+{
+  RAWINPUTDEVICE Rid[2];
+
+  // keyboard
+  Rid[0].usUsagePage = 0x01;
+  Rid[0].usUsage = 0x06;
+  Rid[0].dwFlags = m_bDisableOSHotkeys ? RIDEV_NOHOTKEYS : 0;
+  Rid[0].hwndTarget = nullptr;
+
+  // mouse
+  Rid[1].usUsagePage = 0x01;
+  Rid[1].usUsage = 0x02;
+  Rid[1].dwFlags = 0;
+  Rid[1].hwndTarget = nullptr;
+
+  if (RegisterRawInputDevices(&Rid[0], (UINT)2, sizeof(RAWINPUTDEVICE)) == FALSE)
+  {
+    ezLog::Error("Could not initialize RawInput for Mouse and Keyboard input.");
+  }
+  else
+  {
+    ezLog::Success("Initialized RawInput for Mouse and Keyboard input.");
+  }
+}
+
 void ezInputDeviceMouseKeyboard_Win::InitializeDevice()
 {
   if (s_pGlobalInputHandler == this)
   {
-    RAWINPUTDEVICE Rid[2];
-
-    // keyboard
-    Rid[0].usUsagePage = 0x01;
-    Rid[0].usUsage = 0x06;
-    Rid[0].dwFlags = 0; // RIDEV_NOHOTKEYS; // Disables Windows-Key and Application-Key (unclear whether to make this configurable)
-    Rid[0].hwndTarget = nullptr;
-
-    // mouse
-    Rid[1].usUsagePage = 0x01;
-    Rid[1].usUsage = 0x02;
-    Rid[1].dwFlags = 0;
-    Rid[1].hwndTarget = nullptr;
-
-    if (RegisterRawInputDevices(&Rid[0], (UINT)2, sizeof(RAWINPUTDEVICE)) == FALSE)
-    {
-      ezLog::Error("Could not initialize RawInput for Mouse and Keyboard input.");
-    }
-    else
-      ezLog::Success("Initialized RawInput for Mouse and Keyboard input.");
+    RegisterRawInput();
   }
   else
   {
     ezLog::Dev("Window doesn't handle global mouse/keyboard input.");
+  }
+}
+
+void ezInputDeviceMouseKeyboard_Win::SetDisableOSHotkeys(bool bDisable)
+{
+  if (m_bDisableOSHotkeys != bDisable)
+  {
+    m_bDisableOSHotkeys = bDisable;
+
+    if (s_pGlobalInputHandler == this)
+    {
+      RegisterRawInput();
+    }
   }
 }
 

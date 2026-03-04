@@ -1,5 +1,7 @@
 #include <Player/Player.h>
 
+#include <Core/Input/DeviceTypes/MouseKeyboard.h>
+#include <Core/Input/InputManager.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Utilities/CommandLineOptions.h>
@@ -53,6 +55,12 @@ void ezPlayerApplication::AfterCoreSystemsStartup()
   // the game state is also responsible for either creating a world, or loading it
   // the ezFallbackGameState inspects the command line to figure out which scene to load
   ActivateGameState(nullptr, {}, ezTransform::MakeIdentity());
+
+  // in ezPlayer we want OS keys (Windows key) to be disabled
+  if (auto* pDevice = ezInputManager::GetInputDeviceOfType<ezInputDeviceMouseKeyboard>())
+  {
+    pDevice->SetDisableOSHotkeys(true);
+  }
 }
 
 void ezPlayerApplication::DetermineProjectPath()
