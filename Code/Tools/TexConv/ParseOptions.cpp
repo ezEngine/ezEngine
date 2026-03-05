@@ -5,9 +5,14 @@
 #include <Foundation/Utilities/CommandLineOptions.h>
 
 ezCommandLineOptionEnum opt_Mode("_TexConv", "-mode", "Mode determines which arguments need to be set.\n\
-  In compare mode the mean-square error (MSE) is returned. 0 if it is below the threshold.\
+  In compare mode the mean-square error (MSE) is returned. 0 if it is below the threshold.\n\
+  In reduce mode a single DDS or TGA file is loaded and saved as JPG or PNG without any processing.\
 ",
-  "Convert | Compare", 0);
+  "Convert | Compare | Reduce", 0);
+
+ezCommandLineOptionBool opt_DeleteSource("_TexConv", "-deleteSource",
+  "Only used in reduce mode. If set, the source file is deleted after it has been successfully converted.",
+  false);
 
 ezCommandLineOptionPath opt_Out("_TexConv", "-out",
   "Absolute path to main output file.\n\
@@ -126,6 +131,10 @@ ezResult ezTexConv::ParseCommandLine()
   {
     EZ_SUCCEED_OR_RETURN(ParseCompareMode());
   }
+  else if (m_Mode == ezTexConvMode::Reduce)
+  {
+    EZ_SUCCEED_OR_RETURN(ParseReduceMode());
+  }
   else
   {
     EZ_SUCCEED_OR_RETURN(ParseOutputFiles());
@@ -159,6 +168,10 @@ ezResult ezTexConv::ParseMode()
 
     case 1:
       m_Mode = ezTexConvMode::Compare;
+      return EZ_SUCCESS;
+
+    case 2:
+      m_Mode = ezTexConvMode::Reduce;
       return EZ_SUCCESS;
   }
 
@@ -196,6 +209,26 @@ ezResult ezTexConv::ParseCompareMode()
     ezLog::Error("Reference image to compare against is not specified.");
     return EZ_FAILURE;
   }
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezTexConv::ParseReduceMode()
+{
+  const auto pCmd = ezCommandLineUtils::GetGlobalInstance();
+
+  m_sReduceInputFile = pCmd->GetAbsolutePathOption("-in");
+
+  if (m_sReduceInputFile.IsEmpty())
+  {
+    ezLog::Error("No input file was specified. Use '-in \"path/to/file.dds\"' or '-in \"path/to/file.tga\"' to specify the input file.");
+    return EZ_FAILURE;
+  }
+
+  // -out is optional; if not given the output path is derived from the input in RunReduce()
+  m_sOutputFile = opt_Out.GetOptionValue(ezCommandLineOption::LogMode::Always);
+
+  m_bDeleteSource = opt_DeleteSource.GetOptionValue(ezCommandLineOption::LogMode::Always);
 
   return EZ_SUCCESS;
 }
