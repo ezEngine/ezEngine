@@ -209,12 +209,245 @@ ezResult ezTexConv::WriteOutputFile(ezStringView sFile, const ezImage& image)
   }
 }
 
+ezResult ezTexConv::ReduceSingleFile(ezStringView sInputFile, ezStringView sOutputDir, ezStringView sExplicitOutputFile)
+{
+  ezImage image;
+  if (image.LoadFrom(sInputFile).Failed())
+  {
+    ezLog::Error("Failed to load input image '{}'.", sInputFile);
+    return EZ_FAILURE;
+  }
+
+  bool bHasAlpha = false;
+  if (ezImageFormat::GetNumChannels(image.GetImageFormat()) >= 4)
+  {
+    if (image.Convert(ezImageFormat::R32G32B32A32_FLOAT).Succeeded())
+    {
+      const float* pColors = image.GetPixelPointer<float>();
+      pColors += 3; // offset to alpha channel
+
+      EZ_ASSERT_DEV(image.GetRowPitch() == image.GetWidth() * sizeof(float) * 4, "Unexpected row pitch");
+
+      bool bAllOpaque = true;
+      bool bAllTransparent = true;
+
+      for (ezUInt32 i = 0; i < image.GetWidth() * image.GetHeight(); ++i)
+      {
+        const float a = *pColors;
+        bAllOpaque = bAllOpaque && ezMath::IsEqual(a, 1.0f, 1.0f / 255.0f);
+        bAllTransparent = bAllTransparent && ezMath::IsEqual(a, 0.0f, 1.0f / 255.0f);
+        pColors += 4;
+
+        if (!bAllOpaque && !bAllTransparent)
+        {
+          bHasAlpha = true;
+          break;
+        }
+      }
+    }
+    else
+    {
+      // Conversion failed; assume alpha is present to avoid data loss.
+      bHasAlpha = true;
+    }
+  }
+
+  const ezStringView sExt = bHasAlpha ? "png" : "jpg";
+
+  // Determine output path:
+  //   sExplicitOutputFile takes priority (single-file mode with -out as a file path)
+  //   sOutputDir places the file in a given folder (folder mode, or single-file with -out as directory)
+  //   otherwise output goes next to the input file
+  ezStringBuilder sOutputFile;
+  if (!sExplicitOutputFile.IsEmpty())
+  {
+    sOutputFile = sExplicitOutputFile;
+  }
+  else if (!sOutputDir.IsEmpty())
+  {
+    sOutputFile = sOutputDir;
+    sOutputFile.AppendPath(ezPathUtils::GetFileName(sInputFile));
+    sOutputFile.ChangeFileExtension(sExt);
+  }
+  else
+  {
+    sOutputFile = sInputFile;
+    sOutputFile.ChangeFileExtension(sExt);
+  }
+
+  if (ezOSFile::ExistsFile(sOutputFile))
+  {
+    ezLog::Info("Skipping '{}' (output already exists).", sOutputFile);
+    return EZ_SUCCESS;
+  }
+
+  if (image.SaveTo(sOutputFile).Failed())
+  {
+    ezLog::Error("Failed to write output image '{}'.", sOutputFile);
+    return EZ_FAILURE;
+  }
+
+  ezLog::Success("Wrote '{}' ({})", sOutputFile, bHasAlpha ? "has alpha -> PNG" : "no alpha -> JPG");
+
+  if (m_bDeleteSource)
+  {
+    if (ezOSFile::DeleteFile(sInputFile).Failed())
+    {
+      ezLog::Error("Failed to delete source file '{}'.", sInputFile);
+      return EZ_FAILURE;
+    }
+
+    ezLog::Dev("Deleted source file '{}'.", sInputFile);
+  }
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezTexConv::RunReduce()
+{
+  ezStringBuilder sInputPath = m_sReduceInputFile;
+
+  // Check for trailing '*' which signals recursive folder processing
+  bool bRecursive = false;
+  if (sInputPath.EndsWith("*"))
+  {
+    bRecursive = true;
+    sInputPath.Shrink(0, 1); // remove trailing '*'
+    sInputPath.Trim("/\\");  // remove any trailing separator left behind
+  }
+
+  // Single file mode: -out is either a redirect directory or a direct output file path
+  if (ezOSFile::ExistsFile(sInputPath))
+  {
+    const ezStringView sOutputDir = (!m_sOutputFile.IsEmpty() && ezOSFile::ExistsDirectory(m_sOutputFile)) ? ezStringView(m_sOutputFile) : ezStringView();
+    const ezStringView sOutputFile = (!m_sOutputFile.IsEmpty() && !ezOSFile::ExistsDirectory(m_sOutputFile)) ? ezStringView(m_sOutputFile) : ezStringView();
+    return ReduceSingleFile(sInputPath, sOutputDir, sOutputFile);
+  }
+
+  // Folder mode: parse -out, which may end with '*' to mirror the input subfolder structure
+  ezStringBuilder sOutputBase = m_sOutputFile;
+  bool bMirrorStructure = false;
+  if (sOutputBase.EndsWith("*"))
+  {
+    bMirrorStructure = true;
+    sOutputBase.Shrink(0, 1);
+    sOutputBase.Trim("/\\");
+  }
+
+  if (!sOutputBase.IsEmpty() && !ezOSFile::ExistsDirectory(sOutputBase))
+  {
+    ezLog::Error("The -out path '{}' is not an existing directory.", sOutputBase);
+    return EZ_FAILURE;
+  }
+
+  if (ezOSFile::ExistsDirectory(sInputPath))
+  {
+    // Recursive iteration does not support wildcards; filter by extension manually instead.
+    const ezFileSystemIteratorFlags::Enum flags = bRecursive ? ezFileSystemIteratorFlags::ReportFilesRecursive : ezFileSystemIteratorFlags::ReportFiles;
+
+    ezUInt32 uiConverted = 0;
+    ezUInt32 uiFailed = 0;
+
+    bool bAnyFound = false;
+
+    ezStringBuilder sFullPath;
+    ezStringBuilder sFileOutputDir;
+
+    {
+      ezStringBuilder sSearch = sInputPath;
+      if (!bRecursive)
+        sSearch.AppendPath("*");
+
+      ezFileSystemIterator iter;
+      iter.StartSearch(sSearch, flags);
+
+      for (; iter.IsValid(); iter.Next())
+      {
+        const ezStringView sName = iter.GetStats().m_sName;
+        if (!sName.HasExtension("dds") && !sName.HasExtension("tga"))
+          continue;
+
+        bAnyFound = true;
+
+        sFullPath = iter.GetCurrentPath();
+        sFullPath.AppendPath(iter.GetStats().m_sName);
+
+        if (sOutputBase.IsEmpty())
+        {
+          // No -out: place output next to each input file
+          sFileOutputDir.Clear();
+        }
+        else if (bMirrorStructure)
+        {
+          // -out ends with '*': mirror the subfolder structure under sOutputBase.
+          // iter.GetCurrentPath() is the directory containing the current file.
+          // Strip the sInputPath prefix to obtain the relative subdirectory.
+          ezStringView sCurDir = iter.GetCurrentPath();
+          ezStringView sRelativeDir;
+          if (sCurDir.StartsWith(sInputPath))
+          {
+            sRelativeDir = ezStringView(sCurDir.GetStartPointer() + sInputPath.GetElementCount());
+            // trim any leading separator
+            while (!sRelativeDir.IsEmpty() && (sRelativeDir.GetStartPointer()[0] == '/' || sRelativeDir.GetStartPointer()[0] == '\\'))
+            {
+              sRelativeDir = ezStringView(sRelativeDir.GetStartPointer() + 1, sRelativeDir.GetEndPointer());
+            }
+          }
+          sFileOutputDir = sOutputBase;
+          if (!sRelativeDir.IsEmpty())
+          {
+            sFileOutputDir.AppendPath(sRelativeDir);
+            ezOSFile::CreateDirectoryStructure(sFileOutputDir).IgnoreResult();
+          }
+        }
+        else
+        {
+          // -out is a plain directory: place all outputs flat in sOutputBase
+          sFileOutputDir = sOutputBase;
+        }
+
+        if (ReduceSingleFile(sFullPath, sFileOutputDir).Succeeded())
+        {
+          ++uiConverted;
+        }
+        else
+        {
+          ++uiFailed;
+        }
+      }
+    }
+
+    if (!bAnyFound)
+    {
+      ezLog::Warning("No DDS or TGA files found in '{}'.", sInputPath);
+      return EZ_SUCCESS;
+    }
+
+    ezLog::Info("Reduce folder '{}': {} processed, {} failed.", sInputPath, uiConverted, uiFailed);
+    return uiFailed == 0 ? EZ_SUCCESS : EZ_FAILURE;
+  }
+
+  ezLog::Error("Input path '{}' is neither a file nor an existing directory.", sInputPath);
+  return EZ_FAILURE;
+}
+
 void ezTexConv::Run()
 {
   SetReturnCode(-1);
 
   if (ParseCommandLine().Failed())
   {
+    QuitApplication();
+    return;
+  }
+
+  if (m_Mode == ezTexConvMode::Reduce)
+  {
+    if (RunReduce().Succeeded())
+    {
+      SetReturnCode(0);
+    }
+
     QuitApplication();
     return;
   }

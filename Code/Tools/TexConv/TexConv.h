@@ -13,6 +13,7 @@ struct ezTexConvMode
   {
     Convert,
     Compare,
+    Reduce, ///< Loads a single DDS or TGA file and saves it as JPG (no alpha) or PNG (has alpha), without any processing.
 
     Default = Convert
   };
@@ -46,6 +47,7 @@ public:
   ezResult ParseCommandLine();
   ezResult ParseMode();
   ezResult ParseCompareMode();
+  ezResult ParseReduceMode();
   ezResult ParseOutputType();
   ezResult DetectOutputFormat();
   ezResult ParseInputFiles();
@@ -73,11 +75,15 @@ public:
   bool IsTexFormat() const;
   ezResult WriteTexFile(ezStreamWriter& inout_stream, const ezImage& image);
   ezResult WriteOutputFile(ezStringView sFile, const ezImage& image);
+  ezResult RunReduce();
+  ezResult ReduceSingleFile(ezStringView sInputFile, ezStringView sOutputDir, ezStringView sExplicitOutputFile = {});
 
 private:
   ezString m_sOutputFile;
   ezString m_sOutputThumbnailFile;
   ezString m_sOutputLowResFile;
+  ezString m_sReduceInputFile;
+  bool m_bDeleteSource = false;
 
   bool m_bOutputSupports2D = false;
   bool m_bOutputSupports3D = false;
