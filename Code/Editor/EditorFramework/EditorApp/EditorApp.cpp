@@ -295,6 +295,55 @@ ezResult ezQtEditorApp::AddBundlesInOrder(ezDynamicArray<ezApplicationPluginConf
   return EZ_SUCCESS;
 }
 
+static ezStatus ExtractArchive(const ezString& sArchivePath)
+{
+  ezStringBuilder sArchiveDir = sArchivePath;
+  sArchiveDir.PathParentDirectory();
+  sArchiveDir.TrimWordEnd("/");
+
+  QStringList args;
+  args << "x"
+       << "-y" << ezMakeQString(sArchivePath);
+
+  return ezQtEditorApp::GetSingleton()->ExecuteTool("7z", args, 30 * 60, nullptr, ezLogMsgType::WarningMsg, sArchiveDir);
+}
+
+static ezStatus ExtractArchivesInDirectory(const ezStringBuilder& sDirectory)
+{
+  ezDynamicArray<ezString> archiveFiles;
+  ezFileSystemIterator it;
+  for (it.StartSearch(sDirectory, ezFileSystemIteratorFlags::ReportFilesRecursive); it.IsValid(); it.Next())
+  {
+    if (it.GetStats().m_sName.HasExtension("7z"))
+    {
+      ezStringBuilder sFullPath;
+      it.GetStats().GetFullPath(sFullPath);
+      archiveFiles.PushBack(sFullPath);
+    }
+  }
+
+  if (archiveFiles.IsEmpty())
+    return EZ_SUCCESS;
+
+  ezProgressRange unpackProgress("Unpacking Archives", archiveFiles.GetCount(), true);
+
+  for (const ezString& sArchive : archiveFiles)
+  {
+    unpackProgress.BeginNextStep(ezPathUtils::GetFileNameAndExtension(sArchive));
+
+    if (unpackProgress.WasCanceled())
+    {
+      return ezStatus("User canceled");
+    }
+
+    EZ_SUCCEED_OR_RETURN(ExtractArchive(sArchive));
+
+    ezLog::Success("Extracted archive '{}'", sArchive);
+  }
+
+  return EZ_SUCCESS;
+}
+
 ezStatus ezQtEditorApp::MakeRemoteProjectLocal(ezStringBuilder& inout_sFilePath)
 {
   // already a local project?
@@ -406,70 +455,84 @@ ezStatus ezQtEditorApp::MakeRemoteProjectLocal(ezStringBuilder& inout_sFilePath)
   // if it is a git repository, clone it
   if (sType == "git" && !sUrl.IsEmpty())
   {
-    QStringList args;
-    args << "clone";
-    args << ezMakeQString(sUrl);
-    args << ezMakeQString(sName);
+    ezProgressRange progress("Downloading Project", 2, true);
+    progress.SetStepWeighting(0, 0.8f);
+    progress.SetStepWeighting(1, 0.2f);
 
-    QProcess proc;
-    proc.setWorkingDirectory(sTargetDir.GetData());
-    proc.setProcessChannelMode(QProcess::MergedChannels);
+    {
+      QStringList args;
+      args << "clone";
+      args << ezMakeQString(sUrl);
+      args << ezMakeQString(sName);
 
-    ezProgressRange progress("Downloading Project", true);
-    bool bRecursion = false;
+      QProcess proc;
+      proc.setWorkingDirectory(sTargetDir.GetData());
+      proc.setProcessChannelMode(QProcess::MergedChannels);
 
-    QObject::connect(&proc, &QProcess::readyReadStandardOutput, [&]()
-      {
-        if (bRecursion)
-          return;
+      ezProgressRange cloneProgress("Downloading Project", true);
+      bool bRecursion = false;
 
-        bRecursion = true;
-
-        auto data = proc.readAllStandardOutput();
-        ezStringBuilder str = data.toStdString().c_str();
-        if (const char* szPercent = str.FindLastSubString("%"))
+      QObject::connect(&proc, &QProcess::readyReadStandardOutput, [&]()
         {
-          str.SetSubString_FromTo(szPercent - 3, szPercent);
-          str.Trim();
+          if (bRecursion)
+            return;
 
-          ezInt32 p;
-          if (ezConversionUtils::StringToInt(str, p).Succeeded())
+          bRecursion = true;
+
+          auto data = proc.readAllStandardOutput();
+          ezStringBuilder str = data.toStdString().c_str();
+          if (const char* szPercent = str.FindLastSubString("%"))
           {
-            progress.SetCompletion(p / 100.0f);
+            str.SetSubString_FromTo(szPercent - 3, szPercent);
+            str.Trim();
+
+            ezInt32 p;
+            if (ezConversionUtils::StringToInt(str, p).Succeeded())
+            {
+              cloneProgress.SetCompletion(p / 100.0f);
+            }
           }
-        }
 
-        if (progress.WasCanceled())
-        {
-          proc.close();
-        }
+          if (cloneProgress.WasCanceled())
+          {
+            proc.close();
+          }
 
-        bRecursion = false;
-        //
-      });
+          bRecursion = false;
+          //
+        });
 
-    QApplication::setOverrideCursor(Qt::WaitCursor);
+      QApplication::setOverrideCursor(Qt::WaitCursor);
+      EZ_SCOPE_EXIT(QApplication::restoreOverrideCursor());
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-    proc.start("git.exe", args);
+      proc.start("git.exe", args);
 #else
-    proc.start("git", args);
+      proc.start("git", args);
 #endif
 
-    if (!proc.waitForStarted())
-    {
-      return ezStatus(ezFmt("Running 'git' to download the remote project failed."));
+      if (!proc.waitForStarted())
+      {
+        return ezStatus(ezFmt("Running 'git' to download the remote project failed."));
+      }
+
+      proc.waitForFinished(60 * 1000);
+
+      if (proc.exitStatus() != QProcess::ExitStatus::NormalExit)
+      {
+        return ezStatus(ezFmt("Failed to git clone the remote project '{}' from '{}'", sName, sUrl));
+      }
+
+      ezLog::Success("Cloned remote project '{}' from '{}' to '{}'", sName, sUrl, sTargetDir);
     }
 
-    proc.waitForFinished(60 * 1000);
-    QApplication::restoreOverrideCursor();
-
-    if (proc.exitStatus() != QProcess::ExitStatus::NormalExit)
+    // Find and extract any 7z archives in the cloned directory
     {
-      return ezStatus(ezFmt("Failed to git clone the remote project '{}' from '{}'", sName, sUrl));
-    }
+      ezStringBuilder sClonedDir;
+      sClonedDir.SetFormat("{}/{}", sTargetDir, sName);
 
-    ezLog::Success("Cloned remote project '{}' from '{}' to '{}'", sName, sUrl, sTargetDir);
+      EZ_SUCCEED_OR_RETURN(ExtractArchivesInDirectory(sClonedDir));
+    }
 
     inout_sFilePath.SetFormat("{}/{}/{}", sTargetDir, sName, sProjectFile);
 
@@ -482,7 +545,7 @@ ezStatus ezQtEditorApp::MakeRemoteProjectLocal(ezStringBuilder& inout_sFilePath)
       }
     }
 
-    return ezStatus(EZ_SUCCESS);
+    return EZ_SUCCESS;
   }
 
   return ezStatus(ezFmt("Unknown remote project type '{}' or invalid URL '{}'", sType, sUrl));

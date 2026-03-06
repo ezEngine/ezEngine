@@ -238,12 +238,19 @@ ezTextureCubeAssetDocumentGenerator::~ezTextureCubeAssetDocumentGenerator() = de
 
 void ezTextureCubeAssetDocumentGenerator::GetImportModes(ezStringView sAbsInputFile, ezDynamicArray<ezAssetDocumentGenerator::ImportMode>& out_modes) const
 {
+  if (sAbsInputFile.IsEmpty())
+  {
+    // called with an empty string to populate the "Import As" menu
+    ezAssetDocumentGenerator::ImportMode& info = out_modes.ExpandAndGetRef();
+    info.m_sName = "CubemapImport.SkyboxAuto";
+    info.m_sIcon = ":/AssetIcons/Texture_Cube.svg";
+    return;
+  }
+
   const ezStringBuilder baseFilename = sAbsInputFile.GetFileName();
   const bool isHDR = sAbsInputFile.HasExtension("hdr") || sAbsInputFile.HasExtension("exr");
 
   const bool isCubemap = ((baseFilename.FindSubString_NoCase("cubemap") != nullptr) || (baseFilename.FindSubString_NoCase("skybox") != nullptr));
-
-  // TODO: if (sAbsInputFile.IsEmpty()) -> CubemapImport.SkyboxAuto
 
   if (isHDR)
   {
@@ -273,7 +280,7 @@ ezStatus ezTextureCubeAssetDocumentGenerator::Generate(ezStringView sInputFileAb
   if (ezOSFile::ExistsFile(sOutFile))
   {
     ezLog::Info("Skipping cubemap import, file has been imported before: '{}'", sOutFile);
-    return ezStatus(EZ_SUCCESS);
+    return EZ_SUCCESS;
   }
 
   auto pApp = ezQtEditorApp::GetSingleton();
@@ -292,6 +299,19 @@ ezStatus ezTextureCubeAssetDocumentGenerator::Generate(ezStringView sInputFileAb
   auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
   accessor.SetValue("Input1", sInputFileRel.GetView());
   accessor.SetValue("ChannelMapping", (int)ezTextureCubeChannelMappingEnum::RGB1);
+
+  if (sMode == "CubemapImport.SkyboxAuto")
+  {
+    const bool isHDR = sInputFileAbs.HasExtension("hdr") || sInputFileAbs.HasExtension("exr");
+    if (isHDR)
+    {
+      sMode = "CubemapImport.SkyboxHDR";
+    }
+    else
+    {
+      sMode = "CubemapImport.Skybox";
+    }
+  }
 
   if (sMode == "CubemapImport.SkyboxHDR")
   {
