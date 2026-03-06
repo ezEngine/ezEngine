@@ -1,6 +1,7 @@
 #include <GameEngine/GameEnginePCH.h>
 
 #include <Core/Collection/CollectionResource.h>
+#include <Core/Input/DeviceTypes/MouseKeyboard.h>
 #include <Core/Input/InputManager.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Foundation/IO/FileSystem/FileReader.h>

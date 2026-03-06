@@ -381,6 +381,7 @@ ezCpuMeshResourceHandle ezJoltMeshResource::ConvertToCpuMesh() const
   if (triangles.IsEmpty())
     return {};
 
+  // we do copy the surfaces over as "materials" here, but if anyone needs to render this mesh, they need to replace that with a proper material
   for (ezUInt32 i = 0; i < m_Surfaces.GetCount(); ++i)
   {
     desc.SetMaterial(i, m_Surfaces[i].GetResourceID());

@@ -130,7 +130,13 @@ void ezJoltVisColMeshComponent::CreateCollisionRenderMesh()
 
   ezMeshResourceDescriptor md = pCpuMesh->GetDescriptor();
 
-  md.SetMaterial(0, "Materials/Common/ColMesh.ezMaterial");
+  // replace all materials with the preview material
+  // actually the existing materials here are the surfaces of the collision mesh
+  // so this can't be used for rendering anyway
+  for (ezUInt32 i = 0; i < md.GetMaterials().GetCount(); ++i)
+  {
+    md.SetMaterial(i, "Materials/Common/ColMesh.ezMaterial");
+  }
 
   m_hMesh = ezResourceManager::GetOrCreateResource<ezMeshResource>(sColMeshName, std::move(md), "Collision Mesh Visualization");
 
