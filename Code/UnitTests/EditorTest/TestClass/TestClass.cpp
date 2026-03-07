@@ -155,12 +155,14 @@ ezResult ezEditorTest::InitializeTest()
   }
 
   ezTestFramework::GetInstance()->SetImageReferenceTagsFromEnvironment(EZ_PLATFORM_NAME, ezGameApplication::GetActiveRenderer(), s_sAdapterName);
+  m_UIServicesTickEventHandlerID = ezQtUiServices::s_TickEvent.AddEventHandler(ezMakeDelegate(&ezEditorTest::UIServicesTickEventHandler, this));
 
   return EZ_SUCCESS;
 }
 
 ezResult ezEditorTest::DeInitializeTest()
 {
+  ezQtUiServices::s_TickEvent.RemoveEventHandler(m_UIServicesTickEventHandlerID);
   CloseCurrentProject();
 
   if (m_pApplication)
@@ -324,6 +326,29 @@ void ezEditorTest::ProcessEvents(ezUInt32 uiIterations)
     {
       qApp->processEvents();
     }
+  }
+}
+
+void ezEditorTest::WaitFrames(ezUInt32 uiFrames)
+{
+  EZ_PROFILE_SCOPE("WaitFrames");
+  // Add one because we could have started waiting between start and end frame.
+  uiFrames++;
+  ezUInt32 uiCurrentFrame = m_uiRenderedFrames;
+  if (qApp)
+  {
+    while ((m_uiRenderedFrames - uiCurrentFrame) < uiFrames)
+    {
+      qApp->processEvents();
+    }
+  }
+}
+
+void ezEditorTest::UIServicesTickEventHandler(const ezQtUiServices::TickEvent& e)
+{
+  if (e.m_Type == ezQtUiServices::TickEvent::Type::EndFrame)
+  {
+    m_uiRenderedFrames++;
   }
 }
 

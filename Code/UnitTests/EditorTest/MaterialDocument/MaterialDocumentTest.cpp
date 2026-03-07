@@ -161,15 +161,15 @@ void ezMaterialDocumentTest::CaptureMaterialImage()
   ezActionManager::ExecuteAction(nullptr, "View.SkyBox", ctx2, false).AssertSuccess();
   ProcessEvents();
 
-  // Wait until the resource manager has finished loading, with a timeout as a safety net.
-  for (int i = 0; i < 200; ++i)
-  {
-    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(50));
-    ProcessEvents();
+  ezSimpleConfigMsgToEngine msg;
+  msg.m_sWhatToDo = "ForceNoFallbackAcquisition";
+  ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+  msg.m_sWhatToDo = "ReloadResources";
+  msg.m_sPayload = "ReloadAllResources";
+  ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 
-    if (i > 10 && !ezResourceManager::IsAnyLoadingInProgress())
-      break;
-  }
+  ProcessEvents();
+  WaitFrames(8);
 
   EZ_TEST_BOOL(CaptureImage(pWindow, "MatFromShader").Succeeded());
   EZ_TEST_IMAGE(1, 100);
@@ -309,18 +309,7 @@ void ezMaterialDocumentTest::CreateMaterialFromVSE()
   // Bug: Shader won't update until transformed and shader mode is switched back and forth.
   EZ_TEST_STATUS(m_pDoc->SaveDocument());
   ezAssetCurator::GetSingleton()->TransformAsset(m_MaterialGuid, ezTransformFlags::ForceTransform);
-  ezAssetCurator::GetSingleton()->WriteAssetTables(nullptr, true).AssertSuccess();
-  ezResourceManager::ReloadAllResources(false);
-
-  // Wait for the resource manager to finish loading the newly compiled shader before toggling ShaderMode.
-  for (int i = 0; i < 200; ++i)
-  {
-    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(50));
-    ProcessEvents();
-
-    if (i > 10 && !ezResourceManager::IsAnyLoadingInProgress())
-      break;
-  }
+  ProcessEvents();
 
   pAccessor->StartTransaction("Change Property 'Shader Mode'");
   EZ_TEST_STATUS(pAccessor->SetValueByName(pProperties, "ShaderMode", 0));
@@ -341,7 +330,6 @@ void ezMaterialDocumentTest::CreateMaterialFromVSE()
   pAccessor->FinishTransaction();
 
   ProcessEvents();
-
   CaptureMaterialImage();
 
   CloseMaterial();

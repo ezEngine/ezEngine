@@ -4,6 +4,7 @@
 
 namespace
 {
+  static constexpr ezUInt8 s_uiSamplerDim = 255;
   // Returns the dimension of a type: 1 for float, 2 for ezVec2, 3 for ezVec3, 4 for ezVec4/ezColor, 0 for unknown
   ezUInt8 GetTypeDimension(const ezRTTI* pType)
   {
@@ -18,6 +19,9 @@ namespace
     // We treat 'auto' as float as all the default values for auto fields are float.
     if (pType == nullptr)
       return 1;
+
+    if (pType == ezVisualShaderTypeRegistry::GetSingleton()->GetPinSamplerType())
+      return s_uiSamplerDim;
 
     EZ_REPORT_FAILURE("Unknown RTTI type found in VSE type");
     return 0;
@@ -36,6 +40,8 @@ namespace
         return "float3";
       case 4:
         return "float4";
+      case s_uiSamplerDim:
+        return "SamplerState";
       default:
         EZ_REPORT_FAILURE("Unknown vector dimension found in HLSL type");
         return "float4";

@@ -421,9 +421,14 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
     {
       if (pMsg1->m_sPayload == "ReloadAllResources")
       {
+        ezFileSystem::ReloadAllExternalDataDirectoryConfigs();
         ezResourceManager::ReloadAllResources(false);
       }
       ezRenderWorld::DeleteAllCachedRenderData();
+    }
+    else if (pMsg1->m_sWhatToDo == "ForceNoFallbackAcquisition")
+    {
+      ezResourceManager::ForceNoFallbackAcquisition(3);
     }
     else if (pMsg1->m_sWhatToDo == "SaveProfiling")
     {

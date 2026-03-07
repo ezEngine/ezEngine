@@ -62,6 +62,8 @@ protected:
   void CloseCurrentProject();
   void SafeProfilingData();
   void ProcessEvents(ezUInt32 uiIterations = 1);
+  void WaitFrames(ezUInt32 uiFrames = 1);
+  void UIServicesTickEventHandler(const ezQtUiServices::TickEvent& e);
 
   std::unique_ptr<QMimeData> AssetsToDragMimeData(ezArrayPtr<ezUuid> assetGuids);
   std::unique_ptr<QMimeData> ObjectsDragMimeData(const ezDeque<const ezDocumentObject*>& objects);
@@ -75,4 +77,6 @@ protected:
   ezImage m_CapturedImage;
   ezDynamicArray<ezString> m_CommandLineArguments;
   ezDynamicArray<const char*> m_CommandLineArgumentPointers;
+  ezEventSubscriptionID m_UIServicesTickEventHandlerID = {};
+  ezUInt32 m_uiRenderedFrames = 0;
 };
