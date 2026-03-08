@@ -65,7 +65,17 @@ namespace
     }
     else
     {
+      // First probe to find out the native channel count.
       sourceImageData = stbi_load_from_memory(ref_fileBuffer.GetData(), ref_fileBuffer.GetCount(), &width, &height, &numComp, 0);
+
+      // Expand grayscale (1ch) to RGB (3ch) and gray+alpha (2ch) to RGBA (4ch). We have no concept of grayscale images in EZ so we must expand these here or grayscale images will show up as yellow textures.
+      if (sourceImageData != nullptr && (numComp == 1 || numComp == 2))
+      {
+        stbi_image_free(sourceImageData);
+        int desiredComp = (numComp == 1) ? 3 : 4;
+        sourceImageData = stbi_load_from_memory(ref_fileBuffer.GetData(), ref_fileBuffer.GetCount(), &width, &height, &numComp, desiredComp);
+        numComp = desiredComp;
+      }
     }
     if (!sourceImageData)
     {
