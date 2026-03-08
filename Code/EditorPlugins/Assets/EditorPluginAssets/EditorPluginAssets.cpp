@@ -1,6 +1,7 @@
 #include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
 #include <EditorFramework/Actions/AssetActions.h>
+#include <EditorFramework/Actions/CameraModeSwitchActions.h>
 #include <EditorFramework/Actions/CommonAssetActions.h>
 #include <EditorFramework/Actions/GameObjectContextActions.h>
 #include <EditorFramework/Actions/GameObjectDocumentActions.h>
@@ -19,7 +20,6 @@
 #include <EditorPluginAssets/LUTAsset/LUTAssetWindow.moc.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialAsset.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialAssetWindow.moc.h>
-#include <EditorFramework/Actions/CameraModeSwitchActions.h>
 #include <EditorPluginAssets/MeshAsset/MeshAssetObjects.h>
 #include <EditorPluginAssets/SkeletonAsset/SkeletonActions.h>
 #include <EditorPluginAssets/SkeletonAsset/SkeletonAsset.h>

@@ -121,7 +121,7 @@ void ezQtJoltCollisionMeshAssetDocumentWindow::SetCameraMode(int iMode)
   m_pViewWidget->m_InputContexts.Clear();
   if (iMode == 0) // Orbit
     m_pViewWidget->m_InputContexts.PushBack(m_pViewWidget->GetOrbitCamera());
-  else // Free fly
+  else            // Free fly
     m_pViewWidget->m_InputContexts.PushBack(m_pCameraFlyContext.Borrow());
 }
 
