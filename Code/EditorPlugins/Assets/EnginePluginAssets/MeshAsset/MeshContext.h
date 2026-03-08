@@ -21,6 +21,9 @@ public:
 
   bool m_bDisplayGrid = true;
 
+  /// \brief Human-readable display name for each material slot, updated whenever materials are set.
+  ezHybridArray<ezString, 16> m_SlotNames;
+
 protected:
   virtual void OnInitialize() override;
 

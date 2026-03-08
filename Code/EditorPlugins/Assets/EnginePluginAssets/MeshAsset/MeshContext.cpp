@@ -27,6 +27,8 @@ void ezMeshContext::HandleMessage(const ezEditorEngineDocumentMsg* pDocMsg)
 {
   if (auto* pMsg = ezDynamicCast<const ezEditorEngineSetMaterialsMsg*>(pDocMsg))
   {
+    m_SlotNames = pMsg->m_SlotNames;
+
     ezMeshComponent* pMesh;
     if (m_pMeshObject && m_pMeshObject->TryGetComponentOfBaseType(pMesh))
     {

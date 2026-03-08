@@ -2,6 +2,7 @@
 
 #include <EditorFramework/Assets/AssetStatusIndicator.moc.h>
 #include <EditorFramework/DocumentWindow/OrbitCamViewWidget.moc.h>
+#include <EditorFramework/InputContexts/CameraMoveContext.h>
 #include <EditorFramework/InputContexts/OrbitCameraContext.h>
 #include <EditorPluginJolt/CollisionMeshAsset/JoltCollisionMeshAssetWindow.moc.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
@@ -47,7 +48,12 @@ ezQtJoltCollisionMeshAssetDocumentWindow::ezQtJoltCollisionMeshAssetDocumentWind
     m_pViewWidget = new ezQtOrbitCamViewWidget(this, &m_ViewConfig);
     m_pViewWidget->ConfigureRelative(ezVec3(0), ezVec3(5.0f), ezVec3(5, -2, 3), 2.0f);
     AddViewWidget(m_pViewWidget);
-    pContainer = new ezQtViewWidgetContainer(GetContainerWindow()->GetDockManager(), this, m_pViewWidget, "MeshAssetViewToolBar");
+
+    m_pCameraFlyContext = EZ_DEFAULT_NEW(ezCameraMoveContext, this, m_pViewWidget);
+    m_pCameraFlyContext->SetCamera(&m_ViewConfig.m_Camera);
+    m_pCameraFlyContext->LoadState();
+
+    pContainer = new ezQtViewWidgetContainer(GetContainerWindow()->GetDockManager(), this, m_pViewWidget, "JoltCollisionMeshAssetViewToolBar");
     m_pDockManager->setCentralWidget(pContainer);
   }
 
@@ -104,6 +110,19 @@ void ezQtJoltCollisionMeshAssetDocumentWindow::QueryObjectBBox(ezInt32 iPurpose 
   msg.m_uiViewID = 0xFFFFFFFF;
   msg.m_iPurpose = iPurpose;
   GetDocument()->SendMessageToEngine(&msg);
+}
+
+void ezQtJoltCollisionMeshAssetDocumentWindow::SetCameraMode(int iMode)
+{
+  if (m_iCameraMode == iMode)
+    return;
+  m_iCameraMode = iMode;
+
+  m_pViewWidget->m_InputContexts.Clear();
+  if (iMode == 0) // Orbit
+    m_pViewWidget->m_InputContexts.PushBack(m_pViewWidget->GetOrbitCamera());
+  else // Free fly
+    m_pViewWidget->m_InputContexts.PushBack(m_pCameraFlyContext.Borrow());
 }
 
 void ezQtJoltCollisionMeshAssetDocumentWindow::InternalRedraw()

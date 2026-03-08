@@ -1,6 +1,7 @@
 #include <EditorPluginJolt/EditorPluginJoltPCH.h>
 
 #include <EditorFramework/Actions/AssetActions.h>
+#include <EditorFramework/Actions/CameraModeSwitchActions.h>
 #include <EditorFramework/Actions/CommonAssetActions.h>
 #include <EditorFramework/Actions/ProjectActions.h>
 #include <EditorPluginJolt/Actions/JoltActions.h>
@@ -44,6 +45,12 @@ void OnLoadPlugin()
     {
       ezActionMapManager::RegisterActionMap("JoltCollisionMeshAssetToolBar", "AssetToolbar");
       ezCommonAssetActions::MapToolbarActions("JoltCollisionMeshAssetToolBar", ezCommonAssetUiState::Grid);
+      ezCameraModeSwitchActions::MapToolbarActions("JoltCollisionMeshAssetToolBar");
+    }
+
+    // View Tool Bar
+    {
+      ezActionMapManager::RegisterActionMap("JoltCollisionMeshAssetViewToolBar", "SimpleAssetViewToolbar");
     }
   }
 

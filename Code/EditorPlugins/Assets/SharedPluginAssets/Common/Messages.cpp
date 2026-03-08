@@ -21,6 +21,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorEngineSetMaterialsMsg, 1, ezRTTIDefaultA
   EZ_BEGIN_PROPERTIES
   {
     EZ_ARRAY_MEMBER_PROPERTY("Materials", m_Materials),
+    EZ_ARRAY_MEMBER_PROPERTY("SlotNames", m_SlotNames),
   }
   EZ_END_PROPERTIES;
 }

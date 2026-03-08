@@ -1,5 +1,6 @@
 #include <EnginePluginAssets/EnginePluginAssetsPCH.h>
 
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EnginePluginAssets/MeshAsset/MeshContext.h>
 #include <EnginePluginAssets/MeshAsset/MeshView.h>
 #include <RendererCore/Debug/DebugRenderer.h>
@@ -87,4 +88,64 @@ void ezMeshViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
 
     ezDebugRenderer::DrawInfoText(m_hView, ezDebugTextPlacement::BottomLeft, "AssetStats", sText);
   }
+
+  if (m_uiLastHoveredPartIndex != ezInvalidIndex && m_uiLastHoveredPartIndex < (ezUInt32)m_pContext->m_SlotNames.GetCount())
+  {
+    ezStringBuilder sHoverText;
+    sHoverText.AppendFormat("Slot {}: {}\t\n(Ctrl+MMB to open)\t", m_uiLastHoveredPartIndex, m_pContext->m_SlotNames[m_uiLastHoveredPartIndex]);
+    ezDebugRenderer::DrawInfoText(m_hView, ezDebugTextPlacement::TopLeft, "HoveredMaterial", sHoverText);
+  }
+}
+
+void ezMeshViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
+{
+  ezEngineProcessViewContext::HandleViewMessage(pMsg);
+
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewRedrawMsgToEngine>())
+  {
+    const ezViewRedrawMsgToEngine* pMsg2 = static_cast<const ezViewRedrawMsgToEngine*>(pMsg);
+
+    ezView* pView = nullptr;
+    if (ezRenderWorld::TryGetView(m_hView, pView))
+    {
+      pView->SetRenderPassProperty("EditorPickingPass", "Active", pMsg2->m_bUpdatePickingData);
+      pView->SetRenderPassProperty("EditorPickingPass", "PickSelected", pMsg2->m_bEnablePickingSelected);
+      pView->SetRenderPassProperty("EditorPickingPass", "PickTransparent", pMsg2->m_bEnablePickTransparent);
+    }
+  }
+  else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewPickingMsgToEngine>())
+  {
+    const ezViewPickingMsgToEngine* pMsg2 = static_cast<const ezViewPickingMsgToEngine*>(pMsg);
+    PickObjectAt(pMsg2->m_uiPickPosX, pMsg2->m_uiPickPosY);
+  }
+}
+
+void ezMeshViewContext::PickObjectAt(ezUInt16 x, ezUInt16 y)
+{
+  ezViewPickingResultMsgToEditor res;
+  EZ_SCOPE_EXIT(SendViewMessage(&res));
+
+  ezView* pView = nullptr;
+  if (!ezRenderWorld::TryGetView(m_hView, pView))
+    return;
+
+  pView->SetRenderPassProperty("EditorPickingPass", "PickingPosition", ezVec2(x, y));
+
+  if (!pView->IsRenderPassReadBackPropertyExisting("EditorPickingPass", "PickedPosition"))
+    return;
+
+  ezVariant varPickedPos = pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickedPosition");
+  if (!varPickedPos.IsA<ezVec3>())
+    return;
+
+  const ezUInt32 uiPickingID = pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickedID").ConvertTo<ezUInt32>();
+  res.m_vPickedNormal = pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickedNormal").ConvertTo<ezVec3>();
+  res.m_vPickingRayStartPosition = pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickedRayStartPosition").ConvertTo<ezVec3>();
+  res.m_vPickedPosition = varPickedPos.ConvertTo<ezVec3>();
+
+  // The component and object GUIDs are not available in the mesh preview since the objects
+  // are not registered in the component picking map. Only the part index (material slot) is relevant here.
+  res.m_uiPartIndex = (uiPickingID >> 24) & 0xFF;
+
+  m_uiLastHoveredPartIndex = (uiPickingID != 0) ? res.m_uiPartIndex : ezInvalidIndex;
 }

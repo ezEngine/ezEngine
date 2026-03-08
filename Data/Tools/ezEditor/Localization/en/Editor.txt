@@ -100,6 +100,7 @@ Asset.WriteLookupTable;Write Lookup Table
 Asset.Help;Open Asset Documentation;Open online documentation for this asset type
 Asset.CopyAssetGuid;Copy Asset Guid;Stores the assets GUID in the clipboard.
 Asset.SelectInAssetBrowser;Select in Asset Browser
+Asset.CameraMode;Camera Mode
 
 # Prefabs
 

@@ -391,8 +391,8 @@ ezCpuMeshResourceHandle ezJoltMeshResource::ConvertToCpuMesh() const
     { return a.m_pSurface < b.m_pSurface; });
 
   ezDynamicArray<ezVec3> positions;
-  ezDynamicArray<ezUInt16> indices;
-  ezMap<ezVec3, ezUInt16> vertexToIndex;
+  ezDynamicArray<ezUInt32> indices;
+  ezMap<ezVec3, ezUInt32> vertexToIndex;
   const ezSurfaceResource* pLastSurface = triangles[0].m_pSurface;
   ezUInt32 uiFirstTriangleOfCurrentSurface = 0;
 
@@ -403,11 +403,10 @@ ezCpuMeshResourceHandle ezJoltMeshResource::ConvertToCpuMesh() const
 
     for (ezUInt32 v = 0; v < 3; ++v)
     {
-      ezUInt16 uiIndex;
+      ezUInt32 uiIndex;
       if (!vertexToIndex.TryGetValue(triangle.m_Vertices[v], uiIndex))
       {
-        EZ_ASSERT_DEV((positions.GetCount() + 1) < 0xFFFF, "Jolt mesh has too many unique vertices to be converted to a CPU mesh.");
-        uiIndex = static_cast<ezUInt16>(positions.GetCount());
+        uiIndex = positions.GetCount();
         positions.PushBack(triangle.m_Vertices[v]);
         vertexToIndex.Insert(triangle.m_Vertices[v], uiIndex);
       }
@@ -433,7 +432,21 @@ ezCpuMeshResourceHandle ezJoltMeshResource::ConvertToCpuMesh() const
 
   desc.MeshBufferDesc().AllocateStreams(positions.GetCount(), ezGALPrimitiveTopology::Triangles, uiNumTriangles);
   desc.MeshBufferDesc().GetPositionData().CopyFrom(positions);
-  desc.MeshBufferDesc().GetIndexBufferData() = indices.GetByteArrayPtr();
+
+  if (desc.MeshBufferDesc().Uses32BitIndices())
+  {
+    desc.MeshBufferDesc().GetIndexBufferData() = indices.GetByteArrayPtr();
+  }
+  else
+  {
+    ezDynamicArray<ezUInt16> indices16;
+    indices16.SetCountUninitialized(indices.GetCount());
+    for (ezUInt32 i = 0; i < indices.GetCount(); ++i)
+    {
+      indices16[i] = static_cast<ezUInt16>(indices[i]);
+    }
+    desc.MeshBufferDesc().GetIndexBufferData() = indices16.GetByteArrayPtr();
+  }
 
   desc.ComputeBounds();
 

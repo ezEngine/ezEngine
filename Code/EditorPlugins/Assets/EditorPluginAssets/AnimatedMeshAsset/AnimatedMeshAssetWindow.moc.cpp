@@ -2,6 +2,7 @@
 
 #include <EditorFramework/Assets/AssetStatusIndicator.moc.h>
 #include <EditorFramework/DocumentWindow/OrbitCamViewWidget.moc.h>
+#include <EditorFramework/InputContexts/CameraMoveContext.h>
 #include <EditorFramework/InputContexts/OrbitCameraContext.h>
 #include <EditorPluginAssets/AnimatedMeshAsset/AnimatedMeshAssetWindow.moc.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
@@ -48,6 +49,11 @@ ezQtAnimatedMeshAssetDocumentWindow::ezQtAnimatedMeshAssetDocumentWindow(ezAnima
     m_pViewWidget = new ezQtOrbitCamViewWidget(this, &m_ViewConfig);
     m_pViewWidget->ConfigureRelative(ezVec3(0, 0, 1), ezVec3(10.0f), ezVec3(5, -2, 3), 2.0f);
     AddViewWidget(m_pViewWidget);
+
+    m_pCameraFlyContext = EZ_DEFAULT_NEW(ezCameraMoveContext, this, m_pViewWidget);
+    m_pCameraFlyContext->SetCamera(&m_ViewConfig.m_Camera);
+    m_pCameraFlyContext->LoadState();
+
     pContainer = new ezQtViewWidgetContainer(GetContainerWindow()->GetDockManager(), this, m_pViewWidget, "AnimatedMeshAssetViewToolBar");
     m_pDockManager->setCentralWidget(pContainer);
   }
@@ -97,6 +103,19 @@ ezQtAnimatedMeshAssetDocumentWindow::~ezQtAnimatedMeshAssetDocumentWindow()
 ezAnimatedMeshAssetDocument* ezQtAnimatedMeshAssetDocumentWindow::GetMeshDocument()
 {
   return static_cast<ezAnimatedMeshAssetDocument*>(GetDocument());
+}
+
+void ezQtAnimatedMeshAssetDocumentWindow::SetCameraMode(int iMode)
+{
+  if (m_iCameraMode == iMode)
+    return;
+  m_iCameraMode = iMode;
+
+  m_pViewWidget->m_InputContexts.Clear();
+  if (iMode == 0) // Orbit
+    m_pViewWidget->m_InputContexts.PushBack(m_pViewWidget->GetOrbitCamera());
+  else // Free fly
+    m_pViewWidget->m_InputContexts.PushBack(m_pCameraFlyContext.Borrow());
 }
 
 void ezQtAnimatedMeshAssetDocumentWindow::SendRedrawMsg()

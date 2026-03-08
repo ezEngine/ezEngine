@@ -61,6 +61,19 @@ public:
 
   virtual void CreateImageCapture(const char* szOutputPath) override;
 
+  /// Returns the active camera mode index, or -1 if the window does not support camera mode switching.
+  virtual int GetCameraMode() const { return -1; }
+
+  /// Sets the active camera mode by index. Override together with GetCameraMode() and GetCameraModeNames().
+  virtual void SetCameraMode(int iMode) {}
+
+  /// Returns the display names for each supported camera mode, in order matching the indices used by GetCameraMode() and SetCameraMode().
+  virtual void GetCameraModeNames(ezDynamicArray<ezString>& out_names) const
+  {
+    out_names.PushBack("Orbit Camera");
+    out_names.PushBack("Free Camera");
+  }
+
 public:
   mutable ezEvent<const ezEngineWindowEvent&> m_EngineWindowEvent;
 

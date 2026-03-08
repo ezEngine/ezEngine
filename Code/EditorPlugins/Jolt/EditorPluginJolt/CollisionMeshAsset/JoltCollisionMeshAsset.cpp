@@ -114,6 +114,53 @@ ezTransformStatus ezJoltCollisionMeshAssetDocument::InternalTransformAsset(ezStr
     {
       meshDesc.m_Surfaces.PushBack(slot.m_sResource);
     }
+
+    // For triangle meshes: merge sub-meshes that share the same surface to reduce the material count,
+    // since Jolt supports at most 32 different materials per triangle mesh.
+    if (meshDesc.m_Type == ezJoltMeshDesc::Type::Triangle)
+    {
+      ezDynamicArray<ezUInt16> oldToNewIndex;
+      oldToNewIndex.SetCountUninitialized(meshDesc.m_Surfaces.GetCount());
+
+      ezMap<ezString, ezUInt16> surfaceToNewIndex;
+      ezDynamicArray<ezString> dedupSurfaces;
+
+      for (ezUInt32 i = 0; i < meshDesc.m_Surfaces.GetCount(); ++i)
+      {
+        const ezString& sSurface = meshDesc.m_Surfaces[i];
+
+        auto it = surfaceToNewIndex.Find(sSurface);
+        if (it.IsValid())
+        {
+          oldToNewIndex[i] = it.Value();
+        }
+        else
+        {
+          const ezUInt16 uiNewIdx = static_cast<ezUInt16>(dedupSurfaces.GetCount());
+          surfaceToNewIndex[sSurface] = uiNewIdx;
+          oldToNewIndex[i] = uiNewIdx;
+          dedupSurfaces.PushBack(sSurface);
+        }
+      }
+
+      if (dedupSurfaces.GetCount() < meshDesc.m_Surfaces.GetCount())
+      {
+        for (ezUInt16& surfaceID : meshDesc.m_TriangleSurfaceID)
+        {
+          if (surfaceID != 0xFFFF)
+          {
+            surfaceID = oldToNewIndex[surfaceID];
+          }
+        }
+
+        meshDesc.m_Surfaces = std::move(dedupSurfaces);
+      }
+
+      if (meshDesc.m_Surfaces.GetCount() > 32)
+      {
+        return ezTransformStatus(ezFmt("Collision mesh uses {} different surfaces. Jolt supports at most 32 per triangle mesh.", meshDesc.m_Surfaces.GetCount()));
+      }
+    }
   }
 
   // Please check that the code here is in sync with ezJoltMeshResourceWriter::WriteMeshResource()

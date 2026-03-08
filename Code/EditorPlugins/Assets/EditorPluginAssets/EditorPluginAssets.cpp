@@ -19,6 +19,7 @@
 #include <EditorPluginAssets/LUTAsset/LUTAssetWindow.moc.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialAsset.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialAssetWindow.moc.h>
+#include <EditorFramework/Actions/CameraModeSwitchActions.h>
 #include <EditorPluginAssets/MeshAsset/MeshAssetObjects.h>
 #include <EditorPluginAssets/SkeletonAsset/SkeletonActions.h>
 #include <EditorPluginAssets/SkeletonAsset/SkeletonAsset.h>
@@ -153,6 +154,7 @@ static void ConfigureMeshAsset()
   {
     ezActionMapManager::RegisterActionMap("MeshAssetToolBar", "AssetToolbar");
     ezCommonAssetActions::MapToolbarActions("MeshAssetToolBar", ezCommonAssetUiState::Grid);
+    ezCameraModeSwitchActions::MapToolbarActions("MeshAssetToolBar");
   }
 
   // View Tool Bar
@@ -337,6 +339,7 @@ static void ConfigureAnimatedMeshAsset()
   {
     ezActionMapManager::RegisterActionMap("AnimatedMeshAssetToolBar", "AssetToolbar");
     ezCommonAssetActions::MapToolbarActions("AnimatedMeshAssetToolBar", ezCommonAssetUiState::Grid);
+    ezCameraModeSwitchActions::MapToolbarActions("AnimatedMeshAssetToolBar");
   }
 
   // View Tool Bar

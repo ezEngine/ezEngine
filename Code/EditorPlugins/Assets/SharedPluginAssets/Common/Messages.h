@@ -24,4 +24,8 @@ class EZ_SHAREDPLUGINASSETS_DLL ezEditorEngineSetMaterialsMsg : public ezEditorE
 
 public:
   ezHybridArray<ezString, 16> m_Materials;
+
+  /// \brief Human-readable display name for each material slot (e.g. the material asset filename).
+  /// Used by asset previews to show which material is under the cursor.
+  ezHybridArray<ezString, 16> m_SlotNames;
 };

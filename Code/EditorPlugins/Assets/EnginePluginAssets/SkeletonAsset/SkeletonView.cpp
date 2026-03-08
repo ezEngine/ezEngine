@@ -142,7 +142,7 @@ void ezSkeletonViewContext::PickObjectAt(ezUInt16 x, ezUInt16 y)
   EZ_ASSERT_DEBUG(!res.m_vPickedPosition.IsNaN(), "");
 
   const ezUInt32 uiComponentID = (uiPickingID & 0x00FFFFFF);
-  const ezUInt32 uiPartIndex = (uiPickingID >> 24) & 0x7F; // highest bit indicates whether the object is dynamic, ignore this
+  const ezUInt32 uiPartIndex = (uiPickingID >> 24) & 0xFF;
 
   res.m_ComponentGuid = GetDocumentContext()->m_Context.m_ComponentPickingMap.GetGuid(uiComponentID);
   res.m_OtherGuid = GetDocumentContext()->m_Context.m_OtherPickingMap.GetGuid(uiComponentID);
