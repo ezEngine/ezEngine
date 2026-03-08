@@ -84,7 +84,10 @@ if ($apk) {
 }
 
 Write-Host "Clearing LogCat..."
-Adb-Cmd -s $deviceAdb logcat --clear
+$clearFunction = {
+    Adb-Cmd -ErrorAction Continue -s $deviceAdb logcat --clear
+}
+Invoke-WithRetry -ScriptBlock $clearFunction -MaxRetryCount 5
 
 Write-Host "Starting $packageName/$activityName..."
 if ($arguments) {
@@ -184,10 +187,11 @@ $outputLines -join "`n" | Out-File -Encoding "UTF8" $outputFilePath
 # Download artifacts from device
 Adb-CopyDirectory -deviceAdb $deviceAdb -packageName $packageName -outputFolder $outputFolder -deviceFolder "/data/data/$packageName/files"
 
-# Sleep a bit before clearing the log
-Start-Sleep -Seconds 1
-Adb-Cmd -s $deviceAdb logcat --clear
-Start-Sleep -Seconds 1
+try {
+    Invoke-WithRetry -ScriptBlock $clearFunction -MaxRetryCount 5
+} catch {
+    Write-Host "Warning: Failed to clear logcat: $_"
+}
 
 if ($testSuccess) {
     exit 0
