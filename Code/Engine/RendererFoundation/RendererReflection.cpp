@@ -93,6 +93,19 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGALShaderResourceType, 1)
   ezGALShaderResourceType::ByteAddressBufferRW)
 EZ_END_STATIC_REFLECTED_ENUM;
 
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGALShaderTextureType, 1)
+  EZ_ENUM_CONSTANTS(ezGALShaderTextureType::Unknown,
+  ezGALShaderTextureType::Texture1D,
+  ezGALShaderTextureType::Texture1DArray,
+  ezGALShaderTextureType::Texture2D,
+  ezGALShaderTextureType::Texture2DArray,
+  ezGALShaderTextureType::Texture2DMS,
+  ezGALShaderTextureType::Texture2DMSArray,
+  ezGALShaderTextureType::Texture3D,
+  ezGALShaderTextureType::TextureCube,
+  ezGALShaderTextureType::TextureCubeArray)
+EZ_END_STATIC_REFLECTED_ENUM;
+
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGALResourceAccess, ezNoBase, 1, ezRTTIDefaultAllocator<ezGALResourceAccess>)
 {
   EZ_BEGIN_PROPERTIES

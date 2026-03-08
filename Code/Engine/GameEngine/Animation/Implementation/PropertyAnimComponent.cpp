@@ -241,7 +241,7 @@ void ezPropertyAnimComponent::CreateGameObjectBinding(const ezFloatPropertyAnimE
   }
   else
   {
-    EZ_REPORT_FAILURE("Invalid animation target type '{0}'", pAnim->m_Target.GetValue());
+    EZ_REPORT_FAILURE("Invalid animation target type '{0}'", ezArgEnum(pAnim->m_Target));
   }
 }
 
@@ -314,7 +314,7 @@ void ezPropertyAnimComponent::CreateFloatPropertyBinding(const ezFloatPropertyAn
   }
   else
   {
-    EZ_REPORT_FAILURE("Invalid animation target type '{0}'", pAnim->m_Target.GetValue());
+    EZ_REPORT_FAILURE("Invalid animation target type '{0}'", ezArgEnum(pAnim->m_Target));
   }
 }
 

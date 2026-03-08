@@ -233,7 +233,7 @@ void ezBindGroupBuilder::CreateBindGroup(ezGALBindGroupLayoutHandle hBindGroupLa
         if (!m_BoundBuffers.TryGetValue(binding.m_sName.GetHash(), item))
         {
           ezGALBufferHandle hBuffer = ezGALRendererFallbackResources::GetFallbackBuffer(binding.m_ResourceType);
-          EZ_ASSERT_DEBUG(!hBuffer.IsInvalidated(), "Missing fallback resource for binding resource type {}", binding.m_ResourceType.GetValue());
+          EZ_ASSERT_DEBUG(!hBuffer.IsInvalidated(), "Missing fallback resource for binding resource type {}", ezArgEnum(binding.m_ResourceType));
           const ezGALBuffer* pBuffer = m_pDevice->GetBuffer(hBuffer);
           item.m_Flags = ezGALBindGroupItemFlags::Buffer | ezGALBindGroupItemFlags::EmptyBinding;
           item.m_Buffer.m_hBuffer = hBuffer;
@@ -252,7 +252,7 @@ void ezBindGroupBuilder::CreateBindGroup(ezGALBindGroupLayoutHandle hBindGroupLa
         {
           const bool bDepth = binding.m_sName.GetString().FindSubString_NoCase("shadow") != nullptr || binding.m_sName.GetString().FindSubString_NoCase("depth");
           ezGALTextureHandle hTexture = ezGALRendererFallbackResources::GetFallbackTexture(binding.m_ResourceType, binding.m_TextureType, bDepth);
-          EZ_ASSERT_DEBUG(!hTexture.IsInvalidated(), "Missing fallback resource for binding resource type {}, texture type {}, depth {}", binding.m_ResourceType.GetValue(), binding.m_TextureType.GetValue(), bDepth);
+          EZ_ASSERT_DEBUG(!hTexture.IsInvalidated(), "Missing fallback resource for binding resource type {}, texture type {}, depth {}", ezArgEnum(binding.m_ResourceType), ezArgEnum(binding.m_TextureType), bDepth);
           const ezGALTexture* pTexture = m_pDevice->GetTexture(hTexture);
           item.m_Flags = ezGALBindGroupItemFlags::Texture | ezGALBindGroupItemFlags::EmptyBinding;
           item.m_Texture.m_hTexture = hTexture;

@@ -174,7 +174,7 @@ void ezGALBindGroupCreationDescription::AssertValidDescription(const ezGALDevice
       case ezGALShaderResourceType::Unknown:
       case ezGALShaderResourceType::PushConstants:
       default:
-        EZ_REPORT_FAILURE("Unsupported Shader Resource Type: {}", binding.m_ResourceType.GetValue());
+        EZ_REPORT_FAILURE("Unsupported Shader Resource Type: {}", ezArgEnum(binding.m_ResourceType));
         break;
     }
   }

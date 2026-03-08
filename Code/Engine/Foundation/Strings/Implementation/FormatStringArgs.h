@@ -11,10 +11,19 @@ using ezAngle = ezAngleTemplate<float>;
 using ezAngled = ezAngleTemplate<double>;
 
 
+class ezRTTI;
 class ezStringBuilder;
 class ezVariant;
 class ezRational;
 struct ezTime;
+
+template <typename T>
+struct ezEnum;
+template <typename T>
+struct ezBitflags;
+
+template <typename T>
+const ezRTTI* ezGetStaticRTTI();
 
 struct ezArgI
 {
@@ -165,6 +174,33 @@ struct ezArgSensitive
   EZ_FOUNDATION_DLL static ezStringView BuildString_SensitiveUserData_Hash(char* szTmp, ezUInt32 uiLength, const ezArgSensitive& arg);
 };
 
+/// \brief Formats an ezEnum or ezBitflags value as its string representation using the reflection system. 
+///
+/// By default the value name is output without the type prefix (e.g. "Value1" instead of "MyEnum::Value1"). Set bFullyQualifiedName to true to include the type prefix.
+/// Requires that the enum/bitflags type has been registered with the reflection system via EZ_BEGIN_STATIC_REFLECTED_ENUM / EZ_BEGIN_STATIC_REFLECTED_BITFLAGS.
+struct ezArgEnum
+{
+  template <typename T>
+  inline explicit ezArgEnum(ezEnum<T> value, bool bFullyQualifiedName = false)
+    : m_pType(ezGetStaticRTTI<T>())
+    , m_iValue(static_cast<ezInt64>(value.GetValue()))
+    , m_bFullyQualifiedName(bFullyQualifiedName)
+  {
+  }
+
+  template <typename T>
+  inline explicit ezArgEnum(ezBitflags<T> value, bool bFullyQualifiedName = false)
+    : m_pType(ezGetStaticRTTI<T>())
+    , m_iValue(static_cast<ezInt64>(value.GetValue()))
+    , m_bFullyQualifiedName(bFullyQualifiedName)
+  {
+  }
+
+  const ezRTTI* m_pType = nullptr;
+  ezInt64 m_iValue = 0;
+  bool m_bFullyQualifiedName = false;
+};
+
 EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgI& arg);
 EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, ezInt64 iArg);
 EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, ezInt32 iArg);
@@ -187,6 +223,7 @@ EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const
 EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgHumanReadable& arg);
 EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezTime& arg);
 EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgSensitive& arg);
+EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgEnum& arg);
 
 
 #if EZ_ENABLED(EZ_COMPILER_GCC) || EZ_ENABLED(EZ_COMPILER_CLANG)

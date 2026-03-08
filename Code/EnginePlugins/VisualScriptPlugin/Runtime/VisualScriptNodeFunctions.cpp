@@ -598,10 +598,7 @@ namespace
       }
       else
       {
-        ezStringBuilder sCompOp;
-        ezReflectionUtils::EnumerationToString(userData.m_ComparisonOperator, sCompOp, ezReflectionUtils::EnumConversionMode::ValueNameOnly);
-
-        ezLog::Error("Comparison '{}' is not defined for type '{}'", sCompOp, GetTypeName<T>());
+        ezLog::Error("Comparison '{}' is not defined for type '{}'", ezArgEnum(userData.m_ComparisonOperator), GetTypeName<T>());
       }
     }
     else if constexpr (std::is_same_v<T, ezQuat> ||
@@ -622,10 +619,7 @@ namespace
       }
       else
       {
-        ezStringBuilder sCompOp;
-        ezReflectionUtils::EnumerationToString(userData.m_ComparisonOperator, sCompOp, ezReflectionUtils::EnumConversionMode::ValueNameOnly);
-
-        ezLog::Error("Comparison '{}' is not defined for type '{}'", sCompOp, GetTypeName<T>());
+        ezLog::Error("Comparison '{}' is not defined for type '{}'", ezArgEnum(userData.m_ComparisonOperator), GetTypeName<T>());
       }
     }
     else

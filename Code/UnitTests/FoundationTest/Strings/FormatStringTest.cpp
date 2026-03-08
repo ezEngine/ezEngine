@@ -8,6 +8,7 @@
 #include <Foundation/Time/Timestamp.h>
 
 #include <Foundation/Types/ScopeExit.h>
+#include <FoundationTest/Reflection/ReflectionTestClasses.h>
 #include <stdarg.h>
 
 void TestFormat(const ezFormatString& str, const char* szExpected)
@@ -250,5 +251,26 @@ EZ_CREATE_SIMPLE_TEST(Strings, FormatString)
 
     fmt.SetFormat("Password: {}", ezArgSensitive("hunter2"));
     EZ_TEST_STRING(fmt, "Password: sud:#96d66ce6($7)");
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezArgEnum")
+  {
+    TestFormat(ezFmt("{}", ezArgEnum(ezEnum<ezExampleEnum>(ezExampleEnum::Value1))), "Value1");
+    TestFormat(ezFmt("{}", ezArgEnum(ezEnum<ezExampleEnum>(ezExampleEnum::Value2))), "Value2");
+    TestFormat(ezFmt("{}", ezArgEnum(ezEnum<ezExampleEnum>(ezExampleEnum::Value3))), "Value3");
+
+    // Fully qualified names
+    TestFormat(ezFmt("{}", ezArgEnum(ezEnum<ezExampleEnum>(ezExampleEnum::Value1), true)), "ezExampleEnum::Value1");
+    TestFormat(ezFmt("{}", ezArgEnum(ezEnum<ezExampleEnum>(ezExampleEnum::Value2), true)), "ezExampleEnum::Value2");
+
+    ezBitflags<ezExampleBitflags> flags;
+    flags.Clear();
+    flags.Add(ezExampleBitflags::Value1);
+    TestFormat(ezFmt("{}", ezArgEnum(flags)), "Value1");
+    TestFormat(ezFmt("{}", ezArgEnum(flags, true)), "ezExampleBitflags::Value1");
+
+    flags.Add(ezExampleBitflags::Value2);
+    TestFormat(ezFmt("{}", ezArgEnum(flags)), "Value1|Value2");
+    TestFormat(ezFmt("{}", ezArgEnum(flags, true)), "ezExampleBitflags::Value1|ezExampleBitflags::Value2");
   }
 }
