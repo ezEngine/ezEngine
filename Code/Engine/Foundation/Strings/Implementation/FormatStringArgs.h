@@ -174,7 +174,7 @@ struct ezArgSensitive
   EZ_FOUNDATION_DLL static ezStringView BuildString_SensitiveUserData_Hash(char* szTmp, ezUInt32 uiLength, const ezArgSensitive& arg);
 };
 
-/// \brief Formats an ezEnum or ezBitflags value as its string representation using the reflection system. 
+/// \brief Formats an ezEnum or ezBitflags value as its string representation using the reflection system.
 ///
 /// By default the value name is output without the type prefix (e.g. "Value1" instead of "MyEnum::Value1"). Set bFullyQualifiedName to true to include the type prefix.
 /// Requires that the enum/bitflags type has been registered with the reflection system via EZ_BEGIN_STATIC_REFLECTED_ENUM / EZ_BEGIN_STATIC_REFLECTED_BITFLAGS.
