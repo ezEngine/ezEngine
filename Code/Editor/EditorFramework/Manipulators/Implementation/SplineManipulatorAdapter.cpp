@@ -1,6 +1,7 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
+#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <EditorFramework/Manipulators/SplineManipulatorAdapter.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 #include <ToolsFoundation/Utilities/StringAlgorithms.h>
@@ -128,6 +129,8 @@ void ezSplineManipulatorAdapter::ClickGizmoEventHandler(const ezGizmoEvent& e)
 {
   if (e.m_Type != ezGizmoEvent::Type::Interaction)
     return;
+
+  e.m_pGizmo->GetOwnerView()->ClearLastPickedObject();
 
   ezInt32 index = -1;
 

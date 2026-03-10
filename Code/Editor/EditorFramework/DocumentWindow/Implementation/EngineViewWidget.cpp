@@ -273,6 +273,10 @@ const ezObjectPickingResult& ezQtEngineViewWidget::PickObject(ezUInt16 uiScreenP
   return m_LastPickingResult;
 }
 
+void ezQtEngineViewWidget::ClearLastPickedObject()
+{
+  m_LastPickingResult.Reset();
+}
 
 ezResult ezQtEngineViewWidget::PickPlane(ezUInt16 uiScreenPosX, ezUInt16 uiScreenPosY, const ezPlane& plane, ezVec3& out_vPosition) const
 {
