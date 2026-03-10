@@ -32,6 +32,7 @@ public:
     }
   }
 
+  /// \brief Sets the size of the next bucket to allocate. This can be used to prevent an excessive number of buckets if the required total allocation size is known in advance.
   EZ_FORCE_INLINE void SetNextBucketSize(ezUInt32 uiSize)
   {
     m_uiNextBucketSize = uiSize;

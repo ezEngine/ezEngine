@@ -486,7 +486,7 @@ struct PointPair
   ezVec2I32 ptOuter;
 };
 
-static void SortTraceLines(ezDynamicArray<ez2DGridUtils::TraceLinePoint>& out_Result, ezVec2I32 vStart, const ezDynamicArray<PointPair>& pairs)
+static void SortTraceLines(ezDynamicArray<ez2DGridUtils::TraceLinePoint>& out_result, ezVec2I32 vStart, const ezDynamicArray<PointPair>& pairs)
 {
   bool bFound = false;
   for (const auto& pt : pairs)
@@ -495,13 +495,13 @@ static void SortTraceLines(ezDynamicArray<ez2DGridUtils::TraceLinePoint>& out_Re
     {
       bFound = true;
 
-      const ezUInt32 uiStartIdx = out_Result.GetCount();
-      auto& newPt = out_Result.ExpandAndGetRef();
+      const ezUInt32 uiStartIdx = out_result.GetCount();
+      auto& newPt = out_result.ExpandAndGetRef();
       newPt.m_vCellCoordOffset = pt.ptOuter;
 
-      SortTraceLines(out_Result, pt.ptOuter, pairs);
+      SortTraceLines(out_result, pt.ptOuter, pairs);
 
-      newPt.m_uiSkipCount = static_cast<ezUInt16>(out_Result.GetCount() - uiStartIdx - 1);
+      newPt.m_uiSkipCount = static_cast<ezUInt16>(out_result.GetCount() - uiStartIdx - 1);
     }
     else if (bFound)
     {

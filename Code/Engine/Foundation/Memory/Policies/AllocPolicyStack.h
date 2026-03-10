@@ -35,8 +35,11 @@ public:
     }
   }
 
+  /// \brief Sets the maximum allocation size that can be handled by this stack allocator. Allocations larger than this size will be directly allocated from the parent allocator.
   EZ_FORCE_INLINE void SetMaxAllocationSize(ezUInt32 uiSize)
   {
+    EZ_ASSERT_DEV(m_Allocations.IsEmpty(), "Cannot change max allocation size while there are active allocations!");
+
     m_uiMaxAllocSizeLog2 = ezMath::Log2i(uiSize);
   }
 
