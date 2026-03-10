@@ -288,36 +288,56 @@ void ezScene2Document::PreventDoubleSelectionChange(bool b)
 
 void ezScene2Document::UndoSelection()
 {
-  if (m_SelectionStack.IsEmpty())
-    return;
+  bool bAllowRetry = true;
 
-  if (m_SelectionStack.GetCount() > 1)
-    m_SelectionStack.PopBack();
-
-  auto& back = m_SelectionStack.PeekBack();
-
-  m_bStoreSelectionChange = false;
-  EZ_SCOPE_EXIT(m_bStoreSelectionChange = true);
-
-  if (SetActiveLayer(back.m_documentGuid).Failed())
-    return;
-
-  auto* pDoc = ezDocumentManager::GetDocumentByGuid(back.m_documentGuid);
-  if (pDoc == nullptr)
-    return;
-
-  auto pObjMan = pDoc->GetObjectManager();
-
-  ezDeque<const ezDocumentObject*> newSel;
-  for (const ezUuid& guid : back.m_Objects)
+  // if a previous selection can't be restored, try the next one
+  while (bAllowRetry)
   {
-    if (auto pDoc = pObjMan->GetObject(guid))
+    if (m_SelectionStack.IsEmpty())
+      return;
+
+    if (m_SelectionStack.GetCount() > 1)
+      m_SelectionStack.PopBack();
+    else
+      bAllowRetry = false;
+
+    auto& back = m_SelectionStack.PeekBack();
+
+    m_bStoreSelectionChange = false;
+    EZ_SCOPE_EXIT(m_bStoreSelectionChange = true);
+
+    if (SetActiveLayer(back.m_documentGuid).Failed())
+      continue;
+
+    auto* pDoc = ezDocumentManager::GetDocumentByGuid(back.m_documentGuid);
+    if (pDoc == nullptr)
+      continue;
+
+    auto pObjMan = pDoc->GetObjectManager();
+
+    if (back.m_Objects.IsEmpty())
     {
-      newSel.PushBack(pDoc);
+      GetSelectionManager()->Clear();
+      return;
+    }
+    else
+    {
+      ezDeque<const ezDocumentObject*> newSel;
+      for (const ezUuid& guid : back.m_Objects)
+      {
+        if (auto pDoc = pObjMan->GetObject(guid))
+        {
+          newSel.PushBack(pDoc);
+        }
+      }
+
+      if (newSel.IsEmpty())
+        continue;
+
+      GetSelectionManager()->SetSelection(newSel);
+      return;
     }
   }
-
-  GetSelectionManager()->SetSelection(newSel);
 }
 
 void ezScene2Document::LayerSelectionEventHandler(const ezSelectionManagerEvent& e)
