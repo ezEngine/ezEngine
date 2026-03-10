@@ -128,7 +128,7 @@ ezResult ezWicFileFormat::ReadImageHeader(ezStreamReader& inout_stream, ezImageH
 
   // Expand grayscale to RGB so that imported grayscale textures don't turn red. See end of ReadImage below.
   if (metadata.format == DXGI_FORMAT_R8_UNORM)
-    ref_header.SetImageFormat(imageFormat);
+    ref_header.SetImageFormat(ezImageFormat::R8G8B8_UNORM);
 
   return EZ_SUCCESS;
 }
