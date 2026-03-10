@@ -54,9 +54,9 @@ EZ_CREATE_SIMPLE_TEST(Utilities, StringAlgorithms)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SubLevelInsertions")
   {
     // Inserting between a fractional name and the next integer
-    Check("3.5", "4", "3.7"); // midpoint of 5 and 10 = 7
-    Check("3.7", "4", "3.8"); // midpoint of 7 and 10 = 8
-    Check("3.8", "4", "3.9"); // midpoint of 8 and 10 = 9
+    Check("3.5", "4", "3.7");   // midpoint of 5 and 10 = 7
+    Check("3.7", "4", "3.8");   // midpoint of 7 and 10 = 8
+    Check("3.8", "4", "3.9");   // midpoint of 8 and 10 = 9
     Check("3.9", "4", "3.9.5"); // 9 adjacent to 10, go deeper
     Check("3.9.5", "4", "3.9.7");
     Check("3.9.9", "4", "3.9.9.5");
@@ -82,8 +82,8 @@ EZ_CREATE_SIMPLE_TEST(Utilities, StringAlgorithms)
   {
     // Fully non-numeric names have an all-text prefix and an empty numeric part (treated as 0).
     // The prefix is copied to the result; the numeric portion follows the usual scheme.
-    Check("", "foo", "foo -1");   // prefix "foo" inherited from right; numeric: 0-1 = -1
-    Check("foo", "", "foo 1");    // prefix "foo" from left; numeric: 0+1 = 1
+    Check("", "foo", "foo -1");     // prefix "foo" inherited from right; numeric: 0-1 = -1
+    Check("foo", "", "foo 1");      // prefix "foo" from left; numeric: 0+1 = 1
     Check("foo", "bar", "foo 0.5"); // both numeric parts empty (→ 0); prefix "foo" from left
 
     // Mixed: one numeric, one non-numeric

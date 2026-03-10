@@ -231,8 +231,7 @@ void ezSplineManipulatorAdapter::ClickGizmoEventHandler(const ezGizmoEvent& e)
         {
           pSelMan->SetSelection(pObj);
         }
-      }
-    });
+      } });
 }
 
 /// Returns the position on the given spline segment at 50% arc-length.
