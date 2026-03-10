@@ -217,6 +217,44 @@ void ezSplineManipulatorAdapter::ClickGizmoEventHandler(const ezGizmoEvent& e)
   Update();
 }
 
+/// Returns the position on the given spline segment at 50% arc-length.
+/// Uses uniform sampling with a local parameter t in [0, 1] to avoid the
+/// Bezier overshoot that occurs with EvaluatePosition(segmentIndex + 0.5f)
+/// when adjacent segments have very different lengths.
+static ezVec3 EvaluateSegmentArcLengthMidpoint(const ezSpline& spline, ezUInt32 uiSegment)
+{
+  constexpr ezUInt32 uiNumSamples = 16;
+
+  float fCumulative[uiNumSamples + 1];
+  fCumulative[0] = 0.0f;
+
+  ezSimdVec4f vPrev = spline.EvaluatePosition(uiSegment, 0.0f);
+  for (ezUInt32 k = 1; k <= uiNumSamples; ++k)
+  {
+    const float fLocalT = static_cast<float>(k) / uiNumSamples;
+    const ezSimdVec4f vCur = spline.EvaluatePosition(uiSegment, fLocalT);
+    fCumulative[k] = fCumulative[k - 1] + (vCur - vPrev).GetLength<3>();
+    vPrev = vCur;
+  }
+
+  const float fHalfLength = fCumulative[uiNumSamples] * 0.5f;
+
+  if (fHalfLength < ezMath::SmallEpsilon<float>())
+    return ezSimdConversion::ToVec3(spline.EvaluatePosition(uiSegment, 0.5f));
+
+  for (ezUInt32 k = 1; k <= uiNumSamples; ++k)
+  {
+    if (fCumulative[k] >= fHalfLength)
+    {
+      const float fFrac = ezMath::Unlerp(fCumulative[k - 1], fCumulative[k], fHalfLength);
+      const float fLocalT = (static_cast<float>(k - 1) + fFrac) / uiNumSamples;
+      return ezSimdConversion::ToVec3(spline.EvaluatePosition(uiSegment, fLocalT));
+    }
+  }
+
+  return ezSimdConversion::ToVec3(spline.EvaluatePosition(uiSegment, 0.5f));
+}
+
 void ezSplineManipulatorAdapter::UpdateGizmoTransform()
 {
   const ezTransform ownerTransform = GetObjectTransform();
@@ -227,12 +265,14 @@ void ezSplineManipulatorAdapter::UpdateGizmoTransform()
     return t;
   };
 
+  const ezUInt32 uiNumCPs = m_Spline.m_ControlPoints.GetCount();
+
   ezUInt32 uiFirstGizmo = 0;
   ezUInt32 uiNumGizmos = m_Gizmos.GetCount();
 
   if (!m_Spline.m_bClosed)
   {
-    if (m_Spline.m_ControlPoints.IsEmpty())
+    if (uiNumCPs == 0)
     {
       m_Gizmos.PeekFront().SetTransformation(MakeGizmoTransform(ezVec3(-0.5, 0, 0)));
       m_Gizmos.PeekBack().SetTransformation(MakeGizmoTransform(ezVec3(0.5, 0, 0)));
@@ -259,7 +299,7 @@ void ezSplineManipulatorAdapter::UpdateGizmoTransform()
   {
     auto& gizmo = m_Gizmos[uiFirstGizmo + i];
 
-    const ezVec3 offset = ezSimdConversion::ToVec3(m_Spline.EvaluatePosition(i + 0.5f));
+    const ezVec3 offset = EvaluateSegmentArcLengthMidpoint(m_Spline, i);
     gizmo.SetTransformation(MakeGizmoTransform(offset));
   }
 }
