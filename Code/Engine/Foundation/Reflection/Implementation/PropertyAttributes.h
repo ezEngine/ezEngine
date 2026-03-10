@@ -579,6 +579,16 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
+/// Base class for property attributes that activate an in-viewport manipulator gizmo.
+///
+/// Attach a subclass of this attribute to a reflected property or type to signal that an
+/// interactive gizmo should appear in the viewport when the object is selected. The attribute
+/// names up to six properties that the manipulator reads and writes. Which properties are used
+/// depends on the concrete subclass.
+///
+/// The editor discovers this attribute through the reflection system. The ManipulatorManager
+/// tracks which manipulator is active per document and drives the ManipulatorAdapterRegistry,
+/// which instantiates the corresponding ezManipulatorAdapter to handle the actual gizmo logic.
 class EZ_FOUNDATION_DLL ezManipulatorAttribute : public ezPropertyAttribute
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezManipulatorAttribute, ezPropertyAttribute);

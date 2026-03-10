@@ -2,15 +2,10 @@
 
 #include <EditorFramework/Manipulators/ManipulatorAdapter.h>
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
-#include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 ezManipulatorAdapter::ezManipulatorAdapter()
 {
-  m_pManipulatorAttr = nullptr;
-  m_pObject = nullptr;
-  m_bManipulatorIsVisible = true;
-
   ezQtDocumentWindow::s_Events.AddEventHandler(ezMakeDelegate(&ezManipulatorAdapter::DocumentWindowEventHandler, this));
 }
 

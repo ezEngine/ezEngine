@@ -51,8 +51,8 @@ public:
 enum class ezManipulatorSearchStrategy
 {
   None,                    ///< No manipulator search.
-  SelectedObject,          ///< Search for manipulators on the selected object.
-  ChildrenOfSelectedObject ///< Search for manipulators on the children of the selected object.
+  SelectedObject,          ///< Search for manipulators on the selected document object.
+  ChildrenOfSelectedObject ///< Search for manipulators on the children of the selected document object (e.g. on components of game objects).
 };
 
 /// \brief Base class for all editable documents in the editor. Handles state, object management, undo/redo, and more.
