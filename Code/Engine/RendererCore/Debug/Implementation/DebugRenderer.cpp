@@ -2099,6 +2099,7 @@ void ezDebugRenderer::OnEngineStartup()
   {
     ezImage debugFontImage;
     ezGraphicsUtils::CreateSimpleASCIIFontTexture(debugFontImage);
+    debugFontImage.Convert(ezImageFormat::R8_UNORM).AssertSuccess();
 
     ezGALSystemMemoryDescription memoryDesc;
     memoryDesc.m_pData = debugFontImage.GetByteBlobPtr();

@@ -1,12 +1,12 @@
 #include <Texture/TexturePCH.h>
 
-#include <Texture/Image/Formats/StbImageFileFormats.h>
-#include <Texture/Image/Image.h>
-
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/IO/StreamUtils.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Texture/Image/Formats/StbImageFileFormats.h>
+#include <Texture/Image/Image.h>
 #include <Texture/Image/ImageConversion.h>
+#include <Texture/Image/ImageUtils.h>
 #include <stb/stb_image.h>
 #include <stb/stb_image_write.h>
 
@@ -120,6 +120,14 @@ ezResult ezStbImageFileFormats::ReadImageHeader(ezStreamReader& inout_stream, ez
     return EZ_FAILURE;
 
   stbi_image_free(sourceImageData);
+
+  // Expand grayscale to RGB so that imported textures don't turn red. See end of ReadImage below.
+  if (ref_header.GetImageFormat() == ezImageFormat::R8_UNORM)
+    ref_header.SetImageFormat(ezImageFormat::R8G8B8_UNORM);
+  // Expand grayscale+alpha to RGBA so that imported textures don't turn yellow. See end of ReadImage below.
+  if (ref_header.GetImageFormat() == ezImageFormat::R8G8_UNORM)
+    ref_header.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM);
+
   return EZ_SUCCESS;
 }
 
@@ -156,6 +164,23 @@ ezResult ezStbImageFileFormats::ReadImage(ezStreamReader& inout_stream, ezImage&
   }
 
   stbi_image_free((void*)sourceImageData);
+
+  // Expand grayscale to RGB so that imported textures don't turn red.
+  if (ref_image.GetImageFormat() == ezImageFormat::R8_UNORM)
+  {
+    ref_image.Convert(ezImageFormat::R8G8B8_UNORM).AssertSuccess();
+    ezImageUtils::CopyChannel(ref_image, 1, ref_image, 0).AssertSuccess();
+    ezImageUtils::CopyChannel(ref_image, 2, ref_image, 0).AssertSuccess();
+  }
+  // Expand grayscale+alpha to RGBA so that imported textures don't turn yellow.
+  if (ref_image.GetImageFormat() == ezImageFormat::R8G8_UNORM)
+  {
+    ref_image.Convert(ezImageFormat::R8G8B8A8_UNORM).AssertSuccess();
+    ezImageUtils::CopyChannel(ref_image, 3, ref_image, 1).AssertSuccess();
+    ezImageUtils::CopyChannel(ref_image, 1, ref_image, 0).AssertSuccess();
+    ezImageUtils::CopyChannel(ref_image, 2, ref_image, 0).AssertSuccess();
+  }
+
   return EZ_SUCCESS;
 }
 

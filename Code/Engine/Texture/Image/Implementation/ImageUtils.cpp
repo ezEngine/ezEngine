@@ -1727,18 +1727,57 @@ ezColor ezImageUtils::BilinearSample(const ezColor* pData, ezUInt32 uiWidth, ezU
   return ezMath::Lerp(cr0, cr1, fractionY);
 }
 
+namespace
+{
+  template <typename SrcType, typename DstType, ezUInt8 SrcStride, ezUInt8 DstStride>
+  void CopyChannelLoop(const SrcType* pSrc, DstType* pDst, ezUInt32 uiNumPixels)
+  {
+    for (ezUInt32 i = 0; i < uiNumPixels; ++i)
+    {
+      *pDst = static_cast<DstType>(*pSrc);
+      pSrc += SrcStride;
+      pDst += DstStride;
+    }
+  }
+
+  template <typename SrcType, typename DstType>
+  void CopyChannelImpl(const SrcType* pSrc, ezUInt8 uiSrcStride, DstType* pDst, ezUInt8 uiDstStride, ezUInt32 uiNumPixels)
+  {
+    // Encode both strides into a single value: src in the upper nibble, dst in the lower.
+    // All 16 combinations of stride 1-4 are spelled out so the compiler sees compile-time constants.
+    const ezUInt8 uiKey = (uiSrcStride << 4) | uiDstStride;
+
+    // clang-format off
+    switch (uiKey)
+    {
+      case 0x11: CopyChannelLoop<SrcType, DstType, 1, 1>(pSrc, pDst, uiNumPixels); break;
+      case 0x12: CopyChannelLoop<SrcType, DstType, 1, 2>(pSrc, pDst, uiNumPixels); break;
+      case 0x13: CopyChannelLoop<SrcType, DstType, 1, 3>(pSrc, pDst, uiNumPixels); break;
+      case 0x14: CopyChannelLoop<SrcType, DstType, 1, 4>(pSrc, pDst, uiNumPixels); break;
+      case 0x21: CopyChannelLoop<SrcType, DstType, 2, 1>(pSrc, pDst, uiNumPixels); break;
+      case 0x22: CopyChannelLoop<SrcType, DstType, 2, 2>(pSrc, pDst, uiNumPixels); break;
+      case 0x23: CopyChannelLoop<SrcType, DstType, 2, 3>(pSrc, pDst, uiNumPixels); break;
+      case 0x24: CopyChannelLoop<SrcType, DstType, 2, 4>(pSrc, pDst, uiNumPixels); break;
+      case 0x31: CopyChannelLoop<SrcType, DstType, 3, 1>(pSrc, pDst, uiNumPixels); break;
+      case 0x32: CopyChannelLoop<SrcType, DstType, 3, 2>(pSrc, pDst, uiNumPixels); break;
+      case 0x33: CopyChannelLoop<SrcType, DstType, 3, 3>(pSrc, pDst, uiNumPixels); break;
+      case 0x34: CopyChannelLoop<SrcType, DstType, 3, 4>(pSrc, pDst, uiNumPixels); break;
+      case 0x41: CopyChannelLoop<SrcType, DstType, 4, 1>(pSrc, pDst, uiNumPixels); break;
+      case 0x42: CopyChannelLoop<SrcType, DstType, 4, 2>(pSrc, pDst, uiNumPixels); break;
+      case 0x43: CopyChannelLoop<SrcType, DstType, 4, 3>(pSrc, pDst, uiNumPixels); break;
+      case 0x44: CopyChannelLoop<SrcType, DstType, 4, 4>(pSrc, pDst, uiNumPixels); break;
+
+      default:
+        EZ_ASSERT_NOT_IMPLEMENTED;
+        break;
+    }
+    // clang-format on
+  }
+} // namespace
+
 ezResult ezImageUtils::CopyChannel(ezImage& ref_dstImg, ezUInt8 uiDstChannelIdx, const ezImage& srcImg, ezUInt8 uiSrcChannelIdx)
 {
   EZ_PROFILE_SCOPE("ezImageUtils::CopyChannel");
-
-  if (uiSrcChannelIdx >= 4 || uiDstChannelIdx >= 4)
-    return EZ_FAILURE;
-
-  if (ref_dstImg.GetImageFormat() != ezImageFormat::R32G32B32A32_FLOAT)
-    return EZ_FAILURE;
-
-  if (srcImg.GetImageFormat() != ref_dstImg.GetImageFormat())
-    return EZ_FAILURE;
 
   if (srcImg.GetWidth() != ref_dstImg.GetWidth())
     return EZ_FAILURE;
@@ -1746,19 +1785,67 @@ ezResult ezImageUtils::CopyChannel(ezImage& ref_dstImg, ezUInt8 uiDstChannelIdx,
   if (srcImg.GetHeight() != ref_dstImg.GetHeight())
     return EZ_FAILURE;
 
-  const ezUInt32 uiNumPixels = srcImg.GetWidth() * srcImg.GetHeight();
-  const float* pSrcPixel = srcImg.GetPixelPointer<float>();
-  float* pDstPixel = ref_dstImg.GetPixelPointer<float>();
+  const ezImageFormat::Enum srcFormat = srcImg.GetImageFormat();
+  const ezImageFormat::Enum dstFormat = ref_dstImg.GetImageFormat();
+  const ezUInt8 uiSrcChannels = static_cast<ezUInt8>(ezImageFormat::GetNumChannels(srcFormat));
+  const ezUInt8 uiDstChannels = static_cast<ezUInt8>(ezImageFormat::GetNumChannels(dstFormat));
+  const ezImageFormatType::Enum srcType = ezImageFormat::GetType(srcFormat);
+  const ezImageFormatType::Enum dstType = ezImageFormat::GetType(dstFormat);
+  if (srcType != dstType || srcType != ezImageFormatType::LINEAR)
+    return EZ_FAILURE;
 
-  pSrcPixel += uiSrcChannelIdx;
-  pDstPixel += uiDstChannelIdx;
+  const ezImageFormatDataType::Enum srcDataType = ezImageFormat::GetDataType(srcFormat);
+  const ezImageFormatDataType::Enum dstDataType = ezImageFormat::GetDataType(dstFormat);
+  if (srcDataType != dstDataType || srcDataType >= ezImageFormatDataType::DEPTH_STENCIL)
+    return EZ_FAILURE;
 
-  for (ezUInt32 i = 0; i < uiNumPixels; ++i)
+  // Require uniform bits per channel so the stride-based pixel pointer arithmetic is valid.
+  const ezUInt8 srcBitsPerChannel = ezImageFormat::GetBitsPerChannel(srcFormat, ezImageFormatChannel::R);
+  for (size_t i = 1; i < uiSrcChannels; i++)
   {
-    *pDstPixel = *pSrcPixel;
+    if (ezImageFormat::GetBitsPerChannel(srcFormat, static_cast<ezImageFormatChannel::Enum>(i)) != srcBitsPerChannel)
+      return EZ_FAILURE;
+  }
+  const ezUInt8 dstBitsPerChannel = ezImageFormat::GetBitsPerChannel(dstFormat, ezImageFormatChannel::R);
+  for (size_t i = 1; i < uiDstChannels; i++)
+  {
+    if (ezImageFormat::GetBitsPerChannel(dstFormat, static_cast<ezImageFormatChannel::Enum>(i)) != dstBitsPerChannel)
+      return EZ_FAILURE;
+  }
 
-    pSrcPixel += 4;
-    pDstPixel += 4;
+  if (srcBitsPerChannel != dstBitsPerChannel)
+    return EZ_FAILURE;
+
+  if (uiSrcChannelIdx >= uiSrcChannels || uiDstChannelIdx >= uiDstChannels)
+    return EZ_FAILURE;
+
+  const ezUInt32 uiNumPixels = srcImg.GetWidth() * srcImg.GetHeight();
+
+  switch (srcBitsPerChannel)
+  {
+    case 8:
+    {
+      const ezUInt8* pSrc = srcImg.GetPixelPointer<ezUInt8>() + uiSrcChannelIdx;
+      ezUInt8* pDst = ref_dstImg.GetPixelPointer<ezUInt8>() + uiDstChannelIdx;
+      CopyChannelImpl(pSrc, uiSrcChannels, pDst, uiDstChannels, uiNumPixels);
+    }
+    break;
+    case 16:
+    {
+      const ezUInt16* pSrc = srcImg.GetPixelPointer<ezUInt16>() + uiSrcChannelIdx;
+      ezUInt16* pDst = ref_dstImg.GetPixelPointer<ezUInt16>() + uiDstChannelIdx;
+      CopyChannelImpl(pSrc, uiSrcChannels, pDst, uiDstChannels, uiNumPixels);
+    }
+    break;
+    case 32:
+    {
+      const ezUInt32* pSrc = srcImg.GetPixelPointer<ezUInt32>() + uiSrcChannelIdx;
+      ezUInt32* pDst = ref_dstImg.GetPixelPointer<ezUInt32>() + uiDstChannelIdx;
+      CopyChannelImpl(pSrc, uiSrcChannels, pDst, uiDstChannels, uiNumPixels);
+    }
+    break;
+    default:
+      return EZ_FAILURE;
   }
 
   return EZ_SUCCESS;

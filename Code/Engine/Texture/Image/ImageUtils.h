@@ -172,10 +172,11 @@ public:
   /// should be retrieved only once from the source image, as ezImage::GetPixelPointer() is rather slow due to validation overhead.
   static ezColor BilinearSample(const ezColor* pPixelPointer, ezUInt32 uiWidth, ezUInt32 uiHeight, ezImageAddressMode::Enum addressMode, ezVec2 vUv);
 
-  /// \brief Copies channel 0, 1, 2 or 3 from srcImg into dstImg.
+  /// \brief Copies a single channel from srcImg into a single channel of ref_dstImg.
   ///
-  /// Currently only supports images of format R32G32B32A32_FLOAT and with identical resolution.
-  /// Returns failure if any of those requirements are not met.
+  /// Source and destination may use different formats, as long as both are LINEAR and use the same data type
+  /// (e.g. both UNORM or both FLOAT) with uniform bits per channel (8, 16, or 32). The channel counts may differ,
+  /// allowing copies between e.g. R8_UNORM and R8G8B8A8_UNORM. Both images must have identical width and height.
   static ezResult CopyChannel(ezImage& ref_dstImg, ezUInt8 uiDstChannelIdx, const ezImage& srcImg, ezUInt8 uiSrcChannelIdx);
 
   /// \brief Embeds the image as Base64 encoded text into an HTML file.
