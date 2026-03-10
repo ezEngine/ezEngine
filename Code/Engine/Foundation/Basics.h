@@ -90,7 +90,6 @@ private:
   static bool s_bIsInitialized;
   static ezAllocator* s_pDefaultAllocator;
   static ezAllocator* s_pAlignedAllocator;
-  static ezAllocator* s_pTempAllocator;
 };
 
 #undef EZ_INCLUDING_BASICS_H
