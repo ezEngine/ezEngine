@@ -218,6 +218,21 @@ void ezSplineManipulatorAdapter::ClickGizmoEventHandler(const ezGizmoEvent& e)
   pObjectAcessor->FinishTransaction();
 
   Update();
+
+  // Defer the selection change to avoid destroying this adapter (and its gizmos) while
+  // their event dispatch is still on the call stack. SetSelection triggers ClearAdapters
+  // via the manipulator manager, which deletes 'this'. The document outlives the adapter.
+  const ezDocument* pDoc = m_pObject->GetDocumentObjectManager()->GetDocument();
+  QTimer::singleShot(0, [pDoc, gameObjectUuid]()
+    {
+      if (auto pSelMan = pDoc->GetSelectionManager())
+      {
+        if (const ezDocumentObject* pObj = pDoc->GetObjectManager()->GetObject(gameObjectUuid))
+        {
+          pSelMan->SetSelection(pObj);
+        }
+      }
+    });
 }
 
 /// Returns the position on the given spline segment at 50% arc-length.
