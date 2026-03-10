@@ -1800,13 +1800,13 @@ ezResult ezImageUtils::CopyChannel(ezImage& ref_dstImg, ezUInt8 uiDstChannelIdx,
     return EZ_FAILURE;
 
   // Require uniform bits per channel so the stride-based pixel pointer arithmetic is valid.
-  const ezUInt8 srcBitsPerChannel = ezImageFormat::GetBitsPerChannel(srcFormat, ezImageFormatChannel::R);
+  const ezUInt32 srcBitsPerChannel = ezImageFormat::GetBitsPerChannel(srcFormat, ezImageFormatChannel::R);
   for (size_t i = 1; i < uiSrcChannels; i++)
   {
     if (ezImageFormat::GetBitsPerChannel(srcFormat, static_cast<ezImageFormatChannel::Enum>(i)) != srcBitsPerChannel)
       return EZ_FAILURE;
   }
-  const ezUInt8 dstBitsPerChannel = ezImageFormat::GetBitsPerChannel(dstFormat, ezImageFormatChannel::R);
+  const ezUInt32 dstBitsPerChannel = ezImageFormat::GetBitsPerChannel(dstFormat, ezImageFormatChannel::R);
   for (size_t i = 1; i < uiDstChannels; i++)
   {
     if (ezImageFormat::GetBitsPerChannel(dstFormat, static_cast<ezImageFormatChannel::Enum>(i)) != dstBitsPerChannel)
@@ -1851,7 +1851,7 @@ ezResult ezImageUtils::CopyChannel(ezImage& ref_dstImg, ezUInt8 uiDstChannelIdx,
   return EZ_SUCCESS;
 }
 
-static const ezUInt8 s_Base64EncodingTable[64] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x',
+static const char s_Base64EncodingTable[64] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x',
   'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/'};
 
 static const ezUInt8 BASE64_CHARS_PER_LINE = 76;
