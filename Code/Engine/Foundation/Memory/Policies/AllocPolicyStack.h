@@ -131,7 +131,7 @@ public:
   EZ_ALWAYS_INLINE ezAllocator* GetParent() const { return m_pParent; }
 
 private:
-  ezUInt32 GetMaxAllocationSize() const { return EZ_BIT(m_uiMaxAllocSizeLog2); }
+  ezUInt32 GetMaxAllocationSize() const { return 1u << m_uiMaxAllocSizeLog2; }
 
   ezArrayPtr<ezUInt8> GetOrCreateBucket(ezUInt32 uiRequestedSize)
   {
