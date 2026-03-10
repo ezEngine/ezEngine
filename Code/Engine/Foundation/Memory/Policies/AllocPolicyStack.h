@@ -2,8 +2,8 @@
 
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Containers/SmallArray.h>
-#include <Foundation/Threading/Mutex.h>
 #include <Foundation/Threading/Lock.h>
+#include <Foundation/Threading/Mutex.h>
 
 /// \brief This policy implements a stack allocator. It is designed for scenarios where you have a lot of short-lived allocations that are freed in a LIFO order,
 /// but it also supports freeing in arbitrary order (at the cost of some fragmentation).

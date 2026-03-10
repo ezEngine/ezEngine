@@ -670,4 +670,3 @@ double ezColorGradient::SnapTimeTo(double fTimeInSeconds, ezUInt32 uiFramesPerSe
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Tracks_Implementation_ColorGradient);
-

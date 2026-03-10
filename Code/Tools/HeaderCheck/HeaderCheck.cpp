@@ -177,7 +177,7 @@ public:
     ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
     ezGlobalLog::AddLogWriter(LogInspector);
 
-    constexpr ezUInt32 uiInitalAllocatorSize = 1024 * 1024; 
+    constexpr ezUInt32 uiInitalAllocatorSize = 1024 * 1024;
     m_pLinearAllocator = EZ_DEFAULT_NEW(ezLinearAllocator<ezAllocatorTrackingMode::Nothing>, "Temp Allocator", ezFoundation::GetAlignedAllocator(), uiInitalAllocatorSize);
 
     if (GetArgumentCount() < 2)
