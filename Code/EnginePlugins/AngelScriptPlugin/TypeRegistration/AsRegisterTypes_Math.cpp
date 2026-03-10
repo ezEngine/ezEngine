@@ -516,7 +516,7 @@ void ezAngelScriptEngineSingleton::Register_Quat()
     AS_CHECK(m_pEngine->RegisterGlobalFunction("ezQuat MakeShortestRotation(const ezVec3& in vFrom, const ezVec3& in vTo)", asFUNCTION(ezQuat::MakeShortestRotation), asCALL_CDECL));
     AS_CHECK(m_pEngine->RegisterGlobalFunction("ezQuat MakeFromMat3(const ezMat3& in)", asFUNCTION(ezQuat::MakeFromMat3), asCALL_CDECL));
     AS_CHECK(m_pEngine->RegisterGlobalFunction("ezQuat MakeSlerp(const ezQuat& in qFrom, const ezQuat& in qTo, float fFactor)", asFUNCTION(ezQuat::MakeSlerp), asCALL_CDECL));
-    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezQuat MakeFromEulerAngles(ezAngle x, ezAngle y, ezAngle z)", asFUNCTION(ezQuat::MakeFromEulerAngles), asCALL_CDECL));
+    AS_CHECK(m_pEngine->RegisterGlobalFunction("ezQuat MakeFromEulerAngles(const ezAngle& in x, const ezAngle& in y, const ezAngle& in z)", asFUNCTION(ezQuat::MakeFromEulerAngles), asCALL_CDECL));
 
     m_pEngine->SetDefaultNamespace("");
   }
