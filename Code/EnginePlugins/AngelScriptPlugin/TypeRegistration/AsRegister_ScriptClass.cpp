@@ -83,5 +83,5 @@ shared class ezAngelScriptClass : ezIAngelScriptClass
     EZ_REPORT_FAILURE("Failed to register ezAngelScriptClass class");
   }
 
-  AS_CHECK(m_pEngine->RegisterObjectMethod("ezScriptComponent", "void BroadcastEventMsg(const ezEventMessage& in msg)", asMETHOD(ezScriptComponent, BroadcastEventMsg), asCALL_THISCALL));
+  AS_CHECK(m_pEngine->RegisterObjectMethod("ezScriptComponent", "void BroadcastEventMsg(const ezMessage& in msg)", asMETHOD(ezScriptComponent, BroadcastEventMsg), asCALL_THISCALL));
 }

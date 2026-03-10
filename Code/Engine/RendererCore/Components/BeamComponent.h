@@ -2,7 +2,6 @@
 
 #include <RendererCore/RendererCoreDLL.h>
 
-#include <Core/Messages/EventMessage.h>
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/MeshResource.h>

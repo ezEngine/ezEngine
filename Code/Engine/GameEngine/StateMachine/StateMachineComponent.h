@@ -1,12 +1,11 @@
 #pragma once
 
-#include <Core/Messages/EventMessage.h>
 #include <GameEngine/StateMachine/StateMachineResource.h>
 
 /// \brief Message that is sent by ezStateMachineState_SendMsg once the state is entered.
-struct EZ_GAMEENGINE_DLL ezMsgStateMachineStateChanged : public ezEventMessage
+struct EZ_GAMEENGINE_DLL ezMsgStateMachineStateChanged : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgStateMachineStateChanged, ezEventMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgStateMachineStateChanged, ezMessage);
 
   ezHashedString m_sOldStateName;
   ezHashedString m_sNewStateName;

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Core/Messages/EventMessage.h>
 #include <Core/World/Declarations.h>
 #include <Foundation/Communication/Message.h>
 
@@ -33,9 +32,9 @@ struct EZ_CORE_DLL ezMsgComponentInternalTrigger : public ezMessage
 };
 
 /// \brief Sent when something enters or leaves a trigger
-struct EZ_CORE_DLL ezMsgTriggerTriggered : public ezEventMessage
+struct EZ_CORE_DLL ezMsgTriggerTriggered : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgTriggerTriggered, ezEventMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgTriggerTriggered, ezMessage);
 
   /// Identifies what the message should trigger.
   ezHashedString m_sMessage;

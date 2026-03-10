@@ -7,9 +7,9 @@
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
 #include <ToolsFoundation/VisualGraph/VisualGraphObjectManager.h>
 
-#include <Core/Messages/EventMessage.h>
 #include <Core/Scripting/ScriptAttributes.h>
 #include <Core/Scripting/ScriptCoroutine.h>
+#include <Core/World/World.h>
 #include <Foundation/CodeUtils/Expression/ExpressionDeclarations.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/SimdMath/SimdRandom.h>
@@ -1776,7 +1776,6 @@ void ezVisualScriptNodeRegistry::CreateCoroutineNodeType(const ezRTTI* pRtti)
 void ezVisualScriptNodeRegistry::CreateMessageNodeTypes(const ezRTTI* pRtti)
 {
   if (pRtti == ezGetStaticRTTI<ezMessage>() ||
-      pRtti == ezGetStaticRTTI<ezEventMessage>() ||
       pRtti->GetTypeFlags().IsSet(ezTypeFlags::Abstract))
     return;
 

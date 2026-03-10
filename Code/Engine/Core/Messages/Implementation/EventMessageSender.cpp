@@ -1,28 +1,19 @@
 #include <Core/CorePCH.h>
 
-#include <Core/Messages/EventMessage.h>
-#include <Core/World/EventMessageHandlerComponent.h>
+#include <Core/Messages/EventMessageSender.h>
 #include <Core/World/World.h>
-
-// clang-format off
-EZ_IMPLEMENT_MESSAGE_TYPE(ezEventMessage);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEventMessage, 1, ezRTTIDefaultAllocator<ezEventMessage>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-// clang-format on
-
-static_assert(sizeof(ezEventMessageSender<ezEventMessage>) == 16);
 
 namespace ezInternal
 {
   template <typename World, typename GameObject>
-  static void UpdateCachedReceivers(const ezMessage& msg, World& ref_world, GameObject pSearchObject, ezSmallArray<ezComponentHandle, 1>& inout_cachedReceivers)
+  static void UpdateCachedReceivers(const ezMessage& msg, World& ref_world, const ezComponent* pSenderComponent, GameObject pSearchObject, ezSmallArray<ezComponentHandle, 1>& inout_cachedReceivers)
   {
     if (inout_cachedReceivers.GetUserData<ezUInt32>() == 0)
     {
       using ComponentType = typename std::conditional<std::is_const<World>::value, const ezComponent*, ezComponent*>::type;
 
       ezHybridArray<ComponentType, 4> eventMsgHandlers;
-      ref_world.FindEventMsgHandlers(msg, pSearchObject, eventMsgHandlers);
+      ref_world.FindEventMsgHandlers(msg, pSenderComponent, pSearchObject, eventMsgHandlers);
 
       for (auto pEventMsgHandler : eventMsgHandlers)
       {
@@ -35,8 +26,8 @@ namespace ezInternal
 
   bool EventMessageSenderHelper::SendEventMessage(ezMessage& ref_msg, ezComponent* pSenderComponent, ezGameObject* pSearchObject, ezSmallArray<ezComponentHandle, 1>& inout_cachedReceivers)
   {
-    ezWorld* pWorld = pSenderComponent->GetWorld();
-    UpdateCachedReceivers(ref_msg, *pWorld, pSearchObject, inout_cachedReceivers);
+    ezWorld* pWorld = pSearchObject->GetWorld();
+    UpdateCachedReceivers(ref_msg, *pWorld, pSenderComponent, pSearchObject, inout_cachedReceivers);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
     bool bHandlerFound = false;
@@ -67,8 +58,8 @@ namespace ezInternal
 
   bool EventMessageSenderHelper::SendEventMessage(ezMessage& ref_msg, const ezComponent* pSenderComponent, const ezGameObject* pSearchObject, ezSmallArray<ezComponentHandle, 1>& inout_cachedReceivers)
   {
-    const ezWorld* pWorld = pSenderComponent->GetWorld();
-    UpdateCachedReceivers(ref_msg, *pWorld, pSearchObject, inout_cachedReceivers);
+    const ezWorld* pWorld = pSearchObject->GetWorld();
+    UpdateCachedReceivers(ref_msg, *pWorld, pSenderComponent, pSearchObject, inout_cachedReceivers);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
     bool bHandlerFound = false;
@@ -99,8 +90,8 @@ namespace ezInternal
 
   void EventMessageSenderHelper::PostEventMessage(const ezMessage& msg, const ezComponent* pSenderComponent, const ezGameObject* pSearchObject, ezSmallArray<ezComponentHandle, 1>& inout_cachedReceivers, ezTime delay, ezObjectMsgQueueType::Enum queueType)
   {
-    const ezWorld* pWorld = pSenderComponent->GetWorld();
-    UpdateCachedReceivers(msg, *pWorld, pSearchObject, inout_cachedReceivers);
+    const ezWorld* pWorld = pSearchObject->GetWorld();
+    UpdateCachedReceivers(msg, *pWorld, pSenderComponent, pSearchObject, inout_cachedReceivers);
 
     if (!inout_cachedReceivers.IsEmpty())
     {

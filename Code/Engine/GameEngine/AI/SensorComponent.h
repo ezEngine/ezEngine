@@ -1,15 +1,14 @@
 #pragma once
 
-#include <Core/Messages/EventMessage.h>
 #include <Core/Utils/IntervalScheduler.h>
 #include <Core/World/World.h>
 #include <GameEngine/GameEngineDLL.h>
 
 class ezPhysicsWorldModuleInterface;
 
-struct EZ_GAMEENGINE_DLL ezMsgSensorDetectedObjectsChanged : public ezEventMessage
+struct EZ_GAMEENGINE_DLL ezMsgSensorDetectedObjectsChanged : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgSensorDetectedObjectsChanged, ezEventMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgSensorDetectedObjectsChanged, ezMessage);
 
   ezArrayPtr<ezGameObjectHandle> m_DetectedObjects;
 };

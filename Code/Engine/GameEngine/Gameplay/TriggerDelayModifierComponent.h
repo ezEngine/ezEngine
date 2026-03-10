@@ -1,7 +1,8 @@
 #pragma once
 
-#include <Core/World/EventMessageHandlerComponent.h>
 #include <GameEngine/GameEngineDLL.h>
+
+#include <Core/Messages/EventMessageSender.h>
 
 struct ezMsgTriggerTriggered;
 struct ezMsgComponentInternalTrigger;

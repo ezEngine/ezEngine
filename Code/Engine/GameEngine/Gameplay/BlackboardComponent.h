@@ -1,9 +1,10 @@
 #pragma once
 
-#include <Core/Messages/EventMessage.h>
+#include <GameEngine/GameEngineDLL.h>
+
+#include <Core/Messages/EventMessageSender.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/Utils/Blackboard.h>
-#include <GameEngine/GameEngineDLL.h>
 
 struct ezMsgUpdateLocalBounds;
 struct ezMsgExtractRenderData;
@@ -24,9 +25,9 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezBlackboardEntry);
 
 //////////////////////////////////////////////////////////////////////////
 
-struct EZ_GAMEENGINE_DLL ezMsgBlackboardEntryChanged : public ezEventMessage
+struct EZ_GAMEENGINE_DLL ezMsgBlackboardEntryChanged : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgBlackboardEntryChanged, ezEventMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgBlackboardEntryChanged, ezMessage);
 
   ezHashedString m_sName;
   ezVariant m_OldValue;

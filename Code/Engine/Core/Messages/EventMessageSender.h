@@ -3,24 +3,6 @@
 #include <Core/World/World.h>
 #include <Foundation/Communication/Message.h>
 
-/// \brief Base class for all messages that are sent as 'events'
-struct EZ_CORE_DLL ezEventMessage : public ezMessage
-{
-  EZ_DECLARE_MESSAGE_TYPE(ezEventMessage, ezMessage);
-
-  ezGameObjectHandle m_hSenderObject;
-  ezComponentHandle m_hSenderComponent;
-
-  EZ_ALWAYS_INLINE void FillFromSenderComponent(const ezComponent* pSenderComponent)
-  {
-    if (pSenderComponent != nullptr)
-    {
-      m_hSenderComponent = pSenderComponent->GetHandle();
-      m_hSenderObject = pSenderComponent->GetOwner()->GetHandle();
-    }
-  }
-};
-
 namespace ezInternal
 {
   struct EZ_CORE_DLL EventMessageSenderHelper
@@ -40,39 +22,23 @@ class ezEventMessageSender : public ezMessageSenderBase<EventMessageType>
 public:
   EZ_ALWAYS_INLINE bool SendEventMessage(EventMessageType& inout_msg, ezComponent* pSenderComponent, ezGameObject* pSearchObject)
   {
-    if constexpr (EZ_IS_DERIVED_FROM_STATIC(ezEventMessage, EventMessageType))
-    {
-      inout_msg.FillFromSenderComponent(pSenderComponent);
-    }
     return ezInternal::EventMessageSenderHelper::SendEventMessage(inout_msg, pSenderComponent, pSearchObject, m_CachedReceivers);
   }
 
   EZ_ALWAYS_INLINE bool SendEventMessage(EventMessageType& inout_msg, const ezComponent* pSenderComponent, const ezGameObject* pSearchObject) const
   {
-    if constexpr (EZ_IS_DERIVED_FROM_STATIC(ezEventMessage, EventMessageType))
-    {
-      inout_msg.FillFromSenderComponent(pSenderComponent);
-    }
     return ezInternal::EventMessageSenderHelper::SendEventMessage(inout_msg, pSenderComponent, pSearchObject, m_CachedReceivers);
   }
 
   EZ_ALWAYS_INLINE void PostEventMessage(EventMessageType& ref_msg, ezComponent* pSenderComponent, ezGameObject* pSearchObject,
     ezTime delay, ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame)
   {
-    if constexpr (EZ_IS_DERIVED_FROM_STATIC(ezEventMessage, EventMessageType))
-    {
-      ref_msg.FillFromSenderComponent(pSenderComponent);
-    }
     ezInternal::EventMessageSenderHelper::PostEventMessage(ref_msg, pSenderComponent, pSearchObject, m_CachedReceivers, delay, queueType);
   }
 
   EZ_ALWAYS_INLINE void PostEventMessage(EventMessageType& ref_msg, const ezComponent* pSenderComponent, const ezGameObject* pSearchObject,
     ezTime delay, ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const
   {
-    if constexpr (EZ_IS_DERIVED_FROM_STATIC(ezEventMessage, EventMessageType))
-    {
-      ref_msg.FillFromSenderComponent(pSenderComponent);
-    }
     ezInternal::EventMessageSenderHelper::PostEventMessage(ref_msg, pSenderComponent, pSearchObject, m_CachedReceivers, delay, queueType);
   }
 

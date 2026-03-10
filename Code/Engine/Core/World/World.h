@@ -2,7 +2,6 @@
 
 #include <Core/World/Implementation/WorldData.h>
 
-struct ezEventMessage;
 class ezEventMessageHandlerComponent;
 
 /// \brief A world encapsulates a scene graph of game objects and various component managers and their components.
@@ -273,10 +272,10 @@ public:
   ///
   /// If no such parent object exists, it searches for all ezEventMessageHandlerComponent instances that are set to 'handle global events'
   /// that handle messages of the given type.
-  void FindEventMsgHandlers(const ezMessage& msg, ezGameObject* pSearchObject, ezDynamicArray<ezComponent*>& out_components);
+  void FindEventMsgHandlers(const ezMessage& msg, const ezComponent* pSenderComponent, ezGameObject* pSearchObject, ezDynamicArray<ezComponent*>& out_components);
 
   /// \copydoc ezWorld::FindEventMsgHandlers()
-  void FindEventMsgHandlers(const ezMessage& msg, const ezGameObject* pSearchObject, ezDynamicArray<const ezComponent*>& out_components) const;
+  void FindEventMsgHandlers(const ezMessage& msg, const ezComponent* pSenderComponent, const ezGameObject* pSearchObject, ezDynamicArray<const ezComponent*>& out_components) const;
 
   ///@}
 
@@ -424,7 +423,7 @@ private:
   void ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType);
 
   template <typename World, typename GameObject, typename Component>
-  static void FindEventMsgHandlers(World& world, const ezMessage& msg, GameObject pSearchObject, ezDynamicArray<Component>& out_components);
+  static void FindEventMsgHandlers(World& world, const ezMessage& msg, const ezComponent* pSenderComponent, GameObject pSearchObject, ezDynamicArray<Component>& out_components);
 
   void RegisterUpdateFunction(const ezWorldModule::UpdateFunctionDesc& desc);
   void DeregisterUpdateFunction(const ezWorldModule::UpdateFunctionDesc& desc);

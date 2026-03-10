@@ -10,6 +10,7 @@
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezPropertyAnimComponent, 3, ezComponentMode::Dynamic)
   {
     EZ_BEGIN_PROPERTIES
@@ -21,22 +22,29 @@ EZ_BEGIN_COMPONENT_TYPE(ezPropertyAnimComponent, 3, ezComponentMode::Dynamic)
       EZ_MEMBER_PROPERTY("Speed", m_fSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(-10.0f, +10.0f)),
       EZ_MEMBER_PROPERTY("RangeLow", m_AnimationRangeLow)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant())),
       EZ_MEMBER_PROPERTY("RangeHigh", m_AnimationRangeHigh)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant()), new ezDefaultValueAttribute(ezTime::MakeFromSeconds(60 * 60))),
-    } EZ_END_PROPERTIES;
+    }
+    EZ_END_PROPERTIES;
     EZ_BEGIN_ATTRIBUTES
     {
       new ezCategoryAttribute("Animation"),
-    } EZ_END_ATTRIBUTES;
+    }
+    EZ_END_ATTRIBUTES;
     EZ_BEGIN_MESSAGEHANDLERS
     {
       EZ_MESSAGE_HANDLER(ezMsgSetPlaying, OnMsgSetPlaying),
-    } EZ_END_MESSAGEHANDLERS;
+    }
+    EZ_END_MESSAGEHANDLERS;
     EZ_BEGIN_MESSAGESENDERS
     {
       EZ_MESSAGE_SENDER(m_EventTrackMsgSender),
       EZ_MESSAGE_SENDER(m_ReachedEndMsgSender),
-    } EZ_END_MESSAGESENDERS;
+    }
+    EZ_END_MESSAGESENDERS;
     EZ_BEGIN_FUNCTIONS
-    {EZ_SCRIPT_FUNCTION_PROPERTY(PlayAnimationRange, In, "RangeLow", In, "RangeHigh")} EZ_END_FUNCTIONS;
+    {
+      EZ_SCRIPT_FUNCTION_PROPERTY(PlayAnimationRange, In, "RangeLow", In, "RangeHigh")
+    }
+    EZ_END_FUNCTIONS;
   }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on

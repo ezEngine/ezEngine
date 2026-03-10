@@ -456,14 +456,14 @@ void ezWorld::PostMessage(const ezComponentHandle& hReceiverComponent, const ezM
   }
 }
 
-void ezWorld::FindEventMsgHandlers(const ezMessage& msg, ezGameObject* pSearchObject, ezDynamicArray<ezComponent*>& out_components)
+void ezWorld::FindEventMsgHandlers(const ezMessage& msg, const ezComponent* pSenderComponent, ezGameObject* pSearchObject, ezDynamicArray<ezComponent*>& out_components)
 {
-  FindEventMsgHandlers(*this, msg, pSearchObject, out_components);
+  FindEventMsgHandlers(*this, msg, pSenderComponent, pSearchObject, out_components);
 }
 
-void ezWorld::FindEventMsgHandlers(const ezMessage& msg, const ezGameObject* pSearchObject, ezDynamicArray<const ezComponent*>& out_components) const
+void ezWorld::FindEventMsgHandlers(const ezMessage& msg, const ezComponent* pSenderComponent, const ezGameObject* pSearchObject, ezDynamicArray<const ezComponent*>& out_components) const
 {
-  FindEventMsgHandlers(*this, msg, pSearchObject, out_components);
+  FindEventMsgHandlers(*this, msg, pSenderComponent, pSearchObject, out_components);
 }
 
 void ezWorld::Update()
@@ -805,10 +805,10 @@ void ezWorld::SetObjectGlobalKey(ezGameObject* pObject, const ezHashedString& sG
       return;
 
                                              // we allow overwriting a global key to a different object here
-      // so that we can delete an object in a frame and spawn a new one in the same frame, that takes over
-      // due to the delayed deletion at the end of the frame, this would otherwise not work
-      // the only work-around would be to manually clear the global key before deleting an object
-      // but that would effectively do the same as this, it's just more complicated for the user
+    // so that we can delete an object in a frame and spawn a new one in the same frame, that takes over
+    // due to the delayed deletion at the end of the frame, this would otherwise not work
+    // the only work-around would be to manually clear the global key before deleting an object
+    // but that would effectively do the same as this, it's just more complicated for the user
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
     ezLog::Warning("An object with the global key '{}' already exists. Overwriting with different object reference.", sGlobalKey);
@@ -982,7 +982,7 @@ void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
 
 // static
 template <typename World, typename GameObject, typename Component>
-void ezWorld::FindEventMsgHandlers(World& world, const ezMessage& msg, GameObject pSearchObject, ezDynamicArray<Component>& out_components)
+void ezWorld::FindEventMsgHandlers(World& world, const ezMessage& msg, const ezComponent* pSenderComponent, GameObject pSearchObject, ezDynamicArray<Component>& out_components)
 {
   using EventMessageHandlerComponentType = typename std::conditional<std::is_const<World>::value, const ezEventMessageHandlerComponent*, ezEventMessageHandlerComponent*>::type;
 
@@ -997,6 +997,9 @@ void ezWorld::FindEventMsgHandlers(World& world, const ezMessage& msg, GameObjec
       bool bContinueSearch = true;
       for (auto pComponent : pCurrentObject->GetComponents())
       {
+        if (pComponent == pSenderComponent)
+          continue;
+
         if constexpr (std::is_const<World>::value == false)
         {
           pComponent->EnsureInitialized();

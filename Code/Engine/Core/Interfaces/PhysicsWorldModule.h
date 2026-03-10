@@ -1,10 +1,10 @@
 #pragma once
 
 #include <Core/Interfaces/PhysicsQuery.h>
-#include <Core/Messages/EventMessage.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/World/WorldModule.h>
 #include <Foundation/Communication/Message.h>
+#include <Foundation/Math/BoundingBoxSphere.h>
 
 struct ezGameObjectHandle;
 struct ezSkeletonResourceDescriptor;
@@ -129,9 +129,9 @@ struct EZ_CORE_DLL ezMsgPhysicsAddImpulse : public ezMessage
   void* m_pInternalPhysicsActor = nullptr;
 };
 
-struct EZ_CORE_DLL ezMsgPhysicsJointBroke : public ezEventMessage
+struct EZ_CORE_DLL ezMsgPhysicsJointBroke : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgPhysicsJointBroke, ezEventMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgPhysicsJointBroke, ezMessage);
 
   ezGameObjectHandle m_hJointObject;
 };
@@ -177,6 +177,7 @@ struct EZ_CORE_DLL ezMsgPhysicContact : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgPhysicContact, ezMessage);
 
+  ezGameObjectHandle m_hOtherObject;
   ezVec3 m_vGlobalPosition;
   ezVec3 m_vNormal;
   float m_fImpactSqr;

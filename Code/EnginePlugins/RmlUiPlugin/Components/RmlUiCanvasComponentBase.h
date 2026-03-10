@@ -4,6 +4,7 @@
 #include <RmlUiPlugin/Resources/RmlUiResource.h>
 #include <RmlUiPlugin/RmlUiInput.h>
 
+#include <Core/Messages/EventMessageSender.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererFoundation/RendererFoundationDLL.h>

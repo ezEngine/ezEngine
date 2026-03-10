@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/Messages/EventMessage.h>
+#include <Core/Messages/EventMessageSender.h>
 #include <Core/ResourceManager/Resource.h>
 #include <FmodPlugin/Components/FmodComponent.h>
 
@@ -63,9 +63,9 @@ struct ezResourceEvent;
 //////////////////////////////////////////////////////////////////////////
 
 /// \brief Sent when a ezFmodEventComponent finishes playing a sound. Not sent for one-shot sound events.
-struct EZ_FMODPLUGIN_DLL ezMsgFmodSoundFinished : public ezEventMessage
+struct EZ_FMODPLUGIN_DLL ezMsgFmodSoundFinished : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgFmodSoundFinished, ezEventMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgFmodSoundFinished, ezMessage);
 };
 
 

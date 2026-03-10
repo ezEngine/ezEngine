@@ -3,9 +3,7 @@
 #include <GameComponentsPlugin/GameComponentsDLL.h>
 
 #include <Core/Messages/CommonMessages.h>
-#include <Core/World/Component.h>
-#include <Core/World/World.h>
-#include <Foundation/Time/Time.h>
+#include <Core/Messages/EventMessageSender.h>
 
 struct ezMoveToComponentFlags
 {

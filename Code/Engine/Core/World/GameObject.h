@@ -469,29 +469,24 @@ public:
   /// \brief Queues the message for the given phase. The message is processed after the given delay in the corresponding phase.
   void PostMessageRecursive(const ezMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
 
-  /// \brief Delivers an ezEventMessage to the closest (parent) object containing an ezEventMessageHandlerComponent.
+  /// \brief Delivers an ezMessage to the closest (parent) object whose components handle the given message type.
   ///
   /// Regular SendMessage() and PostMessage() send a message directly to the target object (and all attached components).
   /// SendMessageRecursive() and PostMessageRecursive() send a message 'down' the graph to the target object and all children.
   ///
   /// In contrast, SendEventMessage() / PostEventMessage() bubble the message 'up' the graph.
-  /// They do so by inspecting the chain of parent objects for the existence of an ezEventMessageHandlerComponent
-  /// (typically a script component). If such a component is found, the message is delivered to it directly, and no other component.
-  /// If it is found, but does not handle this type of message, the message is discarded and NOT tried to be delivered
+  /// They do so by inspecting the chain of parent objects until they find one or multiple components that handle this type of message.
+  /// If such components are found, the message is delivered to them directly, and no other component.
+  /// If an ezEventMessageHandlerComponent is found that does not handle this type of message, the message is discarded and NOT tried to be delivered
   /// to anyone else.
   ///
   /// If no such component is found in all parent objects, the message is delivered to one ezEventMessageHandlerComponent
   /// instances that is set to 'handle global events' (typically used for level-logic scripts), no matter where in the graph it resides.
-  /// If multiple global event handler component exist that handle the same message type, the result is non-deterministic.
+  /// If multiple global event handler component exist that handle the same message type, it is delivered to all of them in a non-deterministic order.
   ///
   /// \param msg The message to deliver.
   /// \param senderComponent The component that triggered the event in the first place. May be nullptr.
-  ///        If not null, this information is stored in \a msg as ezEventMessage::m_hSenderObject and ezEventMessage::m_hSenderComponent.
-  ///        This information is used to pass through more contextual information for the event handler.
-  ///        For instance, a trigger component would pass through itself.
-  ///        A projectile component sending a 'take damage event' to the hit object, would also pass through itself (the projectile)
-  ///        such that the handling code can detect which object was responsible for the damage (and using the ezGameObject's team-ID,
-  ///        it can detect which player fired the projectile).
+  ///        Currently it is only used to prevent the message from being delivered to the sender component itself.
   bool SendEventMessage(ezMessage& ref_msg, const ezComponent* pSenderComponent);
 
   /// \copydoc ezGameObject::SendEventMessage()

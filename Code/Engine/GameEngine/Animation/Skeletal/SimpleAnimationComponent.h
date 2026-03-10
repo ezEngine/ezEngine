@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Core/Messages/EventMessage.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/World/ComponentManager.h>
 #include <GameEngine/Animation/PropertyAnimResource.h>

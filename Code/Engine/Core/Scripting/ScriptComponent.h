@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Messages/EventMessageSender.h>
 #include <Core/Scripting/ScriptClassResource.h>
 #include <Core/World/EventMessageHandlerComponent.h>
 #include <Foundation/Types/RangeView.h>
@@ -45,7 +46,7 @@ public:
   void SetUpdateOnlyWhenSimulating(bool bUpdate);                                      // [ property ]
   bool GetUpdateOnlyWhenSimulating() const { return m_bUpdateOnlyWhenSimulating; }     // [ property ]
 
-  void BroadcastEventMsg(ezEventMessage& ref_msg);
+  void BroadcastEventMsg(ezMessage& ref_msg);
 
   //////////////////////////////////////////////////////////////////////////
   // Exposed Parameters
@@ -80,7 +81,7 @@ private:
   struct EventSender
   {
     const ezRTTI* m_pMsgType = nullptr;
-    ezEventMessageSender<ezEventMessage> m_Sender;
+    ezEventMessageSender<ezMessage> m_Sender;
   };
 
   ezSmallArray<EventSender, 1> m_EventSenders;

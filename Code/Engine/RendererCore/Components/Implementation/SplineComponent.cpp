@@ -373,7 +373,6 @@ void ezSplineComponent::OnMsgSplineChanged(ezMsgSplineChanged& ref_msg)
 void ezSplineComponent::SendSplineChangedEvent()
 {
   ezMsgSplineChanged msg;
-  msg.FillFromSenderComponent(this);
   msg.m_uiChangeCounter = m_Spline.m_uiChangeCounter;
 
   for (ezComponent* pComp : GetOwner()->GetComponents())

@@ -182,7 +182,7 @@ void ezScriptComponent::SetUpdateOnlyWhenSimulating(bool bUpdate)
   AddUpdateFunctionToSchedule();
 }
 
-void ezScriptComponent::BroadcastEventMsg(ezEventMessage& ref_msg)
+void ezScriptComponent::BroadcastEventMsg(ezMessage& ref_msg)
 {
   const ezRTTI* pType = ref_msg.GetDynamicRTTI();
 

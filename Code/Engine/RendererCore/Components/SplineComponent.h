@@ -3,7 +3,6 @@
 #include <RendererCore/RendererCoreDLL.h>
 
 #include <Core/Graphics/Spline.h>
-#include <Core/Messages/EventMessage.h>
 #include <Core/World/ComponentManager.h>
 #include <Foundation/Containers/ArrayMap.h>
 #include <Foundation/Types/Bitflags.h>
@@ -39,9 +38,9 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezSplineComponentSpace);
 
 //////////////////////////////////////////////////////////////////////////
 
-struct EZ_RENDERERCORE_DLL ezMsgSplineChanged : public ezEventMessage
+struct EZ_RENDERERCORE_DLL ezMsgSplineChanged : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgSplineChanged, ezEventMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgSplineChanged, ezMessage);
 
   ezUInt32 m_uiChangeCounter = ezInvalidIndex;
 };

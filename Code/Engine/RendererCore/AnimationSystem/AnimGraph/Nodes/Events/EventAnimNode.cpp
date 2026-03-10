@@ -1,6 +1,7 @@
 #include <RendererCore/RendererCorePCH.h>
 
 #include <Core/Messages/CommonMessages.h>
+#include <Core/World/GameObject.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraph.h>
 #include <RendererCore/AnimationSystem/AnimGraph/Nodes/Events/EventAnimNode.h>
 

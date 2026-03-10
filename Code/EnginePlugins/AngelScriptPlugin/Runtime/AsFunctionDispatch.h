@@ -2,7 +2,6 @@
 
 #include <AngelScriptPlugin/AngelScriptPluginDLL.h>
 #include <Core/Scripting/ScriptRTTI.h>
-#include <Core/Messages/EventMessage.h>
 #include <Foundation/Strings/String.h>
 
 //////////////////////////////////////////////////////////////////////////
@@ -44,9 +43,9 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-struct ezMsgDeliverAngelScriptMsg : public ezEventMessage
+struct ezMsgDeliverAngelScriptMsg : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgDeliverAngelScriptMsg, ezEventMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgDeliverAngelScriptMsg, ezMessage);
 
   ~ezMsgDeliverAngelScriptMsg();
 

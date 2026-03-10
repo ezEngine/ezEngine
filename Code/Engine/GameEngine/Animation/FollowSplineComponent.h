@@ -1,8 +1,6 @@
 #pragma once
 
-#include <Core/Messages/EventMessage.h>
-#include <Core/World/Component.h>
-#include <Core/World/ComponentManager.h>
+#include <Core/Messages/EventMessageSender.h>
 #include <GameEngine/Animation/PropertyAnimResource.h>
 
 struct ezMsgAnimationReachedEnd;
