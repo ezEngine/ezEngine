@@ -3,6 +3,7 @@
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/Manipulators/SplineManipulatorAdapter.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
+#include <ToolsFoundation/Utilities/StringAlgorithms.h>
 
 ezSplineManipulatorAdapter::ezSplineManipulatorAdapter() = default;
 ezSplineManipulatorAdapter::~ezSplineManipulatorAdapter() = default;
@@ -125,7 +126,10 @@ void ezSplineManipulatorAdapter::Update()
 
 void ezSplineManipulatorAdapter::ClickGizmoEventHandler(const ezGizmoEvent& e)
 {
-  int index = -1;
+  if (e.m_Type != ezGizmoEvent::Type::Interaction)
+    return;
+
+  ezInt32 index = -1;
 
   for (ezUInt32 i = 0; i < m_Gizmos.GetCount(); ++i)
   {
@@ -147,10 +151,9 @@ void ezSplineManipulatorAdapter::ClickGizmoEventHandler(const ezGizmoEvent& e)
   }
 
   ezStringBuilder sNewNodeName;
-  sNewNodeName.SetFormat("{}", index);
-  sNewNodeName = MakeUniqueName(sNewNodeName);
+  MakeUniqueName(index, sNewNodeName);
 
-  index = ezMath::Min<int>(index, m_Spline.m_ControlPoints.GetCount());
+  index = ezMath::Min<ezInt32>(index, m_Spline.m_ControlPoints.GetCount());
 
   auto pObjectAcessor = GetObjectAccessor();
 
@@ -298,35 +301,43 @@ void ezSplineManipulatorAdapter::ConfigureGizmos()
   UpdateGizmoTransform();
 }
 
-ezString ezSplineManipulatorAdapter::MakeUniqueName(ezStringView sSuggestedName)
+void ezSplineManipulatorAdapter::MakeUniqueName(ezInt32 iIndex, ezStringBuilder& ref_sName)
 {
-  auto IsUniqueName = [&](ezStringView sName)
+  const ezSplineManipulatorAttribute* pAttr = static_cast<const ezSplineManipulatorAttribute*>(m_pManipulatorAttr);
+  ezVariantArray nodeNames;
+  m_pObject->GetTypeAccessor().GetValues(pAttr->GetNodesProperty(), nodeNames);
+
+  if (nodeNames.IsEmpty())
   {
-    const ezSplineManipulatorAttribute* pAttr = static_cast<const ezSplineManipulatorAttribute*>(m_pManipulatorAttr);
+    ref_sName = "1";
+    return;
+  }
 
-    ezVariantArray nodeNames;
-    m_pObject->GetTypeAccessor().GetValues(pAttr->GetNodesProperty(), nodeNames);
-
-    for (auto& v : nodeNames)
+  auto IsUniqueName = [&](ezStringView sName) -> bool
+  {
+    for (const auto& v : nodeNames)
     {
       if (v.Get<ezHashedString>() == sName)
         return false;
     }
-
     return true;
   };
 
-  if (IsUniqueName(sSuggestedName))
-    return sSuggestedName;
+  const ezStringView sLeft = (iIndex > 0) ? nodeNames[iIndex - 1].Get<ezHashedString>().GetView() : ezStringView();
+  const ezStringView sRight = (iIndex < (ezInt32)nodeNames.GetCount()) ? nodeNames[iIndex].Get<ezHashedString>().GetView() : ezStringView();
 
-  ezUInt32 uiSuffixIndex = 0;
-  ezStringBuilder sCombinedName;
+  ezStringAlgorithms::ComputeNameBetween(sLeft, sRight, ref_sName);
 
+  if (IsUniqueName(ref_sName))
+    return;
+
+  // Fallback: append an incrementing sub-index until the name is unique
+  ezStringBuilder sBase = ref_sName;
+  ezUInt32 uiSuffix = 1;
   do
   {
-    ++uiSuffixIndex;
-    sCombinedName.SetFormat("{}.{}", sSuggestedName, uiSuffixIndex);
-  } while (!IsUniqueName(sCombinedName));
-
-  return sCombinedName;
+    ref_sName = sBase;
+    ref_sName.AppendFormat(".{}", uiSuffix);
+    ++uiSuffix;
+  } while (!IsUniqueName(ref_sName));
 }

@@ -31,7 +31,7 @@ protected:
 
   void BuildSpline();
   void ConfigureGizmos();
-  ezString MakeUniqueName(ezStringView sSuggestedName);
+  void MakeUniqueName(ezInt32 iIndex, ezStringBuilder& ref_sName);
 
   ezSpline m_Spline;
 
