@@ -4,18 +4,46 @@
 #include <GuiFoundation/PropertyGrid/ManipulatorManager.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <QFont>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QToolButton>
 #include <qevent.h>
 
 ezQtManipulatorLabel::ezQtManipulatorLabel(QWidget* pParent, Qt::WindowFlags f)
-  : QLabel(pParent, f)
+  : QWidget(pParent, f)
 {
-  setCursor(Qt::WhatsThisCursor);
+  QHBoxLayout* pLayout = new QHBoxLayout(this);
+  pLayout->setContentsMargins(0, 0, 0, 0);
+  pLayout->setSpacing(2);
+
+  m_pLabel = new QLabel(this);
+  m_pLabel->setCursor(Qt::WhatsThisCursor);
+  m_pLabel->installEventFilter(this);
+  pLayout->addWidget(m_pLabel, 1);
+
+  QIcon manipIcon;
+  manipIcon.addFile(":/GuiFoundation/Icons/Manipulator-off.svg", QSize(), QIcon::Normal, QIcon::Off);
+  manipIcon.addFile(":/GuiFoundation/Icons/Manipulator-on.svg", QSize(), QIcon::Normal, QIcon::On);
+
+  m_pButton = new QToolButton(this);
+  m_pButton->setCheckable(true);
+  m_pButton->setAutoRaise(true);
+  m_pButton->setIcon(manipIcon);
+  m_pButton->setFixedSize(24, 24);
+  m_pButton->setToolTip("Toggles the manipulator gizmo for this property.");
+  m_pButton->setVisible(false);
+  connect(m_pButton, &QAbstractButton::clicked, this, &ezQtManipulatorLabel::ToggleManipulator);
+  pLayout->addWidget(m_pButton, 0);
 }
 
-ezQtManipulatorLabel::ezQtManipulatorLabel(const QString& sText, QWidget* pParent, Qt::WindowFlags f)
-  : QLabel(sText, pParent, f)
-  , m_bIsDefault(true)
+void ezQtManipulatorLabel::setText(const QString& sText)
 {
+  m_pLabel->setText(sText);
+}
+
+void ezQtManipulatorLabel::setAlignment(Qt::Alignment alignment)
+{
+  m_pLabel->setAlignment(alignment);
 }
 
 const ezManipulatorAttribute* ezQtManipulatorLabel::GetManipulator() const
@@ -29,8 +57,9 @@ void ezQtManipulatorLabel::SetManipulator(const ezManipulatorAttribute* pManipul
 
   if (m_pManipulator)
   {
-    setCursor(Qt::PointingHandCursor);
-    setForegroundRole(QPalette::ColorRole::Link);
+    m_pLabel->setCursor(Qt::PointingHandCursor);
+    m_pLabel->setForegroundRole(QPalette::ColorRole::Link);
+    m_pButton->setVisible(true);
   }
 }
 
@@ -45,7 +74,8 @@ void ezQtManipulatorLabel::SetManipulatorActive(bool bActive)
 
   if (m_pManipulator)
   {
-    setForegroundRole(m_bActive ? QPalette::ColorRole::LinkVisited : QPalette::ColorRole::Link);
+    m_pLabel->setForegroundRole(m_bActive ? QPalette::ColorRole::LinkVisited : QPalette::ColorRole::Link);
+    m_pButton->setChecked(m_bActive);
   }
 }
 
@@ -54,35 +84,18 @@ void ezQtManipulatorLabel::SetSelection(const ezArrayPtr<ezPropertySelection>& i
   m_Items = items;
 }
 
-
 void ezQtManipulatorLabel::SetIsDefault(bool bIsDefault)
 {
   if (m_bIsDefault != bIsDefault)
   {
     m_bIsDefault = bIsDefault;
     m_Font.setBold(!m_bIsDefault);
-    setFont(m_Font);
+    m_pLabel->setFont(m_Font);
   }
 }
 
-
-void ezQtManipulatorLabel::contextMenuEvent(QContextMenuEvent* ev)
+void ezQtManipulatorLabel::ToggleManipulator()
 {
-  Q_EMIT customContextMenuRequested(ev->globalPos());
-}
-
-void ezQtManipulatorLabel::showEvent(QShowEvent* event)
-{
-  // Use of style sheets (ADS) breaks previously set font.
-  setFont(m_Font);
-  QLabel::showEvent(event);
-}
-
-void ezQtManipulatorLabel::mousePressEvent(QMouseEvent* ev)
-{
-  if (ev->button() != Qt::LeftButton)
-    return;
-
   if (m_pManipulator == nullptr)
     return;
 
@@ -94,28 +107,48 @@ void ezQtManipulatorLabel::mousePressEvent(QMouseEvent* ev)
     ezManipulatorManager::GetSingleton()->SetActiveManipulator(pDoc, m_pManipulator, m_Items);
 }
 
-#if QT_VERSION > QT_VERSION_CHECK(6, 0, 0)
-void ezQtManipulatorLabel::enterEvent(QEnterEvent* ev)
-#else
-void ezQtManipulatorLabel::enterEvent(QEvent* ev)
-#endif
+void ezQtManipulatorLabel::showEvent(QShowEvent* event)
 {
-  if (m_pManipulator)
-  {
-    m_Font.setUnderline(true);
-    setFont(m_Font);
-  }
-
-  QLabel::enterEvent(ev);
+  // Use of style sheets (ADS) breaks previously set font.
+  m_pLabel->setFont(m_Font);
+  QWidget::showEvent(event);
 }
 
-void ezQtManipulatorLabel::leaveEvent(QEvent* ev)
+bool ezQtManipulatorLabel::eventFilter(QObject* pWatched, QEvent* pEvent)
 {
-  if (m_pManipulator)
+  if (pWatched == m_pLabel)
   {
-    m_Font.setUnderline(false);
-    setFont(m_Font);
+    switch (pEvent->type())
+    {
+      case QEvent::Enter:
+        if (m_pManipulator)
+        {
+          m_Font.setUnderline(true);
+          m_pLabel->setFont(m_Font);
+        }
+        break;
+
+      case QEvent::Leave:
+        if (m_pManipulator)
+        {
+          m_Font.setUnderline(false);
+          m_pLabel->setFont(m_Font);
+        }
+        break;
+
+      case QEvent::MouseButtonPress:
+        if (static_cast<QMouseEvent*>(pEvent)->button() == Qt::LeftButton)
+          ToggleManipulator();
+        break;
+
+      case QEvent::ContextMenu:
+        Q_EMIT customContextMenuRequested(static_cast<QContextMenuEvent*>(pEvent)->globalPos());
+        return true;
+
+      default:
+        break;
+    }
   }
 
-  QLabel::leaveEvent(ev);
+  return QWidget::eventFilter(pWatched, pEvent);
 }
