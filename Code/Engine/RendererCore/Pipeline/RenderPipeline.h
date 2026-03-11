@@ -131,7 +131,7 @@ private: // Member data
   /// \brief Contains all connections that share the same path-through texture and their first and last usage pass index.
   struct TextureUsageData
   {
-    ezHybridArray<ezRenderPipelinePassConnection*, 4> m_UsedBy;  ///< All the connections that use this texture. Due to passthrough pins, this can be larger than 1.
+    ezSmallArray<ezRenderPipelinePassConnection*, 8> m_UsedBy;   ///< All the connections that use this texture. Due to passthrough pins, this can be larger than 1.
     ezUInt16 m_uiFirstUsageIdx;                                  ///< Used to decide when to acquire a temp texture.
     ezUInt16 m_uiLastUsageIdx;                                   ///< Used to decide when to return a temp texture.
     const ezRenderPipelineNodePin* m_pTextureProvider = nullptr; ///< If set, this node and parent pass provide an external texture to the pipeline. This could be a render target from an ezTargetPass or a history buffer that is preserved across frames. At the start of every frame the parent pass will be asked for the current value of the texture a this pin.
