@@ -47,7 +47,8 @@ class ScriptObject : ezAngelScriptTestClass
             @msg.FromComponent = @this;
 
             m_iResponses = 0;
-            EZ_TEST_BOOL(GetOwner().SendEventMessage(msg, GetOwnerComponent()));
+            ezGameObject@ child = GetOwner().FindChildByName("Child");
+            EZ_TEST_BOOL(child.SendEventMessage(msg, GetOwnerComponent()));
             EZ_TEST_INT(m_iResponses, ExpectedResponseCount);
             // Ugly part to verify that the message traversed the correct objects
             // The object tree is expected to be 0 -> 1 - > 2
@@ -82,7 +83,8 @@ class ScriptObject : ezAngelScriptTestClass
             AsTestEventMsg msg;
             @msg.FromComponent = @this;
             m_iResponses = 0;
-            GetOwner().PostEventMessage(msg, GetOwnerComponent(), ezTime::Milliseconds(200));
+            ezGameObject@ child = GetOwner().FindChildByName("Child");
+            child.PostEventMessage(msg, GetOwnerComponent(), ezTime::Milliseconds(200));
             EZ_TEST_INT(m_iResponses, 0);
             EZ_TEST_INT(msg.iHandledBy0, 0);
             EZ_TEST_INT(msg.iHandledBy1, 0);

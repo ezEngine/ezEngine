@@ -1037,6 +1037,7 @@ void ezWorld::FindEventMsgHandlers(World& world, const ezMessage& msg, const ezC
       }
 
       pCurrentObject = pCurrentObject->GetParent();
+      pSenderComponent = nullptr;
     }
   }
 
