@@ -63,6 +63,13 @@ public:
   /// Toggles the hidden flag for the active manipulator of the given document.
   void ToggleHideActiveManipulator(const ezDocument* pDoc);
 
+  /// Cycles through the manipulators available on the last selected object.
+  ///
+  /// If no manipulator is active, activates the first available one. If the currently active
+  /// manipulator is not the last in the list, activates the next one. If it is the last,
+  /// clears the active manipulator.
+  void CycleActiveManipulator(const ezDocument* pDoc);
+
 private:
   struct Data
   {

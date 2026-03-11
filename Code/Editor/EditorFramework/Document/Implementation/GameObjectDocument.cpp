@@ -150,9 +150,8 @@ void ezGameObjectDocument::SetActiveEditTool(const ezRTTI* pEditToolType)
   {
     if (m_pActiveEditTool == nullptr)
     {
-      // if there is currently no active edit tool, we may still have a manipulator active
-      // if so, when repeatedly selecting this action, toggle the visibility of manipulators
-      ezManipulatorManager::GetSingleton()->ToggleHideActiveManipulator(this);
+      // if there is currently no active edit tool, cycle through the manipulators available on the selected object
+      ezManipulatorManager::GetSingleton()->CycleActiveManipulator(this);
     }
 
     return;

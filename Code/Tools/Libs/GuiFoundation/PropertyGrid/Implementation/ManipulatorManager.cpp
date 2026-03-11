@@ -42,8 +42,7 @@ ezManipulatorManager::~ezManipulatorManager()
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezManipulatorManager::DocumentManagerEventHandler, this));
 }
 
-const ezManipulatorAttribute* ezManipulatorManager::GetActiveManipulator(
-  const ezDocument* pDoc, const ezHybridArray<ezPropertySelection, 8>*& out_pSelection) const
+const ezManipulatorAttribute* ezManipulatorManager::GetActiveManipulator(const ezDocument* pDoc, const ezHybridArray<ezPropertySelection, 8>*& out_pSelection) const
 {
   out_pSelection = nullptr;
   auto it = m_ActiveManipulator.Find(pDoc);
@@ -139,6 +138,149 @@ void ezManipulatorManager::ToggleHideActiveManipulator(const ezDocument* pDoc)
       TransferToCurrentSelection(pDoc);
     }
   }
+}
+
+void ezManipulatorManager::CycleActiveManipulator(const ezDocument* pDoc)
+{
+  const ezDocumentObject* pCurrentObject = pDoc->GetSelectionManager()->GetCurrentObject();
+  if (pCurrentObject == nullptr)
+    return;
+
+  EZ_ASSERT_DEV(pDoc->GetManipulatorSearchStrategy() != ezManipulatorSearchStrategy::None,
+    "The document type '{}' has to override the function 'GetManipulatorSearchStrategy()'", pDoc->GetDynamicRTTI()->GetTypeName());
+
+  // Collect available manipulator attributes from the last selected object (or its children).
+  // Deduplicates by type + primary property so that e.g. multiple ezSplineNodeComponent children
+  // that share the same ezSplineManipulatorAttribute only contribute one entry.
+  ezTempHybridArray<const ezManipulatorAttribute*, 8> available;
+
+  auto collectManipulators = [&](const ezDocumentObject* pObj)
+  {
+    // Walk the full type hierarchy so attributes on base classes are included.
+    for (const ezRTTI* pRtti = pObj->GetTypeAccessor().GetType(); pRtti != nullptr; pRtti = pRtti->GetParentType())
+    {
+      for (const auto* pAttr : pRtti->GetAttributes())
+      {
+        if (!pAttr->GetDynamicRTTI()->IsDerivedFrom<ezManipulatorAttribute>())
+          continue;
+
+        const ezManipulatorAttribute* pManipAttr = static_cast<const ezManipulatorAttribute*>(pAttr);
+
+        // Skip duplicates (same type and primary property)
+        bool bAlreadyAdded = false;
+        for (const auto* pExisting : available)
+        {
+          if (pExisting->GetDynamicRTTI() == pManipAttr->GetDynamicRTTI() &&
+              pExisting->m_sProperty1 == pManipAttr->m_sProperty1)
+          {
+            bAlreadyAdded = true;
+            break;
+          }
+        }
+        if (!bAlreadyAdded)
+          available.PushBack(pManipAttr);
+      }
+    }
+  };
+
+  if (pDoc->GetManipulatorSearchStrategy() == ezManipulatorSearchStrategy::SelectedObject)
+  {
+    collectManipulators(pCurrentObject);
+  }
+  else if (pDoc->GetManipulatorSearchStrategy() == ezManipulatorSearchStrategy::ChildrenOfSelectedObject)
+  {
+    for (const auto* pChild : pCurrentObject->GetChildren())
+      collectManipulators(pChild);
+  }
+  else
+  {
+    EZ_ASSERT_NOT_IMPLEMENTED;
+  }
+
+  if (available.IsEmpty())
+    return;
+
+  // Find the index of the currently active manipulator
+  const ezHybridArray<ezPropertySelection, 8>* pSel = nullptr;
+  const ezManipulatorAttribute* pActive = GetActiveManipulator(pDoc, pSel);
+
+  ezInt32 iCurrentIndex = -1;
+  if (pActive != nullptr)
+  {
+    for (ezUInt32 i = 0; i < available.GetCount(); ++i)
+    {
+      if (available[i]->GetDynamicRTTI() == pActive->GetDynamicRTTI() &&
+          available[i]->m_sProperty1 == pActive->m_sProperty1)
+      {
+        iCurrentIndex = static_cast<ezInt32>(i);
+        break;
+      }
+    }
+  }
+
+  // If the last (or only) manipulator is currently active, clear and stop
+  if (iCurrentIndex >= static_cast<ezInt32>(available.GetCount()) - 1)
+  {
+    ClearActiveManipulator(pDoc);
+    return;
+  }
+
+  const ezManipulatorAttribute* pNext = available[iCurrentIndex + 1];
+
+  // Build a selection for pNext by searching through the current editor selection
+  ezTempHybridArray<ezPropertySelection, 8> newSelection;
+  const auto& selection = pDoc->GetSelectionManager()->GetSelection();
+
+  auto matchesNext = [&](const ezManipulatorAttribute* pManip) -> bool
+  {
+    return pManip->GetDynamicRTTI() == pNext->GetDynamicRTTI() &&
+           pManip->m_sProperty1 == pNext->m_sProperty1 && pManip->m_sProperty2 == pNext->m_sProperty2 &&
+           pManip->m_sProperty3 == pNext->m_sProperty3 && pManip->m_sProperty4 == pNext->m_sProperty4 &&
+           pManip->m_sProperty5 == pNext->m_sProperty5 && pManip->m_sProperty6 == pNext->m_sProperty6;
+  };
+
+  // Returns true if pObj (or any of its base types) has a manipulator attribute matching pNext.
+  auto hasMatchingManipulator = [&](const ezDocumentObject* pObj) -> bool
+  {
+    for (const ezRTTI* pRtti = pObj->GetTypeAccessor().GetType(); pRtti != nullptr; pRtti = pRtti->GetParentType())
+    {
+      for (const auto* pAttr : pRtti->GetAttributes())
+      {
+        if (pAttr->IsInstanceOf(pNext->GetDynamicRTTI()) && matchesNext(static_cast<const ezManipulatorAttribute*>(pAttr)))
+          return true;
+      }
+    }
+    return false;
+  };
+
+  if (pDoc->GetManipulatorSearchStrategy() == ezManipulatorSearchStrategy::SelectedObject)
+  {
+    for (const auto* pObj : selection)
+    {
+      if (hasMatchingManipulator(pObj))
+        newSelection.ExpandAndGetRef().m_pObject = pObj;
+    }
+  }
+  else if (pDoc->GetManipulatorSearchStrategy() == ezManipulatorSearchStrategy::ChildrenOfSelectedObject)
+  {
+    for (const auto* pObj : selection)
+    {
+      for (const auto* pChild : pObj->GetChildren())
+      {
+        if (hasMatchingManipulator(pChild))
+        {
+          newSelection.ExpandAndGetRef().m_pObject = pChild;
+          break;
+        }
+      }
+    }
+  }
+  else
+  {
+    EZ_ASSERT_NOT_IMPLEMENTED;
+  }
+
+  InternalSetActiveManipulator(pDoc, pNext, newSelection, true);
 }
 
 void ezManipulatorManager::StructureEventHandler(const ezDocumentObjectStructureEvent& e)
