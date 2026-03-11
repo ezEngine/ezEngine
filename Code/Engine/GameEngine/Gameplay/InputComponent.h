@@ -3,8 +3,8 @@
 #include <GameEngine/GameEngineDLL.h>
 
 #include <Core/Input/Declarations.h>
+#include <Core/Messages/EventMessageSender.h>
 #include <Core/Messages/TriggerMessage.h>
-#include <Core/World/World.h>
 
 using ezInputComponentManager = ezComponentManagerSimple<class ezInputComponent, ezComponentUpdateType::WhenSimulating>;
 
