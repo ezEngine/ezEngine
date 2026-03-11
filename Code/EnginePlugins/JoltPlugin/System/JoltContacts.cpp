@@ -160,25 +160,24 @@ void ezJoltContactListener::OnContact(const JPH::Body& body0, const JPH::Body& b
 
     if (CombinedContactFlags.IsSet(ezOnJoltContact::SendContactMsg))
     {
+      auto pComp0 = ezJoltUserData::GetComponent(reinterpret_cast<const void*>(body0.GetUserData()));
+      auto pComp1 = ezJoltUserData::GetComponent(reinterpret_cast<const void*>(body1.GetUserData()));
+
       ezMsgPhysicContact msg;
       msg.m_vGlobalPosition = vAvgPos;
       msg.m_vNormal = vAvgNormal;
       msg.m_fImpactSqr = fImpactSqr;
 
-      if (ContactFlags0.IsSet(ezOnJoltContact::SendContactMsg))
+      if (ContactFlags0.IsSet(ezOnJoltContact::SendContactMsg) && pComp0 != nullptr)
       {
-        if (auto pComp = ezJoltUserData::GetComponent(reinterpret_cast<const void*>(body0.GetUserData())))
-        {
-          pComp->SendMessage(msg);
-        }
+        msg.m_hOtherObject = pComp1 ? pComp1->GetOwner()->GetHandle() : ezGameObjectHandle();
+        pComp0->SendMessage(msg);
       }
 
-      if (ContactFlags1.IsSet(ezOnJoltContact::SendContactMsg))
+      if (ContactFlags1.IsSet(ezOnJoltContact::SendContactMsg) && pComp1 != nullptr)
       {
-        if (auto pComp = ezJoltUserData::GetComponent(reinterpret_cast<const void*>(body1.GetUserData())))
-        {
-          pComp->SendMessage(msg);
-        }
+        msg.m_hOtherObject = pComp0 ? pComp0->GetOwner()->GetHandle() : ezGameObjectHandle();
+        pComp1->SendMessage(msg);
       }
     }
   }

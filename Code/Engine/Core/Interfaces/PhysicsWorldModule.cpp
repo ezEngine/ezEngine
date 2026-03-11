@@ -51,6 +51,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgPhysicContact, 1, ezRTTIDefaultAllocator<ez
 {
   EZ_BEGIN_PROPERTIES
   {
+    EZ_MEMBER_PROPERTY("OtherObject", m_hOtherObject),
     EZ_MEMBER_PROPERTY("GlobalPosition", m_vGlobalPosition),
     EZ_MEMBER_PROPERTY("Normal", m_vNormal),
     EZ_MEMBER_PROPERTY("ImpactSqr", m_fImpactSqr),
