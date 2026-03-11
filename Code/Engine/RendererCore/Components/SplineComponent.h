@@ -267,4 +267,6 @@ protected:
 
   ezVec3 m_vCustomTangentIn = ezVec3::MakeZero();
   ezVec3 m_vCustomTangentOut = ezVec3::MakeZero();
+
+  ezUInt8 m_uiDummy = 0;
 };

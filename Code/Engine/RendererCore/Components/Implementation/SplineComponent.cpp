@@ -694,6 +694,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSplineNodeComponent, 1, ezComponentMode::Static)
     EZ_ENUM_ACCESSOR_PROPERTY("TangentModeOut", ezSplineTangentMode, GetTangentModeOut, SetTangentModeOut),
     EZ_ACCESSOR_PROPERTY("CustomTangentOut", GetCustomTangentOut, SetCustomTangentOut),
     EZ_ACCESSOR_PROPERTY("LinkCustomTangents", GetLinkCustomTangents, SetLinkCustomTangents),
+    EZ_MEMBER_PROPERTY("EditNodes", m_uiDummy),
   }
   EZ_END_PROPERTIES;
 
@@ -709,6 +710,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSplineNodeComponent, 1, ezComponentMode::Static)
     new ezCategoryAttribute("Utilities/Splines"),
     new ezSplineTangentManipulatorAttribute("TangentModeIn", "CustomTangentIn"),
     new ezSplineTangentManipulatorAttribute("TangentModeOut", "CustomTangentOut"),
+    new ezSplineManipulatorAttribute("Nodes", "Closed", "EditNodes"),
   }
   EZ_END_ATTRIBUTES;
 }

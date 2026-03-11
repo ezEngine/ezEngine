@@ -116,7 +116,49 @@ ezResult ezSplineManipulatorAdapter::FillControlPointFromNodeComponent(const ezD
 
 void ezSplineManipulatorAdapter::Finalize()
 {
-  // Update will be called directly after this, so nothing to do here
+  const ezSplineManipulatorAttribute* pAttr = static_cast<const ezSplineManipulatorAttribute*>(m_pManipulatorAttr);
+
+  auto HasSplineProperties = [&](const ezDocumentObject* pObj) -> bool
+  {
+    const ezRTTI* pType = pObj->GetTypeAccessor().GetType();
+    return pType->FindPropertyByName(pAttr->GetNodesProperty()) != nullptr &&
+           pType->FindPropertyByName(pAttr->GetClosedProperty()) != nullptr;
+  };
+
+  // m_pObject may not directly expose the spline properties. Walk up the parent chain.
+  // At each level, also check components (objects stored in the "Components" array property),
+  // since the relevant object may be a component of a game object rather than the game object itself.
+  while (m_pObject != nullptr)
+  {
+    if (HasSplineProperties(m_pObject))
+      break;
+
+    ezVariantArray componentUuids;
+    if (m_pObject->GetTypeAccessor().GetValues("Components", componentUuids))
+    {
+      const ezDocumentObject* pFoundComponent = nullptr;
+      for (const auto& v : componentUuids)
+      {
+        if (v.IsA<ezUuid>())
+        {
+          const ezDocumentObject* pComponent = m_pObject->GetDocumentObjectManager()->GetObject(v.Get<ezUuid>());
+          if (pComponent != nullptr && HasSplineProperties(pComponent))
+          {
+            pFoundComponent = pComponent;
+            break;
+          }
+        }
+      }
+
+      if (pFoundComponent != nullptr)
+      {
+        m_pObject = pFoundComponent;
+        break;
+      }
+    }
+
+    m_pObject = m_pObject->GetParent();
+  }
 }
 
 void ezSplineManipulatorAdapter::Update()
