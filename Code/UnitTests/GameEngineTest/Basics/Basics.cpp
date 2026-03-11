@@ -1,9 +1,9 @@
 #include <GameEngineTest/GameEngineTestPCH.h>
 
 #include "Basics.h"
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Logging/ConsoleWriter.h>
+#include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #include <Foundation/Strings/StringConversion.h>
 #include <Foundation/System/MiniDumpUtils.h>
 #include <Foundation/System/Process.h>
@@ -60,10 +60,12 @@ ezResult TranformProject(const char* szProjectPath, ezUInt32 uiCleanVersion)
     {
       ezLog::Info("Clean version {} != {} -> deleting asset cache.", uiTargetVersion, uiCleanVersion);
 
+#  if (EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) && EZ_ENABLED(EZ_SUPPORTS_FILE_STATS))
       if (ezOSFile::DeleteFolder(sProjectAssetDir).Failed())
       {
         ezLog::Warning("Deleting the asset cache folder failed.");
       }
+#  endif
 
       if (f.Open(sCleanFile, ezFileOpenMode::Write, ezFileShareMode::Default).Succeeded())
       {
@@ -77,7 +79,12 @@ ezResult TranformProject(const char* szProjectPath, ezUInt32 uiCleanVersion)
     }
   }
 
+
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   sBinPath.AppendPath("ezEditorProcessor.exe");
+#  else
+  sBinPath.AppendPath("ezEditorProcessor");
+#  endif
   sBinPath.MakeCleanPath();
 
   ezStringBuilder sOutputPath = ezTestFramework::GetInstance()->GetAbsOutputPath();
@@ -167,10 +174,10 @@ ezResult TranformProject(const char* szProjectPath, ezUInt32 uiCleanVersion)
 }
 #endif
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP) || EZ_ENABLED(EZ_PLATFORM_LINUX)
 EZ_CREATE_SIMPLE_TEST_GROUP(00_Init);
 
-EZ_CREATE_SIMPLE_TEST(00_Init, TransformBase)
+EZ_CREATE_SIMPLE_TEST(00_Init, 00_TransformBase) // prefix with 00_ to ensure base data is transformed first
 {
   EZ_TEST_BOOL(TranformProject("Data/Base/ezProject", 2).Succeeded());
 }
@@ -183,11 +190,6 @@ EZ_CREATE_SIMPLE_TEST(00_Init, TransformBasics)
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformParticles)
 {
   EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Particles/ezProject", 4).Succeeded());
-}
-
-EZ_CREATE_SIMPLE_TEST(00_Init, TransformTypeScript)
-{
-  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/TypeScript/ezProject", 5).Succeeded());
 }
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformEffects)
@@ -217,7 +219,7 @@ EZ_CREATE_SIMPLE_TEST(00_Init, TransformXR)
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformVisualScript)
 {
-  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/VisualScript/ezProject", 6).Succeeded());
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/VisualScript/ezProject", 7).Succeeded());
 }
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformSubstance)
@@ -227,6 +229,25 @@ EZ_CREATE_SIMPLE_TEST(00_Init, TransformSubstance)
     EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Substance/ezProject", 1).Succeeded());
   }
 }
+
+EZ_CREATE_SIMPLE_TEST(00_Init, TransformProcGen)
+{
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/ProcGen/ezProject", 6).Succeeded());
+}
+
+#  ifdef BUILDSYSTEM_ENABLE_RMLUI_SUPPORT
+EZ_CREATE_SIMPLE_TEST(00_Init, TransformRmlUi)
+{
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/RmlUi/ezProject", 2).Succeeded());
+}
+#  endif
+
+#  ifdef BUILDSYSTEM_ENABLE_ANGELSCRIPT_SUPPORT
+EZ_CREATE_SIMPLE_TEST(00_Init, TransformAngelScript)
+{
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/AngelScript/ezProject", 2).Succeeded());
+}
+#  endif
 
 #endif
 
@@ -332,8 +353,8 @@ void ezGameEngineTestApplication_Basics::SubTestManyMeshesSetup()
 
   m_pWorld->Clear();
 
-  ezMeshResourceHandle hMesh = ezResourceManager::LoadResource<ezMeshResource>("Meshes/MissingMesh.ezMesh");
-
+  ezMeshResourceHandle hMesh = ezResourceManager::LoadResource<ezMeshResource>("Meshes/MissingMesh.ezBinMesh");
+  ezMaterialResourceHandle hMaterial = ezResourceManager::LoadResource<ezMaterialResource>("{ b93a6e80-5bf7-48f0-b7b3-2097d0133159 }"); // FullbrightWhite
   ezInt32 dim = 15;
 
   for (ezInt32 z = -dim; z <= dim; ++z)
@@ -350,7 +371,7 @@ void ezGameEngineTestApplication_Basics::SubTestManyMeshesSetup()
 
         ezMeshComponent* pMesh;
         m_pWorld->GetOrCreateComponentManager<ezMeshComponentManager>()->CreateComponent(pObject, pMesh);
-
+        pMesh->SetMaterial(0, hMaterial);
         pMesh->SetMesh(hMesh);
       }
     }
@@ -369,7 +390,8 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestManyMeshesExec(ezInt32 i
 
   ezResourceManager::ForceNoFallbackAcquisition(3);
 
-  if (Run() == ezApplication::Execution::Quit)
+  Run();
+  if (ShouldApplicationQuit())
     return ezTestAppRun::Quit;
 
   if (iCurFrame > 3)
@@ -392,8 +414,8 @@ void ezGameEngineTestApplication_Basics::SubTestSkyboxSetup()
   m_pWorld->Clear();
 
   ezTextureCubeResourceHandle hSkybox = ezResourceManager::LoadResource<ezTextureCubeResource>("Textures/Cubemap/ezLogo_Cube_DXT1_Mips_D.dds");
-  ezMeshResourceHandle hMesh = ezResourceManager::LoadResource<ezMeshResource>("Meshes/MissingMesh.ezMesh");
-
+  ezMeshResourceHandle hMesh = ezResourceManager::LoadResource<ezMeshResource>("Meshes/MissingMesh.ezBinMesh");
+  ezMaterialResourceHandle hMaterial = ezResourceManager::LoadResource<ezMaterialResource>("{ b93a6e80-5bf7-48f0-b7b3-2097d0133159 }"); // FullbrightWhite
   // Skybox
   {
     ezGameObjectDesc go;
@@ -426,7 +448,7 @@ void ezGameEngineTestApplication_Basics::SubTestSkyboxSetup()
 
           ezMeshComponent* pMesh;
           m_pWorld->GetOrCreateComponentManager<ezMeshComponentManager>()->CreateComponent(pObject, pMesh);
-
+          pMesh->SetMaterial(0, hMaterial);
           pMesh->SetMesh(hMesh);
         }
       }
@@ -444,7 +466,8 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestSkyboxExec(ezInt32 iCurF
   pCamera->LookAt(pos, pos + ezVec3(1, 0, 0), ezVec3(0, 0, 1));
   pCamera->RotateGlobally(ezAngle::MakeFromDegree(0), ezAngle::MakeFromDegree(0), ezAngle::MakeFromDegree(iCurFrame * 80.0f));
 
-  if (Run() == ezApplication::Execution::Quit)
+  Run();
+  if (ShouldApplicationQuit())
     return ezTestAppRun::Quit;
 
   if (iCurFrame < 5)
@@ -532,21 +555,22 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingExec(ezInt
 
   // Lines
   {
-    ezHybridArray<ezDebugRenderer::Line, 4> lines;
-    lines.PushBack(ezDebugRenderer::Line(ezVec3(3, -4, -4), ezVec3(4, -2, -3)));
-    lines.PushBack(ezDebugRenderer::Line(ezVec3(4, -2, -3), ezVec3(2, 2, -2)));
+    ezTempHybridArray<ezDebugRendererLine, 4> lines;
+    lines.PushBack(ezDebugRendererLine(ezVec3(3, -4, -4), ezVec3(4, -2, -3)));
+    lines.PushBack(ezDebugRendererLine(ezVec3(4, -2, -3), ezVec3(2, 2, -2)));
     ezDebugRenderer::DrawLines(m_pWorld.Borrow(), lines, ezColor::SkyBlue);
   }
 
   // Triangles
   {
-    ezHybridArray<ezDebugRenderer::Triangle, 4> tris;
-    tris.PushBack(ezDebugRenderer::Triangle(ezVec3(7, 0, 0), ezVec3(7, 2, 0), ezVec3(7, 2, 1)));
-    tris.PushBack(ezDebugRenderer::Triangle(ezVec3(7, 3, 0), ezVec3(7, 1, 0), ezVec3(7, 3, 1)));
+    ezTempHybridArray<ezDebugRendererTriangle, 4> tris;
+    tris.PushBack(ezDebugRendererTriangle(ezVec3(7, 0, 0), ezVec3(7, 2, 0), ezVec3(7, 2, 1)));
+    tris.PushBack(ezDebugRendererTriangle(ezVec3(7, 3, 0), ezVec3(7, 1, 0), ezVec3(7, 3, 1)));
     ezDebugRenderer::DrawSolidTriangles(m_pWorld.Borrow(), tris, ezColor::Gainsboro);
   }
 
-  if (Run() == ezApplication::Execution::Quit)
+  Run();
+  if (ShouldApplicationQuit())
     return ezTestAppRun::Quit;
 
   // first frame no image is captured yet
@@ -578,7 +602,8 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingExec2(ezIn
     ezDebugRenderer::DrawInfoText(m_pWorld.Borrow(), ezDebugTextPlacement::BottomRight, "test", "| Col 1\t| Col 2\t| Col 3\t|\n| abc\t| 42\t| 11.23\t|");
   }
 
-  if (Run() == ezApplication::Execution::Quit)
+  Run();
+  if (ShouldApplicationQuit())
     return ezTestAppRun::Quit;
 
   // first frame no image is captured yet
@@ -597,12 +622,13 @@ void ezGameEngineTestApplication_Basics::SubTestLoadSceneSetup()
   ezResourceManager::ForceNoFallbackAcquisition(3);
   ezRenderContext::GetDefaultInstance()->SetAllowAsyncShaderLoading(false);
 
-  LoadScene("Basics/AssetCache/Common/Lighting.ezObjectGraph").IgnoreResult();
+  LoadScene("Basics/AssetCache/Common/Lighting.ezBinScene").IgnoreResult();
 }
 
 ezTestAppRun ezGameEngineTestApplication_Basics::SubTestLoadSceneExec(ezInt32 iCurFrame)
 {
-  if (Run() == ezApplication::Execution::Quit)
+  Run();
+  if (ShouldApplicationQuit())
     return ezTestAppRun::Quit;
 
   switch (iCurFrame)
@@ -624,12 +650,13 @@ void ezGameEngineTestApplication_Basics::SubTestGoReferenceSetup()
   ezResourceManager::ForceNoFallbackAcquisition(3);
   ezRenderContext::GetDefaultInstance()->SetAllowAsyncShaderLoading(false);
 
-  LoadScene("Basics/AssetCache/Common/GoReferences.ezObjectGraph").IgnoreResult();
+  LoadScene("Basics/AssetCache/Common/GoReferences.ezBinScene").IgnoreResult();
 }
 
 ezTestAppRun ezGameEngineTestApplication_Basics::SubTestGoReferenceExec(ezInt32 iCurFrame)
 {
-  if (Run() == ezApplication::Execution::Quit)
+  Run();
+  if (ShouldApplicationQuit())
     return ezTestAppRun::Quit;
 
   switch (iCurFrame)

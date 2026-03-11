@@ -38,4 +38,18 @@ function(ez_ci_add_test TARGET_NAME)
 	endif()
 
 	file(APPEND ${CMAKE_BINARY_DIR}/Tests.txt "${TARGET_NAME}|${HWA_VALUE}|0\n")
+
+	# Add CTest integration
+	get_target_property(TARGET_TYPE ${TARGET_NAME} TYPE)
+	if(TARGET_TYPE STREQUAL "EXECUTABLE")
+		add_test(
+			NAME ${TARGET_NAME}
+			COMMAND ${TARGET_NAME} -noGui -run -close -console
+		)
+		# Set test properties
+		set_tests_properties(${TARGET_NAME} PROPERTIES
+			TIMEOUT 300  # 5 minutes timeout
+			WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+		)
+	endif()
 endfunction()

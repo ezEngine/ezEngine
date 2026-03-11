@@ -6,17 +6,22 @@
 #include <EditorFramework/DocumentWindow/QuadViewWidget.moc.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
 #include <EditorFramework/Preferences/QuadViewPreferences.h>
+#include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
 
 ezQtQuadViewWidget::ezQtQuadViewWidget(ezAssetDocument* pDocument, ezQtEngineDocumentWindow* pWindow, ViewFactory viewFactory, const char* szViewToolBarMapping)
 {
+  setObjectName("ezQtQuadViewWidget");
+
   m_pDocument = pDocument;
   m_pWindow = pWindow;
   m_ViewFactory = viewFactory;
   m_sViewToolBarMapping = szViewToolBarMapping;
 
   m_pViewLayout = new QGridLayout(this);
+  m_pViewLayout->setObjectName("QGridLayout1");
   m_pViewLayout->setContentsMargins(0, 0, 0, 0);
   m_pViewLayout->setSpacing(4);
+
   setLayout(m_pViewLayout);
 
   LoadViewConfigs();
@@ -99,7 +104,7 @@ void ezQtQuadViewWidget::CreateViews(bool bQuad)
     for (ezUInt32 i = 0; i < 4; ++i)
     {
       ezQtEngineViewWidget* pViewWidget = m_ViewFactory(m_pWindow, &m_ViewConfigQuad[i]);
-      ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(m_pWindow, pViewWidget, m_sViewToolBarMapping);
+      ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(m_pWindow->GetContainerWindow()->GetDockManager(), m_pWindow, pViewWidget, m_sViewToolBarMapping);
       m_ActiveMainViews.PushBack(pContainer);
       m_pViewLayout->addWidget(pContainer, i / 2, i % 2);
     }
@@ -107,7 +112,7 @@ void ezQtQuadViewWidget::CreateViews(bool bQuad)
   else
   {
     ezQtEngineViewWidget* pViewWidget = m_ViewFactory(m_pWindow, &m_ViewConfigSingle);
-    ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(m_pWindow, pViewWidget, m_sViewToolBarMapping);
+    ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(m_pWindow->GetContainerWindow()->GetDockManager(), m_pWindow, pViewWidget, m_sViewToolBarMapping);
     m_ActiveMainViews.PushBack(pContainer);
     m_pViewLayout->addWidget(pContainer, 0, 0);
   }

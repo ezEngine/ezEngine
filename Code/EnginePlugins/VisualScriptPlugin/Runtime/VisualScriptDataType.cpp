@@ -33,7 +33,7 @@ EZ_END_STATIC_REFLECTED_ENUM;
 
 namespace
 {
-  static ezVariantType::Enum s_ScriptDataTypeVariantTypes[] = {
+  static constexpr ezVariantType::Enum s_ScriptDataTypeVariantTypes[] = {
     ezVariantType::Invalid,           // Invalid,
 
     ezVariantType::Bool,              // Bool,
@@ -60,7 +60,7 @@ namespace
   };
   static_assert(EZ_ARRAY_SIZE(s_ScriptDataTypeVariantTypes) == (size_t)ezVisualScriptDataType::Count);
 
-  static ezUInt32 s_ScriptDataTypeSizes[] = {
+  static constexpr ezUInt32 s_ScriptDataTypeSizes[] = {
     0,                                      // Invalid,
 
     sizeof(bool),                           // Bool,
@@ -87,34 +87,34 @@ namespace
   };
   static_assert(EZ_ARRAY_SIZE(s_ScriptDataTypeSizes) == (size_t)ezVisualScriptDataType::Count);
 
-  static ezUInt32 s_ScriptDataTypeAlignments[] = {
-    0,                                               // Invalid,
+  static constexpr ezUInt32 s_ScriptDataTypeAlignments[] = {
+    0,                                       // Invalid,
 
-    EZ_ALIGNMENT_OF(bool),                           // Bool,
-    EZ_ALIGNMENT_OF(ezUInt8),                        // Byte,
-    EZ_ALIGNMENT_OF(ezInt32),                        // Int,
-    EZ_ALIGNMENT_OF(ezInt64),                        // Int64,
-    EZ_ALIGNMENT_OF(float),                          // Float,
-    EZ_ALIGNMENT_OF(double),                         // Double,
-    EZ_ALIGNMENT_OF(ezColor),                        // Color,
-    EZ_ALIGNMENT_OF(ezVec3),                         // Vector3,
-    EZ_ALIGNMENT_OF(ezQuat),                         // Quaternion,
-    EZ_ALIGNMENT_OF(ezTransform),                    // Transform,
-    EZ_ALIGNMENT_OF(ezTime),                         // Time,
-    EZ_ALIGNMENT_OF(ezAngle),                        // Angle,
-    EZ_ALIGNMENT_OF(ezString),                       // String,
-    EZ_ALIGNMENT_OF(ezHashedString),                 // HashedString,
-    EZ_ALIGNMENT_OF(ezVisualScriptGameObjectHandle), // GameObject,
-    EZ_ALIGNMENT_OF(ezVisualScriptComponentHandle),  // Component,
-    EZ_ALIGNMENT_OF(ezTypedPointer),                 // TypedPointer,
-    EZ_ALIGNMENT_OF(ezVariant),                      // Variant,
-    EZ_ALIGNMENT_OF(ezVariantArray),                 // Array,
-    EZ_ALIGNMENT_OF(ezVariantDictionary),            // Map,
-    EZ_ALIGNMENT_OF(ezScriptCoroutineHandle),        // Coroutine,
+    alignof(bool),                           // Bool,
+    alignof(ezUInt8),                        // Byte,
+    alignof(ezInt32),                        // Int,
+    alignof(ezInt64),                        // Int64,
+    alignof(float),                          // Float,
+    alignof(double),                         // Double,
+    alignof(ezColor),                        // Color,
+    alignof(ezVec3),                         // Vector3,
+    alignof(ezQuat),                         // Quaternion,
+    alignof(ezTransform),                    // Transform,
+    alignof(ezTime),                         // Time,
+    alignof(ezAngle),                        // Angle,
+    alignof(ezString),                       // String,
+    alignof(ezHashedString),                 // HashedString,
+    alignof(ezVisualScriptGameObjectHandle), // GameObject,
+    alignof(ezVisualScriptComponentHandle),  // Component,
+    alignof(ezTypedPointer),                 // TypedPointer,
+    alignof(ezVariant),                      // Variant,
+    alignof(ezVariantArray),                 // Array,
+    alignof(ezVariantDictionary),            // Map,
+    alignof(ezScriptCoroutineHandle),        // Coroutine,
   };
   static_assert(EZ_ARRAY_SIZE(s_ScriptDataTypeAlignments) == (size_t)ezVisualScriptDataType::Count);
 
-  static const char* s_ScriptDataTypeNames[] = {
+  static constexpr const char* s_ScriptDataTypeNames[] = {
     "Invalid",
 
     "Bool",
@@ -140,6 +140,8 @@ namespace
     "Coroutine",
     "", // Count,
     "Enum",
+    "Bitflag",
+    "Resource",
   };
   static_assert(EZ_ARRAY_SIZE(s_ScriptDataTypeNames) == (size_t)ezVisualScriptDataType::ExtendedCount);
 } // namespace
@@ -257,6 +259,8 @@ const ezRTTI* ezVisualScriptDataType::GetRtti(Enum dataType)
     ezGetStaticRTTI<ezScriptCoroutineHandle>(), // Coroutine,
     nullptr,                                    // Count,
     nullptr,                                    // EnumValue,
+    nullptr,                                    // BitflagValue,
+    nullptr,                                    // Resource,
   };
   static_assert(EZ_ARRAY_SIZE(s_Rttis) == (size_t)ezVisualScriptDataType::ExtendedCount);
 
@@ -285,6 +289,9 @@ ezVisualScriptDataType::Enum ezVisualScriptDataType::FromRtti(const ezRTTI* pRtt
 
   if (pRtti->GetTypeFlags().IsSet(ezTypeFlags::IsEnum))
     return EnumValue;
+
+  if (pRtti->GetTypeFlags().IsSet(ezTypeFlags::Bitflags))
+    return BitflagValue;
 
   if (pRtti == ezGetStaticRTTI<ezVariant>())
     return Variant;
@@ -326,13 +333,23 @@ const char* ezVisualScriptDataType::GetName(Enum dataType)
 bool ezVisualScriptDataType::CanConvertTo(Enum sourceDataType, Enum targetDataType)
 {
   if (sourceDataType == targetDataType ||
+      sourceDataType == Any ||
+      targetDataType == Any ||
       targetDataType == String ||
       targetDataType == HashedString ||
       targetDataType == Variant)
     return true;
 
-  if ((IsNumber(sourceDataType) || sourceDataType == EnumValue) &&
-      (IsNumber(targetDataType) || targetDataType == EnumValue))
+  if ((IsNumberOrBool(sourceDataType) || (sourceDataType == EnumValue || sourceDataType == BitflagValue)) &&
+      (IsNumberOrBool(targetDataType) || (targetDataType == EnumValue || targetDataType == BitflagValue)))
+    return true;
+
+  if ((IsNumberOrBool(sourceDataType) && targetDataType == Vector3) ||
+      (sourceDataType == Vector3 && targetDataType == Transform))
+    return true;
+
+  if (IsPointer(sourceDataType) &&
+      (targetDataType == ezVisualScriptDataType::AnyPointer || targetDataType == ezVisualScriptDataType::Bool))
     return true;
 
   return false;
@@ -342,7 +359,7 @@ bool ezVisualScriptDataType::CanConvertTo(Enum sourceDataType, Enum targetDataTy
 
 ezGameObject* ezVisualScriptGameObjectHandle::GetPtr(ezUInt32 uiExecutionCounter) const
 {
-  if (m_uiExecutionCounter == uiExecutionCounter || m_Handle.GetInternalID().m_Data == 0)
+  if (m_uiExecutionCounter == uiExecutionCounter || m_Handle.IsInvalidated() || m_Handle.GetInternalID().m_Data == 0)
   {
     return m_Ptr;
   }
@@ -361,7 +378,7 @@ ezGameObject* ezVisualScriptGameObjectHandle::GetPtr(ezUInt32 uiExecutionCounter
 
 ezComponent* ezVisualScriptComponentHandle::GetPtr(ezUInt32 uiExecutionCounter) const
 {
-  if (m_uiExecutionCounter == uiExecutionCounter || m_Handle.GetInternalID().m_Data == 0)
+  if (m_uiExecutionCounter == uiExecutionCounter || m_Handle.IsInvalidated() || m_Handle.GetInternalID().m_Data == 0)
   {
     return m_Ptr;
   }
@@ -377,3 +394,6 @@ ezComponent* ezVisualScriptComponentHandle::GetPtr(ezUInt32 uiExecutionCounter) 
 
   return m_Ptr;
 }
+
+
+EZ_STATICLINK_FILE(VisualScriptPlugin, VisualScriptPlugin_Runtime_VisualScriptDataType);

@@ -29,9 +29,9 @@
 /Imgui.dll
 /Lua.dll
 /ozz.dll
+/zlib.dll
 /zstd.dll
-/Duktape.dll
-/stb_image.dll
+/stb.dll
 /enet.dll
 /TracyClient.dll
 #endif

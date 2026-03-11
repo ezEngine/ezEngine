@@ -30,13 +30,18 @@ public:
     {
       auto& timingScope = s_TimingScopes.PeekFront();
 
+      ezTime beginTime;
       ezTime endTime;
-      if (e.m_pDevice->GetTimestampResult(timingScope.m_EndTimestamp, endTime).Succeeded())
-      {
-        ezTime beginTime;
-        EZ_VERIFY(e.m_pDevice->GetTimestampResult(timingScope.m_BeginTimestamp, beginTime).Succeeded(),
-          "Begin timestamp should be finished before end timestamp");
+      ezEnum<ezGALAsyncResult> resBegin = e.m_pDevice->GetTimestampResult(timingScope.m_BeginTimestamp, beginTime);
+      ezEnum<ezGALAsyncResult> resEnd = e.m_pDevice->GetTimestampResult(timingScope.m_EndTimestamp, endTime);
 
+      if (resBegin == ezGALAsyncResult::Expired || resEnd == ezGALAsyncResult::Expired)
+      {
+        s_TimingScopes.PopFront();
+      }
+
+      if (resBegin == ezGALAsyncResult::Ready && resEnd == ezGALAsyncResult::Ready)
+      {
         if (!beginTime.IsZero() && !endTime.IsZero())
         {
 #  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)

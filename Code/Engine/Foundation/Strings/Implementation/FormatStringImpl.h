@@ -63,7 +63,7 @@ private:
   template <ezInt32 N>
   typename std::enable_if<sizeof...(ARGS) != N>::type ReplaceString(char tmp[MaxNumParameters][TempStringLength], ezStringView* pViews) const
   {
-    EZ_CHECK_AT_COMPILETIME_MSG(N < MaxNumParameters, "Maximum number of format arguments reached");
+    static_assert(N < MaxNumParameters, "Maximum number of format arguments reached");
 
     // using a free function allows to overload with various different argument types
     pViews[N] = BuildString(tmp[N], TempStringLength - 1, std::get<N>(m_Arguments));
@@ -76,6 +76,8 @@ private:
   template <ezInt32 N>
   typename std::enable_if<sizeof...(ARGS) == N>::type ReplaceString(char tmp[MaxNumParameters][TempStringLength], ezStringView* pViews) const
   {
+    EZ_IGNORE_UNUSED(tmp);
+    EZ_IGNORE_UNUSED(pViews);
   }
 
 

@@ -55,6 +55,7 @@ private:
 
   mutable ezMutex m_NewMessagesMutex;
   ezDeque<ezLogEntry> m_NewMessages;
+  bool m_bProcessingPending = false; ///< Prevents duplicate queued ProcessNewMessages invocations
 
   ezUInt32 m_uiNumErrors = 0;
   ezUInt32 m_uiNumSeriousWarnings = 0;

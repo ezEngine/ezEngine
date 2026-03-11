@@ -30,7 +30,9 @@ ezQtCppProjectDlg::ezQtCppProjectDlg(QWidget* pParent)
   {
     // TODO: how do I color the ErrorText label in Red (or whatever error color is configured?)
     ezStringBuilder fmt;
-    ErrorText->setText(ezMakeQString(ezFmt("<html><b>Error:</b> {}<br>Please go to preferences and configure the C & C++ compiler.", compilerTestResult.m_sMessage).GetText(fmt)));
+    fmt.SetFormat("<html><b>Error:</b> {}<br>Please go to preferences and configure the C & C++ compiler.", compilerTestResult.GetMessageString());
+
+    ErrorText->setText(ezMakeQString(fmt));
     GenerateSolution->setDisabled(true);
   }
 
@@ -56,7 +58,7 @@ void ezQtCppProjectDlg::on_OpenSolution_clicked()
 {
   if (auto result = ezCppProject::OpenSolution(m_CppSettings); result.Failed())
   {
-    ezQtUiServices::GetSingleton()->MessageBoxWarning(result.m_sMessage.GetView());
+    ezQtUiServices::GetSingleton()->MessageBoxWarning(result.GetMessageString().GetView());
   }
 }
 

@@ -1,6 +1,7 @@
 #include <GameEngine/GameEnginePCH.h>
 
 #include <Core/GameApplication/GameApplicationBase.h>
+#include <Core/System/WindowManager.h>
 #include <Core/World/World.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <GameEngine/Configuration/XRConfig.h>
@@ -41,6 +42,8 @@ ezResult ezDummyXR::Initialize()
 
 void ezDummyXR::Deinitialize()
 {
+  ezWindowManager::GetSingleton()->CloseAll(this);
+
   m_bInitialized = false;
   if (m_GALdeviceEventsId != 0)
   {
@@ -72,7 +75,7 @@ bool ezDummyXR::SupportsCompanionView()
   return true;
 }
 
-ezUniquePtr<ezActor> ezDummyXR::CreateActor(ezView* pView, ezGALMSAASampleCount::Enum msaaCount, ezUniquePtr<ezWindowBase> pCompanionWindow, ezUniquePtr<ezWindowOutputTargetGAL> pCompanionWindowOutput)
+ezRegisteredWndHandle ezDummyXR::CreateXRWindow(ezView* pView, ezGALMSAASampleCount::Enum msaaCount, ezUniquePtr<ezWindowBase> pCompanionWindow, ezUniquePtr<ezWindowOutputTargetGAL> pCompanionWindowOutput)
 {
   EZ_ASSERT_DEV(IsInitialized(), "Need to call 'Initialize' first.");
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
@@ -81,8 +84,8 @@ ezUniquePtr<ezActor> ezDummyXR::CreateActor(ezView* pView, ezGALMSAASampleCount:
   {
     ezGALTextureCreationDescription textureDesc;
     textureDesc.SetAsRenderTarget(m_Info.m_vEyeRenderTargetSize.width, m_Info.m_vEyeRenderTargetSize.height, ezGALResourceFormat::RGBAUByteNormalizedsRGB, msaaCount);
+    textureDesc.m_Type = ezGALTextureType::Texture2DArray;
     textureDesc.m_uiArraySize = 2;
-    textureDesc.m_bAllowShaderResourceView = true;
 
     m_hColorRT = pDevice->CreateTexture(textureDesc);
 
@@ -96,13 +99,12 @@ ezUniquePtr<ezActor> ezDummyXR::CreateActor(ezView* pView, ezGALMSAASampleCount:
     m_pCameraToSynchronize->SetCameraMode(ezCameraMode::Stereo, m_pCameraToSynchronize->GetFovOrDim(), m_pCameraToSynchronize->GetNearPlane(), m_pCameraToSynchronize->GetFarPlane());
   }
 
-  ezUniquePtr<ezActor> pActor = EZ_DEFAULT_NEW(ezActor, "DummyXR", this);
   EZ_ASSERT_DEV((pCompanionWindow != nullptr) == (pCompanionWindowOutput != nullptr), "Both companionWindow and companionWindowOutput must either be null or valid.");
 
-  ezUniquePtr<ezActorPluginWindowXR> pActorPlugin = EZ_DEFAULT_NEW(ezActorPluginWindowXR, this, std::move(pCompanionWindow), std::move(pCompanionWindowOutput));
-  m_pCompanion = static_cast<ezWindowOutputTargetXR*>(pActorPlugin->GetOutputTarget());
+  ezUniquePtr<ezWindowXR> pXRWindow = EZ_DEFAULT_NEW(ezWindowXR, this, std::move(pCompanionWindow));
+  ezUniquePtr<ezWindowOutputTargetXR> pXRWindowOutputTarget = EZ_DEFAULT_NEW(ezWindowOutputTargetXR, this, std::move(pCompanionWindowOutput));
 
-  pActor->AddPlugin(std::move(pActorPlugin));
+  m_pCompanion = static_cast<ezWindowOutputTargetXR*>(pXRWindowOutputTarget.Borrow());
 
   m_hView = pView->GetHandle();
 
@@ -113,7 +115,13 @@ ezUniquePtr<ezActor> ezDummyXR::CreateActor(ezView* pView, ezGALMSAASampleCount:
 
   pView->SetViewport(ezRectFloat((float)m_Info.m_vEyeRenderTargetSize.width, (float)m_Info.m_vEyeRenderTargetSize.height));
 
-  return std::move(pActor);
+  auto pWinMan = ezWindowManager::GetSingleton();
+  ezRegisteredWndHandle id = pWinMan->Register("DummyXR", this, std::move(pXRWindow));
+  pWinMan->SetOutputTarget(id, std::move(pXRWindowOutputTarget));
+  pWinMan->SetDestroyCallback(id, [this](ezRegisteredWndHandle)
+    { this->OnActorDestroyed(); });
+
+  return id;
 }
 
 ezGALTextureHandle ezDummyXR::GetCurrentTexture()
@@ -131,16 +139,8 @@ void ezDummyXR::OnActorDestroyed()
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
-  if (!m_hColorRT.IsInvalidated())
-  {
-    pDevice->DestroyTexture(m_hColorRT);
-    m_hColorRT.Invalidate();
-  }
-  if (!m_hDepthRT.IsInvalidated())
-  {
-    pDevice->DestroyTexture(m_hDepthRT);
-    m_hDepthRT.Invalidate();
-  }
+  pDevice->DestroyTexture(m_hColorRT);
+  pDevice->DestroyTexture(m_hDepthRT);
 
   ezRenderWorld::RemoveMainView(m_hView);
   m_hView.Invalidate();
@@ -150,16 +150,17 @@ void ezDummyXR::GALDeviceEventHandler(const ezGALDeviceEvent& e)
 {
   if (e.m_Type == ezGALDeviceEvent::Type::BeforeBeginFrame)
   {
-  }
-  else if (e.m_Type == ezGALDeviceEvent::Type::BeforeEndFrame)
-  {
-    // Screenshots are taken during present callback so ideally we need to render the companion view before that to capture the current XR frame.
-    // For backwards compatibility draw the companion view here (after present) which means that if We are in frame 100, we just rendered frame 99 (due to multi-threaded rendering) but due to this bug here we captured frame 98 for image comparison.
-    // This will change once read back API is refactored to be async and will be executed at a different point in time.
     if (m_pCompanion)
     {
       // We capture the companion view in unit tests so we don't want to skip any frames.
-      m_pCompanion->RenderCompanionView(false);
+      m_pCompanion->CompanionViewBeginFrame(false);
+    }
+  }
+  else if (e.m_Type == ezGALDeviceEvent::Type::BeforeEndFrame)
+  {
+    if (m_pCompanion)
+    {
+      m_pCompanion->CompanionViewEndFrame();
     }
   }
 }

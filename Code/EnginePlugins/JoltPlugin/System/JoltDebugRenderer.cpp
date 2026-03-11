@@ -156,4 +156,3 @@ void ezJoltDebugRenderer::DrawGeometry(JPH::Mat44Arg modelMatrix, const JPH::AAB
 #endif
 
 
-EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_System_JoltDebugRenderer);

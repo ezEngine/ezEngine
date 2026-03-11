@@ -93,7 +93,7 @@ float ezCameraShakeComponent::GetStrengthAtPosition() const
   {
     const ezVec3 vPosition = GetOwner()->GetGlobalPosition();
 
-    ezHybridArray<ezGameObject*, 16> volumes;
+    ezTempHybridArray<ezGameObject*, 16> volumes;
 
     ezSpatialSystem::QueryParams queryParams;
     queryParams.m_uiCategoryBitmask = ezCameraShakeVolumeComponent::SpatialDataCategory.GetBitmask();
@@ -135,3 +135,6 @@ void ezCameraShakeComponent::DeserializeComponent(ezWorldReader& inout_stream)
   s >> m_MinShake;
   s >> m_MaxShake;
 }
+
+
+EZ_STATICLINK_FILE(GameComponentsPlugin, GameComponentsPlugin_Effects_Shake_Implementation_CameraShakeComponent);

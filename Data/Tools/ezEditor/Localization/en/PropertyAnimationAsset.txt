@@ -1,6 +1,6 @@
 # Asset Types
 
-PropertyAnim;Property Animation
+PropertyAnim;Property Animation;;https://ezengine.net/pages/docs/animation/property-animation/property-animation-asset.html
 
 # Component Types
 

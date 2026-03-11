@@ -16,6 +16,7 @@ enum class ezDependencyFileVersion : ezUInt8
   Current = ENUM_COUNT - 1,
 };
 
+ezMutex ezDependencyFile::s_FileTimestampsLock;
 ezMap<ezString, ezDependencyFile::FileCheckCache> ezDependencyFile::s_FileTimestamps;
 
 ezDependencyFile::ezDependencyFile()
@@ -145,7 +146,7 @@ ezResult ezDependencyFile::ReadDependencyFile(ezStreamReader& inout_stream)
 ezResult ezDependencyFile::RetrieveFileTimeStamp(ezStringView sFile, ezTimestamp& out_Result)
 {
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
-
+  EZ_LOCK(s_FileTimestampsLock);
   bool bExisted = false;
   auto it = s_FileTimestamps.FindOrAdd(sFile, &bExisted);
 

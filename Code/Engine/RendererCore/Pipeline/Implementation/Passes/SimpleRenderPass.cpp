@@ -20,6 +20,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSimpleRenderPass, 1, ezRTTIDefaultAllocator<ez
     EZ_MEMBER_PROPERTY("Message", m_sMessage),
   }
   EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Rendering")
+  }
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
@@ -49,9 +54,7 @@ bool ezSimpleRenderPass::GetRenderTargetDescriptions(
     if (pTexture)
     {
       outputs[m_PinColor.m_uiOutputIndex] = pTexture->GetDescription();
-      outputs[m_PinColor.m_uiOutputIndex].m_bCreateRenderTarget = true;
-      outputs[m_PinColor.m_uiOutputIndex].m_bAllowShaderResourceView = true;
-      outputs[m_PinColor.m_uiOutputIndex].m_ResourceAccess.m_bReadBack = false;
+      outputs[m_PinColor.m_uiOutputIndex].m_TextureFlags.Add(ezGALTextureUsageFlags::RenderTarget | ezGALTextureUsageFlags::ShaderResource);
       outputs[m_PinColor.m_uiOutputIndex].m_ResourceAccess.m_bImmutable = true;
       outputs[m_PinColor.m_uiOutputIndex].m_pExisitingNativeObject = nullptr;
     }
@@ -84,15 +87,15 @@ void ezSimpleRenderPass::Execute(const ezRenderViewContext& renderViewContext, c
   ezGALRenderingSetup renderingSetup;
   if (inputs[m_PinColor.m_uiInputIndex])
   {
-    renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(inputs[m_PinColor.m_uiInputIndex]->m_TextureHandle));
+    renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(inputs[m_PinColor.m_uiInputIndex]->m_TextureHandle));
   }
 
   if (inputs[m_PinDepthStencil.m_uiInputIndex])
   {
-    renderingSetup.m_RenderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(inputs[m_PinDepthStencil.m_uiInputIndex]->m_TextureHandle));
+    renderingSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(inputs[m_PinDepthStencil.m_uiInputIndex]->m_TextureHandle));
   }
 
-  auto pCommandEncoder = ezRenderContext::BeginPassAndRenderingScope(renderViewContext, std::move(renderingSetup), GetName(), renderViewContext.m_pCamera->IsStereoscopic());
+  auto pCommandEncoder = ezRenderContext::BeginRenderingScope(renderViewContext, std::move(renderingSetup), GetName(), renderViewContext.m_pCamera->IsStereoscopic());
 
   // Setup Permutation Vars
   ezTempHashedString sRenderPass("RENDER_PASS_FORWARD");

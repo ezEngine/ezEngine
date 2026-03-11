@@ -11,9 +11,9 @@ struct ezMsgSensorDetectedObjectsChanged;
 /// This can then be used by scripts on parent nodes to switch other functionality on or off.
 /// Both the previous and new value are sent, so that the difference can be calculated.
 /// This is useful in case a script has multiple connectors and needs to keep track of the total amount of power available.
-class EZ_GAMECOMPONENTS_DLL ezEventMsgSetPowerInput : public ezEventMessage
+class EZ_GAMECOMPONENTS_DLL ezEventMsgSetPowerInput : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezEventMsgSetPowerInput, ezEventMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezEventMsgSetPowerInput, ezMessage);
 
   ezUInt16 m_uiPrevValue = 0;
   ezUInt16 m_uiNewValue = 0;

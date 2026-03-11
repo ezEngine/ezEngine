@@ -50,7 +50,7 @@ o
 			s{"Animations/Worms/Worm-straight.glb"}
 		}
 		Uuid %DocumentID{u4{8821343620970277282,4961931883083115619}}
-		u4 %Hash{16352510919606851632}
+		u4 %Hash{14528469340315919398}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{2677727563336035121,7505204792994838521}}
@@ -267,7 +267,7 @@ o
 		u1 %CollisionLayer{0}
 		Quat %GizmoOffsetRotationRO{f{0x0000003F,0x000000BF,0x000000BF,0x0000003F}}
 		Vec3 %GizmoOffsetTranslationRO{f{0,0,0xCCCCCC3E}}
-		s %JointType{"ezSkeletonJointType::None"}
+		s %JointType{"ezSkeletonJointType::SwingTwist"}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		s %Name{"Bone.002"}
 		b %OverrideCollisionLayer{0}
@@ -278,7 +278,7 @@ o
 		Angle %SwingLimitZ{f{0x920A063F}}
 		Transform %Transform{f{0,0xCCCC4C3E,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %TwistLimitCenterAngle{f{0}}
-		Angle %TwistLimitHalfAngle{f{0x930A063F}}
+		Angle %TwistLimitHalfAngle{f{0xC2B8B23E}}
 	}
 }
 o
@@ -300,7 +300,7 @@ o
 		u1 %CollisionLayer{0}
 		Quat %GizmoOffsetRotationRO{f{0x0000003F,0x000000BF,0x000000BF,0x0000003F}}
 		Vec3 %GizmoOffsetTranslationRO{f{0,0,0x9999193F}}
-		s %JointType{"ezSkeletonJointType::None"}
+		s %JointType{"ezSkeletonJointType::SwingTwist"}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		s %Name{"Bone.003"}
 		b %OverrideCollisionLayer{0}
@@ -311,7 +311,7 @@ o
 		Angle %SwingLimitZ{f{0x920A063F}}
 		Transform %Transform{f{0,0xCCCC4C3E,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %TwistLimitCenterAngle{f{0}}
-		Angle %TwistLimitHalfAngle{f{0x930A063F}}
+		Angle %TwistLimitHalfAngle{f{0xC2B8B23E}}
 	}
 }
 o
@@ -333,7 +333,7 @@ o
 		u1 %CollisionLayer{0}
 		Quat %GizmoOffsetRotationRO{f{0x0000003F,0x000000BF,0x000000BF,0x0000003F}}
 		Vec3 %GizmoOffsetTranslationRO{f{0,0,0xCCCC4C3E}}
-		s %JointType{"ezSkeletonJointType::None"}
+		s %JointType{"ezSkeletonJointType::SwingTwist"}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		s %Name{"Bone.001"}
 		b %OverrideCollisionLayer{0}
@@ -344,7 +344,7 @@ o
 		Angle %SwingLimitZ{f{0x920A063F}}
 		Transform %Transform{f{0,0xCCCC4C3E,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %TwistLimitCenterAngle{f{0}}
-		Angle %TwistLimitHalfAngle{f{0x930A063F}}
+		Angle %TwistLimitHalfAngle{f{0xC2B8B23E}}
 	}
 }
 o
@@ -363,7 +363,7 @@ o
 		u1 %CollisionLayer{0}
 		Quat %GizmoOffsetRotationRO{f{0x0000003F,0x000000BF,0x000000BF,0x0000003F}}
 		Vec3 %GizmoOffsetTranslationRO{f{0,0,0xFFFF7F3F}}
-		s %JointType{"ezSkeletonJointType::None"}
+		s %JointType{"ezSkeletonJointType::SwingTwist"}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		s %Name{"Bone.005"}
 		b %OverrideCollisionLayer{0}
@@ -374,7 +374,7 @@ o
 		Angle %SwingLimitZ{f{0x920A063F}}
 		Transform %Transform{f{0,0xCCCC4C3E,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %TwistLimitCenterAngle{f{0}}
-		Angle %TwistLimitHalfAngle{f{0x930A063F}}
+		Angle %TwistLimitHalfAngle{f{0xC2B8B23E}}
 	}
 }
 o
@@ -411,7 +411,7 @@ o
 {
 	Uuid %id{u4{8913553744990254485,5151429609268744066}}
 	s %t{"ezEditableSkeleton"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		s %BoneDirection{"ezBasisAxis::PositiveY"}
@@ -422,9 +422,12 @@ o
 		u1 %CollisionLayer{0}
 		s %File{"Animations/Worms/Worm-straight.glb"}
 		b %FlipForwardDir{0}
+		s %ImportTransform{"ezMeshImportTransform::Custom"}
+		s %LeftFootJoint{""}
 		f %MaxImpulse{0x0000C842}
 		s %PreviewMesh{""}
 		s %RightDir{"ezBasisAxis::NegativeX"}
+		s %RightFootJoint{""}
 		s %Surface{"{ 0a105955-e069-4523-80ce-7b9867bde687 }"}
 		f %UniformScaling{0x0000803F}
 		s %UpDir{"ezBasisAxis::PositiveY"}
@@ -569,7 +572,7 @@ o
 		u1 %CollisionLayer{0}
 		Quat %GizmoOffsetRotationRO{f{0x0000003F,0x000000BF,0x000000BF,0x0000003F}}
 		Vec3 %GizmoOffsetTranslationRO{f{0,0,0xCCCC4C3F}}
-		s %JointType{"ezSkeletonJointType::None"}
+		s %JointType{"ezSkeletonJointType::SwingTwist"}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		s %Name{"Bone.004"}
 		b %OverrideCollisionLayer{0}
@@ -580,7 +583,7 @@ o
 		Angle %SwingLimitZ{f{0x920A063F}}
 		Transform %Transform{f{0,0xCCCC4C3E,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %TwistLimitCenterAngle{f{0}}
-		Angle %TwistLimitHalfAngle{f{0x930A063F}}
+		Angle %TwistLimitHalfAngle{f{0xC2B8B23E}}
 	}
 }
 o
@@ -687,6 +690,23 @@ o
 }
 o
 {
+	Uuid %id{u4{16959510582460493866,8962221111705621108}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezMeshImportTransform"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{13569856615221415969,9151104531254943604}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -733,7 +753,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEditableSkeleton"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/Messages/EventMessage.h>
+#include <Core/Messages/EventMessageSender.h>
 #include <Core/ResourceManager/Resource.h>
 #include <FmodPlugin/Components/FmodComponent.h>
 
@@ -41,6 +41,7 @@ private:
     float GetOcclusionValue(float fThreshold) const { return ezMath::Clamp((m_fLastOcclusionValue - fThreshold) / ezMath::Max(1.0f - fThreshold, 0.0001f), 0.0f, 1.0f); }
   };
 
+  ezUInt32 m_uiFirstComponentIndex = 0;
   ezDynamicArray<OcclusionState> m_OcclusionStates;
 
   ezUInt32 AddOcclusionState(ezFmodEventComponent* pComponent, ezFmodParameterId occlusionParamId, float fRadius);
@@ -62,15 +63,15 @@ struct ezResourceEvent;
 //////////////////////////////////////////////////////////////////////////
 
 /// \brief Sent when a ezFmodEventComponent finishes playing a sound. Not sent for one-shot sound events.
-struct EZ_FMODPLUGIN_DLL ezMsgFmodSoundFinished : public ezEventMessage
+struct EZ_FMODPLUGIN_DLL ezMsgFmodSoundFinished : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgFmodSoundFinished, ezEventMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgFmodSoundFinished, ezMessage);
 };
 
 
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief Represents a sound (called an 'event') in the Fmod sound system.
+/// \brief Represents a sound (called an 'event') in the FMOD sound system.
 ///
 /// Provides functions to start, pause, stop a sound, set parameters, change volume, pitch etc.
 class EZ_FMODPLUGIN_DLL ezFmodEventComponent : public ezFmodComponent
@@ -104,60 +105,75 @@ public:
   ezFmodEventComponent();
   ~ezFmodEventComponent();
 
-  void SetPaused(bool b);                                                            // [ property ]
-  bool GetPaused() const { return m_bPaused; }                                       // [ property ]
+  void SetPaused(bool b);                                                               // [ property ]
+  bool GetPaused() const { return m_bPaused; }                                          // [ property ]
 
-  void SetUseOcclusion(bool b);                                                      // [ property ]
-  bool GetUseOcclusion() const { return m_bUseOcclusion; }                           // [ property ]
+  void SetUseOcclusion(bool b);                                                         // [ property ]
+  bool GetUseOcclusion() const { return m_bUseOcclusion; }                              // [ property ]
 
-  void SetOcclusionCollisionLayer(ezUInt8 uiCollisionLayer);                         // [ property ]
-  ezUInt8 GetOcclusionCollisionLayer() const { return m_uiOcclusionCollisionLayer; } // [ property ]
+  void SetOcclusionCollisionLayer(ezUInt8 uiCollisionLayer);                            // [ property ]
+  ezUInt8 GetOcclusionCollisionLayer() const { return m_uiOcclusionCollisionLayer; }    // [ property ]
 
-  void SetOcclusionThreshold(float fThreshold);                                      // [ property ]
-  float GetOcclusionThreshold() const;                                               // [ property ]
+  void SetOcclusionThreshold(float fThreshold);                                         // [ property ]
+  float GetOcclusionThreshold() const;                                                  // [ property ]
 
-  void SetPitch(float f);                                                            // [ property ]
-  float GetPitch() const { return m_fPitch; }                                        // [ property ]
+  void SetPitch(float f);                                                               // [ property ]
+  float GetPitch() const { return m_fPitch; }                                           // [ property ]
 
-  void SetVolume(float f);                                                           // [ property ]
-  float GetVolume() const { return m_fVolume; }                                      // [ property ]
+  void SetVolume(float f);                                                              // [ property ]
+  float GetVolume() const { return m_fVolume; }                                         // [ property ]
 
-  void SetSoundEventFile(const char* szFile);                                        // [ property ]
-  const char* GetSoundEventFile() const;                                             // [ property ]
+  void SetSoundEvent(const ezFmodSoundEventResourceHandle& hSoundEvent);                // [ property ]
+  const ezFmodSoundEventResourceHandle& GetSoundEvent() const { return m_hSoundEvent; } // [ property ]
 
-  void SetSoundEvent(const ezFmodSoundEventResourceHandle& hSoundEvent);
-  const ezFmodSoundEventResourceHandle& GetSoundEvent() const { return m_hSoundEvent; }
+  ezEnum<ezOnComponentFinishedAction> m_OnFinishedAction;                               // [ property ]
 
-  ezEnum<ezOnComponentFinishedAction> m_OnFinishedAction; // [ property ]
+  void SetShowDebugInfo(bool bShow);                                                    // [ property ]
+  bool GetShowDebugInfo() const;                                                        // [ property ]
 
-  void SetShowDebugInfo(bool bShow);                      // [ property ]
-  bool GetShowDebugInfo() const;                          // [ property ]
+  /// \brief If set, the global game speed does not affect the pitch of this event.
+  ///
+  /// This is important for global sounds, such as music or UI effects, so that they always play at their regular speed,
+  /// even when the game is in slow motion.
+  void SetNoGlobalPitch(bool bEnable); // [ property ]
+  bool GetNoGlobalPitch() const;       // [ property ]
 
-  /// \brief Will start the sound, if it was not playing. Will restart the sound, if it was already playing.
-  /// If the sound was paused so far, this will change the paused state to playing.
-  void Restart(); // [ scriptable ]
+  /// \brief Makes the sound play.
+  ///
+  /// If it was not yet playing, it starts playing a new sound.
+  /// If it was already playing, but paused, playback is resumed.
+  /// If it was already playing, there is no change.
+  void Play(); // [ scriptable ]
+
+  /// \brief If a sound is playing, it pauses at the current play position.
+  ///
+  /// Call Play() to resume playing.
+  void Pause(); // [ scriptable ]
+
+  /// \brief Interrupts the sound playback abruptly.
+  void Stop(); // [ scriptable ]
+
+  /// \brief Stops the sound, by fading it out over a short period.
+  void FadeOut(); // [ scriptable ]
 
   /// \brief Plays a completely new sound at the location of this component and with all its current properties.
   ///
   /// Pitch, volume, position, direction and velocity are copied to the new sound instance.
   /// The new sound event then plays to the end and cannot be controlled through this component any further.
-  /// If the referenced Fmod sound event is not a "one shot" event, this function is ignored.
+  /// If the referenced FMOD sound event is not a "one shot" event, this function is ignored.
   /// The event that is controlled through this component is unaffected by this.
   void StartOneShot(); // [ scriptable ]
 
-  /// Stops the current sound from playing. Typically allows the sound to fade out briefly, unless specified otherwise.
-  void StopSound(bool bImmediate); // [ scriptable ]
-
-  /// \brief Triggers an Fmod sound cue. Whatever that is useful for.
+  /// \brief Triggers an FMOD sound cue. Whatever that is useful for.
   void SoundCue(); // [ scriptable ]
 
-  /// \brief Tries to find the Fmod event parameter by name. Returns the parameter id or -1, if no such parameter exists.
+  /// \brief Tries to find the FMOD event parameter by name. Returns the parameter id or -1, if no such parameter exists.
   ezFmodParameterId FindParameter(const char* szName) const;
 
-  /// \brief Sets an Fmod event parameter value. See FindParameter() for the index.
+  /// \brief Sets an FMOD event parameter value. See FindParameter() for the index.
   void SetParameter(ezFmodParameterId paramId, float fValue);
 
-  /// \brief Gets an Fmod event parameter value. See FindParameter() for the index. Returns 0, if the index is invalid.
+  /// \brief Gets an FMOD event parameter value. See FindParameter() for the index. Returns 0, if the index is invalid.
   float GetParameter(ezFmodParameterId paramId) const;
 
   /// \brief Sets an event parameter via name lookup, so this is less efficient than SetParameter()

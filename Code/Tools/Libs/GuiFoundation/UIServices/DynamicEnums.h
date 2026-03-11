@@ -2,6 +2,7 @@
 
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
+#include <Foundation/Types/Variant.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 
 /// \brief Stores the valid values and names for 'dynamic' enums.
@@ -34,8 +35,19 @@ public:
   /// \brief Returns the name for the given value. Returns "<invalid value>" if the value is not in use.
   ezStringView GetValueName(ezInt32 iValue) const;
 
+  /// \brief If specified, the widget shows an "edit" option, which will run ezActionManager::ExecuteAction(sCmd, value)
+  ///
+  /// This is meant to be used to open existing config dialogs.
+  /// There is currently no way to report back a selection, so after making changes, the user has to make another selection.
+  void SetEditCommand(ezStringView sCmd, const ezVariant& value);
+  ezStringView GetEditCommand() const { return m_sEditCommand; }
+  const ezVariant& GetEditCommandValue() const { return m_EditCommandValue; }
+
+
 private:
   ezMap<ezInt32, ezString> m_ValidValues;
+  ezString m_sEditCommand;
+  ezVariant m_EditCommandValue;
 
   static ezMap<ezString, ezDynamicEnum> s_DynamicEnums;
 };

@@ -1,33 +1,4 @@
-/*
- * This source file is part of RmlUi, the HTML/CSS Interface Middleware
- *
- * For the latest information, see http://github.com/mikke89/RmlUi
- *
- * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
- */
-
-#ifndef RMLUI_CORE_ELEMENTS_WIDGETSLIDER_H
-#define RMLUI_CORE_ELEMENTS_WIDGETSLIDER_H
+#pragma once
 
 #include "../../../Include/RmlUi/Core/EventListener.h"
 
@@ -36,19 +7,12 @@ namespace Rml {
 class ElementFormControl;
 
 /**
-	A generic widget for incorporating sliding functionality into an element.
-
-	@author Peter Curry
+    A generic widget for incorporating sliding functionality into an element.
  */
 
-class WidgetSlider final : public EventListener
-{
+class WidgetSlider final : public EventListener {
 public:
-	enum Orientation
-	{
-		VERTICAL,
-		HORIZONTAL
-	};
+	enum Orientation { VERTICAL, HORIZONTAL };
 
 	WidgetSlider(ElementFormControl* parent);
 	virtual ~WidgetSlider();
@@ -97,6 +61,9 @@ private:
 	/// Lays out and positions the bar element.
 	void FormatBar();
 
+	/// Lays out and positions the progress element.
+	void FormatProgress();
+
 	/// Returns the widget's parent element.
 	Element* GetParent() const;
 
@@ -122,14 +89,12 @@ private:
 	float AbsolutePositionToBarPosition(float absolute_position) const;
 
 	void PositionBar();
+	void ResizeProgress();
 
-	/// Clamps the new value, sets it on the slider and returns it as a number from 0 to 1, 0 being the minimum
-	/// value and 1 the maximum.
-	/// @param[in] new_value The new value to set on the slider.
-	/// @return The new parametric value of the slider.
-	float SetValueInternal(float new_value);
+	// Clamps the new value, sets it on the slider and returns it as a normalized number from 0 to 1.
+	float SetValueInternal(float new_value, bool force_submit_change_event = true);
 
-    ElementFormControl* parent;
+	ElementFormControl* parent;
 
 	Orientation orientation;
 
@@ -137,6 +102,8 @@ private:
 	Element* track;
 	// The bar element. This is the element that is dragged across the trough.
 	Element* bar;
+	// Element that renders the progress area of the slider.
+	Element* progress;
 	// The two (optional) buttons for incrementing and decrementing the slider.
 	Element* arrows[2];
 
@@ -157,4 +124,3 @@ private:
 };
 
 } // namespace Rml
-#endif

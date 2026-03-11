@@ -5,4 +5,7 @@ add_subdirectory(Tools)
 add_subdirectory(Editor)
 add_subdirectory(EditorPlugins)
 add_subdirectory(Samples)
-add_subdirectory(UnitTests)
+
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/UnitTests")
+	add_subdirectory(UnitTests)
+endif()

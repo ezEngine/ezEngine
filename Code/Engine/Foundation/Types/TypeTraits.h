@@ -1,19 +1,31 @@
 #pragma once
 
+#ifndef EZ_INCLUDING_BASICS_H
+#  error "Please don't include TypeTraits.h directly, but instead include Foundation/Basics.h"
+#endif
+
 /// \file
 
-#include <Foundation/Basics.h>
-
-/// Type traits
+/// \brief Compile-time type classification system for optimizing container operations.
+///
+/// The ezEngine type trait system classifies types into three categories to enable
+/// different optimization strategies for containers and memory operations:
+///
+/// - Class (0): Standard types requiring constructor/destructor calls and careful copying
+/// - POD (1): Plain Old Data types that can be memcpy'd and don't need destructor calls
+/// - MemRelocatable (2): Types that can be moved with memcpy but may need destructor calls
+///
+/// This classification allows containers to choose the most efficient implementation
+/// for construction, destruction, copying, and moving operations.
 template <int v>
 struct ezTraitInt
 {
   static constexpr int value = v;
 };
 
-using ezTypeIsMemRelocatable = ezTraitInt<2>;
-using ezTypeIsPod = ezTraitInt<1>;
-using ezTypeIsClass = ezTraitInt<0>;
+using ezTypeIsMemRelocatable = ezTraitInt<2>; ///< Types that can be moved with memcpy
+using ezTypeIsPod = ezTraitInt<1>;            ///< Plain Old Data types
+using ezTypeIsClass = ezTraitInt<0>;          ///< Standard class types
 
 using ezCompileTimeTrueType = char;
 using ezCompileTimeFalseType = int;
@@ -159,11 +171,11 @@ struct ezGetStrongestTypeClass : public ezTraitInt<(T1::value == 0 || T2::value 
 // \brief embed this into a class to automatically detect which type class it belongs to
 // This macro is only guaranteed to work for classes / structs which don't have any constructor / destructor / assignment operator!
 // As arguments you have to list the types of all the members of the class / struct.
-#  define EZ_DETECT_TYPE_CLASS(...)                                                                                                \
-    ezCompileTimeTrueType operator%(                                                                                               \
-      const ezTraitInt<EZ_CALL_MACRO(EZ_CONCAT(EZ_DETECT_TYPE_CLASS_, EZ_VA_NUM_ARGS(__VA_ARGS__)), (__VA_ARGS__))::value>&) const \
-    {                                                                                                                              \
-      return {};                                                                                                                   \
+#  define EZ_DETECT_TYPE_CLASS(...)                                                                                                   \
+    ezCompileTimeTrueType operator%(                                                                                                  \
+      const ezTraitInt<EZ_CALL_MACRO(EZ_PP_CONCAT(EZ_DETECT_TYPE_CLASS_, EZ_VA_NUM_ARGS(__VA_ARGS__)), (__VA_ARGS__))::value>&) const \
+    {                                                                                                                                 \
+      return {};                                                                                                                      \
     }
 #endif
 
@@ -200,26 +212,29 @@ EZ_DEFINE_AS_POD_TYPE(std::byte);
 /// \brief Checks whether A and B are the same type
 #define EZ_IS_SAME_TYPE(TypeA, TypeB) ezConversionTest<TypeA, TypeB>::sameType
 
+/// \brief Utility template for extracting clean types from decorated types.
 template <typename T>
 struct ezTypeTraits
 {
-  /// \brief removes const qualifier
+  /// \brief Removes const qualifier: const int -> int
   using NonConstType = typename std::remove_const<T>::type;
 
-  /// \brief removes reference
+  /// \brief Removes reference qualifier: int& -> int, int&& -> int
   using NonReferenceType = typename std::remove_reference<T>::type;
 
-  /// \brief removes pointer
+  /// \brief Removes pointer qualifier: int* -> int
   using NonPointerType = typename std::remove_pointer<T>::type;
 
-  /// \brief removes reference and const qualifier
+  /// \brief Removes both reference and const qualifiers: const int& -> int
   using NonConstReferenceType = typename std::remove_const<typename std::remove_reference<T>::type>::type;
 
-  /// \brief removes reference and pointer qualifier
+  /// \brief Removes both reference and pointer qualifiers: int*& -> int
   using NonReferencePointerType = typename std::remove_pointer<typename std::remove_reference<T>::type>::type;
 
-  /// \brief removes reference, const and pointer qualifier
-  /// Note that this removes the const and reference of the type pointed too, not of the pointer.
+  /// \brief Removes reference, const, and pointer qualifiers from the pointed-to type.
+  ///
+  /// Note: This operates on the pointed-to type, not the pointer itself.
+  /// Example: const int*& -> int (not int*)
   using NonConstReferencePointerType = typename std::remove_const<typename std::remove_reference<typename std::remove_pointer<T>::type>::type>::type;
 };
 

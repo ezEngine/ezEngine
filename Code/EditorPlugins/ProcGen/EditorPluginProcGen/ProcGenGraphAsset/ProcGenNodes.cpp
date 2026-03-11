@@ -114,7 +114,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenOutput, 1, ezRTTINoAllocator)
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Active", m_bActive)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("Name", m_sName),
+    EZ_MEMBER_PROPERTY("Name", m_sName)->AddAttributes(new ezDynamicStringEnumAttribute("ProcGenOutputNameEnum")),
   }
   EZ_END_PROPERTIES;
 
@@ -127,12 +127,19 @@ void ezProcGenOutput::Save(ezStreamWriter& inout_stream)
 {
   inout_stream << m_sName;
   inout_stream.WriteArray(m_VolumeTagSetIndices).IgnoreResult();
+  inout_stream.WriteArray(m_CurveIndices).IgnoreResult();
+}
+
+void ezProcGenOutput::CopyValuesFromContext(const GraphContext& context)
+{
+  m_VolumeTagSetIndices = context.m_VolumeTagSetIndices;
+  m_CurveIndices = context.m_CurveIndices;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_PlacementOutput, 1, ezRTTIDefaultAllocator<ezProcGen_PlacementOutput>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_PlacementOutput, 2, ezRTTIDefaultAllocator<ezProcGen_PlacementOutput>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -147,6 +154,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_PlacementOutput, 1, ezRTTIDefaultAlloc
     EZ_MEMBER_PROPERTY("ColorGradient", m_sColorGradient)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Data_Gradient")),
     EZ_MEMBER_PROPERTY("CullDistance", m_fCullDistance)->AddAttributes(new ezDefaultValueAttribute(30.0f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ENUM_MEMBER_PROPERTY("PlacementMode", ezProcPlacementMode, m_PlacementMode),
+    EZ_MEMBER_PROPERTY("NumAdditionalRays", m_uiNumAdditionalRays)->AddAttributes(new ezDefaultValueAttribute(4), new ezClampValueAttribute(3, 20)),
+    EZ_MEMBER_PROPERTY("RaySpread", m_fRaySpread)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 10.0f)),
     EZ_ENUM_MEMBER_PROPERTY("PlacementPattern", ezProcPlacementPattern, m_PlacementPattern),
     EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
     EZ_MEMBER_PROPERTY("Surface", m_sSurface)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
@@ -262,6 +271,10 @@ void ezProcGen_PlacementOutput::Save(ezStreamWriter& inout_stream)
   // chunk version 5
   inout_stream << m_PlacementMode;
 
+  // chunk version 8
+  inout_stream << m_uiNumAdditionalRays;
+  inout_stream << m_fRaySpread;
+
   // chunk version 7
   inout_stream << m_PlacementPattern;
 }
@@ -269,7 +282,7 @@ void ezProcGen_PlacementOutput::Save(ezStreamWriter& inout_stream)
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_VertexColorOutput, 1, ezRTTIDefaultAllocator<ezProcGen_VertexColorOutput>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_VertexColorOutput, 2, ezRTTIDefaultAllocator<ezProcGen_VertexColorOutput>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -334,7 +347,7 @@ void ezProcGen_VertexColorOutput::Save(ezStreamWriter& inout_stream)
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Random, 1, ezRTTIDefaultAllocator<ezProcGen_Random>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Random, 2, ezRTTIDefaultAllocator<ezProcGen_Random>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -378,7 +391,7 @@ void ezProcGen_Random::OnObjectCreated(const ezAbstractObjectNode& node)
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_PerlinNoise, 1, ezRTTIDefaultAllocator<ezProcGen_PerlinNoise>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_PerlinNoise, 2, ezRTTIDefaultAllocator<ezProcGen_PerlinNoise>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -425,7 +438,7 @@ ezExpressionAST::Node* ezProcGen_PerlinNoise::GenerateExpressionASTNode(ezTempHa
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Blend, 2, ezRTTIDefaultAllocator<ezProcGen_Blend>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Blend, 3, ezRTTIDefaultAllocator<ezProcGen_Blend>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -478,7 +491,188 @@ ezExpressionAST::Node* ezProcGen_Blend::GenerateExpressionASTNode(ezTempHashedSt
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Height, 1, ezRTTIDefaultAllocator<ezProcGen_Height>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Remap, 2, ezRTTIDefaultAllocator<ezProcGen_Remap>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("InputMin", m_fInputMin),
+    EZ_MEMBER_PROPERTY("InputMax", m_fInputMax)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
+    EZ_MEMBER_PROPERTY("ClampIntermediate", m_bClampIntermediate),
+    EZ_MEMBER_PROPERTY("OutputMin", m_fOutputMin),
+    EZ_MEMBER_PROPERTY("OutputMax", m_fOutputMax)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
+
+    EZ_MEMBER_PROPERTY("X", m_InputValuePin),
+    EZ_MEMBER_PROPERTY("Value", m_OutputValuePin)
+  }
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezTitleAttribute("Remap: [{InputMin}, {InputMax}] -> [{OutputMin}, {OutputMax}]"),
+    new ezCategoryAttribute("Math"),
+  }
+  EZ_END_ATTRIBUTES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezExpressionAST::Node* ezProcGen_Remap::GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_ast, GraphContext& ref_context)
+{
+  EZ_ASSERT_DEBUG(sOutputName == "Value", "Implementation error");
+
+  auto pInput = inputs[0];
+  if (pInput == nullptr)
+  {
+    pInput = out_ast.CreateConstant(0.0f);
+  }
+
+  ezExpressionAST::Node* p01Value = nullptr;
+  if (m_fInputMin == 0.0f && m_fInputMax == 1.0f)
+  {
+    p01Value = pInput;
+  }
+  else if (ezMath::IsEqual(m_fInputMin, m_fInputMax, ezMath::DefaultEpsilon<float>()))
+  {
+    p01Value = out_ast.CreateConstant(1.0f);
+  }
+  else
+  {
+    auto pOffset = out_ast.CreateConstant(m_fInputMin);
+    auto pValue = out_ast.CreateBinaryOperator(ezExpressionAST::NodeType::Subtract, pInput, pOffset);
+    auto pScale = out_ast.CreateConstant(1.0f / (m_fInputMax - m_fInputMin));
+    p01Value = out_ast.CreateBinaryOperator(ezExpressionAST::NodeType::Multiply, pValue, pScale);
+  }
+
+  if (m_bClampIntermediate)
+  {
+    p01Value = out_ast.CreateUnaryOperator(ezExpressionAST::NodeType::Saturate, p01Value);
+  }
+
+  if (m_fOutputMin == 0.0f && m_fOutputMax == 1.0f)
+  {
+    return p01Value;
+  }
+
+  auto remapFrom01 = CreateRemapFrom01(p01Value, m_fOutputMin, m_fOutputMax, out_ast);
+
+  return remapFrom01;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Curve, 2, ezRTTIDefaultAllocator<ezProcGen_Curve>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Curve", m_CurveData),
+    EZ_MEMBER_PROPERTY("NumSamples", m_uiNumSamples)->AddAttributes(new ezClampValueAttribute(8, 256), new ezDefaultValueAttribute(32)),
+    
+    EZ_MEMBER_PROPERTY("X", m_InputValuePin),
+    EZ_MEMBER_PROPERTY("Value", m_OutputValuePin)
+  }
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Math"),
+  }
+  EZ_END_ATTRIBUTES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezExpressionAST::Node* ezProcGen_Curve::GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_ast, GraphContext& ref_context)
+{
+  EZ_ASSERT_DEBUG(sOutputName == "Value", "Implementation error");
+
+  auto pInput = inputs[0];
+  if (pInput == nullptr)
+  {
+    pInput = out_ast.CreateConstant(0.0f);
+  }
+
+  ezUInt32 uiCurveIndex = 0;
+  {
+    ezCurve1D curve;
+    m_CurveData.ConvertToRuntimeData(curve);
+    curve.SortControlPoints();
+    curve.CreateLinearApproximation();
+
+    double fMinX, fMaxX;
+    curve.QueryExtents(fMinX, fMaxX);
+    fMinX = ezMath::Min(fMinX, 0.0);
+    fMaxX = ezMath::Max(fMaxX, 1.0);
+    const float fStep = static_cast<float>(fMaxX - fMinX) / static_cast<float>(m_uiNumSamples - 1);
+
+    ezDynamicArray<float> samples;
+    samples.SetCount(m_uiNumSamples);
+    for (ezUInt32 i = 0; i < m_uiNumSamples; ++i)
+    {
+      float x = static_cast<float>(fMinX + fStep * i);
+      samples[i] = curve.Evaluate(x);
+    }
+
+    uiCurveIndex = ref_context.m_SharedData.AddCurve(std::move(samples), fMinX, fMaxX);
+    EZ_ASSERT_DEV(uiCurveIndex <= 255, "Too many curves");
+    if (!ref_context.m_CurveIndices.Contains(uiCurveIndex))
+    {
+      ref_context.m_CurveIndices.PushBack(uiCurveIndex);
+    }
+  }
+
+  ezExpressionAST::Node* arguments[] = {
+    pInput,
+    out_ast.CreateConstant(uiCurveIndex, ezExpressionAST::DataType::Int),
+  };
+
+  return out_ast.CreateFunctionCall(ezProcGenExpressionFunctions::s_SampleCurveFunc.m_Desc, arguments);
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Contrast, 2, ezRTTIDefaultAllocator<ezProcGen_Contrast>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Input", m_fInputValue)->AddAttributes(new ezDefaultValueAttribute(0.5f)),
+    EZ_MEMBER_PROPERTY("Contrast", m_fContrast)->AddAttributes(new ezClampValueAttribute(-10.0f, 10.0f)),
+
+    EZ_MEMBER_PROPERTY("X", m_InputValuePin),
+    EZ_MEMBER_PROPERTY("Value", m_OutputValuePin)
+  }
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezTitleAttribute("Contrast: {Contrast}"),
+    new ezCategoryAttribute("Math"),
+  }
+  EZ_END_ATTRIBUTES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezExpressionAST::Node* ezProcGen_Contrast::GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_ast, GraphContext& ref_context)
+{
+  EZ_ASSERT_DEBUG(sOutputName == "Value", "Implementation error");
+
+  auto pInput = inputs[0];
+  if (pInput == nullptr)
+  {
+    pInput = out_ast.CreateConstant(m_fInputValue);
+  }
+
+  auto pA = out_ast.CreateConstant(-m_fContrast);
+  auto pB = out_ast.CreateConstant(1.0f + m_fContrast);
+  auto pLerp = out_ast.CreateTernaryOperator(ezExpressionAST::NodeType::Lerp, pA, pB, pInput);
+  auto pSaturate = out_ast.CreateUnaryOperator(ezExpressionAST::NodeType::Saturate, pLerp);
+
+  return pSaturate;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Height, 2, ezRTTIDefaultAllocator<ezProcGen_Height>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -511,7 +705,7 @@ ezExpressionAST::Node* ezProcGen_Height::GenerateExpressionASTNode(ezTempHashedS
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Slope, 1, ezRTTIDefaultAllocator<ezProcGen_Slope>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Slope, 2, ezRTTIDefaultAllocator<ezProcGen_Slope>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -548,7 +742,85 @@ ezExpressionAST::Node* ezProcGen_Slope::GenerateExpressionASTNode(ezTempHashedSt
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_MeshVertexColor, 1, ezRTTIDefaultAllocator<ezProcGen_MeshVertexColor>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Position, 2, ezRTTIDefaultAllocator<ezProcGen_Position>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("X", m_XPin)->AddAttributes(new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Red))),
+    EZ_MEMBER_PROPERTY("Y", m_YPin)->AddAttributes(new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Green))),
+    EZ_MEMBER_PROPERTY("Z", m_ZPin)->AddAttributes(new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Blue))),
+  }
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezTitleAttribute("Position"),
+    new ezCategoryAttribute("Input"),
+  }
+  EZ_END_ATTRIBUTES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezExpressionAST::Node* ezProcGen_Position::GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_ast, GraphContext& ref_context)
+{
+  if (sOutputName == "X")
+  {
+    return out_ast.CreateInput({ezProcGenInternal::ExpressionInputs::s_sPositionX, ezProcessingStream::DataType::Float});
+  }
+  else if (sOutputName == "Y")
+  {
+    return out_ast.CreateInput({ezProcGenInternal::ExpressionInputs::s_sPositionY, ezProcessingStream::DataType::Float});
+  }
+  else
+  {
+    EZ_ASSERT_DEBUG(sOutputName == "Z", "Implementation error");
+    return out_ast.CreateInput({ezProcGenInternal::ExpressionInputs::s_sPositionZ, ezProcessingStream::DataType::Float});
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_Normal, 2, ezRTTIDefaultAllocator<ezProcGen_Normal>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("X", m_XPin)->AddAttributes(new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Red))),
+    EZ_MEMBER_PROPERTY("Y", m_YPin)->AddAttributes(new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Green))),
+    EZ_MEMBER_PROPERTY("Z", m_ZPin)->AddAttributes(new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Blue))),
+  }
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezTitleAttribute("Normal"),
+    new ezCategoryAttribute("Input"),
+  }
+  EZ_END_ATTRIBUTES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezExpressionAST::Node* ezProcGen_Normal::GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_ast, GraphContext& ref_context)
+{
+  if (sOutputName == "X")
+  {
+    return out_ast.CreateInput({ezProcGenInternal::ExpressionInputs::s_sNormalX, ezProcessingStream::DataType::Float});
+  }
+  else if (sOutputName == "Y")
+  {
+    return out_ast.CreateInput({ezProcGenInternal::ExpressionInputs::s_sNormalY, ezProcessingStream::DataType::Float});
+  }
+  else
+  {
+    EZ_ASSERT_DEBUG(sOutputName == "Z", "Implementation error");
+    return out_ast.CreateInput({ezProcGenInternal::ExpressionInputs::s_sNormalZ, ezProcessingStream::DataType::Float});
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_MeshVertexColor, 2, ezRTTIDefaultAllocator<ezProcGen_MeshVertexColor>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -592,7 +864,7 @@ ezExpressionAST::Node* ezProcGen_MeshVertexColor::GenerateExpressionASTNode(ezTe
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_ApplyVolumes, 1, ezRTTIDefaultAllocator<ezProcGen_ApplyVolumes>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGen_ApplyVolumes, 2, ezRTTIDefaultAllocator<ezProcGen_ApplyVolumes>)
 {
   EZ_BEGIN_PROPERTIES
   {

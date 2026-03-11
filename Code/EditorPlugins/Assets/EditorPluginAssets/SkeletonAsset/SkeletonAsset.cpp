@@ -10,7 +10,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonAssetDocument, 10, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonAssetDocument, 11, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -18,16 +18,18 @@ static ezTransform CalculateTransformationMatrix(const ezEditableSkeleton* pProp
 {
   const float us = ezMath::Clamp(pProp->m_fUniformScaling, 0.0001f, 10000.0f);
 
-  const ezBasisAxis::Enum rightDir = pProp->m_RightDir;
-  const ezBasisAxis::Enum upDir = pProp->m_UpDir;
-  ezBasisAxis::Enum forwardDir = ezBasisAxis::GetOrthogonalAxis(rightDir, upDir, !pProp->m_bFlipForwardDir);
+  auto rightDir = ezMeshImportTransform::GetRightDir(pProp->m_ImportTransform, pProp->m_RightDir);
+  auto upDir = ezMeshImportTransform::GetUpDir(pProp->m_ImportTransform, pProp->m_UpDir);
+  auto flipFwd = ezMeshImportTransform::GetFlipForward(pProp->m_ImportTransform, pProp->m_bFlipForwardDir);
+
+  ezBasisAxis::Enum forwardDir = ezBasisAxis::GetOrthogonalAxis(rightDir, upDir, !flipFwd);
 
   ezTransform t;
   t.SetIdentity();
   t.m_vScale.Set(us);
 
   // prevent mirroring in the rotation matrix, because we can't generate a quaternion from that
-  if (!pProp->m_bFlipForwardDir)
+  if (!flipFwd)
   {
     switch (forwardDir)
     {
@@ -73,6 +75,17 @@ ezSkeletonAssetDocument::~ezSkeletonAssetDocument() = default;
 
 void ezSkeletonAssetDocument::PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
 {
+  if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezEditableSkeleton>())
+  {
+    auto& props = *e.m_pPropertyStates;
+
+    const ezInt64 importTransform = e.m_pObject->GetTypeAccessor().GetValue("ImportTransform").ConvertTo<ezInt64>();
+    const bool bCustomTransform = importTransform == 127;
+    props["RightDir"].m_Visibility = bCustomTransform ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["UpDir"].m_Visibility = bCustomTransform ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["FlipForwardDir"].m_Visibility = bCustomTransform ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+  }
+
   if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezEditableSkeletonJoint>())
   {
     auto& props = *e.m_pPropertyStates;
@@ -131,7 +144,7 @@ void ezSkeletonAssetDocument::PropertyMetaStateEventHandler(ezPropertyMetaStateE
       props["Thickness"].m_Visibility = ezPropertyUiState::Default;
       props["Thickness"].m_sNewLabelText = "Radius";
     }
-    else if (geomType == ezSkeletonJointGeometryType::Capsule)
+    else if (geomType == ezSkeletonJointGeometryType::Capsule || geomType == ezSkeletonJointGeometryType::CapsuleSideways)
     {
       props["Length"].m_Visibility = ezPropertyUiState::Default;
 
@@ -322,6 +335,9 @@ ezTransformStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter
       if (pImporter->Import(opt).Failed())
         return ezStatus("Model importer was unable to read this asset.");
 
+      if (newSkeleton.m_Children.IsEmpty())
+        return ezStatus("Imported skeleton is empty.");
+
       range.BeginNextStep("Importing Skeleton Data");
 
       // synchronize the old data (collision geometry etc.) with the new hierarchy
@@ -452,7 +468,12 @@ ezStatus ezSkeletonAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, 
 {
   ezStringBuilder sOutFile = sInputFileAbs;
   sOutFile.ChangeFileExtension(GetDocumentExtension());
-  ezOSFile::FindFreeFilename(sOutFile);
+
+  if (ezOSFile::ExistsFile(sOutFile))
+  {
+    ezLog::Info("Skipping skeleton import, file has been imported before: '{}'", sOutFile);
+    return ezStatus(EZ_SUCCESS);
+  }
 
   auto pApp = ezQtEditorApp::GetSingleton();
 
@@ -470,5 +491,28 @@ ezStatus ezSkeletonAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, 
   auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
   accessor.SetValue("File", sInputFileRel.GetView());
 
+  ezLog::Success("Imported skeleton: '{}'", sOutFile);
+
   return ezStatus(EZ_SUCCESS);
 }
+
+
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/GraphPatch.h>
+
+class ezEditableSkeleton_1_2 : public ezGraphPatch
+{
+public:
+  ezEditableSkeleton_1_2()
+    : ezGraphPatch("ezEditableSkeleton", 2)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    pNode->AddProperty("ImportTransform", 127);
+  }
+};
+
+ezEditableSkeleton_1_2 g_ezEditableSkeleton_1_2;

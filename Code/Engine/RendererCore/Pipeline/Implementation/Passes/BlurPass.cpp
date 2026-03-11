@@ -18,6 +18,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBlurPass, 1, ezRTTIDefaultAllocator<ezBlurPass
     EZ_ACCESSOR_PROPERTY("Radius", GetRadius, SetRadius)->AddAttributes(new ezDefaultValueAttribute(15)),
   }
   EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Utilities")
+  }
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
@@ -40,7 +45,6 @@ ezBlurPass::ezBlurPass()
 ezBlurPass::~ezBlurPass()
 {
   ezRenderContext::DeleteConstantBufferStorage(m_hBlurCB);
-  m_hBlurCB.Invalidate();
 }
 
 bool ezBlurPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
@@ -48,7 +52,7 @@ bool ezBlurPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPt
   // Color
   if (inputs[m_PinInput.m_uiInputIndex])
   {
-    if (!inputs[m_PinInput.m_uiInputIndex]->m_bAllowShaderResourceView)
+    if (!inputs[m_PinInput.m_uiInputIndex]->m_TextureFlags.IsSet(ezGALTextureUsageFlags::ShaderResource))
     {
       ezLog::Error("Blur pass input must allow shader resoure view.");
       return false;
@@ -73,23 +77,19 @@ void ezBlurPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
 
     // Setup render target
     ezGALRenderingSetup renderingSetup;
-    renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(outputs[m_PinOutput.m_uiOutputIndex]->m_TextureHandle));
-    renderingSetup.m_uiRenderTargetClearMask = ezInvalidIndex;
-    renderingSetup.m_ClearColor = ezColor(1.0f, 0.0f, 0.0f);
+    renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(outputs[m_PinOutput.m_uiOutputIndex]->m_TextureHandle));
+    renderingSetup.SetClearColor(0, ezColor(1.0f, 0.0f, 0.0f));
 
     // Bind render target and viewport
-    auto pCommandEncoder = ezRenderContext::BeginPassAndRenderingScope(renderViewContext, renderingSetup, GetName(), renderViewContext.m_pCamera->IsStereoscopic());
-
-    // Setup input view and sampler
-    ezGALTextureResourceViewCreationDescription rvcd;
-    rvcd.m_hTexture = inputs[m_PinInput.m_uiInputIndex]->m_TextureHandle;
-    ezGALTextureResourceViewHandle hResourceView = ezGALDevice::GetDefaultDevice()->CreateResourceView(rvcd);
+    auto pCommandEncoder = ezRenderContext::BeginRenderingScope(renderViewContext, renderingSetup, GetName(), renderViewContext.m_pCamera->IsStereoscopic());
 
     // Bind shader and inputs
     renderViewContext.m_pRenderContext->BindShader(m_hShader);
-    renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
-    renderViewContext.m_pRenderContext->BindTexture2D("Input", hResourceView);
-    renderViewContext.m_pRenderContext->BindConstantBuffer("ezBlurConstants", m_hBlurCB);
+    renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
+
+    ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
+    bindGroup.BindTexture("Input", inputs[m_PinInput.m_uiInputIndex]->m_TextureHandle);
+    bindGroup.BindBuffer("ezBlurConstants", m_hBlurCB);
 
     renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
   }

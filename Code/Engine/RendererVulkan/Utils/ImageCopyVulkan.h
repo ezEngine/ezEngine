@@ -5,16 +5,9 @@
 #include <RendererFoundation/Shader/ShaderUtils.h>
 #include <RendererVulkan/Cache/ResourceCacheVulkan.h>
 
-#include <vulkan/vulkan.hpp>
-
 class ezGALBufferVulkan;
 class ezGALTextureVulkan;
 class ezGALRenderTargetViewVulkan;
-class ezGALTextureResourceViewVulkan;
-class ezGALBufferResourceViewVulkan;
-class ezGALTextureUnorderedAccessViewVulkan;
-class ezGALBufferUnorderedAccessViewVulkan;
-
 
 /// \brief
 class EZ_RENDERERVULKAN_DLL ezImageCopyVulkan
@@ -29,19 +22,11 @@ public:
   static void Initialize(ezGALDeviceVulkan& GALDeviceVulkan);
   static void DeInitialize(ezGALDeviceVulkan& GALDeviceVulkan);
 
-  struct RenderPassCacheKey
-  {
-    EZ_DECLARE_POD_TYPE();
-
-    vk::Format targetFormat;
-    vk::SampleCountFlagBits targetSamples;
-  };
-
   struct FramebufferCacheKey
   {
     EZ_DECLARE_POD_TYPE();
 
-    vk::RenderPass m_renderpass;
+    vk::RenderPass m_renderPass;
     vk::ImageView m_targetView;
     ezVec3U32 m_extends;
     uint32_t m_layerCount;
@@ -81,9 +66,10 @@ private:
   vk::RenderPass m_renderPass;
   ezShaderUtils::ezBuiltinShader m_shader;
   ezGALVertexDeclarationHandle m_hVertexDecl;
-  ezResourceCacheVulkan::PipelineLayoutDesc m_LayoutDesc;
-  ezResourceCacheVulkan::GraphicsPipelineDesc m_PipelineDesc;
+  ezGALGraphicsPipelineCreationDescription m_PipelineDesc;
+  ezGALGraphicsPipelineHandle m_hGalPipeline;
   vk::Pipeline m_pipeline;
+  const ezGALShaderVulkan* m_pShader = nullptr;
 
   // Cache to keep important resources alive
   // This avoids recreating them every frame
@@ -93,7 +79,6 @@ private:
     ~Cache();
 
     ezHashTable<ezGALShaderHandle, ezGALVertexDeclarationHandle> m_vertexDeclarations;
-    ezHashTable<RenderPassCacheKey, vk::RenderPass> m_renderPasses;
     ezHashTable<ImageViewCacheKey, vk::ImageView> m_sourceImageViews;
     ezHashTable<vk::Image, ImageViewCacheValue> m_imageToSourceImageViewCacheKey;
     ezHashTable<ImageViewCacheKey, vk::ImageView> m_targetImageViews;

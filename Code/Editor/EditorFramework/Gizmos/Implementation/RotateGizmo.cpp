@@ -30,6 +30,13 @@ void ezRotateGizmo::UpdateStatusBarText(ezQtEngineDocumentWindow* pWindow)
   GetOwnerWindow()->SetPermanentStatusBarMsg(ezFmt("Rotation: {}", ezAngle()));
 }
 
+void ezRotateGizmo::EnableAxis(bool x, bool y, bool z)
+{
+  m_bEnableAxisX = x;
+  m_bEnableAxisY = y;
+  m_bEnableAxisZ = z;
+}
+
 void ezRotateGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
 {
   pOwnerWindow->GetDocument()->AddSyncObject(&m_hAxisX);
@@ -39,9 +46,9 @@ void ezRotateGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngin
 
 void ezRotateGizmo::OnVisibleChanged(bool bVisible)
 {
-  m_hAxisX.SetVisible(bVisible);
-  m_hAxisY.SetVisible(bVisible);
-  m_hAxisZ.SetVisible(bVisible);
+  m_hAxisX.SetVisible(bVisible && m_bEnableAxisX);
+  m_hAxisY.SetVisible(bVisible && m_bEnableAxisY);
+  m_hAxisZ.SetVisible(bVisible && m_bEnableAxisZ);
 }
 
 void ezRotateGizmo::OnTransformationChanged(const ezTransform& transform)
@@ -61,9 +68,9 @@ void ezRotateGizmo::DoFocusLost(bool bCancel)
   ezViewHighlightMsgToEngine msg;
   GetOwnerWindow()->GetEditorEngineConnection()->SendHighlightObjectMessage(&msg);
 
-  m_hAxisX.SetVisible(true);
-  m_hAxisY.SetVisible(true);
-  m_hAxisZ.SetVisible(true);
+  m_hAxisX.SetVisible(m_bEnableAxisX);
+  m_hAxisY.SetVisible(m_bEnableAxisY);
+  m_hAxisZ.SetVisible(m_bEnableAxisZ);
 }
 
 ezEditorInput ezRotateGizmo::DoMousePressEvent(QMouseEvent* e)
@@ -110,7 +117,7 @@ ezEditorInput ezRotateGizmo::DoMousePressEvent(QMouseEvent* e)
   // compute screen space tangent for rotation
   {
     const ezVec3 vAxisWS = m_vRotationAxis.GetNormalized();
-    const ezVec3 vMousePos(e->pos().x(), m_vViewport.y - e->pos().y(), 0);
+    const ezVec3 vMousePos(e->pos().x(), e->pos().y(), 0);
     const ezVec3 vGizmoPosWS = GetTransformation().m_vPosition;
 
     ezVec3 vPosOnNearPlane, vRayDir;

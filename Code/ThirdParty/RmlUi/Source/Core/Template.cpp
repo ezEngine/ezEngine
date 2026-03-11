@@ -1,46 +1,15 @@
-/*
- * This source file is part of RmlUi, the HTML/CSS Interface Middleware
- *
- * For the latest information, see http://github.com/mikke89/RmlUi
- *
- * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
- */
-
 #include "Template.h"
-#include "XMLParseTools.h"
+#include "../../Include/RmlUi/Core/Element.h"
 #include "../../Include/RmlUi/Core/ElementUtilities.h"
 #include "../../Include/RmlUi/Core/XMLParser.h"
+#include "XMLParseTools.h"
 #include <string.h>
 
 namespace Rml {
 
-Template::Template()
-{
-}
+Template::Template() {}
 
-Template::~Template()
-{
-}
+Template::~Template() {}
 
 const String& Template::GetName() const
 {
@@ -51,25 +20,25 @@ bool Template::Load(Stream* stream)
 {
 	// Load the entire template into memory so we can pull out
 	// the header and body tags
-	String buffer;	
+	String buffer;
 	stream->Read(buffer, stream->Length());
 
 	// Pull out the header
 	const char* head_start = XMLParseTools::FindTag("head", buffer.c_str());
-	if (!head_start)	
+	if (!head_start)
 		return false;
 
 	const char* head_end = XMLParseTools::FindTag("head", head_start, true);
-	if (!head_end)	
+	if (!head_end)
 		return false;
 	// Advance to the end of the tag
 	head_end = strchr(head_end, '>') + 1;
 
-	// Pull out the body	
+	// Pull out the body
 	const char* body_start = XMLParseTools::FindTag("body", head_end);
-	if (!body_start)	
+	if (!body_start)
 		return false;
-	
+
 	const char* body_end = XMLParseTools::FindTag("body", body_start, true);
 	if (!body_end)
 		return false;
@@ -93,7 +62,7 @@ bool Template::Load(Stream* stream)
 	}
 
 	// Create a stream around the header, parse it and store it
-	auto header_stream = MakeUnique<StreamMemory>((const byte*) head_start,head_end - head_start);
+	auto header_stream = MakeUnique<StreamMemory>((const byte*)head_start, head_end - head_start);
 	header_stream->SetSourceURL(stream->GetSourceURL());
 
 	XMLParser parser(nullptr);
@@ -104,7 +73,7 @@ bool Template::Load(Stream* stream)
 	header = *parser.GetDocumentHeader();
 
 	// Store the body in stream form
-	body = MakeUnique<StreamMemory>(body_end - body_start);	
+	body = MakeUnique<StreamMemory>(body_end - body_start);
 	body->SetSourceURL(stream->GetSourceURL());
 	body->PushBack(body_start, body_end - body_start);
 
@@ -115,16 +84,26 @@ Element* Template::ParseTemplate(Element* element)
 {
 	body->Seek(0, SEEK_SET);
 
+	const int num_children_before = element->GetNumChildren();
+
 	XMLParser parser(element);
 	parser.Parse(body.get());
 
-	// If theres an inject attribute on the template, 
-	// attempt to find the required element
+	// If there's an inject attribute on the template, attempt to find the required element.
 	if (!content.empty())
 	{
-		Element* content_element = ElementUtilities::GetElementById(element, content);
-		if (content_element)
-			element = content_element;
+		const int num_children_after = element->GetNumChildren();
+
+		// We look through the newly added elements (and only those), and look for the desired id.
+		for (int i = num_children_before; i < num_children_after; ++i)
+		{
+			Element* content_element = ElementUtilities::GetElementById(element->GetChild(i), content);
+			if (content_element)
+			{
+				element = content_element;
+				break;
+			}
+		}
 	}
 
 	return element;

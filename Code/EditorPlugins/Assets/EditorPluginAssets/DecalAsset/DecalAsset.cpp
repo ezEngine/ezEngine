@@ -145,7 +145,7 @@ ezTransformStatus ezDecalAssetDocument::InternalCreateThumbnail(const ThumbnailI
   EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("ezTexConv", arguments, 180, ezLog::GetThreadLocalLogSystem()));
 
   {
-    ezUInt64 uiThumbnailHash = ezAssetCurator::GetSingleton()->GetAssetReferenceHash(GetGuid());
+    ezUInt64 uiThumbnailHash = ezAssetCurator::GetSingleton()->GetAssetThumbnailHash(GetGuid());
     EZ_ASSERT_DEV(uiThumbnailHash != 0, "Thumbnail hash should never be zero when reaching this point!");
 
     ThumbnailInfo thumbnailInfo;
@@ -192,7 +192,12 @@ ezStatus ezDecalAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezS
 {
   ezStringBuilder sOutFile = sInputFileAbs;
   sOutFile.ChangeFileExtension(GetDocumentExtension());
-  ezOSFile::FindFreeFilename(sOutFile);
+
+  if (ezOSFile::ExistsFile(sOutFile))
+  {
+    ezLog::Info("Skipping decal import, file has been imported before: '{}'", sOutFile);
+    return ezStatus(EZ_SUCCESS);
+  }
 
   auto pApp = ezQtEditorApp::GetSingleton();
 
@@ -209,6 +214,8 @@ ezStatus ezDecalAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezS
 
   auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
   accessor.SetValue("BaseColor", sInputFileRel.GetView());
+
+  ezLog::Success("Imported decal: '{}'", sOutFile);
 
   return ezStatus(EZ_SUCCESS);
 }

@@ -180,9 +180,6 @@ void ezAnimGraphBoneWeightsOutputPin::SetWeights(ezAnimGraphInstance& ref_graph,
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimGraphLocalPoseInputPin, 1, ezRTTIDefaultAllocator<ezAnimGraphLocalPoseInputPin>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimGraphLocalPoseMultiInputPin, 1, ezRTTIDefaultAllocator<ezAnimGraphLocalPoseMultiInputPin>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimGraphLocalPoseOutputPin, 1, ezRTTIDefaultAllocator<ezAnimGraphLocalPoseOutputPin>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
@@ -198,20 +195,6 @@ ezAnimGraphPinDataLocalTransforms* ezAnimGraphLocalPoseInputPin::GetPose(ezAnimC
   return &ref_controller.m_PinDataLocalTransforms[ref_graph.m_LocalPoseInputPinStates[m_iPinIndex][0]];
 }
 
-void ezAnimGraphLocalPoseMultiInputPin::GetPoses(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph, ezDynamicArray<ezAnimGraphPinDataLocalTransforms*>& out_poses) const
-{
-  out_poses.Clear();
-
-  if (m_iPinIndex < 0)
-    return;
-
-  out_poses.SetCountUninitialized(ref_graph.m_LocalPoseInputPinStates[m_iPinIndex].GetCount());
-  for (ezUInt32 i = 0; i < ref_graph.m_LocalPoseInputPinStates[m_iPinIndex].GetCount(); ++i)
-  {
-    out_poses[i] = &ref_controller.m_PinDataLocalTransforms[ref_graph.m_LocalPoseInputPinStates[m_iPinIndex][i]];
-  }
-}
-
 void ezAnimGraphLocalPoseOutputPin::SetPose(ezAnimGraphInstance& ref_graph, ezAnimGraphPinDataLocalTransforms* pPose) const
 {
   if (m_iPinIndex < 0)
@@ -225,38 +208,5 @@ void ezAnimGraphLocalPoseOutputPin::SetPose(ezAnimGraphInstance& ref_graph, ezAn
     ref_graph.m_LocalPoseInputPinStates[idx].PushBack(pPose->m_uiOwnIndex);
   }
 }
-
-//////////////////////////////////////////////////////////////////////////
-
-// clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimGraphModelPoseInputPin, 1, ezRTTIDefaultAllocator<ezAnimGraphModelPoseInputPin>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimGraphModelPoseOutputPin, 1, ezRTTIDefaultAllocator<ezAnimGraphModelPoseOutputPin>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-// clang-format on
-
-ezAnimGraphPinDataModelTransforms* ezAnimGraphModelPoseInputPin::GetPose(ezAnimController& ref_controller, ezAnimGraphInstance& ref_graph) const
-{
-  if (m_iPinIndex < 0 || ref_graph.m_pModelPoseInputPinStates[m_iPinIndex] == 0xFFFF)
-    return nullptr;
-
-  return &ref_controller.m_PinDataModelTransforms[ref_graph.m_pModelPoseInputPinStates[m_iPinIndex]];
-}
-
-void ezAnimGraphModelPoseOutputPin::SetPose(ezAnimGraphInstance& ref_graph, ezAnimGraphPinDataModelTransforms* pPose) const
-{
-  if (m_iPinIndex < 0)
-    return;
-
-  const auto& map = ref_graph.m_pAnimGraph->m_OutputPinToInputPinMapping[ezAnimGraphPin::ModelPose][m_iPinIndex];
-
-  // set all input pins that are connected to this output pin
-  for (ezUInt16 idx : map)
-  {
-    ref_graph.m_pModelPoseInputPinStates[idx] = pPose->m_uiOwnIndex;
-  }
-}
-
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimGraph_Implementation_AnimGraphPins);

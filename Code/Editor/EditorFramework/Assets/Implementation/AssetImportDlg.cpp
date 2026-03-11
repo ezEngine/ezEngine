@@ -73,6 +73,8 @@ void ezQtAssetImportDlg::SelectedOptionChanged(int index)
 
 void ezQtAssetImportDlg::on_ButtonImport_clicked()
 {
+  EZ_LOG_BLOCK("Importing Assets");
+
   for (auto& data : m_AllImports)
   {
     if (data.m_iSelectedOption < 0)
@@ -82,7 +84,7 @@ void ezQtAssetImportDlg::on_ButtonImport_clicked()
 
     const auto& option = data.m_ImportOptions[data.m_iSelectedOption];
 
-    option.m_pGenerator->Import(data.m_sInputFileAbsolute, option.m_sName, true).LogFailure();
+    option.m_pGenerator->Import(data.m_sInputFileAbsolute, option.m_sName, false).LogFailure();
   }
 
   accept();

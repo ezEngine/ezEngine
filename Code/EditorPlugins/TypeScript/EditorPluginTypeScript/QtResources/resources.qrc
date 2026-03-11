@@ -1,9 +1,0 @@
-<RCC>
-  <qresource prefix="AssetIcons">
-    <file>TypeScript.svg</file>
-  </qresource>
-  <qresource prefix="TypeIcons">
-    <file>ezTypeScriptComponent.svg</file>
-  </qresource>  
-</RCC>
-

@@ -14,7 +14,7 @@ EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezMeshResource);
 ezUInt32 ezMeshResource::s_uiMeshBufferNameSuffix = 0;
 
 ezMeshResource::ezMeshResource()
-  : ezResource(DoUpdate::OnAnyThread, 1)
+  : ezResource(DoUpdate::OnGraphicsResourceThreads, 1)
 {
   m_Bounds = ezBoundingBoxSphere::MakeInvalid();
 }
@@ -60,11 +60,9 @@ ezResourceLoadDesc ezMeshResource::UpdateContent(ezStreamReader* Stream)
     return res;
   }
 
-  // skip the absolute file path data that the standard file reader writes into the stream
-  {
-    ezStringBuilder sAbsFilePath;
-    (*Stream) >> sAbsFilePath;
-  }
+  // the standard file reader writes the absolute file path into the stream
+  ezStringBuilder sAbsFilePath;
+  (*Stream) >> sAbsFilePath;
 
   ezAssetFileHeader AssetHash;
   AssetHash.Read(*Stream).IgnoreResult();
@@ -74,6 +72,8 @@ ezResourceLoadDesc ezMeshResource::UpdateContent(ezStreamReader* Stream)
     res.m_State = ezResourceState::LoadedResourceMissing;
     return res;
   }
+
+  m_uiAssetHash = AssetHash.GetFileHash();
 
   return CreateResource(std::move(desc));
 }

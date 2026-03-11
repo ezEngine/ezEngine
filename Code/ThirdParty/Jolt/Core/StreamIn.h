@@ -18,30 +18,40 @@ public:
 	/// Read a string of bytes from the binary stream
 	virtual void		ReadBytes(void *outData, size_t inNumBytes) = 0;
 
-	/// Returns true when an attempt has been made to read past the end of the file
+	/// Returns true when an attempt has been made to read past the end of the file.
+	/// Note that this follows the convention of std::basic_ios::eof which only returns true when an attempt is made to read past the end, not when the read pointer is at the end.
 	virtual bool		IsEOF() const = 0;
 
 	/// Returns true if there was an IO failure
 	virtual bool		IsFailed() const = 0;
 
 	/// Read a primitive (e.g. float, int, etc.) from the binary stream
-	template <class T>
+	template <class T, std::enable_if_t<std::is_trivially_copyable_v<T>, bool> = true>
 	void				Read(T &outT)
 	{
 		ReadBytes(&outT, sizeof(outT));
 	}
 
 	/// Read a vector of primitives from the binary stream
-	template <class T, class A>
-	void				Read(std::vector<T, A> &outT)
+	template <class T, class A, std::enable_if_t<std::is_trivially_copyable_v<T>, bool> = true>
+	void				Read(Array<T, A> &outT)
 	{
-		typename Array<T>::size_type len = outT.size(); // Initialize to previous array size, this is used for validation in the StateRecorder class
+		uint32 len = uint32(outT.size()); // Initialize to previous array size, this is used for validation in the StateRecorder class
 		Read(len);
 		if (!IsEOF() && !IsFailed())
 		{
 			outT.resize(len);
-			for (typename Array<T>::size_type i = 0; i < len; ++i)
-				Read(outT[i]);
+			if constexpr (std::is_same_v<T, Vec3> || std::is_same_v<T, DVec3> || std::is_same_v<T, DMat44>)
+			{
+				// These types have unused components that we don't want to read
+				for (typename Array<T, A>::size_type i = 0; i < len; ++i)
+					Read(outT[i]);
+			}
+			else
+			{
+				// Read all elements at once
+				ReadBytes(outT.data(), len * sizeof(T));
+			}
 		}
 		else
 			outT.clear();
@@ -51,7 +61,7 @@ public:
 	template <class Type, class Traits, class Allocator>
 	void				Read(std::basic_string<Type, Traits, Allocator> &outString)
 	{
-		typename std::basic_string<Type, Traits, Allocator>::size_type len = 0;
+		uint32 len = 0;
 		Read(len);
 		if (!IsEOF() && !IsFailed())
 		{
@@ -64,14 +74,14 @@ public:
 
 	/// Read a vector of primitives from the binary stream using a custom function to read the elements
 	template <class T, class A, typename F>
-	void				Read(std::vector<T, A> &outT, const F &inReadElement)
+	void				Read(Array<T, A> &outT, const F &inReadElement)
 	{
-		typename Array<T>::size_type len = outT.size(); // Initialize to previous array size, this is used for validation in the StateRecorder class
+		uint32 len = uint32(outT.size()); // Initialize to previous array size, this is used for validation in the StateRecorder class
 		Read(len);
 		if (!IsEOF() && !IsFailed())
 		{
 			outT.resize(len);
-			for (typename Array<T>::size_type i = 0; i < len; ++i)
+			for (typename Array<T, A>::size_type i = 0; i < len; ++i)
 				inReadElement(*this, outT[i]);
 		}
 		else

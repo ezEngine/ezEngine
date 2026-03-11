@@ -11,5 +11,5 @@ ez_add_output_ez_prefix(${PROJECT_NAME})
 
 target_link_libraries(${PROJECT_NAME}
   PRIVATE
-  Core
+  Foundation
 )

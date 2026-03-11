@@ -77,7 +77,7 @@ void GhostComponent::Update()
         ezVec3(0, -1, 0),
       };
 
-    ezHybridArray<ezDebugRenderer::Line, 4> lines;
+    ezHybridArray<ezDebugRendererLine, 4> lines;
 
     for (ezUInt32 i = 0; i < 4; ++i)
     {
@@ -126,7 +126,7 @@ void GhostComponent::Update()
   }
 
   // now just change the rotation of the ghost to point into the current direction
-  ezQuat rotation = ezQuat::MakeFromAxisAndAngle(ezVec3::MakeAxisZ(), ezAngle::MakeFromDegree(m_Direction * 90));
+  ezQuat rotation = ezQuat::MakeFromAxisAndAngle(ezVec3::MakeAxisZ(), ezAngle::MakeFromDegree(static_cast<float>(m_Direction * 90)));
   GetOwner()->SetGlobalRotation(rotation);
 
   // and communicate to the character controller component, that it should move forwards at a fixed speed
@@ -167,3 +167,6 @@ void GhostComponent::DeserializeComponent(ezWorldReader& stream)
     // do custom serialization
   }
 }
+
+
+EZ_STATICLINK_FILE(PacManPlugin, PacManPlugin_Components_GhostComponent);

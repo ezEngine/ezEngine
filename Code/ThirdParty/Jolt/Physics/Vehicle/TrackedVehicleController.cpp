@@ -26,18 +26,24 @@ JPH_IMPLEMENT_SERIALIZABLE_VIRTUAL(TrackedVehicleControllerSettings)
 
 JPH_IMPLEMENT_SERIALIZABLE_VIRTUAL(WheelSettingsTV)
 {
+	JPH_ADD_BASE_CLASS(WheelSettingsTV, WheelSettings)
+
 	JPH_ADD_ATTRIBUTE(WheelSettingsTV, mLongitudinalFriction)
 	JPH_ADD_ATTRIBUTE(WheelSettingsTV, mLateralFriction)
 }
 
 void WheelSettingsTV::SaveBinaryState(StreamOut &inStream) const
 {
+	WheelSettings::SaveBinaryState(inStream);
+
 	inStream.Write(mLongitudinalFriction);
 	inStream.Write(mLateralFriction);
 }
 
 void WheelSettingsTV::RestoreBinaryState(StreamIn &inStream)
 {
+	WheelSettings::RestoreBinaryState(inStream);
+
 	inStream.Read(mLongitudinalFriction);
 	inStream.Read(mLateralFriction);
 }
@@ -144,7 +150,7 @@ TrackedVehicleController::TrackedVehicleController(const TrackedVehicleControlle
 	JPH_ASSERT(inSettings.mTransmission.mShiftUpRPM > inSettings.mTransmission.mShiftDownRPM);
 
 	// Copy track settings
-	for (uint i = 0; i < size(mTracks); ++i)
+	for (uint i = 0; i < std::size(mTracks); ++i)
 	{
 		const VehicleTrackSettings &d = inSettings.mTracks[i];
 		static_cast<VehicleTrackSettings &>(mTracks[i]) = d;
@@ -167,7 +173,7 @@ void TrackedVehicleController::PreCollide(float inDeltaTime, PhysicsSystem &inPh
 	Wheels &wheels = mConstraint.GetWheels();
 
 	// Fill in track index
-	for (size_t t = 0; t < size(mTracks); ++t)
+	for (size_t t = 0; t < std::size(mTracks); ++t)
 		for (uint w : mTracks[t].mWheels)
 			static_cast<WheelTV *>(wheels[w])->mTrackIndex = (uint)t;
 
@@ -261,7 +267,7 @@ void TrackedVehicleController::PostCollide(float inDeltaTime, PhysicsSystem &inP
 	if (transmission_torque != 0.0f)
 	{
 		// Apply the transmission torque to the wheels
-		for (uint i = 0; i < size(mTracks); ++i)
+		for (uint i = 0; i < std::size(mTracks); ++i)
 		{
 			VehicleTrack &t = mTracks[i];
 
@@ -526,6 +532,16 @@ void TrackedVehicleController::RestoreState(StateRecorder &inStream)
 
 	for (VehicleTrack &t : mTracks)
 		t.RestoreState(inStream);
+}
+
+Ref<VehicleControllerSettings> TrackedVehicleController::GetSettings() const
+{
+	TrackedVehicleControllerSettings *settings = new TrackedVehicleControllerSettings;
+	settings->mEngine = static_cast<const VehicleEngineSettings &>(mEngine);
+	settings->mTransmission = static_cast<const VehicleTransmissionSettings &>(mTransmission);
+	for (size_t i = 0; i < std::size(mTracks); ++i)
+		settings->mTracks[i] = static_cast<const VehicleTrackSettings &>(mTracks[i]);
+	return settings;
 }
 
 JPH_NAMESPACE_END

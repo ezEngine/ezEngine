@@ -13,7 +13,8 @@ namespace
   enum CustomRoles
   {
     InternalPathRole = Qt::UserRole + 1,
-    VariantRole = Qt::UserRole + 2
+    VariantRole = Qt::UserRole + 2,
+    SortRole = Qt::UserRole + 3,
   };
 }
 
@@ -94,6 +95,7 @@ QStandardItem* ezQtSearchableMenu::CreateCategoryMenu(ezStringView sCategory)
 
   QStandardItem* pThisItem = new QStandardItem(sPath.GetData());
   pThisItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable);
+  pThisItem->setData(ezMakeQString(sPath).toLower(), SortRole);
 
   pParentMenu->appendRow(pThisItem);
 
@@ -167,6 +169,7 @@ void ezQtSearchableMenu::AddItem(ezStringView sDisplayName, const char* szIntern
   pThisItem->setData(szInternalPath, InternalPathRole);
   pThisItem->setData(variant, VariantRole);
   pThisItem->setIcon(icon);
+  pThisItem->setData(ezMakeQString(sDisplayName).toLower(), SortRole);
 
   pParent->appendRow(pThisItem);
 }
@@ -178,6 +181,7 @@ QString ezQtSearchableMenu::GetSearchText() const
 
 void ezQtSearchableMenu::Finalize(const QString& sSearchText)
 {
+  m_pItemModel->setSortRole(SortRole);
   m_pItemModel->sort(0);
 
   m_pSearch->setText(sSearchText);
@@ -235,6 +239,19 @@ void ezQtSearchableMenu::OnSearchChanged(const QString& text)
 
 void ezQtSearchableMenu::OnShow()
 {
+  if (m_pFilterModel->rowCount() > 0)
+  {
+    QModelIndex idx = m_pFilterModel->index(0, 0);
+
+    // hacky convention, if the first item name starts with a whitespace,
+    // that is to move it to the top of the list, which is currently used for the 'RECENT' section
+    // and we want that to always be expanded
+    if (m_pFilterModel->data(idx, Qt::DisplayRole).toString().startsWith(' '))
+    {
+      m_pTreeView->expandRecursively(idx);
+    }
+  }
+
   m_pSearch->setFocus();
   m_pSearch->selectAll();
 }

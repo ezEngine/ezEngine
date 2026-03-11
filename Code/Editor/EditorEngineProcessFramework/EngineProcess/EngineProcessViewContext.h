@@ -3,6 +3,7 @@
 #include <Core/Graphics/Camera.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/System/Window.h>
+#include <Core/System/WindowManager.h>
 #include <EditorEngineProcessFramework/EditorEngineProcessFrameworkDLL.h>
 #include <RendererCore/Pipeline/Declarations.h>
 
@@ -10,8 +11,6 @@ class ezEngineProcessDocumentContext;
 class ezEditorEngineDocumentMsg;
 class ezViewRedrawMsgToEngine;
 class ezEditorEngineViewMsg;
-class ezGALRenderTargetSetup;
-class ezActor;
 struct ezGALRenderTargets;
 
 using ezRenderPipelineResourceHandle = ezTypedResourceHandle<class ezRenderPipelineResource>;
@@ -36,6 +35,7 @@ public:
   virtual ezWindowHandle GetNativeWindowHandle() const override { return m_hWnd; }
   virtual void ProcessWindowMessages() override {}
   virtual bool IsFullscreenWindow(bool bOnlyProperFullscreenMode = false) const override { return false; }
+  virtual bool IsVisible() const override { return true; }
   virtual void AddReference() override { m_iReferenceCount.Increment(); }
   virtual void RemoveReference() override { m_iReferenceCount.Decrement(); }
 
@@ -88,7 +88,7 @@ protected:
 
 private:
   ezEngineProcessDocumentContext* m_pDocumentContext;
-  ezActor* m_pEditorWndActor = nullptr;
+  ezRegisteredWndHandle m_hEditorWindow;
 
 protected:
   ezCamera m_Camera;

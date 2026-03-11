@@ -70,6 +70,8 @@ ezUInt32 ezGeometry::AddVertex(const ezVec3& vPos, const ezVec3& vNormal, const 
   Vertex& v = m_Vertices.ExpandAndGetRef();
   v.m_vPosition = vPos;
   v.m_vNormal = vNormal;
+  v.m_vTangent.SetZero();
+  v.m_fBiTangentSign = 0;
   v.m_vTexCoord = vTexCoord;
   v.m_Color = color;
   v.m_BoneIndices = vBoneIndices;
@@ -243,8 +245,14 @@ struct TangentContext
 
   static void setTSpace(const SMikkTSpaceContext* pContext, const float pTangent[], const float pBiTangent[], const float fMagS, const float fMagT, const tbool isOrientationPreserving, const int iFace, const int iVert)
   {
-    int i = 0;
-    (void)i;
+    EZ_IGNORE_UNUSED(pContext);
+    EZ_IGNORE_UNUSED(pTangent);
+    EZ_IGNORE_UNUSED(pBiTangent);
+    EZ_IGNORE_UNUSED(fMagS);
+    EZ_IGNORE_UNUSED(fMagT);
+    EZ_IGNORE_UNUSED(isOrientationPreserving);
+    EZ_IGNORE_UNUSED(iFace);
+    EZ_IGNORE_UNUSED(iVert);
   }
 
   ezGeometry* m_pGeom;
@@ -826,8 +834,8 @@ void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fPosit
 
   // cylinder wall
   {
-    ezHybridArray<ezUInt32, 512> VertsTop;
-    ezHybridArray<ezUInt32, 512> VertsBottom;
+    ezTempHybridArray<ezUInt32, 512> VertsTop;
+    ezTempHybridArray<ezUInt32, 512> VertsBottom;
 
     for (ezInt32 i = 0; i <= uiSegments; ++i)
     {
@@ -885,7 +893,7 @@ void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fPosit
 
   if (bCapBottom)
   {
-    ezHybridArray<ezUInt32, 512> VertsBottom;
+    ezTempHybridArray<ezUInt32, 512> VertsBottom;
 
     if (bIsFraction)
     {
@@ -934,7 +942,7 @@ void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fPosit
 
   if (bCapTop)
   {
-    ezHybridArray<ezUInt32, 512> VertsTop;
+    ezTempHybridArray<ezUInt32, 512> VertsTop;
 
     if (bIsFraction)
     {
@@ -997,8 +1005,8 @@ void ezGeometry::AddCylinderOnePiece(float fRadiusTop, float fRadiusBottom, floa
 
   // cylinder wall
   {
-    ezHybridArray<ezUInt32, 512> VertsTop;
-    ezHybridArray<ezUInt32, 512> VertsBottom;
+    ezTempHybridArray<ezUInt32, 512> VertsTop;
+    ezTempHybridArray<ezUInt32, 512> VertsBottom;
 
     for (ezInt32 i = 0; i < uiSegments; ++i)
     {
@@ -1040,7 +1048,7 @@ void ezGeometry::AddCone(float fRadius, float fHeight, bool bCap, ezUInt16 uiSeg
 
   const bool bFlipWinding = options.IsFlipWindingNecessary();
 
-  ezHybridArray<ezUInt32, 512> VertsBottom;
+  ezTempHybridArray<ezUInt32, 512> VertsBottom;
 
   const ezAngle fDegStep = ezAngle::MakeFromDegree(360.0f / uiSegments);
 
@@ -1241,7 +1249,7 @@ void ezGeometry::AddHalfSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiSt
 
   if (bCap)
   {
-    ezHybridArray<ezUInt32, 256> uiCap;
+    ezTempHybridArray<ezUInt32, 256> uiCap;
 
     for (ezUInt32 i = uiTopVertex - 1; i >= uiTopVertex - uiSegments; --i)
       uiCap.PushBack(i);
@@ -1387,7 +1395,7 @@ void ezGeometry::AddTorus(float fInnerRadius, float fOuterRadius, ezUInt16 uiSeg
   {
     float fU = ((float)seg / (float)uiSegments) * 2.0f;
 
-    const ezAngle fAngle = seg * fAngleStepSegment;
+    const ezAngle fAngle = float(seg) * fAngleStepSegment;
 
     const float fSinAngle = ezMath::Sin(fAngle);
     const float fCosAngle = ezMath::Cos(fAngle);
@@ -1399,7 +1407,7 @@ void ezGeometry::AddTorus(float fInnerRadius, float fOuterRadius, ezUInt16 uiSeg
     {
       float fV = (float)p / (float)uiSegmentDetail;
 
-      const ezAngle fCylinderAngle = p * fAngleStepCylinder;
+      const ezAngle fCylinderAngle = float(p) * fAngleStepCylinder;
 
       const ezVec3 vDir(ezMath::Cos(fCylinderAngle) * fSinAngle, ezMath::Cos(fCylinderAngle) * fCosAngle, ezMath::Sin(fCylinderAngle));
 

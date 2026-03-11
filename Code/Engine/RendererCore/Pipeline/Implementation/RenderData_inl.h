@@ -20,25 +20,6 @@ EZ_ALWAYS_INLINE bool ezRenderData::Category::operator!=(const Category& other) 
 //////////////////////////////////////////////////////////////////////////
 
 // static
-EZ_FORCE_INLINE const ezRenderer* ezRenderData::GetCategoryRenderer(Category category, const ezRTTI* pRenderDataType)
-{
-  if (s_bRendererInstancesDirty)
-  {
-    CreateRendererInstances();
-  }
-
-  auto& categoryData = s_CategoryData[category.m_uiValue];
-
-  ezUInt32 uiIndex = 0;
-  if (categoryData.m_TypeToRendererIndex.TryGetValue(pRenderDataType, uiIndex))
-  {
-    return s_RendererInstances[uiIndex].Borrow();
-  }
-
-  return nullptr;
-}
-
-// static
 EZ_FORCE_INLINE ezHashedString ezRenderData::GetCategoryName(Category category)
 {
   if (category.m_uiValue < s_CategoryData.GetCount())
@@ -49,28 +30,31 @@ EZ_FORCE_INLINE ezHashedString ezRenderData::GetCategoryName(Category category)
   return ezHashedString();
 }
 
-EZ_FORCE_INLINE ezUInt64 ezRenderData::GetCategorySortingKey(Category category, const ezCamera& camera) const
+//////////////////////////////////////////////////////////////////////////
+
+EZ_ALWAYS_INLINE bool ezRenderData::IsDynamic() const
+{
+  return m_Flags.IsSet(Flags::Dynamic);
+}
+
+EZ_ALWAYS_INLINE bool ezRenderData::IsStatic() const
+{
+  return !m_Flags.IsSet(Flags::Dynamic);
+}
+
+EZ_ALWAYS_INLINE bool ezRenderData::FlipWinding() const
+{
+  return m_Flags.IsSet(Flags::FlipWinding);
+}
+
+EZ_FORCE_INLINE ezUInt64 ezRenderData::GetFinalSortingKey(Category category, const ezCamera& camera) const
 {
   return s_CategoryData[category.m_uiValue].m_sortingKeyFunc(this, camera);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-template <typename T>
-static T* ezCreateRenderDataForThisFrame(const ezGameObject* pOwner)
+EZ_FORCE_INLINE bool ezInstanceableRenderData::CanBatchByBaseValues(const ezInstanceableRenderData& other) const
 {
-  EZ_CHECK_AT_COMPILETIME(EZ_IS_DERIVED_FROM_STATIC(ezRenderData, T));
-
-  T* pRenderData = EZ_NEW(ezFrameAllocator::GetCurrentAllocator(), T);
-
-  if (pOwner != nullptr)
-  {
-    pRenderData->m_hOwner = pOwner->GetHandle();
-  }
-
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  pRenderData->m_pOwner = pOwner;
-#endif
-
-  return pRenderData;
+  return FlipWinding() == other.FlipWinding() && m_hInstanceDataBuffer == other.m_hInstanceDataBuffer;
 }

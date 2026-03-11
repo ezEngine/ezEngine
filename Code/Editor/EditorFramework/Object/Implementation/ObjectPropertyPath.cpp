@@ -96,6 +96,14 @@ ezStatus ezObjectPropertyPath::CreatePropertyPath(
   return ezStatus(EZ_SUCCESS);
 }
 
+void ezObjectPropertyPath::AppendSubIndices(ezStringBuilder& ref_sPropertyPath, ezArrayPtr<ezVariant> indices)
+{
+  for (ezUInt32 i = 0; i < indices.GetCount(); ++i)
+  {
+    ref_sPropertyPath.AppendFormat("[{0}]", indices[i]);
+  }
+}
+
 ezStatus ezObjectPropertyPath::ResolvePath(const ezObjectPropertyPathContext& context, ezDynamicArray<ezPropertyReference>& ref_keys,
   const char* szObjectSearchSequence, const char* szComponentType, const char* szPropertyPath)
 {
@@ -103,13 +111,13 @@ ezStatus ezObjectPropertyPath::ResolvePath(const ezObjectPropertyPathContext& co
   ref_keys.Clear();
   const ezDocumentObject* pContext = context.m_pContextObject;
   ezDocumentObjectVisitor visitor(context.m_pAccessor->GetObjectManager(), "Children", context.m_sRootProperty);
-  ezHybridArray<const ezDocumentObject*, 8> input;
+  ezTempHybridArray<const ezDocumentObject*, 8> input;
   input.PushBack(pContext);
-  ezHybridArray<const ezDocumentObject*, 8> output;
+  ezTempHybridArray<const ezDocumentObject*, 8> output;
 
   // Find objects that match the search path
   ezStringBuilder sObjectSearchSequence = szObjectSearchSequence;
-  ezHybridArray<ezStringView, 4> names;
+  ezTempHybridArray<ezStringView, 4> names;
   sObjectSearchSequence.Split(false, names, "/");
   for (const ezStringView& sName : names)
   {
@@ -193,12 +201,12 @@ ezStatus ezObjectPropertyPath::ResolvePropertyPath(
   EZ_ASSERT_DEV(context.m_pAccessor && context.m_pContextObject && szPropertyPath != nullptr, "All context fields must be valid.");
   const ezDocumentObject* pObject = context.m_pContextObject;
   ezStringBuilder sPath = szPropertyPath;
-  ezHybridArray<ezStringView, 3> parts;
+  ezTempHybridArray<ezStringView, 3> parts;
   sPath.Split(false, parts, "/");
   for (ezUInt32 i = 0; i < parts.GetCount(); i++)
   {
     ezStringBuilder sPart = parts[i];
-    ezHybridArray<ezStringBuilder, 2> parts2;
+    ezTempHybridArray<ezStringBuilder, 2> parts2;
     sPart.Split(false, parts2, "[", "]");
     if (parts2.GetCount() == 0 || parts2.GetCount() > 2)
     {
@@ -222,7 +230,8 @@ ezStatus ezObjectPropertyPath::ResolvePropertyPath(
     }
 
     ezVariant value;
-    ezStatus res;
+    ezStatus res(EZ_SUCCESS);
+
     if (const ezExposedParametersAttribute* pAttrib = pProperty->GetAttributeByType<ezExposedParametersAttribute>())
     {
       const ezAbstractProperty* pParameterSourceProp = pObject->GetType()->FindPropertyByName(pAttrib->GetParametersSource());

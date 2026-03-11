@@ -7,6 +7,7 @@
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Math/Vec2.h>
+#include <Foundation/Threading/Mutex.h>
 #include <Foundation/Types/RefCounted.h>
 #include <Foundation/Types/SharedPtr.h>
 #include <Recast.h>
@@ -71,7 +72,7 @@ class EZ_AIPLUGIN_DLL ezAiNavMesh final
   EZ_DISALLOW_COPY_AND_ASSIGN(ezAiNavMesh);
 
 public:
-  ezAiNavMesh(ezUInt32 uiNumSectorsX, ezUInt32 uiNumSectorsY, float fSectorMetersXY, const ezAiNavmeshConfig& navmeshConfig);
+  ezAiNavMesh(const ezAiNavmeshConfig& navmeshConfig);
   ~ezAiNavMesh();
 
   using SectorID = ezUInt32;

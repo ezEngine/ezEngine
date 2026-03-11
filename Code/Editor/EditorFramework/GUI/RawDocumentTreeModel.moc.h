@@ -84,6 +84,8 @@ public:
 /// Hierarchy is defined by ezQtDocumentTreeModelAdapter that have to be added via AddAdapter.
 class EZ_EDITORFRAMEWORK_DLL ezQtDocumentTreeModel : public QAbstractItemModel
 {
+  Q_OBJECT
+
 public:
   ezQtDocumentTreeModel(const ezDocumentObjectManager* pTree, const ezUuid& root = ezUuid());
   ~ezQtDocumentTreeModel();
@@ -100,6 +102,9 @@ public:
   void SetAllowDragDrop(bool bAllow);
 
   static bool MoveObjects(const ezDragDropInfo& info);
+
+  /// \brief Returns the ezDocumentObject that the index points to.
+  const ezDocumentObject* GetObject(const QModelIndex index) const;
 
 public: // QAbstractItemModel
   virtual QModelIndex index(int iRow, int iColumn, const QModelIndex& parent = QModelIndex()) const override;

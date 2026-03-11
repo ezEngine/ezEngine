@@ -1,11 +1,12 @@
 #pragma once
 
-#include <Core/Messages/EventMessage.h>
 #include <GameEngine/GameEngineDLL.h>
 
-struct EZ_GAMEENGINE_DLL ezMsgDamage : public ezEventMessage
+#include <Foundation/Communication/Message.h>
+
+struct EZ_GAMEENGINE_DLL ezMsgDamage : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgDamage, ezEventMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgDamage, ezMessage);
 
   double m_fDamage = 0;
   ezString m_sHitObjectName; ///< The actual game object that was hit (may be a child of the object to which the message is sent)

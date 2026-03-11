@@ -62,15 +62,9 @@ public:
   SampleRenderComponent();
   ~SampleRenderComponent();
 
-  float m_fSize = 1.0f;             // [ property ]
-  ezColor m_Color = ezColor::White; // [ property ]
-
-  void SetTexture(const ezTexture2DResourceHandle& hTexture);
-  const ezTexture2DResourceHandle& GetTexture() const;
-
-  void SetTextureFile(const char* szFile); // [ property ]
-  const char* GetTextureFile(void) const;  // [ property ]
-
+  float m_fSize = 1.0f;                                // [ property ]
+  ezColor m_Color = ezColor::White;                    // [ property ]
+  ezTexture2DResourceHandle m_hTexture;                // [ property ]
   ezBitflags<SampleRenderComponentMask> m_RenderTypes; // [ property ]
 
   void OnSetColor(ezMsgSetColor& msg); // [ msg handler ]
@@ -79,6 +73,4 @@ public:
 
 private:
   void Update();
-
-  ezTexture2DResourceHandle m_hTexture;
 };

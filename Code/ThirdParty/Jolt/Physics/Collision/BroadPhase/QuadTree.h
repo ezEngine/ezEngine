@@ -33,12 +33,12 @@ private:
 		JPH_OVERRIDE_NEW_DELETE
 
 		/// Default constructor does not initialize
-		inline 					NodeID() = default;
+		inline					NodeID() = default;
 
 		/// Construct a node ID
 		static inline NodeID	sInvalid()							{ return NodeID(cInvalidNodeIndex); }
-		static inline NodeID	sFromBodyID(BodyID inID) 			{ NodeID node_id(inID.GetIndexAndSequenceNumber()); JPH_ASSERT(node_id.IsBody()); return node_id; }
-		static inline NodeID	sFromNodeIndex(uint32 inIdx)		{ NodeID node_id(inIdx | cIsNode); JPH_ASSERT(node_id.IsNode()); return node_id; }
+		static inline NodeID	sFromBodyID(BodyID inID)			{ NodeID node_id(inID.GetIndexAndSequenceNumber()); JPH_ASSERT(node_id.IsBody()); return node_id; }
+		static inline NodeID	sFromNodeIndex(uint32 inIdx)		{ JPH_ASSERT((inIdx & cIsNode) == 0); return NodeID(inIdx | cIsNode); }
 
 		/// Check what type of ID it is
 		inline bool				IsValid() const						{ return mID != cInvalidNodeIndex; }
@@ -143,7 +143,7 @@ private:
 
 	static_assert(sizeof(atomic<float>) == 4, "Assuming that an atomic doesn't add any additional storage");
 	static_assert(sizeof(atomic<uint32>) == 4, "Assuming that an atomic doesn't add any additional storage");
-	static_assert(is_trivially_destructible<Node>(), "Assuming that we don't have a destructor");
+	static_assert(std::is_trivially_destructible<Node>(), "Assuming that we don't have a destructor");
 
 public:
 	/// Class that allocates tree nodes, can be shared between multiple trees
@@ -261,8 +261,7 @@ public:
 
 private:
 	/// Constants
-	static const uint32			cInvalidNodeIndex = 0xffffffff;		///< Value used to indicate node index is invalid
-	static const float			cLargeFloat;						///< A large floating point number that is small enough to not cause any overflows
+	static constexpr uint32		cInvalidNodeIndex = 0xffffffff;		///< Value used to indicate node index is invalid
 	static const AABox			cInvalidBounds;						///< Invalid bounding box using cLargeFloat
 
 	/// We alternate between two trees in order to let collision queries complete in parallel to adding/removing objects to the tree
@@ -314,7 +313,7 @@ private:
 	/// After the function returns ioNodeIDs and ioNodeCenters will be shuffled
 	static void					sPartition4(NodeID *ioNodeIDs, Vec3 *ioNodeCenters, int inBegin, int inEnd, int *outSplit);
 
-#ifdef _DEBUG
+#ifdef JPH_DEBUG
 	/// Validate that the tree is consistent.
 	/// Note: This function only works if the tree is not modified while we're traversing it.
 	void						ValidateTree(const BodyVector &inBodies, const TrackingVector &inTracking, uint32 inNodeIndex, uint32 inNumExpectedBodies) const;
@@ -324,6 +323,25 @@ private:
 	/// Dump the tree in DOT format (see: https://graphviz.org/)
 	void						DumpTree(const NodeID &inRoot, const char *inFileNamePrefix) const;
 #endif
+
+	/// Allocator that controls adding / freeing nodes
+	Allocator *					mAllocator = nullptr;
+
+	/// This is a list of nodes that must be deleted after the trees are swapped and the old tree is no longer in use
+	Allocator::Batch			mFreeNodeBatch;
+
+	/// Number of bodies currently in the tree
+	/// This is aligned to be in a different cache line from the `Allocator` pointer to prevent cross-thread syncs
+	/// when reading nodes.
+	alignas(JPH_CACHE_LINE_SIZE) atomic<uint32> mNumBodies { 0 };
+
+	/// We alternate between two tree root nodes. When updating, we activate the new tree and we keep the old tree alive.
+	/// for queries that are in progress until the next time DiscardOldTree() is called.
+	RootNode					mRootNode[2];
+	atomic<uint32>				mRootNodeIndex { 0 };
+
+	/// Flag to keep track of changes to the broadphase, if false, we don't need to UpdatePrepare/Finalize()
+	atomic<bool>				mIsDirty = false;
 
 #ifdef JPH_TRACK_BROADPHASE_STATS
 	/// Mutex protecting the various LayerToStats members
@@ -366,23 +384,6 @@ private:
 	/// Name of this tree for debugging purposes
 	const char *				mName = "Layer";
 #endif // JPH_EXTERNAL_PROFILE || JPH_PROFILE_ENABLED
-
-	/// Number of bodies currently in the tree
-	atomic<uint32>				mNumBodies { 0 };
-
-	/// We alternate between two tree root nodes. When updating, we activate the new tree and we keep the old tree alive.
-	/// for queries that are in progress until the next time DiscardOldTree() is called.
-	RootNode					mRootNode[2];
-	atomic<uint32>				mRootNodeIndex { 0 };
-
-	/// Allocator that controls adding / freeing nodes
-	Allocator *					mAllocator = nullptr;
-
-	/// This is a list of nodes that must be deleted after the trees are swapped and the old tree is no longer in use
-	Allocator::Batch			mFreeNodeBatch;
-
-	/// Flag to keep track of changes to the broadphase, if false, we don't need to UpdatePrepare/Finalize()
-	atomic<bool>				mIsDirty = false;
 };
 
 JPH_NAMESPACE_END

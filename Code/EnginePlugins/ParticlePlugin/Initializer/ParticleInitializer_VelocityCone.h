@@ -3,6 +3,9 @@
 #include <Foundation/Types/VarianceTypes.h>
 #include <ParticlePlugin/Initializer/ParticleInitializer.h>
 
+/// Initializer that sets particle velocity within a cone
+///
+/// Velocities point along the local Z-axis with random deviation within the cone angle.
 class EZ_PARTICLEPLUGIN_DLL ezParticleInitializerFactory_VelocityCone final : public ezParticleInitializerFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializerFactory_VelocityCone, ezParticleInitializerFactory);

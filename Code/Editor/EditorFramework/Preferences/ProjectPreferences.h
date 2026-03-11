@@ -16,4 +16,10 @@ public:
 
   // the directory where the project should be exported to
   ezString m_sExportFolder;
+
+  // path to a folder where shared materials should be stored
+  ezString m_sSharedMaterialFolder;
+
+  // the default mesh include tag used to indicate that a sub-mesh is an LOD
+  ezString m_sMeshLodPrefix;
 };

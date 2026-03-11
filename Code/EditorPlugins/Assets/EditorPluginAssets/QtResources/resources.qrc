@@ -42,6 +42,7 @@
     <file>JointSwingLimits.svg</file>
     <file>JointTwistLimits.svg</file>
     <file>PreviewMesh.svg</file>
+    <file>Foot.svg</file>    
   </qresource>
 </RCC>
 

@@ -19,10 +19,12 @@
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezIDE, 1)
-  EZ_ENUM_CONSTANT(ezIDE::VisualStudioCode),
+  EZ_ENUM_CONSTANT(ezIDE::DefaultProgram),
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   EZ_ENUM_CONSTANT(ezIDE::VisualStudio),
 #endif
+  EZ_ENUM_CONSTANT(ezIDE::VisualStudioCode),
+  EZ_ENUM_CONSTANT(ezIDE::Rider),
 EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezCompiler, 1)
@@ -31,6 +33,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezCompiler, 1)
   EZ_ENUM_CONSTANT(ezCompiler::Gcc),
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   EZ_ENUM_CONSTANT(ezCompiler::Vs2022),
+  EZ_ENUM_CONSTANT(ezCompiler::Vs2026),
 #endif
 EZ_END_STATIC_REFLECTED_ENUM;
 
@@ -101,17 +104,18 @@ namespace
     ezProcessOptions po;
     po.AddArgument("--version");
     po.m_sProcess = sName;
-    po.m_onStdOut = [&sStdout](ezStringView out) { sStdout.Append(out); };
+    po.m_onStdOut = [&sStdout](ezStringView out)
+    { sStdout.Append(out); };
 
     if (ezProcess::Execute(po).Failed())
       return EZ_FAILURE;
 
-    ezHybridArray<ezStringView, 8> lines;
+    ezTempHybridArray<ezStringView, 8> lines;
     sStdout.Split(false, lines, "\r", "\n");
     if (lines.IsEmpty())
       return EZ_FAILURE;
 
-    ezHybridArray<ezStringView, 4> splitResult;
+    ezTempHybridArray<ezStringView, 4> splitResult;
     lines[0].Split(false, splitResult, " ");
 
     if (splitResult.IsEmpty())
@@ -198,6 +202,8 @@ ezString ezCppProject::GetGeneratorFolderName(const ezCppSettings& cfg)
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     case ezCompiler::Vs2022:
       return "Vs2022x64";
+    case ezCompiler::Vs2026:
+      return "Vs2026x64";
 #endif
     case ezCompiler::Clang:
       return "Clangx64";
@@ -220,6 +226,8 @@ ezString ezCppProject::GetCMakeGeneratorName(const ezCppSettings& cfg)
   {
     case ezCompiler::Vs2022:
       return "Visual Studio 17 2022";
+    case ezCompiler::Vs2026:
+      return "Visual Studio 18 2026";
     case ezCompiler::Clang:
       return "Ninja";
   }
@@ -260,6 +268,12 @@ ezString ezCppProject::GetSolutionPath(const ezCppSettings& cfg)
     sSolutionFile.Append(".sln");
     return sSolutionFile;
   }
+  if (preferences->m_CompilerPreferences.m_Compiler == ezCompiler::Vs2026)
+  {
+    sSolutionFile.AppendPath(cfg.m_sPluginName);
+    sSolutionFile.Append(".slnx");
+    return sSolutionFile;
+  }
 #endif
 
   sSolutionFile.AppendPath("build.ninja");
@@ -272,14 +286,44 @@ ezStatus ezCppProject::OpenSolution(const ezCppSettings& cfg)
 
   switch (preferences->m_Ide.GetValue())
   {
+    case ezIDE::DefaultProgram:
+    {
+      if (ezQtUiServices::OpenFileInDefaultProgram(ezCppProject::GetSolutionPath(cfg)).Failed())
+      {
+        return ezStatus("Failed to open solution with default program.\n\nGo to 'Tools > Preferences > C++ Projects' to select another option.");
+      }
+
+      return ezStatus(EZ_SUCCESS);
+    }
+
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     case ezIDE::VisualStudio:
-      if (!ezQtUiServices::OpenFileInDefaultProgram(ezCppProject::GetSolutionPath(cfg)))
+    {
+      if (ezQtUiServices::OpenInVisualStudio(ezCppProject::GetSolutionPath(cfg)).Failed())
       {
-        return ezStatus("Opening the solution in Visual Studio failed.");
+        return ezStatus("Failed to open solution with Visual Studio.\n\nGo to 'Tools > Preferences > C++ Projects' to select another option.");
       }
-      break;
+
+      return ezStatus(EZ_SUCCESS);
+    }
 #endif
+
+    case ezIDE::Rider:
+    {
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+      auto solutionPath = ezCppProject::GetSolutionPath(cfg);
+#else
+      auto solutionPath = ezCppProject::GetTargetSourceDir();
+#endif
+
+      if (ezQtUiServices::OpenInRider(solutionPath).Failed())
+      {
+        return ezStatus("Failed to open solution with Rider.\n\nGo to 'Tools > Preferences > C++ Projects' to select another option.");
+      }
+
+      return ezStatus(EZ_SUCCESS);
+    }
+
     case ezIDE::VisualStudioCode:
     {
       auto solutionPath = ezCppProject::GetTargetSourceDir();
@@ -287,13 +331,14 @@ ezStatus ezCppProject::OpenSolution(const ezCppSettings& cfg)
       args.push_back(QString::fromUtf8(solutionPath.GetData(), solutionPath.GetElementCount()));
       if (ezStatus status = ezQtUiServices::OpenInVsCode(args); status.Failed())
       {
-        return ezStatus(ezFmt("Opening Visual Studio Code failed: {}", status.m_sMessage));
+        return ezStatus(ezFmt("Failed to open solution with Visual Studio Code: {}\n\nGo to 'Tools > Preferences > C++ Projects' to select another option.", status.GetMessageString()));
       }
+
+      return ezStatus(EZ_SUCCESS);
     }
-    break;
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return ezStatus("Failed to open solution: Unknown error");
 }
 
 ezStatus ezCppProject::OpenInCodeEditor(const ezStringView& sFileName, ezInt32 iLineNumber)
@@ -326,7 +371,7 @@ ezStatus ezCppProject::OpenInCodeEditor(const ezStringView& sFileName, ezInt32 i
     QStringList args;
     args.append("/B");
     args.append(QString::fromUtf8(dir.GetData()));
-    args.append(QString::fromUtf8(sFileName.GetStartPointer(),sFileName.GetElementCount()));
+    args.append(QString::fromUtf8(sFileName.GetStartPointer(), sFileName.GetElementCount()));
     args.append(QString::fromUtf8(sLineNumber.GetData()));
 
     QProcess proc;
@@ -366,6 +411,8 @@ ezStringView ezCppProject::CompilerToString(ezCompiler::Enum compiler)
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     case ezCompiler::Vs2022:
       return "Vs2022";
+    case ezCompiler::Vs2026:
+      return "Vs2026";
 #endif
     case ezCompiler::Clang:
       return "Clang";
@@ -387,7 +434,11 @@ ezCompiler::Enum ezCppProject::GetSdkCompiler()
 #elif EZ_ENABLED(EZ_COMPILER_GCC)
   return ezCompiler::Gcc;
 #elif EZ_ENABLED(EZ_COMPILER_MSVC)
+#  if _MSC_VER >= 1950
+  return ezCompiler::Vs2026;
+#  else
   return ezCompiler::Vs2022;
+#  endif
 #else
 #  error Unknown compiler
 #endif
@@ -420,7 +471,7 @@ ezStatus ezCppProject::TestCompiler()
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   // As CMake is selecting the compiler it is hard to do a version check, for now just assume they are compatible.
-  if (GetSdkCompiler() == ezCompiler::Vs2022)
+  if (GetSdkCompiler() == ezCompiler::Vs2022 || GetSdkCompiler() == ezCompiler::Vs2026)
   {
     return ezStatus(EZ_SUCCESS);
   }
@@ -591,7 +642,72 @@ bool ezCppProject::ExistsProjectCMakeListsTxt()
   return ezOSFile::ExistsFile(sPath);
 }
 
-ezResult ezCppProject::PopulateWithDefaultSources(const ezCppSettings& cfg)
+bool ezCppProject::ShouldOverwriteExisting(ezStringView sSrc, ezStringView sDst)
+{
+  const ezStringView sFilename = sDst.GetFileNameAndExtension();
+
+  // only check certain files
+  // they use a "#ez-version" tag to identify when a file got modified in such a way
+  // that existing files should be overwritten
+  if (sFilename != "CMakeLists.txt" && sFilename != ".clang-format" && sFilename != ".editorconfig" && sFilename != ".gitattributes" && sFilename != ".gitignore")
+  {
+    return false;
+  }
+
+  ezOSFile srcFile;
+  if (srcFile.Open(sSrc, ezFileOpenMode::Read).Failed())
+    return false;
+
+  ezOSFile dstFile;
+  if (dstFile.Open(sDst, ezFileOpenMode::Read).Failed())
+    return true;
+
+  ezDataBuffer sc, dc;
+  srcFile.ReadAll(sc);
+  dstFile.ReadAll(dc);
+
+  if (sc == dc)
+    return false;
+
+  ezStringView srcContent = ezStringView((const char*)sc.GetData(), sc.GetCount());
+  ezStringView dstContent = ezStringView((const char*)dc.GetData(), dc.GetCount());
+
+  ezStringView sVersionSrc, sVersionDst;
+
+  if (const char* vSrc = srcContent.FindSubString("#ez-version"))
+  {
+    const char* srcEnd = srcContent.FindSubString("\n", vSrc);
+
+    if (srcEnd == nullptr)
+    {
+      srcEnd = srcContent.GetEndPointer();
+    }
+
+    sVersionSrc = ezStringView(vSrc + 8, srcEnd);
+    sVersionSrc.Trim();
+  }
+
+  if (const char* vDst = dstContent.FindSubString("#ez-version"))
+  {
+    const char* dstEnd = dstContent.FindSubString("\n", vDst);
+
+    if (dstEnd == nullptr)
+    {
+      dstEnd = dstContent.GetEndPointer();
+    }
+
+    sVersionDst = ezStringView(vDst + 8, dstEnd);
+    sVersionDst.Trim();
+  }
+
+  // don't overwrite the destination file, if it is different, but at the same version
+  if (sVersionSrc == sVersionDst)
+    return false;
+
+  return true;
+}
+
+ezResult ezCppProject::PopulateWithDefaultSources(const ezCppSettings& cfg, ezUInt32* pNumFilesCopied /*= nullptr*/)
 {
   QApplication::setOverrideCursor(Qt::WaitCursor);
   EZ_SCOPE_EXIT(QApplication::restoreOverrideCursor());
@@ -615,10 +731,12 @@ ezResult ezCppProject::PopulateWithDefaultSources(const ezCppSettings& cfg)
     ezString m_sDestination;
   };
 
-  ezHybridArray<FileToCopy, 32> filesCopied;
+  ezTempHybridArray<FileToCopy, 32> filesCopied;
 
   // gather files
   {
+    bool bCheckOverwrite = false;
+
     for (const auto& item : items)
     {
       ezStringBuilder srcPath, dstPath;
@@ -635,14 +753,34 @@ ezResult ezCppProject::PopulateWithDefaultSources(const ezCppSettings& cfg)
       if (ezOSFile::ExistsFile(dstPath))
       {
         // if any file already exists, don't copy non-existing (user might have deleted unwanted sample files)
-        filesCopied.Clear();
-        break;
+        if (!bCheckOverwrite)
+        {
+          // first time we see an existing file, clear the list of files to copy and enter different mode
+          // from now on, we only add files to the copy list, that should get overwritten
+          filesCopied.Clear();
+          bCheckOverwrite = true;
+        }
+      }
+
+      if (bCheckOverwrite)
+      {
+        if (!ShouldOverwriteExisting(srcPath, dstPath))
+        {
+          // in this mode, don't copy files unless they should be overwritten
+          // mostly to update existing CMakeLists.txt files with newer versions
+          continue;
+        }
       }
 
       auto& ftc = filesCopied.ExpandAndGetRef();
       ftc.m_sSource = srcPath;
       ftc.m_sDestination = dstPath;
     }
+  }
+
+  if (pNumFilesCopied)
+  {
+    *pNumFilesCopied = filesCopied.GetCount();
   }
 
   // Copy files
@@ -690,6 +828,8 @@ ezResult ezCppProject::PopulateWithDefaultSources(const ezCppSettings& cfg)
     }
   }
 
+  EZ_SUCCEED_OR_RETURN(UpdateEnginePluginDependencies());
+
   s_ChangeEvents.Broadcast(cfg);
   return EZ_SUCCESS;
 }
@@ -718,6 +858,8 @@ ezResult ezCppProject::RunCMake(const ezCppSettings& cfg)
     return EZ_FAILURE;
   }
 
+  EZ_SUCCEED_OR_RETURN(UpdateEnginePluginDependencies());
+
   if (auto compilerWorking = TestCompiler(); compilerWorking.Failed())
   {
     compilerWorking.LogFailure();
@@ -744,7 +886,7 @@ ezResult ezCppProject::RunCMake(const ezCppSettings& cfg)
 
   if (res.Failed())
   {
-    ezLog::Error("CMake generation failed:\n\n{}\n{}\n", log.m_sBuffer, res.m_sMessage);
+    ezLog::Error("CMake generation failed:\n\n{}\n{}\n", log.m_sBuffer, res.GetMessageString());
     return EZ_FAILURE;
   }
 
@@ -783,7 +925,7 @@ ezResult ezCppProject::CompileSolution(const ezCppSettings& cfg)
 
   EZ_LOG_BLOCK("Compile C++ Plugin");
 
-  ezHybridArray<ezString, 32> errors;
+  ezTempHybridArray<ezString, 32> errors;
   ezInt32 iReturnCode = 0;
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   if (ezSystemInformation::IsDebuggerAttached())
@@ -802,7 +944,7 @@ ezResult ezCppProject::CompileSolution(const ezCppSettings& cfg)
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   const ezCppProject* preferences = ezPreferences::QueryPreferences<ezCppProject>();
 
-  if (preferences->m_CompilerPreferences.m_Compiler == ezCompiler::Vs2022)
+  if (preferences->m_CompilerPreferences.m_Compiler == ezCompiler::Vs2022 || preferences->m_CompilerPreferences.m_Compiler == ezCompiler::Vs2026)
   {
     po.AddArgument("--config");
     po.AddArgument(BUILDSYSTEM_BUILDTYPE);
@@ -810,11 +952,13 @@ ezResult ezCppProject::CompileSolution(const ezCppSettings& cfg)
 #endif
   po.m_sWorkingDirectory = GetBuildDir(cfg);
   po.m_bHideConsoleWindow = true;
-  po.m_onStdOut = [&](ezStringView sText) {
+  po.m_onStdOut = [&](ezStringView sText)
+  {
     if (sText.FindSubString_NoCase("error") != nullptr)
       errors.PushBack(sText);
   };
-  po.m_onStdError = [&](ezStringView sText) {
+  po.m_onStdError = [&](ezStringView sText)
+  {
     if (sText.FindSubString_NoCase("error") != nullptr)
       errors.PushBack(sText);
   };
@@ -925,6 +1069,85 @@ void ezCppProject::UpdatePluginConfig(const ezCppSettings& cfg)
   ezQtEditorApp::GetSingleton()->WritePluginSelectionStateDDL();
 }
 
+ezResult ezCppProject::UpdateEnginePluginDependencies()
+{
+  // Only update if project has custom C++ code
+  if (!ExistsProjectCMakeListsTxt())
+    return EZ_SUCCESS;
+
+  const ezPluginBundleSet& bundles = ezQtEditorApp::GetSingleton()->GetPluginBundles();
+
+  // Collect selected engine plugin target names
+  ezDynamicArray<ezString> selectedPlugins;
+  for (auto it = bundles.m_Plugins.GetIterator(); it.IsValid(); ++it)
+  {
+    const ezPluginBundle& bundle = it.Value();
+
+    // Filter: selected, not mandatory, not a project plugin, has CMake target name
+    if (bundle.m_bSelected &&
+        !bundle.m_bMandatory &&
+        !bundle.m_ExclusiveFeatures.Contains("ProjectPlugin") &&
+        !bundle.m_sCMakeTargetName.IsEmpty())
+    {
+      selectedPlugins.PushBack(bundle.m_sCMakeTargetName);
+    }
+  }
+
+  // Sort plugins for consistent output
+  selectedPlugins.Sort();
+
+  // Build the CMake file content
+  ezStringBuilder content;
+  content.AppendWithSeparator("# This file is auto-generated, do not modify.\n", "");
+  content.Append("# The ezEditor may modify this file to add build configuration options.\n");
+  content.Append("\n");
+
+  // Only add target_link_libraries if there are selected plugins
+  if (!selectedPlugins.IsEmpty())
+  {
+    content.Append("\n");
+    content.Append("# Link against selected engine plugins\n");
+    content.Append("target_link_libraries(${PROJECT_NAME} PRIVATE\n");
+
+    for (const ezString& plugin : selectedPlugins)
+    {
+      content.Append("  ", plugin, "\n");
+    }
+
+    content.Append(")\n");
+  }
+
+  // Write to file
+  ezStringBuilder sFilePath = GetTargetSourceDir();
+  sFilePath.AppendPath("Configs/CMakeEngineExtensions.txt");
+
+  // Ensure directory exists
+  ezStringBuilder sDir = sFilePath.GetFileDirectory();
+  if (ezOSFile::CreateDirectoryStructure(sDir).Failed())
+  {
+    ezLog::Error("Failed to create directory for CMakeEngineExtensions.txt: '{}'", sDir);
+    return EZ_FAILURE;
+  }
+
+  // Write file
+  ezDeferredFileWriter fileWriter;
+  fileWriter.SetOutput(sFilePath);
+
+  if (fileWriter.WriteBytes(content.GetData(), content.GetElementCount()).Failed())
+  {
+    ezLog::Error("Failed to write CMakeEngineExtensions.txt: '{}'", sFilePath);
+    return EZ_FAILURE;
+  }
+
+  if (fileWriter.Close().Failed())
+  {
+    ezLog::Error("Failed to close CMakeEngineExtensions.txt: '{}'", sFilePath);
+    return EZ_FAILURE;
+  }
+
+  return EZ_SUCCESS;
+}
+
 ezResult ezCppProject::EnsureCppPluginReady()
 {
   if (!ExistsProjectCMakeListsTxt())
@@ -934,6 +1157,12 @@ ezResult ezCppProject::EnsureCppPluginReady()
   if (cppSettings.Load().Failed())
   {
     ezQtUiServices::GetSingleton()->MessageBoxWarning(ezFmt("Failed to load the C++ plugin settings."));
+    return EZ_FAILURE;
+  }
+
+  if (ezCppProject::PopulateWithDefaultSources(cppSettings).Failed())
+  {
+    ezQtUiServices::GetSingleton()->MessageBoxWarning(ezFmt("Failed to update the default source files of the plugin. See log for details."));
     return EZ_FAILURE;
   }
 
@@ -1044,7 +1273,7 @@ ezCppProject::ModifyResult ezCppProject::ModifyCMakeUserPresetsJson(const ezCppS
 
     bool needsCompilerPaths = true;
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-    if (preferences->m_CompilerPreferences.m_Compiler == ezCompiler::Vs2022)
+    if (preferences->m_CompilerPreferences.m_Compiler == ezCompiler::Vs2022 || preferences->m_CompilerPreferences.m_Compiler == ezCompiler::Vs2026)
     {
       needsCompilerPaths = false;
     }
@@ -1072,7 +1301,7 @@ ezCppProject::ModifyResult ezCppProject::ModifyCMakeUserPresetsJson(const ezCppS
     Modify(presetDict, "generator", GetCMakeGeneratorName(cfg), result);
     Modify(presetDict, "binaryDir", GetBuildDir(cfg), result);
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-    if (preferences->m_CompilerPreferences.m_Compiler == ezCompiler::Vs2022)
+    if (preferences->m_CompilerPreferences.m_Compiler == ezCompiler::Vs2022 || preferences->m_CompilerPreferences.m_Compiler == ezCompiler::Vs2026)
     {
       Modify(presetDict, "architecture", "x64", result);
     }
@@ -1102,6 +1331,10 @@ void ezCppProject::LoadPreferences()
   {
     s_MachineSpecificCompilers.PushBack({"Visual Studio 2022 (system default)", ezCompiler::Vs2022, "", "", false});
   }
+  if (sdkCompiler == ezCompiler::Vs2026)
+  {
+    s_MachineSpecificCompilers.PushBack({"Visual Studio 2026 (system default)", ezCompiler::Vs2026, "", "", false});
+  }
 
 #  if EZ_ENABLED(EZ_COMPILER_CLANG)
   // if the rcCompiler path is empty or points to a non existant file, try to autodetect it
@@ -1127,7 +1360,8 @@ void ezCppProject::LoadPreferences()
           ezDynamicArray<ezFileStats> folders;
           ezOSFile::GatherAllItemsInFolder(folders, windowsSdkBinPath, ezFileSystemIteratorFlags::ReportFolders);
 
-          folders.Sort([](const ezFileStats& a, const ezFileStats& b) { return a.m_sName > b.m_sName; });
+          folders.Sort([](const ezFileStats& a, const ezFileStats& b)
+            { return a.m_sName > b.m_sName; });
 
           for (const ezFileStats& folder : folders)
           {

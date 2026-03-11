@@ -146,7 +146,7 @@ public:
 
   void DestroyObject(ezDocumentObject* pObject);
   virtual void DestroyAllObjects();
-  virtual void GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& ref_types) const {};
+  virtual void GetCreateableTypes(ezDynamicArray<const ezRTTI*>& out_types) const {};
 
   void PatchEmbeddedClassObjects(const ezDocumentObject* pObject) const;
 

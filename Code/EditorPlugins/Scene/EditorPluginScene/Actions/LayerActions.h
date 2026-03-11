@@ -15,6 +15,7 @@ public:
   static void UnregisterActions();
 
   static void MapContextMenuActions(ezStringView sMapping);
+  static void MapToolbarActions(ezStringView sMapping);
 
   static ezActionDescriptorHandle s_hLayerCategory;
   static ezActionDescriptorHandle s_hCreateLayer;
@@ -23,6 +24,7 @@ public:
   static ezActionDescriptorHandle s_hSaveActiveLayer;
   static ezActionDescriptorHandle s_hLayerLoaded;
   static ezActionDescriptorHandle s_hLayerVisible;
+  static ezActionDescriptorHandle s_hSwitchOnSelection;
 };
 
 ///
@@ -39,6 +41,7 @@ public:
     SaveActiveLayer,
     LayerLoaded,
     LayerVisible,
+    SwitchOnSelection,
   };
 
   ezLayerAction(const ezActionContext& context, const char* szName, ActionType type);

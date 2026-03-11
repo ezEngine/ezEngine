@@ -4,8 +4,9 @@
 #include <Core/World/SettingsComponentManager.h>
 #include <Foundation/Types/SharedPtr.h>
 #include <RendererCore/BakedProbes/BakingInterface.h>
-#include <RendererCore/Declarations.h>
-#include <RendererFoundation/RendererFoundationDLL.h>
+#include <RendererCore/Material/MaterialResource.h>
+#include <RendererCore/Meshes/MeshResource.h>
+#include <RendererCore/Pipeline/RenderData.h>
 
 struct ezMsgUpdateLocalBounds;
 struct ezMsgExtractRenderData;
@@ -19,14 +20,12 @@ public:
   ~ezBakedProbesComponentManager();
 
   virtual void Initialize() override;
-  virtual void Deinitialize() override;
 
   ezMeshResourceHandle m_hDebugSphere;
   ezMaterialResourceHandle m_hDebugMaterial;
 
 private:
   void RenderDebug(const ezWorldModule::UpdateContext& updateContext);
-  void OnRenderEvent(const ezRenderWorldRenderEvent& e);
   void CreateDebugResources();
 };
 
@@ -76,4 +75,6 @@ private:
   ezSharedPtr<RenderDebugViewTask> m_pRenderDebugViewTask;
 
   ezGALTextureHandle m_hDebugViewTexture;
+
+  mutable ezInstanceDataOffset m_InstanceDataOffset;
 };

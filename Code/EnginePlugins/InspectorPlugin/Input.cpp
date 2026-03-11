@@ -62,7 +62,7 @@ namespace InputDetail
 
     for (ezUInt32 s = 0; s < InputSetNames.GetCount(); ++s)
     {
-      ezHybridArray<ezString, 24> InputActions;
+      ezTempHybridArray<ezString, 24> InputActions;
 
       ezInputManager::GetAllInputActions(InputSetNames[s].GetData(), InputActions);
 
@@ -121,5 +121,3 @@ void RemoveInputEventHandler()
 }
 
 
-
-EZ_STATICLINK_FILE(InspectorPlugin, InspectorPlugin_Input);

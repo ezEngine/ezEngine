@@ -25,7 +25,7 @@ ezTransformStatus ezImageDataAssetDocument::InternalTransformAsset(const char* s
     // if the file was touched, but nothing written to it, delete the file
     // might happen if TexConv crashed or had an error
     ezOSFile::DeleteFile(szTargetFile).IgnoreResult();
-    result.m_Result = EZ_FAILURE;
+    result = ezStatus(ezFmt("File does not exist: {}", szTargetFile));
   }
 
   if (result.Succeeded())
@@ -121,7 +121,7 @@ ezStatus ezImageDataAssetDocument::RunTexConv(const char* szTargetFile, const ez
 
   if (bUpdateThumbnail)
   {
-    ezUInt64 uiThumbnailHash = ezAssetCurator::GetSingleton()->GetAssetReferenceHash(GetGuid());
+    ezUInt64 uiThumbnailHash = ezAssetCurator::GetSingleton()->GetAssetThumbnailHash(GetGuid());
     EZ_ASSERT_DEV(uiThumbnailHash != 0, "Thumbnail hash should never be zero when reaching this point!");
 
     ThumbnailInfo thumbnailInfo;

@@ -114,7 +114,7 @@ public:
   template <typename Function>
   EZ_FORCE_INLINE ezDelegate(Function function, ezAllocator* pAllocator = ezFoundation::GetDefaultAllocator())
   {
-    EZ_CHECK_AT_COMPILETIME_MSG(DataSize >= 16, "DataSize must be at least 16 bytes");
+    static_assert(DataSize >= 16, "DataSize must be at least 16 bytes");
 
     // Pure function pointers or lambdas that can be cast into pure functions (no captures) can be
     // copied directly into the inplace storage of the delegate.
@@ -268,7 +268,7 @@ private:
   EZ_FORCE_INLINE void CopyFunctionToInplaceStorage(Function function)
   {
     EZ_ASSERT_DEBUG(
-      ezMemoryUtils::IsAligned(&m_Data, EZ_ALIGNMENT_OF(Function)), "Wrong alignment. Expected {0} bytes alignment", EZ_ALIGNMENT_OF(Function));
+      ezMemoryUtils::IsAligned(&m_Data, alignof(Function)), "Wrong alignment. Expected {0} bytes alignment", alignof(Function));
 
     memcpy(m_Data, &function, sizeof(Function));
     memset(m_Data + sizeof(Function), 0, DataSize - sizeof(Function));
@@ -277,8 +277,8 @@ private:
   template <typename Method>
   EZ_FORCE_INLINE void CopyMemberFunctionToInplaceStorage(Method method)
   {
-    EZ_CHECK_AT_COMPILETIME_MSG(DataSize >= 16, "DataSize must be at least 16 bytes");
-    EZ_CHECK_AT_COMPILETIME_MSG(sizeof(Method) <= DataSize, "Member function pointer must not be bigger than 16 bytes");
+    static_assert(DataSize >= 16, "DataSize must be at least 16 bytes");
+    static_assert(sizeof(Method) <= DataSize, "Member function pointer must not be bigger than 16 bytes");
 
     CopyFunctionToInplaceStorage(method);
 
@@ -287,7 +287,7 @@ private:
     // to the final location by copying 16 bytes. Thus the 4 byte padding get a random value (whatever is on the stack at that time).
     // To make the delegate comparable by memcmp we zero out those 4 byte padding.
     // Apparently clang does the same on windows but not on linux etc.
-#if EZ_ENABLED(EZ_COMPILER_MSVC) || (EZ_ENABLED(EZ_PLATFORM_WINDOWS) && EZ_ENABLED(EZ_COMPILER_CLANG))
+#if EZ_ENABLED(EZ_COMPILER_MSVC)
     *reinterpret_cast<ezUInt32*>(m_Data + 12) = 0;
 #endif
   }

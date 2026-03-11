@@ -152,22 +152,22 @@ EZ_CREATE_SIMPLE_TEST(World, Messaging)
     pParents[0]->SendMessage(msg2);
 
     TestComponentMsg* pComponent2 = nullptr;
-    pParents[0]->TryGetComponentOfBaseType(pComponent2);
+    EZ_TEST_BOOL(pParents[0]->TryGetComponentOfBaseType(pComponent2));
     EZ_TEST_INT(pComponent2->m_iSomeData, 5);
     EZ_TEST_INT(pComponent2->m_iSomeData2, 10);
 
     // siblings, parent and children should not be affected
-    pParents[1]->TryGetComponentOfBaseType(pComponent2);
+    EZ_TEST_BOOL(pParents[1]->TryGetComponentOfBaseType(pComponent2));
     EZ_TEST_INT(pComponent2->m_iSomeData, 1);
     EZ_TEST_INT(pComponent2->m_iSomeData2, 2);
 
-    pRoot->TryGetComponentOfBaseType(pComponent2);
+    EZ_TEST_BOOL(pRoot->TryGetComponentOfBaseType(pComponent2));
     EZ_TEST_INT(pComponent2->m_iSomeData, 1);
     EZ_TEST_INT(pComponent2->m_iSomeData2, 2);
 
     for (auto it = pParents[0]->GetChildren(); it.IsValid(); ++it)
     {
-      it->TryGetComponentOfBaseType(pComponent2);
+      EZ_TEST_BOOL(it->TryGetComponentOfBaseType(pComponent2));
       EZ_TEST_INT(pComponent2->m_iSomeData, 1);
       EZ_TEST_INT(pComponent2->m_iSomeData2, 2);
     }
@@ -191,7 +191,7 @@ EZ_CREATE_SIMPLE_TEST(World, Messaging)
     world.Update();
 
     TestComponentMsg* pComponent2 = nullptr;
-    pRoot->TryGetComponentOfBaseType(pComponent2);
+    EZ_TEST_BOOL(pRoot->TryGetComponentOfBaseType(pComponent2));
     EZ_TEST_INT(pComponent2->m_iSomeData, 46);
     EZ_TEST_INT(pComponent2->m_iSomeData2, 92);
 
@@ -226,7 +226,7 @@ EZ_CREATE_SIMPLE_TEST(World, Messaging)
       world.Update();
 
       TestComponentMsg* pComponent2 = nullptr;
-      pRoot->TryGetComponentOfBaseType(pComponent2);
+      EZ_TEST_BOOL(pRoot->TryGetComponentOfBaseType(pComponent2));
       EZ_TEST_INT(pComponent2->m_iSomeData, iDesiredValue);
       EZ_TEST_INT(pComponent2->m_iSomeData2, iDesiredValue2);
     }

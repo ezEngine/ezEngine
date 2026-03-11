@@ -25,7 +25,9 @@ struct EZ_RENDERERCORE_DLL ezViewData
     }
   }
 
-  ezGALRenderTargets m_renderTargets;
+  ezHashedString m_sName;
+
+  ezGALRenderTargets m_RenderTargets;
   ezGALSwapChainHandle m_hSwapChain;
   ezRectFloat m_ViewPortRect;
   ezEnum<ezViewRenderMode> m_ViewRenderMode;
@@ -39,36 +41,53 @@ struct EZ_RENDERERCORE_DLL ezViewData
   ezMat4 m_ViewProjectionMatrix[2];
   ezMat4 m_InverseViewProjectionMatrix[2];
 
-  /// \brief Returns the start position and direction (in world space) of the picking ray through the screen position in this view.
+  /// \brief Calculates the start position and direction (in world space) of the picking ray through the screen position in this view.
   ///
-  /// fScreenPosX and fScreenPosY are expected to be in [0; 1] range (normalized pixel coordinates).
+  /// fNormalizedScreenPosX and fNormalizedScreenPosY are expected to be in [0; 1] range (normalized screen coordinates).
   /// If no ray can be computed, EZ_FAILURE is returned.
-  ezResult ComputePickingRay(
-    float fScreenPosX, float fScreenPosY, ezVec3& out_vRayStartPos, ezVec3& out_vRayDir, ezCameraEye eye = ezCameraEye::Left) const
+  EZ_ALWAYS_INLINE ezResult ComputePickingRay(float fNormalizedScreenPosX, float fNormalizedScreenPosY, ezVec3& out_vRayStartPos, ezVec3& out_vRayDir, ezCameraEye eye = ezCameraEye::Left) const
   {
     ezVec3 vScreenPos;
-    vScreenPos.x = fScreenPosX;
-    vScreenPos.y = 1.0f - fScreenPosY;
+    vScreenPos.x = fNormalizedScreenPosX;
+    vScreenPos.y = fNormalizedScreenPosY;
     vScreenPos.z = 0.0f;
 
-    return ezGraphicsUtils::ConvertScreenPosToWorldPos(
-      m_InverseViewProjectionMatrix[static_cast<int>(eye)], 0, 0, 1, 1, vScreenPos, out_vRayStartPos, &out_vRayDir);
+    return ezGraphicsUtils::ConvertScreenPosToWorldPos(m_InverseViewProjectionMatrix[static_cast<int>(eye)], vScreenPos, out_vRayStartPos, &out_vRayDir);
   }
 
-  ezResult ComputeScreenSpacePos(const ezVec3& vPoint, ezVec3& out_vScreenPos, ezCameraEye eye = ezCameraEye::Left) const
+  /// \brief Calculates the normalized screen-space coordinate ([0; 1] range) that the given world-space point projects to.
+  ///
+  /// Returns EZ_FAILURE, if the point could not be projected into screen-space.
+  EZ_ALWAYS_INLINE ezResult ComputeScreenSpacePos(const ezVec3& vWorldPos, ezVec3& out_vScreenPosNormalized, ezCameraEye eye = ezCameraEye::Left) const
+  {
+    return ezGraphicsUtils::ConvertWorldPosToScreenPos(m_ViewProjectionMatrix[static_cast<int>(eye)], vWorldPos, out_vScreenPosNormalized);
+  }
+
+  /// \brief Calculates the world-space position that the given normalized screen-space coordinate maps to
+  EZ_ALWAYS_INLINE ezResult ComputeWorldSpacePos(float fNormalizedScreenPosX, float fNormalizedScreenPosY, ezVec3& out_vWorldPos, ezCameraEye eye = ezCameraEye::Left) const
+  {
+    return ezGraphicsUtils::ConvertScreenPosToWorldPos(m_InverseViewProjectionMatrix[static_cast<int>(eye)], ezVec3(fNormalizedScreenPosX, fNormalizedScreenPosY, 0.0f), out_vWorldPos);
+  }
+
+  /// \brief Converts a screen-space position from pixel coordinates to normalized coordinates.
+  EZ_ALWAYS_INLINE void ConvertScreenPixelPosToNormalizedPos(ezVec3& inout_vPixelPos) const
   {
     ezUInt32 x = (ezUInt32)m_ViewPortRect.x;
     ezUInt32 y = (ezUInt32)m_ViewPortRect.y;
     ezUInt32 w = (ezUInt32)m_ViewPortRect.width;
     ezUInt32 h = (ezUInt32)m_ViewPortRect.height;
+    ezGraphicsUtils::ConvertScreenPixelPosToNormalizedPos(x, y, w, h, inout_vPixelPos);
+  }
 
-    if (ezGraphicsUtils::ConvertWorldPosToScreenPos(m_ViewProjectionMatrix[static_cast<int>(eye)], x, y, w, h, vPoint, out_vScreenPos).Succeeded())
+  /// \brief Converts a screen-space position from normalized coordinates to pixel coordinates.
+  EZ_ALWAYS_INLINE void ConvertScreenNormalizedPosToPixelPos(ezVec3& inout_vNormalizedPos) const
+  {
     {
-      out_vScreenPos.y = m_ViewPortRect.height - out_vScreenPos.y;
-
-      return EZ_SUCCESS;
+      ezUInt32 x = (ezUInt32)m_ViewPortRect.x;
+      ezUInt32 y = (ezUInt32)m_ViewPortRect.y;
+      ezUInt32 w = (ezUInt32)m_ViewPortRect.width;
+      ezUInt32 h = (ezUInt32)m_ViewPortRect.height;
+      ezGraphicsUtils::ConvertScreenNormalizedPosToPixelPos(x, y, w, h, inout_vNormalizedPos);
     }
-
-    return EZ_FAILURE;
   }
 };

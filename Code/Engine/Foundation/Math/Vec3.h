@@ -49,6 +49,15 @@ public:
   /// \brief Returns a vector initialized to x,y,z
   [[nodiscard]] static ezVec3Template<Type> Make(Type x, Type y, Type z) { return ezVec3Template<Type>(x, y, z); } // [tested]
 
+  /// \brief Returns a vector that is orthogonal to vDirection.
+  ///
+  /// Uses the vBasis1 and vBasis2 vectors as candidates to create the orthogonal vector from. The basis that is less similar to the direction
+  /// will be used to to compute the orthogonal vector.
+  ///
+  /// All input vectors must be normalized.
+  EZ_DECLARE_IF_FLOAT_TYPE
+  [[nodiscard]] static ezVec3Template<Type> MakeOrthogonalVector(const ezVec3Template<Type>& vDirection, const ezVec3Template<Type>& vBasis1 = MakeAxisX(), const ezVec3Template<Type>& vBasis2 = MakeAxisY()); // [tested]
+
 #if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   void AssertNotNaN() const
   {
@@ -94,6 +103,14 @@ public:
   EZ_DECLARE_IF_FLOAT_TYPE
   Type GetLength() const; // [tested]
 
+  /// \brief Returns the length between this position and rhs.
+  EZ_DECLARE_IF_FLOAT_TYPE
+  Type GetDistanceTo(const ezVec3Template<Type>& rhs) const;
+
+  /// \brief Returns the squared length between this position and rhs.
+  EZ_DECLARE_IF_FLOAT_TYPE
+  Type GetSquaredDistanceTo(const ezVec3Template<Type>& rhs) const;
+
   /// \brief Tries to rescale the vector to the given length. If the vector is too close to zero, EZ_FAILURE is returned and the vector is
   /// set to zero.
   EZ_DECLARE_IF_FLOAT_TYPE
@@ -110,7 +127,7 @@ public:
 
   /// \brief Returns a normalized version of this vector, leaves the vector itself unchanged.
   EZ_DECLARE_IF_FLOAT_TYPE
-  const ezVec3Template<Type> GetNormalized() const; // [tested]
+  [[nodiscard]] const ezVec3Template<Type> GetNormalized() const; // [tested]
 
   /// \brief Normalizes this vector.
   EZ_DECLARE_IF_FLOAT_TYPE
@@ -127,7 +144,7 @@ public:
   /// \brief Returns, whether this vector is (0, 0, 0) within a given epsilon.
   bool IsZero(Type fEpsilon) const; // [tested]
 
-  /// \brief Returns, whether the squared length of this vector is between 0.999f and 1.001f.
+  /// \brief Returns, whether the squared length of this vector is very close to 1 within the given epsilon
   EZ_DECLARE_IF_FLOAT_TYPE
   bool IsNormalized(Type fEpsilon = ezMath::HugeEpsilon<Type>()) const; // [tested]
 
@@ -170,35 +187,48 @@ public:
 
   // *** Common vector operations ***
 public:
-  /// \brief Returns the positive angle between *this and rhs.
+  /// \brief Returns the shortest angle between *this and rhs.
   /// Both this and rhs must be normalized
-  ezAngle GetAngleBetween(const ezVec3Template<Type>& rhs) const; // [tested]
+  ezAngleTemplate<Type> GetAngleBetween(const ezVec3Template<Type>& rhs) const; // [tested]
+
+  /// \brief Returns the angle between vForward and *this, going around the vUp direction.
+  ///
+  /// Clockwise rotations (looking top down) result in a positive angle,
+  /// counter-clockwise rotations give a negative angle.
+  /// All vectors must be normalized. vUp must not coincide with vForward, but doesn't need to be orthogonal to it.
+  ///
+  /// NOTE: This function assumes a right-handed coordinate system.
+  /// If you put in vectors from a left-handed coordinate system, the angles will simply invert.
+  ///
+  /// The order of operands is also important, if you swap this and vForward, the result also inverts.
+  ezAngleTemplate<Type> GetAngleBetween(const ezVec3Template<Type>& vForward, const ezVec3Template<Type>& vUp) const; // [tested]
+
 
   /// \brief Returns the Dot-product of the two vectors (commutative, order does not matter)
-  Type Dot(const ezVec3Template<Type>& rhs) const; // [tested]
+  [[nodiscard]] Type Dot(const ezVec3Template<Type>& rhs) const; // [tested]
 
 
 
   /// \brief Returns the Cross-product of the two vectors (NOT commutative, order DOES matter)
-  const ezVec3Template<Type> CrossRH(const ezVec3Template<Type>& rhs) const; // [tested]
+  [[nodiscard]] const ezVec3Template<Type> CrossRH(const ezVec3Template<Type>& rhs) const; // [tested]
 
   /// \brief Returns the component-wise minimum of *this and rhs
-  const ezVec3Template<Type> CompMin(const ezVec3Template<Type>& rhs) const; // [tested]
+  [[nodiscard]] const ezVec3Template<Type> CompMin(const ezVec3Template<Type>& rhs) const; // [tested]
 
   /// \brief Returns the component-wise maximum of *this and rhs
-  const ezVec3Template<Type> CompMax(const ezVec3Template<Type>& rhs) const; // [tested]
+  [[nodiscard]] const ezVec3Template<Type> CompMax(const ezVec3Template<Type>& rhs) const; // [tested]
 
   /// \brief Returns the component-wise clamped value of *this between low and high.
-  const ezVec3Template<Type> CompClamp(const ezVec3Template<Type>& vLow, const ezVec3Template<Type>& vHigh) const; // [tested]
+  [[nodiscard]] const ezVec3Template<Type> CompClamp(const ezVec3Template<Type>& vLow, const ezVec3Template<Type>& vHigh) const; // [tested]
 
   /// \brief Returns the component-wise multiplication of *this and rhs
-  const ezVec3Template<Type> CompMul(const ezVec3Template<Type>& rhs) const; // [tested]
+  [[nodiscard]] const ezVec3Template<Type> CompMul(const ezVec3Template<Type>& rhs) const; // [tested]
 
   /// \brief Returns the component-wise division of *this and rhs
-  const ezVec3Template<Type> CompDiv(const ezVec3Template<Type>& rhs) const; // [tested]
+  [[nodiscard]] const ezVec3Template<Type> CompDiv(const ezVec3Template<Type>& rhs) const; // [tested]
 
   /// brief Returns the component-wise absolute of *this.
-  const ezVec3Template<Type> Abs() const; // [tested]
+  [[nodiscard]] const ezVec3Template<Type> Abs() const; // [tested]
 
 
   // *** Other common operations ***
@@ -240,26 +270,26 @@ public:
   /// The deviation angle must be larger than zero.
   EZ_DECLARE_IF_FLOAT_TYPE
   [[nodiscard]] static ezVec3Template<Type>
-  MakeRandomDeviationX(ezRandom& inout_rng, const ezAngle& maxDeviation); // [tested]
+  MakeRandomDeviationX(ezRandom& inout_rng, const ezAngleTemplate<Type>& maxDeviation); // [tested]
 
   /// \brief Creates a random vector around the y axis with a maximum deviation angle of \a maxDeviation. The vector is normalized.
   /// The deviation angle must be larger than zero.
   EZ_DECLARE_IF_FLOAT_TYPE
   [[nodiscard]] static ezVec3Template<Type>
-  MakeRandomDeviationY(ezRandom& inout_rng, const ezAngle& maxDeviation); // [tested]
+  MakeRandomDeviationY(ezRandom& inout_rng, const ezAngleTemplate<Type>& maxDeviation); // [tested]
 
   /// \brief Creates a random vector around the z axis with a maximum deviation angle of \a maxDeviation. The vector is normalized.
   /// The deviation angle must be larger than zero.
   EZ_DECLARE_IF_FLOAT_TYPE
   [[nodiscard]] static ezVec3Template<Type>
-  MakeRandomDeviationZ(ezRandom& inout_rng, const ezAngle& maxDeviation); // [tested]
+  MakeRandomDeviationZ(ezRandom& inout_rng, const ezAngleTemplate<Type>& maxDeviation); // [tested]
 
   /// \brief Creates a random vector around the given normal with a maximum deviation.
   /// \note If you are going to do this many times with the same axis, rather than calling this function, instead manually
   /// do what this function does (see inline code) and only compute the quaternion once.
   EZ_DECLARE_IF_FLOAT_TYPE
   [[nodiscard]] static ezVec3Template<Type>
-  MakeRandomDeviation(ezRandom& inout_rng, const ezAngle& maxDeviation, const ezVec3Template<Type>& vNormal); // [tested]
+  MakeRandomDeviation(ezRandom& inout_rng, const ezAngleTemplate<Type>& maxDeviation, const ezVec3Template<Type>& vNormal); // [tested]
 };
 
 // *** Operators ***

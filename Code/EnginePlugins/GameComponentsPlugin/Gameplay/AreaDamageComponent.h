@@ -59,5 +59,6 @@ public:
   ezUInt8 m_uiCollisionLayer = 0;   // [ property ]
   float m_fRadius = 5.0f;           // [ property ]
   float m_fDamage = 10.0f;          // [ property ]
+  ezUInt8 m_uiImpulseType = 0;      // [ property ]
   float m_fImpulse = 100.0f;        // [ property ]
 };

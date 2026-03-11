@@ -9,11 +9,13 @@
 
 static voidpf zLibAlloc OF((voidpf opaque, uInt items, uInt size))
 {
+  EZ_IGNORE_UNUSED(opaque);
   return EZ_DEFAULT_NEW_RAW_BUFFER(ezUInt8, ezMath::SafeConvertToSizeT(ezMath::SafeMultiply64(items, size)));
 }
 
 static void zLibFree OF((voidpf opaque, voidpf address))
 {
+  EZ_IGNORE_UNUSED(opaque);
   ezUInt8* pData = (ezUInt8*)address;
   EZ_DEFAULT_DELETE_RAW_BUFFER(pData);
 }

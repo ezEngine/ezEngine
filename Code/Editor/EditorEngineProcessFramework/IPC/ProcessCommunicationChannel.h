@@ -2,6 +2,7 @@
 
 #include <EditorEngineProcessFramework/EditorEngineProcessFrameworkDLL.h>
 #include <Foundation/Communication/Event.h>
+#include <Foundation/Communication/IpcProcessMessageProtocol.h>
 #include <Foundation/Time/Time.h>
 #include <Foundation/Types/Delegate.h>
 #include <Foundation/Types/UniquePtr.h>
@@ -9,6 +10,7 @@
 class ezIpcChannel;
 class ezProcessMessage;
 class ezIpcProcessMessageProtocol;
+struct ezIpcChannelEvent;
 
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezProcessCommunicationChannel
 {
@@ -32,13 +34,18 @@ public:
   struct Event
   {
     const ezProcessMessage* m_pMessage;
+    // Set to true in a message handler to cancel the ProcessMessages function and return to the caller before all messages have been processed.
+    mutable bool m_bInterruptMessageProcessing = false;
   };
 
   ezEvent<const Event&> m_Events;
-
-  void MessageFunc(const ezProcessMessage* pMsg);
+  ezEvent<const ezIpcChannelEvent&, ezMutex> m_IpcChannelEvents;
 
 protected:
+  void OnIpcProtocolEvent(const ezIpcProcessMessageProtocol::Event& msg);
+  void OnIpcChannelEvent(const ezIpcChannelEvent& msg);
+  void CreateAndConnectChannel(ezInternal::NewInstance<ezIpcChannel>&& channel);
+  void DestroyChannel();
   ezUniquePtr<ezIpcProcessMessageProtocol> m_pProtocol;
   ezUniquePtr<ezIpcChannel> m_pChannel;
   const ezRTTI* m_pFirstAllowedMessageType = nullptr;

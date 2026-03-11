@@ -239,7 +239,12 @@ ezStatus ezKrautTreeAssetDocumentGenerator::Generate(ezStringView sInputFileAbs,
 {
   ezStringBuilder sOutFile = sInputFileAbs;
   sOutFile.ChangeFileExtension(GetDocumentExtension());
-  ezOSFile::FindFreeFilename(sOutFile);
+
+  if (ezOSFile::ExistsFile(sOutFile))
+  {
+    ezLog::Info("Skipping Kraut tree import, file has been imported before: '{}'", sOutFile);
+    return ezStatus(EZ_SUCCESS);
+  }
 
   auto pApp = ezQtEditorApp::GetSingleton();
 
@@ -259,6 +264,8 @@ ezStatus ezKrautTreeAssetDocumentGenerator::Generate(ezStringView sInputFileAbs,
 
   auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
   accessor.SetValue("KrautFile", sInputFileRel.GetView());
+
+  ezLog::Success("Imported Kraut tree: '{}'", sOutFile);
 
   return ezStatus(EZ_SUCCESS);
 }

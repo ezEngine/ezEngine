@@ -4,7 +4,7 @@
 
 #  include <Foundation/Memory/Policies/AllocPolicyGuarding.h>
 
-#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 
 struct AlloctionMetaData
 {
@@ -32,6 +32,8 @@ struct AlloctionMetaData
 
 ezAllocPolicyGuarding::ezAllocPolicyGuarding(ezAllocator* pParent)
 {
+  EZ_IGNORE_UNUSED(pParent);
+
   SYSTEM_INFO sysInfo;
   GetSystemInfo(&sysInfo);
   m_uiPageSize = sysInfo.dwPageSize;

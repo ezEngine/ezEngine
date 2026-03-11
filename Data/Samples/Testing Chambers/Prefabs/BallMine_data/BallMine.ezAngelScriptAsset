@@ -1,0 +1,321 @@
+HeaderV2
+{
+o
+{
+	Uuid %id{u4{10627311575654157926,3946533649140613157}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		f %DefaultValue{0x00004843}
+		s %Name{"RollForce"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{14810986035994203799,4632657468068757779}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{2}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"AngelScript"}
+		VarArray %Dependencies
+		{
+			s{"Prefabs/BallMine_data/BallMine.as"}
+		}
+		Uuid %DocumentID{u4{14810986035994203799,4632657468068757779}}
+		u4 %Hash{3998375145502029012}
+		VarArray %MetaInfo
+		{
+			Uuid{u4{15328895644793152508,7074805888173696083}}
+		}
+		VarArray %Outputs{}
+		VarArray %PackageDeps{}
+		VarArray %References
+		{
+			s{"Prefabs/BallMine_data/BallMine.as"}
+		}
+		s %Tags{""}
+	}
+}
+o
+{
+	Uuid %id{u4{4539012508241732823,5555326558859244893}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		f %DefaultValue{0x0000C03F}
+		s %Name{"AttackDistance"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{15328895644793152508,7074805888173696083}}
+	s %t{"ezExposedParameters"}
+	u3 %v{3}
+	p
+	{
+		VarArray %Parameters
+		{
+			Uuid{u4{18374143812373485936,18224755004977413665}}
+			Uuid{u4{5999075823033778192,12135476350223088512}}
+			Uuid{u4{4539012508241732823,5555326558859244893}}
+			Uuid{u4{10627311575654157926,3946533649140613157}}
+			Uuid{u4{3657597596690714311,17066590172444216581}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{5999075823033778192,12135476350223088512}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		f %DefaultValue{0x00002041}
+		s %Name{"ApproachDistance"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{3657597596690714311,17066590172444216581}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		f %DefaultValue{0x0000A041}
+		s %Name{"Health"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{18374143812373485936,18224755004977413665}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		f %DefaultValue{0x00007041}
+		s %Name{"AlertDistance"}
+		s %Type{""}
+	}
+}
+}
+Objects
+{
+o
+{
+	Uuid %id{u4{1186975258118615685,4660270901982842968}}
+	s %t{"ezAngelScriptAssetProperties"}
+	u3 %v{1}
+	p
+	{
+		s %ClassName{"ScriptObject"}
+		s %Code{""}
+		VarArray %Parameters
+		{
+			Uuid{u4{13652739731568597183,5035852951416904736}}
+			Uuid{u4{13381834980016283781,5341459129775550891}}
+			Uuid{u4{15232928154354005158,5165873644126809140}}
+			Uuid{u4{9691127598597685155,5147450740096445247}}
+			Uuid{u4{16306240503613766282,5598410205424604341}}
+		}
+		s %Source{"ezAngelScriptCodeMode::FromFile"}
+		s %SourceFile{"Prefabs/BallMine_data/BallMine.as"}
+	}
+}
+o
+{
+	Uuid %id{u4{13652739731568597183,5035852951416904736}}
+	s %t{"ezAngelScriptParameter"}
+	u3 %v{1}
+	p
+	{
+		s %Declaration{"float AlertDistance = 15"}
+		f %DefaultValue{0x00007041}
+		b %Expose{1}
+		s %Name{"AlertDistance"}
+	}
+}
+o
+{
+	Uuid %id{u4{9691127598597685155,5147450740096445247}}
+	s %t{"ezAngelScriptParameter"}
+	u3 %v{1}
+	p
+	{
+		s %Declaration{"float RollForce = 200"}
+		f %DefaultValue{0x00004843}
+		b %Expose{1}
+		s %Name{"RollForce"}
+	}
+}
+o
+{
+	Uuid %id{u4{15232928154354005158,5165873644126809140}}
+	s %t{"ezAngelScriptParameter"}
+	u3 %v{1}
+	p
+	{
+		s %Declaration{"float AttackDistance = 1.5"}
+		f %DefaultValue{0x0000C03F}
+		b %Expose{1}
+		s %Name{"AttackDistance"}
+	}
+}
+o
+{
+	Uuid %id{u4{13381834980016283781,5341459129775550891}}
+	s %t{"ezAngelScriptParameter"}
+	u3 %v{1}
+	p
+	{
+		s %Declaration{"float ApproachDistance = 10"}
+		f %DefaultValue{0x00002041}
+		b %Expose{1}
+		s %Name{"ApproachDistance"}
+	}
+}
+o
+{
+	Uuid %id{u4{16306240503613766282,5598410205424604341}}
+	s %t{"ezAngelScriptParameter"}
+	u3 %v{1}
+	p
+	{
+		s %Declaration{"float Health = 20"}
+		f %DefaultValue{0x0000A041}
+		b %Expose{1}
+		s %Name{"Health"}
+	}
+}
+o
+{
+	Uuid %id{u4{18096612296587978288,6449934965513159559}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{1186975258118615685,4660270901982842968}}
+		}
+	}
+}
+}
+Types
+{
+o
+{
+	Uuid %id{u4{8509943957974801055,7464388984120343662}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginAngelScript"}
+		VarArray %Properties{}
+		s %TypeName{"ezAngelScriptAssetProperties"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{13231494322839441943,7887324119527060122}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginAngelScript"}
+		VarArray %Properties{}
+		s %TypeName{"ezAngelScriptCodeMode"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6089094783765586323,8705960867921430659}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentRoot"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{14234517193980461100,14716562946791027194}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginAngelScript"}
+		VarArray %Properties{}
+		s %TypeName{"ezAngelScriptParameter"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2947336711354777548,15013008608905564043}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEnumBase"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{983387834180907111,17935407260904399048}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezReflectedClass"}
+		u3 %TypeVersion{1}
+	}
+}
+}

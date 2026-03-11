@@ -8,6 +8,11 @@
 
 class ezWorld;
 
+/// \brief Runtime type information for script classes, extending ezRTTI with script-specific functionality.
+///
+/// Manages type metadata for script classes including function properties and message handlers.
+/// Supports reference counting and provides efficient storage for small numbers of functions
+/// and message handlers through inplace storage optimization.
 class EZ_CORE_DLL ezScriptRTTI : public ezRTTI, public ezRefCountingImpl
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezScriptRTTI);

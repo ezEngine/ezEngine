@@ -6,7 +6,6 @@
 #include <Foundation/Basics.h>
 #include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
 
-class ezQtCuratorControl;
 struct ezLoggingEventData;
 
 class EZ_EDITORFRAMEWORK_DLL ezQtAssetCuratorFilter : public ezQtAssetFilter
@@ -30,7 +29,7 @@ class EZ_EDITORFRAMEWORK_DLL ezQtAssetCuratorPanel : public ezQtApplicationPanel
   EZ_DECLARE_SINGLETON(ezQtAssetCuratorPanel);
 
 public:
-  ezQtAssetCuratorPanel();
+  ezQtAssetCuratorPanel(ads::CDockManager* pDockManager);
   ~ezQtAssetCuratorPanel();
 
 public Q_SLOTS:
@@ -45,7 +44,7 @@ private:
   void LogWriter(const ezLoggingEventData& e);
   void UpdateIssueInfo();
 
-  ezQtAssetBrowserModel* m_pModel;
+  QSharedPointer<ezQtAssetBrowserModel> m_Model;
   ezQtAssetCuratorFilter* m_pFilter;
   QPersistentModelIndex m_SelectedIndex;
 };

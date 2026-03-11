@@ -38,13 +38,15 @@ ezQtFileserveMainWnd::ezQtFileserveMainWnd(ezApplication* pApp, QWidget* pParent
 
 void ezQtFileserveMainWnd::UpdateNetworkSlot()
 {
-  if (m_pApp->Run() == ezApplication::Execution::Continue)
+  m_pApp->Run();
+
+  if (m_pApp->ShouldApplicationQuit())
   {
-    QTimer::singleShot(0, this, &ezQtFileserveMainWnd::UpdateNetworkSlot);
+    close();
   }
   else
   {
-    close();
+    QTimer::singleShot(0, this, &ezQtFileserveMainWnd::UpdateNetworkSlot);
   }
 }
 

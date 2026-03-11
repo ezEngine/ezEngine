@@ -2,7 +2,7 @@
 
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <EditorPluginVisualScript/VisualScriptGraph/VisualScriptVariable.moc.h>
-#include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
+#include <ToolsFoundation/VisualGraph/VisualGraphObjectManager.h>
 
 class ezVisualScriptClassAssetProperties : public ezReflectedClass
 {
@@ -16,7 +16,7 @@ public:
 
 class ezVisualScriptClassAssetDocument : public ezSimpleAssetDocument<ezVisualScriptClassAssetProperties>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptClassAssetDocument, ezAssetDocument);
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptClassAssetDocument, ezSimpleAssetDocument<ezVisualScriptClassAssetProperties>);
 
 public:
   ezVisualScriptClassAssetDocument(ezStringView sDocumentPath);
@@ -25,7 +25,7 @@ protected:
   virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
 
-  virtual void GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_MimeTypes) const override;
+  virtual void GetSupportedMimeTypesForPasting(ezDynamicArray<ezString>& out_mimeTypes) const override;
   virtual bool CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_MimeType) const override;
   virtual bool Paste(
     const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, ezStringView sMimeType) override;

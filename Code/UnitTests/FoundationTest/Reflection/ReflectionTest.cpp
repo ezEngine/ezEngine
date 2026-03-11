@@ -201,16 +201,25 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Types)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindTypeByName")
   {
     const ezRTTI* pFloat = ezRTTI::FindTypeByName("float");
-    EZ_TEST_BOOL(pFloat != nullptr);
-    EZ_TEST_STRING(pFloat->GetTypeName(), "float");
+    if (EZ_TEST_BOOL(pFloat != nullptr))
+    {
+      EZ_ANALYSIS_ASSUME(pFloat != nullptr);
+      EZ_TEST_STRING(pFloat->GetTypeName(), "float");
+    }
 
     const ezRTTI* pStruct = ezRTTI::FindTypeByName("ezTestStruct");
-    EZ_TEST_BOOL(pStruct != nullptr);
-    EZ_TEST_STRING(pStruct->GetTypeName(), "ezTestStruct");
+    if (EZ_TEST_BOOL(pStruct != nullptr))
+    {
+      EZ_ANALYSIS_ASSUME(pStruct != nullptr);
+      EZ_TEST_STRING(pStruct->GetTypeName(), "ezTestStruct");
+    }
 
     const ezRTTI* pClass2 = ezRTTI::FindTypeByName("ezTestClass2");
-    EZ_TEST_BOOL(pClass2 != nullptr);
-    EZ_TEST_STRING(pClass2->GetTypeName(), "ezTestClass2");
+    if (EZ_TEST_BOOL(pClass2 != nullptr))
+    {
+      EZ_ANALYSIS_ASSUME(pClass2 != nullptr);
+      EZ_TEST_STRING(pClass2->GetTypeName(), "ezTestClass2");
+    }
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindTypeByNameHash")
@@ -260,7 +269,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Types)
       EZ_TEST_STRING(Props[6]->GetPropertyName(), "Array");
       EZ_TEST_STRING(Props[7]->GetPropertyName(), "Variant");
 
-      ezHybridArray<const ezAbstractProperty*, 32> AllProps;
+      ezTempHybridArray<const ezAbstractProperty*, 32> AllProps;
       pType->GetAllProperties(AllProps);
 
       EZ_TEST_INT(AllProps.GetCount(), 11);
@@ -336,18 +345,20 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Types)
 
           const ezAbstractProperty* pProp = pRtti->FindPropertyByName("Float2");
 
-          EZ_TEST_BOOL(pProp != nullptr);
+          if (EZ_TEST_BOOL(pProp != nullptr))
+          {
+            EZ_ANALYSIS_ASSUME(pProp != nullptr);
+            EZ_TEST_BOOL(pProp->GetCategory() == ezPropertyCategory::Member);
+            auto pAbsMember = static_cast<const ezAbstractMemberProperty*>(pProp);
 
-          EZ_TEST_BOOL(pProp->GetCategory() == ezPropertyCategory::Member);
-          auto pAbsMember = static_cast<const ezAbstractMemberProperty*>(pProp);
+            EZ_TEST_BOOL(pAbsMember->GetSpecificType() == ezGetStaticRTTI<float>());
 
-          EZ_TEST_BOOL(pAbsMember->GetSpecificType() == ezGetStaticRTTI<float>());
+            auto pMember = static_cast<const ezTypedMemberProperty<float>*>(pAbsMember);
 
-          auto pMember = static_cast<const ezTypedMemberProperty<float>*>(pAbsMember);
-
-          EZ_TEST_FLOAT(pMember->GetValue(pInstance), 42.0f, 0);
-          pMember->SetValue(pInstance, 43.0f);
-          EZ_TEST_FLOAT(pMember->GetValue(pInstance), 43.0f, 0);
+            EZ_TEST_FLOAT(pMember->GetValue(pInstance), 42.0f, 0);
+            pMember->SetValue(pInstance, 43.0f);
+            EZ_TEST_FLOAT(pMember->GetValue(pInstance), 43.0f, 0);
+          }
 
           pRtti->GetAllocator()->Deallocate(pInstance);
         }
@@ -396,10 +407,12 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Hierarchies)
     EZ_TEST_BOOL(pRtti->GetAllocator()->CanAllocate());
 
     ezTestClass1* pInstance = pRtti->GetAllocator()->Allocate<ezTestClass1>();
-    EZ_TEST_BOOL(pInstance != nullptr);
-
-    EZ_TEST_BOOL(pInstance->GetDynamicRTTI() == ezGetStaticRTTI<ezTestClass1>());
-    pInstance->GetDynamicRTTI()->GetAllocator()->Deallocate(pInstance);
+    if (EZ_TEST_BOOL(pInstance != nullptr))
+    {
+      EZ_ANALYSIS_ASSUME(pInstance != nullptr);
+      EZ_TEST_BOOL(pInstance->GetDynamicRTTI() == ezGetStaticRTTI<ezTestClass1>());
+      pInstance->GetDynamicRTTI()->GetAllocator()->Deallocate(pInstance);
+    }
 
     EZ_TEST_BOOL(pRtti->IsDerivedFrom<ezReflectedClass>());
     EZ_TEST_BOOL(pRtti->IsDerivedFrom(ezGetStaticRTTI<ezReflectedClass>()));
@@ -427,17 +440,19 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Hierarchies)
     EZ_TEST_INT(ezTestClass2Allocator::m_iDeallocs, 0);
 
     ezTestClass2* pInstance = pRtti->GetAllocator()->Allocate<ezTestClass2>();
-    EZ_TEST_BOOL(pInstance != nullptr);
+    if (EZ_TEST_BOOL(pInstance != nullptr))
+    {
+      EZ_ANALYSIS_ASSUME(pInstance != nullptr);
+      EZ_TEST_BOOL(pInstance->GetDynamicRTTI() == ezGetStaticRTTI<ezTestClass2>());
 
-    EZ_TEST_BOOL(pInstance->GetDynamicRTTI() == ezGetStaticRTTI<ezTestClass2>());
+      EZ_TEST_INT(ezTestClass2Allocator::m_iAllocs, 1);
+      EZ_TEST_INT(ezTestClass2Allocator::m_iDeallocs, 0);
 
-    EZ_TEST_INT(ezTestClass2Allocator::m_iAllocs, 1);
-    EZ_TEST_INT(ezTestClass2Allocator::m_iDeallocs, 0);
+      pInstance->GetDynamicRTTI()->GetAllocator()->Deallocate(pInstance);
 
-    pInstance->GetDynamicRTTI()->GetAllocator()->Deallocate(pInstance);
-
-    EZ_TEST_INT(ezTestClass2Allocator::m_iAllocs, 1);
-    EZ_TEST_INT(ezTestClass2Allocator::m_iDeallocs, 1);
+      EZ_TEST_INT(ezTestClass2Allocator::m_iAllocs, 1);
+      EZ_TEST_INT(ezTestClass2Allocator::m_iDeallocs, 1);
+    }
 
     EZ_TEST_BOOL(pRtti->IsDerivedFrom<ezTestClass1>());
     EZ_TEST_BOOL(pRtti->IsDerivedFrom(ezGetStaticRTTI<ezTestClass1>()));
@@ -458,7 +473,10 @@ template <typename T, typename T2>
 void TestMemberProperty(const char* szPropName, void* pObject, const ezRTTI* pRtti, ezBitflags<ezPropertyFlags> expectedFlags, T2 expectedValue, T2 testValue, bool bTestDefaultValue = true)
 {
   const ezAbstractProperty* pProp = pRtti->FindPropertyByName(szPropName);
-  EZ_TEST_BOOL(pProp != nullptr);
+  if (!EZ_TEST_BOOL(pProp != nullptr))
+    return;
+
+  EZ_ANALYSIS_ASSUME(pProp != nullptr);
 
   EZ_TEST_BOOL(pProp->GetCategory() == ezPropertyCategory::Member);
 
@@ -511,8 +529,8 @@ EZ_CREATE_SIMPLE_TEST(Reflection, MemberProperties)
     TestMemberProperty<ezVariant>("Variant", &data, pRtti, ezPropertyFlags::StandardType, ezVariant("Test"),
       ezVariant(ezVec3(0, -1.0f, 3.14f)));
     TestMemberProperty<ezAngle>("Angle", &data, pRtti, ezPropertyFlags::StandardType, ezAngle::MakeFromDegree(0.5f), ezAngle::MakeFromDegree(1.0f));
-    ezVarianceTypeAngle expectedVA = {0.5f, ezAngle::MakeFromDegree(90.0f)};
-    ezVarianceTypeAngle testVA = {0.1f, ezAngle::MakeFromDegree(45.0f)};
+    ezVarianceTypeAngle expectedVA(ezAngle::MakeFromDegree(90.0f), 0.5f);
+    ezVarianceTypeAngle testVA(ezAngle::MakeFromDegree(45.0f), 0.1f);
     TestMemberProperty<ezVarianceTypeAngle>("VarianceAngle", &data, pRtti, ezPropertyFlags::Class, expectedVA, testVA);
 
     ezDataBuffer expected;
@@ -557,17 +575,19 @@ EZ_CREATE_SIMPLE_TEST(Reflection, MemberProperties)
 
     {
       const ezAbstractProperty* pProp = pRtti->FindPropertyByName("SubStruct");
-      EZ_TEST_BOOL(pProp != nullptr);
+      if (EZ_TEST_BOOL(pProp != nullptr))
+      {
+        EZ_ANALYSIS_ASSUME(pProp != nullptr);
+        EZ_TEST_BOOL(pProp->GetCategory() == ezPropertyCategory::Member);
+        ezAbstractMemberProperty* pAbs = (ezAbstractMemberProperty*)pProp;
 
-      EZ_TEST_BOOL(pProp->GetCategory() == ezPropertyCategory::Member);
-      ezAbstractMemberProperty* pAbs = (ezAbstractMemberProperty*)pProp;
+        const ezRTTI* pStruct = pAbs->GetSpecificType();
+        void* pSubStruct = pAbs->GetPropertyPointer(&Instance);
 
-      const ezRTTI* pStruct = pAbs->GetSpecificType();
-      void* pSubStruct = pAbs->GetPropertyPointer(&Instance);
+        EZ_TEST_BOOL(pSubStruct != nullptr);
 
-      EZ_TEST_BOOL(pSubStruct != nullptr);
-
-      TestMemberProperty<float>("Float", pSubStruct, pStruct, ezPropertyFlags::StandardType, 33.3f, 44.4f, false);
+        TestMemberProperty<float>("Float", pSubStruct, pStruct, ezPropertyFlags::StandardType, 33.3f, 44.4f, false);
+      }
     }
 
     TestSerialization<ezTestClass2>(Instance);
@@ -839,6 +859,9 @@ void TestArrayProperty(const char* szPropName, void* pObject, const ezRTTI* pRtt
 {
   const ezAbstractProperty* pProp = pRtti->FindPropertyByName(szPropName);
   EZ_TEST_BOOL(pProp != nullptr);
+  if (pProp == nullptr)
+    return;
+
   EZ_TEST_BOOL(pProp->GetCategory() == ezPropertyCategory::Array);
   auto pArrayProp = static_cast<const ezAbstractArrayProperty*>(pProp);
   const ezRTTI* pElemRtti = pProp->GetSpecificType();
@@ -979,7 +1002,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Arrays)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Custom Variant Array")
   {
-    ezVarianceTypeAngle data{0.1f, ezAngle::MakeFromDegree(45.0f)};
+    ezVarianceTypeAngle data(ezAngle::MakeFromDegree(45.0f), 0.1f);
 
     TestArrayProperty<ezVarianceTypeAngle>("Custom", &containers, pRtti, data);
     TestArrayProperty<ezVarianceTypeAngle>("CustomRO", &containers, pRtti, data);
@@ -1010,6 +1033,8 @@ void TestSetProperty(const char* szPropName, void* pObject, const ezRTTI* pRtti,
   const ezAbstractProperty* pProp = pRtti->FindPropertyByName(szPropName);
   if (!EZ_TEST_BOOL(pProp != nullptr))
     return;
+
+  EZ_ANALYSIS_ASSUME(pProp != nullptr);
 
   EZ_TEST_BOOL(pProp->GetCategory() == ezPropertyCategory::Set);
   auto pSetProp = static_cast<const ezAbstractSetProperty*>(pProp);
@@ -1053,7 +1078,7 @@ void TestSetProperty(const char* szPropName, void* pObject, const ezRTTI* pRtti,
   EZ_TEST_BOOL(pSetProp->Contains(pObject, &ref_value2));
 
 
-  ezHybridArray<ezVariant, 16> keys;
+  ezTempHybridArray<ezVariant, 16> keys;
   pSetProp->GetValues(pObject, keys);
   EZ_TEST_INT(keys.GetCount(), 2);
 }
@@ -1115,14 +1140,14 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Sets)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Custom Variant HashSet")
   {
-    ezVarianceTypeAngle value1{-0.1f, ezAngle::MakeFromDegree(-45.0f)};
-    ezVarianceTypeAngle value2{0.1f, ezAngle::MakeFromDegree(45.0f)};
+    ezVarianceTypeAngle value1(ezAngle::MakeFromDegree(-45.0f), -0.1f);
+    ezVarianceTypeAngle value2(ezAngle::MakeFromDegree(45.0f), 0.1f);
 
     TestSetProperty<ezVarianceTypeAngle>("CustomHashSet", &containers, pRtti, value1, value2);
     TestSetProperty<ezVarianceTypeAngle>("CustomHashSetRO", &containers, pRtti, value1, value2);
 
-    ezVarianceTypeAngle value3{-0.2f, ezAngle::MakeFromDegree(-90.0f)};
-    ezVarianceTypeAngle value4{0.2f, ezAngle::MakeFromDegree(90.0f)};
+    ezVarianceTypeAngle value3(ezAngle::MakeFromDegree(-90.0f), -0.2f);
+    ezVarianceTypeAngle value4(ezAngle::MakeFromDegree(90.0f), 0.2f);
     TestSetProperty<ezVarianceTypeAngle>("CustomHashAcSet", &containers, pRtti, value3, value4);
     TestSetProperty<ezVarianceTypeAngle>("CustomHashAcSetRO", &containers, pRtti, value3, value4);
   }
@@ -1133,7 +1158,9 @@ template <typename T>
 void TestMapProperty(const char* szPropName, void* pObject, const ezRTTI* pRtti, T& ref_value1, T& ref_value2)
 {
   const ezAbstractProperty* pProp = pRtti->FindPropertyByName(szPropName);
-  EZ_TEST_BOOL(pProp != nullptr);
+  if (!EZ_TEST_BOOL(pProp != nullptr))
+    return;
+  EZ_ANALYSIS_ASSUME(pProp != nullptr);
   EZ_TEST_BOOL(pProp->GetCategory() == ezPropertyCategory::Map);
   auto pMapProp = static_cast<const ezAbstractMapProperty*>(pProp);
   const ezRTTI* pElemRtti = pProp->GetSpecificType();
@@ -1174,7 +1201,7 @@ void TestMapProperty(const char* szPropName, void* pObject, const ezRTTI* pRtti,
   EZ_TEST_BOOL(pMapProp->GetValue(pObject, "value2", &getValue2));
   EZ_TEST_BOOL(getValue2 == ref_value2);
 
-  ezHybridArray<ezString, 16> keys;
+  ezTempHybridArray<ezString, 16> keys;
   pMapProp->GetKeys(pObject, keys);
   EZ_TEST_INT(keys.GetCount(), 2);
   keys.Sort();
@@ -1222,8 +1249,8 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Maps)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "CustomVariant")
   {
-    ezVarianceTypeAngle value1{-0.1f, ezAngle::MakeFromDegree(-45.0f)};
-    ezVarianceTypeAngle value2{0.1f, ezAngle::MakeFromDegree(45.0f)};
+    ezVarianceTypeAngle value1(ezAngle::MakeFromDegree(-45.0f), -0.1f);
+    ezVarianceTypeAngle value2(ezAngle::MakeFromDegree(45.0f), 0.1f);
 
     TestMapProperty<ezVarianceTypeAngle>("CustomVariant", &containers, pRtti, value1, value2);
     TestMapProperty<ezVarianceTypeAngle>("CustomVariantRO", &containers, pRtti, value1, value2);
@@ -1236,7 +1263,9 @@ template <typename T>
 void TestPointerMemberProperty(const char* szPropName, void* pObject, const ezRTTI* pRtti, ezBitflags<ezPropertyFlags> expectedFlags, T* pExpectedValue)
 {
   const ezAbstractProperty* pProp = pRtti->FindPropertyByName(szPropName);
-  EZ_TEST_BOOL(pProp != nullptr);
+  if (!EZ_TEST_BOOL(pProp != nullptr))
+    return;
+  EZ_ANALYSIS_ASSUME(pProp != nullptr);
   EZ_TEST_BOOL(pProp->GetCategory() == ezPropertyCategory::Member);
   auto pAbsMember = static_cast<const ezAbstractMemberProperty*>(pProp);
   EZ_TEST_INT(pProp->GetFlags().GetValue(), expectedFlags.GetValue());
@@ -1270,17 +1299,22 @@ void TestPointerMemberProperty(const char* szPropName, void* pObject, const ezRT
 EZ_CREATE_SIMPLE_TEST(Reflection, Pointer)
 {
   const ezRTTI* pRtti = ezGetStaticRTTI<ezTestPtr>();
-  EZ_TEST_BOOL(pRtti != nullptr);
+  if (!EZ_TEST_BOOL(pRtti != nullptr))
+    return;
+  EZ_ANALYSIS_ASSUME(pRtti != nullptr);
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Member Property Ptr")
   {
     ezTestPtr containers;
     {
       const ezAbstractProperty* pProp = pRtti->FindPropertyByName("ConstCharPtr");
-      EZ_TEST_BOOL(pProp != nullptr);
-      EZ_TEST_BOOL(pProp->GetCategory() == ezPropertyCategory::Member);
-      EZ_TEST_INT(pProp->GetFlags().GetValue(), (ezPropertyFlags::StandardType | ezPropertyFlags::Const).GetValue());
-      EZ_TEST_BOOL(pProp->GetSpecificType() == ezGetStaticRTTI<const char*>());
+      if (EZ_TEST_BOOL(pProp != nullptr))
+      {
+        EZ_ANALYSIS_ASSUME(pProp != nullptr);
+        EZ_TEST_BOOL(pProp->GetCategory() == ezPropertyCategory::Member);
+        EZ_TEST_INT(pProp->GetFlags().GetValue(), (ezPropertyFlags::StandardType | ezPropertyFlags::Const).GetValue());
+        EZ_TEST_BOOL(pProp->GetSpecificType() == ezGetStaticRTTI<const char*>());
+      }
     }
 
     TestPointerMemberProperty<ezTestArrays>(

@@ -63,9 +63,6 @@ public:
   void SetHalfExtents(const ezVec3& value);                       // [ property ]
   const ezVec3& GetHalfExtents() const { return m_vHalfExtents; } // [ property ]
 
-  void SetPrefabFile(const char* szFile);                         // [ property ]
-  const char* GetPrefabFile() const;                              // [ property ]
-
   bool GetSpawnAtStart() const;                                   // [ property ]
   void SetSpawnAtStart(bool b);                                   // [ property ]
 

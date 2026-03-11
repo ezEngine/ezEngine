@@ -32,7 +32,7 @@ namespace
 // static
 const char* RegisterType::GetName(Enum registerType)
 {
-  EZ_ASSERT_DEBUG(registerType >= 0 && registerType < EZ_ARRAY_SIZE(s_szRegisterTypeNames), "Out of bounds access");
+  EZ_ASSERT_DEBUG(registerType >= 0 && static_cast<ezUInt32>(registerType) < EZ_ARRAY_SIZE(s_szRegisterTypeNames), "Out of bounds access");
   return s_szRegisterTypeNames[registerType];
 }
 
@@ -116,6 +116,8 @@ namespace
 
   static void Random(Inputs inputs, Output output, const GlobalData& globalData)
   {
+    EZ_IGNORE_UNUSED(globalData);
+
     const Register* pPositions = inputs[0].GetPtr();
     const Register* pPositionsEnd = inputs[0].GetEndPtr();
     Register* pOutput = output.GetPtr();
@@ -155,6 +157,8 @@ namespace
 
   static void PerlinNoise(Inputs inputs, Output output, const GlobalData& globalData)
   {
+    EZ_IGNORE_UNUSED(globalData);
+
     const Register* pPosX = inputs[0].GetPtr();
     const Register* pPosY = inputs[1].GetPtr();
     const Register* pPosZ = inputs[2].GetPtr();
@@ -177,12 +181,12 @@ namespace
 } // namespace
 
 ezExpressionFunction ezDefaultExpressionFunctions::s_RandomFunc = {
-  {ezMakeHashedString("Random"), ezMakeArrayPtr(s_RandomInputTypes), 1, RegisterType::Float},
+  {ezMakeHashedString("Random"), ezExpression::FunctionDesc::TypeList(s_RandomInputTypes), 1, RegisterType::Float},
   &Random,
 };
 
 ezExpressionFunction ezDefaultExpressionFunctions::s_PerlinNoiseFunc = {
-  {ezMakeHashedString("PerlinNoise"), ezMakeArrayPtr(s_PerlinNoiseInputTypes), 3, RegisterType::Float},
+  {ezMakeHashedString("PerlinNoise"), ezExpression::FunctionDesc::TypeList(s_PerlinNoiseInputTypes), 3, RegisterType::Float},
   &PerlinNoise,
 };
 

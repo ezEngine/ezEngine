@@ -20,6 +20,7 @@ ezGameEngineTestApplication* ezGameEngineTestVisualScript::CreateApplication()
 void ezGameEngineTestVisualScript::SetupSubTests()
 {
   AddSubTest("Variables", SubTests::Variables);
+  AddSubTest("Variables2", SubTests::Variables2);
   AddSubTest("Coroutines", SubTests::Coroutines);
   AddSubTest("Messages", SubTests::Messages);
   AddSubTest("EnumsAndSwitch", SubTests::EnumsAndSwitch);
@@ -30,6 +31,8 @@ void ezGameEngineTestVisualScript::SetupSubTests()
   AddSubTest("Properties", SubTests::Properties);
   AddSubTest("Arrays", SubTests::Arrays);
   AddSubTest("Expressions", SubTests::Expressions);
+  AddSubTest("Physics", SubTests::Physics);
+  AddSubTest("Misc", SubTests::Misc);
 }
 
 ezResult ezGameEngineTestVisualScript::InitializeSubTest(ezInt32 iIdentifier)
@@ -44,8 +47,13 @@ ezResult ezGameEngineTestVisualScript::InitializeSubTest(ezInt32 iIdentifier)
   {
     m_ImgCompFrames.PushBack(1);
 
-    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Variables.ezObjectGraph"));
-    return EZ_SUCCESS;
+    return m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Variables.ezBinScene");
+  }
+  else if (iIdentifier == SubTests::Variables2)
+  {
+    m_ImgCompFrames.PushBack(1);
+
+    return m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Variables2.ezBinScene");
   }
   else if (iIdentifier == SubTests::Coroutines)
   {
@@ -54,16 +62,14 @@ ezResult ezGameEngineTestVisualScript::InitializeSubTest(ezInt32 iIdentifier)
     m_ImgCompFrames.PushBack(10);
     m_ImgCompFrames.PushBack(17);
 
-    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Coroutines.ezObjectGraph"));
-    return EZ_SUCCESS;
+    return m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Coroutines.ezBinScene");
   }
   else if (iIdentifier == SubTests::Messages)
   {
     m_ImgCompFrames.PushBack(1);
     m_ImgCompFrames.PushBack(4);
 
-    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Messages.ezObjectGraph"));
-    return EZ_SUCCESS;
+    return m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Messages.ezBinScene");
   }
   else if (iIdentifier == SubTests::EnumsAndSwitch)
   {
@@ -72,15 +78,13 @@ ezResult ezGameEngineTestVisualScript::InitializeSubTest(ezInt32 iIdentifier)
     m_ImgCompFrames.PushBack(3);
     m_ImgCompFrames.PushBack(6);
 
-    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/EnumsAndSwitch.ezObjectGraph"));
-    return EZ_SUCCESS;
+    return m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/EnumsAndSwitch.ezBinScene");
   }
   else if (iIdentifier == SubTests::Blackboard)
   {
     m_ImgCompFrames.PushBack(1);
 
-    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Blackboard.ezObjectGraph"));
-    return EZ_SUCCESS;
+    return m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Blackboard.ezBinScene");
   }
   else if (iIdentifier == SubTests::Loops)
   {
@@ -90,8 +94,7 @@ ezResult ezGameEngineTestVisualScript::InitializeSubTest(ezInt32 iIdentifier)
     m_ImgCompFrames.PushBack(41);
     m_ImgCompFrames.PushBack(42);
 
-    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Loops.ezObjectGraph"));
-    return EZ_SUCCESS;
+    return m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Loops.ezBinScene");
   }
   else if (iIdentifier == SubTests::Loops2)
   {
@@ -101,29 +104,25 @@ ezResult ezGameEngineTestVisualScript::InitializeSubTest(ezInt32 iIdentifier)
     m_pTestLog = EZ_DEFAULT_NEW(TestLog);
     m_pTestLog->m_Interface.ExpectMessage("Maximum node executions (100000) reached, execution will be aborted. Does the script contain an infinite loop?");
 
-    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Loops2.ezObjectGraph"));
-    return EZ_SUCCESS;
+    return m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Loops2.ezBinScene");
   }
   else if (iIdentifier == SubTests::Loops3)
   {
     m_ImgCompFrames.PushBack(1);
 
-    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Loops3.ezObjectGraph"));
-    return EZ_SUCCESS;
+    return m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Loops3.ezBinScene");
   }
   else if (iIdentifier == SubTests::Properties)
   {
     m_ImgCompFrames.PushBack(1);
 
-    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Properties.ezObjectGraph"));
-    return EZ_SUCCESS;
+    return m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Properties.ezBinScene");
   }
   else if (iIdentifier == SubTests::Arrays)
   {
     m_ImgCompFrames.PushBack(1);
 
-    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Arrays.ezObjectGraph"));
-    return EZ_SUCCESS;
+    return m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Arrays.ezBinScene");
   }
   else if (iIdentifier == SubTests::Expressions)
   {
@@ -131,8 +130,19 @@ ezResult ezGameEngineTestVisualScript::InitializeSubTest(ezInt32 iIdentifier)
     m_ImgCompFrames.PushBack(15);
     m_ImgCompFrames.PushBack(31);
 
-    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Expressions.ezObjectGraph"));
-    return EZ_SUCCESS;
+    return m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Expressions.ezBinScene");
+  }
+  else if (iIdentifier == SubTests::Physics)
+  {
+    m_ImgCompFrames.PushBack(2);
+
+    return m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Physics.ezBinScene");
+  }
+  else if (iIdentifier == SubTests::Misc)
+  {
+    m_ImgCompFrames.PushBack(2);
+
+    return m_pOwnApplication->LoadScene("VisualScript/AssetCache/Common/Scenes/Misc.ezBinScene");
   }
 
   return EZ_FAILURE;
@@ -143,7 +153,8 @@ ezTestAppRun ezGameEngineTestVisualScript::RunSubTest(ezInt32 iIdentifier, ezUIn
   const bool bVulkan = ezGameApplication::GetActiveRenderer().IsEqual_NoCase("Vulkan");
   ++m_iFrame;
 
-  if (m_pOwnApplication->Run() == ezApplication::Execution::Quit)
+  m_pOwnApplication->Run();
+  if (m_pOwnApplication->ShouldApplicationQuit())
   {
     m_pTestLog = nullptr;
     return ezTestAppRun::Quit;
@@ -151,7 +162,7 @@ ezTestAppRun ezGameEngineTestVisualScript::RunSubTest(ezInt32 iIdentifier, ezUIn
 
   if (m_ImgCompFrames[m_uiImgCompIdx] == m_iFrame)
   {
-    EZ_TEST_IMAGE(m_uiImgCompIdx, bVulkan ? 300 : 250);
+    EZ_TEST_IMAGE(m_uiImgCompIdx, bVulkan ? 430 : 250);
     ++m_uiImgCompIdx;
 
     if (m_uiImgCompIdx >= m_ImgCompFrames.GetCount())

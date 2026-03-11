@@ -1,7 +1,8 @@
 #pragma once
 
-#include <Foundation/Types/UniquePtr.h>
 #include <ModelImporter2/ModelImporterDLL.h>
+
+#include <Foundation/Types/UniquePtr.h>
 #include <RendererCore/Meshes/MeshBufferUtils.h>
 
 class ezLogInterface;
@@ -12,6 +13,12 @@ struct ezAnimationClipResourceDescriptor;
 
 namespace ezModelImporter2
 {
+  enum AdditiveReference
+  {
+    FirstKeyFrame,
+    LastKeyFrame,
+  };
+
   struct ImportOptions
   {
     ezString m_sSourceFile;
@@ -20,17 +27,22 @@ namespace ezModelImporter2
     bool m_bRecomputeNormals = false;
     bool m_bRecomputeTangents = false;
     bool m_bNormalizeWeights = false;
+    ezEnum<ezMeshVertexColorConversion> m_MeshVertexColorConversion = ezMeshVertexColorConversion::Default;
+    bool m_bHighPrecision = false;
     ezMat3 m_RootTransform = ezMat3::MakeIdentity();
 
+    // if non-empty, only import meshes whose names start or end with any of these strings
+    ezDynamicArray<ezString> m_MeshIncludeTags;
+    // if non-empty, do not import meshes whose names start or end with any of these strings (unless already explicitly included)
+    ezDynamicArray<ezString> m_MeshExcludeTags;
+
     ezMeshResourceDescriptor* m_pMeshOutput = nullptr;
-    ezEnum<ezMeshNormalPrecision> m_MeshNormalsPrecision = ezMeshNormalPrecision::Default;
-    ezEnum<ezMeshTexCoordPrecision> m_MeshTexCoordsPrecision = ezMeshTexCoordPrecision::Default;
-    ezEnum<ezMeshBoneWeigthPrecision> m_MeshBoneWeightPrecision = ezMeshBoneWeigthPrecision::Default;
-    ezEnum<ezMeshVertexColorConversion> m_MeshVertexColorConversion = ezMeshVertexColorConversion::Default;
 
     ezEditableSkeleton* m_pSkeletonOutput = nullptr;
 
     bool m_bAdditiveAnimation = false;
+    AdditiveReference m_AdditiveReference = AdditiveReference::FirstKeyFrame;
+
     ezString m_sAnimationToImport; // empty = first in file; "name" = only anim with that name
     ezAnimationClipResourceDescriptor* m_pAnimationOutput = nullptr;
     ezUInt32 m_uiFirstAnimKeyframe = 0;
@@ -39,6 +51,9 @@ namespace ezModelImporter2
     ezUInt8 m_uiMeshSimplification = 0;
     ezUInt8 m_uiMaxSimplificationError = 5;
     bool m_bAggressiveSimplification = false;
+
+    // Adjustments to deal with bad data:
+    float m_fAnimationPositionScale = 1.0f;
   };
 
   enum class PropertySemantic : ezInt8
@@ -97,6 +112,7 @@ namespace ezModelImporter2
     ezMap<ezString, OutputTexture> m_OutputTextures; // path -> additional data
     ezDeque<OutputMaterial> m_OutputMaterials;
     ezDynamicArray<ezString> m_OutputAnimationNames;
+    ezDynamicArray<ezString> m_OutputMeshNames;
 
   protected:
     virtual ezResult DoImport() = 0;

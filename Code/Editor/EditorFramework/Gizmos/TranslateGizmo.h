@@ -60,8 +60,7 @@ protected:
   virtual void OnVisibleChanged(bool bVisible) override;
   virtual void OnTransformationChanged(const ezTransform& transform) override;
 
-  ezResult GetPointOnAxis(ezInt32 iScreenPosX, ezInt32 iScreenPosY, ezVec3& out_Result) const;
-  ezResult GetPointOnPlane(ezInt32 iScreenPosX, ezInt32 iScreenPosY, ezVec3& out_Result) const;
+  ezResult GetPointOnPlane(const ezVec2I32& vScreenPos, ezVec3& out_Result) const;
 
 private:
   ezVec2I32 m_vLastMousePos;

@@ -1,8 +1,10 @@
 #!/bin/bash -e
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 # read arguments
 opts=$(getopt \
-  --longoptions help,clang,setup,no-cmake,no-unity,build-type: \
+  --longoptions help,target:,setup,force,no-unity,solution-name:,workspace-dir: \
   --name "$(basename "$0")" \
   --options "" \
   -- "$@"
@@ -10,26 +12,28 @@ opts=$(getopt \
 
 eval set --$opts
 
-RunCMake=true
-BuildType="Dev"
+Target="linux-gcc-debug"
 NoUnity=""
+SolutionName=""
+WorkspaceDir=""
 
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --help)
-      echo "Usage: $(basename $0) [--setup] [--clang] [--no-cmake] [--build-type Debug|Dev|Shipping] [--no-unity]"
-      echo "  --setup       Run first time setup. This installs dependencies and makes sure the git repository is setup correctly."
-      echo "  --clang       Use clang instead of gcc"
-      echo "  --no-cmake    Do not invoke cmake (usefull when only --setup is needed)"
-      echo "  --build-type  Which build type cmake should be invoked with Debug|Dev|Shipping"
-      echo "  --no-unity    Disable unity builds. This might help to improve code completion in various editors"
+      echo "Usage: $(basename $0) [--setup] [--target <preset>] [--no-unity] [--solution-name <name>] [--workspace-dir <dir>]"
+      echo "  --setup          Run first time setup. This installs dependencies and makes sure the git repository is setup correctly."
+      echo "  --force          Auto confirm any prompts during setup"
+      echo "  --target         CMake preset to use (e.g., linux-gcc-debug, linux-clang-dev). Default: linux-gcc-debug"
+      echo "  --no-unity       Disable unity builds. This might help to improve code completion in various editors"
+      echo "  --solution-name  Custom solution name"
+      echo "  --workspace-dir  Custom workspace directory (outputs to Workspace/<dir> and Workspace/<dir>-output)"
       exit 0
       ;;
 
-    --clang)
-      UseClang=true
-      shift 1
+    --target)
+      Target=$2
+      shift 2
       ;;
 
     --setup)
@@ -37,8 +41,8 @@ while [[ $# -gt 0 ]]; do
       shift 1
       ;;
 
-    --no-cmake)
-      RunCMake=false
+    --force)
+      Force=true
       shift 1
       ;;
 
@@ -47,8 +51,13 @@ while [[ $# -gt 0 ]]; do
       shift 1
       ;;
 
-    --build-type)
-      BuildType=$2
+    --solution-name)
+      SolutionName=$2
+      shift 2
+      ;;
+
+    --workspace-dir)
+      WorkspaceDir=$2
       shift 2
       ;;
 
@@ -58,11 +67,6 @@ while [[ $# -gt 0 ]]; do
       ;;
   esac
 done
-
-if [ "$BuildType" != "Debug" -a "$BuildType" != "Dev" -a "$BuildType" != "Release" ]; then
-  >&2 echo "The build-type '${BuildType}' is not supported. Only Debug, Dev and Release are supported values."
-  exit 1
-fi
 
 if [ ! -f "/etc/issue" ]; then
 	>&2 echo "/etc/issue does not exist. Failed distribution detection"
@@ -91,23 +95,22 @@ verlt() {
     [ "$1" = "$2" ] && return 1 || verlte $1 $2
 }
 
-if [ "$Distribution" = "Ubuntu" -a "$Version" = "22" ] || [ "$Distribution" = "Mint" -a "$Version" = "21" ]; then
-  packages=(cmake build-essential ninja-build libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev uuid-dev mold libfreetype-dev libtinfo5)
+if [ "$Distribution" = "Ubuntu" -a \( "$Version" = "22" -o "$Version" = "24" -o "$Version" = "25" \) ] || [ "$Distribution" = "Mint" -a "$Version" = "21" ]; then
+  packages=(cmake build-essential ninja-build libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev uuid-dev mold libfreetype-dev libxkbcommon-dev liblttng-ust-dev lttng-tools)
 
-  if [ "$UseClang" = true ]; then
-    packages+=(clang-14 libstdc++-12-dev)
-    c_compiler=clang-14
-    cxx_compiler=clang++-14
-  else
-    packages+=(gcc-12 g++-12)
-    c_compiler=gcc-12
-    cxx_compiler=g++-12
+  if [ "$Distribution" = "Ubuntu" -a \( "$Version" = "24" -o "$Version" = "25" \) ]; then
+    packages+=(libtinfo6)
+  else  
+    packages+=(libtinfo5)
   fi
 else
   >&2 echo "Your Distribution or Distribution version is not supported by this script"
   >&2 echo "Currently supported are:"
   >&2 echo "  * Ubuntu 22"
+  >&2 echo "  * Ubuntu 24"
   >&2 echo "  * Linux Mint 21"
+  >&2 echo "Yours is: $Issue"
+  
   exit 1
 fi
 
@@ -122,19 +125,50 @@ if [ "$Setup" = true ]; then
     packages+=(qt6-base-dev libqt6svg6-dev qt6-base-private-dev)
   fi
 
+  # Determine compiler from target for package installation
+  if [[ "$Target" == *"clang"* ]]; then
+    packages+=(clang-14 libomp-14-dev libstdc++-12-dev)
+  else
+    packages+=(gcc-12 g++-12)
+  fi
+
   git submodule update --init
   echo "Attempting to install the following packages through the package manager:"
   echo ${packages[@]}
-  sudo apt install ${packages[@]}
+  if [ "$Force" = true ]; then
+    sudo apt install -y ${packages[@]}
+  else
+    sudo apt install ${packages[@]}
+  fi
+
+  echo -e "\nSetup complete. Run the script again without --setup to configure CMake."
+  exit 0
 fi
 
-CompilerShort=gcc
-if [ "$UseClang" = true ]; then
-  CompilerShort=clang
+CMAKE_ARGS=("--preset" "${Target}" $NoUnity)
+
+if [ -n "$SolutionName" ]; then
+  CMAKE_ARGS+=("-DEZ_SOLUTION_NAME:STRING=${SolutionName}")
 fi
 
-if [ "$RunCMake" = true ]; then
-  BuildDir="build-${BuildType}-${CompilerShort}"
-  cmake -B $BuildDir -S . -G Ninja -DCMAKE_CXX_COMPILER=$cxx_compiler -DCMAKE_C_COMPILER=$c_compiler -DEZ_EXPERIMENTAL_EDITOR_ON_LINUX=ON -DEZ_BUILD_EXPERIMENTAL_VULKAN=ON -DCMAKE_BUILD_TYPE=$BuildType -DCMAKE_EXPORT_COMPILE_COMMANDS=ON $NoUnity && \
-  echo -e "\nRun 'ninja -C ${BuildDir}' to build"
+# Set custom output directories to avoid conflicts between different workspaces
+if [ -n "$WorkspaceDir" ]; then
+  echo "Using custom workspace directory: Workspace/$WorkspaceDir"
+  CMAKE_ARGS+=("-B" "$SCRIPT_DIR/Workspace/$WorkspaceDir")
+  CMAKE_ARGS+=("-DEZ_OUTPUT_DIRECTORY_DLL:PATH=$SCRIPT_DIR/Workspace/$WorkspaceDir-output/Bin")
+  CMAKE_ARGS+=("-DEZ_OUTPUT_DIRECTORY_LIB:PATH=$SCRIPT_DIR/Workspace/$WorkspaceDir-output/Lib")
+  echo "Custom output directories: Workspace/$WorkspaceDir-output/"
 fi
+
+echo ""
+echo "Running cmake ${CMAKE_ARGS[@]}"
+echo ""
+cmake "${CMAKE_ARGS[@]}"
+
+# Determine build directory for ninja hint
+if [ -n "$WorkspaceDir" ]; then
+  BUILD_DIR="Workspace/$WorkspaceDir"
+else
+  BUILD_DIR="Workspace/${Target}"
+fi
+echo -e "\nRun 'ninja -C $BUILD_DIR' to build"

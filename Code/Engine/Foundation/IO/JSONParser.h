@@ -95,7 +95,13 @@ private:
   /// If bFatal is true, the error has left the parser in an unrecoverable state and thus it not continue parsing.
   /// In that case client code will need to clean up it's open state, as no further OnEndObject() / OnEndArray() will be called.
   /// If bFatal is false, the document does not contain valid JSON, but the parser is able to continue still.
-  virtual void OnParsingError(ezStringView sMessage, bool bFatal, ezUInt32 uiLine, ezUInt32 uiColumn) {}
+  virtual void OnParsingError(ezStringView sMessage, bool bFatal, ezUInt32 uiLine, ezUInt32 uiColumn)
+  {
+    EZ_IGNORE_UNUSED(sMessage);
+    EZ_IGNORE_UNUSED(bFatal);
+    EZ_IGNORE_UNUSED(uiLine);
+    EZ_IGNORE_UNUSED(uiColumn);
+  }
 
 private:
   enum State

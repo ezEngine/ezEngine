@@ -71,6 +71,10 @@ public:
 
   /// \brief Relative to 'AssetCache' folder.
   virtual ezString GetRelativeOutputFileName(const ezAssetDocumentTypeDescriptor* pTypeDesc, ezStringView sDataDirectory, ezStringView sDocumentPath, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile = nullptr) const;
+
+  /// \brief Should return the document type of the given sOutputTag.
+  virtual ezStringView GetOutputDocumentType(const ezAssetDocumentTypeDescriptor* pTypeDesc, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile = nullptr) const { return pTypeDesc->m_sDocumentTypeName; }
+
   virtual bool GeneratesProfileSpecificAssets() const = 0;
 
   bool IsOutputUpToDate(ezStringView sDocumentPath, const ezDynamicArray<ezString>& outputs, ezUInt64 uiHash, const ezAssetDocumentTypeDescriptor* pTypeDescriptor);

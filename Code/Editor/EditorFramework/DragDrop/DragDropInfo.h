@@ -31,6 +31,9 @@ public:
   /// can be ignored.
   ezUuid m_TargetObject;
 
+  /// GUID of the ezDocumentObject that may be used as the parent, if no other target is more important.
+  ezUuid m_ActiveParentObject;
+
   /// GUID of the ezDocumentObject that is the more specific component (of m_TargetObject) that was dragged on. May be invalid.
   ezUuid m_TargetComponent;
 

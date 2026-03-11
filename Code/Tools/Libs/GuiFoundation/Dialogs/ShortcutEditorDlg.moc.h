@@ -31,6 +31,7 @@ private Q_SLOTS:
   void on_ButtonAssign_clicked();
   void on_ButtonRemove_clicked();
   void on_ButtonReset_clicked();
+  void on_Search_textChanged(const QString& sText);
 
 private:
   ezInt32 m_iSelectedAction;

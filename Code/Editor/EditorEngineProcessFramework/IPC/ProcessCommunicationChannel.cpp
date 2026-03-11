@@ -53,8 +53,9 @@ void ezProcessCommunicationChannel::WaitForMessages()
   m_pProtocol->WaitForMessages().IgnoreResult();
 }
 
-void ezProcessCommunicationChannel::MessageFunc(const ezProcessMessage* pMsg)
+void ezProcessCommunicationChannel::OnIpcProtocolEvent(const ezIpcProcessMessageProtocol::Event& msg)
 {
+  const ezProcessMessage* pMsg = msg.m_pMessage;
   const ezRTTI* pRtti = pMsg->GetDynamicRTTI();
 
   if (m_pWaitForMessageType != nullptr && pMsg->GetDynamicRTTI()->IsDerivedFrom(m_pWaitForMessageType))
@@ -79,7 +80,38 @@ void ezProcessCommunicationChannel::MessageFunc(const ezProcessMessage* pMsg)
 
   Event e;
   e.m_pMessage = pMsg;
+  e.m_bInterruptMessageProcessing = msg.m_bInterruptMessageProcessing;
   m_Events.Broadcast(e);
+  msg.m_bInterruptMessageProcessing = e.m_bInterruptMessageProcessing;
+}
+
+void ezProcessCommunicationChannel::OnIpcChannelEvent(const ezIpcChannelEvent& msg)
+{
+  m_IpcChannelEvents.Broadcast(msg);
+}
+
+void ezProcessCommunicationChannel::CreateAndConnectChannel(ezInternal::NewInstance<ezIpcChannel>&& channel)
+{
+  EZ_ASSERT_DEBUG(m_pChannel == nullptr, "Channel already created");
+  m_pChannel = channel;
+  m_pProtocol = EZ_DEFAULT_NEW(ezIpcProcessMessageProtocol, m_pChannel.Borrow());
+  m_pProtocol->m_MessageEvent.AddEventHandler(ezMakeDelegate(&ezProcessCommunicationChannel::OnIpcProtocolEvent, this));
+  m_pChannel->m_Events.AddEventHandler(ezMakeDelegate(&ezProcessCommunicationChannel::OnIpcChannelEvent, this));
+  m_pChannel->Connect();
+}
+
+void ezProcessCommunicationChannel::DestroyChannel()
+{
+  if (m_pProtocol)
+  {
+    m_pProtocol->m_MessageEvent.RemoveEventHandler(ezMakeDelegate(&ezProcessCommunicationChannel::OnIpcProtocolEvent, this));
+    m_pProtocol.Clear();
+  }
+  if (m_pChannel)
+  {
+    m_pChannel->m_Events.RemoveEventHandler(ezMakeDelegate(&ezProcessCommunicationChannel::OnIpcChannelEvent, this));
+    m_pChannel.Clear();
+  }
 }
 
 ezResult ezProcessCommunicationChannel::WaitForMessage(const ezRTTI* pMessageType, ezTime timeout, WaitForMessageCallback* pMessageCallack)
@@ -114,9 +146,17 @@ ezResult ezProcessCommunicationChannel::WaitForMessage(const ezRTTI* pMessageTyp
 
       if (tTimeLeft < ezTime::MakeZero())
       {
-        m_pWaitForMessageType = nullptr;
-        ezLog::Dev("Reached time-out of {0} seconds while waiting for {1}", ezArgF(timeout.GetSeconds(), 1), pMessageType->GetTypeName());
-        return EZ_FAILURE;
+        // Don't time out if a debugger is attached to make stepping easier.
+        if (ezSystemInformation::IsDebuggerAttached())
+        {
+          tTimeLeft = ezTime::MakeFromSeconds(1);
+        }
+        else
+        {
+          m_pWaitForMessageType = nullptr;
+          ezLog::Dev("Reached time-out of {0} seconds while waiting for {1}", ezArgF(timeout.GetSeconds(), 1), pMessageType->GetTypeName());
+          return EZ_FAILURE;
+        }
       }
 
       m_pProtocol->WaitForMessages(tTimeLeft).IgnoreResult();
@@ -178,5 +218,8 @@ ezResult ezProcessCommunicationChannel::WaitForConnection(ezTime timeout)
 
 bool ezProcessCommunicationChannel::IsConnected() const
 {
+  if (!m_pChannel)
+    return false;
+
   return m_pChannel->IsConnected();
 }

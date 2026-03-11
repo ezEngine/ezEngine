@@ -1,7 +1,10 @@
 #pragma once
 
+#include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
+#include <Foundation/Types/Delegate.h>
+#include <Foundation/Types/Variant.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 
 /// \brief Stores the valid values and names for 'dynamic' enums.
@@ -18,6 +21,9 @@ public:
   /// Calls s_RequestUnknownCallback, if the requested enum is not known yet, which will try to load the data.
   static ezDynamicStringEnum& GetDynamicEnum(ezStringView sEnumName);
 
+  /// \brief Always (re-) creates the ezDynamicEnum under the requested name.
+  ///
+  /// Use this when you intend to reset the values and don't want them to be loaded from file.
   static ezDynamicStringEnum& CreateDynamicEnum(ezStringView sEnumName);
 
   /// \brief Removes the entire enum with the given name.
@@ -49,6 +55,14 @@ public:
   /// \brief The file where values will be stored.
   ezStringView GetStorageFile() const { return m_sStorageFile; }
 
+  /// \brief If specified, the widget shows an "edit" option, which will run ezActionManager::ExecuteAction(sCmd, value)
+  ///
+  /// This is meant to be used to open existing config dialogs.
+  /// There is currently no way to report back a selection, so after making changes, the user has to make another selection.
+  void SetEditCommand(ezStringView sCmd, const ezVariant& value);
+  ezStringView GetEditCommand() const { return m_sEditCommand; }
+  const ezVariant& GetEditCommandValue() const { return m_EditCommandValue; }
+
   void ReadFromStorage();
 
   void SaveToStorage();
@@ -61,6 +75,8 @@ public:
 private:
   ezHybridArray<ezString, 16> m_ValidValues;
   ezString m_sStorageFile;
+  ezString m_sEditCommand;
+  ezVariant m_EditCommandValue;
 
   static ezMap<ezString, ezDynamicStringEnum> s_DynamicEnums;
 };

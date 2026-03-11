@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400">
+    <defs>
+        <linearGradient id="grad1" x1="0%" x2="100%" y1="0%" y2="0%">
+            <stop offset="0%" stop-color="#00F" />
+            <stop offset="100%" stop-color="#0FF" />
+        </linearGradient>
+    </defs>
+    <style>
+        .NiceText {
+        font-family: Arial, sans-serif;
+        font-style: italic;
+        font-size: 30px;
+        fill: #0F0;
+        }
+    </style>
+  <path fill="url(#grad1)" d="M 281 187 L 208 174 L 156 228 L 145 154 L 78 121 L 145 88 L 156 14 L 208 67 L 281 55 L 246 121 Z"/>
+  <rect x="171" y="200" width="150" height="179" fill="none" stroke="#FF0" stroke-width="10" stroke-opacity="0.55" vector-effect="non-scaling-stroke"/>
+  <circle cx="138" cy="292" r="72" fill="#F0F" opacity="0.5"/>
+  <!--<text x="20" y="45" class="NiceText">This is SVG text!!!</text>-->
+</svg>

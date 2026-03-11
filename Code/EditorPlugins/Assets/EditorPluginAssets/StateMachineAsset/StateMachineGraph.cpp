@@ -13,16 +13,16 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorPluginAssets, StateMachine)
 
   ON_CORESYSTEMS_STARTUP
   {
-    ezQtNodeScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezStateMachinePin>(), [](const ezRTTI* pRtti)->ezQtPin* { return new ezQtStateMachinePin(); });
-    ezQtNodeScene::GetConnectionFactory().RegisterCreator(ezGetStaticRTTI<ezStateMachineConnection>(), [](const ezRTTI* pRtti)->ezQtConnection* { return new ezQtStateMachineConnection(); });    
-    ezQtNodeScene::GetNodeFactory().RegisterCreator(ezGetStaticRTTI<ezStateMachineNodeBase>(), [](const ezRTTI* pRtti)->ezQtNode* { return new ezQtStateMachineNode(); });
+    ezQtVisualGraphScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezStateMachinePin>(), [](const ezRTTI* pRtti)->ezQtVisualGraphPin* { return new ezQtStateMachinePin(); });
+    ezQtVisualGraphScene::GetConnectionFactory().RegisterCreator(ezGetStaticRTTI<ezStateMachineConnection>(), [](const ezRTTI* pRtti)->ezQtVisualGraphConnection* { return new ezQtStateMachineConnection(); });    
+    ezQtVisualGraphScene::GetNodeFactory().RegisterCreator(ezGetStaticRTTI<ezStateMachineNodeBase>(), [](const ezRTTI* pRtti)->ezQtVisualGraphNode* { return new ezQtStateMachineNode(); });
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
-    ezQtNodeScene::GetPinFactory().UnregisterCreator(ezGetStaticRTTI<ezStateMachinePin>());
-    ezQtNodeScene::GetConnectionFactory().UnregisterCreator(ezGetStaticRTTI<ezStateMachineConnection>());
-    ezQtNodeScene::GetNodeFactory().UnregisterCreator(ezGetStaticRTTI<ezStateMachineNodeBase>());
+    ezQtVisualGraphScene::GetPinFactory().UnregisterCreator(ezGetStaticRTTI<ezStateMachinePin>());
+    ezQtVisualGraphScene::GetConnectionFactory().UnregisterCreator(ezGetStaticRTTI<ezStateMachineConnection>());
+    ezQtVisualGraphScene::GetNodeFactory().UnregisterCreator(ezGetStaticRTTI<ezStateMachineNodeBase>());
   }
 
 EZ_END_SUBSYSTEM_DECLARATION;
@@ -34,7 +34,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezStateMachinePin::ezStateMachinePin(Type type, const ezDocumentObject* pObject)
-  : ezPin(type, type == Type::Input ? "Enter" : "Exit", ezColor::Grey, pObject)
+  : ezVisualGraphPin(type, type == Type::Input ? "Enter" : "Exit", ezColor::Grey, pObject)
 {
 }
 
@@ -54,7 +54,13 @@ ezStateMachineNodeManager::~ezStateMachineNodeManager()
 
 bool ezStateMachineNodeManager::IsInitialState(const ezDocumentObject* pObject) const
 {
-  return pObject->GetTypeAccessor().GetValue(s_szIsInitialState) == true;
+  ezVariant val = pObject->GetTypeAccessor().GetValue(s_szIsInitialState);
+  if (val.IsValid())
+  {
+    return val.Get<bool>() == true;
+  }
+
+  return false;
 }
 
 const ezDocumentObject* ezStateMachineNodeManager::GetInitialState() const
@@ -90,7 +96,7 @@ bool ezStateMachineNodeManager::InternalIsNode(const ezDocumentObject* pObject) 
   return false;
 }
 
-ezStatus ezStateMachineNodeManager::InternalCanConnect(const ezPin& source, const ezPin& target, CanConnectResult& out_Result) const
+ezStatus ezStateMachineNodeManager::InternalCanConnect(const ezVisualGraphPin& source, const ezVisualGraphPin& target, CanConnectResult& out_Result) const
 {
   out_Result = CanConnectResult::ConnectNtoN;
   return ezStatus(EZ_SUCCESS);
@@ -103,20 +109,20 @@ void ezStateMachineNodeManager::InternalCreatePins(const ezDocumentObject* pObje
 
   if (IsAnyState(pObject) == false)
   {
-    auto pPin = EZ_DEFAULT_NEW(ezStateMachinePin, ezPin::Type::Input, pObject);
+    auto pPin = EZ_DEFAULT_NEW(ezStateMachinePin, ezVisualGraphPin::Type::Input, pObject);
     node.m_Inputs.PushBack(pPin);
   }
 
   {
-    auto pPin = EZ_DEFAULT_NEW(ezStateMachinePin, ezPin::Type::Output, pObject);
+    auto pPin = EZ_DEFAULT_NEW(ezStateMachinePin, ezVisualGraphPin::Type::Output, pObject);
     node.m_Outputs.PushBack(pPin);
   }
 }
 
-void ezStateMachineNodeManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& Types) const
+void ezStateMachineNodeManager::GetCreateableTypes(ezDynamicArray<const ezRTTI*>& out_types) const
 {
-  Types.PushBack(ezGetStaticRTTI<ezStateMachineNode>());
-  Types.PushBack(ezGetStaticRTTI<ezStateMachineNodeAny>());
+  out_types.PushBack(ezGetStaticRTTI<ezStateMachineNode>());
+  out_types.PushBack(ezGetStaticRTTI<ezStateMachineNodeAny>());
 }
 
 const ezRTTI* ezStateMachineNodeManager::GetConnectionType() const

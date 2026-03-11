@@ -53,8 +53,8 @@ EZ_CREATE_SIMPLE_TEST(Math, Frustum)
       EZ_TEST_BOOL(f.GetTransformedFrustum(mTransform).GetPlane(planeIndex) == tf.GetPlane(planeIndex));
     }
 
-    EZ_TEST_BOOL(tf.GetPlane(0).IsEqual(p[0], 0.001f));
-    EZ_TEST_BOOL(tf.GetPlane(1).IsEqual(p[1], 0.001f));
+    EZ_TEST_BOOL(tf.GetPlane(0).IsEqual(p[0], ezMath::LargeEpsilon<float>()));
+    EZ_TEST_BOOL(tf.GetPlane(1).IsEqual(p[1], ezMath::LargeEpsilon<float>()));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "InvertFrustum")
@@ -330,9 +330,18 @@ EZ_CREATE_SIMPLE_TEST(Math, Frustum)
     ezVec3 corners2[8];
     fNew.ComputeCornerPoints(corners2).AssertSuccess();
 
+    // On ARM64, MakeFromCorners uses cross products on nearly-parallel edge vectors (~171 units long, differing by ~0.2),
+    // causing catastrophic cancellation that amplifies small input differences into larger plane normal errors.
+    // The reconstructed far-plane corners end up with ~0.005 error vs ~0.001 on x86.
+#if EZ_ENABLED(EZ_PLATFORM_ARCH_ARM)
+    const float fCornerEpsilon = ezMath::VeryHugeEpsilon<float>();
+#else
+    const float fCornerEpsilon = ezMath::HugeEpsilon<float>();
+#endif
+
     for (ezUInt32 i = 0; i < 8; ++i)
     {
-      EZ_TEST_BOOL(corners[i].IsEqual(corners2[i], 0.01f));
+      EZ_TEST_BOOL(corners[i].IsEqual(corners2[i], fCornerEpsilon));
     }
   }
 

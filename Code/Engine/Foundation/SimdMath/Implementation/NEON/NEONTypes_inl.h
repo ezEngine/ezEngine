@@ -1,17 +1,32 @@
 #pragma once
 
+#include <Foundation/Math/Vec4.h>
+
 #include <arm_neon.h>
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-#  define EZ_CHECK_SIMD_ALIGNMENT EZ_CHECK_ALIGNMENT_16
+#  define EZ_CHECK_SIMD_ALIGNMENT(x) EZ_CHECK_ALIGNMENT(x, 16)
 #else
 #  define EZ_CHECK_SIMD_ALIGNMENT(x)
 #endif
 
 namespace ezInternal
 {
+  struct QuadDouble
+  {
+    float64x2_t xy;
+    float64x2_t zw;
+  };
+
   using QuadFloat = float32x4_t;
   using QuadBool = uint32x4_t;
+  
+  struct QuadBoolWide
+  {
+    uint64x2_t xy;
+    uint64x2_t zw;
+  };
+
   using QuadInt = int32x4_t;
   using QuadUInt = uint32x4_t;
 

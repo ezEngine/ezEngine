@@ -35,7 +35,8 @@ public:
 
   void OnTransformChanged(ezMsgTransformChanged& ref_msg);
 
-  static const ezEvent<const ezProcGenInternal::InvalidatedArea&>& GetAreaInvalidatedEvent() { return s_AreaInvalidatedEvent; }
+  using AreaInvalidatedEvent = ezEvent<const ezProcGenInternal::InvalidatedArea&, ezMutex>;
+  static const AreaInvalidatedEvent& GetAreaInvalidatedEvent() { return s_AreaInvalidatedEvent; }
 
 protected:
   float m_fValue = 1.0f;
@@ -45,7 +46,8 @@ protected:
   void InvalidateArea();
   void InvalidateArea(const ezBoundingBox& area);
 
-  static ezEvent<const ezProcGenInternal::InvalidatedArea&> s_AreaInvalidatedEvent;
+  static AreaInvalidatedEvent s_AreaInvalidatedEvent;
+  static ezSpatialData::Category s_SpatialCategory;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -92,8 +94,10 @@ public:
   const ezVec3& GetExtents() const { return m_vExtents; }
   void SetExtents(const ezVec3& vExtents);
 
-  const ezVec3& GetFalloff() const { return m_vFalloff; }
-  void SetFalloff(const ezVec3& vFalloff);
+  const ezVec3& GetPositiveFalloff() const { return m_vPositiveFalloff; }
+  void SetPositiveFalloff(const ezVec3& vFalloff);
+  const ezVec3& GetNegativeFalloff() const { return m_vNegativeFalloff; }
+  void SetNegativeFalloff(const ezVec3& vFalloff);
 
   virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
   virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
@@ -103,7 +107,8 @@ public:
 
 protected:
   ezVec3 m_vExtents = ezVec3(10.0f);
-  ezVec3 m_vFalloff = ezVec3(0.5f);
+  ezVec3 m_vPositiveFalloff = ezVec3(0.5f);
+  ezVec3 m_vNegativeFalloff = ezVec3(0.5f);
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -123,12 +128,9 @@ public:
 
   void OnExtractVolumes(ezMsgExtractVolumes& ref_msg) const;
 
-  void SetImageFile(const char* szFile); // [ property ]
-  const char* GetImageFile() const;      // [ property ]
-
   void SetImage(const ezImageDataResourceHandle& hResource);
   ezImageDataResourceHandle GetImage() const { return m_hImage; }
 
 protected:
-  ezImageDataResourceHandle m_hImage;
+  ezImageDataResourceHandle m_hImage; // [ property ]
 };

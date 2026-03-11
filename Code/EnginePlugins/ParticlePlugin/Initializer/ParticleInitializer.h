@@ -11,7 +11,7 @@ class ezProcessingStream;
 class ezParticleInitializer;
 class ezParticleEffectInstance;
 
-/// \brief Base class for all particle emitters
+/// Base class for all particle initializers
 class EZ_PARTICLEPLUGIN_DLL ezParticleInitializerFactory : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializerFactory, ezReflectedClass);
@@ -29,7 +29,10 @@ public:
   virtual void QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const {}
 };
 
-/// \brief Base class for stream spawners that are used by ezParticleEmitter's
+/// Base class for particle initializers
+///
+/// Initializers set the initial values of newly spawned particles.
+/// They are executed once per particle when it is created.
 class EZ_PARTICLEPLUGIN_DLL ezParticleInitializer : public ezParticleModule
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializer, ezParticleModule);

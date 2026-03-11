@@ -13,6 +13,7 @@ public:
   static void RegisterActions();
   static void UnregisterActions();
 
+  static void MapPluginMenuActions(ezStringView sMapping);
   static void MapMenuActions(ezStringView sMapping);
   static void MapToolbarActions(ezStringView sMapping);
 

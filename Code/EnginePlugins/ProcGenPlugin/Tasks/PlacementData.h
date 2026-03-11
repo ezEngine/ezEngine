@@ -21,6 +21,7 @@ namespace ezProcGenInternal
     ezSharedPtr<const PlacementOutput> m_pOutput;
     ezUInt32 m_uiTileSeed = 0;
     ezBoundingBox m_TileBoundingBox;
+    bool m_bDebugVisualization = false;
 
     ezDynamicArray<ezSimdMat4f, ezAlignedAllocatorWrapper> m_GlobalToLocalBoxTransforms;
 

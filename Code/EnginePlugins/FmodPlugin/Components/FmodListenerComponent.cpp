@@ -17,7 +17,7 @@ void ezFmodListenerComponentManager::Initialize()
 
   {
     auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezFmodListenerComponentManager::UpdateListeners, this);
-    desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PostTransform;
+    desc.m_Phase = ezWorldUpdatePhase::PostTransform;
     desc.m_bOnlyUpdateWhenSimulating = true;
 
     this->RegisterUpdateFunction(desc);

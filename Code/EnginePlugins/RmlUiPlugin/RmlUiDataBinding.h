@@ -4,6 +4,13 @@
 
 #include <RmlUi/Include/RmlUi/Core.h>
 
+#include <Foundation/Basics.h>
+
+namespace Rml
+{
+  class Context;
+}
+
 class EZ_RMLUIPLUGIN_DLL ezRmlUiDataBinding
 {
 public:
@@ -12,5 +19,6 @@ public:
   virtual ezResult Initialize(Rml::Context& ref_context) = 0;
   virtual void Deinitialize(Rml::Context& ref_context) = 0;
 
-  virtual void Update() = 0;
+  /// \brief Returns true if anything was updated
+  virtual bool Update() = 0;
 };

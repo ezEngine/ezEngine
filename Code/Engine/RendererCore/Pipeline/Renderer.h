@@ -10,8 +10,7 @@ class EZ_RENDERERCORE_DLL ezRenderer : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezRenderer, ezReflectedClass);
 
 public:
-  virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& ref_types) const = 0;
-  virtual void GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& ref_categories) const = 0;
+  virtual void GetSupportedRenderDataTypes(ezDynamicArray<const ezRTTI*>& out_types) const = 0;
 
   virtual void RenderBatch(const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const = 0;
 };

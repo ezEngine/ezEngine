@@ -57,6 +57,18 @@ EZ_IMPLEMENT_IF_FLOAT_TYPE EZ_ALWAYS_INLINE Type ezVec3Template<Type>::GetLength
 }
 
 template <typename Type>
+EZ_IMPLEMENT_IF_FLOAT_TYPE EZ_ALWAYS_INLINE Type ezVec3Template<Type>::GetDistanceTo(const ezVec3Template<Type>& rhs) const
+{
+  return (*this - rhs).GetLength();
+}
+
+template <typename Type>
+EZ_IMPLEMENT_IF_FLOAT_TYPE EZ_ALWAYS_INLINE Type ezVec3Template<Type>::GetSquaredDistanceTo(const ezVec3Template<Type>& rhs) const
+{
+  return (*this - rhs).GetLengthSquared();
+}
+
+template <typename Type>
 EZ_IMPLEMENT_IF_FLOAT_TYPE ezResult ezVec3Template<Type>::SetLength(Type fNewLength, Type fEpsilon /* = ezMath::DefaultEpsilon<Type>() */)
 {
   if (NormalizeIfNotZero(ezVec3Template<Type>::MakeZero(), fEpsilon) == EZ_FAILURE)
@@ -120,8 +132,8 @@ EZ_IMPLEMENT_IF_FLOAT_TYPE ezResult ezVec3Template<Type>::NormalizeIfNotZero(con
 template <typename Type>
 EZ_IMPLEMENT_IF_FLOAT_TYPE EZ_FORCE_INLINE bool ezVec3Template<Type>::IsNormalized(Type fEpsilon /* = ezMath::HugeEpsilon<Type>() */) const
 {
-  const Type t = GetLengthSquared();
-  return ezMath::IsEqual(t, (Type)1, fEpsilon);
+  const Type t = GetLength();
+  return ezMath::IsEqual<Type>(t, (Type)1, fEpsilon);
 }
 
 template <typename Type>
@@ -256,11 +268,27 @@ EZ_IMPLEMENT_IF_FLOAT_TYPE ezResult ezVec3Template<Type>::CalculateNormal(const 
   return NormalizeIfNotZero();
 }
 
+
+template <typename Type>
+EZ_IMPLEMENT_IF_FLOAT_TYPE ezVec3Template<Type> ezVec3Template<Type>::MakeOrthogonalVector(const ezVec3Template<Type>& vDirection, const ezVec3Template<Type>& vBasis1, const ezVec3Template<Type>& vBasis2)
+{
+  EZ_ASSERT_DEBUG(vDirection.IsNormalized() && vBasis1.IsNormalized() && vBasis2.IsNormalized(), "All input vectors must be normalized.");
+
+  // do the cross product with the basis that is less similar to the direction
+  if (ezMath::Abs(vDirection.Dot(vBasis1)) < ezMath::Abs(vDirection.Dot(vBasis2)))
+  {
+    return vDirection.CrossRH(vBasis1);
+  }
+  else
+  {
+    return vDirection.CrossRH(vBasis2);
+  }
+}
+
 template <typename Type>
 EZ_IMPLEMENT_IF_FLOAT_TYPE void ezVec3Template<Type>::MakeOrthogonalTo(const ezVec3Template<Type>& vNormal)
 {
-  EZ_ASSERT_DEBUG(
-    vNormal.IsNormalized(), "The vector to make this vector orthogonal to, must be normalized. It's length is {0}", ezArgF(vNormal.GetLength(), 3));
+  EZ_ASSERT_DEBUG(vNormal.IsNormalized(), "The vector to make this vector orthogonal to, must be normalized. It's length is {0}", ezArgF(vNormal.GetLength(), 3));
 
   ezVec3Template<Type> vOrtho = vNormal.CrossRH(*this);
   *this = vOrtho.CrossRH(vNormal);
@@ -305,12 +333,30 @@ const ezVec3Template<Type> ezVec3Template<Type>::CrossRH(const ezVec3Template<Ty
 }
 
 template <typename Type>
-ezAngle ezVec3Template<Type>::GetAngleBetween(const ezVec3Template<Type>& rhs) const
+ezAngleTemplate<Type> ezVec3Template<Type>::GetAngleBetween(const ezVec3Template<Type>& rhs) const
 {
-  EZ_ASSERT_DEBUG(this->IsNormalized(), "This vector must be normalized.");
-  EZ_ASSERT_DEBUG(rhs.IsNormalized(), "The other vector must be normalized.");
+  EZ_ASSERT_DEBUG(this->IsNormalized(), "This vector must be normalized. Length is: {}", this->GetLength());
+  EZ_ASSERT_DEBUG(rhs.IsNormalized(), "The other vector must be normalized. Length is: {}", rhs.GetLength());
 
-  return ezMath::ACos(static_cast<float>(ezMath::Clamp(this->Dot(rhs), (Type)-1, (Type)1)));
+  return ezMath::ACos<Type>(static_cast<Type>(ezMath::Clamp(this->Dot(rhs), (Type)-1, (Type)1)));
+}
+
+template <typename Type>
+ezAngleTemplate<Type> ezVec3Template<Type>::GetAngleBetween(const ezVec3Template<Type>& vForward, const ezVec3Template<Type>& vUp) const
+{
+  EZ_ASSERT_DEBUG(this->IsNormalized(), "This vector must be normalized. Length is: {}", this->GetLength());
+  EZ_ASSERT_DEBUG(vForward.IsNormalized(), "The other vector must be normalized. Length is: {}", vForward.GetLength());
+  EZ_ASSERT_DEBUG(vUp.IsNormalized(), "The other vector must be normalized. Length is: {}", vUp.GetLength());
+
+  const ezVec3Template<Type> vRight = vForward.CrossRH(vUp).GetNormalized();
+  const ezAngleTemplate<Type> shortAngle = GetAngleBetween(vForward);
+
+  if (this->Dot(vRight) < 0) // more than 90 degrees away from it
+  {
+    return -shortAngle;
+  }
+
+  return shortAngle;
 }
 
 template <typename Type>

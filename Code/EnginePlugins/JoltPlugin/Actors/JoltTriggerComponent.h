@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Messages/EventMessageSender.h>
 #include <Core/Messages/TriggerMessage.h>
 #include <JoltPlugin/Actors/JoltActorComponent.h>
 #include <JoltPlugin/Utilities/JoltUserData.h>

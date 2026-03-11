@@ -147,9 +147,9 @@ private:
 template <typename KEY, typename VALUE, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
 class ezArrayMap : public ezArrayMapBase<KEY, VALUE>
 {
+public:
   EZ_DECLARE_MEM_RELOCATABLE_TYPE();
 
-public:
   ezArrayMap();
   explicit ezArrayMap(ezAllocator* pAllocator);
 

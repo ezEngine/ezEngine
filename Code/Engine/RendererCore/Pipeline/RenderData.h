@@ -1,8 +1,7 @@
 #pragma once
 
 #include <Foundation/Communication/Message.h>
-#include <Foundation/Math/BoundingBoxSphere.h>
-#include <Foundation/Math/Transform.h>
+#include <Foundation/Math/Vec3.h>
 #include <Foundation/Memory/FrameAllocator.h>
 #include <Foundation/Strings/HashedString.h>
 #include <RendererCore/Pipeline/Declarations.h>
@@ -27,6 +26,19 @@ public:
     ezUInt16 m_uiValue = 0xFFFF;
   };
 
+  /// \brief This function generates a 64bit sorting key for the given render data. Data with lower sorting key is rendered first.
+  using SortingKeyFunc = ezUInt64 (*)(const ezRenderData*, const ezCamera&);
+
+  static Category RegisterCategory(const char* szCategoryName, SortingKeyFunc sortingKeyFunc);
+  static Category RegisterDerivedCategory(const char* szCategoryName, Category baseCategory);
+  static Category RegisterRedirectedCategory(const char* szCategoryName, Category staticCategory, Category dynamicCategory);
+  static Category FindCategory(ezTempHashedString sCategoryName);
+  static Category ResolveCategory(Category category, bool bDynamic);
+
+  static ezHashedString GetCategoryName(Category category);
+  static void GetAllCategoryNames(ezDynamicArray<ezHashedString>& out_categoryNames);
+
+public:
   struct Caching
   {
     enum Enum
@@ -36,26 +48,42 @@ public:
     };
   };
 
-  /// \brief This function generates a 64bit sorting key for the given render data. Data with lower sorting key is rendered first.
-  using SortingKeyFunc = ezUInt64 (*)(const ezRenderData*, const ezCamera&);
+  struct Flags
+  {
+    using StorageType = ezUInt32;
 
-  static Category RegisterCategory(const char* szCategoryName, SortingKeyFunc sortingKeyFunc);
-  static Category FindCategory(ezTempHashedString sCategoryName);
+    enum Enum
+    {
+      Dynamic = EZ_BIT(0),
+      FlipWinding = EZ_BIT(1),
 
-  static void GetAllCategoryNames(ezDynamicArray<ezHashedString>& out_categoryNames);
+      Default = 0
+    };
 
-  static const ezRenderer* GetCategoryRenderer(Category category, const ezRTTI* pRenderDataType);
+    struct Bits
+    {
+      StorageType Dynamic : 1;
+      StorageType FlipWinding : 1;
+    };
+  };
 
-  static ezHashedString GetCategoryName(Category category);
+  bool IsDynamic() const;
+  bool IsStatic() const;
+  bool FlipWinding() const;
 
-  ezUInt64 GetCategorySortingKey(Category category, const ezCamera& camera) const;
+  /// \brief Returns the final sorting for this render data with the given category and camera.
+  ezUInt64 GetFinalSortingKey(Category category, const ezCamera& camera) const;
 
-  ezTransform m_GlobalTransform = ezTransform::MakeIdentity();
-  ezBoundingBoxSphere m_GlobalBounds;
+  /// \brief Returns whether this render data and the other render data can be batched together, e.g. rendered in one draw call.
+  /// An implementation can assume that the other render data is of the same type as this render data.
+  virtual bool CanBatch(const ezRenderData& other) const { return false; }
 
-  ezUInt32 m_uiBatchId = 0; ///< BatchId is used to group render data in batches.
-  ezUInt32 m_uiSortingKey = 0;
+  ezBitflags<Flags> m_Flags;
+
+  ezVec3 m_vGlobalPosition = ezVec3::MakeZero();
   float m_fSortingDepthOffset = 0.0f;
+
+  ezUInt32 m_uiSortingKey = 0;
 
   ezGameObjectHandle m_hOwner;
 
@@ -64,32 +92,41 @@ public:
 #endif
 
 private:
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererCore, RenderData);
-
-  static void PluginEventHandler(const ezPluginEvent& e);
-  static void UpdateRendererTypes();
-
-  static void CreateRendererInstances();
-  static void ClearRendererInstances();
-
   struct CategoryData
   {
+    Category m_baseCategory;
+    Category m_staticCategory;
+    Category m_dynamicCategory;
+
     ezHashedString m_sName;
     SortingKeyFunc m_sortingKeyFunc;
-
-    ezHashTable<const ezRTTI*, ezUInt32> m_TypeToRendererIndex;
   };
 
   static ezHybridArray<CategoryData, 32> s_CategoryData;
-
-  static ezHybridArray<const ezRTTI*, 16> s_RendererTypes;
-  static ezDynamicArray<ezUniquePtr<ezRenderer>> s_RendererInstances;
-  static bool s_bRendererInstancesDirty;
 };
 
-/// \brief Creates render data that is only valid for this frame. The data is automatically deleted after the frame has been rendered.
-template <typename T>
-static T* ezCreateRenderDataForThisFrame(const ezGameObject* pOwner);
+/// \brief Base class for render data that make uses of the instance data offset buffer which will be generated during the extraction phase.
+class EZ_RENDERERCORE_DLL ezInstanceableRenderData : public ezRenderData
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezInstanceableRenderData, ezRenderData);
+
+public:
+  struct DataOffsets
+  {
+    ezUInt32 m_uiInstance = 0;
+    ezUInt32 m_uiCustomInstance = 0;
+    ezUInt32 m_uiMaterial = 0;
+    ezUInt32 m_uiSkinning = 0; // TODO: this could be removed if we switch to compute shader skinning
+  };
+
+  DataOffsets m_DataOffsets;
+
+  ezUInt32 m_uiNumInstances = 1;
+  ezGALDynamicBufferHandle m_hInstanceDataBuffer;
+
+protected:
+  bool CanBatchByBaseValues(const ezInstanceableRenderData& other) const;
+};
 
 struct EZ_RENDERERCORE_DLL ezDefaultRenderDataCategories
 {
@@ -98,10 +135,13 @@ struct EZ_RENDERERCORE_DLL ezDefaultRenderDataCategories
   static ezRenderData::Category ReflectionProbe;
   static ezRenderData::Category Sky;
   static ezRenderData::Category LitOpaque;
+  static ezRenderData::Category LitOpaqueStatic;
+  static ezRenderData::Category LitOpaqueDynamic;
   static ezRenderData::Category LitMasked;
+  static ezRenderData::Category LitMaskedStatic;
+  static ezRenderData::Category LitMaskedDynamic;
   static ezRenderData::Category LitTransparent;
   static ezRenderData::Category LitForeground;
-  static ezRenderData::Category LitScreenFX;
   static ezRenderData::Category SimpleOpaque;
   static ezRenderData::Category SimpleTransparent;
   static ezRenderData::Category SimpleForeground;
@@ -116,6 +156,7 @@ struct EZ_RENDERERCORE_DLL ezMsgExtractRenderData : public ezMessage
   EZ_DECLARE_MESSAGE_TYPE(ezMsgExtractRenderData, ezMessage);
 
   const ezView* m_pView = nullptr;
+  const ezRenderDataManager* m_pRenderDataManager = nullptr;
   ezRenderData::Category m_OverrideCategory = ezInvalidRenderDataCategory;
 
   /// \brief Adds render data for the current view. This data can be cached depending on the specified caching behavior.
@@ -129,7 +170,7 @@ private:
   struct Data
   {
     const ezRenderData* m_pRenderData = nullptr;
-    ezUInt16 m_uiCategory = 0;
+    ezRenderData::Category m_Category;
   };
 
   ezHybridArray<Data, 16> m_ExtractedRenderData;
@@ -157,6 +198,38 @@ private:
   };
 
   ezHybridArray<Data, 16> m_ExtractedOccluderData;
+};
+
+struct ezInstanceDataOffset
+{
+  EZ_DECLARE_POD_TYPE();
+
+  ezInstanceDataOffset()
+    : m_uiOffset(ezMath::Bitmask_LowN<ezUInt32>(31))
+    , m_uiIsDynamic(0)
+  {
+  }
+
+  EZ_ALWAYS_INLINE bool IsInvalidated() const { return m_uiOffset == ezMath::Bitmask_LowN<ezUInt32>(31); }
+
+  ezUInt32 m_uiOffset : 31;
+  ezUInt32 m_uiIsDynamic : 1;
+};
+
+struct ezCustomInstanceDataOffset
+{
+  EZ_DECLARE_POD_TYPE();
+
+  EZ_ALWAYS_INLINE bool IsInvalidated() const { return m_uiOffset == ezInvalidIndex; }
+
+  ezUInt32 m_uiOffset = ezInvalidIndex;
+};
+
+struct EZ_RENDERERCORE_DLL ezMsgCustomInstanceDataOffsetChanged : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgCustomInstanceDataOffsetChanged, ezMessage);
+
+  ezCustomInstanceDataOffset m_NewOffset;
 };
 
 #include <RendererCore/Pipeline/Implementation/RenderData_inl.h>

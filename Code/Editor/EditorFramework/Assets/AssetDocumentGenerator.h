@@ -63,6 +63,9 @@ public:
   virtual ezStringView GetDocumentExtension() const = 0;
 
   /// \brief Allows to merge the import modes of multiple generators in the UI in one group.
+  ///
+  /// Not really used anymore, but theoretically allows to show the same file multiple times in the import dialog,
+  /// such that one can import it as multiple different asset types.
   virtual ezStringView GetGeneratorGroup() const = 0;
 
   /// \brief Tells the generator to create a new asset document with the chosen mode.
@@ -72,10 +75,10 @@ public:
   bool SupportsFileType(ezStringView sFile) const;
 
   /// \brief Instantiates all currently available generators.
-  static void CreateGenerators(ezHybridArray<ezAssetDocumentGenerator*, 16>& out_generators);
+  static void CreateGenerators(ezDynamicArray<ezAssetDocumentGenerator*>& out_generators);
 
   /// \brief Destroys the previously instantiated generators.
-  static void DestroyGenerators(const ezHybridArray<ezAssetDocumentGenerator*, 16>& generators);
+  static void DestroyGenerators(const ezDynamicArray<ezAssetDocumentGenerator*>& generators);
 
 protected:
   void AddSupportedFileType(ezStringView sExtension);
@@ -97,7 +100,7 @@ private:
   };
 
   static void SortAndSelectBestImportOption(ezDynamicArray<ezAssetDocumentGenerator::ImportGroupOptions>& allImports);
-  static void CreateImportOptionList(const ezDynamicArray<ezString>& filesToImport, ezDynamicArray<ezAssetDocumentGenerator::ImportGroupOptions>& allImports, const ezHybridArray<ezAssetDocumentGenerator*, 16>& generators);
+  static void CreateImportOptionList(const ezDynamicArray<ezString>& filesToImport, ezDynamicArray<ezAssetDocumentGenerator::ImportGroupOptions>& allImports, const ezDynamicArray<ezAssetDocumentGenerator*>& generators);
 
   ezHybridArray<ezString, 16> m_SupportedFileTypes;
 };

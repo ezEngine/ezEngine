@@ -28,9 +28,13 @@ QValidator::State ezFileNameValidator::validate(QString& ref_sInput, int& ref_iP
 
   if (!m_sCurrentName.IsEmpty() && sTemp == m_sCurrentName)
     return QValidator::State::Acceptable;
+  if (!m_sCurrentName.IsEmpty() && sTemp == m_sCurrentName.GetFileName())
+    return QValidator::State::Acceptable;
 
   ezStringBuilder sAbsPath = m_sParentFolder;
   sAbsPath.AppendPath(sTemp);
+  sAbsPath.Append(".", m_sCurrentName.GetFileExtension());
+
   if (ezOSFile::ExistsDirectory(sAbsPath) || ezOSFile::ExistsFile(sAbsPath))
     return QValidator::State::Intermediate;
 
@@ -77,7 +81,11 @@ eqQtAssetBrowserFolderView::eqQtAssetBrowserFolderView(QWidget* pParent)
   EZ_VERIFY(connect(pDelegate, &ezFolderNameDelegate::editingFinished, this, &eqQtAssetBrowserFolderView::OnFolderEditingFinished, Qt::QueuedConnection), "signal/slot connection failed");
   setItemDelegate(pDelegate);
 
-  ezFileSystemModel::GetSingleton()->m_FolderChangedEvents.AddEventHandler(ezMakeDelegate(&eqQtAssetBrowserFolderView::FileSystemModelFolderEventHandler, this));
+  m_pFolderEvents = EZ_DEFAULT_NEW(QueuedFolderEvents);
+  m_pFolderEvents->m_pParent = this;
+
+  m_FolderChangedSubscription = ezFileSystemModel::GetSingleton()->m_FolderChangedEvents.AddEventHandler([pFolderEvents = m_pFolderEvents](const ezFolderChangedEvent& e)
+    { pFolderEvents->FileSystemModelFolderEventHandler(e); });
   ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&eqQtAssetBrowserFolderView::ProjectEventHandler, this));
 
   EZ_VERIFY(connect(this, SIGNAL(itemSelectionChanged()), this, SLOT(OnItemSelectionChanged())) != nullptr, "signal/slot connection failed");
@@ -87,8 +95,11 @@ eqQtAssetBrowserFolderView::eqQtAssetBrowserFolderView(QWidget* pParent)
 
 eqQtAssetBrowserFolderView::~eqQtAssetBrowserFolderView()
 {
+  ezFileSystemModel::GetSingleton()->m_FolderChangedEvents.RemoveEventHandler(m_FolderChangedSubscription);
   ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&eqQtAssetBrowserFolderView::ProjectEventHandler, this));
-  ezFileSystemModel::GetSingleton()->m_FolderChangedEvents.RemoveEventHandler(ezMakeDelegate(&eqQtAssetBrowserFolderView::FileSystemModelFolderEventHandler, this));
+
+  EZ_LOCK(m_pFolderEvents->m_FolderStructureMutex);
+  m_pFolderEvents->m_pParent = nullptr;
 }
 
 
@@ -190,12 +201,14 @@ void eqQtAssetBrowserFolderView::OnFolderEditingFinished(const QString& sAbsPath
   }
 }
 
-void eqQtAssetBrowserFolderView::FileSystemModelFolderEventHandler(const ezFolderChangedEvent& e)
+void eqQtAssetBrowserFolderView::QueuedFolderEvents::FileSystemModelFolderEventHandler(const ezFolderChangedEvent& e)
 {
   EZ_LOCK(m_FolderStructureMutex);
-  m_QueuedFolderEvents.PushBack(e);
+  if (m_pParent == nullptr)
+    return;
 
-  QTimer::singleShot(0, this, SLOT(OnFlushFileSystemEvents()));
+  m_Events.PushBack(e);
+  QMetaObject::invokeMethod(m_pParent, &eqQtAssetBrowserFolderView::OnFlushFileSystemEvents, Qt::QueuedConnection);
 }
 
 void eqQtAssetBrowserFolderView::ProjectEventHandler(const ezToolsProjectEvent& e)
@@ -217,18 +230,29 @@ void eqQtAssetBrowserFolderView::dragMoveEvent(QDragMoveEvent* e)
 {
   QTreeWidget::dragMoveEvent(e);
 
-  ezHybridArray<ezString, 1> files;
+  ezTempHybridArray<ezString, 1> files;
   ezString sTarget;
   ezStatus res = canDrop(e, files, sTarget);
   if (res.Failed())
   {
-    ezQtUiServices::ShowGlobalStatusBarMessage(res.m_sMessage.GetView());
+    ezQtUiServices::ShowGlobalStatusBarMessage(res.GetMessageString().GetView());
     e->ignore();
   }
   else
   {
     ezQtUiServices::ShowGlobalStatusBarMessage({});
   }
+}
+
+void eqQtAssetBrowserFolderView::mouseMoveEvent(QMouseEvent* e)
+{
+  // only allow dragging with left mouse button
+  if (state() == DraggingState && !e->buttons().testFlag(Qt::MouseButton::LeftButton))
+  {
+    return;
+  }
+
+  QTreeWidget::mouseMoveEvent(e);
 }
 
 ezStatus eqQtAssetBrowserFolderView::canDrop(QDropEvent* e, ezDynamicArray<ezString>& out_files, ezString& out_sTargetFolder)
@@ -253,7 +277,7 @@ ezStatus eqQtAssetBrowserFolderView::canDrop(QDropEvent* e, ezDynamicArray<ezStr
   out_files.Clear();
   QByteArray encodedData = e->mimeData()->data("application/ezEditor.files");
   QDataStream stream(&encodedData, QIODevice::ReadOnly);
-  ezHybridArray<QString, 1> files;
+  ezTempHybridArray<QString, 1> files;
   stream >> files;
 
   QModelIndex dropIndex = indexAt(e->position().toPoint());
@@ -280,7 +304,7 @@ ezStatus eqQtAssetBrowserFolderView::canDrop(QDropEvent* e, ezDynamicArray<ezStr
 void eqQtAssetBrowserFolderView::dropEvent(QDropEvent* e)
 {
   ezQtUiServices::ShowGlobalStatusBarMessage({});
-  ezHybridArray<ezString, 1> files;
+  ezTempHybridArray<ezString, 1> files;
   ezString sTargetFolder;
   // Always accept and call base class to end the drop operation as a no-op in the base class.
   e->accept();
@@ -342,7 +366,7 @@ Qt::DropActions eqQtAssetBrowserFolderView::supportedDropActions() const
 
 QMimeData* eqQtAssetBrowserFolderView::mimeData(const QList<QTreeWidgetItem*>& items) const
 {
-  ezHybridArray<QString, 1> files;
+  ezTempHybridArray<QString, 1> files;
   for (const QTreeWidgetItem* pItem : items)
   {
     QModelIndex id = indexFromItem(pItem);
@@ -378,7 +402,7 @@ void eqQtAssetBrowserFolderView::DeleteFolder()
     QModelIndex id = indexFromItem(pCurrentItem);
     QString sQtAbsPath = id.data(ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString();
     ezString sAbsPath = qtToEzString(sQtAbsPath);
-    QMessageBox::StandardButton choice = ezQtUiServices::MessageBoxQuestion(ezFmt("Do you want to delete the folder\n'{}'?", sAbsPath), QMessageBox::StandardButton::Cancel | QMessageBox::StandardButton::Yes, QMessageBox::StandardButton::Yes);
+    QMessageBox::StandardButton choice = ezQtUiServices::MessageBoxQuestion(ezFmt("Do you want to delete the folder\n'{}'?", sAbsPath), QMessageBox::StandardButton::Cancel | QMessageBox::StandardButton::Yes, QMessageBox::StandardButton::Cancel);
     if (choice == QMessageBox::StandardButton::Cancel)
       return;
 
@@ -392,9 +416,9 @@ void eqQtAssetBrowserFolderView::DeleteFolder()
 
 void eqQtAssetBrowserFolderView::OnFlushFileSystemEvents()
 {
-  EZ_LOCK(m_FolderStructureMutex);
+  EZ_LOCK(m_pFolderEvents->m_FolderStructureMutex);
 
-  for (const auto& e : m_QueuedFolderEvents)
+  for (const auto& e : m_pFolderEvents->m_Events)
   {
     switch (e.m_Type)
     {
@@ -419,11 +443,28 @@ void eqQtAssetBrowserFolderView::OnFlushFileSystemEvents()
     }
   }
 
-  m_QueuedFolderEvents.Clear();
+  m_pFolderEvents->m_Events.Clear();
+}
+
+void eqQtAssetBrowserFolderView::mouseDoubleClickEvent(QMouseEvent* e)
+{
+  if (e->button() == Qt::MouseButton::BackButton)
+  {
+    e->ignore();
+    return;
+  }
+
+  QTreeWidget::mouseDoubleClickEvent(e);
 }
 
 void eqQtAssetBrowserFolderView::mousePressEvent(QMouseEvent* e)
 {
+  if (e->button() == Qt::MouseButton::BackButton)
+  {
+    e->ignore();
+    return;
+  }
+
   QModelIndex inx = indexAt(e->pos());
   if (!inx.isValid())
     return;
@@ -477,6 +518,7 @@ bool eqQtAssetBrowserFolderView::SelectPathFilter(QTreeWidgetItem* pParent, cons
   if (pParent->data(0, ezQtAssetBrowserModel::UserRoles::RelativePath).toString() == sPath)
   {
     pParent->setSelected(true);
+    setCurrentIndex(indexFromItem(pParent));
     return true;
   }
 
@@ -572,11 +614,26 @@ void eqQtAssetBrowserFolderView::BuildDirectoryTree(const ezDataDirPath& path, e
   }
 
   { // #TODO_ASSET data for folder
+
+    QString sPathAbs = pParent->data(0, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString();
+    QString sPathRel = pParent->data(0, ezQtAssetBrowserModel::UserRoles::RelativePath).toString();
+
+    if (sPathAbs.isEmpty())
+    {
+      sPathAbs = ezMakeQString(path.GetAbsolutePath());
+      sPathRel = ezMakeQString(path.GetDataDirParentRelativePath());
+    }
+    else
+    {
+      sPathAbs += "/" + sQtFolderName;
+      sPathRel += "/" + sQtFolderName;
+    }
+
     const bool bIsDataDir = sCurPathToItem.IsEmpty();
     pNewParent = new QTreeWidgetItem();
     pNewParent->setText(0, sQtFolderName);
-    pNewParent->setData(0, ezQtAssetBrowserModel::UserRoles::AbsolutePath, ezMakeQString(path.GetAbsolutePath().GetView()));
-    pNewParent->setData(0, ezQtAssetBrowserModel::UserRoles::RelativePath, ezMakeQString(path.GetDataDirParentRelativePath()));
+    pNewParent->setData(0, ezQtAssetBrowserModel::UserRoles::AbsolutePath, sPathAbs);
+    pNewParent->setData(0, ezQtAssetBrowserModel::UserRoles::RelativePath, sPathRel);
     ezBitflags<ezAssetBrowserItemFlags> flags = bIsDataDir ? ezAssetBrowserItemFlags::DataDirectory : ezAssetBrowserItemFlags::Folder;
     pNewParent->setData(0, ezQtAssetBrowserModel::UserRoles::ItemFlags, (int)flags.GetValue());
     pNewParent->setIcon(0, ezQtUiServices::GetCachedIconResource(bIsDataDir ? ":/EditorFramework/Icons/DataDirectory.svg" : ":/EditorFramework/Icons/Folder.svg"));

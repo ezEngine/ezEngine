@@ -4,8 +4,14 @@
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 #include <RendererCore/Shader/ShaderResource.h>
+#include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Textures/Texture3DResource.h>
 
+/// Render pass that applies tonemapping and color grading to HDR images.
+///
+/// Converts high dynamic range color values to display-ready output by applying
+/// exposure adjustment, color grading via lookup tables, saturation, contrast, and
+/// optional effects like vignetting and mood color. Combines with bloom if provided.
 class EZ_RENDERERCORE_DLL ezTonemapPass : public ezRenderPipelinePass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezTonemapPass, ezRenderPipelinePass);
@@ -21,31 +27,27 @@ public:
   virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
 
 protected:
-  ezRenderPipelineNodeInputPin m_PinColorInput;
-  ezRenderPipelineNodeInputPin m_PinBloomInput;
-  ezRenderPipelineNodeOutputPin m_PinOutput;
+  ezRenderPipelineNodeInputPin m_PinColorInput;                             ///< HDR color input to tonemap.
+  ezRenderPipelineNodeInputPin m_PinBloomInput;                             ///< Optional bloom texture to add.
+  ezRenderPipelineNodeOutputPin m_PinOutput;                                ///< LDR output after tonemapping.
 
-  void SetVignettingTextureFile(const char* szFile);
-  const char* GetVignettingTextureFile() const;
+  EZ_ADD_RESOURCEHANDLE_ACCESSORS(VignettingTexture, m_hVignettingTexture); ///< Vignette texture.
+  EZ_ADD_RESOURCEHANDLE_ACCESSORS(LUT1Texture, m_hLUT1);                    ///< Primary color grading LUT.
+  EZ_ADD_RESOURCEHANDLE_ACCESSORS(LUT2Texture, m_hLUT2);                    ///< Secondary color grading LUT.
 
-  void SetLUT1TextureFile(const char* szFile);
-  const char* GetLUT1TextureFile() const;
+  ezTexture2DResourceHandle m_hVignettingTexture;                           ///< Vignetting effect texture.
+  ezTexture2DResourceHandle m_hNoiseTexture;                                ///< Film grain noise texture.
+  ezTexture3DResourceHandle m_hLUT1;                                        ///< First 3D lookup table for color grading.
+  ezTexture3DResourceHandle m_hLUT2;                                        ///< Second 3D lookup table for color grading.
 
-  void SetLUT2TextureFile(const char* szFile);
-  const char* GetLUT2TextureFile() const;
+  ezColor m_MoodColor;                                                      ///< Mood color tint.
+  float m_fMoodStrength;                                                    ///< Strength of mood color effect.
+  float m_fSaturation;                                                      ///< Color saturation multiplier.
+  float m_fContrast;                                                        ///< Contrast adjustment.
+  float m_fLut1Strength;                                                    ///< Blend strength for first LUT.
+  float m_fLut2Strength;                                                    ///< Blend strength for second LUT.
+  float m_fWhitePoint;                                                      ///< White point for tone curve.
 
-  ezTexture2DResourceHandle m_hVignettingTexture;
-  ezTexture2DResourceHandle m_hNoiseTexture;
-  ezTexture3DResourceHandle m_hLUT1;
-  ezTexture3DResourceHandle m_hLUT2;
-
-  ezColor m_MoodColor;
-  float m_fMoodStrength;
-  float m_fSaturation;
-  float m_fContrast;
-  float m_fLut1Strength;
-  float m_fLut2Strength;
-
-  ezConstantBufferStorageHandle m_hConstantBuffer;
-  ezShaderResourceHandle m_hShader;
+  ezConstantBufferStorageHandle m_hConstantBuffer;                          ///< Constant buffer for tonemap parameters.
+  ezShaderResourceHandle m_hShader;                                         ///< Tonemap shader.
 };

@@ -1,0 +1,7 @@
+RemoteProject
+{
+	string %Name{"Bistro"}
+	string %Type{"git"}
+	string %Url{"https://github.com/jankrassnigg/ez-sample-bistro.git"}
+	string %ProjectFile{"ezProject"}
+}

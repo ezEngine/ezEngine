@@ -1,0 +1,47 @@
+<rml>
+  <head>
+    <link type="text/template" href="RmlUI/rmlui-default/template.rml"/>
+    <link type="text/css" href="worldui-example.rcss"/>
+  </head>
+  <body template="rmlui-default">
+    <div class="content">
+      <h1 class="title">World Space UI</h1>
+      <div>
+        Use right mouse button to click on things.
+      </div>
+      <div>
+        <button>Click Me</button>
+        <button>And Me</button>
+        <button>No Not Me</button>
+      </div>
+      <div>===============</div>
+      <div>
+        You can also use mouse scroll wheel for scrolling. Click on the dropdown below and try it out.
+      </div>
+      <select class="worldui-example-select">
+        <option>Pick An Option</option>
+        <option>Option 2</option>
+        <option>Option 3</option>
+        <option>Option 4</option>
+        <option>Option 5</option>
+        <option>Option 6</option>
+        <option>Option 7</option>
+        <option>Option 8</option>
+        <option>Option 9</option>
+        <option>Option 10</option>
+        <option>Option 11</option>
+        <option>Option 12</option>
+        <option>Option 13</option>
+        <option>Option 14</option>
+        <option>Option 15</option>
+        <option>Option 16</option>
+        <option>Option 17</option>
+        <option>Option 18</option>
+        <option>Option 19</option>
+        <option>Option 20</option>
+        <option>Option 21</option>
+        <option>Option 22</option>
+      </select>
+    </div>
+  </body>
+</rml>

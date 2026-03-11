@@ -6,8 +6,7 @@
 #include <Texture/Image/Formats/ImageFormatMappings.h>
 #include <Texture/Image/Image.h>
 
-// EZ_STATICLINK_FORCE
-ezDdsFileFormat g_ddsFormat;
+EZ_STATICLINK_FORCE static ezImageFileFormatRegistrator<ezDdsFileFormat> g_ddsFormat;
 
 struct ezDdsPixelFormat
 {
@@ -264,6 +263,8 @@ static ezResult ReadImageData(ezStreamReader& inout_stream, ezImageHeader& ref_i
 
 ezResult ezDdsFileFormat::ReadImageHeader(ezStreamReader& inout_stream, ezImageHeader& ref_header, ezStringView sFileExtension) const
 {
+  EZ_IGNORE_UNUSED(sFileExtension);
+
   EZ_PROFILE_SCOPE("ezDdsFileFormat::ReadImageHeader");
 
   ezDdsHeader ddsHeader;
@@ -272,6 +273,8 @@ ezResult ezDdsFileFormat::ReadImageHeader(ezStreamReader& inout_stream, ezImageH
 
 ezResult ezDdsFileFormat::ReadImage(ezStreamReader& inout_stream, ezImage& ref_image, ezStringView sFileExtension) const
 {
+  EZ_IGNORE_UNUSED(sFileExtension);
+
   EZ_PROFILE_SCOPE("ezDdsFileFormat::ReadImage");
 
   ezImageHeader imageHeader;
@@ -302,6 +305,8 @@ ezResult ezDdsFileFormat::ReadImage(ezStreamReader& inout_stream, ezImage& ref_i
 
 ezResult ezDdsFileFormat::WriteImage(ezStreamWriter& inout_stream, const ezImageView& image, ezStringView sFileExtension) const
 {
+  EZ_IGNORE_UNUSED(sFileExtension);
+
   const ezImageFormat::Enum format = image.GetImageFormat();
   const ezUInt32 uiBpp = ezImageFormat::GetBitsPerPixel(format);
 

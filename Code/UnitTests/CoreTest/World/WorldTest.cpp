@@ -1,5 +1,6 @@
 #include <CoreTest/CoreTestPCH.h>
 
+#include <Core/Collection/CollectionComponent.h>
 #include <Core/World/World.h>
 #include <Foundation/Time/Clock.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
@@ -198,6 +199,23 @@ namespace
   EZ_END_DYNAMIC_REFLECTED_TYPE;
   EZ_IMPLEMENT_WORLD_MODULE(VelocityTestModule);
   // clang-format on
+
+  ezGameObject* CreateObj(ezWorld* pWorld, ezStringView sName, ezGameObject* pParent = nullptr, ezStringView sGlobalkey = {})
+  {
+    ezGameObjectDesc gd;
+    gd.m_sName.Assign(sName);
+    gd.m_hParent = pParent ? pParent->GetHandle() : ezGameObjectHandle();
+
+    ezGameObject* go;
+    pWorld->CreateObject(gd, go);
+
+    if (!sGlobalkey.IsEmpty())
+    {
+      go->SetGlobalKey(sGlobalkey);
+    }
+
+    return go;
+  }
 } // namespace
 
 class ezGameObjectTest
@@ -595,6 +613,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     EZ_TEST_BOOL(world2.IsValidObject(hObj2));
 
     ezGameObject* pObj1 = nullptr;
+    const ezGameObject* pObjConst = nullptr;
     EZ_TEST_BOOL(world1.TryGetObject(hObj1, pObj1));
     EZ_TEST_BOOL(pObj1 != nullptr);
 
@@ -603,6 +622,8 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     EZ_TEST_BOOL(world1.TryGetObjectWithGlobalKey(ezTempHashedString("Obj1"), pObj1));
     EZ_TEST_BOOL(!world1.TryGetObjectWithGlobalKey(ezTempHashedString("Obj2"), pObj1));
     EZ_TEST_BOOL(pObj1 != nullptr);
+    EZ_TEST_BOOL(world1.TryGetObjectWithGlobalKey(ezTempHashedString("Obj1"), pObjConst));
+    EZ_TEST_BOOL(pObj1 == pObjConst);
 
     ezGameObject* pObj2 = nullptr;
     EZ_TEST_BOOL(world2.TryGetObject(hObj2, pObj2));
@@ -744,13 +765,13 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     {
       ezUInt32 i = pObject->GetHandle().GetInternalID().m_InstanceIndex;
       ezVec3 expectedLastPos = ezVec3(0, 0, 5);
-      ezVec3 expectedPos = ezVec3(i * 10, 0, 0);
-      ezVec3 expectedLinearVelocity = ezVec3(i * 100, 0, -50);
+      ezVec3 expectedPos = ezVec3(i * 10.0f, 0, 0);
+      ezVec3 expectedLinearVelocity = ezVec3(i * 100.0f, 0, -50);
       EZ_TEST_VEC3(pObject->GetLastGlobalTransform().m_vPosition, expectedLastPos, ezMath::DefaultEpsilon<float>());
       EZ_TEST_VEC3(pObject->GetGlobalPosition(), expectedPos, ezMath::DefaultEpsilon<float>());
       EZ_TEST_VEC3(pObject->GetLinearVelocity(), expectedLinearVelocity, ezMath::DefaultEpsilon<float>());
 
-      ezVec3 expectedAngularVelocity = ezVec3(0, 0, (ezAngle::MakeFromDegree(i * 30) - ezAngle::MakeFromDegree(90)).GetRadian() * 10);
+      ezVec3 expectedAngularVelocity = ezVec3(0, 0, (ezAngle::MakeFromDegree(i * 30.0f) - ezAngle::MakeFromDegree(90)).GetRadian() * 10);
       ezVec3 angularVelocity = pObject->GetAngularVelocity();
       EZ_TEST_VEC3(angularVelocity, expectedAngularVelocity, ezMath::DefaultEpsilon<float>());
     }
@@ -763,7 +784,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     for (auto& pObject : pObjects)
     {
       ezUInt32 i = pObject->GetHandle().GetInternalID().m_InstanceIndex;
-      ezVec3 expectedLastPos = ezVec3(i * 10, 0, 0);
+      ezVec3 expectedLastPos = ezVec3(i * 10.0f, 0, 0);
       ezVec3 expectedLinearVelocity = ezVec3(i * -100.0f, 0, 0);
       EZ_TEST_VEC3(pObject->GetLastGlobalTransform().m_vPosition, expectedLastPos, ezMath::DefaultEpsilon<float>());
       EZ_TEST_VEC3(pObject->GetGlobalPosition(), ezVec3::MakeZero(), ezMath::DefaultEpsilon<float>());
@@ -771,4 +792,129 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     }
   }
 #endif
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindChildByName / FindChildByPath / SearchForChildByNameSequence")
+  {
+    ezWorldDesc worldDesc("Test");
+    ezWorld world(worldDesc);
+    EZ_LOCK(world.GetWriteMarker());
+
+    auto pRoot1 = CreateObj(&world, "Root1");
+    auto pRoot2 = CreateObj(&world, "Root2");
+
+    auto pA1 = CreateObj(&world, "A1", pRoot1);
+    auto pB1 = CreateObj(&world, "B1", pRoot1);
+    auto pC1 = CreateObj(&world, "C1", pRoot1);
+
+    auto pA2 = CreateObj(&world, "A2", pA1);
+    auto pB2 = CreateObj(&world, "B2", pA1);
+    auto pC2 = CreateObj(&world, "C2", pA1);
+
+    ezCollectionComponent* pCol;
+    ezCollectionComponent::CreateComponent(pC2, pCol);
+
+    // FindChildByName
+
+    EZ_TEST_BOOL(pRoot1->FindChildByName("A1", false) == pA1);
+    EZ_TEST_BOOL(pRoot1->FindChildByName("B1", false) == pB1);
+
+    EZ_TEST_BOOL(pRoot2->FindChildByName("A1", false) == nullptr);
+
+    EZ_TEST_BOOL(pRoot1->FindChildByName("A2", false) == nullptr);
+    EZ_TEST_BOOL(pRoot1->FindChildByName("B2", false) == nullptr);
+
+    EZ_TEST_BOOL(pRoot1->FindChildByName("A2", true) == pA2);
+    EZ_TEST_BOOL(pRoot1->FindChildByName("B2", true) == pB2);
+
+    // FindChildByPath
+
+    EZ_TEST_BOOL(pRoot1->FindChildByPath("") == pRoot1);
+    EZ_TEST_BOOL(pA1->FindChildByPath("") == pA1);
+
+    EZ_TEST_BOOL(pRoot1->FindChildByPath("A1") == pA1);
+    EZ_TEST_BOOL(pRoot1->FindChildByPath("B1") == pB1);
+
+    EZ_TEST_BOOL(pRoot1->FindChildByPath("A2") == nullptr);
+    EZ_TEST_BOOL(pRoot1->FindChildByPath("B2") == nullptr);
+
+    EZ_TEST_BOOL(pRoot1->FindChildByPath("A1/A2") == pA2);
+    EZ_TEST_BOOL(pRoot1->FindChildByPath("A1/B2") == pB2);
+
+    // SearchForChildByNameSequence
+
+    EZ_TEST_BOOL(pRoot1->SearchForChildByNameSequence("") == pRoot1);
+    EZ_TEST_BOOL(pA1->SearchForChildByNameSequence("") == pA1);
+
+    EZ_TEST_BOOL(pRoot1->SearchForChildByNameSequence("A1") == pA1);
+    EZ_TEST_BOOL(pRoot1->SearchForChildByNameSequence("B1") == pB1);
+
+    EZ_TEST_BOOL(pRoot1->SearchForChildByNameSequence("A2") == pA2);
+    EZ_TEST_BOOL(pRoot1->SearchForChildByNameSequence("B2") == pB2);
+
+    EZ_TEST_BOOL(pRoot1->SearchForChildByNameSequence("A1/A2") == pA2);
+    EZ_TEST_BOOL(pRoot1->SearchForChildByNameSequence("A1/B2") == pB2);
+
+    EZ_TEST_BOOL(pRoot1->SearchForChildByNameSequence("A1/B2", ezGetStaticRTTI<ezComponent>()) == nullptr);
+    EZ_TEST_BOOL(pRoot1->SearchForChildByNameSequence("", ezGetStaticRTTI<ezCollectionComponent>()) == nullptr);
+    EZ_TEST_BOOL(pRoot1->SearchForChildByNameSequence("C2", ezGetStaticRTTI<ezCollectionComponent>()) == pC2);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SearchForObject")
+  {
+    ezWorldDesc worldDesc("Test");
+    ezWorld world(worldDesc);
+    EZ_LOCK(world.GetWriteMarker());
+
+    auto pKey1 = CreateObj(&world, "Key1", nullptr, "Key1");
+    auto pKey2 = CreateObj(&world, "Key2", nullptr, "Key2");
+    auto pKey3 = CreateObj(&world, "Key3", nullptr, "Key3");
+
+    auto pA1 = CreateObj(&world, "A", pKey1);
+    auto pB1 = CreateObj(&world, "B", pA1);
+    auto pC1 = CreateObj(&world, "C", pB1);
+
+    auto pA2 = CreateObj(&world, "A", pKey2, "A2");
+    auto pB2 = CreateObj(&world, "B", pA2, "B2");
+    auto pC2 = CreateObj(&world, "C", pB2, "C2");
+
+    ezCollectionComponent* pCol;
+    ezCollectionComponent::CreateComponent(pC2, pCol);
+
+    EZ_TEST_BOOL(world.SearchForObject("G:Key1") == pKey1);
+    EZ_TEST_BOOL(world.SearchForObject("G:Key2") == pKey2);
+    EZ_TEST_BOOL(world.SearchForObject("G:Key3/") == pKey3);
+    EZ_TEST_BOOL(world.SearchForObject("G:key3/") == nullptr); // case sensitive
+    EZ_TEST_BOOL(world.SearchForObject("G:B2") == pB2);
+    EZ_TEST_BOOL(world.SearchForObject("G:none") == nullptr);
+
+    EZ_TEST_BOOL(world.SearchForObject("A", pKey1) == pA1);
+    EZ_TEST_BOOL(world.SearchForObject("B", pKey1) == pB1);
+    EZ_TEST_BOOL(world.SearchForObject("A/B", pKey1) == pB1);
+    EZ_TEST_BOOL(world.SearchForObject("A/C", pKey1) == pC1);
+    EZ_TEST_BOOL(world.SearchForObject("B/C", pA1) == pC1);
+    EZ_TEST_BOOL(world.SearchForObject("B/C", pA1, ezGetStaticRTTI<ezCollectionComponent>()) == nullptr);
+    EZ_TEST_BOOL(world.SearchForObject("A", pA1) == nullptr); // A has to be a child
+
+    EZ_TEST_BOOL(world.SearchForObject("G:A2/C") == pC2);
+
+    EZ_TEST_BOOL(world.SearchForObject("P:A", pC2) == pA2);
+    EZ_TEST_BOOL(world.SearchForObject("P:D", pC2) == nullptr);
+    EZ_TEST_BOOL(world.SearchForObject("P:A/C", pC2) == pC2);
+    EZ_TEST_BOOL(world.SearchForObject("P:A/C", pC2, ezGetStaticRTTI<ezCollectionComponent>()) == pC2);
+
+    EZ_TEST_BOOL(world.SearchForObject("", pA1) == pA1);
+    EZ_TEST_BOOL(world.SearchForObject("") == nullptr);
+
+    EZ_TEST_BOOL(world.SearchForObject("G:C2/P:A/B", pKey3) == pB2);
+    EZ_TEST_BOOL(world.SearchForObject("G:C2/P:a/B", pKey3) == nullptr);  // case sensitive
+    EZ_TEST_BOOL(world.SearchForObject("G:C2/P:A//B", pKey3) == nullptr); // malformed path
+
+    EZ_TEST_BOOL(world.SearchForObject("..", pC1) == pB1);
+    EZ_TEST_BOOL(world.SearchForObject("../../", pC1) == pA1);
+    EZ_TEST_BOOL(world.SearchForObject("../..", pC1) == pA1);
+
+    EZ_TEST_BOOL(world.SearchForObject("G:C2/P:B/../../A", pKey3) == pA2);
+
+    EZ_TEST_BOOL(world.SearchForObject("G:B2/C/..") == nullptr); // malformed path
+  }
 }

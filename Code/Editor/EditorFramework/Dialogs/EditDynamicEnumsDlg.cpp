@@ -104,13 +104,13 @@ void ezQtEditDynamicEnumsDlg::on_Buttons_clicked(QAbstractButton* button)
       }
       m_pEnum->SortValues();
       m_pEnum->SaveToStorage();
+    }
 
-      if (auto* pItem = EnumValues->currentItem())
-      {
-        const auto& values = m_pEnum->GetAllValidValues();
-        m_iSelectedItem = values.IndexOf(pItem->text().toUtf8().data());
-        m_iSelectedItem = ezMath::Min(m_iSelectedItem, (ezInt32)values.GetCount() - 1);
-      }
+    if (auto* pItem = EnumValues->currentItem())
+    {
+      const auto& values = m_pEnum->GetAllValidValues();
+      m_iSelectedItem = values.IndexOf(pItem->text().toUtf8().data());
+      m_iSelectedItem = ezMath::Min(m_iSelectedItem, (ezInt32)values.GetCount() - 1);
     }
 
     accept();

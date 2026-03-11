@@ -1,4 +1,5 @@
 #include <Core/CorePCH.h>
+#include <Foundation/Time/Clock.h>
 
 #include <Core/ResourceManager/Implementation/ResourceManagerState.h>
 #include <Core/ResourceManager/ResourceManager.h>
@@ -417,6 +418,11 @@ ezResult ezResourceManager::DeallocateResource(ezResource* pResource)
 // Used by Fileserve, to trigger this event, even though Fileserve should not have a link dependency on Core
 EZ_ON_GLOBAL_EVENT(ezResourceManager_ReloadAllResources)
 {
+  EZ_IGNORE_UNUSED(param0);
+  EZ_IGNORE_UNUSED(param1);
+  EZ_IGNORE_UNUSED(param2);
+  EZ_IGNORE_UNUSED(param3);
+
   ezResourceManager::ReloadAllResources(false);
 }
 void ezResourceManager::ResetAllResources()
@@ -438,7 +444,7 @@ void ezResourceManager::PerFrameUpdate()
 {
   EZ_PROFILE_SCOPE("ezResourceManagerUpdate");
 
-  s_pState->m_LastFrameUpdate = ezTime::Now();
+  s_pState->m_LastFrameUpdate = ezClock::GetGlobalClock()->GetLastUpdateTime();
 
   if (s_pState->m_bBroadcastExistsEvent)
   {
@@ -493,6 +499,11 @@ void ezResourceManager::PerFrameUpdate()
   if (s_pState->m_AutoFreeUnusedTimeout.IsPositive())
   {
     FreeUnusedResources(s_pState->m_AutoFreeUnusedTimeout, s_pState->m_AutoFreeUnusedThreshold);
+  }
+
+  if (s_pState->m_uiForceNoFallbackAcquisition > 0)
+  {
+    s_pState->m_uiForceNoFallbackAcquisition--;
   }
 }
 
@@ -684,7 +695,7 @@ ezResource* ezResourceManager::GetResource(const ezRTTI* pRtti, ezStringView sRe
   // redirect requested type to override type, if available
   pRtti = FindResourceTypeOverride(pRtti, sResourceID);
 
-  EZ_ASSERT_DEBUG(pRtti != nullptr, "There is no RTTI information available for the given resource type '{0}'", EZ_STRINGIZE(ResourceType));
+  EZ_ASSERT_DEBUG(pRtti != nullptr, "There is no RTTI information available for the given resource type '{0}'", EZ_PP_STRINGIFY(ResourceType));
 
   if (pRtti->GetTypeFlags().IsSet(ezTypeFlags::Abstract))
   {
@@ -692,9 +703,8 @@ ezResource* ezResourceManager::GetResource(const ezRTTI* pRtti, ezStringView sRe
     return nullptr;
   }
 
-  EZ_ASSERT_DEBUG(pRtti->GetAllocator() != nullptr && pRtti->GetAllocator()->CanAllocate(), "There is no RTTI allocator available for the given resource type '{0}'", EZ_STRINGIZE(ResourceType));
+  EZ_ASSERT_DEBUG(pRtti->GetAllocator() != nullptr && pRtti->GetAllocator()->CanAllocate(), "There is no RTTI allocator available for the given resource type '{0}'", EZ_PP_STRINGIFY(ResourceType));
 
-  ezResource* pResource = nullptr;
   ezTempHashedString sHashedResourceID(sResourceID);
 
   ezHashedString* redirection;
@@ -706,17 +716,16 @@ ezResource* ezResourceManager::GetResource(const ezRTTI* pRtti, ezStringView sRe
 
   LoadedResources& lr = s_pState->m_LoadedResources[pRtti];
 
-  if (lr.m_Resources.TryGetValue(sHashedResourceID, pResource))
+  ezResource*& pResource = lr.m_Resources[sHashedResourceID];
+  if (pResource != nullptr)
     return pResource;
 
-  ezResource* pNewResource = pRtti->GetAllocator()->Allocate<ezResource>();
-  pNewResource->m_Priority = s_pState->m_ResourceTypePriorities.GetValueOrDefault(pRtti, ezResourcePriority::Medium);
-  pNewResource->SetUniqueID(sResourceID, bIsReloadable);
-  pNewResource->m_Flags.AddOrRemove(ezResourceFlags::ResourceHasTypeFallback, pNewResource->HasResourceTypeLoadingFallback());
+  pResource = pRtti->GetAllocator()->Allocate<ezResource>();
+  pResource->m_Priority = s_pState->m_ResourceTypePriorities.GetValueOrDefault(pRtti, ezResourcePriority::Medium);
+  pResource->SetUniqueID(sResourceID, bIsReloadable);
+  pResource->m_Flags.AddOrRemove(ezResourceFlags::ResourceHasTypeFallback, pResource->HasResourceTypeLoadingFallback());
 
-  lr.m_Resources.Insert(sHashedResourceID, pNewResource);
-
-  return pNewResource;
+  return pResource;
 }
 
 void ezResourceManager::RegisterResourceOverrideType(const ezRTTI* pDerivedTypeToUse, ezDelegate<bool(const ezStringBuilder&)> overrideDecider)

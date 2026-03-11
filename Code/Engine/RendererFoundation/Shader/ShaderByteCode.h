@@ -3,8 +3,10 @@
 
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Types/RefCounted.h>
+#include <Foundation/Types/SharedPtr.h>
 #include <RendererFoundation/Descriptors/Enumerations.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
+#include <RendererFoundation/Resources/ResourceFormats.h>
 
 /// \brief The reflection data of a constant in a shader constant buffer.
 /// \sa ezShaderConstantBufferLayout
@@ -42,7 +44,7 @@ struct EZ_RENDERERFOUNDATION_DLL ezShaderConstant
 
   static ezUInt32 s_TypeSize[Type::ENUM_COUNT];
 
-  void CopyDataFormVariant(ezUInt8* pDest, ezVariant* pValue) const;
+  void CopyDataFromVariant(ezUInt8* pDest, const ezVariant* pValue) const;
 
   ezHashedString m_sName;
   ezEnum<Type> m_Type;
@@ -57,6 +59,8 @@ class EZ_RENDERERFOUNDATION_DLL ezShaderConstantBufferLayout : public ezRefCount
 public:
   ezUInt32 m_uiTotalSize = 0;
   ezHybridArray<ezShaderConstant, 16> m_Constants;
+  bool operator==(const ezShaderConstantBufferLayout& rhs) const;
+  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezShaderConstantBufferLayout&);
 };
 
 /// \brief Shader reflection of the vertex shader input.
@@ -76,14 +80,14 @@ struct EZ_RENDERERFOUNDATION_DLL ezShaderVertexInputAttribute
 struct EZ_RENDERERFOUNDATION_DLL ezShaderResourceBinding
 {
   EZ_DECLARE_MEM_RELOCATABLE_TYPE();
-  ezEnum<ezGALShaderResourceType> m_ResourceType;             //< The type of shader resource. Note, not all are supported by EZ right now.
-  ezEnum<ezGALShaderTextureType> m_TextureType;               //< Only valid if m_ResourceType is Texture, TextureRW or TextureAndSampler.
-  ezBitflags<ezGALShaderStageFlags> m_Stages;                 //< The shader stages under which this resource is bound.
-  ezInt16 m_iSet = -1;                                        //< The set to which this resource belongs. Aka. Vulkan descriptor set.
-  ezInt16 m_iSlot = -1;                                       //< The slot under which the resource needs to be bound in the set.
-  ezUInt32 m_uiArraySize = 1;                                 //< Number of array elements. Only 1 is currently supported. 0 if bindless.
-  ezHashedString m_sName;                                     //< Name under which a resource must be bound to fulfill this resource binding.
-  ezScopedRefPointer<ezShaderConstantBufferLayout> m_pLayout; //< Only valid if ezGALShaderResourceType is ConstantBuffer or PushConstants. #TODO_SHADER We could also support this for StructuredBuffer / StructuredBufferRW, but currently there is no use case for that.
+  ezEnum<ezGALShaderResourceType> m_ResourceType;      //< The type of shader resource. Note, not all are supported by EZ right now.
+  ezEnum<ezGALShaderTextureType> m_TextureType;        //< Only valid if m_ResourceType is Texture, TextureRW or TextureAndSampler.
+  ezBitflags<ezGALShaderStageFlags> m_Stages;          //< The shader stages under which this resource is bound.
+  ezInt16 m_iBindGroup = -1;                           //< The bind group to which this resource belongs.
+  ezInt16 m_iSlot = -1;                                //< The slot under which the resource needs to be bound in the bind group.
+  ezUInt32 m_uiArraySize = 1;                          //< Number of array elements. Only 1 is currently supported. 0 if bindless.
+  ezHashedString m_sName;                              //< Name under which a resource must be bound to fulfill this resource binding.
+  ezSharedPtr<ezShaderConstantBufferLayout> m_pLayout; //< Only valid if ezGALShaderResourceType is ConstantBuffer, PushConstants, StructuredBuffer, StructuredBufferRW.
 
   static ezResult CreateMergedShaderResourceBinding(const ezArrayPtr<ezArrayPtr<const ezShaderResourceBinding>>& resourcesPerStage, ezDynamicArray<ezShaderResourceBinding>& out_bindings, bool bAllowMultipleBindingPerName);
 };

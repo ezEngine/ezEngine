@@ -175,7 +175,7 @@ public:
 /// \sa ezProfilingScope
 /// \sa EZ_PROFILE_LIST_SCOPE
 #  define EZ_PROFILE_SCOPE(ScopeName) \
-    ezProfilingScope EZ_CONCAT(_ezProfilingScope, EZ_SOURCE_LINE)(ScopeName, EZ_SOURCE_FUNCTION, ezTime::MakeZero())
+    ezProfilingScope EZ_PP_CONCAT(_ezProfilingScope, EZ_SOURCE_LINE)(ScopeName, EZ_SOURCE_FUNCTION, ezTime::MakeZero())
 
 /// \brief Same as EZ_PROFILE_SCOPE but if the scope takes longer than 'Timeout', the ezProfilingSystem's timeout callback is executed.
 ///
@@ -183,7 +183,7 @@ public:
 ///
 /// \sa ezProfilingSystem::SetScopeTimeoutCallback()
 #  define EZ_PROFILE_SCOPE_WITH_TIMEOUT(ScopeName, Timeout) \
-    ezProfilingScope EZ_CONCAT(_ezProfilingScope, EZ_SOURCE_LINE)(ScopeName, EZ_SOURCE_FUNCTION, Timeout)
+    ezProfilingScope EZ_PP_CONCAT(_ezProfilingScope, EZ_SOURCE_LINE)(ScopeName, EZ_SOURCE_FUNCTION, Timeout)
 
 /// \brief Profiles the current scope using the given name as the overall list scope name and the section name for the first section in the list.
 ///
@@ -197,7 +197,7 @@ public:
 /// \sa ezProfilingListScope
 /// \sa EZ_PROFILE_LIST_NEXT_SECTION
 #  define EZ_PROFILE_LIST_SCOPE(ListName, FirstSectionName) \
-    ezProfilingListScope EZ_CONCAT(_ezProfilingScope, EZ_SOURCE_LINE)(ListName, FirstSectionName, EZ_SOURCE_FUNCTION)
+    ezProfilingListScope EZ_PP_CONCAT(_ezProfilingScope, EZ_SOURCE_LINE)(ListName, FirstSectionName, EZ_SOURCE_FUNCTION)
 
 /// \brief Starts a new section in a EZ_PROFILE_LIST_SCOPE
 ///

@@ -10,13 +10,28 @@
 
 #include <Core/World/ComponentManager.h>
 #include <Core/World/GameObjectDesc.h>
+#include <Core/World/SpatialData.h>
 
 // Avoid conflicts with windows.h
 #ifdef SendMessage
 #  undef SendMessage
 #endif
 
-enum class ezVisibilityState : ezUInt8;
+/// \brief Defines during re-parenting what transform is going to be preserved.
+struct ezTransformPreservation
+{
+  using StorageType = ezUInt8;
+
+  enum Enum : StorageType
+  {
+    PreserveLocal,
+    PreserveGlobal,
+
+    Default = PreserveLocal
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezTransformPreservation);
 
 /// \brief This class represents an object inside the world.
 ///
@@ -52,6 +67,9 @@ private:
 
 public:
   /// \brief Iterates over all children of one object.
+  ///
+  /// Provides read-only access to child game objects. The iterator becomes invalid
+  /// when the last child is reached or when the object structure is modified.
   class EZ_CORE_DLL ConstChildIterator
   {
   public:
@@ -78,6 +96,9 @@ public:
     const ezWorld* m_pWorld = nullptr;
   };
 
+  /// \brief Mutable iterator for child game objects.
+  ///
+  /// Extends ConstChildIterator to provide write access to child objects.
   class EZ_CORE_DLL ChildIterator : public ConstChildIterator
   {
   public:
@@ -141,13 +162,23 @@ public:
   /// \brief Checks whether the ezObjectFlags::CreatedByPrefab flag is set on this object.
   bool WasCreatedByPrefab() const { return m_Flags.IsSet(ezObjectFlags::CreatedByPrefab); }
 
+  /// \brief Adds ezObjectFlags::HideShapeIcon to the object. See the flag for details.
+  void SetHideShapeIcon() { m_Flags.Add(ezObjectFlags::HideShapeIcon); }
+
+  /// \brief Checks whether the ezObjectFlags::HideShapeIcon flag is set on this object.
+  bool IsShapeIconHidden() const { return m_Flags.IsSet(ezObjectFlags::HideShapeIcon); }
+
   /// \brief Sets the name to identify this object. Does not have to be a unique name.
   void SetName(ezStringView sName);
   void SetName(const ezHashedString& sName);
   ezStringView GetName() const;
+  const ezHashedString& GetNameHashed() const;
   bool HasName(const ezTempHashedString& sName) const;
 
   /// \brief Sets the global key to identify this object. Global keys must be unique within a world.
+  ///
+  /// If two objects use the same global key, the last one that registers it will be the referenced object.
+  /// To prevent warnings about overwriting global keys, first clear the global key on the previous object.
   void SetGlobalKey(ezStringView sGlobalKey);
   void SetGlobalKey(const ezHashedString& sGlobalKey);
   ezStringView GetGlobalKey() const;
@@ -160,15 +191,8 @@ public:
   void EnableParentChangesNotifications();
   void DisableParentChangesNotifications();
 
-  /// \brief Defines during re-parenting what transform is going to be preserved.
-  enum class TransformPreservation
-  {
-    PreserveLocal,
-    PreserveGlobal
-  };
-
   /// \brief Sets the parent of this object to the given.
-  void SetParent(const ezGameObjectHandle& hParent, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
+  void SetParent(const ezGameObjectHandle& hParent, ezTransformPreservation::Enum preserve = ezTransformPreservation::PreserveGlobal);
 
   /// \brief Gets the parent of this object or nullptr if this is a top-level object.
   ezGameObject* GetParent();
@@ -177,16 +201,16 @@ public:
   const ezGameObject* GetParent() const;
 
   /// \brief Adds the given object as a child object.
-  void AddChild(const ezGameObjectHandle& hChild, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
+  void AddChild(const ezGameObjectHandle& hChild, ezTransformPreservation::Enum preserve = ezTransformPreservation::PreserveGlobal);
 
   /// \brief Adds the given objects as child objects.
-  void AddChildren(const ezArrayPtr<const ezGameObjectHandle>& children, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
+  void AddChildren(const ezArrayPtr<const ezGameObjectHandle>& children, ezTransformPreservation::Enum preserve = ezTransformPreservation::PreserveGlobal);
 
   /// \brief Detaches the given child object from this object and makes it a top-level object.
-  void DetachChild(const ezGameObjectHandle& hChild, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
+  void DetachChild(const ezGameObjectHandle& hChild, ezTransformPreservation::Enum preserve = ezTransformPreservation::PreserveGlobal);
 
   /// \brief Detaches the given child objects from this object and makes them top-level objects.
-  void DetachChildren(const ezArrayPtr<const ezGameObjectHandle>& children, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
+  void DetachChildren(const ezArrayPtr<const ezGameObjectHandle>& children, ezTransformPreservation::Enum preserve = ezTransformPreservation::PreserveGlobal);
 
   /// \brief Returns the number of children.
   ezUInt32 GetChildCount() const;
@@ -198,7 +222,10 @@ public:
   ConstChildIterator GetChildren() const;
 
   /// \brief Searches for a child object with the given name. Optionally traverses the entire hierarchy.
-  ezGameObject* FindChildByName(const ezTempHashedString& sName, bool bRecursive = true);
+  ezGameObject* FindChildByName(const ezTempHashedString& sName, bool bRecursive = true); // [tested]
+
+  /// \brief Searches for a child object with the given name. Optionally traverses the entire hierarchy.
+  const ezGameObject* FindChildByName(const ezTempHashedString& sName, bool bRecursive = true) const; // [tested]
 
   /// \brief Searches for a child using a path. Every path segment represents a child with a given name.
   ///
@@ -207,7 +234,10 @@ public:
   /// When on any part of the path the next child cannot be found, nullptr is returned.
   /// This function expects an exact path to the destination. It does not search the full hierarchy for
   /// the next child, as SearchChildByNameSequence() does.
-  ezGameObject* FindChildByPath(ezStringView sPath);
+  ezGameObject* FindChildByPath(ezStringView sPath); // [tested]
+
+  /// \brief Const overload of FindChildByPath()
+  const ezGameObject* FindChildByPath(ezStringView sPath) const; // [tested]
 
   /// \brief Searches for a child similar to FindChildByName() but allows to search for multiple names in a sequence.
   ///
@@ -216,10 +246,17 @@ public:
   /// named "a". If that is found, the search continues from there for a child called "b".
   /// If such a child is found and pExpectedComponent != nullptr, it is verified that the object
   /// contains a component of that type. If it doesn't the search continues (including back-tracking).
-  ezGameObject* SearchForChildByNameSequence(ezStringView sObjectSequence, const ezRTTI* pExpectedComponent = nullptr);
+  ezGameObject* SearchForChildByNameSequence(ezStringView sObjectSequence, const ezRTTI* pExpectedComponent = nullptr); // [tested]
+
+  /// \brief Const overload of SearchForChildByNameSequence()
+  const ezGameObject* SearchForChildByNameSequence(ezStringView sObjectSequence, const ezRTTI* pExpectedComponent = nullptr) const; // [tested]
 
   /// \brief Same as SearchForChildByNameSequence but returns ALL matches, in case the given path could mean multiple objects
-  void SearchForChildrenByNameSequence(ezStringView sObjectSequence, const ezRTTI* pExpectedComponent, ezHybridArray<ezGameObject*, 8>& out_objects);
+  void SearchForChildrenByNameSequence(ezStringView sObjectSequence, const ezRTTI* pExpectedComponent, ezDynamicArray<ezGameObject*>& out_objects);
+
+  /// \brief Sets the enabled flag on the child object with the given name and optionally disables all other children.
+  void ActivateChildByName(const ezTempHashedString& sName, bool bDeactivateOthers = true);
+
 
   ezWorld* GetWorld();
   const ezWorld* GetWorld() const;
@@ -292,6 +329,20 @@ public:
   void SetGlobalTransform(const ezSimdTransform& transform);
   const ezSimdTransform& GetGlobalTransformSimd() const;
 
+  /// \brief Sets the global rotation of this game object such that it 'looks at' the target position.
+  ///
+  /// Per convention, that means the +X axis will point towards the target position, +Y will point to the right,
+  /// and +Z will point upwards.
+  ///
+  /// vUp is used to calculate the necessary right and up vectors.
+  /// A custom vUp vector must be provided, in case the look-at position can be directly above the game object.
+  void SetGlobalRotationToLookAt(const ezVec3& vTargetPosition, const ezVec3& vUp = ezVec3::MakeAxisZ());
+
+  /// \brief Same as SetGlobalRotationToLookAt but also changes the position of this object.
+  ///
+  /// Note that the scale of this object gets set to 1.
+  void SetGlobalTransformToLookAt(const ezVec3& vOwnPosition, const ezVec3& vTargetPosition, const ezVec3& vUp = ezVec3::MakeAxisZ());
+
   const ezSimdTransform& GetLastGlobalTransformSimd() const;
 
   /// \brief Returns the 'forwards' direction of the world's ezCoordinateSystem, rotated into the object's global space
@@ -332,6 +383,11 @@ public:
   /// \brief Invalidates the local bounds and sends a message to all components so they can add their bounds.
   void UpdateLocalBounds();
 
+  /// \brief Schedules a local bounds update to be processed at the end of the current update phase.
+  ///
+  /// Unlike UpdateLocalBounds(), this function is safe to call from async update functions.
+  void QueueLocalBoundsUpdate();
+
   /// \brief Updates the global bounds immediately. Usually this done during the world update after the "Post-async" phase.
   /// Note that this function does not ensure that the global transform is up-to-date. Use UpdateGlobalTransformAndBounds if you want to update both.
   void UpdateGlobalBounds();
@@ -349,17 +405,17 @@ public:
 
   /// \brief Tries to find a component of the given base type in the objects components list and returns the first match.
   template <typename T>
-  bool TryGetComponentOfBaseType(T*& out_pComponent);
+  [[nodiscard]] bool TryGetComponentOfBaseType(T*& out_pComponent);
 
   /// \brief Tries to find a component of the given base type in the objects components list and returns the first match.
   template <typename T>
-  bool TryGetComponentOfBaseType(const T*& out_pComponent) const;
+  [[nodiscard]] bool TryGetComponentOfBaseType(const T*& out_pComponent) const;
 
   /// \brief Tries to find a component of the given base type in the objects components list and returns the first match.
-  bool TryGetComponentOfBaseType(const ezRTTI* pType, ezComponent*& out_pComponent);
+  [[nodiscard]] bool TryGetComponentOfBaseType(const ezRTTI* pType, ezComponent*& out_pComponent);
 
   /// \brief Tries to find a component of the given base type in the objects components list and returns the first match.
-  bool TryGetComponentOfBaseType(const ezRTTI* pType, const ezComponent*& out_pComponent) const;
+  [[nodiscard]] bool TryGetComponentOfBaseType(const ezRTTI* pType, const ezComponent*& out_pComponent) const;
 
   /// \brief Tries to find components of the given base type in the objects components list and returns all matches.
   template <typename T>
@@ -413,29 +469,24 @@ public:
   /// \brief Queues the message for the given phase. The message is processed after the given delay in the corresponding phase.
   void PostMessageRecursive(const ezMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
 
-  /// \brief Delivers an ezEventMessage to the closest (parent) object containing an ezEventMessageHandlerComponent.
+  /// \brief Delivers an ezMessage to the closest (parent) object whose components handle the given message type.
   ///
   /// Regular SendMessage() and PostMessage() send a message directly to the target object (and all attached components).
   /// SendMessageRecursive() and PostMessageRecursive() send a message 'down' the graph to the target object and all children.
   ///
   /// In contrast, SendEventMessage() / PostEventMessage() bubble the message 'up' the graph.
-  /// They do so by inspecting the chain of parent objects for the existence of an ezEventMessageHandlerComponent
-  /// (typically a script component). If such a component is found, the message is delivered to it directly, and no other component.
-  /// If it is found, but does not handle this type of message, the message is discarded and NOT tried to be delivered
+  /// They do so by inspecting the chain of parent objects until they find one or multiple components that handle this type of message.
+  /// If such components are found, the message is delivered to them directly, and no other component.
+  /// If an ezEventMessageHandlerComponent is found that does not handle this type of message, the message is discarded and NOT tried to be delivered
   /// to anyone else.
   ///
   /// If no such component is found in all parent objects, the message is delivered to one ezEventMessageHandlerComponent
   /// instances that is set to 'handle global events' (typically used for level-logic scripts), no matter where in the graph it resides.
-  /// If multiple global event handler component exist that handle the same message type, the result is non-deterministic.
+  /// If multiple global event handler component exist that handle the same message type, it is delivered to all of them in a non-deterministic order.
   ///
   /// \param msg The message to deliver.
   /// \param senderComponent The component that triggered the event in the first place. May be nullptr.
-  ///        If not null, this information is stored in \a msg as ezEventMessage::m_hSenderObject and ezEventMessage::m_hSenderComponent.
-  ///        This information is used to pass through more contextual information for the event handler.
-  ///        For instance, a trigger component would pass through itself.
-  ///        A projectile component sending a 'take damage event' to the hit object, would also pass through itself (the projectile)
-  ///        such that the handling code can detect which object was responsible for the damage (and using the ezGameObject's team-ID,
-  ///        it can detect which player fired the projectile).
+  ///        Currently it is only used to prevent the message from being delivered to the sender component itself.
   bool SendEventMessage(ezMessage& ref_msg, const ezComponent* pSenderComponent);
 
   /// \copydoc ezGameObject::SendEventMessage()
@@ -459,6 +510,9 @@ public:
 
   /// \brief Removes the given tag from the object's tags.
   void RemoveTag(const ezTag& tag);
+
+  /// \brief Checks whether this object has the given tag.
+  bool HasTag(const ezTempHashedString& sTagName) const;
 
   /// \brief Returns the 'team ID' that was given during creation (/see ezGameObjectDesc)
   ///
@@ -496,7 +550,7 @@ public:
   /// An invisible object may stop updating entirely. An indirectly visible object may reduce its update rate.
   ///
   /// \param uiNumFramesBeforeInvisible Used to treat an object that was visible and just became invisible as visible for a few more frames.
-  ezVisibilityState GetVisibilityState(ezUInt32 uiNumFramesBeforeInvisible = 5) const;
+  ezVisibilityState::Enum GetVisibilityState(ezUInt32 uiNumFramesBeforeInvisible = 5) const;
 
 private:
   friend class ezComponentManagerBase;
@@ -515,6 +569,9 @@ private:
 
   EZ_ALLOW_PRIVATE_PROPERTIES(ezGameObject);
 
+  void Reflection_SetTag(const char* szTagName);
+  void Reflection_RemoveTag(const char* szTagName);
+
   // Add / Detach child used by the reflected property keep their local transform as
   // updating that is handled by the editor.
   void Reflection_AddChild(ezGameObject* pChild);
@@ -523,6 +580,9 @@ private:
   void Reflection_AddComponent(ezComponent* pComponent);
   void Reflection_RemoveComponent(ezComponent* pComponent);
   ezHybridArray<ezComponent*, NUM_INPLACE_COMPONENTS> Reflection_GetComponents() const;
+
+  ezGameObject* Reflection_FindChildByName(const ezTempHashedString& sName, bool bRecursive) { return FindChildByName(sName, bRecursive); }
+  ezGameObject* Reflection_FindChildByPath(ezStringView sPath) { return FindChildByPath(sPath); }
 
   ezObjectMode::Enum Reflection_GetMode() const;
   void Reflection_SetMode(ezObjectMode::Enum mode);

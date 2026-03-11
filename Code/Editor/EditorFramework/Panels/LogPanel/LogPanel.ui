@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>738</width>
-    <height>597</height>
+    <width>765</width>
+    <height>800</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,59 +17,44 @@
    <iconset resource="../../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
     <normaloff>:/GuiFoundation/Icons/Log.svg</normaloff>:/GuiFoundation/Icons/Log.svg</iconset>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_4">
+  <layout class="QHBoxLayout" name="horizontalLayout">
    <item>
-    <widget class="QFrame" name="dockWidgetContents">
-     <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
+    <widget class="QStackedWidget" name="LogWidgets">
+     <property name="currentIndex">
+      <number>0</number>
      </property>
-     <property name="frameShadow">
-      <enum>QFrame::Sunken</enum>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_3">
-      <property name="spacing">
-       <number>0</number>
-      </property>
-      <property name="leftMargin">
-       <number>0</number>
-      </property>
-      <property name="topMargin">
-       <number>0</number>
-      </property>
-      <property name="rightMargin">
-       <number>0</number>
-      </property>
-      <property name="bottomMargin">
-       <number>0</number>
-      </property>
-      <item>
-       <widget class="QSplitter" name="splitter">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <widget class="QWidget" name="layoutWidget1">
-         <layout class="QVBoxLayout" name="verticalLayout">
-          <item>
-           <widget class="ezQtLogWidget" name="EditorLog" native="true"/>
-          </item>
-         </layout>
+     <widget class="QWidget" name="Combined">
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="ezQtLogWidget" name="CombinedLog" native="true"/>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="Split">
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <item>
+        <widget class="QSplitter" name="splitter">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <widget class="QWidget" name="verticalLayoutWidget">
+          <layout class="QVBoxLayout" name="verticalLayout">
+           <item>
+            <widget class="ezQtLogWidget" name="EditorLog" native="true"/>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="verticalLayoutWidget_2">
+          <layout class="QVBoxLayout" name="verticalLayout_2">
+           <item>
+            <widget class="ezQtLogWidget" name="EngineLog" native="true"/>
+           </item>
+          </layout>
+         </widget>
         </widget>
-        <widget class="QWidget" name="layoutWidget2">
-         <layout class="QVBoxLayout" name="verticalLayout_2">
-          <item>
-           <widget class="ezQtLogWidget" name="EngineLog" native="true"/>
-          </item>
-         </layout>
-        </widget>
-       </widget>
-      </item>
-     </layout>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
   </layout>

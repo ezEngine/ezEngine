@@ -78,6 +78,8 @@ void ezPrefabCache::LoadGraph(ezAbstractObjectGraph& out_graph, ezStringView sGr
 ezPrefabCache::PrefabData& ezPrefabCache::GetOrCreatePrefabCache(const ezUuid& documentGuid)
 {
   auto it = m_PrefabData.Find(documentGuid);
+
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
   if (it.IsValid())
   {
     ezFileStats Stats;
@@ -101,12 +103,16 @@ ezPrefabCache::PrefabData& ezPrefabCache::GetOrCreatePrefabCache(const ezUuid& d
     else
       UpdatePrefabData(*it.Value().Borrow());
   }
+#else
+  EZ_ASSERT_NOT_IMPLEMENTED;
+#endif
 
   return *it.Value().Borrow();
 }
 
 void ezPrefabCache::UpdatePrefabData(PrefabData& data)
 {
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
   if (data.m_sAbsPath.IsEmpty())
   {
     data.m_sAbsPath = ezToolsProject::GetSingleton()->GetPathForDocumentGuid(data.m_documentGuid);
@@ -136,4 +142,7 @@ void ezPrefabCache::UpdatePrefabData(PrefabData& data)
   data.m_fileModifiedTime = Stats.m_LastModificationTime;
   data.m_Graph.Clear();
   ezPrefabUtils::LoadGraph(data.m_Graph, data.m_sDocContent);
+#else
+  EZ_ASSERT_NOT_IMPLEMENTED;
+#endif
 }

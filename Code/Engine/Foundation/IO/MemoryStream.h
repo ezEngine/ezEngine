@@ -13,7 +13,11 @@ class ezMemoryStreamWriter;
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-/// \brief Instances of this class act as storage for memory streams
+/// \brief Abstract interface for memory stream storage providing pluggable backend implementations.
+///
+/// MemoryStreamStorageInterface defines the contract for storage backends used by memory streams.
+/// Different implementations can optimize for specific use cases such as small temporary buffers,
+/// large datasets, or zero-copy operations with existing containers.
 class EZ_FOUNDATION_DLL ezMemoryStreamStorageInterface
 {
 public:
@@ -205,14 +209,30 @@ public:
   ezMemoryStreamContainerWrapperStorage(CONTAINER* pContainer) { m_pStorage = pContainer; }
 
   virtual ezUInt64 GetStorageSize64() const override { return m_pStorage->GetCount(); }
-  virtual void Clear() override { m_pStorage->Clear(); }
-  virtual void Compact() override { m_pStorage->Compact(); }
+  virtual void Clear() override
+  {
+    if constexpr (!std::is_const<CONTAINER>::value)
+    {
+      m_pStorage->Clear();
+    }
+  }
+  virtual void Compact() override
+  {
+    if constexpr (!std::is_const<CONTAINER>::value)
+    {
+      m_pStorage->Compact();
+    }
+  }
+
   virtual ezUInt64 GetHeapMemoryUsage() const override { return m_pStorage->GetHeapMemoryUsage(); }
 
   virtual void Reserve(ezUInt64 uiBytes) override
   {
-    EZ_ASSERT_DEV(uiBytes <= ezMath::MaxValue<ezUInt32>(), "ezMemoryStreamContainerWrapperStorage only supports 32 bit addressable sizes.");
-    m_pStorage->Reserve(static_cast<ezUInt32>(uiBytes));
+    if constexpr (!std::is_const<CONTAINER>::value)
+    {
+      EZ_ASSERT_DEV(uiBytes <= ezMath::MaxValue<ezUInt32>(), "ezMemoryStreamContainerWrapperStorage only supports 32 bit addressable sizes.");
+      m_pStorage->Reserve(static_cast<ezUInt32>(uiBytes));
+    }
   }
 
   virtual ezResult CopyToStream(ezStreamWriter& inout_stream) const override
@@ -230,17 +250,27 @@ public:
 
   virtual ezArrayPtr<ezUInt8> GetContiguousMemoryRange(ezUInt64 uiStartByte) override
   {
-    if (uiStartByte >= m_pStorage->GetCount())
-      return {};
+    if constexpr (!std::is_const<CONTAINER>::value)
+    {
+      if (uiStartByte >= m_pStorage->GetCount())
+        return {};
 
-    return ezArrayPtr<ezUInt8>(m_pStorage->GetData() + uiStartByte, m_pStorage->GetCount() - static_cast<ezUInt32>(uiStartByte));
+      return ezArrayPtr<ezUInt8>(m_pStorage->GetData() + uiStartByte, m_pStorage->GetCount() - static_cast<ezUInt32>(uiStartByte));
+    }
+    else
+    {
+      return {};
+    }
   }
 
 private:
   virtual void SetInternalSize(ezUInt64 uiSize) override
   {
-    EZ_ASSERT_DEV(uiSize <= ezMath::MaxValue<ezUInt32>(), "ezMemoryStreamContainerWrapperStorage only supports up to 4GB sizes.");
-    m_pStorage->SetCountUninitialized(static_cast<ezUInt32>(uiSize));
+    if constexpr (!std::is_const<CONTAINER>::value)
+    {
+      EZ_ASSERT_DEV(uiSize <= ezMath::MaxValue<ezUInt32>(), "ezMemoryStreamContainerWrapperStorage only supports up to 4GB sizes.");
+      m_pStorage->SetCountUninitialized(static_cast<ezUInt32>(uiSize));
+    }
   }
 
   CONTAINER* m_pStorage;
@@ -253,8 +283,13 @@ private:
 
 /// \brief A reader which can access a memory stream.
 ///
-/// Please note that the functions exposed by this object are not thread safe! If access to the same ezMemoryStreamStorage object from
-/// multiple threads is desired please create one instance of ezMemoryStreamReader per thread.
+/// MemoryStreamReader provides sequential reading access to data stored in any MemoryStreamStorageInterface
+/// implementation. It maintains an internal read position and supports both forward reading and seeking.
+///
+/// Thread safety:
+/// - NOT thread-safe - each thread requires its own reader instance
+/// - Multiple readers can safely share the same storage concurrently
+/// - Concurrent reading and writing to the same storage is unsafe
 class EZ_FOUNDATION_DLL ezMemoryStreamReader : public ezStreamReader
 {
 public:
@@ -308,7 +343,14 @@ private:
 
 /// \brief A writer which can access a memory stream
 ///
-/// Please note that the functions exposed by this object are not thread safe!
+/// MemoryStreamWriter provides sequential writing access to any MemoryStreamStorageInterface
+/// implementation. It automatically grows the underlying storage as needed and maintains
+/// an internal write position that can be positioned anywhere within the stream.
+///
+/// Thread safety:
+/// - NOT thread-safe - requires exclusive access
+/// - Cannot safely share writer instances between threads
+/// - Concurrent writing and reading to the same storage is unsafe
 class EZ_FOUNDATION_DLL ezMemoryStreamWriter : public ezStreamWriter
 {
 public:
@@ -354,6 +396,10 @@ private:
 //////////////////////////////////////////////////////////////////////////
 
 /// \brief Maps a raw chunk of memory to the ezStreamReader interface.
+///
+/// RawMemoryStreamReader provides direct read access to a pre-existing memory buffer without
+/// requiring any storage interface or memory management. It's optimized for scenarios where
+/// you have a fixed chunk of memory (array, buffer, etc.) and need stream interface access.
 class EZ_FOUNDATION_DLL ezRawMemoryStreamReader : public ezStreamReader
 {
 public:

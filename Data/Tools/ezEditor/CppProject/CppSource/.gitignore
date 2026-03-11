@@ -1,6 +1,16 @@
-﻿Build/*
+#ez-version 1
+
+Build/*
 AssetCache/
 
 # FMOD specific
 .cache/
 .user/
+.unsaved/
+
+# VSCode specific
+CMakeUserPresets.json
+
+# AngelScript auto-generated files
+*.asgen
+as.predefined

@@ -20,7 +20,7 @@ struct EZ_EDITORFRAMEWORK_DLL ezPropertyReference
     return m_Object == rhs.m_Object && m_pProperty == rhs.m_pProperty && m_Index == rhs.m_Index;
   }
   ezUuid m_Object;
-  const ezAbstractProperty* m_pProperty;
+  const ezAbstractProperty* m_pProperty = nullptr;
   ezVariant m_Index;
 };
 
@@ -37,7 +37,7 @@ public:
   static ezStatus CreatePath(const ezObjectPropertyPathContext& context, const ezPropertyReference& prop, ezStringBuilder& out_sObjectSearchSequence,
     ezStringBuilder& out_sComponentType, ezStringBuilder& out_sPropertyPath);
   static ezStatus CreatePropertyPath(const ezObjectPropertyPathContext& context, const ezPropertyReference& prop, ezStringBuilder& out_sPropertyPath);
-
+  static void AppendSubIndices(ezStringBuilder& ref_sPropertyPath, ezArrayPtr<ezVariant> indices);
   static ezStatus ResolvePath(const ezObjectPropertyPathContext& context, ezDynamicArray<ezPropertyReference>& out_keys,
     const char* szObjectSearchSequence, const char* szComponentType, const char* szPropertyPath);
   static ezStatus ResolvePropertyPath(const ezObjectPropertyPathContext& context, const char* szPropertyPath, ezPropertyReference& out_key);

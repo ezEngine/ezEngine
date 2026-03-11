@@ -35,7 +35,7 @@ namespace
 } // namespace
 
 EZ_DEFINE_AS_POD_TYPE(AutoFlags::Enum);
-EZ_CHECK_AT_COMPILETIME(sizeof(ezBitflags<AutoFlags>) == 4);
+static_assert(sizeof(ezBitflags<AutoFlags>) == 4);
 
 
 EZ_CREATE_SIMPLE_TEST(Basics, Bitflags)
@@ -124,7 +124,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Bitflags)
     {
       // All flags
       ezBitflags<AutoFlags> f = AutoFlags::Bit1 | AutoFlags::Bit2 | AutoFlags::Bit3 | AutoFlags::Bit4;
-      ezHybridArray<AutoFlags::Enum, 4> flags;
+      ezTempHybridArray<AutoFlags::Enum, 4> flags;
       flags.PushBack(AutoFlags::Bit1);
       flags.PushBack(AutoFlags::Bit2);
       flags.PushBack(AutoFlags::Bit3);

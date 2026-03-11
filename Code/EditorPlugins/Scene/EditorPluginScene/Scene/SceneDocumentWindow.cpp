@@ -9,6 +9,7 @@
 #include <EditorPluginScene/Scene/SceneViewWidget.moc.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
+#include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <QInputDialog>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
@@ -28,7 +29,14 @@ ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezSceneDocument* pDocument)
     [this](ezGameObjectEditTool* pTool)
     { pTool->ConfigureTool(static_cast<ezGameObjectDocument*>(GetDocument()), this, this); });
 
-  setCentralWidget(m_pQuadViewWidget);
+  {
+    ezQtDocumentPanel* pViewPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    pViewPanel->setObjectName("ezQtDocumentPanel");
+    pViewPanel->setWindowTitle("3D View");
+    pViewPanel->setWidget(m_pQuadViewWidget);
+
+    m_pDockManager->setCentralWidget(pViewPanel);
+  }
 
   ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
   SetTargetFramerate(pPreferences->GetMaxFramerate());
@@ -55,30 +63,12 @@ ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezSceneDocument* pDocument)
     addToolBar(pToolBar);
   }
 
-  {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
-    pPropertyPanel->setObjectName("PropertyPanel");
-    pPropertyPanel->setWindowTitle("Properties");
-    pPropertyPanel->show();
-
-    ezQtDocumentPanel* pPanelTree = new ezQtScenegraphPanel(this, static_cast<ezSceneDocument*>(pDocument));
-    pPanelTree->show();
-
-    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
-    pPropertyPanel->setWidget(pPropertyGrid);
-    EZ_VERIFY(connect(pPropertyGrid, &ezQtPropertyGridWidget::ExtendContextMenu, this, &ezQtSceneDocumentWindow::ExtendPropertyGridContextMenu), "");
-
-    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
-    addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pPanelTree);
-  }
-
   // Exposed Parameters
   if (GetSceneDocument()->IsPrefab())
   {
-    ezQtDocumentPanel* pPanel = new ezQtDocumentPanel(this, pDocument);
-    pPanel->setObjectName("SceneSettingsDockWidget");
-    pPanel->setWindowTitle(GetSceneDocument()->IsPrefab() ? "Prefab Settings" : "Scene Settings");
-    pPanel->show();
+    ezQtDocumentPanel* pPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    pPanel->setObjectName("PrefabSettingsPanel");
+    pPanel->setWindowTitle("Prefab Settings");
 
     ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPanel, pDocument, false);
     ezDeque<const ezDocumentObject*> selection;
@@ -86,7 +76,24 @@ ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezSceneDocument* pDocument)
     pPropertyGrid->SetSelection(selection);
     pPanel->setWidget(pPropertyGrid);
 
-    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPanel);
+    m_pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pPanel);
+  }
+
+  // Properties
+  {
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    pPropertyPanel->setObjectName("PropertyPanel");
+    pPropertyPanel->setWindowTitle("Properties");
+
+    ezQtDocumentPanel* pPanelTree = new ezQtScenegraphPanel(GetContainerWindow()->GetDockManager(), this, static_cast<ezSceneDocument*>(pDocument));
+    pPanelTree->show();
+
+    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
+    pPropertyPanel->setWidget(pPropertyGrid);
+    EZ_VERIFY(connect(pPropertyGrid, &ezQtPropertyGridWidget::ExtendContextMenu, this, &ezQtSceneDocumentWindow::ExtendPropertyGridContextMenu), "");
+
+    m_pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pPropertyPanel);
+    m_pDockManager->addDockWidgetTab(ads::LeftDockWidgetArea, pPanelTree);
   }
 
   FinishWindowCreation();
@@ -264,7 +271,14 @@ void ezQtSceneDocumentWindowBase::SendRedrawMsg()
     ezSimulationSettingsMsgToEngine msg;
     auto pSceneDoc = GetSceneDocument();
     msg.m_bSimulateWorld = pSceneDoc->GetGameMode() != GameMode::Off;
-    msg.m_fSimulationSpeed = pSceneDoc->GetSimulationSpeed();
+    msg.m_fSimulationSpeed = pSceneDoc->GetPauseSimulation() ? 0.0f : pSceneDoc->GetSimulationSpeed();
+
+    if (msg.m_bSimulateWorld && pSceneDoc->GetStepSimulation())
+    {
+      msg.m_fSimulationSpeed = 1.0f;
+      pSceneDoc->SetStepSimulation(false);
+    }
+
     GetEditorEngineConnection()->SendMessage(&msg);
   }
   {
@@ -289,16 +303,20 @@ void ezQtSceneDocumentWindowBase::SendRedrawMsg()
   }
 }
 
-void ezQtSceneDocumentWindowBase::ExtendPropertyGridContextMenu(
-  QMenu& menu, const ezHybridArray<ezPropertySelection, 8>& items, const ezAbstractProperty* pProp)
+void ezQtSceneDocumentWindowBase::ExtendPropertyGridContextMenu(QMenu& menu, ezQtPropertyWidget* pPropWidget)
 {
   if (!GetSceneDocument()->IsPrefab())
     return;
 
+  const ezRTTI* pType = pPropWidget->GetType();
+  const ezAbstractProperty* pProp = pPropWidget->GetProperty();
+  ezObjectAccessorBase* pAccessor = pPropWidget->GetObjectAccessor();
+  const ezTempHybridArray<ezPropertySelection, 8>& items = pPropWidget->GetSelection();
+
   ezUInt32 iExposed = 0;
   for (ezUInt32 i = 0; i < items.GetCount(); i++)
   {
-    ezInt32 index = GetSceneDocument()->FindExposedParameter(items[i].m_pObject, pProp, items[i].m_Index);
+    ezInt32 index = GetSceneDocument()->FindExposedParameter(pAccessor, items[i].m_pObject, pType, pProp, items[i].m_Index);
     if (index != -1)
       iExposed++;
   }
@@ -306,7 +324,7 @@ void ezQtSceneDocumentWindowBase::ExtendPropertyGridContextMenu(
   {
     QAction* pAction = menu.addAction("Expose as Parameter");
     pAction->setEnabled(iExposed < items.GetCount());
-    connect(pAction, &QAction::triggered, pAction, [this, &menu, &items, pProp]()
+    connect(pAction, &QAction::triggered, pAction, [this, &menu, &items, pAccessor, pType, pProp]()
       {
       while (true)
       {
@@ -323,14 +341,13 @@ void ezQtSceneDocumentWindowBase::ExtendPropertyGridContextMenu(
           continue; // try again
         }
 
-        auto pAccessor = GetSceneDocument()->GetObjectAccessor();
         pAccessor->StartTransaction("Expose as Parameter");
         for (const ezPropertySelection& sel : items)
         {
-          ezInt32 index = GetSceneDocument()->FindExposedParameter(sel.m_pObject, pProp, sel.m_Index);
+          ezInt32 index = GetSceneDocument()->FindExposedParameter(pAccessor, sel.m_pObject, pType, pProp, sel.m_Index);
           if (index == -1)
           {
-            GetSceneDocument()->AddExposedParameter(name.toUtf8(), sel.m_pObject, pProp, sel.m_Index).LogFailure();
+            GetSceneDocument()->AddExposedParameter(name.toUtf8(), pAccessor, sel.m_pObject, pType, pProp, sel.m_Index).LogFailure();
           }
         }
         pAccessor->FinishTransaction();
@@ -340,13 +357,12 @@ void ezQtSceneDocumentWindowBase::ExtendPropertyGridContextMenu(
   {
     QAction* pAction = menu.addAction("Remove Exposed Parameter");
     pAction->setEnabled(iExposed > 0);
-    connect(pAction, &QAction::triggered, pAction, [this, &menu, &items, pProp]()
+    connect(pAction, &QAction::triggered, pAction, [this, &menu, &items, pAccessor, pType, pProp]()
       {
-      auto pAccessor = GetSceneDocument()->GetObjectAccessor();
       pAccessor->StartTransaction("Remove Exposed Parameter");
       for (const ezPropertySelection& sel : items)
       {
-        ezInt32 index = GetSceneDocument()->FindExposedParameter(sel.m_pObject, pProp, sel.m_Index);
+        ezInt32 index = GetSceneDocument()->FindExposedParameter(pAccessor, sel.m_pObject, pType, pProp, sel.m_Index);
         if (index != -1)
         {
           GetSceneDocument()->RemoveExposedParameter(index).LogFailure();

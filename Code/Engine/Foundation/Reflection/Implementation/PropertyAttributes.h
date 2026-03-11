@@ -432,10 +432,11 @@ public:
   static constexpr ezStringView CubemapsLdrAndHdr = "*.dds;*.hdr"_ezsv;
 
   ezFileBrowserAttribute() = default;
-  ezFileBrowserAttribute(ezStringView sDialogTitle, ezStringView sTypeFilter, ezStringView sCustomAction = {}, ezBitflags<ezDependencyFlags> depencyFlags = ezDependencyFlags::Transform | ezDependencyFlags::Thumbnail)
+  ezFileBrowserAttribute(ezStringView sDialogTitle, ezStringView sTypeFilter, ezStringView sCustomAction = {}, ezStringView sCreateTitle = {}, ezBitflags<ezDependencyFlags> depencyFlags = ezDependencyFlags::Transform | ezDependencyFlags::Thumbnail)
     : m_sDialogTitle(sDialogTitle)
     , m_sTypeFilter(sTypeFilter)
     , m_sCustomAction(sCustomAction)
+    , m_sCreateTitle(sCreateTitle)
     , m_DependencyFlags(depencyFlags)
   {
   }
@@ -443,12 +444,14 @@ public:
   ezStringView GetDialogTitle() const { return m_sDialogTitle; }
   ezStringView GetTypeFilter() const { return m_sTypeFilter; }
   ezStringView GetCustomAction() const { return m_sCustomAction; }
+  ezStringView GetCreateTitle() const { return m_sCreateTitle; }
   ezBitflags<ezDependencyFlags> GetDependencyFlags() const { return m_DependencyFlags; }
 
 private:
   ezUntrackedString m_sDialogTitle;
   ezUntrackedString m_sTypeFilter;
   ezUntrackedString m_sCustomAction;
+  ezUntrackedString m_sCreateTitle;
   ezBitflags<ezDependencyFlags> m_DependencyFlags;
 };
 
@@ -576,6 +579,16 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
+/// Base class for property attributes that activate an in-viewport manipulator gizmo.
+///
+/// Attach a subclass of this attribute to a reflected property or type to signal that an
+/// interactive gizmo should appear in the viewport when the object is selected. The attribute
+/// names up to six properties that the manipulator reads and writes. Which properties are used
+/// depends on the concrete subclass.
+///
+/// The editor discovers this attribute through the reflection system. The ManipulatorManager
+/// tracks which manipulator is active per document and drives the ManipulatorAdapterRegistry,
+/// which instantiates the corresponding ezManipulatorAdapter to handle the actual gizmo logic.
 class EZ_FOUNDATION_DLL ezManipulatorAttribute : public ezPropertyAttribute
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezManipulatorAttribute, ezPropertyAttribute);
@@ -723,6 +736,35 @@ public:
   ezBoneManipulatorAttribute(const char* szTransformProperty, const char* szBindTo);
 
   const ezUntrackedString& GetTransformProperty() const { return m_sProperty1; }
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_FOUNDATION_DLL ezSplineManipulatorAttribute : public ezManipulatorAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezSplineManipulatorAttribute, ezManipulatorAttribute);
+
+public:
+  ezSplineManipulatorAttribute();
+  ezSplineManipulatorAttribute(const char* szNodesProperty, const char* szClosedProperty, const char* szBindTo);
+
+  const ezUntrackedString& GetNodesProperty() const { return m_sProperty1; }
+  const ezUntrackedString& GetClosedProperty() const { return m_sProperty2; }
+  const ezUntrackedString& GetBindTo() const { return m_sProperty3; }
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_FOUNDATION_DLL ezSplineTangentManipulatorAttribute : public ezManipulatorAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezSplineTangentManipulatorAttribute, ezManipulatorAttribute);
+
+public:
+  ezSplineTangentManipulatorAttribute();
+  ezSplineTangentManipulatorAttribute(const char* szTangentMode, const char* szCustomTangent);
+
+  const ezUntrackedString& GetTangentModeProperty() const { return m_sProperty1; }
+  const ezUntrackedString& GetCustomTangentProperty() const { return m_sProperty2; }
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -998,7 +1040,7 @@ class EZ_FOUNDATION_DLL ezScriptableFunctionAttribute : public ezPropertyAttribu
 
   ezScriptableFunctionAttribute(ArgType argType1 = In, const char* szArg1 = nullptr, ArgType argType2 = In, const char* szArg2 = nullptr,
     ArgType argType3 = In, const char* szArg3 = nullptr, ArgType argType4 = In, const char* szArg4 = nullptr, ArgType argType5 = In,
-    const char* szArg5 = nullptr, ArgType argType6 = In, const char* szArg6 = nullptr);
+    const char* szArg5 = nullptr, ArgType argType6 = In, const char* szArg6 = nullptr, ArgType argType7 = In, const char* szArg7 = nullptr, ArgType argType8 = In, const char* szArg8 = nullptr, ArgType argType9 = In, const char* szArg9 = nullptr, ArgType argType10 = In, const char* szArg10 = nullptr, ArgType argType11 = In, const char* szArg11 = nullptr, ArgType argType12 = In, const char* szArg12 = nullptr);
 
   ezUInt32 GetArgumentCount() const { return m_ArgNames.GetCount(); }
   const char* GetArgumentName(ezUInt32 uiIndex) const { return m_ArgNames[uiIndex]; }
@@ -1024,6 +1066,8 @@ class EZ_FOUNDATION_DLL ezFunctionArgumentAttributes : public ezPropertyAttribut
 
 private:
   ezUInt32 m_uiArgIndex = 0;
+  // Not pretty, but the values in the array are either created using 'new' when using this class as a reflection decoration, or created using 'EZ_DEFAULT_NEW' when serialized and sent to the editor so in the dtor we need to know where these came from.
+  bool m_bUsesGlobalNew = false;
   ezHybridArray<const ezPropertyAttribute*, 4> m_ArgAttributes;
 };
 
@@ -1097,4 +1141,27 @@ public:
   }
 
   ezUntrackedString m_sImageGenerator;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+/// \brief Attribute that turns a string property into a selector for an RTTI type.
+///
+/// The base type defines what types to display.
+/// For example if "ezComponent" is passed in, only types derived from ezComponent are listed.
+class EZ_FOUNDATION_DLL ezRttiTypeStringAttribute : public ezTypeWidgetAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezRttiTypeStringAttribute, ezTypeWidgetAttribute);
+
+public:
+  ezRttiTypeStringAttribute() = default;
+  ezRttiTypeStringAttribute(const char* szBaseType)
+    : m_sBaseType(szBaseType)
+  {
+  }
+
+  const char* GetBaseType() const { return m_sBaseType; }
+
+private:
+  ezUntrackedString m_sBaseType;
 };

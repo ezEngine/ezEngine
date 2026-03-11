@@ -79,15 +79,15 @@ ezVec3 ezGameGrid<CellData>::GetCellLocalSpaceOrigin(const ezVec2I32& vCoord) co
 }
 
 template <class CellData>
-ezVec3 ezGameGrid<CellData>::GetCellWorldSpaceCenter(const ezVec2I32& vCoord) const
+ezVec3 ezGameGrid<CellData>::GetCellWorldSpaceCenter(const ezVec2I32& vCoord, float fHeight) const
 {
-  return m_vWorldSpaceOrigin + m_mRotateToWorldspace * GetCellLocalSpaceCenter(vCoord);
+  return m_vWorldSpaceOrigin + m_mRotateToWorldspace * GetCellLocalSpaceCenter(vCoord, fHeight);
 }
 
 template <class CellData>
-ezVec3 ezGameGrid<CellData>::GetCellLocalSpaceCenter(const ezVec2I32& vCoord) const
+ezVec3 ezGameGrid<CellData>::GetCellLocalSpaceCenter(const ezVec2I32& vCoord, float fHeight) const
 {
-  return m_vLocalSpaceCellSize.CompMul(ezVec3((float)vCoord.x + 0.5f, (float)vCoord.y + 0.5f, 0.5f));
+  return m_vLocalSpaceCellSize.CompMul(ezVec3((float)vCoord.x + 0.5f, (float)vCoord.y + 0.5f, fHeight));
 }
 
 template <class CellData>
@@ -104,7 +104,7 @@ bool ezGameGrid<CellData>::PickCell(const ezVec3& vRayStartPos, const ezVec3& vR
 
   ezVec3 vPos;
 
-  if (!p.GetRayIntersection(vRayStartPos, vRayDirNorm, nullptr, &vPos))
+  if (!p.GetRayIntersectionBiDirectional(vRayStartPos, vRayDirNorm, nullptr, &vPos))
     return false;
 
   if (out_pIntersection)
@@ -199,4 +199,220 @@ void ezGameGrid<CellData>::ComputeWorldSpaceCorners(ezVec3* pCorners) const
   pCorners[1] = m_vWorldSpaceOrigin + m_mRotateToWorldspace * ezVec3(m_uiGridSizeX * m_vLocalSpaceCellSize.x, 0, 0);
   pCorners[2] = m_vWorldSpaceOrigin + m_mRotateToWorldspace * ezVec3(0, m_uiGridSizeY * m_vLocalSpaceCellSize.y, 0);
   pCorners[3] = m_vWorldSpaceOrigin + m_mRotateToWorldspace * ezVec3(m_uiGridSizeX * m_vLocalSpaceCellSize.x, m_uiGridSizeY * m_vLocalSpaceCellSize.y, 0);
+}
+
+
+template <class CellData>
+ezResult ezGameGrid<CellData>::Serialize(ezStreamWriter& ref_stream) const
+{
+  auto& stream = ref_stream;
+
+  stream.WriteVersion(1);
+
+  stream << m_uiGridSizeX;
+  stream << m_uiGridSizeY;
+  stream << m_mRotateToWorldspace;
+  stream << m_mRotateToGridspace;
+  stream << m_vWorldSpaceOrigin;
+  stream << m_vLocalSpaceCellSize;
+  stream << m_vInverseLocalSpaceCellSize;
+  EZ_SUCCEED_OR_RETURN(stream.WriteArray(m_Cells));
+
+  return EZ_SUCCESS;
+}
+
+template <class CellData>
+ezResult ezGameGrid<CellData>::Deserialize(ezStreamReader& ref_stream)
+{
+  auto& stream = ref_stream;
+
+  const ezTypeVersion version = stream.ReadVersion(1);
+  EZ_IGNORE_UNUSED(version);
+
+  stream >> m_uiGridSizeX;
+  stream >> m_uiGridSizeY;
+  stream >> m_mRotateToWorldspace;
+  stream >> m_mRotateToGridspace;
+  stream >> m_vWorldSpaceOrigin;
+  stream >> m_vLocalSpaceCellSize;
+  stream >> m_vInverseLocalSpaceCellSize;
+  EZ_SUCCEED_OR_RETURN(stream.ReadArray(m_Cells));
+
+  return EZ_SUCCESS;
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+template <class CellData, class EdgeData>
+void ezGameGridWithEdges<CellData, EdgeData>::ConvertEdgeIndexToCellCoords(ezUInt32 uiEdgeIndex, ezVec2I32& out_vCell1, ezVec2I32& out_vCell2) const
+{
+  const ezUInt32 uiOffsetY = (this->m_uiGridSizeX + 1) * this->m_uiGridSizeY;
+
+
+  if (uiEdgeIndex < uiOffsetY)
+  {
+    out_vCell1.y = uiEdgeIndex / (this->m_uiGridSizeX + 1);
+    out_vCell1.x = uiEdgeIndex - out_vCell1.y * (this->m_uiGridSizeX + 1);
+
+    out_vCell2 = out_vCell1;
+    out_vCell2.x += 1;
+  }
+  else
+  {
+    uiEdgeIndex -= uiOffsetY;
+
+    out_vCell1.x = uiEdgeIndex / (this->m_uiGridSizeY + 1);
+    out_vCell1.y = uiEdgeIndex - out_vCell1.x * (this->m_uiGridSizeY + 1);
+
+    out_vCell2 = out_vCell1;
+    out_vCell2.y += 1;
+  }
+}
+
+template <class CellData, class EdgeData>
+ezUInt32 ezGameGridWithEdges<CellData, EdgeData>::ConvertCellCoordinateToEdgeIndex(const ezVec2I32& vCoord, ezGameGridCellEdge edge) const
+{
+  const ezUInt32 uiOffsetY = (this->m_uiGridSizeX + 1) * this->m_uiGridSizeY;
+
+  switch (edge)
+  {
+    case ezGameGridCellEdge::NegX:
+      return vCoord.y * (this->m_uiGridSizeX + 1) + vCoord.x;
+
+    case ezGameGridCellEdge::PosX:
+      return vCoord.y * (this->m_uiGridSizeX + 1) + vCoord.x + 1;
+
+    case ezGameGridCellEdge::NegY:
+      return uiOffsetY + vCoord.x * (this->m_uiGridSizeY + 1) + vCoord.y;
+
+    case ezGameGridCellEdge::PosY:
+      return uiOffsetY + vCoord.x * (this->m_uiGridSizeY + 1) + vCoord.y + 1;
+
+      EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+  }
+
+  return 0;
+}
+
+template <class CellData, class EdgeData>
+void ezGameGridWithEdges<CellData, EdgeData>::CreateGrid(ezUInt16 uiSizeX, ezUInt16 uiSizeY)
+{
+  ezGameGrid<CellData>::CreateGrid(uiSizeX, uiSizeY);
+
+  m_Edges.Clear();
+  m_Edges.SetCount(uiSizeX * uiSizeY * 2 + uiSizeX + uiSizeY);
+}
+
+template <class CellData, class EdgeData>
+ezResult ezGameGridWithEdges<CellData, EdgeData>::Serialize(ezStreamWriter& ref_stream) const
+{
+  auto& stream = ref_stream;
+
+  ezGameGrid<CellData>::Serialize(stream);
+
+  stream.WriteVersion(1);
+
+  EZ_SUCCEED_OR_RETURN(stream.WriteArray(m_Edges));
+
+  return EZ_SUCCESS;
+}
+
+template <class CellData, class EdgeData>
+ezResult ezGameGridWithEdges<CellData, EdgeData>::Deserialize(ezStreamReader& ref_stream)
+{
+  auto& stream = ref_stream;
+
+  ezGameGrid<CellData>::Deserialize(stream);
+
+  const ezTypeVersion version = stream.ReadVersion(1);
+  EZ_IGNORE_UNUSED(version);
+
+  EZ_SUCCEED_OR_RETURN(stream.ReadArray(m_Edges));
+
+  return EZ_SUCCESS;
+}
+
+
+template <class CellData, class EdgeData>
+ezVec3 ezGameGridWithEdges<CellData, EdgeData>::GetEdgeWorldSpaceCenter(ezUInt32 uiEdgeIndex, float fHeight) const
+{
+  return this->m_vWorldSpaceOrigin + this->m_mRotateToWorldspace * GetEdgeLocalSpaceCenter(uiEdgeIndex, fHeight);
+}
+
+template <class CellData, class EdgeData>
+ezVec3 ezGameGridWithEdges<CellData, EdgeData>::GetEdgeLocalSpaceCenter(ezUInt32 uiEdgeIndex, float fHeight) const
+{
+  const ezUInt32 uiOffsetY = (this->m_uiGridSizeX + 1) * this->m_uiGridSizeY;
+
+  if (uiEdgeIndex < uiOffsetY)
+  {
+    // Horizontal edge (parallel to X axis)
+    const ezUInt32 y = uiEdgeIndex / (this->m_uiGridSizeX + 1);
+    const ezUInt32 x = uiEdgeIndex - y * (this->m_uiGridSizeX + 1);
+
+    return this->m_vLocalSpaceCellSize.CompMul(ezVec3((float)x, (float)y + 0.5f, fHeight));
+  }
+  else
+  {
+    // Vertical edge (parallel to Y axis)
+    const ezUInt32 uiAdjustedIndex = uiEdgeIndex - uiOffsetY;
+    const ezUInt32 x = uiAdjustedIndex / (this->m_uiGridSizeY + 1);
+    const ezUInt32 y = uiAdjustedIndex - x * (this->m_uiGridSizeY + 1);
+
+    return this->m_vLocalSpaceCellSize.CompMul(ezVec3((float)x + 0.5f, (float)y, fHeight));
+  }
+}
+
+template <class CellData, class EdgeData>
+bool ezGameGridWithEdges<CellData, EdgeData>::IsValidEdgeIndex(ezUInt32 uiEdgeIndex) const
+{
+  return uiEdgeIndex < m_Edges.GetCount();
+}
+
+template <class CellData, class EdgeData>
+bool ezGameGridWithEdges<CellData, EdgeData>::IsEdgeHorizontal(ezUInt32 uiEdgeIndex) const
+{
+  const ezUInt32 uiOffsetY = (this->m_uiGridSizeX + 1) * this->m_uiGridSizeY;
+  return uiEdgeIndex < uiOffsetY;
+}
+
+template <class CellData, class EdgeData>
+bool ezGameGridWithEdges<CellData, EdgeData>::GetRayIntersectionWithEdge(const ezVec3& vRayStartWorldSpace,
+  const ezVec3& vRayDirNormalizedWorldSpace, float fMaxLength, float& out_fIntersection, ezVec2I32& out_vCellCoord, ezGameGridCellEdge& out_edge) const
+{
+  // First find which cell is hit
+  if (!this->GetRayIntersection(vRayStartWorldSpace, vRayDirNormalizedWorldSpace, fMaxLength, out_fIntersection, out_vCellCoord))
+    return false;
+
+  // Calculate the intersection point in world space
+  const ezVec3 vIntersectionWorld = vRayStartWorldSpace + vRayDirNormalizedWorldSpace * out_fIntersection;
+
+  // Transform intersection point to local space
+  const ezVec3 vIntersectionLocal = this->m_mRotateToGridspace * (vIntersectionWorld - this->m_vWorldSpaceOrigin);
+
+  // Get the cell center in local space
+  const ezVec3 vCellCenter = this->GetCellLocalSpaceCenter(out_vCellCoord);
+
+  // Calculate the offset from cell center to intersection point
+  const ezVec3 vOffset = vIntersectionLocal - vCellCenter;
+
+  // Determine which edge is closest based on the offset direction
+  // Compare absolute values to find the dominant axis
+  const float fAbsX = ezMath::Abs(vOffset.x);
+  const float fAbsY = ezMath::Abs(vOffset.y);
+
+  if (fAbsX > fAbsY)
+  {
+    // Closer to a vertical edge (NegX or PosX)
+    out_edge = (vOffset.x < 0.0f) ? ezGameGridCellEdge::NegX : ezGameGridCellEdge::PosX;
+  }
+  else
+  {
+    // Closer to a horizontal edge (NegY or PosY)
+    out_edge = (vOffset.y < 0.0f) ? ezGameGridCellEdge::NegY : ezGameGridCellEdge::PosY;
+  }
+
+  return true;
 }

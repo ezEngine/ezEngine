@@ -19,19 +19,33 @@ namespace ezModelImporter2
   class aiLogStreamError : public Assimp::LogStream
   {
   public:
-    void write(const char* szMessage) { ezLog::Warning("AssImp: {0}", szMessage); }
+    void write(const char* szMessage)
+    {
+      if (ezStringUtils::FindSubString(szMessage, "unexpected illumination model") != nullptr)
+        return;
+      if (ezStringUtils::FindSubString(szMessage, "This algorithm works on triangle meshes only") != nullptr)
+        return;
+
+      ezLog::Warning("AssImp: {0}", szMessage);
+    }
   };
 
   class aiLogStreamWarning : public Assimp::LogStream
   {
   public:
-    void write(const char* szMessage) { ezLog::Warning("AssImp: {0}", szMessage); }
+    void write(const char* szMessage)
+    {
+      ezLog::Warning("AssImp: {0}", szMessage);
+    }
   };
 
   class aiLogStreamInfo : public Assimp::LogStream
   {
   public:
-    void write(const char* szMessage) { ezLog::Dev("AssImp: {0}", szMessage); }
+    void write(const char* szMessage)
+    {
+      ezLog::Debug("AssImp: {0}", szMessage);
+    }
   };
 
   ezResult ImporterAssimp::DoImport()
@@ -117,7 +131,7 @@ namespace ezModelImporter2
       {
         if (m_Options.m_pMeshOutput->MeshBufferDesc().RecomputeNormals().Failed())
         {
-          ezLog::Error("Recomputing the mesh normals failed.");
+          ezLog::Warning("Recomputing some mesh normals failed.");
           // do not return failure here, because we can still continue
         }
       }

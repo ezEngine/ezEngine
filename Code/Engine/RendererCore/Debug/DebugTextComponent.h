@@ -32,6 +32,8 @@ public:
   float m_fValue2 = 0.0f;                                         // [ property ]
   float m_fValue3 = 0.0f;                                         // [ property ]
 
+  float m_fMaxDistance = 10.0f;                                   // [ property ]
+
 protected:
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const; // [ msg handler ]
 };

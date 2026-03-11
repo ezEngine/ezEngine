@@ -10,9 +10,11 @@
 #include <Jolt/Core/StringTools.h>
 #include <Jolt/Core/UnorderedSet.h>
 
+#ifdef JPH_CONVEX_BUILDER_DUMP_SHAPE
 JPH_SUPPRESS_WARNINGS_STD_BEGIN
 #include <fstream>
 JPH_SUPPRESS_WARNINGS_STD_END
+#endif // JPH_CONVEX_BUILDER_DUMP_SHAPE
 
 #ifdef JPH_CONVEX_BUILDER_DEBUG
 	#include <Jolt/Renderer/DebugRenderer.h>
@@ -225,8 +227,7 @@ bool ConvexHullBuilder::AssignPointToFace(int inPositionIdx, const Faces &inFace
 			else
 			{
 				// Not the furthest point, add it as the before last point
-				best_face->mConflictList.push_back(best_face->mConflictList.back());
-				best_face->mConflictList[best_face->mConflictList.size() - 2] = inPositionIdx;
+				best_face->mConflictList.insert(best_face->mConflictList.begin() + best_face->mConflictList.size() - 1, inPositionIdx);
 			}
 
 			return true;
@@ -248,6 +249,7 @@ float ConvexHullBuilder::DetermineCoplanarDistance() const
 int ConvexHullBuilder::GetNumVerticesUsed() const
 {
 	UnorderedSet<int> used_verts;
+	used_verts.reserve(UnorderedSet<int>::size_type(mPositions.size()));
 	for (Face *f : mFaces)
 	{
 		Edge *e = f->mFirstEdge;
@@ -265,7 +267,7 @@ bool ConvexHullBuilder::ContainsFace(const Array<int> &inIndices) const
 	for (Face *f : mFaces)
 	{
 		Edge *e = f->mFirstEdge;
-		Array<int>::const_iterator index = find(inIndices.begin(), inIndices.end(), e->mStartIdx);
+		Array<int>::const_iterator index = std::find(inIndices.begin(), inIndices.end(), e->mStartIdx);
 		if (index != inIndices.end())
 		{
 			size_t matches = 0;
@@ -466,7 +468,7 @@ ConvexHullBuilder::EResult ConvexHullBuilder::Initialize(int inMaxVertices, floa
 
 	// Ensure the planes are facing outwards
 	if (max_dist < 0.0f)
-		swap(idx2, idx3);
+		std::swap(idx2, idx3);
 
 	// Create tetrahedron
 	Face *t1 = CreateTriangle(idx1, idx2, idx4);
@@ -552,7 +554,7 @@ ConvexHullBuilder::EResult ConvexHullBuilder::Initialize(int inMaxVertices, floa
 				}
 
 				// Swap it to the end
-				swap(mCoplanarList[best_idx], mCoplanarList.back());
+				std::swap(mCoplanarList[best_idx], mCoplanarList.back());
 
 				// Remove it
 				furthest_point_idx = mCoplanarList.back().mPositionIdx;
@@ -1007,7 +1009,7 @@ void ConvexHullBuilder::MergeCoplanarOrConcaveFaces(Face *inFace, float inCoplan
 
 void ConvexHullBuilder::sMarkAffected(Face *inFace, Faces &ioAffectedFaces)
 {
-	if (find(ioAffectedFaces.begin(), ioAffectedFaces.end(), inFace) == ioAffectedFaces.end())
+	if (std::find(ioAffectedFaces.begin(), ioAffectedFaces.end(), inFace) == ioAffectedFaces.end())
 		ioAffectedFaces.push_back(inFace);
 }
 

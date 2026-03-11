@@ -4,8 +4,8 @@
 
 #  include <Foundation/Types/Uuid.h>
 
-#  include <Foundation/Basics/Platform/Android/AndroidJni.h>
-#  include <Foundation/Basics/Platform/Android/AndroidUtils.h>
+#  include <Foundation/Platform/Android/Utils/AndroidJni.h>
+#  include <Foundation/Platform/Android/Utils/AndroidUtils.h>
 #  include <android_native_app_glue.h>
 
 ezUuid ezUuid::MakeUuid()

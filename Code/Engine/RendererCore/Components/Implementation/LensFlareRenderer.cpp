@@ -11,7 +11,7 @@
 #include <RendererFoundation/Shader/ShaderUtils.h>
 
 #include <Shaders/Materials/LensFlareData.h>
-EZ_CHECK_AT_COMPILETIME(sizeof(ezPerLensFlareData) == 48);
+static_assert(sizeof(ezPerLensFlareData) == 48);
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLensFlareRenderer, 1, ezRTTIDefaultAllocator<ezLensFlareRenderer>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -23,14 +23,9 @@ ezLensFlareRenderer::ezLensFlareRenderer()
 
 ezLensFlareRenderer::~ezLensFlareRenderer() = default;
 
-void ezLensFlareRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& ref_types) const
+void ezLensFlareRenderer::GetSupportedRenderDataTypes(ezDynamicArray<const ezRTTI*>& out_types) const
 {
-  ref_types.PushBack(ezGetStaticRTTI<ezLensFlareRenderData>());
-}
-
-void ezLensFlareRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& ref_categories) const
-{
-  ref_categories.PushBack(ezDefaultRenderDataCategories::LitTransparent);
+  out_types.PushBack(ezGetStaticRTTI<ezLensFlareRenderData>());
 }
 
 void ezLensFlareRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
@@ -40,21 +35,22 @@ void ezLensFlareRenderer::RenderBatch(const ezRenderViewContext& renderViewConte
 
   const ezLensFlareRenderData* pRenderData = batch.GetFirstData<ezLensFlareRenderData>();
 
-  const ezUInt32 uiBufferSize = ezMath::RoundUp(batch.GetCount(), 128u);
+  const ezUInt32 uiBufferSize = ezMath::RoundUp(batch.GetDataCount(), 128u);
   ezGALBufferHandle hLensFlareData = CreateLensFlareDataBuffer(uiBufferSize);
   EZ_SCOPE_EXIT(DeleteLensFlareDataBuffer(hLensFlareData));
 
+  ezBindGroupBuilder& bindGroupRenderPass = ezRenderContext::GetDefaultInstance()->GetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);
   pContext->BindShader(m_hShader);
-  pContext->BindBuffer("lensFlareData", pDevice->GetDefaultResourceView(hLensFlareData));
-  pContext->BindTexture2D("LensFlareTexture", pRenderData->m_hTexture);
+  bindGroupRenderPass.BindBuffer("lensFlareData", hLensFlareData);
+  bindGroupRenderPass.BindTexture("LensFlareTexture", pRenderData->m_hTexture);
 
   FillLensFlareData(batch);
 
   if (m_LensFlareData.GetCount() > 0) // Instance data might be empty if all render data was filtered.
   {
-    pContext->GetCommandEncoder()->UpdateBuffer(hLensFlareData, 0, m_LensFlareData.GetByteArrayPtr());
+    pContext->GetCommandEncoder()->UpdateBuffer(hLensFlareData, 0, m_LensFlareData.GetByteArrayPtr(), ezGALUpdateMode::AheadOfTime);
 
-    pContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, m_LensFlareData.GetCount() * 2);
+    pContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, m_LensFlareData.GetCount() * 2);
     pContext->DrawMeshBuffer().IgnoreResult();
   }
 }
@@ -64,7 +60,7 @@ ezGALBufferHandle ezLensFlareRenderer::CreateLensFlareDataBuffer(ezUInt32 uiBuff
   ezGALBufferCreationDescription desc;
   desc.m_uiStructSize = sizeof(ezPerLensFlareData);
   desc.m_uiTotalSize = desc.m_uiStructSize * uiBufferSize;
-  desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
+  desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource | ezGALBufferUsageFlags::Transient;
   desc.m_ResourceAccess.m_bImmutable = false;
 
   return ezGPUResourcePool::GetDefaultInstance()->GetBuffer(desc);
@@ -78,14 +74,14 @@ void ezLensFlareRenderer::DeleteLensFlareDataBuffer(ezGALBufferHandle hBuffer) c
 void ezLensFlareRenderer::FillLensFlareData(const ezRenderDataBatch& batch) const
 {
   m_LensFlareData.Clear();
-  m_LensFlareData.Reserve(batch.GetCount());
+  m_LensFlareData.Reserve(batch.GetDataCount());
 
   for (auto it = batch.GetIterator<ezLensFlareRenderData>(); it.IsValid(); ++it)
   {
     const ezLensFlareRenderData* pRenderData = it;
 
     auto& LensFlareData = m_LensFlareData.ExpandAndGetRef();
-    LensFlareData.WorldSpacePosition = pRenderData->m_GlobalTransform.m_vPosition;
+    LensFlareData.WorldSpacePosition = pRenderData->m_vGlobalPosition;
     LensFlareData.Size = pRenderData->m_fSize;
     LensFlareData.MaxScreenSize = pRenderData->m_fMaxScreenSize;
     LensFlareData.OcclusionRadius = pRenderData->m_fOcclusionSampleRadius;

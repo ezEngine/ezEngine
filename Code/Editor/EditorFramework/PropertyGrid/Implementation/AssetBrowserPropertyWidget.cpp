@@ -27,8 +27,9 @@ ezQtAssetPropertyWidget::ezQtAssetPropertyWidget()
   setFocusProxy(m_pWidget);
 
   EZ_VERIFY(connect(m_pWidget, SIGNAL(editingFinished()), this, SLOT(on_TextFinished_triggered())) != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(connect(m_pWidget, SIGNAL(textChanged(const QString&)), this, SLOT(on_TextChanged_triggered(const QString&))) != nullptr,
-    "signal/slot connection failed");
+  EZ_VERIFY(connect(m_pWidget, SIGNAL(textChanged(const QString&)), this, SLOT(on_TextChanged_triggered(const QString&))) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(m_pWidget, SIGNAL(OpenAsset()), this, SLOT(OnOpenAssetDocument())) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(m_pWidget, SIGNAL(SelectAsset()), this, SLOT(on_BrowseFile_clicked())) != nullptr, "signal/slot connection failed");
 
   m_pButton = new QToolButton(this);
   m_pButton->setText(QStringLiteral("... "));
@@ -163,7 +164,8 @@ void ezQtAssetPropertyWidget::InternalSetValue(const ezVariant& value)
         m_pButton->setIcon(QIcon());
         m_pButton->setToolButtonStyle(Qt::ToolButtonStyle::ToolButtonTextOnly);
 
-        m_Pal.setColor(QPalette::Text, Qt::red);
+        m_Pal.setColor(QPalette::Active, QPalette::Text, Qt::red);
+        m_Pal.setColor(QPalette::Inactive, QPalette::Text, Qt::red);
         m_pWidget->setPalette(m_Pal);
 
         return;
@@ -210,13 +212,14 @@ void ezQtAssetPropertyWidget::InternalSetValue(const ezVariant& value)
       const QColor validColor = ezToQtColor(ezColorScheme::LightUI(ezColorScheme::Green));
       const QColor invalidColor = ezToQtColor(ezColorScheme::LightUI(ezColorScheme::Red));
 
-      m_Pal.setColor(QPalette::Text, m_AssetGuid.IsValid() ? validColor : invalidColor);
+      m_Pal.setColor(QPalette::Active, QPalette::Text, m_AssetGuid.IsValid() ? validColor : invalidColor);
+      m_Pal.setColor(QPalette::Inactive, QPalette::Text, m_AssetGuid.IsValid() ? validColor : invalidColor);
       m_pWidget->setPalette(m_Pal);
 
       if (m_AssetGuid.IsValid())
-        m_pWidget->setToolTip(QStringLiteral("The selected file resolved to a valid asset GUID"));
+        m_pWidget->setToolTip(QStringLiteral("Valid asset selected.\n\nCTRL+LMB or MMB to open the asset document.\nSHIFT+LMB to select a different asset."));
       else
-        m_pWidget->setToolTip(QStringLiteral("The selected file is not a valid asset"));
+        m_pWidget->setToolTip(QStringLiteral("The selected file is not a valid asset."));
     }
 
     m_pWidget->setPlaceholderText(QString());
@@ -243,7 +246,7 @@ void ezQtAssetPropertyWidget::FillAssetMenu(QMenu& menu)
   menu.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder.svg")), QLatin1String("Open in Explorer"), this, SLOT(OnOpenExplorer()))->setEnabled(bAsset);
   menu.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Guid.svg")), QLatin1String("Copy Asset Guid"), this, SLOT(OnCopyAssetGuid()))->setEnabled(bAsset);
   menu.addAction(QIcon(), QLatin1String("Create New Asset"), this, SLOT(OnCreateNewAsset()));
-  menu.addAction(QIcon(":/GuiFoundation/Icons/Delete.svg"), QLatin1String("Clear Asset Reference"), this, SLOT(OnClearReference()))->setEnabled(bAsset);
+  menu.addAction(QIcon(":/GuiFoundation/Icons/Clear.svg"), QLatin1String("Clear Asset Reference"), this, SLOT(OnClearReference()))->setEnabled(bAsset);
 }
 
 void ezQtAssetPropertyWidget::on_TextFinished_triggered()
@@ -288,8 +291,13 @@ void ezQtAssetPropertyWidget::ThumbnailInvalidated(QString sPath, ezUInt32 uiIma
 
 void ezQtAssetPropertyWidget::OnOpenAssetDocument()
 {
-  ezQtEditorApp::GetSingleton()->OpenDocumentQueued(
-    ezAssetCurator::GetSingleton()->GetSubAsset(m_AssetGuid)->m_pAssetInfo->m_Path.GetAbsolutePath(), GetSelection()[0].m_pObject);
+  if (!m_AssetGuid.IsValid())
+    return;
+
+  if (auto asset = ezAssetCurator::GetSingleton()->GetSubAsset(m_AssetGuid))
+  {
+    ezQtEditorApp::GetSingleton()->OpenDocumentQueued(asset->m_pAssetInfo->m_Path.GetAbsolutePath(), GetSelection()[0].m_pObject);
+  }
 }
 
 void ezQtAssetPropertyWidget::OnSelectInAssetBrowser()
@@ -365,7 +373,7 @@ void ezQtAssetPropertyWidget::OnCreateNewAsset()
   const ezAssetBrowserAttribute* pAssetAttribute = m_pProp->GetAttributeByType<ezAssetBrowserAttribute>();
   ezStringBuilder sTypeFilter = pAssetAttribute->GetTypeFilter();
 
-  ezHybridArray<ezString, 4> allowedTypes;
+  ezTempHybridArray<ezString, 4> allowedTypes;
   sTypeFilter.Split(false, allowedTypes, ";");
 
   ezStringBuilder tmp;
@@ -392,7 +400,7 @@ void ezQtAssetPropertyWidget::OnCreateNewAsset()
     {
       if (auto pAssetMan = ezDynamicCast<ezAssetDocumentManager*>(pMan))
       {
-        ezHybridArray<const ezDocumentTypeDescriptor*, 4> documentTypes;
+        ezTempHybridArray<const ezDocumentTypeDescriptor*, 4> documentTypes;
         pAssetMan->GetSupportedDocumentTypes(documentTypes);
 
         for (const ezDocumentTypeDescriptor* pType : documentTypes)
@@ -468,7 +476,7 @@ void ezQtAssetPropertyWidget::OnCreateNewAsset()
 
       ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Creating the document failed.");
 
-      if (res.m_Result.Succeeded())
+      if (res.Succeeded())
       {
         // if this is an asset, make sure it gets transformed, so that the output file exists
         // and make sure the filesystem knows about it (the asset lookup table is written)

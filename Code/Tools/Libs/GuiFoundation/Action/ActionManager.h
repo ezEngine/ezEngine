@@ -62,11 +62,11 @@ public:
   static ezActionDescriptorHandle RegisterAction(const ezActionDescriptor& desc);
   static bool UnregisterAction(ezActionDescriptorHandle& ref_hAction);
   static const ezActionDescriptor* GetActionDescriptor(ezActionDescriptorHandle hAction);
-  static ezActionDescriptorHandle GetActionHandle(const char* szCategory, const char* szActionName);
+  static ezActionDescriptorHandle GetActionHandle(ezStringView sCategory, ezStringView sActionName);
 
   /// \brief Searches all action categories for the given action name. Returns the category name in which the action name was found, or an empty
   /// string.
-  static ezString FindActionCategory(const char* szActionName);
+  static ezString FindActionCategory(ezStringView sActionName);
 
   /// \brief Quick way to execute an action from code
   ///
@@ -82,7 +82,7 @@ public:
   ///        some members are optional. E.g. for document actions, only the m_pDocument member must be specified.
   /// \param value Optional value passed through to the ezAction::Execute() call. Some actions use it, most don't.
   /// \return Returns failure in case the action could not be found.
-  static ezResult ExecuteAction(const char* szCategory, const char* szActionName, const ezActionContext& context, const ezVariant& value = ezVariant());
+  static ezResult ExecuteAction(ezStringView sCategory, ezStringView sActionName, const ezActionContext& context, const ezVariant& value = ezVariant());
 
   static void SaveShortcutAssignment();
   static void LoadShortcutAssignment();
@@ -115,7 +115,7 @@ private:
   struct CategoryData
   {
     ezSet<ezActionDescriptorHandle> m_Actions;
-    ezHashTable<const char*, ezActionDescriptorHandle> m_ActionNameToHandle;
+    ezHashTable<ezStringView, ezActionDescriptorHandle> m_ActionNameToHandle;
   };
 
 private:

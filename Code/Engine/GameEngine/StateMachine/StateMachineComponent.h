@@ -1,12 +1,11 @@
 #pragma once
 
-#include <Core/Messages/EventMessage.h>
 #include <GameEngine/StateMachine/StateMachineResource.h>
 
 /// \brief Message that is sent by ezStateMachineState_SendMsg once the state is entered.
-struct EZ_GAMEENGINE_DLL ezMsgStateMachineStateChanged : public ezEventMessage
+struct EZ_GAMEENGINE_DLL ezMsgStateMachineStateChanged : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgStateMachineStateChanged, ezEventMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgStateMachineStateChanged, ezMessage);
 
   ezHashedString m_sOldStateName;
   ezHashedString m_sNewStateName;
@@ -133,11 +132,8 @@ public:
   ezStateMachineInstance* GetStateMachineInstance() { return m_pStateMachineInstance.Borrow(); }
   const ezStateMachineInstance* GetStateMachineInstance() const { return m_pStateMachineInstance.Borrow(); }
 
-  void SetResource(const ezStateMachineResourceHandle& hResource);
-  const ezStateMachineResourceHandle& GetResource() const { return m_hResource; }
-
-  void SetResourceFile(const char* szFile); // [ property ]
-  const char* GetResourceFile() const;      // [ property ]
+  void SetResource(const ezStateMachineResourceHandle& hResource);                // [ property ]
+  const ezStateMachineResourceHandle& GetResource() const { return m_hResource; } // [ property ]
 
   /// \brief Defines which state should be used as initial state after the state machine was instantiated.
   /// If empty the state machine resource defines the initial state.

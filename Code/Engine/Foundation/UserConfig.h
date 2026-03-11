@@ -24,6 +24,10 @@
 #  undef EZ_USE_PROFILING
 #  define EZ_USE_PROFILING EZ_OFF
 
+// OS tracing features (ETW / LTTNG / Perfetto)
+#  undef EZ_USE_TRACING
+#  define EZ_USE_TRACING EZ_OFF
+
 // Tracking of memory allocations.
 #  undef EZ_ALLOC_TRACKING_DEFAULT
 #  define EZ_ALLOC_TRACKING_DEFAULT ezAllocatorTrackingMode::Nothing
@@ -38,9 +42,18 @@
 #  undef EZ_USE_PROFILING
 #  define EZ_USE_PROFILING EZ_ON
 
+// OS tracing features (ETW / LTTNG / Perfetto)
+#  undef EZ_USE_TRACING
+#  define EZ_USE_TRACING EZ_ON
+
 // Tracking of memory allocations.
 #  undef EZ_ALLOC_TRACKING_DEFAULT
-#  define EZ_ALLOC_TRACKING_DEFAULT ezAllocatorTrackingMode::AllocationStatsAndStacktraces
+
+#  if EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#    define EZ_ALLOC_TRACKING_DEFAULT ezAllocatorTrackingMode::AllocationStatsIgnoreLeaks
+#  else
+#    define EZ_ALLOC_TRACKING_DEFAULT ezAllocatorTrackingMode::AllocationStatsAndStacktraces
+#  endif
 
 #endif
 
@@ -54,7 +67,3 @@
 
 /// Whether game objects compute and store their velocity since the last frame (increases object size)
 #define EZ_GAMEOBJECT_VELOCITY EZ_ON
-
-// Migration code path. Added in March 2023, should be removed after a 'save' time.
-#undef EZ_MIGRATE_RUNTIMECONFIGS
-#define EZ_MIGRATE_RUNTIMECONFIGS EZ_ON

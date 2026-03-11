@@ -38,7 +38,7 @@ void ezParticleWorldModule::Initialize()
 
   {
     auto updateDesc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezParticleWorldModule::UpdateEffects, this);
-    updateDesc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PreAsync;
+    updateDesc.m_Phase = ezWorldUpdatePhase::PreAsync;
     updateDesc.m_bOnlyUpdateWhenSimulating = true;
     updateDesc.m_fPriority = 1000.0f; // kick off particle tasks as early as possible
 
@@ -47,7 +47,7 @@ void ezParticleWorldModule::Initialize()
 
   {
     auto finishDesc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezParticleWorldModule::EnsureUpdatesFinished, this);
-    finishDesc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PostTransform;
+    finishDesc.m_Phase = ezWorldUpdatePhase::PostTransform;
     finishDesc.m_bOnlyUpdateWhenSimulating = true;
     finishDesc.m_fPriority = -1000.0f; // sync with particle tasks as late as possible
 

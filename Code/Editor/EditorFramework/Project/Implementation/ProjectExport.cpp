@@ -50,12 +50,20 @@ ezResult ezProjectExport::ScanFolder(ezSet<ezString>& out_Files, const char* szF
     sRelFilePath = sAbsFilePath;
     sRelFilePath.Shrink(uiRootFolderLength, 0); // keep the slash at the front -> useful for the pattern filter
 
-    if (!filter.PassesFilters(sRelFilePath))
+    ezStringBuilder filterRule;
+
+    if (!filter.PassesFilters(sRelFilePath, &filterRule))
     {
       if (it.GetStats().m_bIsDirectory)
+      {
+        ezLog::Info(" Skipping folder '{}' - doesn't pass filter rule '{}'.", sRelFilePath, filterRule);
         it.SkipFolder();
+      }
       else
+      {
+        ezLog::Info(" Skipping file '{}' - doesn't pass filter rule '{}'.", sRelFilePath, filterRule);
         it.Next();
+      }
 
       continue;
     }
@@ -144,7 +152,7 @@ ezResult ezProjectExport::CopyFiles(const char* szSrcFolder, const char* szDstFo
 
 ezResult ezProjectExport::GatherGeneratedAssetManagerFiles(ezSet<ezString>& out_Files)
 {
-  ezHybridArray<ezString, 4> addFiles;
+  ezTempHybridArray<ezString, 4> addFiles;
 
   for (auto pMan : ezDocumentManager::GetAllDocumentManagers())
   {
@@ -189,7 +197,7 @@ ezResult ezProjectExport::ReadExportFilters(ezPathPatternFilter& out_DataFilter,
   sDefine.SetFormat("PLATFORM_PROFILE_{} 1", pPlatformProfile->GetConfigName());
   sDefine.ToUpper();
 
-  ezHybridArray<ezString, 1> ppDefines;
+  ezTempHybridArray<ezString, 1> ppDefines;
   ppDefines.PushBack(sDefine);
 
   if (ezProjectExport::CreateExportFilterFile(":project/ProjectData.ezExportFilter", "CommonData.ezExportFilter").Failed())
@@ -410,7 +418,7 @@ ezResult ezProjectExport::ExportProject(const char* szTargetDirectory, const ezP
   mainProgress.SetStepWeighting(6, 0.01f); // Finish up
 
   ezStringBuilder sProjectRootDir;
-  ezHybridArray<ezString, 16> sceneFiles;
+  ezTempHybridArray<ezString, 16> sceneFiles;
   ezProjectExport::DirectoryMapping fileList;
 
   ezPathPatternFilter dataFilter;

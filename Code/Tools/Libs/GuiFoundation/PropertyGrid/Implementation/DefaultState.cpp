@@ -5,6 +5,7 @@
 #include <GuiFoundation/PropertyGrid/AttributeDefaultStateProvider.h>
 #include <GuiFoundation/PropertyGrid/DefaultState.h>
 #include <GuiFoundation/PropertyGrid/PrefabDefaultStateProvider.h>
+#include <GuiFoundation/PropertyGrid/VariantSubDefaultStateProvider.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
@@ -14,12 +15,14 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, DefaultState)
   {
     ezDefaultState::RegisterDefaultStateProvider(ezAttributeDefaultStateProvider::CreateProvider);
     ezDefaultState::RegisterDefaultStateProvider(ezPrefabDefaultStateProvider::CreateProvider);
+    ezDefaultState::RegisterDefaultStateProvider(ezVariantSubDefaultStateProvider::CreateProvider);
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
     ezDefaultState::UnregisterDefaultStateProvider(ezAttributeDefaultStateProvider::CreateProvider);
     ezDefaultState::UnregisterDefaultStateProvider(ezPrefabDefaultStateProvider::CreateProvider);
+    ezDefaultState::UnregisterDefaultStateProvider(ezVariantSubDefaultStateProvider::CreateProvider);
   }
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
@@ -39,8 +42,9 @@ void ezDefaultState::UnregisterDefaultStateProvider(CreateStateProviderFunc func
 
 //////////////////////////////////////////////////////////////////////////
 
-ezDefaultObjectState::ezDefaultObjectState(ezObjectAccessorBase* pAccessor, const ezArrayPtr<ezPropertySelection> selection)
+ezDefaultObjectState::ezDefaultObjectState(const ezRTTI* pType, ezObjectAccessorBase* pAccessor, const ezArrayPtr<ezPropertySelection> selection)
 {
+  m_pType = pType;
   m_pAccessor = pAccessor;
   m_Selection = selection;
   m_Providers.Reserve(m_Selection.GetCount());
@@ -72,7 +76,7 @@ ezString ezDefaultObjectState::GetStateProviderName() const
 
 bool ezDefaultObjectState::IsDefaultValue(const char* szProperty) const
 {
-  const ezAbstractProperty* pProp = m_Selection[0].m_pObject->GetTypeAccessor().GetType()->FindPropertyByName(szProperty);
+  const ezAbstractProperty* pProp = m_pType->FindPropertyByName(szProperty);
   return IsDefaultValue(pProp);
 }
 
@@ -91,7 +95,7 @@ bool ezDefaultObjectState::IsDefaultValue(const ezAbstractProperty* pProp) const
 
 ezStatus ezDefaultObjectState::RevertProperty(const char* szProperty)
 {
-  const ezAbstractProperty* pProp = m_Selection[0].m_pObject->GetTypeAccessor().GetType()->FindPropertyByName(szProperty);
+  const ezAbstractProperty* pProp = m_pType->FindPropertyByName(szProperty);
   return RevertProperty(pProp);
 }
 
@@ -115,7 +119,7 @@ ezStatus ezDefaultObjectState::RevertObject()
   {
     ezDefaultStateProvider::SuperArray super = m_Providers[i].GetArrayPtr().GetSubArray(1);
 
-    ezHybridArray<const ezAbstractProperty*, 32> properties;
+    ezTempHybridArray<const ezAbstractProperty*, 32> properties;
     m_Selection[i].m_pObject->GetType()->GetAllProperties(properties);
     for (auto pProp : properties)
     {
@@ -131,7 +135,7 @@ ezStatus ezDefaultObjectState::RevertObject()
 
 ezVariant ezDefaultObjectState::GetDefaultValue(const char* szProperty, ezUInt32 uiSelectionIndex) const
 {
-  const ezAbstractProperty* pProp = m_Selection[0].m_pObject->GetTypeAccessor().GetType()->FindPropertyByName(szProperty);
+  const ezAbstractProperty* pProp = m_pType->FindPropertyByName(szProperty);
   return GetDefaultValue(pProp, uiSelectionIndex);
 }
 
@@ -144,12 +148,13 @@ ezVariant ezDefaultObjectState::GetDefaultValue(const ezAbstractProperty* pProp,
 
 //////////////////////////////////////////////////////////////////////////
 
-ezDefaultContainerState::ezDefaultContainerState(ezObjectAccessorBase* pAccessor, const ezArrayPtr<ezPropertySelection> selection, const char* szProperty)
+ezDefaultContainerState::ezDefaultContainerState(const ezRTTI* pType, ezObjectAccessorBase* pAccessor, const ezArrayPtr<ezPropertySelection> selection, const char* szProperty)
 {
+  m_pType = pType;
   m_pAccessor = pAccessor;
   m_Selection = selection;
   // We assume selections can only contain objects of the same (base) type.
-  m_pProp = szProperty ? selection[0].m_pObject->GetTypeAccessor().GetType()->FindPropertyByName(szProperty) : nullptr;
+  m_pProp = szProperty ? m_pType->FindPropertyByName(szProperty) : nullptr;
   m_Providers.Reserve(m_Selection.GetCount());
   for (const ezPropertySelection& sel : m_Selection)
   {

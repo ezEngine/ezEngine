@@ -89,7 +89,7 @@ public:
 	inline Vec3					GetShapeScale() const						{ return Vec3::sLoadFloat3Unsafe(mShapeScale); }
 	inline void					SetShapeScale(Vec3Arg inScale)				{ inScale.StoreFloat3(&mShapeScale); }
 
-	/// Calculates the transform for this shapes's center of mass (excluding scale)
+	/// Calculates the transform for this shape's center of mass (excluding scale)
 	inline RMat44				GetCenterOfMassTransform() const			{ return RMat44::sRotationTranslation(mShapeRotation, mShapePositionCOM); }
 
 	/// Calculates the inverse of the transform for this shape's center of mass (excluding scale)
@@ -188,7 +188,7 @@ public:
 	SubShapeIDCreator			mSubShapeIDCreator;							///< Optional sub shape ID creator for the shape (can be used when expanding compound shapes into multiple transformed shapes)
 };
 
-static_assert(JPH_CPU_ADDRESS_BITS != 64 || sizeof(TransformedShape) == JPH_IF_SINGLE_PRECISION_ELSE(64, 96), "Not properly packed");
-static_assert(alignof(TransformedShape) == JPH_RVECTOR_ALIGNMENT, "Not properly aligned");
+static_assert(sizeof(void *) != 8 || JPH_RVECTOR_ALIGNMENT < 16 || sizeof(TransformedShape) == JPH_IF_SINGLE_PRECISION_ELSE(64, 96), "Not properly packed");
+static_assert(alignof(TransformedShape) == max(JPH_VECTOR_ALIGNMENT, JPH_RVECTOR_ALIGNMENT), "Not properly aligned");
 
 JPH_NAMESPACE_END

@@ -21,6 +21,7 @@ ezGALSharedTextureDX11::~ezGALSharedTextureDX11() = default;
 ezResult ezGALSharedTextureDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData)
 {
   ezGALDeviceDX11* pDXDevice = static_cast<ezGALDeviceDX11*>(pDevice);
+  m_pDevice = pDXDevice;
 
   EZ_ASSERT_DEBUG(m_SharedType != ezGALSharedTextureType::None, "Shared texture must either be exported or imported");
   EZ_ASSERT_DEBUG(m_Description.m_Type == ezGALTextureType::Texture2DShared, "Shared texture must be of type ezGALTextureType::Texture2DShared");
@@ -53,13 +54,13 @@ ezResult ezGALSharedTextureDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<e
     return EZ_SUCCESS;
   }
 
-  D3D11_TEXTURE2D_DESC Tex2DDesc;
+  D3D11_TEXTURE2D_DESC Tex2DDesc = {};
   EZ_SUCCEED_OR_RETURN(Create2DDesc(m_Description, pDXDevice, Tex2DDesc));
 
   if (m_SharedType == ezGALSharedTextureType::Exported)
     Tex2DDesc.MiscFlags |= D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX;
 
-  ezHybridArray<D3D11_SUBRESOURCE_DATA, 16> InitialData;
+  ezTempHybridArray<D3D11_SUBRESOURCE_DATA, 16> InitialData;
   ConvertInitialData(m_Description, pInitialData, InitialData);
 
   if (FAILED(pDXDevice->GetDXDevice()->CreateTexture2D(&Tex2DDesc, pInitialData.IsEmpty() ? nullptr : &InitialData[0], reinterpret_cast<ID3D11Texture2D**>(&m_pDXTexture))))
@@ -91,9 +92,6 @@ ezResult ezGALSharedTextureDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<e
     }
     m_hSharedHandle.m_hSharedTexture = (ezUInt64)hTexture;
   }
-
-  if (!m_Description.m_ResourceAccess.IsImmutable() || m_Description.m_ResourceAccess.m_bReadBack)
-    return CreateStagingTexture(pDXDevice);
 
   return EZ_SUCCESS;
 }

@@ -4,7 +4,7 @@
 
 #include <GameEngineTest/TestClass/TestClass.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP) || EZ_ENABLED(EZ_PLATFORM_LINUX)
 
 class ezStereoTestGameState : public ezGameEngineTestGameState
 {
@@ -23,7 +23,7 @@ public:
   ezPlatformProfile& GetPlatformProfile() { return m_PlatformProfile; }
 
 protected:
-  virtual ezUniquePtr<ezGameStateBase> CreateGameState(ezWorld* pWorld) override;
+  virtual ezUniquePtr<ezGameStateBase> CreateGameState() override;
 };
 
 

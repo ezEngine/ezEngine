@@ -227,31 +227,31 @@ void ezAnimGraph::PrepareForUse()
   // EXTEND THIS if a new type is introduced
   {
     ezInstanceDataDesc desc;
-    desc.m_uiTypeAlignment = EZ_ALIGNMENT_OF(ezInt8);
+    desc.m_uiTypeAlignment = alignof(ezInt8);
     desc.m_uiTypeSize = sizeof(ezInt8) * m_uiInputPinCounts[ezAnimGraphPin::Type::Trigger];
     m_uiPinInstanceDataOffset[ezAnimGraphPin::Type::Trigger] = m_InstanceDataAllocator.AddDesc(desc);
   }
   {
     ezInstanceDataDesc desc;
-    desc.m_uiTypeAlignment = EZ_ALIGNMENT_OF(double);
+    desc.m_uiTypeAlignment = alignof(double);
     desc.m_uiTypeSize = sizeof(double) * m_uiInputPinCounts[ezAnimGraphPin::Type::Number];
     m_uiPinInstanceDataOffset[ezAnimGraphPin::Type::Number] = m_InstanceDataAllocator.AddDesc(desc);
   }
   {
     ezInstanceDataDesc desc;
-    desc.m_uiTypeAlignment = EZ_ALIGNMENT_OF(bool);
+    desc.m_uiTypeAlignment = alignof(bool);
     desc.m_uiTypeSize = sizeof(bool) * m_uiInputPinCounts[ezAnimGraphPin::Type::Bool];
     m_uiPinInstanceDataOffset[ezAnimGraphPin::Type::Bool] = m_InstanceDataAllocator.AddDesc(desc);
   }
   {
     ezInstanceDataDesc desc;
-    desc.m_uiTypeAlignment = EZ_ALIGNMENT_OF(ezUInt16);
+    desc.m_uiTypeAlignment = alignof(ezUInt16);
     desc.m_uiTypeSize = sizeof(ezUInt16) * m_uiInputPinCounts[ezAnimGraphPin::Type::BoneWeights];
     m_uiPinInstanceDataOffset[ezAnimGraphPin::Type::BoneWeights] = m_InstanceDataAllocator.AddDesc(desc);
   }
   {
     ezInstanceDataDesc desc;
-    desc.m_uiTypeAlignment = EZ_ALIGNMENT_OF(ezUInt16);
+    desc.m_uiTypeAlignment = alignof(ezUInt16);
     desc.m_uiTypeSize = sizeof(ezUInt16) * m_uiInputPinCounts[ezAnimGraphPin::Type::ModelPose];
     m_uiPinInstanceDataOffset[ezAnimGraphPin::Type::ModelPose] = m_InstanceDataAllocator.AddDesc(desc);
   }

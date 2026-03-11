@@ -14,7 +14,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEmitterFactory_OnEvent, 1, ezRTTIDefau
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("EventName", m_sEventName),
+    EZ_MEMBER_PROPERTY("EventName", m_sEventName)->AddAttributes(new ezDynamicStringEnumAttribute("ParticleEventNamesEnum")),
     EZ_MEMBER_PROPERTY("MinSpawnCount", m_uiSpawnCountMin)->AddAttributes(new ezDefaultValueAttribute(1)),
     EZ_MEMBER_PROPERTY("SpawnCountRange", m_uiSpawnCountRange),
     EZ_MEMBER_PROPERTY("SpawnCountScaleParam", m_sSpawnCountScaleParameter),
@@ -114,8 +114,6 @@ ezUInt32 ezParticleEmitter_OnEvent::ComputeSpawnCount(const ezTime& tDiff)
 
   const float spawnCountScale = ezMath::Max(GetOwnerEffect()->GetFloatParameter(m_sSpawnCountScaleParameter, 1.0f), 0.0f);
   fSpawnFactor *= spawnCountScale;
-
-  ezRandom& rng = GetRNG();
 
   return static_cast<ezUInt32>((m_uiSpawnCountMin + GetRNG().UIntInRange(1 + m_uiSpawnCountRange)) * fSpawnFactor);
 }

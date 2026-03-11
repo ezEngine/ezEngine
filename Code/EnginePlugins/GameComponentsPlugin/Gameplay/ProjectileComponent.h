@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Interfaces/PhysicsQuery.h>
 #include <Core/Physics/SurfaceResource.h>
 #include <Core/World/Component.h>
 #include <Core/World/World.h>
@@ -31,9 +32,6 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMECOMPONENTS_DLL, ezProjectileReaction);
 /// \brief Holds the information about how a projectile interacts with a specific surface type
 struct EZ_GAMECOMPONENTS_DLL ezProjectileSurfaceInteraction
 {
-  void SetSurface(const char* szSurface);
-  const char* GetSurface() const;
-
   /// \brief The surface type (and derived ones) for which this interaction is used
   ezSurfaceResourceHandle m_hSurface;
 
@@ -42,6 +40,9 @@ struct EZ_GAMECOMPONENTS_DLL ezProjectileSurfaceInteraction
 
   /// \brief Which interaction should be triggered. See ezSurfaceResource.
   ezString m_sInteraction;
+
+  /// \brief Which impulse type to use.
+  ezUInt8 m_uiImpulseType = 0;
 
   /// \brief The force (or rather impulse) that is applied on the object
   float m_fImpulse = 0.0f;
@@ -84,7 +85,7 @@ public:
   /// If 0, the projectile is not affected by gravity.
   float m_fGravityMultiplier; // [ property ]
 
-  // If true the death prefab will be spawned when the velocity gones under the threshold to be considered static
+  // If true the death prefab will be spawned when the velocity goes under the threshold to be considered static
   bool m_bSpawnPrefabOnStatic; // [ property ]
 
   /// Defines which other physics objects the projectile will collide with.
@@ -103,11 +104,10 @@ public:
   ezHybridArray<ezProjectileSurfaceInteraction, 12> m_SurfaceInteractions; // [ property ]
 
   /// \brief If the projectile reaches its maximum lifetime it can spawn this prefab.
-  void SetDeathPrefab(const char* szPrefab);       // [ property ]
-  const char* GetDeathPrefab() const;              // [ property ]
+  ezPrefabResourceHandle m_hDeathPrefab;           // [ property ]
 
-  void SetFallbackSurfaceFile(const char* szFile); // [ property ]
-  const char* GetFallbackSurfaceFile() const;      // [ property ]
+  void SetFallbackSurfaceFile(ezStringView sFile); // [ property ]
+  ezStringView GetFallbackSurfaceFile() const;     // [ property ]
 
 private:
   void Update();
@@ -115,7 +115,6 @@ private:
 
   void SpawnDeathPrefab();
 
-  ezPrefabResourceHandle m_hDeathPrefab; ///< Spawned when the projectile is killed due to m_MaxLifetime coming to an end
 
   /// \brief If an unknown surface type is hit, the projectile will just delete itself without further interaction
   ezInt32 FindSurfaceInteraction(const ezSurfaceResourceHandle& hSurface) const;

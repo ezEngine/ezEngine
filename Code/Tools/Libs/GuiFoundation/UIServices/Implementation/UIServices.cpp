@@ -114,12 +114,13 @@ const QIcon& ezQtUiServices::GetCachedIconResource(ezStringView sIdentifier, ezC
       const ezColorGammaUB color8 = svgTintColor;
 
       ezStringBuilder rep;
-      rep.SetFormat("#{}{}{}", ezArgI((int)color8.r, 2, true, 16), ezArgI((int)color8.g, 2, true, 16), ezArgI((int)color8.b, 2, true, 16));
+      rep.SetFormat("#{}{}{}", ezArgU(color8.r, 2, true, 16), ezArgU(color8.g, 2, true, 16), ezArgU(color8.b, 2, true, 16));
 
       sContent.ReplaceAll_NoCase("#ffffff", rep);
 
       rep.Append(";");
       sContent.ReplaceAll_NoCase("#fff;", rep);
+      sContent.ReplaceAll_NoCase("white;", rep);
       rep.Shrink(0, 1);
 
       rep.Prepend("\"");
@@ -287,17 +288,27 @@ void ezQtUiServices::TickEventHandler()
 
   EZ_ASSERT_DEV(!m_bIsDrawingATM, "Implementation error");
   ezTime startTime = ezTime::Now();
-
-  m_bIsDrawingATM = true;
   s_LastTickEvent.m_uiFrame++;
   s_LastTickEvent.m_Time = startTime;
-  s_LastTickEvent.m_Type = TickEvent::Type::StartFrame;
-  s_TickEvent.Broadcast(s_LastTickEvent);
 
-  s_LastTickEvent.m_Type = TickEvent::Type::EndFrame;
-  s_TickEvent.Broadcast(s_LastTickEvent);
-  m_bIsDrawingATM = false;
+  bool bFrameRequested = false;
+  {
+    s_LastTickEvent.m_Type = TickEvent::Type::BeforeFrame;
+    s_LastTickEvent.m_uiFrameRequest = 0;
+    s_LastTickEvent.m_uiForceCancelFrame = 0;
+    s_TickEvent.Broadcast(s_LastTickEvent);
+    bFrameRequested = s_LastTickEvent.m_uiFrameRequest != 0 && s_LastTickEvent.m_uiForceCancelFrame == 0;
+  }
 
+  if (bFrameRequested)
+  {
+    m_bIsDrawingATM = true;
+    s_LastTickEvent.m_Type = TickEvent::Type::StartFrame;
+    s_TickEvent.Broadcast(s_LastTickEvent);
+    s_LastTickEvent.m_Type = TickEvent::Type::EndFrame;
+    s_TickEvent.Broadcast(s_LastTickEvent);
+    m_bIsDrawingATM = false;
+  }
   const ezTime endTime = ezTime::Now();
   ezTime lastFrameTime = endTime - startTime;
 
@@ -310,6 +321,7 @@ void ezQtUiServices::TickEventHandler()
 
 void ezQtUiServices::LoadState()
 {
+  EZ_PROFILE_SCOPE("LoadState");
   QSettings Settings;
   Settings.beginGroup("EditorGUI");
   {
@@ -355,78 +367,172 @@ void ezQtUiServices::ShowGlobalStatusBarMessage(const ezFormatString& msg)
 }
 
 
-bool ezQtUiServices::OpenFileInDefaultProgram(const char* szPath)
+ezResult ezQtUiServices::OpenFileInDefaultProgram(const char* szPath)
 {
-  return QDesktopServices::openUrl(QUrl::fromLocalFile(szPath));
+  return QDesktopServices::openUrl(QUrl::fromLocalFile(szPath)) ? EZ_SUCCESS : EZ_FAILURE;
 }
 
-void ezQtUiServices::OpenInExplorer(const char* szPath, bool bIsFile)
+ezResult ezQtUiServices::OpenInVisualStudio(const char* szPath)
 {
-  QStringList args;
+  QString sVSExe;
+  QSettings settings("\\HKEY_LOCAL_MACHINE\\SOFTWARE\\Classes\\Applications\\VSLauncher.exe\\Shell\\Open\\Command", QSettings::NativeFormat);
+  QString sVSKey = settings.value(".", "").value<QString>();
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-  if (bIsFile)
-    args << "/select,";
-
-  args << QDir::toNativeSeparators(szPath);
-
-  QProcess::startDetached("explorer", args);
-#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
-  ezStringBuilder parentDir;
-
-  if (bIsFile)
+  if (sVSKey.length() > 5)
   {
-    parentDir = szPath;
-    parentDir = parentDir.GetFileDirectory();
-    szPath = parentDir.GetData();
+    // Remove shell parameter and normalize QT Compatible path, QFile expects the file separator to be '/' regardless of operating system
+    sVSExe = sVSKey.left(sVSKey.length() - 5).replace("\\", "/").replace("\"", "");
   }
-  args << QDir::toNativeSeparators(szPath);
 
-  QProcess::startDetached("xdg-open", args);
-#else
-  EZ_ASSERT_NOT_IMPLEMENTED
-#endif
-}
-
-ezStatus ezQtUiServices::OpenInVsCode(const QStringList& arguments)
-{
-  QString sVsCodeExe;
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  sVsCodeExe =
-    QStandardPaths::locate(QStandardPaths::GenericDataLocation, "Programs/Microsoft VS Code/Code.exe", QStandardPaths::LocateOption::LocateFile);
-
-  if (!QFile().exists(sVsCodeExe))
-  {
-    QSettings settings("\\HKEY_LOCAL_MACHINE\\SOFTWARE\\Classes\\Applications\\Code.exe\\shell\\open\\command", QSettings::NativeFormat);
-    QString sVsCodeExeKey = settings.value(".", "").value<QString>();
-
-    if (sVsCodeExeKey.length() > 5)
-    {
-      // Remove shell parameter and normalize QT Compatible path, QFile expects the file separator to be '/' regardless of operating system
-      sVsCodeExe = sVsCodeExeKey.left(sVsCodeExeKey.length() - 5).replace("\\", "/").replace("\"", "");
-    }
-  }
-#endif
-
-  if (sVsCodeExe.isEmpty() || !QFile().exists(sVsCodeExe))
-  {
-    // Try code executable in PATH
-    if (QProcess::execute("code", {"--version"}) == 0)
-    {
-      sVsCodeExe = "code";
-    }
-    else
-    {
-      return ezStatus("Installation of Visual Studio Code could not be located.\n"
-                      "Please visit 'https://code.visualstudio.com/download' to download the 'User Installer' of Visual Studio Code.");
-    }
-  }
+  QStringList arguments;
+  arguments.push_back(szPath);
 
   QProcess proc;
-  if (proc.startDetached(sVsCodeExe, arguments) == false)
+  if (proc.startDetached(sVSExe, arguments) == false)
   {
-    return ezStatus("Failed to launch Visual Studio Code.");
+    return EZ_FAILURE;
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return EZ_SUCCESS;
 }
+
+ezResult ezQtUiServices::OpenInRider(const char* szPath)
+{
+  QString sRiderPath;
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  QSettings settings("\\HKEY_CURRENT_USER\\SOFTWARE\\JetBrains\\Toolbox\\", QSettings::NativeFormat);
+  QString sToolboxKey = settings.value(".", "").value<QString>();
+
+  QString sToolboxPath = sToolboxKey.replace("\\", "/").replace("\"", "");
+  if (sToolboxPath.isEmpty())
+  {
+    sToolboxPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation).split("Local/", Qt::KeepEmptyParts, Qt::CaseInsensitive).first();
+    sToolboxPath += "Local/JetBrains/Toolbox/.settings.json";
+  }
+  else
+  {
+    sToolboxPath.append("/../.settings.json");
+  }
+
+  if (QFile::exists(sToolboxPath))
+  {
+
+    QFile file(sToolboxPath);
+    file.open(QIODevice::ReadOnly);
+
+    QByteArray rawData = file.readAll();
+    QJsonDocument doc = QJsonDocument::fromJson(rawData);
+
+    QJsonObject rootObject = doc.object();
+    QJsonValue shellPathValue = rootObject.value("shell_scripts");
+    QJsonObject shellPathObject = shellPathValue.toObject();
+    sRiderPath = shellPathObject.value("location").toString().replace("\\", "/").replace("\"", "");
+    sRiderPath.append("/rider.cmd");
+    file.close();
+  }
+  else
+  {
+    sRiderPath = "rider64.exe";
+  }
+
+#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+  if (QFile::exists("/opt/rider/bin/rider.sh"))
+  {
+    sRiderPath = "/opt/clion/bin/rider.sh";
+  }
+  else
+  {
+    // Maybe its in path????
+    sRiderPath = "rider.sh";
+  }
+#else
+  return EZ_FAILURE;
+#endif
+
+  QStringList arguments;
+  arguments.push_back(szPath);
+
+  if (!QProcess::startDetached(sRiderPath, arguments))
+  {
+    return EZ_FAILURE;
+  }
+
+  return EZ_SUCCESS;
+}
+
+namespace ezQtUtils
+{
+  bool IsEquivalentQtKey(const QKeyEvent* e, Qt::Key reference)
+  {
+    // X11 (xcb) keycodes are hardware scan codes + 8 offset, Wayland uses raw evdev codes
+#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+    const quint32 SC_OFFSET = (QGuiApplication::platformName() == "xcb") ? 8 : 0;
+#else
+    constexpr quint32 SC_OFFSET = 0;
+#endif
+
+    const quint32 nativeScanCode = e->nativeScanCode();
+    switch (reference)
+    {
+      case Qt::Key_A:
+        return nativeScanCode == 30 + SC_OFFSET;
+      case Qt::Key_B:
+        return nativeScanCode == 48 + SC_OFFSET;
+      case Qt::Key_C:
+        return nativeScanCode == 46 + SC_OFFSET;
+      case Qt::Key_D:
+        return nativeScanCode == 32 + SC_OFFSET;
+      case Qt::Key_E:
+        return nativeScanCode == 18 + SC_OFFSET;
+      case Qt::Key_F:
+        return nativeScanCode == 33 + SC_OFFSET;
+      case Qt::Key_G:
+        return nativeScanCode == 34 + SC_OFFSET;
+      case Qt::Key_H:
+        return nativeScanCode == 35 + SC_OFFSET;
+      case Qt::Key_I:
+        return nativeScanCode == 23 + SC_OFFSET;
+      case Qt::Key_J:
+        return nativeScanCode == 36 + SC_OFFSET;
+      case Qt::Key_K:
+        return nativeScanCode == 37 + SC_OFFSET;
+      case Qt::Key_L:
+        return nativeScanCode == 38 + SC_OFFSET;
+      case Qt::Key_M:
+        return nativeScanCode == 50 + SC_OFFSET;
+      case Qt::Key_N:
+        return nativeScanCode == 49 + SC_OFFSET;
+      case Qt::Key_O:
+        return nativeScanCode == 24 + SC_OFFSET;
+      case Qt::Key_P:
+        return nativeScanCode == 25 + SC_OFFSET;
+      case Qt::Key_Q:
+        return nativeScanCode == 16 + SC_OFFSET;
+      case Qt::Key_R:
+        return nativeScanCode == 19 + SC_OFFSET;
+      case Qt::Key_S:
+        return nativeScanCode == 31 + SC_OFFSET;
+      case Qt::Key_T:
+        return nativeScanCode == 20 + SC_OFFSET;
+      case Qt::Key_U:
+        return nativeScanCode == 22 + SC_OFFSET;
+      case Qt::Key_V:
+        return nativeScanCode == 47 + SC_OFFSET;
+      case Qt::Key_W:
+        return nativeScanCode == 17 + SC_OFFSET;
+      case Qt::Key_X:
+        return nativeScanCode == 45 + SC_OFFSET;
+      case Qt::Key_Y:
+        return nativeScanCode == 21 + SC_OFFSET;
+      case Qt::Key_Z:
+        return nativeScanCode == 44 + SC_OFFSET;
+
+      default:
+        ezLog::Dev("IsEquivalentQtKey: Undefined scancode mapping for key: {} (pressed: {})", (int)reference, nativeScanCode);
+        break;
+    }
+
+    return e->key() == reference;
+  }
+} // namespace ezQtUtils

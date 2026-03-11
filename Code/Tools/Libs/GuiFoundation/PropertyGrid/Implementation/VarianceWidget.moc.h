@@ -14,7 +14,7 @@ class ezQtVarianceTypeWidget : public ezQtStandardPropertyWidget
 public:
   ezQtVarianceTypeWidget();
 
-  virtual void SetSelection(const ezHybridArray<ezPropertySelection, 8>& items) override;
+  virtual void SetSelection(const ezArrayPtr<ezPropertySelection>& items) override;
 
 private Q_SLOTS:
   void onBeginTemporary();

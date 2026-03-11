@@ -8,6 +8,11 @@
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezResetTransformComponent, 1, ezComponentMode::Dynamic)
 {
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Animation"),
+  }
+  EZ_END_ATTRIBUTES;
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("ResetPositionX", m_bResetLocalPositionX)->AddAttributes(new ezDefaultValueAttribute(true)),

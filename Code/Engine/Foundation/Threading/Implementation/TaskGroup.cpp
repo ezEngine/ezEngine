@@ -1,5 +1,6 @@
 #include <Foundation/FoundationPCH.h>
 
+#include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Threading/Implementation/Task.h>
 #include <Foundation/Threading/Implementation/TaskGroup.h>
 #include <Foundation/Threading/Lock.h>
@@ -12,6 +13,7 @@ void ezTaskGroup::WaitForFinish(ezTaskGroupID group) const
   if (m_uiGroupCounter != group.m_uiGroupCounter)
     return;
 
+  EZ_PROFILE_SCOPE("ezTaskGroup::WaitForFinish");
   EZ_LOCK(m_CondVarGroupFinished);
 
   while (m_uiGroupCounter == group.m_uiGroupCounter)
@@ -38,6 +40,7 @@ void ezTaskGroup::DebugCheckTaskGroup(ezTaskGroupID groupID, ezMutex& mutex)
   EZ_LOCK(mutex);
 
   const ezTaskGroup* pGroup = groupID.m_pTaskGroup;
+  EZ_IGNORE_UNUSED(pGroup);
 
   EZ_ASSERT_DEV(pGroup != nullptr, "TaskGroupID is invalid.");
   EZ_ASSERT_DEV(pGroup->m_uiGroupCounter == groupID.m_uiGroupCounter, "The given TaskGroupID is not valid anymore.");

@@ -49,7 +49,7 @@ public:
   const ezHMDInfo& GetHmdInfo() const override;
   ezXRInputDevice& GetXRInput() const override;
   bool SupportsCompanionView() override;
-  ezUniquePtr<ezActor> CreateActor(ezView* pView, ezGALMSAASampleCount::Enum msaaCount = ezGALMSAASampleCount::None, ezUniquePtr<ezWindowBase> pCompanionWindow = nullptr, ezUniquePtr<ezWindowOutputTargetGAL> pCompanionWindowOutput = nullptr) override;
+  ezRegisteredWndHandle CreateXRWindow(ezView* pView, ezGALMSAASampleCount::Enum msaaCount = ezGALMSAASampleCount::None, ezUniquePtr<ezWindowBase> pCompanionWindow = nullptr, ezUniquePtr<ezWindowOutputTargetGAL> pCompanionWindowOutput = nullptr) override;
   ezGALTextureHandle GetCurrentTexture() override;
   void OnActorDestroyed() override;
   void GALDeviceEventHandler(const ezGALDeviceEvent& e);

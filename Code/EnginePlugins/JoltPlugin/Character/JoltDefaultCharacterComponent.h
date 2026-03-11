@@ -4,6 +4,11 @@
 
 struct ezMsgApplyRootMotion;
 
+namespace JPH
+{
+  class CharacterContactListener;
+}
+
 using ezJoltDefaultCharacterComponentManager = ezComponentManager<class ezJoltDefaultCharacterComponent, ezBlockStorageType::FreeList>;
 
 /// \brief An example character controller (CC) implementation build upon ezJoltCharacterControllerComponent
@@ -91,8 +96,8 @@ public:
   void SetWalkSurfaceInteraction(const char* szName) { m_sWalkSurfaceInteraction.Assign(szName); } // [ property ]
   const char* GetWalkSurfaceInteraction() const { return m_sWalkSurfaceInteraction.GetData(); }    // [ property ]
 
-  void SetFallbackWalkSurfaceFile(const char* szFile);                                             // [ property ]
-  const char* GetFallbackWalkSurfaceFile() const;                                                  // [ property ]
+  void SetFallbackWalkSurfaceFile(ezStringView sFile);                                             // [ property ]
+  ezStringView GetFallbackWalkSurfaceFile() const;                                                 // [ property ]
 
   /// How fast to move while falling. The higher, the more "air control" the player has.
   float m_fAirSpeed = 2.5f; // [ property ]
@@ -120,6 +125,26 @@ public:
   bool IsSlidingOnGround() const { return m_LastGroundState == GroundState::Sliding; }   // [ scriptable ]
   bool IsInAir() const { return m_LastGroundState == GroundState::InAir; }               // [ scriptable ]
   bool IsCrouching() const { return m_uiIsCrouchingBit; }                                // [ scriptable ]
+
+  /// \brief Makes the CC jump during the next update (if possible)
+  void Jump(); // [ scriptable ]
+
+  /// \brief Sets the 'run' flag for the next update. Automatically reset by next frame.
+  void Run(); // [ scriptable ]
+
+  /// \brief Makes the CC crouch during the next update (if possible)
+  void Crouch(); // [ scriptable ]
+
+  /// \brief Sets the movement direction for the next update.
+  ///
+  /// Note: Values are typically in -1 to 1 range.
+  /// The actual movement speed is configured elsewhere and depends on whether the CC crouches, jumps or runs.
+  void Move(float fForward, float fRight); // [ scriptable ]
+
+  /// \brief Sets the rotation amount for the next update.
+  ///
+  /// Note: The actual rotation speed is another property.
+  void RotateZ(float fAmount); // [ scriptable ]
 
   /// Instantly teleports the character to the target position. Doesn't change its rotation.
   void TeleportCharacter(const ezVec3& vGlobalFootPosition);
@@ -159,6 +184,7 @@ protected:
 
   void StoreLateralVelocity();
   void ClampLateralVelocity();
+  void ClampUpVelocity();
   void MoveHeadObject();
   void DebugVisualizations();
 
@@ -189,6 +215,8 @@ protected:
 
   ezUInt32 m_uiUserDataIndex = ezInvalidIndex;
   ezUInt32 m_uiJoltBodyID = ezInvalidIndex;
+
+  ezUniquePtr<JPH::CharacterContactListener> m_pContactListener;
 
 private:
   const char* DummyGetter() const { return nullptr; }

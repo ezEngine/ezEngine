@@ -14,7 +14,8 @@ class EZ_RENDERERCORE_DLL ezLensFlareRenderData : public ezRenderData
   EZ_ADD_DYNAMIC_REFLECTION(ezLensFlareRenderData, ezRenderData);
 
 public:
-  void FillBatchIdAndSortingKey();
+  void FillSortingKey();
+  virtual bool CanBatch(const ezRenderData& other) const override;
 
   ezTexture2DResourceHandle m_hTexture;
   ezFloat16Vec4 m_Color;
@@ -35,18 +36,15 @@ public:
 /// \brief Represents an individual element of a lens flare.
 struct ezLensFlareElement
 {
-  ezTexture2DResourceHandle m_hTexture;
+  ezTexture2DResourceHandle m_hTexture; // [ property ]
   ezColor m_Color = ezColor::White;
-  float m_fSize = 10000.0f;                ///< World space size
-  float m_fMaxScreenSize = 1.0f;           ///< Relative screen space size in 0..1 range
-  float m_fAspectRatio = 1.0f;             ///< Width:height ratio, only height is adjusted while width stays fixed
-  float m_fShiftToCenter = 0.0f;           ///< Move the element along the lens flare origin to screen center line. 0 is at the lens flare origin, 1 at the screen center. Values below 0 or above 1 are also possible.
-  bool m_bGreyscaleTexture = false;        ///< Whether the given texture is a greyscale or color texture.
-  bool m_bModulateByLightColor = true;     ///< Modulate the element's color by the light color and intensity if the lens flare component is linked to a light component.
-  bool m_bInverseTonemap = false;          ///< Apply an inverse tonemapping operation on the final color. This can be useful if the lens flare is not linked to a light or does not use an hdr color since lens flares are rendered before tonemapping and can look washed out in this case.
-
-  void SetTextureFile(const char* szFile); // [ property ]
-  const char* GetTextureFile() const;      // [ property ]
+  float m_fSize = 10000.0f;             ///< World space size
+  float m_fMaxScreenSize = 1.0f;        ///< Relative screen space size in 0..1 range
+  float m_fAspectRatio = 1.0f;          ///< Width:height ratio, only height is adjusted while width stays fixed
+  float m_fShiftToCenter = 0.0f;        ///< Move the element along the lens flare origin to screen center line. 0 is at the lens flare origin, 1 at the screen center. Values below 0 or above 1 are also possible.
+  bool m_bGreyscaleTexture = false;     ///< Whether the given texture is a greyscale or color texture.
+  bool m_bModulateByLightColor = true;  ///< Modulate the element's color by the light color and intensity if the lens flare component is linked to a light component.
+  bool m_bInverseTonemap = false;       ///< Apply an inverse tonemapping operation on the final color. This can be useful if the lens flare is not linked to a light or does not use an hdr color since lens flares are rendered before tonemapping and can look washed out in this case.
 
   ezResult Serialize(ezStreamWriter& inout_stream) const;
   ezResult Deserialize(ezStreamReader& inout_stream);
@@ -98,6 +96,9 @@ public:
   /// \brief Adjusts the overall intensity of the lens flare
   float m_fIntensity = 1.0f; // [ property ]
 
+  /// \brief Fallback color if the lens flare is not linked to a light component.
+  ezColorGammaUB m_LightColor = ezColor::White; // [ property ]
+
   /// \brief Link the lens flare to the first light component on the same owner object or any of its parent objects.
   ///
   /// When a lens flare is linked it will take the light color and intensity to modulate the lens flare color and intensity
@@ -127,6 +128,7 @@ public:
 private:
   void FindLightComponent();
 
+  void OnMsgSetColor(ezMsgSetColor& ref_msg);
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
 
   float m_fOcclusionSampleRadius = 0.1f;

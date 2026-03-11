@@ -63,14 +63,10 @@ public:
   DebugRenderComponent();
   ~DebugRenderComponent();
 
-  float m_fSize = 1.0f;             // [ property ]
-  ezColor m_Color = ezColor::White; // [ property ]
+  float m_fSize = 1.0f;                               // [ property ]
+  ezColor m_Color = ezColor::White;                   // [ property ]
 
-  void SetTexture(const ezTexture2DResourceHandle& hTexture);
-  const ezTexture2DResourceHandle& GetTexture() const;
-
-  void SetTextureFile(const char* szFile);            // [ property ]
-  const char* GetTextureFile(void) const;             // [ property ]
+  ezTexture2DResourceHandle m_hTexture;               // [ property ]
 
   ezBitflags<DebugRenderComponentMask> m_RenderTypes; // [ property ]
 
@@ -80,30 +76,9 @@ public:
 
   // BEGIN-DOCS-CODE-SNIPPET: customdata-interface
   SampleCustomDataResourceHandle m_hCustomData;
-
-  void SetSampleCustomDataResource(const char* szFile)
-  {
-    SampleCustomDataResourceHandle hCustomData;
-
-    if (!ezStringUtils::IsNullOrEmpty(szFile))
-    {
-      hCustomData = ezResourceManager::LoadResource<SampleCustomDataResource>(szFile);
-    }
-
-    m_hCustomData = hCustomData;
-  }
-
-  const char* GetSampleCustomDataResource() const
-  {
-    if (m_hCustomData.IsValid())
-      return m_hCustomData.GetResourceID();
-
-    return "";
-  }
   // END-DOCS-CODE-SNIPPET
+
 
 private:
   void Update();
-
-  ezTexture2DResourceHandle m_hTexture;
 };

@@ -1,3 +1,4 @@
+#include <EditorFramework/Assets/AssetStatusIndicator.moc.h>
 #include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
 #include <EditorPluginAssets/StateMachineAsset/StateMachineAssetWindow.moc.h>
@@ -5,8 +6,8 @@
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
-#include <GuiFoundation/NodeEditor/NodeView.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
+#include <GuiFoundation/VisualGraph/View.moc.h>
 
 
 
@@ -36,23 +37,42 @@ ezQtStateMachineAssetDocumentWindow::ezQtStateMachineAssetDocumentWindow(ezDocum
     addToolBar(pToolBar);
   }
 
-  m_pScene = new ezQtStateMachineAssetScene(this);
-  m_pScene->InitScene(static_cast<const ezDocumentNodeManager*>(pDocument->GetObjectManager()));
+  // Central Widget
+  {
+    m_pScene = new ezQtStateMachineAssetScene(this);
+    m_pScene->InitScene(static_cast<const ezVisualGraphObjectManager*>(pDocument->GetObjectManager()));
 
-  m_pView = new ezQtNodeView(this);
-  m_pView->SetScene(m_pScene);
-  setCentralWidget(m_pView);
+    m_pView = new ezQtVisualGraphView(this);
+    m_pView->SetScene(m_pScene);
+
+    ezQtDocumentPanel* pCentral = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    pCentral->setObjectName("StateMachineView");
+    pCentral->setWindowTitle("State Machine");
+    pCentral->setWidget(m_pView);
+
+    m_pDockManager->setCentralWidget(pCentral);
+  }
 
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("StateMachineAssetDockWidget");
     pPropertyPanel->setWindowTitle("Properties");
     pPropertyPanel->show();
 
     ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
-    pPropertyPanel->setWidget(pPropertyGrid);
 
-    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
+    QWidget* pWidget = new QWidget();
+    pWidget->setObjectName("Group");
+    pWidget->setLayout(new QVBoxLayout());
+    pWidget->setContentsMargins(0, 0, 0, 0);
+
+    pWidget->layout()->setContentsMargins(0, 0, 0, 0);
+    pWidget->layout()->addWidget(new ezQtAssetStatusIndicator((ezAssetDocument*)GetDocument()));
+    pWidget->layout()->addWidget(pPropertyGrid);
+
+    pPropertyPanel->setWidget(pWidget, ads::CDockWidget::ForceNoScrollArea);
+
+    m_pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pPropertyPanel);
   }
 
   FinishWindowCreation();

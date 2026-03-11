@@ -24,7 +24,7 @@ EZ_CREATE_SIMPLE_TEST(Utils, IntervalScheduler)
   {
     float intervals[] = {10, 20, 60, 60, 60};
 
-    ezHybridArray<TestWork, 32> works;
+    ezTempHybridArray<TestWork, 32> works;
     ezIntervalScheduler<TestWork*> scheduler;
 
     for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(intervals); ++i)
@@ -82,7 +82,7 @@ EZ_CREATE_SIMPLE_TEST(Utils, IntervalScheduler)
   {
     float intervals[] = {10, 20, 60, 60, 60};
 
-    ezHybridArray<TestWork, 32> works;
+    ezTempHybridArray<TestWork, 32> works;
     ezIntervalScheduler<TestWork*> scheduler;
 
     for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(intervals); ++i)
@@ -138,7 +138,7 @@ EZ_CREATE_SIMPLE_TEST(Utils, IntervalScheduler)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Dynamic workload")
   {
-    ezHybridArray<TestWork, 32> works;
+    ezTempHybridArray<TestWork, 32> works;
 
     ezIntervalScheduler<TestWork*> scheduler;
 
@@ -208,7 +208,7 @@ EZ_CREATE_SIMPLE_TEST(Utils, IntervalScheduler)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Update/Remove during schedule")
   {
-    ezHybridArray<TestWork, 32> works;
+    ezTempHybridArray<TestWork, 32> works;
 
     ezIntervalScheduler<TestWork*> scheduler;
 

@@ -321,6 +321,12 @@ EZ_CREATE_SIMPLE_TEST(Containers, SmallArray)
     EZ_TEST_BOOL(a1 == a2);
 
     EZ_TEST_BOOL((a1 != a2) == false);
+
+    EZ_TEST_BOOL((a1 < a2) == false);
+    a2.PushBack(100);
+    EZ_TEST_BOOL(a1 < a2);
+    a1.PushBack(99);
+    EZ_TEST_BOOL(a1 < a2);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Index operator")

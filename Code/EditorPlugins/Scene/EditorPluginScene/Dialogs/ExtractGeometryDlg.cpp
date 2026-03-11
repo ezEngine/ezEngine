@@ -20,7 +20,6 @@ ezQtExtractGeometryDlg::ezQtExtractGeometryDlg(QWidget* pParent)
   ExtractionMode->clear();
   ExtractionMode->addItem("Render Mesh");
   ExtractionMode->addItem("Collision Mesh");
-  ExtractionMode->addItem("Navmesh Obstacles");
 
   CoordinateSystem->clear();
   CoordinateSystem->addItem("Forward: +X, Right: +Y, Up: +Z (ez)");

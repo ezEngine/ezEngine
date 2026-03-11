@@ -1,6 +1,7 @@
 #include <RenderDocPlugin/RenderDocPluginPCH.h>
 
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#include <Foundation/Platform/Win/Utils/IncludeWindows.h>
+
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Utilities/CommandLineOptions.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
@@ -126,7 +127,7 @@ ezResult ezRenderDoc::GetLastAbsCaptureFileName(ezStringBuilder& out_sFileName) 
     ezUInt32 uiFilePathLength = 0;
     if (m_pRenderDocAPI->GetCapture(uiNumCaptures - 1, nullptr, &uiFilePathLength, nullptr))
     {
-      ezHybridArray<char, 128> filePathBuffer;
+      ezTempHybridArray<char, 128> filePathBuffer;
       filePathBuffer.SetCount(uiFilePathLength);
       m_pRenderDocAPI->GetCapture(uiNumCaptures - 1, filePathBuffer.GetArrayPtr().GetPtr(), nullptr, nullptr);
       out_sFileName = filePathBuffer.GetArrayPtr().GetPtr();
@@ -137,5 +138,3 @@ ezResult ezRenderDoc::GetLastAbsCaptureFileName(ezStringBuilder& out_sFileName) 
 
   return EZ_FAILURE;
 }
-
-EZ_STATICLINK_FILE(RenderDocPlugin, RenderDocPlugin_RenderDocSingleton);

@@ -6,16 +6,16 @@ ezVisualScriptInstance::ezVisualScriptInstance(ezReflectedClass& inout_owner, ez
   : ezScriptInstance(inout_owner, pWorld)
   , m_pConstantDataStorage(pConstantDataStorage)
   , m_pInstanceDataMapping(pInstanceDataMapping)
+  , m_InstanceDataStorage(pInstanceDataDesc)
 {
   if (pInstanceDataDesc != nullptr)
   {
-    m_pInstanceDataStorage = EZ_SCRIPT_NEW(ezVisualScriptDataStorage, pInstanceDataDesc);
-    m_pInstanceDataStorage->AllocateStorage();
+    m_InstanceDataStorage.AllocateStorage(ezScriptAllocator::GetAllocator());
 
     for (auto& it : m_pInstanceDataMapping->m_Content)
     {
       auto& instanceData = it.Value();
-      m_pInstanceDataStorage->SetDataFromVariant(instanceData.m_DataOffset, instanceData.m_DefaultValue, 0);
+      m_InstanceDataStorage.SetDataFromVariant(instanceData.m_DataOffset, instanceData.m_DefaultValue, 0);
     }
   }
 }
@@ -39,7 +39,7 @@ void ezVisualScriptInstance::SetInstanceVariable(const ezHashedString& sName, co
     return;
   }
 
-  m_pInstanceDataStorage->SetDataFromVariant(pInstanceData->m_DataOffset, convertedValue, 0);
+  m_InstanceDataStorage.SetDataFromVariant(pInstanceData->m_DataOffset, convertedValue, 0);
 }
 
 ezVariant ezVisualScriptInstance::GetInstanceVariable(const ezHashedString& sName)
@@ -51,5 +51,5 @@ ezVariant ezVisualScriptInstance::GetInstanceVariable(const ezHashedString& sNam
   if (m_pInstanceDataMapping->m_Content.TryGetValue(sName, pInstanceData) == false)
     return ezVariant();
 
-  return m_pInstanceDataStorage->GetDataAsVariant(pInstanceData->m_DataOffset, nullptr, 0);
+  return m_InstanceDataStorage.GetDataAsVariant(pInstanceData->m_DataOffset, nullptr, 0);
 }

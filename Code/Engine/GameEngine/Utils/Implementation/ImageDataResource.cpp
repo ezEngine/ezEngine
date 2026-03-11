@@ -47,13 +47,13 @@ ezResourceLoadDesc ezImageDataResource::UpdateContent(ezStreamReader* Stream)
     return res;
   }
 
-  // skip the absolute file path data that the standard file reader writes into the stream
+  // the standard file reader writes the absolute file path into the stream
   ezStringBuilder sAbsFilePath;
   (*Stream) >> sAbsFilePath;
 
   ezImageDataResourceDescriptor desc;
 
-  if (sAbsFilePath.HasExtension("ezImageData"))
+  if (sAbsFilePath.HasExtension("ezBinImageData"))
   {
     ezAssetFileHeader AssetHash;
     if (AssetHash.Read(*Stream).Failed())

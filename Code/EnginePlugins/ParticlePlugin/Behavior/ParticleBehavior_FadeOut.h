@@ -2,6 +2,9 @@
 
 #include <ParticlePlugin/Behavior/ParticleBehavior.h>
 
+/// Behavior that fades particle alpha over their lifetime
+///
+/// Uses a power curve to control the fade speed.
 class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_FadeOut final : public ezParticleBehaviorFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory_FadeOut, ezParticleBehaviorFactory);

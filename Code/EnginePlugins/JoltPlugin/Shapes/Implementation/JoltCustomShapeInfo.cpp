@@ -1,6 +1,7 @@
 #include <JoltPlugin/JoltPluginPCH.h>
 
 #include <Jolt/AABBTree/TriangleCodec/TriangleCodecIndexed8BitPackSOA4Flags.h>
+#include <Jolt/Math/Vec3.h>
 #include <Jolt/Physics/Collision/CollisionDispatch.h>
 #include <JoltPlugin/Shapes/Implementation/JoltCustomShapeInfo.h>
 
@@ -111,6 +112,11 @@ float ezJoltCustomShapeInfo::GetVolume() const
   return mInnerShape->GetVolume();
 }
 
+Shape::Stats ezJoltCustomShapeInfo::GetStatsRecursive(VisitedShapes& ref_ioVisitedShapes) const
+{
+  return mInnerShape->GetStatsRecursive(ref_ioVisitedShapes);
+}
+
 void ezJoltCustomShapeInfo::sRegister()
 {
   ShapeFunctions& f = ShapeFunctions::sGet(EShapeSubType::User1);
@@ -127,9 +133,9 @@ void ezJoltCustomShapeInfo::sRegister()
   }
 }
 
-void ezJoltCustomShapeInfo::CollideSoftBodyVertices(JPH::Mat44Arg centerOfMassTransform, JPH::Vec3Arg scale, JPH::SoftBodyVertex* pVertices, JPH::uint numVertices, float fDeltaTime, JPH::Vec3Arg displacementDueToGravity, int iCollidingShapeIndex) const
+void ezJoltCustomShapeInfo::CollideSoftBodyVertices(JPH::Mat44Arg centerOfMassTransform, JPH::Vec3Arg scale, const JPH::CollideSoftBodyVertexIterator& vertices, JPH::uint numVertices, int iCollidingShapeIndex) const
 {
-  mInnerShape->CollideSoftBodyVertices(centerOfMassTransform, scale, pVertices, numVertices, fDeltaTime, displacementDueToGravity, iCollidingShapeIndex);
+  mInnerShape->CollideSoftBodyVertices(centerOfMassTransform, scale, vertices, numVertices, iCollidingShapeIndex);
 }
 
 void ezJoltCustomShapeInfo::CollectTransformedShapes(const JPH::AABox& box, JPH::Vec3Arg positionCOM, JPH::QuatArg rotation, JPH::Vec3Arg scale, const JPH::SubShapeIDCreator& subShapeIDCreator, JPH::TransformedShapeCollector& ref_ioCollector, const JPH::ShapeFilter& shapeFilter) const
@@ -158,7 +164,9 @@ void ezJoltCustomShapeInfo::sCastUser1VsShape(const JPH::ShapeCast& inShapeCast,
   // Fetch offset center of mass shape from cast shape
   JPH_ASSERT(inShapeCast.mShape->GetSubType() == EShapeSubType::User1);
 
-  CollisionDispatch::sCastShapeVsShapeLocalSpace(inShapeCast, inShapeCastSettings, inShape, inScale, inShapeFilter, inCenterOfMassTransform2, inSubShapeIDCreator1, inSubShapeIDCreator2, ioCollector);
+  JPH::ShapeCast innerShapeCast(static_cast<const ezJoltCustomShapeInfo*>(inShapeCast.mShape)->GetInnerShape(), inShapeCast.mScale, inShapeCast.mCenterOfMassStart, inShapeCast.mDirection);
+
+  CollisionDispatch::sCastShapeVsShapeLocalSpace(innerShapeCast, inShapeCastSettings, inShape, inScale, inShapeFilter, inCenterOfMassTransform2, inSubShapeIDCreator1, inSubShapeIDCreator2, ioCollector);
 }
 
 void ezJoltCustomShapeInfo::sCastShapeVsUser1(const JPH::ShapeCast& inShapeCast, const JPH::ShapeCastSettings& inShapeCastSettings, const Shape* inShape, JPH::Vec3Arg inScale, const JPH::ShapeFilter& inShapeFilter, JPH::Mat44Arg inCenterOfMassTransform2, const JPH::SubShapeIDCreator& inSubShapeIDCreator1, const JPH::SubShapeIDCreator& inSubShapeIDCreator2, JPH::CastShapeCollector& ioCollector)
@@ -168,6 +176,3 @@ void ezJoltCustomShapeInfo::sCastShapeVsUser1(const JPH::ShapeCast& inShapeCast,
 
   CollisionDispatch::sCastShapeVsShapeLocalSpace(inShapeCast, inShapeCastSettings, shape->mInnerShape, inScale, inShapeFilter, inCenterOfMassTransform2, inSubShapeIDCreator1, inSubShapeIDCreator2, ioCollector);
 }
-
-
-EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Shapes_Implementation_JoltCustomShapeInfo);

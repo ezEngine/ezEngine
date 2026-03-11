@@ -3,8 +3,11 @@
     <file>VisualScript.svg</file>
   </qresource>
   <qresource prefix="EditorPluginVisualScript">
-    <file>Coroutine.svg</file>
-    <file>Loop.svg</file>
+    <file>Icons/Coroutine.svg</file>
+    <file>Icons/Loop.svg</file>
+    <file>Icons/VariableCategoryMember.svg</file>
+    <file>Icons/VariableCategoryArray.svg</file>
+    <file>Icons/VariableCategoryMap.svg</file>
   </qresource>
   <qresource prefix="TypeIcons">
 	<file>ezScriptComponent.svg</file>

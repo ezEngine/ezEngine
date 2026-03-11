@@ -1,6 +1,6 @@
 #include <Foundation/Platform/PlatformDesc.h>
 
-ezPlatformDesc g_PlatformDescLinux("Linux");
+ezPlatformDesc g_PlatformDescLinux("Linux", "Desktop");
 
 #if EZ_ENABLED(EZ_PLATFORM_LINUX)
 

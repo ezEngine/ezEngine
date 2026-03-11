@@ -19,6 +19,7 @@ public:
   virtual ezVariant::Type::Enum GetParameterType(ezUInt32 uiParam) const override
   {
     EZ_ASSERT_DEV(uiParam < GetNumParameters(), "Invalid Parameter Index {0}", uiParam);
+    EZ_IGNORE_UNUSED(uiParam);
 
 #if (ARG_COUNT > 0)
 
@@ -55,6 +56,8 @@ public:
 
   virtual ezResult Call(ezArrayPtr<ezVariant> params) override
   {
+    EZ_IGNORE_UNUSED(params);
+
     ezResult r = EZ_FAILURE;
     EZ_IGNORE_UNUSED(r);
 

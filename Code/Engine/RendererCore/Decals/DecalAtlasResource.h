@@ -11,10 +11,19 @@ using ezTexture2DResourceHandle = ezTypedResourceHandle<class ezTexture2DResourc
 
 class ezImage;
 
+/// Descriptor for creating a decal atlas resource.
+///
+/// Currently empty as decal atlases are typically loaded from asset files rather than
+/// created from descriptors at runtime.
 struct ezDecalAtlasResourceDescriptor
 {
 };
 
+/// Resource that stores texture atlases for decals.
+///
+/// Contains three texture layers (base color, normal, ORM) combined into texture atlases.
+/// Each decal references a region within these atlases. ORM stands for Occlusion, Roughness,
+/// Metallic packed into RGB channels.
 class EZ_RENDERERCORE_DLL ezDecalAtlasResource : public ezResource
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezDecalAtlasResource, ezResource);
@@ -23,9 +32,6 @@ class EZ_RENDERERCORE_DLL ezDecalAtlasResource : public ezResource
 
 public:
   ezDecalAtlasResource();
-
-  /// \brief Returns the one global decal atlas resource
-  static ezDecalAtlasResourceHandle GetDecalAtlasResource();
 
   const ezTexture2DResourceHandle& GetBaseColorTexture() const { return m_hBaseColor; }
   const ezTexture2DResourceHandle& GetNormalTexture() const { return m_hNormal; }

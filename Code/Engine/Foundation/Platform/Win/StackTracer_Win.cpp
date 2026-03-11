@@ -104,7 +104,7 @@ namespace
   {
     if (s_pImplementation == nullptr)
     {
-      alignas(EZ_ALIGNMENT_OF(StackTracerImplementation)) static ezUInt8 ImplementationBuffer[sizeof(StackTracerImplementation)];
+      alignas(alignof(StackTracerImplementation)) static ezUInt8 ImplementationBuffer[sizeof(StackTracerImplementation)];
       s_pImplementation = new (ImplementationBuffer) StackTracerImplementation();
       EZ_ASSERT_DEV(s_pImplementation != nullptr, "StackTracer initialization failed");
     }
@@ -116,6 +116,11 @@ namespace
     // so when using EZ together with for example a third party library that also records stack traces, just calling SymInitialize will fail
     // and we don't get any callstacks
     // the multi-step approach below has worked in known problematic scenarios, but no guarantee that there isn't a better "right way" to do it
+
+    if (s_pImplementation->symbolInitialize == nullptr || s_pImplementation->symRefreshModuleList == nullptr || s_pImplementation->symCleanup == nullptr)
+    {
+      return false;
+    }
 
     // try SymInitialize first
     if ((*s_pImplementation->symbolInitialize)(GetCurrentProcess(), nullptr, TRUE))

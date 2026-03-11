@@ -6,6 +6,9 @@
 
 using ezCurve1DResourceHandle = ezTypedResourceHandle<class ezCurve1DResource>;
 
+/// Initializer that sets random particle rotation speeds
+///
+/// Optionally also sets a random starting rotation angle.
 class EZ_PARTICLEPLUGIN_DLL ezParticleInitializerFactory_RandomRotationSpeed final : public ezParticleInitializerFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializerFactory_RandomRotationSpeed, ezParticleInitializerFactory);

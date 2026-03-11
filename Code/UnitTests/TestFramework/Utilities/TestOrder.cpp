@@ -210,12 +210,6 @@ void SaveTestSettings(const char* szFile, TestSettings& ref_testSettings)
   {
     ezStringUtils::snprintf(szTemp, 256, "  AssertOnTestFail = %s\n", ref_testSettings.m_AssertOnTestFail != AssertOnTestFail::DoNotAssert ? "on" : "off");
     fwrite(szTemp, sizeof(char), strlen(szTemp), pFile);
-    ezStringUtils::snprintf(szTemp, 256, "  OpenHtmlOutputOnError = %s\n", ref_testSettings.m_bOpenHtmlOutputOnError ? "on" : "off");
-    fwrite(szTemp, sizeof(char), strlen(szTemp), pFile);
-    ezStringUtils::snprintf(szTemp, 256, "  KeepConsoleOpen = %s\n", ref_testSettings.m_bKeepConsoleOpen ? "on" : "off");
-    fwrite(szTemp, sizeof(char), strlen(szTemp), pFile);
-    ezStringUtils::snprintf(szTemp, 256, "  ShowMessageBox = %s\n", ref_testSettings.m_bShowMessageBox ? "on" : "off");
-    fwrite(szTemp, sizeof(char), strlen(szTemp), pFile);
     ezStringUtils::snprintf(szTemp, 256, "  DisableSuccessfulTests = %s\n", ref_testSettings.m_bAutoDisableSuccessfulTests ? "on" : "off");
     fwrite(szTemp, sizeof(char), strlen(szTemp), pFile);
   }
@@ -262,18 +256,6 @@ void LoadTestSettings(const char* szFile, TestSettings& ref_testSettings)
           if (ezStringUtils::IsEqual_NoCase("AssertOnTestFail", szTestName))
           {
             ref_testSettings.m_AssertOnTestFail = bIsOff ? AssertOnTestFail::DoNotAssert : AssertOnTestFail::AssertIfDebuggerAttached;
-          }
-          else if (ezStringUtils::IsEqual_NoCase("OpenHtmlOutputOnError", szTestName))
-          {
-            ref_testSettings.m_bOpenHtmlOutputOnError = !bIsOff;
-          }
-          else if (ezStringUtils::IsEqual_NoCase("KeepConsoleOpen", szTestName))
-          {
-            ref_testSettings.m_bKeepConsoleOpen = !bIsOff;
-          }
-          else if (ezStringUtils::IsEqual_NoCase("ShowMessageBox", szTestName))
-          {
-            ref_testSettings.m_bShowMessageBox = !bIsOff;
           }
           else if (ezStringUtils::IsEqual_NoCase("DisableSuccessfulTests", szTestName))
           {

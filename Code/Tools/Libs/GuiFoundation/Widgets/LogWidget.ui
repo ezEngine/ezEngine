@@ -52,6 +52,9 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
+       <property name="toolTip">
+        <string>Filter log by severity.</string>
+       </property>
        <item>
         <property name="text">
          <string>All</string>
@@ -62,7 +65,7 @@
          <string>Debug</string>
         </property>
         <property name="icon">
-         <iconset resource="../../QtResources/resources.qrc">
+         <iconset resource="../QtResources/resources.qrc">
           <normaloff>:/GuiFoundation/Icons/Flag_Pink.svg</normaloff>:/GuiFoundation/Icons/Flag_Pink.svg</iconset>
         </property>
        </item>
@@ -71,7 +74,7 @@
          <string>Dev</string>
         </property>
         <property name="icon">
-         <iconset resource="../../QtResources/resources.qrc">
+         <iconset resource="../QtResources/resources.qrc">
           <normaloff>:/GuiFoundation/Icons/Flag_Purple.svg</normaloff>:/GuiFoundation/Icons/Flag_Purple.svg</iconset>
         </property>
        </item>
@@ -80,7 +83,7 @@
          <string>Info</string>
         </property>
         <property name="icon">
-         <iconset resource="../../QtResources/resources.qrc">
+         <iconset resource="../QtResources/resources.qrc">
           <normaloff>:/GuiFoundation/Icons/Flag_Blue.svg</normaloff>:/GuiFoundation/Icons/Flag_Blue.svg</iconset>
         </property>
        </item>
@@ -89,7 +92,7 @@
          <string>Success</string>
         </property>
         <property name="icon">
-         <iconset resource="../../QtResources/resources.qrc">
+         <iconset resource="../QtResources/resources.qrc">
           <normaloff>:/GuiFoundation/Icons/Flag_Green.svg</normaloff>:/GuiFoundation/Icons/Flag_Green.svg</iconset>
         </property>
        </item>
@@ -98,7 +101,7 @@
          <string>Warning</string>
         </property>
         <property name="icon">
-         <iconset resource="../../QtResources/resources.qrc">
+         <iconset resource="../QtResources/resources.qrc">
           <normaloff>:/GuiFoundation/Icons/Flag_Yellow.svg</normaloff>:/GuiFoundation/Icons/Flag_Yellow.svg</iconset>
         </property>
        </item>
@@ -107,7 +110,7 @@
          <string>Warning++</string>
         </property>
         <property name="icon">
-         <iconset resource="../../QtResources/resources.qrc">
+         <iconset resource="../QtResources/resources.qrc">
           <normaloff>:/GuiFoundation/Icons/Flag_Orange.svg</normaloff>:/GuiFoundation/Icons/Flag_Orange.svg</iconset>
         </property>
        </item>
@@ -116,7 +119,7 @@
          <string>Error</string>
         </property>
         <property name="icon">
-         <iconset resource="../../QtResources/resources.qrc">
+         <iconset resource="../QtResources/resources.qrc">
           <normaloff>:/GuiFoundation/Icons/Flag_Red.svg</normaloff>:/GuiFoundation/Icons/Flag_Red.svg</iconset>
         </property>
        </item>
@@ -124,11 +127,14 @@
      </item>
      <item>
       <widget class="QToolButton" name="ButtonClearLog">
+       <property name="toolTip">
+        <string>Clear the log.</string>
+       </property>
        <property name="text">
         <string>Clear Log</string>
        </property>
        <property name="icon">
-        <iconset resource="../../../../Code/Tools/GuiFoundation/QtResources/resources.qrc">
+        <iconset resource="../QtResources/resources.qrc">
          <normaloff>:/GuiFoundation/Icons/Delete.svg</normaloff>:/GuiFoundation/Icons/Delete.svg</iconset>
        </property>
       </widget>
@@ -171,5 +177,4 @@
   <include location="../QtResources/resources.qrc"/>
  </resources>
  <connections/>
-</ui> 
-
+</ui>

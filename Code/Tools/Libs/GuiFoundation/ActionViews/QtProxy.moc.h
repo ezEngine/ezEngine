@@ -90,6 +90,9 @@ public:
 
   virtual QMenu* GetQMenu();
 
+private:
+  void StatusUpdateEventHandler(ezAction* pAction);
+
 protected:
   QMenu* m_pMenu;
 };
@@ -147,9 +150,6 @@ public:
 
 private Q_SLOTS:
   void OnTriggered();
-
-private:
-  void StatusUpdateEventHandler(ezAction* pAction);
 
 private:
   QPointer<QAction> m_pQtAction;

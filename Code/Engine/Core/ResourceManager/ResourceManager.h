@@ -38,8 +38,7 @@ public:
   ///@{
 
 public:
-  /// \brief Returns a handle to the requested resource. szResourceID must uniquely identify the resource, different spellings / casing
-  /// will result in different resources.
+  /// \brief Returns a handle to the requested resource. szResourceID must uniquely identify the resource, different spellings / casing will result in different resources.
   ///
   /// After the call to this function the resource definitely exists in memory. Upon access through BeginAcquireResource / ezResourceLock
   /// the resource will be loaded. If it is not possible to load the resource it will change to a 'missing' state. If the code accessing the
@@ -47,13 +46,10 @@ public:
   template <typename ResourceType>
   static ezTypedResourceHandle<ResourceType> LoadResource(ezStringView sResourceID);
 
-  /// \brief Same as LoadResource(), but additionally allows to set a priority on the resource and a custom fallback resource for this
+  /// \brief Same as LoadResource(), but additionally allows to set a custom fallback resource for this
   /// instance.
   ///
-  /// Pass in ezResourcePriority::Unchanged, if you only want to specify a custom fallback resource.
-  /// If a resource priority is specified, the target resource will get that priority.
-  /// If a valid fallback resource is specified, the resource will store that as its instance specific fallback resource. This will be used
-  /// when trying to acquire the resource later.
+  /// If a valid fallback resource is specified, the resource will store that as its instance specific fallback resource. This will be used when trying to acquire the resource later.
   template <typename ResourceType>
   static ezTypedResourceHandle<ResourceType> LoadResource(ezStringView sResourceID, ezTypedResourceHandle<ResourceType> hLoadingFallback);
 
@@ -115,8 +111,7 @@ public:
 
   static ezTypelessResourceHandle GetExistingResourceOrCreateAsync(const ezRTTI* pResourceType, ezStringView sResourceID, ezUniquePtr<ezResourceTypeLoader>&& pLoader);
 
-  /// \brief Triggers loading of the given resource. tShouldBeAvailableIn specifies how long the resource is not yet needed, thus allowing
-  /// other resources to be loaded first. This is only a hint and there are no guarantees when the resource is available.
+  /// \brief Triggers loading of the given resource.
   static void PreloadResource(const ezTypelessResourceHandle& hResource);
 
   /// \brief Similar to locking a resource with 'BlockTillLoaded' acquire mode, but can be done with a typeless handle and does not return a result.
@@ -463,13 +458,17 @@ private:
     EZ_ALWAYS_INLINE bool operator<(const LoadingInfo& rhs) const { return m_fPriority < rhs.m_fPriority; }
   };
   static void EnsureResourceLoadingState(ezResource* pResource, const ezResourceState RequestedState);
+  static void EnsureResourceCondition(ezResource* pResource, const ezDelegate<bool()>& condition);
   static void PreloadResource(ezResource* pResource);
   static void InternalPreloadResource(ezResource* pResource, bool bHighestPriority);
+
+  template <typename ResourceType, typename DescriptorType>
+  static ezTypedResourceHandle<ResourceType> CreateResourceInternal(ezStringView sResourceID, DescriptorType&& descriptor, ezStringView sResourceDescription, bool bAllowGetFallback);
 
   template <typename ResourceType>
   static ResourceType* GetResource(ezStringView sResourceID, bool bIsReloadable);
   static ezResource* GetResource(const ezRTTI* pRtti, ezStringView sResourceID, bool bIsReloadable);
-  static void RunWorkerTask(ezResource* pResource);
+  static void RunWorkerTask();
   static void UpdateLoadingDeadlines();
   static void ReverseBubbleSortStep(ezDeque<LoadingInfo>& data);
   static bool ReloadResource(ezResource* pResource, bool bForce);
@@ -511,5 +510,6 @@ private:
   static const ezRTTI* FindResourceTypeOverride(const ezRTTI* pRtti, ezStringView sResourceID);
 };
 
+#include <Core/ResourceManager/Implementation/ResourceHandleReflection.h>
 #include <Core/ResourceManager/Implementation/ResourceLock.h>
 #include <Core/ResourceManager/Implementation/ResourceManager_inl.h>

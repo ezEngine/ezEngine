@@ -6,17 +6,24 @@
 #include <Foundation/Utilities/ConversionUtils.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <RendererCore/ShaderCompiler/ShaderParser.h>
+#include <RendererFoundation/Shader/Types.h>
 
 using namespace ezTokenParseUtils;
 
 namespace
 {
+  static ezMutex s_TableLock;
   static ezHashTable<ezStringView, const ezRTTI*> s_NameToTypeTable;
   static ezHashTable<ezStringView, ezEnum<ezGALShaderResourceType>> s_NameToDescriptorTable;
   static ezHashTable<ezStringView, ezEnum<ezGALShaderTextureType>> s_NameToTextureTable;
+  static ezHashTable<ezStringView, ezEnum<ezShaderConstant::Type>> s_NameToShaderConstantTable;
+  static ezDynamicArray<ezUInt32> s_ShaderConstantSize;
+  static ezDynamicArray<ezUInt32> s_ShaderConstantScalarSize;
 
   void InitializeTables()
   {
+    EZ_LOCK(s_TableLock);
+
     if (!s_NameToTypeTable.IsEmpty())
       return;
 
@@ -54,7 +61,7 @@ namespace
     s_NameToDescriptorTable.Insert("TextureCubeArray"_ezsv, ezGALShaderResourceType::Texture);
     s_NameToDescriptorTable.Insert("Buffer"_ezsv, ezGALShaderResourceType::TexelBuffer);
     s_NameToDescriptorTable.Insert("StructuredBuffer"_ezsv, ezGALShaderResourceType::StructuredBuffer);
-    s_NameToDescriptorTable.Insert("ByteAddressBuffer"_ezsv, ezGALShaderResourceType::StructuredBuffer);
+    s_NameToDescriptorTable.Insert("ByteAddressBuffer"_ezsv, ezGALShaderResourceType::ByteAddressBuffer);
     s_NameToDescriptorTable.Insert("RWTexture1D"_ezsv, ezGALShaderResourceType::TextureRW);
     s_NameToDescriptorTable.Insert("RWTexture1DArray"_ezsv, ezGALShaderResourceType::TextureRW);
     s_NameToDescriptorTable.Insert("RWTexture2D"_ezsv, ezGALShaderResourceType::TextureRW);
@@ -62,7 +69,7 @@ namespace
     s_NameToDescriptorTable.Insert("RWTexture3D"_ezsv, ezGALShaderResourceType::TextureRW);
     s_NameToDescriptorTable.Insert("RWBuffer"_ezsv, ezGALShaderResourceType::TexelBufferRW);
     s_NameToDescriptorTable.Insert("RWStructuredBuffer"_ezsv, ezGALShaderResourceType::StructuredBufferRW);
-    s_NameToDescriptorTable.Insert("RWByteAddressBuffer"_ezsv, ezGALShaderResourceType::StructuredBufferRW);
+    s_NameToDescriptorTable.Insert("RWByteAddressBuffer"_ezsv, ezGALShaderResourceType::ByteAddressBufferRW);
     s_NameToDescriptorTable.Insert("AppendStructuredBuffer"_ezsv, ezGALShaderResourceType::StructuredBufferRW);
     s_NameToDescriptorTable.Insert("ConsumeStructuredBuffer"_ezsv, ezGALShaderResourceType::StructuredBufferRW);
 
@@ -80,6 +87,65 @@ namespace
     s_NameToTextureTable.Insert("RWTexture2D"_ezsv, ezGALShaderTextureType::Texture2D);
     s_NameToTextureTable.Insert("RWTexture2DArray"_ezsv, ezGALShaderTextureType::Texture2DArray);
     s_NameToTextureTable.Insert("RWTexture3D"_ezsv, ezGALShaderTextureType::Texture3D);
+
+    s_NameToShaderConstantTable.Insert("FLOAT1"_ezsv, ezShaderConstant::Type::Float1);
+    s_NameToShaderConstantTable.Insert("FLOAT2"_ezsv, ezShaderConstant::Type::Float2);
+    s_NameToShaderConstantTable.Insert("FLOAT3"_ezsv, ezShaderConstant::Type::Float3);
+    s_NameToShaderConstantTable.Insert("FLOAT4"_ezsv, ezShaderConstant::Type::Float4);
+    s_NameToShaderConstantTable.Insert("INT1"_ezsv, ezShaderConstant::Type::Int1);
+    s_NameToShaderConstantTable.Insert("INT2"_ezsv, ezShaderConstant::Type::Int2);
+    s_NameToShaderConstantTable.Insert("INT3"_ezsv, ezShaderConstant::Type::Int3);
+    s_NameToShaderConstantTable.Insert("INT4"_ezsv, ezShaderConstant::Type::Int4);
+    s_NameToShaderConstantTable.Insert("UINT1"_ezsv, ezShaderConstant::Type::UInt1);
+    s_NameToShaderConstantTable.Insert("UINT2"_ezsv, ezShaderConstant::Type::UInt2);
+    s_NameToShaderConstantTable.Insert("UINT3"_ezsv, ezShaderConstant::Type::UInt3);
+    s_NameToShaderConstantTable.Insert("UINT4"_ezsv, ezShaderConstant::Type::UInt4);
+    s_NameToShaderConstantTable.Insert("MAT3"_ezsv, ezShaderConstant::Type::Mat3x3);
+    s_NameToShaderConstantTable.Insert("MAT4"_ezsv, ezShaderConstant::Type::Mat4x4);
+    s_NameToShaderConstantTable.Insert("TRANSFORM"_ezsv, ezShaderConstant::Type::Transform);
+    s_NameToShaderConstantTable.Insert("COLOR4F"_ezsv, ezShaderConstant::Type::Float4);
+    s_NameToShaderConstantTable.Insert("BOOL1"_ezsv, ezShaderConstant::Type::Bool);
+    // Handled separately
+    // s_NameToShaderConstantTable.Insert("PACKEDHALF2"_ezsv, ezShaderConstant::Type::UInt1);
+    // s_NameToShaderConstantTable.Insert("PACKEDCOLOR4H"_ezsv, ezShaderConstant::Type::Bool);
+
+    s_ShaderConstantSize.SetCount(ezShaderConstant::Type::ENUM_COUNT);
+    s_ShaderConstantSize[ezShaderConstant::Type::Float1] = sizeof(float);
+    s_ShaderConstantSize[ezShaderConstant::Type::Float2] = sizeof(ezVec2);
+    s_ShaderConstantSize[ezShaderConstant::Type::Float3] = sizeof(ezVec3);
+    s_ShaderConstantSize[ezShaderConstant::Type::Float4] = sizeof(ezVec4);
+    s_ShaderConstantSize[ezShaderConstant::Type::Int1] = sizeof(ezInt32);
+    s_ShaderConstantSize[ezShaderConstant::Type::Int2] = sizeof(ezVec2I32);
+    s_ShaderConstantSize[ezShaderConstant::Type::Int3] = sizeof(ezVec3I32);
+    s_ShaderConstantSize[ezShaderConstant::Type::Int4] = sizeof(ezVec4I32);
+    s_ShaderConstantSize[ezShaderConstant::Type::UInt1] = sizeof(ezUInt32);
+    s_ShaderConstantSize[ezShaderConstant::Type::UInt2] = sizeof(ezVec2U32);
+    s_ShaderConstantSize[ezShaderConstant::Type::UInt3] = sizeof(ezVec3U32);
+    s_ShaderConstantSize[ezShaderConstant::Type::UInt4] = sizeof(ezVec4U32);
+    s_ShaderConstantSize[ezShaderConstant::Type::Mat3x3] = sizeof(ezShaderMat3);
+    s_ShaderConstantSize[ezShaderConstant::Type::Mat4x4] = sizeof(ezShaderMat4);
+    s_ShaderConstantSize[ezShaderConstant::Type::Transform] = sizeof(ezShaderTransform);
+    s_ShaderConstantSize[ezShaderConstant::Type::Bool] = sizeof(ezShaderBool);
+    s_ShaderConstantSize[ezShaderConstant::Type::Struct] = 0;
+
+    s_ShaderConstantScalarSize.SetCount(ezShaderConstant::Type::ENUM_COUNT);
+    s_ShaderConstantScalarSize[ezShaderConstant::Type::Float1] = sizeof(float);
+    s_ShaderConstantScalarSize[ezShaderConstant::Type::Float2] = sizeof(float);
+    s_ShaderConstantScalarSize[ezShaderConstant::Type::Float3] = sizeof(float);
+    s_ShaderConstantScalarSize[ezShaderConstant::Type::Float4] = sizeof(float);
+    s_ShaderConstantScalarSize[ezShaderConstant::Type::Int1] = sizeof(ezInt32);
+    s_ShaderConstantScalarSize[ezShaderConstant::Type::Int2] = sizeof(ezInt32);
+    s_ShaderConstantScalarSize[ezShaderConstant::Type::Int3] = sizeof(ezInt32);
+    s_ShaderConstantScalarSize[ezShaderConstant::Type::Int4] = sizeof(ezInt32);
+    s_ShaderConstantScalarSize[ezShaderConstant::Type::UInt1] = sizeof(ezUInt32);
+    s_ShaderConstantScalarSize[ezShaderConstant::Type::UInt2] = sizeof(ezUInt32);
+    s_ShaderConstantScalarSize[ezShaderConstant::Type::UInt3] = sizeof(ezUInt32);
+    s_ShaderConstantScalarSize[ezShaderConstant::Type::UInt4] = sizeof(ezUInt32);
+    s_ShaderConstantScalarSize[ezShaderConstant::Type::Mat3x3] = sizeof(float);
+    s_ShaderConstantScalarSize[ezShaderConstant::Type::Mat4x4] = sizeof(float);
+    s_ShaderConstantScalarSize[ezShaderConstant::Type::Transform] = sizeof(float);
+    s_ShaderConstantScalarSize[ezShaderConstant::Type::Bool] = sizeof(ezShaderBool);
+    s_ShaderConstantScalarSize[ezShaderConstant::Type::Struct] = 0;
   }
 
   const ezRTTI* GetType(const char* szType)
@@ -103,6 +169,12 @@ namespace
       return ezVariant(sValue.GetData());
     }
 
+    bool bValueIsNegative = false;
+    if (Accept(tokens, ref_uiCurToken, "-"))
+    {
+      bValueIsNegative = true;
+    }
+
     if (Accept(tokens, ref_uiCurToken, ezTokenType::Integer, &uiValueToken))
     {
       ezString sValue = tokens[uiValueToken]->m_DataView;
@@ -120,7 +192,7 @@ namespace
         ezConversionUtils::StringToInt64(sValue, iValue).IgnoreResult();
       }
 
-      return ezVariant(iValue);
+      return ezVariant(bValueIsNegative ? -iValue : iValue);
     }
 
     if (Accept(tokens, ref_uiCurToken, ezTokenType::Float, &uiValueToken))
@@ -130,7 +202,7 @@ namespace
       double fValue = 0;
       ezConversionUtils::StringToFloat(sValue, fValue).IgnoreResult();
 
-      return ezVariant(fValue);
+      return ezVariant(bValueIsNegative ? -fValue : fValue);
     }
 
     if (Accept(tokens, ref_uiCurToken, "true", &uiValueToken) || Accept(tokens, ref_uiCurToken, "false", &uiValueToken))
@@ -153,7 +225,7 @@ namespace
       ++ref_uiCurToken;
       Accept(tokens, ref_uiCurToken, "(");
 
-      ezHybridArray<ezVariant, 8> constructorArgs;
+      ezTempHybridArray<ezVariant, 8> constructorArgs;
 
       while (!Accept(tokens, ref_uiCurToken, ")"))
       {
@@ -177,7 +249,7 @@ namespace
       {
         if (pFunc->GetFunctionType() == ezFunctionType::Constructor && pFunc->GetArgumentCount() == constructorArgs.GetCount())
         {
-          ezHybridArray<ezVariant, 8> convertedArgs;
+          ezTempHybridArray<ezVariant, 8> convertedArgs;
           bool bAllArgsValid = true;
 
           for (ezUInt32 uiArg = 0; uiArg < pFunc->GetArgumentCount(); ++uiArg)
@@ -317,7 +389,7 @@ namespace
         Accept(tokens, ref_uiCurToken, ezTokenType::Integer, &uiValueToken);
 
         ezInt32 iValue = 0;
-        if (ezConversionUtils::StringToInt(tokens[uiValueToken]->m_DataView.GetStartPointer(), iValue).Succeeded() && iValue >= 0)
+        if (ezConversionUtils::StringToInt(tokens[uiValueToken]->m_DataView, iValue).Succeeded() && iValue >= 0)
         {
           uiCurrentValue = iValue;
         }
@@ -382,17 +454,8 @@ namespace
   }
 } // namespace
 
-ezResult ezShaderParser::PreprocessSection(ezStreamReader& inout_stream, ezShaderHelper::ezShaderSections::Enum section, ezArrayPtr<ezString> customDefines, ezStringBuilder& out_sResult)
+ezResult ezShaderParser::PreprocessSection(ezStringView sSectionContent, ezArrayPtr<ezString> customDefines, ezStringBuilder& out_sResult)
 {
-  ezString sContent;
-  sContent.ReadAll(inout_stream);
-
-  ezShaderHelper::ezTextSectionizer sections;
-  ezShaderHelper::GetShaderSections(sContent, sections);
-
-  ezUInt32 uiFirstLine = 0;
-  ezStringView sSectionContent = sections.GetSectionContent(section, uiFirstLine);
-
   ezPreprocessor pp;
   pp.SetPassThroughPragma(false);
   pp.SetPassThroughLine(false);
@@ -459,17 +522,17 @@ ezResult ezShaderParser::PreprocessSection(ezStreamReader& inout_stream, ezShade
 }
 
 // static
-void ezShaderParser::ParseMaterialParameterSection(ezStreamReader& inout_stream, ezDynamicArray<ParameterDefinition>& out_parameter, ezDynamicArray<EnumDefinition>& out_enumDefinitions)
+void ezShaderParser::ParseMaterialParameterSection(ezStringView sSection, ezDynamicArray<ParameterDefinition>& out_parameter, ezDynamicArray<EnumDefinition>& out_enumDefinitions)
 {
-  ezStringBuilder sContent;
-  if (PreprocessSection(inout_stream, ezShaderHelper::ezShaderSections::MATERIALPARAMETER, ezArrayPtr<ezString>(), sContent).Failed())
+  ezStringBuilder sPreprocessedSection;
+  if (ezShaderParser::PreprocessSection(sSection, ezArrayPtr<ezString>(), sPreprocessedSection).Failed())
   {
-    ezLog::Error("Failed to preprocess material parameter section");
+    ezLog::Error("Preprocessing material parameter section failed.");
     return;
   }
 
   ezTokenizer tokenizer;
-  tokenizer.Tokenize(ezMakeArrayPtr((const ezUInt8*)sContent.GetData(), sContent.GetElementCount()), ezLog::GetThreadLocalLogSystem());
+  tokenizer.Tokenize(ezMakeArrayPtr((const ezUInt8*)sPreprocessedSection.GetData(), sPreprocessedSection.GetElementCount()), ezLog::GetThreadLocalLogSystem(), false);
 
   TokenStream tokens;
   tokenizer.GetAllLines(tokens);
@@ -500,27 +563,13 @@ void ezShaderParser::ParseMaterialParameterSection(ezStreamReader& inout_stream,
 }
 
 // static
-void ezShaderParser::ParsePermutationSection(ezStreamReader& inout_stream, ezDynamicArray<ezHashedString>& out_permVars, ezDynamicArray<ezPermutationVar>& out_fixedPermVars)
-{
-  ezString sContent;
-  sContent.ReadAll(inout_stream);
-
-  ezShaderHelper::ezTextSectionizer Sections;
-  ezShaderHelper::GetShaderSections(sContent.GetData(), Sections);
-
-  ezUInt32 uiFirstLine = 0;
-  ezStringView sPermutations = Sections.GetSectionContent(ezShaderHelper::ezShaderSections::PERMUTATIONS, uiFirstLine);
-  ParsePermutationSection(sPermutations, out_permVars, out_fixedPermVars);
-}
-
-// static
 void ezShaderParser::ParsePermutationSection(ezStringView s, ezDynamicArray<ezHashedString>& out_permVars, ezDynamicArray<ezPermutationVar>& out_fixedPermVars)
 {
   out_permVars.Clear();
   out_fixedPermVars.Clear();
 
   ezTokenizer tokenizer;
-  tokenizer.Tokenize(ezArrayPtr<const ezUInt8>((const ezUInt8*)s.GetStartPointer(), s.GetElementCount()), ezLog::GetThreadLocalLogSystem());
+  tokenizer.Tokenize(ezArrayPtr<const ezUInt8>((const ezUInt8*)s.GetStartPointer(), s.GetElementCount()), ezLog::GetThreadLocalLogSystem(), false);
 
   enum class State
   {
@@ -595,6 +644,184 @@ void ezShaderParser::ParsePermutationSection(ezStringView s, ezDynamicArray<ezHa
   }
 }
 
+ezStatus ParseShaderConstant(const TokenStream& tokens, ezUInt32& ref_uiCurToken, ezShaderConstantBufferLayout& ref_materialConstantBufferLayout)
+{
+  ezTempHybridArray<ezUInt32, 8> acceptedTokens;
+  TokenMatch constantPattern[] = {ezTokenType::Identifier, "("_ezsv, ezTokenType::Identifier, ")"_ezsv, ";"_ezsv};
+  TokenMatch packedhalf2Pattern[] = {ezTokenType::Identifier, "("_ezsv, ezTokenType::Identifier, ","_ezsv, ezTokenType::Identifier, ","_ezsv, ezTokenType::Identifier, ")"_ezsv, ";"_ezsv};
+  const ezUInt32 uiStartToken = ref_uiCurToken;
+  if (Accept(tokens, ref_uiCurToken, constantPattern, &acceptedTokens))
+  {
+    const ezUInt32 uiNameToken = acceptedTokens[2];
+    const ezUInt32 uiTypeToken = acceptedTokens[0];
+
+    ezEnum<ezShaderConstant::Type> type;
+    if (s_NameToShaderConstantTable.TryGetValue(tokens[uiTypeToken]->m_DataView, type))
+    {
+      ezShaderConstant& out_shaderConstant = ref_materialConstantBufferLayout.m_Constants.ExpandAndGetRef();
+      out_shaderConstant.m_Type = type;
+      out_shaderConstant.m_sName.Assign(tokens[uiNameToken]->m_DataView);
+      out_shaderConstant.m_uiArrayElements = 1;
+      out_shaderConstant.m_uiOffset = 0;
+      return ezStatus(EZ_SUCCESS);
+    }
+    else if (tokens[uiNameToken]->m_DataView == "PACKEDCOLOR4H")
+    {
+      {
+        ezShaderConstant& out_shaderConstant = ref_materialConstantBufferLayout.m_Constants.ExpandAndGetRef();
+        out_shaderConstant.m_Type = ezShaderConstant::Type::UInt1;
+        ezStringBuilder sNameRG(tokens[uiNameToken]->m_DataView, "RG"_ezsv);
+        out_shaderConstant.m_sName.Assign(sNameRG.GetView());
+        out_shaderConstant.m_uiArrayElements = 1;
+        out_shaderConstant.m_uiOffset = 0;
+      }
+      {
+        ezShaderConstant& out_shaderConstant = ref_materialConstantBufferLayout.m_Constants.ExpandAndGetRef();
+        out_shaderConstant.m_Type = ezShaderConstant::Type::UInt1;
+        ezStringBuilder sNameRG(tokens[uiNameToken]->m_DataView, "GB"_ezsv);
+        out_shaderConstant.m_sName.Assign(sNameRG.GetView());
+        out_shaderConstant.m_uiArrayElements = 1;
+        out_shaderConstant.m_uiOffset = 0;
+      }
+      return ezStatus(EZ_SUCCESS);
+    }
+
+    return ezStatus(ezFmt("Unknown shader constant type: {}", tokens[uiTypeToken]->m_DataView));
+  }
+  else if (Accept(tokens, ref_uiCurToken, packedhalf2Pattern, &acceptedTokens))
+  {
+    const ezUInt32 uiNameToken = acceptedTokens[6];
+
+    ezShaderConstant& out_shaderConstant = ref_materialConstantBufferLayout.m_Constants.ExpandAndGetRef();
+    out_shaderConstant.m_Type = ezShaderConstant::Type::UInt1;
+    out_shaderConstant.m_sName.Assign(tokens[uiNameToken]->m_DataView);
+    out_shaderConstant.m_uiArrayElements = 1;
+    out_shaderConstant.m_uiOffset = 0;
+    return ezStatus(EZ_SUCCESS);
+  }
+  return ezStatus(ezFmt("Unknown shader constant"));
+}
+
+ezUInt32 AlignSize(ezUInt32 uiValue, ezUInt32 uiAlignment)
+{
+  const ezUInt32 uiRemainder = uiValue % uiAlignment;
+  return uiRemainder == 0 ? uiValue : uiValue + uiAlignment - uiRemainder;
+}
+
+void AlignConstantBufferDX(ezShaderConstantBufferLayout& ref_materialConstantBufferLayout)
+{
+  ezUInt32 uiCurrentOffset = 0;
+  for (ezShaderConstant& constant : ref_materialConstantBufferLayout.m_Constants)
+  {
+    const ezUInt32 uiScalarSize = s_ShaderConstantScalarSize[constant.m_Type];
+    const ezUInt32 uiConstantSize = s_ShaderConstantSize[constant.m_Type];
+    uiCurrentOffset = AlignSize(uiCurrentOffset, uiScalarSize);
+    const ezUInt32 uiStartBucket = uiCurrentOffset / 16;
+    const ezUInt32 uiEndBucket = (uiCurrentOffset + uiConstantSize - 1) / 16;
+    // Check if the constant is crossing a 16 byte boundary
+    if (uiStartBucket != uiEndBucket)
+    {
+      uiCurrentOffset = AlignSize(uiCurrentOffset, 16);
+    }
+    constant.m_uiOffset = uiCurrentOffset;
+    uiCurrentOffset += uiConstantSize;
+  }
+
+  uiCurrentOffset = AlignSize(uiCurrentOffset, 16);
+  ref_materialConstantBufferLayout.m_uiTotalSize = uiCurrentOffset;
+}
+
+void AlignStructuredBufferDX(ezShaderConstantBufferLayout& ref_materialConstantBufferLayout)
+{
+  ezUInt32 uiCurrentOffset = 0;
+  for (ezShaderConstant& constant : ref_materialConstantBufferLayout.m_Constants)
+  {
+    const ezUInt32 uiScalarSize = s_ShaderConstantScalarSize[constant.m_Type];
+    const ezUInt32 uiConstantSize = s_ShaderConstantSize[constant.m_Type];
+    uiCurrentOffset = AlignSize(uiCurrentOffset, uiScalarSize);
+    constant.m_uiOffset = uiCurrentOffset;
+    uiCurrentOffset += uiConstantSize;
+  }
+  ref_materialConstantBufferLayout.m_uiTotalSize = uiCurrentOffset;
+}
+
+void AlignStructuredBufferStd430Relaxed(ezShaderConstantBufferLayout& ref_materialConstantBufferLayout)
+{
+  ezUInt32 uiCurrentOffset = 0;
+  for (ezShaderConstant& constant : ref_materialConstantBufferLayout.m_Constants)
+  {
+    const ezUInt32 uiScalarSize = s_ShaderConstantScalarSize[constant.m_Type];
+    const ezUInt32 uiConstantSize = s_ShaderConstantSize[constant.m_Type];
+    uiCurrentOffset = AlignSize(uiCurrentOffset, uiScalarSize);
+    const ezUInt32 uiStartBucket = uiCurrentOffset / 16;
+    const ezUInt32 uiEndBucket = (uiCurrentOffset + uiConstantSize - 1) / 16;
+    // Check if the constant is crossing a 16 byte boundary
+    if (uiStartBucket != uiEndBucket)
+    {
+      uiCurrentOffset = AlignSize(uiCurrentOffset, 16);
+    }
+    constant.m_uiOffset = uiCurrentOffset;
+    uiCurrentOffset += uiConstantSize;
+  }
+  ref_materialConstantBufferLayout.m_uiTotalSize = uiCurrentOffset;
+}
+
+ezStatus ParseMaterialConstants(const TokenStream& tokens, ezUInt32& ref_uiCurToken, ezShaderConstantBufferLayout& ref_materialConstantBufferLayout)
+{
+  while (!Accept(tokens, ref_uiCurToken, ezTokenType::EndOfFile))
+  {
+    ezStatus parseResult = ParseShaderConstant(tokens, ref_uiCurToken, ref_materialConstantBufferLayout);
+    if (!parseResult.Succeeded())
+    {
+      return parseResult;
+    }
+  }
+
+  return ezStatus(EZ_SUCCESS);
+}
+
+ezStatus ezShaderParser::ParseMaterialConstantsSection(ezStringView sMaterialConstantsSection, ezSharedPtr<ezShaderConstantBufferLayout>& out_pMaterialConstantBufferLayout)
+{
+  InitializeTables();
+
+  ezTokenizer tokenizer;
+  tokenizer.Tokenize(ezArrayPtr<const ezUInt8>((const ezUInt8*)sMaterialConstantsSection.GetStartPointer(), sMaterialConstantsSection.GetElementCount()), ezLog::GetThreadLocalLogSystem(), false);
+
+  TokenStream tokens;
+  tokenizer.GetAllLines(tokens);
+
+  ezUInt32 uiCurToken = 0;
+  ezTempHybridArray<ezUInt32, 8> acceptedTokens;
+
+  out_pMaterialConstantBufferLayout = EZ_DEFAULT_NEW(ezShaderConstantBufferLayout);
+  const ezStatus res = ParseMaterialConstants(tokens, uiCurToken, *out_pMaterialConstantBufferLayout);
+  if (res.Failed() || out_pMaterialConstantBufferLayout->m_Constants.IsEmpty())
+  {
+    out_pMaterialConstantBufferLayout = nullptr;
+    return res;
+  }
+
+  return ezStatus(EZ_SUCCESS);
+}
+
+void ezShaderParser::LayoutMaterialConstants(ezShaderConstantBufferLayout& ref_materialConstantBufferLayout, ezEnum<ezGALBufferLayout> layout)
+{
+  switch (layout)
+  {
+    case ezGALBufferLayout::Vulkan_Std430_relaxed:
+      AlignStructuredBufferStd430Relaxed(ref_materialConstantBufferLayout);
+      break;
+    case ezGALBufferLayout::DirectX_StructuredButter:
+      AlignStructuredBufferDX(ref_materialConstantBufferLayout);
+      break;
+    case ezGALBufferLayout::DirectX_ConstantButter:
+      AlignConstantBufferDX(ref_materialConstantBufferLayout);
+      break;
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+  }
+}
+
 // static
 void ezShaderParser::ParsePermutationVarConfig(ezStringView s, ezVariant& out_defaultValue, EnumDefinition& out_enumDefinition)
 {
@@ -663,7 +890,7 @@ ezResult ParseResource(const TokenStream& tokens, ezUInt32& ref_uiCurToken, ezSh
 
   // Skip optional template
   TokenMatch templatePattern[] = {"<"_ezsv, ezTokenType::Identifier, ">"_ezsv};
-  ezHybridArray<ezUInt32, 8> acceptedTokens;
+  ezTempHybridArray<ezUInt32, 8> acceptedTokens;
   Accept(tokens, ref_uiCurToken, templatePattern, &acceptedTokens);
 
   // Match name
@@ -727,7 +954,7 @@ ezResult ParseResource(const TokenStream& tokens, ezUInt32& ref_uiCurToken, ezSh
     sSet.TrimWordStart("space"_ezsv);
     ezInt32 iSet;
     ezConversionUtils::StringToInt(sSet, iSet).AssertSuccess("Failed to parse set index of shader resource");
-    out_resourceDefinition.m_Binding.m_iSet = static_cast<ezInt16>(iSet);
+    out_resourceDefinition.m_Binding.m_iBindGroup = static_cast<ezInt16>(iSet);
     uiEndToken = acceptedTokens.PeekBack();
   }
 
@@ -815,7 +1042,7 @@ ezResult ezShaderParser::SanityCheckShaderResourceBindings(const ezHashTable<ezH
 {
   for (auto it : bindings)
   {
-    if (it.Value().m_iSet < 0)
+    if (it.Value().m_iBindGroup < 0)
     {
       ezLog::Error(pLog, "Shader resource '{}' does not have a set defined.", it.Key());
       return EZ_FAILURE;
@@ -832,11 +1059,11 @@ ezResult ezShaderParser::SanityCheckShaderResourceBindings(const ezHashTable<ezH
 void ezShaderParser::ApplyShaderResourceBindings(ezStringView sPlatform, ezStringView sShaderStageSource, const ezDynamicArray<ezShaderResourceDefinition>& resources, const ezHashTable<ezHashedString, ezShaderResourceBinding>& bindings, const CreateResourceDeclaration& createDeclaration, ezStringBuilder& out_sShaderStageSource)
 {
   ezDeque<ezString> partStorage;
-  ezHybridArray<ezStringView, 16> parts;
+  ezTempHybridArray<ezStringView, 16> parts;
 
   ezStringBuilder sDeclaration;
   const char* szStart = sShaderStageSource.GetStartPointer();
-  for (int i = 0; i < resources.GetCount(); ++i)
+  for (ezUInt32 i = 0; i < resources.GetCount(); ++i)
   {
     parts.PushBack(ezStringView(szStart, resources[i].m_sDeclarationAndRegister.GetStartPointer()));
 

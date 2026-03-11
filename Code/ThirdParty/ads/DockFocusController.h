@@ -69,11 +69,28 @@ public:
 	 */
 	CDockWidget* focusedDockWidget() const;
 
+    /**
+     * Returns the dock area that contains the focusedDockWidget() or nullptr if
+     * the focused dock widget is not in this area.
+     */
+    CDockAreaWidget* focusedDockArea() const;
+
 	/**
 	 * Request focus highlighting for the given dock widget assigned to the tab
 	 * given in Tab parameter
 	 */
 	void setDockWidgetTabFocused(CDockWidgetTab* Tab);
+
+	/*
+	 * Request clear focus for a dock widget
+	 */
+	void clearDockWidgetFocus(CDockWidget* dockWidget);
+
+	/**
+	 * Notifies the dock focus controller, that a the mouse is pressed or
+	 * released
+	 */
+	void setDockWidgetTabPressed(bool Value);
 
 public Q_SLOTS:
 	/**

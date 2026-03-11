@@ -91,7 +91,7 @@ ezIdTableBase<IdType, ValueType>::ezIdTableBase(ezAllocator* pAllocator)
   m_pEntries = nullptr;
   m_Count = 0;
   m_Capacity = 0;
-  m_FreelistEnqueue = -1;
+  m_FreelistEnqueue = IndexType(-1);
   m_FreelistDequeue = 0;
   m_pAllocator = pAllocator;
 }
@@ -102,7 +102,7 @@ ezIdTableBase<IdType, ValueType>::ezIdTableBase(const ezIdTableBase<IdType, Valu
   m_pEntries = nullptr;
   m_Count = 0;
   m_Capacity = 0;
-  m_FreelistEnqueue = -1;
+  m_FreelistEnqueue = IndexType(-1);
   m_FreelistDequeue = 0;
   m_pAllocator = pAllocator;
 
@@ -168,6 +168,12 @@ template <typename IdType, typename ValueType>
 EZ_ALWAYS_INLINE typename ezIdTableBase<IdType, ValueType>::IndexType ezIdTableBase<IdType, ValueType>::GetCount() const
 {
   return m_Count;
+}
+
+template <typename IdType, typename ValueType>
+EZ_ALWAYS_INLINE typename ezIdTableBase<IdType, ValueType>::IndexType ezIdTableBase<IdType, ValueType>::GetCapacity() const
+{
+  return m_Capacity;
 }
 
 template <typename IdType, typename ValueType>
@@ -322,6 +328,13 @@ EZ_FORCE_INLINE ValueType& ezIdTableBase<IdType, ValueType>::GetValueUnchecked(c
 {
   EZ_ASSERT_DEBUG(index < m_Capacity, "Out of bounds access. Table has {0} elements, trying to access element at index {1}.", m_Capacity, index);
   return m_pEntries[index].value;
+}
+
+template <typename IdType, typename ValueType>
+EZ_FORCE_INLINE IdType ezIdTableBase<IdType, ValueType>::GetIdUnchecked(const IndexType index) const
+{
+  EZ_ASSERT_DEBUG(index < m_Capacity, "Out of bounds access. Table has {0} elements, trying to access element at index {1}.", m_Capacity, index);
+  return m_pEntries[index].id;
 }
 
 template <typename IdType, typename ValueType>

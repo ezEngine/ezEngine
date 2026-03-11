@@ -8,11 +8,28 @@
 ///
 /// The hashset stores values by using the hash as an index into the table.
 /// This implementation uses linear-probing to resolve hash collisions which means all values are stored
-/// in a linear array.
-/// All insertion/erasure/lookup functions take O(1) time if the table does not need to be expanded,
-/// which happens when the load gets greater than 60%.
+/// in a linear array. Automatic resizing maintains a load factor below 60% for optimal performance.
+///
+/// Performance characteristics:
+/// - Average case: O(1) - insertion, erasure, lookup
+/// - Worst case: O(n) - when all keys hash to the same location (very rare with good hash functions)
+/// - Resizing: O(n) - occurs when load factor exceeds 60%, amortized cost is still O(1) per operation
+/// - Memory usage: More memory efficient than tree-based containers, ~1.67x element storage
+/// - Iteration: O(n) in hash order (not sorted)
+/// - Set operations (union, intersection, difference): O(n + m) average case
+///
+/// Use when:
+/// - Fast lookup/insertion/removal is the primary concern
+/// - You don't need sorted iteration
+/// - Memory efficiency is important
+/// - You have a good hash function for your key type
+///
+/// Consider ezSet instead when:
+/// - You need sorted iteration
+/// - You need stable element addresses (no reallocation)
+/// - Predictable O(log n) performance is more important than average O(1)
+///
 /// The hash function can be customized by providing a Hasher helper class like ezHashHelper.
-
 /// \see ezHashHelper
 template <typename KeyType, typename Hasher>
 class ezHashSetBase

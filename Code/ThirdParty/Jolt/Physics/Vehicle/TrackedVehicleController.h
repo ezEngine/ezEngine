@@ -17,15 +17,15 @@ class PhysicsSystem;
 /// WheelSettings object specifically for TrackedVehicleController
 class JPH_EXPORT WheelSettingsTV : public WheelSettings
 {
-public:
 	JPH_DECLARE_SERIALIZABLE_VIRTUAL(JPH_EXPORT, WheelSettingsTV)
 
+public:
 	// See: WheelSettings
 	virtual void				SaveBinaryState(StreamOut &inStream) const override;
 	virtual void				RestoreBinaryState(StreamIn &inStream) override;
 
 	float						mLongitudinalFriction = 4.0f;				///< Friction in forward direction of tire
-	float						mLateralFriction = 2.0f;					///< Friction in sideway direction of tire
+	float						mLateralFriction = 2.0f;					///< Friction in sideways direction of tire
 };
 
 /// Wheel object specifically for TrackedVehicleController
@@ -38,7 +38,7 @@ public:
 	explicit					WheelTV(const WheelSettingsTV &inWheel);
 
 	/// Override GetSettings and cast to the correct class
-	const WheelSettingsTV *		GetSettings() const							{ return static_cast<const WheelSettingsTV *>(mSettings.GetPtr()); }
+	const WheelSettingsTV *		GetSettings() const							{ return StaticCast<WheelSettingsTV>(mSettings); }
 
 	/// Update the angular velocity of the wheel based on the angular velocity of the track
 	void						CalculateAngularVelocity(const VehicleConstraint &inConstraint);
@@ -58,9 +58,9 @@ public:
 /// Note to avoid issues with very heavy objects vs very light objects the mass of the tank should be a lot lower (say 10x) than that of a real tank. That means that the engine/brake torque is also 10x less.
 class JPH_EXPORT TrackedVehicleControllerSettings : public VehicleControllerSettings
 {
-public:
 	JPH_DECLARE_SERIALIZABLE_VIRTUAL(JPH_EXPORT, TrackedVehicleControllerSettings)
 
+public:
 	// Constructor
 								TrackedVehicleControllerSettings();
 
@@ -128,6 +128,9 @@ public:
 	/// Debug drawing of RPM meter
 	void						SetRPMMeter(Vec3Arg inPosition, float inSize) { mRPMMeterPosition = inPosition; mRPMMeterSize = inSize; }
 #endif // JPH_DEBUG_RENDERER
+
+	// See: VehicleController
+	virtual Ref<VehicleControllerSettings> GetSettings() const override;
 
 protected:
 	/// Synchronize angular velocities of left and right tracks according to their ratios

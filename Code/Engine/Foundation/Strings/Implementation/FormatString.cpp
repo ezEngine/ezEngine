@@ -1,6 +1,8 @@
 #include <Foundation/FoundationPCH.h>
 
 #include <Foundation/Math/Rational.h>
+#include <Foundation/Math/Size.h>
+#include <Foundation/Reflection/ReflectionUtils.h>
 #include <Foundation/Strings/FormatString.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Strings/String.h>
@@ -22,7 +24,7 @@ ezStringView ezFormatString::BuildFormattedText(ezStringBuilder& ref_sStorage, e
 {
   ezStringView sString = m_sString;
 
-  ezUInt32 uiLastParam = -1;
+  ezUInt32 uiLastParam = ezInvalidIndex;
 
   ref_sStorage.Clear();
   while (!sString.IsEmpty())
@@ -136,14 +138,15 @@ ezStringView BuildString(char* szTmp, ezUInt32 uiLength, double fArg)
 
 ezStringView BuildString(char* szTmp, ezUInt32 uiLength, bool bArg)
 {
-  if (bArg)
-    return "true";
-
-  return "false";
+  EZ_IGNORE_UNUSED(szTmp);
+  EZ_IGNORE_UNUSED(uiLength);
+  return bArg ? "true" : "false";
 }
 
 ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const char* szArg)
 {
+  EZ_IGNORE_UNUSED(szTmp);
+  EZ_IGNORE_UNUSED(uiLength);
   return szArg;
 }
 
@@ -173,31 +176,43 @@ ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const wchar_t* pArg)
 
 ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezString& sArg)
 {
-  return ezStringView(sArg.GetData(), sArg.GetData() + sArg.GetElementCount());
+  EZ_IGNORE_UNUSED(szTmp);
+  EZ_IGNORE_UNUSED(uiLength);
+  return sArg.GetView();
 }
 
 ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezHashedString& sArg)
 {
-  return ezStringView(sArg.GetData(), sArg.GetData() + sArg.GetString().GetElementCount());
+  EZ_IGNORE_UNUSED(szTmp);
+  EZ_IGNORE_UNUSED(uiLength);
+  return sArg.GetView();
 }
 
 ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezStringBuilder& sArg)
 {
-  return ezStringView(sArg.GetData(), sArg.GetData() + sArg.GetElementCount());
+  EZ_IGNORE_UNUSED(szTmp);
+  EZ_IGNORE_UNUSED(uiLength);
+  return sArg.GetView();
 }
 
 ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezUntrackedString& sArg)
 {
-  return ezStringView(sArg.GetData(), sArg.GetData() + sArg.GetElementCount());
+  EZ_IGNORE_UNUSED(szTmp);
+  EZ_IGNORE_UNUSED(uiLength);
+  return sArg.GetView();
 }
 
 const ezStringView& BuildString(char* szTmp, ezUInt32 uiLength, const ezStringView& sArg)
 {
+  EZ_IGNORE_UNUSED(szTmp);
+  EZ_IGNORE_UNUSED(uiLength);
   return sArg;
 }
 
 ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgC& arg)
 {
+  EZ_IGNORE_UNUSED(uiLength);
+
   szTmp[0] = arg.m_Value;
   szTmp[1] = '\0';
 
@@ -212,6 +227,9 @@ ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgP& arg)
 
 ezStringView BuildString(char* szTmp, ezUInt32 uiLength, ezResult arg)
 {
+  EZ_IGNORE_UNUSED(szTmp);
+  EZ_IGNORE_UNUSED(uiLength);
+
   if (arg.Failed())
     return "<failed>";
   else
@@ -365,6 +383,26 @@ ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgSensitive& a
   return arg.m_sSensitiveInfo;
 }
 
+ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgEnum& arg)
+{
+  ezStringBuilder sTemp;
+  const auto mode = arg.m_bFullyQualifiedName ? ezReflectionUtils::EnumConversionMode::FullyQualifiedName : ezReflectionUtils::EnumConversionMode::ValueNameOnly;
+  ezReflectionUtils::EnumerationToString(arg.m_pType, arg.m_iValue, sTemp, mode);
+  ezStringUtils::Copy(szTmp, uiLength, sTemp.GetData());
+  return ezStringView(szTmp);
+}
+
+ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezSizeU32& arg)
+{
+  ezUInt32 writepos = 0;
+  ezStringUtils::OutputFormattedInt(szTmp, uiLength, writepos, arg.width, 1, false, 10);
+  szTmp[writepos++] = 'x';
+  ezStringUtils::OutputFormattedInt(szTmp, uiLength, writepos, arg.height, 1, false, 10);
+  szTmp[writepos] = '\0';
+  return ezStringView(szTmp, szTmp + writepos);
+}
+
+
 ezStringView ezArgSensitive::BuildString_SensitiveUserData_Hash(char* szTmp, ezUInt32 uiLength, const ezArgSensitive& arg)
 {
   const ezUInt32 len = arg.m_sSensitiveInfo.GetElementCount();
@@ -384,44 +422,3 @@ ezStringView ezArgSensitive::BuildString_SensitiveUserData_Hash(char* szTmp, ezU
 
   return szTmp;
 }
-
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
-
-ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgErrorCode& arg)
-{
-  LPVOID lpMsgBuf = nullptr;
-  if (FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, arg.m_ErrorCode,
-        MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), (LPWSTR)&lpMsgBuf, 0, nullptr) == 0)
-  {
-    DWORD err = GetLastError();
-    ezStringUtils::snprintf(szTmp, uiLength, "%i (FormatMessageW failed with error code %i)", arg.m_ErrorCode, err);
-    return ezStringView(szTmp);
-  }
-
-  LPWSTR pCRLF = wcschr((LPWSTR)lpMsgBuf, L'\r');
-  if (pCRLF != nullptr)
-  {
-    // remove the \r\n that FormatMessageW always appends
-    *pCRLF = L'\0';
-  }
-
-  // we need a bigger boat
-  static thread_local char FullMessage[256];
-
-  ezStringUtils::snprintf(FullMessage, EZ_ARRAY_SIZE(FullMessage), "%i (\"%s\")", arg.m_ErrorCode, ezStringUtf8((LPWSTR)lpMsgBuf).GetData());
-  LocalFree(lpMsgBuf);
-  return ezStringView(FullMessage);
-}
-#endif
-
-#if EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
-#  include <string.h>
-
-ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgErrno& arg)
-{
-  const char* szErrorMsg = std::strerror(arg.m_iErrno);
-  ezStringUtils::snprintf(szTmp, uiLength, "%i (\"%s\")", arg.m_iErrno, szErrorMsg);
-  return ezStringView(szTmp);
-}
-#endif

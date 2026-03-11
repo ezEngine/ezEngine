@@ -10,7 +10,6 @@ TWO_SIDED = FALSE
 FLIP_WINDING = FALSE
 SHADING_MODE = SHADING_MODE_FULLBRIGHT
 SHADING_QUALITY = SHADING_QUALITY_NORMAL
-VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
 CAMERA_MODE
 
 [RENDERSTATE]
@@ -19,7 +18,8 @@ CAMERA_MODE
 
 [VERTEXSHADER]
 
-#include <Shaders/Materials/DefaultMaterialCB.h>
+#define PASS_THROUGH_INSTANCE_ID
+
 #include <Shaders/Materials/MaterialVertexShader.h>
 
 VS_OUT main(VS_IN Input)
@@ -35,6 +35,7 @@ struct GS_IN
 {
   float4 Position : SV_Position;
   float3 WorldPos : WORLDPOS;
+  nointerpolation uint3 DataOffsets : DATAOFFSETS;
   uint InstanceID : SV_InstanceID;
 };
 
@@ -43,8 +44,8 @@ struct GS_OUT
   float4 Position : SV_Position;
   float3 WorldPos : WORLDPOS;
   float3 Normal : NORMAL;
-  float3 Barycentric : TEXCOORD0;
-  uint InstanceID : SV_InstanceID;
+  float3 Barycentric : BARYCENTRIC;
+  nointerpolation uint3 DataOffsets : DATAOFFSETS;
 #if CAMERA_MODE == CAMERA_MODE_STEREO
   uint RenderTargetArrayIndex : SV_RenderTargetArrayIndex;
 #endif
@@ -65,7 +66,7 @@ void main( triangle GS_IN input[3], inout TriangleStream<GS_OUT> outputStream )
     output.WorldPos = input[i].WorldPos;
     output.Normal = normal;
     output.Barycentric = float3(i==0, i==1, i==2);
-    output.InstanceID = input[i].InstanceID;
+    output.DataOffsets = input[i].DataOffsets;
 #if CAMERA_MODE == CAMERA_MODE_STEREO
     output.RenderTargetArrayIndex = input[i].InstanceID % 2;
 #endif
@@ -83,9 +84,8 @@ void main( triangle GS_IN input[3], inout TriangleStream<GS_OUT> outputStream )
   #define USE_NORMAL
 #endif
 
-#define CUSTOM_INTERPOLATOR float3 Barycentric : TEXCOORD0;
+#define CUSTOM_INTERPOLATOR float3 Barycentric : BARYCENTRIC;
 
-#include <Shaders/Materials/DefaultMaterialCB.h>
 #include <Shaders/Materials/MaterialPixelShader.h>
 
 Texture2D BaseTexture;

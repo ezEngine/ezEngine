@@ -2,46 +2,61 @@
 
 #include <EditorFramework/Actions/AssetActions.h>
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/Panels/AssetBrowserPanel/AssetBrowserPanel.moc.h>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
 
 ezActionDescriptorHandle ezAssetActions::s_hAssetCategory;
 ezActionDescriptorHandle ezAssetActions::s_hTransformAsset;
+ezActionDescriptorHandle ezAssetActions::s_hAssetHelp;
 ezActionDescriptorHandle ezAssetActions::s_hTransformAllAssets;
-ezActionDescriptorHandle ezAssetActions::s_hResaveAllAssets;
 ezActionDescriptorHandle ezAssetActions::s_hCheckFileSystem;
-ezActionDescriptorHandle ezAssetActions::s_hWriteLookupTable;
 ezActionDescriptorHandle ezAssetActions::s_hWriteDependencyDGML;
+ezActionDescriptorHandle ezAssetActions::s_hCopyAssetGuid;
+ezActionDescriptorHandle ezAssetActions::s_hSelectInAssetBrowser;
 
 void ezAssetActions::RegisterActions()
 {
   s_hAssetCategory = EZ_REGISTER_CATEGORY("AssetCategory");
   s_hTransformAsset = EZ_REGISTER_ACTION_1("Asset.Transform", ezActionScope::Document, "Assets", "Ctrl+E", ezAssetAction, ezAssetAction::ButtonType::TransformAsset);
+  s_hAssetHelp = EZ_REGISTER_ACTION_1("Asset.Help", ezActionScope::Document, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::AssetHelp);
   s_hTransformAllAssets = EZ_REGISTER_ACTION_1("Asset.TransformAll", ezActionScope::Global, "Assets", "Ctrl+Shift+E", ezAssetAction, ezAssetAction::ButtonType::TransformAllAssets);
-  s_hResaveAllAssets = EZ_REGISTER_ACTION_1("Asset.ResaveAll", ezActionScope::Global, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::ResaveAllAssets);
   s_hCheckFileSystem = EZ_REGISTER_ACTION_1("Asset.CheckFilesystem", ezActionScope::Global, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::CheckFileSystem);
-  s_hWriteLookupTable = EZ_REGISTER_ACTION_1("Asset.WriteLookupTable", ezActionScope::Global, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::WriteLookupTable);
   s_hWriteDependencyDGML = EZ_REGISTER_ACTION_1("Asset.WriteDependencyDGML", ezActionScope::Document, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::WriteDependencyDGML);
+  s_hCopyAssetGuid = EZ_REGISTER_ACTION_1("Asset.CopyAssetGuid", ezActionScope::Document, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::CopyAssetGuid);
+  s_hSelectInAssetBrowser = EZ_REGISTER_ACTION_1("Asset.SelectInAssetBrowser", ezActionScope::Document, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::SelectInAssetBrowser);
+
+  {
+    ezActionMap* pMap = ezActionMapManager::GetActionMap("DocumentWindowTabMenu");
+    pMap->MapAction(s_hSelectInAssetBrowser, "", 11.0f);
+    pMap->MapAction(s_hCopyAssetGuid, "", 12.0f);
+  }
 }
 
 void ezAssetActions::UnregisterActions()
 {
   ezActionManager::UnregisterAction(s_hAssetCategory);
   ezActionManager::UnregisterAction(s_hTransformAsset);
+  ezActionManager::UnregisterAction(s_hAssetHelp);
   ezActionManager::UnregisterAction(s_hTransformAllAssets);
-  ezActionManager::UnregisterAction(s_hResaveAllAssets);
   ezActionManager::UnregisterAction(s_hCheckFileSystem);
-  ezActionManager::UnregisterAction(s_hWriteLookupTable);
   ezActionManager::UnregisterAction(s_hWriteDependencyDGML);
+  ezActionManager::UnregisterAction(s_hCopyAssetGuid);
+  ezActionManager::UnregisterAction(s_hSelectInAssetBrowser);
 }
 
 void ezAssetActions::MapMenuActions(ezStringView sMapping)
 {
-  const ezStringView sTargetMenu = "G.AssetDoc";
+  const ezStringView sTargetMenu = "G.Asset";
 
   ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
   EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the documents actions failed!", sMapping);
 
-  pMap->MapAction(s_hTransformAsset, sTargetMenu, 1.0f);
-  pMap->MapAction(s_hWriteDependencyDGML, sTargetMenu, 10.0f);
+  pMap->MapAction(s_hAssetHelp, sTargetMenu, 1.0f);
+  pMap->MapAction(s_hTransformAsset, sTargetMenu, 2.0f);
+  pMap->MapAction(s_hCopyAssetGuid, sTargetMenu, 3.0f);
+  pMap->MapAction(s_hCheckFileSystem, sTargetMenu, 4.0f);
+  pMap->MapAction(s_hTransformAllAssets, sTargetMenu, 5.0f);
+  pMap->MapAction(s_hWriteDependencyDGML, sTargetMenu, 6.0f);
 }
 
 void ezAssetActions::MapToolBarActions(ezStringView sMapping, bool bDocument)
@@ -59,7 +74,6 @@ void ezAssetActions::MapToolBarActions(ezStringView sMapping, bool bDocument)
   {
     pMap->MapAction(s_hCheckFileSystem, "AssetCategory", 1.0f);
     pMap->MapAction(s_hTransformAllAssets, "AssetCategory", 2.0f);
-    pMap->MapAction(s_hResaveAllAssets, "AssetCategory", 3.0f);
   }
 }
 
@@ -74,7 +88,6 @@ ezAssetAction::ezAssetAction(const ezActionContext& context, const char* szName,
   : ezButtonAction(context, szName, false, "")
 {
   m_ButtonType = button;
-
   switch (m_ButtonType)
   {
     case ezAssetAction::ButtonType::TransformAsset:
@@ -83,16 +96,19 @@ ezAssetAction::ezAssetAction(const ezActionContext& context, const char* szName,
     case ezAssetAction::ButtonType::TransformAllAssets:
       SetIconPath(":/EditorFramework/Icons/TransformAllAssets.svg");
       break;
-    case ezAssetAction::ButtonType::ResaveAllAssets:
-      SetIconPath(":/EditorFramework/Icons/ResavAllAssets.svg");
-      break;
     case ezAssetAction::ButtonType::CheckFileSystem:
       SetIconPath(":/EditorFramework/Icons/CheckFileSystem.svg");
       break;
-    case ezAssetAction::ButtonType::WriteLookupTable:
-      SetIconPath(":/EditorFramework/Icons/WriteLookupTable.svg");
+    case ezAssetAction::ButtonType::AssetHelp:
+      SetIconPath(":/GuiFoundation/Icons/Help.svg");
+      SetEnabled(!ezTranslateHelpURL(context.m_pDocument->GetDocumentTypeName()).IsEmpty());
       break;
     case ezAssetAction::ButtonType::WriteDependencyDGML:
+      break;
+    case ezAssetAction::ButtonType::CopyAssetGuid:
+      SetIconPath(":/GuiFoundation/Icons/Guid.svg");
+      break;
+    case ezAssetAction::ButtonType::SelectInAssetBrowser:
       break;
   }
 }
@@ -108,9 +124,9 @@ void ezAssetAction::Execute(const ezVariant& value)
       if (m_Context.m_pDocument->IsModified())
       {
         ezStatus res = const_cast<ezDocument*>(m_Context.m_pDocument)->SaveDocument();
-        if (res.m_Result.Failed())
+        if (res.Failed())
         {
-          ezLog::Error("Failed to save document '{0}': '{1}'", m_Context.m_pDocument->GetDocumentPath(), res.m_sMessage);
+          ezLog::Error("Failed to save document '{0}': '{1}'", m_Context.m_pDocument->GetDocumentPath(), res.GetMessageString());
           break;
         }
       }
@@ -131,25 +147,13 @@ void ezAssetAction::Execute(const ezVariant& value)
     case ezAssetAction::ButtonType::TransformAllAssets:
     {
       ezAssetCurator::GetSingleton()->CheckFileSystem();
-      ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::None).IgnoreResult();
-    }
-    break;
-
-    case ezAssetAction::ButtonType::ResaveAllAssets:
-    {
-      ezAssetCurator::GetSingleton()->ResaveAllAssets();
+      ezAssetCurator::GetSingleton()->TransformAllAssets().IgnoreResult();
     }
     break;
 
     case ezAssetAction::ButtonType::CheckFileSystem:
     {
       ezAssetCurator::GetSingleton()->CheckFileSystem();
-      ezAssetCurator::GetSingleton()->WriteAssetTables().IgnoreResult();
-    }
-    break;
-
-    case ezAssetAction::ButtonType::WriteLookupTable:
-    {
       ezAssetCurator::GetSingleton()->WriteAssetTables().IgnoreResult();
     }
     break;
@@ -162,6 +166,39 @@ void ezAssetAction::Execute(const ezVariant& value)
         return;
 
       ezAssetCurator::GetSingleton()->WriteDependencyDGML(m_Context.m_pDocument->GetGuid(), sOutput);
+    }
+    break;
+
+    case ezAssetAction::ButtonType::AssetHelp:
+    {
+      ezStringView sType = GetContext().m_pDocument->GetDocumentTypeName();
+      ezString sURL = ezTranslateHelpURL(sType);
+
+      if (!sURL.IsEmpty())
+      {
+        QDesktopServices::openUrl(QUrl(ezMakeQString(sURL)));
+      }
+    }
+    break;
+
+    case ezAssetAction::ButtonType::CopyAssetGuid:
+    {
+      ezStringBuilder sGuid;
+      ezConversionUtils::ToString(m_Context.m_pDocument->GetGuid(), sGuid);
+
+      QClipboard* clipboard = QApplication::clipboard();
+      QMimeData* mimeData = new QMimeData();
+      mimeData->setText(sGuid.GetData());
+      clipboard->setMimeData(mimeData);
+
+      ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(ezFmt("Copied asset GUID: {}", sGuid), ezTime::MakeFromSeconds(5));
+    }
+    break;
+
+    case ezAssetAction::ButtonType::SelectInAssetBrowser:
+    {
+      ezQtAssetBrowserPanel::GetSingleton()->AssetBrowserWidget->SetSelectedAsset(m_Context.m_pDocument->GetGuid());
+      ezQtAssetBrowserPanel::GetSingleton()->raise();
     }
     break;
   }

@@ -36,6 +36,14 @@ ezResult ezEditorTestProject::InitializeTest()
 
 ezResult ezEditorTestProject::DeInitializeTest()
 {
+  if (!m_sProjectPath.IsEmpty())
+  {
+    // The build results take up vast amounts of memory and prolong test result upload.
+    ezStringBuilder buildOutput = m_sProjectPath;
+    buildOutput.AppendPath("CppSource", "Build");
+    ezOSFile::DeleteFolder(buildOutput).IgnoreResult();
+  }
+
   // For profiling the doc creation.
   // SafeProfilingData();
   if (SUPER::DeInitializeTest().Failed())
@@ -82,14 +90,15 @@ ezTestAppRun ezEditorTestProject::CreateDocuments()
   // TODO: Newly created assets actually do not transform cleanly.
   if (false)
   {
-    ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::TriggeredManually).IgnoreResult();
+    ezAssetCurator::GetSingleton()->TransformAllAssets().IgnoreResult();
 
     ezUInt32 uiNumAssets;
-    ezHybridArray<ezUInt32, ezAssetInfo::TransformState::COUNT> sections;
+    ezTempHybridArray<ezUInt32, ezAssetInfo::TransformState::COUNT> sections;
     ezAssetCurator::GetSingleton()->GetAssetTransformStats(uiNumAssets, sections);
 
     EZ_TEST_INT(sections[ezAssetInfo::TransformState::TransformError], 0);
     EZ_TEST_INT(sections[ezAssetInfo::TransformState::MissingTransformDependency], 0);
+    EZ_TEST_INT(sections[ezAssetInfo::TransformState::MissingPackageDependency], 0);
     EZ_TEST_INT(sections[ezAssetInfo::TransformState::MissingThumbnailDependency], 0);
     EZ_TEST_INT(sections[ezAssetInfo::TransformState::CircularDependency], 0);
   }

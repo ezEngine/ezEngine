@@ -24,6 +24,9 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 
 	ez_pull_config_vars()
 
+	set(OPT_CPP_PRIVATE "")
+	set(OPT_CPP_PUBLIC "")
+
 	# target_compile_options(${TARGET_NAME} PRIVATE "$<$<CONFIG:DEBUG>:${MY_DEBUG_OPTIONS}>")
 	if(EZ_3RDPARTY_LIVEPP_SUPPORT)
 		# These compiler settings must be enabled in the configuration properties of each project which uses Live++:
@@ -35,7 +38,7 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 		# x86/Win32 projects additionally require the following compiler settings:
 
 		# C/C++ -> Code Generation -> Create Hotpatchable Image must be set to Yes (/hotpatch)
-		target_compile_options(${TARGET_NAME} PRIVATE
+		set(OPT_CPP_PRIVATE ${OPT_CPP_PRIVATE}
 			"/Z7"
 			"/Gm-"
 			"/hotpatch"
@@ -45,77 +48,92 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 	endif()
 
 	# enable multi-threaded compilation
-	target_compile_options(${TARGET_NAME} PRIVATE "/MP")
+	set(OPT_CPP_PRIVATE ${OPT_CPP_PRIVATE} "/MP")
 
 	# disable RTTI
 	if(${ARG_ENABLE_RTTI})
 	# message(STATUS "Enabling RTTI for target '${TARGET_NAME}'")
 	else()
-		target_compile_options(${TARGET_NAME} PRIVATE "/GR-")
+		set(OPT_CPP_PRIVATE ${OPT_CPP_PRIVATE} "/GR-")
 	endif()
 
 	# use precise floating point model
-	target_compile_options(${TARGET_NAME} PRIVATE "/fp:precise")
+	set(OPT_CPP_PRIVATE ${OPT_CPP_PRIVATE} "/fp:precise")
 
 	# enable floating point exceptions
-	# target_compile_options(${TARGET_NAME} PRIVATE "/fp:except")
+	# set(OPT_CPP_PRIVATE ${OPT_CPP_PRIVATE} "/fp:except")
 
 	# enable default exception handling
-	target_compile_options(${TARGET_NAME} PRIVATE "/EHsc")
+	set(OPT_CPP_PRIVATE ${OPT_CPP_PRIVATE} "/EHsc")
 
 	# nothing in UWP headers is standard conform so have to skip this for UWP
 	if(NOT CMAKE_SYSTEM_NAME MATCHES "WindowsStore")
 		# disable permissive mode
-		target_compile_options(${TARGET_NAME} PRIVATE "/permissive-")
+		set(OPT_CPP_PRIVATE ${OPT_CPP_PRIVATE} "/permissive-")
 	endif()
 
 	# enable standard conform casting behavior - casting results always in rvalue
-	target_compile_options(${TARGET_NAME} PRIVATE "/Zc:rvalueCast")
+	set(OPT_CPP_PRIVATE ${OPT_CPP_PRIVATE} "/Zc:rvalueCast")
 
 	# force the compiler to interpret code as utf8.
-	target_compile_options(${TARGET_NAME} PRIVATE "/utf-8")
+	set(OPT_CPP_PRIVATE ${OPT_CPP_PRIVATE} "/utf-8")
 
 	# set the __cplusplus preprocessor macro to something useful
-	target_compile_options(${TARGET_NAME} PRIVATE "/Zc:__cplusplus")
+	set(OPT_CPP_PRIVATE ${OPT_CPP_PRIVATE} "/Zc:__cplusplus")
 
 	# set high warning level
-	# target_compile_options(${TARGET_NAME} PRIVATE "/W4") # too much work to fix all warnings in ez
+	set(OPT_CPP_PRIVATE ${OPT_CPP_PRIVATE} "/W3")
 
 	# /WX: treat warnings as errors
 	if(NOT ${ARG_NO_WARNINGS_AS_ERRORS} AND NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-		# target_compile_options(${TARGET_NAME} PRIVATE "/WX")
+		# Deprecation warnings are not relevant at the moment, thus we can enable warnings as errors for now
+		set(OPT_CPP_PRIVATE ${OPT_CPP_PRIVATE} "/WX")
 		# switch Warning 4996 (deprecation warning) from warning level 3 to warning level 1
 		# since you can't mark warnings as "not errors" in MSVC, we must switch off
 		# the global warning-as-errors flag
 		# instead we could switch ON selected warnings as errors
-		target_compile_options(${TARGET_NAME} PRIVATE "/w14996")
-	endif()
-
-	if((CMAKE_SIZEOF_VOID_P EQUAL 4) AND EZ_CMAKE_ARCHITECTURE_X86)
-		# enable SSE2 (incompatible with /fp:except)
-		target_compile_options(${TARGET_NAME} PRIVATE "/arch:SSE2")
+		set(OPT_CPP_PRIVATE ${OPT_CPP_PRIVATE} "/w14996")
 	endif()
 
 	# /Zo: Improved debugging of optimized code
-	target_compile_options(${TARGET_NAME} PRIVATE "$<$<CONFIG:${EZ_BUILDTYPENAME_RELEASE_UPPER}>:/Zo>")
-	target_compile_options(${TARGET_NAME} PRIVATE "$<$<CONFIG:${EZ_BUILDTYPENAME_DEV_UPPER}>:/Zo>")
+	set(OPT_CPP_PRIVATE ${OPT_CPP_PRIVATE} "$<$<CONFIG:${EZ_BUILDTYPENAME_RELEASE_UPPER}>:/Zo>")
+	set(OPT_CPP_PRIVATE ${OPT_CPP_PRIVATE} "$<$<CONFIG:${EZ_BUILDTYPENAME_DEV_UPPER}>:/Zo>")
 
 	# /Ob1: Only consider functions for inlining that are marked with inline or forceinline
-	target_compile_options(${TARGET_NAME} PRIVATE "$<$<CONFIG:${EZ_BUILDTYPENAME_DEBUG_UPPER}>:/Ob1>")
+	set(OPT_CPP_PRIVATE ${OPT_CPP_PRIVATE} "$<$<CONFIG:${EZ_BUILDTYPENAME_DEBUG_UPPER}>:/Ob1>")
 
 	# /Ox: favor speed for optimizations
-	target_compile_options(${TARGET_NAME} PRIVATE "$<$<CONFIG:${EZ_BUILDTYPENAME_RELEASE_UPPER}>:/Ox>")
+	set(OPT_CPP_PRIVATE ${OPT_CPP_PRIVATE} "$<$<CONFIG:${EZ_BUILDTYPENAME_RELEASE_UPPER}>:/Ox>")
 
 	# /Ob2: Consider all functions for inlining
-	target_compile_options(${TARGET_NAME} PRIVATE "$<$<CONFIG:${EZ_BUILDTYPENAME_RELEASE_UPPER}>:/Ob2>")
+	set(OPT_CPP_PRIVATE ${OPT_CPP_PRIVATE} "$<$<CONFIG:${EZ_BUILDTYPENAME_RELEASE_UPPER}>:/Ob2>")
 
 	# /Oi: Replace some functions with intrinsics or other special forms of the function
-	target_compile_options(${TARGET_NAME} PRIVATE "$<$<CONFIG:${EZ_BUILDTYPENAME_RELEASE_UPPER}>:/Oi>")
+	set(OPT_CPP_PRIVATE ${OPT_CPP_PRIVATE} "$<$<CONFIG:${EZ_BUILDTYPENAME_RELEASE_UPPER}>:/Oi>")
 
-	# Enable SSE4.1 for Clang on Windows.
-	# Todo: In general we should make this configurable. As of writing SSE4.1 is always active for windows builds (independent of the compiler)
-	if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND EZ_CMAKE_ARCHITECTURE_X86)
-		target_compile_options(${TARGET_NAME} PRIVATE "-msse4.1")
+	if(EZ_CMAKE_ARCHITECTURE_X86)
+
+		if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+
+			if(${EZ_MIN_REQUIRED_SSE_LEVEL} STREQUAL "SSE41")
+				set(OPT_CPP_PRIVATE ${OPT_CPP_PRIVATE} "-msse4.1")
+			elseif(${EZ_MIN_REQUIRED_SSE_LEVEL} STREQUAL "AVX")
+				set(OPT_CPP_PRIVATE ${OPT_CPP_PRIVATE} "-mavx")
+			else()
+				set(OPT_CPP_PRIVATE ${OPT_CPP_PRIVATE} "-msse2")
+			endif()
+
+		else()
+
+			if(${EZ_MIN_REQUIRED_SSE_LEVEL} STREQUAL "AVX")
+				set(OPT_CPP_PRIVATE ${OPT_CPP_PRIVATE} "/arch:AVX")
+			elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
+				# enable SSE2 (incompatible with /fp:except)
+				set(OPT_CPP_PRIVATE ${OPT_CPP_PRIVATE} "/arch:SSE2")
+			endif()
+
+		endif()
+
 	endif()
 
 	set(LINKER_FLAGS_DEBUG "")
@@ -154,46 +172,56 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 	set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS_${EZ_BUILDTYPENAME_RELEASE_UPPER} ${LINKER_FLAGS_RELEASE})
 
 	if(EZ_ENABLE_COMPILER_STATIC_ANALYSIS)
-		target_compile_options(${TARGET_NAME} PRIVATE "/analyze")
+		set(OPT_CPP_PRIVATE ${OPT_CPP_PRIVATE} "/analyze")
 	endif()
 
 	# Ignore various warnings we are not interested in
 
 	# 4100 = unreferenced formal parameter *
 	# 4127 = conditional expression is constant *
-	# 4189 = local variable is initialized but not referenced *
 	# 4201 = nonstandard extension used: nameless struct/union *
-	# 4245 = signed/unsigned mismatch *
 	# 4251 = class 'type' needs to have dll-interface to be used by clients of class 'type2' -> dll export / import issues (mostly with templates) *
-	# 4310 = cast truncates constant value *
 	# 4324 = structure was padded due to alignment specifier *
 	# 4345 = behavior change: an object of POD type constructed with an initializer of the form () will be default-initialized
-	# 4389 = signed/unsigned mismatch *
 	# 4714 = function 'function' marked as __forceinline not inlined
-	# 6326 = Potential comparison of a constant with another constant
-	target_compile_options(${TARGET_NAME} PUBLIC /wd4201 /wd4251 /wd4324 /wd4345)
-	target_compile_options(${TARGET_NAME} PRIVATE /wd4100 /wd4189 /wd4127 /wd4245 /wd4389 /wd4310 /wd4714 /wd6326)
+	set(OPT_CPP_PUBLIC ${OPT_CPP_PUBLIC} /wd4201 /wd4251 /wd4324 /wd4345)
+	set(OPT_CPP_PRIVATE ${OPT_CPP_PRIVATE} /wd4100 /wd4127 /wd4714)
 
 	# Set Warnings as Errors: Too few/many parameters given for Macro
-	target_compile_options(${TARGET_NAME} PRIVATE /we4002 /we4003)
+	set(OPT_CPP_PRIVATE ${OPT_CPP_PRIVATE} /we4002 /we4003)
 
 	# 4099 = Linker warning "PDB was not found with lib"
 	target_link_options(${TARGET_NAME} PRIVATE /ignore:4099)
 
 	# 'nodiscard': attribute is ignored in this syntactic position
-	target_compile_options(${TARGET_NAME} PRIVATE /wd5240)
+	set(OPT_CPP_PRIVATE ${OPT_CPP_PRIVATE} /wd5240)
+
+	target_compile_options(${TARGET_NAME} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:${OPT_CPP_PRIVATE}>)
+	target_compile_options(${TARGET_NAME} PUBLIC $<$<COMPILE_LANGUAGE:CXX>:${OPT_CPP_PUBLIC}>)
+	target_compile_options(${TARGET_NAME} PRIVATE $<$<COMPILE_LANGUAGE:C>:${OPT_CPP_PRIVATE}>)
+	target_compile_options(${TARGET_NAME} PUBLIC $<$<COMPILE_LANGUAGE:C>:${OPT_CPP_PUBLIC}>)
 endfunction()
 
 # #####################################
 # ## ez_set_build_flags_clang(<target>)
 # #####################################
 function(ez_set_build_flags_clang TARGET_NAME)
+	# Enable debug info
+	target_compile_options(${TARGET_NAME} PRIVATE -g)
+
 	if(EZ_CMAKE_ARCHITECTURE_X86)
-		target_compile_options(${TARGET_NAME} PRIVATE "-msse4.1")
+
+		if(${EZ_MIN_REQUIRED_SSE_LEVEL} STREQUAL "SSE41")
+			target_compile_options(${TARGET_NAME} PRIVATE "-msse4.1")
+		elseif(${EZ_MIN_REQUIRED_SSE_LEVEL} STREQUAL "AVX")
+			target_compile_options(${TARGET_NAME} PRIVATE "-mavx")
+		else()
+			target_compile_options(${TARGET_NAME} PRIVATE "-msse2")
+		endif()
+		
 	endif()
 	if(EZ_3RDPARTY_LIVEPP_SUPPORT)
 		target_compile_options(${TARGET_NAME} PRIVATE 
-		"-g"
 		"-gcodeview"
 		"-fms-hotpatch"
 		"-ffunction-sections"
@@ -224,7 +252,7 @@ function(ez_set_build_flags_clang TARGET_NAME)
 
 	if(COMMAND ez_platformhook_set_build_flags_clang)
 		# call platform-specific hook
-		ez_platformhook_set_build_flags_clang()
+		ez_platformhook_set_build_flags_clang(${TARGET_NAME})
 	endif()
 endfunction()
 
@@ -233,11 +261,8 @@ endfunction()
 # #####################################
 function(ez_set_build_flags_gcc TARGET_NAME)
 	# Wno-enum-compare removes all annoying enum cast warnings
-	target_compile_options(${TARGET_NAME} PRIVATE -fPIC -Wno-enum-compare -gdwarf-3 -pthread)
-
-	if(EZ_CMAKE_ARCHITECTURE_X86)
-		target_compile_options(${TARGET_NAME} PRIVATE -mssse3 -mfpmath=sse)
-	endif()
+	# -fno-gnu-unique prevents symbols like static inline or static templates to be marked with STB_GNU_UNIQUE, preventing the owning dll from being unloaded.
+	target_compile_options(${TARGET_NAME} PRIVATE -fPIC -Wno-enum-compare -gdwarf-3 -pthread -fno-gnu-unique)
 
 	# dynamic linking will fail without fPIC (plugins)
 	# gdwarf-3 will use the old debug info which is compatible with older gdb versions.
@@ -245,7 +270,15 @@ function(ez_set_build_flags_gcc TARGET_NAME)
 	target_compile_options(${TARGET_NAME} PRIVATE -fPIC -gdwarf-3)
 
 	if(EZ_CMAKE_ARCHITECTURE_X86)
-		target_compile_options(${TARGET_NAME} PRIVATE -msse4.1)
+
+		if(${EZ_MIN_REQUIRED_SSE_LEVEL} STREQUAL "SSE41")
+			target_compile_options(${TARGET_NAME} PRIVATE -msse4.1 -mfpmath=sse)
+		elseif(${EZ_MIN_REQUIRED_SSE_LEVEL} STREQUAL "AVX")
+			target_compile_options(${TARGET_NAME} PRIVATE -mavx -mfpmath=sse)
+		else()
+			target_compile_options(${TARGET_NAME} PRIVATE -msse2 -mfpmath=sse)
+		endif()
+		
 	endif()
 
 	# Disable warning: multi-character character constant
@@ -321,9 +354,9 @@ endfunction()
 # #####################################
 function(ez_enable_strict_warnings TARGET_NAME)
 	if(EZ_CMAKE_COMPILER_MSVC)
-		# In case there is W3 already, remove it so it doesn't spam warnings when using Ninja builds.
 		get_target_property(TARGET_COMPILE_OPTS ${PROJECT_NAME} COMPILE_OPTIONS)
-		list(REMOVE_ITEM TARGET_COMPILE_OPTS /W3)
+		list(REMOVE_ITEM TARGET_COMPILE_OPTS /W3) # In case there is W3 already, remove it so it doesn't spam warnings when using Ninja builds.
+		list(REMOVE_ITEM TARGET_COMPILE_OPTS /wd4100) # Enable 4100 = unreferenced formal parameter again
 		set_target_properties(${TARGET_NAME} PROPERTIES COMPILE_OPTIONS "${TARGET_COMPILE_OPTS}")
 
 		target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)

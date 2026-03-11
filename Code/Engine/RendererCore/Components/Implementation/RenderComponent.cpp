@@ -1,6 +1,7 @@
 #include <RendererCore/RendererCorePCH.h>
 
 #include <RendererCore/Components/RenderComponent.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
 // clang-format off
@@ -23,22 +24,26 @@ EZ_END_ABSTRACT_COMPONENT_TYPE;
 ezRenderComponent::ezRenderComponent() = default;
 ezRenderComponent::~ezRenderComponent() = default;
 
-void ezRenderComponent::Deinitialize()
-{
-  ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
-
-  SUPER::Deinitialize();
-}
-
 void ezRenderComponent::OnActivated()
 {
+  // Ensure that the render data manager exists.
+  GetWorld()->GetOrCreateModule<ezRenderDataManager>();
+
   TriggerLocalBoundsUpdate();
 }
 
 void ezRenderComponent::OnDeactivated()
 {
-  // Can't call TriggerLocalBoundsUpdate because it checks whether we are active, which is not the case anymore.
-  GetOwner()->UpdateLocalBounds();
+  // Can't call InvalidateCachedRenderData because it checks whether we are active, which is not the case anymore.
+  ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
+
+  // Only update the local bounds if the owner is still active, if not no other components are active anymore and the bounds update would be pointless.
+  // The bounds will be updated when the owner is re-activated anyway.
+  if (GetOwner()->IsActive())
+  {
+    // Can't call TriggerLocalBoundsUpdate because it checks whether we are active, which is not the case anymore.
+    GetOwner()->UpdateLocalBounds();
+  }
 }
 
 void ezRenderComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
@@ -79,17 +84,21 @@ void ezRenderComponent::TriggerLocalBoundsUpdate()
   }
 }
 
+void ezRenderComponent::QueueLocalBoundsUpdate()
+{
+  if (IsActiveAndInitialized())
+  {
+    GetOwner()->QueueLocalBoundsUpdate();
+  }
+}
+
 // static
-ezUInt32 ezRenderComponent::GetUniqueIdForRendering(const ezComponent& component, ezUInt32 uiInnerIndex /*= 0*/, ezUInt32 uiInnerIndexShift /*= 24*/)
+ezUInt32 ezRenderComponent::GetUniqueIdForRendering(const ezComponent& component)
 {
   ezUInt32 uniqueId = component.GetUniqueID();
   if (uniqueId == ezInvalidIndex)
   {
     uniqueId = component.GetOwner()->GetHandle().GetInternalID().m_InstanceIndex;
-  }
-  else
-  {
-    uniqueId |= (uiInnerIndex << uiInnerIndexShift);
   }
 
   const ezUInt32 dynamicBit = (1 << 31);

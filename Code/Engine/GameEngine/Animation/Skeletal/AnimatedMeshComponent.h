@@ -2,8 +2,7 @@
 
 #include <GameEngine/GameEngineDLL.h>
 #include <RendererCore/AnimationSystem/AnimationPose.h>
-#include <RendererCore/Debug/DebugRenderer.h>
-#include <RendererCore/Meshes/SkinnedMeshComponent.h>
+#include <RendererCore/Meshes/SkinnedMeshRenderData.h>
 
 using ezSkeletonResourceHandle = ezTypedResourceHandle<class ezSkeletonResource>;
 
@@ -54,7 +53,8 @@ protected:
   // ezMeshComponentBase
 
 protected:
-  virtual ezMeshRenderData* CreateRenderData() const override;
+  virtual ezTransform GetFinalGlobalTransform() const override;
+  virtual ezMeshRenderData* CreateRenderData(const ezRenderDataManager* pRenderDataManager) const override;
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg) override;
 
   //////////////////////////////////////////////////////////////////////////
@@ -69,6 +69,7 @@ public:
 protected:
   void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg);     // [ msg handler ]
   void OnQueryAnimationSkeleton(ezMsgQueryAnimationSkeleton& msg); // [ msg handler ]
+  void OnMsgCustomInstanceDataOffsetChanged(ezMsgCustomInstanceDataOffsetChanged& msg); // [ msg handler ]
 
   void InitializeAnimationPose();
 

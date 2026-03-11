@@ -1,6 +1,7 @@
 #include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/Assets/AssetStatusIndicator.moc.h>
 #include <EditorPluginAssets/ColorGradientAsset/ColorGradientAsset.h>
 #include <EditorPluginAssets/ColorGradientAsset/ColorGradientAssetWindow.moc.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
@@ -40,13 +41,23 @@ ezQtColorGradientAssetDocumentWindow::ezQtColorGradientAssetDocumentWindow(ezDoc
   m_bShowFirstTime = true;
   m_pGradientEditor = new ezQtColorGradientEditorWidget(this);
 
-  QWidget* pContainer = new QWidget(this);
-  pContainer->setLayout(new QVBoxLayout());
-  pContainer->layout()->addItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
-  pContainer->layout()->addWidget(m_pGradientEditor);
-  pContainer->layout()->addItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
 
-  setCentralWidget(pContainer);
+  // Central Widget
+  {
+    QWidget* pContainer = new QWidget(this);
+    pContainer->setLayout(new QVBoxLayout());
+    pContainer->layout()->addWidget(new ezQtAssetStatusIndicator((ezAssetDocument*)GetDocument()));
+    pContainer->layout()->addItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
+    pContainer->layout()->addWidget(m_pGradientEditor);
+    pContainer->layout()->addItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
+
+    ezQtDocumentPanel* pCentral = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    pCentral->setObjectName("ezQtDocumentPanel");
+    pCentral->setWindowTitle("Gradient");
+    pCentral->setWidget(pContainer);
+
+    m_pDockManager->setCentralWidget(pCentral);
+  }
 
   connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::ColorCpAdded, this, &ezQtColorGradientAssetDocumentWindow::onGradientColorCpAdded);
   connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::ColorCpMoved, this, &ezQtColorGradientAssetDocumentWindow::onGradientColorCpMoved);
@@ -71,7 +82,7 @@ ezQtColorGradientAssetDocumentWindow::ezQtColorGradientAssetDocumentWindow(ezDoc
   // property grid, if needed
   if (false)
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("ColorGradientAssetDockWidget");
     pPropertyPanel->setWindowTitle("ColorGradient Properties");
     pPropertyPanel->show();
@@ -79,7 +90,7 @@ ezQtColorGradientAssetDocumentWindow::ezQtColorGradientAssetDocumentWindow(ezDoc
     ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
     pPropertyPanel->setWidget(pPropertyGrid);
 
-    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
+    m_pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pPropertyPanel);
 
     pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
   }
@@ -104,11 +115,14 @@ void ezQtColorGradientAssetDocumentWindow::onGradientColorCpAdded(double posX, c
   ezCommandHistory* history = GetDocument()->GetCommandHistory();
   history->StartTransaction("Add Color Control Point");
 
+  // Get the Gradient sub-object GUID
+  ezUuid gradientGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Gradient").Get<ezUuid>();
+
   ezAddObjectCommand cmdAdd;
-  cmdAdd.m_Parent = pDoc->GetPropertyObject()->GetGuid();
+  cmdAdd.m_Parent = gradientGuid;
   cmdAdd.m_NewObjectGuid = ezUuid::MakeUuid();
   cmdAdd.m_sParentProperty = "ColorCPs";
-  cmdAdd.m_pType = ezGetStaticRTTI<ezColorControlPoint>();
+  cmdAdd.m_pType = ezGetStaticRTTI<ezColorGradientColorCP>();
   cmdAdd.m_Index = -1;
 
   history->AddCommand(cmdAdd).AssertSuccess();
@@ -117,7 +131,7 @@ void ezQtColorGradientAssetDocumentWindow::onGradientColorCpAdded(double posX, c
   cmdSet.m_Object = cmdAdd.m_NewObjectGuid;
 
   cmdSet.m_sProperty = "Tick";
-  cmdSet.m_NewValue = pDoc->GetProperties()->TickFromTime(ezTime::MakeFromSeconds(posX));
+  cmdSet.m_NewValue = ezColorGradient::TimeToTick(posX);
   history->AddCommand(cmdSet).AssertSuccess();
 
   cmdSet.m_sProperty = "Red";
@@ -143,11 +157,14 @@ void ezQtColorGradientAssetDocumentWindow::onGradientAlphaCpAdded(double posX, e
   ezCommandHistory* history = GetDocument()->GetCommandHistory();
   history->StartTransaction("Add Alpha Control Point");
 
+  // Get the Gradient sub-object GUID
+  ezUuid gradientGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Gradient").Get<ezUuid>();
+
   ezAddObjectCommand cmdAdd;
-  cmdAdd.m_Parent = pDoc->GetPropertyObject()->GetGuid();
+  cmdAdd.m_Parent = gradientGuid;
   cmdAdd.m_NewObjectGuid = ezUuid::MakeUuid();
   cmdAdd.m_sParentProperty = "AlphaCPs";
-  cmdAdd.m_pType = ezGetStaticRTTI<ezAlphaControlPoint>();
+  cmdAdd.m_pType = ezGetStaticRTTI<ezColorGradientAlphaCP>();
   cmdAdd.m_Index = -1;
 
   history->AddCommand(cmdAdd).AssertSuccess();
@@ -156,7 +173,7 @@ void ezQtColorGradientAssetDocumentWindow::onGradientAlphaCpAdded(double posX, e
   cmdSet.m_Object = cmdAdd.m_NewObjectGuid;
 
   cmdSet.m_sProperty = "Tick";
-  cmdSet.m_NewValue = pDoc->GetProperties()->TickFromTime(ezTime::MakeFromSeconds(posX));
+  cmdSet.m_NewValue = ezColorGradient::TimeToTick(posX);
   history->AddCommand(cmdSet).AssertSuccess();
 
   cmdSet.m_sProperty = "Alpha";
@@ -174,11 +191,14 @@ void ezQtColorGradientAssetDocumentWindow::onGradientIntensityCpAdded(double pos
   ezCommandHistory* history = GetDocument()->GetCommandHistory();
   history->StartTransaction("Add Intensity Control Point");
 
+  // Get the Gradient sub-object GUID
+  ezUuid gradientGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Gradient").Get<ezUuid>();
+
   ezAddObjectCommand cmdAdd;
-  cmdAdd.m_Parent = pDoc->GetPropertyObject()->GetGuid();
+  cmdAdd.m_Parent = gradientGuid;
   cmdAdd.m_NewObjectGuid = ezUuid::MakeUuid();
   cmdAdd.m_sParentProperty = "IntensityCPs";
-  cmdAdd.m_pType = ezGetStaticRTTI<ezIntensityControlPoint>();
+  cmdAdd.m_pType = ezGetStaticRTTI<ezColorGradientIntensityCP>();
   cmdAdd.m_Index = -1;
 
   history->AddCommand(cmdAdd).AssertSuccess();
@@ -187,7 +207,7 @@ void ezQtColorGradientAssetDocumentWindow::onGradientIntensityCpAdded(double pos
   cmdSet.m_Object = cmdAdd.m_NewObjectGuid;
 
   cmdSet.m_sProperty = "Tick";
-  cmdSet.m_NewValue = pDoc->GetProperties()->TickFromTime(ezTime::MakeFromSeconds(posX));
+  cmdSet.m_NewValue = ezColorGradient::TimeToTick(posX);
   history->AddCommand(cmdSet).AssertSuccess();
 
   cmdSet.m_sProperty = "Intensity";
@@ -203,7 +223,12 @@ void ezQtColorGradientAssetDocumentWindow::MoveCP(ezInt32 idx, double newPosX, c
 
   auto pProp = pDoc->GetPropertyObject();
 
-  ezVariant objGuid = pProp->GetTypeAccessor().GetValue(szArrayName, idx);
+  // First get the Gradient sub-object
+  ezUuid gradientGuid = pProp->GetTypeAccessor().GetValue("Gradient").Get<ezUuid>();
+  const ezDocumentObject* pGradientObj = pDoc->GetObjectManager()->GetObject(gradientGuid);
+
+  // Now access the array on the Gradient object
+  ezVariant objGuid = pGradientObj->GetTypeAccessor().GetValue(szArrayName, idx);
 
   ezCommandHistory* history = GetDocument()->GetCommandHistory();
   history->StartTransaction("Move Control Point");
@@ -212,7 +237,7 @@ void ezQtColorGradientAssetDocumentWindow::MoveCP(ezInt32 idx, double newPosX, c
   cmdSet.m_Object = objGuid.Get<ezUuid>();
 
   cmdSet.m_sProperty = "Tick";
-  cmdSet.m_NewValue = pDoc->GetProperties()->TickFromTime(ezTime::MakeFromSeconds(newPosX));
+  cmdSet.m_NewValue = ezColorGradient::TimeToTick(newPosX);
   history->AddCommand(cmdSet).AssertSuccess();
 
   history->FinishTransaction();
@@ -240,7 +265,12 @@ void ezQtColorGradientAssetDocumentWindow::RemoveCP(ezInt32 idx, const char* szA
 
   auto pProp = pDoc->GetPropertyObject();
 
-  ezVariant objGuid = pProp->GetTypeAccessor().GetValue(szArrayName, idx);
+  // First get the Gradient sub-object
+  ezUuid gradientGuid = pProp->GetTypeAccessor().GetValue("Gradient").Get<ezUuid>();
+  const ezDocumentObject* pGradientObj = pDoc->GetObjectManager()->GetObject(gradientGuid);
+
+  // Now access the array on the Gradient object
+  ezVariant objGuid = pGradientObj->GetTypeAccessor().GetValue(szArrayName, idx);
 
   ezCommandHistory* history = GetDocument()->GetCommandHistory();
   history->StartTransaction("Remove Control Point");
@@ -275,7 +305,13 @@ void ezQtColorGradientAssetDocumentWindow::onGradientColorCpChanged(ezInt32 idx,
   ezColorGradientAssetDocument* pDoc = static_cast<ezColorGradientAssetDocument*>(GetDocument());
 
   auto pProp = pDoc->GetPropertyObject();
-  ezVariant objGuid = pProp->GetTypeAccessor().GetValue("ColorCPs", idx);
+
+  // First get the Gradient sub-object
+  ezUuid gradientGuid = pProp->GetTypeAccessor().GetValue("Gradient").Get<ezUuid>();
+  const ezDocumentObject* pGradientObj = pDoc->GetObjectManager()->GetObject(gradientGuid);
+
+  // Now access the array on the Gradient object
+  ezVariant objGuid = pGradientObj->GetTypeAccessor().GetValue("ColorCPs", idx);
 
   ezCommandHistory* history = GetDocument()->GetCommandHistory();
   history->StartTransaction("Change Color");
@@ -304,7 +340,13 @@ void ezQtColorGradientAssetDocumentWindow::onGradientAlphaCpChanged(ezInt32 idx,
   ezColorGradientAssetDocument* pDoc = static_cast<ezColorGradientAssetDocument*>(GetDocument());
 
   auto pProp = pDoc->GetPropertyObject();
-  ezVariant objGuid = pProp->GetTypeAccessor().GetValue("AlphaCPs", idx);
+
+  // First get the Gradient sub-object
+  ezUuid gradientGuid = pProp->GetTypeAccessor().GetValue("Gradient").Get<ezUuid>();
+  const ezDocumentObject* pGradientObj = pDoc->GetObjectManager()->GetObject(gradientGuid);
+
+  // Now access the array on the Gradient object
+  ezVariant objGuid = pGradientObj->GetTypeAccessor().GetValue("AlphaCPs", idx);
 
   ezCommandHistory* history = GetDocument()->GetCommandHistory();
   history->StartTransaction("Change Alpha");
@@ -324,7 +366,13 @@ void ezQtColorGradientAssetDocumentWindow::onGradientIntensityCpChanged(ezInt32 
   ezColorGradientAssetDocument* pDoc = static_cast<ezColorGradientAssetDocument*>(GetDocument());
 
   auto pProp = pDoc->GetPropertyObject();
-  ezVariant objGuid = pProp->GetTypeAccessor().GetValue("IntensityCPs", idx);
+
+  // First get the Gradient sub-object
+  ezUuid gradientGuid = pProp->GetTypeAccessor().GetValue("Gradient").Get<ezUuid>();
+  const ezDocumentObject* pGradientObj = pDoc->GetObjectManager()->GetObject(gradientGuid);
+
+  // Now access the array on the Gradient object
+  ezVariant objGuid = pGradientObj->GetTypeAccessor().GetValue("IntensityCPs", idx);
 
   ezCommandHistory* history = GetDocument()->GetCommandHistory();
   history->StartTransaction("Change Intensity");
@@ -387,7 +435,7 @@ void ezQtColorGradientAssetDocumentWindow::onGradientNormalizeRange()
 
   for (ezUInt32 i = 0; i < numRgb; ++i)
   {
-    float x = GradientData.GetColorControlPoint(i).m_PosX;
+    float x = ezColorGradient::TickToTime(GradientData.GetColorControlPoint(i).m_iTick);
     x -= minX;
     x *= rangeNorm;
 
@@ -396,7 +444,7 @@ void ezQtColorGradientAssetDocumentWindow::onGradientNormalizeRange()
 
   for (ezUInt32 i = 0; i < numAlpha; ++i)
   {
-    float x = GradientData.GetAlphaControlPoint(i).m_PosX;
+    float x = ezColorGradient::TickToTime(GradientData.GetAlphaControlPoint(i).m_iTick);
     x -= minX;
     x *= rangeNorm;
 
@@ -405,7 +453,7 @@ void ezQtColorGradientAssetDocumentWindow::onGradientNormalizeRange()
 
   for (ezUInt32 i = 0; i < numInt; ++i)
   {
-    float x = GradientData.GetIntensityControlPoint(i).m_PosX;
+    float x = ezColorGradient::TickToTime(GradientData.GetIntensityControlPoint(i).m_iTick);
     x -= minX;
     x *= rangeNorm;
 
@@ -467,7 +515,7 @@ void ezQtColorGradientAssetDocumentWindow::SendLiveResourcePreview()
 
   // Write Header
   memoryWriter << sAbsFilePath;
-  const ezUInt64 uiHash = ezAssetCurator::GetSingleton()->GetAssetDependencyHash(pDoc->GetGuid());
+  const ezUInt64 uiHash = ezAssetCurator::GetSingleton()->GetAssetTransformHash(pDoc->GetGuid());
   ezAssetFileHeader AssetHeader;
   AssetHeader.SetFileHashAndVersion(uiHash, pDoc->GetAssetTypeVersion());
   AssetHeader.Write(memoryWriter).IgnoreResult();

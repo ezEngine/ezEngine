@@ -1,0 +1,13 @@
+PluginInfo
+{
+	bool %Mandatory{false}
+	string %DisplayName{"Asteroids"}
+	string %Description{"C++ code for the Asteroids project."}
+	string %EditorPlugins{}
+	string %EditorEnginePlugins{}
+	string %RuntimePlugins{"AsteroidsPlugin"}
+	string %PackageDependencies{}
+	string %RequiredPlugins{}
+	string %ExclusiveFeatures{"ProjectPlugin"}
+	string %EnabledInTemplates{}
+}

@@ -60,10 +60,19 @@ public:
   ///
   /// Note that PackageForTransfer() will automatically include the ezRTTI type version into the stream
   /// and ReplicatePackedMessage() will pass this into Deserialize(). Use this if the serialization changes.
-  virtual void Serialize(ezStreamWriter& inout_stream) const { EZ_ASSERT_NOT_IMPLEMENTED; }
+  virtual void Serialize(ezStreamWriter& inout_stream) const
+  {
+    EZ_IGNORE_UNUSED(inout_stream);
+    EZ_ASSERT_NOT_IMPLEMENTED;
+  }
 
   /// \see Serialize()
-  virtual void Deserialize(ezStreamReader& inout_stream, ezUInt8 uiTypeVersion) { EZ_ASSERT_NOT_IMPLEMENTED; }
+  virtual void Deserialize(ezStreamReader& inout_stream, ezUInt8 uiTypeVersion)
+  {
+    EZ_IGNORE_UNUSED(inout_stream);
+    EZ_IGNORE_UNUSED(uiTypeVersion);
+    EZ_ASSERT_NOT_IMPLEMENTED;
+  }
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   /// set to true while debugging a message routing problem

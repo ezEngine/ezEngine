@@ -3,42 +3,48 @@
 #include <Foundation/Math/BoundingBox.h>
 #include <Foundation/Math/BoundingSphere.h>
 
-EZ_CREATE_SIMPLE_TEST(Math, BoundingSphere)
+template <typename Type>
+void TestBoundingSphere()
 {
+  using ezBoundingSphereType = ezBoundingSphereTemplate<Type>;
+  using ezBoundingBoxType = ezBoundingBoxTemplate<Type>;
+  using ezVec3Type = ezVec3Template<Type>;
+  using ezMat4Type = ezMat4Template<Type>;
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor")
   {
-    ezBoundingSphereT s = ezBoundingSphereT::MakeFromCenterAndRadius(ezVec3T(1, 2, 3), 4);
+    ezBoundingSphereType s = ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type(1, 2, 3), 4);
 
-    EZ_TEST_BOOL(s.m_vCenter == ezVec3T(1, 2, 3));
-    EZ_TEST_BOOL(s.m_fRadius == 4.0f);
+    EZ_TEST_BOOL(s.m_vCenter == ezVec3Type(1, 2, 3));
+    EZ_TEST_BOOL(s.m_fRadius == 4);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetInvalid / IsValid")
   {
-    ezBoundingSphereT s = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3T(1, 2, 3), 4);
+    ezBoundingSphereType s = ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type(1, 2, 3), 4);
 
     EZ_TEST_BOOL(s.IsValid());
 
-    s = ezBoundingSphereT::MakeInvalid();
+    s = ezBoundingSphereType::MakeInvalid();
 
     EZ_TEST_BOOL(!s.IsValid());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeZero / IsZero")
   {
-    ezBoundingSphereT s = ezBoundingSphereT::MakeZero();
+    ezBoundingSphereType s = ezBoundingSphereType::MakeZero();
 
     EZ_TEST_BOOL(s.IsValid());
     EZ_TEST_BOOL(s.m_vCenter.IsZero());
-    EZ_TEST_BOOL(s.m_fRadius == 0.0f);
+    EZ_TEST_BOOL(s.m_fRadius == 0);
     EZ_TEST_BOOL(s.IsZero());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetElements")
   {
-    ezBoundingSphereT s = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3T(1, 2, 3), 4);
+    ezBoundingSphereType s = ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type(1, 2, 3), 4);
 
-    EZ_TEST_BOOL(s.m_vCenter == ezVec3T(1, 2, 3));
+    EZ_TEST_BOOL(s.m_vCenter == ezVec3Type(1, 2, 3));
     EZ_TEST_BOOL(s.m_fRadius == 4);
   }
 
@@ -46,11 +52,11 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingSphere)
   {
 
 
-    ezVec3T p[4] = {ezVec3T(2, 6, 0), ezVec3T(4, 2, 0), ezVec3T(2, 0, 0), ezVec3T(0, 4, 0)};
+    ezVec3Type p[4] = {ezVec3Type(2, 6, 0), ezVec3Type(4, 2, 0), ezVec3Type(2, 0, 0), ezVec3Type(0, 4, 0)};
 
-    ezBoundingSphereT s = ezBoundingSphereT::MakeFromPoints(p, 4);
+    ezBoundingSphereType s = ezBoundingSphereType::MakeFromPoints(p, 4);
 
-    EZ_TEST_BOOL(s.m_vCenter == ezVec3T(2, 3, 0));
+    EZ_TEST_BOOL(s.m_vCenter == ezVec3Type(2, 3, 0));
     EZ_TEST_BOOL(s.m_fRadius == 3);
 
     for (int i = 0; i < EZ_ARRAY_SIZE(p); ++i)
@@ -61,30 +67,30 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingSphere)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ExpandToInclude(Point)")
   {
-    ezBoundingSphereT s = ezBoundingSphereT::MakeZero();
+    ezBoundingSphereType s = ezBoundingSphereType::MakeZero();
 
-    s.ExpandToInclude(ezVec3T(3, 0, 0));
+    s.ExpandToInclude(ezVec3Type(3, 0, 0));
 
-    EZ_TEST_BOOL(s.m_vCenter == ezVec3T(0, 0, 0));
+    EZ_TEST_BOOL(s.m_vCenter == ezVec3Type(0, 0, 0));
     EZ_TEST_BOOL(s.m_fRadius == 3);
 
-    s = ezBoundingSphereT::MakeInvalid();
+    s = ezBoundingSphereType::MakeInvalid();
 
-    s.ExpandToInclude(ezVec3T(0.25, 0.0, 0.0));
+    s.ExpandToInclude(ezVec3Type(0.25, 0.0, 0.0));
 
-    EZ_TEST_BOOL(s.m_vCenter == ezVec3T(0, 0, 0));
-    EZ_TEST_BOOL(s.m_fRadius == 0.25);
+    EZ_TEST_BOOL(s.m_vCenter == ezVec3Type(0, 0, 0));
+    EZ_TEST_BOOL(s.m_fRadius == Type(0.25));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ExpandToInclude(array)")
   {
-    ezBoundingSphereT s = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3T(2, 2, 0), 0.0f);
+    ezBoundingSphereType s = ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type(2, 2, 0), 0.0f);
 
-    ezVec3T p[4] = {ezVec3T(0, 2, 0), ezVec3T(4, 2, 0), ezVec3T(2, 0, 0), ezVec3T(2, 4, 0)};
+    ezVec3Type p[4] = {ezVec3Type(0, 2, 0), ezVec3Type(4, 2, 0), ezVec3Type(2, 0, 0), ezVec3Type(2, 4, 0)};
 
     s.ExpandToInclude(p, 4);
 
-    EZ_TEST_BOOL(s.m_vCenter == ezVec3T(2, 2, 0));
+    EZ_TEST_BOOL(s.m_vCenter == ezVec3Type(2, 2, 0));
     EZ_TEST_BOOL(s.m_fRadius == 2);
 
     for (int i = 0; i < EZ_ARRAY_SIZE(p); ++i)
@@ -95,49 +101,49 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingSphere)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ExpandToInclude (sphere)")
   {
-    ezBoundingSphereT s1, s2, s3;
-    s1 = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3T(5, 0, 0), 1);
-    s2 = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3T(6, 0, 0), 1);
-    s3 = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3T(5, 0, 0), 2);
+    ezBoundingSphereType s1, s2, s3;
+    s1 = ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type(5, 0, 0), 1);
+    s2 = ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type(6, 0, 0), 1);
+    s3 = ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type(5, 0, 0), 2);
 
     s1.ExpandToInclude(s2);
-    EZ_TEST_BOOL(s1.m_vCenter == ezVec3T(5, 0, 0));
+    EZ_TEST_BOOL(s1.m_vCenter == ezVec3Type(5, 0, 0));
     EZ_TEST_BOOL(s1.m_fRadius == 2);
 
     s1.ExpandToInclude(s3);
-    EZ_TEST_BOOL(s1.m_vCenter == ezVec3T(5, 0, 0));
+    EZ_TEST_BOOL(s1.m_vCenter == ezVec3Type(5, 0, 0));
     EZ_TEST_BOOL(s1.m_fRadius == 2);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ExpandToInclude (box)")
   {
-    ezBoundingSphereT s = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3T(1, 2, 3), 1);
+    ezBoundingSphereType s = ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type(1, 2, 3), 1);
 
-    ezBoundingBoxT b = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3T(1, 2, 3), ezVec3T(2.0f));
+    ezBoundingBoxType b = ezBoundingBoxType::MakeFromCenterAndHalfExtents(ezVec3Type(1, 2, 3), ezVec3Type(2.0f));
 
     s.ExpandToInclude(b);
 
-    EZ_TEST_BOOL(s.m_vCenter == ezVec3T(1, 2, 3));
-    EZ_TEST_FLOAT(s.m_fRadius, ezMath::Sqrt((ezMathTestType)12), 0.000001f);
+    EZ_TEST_BOOL(s.m_vCenter == ezVec3Type(1, 2, 3));
+    EZ_TEST_FLOAT(s.m_fRadius, ezMath::Sqrt(Type(12)), Type(0.000001));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Grow")
   {
-    ezBoundingSphereT s = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3T(1, 2, 3), 4);
+    ezBoundingSphereType s = ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type(1, 2, 3), 4);
 
     s.Grow(5);
 
-    EZ_TEST_BOOL(s.m_vCenter == ezVec3T(1, 2, 3));
+    EZ_TEST_BOOL(s.m_vCenter == ezVec3Type(1, 2, 3));
     EZ_TEST_BOOL(s.m_fRadius == 9);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsIdentical, ==, !=")
   {
-    ezBoundingSphereT s1, s2, s3;
+    ezBoundingSphereType s1, s2, s3;
 
-    s1 = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3T(1, 2, 3), 4);
-    s2 = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3T(1, 2, 3), 4);
-    s3 = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3T(1.001f, 2.001f, 3.001f), 4.001f);
+    s1 = ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type(1, 2, 3), 4);
+    s2 = ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type(1, 2, 3), 4);
+    s3 = ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type(1.001f, 2.001f, 3.001f), 4.001f);
 
     EZ_TEST_BOOL(s1 == s1);
     EZ_TEST_BOOL(s2 == s2);
@@ -154,11 +160,11 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingSphere)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsEqual")
   {
-    ezBoundingSphereT s1, s2, s3;
+    ezBoundingSphereType s1, s2, s3;
 
-    s1 = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3T(1, 2, 3), 4);
-    s2 = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3T(1, 2, 3), 4);
-    s3 = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3T(1.001f, 2.001f, 3.001f), 4.001f);
+    s1 = ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type(1, 2, 3), 4);
+    s2 = ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type(1, 2, 3), 4);
+    s3 = ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type(1.001f, 2.001f, 3.001f), 4.001f);
 
     EZ_TEST_BOOL(s1.IsEqual(s1));
     EZ_TEST_BOOL(s2.IsEqual(s2));
@@ -167,117 +173,117 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingSphere)
     EZ_TEST_BOOL(s1.IsEqual(s2));
     EZ_TEST_BOOL(s2.IsEqual(s1));
 
-    EZ_TEST_BOOL(!s1.IsEqual(s3, 0.0001f));
-    EZ_TEST_BOOL(!s2.IsEqual(s3, 0.0001f));
-    EZ_TEST_BOOL(!s3.IsEqual(s1, 0.0001f));
-    EZ_TEST_BOOL(!s3.IsEqual(s2, 0.0001f));
+    EZ_TEST_BOOL(!s1.IsEqual(s3, Type(0.0001)));
+    EZ_TEST_BOOL(!s2.IsEqual(s3, Type(0.0001)));
+    EZ_TEST_BOOL(!s3.IsEqual(s1, Type(0.0001)));
+    EZ_TEST_BOOL(!s3.IsEqual(s2, Type(0.0001)));
 
-    EZ_TEST_BOOL(s1.IsEqual(s3, 0.002f));
-    EZ_TEST_BOOL(s2.IsEqual(s3, 0.002f));
-    EZ_TEST_BOOL(s3.IsEqual(s1, 0.002f));
-    EZ_TEST_BOOL(s3.IsEqual(s2, 0.002f));
+    EZ_TEST_BOOL(s1.IsEqual(s3, Type(0.002)));
+    EZ_TEST_BOOL(s2.IsEqual(s3, Type(0.002)));
+    EZ_TEST_BOOL(s3.IsEqual(s1, Type(0.002)));
+    EZ_TEST_BOOL(s3.IsEqual(s2, Type(0.002)));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Translate")
   {
-    ezBoundingSphereT s = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3T(1, 2, 3), 4);
+    ezBoundingSphereType s = ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type(1, 2, 3), 4);
 
-    s.Translate(ezVec3T(4, 5, 6));
+    s.Translate(ezVec3Type(4, 5, 6));
 
-    EZ_TEST_BOOL(s.m_vCenter == ezVec3T(5, 7, 9));
+    EZ_TEST_BOOL(s.m_vCenter == ezVec3Type(5, 7, 9));
     EZ_TEST_BOOL(s.m_fRadius == 4);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ScaleFromCenter")
   {
-    ezBoundingSphereT s = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3T(1, 2, 3), 4);
+    ezBoundingSphereType s = ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type(1, 2, 3), 4);
 
     s.ScaleFromCenter(5.0f);
 
-    EZ_TEST_BOOL(s.m_vCenter == ezVec3T(1, 2, 3));
+    EZ_TEST_BOOL(s.m_vCenter == ezVec3Type(1, 2, 3));
     EZ_TEST_BOOL(s.m_fRadius == 20);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ScaleFromOrigin")
   {
-    ezBoundingSphereT s = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3T(1, 2, 3), 4);
+    ezBoundingSphereType s = ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type(1, 2, 3), 4);
 
-    s.ScaleFromOrigin(ezVec3T(2, 3, 4));
+    s.ScaleFromOrigin(ezVec3Type(2, 3, 4));
 
-    EZ_TEST_BOOL(s.m_vCenter == ezVec3T(2, 6, 12));
+    EZ_TEST_BOOL(s.m_vCenter == ezVec3Type(2, 6, 12));
     EZ_TEST_BOOL(s.m_fRadius == 16);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetDistanceTo (point)")
   {
-    ezBoundingSphereT s = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3T(5, 0, 0), 2);
+    ezBoundingSphereType s = ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type(5, 0, 0), 2);
 
-    EZ_TEST_BOOL(s.GetDistanceTo(ezVec3T(5, 0, 0)) == -2.0f);
-    EZ_TEST_BOOL(s.GetDistanceTo(ezVec3T(7, 0, 0)) == 0.0f);
-    EZ_TEST_BOOL(s.GetDistanceTo(ezVec3T(9, 0, 0)) == 2.0f);
+    EZ_TEST_BOOL(s.GetDistanceTo(ezVec3Type(5, 0, 0)) == -2);
+    EZ_TEST_BOOL(s.GetDistanceTo(ezVec3Type(7, 0, 0)) == 0);
+    EZ_TEST_BOOL(s.GetDistanceTo(ezVec3Type(9, 0, 0)) == 2);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetDistanceTo (sphere)")
   {
-    ezBoundingSphereT s1, s2, s3;
-    s1 = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3T(5, 0, 0), 2);
-    s2 = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3T(10, 0, 0), 3);
-    s3 = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3T(10, 0, 0), 1);
+    ezBoundingSphereType s1, s2, s3;
+    s1 = ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type(5, 0, 0), 2);
+    s2 = ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type(10, 0, 0), 3);
+    s3 = ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type(10, 0, 0), 1);
 
-    EZ_TEST_BOOL(s1.GetDistanceTo(s2) == 0.0f);
-    EZ_TEST_BOOL(s1.GetDistanceTo(s3) == 2.0f);
+    EZ_TEST_BOOL(s1.GetDistanceTo(s2) == 0);
+    EZ_TEST_BOOL(s1.GetDistanceTo(s3) == 2);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetDistanceTo (array)")
   {
-    ezBoundingSphereT s = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3T(0.0f), 0.0f);
+    ezBoundingSphereType s = ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type(0.0f), 0.0f);
 
-    ezVec3T p[4] = {
-      ezVec3T(5),
-      ezVec3T(10),
-      ezVec3T(15),
-      ezVec3T(7),
+    ezVec3Type p[4] = {
+      ezVec3Type(5),
+      ezVec3Type(10),
+      ezVec3Type(15),
+      ezVec3Type(7),
     };
 
-    EZ_TEST_FLOAT(s.GetDistanceTo(p, 4), ezVec3T(5).GetLength(), 0.001f);
+    EZ_TEST_FLOAT(s.GetDistanceTo(p, 4), ezVec3Type(5).GetLength(), Type(0.001));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Contains (point)")
   {
-    ezBoundingSphereT s = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3T(5, 0, 0), 2.0f);
+    ezBoundingSphereType s = ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type(5, 0, 0), 2.0f);
 
-    EZ_TEST_BOOL(s.Contains(ezVec3T(3, 0, 0)));
-    EZ_TEST_BOOL(s.Contains(ezVec3T(5, 0, 0)));
-    EZ_TEST_BOOL(s.Contains(ezVec3T(6, 0, 0)));
-    EZ_TEST_BOOL(s.Contains(ezVec3T(7, 0, 0)));
+    EZ_TEST_BOOL(s.Contains(ezVec3Type(3, 0, 0)));
+    EZ_TEST_BOOL(s.Contains(ezVec3Type(5, 0, 0)));
+    EZ_TEST_BOOL(s.Contains(ezVec3Type(6, 0, 0)));
+    EZ_TEST_BOOL(s.Contains(ezVec3Type(7, 0, 0)));
 
-    EZ_TEST_BOOL(!s.Contains(ezVec3T(2, 0, 0)));
-    EZ_TEST_BOOL(!s.Contains(ezVec3T(8, 0, 0)));
+    EZ_TEST_BOOL(!s.Contains(ezVec3Type(2, 0, 0)));
+    EZ_TEST_BOOL(!s.Contains(ezVec3Type(8, 0, 0)));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Contains (array)")
   {
-    ezBoundingSphereT s = ezBoundingSphereT::MakeFromCenterAndRadius(ezVec3T(0.0f), 6.0f);
+    ezBoundingSphereType s = ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type(0.0f), 6.0f);
 
-    ezVec3T p[4] = {
-      ezVec3T(3),
-      ezVec3T(10),
-      ezVec3T(2),
-      ezVec3T(7),
+    ezVec3Type p[4] = {
+      ezVec3Type(3),
+      ezVec3Type(10),
+      ezVec3Type(2),
+      ezVec3Type(7),
     };
 
-    EZ_TEST_BOOL(s.Contains(p, 2, sizeof(ezVec3T) * 2));
-    EZ_TEST_BOOL(!s.Contains(p + 1, 2, sizeof(ezVec3T) * 2));
-    EZ_TEST_BOOL(!s.Contains(p, 4, sizeof(ezVec3T)));
+    EZ_TEST_BOOL(s.Contains(p, 2, sizeof(ezVec3Type) * 2));
+    EZ_TEST_BOOL(!s.Contains(p + 1, 2, sizeof(ezVec3Type) * 2));
+    EZ_TEST_BOOL(!s.Contains(p, 4, sizeof(ezVec3Type)));
   }
 
   // Disabled because MSVC 2017 has code generation issues in Release builds
   EZ_TEST_BLOCK(ezTestBlock::Disabled, "Contains (sphere)")
   {
-    ezBoundingSphereT s1, s2, s3;
-    s1 = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3T(5, 0, 0), 2);
-    s2 = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3T(6, 0, 0), 1);
-    s3 = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3T(6, 0, 0), 2);
+    ezBoundingSphereType s1, s2, s3;
+    s1 = ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type(5, 0, 0), 2);
+    s2 = ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type(6, 0, 0), 1);
+    s3 = ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type(6, 0, 0), 2);
 
     EZ_TEST_BOOL(s1.Contains(s1));
     EZ_TEST_BOOL(s2.Contains(s2));
@@ -292,48 +298,49 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingSphere)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Contains (box)")
   {
-    ezBoundingSphereT s = ezBoundingSphereT::MakeFromCenterAndRadius(ezVec3T(1, 2, 3), 4);
-    ezBoundingBoxT b1 = ezBoundingBoxT::MakeFromMinMax(ezVec3T(1, 2, 3) - ezVec3T(1), ezVec3T(1, 2, 3) + ezVec3T(1));
-    ezBoundingBoxT b2 = ezBoundingBoxT::MakeFromMinMax(ezVec3T(1, 2, 3) - ezVec3T(1), ezVec3T(1, 2, 3) + ezVec3T(3));
+    ezBoundingSphereType s = ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type(1, 2, 3), 4);
+    ezBoundingBoxType b1 = ezBoundingBoxType::MakeFromMinMax(ezVec3Type(1, 2, 3) - ezVec3Type(1), ezVec3Type(1, 2, 3) + ezVec3Type(1));
+    ezBoundingBoxType b2 = ezBoundingBoxType::MakeFromMinMax(ezVec3Type(1, 2, 3) - ezVec3Type(1), ezVec3Type(1, 2, 3) + ezVec3Type(3));
 
     EZ_TEST_BOOL(s.Contains(b1));
     EZ_TEST_BOOL(!s.Contains(b2));
 
-    ezVec3T vDir(1, 1, 1);
+    ezVec3Type vDir(1, 1, 1);
     vDir.SetLength(3.99f).IgnoreResult();
-    ezBoundingBoxT b3 = ezBoundingBoxT::MakeFromMinMax(ezVec3T(1, 2, 3) - ezVec3T(1), ezVec3T(1, 2, 3) + vDir);
+    ezBoundingBoxType b3 = ezBoundingBoxType::MakeFromMinMax(ezVec3Type(1, 2, 3) - ezVec3Type(1), ezVec3Type(1, 2, 3) + vDir);
 
     EZ_TEST_BOOL(s.Contains(b3));
 
     vDir.SetLength(4.01f).IgnoreResult();
-    ezBoundingBoxT b4 = ezBoundingBoxT::MakeFromMinMax(ezVec3T(1, 2, 3) - ezVec3T(1), ezVec3T(1, 2, 3) + vDir);
+    ezBoundingBoxType b4 = ezBoundingBoxType::MakeFromMinMax(ezVec3Type(1, 2, 3) - ezVec3Type(1), ezVec3Type(1, 2, 3) + vDir);
 
     EZ_TEST_BOOL(!s.Contains(b4));
   }
 
 
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Overlaps (array)")
   {
-    ezBoundingSphereT s = ezBoundingSphereT::MakeFromCenterAndRadius(ezVec3T(0.0f), 6.0f);
+    ezBoundingSphereType s = ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type(0.0f), 6.0f);
 
-    ezVec3T p[4] = {
-      ezVec3T(3),
-      ezVec3T(10),
-      ezVec3T(2),
-      ezVec3T(7),
+    ezVec3Type p[4] = {
+      ezVec3Type(3),
+      ezVec3Type(10),
+      ezVec3Type(2),
+      ezVec3Type(7),
     };
 
-    EZ_TEST_BOOL(s.Overlaps(p, 2, sizeof(ezVec3T) * 2));
-    EZ_TEST_BOOL(!s.Overlaps(p + 1, 2, sizeof(ezVec3T) * 2));
-    EZ_TEST_BOOL(s.Overlaps(p, 4, sizeof(ezVec3T)));
+    EZ_TEST_BOOL(s.Overlaps(p, 2, sizeof(ezVec3Type) * 2));
+    EZ_TEST_BOOL(!s.Overlaps(p + 1, 2, sizeof(ezVec3Type) * 2));
+    EZ_TEST_BOOL(s.Overlaps(p, 4, sizeof(ezVec3Type)));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Overlaps (sphere)")
   {
-    ezBoundingSphereT s1, s2, s3;
-    s1 = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3T(5, 0, 0), 2);
-    s2 = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3T(6, 0, 0), 2);
-    s3 = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3T(8, 0, 0), 1);
+    ezBoundingSphereType s1, s2, s3;
+    s1 = ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type(5, 0, 0), 2);
+    s2 = ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type(6, 0, 0), 2);
+    s3 = ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type(8, 0, 0), 1);
 
     EZ_TEST_BOOL(s1.Overlaps(s1));
     EZ_TEST_BOOL(s2.Overlaps(s2));
@@ -348,9 +355,9 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingSphere)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Overlaps (box)")
   {
-    ezBoundingSphereT s = ezBoundingSphereT::MakeFromCenterAndRadius(ezVec3T(1, 2, 3), 2);
-    ezBoundingBoxT b1 = ezBoundingBoxT::MakeFromMinMax(ezVec3T(1, 2, 3), ezVec3T(1, 2, 3) + ezVec3T(2));
-    ezBoundingBoxT b2 = ezBoundingBoxT::MakeFromMinMax(ezVec3T(1, 2, 3) + ezVec3T(2), ezVec3T(1, 2, 3) + ezVec3T(3));
+    ezBoundingSphereType s = ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type(1, 2, 3), 2);
+    ezBoundingBoxType b1 = ezBoundingBoxType::MakeFromMinMax(ezVec3Type(1, 2, 3), ezVec3Type(1, 2, 3) + ezVec3Type(2));
+    ezBoundingBoxType b2 = ezBoundingBoxType::MakeFromMinMax(ezVec3Type(1, 2, 3) + ezVec3Type(2), ezVec3Type(1, 2, 3) + ezVec3Type(3));
 
     EZ_TEST_BOOL(s.Overlaps(b1));
     EZ_TEST_BOOL(!s.Overlaps(b2));
@@ -358,127 +365,137 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingSphere)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetBoundingBox")
   {
-    ezBoundingSphereT s = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3T(1, 2, 3), 2.0f);
+    ezBoundingSphereType s = ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type(1, 2, 3), 2.0f);
 
-    ezBoundingBoxT b = s.GetBoundingBox();
+    ezBoundingBoxType b = s.GetBoundingBox();
 
-    EZ_TEST_BOOL(b.m_vMin == ezVec3T(-1, 0, 1));
-    EZ_TEST_BOOL(b.m_vMax == ezVec3T(3, 4, 5));
+    EZ_TEST_BOOL(b.m_vMin == ezVec3Type(-1, 0, 1));
+    EZ_TEST_BOOL(b.m_vMax == ezVec3Type(3, 4, 5));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetClampedPoint")
   {
-    ezBoundingSphereT s = ezBoundingSphereT::MakeFromCenterAndRadius(ezVec3T(1, 2, 3), 2.0f);
+    ezBoundingSphereType s = ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type(1, 2, 3), 2.0f);
 
-    EZ_TEST_VEC3(s.GetClampedPoint(ezVec3T(2, 2, 3)), ezVec3T(2, 2, 3), 0.001);
-    EZ_TEST_VEC3(s.GetClampedPoint(ezVec3T(5, 2, 3)), ezVec3T(3, 2, 3), 0.001);
-    EZ_TEST_VEC3(s.GetClampedPoint(ezVec3T(1, 7, 3)), ezVec3T(1, 4, 3), 0.001);
+    EZ_TEST_VEC3(s.GetClampedPoint(ezVec3Type(2, 2, 3)), ezVec3Type(2, 2, 3), Type(0.001));
+    EZ_TEST_VEC3(s.GetClampedPoint(ezVec3Type(5, 2, 3)), ezVec3Type(3, 2, 3), Type(0.001));
+    EZ_TEST_VEC3(s.GetClampedPoint(ezVec3Type(1, 7, 3)), ezVec3Type(1, 4, 3), Type(0.001));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetRayIntersection")
   {
-    ezBoundingSphereT s = ezBoundingSphereT::MakeFromCenterAndRadius(ezVec3T(1, 2, 3), 4);
+    ezBoundingSphereType s = ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type(1, 2, 3), 4);
 
     for (ezUInt32 i = 0; i < 10000; ++i)
     {
-      const ezVec3T vDir =
-        ezVec3T(ezMath::Sin(ezAngle::MakeFromDegree(i * 1.0f)), ezMath::Cos(ezAngle::MakeFromDegree(i * 3.0f)), ezMath::Cos(ezAngle::MakeFromDegree(i * 1.0f)))
+      const ezVec3Type vDir =
+        ezVec3Type(ezMath::Sin(ezAngleTemplate<Type>::MakeFromDegree(i * 1.0f)), ezMath::Cos(ezAngleTemplate<Type>::MakeFromDegree(i * 3.0f)), ezMath::Cos(ezAngleTemplate<Type>::MakeFromDegree(i * 1.0f)))
           .GetNormalized();
-      const ezVec3T vTarget = vDir * s.m_fRadius + s.m_vCenter;
-      const ezVec3T vSource = vTarget + vDir * (ezMathTestType)5;
+      const ezVec3Type vTarget = vDir * s.m_fRadius + s.m_vCenter;
+      const ezVec3Type vSource = vTarget + vDir * Type(5);
 
-      EZ_TEST_FLOAT((vSource - vTarget).GetLength(), 5.0f, 0.001f);
+      EZ_TEST_FLOAT((vSource - vTarget).GetLength(), 5.0f, Type(0.001));
 
-      ezMathTestType fIntersection;
-      ezVec3T vIntersection;
+      Type fIntersection;
+      ezVec3Type vIntersection;
       EZ_TEST_BOOL(s.GetRayIntersection(vSource, -vDir, &fIntersection, &vIntersection) == true);
-      EZ_TEST_FLOAT(fIntersection, (vSource - vTarget).GetLength(), 0.0001f);
-      EZ_TEST_BOOL(vIntersection.IsEqual(vTarget, 0.0001f));
+      EZ_TEST_FLOAT(fIntersection, (vSource - vTarget).GetLength(), Type(0.0001));
+      EZ_TEST_BOOL(vIntersection.IsEqual(vTarget, Type(0.0001)));
 
       EZ_TEST_BOOL(s.GetRayIntersection(vSource, vDir, &fIntersection, &vIntersection) == false);
 
       EZ_TEST_BOOL(s.GetRayIntersection(vTarget - vDir, vDir, &fIntersection, &vIntersection) == true);
-      EZ_TEST_FLOAT(fIntersection, 1, 0.0001f);
-      EZ_TEST_BOOL(vIntersection.IsEqual(vTarget, 0.0001f));
+      EZ_TEST_FLOAT(fIntersection, 1, Type(0.0001));
+      EZ_TEST_BOOL(vIntersection.IsEqual(vTarget, Type(0.0001)));
     }
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetLineSegmentIntersection")
   {
-    ezBoundingSphereT s = ezBoundingSphereT::MakeFromCenterAndRadius(ezVec3T(1, 2, 3), 4);
+    ezBoundingSphereType s = ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type(1, 2, 3), 4);
 
     for (ezUInt32 i = 0; i < 10000; ++i)
     {
-      const ezVec3T vDir = ezVec3T(ezMath::Sin(ezAngle::MakeFromDegree(i * (ezMathTestType)1)), ezMath::Cos(ezAngle::MakeFromDegree(i * (ezMathTestType)3)),
-        ezMath::Cos(ezAngle::MakeFromDegree(i * (ezMathTestType)1)))
+      const ezVec3Type vDir = ezVec3Type(ezMath::Sin(ezAngleTemplate<Type>::MakeFromDegree(i * Type(1))), ezMath::Cos(ezAngleTemplate<Type>::MakeFromDegree(i * Type(3))),
+        ezMath::Cos(ezAngleTemplate<Type>::MakeFromDegree(i * Type(1))))
                              .GetNormalized();
-      const ezVec3T vTarget = vDir * s.m_fRadius + s.m_vCenter - vDir;
-      const ezVec3T vSource = vTarget + vDir * (ezMathTestType)5;
+      const ezVec3Type vTarget = vDir * s.m_fRadius + s.m_vCenter - vDir;
+      const ezVec3Type vSource = vTarget + vDir * Type(5);
 
-      ezMathTestType fIntersection;
-      ezVec3T vIntersection;
+      Type fIntersection;
+      ezVec3Type vIntersection;
       EZ_TEST_BOOL(s.GetLineSegmentIntersection(vSource, vTarget, &fIntersection, &vIntersection) == true);
-      EZ_TEST_FLOAT(fIntersection, 4.0f / 5.0f, 0.0001f);
-      EZ_TEST_BOOL(vIntersection.IsEqual(vTarget + vDir, 0.0001f));
+      EZ_TEST_FLOAT(fIntersection, 4.0f / 5.0f, Type(0.0001));
+      EZ_TEST_BOOL(vIntersection.IsEqual(vTarget + vDir, Type(0.0001)));
 
       EZ_TEST_BOOL(s.GetLineSegmentIntersection(vTarget, vSource, &fIntersection, &vIntersection) == true);
-      EZ_TEST_FLOAT(fIntersection, 1.0f / 5.0f, 0.0001f);
-      EZ_TEST_BOOL(vIntersection.IsEqual(vTarget + vDir, 0.0001f));
+      EZ_TEST_FLOAT(fIntersection, 1.0f / 5.0f, Type(0.0001));
+      EZ_TEST_BOOL(vIntersection.IsEqual(vTarget + vDir, Type(0.0001)));
     }
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "TransformFromOrigin")
   {
-    ezBoundingSphereT s = ezBoundingSphereT::MakeFromCenterAndRadius(ezVec3T(1, 2, 3), 4);
-    ezMat4T mTransform;
+    ezBoundingSphereType s = ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type(1, 2, 3), 4);
+    ezMat4Type mTransform;
 
-    mTransform = ezMat4::MakeTranslation(ezVec3T(5, 6, 7));
-    mTransform.SetScalingFactors(ezVec3T(4, 3, 2)).IgnoreResult();
+    mTransform = ezMat4Type::MakeTranslation(ezVec3Type(5, 6, 7));
+    mTransform.SetScalingFactors(ezVec3Type(4, 3, 2)).IgnoreResult();
 
     s.TransformFromOrigin(mTransform);
 
-    EZ_TEST_BOOL(s.m_vCenter == ezVec3T(9, 12, 13));
+    EZ_TEST_BOOL(s.m_vCenter == ezVec3Type(9, 12, 13));
     EZ_TEST_BOOL(s.m_fRadius == 16);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "TransformFromCenter")
   {
-    ezBoundingSphereT s = ezBoundingSphereT::MakeFromCenterAndRadius(ezVec3T(1, 2, 3), 4);
-    ezMat4T mTransform;
+    ezBoundingSphereType s = ezBoundingSphereType::MakeFromCenterAndRadius(ezVec3Type(1, 2, 3), 4);
+    ezMat4Type mTransform;
 
-    mTransform = ezMat4::MakeTranslation(ezVec3T(5, 6, 7));
-    mTransform.SetScalingFactors(ezVec3T(4, 3, 2)).IgnoreResult();
+    mTransform = ezMat4Type::MakeTranslation(ezVec3Type(5, 6, 7));
+    mTransform.SetScalingFactors(ezVec3Type(4, 3, 2)).IgnoreResult();
 
     s.TransformFromCenter(mTransform);
 
-    EZ_TEST_BOOL(s.m_vCenter == ezVec3T(6, 8, 10));
+    EZ_TEST_BOOL(s.m_vCenter == ezVec3Type(6, 8, 10));
     EZ_TEST_BOOL(s.m_fRadius == 16);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsNaN")
   {
-    if (ezMath::SupportsNaN<ezMathTestType>())
+    if (ezMath::SupportsNaN<Type>())
     {
-      ezBoundingSphereT s;
+      ezBoundingSphereType s;
 
-      s = ezBoundingSphereT::MakeInvalid();
+      s = ezBoundingSphereType::MakeInvalid();
       EZ_TEST_BOOL(!s.IsNaN());
 
-      s = ezBoundingSphereT::MakeInvalid();
-      s.m_fRadius = ezMath::NaN<ezMathTestType>();
+      s = ezBoundingSphereType::MakeInvalid();
+      s.m_fRadius = ezMath::NaN<Type>();
       EZ_TEST_BOOL(s.IsNaN());
 
-      s = ezBoundingSphereT::MakeInvalid();
-      s.m_vCenter.x = ezMath::NaN<ezMathTestType>();
+      s = ezBoundingSphereType::MakeInvalid();
+      s.m_vCenter.x = ezMath::NaN<Type>();
       EZ_TEST_BOOL(s.IsNaN());
 
-      s = ezBoundingSphereT::MakeInvalid();
-      s.m_vCenter.y = ezMath::NaN<ezMathTestType>();
+      s = ezBoundingSphereType::MakeInvalid();
+      s.m_vCenter.y = ezMath::NaN<Type>();
       EZ_TEST_BOOL(s.IsNaN());
 
-      s = ezBoundingSphereT::MakeInvalid();
-      s.m_vCenter.z = ezMath::NaN<ezMathTestType>();
+      s = ezBoundingSphereType::MakeInvalid();
+      s.m_vCenter.z = ezMath::NaN<Type>();
       EZ_TEST_BOOL(s.IsNaN());
     }
   }
+}
+
+EZ_CREATE_SIMPLE_TEST(Math, BoundingSpheref)
+{
+  TestBoundingSphere<float>();
+}
+
+EZ_CREATE_SIMPLE_TEST(Math, BoundingSphered)
+{
+  TestBoundingSphere<double>();
 }

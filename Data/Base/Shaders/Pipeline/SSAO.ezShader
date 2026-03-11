@@ -4,7 +4,6 @@ ALL
 [PERMUTATIONS]
 
 CAMERA_MODE
-VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
 
 [RENDERSTATE]
 
@@ -16,10 +15,6 @@ CullMode = CullMode_None
 
 #include <Shaders/Pipeline/FullscreenTriangleVertexShader.h>
 
-[GEOMETRYSHADER]
-
-#include <Shaders/Pipeline/FullscreenTriangleStereoGeometryShader.h>
-
 [PIXELSHADER]
 
 #include <Shaders/Pipeline/FullscreenTriangleInterpolator.h>
@@ -27,27 +22,27 @@ CullMode = CullMode_None
 #include <Shaders/Pipeline/Utils.h>
 #include "SSAOConstants.h"
 
-Texture2DArray DepthTexture;
-Texture2DArray LowResDepthTexture;
-SamplerState DepthSampler;
+Texture2DArray DepthTexture BIND_GROUP(BG_RENDER_PASS);
+Texture2DArray LowResDepthTexture BIND_GROUP(BG_RENDER_PASS);
+SamplerState DepthSampler BIND_GROUP(BG_RENDER_PASS);
 
-Texture2D NoiseTexture;
+Texture2D NoiseTexture BIND_GROUP(BG_RENDER_PASS);
 
 #define NUM_AO_SAMPLES 6
 #define SAMPLE_STEPS 1
 
 float SampleDepth(float2 texCoords)
 {
-  return DepthTexture.SampleLevel(DepthSampler, float3(texCoords, s_ActiveCameraEyeIndex), 0).r;
+  return ezSampleLevel_PointClampBorder(DepthTexture, DepthSampler, texCoords, s_ActiveCameraEyeIndex, 0, FadeOutEnd.xxxx).r;
 }
 
 float SampleLowResDepth(float2 texCoords, float mipLevel)
 {
 #if 0
-  return LinearizeZBufferDepth(DepthTexture.SampleLevel(DepthSampler, float3(texCoords, s_ActiveCameraEyeIndex), 0).r);
+  return LinearizeZBufferDepth(ezSampleLevel_PointClampBorder(DepthTexture, DepthSampler, texCoords, s_ActiveCameraEyeIndex, 0, FadeOutEnd.xxxx).r);
 #else
   texCoords = texCoords * TexCoordsScale;
-  return LowResDepthTexture.SampleLevel(DepthSampler, float3(texCoords, s_ActiveCameraEyeIndex), mipLevel).r;
+  return ezSampleLevel_PointClampBorder(LowResDepthTexture, DepthSampler, texCoords, s_ActiveCameraEyeIndex, mipLevel, FadeOutEnd.xxxx).r;
 #endif
 }
 
@@ -142,7 +137,7 @@ float4 main(PS_IN Input) : SV_Target
 
   float2 fovFixXY = fovCorrection.xy / centerPos.z;
   float aoRadius = WorldRadius;
-  aoRadius = min(aoRadius * fovFixXY, MaxScreenSpaceRadius);
+  aoRadius = min(aoRadius * fovFixXY.x, MaxScreenSpaceRadius);
 
   //float noise = InterleavedGradientNoise(Input.Position.xy);
   //float2 randomAngle; sincos(noise * 2.0f * PI, randomAngle.x, randomAngle.y);
@@ -150,7 +145,7 @@ float4 main(PS_IN Input) : SV_Target
   float2 noiseCoords = Input.TexCoord0 * (ViewportSize.xy / 4.0f);
   float2 randomAngle = NoiseTexture.SampleLevel(PointSampler, noiseCoords, 0).rg * 2.0f - 1.0f;
 
-  randomAngle *= aoRadius;;
+  randomAngle *= aoRadius;
   float2x2 randomRotation = {randomAngle.x, -randomAngle.y, randomAngle.y, randomAngle.x};
 
   float occlusion = 0.0f;
@@ -186,7 +181,8 @@ float4 main(PS_IN Input) : SV_Target
 
   occlusion = 1 - (1 - pow(abs(occlusion), Contrast)) * Intensity * fadeOutFactor;
 
-  #if 1
+  // Disabling this code path on spirv. It produces random NaN values on AMD and the workaround below does not work anymore.
+  #if EZ_ENABLED(PLATFORM_DX11)
     float2 thisPixel = float2(occlusion, linearCenterDepth);
 
     float2 deltaX = ddx_fine(thisPixel);
@@ -196,6 +192,12 @@ float4 main(PS_IN Input) : SV_Target
 
     float occlusionX = occlusion - deltaX.x * (m.x * 2 - 1);
     float occlusionY = occlusion - deltaY.x * (m.y * 2 - 1);
+
+    // Workaround for AMD Radeon 680M (RADV REMBRANDT). At least in Mesa 25.0.7 the driver produces wrong code here.
+    // If you plot deltaX.xy it contains no NaNs, but if you plot only deltaX.x or deltaX.y it starts producing random NaN splotches.
+    // This only happens in spots at the border to the sky (far plane).
+    if (isnan(occlusionX) || isnan(occlusionY))
+      return float4(occlusion, linearCenterDepth, 0, 1);
 
     float2 weight;
 

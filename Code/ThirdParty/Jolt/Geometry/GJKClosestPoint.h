@@ -5,7 +5,6 @@
 #pragma once
 
 #include <Jolt/Core/NonCopyable.h>
-#include <Jolt/Core/FPException.h>
 #include <Jolt/Geometry/ClosestPoint.h>
 #include <Jolt/Geometry/ConvexSupport.h>
 
@@ -73,7 +72,7 @@ private:
 		}
 
 #ifdef JPH_GJK_DEBUG
- 		Trace("GetClosest: set = 0b%s, v = [%s], |v| = %g", NibbleToBinary(set), ConvertToString(v).c_str(), (double)v.Length());
+		Trace("GetClosest: set = 0b%s, v = [%s], |v| = %g", NibbleToBinary(set), ConvertToString(v).c_str(), (double)v.Length());
 #endif
 
 		float v_len_sq = v.LengthSq();
@@ -114,10 +113,6 @@ private:
 			}
 		mNumPoints = num_points;
 	}
-
-	// GCC 11.3 thinks the assignments to mP, mQ and mY below may use uninitialized variables
-	JPH_SUPPRESS_WARNING_PUSH
-	JPH_GCC_SUPPRESS_WARNING("-Wmaybe-uninitialized")
 
 	// Remove points that are not in the set, only updates mP
 	void		UpdatePointSetP(uint32 inSet)
@@ -161,8 +156,6 @@ private:
 		mNumPoints = num_points;
 	}
 
-	JPH_SUPPRESS_WARNING_POP
-
 	// Calculate closest points on A and B
 	void		CalculatePointAAndB(Vec3 &outPointA, Vec3 &outPointB) const
 	{
@@ -192,7 +185,7 @@ private:
 			break;
 
 		case 4:
-		#ifdef _DEBUG
+		#ifdef JPH_DEBUG
 			memset(&outPointA, 0xcd, sizeof(outPointA));
 			memset(&outPointB, 0xcd, sizeof(outPointB));
 		#endif
@@ -393,7 +386,7 @@ public:
 #ifdef JPH_GJK_DEBUG
 				Trace("Distance bigger than max");
 #endif
-#ifdef _DEBUG
+#ifdef JPH_DEBUG
 				memset(&outPointA, 0xcd, sizeof(outPointA));
 				memset(&outPointB, 0xcd, sizeof(outPointB));
 #endif
@@ -558,7 +551,7 @@ public:
 #ifdef JPH_GJK_DEBUG
 				Trace("v . r = %g", (double)v_dot_r);
 #endif
-				if (v_dot_r >= 0.0f)
+				if (v_dot_r >= -1.0e-18f) // Instead of checking >= 0, check with epsilon as we don't want the division below to overflow to infinity as it can cause a float exception
 					return false;
 
 				// Update the lower bound for lambda
@@ -751,7 +744,7 @@ public:
 #ifdef JPH_GJK_DEBUG
 				Trace("v . r = %g", (double)v_dot_r);
 #endif
-				if (v_dot_r >= 0.0f)
+				if (v_dot_r >= -1.0e-18f) // Instead of checking >= 0, check with epsilon as we don't want the division below to overflow to infinity as it can cause a float exception
 					return false;
 
 				// Update the lower bound for lambda

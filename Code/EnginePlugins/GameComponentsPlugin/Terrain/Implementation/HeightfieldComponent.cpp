@@ -10,6 +10,7 @@
 #include <RendererCore/Meshes/MeshBufferUtils.h>
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <RendererCore/Meshes/MeshResource.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 #include <Texture/Image/Image.h>
 #include <Texture/Image/ImageUtils.h>
@@ -19,8 +20,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezHeightfieldComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("HeightfieldImage", GetHeightfieldFile, SetHeightfieldFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Data_2D")),
-    EZ_ACCESSOR_PROPERTY("Material", GetMaterialFile, SetMaterialFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
+    EZ_RESOURCE_ACCESSOR_PROPERTY("HeightfieldImage", GetHeightfield, SetHeightfield)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Data_2D")),
+    EZ_RESOURCE_MEMBER_PROPERTY("Material", m_hMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
     EZ_ACCESSOR_PROPERTY("HalfExtents", GetHalfExtents, SetHalfExtents)->AddAttributes(new ezDefaultValueAttribute(ezVec2(50))),
     EZ_ACCESSOR_PROPERTY("Height", GetHeight, SetHeight)->AddAttributes(new ezDefaultValueAttribute(50)),
     EZ_ACCESSOR_PROPERTY("Tesselation", GetTesselation, SetTesselation)->AddAttributes(new ezDefaultValueAttribute(ezVec2U32(128))),
@@ -28,7 +29,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezHeightfieldComponent, 2, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("TexCoordScale", GetTexCoordScale, SetTexCoordScale)->AddAttributes(new ezDefaultValueAttribute(ezVec2(1))),
     EZ_ACCESSOR_PROPERTY("GenerateCollision", GetGenerateCollision, SetGenerateCollision)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_ACCESSOR_PROPERTY("ColMeshTesselation", GetColMeshTesselation, SetColMeshTesselation)->AddAttributes(new ezDefaultValueAttribute(ezVec2U32(64))),    
-    EZ_ACCESSOR_PROPERTY("IncludeInNavmesh", GetIncludeInNavmesh, SetIncludeInNavmesh)->AddAttributes(new ezDefaultValueAttribute(true)),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -84,6 +84,8 @@ void ezHeightfieldComponent::SerializeComponent(ezWorldWriter& stream) const
 
   // Version 2
   s << m_bGenerateCollision;
+
+  bool m_bIncludeInNavmesh = true; // dummy
   s << m_bIncludeInNavmesh;
 }
 
@@ -105,6 +107,8 @@ void ezHeightfieldComponent::DeserializeComponent(ezWorldReader& stream)
   if (uiVersion >= 2)
   {
     s >> m_bGenerateCollision;
+
+    bool m_bIncludeInNavmesh = true; // dummy
     s >> m_bIncludeInNavmesh;
   }
 }
@@ -118,6 +122,14 @@ void ezHeightfieldComponent::OnActivated()
 
   // First generate the mesh and then call the base implementation which will update the bounds
   SUPER::OnActivated();
+}
+
+void ezHeightfieldComponent::OnDeactivated()
+{
+  ezRenderDataManager* pRenderDataManager = GetWorld()->GetModule<ezRenderDataManager>();
+  pRenderDataManager->DeleteInstanceData(m_InstanceDataOffset);
+
+  SUPER::OnDeactivated();
 }
 
 ezResult ezHeightfieldComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
@@ -137,8 +149,8 @@ void ezHeightfieldComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg)
   if (!m_hMesh.IsValid())
     return;
 
-  const ezUInt32 uiFlipWinding = GetOwner()->GetGlobalTransformSimd().ContainsNegativeScale() ? 1 : 0;
-  const ezUInt32 uiUniformScale = GetOwner()->GetGlobalTransformSimd().ContainsUniformScale() ? 1 : 0;
+  const bool bDynamic = GetOwner()->IsDynamic();
+  auto hInstanceDataBuffer = msg.m_pRenderDataManager->GetOrCreateInstanceDataAndFill(*this, bDynamic, GetOwner()->GetGlobalTransform(), m_InstanceDataOffset, GetUniqueIdForRendering());
 
   ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowLoadingFallback);
   ezArrayPtr<const ezMeshResourceDescriptor::SubMesh> parts = pMesh->GetSubMeshes();
@@ -148,37 +160,12 @@ void ezHeightfieldComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg)
     const ezUInt32 uiMaterialIndex = parts[uiPartIndex].m_uiMaterialIndex;
     ezMaterialResourceHandle hMaterial = m_hMaterial.IsValid() ? m_hMaterial : pMesh->GetMaterials()[uiMaterialIndex];
 
-    ezMeshRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner());
-    {
-      pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
-      pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
-      pRenderData->m_hMesh = m_hMesh;
-      pRenderData->m_hMaterial = hMaterial;
-      pRenderData->m_Color = ezColor::White;
-
-      pRenderData->m_uiSubMeshIndex = uiPartIndex;
-      pRenderData->m_uiFlipWinding = uiFlipWinding;
-      pRenderData->m_uiUniformScale = uiUniformScale;
-
-      pRenderData->m_uiUniqueID = GetUniqueIdForRendering(uiMaterialIndex);
-
-      pRenderData->FillBatchIdAndSortingKey();
-    }
+    ezMeshRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner());
+    pRenderData->SetFallbackGlobalBounds(GetOwner()->GetGlobalBounds());
+    pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, hMaterial, m_hMesh, uiMaterialIndex, uiPartIndex);
 
     bool bDontCacheYet = false;
-
-    // Determine render data category.
-    ezRenderData::Category category = ezDefaultRenderDataCategories::LitOpaque;
-
-    if (hMaterial.IsValid())
-    {
-      ezResourceLock<ezMaterialResource> pMaterial(hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
-
-      if (pMaterial.GetAcquireResult() == ezResourceAcquireResult::LoadingFallback)
-        bDontCacheYet = true;
-
-      category = pMaterial->GetRenderDataCategory();
-    }
+    ezRenderData::Category category = ezMaterialResource::GetRenderDataCategory(hMaterial, &bDontCacheYet);
 
     msg.AddRenderData(pRenderData, category, bDontCacheYet ? ezRenderData::Caching::Never : ezRenderData::Caching::IfStatic);
   }
@@ -188,47 +175,6 @@ void ezHeightfieldComponent::SetTexCoordScale(ezVec2 value) // [ property ]
 {
   m_vTexCoordScale = value;
   InvalidateMesh();
-}
-
-void ezHeightfieldComponent::SetMaterialFile(const char* szFile)
-{
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>(szFile);
-  }
-  else
-  {
-    m_hMaterial.Invalidate();
-  }
-}
-
-const char* ezHeightfieldComponent::GetMaterialFile() const
-{
-  if (!m_hMaterial.IsValid())
-    return "";
-
-  return m_hMaterial.GetResourceID();
-}
-
-
-void ezHeightfieldComponent::SetHeightfieldFile(const char* szFile)
-{
-  ezImageDataResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hResource = ezResourceManager::LoadResource<ezImageDataResource>(szFile);
-  }
-
-  SetHeightfield(hResource);
-}
-
-const char* ezHeightfieldComponent::GetHeightfieldFile() const
-{
-  if (!m_hHeightfield.IsValid())
-    return "";
-
-  return m_hHeightfield.GetResourceID();
 }
 
 void ezHeightfieldComponent::SetHeightfield(const ezImageDataResourceHandle& hResource)
@@ -252,11 +198,6 @@ void ezHeightfieldComponent::SetColMeshTesselation(ezVec2U32 value)
 {
   m_vColMeshTesselation = value;
   // don't invalidate the render mesh
-}
-
-void ezHeightfieldComponent::SetIncludeInNavmesh(bool b)
-{
-  m_bIncludeInNavmesh = b;
 }
 
 void ezHeightfieldComponent::OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const
@@ -335,9 +276,6 @@ void ezHeightfieldComponent::OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const
 void ezHeightfieldComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const
 {
   if (msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::CollisionMesh && (m_bGenerateCollision == false || GetOwner()->IsDynamic()))
-    return;
-
-  if (msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::NavMeshGeneration && (m_bIncludeInNavmesh == false || GetOwner()->IsDynamic()))
     return;
 
   msg.AddMeshObject(GetOwner()->GetGlobalTransform(), GenerateMesh<ezCpuMeshResource>());
@@ -436,10 +374,6 @@ ezResult ezHeightfieldComponent::BuildMeshDescriptor(ezMeshResourceDescriptor& d
   desc.SetMaterial(0, "{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }");
 
   desc.MeshBufferDesc().AddCommonStreams();
-  // 0 = position
-  // 1 = texcoord
-  // 2 = normal
-  // 3 = tangent
 
   {
     auto& mb = desc.MeshBufferDesc();
@@ -454,19 +388,23 @@ ezResult ezHeightfieldComponent::BuildMeshDescriptor(ezMeshResourceDescriptor& d
     const ezVec2 vToNDC = ezVec2(1.0f / (uiNumVerticesX - 1), 1.0f / (uiNumVerticesY - 1));
     const ezVec3 vPosOffset(-m_vHalfExtents.x, -m_vHalfExtents.y, -m_fHeight);
 
-    const auto texCoordFormat = ezMeshTexCoordPrecision::ToResourceFormat(ezMeshTexCoordPrecision::Default);
-    const auto normalFormat = ezMeshNormalPrecision::ToResourceFormatNormal(ezMeshNormalPrecision::Default);
-    const auto tangentFormat = ezMeshNormalPrecision::ToResourceFormatTangent(ezMeshNormalPrecision::Default);
+    const auto texCoordFormat = mb.GetVertexStreamConfig().GetTexCoordFormat();
+    const auto normalFormat = mb.GetVertexStreamConfig().GetNormalFormat();
+    const auto tangentFormat = mb.GetVertexStreamConfig().GetTangentFormat();
 
     // access the vertex data directly
     // this is way more complicated than going through SetVertexData, but it is ~20% faster
 
-    auto positionData = mb.GetVertexData(0, 0);
-    auto texcoordData = mb.GetVertexData(1, 0);
-    auto normalData = mb.GetVertexData(2, 0);
-    auto tangentData = mb.GetVertexData(3, 0);
+    auto positionData = mb.GetPositionData();
 
-    const ezUInt32 uiVertexDataSize = mb.GetVertexDataSize();
+    ezUInt32 uiNormalDataStride = 0;
+    auto normalData = mb.GetNormalData(&uiNormalDataStride);
+
+    ezUInt32 uiTangentDataStride = 0;
+    auto tangentData = mb.GetTangentData(&uiTangentDataStride);
+
+    ezUInt32 uiTexCoordDataStride = 0;
+    auto texcoordData = mb.GetTexCoord0Data(&uiTexCoordDataStride);
 
     ezUInt32 uiVertexIdx = 0;
 
@@ -482,12 +420,12 @@ ezResult ezHeightfieldComponent::BuildMeshDescriptor(ezMeshResourceDescriptor& d
         const ezVec2 tc = m_vTexCoordOffset + ndc.CompMul(m_vTexCoordScale);
         const ezVec2 heightTC = ndc;
 
-        const size_t uiByteOffset = (size_t)uiVertexIdx * (size_t)uiVertexDataSize;
-
         const float fHeightScale = ezImageUtils::BilinearSample(pImgData, imgWidth, imgHeight, ezImageAddressMode::Clamp, heightTC).r;
 
         // complicated but faster
-        *reinterpret_cast<ezVec3*>(positionData.GetPtr() + uiByteOffset) = vPosOffset + ezVec3(ndc.x, ndc.y, fHeightScale).CompMul(vSize);
+        positionData.GetPtr()[uiVertexIdx] = vPosOffset + ezVec3(ndc.x, ndc.y, fHeightScale).CompMul(vSize);
+
+        const size_t uiByteOffset = (size_t)uiVertexIdx * (size_t)uiTexCoordDataStride;
         ezMeshBufferUtils::EncodeTexCoord(tc, ezByteArrayPtr(texcoordData.GetPtr() + uiByteOffset, 32), texCoordFormat).IgnoreResult();
 
         // easier to understand, but slower
@@ -504,8 +442,6 @@ ezResult ezHeightfieldComponent::BuildMeshDescriptor(ezMeshResourceDescriptor& d
     {
       for (ezUInt32 x = 0; x < uiNumVerticesX; ++x)
       {
-        const size_t uiByteOffset = (size_t)uiVertexIdx * (size_t)uiVertexDataSize;
-
         const ezInt32 centerIDx = uiVertexIdx;
         ezInt32 leftIDx = uiVertexIdx - 1;
         ezInt32 rightIDx = uiVertexIdx + 1;
@@ -522,11 +458,11 @@ ezResult ezHeightfieldComponent::BuildMeshDescriptor(ezMeshResourceDescriptor& d
         if (y + 1 == uiNumVerticesY)
           topIDx = centerIDx;
 
-        const ezVec3 vPosCenter = *reinterpret_cast<ezVec3*>(positionData.GetPtr() + (size_t)centerIDx * (size_t)uiVertexDataSize);
-        const ezVec3 vPosLeft = *reinterpret_cast<ezVec3*>(positionData.GetPtr() + (size_t)leftIDx * (size_t)uiVertexDataSize);
-        const ezVec3 vPosRight = *reinterpret_cast<ezVec3*>(positionData.GetPtr() + (size_t)rightIDx * (size_t)uiVertexDataSize);
-        const ezVec3 vPosBottom = *reinterpret_cast<ezVec3*>(positionData.GetPtr() + (size_t)bottomIDx * (size_t)uiVertexDataSize);
-        const ezVec3 vPosTop = *reinterpret_cast<ezVec3*>(positionData.GetPtr() + (size_t)topIDx * (size_t)uiVertexDataSize);
+        const ezVec3 vPosCenter = *(positionData.GetPtr() + (size_t)centerIDx);
+        const ezVec3 vPosLeft = *(positionData.GetPtr() + (size_t)leftIDx);
+        const ezVec3 vPosRight = *(positionData.GetPtr() + (size_t)rightIDx);
+        const ezVec3 vPosBottom = *(positionData.GetPtr() + (size_t)bottomIDx);
+        const ezVec3 vPosTop = *(positionData.GetPtr() + (size_t)topIDx);
 
         ezVec3 edgeL = vPosLeft - vPosCenter;
         ezVec3 edgeR = vPosRight - vPosCenter;
@@ -555,7 +491,10 @@ ezResult ezHeightfieldComponent::BuildMeshDescriptor(ezMeshResourceDescriptor& d
         ezVec3 vTangent = ezVec3(1, 0, 0).CrossRH(vNormal).GetNormalized();
 
         // complicated but faster
+        size_t uiByteOffset = (size_t)uiVertexIdx * (size_t)uiNormalDataStride;
         ezMeshBufferUtils::EncodeNormal(vNormal, ezByteArrayPtr(normalData.GetPtr() + uiByteOffset, 32), normalFormat).IgnoreResult();
+
+        uiByteOffset = (size_t)uiVertexIdx * (size_t)uiTangentDataStride;
         ezMeshBufferUtils::EncodeTangent(vTangent, 1.0f, ezByteArrayPtr(tangentData.GetPtr() + uiByteOffset, 32), tangentFormat).IgnoreResult();
 
         // easier to understand, but slower
@@ -687,3 +626,6 @@ void ezHeightfieldComponentManager::AddToUpdateList(ezHeightfieldComponent* pCom
     m_ComponentsToUpdate.PushBack(hComponent);
   }
 }
+
+
+EZ_STATICLINK_FILE(GameComponentsPlugin, GameComponentsPlugin_Terrain_Implementation_HeightfieldComponent);

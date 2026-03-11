@@ -1,0 +1,16 @@
+// for a description of the options see:
+// https://ezengine.net/pages/docs/editor/editor-plugins.html
+
+PluginInfo
+{
+	string %DisplayName{"RML UI"}
+	string %Description{"Adds support for graphical user interfaces using RmlUI."}
+	string %EditorPlugins{"ezEditorPluginRmlUi"}
+	string %EditorEnginePlugins{"ezEnginePluginRmlUi"}
+	string %RuntimePlugins{"ezRmlUiPlugin"}
+	string %PackageDependencies{"freetype.dll", "RmlCore.dll"}
+	string %RequiredPlugins{}
+	string %ExclusiveFeatures{}
+	string %EnabledInTemplates{"General2D", "General3D"}
+	string %CMakeTargetName{"RmlUiPlugin"}
+}

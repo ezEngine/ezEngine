@@ -46,22 +46,22 @@ void ezMaterialContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
       auto pWorld = m_pWorld;
       EZ_LOCK(pWorld->GetWriteMarker());
 
-      ezMeshComponent* pMesh;
-      if (pWorld->TryGetComponent(m_hMeshComponent, pMesh))
+      ezMeshComponent* pMeshComp = nullptr;
+      if (pWorld->TryGetComponent(m_hMeshComponent, pMeshComp))
       {
         switch (m_PreviewModel)
         {
           case PreviewModel::Ball:
-            pMesh->SetMesh(m_hBallMesh);
+            pMeshComp->SetMesh(m_hBallMesh);
             break;
           case PreviewModel::Sphere:
-            pMesh->SetMesh(m_hSphereMesh);
+            pMeshComp->SetMesh(m_hSphereMesh);
             break;
           case PreviewModel::Box:
-            pMesh->SetMesh(m_hBoxMesh);
+            pMeshComp->SetMesh(m_hBoxMesh);
             break;
           case PreviewModel::Plane:
-            pMesh->SetMesh(m_hPlaneMesh);
+            pMeshComp->SetMesh(m_hPlaneMesh);
             break;
         }
       }
@@ -91,14 +91,14 @@ void ezMaterialContext::OnInitialize()
         ezGeometry::GeoOptions opt;
         opt.m_Color = ezColor::Red;
         opt.m_Transform = ezMat4::MakeRotationZ(ezAngle::MakeFromDegree(90));
-        geom.AddStackedSphere(0.1f, 64, 64, opt);
+        geom.AddStackedSphere(1.0f, 64, 64, opt);
         geom.ComputeTangents();
 
         ezMeshBufferResourceDescriptor desc;
         desc.AddCommonStreams();
-        desc.AddStream(ezGALVertexAttributeSemantic::TexCoord1, ezMeshTexCoordPrecision::ToResourceFormat(ezMeshTexCoordPrecision::Default));
-        desc.AddStream(ezGALVertexAttributeSemantic::Color0, ezGALResourceFormat::RGBAUByteNormalized);
-        desc.AddStream(ezGALVertexAttributeSemantic::Color1, ezGALResourceFormat::RGBAUByteNormalized);
+        desc.AddStream(ezMeshVertexStreamType::TexCoord1);
+        desc.AddStream(ezMeshVertexStreamType::Color0);
+        desc.AddStream(ezMeshVertexStreamType::Color1);
         desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
 
         hMeshBuffer = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>(szMeshBufferName, std::move(desc), szMeshBufferName);
@@ -136,14 +136,14 @@ void ezMaterialContext::OnInitialize()
         // Build geometry
         ezGeometry geom;
 
-        geom.AddBox(ezVec3(0.12f), true, opt);
+        geom.AddBox(ezVec3(1.5f), true, opt);
         geom.ComputeTangents();
 
         ezMeshBufferResourceDescriptor desc;
         desc.AddCommonStreams();
-        desc.AddStream(ezGALVertexAttributeSemantic::TexCoord1, ezMeshTexCoordPrecision::ToResourceFormat(ezMeshTexCoordPrecision::Default));
-        desc.AddStream(ezGALVertexAttributeSemantic::Color0, ezGALResourceFormat::RGBAUByteNormalized);
-        desc.AddStream(ezGALVertexAttributeSemantic::Color1, ezGALResourceFormat::RGBAUByteNormalized);
+        desc.AddStream(ezMeshVertexStreamType::TexCoord1);
+        desc.AddStream(ezMeshVertexStreamType::Color0);
+        desc.AddStream(ezMeshVertexStreamType::Color1);
         desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
 
         hMeshBuffer = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>(szMeshBufferName, std::move(desc), szMeshBufferName);
@@ -181,14 +181,14 @@ void ezMaterialContext::OnInitialize()
         ezGeometry::GeoOptions opt;
         opt.m_Color = ezColor::Red;
         opt.m_Transform = ezMat4::MakeRotationZ(ezAngle::MakeFromDegree(-90));
-        geom.AddRect(ezVec2(0.2f), 64, 64, opt);
+        geom.AddRect(ezVec2(2.0f), 64, 64, opt);
         geom.ComputeTangents();
 
         ezMeshBufferResourceDescriptor desc;
         desc.AddCommonStreams();
-        desc.AddStream(ezGALVertexAttributeSemantic::TexCoord1, ezMeshTexCoordPrecision::ToResourceFormat(ezMeshTexCoordPrecision::Default));
-        desc.AddStream(ezGALVertexAttributeSemantic::Color0, ezGALResourceFormat::RGBAUByteNormalized);
-        desc.AddStream(ezGALVertexAttributeSemantic::Color1, ezGALResourceFormat::RGBAUByteNormalized);
+        desc.AddStream(ezMeshVertexStreamType::TexCoord1);
+        desc.AddStream(ezMeshVertexStreamType::Color0);
+        desc.AddStream(ezMeshVertexStreamType::Color1);
         desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
 
         hMeshBuffer = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>(szMeshBufferName, std::move(desc), szMeshBufferName);
@@ -209,7 +209,7 @@ void ezMaterialContext::OnInitialize()
   }
 
   {
-    m_hBallMesh = ezResourceManager::LoadResource<ezMeshResource>("Editor/Meshes/MaterialBall.ezMesh");
+    m_hBallMesh = ezResourceManager::LoadResource<ezMeshResource>("Editor/Meshes/MaterialBall.ezBinMesh");
   }
 
   auto pWorld = m_pWorld;
@@ -221,7 +221,7 @@ void ezMaterialContext::OnInitialize()
   // Preview Mesh
   {
     obj.m_sName.Assign("MaterialPreview");
-    pWorld->CreateObject(obj, pObj);
+    m_hMeshObject = pWorld->CreateObject(obj, pObj);
 
     ezMeshComponent* pMesh;
     m_hMeshComponent = ezMeshComponent::CreateComponent(pObj, pMesh);

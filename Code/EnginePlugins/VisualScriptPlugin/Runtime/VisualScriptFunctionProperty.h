@@ -19,7 +19,6 @@ public:
 
 private:
   ezSharedPtr<const ezVisualScriptGraphDescription> m_pDesc;
-  mutable ezVisualScriptDataStorage m_LocalDataStorage;
 };
 
 class EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptMessageHandler : public ezScriptMessageHandler
@@ -32,5 +31,4 @@ public:
 
 private:
   ezSharedPtr<const ezVisualScriptGraphDescription> m_pDesc;
-  mutable ezVisualScriptDataStorage m_LocalDataStorage;
 };

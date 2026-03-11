@@ -1,6 +1,5 @@
 #include <RendererFoundation/RendererFoundationPCH.h>
 
-#include <RendererFoundation/RendererFoundationDLL.h>
 #include <RendererFoundation/State/State.h>
 
 ezGALBlendState::ezGALBlendState(const ezGALBlendStateCreationDescription& Description)
@@ -30,7 +29,7 @@ ezGALRasterizerState::~ezGALRasterizerState() = default;
 
 
 ezGALSamplerState::ezGALSamplerState(const ezGALSamplerStateCreationDescription& Description)
-  : ezGALObject(Description)
+  : ezGALResource(Description)
 {
 }
 

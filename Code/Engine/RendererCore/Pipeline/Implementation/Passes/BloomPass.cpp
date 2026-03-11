@@ -24,6 +24,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBloomPass, 1, ezRTTIDefaultAllocator<ezBloomPa
     EZ_MEMBER_PROPERTY("OuterTintColor", m_OuterTintColor),
   }
   EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Post Processing")
+  }
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
@@ -31,21 +36,20 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezBloomPass::ezBloomPass()
   : ezRenderPipelinePass("BloomPass", true)
 {
-  {
-    // Load shader.
-    m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/Bloom.ezShader");
-    EZ_ASSERT_DEV(m_hShader.IsValid(), "Could not load bloom shader!");
-  }
+  // Load shader.
+  m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/Bloom.ezShader");
+  EZ_ASSERT_DEV(m_hShader.IsValid(), "Could not load bloom shader!");
 
-  {
-    m_hConstantBuffer = ezRenderContext::CreateConstantBufferStorage<ezBloomConstants>();
-  }
+  m_hConstantBuffer = ezRenderContext::CreateConstantBufferStorage<ezBloomConstants>();
+
+  const ezGALDeviceCapabilities& caps = ezGALDevice::GetDefaultDevice()->GetCapabilities();
+  const bool bSupportsRG11B10Float = caps.m_FormatSupport[ezGALResourceFormat::RG11B10Float].AreAllSet(ezGALResourceFormatSupport::RenderTarget | ezGALResourceFormatSupport::Texture);
+  m_TextureFormat = bSupportsRG11B10Float ? ezGALResourceFormat::RG11B10Float : ezGALResourceFormat::RGBAHalf;
 }
 
 ezBloomPass::~ezBloomPass()
 {
   ezRenderContext::DeleteConstantBufferStorage(m_hConstantBuffer);
-  m_hConstantBuffer.Invalidate();
 }
 
 bool ezBloomPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
@@ -53,7 +57,7 @@ bool ezBloomPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayP
   // Color
   if (inputs[m_PinInput.m_uiInputIndex])
   {
-    if (!inputs[m_PinInput.m_uiInputIndex]->m_bAllowShaderResourceView)
+    if (!inputs[m_PinInput.m_uiInputIndex]->m_TextureFlags.IsSet(ezGALTextureUsageFlags::ShaderResource))
     {
       ezLog::Error("'{0}' input must allow shader resource view.", GetName());
       return false;
@@ -63,7 +67,7 @@ bool ezBloomPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayP
     ezGALTextureCreationDescription desc = *inputs[m_PinInput.m_uiInputIndex];
     desc.m_uiWidth = desc.m_uiWidth / 2;
     desc.m_uiHeight = desc.m_uiHeight / 2;
-    desc.m_Format = ezGALResourceFormat::RG11B10Float;
+    desc.m_Format = m_TextureFormat;
 
     outputs[m_PinOutput.m_uiOutputIndex] = desc;
   }
@@ -86,8 +90,6 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
   }
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  ezGALPass* pGALPass = pDevice->BeginPass(GetName());
-  EZ_SCOPE_EXIT(pDevice->EndPass(pGALPass));
 
   ezUInt32 uiWidth = pColorInput->m_Desc.m_uiWidth;
   ezUInt32 uiHeight = pColorInput->m_Desc.m_uiHeight;
@@ -100,9 +102,9 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
   const ezUInt32 uiNumBlurPasses = (ezUInt32)ezMath::Ceil(fNumBlurPasses);
 
   // Find temp targets
-  ezHybridArray<ezVec2, 8> targetSizes;
-  ezHybridArray<ezGALTextureHandle, 8> tempDownscaleTextures;
-  ezHybridArray<ezGALTextureHandle, 8> tempUpscaleTextures;
+  ezTempHybridArray<ezVec2, 8> targetSizes;
+  ezTempHybridArray<ezGALTextureHandle, 8> tempDownscaleTextures;
+  ezTempHybridArray<ezGALTextureHandle, 8> tempUpscaleTextures;
 
   for (ezUInt32 i = 0; i < uiNumBlurPasses; ++i)
   {
@@ -111,12 +113,12 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
     targetSizes.PushBack(ezVec2((float)uiWidth, (float)uiHeight));
     auto uiSliceCount = pColorOutput->m_Desc.m_uiArraySize;
 
-    tempDownscaleTextures.PushBack(ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(uiWidth, uiHeight, ezGALResourceFormat::RG11B10Float, ezGALMSAASampleCount::None, uiSliceCount));
+    tempDownscaleTextures.PushBack(ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(uiWidth, uiHeight, m_TextureFormat, ezGALMSAASampleCount::None, uiSliceCount));
 
     // biggest upscale target is the output and lowest is not needed
     if (i > 0 && i < uiNumBlurPasses - 1)
     {
-      tempUpscaleTextures.PushBack(ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(uiWidth, uiHeight, ezGALResourceFormat::RG11B10Float, ezGALMSAASampleCount::None, uiSliceCount));
+      tempUpscaleTextures.PushBack(ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(uiWidth, uiHeight, m_TextureFormat, ezGALMSAASampleCount::None, uiSliceCount));
     }
     else
     {
@@ -124,10 +126,11 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
     }
   }
 
-  renderViewContext.m_pRenderContext->BindConstantBuffer("ezBloomConstants", m_hConstantBuffer);
+  ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
+  bindGroup.BindBuffer("ezBloomConstants", m_hConstantBuffer);
   renderViewContext.m_pRenderContext->BindShader(m_hShader);
 
-  renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
+  renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
 
   // Downscale passes
   {
@@ -154,13 +157,13 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
       ezVec2 targetSize = targetSizes[i];
 
       ezGALRenderingSetup renderingSetup;
-      renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(hOutput));
-      renderViewContext.m_pRenderContext->BeginRendering(pGALPass, renderingSetup, ezRectFloat(targetSize.x, targetSize.y), "Downscale", renderViewContext.m_pCamera->IsStereoscopic());
+      renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(hOutput));
+      renderViewContext.m_pRenderContext->BeginRendering(renderingSetup, ezRectFloat(targetSize.x, targetSize.y), "Downscale", renderViewContext.m_pCamera->IsStereoscopic());
 
       ezColor tintColor = (i == uiNumBlurPasses - 1) ? ezColor(m_OuterTintColor) : ezColor::White;
       UpdateConstantBuffer(ezVec2(1.0f).CompDiv(targetSize), tintColor);
 
-      renderViewContext.m_pRenderContext->BindTexture2D("ColorTexture", pDevice->GetDefaultResourceView(hInput));
+      bindGroup.BindTexture("ColorTexture", hInput);
       renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
 
       renderViewContext.m_pRenderContext->EndRendering();
@@ -202,8 +205,8 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
       ezVec2 targetSize = targetSizes[i];
 
       ezGALRenderingSetup renderingSetup;
-      renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(hOutput));
-      renderViewContext.m_pRenderContext->BeginRendering(pGALPass, renderingSetup, ezRectFloat(targetSize.x, targetSize.y), "Upscale", renderViewContext.m_pCamera->IsStereoscopic());
+      renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(hOutput));
+      renderViewContext.m_pRenderContext->BeginRendering(renderingSetup, ezRectFloat(targetSize.x, targetSize.y), "Upscale", renderViewContext.m_pCamera->IsStereoscopic());
 
       ezColor tintColor;
       float fPass = (float)i;
@@ -218,8 +221,8 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
 
       UpdateConstantBuffer(ezVec2(fBlurRadius).CompDiv(targetSize), tintColor);
 
-      renderViewContext.m_pRenderContext->BindTexture2D("NextColorTexture", pDevice->GetDefaultResourceView(hNextInput));
-      renderViewContext.m_pRenderContext->BindTexture2D("ColorTexture", pDevice->GetDefaultResourceView(hInput));
+      bindGroup.BindTexture("NextColorTexture", hNextInput);
+      bindGroup.BindTexture("ColorTexture", hInput);
       renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
 
       renderViewContext.m_pRenderContext->EndRendering();
@@ -255,11 +258,10 @@ void ezBloomPass::ExecuteInactive(const ezRenderViewContext& renderViewContext, 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
   ezGALRenderingSetup renderingSetup;
-  renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(pColorOutput->m_TextureHandle));
-  renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
-  renderingSetup.m_ClearColor = ezColor::Black;
+  renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(pColorOutput->m_TextureHandle));
+  renderingSetup.SetClearColor(0, ezColor::Black);
 
-  auto pCommandEncoder = ezRenderContext::BeginPassAndRenderingScope(renderViewContext, renderingSetup, "Clear");
+  auto pCommandEncoder = ezRenderContext::BeginRenderingScope(renderViewContext, renderingSetup, "Clear");
 }
 
 ezResult ezBloomPass::Serialize(ezStreamWriter& inout_stream) const

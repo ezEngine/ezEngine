@@ -61,14 +61,14 @@ public:
   ezOffscreenRendererTest();
   ~ezOffscreenRendererTest();
 
-  virtual ezApplication::Execution Run() override;
+  virtual void Run() override;
   void OnPresent(ezUInt32 uiCurrentTexture, ezUInt64 uiCurrentSemaphoreValue);
 
   virtual void AfterCoreSystemsStartup() override;
   virtual void BeforeHighLevelSystemsShutdown() override;
   virtual void BeforeCoreSystemsShutdown() override;
 
-  void MessageFunc(const ezProcessMessage* pMsg);
+  void MessageFunc(const ezIpcProcessMessageProtocol::Event& msg);
 
 
 private:

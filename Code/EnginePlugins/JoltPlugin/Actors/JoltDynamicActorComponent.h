@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Foundation/Math/Float16.h>
 #include <JoltPlugin/Actors/JoltActorComponent.h>
 
 //////////////////////////////////////////////////////////////////////////
@@ -53,16 +54,6 @@ public:
   ezJoltDynamicActorComponent();
   ~ezJoltDynamicActorComponent();
 
-  /// \brief Adds a physics impulse to this body at the given location.
-  ///
-  /// An impulse is a force that is applied only once, e.g. a sudden push.
-  void AddImpulseAtPos(ezMsgPhysicsAddImpulse& ref_msg); // [ message ]
-
-  /// \brief Adds a physics force to this body at the given location.
-  ///
-  /// A force is something that applies a constant push, for example wind that blows on an object over a longer duration.
-  void AddForceAtPos(ezMsgPhysicsAddForce& ref_msg); // [ message ]
-
   /// \brief Turns the actor into a 'kinematic' actor.
   ///
   /// If an actor is kinematic, it isn't fully simulated anymore, meaning forces do not affect it further.
@@ -82,8 +73,8 @@ public:
   void SetGravityFactor(float fFactor);                       // [ property ]
   float GetGravityFactor() const { return m_fGravityFactor; } // [ property ]
 
-  void SetSurfaceFile(const char* szFile);                    // [ property ]
-  const char* GetSurfaceFile() const;                         // [ property ]
+  void SetSurfaceFile(ezStringView sFile);                    // [ property ]
+  ezStringView GetSurfaceFile() const;                        // [ property ]
 
   /// \brief If enabled, a more precise simulation method is used, preventing fast moving actors from tunneling through walls.
   /// This comes at an extra performance cost.
@@ -95,13 +86,15 @@ public:
 
   /// \brief Whether this actor is allowed to go to sleep. Disabling sleeping will come with a performance impact and
   /// should only be done in very rare cases.
-  bool m_bAllowSleeping = true; // [ property ]
+  bool m_bAllowSleeping = true;        // [ property ]
 
-  /// \brief How heavy the object shall be. If zero, the mass is computed from the shapes and the density.
-  float m_fInitialMass = 0.0f; // [ property ]
+  ezUInt8 m_uiWeightCategory = 0;      // [ property ]
+  ezFloat16 m_fWeightMass = 10.0f;     // [ property ]
+  ezFloat16 m_fWeightDensity = 100.0f; // [ property ]
+  ezFloat16 m_fWeightScale = 1.0f;     // [ property ]
 
-  /// \brief How dense the object shall be. Unused if m_fInitialMass is non-zero. Otherwise used to compute the weight from all the shapes.
-  float m_fDensity = 1.0f; // [ property ]
+  /// \brief How much buoyancy to apply when the actor is submerged in a fluid. 1.0 means neutral buoyancy, <1.0 sinks, >1.0 floats.
+  ezFloat16 m_fBuoyancyFactor = 1.1f; // [ property ]
 
   /// \brief How much to dampen linear motion. The higher the value, the quicker a moving object comes to rest.
   float m_fLinearDamping = 0.1f; // [ property ]
@@ -122,17 +115,20 @@ public:
   void SetUseCustomCoM(bool b) { SetUserFlag(0, b); }     // [ property ]
   bool GetUseCustomCoM() const { return GetUserFlag(0); } // [ property ]
 
-  /// \brief Adds a linear force to the center-of-mass of this actor. Unless there are other constraints, this would push the object, but not introduce any rotation.
-  void AddLinearForce(const ezVec3& vForce); // [ scriptable ]
+  /// \brief Adds a physics impulse to this body at the given location.
+  ///
+  /// An impulse is a force that is applied only once, e.g. a sudden push.
+  void AddLinearImpulseAtPos(ezMsgPhysicsAddImpulse& ref_msg); // [ message ]
 
   /// \brief Adds a linear impulse to the center-of-mass of this actor. Unless there are other constraints, this would push the object, but not introduce any rotation.
-  void AddLinearImpulse(const ezVec3& vImpulse); // [ scriptable ]
-
-  /// \brief Adds an angular force to the center-of-mass of this actor. Unless there are other constraints, this would make the object rotate, but not move away.
-  void AddAngularForce(const ezVec3& vForce); // [ scriptable ]
+  ///
+  /// For uiImpulseType see ezImpulseTypeConfig. Use 0 to use vImpulse without modification.
+  void AddLinearImpulse(const ezVec3& vImpulse, ezUInt8 uiImpulseType = 0); // [ scriptable ]
 
   /// \brief Adds an angular impulse to the center-of-mass of this actor. Unless there are other constraints, this would make the object rotate, but not move away.
-  void AddAngularImpulse(const ezVec3& vImpulse); // [ scriptable ]
+  ///
+  /// For uiImpulseType see ezImpulseTypeConfig. Use 0 to use vImpulse without modification.
+  void AddAngularImpulse(const ezVec3& vImpulse, ezUInt8 uiImpulseType = 0); // [ scriptable ]
 
   /// \brief Should be called by components that add Jolt constraints to this body.
   ///
@@ -147,8 +143,33 @@ public:
   /// For kinematic actors this function will return 0.
   float GetMass() const;
 
+  /// \brief Adds a force that will be applied to this actor every frame for the given duration.
+  ///
+  /// Returns a force ID. Pass in an invalid ID (such as 0) to create a new force.
+  /// If an existing force shall be updated, pass in the ID that was returned last time.
+  ///
+  /// Once the duration has elapsed and no update was done to reset the duration, the force is automatically removed.
+  /// If a force ID of such a force is used again, it will be ignored and a new force is created instead,
+  /// so just always store the returned ID, to replaced force IDs that became invalid.
+  ///
+  /// If this is called multiple times with invalid force IDs, multiple forces are created to act on the body.
+  ezUInt32 AddOrUpdateForce(ezUInt32 uiForceID, ezTime duration, const ezVec3& vForce);
+
+  /// \brief Removes the force with the given ID. Does nothing, if the ID is invalid.
+  void ClearForce(ezUInt32 uiForceID);
+
 protected:
   const ezJoltMaterial* GetJoltMaterial() const;
+
+  float GetWeight_Scale() const { return m_fWeightScale; }
+  float GetWeight_Mass() const { return m_fWeightMass; }
+  float GetWeight_Density() const { return m_fWeightDensity; }
+  float GetBuoyancyFactor() const { return m_fBuoyancyFactor; }
+
+  void SetWeight_Scale(float fValue) { m_fWeightScale = fValue; }
+  void SetWeight_Mass(float fValue) { m_fWeightMass = fValue; }
+  void SetWeight_Density(float fValue) { m_fWeightDensity = fValue; }
+  void SetBuoyancyFactor(float fValue) { m_fBuoyancyFactor = fValue; }
 
   bool m_bKinematic = false;
   float m_fGravityFactor = 1.0f; // [ property ]

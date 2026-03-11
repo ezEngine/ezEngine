@@ -8,6 +8,7 @@
 #include <Jolt/Physics/PhysicsSystem.h>
 #include <Jolt/Physics/Body/BodyLockMulti.h>
 #include <Jolt/ObjectStream/TypeDeclarations.h>
+#include <Jolt/Core/UnorderedMap.h>
 
 JPH_NAMESPACE_BEGIN
 
@@ -42,7 +43,7 @@ void PhysicsScene::AddSoftBody(const SoftBodyCreationSettings &inSoftBody)
 
 bool PhysicsScene::FixInvalidScales()
 {
-	const Vec3 unit_scale = Vec3::sReplicate(1.0f);
+	const Vec3 unit_scale = Vec3::sOne();
 
 	bool success = true;
 	for (BodyCreationSettings &b : mBodies)
@@ -181,7 +182,7 @@ PhysicsScene::PhysicsSceneResult PhysicsScene::sRestoreFromBinaryState(StreamIn 
 			result.SetError(c_result.GetError());
 			return result;
 		}
-		cc.mSettings = static_cast<const TwoBodyConstraintSettings *>(c_result.Get().GetPtr());
+		cc.mSettings = StaticCast<TwoBodyConstraintSettings>(c_result.Get());
 		inStream.Read(cc.mBody1);
 		inStream.Read(cc.mBody2);
 	}
@@ -254,7 +255,7 @@ void PhysicsScene::FromPhysicsSystem(const PhysicsSystem *inSystem)
 
 			// Create constraint settings and add the constraint
 			Ref<ConstraintSettings> settings = c->GetConstraintSettings();
-			AddConstraint(static_cast<const TwoBodyConstraintSettings *>(settings.GetPtr()), b1->second, b2->second);
+			AddConstraint(StaticCast<TwoBodyConstraintSettings>(settings), b1->second, b2->second);
 		}
 }
 

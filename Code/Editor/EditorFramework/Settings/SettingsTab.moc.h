@@ -18,16 +18,7 @@ public:
   virtual ezString GetWindowIcon() const override;
   virtual ezString GetDisplayNameShort() const override;
 
-  virtual const char* GetWindowLayoutGroupName() const override { return "Settings"; }
-
-protected Q_SLOTS:
-  void on_OpenScene_clicked();
-  void on_OpenProject_clicked();
-  void on_GettingStarted_clicked();
-
 private:
   virtual bool InternalCanCloseWindow() override;
   virtual void InternalCloseDocumentWindow() override;
-
-  void ToolsProjectEventHandler(const ezToolsProjectEvent& e);
 };

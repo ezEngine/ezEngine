@@ -59,6 +59,7 @@ public:
 
 	inline void				Release() const
 	{
+	#ifndef JPH_TSAN_ENABLED
 		// Releasing a reference must use release semantics...
 		if (mRefCount.fetch_sub(1, memory_order_release) == 1)
 		{
@@ -66,6 +67,11 @@ public:
 			atomic_thread_fence(memory_order_acquire);
 			delete static_cast<const T *>(this);
 		}
+	#else
+		// But under TSAN, we cannot use atomic_thread_fence, so we use an acq_rel operation unconditionally instead
+		if (mRefCount.fetch_sub(1, memory_order_acq_rel) == 1)
+			delete static_cast<const T *>(this);
+	#endif
 	}
 
 	/// INTERNAL HELPER FUNCTION USED BY SERIALIZATION
@@ -108,7 +114,7 @@ public:
 	inline					~Ref()											{ Release(); }
 
 	/// Assignment operators
-	inline Ref<T> &			operator = (T *inRHS) 							{ if (mPtr != inRHS) { Release(); mPtr = inRHS; AddRef(); } return *this; }
+	inline Ref<T> &			operator = (T *inRHS)							{ if (mPtr != inRHS) { Release(); mPtr = inRHS; AddRef(); } return *this; }
 	inline Ref<T> &			operator = (const Ref<T> &inRHS)				{ if (mPtr != inRHS.mPtr) { Release(); mPtr = inRHS.mPtr; AddRef(); } return *this; }
 	inline Ref<T> &			operator = (Ref<T> &&inRHS) noexcept			{ if (mPtr != inRHS.mPtr) { Release(); mPtr = inRHS.mPtr; inRHS.mPtr = nullptr; } return *this; }
 
@@ -116,7 +122,7 @@ public:
 	inline					operator T *() const							{ return mPtr; }
 
 	/// Access like a normal pointer
-	inline T * 				operator -> () const							{ return mPtr; }
+	inline T *				operator -> () const							{ return mPtr; }
 	inline T &				operator * () const								{ return *mPtr; }
 
 	/// Comparison
@@ -126,7 +132,13 @@ public:
 	inline bool				operator != (const Ref<T> &inRHS) const			{ return mPtr != inRHS.mPtr; }
 
 	/// Get pointer
-	inline T * 				GetPtr() const									{ return mPtr; }
+	inline T *				GetPtr() const									{ return mPtr; }
+
+	/// Get hash for this object
+	uint64					GetHash() const
+	{
+		return Hash<T *> { } (mPtr);
+	}
 
 	/// INTERNAL HELPER FUNCTION USED BY SERIALIZATION
 	void **					InternalGetPointer()							{ return reinterpret_cast<void **>(&mPtr); }
@@ -160,7 +172,7 @@ public:
 	inline					~RefConst()										{ Release(); }
 
 	/// Assignment operators
-	inline RefConst<T> &	operator = (const T * inRHS) 					{ if (mPtr != inRHS) { Release(); mPtr = inRHS; AddRef(); } return *this; }
+	inline RefConst<T> &	operator = (const T * inRHS)					{ if (mPtr != inRHS) { Release(); mPtr = inRHS; AddRef(); } return *this; }
 	inline RefConst<T> &	operator = (const RefConst<T> &inRHS)			{ if (mPtr != inRHS.mPtr) { Release(); mPtr = inRHS.mPtr; AddRef(); } return *this; }
 	inline RefConst<T> &	operator = (RefConst<T> &&inRHS) noexcept		{ if (mPtr != inRHS.mPtr) { Release(); mPtr = inRHS.mPtr; inRHS.mPtr = nullptr; } return *this; }
 	inline RefConst<T> &	operator = (const Ref<T> &inRHS)				{ if (mPtr != inRHS.mPtr) { Release(); mPtr = inRHS.mPtr; AddRef(); } return *this; }
@@ -170,7 +182,7 @@ public:
 	inline					operator const T * () const						{ return mPtr; }
 
 	/// Access like a normal pointer
-	inline const T * 	 	operator -> () const							{ return mPtr; }
+	inline const T *		operator -> () const							{ return mPtr; }
 	inline const T &		operator * () const								{ return *mPtr; }
 
 	/// Comparison
@@ -182,7 +194,13 @@ public:
 	inline bool				operator != (const Ref<T> &inRHS) const			{ return mPtr != inRHS.mPtr; }
 
 	/// Get pointer
-	inline const T * 		GetPtr() const									{ return mPtr; }
+	inline const T *		GetPtr() const									{ return mPtr; }
+
+	/// Get hash for this object
+	uint64					GetHash() const
+	{
+		return Hash<const T *> { } (mPtr);
+	}
 
 	/// INTERNAL HELPER FUNCTION USED BY SERIALIZATION
 	void **					InternalGetPointer()							{ return const_cast<void **>(reinterpret_cast<const void **>(&mPtr)); }
@@ -208,7 +226,7 @@ namespace std
 	{
 		size_t operator () (const JPH::Ref<T> &inRHS) const
 		{
-			return hash<T *> { }(inRHS.GetPtr());
+			return size_t(inRHS.GetHash());
 		}
 	};
 
@@ -218,7 +236,7 @@ namespace std
 	{
 		size_t operator () (const JPH::RefConst<T> &inRHS) const
 		{
-			return hash<const T *> { }(inRHS.GetPtr());
+			return size_t(inRHS.GetHash());
 		}
 	};
 }

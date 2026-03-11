@@ -3,42 +3,29 @@
 
 #include <Foundation/Math/Color.h>
 #include <Foundation/Math/Rect.h>
+#include <RendererFoundation/Descriptors/Descriptors.h>
+#include <RendererFoundation/Descriptors/Enumerations.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
-
 struct ezShaderResourceBinding;
+struct ezGALRenderingSetup;
+struct ezGALBindGroupCreationDescription;
 
 class EZ_RENDERERFOUNDATION_DLL ezGALCommandEncoderCommonPlatformInterface
 {
 public:
-  // State setting functions
-
-  virtual void SetShaderPlatform(const ezGALShader* pShader) = 0;
-
-  virtual void SetConstantBufferPlatform(const ezShaderResourceBinding& binding, const ezGALBuffer* pBuffer) = 0;
-  virtual void SetSamplerStatePlatform(const ezShaderResourceBinding& binding, const ezGALSamplerState* pSamplerState) = 0;
-  virtual void SetResourceViewPlatform(const ezShaderResourceBinding& binding, const ezGALTextureResourceView* pResourceView) = 0;
-  virtual void SetResourceViewPlatform(const ezShaderResourceBinding& binding, const ezGALBufferResourceView* pResourceView) = 0;
-  virtual void SetUnorderedAccessViewPlatform(const ezShaderResourceBinding& binding, const ezGALTextureUnorderedAccessView* pUnorderedAccessView) = 0;
-  virtual void SetUnorderedAccessViewPlatform(const ezShaderResourceBinding& binding, const ezGALBufferUnorderedAccessView* pUnorderedAccessView) = 0;
+  // Resource binding functions
+  virtual void SetBindGroupPlatform(ezUInt32 uiBindGroup, const ezGALBindGroupCreationDescription& bindGroup) = 0;
+  virtual void SetBindGroupPlatform(ezUInt32 uiBindGroup, const ezGALBindGroup* pBindGroup) = 0;
   virtual void SetPushConstantsPlatform(ezArrayPtr<const ezUInt8> data) = 0;
 
-  // Query functions
+  // GPU -> CPU query functions
 
-  virtual void BeginQueryPlatform(const ezGALQuery* pQuery) = 0;
-  virtual void EndQueryPlatform(const ezGALQuery* pQuery) = 0;
-  virtual ezResult GetQueryResultPlatform(const ezGALQuery* pQuery, ezUInt64& ref_uiQueryResult) = 0;
-
-  // Timestamp functions
-
-  virtual void InsertTimestampPlatform(ezGALTimestampHandle hTimestamp) = 0;
+  virtual ezGALTimestampHandle InsertTimestampPlatform() = 0;
+  virtual ezGALOcclusionHandle BeginOcclusionQueryPlatform(ezEnum<ezGALQueryType> type) = 0;
+  virtual void EndOcclusionQueryPlatform(ezGALOcclusionHandle hOcclusion) = 0;
+  virtual ezGALFenceHandle InsertFencePlatform() = 0;
 
   // Resource update functions
-
-  virtual void ClearUnorderedAccessViewPlatform(const ezGALTextureUnorderedAccessView* pUnorderedAccessView, ezVec4 vClearValues) = 0;
-  virtual void ClearUnorderedAccessViewPlatform(const ezGALTextureUnorderedAccessView* pUnorderedAccessView, ezVec4U32 vClearValues) = 0;
-
-  virtual void ClearUnorderedAccessViewPlatform(const ezGALBufferUnorderedAccessView* pUnorderedAccessView, ezVec4 vClearValues) = 0;
-  virtual void ClearUnorderedAccessViewPlatform(const ezGALBufferUnorderedAccessView* pUnorderedAccessView, ezVec4U32 vClearValues) = 0;
 
   virtual void CopyBufferPlatform(const ezGALBuffer* pDestination, const ezGALBuffer* pSource) = 0;
   virtual void CopyBufferRegionPlatform(const ezGALBuffer* pDestination, ezUInt32 uiDestOffset, const ezGALBuffer* pSource, ezUInt32 uiSourceOffset, ezUInt32 uiByteCount) = 0;
@@ -52,11 +39,10 @@ public:
 
   virtual void ResolveTexturePlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& destinationSubResource, const ezGALTexture* pSource, const ezGALTextureSubresource& sourceSubResource) = 0;
 
-  virtual void ReadbackTexturePlatform(const ezGALTexture* pTexture) = 0;
+  virtual void ReadbackTexturePlatform(const ezGALReadbackTexture* pDestination, const ezGALTexture* pSource) = 0;
+  virtual void ReadbackBufferPlatform(const ezGALReadbackBuffer* pDestination, const ezGALBuffer* pSource) = 0;
 
-  virtual void CopyTextureReadbackResultPlatform(const ezGALTexture* pTexture, ezArrayPtr<ezGALTextureSubresource> sourceSubResource, ezArrayPtr<ezGALSystemMemoryDescription> targetData) = 0;
-
-  virtual void GenerateMipMapsPlatform(const ezGALTextureResourceView* pResourceView) = 0;
+  virtual void GenerateMipMapsPlatform(const ezGALTexture* pTexture, ezGALTextureRange range) = 0;
 
   // Misc
 
@@ -67,12 +53,20 @@ public:
   virtual void PushMarkerPlatform(const char* szMarker) = 0;
   virtual void PopMarkerPlatform() = 0;
   virtual void InsertEventMarkerPlatform(const char* szMarker) = 0;
-};
 
-class EZ_RENDERERFOUNDATION_DLL ezGALCommandEncoderRenderPlatformInterface
-{
-public:
+  // Compute Dispatch
+
+  virtual void BeginComputePlatform() = 0;
+  virtual void EndComputePlatform() = 0;
+
+
+  virtual ezResult DispatchPlatform(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThreadGroupCountY, ezUInt32 uiThreadGroupCountZ) = 0;
+  virtual ezResult DispatchIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) = 0;
+
   // Draw functions
+
+  virtual void BeginRenderingPlatform(const ezGALRenderingSetup& renderingSetup) = 0;
+  virtual void EndRenderingPlatform() = 0;
 
   virtual void ClearPlatform(const ezColor& clearColor, ezUInt32 uiRenderTargetClearMask, bool bClearDepth, bool bClearStencil, float fDepthClear, ezUInt8 uiStencilClear) = 0;
 
@@ -86,23 +80,14 @@ public:
   // State functions
 
   virtual void SetIndexBufferPlatform(const ezGALBuffer* pIndexBuffer) = 0;
-  virtual void SetVertexBufferPlatform(ezUInt32 uiSlot, const ezGALBuffer* pVertexBuffer) = 0;
-  virtual void SetVertexDeclarationPlatform(const ezGALVertexDeclaration* pVertexDeclaration) = 0;
-  virtual void SetPrimitiveTopologyPlatform(ezGALPrimitiveTopology::Enum topology) = 0;
+  virtual void SetVertexBufferPlatform(ezUInt32 uiSlot, const ezGALBuffer* pVertexBuffer, ezUInt32 uiOffset) = 0;
 
-  virtual void SetBlendStatePlatform(const ezGALBlendState* pBlendState, const ezColor& blendFactor, ezUInt32 uiSampleMask) = 0;
-  virtual void SetDepthStencilStatePlatform(const ezGALDepthStencilState* pDepthStencilState, ezUInt8 uiStencilRefValue) = 0;
-  virtual void SetRasterizerStatePlatform(const ezGALRasterizerState* pRasterizerState) = 0;
+  virtual void SetGraphicsPipelinePlatform(const ezGALGraphicsPipeline* pGraphicsPipeline) = 0;
+  virtual void SetComputePipelinePlatform(const ezGALComputePipeline* pComputePipeline) = 0;
+
+  // Dynamic State Functions
 
   virtual void SetViewportPlatform(const ezRectFloat& rect, float fMinDepth, float fMaxDepth) = 0;
   virtual void SetScissorRectPlatform(const ezRectU32& rect) = 0;
-};
-
-class EZ_RENDERERFOUNDATION_DLL ezGALCommandEncoderComputePlatformInterface
-{
-public:
-  // Dispatch
-
-  virtual ezResult DispatchPlatform(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThreadGroupCountY, ezUInt32 uiThreadGroupCountZ) = 0;
-  virtual ezResult DispatchIndirectPlatform(const ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes) = 0;
+  virtual void SetStencilReferencePlatform(ezUInt8 uiStencilRefValue) = 0;
 };

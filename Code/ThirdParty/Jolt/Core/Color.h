@@ -12,7 +12,7 @@ class Color;
 using ColorArg = Color;
 
 /// Class that holds an RGBA color with 8-bits per component
-class [[nodiscard]] JPH_EXPORT_GCC_BUG_WORKAROUND Color
+class JPH_EXPORT_GCC_BUG_WORKAROUND [[nodiscard]] Color
 {
 public:
 	/// Constructors
@@ -37,6 +37,9 @@ public:
 	/// Multiply two colors
 	inline Color			operator * (const Color &inRHS) const									{ return Color(uint8((uint32(r) * inRHS.r) >> 8), uint8((uint32(g) * inRHS.g) >> 8), uint8((uint32(b) * inRHS.b) >> 8), uint8((uint32(a) * inRHS.a) >> 8)); }
 
+	/// Multiply color with intensity in the range [0, 1]
+	inline Color			operator * (float inIntensity) const									{ return Color(uint8(r * inIntensity), uint8(g * inIntensity), uint8(b * inIntensity), a); }
+
 	/// Convert to Vec4 with range [0, 1]
 	inline Vec4				ToVec4() const															{ return Vec4(r, g, b, a) / 255.0f; }
 
@@ -45,6 +48,20 @@ public:
 
 	/// Get a visually distinct color
 	static Color			sGetDistinctColor(int inIndex);
+
+	/// Get a color value on the gradient from green through yellow to red
+	/// @param inValue Value in the range [0, 1], 0 = green, 0.5 = yellow, 1 = red
+	static Color			sGreenRedGradient(float inValue)
+	{
+		if (inValue < 0.0f)
+			return Color::sGreen;
+		else if (inValue < 0.5f)
+			return Color(uint8(510.0f * inValue), 255, 0);
+		else if (inValue < 1.0f)
+			return Color(255, uint8(510.0f * (1.0f - inValue)), 0);
+		else
+			return Color::sRed;
+	}
 
 	/// Predefined colors
 	static const Color		sBlack;
@@ -76,6 +93,6 @@ public:
 	};
 };
 
-static_assert(is_trivial<Color>(), "Is supposed to be a trivial type!");
+static_assert(std::is_trivial<Color>(), "Is supposed to be a trivial type!");
 
 JPH_NAMESPACE_END

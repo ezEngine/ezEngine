@@ -39,7 +39,7 @@ void ezTask::Run(ezUInt32 uiInvocation)
   }
 
   {
-    ezStringBuilder scopeName = m_sTaskName;
+    ezStringBuilder scopeName("Task: ", m_sTaskName);
 
     if (m_bUsesMultiplicity)
       scopeName.AppendFormat("-{}", uiInvocation);

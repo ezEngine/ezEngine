@@ -3,7 +3,7 @@
 #include <Foundation/Configuration/Singleton.h>
 #include <VisualScriptPlugin/Runtime/VisualScript.h>
 
-struct ezNodePropertyValue;
+struct ezVisualGraphNodeProperty;
 class ezVisualScriptPin;
 
 class ezVisualScriptNodeRegistry
@@ -74,7 +74,7 @@ public:
   };
 
   const ezArrayPtr<const NodeCreationTemplate> GetNodeCreationTemplates() const { return m_NodeCreationTemplates; }
-  const ezArrayPtr<const ezNodePropertyValue> GetPropertyValues() const { return m_PropertyValues; }
+  const ezArrayPtr<const ezVisualGraphNodeProperty> GetPropertyValues() const { return m_PropertyValues; }
 
   static constexpr const char* s_szTypeNamePrefix = "VisualScriptNode_";
   static constexpr ezUInt32 s_uiTypeNamePrefixLength = ezStringUtils::GetStringElementCount(s_szTypeNamePrefix);
@@ -82,7 +82,7 @@ public:
 private:
   void PhantomTypeRegistryEventHandler(const ezPhantomRttiManagerEvent& e);
   void UpdateNodeTypes();
-  void UpdateNodeType(const ezRTTI* pRtti);
+  void UpdateNodeType(const ezRTTI* pRtti, bool bForceExpose = false);
 
   ezResult GetScriptDataType(const ezRTTI* pRtti, ezVisualScriptDataType::Enum& out_scriptDataType, ezStringView sFunctionName = ezStringView(), ezStringView sArgName = ezStringView());
   ezVisualScriptDataType::Enum GetScriptDataType(const ezAbstractProperty* pProp);
@@ -112,10 +112,11 @@ private:
   const ezRTTI* m_pSetVariableType = nullptr;
   const ezRTTI* m_pGetVariableType = nullptr;
   bool m_bBuiltinTypesCreated = false;
-  ezMap<const ezRTTI*, NodeDesc> m_TypeToNodeDescs;
-  ezHashSet<const ezRTTI*> m_EnumTypes;
+  ezHashTable<const ezRTTI*, NodeDesc> m_TypeToNodeDescs;
+  ezHashSet<const ezRTTI*> m_ExposedTypes;
+  ezHashSet<const ezRTTI*> m_TypesToUpdate;
 
   ezDynamicArray<NodeCreationTemplate> m_NodeCreationTemplates;
-  ezDynamicArray<ezNodePropertyValue> m_PropertyValues;
-  ezDeque<ezString> m_PropertyNodeTypeNames;
+  ezDynamicArray<ezVisualGraphNodeProperty> m_PropertyValues;
+  ezSet<ezString> m_PropertyNodeTypeNames;
 };

@@ -24,7 +24,7 @@ ezVec3 ezSimpleWindWorldModule::GetWindAt(const ezVec3& vPosition) const
 {
   if (auto pSpatial = GetWorld()->GetSpatialSystem())
   {
-    ezHybridArray<ezGameObject*, 16> volumes;
+    ezTempHybridArray<ezGameObject*, 16> volumes;
 
     ezSpatialSystem::QueryParams queryParams;
     queryParams.m_uiCategoryBitmask = ezWindVolumeComponent::SpatialDataCategory.GetBitmask();

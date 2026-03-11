@@ -1,6 +1,7 @@
 #pragma once
 
 #include <AiPlugin/AiPluginDLL.h>
+#include <AiPlugin/Navigation/NavMeshQuery.h>
 #include <AiPlugin/Navigation/Navigation.h>
 #include <AiPlugin/Navigation/Steering.h>
 #include <Core/World/Component.h>
@@ -18,6 +19,7 @@ struct ezAiNavigationComponentState
   {
     Idle,    ///< Currently not navigating.
     Moving,  ///< Moving or waiting for a path to be computed.
+    Turning,
     Falling, ///< High up above the ground, falling downwards.
     Fallen,  ///< Was high up, now reached the ground. May happen if spawned in air, otherwise should never happen, so this is a kind of error state.
     Failed,  ///< Path could not be found, either because start position is invalid (off mesh) or destination is not reachable.
@@ -68,38 +70,72 @@ public:
   /// If bAllowPartialPath is false, and a complete path can't be found (too far or simply not reachable),
   /// the 'Failed' state is used.
   /// Otherwise the 'Moving' state indicates that the character is navigating.
-  void SetDestination(const ezVec3& vGlobalPos, bool bAllowPartialPath);
+  void SetDestination(const ezVec3& vGlobalPos, bool bAllowPartialPath); ///< [ scriptable ]
 
   /// \brief Can be called at any time to stop moving.
-  void CancelNavigation();
+  void CancelNavigation();                    ///< [ scriptable ]
 
-  ezHashedString m_sNavmeshConfig;                   ///< [ property ] Which navmesh to walk on.
-  ezHashedString m_sPathSearchConfig;                ///< [ property ] What constraints there are for walking on the navmesh.
+  void StopWalking(float fWithinDistance);    ///< [ scriptable ]
 
-  float m_fReachedDistance = 1.0f;                   ///< [ property ] The distance at which the destination is considered to be reached.
-  float m_fSpeed = 5.0f;                             ///< [ property ] The target speed to reach.
-  float m_fFootRadius = 0.15f;                       ///< [ property ] The footprint to determine whether the character is standing on solid ground.
-  ezUInt32 m_uiCollisionLayer = 0;                   ///< [ property ] The physics collision layer for determining what ground one can stand on.
-  float m_fFallHeight = 0.7f;                        ///< [ property ] If there is more distance below the character than this, it is considered to be falling.
-  float m_fAcceleration = 3.0f;                      ///< [ property ] How fast to gain speed.
-  float m_fDecceleration = 8.0f;                     ///< [ property ] How fast to brake.
+  void TurnTowards(const ezVec2& vGlobalPos); ///< [ scriptable ]
 
-  ezBitflags<ezAiNavigationDebugFlags> m_DebugFlags; ///< [ property ] What aspects of the navigation to visualize.
+  /// \brief How much the object would have to turn, to look at the position.
+  ezAngle GetTurnAngleTowards(const ezVec2& vGlobalPos) const; ///< [ scriptable ]
+
+  ezHashedString m_sNavmeshConfig;                             ///< [ property ] Which navmesh to walk on.
+  ezHashedString m_sPathSearchConfig;                          ///< [ property ] What constraints there are for walking on the navmesh.
+
+  float m_fReachedDistance = 1.0f;                             ///< [ property ] The distance at which the destination is considered to be reached.
+  float m_fSpeed = 5.0f;                                       ///< [ property ] The target speed to reach.
+  float m_fFootRadius = 0.15f;                                 ///< [ property ] The footprint to determine whether the character is standing on solid ground.
+  ezUInt32 m_uiCollisionLayer = 0;                             ///< [ property ] The physics collision layer for determining what ground one can stand on.
+  float m_fFallHeight = 0.7f;                                  ///< [ property ] If there is more distance below the character than this, it is considered to be falling.
+  float m_fAcceleration = 3.0f;                                ///< [ property ] How fast to gain speed.
+  float m_fDecceleration = 8.0f;                               ///< [ property ] How fast to brake.
+
+  ezBitflags<ezAiNavigationDebugFlags> m_DebugFlags;           ///< [ property ] What aspects of the navigation to visualize.
 
   /// \brief Returns the current navigation state.
   ezEnum<ezAiNavigationComponentState> GetState() const { return m_State; } ///< [ scriptable ]
 
+
+  /// \brief Checks whether the area around the given point is loaded and thus queries would succeed.
+  ///
+  /// If the area is not fully loaded, the function returns false.
+  /// In this case, queries in that area will probably fail and should be delayed to a later point,
+  /// since the navmesh first has to be generated.
+  bool EnsureNavMeshSectorAvailable(const ezVec3& vCenter, float fRadius); ///< [ scriptable ]
+
+  /// \brief Attempts to find a random point on the navmesh. The circle limits which navmesh polygons are visited.
+  ///
+  /// The result may be outside the circle, if the circle overlaps with a large navmesh polygon.
+  bool FindRandomPointAroundCircle(const ezVec3& vCenter, float fRadius, ezVec3& out_vPoint); ///< [ scriptable ]
+
+  bool RaycastNavMesh(const ezVec3& vStart, const ezVec3& vDirection, float fDistance, ezVec3& out_vPoint, float& out_fDistance);
+
+  ezVec3 GetSteeringPosition() const; ///< [ scriptable ]
+  ezQuat GetSteeringRotation() const; ///< [ scriptable ]
+
 protected:
   void Update();
   void Steer(ezTransform& transform, float tDiff);
+  void Turn(ezTransform& transform, float tDiff);
   void PlaceOnGround(ezTransform& transform, float tDiff);
+  bool PrepareQueryObject();
 
+  ezAiNavmeshQuery m_Query;
   ezEnum<ezAiNavigationComponentState> m_State;
   ezAiSteering m_Steering;
   ezAiNavigation m_Navigation;
   float m_fFallSpeed = 0.0f;
   bool m_bAllowPartialPath = false;
+  bool m_bApplySteering = true;
   ezUInt8 m_uiSkipNextFrames = 0;
+  float m_fStopWalkDistance = ezMath::HighValue<float>();
+  ezVec2 m_vTurnTowardsPos = ezVec2::MakeZero();
+
+  ezVec3 m_vSteerPosition;
+  ezQuat m_qSteerRotation;
 
 private:
   const char* DummyGetter() const { return nullptr; }

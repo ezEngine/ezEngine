@@ -1,7 +1,9 @@
 #pragma once
 
+#include <Foundation/Containers/Map.h>
 #include <Foundation/Math/Mat4.h>
 #include <Foundation/Strings/String.h>
+#include <Foundation/Threading/Mutex.h>
 #include <Foundation/Types/RefCounted.h>
 #include <Foundation/Types/SharedPtr.h>
 #include <RendererCore/Rasterizer/Thirdparty/Occluder.h>
@@ -9,6 +11,10 @@
 
 class ezGeometry;
 
+/// Represents a mesh for CPU-based software rasterization and occlusion culling.
+///
+/// Used for occlusion testing in ezRasterizerView. Objects are cached by name and shared across users.
+/// Internally uses a software rasterizer to determine if objects are occluded by other geometry.
 class EZ_RENDERERCORE_DLL ezRasterizerObject : public ezRefCounted
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezRasterizerObject);
@@ -24,6 +30,9 @@ public:
 
   /// \brief Creates a box object with the specified dimensions. If such a box was created before, the same pointer is returned.
   static ezSharedPtr<const ezRasterizerObject> CreateBox(const ezVec3& vFullExtents);
+
+  /// \brief Creates a quad pointing into the positive X direction with the dimensions along Y and Z. If such a quad was created before, the same pointer is returned.
+  static ezSharedPtr<const ezRasterizerObject> CreateQuadX(const ezVec2& vYZExtents);
 
   /// \brief Creates an object with the given geometry. If an object with the same name was created before, that pointer is returned instead.
   ///

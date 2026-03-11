@@ -22,7 +22,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezTexture3DResource);
 
 ezTexture3DResource::ezTexture3DResource()
-  : ezResource(DoUpdate::OnAnyThread, ezTextureUtils::s_bForceFullQualityAlways ? 1 : 2)
+  : ezResource(DoUpdate::OnGraphicsResourceThreads, ezTextureUtils::s_bForceFullQualityAlways ? 1 : 2)
 {
 }
 
@@ -39,11 +39,7 @@ ezResourceLoadDesc ezTexture3DResource::UnloadData(Unload WhatToUnload)
     {
       --m_uiLoadedTextures;
 
-      if (!m_hGALTexture[m_uiLoadedTextures].IsInvalidated())
-      {
-        ezGALDevice::GetDefaultDevice()->DestroyTexture(m_hGALTexture[m_uiLoadedTextures]);
-        m_hGALTexture[m_uiLoadedTextures].Invalidate();
-      }
+      ezGALDevice::GetDefaultDevice()->DestroyTexture(m_hGALTexture[m_uiLoadedTextures]);
 
       m_uiMemoryGPU[m_uiLoadedTextures] = 0;
 
@@ -54,11 +50,7 @@ ezResourceLoadDesc ezTexture3DResource::UnloadData(Unload WhatToUnload)
 
   if (WhatToUnload == Unload::AllQualityLevels)
   {
-    if (!m_hSamplerState.IsInvalidated())
-    {
-      ezGALDevice::GetDefaultDevice()->DestroySamplerState(m_hSamplerState);
-      m_hSamplerState.Invalidate();
-    }
+    ezGALDevice::GetDefaultDevice()->DestroySamplerState(m_hSamplerState);
   }
 
   ezResourceLoadDesc res;
@@ -97,7 +89,7 @@ void ezTexture3DResource::FillOutDescriptor(ezTexture3DResourceDescriptor& ref_t
       {
         ezGALSystemMemoryDescription& id = ref_initData.ExpandAndGetRef();
 
-        id.m_pData = const_cast<ezUInt8*>(pImage->GetPixelPointer<ezUInt8>(mip, face, array_index));
+        id.m_pData = pImage->GetSubImageView(mip, face, array_index).GetByteBlobPtr();
 
         if (ezImageFormat::GetType(pImage->GetImageFormat()) == ezImageFormatType::BLOCK_COMPRESSED)
         {
@@ -204,7 +196,7 @@ ezResourceLoadDesc ezTexture3DResource::UpdateContent(ezStreamReader* Stream)
     {
       EZ_ASSERT_DEBUG(m_uiLoadedTextures < 2, "Invalid texture upload");
 
-      ezHybridArray<ezGALSystemMemoryDescription, 32> initData;
+      ezTempHybridArray<ezGALSystemMemoryDescription, 32> initData;
       FillOutDescriptor(td, pImage, texFormat.m_bSRGB, uiUploadNumMipLevels, m_uiMemoryGPU[m_uiLoadedTextures], initData);
 
       ezTextureUtils::ConfigureSampler(static_cast<ezTextureFilterSetting::Enum>(texFormat.m_TextureFilter.GetValue()), td.m_SamplerDesc);

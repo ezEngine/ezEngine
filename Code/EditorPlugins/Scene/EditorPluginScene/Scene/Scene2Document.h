@@ -56,6 +56,7 @@ struct ezScene2LayerEvent
     LayerVisible,
     LayerInvisible,
     ActiveLayerChanged,
+    SettingsChanged,
   };
 
   Type m_Type;
@@ -106,7 +107,12 @@ public:
   const ezDocumentObject* GetLayerObject(const ezUuid& layerGuid) const;
   ezSceneDocument* GetLayerDocument(const ezUuid& layerGuid) const;
 
+  virtual ezGameObjectDocument* GetRedirectedGameObjectDoc() override;
+
   bool IsAnyLayerModified() const;
+
+  bool GetSwitchLayerToSelection() const { return m_bSwitchLayerToSelection; }
+  void SetSwitchLayerToSelection(bool bEnable);
 
   ///@}
   /// \name Base Class Functions
@@ -118,8 +124,19 @@ public:
   virtual void HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg) override;
   virtual ezTaskGroupID InternalSaveDocument(AfterSaveCallback callback) override;
   virtual void SendGameWorldToEngine() override;
+  virtual ezTransformStatus InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
+    const ezAssetFileHeader& assetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
+  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
 
   ///@}
+  /// \name Selection Specific Functions
+  ///@{
+
+  void PreventDoubleSelectionChange(bool b);
+  virtual void UndoSelection() override;
+
+  ///@}
+
 
 public:
   mutable ezEvent<const ezScene2LayerEvent&> m_LayerEvents;
@@ -163,4 +180,9 @@ private:
   mutable ezUniquePtr<ezSelectionManager> m_pLayerSelection;
   ezUuid m_ActiveLayerGuid;
   ezHashTable<ezUuid, LayerInfo> m_Layers;
+  bool m_bSwitchLayerToSelection = true;
+
+  void ActiveLayerGameObjectEventHandler(const ezGameObjectEvent& e);
+
+  ezEvent<const ezGameObjectEvent&>::Unsubscriber m_ActiveLayerGoEvUnsubscriber;
 };

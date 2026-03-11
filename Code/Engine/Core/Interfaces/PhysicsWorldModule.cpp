@@ -14,6 +14,8 @@ EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezPhysicsShapeType, 1)
   EZ_BITFLAGS_CONSTANT(ezPhysicsShapeType::Character),
   EZ_BITFLAGS_CONSTANT(ezPhysicsShapeType::Ragdoll),
   EZ_BITFLAGS_CONSTANT(ezPhysicsShapeType::Rope),
+  EZ_BITFLAGS_CONSTANT(ezPhysicsShapeType::Cloth),
+  EZ_BITFLAGS_CONSTANT(ezPhysicsShapeType::Debris),
 EZ_END_STATIC_REFLECTED_BITFLAGS;
 
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgPhysicsAddImpulse);
@@ -29,13 +31,30 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgPhysicsAddImpulse, 1, ezRTTIDefaultAllocato
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgPhysicsAddForce);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgPhysicsAddForce, 1, ezRTTIDefaultAllocator<ezMsgPhysicsAddForce>)
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgPhysicCharacterContact);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgPhysicCharacterContact, 1, ezRTTIDefaultAllocator<ezMsgPhysicCharacterContact>)
 {
   EZ_BEGIN_PROPERTIES
   {
+    EZ_MEMBER_PROPERTY("Character", m_hCharacter),
     EZ_MEMBER_PROPERTY("GlobalPosition", m_vGlobalPosition),
-    EZ_MEMBER_PROPERTY("Force", m_vForce),
+    EZ_MEMBER_PROPERTY("Normal", m_vNormal),
+    EZ_MEMBER_PROPERTY("CharacterVelocity", m_vCharacterVelocity),
+    EZ_MEMBER_PROPERTY("Impact", m_fImpact),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgPhysicContact);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgPhysicContact, 1, ezRTTIDefaultAllocator<ezMsgPhysicContact>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("OtherObject", m_hOtherObject),
+    EZ_MEMBER_PROPERTY("GlobalPosition", m_vGlobalPosition),
+    EZ_MEMBER_PROPERTY("Normal", m_vNormal),
+    EZ_MEMBER_PROPERTY("ImpactSqr", m_fImpactSqr),
   }
   EZ_END_PROPERTIES;
 }

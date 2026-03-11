@@ -9,6 +9,8 @@
 #include <Jolt/ObjectStream/ObjectStreamBinaryOut.h>
 #include <Jolt/ObjectStream/TypeDeclarations.h>
 
+#ifdef JPH_OBJECT_STREAM
+
 JPH_NAMESPACE_BEGIN
 
 ObjectStreamOut::ObjectStreamOut(ostream &inStream) :
@@ -38,12 +40,11 @@ bool ObjectStreamOut::Write(const void *inObject, const RTTI *inRTTI)
 	WriteObject(inObject);
 
 	// Write all linked objects
-	while (!mObjectQueue.empty() && !mStream.fail())
-	{
-		const void *linked_object = mObjectQueue.front();
-		WriteObject(linked_object);
-		mObjectQueue.pop();
-	}
+	ObjectQueue::size_type cur = 0;
+	for (; cur < mObjectQueue.size() && !mStream.fail(); ++cur)
+		WriteObject(mObjectQueue[cur]);
+	mObjectQueue.erase(mObjectQueue.begin(), mObjectQueue.begin() + cur);
+
 	return !mStream.fail();
 }
 
@@ -55,11 +56,10 @@ void ObjectStreamOut::WriteObject(const void *inObject)
 
 	// Write class description and associated descriptions
 	QueueRTTI(i->second.mRTTI);
-	while (!mClassQueue.empty() && !mStream.fail())
-	{
-		WriteRTTI(mClassQueue.front());
-		mClassQueue.pop();
-	}
+	ClassQueue::size_type cur = 0;
+	for (; cur < mClassQueue.size() && !mStream.fail(); ++cur)
+		WriteRTTI(mClassQueue[cur]);
+	mClassQueue.erase(mClassQueue.begin(), mClassQueue.begin() + cur);
 
 	HintNextItem();
 	HintNextItem();
@@ -79,7 +79,7 @@ void ObjectStreamOut::QueueRTTI(const RTTI *inRTTI)
 	if (i == mClassSet.end())
 	{
 		mClassSet.insert(inRTTI);
-		mClassQueue.push(inRTTI);
+		mClassQueue.push_back(inRTTI);
 	}
 }
 
@@ -147,7 +147,7 @@ void ObjectStreamOut::WritePointerData(const RTTI *inRTTI, const void *inPointer
 			// Assign a new identifier to this object and queue it for serialization
 			identifier = mNextIdentifier++;
 			mIdentifierMap.try_emplace(inPointer, identifier, inRTTI);
-			mObjectQueue.push(inPointer);
+			mObjectQueue.push_back(inPointer);
 		}
 	}
 	else
@@ -162,3 +162,5 @@ void ObjectStreamOut::WritePointerData(const RTTI *inRTTI, const void *inPointer
 }
 
 JPH_NAMESPACE_END
+
+#endif // JPH_OBJECT_STREAM

@@ -8,30 +8,41 @@
 #include <ProcGenPlugin/Components/ProcVolumeComponent.h>
 #include <ProcGenPlugin/Tasks/VertexColorTask.h>
 #include <RendererCore/Meshes/CpuMeshResource.h>
+#include <RendererCore/Meshes/MeshComponentBase.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererFoundation/CommandEncoder/ComputeCommandEncoder.h>
+#include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 #include <RendererFoundation/Device/Device.h>
-#include <RendererFoundation/Device/Pass.h>
+#include <RendererFoundation/Resources/DynamicBuffer.h>
 
-// clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcVertexColorRenderData, 1, ezRTTIDefaultAllocator<ezProcVertexColorRenderData>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-// clang-format on
+#include <RendererCore/../../../Data/Plugins/ProcGen/ProcGenVertexColor.h>
 
-void ezProcVertexColorRenderData::FillBatchIdAndSortingKey()
+namespace
 {
-  FillBatchIdAndSortingKeyInternal(m_hVertexColorBuffer.GetInternalID().m_Data);
-}
+  static ezCpuMeshResourceHandle ExtractCpuMeshResource(const ezMeshComponentBase& meshComponent)
+  {
+    ezWorldGeoExtractionUtil::MeshObjectList meshObjects(ezTempAllocator::Get());
+
+    ezMsgExtractGeometry msg;
+    msg.m_pMeshObjects = &meshObjects;
+
+    meshComponent.SendMessage(msg);
+
+    if (meshObjects.IsEmpty())
+      return ezCpuMeshResourceHandle();
+
+    return meshObjects[0].m_hMeshResource;
+  }
+
+  EZ_ALWAYS_INLINE static ezCustomInstanceDataOffset EncodeOffset(ezCustomInstanceDataOffset offset, ezUInt32 uiNumOutputs)
+  {
+    ezCustomInstanceDataOffset res;
+    res.m_uiOffset = uiNumOutputs << VERTEX_COLOR_ACCESS_OFFSET_BITS | (offset.m_uiOffset & VERTEX_COLOR_ACCESS_OFFSET_MASK);
+    return res;
+  }
+} // namespace
 
 //////////////////////////////////////////////////////////////////////////
-
-enum
-{
-  BUFFER_ACCESS_OFFSET_BITS = 28,
-  BUFFER_ACCESS_OFFSET_MASK = (1 << BUFFER_ACCESS_OFFSET_BITS) - 1,
-
-  VERTEX_COLOR_BUFFER_SIZE = 1024 * 1024
-};
 
 using namespace ezProcGenInternal;
 
@@ -47,42 +58,49 @@ void ezProcVertexColorComponentManager::Initialize()
   SUPER::Initialize();
 
   {
+    constexpr ezUInt32 uiInitialBufferSize = 1024 * 16;
+
     ezGALBufferCreationDescription desc;
-    desc.m_uiStructSize = sizeof(ezUInt32);
-    desc.m_uiTotalSize = desc.m_uiStructSize * VERTEX_COLOR_BUFFER_SIZE;
-    desc.m_BufferFlags = ezGALBufferUsageFlags::TexelBuffer | ezGALBufferUsageFlags::ShaderResource;
+    desc.m_uiStructSize = sizeof(ezColorLinearUB);
+    desc.m_uiTotalSize = uiInitialBufferSize * desc.m_uiStructSize;
     desc.m_ResourceAccess.m_bImmutable = false;
 
-    m_hVertexColorBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc);
+    if (ezGALDevice::GetDefaultDevice()->GetCapabilities().m_bSupportsTexelBuffer)
+    {
+      desc.m_BufferFlags = ezGALBufferUsageFlags::TexelBuffer | ezGALBufferUsageFlags::ShaderResource;
+      desc.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
+    }
+    else
+    {
+      desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
+    }
 
-    m_VertexColorData.SetCountUninitialized(VERTEX_COLOR_BUFFER_SIZE);
+    ezRenderDataManager* pRenderDataManager = GetWorld()->GetOrCreateModule<ezRenderDataManager>();
+    m_uiCustomDataIndex = pRenderDataManager->RegisterCustomInstanceData(desc, "ProcVertexColors",
+      // Before upload callback
+      [this]()
+      {
+        ezTaskSystem::WaitForGroup(m_UpdateTaskGroupID);
+        m_UpdateTaskGroupID.Invalidate();
+        m_uiNextTaskIndex = 0;
+      });
   }
 
   {
     auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezProcVertexColorComponentManager::UpdateVertexColors, this);
-    desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PreAsync;
+    desc.m_Phase = ezWorldUpdatePhase::PreAsync;
     desc.m_fPriority = 10000.0f;
 
     this->RegisterUpdateFunction(desc);
   }
 
-  ezRenderWorld::GetRenderEvent().AddEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnRenderEvent, this));
-  ezRenderWorld::GetExtractionEvent().AddEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnExtractionEvent, this));
-
   ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnResourceEvent, this));
 
-  // TODO: also do this in ezProcPlacementComponentManager
   ezProcVolumeComponent::GetAreaInvalidatedEvent().AddEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnAreaInvalidated, this));
 }
 
 void ezProcVertexColorComponentManager::Deinitialize()
 {
-  ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hVertexColorBuffer);
-  m_hVertexColorBuffer.Invalidate();
-
-  ezRenderWorld::GetRenderEvent().RemoveEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnRenderEvent, this));
-  ezRenderWorld::GetExtractionEvent().RemoveEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnExtractionEvent, this));
-
   ezResourceManager::GetResourceEvents().RemoveEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnResourceEvent, this));
 
   ezProcVolumeComponent::GetAreaInvalidatedEvent().RemoveEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnAreaInvalidated, this));
@@ -92,36 +110,83 @@ void ezProcVertexColorComponentManager::Deinitialize()
 
 void ezProcVertexColorComponentManager::UpdateVertexColors(const ezWorldModule::UpdateContext& context)
 {
-  m_UpdateTaskGroupID = ezTaskSystem::CreateTaskGroup(ezTaskPriority::EarlyThisFrame);
-  m_ModifiedDataRange.Reset();
+  ezRenderDataManager* pRenderDataManager = GetWorld()->GetModule<ezRenderDataManager>();
+  pRenderDataManager->CompactCustomInstanceDataBuffer(m_uiCustomDataIndex);
 
-  for (const auto& componentToUpdate : m_ComponentsToUpdate)
+  m_UpdateContexts.SetCount(m_ComponentsToUpdate.GetCount());
+
+  // New allocations first to ensure that the buffer is large enough and the memory is not invalidated by reallocations
   {
-    ezProcVertexColorComponent* pComponent = nullptr;
-    if (!TryGetComponent(componentToUpdate, pComponent))
-      continue;
+    for (ezUInt32 i = 0; i < m_ComponentsToUpdate.GetCount(); ++i)
+    {
+      ezProcVertexColorComponent* pComponent = nullptr;
+      if (!TryGetComponent(m_ComponentsToUpdate[i], pComponent) || !pComponent->IsActiveAndInitialized())
+        continue;
 
-    UpdateComponentVertexColors(pComponent);
+      if (!UpdateComponentOutputs(*pComponent))
+        continue;
 
-    // Invalidate all cached render data so the new buffer handle and offset are propagated to the render data
-    ezRenderWorld::DeleteCachedRenderData(pComponent->GetOwner()->GetHandle(), pComponent->GetHandle());
+      auto pMeshComponent = pComponent->GetMeshComponent();
+      if (pMeshComponent == nullptr)
+        continue;
+
+      auto hCpuMesh = ExtractCpuMeshResource(*pMeshComponent);
+      if (hCpuMesh.IsValid() == false)
+        continue;
+
+      ezResourceLock<ezCpuMeshResource> pCpuMesh(hCpuMesh, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+      if (pCpuMesh.GetAcquireResult() != ezResourceAcquireResult::Final)
+        continue;
+
+      const auto& meshBufferDescriptor = pCpuMesh->GetDescriptor().MeshBufferDesc();
+      const ezUInt32 uiNumOutputs = pComponent->m_Outputs.GetCount();
+      const ezUInt32 uiVertexColorCount = meshBufferDescriptor.GetVertexCount() * uiNumOutputs;
+
+      auto& offset = pComponent->m_CustomInstanceDataOffset;
+      pRenderDataManager->DeleteCustomInstanceData(m_uiCustomDataIndex, offset);
+
+      ezGALDynamicBufferHandle hVertexColorsBuffer;
+      pRenderDataManager->GetOrCreateCustomInstanceData<ezColorLinearUB>(m_uiCustomDataIndex, pComponent, hVertexColorsBuffer, offset, uiVertexColorCount);
+      pMeshComponent->SetCustomInstanceData(EncodeOffset(offset, uiNumOutputs), hVertexColorsBuffer);
+
+      auto& updateContext = m_UpdateContexts[i];
+      updateContext.m_pComponent = pComponent;
+      updateContext.m_hCpuMesh = hCpuMesh;
+      updateContext.m_uiVertexColorOffset = offset.m_uiOffset;
+    }
   }
 
-  m_ComponentsToUpdate.Clear();
+  // Update
+  if (m_ComponentsToUpdate.IsEmpty() == false)
+  {
+    m_UpdateTaskGroupID = ezTaskSystem::CreateTaskGroup(ezTaskPriority::EarlyThisFrame);
 
-  ezTaskSystem::StartTaskGroup(m_UpdateTaskGroupID);
+    ezGALDynamicBuffer* pBuffer = ezGALDevice::GetDefaultDevice()->GetDynamicBuffer(pRenderDataManager->GetCustomInstanceDataBuffer(m_uiCustomDataIndex));
+    EZ_ASSERT_DEV(pBuffer != nullptr, "Vertex color buffer not found.");
+
+    for (const auto& updateContext : m_UpdateContexts)
+    {
+      if (updateContext.m_pComponent == nullptr)
+        continue;
+
+      UpdateComponentVertexColors(updateContext, *pBuffer);
+    }
+
+    m_ComponentsToUpdate.Clear();
+
+    ezTaskSystem::StartTaskGroup(m_UpdateTaskGroupID);
+  }
 }
 
-void ezProcVertexColorComponentManager::UpdateComponentVertexColors(ezProcVertexColorComponent* pComponent)
+bool ezProcVertexColorComponentManager::UpdateComponentOutputs(ezProcVertexColorComponent& component)
 {
-  pComponent->m_Outputs.Clear();
-  ezHybridArray<ezProcVertexColorMapping, 2> outputMappings;
+  component.m_Outputs.Clear();
 
   {
-    ezResourceLock<ezProcGenGraphResource> pResource(pComponent->m_hResource, ezResourceAcquireMode::BlockTillLoaded);
+    ezResourceLock<ezProcGenGraphResource> pResource(component.m_hResource, ezResourceAcquireMode::BlockTillLoaded);
     auto outputs = pResource->GetVertexColorOutputs();
 
-    for (auto& outputDesc : pComponent->m_OutputDescs)
+    for (auto& outputDesc : component.m_OutputDescs)
     {
       if (!outputDesc.m_sName.IsEmpty())
       {
@@ -130,7 +195,7 @@ void ezProcVertexColorComponentManager::UpdateComponentVertexColors(ezProcVertex
         {
           if (pOutput->m_sName == outputDesc.m_sName)
           {
-            pComponent->m_Outputs.PushBack(pOutput);
+            component.m_Outputs.PushBack(pOutput);
             bOutputFound = true;
             break;
           }
@@ -138,48 +203,29 @@ void ezProcVertexColorComponentManager::UpdateComponentVertexColors(ezProcVertex
 
         if (!bOutputFound)
         {
-          pComponent->m_Outputs.PushBack(nullptr);
+          component.m_Outputs.PushBack(nullptr);
           ezLog::Error("Vertex Color Output with name '{}' not found in Proc Gen Graph '{}'", outputDesc.m_sName, pResource->GetResourceID());
         }
       }
       else
       {
-        pComponent->m_Outputs.PushBack(nullptr);
+        component.m_Outputs.PushBack(nullptr);
       }
-
-      outputMappings.PushBack(outputDesc.m_Mapping);
     }
   }
 
-  if (!pComponent->HasValidOutputs())
+  return component.HasValidOutputs();
+}
+
+void ezProcVertexColorComponentManager::UpdateComponentVertexColors(const UpdateContext& context, ezGALDynamicBuffer& buffer)
+{
+  auto pComponent = context.m_pComponent;
+  if (pComponent->HasValidOutputs() == false)
     return;
 
-  const char* szMesh = pComponent->GetMeshFile();
-  if (ezStringUtils::IsNullOrEmpty(szMesh))
-    return;
-
-  ezCpuMeshResourceHandle hCpuMesh = ezResourceManager::LoadResource<ezCpuMeshResource>(szMesh);
-  ezResourceLock<ezCpuMeshResource> pCpuMesh(hCpuMesh, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+  ezResourceLock<ezCpuMeshResource> pCpuMesh(context.m_hCpuMesh, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
   if (pCpuMesh.GetAcquireResult() != ezResourceAcquireResult::Final)
-  {
-    ezLog::Warning("Failed to retrieve CPU mesh '{}'", szMesh);
     return;
-  }
-
-  const auto& mbDesc = pCpuMesh->GetDescriptor().MeshBufferDesc();
-  const ezUInt32 uiNumOutputs = pComponent->m_Outputs.GetCount();
-  const ezUInt32 uiVertexColorCount = mbDesc.GetVertexCount() * uiNumOutputs;
-
-  pComponent->m_hVertexColorBuffer = m_hVertexColorBuffer;
-
-  if (pComponent->m_uiBufferAccessData == 0)
-  {
-    pComponent->m_uiBufferAccessData = (uiNumOutputs << BUFFER_ACCESS_OFFSET_BITS) | m_uiCurrentBufferOffset;
-    m_uiCurrentBufferOffset += uiVertexColorCount;
-  }
-
-  const ezUInt32 uiBufferOffset = pComponent->m_uiBufferAccessData & BUFFER_ACCESS_OFFSET_MASK;
-  m_ModifiedDataRange.SetToIncludeRange(uiBufferOffset, uiBufferOffset + uiVertexColorCount - 1);
 
   if (m_uiNextTaskIndex >= m_UpdateTasks.GetCount())
   {
@@ -189,96 +235,72 @@ void ezProcVertexColorComponentManager::UpdateComponentVertexColors(ezProcVertex
   auto& pUpdateTask = m_UpdateTasks[m_uiNextTaskIndex];
 
   ezStringBuilder taskName = "VertexColor ";
-  taskName.Append(pCpuMesh->GetResourceDescription().GetView());
+  taskName.Append(pCpuMesh->GetResourceIdOrDescription());
   pUpdateTask->ConfigureTask(taskName, ezTaskNesting::Never);
 
-  pUpdateTask->Prepare(*GetWorld(), mbDesc, pComponent->GetOwner()->GetGlobalTransform(), pComponent->m_Outputs, outputMappings, m_VertexColorData.GetArrayPtr().GetSubArray(uiBufferOffset, uiVertexColorCount));
+  const auto& meshBufferDescriptor = pCpuMesh->GetDescriptor().MeshBufferDesc();
+  const auto meshBBox = pCpuMesh->GetDescriptor().GetBounds().GetBox();
+  auto vertexColorData = buffer.MapForWriting<ezColorLinearUB>(context.m_uiVertexColorOffset);
+
+  ezTempHybridArray<ezProcVertexColorMapping, 2> outputMappings;
+  for (auto& outputDesc : pComponent->m_OutputDescs)
+  {
+    outputMappings.PushBack(outputDesc.m_Mapping);
+  }
+
+  pUpdateTask->Prepare(*GetWorld(), meshBufferDescriptor, pComponent->GetOwner()->GetGlobalTransform(), meshBBox, pComponent->m_Outputs, outputMappings, vertexColorData);
 
   ezTaskSystem::AddTaskToGroup(m_UpdateTaskGroupID, pUpdateTask);
 
   ++m_uiNextTaskIndex;
 }
 
-void ezProcVertexColorComponentManager::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
+void ezProcVertexColorComponentManager::EnqueueUpdate(ezProcVertexColorComponent& component)
 {
-  if (e.m_Type != ezRenderWorldExtractionEvent::Type::EndExtraction)
+  if (!component.IsActiveAndInitialized() || !component.GetResource().IsValid())
     return;
 
-  ezTaskSystem::WaitForGroup(m_UpdateTaskGroupID);
-  m_UpdateTaskGroupID.Invalidate();
-  m_uiNextTaskIndex = 0;
-
-  if (m_ModifiedDataRange.IsValid())
+  if (!m_ComponentsToUpdate.Contains(component.GetHandle()))
   {
-    auto& dataCopy = m_DataCopy[ezRenderWorld::GetDataIndexForExtraction()];
-    dataCopy.m_Data = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezUInt32, m_ModifiedDataRange.GetCount());
-    dataCopy.m_Data.CopyFrom(m_VertexColorData.GetArrayPtr().GetSubArray(m_ModifiedDataRange.m_uiMin, m_ModifiedDataRange.GetCount()));
-    dataCopy.m_uiStart = m_ModifiedDataRange.m_uiMin;
+    m_ComponentsToUpdate.PushBack(component.GetHandle());
   }
 }
 
-void ezProcVertexColorComponentManager::OnRenderEvent(const ezRenderWorldRenderEvent& e)
+void ezProcVertexColorComponentManager::RemoveComponent(ezProcVertexColorComponent& component)
 {
-  if (e.m_Type != ezRenderWorldRenderEvent::Type::BeginRender)
-    return;
+  m_ComponentsToUpdate.RemoveAndSwap(component.GetHandle());
 
-  auto& dataCopy = m_DataCopy[ezRenderWorld::GetDataIndexForRendering()];
-  if (!dataCopy.m_Data.IsEmpty())
-  {
-    ezGALDevice* pGALDevice = ezGALDevice::GetDefaultDevice();
-    ezGALPass* pGALPass = pGALDevice->BeginPass("ProcVertexUpdate");
-    ezGALComputeCommandEncoder* pGALCommandEncoder = pGALPass->BeginCompute();
-
-    ezUInt32 uiByteOffset = dataCopy.m_uiStart * sizeof(ezUInt32);
-    pGALCommandEncoder->UpdateBuffer(m_hVertexColorBuffer, uiByteOffset, dataCopy.m_Data.ToByteArray(), ezGALUpdateMode::CopyToTempStorage);
-
-    dataCopy = DataCopy();
-
-    pGALPass->EndCompute(pGALCommandEncoder);
-    pGALDevice->EndPass(pGALPass);
-  }
-}
-
-void ezProcVertexColorComponentManager::EnqueueUpdate(ezProcVertexColorComponent* pComponent)
-{
-  auto& hResource = pComponent->GetResource();
-  if (!hResource.IsValid())
-  {
-    return;
-  }
-
-  if (!m_ComponentsToUpdate.Contains(pComponent->GetHandle()))
-  {
-    m_ComponentsToUpdate.PushBack(pComponent->GetHandle());
-  }
-}
-
-void ezProcVertexColorComponentManager::RemoveComponent(ezProcVertexColorComponent* pComponent)
-{
-  m_ComponentsToUpdate.RemoveAndSwap(pComponent->GetHandle());
-
-  if (pComponent->m_uiBufferAccessData != 0)
-  {
-    /// \todo compact buffer somehow?
-
-    pComponent->m_uiBufferAccessData = 0;
-  }
+  ezRenderDataManager* pRenderDataManager = GetWorld()->GetModule<ezRenderDataManager>();
+  pRenderDataManager->DeleteCustomInstanceData(m_uiCustomDataIndex, component.m_CustomInstanceDataOffset);
 }
 
 void ezProcVertexColorComponentManager::OnResourceEvent(const ezResourceEvent& resourceEvent)
 {
-  if (resourceEvent.m_Type != ezResourceEvent::Type::ResourceContentUnloading)
+  if (resourceEvent.m_Type != ezResourceEvent::Type::ResourceContentUnloading || resourceEvent.m_pResource->GetReferenceCount() == 0)
     return;
 
-  if (auto pResource = ezDynamicCast<const ezProcGenGraphResource*>(resourceEvent.m_pResource))
+  if (auto pResource = ezDynamicCast<ezProcGenGraphResource*>(resourceEvent.m_pResource))
   {
-    ezProcGenGraphResourceHandle hResource = pResource->GetResourceHandle();
+    ezProcGenGraphResourceHandle hResource(pResource);
 
     for (auto it = GetComponents(); it.IsValid(); it.Next())
     {
       if (it->m_hResource == hResource)
       {
-        EnqueueUpdate(it);
+        EnqueueUpdate(*it);
+      }
+    }
+  }
+  else if (auto pResource = ezDynamicCast<ezMeshResource*>(resourceEvent.m_pResource))
+  {
+    ezMeshResourceHandle hMeshResource(pResource);
+
+    for (auto it = GetComponents(); it.IsValid(); it.Next())
+    {
+      auto pMeshComponent = it->GetMeshComponent();
+      if (pMeshComponent != nullptr && pMeshComponent->GetMesh() == hMeshResource)
+      {
+        EnqueueUpdate(*it);
       }
     }
   }
@@ -292,17 +314,25 @@ void ezProcVertexColorComponentManager::OnAreaInvalidated(const ezProcGenInterna
   ezSpatialSystem::QueryParams queryParams;
   queryParams.m_uiCategoryBitmask = ezDefaultSpatialDataCategories::RenderStatic.GetBitmask() | ezDefaultSpatialDataCategories::RenderDynamic.GetBitmask();
 
-  GetWorld()->GetSpatialSystem()->FindObjectsInBox(area.m_Box, queryParams, [this](ezGameObject* pObject)
+  GetWorld()->GetSpatialSystem()->FindObjectsInBox(area.m_Box, queryParams,
+    [this](ezGameObject* pObject)
     {
-    ezHybridArray<ezProcVertexColorComponent*, 8> components;
-    pObject->TryGetComponentsOfBaseType(components);
+      ezTempHybridArray<ezProcVertexColorComponent*, 4> components;
+      pObject->TryGetComponentsOfBaseType(components);
 
-    for (auto pComponent : components)
-    {
-      EnqueueUpdate(pComponent);
-    }
+      for (auto pComponent : components)
+      {
+        EnqueueUpdate(*pComponent);
+      }
 
-    return ezVisitorExecution::Continue; });
+      return ezVisitorExecution::Continue;
+    });
+}
+
+ezGALDynamicBufferHandle ezProcVertexColorComponentManager::GetVertexColorBuffer()
+{
+  ezRenderDataManager* pRenderDataManager = GetWorld()->GetModule<ezRenderDataManager>();
+  return pRenderDataManager->GetCustomInstanceDataBuffer(m_uiCustomDataIndex);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -312,18 +342,13 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezProcVertexColorOutputDesc, ezNoBase, 1, ezRTTID
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Name", GetName, SetName),
+    EZ_MEMBER_PROPERTY("Name", m_sName)->AddAttributes(new ezDynamicStringEnumAttribute("ProcGenOutputNameEnum")),
     EZ_MEMBER_PROPERTY("Mapping", m_Mapping),
   }
   EZ_END_PROPERTIES;
 }
 EZ_END_STATIC_REFLECTED_TYPE;
 // clang-format on
-
-void ezProcVertexColorOutputDesc::SetName(const char* szName)
-{
-  m_sName.Assign(szName);
-}
 
 static ezTypeVersion s_ProcVertexColorOutputDescVersion = 1;
 ezResult ezProcVertexColorOutputDesc::Serialize(ezStreamWriter& inout_stream) const
@@ -357,7 +382,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezProcVertexColorComponent, 2, ezComponentMode::Static)
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgTransformChanged, OnTransformChanged)
+    EZ_MESSAGE_HANDLER(ezMsgTransformChanged, OnMsgTransformChanged),
+    EZ_MESSAGE_HANDLER(ezMsgCustomInstanceDataOffsetChanged, OnMsgCustomInstanceDataOffsetChanged)
   }
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
@@ -377,9 +403,12 @@ void ezProcVertexColorComponent::OnActivated()
   SUPER::OnActivated();
 
   auto pManager = static_cast<ezProcVertexColorComponentManager*>(GetOwningManager());
-  pManager->EnqueueUpdate(this);
+  pManager->EnqueueUpdate(*this);
 
-  GetOwner()->EnableStaticTransformChangesNotifications();
+  if (GetUniqueID() != ezInvalidIndex)
+  {
+    GetOwner()->EnableStaticTransformChangesNotifications();
+  }
 }
 
 void ezProcVertexColorComponent::OnDeactivated()
@@ -387,30 +416,27 @@ void ezProcVertexColorComponent::OnDeactivated()
   SUPER::OnDeactivated();
 
   auto pManager = static_cast<ezProcVertexColorComponentManager*>(GetOwningManager());
-  pManager->RemoveComponent(this);
+  pManager->RemoveComponent(*this);
 
   // Don't disable notifications as other components attached to the owner game object might need them too.
   // GetOwner()->DisableStaticTransformChangesNotifications();
 }
 
-void ezProcVertexColorComponent::SetResourceFile(const char* szFile)
+void ezProcVertexColorComponent::SetResourceFile(ezStringView sFile)
 {
   ezProcGenGraphResourceHandle hResource;
 
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
+  if (!sFile.IsEmpty())
   {
-    hResource = ezResourceManager::LoadResource<ezProcGenGraphResource>(szFile);
+    hResource = ezResourceManager::LoadResource<ezProcGenGraphResource>(sFile);
     ezResourceManager::PreloadResource(hResource);
   }
 
   SetResource(hResource);
 }
 
-const char* ezProcVertexColorComponent::GetResourceFile() const
+ezStringView ezProcVertexColorComponent::GetResourceFile() const
 {
-  if (!m_hResource.IsValid())
-    return "";
-
   return m_hResource.GetResourceID();
 }
 
@@ -421,7 +447,7 @@ void ezProcVertexColorComponent::SetResource(const ezProcGenGraphResourceHandle&
   if (IsActiveAndInitialized())
   {
     auto pManager = static_cast<ezProcVertexColorComponentManager*>(GetOwningManager());
-    pManager->EnqueueUpdate(this);
+    pManager->EnqueueUpdate(*this);
   }
 }
 
@@ -438,7 +464,7 @@ void ezProcVertexColorComponent::SetOutputDesc(ezUInt32 uiIndex, const ezProcVer
   if (IsActiveAndInitialized())
   {
     auto pManager = static_cast<ezProcVertexColorComponentManager*>(GetOwningManager());
-    pManager->EnqueueUpdate(this);
+    pManager->EnqueueUpdate(*this);
   }
 }
 
@@ -465,7 +491,7 @@ void ezProcVertexColorComponent::DeserializeComponent(ezWorldReader& inout_strea
   }
   else
   {
-    ezHybridArray<ezHashedString, 2> outputNames;
+    ezTempHybridArray<ezHashedString, 2> outputNames;
     s.ReadArray(outputNames).IgnoreResult();
 
     for (auto& outputName : outputNames)
@@ -476,23 +502,30 @@ void ezProcVertexColorComponent::DeserializeComponent(ezWorldReader& inout_strea
   }
 }
 
-void ezProcVertexColorComponent::OnTransformChanged(ezMsgTransformChanged& ref_msg)
+void ezProcVertexColorComponent::OnMsgTransformChanged(ezMsgTransformChanged& ref_msg)
 {
   auto pManager = static_cast<ezProcVertexColorComponentManager*>(GetOwningManager());
-  pManager->EnqueueUpdate(this);
+  pManager->EnqueueUpdate(*this);
 }
 
-ezMeshRenderData* ezProcVertexColorComponent::CreateRenderData() const
+void ezProcVertexColorComponent::OnMsgCustomInstanceDataOffsetChanged(ezMsgCustomInstanceDataOffsetChanged& ref_msg)
 {
-  auto pRenderData = ezCreateRenderDataForThisFrame<ezProcVertexColorRenderData>(GetOwner());
+  m_CustomInstanceDataOffset = ref_msg.m_NewOffset;
 
-  if (HasValidOutputs() && m_uiBufferAccessData != 0)
+  if (ezMeshComponentBase* pMeshComponent = GetMeshComponent())
   {
-    pRenderData->m_hVertexColorBuffer = m_hVertexColorBuffer;
-    pRenderData->m_uiBufferAccessData = m_uiBufferAccessData;
-  }
+    auto pManager = static_cast<ezProcVertexColorComponentManager*>(GetOwningManager());
 
-  return pRenderData;
+    const ezUInt32 uiNumOutputs = m_Outputs.GetCount();
+    pMeshComponent->SetCustomInstanceData(EncodeOffset(ref_msg.m_NewOffset, uiNumOutputs), pManager->GetVertexColorBuffer());
+  }
+}
+
+void ezProcVertexColorComponent::OnMsgGenerateSplineMeshCollision(ezMsgGenerateSplineMeshCollision& ref_msg)
+{
+  // Although we don't generate any collision meshes here, we use this as a signal that a spline mesh has changed and we need to update our vertex colors.
+  auto pManager = static_cast<ezProcVertexColorComponentManager*>(GetOwningManager());
+  pManager->EnqueueUpdate(*this);
 }
 
 ezUInt32 ezProcVertexColorComponent::OutputDescs_GetCount() const
@@ -507,7 +540,7 @@ void ezProcVertexColorComponent::OutputDescs_Insert(ezUInt32 uiIndex, const ezPr
   if (IsActiveAndInitialized())
   {
     auto pManager = static_cast<ezProcVertexColorComponentManager*>(GetOwningManager());
-    pManager->EnqueueUpdate(this);
+    pManager->EnqueueUpdate(*this);
   }
 }
 
@@ -518,7 +551,7 @@ void ezProcVertexColorComponent::OutputDescs_Remove(ezUInt32 uiIndex)
   if (IsActiveAndInitialized())
   {
     auto pManager = static_cast<ezProcVertexColorComponentManager*>(GetOwningManager());
-    pManager->EnqueueUpdate(this);
+    pManager->EnqueueUpdate(*this);
   }
 }
 
@@ -534,3 +567,13 @@ bool ezProcVertexColorComponent::HasValidOutputs() const
 
   return false;
 }
+
+ezMeshComponentBase* ezProcVertexColorComponent::GetMeshComponent()
+{
+  ezMeshComponentBase* pMeshComponent = nullptr;
+  bool _ = GetOwner()->TryGetComponentOfBaseType(pMeshComponent);
+  return pMeshComponent;
+}
+
+
+EZ_STATICLINK_FILE(ProcGenPlugin, ProcGenPlugin_Components_Implementation_ProcVertexColorComponent);

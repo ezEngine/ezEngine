@@ -12,13 +12,12 @@
 #include <RendererCore/Lights/Implementation/ReflectionPoolData.h>
 #include <RendererCore/Lights/Implementation/ReflectionProbeData.h>
 #include <RendererCore/Meshes/MeshComponentBase.h>
-#include <RendererCore/Pipeline/Declarations.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
-#include <RendererFoundation/CommandEncoder/ComputeCommandEncoder.h>
+#include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
-#include <RendererFoundation/Device/Pass.h>
 #include <RendererFoundation/Profiling/Profiling.h>
 #include <RendererFoundation/Resources/Texture.h>
 
@@ -103,7 +102,7 @@ void ezReflectionPool::ExtractReflectionProbe(const ezComponent* pComponent, ezM
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   const ezUInt32 uiMipLevels = GetMipLevels();
-  if (probeData.m_desc.m_bShowDebugInfo && s_pData->m_hDebugMaterial.GetCount() == uiMipLevels * s_uiNumReflectionProbeCubeMaps)
+  if (probeData.m_desc.m_bShowDebugInfo && s_pData->m_hDebugMaterial.IsValid())
   {
     if (ref_msg.m_OverrideCategory == ezInvalidRenderDataCategory)
     {
@@ -125,29 +124,31 @@ void ezReflectionPool::ExtractReflectionProbe(const ezComponent* pComponent, ezM
       return;
 
     const ezGameObject* pOwner = pComponent->GetOwner();
-    const ezTransform ownerTransform = pOwner->GetGlobalTransform();
+    const ezUInt32 uiUniqueID = ezRenderComponent::GetUniqueIdForRendering(*pComponent);
+
+    // This is debug rendering code so we don't want to trash the static instance data buffer every frame.
+    const bool bDynamic = true;
+    ezGALDynamicBufferHandle hInstanceDataBuffer;
+    auto instanceData = ref_msg.m_pRenderDataManager->GetOrCreateInstanceData(pComponent, bDynamic, hInstanceDataBuffer, probeData.m_DebugInstanceDataOffset, uiMipLevels);
 
     ezUInt32 uiMipLevelsToRender = probeData.m_desc.m_bShowMipMaps ? uiMipLevels : 1;
     for (ezUInt32 i = 0; i < uiMipLevelsToRender; i++)
     {
-      ezMeshRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(pOwner);
-      pRenderData->m_GlobalTransform.m_vPosition = ownerTransform * probeData.m_desc.m_vCaptureOffset;
-      pRenderData->m_GlobalTransform.m_vScale = ezVec3(1.0f);
-      if (!probeData.m_Flags.IsSet(ezProbeFlags::SkyLight))
-      {
-        pRenderData->m_GlobalTransform.m_qRotation = ownerTransform.m_qRotation;
-      }
-      pRenderData->m_GlobalTransform.m_vPosition.z += s_fDebugSphereRadius * i * 2;
-      pRenderData->m_GlobalBounds = pOwner->GetGlobalBounds();
-      pRenderData->m_hMesh = s_pData->m_hDebugSphere;
-      pRenderData->m_hMaterial = s_pData->m_hDebugMaterial[iMappedIndex * uiMipLevels + i];
-      pRenderData->m_Color = ezColor::White;
-      pRenderData->m_uiSubMeshIndex = 0;
-      pRenderData->m_uiUniqueID = ezRenderComponent::GetUniqueIdForRendering(*pComponent, 0);
+      ezTransform t;
+      t.m_vPosition = probeData.m_GlobalTransform * probeData.m_desc.m_vCaptureOffset;
+      t.m_vPosition.z += s_fDebugSphereRadius * i * 2;
+      t.m_qRotation = probeData.m_Flags.IsSet(ezProbeFlags::SkyLight) ? ezQuat::MakeIdentity() : probeData.m_GlobalTransform.m_qRotation;
+      t.m_vScale = ezVec3(1.0f);
 
-      pRenderData->FillBatchIdAndSortingKey();
-      ref_msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitOpaque, ezRenderData::Caching::Never);
+      ezVec4 customData = ezVec4(static_cast<float>(iMappedIndex), static_cast<float>(i), 0, 0);
+
+      ezRenderDataManager::FillPerInstanceData(instanceData[i], pOwner, t, uiUniqueID, ezColor::White, customData);
     }
+
+    ezMeshRenderData* pRenderData = ref_msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezMeshRenderData>(pOwner);
+    pRenderData->Fill(probeData.m_DebugInstanceDataOffset, hInstanceDataBuffer, s_pData->m_hDebugMaterial, s_pData->m_hDebugSphere, 0, 0, uiMipLevelsToRender);
+
+    ref_msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitOpaque, ezRenderData::Caching::Never);
   }
 #endif
 }
@@ -198,6 +199,7 @@ void ezReflectionPool::UpdateSkyLight(const ezWorld* pWorld, ezReflectionProbeId
 // static
 void ezReflectionPool::SetConstantSkyIrradiance(const ezWorld* pWorld, const ezAmbientCube<ezColor>& skyIrradiance)
 {
+  EZ_LOCK(s_pData->m_Mutex);
   ezUInt32 uiWorldIndex = pWorld->GetIndex();
   ezAmbientCube<ezColorLinear16f> skyIrradiance16f = skyIrradiance;
 
@@ -212,6 +214,7 @@ void ezReflectionPool::SetConstantSkyIrradiance(const ezWorld* pWorld, const ezA
 
 void ezReflectionPool::ResetConstantSkyIrradiance(const ezWorld* pWorld)
 {
+  EZ_LOCK(s_pData->m_Mutex);
   ezUInt32 uiWorldIndex = pWorld->GetIndex();
 
   auto& skyIrradianceStorage = s_pData->m_SkyIrradianceStorage;
@@ -298,7 +301,7 @@ void ezReflectionPool::OnRenderEvent(const ezRenderWorldRenderEvent& e)
   EZ_LOCK(s_pData->m_Mutex);
 
   ezUInt64 uiWorldHasSkyLight = s_pData->m_uiWorldHasSkyLight;
-  ezUInt64 uiSkyIrradianceChanged = s_pData->m_uiSkyIrradianceChanged;
+  ezUInt64& uiSkyIrradianceChanged = s_pData->m_uiSkyIrradianceChanged;
   if ((~uiWorldHasSkyLight & uiSkyIrradianceChanged) == 0)
     return;
 
@@ -306,33 +309,29 @@ void ezReflectionPool::OnRenderEvent(const ezRenderWorldRenderEvent& e)
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
-  auto pGALPass = pDevice->BeginPass("Sky Irradiance Texture Update");
-  ezHybridArray<ezGALTextureHandle, 4> atlasToClear;
+  auto pCommandEncoder = pDevice->BeginCommands("Sky Irradiance Texture Update");
+  ezTempHybridArray<ezGALTextureHandle, 4> atlasToClear;
 
+  for (ezUInt32 i = 0; i < skyIrradianceStorage.GetCount(); ++i)
   {
-    auto pGALCommandEncoder = pGALPass->BeginCompute();
-    for (ezUInt32 i = 0; i < skyIrradianceStorage.GetCount(); ++i)
+    if ((uiWorldHasSkyLight & EZ_BIT(i)) == 0 && (uiSkyIrradianceChanged & EZ_BIT(i)) != 0)
     {
-      if ((uiWorldHasSkyLight & EZ_BIT(i)) == 0 && (uiSkyIrradianceChanged & EZ_BIT(i)) != 0)
+      ezBoundingBoxu32 destBox;
+      destBox.m_vMin.Set(0, i, 0);
+      destBox.m_vMax.Set(6, i + 1, 1);
+      ezGALSystemMemoryDescription memDesc;
+      memDesc.m_uiRowPitch = sizeof(ezAmbientCube<ezColorLinear16f>);
+      memDesc.m_pData = ezMakeByteBlobPtr(&skyIrradianceStorage[i].m_Values[0], memDesc.m_uiRowPitch * 1);
+      pCommandEncoder->UpdateTexture(s_pData->m_hSkyIrradianceTexture, ezGALTextureSubresource(), destBox, memDesc);
+
+      uiSkyIrradianceChanged &= ~EZ_BIT(i);
+
+      if (i < s_pData->m_WorldReflectionData.GetCount() && s_pData->m_WorldReflectionData[i] != nullptr)
       {
-        ezBoundingBoxu32 destBox;
-        destBox.m_vMin.Set(0, i, 0);
-        destBox.m_vMax.Set(6, i + 1, 1);
-        ezGALSystemMemoryDescription memDesc;
-        memDesc.m_pData = &skyIrradianceStorage[i].m_Values[0];
-        memDesc.m_uiRowPitch = sizeof(ezAmbientCube<ezColorLinear16f>);
-        pGALCommandEncoder->UpdateTexture(s_pData->m_hSkyIrradianceTexture, ezGALTextureSubresource(), destBox, memDesc);
-
-        uiSkyIrradianceChanged &= ~EZ_BIT(i);
-
-        if (i < s_pData->m_WorldReflectionData.GetCount() && s_pData->m_WorldReflectionData[i] != nullptr)
-        {
-          ezReflectionPool::Data::WorldReflectionData& data = *s_pData->m_WorldReflectionData[i];
-          atlasToClear.PushBack(data.m_mapping.GetTexture());
-        }
+        ezReflectionPool::Data::WorldReflectionData& data = *s_pData->m_WorldReflectionData[i];
+        atlasToClear.PushBack(data.m_mapping.GetTexture());
       }
     }
-    pGALPass->EndCompute(pGALCommandEncoder);
   }
 
   {
@@ -350,19 +349,19 @@ void ezReflectionPool::OnRenderEvent(const ezRenderWorldRenderEvent& e)
           desc.m_uiMipLevel = uiMipMapIndex;
           desc.m_uiFirstSlice = uiFaceIndex;
           desc.m_uiSliceCount = 1;
-          renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->CreateRenderTargetView(desc));
-          renderingSetup.m_ClearColor = ezColor(0, 0, 0, 1);
-          renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
+          desc.m_OverrideViewType = ezGALTextureType::Texture2DArray;
 
-          auto pGALCommandEncoder = pGALPass->BeginRendering(renderingSetup, "ClearSkySpecular");
-          pGALCommandEncoder->Clear(ezColor::Black);
-          pGALPass->EndRendering(pGALCommandEncoder);
+          renderingSetup.SetColorTarget(0, pDevice->GetRenderTargetView(desc));
+          renderingSetup.SetClearColor(0, ezColor(0, 0, 0, 1));
+
+          pCommandEncoder->BeginRendering(renderingSetup, "ClearSkySpecular");
+          pCommandEncoder->EndRendering();
         }
       }
     }
   }
 
-  pDevice->EndPass(pGALPass);
+  pDevice->EndCommands(pCommandEncoder);
 }
 
 

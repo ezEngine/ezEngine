@@ -1,16 +1,14 @@
 
 #pragma once
 
+#include <RendererVulkan/RendererVulkanDLL.h>
+
 #include <RendererFoundation/Resources/Buffer.h>
-
 #include <RendererVulkan/Device/DeviceVulkan.h>
-
-#include <vulkan/vulkan.hpp>
 
 class EZ_RENDERERVULKAN_DLL ezGALBufferVulkan : public ezGALBuffer
 {
 public:
-  void DiscardBuffer() const;
   EZ_ALWAYS_INLINE vk::Buffer GetVkBuffer() const;
   const vk::DescriptorBufferInfo& GetBufferInfo() const;
 
@@ -19,32 +17,27 @@ public:
   EZ_ALWAYS_INLINE const ezVulkanAllocationInfo& GetAllocationInfo() const;
   EZ_ALWAYS_INLINE vk::PipelineStageFlags GetUsedByPipelineStage() const;
   EZ_ALWAYS_INLINE vk::AccessFlags GetAccessMask() const;
+  vk::BufferView GetTexelBufferView(ezGALBufferRange bufferRange, ezEnum<ezGALResourceFormat> overrideTexelBufferFormat) const;
   static vk::DeviceSize GetAlignment(const ezGALDeviceVulkan* pDevice, vk::BufferUsageFlags usage);
 
 protected:
-  struct BufferVulkan
-  {
-    vk::Buffer m_buffer;
-    ezVulkanAllocation m_alloc;
-    mutable ezUInt64 m_currentFrame = 0;
-  };
-
   friend class ezGALDeviceVulkan;
   friend class ezMemoryUtils;
 
-  ezGALBufferVulkan(const ezGALBufferCreationDescription& Description, bool bCPU = false);
+  ezGALBufferVulkan(const ezGALBufferCreationDescription& Description);
 
   virtual ~ezGALBufferVulkan();
 
   virtual ezResult InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const ezUInt8> pInitialData) override;
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
   virtual void SetDebugNamePlatform(const char* szName) const override;
-  void CreateBuffer() const;
+  void CreateBuffer();
 
-  mutable BufferVulkan m_currentBuffer;
-  mutable vk::DescriptorBufferInfo m_resourceBufferInfo;
-  mutable ezDeque<BufferVulkan> m_usedBuffers;
-  mutable ezVulkanAllocationInfo m_allocInfo;
+protected:
+  vk::Buffer m_buffer = {};
+  ezVulkanAllocation m_alloc = {};
+  ezVulkanAllocationInfo m_allocInfo = {};
+  vk::DescriptorBufferInfo m_resourceBufferInfo = {};
 
   // Data for memory barriers and access
   vk::PipelineStageFlags m_stages = {};
@@ -54,9 +47,19 @@ protected:
   vk::DeviceSize m_size = 0;
 
   ezGALDeviceVulkan* m_pDeviceVulkan = nullptr;
-  vk::Device m_device;
+  vk::Device m_device = {};
 
-  bool m_bCPU = false;
+  // Views
+  struct View : ezHashableStruct<View>
+  {
+    ezGALBufferRange m_BufferRange;
+    ezEnum<ezGALResourceFormat> m_OverrideTexelBufferFormat;
+
+    EZ_ALWAYS_INLINE static ezUInt32 Hash(const View& value) { return value.CalculateHash(); }
+    EZ_ALWAYS_INLINE static bool Equal(const View& a, const View& b) { return a == b; }
+  };
+  mutable ezHashTable<View, vk::BufferView, View> m_TexelBufferViews;
+
   mutable ezString m_sDebugName;
 };
 

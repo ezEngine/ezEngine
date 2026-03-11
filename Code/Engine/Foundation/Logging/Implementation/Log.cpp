@@ -7,14 +7,11 @@
 #include <Foundation/Time/Time.h>
 #include <Foundation/Time/Timestamp.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS) || EZ_ENABLED(EZ_PLATFORM_LINUX)
-#  include <Foundation/Logging/ETWWriter.h>
-#endif
-#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
-#  include <android/log.h>
-#endif
-
 #include <stdarg.h>
+
+#if TRACY_ENABLE
+#  include <tracy/tracy/Tracy.hpp>
+#endif
 
 // Comment in to log into ezLog::Print any message that is output while no logger is registered.
 // #define DEBUG_STARTUP_LOGGING
@@ -235,6 +232,36 @@ void ezLog::BroadcastLoggingEvent(ezLogInterface* pInterface, ezLogMsgType::Enum
     }
   }
 
+#if TRACY_ENABLE
+  switch (type)
+  {
+    case ezLogMsgType::ErrorMsg:
+      TracyMessageC(sString.GetStartPointer(), sString.GetElementCount(), tracy::Color::Red);
+      break;
+    case ezLogMsgType::SeriousWarningMsg:
+      TracyMessageC(sString.GetStartPointer(), sString.GetElementCount(), tracy::Color::Orange);
+      break;
+    case ezLogMsgType::WarningMsg:
+      TracyMessageC(sString.GetStartPointer(), sString.GetElementCount(), tracy::Color::Yellow);
+      break;
+    case ezLogMsgType::SuccessMsg:
+      TracyMessageC(sString.GetStartPointer(), sString.GetElementCount(), tracy::Color::Green);
+      break;
+    case ezLogMsgType::InfoMsg:
+      TracyMessageC(sString.GetStartPointer(), sString.GetElementCount(), tracy::Color::White);
+      break;
+    case ezLogMsgType::DevMsg:
+      TracyMessageC(sString.GetStartPointer(), sString.GetElementCount(), tracy::Color::Grey);
+      break;
+    case ezLogMsgType::DebugMsg:
+      TracyMessageC(sString.GetStartPointer(), sString.GetElementCount(), tracy::Color::CornflowerBlue);
+      break;
+
+    default:
+      break;
+  }
+#endif
+
   ezLoggingEventData le;
   le.m_EventType = type;
   le.m_sText = sString;
@@ -243,29 +270,6 @@ void ezLog::BroadcastLoggingEvent(ezLogInterface* pInterface, ezLogMsgType::Enum
 
   pInterface->HandleLogMessage(le);
   pInterface->m_uiLoggedMsgsSinceFlush++;
-}
-
-void ezLog::Print(const char* szText)
-{
-  printf("%s", szText);
-
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS) || EZ_ENABLED(EZ_PLATFORM_LINUX)
-  ezLogWriter::ETW::LogMessage(ezLogMsgType::ErrorMsg, 0, szText);
-#endif
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  OutputDebugStringW(ezStringWChar(szText).GetData());
-#endif
-#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
-  __android_log_print(ANDROID_LOG_ERROR, "ezEngine", "%s", szText);
-#endif
-
-  if (s_CustomPrintFunction)
-  {
-    s_CustomPrintFunction(szText);
-  }
-
-  fflush(stdout);
-  fflush(stderr);
 }
 
 void ezLog::Printf(const char* szFormat, ...)
@@ -284,26 +288,6 @@ void ezLog::Printf(const char* szFormat, ...)
 void ezLog::SetCustomPrintFunction(PrintFunction func)
 {
   s_CustomPrintFunction = func;
-}
-
-void ezLog::OsMessageBox(const ezFormatString& text)
-{
-  ezStringBuilder tmp;
-  ezStringBuilder display = text.GetText(tmp);
-  display.Trim(" \n\r\t");
-
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-  const char* title = "";
-  if (ezApplication::GetApplicationInstance())
-  {
-    title = ezApplication::GetApplicationInstance()->GetApplicationName();
-  }
-
-  MessageBoxW(nullptr, ezStringWChar(display).GetData(), ezStringWChar(title), MB_OK);
-#else
-  ezLog::Print(display);
-  EZ_ASSERT_NOT_IMPLEMENTED;
-#endif
 }
 
 void ezLog::GenerateFormattedTimestamp(TimestampMode mode, ezStringBuilder& ref_sTimestampOut)
@@ -336,8 +320,7 @@ void ezLog::GenerateFormattedTimestamp(TimestampMode mode, ezStringBuilder& ref_
 
 void ezLog::SetThreadLocalLogSystem(ezLogInterface* pInterface)
 {
-  EZ_ASSERT_DEV(pInterface != nullptr,
-    "You cannot set a nullptr logging system. If you want to discard all log information, set a dummy system that does not do anything.");
+  EZ_ASSERT_DEV(pInterface != nullptr, "You cannot set a nullptr logging system. If you want to discard all log information, set a dummy system that does not do anything.");
 
   s_DefaultLogSystem = pInterface;
 }
@@ -441,13 +424,15 @@ bool ezLog::Flush(ezUInt32 uiNumNewMsgThreshold, ezTime timeIntervalThreshold, e
   if (pInterface == nullptr || pInterface->m_uiLoggedMsgsSinceFlush == 0) // if really nothing was logged, don't execute a flush
     return false;
 
-  if (pInterface->m_uiLoggedMsgsSinceFlush <= uiNumNewMsgThreshold && ezTime::Now() - pInterface->m_LastFlushTime < timeIntervalThreshold)
+  const ezTime tNow = ezTime::Now();
+
+  if (pInterface->m_uiLoggedMsgsSinceFlush <= uiNumNewMsgThreshold && tNow - pInterface->m_LastFlushTime < timeIntervalThreshold)
     return false;
 
   BroadcastLoggingEvent(pInterface, ezLogMsgType::Flush, nullptr);
 
   pInterface->m_uiLoggedMsgsSinceFlush = 0;
-  pInterface->m_LastFlushTime = ezTime::Now();
+  pInterface->m_LastFlushTime = tNow;
 
   return true;
 }

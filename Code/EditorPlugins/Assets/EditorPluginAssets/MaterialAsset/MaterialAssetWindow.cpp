@@ -1,6 +1,7 @@
 #include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/Assets/AssetStatusIndicator.moc.h>
 #include <EditorFramework/DocumentWindow/OrbitCamViewWidget.moc.h>
 #include <EditorFramework/InputContexts/EditorInputContext.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialAsset.h>
@@ -11,8 +12,8 @@
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
-#include <GuiFoundation/NodeEditor/NodeView.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
+#include <GuiFoundation/VisualGraph/View.moc.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
 ////////////////////////////////////////////////////////////////////////
@@ -111,39 +112,49 @@ ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAsset
     m_ViewConfig.ApplyPerspectiveSetting(90, 0.01f, 100.0f);
 
     m_pViewWidget = new ezQtOrbitCamViewWidget(this, &m_ViewConfig);
-    m_pViewWidget->ConfigureFixed(ezVec3(0), ezVec3(0.0f), ezVec3(+0.23f, -0.04f, 0.02f));
+    m_pViewWidget->ConfigureFixed(ezVec3(0), ezVec3(0.0f), ezVec3(+2.3f, -0.4f, 0.2f));
 
     AddViewWidget(m_pViewWidget);
-    ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(nullptr, m_pViewWidget, "MaterialAssetViewToolBar");
+    ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(GetContainerWindow()->GetDockManager(), nullptr, m_pViewWidget, "MaterialAssetViewToolBar");
 
-    setCentralWidget(pContainer);
+    m_pDockManager->setCentralWidget(pContainer);
   }
 
   // Property Grid
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("MaterialAssetDockWidget");
     pPropertyPanel->setWindowTitle("Material Properties");
     pPropertyPanel->show();
 
     ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
-    pPropertyPanel->setWidget(pPropertyGrid);
 
-    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
+    QWidget* pWidget = new QWidget();
+    pWidget->setObjectName("Group");
+    pWidget->setLayout(new QVBoxLayout());
+    pWidget->setContentsMargins(0, 0, 0, 0);
+
+    pWidget->layout()->setContentsMargins(0, 0, 0, 0);
+    pWidget->layout()->addWidget(new ezQtAssetStatusIndicator(GetDocument()));
+    pWidget->layout()->addWidget(pPropertyGrid);
+
+    pPropertyPanel->setWidget(pWidget, ads::CDockWidget::ForceNoScrollArea);
+
+    m_pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pPropertyPanel);
   }
 
   // Visual Shader Editor
   {
-    m_pVsePanel = new ezQtDocumentPanel(this, pDocument);
+    m_pVsePanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     m_pVsePanel->setObjectName("VisualShaderDockWidget");
     m_pVsePanel->setWindowTitle("Visual Shader Editor");
 
     QSplitter* pSplitter = new QSplitter(Qt::Orientation::Horizontal, m_pVsePanel);
 
     m_pScene = new ezQtVisualShaderScene(this);
-    m_pScene->InitScene(static_cast<const ezDocumentNodeManager*>(pDocument->GetObjectManager()));
+    m_pScene->InitScene(static_cast<const ezVisualGraphObjectManager*>(pDocument->GetObjectManager()));
 
-    m_pNodeView = new ezQtNodeView(m_pVsePanel);
+    m_pNodeView = new ezQtVisualGraphView(m_pVsePanel);
     m_pNodeView->SetScene(m_pScene);
     pSplitter->addWidget(m_pNodeView);
 
@@ -176,11 +187,9 @@ ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAsset
 
     m_bVisualShaderEnabled = false;
     m_pVsePanel->setWidget(pSplitter);
-    m_pVsePanel->setVisible(false);
 
-    addDockWidget(Qt::DockWidgetArea::BottomDockWidgetArea, m_pVsePanel);
-
-    m_pVsePanel->setVisible(false);
+    m_pDockManager->addDockWidgetTab(ads::BottomDockWidgetArea, m_pVsePanel);
+    m_pVsePanel->toggleView(false);
   }
 
   pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
@@ -258,7 +267,7 @@ void ezQtMaterialAssetDocumentWindow::showEvent(QShowEvent* event)
 {
   ezQtEngineDocumentWindow::showEvent(event);
 
-  m_pVsePanel->setVisible(m_bVisualShaderEnabled);
+  m_pVsePanel->toggleView(m_bVisualShaderEnabled);
 }
 
 void ezQtMaterialAssetDocumentWindow::OnOpenShaderClicked(bool)
@@ -269,7 +278,7 @@ void ezQtMaterialAssetDocumentWindow::OnOpenShaderClicked(bool)
 
   if (ezOSFile::ExistsFile(sAutoGenShader))
   {
-    ezQtUiServices::OpenFileInDefaultProgram(sAutoGenShader);
+    ezQtUiServices::OpenFileInDefaultProgram(sAutoGenShader).IgnoreResult();
   }
   else
   {
@@ -296,10 +305,10 @@ void ezQtMaterialAssetDocumentWindow::UpdatePreview()
 
   // Write Path
   ezStringBuilder sAbsFilePath = GetMaterialDocument()->GetDocumentPath();
-  sAbsFilePath.ChangeFileExtension("ezMaterialBin");
+  sAbsFilePath.ChangeFileExtension("ezBinMaterial");
   // Write Header
   memoryWriter << sAbsFilePath;
-  const ezUInt64 uiHash = ezAssetCurator::GetSingleton()->GetAssetDependencyHash(GetMaterialDocument()->GetGuid());
+  const ezUInt64 uiHash = ezAssetCurator::GetSingleton()->GetAssetTransformHash(GetMaterialDocument()->GetGuid());
   ezAssetFileHeader AssetHeader;
   AssetHeader.SetFileHashAndVersion(uiHash, GetMaterialDocument()->GetAssetTypeVersion());
   AssetHeader.Write(memoryWriter).IgnoreResult();
@@ -388,12 +397,12 @@ void ezQtMaterialAssetDocumentWindow::UpdateNodeEditorVisibility()
 {
   const bool bCustom = GetMaterialDocument()->GetPropertyObject()->GetTypeAccessor().GetValue("ShaderMode").ConvertTo<ezInt64>() == ezMaterialShaderMode::Custom;
 
-  m_pVsePanel->setVisible(bCustom);
+  m_pVsePanel->toggleView(bCustom);
 
   // when this is called during construction, it seems to be overridden again (probably by the dock widget code or the splitter)
   // by delaying it a bit, we have the last word
   QTimer::singleShot(100, this, [this, bCustom]()
-    { m_pVsePanel->setVisible(bCustom); });
+    { m_pVsePanel->toggleView(bCustom); });
 
   if (m_bVisualShaderEnabled != bCustom)
   {
@@ -439,7 +448,7 @@ void ezQtMaterialAssetDocumentWindow::VisualShaderEventHandler(const ezMaterialV
 
     ezStringBuilder err = e.m_sTransformError;
 
-    ezHybridArray<ezStringView, 16> lines;
+    ezTempHybridArray<ezStringView, 16> lines;
     err.Split(false, lines, "\n");
 
     for (const ezStringView& line : lines)

@@ -12,6 +12,7 @@ DestBlendAlpha0 = Blend_InvSrcAlpha
 ScissorTest = true
 DepthTest = false
 DepthWrite = false
+CullMode = CullMode_None
 
 [VERTEXSHADER]
 

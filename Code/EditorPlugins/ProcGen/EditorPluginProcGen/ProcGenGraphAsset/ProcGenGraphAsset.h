@@ -3,7 +3,20 @@
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenNodes.h>
 
-class ezPin;
+class ezVisualGraphPin;
+
+class ezProcGenGraphAssetProperties : public ezReflectedClass
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcGenGraphAssetProperties, ezReflectedClass);
+
+public:
+  ezString m_sDebugPrefab;
+  ezString m_sDebugColorGradient;
+  ezString m_sDebugSurface;
+  float m_fDebugFootprint = 1.0f;
+  float m_fDebugAlignToNormal = 1.0f;
+  ezEnum<ezProcPlacementPattern> m_DebugPlacementPattern = ezProcPlacementPattern::RegularGrid;
+};
 
 class ezProcGenGraphAssetDocument : public ezAssetDocument
 {
@@ -12,16 +25,18 @@ class ezProcGenGraphAssetDocument : public ezAssetDocument
 public:
   ezProcGenGraphAssetDocument(ezStringView sDocumentPath);
 
-  void SetDebugPin(const ezPin* pDebugPin);
+  void SetDebugPin(const ezVisualGraphPin* pDebugPin);
+  void UpdateDebugNode();
 
   ezStatus WriteAsset(ezStreamWriter& inout_stream, const ezPlatformProfile* pAssetProfile, bool bAllowDebug) const;
 
 protected:
+  virtual void InitializeAfterLoading(bool bFirstTimeCreation) override;
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
   virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,
     const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
 
-  virtual void GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_MimeTypes) const override;
+  virtual void GetSupportedMimeTypesForPasting(ezDynamicArray<ezString>& out_mimeTypes) const override;
   virtual bool CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_MimeType) const override;
   virtual bool Paste(
     const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, ezStringView sMimeType) override;
@@ -43,8 +58,6 @@ private:
 
   void DumpSelectedOutput(bool bAst, bool bDisassembly) const;
 
-  void CreateDebugNode();
-
-  const ezPin* m_pDebugPin = nullptr;
+  const ezVisualGraphPin* m_pDebugPin = nullptr;
   ezUniquePtr<ezProcGen_PlacementOutput> m_pDebugNode;
 };

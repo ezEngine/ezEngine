@@ -6,6 +6,7 @@
 #include <GuiFoundation/PropertyGrid/Implementation/PropertyEventHandler.h>
 #include <QWidget>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
+#include <ToolsFoundation/Object/VariantSubAccessor.h>
 #include <ToolsFoundation/Reflection/ReflectedType.h>
 
 class ezDocumentObject;
@@ -33,13 +34,17 @@ public:
   virtual ~ezQtPropertyWidget();
 
   void Init(ezQtPropertyGridWidget* pGrid, ezObjectAccessorBase* pObjectAccessor, const ezRTTI* pType, const ezAbstractProperty* pProp);
+
+  ezQtPropertyGridWidget* GetPropertyGrid() { return m_pGrid; }
+  ezObjectAccessorBase* GetObjectAccessor() { return m_pObjectAccessor; }
+  const ezRTTI* GetType() const { return m_pType; }
   const ezAbstractProperty* GetProperty() const { return m_pProp; }
 
   /// \brief This is called whenever the selection in the editor changes and thus the widget may need to display a different value.
   ///
   /// If the array holds more than one element, the user selected multiple objects. In this case, the code should check whether
   /// the values differ across the selected objects and if so, the widget should display "multiple values".
-  virtual void SetSelection(const ezHybridArray<ezPropertySelection, 8>& items);
+  virtual void SetSelection(const ezArrayPtr<ezPropertySelection>& items);
   const ezHybridArray<ezPropertySelection, 8>& GetSelection() const { return m_Items; }
 
   /// \brief If this returns true (default), a QLabel is created and the text that GetLabel() returns is displayed.
@@ -55,17 +60,16 @@ public:
 
   /// \brief If the property is of type ezVariant this function returns whether all items have the same type.
   /// If true is returned, out_Type contains the common type. Note that 'invalid' can be a common type.
-  bool GetCommonVariantSubType(
-    const ezHybridArray<ezPropertySelection, 8>& items, const ezAbstractProperty* pProperty, ezVariantType::Enum& out_type);
+  bool GetCommonVariantSubType(const ezArrayPtr<ezPropertySelection>& items, const ezAbstractProperty* pProperty, ezVariantType::Enum& out_type);
 
-  ezVariant GetCommonValue(const ezHybridArray<ezPropertySelection, 8>& items, const ezAbstractProperty* pProperty);
+  ezVariant GetCommonValue(const ezArrayPtr<ezPropertySelection>& items, const ezAbstractProperty* pProperty);
   void PrepareToDie();
 
   /// \brief By default disables the widget, but can be overridden to make a widget more interactable (for example to be able to copy text from it).
   virtual void SetReadOnly(bool bReadOnly = true);
 
 public:
-  static const ezRTTI* GetCommonBaseType(const ezHybridArray<ezPropertySelection, 8>& items);
+  static const ezRTTI* GetCommonBaseType(const ezArrayPtr<ezPropertySelection>& items);
   static QColor SetPaletteBackgroundColor(ezColorGammaUB inputColor, QPalette& ref_palette);
 
 public Q_SLOTS:
@@ -121,7 +125,7 @@ class EZ_GUIFOUNDATION_DLL ezQtStandardPropertyWidget : public ezQtPropertyWidge
 public:
   explicit ezQtStandardPropertyWidget();
 
-  virtual void SetSelection(const ezHybridArray<ezPropertySelection, 8>& items) override;
+  virtual void SetSelection(const ezArrayPtr<ezPropertySelection>& items) override;
 
 protected:
   void BroadcastValueChanged(const ezVariant& NewValue);
@@ -145,7 +149,7 @@ public:
   explicit ezQtEmbeddedClassPropertyWidget();
   ~ezQtEmbeddedClassPropertyWidget();
 
-  virtual void SetSelection(const ezHybridArray<ezPropertySelection, 8>& items) override;
+  virtual void SetSelection(const ezArrayPtr<ezPropertySelection>& items) override;
 
 protected:
   void SetPropertyValue(const ezAbstractProperty* pProperty, const ezVariant& NewValue);
@@ -179,7 +183,7 @@ public:
   explicit ezQtPropertyTypeWidget(bool bAddCollapsibleGroup = false);
   virtual ~ezQtPropertyTypeWidget();
 
-  virtual void SetSelection(const ezHybridArray<ezPropertySelection, 8>& items) override;
+  virtual void SetSelection(const ezArrayPtr<ezPropertySelection>& items) override;
   virtual bool HasLabel() const override { return false; }
   virtual void SetIsDefault(bool bIsDefault) override;
 
@@ -203,7 +207,7 @@ public:
   explicit ezQtPropertyPointerWidget();
   virtual ~ezQtPropertyPointerWidget();
 
-  virtual void SetSelection(const ezHybridArray<ezPropertySelection, 8>& items) override;
+  virtual void SetSelection(const ezArrayPtr<ezPropertySelection>& items) override;
   virtual bool HasLabel() const override { return false; }
 
 
@@ -235,7 +239,7 @@ public:
   ezQtPropertyContainerWidget();
   virtual ~ezQtPropertyContainerWidget();
 
-  virtual void SetSelection(const ezHybridArray<ezPropertySelection, 8>& items) override;
+  virtual void SetSelection(const ezArrayPtr<ezPropertySelection>& items) override;
   virtual bool HasLabel() const override { return false; }
   virtual void SetIsDefault(bool bIsDefault) override;
 
@@ -268,8 +272,10 @@ protected:
   virtual void RemoveElement(ezUInt32 index);
   virtual void UpdateElement(ezUInt32 index) = 0;
   void UpdateElements();
-  virtual ezUInt32 GetRequiredElementCount() const;
+  virtual void GetRequiredElements(ezDynamicArray<ezVariant>& out_keys) const;
   virtual void UpdatePropertyMetaState();
+  /// \brief Some containers like ezVariant can be both a map or an array so we can't reply on the property type alone. For these containers, this method can be overwritten to retrieve the category from something other than `m_pProp->GetCategory()`.
+  virtual ezPropertyCategory::Enum GetContainerCategory() const;
 
   void Clear();
   virtual void OnInit() override;
@@ -294,7 +300,7 @@ protected:
   ezQtAddSubElementButton* m_pAddButton = nullptr;
   QPalette m_Pal;
 
-  mutable ezHybridArray<ezVariant, 16> m_Keys;
+  ezHybridArray<ezVariant, 16> m_Keys;
   ezDynamicArray<Element> m_Elements;
   ezInt32 m_iDropSource = -1;
   ezInt32 m_iDropTarget = -1;
@@ -350,6 +356,7 @@ protected:
   virtual void DoPrepareToDie() override;
   void UpdateTypeListSelection(ezVariantType::Enum type);
   void ChangeVariantType(ezVariantType::Enum type);
+  void EnableTypeSelection(bool bEnable);
 
   virtual ezResult GetVariantTypeDisplayName(ezVariantType::Enum type, ezStringBuilder& out_sName) const;
 
@@ -358,4 +365,23 @@ protected:
   QComboBox* m_pTypeList = nullptr;
   ezQtPropertyWidget* m_pWidget = nullptr;
   const ezRTTI* m_pCurrentSubType = nullptr;
+};
+
+// Used for sub-containers of an ezVariant, e.g. an ezVariantArray or ezVariantDictionary stored inside an ezVariant. ezVariantSubAccessor is used to create a view into a sub-tree container of the ezVariant.
+class EZ_GUIFOUNDATION_DLL ezQtVariantContainerWidget : public ezQtPropertyStandardTypeContainerWidget
+{
+  Q_OBJECT;
+
+public:
+  ezQtVariantContainerWidget(ezVariantType::Enum variantType);
+  virtual ~ezQtVariantContainerWidget() = default;
+
+protected:
+  virtual void OnInit() override;
+  virtual void SetSelection(const ezArrayPtr<ezPropertySelection>& items) override;
+  virtual ezPropertyCategory::Enum GetContainerCategory() const override;
+
+private:
+  ezUniquePtr<ezVariantSubAccessor> m_pVariantSubAccessor;
+  ezEnum<ezPropertyCategory> m_ContainerCategory;
 };

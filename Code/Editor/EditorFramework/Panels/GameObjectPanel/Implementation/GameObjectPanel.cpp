@@ -9,31 +9,37 @@
 
 ezQtGameObjectWidget::ezQtGameObjectWidget(QWidget* pParent, ezGameObjectDocument* pDocument, const char* szContextMenuMapping, std::unique_ptr<ezQtDocumentTreeModel> pCustomModel, ezSelectionManager* pSelection)
 {
+  setObjectName("ezQtGameObjectWidget");
+
   m_pDocument = pDocument;
   m_sContextMenuMapping = szContextMenuMapping;
+  m_pDelegate = new ezQtGameObjectDelegate(this, pDocument);
 
   setLayout(new QVBoxLayout());
   setContentsMargins(0, 0, 0, 0);
+  layout()->setObjectName("QVBoxLayout1");
   layout()->setContentsMargins(0, 0, 0, 0);
 
   m_pFilterWidget = new ezQtSearchWidget(this);
+  m_pFilterWidget->setObjectName("ezQtSearchWidget");
+  m_pFilterWidget->setPlaceholderText("Search by name or component type");
   connect(m_pFilterWidget, &ezQtSearchWidget::textChanged, this, &ezQtGameObjectWidget::OnFilterTextChanged);
 
   layout()->addWidget(m_pFilterWidget);
 
   m_pTreeWidget = new ezQtDocumentTreeView(this, pDocument, std::move(pCustomModel), pSelection);
+  m_pTreeWidget->setObjectName("ezQtDocumentTreeView");
   m_pTreeWidget->SetAllowDragDrop(true);
   m_pTreeWidget->SetAllowDeleteObjects(true);
   layout()->addWidget(m_pTreeWidget);
+  m_pTreeWidget->setItemDelegate(m_pDelegate);
 
   m_pDocument->m_GameObjectEvents.AddEventHandler(ezMakeDelegate(&ezQtGameObjectWidget::DocumentSceneEventHandler, this));
 
   m_pTreeWidget->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
 
-  EZ_VERIFY(connect(m_pTreeWidget, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(OnItemDoubleClicked(const QModelIndex&))) != nullptr,
-    "signal/slot connection failed");
-  EZ_VERIFY(connect(m_pTreeWidget, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(OnRequestContextMenu(QPoint))) != nullptr,
-    "signal/slot connection failed");
+  EZ_VERIFY(connect(m_pTreeWidget, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(OnItemDoubleClicked(const QModelIndex&))) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(m_pTreeWidget, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(OnRequestContextMenu(QPoint))) != nullptr, "signal/slot connection failed");
 }
 
 ezQtGameObjectWidget::~ezQtGameObjectWidget()
@@ -83,12 +89,11 @@ void ezQtGameObjectWidget::OnFilterTextChanged(const QString& text)
 
 //////////////////////////////////////////////////////////////////////////
 
-ezQtGameObjectPanel::ezQtGameObjectPanel(
-  QWidget* pParent, ezGameObjectDocument* pDocument, const char* szContextMenuMapping, std::unique_ptr<ezQtDocumentTreeModel> pCustomModel)
-  : ezQtDocumentPanel(pParent, pDocument)
+ezQtGameObjectPanel::ezQtGameObjectPanel(ads::CDockManager* pDockManager, QWidget* pParent, ezGameObjectDocument* pDocument, const char* szContextMenuMapping, std::unique_ptr<ezQtDocumentTreeModel> pCustomModel)
+  : ezQtDocumentPanel(pDockManager, pParent, pDocument)
 {
   setObjectName("ScenegraphPanel");
-  setWindowTitle("Scenegraph");
+  setWindowTitle("ezQtGameObjectPanel");
 
   m_pMainWidget = new ezQtGameObjectWidget(this, pDocument, szContextMenuMapping, std::move(pCustomModel));
   setWidget(m_pMainWidget);

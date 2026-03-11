@@ -31,8 +31,8 @@ public:
 
 ezQtCVarsWidget* ezQtCVarsWidget::s_pWidget = nullptr;
 
-ezQtCVarsWidget::ezQtCVarsWidget(QWidget* pParent)
-  : ads::CDockWidget("CVars", pParent)
+ezQtCVarsWidget::ezQtCVarsWidget(ads::CDockManager* pDockManager, QWidget* pParent)
+  : ads::CDockWidget(pDockManager, "CVars", pParent)
 {
   s_pWidget = this;
 

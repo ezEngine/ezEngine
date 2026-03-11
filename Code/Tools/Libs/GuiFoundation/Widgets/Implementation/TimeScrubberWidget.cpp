@@ -73,7 +73,7 @@ void ezQtTimeScrubberWidget::paintEvent(QPaintEvent* event)
   double fFineGridDensity = 0.01;
   double fRoughGridDensity = 0.01;
   ezWidgetUtils::AdjustGridDensity(fFineGridDensity, fRoughGridDensity, rect().width(), fMaxDuration, 20);
-  ezHybridArray<QLine, 100> lines;
+  ezTempHybridArray<QLine, 100> lines;
 
   // fine lines
   {

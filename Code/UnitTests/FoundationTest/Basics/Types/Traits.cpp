@@ -51,10 +51,10 @@ namespace
     EZ_DETECT_TYPE_CLASS(int, float, AggregatePod, MemRelocateable, ClassType);
   };
 
-  EZ_CHECK_AT_COMPILETIME(ezGetTypeClass<AggregatePod>::value == ezTypeIsPod::value);
-  EZ_CHECK_AT_COMPILETIME(ezGetTypeClass<AggregatePod2>::value == ezTypeIsPod::value);
-  EZ_CHECK_AT_COMPILETIME(ezGetTypeClass<MemRelocateable>::value == ezTypeIsMemRelocatable::value);
-  EZ_CHECK_AT_COMPILETIME(ezGetTypeClass<AggregateMemRelocateable>::value == ezTypeIsMemRelocatable::value);
-  EZ_CHECK_AT_COMPILETIME(ezGetTypeClass<ClassType>::value == ezTypeIsClass::value);
-  EZ_CHECK_AT_COMPILETIME(ezGetTypeClass<AggregateClass>::value == ezTypeIsClass::value);
+  static_assert(ezGetTypeClass<AggregatePod>::value == ezTypeIsPod::value);
+  static_assert(ezGetTypeClass<AggregatePod2>::value == ezTypeIsPod::value);
+  static_assert(ezGetTypeClass<MemRelocateable>::value == ezTypeIsMemRelocatable::value);
+  static_assert(ezGetTypeClass<AggregateMemRelocateable>::value == ezTypeIsMemRelocatable::value);
+  static_assert(ezGetTypeClass<ClassType>::value == ezTypeIsClass::value);
+  static_assert(ezGetTypeClass<AggregateClass>::value == ezTypeIsClass::value);
 } // namespace

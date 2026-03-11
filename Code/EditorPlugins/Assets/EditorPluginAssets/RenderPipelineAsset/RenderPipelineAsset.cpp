@@ -2,7 +2,7 @@
 
 #include <EditorPluginAssets/RenderPipelineAsset/RenderPipelineAsset.h>
 #include <Foundation/Serialization/BinarySerializer.h>
-#include <GuiFoundation/NodeEditor/NodeScene.moc.h>
+#include <GuiFoundation/VisualGraph/Scene.moc.h>
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
@@ -23,7 +23,7 @@ void ezRenderPipelineNodeManager::InternalCreatePins(const ezDocumentObject* pOb
   if (!pType->IsDerivedFrom<ezRenderPipelinePass>())
     return;
 
-  ezHybridArray<const ezAbstractProperty*, 32> properties;
+  ezTempHybridArray<const ezAbstractProperty*, 32> properties;
   pType->GetAllProperties(properties);
 
   for (auto pProp : properties)
@@ -50,40 +50,38 @@ void ezRenderPipelineNodeManager::InternalCreatePins(const ezDocumentObject* pOb
 
     if (pProp->GetSpecificType()->IsDerivedFrom<ezRenderPipelineNodeInputPin>())
     {
-      auto pPin = EZ_DEFAULT_NEW(ezPin, ezPin::Type::Input, pProp->GetPropertyName(), pinColor, pObject);
+      auto pPin = EZ_DEFAULT_NEW(ezVisualGraphPin, ezVisualGraphPin::Type::Input, pProp->GetPropertyName(), pinColor, pObject);
       ref_node.m_Inputs.PushBack(pPin);
     }
     else if (pProp->GetSpecificType()->IsDerivedFrom<ezRenderPipelineNodeOutputPin>())
     {
-      auto pPin = EZ_DEFAULT_NEW(ezPin, ezPin::Type::Output, pProp->GetPropertyName(), pinColor, pObject);
+      auto pPin = EZ_DEFAULT_NEW(ezVisualGraphPin, ezVisualGraphPin::Type::Output, pProp->GetPropertyName(), pinColor, pObject);
       ref_node.m_Outputs.PushBack(pPin);
     }
-    else if (pProp->GetSpecificType()->IsDerivedFrom<ezRenderPipelineNodePassThrougPin>())
+    else if (pProp->GetSpecificType()->IsDerivedFrom<ezRenderPipelineNodePassThroughPin>())
     {
-      auto pPinIn = EZ_DEFAULT_NEW(ezPin, ezPin::Type::Input, pProp->GetPropertyName(), pinColor, pObject);
+      auto pPinIn = EZ_DEFAULT_NEW(ezVisualGraphPin, ezVisualGraphPin::Type::Input, pProp->GetPropertyName(), pinColor, pObject);
       ref_node.m_Inputs.PushBack(pPinIn);
-      auto pPinOut = EZ_DEFAULT_NEW(ezPin, ezPin::Type::Output, pProp->GetPropertyName(), pinColor, pObject);
+      auto pPinOut = EZ_DEFAULT_NEW(ezVisualGraphPin, ezVisualGraphPin::Type::Output, pProp->GetPropertyName(), pinColor, pObject);
       ref_node.m_Outputs.PushBack(pPinOut);
     }
   }
 }
 
-void ezRenderPipelineNodeManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& ref_types) const
+void ezRenderPipelineNodeManager::GetCreateableTypes(ezDynamicArray<const ezRTTI*>& out_types) const
 {
-  ezSet<const ezRTTI*> typeSet;
-  ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezRenderPipelinePass>(), typeSet);
-  ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezExtractor>(), typeSet);
-  ref_types.Clear();
-  for (auto pType : typeSet)
-  {
-    if (pType->GetTypeFlags().IsAnySet(ezTypeFlags::Abstract))
-      continue;
+  ezRTTI::ForEachDerivedType<ezRenderPipelinePass>(
+    [&](const ezRTTI* pRtti)
+    { out_types.PushBack(pRtti); },
+    ezRTTI::ForEachOptions::ExcludeAbstract);
 
-    ref_types.PushBack(pType);
-  }
+  ezRTTI::ForEachDerivedType<ezExtractor>(
+    [&](const ezRTTI* pRtti)
+    { out_types.PushBack(pRtti); },
+    ezRTTI::ForEachOptions::ExcludeAbstract);
 }
 
-ezStatus ezRenderPipelineNodeManager::InternalCanConnect(const ezPin& source, const ezPin& target, CanConnectResult& out_result) const
+ezStatus ezRenderPipelineNodeManager::InternalCanConnect(const ezVisualGraphPin& source, const ezVisualGraphPin& target, CanConnectResult& out_result) const
 {
   out_result = CanConnectResult::ConnectNto1;
   return ezStatus(EZ_SUCCESS);
@@ -112,41 +110,41 @@ ezTransformStatus ezRenderPipelineAssetDocument::InternalTransformAsset(ezStream
 
 void ezRenderPipelineAssetDocument::InternalGetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const
 {
-  const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
+  const ezVisualGraphObjectManager* pManager = static_cast<const ezVisualGraphObjectManager*>(GetObjectManager());
   pManager->GetMetaDataHash(pObject, inout_uiHash);
 }
 
 void ezRenderPipelineAssetDocument::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const
 {
   SUPER::AttachMetaDataBeforeSaving(graph);
-  const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
+  const ezVisualGraphObjectManager* pManager = static_cast<const ezVisualGraphObjectManager*>(GetObjectManager());
   pManager->AttachMetaDataBeforeSaving(graph);
 }
 
 void ezRenderPipelineAssetDocument::RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph, bool bUndoable)
 {
   SUPER::RestoreMetaDataAfterLoading(graph, bUndoable);
-  ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());
+  ezVisualGraphObjectManager* pManager = static_cast<ezVisualGraphObjectManager*>(GetObjectManager());
   pManager->RestoreMetaDataAfterLoading(graph, bUndoable);
 }
 
 
 
-void ezRenderPipelineAssetDocument::GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_MimeTypes) const
+void ezRenderPipelineAssetDocument::GetSupportedMimeTypesForPasting(ezDynamicArray<ezString>& out_mimeTypes) const
 {
-  out_MimeTypes.PushBack("application/ezEditor.RenderPipelineGraph");
+  out_mimeTypes.PushBack("application/ezEditor.RenderPipelineGraph");
 }
 
 bool ezRenderPipelineAssetDocument::CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_MimeType) const
 {
   out_MimeType = "application/ezEditor.RenderPipelineGraph";
 
-  const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
+  const ezVisualGraphObjectManager* pManager = static_cast<const ezVisualGraphObjectManager*>(GetObjectManager());
   return pManager->CopySelectedObjects(out_objectGraph);
 }
 
 bool ezRenderPipelineAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, ezStringView sMimeType)
 {
-  ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());
-  return pManager->PasteObjects(info, objectGraph, ezQtNodeScene::GetLastMouseInteractionPos(), bAllowPickedPosition);
+  ezVisualGraphObjectManager* pManager = static_cast<ezVisualGraphObjectManager*>(GetObjectManager());
+  return pManager->PasteObjects(info, objectGraph, ezQtVisualGraphScene::GetLastMouseInteractionPos(), bAllowPickedPosition);
 }

@@ -62,4 +62,30 @@ void ezTaskSystem::SetTargetFrameTime(ezTime targetFrameTime)
   s_pState->m_TargetFrameTime = targetFrameTime;
 }
 
+void ezTaskSystem::BroadcastClearThreadLocalsEvent()
+{
+  for (ezUInt32 i = 0; i < ezWorkerThreadType::ENUM_COUNT; ++i)
+  {
+    for (ezTaskWorkerThread* pWorker : s_pThreadState->m_Workers[i])
+    {
+      if (pWorker)
+      {
+        pWorker->BroadcastClearThreadLocalsEvent();
+      }
+    }
+  }
+
+  // make sure they have all sent the event
+  for (ezUInt32 i = 0; i < ezWorkerThreadType::ENUM_COUNT; ++i)
+  {
+    for (ezTaskWorkerThread* pWorker : s_pThreadState->m_Workers[i])
+    {
+      if (pWorker)
+      {
+        pWorker->WaitForBroadcastClearTLS();
+      }
+    }
+  }
+}
+
 EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_TaskSystem);

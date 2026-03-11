@@ -1,0 +1,56 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[RENDERSTATE]
+
+DepthTest = false
+CullMode = CullMode_None
+
+[VERTEXSHADER]
+
+#include <Shaders/Common/ConstantBufferMacros.h>
+
+struct VS_IN
+{
+  float3 Position : POSITION;
+  float4 InstanceColor : COLOR4;
+  float4 InstanceR0 : COLOR5;
+  float4 InstanceR1 : COLOR6;
+  float4 InstanceR2 : COLOR7;
+};
+
+struct VS_OUT
+{
+  float4 Position : SV_Position;
+  float4 Color : COLOR0;
+};
+
+VS_OUT main(VS_IN Input, uint InstanceID : SV_InstanceID)
+{
+  Transform instanceTransform;
+  instanceTransform.r0 = Input.InstanceR0;
+  instanceTransform.r1 = Input.InstanceR1;
+  instanceTransform.r2 = Input.InstanceR2;
+
+  float4x4 transformMatrix = TransformToMatrix(instanceTransform);
+  VS_OUT RetVal;
+  RetVal.Position = mul(transformMatrix, float4(Input.Position, 1.0f));
+  RetVal.Color = Input.InstanceColor;
+  return RetVal;
+}
+
+[PIXELSHADER]
+
+struct VS_OUT
+{
+  float4 Position : SV_Position;
+  float4 Color : COLOR0;
+};
+
+float4 main(VS_OUT a) : SV_Target
+{
+  return a.Color;
+}
+

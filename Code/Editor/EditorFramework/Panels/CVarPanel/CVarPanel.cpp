@@ -29,8 +29,8 @@ public:
   }
 };
 
-ezQtCVarPanel::ezQtCVarPanel()
-  : ezQtApplicationPanel("Panel.CVar")
+ezQtCVarPanel::ezQtCVarPanel(ads::CDockManager* pDockManager)
+  : ezQtApplicationPanel(pDockManager, "Panel.CVar")
   , m_SingletonRegistrar(this)
 {
   setIcon(ezQtUiServices::GetCachedIconResource(":/GuiFoundation/Icons/CVar.svg"));

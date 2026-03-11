@@ -22,6 +22,7 @@ ezGameEngineTestApplication* ezGameEngineTestSubstance::CreateApplication()
 // static
 bool ezGameEngineTestSubstance::HasSubstanceDesignerInstalled()
 {
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   static std::optional<bool> s_Cache;
   if (s_Cache.has_value())
   {
@@ -48,6 +49,9 @@ bool ezGameEngineTestSubstance::HasSubstanceDesignerInstalled()
 
   s_Cache = false;
   return false;
+#else
+  return false;
+#endif
 }
 
 void ezGameEngineTestSubstance::SetupSubTests()
@@ -73,7 +77,7 @@ ezResult ezGameEngineTestSubstance::InitializeSubTest(ezInt32 iIdentifier)
   {
     m_ImgCompFrames.PushBack(9);
 
-    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("Substance/AssetCache/Common/Scenes/Substance.ezObjectGraph"));
+    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("Substance/AssetCache/Common/Scenes/Substance.ezBinScene"));
     return EZ_SUCCESS;
   }
 
@@ -90,7 +94,8 @@ ezTestAppRun ezGameEngineTestSubstance::RunSubTest(ezInt32 iIdentifier, ezUInt32
   const bool bVulkan = ezGameApplication::GetActiveRenderer().IsEqual_NoCase("Vulkan");
   ++m_iFrame;
 
-  if (m_pOwnApplication->Run() == ezApplication::Execution::Quit)
+  m_pOwnApplication->Run();
+  if (m_pOwnApplication->ShouldApplicationQuit())
     return ezTestAppRun::Quit;
 
   if (m_ImgCompFrames[m_uiImgCompIdx] == m_iFrame)

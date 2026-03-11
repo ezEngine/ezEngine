@@ -1,8 +1,6 @@
 #include <EditorEngineProcessFramework/EditorEngineProcessFrameworkPCH.h>
 
-#include <Core/ActorSystem/Actor.h>
-#include <Core/ActorSystem/ActorManager.h>
-#include <Core/ActorSystem/ActorPluginWindow.h>
+#include <Core/System/WindowManager.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <GameEngine/GameApplication/WindowOutputTarget.h>
 #include <RendererCore/Pipeline/View.h>
@@ -33,33 +31,21 @@ void ezEditorEngineProcessApp::CreateRemoteWindow()
 {
   EZ_ASSERT_DEV(IsRemoteMode(), "Incorrect app mode");
 
-  if (m_pActor != nullptr)
+  if (!m_hWindow.IsInvalidated())
     return;
 
-  ezUniquePtr<ezActor> pActor = EZ_DEFAULT_NEW(ezActor, "Engine View", this);
-  m_pActor = pActor.Borrow();
+  ezUniquePtr<ezWindow> pWindow = EZ_DEFAULT_NEW(ezWindow);
 
-  // create window
-  {
-    ezUniquePtr<ezRemoteProcessWindow> pWindow = EZ_DEFAULT_NEW(ezRemoteProcessWindow);
+  ezWindowCreationDesc desc;
+  desc.m_bClipMouseCursor = false;
+  desc.m_bShowMouseCursor = true;
+  desc.m_Resolution = ezSizeU32(1024, 768);
+  desc.m_WindowMode = ezWindowMode::WindowFixedResolution;
+  desc.m_Title = "Engine View";
 
-    ezWindowCreationDesc desc;
-    desc.m_uiWindowNumber = 0;
-    desc.m_bClipMouseCursor = false;
-    desc.m_bShowMouseCursor = true;
-    desc.m_Resolution = ezSizeU32(1024, 768);
-    desc.m_WindowMode = ezWindowMode::WindowFixedResolution;
-    desc.m_Title = "Engine View";
+  pWindow->Initialize(desc).IgnoreResult();
 
-    pWindow->Initialize(desc).IgnoreResult();
-
-    ezUniquePtr<ezActorPluginWindowOwner> pWindowPlugin = EZ_DEFAULT_NEW(ezActorPluginWindowOwner);
-    pWindowPlugin->m_pWindow = std::move(pWindow);
-
-    m_pActor->AddPlugin(std::move(pWindowPlugin));
-  }
-
-  ezActorManager::GetSingleton()->AddActor(std::move(pActor));
+  m_hWindow = ezWindowManager::GetSingleton()->Register("Engine View", this, std::move(pWindow));
 }
 
 void ezEditorEngineProcessApp::DestroyRemoteWindow()
@@ -70,12 +56,12 @@ void ezEditorEngineProcessApp::DestroyRemoteWindow()
     m_hRemoteView.Invalidate();
   }
 
-  if (ezActorManager::GetSingleton())
+  if (ezWindowManager::GetSingleton())
   {
-    ezActorManager::GetSingleton()->DestroyAllActors(this);
+    ezWindowManager::GetSingleton()->CloseAll(this);
   }
 
-  m_pActor = nullptr;
+  m_hWindow.Invalidate();
 }
 
 ezRenderPipelineResourceHandle ezEditorEngineProcessApp::CreateDefaultMainRenderPipeline()
@@ -98,26 +84,25 @@ ezViewHandle ezEditorEngineProcessApp::CreateRemoteWindowAndView(ezCamera* pCame
 
   if (m_hRemoteView.IsInvalidated())
   {
-    ezActorPluginWindowOwner* pWindowPlugin = m_pActor->GetPlugin<ezActorPluginWindowOwner>();
+    auto pWinMan = ezWindowManager::GetSingleton();
 
     // create output target
     {
       ezUniquePtr<ezWindowOutputTargetGAL> pOutput = EZ_DEFAULT_NEW(ezWindowOutputTargetGAL);
 
       ezGALWindowSwapChainCreationDescription desc;
-      desc.m_pWindow = pWindowPlugin->m_pWindow.Borrow();
+      desc.m_pWindow = pWinMan->GetWindow(m_hWindow);
       desc.m_BackBufferFormat = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
-      desc.m_bAllowScreenshots = true;
 
       pOutput->CreateSwapchain(desc);
 
-      pWindowPlugin->m_pWindowOutputTarget = std::move(pOutput);
+      pWinMan->SetOutputTarget(m_hWindow, std::move(pOutput));
     }
 
     // get swapchain
     ezGALSwapChainHandle hSwapChain;
     {
-      ezWindowOutputTargetGAL* pOutputTarget = static_cast<ezWindowOutputTargetGAL*>(pWindowPlugin->m_pWindowOutputTarget.Borrow());
+      ezWindowOutputTargetGAL* pOutputTarget = static_cast<ezWindowOutputTargetGAL*>(pWinMan->GetOutputTarget(m_hWindow));
       hSwapChain = pOutputTarget->m_hSwapChain;
     }
 
@@ -129,7 +114,7 @@ ezViewHandle ezEditorEngineProcessApp::CreateRemoteWindowAndView(ezCamera* pCame
       // EditorRenderPipeline.ezRenderPipelineAsset
       pView->SetRenderPipelineResource(ezResourceManager::LoadResource<ezRenderPipelineResource>("{ da463c4d-c984-4910-b0b7-a0b3891d0448 }"));
 
-      const ezSizeU32 wndSize = pWindowPlugin->m_pWindow->GetClientAreaSize();
+      const ezSizeU32 wndSize = pWinMan->GetWindow(m_hWindow)->GetClientAreaSize();
 
       pView->SetSwapChain(hSwapChain);
       pView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)wndSize.width, (float)wndSize.height));

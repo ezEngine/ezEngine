@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Console/CommandInterpreter.h>
 #include <Core/Console/ConsoleFunction.h>
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Configuration/CVar.h>
@@ -10,55 +11,6 @@
 #include <Foundation/Threading/Mutex.h>
 #include <Foundation/Types/RefCounted.h>
 #include <Foundation/Types/SharedPtr.h>
-
-struct EZ_CORE_DLL ezConsoleString
-{
-  enum class Type : ezUInt8
-  {
-    Default,
-    Error,
-    SeriousWarning,
-    Warning,
-    Note,
-    Success,
-    Executed,
-    VarName,
-    FuncName,
-    Dev,
-    Debug,
-  };
-
-  Type m_Type = Type::Default;
-  ezString m_sText;
-  ezColor GetColor() const;
-
-  bool operator<(const ezConsoleString& rhs) const { return m_sText < rhs.m_sText; }
-};
-
-struct EZ_CORE_DLL ezCommandInterpreterState
-{
-  ezStringBuilder m_sInput;
-  ezHybridArray<ezConsoleString, 16> m_sOutput;
-
-  void AddOutputLine(const ezFormatString& text, ezConsoleString::Type type = ezConsoleString::Type::Default);
-};
-
-class EZ_CORE_DLL ezCommandInterpreter : public ezRefCounted
-{
-public:
-  virtual void Interpret(ezCommandInterpreterState& inout_state) = 0;
-
-  virtual void AutoComplete(ezCommandInterpreterState& inout_state);
-
-  /// \brief Iterates over all cvars and finds all that start with the string \a szVariable.
-  static void FindPossibleCVars(ezStringView sVariable, ezDeque<ezString>& ref_commonStrings, ezDeque<ezConsoleString>& ref_consoleStrings);
-
-  /// \brief Iterates over all console functions and finds all that start with the string \a szVariable.
-  static void FindPossibleFunctions(ezStringView sVariable, ezDeque<ezString>& ref_commonStrings, ezDeque<ezConsoleString>& ref_consoleStrings);
-
-  /// \brief Returns the prefix string that is common to all strings in the \a vStrings array.
-  static const ezString FindCommonString(const ezDeque<ezString>& strings);
-};
 
 /// \brief The event data that is broadcast by the console
 struct ezConsoleEvent
@@ -74,6 +26,14 @@ struct ezConsoleEvent
   const ezConsoleString* m_AddedpConsoleString;
 };
 
+/// \brief Base console system for command input, output display, and history management.
+///
+/// Provides infrastructure for command execution through pluggable interpreters,
+/// maintains input history, and broadcasts events when output is added.
+/// Thread-safe through internal mutex protection.
+///
+/// This base class handles core functionality but doesn't store output strings.
+/// Derived classes typically provide persistent storage and visual representation.
 class EZ_CORE_DLL ezConsole
 {
 public:
@@ -148,12 +108,18 @@ public:
   /// The base class only broadcasts an event, but does not store the string anywhere.
   virtual void AddConsoleString(ezStringView sText, ezConsoleString::Type type = ezConsoleString::Type::Default);
 
+  /// \brief Display the console state.
+  virtual void RenderConsole(bool bIsOpen) { EZ_IGNORE_UNUSED(bIsOpen); }
+
   /// @}
 
-  /// \name Input History
+  /// \name Input
   /// @{
 
 public:
+  /// \brief Update the console with the latest input.
+  virtual void HandleInput(bool bIsOpen) { EZ_IGNORE_UNUSED(bIsOpen); }
+
   /// \brief Adds an item to the input history.
   void AddToInputHistory(ezStringView sText);
 

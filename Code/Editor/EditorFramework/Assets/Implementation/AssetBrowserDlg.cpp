@@ -12,6 +12,25 @@ ezMap<ezString, ezString> ezQtAssetBrowserDlg::s_TextFilter;
 ezMap<ezString, ezString> ezQtAssetBrowserDlg::s_PathFilter;
 ezMap<ezString, ezString> ezQtAssetBrowserDlg::s_TypeFilter;
 
+void ClampWindowGeometryToScreens(QRect& ref_windowGeometry)
+{
+  const QList<QScreen*> screens = QGuiApplication::screens();
+
+  for (QScreen* screen : screens)
+  {
+    const QRect screenGeom = screen->availableGeometry();
+    if (screenGeom.intersects(ref_windowGeometry))
+      return;
+  }
+
+  const QRect primaryGeom = QGuiApplication::primaryScreen()->availableGeometry();
+
+  const QSize size = ref_windowGeometry.size();
+  ref_windowGeometry.setLeft(ezMath::Clamp(ref_windowGeometry.left(), primaryGeom.left(), primaryGeom.right() - ref_windowGeometry.width()));
+  ref_windowGeometry.setTop(ezMath::Clamp(ref_windowGeometry.top(), primaryGeom.top(), primaryGeom.bottom() - ref_windowGeometry.height()));
+  ref_windowGeometry.setSize(size);
+}
+
 void ezQtAssetBrowserDlg::Init(QWidget* pParent)
 {
   setupUi(this);
@@ -22,8 +41,14 @@ void ezQtAssetBrowserDlg::Init(QWidget* pParent)
   Settings.beginGroup(QLatin1String("AssetBrowserDlg"));
   {
     restoreGeometry(Settings.value("WindowGeometry", saveGeometry()).toByteArray());
-    move(Settings.value("WindowPosition", pos()).toPoint());
-    resize(Settings.value("WindowSize", size()).toSize());
+
+    QRect windowGeometry;
+    windowGeometry.setTopLeft(Settings.value("WindowPosition", pos()).toPoint());
+    windowGeometry.setSize(Settings.value("WindowSize", size()).toSize());
+    ClampWindowGeometryToScreens(windowGeometry);
+
+    move(windowGeometry.topLeft());
+    resize(windowGeometry.size());
   }
   Settings.endGroup();
 
@@ -47,7 +72,7 @@ ezQtAssetBrowserDlg::ezQtAssetBrowserDlg(QWidget* pParent, const ezUuid& presele
 {
   {
     ezStringBuilder temp = sVisibleFilters;
-    ezHybridArray<ezStringView, 4> compTypes;
+    ezTempHybridArray<ezStringView, 4> compTypes;
     temp.Split(false, compTypes, ";");
     ezStringBuilder allFiltered = sVisibleFilters;
 

@@ -15,8 +15,8 @@ class ezQtScenegraphPanel : public ezQtDocumentPanel
   Q_OBJECT
 
 public:
-  ezQtScenegraphPanel(QWidget* pParent, ezSceneDocument* pDocument);
-  ezQtScenegraphPanel(QWidget* pParent, ezScene2Document* pDocument);
+  ezQtScenegraphPanel(ads::CDockManager* pDockManager, QWidget* pParent, ezSceneDocument* pDocument);
+  ezQtScenegraphPanel(ads::CDockManager* pDockManager, QWidget* pParent, ezScene2Document* pDocument);
   ~ezQtScenegraphPanel();
 
 private:

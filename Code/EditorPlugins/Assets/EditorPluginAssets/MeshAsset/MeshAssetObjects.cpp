@@ -5,22 +5,24 @@
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetProperties, 3, ezRTTIDefaultAllocator<ezMeshAssetProperties>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetProperties, 5, ezRTTIDefaultAllocator<ezMeshAssetProperties>)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ENUM_MEMBER_PROPERTY("PrimitiveType", ezMeshPrimitive, m_PrimitiveType),
     EZ_MEMBER_PROPERTY("MeshFile", m_sMeshFile)->AddAttributes(new ezFileBrowserAttribute("Select Mesh", ezFileBrowserAttribute::Meshes)),
-    EZ_ENUM_MEMBER_PROPERTY("RightDir", ezBasisAxis, m_RightDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveX)),
+    EZ_MEMBER_PROPERTY("MeshIncludeTags", m_sMeshIncludeTags),
+    EZ_MEMBER_PROPERTY("MeshExcludeTags", m_sMeshExcludeTags)->AddAttributes(new ezDefaultValueAttribute("$;UCX_")),
+    EZ_ENUM_MEMBER_PROPERTY("ImportTransform", ezMeshImportTransform, m_ImportTransform),
+    EZ_ENUM_MEMBER_PROPERTY("RightDir", ezBasisAxis, m_RightDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::NegativeX)),
     EZ_ENUM_MEMBER_PROPERTY("UpDir", ezBasisAxis, m_UpDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveY)),
     EZ_MEMBER_PROPERTY("FlipForwardDir", m_bFlipForwardDir),
     EZ_MEMBER_PROPERTY("UniformScaling", m_fUniformScaling)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0001f, 10000.0f)),
     EZ_MEMBER_PROPERTY("RecalculateNormals", m_bRecalculateNormals),
-    EZ_MEMBER_PROPERTY("RecalculateTangents", m_bRecalculateTrangents)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_ENUM_MEMBER_PROPERTY("NormalPrecision", ezMeshNormalPrecision, m_NormalPrecision),
-    EZ_ENUM_MEMBER_PROPERTY("TexCoordPrecision", ezMeshTexCoordPrecision, m_TexCoordPrecision),
+    EZ_MEMBER_PROPERTY("RecalculateTangents", m_bRecalculateTangents)->AddAttributes(new ezDefaultValueAttribute(true)),
+    EZ_MEMBER_PROPERTY("HighPrecision", m_bHighPrecision),
     EZ_ENUM_MEMBER_PROPERTY("VertexColorConversion", ezMeshVertexColorConversion, m_VertexColorConversion),
-    EZ_MEMBER_PROPERTY("ImportMaterials", m_bImportMaterials)->AddAttributes(new ezDefaultValueAttribute(true)),
+    EZ_MEMBER_PROPERTY("ImportMaterials", m_bImportMaterials),
     EZ_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_MEMBER_PROPERTY("Radius2", m_fRadius2)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_MEMBER_PROPERTY("Height", m_fHeight)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, ezVariant())),
@@ -40,35 +42,21 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetProperties, 3, ezRTTIDefaultAllocator
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-class ezMeshAssetPropertiesPatch_1_2 : public ezGraphPatch
-{
-public:
-  ezMeshAssetPropertiesPatch_1_2()
-    : ezGraphPatch("ezMeshAssetProperties", 2)
-  {
-  }
-
-  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
-  {
-    pNode->RenameProperty("Primitive Type", "PrimitiveType");
-    pNode->RenameProperty("Forward Dir", "ForwardDir");
-    pNode->RenameProperty("Right Dir", "RightDir");
-    pNode->RenameProperty("Up Dir", "UpDir");
-    pNode->RenameProperty("Uniform Scaling", "UniformScaling");
-    pNode->RenameProperty("Non-Uniform Scaling", "NonUniformScaling");
-    pNode->RenameProperty("Mesh File", "MeshFile");
-    pNode->RenameProperty("Radius 2", "Radius2");
-    pNode->RenameProperty("Detail 2", "Detail2");
-    pNode->RenameProperty("Cap 2", "Cap2");
-    pNode->RenameProperty("Import Materials", "ImportMaterials");
-  }
-};
-
-ezMeshAssetPropertiesPatch_1_2 g_MeshAssetPropertiesPatch_1_2;
-
+// clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMeshPrimitive, 1)
-  EZ_ENUM_CONSTANT(ezMeshPrimitive::File), EZ_ENUM_CONSTANT(ezMeshPrimitive::Box), EZ_ENUM_CONSTANT(ezMeshPrimitive::Rect), EZ_ENUM_CONSTANT(ezMeshPrimitive::Cylinder), EZ_ENUM_CONSTANT(ezMeshPrimitive::Cone), EZ_ENUM_CONSTANT(ezMeshPrimitive::Pyramid), EZ_ENUM_CONSTANT(ezMeshPrimitive::Sphere), EZ_ENUM_CONSTANT(ezMeshPrimitive::HalfSphere), EZ_ENUM_CONSTANT(ezMeshPrimitive::GeodesicSphere), EZ_ENUM_CONSTANT(ezMeshPrimitive::Capsule), EZ_ENUM_CONSTANT(ezMeshPrimitive::Torus),
+  EZ_ENUM_CONSTANT(ezMeshPrimitive::File),
+  EZ_ENUM_CONSTANT(ezMeshPrimitive::Box),
+  EZ_ENUM_CONSTANT(ezMeshPrimitive::Rect),
+  EZ_ENUM_CONSTANT(ezMeshPrimitive::Cylinder),
+  EZ_ENUM_CONSTANT(ezMeshPrimitive::Cone),
+  EZ_ENUM_CONSTANT(ezMeshPrimitive::Pyramid),
+  EZ_ENUM_CONSTANT(ezMeshPrimitive::Sphere),
+  EZ_ENUM_CONSTANT(ezMeshPrimitive::HalfSphere),
+  EZ_ENUM_CONSTANT(ezMeshPrimitive::GeodesicSphere),
+  EZ_ENUM_CONSTANT(ezMeshPrimitive::Capsule),
+  EZ_ENUM_CONSTANT(ezMeshPrimitive::Torus),
 EZ_END_STATIC_REFLECTED_ENUM;
+// clang-format on
 
 ezMeshAssetProperties::ezMeshAssetProperties() = default;
 ezMeshAssetProperties::~ezMeshAssetProperties() = default;
@@ -84,6 +72,8 @@ void ezMeshAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEve
     auto& props = *e.m_pPropertyStates;
 
     props["MeshFile"].m_Visibility = ezPropertyUiState::Invisible;
+    props["MeshIncludeTags"].m_Visibility = ezPropertyUiState::Invisible;
+    props["MeshExcludeTags"].m_Visibility = ezPropertyUiState::Invisible;
     props["Radius"].m_Visibility = ezPropertyUiState::Invisible;
     props["Radius2"].m_Visibility = ezPropertyUiState::Invisible;
     props["Height"].m_Visibility = ezPropertyUiState::Invisible;
@@ -95,23 +85,29 @@ void ezMeshAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEve
     props["ImportMaterials"].m_Visibility = ezPropertyUiState::Invisible;
     props["RecalculateNormals"].m_Visibility = ezPropertyUiState::Invisible;
     props["RecalculateTangents"].m_Visibility = ezPropertyUiState::Invisible;
-    props["NormalPrecision"].m_Visibility = ezPropertyUiState::Invisible;
-    props["TexCoordPrecision"].m_Visibility = ezPropertyUiState::Invisible;
+    props["HighPrecision"].m_Visibility = ezPropertyUiState::Invisible;
     props["VertexColorConversion"].m_Visibility = ezPropertyUiState::Invisible;
 
     props["MeshSimplification"].m_Visibility = bSimplify ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
     props["MaxSimplificationError"].m_Visibility = bSimplify ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
     props["AggressiveSimplification"].m_Visibility = bSimplify ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
 
+    const ezInt64 importTransform = e.m_pObject->GetTypeAccessor().GetValue("ImportTransform").ConvertTo<ezInt64>();
+    const bool bCustomTransform = importTransform == 127;
+    props["RightDir"].m_Visibility = bCustomTransform ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["UpDir"].m_Visibility = bCustomTransform ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["FlipForwardDir"].m_Visibility = bCustomTransform ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+
     switch (primType)
     {
       case ezMeshPrimitive::File:
         props["MeshFile"].m_Visibility = ezPropertyUiState::Default;
+        props["MeshIncludeTags"].m_Visibility = ezPropertyUiState::Default;
+        props["MeshExcludeTags"].m_Visibility = ezPropertyUiState::Default;
         props["ImportMaterials"].m_Visibility = ezPropertyUiState::Default;
         props["RecalculateNormals"].m_Visibility = ezPropertyUiState::Default;
         props["RecalculateTangents"].m_Visibility = ezPropertyUiState::Default;
-        props["NormalPrecision"].m_Visibility = ezPropertyUiState::Default;
-        props["TexCoordPrecision"].m_Visibility = ezPropertyUiState::Default;
+        props["HighPrecision"].m_Visibility = ezPropertyUiState::Default;
         props["VertexColorConversion"].m_Visibility = ezPropertyUiState::Default;
         break;
 
@@ -209,6 +205,34 @@ void ezMeshAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEve
 
 //////////////////////////////////////////////////////////////////////////
 
+class ezMeshAssetPropertiesPatch_1_2 : public ezGraphPatch
+{
+public:
+  ezMeshAssetPropertiesPatch_1_2()
+    : ezGraphPatch("ezMeshAssetProperties", 2)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    pNode->RenameProperty("Primitive Type", "PrimitiveType");
+    pNode->RenameProperty("Forward Dir", "ForwardDir");
+    pNode->RenameProperty("Right Dir", "RightDir");
+    pNode->RenameProperty("Up Dir", "UpDir");
+    pNode->RenameProperty("Uniform Scaling", "UniformScaling");
+    pNode->RenameProperty("Non-Uniform Scaling", "NonUniformScaling");
+    pNode->RenameProperty("Mesh File", "MeshFile");
+    pNode->RenameProperty("Radius 2", "Radius2");
+    pNode->RenameProperty("Detail 2", "Detail2");
+    pNode->RenameProperty("Cap 2", "Cap2");
+    pNode->RenameProperty("Import Materials", "ImportMaterials");
+  }
+};
+
+ezMeshAssetPropertiesPatch_1_2 g_MeshAssetPropertiesPatch_1_2;
+
+//////////////////////////////////////////////////////////////////////////
+
 class ezMeshAssetPropertiesPatch_2_3 : public ezGraphPatch
 {
 public:
@@ -232,3 +256,57 @@ public:
 };
 
 ezMeshAssetPropertiesPatch_2_3 g_ezMeshAssetPropertiesPatch_2_3;
+
+//////////////////////////////////////////////////////////////////////////
+
+class ezMeshAssetPropertiesPatch_3_4 : public ezGraphPatch
+{
+public:
+  ezMeshAssetPropertiesPatch_3_4()
+    : ezGraphPatch("ezMeshAssetProperties", 4)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    pNode->AddProperty("ImportTransform", 127);
+  }
+};
+
+ezMeshAssetPropertiesPatch_3_4 g_ezMeshAssetPropertiesPatch_3_4;
+
+//////////////////////////////////////////////////////////////////////////
+
+class ezMeshAssetPropertiesPatch_4_5 : public ezGraphPatch
+{
+public:
+  ezMeshAssetPropertiesPatch_4_5()
+    : ezGraphPatch("ezMeshAssetProperties", 5)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    bool bHighPrecision = false;
+
+    if (auto pProp = pNode->FindProperty("NormalPrecision"))
+    {
+      if (pProp->m_Value.IsA<ezString>() && pProp->m_Value.Get<ezString>() != "ezMeshNormalPrecision::_10Bit")
+      {
+        bHighPrecision = true;
+      }
+    }
+
+    if (auto pProp = pNode->FindProperty("TexCoordPrecision"))
+    {
+      if (pProp->m_Value.IsA<ezString>() && pProp->m_Value.Get<ezString>() != "ezMeshTexCoordPrecision::_16Bit")
+      {
+        bHighPrecision = true;
+      }
+    }
+
+    pNode->AddProperty("HighPrecision", bHighPrecision);
+  }
+};
+
+ezMeshAssetPropertiesPatch_4_5 g_ezMeshAssetPropertiesPatch_4_5;

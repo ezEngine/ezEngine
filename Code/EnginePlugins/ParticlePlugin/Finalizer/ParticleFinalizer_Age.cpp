@@ -65,7 +65,7 @@ void ezParticleFinalizer_Age::CreateRequiredStreams()
   if (!m_sOnDeathEvent.IsEmpty())
   {
     CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
-    CreateStream("Velocity", ezProcessingStream::DataType::Float3, &m_pStreamVelocity, false);
+    CreateStream("Velocity", ezProcessingStream::DataType::Half4, &m_pStreamVelocity, false);
   }
 }
 
@@ -78,7 +78,7 @@ void ezParticleFinalizer_Age::InitializeElements(ezUInt64 uiStartIndex, ezUInt64
 
   if (m_LifeTime.m_fVariance == 0)
   {
-    const float tLifeTime = (fLifeScale * (float)m_LifeTime.m_Value.GetSeconds()) + 0.01f; // make sure it's not zero
+    const float tLifeTime = ezMath::Max(fLifeScale * (float)m_LifeTime.m_Value.GetSeconds(), 0.01f); // make sure it's not zero
     const float tInvLifeTime = 1.0f / tLifeTime;
 
     for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
@@ -94,7 +94,7 @@ void ezParticleFinalizer_Age::InitializeElements(ezUInt64 uiStartIndex, ezUInt64
     for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
     {
       const float tLifeTime =
-        (fLifeScale * (float)rng.DoubleVariance(m_LifeTime.m_Value.GetSeconds(), m_LifeTime.m_fVariance)) + 0.01f; // make sure it's not zero
+        ezMath::Max(fLifeScale * (float)rng.DoubleVariance(m_LifeTime.m_Value.GetSeconds(), m_LifeTime.m_fVariance), 0.01f); // make sure it's not zero
       const float tInvLifeTime = 1.0f / tLifeTime;
 
       pLifeTime[i].x = tLifeTime;
@@ -128,12 +128,16 @@ void ezParticleFinalizer_Age::Process(ezUInt64 uiNumElements)
 void ezParticleFinalizer_Age::OnParticleDeath(const ezStreamGroupElementRemovedEvent& e)
 {
   const ezVec4* pPosition = m_pStreamPosition->GetData<ezVec4>();
-  const ezVec3* pVelocity = m_pStreamVelocity->GetData<ezVec3>();
+  const ezFloat16Vec4* pVelocity = m_pStreamVelocity->GetData<ezFloat16Vec4>();
+
+  const ezVec4 vel = pVelocity[e.m_uiElementIndex];
+  const ezVec3 dir(vel.x, vel.y, vel.z);
+  const float speed = vel.w;
 
   ezParticleEvent pe;
   pe.m_EventType = m_sOnDeathEvent;
   pe.m_vPosition = pPosition[e.m_uiElementIndex].GetAsVec3();
-  pe.m_vDirection = pVelocity[e.m_uiElementIndex];
+  pe.m_vDirection = dir * speed;
   pe.m_vNormal.SetZero();
 
   GetOwnerEffect()->AddParticleEvent(pe);

@@ -48,8 +48,8 @@ public:
   ezJoltQueryShapeActorComponent();
   ~ezJoltQueryShapeActorComponent();
 
-  void SetSurfaceFile(const char* szFile); // [ property ]
-  const char* GetSurfaceFile() const;      // [ property ]
+  void SetSurfaceFile(ezStringView sFile); // [ property ]
+  ezStringView GetSurfaceFile() const;     // [ property ]
 
   ezSurfaceResourceHandle m_hSurface;      // [ property ]
 

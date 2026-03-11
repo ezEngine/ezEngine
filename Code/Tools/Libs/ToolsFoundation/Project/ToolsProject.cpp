@@ -6,7 +6,7 @@
 
 EZ_IMPLEMENT_SINGLETON(ezToolsProject);
 
-ezEvent<const ezToolsProjectEvent&> ezToolsProject::s_Events;
+ezEvent<const ezToolsProjectEvent&, ezMutex> ezToolsProject::s_Events;
 ezEvent<ezToolsProjectRequest&> ezToolsProject::s_Requests;
 
 
@@ -45,12 +45,26 @@ ezStatus ezToolsProject::Create()
     }
   }
 
-  ezToolsProjectEvent e;
-  e.m_pProject = this;
-  e.m_Type = ezToolsProjectEvent::Type::ProjectCreated;
-  s_Events.Broadcast(e);
+  {
+    ezToolsProjectEvent e;
+    e.m_pProject = this;
+    e.m_Type = ezToolsProjectEvent::Type::ProjectCreated;
+    s_Events.Broadcast(e);
+  }
 
-  return Open();
+  EZ_SUCCEED_OR_RETURN(Open());
+
+  // if this file already exists, the project was created from a template and should not get additional setup
+  ezStringBuilder path(GetProjectDirectory(), "/Scenes/Main.ezScene");
+  if (!ezOSFile::ExistsFile(path))
+  {
+    ezToolsProjectEvent e;
+    e.m_pProject = this;
+    e.m_Type = ezToolsProjectEvent::Type::ProjectFirstSetup;
+    s_Events.Broadcast(e);
+  }
+
+  return ezStatus(EZ_SUCCESS);
 }
 
 ezStatus ezToolsProject::Open()
@@ -106,8 +120,6 @@ void ezToolsProject::SaveProjectState()
 {
   if (GetSingleton())
   {
-    GetSingleton()->m_bIsClosing = true;
-
     ezToolsProjectEvent e;
     e.m_pProject = GetSingleton();
     e.m_Type = ezToolsProjectEvent::Type::ProjectSaveState;
@@ -171,7 +183,7 @@ ezStatus ezToolsProject::CreateOrOpenProject(ezStringView sProjectPath, bool bCr
 
   new ezToolsProject(sProjectPath);
 
-  ezStatus ret;
+  ezStatus ret(EZ_SUCCESS);
 
   if (bCreate)
   {
@@ -179,15 +191,16 @@ ezStatus ezToolsProject::CreateOrOpenProject(ezStringView sProjectPath, bool bCr
     ezToolsProject::SaveProjectState();
   }
   else
-    ret = GetSingleton()->Open();
-
-  if (ret.m_Result.Failed())
   {
-    delete GetSingleton();
-    return ret;
+    ret = GetSingleton()->Open();
   }
 
-  return ezStatus(EZ_SUCCESS);
+  if (ret.Failed())
+  {
+    delete GetSingleton();
+  }
+
+  return ret;
 }
 
 ezStatus ezToolsProject::OpenProject(ezStringView sProjectPath)
@@ -320,8 +333,8 @@ ezString ezToolsProject::GetProjectDirectory() const
 
 ezString ezToolsProject::GetProjectDataFolder() const
 {
-  ezStringBuilder s = GetProjectFile();
-  s.Append("_data");
+  ezStringBuilder s = GetProjectDirectory();
+  s.AppendPath("Editor");
 
   return s;
 }

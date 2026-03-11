@@ -98,7 +98,7 @@ public:
   /// \brief Compares this string object to an ezTempHashedString object. This should be used whenever some object needs to be found
   /// and the string to compare against is not yet an ezHashedString object.
   bool operator==(const ezTempHashedString& rhs) const; // [tested]
-  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezTempHashedString&);
+  bool operator!=(const ezTempHashedString& rhs) const; // [tested]
 
   /// \brief This operator allows sorting objects by hash value, not by alphabetical order.
   bool operator<(const ezHashedString& rhs) const; // [tested]
@@ -130,12 +130,36 @@ public:
   /// \brief Returns a pointer to the internal Utf8 string.
   EZ_ALWAYS_INLINE operator const char*() const { return GetData(); }
 
+  // since we allow to cast implicitly to const char*, we need these overloads to not do a pure pointer comparison
+  EZ_ALWAYS_INLINE bool operator==(const char* szString) const { return GetString().GetView() == ezStringView(szString); }
+  EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const char*);
+
+  /// \brief Attempts to find a known string for the given hash value.
+  ///
+  /// Careful, this is a slow operation (involving a mutex). It is only meant for debug output purposes.
+  /// The string hash may not be known, if the value was never assigned to any ezHashedString, in which case EZ_FAILURE is returned.
+  static ezResult LookupStringHash(ezUInt64 uiHash, ezStringView& out_sResult);
+
 private:
   static void InitHashedString();
   static HashedType AddHashedString(ezStringView sString, ezUInt64 uiHash);
 
   HashedType m_Data;
 };
+
+// since we allow to cast implicitly to const char*, we need these overloads to not do a pure pointer comparison
+EZ_ALWAYS_INLINE bool operator==(const char* szString, const ezHashedString& rhs)
+{
+  return rhs.GetView() == ezStringView(szString);
+}
+
+#if EZ_DISABLED(EZ_USE_CPP20_OPERATORS)
+EZ_ALWAYS_INLINE bool operator!=(const char* szString, const ezHashedString& rhs)
+{
+  return rhs.GetView() != ezStringView(szString);
+}
+
+#endif
 
 /// \brief Helper function to create an ezHashedString. This can be used to initialize static hashed string variables.
 template <size_t N>
@@ -156,7 +180,7 @@ public:
 
   /// \brief Creates an ezTempHashedString object from the given string constant. The hash can be computed at compile time.
   template <size_t N>
-  ezTempHashedString(const char (&string)[N]); // [tested]
+  constexpr ezTempHashedString(const char (&string)[N]); // [tested]
 
   template <size_t N>
   ezTempHashedString(char (&string)[N]) = delete;
@@ -204,6 +228,12 @@ public:
 
   /// \brief Returns the hash of the stored string.
   ezUInt64 GetHash() const; // [tested]
+
+  /// \brief Convenience function to call ezHashedString::LookupStringHash().
+  ezResult LookupStringHash(ezStringView& out_sResult) const
+  {
+    return ezHashedString::LookupStringHash(m_uiHash, out_sResult);
+  }
 
 private:
   ezUInt64 m_uiHash;

@@ -22,7 +22,7 @@ ezAnimationClipAssetDocumentManager::ezAnimationClipAssetDocumentManager()
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Keyframe_Animation");
 
-  m_DocTypeDesc.m_sResourceFileExtension = "ezAnimationClip";
+  m_DocTypeDesc.m_sResourceFileExtension = "ezBinAnimationClip";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::SupportsThumbnail;
 
   // ezQtImageCache::GetSingleton()->RegisterTypeImage("Animation Clip", QPixmap(":/AssetIcons/Animation_Clip.svg"));

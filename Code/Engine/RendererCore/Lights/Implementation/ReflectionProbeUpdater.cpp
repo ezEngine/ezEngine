@@ -31,9 +31,7 @@ ezReflectionProbeUpdater::ProbeUpdateInfo::ProbeUpdateInfo()
     desc.m_uiMipLevelCount = GetMipLevels();
     desc.m_Format = ezGALResourceFormat::RGBAHalf;
     desc.m_Type = ezGALTextureType::TextureCube;
-    desc.m_bCreateRenderTarget = true;
-    desc.m_bAllowDynamicMipGeneration = true;
-    desc.m_ResourceAccess.m_bReadBack = true;
+    desc.m_TextureFlags.Add(ezGALTextureUsageFlags::DynamicMipGeneration | ezGALTextureUsageFlags::RenderTarget);
     desc.m_ResourceAccess.m_bImmutable = false;
 
     m_hCubemap = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(desc);
@@ -54,10 +52,7 @@ ezReflectionProbeUpdater::ProbeUpdateInfo::~ProbeUpdateInfo()
 {
   for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_hCubemapProxies); ++i)
   {
-    if (!m_hCubemapProxies[i].IsInvalidated())
-    {
-      ezGALDevice::GetDefaultDevice()->DestroyProxyTexture(m_hCubemapProxies[i]);
-    }
+    ezGALDevice::GetDefaultDevice()->DestroyProxyTexture(m_hCubemapProxies[i]);
   }
 
   if (!m_hCubemap.IsInvalidated())
@@ -403,8 +398,9 @@ void ezReflectionProbeUpdater::AddViewToRender(const ProbeUpdateInfo::Step& step
       {
         renderTargets.m_hRTs[2] = updateInfo.m_TargetSlot.m_hIrradianceOutputTexture;
       }
-      pView->SetRenderPassProperty("ReflectionFilterPass", "Intensity", updateInfo.m_desc.m_fIntensity);
-      pView->SetRenderPassProperty("ReflectionFilterPass", "Saturation", updateInfo.m_desc.m_fSaturation);
+      pView->SetRenderPassProperty("ReflectionFilterPass", "DiffuseIntensity", updateInfo.m_desc.m_fDiffuseIntensity);
+      pView->SetRenderPassProperty("ReflectionFilterPass", "DiffuseSaturation", updateInfo.m_desc.m_fDiffuseSaturation);
+      pView->SetRenderPassProperty("ReflectionFilterPass", "SpecularIntensity", updateInfo.m_desc.m_fSpecularIntensity);
       pView->SetRenderPassProperty("ReflectionFilterPass", "SpecularOutputIndex", updateInfo.m_TargetSlot.m_iSpecularOutputIndex);
       pView->SetRenderPassProperty("ReflectionFilterPass", "IrradianceOutputIndex", updateInfo.m_TargetSlot.m_iIrradianceOutputIndex);
 

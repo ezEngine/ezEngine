@@ -10,6 +10,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 ezMap<ezUInt32, ezShaderStageBinary> ezShaderStageBinary::s_ShaderStageBinaries[ezGALShaderStage::ENUM_COUNT];
+ezMutex ezShaderStageBinary::s_ShaderStageBinariesLock;
 
 ezShaderStageBinary::ezShaderStageBinary() = default;
 
@@ -45,7 +46,7 @@ ezResult ezShaderStageBinary::Write(ezStreamWriter& inout_stream) const
     inout_stream << r.m_ResourceType;
     inout_stream << r.m_TextureType;
     inout_stream << r.m_Stages;
-    inout_stream << r.m_iSet;
+    inout_stream << r.m_iBindGroup;
     inout_stream << r.m_iSlot;
     inout_stream << r.m_uiArraySize;
     inout_stream << r.m_sName.GetData();
@@ -140,7 +141,7 @@ ezResult ezShaderStageBinary::Read(ezStreamReader& inout_stream)
       inout_stream >> r.m_ResourceType;
       inout_stream >> r.m_TextureType;
       inout_stream >> r.m_Stages;
-      inout_stream >> r.m_iSet;
+      inout_stream >> r.m_iBindGroup;
       inout_stream >> r.m_iSlot;
       inout_stream >> r.m_uiArraySize;
       inout_stream >> sTemp;
@@ -227,6 +228,7 @@ ezResult ezShaderStageBinary::WriteStageBinary(ezLogInterface* pLog, ezStringVie
 // static
 ezShaderStageBinary* ezShaderStageBinary::LoadStageBinary(ezGALShaderStage::Enum Stage, ezUInt32 uiHash, ezStringView sPlatform)
 {
+  EZ_LOCK(s_ShaderStageBinariesLock);
   auto itStage = s_ShaderStageBinaries[Stage].Find(uiHash);
 
   if (!itStage.IsValid())
@@ -260,6 +262,7 @@ ezShaderStageBinary* ezShaderStageBinary::LoadStageBinary(ezGALShaderStage::Enum
 // static
 void ezShaderStageBinary::OnEngineShutdown()
 {
+  EZ_LOCK(s_ShaderStageBinariesLock);
   for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
   {
     s_ShaderStageBinaries[stage].Clear();

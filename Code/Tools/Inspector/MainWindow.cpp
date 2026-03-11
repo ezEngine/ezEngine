@@ -45,19 +45,19 @@ ezQtMainWindow::ezQtMainWindow()
 
   // The dock manager will set ownership to null on add so there is no reason to provide an owner here.
   // Setting one will actually cause memory corruptions on shutdown for unknown reasons.
-  ezQtMainWidget* pMainWidget = new ezQtMainWidget();
-  ezQtLogDockWidget* pLogWidget = new ezQtLogDockWidget();
-  ezQtMemoryWidget* pMemoryWidget = new ezQtMemoryWidget();
-  ezQtTimeWidget* pTimeWidget = new ezQtTimeWidget();
-  ezQtInputWidget* pInputWidget = new ezQtInputWidget();
-  ezQtCVarsWidget* pCVarsWidget = new ezQtCVarsWidget();
-  ezQtSubsystemsWidget* pSubsystemsWidget = new ezQtSubsystemsWidget();
-  ezQtFileWidget* pFileWidget = new ezQtFileWidget();
-  ezQtPluginsWidget* pPluginsWidget = new ezQtPluginsWidget();
-  ezQtGlobalEventsWidget* pGlobalEventesWidget = new ezQtGlobalEventsWidget();
-  ezQtReflectionWidget* pReflectionWidget = new ezQtReflectionWidget();
-  ezQtDataWidget* pDataWidget = new ezQtDataWidget();
-  ezQtResourceWidget* pResourceWidget = new ezQtResourceWidget();
+  ezQtMainWidget* pMainWidget = new ezQtMainWidget(m_DockManager);
+  ezQtLogDockWidget* pLogWidget = new ezQtLogDockWidget(m_DockManager);
+  ezQtMemoryWidget* pMemoryWidget = new ezQtMemoryWidget(m_DockManager);
+  ezQtTimeWidget* pTimeWidget = new ezQtTimeWidget(m_DockManager);
+  ezQtInputWidget* pInputWidget = new ezQtInputWidget(m_DockManager);
+  ezQtCVarsWidget* pCVarsWidget = new ezQtCVarsWidget(m_DockManager);
+  ezQtSubsystemsWidget* pSubsystemsWidget = new ezQtSubsystemsWidget(m_DockManager);
+  ezQtFileWidget* pFileWidget = new ezQtFileWidget(m_DockManager);
+  ezQtPluginsWidget* pPluginsWidget = new ezQtPluginsWidget(m_DockManager);
+  ezQtGlobalEventsWidget* pGlobalEventesWidget = new ezQtGlobalEventsWidget(m_DockManager);
+  ezQtReflectionWidget* pReflectionWidget = new ezQtReflectionWidget(m_DockManager);
+  ezQtDataWidget* pDataWidget = new ezQtDataWidget(m_DockManager);
+  ezQtResourceWidget* pResourceWidget = new ezQtResourceWidget(m_DockManager);
 
   EZ_VERIFY(nullptr != QWidget::connect(pMainWidget, &ads::CDockWidget::viewToggled, this, &ezQtMainWindow::DockWidgetVisibilityChanged), "");
   EZ_VERIFY(nullptr != QWidget::connect(pLogWidget, &ads::CDockWidget::viewToggled, this, &ezQtMainWindow::DockWidgetVisibilityChanged), "");
@@ -81,7 +81,7 @@ ezQtMainWindow::ezQtMainWindow()
 
   for (ezUInt32 i = 0; i < 10; ++i)
   {
-    m_pStatHistoryWidgets[i] = new ezQtStatVisWidget(this, i);
+    m_pStatHistoryWidgets[i] = new ezQtStatVisWidget(m_DockManager, this, i);
     m_DockManager->addDockWidgetTab(ads::BottomDockWidgetArea, m_pStatHistoryWidgets[i]);
 
     EZ_VERIFY(

@@ -16,6 +16,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCopyTexturePass, 1, ezRTTIDefaultAllocator<ezC
     EZ_MEMBER_PROPERTY("Output", m_PinOutput)
   }
   EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Utilities")
+  }
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
@@ -70,9 +75,7 @@ void ezCopyTexturePass::Execute(const ezRenderViewContext& renderViewContext, co
   }
   else
   {
-    auto pCommandEncoder = ezRenderContext::BeginPassAndComputeScope(renderViewContext, GetName());
-
-    pCommandEncoder->CopyTexture(pOutput->m_TextureHandle, pInput->m_TextureHandle);
+    renderViewContext.m_pRenderContext->GetCommandEncoder()->CopyTexture(pOutput->m_TextureHandle, pInput->m_TextureHandle);
   }
 }
 

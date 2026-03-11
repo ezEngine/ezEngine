@@ -16,6 +16,10 @@ struct ezPositionOnPlane
 };
 
 /// \brief A class that represents a mathematical plane.
+///
+/// A plane in 3D space is defined by a normal vector and a distance from the origin.
+/// This implementation uses the equation: normal · point + distance = 0, where the distance
+/// is stored as negative for mathematical convenience in many operations.
 template <typename Type>
 struct ezPlaneTemplate
 {

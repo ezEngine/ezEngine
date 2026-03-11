@@ -15,6 +15,7 @@ struct ezMsgExtractRenderData;
 class ezParticleSystemInstance;
 class ezParticleComponent;
 struct ezMsgSetPlaying;
+struct ezMsgInterruptPlaying;
 
 using ezParticleEffectResourceHandle = ezTypedResourceHandle<class ezParticleEffectResource>;
 
@@ -78,12 +79,15 @@ public:
   /// \brief Forwards to StartEffect() or StopEffect().
   void OnMsgSetPlaying(ezMsgSetPlaying& ref_msg); // [ msg handler ]
 
+  /// \brief Forwards to InterruptEffect().
+  void OnMsgInterruptPlaying(ezMsgInterruptPlaying& ref_msg); // [ msg handler ]
+
   /// \brief Replaces the effect to be played.
   void SetParticleEffect(const ezParticleEffectResourceHandle& hEffect);
   EZ_ALWAYS_INLINE const ezParticleEffectResourceHandle& GetParticleEffect() const { return m_hEffectResource; }
 
-  void SetParticleEffectFile(const char* szFile); // [ property ]
-  const char* GetParticleEffectFile() const;      // [ property ]
+  void SetParticleEffectFile(ezStringView sFile); // [ property ]
+  ezStringView GetParticleEffectFile() const;     // [ property ]
 
   // Exposed Parameters
   const ezRangeView<const char*, ezUInt32> GetParameters() const;   // [ property ]

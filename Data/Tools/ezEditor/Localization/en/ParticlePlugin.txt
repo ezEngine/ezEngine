@@ -1,6 +1,6 @@
 # Asset Types
 
-Particle Effect;Particle Effect
+Particle Effect;Particle Effect;;https://ezengine.net/pages/docs/effects/particle-effects/particle-effects-overview.html
 
 # Component Types
 
@@ -44,6 +44,9 @@ ezParticleBehaviorFactory_PullAlong;Pull Along
 ezParticleBehaviorFactory_SizeCurve;Size Curve
 ezParticleBehaviorFactory_Flies;Flies
 ezParticleBehaviorFactory_Bounds;Bounds
+ezParticleBehaviorFactory_Opacity;Opacity
+ezParticleBehaviorFactory_Wind;Wind
+ezParticleBehaviorFactory_Move;Move
 
 ezParticleEmitterFactory_Continuous;Continuous
 ezParticleEmitterFactory_OnEvent;On Event

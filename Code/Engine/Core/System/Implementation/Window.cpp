@@ -8,28 +8,9 @@
 #include <Foundation/IO/OpenDdlWriter.h>
 #include <Foundation/System/Screen.h>
 
-#if EZ_ENABLED(EZ_SUPPORTS_GLFW)
-#  include <Core/System/Implementation/glfw/InputDevice_glfw.inl>
-#  include <Core/System/Implementation/glfw/Window_glfw.inl>
-#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-#  include <Core/System/Implementation/Win/InputDevice_win32.inl>
-#  include <Core/System/Implementation/Win/Window_win32.inl>
-#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-#  include <Core/System/Implementation/uwp/InputDevice_uwp.inl>
-#  include <Core/System/Implementation/uwp/Window_uwp.inl>
-#elif EZ_ENABLED(EZ_PLATFORM_ANDROID)
-#  include <Core/System/Implementation/android/InputDevice_android.inl>
-#  include <Core/System/Implementation/android/Window_android.inl>
-#else
-#  include <Core/System/Implementation/null/InputDevice_null.inl>
-#  include <Core/System/Implementation/null/Window_null.inl>
-#endif
-
-ezUInt8 ezWindow::s_uiNextUnusedWindowNumber = 0;
-
 ezResult ezWindowCreationDesc::AdjustWindowSizeAndPosition()
 {
-  ezHybridArray<ezScreenInfo, 2> screens;
+  ezTempHybridArray<ezScreenInfo, 2> screens;
   if (ezScreen::EnumerateScreens(screens).Failed() || screens.IsEmpty())
     return EZ_FAILURE;
 
@@ -105,9 +86,6 @@ void ezWindowCreationDesc::SaveToDDL(ezOpenDdlWriter& ref_writer)
       break;
   }
 
-  if (m_uiWindowNumber != 0)
-    ezOpenDdlUtils::StoreUInt8(ref_writer, m_uiWindowNumber, "Index");
-
   if (m_iMonitor >= 0)
     ezOpenDdlUtils::StoreInt8(ref_writer, m_iMonitor, "Monitor");
 
@@ -161,11 +139,6 @@ void ezWindowCreationDesc::LoadFromDDL(const ezOpenDdlReaderElement* pParentElem
         m_WindowMode = ezWindowMode::WindowResizable;
     }
 
-    if (const ezOpenDdlReaderElement* pIndex = pDesc->FindChildOfType(ezOpenDdlPrimitiveType::UInt8, "Index"))
-    {
-      m_uiWindowNumber = pIndex->GetPrimitivesUInt8()[0];
-    }
-
     if (const ezOpenDdlReaderElement* pMonitor = pDesc->FindChildOfType(ezOpenDdlPrimitiveType::Int8, "Monitor"))
     {
       m_iMonitor = pMonitor->GetPrimitivesInt8()[0];
@@ -211,27 +184,72 @@ ezResult ezWindowCreationDesc::LoadFromDDL(ezStringView sFile)
   return EZ_SUCCESS;
 }
 
-ezWindow::ezWindow()
-{
-  ++s_uiNextUnusedWindowNumber;
-}
+ezWindowPlatformShared::ezWindowPlatformShared() = default;
 
-ezWindow::~ezWindow()
+ezWindowPlatformShared::~ezWindowPlatformShared()
 {
-  if (m_bInitialized)
-  {
-    Destroy().IgnoreResult();
-  }
   EZ_ASSERT_DEV(m_iReferenceCount == 0, "The window is still being referenced, probably by a swapchain. Make sure to destroy all swapchains and call ezGALDevice::WaitIdle before destroying a window.");
+
+  ezWindowEvent e;
+  e.m_Type = ezWindowEvent::Type::WindowDestruction;
+  e.m_pWindow = this;
+
+  m_WindowEvents.Broadcast(e);
 }
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-void ezWindow::OnWindowMessage(ezMinWindows::HWND hWnd, ezMinWindows::UINT msg, ezMinWindows::WPARAM wparam, ezMinWindows::LPARAM lparam)
+void ezWindowPlatformShared::OnResize(const ezSizeU32& newWindowSize)
 {
-}
-#endif
+  m_CreationDescription.m_Resolution = newWindowSize;
 
-ezUInt8 ezWindow::GetNextUnusedWindowNumber()
+  ezWindowEvent e;
+  e.m_Type = ezWindowEvent::Type::SizeChanged;
+  e.m_pWindow = this;
+  e.m_iPayload1 = newWindowSize.width;
+  e.m_iPayload2 = newWindowSize.height;
+
+  m_WindowEvents.Broadcast(e);
+}
+
+void ezWindowPlatformShared::OnWindowMove(const ezInt32 iNewPosX, const ezInt32 iNewPosY)
 {
-  return s_uiNextUnusedWindowNumber;
+  ezWindowEvent e;
+  e.m_Type = ezWindowEvent::Type::PositionChanged;
+  e.m_pWindow = this;
+  e.m_iPayload1 = iNewPosX;
+  e.m_iPayload2 = iNewPosY;
+
+  m_WindowEvents.Broadcast(e);
+}
+
+void ezWindowPlatformShared::OnFocus(bool bHasFocus)
+{
+  m_bHasFocus = bHasFocus;
+
+  ezWindowEvent e;
+  e.m_Type = ezWindowEvent::Type::FocusChanged;
+  e.m_pWindow = this;
+  e.m_iPayload1 = bHasFocus ? 1 : 0;
+
+  m_WindowEvents.Broadcast(e);
+}
+
+void ezWindowPlatformShared::OnVisibleChange(bool bVisible)
+{
+  m_bVisible = bVisible;
+
+  ezWindowEvent e;
+  e.m_Type = ezWindowEvent::Type::VisibilityChanged;
+  e.m_pWindow = this;
+  e.m_iPayload1 = bVisible ? 1 : 0;
+
+  m_WindowEvents.Broadcast(e);
+}
+
+void ezWindowPlatformShared::OnClickClose()
+{
+  ezWindowEvent e;
+  e.m_Type = ezWindowEvent::Type::CloseButtonClicked;
+  e.m_pWindow = this;
+
+  m_WindowEvents.Broadcast(e);
 }

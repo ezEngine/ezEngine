@@ -17,7 +17,7 @@ class EZ_EDITORFRAMEWORK_DLL ezQtLongOpsPanel : public ezQtApplicationPanel, pub
   EZ_DECLARE_SINGLETON(ezQtLongOpsPanel);
 
 public:
-  ezQtLongOpsPanel();
+  ezQtLongOpsPanel(ads::CDockManager* pDockManager);
   ~ezQtLongOpsPanel();
 
 private:

@@ -21,6 +21,18 @@ class DebugRenderer;
 class BodyDrawFilter;
 #endif // JPH_DEBUG_RENDERER
 
+#ifdef JPH_DEBUG_RENDERER
+
+/// Defines how to color soft body constraints
+enum class ESoftBodyConstraintColor
+{
+	ConstraintType,				/// Draw different types of constraints in different colors
+	ConstraintGroup,			/// Draw constraints in the same group in the same color, non-parallel group will be red
+	ConstraintOrder,			/// Draw constraints in the same group in the same color, non-parallel group will be red, and order within each group will be indicated with gradient
+};
+
+#endif // JPH_DEBUG_RENDERER
+
 /// Array of bodies
 using BodyVector = Array<Body *>;
 
@@ -28,6 +40,9 @@ using BodyVector = Array<Body *>;
 using BodyIDVector = Array<BodyID>;
 
 /// Class that contains all bodies
+///
+/// WARNING: This class is an internal part of PhysicsSystem, it has no functions that can be called by users of the library.
+/// Its functionality is exposed through PhysicsSystem, BodyInterface, BodyLockRead and BodyLockWrite.
 class JPH_EXPORT BodyManager : public NonCopyable
 {
 public:
@@ -105,7 +120,7 @@ public:
 	const BodyID *					GetActiveBodiesUnsafe(EBodyType inType) const { return mActiveBodies[int(inType)]; }
 
 	/// Get the number of active bodies.
-	uint32							GetNumActiveBodies(EBodyType inType) const	{ return mNumActiveBodies[int(inType)]; }
+	uint32							GetNumActiveBodies(EBodyType inType) const	{ return mNumActiveBodies[int(inType)].load(memory_order_acquire); }
 
 	/// Get the number of active bodies that are using continuous collision detection
 	uint32							GetNumActiveCCDBodies() const				{ return mNumActiveCCDBodies; }
@@ -203,6 +218,7 @@ public:
 	/// Save the state of a single body for replay
 	void							RestoreBodyState(Body &inBody, StateRecorder &inStream);
 
+#ifdef JPH_DEBUG_RENDERER
 	enum class EShapeColor
 	{
 		InstanceColor,				///< Random color per instance
@@ -213,8 +229,17 @@ public:
 		MaterialColor,				///< Color as defined by the PhysicsMaterial of the shape
 	};
 
-#ifdef JPH_DEBUG_RENDERER
 	/// Draw settings
+	///
+	/// Note that there are several debug drawing features that are not exposed through this interface since they use information
+	/// that is only available deep inside the simulation update and are mostly there to facilitate debugging Jolt. These options
+	/// use DebugRenderer::sInstance to draw.
+	///
+	/// E.g.:
+	/// * To draw contact information, use ContactConstraintManager::sDrawContactManifolds.
+	/// * To draw when continuous collision detection is used, use PhysicsSystem::sDrawMotionQualityLinearCast.
+	/// * To draw what's going on in a CharacterVirtual update, use CharacterVirtual::sDrawConstraints, CharacterVirtual::sDrawWalkStairs and CharacterVirtual::sDrawStickToFloor.
+	/// * To draw the volume of water that interacts with a shape, use Shape::sDrawSubmergedVolumes.
 	struct DrawSettings
 	{
 		bool						mDrawGetSupportFunction = false;				///< Draw the GetSupport() function, used for convex collision detection
@@ -236,7 +261,11 @@ public:
 		bool						mDrawSoftBodyVolumeConstraints = false;			///< Draw the volume constraints of soft bodies
 		bool						mDrawSoftBodySkinConstraints = false;			///< Draw the skin constraints of soft bodies
 		bool						mDrawSoftBodyLRAConstraints = false;			///< Draw the LRA constraints of soft bodies
+		bool						mDrawSoftBodyRods = false;						///< Draw the rods of soft bodies
+		bool						mDrawSoftBodyRodStates = false;					///< Draw the rod states (orientation and angular velocity) of soft bodies
+		bool						mDrawSoftBodyRodBendTwistConstraints = false;	///< Draw the rod bend twist constraints of soft bodies
 		bool						mDrawSoftBodyPredictedBounds = false;			///< Draw the predicted bounds of soft bodies
+		ESoftBodyConstraintColor	mDrawSoftBodyConstraintColor = ESoftBodyConstraintColor::ConstraintType; ///< Coloring scheme to use for soft body constraints
 	};
 
 	/// Draw the state of the bodies (debugging purposes)
@@ -268,10 +297,20 @@ public:
 	};
 #endif
 
-#ifdef _DEBUG
+#ifdef JPH_DEBUG
 	/// Validate if the cached bounding boxes are correct for all active bodies
 	void							ValidateActiveBodyBounds();
-#endif // _DEBUG
+#endif // JPH_DEBUG
+
+#ifdef JPH_TRACK_SIMULATION_STATS
+	/// Resets the per body simulation stats
+	void							ResetSimulationStats();
+
+#ifdef JPH_PROFILE_ENABLED
+	/// Dump the per body simulation stats to the TTY
+	void							ReportSimulationStats();
+#endif
+#endif
 
 private:
 	/// Increment and get the sequence number of the body
@@ -292,10 +331,10 @@ private:
 	/// Helper function to delete a body (which could actually be a BodyWithMotionProperties)
 	inline static void				sDeleteBody(Body *inBody);
 
-#if defined(_DEBUG) && defined(JPH_ENABLE_ASSERTS)
+#if defined(JPH_DEBUG) && defined(JPH_ENABLE_ASSERTS)
 	/// Function to check that the free list is not corrupted
 	void							ValidateFreeList() const;
-#endif // defined(_DEBUG) && _defined(JPH_ENABLE_ASSERTS)
+#endif // defined(JPH_DEBUG) && _defined(JPH_ENABLE_ASSERTS)
 
 	/// List of pointers to all bodies. Contains invalid pointers for deleted bodies, check with sIsValidBodyPointer. Note that this array is reserved to the max bodies that is passed in the Init function so that adding bodies will not reallocate the array.
 	BodyVector						mBodies;

@@ -47,7 +47,7 @@ public:
   virtual void AfterCoreSystemsStartup() override
   {
     // Add the empty data directory to access files via absolute paths
-    ezFileSystem::AddDataDirectory("", "App", ":", ezFileSystem::AllowWrites).IgnoreResult();
+    ezFileSystem::AddDataDirectory("", "App", ":", ezDataDirUsage::AllowWrites).IgnoreResult();
 
     ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
     ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
@@ -62,26 +62,28 @@ public:
     SUPER::BeforeCoreSystemsShutdown();
   }
 
-  virtual Execution Run() override
+  virtual void Run() override
   {
     {
       ezStringBuilder cmdHelp;
       if (ezCommandLineOption::LogAvailableOptionsToBuffer(cmdHelp, ezCommandLineOption::LogAvailableModes::IfHelpRequested, "_MiniDumpTool"))
       {
         ezLog::Print(cmdHelp);
-        return ezApplication::Execution::Quit;
+        QuitApplication();
+        return;
       }
     }
 
     if (ParseArguments().Failed())
     {
       SetReturnCode(1);
-      return ezApplication::Execution::Quit;
+      QuitApplication();
+      return;
     }
 
     ezMiniDumpUtils::WriteExternalProcessMiniDump(m_sDumpFile, m_uiProcessID).IgnoreResult();
-    return ezApplication::Execution::Quit;
+    QuitApplication();
   }
 };
 
-EZ_CONSOLEAPP_ENTRY_POINT(ezMiniDumpTool);
+EZ_APPLICATION_ENTRY_POINT(ezMiniDumpTool);

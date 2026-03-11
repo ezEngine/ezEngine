@@ -3,9 +3,9 @@
 #include <EditorFramework/GUI/ExposedParameters.h>
 #include <EditorPluginVisualScript/VisualScriptClassAsset/VisualScriptClassAsset.h>
 #include <EditorPluginVisualScript/VisualScriptGraph/VisualScriptCompiler.h>
-#include <GuiFoundation/NodeEditor/NodeScene.moc.h>
-#include <ToolsFoundation/NodeObject/NodeCommandAccessor.h>
+#include <GuiFoundation/VisualGraph/Scene.moc.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
+#include <ToolsFoundation/VisualGraph/VisualGraphCommandAccessor.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptClassAssetProperties, 1, ezRTTIDefaultAllocator<ezVisualScriptClassAssetProperties>)
@@ -20,14 +20,14 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptClassAssetProperties, 1, ezRTTIDef
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptClassAssetDocument, 5, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptClassAssetDocument, 10, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezVisualScriptClassAssetDocument::ezVisualScriptClassAssetDocument(ezStringView sDocumentPath)
   : ezSimpleAssetDocument<ezVisualScriptClassAssetProperties>(EZ_DEFAULT_NEW(ezVisualScriptNodeManager), sDocumentPath, ezAssetDocEngineConnection::None)
 {
-  m_pObjectAccessor = EZ_DEFAULT_NEW(ezNodeCommandAccessor, GetCommandHistory());
+  m_pObjectAccessor = EZ_DEFAULT_NEW(ezVisualGraphCommandAccessor, GetCommandHistory());
 }
 
 ezTransformStatus ezVisualScriptClassAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
@@ -49,10 +49,10 @@ ezTransformStatus ezVisualScriptClassAssetDocument::InternalTransformAsset(ezStr
 
   ezStringView sScriptClassName = ezPathUtils::GetFileName(GetDocumentPath());
 
-  ezVisualScriptCompiler compiler;
+  ezVisualScriptCompiler compiler(*pManager);
   compiler.InitModule(sBaseClassName, sScriptClassName);
 
-  ezHybridArray<const ezVisualScriptPin*, 16> pins;
+  ezTempHybridArray<const ezVisualScriptPin*, 16> pins;
   for (const ezDocumentObject* pObject : children)
   {
     if (pManager->IsNode(pObject) == false)
@@ -100,12 +100,26 @@ void ezVisualScriptClassAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentIn
 
   for (const auto& v : GetProperties()->m_Variables)
   {
-    if (v.m_bExpose == false)
+    if (v.m_TypeDecl.m_Type == ezVisualScriptVariableType::Invalid || v.m_TypeDecl.m_bPublic == false)
       continue;
+
+    if (v.m_TypeDecl.m_Type == ezVisualScriptVariableType::GameObject || v.m_TypeDecl.m_Type == ezVisualScriptVariableType::Component)
+    {
+      ezLog::Error("Variables of type 'GameObject' or 'Component' are currently not supported as exposed parameters.");
+      continue;
+    }
 
     ezExposedParameter* param = EZ_DEFAULT_NEW(ezExposedParameter);
     param->m_sName = v.m_sName.GetString();
+    param->m_sType = ezVisualScriptDataType::GetRtti(static_cast<ezVisualScriptDataType::Enum>(v.m_TypeDecl.m_Type.GetValue()))->GetTypeName();
     param->m_DefaultValue = v.m_DefaultValue;
+    param->m_Category = ezVisualScriptVariableCategory::GetPropertyCategory(v.m_TypeDecl.m_Category);
+
+    if (v.m_bClampRange && v.m_TypeDecl.m_Type >= ezVisualScriptVariableType::Byte && v.m_TypeDecl.m_Type <= ezVisualScriptVariableType::Double)
+    {
+      auto pClampValueAttribute = EZ_DEFAULT_NEW(ezClampValueAttribute, v.m_fMinValue, v.m_fMaxValue);
+      param->m_Attributes.PushBack(pClampValueAttribute);
+    }
 
     pExposedParams->m_Parameters.PushBack(param);
   }
@@ -116,39 +130,39 @@ void ezVisualScriptClassAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentIn
 
 void ezVisualScriptClassAssetDocument::InternalGetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const
 {
-  auto pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
+  auto pManager = static_cast<const ezVisualGraphObjectManager*>(GetObjectManager());
   pManager->GetMetaDataHash(pObject, inout_uiHash);
 }
 
 void ezVisualScriptClassAssetDocument::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const
 {
   SUPER::AttachMetaDataBeforeSaving(graph);
-  const auto pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
+  const auto pManager = static_cast<const ezVisualGraphObjectManager*>(GetObjectManager());
   pManager->AttachMetaDataBeforeSaving(graph);
 }
 
 void ezVisualScriptClassAssetDocument::RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph, bool bUndoable)
 {
   SUPER::RestoreMetaDataAfterLoading(graph, bUndoable);
-  auto pManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());
+  auto pManager = static_cast<ezVisualGraphObjectManager*>(GetObjectManager());
   pManager->RestoreMetaDataAfterLoading(graph, bUndoable);
 }
 
-void ezVisualScriptClassAssetDocument::GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_MimeTypes) const
+void ezVisualScriptClassAssetDocument::GetSupportedMimeTypesForPasting(ezDynamicArray<ezString>& out_mimeTypes) const
 {
-  out_MimeTypes.PushBack("application/ezEditor.VisualScriptClassGraph");
+  out_mimeTypes.PushBack("application/ezEditor.VisualScriptClassGraph");
 }
 
 bool ezVisualScriptClassAssetDocument::CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_MimeType) const
 {
   out_MimeType = "application/ezEditor.VisualScriptClassGraph";
 
-  const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
+  const ezVisualGraphObjectManager* pManager = static_cast<const ezVisualGraphObjectManager*>(GetObjectManager());
   return pManager->CopySelectedObjects(out_objectGraph);
 }
 
 bool ezVisualScriptClassAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, ezStringView sMimeType)
 {
-  ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());
-  return pManager->PasteObjects(info, objectGraph, ezQtNodeScene::GetLastMouseInteractionPos(), bAllowPickedPosition);
+  ezVisualGraphObjectManager* pManager = static_cast<ezVisualGraphObjectManager*>(GetObjectManager());
+  return pManager->PasteObjects(info, objectGraph, ezQtVisualGraphScene::GetLastMouseInteractionPos(), bAllowPickedPosition);
 }

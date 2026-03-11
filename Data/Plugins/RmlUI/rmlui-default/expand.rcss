@@ -1,0 +1,31 @@
+/* Styles for expand/collapse controls used in tree views and collapsible sections. */
+
+expand {
+	display: block;
+
+	margin: 1dp 0 1dp 5dp;
+	height: 17dp;
+	width: 17dp;
+
+	decorator: image(expand);
+}
+
+expand:hover {
+	decorator: image(expand-hover);
+}
+
+expand:active {
+	decorator: image(expand-active);
+}
+
+expand.collapsed {
+	decorator: image(expand-collapsed);
+}
+
+expand.collapsed:hover {
+	decorator: image(expand-collapsed-hover);
+}
+
+expand.collapsed:active {
+	decorator: image(expand-collapsed-active);
+}

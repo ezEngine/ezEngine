@@ -3,7 +3,7 @@
 #include <Foundation/IO/TypeVersionContext.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
-#include <RendererCore/Pipeline/Renderer.h>
+#include <RendererCore/Pipeline/RendererRegistry.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 
 #include <Foundation/IO/TypeVersionContext.h>
@@ -72,11 +72,11 @@ ezResult ezRenderPipelinePass::Deserialize(ezStreamReader& inout_stream)
   return EZ_SUCCESS;
 }
 
-void ezRenderPipelinePass::RenderDataWithCategory(const ezRenderViewContext& renderViewContext, ezRenderData::Category category, ezRenderDataBatch::Filter filter)
+void ezRenderPipelinePass::RenderDataWithCategory(const ezRenderViewContext& renderViewContext, ezRenderData::Category category)
 {
   EZ_PROFILE_AND_MARKER(renderViewContext.m_pRenderContext->GetCommandEncoder(), ezRenderData::GetCategoryName(category));
 
-  auto batchList = m_pPipeline->GetRenderDataBatchesWithCategory(category, filter);
+  auto batchList = m_pPipeline->GetRenderDataBatchesWithCategory(category);
   const ezUInt32 uiBatchCount = batchList.GetBatchCount();
   for (ezUInt32 i = 0; i < uiBatchCount; ++i)
   {
@@ -86,7 +86,7 @@ void ezRenderPipelinePass::RenderDataWithCategory(const ezRenderViewContext& ren
     {
       const ezRTTI* pType = pRenderData->GetDynamicRTTI();
 
-      if (const ezRenderer* pRenderer = ezRenderData::GetCategoryRenderer(category, pType))
+      if (const ezRenderer* pRenderer = ezRendererRegistry::GetRenderer(pType))
       {
         pRenderer->RenderBatch(renderViewContext, this, batch);
       }

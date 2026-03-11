@@ -1,0 +1,70 @@
+/* Styles for vertical and horizontal scrollbars.
+   Horizontal scrollbar is currently disabled (height/width set to 0).
+*/
+
+scrollbarvertical {
+	margin-top: -6dp;
+	margin-bottom: -6dp;
+	margin-right: -11dp;
+	width: 27dp;
+}
+
+scrollbarvertical slidertrack {
+	decorator: tiled-vertical(slidertrack-t, slidertrack-c, slidertrack-b);
+}
+
+scrollbarvertical slidertrack:active {
+	image-color: #aaa;
+}
+
+scrollbarvertical sliderbar {
+	margin-left: 4dp;
+	width: 23dp;
+	min-height: 46dp;
+
+	decorator: tiled-vertical(sliderbar-t, sliderbar-c, sliderbar-b);
+}
+
+scrollbarvertical sliderbar:hover {
+	decorator: tiled-vertical(sliderbar-hover-t, sliderbar-hover-c, sliderbar-hover-b);
+}
+
+scrollbarvertical sliderbar:active {
+	decorator: tiled-vertical(sliderbar-active-t, sliderbar-active-c, sliderbar-active-b);
+}
+
+scrollbarvertical sliderarrowdec,
+scrollbarvertical sliderarrowinc {
+	width: 27dp;
+	height: 24dp;
+}
+
+scrollbarvertical sliderarrowdec {
+	decorator: image(sliderarrowdec);
+}
+
+scrollbarvertical sliderarrowdec:hover {
+	decorator: image(sliderarrowdec-hover);
+}
+
+scrollbarvertical sliderarrowdec:active {
+	decorator: image(sliderarrowdec-active);
+}
+
+scrollbarvertical sliderarrowinc {
+	decorator: image(sliderarrowinc);
+}
+
+scrollbarvertical sliderarrowinc:hover {
+	decorator: image(sliderarrowinc-hover);
+}
+
+scrollbarvertical sliderarrowinc:active {
+	decorator: image(sliderarrowinc-active);
+}
+
+/* Horizontal scrollbar is disabled for now. */
+scrollbarhorizontal {
+	width: 0;
+	height: 0;
+}

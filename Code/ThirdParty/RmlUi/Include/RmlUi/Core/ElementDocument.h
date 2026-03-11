@@ -1,33 +1,4 @@
-/*
- * This source file is part of RmlUi, the HTML/CSS Interface Middleware
- *
- * For the latest information, see http://github.com/mikke89/RmlUi
- *
- * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
- */
-
-#ifndef RMLUI_CORE_ELEMENTDOCUMENT_H
-#define RMLUI_CORE_ELEMENTDOCUMENT_H
+#pragma once
 
 #include "Element.h"
 
@@ -39,31 +10,27 @@ class DocumentHeader;
 class ElementText;
 class StyleSheet;
 class StyleSheetContainer;
+enum class NavigationSearchDirection;
+
+/** ModalFlag controls the modal state of the document. */
+enum class ModalFlag {
+	None,  // Remove modal state.
+	Modal, // Set modal state, other documents cannot receive focus.
+	Keep,  // Modal state unchanged.
+};
+/** FocusFlag controls the focus when showing the document. */
+enum class FocusFlag {
+	None,     // No focus.
+	Document, // Focus the document.
+	Keep,     // Focus the element in the document which last had focus.
+	Auto,     // Focus the first tab element with the 'autofocus' attribute or else the document.
+};
 
 /**
-	 ModalFlag used for controlling the modal state of the document.
-		None:  Remove modal state.
-		Modal: Set modal state, other documents cannot receive focus.
-		Keep:  Modal state unchanged.
-
-	FocusFlag used for displaying the document.
-		None:     No focus.
-		Document: Focus the document.
-		Keep:     Focus the element in the document which last had focus.
-		Auto:     Focus the first tab element with the 'autofocus' attribute or else the document.
-*/
-enum class ModalFlag { None, Modal, Keep };
-enum class FocusFlag { None, Document, Keep, Auto };
-
-
-/**
-	Represents a document in the dom tree.
-
-	@author Lloyd Weehuizen
+    Represents a document in the dom tree.
  */
 
-class RMLUICORE_API ElementDocument : public Element
-{
+class RMLUICORE_API ElementDocument : public Element {
 public:
 	RMLUI_RTTI_DefineWithParent(ElementDocument, Element)
 
@@ -109,6 +76,7 @@ public:
 	/// Hide the document.
 	void Hide();
 	/// Close the document.
+	/// @note The destruction of the document is deferred until the next call to Context::Update().
 	void Close();
 
 	/// Creates the named element.
@@ -122,45 +90,53 @@ public:
 	/// @return True if the document is hogging focus.
 	bool IsModal() const;
 
-	/// Load a inline script into the document. Note that the base implementation does nothing, scripting language addons hook
-	/// this method.
+	/// Finds the next tabbable element in the document tree, starting at the given element, possibly wrapping around the document.
+	/// @param[in] current_element The element to start from.
+	/// @param[in] forward True to search forward, false to search backward.
+	/// @return The next tabbable element, or nullptr if none could be found.
+	Element* FindNextTabElement(Element* current_element, bool forward);
+
+	/// Loads an inline script into the document. Note that the base implementation does nothing, but script plugins can hook into this method.
 	/// @param[in] content The script content.
 	/// @param[in] source_path Path of the script the source comes from, useful for debug information.
 	/// @param[in] source_line Line of the script the source comes from, useful for debug information.
 	virtual void LoadInlineScript(const String& content, const String& source_path, int source_line);
-
-	/// Load a external script into the document. Note that the base implementation does nothing, scripting language addons hook
-	/// this method.
+	/// Loads an external script into the document. Note that the base implementation does nothing, but script plugins can hook into this method.
 	/// @param[in] source_path The script file path.
 	virtual void LoadExternalScript(const String& source_path);
 
-	/// Updates the document, including its layout. Users must call this manually before requesting information such as 
-	/// size or position of an element if any element in the document was recently changed, unless Context::Update has
-	/// already been called after the change. This has a perfomance penalty, only call when necessary.
+	/// Updates the document, including its layout. Users must call this manually before requesting information such as
+	/// the size or position of an element if any element in the document was recently changed, unless Context::Update
+	/// has already been called after the change. This has a performance penalty, only call when necessary.
 	void UpdateDocument();
-	
+
 protected:
 	/// Repositions the document if necessary.
 	void OnPropertyChange(const PropertyIdSet& changed_properties) override;
 
-	/// Processes the 'onpropertychange' event, checking for a change in position or size.
+	/// Processes any events specially handled by the document.
 	void ProcessDefaultAction(Event& event) override;
 
 	/// Called during update if the element size has been changed.
 	void OnResize() override;
 
+	/// Returns whether the document can receive focus during click when another document is modal.
+	bool IsFocusableFromModal() const;
+	/// Sets whether the document can receive focus when another document is modal.
+	void SetFocusableFromModal(bool focusable);
+
 private:
-	/// Find the next element to focus, starting at the current element
-	Element* FindNextTabElement(Element* current_element, bool forward);
-	/// Searches forwards or backwards for a focusable element in the given substree
+	/// Searches forwards or backwards for a focusable element in the given subtree.
 	Element* SearchFocusSubtree(Element* element, bool forward);
+	/// Find the next element to navigate to, starting at the current element.
+	Element* FindNextNavigationElement(Element* current_element, NavigationSearchDirection direction, const Property& property);
 
 	/// Sets the dirty flag on the layout so the document will format its children before the next render.
 	void DirtyLayout() override;
 	/// Returns true if the document has been marked as needing a re-layout.
 	bool IsLayoutDirty() override;
 
-	/// Notify the document that media query related properties have changed and that style sheets need to be re-evaluated.
+	/// Notify the document that media query-related properties have changed and that style sheets need to be re-evaluated.
 	void DirtyMediaQueries();
 
 	/// Updates all sizes defined by the 'vw' and the 'vh' units.
@@ -174,29 +150,21 @@ private:
 	/// Sets the dirty flag for document positioning
 	void DirtyPosition();
 
-	// Title of the document
 	String title;
-
-	// The original path this document came from
 	String source_url;
 
-	// The document's style sheet container.
 	SharedPtr<StyleSheetContainer> style_sheet_container;
 
 	Context* context;
 
-	// Is the current display modal
 	bool modal;
+	bool focusable_from_modal;
 
-	// Is the layout dirty?
 	bool layout_dirty;
-
 	bool position_dirty;
 
 	friend class Rml::Context;
 	friend class Rml::Factory;
-
 };
 
 } // namespace Rml
-#endif

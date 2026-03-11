@@ -12,35 +12,39 @@ struct ezGALShaderResourceType
   {
     Unknown = 0,
     /// Texture sampler (ezGALSamplerStateHandle). HLSL: SamplerState, SamplerComparisonState
-    Sampler,
+    Sampler = 1,
 
     /// Read-only struct (ezGALBufferHandle). HLSL: cbuffer, ConstantBuffer
-    ConstantBuffer,
+    ConstantBuffer = 2,
     // Read-only struct. Set directly via ezGALCommandEncoder::SetPushConstants. HLSL: Use macro BEGIN_PUSH_CONSTANTS, END_PUSH_CONSTANTS, GET_PUSH_CONSTANT
-    PushConstants,
+    PushConstants = 3,
 
-    /// \name Shader Resource Views (SRVs). These are set via ezGALTextureResourceViewHandle / ezGALBufferResourceViewHandle.
+    /// \name Shader Resource Views (SRVs).
     ///@{
 
     /// Read-only texture view. When set, ezGALShaderTextureType is also set. HLSL: Texture*
-    Texture,
+    Texture = 4,
     /// Read-only texture view with attached sampler. When set, ezGALShaderTextureType is also set. HLSL: Name sampler the same as texture with _AutoSampler appended.
-    TextureAndSampler,
+    TextureAndSampler = 5,
     /// Read-only texel buffer. It's like a 1D texture. HLSL: Buffer
-    TexelBuffer,
-    /// Read-only array of structs. HLSL: StructuredBuffer<T>, ByteAddressBuffer.
-    StructuredBuffer,
+    TexelBuffer = 6,
+    /// Read-only array of structs. HLSL: StructuredBuffer<T>
+    StructuredBuffer = 7,
+    /// Read-only array of bytes. HLSL: ByteAddressBuffer
+    ByteAddressBuffer = 11,
 
     ///@}
-    /// \name Unordered Access Views (UAVs). These are set via ezGALTextureUnorderedAccessViewHandle / ezGALBufferUnorderedAccessViewHandle.
+    /// \name Unordered Access Views (UAVs).
     ///@{
 
     /// Read-write texture view. When set, ezGALShaderTextureType is also set. HLSL: RWTexture*
-    TextureRW,
+    TextureRW = 8,
     /// Read-write texel buffer. It's like a 1D texture. HLSL: RWBuffer
-    TexelBufferRW,
-    /// Read-write array of structs. HLSL: RWStructuredBuffer<T>, RWByteAddressBuffer, AppendStructuredBuffer, ConsumeStructuredBuffer
-    StructuredBufferRW,
+    TexelBufferRW = 9,
+    /// Read-write array of structs. HLSL: RWStructuredBuffer<T>, AppendStructuredBuffer, ConsumeStructuredBuffer
+    StructuredBufferRW = 10,
+    /// Read-write array of bytes. HLSL: RWByteAddressBuffer
+    ByteAddressBufferRW = 12,
 
     ///@}
 
@@ -50,7 +54,7 @@ struct ezGALShaderResourceType
     // Not supported: (Vulkan) VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, frame-buffer local read-only image view. Required for render passes on mobile.
     // Not supported: (Vulkan) VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK,Vulkan 1.3 addition, surpasses push-constants but not widely supported yet. May be able to abstract this via PushConstants and custom shader compiler / GAL implementations.
     // Not supported: (Vulkan) VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR, Vulkan extension for raytracing.
-
+    COUNT = ByteAddressBufferRW + 1,
     Default = Unknown
   };
 };
@@ -65,10 +69,10 @@ struct ezGALShaderResourceCategory
   {
     Sampler = EZ_BIT(0),        //< Sampler (ezGALSamplerStateHandle).
     ConstantBuffer = EZ_BIT(1), //< Constant Buffer (ezGALBufferHandle)
-    TextureSRV = EZ_BIT(2),     //< Shader Resource Views (ezGALTextureResourceViewHandle).
-    BufferSRV = EZ_BIT(3),      //< Shader Resource Views (ezGALBufferResourceViewHandle).
-    TextureUAV = EZ_BIT(4),     //< Unordered Access Views (ezGALTextureUnorderedAccessViewHandle).
-    BufferUAV = EZ_BIT(5),      //< Unordered Access Views (ezGALBufferUnorderedAccessViewHandle).
+    TextureSRV = EZ_BIT(2),     //< Shader Resource Views
+    BufferSRV = EZ_BIT(3),      //< Shader Resource Views
+    TextureUAV = EZ_BIT(4),     //< Unordered Access Views
+    BufferUAV = EZ_BIT(5),      //< Unordered Access Views
     Default = 0
   };
 
@@ -108,6 +112,8 @@ struct ezGALShaderTextureType
   };
 
   static bool IsArray(ezGALShaderTextureType::Enum format);
+  static bool IsMSAA(ezGALShaderTextureType::Enum format);
+  static ezGALTextureType::Enum GetTextureType(ezGALShaderTextureType::Enum format);
 };
 
 /// \brief Defines a swap chain's present mode.
@@ -155,16 +161,45 @@ struct ezGALVertexAttributeSemantic
     TexCoord8,
     TexCoord9,
 
-    BiTangent,
+    BiTangent, // Not commonly used
+
     BoneIndices0,
     BoneIndices1,
     BoneWeights0,
     BoneWeights1,
 
+    DataOffsets,
+
     ENUM_COUNT,
     Default = Position
   };
 };
+
+/// \brief Defines for what purpose a texture can be used for.
+/// \sa ezGALTextureCreationDescription
+struct ezGALTextureUsageFlags
+{
+  using StorageType = ezUInt8;
+
+  enum Enum
+  {
+    ShaderResource = EZ_BIT(0),       ///< Can be used for ezGALShaderResourceType in the SRV section.
+    UnorderedAccess = EZ_BIT(1),      ///< Can be used for ezGALShaderResourceType in the UAV section.
+    RenderTarget = EZ_BIT(2),         ///< Can be used as a render target or depth-stencil target.
+    DynamicMipGeneration = EZ_BIT(3), ///< Supports dynamic mipmap generation.
+
+    Default = ShaderResource
+  };
+
+  struct Bits
+  {
+    StorageType ShaderResource : 1;
+    StorageType UnorderedAccess : 1;
+    StorageType RenderTarget : 1;
+    StorageType DynamicMipGeneration : 1;
+  };
+};
+EZ_DECLARE_FLAGS_OPERATORS(ezGALTextureUsageFlags);
 
 /// \brief Defines for what purpose a buffer can be used for.
 /// \sa ezGALBufferCreationDescription
@@ -184,6 +219,7 @@ struct ezGALBufferUsageFlags
     ShaderResource = EZ_BIT(6),    ///< Can be used for ezGALShaderResourceType in the SRV section.
     UnorderedAccess = EZ_BIT(7),   ///< Can be used for ezGALShaderResourceType in the UAV section.
     DrawIndirect = EZ_BIT(8),      ///< Can be used in an indirect draw call.
+    Transient = EZ_BIT(9),         ///< Does not persist across frames. If ConstantBuffer is also set, it can be updated multiple times per frame in the middle of any operation as new memory is created on every update call.
 
     Default = 0
   };
@@ -199,12 +235,12 @@ struct ezGALBufferUsageFlags
     StorageType ShaderResource : 1;
     StorageType UnorderedAccess : 1;
     StorageType DrawIndirect : 1;
+    StorageType Transient : 1;
   };
 };
 EZ_DECLARE_FLAGS_OPERATORS(ezGALBufferUsageFlags);
 
 /// \brief Type of GPU->CPU query.
-/// \sa ezGALQueryCreationDescription
 struct ezGALQueryType
 {
   using StorageType = ezUInt8;
@@ -213,13 +249,10 @@ struct ezGALQueryType
   {
     /// Number of samples that passed the depth and stencil test between begin and end (on a context).
     NumSamplesPassed,
-    /// Boolean version of NumSamplesPassed.
+    /// Boolean version of NumSamplesPassed. Any number bigger than 0 equals true.
     AnySamplesPassed,
 
     Default = NumSamplesPassed
-
-    // Note:
-    // GALFence provides an implementation of "event queries".
   };
 };
 

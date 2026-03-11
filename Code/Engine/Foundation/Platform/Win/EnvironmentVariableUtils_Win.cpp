@@ -8,7 +8,7 @@
 #  include <Foundation/Threading/Mutex.h>
 #  include <Foundation/Utilities/ConversionUtils.h>
 
-#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #  include <intsafe.h>
 
 ezString ezEnvironmentVariableUtils::GetValueStringImpl(ezStringView sName, ezStringView szDefault)

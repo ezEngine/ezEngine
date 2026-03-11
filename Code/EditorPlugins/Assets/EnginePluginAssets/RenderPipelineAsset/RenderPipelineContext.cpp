@@ -9,7 +9,7 @@
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
-#include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
+#include <ToolsFoundation/VisualGraph/VisualGraphObjectManager.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelineContext, 1, ezRTTIDefaultAllocator<ezRenderPipelineContext>)

@@ -1,6 +1,8 @@
 #include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
+#include <EditorPluginVisualScript/VisualScriptClassAsset/VisualScriptClassAsset.h>
 #include <EditorPluginVisualScript/VisualScriptGraph/VisualScriptGraph.h>
+#include <EditorPluginVisualScript/VisualScriptGraph/VisualScriptVariable.moc.h>
 #include <Foundation/SimdMath/SimdRandom.h>
 #include <Foundation/Utilities/DGMLWriter.h>
 
@@ -10,7 +12,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezVisualScriptPin::ezVisualScriptPin(Type type, ezStringView sName, const ezVisualScriptNodeRegistry::PinDesc& pinDesc, const ezDocumentObject* pObject, ezUInt32 uiDataPinIndex, ezUInt32 uiElementIndex)
-  : ezPin(type, sName, pinDesc.GetColor(), pObject)
+  : ezVisualGraphPin(type, sName, pinDesc.GetColor(), pObject)
   , m_pDesc(&pinDesc)
   , m_uiDataPinIndex(uiDataPinIndex)
   , m_uiElementIndex(uiElementIndex)
@@ -51,7 +53,9 @@ ezStringView ezVisualScriptPin::GetDataTypeName() const
     return ezVisualScriptDataType::GetName(GetScriptDataType());
   }
 
-  if ((resolvedDataType == ezVisualScriptDataType::TypedPointer || resolvedDataType == ezVisualScriptDataType::EnumValue) && GetDataType() != nullptr)
+  if ((resolvedDataType == ezVisualScriptDataType::TypedPointer ||
+        resolvedDataType == ezVisualScriptDataType::EnumValue || resolvedDataType == ezVisualScriptDataType::BitflagValue) &&
+      GetDataType() != nullptr)
   {
     return GetDataType()->GetTypeName();
   }
@@ -67,10 +71,6 @@ bool ezVisualScriptPin::CanConvertTo(const ezVisualScriptPin& targetPin, bool bU
   const ezRTTI* pSourceDataType = GetDataType();
   const ezRTTI* pTargetDataType = targetPin.GetDataType();
 
-  if (ezVisualScriptDataType::IsPointer(sourceScriptDataType) &&
-      targetScriptDataType == ezVisualScriptDataType::AnyPointer)
-    return true;
-
   if (sourceScriptDataType == ezVisualScriptDataType::TypedPointer && pSourceDataType != nullptr &&
       targetScriptDataType == ezVisualScriptDataType::TypedPointer && pTargetDataType != nullptr)
     return pSourceDataType->IsDerivedFrom(pTargetDataType);
@@ -79,9 +79,9 @@ bool ezVisualScriptPin::CanConvertTo(const ezVisualScriptPin& targetPin, bool bU
       targetScriptDataType == ezVisualScriptDataType::EnumValue && pTargetDataType != nullptr)
     return pSourceDataType == pTargetDataType;
 
-  if (sourceScriptDataType == ezVisualScriptDataType::Any ||
-      targetScriptDataType == ezVisualScriptDataType::Any)
-    return true;
+  if (sourceScriptDataType == ezVisualScriptDataType::BitflagValue && pSourceDataType != nullptr &&
+      targetScriptDataType == ezVisualScriptDataType::BitflagValue && pTargetDataType != nullptr)
+    return pSourceDataType == pTargetDataType;
 
   return ezVisualScriptDataType::CanConvertTo(sourceScriptDataType, targetScriptDataType);
 }
@@ -131,12 +131,16 @@ bool ezVisualScriptNodeManager::IsFilteredByBaseClass(const ezRTTI* pNodeType, c
 
 ezVisualScriptDataType::Enum ezVisualScriptNodeManager::GetVariableType(ezTempHashedString sName) const
 {
-  ezVariant defaultValue;
-  GetVariableDefaultValue(sName, defaultValue).IgnoreResult();
-  return ezVisualScriptDataType::FromVariantType(defaultValue.GetType());
+  ezVisualScriptVariable variable;
+  if (GetVariable(sName, variable).Succeeded())
+  {
+    return variable.m_TypeDecl.GetDataType();
+  }
+
+  return ezVisualScriptDataType::Invalid;
 }
 
-ezResult ezVisualScriptNodeManager::GetVariableDefaultValue(ezTempHashedString sName, ezVariant& out_value) const
+ezResult ezVisualScriptNodeManager::GetVariable(ezTempHashedString sName, ezVisualScriptVariable& out_variable) const
 {
   if (GetRootObject()->GetChildren().IsEmpty() == false)
   {
@@ -156,12 +160,40 @@ ezResult ezVisualScriptNodeManager::GetVariableDefaultValue(ezTempHashedString s
       if (nameVar.IsA<ezHashedString>() == false || nameVar.Get<ezHashedString>() != sName)
         continue;
 
-      out_value = pVariableObject->GetTypeAccessor().GetValue("DefaultValue");
+      out_variable.m_sName = nameVar.Get<ezHashedString>();
+      out_variable.m_TypeDecl = pVariableObject->GetTypeAccessor().GetValue("Type").Get<ezVisualScriptVariableTypeDeclaration>();
+      out_variable.m_DefaultValue = pVariableObject->GetTypeAccessor().GetValue("DefaultValue");
       return EZ_SUCCESS;
     }
   }
 
   return EZ_FAILURE;
+}
+
+void ezVisualScriptNodeManager::GetAllVariables(ezDynamicArray<ezVisualScriptVariable>& out_variables) const
+{
+  out_variables.Clear();
+
+  if (GetRootObject()->GetChildren().IsEmpty() == false)
+  {
+    auto& typeAccessor = GetRootObject()->GetChildren()[0]->GetTypeAccessor();
+    ezUInt32 uiNumVariables = typeAccessor.GetCount("Variables");
+    for (ezUInt32 i = 0; i < uiNumVariables; ++i)
+    {
+      ezVariant variableUuid = typeAccessor.GetValue("Variables", i);
+      if (variableUuid.IsA<ezUuid>() == false)
+        continue;
+
+      auto pVariableObject = GetObject(variableUuid.Get<ezUuid>());
+      if (pVariableObject == nullptr)
+        continue;
+
+      auto& variable = out_variables.ExpandAndGetRef();
+      variable.m_sName = pVariableObject->GetTypeAccessor().GetValue("Name").ConvertTo<ezHashedString>();
+      variable.m_TypeDecl = pVariableObject->GetTypeAccessor().GetValue("Type").Get<ezVisualScriptVariableTypeDeclaration>();
+      variable.m_DefaultValue = pVariableObject->GetTypeAccessor().GetValue("DefaultValue");
+    }
+  }
 }
 
 void ezVisualScriptNodeManager::GetInputExecutionPins(const ezDocumentObject* pObject, ezDynamicArray<const ezVisualScriptPin*>& out_pins) const
@@ -226,11 +258,11 @@ void ezVisualScriptNodeManager::GetOutputDataPins(const ezDocumentObject* pObjec
 
 void ezVisualScriptNodeManager::GetEntryNodes(const ezDocumentObject* pObject, ezDynamicArray<const ezDocumentObject*>& out_entryNodes) const
 {
-  ezHybridArray<const ezDocumentObject*, 64> nodeStack;
+  ezTempHybridArray<const ezDocumentObject*, 64> nodeStack;
   nodeStack.PushBack(pObject);
 
   ezHashSet<const ezDocumentObject*> visitedNodes;
-  ezHybridArray<const ezVisualScriptPin*, 16> pins;
+  ezTempHybridArray<const ezVisualScriptPin*, 16> pins;
 
   while (nodeStack.IsEmpty() == false)
   {
@@ -358,7 +390,7 @@ bool ezVisualScriptNodeManager::InternalIsDynamicPinProperty(const ezDocumentObj
   return false;
 }
 
-ezStatus ezVisualScriptNodeManager::InternalCanConnect(const ezPin& source, const ezPin& target, CanConnectResult& out_result) const
+ezStatus ezVisualScriptNodeManager::InternalCanConnect(const ezVisualGraphPin& source, const ezVisualGraphPin& target, CanConnectResult& out_result) const
 {
   const ezVisualScriptPin& pinSource = ezStaticCast<const ezVisualScriptPin&>(source);
   const ezVisualScriptPin& pinTarget = ezStaticCast<const ezVisualScriptPin&>(target);
@@ -406,8 +438,8 @@ void ezVisualScriptNodeManager::InternalCreatePins(const ezDocumentObject* pObje
   if (pNodeDesc == nullptr)
     return;
 
-  ezHybridArray<ezString, 16> dynamicPinNames;
-  auto CreatePins = [&](const ezVisualScriptNodeRegistry::PinDesc& pinDesc, ezPin::Type type, ezDynamicArray<ezUniquePtr<ezPin>>& out_pins, ezUInt32& inout_dataPinIndex)
+  ezTempHybridArray<ezString, 16> dynamicPinNames;
+  auto CreatePins = [&](const ezVisualScriptNodeRegistry::PinDesc& pinDesc, ezVisualGraphPin::Type type, ezDynamicArray<ezUniquePtr<ezVisualGraphPin>>& out_pins, ezUInt32& inout_dataPinIndex)
   {
     if (pinDesc.m_sDynamicPinProperty.IsEmpty() == false)
     {
@@ -436,17 +468,17 @@ void ezVisualScriptNodeManager::InternalCreatePins(const ezDocumentObject* pObje
   ezUInt32 uiDataPinIndex = 0;
   for (const auto& pinDesc : pNodeDesc->m_InputPins)
   {
-    CreatePins(pinDesc, ezPin::Type::Input, ref_node.m_Inputs, uiDataPinIndex);
+    CreatePins(pinDesc, ezVisualGraphPin::Type::Input, ref_node.m_Inputs, uiDataPinIndex);
   }
 
   uiDataPinIndex = 0;
   for (const auto& pinDesc : pNodeDesc->m_OutputPins)
   {
-    CreatePins(pinDesc, ezPin::Type::Output, ref_node.m_Outputs, uiDataPinIndex);
+    CreatePins(pinDesc, ezVisualGraphPin::Type::Output, ref_node.m_Outputs, uiDataPinIndex);
   }
 }
 
-void ezVisualScriptNodeManager::GetNodeCreationTemplates(ezDynamicArray<ezNodeCreationTemplate>& out_templates) const
+void ezVisualScriptNodeManager::GetNodeCreationTemplates(ezDynamicArray<ezVisualGraphNodeDesc>& out_templates) const
 {
   auto pRegistry = ezVisualScriptNodeRegistry::GetSingleton();
   auto propertyValues = pRegistry->GetPropertyValues();
@@ -528,11 +560,11 @@ void ezVisualScriptNodeManager::GetNodeCreationTemplates(ezDynamicArray<ezNodeCr
   }
 }
 
-void ezVisualScriptNodeManager::NodeEventsHandler(const ezDocumentNodeManagerEvent& e)
+void ezVisualScriptNodeManager::NodeEventsHandler(const ezVisualGraphObjectManagerEvent& e)
 {
   switch (e.m_EventType)
   {
-    case ezDocumentNodeManagerEvent::Type::AfterPinsConnected:
+    case ezVisualGraphObjectManagerEvent::Type::AfterPinsConnected:
     {
       auto& connection = GetConnection(e.m_pObject);
       auto& targetPin = connection.GetTargetPin();
@@ -541,7 +573,7 @@ void ezVisualScriptNodeManager::NodeEventsHandler(const ezDocumentNodeManagerEve
     }
     break;
 
-    case ezDocumentNodeManagerEvent::Type::BeforePinsDisonnected:
+    case ezVisualGraphObjectManagerEvent::Type::BeforePinsDisonnected:
     {
       auto& connection = GetConnection(e.m_pObject);
       auto& targetPin = connection.GetTargetPin();
@@ -550,13 +582,13 @@ void ezVisualScriptNodeManager::NodeEventsHandler(const ezDocumentNodeManagerEve
     }
     break;
 
-    case ezDocumentNodeManagerEvent::Type::AfterNodeAdded:
+    case ezVisualGraphObjectManagerEvent::Type::AfterNodeAdded:
     {
       DeductNodeTypeAndAllPinTypes(e.m_pObject);
     }
     break;
 
-    case ezDocumentNodeManagerEvent::Type::BeforeNodeRemoved:
+    case ezVisualGraphObjectManagerEvent::Type::BeforeNodeRemoved:
     {
       m_ObjectToDeductedType.Remove(e.m_pObject);
     }
@@ -573,14 +605,24 @@ void ezVisualScriptNodeManager::PropertyEventsHandler(const ezDocumentObjectProp
   {
     DeductNodeTypeAndAllPinTypes(e.m_pObject);
   }
-  else if (e.m_sProperty == "Name" || e.m_sProperty == "DefaultValue") // a variable's name or default value has changed, re-run type deduction
+  else if (e.m_pObject->GetType() == ezGetStaticRTTI<ezVisualScriptVariable>() && (e.m_sProperty == "Name" || e.m_sProperty == "Type"))
   {
+    // a variable's name or type has changed, re-run type deduction
     for (auto pObject : GetRootObject()->GetChildren())
     {
       if (IsNode(pObject) == false)
         continue;
 
       DeductNodeTypeAndAllPinTypes(pObject);
+    }
+
+    if (e.m_sProperty == "Type")
+    {
+      auto typeDecl = e.m_NewValue.Get<ezVisualScriptVariableTypeDeclaration>();
+      ezVariant defaultValue = e.m_pObject->GetTypeAccessor().GetValue("DefaultValue");
+      ezVisualScriptVariable::ConvertDefaultValue(defaultValue, typeDecl);
+
+      GetDocument()->GetObjectAccessor()->SetValueByName(e.m_pObject, "DefaultValue", defaultValue).AssertSuccess();
     }
   }
 }
@@ -590,7 +632,7 @@ void ezVisualScriptNodeManager::RemoveDeductedPinType(const ezVisualScriptPin& p
   m_PinToDeductedType.Remove(&pin);
 }
 
-void ezVisualScriptNodeManager::DeductNodeTypeAndAllPinTypes(const ezDocumentObject* pObject, const ezPin* pDisconnectedPin /*= nullptr*/)
+void ezVisualScriptNodeManager::DeductNodeTypeAndAllPinTypes(const ezDocumentObject* pObject, const ezVisualGraphPin* pDisconnectedPin /*= nullptr*/)
 {
   auto pNodeDesc = ezVisualScriptNodeRegistry::GetSingleton()->GetNodeDescForType(pObject->GetType());
   if (pNodeDesc == nullptr || pNodeDesc->NeedsTypeDeduction() == false)
@@ -609,7 +651,7 @@ void ezVisualScriptNodeManager::DeductNodeTypeAndAllPinTypes(const ezDocumentObj
   }
 
   bool bAnyInputPinChanged = false;
-  ezHybridArray<const ezVisualScriptPin*, 16> pins;
+  ezTempHybridArray<const ezVisualScriptPin*, 16> pins;
   GetInputDataPins(pObject, pins);
   for (auto pPin : pins)
   {
@@ -659,13 +701,13 @@ void ezVisualScriptNodeManager::DeductNodeTypeAndAllPinTypes(const ezDocumentObj
   }
 }
 
-void ezVisualScriptNodeManager::UpdateCoroutine(const ezDocumentObject* pTargetNode, const ezConnection& changedConnection, bool bIsAboutToDisconnect)
+void ezVisualScriptNodeManager::UpdateCoroutine(const ezDocumentObject* pTargetNode, const ezVisualGraphConnection& changedConnection, bool bIsAboutToDisconnect)
 {
   auto vsPin = static_cast<const ezVisualScriptPin&>(changedConnection.GetTargetPin());
   if (vsPin.IsExecutionPin() == false)
     return;
 
-  ezHybridArray<const ezDocumentObject*, 16> entryNodes;
+  ezTempHybridArray<const ezDocumentObject*, 16> entryNodes;
   GetEntryNodes(pTargetNode, entryNodes);
 
   for (auto pEntryNode : entryNodes)
@@ -689,13 +731,13 @@ void ezVisualScriptNodeManager::UpdateCoroutine(const ezDocumentObject* pTargetN
   }
 }
 
-bool ezVisualScriptNodeManager::IsConnectedToCoroutine(const ezDocumentObject* pEntryNode, const ezConnection& changedConnection, bool bIsAboutToDisconnect) const
+bool ezVisualScriptNodeManager::IsConnectedToCoroutine(const ezDocumentObject* pEntryNode, const ezVisualGraphConnection& changedConnection, bool bIsAboutToDisconnect) const
 {
-  ezHybridArray<const ezDocumentObject*, 64> nodeStack;
+  ezTempHybridArray<const ezDocumentObject*, 64> nodeStack;
   nodeStack.PushBack(pEntryNode);
 
   ezHashSet<const ezDocumentObject*> visitedNodes;
-  ezHybridArray<const ezVisualScriptPin*, 16> pins;
+  ezTempHybridArray<const ezVisualScriptPin*, 16> pins;
 
   while (nodeStack.IsEmpty() == false)
   {

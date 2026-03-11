@@ -7,7 +7,7 @@ class ezReflectedClass;
 class ezVariant;
 struct ezTime;
 class ezUuid;
-struct ezStringView;
+class ezStringView;
 struct ezTypedObject;
 struct ezTypedPointer;
 

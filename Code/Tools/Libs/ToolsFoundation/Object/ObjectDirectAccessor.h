@@ -6,6 +6,8 @@ class ezDocumentObjectManager;
 
 class EZ_TOOLSFOUNDATION_DLL ezObjectDirectAccessor : public ezObjectAccessorBase
 {
+  EZ_ADD_DYNAMIC_REFLECTION(ezObjectDirectAccessor, ezObjectAccessorBase);
+
 public:
   ezObjectDirectAccessor(ezDocumentObjectManager* pManager);
 

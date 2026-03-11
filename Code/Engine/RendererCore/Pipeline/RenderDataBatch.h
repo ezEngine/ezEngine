@@ -2,6 +2,11 @@
 
 #include <RendererCore/Pipeline/Declarations.h>
 
+/// Represents a batch of render data that can be rendered together.
+///
+/// Render data is grouped into batches to minimize state changes during rendering.
+/// Each batch contains render data of the same type, sorted by a sorting key.
+/// Provides iterator access to iterate through the typed render data.
 class ezRenderDataBatch
 {
 private:
@@ -14,11 +19,9 @@ private:
   };
 
 public:
-  // EZ_DECLARE_POD_TYPE(); // ezDelegate has a destructor and therefore ezRenderDataBatch can't be POD
+  EZ_DECLARE_POD_TYPE();
 
-  /// \brief This function should return true if the given render data should be filtered and not rendered.
-  using Filter = ezDelegate<bool(const ezRenderData*)>;
-
+  /// Iterator for traversing typed render data within a batch.
   template <typename T>
   class Iterator
   {
@@ -28,8 +31,10 @@ public:
 
     operator const T*() const;
 
+    /// Advances to the next element.
     void Next();
 
+    /// Returns true if the iterator points to a valid element.
     bool IsValid() const;
 
     void operator++();
@@ -37,14 +42,13 @@ public:
   private:
     friend class ezRenderDataBatch;
 
-    Iterator(const SortableRenderData* pStart, const SortableRenderData* pEnd, Filter filter);
+    Iterator(const SortableRenderData* pStart, const SortableRenderData* pEnd);
 
-    Filter m_Filter;
     const SortableRenderData* m_pCurrent;
     const SortableRenderData* m_pEnd;
   };
 
-  ezUInt32 GetCount() const;
+  ezUInt32 GetDataCount() const;
 
   template <typename T>
   const T* GetFirstData() const;
@@ -52,25 +56,34 @@ public:
   template <typename T>
   Iterator<T> GetIterator(ezUInt32 uiStartIndex = 0, ezUInt32 uiCount = ezInvalidIndex) const;
 
+  ezGALBufferHandle GetDataOffsetsBuffer() const;
+  ezUInt32 GetFirstDataOffsetIndex() const;
+  ezUInt32 GetInstanceCount() const;
+
 private:
   friend class ezExtractedRenderData;
   friend class ezRenderDataBatchList;
 
-  Filter m_Filter;
   ezArrayPtr<SortableRenderData> m_Data;
+
+  ezGALBufferHandle m_hDataOffsetsBuffer;
+  ezUInt32 m_uiFirstDataOffsetIndex = 0;
+  ezUInt32 m_uiInstanceCount = 0;
 };
 
+/// Contains a list of render data batches for a specific render category.
+///
+/// Used to access all batches that need to be rendered for a particular category.
 class ezRenderDataBatchList
 {
 public:
   ezUInt32 GetBatchCount() const;
 
-  ezRenderDataBatch GetBatch(ezUInt32 uiIndex) const;
+  const ezRenderDataBatch& GetBatch(ezUInt32 uiIndex) const;
 
 private:
   friend class ezExtractedRenderData;
 
-  ezRenderDataBatch::Filter m_Filter;
   ezArrayPtr<const ezRenderDataBatch> m_Batches;
 };
 

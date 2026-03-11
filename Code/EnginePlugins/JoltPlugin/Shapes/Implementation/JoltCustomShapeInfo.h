@@ -43,10 +43,12 @@ public:
   virtual Stats GetStats() const override { return Stats(sizeof(*this), 0); }
   virtual float GetVolume() const override;
 
+  virtual Stats GetStatsRecursive(VisitedShapes& ref_ioVisitedShapes) const override;
+
   // Register shape functions with the registry
   static void sRegister();
 
-  void CollideSoftBodyVertices(JPH::Mat44Arg centerOfMassTransform, JPH::Vec3Arg scale, JPH::SoftBodyVertex* pVertices, JPH::uint numVertices, float fDeltaTime, JPH::Vec3Arg displacementDueToGravity, int iCollidingShapeIndex) const override;
+  void CollideSoftBodyVertices(JPH::Mat44Arg centerOfMassTransform, JPH::Vec3Arg scale, const JPH::CollideSoftBodyVertexIterator& vertices, JPH::uint numVertices, int iCollidingShapeIndex) const override;
 
   virtual void CollectTransformedShapes(const JPH::AABox& box, JPH::Vec3Arg positionCOM, JPH::QuatArg rotation, JPH::Vec3Arg scale, const JPH::SubShapeIDCreator& subShapeIDCreator, JPH::TransformedShapeCollector& ref_ioCollector, const JPH::ShapeFilter& shapeFilter) const override;
 

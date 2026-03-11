@@ -22,6 +22,8 @@ public:
 private:
   virtual void SetupSubTests() override;
 
+  virtual ezResult InitializeTest() override;
+  virtual ezResult DeInitializeTest() override;
   virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
   virtual ezResult DeInitializeSubTest(ezInt32 iIdentifier) override;
   virtual ezResult GetImage(ezImage& ref_img, const ezSubTestEntry& subTest, ezUInt32 uiImageNumber) override;
@@ -39,8 +41,10 @@ private:
   ezGALResourceFormat::Enum m_Format = ezGALResourceFormat::Invalid;
   ezShaderResourceHandle m_hUVColorShader;
   ezShaderResourceHandle m_hUVColorIntShader;
+  ezShaderResourceHandle m_hUVColorUIntShader;
   ezShaderResourceHandle m_hUVColorDepthShader;
   ezShaderResourceHandle m_hTexture2DShader;
+  ezShaderResourceHandle m_hTexture2DDepthShader;
   ezShaderResourceHandle m_hTexture2DIntShader;
   ezShaderResourceHandle m_hTexture2DUIntShader;
   ezGALTextureHandle m_hTexture2DReadback;
@@ -48,4 +52,5 @@ private:
   mutable ezImage m_ReadBackResult;
   mutable ezString m_sReadBackReferenceImage;
   bool m_bReadbackInProgress = true;
+  ezGALReadbackTextureHelper m_Readback;
 };

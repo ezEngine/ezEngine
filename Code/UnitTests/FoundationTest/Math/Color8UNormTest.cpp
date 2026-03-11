@@ -81,6 +81,6 @@ EZ_CREATE_SIMPLE_TEST(Math, Color8UNorm)
 
     ezColor c3 = c2;
 
-    EZ_TEST_BOOL(c3.IsEqualRGBA(ezColor::RebeccaPurple, 0.001f));
+    EZ_TEST_BOOL(c3.IsEqualRGBA(ezColor::RebeccaPurple, ezMath::SmallEpsilon<float>()));
   }
 }

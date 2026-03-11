@@ -7,19 +7,21 @@
 #include <FmodPlugin/Resources/FmodSoundEventResource.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Foundation/Platform/PlatformDesc.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 
 EZ_IMPLEMENT_SINGLETON(ezFmod);
 
 static ezFmod g_FmodSingleton;
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT) && EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT) && EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 HANDLE g_hLiveUpdateMutex = NULL;
 #endif
 
-ezCVarFloat cvar_FmodMasterVolume("Fmod.MasterVolume", 1.0f, ezCVarFlags::Save, "Master volume for all Fmod output");
-ezCVarBool cvar_FmodMute("Fmod.Mute", false, ezCVarFlags::Default, "Whether Fmod sound output is muted");
+ezCVarFloat cvar_FmodMasterVolume("FMOD.MasterVolume", 1.0f, ezCVarFlags::Save, "Overall volume for all FMOD output");
+ezCVarBool cvar_FmodMute("FMOD.Mute", false, ezCVarFlags::Default, "Whether FMOD output is muted");
+ezCVarBool cvar_FmodPause("FMOD.Pause", false, ezCVarFlags::Default, "Whether FMOD output is paused");
 
 ezFmod::ezFmod()
   : m_SingletonRegistrar(this)
@@ -46,14 +48,14 @@ void ezFmod::Startup()
 
     if (m_pData->m_Configs.m_AssetProfiles.IsEmpty())
     {
-      ezLog::Warning("No valid Fmod configuration file available in '{0}'. Fmod will be deactivated.", ezFmodAssetProfiles::s_sConfigFile);
+      ezLog::Warning("No valid FMOD configuration file available in '{0}'. FMOD will be deactivated.", ezFmodAssetProfiles::s_sConfigFile);
       return;
     }
   }
 
   if (!m_pData->m_Configs.m_AssetProfiles.Find(m_pData->m_sPlatform).IsValid())
   {
-    ezLog::Error("Fmod configuration for platform '{0}' not available. Fmod will be deactivated.", m_pData->m_sPlatform);
+    ezLog::Error("FMOD configuration for platform '{0}' not available. FMOD will be deactivated.", m_pData->m_sPlatform);
     return;
   }
 
@@ -78,7 +80,7 @@ void ezFmod::Startup()
         break;
     }
 
-    EZ_LOG_BLOCK("Fmod Configuration");
+    EZ_LOG_BLOCK("FMOD Configuration");
     ezLog::Dev("Platform = '{0}', Mode = {1}, Channels = {2}, SamplerRate = {3}", m_pData->m_sPlatform, sMode, config.m_uiVirtualChannels, config.m_uiSamplerRate);
     ezLog::Dev("Master Bank = '{0}'", config.m_sMasterSoundBank);
   }
@@ -92,12 +94,12 @@ void ezFmod::Startup()
   void* extraDriverData = nullptr;
   FMOD_STUDIO_INITFLAGS studioflags = FMOD_STUDIO_INIT_NORMAL;
 
-  // Fmod live update doesn't work with multiple instances and the same default IP
+  // FMOD live update doesn't work with multiple instances and the same default IP
   // bank loading fails, once two processes are running that use this feature with the same IP
   // this could be reconfigured through the advanced settings, but for now we just enable live update for the first process
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   {
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
     // mutex handle will be closed automatically on process termination
     GetLastError(); // clear any pending error codes
     g_hLiveUpdateMutex = CreateMutexW(nullptr, TRUE, L"ezFmodLiveUpdate");
@@ -109,15 +111,13 @@ void ezFmod::Startup()
     }
     else
     {
-      ezLog::Warning("Fmod Live-Update not available for this process, another process using Fmod is already running.");
+      ezLog::Warning("FMOD Live-Update not available for this process, another process using FMOD is already running.");
       if (g_hLiveUpdateMutex != NULL)
       {
         CloseHandle(g_hLiveUpdateMutex); // we didn't create it, so don't keep it alive
         g_hLiveUpdateMutex = NULL;
       }
     }
-#  else
-    studioflags |= FMOD_STUDIO_INIT_LIVEUPDATE;
 #  endif
   }
 #endif
@@ -126,12 +126,12 @@ void ezFmod::Startup()
 
   if ((studioflags & FMOD_STUDIO_INIT_LIVEUPDATE) != 0)
   {
-    ezLog::Success("Fmod Live-Update is enabled for this process.");
+    ezLog::Success("FMOD Live-Update is enabled for this process.");
   }
 
   if (LoadMasterSoundBank(config.m_sMasterSoundBank).Failed())
   {
-    ezLog::Error("Failed to load Fmod master sound bank '{0}'. Sounds will not play.", config.m_sMasterSoundBank);
+    ezLog::Error("Failed to load FMOD master sound bank '{0}'. Sounds will not play.", config.m_sMasterSoundBank);
     return;
   }
 
@@ -144,7 +144,7 @@ void ezFmod::Shutdown()
 {
   if (m_bInitialized)
   {
-    // delete all Fmod resources, except the master bank
+    // delete all FMOD resources, except the master bank
     ezResourceManager::FreeAllUnusedResources();
 
     m_bInitialized = false;
@@ -171,7 +171,7 @@ void ezFmod::Shutdown()
 
 void ezFmod::SetNumListeners(ezUInt8 uiNumListeners)
 {
-  EZ_ASSERT_DEV(uiNumListeners <= FMOD_MAX_LISTENERS, "Fmod supports only up to {0} listeners.", FMOD_MAX_LISTENERS);
+  EZ_ASSERT_DEV(uiNumListeners <= FMOD_MAX_LISTENERS, "FMOD supports only up to {0} listeners.", FMOD_MAX_LISTENERS);
 
   m_pStudioSystem->setNumListeners(uiNumListeners);
 }
@@ -221,6 +221,14 @@ void ezFmod::UpdateSound()
     channel->setMute(cvar_FmodMute);
   }
 
+  // Pause
+  {
+    FMOD::ChannelGroup* channel;
+    m_pLowLevelSystem->getMasterChannelGroup(&channel);
+
+    channel->setPaused(cvar_FmodPause);
+  }
+
   m_pStudioSystem->update();
 
   ClearSoundBankDataDeletionQueue();
@@ -248,21 +256,12 @@ bool ezFmod::GetMasterChannelMute() const
 
 void ezFmod::SetMasterChannelPaused(bool bPaused)
 {
-  FMOD::ChannelGroup* channel;
-  m_pLowLevelSystem->getMasterChannelGroup(&channel);
-
-  channel->setPaused(bPaused);
+  cvar_FmodPause = bPaused;
 }
 
 bool ezFmod::GetMasterChannelPaused() const
 {
-  FMOD::ChannelGroup* channel;
-  m_pLowLevelSystem->getMasterChannelGroup(&channel);
-
-  bool paused = false;
-  channel->getPaused(&paused);
-
-  return paused;
+  return cvar_FmodPause;
 }
 
 void ezFmod::SetSoundGroupVolume(ezStringView sVcaGroupGuid, float fVolume)
@@ -302,6 +301,19 @@ void ezFmod::GameApplicationEventHandler(const ezGameApplicationExecutionEvent& 
 void ezFmod::SetNumBlendedReverbVolumes(ezUInt8 uiNumBlendedVolumes)
 {
   m_uiNumBlendedVolumes = ezMath::Clamp<ezUInt8>(m_uiNumBlendedVolumes, 0, 4);
+}
+
+void ezFmod::SetGlobalParameter(const char* szName, float fValue)
+{
+  m_pStudioSystem->setParameterByName(szName, fValue);
+}
+
+float ezFmod::GetGlobalParameter(const char* szName)
+{
+  float fValue = 0.0f;
+  float fFinalValue = 0.0f;
+  m_pStudioSystem->getParameterByName(szName, &fValue, &fFinalValue);
+  return fFinalValue;
 }
 
 void ezFmod::SetListenerOverrideMode(bool bEnabled)
@@ -347,7 +359,7 @@ void ezFmod::SetListener(ezInt32 iIndex, const ezVec3& vPosition, const ezVec3& 
   }
 }
 
-ezResult ezFmod::OneShotSound(ezStringView sResourceID, const ezTransform& globalPosition, float fPitch /*= 1.0f*/, float fVolume /*= 1.0f*/, bool bBlockIfNotLoaded /*= true*/)
+ezResult ezFmod::OneShotSound(ezWorld* pWorld, ezStringView sResourceID, const ezTransform& globalPosition, float fPitch /*= 1.0f*/, float fVolume /*= 1.0f*/, bool bBlockIfNotLoaded /*= true*/)
 {
   ezFmodSoundEventResourceHandle hSound = ezResourceManager::LoadResource<ezFmodSoundEventResource>(sResourceID);
 
@@ -367,32 +379,14 @@ void ezFmod::DetectPlatform()
   if (!m_pData->m_sPlatform.IsEmpty())
     return;
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-  m_pData->m_sPlatform = "Desktop";
-
-#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  m_pData->m_sPlatform = "Desktop"; /// \todo Need to detect mobile device mode
-
-#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
-  m_pData->m_sPlatform = "Desktop"; /// \todo Need to detect mobile device mode (Android)
-
-#elif EZ_ENABLED(EZ_PLATFORM_OSX)
-  m_pData->m_sPlatform = "Desktop";
-
-#elif EZ_ENABLED(EZ_PLATFORM_IOS)
-  m_pData->m_sPlatform = "Mobile";
-
-#elif
-#  error "Unknown Platform"
-
-#endif
+  m_pData->m_sPlatform = ezPlatformDesc::GetThisPlatformDesc().GetType();
 }
 
 ezResult ezFmod::LoadMasterSoundBank(const char* szMasterBankResourceID)
 {
   if (ezStringUtils::IsNullOrEmpty(szMasterBankResourceID))
   {
-    ezLog::Error("Fmod master bank name has not been configured.");
+    ezLog::Error("FMOD master bank name has not been configured.");
     return EZ_FAILURE;
   }
 

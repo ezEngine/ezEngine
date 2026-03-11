@@ -32,6 +32,14 @@ void ezScaleGizmo::UpdateStatusBarText(ezQtEngineDocumentWindow* pWindow)
   GetOwnerWindow()->SetPermanentStatusBarMsg(ezFmt("Scale: {}, {}, {}", ezArgF(scale.x, 2), ezArgF(scale.y, 2), ezArgF(scale.z, 2)));
 }
 
+void ezScaleGizmo::EnableAxis(bool x, bool y, bool z, bool bXyz)
+{
+  m_bEnableAxisX = x;
+  m_bEnableAxisY = y;
+  m_bEnableAxisZ = z;
+  m_bEnableAxisXYZ = bXyz;
+}
+
 void ezScaleGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
 {
   pOwnerWindow->GetDocument()->AddSyncObject(&m_hAxisX);
@@ -42,10 +50,10 @@ void ezScaleGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngine
 
 void ezScaleGizmo::OnVisibleChanged(bool bVisible)
 {
-  m_hAxisX.SetVisible(bVisible);
-  m_hAxisY.SetVisible(bVisible);
-  m_hAxisZ.SetVisible(bVisible);
-  m_hAxisXYZ.SetVisible(bVisible);
+  m_hAxisX.SetVisible(bVisible && m_bEnableAxisX);
+  m_hAxisY.SetVisible(bVisible && m_bEnableAxisY);
+  m_hAxisZ.SetVisible(bVisible && m_bEnableAxisZ);
+  m_hAxisXYZ.SetVisible(bVisible && m_bEnableAxisXYZ);
 }
 
 void ezScaleGizmo::OnTransformationChanged(const ezTransform& transform)
@@ -66,10 +74,10 @@ void ezScaleGizmo::DoFocusLost(bool bCancel)
   ezViewHighlightMsgToEngine msg;
   GetOwnerWindow()->GetEditorEngineConnection()->SendHighlightObjectMessage(&msg);
 
-  m_hAxisX.SetVisible(true);
-  m_hAxisY.SetVisible(true);
-  m_hAxisZ.SetVisible(true);
-  m_hAxisXYZ.SetVisible(true);
+  m_hAxisX.SetVisible(m_bEnableAxisX);
+  m_hAxisY.SetVisible(m_bEnableAxisY);
+  m_hAxisZ.SetVisible(m_bEnableAxisZ);
+  m_hAxisXYZ.SetVisible(m_bEnableAxisXYZ);
 }
 
 ezEditorInput ezScaleGizmo::DoMousePressEvent(QMouseEvent* e)
@@ -203,10 +211,14 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezManipulatorScaleGizmo::ezManipulatorScaleGizmo()
 {
+  const ezColor colr = ezColorScheme::LightUI(ezColorScheme::Red);
+  const ezColor colg = ezColorScheme::LightUI(ezColorScheme::Green);
+  const ezColor colb = ezColorScheme::LightUI(ezColorScheme::Blue);
+
   // Overwrite axis to be boxes.
-  m_hAxisX.ConfigureHandle(this, ezEngineGizmoHandleType::Box, ezColorLinearUB(128, 0, 0), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
-  m_hAxisY.ConfigureHandle(this, ezEngineGizmoHandleType::Box, ezColorLinearUB(0, 128, 0), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
-  m_hAxisZ.ConfigureHandle(this, ezEngineGizmoHandleType::Box, ezColorLinearUB(0, 0, 128), ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+  m_hAxisX.ConfigureHandle(this, ezEngineGizmoHandleType::Box, colr, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+  m_hAxisY.ConfigureHandle(this, ezEngineGizmoHandleType::Box, colg, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
+  m_hAxisZ.ConfigureHandle(this, ezEngineGizmoHandleType::Box, colb, ezGizmoFlags::ConstantSize | ezGizmoFlags::Pickable);
 }
 
 void ezManipulatorScaleGizmo::OnTransformationChanged(const ezTransform& transform)

@@ -1,38 +1,9 @@
-/*
- * This source file is part of RmlUi, the HTML/CSS Interface Middleware
- *
- * For the latest information, see http://github.com/mikke89/RmlUi
- *
- * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
- */
+#pragma once
 
-#ifndef RMLUI_CORE_EVENT_H
-#define RMLUI_CORE_EVENT_H
-
-#include "Header.h"
 #include "Dictionary.h"
-#include "ScriptInterface.h"
+#include "Header.h"
 #include "ID.h"
+#include "ScriptInterface.h"
 
 namespace Rml {
 
@@ -45,19 +16,17 @@ enum class EventPhase { None, Capture = 1, Target = 2, Bubble = 4 };
 enum class DefaultActionPhase { None, Target = (int)EventPhase::Target, TargetAndBubble = ((int)Target | (int)EventPhase::Bubble) };
 
 /**
-	An event that propogates through the element hierarchy. Events follow the DOM3 event specification. See
-	http://www.w3.org/TR/DOM-Level-3-Events/events.html.
-
-	@author Lloyd Weehuizen
+    An event that propagates through the element hierarchy. Events follow the DOM3 event specification. See
+    http://www.w3.org/TR/DOM-Level-3-Events/events.html.
  */
 
-class RMLUICORE_API Event : public ScriptInterface
-{
+class RMLUICORE_API Event : public ScriptInterface {
 public:
 	/// Constructor
 	Event();
 	/// Constructor
 	/// @param[in] target The target element of this event
+	/// @param[in] id The event id
 	/// @param[in] type The event type
 	/// @param[in] parameters The event parameters
 	/// @param[in] interruptible Can this event have is propagation stopped?
@@ -103,8 +72,9 @@ public:
 
 	/// Returns the value of one of the event's parameters.
 	/// @param key[in] The name of the desired parameter.
-	/// @return The value of the requested parameter.
-	template < typename T >
+	/// @param default_value[in] The default value.
+	/// @return The value of the requested parameter, or the default value if the key does not exist.
+	template <typename T>
 	T GetParameter(const String& key, const T& default_value) const
 	{
 		return Get(parameters, key, default_value);
@@ -134,7 +104,7 @@ private:
 	String type;
 	EventId id = EventId::Invalid;
 	bool interruptible = false;
-	
+
 	bool interrupted = false;
 	bool interrupted_immediate = false;
 
@@ -148,6 +118,4 @@ private:
 	friend class Rml::Factory;
 };
 
-
 } // namespace Rml
-#endif

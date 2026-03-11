@@ -1,7 +1,7 @@
 #pragma once
 
-#include <EditorFramework/Assets/SimpleAssetDocument.h>
-#include <Texture/TexConv/TexConvEnums.h>
+#include <EditorPluginAssets/TextureAsset/TextureAsset.h>
+#include <EditorPluginSubstance/EditorPluginSubstanceDLL.h>
 
 struct ezSubstanceUsage
 {
@@ -115,6 +115,11 @@ class ezSubstancePackageAssetDocument : public ezSimpleAssetDocument<ezSubstance
 public:
   ezSubstancePackageAssetDocument(ezStringView sDocumentPath);
   ~ezSubstancePackageAssetDocument();
+
+  // for previewing purposes
+  ezUuid m_SelectedOutput;
+  ezEnum<ezTextureChannelMode> m_ChannelMode;
+  ezInt32 m_iTextureLod = -1; // -1 == regular sampling, >= 0 == sample that level
 
 private:
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;

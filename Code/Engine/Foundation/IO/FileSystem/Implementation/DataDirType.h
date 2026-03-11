@@ -8,6 +8,23 @@ class ezDataDirectoryReaderWriterBase;
 class ezDataDirectoryReader;
 class ezDataDirectoryWriter;
 struct ezFileStats;
+class ezDataDirectoryType;
+
+/// \brief Describes in which mode a data directory is mounted.
+enum class ezDataDirUsage
+{
+  ReadOnly,
+  AllowWrites,
+};
+
+struct ezDataDirectoryInfo
+{
+  ezDataDirUsage m_Usage;
+
+  ezString m_sRootName;
+  ezString m_sGroup;
+  ezDataDirectoryType* m_pDataDirType = nullptr;
+};
 
 /// \brief The base class for all data directory types.
 ///
@@ -59,7 +76,12 @@ protected:
   /// opened.
   ///
   /// If it always returns nullptr (default) the data directory is read-only (at least through this type).
-  virtual ezDataDirectoryWriter* OpenFileToWrite(ezStringView sFile, ezFileShareMode::Enum FileShareMode) { return nullptr; }
+  virtual ezDataDirectoryWriter* OpenFileToWrite(ezStringView sFile, ezFileShareMode::Enum FileShareMode)
+  {
+    EZ_IGNORE_UNUSED(sFile);
+    EZ_IGNORE_UNUSED(FileShareMode);
+    return nullptr;
+  }
 
   /// \brief This function is called by the filesystem when a data directory is removed.
   ///
@@ -67,7 +89,7 @@ protected:
   virtual void RemoveDataDirectory() = 0;
 
   /// \brief If a Data Directory Type supports it, this function will remove the given file from it.
-  virtual void DeleteFile(ezStringView sFile) {}
+  virtual void DeleteFile(ezStringView sFile) { EZ_IGNORE_UNUSED(sFile); }
 
   /// \brief This function checks whether the given file exists in this data directory.
   ///
@@ -80,7 +102,11 @@ protected:
 
   /// \brief If this data directory knows how to redirect the given path, it should do so and return true.
   /// Called by ezFileSystem::ResolveAssetRedirection
-  virtual bool ResolveAssetRedirection(ezStringView sPathOrAssetGuid, ezStringBuilder& out_sRedirection) { return false; }
+  virtual bool ResolveAssetRedirection(ezStringView sPathOrAssetGuid, ezStringBuilder& out_sRedirection)
+  {
+    out_sRedirection = sPathOrAssetGuid;
+    return false;
+  }
 
 protected:
   friend class ezDataDirectoryReaderWriterBase;
@@ -89,7 +115,7 @@ protected:
   ///
   /// It allows the ezDataDirectoryType to return the reader/writer to a pool of reusable objects, or to destroy it
   /// using the proper allocator.
-  virtual void OnReaderWriterClose(ezDataDirectoryReaderWriterBase* pClosed) {}
+  virtual void OnReaderWriterClose(ezDataDirectoryReaderWriterBase* pClosed) { EZ_IGNORE_UNUSED(pClosed); }
 
   /// \brief This function should only be used by a Factory (which should be a static function in the respective ezDataDirectoryType).
   ///
@@ -145,7 +171,7 @@ protected:
 
   bool m_bIsReader;
   ezInt32 m_iDataDirUserData = 0;
-  ezDataDirectoryType* m_pDataDirectory;
+  ezDataDirectoryType* m_pDataDirType;
   ezString128 m_sFilePath;
 };
 

@@ -377,5 +377,231 @@ EZ_CREATE_SIMPLE_TEST(Math, Color)
 
       EZ_TEST_BOOL(c1.IsEqualRGBA(ezColor(0.6f, 0.95f, 0.55f, 1.0f), 0.01f));
     }
+
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "CalcAverageRGB")
+    {
+      ezColor c1(0.6f, 0.3f, 0.9f, 0.5f);
+      EZ_TEST_FLOAT(c1.CalcAverageRGB(), (0.6f + 0.3f + 0.9f) / 3.0f, 0.001f);
+
+      ezColor c2(1.0f, 1.0f, 1.0f, 0.0f);
+      EZ_TEST_FLOAT(c2.CalcAverageRGB(), 1.0f, 0.001f);
+
+      ezColor c3(0.0f, 0.0f, 0.0f, 1.0f);
+      EZ_TEST_FLOAT(c3.CalcAverageRGB(), 0.0f, 0.001f);
+    }
+
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "ScaleRGB")
+    {
+      ezColor c1(0.5f, 0.6f, 0.7f, 0.8f);
+      c1.ScaleRGB(2.0f);
+      EZ_TEST_BOOL(c1.IsEqualRGBA(ezColor(1.0f, 1.2f, 1.4f, 0.8f), 0.001f));
+
+      ezColor c2(0.4f, 0.3f, 0.2f, 0.1f);
+      c2.ScaleRGB(0.5f);
+      EZ_TEST_BOOL(c2.IsEqualRGBA(ezColor(0.2f, 0.15f, 0.1f, 0.1f), 0.001f));
+    }
+
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "ScaleRGBA")
+    {
+      ezColor c1(0.5f, 0.6f, 0.7f, 0.8f);
+      c1.ScaleRGBA(2.0f);
+      EZ_TEST_BOOL(c1.IsEqualRGBA(ezColor(1.0f, 1.2f, 1.4f, 1.6f), 0.001f));
+
+      ezColor c2(0.4f, 0.3f, 0.2f, 0.1f);
+      c2.ScaleRGBA(0.5f);
+      EZ_TEST_BOOL(c2.IsEqualRGBA(ezColor(0.2f, 0.15f, 0.1f, 0.05f), 0.001f));
+    }
+
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "ComputeHdrMultiplier")
+    {
+      // LDR colors should return 1.0
+      ezColor ldr1(0.5f, 0.3f, 0.7f, 1.0f);
+      EZ_TEST_FLOAT(ldr1.ComputeHdrMultiplier(), 1.0f, 0.001f);
+
+      ezColor ldr2(1.0f, 0.9f, 0.8f, 0.5f);
+      EZ_TEST_FLOAT(ldr2.ComputeHdrMultiplier(), 1.0f, 0.001f);
+
+      // HDR colors should return the largest component
+      ezColor hdr1(2.0f, 1.5f, 1.0f, 0.5f);
+      EZ_TEST_FLOAT(hdr1.ComputeHdrMultiplier(), 2.0f, 0.001f);
+
+      ezColor hdr2(1.0f, 3.5f, 2.2f, 1.0f);
+      EZ_TEST_FLOAT(hdr2.ComputeHdrMultiplier(), 3.5f, 0.001f);
+    }
+
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "ComputeHdrExposureValue")
+    {
+      // LDR colors should return 0
+      ezColor ldr(0.5f, 0.3f, 0.7f, 1.0f);
+      EZ_TEST_FLOAT(ldr.ComputeHdrExposureValue(), 0.0f, 0.001f);
+
+      // HDR colors should return log2 of the multiplier
+      ezColor hdr1(2.0f, 1.0f, 1.0f, 0.5f);
+      EZ_TEST_FLOAT(hdr1.ComputeHdrExposureValue(), 1.0f, 0.001f); // log2(2) = 1
+
+      ezColor hdr2(4.0f, 2.0f, 1.0f, 0.5f);
+      EZ_TEST_FLOAT(hdr2.ComputeHdrExposureValue(), 2.0f, 0.001f); // log2(4) = 2
+    }
+
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "ApplyHdrExposureValue")
+    {
+      ezColor c1(0.5f, 0.25f, 0.125f, 1.0f);
+      c1.ApplyHdrExposureValue(2.0f); // 2^2 = 4
+      EZ_TEST_BOOL(c1.IsEqualRGBA(ezColor(2.0f, 1.0f, 0.5f, 1.0f), 0.001f));
+
+      ezColor c2(1.0f, 0.5f, 0.25f, 0.8f);
+      c2.ApplyHdrExposureValue(-1.0f); // 2^-1 = 0.5
+      EZ_TEST_BOOL(c2.IsEqualRGBA(ezColor(0.5f, 0.25f, 0.125f, 0.8f), 0.001f));
+    }
+
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "NormalizeToLdrRange")
+    {
+      // HDR color should be normalized
+      ezColor hdr(4.0f, 2.0f, 1.0f, 0.5f);
+      hdr.NormalizeToLdrRange();
+      EZ_TEST_BOOL(hdr.IsEqualRGBA(ezColor(1.0f, 0.5f, 0.25f, 0.5f), 0.001f));
+
+      // LDR color should remain unchanged
+      ezColor ldr(0.8f, 0.6f, 0.4f, 1.0f);
+      ldr.NormalizeToLdrRange();
+      EZ_TEST_BOOL(ldr.IsEqualRGBA(ezColor(0.8f, 0.6f, 0.4f, 1.0f), 0.001f));
+    }
+
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetDarker")
+    {
+      ezColor bright(0.8f, 0.6f, 0.4f, 1.0f);
+      ezColor darker = bright.GetDarker(2.0f);
+
+      // Should be darker (lower values) but same alpha
+      EZ_TEST_BOOL(darker.r < bright.r && darker.g < bright.g && darker.b < bright.b);
+      EZ_TEST_FLOAT(darker.a, bright.a, 0.001f);
+
+      // Test default factor
+      ezColor darker2 = bright.GetDarker();
+      EZ_TEST_BOOL(darker2.r < bright.r && darker2.g < bright.g && darker2.b < bright.b);
+    }
+
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "WithAlpha")
+    {
+      ezColor c1(0.5f, 0.6f, 0.7f, 0.8f);
+      ezColor c2 = c1.WithAlpha(0.3f);
+
+      EZ_TEST_BOOL(c2.IsEqualRGBA(ezColor(0.5f, 0.6f, 0.7f, 0.3f), 0.001f));
+      // Original should be unchanged
+      EZ_TEST_BOOL(c1.IsEqualRGBA(ezColor(0.5f, 0.6f, 0.7f, 0.8f), 0.001f));
+    }
+
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "ToRGBA8")
+    {
+      ezColor c1(1.0f, 0.5f, 0.25f, 0.0f);
+      ezUInt32 rgba = c1.ToRGBA8();
+
+      // R=255, G=128, B=64, A=0 -> 0xFF804000 (R in MSB, A in LSB)
+      EZ_TEST_INT((rgba >> 24) & 0xFF, 255); // R
+      EZ_TEST_INT((rgba >> 16) & 0xFF, 128); // G
+      EZ_TEST_INT((rgba >> 8) & 0xFF, 64);   // B
+      EZ_TEST_INT(rgba & 0xFF, 0);           // A
+    }
+
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "ToABGR8")
+    {
+      ezColor c1(1.0f, 0.5f, 0.25f, 0.0f);
+      ezUInt32 abgr = c1.ToABGR8();
+
+      // A=0, B=64, G=128, R=255 -> 0x004080FF (A in MSB, R in LSB)
+      EZ_TEST_INT((abgr >> 24) & 0xFF, 0);  // A
+      EZ_TEST_INT((abgr >> 16) & 0xFF, 64); // B
+      EZ_TEST_INT((abgr >> 8) & 0xFF, 128); // G
+      EZ_TEST_INT(abgr & 0xFF, 255);        // R
+    }
+
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "Static factory functions")
+    {
+      // MakeNaN
+      if (ezMath::SupportsNaN<float>())
+      {
+        ezColor nanColor = ezColor::MakeNaN();
+        EZ_TEST_BOOL(nanColor.IsNaN());
+      }
+
+      // MakeZero
+      ezColor zeroColor = ezColor::MakeZero();
+      EZ_TEST_BOOL(zeroColor.IsEqualRGBA(ezColor(0.0f, 0.0f, 0.0f, 0.0f), 0.001f));
+
+      // MakeRGBA
+      ezColor rgbaColor = ezColor::MakeRGBA(0.1f, 0.2f, 0.3f, 0.4f);
+      EZ_TEST_BOOL(rgbaColor.IsEqualRGBA(ezColor(0.1f, 0.2f, 0.3f, 0.4f), 0.001f));
+
+      ezColor rgbColor = ezColor::MakeRGBA(0.5f, 0.6f, 0.7f);
+      EZ_TEST_BOOL(rgbColor.IsEqualRGBA(ezColor(0.5f, 0.6f, 0.7f, 1.0f), 0.001f));
+    }
+
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetAsVec4")
+    {
+      ezColor c1(0.1f, 0.2f, 0.3f, 0.4f);
+      ezVec4 v1 = c1.GetAsVec4();
+      EZ_TEST_BOOL(v1.IsEqual(ezVec4(0.1f, 0.2f, 0.3f, 0.4f), 0.001f));
+    }
+
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "Gamma/Linear conversion functions")
+    {
+      // Test single float conversions
+      float gamma = 0.5f;
+      float linear = ezColor::GammaToLinear(gamma);
+      float backToGamma = ezColor::LinearToGamma(linear);
+      EZ_TEST_FLOAT(backToGamma, gamma, 0.001f);
+
+      // Test Vec3 conversions
+      ezVec3 gammaVec(0.2f, 0.5f, 0.8f);
+      ezVec3 linearVec = ezColor::GammaToLinear(gammaVec);
+      ezVec3 backToGammaVec = ezColor::LinearToGamma(linearVec);
+      EZ_TEST_BOOL(backToGammaVec.IsEqual(gammaVec, 0.001f));
+
+      // Test edge cases
+      EZ_TEST_FLOAT(ezColor::GammaToLinear(0.0f), 0.0f, 0.001f);
+      EZ_TEST_FLOAT(ezColor::GammaToLinear(1.0f), 1.0f, 0.001f);
+      EZ_TEST_FLOAT(ezColor::LinearToGamma(0.0f), 0.0f, 0.001f);
+      EZ_TEST_FLOAT(ezColor::LinearToGamma(1.0f), 1.0f, 0.001f);
+    }
+
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator*= (ezColor)")
+    {
+      ezColor c1(0.5f, 0.6f, 0.8f, 1.0f);
+      ezColor c2(2.0f, 0.5f, 0.25f, 0.8f);
+      c1 *= c2;
+      EZ_TEST_BOOL(c1.IsEqualRGBA(ezColor(1.0f, 0.3f, 0.2f, 0.8f), 0.001f));
+    }
+
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator* (ezColor, ezColor)")
+    {
+      ezColor c1(0.5f, 0.6f, 0.8f, 1.0f);
+      ezColor c2(2.0f, 0.5f, 0.25f, 0.8f);
+      ezColor result = c1 * c2;
+      EZ_TEST_BOOL(result.IsEqualRGBA(ezColor(1.0f, 0.3f, 0.2f, 0.8f), 0.001f));
+    }
+
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeFromKelvin")
+    {
+      // Test some known temperature points
+      ezColor warm = ezColor::MakeFromKelvin(2700);     // Warm white (incandescent)
+      ezColor daylight = ezColor::MakeFromKelvin(6500); // Daylight
+      ezColor cool = ezColor::MakeFromKelvin(9000);     // Cool daylight
+
+      // Warm should be more red/orange
+      EZ_TEST_BOOL(warm.r > warm.b);
+
+      // Cool should be more blue
+      EZ_TEST_BOOL(cool.b > cool.r);
+
+      // Alpha should always be 1
+      EZ_TEST_FLOAT(warm.a, 1.0f, 0.001f);
+      EZ_TEST_FLOAT(daylight.a, 1.0f, 0.001f);
+      EZ_TEST_FLOAT(cool.a, 1.0f, 0.001f);
+
+      // Test reasonable temperature values - all should produce valid colors
+      EZ_TEST_BOOL(warm.IsValid());
+      EZ_TEST_BOOL(daylight.IsValid());
+      EZ_TEST_BOOL(cool.IsValid());
+    }
   }
 }

@@ -2,46 +2,47 @@
 
 #include <Core/Scripting/ScriptComponent.h>
 #include <Core/Scripting/ScriptWorldModule.h>
+#include <Foundation/Containers/IterateBits.h>
 #include <VisualScriptPlugin/Runtime/VisualScriptInstance.h>
 #include <VisualScriptPlugin/Runtime/VisualScriptNodeUserData.h>
 
 using ExecResult = ezVisualScriptGraphDescription::ExecResult;
 using ExecuteFunctionGetter = ezVisualScriptGraphDescription::ExecuteFunction (*)(ezVisualScriptDataType::Enum dataType);
 
-#define MAKE_EXEC_FUNC_GETTER(funcName)                                                                               \
-  ezVisualScriptGraphDescription::ExecuteFunction EZ_CONCAT(funcName, _Getter)(ezVisualScriptDataType::Enum dataType) \
-  {                                                                                                                   \
-    static ezVisualScriptGraphDescription::ExecuteFunction functionTable[] = {                                        \
-      nullptr, /* Invalid*/                                                                                           \
-      &funcName<bool>,                                                                                                \
-      &funcName<ezUInt8>,                                                                                             \
-      &funcName<ezInt32>,                                                                                             \
-      &funcName<ezInt64>,                                                                                             \
-      &funcName<float>,                                                                                               \
-      &funcName<double>,                                                                                              \
-      &funcName<ezColor>,                                                                                             \
-      &funcName<ezVec3>,                                                                                              \
-      &funcName<ezQuat>,                                                                                              \
-      &funcName<ezTransform>,                                                                                         \
-      &funcName<ezTime>,                                                                                              \
-      &funcName<ezAngle>,                                                                                             \
-      &funcName<ezString>,                                                                                            \
-      &funcName<ezHashedString>,                                                                                      \
-      &funcName<ezGameObjectHandle>,                                                                                  \
-      &funcName<ezComponentHandle>,                                                                                   \
-      &funcName<ezTypedPointer>,                                                                                      \
-      &funcName<ezVariant>,                                                                                           \
-      &funcName<ezVariantArray>,                                                                                      \
-      &funcName<ezVariantDictionary>,                                                                                 \
-      &funcName<ezScriptCoroutineHandle>,                                                                             \
-    };                                                                                                                \
-                                                                                                                      \
-    static_assert(EZ_ARRAY_SIZE(functionTable) == ezVisualScriptDataType::Count);                                     \
-    if (dataType >= 0 && dataType < EZ_ARRAY_SIZE(functionTable))                                                     \
-      return functionTable[dataType];                                                                                 \
-                                                                                                                      \
-    ezLog::Error("Invalid data type for deducted type {}. Script needs re-transform.", dataType);                     \
-    return nullptr;                                                                                                   \
+#define MAKE_EXEC_FUNC_GETTER(funcName)                                                                                  \
+  ezVisualScriptGraphDescription::ExecuteFunction EZ_PP_CONCAT(funcName, _Getter)(ezVisualScriptDataType::Enum dataType) \
+  {                                                                                                                      \
+    static ezVisualScriptGraphDescription::ExecuteFunction functionTable[] = {                                           \
+      nullptr, /* Invalid*/                                                                                              \
+      &funcName<bool>,                                                                                                   \
+      &funcName<ezUInt8>,                                                                                                \
+      &funcName<ezInt32>,                                                                                                \
+      &funcName<ezInt64>,                                                                                                \
+      &funcName<float>,                                                                                                  \
+      &funcName<double>,                                                                                                 \
+      &funcName<ezColor>,                                                                                                \
+      &funcName<ezVec3>,                                                                                                 \
+      &funcName<ezQuat>,                                                                                                 \
+      &funcName<ezTransform>,                                                                                            \
+      &funcName<ezTime>,                                                                                                 \
+      &funcName<ezAngle>,                                                                                                \
+      &funcName<ezString>,                                                                                               \
+      &funcName<ezHashedString>,                                                                                         \
+      &funcName<ezGameObjectHandle>,                                                                                     \
+      &funcName<ezComponentHandle>,                                                                                      \
+      &funcName<ezTypedPointer>,                                                                                         \
+      &funcName<ezVariant>,                                                                                              \
+      &funcName<ezVariantArray>,                                                                                         \
+      &funcName<ezVariantDictionary>,                                                                                    \
+      &funcName<ezScriptCoroutineHandle>,                                                                                \
+    };                                                                                                                   \
+                                                                                                                         \
+    static_assert(EZ_ARRAY_SIZE(functionTable) == ezVisualScriptDataType::Count);                                        \
+    if (dataType >= 0 && dataType < EZ_ARRAY_SIZE(functionTable))                                                        \
+      return functionTable[dataType];                                                                                    \
+                                                                                                                         \
+    ezLog::Error("Invalid data type for deducted type {}. Script needs re-transform.", dataType);                        \
+    return nullptr;                                                                                                      \
   }
 
 template <typename T>
@@ -59,19 +60,23 @@ ezStringView GetTypeName()
 
 namespace
 {
-  static EZ_FORCE_INLINE ezResult FillFunctionArgs(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node, const ezAbstractFunctionProperty* pFunction, ezUInt32 uiStartSlot, ezDynamicArray<ezVariant>& out_args)
+  static EZ_FORCE_INLINE ezResult FillFunctionArgs(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node, const ezAbstractFunctionProperty* pFunction, ezUInt32 uiInputArgsMask, ezUInt32 uiStartSlot, ezDynamicArray<ezVariant>& out_args)
   {
     const ezUInt32 uiArgCount = pFunction->GetArgumentCount();
-    if (uiArgCount != node.m_NumInputDataOffsets - uiStartSlot)
-    {
-      ezLog::Error("Visual script {} '{}': Argument count mismatch. Script needs re-transform.", ezVisualScriptNodeDescription::Type::GetName(node.m_Type), pFunction->GetPropertyName());
-      return EZ_FAILURE;
-    }
 
+    ezUInt32 uiInputSlot = uiStartSlot;
     for (ezUInt32 i = 0; i < uiArgCount; ++i)
     {
       const ezRTTI* pArgType = pFunction->GetArgumentType(i);
-      out_args.PushBack(inout_context.GetDataAsVariant(node.GetInputDataOffset(uiStartSlot + i), pArgType));
+      if ((uiInputArgsMask & EZ_BIT(i)) != 0)
+      {
+        out_args.PushBack(inout_context.GetDataAsVariant(node.GetInputDataOffset(uiInputSlot), pArgType));
+        ++uiInputSlot;
+      }
+      else
+      {
+        out_args.PushBack(ezReflectionUtils::GetDefaultVariantFromType(pArgType));
+      }
     }
 
     return EZ_SUCCESS;
@@ -91,12 +96,12 @@ namespace
 
   static ExecResult NodeFunction_ReflectedFunction(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
   {
-    auto& userData = node.GetUserData<NodeUserData_TypeAndProperty>();
+    auto& userData = node.GetUserData<NodeUserData_TypeAndFunction>();
     EZ_ASSERT_DEBUG(userData.m_pProperty->GetCategory() == ezPropertyCategory::Function, "Property '{}' is not a function", userData.m_pProperty->GetPropertyName());
     auto pFunction = static_cast<const ezAbstractFunctionProperty*>(userData.m_pProperty);
 
     ezTypedPointer pInstance;
-    ezUInt32 uiSlot = 0;
+    ezUInt32 uiInputSlot = 0;
 
     if (pFunction->GetFunctionType() == ezFunctionType::Member)
     {
@@ -113,11 +118,11 @@ namespace
         return ExecResult::Error();
       }
 
-      ++uiSlot;
+      ++uiInputSlot;
     }
 
-    ezHybridArray<ezVariant, 8> args;
-    if (FillFunctionArgs(inout_context, node, pFunction, uiSlot, args).Failed())
+    ezTempHybridArray<ezVariant, 8> args;
+    if (FillFunctionArgs(inout_context, node, pFunction, userData.m_uiInputArgsMask, uiInputSlot, args).Failed())
     {
       return ExecResult::Error();
     }
@@ -125,10 +130,17 @@ namespace
     ezVariant returnValue;
     pFunction->Execute(pInstance.m_pObject, args, returnValue);
 
-    auto dataOffsetR = node.GetOutputDataOffset(0);
-    if (dataOffsetR.IsValid())
+    ezUInt32 uiOutputSlot = 0;
+    if (pFunction->GetReturnType() != nullptr)
     {
-      inout_context.SetDataFromVariant(dataOffsetR, returnValue);
+      inout_context.SetDataFromVariant(node.GetOutputDataOffset(0), returnValue);
+      ++uiOutputSlot;
+    }
+
+    for (ezUInt32 uiArgIndex : ezIterateBitIndices(userData.m_uiOutputArgsMask))
+    {
+      inout_context.SetDataFromVariant(node.GetOutputDataOffset(uiOutputSlot), args[uiArgIndex]);
+      ++uiOutputSlot;
     }
 
     return ExecResult::RunNext(0);
@@ -167,11 +179,17 @@ namespace
       }
       else
       {
-        EZ_ASSERT_DEBUG(pProperty->GetSpecificType() == ezGetStaticRTTI<T>(), "");
-
-        T value;
-        pMemberProperty->GetValuePtr(pInstance.m_pObject, &value);
-        inout_context.SetData(node.GetOutputDataOffset(0), value);
+        if (pProperty->GetSpecificType() == ezGetStaticRTTI<T>())
+        {
+          T value;
+          pMemberProperty->GetValuePtr(pInstance.m_pObject, &value);
+          inout_context.SetData(node.GetOutputDataOffset(0), value);
+        }
+        else
+        {
+          ezVariant value = ezReflectionUtils::GetMemberPropertyValue(pMemberProperty, pInstance.m_pObject);
+          inout_context.SetDataFromVariant(node.GetOutputDataOffset(0), value);
+        }
       }
     }
     else
@@ -217,10 +235,16 @@ namespace
       }
       else
       {
-        EZ_ASSERT_DEBUG(pProperty->GetSpecificType() == ezGetStaticRTTI<T>(), "");
-
-        const T& value = inout_context.GetData<T>(node.GetInputDataOffset(1));
-        pMemberProperty->SetValuePtr(pInstance.m_pObject, &value);
+        if (pProperty->GetSpecificType() == ezGetStaticRTTI<T>())
+        {
+          const T& value = inout_context.GetData<T>(node.GetInputDataOffset(1));
+          pMemberProperty->SetValuePtr(pInstance.m_pObject, &value);
+        }
+        else
+        {
+          ezVariant value = inout_context.GetDataAsVariant(node.GetInputDataOffset(1), pProperty->GetSpecificType());
+          ezReflectionUtils::SetMemberPropertyValue(pMemberProperty, pInstance.m_pObject, value);
+        }
       }
     }
     else
@@ -242,14 +266,14 @@ namespace
       if (pModule == nullptr)
         return ExecResult::Error();
 
-      auto& userData = node.GetUserData<NodeUserData_TypeAndProperty>();
+      auto& userData = node.GetUserData<NodeUserData_TypeAndFunction>();
       pModule->CreateCoroutine(userData.m_pType, userData.m_pType->GetTypeName(), inout_context.GetInstance(), ezScriptCoroutineCreationMode::AllowOverlap, pCoroutine);
 
       EZ_ASSERT_DEBUG(userData.m_pProperty->GetCategory() == ezPropertyCategory::Function, "Property '{}' is not a function", userData.m_pProperty->GetPropertyName());
       auto pFunction = static_cast<const ezAbstractFunctionProperty*>(userData.m_pProperty);
 
-      ezHybridArray<ezVariant, 8> args;
-      if (FillFunctionArgs(inout_context, node, pFunction, 0, args).Failed())
+      ezTempHybridArray<ezVariant, 8> args;
+      if (FillFunctionArgs(inout_context, node, pFunction, userData.m_uiInputArgsMask, 0, args).Failed())
       {
         return ExecResult::Error();
       }
@@ -317,7 +341,7 @@ namespace
 
     const ezUInt32 uiStartSlot = 4;
 
-    ezUniquePtr<ezMessage> pMessage = userData.m_pType->GetAllocator()->Allocate<ezMessage>();
+    ezUniquePtr<ezMessage> pMessage = userData.m_pType->GetAllocator()->Allocate<ezMessage>(ezTempAllocator::Get());
     for (ezUInt32 i = 0; i < userData.m_uiNumProperties; ++i)
     {
       auto pProp = userData.m_Properties[i];
@@ -400,9 +424,17 @@ namespace
   template <typename T>
   static ExecResult NodeFunction_Builtin_SetVariable(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
   {
-    if constexpr (std::is_same_v<T, ezGameObjectHandle> ||
-                  std::is_same_v<T, ezComponentHandle> ||
-                  std::is_same_v<T, ezTypedPointer>)
+    if constexpr (std::is_same_v<T, ezGameObjectHandle>)
+    {
+      ezTypedPointer ptr = inout_context.GetPointerData(node.GetInputDataOffset(0));
+      inout_context.SetPointerData(node.GetOutputDataOffset(0), static_cast<ezGameObject*>(ptr.m_pObject), ezGetStaticRTTI<ezGameObject>());
+    }
+    else if constexpr (std::is_same_v<T, ezComponentHandle>)
+    {
+      ezTypedPointer ptr = inout_context.GetPointerData(node.GetInputDataOffset(0));
+      inout_context.SetPointerData(node.GetOutputDataOffset(0), static_cast<ezComponent*>(ptr.m_pObject), ezGetStaticRTTI<ezComponent>());
+    }
+    else if constexpr (std::is_same_v<T, ezTypedPointer>)
     {
       ezTypedPointer ptr = inout_context.GetPointerData(node.GetInputDataOffset(0));
       inout_context.SetPointerData(node.GetOutputDataOffset(0), ptr.m_pObject, ptr.m_pType);
@@ -566,10 +598,7 @@ namespace
       }
       else
       {
-        ezStringBuilder sCompOp;
-        ezReflectionUtils::EnumerationToString(userData.m_ComparisonOperator, sCompOp, ezReflectionUtils::EnumConversionMode::ValueNameOnly);
-
-        ezLog::Error("Comparison '{}' is not defined for type '{}'", sCompOp, GetTypeName<T>());
+        ezLog::Error("Comparison '{}' is not defined for type '{}'", ezArgEnum(userData.m_ComparisonOperator), GetTypeName<T>());
       }
     }
     else if constexpr (std::is_same_v<T, ezQuat> ||
@@ -590,10 +619,7 @@ namespace
       }
       else
       {
-        ezStringBuilder sCompOp;
-        ezReflectionUtils::EnumerationToString(userData.m_ComparisonOperator, sCompOp, ezReflectionUtils::EnumConversionMode::ValueNameOnly);
-
-        ezLog::Error("Comparison '{}' is not defined for type '{}'", sCompOp, GetTypeName<T>());
+        ezLog::Error("Comparison '{}' is not defined for type '{}'", ezArgEnum(userData.m_ComparisonOperator), GetTypeName<T>());
       }
     }
     else
@@ -865,7 +891,7 @@ namespace
     static ezHashedString sStream = ezMakeHashedString("VsStream");
 
     int iDummy = 0;
-    ezHybridArray<ezProcessingStream, 8> inputStreams;
+    ezTempHybridArray<ezProcessingStream, 8> inputStreams;
     for (ezUInt32 i = 0; i < node.m_NumInputDataOffsets; ++i)
     {
       auto dataOffset = node.GetInputDataOffset(i);
@@ -886,19 +912,29 @@ namespace
       inputStreams.PushBack(ezProcessingStream(sStream, ezMakeArrayPtr(static_cast<ezUInt8*>(ptr.m_pObject), uiDataSize), streamDataType));
     }
 
-    ezHybridArray<ezProcessingStream, 8> outputStreams;
+    auto& userData = node.GetUserData<NodeUserData_Expression>();
+
+    ezUInt8 dummyOutput[sizeof(ezVec4)];
+    ezTempHybridArray<ezProcessingStream, 8> outputStreams;
     for (ezUInt32 i = 0; i < node.m_NumOutputDataOffsets; ++i)
     {
       auto dataOffset = node.GetOutputDataOffset(i);
-      ezTypedPointer ptr = inout_context.GetPointerData(dataOffset);
+      if (dataOffset.IsValid())
+      {
+        ezTypedPointer ptr = inout_context.GetPointerData(dataOffset);
 
-      const ezUInt32 uiDataSize = ezVisualScriptDataType::GetStorageSize(dataOffset.GetType());
-      auto streamDataType = ezVisualScriptDataType::GetStreamDataType(dataOffset.GetType());
+        const ezUInt32 uiDataSize = ezVisualScriptDataType::GetStorageSize(dataOffset.GetType());
+        auto streamDataType = ezVisualScriptDataType::GetStreamDataType(dataOffset.GetType());
 
-      outputStreams.PushBack(ezProcessingStream(sStream, ezMakeArrayPtr(static_cast<ezUInt8*>(ptr.m_pObject), uiDataSize), streamDataType));
+        outputStreams.PushBack(ezProcessingStream(sStream, ezMakeArrayPtr(static_cast<ezUInt8*>(ptr.m_pObject), uiDataSize), streamDataType));
+      }
+      else
+      {
+        auto& outputStreamDesc = userData.m_ByteCode.GetOutputs()[i];
+        outputStreams.PushBack(ezProcessingStream(sStream, ezMakeArrayPtr(dummyOutput), outputStreamDesc.m_DataType));
+      }
     }
 
-    auto& userData = node.GetUserData<NodeUserData_Expression>();
     if (pModule->GetSharedExpressionVM().Execute(userData.m_ByteCode, inputStreams, outputStreams, 1, ezExpression::GlobalData(), ezExpressionVM::Flags::ScalarizeStreams).Failed())
     {
       ezLog::Error("Visual script expression execution failed");
@@ -957,7 +993,7 @@ namespace
     NumberType res = 0;
     if constexpr (std::is_same_v<T, bool>)
     {
-      res = inout_context.GetData<T>(dataOffset) ? 1 : 0;
+      res = inout_context.GetData<T>(dataOffset) ? NumberType(1) : NumberType(0);
     }
     else if constexpr (std::is_same_v<T, ezUInt8> ||
                        std::is_same_v<T, ezInt32> ||
@@ -980,11 +1016,11 @@ namespace
     return ExecResult::RunNext(0);
   }
 
-#define MAKE_TONUMBER_EXEC_FUNC(NumberType, Name)                                                                                                              \
-  template <typename T>                                                                                                                                        \
-  static ExecResult EZ_CONCAT(NodeFunction_Builtin_To, Name)(ezVisualScriptExecutionContext & inout_context, const ezVisualScriptGraphDescription::Node& node) \
-  {                                                                                                                                                            \
-    return NodeFunction_Builtin_ToNumber<NumberType, T>(inout_context, node, #Name);                                                                           \
+#define MAKE_TONUMBER_EXEC_FUNC(NumberType, Name)                                                                                                                 \
+  template <typename T>                                                                                                                                           \
+  static ExecResult EZ_PP_CONCAT(NodeFunction_Builtin_To, Name)(ezVisualScriptExecutionContext & inout_context, const ezVisualScriptGraphDescription::Node& node) \
+  {                                                                                                                                                               \
+    return NodeFunction_Builtin_ToNumber<NumberType, T>(inout_context, node, #Name);                                                                              \
   }
 
   MAKE_TONUMBER_EXEC_FUNC(ezUInt8, Byte);
@@ -1002,23 +1038,36 @@ namespace
   template <typename T>
   static ExecResult NodeFunction_Builtin_ToString(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
   {
+    auto dataOffset = node.GetInputDataOffset(0);
+
     ezStringBuilder sb;
     ezStringView s;
     if constexpr (std::is_same_v<T, ezGameObjectHandle> ||
                   std::is_same_v<T, ezComponentHandle> ||
                   std::is_same_v<T, ezTypedPointer>)
     {
-      ezTypedPointer p = inout_context.GetPointerData(node.GetInputDataOffset(0));
+      ezTypedPointer p = inout_context.GetPointerData(dataOffset);
       sb.SetFormat("{} {}", p.m_pType->GetTypeName(), ezArgP(p.m_pObject));
       s = sb;
     }
     else if constexpr (std::is_same_v<T, ezString>)
     {
-      s = inout_context.GetData<ezString>(node.GetInputDataOffset(0));
+      inout_context.SetData(node.GetOutputDataOffset(0), inout_context.GetData<ezString>(dataOffset));
+      return ExecResult::RunNext(0);
+    }
+    else if constexpr (std::is_same_v<T, ezHashedString>)
+    {
+      inout_context.SetData(node.GetOutputDataOffset(0), inout_context.GetData<ezHashedString>(dataOffset).GetString());
+      return ExecResult::RunNext(0);
+    }
+    else if constexpr (std::is_same_v<T, ezVariant>)
+    {
+      inout_context.SetData(node.GetOutputDataOffset(0), inout_context.GetData<ezVariant>(dataOffset).ConvertTo<ezString>());
+      return ExecResult::RunNext(0);
     }
     else
     {
-      s = ezConversionUtils::ToString(inout_context.GetData<T>(node.GetInputDataOffset(0)), sb);
+      s = ezConversionUtils::ToString(inout_context.GetData<T>(dataOffset), sb);
     }
 
     inout_context.SetData(node.GetOutputDataOffset(0), s);
@@ -1031,14 +1080,14 @@ namespace
   {
     auto& sText = inout_context.GetData<ezString>(node.GetInputDataOffset(0));
 
-    ezHybridArray<ezString, 12> stringStorage;
+    ezTempHybridArray<ezString, 12> stringStorage;
     stringStorage.Reserve(node.m_NumInputDataOffsets - 1);
     for (ezUInt32 i = 1; i < node.m_NumInputDataOffsets; ++i)
     {
       stringStorage.PushBack(inout_context.GetDataAsVariant(node.GetInputDataOffset(i), nullptr).ConvertTo<ezString>());
     }
 
-    ezHybridArray<ezStringView, 12> stringViews;
+    ezTempHybridArray<ezStringView, 12> stringViews;
     stringViews.Reserve(stringStorage.GetCount());
     for (auto& s : stringStorage)
     {
@@ -1056,28 +1105,35 @@ namespace
   template <typename T>
   static ExecResult NodeFunction_Builtin_ToHashedString(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
   {
+    auto dataOffset = node.GetInputDataOffset(0);
+
     ezStringBuilder sb;
     ezStringView s;
     if constexpr (std::is_same_v<T, ezGameObjectHandle> ||
                   std::is_same_v<T, ezComponentHandle> ||
                   std::is_same_v<T, ezTypedPointer>)
     {
-      ezTypedPointer p = inout_context.GetPointerData(node.GetInputDataOffset(0));
+      ezTypedPointer p = inout_context.GetPointerData(dataOffset);
       sb.SetFormat("{} {}", p.m_pType->GetTypeName(), ezArgP(p.m_pObject));
       s = sb;
     }
     else if constexpr (std::is_same_v<T, ezString>)
     {
-      s = inout_context.GetData<ezString>(node.GetInputDataOffset(0));
+      s = inout_context.GetData<ezString>(dataOffset);
     }
     else if constexpr (std::is_same_v<T, ezHashedString>)
     {
-      inout_context.SetData(node.GetOutputDataOffset(0), inout_context.GetData<ezHashedString>(node.GetInputDataOffset(0)));
+      inout_context.SetData(node.GetOutputDataOffset(0), inout_context.GetData<ezHashedString>(dataOffset));
+      return ExecResult::RunNext(0);
+    }
+    else if constexpr (std::is_same_v<T, ezVariant>)
+    {
+      inout_context.SetData(node.GetOutputDataOffset(0), inout_context.GetData<ezVariant>(dataOffset).ConvertTo<ezHashedString>());
       return ExecResult::RunNext(0);
     }
     else
     {
-      s = ezConversionUtils::ToString(inout_context.GetData<T>(node.GetInputDataOffset(0)), sb);
+      s = ezConversionUtils::ToString(inout_context.GetData<T>(dataOffset), sb);
     }
 
     ezHashedString sHashed;
@@ -1262,6 +1318,15 @@ namespace
     return ExecResult::RunNext(0);
   }
 
+  static ExecResult NodeFunction_Builtin_Array_PushBackRange(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    ezVariantArray& a = inout_context.GetWritableData<ezVariantArray>(node.GetInputDataOffset(0));
+    const ezVariantArray& b = inout_context.GetData<ezVariantArray>(node.GetInputDataOffset(1));
+    a.PushBackRange(b);
+
+    return ExecResult::RunNext(0);
+  }
+
   static ExecResult NodeFunction_Builtin_Array_Remove(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
   {
     ezVariantArray& a = inout_context.GetWritableData<ezVariantArray>(node.GetInputDataOffset(0));
@@ -1305,7 +1370,7 @@ namespace
     }
 
     ezComponent* pComponent = nullptr;
-    static_cast<ezGameObject*>(p.m_pObject)->TryGetComponentOfBaseType(userData.m_pType, pComponent);
+    bool _ = static_cast<ezGameObject*>(p.m_pObject)->TryGetComponentOfBaseType(userData.m_pType, pComponent);
     inout_context.SetPointerData(node.GetOutputDataOffset(0), pComponent);
 
     return ExecResult::RunNext(0);
@@ -1444,6 +1509,7 @@ namespace
     {nullptr, &NodeFunction_Builtin_SetVariable_Getter},       // Builtin_SetVariable,
     {nullptr, &NodeFunction_Builtin_IncVariable_Getter},       // Builtin_IncVariable,
     {nullptr, &NodeFunction_Builtin_DecVariable_Getter},       // Builtin_DecVariable,
+    {nullptr, &NodeFunction_Builtin_SetVariable_Getter},       // Builtin_TempVariable,
 
     {&NodeFunction_Builtin_Branch},                            // Builtin_Branch,
     {nullptr, &NodeFunction_Builtin_Switch_Getter},            // Builtin_Switch,
@@ -1490,6 +1556,7 @@ namespace
     {&NodeFunction_Builtin_Array_IndexOf},                     // Builtin_Array_IndexOf,
     {&NodeFunction_Builtin_Array_Insert},                      // Builtin_Array_Insert,
     {&NodeFunction_Builtin_Array_PushBack},                    // Builtin_Array_PushBack,
+    {&NodeFunction_Builtin_Array_PushBackRange},               // Builtin_Array_PushBackRange,
     {&NodeFunction_Builtin_Array_Remove},                      // Builtin_Array_Remove,
     {&NodeFunction_Builtin_Array_RemoveAt},                    // Builtin_Array_RemoveAt,
 
@@ -1510,7 +1577,7 @@ namespace
 
 ezVisualScriptGraphDescription::ExecuteFunction GetExecuteFunction(ezVisualScriptNodeDescription::Type::Enum nodeType, ezVisualScriptDataType::Enum dataType)
 {
-  EZ_ASSERT_DEBUG(nodeType >= 0 && nodeType < EZ_ARRAY_SIZE(s_TypeToExecuteFunctions), "Out of bounds access");
+  EZ_ASSERT_DEBUG(nodeType >= 0 && static_cast<ezUInt32>(nodeType) < EZ_ARRAY_SIZE(s_TypeToExecuteFunctions), "Out of bounds access");
   auto& context = s_TypeToExecuteFunctions[nodeType];
   if (context.m_Func != nullptr)
   {

@@ -1,6 +1,7 @@
 #include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/Assets/AssetStatusIndicator.moc.h>
 #include <EditorFramework/DocumentWindow/OrbitCamViewWidget.moc.h>
 #include <EditorFramework/InputContexts/OrbitCameraContext.h>
 #include <EditorFramework/InputContexts/SelectionContext.h>
@@ -47,31 +48,41 @@ ezQtSkeletonAssetDocumentWindow::ezQtSkeletonAssetDocumentWindow(ezSkeletonAsset
     m_pViewWidget = new ezQtOrbitCamViewWidget(this, &m_ViewConfig, true);
     m_pViewWidget->ConfigureRelative(ezVec3(0, 0, 1), ezVec3(5.0f), ezVec3(5, -2, 3), 2.0f);
     AddViewWidget(m_pViewWidget);
-    pContainer = new ezQtViewWidgetContainer(this, m_pViewWidget, "SkeletonAssetViewToolBar");
-    setCentralWidget(pContainer);
+    pContainer = new ezQtViewWidgetContainer(GetContainerWindow()->GetDockManager(), this, m_pViewWidget, "SkeletonAssetViewToolBar");
+    m_pDockManager->setCentralWidget(pContainer);
   }
 
   // Property Grid
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("SkeletonAssetDockWidget");
     pPropertyPanel->setWindowTitle("Skeleton Properties");
     pPropertyPanel->show();
 
     ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
-    pPropertyPanel->setWidget(pPropertyGrid);
 
-    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
+    QWidget* pWidget = new QWidget();
+    pWidget->setObjectName("Group");
+    pWidget->setLayout(new QVBoxLayout());
+    pWidget->setContentsMargins(0, 0, 0, 0);
+
+    pWidget->layout()->setContentsMargins(0, 0, 0, 0);
+    pWidget->layout()->addWidget(new ezQtAssetStatusIndicator(GetDocument()));
+    pWidget->layout()->addWidget(pPropertyGrid);
+
+    pPropertyPanel->setWidget(pWidget, ads::CDockWidget::ForceNoScrollArea);
+
+    m_pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pPropertyPanel);
 
     pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
   }
 
   // Tree View
   {
-    ezQtDocumentPanel* pPanelTree = new ezQtSkeletonPanel(this, static_cast<ezSkeletonAssetDocument*>(pDocument));
+    ezQtDocumentPanel* pPanelTree = new ezQtSkeletonPanel(GetContainerWindow()->GetDockManager(), this, static_cast<ezSkeletonAssetDocument*>(pDocument));
     pPanelTree->show();
 
-    addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pPanelTree);
+    m_pDockManager->addDockWidgetTab(ads::LeftDockWidgetArea, pPanelTree);
   }
 
   pDocument->Events().AddEventHandler(ezMakeDelegate(&ezQtSkeletonAssetDocumentWindow::SkeletonAssetEventHandler, this));
@@ -110,35 +121,35 @@ void ezQtSkeletonAssetDocumentWindow::SendRedrawMsg()
   {
     ezSimpleDocumentConfigMsgToEngine msg;
     msg.m_sWhatToDo = "RenderBones";
-    msg.m_fPayload = pDoc->GetRenderBones() ? 1.0f : 0.0f;
+    msg.m_PayloadValue = pDoc->GetRenderBones();
     pDoc->SendMessageToEngine(&msg);
   }
 
   {
     ezSimpleDocumentConfigMsgToEngine msg;
     msg.m_sWhatToDo = "RenderColliders";
-    msg.m_fPayload = pDoc->GetRenderColliders() ? 1.0f : 0.0f;
+    msg.m_PayloadValue = pDoc->GetRenderColliders();
     pDoc->SendMessageToEngine(&msg);
   }
 
   {
     ezSimpleDocumentConfigMsgToEngine msg;
     msg.m_sWhatToDo = "RenderJoints";
-    msg.m_fPayload = pDoc->GetRenderJoints() ? 1.0f : 0.0f;
+    msg.m_PayloadValue = pDoc->GetRenderJoints();
     pDoc->SendMessageToEngine(&msg);
   }
 
   {
     ezSimpleDocumentConfigMsgToEngine msg;
     msg.m_sWhatToDo = "RenderSwingLimits";
-    msg.m_fPayload = pDoc->GetRenderSwingLimits() ? 1.0f : 0.0f;
+    msg.m_PayloadValue = pDoc->GetRenderSwingLimits();
     pDoc->SendMessageToEngine(&msg);
   }
 
   {
     ezSimpleDocumentConfigMsgToEngine msg;
     msg.m_sWhatToDo = "RenderTwistLimits";
-    msg.m_fPayload = pDoc->GetRenderTwistLimits() ? 1.0f : 0.0f;
+    msg.m_PayloadValue = pDoc->GetRenderTwistLimits();
     pDoc->SendMessageToEngine(&msg);
   }
 
@@ -202,6 +213,10 @@ void ezQtSkeletonAssetDocumentWindow::SelectionEventHandler(const ezSelectionMan
       GetDocument()->SendMessageToEngine(&msg);
     }
     break;
+
+    case ezSelectionManagerEvent::Type::ChangedRuntimeOverrideSelection:
+      // ignore
+      break;
   }
 }
 
@@ -261,7 +276,7 @@ void ezQtSkeletonAssetDocumentWindow::SendLiveResourcePreview()
 
   // Write Header
   memoryWriter << sAbsFilePath;
-  const ezUInt64 uiHash = ezAssetCurator::GetSingleton()->GetAssetDependencyHash(pDoc->GetGuid());
+  const ezUInt64 uiHash = ezAssetCurator::GetSingleton()->GetAssetTransformHash(pDoc->GetGuid());
   ezAssetFileHeader AssetHeader;
   AssetHeader.SetFileHashAndVersion(uiHash, pDoc->GetAssetTypeVersion());
   AssetHeader.Write(memoryWriter).IgnoreResult();

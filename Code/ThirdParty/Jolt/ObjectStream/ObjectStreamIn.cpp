@@ -4,9 +4,11 @@
 
 #include <Jolt/Jolt.h>
 
+#ifdef JPH_OBJECT_STREAM
+
+#include <Jolt/ObjectStream/ObjectStreamIn.h>
 #include <Jolt/Core/Factory.h>
 #include <Jolt/Core/UnorderedSet.h>
-#include <Jolt/ObjectStream/ObjectStreamIn.h>
 #include <Jolt/ObjectStream/ObjectStreamTextIn.h>
 #include <Jolt/ObjectStream/ObjectStreamBinaryIn.h>
 #include <Jolt/ObjectStream/SerializableObject.h>
@@ -302,7 +304,7 @@ bool ObjectStreamIn::ReadRTTI()
 			for (int idx = 0; idx < rtti->GetAttributeCount(); ++idx)
 			{
 				const SerializableAttribute &attr = rtti->GetAttribute(idx);
-				if (strcmp(attr.GetName(), attribute_name.c_str()) == 0)
+				if (attribute_name.compare(attr.GetName()) == 0)
 				{
 					attribute.mIndex = idx;
 					break;
@@ -549,6 +551,13 @@ bool ObjectStreamIn::SkipAttributeData(int inArrayDepth, EOSDataType inDataType,
 						break;
 					}
 
+				case EOSDataType::T_Float4:
+					{
+						Float4 temporary;
+						continue_reading = ReadPrimitiveData(temporary);
+						break;
+					}
+
 				case EOSDataType::T_Double3:
 					{
 						Double3 temporary;
@@ -573,6 +582,13 @@ bool ObjectStreamIn::SkipAttributeData(int inArrayDepth, EOSDataType inDataType,
 				case EOSDataType::T_Vec4:
 					{
 						Vec4 temporary;
+						continue_reading = ReadPrimitiveData(temporary);
+						break;
+					}
+
+				case EOSDataType::T_UVec4:
+					{
+						UVec4 temporary;
 						continue_reading = ReadPrimitiveData(temporary);
 						break;
 					}
@@ -615,3 +631,5 @@ bool ObjectStreamIn::SkipAttributeData(int inArrayDepth, EOSDataType inDataType,
 }
 
 JPH_NAMESPACE_END
+
+#endif // JPH_OBJECT_STREAM

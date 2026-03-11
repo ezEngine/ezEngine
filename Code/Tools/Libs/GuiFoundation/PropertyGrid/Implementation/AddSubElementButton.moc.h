@@ -2,20 +2,21 @@
 
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/PropertyGrid/PropertyBaseWidget.moc.h>
+#include <GuiFoundation/Widgets/SearchableTypeMenu.moc.h>
 
 class QHBoxLayout;
 class QPushButton;
 class QMenu;
-class ezQtSearchableMenu;
 
+/// \brief Used by container widgets to add new elements to the container.
 class EZ_GUIFOUNDATION_DLL ezQtAddSubElementButton : public ezQtPropertyWidget
 {
   Q_OBJECT
 
 public:
-  ezQtAddSubElementButton();
-
-  static bool s_bShowInDevelopmentFeatures;
+  /// Constructor
+  /// \param containerCategory The type of container. Only Map, Set and Array are supported.
+  ezQtAddSubElementButton(ezEnum<ezPropertyCategory> containerCategory, ezStringView sButtonText);
 
 protected:
   virtual void DoPrepareToDie() override {}
@@ -23,26 +24,20 @@ protected:
 private Q_SLOTS:
   void onMenuAboutToShow();
   void on_Button_clicked();
-  void OnMenuAction();
+  void OnTypeSelected(QString sTypeName);
 
 private:
   virtual void OnInit() override;
   void OnAction(const ezRTTI* pRtti);
 
-  QMenu* CreateCategoryMenu(const char* szCategory, ezMap<ezString, QMenu*>& existingMenus);
-
   QHBoxLayout* m_pLayout;
   QPushButton* m_pButton;
 
-  ezSet<const ezRTTI*> m_SupportedTypes;
+  ezQtTypeMenu m_TypeMenu;
 
+  ezEnum<ezPropertyCategory> m_ContainerCategory;
   bool m_bNoMoreElementsAllowed = false;
   QMenu* m_pMenu = nullptr;
-  ezQtSearchableMenu* m_pSearchableMenu = nullptr;
   ezUInt32 m_uiMaxElements = 0; // 0 means unlimited
   bool m_bPreventDuplicates = false;
-
-  // used to remember the last search term entered into the searchable menu
-  // this should probably be per 'distinguishable menu', but currently it is just global
-  static ezString s_sLastMenuSearch;
 };

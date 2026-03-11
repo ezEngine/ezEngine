@@ -1,9 +1,10 @@
 #pragma once
 
-#include <Core/Messages/EventMessage.h>
+#include <GameEngine/GameEngineDLL.h>
+
+#include <Core/Messages/EventMessageSender.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/Utils/Blackboard.h>
-#include <GameEngine/GameEngineDLL.h>
 
 struct ezMsgUpdateLocalBounds;
 struct ezMsgExtractRenderData;
@@ -24,9 +25,9 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezBlackboardEntry);
 
 //////////////////////////////////////////////////////////////////////////
 
-struct EZ_GAMEENGINE_DLL ezMsgBlackboardEntryChanged : public ezEventMessage
+struct EZ_GAMEENGINE_DLL ezMsgBlackboardEntryChanged : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgBlackboardEntryChanged, ezEventMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgBlackboardEntryChanged, ezMessage);
 
   ezHashedString m_sName;
   ezVariant m_OldValue;
@@ -78,9 +79,6 @@ public:
 
   void SetShowDebugInfo(bool bShow);                              // [ property ]
   bool GetShowDebugInfo() const;                                  // [ property ]
-
-  void SetTemplateFile(const char* szName);                       // [ property ]
-  const char* GetTemplateFile() const;                            // [ property ]
 
   void SetEntryValue(const char* szName, const ezVariant& value); // [ scriptable ]
   ezVariant GetEntryValue(const char* szName) const;              // [ scriptable ]
@@ -136,13 +134,14 @@ public:
 
 private:
   ezUInt32 Entries_GetCount() const;
-  const ezBlackboardEntry& Entries_GetValue(ezUInt32 uiIndex) const;
-  void Entries_SetValue(ezUInt32 uiIndex, const ezBlackboardEntry& entry);
-  void Entries_Insert(ezUInt32 uiIndex, const ezBlackboardEntry& entry);
+  ezBlackboardEntry Entries_GetValue(ezUInt32 uiIndex) const;
+  void Entries_SetValue(ezUInt32 uiIndex, ezBlackboardEntry entry);
+  void Entries_Insert(ezUInt32 uiIndex, ezBlackboardEntry entry);
   void Entries_Remove(ezUInt32 uiIndex);
 
   void OnEntryChanged(const ezBlackboard::EntryEvent& e);
   void InitializeFromTemplate();
+  bool IsEditor() const;
 
   // this array is not held during runtime, it is only needed during editor time until the component is serialized out
   ezDynamicArray<ezBlackboardEntry> m_InitialEntries;

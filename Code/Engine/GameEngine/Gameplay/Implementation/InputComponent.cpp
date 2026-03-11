@@ -79,7 +79,7 @@ void ezInputComponent::Update()
   if (m_sInputSet.IsEmpty())
     return;
 
-  ezHybridArray<ezString, 24> AllActions;
+  ezTempHybridArray<ezString, 32> AllActions;
   ezInputManager::GetAllInputActions(m_sInputSet, AllActions);
 
   ezMsgInputActionTriggered msg;
@@ -113,6 +113,9 @@ void ezInputComponent::Update()
 
 float ezInputComponent::GetCurrentInputState(const char* szInputAction, bool bOnlyKeyPressed /*= false*/) const
 {
+  if (!IsActiveAndSimulating())
+    return 0;
+
   if (m_sInputSet.IsEmpty())
     return 0;
 

@@ -1,31 +1,3 @@
-/*
- * This source file is part of RmlUi, the HTML/CSS Interface Middleware
- *
- * For the latest information, see http://github.com/mikke89/RmlUi
- *
- * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
- */
-
 #include "../../Include/RmlUi/Core/BaseXMLParser.h"
 #include "../../Include/RmlUi/Core/Profiling.h"
 #include "../../Include/RmlUi/Core/Stream.h"
@@ -34,17 +6,19 @@
 
 namespace Rml {
 
-BaseXMLParser::BaseXMLParser()
-{}
+BaseXMLParser::BaseXMLParser() {}
 
-BaseXMLParser::~BaseXMLParser()
-{}
+BaseXMLParser::~BaseXMLParser() {}
 
-// Registers a tag as containing general character data.
 void BaseXMLParser::RegisterCDATATag(const String& tag)
 {
 	if (!tag.empty())
 		cdata_tags.insert(StringUtilities::ToLower(tag));
+}
+
+bool BaseXMLParser::IsCDATATag(const String& tag)
+{
+	return cdata_tags.find(StringUtilities::ToLower(tag)) != cdata_tags.end();
 }
 
 void BaseXMLParser::RegisterInnerXMLAttribute(const String& attribute_name)
@@ -52,8 +26,6 @@ void BaseXMLParser::RegisterInnerXMLAttribute(const String& attribute_name)
 	attributes_for_inner_xml_data.insert(attribute_name);
 }
 
-// Parses the given stream as an XML file, and calls the handlers when
-// interesting phenomenon are encountered.
 void BaseXMLParser::Parse(Stream* stream)
 {
 	source_url = &stream->GetSourceURL();
@@ -84,7 +56,6 @@ void BaseXMLParser::Parse(Stream* stream)
 	source_url = nullptr;
 }
 
-// Get the current file line number
 int BaseXMLParser::GetLineNumber() const
 {
 	return line_number;
@@ -95,42 +66,29 @@ int BaseXMLParser::GetLineNumberOpenTag() const
 	return line_number_open_tag;
 }
 
-// Called when the parser finds the beginning of an element tag.
-void BaseXMLParser::HandleElementStart(const String& RMLUI_UNUSED_PARAMETER(name), const XMLAttributes& RMLUI_UNUSED_PARAMETER(attributes))
-{
-	RMLUI_UNUSED(name);
-	RMLUI_UNUSED(attributes);
-}
+void BaseXMLParser::HandleElementStart(const String& /*name*/, const XMLAttributes& /*attributes*/) {}
 
-// Called when the parser finds the end of an element tag.
-void BaseXMLParser::HandleElementEnd(const String& RMLUI_UNUSED_PARAMETER(name))
-{
-	RMLUI_UNUSED(name);
-}
+void BaseXMLParser::HandleElementEnd(const String& /*name*/) {}
 
-// Called when the parser encounters data.
-void BaseXMLParser::HandleData(const String& RMLUI_UNUSED_PARAMETER(data), XMLDataType RMLUI_UNUSED_PARAMETER(type))
-{
-	RMLUI_UNUSED(data);
-	RMLUI_UNUSED(type);
-}
-
-/// Returns the source URL of this parse. Only valid during parsing.
+void BaseXMLParser::HandleData(const String& /*data*/, XMLDataType /*type*/) {}
 
 const URL* BaseXMLParser::GetSourceURLPtr() const
 {
 	return source_url;
 }
 
-void BaseXMLParser::Next() {
+void BaseXMLParser::Next()
+{
 	xml_index += 1;
 }
 
-bool BaseXMLParser::AtEnd() const {
+bool BaseXMLParser::AtEnd() const
+{
 	return xml_index >= xml_source.size();
 }
 
-char BaseXMLParser::Look() const {
+char BaseXMLParser::Look() const
+{
 	RMLUI_ASSERT(!AtEnd());
 	return xml_source[xml_index];
 }
@@ -170,7 +128,7 @@ void BaseXMLParser::ReadBody()
 	open_tag_depth = 0;
 	line_number_open_tag = 0;
 
-	for(;;)
+	for (;;)
 	{
 		// Find the next open tag.
 		if (!FindString("<", data, true))
@@ -240,8 +198,7 @@ bool BaseXMLParser::ReadOpenTag()
 		HandleElementStartInternal(tag_name, XMLAttributes());
 		section_opened = true;
 	}
-	else if (PeekString("/") &&
-			 PeekString(">"))
+	else if (PeekString("/") && PeekString(">"))
 	{
 		// Empty open tag.
 		HandleElementStartInternal(tag_name, XMLAttributes());
@@ -263,8 +220,7 @@ bool BaseXMLParser::ReadOpenTag()
 			HandleElementStartInternal(tag_name, attributes);
 			section_opened = true;
 		}
-		else if (PeekString("/") &&
-				 PeekString(">"))
+		else if (PeekString("/") && PeekString(">"))
 		{
 			HandleElementStartInternal(tag_name, attributes);
 			HandleElementEndInternal(tag_name);
@@ -288,17 +244,14 @@ bool BaseXMLParser::ReadOpenTag()
 	// Check if this tag needs to be processed as CDATA.
 	if (section_opened)
 	{
-		const String lcase_tag_name = StringUtilities::ToLower(tag_name);
-		bool is_cdata_tag = (cdata_tags.find(lcase_tag_name) != cdata_tags.end());
-
-		if (is_cdata_tag)
+		if (IsCDATATag(tag_name))
 		{
-			if (ReadCDATA(lcase_tag_name.c_str()))
+			if (ReadCDATA(StringUtilities::ToLower(tag_name).c_str()))
 			{
 				open_tag_depth--;
 				if (!data.empty())
 				{
-					HandleDataInternal(data, XMLDataType::CData);
+					HandleDataInternal(data, XMLDataType::CDATA);
 					data.clear();
 				}
 				HandleElementEndInternal(tag_name);
@@ -339,10 +292,8 @@ bool BaseXMLParser::ReadCloseTag(const size_t xml_index_tag)
 
 	HandleElementEndInternal(StringUtilities::StripWhitespace(tag_name));
 
-
 	// Tag closed, reduce count
 	open_tag_depth--;
-
 
 	return true;
 }
@@ -354,12 +305,12 @@ bool BaseXMLParser::ReadAttributes(XMLAttributes& attributes, bool& parse_raw_xm
 		String attribute;
 		String value;
 
-		// Get the attribute name		
+		// Get the attribute name
 		if (!FindWord(attribute, "=/>"))
-		{			
+		{
 			return false;
 		}
-		
+
 		// Check if theres an assigned value
 		if (PeekString("="))
 		{
@@ -382,7 +333,7 @@ bool BaseXMLParser::ReadAttributes(XMLAttributes& attributes, bool& parse_raw_xm
 		if (attributes_for_inner_xml_data.count(attribute) == 1)
 			parse_raw_xml_content = true;
 
- 		attributes[attribute] = StringUtilities::DecodeRml(value);
+		attributes[attribute] = StringUtilities::DecodeRml(value);
 
 		// Check for the end of the tag.
 		if (PeekString("/", false) || PeekString(">", false))
@@ -414,7 +365,7 @@ bool BaseXMLParser::ReadCDATA(const char* tag_terminator)
 				{
 					size_t slash_pos = tag.find('/');
 					String tag_name = StringUtilities::StripWhitespace(slash_pos == String::npos ? tag : tag.substr(slash_pos + 1));
-					if (StringUtilities::ToLower(tag_name) == tag_terminator)
+					if (StringUtilities::ToLower(std::move(tag_name)) == tag_terminator)
 					{
 						data += cdata;
 						return true;
@@ -433,7 +384,6 @@ bool BaseXMLParser::ReadCDATA(const char* tag_terminator)
 	}
 }
 
-// Reads from the stream until a complete word is found.
 bool BaseXMLParser::FindWord(String& word, const char* terminators)
 {
 	while (!AtEnd())
@@ -471,18 +421,15 @@ bool BaseXMLParser::FindWord(String& word, const char* terminators)
 	return false;
 }
 
-// Reads from the stream until the given character set is found.
 bool BaseXMLParser::FindString(const char* string, String& data, bool escape_brackets)
 {
-	int index = 0;
+	const char first_char = string[0];
 	bool in_brackets = false;
+	bool in_string = false;
 	char previous = 0;
 
-	while (string[index])
+	while (!AtEnd())
 	{
-		if (AtEnd())
-			return false;
-
 		const char c = Look();
 
 		// Count line numbers
@@ -491,9 +438,9 @@ bool BaseXMLParser::FindString(const char* string, String& data, bool escape_bra
 			line_number++;
 		}
 
-		if(escape_brackets)
+		if (escape_brackets)
 		{
-			const char* error_str = XMLParseTools::ParseDataBrackets(in_brackets, c, previous);
+			const char* error_str = XMLParseTools::ParseDataBrackets(in_brackets, in_string, c, previous);
 			if (error_str)
 			{
 				Log::Message(Log::LT_WARNING, "XML parse error. %s", error_str);
@@ -501,30 +448,19 @@ bool BaseXMLParser::FindString(const char* string, String& data, bool escape_bra
 			}
 		}
 
-		if (c == string[index] && !in_brackets)
+		if (c == first_char && !in_brackets && PeekString(string))
 		{
-			index += 1;
-		}
-		else
-		{
-			if (index > 0)
-			{
-				data += String(string, index);
-				index = 0;
-			}
-
-			data += c;
+			return true;
 		}
 
+		data += c;
 		previous = c;
 		Next();
 	}
 
-	return true;
+	return false;
 }
 
-// Returns true if the next sequence of characters in the stream matches the
-// given string.
 bool BaseXMLParser::PeekString(const char* string, bool consume)
 {
 	const size_t start_index = xml_index;

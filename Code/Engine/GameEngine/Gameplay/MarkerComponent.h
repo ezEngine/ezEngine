@@ -1,9 +1,9 @@
 #pragma once
 
-#include <GameEngine/GameEngineDLL.h>
-
+#include <Core/Messages/UpdateLocalBoundsMessage.h>
 #include <Core/World/Component.h>
 #include <Core/World/World.h>
+#include <GameEngine/GameEngineDLL.h>
 
 using ezMarkerComponentManager = ezComponentManager<class ezMarkerComponent, ezBlockStorageType::Compact>;
 

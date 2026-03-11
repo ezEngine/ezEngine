@@ -12,11 +12,11 @@
 #include <RendererCore/BakedProbes/ProbeTreeSectorResource.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Meshes/MeshComponentBase.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererFoundation/CommandEncoder/ComputeCommandEncoder.h>
+#include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
-#include <RendererFoundation/Device/Pass.h>
 #include <RendererFoundation/Resources/Texture.h>
 
 struct ezBakedProbesComponent::RenderDebugViewTask : public ezTask
@@ -77,14 +77,7 @@ void ezBakedProbesComponentManager::Initialize()
     this->RegisterUpdateFunction(desc);
   }
 
-  ezRenderWorld::GetRenderEvent().AddEventHandler(ezMakeDelegate(&ezBakedProbesComponentManager::OnRenderEvent, this));
-
   CreateDebugResources();
-}
-
-void ezBakedProbesComponentManager::Deinitialize()
-{
-  ezRenderWorld::GetRenderEvent().RemoveEventHandler(ezMakeDelegate(&ezBakedProbesComponentManager::OnRenderEvent, this));
 }
 
 void ezBakedProbesComponentManager::RenderDebug(const ezWorldModule::UpdateContext& updateContext)
@@ -94,38 +87,6 @@ void ezBakedProbesComponentManager::RenderDebug(const ezWorldModule::UpdateConte
     if (pComponent->GetShowDebugOverlay())
     {
       pComponent->RenderDebugOverlay();
-    }
-  }
-}
-
-void ezBakedProbesComponentManager::OnRenderEvent(const ezRenderWorldRenderEvent& e)
-{
-  if (e.m_Type != ezRenderWorldRenderEvent::Type::BeginRender)
-    return;
-
-  if (ezBakedProbesComponent* pComponent = GetSingletonComponent())
-  {
-    auto& task = pComponent->m_pRenderDebugViewTask;
-    if (task != nullptr && task->m_bHasNewData)
-    {
-      task->m_bHasNewData = false;
-
-      ezGALDevice* pGALDevice = ezGALDevice::GetDefaultDevice();
-      ezGALPass* pGALPass = pGALDevice->BeginPass("BakingDebugViewUpdate");
-      auto pCommandEncoder = pGALPass->BeginCompute();
-
-      ezBoundingBoxu32 destBox;
-      destBox.m_vMin.SetZero();
-      destBox.m_vMax = ezVec3U32(task->m_uiWidth, task->m_uiHeight, 1);
-
-      ezGALSystemMemoryDescription sourceData;
-      sourceData.m_pData = task->m_PixelData.GetData();
-      sourceData.m_uiRowPitch = task->m_uiWidth * sizeof(ezColorGammaUB);
-
-      pCommandEncoder->UpdateTexture(pComponent->m_hDebugViewTexture, ezGALTextureSubresource(), destBox, sourceData);
-
-      pGALPass->EndCompute(pCommandEncoder);
-      pGALDevice->EndPass(pGALPass);
     }
   }
 }
@@ -142,8 +103,7 @@ void ezBakedProbesComponentManager::CreateDebugResources()
     if (!hMeshBuffer.IsValid())
     {
       ezMeshBufferResourceDescriptor desc;
-      desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-      desc.AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
+      desc.AddCommonStreams();
       desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
 
       hMeshBuffer = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>(szBufferResourceName, std::move(desc), szBufferResourceName);
@@ -297,9 +257,15 @@ void ezBakedProbesComponent::OnExtractRenderData(ezMsgExtractRenderData& ref_msg
     return;
 
   const ezGameObject* pOwner = GetOwner();
-  auto pManager = static_cast<const ezBakedProbesComponentManager*>(GetOwningManager());
+  const bool bDynamic = true;
+  const ezUInt32 uiUniqueID = ezRenderComponent::GetUniqueIdForRendering(*this);
+  const ezUInt32 uiMaxNumProbes = 1024;
 
-  auto addProbeRenderData = [&](const ezVec3& vPosition, ezCompressedSkyVisibility skyVisibility, ezRenderData::Caching::Enum caching)
+  ezGALDynamicBufferHandle hInstanceDataBuffer;
+  auto instanceData = ref_msg.m_pRenderDataManager->GetOrCreateInstanceData(this, bDynamic, hInstanceDataBuffer, m_InstanceDataOffset, uiMaxNumProbes);
+  ezUInt32 uiNumProbes = 0;
+
+  auto addProbeRenderData = [&](ezPerInstanceData& out_instanceData, const ezVec3& vPosition, ezCompressedSkyVisibility skyVisibility)
   {
     ezTransform transform = ezTransform::MakeIdentity();
     transform.m_vPosition = vPosition;
@@ -307,20 +273,7 @@ void ezBakedProbesComponent::OnExtractRenderData(ezMsgExtractRenderData& ref_msg
     ezColor encodedSkyVisibility = ezColor::Black;
     encodedSkyVisibility.r = *reinterpret_cast<const float*>(&skyVisibility);
 
-    ezMeshRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(pOwner);
-    {
-      pRenderData->m_GlobalTransform = transform;
-      pRenderData->m_GlobalBounds = ezBoundingBoxSphere::MakeInvalid();
-      pRenderData->m_hMesh = pManager->m_hDebugSphere;
-      pRenderData->m_hMaterial = pManager->m_hDebugMaterial;
-      pRenderData->m_Color = encodedSkyVisibility;
-      pRenderData->m_uiSubMeshIndex = 0;
-      pRenderData->m_uiUniqueID = ezRenderComponent::GetUniqueIdForRendering(*this, 0);
-
-      pRenderData->FillBatchIdAndSortingKey();
-    }
-
-    ref_msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::SimpleOpaque, caching);
+    ezRenderDataManager::FillPerInstanceData(out_instanceData, pOwner, ezTransform::Make(vPosition), uiUniqueID, encodedSkyVisibility);
   };
 
   if (m_bUseTestPosition)
@@ -347,7 +300,8 @@ void ezBakedProbesComponent::OnExtractRenderData(ezMsgExtractRenderData& ref_msg
 
     ezCompressedSkyVisibility skyVisibility = ezBakingUtils::CompressSkyVisibility(pModule->GetSkyVisibility(indexData));
 
-    addProbeRenderData(m_vTestPosition, skyVisibility, ezRenderData::Caching::Never);
+    addProbeRenderData(instanceData[0], m_vTestPosition, skyVisibility);
+    uiNumProbes = 1;
   }
   else
   {
@@ -358,11 +312,19 @@ void ezBakedProbesComponent::OnExtractRenderData(ezMsgExtractRenderData& ref_msg
     auto probePositions = pProbeTree->GetProbePositions();
     auto skyVisibility = pProbeTree->GetSkyVisibility();
 
-    for (ezUInt32 uiProbeIndex = 0; uiProbeIndex < probePositions.GetCount(); ++uiProbeIndex)
+    uiNumProbes = ezMath::Min(probePositions.GetCount(), uiMaxNumProbes);
+    for (ezUInt32 uiProbeIndex = 0; uiProbeIndex < uiNumProbes; ++uiProbeIndex)
     {
-      addProbeRenderData(probePositions[uiProbeIndex], skyVisibility[uiProbeIndex], ezRenderData::Caching::IfStatic);
+      addProbeRenderData(instanceData[uiProbeIndex], probePositions[uiProbeIndex], skyVisibility[uiProbeIndex]);
     }
   }
+
+  auto pManager = static_cast<const ezBakedProbesComponentManager*>(GetOwningManager());
+
+  ezMeshRenderData* pRenderData = ref_msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezMeshRenderData>(pOwner);
+  pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, pManager->m_hDebugMaterial, pManager->m_hDebugSphere, 0, 0, uiNumProbes);
+
+  ref_msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::SimpleOpaque, m_bUseTestPosition ? ezRenderData::Caching::Never : ezRenderData::Caching::IfStatic);
 }
 
 void ezBakedProbesComponent::SerializeComponent(ezWorldWriter& inout_stream) const
@@ -444,10 +406,7 @@ void ezBakedProbesComponent::RenderDebugOverlay()
 
   if (uiTextureWidth != uiWidth || uiTextureHeight != uiHeight)
   {
-    if (!m_hDebugViewTexture.IsInvalidated())
-    {
-      pDevice->DestroyTexture(m_hDebugViewTexture);
-    }
+    pDevice->DestroyTexture(m_hDebugViewTexture);
 
     ezGALTextureCreationDescription desc;
     desc.m_uiWidth = uiWidth;
@@ -458,9 +417,21 @@ void ezBakedProbesComponent::RenderDebugOverlay()
     m_hDebugViewTexture = pDevice->CreateTexture(desc);
   }
 
+  auto& task = m_pRenderDebugViewTask;
+  if (task != nullptr && task->m_bHasNewData)
+  {
+    task->m_bHasNewData = false;
+
+    ezGALSystemMemoryDescription sourceData;
+    sourceData.m_pData = task->m_PixelData.GetByteArrayPtr();
+    sourceData.m_uiRowPitch = task->m_uiWidth * sizeof(ezColorGammaUB);
+
+    pDevice->UpdateTextureForNextFrame(m_hDebugViewTexture, sourceData);
+  }
+
   ezRectFloat rectInPixel = ezRectFloat(10.0f, 10.0f, static_cast<float>(uiWidth), static_cast<float>(uiHeight));
 
-  ezDebugRenderer::Draw2DRectangle(pView->GetHandle(), rectInPixel, 0.0f, ezColor::White, pDevice->GetDefaultResourceView(m_hDebugViewTexture));
+  ezDebugRenderer::Draw2DRectangle(pView->GetHandle(), rectInPixel, 0.0f, ezColor::White, m_hDebugViewTexture);
 }
 
 void ezBakedProbesComponent::OnObjectCreated(const ezAbstractObjectNode& node)

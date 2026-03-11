@@ -1,55 +1,45 @@
-/*
- * This source file is part of RmlUi, the HTML/CSS Interface Middleware
- *
- * For the latest information, see http://github.com/mikke89/RmlUi
- *
- * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
- */
-
 #include "ElementBackgroundBorder.h"
 #include "../../Include/RmlUi/Core/Box.h"
 #include "../../Include/RmlUi/Core/ComputedValues.h"
+#include "../../Include/RmlUi/Core/Context.h"
+#include "../../Include/RmlUi/Core/DecorationTypes.h"
 #include "../../Include/RmlUi/Core/Element.h"
-#include "../../Include/RmlUi/Core/GeometryUtilities.h"
+#include "../../Include/RmlUi/Core/MeshUtilities.h"
+#include "../../Include/RmlUi/Core/Profiling.h"
+#include "../../Include/RmlUi/Core/RenderManager.h"
+#include "BoxShadowCache.h"
+#include "GeometryBoxShadow.h"
 
 namespace Rml {
 
+ElementBackgroundBorder::ElementBackgroundBorder() {}
 
-ElementBackgroundBorder::ElementBackgroundBorder(Element* element) : geometry(element)
-{}
-
-void ElementBackgroundBorder::Render(Element * element)
+void ElementBackgroundBorder::Render(Element* element)
 {
 	if (background_dirty || border_dirty)
 	{
+		for (auto& background : backgrounds)
+		{
+			if (background.first != BackgroundType::BackgroundBorder)
+				background.second.geometry.Release();
+		}
+
 		GenerateGeometry(element);
 
 		background_dirty = false;
 		border_dirty = false;
 	}
 
-	if (geometry)
-		geometry.Render(element->GetAbsoluteOffset(Box::BORDER));
+	if (Background* shadow = GetBackground(BackgroundType::BoxShadowAndBackgroundBorder))
+	{
+		const Vector2f offset = element->GetAbsoluteOffset(BoxArea::Border);
+		shadow->box_shadow_and_background_border->geometry.Render(offset, shadow->box_shadow_and_background_border->texture);
+	}
+	else if (Background* background = GetBackground(BackgroundType::BackgroundBorder))
+	{
+		const Vector2f offset = element->GetAbsoluteOffset(BoxArea::Border);
+		background->geometry.Render(offset);
+	}
 }
 
 void ElementBackgroundBorder::DirtyBackground()
@@ -62,46 +52,89 @@ void ElementBackgroundBorder::DirtyBorder()
 	border_dirty = true;
 }
 
+Geometry* ElementBackgroundBorder::GetClipGeometry(Element* element, BoxArea clip_area)
+{
+	BackgroundType type = {};
+	switch (clip_area)
+	{
+	case Rml::BoxArea::Border: type = BackgroundType::ClipBorder; break;
+	case Rml::BoxArea::Padding: type = BackgroundType::ClipPadding; break;
+	case Rml::BoxArea::Content: type = BackgroundType::ClipContent; break;
+	default: RMLUI_ERROR; return nullptr;
+	}
+
+	RenderManager* render_manager = element->GetRenderManager();
+	Geometry& geometry = GetOrCreateBackground(type).geometry;
+	if (render_manager && !geometry)
+	{
+		Mesh mesh = geometry.Release(Geometry::ReleaseMode::ClearMesh);
+		MeshUtilities::GenerateBackground(mesh, element->GetRenderBox(clip_area), ColourbPremultiplied(255));
+		geometry = render_manager->MakeGeometry(std::move(mesh));
+	}
+
+	return &geometry;
+}
+
+ElementBackgroundBorder::Background* ElementBackgroundBorder::GetBackground(BackgroundType type)
+{
+	auto it = backgrounds.find(type);
+	if (it != backgrounds.end())
+		return &it->second;
+	return nullptr;
+}
+
+ElementBackgroundBorder::Background& ElementBackgroundBorder::GetOrCreateBackground(BackgroundType type)
+{
+	auto it = backgrounds.find(type);
+	if (it != backgrounds.end())
+		return it->second;
+
+	Background& background = backgrounds[type];
+	return background;
+}
+
+void ElementBackgroundBorder::EraseBackground(BackgroundType type)
+{
+	backgrounds.erase(type);
+}
+
 void ElementBackgroundBorder::GenerateGeometry(Element* element)
 {
+	RMLUI_ZoneScoped;
+	RenderManager* render_manager = element->GetRenderManager();
+	if (!render_manager)
+		return;
+
 	const ComputedValues& computed = element->GetComputedValues();
+	const bool has_box_shadow = computed.has_box_shadow();
 
-	Colourb background_color = computed.background_color;
-	Colourb border_colors[4] = {
-		computed.border_top_color,
-		computed.border_right_color,
-		computed.border_bottom_color,
-		computed.border_left_color,
-	};
-	
-	// Apply opacity
-	const float opacity = computed.opacity;
-	background_color.alpha = (byte)(opacity * (float)background_color.alpha);
-
-	if (opacity < 1)
+	if (has_box_shadow)
 	{
-		for (int i = 0; i < 4; ++i)
-			border_colors[i].alpha = (byte)(opacity * (float)border_colors[i].alpha);
+		// The box shadow geometry also includes the element's background and border, thus we can skip the normal background generation.
+		EraseBackground(BackgroundType::BackgroundBorder);
+		Background& shadow_background = GetOrCreateBackground(BackgroundType::BoxShadowAndBackgroundBorder);
+		shadow_background.box_shadow_and_background_border = BoxShadowCache::GetHandle(element, computed);
+		return;
 	}
 
-	geometry.GetVertices().clear();
-	geometry.GetIndices().clear();
+	EraseBackground(BackgroundType::BoxShadowAndBackgroundBorder);
 
-	const Vector4f radii(
-		computed.border_top_left_radius,
-		computed.border_top_right_radius,
-		computed.border_bottom_right_radius,
-		computed.border_bottom_left_radius
-	);
+	const float opacity = computed.opacity();
+	ColourbPremultiplied background_color = computed.background_color().ToPremultiplied(opacity);
+	Array<ColourbPremultiplied, 4> border_colors = {
+		computed.border_top_color().ToPremultiplied(opacity),
+		computed.border_right_color().ToPremultiplied(opacity),
+		computed.border_bottom_color().ToPremultiplied(opacity),
+		computed.border_left_color().ToPremultiplied(opacity),
+	};
+
+	Geometry& geometry = GetOrCreateBackground(BackgroundType::BackgroundBorder).geometry;
+	Mesh mesh = geometry.Release(Geometry::ReleaseMode::ClearMesh);
 
 	for (int i = 0; i < element->GetNumBoxes(); i++)
-	{
-		Vector2f offset;
-		const Box& box = element->GetBox(i, offset);
-		GeometryUtilities::GenerateBackgroundBorder(&geometry, box, offset, radii, background_color, border_colors);
-	}
+		MeshUtilities::GenerateBackgroundBorder(mesh, element->GetRenderBox(BoxArea::Padding, i), background_color, border_colors.data());
 
-	geometry.Release();
+	geometry = render_manager->MakeGeometry(std::move(mesh));
 }
 
 } // namespace Rml

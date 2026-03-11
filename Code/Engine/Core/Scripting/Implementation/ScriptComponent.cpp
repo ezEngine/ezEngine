@@ -6,12 +6,13 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezScriptComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezScriptComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("UpdateInterval", GetUpdateInterval, SetUpdateInterval)->AddAttributes(new ezClampValueAttribute(ezTime::MakeZero(), ezVariant())),
-    EZ_ACCESSOR_PROPERTY("ScriptClass", GetScriptClassFile, SetScriptClassFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_ScriptClass")),
+    EZ_ACCESSOR_PROPERTY("UpdateOnlyWhenSimulating", GetUpdateOnlyWhenSimulating, SetUpdateOnlyWhenSimulating)->AddAttributes(new ezDefaultValueAttribute(true)),
+    EZ_RESOURCE_ACCESSOR_PROPERTY("ScriptClass", GetScriptClass, SetScriptClass)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_ScriptClass", ezDependencyFlags::Package)),
     EZ_MAP_ACCESSOR_PROPERTY("Parameters", GetParameters, GetParameter, SetParameter, RemoveParameter)->AddAttributes(new ezExposedParametersAttribute("ScriptClass")),
   }
   EZ_END_PROPERTIES;
@@ -40,6 +41,7 @@ void ezScriptComponent::SerializeComponent(ezWorldWriter& stream) const
 
   s << m_hScriptClass;
   s << m_UpdateInterval;
+  s << m_bUpdateOnlyWhenSimulating;
 
   ezUInt16 uiNumParams = static_cast<ezUInt16>(m_Parameters.GetCount());
   s << uiNumParams;
@@ -54,11 +56,16 @@ void ezScriptComponent::SerializeComponent(ezWorldWriter& stream) const
 void ezScriptComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = stream.GetStream();
 
   s >> m_hScriptClass;
   s >> m_UpdateInterval;
+
+  if (uiVersion >= 2)
+  {
+    s >> m_bUpdateOnlyWhenSimulating;
+  }
 
   ezUInt16 uiNumParams = 0;
   s >> uiNumParams;
@@ -153,33 +160,44 @@ void ezScriptComponent::SetScriptClass(const ezScriptClassResourceHandle& hScrip
   }
 }
 
-void ezScriptComponent::SetScriptClassFile(const char* szFile)
-{
-  ezScriptClassResourceHandle hScript;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hScript = ezResourceManager::LoadResource<ezScriptClassResource>(szFile);
-  }
-
-  SetScriptClass(hScript);
-}
-
-const char* ezScriptComponent::GetScriptClassFile() const
-{
-  return m_hScriptClass.IsValid() ? m_hScriptClass.GetResourceID().GetData() : "";
-}
-
 void ezScriptComponent::SetUpdateInterval(ezTime interval)
 {
+  if (m_UpdateInterval == interval)
+    return;
+
   m_UpdateInterval = interval;
 
+  RemoveUpdateFunctionToSchedule();
   AddUpdateFunctionToSchedule();
 }
 
-ezTime ezScriptComponent::GetUpdateInterval() const
+void ezScriptComponent::SetUpdateOnlyWhenSimulating(bool bUpdate)
 {
-  return m_UpdateInterval;
+  if (m_bUpdateOnlyWhenSimulating == bUpdate)
+    return;
+
+  m_bUpdateOnlyWhenSimulating = bUpdate;
+
+  RemoveUpdateFunctionToSchedule();
+  AddUpdateFunctionToSchedule();
+}
+
+void ezScriptComponent::BroadcastEventMsg(ezMessage& ref_msg)
+{
+  const ezRTTI* pType = ref_msg.GetDynamicRTTI();
+
+  for (auto& sender : m_EventSenders)
+  {
+    if (sender.m_pMsgType == pType)
+    {
+      sender.m_Sender.SendEventMessage(ref_msg, this, GetOwner()->GetParent());
+      return;
+    }
+  }
+
+  auto& sender = m_EventSenders.ExpandAndGetRef();
+  sender.m_pMsgType = pType;
+  sender.m_Sender.SendEventMessage(ref_msg, this, GetOwner()->GetParent());
 }
 
 const ezRangeView<const char*, ezUInt32> ezScriptComponent::GetParameters() const
@@ -240,7 +258,7 @@ void ezScriptComponent::InstantiateScript(bool bActivate)
   ezResourceLock<ezScriptClassResource> pScript(m_hScriptClass, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
   if (pScript.GetAcquireResult() != ezResourceAcquireResult::Final)
   {
-    ezLog::Error("Failed to load script '{}'", GetScriptClassFile());
+    ezLog::Error("Failed to load script '{}'", GetScriptClass().GetResourceIdOrDescription());
     return;
   }
 
@@ -309,8 +327,7 @@ void ezScriptComponent::AddUpdateFunctionToSchedule()
   auto pModule = GetWorld()->GetOrCreateModule<ezScriptWorldModule>();
   if (auto pUpdateFunction = GetScriptFunction(ezComponent_ScriptBaseClassFunctions::Update))
   {
-    const bool bOnlyWhenSimulating = true;
-    pModule->AddUpdateFunctionToSchedule(pUpdateFunction, m_pInstance.Borrow(), m_UpdateInterval, bOnlyWhenSimulating);
+    pModule->AddUpdateFunctionToSchedule(pUpdateFunction, m_pInstance.Borrow(), m_UpdateInterval, m_bUpdateOnlyWhenSimulating);
   }
 }
 

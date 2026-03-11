@@ -18,13 +18,15 @@ EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezJoltCharacterDebugFlags, 1)
 EZ_BITFLAGS_CONSTANTS(ezJoltCharacterDebugFlags::PrintState, ezJoltCharacterDebugFlags::VisShape, ezJoltCharacterDebugFlags::VisContacts,  ezJoltCharacterDebugFlags::VisCasts, ezJoltCharacterDebugFlags::VisGroundContact, ezJoltCharacterDebugFlags::VisFootCheck)
 EZ_END_STATIC_REFLECTED_BITFLAGS;
 
-EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezJoltCharacterControllerComponent, 1)
+EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezJoltCharacterControllerComponent, 3)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
     EZ_MEMBER_PROPERTY("PresenceCollisionLayer", m_uiPresenceCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
-    EZ_ACCESSOR_PROPERTY("Mass", GetMass, SetMass)->AddAttributes(new ezDefaultValueAttribute(70.0f), new ezClampValueAttribute(0.1f, 10000.0f)),
+    EZ_MEMBER_PROPERTY("WeightCategory", m_uiWeightCategory)->AddAttributes(new ezDynamicEnumAttribute("PhysicsWeightCategory")),
+    EZ_ACCESSOR_PROPERTY("WeightScale", GetWeight_Scale, SetWeight_Scale)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, 10.0f)),
+    EZ_ACCESSOR_PROPERTY("Mass", GetWeight_Mass, SetWeight_Mass)->AddAttributes(new ezSuffixAttribute(" kg"), new ezDefaultValueAttribute(50.0f), new ezClampValueAttribute(1.0f, 1000.0f)),
     EZ_ACCESSOR_PROPERTY("Strength", GetStrength, SetStrength)->AddAttributes(new ezDefaultValueAttribute(500.0f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ACCESSOR_PROPERTY("MaxClimbingSlope", GetMaxClimbingSlope, SetMaxClimbingSlope)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(40))),
     EZ_BITFLAGS_MEMBER_PROPERTY("DebugFlags", ezJoltCharacterDebugFlags , m_DebugFlags),
@@ -61,7 +63,9 @@ void ezJoltCharacterControllerComponent::SerializeComponent(ezWorldWriter& inout
 
   s << m_uiCollisionLayer;
   s << m_uiPresenceCollisionLayer;
-  s << m_fMass;
+  s << m_uiWeightCategory;
+  s << m_fWeightMass;
+  s << m_fWeightScale;
   s << m_fStrength;
   s << m_MaxClimbingSlope;
 }
@@ -69,14 +73,19 @@ void ezJoltCharacterControllerComponent::SerializeComponent(ezWorldWriter& inout
 void ezJoltCharacterControllerComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
-  s >> m_DebugFlags;
+  EZ_ASSERT_DEBUG(uiVersion >= 3, "Outdated version, please re-transform asset.");
+  if (uiVersion < 3)
+    return;
 
+  s >> m_DebugFlags;
   s >> m_uiCollisionLayer;
   s >> m_uiPresenceCollisionLayer;
-  s >> m_fMass;
+  s >> m_uiWeightCategory;
+  s >> m_fWeightMass;
+  s >> m_fWeightScale;
   s >> m_fStrength;
   s >> m_MaxClimbingSlope;
 }
@@ -105,9 +114,11 @@ void ezJoltCharacterControllerComponent::OnSimulationStarted()
 
   ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
 
+  m_fMass = ezJoltCore::GetWeightCategoryConfig().GetMassForWeightCategory(m_uiWeightCategory, 50.0f, m_fWeightMass, m_fWeightScale);
+
   JPH::CharacterVirtualSettings opt;
   opt.mUp = JPH::Vec3::sAxisZ();
-  opt.mSupportingVolume = JPH::Plane(opt.mUp, -GetShapeRadius());
+  opt.mSupportingVolume = JPH::Plane(opt.mUp, -GetShapeRadius()); // should use the half cylinder height instead of the radius
   opt.mShape = MakeNextCharacterShape();
   opt.mMaxSlopeAngle = m_MaxClimbingSlope.GetRadian();
   opt.mMass = m_fMass;
@@ -130,16 +141,6 @@ void ezJoltCharacterControllerComponent::SetMaxClimbingSlope(ezAngle slope)
   if (m_pCharacter)
   {
     m_pCharacter->SetMaxSlopeAngle(m_MaxClimbingSlope.GetRadian());
-  }
-}
-
-void ezJoltCharacterControllerComponent::SetMass(float fMass)
-{
-  m_fMass = fMass;
-
-  if (m_pCharacter)
-  {
-    m_pCharacter->SetMass(m_fMass);
   }
 }
 
@@ -247,6 +248,7 @@ void ezJoltCharacterControllerComponent::CollectCastContacts(ezDynamicArray<Cont
       contact.m_vContactNormal = ezJoltConversionUtils::ToVec3(-result.mPenetrationAxis.Normalized());
       contact.m_BodyID = result.mBodyID2;
       contact.m_fCastFraction = result.mFraction;
+      contact.m_fPenetrationDepth = result.mPenetrationDepth;
       contact.m_SubShapeID = result.mSubShapeID2;
 
       JPH::BodyLockRead lock(*m_pLockInterface, contact.m_BodyID);
@@ -272,7 +274,7 @@ void ezJoltCharacterControllerComponent::CollectCastContacts(ezDynamicArray<Cont
   pJoltSystem->GetNarrowPhaseQuery().CastShape(castOpt, settings, JPH::RVec3::sZero(), collector, broadphaseFilter, objectFilter, m_BodyFilter);
 }
 
-void ezJoltCharacterControllerComponent::CollectContacts(ezDynamicArray<ContactPoint>& out_Contacts, const JPH::Shape* pShape, const ezVec3& vQueryPosition, const ezQuat& qQueryRotation, float fCollisionTolerance) const
+void ezJoltCharacterControllerComponent::CollectContacts(ezDynamicArray<ContactPoint>& out_Contacts, const JPH::Shape* pShape, const ezVec3& vQueryPosition, const ezQuat& qQueryRotation, float fMaxSeparationDistance) const
 {
   out_Contacts.Clear();
 
@@ -285,6 +287,7 @@ void ezJoltCharacterControllerComponent::CollectContacts(ezDynamicArray<ContactP
     virtual void AddHit(const JPH::CollideShapeResult& result) override
     {
       auto& contact = m_pContacts->ExpandAndGetRef();
+      contact.m_fPenetrationDepth = result.mPenetrationDepth;
       contact.m_vPosition = ezJoltConversionUtils::ToVec3(result.mContactPointOn2);
       contact.m_vContactNormal = ezJoltConversionUtils::ToVec3(-result.mPenetrationAxis.Normalized());
       contact.m_BodyID = result.mBodyID2;
@@ -308,7 +311,7 @@ void ezJoltCharacterControllerComponent::CollectContacts(ezDynamicArray<ContactP
   const JPH::Mat44 trans = JPH::Mat44::sRotationTranslation(ezJoltConversionUtils::ToQuat(qQueryRotation), ezJoltConversionUtils::ToVec3(vQueryPosition));
 
   JPH::CollideShapeSettings settings;
-  settings.mCollisionTolerance = fCollisionTolerance;
+  settings.mMaxSeparationDistance = fMaxSeparationDistance;
   settings.mBackFaceMode = JPH::EBackFaceMode::CollideWithBackFaces;
 
   pJoltSystem->GetNarrowPhaseQuery().CollideShape(pShape, JPH::Vec3::sReplicate(1.0f), trans, settings, JPH::RVec3::sZero(), collector, broadphaseFilter, objectFilter, m_BodyFilter);
@@ -419,6 +422,7 @@ void ezJoltCharacterControllerComponent::CreatePresenceBody()
 
   ezUInt32 m_uiObjectFilterID = pModule->CreateObjectFilterID();
 
+  bodyCfg.mAllowSleeping = false;
   bodyCfg.mPosition = ezJoltConversionUtils::ToVec3(trans.m_Position);
   bodyCfg.mRotation = ezJoltConversionUtils::ToQuat(trans.m_Rotation).Normalized();
   bodyCfg.mMotionType = JPH::EMotionType::Kinematic;
@@ -428,9 +432,11 @@ void ezJoltCharacterControllerComponent::CreatePresenceBody()
   bodyCfg.mUserData = reinterpret_cast<ezUInt64>(pUserData);
 
   JPH::Body* pBody = pBodies->CreateBody(bodyCfg);
+  EZ_ASSERT_DEV(pBody != nullptr, "Jolt body creation failed. You need to increase the maximum number of bodies.");
+
   m_uiPresenceBodyID = pBody->GetID().GetIndexAndSequenceNumber();
 
-  m_uiPresenceBodyAddCounter = pModule->QueueBodyToAdd(pBody, true);
+  pModule->QueueBodyToAdd(pBody, true);
 }
 
 void ezJoltCharacterControllerComponent::RemovePresenceBody()
@@ -468,11 +474,11 @@ void ezJoltCharacterControllerComponent::MovePresenceBody(ezTime deltaTime)
 
   ezJoltWorldModule* pModule = GetWorld()->GetOrCreateModule<ezJoltWorldModule>();
 
-  if (pModule->IsBodyStillQueuedToAdd(m_uiPresenceBodyAddCounter))
-    return;
-
   auto* pSystem = pModule->GetJoltSystem();
   auto* pBodies = &pSystem->GetBodyInterface();
+
+  if (!pBodies->IsAdded(bodyId))
+    return;
 
   const ezSimdTransform trans = GetOwner()->GetGlobalTransformSimd();
 
@@ -480,6 +486,5 @@ void ezJoltCharacterControllerComponent::MovePresenceBody(ezTime deltaTime)
 
   pBodies->MoveKinematic(bodyId, ezJoltConversionUtils::ToVec3(trans.m_Position), ezJoltConversionUtils::ToQuat(trans.m_Rotation).Normalized(), tDiff);
 }
-
 
 EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Character_Implementation_JoltCharacterControllerComponent);

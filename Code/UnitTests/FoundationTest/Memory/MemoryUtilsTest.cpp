@@ -20,7 +20,7 @@ public:
 };
 ezHybridArray<void*, 10> ezConstructTest::s_dtorList;
 
-EZ_CHECK_AT_COMPILETIME(sizeof(ezConstructTest) == 4);
+static_assert(sizeof(ezConstructTest) == 4);
 
 
 struct PODTest

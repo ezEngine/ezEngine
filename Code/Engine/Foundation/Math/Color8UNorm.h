@@ -51,7 +51,7 @@ public:
   }
 };
 
-EZ_CHECK_AT_COMPILETIME(sizeof(ezColorBaseUB) == 4);
+static_assert(sizeof(ezColorBaseUB) == 4);
 
 /// \brief A 8bit per channel unsigned normalized (values interpreted as 0-1) color storage format that represents colors in linear space.
 ///
@@ -78,9 +78,18 @@ public:
 
   /// \brief Converts this color to ezColor.
   ezColor ToLinearFloat() const; // [tested]
+
+  /// \brief Extracts the values from a uint32 with R at the least significant bits, then G, then B and A at the most significant bits.
+  static ezColorLinearUB MakeFromABGR8(ezUInt32 value)
+  {
+    return ezColorLinearUB(static_cast<ezUInt8>(value >> 0) & 0xFF,
+      static_cast<ezUInt8>(value >> 8) & 0xFF,
+      static_cast<ezUInt8>(value >> 16) & 0xFF,
+      static_cast<ezUInt8>(value >> 24) & 0xFF);
+  }
 };
 
-EZ_CHECK_AT_COMPILETIME(sizeof(ezColorLinearUB) == 4);
+static_assert(sizeof(ezColorLinearUB) == 4);
 
 /// \brief A 8bit per channel unsigned normalized (values interpreted as 0-1) color storage format that represents colors in gamma space.
 ///
@@ -109,7 +118,7 @@ public:
   ezColor ToLinearFloat() const;
 };
 
-EZ_CHECK_AT_COMPILETIME(sizeof(ezColorGammaUB) == 4);
+static_assert(sizeof(ezColorGammaUB) == 4);
 
 
 #include <Foundation/Math/Implementation/Color8UNorm_inl.h>

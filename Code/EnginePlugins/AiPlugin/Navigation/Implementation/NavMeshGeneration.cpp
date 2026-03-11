@@ -247,7 +247,7 @@ static void QueryInputGeo(const ezNavmeshGeoWorldModuleInterface* pGeo, ezUInt32
 {
   bounds.Grow(ezVec3(1.0f));
 
-  ezHybridArray<ezNavmeshTriangle, 64> triangles;
+  ezTempHybridArray<ezNavmeshTriangle, 64> triangles;
 
   pGeo->RetrieveGeometryInArea(uiCollisionLayer, bounds, triangles);
 
@@ -319,7 +319,7 @@ void ezAiNavMesh::BuildSector(SectorID sectorID, const ezNavmeshGeoWorldModuleIn
   {
     ezBoundingBox boundsWithBorder = bounds;
     const float cs = m_NavmeshConfig.m_fCellSize;
-    const float borderSize = (int)ceilf(m_NavmeshConfig.m_fAgentRadius / cs) + 3;
+    const float borderSize = ceilf(m_NavmeshConfig.m_fAgentRadius / cs) + 3;
     boundsWithBorder.m_vMin.x -= borderSize * cs;
     boundsWithBorder.m_vMin.y -= borderSize * cs;
     boundsWithBorder.m_vMax.x += borderSize * cs;

@@ -1,12 +1,15 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <GuiFoundation/NodeEditor/NodeScene.moc.h>
+#include <GuiFoundation/VisualGraph/Scene.moc.h>
 
-class ezQtNodeScene;
-class ezQtNodeView;
+class ezQtVisualGraphScene;
+class ezQtVisualGraphView;
 
-class ezQtRenderPipelineAssetScene : public ezQtNodeScene
+/// Qt scene for render pipeline asset editing.
+///
+/// Manages the visual scene for editing render pipeline assets in the editor.
+class ezQtRenderPipelineAssetScene : public ezQtVisualGraphScene
 {
   Q_OBJECT
 

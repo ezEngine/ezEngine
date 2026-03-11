@@ -11,7 +11,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{16172054985231832202,5382839285714293133}}
-		u4 %Hash{13188627645839160141}
+		u4 %Hash{7231356281903221629}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{3972749031450700410,15086216924884544056}}
@@ -66,6 +66,9 @@ o
 		Angle %Deviation{f{0}}
 		f %DistortionStrength{0x0000C842}
 		s %DistortionTexture{""}
+		f %LightDirectionality{0x0000003F}
+		s %LightingMode{"ezParticleLightingMode::VertexLit"}
+		f %NormalCurvature{0x0000003F}
 		u1 %NumSpritesX{4}
 		u1 %NumSpritesY{4}
 		s %Orientation{"ezQuadParticleOrientation::Rotating_OrthoEmitterDir"}
@@ -134,6 +137,7 @@ o
 		VarDict %ColorParameters{}
 		VarArray %EventReactions{}
 		VarDict %FloatParameters{}
+		Vec3u %NumWindSamples{u3{1,1,1}}
 		VarArray %ParticleSystems
 		{
 			Uuid{u4{14920716840167673273,5131844841844950519}}
@@ -303,6 +307,23 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleBehaviorFactory"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{9692001477283607726,5375904088218900509}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleLightingMode"}
 		u3 %TypeVersion{1}
 	}
 }

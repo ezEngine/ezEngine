@@ -44,9 +44,10 @@ class EZ_GUIFOUNDATION_DLL ezDefaultObjectState
 
 public:
   /// \brief Constructor. Will collect the appropriate ezDefaultStateProviders to query the states.
+  /// \param pType The common base type of the selection.
   /// \param pAccessor Used to revert properties and query their current value.
   /// \param selection For which objects the default state should be queried. The ezPropertySelection::m_Index should be invalid.
-  ezDefaultObjectState(ezObjectAccessorBase* pAccessor, const ezArrayPtr<ezPropertySelection> selection);
+  ezDefaultObjectState(const ezRTTI* pType, ezObjectAccessorBase* pAccessor, const ezArrayPtr<ezPropertySelection> selection);
 
   /// \brief Returns the color of the top-most ezDefaultStateProvider of the first element of the selection.
   ezColorGammaUB GetBackgroundColor() const;
@@ -63,6 +64,7 @@ public:
 
 
 private:
+  const ezRTTI* m_pType = nullptr;
   ezObjectAccessorBase* m_pAccessor = nullptr;
   ezArrayPtr<ezPropertySelection> m_Selection;
   ezHybridArray<ezHybridArray<ezSharedPtr<ezDefaultStateProvider>, 4>, 1> m_Providers;
@@ -77,10 +79,11 @@ class EZ_GUIFOUNDATION_DLL ezDefaultContainerState
 
 public:
   /// \brief Constructor. Will collect the appropriate ezDefaultStateProviders to query the states.
+  /// \param pType The common base type of the selection.
   /// \param pAccessor Used to revert properties and query their current value.
   /// \param selection For which objects the default state should be queried. If ezPropertySelection::m_Index is set, IsDefaultElement and RevertElement will query the value under that index if the passed in index is invalid.
   /// \param szProperty The name of the container for which default states should be queried.
-  ezDefaultContainerState(ezObjectAccessorBase* pAccessor, const ezArrayPtr<ezPropertySelection> selection, const char* szProperty);
+  ezDefaultContainerState(const ezRTTI* pType, ezObjectAccessorBase* pAccessor, const ezArrayPtr<ezPropertySelection> selection, const char* szProperty);
 
   /// \brief Returns the color of the top-most ezDefaultStateProvider of the first element of the selection.
   /// \sa ezDefaultStateProvider::GetBackgroundColor
@@ -97,6 +100,7 @@ public:
   ezVariant GetDefaultContainer(ezUInt32 uiSelectionIndex = 0) const;
 
 private:
+  const ezRTTI* m_pType = nullptr;
   ezObjectAccessorBase* m_pAccessor = nullptr;
   const ezAbstractProperty* m_pProp = nullptr;
   ezArrayPtr<ezPropertySelection> m_Selection;

@@ -7,6 +7,7 @@
 ezQtAssetBrowserFilter::ezQtAssetBrowserFilter(QObject* pParent)
   : ezQtAssetFilter(pParent)
 {
+  Reset();
 }
 
 
@@ -21,7 +22,6 @@ void ezQtAssetBrowserFilter::Reset()
   SetTypeFilter("");
   SetPathFilter("");
 }
-
 
 void ezQtAssetBrowserFilter::UpdateImportExtensions(const ezSet<ezString>& extensions)
 {
@@ -91,6 +91,7 @@ void ezQtAssetBrowserFilter::SetTextFilter(const char* szText)
 {
   ezStringBuilder sCleanText = szText;
   sCleanText.MakeCleanPath();
+  sCleanText.ReplaceAll("*", "");
 
   if (m_SearchFilter.GetSearchText() == sCleanText)
     return;
@@ -166,7 +167,7 @@ void ezQtAssetBrowserFilter::SetFileExtensionFilters(ezStringView sExtensions)
 {
   m_FileExtensions.Clear();
 
-  ezHybridArray<ezStringView, 8> filters;
+  ezTempHybridArray<ezStringView, 8> filters;
   sExtensions.Split(false, filters, ";", "*", ".");
 
   ezStringBuilder tmp;
@@ -176,6 +177,8 @@ void ezQtAssetBrowserFilter::SetFileExtensionFilters(ezStringView sExtensions)
     tmp.ToLower();
     m_FileExtensions.Insert(tmp);
   }
+
+  Q_EMIT FilterChanged();
 }
 
 void ezQtAssetBrowserFilter::SetRequiredTag(ezStringView sRequiredTag)
@@ -234,18 +237,34 @@ bool ezQtAssetBrowserFilter::IsAssetFiltered(ezStringView sDataDirParentRelative
       return true;
   }
 
-  if (!m_sPathFilter.IsEmpty() || bIsFolder)
-  {
-    // if the string is not found in the path, ignore this asset
-    if (!sDataDirParentRelativePath.StartsWith(m_sPathFilter))
-      return true;
+  // if the string is not found in the path, ignore this asset
+  if (!sDataDirParentRelativePath.StartsWith(m_sPathFilter))
+    return true;
 
-    if (!m_bShowItemsInSubFolders || bIsFolder)
+  if (bIsFolder)
+  {
+    // do we find another path separator after the prefix path?
+    // if so, there is a sub-folder, and thus we ignore it
+    if (ezStringUtils::FindSubString(sDataDirParentRelativePath.GetStartPointer() + m_sPathFilter.GetElementCount(), "/", sDataDirParentRelativePath.GetEndPointer()) != nullptr)
     {
-      // do we find another path separator after the prefix path?
-      // if so, there is a sub-folder, and thus we ignore it
-      if (ezStringUtils::FindSubString(sDataDirParentRelativePath.GetStartPointer() + m_sPathFilter.GetElementCount(), "/", sDataDirParentRelativePath.GetEndPointer()) != nullptr)
-        return true;
+      return true;
+    }
+  }
+
+  if (m_SearchFilter.IsEmpty() && !m_bShowItemsInSubFolders)
+  {
+    // do we find another path separator after the prefix path?
+    // if so, there is a sub-folder, and thus we ignore it
+    if (ezStringUtils::FindSubString(sDataDirParentRelativePath.GetStartPointer() + m_sPathFilter.GetElementCount(), "/", sDataDirParentRelativePath.GetEndPointer()) != nullptr)
+    {
+      return true;
+    }
+  }
+  else if (m_sPathFilter.IsEmpty() && !bIsFolder) // <Root> folder
+  {
+    if (!m_bShowItemsInSubFolders && m_SearchFilter.IsEmpty())
+    {
+      return true;
     }
   }
 
@@ -292,9 +311,12 @@ bool ezQtAssetBrowserFilter::IsAssetFiltered(ezStringView sDataDirParentRelative
     }
   }
 
-  // Always show folders
+  // Always show folders on the right
   if (bIsFolder)
-    return false;
+  {
+    // unless we have a type filter active
+    return !m_sTypeFilter.IsEmpty();
+  }
 
   if (!m_FileExtensions.IsEmpty())
   {

@@ -71,6 +71,64 @@ struct ezDebugTextPlacement
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezDebugTextPlacement);
 
+struct EZ_RENDERERCORE_DLL ezDebugRendererLine
+{
+  EZ_DECLARE_POD_TYPE();
+
+  ezDebugRendererLine();
+  ezDebugRendererLine(const ezVec3& vStart, const ezVec3& vEnd);
+  ezDebugRendererLine(const ezVec3& vStart, const ezVec3& vEnd, const ezColor& color);
+
+  ezVec3 m_start;
+  ezVec3 m_end;
+
+  ezColor m_startColor = ezColor::White;
+  ezColor m_endColor = ezColor::White;
+};
+
+struct EZ_RENDERERCORE_DLL ezDebugRendererTriangle
+{
+  EZ_DECLARE_POD_TYPE();
+
+  ezDebugRendererTriangle();
+  ezDebugRendererTriangle(const ezVec3& v0, const ezVec3& v1, const ezVec3& v2);
+
+  ezVec3 m_position[3];
+  ezColor m_color = ezColor::White;
+};
+
+struct EZ_RENDERERCORE_DLL ezDebugRendererTexturedTriangle
+{
+  EZ_DECLARE_POD_TYPE();
+
+  ezVec3 m_position[3];
+  ezVec2 m_texcoord[3];
+  ezColor m_color = ezColor::White;
+};
+
+/// \brief Enables a function to take an ezMat3, ezMat4 or ezTransfrom.
+struct ezMatOrTransform
+{
+  ezMatOrTransform(const ezMat4& mMat4)
+    : m_Mat4(mMat4)
+  {
+  }
+
+  ezMatOrTransform(const ezMat3& mMat3)
+  {
+    m_Mat4.SetIdentity();
+    m_Mat4.SetRotationalPart(mMat3);
+  }
+
+  ezMatOrTransform(const ezTransform& transform)
+  {
+    m_Mat4 = transform.GetAsMat4();
+  }
+
+  ezMat4 m_Mat4;
+};
+
+
 /// \brief Draws simple shapes into the scene or view.
 ///
 /// Shapes can be rendered for a single frame, or 'persistent' for a certain duration.
@@ -80,76 +138,41 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezDebugTextPlacement);
 class EZ_RENDERERCORE_DLL ezDebugRenderer
 {
 public:
-  struct Line
-  {
-    EZ_DECLARE_POD_TYPE();
-
-    Line();
-    Line(const ezVec3& vStart, const ezVec3& vEnd);
-    Line(const ezVec3& vStart, const ezVec3& vEnd, const ezColor& color);
-
-    ezVec3 m_start;
-    ezVec3 m_end;
-
-    ezColor m_startColor = ezColor::White;
-    ezColor m_endColor = ezColor::White;
-  };
-
-  struct Triangle
-  {
-    EZ_DECLARE_POD_TYPE();
-
-    Triangle();
-    Triangle(const ezVec3& v0, const ezVec3& v1, const ezVec3& v2);
-
-    ezVec3 m_position[3];
-    ezColor m_color = ezColor::White;
-  };
-
-  struct TexturedTriangle
-  {
-    EZ_DECLARE_POD_TYPE();
-
-    ezVec3 m_position[3];
-    ezVec2 m_texcoord[3];
-    ezColor m_color = ezColor::White;
-  };
-
   /// \brief Renders the given set of lines for one frame.
-  static void DrawLines(const ezDebugRendererContext& context, ezArrayPtr<const Line> lines, const ezColor& color, const ezTransform& transform = ezTransform::MakeIdentity());
+  static void DrawLines(const ezDebugRendererContext& context, ezArrayPtr<const ezDebugRendererLine> lines, const ezColor& color, ezMatOrTransform mTransform = ezMat4::MakeIdentity());
 
   /// \brief Renders the given set of lines in 2D (screen-space) for one frame.
-  static void Draw2DLines(const ezDebugRendererContext& context, ezArrayPtr<const Line> lines, const ezColor& color);
+  static void Draw2DLines(const ezDebugRendererContext& context, ezArrayPtr<const ezDebugRendererLine> lines, const ezColor& color);
 
   /// \brief Renders a cross for one frame.
-  static void DrawCross(const ezDebugRendererContext& context, const ezVec3& vGlobalPosition, float fLineLength, const ezColor& color, const ezTransform& transform = ezTransform::MakeIdentity());
+  static void DrawCross(const ezDebugRendererContext& context, const ezVec3& vGlobalPosition, float fLineLength, const ezColor& color, ezMatOrTransform mTransform = ezMat4::MakeIdentity());
 
   /// \brief Renders a wireframe box for one frame.
-  static void DrawLineBox(const ezDebugRendererContext& context, const ezBoundingBox& box, const ezColor& color, const ezTransform& transform = ezTransform::MakeIdentity());
+  static void DrawLineBox(const ezDebugRendererContext& context, const ezBoundingBox& box, const ezColor& color, ezMatOrTransform mTransform = ezMat4::MakeIdentity());
 
   /// \brief Renders the corners of a wireframe box for one frame.
-  static void DrawLineBoxCorners(const ezDebugRendererContext& context, const ezBoundingBox& box, float fCornerFraction, const ezColor& color, const ezTransform& transform = ezTransform::MakeIdentity());
+  static void DrawLineBoxCorners(const ezDebugRendererContext& context, const ezBoundingBox& box, float fCornerFraction, const ezColor& color, ezMatOrTransform mTransform = ezMat4::MakeIdentity());
 
   /// \brief Renders a wireframe sphere for one frame.
-  static void DrawLineSphere(const ezDebugRendererContext& context, const ezBoundingSphere& sphere, const ezColor& color, const ezTransform& transform = ezTransform::MakeIdentity());
+  static void DrawLineSphere(const ezDebugRendererContext& context, const ezBoundingSphere& sphere, const ezColor& color, ezMatOrTransform mTransform = ezMat4::MakeIdentity());
 
   /// \brief Renders an upright wireframe capsule for one frame.
-  static void DrawLineCapsuleZ(const ezDebugRendererContext& context, float fLength, float fRadius, const ezColor& color, const ezTransform& transform = ezTransform::MakeIdentity());
+  static void DrawLineCapsuleZ(const ezDebugRendererContext& context, float fLength, float fRadius, const ezColor& color, ezMatOrTransform mTransform = ezMat4::MakeIdentity());
 
   /// \brief Renders an upright wireframe cylinder for one frame.
-  static void DrawLineCylinderZ(const ezDebugRendererContext& context, float fLength, float fRadius, const ezColor& color, const ezTransform& transform = ezTransform::MakeIdentity());
+  static void DrawLineCylinderZ(const ezDebugRendererContext& context, float fLength, float fRadius, const ezColor& color, ezMatOrTransform mTransform = ezMat4::MakeIdentity());
 
   /// \brief Renders a wireframe frustum for one frame.
   static void DrawLineFrustum(const ezDebugRendererContext& context, const ezFrustum& frustum, const ezColor& color, bool bDrawPlaneNormals = false);
 
   /// \brief Renders a solid box for one frame.
-  static void DrawSolidBox(const ezDebugRendererContext& context, const ezBoundingBox& box, const ezColor& color, const ezTransform& transform = ezTransform::MakeIdentity());
+  static void DrawSolidBox(const ezDebugRendererContext& context, const ezBoundingBox& box, const ezColor& color, ezMatOrTransform mTransform = ezMat4::MakeIdentity());
 
   /// \brief Renders the set of filled triangles for one frame.
-  static void DrawSolidTriangles(const ezDebugRendererContext& context, ezArrayPtr<Triangle> triangles, const ezColor& color);
+  static void DrawSolidTriangles(const ezDebugRendererContext& context, ezArrayPtr<ezDebugRendererTriangle> triangles, const ezColor& color, bool bTwoSided = false);
 
   /// \brief Renders the set of textured triangles for one frame.
-  static void DrawTexturedTriangles(const ezDebugRendererContext& context, ezArrayPtr<TexturedTriangle> triangles, const ezColor& color, const ezTexture2DResourceHandle& hTexture);
+  static void DrawTexturedTriangles(const ezDebugRendererContext& context, ezArrayPtr<ezDebugRendererTexturedTriangle> triangles, const ezColor& color, const ezTexture2DResourceHandle& hTexture, bool bTwoSided = false);
 
   /// \brief Renders a filled 2D rectangle in screen-space for one frame.
   static void Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color);
@@ -158,7 +181,10 @@ public:
   static void Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color, const ezTexture2DResourceHandle& hTexture, ezVec2 vScale = ezVec2(1, 1));
 
   /// \brief Renders a textured 2D rectangle in screen-space for one frame.
-  static void Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color, ezGALTextureResourceViewHandle hResourceView, ezVec2 vScale = ezVec2(1, 1));
+  static void Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color, ezGALTextureHandle hResourceView, ezVec2 vScale = ezVec2(1, 1));
+
+  /// \brief Renders a wireframe 2D rectangle in screen-space for one frame.
+  static void Draw2DLineRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color);
 
   /// \brief Displays a string in screen-space for one frame.
   ///
@@ -185,42 +211,48 @@ public:
   /// Text size cannot be changed.
   static void DrawInfoText(const ezDebugRendererContext& context, ezDebugTextPlacement::Enum placement, ezStringView sGroupName, const ezFormatString& text, const ezColor& color = ezColor::White);
 
+  /// \brief Same as DrawInfoText but displays the text for a certain duration.
+  static void AddPersistentInfoText(const ezDebugRendererContext& context, ezDebugTextPlacement::Enum placement, const ezFormatString& text, ezTime duration, const ezColor& color = ezColor::White);
+
   /// \brief Displays a string in 3D space for one frame.
   static ezUInt32 Draw3DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec3& vGlobalPosition, const ezColor& color, ezUInt32 uiSizeInPixel = 16, ezDebugTextHAlign::Enum horizontalAlignment = ezDebugTextHAlign::Center, ezDebugTextVAlign::Enum verticalAlignment = ezDebugTextVAlign::Bottom);
 
   /// \brief Renders a cross at the given location for as many frames until \a duration has passed.
-  static void AddPersistentCross(const ezDebugRendererContext& context, float fSize, const ezColor& color, const ezTransform& transform, ezTime duration);
+  static void AddPersistentCross(const ezDebugRendererContext& context, float fSize, const ezColor& color, ezMatOrTransform mTransform, ezTime duration);
 
   /// \brief Renders a wireframe sphere at the given location for as many frames until \a duration has passed.
-  static void AddPersistentLineSphere(const ezDebugRendererContext& context, float fRadius, const ezColor& color, const ezTransform& transform, ezTime duration);
+  static void AddPersistentLineSphere(const ezDebugRendererContext& context, float fRadius, const ezColor& color, ezMatOrTransform mTransform, ezTime duration);
 
   /// \brief Renders a wireframe box at the given location for as many frames until \a duration has passed.
-  static void AddPersistentLineBox(const ezDebugRendererContext& context, const ezVec3& vHalfSize, const ezColor& color, const ezTransform& transform, ezTime duration);
+  static void AddPersistentLineBox(const ezDebugRendererContext& context, const ezVec3& vHalfSize, const ezColor& color, ezMatOrTransform mTransform, ezTime duration);
+
+  /// \brief Renders lines at the given location for as many frames until \a duration has passed.
+  static void AddPersistentLines(const ezDebugRendererContext& context, ezArrayPtr<const ezDebugRendererLine> lines, const ezColor& color, ezMatOrTransform mTransform, ezTime duration);
 
   /// \brief Renders a solid 2D cone in a plane with a given angle.
   ///
   /// The rotation goes around the given \a rotationAxis.
   /// An angle of zero is pointing into forwardAxis direction.
   /// Both angles may be negative.
-  static void DrawAngle(const ezDebugRendererContext& context, ezAngle startAngle, ezAngle endAngle, const ezColor& solidColor, const ezColor& lineColor, const ezTransform& transform, ezVec3 vForwardAxis = ezVec3::MakeAxisX(), ezVec3 vRotationAxis = ezVec3::MakeAxisZ());
+  static void DrawAngle(const ezDebugRendererContext& context, ezAngle startAngle, ezAngle endAngle, const ezColor& solidColor, const ezColor& lineColor, ezMatOrTransform mTransform, ezVec3 vForwardAxis = ezVec3::MakeAxisX(), ezVec3 vRotationAxis = ezVec3::MakeAxisZ());
 
   /// \brief Renders a cone with the tip at the center position, opening up with the given angle.
-  static void DrawOpeningCone(const ezDebugRendererContext& context, ezAngle halfAngle, const ezColor& colorInside, const ezColor& colorOutside, const ezTransform& transform, ezVec3 vForwardAxis = ezVec3::MakeAxisX());
+  static void DrawOpeningCone(const ezDebugRendererContext& context, ezAngle halfAngle, const ezColor& colorInside, const ezColor& colorOutside, ezMatOrTransform mTransform, ezVec3 vForwardAxis = ezVec3::MakeAxisX());
 
   /// \brief Renders a bent cone with the tip at the center position, pointing into the +X direction opening up with halfAngle1 and halfAngle2 along the Y and Z axis.
   ///
   /// If solidColor.a > 0, the cone is rendered with as solid triangles.
   /// If lineColor.a > 0, the cone is rendered as lines.
   /// Both can be combined.
-  static void DrawLimitCone(const ezDebugRendererContext& context, ezAngle halfAngle1, ezAngle halfAngle2, const ezColor& solidColor, const ezColor& lineColor, const ezTransform& transform);
+  static void DrawLimitCone(const ezDebugRendererContext& context, ezAngle halfAngle1, ezAngle halfAngle2, const ezColor& solidColor, const ezColor& lineColor, ezMatOrTransform mTransform);
 
   /// \brief Renders a cylinder starting at the center position, along the +X axis.
   ///
   /// If the start and end radius are different, a cone or arrow can be created.
-  static void DrawCylinder(const ezDebugRendererContext& context, float fRadiusStart, float fRadiusEnd, float fLength, const ezColor& solidColor, const ezColor& lineColor, const ezTransform& transform, bool bCapStart = false, bool bCapEnd = false, ezBasisAxis::Enum cylinderAxis = ezBasisAxis::PositiveX);
+  static void DrawCylinder(const ezDebugRendererContext& context, float fRadiusStart, float fRadiusEnd, float fLength, const ezColor& solidColor, const ezColor& lineColor, ezMatOrTransform mTransform, bool bCapStart = false, bool bCapEnd = false, ezBasisAxis::Enum cylinderAxis = ezBasisAxis::PositiveX);
 
   /// \brief Renders a line arrow.
-  static void DrawArrow(const ezDebugRendererContext& context, float fSize, const ezColor& color, const ezTransform& transform, ezVec3 vForwardAxis = ezVec3::MakeAxisX());
+  static void DrawArrow(const ezDebugRendererContext& context, float fSize, const ezColor& color, ezMatOrTransform mTransform, ezVec3 vForwardAxis = ezVec3::MakeAxisX());
 
   /// \brief Returns the width of single glyph in pixels for the given text size
   static float GetTextGlyphWidth(ezUInt32 uiSizeInPixel = 16);
@@ -253,6 +285,9 @@ private:
 class EZ_RENDERERCORE_DLL ezScriptExtensionClass_Debug
 {
 public:
+  /// \brief Returns the resolution of the first main view that it can find.
+  static ezVec2 GetResolution();
+
   static void DrawCross(const ezWorld* pWorld, const ezVec3& vPosition, float fSize, const ezColor& color, const ezTransform& transform);
   static void DrawLineBox(const ezWorld* pWorld, const ezVec3& vPosition, const ezVec3& vHalfExtents, const ezColor& color, const ezTransform& transform);
   static void DrawLineSphere(const ezWorld* pWorld, const ezVec3& vPosition, float fRadius, const ezColor& color, const ezTransform& transform);
@@ -266,6 +301,10 @@ public:
   static void AddPersistentCross(const ezWorld* pWorld, const ezVec3& vPosition, float fSize, const ezColor& color, const ezTransform& transform, ezTime duration);
   static void AddPersistentLineBox(const ezWorld* pWorld, const ezVec3& vPosition, const ezVec3& vHalfExtents, const ezColor& color, const ezTransform& transform, ezTime duration);
   static void AddPersistentLineSphere(const ezWorld* pWorld, const ezVec3& vPosition, float fRadius, const ezColor& color, const ezTransform& transform, ezTime duration);
+
+  static void DrawLine(const ezWorld* pWorld, const ezVec3& vStart, const ezVec3& vEnd, const ezColor& startColor, const ezColor& endColor);
+
+  static void Draw2DLine(const ezWorld* pWorld, const ezVec3& vStart, const ezVec3& vEnd, const ezColor& startColor, const ezColor& endColor);
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezScriptExtensionClass_Debug);

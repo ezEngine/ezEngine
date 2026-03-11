@@ -32,6 +32,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneContext, 1, ezRTTIDefaultAllocator<ezScen
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
+ezWorld* ezSceneContext::s_pWorldLinkedWithGameState = nullptr;
+
 void ezSceneContext::ComputeHierarchyBounds(ezGameObject* pObj, ezBoundingBoxSphere& bounds)
 {
   pObj->UpdateGlobalTransformAndBounds();
@@ -85,7 +87,7 @@ void ezSceneContext::UpdateInvisibleLayerTags()
       }
     }
 
-    ezHybridArray<ezTag, 1> newInvisibleLayerTags;
+    ezTempHybridArray<ezTag, 1> newInvisibleLayerTags;
     newInvisibleLayerTags.Reserve(m_InvisibleLayers.GetCount());
     for (const ezUuid& guid : m_InvisibleLayers)
     {
@@ -380,6 +382,7 @@ void ezSceneContext::HandleSimulationSettingsMsg(const ezSimulationSettingsMsgTo
   const bool bSimulate = pMsg->m_bSimulateWorld;
   ezGameStateBase* pState = GetGameState();
   m_pWorld->GetClock().SetSpeed(pMsg->m_fSimulationSpeed);
+  m_pWorld->GetClock().SetPaused(pMsg->m_fSimulationSpeed == 0.0f);
 
   if (pState == nullptr && bSimulate != m_pWorld->GetWorldSimulationEnabled())
   {
@@ -451,7 +454,7 @@ void ezSceneContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg)
   res.m_uiViewID = msg->m_uiViewID;
   res.m_iPurpose = msg->m_iPurpose;
   res.m_vCenter = bounds.m_vCenter;
-  res.m_vHalfExtents = bounds.m_vBoxHalfExtends;
+  res.m_vHalfExtents = bounds.m_vBoxHalfExtents;
   res.m_DocumentGuid = pMsg->m_DocumentGuid;
 
   SendProcessMessage(&res);
@@ -464,8 +467,6 @@ void ezSceneContext::OnSimulationEnabled()
   ezSceneExportModifier::ApplyAllModifiers(*m_pWorld, GetDocumentType(), GetDocumentGuid(), false);
 
   ezResourceManager::ReloadAllResources(false);
-
-  ezGameApplication::GetGameApplicationInstance()->ReinitializeInputConfig();
 
   if (ezSoundInterface* pSoundInterface = ezSingletonRegistry::GetSingletonInstance<ezSoundInterface>())
   {
@@ -487,7 +488,12 @@ void ezSceneContext::OnSimulationDisabled()
 
 ezGameStateBase* ezSceneContext::GetGameState() const
 {
-  return ezGameApplicationBase::GetGameApplicationBaseInstance()->GetActiveGameStateLinkedToWorld(m_pWorld);
+  if (s_pWorldLinkedWithGameState == m_pWorld)
+  {
+    return ezGameApplicationBase::GetGameApplicationBaseInstance()->GetActiveGameState();
+  }
+
+  return nullptr;
 }
 
 ezUInt32 ezSceneContext::RegisterLayer(ezLayerContext* pLayer)
@@ -619,7 +625,7 @@ void ezSceneContext::HandleSelectionMsg(const ezObjectSelectionMsgToEngine* pMsg
   }
 }
 
-void ezSceneContext::OnPlayTheGameModeStarted(const ezTransform* pStartPosition)
+void ezSceneContext::OnPlayTheGameModeStarted(ezStringView sStartPosition, const ezTransform& startPositionOffset)
 {
   if (ezGameApplicationBase::GetGameApplicationBaseInstance()->GetActiveGameState() != nullptr)
   {
@@ -636,9 +642,8 @@ void ezSceneContext::OnPlayTheGameModeStarted(const ezTransform* pStartPosition)
   m_pWorld->GetClock().SetSpeed(1.0f);
   m_pWorld->SetWorldSimulationEnabled(true);
 
-  ezGameApplication::GetGameApplicationInstance()->ReinitializeInputConfig();
-
-  ezGameApplicationBase::GetGameApplicationBaseInstance()->ActivateGameState(m_pWorld, pStartPosition).IgnoreResult();
+  s_pWorldLinkedWithGameState = m_pWorld;
+  ezGameApplicationBase::GetGameApplicationBaseInstance()->ActivateGameState(m_pWorld, sStartPosition, startPositionOffset);
 
   ezGameModeMsgToEditor msgRet;
   msgRet.m_DocumentGuid = GetDocumentGuid();
@@ -719,11 +724,11 @@ void ezSceneContext::HandleGameModeMsg(const ezGameModeMsgToEngine* pMsg)
 
       ezTransform tStart(pMsg->m_vStartPosition, qRot);
 
-      OnPlayTheGameModeStarted(&tStart);
+      OnPlayTheGameModeStarted("GlobalOverride", tStart);
     }
     else
     {
-      OnPlayTheGameModeStarted(nullptr);
+      OnPlayTheGameModeStarted({}, ezTransform::MakeIdentity());
     }
   }
   else
@@ -732,7 +737,7 @@ void ezSceneContext::HandleGameModeMsg(const ezGameModeMsgToEngine* pMsg)
       return;
 
     ezLog::Info("Attempting to stop Play-the-Game mode");
-    pState->RequestQuit();
+    pState->RequestQuit("editor-force");
   }
 }
 
@@ -815,7 +820,7 @@ ezStatus ezSceneContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
 
 void ezSceneContext::ExportExposedParameters(const ezWorldWriter& ww, ezDeferredFileWriter& file) const
 {
-  ezHybridArray<ezExposedPrefabParameterDesc, 16> exposedParams;
+  ezTempHybridArray<ezExposedPrefabParameterDesc, 16> exposedParams;
 
   for (const auto& esp : m_ExposedSceneProperties)
   {
@@ -917,16 +922,23 @@ void ezSceneContext::OnDestroyThumbnailViewContext()
 void ezSceneContext::UpdateDocumentContext()
 {
   SUPER::UpdateDocumentContext();
-  ezGameStateBase* pState = GetGameState();
-  if (pState && pState->WasQuitRequested())
+
+  if (ezGameStateBase* pState = GetGameState())
   {
-    ezGameApplicationBase::GetGameApplicationBaseInstance()->DeactivateGameState();
+    // If we have a running game state we always want to render it (e.g. play the game).
+    pState->AddMainViewsToRender();
 
-    ezGameModeMsgToEditor msgToEd;
-    msgToEd.m_DocumentGuid = GetDocumentGuid();
-    msgToEd.m_bRunningPTG = false;
+    if (pState->WasQuitRequested())
+    {
+      ezGameApplicationBase::GetGameApplicationBaseInstance()->DeactivateGameState();
+      s_pWorldLinkedWithGameState = nullptr;
 
-    SendProcessMessage(&msgToEd);
+      ezGameModeMsgToEditor msgToEd;
+      msgToEd.m_DocumentGuid = GetDocumentGuid();
+      msgToEd.m_bRunningPTG = false;
+
+      SendProcessMessage(&msgToEd);
+    }
   }
 }
 

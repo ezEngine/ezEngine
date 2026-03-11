@@ -81,11 +81,11 @@ ezUInt32 ezMath::GreatestCommonDivisor(ezUInt32 a, ezUInt32 b)
   // https://lemire.me/blog/2013/12/26/fastest-way-to-compute-the-greatest-common-divisor/
   if (a == 0)
   {
-    return a;
+    return b;
   }
   if (b == 0)
   {
-    return b;
+    return a;
   }
 
   ezUInt32 shift = FirstBitLow(a | b);
@@ -223,26 +223,6 @@ size_t ezMath::SafeConvertToSizeT(ezUInt64 uiValue)
 }
 #endif
 
-void ezAngle::NormalizeRange()
-{
-  constexpr float fTwoPi = 2.0f * Pi<float>();
-  constexpr float fTwoPiTen = 10.0f * Pi<float>();
-
-  if (m_fRadian > fTwoPiTen || m_fRadian < -fTwoPiTen)
-  {
-    m_fRadian = ezMath::Mod(m_fRadian, fTwoPi);
-  }
-
-  while (m_fRadian >= fTwoPi)
-  {
-    m_fRadian -= fTwoPi;
-  }
-
-  while (m_fRadian < 0.0f)
-  {
-    m_fRadian += fTwoPi;
-  }
-}
 
 float ezMath::ReplaceNaN(float fValue, float fFallback)
 {

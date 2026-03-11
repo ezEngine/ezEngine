@@ -21,6 +21,10 @@ if(EZ_SUBMODULE_PREFIX_PATH STREQUAL "")
 	set(EZ_SUBMODULE_MODE FALSE)
 else()
 	set(EZ_SUBMODULE_MODE TRUE)
+
+	if (NOT DEFINED EZ_SUBMODULE_ROOT_IDE_FOLDER)
+		set(EZ_SUBMODULE_ROOT_IDE_FOLDER "ezEngine")
+	endif()
 endif()
 
 set_property(GLOBAL PROPERTY EZ_SUBMODULE_MODE ${EZ_SUBMODULE_MODE})
@@ -42,6 +46,9 @@ if(NOT EZ_SUBMODULE_MODE)
 		DESCRIPTION "An open-source game engine"
 		HOMEPAGE_URL "https://ezengine.net"
 		LANGUAGES ${EZ_LANGUAGES})
+
+	# Enable CTest support for unit testing
+	enable_testing()
 endif()
 
 include("ezPlatform")

@@ -14,12 +14,27 @@ inline const char *GetConfigurationString()
 		"x86 "
 #elif defined(JPH_CPU_ARM)
 		"ARM "
-#elif defined(JPH_PLATFORM_WASM)
+#elif defined(JPH_CPU_RISCV)
+		"RISC-V "
+#elif defined(JPH_CPU_PPC)
+		"PowerPC "
+	#ifdef JPH_CPU_BIG_ENDIAN
+		"(Big Endian) "
+	#else
+		"(Little Endian) "
+	#endif
+#elif defined(JPH_CPU_LOONGARCH)
+		"LoongArch "
+#elif defined(JPH_CPU_E2K)
+		"E2K "
+#elif defined(JPH_CPU_WASM)
 		"WASM "
+#else
+	#error Unknown CPU architecture
 #endif
-#if JPH_CPU_ADDRESS_BITS == 64
+#if JPH_CPU_ARCH_BITS == 64
 		"64-bit "
-#elif JPH_CPU_ADDRESS_BITS == 32
+#elif JPH_CPU_ARCH_BITS == 32
 		"32-bit "
 #endif
 		"with instructions: "
@@ -62,8 +77,34 @@ inline const char *GetConfigurationString()
 #ifdef JPH_FLOATING_POINT_EXCEPTIONS_ENABLED
 		"(FP Exceptions) "
 #endif
-#ifdef _DEBUG
+#ifdef JPH_DEBUG_RENDERER
+		"(Debug Renderer) "
+#endif
+#ifdef JPH_PROFILE_ENABLED
+		"(Profile) "
+#endif
+#ifdef JPH_EXTERNAL_PROFILE
+		"(External Profile) "
+#endif
+#if defined(JPH_OBJECT_LAYER_BITS) && JPH_OBJECT_LAYER_BITS == 32
+		"(32-bit ObjectLayer) "
+#else
+		"(16-bit ObjectLayer) "
+#endif
+#ifdef JPH_ENABLE_ASSERTS
+		"(Assertions) "
+#endif
+#ifdef JPH_OBJECT_STREAM
+		"(ObjectStream) "
+#endif
+#ifdef JPH_DEBUG
 		"(Debug) "
+#endif
+#if defined(__cpp_rtti) && __cpp_rtti
+		"(C++ RTTI) "
+#endif
+#if defined(__cpp_exceptions) && __cpp_exceptions
+		"(C++ Exceptions) "
 #endif
 		;
 }

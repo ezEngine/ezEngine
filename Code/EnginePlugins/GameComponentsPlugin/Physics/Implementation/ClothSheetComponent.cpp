@@ -1,37 +1,16 @@
 #include <GameComponentsPlugin/GameComponentsPCH.h>
 
-#include <Core/Graphics/Geometry.h>
 #include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Core/Interfaces/WindWorldModule.h>
-#include <Core/World/GameObject.h>
-#include <Core/World/World.h>
-#include <Core/World/WorldModule.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameComponentsPlugin/Physics/ClothSheetComponent.h>
-#include <RendererCore/../../../Data/Base/Shaders/Common/ObjectConstants.h>
 #include <RendererCore/Material/MaterialResource.h>
+#include <RendererCore/Meshes/CustomMeshComponent.h>
 #include <RendererCore/Meshes/DynamicMeshBufferResource.h>
-#include <RendererCore/Meshes/MeshBufferUtils.h>
-#include <RendererCore/Pipeline/Declarations.h>
-#include <RendererCore/Pipeline/InstanceDataProvider.h>
-#include <RendererCore/Pipeline/RenderDataBatch.h>
-#include <RendererCore/Pipeline/RenderPipeline.h>
-#include <RendererCore/Pipeline/RenderPipelinePass.h>
-#include <RendererCore/RenderContext/RenderContext.h>
-#include <RendererFoundation/Device/Device.h>
-
-/* TODO:
- * cache render category
- */
+#include <RendererCore/Pipeline/RenderDataManager.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezClothSheetRenderData, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezClothSheetRenderer, 1, ezRTTIDefaultAllocator<ezClothSheetRenderer>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-
 EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezClothSheetFlags, 1)
   EZ_ENUM_CONSTANT(ezClothSheetFlags::FixedCornerTopLeft),
   EZ_ENUM_CONSTANT(ezClothSheetFlags::FixedCornerTopRight),
@@ -53,7 +32,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezClothSheetComponent, 1, ezComponentMode::Static)
       EZ_MEMBER_PROPERTY("Damping", m_fDamping)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1.0f)),
       EZ_MEMBER_PROPERTY("WindInfluence", m_fWindInfluence)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 10.0f)),
       EZ_BITFLAGS_ACCESSOR_PROPERTY("Flags", ezClothSheetFlags, GetFlags, SetFlags),
-      EZ_ACCESSOR_PROPERTY("Material", GetMaterialFile, SetMaterialFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
+      EZ_RESOURCE_MEMBER_PROPERTY("Material", m_hMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
       EZ_MEMBER_PROPERTY("Color", m_Color)->AddAttributes(new ezDefaultValueAttribute(ezColor::White)),
     }
     EZ_END_PROPERTIES;
@@ -137,101 +116,11 @@ void ezClothSheetComponent::OnSimulationStarted()
   SetupCloth();
 }
 
-void ezClothSheetComponent::SetupCloth()
-{
-  m_Bbox = ezBoundingBox::MakeInvalid();
-
-  if (IsActiveAndSimulating())
-  {
-    m_uiSleepCounter = 0;
-    m_uiVisibleCounter = 5;
-
-    m_Simulator.m_uiWidth = static_cast<ezUInt8>(m_vSegments.x + 1);
-    m_Simulator.m_uiHeight = static_cast<ezUInt8>(m_vSegments.y + 1);
-    m_Simulator.m_vAcceleration.Set(0, 0, -10);
-    m_Simulator.m_vSegmentLength = m_vSize.CompMul(ezVec2(1.0f) + m_vSlack);
-    m_Simulator.m_vSegmentLength.x /= (float)m_vSegments.x;
-    m_Simulator.m_vSegmentLength.y /= (float)m_vSegments.y;
-    m_Simulator.m_Nodes.Clear();
-    m_Simulator.m_Nodes.SetCount(m_Simulator.m_uiWidth * m_Simulator.m_uiHeight);
-
-    const ezVec3 pos = ezVec3(0);
-    const ezVec3 dirX = ezVec3(1, 0, 0);
-    const ezVec3 dirY = ezVec3(0, 1, 0);
-
-    ezVec2 dist = m_vSize;
-    dist.x /= (float)m_vSegments.x;
-    dist.y /= (float)m_vSegments.y;
-
-    for (ezUInt32 y = 0; y < m_Simulator.m_uiHeight; ++y)
-    {
-      for (ezUInt32 x = 0; x < m_Simulator.m_uiWidth; ++x)
-      {
-        const ezUInt32 idx = (y * m_Simulator.m_uiWidth) + x;
-
-        m_Simulator.m_Nodes[idx].m_vPosition = ezSimdConversion::ToVec3(pos + x * dist.x * dirX + y * dist.y * dirY);
-        m_Simulator.m_Nodes[idx].m_vPreviousPosition = m_Simulator.m_Nodes[idx].m_vPosition;
-      }
-    }
-
-    if (m_Flags.IsSet(ezClothSheetFlags::FixedCornerTopLeft))
-      m_Simulator.m_Nodes[0].m_bFixed = true;
-
-    if (m_Flags.IsSet(ezClothSheetFlags::FixedCornerTopRight))
-      m_Simulator.m_Nodes[m_Simulator.m_uiWidth - 1].m_bFixed = true;
-
-    if (m_Flags.IsSet(ezClothSheetFlags::FixedCornerBottomRight))
-      m_Simulator.m_Nodes[m_Simulator.m_uiWidth * m_Simulator.m_uiHeight - 1].m_bFixed = true;
-
-    if (m_Flags.IsSet(ezClothSheetFlags::FixedCornerBottomLeft))
-      m_Simulator.m_Nodes[m_Simulator.m_uiWidth * (m_Simulator.m_uiHeight - 1)].m_bFixed = true;
-
-    if (m_Flags.IsSet(ezClothSheetFlags::FixedEdgeTop))
-    {
-      for (ezUInt32 x = 0; x < m_Simulator.m_uiWidth; ++x)
-      {
-        const ezUInt32 idx = (0 * m_Simulator.m_uiWidth) + x;
-
-        m_Simulator.m_Nodes[idx].m_bFixed = true;
-      }
-    }
-
-    if (m_Flags.IsSet(ezClothSheetFlags::FixedEdgeRight))
-    {
-      for (ezUInt32 y = 0; y < m_Simulator.m_uiHeight; ++y)
-      {
-        const ezUInt32 idx = (y * m_Simulator.m_uiWidth) + (m_Simulator.m_uiWidth - 1);
-
-        m_Simulator.m_Nodes[idx].m_bFixed = true;
-      }
-    }
-
-    if (m_Flags.IsSet(ezClothSheetFlags::FixedEdgeBottom))
-    {
-      for (ezUInt32 x = 0; x < m_Simulator.m_uiWidth; ++x)
-      {
-        const ezUInt32 idx = ((m_Simulator.m_uiHeight - 1) * m_Simulator.m_uiWidth) + x;
-
-        m_Simulator.m_Nodes[idx].m_bFixed = true;
-      }
-    }
-
-    if (m_Flags.IsSet(ezClothSheetFlags::FixedEdgeLeft))
-    {
-      for (ezUInt32 y = 0; y < m_Simulator.m_uiHeight; ++y)
-      {
-        const ezUInt32 idx = (y * m_Simulator.m_uiWidth) + 0;
-
-        m_Simulator.m_Nodes[idx].m_bFixed = true;
-      }
-    }
-  }
-
-  TriggerLocalBoundsUpdate();
-}
-
 void ezClothSheetComponent::OnDeactivated()
 {
+  ezRenderDataManager* pRenderDataManager = GetWorld()->GetModule<ezRenderDataManager>();
+  pRenderDataManager->DeleteInstanceData(m_InstanceDataOffset);
+
   m_Simulator.m_Nodes.Clear();
 
   SUPER::OnDeactivated();
@@ -259,89 +148,42 @@ ezResult ezClothSheetComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, 
 
 void ezClothSheetComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
-  auto pRenderData = ezCreateRenderDataForThisFrame<ezClothSheetRenderData>(GetOwner());
-  pRenderData->m_uiUniqueID = GetUniqueIdForRendering();
-  pRenderData->m_Color = m_Color;
-  pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
-  pRenderData->m_uiBatchId = ezHashingUtils::StringHashTo32(m_hMaterial.GetResourceIDHash());
-  pRenderData->m_uiSortingKey = pRenderData->m_uiBatchId;
-  pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
-  pRenderData->m_hMaterial = m_hMaterial;
+  if (!m_hDynamicMeshBuffer.IsValid())
+    return;
 
+  const bool bDynamic = GetOwner()->IsDynamic();
+  auto hInstanceDataBuffer = msg.m_pRenderDataManager->GetOrCreateInstanceDataAndFill(*this, bDynamic, GetOwner()->GetGlobalTransform(), m_InstanceDataOffset, GetUniqueIdForRendering(), m_Color);
 
-  if (m_Simulator.m_Nodes.IsEmpty())
+  ezCustomMeshRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezCustomMeshRenderData>(GetOwner());
   {
-    pRenderData->m_uiVerticesX = 2;
-    pRenderData->m_uiVerticesY = 2;
+    pRenderData->m_uiNumInstances = 1;
+    pRenderData->m_DataOffsets.m_uiInstance = m_InstanceDataOffset.m_uiOffset;
+    pRenderData->m_hInstanceDataBuffer = hInstanceDataBuffer;
+    pRenderData->m_fSortingDepthOffset = 0.0f;
 
-    pRenderData->m_Positions = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezVec3, 4);
-    pRenderData->m_Indices = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezUInt16, 6);
+    pRenderData->m_hMaterial = m_hMaterial;
+    pRenderData->m_hDynamicMeshBuffer = m_hDynamicMeshBuffer;
+    pRenderData->m_uiFirstPrimitive = 0;
+    pRenderData->m_uiNumPrimitives = m_vSegments.x * m_vSegments.y * 2;
 
-    pRenderData->m_Positions[0] = ezVec3(0, 0, 0);
-    pRenderData->m_Positions[1] = ezVec3(m_vSize.x, 0, 0);
-    pRenderData->m_Positions[2] = ezVec3(0, m_vSize.y, 0);
-    pRenderData->m_Positions[3] = ezVec3(m_vSize.x, m_vSize.y, 0);
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+    pRenderData->m_FallbackGlobalBBox = GetOwner()->GetGlobalBounds().GetBox();
+#endif
 
-    pRenderData->m_Indices[0] = 0;
-    pRenderData->m_Indices[1] = 1;
-    pRenderData->m_Indices[2] = 2;
-
-    pRenderData->m_Indices[3] = 1;
-    pRenderData->m_Indices[4] = 3;
-    pRenderData->m_Indices[5] = 2;
-  }
-  else
-  {
-    m_uiVisibleCounter = 3;
-
-    pRenderData->m_uiVerticesX = m_Simulator.m_uiWidth;
-    pRenderData->m_uiVerticesY = m_Simulator.m_uiHeight;
-
-    pRenderData->m_Positions = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezVec3, pRenderData->m_uiVerticesX * pRenderData->m_uiVerticesY);
-    pRenderData->m_Indices = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezUInt16, (pRenderData->m_uiVerticesX - 1) * (pRenderData->m_uiVerticesY - 1) * 2 * 3);
-
-    {
-      ezUInt32 vidx = 0;
-      for (ezUInt32 y = 0; y < pRenderData->m_uiVerticesY; ++y)
-      {
-        for (ezUInt32 x = 0; x < pRenderData->m_uiVerticesX; ++x, ++vidx)
-        {
-          pRenderData->m_Positions[vidx] = ezSimdConversion::ToVec3(m_Simulator.m_Nodes[vidx].m_vPosition);
-        }
-      }
-    }
-
-    {
-      ezUInt32 tidx = 0;
-      ezUInt16 vidx = 0;
-      for (ezUInt16 y = 0; y < pRenderData->m_uiVerticesY - 1; ++y)
-      {
-        for (ezUInt16 x = 0; x < pRenderData->m_uiVerticesX - 1; ++x, ++vidx)
-        {
-          pRenderData->m_Indices[tidx++] = vidx;
-          pRenderData->m_Indices[tidx++] = vidx + 1;
-          pRenderData->m_Indices[tidx++] = vidx + pRenderData->m_uiVerticesX;
-
-          pRenderData->m_Indices[tidx++] = vidx + 1;
-          pRenderData->m_Indices[tidx++] = vidx + pRenderData->m_uiVerticesX + 1;
-          pRenderData->m_Indices[tidx++] = vidx + pRenderData->m_uiVerticesX;
-        }
-
-        ++vidx;
-      }
-    }
+    pRenderData->FillSortingKey();
   }
 
-  // TODO: render pass category (plus cache this)
   ezRenderData::Category category = ezDefaultRenderDataCategories::LitOpaque;
+  bool bDontCacheYet = true;
 
   if (m_hMaterial.IsValid())
   {
     ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
     category = pMaterial->GetRenderDataCategory();
+    bDontCacheYet = pMaterial.GetAcquireResult() == ezResourceAcquireResult::LoadingFallback;
   }
 
-  msg.AddRenderData(pRenderData, category, ezRenderData::Caching::Never);
+  msg.AddRenderData(pRenderData, category, bDontCacheYet ? ezRenderData::Caching::Never : ezRenderData::Caching::IfStatic);
 }
 
 void ezClothSheetComponent::SetFlags(ezBitflags<ezClothSheetFlags> flags)
@@ -350,32 +192,10 @@ void ezClothSheetComponent::SetFlags(ezBitflags<ezClothSheetFlags> flags)
   SetupCloth();
 }
 
-void ezClothSheetComponent::SetMaterialFile(const char* szFile)
-{
-  ezMaterialResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hResource = ezResourceManager::LoadResource<ezMaterialResource>(szFile);
-  }
-
-  m_hMaterial = hResource;
-}
-
-const char* ezClothSheetComponent::GetMaterialFile() const
-{
-  if (m_hMaterial.IsValid())
-    return m_hMaterial.GetResourceID();
-
-  return "";
-}
-
 void ezClothSheetComponent::Update()
 {
-  if (m_Simulator.m_Nodes.IsEmpty() || m_uiVisibleCounter == 0)
+  if (m_Simulator.m_Nodes.IsEmpty() || GetOwner()->GetVisibilityState() == ezVisibilityState::Invisible)
     return;
-
-  --m_uiVisibleCounter;
 
   {
     ezVec3 acc = -GetOwner()->GetLinearVelocity();
@@ -435,6 +255,8 @@ void ezClothSheetComponent::Update()
       // TriggerLocalBoundsUpdate();
     }
 
+    UpdateClothMesh();
+
     ++m_uiCheckEquilibriumCounter;
     if (m_uiCheckEquilibriumCounter > 64)
     {
@@ -452,167 +274,139 @@ void ezClothSheetComponent::Update()
   }
 }
 
-ezClothSheetRenderer::ezClothSheetRenderer()
+void ezClothSheetComponent::UpdateClothMesh()
 {
-  CreateVertexBuffer();
-}
+  ezResourceLock<ezDynamicMeshBufferResource> pDynamicMeshBuffer(m_hDynamicMeshBuffer, ezResourceAcquireMode::BlockTillLoaded);
 
-ezClothSheetRenderer::~ezClothSheetRenderer() = default;
+  auto nodes = m_Simulator.m_Nodes.GetArrayPtr();
+  auto positions = pDynamicMeshBuffer->AccessPositionData();
 
-void ezClothSheetRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& ref_categories) const
-{
-  ref_categories.PushBack(ezDefaultRenderDataCategories::LitOpaque);
-  ref_categories.PushBack(ezDefaultRenderDataCategories::LitMasked);
-  ref_categories.PushBack(ezDefaultRenderDataCategories::LitTransparent);
-  ref_categories.PushBack(ezDefaultRenderDataCategories::Selection);
-}
+  const ezVec2U32 vNumVertices = m_vSegments + ezVec2U32(1);
 
-void ezClothSheetRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& ref_types) const
-{
-  ref_types.PushBack(ezGetStaticRTTI<ezClothSheetRenderData>());
-}
-
-void ezClothSheetRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
-{
-  const bool bNeedsNormals = (renderViewContext.m_pViewData->m_CameraUsageHint != ezCameraUsageHint::Shadow);
-
-
-  ezRenderContext* pRenderContext = renderViewContext.m_pRenderContext;
-  ezGALCommandEncoder* pGALCommandEncoder = pRenderContext->GetCommandEncoder();
-
-  ezInstanceData* pInstanceData = pPass->GetPipeline()->GetFrameDataProvider<ezInstanceDataProvider>()->GetData(renderViewContext);
-  pInstanceData->BindResources(pRenderContext);
-
-  pRenderContext->SetShaderPermutationVariable("FLIP_WINDING", "FALSE");
-  pRenderContext->SetShaderPermutationVariable("VERTEX_SKINNING", "FALSE");
-
-  ezResourceLock<ezDynamicMeshBufferResource> pBuffer(m_hDynamicMeshBuffer, ezResourceAcquireMode::BlockTillLoaded);
-
-  for (auto it = batch.GetIterator<ezClothSheetRenderData>(0, batch.GetCount()); it.IsValid(); ++it)
+  ezUInt32 vidx = 0;
+  for (ezUInt32 y = 0; y < vNumVertices.y; ++y)
   {
-    const ezClothSheetRenderData* pRenderData = it;
-
-    EZ_ASSERT_DEV(pRenderData->m_uiVerticesX > 1 && pRenderData->m_uiVerticesY > 1, "Invalid cloth render data");
-
-    pRenderContext->BindMaterial(pRenderData->m_hMaterial);
-
-    ezUInt32 uiInstanceDataOffset = 0;
-    ezArrayPtr<ezPerInstanceData> instanceData = pInstanceData->GetInstanceData(1, uiInstanceDataOffset);
-
-    instanceData[0].ObjectToWorld = pRenderData->m_GlobalTransform;
-    instanceData[0].ObjectToWorldNormal = instanceData[0].ObjectToWorld;
-    instanceData[0].GameObjectID = pRenderData->m_uiUniqueID;
-    instanceData[0].Color = pRenderData->m_Color;
-    instanceData[0].CustomData.SetZero(); // unused
-
-    pInstanceData->UpdateInstanceData(pRenderContext, 1);
-
+    for (ezUInt32 x = 0; x < vNumVertices.x; ++x, ++vidx)
     {
-      auto pVertexData = pBuffer->AccessVertexData();
-      auto pIndexData = pBuffer->AccessIndex16Data();
+      positions[vidx] = ezSimdConversion::ToVec3(nodes[vidx].m_vPosition);
+    }
+  }
 
-      const float fDivU = 1.0f / (pRenderData->m_uiVerticesX - 1);
-      const float fDivY = 1.0f / (pRenderData->m_uiVerticesY - 1);
+  ezDynamicMeshBufferResource::CalculateGridNormalAndTangents(pDynamicMeshBuffer.GetPointerNonConst(), vNumVertices);
+}
 
-      const ezUInt16 width = pRenderData->m_uiVerticesX;
+void ezClothSheetComponent::SetupCloth()
+{
+  m_Bbox = ezBoundingBox::MakeInvalid();
 
-      if (bNeedsNormals)
+  if (IsActiveAndSimulating())
+  {
+    m_uiSleepCounter = 0;
+
+    m_Simulator.m_uiWidth = static_cast<ezUInt8>(m_vSegments.x + 1);
+    m_Simulator.m_uiHeight = static_cast<ezUInt8>(m_vSegments.y + 1);
+    m_Simulator.m_vAcceleration.Set(0, 0, -10);
+    m_Simulator.m_vSegmentLength = m_vSize.CompMul(ezVec2(1.0f) + m_vSlack);
+    m_Simulator.m_vSegmentLength.x /= (float)m_vSegments.x;
+    m_Simulator.m_vSegmentLength.y /= (float)m_vSegments.y;
+    m_Simulator.m_Nodes.Clear();
+    m_Simulator.m_Nodes.SetCount(m_Simulator.m_uiWidth * m_Simulator.m_uiHeight);
+
+    const ezVec3 dirX = ezVec3(1, 0, 0);
+    const ezVec3 dirY = ezVec3(0, 1, 0);
+
+    ezVec2 dist = m_vSize;
+    dist.x /= (float)m_vSegments.x;
+    dist.y /= (float)m_vSegments.y;
+
+    for (ezUInt32 y = 0; y < m_Simulator.m_uiHeight; ++y)
+    {
+      for (ezUInt32 x = 0; x < m_Simulator.m_uiWidth; ++x)
       {
-        const ezUInt16 widthM1 = width - 1;
-        const ezUInt16 heightM1 = pRenderData->m_uiVerticesY - 1;
+        const ezUInt32 idx = (y * m_Simulator.m_uiWidth) + x;
 
-        ezUInt16 topIdx = 0;
-
-        ezUInt32 vidx = 0;
-        for (ezUInt16 y = 0; y < pRenderData->m_uiVerticesY; ++y)
-        {
-          ezUInt16 leftIdx = 0;
-          const ezUInt16 bottomIdx = ezMath::Min<ezUInt16>(y + 1, heightM1);
-
-          const ezUInt32 yOff = y * width;
-          const ezUInt32 yOffTop = topIdx * width;
-          const ezUInt32 yOffBottom = bottomIdx * width;
-
-          for (ezUInt16 x = 0; x < width; ++x, ++vidx)
-          {
-            const ezUInt16 rightIdx = ezMath::Min<ezUInt16>(x + 1, widthM1);
-
-            const ezVec3 leftPos = pRenderData->m_Positions[yOff + leftIdx];
-            const ezVec3 rightPos = pRenderData->m_Positions[yOff + rightIdx];
-            const ezVec3 topPos = pRenderData->m_Positions[yOffTop + x];
-            const ezVec3 bottomPos = pRenderData->m_Positions[yOffBottom + x];
-
-            const ezVec3 leftToRight = rightPos - leftPos;
-            const ezVec3 bottomToTop = topPos - bottomPos;
-            ezVec3 normal = -leftToRight.CrossRH(bottomToTop);
-            normal.NormalizeIfNotZero(ezVec3(0, 0, 1)).IgnoreResult();
-
-            ezVec3 tangent = leftToRight;
-            tangent.NormalizeIfNotZero(ezVec3(1, 0, 0)).IgnoreResult();
-
-            pVertexData[vidx].m_vPosition = pRenderData->m_Positions[vidx];
-            pVertexData[vidx].m_vTexCoord = ezVec2(x * fDivU, y * fDivY);
-            pVertexData[vidx].EncodeNormal(normal);
-            pVertexData[vidx].EncodeTangent(tangent, 1.0f);
-
-            leftIdx = x;
-          }
-
-          topIdx = y;
-        }
+        m_Simulator.m_Nodes[idx].m_vPosition = ezSimdConversion::ToVec3(x * dist.x * dirX + y * dist.y * dirY);
+        m_Simulator.m_Nodes[idx].m_vPreviousPosition = m_Simulator.m_Nodes[idx].m_vPosition;
       }
-      else
-      {
-        ezUInt32 vidx = 0;
-        for (ezUInt16 y = 0; y < pRenderData->m_uiVerticesY; ++y)
-        {
-          for (ezUInt16 x = 0; x < width; ++x, ++vidx)
-          {
-            pVertexData[vidx].m_vPosition = pRenderData->m_Positions[vidx];
-            pVertexData[vidx].m_vTexCoord = ezVec2(x * fDivU, y * fDivY);
-            pVertexData[vidx].EncodeNormal(ezVec3::MakeAxisZ());
-            pVertexData[vidx].EncodeTangent(ezVec3::MakeAxisX(), 1.0f);
-          }
-        }
-      }
-
-      ezMemoryUtils::Copy<ezUInt16>(pIndexData.GetPtr(), pRenderData->m_Indices.GetPtr(), pRenderData->m_Indices.GetCount());
     }
 
-    const ezUInt32 uiNumPrimitives = (pRenderData->m_uiVerticesX - 1) * (pRenderData->m_uiVerticesY - 1) * 2;
+    if (m_Flags.IsSet(ezClothSheetFlags::FixedCornerTopLeft))
+      m_Simulator.m_Nodes[0].m_bFixed = true;
 
-    pBuffer->UpdateGpuBuffer(pGALCommandEncoder, 0, pRenderData->m_uiVerticesX * pRenderData->m_uiVerticesY);
+    if (m_Flags.IsSet(ezClothSheetFlags::FixedCornerTopRight))
+      m_Simulator.m_Nodes[m_Simulator.m_uiWidth - 1].m_bFixed = true;
 
-    // redo this after the primitive count has changed
-    pRenderContext->BindMeshBuffer(m_hDynamicMeshBuffer);
+    if (m_Flags.IsSet(ezClothSheetFlags::FixedCornerBottomRight))
+      m_Simulator.m_Nodes[m_Simulator.m_uiWidth * m_Simulator.m_uiHeight - 1].m_bFixed = true;
 
-    renderViewContext.m_pRenderContext->DrawMeshBuffer(uiNumPrimitives).IgnoreResult();
+    if (m_Flags.IsSet(ezClothSheetFlags::FixedCornerBottomLeft))
+      m_Simulator.m_Nodes[m_Simulator.m_uiWidth * (m_Simulator.m_uiHeight - 1)].m_bFixed = true;
+
+    if (m_Flags.IsSet(ezClothSheetFlags::FixedEdgeTop))
+    {
+      for (ezUInt32 x = 0; x < m_Simulator.m_uiWidth; ++x)
+      {
+        const ezUInt32 idx = (0 * m_Simulator.m_uiWidth) + x;
+
+        m_Simulator.m_Nodes[idx].m_bFixed = true;
+      }
+    }
+
+    if (m_Flags.IsSet(ezClothSheetFlags::FixedEdgeRight))
+    {
+      for (ezUInt32 y = 0; y < m_Simulator.m_uiHeight; ++y)
+      {
+        const ezUInt32 idx = (y * m_Simulator.m_uiWidth) + (m_Simulator.m_uiWidth - 1);
+
+        m_Simulator.m_Nodes[idx].m_bFixed = true;
+      }
+    }
+
+    if (m_Flags.IsSet(ezClothSheetFlags::FixedEdgeBottom))
+    {
+      for (ezUInt32 x = 0; x < m_Simulator.m_uiWidth; ++x)
+      {
+        const ezUInt32 idx = ((m_Simulator.m_uiHeight - 1) * m_Simulator.m_uiWidth) + x;
+
+        m_Simulator.m_Nodes[idx].m_bFixed = true;
+      }
+    }
+
+    if (m_Flags.IsSet(ezClothSheetFlags::FixedEdgeLeft))
+    {
+      for (ezUInt32 y = 0; y < m_Simulator.m_uiHeight; ++y)
+      {
+        const ezUInt32 idx = (y * m_Simulator.m_uiWidth) + 0;
+
+        m_Simulator.m_Nodes[idx].m_bFixed = true;
+      }
+    }
   }
-}
 
-void ezClothSheetRenderer::CreateVertexBuffer()
-{
-  if (m_hDynamicMeshBuffer.IsValid())
-    return;
-
-  m_hDynamicMeshBuffer = ezResourceManager::GetExistingResource<ezDynamicMeshBufferResource>("ClothSheet");
-
-  if (!m_hDynamicMeshBuffer.IsValid())
+  if (IsActiveAndInitialized() && m_vSize.x > 0 && m_vSize.y > 0 && m_vSegments.x > 0 && m_vSegments.y > 0)
   {
-    const ezUInt32 uiMaxVerts = 32;
+    ezStringBuilder sResourceName;
+    sResourceName.SetFormat("ClothSheet_{}_{}x{}_{}x{}", ezArgP(this), m_vSize.x, m_vSize.y, m_vSegments.x, m_vSegments.y);
 
-    ezDynamicMeshBufferResourceDescriptor desc;
-    desc.m_uiMaxVertices = uiMaxVerts * uiMaxVerts;
-    desc.m_IndexType = ezGALIndexType::UShort;
-    desc.m_uiMaxPrimitives = ezMath::Square(uiMaxVerts - 1) * 2;
+    m_hDynamicMeshBuffer = ezResourceManager::GetExistingResource<ezDynamicMeshBufferResource>(sResourceName);
 
-    m_hDynamicMeshBuffer = ezResourceManager::GetOrCreateResource<ezDynamicMeshBufferResource>("ClothSheet", std::move(desc), "Cloth Sheet Buffer");
+    if (!m_hDynamicMeshBuffer.IsValid())
+    {
+      ezDynamicMeshBufferResourceDescriptor desc;
+      desc.m_uiMaxVertices = (m_vSegments.x + 1) * (m_vSegments.y + 1);
+      desc.m_IndexType = ezGALIndexType::UShort;
+      desc.m_uiMaxPrimitives = m_vSegments.x * m_vSegments.y * 2;
+
+      m_hDynamicMeshBuffer = ezResourceManager::GetOrCreateResource<ezDynamicMeshBufferResource>(sResourceName, std::move(desc));
+    }
+
+    ezResourceLock<ezDynamicMeshBufferResource> pDynamicMeshBuffer(m_hDynamicMeshBuffer, ezResourceAcquireMode::BlockTillLoaded);
+    ezDynamicMeshBufferResource::CreateGridXY(pDynamicMeshBuffer.GetPointerNonConst(), m_vSize, m_vSegments + ezVec2U32(1));
   }
+
+  TriggerLocalBoundsUpdate();
 }
 
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
 ezClothSheetComponentManager::ezClothSheetComponentManager(ezWorld* pWorld)
@@ -628,15 +422,16 @@ void ezClothSheetComponentManager::Initialize()
 
   {
     auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezClothSheetComponentManager::Update, this);
-    desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::Async;
+    desc.m_Phase = ezWorldUpdatePhase::Async;
     desc.m_bOnlyUpdateWhenSimulating = true;
+    desc.m_uiAsyncPhaseBatchSize = 2;
 
     this->RegisterUpdateFunction(desc);
   }
 
   {
     auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezClothSheetComponentManager::UpdateBounds, this);
-    desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PostAsync;
+    desc.m_Phase = ezWorldUpdatePhase::PostAsync;
     desc.m_bOnlyUpdateWhenSimulating = true;
 
     this->RegisterUpdateFunction(desc);
@@ -667,3 +462,6 @@ void ezClothSheetComponentManager::UpdateBounds(const ezWorldModule::UpdateConte
     }
   }
 }
+
+
+EZ_STATICLINK_FILE(GameComponentsPlugin, GameComponentsPlugin_Physics_Implementation_ClothSheetComponent);

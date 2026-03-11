@@ -13,6 +13,9 @@ ezStaticArray<ezWorld*, ezWorld::GetMaxNumWorlds()> ezWorld::s_Worlds;
 
 static ezGameObjectHandle DefaultGameObjectReferenceResolver(const void* pData, ezComponentHandle hThis, ezStringView sProperty)
 {
+  EZ_IGNORE_UNUSED(hThis);
+  EZ_IGNORE_UNUSED(sProperty);
+
   const char* szRef = reinterpret_cast<const char*>(pData);
 
   if (ezStringUtils::IsNullOrEmpty(szRef))
@@ -41,10 +44,11 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezWorld, ezNoBase, 1, ezRTTINoAllocator)
 {
   EZ_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(DeleteObjectDelayed, In, "GameObject", In, "DeleteEmptyParents")->AddAttributes(
-      new ezFunctionArgumentAttributes(1, new ezDefaultValueAttribute(true))),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_TryGetObjectWithGlobalKey, In, "GlobalKey")->AddFlags(ezPropertyFlags::Const),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_GetClock)->AddFlags(ezPropertyFlags::Const),
+    EZ_SCRIPT_FUNCTION_PROPERTY(DeleteObjectDelayed, In, "GameObject", In, "DeleteEmptyParents")->AddAttributes(new ezFunctionArgumentAttributes(1, new ezDefaultValueAttribute(true))),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_TryGetObjectWithGlobalKey, In, "GlobalKey")->AddFlags(ezPropertyFlags::PureFunction),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_SearchForObject, In, "SearchPath", In, "ReferenceObject")->AddFlags(ezPropertyFlags::PureFunction),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_GetClock)->AddFlags(ezPropertyFlags::PureFunction),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_GetRandomNumberGenerator)->AddFlags(ezPropertyFlags::PureFunction),
   }
   EZ_END_FUNCTIONS;
 }
@@ -283,7 +287,7 @@ void ezWorld::DeleteObjectNow(const ezGameObjectHandle& hObject0, bool bAlsoDele
   while (!pObject->m_Components.IsEmpty())
   {
     ezComponent* pComponent = pObject->m_Components[0];
-    pComponent->GetOwningManager()->DeleteComponent(pComponent->GetHandle());
+    pComponent->DeleteComponent();
   }
   EZ_ASSERT_DEV(pObject->m_Components.GetCount() == 0, "Components should already be removed");
 
@@ -331,6 +335,7 @@ void ezWorld::BeginAddingComponentsToInitBatch(const ezComponentInitBatchHandle&
 void ezWorld::EndAddingComponentsToInitBatch(const ezComponentInitBatchHandle& hBatch)
 {
   EZ_ASSERT_DEV(m_Data.m_InitBatches[hBatch.GetInternalID()] == m_Data.m_pCurrentInitBatch, "Init batch with id {} is currently not active", hBatch.GetInternalID().m_Data);
+  EZ_IGNORE_UNUSED(hBatch);
   m_Data.m_pCurrentInitBatch = m_Data.m_pDefaultInitBatch;
 }
 
@@ -349,13 +354,34 @@ bool ezWorld::IsComponentInitBatchCompleted(const ezComponentInitBatchHandle& hB
   {
     if (pInitBatch->m_ComponentsToInitialize.IsEmpty())
     {
-      double fStartSimCompletion = pInitBatch->m_ComponentsToStartSimulation.IsEmpty() ? 1.0 : (double)pInitBatch->m_uiNextComponentToStartSimulation / pInitBatch->m_ComponentsToStartSimulation.GetCount();
-      *pCompletionFactor = fStartSimCompletion * 0.5 + 0.5;
+      if (m_Data.m_bSimulateWorld)
+      {
+        double fStartSimCompletion = pInitBatch->m_ComponentsToStartSimulation.IsEmpty() ? 1.0 : (double)pInitBatch->m_uiNextComponentToStartSimulation / pInitBatch->m_ComponentsToStartSimulation.GetCount();
+        *pCompletionFactor = fStartSimCompletion * 0.5 + 0.5;
+      }
+      else
+      {
+        *pCompletionFactor = 1.0;
+
+        EZ_ASSERT_DEV(m_Data.m_pDefaultInitBatch != pInitBatch, "");
+
+        m_Data.m_pDefaultInitBatch->m_ComponentsToStartSimulation.PushBackRange(pInitBatch->m_ComponentsToStartSimulation);
+        pInitBatch->m_ComponentsToStartSimulation.Clear();
+        return true;
+      }
     }
     else
     {
       double fInitCompletion = pInitBatch->m_ComponentsToInitialize.IsEmpty() ? 1.0 : (double)pInitBatch->m_uiNextComponentToInitialize / pInitBatch->m_ComponentsToInitialize.GetCount();
-      *pCompletionFactor = fInitCompletion * 0.5;
+
+      if (m_Data.m_bSimulateWorld)
+      {
+        *pCompletionFactor = fInitCompletion * 0.5;
+      }
+      else
+      {
+        *pCompletionFactor = fInitCompletion;
+      }
     }
   }
 
@@ -394,7 +420,7 @@ void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, const ezMess
   }
   else
   {
-    ezMessage* pMsgCopy = pMsgRTTIAllocator->Clone<ezMessage>(&msg, m_Data.m_StackAllocator.GetCurrentAllocator());
+    ezMessage* pMsgCopy = pMsgRTTIAllocator->Clone<ezMessage>(&msg, m_Data.m_LinearAllocator.GetCurrentAllocator());
     m_Data.m_MessageQueues[queueType].Enqueue(pMsgCopy, metaData);
   }
 }
@@ -425,19 +451,19 @@ void ezWorld::PostMessage(const ezComponentHandle& hReceiverComponent, const ezM
   }
   else
   {
-    ezMessage* pMsgCopy = pMsgRTTIAllocator->Clone<ezMessage>(&msg, m_Data.m_StackAllocator.GetCurrentAllocator());
+    ezMessage* pMsgCopy = pMsgRTTIAllocator->Clone<ezMessage>(&msg, m_Data.m_LinearAllocator.GetCurrentAllocator());
     m_Data.m_MessageQueues[queueType].Enqueue(pMsgCopy, metaData);
   }
 }
 
-void ezWorld::FindEventMsgHandlers(const ezMessage& msg, ezGameObject* pSearchObject, ezDynamicArray<ezComponent*>& out_components)
+void ezWorld::FindEventMsgHandlers(const ezMessage& msg, const ezComponent* pSenderComponent, ezGameObject* pSearchObject, ezDynamicArray<ezComponent*>& out_components)
 {
-  FindEventMsgHandlers(*this, msg, pSearchObject, out_components);
+  FindEventMsgHandlers(*this, msg, pSenderComponent, pSearchObject, out_components);
 }
 
-void ezWorld::FindEventMsgHandlers(const ezMessage& msg, const ezGameObject* pSearchObject, ezDynamicArray<const ezComponent*>& out_components) const
+void ezWorld::FindEventMsgHandlers(const ezMessage& msg, const ezComponent* pSenderComponent, const ezGameObject* pSearchObject, ezDynamicArray<const ezComponent*>& out_components) const
 {
-  FindEventMsgHandlers(*this, msg, pSearchObject, out_components);
+  FindEventMsgHandlers(*this, msg, pSenderComponent, pSearchObject, out_components);
 }
 
 void ezWorld::Update()
@@ -486,16 +512,18 @@ void ezWorld::Update()
   {
     EZ_PROFILE_SCOPE("Initialize Phase");
     ProcessComponentsToInitialize();
+    ProcessUpdateFunctionsToDeregister();
     ProcessUpdateFunctionsToRegister();
 
     ProcessQueuedMessages(ezObjectMsgQueueType::AfterInitialized);
+    ProcessLocalBoundsUpdateQueue();
   }
 
   // pre-async phase
   {
     EZ_PROFILE_SCOPE("Pre-Async Phase");
     ProcessQueuedMessages(ezObjectMsgQueueType::NextFrame);
-    UpdateSynchronous(m_Data.m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::Phase::PreAsync]);
+    UpdateSynchronous(m_Data.m_UpdateFunctions[ezWorldUpdatePhase::PreAsync]);
   }
 
   // async phase
@@ -514,7 +542,8 @@ void ezWorld::Update()
   {
     EZ_PROFILE_SCOPE("Post-Async Phase");
     ProcessQueuedMessages(ezObjectMsgQueueType::PostAsync);
-    UpdateSynchronous(m_Data.m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::Phase::PostAsync]);
+    UpdateSynchronous(m_Data.m_UpdateFunctions[ezWorldUpdatePhase::PostAsync]);
+    ProcessLocalBoundsUpdateQueue();
   }
 
   // delete dead objects and update the object hierarchy
@@ -534,7 +563,7 @@ void ezWorld::Update()
   {
     EZ_PROFILE_SCOPE("Post-Transform Phase");
     ProcessQueuedMessages(ezObjectMsgQueueType::PostTransform);
-    UpdateSynchronous(m_Data.m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::Phase::PostTransform]);
+    UpdateSynchronous(m_Data.m_UpdateFunctions[ezWorldUpdatePhase::PostTransform]);
   }
 
   // Process again so new component can receive render messages, otherwise we introduce a frame delay.
@@ -548,7 +577,7 @@ void ezWorld::Update()
   }
 
   // Swap our double buffered stack allocator
-  m_Data.m_StackAllocator.Swap();
+  m_Data.m_LinearAllocator.Swap();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -572,7 +601,15 @@ ezWorldModule* ezWorld::GetOrCreateModule(const ezRTTI* pRtti)
     pModule->Initialize();
 
     m_Data.m_Modules[uiTypeId] = pModule;
-    m_Data.m_ModulesToStartSimulation.PushBack(pModule);
+
+    if (m_Data.m_bSimulateWorld)
+    {
+      pModule->OnSimulationStarted();
+    }
+    else
+    {
+      m_Data.m_ModulesToStartSimulation.PushBack(pModule);
+    }
   }
 
   return pModule;
@@ -590,7 +627,7 @@ void ezWorld::DeleteModule(const ezRTTI* pRtti)
       m_Data.m_Modules[uiTypeId] = nullptr;
 
       pModule->Deinitialize();
-      DeregisterUpdateFunctions(pModule);
+      DeregisterUpdateFunctionsInternal(pModule);
       EZ_DELETE(&m_Data.m_Allocator, pModule);
     }
   }
@@ -635,7 +672,12 @@ ezClock* ezWorld::Reflection_GetClock()
   return &m_Data.m_Clock;
 }
 
-void ezWorld::SetParent(ezGameObject* pObject, ezGameObject* pNewParent, ezGameObject::TransformPreservation preserve)
+ezRandom* ezWorld::Reflection_GetRandomNumberGenerator()
+{
+  return &m_Data.m_Random;
+}
+
+void ezWorld::SetParent(ezGameObject* pObject, ezGameObject* pNewParent, ezTransformPreservation::Enum preserve)
 {
   EZ_ASSERT_DEV(pObject != pNewParent, "Object can't be its own parent!");
   EZ_ASSERT_DEV(pNewParent == nullptr || pObject->IsDynamic() || pNewParent->IsStatic(), "Can't attach a static object to a dynamic parent!");
@@ -757,10 +799,23 @@ void ezWorld::UnlinkFromParent(ezGameObject* pObject)
 
 void ezWorld::SetObjectGlobalKey(ezGameObject* pObject, const ezHashedString& sGlobalKey)
 {
-  if (m_Data.m_GlobalKeyToIdTable.Contains(sGlobalKey.GetHash()))
+  if (auto it = m_Data.m_GlobalKeyToIdTable.Find(sGlobalKey.GetHash()); it.IsValid())
   {
-    ezLog::Error("Can't set global key to '{0}' because an object with this global key already exists. Global keys have to be unique.", sGlobalKey);
-    return;
+    if (it.Value() == pObject->m_InternalId) // same object, same global key ?
+      return;
+
+                                             // we allow overwriting a global key to a different object here
+      // so that we can delete an object in a frame and spawn a new one in the same frame, that takes over
+      // due to the delayed deletion at the end of the frame, this would otherwise not work
+      // the only work-around would be to manually clear the global key before deleting an object
+      // but that would effectively do the same as this, it's just more complicated for the user
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+    ezLog::Warning("An object with the global key '{}' already exists. Overwriting with different object reference.", sGlobalKey);
+#endif
+
+    EZ_VERIFY(m_Data.m_IdToGlobalKeyTable.Remove(it.Value().m_InstanceIndex), "Implementation error.");
+    m_Data.m_GlobalKeyToIdTable.Remove(it);
   }
 
   const ezUInt32 uiId = pObject->m_InternalId.m_InstanceIndex;
@@ -927,7 +982,7 @@ void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
 
 // static
 template <typename World, typename GameObject, typename Component>
-void ezWorld::FindEventMsgHandlers(World& world, const ezMessage& msg, GameObject pSearchObject, ezDynamicArray<Component>& out_components)
+void ezWorld::FindEventMsgHandlers(World& world, const ezMessage& msg, const ezComponent* pSenderComponent, GameObject pSearchObject, ezDynamicArray<Component>& out_components)
 {
   using EventMessageHandlerComponentType = typename std::conditional<std::is_const<World>::value, const ezEventMessageHandlerComponent*, ezEventMessageHandlerComponent*>::type;
 
@@ -942,6 +997,9 @@ void ezWorld::FindEventMsgHandlers(World& world, const ezMessage& msg, GameObjec
       bool bContinueSearch = true;
       for (auto pComponent : pCurrentObject->GetComponents())
       {
+        if (pComponent == pSenderComponent)
+          continue;
+
         if constexpr (std::is_const<World>::value == false)
         {
           pComponent->EnsureInitialized();
@@ -979,6 +1037,7 @@ void ezWorld::FindEventMsgHandlers(World& world, const ezMessage& msg, GameObjec
       }
 
       pCurrentObject = pCurrentObject->GetParent();
+      pSenderComponent = nullptr;
     }
   }
 
@@ -1006,8 +1065,7 @@ void ezWorld::RegisterUpdateFunction(const ezComponentManagerBase::UpdateFunctio
 {
   CheckForWriteAccess();
 
-  EZ_ASSERT_DEV(desc.m_Phase == ezComponentManagerBase::UpdateFunctionDesc::Phase::Async || desc.m_uiGranularity == 0, "Granularity must be 0 for synchronous update functions");
-  EZ_ASSERT_DEV(desc.m_Phase != ezComponentManagerBase::UpdateFunctionDesc::Phase::Async || desc.m_DependsOn.GetCount() == 0, "Asynchronous update functions must not have dependencies");
+  EZ_ASSERT_DEV(desc.m_Phase != ezWorldUpdatePhase::Async || desc.m_DependsOn.GetCount() == 0, "Asynchronous update functions must not have dependencies");
   EZ_ASSERT_DEV(desc.m_Function.IsComparable(), "Delegates with captures are not allowed as ezWorld update functions.");
 
   m_Data.m_UpdateFunctionsToRegister.PushBack(desc);
@@ -1017,33 +1075,7 @@ void ezWorld::DeregisterUpdateFunction(const ezComponentManagerBase::UpdateFunct
 {
   CheckForWriteAccess();
 
-  ezDynamicArrayBase<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions = m_Data.m_UpdateFunctions[desc.m_Phase.GetValue()];
-
-  for (ezUInt32 i = updateFunctions.GetCount(); i-- > 0;)
-  {
-    if (updateFunctions[i].m_Function.IsEqualIfComparable(desc.m_Function))
-    {
-      updateFunctions.RemoveAtAndCopy(i);
-    }
-  }
-}
-
-void ezWorld::DeregisterUpdateFunctions(ezWorldModule* pModule)
-{
-  CheckForWriteAccess();
-
-  for (ezUInt32 phase = ezWorldModule::UpdateFunctionDesc::Phase::PreAsync; phase < ezWorldModule::UpdateFunctionDesc::Phase::COUNT; ++phase)
-  {
-    ezDynamicArrayBase<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions = m_Data.m_UpdateFunctions[phase];
-
-    for (ezUInt32 i = updateFunctions.GetCount(); i-- > 0;)
-    {
-      if (updateFunctions[i].m_Function.GetClassInstance() == pModule)
-      {
-        updateFunctions.RemoveAtAndCopy(i);
-      }
-    }
-  }
+  m_Data.m_UpdateFunctionsToDeregister.PushBack(desc);
 }
 
 void ezWorld::AddComponentToInitialize(ezComponentHandle hComponent)
@@ -1080,7 +1112,7 @@ void ezWorld::UpdateAsynchronous()
 {
   ezTaskGroupID taskGroupId = ezTaskSystem::CreateTaskGroup(ezTaskPriority::EarlyThisFrame);
 
-  ezDynamicArrayBase<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions = m_Data.m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::Phase::Async];
+  ezDynamicArrayBase<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions = m_Data.m_UpdateFunctions[ezWorldUpdatePhase::Async];
 
   ezUInt32 uiCurrentTaskIndex = 0;
 
@@ -1094,7 +1126,7 @@ void ezWorld::UpdateAsynchronous()
 
     // a world module can also register functions in the async phase so we want at least one task
     const ezUInt32 uiTotalCount = pManager != nullptr ? pManager->GetComponentCount() : 1;
-    const ezUInt32 uiGranularity = (updateFunction.m_uiGranularity != 0) ? updateFunction.m_uiGranularity : uiTotalCount;
+    const ezUInt32 uiGranularity = (updateFunction.m_uiAsyncPhaseBatchSize != 0) ? updateFunction.m_uiAsyncPhaseBatchSize : uiTotalCount;
 
     ezUInt32 uiStartIndex = 0;
     while (uiStartIndex < uiTotalCount)
@@ -1331,6 +1363,49 @@ ezResult ezWorld::RegisterUpdateFunctionInternal(const ezWorldModule::UpdateFunc
   return EZ_SUCCESS;
 }
 
+void ezWorld::ProcessUpdateFunctionsToDeregister()
+{
+  CheckForWriteAccess();
+
+  for (const ezWorldModule::UpdateFunctionDesc& updateFunction : m_Data.m_UpdateFunctionsToDeregister)
+  {
+    DeregisterUpdateFunctionInternal(updateFunction);
+  }
+
+  m_Data.m_UpdateFunctionsToDeregister.Clear();
+}
+
+void ezWorld::DeregisterUpdateFunctionInternal(const ezWorldModule::UpdateFunctionDesc& desc)
+{
+  ezDynamicArrayBase<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions = m_Data.m_UpdateFunctions[desc.m_Phase.GetValue()];
+
+  for (ezUInt32 i = updateFunctions.GetCount(); i-- > 0;)
+  {
+    if (updateFunctions[i].m_Function.IsEqualIfComparable(desc.m_Function))
+    {
+      updateFunctions.RemoveAtAndCopy(i);
+    }
+  }
+}
+
+void ezWorld::DeregisterUpdateFunctionsInternal(ezWorldModule* pModule)
+{
+  CheckForWriteAccess();
+
+  for (ezUInt32 phase = ezWorldUpdatePhase::PreAsync; phase < ezWorldUpdatePhase::COUNT; ++phase)
+  {
+    ezDynamicArrayBase<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions = m_Data.m_UpdateFunctions[phase];
+
+    for (ezUInt32 i = updateFunctions.GetCount(); i-- > 0;)
+    {
+      if (updateFunctions[i].m_Function.GetClassInstance() == pModule)
+      {
+        updateFunctions.RemoveAtAndCopy(i);
+      }
+    }
+  }
+}
+
 void ezWorld::DeleteDeadObjects()
 {
   while (!m_Data.m_DeadObjects.IsEmpty())
@@ -1399,7 +1474,7 @@ void ezWorld::DeleteDeadComponents()
   }
 }
 
-void ezWorld::PatchHierarchyData(ezGameObject* pObject, ezGameObject::TransformPreservation preserve)
+void ezWorld::PatchHierarchyData(ezGameObject* pObject, ezTransformPreservation::Enum preserve)
 {
   ezGameObject* pParent = pObject->GetParent();
 
@@ -1407,7 +1482,7 @@ void ezWorld::PatchHierarchyData(ezGameObject* pObject, ezGameObject::TransformP
 
   pObject->m_pTransformationData->m_pParentData = pParent != nullptr ? pParent->m_pTransformationData : nullptr;
 
-  if (preserve == ezGameObject::TransformPreservation::PreserveGlobal)
+  if (preserve == ezTransformPreservation::Enum::PreserveGlobal)
   {
     // SetGlobalTransform will internally trigger bounds update for static objects
     pObject->SetGlobalTransform(pObject->m_pTransformationData->m_globalTransform);
@@ -1480,6 +1555,27 @@ void ezWorld::ProcessResourceReloadFunctions()
   m_Data.m_NeedReload.Clear();
 }
 
+void ezWorld::QueueLocalBoundsUpdate(ezGameObjectHandle hObject)
+{
+  EZ_LOCK(m_Data.m_BoundsUpdateMutex);
+  m_Data.m_BoundsUpdateQueue.PushBack(hObject);
+}
+
+void ezWorld::ProcessLocalBoundsUpdateQueue()
+{
+  EZ_LOCK(m_Data.m_BoundsUpdateMutex);
+  for (auto& hObj : m_Data.m_BoundsUpdateQueue)
+  {
+    ezGameObject* pObj;
+    if (TryGetObject(hObj, pObj))
+    {
+      pObj->UpdateLocalBounds();
+    }
+  }
+
+  m_Data.m_BoundsUpdateQueue.Clear();
+}
+
 void ezWorld::SetMaxInitializationTimePerFrame(ezTime maxInitTime)
 {
   CheckForWriteAccess();
@@ -1527,6 +1623,94 @@ void ezWorld::RemoveResourceReloadFunction(ezTypelessResourceHandle hResource, e
       }
     }
   }
+}
+
+ezGameObject* ezWorld::SearchForObject(ezStringView sSearchPath, ezGameObject* pRefObj, const ezRTTI* pExpectedComponent)
+{
+  // Possible paths:
+  //
+  // rel/path
+  // ../rel/path
+  // ..
+  // G:key/rel/path
+  // P:parent/rel/path
+  // G:key/P:parent/rel/path
+  // G:key/../rel/path
+  // G:key/..
+  // P:parent/../rel/path
+
+  // if the search string starts with "G:", the next part of the path is the global key of an object
+  // in this case, this object is not the reference object anymore, instead the object with that global key is the reference object
+  if (sSearchPath.TrimWordStart("G:"))
+  {
+    ezStringView sGlobalKey;
+
+    if (const char* szSep = sSearchPath.FindSubString("/"))
+    {
+      sGlobalKey = ezStringView(sSearchPath.GetStartPointer(), szSep);
+      sSearchPath.SetStartPosition(szSep + 1);
+    }
+    else
+    {
+      sGlobalKey = sSearchPath;
+      sSearchPath = {};
+    }
+
+    if (!TryGetObjectWithGlobalKey(ezTempHashedString(sGlobalKey), pRefObj))
+    {
+      return nullptr;
+    }
+  }
+
+  if (pRefObj == nullptr)
+    return nullptr;
+
+  // if the search string starts with "P:", the next part of the path is an object name of a parent object
+  // of the reference object, so we search upwards until we find the object with that name
+  if (sSearchPath.TrimWordStart("P:"))
+  {
+    ezStringView sParentName;
+
+    if (const char* szSep = sSearchPath.FindSubString("/"))
+    {
+      sParentName = ezStringView(sSearchPath.GetStartPointer(), szSep);
+      sSearchPath.SetStartPosition(szSep + 1);
+    }
+    else
+    {
+      sParentName = sSearchPath;
+      sSearchPath = {};
+    }
+
+    const ezTempHashedString sStartName(sParentName);
+    while (!pRefObj->HasName(sStartName))
+    {
+      pRefObj = pRefObj->GetParent();
+
+      if (pRefObj == nullptr)
+        return nullptr;
+    }
+  }
+
+  // if the path contains "..", we go up one parent
+  // this is only allowed at the start of the relative path section
+  while (sSearchPath.TrimWordStart("../") || sSearchPath.TrimWordStart(".."))
+  {
+    pRefObj = pRefObj->GetParent();
+
+    if (pRefObj == nullptr)
+      return nullptr;
+  }
+
+  return pRefObj->SearchForChildByNameSequence(sSearchPath, pExpectedComponent);
+}
+
+
+const ezGameObject* ezWorld::SearchForObject(ezStringView sSearchPath, const ezGameObject* pReferenceObject /*= nullptr*/, const ezRTTI* pExpectedComponent /*= nullptr*/) const
+{
+  ezWorld* pThis = const_cast<ezWorld*>(this);
+  ezGameObject* pRef = const_cast<ezGameObject*>(pReferenceObject);
+  return pThis->SearchForObject(sSearchPath, pRef, pExpectedComponent);
 }
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_World);

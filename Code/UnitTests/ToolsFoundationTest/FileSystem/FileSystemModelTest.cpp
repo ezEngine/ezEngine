@@ -3,6 +3,7 @@
 #if EZ_ENABLED(EZ_SUPPORTS_DIRECTORY_WATCHER) && EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
 
 #  include <Foundation/Application/Config/FileSystemConfig.h>
+#  include <Foundation/Configuration/CVar.h>
 #  include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #  include <Foundation/IO/FileSystem/FileReader.h>
 #  include <Foundation/IO/FileSystem/FileSystem.h>
@@ -45,7 +46,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, DataDirPath)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Windows Path copy ctor")
   {
-    ezHybridArray<ezString, 2> rootFolders;
+    ezTempHybridArray<ezString, 2> rootFolders;
     rootFolders.PushBack("C:/SomeOtherFolder/Folder");
     rootFolders.PushBack(sDataDirView);
 
@@ -60,7 +61,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, DataDirPath)
     ezString sFilePathView = "/Code/ezEngine/Data/Samples/Testing Chambers/Objects/Barrel.ezPrefab"_ezsv;
     ezString sFilePath = sFilePathView;
     auto sDataDir = "/Code/ezEngine/Data/Samples/Testing Chambers"_ezsv;
-    ezHybridArray<ezString, 2> rootFolders;
+    ezTempHybridArray<ezString, 2> rootFolders;
     rootFolders.PushBack(sDataDir);
     rootFolders.PushBack("/SomeOtherFolder/Folder");
 
@@ -83,7 +84,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, DataDirPath)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Path to DataDir Itself")
   {
     ezString sDataDirView = (const char*)u8"/Code/ezEngine/Data/Sämples/Testing Chämbers";
-    ezHybridArray<ezString, 2> rootFolders;
+    ezTempHybridArray<ezString, 2> rootFolders;
     rootFolders.PushBack(sDataDirView);
 
     ezDataDirPath path(sDataDirView.GetView(), rootFolders);
@@ -102,7 +103,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, DataDirPath)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Move")
   {
-    ezHybridArray<ezString, 2> rootFolders;
+    ezTempHybridArray<ezString, 2> rootFolders;
     rootFolders.PushBack(sDataDirView);
 
     ezString sFilePath = sFilePathView;
@@ -124,14 +125,14 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, DataDirPath)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Rebuild")
   {
-    ezHybridArray<ezString, 2> rootFolders;
+    ezTempHybridArray<ezString, 2> rootFolders;
     rootFolders.PushBack(sDataDirView);
 
     ezDataDirPath path(sFilePathView, rootFolders);
     CheckIsValid(path);
     EZ_TEST_INT(path.GetDataDirIndex(), 0);
 
-    ezHybridArray<ezString, 2> newRootFolders;
+    ezTempHybridArray<ezString, 2> newRootFolders;
     newRootFolders.PushBack(sDataDirView);
     newRootFolders.PushBack("C:/Some/Other/DataDir");
 
@@ -157,7 +158,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, DataDirPath)
   }
 }
 
-EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
+void FileSystemModelTest()
 {
   constexpr ezUInt32 WAIT_LOOPS = 1000;
 
@@ -168,7 +169,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
   ezStringBuilder sOutputFolderResolved;
   ezFileSystem::ResolveSpecialDirectory(sOutputFolder, sOutputFolderResolved).IgnoreResult();
 
-  ezHybridArray<ezString, 1> rootFolders;
+  ezTempHybridArray<ezString, 1> rootFolders;
 
   ezApplicationFileSystemConfig fsConfig;
   ezApplicationFileSystemConfig::DataDirConfig& dataDir = fsConfig.m_DataDirs.ExpandAndGetRef();
@@ -178,8 +179,8 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
   rootFolders.PushBack(sOutputFolder);
 
   // Files
-  ezHybridArray<ezFileChangedEvent, 2> fileEvents;
-  ezHybridArray<ezTime, 2> fileEventTimestamps;
+  ezTempHybridArray<ezFileChangedEvent, 2> fileEvents;
+  ezTempHybridArray<ezTime, 2> fileEventTimestamps;
   ezMutex fileEventLock;
   auto fileEvent = [&](const ezFileChangedEvent& e)
   {
@@ -207,8 +208,8 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
   ezEventSubscriptionID fileId = ezFileSystemModel::GetSingleton()->m_FileChangedEvents.AddEventHandler(fileEvent);
 
   // Folders
-  ezHybridArray<ezFolderChangedEvent, 2> folderEvents;
-  ezHybridArray<ezTime, 2> folderEventTimestamps;
+  ezTempHybridArray<ezFolderChangedEvent, 2> folderEvents;
+  ezTempHybridArray<ezTime, 2> folderEventTimestamps;
   ezMutex folderEventLock;
   auto folderEvent = [&](const ezFolderChangedEvent& e)
   {
@@ -237,7 +238,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     EZ_LOCK(fileEventLock);
     if (EZ_TEST_INT(expected.GetCount(), fileEvents.GetCount()))
     {
-      for (size_t i = 0; i < expected.GetCount(); i++)
+      for (ezUInt32 i = 0; i < expected.GetCount(); i++)
       {
         EZ_TEST_INT((int)expected[i].m_Type, (int)fileEvents[i].m_Type);
         EZ_TEST_STRING(expected[i].m_Path, fileEvents[i].m_Path);
@@ -259,7 +260,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     EZ_LOCK(folderEventLock);
     if (EZ_TEST_INT(expected.GetCount(), folderEvents.GetCount()))
     {
-      for (size_t i = 0; i < expected.GetCount(); i++)
+      for (ezUInt32 i = 0; i < expected.GetCount(); i++)
       {
         EZ_TEST_INT((int)expected[i].m_Type, (int)folderEvents[i].m_Type);
         EZ_TEST_STRING(expected[i].m_Path, folderEvents[i].m_Path);
@@ -289,8 +290,8 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     EZ_TEST_RESULT(ezFileSystem::CreateDirectoryStructure(sOutputFolderResolved));
 
     // for absolute paths
-    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory("", "", ":", ezFileSystem::AllowWrites) == EZ_SUCCESS);
-    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder, "Clear", "output", ezFileSystem::AllowWrites) == EZ_SUCCESS);
+    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory("", "", ":", ezDataDirUsage::AllowWrites) == EZ_SUCCESS);
+    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder, "Clear", "output", ezDataDirUsage::AllowWrites) == EZ_SUCCESS);
 
     ezFileSystemModel::GetSingleton()->Initialize(fsConfig, {}, {});
 
@@ -309,6 +310,93 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     EZ_TEST_STRING(it.Key(), sOutputFolder);
     EZ_TEST_BOOL(it.Value() == ezFileStatus::Status::Valid);
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "git")
+  {
+    ezStringBuilder sIndex(sOutputFolder);
+    sIndex.AppendPath("index");
+    ezStringBuilder sLock(sOutputFolder);
+    sLock.AppendPath("index.lock");
+
+    EZ_TEST_RESULT(eztCreateFile(sIndex));
+
+    for (ezUInt32 i = 0; i < WAIT_LOOPS; i++)
+    {
+      ezFileSystemModel::GetSingleton()->MainThreadTick();
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
+
+      EZ_LOCK(fileEventLock);
+      if (fileEvents.GetCount() > 0)
+        break;
+    }
+    {
+      ezFileChangedEvent expected[] = {ezFileChangedEvent(MakePath(sIndex), {}, ezFileChangedEvent::Type::FileAdded)};
+      CompareFiles(ezMakeArrayPtr(expected));
+      ClearFiles();
+    }
+
+#  if EZ_ENABLED(EZ_PLATFORM_LINUX)
+    // EXT3 filesystem only support second resolution so we won't detect the modification if it is done within the same second.
+    // As we intend to swap the index and index.lock files later, we need to make sure the two files have sufficiently different modification dates so that the swap of the files is detected as a change to the original file.
+    ezThreadUtils::Sleep(ezTime::MakeFromSeconds(1.0));
+#  endif
+
+    EZ_TEST_RESULT(eztCreateFile(sLock));
+
+    for (ezUInt32 i = 0; i < WAIT_LOOPS; i++)
+    {
+      ezFileSystemModel::GetSingleton()->MainThreadTick();
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
+
+      EZ_LOCK(fileEventLock);
+      if (fileEvents.GetCount() > 0)
+        break;
+    }
+    {
+      ezFileChangedEvent expected[] = {ezFileChangedEvent(MakePath(sLock), {}, ezFileChangedEvent::Type::FileAdded)};
+      CompareFiles(ezMakeArrayPtr(expected));
+      ClearFiles();
+    }
+
+    EZ_TEST_RESULT(ezOSFile::DeleteFile(sIndex));
+    EZ_TEST_RESULT(ezOSFile::MoveFileOrDirectory(sLock, sIndex));
+
+    for (ezUInt32 i = 0; i < WAIT_LOOPS; i++)
+    {
+      ezFileSystemModel::GetSingleton()->MainThreadTick();
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
+
+      EZ_LOCK(fileEventLock);
+      if (fileEvents.GetCount() >= 2)
+        break;
+    }
+
+    ezFileChangedEvent expected[] = {
+      ezFileChangedEvent(MakePath(sIndex), {}, ezFileChangedEvent::Type::FileChanged),
+      ezFileChangedEvent(MakePath(sLock), {}, ezFileChangedEvent::Type::FileRemoved)};
+    CompareFiles(ezMakeArrayPtr(expected));
+    ClearFiles();
+    CompareFolders({});
+
+    EZ_TEST_INT(ezFileSystemModel::GetSingleton()->GetFiles()->GetCount(), 1);
+    EZ_TEST_INT(ezFileSystemModel::GetSingleton()->GetFolders()->GetCount(), 1);
+
+    // Cleanup test
+    EZ_TEST_RESULT(ezOSFile::DeleteFile(sIndex));
+
+    for (ezUInt32 i = 0; i < WAIT_LOOPS; i++)
+    {
+      ezFileSystemModel::GetSingleton()->MainThreadTick();
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
+
+      EZ_LOCK(fileEventLock);
+      if (fileEvents.GetCount() > 0)
+        break;
+    }
+    ClearFiles();
+    ClearFolders();
+  }
+
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Add file")
   {
@@ -1059,5 +1147,20 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
     ezFileSystemModel::GetSingleton()->m_FolderChangedEvents.RemoveEventHandler(folderId);
   }
 }
+
+EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModel)
+{
+  FileSystemModelTest();
+}
+
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+EZ_CREATE_SIMPLE_TEST(FileSystem, FileSystemModelNonNTFS)
+{
+  auto* pForceNonNTFS = static_cast<ezCVarBool*>(ezCVar::FindCVarByName("Platform.DirectoryWatcher.ForceNonNTFS"));
+  *pForceNonNTFS = true;
+  FileSystemModelTest();
+  *pForceNonNTFS = false;
+}
+#  endif
 
 #endif

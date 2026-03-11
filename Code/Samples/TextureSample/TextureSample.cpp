@@ -35,23 +35,6 @@
 // Constant buffer definition is shared between shader code and C++
 #include <RendererCore/../../../Data/Samples/TextureSample/Shaders/SampleConstantBuffer.h>
 
-class TextureSampleWindow : public ezWindow
-{
-public:
-  TextureSampleWindow()
-    : ezWindow()
-  {
-    m_bCloseRequested = false;
-  }
-
-  virtual void OnClickClose() override { m_bCloseRequested = true; }
-
-  bool m_bCloseRequested;
-};
-
-static ezUInt32 g_uiWindowWidth = 1280;
-static ezUInt32 g_uiWindowHeight = 720;
-
 class CustomTextureResourceLoader : public ezTextureResourceLoader
 {
 public:
@@ -93,16 +76,12 @@ public:
       ezDataDirectory::FolderType::s_sRedirectionPrefix = "AssetCache/Default/";
     }
 
-    ezFileSystem::AddDataDirectory("", "", ":", ezFileSystem::AllowWrites).IgnoreResult();
-    ezFileSystem::AddDataDirectory(">appdir/", "AppBin", "bin", ezFileSystem::AllowWrites).IgnoreResult();              // writing to the binary directory
-    ezFileSystem::AddDataDirectory(">sdk/Output/", "ShaderCache", "shadercache", ezFileSystem::AllowWrites).IgnoreResult(); // for shader files
-    ezFileSystem::AddDataDirectory(">user/ezEngine Project/TextureSample", "AppData", "appdata",
-      ezFileSystem::AllowWrites)
-      .IgnoreResult();                                                                                                  // app user data
-
+    ezFileSystem::AddDataDirectory("", "", ":", ezDataDirUsage::AllowWrites).IgnoreResult();
+    ezFileSystem::AddDataDirectory(">appdir/", "AppBin", "bin", ezDataDirUsage::AllowWrites).IgnoreResult();                                  // writing to the binary directory
+    ezFileSystem::AddDataDirectory(">sdk/Output/", "ShaderCache", "shadercache", ezDataDirUsage::AllowWrites).IgnoreResult();                 // for shader files
+    ezFileSystem::AddDataDirectory(">user/ezEngine Project/TextureSample", "AppData", "appdata", ezDataDirUsage::AllowWrites).IgnoreResult(); // app user data
     ezFileSystem::AddDataDirectory(">sdk/Data/Base", "Base", "base").IgnoreResult();
-    ezFileSystem::AddDataDirectory(">sdk/Data/FreeContent", "Shared", "shared").IgnoreResult();
-    ezFileSystem::AddDataDirectory(">project/", "Project", "project", ezFileSystem::AllowWrites).IgnoreResult();
+    ezFileSystem::AddDataDirectory(">project/", "Project", "project", ezDataDirUsage::AllowWrites).IgnoreResult();
 
     ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
     ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
@@ -162,10 +141,25 @@ public:
     // Create a window for rendering
     {
       ezWindowCreationDesc WindowCreationDesc;
-      WindowCreationDesc.m_Resolution.width = g_uiWindowWidth;
-      WindowCreationDesc.m_Resolution.height = g_uiWindowHeight;
-      m_pWindow = EZ_DEFAULT_NEW(TextureSampleWindow);
+      WindowCreationDesc.m_Resolution.width = 1024;
+      WindowCreationDesc.m_Resolution.height = 768;
+      m_pWindow = EZ_DEFAULT_NEW(ezWindow);
       m_pWindow->Initialize(WindowCreationDesc).IgnoreResult();
+
+      m_pWindow->WindowEvents().AddEventHandler([this](const ezWindowEvent& e)
+        {
+          if (e.m_Type == ezWindowEvent::Type::CloseButtonClicked)
+          {
+            this->QuitApplication();
+          }
+          //
+        });
+    }
+
+    if (auto pInput = ezInputManager::GetInputDeviceOfType<ezInputDeviceMouseKeyboard>())
+    {
+      pInput->SetClipMouseCursor(ezMouseCursorClipMode::NoClip);
+      pInput->SetShowMouseCursor(true);
     }
 
     // Create a device
@@ -188,20 +182,18 @@ public:
       ezGALWindowSwapChainCreationDescription swapChainDesc;
       swapChainDesc.m_pWindow = m_pWindow;
       swapChainDesc.m_SampleCount = ezGALMSAASampleCount::None;
-      swapChainDesc.m_bAllowScreenshots = true;
       m_hSwapChain = ezGALWindowSwapChain::Create(swapChainDesc);
 
       const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(m_hSwapChain);
 
       ezGALTextureCreationDescription texDesc;
-      texDesc.m_uiWidth = g_uiWindowWidth;
-      texDesc.m_uiHeight = g_uiWindowHeight;
+      texDesc.m_uiWidth = m_pWindow->GetClientAreaSize().width;
+      texDesc.m_uiHeight = m_pWindow->GetClientAreaSize().height;
       texDesc.m_Format = ezGALResourceFormat::D24S8;
-      texDesc.m_bCreateRenderTarget = true;
+      texDesc.m_TextureFlags.Add(ezGALTextureUsageFlags::RenderTarget);
 
       m_hDepthStencilTexture = m_pDevice->CreateTexture(texDesc);
 
-      m_hBBRTV = m_pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture());
       m_hBBDSV = m_pDevice->GetDefaultRenderTargetView(m_hDepthStencilTexture);
     }
 
@@ -218,7 +210,7 @@ public:
     // Setup default resources
     {
       ezTexture2DResourceHandle hFallback = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/Reference_D.dds");
-      ezTexture2DResourceHandle hMissing = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/MissingTexture_D.dds");
+      ezTexture2DResourceHandle hMissing = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/MissingResource_D.dds");
 
       ezResourceManager::SetResourceTypeLoadingFallback<ezTexture2DResource>(hFallback);
       ezResourceManager::SetResourceTypeMissingFallback<ezTexture2DResource>(hMissing);
@@ -255,12 +247,15 @@ public:
   }
 
 
-  Execution Run() override
+  void Run() override
   {
     m_pWindow->ProcessWindowMessages();
 
-    if (m_pWindow->m_bCloseRequested || ezInputManager::GetInputActionState("Main", "CloseApp") == ezKeyState::Pressed)
-      return Execution::Quit;
+    if (ezInputManager::GetInputActionState("Main", "CloseApp") == ezKeyState::Pressed)
+    {
+      QuitApplication();
+      return;
+    }
 
     // make sure time goes on
     ezClock::GetGlobalClock()->Update();
@@ -268,7 +263,7 @@ public:
     if (ezInputManager::GetInputActionState("Main", "MouseDown") == ezKeyState::Down)
     {
       float fInputValue = 0.0f;
-      const float fMouseSpeed = 0.5f;
+      const float fMouseSpeed = 20.0f;
 
       if (ezInputManager::GetInputActionState("Main", "MovePosX", &fInputValue) != ezKeyState::Up)
         m_vCameraPosition.x -= fInputValue * fMouseSpeed;
@@ -289,29 +284,33 @@ public:
     // do the rendering
     {
       // Before starting to render in a frame call this function
+      m_pDevice->EnqueueFrameSwapChain(m_hSwapChain);
       m_pDevice->BeginFrame();
 
-      m_pDevice->BeginPipeline("TextureSample", m_hSwapChain);
-      ezGALPass* pGALPass = m_pDevice->BeginPass("ezTextureSampleMainPass");
+      ezGALCommandEncoder* pCommandEncoder = m_pDevice->BeginCommands("ezTextureSampleMainPass");
 
       ezGALRenderingSetup renderingSetup;
-      renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, m_hBBRTV).SetDepthStencilTarget(m_hBBDSV);
-      renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
-      renderingSetup.m_bClearDepth = true;
+      const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(m_hSwapChain);
+      renderingSetup.SetColorTarget(0, m_pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture())).SetDepthStencilTarget(m_hBBDSV);
+      renderingSetup.SetClearColor(0).SetClearDepth();
 
-      ezGALRenderCommandEncoder* pCommandEncoder = ezRenderContext::GetDefaultInstance()->BeginRendering(pGALPass, renderingSetup, ezRectFloat(0.0f, 0.0f, (float)g_uiWindowWidth, (float)g_uiWindowHeight));
+      const float fWindowWidth = (float)m_pWindow->GetClientAreaSize().width;
+      const float fWindowHeight = (float)m_pWindow->GetClientAreaSize().height;
 
-      ezMat4 Proj = ezGraphicsUtils::CreateOrthographicProjectionMatrix(m_vCameraPosition.x + -(float)g_uiWindowWidth * 0.5f, m_vCameraPosition.x + (float)g_uiWindowWidth * 0.5f, m_vCameraPosition.y + -(float)g_uiWindowHeight * 0.5f, m_vCameraPosition.y + (float)g_uiWindowHeight * 0.5f, -1.0f, 1.0f);
+      ezRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, ezRectFloat(0.0f, 0.0f, fWindowWidth, fWindowHeight));
 
-      ezRenderContext::GetDefaultInstance()->BindConstantBuffer("ezTextureSampleConstants", m_hSampleConstants);
+      ezMat4 Proj = ezGraphicsUtils::CreateOrthographicProjectionMatrix(m_vCameraPosition.x + -fWindowWidth * 0.5f, m_vCameraPosition.x + fWindowWidth * 0.5f, m_vCameraPosition.y + -fWindowHeight * 0.5f, m_vCameraPosition.y + fWindowHeight * 0.5f, -1.0f, 1.0f);
+
+      ezBindGroupBuilder& bindGroupSample = ezRenderContext::GetDefaultInstance()->GetBindGroup();
+      bindGroupSample.BindBuffer("ezTextureSampleConstants", m_hSampleConstants);
       ezRenderContext::GetDefaultInstance()->BindMaterial(m_hMaterial);
 
       ezMat4 mTransform = ezMat4::MakeIdentity();
 
-      ezInt32 iLeftBound = (ezInt32)ezMath::Floor((m_vCameraPosition.x - g_uiWindowWidth * 0.5f) / 100.0f);
-      ezInt32 iLowerBound = (ezInt32)ezMath::Floor((m_vCameraPosition.y - g_uiWindowHeight * 0.5f) / 100.0f);
-      ezInt32 iRightBound = (ezInt32)ezMath::Ceil((m_vCameraPosition.x + g_uiWindowWidth * 0.5f) / 100.0f) + 1;
-      ezInt32 iUpperBound = (ezInt32)ezMath::Ceil((m_vCameraPosition.y + g_uiWindowHeight * 0.5f) / 100.0f) + 1;
+      ezInt32 iLeftBound = (ezInt32)ezMath::Floor((m_vCameraPosition.x - fWindowWidth * 0.5f) / 100.0f);
+      ezInt32 iLowerBound = (ezInt32)ezMath::Floor((m_vCameraPosition.y - fWindowHeight * 0.5f) / 100.0f);
+      ezInt32 iRightBound = (ezInt32)ezMath::Ceil((m_vCameraPosition.x + fWindowWidth * 0.5f) / 100.0f) + 1;
+      ezInt32 iUpperBound = (ezInt32)ezMath::Ceil((m_vCameraPosition.y + fWindowHeight * 0.5f) / 100.0f) + 1;
 
       iLeftBound = ezMath::Max(iLeftBound, -g_iMaxHalfExtent);
       iRightBound = ezMath::Min(iRightBound, g_iMaxHalfExtent);
@@ -341,19 +340,16 @@ public:
           if (g_bForceImmediateLoading)
             ezResourceLock<ezTexture2DResource> l(hTexture, ezResourceAcquireMode::BlockTillLoaded);
 
-          ezRenderContext::GetDefaultInstance()->BindTexture2D("DiffuseTexture", hTexture);
+          bindGroupSample.BindTexture("DiffuseTexture", hTexture);
           ezRenderContext::GetDefaultInstance()->BindMeshBuffer(m_hQuadMeshBuffer);
           ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().IgnoreResult();
         }
       }
 
       ezRenderContext::GetDefaultInstance()->EndRendering();
-      m_pDevice->EndPass(pGALPass);
-
-      m_pDevice->EndPipeline(m_hSwapChain);
+      m_pDevice->EndCommands(pCommandEncoder);
 
       m_pDevice->EndFrame();
-      ezRenderContext::GetDefaultInstance()->ResetContextState();
     }
 
     // needs to be called once per frame
@@ -363,8 +359,6 @@ public:
     // this has to be done at the very end, so that the task system will only use up the time that is left in this frame for
     // uploading GPU data etc.
     ezTaskSystem::FinishFrameTasks();
-
-    return ezApplication::Execution::Continue;
   }
 
   void BeforeCoreSystemsShutdown() override
@@ -373,10 +367,8 @@ public:
     ezResourceManager::EngineAboutToShutdown();
 
     ezRenderContext::DeleteConstantBufferStorage(m_hSampleConstants);
-    m_hSampleConstants.Invalidate();
 
     m_pDevice->DestroyTexture(m_hDepthStencilTexture);
-    m_hDepthStencilTexture.Invalidate();
 
     m_hMaterial.Invalidate();
     m_hQuadMeshBuffer.Invalidate();
@@ -395,7 +387,7 @@ public:
     EZ_DEFAULT_DELETE(m_pDevice);
 
     // finally destroy the window
-    m_pWindow->Destroy().IgnoreResult();
+    m_pWindow->DestroyWindow();
     EZ_DEFAULT_DELETE(m_pWindow);
   }
 
@@ -419,8 +411,7 @@ public:
     Indices.Reserve(geom.GetPolygons().GetCount() * 6);
 
     ezMeshBufferResourceDescriptor desc;
-    desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-    desc.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::UVFloat);
+    desc.AddCommonStreams(true);
 
     desc.AllocateStreams(geom.GetVertices().GetCount(), ezGALPrimitiveTopology::Triangles, geom.GetPolygons().GetCount() * 2);
 
@@ -429,8 +420,8 @@ public:
       ezVec2 tc(geom.GetVertices()[v].m_vPosition.x / 100.0f, geom.GetVertices()[v].m_vPosition.y / -100.0f);
       tc += ezVec2(0.5f);
 
-      desc.SetVertexData<ezVec3>(0, v, geom.GetVertices()[v].m_vPosition);
-      desc.SetVertexData<ezVec2>(1, v, tc);
+      desc.SetPosition(v, geom.GetVertices()[v].m_vPosition);
+      desc.SetTexCoord0(v, tc);
     }
 
     ezUInt32 t = 0;
@@ -451,11 +442,10 @@ public:
   }
 
 private:
-  TextureSampleWindow* m_pWindow;
+  ezWindow* m_pWindow;
   ezGALDevice* m_pDevice;
 
   ezGALSwapChainHandle m_hSwapChain;
-  ezGALRenderTargetViewHandle m_hBBRTV;
   ezGALRenderTargetViewHandle m_hBBDSV;
   ezGALTextureHandle m_hDepthStencilTexture;
 
@@ -524,4 +514,4 @@ ezResourceLoadData CustomTextureResourceLoader::OpenDataStream(const ezResource*
   return res;
 }
 
-EZ_CONSOLEAPP_ENTRY_POINT(TextureSample);
+EZ_APPLICATION_ENTRY_POINT(TextureSample);

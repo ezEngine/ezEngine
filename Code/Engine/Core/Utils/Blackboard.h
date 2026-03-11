@@ -107,6 +107,7 @@ public:
   {
     ezVariant m_Value;
     ezBitflags<ezBlackboardEntryFlags> m_Flags;
+    ezUInt8 m_uiEditorIndex = 0xFF;
 
     /// The change counter is increased every time the entry's value changes.
     /// Read this and compare it to a previous known value, to detect whether the value was changed since the last check.
@@ -160,6 +161,21 @@ public:
   /// \brief Returns the value of the named entry, or the fallback ezVariant, if no such entry was registered.
   ezVariant GetEntryValue(const ezTempHashedString& sName, const ezVariant& fallback = ezVariant()) const;
 
+  /// \brief Convenience functions to directly get the value of an entry as a specific type.
+  ///
+  /// Returns the fallback value, if no such entry was registered or if the entry's value cannot be converted to the requested type.
+  bool GetBoolValue(const ezTempHashedString& sName, bool bFallback = false) const;
+  int GetIntValue(const ezTempHashedString& sName, int iFallback = 0) const;
+  ezUInt32 GetUIntValue(const ezTempHashedString& sName, ezUInt32 uiFallback = 0) const;
+  float GetFloatValue(const ezTempHashedString& sName, float fFallback = 0.0f) const;
+  ezString GetStringValue(const ezTempHashedString& sName, ezStringView sFallback = ezStringView()) const;
+
+  /// \brief For the editor to know what index an element had, so that it can pass through exposed properties (which are given by index).
+  ezResult SetEditorIndex(const ezTempHashedString& sName, ezUInt8 uiEditorIndex);
+
+  /// \brief Searches for the first item that has the previously set index. Returns an empty string, if none was found.
+  ezHashedString FindNameForEditorIndex(ezUInt8 uiEditorIndex) const;
+
   /// \brief Increments the value of the named entry. Returns the incremented value or an invalid variant if the entry does not exist or is not a number type.
   ezVariant IncrementEntryValue(const ezTempHashedString& sName);
 
@@ -199,6 +215,16 @@ private:
   void Reflection_SetEntryValue(ezStringView sName, const ezVariant& value);
 
   void ImplSetEntryValue(const ezHashedString& sName, Entry& entry, const ezVariant& value);
+
+  template <typename T, typename U>
+  T GetEntryValueAs(const ezTempHashedString& sName, U fallback) const
+  {
+    const Entry* pEntry = GetEntry(sName);
+    if (pEntry != nullptr && pEntry->m_Value.CanConvertTo<T>())
+      return pEntry->m_Value.ConvertTo<T>();
+
+    return fallback;
+  }
 
   bool m_bIsGlobal = false;
   ezHashedString m_sName;

@@ -1,13 +1,29 @@
 #pragma once
 
-#include <Foundation/Basics.h>
-#include <Foundation/Strings/StringView.h>
+#ifndef EZ_INCLUDING_BASICS_H
+#  error "Please don't include FormatStringArgs.h directly, but instead include Foundation/Basics.h"
+#endif
 
+//Note: duplicate from Foundation/Math/Declarations.h
+template <typename Type>
+class ezAngleTemplate;
+using ezAngle = ezAngleTemplate<float>;
+using ezAngled = ezAngleTemplate<double>;
+
+
+class ezRTTI;
 class ezStringBuilder;
 class ezVariant;
-class ezAngle;
 class ezRational;
 struct ezTime;
+
+template <typename T>
+struct ezEnum;
+template <typename T>
+struct ezBitflags;
+
+template <typename T>
+const ezRTTI* ezGetStaticRTTI();
 
 struct ezArgI
 {
@@ -132,40 +148,6 @@ struct ezArgFileSize : public ezArgHumanReadable
   const char* const m_ByteSuffixes[6] = {"B", "KB", "MB", "GB", "TB", "PB"};
 };
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-/// \brief Converts a windows HRESULT into an error code and a human-readable error message.
-/// Pass in `GetLastError()` function or an HRESULT from another error source. Be careful when printing multiple values, a function could clear `GetLastError` as a side-effect so it is best to store it in a temp variable before printing a complex error message.
-/// \sa https://learn.microsoft.com/en-gb/windows/win32/api/errhandlingapi/nf-errhandlingapi-getlasterror
-struct ezArgErrorCode
-{
-  inline explicit ezArgErrorCode(ezUInt32 uiErrorCode)
-    : m_ErrorCode(uiErrorCode)
-  {
-  }
-
-  ezUInt32 m_ErrorCode;
-};
-EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgErrorCode& arg);
-
-#endif
-
-#if EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
-/// \brief Many Linux APIs will fill out error on failure. This converts the error into an error code and a human-readable error message.
-/// Pass in the linux `errno` symbol. Be careful when printing multiple values, a function could clear `errno` as a side-effect so it is best to store it in a temp variable before printing a complex error message.
-/// You may have to include #include <errno.h> use this.
-/// \sa https://man7.org/linux/man-pages/man3/errno.3.html
-struct ezArgErrno
-{
-  inline explicit ezArgErrno(ezInt32 iErrno)
-    : m_iErrno(iErrno)
-  {
-  }
-
-  ezInt32 m_iErrno;
-};
-EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgErrno& arg);
-#endif
-
 /// \brief Wraps a string that may contain sensitive information, such as user file paths.
 ///
 /// The application can specify a function to scramble this type of information. By default no such function is set.
@@ -192,6 +174,33 @@ struct ezArgSensitive
   EZ_FOUNDATION_DLL static ezStringView BuildString_SensitiveUserData_Hash(char* szTmp, ezUInt32 uiLength, const ezArgSensitive& arg);
 };
 
+/// \brief Formats an ezEnum or ezBitflags value as its string representation using the reflection system.
+///
+/// By default the value name is output without the type prefix (e.g. "Value1" instead of "MyEnum::Value1"). Set bFullyQualifiedName to true to include the type prefix.
+/// Requires that the enum/bitflags type has been registered with the reflection system via EZ_BEGIN_STATIC_REFLECTED_ENUM / EZ_BEGIN_STATIC_REFLECTED_BITFLAGS.
+struct ezArgEnum
+{
+  template <typename T>
+  inline explicit ezArgEnum(ezEnum<T> value, bool bFullyQualifiedName = false)
+    : m_pType(ezGetStaticRTTI<T>())
+    , m_iValue(static_cast<ezInt64>(value.GetValue()))
+    , m_bFullyQualifiedName(bFullyQualifiedName)
+  {
+  }
+
+  template <typename T>
+  inline explicit ezArgEnum(ezBitflags<T> value, bool bFullyQualifiedName = false)
+    : m_pType(ezGetStaticRTTI<T>())
+    , m_iValue(static_cast<ezInt64>(value.GetValue()))
+    , m_bFullyQualifiedName(bFullyQualifiedName)
+  {
+  }
+
+  const ezRTTI* m_pType = nullptr;
+  ezInt64 m_iValue = 0;
+  bool m_bFullyQualifiedName = false;
+};
+
 EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgI& arg);
 EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, ezInt64 iArg);
 EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, ezInt32 iArg);
@@ -214,6 +223,7 @@ EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const
 EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgHumanReadable& arg);
 EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezTime& arg);
 EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgSensitive& arg);
+EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezArgEnum& arg);
 
 
 #if EZ_ENABLED(EZ_COMPILER_GCC) || EZ_ENABLED(EZ_COMPILER_CLANG)
@@ -231,3 +241,6 @@ EZ_ALWAYS_INLINE ezStringView BuildString(char* szTmp, ezUInt32 uiLength, unsign
 }
 
 #endif
+
+// add platform specific formatters
+#include <FormatString_Platform.h>

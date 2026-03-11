@@ -29,34 +29,12 @@ ezResult ezGameEngineTest::InitializeTest()
 
   EZ_SUCCEED_OR_RETURN(ezRun_Startup(m_pApplication));
 
-  if (ezGameApplication::GetActiveRenderer().IsEqual_NoCase("DX11"))
+  ezStringView sAdapterName;
+  if (ezGALDevice::HasDefaultDevice())
   {
-    if (ezGALDevice::HasDefaultDevice() && (ezGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName == "Microsoft Basic Render Driver" || ezGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName.StartsWith_NoCase("Intel(R) UHD Graphics")))
-    {
-      // Use different images for comparison when running the D3D11 Reference Device
-      ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_D3D11Ref");
-    }
-    else if (ezGameApplication::GetActiveRenderer().IsEqual_NoCase("DX11") && ezGALDevice::HasDefaultDevice() && ezGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName.FindSubString_NoCase("AMD") || ezGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName.FindSubString_NoCase("Radeon"))
-    {
-      // Line rendering on DX11 is different on AMD and requires separate images for tests rendering lines.
-      ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_AMD");
-    }
-    else
-    {
-      ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("");
-    }
+    sAdapterName = ezGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName;
   }
-  else if (ezGameApplication::GetActiveRenderer().IsEqual_NoCase("Vulkan"))
-  {
-    if (ezGALDevice::HasDefaultDevice() && ezGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName.FindSubString_NoCase("llvmpipe"))
-    {
-      ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_LLVMPIPE");
-    }
-    else
-    {
-      ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_Vulkan");
-    }
-  }
+  ezTestFramework::GetInstance()->SetImageReferenceTagsFromEnvironment(EZ_PLATFORM_NAME, ezGameApplication::GetActiveRenderer(), sAdapterName);
 
   return EZ_SUCCESS;
 }
@@ -65,11 +43,12 @@ ezResult ezGameEngineTest::DeInitializeTest()
 {
   if (m_pApplication)
   {
-    m_pApplication->RequestQuit();
+    m_pApplication->QuitApplication();
 
     ezInt32 iSteps = 2;
-    while (m_pApplication->Run() == ezApplication::Execution::Continue && iSteps > 0)
+    while (!m_pApplication->ShouldApplicationQuit() && iSteps > 0)
     {
+      m_pApplication->Run();
       --iSteps;
     }
 
@@ -119,8 +98,8 @@ ezResult ezGameEngineTestApplication::LoadScene(const char* szSceneFile)
 {
   EZ_LOCK(m_pWorld->GetWriteMarker());
   m_pWorld->Clear();
-  m_pWorld->GetRandomNumberGenerator().Initialize(42);         // reset the RNG
-  m_pWorld->GetClock().SetAccumulatedTime(ezTime::MakeZero()); // reset the world clock
+  m_pWorld->GetRandomNumberGenerator().Initialize(42); // reset the RNG
+  m_pWorld->GetClock().Reset(false);                   // reset the world clock
 
   ezFileReader file;
 
@@ -173,8 +152,10 @@ void ezGameEngineTestApplication::AfterCoreSystemsStartup()
 
   m_pWorld = EZ_DEFAULT_NEW(ezWorld, desc);
   m_pWorld->GetClock().SetFixedTimeStep(ezTime::MakeFromSeconds(1.0 / 30.0));
+  // Disable VSync. Tests run at a fixed time step so this makes tests much faster without changing the outcome.
+  ezGameApplication::cvar_AppVSync = false;
 
-  ActivateGameState(m_pWorld.Borrow()).IgnoreResult();
+  ActivateGameState(m_pWorld.Borrow(), {}, ezTransform::MakeIdentity());
 }
 
 void ezGameEngineTestApplication::BeforeHighLevelSystemsShutdown()
@@ -202,12 +183,12 @@ void ezGameEngineTestApplication::Init_FileSystem_ConfigureDataDirs()
     ezStringBuilder sBaseDir = ">sdk/Data/Base/";
     ezStringBuilder sReadDir(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath());
 
-    ezFileSystem::AddDataDirectory(">eztest/", "ImageComparisonDataDir", "imgout", ezFileSystem::AllowWrites).IgnoreResult();
+    ezFileSystem::AddDataDirectory(">eztest/", "ImageComparisonDataDir", "imgout", ezDataDirUsage::AllowWrites).IgnoreResult();
     ezFileSystem::AddDataDirectory(sReadDir, "ImageComparisonDataDir").IgnoreResult();
   }
 }
 
-ezUniquePtr<ezGameStateBase> ezGameEngineTestApplication::CreateGameState(ezWorld* pWorld)
+ezUniquePtr<ezGameStateBase> ezGameEngineTestApplication::CreateGameState()
 {
   return EZ_DEFAULT_NEW(ezGameEngineTestGameState);
 }
@@ -223,11 +204,6 @@ void ezGameEngineTestGameState::ProcessInput()
 
   // trigger taking a screenshot every frame, for image comparison purposes
   ezGameApplicationBase::GetGameApplicationBaseInstance()->TakeScreenshot();
-}
-
-ezGameStatePriority ezGameEngineTestGameState::DeterminePriority(ezWorld* pWorld) const
-{
-  return ezGameStatePriority::Default;
 }
 
 void ezGameEngineTestGameState::ConfigureInputActions()

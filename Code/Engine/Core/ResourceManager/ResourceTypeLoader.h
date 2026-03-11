@@ -48,7 +48,11 @@ public:
   ///
   /// Call ezResource::GetLoadedFileModificationTime() to query the file modification time that was returned
   /// through ezResourceLoadData::m_LoadedFileModificationDate.
-  virtual bool IsResourceOutdated(const ezResource* pResource) const { return false; }
+  virtual bool IsResourceOutdated(const ezResource* pResource) const
+  {
+    EZ_IGNORE_UNUSED(pResource);
+    return false;
+  }
 };
 
 /// \brief A default implementation of ezResourceTypeLoader for standard file loading.

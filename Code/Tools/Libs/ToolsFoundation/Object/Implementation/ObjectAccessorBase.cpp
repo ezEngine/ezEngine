@@ -2,6 +2,11 @@
 
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezObjectAccessorBase, 1, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
 void ezObjectAccessorBase::StartTransaction(ezStringView sDisplayString) {}
 
 
@@ -20,7 +25,7 @@ void ezObjectAccessorBase::CancelTemporaryCommands() {}
 void ezObjectAccessorBase::FinishTemporaryCommands() {}
 
 
-ezStatus ezObjectAccessorBase::GetValue(const ezDocumentObject* pObject, ezStringView sProp, ezVariant& out_value, ezVariant index /*= ezVariant()*/)
+ezStatus ezObjectAccessorBase::GetValueByName(const ezDocumentObject* pObject, ezStringView sProp, ezVariant& out_value, ezVariant index /*= ezVariant()*/)
 {
   const ezAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(sProp);
   if (!pProp)
@@ -29,8 +34,7 @@ ezStatus ezObjectAccessorBase::GetValue(const ezDocumentObject* pObject, ezStrin
 }
 
 
-ezStatus ezObjectAccessorBase::SetValue(
-  const ezDocumentObject* pObject, ezStringView sProp, const ezVariant& newValue, ezVariant index /*= ezVariant()*/)
+ezStatus ezObjectAccessorBase::SetValueByName(const ezDocumentObject* pObject, ezStringView sProp, const ezVariant& newValue, ezVariant index /*= ezVariant()*/)
 {
   const ezAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(sProp);
   if (!pProp)
@@ -39,8 +43,7 @@ ezStatus ezObjectAccessorBase::SetValue(
 }
 
 
-ezStatus ezObjectAccessorBase::InsertValue(
-  const ezDocumentObject* pObject, ezStringView sProp, const ezVariant& newValue, ezVariant index /*= ezVariant()*/)
+ezStatus ezObjectAccessorBase::InsertValueByName(const ezDocumentObject* pObject, ezStringView sProp, const ezVariant& newValue, ezVariant index /*= ezVariant()*/)
 {
   const ezAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(sProp);
   if (!pProp)
@@ -49,7 +52,7 @@ ezStatus ezObjectAccessorBase::InsertValue(
 }
 
 
-ezStatus ezObjectAccessorBase::RemoveValue(const ezDocumentObject* pObject, ezStringView sProp, ezVariant index /*= ezVariant()*/)
+ezStatus ezObjectAccessorBase::RemoveValueByName(const ezDocumentObject* pObject, ezStringView sProp, ezVariant index /*= ezVariant()*/)
 {
   const ezAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(sProp);
   if (!pProp)
@@ -58,7 +61,7 @@ ezStatus ezObjectAccessorBase::RemoveValue(const ezDocumentObject* pObject, ezSt
 }
 
 
-ezStatus ezObjectAccessorBase::MoveValue(const ezDocumentObject* pObject, ezStringView sProp, const ezVariant& oldIndex, const ezVariant& newIndex)
+ezStatus ezObjectAccessorBase::MoveValueByName(const ezDocumentObject* pObject, ezStringView sProp, const ezVariant& oldIndex, const ezVariant& newIndex)
 {
   const ezAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(sProp);
   if (!pProp)
@@ -67,7 +70,7 @@ ezStatus ezObjectAccessorBase::MoveValue(const ezDocumentObject* pObject, ezStri
 }
 
 
-ezStatus ezObjectAccessorBase::GetCount(const ezDocumentObject* pObject, ezStringView sProp, ezInt32& out_iCount)
+ezStatus ezObjectAccessorBase::GetCountByName(const ezDocumentObject* pObject, ezStringView sProp, ezInt32& out_iCount)
 {
   const ezAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(sProp);
   if (!pProp)
@@ -76,8 +79,7 @@ ezStatus ezObjectAccessorBase::GetCount(const ezDocumentObject* pObject, ezStrin
 }
 
 
-ezStatus ezObjectAccessorBase::AddObject(
-  const ezDocumentObject* pParent, ezStringView sParentProp, const ezVariant& index, const ezRTTI* pType, ezUuid& inout_objectGuid)
+ezStatus ezObjectAccessorBase::AddObjectByName(const ezDocumentObject* pParent, ezStringView sParentProp, const ezVariant& index, const ezRTTI* pType, ezUuid& inout_objectGuid)
 {
   const ezAbstractProperty* pProp = pParent->GetType()->FindPropertyByName(sParentProp);
   if (!pProp)
@@ -85,8 +87,7 @@ ezStatus ezObjectAccessorBase::AddObject(
   return AddObject(pParent, pProp, index, pType, inout_objectGuid);
 }
 
-ezStatus ezObjectAccessorBase::MoveObject(
-  const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, ezStringView sParentProp, const ezVariant& index)
+ezStatus ezObjectAccessorBase::MoveObjectByName(const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, ezStringView sParentProp, const ezVariant& index)
 {
   const ezAbstractProperty* pProp = pNewParent->GetType()->FindPropertyByName(sParentProp);
   if (!pProp)
@@ -95,7 +96,7 @@ ezStatus ezObjectAccessorBase::MoveObject(
 }
 
 
-ezStatus ezObjectAccessorBase::GetKeys(const ezDocumentObject* pObject, ezStringView sProp, ezDynamicArray<ezVariant>& out_keys)
+ezStatus ezObjectAccessorBase::GetKeysByName(const ezDocumentObject* pObject, ezStringView sProp, ezDynamicArray<ezVariant>& out_keys)
 {
   const ezAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(sProp);
   if (!pProp)
@@ -104,7 +105,7 @@ ezStatus ezObjectAccessorBase::GetKeys(const ezDocumentObject* pObject, ezString
 }
 
 
-ezStatus ezObjectAccessorBase::GetValues(const ezDocumentObject* pObject, ezStringView sProp, ezDynamicArray<ezVariant>& out_values)
+ezStatus ezObjectAccessorBase::GetValuesByName(const ezDocumentObject* pObject, ezStringView sProp, ezDynamicArray<ezVariant>& out_values)
 {
   const ezAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(sProp);
   if (!pProp)
@@ -112,23 +113,23 @@ ezStatus ezObjectAccessorBase::GetValues(const ezDocumentObject* pObject, ezStri
   return GetValues(pObject, pProp, out_values);
 }
 
-const ezDocumentObject* ezObjectAccessorBase::GetChildObject(const ezDocumentObject* pObject, ezStringView sProp, ezVariant index)
+const ezDocumentObject* ezObjectAccessorBase::GetChildObjectByName(const ezDocumentObject* pObject, ezStringView sProp, ezVariant index)
 {
   ezVariant value;
-  if (GetValue(pObject, sProp, value, index).Succeeded() && value.IsA<ezUuid>())
+  if (GetValueByName(pObject, sProp, value, index).Succeeded() && value.IsA<ezUuid>())
   {
     return GetObject(value.Get<ezUuid>());
   }
   return nullptr;
 }
 
-ezStatus ezObjectAccessorBase::Clear(const ezDocumentObject* pObject, ezStringView sProp)
+ezStatus ezObjectAccessorBase::ClearByName(const ezDocumentObject* pObject, ezStringView sProp)
 {
   const ezAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(sProp);
   if (!pProp)
     return ezStatus(ezFmt("The property '{0}' does not exist in type '{1}'.", sProp, pObject->GetType()->GetTypeName()));
 
-  ezHybridArray<ezVariant, 8> keys;
+  ezTempHybridArray<ezVariant, 8> keys;
   ezStatus res = GetKeys(pObject, pProp, keys);
   if (res.Failed())
     return res;
@@ -140,6 +141,11 @@ ezStatus ezObjectAccessorBase::Clear(const ezDocumentObject* pObject, ezStringVi
       return res;
   }
   return ezStatus(EZ_SUCCESS);
+}
+
+const ezAbstractProperty* ezObjectAccessorBase::FindPropertyByName(const ezDocumentObject* pObject, ezStringView sProp)
+{
+  return pObject->GetType()->FindPropertyByName(sProp);
 }
 
 ezObjectAccessorBase::ezObjectAccessorBase(const ezDocumentObjectManager* pManager)

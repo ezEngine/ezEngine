@@ -57,7 +57,7 @@ void ezRecentFilesList::Load(ezStringView sFile)
   ezStringBuilder sAllLines;
   sAllLines.ReadAll(File);
 
-  ezHybridArray<ezStringView, 16> Lines;
+  ezTempHybridArray<ezStringView, 16> Lines;
   sAllLines.Split(false, Lines, "\n");
 
   ezStringBuilder sTemp, sTemp2;
@@ -65,7 +65,7 @@ void ezRecentFilesList::Load(ezStringView sFile)
   for (const ezStringView& sv : Lines)
   {
     sTemp = sv;
-    ezHybridArray<ezStringView, 2> Parts;
+    ezTempHybridArray<ezStringView, 2> Parts;
     sTemp.Split(false, Parts, "|");
 
     if (!ezOSFile::ExistsFile(Parts[0].GetData(sTemp2)))

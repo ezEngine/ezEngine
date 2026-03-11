@@ -1,33 +1,4 @@
-/*
- * This source file is part of RmlUi, the HTML/CSS Interface Middleware
- *
- * For the latest information, see http://github.com/mikke89/RmlUi
- *
- * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
- */
-
-#ifndef RMLUI_DEBUGGER_DEBUGGERPLUGIN_H
-#define RMLUI_DEBUGGER_DEBUGGERPLUGIN_H
+#pragma once
 
 #include "../../Include/RmlUi/Core/EventListener.h"
 #include "../../Include/RmlUi/Core/Plugin.h"
@@ -42,16 +13,14 @@ namespace Debugger {
 class ElementLog;
 class ElementInfo;
 class ElementContextHook;
+class ElementDataModels;
 class DebuggerSystemInterface;
 
 /**
-	RmlUi plugin interface for the debugger.
-
-	@author Robert Curry
+    RmlUi plugin interface for the debugger.
  */
 
-class DebuggerPlugin : public Rml::Plugin, public Rml::EventListener
-{
+class DebuggerPlugin : public Rml::Plugin, public Rml::EventListener {
 public:
 	DebuggerPlugin();
 	~DebuggerPlugin();
@@ -63,7 +32,7 @@ public:
 
 	/// Sets the context to be debugged.
 	/// @param[in] context The context to be debugged.
-	/// @return True if the debugger is initialised and the context was switched, false otherwise..
+	/// @return True if the debugger is initialised and the context was switched, false otherwise.
 	bool SetContext(Context* context);
 
 	/// Sets the visibility of the debugger.
@@ -100,6 +69,9 @@ private:
 	bool LoadMenuElement();
 	bool LoadInfoElement();
 	bool LoadLogElement();
+	bool LoadDataExplorerElement();
+
+	void SetupInfoListeners(Rml::Context* new_context);
 
 	// Release all loaded elements
 	void ReleaseElements();
@@ -113,12 +85,14 @@ private:
 	ElementDocument* menu_element;
 	ElementInfo* info_element;
 	ElementLog* log_element;
+	ElementDataModels* data_explorer_element;
 	ElementContextHook* hook_element;
 
 	Rml::SystemInterface* application_interface;
 	UniquePtr<DebuggerSystemInterface> log_interface;
 
-	UniquePtr<ElementInstancer> hook_element_instancer, info_element_instancer, log_element_instancer;
+	UniquePtr<ElementInstancer> hook_element_instancer, debug_document_instancer, info_element_instancer, log_element_instancer,
+		data_explorer_element_instancer;
 
 	bool render_outlines;
 
@@ -126,7 +100,5 @@ private:
 	static DebuggerPlugin* instance;
 };
 
-}
+} // namespace Debugger
 } // namespace Rml
-
-#endif

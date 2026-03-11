@@ -1,0 +1,34 @@
+[PLATFORMS]
+ALL
+DEBUG
+
+[PERMUTATIONS]
+
+[RENDERSTATE]
+
+[VERTEXSHADER]
+
+#include "Texture.h"
+
+VS_OUT main(VS_IN Input)
+{
+  VS_OUT RetVal;
+  RetVal.pos = mul(mvp, float4(Input.pos, 1.0));
+  RetVal.texcoord0 = Input.texcoord0;
+  return RetVal;
+}
+
+[PIXELSHADER]
+
+#include "Texture.h"
+
+Texture2D DiffuseTexture;
+
+float4 main(PS_IN Input) : SV_Target
+{
+  float width, height;
+  DiffuseTexture.GetDimensions(width, height);
+  float4 color = DiffuseTexture.Load( int3(Input.texcoord0.x * width, Input.texcoord0.y * height, 0));
+
+  return color;
+}

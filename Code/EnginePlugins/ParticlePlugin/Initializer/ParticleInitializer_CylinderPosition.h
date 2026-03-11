@@ -3,6 +3,10 @@
 #include <Foundation/Types/VarianceTypes.h>
 #include <ParticlePlugin/Initializer/ParticleInitializer.h>
 
+/// Initializer that spawns particles in a cylinder volume
+///
+/// Can spawn throughout the volume or only on the surface.
+/// Optionally sets initial velocity pointing outward from the cylinder axis.
 class EZ_PARTICLEPLUGIN_DLL ezParticleInitializerFactory_CylinderPosition final : public ezParticleInitializerFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializerFactory_CylinderPosition, ezParticleInitializerFactory);
@@ -20,14 +24,14 @@ public:
   virtual void QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const override;
 
 public:
-  ezVec3 m_vPositionOffset;
-  float m_fRadius;
-  float m_fHeight;
-  bool m_bSpawnOnSurface;
-  bool m_bSetVelocity;
-  ezVarianceTypeFloat m_Speed;
-  ezString m_sScaleRadiusParameter;
-  ezString m_sScaleHeightParameter;
+  ezVec3 m_vPositionOffset;         ///< Center of the cylinder
+  float m_fRadius;                  ///< Cylinder radius
+  float m_fHeight;                  ///< Cylinder height
+  bool m_bSpawnOnSurface;           ///< If true, spawn only on cylinder surface
+  bool m_bSetVelocity;              ///< If true, set velocity pointing outward from axis
+  ezVarianceTypeFloat m_Speed;      ///< Speed value when setting velocity
+  ezString m_sScaleRadiusParameter; ///< Optional parameter name to scale radius
+  ezString m_sScaleHeightParameter; ///< Optional parameter name to scale height
 };
 
 

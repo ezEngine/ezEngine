@@ -1,6 +1,7 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <EditorFramework/Actions/AssetActions.h>
+#include <EditorFramework/Actions/CameraModeSwitchActions.h>
 #include <EditorFramework/Actions/CommonAssetActions.h>
 #include <EditorFramework/Actions/GameObjectContextActions.h>
 #include <EditorFramework/Actions/GameObjectDocumentActions.h>
@@ -10,6 +11,7 @@
 #include <EditorFramework/Actions/TransformGizmoActions.h>
 #include <EditorFramework/Actions/ViewActions.h>
 #include <EditorFramework/Actions/ViewLightActions.h>
+#include <EditorFramework/Actions/WindowLayoutActions.h>
 #include <EditorFramework/CodeGen/CodeEditorPreferencesWidget.moc.h>
 #include <EditorFramework/CodeGen/CompilerPreferencesWidget.moc.h>
 #include <EditorFramework/CodeGen/CppProject.h>
@@ -26,6 +28,8 @@
 #include <EditorFramework/Manipulators/ManipulatorAdapterRegistry.h>
 #include <EditorFramework/Manipulators/NonUniformBoxManipulatorAdapter.h>
 #include <EditorFramework/Manipulators/SphereManipulatorAdapter.h>
+#include <EditorFramework/Manipulators/SplineManipulatorAdapter.h>
+#include <EditorFramework/Manipulators/SplineTangentManipulatorAdapter.h>
 #include <EditorFramework/Manipulators/TransformManipulatorAdapter.h>
 #include <EditorFramework/Panels/AssetBrowserPanel/AssetBrowserPanel.moc.h>
 #include <EditorFramework/Panels/AssetCuratorPanel/AssetCuratorPanel.moc.h>
@@ -40,6 +44,7 @@
 #include <EditorFramework/PropertyGrid/ExposedParametersPropertyWidget.moc.h>
 #include <EditorFramework/PropertyGrid/FileBrowserPropertyWidget.moc.h>
 #include <EditorFramework/PropertyGrid/GameObjectReferencePropertyWidget.moc.h>
+#include <EditorFramework/PropertyGrid/RttiTypeStringPropertyWidget.moc.h>
 #include <EditorFramework/Visualizers/BoxVisualizerAdapter.h>
 #include <EditorFramework/Visualizers/CameraVisualizerAdapter.h>
 #include <EditorFramework/Visualizers/CapsuleVisualizerAdapter.h>
@@ -51,12 +56,14 @@
 #include <Foundation/Application/Application.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Logging/ConsoleWriter.h>
-#include <Foundation/Logging/ETWWriter.h>
+#include <Foundation/Logging/TraceWriter.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Reflection/Implementation/PropertyAttributes.h>
 #include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Utilities/CommandLineOptions.h>
+#include <GuiFoundation/Action/CommandHistoryActions.h>
+#include <GuiFoundation/Action/DocumentActions.h>
 #include <GuiFoundation/Action/StandardMenus.h>
 #include <GuiFoundation/PropertyGrid/DefaultState.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
@@ -84,6 +91,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
 
   ON_CORESYSTEMS_STARTUP
   {
+    ezDefaultState::RegisterDefaultStateProvider(ezExposedParametersAsTypeDefaultStateProvider::CreateProvider);
     ezDefaultState::RegisterDefaultStateProvider(ezExposedParametersDefaultStateProvider::CreateProvider);
     ezDefaultState::RegisterDefaultStateProvider(ezDynamicDefaultStateProvider::CreateProvider);
     ezProjectActions::RegisterActions();
@@ -97,12 +105,48 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezTransformGizmoActions::RegisterActions();
     ezTranslateGizmoAction::RegisterActions();
     ezCommonAssetActions::RegisterActions();
+    ezCameraModeSwitchActions::RegisterActions();
+    ezWindowLayoutActions::RegisterActions();
 
-    ezActionMapManager::RegisterActionMap("SettingsTabMenuBar").IgnoreResult();
+    // Default Asset Menu Bar
+    // All asset menu bar mappings should derive from this to allow for actions to be defined that show up in every asset document editor's menu bar.
+    {
+      const char* szMenuBar = "AssetMenuBar";
+      ezActionMapManager::RegisterActionMap(szMenuBar);
+      ezStandardMenus::MapActions(szMenuBar, ezStandardMenuTypes::Default | ezStandardMenuTypes::Edit| ezStandardMenuTypes::Asset);
+      ezProjectActions::MapActions(szMenuBar);
+      ezDocumentActions::MapMenuActions(szMenuBar, "G.File.Common");
+      ezAssetActions::MapMenuActions(szMenuBar);
+      ezCommandHistoryActions::MapActions(szMenuBar);
+    }
+
+    // Default Asset Toolbar
+    // All asset toolbar mappings should derive from this to allow for actions to be defined that show up in every asset document editor's tool bar.
+    {
+      const char* szToolbar = "AssetToolbar";
+      ezActionMapManager::RegisterActionMap(szToolbar);
+
+      ezDocumentActions::MapToolbarActions(szToolbar);
+      ezCommandHistoryActions::MapActions(szToolbar, "");
+      ezAssetActions::MapToolBarActions(szToolbar, true);
+    }
+
+    // Default Asset View Toolbar
+    // All asset view toolbar mappings should derive from this or its derived "SimpleAssetViewToolbar" to allow for actions to be defined that show up in every asset document editor's view toolbar.
+    {
+      ezActionMapManager::RegisterActionMap("AssetViewToolbar");
+      // Convenience mapping that adds the most common view settings:
+      const char* szSimpleViewToolbar = "SimpleAssetViewToolbar";
+      ezActionMapManager::RegisterActionMap(szSimpleViewToolbar, "AssetViewToolbar");
+      ezViewActions::MapToolbarActions(szSimpleViewToolbar, ezViewActions::RenderMode /*| ezViewActions::ActivateRemoteProcess*/);
+      ezViewLightActions::MapToolbarActions(szSimpleViewToolbar);
+    }
+
+    ezActionMapManager::RegisterActionMap("SettingsTabMenuBar");
     ezStandardMenus::MapActions("SettingsTabMenuBar", ezStandardMenuTypes::Default);
     ezProjectActions::MapActions("SettingsTabMenuBar");
 
-    ezActionMapManager::RegisterActionMap("AssetBrowserToolBar").IgnoreResult();
+    ezActionMapManager::RegisterActionMap("AssetBrowserToolBar");
     ezAssetActions::MapToolBarActions("AssetBrowserToolBar", false);
 
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezFileBrowserAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtFilePropertyWidget(); });
@@ -116,6 +160,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezCompilerPreferences>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtCompilerPreferencesWidget(); });
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezCodeEditorPreferences>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtCodeEditorPreferencesWidget(); });
     ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezImageSliderUiAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtPropertyEditorSliderWidget(); });
+    ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezRttiTypeStringAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtRttiTypeStringPropertyWidget(); });
 
     ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezSphereManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezSphereManipulatorAdapter); });
     ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezCapsuleManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezCapsuleManipulatorAdapter); });
@@ -125,6 +170,8 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezNonUniformBoxManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezNonUniformBoxManipulatorAdapter); });
     ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezTransformManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezTransformManipulatorAdapter); });
     ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezBoneManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezBoneManipulatorAdapter); });
+    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezSplineManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezSplineManipulatorAdapter); });
+    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezSplineTangentManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezSplineTangentManipulatorAdapter); });
 
     ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezBoxVisualizerAttribute>(), [](const ezRTTI* pRtti)->ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezBoxVisualizerAdapter); });
     ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezSphereVisualizerAttribute>(), [](const ezRTTI* pRtti)->ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezSphereVisualizerAdapter); });
@@ -140,6 +187,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
 
   ON_CORESYSTEMS_SHUTDOWN
   {
+    ezDefaultState::UnregisterDefaultStateProvider(ezExposedParametersAsTypeDefaultStateProvider::CreateProvider);
     ezDefaultState::UnregisterDefaultStateProvider(ezExposedParametersDefaultStateProvider::CreateProvider);
     ezDefaultState::UnregisterDefaultStateProvider(ezDynamicDefaultStateProvider::CreateProvider);
     ezProjectActions::UnregisterActions();
@@ -153,6 +201,8 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezTransformGizmoActions::UnregisterActions();
     ezTranslateGizmoAction::UnregisterActions();
     ezCommonAssetActions::UnregisterActions();
+    ezCameraModeSwitchActions::UnregisterActions();
+    ezWindowLayoutActions::UnregisterActions();
 
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezFileBrowserAttribute>());
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezExternalFileBrowserAttribute>());
@@ -165,6 +215,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezCompilerPreferences>());
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezCodeEditorPreferences>());
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezImageSliderUiAttribute>());
+    ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezRttiTypeStringAttribute>());
 
     ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezSphereManipulatorAttribute>());
     ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezCapsuleManipulatorAttribute>());
@@ -275,13 +326,9 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
   ezToolsProject::s_Requests.AddEventHandler(ezMakeDelegate(&ezQtEditorApp::ProjectRequestHandler, this));
   ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezQtEditorApp::ProjectEventHandler, this));
   ezEditorEngineProcessConnection::s_Events.AddEventHandler(ezMakeDelegate(&ezQtEditorApp::EngineProcessMsgHandler, this));
-  ezQtDocumentWindow::s_Events.AddEventHandler(ezMakeDelegate(&ezQtEditorApp::DocumentWindowEventHandler, this));
   ezQtUiServices::s_Events.AddEventHandler(ezMakeDelegate(&ezQtEditorApp::UiServicesEvents, this));
 
   ezStartup::StartupCoreSystems();
-
-  // prevent restoration of window layouts when in safe mode
-  ezQtDocumentWindow::s_bAllowRestoreWindowLayout = !IsInSafeMode();
 
   {
     // Make sure that we have at least 4 worker threads for short running and 4 worker threads for long running tasks.
@@ -305,23 +352,27 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
     ezFileSystem::CreateDirectoryStructure(sAppDir).IgnoreResult();
     ezFileSystem::CreateDirectoryStructure(sUserData).IgnoreResult();
 
-    ezFileSystem::AddDataDirectory("", "AbsPaths", ":", ezFileSystem::AllowWrites).IgnoreResult();             // for absolute paths
-    ezFileSystem::AddDataDirectory(">appdir/", "AppBin", "bin", ezFileSystem::AllowWrites).IgnoreResult();     // writing to the binary directory
-    ezFileSystem::AddDataDirectory(sAppDir, "AppData", "app").IgnoreResult();                                  // app specific data
-    ezFileSystem::AddDataDirectory(sUserData, "AppData", "appdata", ezFileSystem::AllowWrites).IgnoreResult(); // for writing app user data
+    ezFileSystem::AddDataDirectory("", "AbsPaths", ":", ezDataDirUsage::AllowWrites).IgnoreResult();             // for absolute paths
+    ezFileSystem::AddDataDirectory(">appdir/", "AppBin", "bin", ezDataDirUsage::AllowWrites).IgnoreResult();     // writing to the binary directory
+    ezFileSystem::AddDataDirectory(sAppDir, "AppData", "app").IgnoreResult();                                    // app specific data
+    ezFileSystem::AddDataDirectory(sUserData, "AppData", "appdata", ezDataDirUsage::AllowWrites).IgnoreResult(); // for writing app user data
   }
 
   {
     EZ_PROFILE_SCOPE("Logging");
     ezInt32 iApplicationID = pCmd->GetIntOption("-appid", 0);
     ezStringBuilder sLogFile;
-    sLogFile.SetFormat(":appdata/Log_{0}.htm", iApplicationID);
+    if (m_StartupFlags.IsSet(StartupFlags::Background))
+      sLogFile.SetFormat(":appdata/Logs/LogEditorProcessor_{0}.htm", iApplicationID);
+    else
+      sLogFile.SetFormat(":appdata/Logs/LogEditor_{0}.htm", iApplicationID);
+
     m_LogHTML.BeginLog(sLogFile, sApplicationName);
 
     ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
     ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
     ezGlobalLog::AddLogWriter(ezLoggingEvent::Handler(&ezLogWriter::HTML::LogMessageHandler, &m_LogHTML));
-    ezGlobalLog::AddLogWriter(ezLogWriter::ETW::LogMessageHandler);
+    ezGlobalLog::AddLogWriter(ezLogWriter::Tracing::LogMessageHandler);
   }
   ezUniquePtr<ezTranslatorFromFiles> pTranslatorEn = EZ_DEFAULT_NEW(ezTranslatorFromFiles);
   m_pTranslatorFromFiles = pTranslatorEn.Borrow();
@@ -347,9 +398,9 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 
     LoadRecentFiles();
 
-    CreatePanels();
-
     ShowSettingsDocument();
+
+    CreatePanels();
 
     if (!IsInUnitTestMode())
     {
@@ -361,13 +412,21 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
   }
 
   LoadEditorPlugins();
+
+  if (!IsInHeadlessMode() && !IsInSafeMode())
+  {
+    ezWindowLayoutActions::RestoreUserLayout();
+  }
+
   CloseSplashScreen();
 
+  m_bIsRunning = true;
   {
     ezEditorAppEvent e;
     e.m_Type = ezEditorAppEvent::Type::EditorStarted;
     m_Events.Broadcast(e);
   }
+
 
   ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
 
@@ -391,16 +450,21 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
       CreateOrOpenProject(false, m_RecentProjects.GetFileList()[0].m_File).IgnoreResult();
     }
   }
-  else if (!IsInHeadlessMode() && !IsInSafeMode())
+  else if (!IsInHeadlessMode())
   {
+    // Show the window maximized when no project is being loaded
     if (ezQtContainerWindow::GetContainerWindow())
     {
-      ezQtContainerWindow::GetContainerWindow()->ScheduleRestoreWindowLayout();
+      ezQtContainerWindow::GetContainerWindow()->showMaximized();
     }
   }
 
   connect(m_pTimer, SIGNAL(timeout()), this, SLOT(SlotTimedUpdate()), Qt::QueuedConnection);
   m_pTimer->start(1);
+
+  // Setup auto-save timer - polls every 20 seconds and checks document modification age
+  connect(m_pAutoSaveTimer, SIGNAL(timeout()), this, SLOT(SlotAutoSave()), Qt::QueuedConnection);
+  m_pAutoSaveTimer->start(20 * 1000);
 
   if (m_bWroteCrashIndicatorFile)
   {
@@ -424,9 +488,10 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 
 void ezQtEditorApp::ShutdownEditor()
 {
+  m_bIsRunning = false;
   ezStackTraceLogParser::Unregister();
 
-  ezToolsProject::SaveProjectState();
+  // ezToolsProject::SaveProjectState();
 
   m_pTimer->stop();
 
@@ -440,7 +505,6 @@ void ezQtEditorApp::ShutdownEditor()
   ezDocument::s_EventsAny.RemoveEventHandler(ezMakeDelegate(&ezQtEditorApp::DocumentEventHandler, this));
   ezDocumentManager::s_Requests.RemoveEventHandler(ezMakeDelegate(&ezQtEditorApp::DocumentManagerRequestHandler, this));
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtEditorApp::DocumentManagerEventHandler, this));
-  ezQtDocumentWindow::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtEditorApp::DocumentWindowEventHandler, this));
   ezQtUiServices::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtEditorApp::UiServicesEvents, this));
 
   ezQtUiServices::GetSingleton()->SaveState();
@@ -505,24 +569,28 @@ void ezQtEditorApp::ShutdownEditor()
   EZ_DEFAULT_DELETE(m_pProgressbar);
 }
 
-
-
 void ezQtEditorApp::CreatePanels()
 {
   EZ_PROFILE_SCOPE("CreatePanels");
-  ezQtApplicationPanel* pAssetBrowserPanel = new ezQtAssetBrowserPanel();
-  ezQtApplicationPanel* pLogPanel = new ezQtLogPanel();
-  ezQtApplicationPanel* pLongOpsPanel = new ezQtLongOpsPanel();
-  ezQtApplicationPanel* pCVarPanel = new ezQtCVarPanel();
-  ezQtApplicationPanel* pAssetCuratorPanel = new ezQtAssetCuratorPanel();
 
   ezQtContainerWindow* pMainWnd = ezQtContainerWindow::GetContainerWindow();
   ads::CDockManager* pDockManager = pMainWnd->GetDockManager();
+
+  ezQtApplicationPanel* pAssetBrowserPanel = new ezQtAssetBrowserPanel(pDockManager);
+  ezQtApplicationPanel* pAssetCuratorPanel = new ezQtAssetCuratorPanel(pDockManager);
+  ezQtApplicationPanel* pLogPanel = new ezQtLogPanel(pDockManager);
+  ezQtApplicationPanel* pCVarPanel = new ezQtCVarPanel(pDockManager);
+  ezQtApplicationPanel* pLongOpsPanel = new ezQtLongOpsPanel(pDockManager);
+
   pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pAssetBrowserPanel);
-  pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pLogPanel);
   pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pAssetCuratorPanel);
+  pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pLogPanel);
   pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pCVarPanel);
   pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pLongOpsPanel);
+
+  // by default these panels can be hidden
+  pCVarPanel->toggleView(false);
+  pLongOpsPanel->toggleView(false);
 
   pAssetBrowserPanel->raise();
 }

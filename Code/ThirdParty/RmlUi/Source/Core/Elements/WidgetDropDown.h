@@ -1,33 +1,4 @@
-/*
- * This source file is part of RmlUi, the HTML/CSS Interface Middleware
- *
- * For the latest information, see http://github.com/mikke89/RmlUi
- *
- * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
- */
-
-#ifndef RMLUI_CORE_ELEMENTS_WIDGETDROPDOWN_H
-#define RMLUI_CORE_ELEMENTS_WIDGETDROPDOWN_H
+#pragma once
 
 #include "../../../Include/RmlUi/Core/EventListener.h"
 
@@ -36,12 +7,10 @@ namespace Rml {
 class ElementFormControl;
 
 /**
-	Widget for drop-down functionality.
-	@author Lloyd Weehuizen
+    Widget for drop-down functionality.
  */
 
-class WidgetDropDown : public EventListener
-{
+class WidgetDropDown : public EventListener {
 public:
 	WidgetDropDown(ElementFormControl* element);
 	virtual ~WidgetDropDown();
@@ -60,7 +29,7 @@ public:
 	/// @param[in] option_element The option element to select.
 	/// @param[in] force Forces the new selection, even if the widget believes the selection to not have changed.
 	void SetSelection(Element* option_element, bool force = false);
-	/// Seek to the next or previous valid (visible and not disabled) option. Wraps around.
+	/// Seek to the next or previous valid (visible and not disabled) option.
 	/// @param[in] seek_forward True to select the next valid option, false to select the previous valid option.
 	void SeekSelection(bool seek_forward = true);
 	/// Returns the index of the currently selected item.
@@ -86,7 +55,7 @@ public:
 	void ClearOptions();
 
 	/// Returns one of the widget's options.
-	/// @param[in] The index of the desired option.
+	/// @param[in] index The index of the desired option.
 	/// @return The option element or nullptr if the index was out of bounds.
 	Element* GetOption(int index);
 	/// Returns the number of options in the widget.
@@ -101,10 +70,16 @@ public:
 	/// Processes the incoming event.
 	void ProcessEvent(Event& event) override;
 
-private:
-	// Shows or hides the selection box.
-	void ShowSelectBox(bool show);
+	/// Shows the selection box.
+	void ShowSelectBox();
+	/// Hides the selection box.
+	void HideSelectBox();
+	/// Revert to the value selected when the selection box was opened, then hide the box.
+	void CancelSelectBox();
+	/// Check whether the select box is visible or not.
+	bool IsSelectBoxVisible();
 
+private:
 	void AttachScrollEvent();
 	void DetachScrollEvent();
 
@@ -116,13 +91,16 @@ private:
 	Element* selection_element;
 	Element* value_element;
 
-	bool lock_selection;
-	bool selection_dirty;
-	bool value_rml_dirty;
-	bool value_layout_dirty;
-	bool box_layout_dirty;
-	bool box_visible;
+	String selected_value_on_box_open;
+
+	bool lock_selection = false;
+	bool selection_dirty = false;
+	bool value_rml_dirty = false;
+	bool value_layout_dirty = false;
+	bool value_changed_since_last_box_format = false;
+	bool box_layout_dirty = false;
+	bool box_opened_since_last_format = false;
+	bool box_visible = false;
 };
 
 } // namespace Rml
-#endif

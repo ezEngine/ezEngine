@@ -187,5 +187,3 @@ void ezParticleEffectController::Invalidate()
     m_hEffect.Invalidate();
   }
 }
-
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Effect_ParticleEffectController);

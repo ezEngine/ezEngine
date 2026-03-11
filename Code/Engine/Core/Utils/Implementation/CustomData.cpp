@@ -34,6 +34,8 @@ ezCustomDataResourceBase::~ezCustomDataResourceBase() = default;
 
 ezResourceLoadDesc ezCustomDataResourceBase::UnloadData(Unload WhatToUnload)
 {
+  EZ_IGNORE_UNUSED(WhatToUnload);
+
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
@@ -53,11 +55,9 @@ ezResourceLoadDesc ezCustomDataResourceBase::UpdateContent_Internal(ezStreamRead
     return res;
   }
 
-  // skip the absolute file path data that the standard file reader writes into the stream
-  {
-    ezStringBuilder sAbsFilePath;
-    (*Stream) >> sAbsFilePath;
-  }
+  // the standard file reader writes the absolute file path into the stream
+  ezStringBuilder sAbsFilePath;
+  (*Stream) >> sAbsFilePath;
 
   ezAssetFileHeader AssetHash;
   AssetHash.Read(*Stream).IgnoreResult();

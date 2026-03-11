@@ -52,6 +52,10 @@ public:
   /// \brief Returns the final radius of the lightsource.
   float GetEffectiveRange() const;
 
+  /// \brief Sets the radius that is used to determine when to fade out shadows. If zero the radius of the lightsource is used.
+  void SetShadowFadeOutRange(float fRange); // [ property ]
+  float GetShadowFadeOutRange() const;      // [ property ]
+
   // void SetProjectedTextureFile(const char* szFile); // [ property ]
   // const char* GetProjectedTextureFile() const;      // [ property ]
 
@@ -63,6 +67,7 @@ protected:
 
   float m_fRange = 0.0f;
   float m_fEffectiveRange = 0.0f;
+  float m_fShadowFadeOutRange = 0.0f;
 
   // ezTextureCubeResourceHandle m_hProjectedTexture;
 };

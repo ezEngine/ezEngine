@@ -3,6 +3,11 @@
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererCore/Shader/ShaderResource.h>
 
+/// Render pass that resolves a multi-sampled texture to a non-multi-sampled texture.
+///
+/// Converts MSAA render targets to regular textures by averaging the samples. Supports both
+/// color and depth textures. Required when using MSAA rendering with post-processing effects
+/// that cannot operate on multi-sampled textures.
 class EZ_RENDERERCORE_DLL ezMsaaResolvePass : public ezRenderPipelinePass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezMsaaResolvePass, ezRenderPipelinePass);

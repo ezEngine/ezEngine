@@ -1,8 +1,0 @@
-
-if(CMAKE_SYSTEM_NAME STREQUAL "WindowsStore") # Windows Universal (UWP)
-
-    set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_NAME "UWP")
-    set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_PREFIX "WinUWP")
-    set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_POSTFIX "UWP")
-
-endif()

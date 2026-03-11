@@ -74,11 +74,10 @@ ezTestAppRun ezRendererTestShaderCompiler::RunSubTest(ezInt32 iIdentifier, ezUIn
     const ezGALShaderByteCode* pPixel = pResource->GetShaderByteCode(ezGALShaderStage::PixelShader);
     EZ_TEST_BOOL(pPixel);
     const ezHybridArray<ezShaderResourceBinding, 8>& bindings = pPixel->m_ShaderResourceBindings;
-    if (EZ_TEST_BOOL(bindings.GetCount() >= 24))
     {
       auto CheckBinding = [&](ezStringView sName, ezGALShaderResourceType::Enum descriptorType, ezGALShaderTextureType::Enum textureType = ezGALShaderTextureType::Unknown, ezBitflags<ezGALShaderStageFlags> stages = ezGALShaderStageFlags::PixelShader, ezUInt32 uiArraySize = 1)
       {
-        for (int i = 0; i < bindings.GetCount(); ++i)
+        for (ezUInt32 i = 0; i < bindings.GetCount(); ++i)
         {
           if (bindings[i].m_sName.GetView() == sName)
           {
@@ -91,31 +90,40 @@ ezTestAppRun ezRendererTestShaderCompiler::RunSubTest(ezInt32 iIdentifier, ezUIn
         }
         EZ_TEST_BOOL_MSG(false, "Shader resource not found in binding list");
       };
+      const ezGALDeviceCapabilities& caps = ezGALDevice::GetDefaultDevice()->GetCapabilities();
       CheckBinding("PointClampSampler"_ezsv, ezGALShaderResourceType::Sampler);
       CheckBinding("PerFrame"_ezsv, ezGALShaderResourceType::ConstantBuffer);
-      CheckBinding("RES_Texture1D"_ezsv, ezGALShaderResourceType::Texture, ezGALShaderTextureType::Texture1D);
-      CheckBinding("RES_Texture1DArray"_ezsv, ezGALShaderResourceType::Texture, ezGALShaderTextureType::Texture1DArray);
+      // CheckBinding("RES_Texture1D"_ezsv, ezGALShaderResourceType::Texture, ezGALShaderTextureType::Texture1D);
+      // CheckBinding("RES_Texture1DArray"_ezsv, ezGALShaderResourceType::Texture, ezGALShaderTextureType::Texture1DArray);
       CheckBinding("RES_Texture2D"_ezsv, ezGALShaderResourceType::Texture, ezGALShaderTextureType::Texture2D);
       CheckBinding("RES_Texture2DArray"_ezsv, ezGALShaderResourceType::Texture, ezGALShaderTextureType::Texture2DArray);
       CheckBinding("RES_Texture2DMS"_ezsv, ezGALShaderResourceType::Texture, ezGALShaderTextureType::Texture2DMS);
-      CheckBinding("RES_Texture2DMSArray"_ezsv, ezGALShaderResourceType::Texture, ezGALShaderTextureType::Texture2DMSArray);
+      if (caps.m_bSupportsMultiSampledArrays)
+      {
+        CheckBinding("RES_Texture2DMSArray"_ezsv, ezGALShaderResourceType::Texture, ezGALShaderTextureType::Texture2DMSArray);
+      }
       CheckBinding("RES_Texture3D"_ezsv, ezGALShaderResourceType::Texture, ezGALShaderTextureType::Texture3D);
       CheckBinding("RES_TextureCube"_ezsv, ezGALShaderResourceType::Texture, ezGALShaderTextureType::TextureCube);
       CheckBinding("RES_TextureCubeArray"_ezsv, ezGALShaderResourceType::Texture, ezGALShaderTextureType::TextureCubeArray);
 
-      CheckBinding("RES_Buffer"_ezsv, ezGALShaderResourceType::TexelBuffer);
+      if (caps.m_bSupportsTexelBuffer)
+      {
+        CheckBinding("RES_Buffer"_ezsv, ezGALShaderResourceType::TexelBuffer);
+      }
       CheckBinding("RES_StructuredBuffer"_ezsv, ezGALShaderResourceType::StructuredBuffer);
-      CheckBinding("RES_ByteAddressBuffer"_ezsv, ezGALShaderResourceType::StructuredBuffer);
+      CheckBinding("RES_ByteAddressBuffer"_ezsv, ezGALShaderResourceType::ByteAddressBuffer);
 
-      CheckBinding("RES_RWTexture1D"_ezsv, ezGALShaderResourceType::TextureRW, ezGALShaderTextureType::Texture1D);
-      CheckBinding("RES_RWTexture1DArray"_ezsv, ezGALShaderResourceType::TextureRW, ezGALShaderTextureType::Texture1DArray);
+      // CheckBinding("RES_RWTexture1D"_ezsv, ezGALShaderResourceType::TextureRW, ezGALShaderTextureType::Texture1D);
+      // CheckBinding("RES_RWTexture1DArray"_ezsv, ezGALShaderResourceType::TextureRW, ezGALShaderTextureType::Texture1DArray);
       CheckBinding("RES_RWTexture2D"_ezsv, ezGALShaderResourceType::TextureRW, ezGALShaderTextureType::Texture2D);
       CheckBinding("RES_RWTexture2DArray"_ezsv, ezGALShaderResourceType::TextureRW, ezGALShaderTextureType::Texture2DArray);
       CheckBinding("RES_RWTexture3D"_ezsv, ezGALShaderResourceType::TextureRW, ezGALShaderTextureType::Texture3D);
-
-      CheckBinding("RES_RWBuffer"_ezsv, ezGALShaderResourceType::TexelBufferRW);
+      if (caps.m_bSupportsTexelBuffer)
+      {
+        CheckBinding("RES_RWBuffer"_ezsv, ezGALShaderResourceType::TexelBufferRW);
+      }
       CheckBinding("RES_RWStructuredBuffer"_ezsv, ezGALShaderResourceType::StructuredBufferRW);
-      CheckBinding("RES_RWByteAddressBuffer"_ezsv, ezGALShaderResourceType::StructuredBufferRW);
+      CheckBinding("RES_RWByteAddressBuffer"_ezsv, ezGALShaderResourceType::ByteAddressBufferRW);
 
       CheckBinding("RES_AppendStructuredBuffer"_ezsv, ezGALShaderResourceType::StructuredBufferRW);
       CheckBinding("RES_ConsumeStructuredBuffer"_ezsv, ezGALShaderResourceType::StructuredBufferRW);

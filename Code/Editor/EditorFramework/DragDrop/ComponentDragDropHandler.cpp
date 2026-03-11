@@ -1,5 +1,6 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
+#include <EditorFramework/Document/GameObjectDocument.h>
 #include <EditorFramework/DragDrop/ComponentDragDropHandler.h>
 #include <EditorFramework/DragDrop/DragDropInfo.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
@@ -27,14 +28,14 @@ void ezComponentDragDropHandler::CreateDropObject(const ezVec3& vPosition, const
 
   auto history = m_pDocument->GetCommandHistory();
 
-  EZ_VERIFY(history->AddCommand(cmd).m_Result.Succeeded(), "AddCommand failed");
+  EZ_VERIFY(history->AddCommand(cmd).Succeeded(), "AddCommand failed");
 
   ezSetObjectPropertyCommand cmd2;
   cmd2.m_Object = ObjectGuid;
 
   cmd2.m_sProperty = "LocalPosition";
   cmd2.m_NewValue = vPos;
-  EZ_VERIFY(history->AddCommand(cmd2).m_Result.Succeeded(), "AddCommand failed");
+  EZ_VERIFY(history->AddCommand(cmd2).Succeeded(), "AddCommand failed");
 
   AttachComponentToObject(szType, szProperty, value, ObjectGuid);
 
@@ -54,7 +55,7 @@ void ezComponentDragDropHandler::AttachComponentToObject(const char* szType, con
   cmd.m_Index = -1;
   cmd.m_NewObjectGuid = CmpGuid;
   cmd.m_Parent = ObjectGuid;
-  EZ_VERIFY(history->AddCommand(cmd).m_Result.Succeeded(), "AddCommand failed");
+  EZ_VERIFY(history->AddCommand(cmd).Succeeded(), "AddCommand failed");
 
   if (value.IsA<ezVariantArray>())
   {
@@ -63,7 +64,7 @@ void ezComponentDragDropHandler::AttachComponentToObject(const char* szType, con
     cmd2.m_sProperty = szProperty;
     cmd2.m_NewValue = value.Get<ezVariantArray>()[0];
     cmd2.m_Index = 0;
-    EZ_VERIFY(history->AddCommand(cmd2).m_Result.Succeeded(), "AddCommand failed");
+    EZ_VERIFY(history->AddCommand(cmd2).Succeeded(), "AddCommand failed");
   }
   else
   {
@@ -71,7 +72,7 @@ void ezComponentDragDropHandler::AttachComponentToObject(const char* szType, con
     cmd2.m_Object = CmpGuid;
     cmd2.m_sProperty = szProperty;
     cmd2.m_NewValue = value;
-    EZ_VERIFY(history->AddCommand(cmd2).m_Result.Succeeded(), "AddCommand failed");
+    EZ_VERIFY(history->AddCommand(cmd2).Succeeded(), "AddCommand failed");
   }
 }
 
@@ -106,6 +107,8 @@ void ezComponentDragDropHandler::MoveDraggedObjectsToPosition(ezVec3 vPosition, 
 
   auto history = m_pDocument->GetCommandHistory();
 
+  ezGameObjectDocument* pGameDoc = ezDynamicCast<ezGameObjectDocument*>(m_pDocument);
+
   history->StartTransaction("Move to Position");
 
   ezQuat rot;
@@ -118,7 +121,23 @@ void ezComponentDragDropHandler::MoveDraggedObjectsToPosition(ezVec3 vPosition, 
 
   for (const auto& guid : m_DraggedObjects)
   {
-    MoveObjectToPosition(guid, vPosition, rot);
+    ezVec3 vNewPos = vPosition;
+    ezQuat qNewRot = rot;
+
+    if (pGameDoc)
+    {
+      const ezDocumentObject* pObject = m_pDocument->GetObjectManager()->GetObject(guid);
+      if (const ezDocumentObject* pParent = pObject->GetParent())
+      {
+        const ezTransform tParent = pGameDoc->GetGlobalTransform(pParent);
+        const ezTransform rRel = ezTransform::MakeLocalTransform(tParent, ezTransform(vNewPos, qNewRot));
+
+        vNewPos = rRel.m_vPosition;
+        qNewRot = rRel.m_qRotation;
+      }
+    }
+
+    MoveObjectToPosition(guid, vNewPos, qNewRot);
   }
 
   history->FinishTransaction();
@@ -132,7 +151,15 @@ void ezComponentDragDropHandler::SelectCreatedObjects()
     NewSel.PushBack(m_pDocument->GetObjectManager()->GetObject(id));
   }
 
-  m_pDocument->GetSelectionManager()->SetSelection(NewSel);
+  if (m_bSelectionAsRuntimeOverride)
+  {
+    m_pDocument->GetSelectionManager()->SetRuntimeOverrideSelection(NewSel);
+  }
+  else
+  {
+    m_pDocument->GetSelectionManager()->SetRuntimeOverrideSelection({});
+    m_pDocument->GetSelectionManager()->SetSelection(NewSel);
+  }
 }
 
 void ezComponentDragDropHandler::BeginTemporaryCommands()
@@ -149,8 +176,6 @@ void ezComponentDragDropHandler::CancelTemporaryCommands()
 {
   if (m_DraggedObjects.IsEmpty())
     return;
-
-  m_pDocument->GetSelectionManager()->Clear();
 
   m_pDocument->GetCommandHistory()->CancelTemporaryCommands();
 }
@@ -175,7 +200,7 @@ void ezComponentDragDropHandler::OnDragUpdate(const ezDragDropInfo* pInfo)
   if (!vNormal.IsValid() || vNormal.IsZero())
     vNormal = ezVec3(1, 0, 0);
 
-  MoveDraggedObjectsToPosition(vPos, !pInfo->m_bCtrlKeyDown, vNormal);
+  MoveDraggedObjectsToPosition(vPos, !pInfo->m_bShiftKeyDown, vNormal);
 }
 
 void ezComponentDragDropHandler::OnDragCancel()
@@ -184,6 +209,8 @@ void ezComponentDragDropHandler::OnDragCancel()
   m_pDocument->GetCommandHistory()->CancelTransaction();
 
   m_DraggedObjects.Clear();
+
+  m_pDocument->GetSelectionManager()->SetRuntimeOverrideSelection({});
 }
 
 void ezComponentDragDropHandler::OnDrop(const ezDragDropInfo* pInfo)
@@ -191,6 +218,7 @@ void ezComponentDragDropHandler::OnDrop(const ezDragDropInfo* pInfo)
   EndTemporaryCommands();
   m_pDocument->GetCommandHistory()->FinishTransaction();
 
+  m_bSelectionAsRuntimeOverride = false;
   SelectCreatedObjects();
 
   m_DraggedObjects.Clear();

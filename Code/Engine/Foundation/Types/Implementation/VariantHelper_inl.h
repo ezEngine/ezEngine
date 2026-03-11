@@ -1,7 +1,7 @@
 
 
 // for some reason MSVC does not accept the template keyword here
-#if EZ_ENABLED(EZ_COMPILER_MSVC_PURE)
+#if EZ_ENABLED(EZ_COMPILER_MSVC_PURE) && (_MSC_VER < 1950)
 #  define CALL_FUNCTOR(functor, type) return functor.operator()<type>(std::forward<Args>(args)...)
 #else
 #  define CALL_FUNCTOR(functor, type) return functor.template operator()<type>(std::forward<Args>(args)...)
@@ -402,7 +402,12 @@ class ezVariantHelper
   {
     bSuccessful = true;
 
-    if (value.IsA<V1>())
+    if (value.IsNumber())
+    {
+      auto x = value.ConvertNumber<typename T::ComponentType>();
+      result = T(x);
+    }
+    else if (value.IsA<V1>())
     {
       const V1& v = value.Cast<V1>();
       result = T(static_cast<typename T::ComponentType>(v.x), static_cast<typename T::ComponentType>(v.y));
@@ -430,7 +435,12 @@ class ezVariantHelper
   {
     bSuccessful = true;
 
-    if (value.IsA<V1>())
+    if (value.IsNumber())
+    {
+      auto x = value.ConvertNumber<typename T::ComponentType>();
+      result = T(x);
+    }
+    else if (value.IsA<V1>())
     {
       const V1& v = value.Cast<V1>();
       result = T(static_cast<typename T::ComponentType>(v.x), static_cast<typename T::ComponentType>(v.y), static_cast<typename T::ComponentType>(v.z));
@@ -458,7 +468,12 @@ class ezVariantHelper
   {
     bSuccessful = true;
 
-    if (value.IsA<V1>())
+    if (value.IsNumber())
+    {
+      auto x = value.ConvertNumber<typename T::ComponentType>();
+      result = T(x);
+    }
+    else if (value.IsA<V1>())
     {
       const V1& v = value.Cast<V1>();
       result = T(static_cast<typename T::ComponentType>(v.x), static_cast<typename T::ComponentType>(v.y), static_cast<typename T::ComponentType>(v.z), static_cast<typename T::ComponentType>(v.w));
@@ -518,6 +533,8 @@ class ezVariantHelper
   template <typename T>
   static void To(const ezVariant& value, T& result, bool& bSuccessful)
   {
+    EZ_IGNORE_UNUSED(value);
+    EZ_IGNORE_UNUSED(result);
     EZ_REPORT_FAILURE("Conversion function not implemented for target type '{0}'", ezVariant::TypeDeduction<T>::value);
     bSuccessful = false;
   }
@@ -528,7 +545,7 @@ class ezVariantHelper
     EZ_ALWAYS_INLINE void operator()()
     {
       ezStringBuilder tmp;
-      *m_pResult = ezConversionUtils::ToString(m_pThis->Cast<T>(), tmp);
+      *m_pResult = ezConversionUtils::ToString(m_pThis->Cast<T>(), tmp); // NOLINT (clang-analyzer-core.CallAndMessage)
     }
 
     const ezVariant* m_pThis;

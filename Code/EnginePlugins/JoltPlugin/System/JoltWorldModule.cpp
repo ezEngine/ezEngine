@@ -7,7 +7,9 @@
 #include <JoltPlugin/Actors/JoltStaticActorComponent.h>
 #include <JoltPlugin/Actors/JoltTriggerComponent.h>
 #include <JoltPlugin/Character/JoltCharacterControllerComponent.h>
+#include <JoltPlugin/Components/JoltRagdollComponent.h>
 #include <JoltPlugin/Components/JoltSettingsComponent.h>
+#include <JoltPlugin/Components/JoltWaterVolumeComponent.h>
 #include <JoltPlugin/Constraints/JoltConstraintComponent.h>
 #include <JoltPlugin/Constraints/JoltFixedConstraintComponent.h>
 #include <JoltPlugin/Shapes/JoltShapeBoxComponent.h>
@@ -57,52 +59,89 @@ public:
   virtual void OnBodyActivated(const JPH::BodyID& bodyID, JPH::uint64 inBodyUserData) override
   {
     const ezJoltUserData* pUserData = reinterpret_cast<const ezJoltUserData*>(inBodyUserData);
-    if (ezJoltDynamicActorComponent* pActor = ezJoltUserData::GetDynamicActorComponent(pUserData))
-    {
-      m_pActiveActors->Insert(pActor);
-    }
 
-    if (ezJoltRagdollComponent* pActor = ezJoltUserData::GetRagdollComponent(pUserData))
+    switch (ezJoltUserData::GetType(pUserData))
     {
-      (*m_pActiveRagdolls)[pActor]++;
-    }
+      case ezJoltUserData::Type::DynamicActorComponent:
+        m_pActiveActors->Insert(static_cast<ezJoltDynamicActorComponent*>(pUserData->GetObject()));
+        return;
 
-    if (ezJoltRopeComponent* pActor = ezJoltUserData::GetRopeComponent(pUserData))
-    {
-      (*m_pActiveRopes)[pActor]++;
+      case ezJoltUserData::Type::RagdollComponent:
+        (*m_pActiveRagdolls)[static_cast<ezJoltRagdollComponent*>(pUserData->GetObject())]++;
+        return;
+
+      case ezJoltUserData::Type::RopeComponent:
+        (*m_pActiveRopes)[static_cast<ezJoltRopeComponent*>(pUserData->GetObject())]++;
+        return;
+
+      case ezJoltUserData::Type::BreakableSlabComponent:
+        (*m_pActiveSlabs)[static_cast<ezJoltBreakableSlabComponent*>(pUserData->GetObject())]++;
+        return;
+
+      default:
+        return;
     }
   }
 
   virtual void OnBodyDeactivated(const JPH::BodyID& bodyID, JPH::uint64 inBodyUserData) override
   {
     const ezJoltUserData* pUserData = reinterpret_cast<const ezJoltUserData*>(inBodyUserData);
-    if (ezJoltActorComponent* pActor = ezJoltUserData::GetActorComponent(pUserData))
-    {
-      m_pActiveActors->Remove(pActor);
-    }
 
-    if (ezJoltRagdollComponent* pActor = ezJoltUserData::GetRagdollComponent(pUserData))
+    switch (ezJoltUserData::GetType(pUserData))
     {
-      if (--(*m_pActiveRagdolls)[pActor] == 0)
+      case ezJoltUserData::Type::DynamicActorComponent:
       {
-        m_pActiveRagdolls->Remove(pActor);
-        m_pRagdollsPutToSleep->PushBack(pActor);
-      }
-    }
+        m_pActiveActors->Remove(static_cast<ezJoltDynamicActorComponent*>(pUserData->GetObject()));
 
-    if (ezJoltRopeComponent* pActor = ezJoltUserData::GetRopeComponent(pUserData))
-    {
-      if (--(*m_pActiveRopes)[pActor] == 0)
-      {
-        m_pActiveRopes->Remove(pActor);
+        return;
       }
+
+      case ezJoltUserData::Type::RagdollComponent:
+      {
+        ezJoltRagdollComponent* pActor = static_cast<ezJoltRagdollComponent*>(pUserData->GetObject());
+        if (--(*m_pActiveRagdolls)[pActor] == 0)
+        {
+          m_pActiveRagdolls->Remove(pActor);
+          m_pRagdollsPutToSleep->PushBack(pActor);
+        }
+
+        return;
+      }
+
+      case ezJoltUserData::Type::RopeComponent:
+      {
+        ezJoltRopeComponent* pActor = static_cast<ezJoltRopeComponent*>(pUserData->GetObject());
+        if (--(*m_pActiveRopes)[pActor] == 0)
+        {
+          m_pActiveRopes->Remove(pActor);
+        }
+
+        return;
+      }
+
+      case ezJoltUserData::Type::BreakableSlabComponent:
+      {
+        ezJoltBreakableSlabComponent* pActor = static_cast<ezJoltBreakableSlabComponent*>(pUserData->GetObject());
+        if (--(*m_pActiveSlabs)[pActor] == 0)
+        {
+          m_pActiveSlabs->Remove(pActor);
+          m_pSlabsPutToSleep->PushBack(pActor);
+        }
+
+        return;
+      }
+
+      default:
+        return;
     }
   }
 
   ezSet<ezJoltDynamicActorComponent*>* m_pActiveActors = nullptr;
-  ezMap<ezJoltRagdollComponent*, ezInt32>* m_pActiveRagdolls = nullptr; // value is a ref-count
-  ezMap<ezJoltRopeComponent*, ezInt32>* m_pActiveRopes = nullptr;       // value is a ref-count
+  ezMap<ezJoltRopeComponent*, ezInt32>* m_pActiveRopes = nullptr;          // value is a ref-count
+  ezMap<ezJoltRagdollComponent*, ezInt32>* m_pActiveRagdolls = nullptr;    // value is a ref-count
   ezDynamicArray<ezJoltRagdollComponent*>* m_pRagdollsPutToSleep = nullptr;
+  ezMap<ezJoltBreakableSlabComponent*, ezInt32>* m_pActiveSlabs = nullptr; // value is a ref-count
+  ezDynamicArray<ezJoltBreakableSlabComponent*>* m_pSlabsPutToSleep = nullptr;
 };
 
 class ezJoltGroupFilter : public JPH::GroupFilter
@@ -139,6 +178,10 @@ void ezJoltWorldModule::Deinitialize()
   ezJoltContactListener* pContactListener = reinterpret_cast<ezJoltContactListener*>(m_pContactListener);
   EZ_DEFAULT_DELETE(pContactListener);
   m_pContactListener = nullptr;
+
+  ezJoltSoftBodyContactListener* pSoftBodyContactListener = reinterpret_cast<ezJoltSoftBodyContactListener*>(m_pSoftBodyContactListener);
+  EZ_DEFAULT_DELETE(pSoftBodyContactListener);
+  m_pSoftBodyContactListener = nullptr;
 
   m_pGroupFilter->Release();
   m_pGroupFilter = nullptr;
@@ -267,9 +310,11 @@ void ezJoltWorldModule::Initialize()
     ezJoltBodyActivationListener* pListener = EZ_DEFAULT_NEW(ezJoltBodyActivationListener);
     m_pActivationListener = pListener;
     pListener->m_pActiveActors = &m_ActiveActors;
-    pListener->m_pActiveRagdolls = &m_ActiveRagdolls;
     pListener->m_pActiveRopes = &m_ActiveRopes;
+    pListener->m_pActiveRagdolls = &m_ActiveRagdolls;
     pListener->m_pRagdollsPutToSleep = &m_RagdollsPutToSleep;
+    pListener->m_pActiveSlabs = &m_ActiveSlabs;
+    pListener->m_pSlabsPutToSleep = &m_SlabsPutToSleep;
     m_pSystem->SetBodyActivationListener(pListener);
   }
 
@@ -278,6 +323,12 @@ void ezJoltWorldModule::Initialize()
     pListener->m_pWorld = GetWorld();
     m_pContactListener = pListener;
     m_pSystem->SetContactListener(pListener);
+  }
+
+  {
+    ezJoltSoftBodyContactListener* pListener = EZ_DEFAULT_NEW(ezJoltSoftBodyContactListener);
+    m_pSoftBodyContactListener = pListener;
+    m_pSystem->SetSoftBodyContactListener(pListener);
   }
 
   {
@@ -295,7 +346,7 @@ void ezJoltWorldModule::OnSimulationStarted()
 {
   {
     auto startSimDesc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezJoltWorldModule::StartSimulation, this);
-    startSimDesc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PreAsync;
+    startSimDesc.m_Phase = ezWorldUpdatePhase::PreAsync;
     startSimDesc.m_bOnlyUpdateWhenSimulating = true;
     // Start physics simulation as late as possible in the first synchronous phase
     // so all kinematic objects have a chance to update their transform before.
@@ -306,7 +357,7 @@ void ezJoltWorldModule::OnSimulationStarted()
 
   {
     auto fetchResultsDesc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezJoltWorldModule::FetchResults, this);
-    fetchResultsDesc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PostAsync;
+    fetchResultsDesc.m_Phase = ezWorldUpdatePhase::PostAsync;
     fetchResultsDesc.m_bOnlyUpdateWhenSimulating = true;
     // Fetch results as early as possible after async phase.
     fetchResultsDesc.m_fPriority = 100000.0f;
@@ -314,7 +365,7 @@ void ezJoltWorldModule::OnSimulationStarted()
     RegisterUpdateFunction(fetchResultsDesc);
   }
 
-  ezJoltCollisionFiltering::LoadCollisionFilters();
+  ezJoltCore::ReloadConfigs();
 
   UpdateSettingsCfg();
   ApplySettingsCfg();
@@ -390,9 +441,83 @@ void ezJoltWorldModule::SetGravity(const ezVec3& vObjectGravity, const ezVec3& v
   }
 }
 
+ezJoltForceId ezJoltWorldModule::AddOrUpdateForce(ezJoltForceId forceId, ezUInt32 uiBodyID, ezTime duration, const ezVec3& vForce)
+{
+  EZ_LOCK(m_ForcesMutex);
+
+  ezJoltForce* pForce;
+  if (m_Forces.TryGetValue(forceId, pForce))
+  {
+    pForce->m_tDisable = GetWorld()->GetClock().GetAccumulatedTime() + duration;
+    pForce->m_vForce = vForce;
+    return forceId;
+  }
+  else
+  {
+    ezJoltForce force;
+    force.m_uiBodyID = uiBodyID;
+    force.m_tDisable = GetWorld()->GetClock().GetAccumulatedTime() + duration;
+    force.m_vForce = vForce;
+
+    return m_Forces.Insert(force);
+  }
+}
+
+void ezJoltWorldModule::ClearForce(ezJoltForceId id)
+{
+  EZ_LOCK(m_ForcesMutex);
+  m_Forces.Remove(id);
+}
+
+void ezJoltWorldModule::UpdateForces()
+{
+  if (m_Forces.IsEmpty())
+    return;
+
+  EZ_LOCK(m_ForcesMutex);
+
+  ezTempHybridArray<ezJoltForceId, 32> forcesToRemove;
+
+  auto* pBodies = &m_pSystem->GetBodyInterface();
+  const ezTime tNow = GetWorld()->GetClock().GetAccumulatedTime();
+
+  for (auto it = m_Forces.GetIterator(); it.IsValid(); ++it)
+  {
+    ezJoltForce& force = it.Value();
+
+    if (force.m_tDisable < tNow)
+    {
+      forcesToRemove.PushBack(it.Id());
+      continue;
+    }
+
+    const JPH::BodyID bodyId(force.m_uiBodyID);
+
+    if (!pBodies->IsAdded(bodyId))
+      continue;
+
+    pBodies->AddForce(bodyId, ezJoltConversionUtils::ToVec3(force.m_vForce));
+  }
+
+  for (ezJoltForceId id : forcesToRemove)
+  {
+    m_Forces.Remove(id);
+  }
+}
+
 ezUInt32 ezJoltWorldModule::GetCollisionLayerByName(ezStringView sName) const
 {
-  return ezJoltCollisionFiltering::GetCollisionFilterConfig().GetFilterGroupByName(sName);
+  return ezJoltCore::GetCollisionFilterConfig().GetFilterGroupByName(sName);
+}
+
+ezUInt8 ezJoltWorldModule::GetWeightCategoryByName(ezStringView sName) const
+{
+  return ezJoltCore::GetWeightCategoryConfig().FindByName(ezTempHashedString(sName));
+}
+
+ezUInt8 ezJoltWorldModule::GetImpulseTypeByName(ezStringView sName) const
+{
+  return ezJoltCore::GetImpulseTypeConfig().FindByName(ezTempHashedString(sName));
 }
 
 void ezJoltWorldModule::AddStaticCollisionBox(ezGameObject* pObject, ezVec3 vBoxSize)
@@ -456,14 +581,20 @@ ezBoundingBoxSphere ezJoltWorldModule::GetWorldSpaceBounds(ezGameObject* pOwner,
   return result;
 }
 
-ezUInt32 ezJoltWorldModule::QueueBodyToAdd(JPH::Body* pBody, bool bAwake)
+void ezJoltWorldModule::QueueBodyToAdd(JPH::Body* pBody, bool bAwake)
 {
   if (bAwake)
     m_BodiesToAddAndActivate.PushBack(pBody->GetID().GetIndexAndSequenceNumber());
   else
     m_BodiesToAdd.PushBack(pBody->GetID().GetIndexAndSequenceNumber());
+}
 
-  return m_uiBodiesAddCounter;
+void ezJoltWorldModule::RemoveBodyFromQueue(JPH::BodyID bodyId)
+{
+  const ezUInt32 uiBodyID = bodyId.GetIndexAndSequenceNumber();
+  bool bRemoved = m_BodiesToAdd.RemoveAndSwap(uiBodyID);
+  bRemoved |= m_BodiesToAddAndActivate.RemoveAndSwap(uiBodyID);
+  EZ_ASSERT_DEV(bRemoved, "Body was not in add queue");
 }
 
 void ezJoltWorldModule::EnableJoinedBodiesCollisions(ezUInt32 uiObjectFilterID1, ezUInt32 uiObjectFilterID2, bool bEnable)
@@ -519,7 +650,7 @@ void ezJoltWorldModule::CheckBreakableConstraints()
         pConstraint->GetOwner()->SendEventMessage(msg, pConstraint);
 
         // currently we don't track the broken state separately, we just remove the component
-        pConstraint->GetOwningManager()->DeleteComponent(pConstraint);
+        pConstraint->DeleteComponent();
         it = m_BreakableConstraints.Remove(it);
       }
       else
@@ -566,7 +697,6 @@ void ezJoltWorldModule::StartSimulation(const ezWorldModule::UpdateContext& cont
     }
 
     m_BodiesToAdd.Clear();
-    ++m_uiBodiesAddCounter;
   }
 
   if (!m_BodiesToAddAndActivate.IsEmpty())
@@ -590,7 +720,6 @@ void ezJoltWorldModule::StartSimulation(const ezWorldModule::UpdateContext& cont
     }
 
     m_BodiesToAddAndActivate.Clear();
-    ++m_uiBodiesAddCounter;
   }
 
   if (m_uiBodiesAddedSinceOptimize > 128)
@@ -622,6 +751,18 @@ void ezJoltWorldModule::StartSimulation(const ezWorldModule::UpdateContext& cont
     pTriggerManager->UpdateMovingTriggers();
   }
 
+  if (ezJoltRagdollComponentManager* pRagdollManager = GetWorld()->GetComponentManager<ezJoltRagdollComponentManager>())
+  {
+    pRagdollManager->DriveAnimatedRagdolls(m_SimulatedTimeStep);
+  }
+
+  if (ezJoltWaterVolumeComponentManager* pWaterVolumeManager = GetWorld()->GetComponentManager<ezJoltWaterVolumeComponentManager>())
+  {
+    pWaterVolumeManager->UpdateWaterVolumes(m_SimulatedTimeStep);
+  }
+
+  ApplyImpulses();
+  UpdateForces();
   UpdateConstraints();
 
   m_SimulateTaskGroupId = ezTaskSystem::StartSingleTask(m_pSimulateTask, ezTaskPriority::EarlyThisFrame);
@@ -629,7 +770,7 @@ void ezJoltWorldModule::StartSimulation(const ezWorldModule::UpdateContext& cont
 
 void ezJoltWorldModule::FetchResults(const ezWorldModule::UpdateContext& context)
 {
-  EZ_PROFILE_SCOPE("FetchResults");
+  EZ_PROFILE_SCOPE("ezJoltWorldModule::FetchResults");
 
   {
     EZ_PROFILE_SCOPE("Wait for Simulate Task");
@@ -660,6 +801,8 @@ void ezJoltWorldModule::FetchResults(const ezWorldModule::UpdateContext& context
   // Nothing to fetch if no simulation step was executed
   if (m_UpdateSteps.IsEmpty())
     return;
+
+  ++m_uiJoltUpdateCounter;
 
   if (ezJoltDynamicActorComponentManager* pDynamicActorManager = GetWorld()->GetComponentManager<ezJoltDynamicActorComponentManager>())
   {
@@ -748,12 +891,13 @@ void ezJoltWorldModule::Simulate()
   if (m_UpdateSteps.IsEmpty())
     return;
 
-  EZ_PROFILE_SCOPE("Physics Simulation");
+  EZ_PROFILE_SCOPE("ezJoltWorldModule::Simulate");
 
   ezTime tDelta = m_UpdateSteps[0];
   ezUInt32 uiSteps = 1;
 
   m_RagdollsPutToSleep.Clear();
+  m_SlabsPutToSleep.Clear();
 
   for (ezUInt32 i = 1; i < m_UpdateSteps.GetCount(); ++i)
   {
@@ -885,6 +1029,12 @@ static const DebugVis s_Vis[ezPhysicsShapeType::Count][2] =
       {szMatTwoSided, ezColor::Crimson}, // non-kinematic
       {szMatTwoSided, ezColor::Red}      // kinematic
     },
+
+    // Debris
+    {
+      {szMatSolid, ezColor::Crimson}, // non-kinematic
+      {szMatSolid, ezColor::Crimson}  // kinematic
+    },
 };
 
 void ezJoltWorldModule::DebugDrawGeometry()
@@ -919,6 +1069,7 @@ void ezJoltWorldModule::DebugDrawGeometry()
     DebugDrawGeometry(vCenterPos, cvar_JoltVisualizeDistance, ezPhysicsShapeType::Trigger, tag);
     DebugDrawGeometry(vCenterPos, cvar_JoltVisualizeDistance, ezPhysicsShapeType::Rope, tag);
     DebugDrawGeometry(vCenterPos, cvar_JoltVisualizeDistance, ezPhysicsShapeType::Cloth, tag);
+    DebugDrawGeometry(vCenterPos, cvar_JoltVisualizeDistance, ezPhysicsShapeType::Debris, tag);
   }
 
   for (auto it = m_DebugDrawComponents.GetIterator(); it.IsValid();)
@@ -975,8 +1126,8 @@ void ezJoltWorldModule::DebugDrawGeometry(const ezVec3& vCenter, float fRadius, 
   ezStaticArray<const JPH::PhysicsMaterial*, cMaxTriangles> materialsTmp;
   materialsTmp.SetCountUninitialized(cMaxTriangles);
 
-  ezHybridArray<ezVec3, cMaxTriangles * 3> positionsTmp2;
-  ezHybridArray<const JPH::PhysicsMaterial*, cMaxTriangles> materialsTmp2;
+  ezTempHybridArray<ezVec3, cMaxTriangles * 3> positionsTmp2;
+  ezTempHybridArray<const JPH::PhysicsMaterial*, cMaxTriangles> materialsTmp2;
 
   for (const JPH::TransformedShape& ts : collector.mHits)
   {
@@ -1052,16 +1203,19 @@ void ezJoltWorldModule::DebugDrawGeometry(const ezVec3& vCenter, float fRadius, 
 
         ezResourceLock<ezDynamicMeshBufferResource> pMeshBuf(shapeGeo.m_hMesh, ezResourceAcquireMode::BlockTillLoaded);
 
-        ezArrayPtr<ezDynamicMeshVertex> vertices = pMeshBuf->AccessVertexData();
-        for (ezUInt32 vtxIdx = 0; vtxIdx < vertices.GetCount(); ++vtxIdx)
+        auto positionData = pMeshBuf->AccessPositionData();
+        auto nttData = pMeshBuf->AccessNormalTangentTexCoord0Data();
+        for (ezUInt32 vtxIdx = 0; vtxIdx < positionData.GetCount(); ++vtxIdx)
         {
-          auto& vtx = vertices[vtxIdx];
-          vtx.m_vPosition = positionsTmp2[vtxIdx];
+          const auto& pos = positionsTmp2[vtxIdx];
+          positionData[vtxIdx] = pos;
+
+          auto& vtx = nttData[vtxIdx];
           vtx.m_vTexCoord.SetZero();
           vtx.m_vEncodedNormal.SetZero();
           vtx.m_vEncodedTangent.SetZero();
 
-          shapeGeo.m_Bounds.ExpandToInclude(vtx.m_vPosition);
+          shapeGeo.m_Bounds.ExpandToInclude(pos);
         }
       }
     }
@@ -1090,6 +1244,81 @@ void ezJoltWorldModule::DebugDrawGeometry(const ezVec3& vCenter, float fRadius, 
     pMesh->SetBounds(shapeGeo.m_Bounds);
     pMesh->SetMaterialFile(vis.m_szMaterial);
     pMesh->SetColor(vis.m_Color);
+  }
+}
+
+void ezJoltWorldModule::AddImpulse(ezUInt32 uiBodyID, const ezVec3& vImpulse)
+{
+  EZ_LOCK(m_ImpulsesMutex);
+  auto& imp = m_Impulses.ExpandAndGetRef();
+  imp.m_uiBodyID = uiBodyID;
+  imp.m_vImpulse = vImpulse;
+  imp.m_Type = ezJoltImpulse::Type::Center;
+}
+
+void ezJoltWorldModule::AddTorque(ezUInt32 uiBodyID, const ezVec3& vImpulse)
+{
+  EZ_LOCK(m_ImpulsesMutex);
+  auto& imp = m_Impulses.ExpandAndGetRef();
+  imp.m_uiBodyID = uiBodyID;
+  imp.m_vImpulse = vImpulse;
+  imp.m_Type = ezJoltImpulse::Type::Angular;
+}
+
+void ezJoltWorldModule::AddImpulse(ezUInt32 uiBodyID, const ezVec3& vImpulse, const ezVec3& vGlobalPosition)
+{
+  EZ_LOCK(m_ImpulsesMutex);
+  auto& imp = m_Impulses.ExpandAndGetRef();
+  imp.m_uiBodyID = uiBodyID;
+  imp.m_vImpulse = vImpulse;
+  imp.m_vGlobalPosition = vGlobalPosition;
+  imp.m_Type = ezJoltImpulse::Type::AtGlobalPos;
+}
+
+void ezJoltWorldModule::ApplyImpulses()
+{
+  if (m_Impulses.IsEmpty())
+    return;
+
+  auto* pBodies = &m_pSystem->GetBodyInterface();
+  ezTempHybridArray<ezJoltImpulse, 64> retain;
+
+  EZ_LOCK(m_ImpulsesMutex);
+
+  for (ezUInt32 i = 0; i < m_Impulses.GetCount(); ++i)
+  {
+    auto& imp = m_Impulses[i];
+
+    const JPH::BodyID bodyId(imp.m_uiBodyID);
+
+    if (bodyId.IsInvalid())
+      continue;
+
+    if (!pBodies->IsAdded(bodyId))
+    {
+      retain.PushBack(imp);
+      continue;
+    }
+
+    switch (imp.m_Type)
+    {
+      case ezJoltImpulse::Type::AtGlobalPos:
+        pBodies->AddImpulse(bodyId, ezJoltConversionUtils::ToVec3(imp.m_vImpulse), ezJoltConversionUtils::ToVec3(imp.m_vGlobalPosition));
+        break;
+      case ezJoltImpulse::Type::Center:
+        pBodies->AddImpulse(bodyId, ezJoltConversionUtils::ToVec3(imp.m_vImpulse));
+        break;
+      case ezJoltImpulse::Type::Angular:
+        pBodies->AddTorque(bodyId, ezJoltConversionUtils::ToVec3(imp.m_vImpulse));
+        break;
+    }
+  }
+
+  m_Impulses.Clear();
+
+  for (auto& imp : retain)
+  {
+    m_Impulses.PushBack(imp);
   }
 }
 

@@ -44,6 +44,7 @@ private Q_SLOTS:
   void on_ReportProblem_clicked();
   void on_OpenDiscord_clicked();
   void on_OpenTwitter_clicked();
+  void on_OpenBsky_clicked();
 
 protected:
   bool eventFilter(QObject*, QEvent*) override;

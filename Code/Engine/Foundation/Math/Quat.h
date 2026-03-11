@@ -14,6 +14,12 @@
 /// Quaternions have no 'IsIdentical' or 'IsEqual' function, as there can be different representations for the
 /// same rotation, and it is rather difficult to check this. So to not convey any false notion of being equal
 /// (or rather unequal), those functions are not provided.
+///
+/// Implementation notes:
+/// - Components (x, y, z, w) do NOT directly represent axis and angle
+/// - Use factory methods like MakeFromAxisAndAngle() for construction
+/// - No equality operators due to dual representation (q and -q are equivalent)
+/// - Always maintain unit length for proper rotation representation
 template <typename Type>
 class ezQuatTemplate
 {
@@ -60,7 +66,7 @@ public:
   [[nodiscard]] static ezQuatTemplate<Type> MakeFromElements(Type x, Type y, Type z, Type w); // [tested]
 
   /// \brief Creates a quaternion from a rotation-axis and an angle.
-  [[nodiscard]] static ezQuatTemplate<Type> MakeFromAxisAndAngle(const ezVec3Template<Type>& vRotationAxis, ezAngle angle); // [tested]
+  [[nodiscard]] static ezQuatTemplate<Type> MakeFromAxisAndAngle(const ezVec3Template<Type>& vRotationAxis, ezAngleTemplate<Type> angle); // [tested]
 
   /// \brief Creates a quaternion, that rotates through the shortest arc from "vDirFrom" to "vDirTo".
   [[nodiscard]] static ezQuatTemplate<Type> MakeShortestRotation(const ezVec3Template<Type>& vDirFrom, const ezVec3Template<Type>& vDirTo); // [tested]
@@ -89,8 +95,14 @@ public:
   /// \brief Normalizes the quaternion to unit length. ALL rotation-quaternions should be normalized at all times (automatically).
   void Normalize(); // [tested]
 
+  /// \brief Returns the data as an array.
+  const Type* GetData() const { return &x; }
+
+  /// \brief Returns the data as an array.
+  Type* GetData() { return &x; }
+
   /// \brief Returns the rotation-axis and angle, that this quaternion rotates around.
-  void GetRotationAxisAndAngle(ezVec3Template<Type>& out_vAxis, ezAngle& out_angle, Type fEpsilon = ezMath::DefaultEpsilon<Type>()) const; // [tested]
+  void GetRotationAxisAndAngle(ezVec3Template<Type>& out_vAxis, ezAngleTemplate<Type>& out_angle, Type fEpsilon = ezMath::DefaultEpsilon<Type>()) const; // [tested]
 
   /// \brief Returns the x,y,z components as a vector.
   ezVec3Template<Type> GetVectorPart() const { return ezVec3Template<Type>(x, y, z); }
@@ -134,10 +146,10 @@ public:
   // *** Euler Angle Conversions ***
 public:
   /// \brief Converts the quaternion to Euler angles
-  void GetAsEulerAngles(ezAngle& out_x, ezAngle& out_y, ezAngle& out_z) const; // [tested]
+  void GetAsEulerAngles(ezAngleTemplate<Type>& out_x, ezAngleTemplate<Type>& out_y, ezAngleTemplate<Type>& out_z) const; // [tested]
 
   /// \brief Sets the quaternion from Euler angles
-  [[nodiscard]] static ezQuatTemplate<Type> MakeFromEulerAngles(const ezAngle& x, const ezAngle& y, const ezAngle& z); // [tested]
+  [[nodiscard]] static ezQuatTemplate<Type> MakeFromEulerAngles(const ezAngleTemplate<Type>& x, const ezAngleTemplate<Type>& y, const ezAngleTemplate<Type>& z); // [tested]
 };
 
 /// \brief Rotates v by q

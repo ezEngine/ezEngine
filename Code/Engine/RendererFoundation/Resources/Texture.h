@@ -7,24 +7,22 @@
 class EZ_RENDERERFOUNDATION_DLL ezGALTexture : public ezGALResource<ezGALTextureCreationDescription>
 {
 public:
+  ezVec3U32 GetMipMapSize(ezUInt32 uiMipLevel) const;
+  /// \brief Replaced EZ_GAL_ALL_MIP_LEVELS and EZ_GAL_ALL_ARRAY_SLICES with the correct upper bounds for this texture.
+  ezGALTextureRange ClampRange(ezGALTextureRange range) const;
+
 protected:
   friend class ezGALDevice;
 
   ezGALTexture(const ezGALTextureCreationDescription& Description);
-
   virtual ~ezGALTexture();
 
   virtual ezResult InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData) = 0;
-
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) = 0;
 
 protected:
-  ezGALTextureResourceViewHandle m_hDefaultResourceView;
   ezGALRenderTargetViewHandle m_hDefaultRenderTargetView;
-
-  ezHashTable<ezUInt32, ezGALTextureResourceViewHandle> m_ResourceViews;
   ezHashTable<ezUInt32, ezGALRenderTargetViewHandle> m_RenderTargetViews;
-  ezHashTable<ezUInt32, ezGALTextureUnorderedAccessViewHandle> m_UnorderedAccessViews;
 };
 
 /// \brief Optional interface for ezGALTexture if it was created via ezGALDevice::CreateSharedTexture.

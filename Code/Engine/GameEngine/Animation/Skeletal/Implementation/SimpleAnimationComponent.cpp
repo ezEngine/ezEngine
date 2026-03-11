@@ -21,11 +21,11 @@ EZ_BEGIN_COMPONENT_TYPE(ezSimpleAnimationComponent, 3, ezComponentMode::Static);
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("AnimationClip", GetAnimationClipFile, SetAnimationClipFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Keyframe_Animation")),
+    EZ_RESOURCE_MEMBER_PROPERTY("AnimationClip", m_hAnimationClip)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Keyframe_Animation")),
     EZ_ENUM_MEMBER_PROPERTY("AnimationMode", ezPropertyAnimMode, m_AnimationMode),
     EZ_MEMBER_PROPERTY("Speed", m_fSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_ENUM_MEMBER_PROPERTY("RootMotionMode", ezRootMotionMode, m_RootMotionMode),
-    EZ_ENUM_MEMBER_PROPERTY("InvisibleUpdateRate", ezAnimationInvisibleUpdateRate, m_InvisibleUpdateRate),
+    EZ_ENUM_MEMBER_PROPERTY("InvisibleUpdateRate", ezAnimationInvisibleUpdateRate, m_InvisibleUpdateRate)->AddAttributes(new ezDefaultValueAttribute(ezAnimationInvisibleUpdateRate::Pause)),
     EZ_MEMBER_PROPERTY("EnableIK", m_bEnableIK),
   }
   EZ_END_PROPERTIES;
@@ -87,36 +87,6 @@ void ezSimpleAnimationComponent::OnSimulationStarted()
   m_hSkeleton = msg.m_hSkeleton;
 }
 
-void ezSimpleAnimationComponent::SetAnimationClip(const ezAnimationClipResourceHandle& hResource)
-{
-  m_hAnimationClip = hResource;
-}
-
-const ezAnimationClipResourceHandle& ezSimpleAnimationComponent::GetAnimationClip() const
-{
-  return m_hAnimationClip;
-}
-
-void ezSimpleAnimationComponent::SetAnimationClipFile(const char* szFile)
-{
-  ezAnimationClipResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hResource = ezResourceManager::LoadResource<ezAnimationClipResource>(szFile);
-  }
-
-  SetAnimationClip(hResource);
-}
-
-const char* ezSimpleAnimationComponent::GetAnimationClipFile() const
-{
-  if (!m_hAnimationClip.IsValid())
-    return "";
-
-  return m_hAnimationClip.GetResourceID();
-}
-
 void ezSimpleAnimationComponent::SetNormalizedPlaybackPosition(float fPosition)
 {
   m_fNormalizedPlaybackPosition = fPosition;
@@ -134,7 +104,7 @@ void ezSimpleAnimationComponent::Update()
     return;
 
   ezTime tMinStep = ezTime::MakeFromSeconds(0);
-  ezVisibilityState visType = GetOwner()->GetVisibilityState();
+  ezVisibilityState::Enum visType = GetOwner()->GetVisibilityState();
 
   if (visType != ezVisibilityState::Direct)
   {
@@ -149,7 +119,11 @@ void ezSimpleAnimationComponent::Update()
   if (m_ElapsedTimeSinceUpdate < tMinStep)
     return;
 
-  const bool bVisible = visType != ezVisibilityState::Invisible;
+  EZ_PROFILE_SCOPE("ezSimpleAnimationComponent::Update");
+
+  // if we did this, the animation would fully stop, when the component is really invisible (not even indirectly visible)
+  // this breaks the setting 'InvisibleUpdateRate', which is supposed to let the user override the update rate for this case
+  const bool bVisible = true; // visType != ezVisibilityState::Invisible;
 
   ezResourceLock<ezAnimationClipResource> pAnimation(m_hAnimationClip, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
   if (pAnimation.GetAcquireResult() != ezResourceAcquireResult::Final)
@@ -233,6 +207,7 @@ void ezSimpleAnimationComponent::Update()
     return;
 
   // inform child nodes/components that a new pose is available
+  if (poseGen.ShouldSendPoseResultMsg())
   {
     ezMsgAnimationPoseUpdated msg2;
     msg2.m_pRootTransform = &pSkeleton->GetDescriptor().m_RootTransform;
@@ -330,5 +305,39 @@ bool ezSimpleAnimationComponent::UpdatePlaybackTime(ezTime tDiff, const ezEventT
   return tPrefNorm != m_fNormalizedPlaybackPosition;
 }
 
+
+//////////////////////////////////////////////////////////////////////////
+
+ezSimpleAnimationComponentManager::ezSimpleAnimationComponentManager(ezWorld* pWorld)
+  : ezComponentManager(pWorld)
+{
+}
+
+ezSimpleAnimationComponentManager::~ezSimpleAnimationComponentManager() = default;
+
+void ezSimpleAnimationComponentManager::Initialize()
+{
+  SUPER::Initialize();
+
+  {
+    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezSimpleAnimationComponentManager::Update, this);
+    desc.m_Phase = ezWorldUpdatePhase::Async;
+    desc.m_bOnlyUpdateWhenSimulating = true;
+    desc.m_uiAsyncPhaseBatchSize = 2;
+
+    this->RegisterUpdateFunction(desc);
+  }
+}
+
+void ezSimpleAnimationComponentManager::Update(const ezWorldModule::UpdateContext& context)
+{
+  for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
+  {
+    if (it->IsActiveAndInitialized())
+    {
+      it->Update();
+    }
+  }
+}
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Skeletal_Implementation_SimpleAnimationComponent);

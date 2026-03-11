@@ -6,7 +6,7 @@
 #include <RendererCore/Components/LensFlareComponent.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
 #include <RendererCore/Lights/SpotLightComponent.h>
-#include <RendererCore/Pipeline/ExtractedRenderData.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 
@@ -15,14 +15,20 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLensFlareRenderData, 1, ezRTTIDefaultAllocator
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezLensFlareRenderData::FillBatchIdAndSortingKey()
+void ezLensFlareRenderData::FillSortingKey()
 {
   // ignore upper 32 bit of the resource ID hash
   const ezUInt32 uiTextureIDHash = static_cast<ezUInt32>(m_hTexture.GetResourceIDHash());
 
-  // Batch and sort by texture
-  m_uiBatchId = uiTextureIDHash;
+  // Sort by texture
   m_uiSortingKey = uiTextureIDHash;
+}
+
+bool ezLensFlareRenderData::CanBatch(const ezRenderData& other0) const
+{
+  const auto& other = ezStaticCast<const ezLensFlareRenderData&>(other0);
+
+  return m_hTexture == other.m_hTexture;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -32,7 +38,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezLensFlareElement, ezNoBase, 1, ezRTTIDefaultAll
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Texture", GetTextureFile, SetTextureFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_2D")),
+    EZ_RESOURCE_MEMBER_PROPERTY("Texture", m_hTexture)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_2D")),
     EZ_MEMBER_PROPERTY("GreyscaleTexture", m_bGreyscaleTexture),
     EZ_MEMBER_PROPERTY("Color", m_Color)->AddAttributes(new ezExposeColorAlphaAttribute()),
     EZ_MEMBER_PROPERTY("ModulateByLightColor", m_bModulateByLightColor)->AddAttributes(new ezDefaultValueAttribute(true)),
@@ -46,26 +52,6 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezLensFlareElement, ezNoBase, 1, ezRTTIDefaultAll
 }
 EZ_END_STATIC_REFLECTED_TYPE;
 // clang-format on
-
-void ezLensFlareElement::SetTextureFile(const char* szFile)
-{
-  ezTexture2DResourceHandle hTexture;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(szFile);
-  }
-
-  m_hTexture = hTexture;
-}
-
-const char* ezLensFlareElement::GetTextureFile() const
-{
-  if (!m_hTexture.IsValid())
-    return "";
-
-  return m_hTexture.GetResourceID();
-}
 
 ezResult ezLensFlareElement::Serialize(ezStreamWriter& inout_stream) const
 {
@@ -100,12 +86,13 @@ ezResult ezLensFlareElement::Deserialize(ezStreamReader& inout_stream)
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezLensFlareComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezLensFlareComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("LinkToLightShape", GetLinkToLightShape, SetLinkToLightShape)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("Intensity", m_fIntensity)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1.0f)),
+    EZ_MEMBER_PROPERTY("LightColor", m_LightColor),
     EZ_ACCESSOR_PROPERTY("OcclusionSampleRadius", GetOcclusionSampleRadius, SetOcclusionSampleRadius)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(0.1f), new ezSuffixAttribute(" m")),
     EZ_MEMBER_PROPERTY("OcclusionSampleSpread", m_fOcclusionSampleSpread)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f), new ezDefaultValueAttribute(0.5f)),
     EZ_MEMBER_PROPERTY("OcclusionDepthOffset", m_fOcclusionDepthOffset)->AddAttributes(new ezSuffixAttribute(" m")),
@@ -113,18 +100,19 @@ EZ_BEGIN_COMPONENT_TYPE(ezLensFlareComponent, 1, ezComponentMode::Static)
     EZ_ARRAY_MEMBER_PROPERTY("Elements", m_Elements)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1.0f)),
   }
   EZ_END_PROPERTIES;
+  EZ_BEGIN_MESSAGEHANDLERS
+  {
+    EZ_MESSAGE_HANDLER(ezMsgSetColor, OnMsgSetColor),
+    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
+  }
+  EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Rendering"),
     new ezSphereManipulatorAttribute("OcclusionSampleRadius"),
     new ezSphereVisualizerAttribute("OcclusionSampleRadius", ezColor::White)
   }
-  EZ_END_ATTRIBUTES;
-  EZ_BEGIN_MESSAGEHANDLERS
-  {
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
-  }
-  EZ_END_MESSAGEHANDLERS;
+  EZ_END_ATTRIBUTES;  
 }
 EZ_END_COMPONENT_TYPE;
 // clang-format on
@@ -154,6 +142,7 @@ void ezLensFlareComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 
   s.WriteArray(m_Elements).IgnoreResult();
   s << m_fIntensity;
+  s << m_LightColor;
   s << m_fOcclusionSampleRadius;
   s << m_fOcclusionSampleSpread;
   s << m_fOcclusionDepthOffset;
@@ -165,12 +154,15 @@ void ezLensFlareComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
   const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
-  EZ_IGNORE_UNUSED(uiVersion);
 
   ezStreamReader& s = inout_stream.GetStream();
 
   s.ReadArray(m_Elements).IgnoreResult();
   s >> m_fIntensity;
+  if (uiVersion >= 2)
+  {
+    s >> m_LightColor;
+  }
   s >> m_fOcclusionSampleRadius;
   s >> m_fOcclusionSampleSpread;
   s >> m_fOcclusionDepthOffset;
@@ -240,10 +232,15 @@ void ezLensFlareComponent::FindLightComponent()
   }
 }
 
+void ezLensFlareComponent::OnMsgSetColor(ezMsgSetColor& ref_msg)
+{
+  ref_msg.ModifyColor(m_LightColor);
+}
+
 void ezLensFlareComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
-  // Don't render in shadow views
-  if (msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow)
+  // Don't render in shadow and reflection views
+  if (msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow || msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Reflection)
     return;
 
   // Don't extract render data for selection.
@@ -265,12 +262,16 @@ void ezLensFlareComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
     lightColor = pLightComponent->GetLightColor();
     lightColor *= pLightComponent->GetIntensity() * 0.1f;
   }
+  else
+  {
+    lightColor = m_LightColor;
+  }
 
   float fFade = 1.0f;
   if (auto pDirectionalLight = ezDynamicCast<const ezDirectionalLightComponent*>(pLightComponent))
   {
     ezTransform localOffset = ezTransform::MakeIdentity();
-    localOffset.m_vPosition = ezVec3(pCamera->GetFarPlane() * -0.999, 0, 0);
+    localOffset.m_vPosition = ezVec3(pCamera->GetFarPlane() * -0.999f, 0, 0);
 
     globalTransform = ezTransform::MakeGlobalTransform(globalTransform, localOffset);
     globalTransform.m_vPosition += pCamera->GetCenterPosition();
@@ -310,10 +311,10 @@ void ezLensFlareComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
     if (color.GetLuminance() <= 0.0f || color.a <= 0.0f)
       continue;
 
-    ezLensFlareRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezLensFlareRenderData>(GetOwner());
+    ezLensFlareRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezLensFlareRenderData>(GetOwner());
     {
-      pRenderData->m_GlobalTransform = globalTransform;
-      pRenderData->m_GlobalBounds = globalBounds;
+      pRenderData->m_vGlobalPosition = globalTransform.m_vPosition;
+
       pRenderData->m_hTexture = element.m_hTexture;
       pRenderData->m_Color = color.GetAsVec4();
       pRenderData->m_fSize = element.m_fSize * fScale;
@@ -327,7 +328,7 @@ void ezLensFlareComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
       pRenderData->m_bGreyscaleTexture = element.m_bGreyscaleTexture;
       pRenderData->m_bApplyFog = m_bApplyFog;
 
-      pRenderData->FillBatchIdAndSortingKey();
+      pRenderData->FillSortingKey();
     }
 
     msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitTransparent,

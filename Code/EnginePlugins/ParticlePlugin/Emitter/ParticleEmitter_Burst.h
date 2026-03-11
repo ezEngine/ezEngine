@@ -3,6 +3,10 @@
 #include <Foundation/Types/VarianceTypes.h>
 #include <ParticlePlugin/Emitter/ParticleEmitter.h>
 
+/// Emitter that spawns a burst of particles over a short duration
+///
+/// Spawns all particles distributed over the duration time.
+/// After the burst completes, the emitter becomes inactive.
 class EZ_PARTICLEPLUGIN_DLL ezParticleEmitterFactory_Burst final : public ezParticleEmitterFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleEmitterFactory_Burst, ezParticleEmitterFactory);
@@ -18,12 +22,12 @@ public:
   virtual void Load(ezStreamReader& inout_stream) override;
 
 public:
-  ezTime m_Duration;
-  ezTime m_StartDelay;
+  ezTime m_Duration;                    ///< Duration over which to distribute the burst (0 = single frame)
+  ezTime m_StartDelay;                  ///< Delay before burst starts
 
-  ezUInt32 m_uiSpawnCountMin;
-  ezUInt32 m_uiSpawnCountRange;
-  ezString m_sSpawnCountScaleParameter;
+  ezUInt32 m_uiSpawnCountMin;           ///< Minimum number of particles to spawn
+  ezUInt32 m_uiSpawnCountRange;         ///< Random range added to spawn count
+  ezString m_sSpawnCountScaleParameter; ///< Optional parameter to scale spawn count
 };
 
 

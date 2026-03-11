@@ -18,11 +18,10 @@ CullMode = CullMode_None
 #include <Shaders/Common/BRDF.h>
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Common/ObjectConstants.h>
-#include <Shaders/Materials/DefaultMaterialCB.h>
 #include "ReflectionFilteredSpecularConstants.h"
 
 TextureCube InputCubemap;
-RWTexture2DArray<float4> ReflectionOutput;
+RWTexture2DArray<half4> ReflectionOutput;
 
 // http://holger.dammertz.org/stuff/notes_HammersleyOnHemisphere.html
 float radicalInverse_VdC(uint bits) {
@@ -178,7 +177,11 @@ void main(uint3 groupID : SV_GroupID, uint3 groupThreadID : SV_GroupThreadID)
   const uint2 pixelIndex = uint2(groupID.x * 8 + groupThreadID.x, groupID.y * 8 + groupThreadID.y);
 
   uint width, height, mipCount;
-  ReflectionOutput.GetDimensions(width, height, mipCount);
+  // Broken in Nvidia driver 566.14.0. Output width and height is now passed in as constant buffer parameter.
+  //ReflectionOutput.GetDimensions(width, height, mipCount);
+  width = OutputWidth;
+  height = OutputHeight;
+
   // Check for out of bounds threads (happens on last 4x4 mip level)
   if (pixelIndex.x >= width || pixelIndex.y >= height)
     return;
@@ -203,6 +206,8 @@ void main(uint3 groupID : SV_GroupID, uint3 groupThreadID : SV_GroupThreadID)
   {
     inputColor = integrateCubeLDOnly(CubeMapDirection(dir), CubeMapDirection(dir), roughness);
   }
+
+  inputColor.rgb *= Intensity;
 
   ReflectionOutput[uint3(pixelIndex, faceIndex)] = inputColor;
 }

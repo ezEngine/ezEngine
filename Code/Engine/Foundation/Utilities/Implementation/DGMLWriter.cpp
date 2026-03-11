@@ -37,13 +37,22 @@ void ezDGMLGraph::AddNodeToGroup(NodeId node, NodeId group)
   m_Nodes[node].m_ParentGroup = group;
 }
 
-ezDGMLGraph::ConnectionId ezDGMLGraph::AddConnection(ezDGMLGraph::NodeId source, ezDGMLGraph::NodeId target, ezStringView sLabel)
+ezDGMLGraph::CategoryId ezDGMLGraph::AddConnectionCategory(ezStringView sName, const ezColor& color)
+{
+  auto& cat = m_ConnectionCategories.ExpandAndGetRef();
+  cat.m_sName = sName;
+  cat.m_Color = color;
+  return m_ConnectionCategories.GetCount() - 1;
+}
+
+ezDGMLGraph::ConnectionId ezDGMLGraph::AddConnection(ezDGMLGraph::NodeId source, ezDGMLGraph::NodeId target, ezStringView sLabel, CategoryId category)
 {
   ezDGMLGraph::Connection& connection = m_Connections.ExpandAndGetRef();
 
   connection.m_Source = source;
   connection.m_Target = target;
   connection.m_sLabel = sLabel;
+  connection.m_uiCategory = category;
 
   return m_Connections.GetCount() - 1;
 }
@@ -122,6 +131,21 @@ ezResult ezDGMLGraphWriter::WriteGraphToString(ezStringBuilder& ref_sStringBuild
   }
 
   ref_sStringBuilder.AppendFormat("<DirectedGraph xmlns=\"http://schemas.microsoft.com/vs/2009/dgml\" GraphDirection=\"{0}\" Layout=\"{1}\">\n", szDirection, szLayout);
+
+  // Write out all connection categories
+  if (!graph.m_ConnectionCategories.IsEmpty())
+  {
+    ref_sStringBuilder.Append("\t<Categories>\n");
+    for (ezUInt32 i = 0; i < graph.m_ConnectionCategories.GetCount(); ++i)
+    {
+      const auto& cat = graph.m_ConnectionCategories[i];
+      ezColorGammaUB rgba(cat.m_Color);
+      ezStringBuilder sStroke;
+      sStroke.SetFormat("#FF{0}{1}{2}", ezArgU(rgba.r, 2, true, 16, true), ezArgU(rgba.g, 2, true, 16, true), ezArgU(rgba.b, 2, true, 16, true));
+      ref_sStringBuilder.AppendFormat("\t\t<Category Id=\"C_{0}\" Label=\"{1}\" Stroke=\"{2}\" />\n", i, cat.m_sName, sStroke);
+    }
+    ref_sStringBuilder.Append("\t</Categories>\n");
+  }
 
   // Write out all the properties
   if (!graph.m_PropertyTypes.IsEmpty())
@@ -215,7 +239,17 @@ ezResult ezDGMLGraphWriter::WriteGraphToString(ezStringBuilder& ref_sStringBuild
     {
       for (ezUInt32 i = 0; i < graph.m_Connections.GetCount(); ++i)
       {
-        ref_sStringBuilder.AppendFormat("\t\t<Link Source=\"N_{0}\" Target=\"N_{1}\" Label=\"{2}\" />\n", graph.m_Connections[i].m_Source, graph.m_Connections[i].m_Target, graph.m_Connections[i].m_sLabel);
+        const auto& conn = graph.m_Connections[i];
+        if (conn.m_uiCategory != ezInvalidIndex)
+        {
+          ref_sStringBuilder.AppendFormat("\t\t<Link Source=\"N_{0}\" Target=\"N_{1}\" Label=\"{2}\" Category=\"C_{3}\" />\n",
+            conn.m_Source, conn.m_Target, conn.m_sLabel, conn.m_uiCategory);
+        }
+        else
+        {
+          ref_sStringBuilder.AppendFormat("\t\t<Link Source=\"N_{0}\" Target=\"N_{1}\" Label=\"{2}\" />\n",
+            conn.m_Source, conn.m_Target, conn.m_sLabel);
+        }
       }
 
       for (ezUInt32 i = 0; i < graph.m_Nodes.GetCount(); ++i)

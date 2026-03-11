@@ -142,8 +142,7 @@ void ConvexHullBuilder2D::AssignPointToEdge(int inPositionIdx, const Array<Edge 
 		else
 		{
 			// Not the furthest point, add it as the before last point
-			best_edge->mConflictList.push_back(best_edge->mConflictList.back());
-			best_edge->mConflictList[best_edge->mConflictList.size() - 2] = inPositionIdx;
+			best_edge->mConflictList.insert(best_edge->mConflictList.begin() + best_edge->mConflictList.size() - 1, inPositionIdx);
 		}
 	}
 }
@@ -170,7 +169,7 @@ ConvexHullBuilder2D::EResult ConvexHullBuilder2D::Initialize(int inIdx1, int inI
 	// Start with the initial indices in counter clockwise order
 	float z = (mPositions[inIdx2] - mPositions[inIdx1]).Cross(mPositions[inIdx3] - mPositions[inIdx1]).GetZ();
 	if (z < 0.0f)
-		swap(inIdx1, inIdx2);
+		std::swap(inIdx1, inIdx2);
 
 	// Create and link edges
 	Edge *e1 = new Edge(inIdx1);

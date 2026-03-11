@@ -19,6 +19,7 @@ public:
 
 protected:
   virtual void paintEvent(QPaintEvent* e) override;
+  virtual void mouseReleaseEvent(QMouseEvent* e) override;
 
 private Q_SLOTS:
   void SlotUpdateTransformStats();

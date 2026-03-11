@@ -177,7 +177,30 @@ const ezUInt8 ezGALResourceFormat::s_ChannelCount[ezGALResourceFormat::ENUM_COUN
   4, // BC7UNormalized
   4  // BC7UNormalizedsRGB
 };
+// clang-format on
 
-// clang-format off
+bool ezGALResourceFormat::IsBlockCompressed(ezGALResourceFormat::Enum format)
+{
+  return (format >= ezGALResourceFormat::BC1 && format < ezGALResourceFormat::ENUM_COUNT);
+}
 
-
+bool ezGALResourceFormat::IsFloatFormat(ezGALResourceFormat::Enum format)
+{
+  switch (format)
+  {
+    case ezGALResourceFormat::RGBAFloat:
+    case ezGALResourceFormat::RGBFloat:
+    case ezGALResourceFormat::RGBAHalf:
+    case ezGALResourceFormat::RGFloat:
+    case ezGALResourceFormat::RG11B10Float:
+    case ezGALResourceFormat::RGHalf:
+    case ezGALResourceFormat::DFloat:
+    case ezGALResourceFormat::RFloat:
+    case ezGALResourceFormat::RHalf:
+    case ezGALResourceFormat::BC6UFloat:
+    case ezGALResourceFormat::BC6Float:
+      return true;
+    default:
+      return false;
+  }
+}

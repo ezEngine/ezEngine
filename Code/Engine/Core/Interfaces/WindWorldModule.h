@@ -8,10 +8,11 @@
 /// See https://en.wikipedia.org/wiki/Beaufort_scale
 struct EZ_CORE_DLL ezWindStrength
 {
-  using StorageType = ezUInt8;
+  using StorageType = ezInt8;
 
   enum Enum
   {
+    None = -1,
     Calm,
     LightBreeze,
     GentleBreeze,

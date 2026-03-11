@@ -14,8 +14,6 @@ public:
   ezQtColorGradientAssetDocumentWindow(ezDocument* pDocument);
   ~ezQtColorGradientAssetDocumentWindow();
 
-  virtual const char* GetWindowLayoutGroupName() const override { return "ColorGradientAsset"; }
-
 private Q_SLOTS:
   void onGradientColorCpAdded(double posX, const ezColorGammaUB& color);
   void onGradientAlphaCpAdded(double posX, ezUInt8 alpha);

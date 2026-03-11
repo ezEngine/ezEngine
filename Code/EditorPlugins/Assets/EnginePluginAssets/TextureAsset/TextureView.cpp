@@ -45,9 +45,10 @@ void ezTextureViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
   if (hResource.IsValid())
   {
     ezResourceLock<ezTexture2DResource> pResource(hResource, ezResourceAcquireMode::AllowLoadingFallback);
-    ezGALResourceFormat::Enum format = pResource->GetFormat();
-    ezUInt32 uiWidth = pResource->GetWidth();
-    ezUInt32 uiHeight = pResource->GetHeight();
+    const ezGALResourceFormat::Enum format = pResource->GetFormat();
+    const int iMipLevel = m_pTextureContext->GetLodLevel();
+    const ezUInt32 uiWidth = pResource->GetWidth();
+    const ezUInt32 uiHeight = pResource->GetHeight();
 
     ezStringBuilder sText;
     if (!ezReflectionUtils::EnumerationToString(ezGetStaticRTTI<ezGALResourceFormat>(), format, sText, ezReflectionUtils::EnumConversionMode::ValueNameOnly))
@@ -55,7 +56,20 @@ void ezTextureViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
       sText = "Unknown format";
     }
 
-    sText.PrependFormat("{0}x{1} - ", uiWidth, uiHeight);
+    sText.PrependFormat("{}x{} - ", uiWidth, uiHeight);
+    sText.Append("\nPreview Mip Level: ");
+
+    if (iMipLevel < 0)
+    {
+      sText.Append("Auto");
+    }
+    else
+    {
+      const ezUInt32 uiMipWidth = ezMath::Max(1u, uiWidth >> ezMath::Max(iMipLevel, 0));
+      const ezUInt32 uiMipHeight = ezMath::Max(1u, uiHeight >> ezMath::Max(iMipLevel, 0));
+
+      sText.AppendFormat("{} ({}x{})", iMipLevel, uiMipWidth, uiMipHeight);
+    }
 
     ezDebugRenderer::DrawInfoText(m_hView, ezDebugTextPlacement::BottomLeft, "AssetStats", sText);
   }

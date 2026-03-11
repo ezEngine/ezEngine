@@ -17,6 +17,9 @@ class JPH_EXPORT TempAllocator : public NonCopyable
 public:
 	JPH_OVERRIDE_NEW_DELETE
 
+	/// If this allocator needs to fall back to aligned allocations because JPH_RVECTOR_ALIGNMENT is bigger than the platform default
+	static constexpr bool			needs_aligned_allocate = JPH_RVECTOR_ALIGNMENT > JPH_DEFAULT_ALLOCATE_ALIGNMENT;
+
 	/// Destructor
 	virtual							~TempAllocator() = default;
 
@@ -34,17 +37,22 @@ public:
 	JPH_OVERRIDE_NEW_DELETE
 
 	/// Constructs the allocator with a maximum allocatable size of inSize
-	explicit						TempAllocatorImpl(uint inSize) :
-		mBase(static_cast<uint8 *>(AlignedAllocate(inSize, JPH_RVECTOR_ALIGNMENT))),
-		mSize(inSize)
+	explicit						TempAllocatorImpl(size_t inSize) : mSize(inSize)
 	{
+		if constexpr (needs_aligned_allocate)
+			mBase = static_cast<uint8 *>(AlignedAllocate(inSize, JPH_RVECTOR_ALIGNMENT));
+		else
+			mBase = static_cast<uint8 *>(JPH::Allocate(inSize));
 	}
 
 	/// Destructor, frees the block
 	virtual							~TempAllocatorImpl() override
 	{
 		JPH_ASSERT(mTop == 0);
-		AlignedFree(mBase);
+		if constexpr (needs_aligned_allocate)
+			AlignedFree(mBase);
+		else
+			JPH::Free(mBase);
 	}
 
 	// See: TempAllocator
@@ -56,10 +64,10 @@ public:
 		}
 		else
 		{
-			uint new_top = mTop + AlignUp(inSize, JPH_RVECTOR_ALIGNMENT);
+			size_t new_top = mTop + AlignUp(inSize, JPH_RVECTOR_ALIGNMENT);
 			if (new_top > mSize)
 			{
-				Trace("TempAllocator: Out of memory");
+				Trace("TempAllocator: Out of memory trying to allocate %u bytes", inSize);
 				std::abort();
 			}
 			void *address = mBase + mTop;
@@ -86,16 +94,40 @@ public:
 		}
 	}
 
-	// Check if no allocations have been made
+	/// Check if no allocations have been made
 	bool							IsEmpty() const
 	{
 		return mTop == 0;
 	}
 
+	/// Get the total size of the fixed buffer
+	size_t							GetSize() const
+	{
+		return mSize;
+	}
+
+	/// Get current usage in bytes of the buffer
+	size_t							GetUsage() const
+	{
+		return mTop;
+	}
+
+	/// Check if an allocation of inSize can be made in this fixed buffer allocator
+	bool							CanAllocate(uint inSize) const
+	{
+		return mTop + AlignUp(inSize, JPH_RVECTOR_ALIGNMENT) <= mSize;
+	}
+
+	/// Check if memory block at inAddress is owned by this allocator
+	bool							OwnsMemory(const void *inAddress) const
+	{
+		return inAddress >= mBase && inAddress < mBase + mSize;
+	}
+
 private:
 	uint8 *							mBase;							///< Base address of the memory block
-	uint							mSize;							///< Size of the memory block
-	uint							mTop = 0;						///< Current top of the stack
+	size_t							mSize;							///< Size of the memory block
+	size_t							mTop = 0;						///< End of currently allocated area
 };
 
 /// Implementation of the TempAllocator that just falls back to malloc/free
@@ -108,14 +140,70 @@ public:
 	// See: TempAllocator
 	virtual void *					Allocate(uint inSize) override
 	{
-		return AlignedAllocate(inSize, JPH_RVECTOR_ALIGNMENT);
+		if (inSize > 0)
+		{
+			if constexpr (needs_aligned_allocate)
+				return AlignedAllocate(inSize, JPH_RVECTOR_ALIGNMENT);
+			else
+				return JPH::Allocate(inSize);
+		}
+		else
+			return nullptr;
 	}
 
 	// See: TempAllocator
 	virtual void					Free(void *inAddress, [[maybe_unused]] uint inSize) override
 	{
-		AlignedFree(inAddress);
+		if (inAddress != nullptr)
+		{
+			if constexpr (needs_aligned_allocate)
+				AlignedFree(inAddress);
+			else
+				JPH::Free(inAddress);
+		}
 	}
+};
+
+/// Implementation of the TempAllocator that tries to allocate from a large preallocated block, but falls back to malloc when it is exhausted
+class JPH_EXPORT TempAllocatorImplWithMallocFallback final : public TempAllocator
+{
+public:
+	JPH_OVERRIDE_NEW_DELETE
+
+	/// Constructs the allocator with an initial fixed block if inSize
+	explicit						TempAllocatorImplWithMallocFallback(uint inSize) :
+		mAllocator(inSize)
+	{
+	}
+
+	// See: TempAllocator
+	virtual void *					Allocate(uint inSize) override
+	{
+		if (mAllocator.CanAllocate(inSize))
+			return mAllocator.Allocate(inSize);
+		else
+			return mFallbackAllocator.Allocate(inSize);
+	}
+
+	// See: TempAllocator
+	virtual void					Free(void *inAddress, uint inSize) override
+	{
+		if (inAddress == nullptr)
+		{
+			JPH_ASSERT(inSize == 0);
+		}
+		else
+		{
+			if (mAllocator.OwnsMemory(inAddress))
+				mAllocator.Free(inAddress, inSize);
+			else
+				mFallbackAllocator.Free(inAddress, inSize);
+		}
+	}
+
+private:
+	TempAllocatorImpl				mAllocator;
+	TempAllocatorMalloc				mFallbackAllocator;
 };
 
 JPH_NAMESPACE_END

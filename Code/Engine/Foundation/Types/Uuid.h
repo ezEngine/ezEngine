@@ -6,20 +6,24 @@
 class ezStreamReader;
 class ezStreamWriter;
 
-/// \brief This data type is the abstraction for 128-bit Uuid (also known as GUID) instances.
+/// \brief 128-bit Universally Unique Identifier (UUID/GUID) for object identification and referencing.
+///
+/// ezUuid provides a robust way to uniquely identify objects, assets, or entities across systems,
+/// time, and network boundaries. It's essential for serialization, asset management, networking,
+/// and any scenario where objects need stable, globally unique identities.
 class EZ_FOUNDATION_DLL ezUuid
 {
 public:
   EZ_DECLARE_POD_TYPE();
 
   /// \brief Default constructor. Constructed Uuid will be invalid.
-  EZ_ALWAYS_INLINE ezUuid(); // [tested]
+  EZ_ALWAYS_INLINE ezUuid() = default; // [tested]
 
   /// \brief Constructs the Uuid from existing values
-  EZ_ALWAYS_INLINE ezUuid(ezUInt64 uiLow, ezUInt64 uiHigh)
+  EZ_ALWAYS_INLINE constexpr ezUuid(ezUInt64 uiLow, ezUInt64 uiHigh)
+    : m_uiHigh(uiHigh)
+    , m_uiLow(uiLow)
   {
-    m_uiLow = uiLow;
-    m_uiHigh = uiHigh;
   }
 
   /// \brief Comparison operator. [tested]
@@ -66,8 +70,8 @@ private:
   friend EZ_FOUNDATION_DLL_FRIEND void operator>>(ezStreamReader& inout_stream, ezUuid& ref_value);
   friend EZ_FOUNDATION_DLL_FRIEND void operator<<(ezStreamWriter& inout_stream, const ezUuid& value);
 
-  ezUInt64 m_uiHigh;
-  ezUInt64 m_uiLow;
+  ezUInt64 m_uiHigh = 0;
+  ezUInt64 m_uiLow = 0;
 };
 
 #include <Foundation/Types/Implementation/Uuid_inl.h>

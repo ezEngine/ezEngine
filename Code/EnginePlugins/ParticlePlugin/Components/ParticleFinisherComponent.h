@@ -7,6 +7,7 @@
 #include <RendererCore/Components/RenderComponent.h>
 
 struct ezMsgExtractRenderData;
+struct ezMsgInterruptPlaying;
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleFinisherComponentManager final : public ezComponentManager<class ezParticleFinisherComponent, ezBlockStorageType::Compact>
 {
@@ -44,6 +45,9 @@ public:
 public:
   ezParticleFinisherComponent();
   ~ezParticleFinisherComponent();
+
+  /// \brief Forwards to InterruptEffect().
+  void OnMsgInterruptPlaying(ezMsgInterruptPlaying& ref_msg); // [ msg handler ]
 
   ezParticleEffectController m_EffectController;
 

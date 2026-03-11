@@ -33,7 +33,13 @@ struct ezAtomicStorageType<8>
   using Type = ezInt64;
 };
 
-/// \brief Integer class that can be manipulated in an atomic (i.e. thread-safe) fashion.
+/// \brief Thread-safe atomic integer with lock-free operations
+///
+/// Provides atomic (thread-safe) operations on integer types without requiring explicit locking.
+/// All operations are lock-free and use hardware atomic instructions where available.
+/// Supports common atomic operations like increment, decrement, compare-and-swap, and bitwise operations.
+/// The class is templated to work with various integer types while ensuring proper atomic alignment.
+/// Use ezAtomicInteger32 or ezAtomicInteger64 typedefs for common cases.
 template <typename T>
 class ezAtomicInteger
 {
@@ -82,11 +88,17 @@ public:
   /// \brief Sets the internal value to x and returns the original internal value.
   T Set(T x); // [tested]
 
-  /// \brief Sets the internal value to x if the internal value is equal to expected and returns true, otherwise does nothing and returns false.
+  /// \brief Atomic conditional assignment operation
+  ///
+  /// Sets the value to x only if the current value equals expected. Returns true if the assignment
+  /// occurred, false otherwise. This is a fundamental building block for lock-free algorithms.
   bool TestAndSet(T expected, T x); // [tested]
 
-  /// \brief If this is equal to *expected*, it is set to *value*. Otherwise it won't be modified. Always returns the previous value of this before
-  /// the modification.
+  /// \brief Atomic compare-and-swap operation returning the previous value
+  ///
+  /// If the current value equals expected, it is atomically replaced with x.
+  /// Always returns the value that was present before the operation, regardless of whether
+  /// the swap occurred. This enables retry loops in lock-free algorithms.
   T CompareAndSwap(T expected, T x); // [tested]
 
   operator T() const;                // [tested]
@@ -121,8 +133,10 @@ public:
   /// \brief Returns the current value.
   operator bool() const; // [tested]
 
-  /// \brief Sets the internal value to \a newValue if the internal value is equal to \a expected and returns true, otherwise does nothing and returns
-  /// false.
+  /// \brief Atomic conditional assignment for boolean values
+  ///
+  /// Sets the value to newValue only if the current value equals expected.
+  /// Returns true if the assignment occurred, false otherwise.
   bool TestAndSet(bool bExpected, bool bNewValue);
 
 private:

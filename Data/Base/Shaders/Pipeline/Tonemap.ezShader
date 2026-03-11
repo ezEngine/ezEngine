@@ -4,7 +4,6 @@ ALL
 [PERMUTATIONS]
 
 CAMERA_MODE
-VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
 LUT_MODE
 
 [RENDERSTATE]
@@ -16,10 +15,6 @@ CullMode = CullMode_None
 [VERTEXSHADER]
 
 #include <Shaders/Pipeline/FullscreenTriangleVertexShader.h>
-
-[GEOMETRYSHADER]
-
-#include <Shaders/Pipeline/FullscreenTriangleStereoGeometryShader.h>
 
 [PIXELSHADER]
 
@@ -94,7 +89,7 @@ float4 main(PS_IN Input) : SV_Target
   // Tonemapping
   float3 color = FilmicTonemap(sceneColor.rgb);
 
-  float3 whiteScale = 1.0 / FilmicTonemap(11.2);
+  float3 whiteScale = 1.0 / FilmicTonemap(WhitePoint);
   color = saturate(color * whiteScale);
 
   // Color grading with LUTs if enabled

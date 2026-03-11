@@ -7,6 +7,8 @@
 class ezAnimationClipAssetDocument;
 struct ezPropertyMetaStateEvent;
 
+//////////////////////////////////////////////////////////////////////////
+
 struct ezRootMotionSource
 {
   using StorageType = ezUInt8;
@@ -15,14 +17,31 @@ struct ezRootMotionSource
   {
     None,
     Constant,
-    // FromFeet,
-    // AvgFromFeet,
 
     Default = None
   };
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezRootMotionSource);
+
+//////////////////////////////////////////////////////////////////////////
+
+struct ezAdditiveAnimationReference
+{
+  using StorageType = ezUInt8;
+
+  enum Enum
+  {
+    FirstKeyFrame,
+    LastKeyFrame,
+
+    Default = FirstKeyFrame
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezAdditiveAnimationReference);
+
+//////////////////////////////////////////////////////////////////////////
 
 class ezAnimationClipAssetProperties : public ezReflectedClass
 {
@@ -40,7 +59,10 @@ public:
   ezUInt32 m_uiNumFrames = 0;
   ezString m_sPreviewMesh;
   ezEnum<ezRootMotionSource> m_RootMotionMode;
+  ezEnum<ezAdditiveAnimationReference> m_AdditiveReference;
   ezVec3 m_vConstantRootMotion;
+  float m_fConstantRootMotionLength = 0.0f;
+  float m_fAnimationPositionScale = 1.0f;
 
   ezEventTrackData m_EventTrack;
 
@@ -65,10 +87,6 @@ protected:
   virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
   virtual ezTransformStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
 
-  // void ApplyCustomRootMotion(ezAnimationClipResourceDescriptor& anim) const;
-  // void ExtractRootMotionFromFeet(ezAnimationClipResourceDescriptor& anim, const ezSkeleton& skeleton) const;
-  // void MakeRootMotionConstantAverage(ezAnimationClipResourceDescriptor& anim) const;
-
 private:
   float m_fSimulationSpeed = 1.0f;
 };
@@ -85,6 +103,6 @@ public:
 
   virtual void GetImportModes(ezStringView sAbsInputFile, ezDynamicArray<ezAssetDocumentGenerator::ImportMode>& out_modes) const override;
   virtual ezStringView GetDocumentExtension() const override { return "ezAnimationClipAsset"; }
-  virtual ezStringView GetGeneratorGroup() const override { return "AnimationClipGroup"; }
+  virtual ezStringView GetGeneratorGroup() const override { return "Meshes"; }
   virtual ezStatus Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments) override;
 };

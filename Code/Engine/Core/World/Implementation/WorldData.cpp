@@ -19,6 +19,8 @@ namespace ezInternal
 
     virtual void GetCoordinateSystem(const ezVec3& vGlobalPosition, ezCoordinateSystem& out_coordinateSystem) const override
     {
+      EZ_IGNORE_UNUSED(vGlobalPosition);
+
       out_coordinateSystem.m_vForwardDir = ezVec3(1.0f, 0.0f, 0.0f);
       out_coordinateSystem.m_vRightDir = ezVec3(0.0f, 1.0f, 0.0f);
       out_coordinateSystem.m_vUpDir = ezVec3(0.0f, 0.0f, 1.0f);
@@ -43,7 +45,7 @@ namespace ezInternal
     , m_Allocator(desc.m_sName, ezFoundation::GetDefaultAllocator())
     , m_AllocatorWrapper(&m_Allocator)
     , m_BlockAllocator(desc.m_sName, &m_Allocator)
-    , m_StackAllocator(desc.m_sName, ezFoundation::GetAlignedAllocator())
+    , m_LinearAllocator(desc.m_sName, ezFoundation::GetAlignedAllocator())
     , m_ObjectStorage(&m_BlockAllocator, &m_Allocator)
     , m_MaxInitializationTimePerFrame(desc.m_MaxComponentInitializationTimePerFrame)
     , m_Clock(desc.m_sName)
@@ -68,14 +70,14 @@ namespace ezInternal
     m_Objects.Insert(nullptr);
 
 #if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
-    EZ_CHECK_AT_COMPILETIME(sizeof(ezGameObject::TransformationData) == 240);
+    static_assert(sizeof(ezGameObject::TransformationData) == 240);
 #else
-    EZ_CHECK_AT_COMPILETIME(sizeof(ezGameObject::TransformationData) == 192);
+    static_assert(sizeof(ezGameObject::TransformationData) == 192);
 #endif
 
-    EZ_CHECK_AT_COMPILETIME(sizeof(ezGameObject) == 128);
-    EZ_CHECK_AT_COMPILETIME(sizeof(QueuedMsgMetaData) == 16);
-    EZ_CHECK_AT_COMPILETIME(EZ_COMPONENT_TYPE_INDEX_BITS <= sizeof(ezWorldModuleTypeId) * 8);
+    static_assert(sizeof(ezGameObject) == 128);
+    static_assert(sizeof(QueuedMsgMetaData) == 16);
+    static_assert(EZ_COMPONENT_TYPE_INDEX_BITS <= sizeof(ezWorldModuleTypeId) * 8);
 
     auto pDefaultInitBatch = EZ_NEW(&m_Allocator, InitBatch, &m_Allocator, "Default", true);
     pDefaultInitBatch->m_bIsReady = true;
@@ -103,7 +105,10 @@ namespace ezInternal
 
     m_Clock.SetTimeStepSmoothing(m_pTimeStepSmoothing.Borrow());
 
+    // BEGIN-DOCS-CODE-SNIPPET: resource-management-listen-all
+    // Listening to all resource events
     ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&WorldData::ResourceEventHandler, this));
+    // END-DOCS-CODE-SNIPPET
   }
 
   WorldData::~WorldData()

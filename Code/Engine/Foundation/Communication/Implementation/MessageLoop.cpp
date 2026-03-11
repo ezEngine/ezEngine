@@ -7,10 +7,8 @@
 
 EZ_IMPLEMENT_SINGLETON(ezMessageLoop);
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-#  include <Foundation/Platform/Win/MessageLoop_Win.h>
-#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
-#  include <Foundation/Platform/Linux/MessageLoop_Linux.h>
+#if EZ_ENABLED(EZ_SUPPORTS_IPC)
+#  include <MessageLoop_Platform.h>
 #else
 #  include <Foundation/Communication/Implementation/MessageLoop_Fallback.h>
 #endif
@@ -28,10 +26,8 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, MessageLoop)
     if (ezStartup::HasApplicationTag("NoMessageLoop"))
       return;
 
-    #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-      EZ_DEFAULT_NEW(ezMessageLoop_win);
-    #elif EZ_ENABLED(EZ_PLATFORM_LINUX)
-      EZ_DEFAULT_NEW(ezMessageLoop_linux);
+    #if EZ_ENABLED(EZ_SUPPORTS_IPC)
+      EZ_DEFAULT_NEW(ezMessageLoop_Platform);
     #else
       EZ_DEFAULT_NEW(ezMessageLoop_Fallback);
     #endif

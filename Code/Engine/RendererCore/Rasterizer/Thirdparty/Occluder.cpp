@@ -20,7 +20,7 @@ void Occluder::bake(const __m128* vertices, ezUInt32 numVertices, __m128 refMin,
   assert(numVertices % 16 == 0);
 
   // Simple k-means clustering by normal direction to improve backface culling efficiency
-  ezHybridArray<__m128, 32, ezAlignedAllocatorWrapper> quadNormals;
+  ezTempHybridArray<__m128, 32> quadNormals;
   for (ezUInt32 i = 0; i < numVertices; i += 4)
   {
     auto v0 = vertices[i + 0];
@@ -31,8 +31,8 @@ void Occluder::bake(const __m128* vertices, ezUInt32 numVertices, __m128 refMin,
     quadNormals.PushBack(normalize(_mm_add_ps(normal(v0, v1, v2), normal(v0, v2, v3))));
   }
 
-  ezHybridArray<__m128, 32, ezAlignedAllocatorWrapper> centroids;
-  ezHybridArray<uint32_t, 32> centroidAssignment;
+  ezTempHybridArray<__m128, 32> centroids;
+  ezTempHybridArray<uint32_t, 32> centroidAssignment;
   centroids.PushBack(_mm_setr_ps(+1.0f, 0.0f, 0.0f, 0.0f));
   centroids.PushBack(_mm_setr_ps(0.0f, +1.0f, 0.0f, 0.0f));
   centroids.PushBack(_mm_setr_ps(0.0f, 0.0f, +1.0f, 0.0f));
@@ -88,7 +88,7 @@ void Occluder::bake(const __m128* vertices, ezUInt32 numVertices, __m128 refMin,
     }
   }
 
-  ezHybridArray<__m128, 64, ezAlignedAllocatorWrapper> orderedVertices;
+  ezTempHybridArray<__m128, 64> orderedVertices;
   for (uint32_t k = 0; k < centroids.GetCount(); ++k)
   {
     for (ezUInt32 j = 0; j < numVertices / 4; ++j)

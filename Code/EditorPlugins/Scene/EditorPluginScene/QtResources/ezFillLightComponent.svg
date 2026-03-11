@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 800 800" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <g id="SVGRepo_iconCarrier">
+        <path d="M335.04,525L317.214,475.893L306.274,467.123C271.879,439.55 250,397.347 250,350C250,267.157 317.157,200 400,200C482.843,200 550,267.157 550,350C550,397.347 528.12,439.55 493.727,467.123L482.787,475.893L464.96,525L335.04,525ZM300,575L500,575L525,506.133C570.723,469.48 600,413.16 600,350C600,239.543 510.457,150 400,150C289.543,150 200,239.543 200,350C200,413.16 229.277,469.48 275,506.133L300,575ZM475,650L475,600L325,600L325,650L475,650Z" style="fill:white;"/>
+        <g transform="matrix(1.13135,-1.13135,0.659966,0.659966,-581.929,960.051)">
+            <rect x="616.408" y="149.889" width="175.61" height="53.215" style="fill:white;"/>
+        </g>
+        <g transform="matrix(1.31569,-1.31569,0.659966,0.659966,-588.686,1247.07)">
+            <rect x="616.408" y="149.889" width="175.61" height="53.215" style="fill:white;"/>
+        </g>
+        <g transform="matrix(1.32832,-1.32832,0.659966,0.659966,-650.571,1171.49)">
+            <rect x="616.408" y="149.889" width="175.61" height="53.215" style="fill:white;"/>
+        </g>
+    </g>
+</svg>

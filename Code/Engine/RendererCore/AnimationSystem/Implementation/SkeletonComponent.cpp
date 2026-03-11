@@ -16,7 +16,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSkeletonComponent, 5, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Skeleton", GetSkeletonFile, SetSkeletonFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Skeleton")),
+    EZ_RESOURCE_ACCESSOR_PROPERTY("Skeleton", GetSkeleton, SetSkeleton)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Skeleton")),
     EZ_MEMBER_PROPERTY("VisualizeSkeleton", m_bVisualizeBones)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("VisualizeColliders", m_bVisualizeColliders),
     EZ_MEMBER_PROPERTY("VisualizeJoints", m_bVisualizeJoints),
@@ -150,27 +150,6 @@ void ezSkeletonComponent::OnActivated()
   VisualizeSkeletonDefaultState();
 }
 
-void ezSkeletonComponent::SetSkeletonFile(const char* szFile)
-{
-  ezSkeletonResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hResource = ezResourceManager::LoadResource<ezSkeletonResource>(szFile);
-  }
-
-  SetSkeleton(hResource);
-}
-
-const char* ezSkeletonComponent::GetSkeletonFile() const
-{
-  if (!m_hSkeleton.IsValid())
-    return "";
-
-  return m_hSkeleton.GetResourceID();
-}
-
-
 void ezSkeletonComponent::SetSkeleton(const ezSkeletonResourceHandle& hResource)
 {
   if (m_hSkeleton != hResource)
@@ -226,12 +205,12 @@ void ezSkeletonComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg)
   if (poseBounds.IsValid() && (!m_MaxBounds.IsValid() || !m_MaxBounds.Contains(poseBounds)))
   {
     m_MaxBounds.ExpandToInclude(poseBounds);
-    TriggerLocalBoundsUpdate();
+    QueueLocalBoundsUpdate();
   }
   else if (((ezRenderWorld::GetFrameCounter() + GetUniqueIdForRendering()) & (EZ_BIT(10) - 1)) == 0) // reset the bbox every once in a while
   {
     m_MaxBounds = poseBounds;
-    TriggerLocalBoundsUpdate();
+    QueueLocalBoundsUpdate();
   }
 }
 
@@ -251,7 +230,7 @@ void ezSkeletonComponent::BuildSkeletonVisualization(ezMsgAnimationPoseUpdated& 
     bool highlight = false;
   };
 
-  ezHybridArray<Bone, 128> bones;
+  ezTempHybridArray<Bone, 128> bones;
 
   bones.SetCount(msg.m_pSkeleton->GetJointCount());
   m_LinesSkeleton.Reserve(m_LinesSkeleton.GetCount() + msg.m_pSkeleton->GetJointCount());
@@ -337,7 +316,7 @@ void ezSkeletonComponent::BuildSkeletonVisualization(ezMsgAnimationPoseUpdated& 
       ezVec3 v0 = bone.pos;
       ezVec3 v1 = bone.pos + bone.dir * len;
 
-      m_LinesSkeleton.PushBack(ezDebugRenderer::Line(v0, v1));
+      m_LinesSkeleton.PushBack(ezDebugRendererLine(v0, v1));
       m_LinesSkeleton.PeekBack().m_startColor = ezColor::DarkCyan;
       m_LinesSkeleton.PeekBack().m_endColor = ezColor::DarkCyan;
     }
@@ -376,17 +355,17 @@ void ezSkeletonComponent::BuildSkeletonVisualization(ezMsgAnimationPoseUpdated& 
       s[2] = v0 - vO1 * len * 0.1f + bone.dir * len * 0.1f;
       s[3] = v0 - vO2 * len * 0.1f + bone.dir * len * 0.1f;
 
-      m_LinesSkeleton.PushBack(ezDebugRenderer::Line(v0, v1));
+      m_LinesSkeleton.PushBack(ezDebugRendererLine(v0, v1));
       m_LinesSkeleton.PeekBack().m_startColor = ezColor::DarkCyan;
       m_LinesSkeleton.PeekBack().m_endColor = ezColor::DarkCyan;
 
       for (ezUInt32 si = 0; si < 4; ++si)
       {
-        m_LinesSkeleton.PushBack(ezDebugRenderer::Line(v0, s[si]));
+        m_LinesSkeleton.PushBack(ezDebugRendererLine(v0, s[si]));
         m_LinesSkeleton.PeekBack().m_startColor = ezColor::Chartreuse;
         m_LinesSkeleton.PeekBack().m_endColor = ezColor::Chartreuse;
 
-        m_LinesSkeleton.PushBack(ezDebugRenderer::Line(s[si], v1));
+        m_LinesSkeleton.PushBack(ezDebugRendererLine(s[si], v1));
         m_LinesSkeleton.PeekBack().m_startColor = ezColor::Chartreuse;
         m_LinesSkeleton.PeekBack().m_endColor = ezColor::Chartreuse;
       }
@@ -409,8 +388,9 @@ void ezSkeletonComponent::BuildColliderVisualization(ezMsgAnimationPoseUpdated& 
   if (m_sBonesToHighlight == "*")
     bonesToHighlight.Clear();
 
-  ezQuat qRotZtoX; // the capsule should extend along X, but the debug renderer draws them along Z
-  qRotZtoX = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(-90));
+  // the capsule should extend along X, but the debug renderer draws them along Z
+  const ezQuat qRotZtoX = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(-90));
+  const ezQuat qRotYtoZ = ezQuat::MakeFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::MakeFromDegree(90));
 
   for (const auto& geo : pSkeleton->GetDescriptor().m_Geometry)
   {
@@ -463,6 +443,17 @@ void ezSkeletonComponent::BuildColliderVisualization(ezMsgAnimationPoseUpdated& 
 
       // TODO: if offset desired
       st.m_vPosition += qFinalBoneRot * ezVec3(geo.m_Transform.m_vScale.x * 0.5f, 0, 0);
+
+      auto& shape = m_CapsuleShapes.ExpandAndGetRef();
+      shape.m_Transform = st;
+      shape.m_fLength = geo.m_Transform.m_vScale.x;
+      shape.m_fRadius = geo.m_Transform.m_vScale.z;
+      shape.m_Color = hlS;
+    }
+
+    if (geo.m_Type == ezSkeletonJointGeometryType::CapsuleSideways)
+    {
+      st.m_qRotation = st.m_qRotation * qRotYtoZ;
 
       auto& shape = m_CapsuleShapes.ExpandAndGetRef();
       shape.m_Transform = st;
@@ -547,7 +538,7 @@ void ezSkeletonComponent::BuildJointVisualization(ezMsgAnimationPoseUpdated& msg
     const ezQuat qLimitRot = parentRot * thisJoint.GetLocalOrientation();
 
     // main directions
-    if (m_bVisualizeJoints)
+    if (m_bVisualizeJoints && thisJoint.GetJointType() != ezSkeletonJointType::None)
     {
       const ezColor hlM = ezMath::Lerp(ezColor::OrangeRed, ezColor::DimGrey, bHighlight ? 0 : 0.8f);
       const ezColor hlT = ezMath::Lerp(ezColor::LawnGreen, ezColor::DimGrey, bHighlight ? 0 : 0.8f);
@@ -588,7 +579,7 @@ void ezSkeletonComponent::BuildJointVisualization(ezMsgAnimationPoseUpdated& msg
     }
 
     // swing limit
-    if (m_bVisualizeSwingLimits && (thisJoint.GetHalfSwingLimitY() > ezAngle() || thisJoint.GetHalfSwingLimitZ() > ezAngle()))
+    if (m_bVisualizeSwingLimits && thisJoint.GetJointType() == ezSkeletonJointType::SwingTwist)
     {
       auto& shape = m_ConeLimitShapes.ExpandAndGetRef();
       shape.m_Angle1 = thisJoint.GetHalfSwingLimitY();
@@ -613,7 +604,7 @@ void ezSkeletonComponent::BuildJointVisualization(ezMsgAnimationPoseUpdated& msg
     }
 
     // twist limit
-    if (m_bVisualizeTwistLimits && thisJoint.GetTwistLimitHalfAngle() > ezAngle::MakeFromDegree(0))
+    if (m_bVisualizeTwistLimits && thisJoint.GetJointType() == ezSkeletonJointType::SwingTwist)
     {
       auto& shape = m_AngleShapes.ExpandAndGetRef();
       shape.m_StartAngle = thisJoint.GetTwistLimitLow();
@@ -695,7 +686,7 @@ void ezSkeletonComponent::VisualizeSkeletonDefaultState()
   TriggerLocalBoundsUpdate();
 }
 
-ezDebugRenderer::Line& ezSkeletonComponent::AddLine(const ezVec3& vStart, const ezVec3& vEnd, const ezColor& color)
+ezDebugRendererLine& ezSkeletonComponent::AddLine(const ezVec3& vStart, const ezVec3& vEnd, const ezColor& color)
 {
   auto& line = m_LinesSkeleton.ExpandAndGetRef();
   line.m_start = vStart;

@@ -19,7 +19,7 @@ EZ_DEFINE_AS_POD_TYPE(__m128);
 
 void ezRasterizerObject::CreateMesh(const ezGeometry& geo)
 {
-  ezHybridArray<__m128, 64, ezAlignedAllocatorWrapper> vertices;
+  ezTempHybridArray<__m128, 64> vertices;
   vertices.Reserve(geo.GetPolygons().GetCount() * 4);
 
   Aabb bounds;
@@ -117,6 +117,31 @@ ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::CreateBox(const ezVec3
   return pObj;
 }
 
+ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::CreateQuadX(const ezVec2& vYZExtents)
+{
+  EZ_LOCK(s_Mutex);
+
+  ezStringBuilder sName;
+  sName.SetFormat("Quad-{}-{}", vYZExtents.x, vYZExtents.y);
+
+  ezSharedPtr<ezRasterizerObject>& pObj = s_Objects[sName];
+
+  if (pObj == nullptr)
+  {
+    pObj = EZ_NEW(ezFoundation::GetAlignedAllocator(), ezRasterizerObject);
+
+    ezGeometry::GeoOptions opt;
+    opt.m_MainAxis = ezBasisAxis::PositiveX;
+
+    ezGeometry geometry;
+    geometry.AddRect(vYZExtents, 1, 1, opt);
+
+    pObj->CreateMesh(geometry);
+  }
+
+  return pObj;
+}
+
 ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::CreateMesh(ezStringView sUniqueName, const ezGeometry& geometry)
 {
   EZ_LOCK(s_Mutex);
@@ -145,6 +170,11 @@ ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::GetObject(ezStringView
 }
 
 ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::CreateBox(const ezVec3& vFullExtents)
+{
+  return nullptr;
+}
+
+ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::CreateQuadX(const ezVec2& vYZExtents)
 {
   return nullptr;
 }

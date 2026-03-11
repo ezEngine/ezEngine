@@ -48,6 +48,7 @@ ezResult ezGraphicsTest::InitializeSubTest(ezInt32 iIdentifier)
 
 ezResult ezGraphicsTest::DeInitializeSubTest(ezInt32 iIdentifier)
 {
+  m_Readback.Reset();
   ShutdownRenderer();
   // shut down completely
   ezStartup::ShutdownCoreSystems();
@@ -70,11 +71,11 @@ ezResult ezGraphicsTest::CreateRenderer(ezGALDevice*& out_pDevice)
     ezStringBuilder sReadDir(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath());
     sReadDir.PathParentDirectory();
 
-    EZ_SUCCEED_OR_RETURN(ezFileSystem::AddDataDirectory(">sdk/Output/", "ShaderCache", "shadercache", ezFileSystem::AllowWrites)); // for shader files
+    EZ_SUCCEED_OR_RETURN(ezFileSystem::AddDataDirectory(">sdk/Output/", "ShaderCache", "shadercache", ezDataDirUsage::AllowWrites)); // for shader files
 
     EZ_SUCCEED_OR_RETURN(ezFileSystem::AddDataDirectory(sBaseDir, "Base"));
 
-    EZ_SUCCEED_OR_RETURN(ezFileSystem::AddDataDirectory(">eztest/", "ImageComparisonDataDir", "imgout", ezFileSystem::AllowWrites));
+    EZ_SUCCEED_OR_RETURN(ezFileSystem::AddDataDirectory(">eztest/", "ImageComparisonDataDir", "imgout", ezDataDirUsage::AllowWrites));
 
     EZ_SUCCEED_OR_RETURN(ezFileSystem::AddDataDirectory(sReadDir, "UnitTestData"));
 
@@ -110,44 +111,24 @@ ezResult ezGraphicsTest::CreateRenderer(ezGALDevice*& out_pDevice)
     ezGALDevice::SetDefaultDevice(out_pDevice);
   }
 
-  if (sRendererName.IsEqual_NoCase("DX11"))
-  {
-    if (out_pDevice->GetCapabilities().m_sAdapterName == "Microsoft Basic Render Driver" || out_pDevice->GetCapabilities().m_sAdapterName.StartsWith_NoCase("Intel(R) UHD Graphics"))
-    {
-      // Use different images for comparison when running the D3D11 Reference Device
-      ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_D3D11Ref");
-    }
-    else if (out_pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("AMD") || out_pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("Radeon"))
-    {
-      // Line rendering is different on AMD and requires separate images for tests rendering lines.
-      ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_D3D11AMD");
-    }
-    else if (out_pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("Nvidia") || out_pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("GeForce"))
-    {
-      // Line rendering is different on Nvidia and requires separate images for tests rendering lines.
-      ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_D3D11Nvidia");
-    }
-    else
-    {
-      ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("");
-    }
-  }
-  else if (sRendererName.IsEqual_NoCase("Vulkan"))
-  {
-    if (out_pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("llvmpipe"))
-    {
-      ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_LLVMPIPE");
-    }
-    else if (out_pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("SwiftShader"))
-    {
-      ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_SwiftShader");
-    }
-    else
-    {
-      ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_Vulkan");
-    }
-  }
+  ezTestFramework::GetInstance()->SetImageReferenceTagsFromEnvironment(EZ_PLATFORM_NAME, sRendererName, out_pDevice->GetCapabilities().m_sAdapterName);
   return EZ_SUCCESS;
+}
+
+const ezGALDeviceCapabilities& ezGraphicsTest::GetDeviceCapabilities()
+{
+  static ezGALDeviceCapabilities* pCaps = nullptr;
+  if (pCaps == nullptr)
+  {
+    pCaps = EZ_NEW(ezStaticsAllocatorWrapper::GetAllocator(), ezGALDeviceCapabilities);
+    ezStartup::StartupCoreSystems();
+    SetupRenderer().AssertSuccess();
+    const ezGALDeviceCapabilities& caps = ezGALDevice::GetDefaultDevice()->GetCapabilities();
+    *pCaps = caps;
+    ShutdownRenderer();
+    ezStartup::ShutdownCoreSystems();
+  }
+  return *pCaps;
 }
 
 ezResult ezGraphicsTest::SetupRenderer()
@@ -164,8 +145,7 @@ ezResult ezGraphicsTest::SetupRenderer()
 
     ezGALPrimitiveTopology::Enum Topology = ezGALPrimitiveTopology::Triangles;
     ezMeshBufferResourceDescriptor desc;
-    desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-    desc.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::RGFloat);
+    desc.AddCommonStreams();
     desc.AllocateStreamsFromGeometry(geom, Topology);
 
     m_hCubeUV = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>("Texture2DBox", std::move(desc), "Texture2DBox");
@@ -177,12 +157,12 @@ ezResult ezGraphicsTest::SetupRenderer()
 
 void ezGraphicsTest::ShutdownRenderer()
 {
+  m_Readback.Reset();
   EZ_ASSERT_DEV(m_pWindow == nullptr, "DestroyWindow needs to be called before ShutdownRenderer");
   m_hShader.Invalidate();
   m_hCubeUV.Invalidate();
 
   ezRenderContext::DeleteConstantBufferStorage(m_hObjectTransformCB);
-  m_hObjectTransformCB.Invalidate();
 
   ezStartup::ShutdownHighLevelSystems();
 
@@ -205,6 +185,9 @@ ezResult ezGraphicsTest::CreateWindow(ezUInt32 uiResolutionX, ezUInt32 uiResolut
     WindowCreationDesc.m_Resolution.width = uiResolutionX;
     WindowCreationDesc.m_Resolution.height = uiResolutionY;
     WindowCreationDesc.m_bShowMouseCursor = true;
+    WindowCreationDesc.m_bClipMouseCursor = false;
+    WindowCreationDesc.m_bSetForegroundOnInit = false;
+
     m_pWindow = EZ_DEFAULT_NEW(ezWindow);
     if (m_pWindow->Initialize(WindowCreationDesc).Failed())
       return EZ_FAILURE;
@@ -215,7 +198,6 @@ ezResult ezGraphicsTest::CreateWindow(ezUInt32 uiResolutionX, ezUInt32 uiResolut
     ezGALWindowSwapChainCreationDescription swapChainDesc;
     swapChainDesc.m_pWindow = m_pWindow;
     swapChainDesc.m_SampleCount = ezGALMSAASampleCount::None;
-    swapChainDesc.m_bAllowScreenshots = true;
     m_hSwapChain = ezGALWindowSwapChain::Create(swapChainDesc);
     if (m_hSwapChain.IsInvalidated())
     {
@@ -228,7 +210,7 @@ ezResult ezGraphicsTest::CreateWindow(ezUInt32 uiResolutionX, ezUInt32 uiResolut
     texDesc.m_uiWidth = uiResolutionX;
     texDesc.m_uiHeight = uiResolutionY;
     texDesc.m_Format = ezGALResourceFormat::D24S8;
-    texDesc.m_bCreateRenderTarget = true;
+    texDesc.m_TextureFlags.Add(ezGALTextureUsageFlags::RenderTarget);
 
     m_hDepthStencilTexture = m_pDevice->CreateTexture(texDesc);
     if (m_hDepthStencilTexture.IsInvalidated())
@@ -261,23 +243,23 @@ void ezGraphicsTest::DestroyWindow()
 
   if (m_pWindow)
   {
-    m_pWindow->Destroy().IgnoreResult();
+    m_pWindow->DestroyWindow();
     EZ_DEFAULT_DELETE(m_pWindow);
   }
 }
 
-void ezGraphicsTest::BeginFrame(const char* szPipe)
+void ezGraphicsTest::BeginFrame()
 {
+  m_pDevice->EnqueueFrameSwapChain(m_hSwapChain);
   m_pDevice->BeginFrame(m_iFrame);
-  m_pDevice->BeginPipeline(szPipe, m_hSwapChain);
 }
 
 void ezGraphicsTest::EndFrame()
 {
-  m_pWindow->ProcessWindowMessages();
-
-  ezRenderContext::GetDefaultInstance()->ResetContextState();
-  m_pDevice->EndPipeline(m_hSwapChain);
+  if (m_pWindow)
+  {
+    m_pWindow->ProcessWindowMessages();
+  }
 
   m_pDevice->EndFrame();
 
@@ -285,33 +267,34 @@ void ezGraphicsTest::EndFrame()
 }
 
 
-void ezGraphicsTest::BeginPass(const char* szPassName)
+void ezGraphicsTest::BeginCommands(const char* szPassName)
 {
-  EZ_ASSERT_DEV(m_pPass == nullptr, "Call EndPass first before calling BeginPass again");
-  m_pPass = m_pDevice->BeginPass(szPassName);
+  EZ_ASSERT_DEV(m_pEncoder == nullptr, "Call EndCommands first before calling BeginCommands again");
+  m_pEncoder = m_pDevice->BeginCommands(szPassName);
 }
 
 
-void ezGraphicsTest::EndPass()
+void ezGraphicsTest::EndCommands()
 {
-  EZ_ASSERT_DEV(m_pPass != nullptr, "Call BeginPass first before calling EndPass");
-  m_pDevice->EndPass(m_pPass);
-  m_pPass = nullptr;
+  EZ_ASSERT_DEV(m_pEncoder != nullptr, "Call BeginCommands first before calling EndCommands");
+  m_pDevice->EndCommands(m_pEncoder);
+  m_pEncoder = nullptr;
 }
 
-ezGALRenderCommandEncoder* ezGraphicsTest::BeginRendering(ezColor clearColor, ezUInt32 uiRenderTargetClearMask, ezRectFloat* pViewport, ezRectU32* pScissor)
+ezGALCommandEncoder* ezGraphicsTest::BeginRendering(ezColor clearColor, ezUInt32 uiRenderTargetClearMask, ezRectFloat* pViewport, ezRectU32* pScissor)
 {
   const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(m_hSwapChain);
 
   ezGALRenderingSetup renderingSetup;
-  renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, m_pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture()));
-  renderingSetup.m_ClearColor = clearColor;
-  renderingSetup.m_uiRenderTargetClearMask = uiRenderTargetClearMask;
+  renderingSetup.SetColorTarget(0, m_pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture()));
+  if (uiRenderTargetClearMask & EZ_BIT(0))
+  {
+    renderingSetup.SetClearColor(0, clearColor);
+  }
   if (!m_hDepthStencilTexture.IsInvalidated())
   {
-    renderingSetup.m_RenderTargetSetup.SetDepthStencilTarget(m_pDevice->GetDefaultRenderTargetView(m_hDepthStencilTexture));
-    renderingSetup.m_bClearDepth = true;
-    renderingSetup.m_bClearStencil = true;
+    renderingSetup.SetDepthStencilTarget(m_pDevice->GetDefaultRenderTargetView(m_hDepthStencilTexture));
+    renderingSetup.SetClearDepth().SetClearStencil();
   }
   ezRectFloat viewport = ezRectFloat(0.0f, 0.0f, (float)m_pWindow->GetClientAreaSize().width, (float)m_pWindow->GetClientAreaSize().height);
   if (pViewport)
@@ -319,12 +302,14 @@ ezGALRenderCommandEncoder* ezGraphicsTest::BeginRendering(ezColor clearColor, ez
     viewport = *pViewport;
   }
 
-  ezGALRenderCommandEncoder* pCommandEncoder = ezRenderContext::GetDefaultInstance()->BeginRendering(m_pPass, renderingSetup, viewport);
+  ezRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, viewport);
   ezRectU32 scissor = ezRectU32(0, 0, m_pWindow->GetClientAreaSize().width, m_pWindow->GetClientAreaSize().height);
   if (pScissor)
   {
     scissor = *pScissor;
   }
+
+  auto pCommandEncoder = ezRenderContext::GetDefaultInstance()->GetCommandEncoder();
   pCommandEncoder->SetScissorRect(scissor);
 
   SetClipSpace();
@@ -346,17 +331,18 @@ void ezGraphicsTest::SetClipSpace()
   ezRenderContext::GetDefaultInstance()->SetShaderPermutationVariable(sClipSpaceFlipped, clipSpace == ezClipSpaceYMode::Flipped ? sTrue : sFalse);
 }
 
-void ezGraphicsTest::RenderCube(ezRectFloat viewport, ezMat4 mMVP, ezUInt32 uiRenderTargetClearMask, ezGALTextureResourceViewHandle hSRV)
+void ezGraphicsTest::RenderCube(ezRectFloat viewport, ezMat4 mMVP, ezUInt32 uiRenderTargetClearMask, ezGALTextureHandle hTexture, const ezGALTextureRange& textureRange)
 {
-  ezGALRenderCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, uiRenderTargetClearMask, &viewport);
+  ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, uiRenderTargetClearMask, &viewport);
 
-  ezRenderContext::GetDefaultInstance()->BindTexture2D("DiffuseTexture", hSRV);
+  ezBindGroupBuilder& bindGroupTest = ezRenderContext::GetDefaultInstance()->GetBindGroup();
+  bindGroupTest.BindTexture("DiffuseTexture", hTexture, textureRange);
   RenderObject(m_hCubeUV, mMVP, ezColor(1, 1, 1, 1), ezShaderBindFlags::None);
+  EndRendering();
   if (m_bCaptureImage && m_ImgCompFrames.Contains(m_iFrame))
   {
     EZ_TEST_IMAGE(m_iFrame, 100);
   }
-  EndRendering();
 };
 
 
@@ -379,24 +365,20 @@ ezResult ezGraphicsTest::GetImage(ezImage& ref_img, const ezSubTestEntry& subTes
 
   ezGALTextureHandle hBBTexture = m_pDevice->GetSwapChain(m_hSwapChain)->GetBackBufferTexture();
   const ezGALTexture* pBackbuffer = ezGALDevice::GetDefaultDevice()->GetTexture(hBBTexture);
-  pCommandEncoder->ReadbackTexture(hBBTexture);
-  const ezEnum<ezGALResourceFormat> format = pBackbuffer->GetDescription().m_Format;
+  m_Readback.ReadbackTexture(*pCommandEncoder, hBBTexture);
+  pCommandEncoder->Flush();
+  // Wait for results
+  {
+    ezEnum<ezGALAsyncResult> res = m_Readback.GetReadbackResult(ezTime::MakeFromHours(1));
+    EZ_ASSERT_ALWAYS(res == ezGALAsyncResult::Ready, "Readback of texture failed");
+  }
 
-  ezImageHeader header;
-  header.SetWidth(m_pWindow->GetClientAreaSize().width);
-  header.SetHeight(m_pWindow->GetClientAreaSize().height);
-  header.SetImageFormat(ezTextureUtils::GalFormatToImageFormat(format, true));
-  ref_img.ResetAndAlloc(header);
-
-  ezGALSystemMemoryDescription MemDesc;
-  MemDesc.m_pData = ref_img.GetPixelPointer<ezUInt8>();
-  MemDesc.m_uiRowPitch = 4 * m_pWindow->GetClientAreaSize().width;
-  MemDesc.m_uiSlicePitch = 4 * m_pWindow->GetClientAreaSize().width * m_pWindow->GetClientAreaSize().height;
-
-  ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescs(&MemDesc, 1);
   ezGALTextureSubresource sourceSubResource;
   ezArrayPtr<ezGALTextureSubresource> sourceSubResources(&sourceSubResource, 1);
-  pCommandEncoder->CopyTextureReadbackResult(hBBTexture, sourceSubResources, SysMemDescs);
+  ezTempHybridArray<ezGALSystemMemoryDescription, 1> memory;
+  ezReadbackTextureLock lock = m_Readback.LockTexture(sourceSubResources, memory);
+  EZ_ASSERT_ALWAYS(lock, "Failed to lock readback texture");
+  ezTextureUtils::CopySubResourceToImage(pBackbuffer->GetDescription(), sourceSubResource, memory[0], ref_img, true);
 
   return EZ_SUCCESS;
 }
@@ -414,8 +396,8 @@ ezMeshBufferResourceHandle ezGraphicsTest::CreateMesh(const ezGeometry& geom, co
     Topology = ezGALPrimitiveTopology::Lines;
 
   ezMeshBufferResourceDescriptor desc;
-  desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-  desc.AddStream(ezGALVertexAttributeSemantic::Color0, ezGALResourceFormat::RGBAUByteNormalized);
+  desc.AddStream(ezMeshVertexStreamType::Position);
+  desc.AddStream(ezMeshVertexStreamType::Color0);
   desc.AllocateStreamsFromGeometry(geom, Topology);
 
   hMesh = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>(szResourceName, std::move(desc), szResourceName);
@@ -475,7 +457,8 @@ void ezGraphicsTest::RenderObject(ezMeshBufferResourceHandle hObject, const ezMa
   ocb->m_MVP = mTransform;
   ocb->m_Color = color;
 
-  ezRenderContext::GetDefaultInstance()->BindConstantBuffer("PerObject", m_hObjectTransformCB);
+  ezBindGroupBuilder& bindGroupTest = ezRenderContext::GetDefaultInstance()->GetBindGroup();
+  bindGroupTest.BindBuffer("PerObject", m_hObjectTransformCB);
 
   ezRenderContext::GetDefaultInstance()->BindMeshBuffer(hObject);
   ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().IgnoreResult();

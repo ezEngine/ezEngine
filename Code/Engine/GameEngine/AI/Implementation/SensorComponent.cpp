@@ -35,6 +35,14 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezSensorComponent, 2)
   }
   EZ_END_PROPERTIES;
 
+
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetDetectedObjectsCount),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetDetectedObject, In, "uiIndex"),
+  }
+  EZ_END_FUNCTIONS;
+
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("AI/Sensors"),
@@ -166,6 +174,7 @@ bool ezSensorComponent::RunSensorCheck(ezPhysicsWorldModuleInterface* pPhysicsWo
   m_LastOccludedObjectPositions.Clear();
 #endif
 
+  m_bHadUpdate = true;
   out_objectsInSensorVolume.Clear();
 
   GetObjectsInSensorVolume(out_objectsInSensorVolume);
@@ -338,7 +347,7 @@ void ezSensorSphereComponent::GetObjectsInSensorVolume(ezDynamicArray<ezGameObje
 void ezSensorSphereComponent::DebugDrawSensorShape() const
 {
   const ezBoundingSphere sphere = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), m_fRadius);
-  ezDebugRenderer::DrawLineSphere(GetWorld(), sphere, m_Color, GetOwner()->GetGlobalTransform());
+  ezDebugRenderer::DrawLineSphere(GetWorld(), sphere, m_bHadUpdate ? ezColor(m_Color) : ezColor(m_Color).GetDarker(1.5f), GetOwner()->GetGlobalTransform());
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -427,8 +436,7 @@ void ezSensorCylinderComponent::DebugDrawSensorShape() const
   pt.m_vScale.Set(1);
   t = pt * t;
 
-  ezColor solidColor = ezColor::Black.WithAlpha(0.0f); // lines only
-  ezDebugRenderer::DrawCylinder(GetWorld(), m_fRadius, m_fRadius, m_fHeight, solidColor, m_Color, t);
+  ezDebugRenderer::DrawCylinder(GetWorld(), m_fRadius, m_fRadius, m_fHeight, ezColor::MakeZero(), m_bHadUpdate ? ezColor(m_Color) : ezColor(m_Color).GetDarker(1.5f), t);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -512,7 +520,7 @@ void ezSensorConeComponent::DebugDrawSensorShape() const
   constexpr ezUInt32 CIRCLE_SEGMENTS = MAX_SEGMENTS * 2;
   constexpr ezUInt32 NUM_LINES = MAX_SEGMENTS * 4 + CIRCLE_SEGMENTS * 2 + 4;
 
-  ezDebugRenderer::Line lines[NUM_LINES];
+  ezDebugRendererLine lines[NUM_LINES];
   ezUInt32 curLine = 0;
 
   const ezUInt32 numSegments = ezMath::Clamp(static_cast<ezUInt32>(m_Angle / ezAngle::MakeFromDegree(180) * MAX_SEGMENTS), MIN_SEGMENTS, MAX_SEGMENTS);
@@ -600,7 +608,7 @@ void ezSensorConeComponent::DebugDrawSensorShape() const
   }
 
   EZ_ASSERT_DEV(curLine <= NUM_LINES, "");
-  ezDebugRenderer::DrawLines(GetWorld(), ezMakeArrayPtr(lines, curLine), m_Color, GetOwner()->GetGlobalTransform());
+  ezDebugRenderer::DrawLines(GetWorld(), ezMakeArrayPtr(lines, curLine), m_bHadUpdate ? ezColor(m_Color) : ezColor(m_Color).GetDarker(1.5f), GetOwner()->GetGlobalTransform());
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -621,18 +629,18 @@ void ezSensorWorldModule::Initialize()
   SUPER::Initialize();
 
   {
-    auto updateDesc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezSensorWorldModule::UpdateSensors, this);
-    updateDesc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::Async;
-    updateDesc.m_bOnlyUpdateWhenSimulating = true;
+    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezSensorWorldModule::UpdateSensors, this);
+    desc.m_Phase = ezWorldUpdatePhase::Async;
+    desc.m_bOnlyUpdateWhenSimulating = true;
 
-    RegisterUpdateFunction(updateDesc);
+    RegisterUpdateFunction(desc);
   }
 
   {
-    auto updateDesc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezSensorWorldModule::DebugDrawSensors, this);
-    updateDesc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PostTransform;
+    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezSensorWorldModule::DebugDrawSensors, this);
+    desc.m_Phase = ezWorldUpdatePhase::PostTransform;
 
-    RegisterUpdateFunction(updateDesc);
+    RegisterUpdateFunction(desc);
   }
 
   m_pPhysicsWorldModule = GetWorld()->GetOrCreateModule<ezPhysicsWorldModuleInterface>();
@@ -682,7 +690,7 @@ void ezSensorWorldModule::UpdateSensors(const ezWorldModule::UpdateContext& cont
 
 void ezSensorWorldModule::DebugDrawSensors(const ezWorldModule::UpdateContext& context)
 {
-  ezHybridArray<ezDebugRenderer::Line, 256> lines;
+  ezTempHybridArray<ezDebugRendererLine, 256> lines;
   const ezWorld* pWorld = GetWorld();
 
   for (ezComponentHandle hComponent : m_DebugComponents)
@@ -693,6 +701,7 @@ void ezSensorWorldModule::DebugDrawSensors(const ezWorldModule::UpdateContext& c
     EZ_VERIFY(pWorld->TryGetComponent(hComponent, pSensorComponent), "Invalid component handle");
 
     pSensorComponent->DebugDrawSensorShape();
+    pSensorComponent->m_bHadUpdate = false;
 
     const ezVec3 sensorPos = pSensorComponent->GetOwner()->GetGlobalPosition();
     for (ezGameObjectHandle hObject : pSensorComponent->m_LastDetectedObjects)

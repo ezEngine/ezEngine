@@ -135,6 +135,8 @@ private Q_SLOTS:
   void SlotValueChanged();
   void SlotSliderValueChanged(int value);
   void on_EditingFinished_triggered();
+  void onBeginTemporary();
+  void onEndTemporary();
 
 protected:
   virtual void OnInit() override;
@@ -166,6 +168,7 @@ public:
 
 Q_SIGNALS:
   void valueChanged(double x);
+  void sliderPressed();
   void sliderReleased();
 
 protected:
@@ -194,6 +197,8 @@ public:
 private Q_SLOTS:
   void SlotSliderValueChanged(double fValue);
   void on_EditingFinished_triggered();
+  void onBeginTemporary();
+  void onEndTemporary();
 
 protected:
   virtual void OnInit() override;
@@ -226,9 +231,32 @@ protected:
   virtual void InternalSetValue(const ezVariant& value) override;
 
 protected:
-  bool m_bTemporaryCommand;
-  QHBoxLayout* m_pLayout;
-  ezQtDoubleSpinBox* m_pWidget[3];
+  bool m_bTemporaryCommand = false;
+  QHBoxLayout* m_pLayout = nullptr;
+  ezQtDoubleSpinBox* m_pWidget[3] = {};
+};
+
+/// *** TRANSFORM ***
+
+class EZ_GUIFOUNDATION_DLL ezQtPropertyEditorTransformWidget : public ezQtStandardPropertyWidget
+{
+  Q_OBJECT
+
+public:
+  ezQtPropertyEditorTransformWidget();
+
+private Q_SLOTS:
+  void on_EditingFinished_triggered();
+  void SlotValueChanged();
+
+protected:
+  virtual void OnInit() override;
+  virtual void InternalSetValue(const ezVariant& value) override;
+
+protected:
+  bool m_bTemporaryCommand = false;
+  QVBoxLayout* m_pLayout = nullptr;
+  ezQtDoubleSpinBox* m_pWidget[9] = {};
 };
 
 
@@ -300,7 +328,8 @@ protected:
   virtual void InternalSetValue(const ezVariant& value) override;
 
 protected:
-  bool m_bExposeAlpha;
+  bool m_bExposeAlpha = false;
+  bool m_bIsHDR = false;
   QHBoxLayout* m_pLayout;
   ezQtColorButtonWidget* m_pWidget;
   ezVariant m_OriginalValue;
@@ -318,15 +347,17 @@ public:
 
 private Q_SLOTS:
   void on_CurrentEnum_changed(int iEnum);
+  void on_ButtonClicked_changed(bool checked);
 
 protected:
   virtual void OnInit() override;
   virtual void InternalSetValue(const ezVariant& value) override;
 
 protected:
-  QHBoxLayout* m_pLayout;
-  QComboBox* m_pWidget;
-  ezInt64 m_iCurrentEnum;
+  QHBoxLayout* m_pLayout = nullptr;
+  QComboBox* m_pWidget = nullptr;
+  ezInt64 m_iCurrentEnum = 0;
+  QPushButton* m_pButtons[2] = {nullptr, nullptr};
 };
 
 
@@ -389,12 +420,58 @@ private Q_SLOTS:
   void on_Button_triggered();
 
 protected:
-  virtual void SetSelection(const ezHybridArray<ezPropertySelection, 8>& items) override;
+  virtual void SetSelection(const ezArrayPtr<ezPropertySelection>& items) override;
   virtual void OnInit() override;
   virtual void DoPrepareToDie() override;
   void UpdatePreview();
+  void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
 
 protected:
   QHBoxLayout* m_pLayout = nullptr;
   ezQtCurve1DButtonWidget* m_pButton = nullptr;
+  ezCopyOnBroadcastEvent<const ezDocumentObjectPropertyEvent&>::Unsubscriber m_Unsub;
+};
+
+/// *** COLOR GRADIENT ***
+
+class EZ_GUIFOUNDATION_DLL ezQtColorGradientButtonWidget : public QLabel
+{
+  Q_OBJECT
+
+public:
+  explicit ezQtColorGradientButtonWidget(QWidget* pParent);
+
+  void UpdatePreview(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pGradientObject);
+
+Q_SIGNALS:
+  void clicked();
+
+protected:
+  virtual void mouseReleaseEvent(QMouseEvent* event) override;
+};
+
+class EZ_GUIFOUNDATION_DLL ezQtPropertyEditorColorGradientWidget : public ezQtPropertyWidget
+{
+  Q_OBJECT
+
+public:
+  ezQtPropertyEditorColorGradientWidget();
+
+private Q_SLOTS:
+  void on_Button_triggered();
+
+protected:
+  virtual void SetSelection(const ezArrayPtr<ezPropertySelection>& items) override;
+  virtual void OnInit() override;
+  virtual void DoPrepareToDie() override;
+  void UpdatePreview();
+  void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
+  void ObjectEventHandler(const ezDocumentObjectEvent& e);
+
+
+protected:
+  QHBoxLayout* m_pLayout = nullptr;
+  ezQtColorGradientButtonWidget* m_pButton = nullptr;
+  ezCopyOnBroadcastEvent<const ezDocumentObjectPropertyEvent&>::Unsubscriber m_Unsub;
+  ezEvent<const ezDocumentObjectEvent&>::Unsubscriber m_Unsub2;
 };

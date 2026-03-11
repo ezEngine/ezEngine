@@ -1,0 +1,13 @@
+PluginInfo
+{
+	bool %Mandatory{false}
+	string %DisplayName{"RTS"}
+	string %Description{"C++ code for the RTS project."}
+	string %EditorPlugins{}
+	string %EditorEnginePlugins{}
+	string %RuntimePlugins{"RTSPlugin"}
+	string %PackageDependencies{}
+	string %RequiredPlugins{}
+	string %ExclusiveFeatures{"ProjectPlugin"}
+	string %EnabledInTemplates{}
+}

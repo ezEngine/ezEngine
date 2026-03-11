@@ -1,20 +1,27 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <GuiFoundation/NodeEditor/Node.h>
-#include <GuiFoundation/NodeEditor/Pin.h>
+#include <GuiFoundation/VisualGraph/Node.h>
+#include <GuiFoundation/VisualGraph/Pin.h>
 
-class ezQtProcGenNode : public ezQtNode
+/// Qt graphics item for procedural generation nodes.
+///
+/// Visual representation of procedural generation nodes, such as noise generators, modifiers, or output nodes.
+class ezQtProcGenNode : public ezQtVisualGraphNode
 {
 public:
   ezQtProcGenNode();
 
-  virtual void InitNode(const ezDocumentNodeManager* pManager, const ezDocumentObject* pObject) override;
+  virtual void InitNode(const ezVisualGraphObjectManager* pManager, const ezDocumentObject* pObject) override;
 
   virtual void UpdateState() override;
 };
 
-class ezQtProcGenPin : public ezQtPin
+/// Qt graphics item for procedural generation pins.
+///
+/// Extends the base pin with debugging support. Pins can be marked for debug visualization,
+/// allowing users to inspect intermediate results in the procedural generation pipeline.
+class ezQtProcGenPin : public ezQtVisualGraphPin
 {
 public:
   ezQtProcGenPin();
@@ -32,7 +39,11 @@ private:
   bool m_bDebug = false;
 };
 
-class ezQtProcGenScene : public ezQtNodeScene
+/// Qt scene for procedural generation graphs.
+///
+/// Manages the visual scene for procedural generation graph editing, including debug pin tracking
+/// for visualizing intermediate generation results.
+class ezQtProcGenScene : public ezQtVisualGraphScene
 {
 public:
   ezQtProcGenScene(QObject* pParent = nullptr);
@@ -41,7 +52,7 @@ public:
   void SetDebugPin(ezQtProcGenPin* pDebugPin);
 
 private:
-  virtual ezStatus RemoveNode(ezQtNode* pNode) override;
+  virtual ezStatus RemoveNode(ezQtVisualGraphNode* pNode) override;
 
   bool m_bUpdatingDebugPin = false;
   ezQtProcGenPin* m_pDebugPin = nullptr;

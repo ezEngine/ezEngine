@@ -45,7 +45,7 @@ void ezKrautTreeContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg0)
 
       if (pMsg->m_sPayload == "DisplayRandomSeed")
       {
-        m_uiDisplayRandomSeed = static_cast<ezUInt32>(pMsg->m_fPayload);
+        m_uiDisplayRandomSeed = pMsg->m_PayloadValue.ConvertTo<ezUInt32>();
 
         pTree->SetCustomRandomSeed(m_uiDisplayRandomSeed);
       }
@@ -185,7 +185,7 @@ bool ezKrautTreeContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* 
   // undo the artificial bounds scale to get a tight bbox for better thumbnails
   const float fAdditionalZoom = 1.5f;
   bounds.m_fSphereRadius /= ezKrautTreeComponent::s_iLocalBoundsScale * fAdditionalZoom;
-  bounds.m_vBoxHalfExtends /= ezKrautTreeComponent::s_iLocalBoundsScale * fAdditionalZoom;
+  bounds.m_vBoxHalfExtents /= ezKrautTreeComponent::s_iLocalBoundsScale * fAdditionalZoom;
 
   ezKrautTreeViewContext* pMeshViewContext = static_cast<ezKrautTreeViewContext*>(pThumbnailViewContext);
   return pMeshViewContext->UpdateThumbnailCamera(bounds);
@@ -209,7 +209,7 @@ void ezKrautTreeContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMs
     if (b.IsValid())
     {
       b.m_fSphereRadius /= ezKrautTreeComponent::s_iLocalBoundsScale;
-      b.m_vBoxHalfExtends /= (float)ezKrautTreeComponent::s_iLocalBoundsScale;
+      b.m_vBoxHalfExtents /= (float)ezKrautTreeComponent::s_iLocalBoundsScale;
 
       bounds.ExpandToInclude(b);
     }
@@ -221,7 +221,7 @@ void ezKrautTreeContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMs
   res.m_uiViewID = msg->m_uiViewID;
   res.m_iPurpose = msg->m_iPurpose;
   res.m_vCenter = bounds.m_vCenter;
-  res.m_vHalfExtents = bounds.m_vBoxHalfExtends;
+  res.m_vHalfExtents = bounds.m_vBoxHalfExtents;
   res.m_DocumentGuid = pMsg->m_DocumentGuid;
 
   SendProcessMessage(&res);

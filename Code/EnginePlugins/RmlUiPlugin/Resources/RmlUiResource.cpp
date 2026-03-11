@@ -149,3 +149,6 @@ bool ezRmlUiResourceLoader::IsResourceOutdated(const ezResource* pResource) cons
 
   return dep.HasAnyFileChanged();
 }
+
+
+EZ_STATICLINK_FILE(RmlUiPlugin, RmlUiPlugin_Resources_RmlUiResource);

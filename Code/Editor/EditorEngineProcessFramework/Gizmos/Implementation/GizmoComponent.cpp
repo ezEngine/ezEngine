@@ -1,6 +1,7 @@
 #include <EditorEngineProcessFramework/EditorEngineProcessFrameworkPCH.h>
 
 #include <EditorEngineProcessFramework/Gizmos/GizmoComponent.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 
 ezGizmoComponentManager::ezGizmoComponentManager(ezWorld* pWorld)
   : ezComponentManager(pWorld)
@@ -25,7 +26,7 @@ EZ_END_COMPONENT_TYPE;
 ezGizmoComponent::ezGizmoComponent() = default;
 ezGizmoComponent::~ezGizmoComponent() = default;
 
-ezMeshRenderData* ezGizmoComponent::CreateRenderData() const
+ezMeshRenderData* ezGizmoComponent::CreateRenderData(const ezRenderDataManager* pRenderDataManager) const
 {
   ezColor color = m_GizmoColor;
 
@@ -35,8 +36,10 @@ ezMeshRenderData* ezGizmoComponent::CreateRenderData() const
     color = ezColor(0.9f, 0.9f, 0.1f, color.a);
   }
 
-  ezGizmoRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezGizmoRenderData>(GetOwner());
+  ezGizmoRenderData* pRenderData = pRenderDataManager->CreateRenderDataForThisFrame<ezGizmoRenderData>(GetOwner());
+  pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
   pRenderData->m_GizmoColor = color;
+  pRenderData->m_uiUniqueID = GetUniqueIdForRendering();
   pRenderData->m_bIsPickable = m_bIsPickable;
 
   return pRenderData;

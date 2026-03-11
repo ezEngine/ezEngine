@@ -73,9 +73,8 @@ void ezSelectionManager::AddObject(const ezDocumentObject* pObject)
 
   EZ_ASSERT_DEV(pObject->GetDocumentObjectManager() == m_pSelectionStorage->m_pObjectManager, "Passed in object does not belong to same object manager.");
   ezStatus res = m_pSelectionStorage->m_pObjectManager->CanSelect(pObject);
-  if (res.m_Result.Failed())
+  if (res.LogFailure())
   {
-    ezLog::Error("{0}", res.m_sMessage);
     return;
   }
 
@@ -149,18 +148,21 @@ void ezSelectionManager::SetSelection(const ezDeque<const ezDocumentObject*>& se
 
   for (ezUInt32 i = 0; i < selection.GetCount(); ++i)
   {
+    // actually == nullptr should never happen, unless we have an error somewhere else
     if (selection[i] != nullptr)
     {
       EZ_ASSERT_DEV(selection[i]->GetDocumentObjectManager() == m_pSelectionStorage->m_pObjectManager, "Passed in object does not belong to same object manager.");
       ezStatus res = m_pSelectionStorage->m_pObjectManager->CanSelect(selection[i]);
-      if (res.m_Result.Failed())
+      if (res.LogFailure())
       {
-        ezLog::Error("{0}", res.m_sMessage);
         continue;
       }
-      // actually == nullptr should never happen, unless we have an error somewhere else
-      m_pSelectionStorage->m_SelectionList.PushBack(selection[i]);
-      m_pSelectionStorage->m_SelectionSet.Insert(selection[i]->GetGuid());
+
+      if (!m_pSelectionStorage->m_SelectionSet.Contains(selection[i]->GetGuid()))
+      {
+        m_pSelectionStorage->m_SelectionList.PushBack(selection[i]);
+        m_pSelectionStorage->m_SelectionSet.Insert(selection[i]->GetGuid());
+      }
     }
   }
 
@@ -180,6 +182,35 @@ void ezSelectionManager::ToggleObject(const ezDocumentObject* pObject)
     RemoveObject(pObject);
   else
     AddObject(pObject);
+}
+
+void ezSelectionManager::SetRuntimeOverrideSelection(const ezDeque<const ezDocumentObject*>& selection)
+{
+  if (m_RuntimeOverrideSelection == selection)
+    return;
+
+  m_RuntimeOverrideSelection.Clear();
+  m_RuntimeOverrideSelection.Reserve(selection.GetCount());
+
+  for (ezUInt32 i = 0; i < selection.GetCount(); ++i)
+  {
+    // actually == nullptr should never happen, unless we have an error somewhere else
+    if (selection[i] != nullptr)
+    {
+      if (!m_RuntimeOverrideSelection.Contains(selection[i]))
+      {
+        m_RuntimeOverrideSelection.PushBack(selection[i]);
+      }
+    }
+  }
+
+  {
+    ezSelectionManagerEvent e;
+    e.m_pDocument = GetDocument();
+    e.m_pObject = nullptr;
+    e.m_Type = ezSelectionManagerEvent::Type::ChangedRuntimeOverrideSelection;
+    m_pSelectionStorage->m_Events.Broadcast(e);
+  }
 }
 
 const ezDocumentObject* ezSelectionManager::GetCurrentObject() const

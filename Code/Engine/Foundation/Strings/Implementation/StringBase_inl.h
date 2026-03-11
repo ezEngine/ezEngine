@@ -381,9 +381,9 @@ ezStringView ezStringBase<Derived>::GetFileName() const
 }
 
 template <typename Derived>
-ezStringView ezStringBase<Derived>::GetFileExtension() const
+ezStringView ezStringBase<Derived>::GetFileExtension(bool bFullExtension) const
 {
-  return GetView().GetFileExtension();
+  return GetView().GetFileExtension(bFullExtension);
 }
 
 template <typename Derived>

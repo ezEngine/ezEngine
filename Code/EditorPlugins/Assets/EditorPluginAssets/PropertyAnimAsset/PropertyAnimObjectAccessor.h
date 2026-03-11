@@ -6,6 +6,8 @@ class ezPropertyAnimObjectManager;
 
 class ezPropertyAnimObjectAccessor : public ezObjectCommandAccessor
 {
+  EZ_ADD_DYNAMIC_REFLECTION(ezPropertyAnimObjectAccessor, ezObjectCommandAccessor);
+
 public:
   ezPropertyAnimObjectAccessor(ezPropertyAnimAssetDocument* pDoc, ezCommandHistory* pHistory);
 

@@ -61,10 +61,10 @@ ezQuadViewPreferencesUser::ezQuadViewPreferencesUser()
 {
   m_bQuadView = false;
 
-  m_ViewSingle.m_vCamPos.Set(-3, 0, 2);
-  m_ViewSingle.m_vCamDir.Set(1, 0, -0.5f);
-  m_ViewSingle.m_vCamDir.Normalize();
-  m_ViewSingle.m_vCamUp = m_ViewSingle.m_vCamDir.CrossRH(ezVec3(0, 1, 0)).GetNormalized();
+  m_ViewSingle.m_vCamPos.Set(3, 0.5f, 1);
+  m_ViewSingle.m_vCamDir = -m_ViewSingle.m_vCamPos.GetNormalized();
+  ezVec3 vRight = m_ViewSingle.m_vCamDir.CrossRH(ezVec3(0, 0, 1));
+  m_ViewSingle.m_vCamUp = vRight.CrossRH(m_ViewSingle.m_vCamDir).GetNormalized();
   m_ViewSingle.m_PerspectiveMode = ezSceneViewPerspective::Perspective;
   m_ViewSingle.m_RenderMode = ezViewRenderMode::Default;
   m_ViewSingle.m_fFov = 70.0f;

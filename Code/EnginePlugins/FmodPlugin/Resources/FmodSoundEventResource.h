@@ -26,10 +26,10 @@ public:
   /// This is only allowed for events that are not looped, otherwise EZ_FAILURE is returned.
   ezResult PlayOnce(const ezTransform& globalPosition, float fPitch = 1.0f, float fVolume = 1.0f) const;
 
-  /// \brief Creates a new sound event instance of this Fmod sound event. May return nullptr, if the event data could not be loaded.
+  /// \brief Creates a new sound event instance of this FMOD sound event. May return nullptr, if the event data could not be loaded.
   FMOD::Studio::EventInstance* CreateInstance() const;
 
-  /// \brief Returns the Fmod sound event descriptor. May be nullptr, if the sound bank could not be loaded or the event GUID was invalid.
+  /// \brief Returns the FMOD sound event descriptor. May be nullptr, if the sound bank could not be loaded or the event GUID was invalid.
   FMOD::Studio::EventDescription* GetDescriptor() const { return m_pEventDescription; }
 
 private:

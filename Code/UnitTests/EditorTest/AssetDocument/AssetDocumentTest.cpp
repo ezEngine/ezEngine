@@ -67,7 +67,8 @@ void ezEditorAssetDocumentTest::AsyncSave()
     sName = m_sProjectPath;
     sName.AppendPath("mesh.ezMeshAsset");
     pDoc = static_cast<ezAssetDocument*>(m_pApplication->m_pEditorApp->CreateDocument(sName, ezDocumentFlags::RequestWindow));
-    EZ_TEST_BOOL(pDoc != nullptr);
+    if (!EZ_TEST_BOOL(pDoc != nullptr))
+      return;
     ProcessEvents();
   }
 
@@ -86,11 +87,11 @@ void ezEditorAssetDocumentTest::AsyncSave()
       true);
 
     pAcc->StartTransaction("Edit Mesh");
-    EZ_TEST_BOOL(pAcc->SetValue(pMeshAsset, "MeshFile", "Meshes/Cube.obj").Succeeded());
+    EZ_TEST_BOOL(pAcc->SetValueByName(pMeshAsset, "MeshFile", "Meshes/Cube.obj").Succeeded());
     pAcc->FinishTransaction();
 
     // Saving while another save is in progress should block. This ensures the correct state on disk.
-    ezString sFile = pAcc->Get<ezString>(pMeshAsset, "MeshFile");
+    ezString sFile = pAcc->GetByName<ezString>(pMeshAsset, "MeshFile");
     ezTaskGroupID id2 = pDoc->SaveDocumentAsync([&iOrder](ezDocument* pDoc, ezStatus res)
       {
       EZ_TEST_INT(iOrder, 1);
@@ -108,7 +109,7 @@ void ezEditorAssetDocumentTest::AsyncSave()
     pDoc = static_cast<ezAssetDocument*>(m_pApplication->m_pEditorApp->OpenDocument(sName, ezDocumentFlags::None));
     ezDocumentObject* pMeshAsset = pDoc->GetObjectManager()->GetRootObject()->GetChildren()[0];
     ezObjectAccessorBase* pAcc = pDoc->GetObjectAccessor();
-    ezString sFile = pAcc->Get<ezString>(pMeshAsset, "MeshFile");
+    ezString sFile = pAcc->GetByName<ezString>(pMeshAsset, "MeshFile");
     EZ_TEST_STRING(sFile, "Meshes/Cube.obj");
   }
   pDoc->GetDocumentManager()->CloseDocument(pDoc);
@@ -122,7 +123,8 @@ void ezEditorAssetDocumentTest::SaveOnTransform()
     ezStringBuilder sName = m_sProjectPath;
     sName.AppendPath("mesh2.ezMeshAsset");
     pDoc = static_cast<ezAssetDocument*>(m_pApplication->m_pEditorApp->CreateDocument(sName, ezDocumentFlags::RequestWindow));
-    EZ_TEST_BOOL(pDoc != nullptr);
+    if (!EZ_TEST_BOOL(pDoc != nullptr))
+      return;
     ProcessEvents();
   }
 
@@ -131,7 +133,7 @@ void ezEditorAssetDocumentTest::SaveOnTransform()
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Transform")
   {
     pAcc->StartTransaction("Edit Mesh");
-    EZ_TEST_BOOL(pAcc->SetValue(pMeshAsset, "MeshFile", "Meshes/Cube.obj").Succeeded());
+    EZ_TEST_BOOL(pAcc->SetValueByName(pMeshAsset, "MeshFile", "Meshes/Cube.obj").Succeeded());
     pAcc->FinishTransaction();
 
     ezTransformStatus res = pDoc->SaveDocument();
@@ -152,14 +154,14 @@ void ezEditorAssetDocumentTest::SaveOnTransform()
   {
     // Transforming should have update the mesh asset with new material slots.
     ezInt32 iCount = 0;
-    EZ_TEST_BOOL(pAcc->GetCount(pMeshAsset, "Materials", iCount).Succeeded());
+    EZ_TEST_BOOL(pAcc->GetCountByName(pMeshAsset, "Materials", iCount).Succeeded());
     EZ_TEST_INT(iCount, 1);
 
-    ezUuid subObject = pAcc->Get<ezUuid>(pMeshAsset, "Materials", (ezInt64)0);
+    ezUuid subObject = pAcc->GetByName<ezUuid>(pMeshAsset, "Materials", (ezInt64)0);
     EZ_TEST_BOOL(subObject.IsValid());
     const ezDocumentObject* pSubObject = pAcc->GetObject(subObject);
 
-    ezString sLabel = pAcc->Get<ezString>(pSubObject, "Label");
+    ezString sLabel = pAcc->GetByName<ezString>(pSubObject, "Label");
     EZ_TEST_STRING(sLabel, "initialShadingGroup");
   }
   pDoc->GetDocumentManager()->CloseDocument(pDoc);
@@ -220,8 +222,8 @@ void ezEditorAssetDocumentTest::FileOperations()
 
 
     ezMutex m_EventMutex;
-    ezHybridArray<ezFileChangedEvent, 4> m_FileEvents;
-    ezHybridArray<AssetEvent, 4> m_AssetEvents;
+    ezTempHybridArray<ezFileChangedEvent, 4> m_FileEvents;
+    ezTempHybridArray<AssetEvent, 4> m_AssetEvents;
 
   private:
     ezEventSubscriptionID m_FileID = 0;
@@ -237,7 +239,7 @@ void ezEditorAssetDocumentTest::FileOperations()
     EZ_LOCK(events->m_EventMutex);
     if (EZ_TEST_INT(expectedFiles.GetCount(), events->m_FileEvents.GetCount()))
     {
-      for (size_t i = 0; i < expectedFiles.GetCount(); i++)
+      for (ezUInt32 i = 0; i < expectedFiles.GetCount(); i++)
       {
         EZ_TEST_INT((int)expectedFiles[i].m_Type, (int)events->m_FileEvents[i].m_Type);
         EZ_TEST_STRING(expectedFiles[i].m_Path, events->m_FileEvents[i].m_Path);
@@ -247,7 +249,7 @@ void ezEditorAssetDocumentTest::FileOperations()
 
     if (EZ_TEST_INT(expectedAssets.GetCount(), events->m_AssetEvents.GetCount()))
     {
-      for (size_t i = 0; i < expectedAssets.GetCount(); i++)
+      for (ezUInt32 i = 0; i < expectedAssets.GetCount(); i++)
       {
         EZ_TEST_INT((int)expectedAssets[i].m_Type, (int)events->m_AssetEvents[i].m_Type);
         EZ_TEST_STRING(expectedAssets[i].m_sAbsPath, events->m_AssetEvents[i].m_sAbsPath);
@@ -307,7 +309,7 @@ void ezEditorAssetDocumentTest::FileOperations()
     }
   };
 
-  ezHybridArray<ezString, 4> rootFolders(ezFileSystemModel::GetSingleton()->GetDataDirectoryRoots());
+  ezTempHybridArray<ezString, 4> rootFolders(ezFileSystemModel::GetSingleton()->GetDataDirectoryRoots());
   auto MakePath = [&](ezStringView sPath)
   {
     return ezDataDirPath(sPath, rootFolders);
@@ -345,7 +347,7 @@ void ezEditorAssetDocumentTest::FileOperations()
   sAbsAssetCopyPath.ChangeFileName("meshCopy");
   ezUuid copyGuid;
 
-  // Tests that copy gets a unique ID to resolev conflict.
+  // Tests that copy gets a unique ID to resolve conflict.
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Copy Asset")
   {
     const ezUuid mod = ezUuid::MakeStableUuidFromString(sAbsAssetCopyPath);
@@ -479,7 +481,7 @@ void ezEditorAssetDocumentTest::FileOperations()
     sTempTarget.AppendPath(ezPathUtils::GetFileNameAndExtension(sAbsAssetRenamedPath2));
     sTempTarget.ChangeFileName(ezConversionUtils::ToString(overwriteGuid, sTemp));
 
-    EZ_TEST_RESULT(pTypeDesc->m_pManager->CloneDocument(sAbsAssetRenamedPath2, sTempTarget, overwriteGuid).m_Result);
+    EZ_TEST_RESULT(pTypeDesc->m_pManager->CloneDocument(sAbsAssetRenamedPath2, sTempTarget, overwriteGuid).GetResult());
     EZ_TEST_RESULT(ezOSFile::CopyFile(sTempTarget, sAbsAssetRenamedPath2));
     ezOSFile::DeleteFile(sTempTarget).IgnoreResult();
 

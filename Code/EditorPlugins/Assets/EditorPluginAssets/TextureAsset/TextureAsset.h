@@ -2,6 +2,7 @@
 
 #include <EditorFramework/Assets/AssetDocumentGenerator.h>
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
+#include <EditorPluginAssets/EditorPluginAssetsDLL.h>
 #include <EditorPluginAssets/TextureAsset/TextureAssetObjects.h>
 
 class ezTextureAssetProfileConfig;
@@ -18,11 +19,13 @@ struct ezTextureChannelMode
     Green,
     Blue,
     Alpha,
+    CoverageRed,
+    CoverageAlpha,
 
     Default = RGBA
   };
 };
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTextureChannelMode);
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_EDITORPLUGINASSETS_DLL, ezTextureChannelMode);
 
 class ezTextureAssetDocument : public ezSimpleAssetDocument<ezTextureAssetProperties>
 {
@@ -33,7 +36,7 @@ public:
 
   // for previewing purposes
   ezEnum<ezTextureChannelMode> m_ChannelMode;
-  ezInt32 m_iTextureLod; // -1 == regular sampling, >= 0 == sample that level
+  ezInt32 m_iTextureLod = -1; // -1 == regular sampling, >= 0 == sample that level
   bool m_bIsRenderTarget = false;
 
 protected:

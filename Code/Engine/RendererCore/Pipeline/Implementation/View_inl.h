@@ -6,7 +6,7 @@ EZ_ALWAYS_INLINE ezViewHandle ezView::GetHandle() const
 
 EZ_ALWAYS_INLINE ezStringView ezView::GetName() const
 {
-  return m_sName.GetView();
+  return m_Data.m_sName.GetView();
 }
 
 EZ_ALWAYS_INLINE ezWorld* ezView::GetWorld()
@@ -26,7 +26,7 @@ EZ_ALWAYS_INLINE ezGALSwapChainHandle ezView::GetSwapChain() const
 
 EZ_ALWAYS_INLINE const ezGALRenderTargets& ezView::GetRenderTargets() const
 {
-  return m_Data.m_renderTargets;
+  return m_Data.m_RenderTargets;
 }
 
 EZ_ALWAYS_INLINE void ezView::SetCamera(ezCamera* pCamera)
@@ -105,6 +105,22 @@ EZ_FORCE_INLINE ezResult ezView::ComputeScreenSpacePos(const ezVec3& vPoint, ezV
 {
   UpdateCachedMatrices();
   return m_Data.ComputeScreenSpacePos(vPoint, out_vScreenPos);
+}
+
+EZ_FORCE_INLINE ezResult ezView::ComputeWorldSpacePos(float fNormalizedScreenPosX, float fNormalizedScreenPosY, ezVec3& out_vWorldPos) const
+{
+  UpdateCachedMatrices();
+  return m_Data.ComputeWorldSpacePos(fNormalizedScreenPosX, fNormalizedScreenPosY, out_vWorldPos);
+}
+
+EZ_FORCE_INLINE void ezView::ConvertScreenPixelPosToNormalizedPos(ezVec3& inout_vPixelPos)
+{
+  m_Data.ConvertScreenPixelPosToNormalizedPos(inout_vPixelPos);
+}
+
+EZ_FORCE_INLINE void ezView::ConvertScreenNormalizedPosToPixelPos(ezVec3& inout_vNormalizedPos)
+{
+  m_Data.ConvertScreenNormalizedPosToPixelPos(inout_vNormalizedPos);
 }
 
 EZ_ALWAYS_INLINE const ezMat4& ezView::GetProjectionMatrix(ezCameraEye eye) const

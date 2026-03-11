@@ -4,6 +4,15 @@
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Types/VarianceTypes.h>
 
+struct ezVariantTestStruct
+{
+public:
+  ezVariant m_Variant;
+  ezVariantArray m_VariantArray;
+  ezVariantDictionary m_VariantDictionary;
+};
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezVariantTestStruct);
+
 struct ezIntegerStruct
 {
 public:
@@ -87,7 +96,7 @@ public:
     m_Buffer.PushBack(0xFF);
     m_Buffer.PushBack(0x0);
     m_Buffer.PushBack(0xCD);
-    m_VarianceAngle = {0.1f, ezAngle::MakeFromDegree(90.0f)};
+    m_VarianceAngle = ezVarianceTypeAngle(ezAngle::MakeFromDegree(90.0f), 0.1f);
   }
 
   ezIntegerStruct m_IntegerStruct;

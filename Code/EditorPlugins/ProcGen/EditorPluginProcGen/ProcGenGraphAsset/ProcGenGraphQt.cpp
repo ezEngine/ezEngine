@@ -27,9 +27,9 @@ namespace
 
 ezQtProcGenNode::ezQtProcGenNode() = default;
 
-void ezQtProcGenNode::InitNode(const ezDocumentNodeManager* pManager, const ezDocumentObject* pObject)
+void ezQtProcGenNode::InitNode(const ezVisualGraphObjectManager* pManager, const ezDocumentObject* pObject)
 {
-  ezQtNode::InitNode(pManager, pObject);
+  ezQtVisualGraphNode::InitNode(pManager, pObject);
 
   const ezRTTI* pRtti = pObject->GetType();
 
@@ -51,7 +51,7 @@ void ezQtProcGenNode::UpdateState()
     ezStringBuilder temp;
     ezStringBuilder temp2;
 
-    ezHybridArray<const ezAbstractProperty*, 32> properties;
+    ezTempHybridArray<const ezAbstractProperty*, 32> properties;
     pRtti->GetAllProperties(properties);
 
     sTitle = pAttr->GetTitle();
@@ -81,7 +81,7 @@ void ezQtProcGenNode::UpdateState()
       {
         sVal = "{";
 
-        ezHybridArray<ezVariant, 16> values;
+        ezTempHybridArray<ezVariant, 16> values;
         typeAccessor.GetValues(prop->GetPropertyName(), values);
         for (auto& setVal : values)
         {
@@ -129,6 +129,7 @@ void ezQtProcGenNode::UpdateState()
     {
       sTitle.Shrink(9, 0);
     }
+    sTitle.TrimLeft("_");
   }
 
   m_pTitleLabel->setPlainText(sTitle.GetData());
@@ -152,7 +153,7 @@ void ezQtProcGenPin::ExtendContextMenu(QMenu& ref_menu)
 
 void ezQtProcGenPin::keyPressEvent(QKeyEvent* pEvent)
 {
-  if (pEvent->key() == Qt::Key_D || pEvent->key() == Qt::Key_F9)
+  if (ezQtUtils::IsEquivalentQtKey(pEvent, Qt::Key_D) || pEvent->key() == Qt::Key_F9)
   {
     SetDebug(!m_bDebug);
   }
@@ -160,7 +161,7 @@ void ezQtProcGenPin::keyPressEvent(QKeyEvent* pEvent)
 
 void ezQtProcGenPin::paint(QPainter* pPainter, const QStyleOptionGraphicsItem* pOption, QWidget* pWidget)
 {
-  ezQtPin::paint(pPainter, pOption, pWidget);
+  ezQtVisualGraphPin::paint(pPainter, pOption, pWidget);
 
   pPainter->save();
   pPainter->setPen(QPen(QColor(220, 0, 0), 3.5f, Qt::DotLine));
@@ -178,7 +179,7 @@ void ezQtProcGenPin::paint(QPainter* pPainter, const QStyleOptionGraphicsItem* p
 
 QRectF ezQtProcGenPin::boundingRect() const
 {
-  QRectF bounds = ezQtPin::boundingRect();
+  QRectF bounds = ezQtVisualGraphPin::boundingRect();
   return bounds.adjusted(-6, -6, 6, 6);
 }
 
@@ -198,7 +199,7 @@ void ezQtProcGenPin::SetDebug(bool bDebug)
 //////////////////////////////////////////////////////////////////////////
 
 ezQtProcGenScene::ezQtProcGenScene(QObject* pParent /*= nullptr*/)
-  : ezQtNodeScene(pParent)
+  : ezQtVisualGraphScene(pParent)
 {
 }
 
@@ -228,7 +229,7 @@ void ezQtProcGenScene::SetDebugPin(ezQtProcGenPin* pDebugPin)
   }
 }
 
-ezStatus ezQtProcGenScene::RemoveNode(ezQtNode* pNode)
+ezStatus ezQtProcGenScene::RemoveNode(ezQtVisualGraphNode* pNode)
 {
   auto pins = pNode->GetInputPins();
   pins.PushBackRange(pNode->GetOutputPins());
@@ -241,5 +242,5 @@ ezStatus ezQtProcGenScene::RemoveNode(ezQtNode* pNode)
     }
   }
 
-  return ezQtNodeScene::RemoveNode(pNode);
+  return ezQtVisualGraphScene::RemoveNode(pNode);
 }

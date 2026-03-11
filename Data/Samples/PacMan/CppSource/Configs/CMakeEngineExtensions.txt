@@ -1,0 +1,10 @@
+# The ezEditor may modify this file to add build configuration options.
+
+
+# Link against selected engine plugins
+target_link_libraries(${PROJECT_NAME} PRIVATE
+  GameComponentsPlugin
+  JoltPlugin
+  MiniAudioPlugin
+  ParticlePlugin
+)

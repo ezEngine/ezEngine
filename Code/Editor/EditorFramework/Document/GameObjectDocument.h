@@ -19,7 +19,6 @@ struct EZ_EDITORFRAMEWORK_DLL TransformationChanges
     Translation = EZ_BIT(0),
     Rotation = EZ_BIT(1),
     Scale = EZ_BIT(2),
-    UniformScale = EZ_BIT(3),
     All = 0xFF
   };
 };
@@ -96,10 +95,11 @@ class EZ_EDITORFRAMEWORK_DLL ezGameObjectDocument : public ezAssetDocument
   EZ_ADD_DYNAMIC_REFLECTION(ezGameObjectDocument, ezAssetDocument);
 
 public:
-  ezGameObjectDocument(ezStringView sDocumentPath, ezDocumentObjectManager* pObjectManager,
-    ezAssetDocEngineConnection engineConnectionType = ezAssetDocEngineConnection::FullObjectMirroring);
+  ezGameObjectDocument(ezStringView sDocumentPath, ezDocumentObjectManager* pObjectManager, ezAssetDocEngineConnection engineConnectionType = ezAssetDocEngineConnection::FullObjectMirroring);
   ~ezGameObjectDocument();
 
+  /// \brief In case a document consists of multiple layers, this redirection is necessary to execute actions on the active layer.
+  virtual ezGameObjectDocument* GetRedirectedGameObjectDoc() { return this; }
 
   virtual ezEditorInputContext* GetEditorInputContextOverride() override;
 
@@ -161,9 +161,6 @@ public:
   /// \brief Moves the camera to the current picking position
   void MoveCameraHere();
 
-  /// \brief Creates an empty game object at the current picking position
-  ezStatus CreateGameObjectHere();
-
   void ScheduleSendObjectSelection();
 
   /// \brief Sends the current object selection, but only if it was modified or specifically tagged for resending with ScheduleSendObjectSelection().
@@ -179,6 +176,9 @@ public:
   float GetSimulationSpeed() const { return m_fSimulationSpeed; }
   void SetSimulationSpeed(float f);
 
+  bool GetPauseSimulation() const { return m_bPauseSimulation; }
+  void SetPauseSimulation(bool b);
+
   bool GetRenderSelectionOverlay() const { return m_CurrentMode.m_bRenderSelectionOverlay; }
   void SetRenderSelectionOverlay(bool b);
 
@@ -191,10 +191,24 @@ public:
   bool GetPickTransparent() const { return m_bPickTransparent; }
   void SetPickTransparent(bool b);
 
+  void SetStepSimulation(bool b) { m_bStepSimulation = b; }
+  bool GetStepSimulation() const { return m_bStepSimulation; }
+
+  /// \brief Specifies which object is the 'active parent', which is the object under which newly created objects should be parented.
+  void SetActiveParent(ezUuid object);
+  /// \brief Returns the object under which newly created objects should be parented.
+  ///
+  /// \note The object may not exist anymore! So check with the ObjectManager first.
+  ezUuid GetActiveParent() const { return m_ActiveParent; }
+
+private:
+  ezUuid m_ActiveParent = ezUuid::MakeInvalid();
+
   ///@}
   /// \name Transform
   ///@{
 
+public:
   /// \brief Sets the new global transformation of the given object.
   /// The transformationChanges bitmask (of type TransformationChanges) allows to tell the system that, e.g. only translation has changed and thus
   /// some work can be spared.
@@ -271,6 +285,8 @@ private:
   bool m_bGizmoMoveParentOnly = false;
   bool m_bPickTransparent = true;
 
+  bool m_bPauseSimulation = false;
+  bool m_bStepSimulation = false;
   float m_fSimulationSpeed = 1.0f;
 
   using TransformTable = ezHashTable<const ezDocumentObject*, ezSimdTransform, ezHashHelper<const ezDocumentObject*>, ezAlignedAllocatorWrapper>;

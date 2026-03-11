@@ -739,6 +739,26 @@ ezResult ezStringUtils::FindUIntAtTheEnd(const char* szString, ezUInt32& out_uiV
   }
 }
 
+ezUInt32 ezStringUtils::CalculateLineNumber(const char* szString, const char* szOffset, const char* pStringEnd /*= ezUnicodeUtils::GetMaxStringEnd<char>()*/)
+{
+  ezUInt32 uiLine = 0;
+
+  while ((szString < pStringEnd) && (*szString != '\0'))
+  {
+    if (szString == szOffset)
+      return uiLine + 1;
+
+    if (*szString == '\n')
+    {
+      ++uiLine;
+    }
+
+    ++szString;
+  }
+
+  return uiLine;
+}
+
 const char* ezStringUtils::SkipCharacters(const char* szString, EZ_CHARACTER_FILTER skipCharacterCB, bool bAlwaysSkipFirst)
 {
   EZ_ASSERT_DEBUG(szString != nullptr, "Invalid string");

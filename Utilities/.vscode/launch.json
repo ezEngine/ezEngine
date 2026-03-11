@@ -1,0 +1,105 @@
+{
+    "version" : "0.2.0",
+    "configurations" : [
+        // Local debugging using LLDB
+        // These configs are configured for Linux only and require Cmake, CMake Tools and CodeLLDB extensions.
+        //
+        // Launches the active CMake debug target. Set via "Cmake: Set Debug Target" command.
+        {
+            "name": "Launch CMake Debug Target",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${command:cmake.launchTargetPath}",
+            "env": {
+                // Force Vulkan driver to something specific
+                //"VK_ICD_FILENAMES": "/.../lvp_icd.x86_64.json",
+                // Enable validation layer. Note that this will work out of the box for Linux, but on Windows the paths will have to be changed to match the SDK install dir.
+                "VK_LAYER_PATH" : "${command:cmake.buildDirectory}/vulkan-sdk/1.3.275.0/x86_64/share/vulkan/explicit_layer.d",
+                "LD_LIBRARY_PATH" : "${command:cmake.buildDirectory}/vulkan-sdk/1.3.275.0/x86_64/lib"
+            },
+            "args": [],
+            "cwd": "${command:cmake.getLaunchTargetDirectory}",
+            "initCommands": [ "command script import ${workspaceFolder}/Code/Engine/Foundation/ezEngine.py" ]
+        },
+        // Launches the editor regardless of the active CMake debug target.
+        {
+            "name": "Launch Editor",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${command:cmake.getLaunchTargetDirectory}/ezEditor",
+            "env": { 
+                "VK_LAYER_PATH" : "${command:cmake.buildDirectory}/vulkan-sdk/1.3.275.0/x86_64/share/vulkan/explicit_layer.d",
+                "LD_LIBRARY_PATH" : "${command:cmake.buildDirectory}/vulkan-sdk/1.3.275.0/x86_64/lib"
+            },
+            "args": [],
+            "cwd": "${command:cmake.getLaunchTargetDirectory}",
+            "initCommands": [ "command script import ${workspaceFolder}/Code/Engine/Foundation/ezEngine.py" ]
+        },
+        // Launches the editor regardless of the active CMake debug target and forces the engine process to wait for a debugger.
+        // Attach using "Attach to EditorEngineProcess".
+        {
+            "name": "Launch Editor - WaitForDebugger",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${command:cmake.getLaunchTargetDirectory}/ezEditor",
+            "env": { 
+                "VK_LAYER_PATH" : "${command:cmake.buildDirectory}/vulkan-sdk/1.3.275.0/x86_64/share/vulkan/explicit_layer.d",
+                "LD_LIBRARY_PATH" : "${command:cmake.buildDirectory}/vulkan-sdk/1.3.275.0/x86_64/lib"
+            },
+            "args": [ "-WaitForDebugger" ],
+            "cwd": "${command:cmake.getLaunchTargetDirectory}",
+            "initCommands": [ "command script import ${workspaceFolder}/Code/Engine/Foundation/ezEngine.py" ]
+        },
+        // Attaches a debugger to the running ezEditorEngineProcess. Note that this assumes there is only one running.
+        {
+            "name": "Attach to EditorEngineProcess",
+            "type": "lldb",
+            "request": "attach",   
+            "program": "${command:cmake.getLaunchTargetDirectory}/ezEditorEngineProcess",
+            "preRunCommands": [ "command script import ${workspaceFolder}/Code/Engine/Foundation/ezEngine.py" ],
+            "preLaunchTask": "Debugger Attach Check"
+        },
+        // Launches the player regardless of the active CMake debug target.
+        {
+            "name": "Launch Player",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${command:cmake.getLaunchTargetDirectory}/ezPlayer",
+            "env": { 
+                "VK_LAYER_PATH" : "${command:cmake.buildDirectory}/vulkan-sdk/1.3.275.0/x86_64/share/vulkan/explicit_layer.d",
+                "LD_LIBRARY_PATH" : "${command:cmake.buildDirectory}/vulkan-sdk/1.3.275.0/x86_64/lib"
+            },
+            "args": [ "-scene", "${workspaceFolder}/Data/Samples/PacMan/AssetCache/Common/Scenes/Level1.ezObjectGraph", "-profile", "PC" ],
+            "cwd": "${command:cmake.getLaunchTargetDirectory}",
+            "initCommands": [ "command script import ${workspaceFolder}/Code/Engine/Foundation/ezEngine.py" ]
+        },
+        // Launches the inspector regardless of the active CMake debug target.
+        {
+            "name": "Launch Inspector",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${command:cmake.getLaunchTargetDirectory}/ezInspector",
+            "env": {},
+            "args": [],
+            "cwd": "${command:cmake.getLaunchTargetDirectory}",
+            "initCommands": [ "command script import ${workspaceFolder}/Code/Engine/Foundation/ezEngine.py" ]
+        },
+
+        // Android RendererTest Arm64 Debug
+        // To switch to a different buil you will need to replace "AndroidNinjaClangDebugArm64" with the correct Output/Bin folder.
+        // To switch the app to debug, you will need to replace "com.ezengine.RendererTest" and "RendererTest.apk" to match your target app. 
+        {
+            "name": "Android RendererTest",
+            "type": "lldb",
+            "request": "custom",
+            "targetCreateCommands": [
+                "shell pwsh \"${workspaceFolder}/Utilities/Android/DbgAndroidLldb.ps1\" -PackageName \"com.ezengine.RendererTest\" -debugTemp \"${workspaceFolder}/debugtemp\" -apk \"${workspaceFolder}/Output/Bin/AndroidNinjaClangDebugArm64/RendererTest.apk\" -MessageBoxOnError",
+                "command source ${workspaceFolder}/debugtemp/lldb.setup"
+            ],
+            "processCreateCommands": [
+                "shell pwsh \"${workspaceFolder}/Utilities/Android/DbgAndroidJdb.ps1\" &",
+                "continue"
+            ]
+        }
+    ]
+}

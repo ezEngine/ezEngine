@@ -1,0 +1,269 @@
+HeaderV2
+{
+o
+{
+	Uuid %id{u4{14835661129249975473,4943293217295074926}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{2}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Animated Mesh"}
+		VarArray %Dependencies
+		{
+			s{"Animations/Spot/Spot.glb"}
+		}
+		Uuid %DocumentID{u4{14835661129249975473,4943293217295074926}}
+		u4 %Hash{8727475778487208456}
+		VarArray %MetaInfo{}
+		VarArray %Outputs{}
+		VarArray %PackageDeps
+		{
+			s{"{ 13600768-c897-4dea-8738-37a2e947f4db }"}
+			s{"{ 1fad0ba7-109e-4e1a-8b52-dea47bc9c7a2 }"}
+			s{"{ abb8ea33-8cf1-4bc4-8b2e-f35842ab2d2c }"}
+			s{"{ b0e0075a-7374-4415-9f22-cd28865ab575 }"}
+			s{"{ ccd39a94-576f-456d-a2f1-a778788642e2 }"}
+		}
+		VarArray %References
+		{
+			s{"Animations/Spot/Spot.glb"}
+			s{"{ 13600768-c897-4dea-8738-37a2e947f4db }"}
+			s{"{ 1fad0ba7-109e-4e1a-8b52-dea47bc9c7a2 }"}
+			s{"{ abb8ea33-8cf1-4bc4-8b2e-f35842ab2d2c }"}
+			s{"{ b0e0075a-7374-4415-9f22-cd28865ab575 }"}
+			s{"{ ccd39a94-576f-456d-a2f1-a778788642e2 }"}
+		}
+		s %Tags{""}
+	}
+}
+}
+Objects
+{
+o
+{
+	Uuid %id{u4{14958205599719400064,4839343507537706862}}
+	s %t{"ezMaterialResourceSlot"}
+	u3 %v{1}
+	p
+	{
+		s %Label{"Body"}
+		s %Resource{"{ abb8ea33-8cf1-4bc4-8b2e-f35842ab2d2c }"}
+	}
+}
+o
+{
+	Uuid %id{u4{18159970820596204186,5126098732342215106}}
+	s %t{"ezMaterialResourceSlot"}
+	u3 %v{1}
+	p
+	{
+		s %Label{"Eye"}
+		s %Resource{"{ 1fad0ba7-109e-4e1a-8b52-dea47bc9c7a2 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{1793743505687282350,5380725151725416594}}
+	s %t{"ezMaterialResourceSlot"}
+	u3 %v{1}
+	p
+	{
+		s %Label{"Leg"}
+		s %Resource{"{ b0e0075a-7374-4415-9f22-cd28865ab575 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{12460840981807068056,5513780024595716022}}
+	s %t{"ezMaterialResourceSlot"}
+	u3 %v{1}
+	p
+	{
+		s %Label{"Joint"}
+		s %Resource{"{ 13600768-c897-4dea-8738-37a2e947f4db }"}
+	}
+}
+o
+{
+	Uuid %id{u4{14810025094427387529,5690329236943425541}}
+	s %t{"ezAnimatedMeshAssetProperties"}
+	u3 %v{2}
+	p
+	{
+		b %AggressiveSimplification{0}
+		s %BoneWeightPrecision{"ezMeshBoneWeigthPrecision::_8Bit"}
+		s %DefaultSkeleton{"{ ccd39a94-576f-456d-a2f1-a778788642e2 }"}
+		b %ImportMaterials{1}
+		VarArray %Materials
+		{
+			Uuid{u4{14958205599719400064,4839343507537706862}}
+			Uuid{u4{1793743505687282350,5380725151725416594}}
+			Uuid{u4{18159970820596204186,5126098732342215106}}
+			Uuid{u4{12460840981807068056,5513780024595716022}}
+		}
+		u1 %MaxSimplificationError{5}
+		s %MeshFile{"Animations/Spot/Spot.glb"}
+		u1 %MeshSimplification{50}
+		s %NormalPrecision{"ezMeshNormalPrecision::_10Bit"}
+		b %NormalizeWeights{1}
+		b %RecalculateNormals{0}
+		b %RecalculateTangents{1}
+		b %SimplifyMesh{0}
+		s %TexCoordPrecision{"ezMeshTexCoordPrecision::_16Bit"}
+	}
+}
+o
+{
+	Uuid %id{u4{18096612296587978288,6449934965513159559}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{14810025094427387529,5690329236943425541}}
+		}
+	}
+}
+}
+Types
+{
+o
+{
+	Uuid %id{u4{9735983355844992176,7654398404563011307}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"ezAnimatedMeshAssetProperties"}
+		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{14196080311825956621,8048256116943370769}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezMeshBoneWeigthPrecision"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6089094783765586323,8705960867921430659}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentRoot"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{7523378465055293707,11345788873737253128}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"ezEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"ezMaterialResourceSlot"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{3437852327385397451,11533535376753039907}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezMeshTexCoordPrecision"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{3566230308987241816,14467924040829974905}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezMeshNormalPrecision"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2947336711354777548,15013008608905564043}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEnumBase"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{983387834180907111,17935407260904399048}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezReflectedClass"}
+		u3 %TypeVersion{1}
+	}
+}
+}

@@ -146,8 +146,9 @@ void ezJoltHitboxComponent::CreatePhysicsShapes(const ezSkeletonResourceHandle& 
 
   const ezQuat qFinalBoneRot = /*boneRot **/ qBoneDirAdjustment;
 
-  ezQuat qRotZtoX; // the capsule should extend along X, but the capsule shape goes along Z
-  qRotZtoX = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(-90));
+  // the capsule should extend along X, but the capsule shape goes along Z
+  const ezQuat qRotZtoX = ezQuat::MakeFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::MakeFromDegree(-90));
+  const ezQuat qRotYtoZ = ezQuat::MakeFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::MakeFromDegree(90));
 
   for (ezUInt32 idx = 0; idx < desc.m_Geometry.GetCount(); ++idx)
   {
@@ -229,6 +230,15 @@ void ezJoltHitboxComponent::CreatePhysicsShapes(const ezSkeletonResourceHandle& 
       pShapeComp->SetRadius(geo.m_Transform.m_vScale.z);
       pShapeComp->SetHeight(geo.m_Transform.m_vScale.x);
     }
+    else if (geo.m_Type == ezSkeletonJointGeometryType::CapsuleSideways)
+    {
+      shape.m_qOffsetRot = shape.m_qOffsetRot * qRotYtoZ;
+
+      ezJoltShapeCapsuleComponent* pShapeComp = nullptr;
+      ezJoltShapeCapsuleComponent::CreateComponent(pGO, pShapeComp);
+      pShapeComp->SetRadius(geo.m_Transform.m_vScale.z);
+      pShapeComp->SetHeight(geo.m_Transform.m_vScale.x);
+    }
     else
     {
       EZ_ASSERT_NOT_IMPLEMENTED;
@@ -246,4 +256,4 @@ void ezJoltHitboxComponent::DestroyPhysicsShapes()
   m_Shapes.Clear();
 }
 
-EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Components_Implementation_JoltBoneColliderComponent);
+EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_Components_Implementation_JoltHitboxComponent);

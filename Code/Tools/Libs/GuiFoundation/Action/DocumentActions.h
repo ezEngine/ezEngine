@@ -10,7 +10,7 @@ public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapMenuActions(ezStringView sMapping, ezStringView sTargetMenu = "G.File.Common");
+  static void MapMenuActions(ezStringView sMapping, ezStringView sTargetMenu);
   static void MapToolbarActions(ezStringView sMapping);
   static void MapToolsActions(ezStringView sMapping);
 
@@ -24,7 +24,6 @@ public:
   static ezActionDescriptorHandle s_hCloseAllButThis;
 
   static ezActionDescriptorHandle s_hOpenContainingFolder;
-  static ezActionDescriptorHandle s_hCopyAssetGuid;
 
   static ezActionDescriptorHandle s_hUpdatePrefabs;
 };
@@ -46,7 +45,6 @@ public:
     CloseAllButThis,
     OpenContainingFolder,
     UpdatePrefabs,
-    CopyAssetGuid,
   };
   ezDocumentAction(const ezActionContext& context, const char* szName, ButtonType button);
   ~ezDocumentAction();

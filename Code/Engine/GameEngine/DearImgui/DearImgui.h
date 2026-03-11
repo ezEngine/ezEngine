@@ -3,18 +3,19 @@
 #ifdef BUILDSYSTEM_ENABLE_IMGUI_SUPPORT
 
 #  include <Core/ResourceManager/ResourceHandle.h>
+#  include <Foundation/Configuration/CVar.h>
 #  include <Foundation/Configuration/Singleton.h>
 #  include <Foundation/Math/Size.h>
 #  include <Foundation/Memory/CommonAllocators.h>
 #  include <Foundation/Types/UniquePtr.h>
 #  include <GameEngine/GameEngineDLL.h>
-#  include <RendererCore/Pipeline/Declarations.h>
-
 #  include <Imgui/imgui.h>
+#  include <RendererCore/Pipeline/Declarations.h>
 
 using ezTexture2DResourceHandle = ezTypedResourceHandle<class ezTexture2DResource>;
 
 struct ImGuiContext;
+struct ezGameApplicationExecutionEvent;
 
 using ezImguiConfigFontCallback = ezDelegate<void(ImFontAtlas&)>;
 using ezImguiConfigStyleCallback = ezDelegate<void(ImGuiStyle&)>;
@@ -45,9 +46,12 @@ public:
   /// \brief Returns the value that was passed to BeginFrame(). Useful for positioning UI elements.
   ezSizeU32 GetCurrentWindowResolution() const { return m_CurrentWindowResolution; }
 
-  /// \brief When this is disabled, the GUI will be rendered, but it will not react to any input. Useful if something else shall get
-  /// exclusive input.
+  /// \brief When this is disabled, the GUI will be rendered, but it will not react to any input.
+  ///
+  /// Useful if something else shall get exclusive input.
+  /// Be aware that this is global state, that affects ALL ImGui elements for the entire frame.
   void SetPassInputToImgui(bool bPassInput) { m_bPassInputToImgui = bPassInput; }
+  bool GetPassInputToImgui() const { return m_bPassInputToImgui; }
 
   /// \brief If this returns true, the GUI wants to use the input, and thus you might want to not use the input for anything else.
   ///
@@ -56,6 +60,25 @@ public:
 
   /// \brief Returns the shared font atlas
   ImFontAtlas& GetFontAtlas() { return *m_pSharedFontAtlas; }
+
+  ImTextureID RegisterTexture(const ezTexture2DResourceHandle& hTexture);
+
+  struct Image
+  {
+    ImTextureID m_Id;
+    ezVec2 m_UV0;
+    ezVec2 m_UV1;
+  };
+
+  void RegisterImage(ezTempHashedString sImgId, ImTextureID pTexId, const ezVec2& vUv0, const ezVec2& vUv1);
+
+  bool AddImageButton(ezTempHashedString sImgId, const char* szImguiID, const ezVec2& vImageSize, const ezColor& backgroundColor = ezColor::MakeZero(), const ezColor& tintColor = ezColor::White) const;
+
+  void AddImage(ezTempHashedString sImgId, const ezVec2& vImageSize, const ezColor& tintColor = ezColor::White, const ezColor& borderColor = ezColor::MakeZero()) const;
+
+  bool AddImageButtonWithProgress(ezTempHashedString sImgId, const char* szImguiID, const ezVec2& vImageSize, float fProgress, const ezColor& overlayColor, const ezColor& tintColor = ezColor::White) const;
+
+  void AddImageWithProgress(ezTempHashedString sImgId, const char* szImguiID, const ezVec2& vImageSize, float fProgress, const ezColor& overlayColor, const ezColor& tintColor = ezColor::White) const;
 
 private:
   friend class ezImguiExtractor;
@@ -66,6 +89,7 @@ private:
 
   ImGuiContext* CreateContext();
   void BeginFrame(const ezViewHandle& hView);
+  void GameApplicationEventHandler(const ezGameApplicationExecutionEvent& e);
 
   ezProxyAllocator m_Allocator;
 
@@ -87,6 +111,8 @@ private:
 
   ezMutex m_ViewToContextTableMutex;
   ezHashTable<ezViewHandle, Context> m_ViewToContextTable;
+  ezHashTable<ezTempHashedString, Image> m_Images;
+  ezCVarFloat* m_pTextScaleCVar = nullptr;
 };
 
 #endif

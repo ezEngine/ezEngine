@@ -24,11 +24,11 @@ namespace clang
         NameCheck(StringRef Name, ClangTidyContext* Context);
 
       protected:
-        llvm::Optional<FailureInfo>
+        std::optional<FailureInfo>
         getDeclFailureInfo(const NamedDecl* Decl,
           const SourceManager& SM) const override;
 
-        llvm::Optional<FailureInfo>
+        std::optional<FailureInfo>
         getMacroFailureInfo(const Token& MacroNameTok,
           const SourceManager& SM) const override;
 

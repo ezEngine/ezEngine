@@ -1,0 +1,13 @@
+
+.content
+{
+  font-size: 20dp;
+  padding: 20dp;
+}
+
+.title
+{
+  padding: 0px;
+  margin: 0px;
+  font-size: 2em;
+}

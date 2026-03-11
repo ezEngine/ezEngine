@@ -11,13 +11,6 @@
 #include <ProcGenPlugin/Components/ProcVolumeComponent.h>
 #include <ProcGenPlugin/Components/VolumeCollection.h>
 
-namespace
-{
-  ezSpatialData::Category s_ProcVolumeCategory = ezSpatialData::RegisterCategory("ProcVolume", ezSpatialData::Flags::None);
-}
-
-//////////////////////////////////////////////////////////////////////////
-
 // clang-format off
 EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezProcVolumeComponent, 1)
 {
@@ -42,7 +35,8 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezProcVolumeComponent, 1)
 EZ_END_COMPONENT_TYPE
 // clang-format on
 
-ezEvent<const ezProcGenInternal::InvalidatedArea&> ezProcVolumeComponent::s_AreaInvalidatedEvent;
+ezProcVolumeComponent::AreaInvalidatedEvent ezProcVolumeComponent::s_AreaInvalidatedEvent;
+ezSpatialData::Category ezProcVolumeComponent::s_SpatialCategory = ezSpatialData::RegisterCategory("ProcVolume", ezSpatialData::Flags::None);
 
 ezProcVolumeComponent::ezProcVolumeComponent() = default;
 ezProcVolumeComponent::~ezProcVolumeComponent() = default;
@@ -139,6 +133,9 @@ void ezProcVolumeComponent::DeserializeComponent(ezWorldReader& inout_stream)
 void ezProcVolumeComponent::OnTransformChanged(ezMsgTransformChanged& ref_msg)
 {
   ezBoundingBoxSphere combined = GetOwner()->GetLocalBounds();
+  if (!combined.IsValid())
+    return;
+
   combined.Transform(ref_msg.m_OldGlobalTransform.GetAsMat4());
 
   combined.ExpandToInclude(GetOwner()->GetGlobalBounds());
@@ -187,7 +184,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezProcVolumeSphereComponent, 2, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezSphereManipulatorAttribute("Radius"),
-    new ezSphereVisualizerAttribute("Radius", ezColor::LimeGreen),
+    new ezSphereVisualizerAttribute("Radius", ezColorScheme::GetCategoryColor("Construction", ezColorScheme::CategoryColorUsage::ViewportIcon)),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -249,7 +246,7 @@ void ezProcVolumeSphereComponent::DeserializeComponent(ezWorldReader& inout_stre
 
 void ezProcVolumeSphereComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg) const
 {
-  ref_msg.AddBounds(ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), m_fRadius), s_ProcVolumeCategory);
+  ref_msg.AddBounds(ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), m_fRadius), s_SpatialCategory);
 }
 
 void ezProcVolumeSphereComponent::OnExtractVolumes(ezMsgExtractVolumes& ref_msg) const
@@ -260,12 +257,13 @@ void ezProcVolumeSphereComponent::OnExtractVolumes(ezMsgExtractVolumes& ref_msg)
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezProcVolumeBoxComponent, 2, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezProcVolumeBoxComponent, 3, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Extents", GetExtents, SetExtents)->AddAttributes(new ezDefaultValueAttribute(ezVec3(10.0f)), new ezClampValueAttribute(ezVec3(0), ezVariant())),
-    EZ_ACCESSOR_PROPERTY("Falloff", GetFalloff, SetFalloff)->AddAttributes(new ezDefaultValueAttribute(ezVec3(0.5f)), new ezClampValueAttribute(ezVec3(0.0f), ezVec3(1.0f))),
+    EZ_ACCESSOR_PROPERTY("PositiveFalloff", GetPositiveFalloff, SetPositiveFalloff)->AddAttributes(new ezDefaultValueAttribute(ezVec3(0.5f)), new ezClampValueAttribute(ezVec3(0.0f), ezVec3(1.0f))),
+    EZ_ACCESSOR_PROPERTY("NegativeFalloff", GetNegativeFalloff, SetNegativeFalloff)->AddAttributes(new ezDefaultValueAttribute(ezVec3(0.5f)), new ezClampValueAttribute(ezVec3(0.0f), ezVec3(1.0f))),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -277,7 +275,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezProcVolumeBoxComponent, 2, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezBoxManipulatorAttribute("Extents", 1.0f, true),
-    new ezBoxVisualizerAttribute("Extents", 1.0f, ezColor::LimeGreen),
+    new ezBoxVisualizerAttribute("Extents", 1.0f, ezColorScheme::GetCategoryColor("Construction", ezColorScheme::CategoryColorUsage::ViewportIcon)),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -302,11 +300,21 @@ void ezProcVolumeBoxComponent::SetExtents(const ezVec3& vExtents)
   }
 }
 
-void ezProcVolumeBoxComponent::SetFalloff(const ezVec3& vFalloff)
+void ezProcVolumeBoxComponent::SetPositiveFalloff(const ezVec3& vFalloff)
 {
-  if (m_vFalloff != vFalloff)
+  if (m_vPositiveFalloff != vFalloff)
   {
-    m_vFalloff = vFalloff;
+    m_vPositiveFalloff = vFalloff;
+
+    InvalidateArea();
+  }
+}
+
+void ezProcVolumeBoxComponent::SetNegativeFalloff(const ezVec3& vFalloff)
+{
+  if (m_vNegativeFalloff != vFalloff)
+  {
+    m_vNegativeFalloff = vFalloff;
 
     InvalidateArea();
   }
@@ -319,7 +327,8 @@ void ezProcVolumeBoxComponent::SerializeComponent(ezWorldWriter& inout_stream) c
   ezStreamWriter& s = inout_stream.GetStream();
 
   s << m_vExtents;
-  s << m_vFalloff;
+  s << m_vPositiveFalloff;
+  s << m_vNegativeFalloff;
 }
 
 void ezProcVolumeBoxComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -329,22 +338,31 @@ void ezProcVolumeBoxComponent::DeserializeComponent(ezWorldReader& inout_stream)
   ezStreamReader& s = inout_stream.GetStream();
 
   s >> m_vExtents;
-  s >> m_vFalloff;
+  s >> m_vPositiveFalloff;
+  if (uiVersion >= 3)
+  {
+    s >> m_vNegativeFalloff;
+  }
+  else
+  {
+    m_vNegativeFalloff = m_vPositiveFalloff;
+  }
 
   if (uiVersion < 2)
   {
-    m_vFalloff = ezVec3(1.0f) - m_vFalloff;
+    m_vPositiveFalloff = ezVec3(1.0f) - m_vPositiveFalloff;
+    m_vNegativeFalloff = ezVec3(1.0f) - m_vNegativeFalloff;
   }
 }
 
 void ezProcVolumeBoxComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg) const
 {
-  ref_msg.AddBounds(ezBoundingBoxSphere::MakeFromBox(ezBoundingBox::MakeFromMinMax(-m_vExtents * 0.5f, m_vExtents * 0.5f)), s_ProcVolumeCategory);
+  ref_msg.AddBounds(ezBoundingBoxSphere::MakeFromBox(ezBoundingBox::MakeFromMinMax(-m_vExtents * 0.5f, m_vExtents * 0.5f)), s_SpatialCategory);
 }
 
 void ezProcVolumeBoxComponent::OnExtractVolumes(ezMsgExtractVolumes& ref_msg) const
 {
-  ref_msg.m_pCollection->AddBox(GetOwner()->GetGlobalTransformSimd(), m_vExtents, m_BlendMode, m_fSortOrder, m_fValue, m_vFalloff);
+  ref_msg.m_pCollection->AddBox(GetOwner()->GetGlobalTransformSimd(), m_vExtents, m_BlendMode, m_fSortOrder, m_fValue, m_vPositiveFalloff, m_vNegativeFalloff);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -354,7 +372,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezProcVolumeImageComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Image", GetImageFile, SetImageFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Data_2D")),
+    EZ_RESOURCE_MEMBER_PROPERTY("Image", m_hImage)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Data_2D")),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -389,27 +407,7 @@ void ezProcVolumeImageComponent::DeserializeComponent(ezWorldReader& inout_strea
 
 void ezProcVolumeImageComponent::OnExtractVolumes(ezMsgExtractVolumes& ref_msg) const
 {
-  ref_msg.m_pCollection->AddImage(GetOwner()->GetGlobalTransformSimd(), m_vExtents, m_BlendMode, m_fSortOrder, m_fValue, m_vFalloff, m_hImage);
-}
-
-void ezProcVolumeImageComponent::SetImageFile(const char* szFile)
-{
-  ezImageDataResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hResource = ezResourceManager::LoadResource<ezImageDataResource>(szFile);
-  }
-
-  SetImage(hResource);
-}
-
-const char* ezProcVolumeImageComponent::GetImageFile() const
-{
-  if (!m_hImage.IsValid())
-    return "";
-
-  return m_hImage.GetResourceID();
+  ref_msg.m_pCollection->AddBox(GetOwner()->GetGlobalTransformSimd(), m_vExtents, m_BlendMode, m_fSortOrder, m_fValue, m_vPositiveFalloff, m_vNegativeFalloff, m_hImage);
 }
 
 void ezProcVolumeImageComponent::SetImage(const ezImageDataResourceHandle& hResource)
@@ -462,3 +460,27 @@ public:
 };
 
 ezProcVolumeBoxComponent_1_2 g_ezProcVolumeBoxComponent_1_2;
+
+class ezProcVolumeBoxComponent_2_3 : public ezGraphPatch
+{
+public:
+  ezProcVolumeBoxComponent_2_3()
+    : ezGraphPatch("ezProcVolumeBoxComponent", 3)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    auto* pFalloff = pNode->FindProperty("Falloff");
+    if (pFalloff && pFalloff->m_Value.IsA<ezVec3>())
+    {
+      pNode->AddProperty("PositiveFalloff", pFalloff->m_Value.Get<ezVec3>());
+      pNode->AddProperty("NegativeFalloff", pFalloff->m_Value.Get<ezVec3>());
+    }
+  }
+};
+
+ezProcVolumeBoxComponent_2_3 g_ezProcVolumeBoxComponent_2_3;
+
+
+EZ_STATICLINK_FILE(ProcGenPlugin, ProcGenPlugin_Components_Implementation_ProcVolumeComponent);

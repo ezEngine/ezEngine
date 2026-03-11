@@ -3,7 +3,7 @@
 #include <EditorPluginScene/Panels/ScenegraphPanel/ScenegraphModel.moc.h>
 #include <EditorPluginScene/Panels/ScenegraphPanel/ScenegraphPanel.moc.h>
 #include <EditorPluginScene/Scene/Scene2Document.h>
-
+#include <GuiFoundation/Widgets/SearchWidget.moc.h>
 #include <QLayout>
 #include <QStackedWidget>
 
@@ -26,14 +26,15 @@ namespace
   }
 } // namespace
 
-ezQtScenegraphPanel::ezQtScenegraphPanel(QWidget* pParent, ezSceneDocument* pDocument)
-  : ezQtDocumentPanel(pParent, pDocument)
+ezQtScenegraphPanel::ezQtScenegraphPanel(ads::CDockManager* pDockManager, QWidget* pParent, ezSceneDocument* pDocument)
+  : ezQtDocumentPanel(pDockManager, pParent, pDocument)
 {
-  setObjectName("ScenegraphPanel");
+  setObjectName("ezQtScenegraphPanel");
   setWindowTitle("Scenegraph");
   m_pSceneDocument = pDocument;
 
   m_pStack = new QStackedWidget(this);
+  m_pStack->setObjectName("QStackedWidget");
   m_pStack->setContentsMargins(0, 0, 0, 0);
   m_pStack->layout()->setContentsMargins(0, 0, 0, 0);
   setWidget(m_pStack);
@@ -43,14 +44,15 @@ ezQtScenegraphPanel::ezQtScenegraphPanel(QWidget* pParent, ezSceneDocument* pDoc
   m_pStack->addWidget(m_pMainGameObjectWidget);
 }
 
-ezQtScenegraphPanel::ezQtScenegraphPanel(QWidget* pParent, ezScene2Document* pDocument)
-  : ezQtDocumentPanel(pParent, pDocument)
+ezQtScenegraphPanel::ezQtScenegraphPanel(ads::CDockManager* pDockManager, QWidget* pParent, ezScene2Document* pDocument)
+  : ezQtDocumentPanel(pDockManager, pParent, pDocument)
 {
-  setObjectName("ScenegraphPanel");
+  setObjectName("ezQtScenegraphPanel");
   setWindowTitle("Scenegraph");
   m_pSceneDocument = pDocument;
 
   m_pStack = new QStackedWidget(this);
+  m_pStack->setObjectName("QStackedWidget");
   m_pStack->setContentsMargins(0, 0, 0, 0);
   m_pStack->layout()->setContentsMargins(0, 0, 0, 0);
   setWidget(m_pStack);
@@ -61,7 +63,7 @@ ezQtScenegraphPanel::ezQtScenegraphPanel(QWidget* pParent, ezScene2Document* pDo
   m_pStack->addWidget(m_pMainGameObjectWidget);
 
   pDocument->m_LayerEvents.AddEventHandler(ezMakeDelegate(&ezQtScenegraphPanel::LayerEventHandler, this), m_LayerEventUnsubscriber);
-  ezHybridArray<ezSceneDocument*, 16> layers;
+  ezTempHybridArray<ezSceneDocument*, 16> layers;
   pDocument->GetLoadedLayers(layers);
   for (ezSceneDocument* pLayer : layers)
   {
@@ -120,5 +122,12 @@ void ezQtScenegraphPanel::LayerUnloaded(const ezUuid& layerGuid)
 
 void ezQtScenegraphPanel::ActiveLayerChanged(const ezUuid& layerGuid)
 {
+  // migrate the search filter text to the other layer
+  if (ezQtGameObjectWidget* pPrev = qobject_cast<ezQtGameObjectWidget*>(m_pStack->currentWidget()))
+  {
+    QString sText = pPrev->GetFilterWidget().text();
+    m_LayerWidgets[layerGuid]->GetFilterWidget().setText(sText);
+  }
+
   m_pStack->setCurrentWidget(m_LayerWidgets[layerGuid]);
 }

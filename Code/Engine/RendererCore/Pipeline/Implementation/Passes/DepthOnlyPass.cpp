@@ -8,14 +8,24 @@
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererFoundation/Resources/Texture.h>
 
+#include <Foundation/IO/TypeVersionContext.h>
+
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDepthOnlyPass, 1, ezRTTIDefaultAllocator<ezDepthOnlyPass>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDepthOnlyPass, 3, ezRTTIDefaultAllocator<ezDepthOnlyPass>)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("DepthStencil", m_PinDepthStencil),
+    EZ_MEMBER_PROPERTY("RenderStaticObjects", m_bRenderStaticObjects)->AddAttributes(new ezDefaultValueAttribute(true)),
+    EZ_MEMBER_PROPERTY("RenderDynamicObjects", m_bRenderDynamicObjects)->AddAttributes(new ezDefaultValueAttribute(true)),
+    EZ_MEMBER_PROPERTY("RenderTransparentObjects", m_bRenderTransparentObjects),
   }
   EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Rendering")
+  }
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
@@ -53,17 +63,67 @@ void ezDepthOnlyPass::Execute(const ezRenderViewContext& renderViewContext, cons
   ezGALRenderingSetup renderingSetup;
   if (inputs[m_PinDepthStencil.m_uiInputIndex])
   {
-    renderingSetup.m_RenderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(inputs[m_PinDepthStencil.m_uiInputIndex]->m_TextureHandle));
+    renderingSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(inputs[m_PinDepthStencil.m_uiInputIndex]->m_TextureHandle));
   }
 
-  auto pCommandEncoder = ezRenderContext::BeginPassAndRenderingScope(renderViewContext, std::move(renderingSetup), GetName(), renderViewContext.m_pCamera->IsStereoscopic());
+  auto pCommandEncoder = ezRenderContext::BeginRenderingScope(renderViewContext, renderingSetup, GetName(), renderViewContext.m_pCamera->IsStereoscopic());
 
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_DEPTH_ONLY");
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("SHADING_QUALITY", "SHADING_QUALITY_NORMAL");
 
-  // Render
-  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitOpaque);
-  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMasked);
+  // Opaque
+  if (m_bRenderStaticObjects)
+  {
+    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitOpaqueStatic);
+  }
+  if (m_bRenderDynamicObjects)
+  {
+    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitOpaqueDynamic);
+  }
+
+  // Masked
+  if (m_bRenderStaticObjects)
+  {
+    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMaskedStatic);
+  }
+  if (m_bRenderDynamicObjects)
+  {
+    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMaskedDynamic);
+  }
+
+  // Transparent
+  if (m_bRenderTransparentObjects)
+  {
+    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitTransparent);
+  }
+}
+
+ezResult ezDepthOnlyPass::Serialize(ezStreamWriter& inout_stream) const
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
+  inout_stream << m_bRenderStaticObjects;
+  inout_stream << m_bRenderDynamicObjects;
+  inout_stream << m_bRenderTransparentObjects;
+  return EZ_SUCCESS;
+}
+
+ezResult ezDepthOnlyPass::Deserialize(ezStreamReader& inout_stream)
+{
+  EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
+  const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
+
+  if (uiVersion >= 3)
+  {
+    inout_stream >> m_bRenderStaticObjects;
+    inout_stream >> m_bRenderDynamicObjects;
+  }
+
+  if (uiVersion >= 2)
+  {
+    inout_stream >> m_bRenderTransparentObjects;
+  }
+
+  return EZ_SUCCESS;
 }
 
 

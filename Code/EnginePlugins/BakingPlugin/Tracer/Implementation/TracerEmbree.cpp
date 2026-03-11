@@ -94,14 +94,11 @@ namespace
     {
       const auto& mbDesc = pCpuMesh->GetDescriptor().MeshBufferDesc();
 
-      const ezVec3* pPositions = nullptr;
-      const ezUInt8* pNormals = nullptr;
-      ezGALResourceFormat::Enum normalFormat = ezGALResourceFormat::Invalid;
-      ezUInt32 uiElementStride = 0;
-      if (ezMeshBufferUtils::GetPositionAndNormalStream(mbDesc, pPositions, pNormals, normalFormat, uiElementStride).Failed())
-      {
-        return nullptr;
-      }
+      const ezVec3* pPositions = mbDesc.GetPositionData().GetPtr();
+
+      ezUInt32 uiNormalStride = 0;
+      const ezUInt8* pNormals = mbDesc.GetNormalData(&uiNormalStride).GetPtr();
+      ezGALResourceFormat::Enum normalFormat = mbDesc.GetVertexStreamConfig().GetNormalFormat();
 
       ezVec3* rtcPositions = static_cast<ezVec3*>(rtcSetNewGeometryBuffer(triangleMesh, RTC_BUFFER_TYPE_VERTEX, 0, RTC_FORMAT_FLOAT3, sizeof(ezVec3), mbDesc.GetVertexCount()));
 
@@ -117,8 +114,8 @@ namespace
         rtcPositions[i] = *pPositions;
         rtcNormals[i] = vNormal;
 
-        pPositions = ezMemoryUtils::AddByteOffset(pPositions, uiElementStride);
-        pNormals = ezMemoryUtils::AddByteOffset(pNormals, uiElementStride);
+        ++pPositions;
+        pNormals = ezMemoryUtils::AddByteOffset(pNormals, uiNormalStride);
       }
 
       ezVec3U32* rtcIndices = static_cast<ezVec3U32*>(rtcSetNewGeometryBuffer(triangleMesh, RTC_BUFFER_TYPE_INDEX, 0, RTC_FORMAT_UINT3, sizeof(ezVec3U32), mbDesc.GetPrimitiveCount()));

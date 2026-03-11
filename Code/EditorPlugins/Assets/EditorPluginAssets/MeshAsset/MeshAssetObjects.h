@@ -2,6 +2,7 @@
 
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <EditorPluginAssets/Util/AssetUtils.h>
+#include <RendererCore/Declarations.h>
 #include <RendererCore/Meshes/MeshBufferUtils.h>
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 
@@ -42,6 +43,8 @@ public:
   static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 
   ezString m_sMeshFile;
+  ezString m_sMeshIncludeTags;
+  ezString m_sMeshExcludeTags;
   float m_fUniformScaling = 1.0f;
 
   float m_fRadius = 0.5f;
@@ -53,18 +56,18 @@ public:
   bool m_bCap = true;
   bool m_bCap2 = true;
 
-  ezEnum<ezBasisAxis> m_RightDir = ezBasisAxis::PositiveY;
-  ezEnum<ezBasisAxis> m_UpDir = ezBasisAxis::PositiveZ;
+  ezEnum<ezMeshImportTransform> m_ImportTransform;
+  ezEnum<ezBasisAxis> m_RightDir = ezBasisAxis::NegativeX;
+  ezEnum<ezBasisAxis> m_UpDir = ezBasisAxis::PositiveY;
   bool m_bFlipForwardDir = false;
 
   ezMeshPrimitive::Enum m_PrimitiveType = ezMeshPrimitive::Default;
 
   bool m_bRecalculateNormals = false;
-  bool m_bRecalculateTrangents = true;
+  bool m_bRecalculateTangents = true;
   bool m_bImportMaterials = true;
 
-  ezEnum<ezMeshNormalPrecision> m_NormalPrecision;
-  ezEnum<ezMeshTexCoordPrecision> m_TexCoordPrecision;
+  bool m_bHighPrecision = false;
   ezEnum<ezMeshVertexColorConversion> m_VertexColorConversion;
 
   ezHybridArray<ezMaterialResourceSlot, 8> m_Slots;

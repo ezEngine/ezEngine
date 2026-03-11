@@ -17,6 +17,6 @@ StructuredBuffer<ezTestShaderData> instancingData;
 
 #else // C++
 
-EZ_CHECK_AT_COMPILETIME(sizeof(ezTestShaderData) == 64);
+static_assert(sizeof(ezTestShaderData) == 64);
 
 #endif

@@ -2,6 +2,7 @@
 
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/World/World.h>
+#include <Foundation/Math/Color16f.h>
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/Pipeline/RenderData.h>
 
@@ -32,19 +33,20 @@ class EZ_RENDERERCORE_DLL ezSpriteRenderData : public ezRenderData
   EZ_ADD_DYNAMIC_REFLECTION(ezSpriteRenderData, ezRenderData);
 
 public:
-  void FillBatchIdAndSortingKey();
+  void FillSortingKey();
+  virtual bool CanBatch(const ezRenderData& other) const override;
 
   ezTexture2DResourceHandle m_hTexture;
+  ezEnum<ezSpriteBlendMode> m_BlendMode;
 
   float m_fSize;
   float m_fMaxScreenSize;
   float m_fAspectRatio;
-  ezEnum<ezSpriteBlendMode> m_BlendMode;
 
-  ezColor m_color;
+  ezColorLinear16f m_color;
 
-  ezVec2 m_texCoordScale;
-  ezVec2 m_texCoordOffset;
+  ezFloat16Vec2 m_texCoordScale;
+  ezFloat16Vec2 m_texCoordOffset;
 
   ezUInt32 m_uiUniqueID;
 };
@@ -83,14 +85,11 @@ public:
   ezSpriteComponent();
   ~ezSpriteComponent();
 
-  void SetTexture(const ezTexture2DResourceHandle& hTexture);
-  const ezTexture2DResourceHandle& GetTexture() const;
+  void SetTexture(const ezTexture2DResourceHandle& hTexture); // [ property ]
+  const ezTexture2DResourceHandle& GetTexture() const;        // [ property ]
 
-  void SetTextureFile(const char* szFile); // [ property ]
-  const char* GetTextureFile() const;      // [ property ]
-
-  void SetColor(ezColor color);            // [ property ]
-  ezColor GetColor() const;                // [ property ]
+  void SetColor(ezColor color);                               // [ property ]
+  ezColor GetColor() const;                                   // [ property ]
 
   /// \brief Sets the size of the sprite in world-space units. This determines how large the sprite will be at certain distances.
   void SetSize(float fSize); // [ property ]

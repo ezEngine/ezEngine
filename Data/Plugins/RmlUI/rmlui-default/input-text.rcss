@@ -1,0 +1,42 @@
+/* Styles for text and password input fields.
+   Includes special styling for text inputs within tables.
+*/
+
+input.text,
+input.password {
+	box-sizing: border-box;
+	height: 31dp;
+	padding: 11dp 10dp 0;
+	decorator: tiled-horizontal(text-l, text-c, auto);
+	cursor: text;
+	text-align: left;
+	color: #333;
+	font-size: 13dp;
+}
+
+input.text:focus-visible,
+input.password:focus-visible {
+	decorator: tiled-horizontal(text-focus-l, text-focus-c, auto);
+}
+
+/* Text inputs within tables use simplified styling without decorators. */
+table input.text {
+	box-sizing: border-box;
+	width: 100%;
+	margin: 0;
+	padding: 1dp 5dp;
+	height: auto;
+	line-height: 16dp;
+	text-align: center;
+
+	border-width: 1dp;
+	border-color: black;
+	background-color: white;
+
+	font-size: 15dp;
+}
+
+table input.text,
+table input.text:focus-visible {
+	decorator: none;
+}

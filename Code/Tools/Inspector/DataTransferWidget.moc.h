@@ -14,7 +14,7 @@ public:
   Q_OBJECT
 
 public:
-  ezQtDataWidget(QWidget* pParent = 0);
+  ezQtDataWidget(ads::CDockManager* pDockManager, QWidget* pParent = 0);
 
   static ezQtDataWidget* s_pWidget;
 

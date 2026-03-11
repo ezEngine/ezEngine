@@ -1,6 +1,7 @@
 #pragma once
 
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
+#include <RendererCore/Declarations.h>
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 
 struct ezPropertyMetaStateEvent;
@@ -37,6 +38,7 @@ struct ezJoltConvexCollisionMeshType
     ConvexHull,
     Cylinder,
     ConvexDecomposition,
+    ConvexHullGroup,
 
     Default = ConvexHull
   };
@@ -57,10 +59,13 @@ public:
   static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 
   ezString m_sMeshFile;
+  ezString m_sMeshIncludeTags;
+  ezString m_sMeshExcludeTags;
   float m_fUniformScaling = 1.0f;
   ezString m_sConvexMeshSurface;
 
-  ezEnum<ezBasisAxis> m_RightDir = ezBasisAxis::PositiveX;
+  ezEnum<ezMeshImportTransform> m_ImportTransform;
+  ezEnum<ezBasisAxis> m_RightDir = ezBasisAxis::NegativeX;
   ezEnum<ezBasisAxis> m_UpDir = ezBasisAxis::PositiveY;
   bool m_bFlipForwardDir = false;
   bool m_bIsConvexMesh = false;

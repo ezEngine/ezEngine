@@ -1,13 +1,13 @@
-
 #pragma once
 
 #include <Foundation/Types/Bitflags.h>
 #include <Foundation/Types/UniquePtr.h>
+#include <RendererDX11/CommandEncoder/CommandEncoderImplDX11.h>
 #include <RendererDX11/RendererDX11DLL.h>
 #include <RendererFoundation/Device/Device.h>
 
 // TODO: This should not be included in a header, it exposes Windows.h to the outside
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #include <dxgi.h>
 
 struct ID3D11Device;
@@ -24,7 +24,8 @@ struct IDXGIAdapter;
 using ezGALFormatLookupEntryDX11 = ezGALFormatLookupEntry<DXGI_FORMAT, (DXGI_FORMAT)0>;
 using ezGALFormatLookupTableDX11 = ezGALFormatLookupTable<ezGALFormatLookupEntryDX11>;
 
-class ezGALPassDX11;
+class ezFenceQueueDX11;
+class ezQueryPoolDX11;
 
 /// \brief The DX11 device implementation of the graphics abstraction layer.
 class EZ_RENDERERDX11_DLL ezGALDeviceDX11 : public ezGALDevice
@@ -41,7 +42,10 @@ public:
   ID3D11Device3* GetDXDevice3() const;
   ID3D11DeviceContext* GetDXImmediateContext() const;
   IDXGIFactory1* GetDXGIFactory() const;
-  ezGALRenderCommandEncoder* GetRenderCommandEncoder() const;
+  ezGALCommandEncoder* GetCommandEncoder() const;
+
+  ezFenceQueueDX11& GetFenceQueue() const;
+  ezQueryPoolDX11& GetQueryPool() const;
 
   const ezGALFormatLookupTableDX11& GetFormatLookupTable() const;
 
@@ -63,13 +67,10 @@ protected:
   virtual ezResult InitPlatform() override;
   virtual ezResult ShutdownPlatform() override;
 
-  // Pipeline & Pass functions
+  // Command encoder functions
 
-  virtual void BeginPipelinePlatform(const char* szName, ezGALSwapChain* pSwapChain) override;
-  virtual void EndPipelinePlatform(ezGALSwapChain* pSwapChain) override;
-
-  virtual ezGALPass* BeginPassPlatform(const char* szName) override;
-  virtual void EndPassPlatform(ezGALPass* pPass) override;
+  virtual ezGALCommandEncoder* BeginCommandsPlatform(const char* szName) override;
+  virtual void EndCommandsPlatform(ezGALCommandEncoder* pPass) override;
 
   virtual void FlushPlatform() override;
 
@@ -88,6 +89,21 @@ protected:
   virtual ezGALSamplerState* CreateSamplerStatePlatform(const ezGALSamplerStateCreationDescription& Description) override;
   virtual void DestroySamplerStatePlatform(ezGALSamplerState* pSamplerState) override;
 
+  virtual ezGALBindGroupLayout* CreateBindGroupLayoutPlatform(const ezGALBindGroupLayoutCreationDescription& Description) override;
+  virtual void DestroyBindGroupLayoutPlatform(ezGALBindGroupLayout* pBindGroupLayout) override;
+
+  virtual ezGALBindGroup* CreateBindGroupPlatform(const ezGALBindGroupCreationDescription& Description) override;
+  virtual void DestroyBindGroupPlatform(ezGALBindGroup* pBindGroup) override;
+
+  virtual ezGALPipelineLayout* CreatePipelineLayoutPlatform(const ezGALPipelineLayoutCreationDescription& Description) override;
+  virtual void DestroyPipelineLayoutPlatform(ezGALPipelineLayout* pPipelineLayout) override;
+
+  virtual ezGALGraphicsPipeline* CreateGraphicsPipelinePlatform(const ezGALGraphicsPipelineCreationDescription& Description) override;
+  virtual void DestroyGraphicsPipelinePlatform(ezGALGraphicsPipeline* pGraphicsPipeline) override;
+
+  virtual ezGALComputePipeline* CreateComputePipelinePlatform(const ezGALComputePipelineCreationDescription& Description) override;
+  virtual void DestroyComputePipelinePlatform(ezGALComputePipeline* pComputePipeline) override;
+
 
   // Resource creation functions
 
@@ -103,42 +119,44 @@ protected:
   virtual ezGALTexture* CreateSharedTexturePlatform(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData, ezEnum<ezGALSharedTextureType> sharedType, ezGALPlatformSharedHandle handle) override;
   virtual void DestroySharedTexturePlatform(ezGALTexture* pTexture) override;
 
-  virtual ezGALTextureResourceView* CreateResourceViewPlatform(ezGALTexture* pResource, const ezGALTextureResourceViewCreationDescription& Description) override;
-  virtual void DestroyResourceViewPlatform(ezGALTextureResourceView* pResourceView) override;
+  virtual ezGALReadbackBuffer* CreateReadbackBufferPlatform(const ezGALBufferCreationDescription& Description) override;
+  virtual void DestroyReadbackBufferPlatform(ezGALReadbackBuffer* pReadbackBuffer) override;
 
-  virtual ezGALBufferResourceView* CreateResourceViewPlatform(ezGALBuffer* pResource, const ezGALBufferResourceViewCreationDescription& Description) override;
-  virtual void DestroyResourceViewPlatform(ezGALBufferResourceView* pResourceView) override;
+  virtual ezGALReadbackTexture* CreateReadbackTexturePlatform(const ezGALTextureCreationDescription& Description) override;
+  virtual void DestroyReadbackTexturePlatform(ezGALReadbackTexture* pReadbackTexture) override;
 
   virtual ezGALRenderTargetView* CreateRenderTargetViewPlatform(ezGALTexture* pTexture, const ezGALRenderTargetViewCreationDescription& Description) override;
   virtual void DestroyRenderTargetViewPlatform(ezGALRenderTargetView* pRenderTargetView) override;
 
-  ezGALTextureUnorderedAccessView* CreateUnorderedAccessViewPlatform(ezGALTexture* pResource, const ezGALTextureUnorderedAccessViewCreationDescription& Description) override;
-  virtual void DestroyUnorderedAccessViewPlatform(ezGALTextureUnorderedAccessView* pUnorderedAccessView) override;
-
-  ezGALBufferUnorderedAccessView* CreateUnorderedAccessViewPlatform(ezGALBuffer* pResource, const ezGALBufferUnorderedAccessViewCreationDescription& Description) override;
-  virtual void DestroyUnorderedAccessViewPlatform(ezGALBufferUnorderedAccessView* pUnorderedAccessView) override;
-
   // Other rendering creation functions
-
-  virtual ezGALQuery* CreateQueryPlatform(const ezGALQueryCreationDescription& Description) override;
-  virtual void DestroyQueryPlatform(ezGALQuery* pQuery) override;
 
   virtual ezGALVertexDeclaration* CreateVertexDeclarationPlatform(const ezGALVertexDeclarationCreationDescription& Description) override;
   virtual void DestroyVertexDeclarationPlatform(ezGALVertexDeclaration* pVertexDeclaration) override;
 
-  // Timestamp functions
+  // Resource update functions
 
-  virtual ezGALTimestampHandle GetTimestampPlatform() override;
-  virtual ezResult GetTimestampResultPlatform(ezGALTimestampHandle hTimestamp, ezTime& result) override;
+  virtual void UpdateBufferForNextFramePlatform(const ezGALBuffer* pBuffer, ezConstByteArrayPtr sourceData, ezUInt32 uiDestOffset) override;
+  virtual void UpdateTextureForNextFramePlatform(const ezGALTexture* pTexture, const ezGALSystemMemoryDescription& sourceData, const ezGALTextureSubresource& destinationSubResource, const ezBoundingBoxu32& destinationBox) override;
 
+  // GPU -> CPU query functions
+
+  virtual ezEnum<ezGALAsyncResult> GetTimestampResultPlatform(ezGALTimestampHandle hTimestamp, ezTime& out_result) override;
+  virtual ezEnum<ezGALAsyncResult> GetOcclusionResultPlatform(ezGALOcclusionHandle hOcclusion, ezUInt64& out_uiResult) override;
+  virtual ezEnum<ezGALAsyncResult> GetFenceResultPlatform(ezGALFenceHandle hFence, ezTime timeout) override;
+  virtual ezResult LockBufferPlatform(const ezGALReadbackBuffer* pBuffer, ezArrayPtr<const ezUInt8>& out_Memory) const override;
+  virtual void UnlockBufferPlatform(const ezGALReadbackBuffer* pBuffer) const override;
+  virtual ezResult LockTexturePlatform(const ezGALReadbackTexture* pTexture, const ezArrayPtr<const ezGALTextureSubresource>& subResources, ezDynamicArray<ezGALSystemMemoryDescription>& out_Memory) const override;
+  virtual void UnlockTexturePlatform(const ezGALReadbackTexture* pTexture, const ezArrayPtr<const ezGALTextureSubresource>& subResources) const override;
   // Swap chain functions
 
   void PresentPlatform(const ezGALSwapChain* pSwapChain, bool bVSync);
 
   // Misc functions
 
-  virtual void BeginFramePlatform(const ezUInt64 uiRenderFrame) override;
-  virtual void EndFramePlatform() override;
+  virtual void BeginFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains, const ezUInt64 uiAppFrame) override;
+  virtual void EndFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains) override;
+  virtual ezUInt64 GetCurrentFramePlatform() const override;
+  virtual ezUInt64 GetSafeFramePlatform() const override;
 
   virtual void FillCapabilitiesPlatform() override;
 
@@ -162,53 +180,62 @@ private:
     };
   };
 
-  ID3D11Query* GetTimestamp(ezGALTimestampHandle hTimestamp);
+  struct TempResource
+  {
+    ID3D11Resource* m_pResource = nullptr;
+    void* m_pData = nullptr;
+    ezUInt32 m_uiRowPitch = 0;
+    ezUInt32 m_uiDepthPitch = 0;
 
-  ID3D11Resource* FindTempBuffer(ezUInt32 uiSize);
-  ID3D11Resource* FindTempTexture(ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiDepth, ezGALResourceFormat::Enum format);
+    operator bool() const
+    {
+      return m_pResource != nullptr;
+    }
+  };
+
+  TempResource CopyToTempBuffer(ezConstByteArrayPtr sourceData, ezUInt64 uiLastUseFrame = ezUInt64(-1));
+  TempResource CopyToTempTexture(const ezGALSystemMemoryDescription& sourceData, ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiDepth, ezGALResourceFormat::Enum format, ezUInt64 uiLastUseFrame = ezUInt64(-1));
+  void MapTempResource(TempResource& tempResource);
+  void UnmapTempResource(TempResource& tempResource);
   void FreeTempResources(ezUInt64 uiFrame);
+
+  void ProcessPendingCopies();
 
   void FillFormatLookupTable();
 
-
-  void InsertFencePlatform(ID3D11DeviceContext* pContext, ID3D11Query* pFence);
-
-  bool IsFenceReachedPlatform(ID3D11DeviceContext* pContext, ID3D11Query* pFence);
-
-  void WaitForFencePlatform(ID3D11DeviceContext* pContext, ID3D11Query* pFence);
+  static constexpr ezUInt32 FRAMES = 4;
 
   ID3D11Device* m_pDevice = nullptr;
   ID3D11Device3* m_pDevice3 = nullptr;
   ID3D11DeviceContext* m_pImmediateContext;
-
   ID3D11Debug* m_pDebug = nullptr;
-
   IDXGIFactory1* m_pDXGIFactory = nullptr;
-
   IDXGIAdapter1* m_pDXGIAdapter = nullptr;
-
   IDXGIDevice1* m_pDXGIDevice = nullptr;
 
+  ezUniquePtr<ezFenceQueueDX11> m_pFenceQueue;
+  ezUniquePtr<ezQueryPoolDX11> m_pQueryPool;
   ezGALFormatLookupTableDX11 m_FormatLookupTable;
 
   // NOLINTNEXTLINE
   ezUInt32 m_uiFeatureLevel; // D3D_FEATURE_LEVEL can't be forward declared
 
-  ezUniquePtr<ezGALPassDX11> m_pDefaultPass;
+  ezUniquePtr<ezGALCommandEncoderImplDX11> m_pCommandEncoderImpl;
+  ezUniquePtr<ezGALCommandEncoder> m_pCommandEncoder;
 
   struct PerFrameData
   {
-    ID3D11Query* m_pFence = nullptr;
-    ID3D11Query* m_pDisjointTimerQuery = nullptr;
-    double m_fInvTicksPerSecond = -1.0;
-    ezUInt64 m_uiFrame = -1;
+    ezGALFenceHandle m_hFence = {};
+    ezUInt64 m_uiFrame = ezUInt64(-1);
   };
 
-  PerFrameData m_PerFrameData[4];
-  ezUInt8 m_uiCurrentPerFrameData = 0;
-  ezUInt8 m_uiNextPerFrameData = 0;
+  PerFrameData m_PerFrameData[FRAMES];
 
-  ezUInt64 m_uiFrameCounter = 0;
+  ezUInt64 m_uiFrameCounter = 1;
+  ezUInt64 m_uiSafeFrame = 0;
+  ezUInt8 m_uiCurrentPerFrameData = m_uiFrameCounter % FRAMES;
+
+  bool m_bSupportsAlwaysMappedTempResources = true;
 
   struct UsedTempResource
   {
@@ -219,19 +246,27 @@ private:
     ezUInt32 m_uiHash;
   };
 
-  ezMap<ezUInt32, ezDynamicArray<ID3D11Resource*>, ezCompareHelper<ezUInt32>, ezLocalAllocatorWrapper> m_FreeTempResources[TempResourceType::ENUM_COUNT];
-  ezDeque<UsedTempResource, ezLocalAllocatorWrapper> m_UsedTempResources[TempResourceType::ENUM_COUNT];
+  ezMap<ezUInt32, ezDynamicArray<TempResource>, ezCompareHelper<ezUInt32>, ezLocalAllocatorWrapper> m_FreeTempResources[TempResourceType::ENUM_COUNT];
+  ezDynamicArray<UsedTempResource, ezLocalAllocatorWrapper> m_UsedTempResources[TempResourceType::ENUM_COUNT];
 
-  ezDynamicArray<ID3D11Query*, ezLocalAllocatorWrapper> m_Timestamps;
-  ezUInt32 m_uiCurrentTimestamp = 0;
-  ezUInt32 m_uiNextTimestamp = 0;
+  struct PendingCopy
+  {
+    TempResource m_SourceResource = {};
+    ezGALSystemMemoryDescription m_SourceData; // Used in case always mapped temp resources are not supported
+
+    ID3D11Resource* m_pDestResource = nullptr;
+    ezUInt32 m_uiDestSubResource = 0;
+    ezVec3U32 m_vDestPoint = ezVec3U32::MakeZero();
+    ezVec3U32 m_vSourceSize = ezVec3U32::MakeZero();
+    bool m_bCopySubresource = false;
+    ezGALResourceFormat::Enum m_SourceFormat = ezGALResourceFormat::Invalid;
+  };
+
+  ezDynamicArray<PendingCopy, ezLocalAllocatorWrapper> m_PendingCopies;
 
   struct GPUTimingScope* m_pFrameTimingScope = nullptr;
   struct GPUTimingScope* m_pPipelineTimingScope = nullptr;
   struct GPUTimingScope* m_pPassTimingScope = nullptr;
-
-  ezTime m_SyncTimeDiff;
-  bool m_bSyncTimeNeeded = true;
 };
 
 #include <RendererDX11/Device/Implementation/DeviceDX11_inl.h>

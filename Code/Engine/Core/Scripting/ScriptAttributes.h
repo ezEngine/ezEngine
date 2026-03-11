@@ -22,7 +22,7 @@ private:
 //////////////////////////////////////////////////////////////////////////
 
 /// \brief Add this attribute to a script function to mark it as a base class function.
-/// These are functions that can be entry points to visual scripts or over-writable functions in script languages like e.g. typescript.
+/// These are functions that can be entry points to visual scripts or over-writable functions in script languages.
 class EZ_CORE_DLL ezScriptBaseClassFunctionAttribute : public ezPropertyAttribute
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezScriptBaseClassFunctionAttribute, ezPropertyAttribute);

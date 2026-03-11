@@ -2,7 +2,29 @@
 
 #include <Foundation/Utilities/GraphicsUtils.h>
 
+void ezGraphicsUtils::ConvertScreenPixelPosToNormalizedPos(const ezUInt32 uiViewportX, const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, ezVec3& inout_vPixelPos)
+{
+  inout_vPixelPos.x = (inout_vPixelPos.x - uiViewportX) / uiViewportWidth;
+  inout_vPixelPos.y = (inout_vPixelPos.y - uiViewportY) / uiViewportHeight;
+}
+
+void ezGraphicsUtils::ConvertScreenNormalizedPosToPixelPos(const ezUInt32 uiViewportX, const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, ezVec3& inout_vNormalizedPos)
+{
+  inout_vNormalizedPos.x = uiViewportX + uiViewportWidth * inout_vNormalizedPos.x;
+  inout_vNormalizedPos.y = uiViewportY + uiViewportHeight * inout_vNormalizedPos.y;
+}
+
 ezResult ezGraphicsUtils::ConvertWorldPosToScreenPos(const ezMat4& mModelViewProjection, const ezUInt32 uiViewportX, const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, const ezVec3& vPoint, ezVec3& out_vScreenPos, ezClipSpaceDepthRange::Enum depthRange)
+{
+  EZ_SUCCEED_OR_RETURN(ConvertWorldPosToScreenPos(mModelViewProjection, vPoint, out_vScreenPos, depthRange));
+
+  out_vScreenPos.x = uiViewportX + uiViewportWidth * out_vScreenPos.x;
+  out_vScreenPos.y = uiViewportY + uiViewportHeight * out_vScreenPos.y;
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezGraphicsUtils::ConvertWorldPosToScreenPos(const ezMat4& mModelViewProjection, const ezVec3& vPoint, ezVec3& out_vScreenPosNormalized, ezClipSpaceDepthRange::Enum depthRange /*= ezClipSpaceDepthRange::Default*/)
 {
   const ezVec4 vToProject = vPoint.GetAsVec4(1.0f);
 
@@ -15,31 +37,38 @@ ezResult ezGraphicsUtils::ConvertWorldPosToScreenPos(const ezMat4& mModelViewPro
   if (vClipSpace.w < 0.0f)
     vProjected.z = -vProjected.z;
 
-  out_vScreenPos.x = uiViewportX + uiViewportWidth * ((vProjected.x * 0.5f) + 0.5f);
-  out_vScreenPos.y = uiViewportY + uiViewportHeight * ((vProjected.y * 0.5f) + 0.5f);
+  // move into [0; 1] range
+  out_vScreenPosNormalized.x = (vProjected.x * 0.5f) + 0.5f;
+  out_vScreenPosNormalized.y = (1.0f - ((vProjected.y * 0.5f) + 0.5f));
 
   // normalize the output z value to always be in [0; 1] range
   // That means when the projection matrix spits out values between -1 and +1, rescale those values
   if (depthRange == ezClipSpaceDepthRange::MinusOneToOne)
-    out_vScreenPos.z = vProjected.z * 0.5f + 0.5f;
+    out_vScreenPosNormalized.z = vProjected.z * 0.5f + 0.5f;
   else
-    out_vScreenPos.z = vProjected.z;
+    out_vScreenPosNormalized.z = vProjected.z;
 
   return EZ_SUCCESS;
 }
 
-ezResult ezGraphicsUtils::ConvertScreenPosToWorldPos(
-  const ezMat4& mInverseModelViewProjection, const ezUInt32 uiViewportX, const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, const ezVec3& vScreenPos, ezVec3& out_vPoint, ezVec3* out_pDirection, ezClipSpaceDepthRange::Enum depthRange)
+ezResult ezGraphicsUtils::ConvertScreenPosToWorldPos(const ezMat4& mInverseModelViewProjection, const ezUInt32 uiViewportX, const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, const ezVec3& vScreenPixelPos, ezVec3& out_vPoint, ezVec3* out_pDirection, ezClipSpaceDepthRange::Enum depthRange)
 {
-  ezVec3 vClipSpace = vScreenPos;
+  ezVec3 vNormalizedScreenPos = vScreenPixelPos;
 
   // From window coordinates to [0; 1] range
-  vClipSpace.x = (vClipSpace.x - uiViewportX) / uiViewportWidth;
-  vClipSpace.y = (vClipSpace.y - uiViewportY) / uiViewportHeight;
+  vNormalizedScreenPos.x = (vNormalizedScreenPos.x - uiViewportX) / uiViewportWidth;
+  vNormalizedScreenPos.y = (vNormalizedScreenPos.y - uiViewportY) / uiViewportHeight;
+
+  return ezGraphicsUtils::ConvertScreenPosToWorldPos(mInverseModelViewProjection, vNormalizedScreenPos, out_vPoint, out_pDirection, depthRange);
+}
+
+ezResult ezGraphicsUtils::ConvertScreenPosToWorldPos(const ezMat4& mInverseModelViewProjection, const ezVec3& vNormalizedScreenPos, ezVec3& out_vPoint, ezVec3* out_pDirection /*= nullptr*/, ezClipSpaceDepthRange::Enum depthRange /*= ezClipSpaceDepthRange::Default*/)
+{
+  ezVec3 vClipSpace = vNormalizedScreenPos;
 
   // Map to range [-1; 1]
   vClipSpace.x = vClipSpace.x * 2.0f - 1.0f;
-  vClipSpace.y = vClipSpace.y * 2.0f - 1.0f;
+  vClipSpace.y = -(vClipSpace.y * 2.0f - 1.0f);
 
   // The OpenGL matrix expects the z values to be between -1 and +1, so rescale the incoming value to that range
   if (depthRange == ezClipSpaceDepthRange::MinusOneToOne)
@@ -70,18 +99,26 @@ ezResult ezGraphicsUtils::ConvertScreenPosToWorldPos(
   return EZ_SUCCESS;
 }
 
-ezResult ezGraphicsUtils::ConvertScreenPosToWorldPos(const ezMat4d& mInverseModelViewProjection, const ezUInt32 uiViewportX, const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, const ezVec3& vScreenPos, ezVec3& out_vPoint, ezVec3* out_pDirection /*= nullptr*/,
+
+ezResult ezGraphicsUtils::ConvertScreenPosToWorldPos(const ezMat4d& mInverseModelViewProjection, const ezUInt32 uiViewportX, const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, const ezVec3& vScreenPixelPos, ezVec3& out_vPoint, ezVec3* out_pDirection /*= nullptr*/,
   ezClipSpaceDepthRange::Enum depthRange /*= ezClipSpaceDepthRange::Default*/)
 {
-  ezVec3 vClipSpace = vScreenPos;
+  ezVec3 vNormalizedScreenPos = vScreenPixelPos;
 
   // From window coordinates to [0; 1] range
-  vClipSpace.x = (vClipSpace.x - uiViewportX) / uiViewportWidth;
-  vClipSpace.y = (vClipSpace.y - uiViewportY) / uiViewportHeight;
+  vNormalizedScreenPos.x = (vNormalizedScreenPos.x - uiViewportX) / uiViewportWidth;
+  vNormalizedScreenPos.y = (vNormalizedScreenPos.y - uiViewportY) / uiViewportHeight;
+
+  return ezGraphicsUtils::ConvertScreenPosToWorldPos(mInverseModelViewProjection, vNormalizedScreenPos, out_vPoint, out_pDirection, depthRange);
+}
+
+ezResult ezGraphicsUtils::ConvertScreenPosToWorldPos(const ezMat4d& mInverseModelViewProjection, const ezVec3& vNormalizedScreenPos, ezVec3& out_vPoint, ezVec3* out_pDirection /*= nullptr*/, ezClipSpaceDepthRange::Enum depthRange /*= ezClipSpaceDepthRange::Default*/)
+{
+  ezVec3 vClipSpace = vNormalizedScreenPos;
 
   // Map to range [-1; 1]
   vClipSpace.x = vClipSpace.x * 2.0f - 1.0f;
-  vClipSpace.y = vClipSpace.y * 2.0f - 1.0f;
+  vClipSpace.y = -(vClipSpace.y * 2.0f - 1.0f);
 
   // The OpenGL matrix expects the z values to be between -1 and +1, so rescale the incoming value to that range
   if (depthRange == ezClipSpaceDepthRange::MinusOneToOne)
@@ -304,7 +341,7 @@ ezMat4 ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(ezAngle fieldO
 {
   // Taking the minimum allows the function to be used to create
   // inverse z matrices (fNearZ > fFarZ) as well.
-  const float ym = ezMath::Min(fNearZ, fFarZ) * ezMath::Tan(fieldOfViewY * 0.5);
+  const float ym = ezMath::Min(fNearZ, fFarZ) * ezMath::Tan(fieldOfViewY * 0.5f);
   const float xm = ym * fAspectRatioWidthDivHeight;
 
   return CreatePerspectiveProjectionMatrix(-xm, xm, -ym, ym, fNearZ, fFarZ, depthRange, range, handedness);

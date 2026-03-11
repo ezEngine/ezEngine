@@ -17,7 +17,7 @@ class EZ_EDITORFRAMEWORK_DLL ezQtCVarPanel : public ezQtApplicationPanel
   EZ_DECLARE_SINGLETON(ezQtCVarPanel);
 
 public:
-  ezQtCVarPanel();
+  ezQtCVarPanel(ads::CDockManager* pDockManager);
   ~ezQtCVarPanel();
 
 protected:

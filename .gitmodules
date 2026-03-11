@@ -7,9 +7,6 @@
 [submodule "Code/ThirdParty/fmod"]
 	path = Code/ThirdParty/fmod
 	url = https://github.com/ezEngine/thirdparty-fmod
-[submodule "Code/ThirdParty/PhysX"]
-	path = Code/ThirdParty/PhysX
-	url = https://github.com/ezEngine/thirdparty-physx.git
 [submodule "Code/ThirdParty/assimp"]
 	path = Code/ThirdParty/assimp
 	url = https://github.com/ezEngine/thirdparty-assimp

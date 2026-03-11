@@ -2,6 +2,7 @@
 
 #include <Core/World/Component.h>
 #include <Core/World/World.h>
+#include <RendererCore/Meshes/CpuMeshResource.h>
 #include <RendererCore/Rasterizer/RasterizerObject.h>
 #include <RendererCore/RendererCoreDLL.h>
 
@@ -14,6 +15,22 @@ class EZ_RENDERERCORE_DLL ezOccluderComponentManager final : public ezComponentM
 public:
   ezOccluderComponentManager(ezWorld* pWorld);
 };
+
+struct ezOccluderType
+{
+  using StorageType = ezUInt8;
+
+  enum Enum : StorageType
+  {
+    Box,      ///< The occluder is a box with 6 faces.
+    QuadPosX, ///< The occluder is only a single face at the positive X extent of the surrounding box.
+    Mesh,
+
+    Default = Box
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezOccluderType);
 
 /// \brief Adds invisible geometry to a scene that is used for occlusion culling.
 ///
@@ -48,15 +65,28 @@ public:
   ezOccluderComponent();
   ~ezOccluderComponent();
 
-  /// \brief Sets the size of the box occluder.
+  /// \brief Sets the extents of the occluder.
   void SetExtents(const ezVec3& vExtents);                // [ property ]
   const ezVec3& GetExtents() const { return m_vExtents; } // [ property ]
 
+  /// \brief Sets the type of occluder.
+  void SetType(ezEnum<ezOccluderType> type);                // [ property ]
+  ezEnum<ezOccluderType> GetType() const { return m_Type; } // [ property ]
+
+  // adds SetMeshFile() and GetMeshFile() for convenience
+  EZ_ADD_RESOURCEHANDLE_ACCESSORS_WITH_SETTER(Mesh, m_hMesh, SetMesh);
+
+  void SetMesh(const ezCpuMeshResourceHandle& hCubeMap); // [ property ]
+  const ezCpuMeshResourceHandle& GetMesh() const;        // [ property ]
+
 private:
   ezVec3 m_vExtents = ezVec3(5.0f);
+  ezEnum<ezOccluderType> m_Type;
+  ezCpuMeshResourceHandle m_hMesh;
 
   mutable ezSharedPtr<const ezRasterizerObject> m_pOccluderObject;
 
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);
   void OnMsgExtractOccluderData(ezMsgExtractOccluderData& msg) const;
+  void UpdateOccluder();
 };

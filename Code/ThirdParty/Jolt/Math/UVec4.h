@@ -67,8 +67,8 @@ public:
 	/// Equals (component wise)
 	static JPH_INLINE UVec4		sEquals(UVec4Arg inV1, UVec4Arg inV2);
 
-	/// Component wise select, returns inV1 when highest bit of inControl = 0 and inV2 when highest bit of inControl = 1
-	static JPH_INLINE UVec4		sSelect(UVec4Arg inV1, UVec4Arg inV2, UVec4Arg inControl);
+	/// Component wise select, returns inNotSet when highest bit of inControl = 0 and inSet when highest bit of inControl = 1
+	static JPH_INLINE UVec4		sSelect(UVec4Arg inNotSet, UVec4Arg inSet, UVec4Arg inControl);
 
 	/// Logical or (component wise)
 	static JPH_INLINE UVec4		sOr(UVec4Arg inV1, UVec4Arg inV2);
@@ -115,14 +115,20 @@ public:
 	JPH_INLINE uint32			operator [] (uint inCoordinate) const				{ JPH_ASSERT(inCoordinate < 4); return mU32[inCoordinate]; }
 	JPH_INLINE uint32 &			operator [] (uint inCoordinate)						{ JPH_ASSERT(inCoordinate < 4); return mU32[inCoordinate]; }
 
-	/// Multiplies each of the 4 integer components with an integer (discards any overflow)
+	/// Component wise multiplication of two integer vectors (stores low 32 bits of result only)
 	JPH_INLINE UVec4			operator * (UVec4Arg inV2) const;
 
-	/// Adds an integer value to all integer components (discards any overflow)
-	JPH_INLINE UVec4			operator + (UVec4Arg inV2);
+	/// Add two integer vectors (component wise)
+	JPH_INLINE UVec4			operator + (UVec4Arg inV2) const;
 
 	/// Add two integer vectors (component wise)
 	JPH_INLINE UVec4 &			operator += (UVec4Arg inV2);
+
+	/// Subtract two integer vectors (component wise)
+	JPH_INLINE UVec4			operator - (UVec4Arg inV2) const;
+
+	/// Subtract two integer vectors (component wise)
+	JPH_INLINE UVec4 &			operator -= (UVec4Arg inV2);
 
 	/// Replicate the X component to all components
 	JPH_INLINE UVec4			SplatX() const;
@@ -141,6 +147,12 @@ public:
 
 	/// Reinterpret UVec4 as a Vec4 (doesn't change the bits)
 	JPH_INLINE Vec4				ReinterpretAsFloat() const;
+
+	/// Dot product, returns the dot product in X, Y, Z and W components
+	JPH_INLINE UVec4			DotV(UVec4Arg inV2) const;
+
+	/// Dot product
+	JPH_INLINE uint32			Dot(UVec4Arg inV2) const;
 
 	/// Store 4 ints to memory
 	JPH_INLINE void				StoreInt4(uint32 *outV) const;
@@ -213,7 +225,7 @@ public:
 	};
 };
 
-static_assert(is_trivial<UVec4>(), "Is supposed to be a trivial type!");
+static_assert(std::is_trivial<UVec4>(), "Is supposed to be a trivial type!");
 
 JPH_NAMESPACE_END
 

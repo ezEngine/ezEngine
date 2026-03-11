@@ -32,12 +32,12 @@ ezDocument* ezQtEditorApp::OpenDocument(ezStringView sDocument, ezBitflags<ezDoc
   if (!pDocument)
   {
     ezStatus res = pTypeDesc->m_pManager->CanOpenDocument(sDocument);
-    if (res.m_Result.Succeeded())
+    if (res.Succeeded())
     {
       res = pTypeDesc->m_pManager->OpenDocument(pTypeDesc->m_sDocumentTypeName, sDocument, pDocument, flags, pOpenContext);
     }
 
-    if (res.m_Result.Failed())
+    if (res.Failed())
     {
       ezStringBuilder s;
       s.SetFormat("Failed to open document: \n'{0}'", sDocument);
@@ -50,14 +50,25 @@ ezDocument* ezQtEditorApp::OpenDocument(ezStringView sDocument, ezBitflags<ezDoc
     if (pDocument->GetUnknownObjectTypeInstances() > 0)
     {
       ezStringBuilder s;
-      s.SetFormat("The document contained {0} objects of an unknown type. Necessary plugins may be missing.\n\n\
+      s.SetFormat("The document '{}' contained {} objects of an unknown type. Necessary plugins may be missing.\n\n\
 If you save this document, all data for these objects is lost permanently!\n\n\
 The following types are missing:\n",
-        pDocument->GetUnknownObjectTypeInstances());
+        sDocument, pDocument->GetUnknownObjectTypeInstances());
 
       for (auto it = pDocument->GetUnknownObjectTypes().GetIterator(); it.IsValid(); ++it)
       {
         s.AppendFormat(" '{0}' ", (*it));
+      }
+      ezQtUiServices::MessageBoxWarning(s);
+    }
+
+    if (!pDocument->GetLoadingErrors().IsEmpty())
+    {
+      ezStringBuilder s;
+      s.SetFormat("The document '{}' had errors during loading:\n\n", sDocument);
+      for (const ezString& err : pDocument->GetLoadingErrors())
+      {
+        s.Append(err, "\n");
       }
       ezQtUiServices::MessageBoxWarning(s);
     }
@@ -94,7 +105,7 @@ ezDocument* ezQtEditorApp::CreateDocument(ezStringView sDocument, ezBitflags<ezD
   ezDocument* pDocument = nullptr;
   {
     ezStatus result = pTypeDesc->m_pManager->CreateDocument(pTypeDesc->m_sDocumentTypeName, sDocument, pDocument, flags, pOpenContext);
-    if (result.m_Result.Failed())
+    if (result.Failed())
     {
       ezStringBuilder s;
       s.SetFormat("Failed to create document: \n'{0}'", sDocument);
@@ -184,7 +195,7 @@ void ezQtEditorApp::DocumentManagerRequestHandler(ezDocumentManager::Request& r)
     case ezDocumentManager::Request::Type::DocumentAllowedToOpen:
     {
       // if someone else already said no, don't bother to check further
-      if (r.m_RequestStatus.m_Result.Failed())
+      if (r.m_RequestStatus.Failed())
         return;
 
       if (!ezToolsProject::IsProjectOpen())
@@ -208,7 +219,7 @@ void ezQtEditorApp::DocumentManagerRequestHandler(ezDocumentManager::Request& r)
           ezStatus res = ezToolsProject::OpenProject(sProjectPath);
 
           // if project opening failed, relay that error message
-          if (res.m_Result.Failed())
+          if (res.Failed())
           {
             r.m_RequestStatus = res;
             return;

@@ -2,6 +2,10 @@
 
 #include <RendererCore/Pipeline/Extractor.h>
 
+/// Minimal CPU-side lighting data for simplified rendering.
+///
+/// Used when clustered rendering is not needed or available. Contains only basic
+/// lighting information like sky irradiance.
 class ezSimplifiedDataCPU : public ezRenderData
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSimplifiedDataCPU, ezRenderData);
@@ -14,6 +18,11 @@ public:
   ezEnum<ezCameraUsageHint> m_cameraUsageHint = ezCameraUsageHint::Default;
 };
 
+/// Extracts minimal lighting data for simplified rendering.
+///
+/// Alternative to ezClusteredDataExtractor for cases where full clustered rendering
+/// is not required. Provides basic lighting information without the overhead of
+/// spatial clustering. Used for lower-end rendering paths or specific view types.
 class EZ_RENDERERCORE_DLL ezSimplifiedDataExtractor : public ezExtractor
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSimplifiedDataExtractor, ezExtractor);
@@ -22,8 +31,9 @@ public:
   ezSimplifiedDataExtractor(const char* szName = "SimplifiedDataExtractor");
   ~ezSimplifiedDataExtractor();
 
-  virtual void PostSortAndBatch(
-    const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData) override;
+  virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData) override {}
+  virtual void PostSortAndBatch(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData) override;
+
   virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
   virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
 };

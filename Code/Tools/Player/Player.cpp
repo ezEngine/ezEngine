@@ -1,23 +1,10 @@
 #include <Player/Player.h>
 
+#include <Core/Input/DeviceTypes/MouseKeyboard.h>
 #include <Core/Input/InputManager.h>
-#include <Core/World/World.h>
-#include <Core/WorldSerializer/WorldReader.h>
 #include <Foundation/Configuration/Startup.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/IO/OSFile.h>
 #include <Foundation/Logging/Log.h>
-#include <Foundation/Threading/Lock.h>
-#include <Foundation/Utilities/AssetFileHeader.h>
 #include <Foundation/Utilities/CommandLineOptions.h>
-#include <GameEngine/Animation/RotorComponent.h>
-#include <GameEngine/Animation/SliderComponent.h>
-#include <GameEngine/Gameplay/InputComponent.h>
-#include <GameEngine/Gameplay/SpawnComponent.h>
-#include <GameEngine/Gameplay/TimedDeathComponent.h>
-#include <RendererCore/Components/CameraComponent.h>
-#include <RendererCore/Debug/DebugRenderer.h>
-#include <RendererCore/Meshes/MeshComponent.h>
 
 // this injects the main function
 EZ_APPLICATION_ENTRY_POINT(ezPlayerApplication);
@@ -67,17 +54,7 @@ void ezPlayerApplication::AfterCoreSystemsStartup()
   // if no custom game state is available, ezFallbackGameState will be used
   // the game state is also responsible for either creating a world, or loading it
   // the ezFallbackGameState inspects the command line to figure out which scene to load
-  ActivateGameState(nullptr).AssertSuccess();
-}
-
-void ezPlayerApplication::Run_InputUpdate()
-{
-  SUPER::Run_InputUpdate();
-
-  if (GetActiveGameState() && GetActiveGameState()->WasQuitRequested())
-  {
-    RequestQuit();
-  }
+  ActivateGameState(nullptr, {}, ezTransform::MakeIdentity());
 }
 
 void ezPlayerApplication::DetermineProjectPath()
@@ -136,10 +113,4 @@ void ezPlayerApplication::DetermineProjectPath()
 
   // store it now, even if it fails, for error reporting
   m_sAppProjectPath = sProjectPath;
-
-  if (!ezOSFile::ExistsDirectory(sProjectPath))
-  {
-    SetReturnCode(1);
-    return;
-  }
 }

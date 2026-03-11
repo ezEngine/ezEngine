@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/Basics.h>
+#include <Foundation/Memory/Allocator.h>
 
 /// \brief A Unique ptr manages an object and destroys that object when it goes out of scope. It is ensure that only one unique ptr can
 /// manage the same object.

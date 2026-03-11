@@ -1,25 +1,19 @@
 #include <TestFramework/TestFrameworkPCH.h>
 
-#include <Texture/Image/Formats/ImageFileFormat.h>
-
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/IO/MemoryStream.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Logging/Log.h>
-#include <Foundation/Logging/VisualStudioWriter.h>
-#include <Foundation/System/CrashHandler.h>
+#include <Foundation/Logging/TraceWriter.h>
 #include <Foundation/System/EnvironmentVariableUtils.h>
 #include <Foundation/System/Process.h>
 #include <Foundation/System/StackTracer.h>
-#include <Foundation/Threading/ThreadUtils.h>
 #include <Foundation/Types/ScopeExit.h>
 #include <Foundation/Utilities/CommandLineOptions.h>
 #include <TestFramework/Utilities/TestOrder.h>
-
+#include <Texture/Image/Formats/ImageFileFormat.h>
 #include <cstdlib>
+#include <regex>
 #include <stdexcept>
-#include <stdlib.h>
 
 #ifdef EZ_TESTFRAMEWORK_USE_FILESERVE
 #  include <FileservePlugin/Client/FileserveClient.h>
@@ -39,19 +33,16 @@ ezCommandLineOptionPath opt_SettingsFile("_TestFramework", "-settings", "Path to
 ezCommandLineOptionBool opt_Run("_TestFramework", "-run", "Makes the tests execute right away.", false);
 ezCommandLineOptionBool opt_Close("_TestFramework", "-close", "Makes the application close automatically after the tests are finished.", false);
 ezCommandLineOptionBool opt_NoGui("_TestFramework", "-noGui", "Never show a GUI.", false);
-ezCommandLineOptionBool opt_HTML("_TestFramework", "-html", "Open summary HTML on error.", false);
-ezCommandLineOptionBool opt_Console("_TestFramework", "-console", "Keep the console open.", false);
 ezCommandLineOptionBool opt_Timestamps("_TestFramework", "-timestamps", "Show timestamps in logs.", false);
-ezCommandLineOptionBool opt_MsgBox("_TestFramework", "-msgbox", "Show message box after tests.", false);
 ezCommandLineOptionBool opt_DisableSuccessful("_TestFramework", "-disableSuccessful", "Disable tests that ran successfully.", false);
 ezCommandLineOptionBool opt_EnableAllTests("_TestFramework", "-all", "Enable all tests.", false);
 ezCommandLineOptionBool opt_NoSave("_TestFramework", "-noSave", "Disables saving of any state.", false);
 ezCommandLineOptionInt opt_Revision("_TestFramework", "-rev", "Revision number to pass through to JSON output.", -1);
-ezCommandLineOptionInt opt_Passes("_TestFramework", "-passes", "Number of passes to execute.", 1);
 ezCommandLineOptionInt opt_Assert("_TestFramework", "-assert", "Whether to assert when a test fails.", (int)AssertOnTestFail::AssertIfDebuggerAttached);
 ezCommandLineOptionString opt_Filter("_TestFramework", "-filter", "Filter to execute only certain tests.", "");
 ezCommandLineOptionPath opt_Json("_TestFramework", "-json", "JSON file to write.", "");
 ezCommandLineOptionPath opt_OutputDir("_TestFramework", "-outputDir", "Output directory", "");
+ezCommandLineOptionBool opt_List("_TestFramework", "-list", "List all test names and exit.", false);
 
 constexpr int s_iMaxErrorMessageLength = 512;
 
@@ -110,6 +101,7 @@ void ezTestFramework::Initialize()
       ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("true");
 
       ezLog::Print(cmdHelp);
+      m_Settings.m_bShowHelp = true;
     }
   }
 
@@ -117,14 +109,7 @@ void ezTestFramework::Initialize()
   {
     // if the UI is run with GUI disabled, set the environment variable EZ_SILENT_ASSERTS
     // to make sure that no child process that the tests launch shows an assert dialog in case of a crash
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-    // Not supported
-#else
-    if (ezEnvironmentVariableUtils::SetValueInt("EZ_SILENT_ASSERTS", 1).Failed())
-    {
-      ezLog::Print("Failed to set 'EZ_SILENT_ASSERTS' environment variable!");
-    }
-#endif
+    ezEnvironmentVariableUtils::SetValueInt("EZ_SILENT_ASSERTS", 1).IgnoreResult();
   }
 
   if (m_Settings.m_bShowTimestampsInLog)
@@ -141,6 +126,10 @@ void ezTestFramework::Initialize()
   ezStartup::StartupCoreSystems();
   EZ_SCOPE_EXIT(ezStartup::ShutdownCoreSystems());
 
+  // We have exit here after the core systems logic, or we hit issues with allocators of RTTI types.
+  if (m_Settings.m_bShowHelp)
+    return;
+
   // if tests need to write data back through Fileserve (e.g. image comparison results), they can do that through a data dir mounted with
   // this path
   ezFileSystem::SetSpecialDirectory("eztest", ezTestFramework::GetInstance()->GetAbsOutputPath());
@@ -155,6 +144,20 @@ void ezTestFramework::Initialize()
   ezCommandLineUtils& cmd = *ezCommandLineUtils::GetGlobalInstance();
   // figure out which tests exist
   GatherAllTests();
+
+  // Handle -list option: print all test names and exit
+  if (opt_List.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd))
+  {
+    for (const auto& testEntry : m_TestEntries)
+    {
+      ezStringBuilder line;
+      line.SetFormat("{}\n", testEntry.m_szTestName);
+      ezLog::Print(line);
+    }
+    m_Settings.m_bListTests = true;
+    m_bIsInitialized = true;
+    return;
+  }
 
   if (!m_Settings.m_bNoGUI || opt_OrderFile.IsOptionSpecified(nullptr, &cmd))
   {
@@ -256,7 +259,7 @@ void ezTestFramework::GatherAllTests()
 
   // first let all simple tests register themselves
   {
-    ezRegisterSimpleTestHelper* pHelper = ezRegisterSimpleTestHelper::GetFirstInstance();
+    ezRegisterTestHelper* pHelper = ezRegisterTestHelper::GetFirstInstance();
 
     while (pHelper)
     {
@@ -326,24 +329,14 @@ void ezTestFramework::GetTestSettingsFromCommandLine(const ezCommandLineUtils& c
 
   ezStringBuilder tmp;
 
-  opt_HTML.SetDefaultValue(m_Settings.m_bOpenHtmlOutputOnError);
-  m_Settings.m_bOpenHtmlOutputOnError = opt_HTML.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
-
-  opt_Console.SetDefaultValue(m_Settings.m_bKeepConsoleOpen);
-  m_Settings.m_bKeepConsoleOpen = opt_Console.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
-
   opt_Timestamps.SetDefaultValue(m_Settings.m_bShowTimestampsInLog);
   m_Settings.m_bShowTimestampsInLog = opt_Timestamps.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
-
-  opt_MsgBox.SetDefaultValue(m_Settings.m_bShowMessageBox);
-  m_Settings.m_bShowMessageBox = opt_MsgBox.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
 
   opt_DisableSuccessful.SetDefaultValue(m_Settings.m_bAutoDisableSuccessfulTests);
   m_Settings.m_bAutoDisableSuccessfulTests = opt_DisableSuccessful.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
 
   m_Settings.m_iRevision = opt_Revision.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
   m_Settings.m_bEnableAllTests = opt_EnableAllTests.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
-  m_Settings.m_uiFullPasses = static_cast<ezUInt8>(opt_Passes.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd));
   m_Settings.m_sTestFilter = opt_Filter.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd).GetData(tmp);
 
   if (opt_Json.IsOptionSpecified(nullptr, &cmd))
@@ -382,8 +375,6 @@ void ezTestFramework::GetTestSettingsFromCommandLine(const ezCommandLineUtils& c
   }
   opt_NoSave.SetDefaultValue(bNoAutoSave);
   m_Settings.m_bNoAutomaticSaving = opt_NoSave.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified, &cmd);
-
-  m_uiPassesLeft = m_Settings.m_uiFullPasses;
 }
 
 void ezTestFramework::LoadTestOrder()
@@ -397,16 +388,30 @@ void ezTestFramework::ApplyTestOrderFromCommandLine(const ezCommandLineUtils& cm
     SetAllTestsEnabledStatus(true);
   if (!m_Settings.m_sTestFilter.empty())
   {
+    std::regex filterRegex;
+    try
+    {
+      filterRegex.assign(m_Settings.m_sTestFilter.c_str(), std::regex_constants::icase);
+    }
+    catch (const std::regex_error&)
+    {
+      ezLog::Print("Invalid regex provided via -filter\n");
+      return;
+    }
+
     const ezUInt32 uiTestCount = GetTestCount();
     for (ezUInt32 uiTestIdx = 0; uiTestIdx < uiTestCount; ++uiTestIdx)
     {
-      const bool bEnable = ezStringUtils::FindSubString_NoCase(m_TestEntries[uiTestIdx].m_szTestName, m_Settings.m_sTestFilter.c_str()) != nullptr;
-      m_TestEntries[uiTestIdx].m_bEnableTest = bEnable;
+      const bool bEnableTest = std::regex_search(m_TestEntries[uiTestIdx].m_szTestName, filterRegex);
+      bool bAnySubTestEnabled = bEnableTest;
       const ezUInt32 uiSubTestCount = (ezUInt32)m_TestEntries[uiTestIdx].m_SubTests.size();
       for (ezUInt32 uiSubTest = 0; uiSubTest < uiSubTestCount; ++uiSubTest)
       {
-        m_TestEntries[uiTestIdx].m_SubTests[uiSubTest].m_bEnableTest = bEnable;
+        const bool bEnableSubTest = bEnableTest || std::regex_search(m_TestEntries[uiTestIdx].m_SubTests[uiSubTest].m_szSubTestName, filterRegex);
+        m_TestEntries[uiTestIdx].m_SubTests[uiSubTest].m_bEnableTest = bEnableSubTest;
+        bAnySubTestEnabled |= bEnableSubTest;
       }
+      m_TestEntries[uiTestIdx].m_bEnableTest = bAnySubTestEnabled;
     }
   }
 }
@@ -436,12 +441,23 @@ void ezTestFramework::UpdateReferenceImages()
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) && EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
 
+  // Check if optipng is available
+  bool bOptiPngAvailable = false;
+  ezStringBuilder sOptiPng;
 
 #  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-  ezStringBuilder sOptiPng = ezFileSystem::GetSdkRootDirectory();
+  sOptiPng = ezFileSystem::GetSdkRootDirectory();
   sOptiPng.AppendPath("Data/Tools/Precompiled/optipng/optipng.exe");
+  bOptiPngAvailable = ezOSFile::ExistsFile(sOptiPng);
+#  elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+  sOptiPng = "optipng";
+  ezProcessOptions po;
+  po.AddArgument("-h");
+  po.m_sProcess = sOptiPng;
+  bOptiPngAvailable = ezProcess::Execute(po).Succeeded();
+#  endif
 
-  if (ezOSFile::ExistsFile(sOptiPng))
+  if (bOptiPngAvailable)
   {
     ezStringBuilder sPath;
 
@@ -458,41 +474,31 @@ void ezTestFramework::UpdateReferenceImages()
     }
   }
 
-#  endif
-
-  // if some target files already exist somewhere (ie. custom folders for the tests)
-  // overwrite the existing files in their location
+  // If a suffixed variant of a result file already exists in the reference folder, update it in-place.
+  // This handles the case where someone previously captured a suffixed reference image (e.g. "foo-amd.png")
+  // and now wants to update it: the new result "foo.png" gets moved to "foo-amd.png" if that file exists.
   {
-    ezHybridArray<ezString, 32> targetFolders;
-    ezStringBuilder sFullPath, sTargetPath;
-
-    {
-      ezFileSystemIterator it;
-      it.StartSearch(sDir, ezFileSystemIteratorFlags::ReportFoldersRecursive);
-      for (; it.IsValid(); it.Next())
-      {
-        if (it.GetStats().m_sName == m_sImageReferenceFolderName.c_str())
-        {
-          it.GetStats().GetFullPath(sFullPath);
-
-          targetFolders.PushBack(sFullPath);
-        }
-      }
-    }
+    ezStringBuilder sFullPath, sResultFileName, sTargetPath;
 
     ezFileSystemIterator it;
     it.StartSearch(sNewFiles, ezFileSystemIteratorFlags::ReportFiles);
     for (; it.IsValid(); it.Next())
     {
       it.GetStats().GetFullPath(sFullPath);
+      sResultFileName = it.GetStats().m_sName;
+      sResultFileName.RemoveFileExtension(); // e.g. "Basics_Line_Rendering_000"
 
-      for (ezUInt32 i = 0; i < targetFolders.GetCount(); ++i)
+      // Search the reference folder for any file whose name starts with this base name followed by '-'
+      ezFileSystemIterator refIt;
+      refIt.StartSearch(sRefFiles, ezFileSystemIteratorFlags::ReportFiles);
+      for (; refIt.IsValid(); refIt.Next())
       {
-        sTargetPath = targetFolders[i];
-        sTargetPath.AppendPath(it.GetStats().m_sName);
+        ezStringBuilder sRefFileName = refIt.GetStats().m_sName;
+        sRefFileName.RemoveFileExtension();
 
-        if (ezOSFile::ExistsFile(sTargetPath))
+        if (sRefFileName.StartsWith(sResultFileName) && sRefFileName.GetCharacterCount() > sResultFileName.GetCharacterCount() && sRefFileName.GetData()[sResultFileName.GetElementCount()] == '-')
         {
+          refIt.GetStats().GetFullPath(sTargetPath);
           ezOSFile::DeleteFile(sTargetPath).IgnoreResult();
           ezOSFile::MoveFileOrDirectory(sFullPath, sTargetPath).IgnoreResult();
           break;
@@ -677,16 +683,6 @@ ezTestAppRun ezTestFramework::RunTestExecutionLoop()
   {
     EndTests();
 
-    if (m_uiPassesLeft > 1 && !m_bAbortTests)
-    {
-      --m_uiPassesLeft;
-
-      m_uiExecutingTest = ezInvalidIndex;
-      m_uiExecutingSubTest = ezInvalidIndex;
-
-      return ezTestAppRun::Continue;
-    }
-
 #ifdef EZ_TESTFRAMEWORK_USE_FILESERVE
     if (ezFileserveClient* pClient = ezFileserveClient::GetSingleton())
     {
@@ -781,6 +777,7 @@ void ezTestFramework::ExecuteNextTest()
       m_uiCurrentTestIndex = m_uiExecutingTest;
       // Log writer translates engine warnings / errors into test framework error messages.
       ezGlobalLog::AddLogWriter(LogWriter);
+      ezGlobalLog::AddLogWriter(ezLogWriter::Tracing::LogMessageHandler);
 
       m_iErrorCountBeforeTest = GetTotalErrorCount();
 
@@ -906,6 +903,7 @@ void ezTestFramework::ExecuteNextTest()
       // Third and last flush of assert counter, these are all asserts for the test de-init.
       FlushAsserts();
 
+      ezGlobalLog::RemoveLogWriter(ezLogWriter::Tracing::LogMessageHandler);
       ezGlobalLog::RemoveLogWriter(LogWriter);
 
       bool bTestSuccess = m_iErrorCountBeforeTest == GetTotalErrorCount();
@@ -1272,13 +1270,90 @@ void ezTestFramework::SetImageReferenceFolderName(const char* szFolderName)
   m_sImageReferenceFolderName = szFolderName;
 }
 
-void ezTestFramework::SetImageReferenceOverrideFolderName(const char* szFolderName)
+void ezTestFramework::AddImageReferenceTag(const char* szTag)
 {
-  m_sImageReferenceOverrideFolderName = szFolderName;
+  if (ezStringUtils::IsNullOrEmpty(szTag))
+    return;
 
-  if (!m_sImageReferenceOverrideFolderName.empty())
+  m_ImageReferenceTags.PushBack(szTag);
+  Output(ezTestOutput::Details, "Added ImageReference tag '%s'", szTag);
+}
+
+void ezTestFramework::ClearImageReferenceTags()
+{
+  m_ImageReferenceTags.Clear();
+}
+
+void ezTestFramework::SetImageReferenceTagsFromEnvironment(ezStringView sPlatform, ezStringView sRenderer, ezStringView sAdapterName)
+{
+  ClearImageReferenceTags();
+
+  // Platform tag
   {
-    Output(ezTestOutput::Message, "Using ImageReference override folder '%s'", szFolderName);
+    ezStringBuilder sPlatformTag = sPlatform;
+    sPlatformTag.ToLower();
+    if (!sPlatformTag.IsEmpty() && sPlatformTag != "windows") // windows is the default, no tag needed
+    {
+      AddImageReferenceTag(sPlatformTag);
+    }
+  }
+
+  if (sRenderer.IsEmpty())
+    return;
+
+  const bool bIsDX11 = sRenderer.IsEqual_NoCase("DX11");
+  const bool bIsVulkan = sRenderer.IsEqual_NoCase("Vulkan");
+
+  const bool bIsRefDriver = (sAdapterName == "Microsoft Basic Render Driver" || sAdapterName.StartsWith_NoCase("Intel(R) UHD Graphics"));
+  const bool bIsAMD = (sAdapterName.FindSubString_NoCase("AMD") != nullptr || sAdapterName.FindSubString_NoCase("Radeon") != nullptr);
+  const bool bIsNvidia = (sAdapterName.FindSubString_NoCase("Nvidia") != nullptr || sAdapterName.FindSubString_NoCase("GeForce") != nullptr);
+  const bool bIsIntel = (sAdapterName.FindSubString_NoCase("Intel") != nullptr);
+  const bool bIsLLVMPipe = (sAdapterName.FindSubString_NoCase("llvmpipe") != nullptr);
+  const bool bIsSwiftShader = (sAdapterName.FindSubString_NoCase("SwiftShader") != nullptr);
+
+  if (bIsDX11)
+  {
+    if (bIsRefDriver)
+    {
+      AddImageReferenceTag("d3dref");
+    }
+    else if (bIsAMD)
+    {
+      AddImageReferenceTag("amd");
+    }
+    else if (bIsNvidia)
+    {
+      AddImageReferenceTag("nvidia");
+    }
+    else if (bIsIntel)
+    {
+      AddImageReferenceTag("intel");
+    }
+  }
+  else if (bIsVulkan)
+  {
+    AddImageReferenceTag("vulkan");
+
+    if (bIsLLVMPipe)
+    {
+      AddImageReferenceTag("llvmpipe");
+    }
+    else if (bIsSwiftShader)
+    {
+      AddImageReferenceTag("swiftshader");
+    }
+    else if (bIsAMD)
+    {
+      AddImageReferenceTag("amd");
+    }
+    else if (bIsNvidia)
+    {
+      AddImageReferenceTag("nvidia");
+    }
+    else if (bIsIntel)
+    {
+      AddImageReferenceTag("intel");
+    }
   }
 }
 
@@ -1331,28 +1406,7 @@ bool ezTestFramework::PerformImageComparison(ezStringBuilder sImgName, const ezI
     return false;
   }
 
-  ezStringBuilder sImgPathReference, sImgPathResult;
-
-  if (!m_sImageReferenceOverrideFolderName.empty())
-  {
-    sImgPathReference = m_sImageReferenceOverrideFolderName.c_str();
-    sImgPathReference.AppendPath(sImgName);
-    sImgPathReference.ChangeFileExtension(".png");
-
-    if (!ezFileSystem::ExistsFile(sImgPathReference))
-    {
-      // try the regular path
-      sImgPathReference.Clear();
-    }
-  }
-
-  if (sImgPathReference.IsEmpty())
-  {
-    sImgPathReference = m_sImageReferenceFolderName.c_str();
-    sImgPathReference.AppendPath(sImgName);
-    sImgPathReference.ChangeFileExtension(".png");
-  }
-
+  ezStringBuilder sImgPathResult;
   sImgPathResult = ":imgout/Images_Result";
   sImgPathResult.AppendPath(sImgName);
   sImgPathResult.ChangeFileExtension(".png");
@@ -1360,111 +1414,185 @@ bool ezTestFramework::PerformImageComparison(ezStringBuilder sImgName, const ezI
   auto SaveResultImage = [&]()
   {
     imgRgba.SaveTo(sImgPathResult).IgnoreResult();
-
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-    ezStringBuilder sAbsPath;
-    if (ezFileSystem::ResolvePath(sImgPathResult, &sAbsPath, nullptr).Failed())
-    {
-      ezLog::Warning("Failed to resolve absolute path of '{}'. Image will not be compressed with optipng.", sImgPathResult);
-      return;
-    }
-
-    ezStringBuilder sOptiPng = ezFileSystem::GetSdkRootDirectory();
-    sOptiPng.AppendPath("Data/Tools/Precompiled/optipng/optipng.exe");
-
-    if (ezOSFile::ExistsFile(sOptiPng))
-    {
-      ezProcessOptions opt;
-      opt.m_sProcess = sOptiPng;
-      opt.m_Arguments.PushBack(sAbsPath);
-      ezInt32 iReturnCode = 0;
-      if (ezProcess::Execute(opt, &iReturnCode).Failed() || iReturnCode != 0)
-      {
-        ezLog::Warning("Failed to run optipng with return code {}. Image will not be compressed with optipng.", iReturnCode);
-      }
-    }
-#endif
   };
 
   // if a previous output image exists, get rid of it
   ezFileSystem::DeleteFile(sImgPathResult);
 
-  ezImage imgExp, imgExpRgba;
-  if (imgExp.LoadFrom(sImgPathReference).Failed())
+  // Helper: performs the actual pixel comparison against a reference image at the given path.
+  // Returns true if the comparison passes. On failure, populates the out parameters.
+  auto TryCompareWithImage = [&](const ezStringBuilder& sRefPath, ezUInt32& out_uiError, ezImage& out_imgExpRgba, ezImage& out_imgDiffRgba) -> bool
   {
-    SaveResultImage();
+    ezImage imgExp;
+    if (imgExp.LoadFrom(sRefPath).Failed())
+      return false;
 
-    safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "Comparison Image '%s' could not be read", sImgPathReference.GetData());
+    if (ezImageConversion::Convert(imgExp, out_imgExpRgba, ezImageFormat::R8G8B8A8_UNORM).Failed())
+    {
+      safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "Comparison Image '%s' could not be converted to RGBA8", sRefPath.GetData());
+      return false;
+    }
+
+    if (imgRgba.GetWidth() != out_imgExpRgba.GetWidth() || imgRgba.GetHeight() != out_imgExpRgba.GetHeight())
+    {
+      safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "Comparison Image '%s' size (%ix%i) does not match captured image size (%ix%i)", sRefPath.GetData(), out_imgExpRgba.GetWidth(), out_imgExpRgba.GetHeight(), imgRgba.GetWidth(), imgRgba.GetHeight());
+      out_uiError = 0xFFFFFFFFu;
+      return false;
+    }
+
+    if (bIsLineImage)
+      ezImageUtils::ComputeImageDifferenceABSRelaxed(out_imgExpRgba, imgRgba, out_imgDiffRgba);
+    else
+      ezImageUtils::ComputeImageDifferenceABS(out_imgExpRgba, imgRgba, out_imgDiffRgba);
+
+    out_uiError = ezImageUtils::ComputeMeanSquareError(out_imgDiffRgba, 32);
+    return (out_uiError <= uiMaxError);
+  };
+
+  // Build the list of candidate reference paths to try:
+  // 1. Base image (no suffix)
+  // 2. Single-tag suffixes in registration order
+  // 3. Multi-tag combinations (pairs, triples, ...) in registration order
+  ezTempHybridArray<ezStringBuilder, 8> candidatePaths;
+
+  {
+    // Base path
+    ezStringBuilder sBase = m_sImageReferenceFolderName.c_str();
+    sBase.AppendPath(sImgName);
+    sBase.ChangeFileExtension(".png");
+    candidatePaths.PushBack(sBase);
+  }
+
+  const ezUInt32 uiTagCount = m_ImageReferenceTags.GetCount();
+  if (uiTagCount > 0)
+  {
+    // Generate all non-empty subsets of tags, ordered by subset size (1-tag first, then 2-tag, etc.)
+    // For each subset size k, iterate over all combinations of k tags in registration order.
+    for (ezUInt32 uiSubsetSize = 1; uiSubsetSize <= uiTagCount; ++uiSubsetSize)
+    {
+      // Use a bitmask to enumerate all subsets of the given size
+      // For up to ~20 tags this is efficient enough
+      const ezUInt32 uiFullMask = (1u << uiTagCount) - 1u;
+      for (ezUInt32 uiMask = 0; uiMask <= uiFullMask; ++uiMask)
+      {
+        if (ezMath::CountBits(uiMask) != uiSubsetSize)
+          continue;
+
+        ezStringBuilder sSuffixedName = sImgName;
+        for (ezUInt32 t = 0; t < uiTagCount; ++t)
+        {
+          if ((uiMask & (1u << t)) != 0)
+          {
+            sSuffixedName.Append("-");
+            sSuffixedName.Append(m_ImageReferenceTags[t].GetData());
+          }
+        }
+
+        ezStringBuilder sPath = m_sImageReferenceFolderName.c_str();
+        sPath.AppendPath(sSuffixedName);
+        sPath.ChangeFileExtension(".png");
+        candidatePaths.PushBack(sPath);
+      }
+    }
+  }
+
+  // Track the best (lowest error) failed comparison attempt
+  struct FailureInfo
+  {
+    ezStringBuilder sPath;
+    ezUInt32 uiError = 0xFFFFFFFFu;
+    ezImage imgExpRgba;
+    ezImage imgDiffRgba;
+    bool bWasTried = false; // true if the file existed and comparison ran
+  };
+  FailureInfo bestFailure;
+
+  for (const auto& sRefPath : candidatePaths)
+  {
+    if (!ezFileSystem::ExistsFile(sRefPath))
+      continue;
+
+    ezUInt32 uiError = 0xFFFFFFFFu;
+    ezImage imgExpRgba, imgDiffRgba;
+    const bool bPassed = TryCompareWithImage(sRefPath, uiError, imgExpRgba, imgDiffRgba);
+
+    if (bPassed)
+      return true;
+
+    // Track the best (lowest error) failure for reporting
+    if (!bestFailure.bWasTried || uiError < bestFailure.uiError)
+    {
+      bestFailure.sPath = sRefPath;
+      bestFailure.uiError = uiError;
+      bestFailure.imgExpRgba = std::move(imgExpRgba);
+      bestFailure.imgDiffRgba = std::move(imgDiffRgba);
+      bestFailure.bWasTried = true;
+    }
+  }
+
+  // All candidates either didn't exist or failed comparison
+  SaveResultImage();
+
+  if (!bestFailure.bWasTried)
+  {
+    // No reference image found at all — report the base path
+    safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "Comparison Image '%s' could not be read", candidatePaths[0].GetData());
     return false;
   }
 
-  if (ezImageConversion::Convert(imgExp, imgExpRgba, ezImageFormat::R8G8B8A8_UNORM).Failed())
+  // Report the best (lowest-error) failure, and write diff outputs for it
   {
-    SaveResultImage();
+    ezImage& imgExpRgba = bestFailure.imgExpRgba;
+    ezImage& imgDiffRgba = bestFailure.imgDiffRgba;
+    const ezStringBuilder& sBestPath = bestFailure.sPath;
+    const ezUInt32 uiBestError = bestFailure.uiError;
 
-    safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "Comparison Image '%s' could not be converted to RGBA8", sImgPathReference.GetData());
-    return false;
+    if (uiBestError != 0xFFFFFFFFu) // size mismatch sets error to max; skip diff for those
+    {
+      ezUInt8 uiMinDiffRgb, uiMaxDiffRgb, uiMinDiffAlpha, uiMaxDiffAlpha;
+      ezImageUtils::Normalize(imgDiffRgba, uiMinDiffRgb, uiMaxDiffRgb, uiMinDiffAlpha, uiMaxDiffAlpha);
+
+      ezImage imgDiffRgb;
+      ezImageConversion::Convert(imgDiffRgba, imgDiffRgb, ezImageFormat::R8G8B8_UNORM).IgnoreResult();
+
+      ezStringBuilder sImgDiffName;
+      sImgDiffName.SetFormat(":imgout/Images_Diff/{0}.png", sImgName);
+      imgDiffRgb.SaveTo(sImgDiffName).IgnoreResult();
+
+      ezImage imgDiffAlpha;
+      ezImageUtils::ExtractAlphaChannel(imgDiffRgba, imgDiffAlpha);
+
+      ezStringBuilder sImgDiffAlphaName;
+      sImgDiffAlphaName.SetFormat(":imgout/Images_Diff/{0}_alpha.png", sImgName);
+      imgDiffAlpha.SaveTo(sImgDiffAlphaName).IgnoreResult();
+
+      ezImage imgExpRgb;
+      ezImageConversion::Convert(imgExpRgba, imgExpRgb, ezImageFormat::R8G8B8_UNORM).IgnoreResult();
+      ezImage imgExpAlpha;
+      ezImageUtils::ExtractAlphaChannel(imgExpRgba, imgExpAlpha);
+
+      ezImage imgRgb;
+      ezImageConversion::Convert(imgRgba, imgRgb, ezImageFormat::R8G8B8_UNORM).IgnoreResult();
+      ezImage imgAlpha;
+      ezImageUtils::ExtractAlphaChannel(imgRgba, imgAlpha);
+
+      ezStringBuilder sDiffHtmlPath;
+      sDiffHtmlPath.SetFormat(":imgout/Html_Diff/{0}.html", sImgName);
+      WriteImageDiffHtml(sDiffHtmlPath, imgExpRgb, imgExpAlpha, imgRgb, imgAlpha, imgDiffRgb, imgDiffAlpha, uiBestError, uiMaxError, uiMinDiffRgb, uiMaxDiffRgb, uiMinDiffAlpha, uiMaxDiffAlpha);
+
+      safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "Error: Image Comparison Failed: MSE of %u exceeds threshold of %u for image '%s'.", uiBestError, uiMaxError, sBestPath.GetData());
+
+      ezStringBuilder sDataDirRelativePath;
+      ezFileSystem::ResolvePath(sDiffHtmlPath, nullptr, &sDataDirRelativePath).IgnoreResult();
+      ezTestFramework::Output(ezTestOutput::ImageDiffFile, sDataDirRelativePath);
+    }
+    else
+    {
+      safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "%s", szErrorMsg); // size mismatch message already set by TryCompareWithImage
+    }
   }
 
-  if (imgRgba.GetWidth() != imgExpRgba.GetWidth() || imgRgba.GetHeight() != imgExpRgba.GetHeight())
-  {
-    SaveResultImage();
-
-    safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "Comparison Image '%s' size (%ix%i) does not match captured image size (%ix%i)", sImgPathReference.GetData(), imgExpRgba.GetWidth(), imgExpRgba.GetHeight(), imgRgba.GetWidth(), imgRgba.GetHeight());
-    return false;
-  }
-
-  ezImage imgDiffRgba;
-  if (bIsLineImage)
-    ezImageUtils::ComputeImageDifferenceABSRelaxed(imgExpRgba, imgRgba, imgDiffRgba);
-  else
-    ezImageUtils::ComputeImageDifferenceABS(imgExpRgba, imgRgba, imgDiffRgba);
-
-  const ezUInt32 uiMeanError = ezImageUtils::ComputeMeanSquareError(imgDiffRgba, 32);
-
-  if (uiMeanError > uiMaxError)
-  {
-    SaveResultImage();
-
-    ezUInt8 uiMinDiffRgb, uiMaxDiffRgb, uiMinDiffAlpha, uiMaxDiffAlpha;
-    ezImageUtils::Normalize(imgDiffRgba, uiMinDiffRgb, uiMaxDiffRgb, uiMinDiffAlpha, uiMaxDiffAlpha);
-
-    ezImage imgDiffRgb;
-    ezImageConversion::Convert(imgDiffRgba, imgDiffRgb, ezImageFormat::R8G8B8_UNORM).IgnoreResult();
-
-    ezStringBuilder sImgDiffName;
-    sImgDiffName.SetFormat(":imgout/Images_Diff/{0}.png", sImgName);
-    imgDiffRgb.SaveTo(sImgDiffName).IgnoreResult();
-
-    ezImage imgDiffAlpha;
-    ezImageUtils::ExtractAlphaChannel(imgDiffRgba, imgDiffAlpha);
-
-    ezStringBuilder sImgDiffAlphaName;
-    sImgDiffAlphaName.SetFormat(":imgout/Images_Diff/{0}_alpha.png", sImgName);
-    imgDiffAlpha.SaveTo(sImgDiffAlphaName).IgnoreResult();
-
-    ezImage imgExpRgb;
-    ezImageConversion::Convert(imgExpRgba, imgExpRgb, ezImageFormat::R8G8B8_UNORM).IgnoreResult();
-    ezImage imgExpAlpha;
-    ezImageUtils::ExtractAlphaChannel(imgExpRgba, imgExpAlpha);
-
-    ezImage imgRgb;
-    ezImageConversion::Convert(imgRgba, imgRgb, ezImageFormat::R8G8B8_UNORM).IgnoreResult();
-    ezImage imgAlpha;
-    ezImageUtils::ExtractAlphaChannel(imgRgba, imgAlpha);
-
-    ezStringBuilder sDiffHtmlPath;
-    sDiffHtmlPath.SetFormat(":imgout/Html_Diff/{0}.html", sImgName);
-    WriteImageDiffHtml(sDiffHtmlPath, imgExpRgb, imgExpAlpha, imgRgb, imgAlpha, imgDiffRgb, imgDiffAlpha, uiMeanError, uiMaxError, uiMinDiffRgb, uiMaxDiffRgb, uiMinDiffAlpha, uiMaxDiffAlpha);
-
-    safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "Error: Image Comparison Failed: MSE of %u exceeds threshold of %u for image '%s'.", uiMeanError, uiMaxError, sImgName.GetData());
-
-    ezStringBuilder sDataDirRelativePath;
-    ezFileSystem::ResolvePath(sDiffHtmlPath, nullptr, &sDataDirRelativePath).IgnoreResult();
-    ezTestFramework::Output(ezTestOutput::ImageDiffFile, sDataDirRelativePath);
-    return false;
-  }
-  return true;
+  return false;
 }
 
 bool ezTestFramework::CompareImages(ezUInt32 uiImageNumber, ezUInt32 uiMaxError, char* szErrorMsg, bool bIsDepthImage, bool bIsLineImage)
@@ -1671,6 +1799,14 @@ bool ezTestResult(ezResult condition, const char* szErrorText, const char* szFil
 bool ezTestDouble(double f1, double f2, double fEps, const char* szF1, const char* szF2, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
 {
   ezTestFramework::s_iAssertCounter++;
+
+  if (ezMath::IsNaN(f1) || ezMath::IsNaN(f2) || ezMath::IsNaN(fEps))
+  {
+    char szErrorText[256];
+    safeprintf(szErrorText, 256, "Failure: f1 = '%f', f2 = '%f', epsilon = '%f' (one of them is NaN)", f1, f2, fEps);
+
+    OUTPUT_TEST_ERROR
+  }
 
   const double fD = f1 - f2;
 

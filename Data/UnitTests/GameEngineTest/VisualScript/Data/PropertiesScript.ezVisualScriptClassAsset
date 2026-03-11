@@ -24,7 +24,7 @@ o
 		s %AssetType{"VisualScriptClass"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{837113682285082756,5141689786863758149}}
-		u4 %Hash{13197696413952443066}
+		u4 %Hash{9677148605205681624}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{848606233130663411,2947433275418864476}}
@@ -753,7 +753,10 @@ o
 	u3 %v{2}
 	p
 	{
-		VarArray %Attributes{}
+		VarArray %Attributes
+		{
+			Uuid{u4{10568763562914783905,10530531365321929534}}
+		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
@@ -1195,6 +1198,13 @@ o
 }
 o
 {
+	Uuid %id{u4{15637767251822793677,7099346497836275084}}
+	s %t{"ezExposeColorAlphaAttribute"}
+	u3 %v{1}
+	p{}
+}
+o
+{
 	Uuid %id{u4{13799489209839999719,7295405495570511845}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
@@ -1423,7 +1433,10 @@ o
 	u3 %v{2}
 	p
 	{
-		VarArray %Attributes{}
+		VarArray %Attributes
+		{
+			Uuid{u4{15637767251822793677,7099346497836275084}}
+		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
@@ -1519,6 +1532,13 @@ o
 		s %TypeName{"VisualScriptNode_Builtin_SwitchString"}
 		u3 %TypeVersion{1}
 	}
+}
+o
+{
+	Uuid %id{u4{10568763562914783905,10530531365321929534}}
+	s %t{"ezExposeColorAlphaAttribute"}
+	u3 %v{1}
+	p{}
 }
 o
 {

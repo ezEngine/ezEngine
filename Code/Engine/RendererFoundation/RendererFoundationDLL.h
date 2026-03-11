@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/Basics.h>
+#include <Foundation/Containers/Blob.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Types/Id.h>
 #include <Foundation/Types/RefCounted.h>
@@ -21,8 +22,19 @@
 #define EZ_GAL_MAX_SAMPLER_COUNT 16
 
 // Necessary array sizes
-#define EZ_GAL_MAX_VERTEX_BUFFER_COUNT 16
+#define EZ_GAL_MAX_VERTEX_BUFFER_COUNT 8
+#define EZ_GAL_MAX_VERTEX_ATTRIBUTE_COUNT 16
 #define EZ_GAL_MAX_RENDERTARGET_COUNT 8
+#define EZ_GAL_MAX_BIND_GROUPS 4
+
+#define EZ_GAL_ALL_MIP_LEVELS 0xFFu
+#define EZ_GAL_ALL_ARRAY_SLICES 0xFFFFu
+#define EZ_GAL_WHOLE_SIZE 0xFFFFFFFFu
+
+#define EZ_GAL_BIND_GROUP_FRAME 0
+#define EZ_GAL_BIND_GROUP_RENDER_PASS 1
+#define EZ_GAL_BIND_GROUP_MATERIAL 2
+#define EZ_GAL_BIND_GROUP_DRAW_CALL 3
 
 // Forward declarations
 
@@ -36,13 +48,14 @@ struct ezGALDepthStencilStateCreationDescription;
 struct ezGALBlendStateCreationDescription;
 struct ezGALRasterizerStateCreationDescription;
 struct ezGALVertexDeclarationCreationDescription;
-struct ezGALQueryCreationDescription;
 struct ezGALSamplerStateCreationDescription;
-struct ezGALTextureResourceViewCreationDescription;
-struct ezGALBufferResourceViewCreationDescription;
 struct ezGALRenderTargetViewCreationDescription;
-struct ezGALTextureUnorderedAccessViewCreationDescription;
-struct ezGALBufferUnorderedAccessViewCreationDescription;
+struct ezGALBindGroupLayoutCreationDescription;
+struct ezGALBindGroupCreationDescription;
+struct ezGALPipelineLayoutCreationDescription;
+struct ezGALGraphicsPipelineCreationDescription;
+struct ezGALComputePipelineCreationDescription;
+
 
 class ezGALSwapChain;
 class ezGALShader;
@@ -50,23 +63,22 @@ class ezGALResourceBase;
 class ezGALTexture;
 class ezGALSharedTexture;
 class ezGALBuffer;
+class ezGALDynamicBuffer;
+class ezGALReadbackBuffer;
+class ezGALReadbackTexture;
 class ezGALDepthStencilState;
 class ezGALBlendState;
 class ezGALRasterizerState;
-class ezGALRenderTargetSetup;
 class ezGALVertexDeclaration;
-class ezGALQuery;
 class ezGALSamplerState;
-class ezGALTextureResourceView;
-class ezGALBufferResourceView;
 class ezGALRenderTargetView;
-class ezGALTextureUnorderedAccessView;
-class ezGALBufferUnorderedAccessView;
 class ezGALDevice;
-class ezGALPass;
 class ezGALCommandEncoder;
-class ezGALRenderCommandEncoder;
-class ezGALComputeCommandEncoder;
+class ezGALBindGroup;
+class ezGALBindGroupLayout;
+class ezGALPipelineLayout;
+class ezGALGraphicsPipeline;
+class ezGALComputePipeline;
 
 // Basic enums
 struct ezGALPrimitiveTopology
@@ -75,25 +87,39 @@ struct ezGALPrimitiveTopology
   enum Enum
   {
     // keep this order, it is used to allocate the desired number of indices in ezMeshBufferResourceDescriptor::AllocateStreams
-    Points,    // 1 index per primitive
-    Lines,     // 2 indices per primitive
-    Triangles, // 3 indices per primitive
+    Points,        // 1 index per primitive
+    Lines,         // 2 indices per primitive
+    Triangles,     // 3 indices per primitive
+    TriangleStrip, // 3 indices per primitive, but the first two indices are shared with the previous primitive
+
     ENUM_COUNT,
+
     Default = Triangles
   };
 
-  static ezUInt32 VerticesPerPrimitive(ezGALPrimitiveTopology::Enum e) { return (ezUInt32)e + 1; }
+  static ezUInt32 GetIndexCount(Enum e, ezUInt32 uiPrimitiveCount)
+  {
+    if (e <= Triangles)
+      return uiPrimitiveCount * ((ezUInt32)e + 1);
+
+    // TriangleStrip
+    return uiPrimitiveCount > 0 ? uiPrimitiveCount + 2 : 0;
+  }
 };
 
 struct EZ_RENDERERFOUNDATION_DLL ezGALIndexType
 {
+  using StorageType = ezUInt8;
+
   enum Enum
   {
     None,   // indices are not used, vertices are just used in order to form primitives
     UShort, // 16 bit indices are used to select which vertices shall form a primitive, thus meshes can only use up to 65535 vertices
     UInt,   // 32 bit indices are used to select which vertices shall form a primitive
 
-    ENUM_COUNT
+    ENUM_COUNT,
+
+    Default = None,
   };
 
 
@@ -209,6 +235,8 @@ struct ezGALTextureType
     Texture3D,
     Texture2DProxy,
     Texture2DShared,
+    Texture2DArray,
+    TextureCubeArray,
 
     ENUM_COUNT,
 
@@ -339,24 +367,98 @@ struct ezGALUpdateMode
 {
   enum Enum
   {
-    Discard,          ///< Buffer must be completely overwritten. No old data will be read. Data will not persist across frames.
-    NoOverwrite,      ///< User is responsible for synchronizing access between GPU and CPU.
-    CopyToTempStorage ///< Upload to temp buffer, then buffer to buffer transfer at the current time in the command buffer.
+    TransientConstantBuffer, ///< Can be executed at any time in a command encoder. Buffer must be completely overwritten. Data will not persist across frames. Only allowed on transient constant buffers.
+    AheadOfTime,             ///< Can be executed at any time in a command encoder. Copy is ensured to happen before the next command in the command encoder. The same memory location can't be updated twice in one frame. Note that no GPU access must have happened to the modified memory range in the current command encoder before this call or undefined behavior will occur.
   };
 };
 
-// Basic structs
+/// \brief Used by ezGALVertexDeclarationCreationDescription -> ezGALVertexBinding to define whether the data in a vertex buffer is indexed via vertex or instance index.
+struct ezGALVertexBindingRate
+{
+  using StorageType = ezUInt8;
+  enum Enum
+  {
+    Vertex,
+    Instance,
+    Default = Vertex,
+  };
+};
+
+/// \brief The initial state of a render target when starting to render to it.
+struct ezGALRenderTargetLoadOp
+{
+  using StorageType = ezUInt8;
+  enum Enum
+  {
+    Load,     ///< The previous contents of the render target are preserved when starting to render to it.
+    Clear,    ///< The render target is cleared before rendering.
+    DontCare, ///< The contents of the render target is undefined. Use if you intent to render to the entirety of the viewport.
+    Default = Load
+  };
+};
+
+/// \brief The state of a render target after finishing to render to it.
+struct ezGALRenderTargetStoreOp
+{
+  using StorageType = ezUInt8;
+  enum Enum
+  {
+    Store,   ///< The render result is written back to the render target's memory.
+    Discard, ///< The end result is not needed. Use for transient render targets.
+    Default = Store
+  };
+};
+
+/// \brief The current state of an async operations in the renderer
+struct ezGALAsyncResult
+{
+  using StorageType = ezUInt8;
+
+  enum Enum
+  {
+    Ready,   ///< The async operation has finished and the result is ready.
+    Pending, ///< The async operation is still running, retry later.
+    Expired, ///< The async operation is too old and the result was thrown away. Pending results should be queried every frame until they are ready.
+    Default = Expired
+  };
+};
+
+/// \brief Used to define a texture sub-resource, i.e. a single slice.
 struct ezGALTextureSubresource
 {
   ezUInt32 m_uiMipLevel = 0;
   ezUInt32 m_uiArraySlice = 0;
 };
 
+/// \brief Helper to map linear system memory to a 2D texture sub-resource.
 struct ezGALSystemMemoryDescription
 {
-  void* m_pData = nullptr;
+  ezConstByteBlobPtr m_pData;
   ezUInt32 m_uiRowPitch = 0;
   ezUInt32 m_uiSlicePitch = 0;
+};
+
+/// \brief Defines a sub-set of a texture that can be bound in a shader. Default constructed means entire texture.
+/// Mainly used in ezBindGroupBuilder::BindTexture calls to map resources to shader bindings and other binding related methods.
+struct ezGALTextureRange
+{
+  /// \brief Helper to just set mip levels without also having to set the array slice fields.
+  static ezGALTextureRange MakeFromMipRange(ezUInt8 uiBaseMipLevel = 0, ezUInt8 uiMipLevels = EZ_GAL_ALL_MIP_LEVELS)
+  {
+    return {0, 1, uiBaseMipLevel, uiMipLevels};
+  }
+  ezUInt16 m_uiBaseArraySlice = 0;                    ///< Index of the first array slice to be used.
+  ezUInt16 m_uiArraySlices = EZ_GAL_ALL_ARRAY_SLICES; ///< Number of array slices to be used. If set to EZ_GAL_ALL_ARRAY_SLICES, the maximum number of allowed slices is used dependent on texture size and binding contraints.
+  ezUInt8 m_uiBaseMipLevel = 0;                       ///< The first mip level to be used.
+  ezUInt8 m_uiMipLevels = EZ_GAL_ALL_MIP_LEVELS;      ///< Number of mip levels to be used. Ignored for UAVs. If set to EZ_GAL_ALL_MIP_LEVELS, the maximum number of allowed mip maps is used dependent on texture size.
+};
+
+/// \brief Defines a sub-set of a buffer that can be bound in a shader. Default constructed means entire buffer.
+/// Mainly used in ezBindGroupBuilder::BindBuffer calls to map resources to shader bindings and other binding related methods.
+struct ezGALBufferRange
+{
+  ezUInt32 m_uiByteOffset = 0;                ///< Start of the view to the buffer. Must be multiple of the element size.
+  ezUInt32 m_uiByteCount = EZ_GAL_WHOLE_SIZE; ///< m_uiByteOffset + m_uiByteCount must be less than the size of the buffer, unless EZ_GAL_WHOLE_SIZE ist used, which maps to the rest of the buffer.
 };
 
 /// \brief Base class for GAL objects, stores a creation description of the object and also allows for reference counting.
@@ -381,6 +483,7 @@ namespace ezGAL
   using ez16_16Id = ezGenericId<16, 16>;
   using ez18_14Id = ezGenericId<18, 14>;
   using ez20_12Id = ezGenericId<20, 12>;
+  using ez20_44Id = ezGenericId<20, 44>;
 } // namespace ezGAL
 
 class ezGALSwapChainHandle
@@ -404,6 +507,13 @@ class ezGALTextureHandle
   friend class ezGALDevice;
 };
 
+class ezGALReadbackTextureHandle
+{
+  EZ_DECLARE_HANDLE_TYPE(ezGALReadbackTextureHandle, ezGAL::ez18_14Id);
+
+  friend class ezGALDevice;
+};
+
 class ezGALBufferHandle
 {
   EZ_DECLARE_HANDLE_TYPE(ezGALBufferHandle, ezGAL::ez18_14Id);
@@ -411,30 +521,16 @@ class ezGALBufferHandle
   friend class ezGALDevice;
 };
 
-class ezGALTextureResourceViewHandle
+class ezGALDynamicBufferHandle
 {
-  EZ_DECLARE_HANDLE_TYPE(ezGALTextureResourceViewHandle, ezGAL::ez18_14Id);
+  EZ_DECLARE_HANDLE_TYPE(ezGALDynamicBufferHandle, ezGAL::ez18_14Id);
 
   friend class ezGALDevice;
 };
 
-class ezGALBufferResourceViewHandle
+class ezGALReadbackBufferHandle
 {
-  EZ_DECLARE_HANDLE_TYPE(ezGALBufferResourceViewHandle, ezGAL::ez18_14Id);
-
-  friend class ezGALDevice;
-};
-
-class ezGALTextureUnorderedAccessViewHandle
-{
-  EZ_DECLARE_HANDLE_TYPE(ezGALTextureUnorderedAccessViewHandle, ezGAL::ez18_14Id);
-
-  friend class ezGALDevice;
-};
-
-class ezGALBufferUnorderedAccessViewHandle
-{
-  EZ_DECLARE_HANDLE_TYPE(ezGALBufferUnorderedAccessViewHandle, ezGAL::ez18_14Id);
+  EZ_DECLARE_HANDLE_TYPE(ezGALReadbackBufferHandle, ezGAL::ez18_14Id);
 
   friend class ezGALDevice;
 };
@@ -481,20 +577,48 @@ class ezGALVertexDeclarationHandle
   friend class ezGALDevice;
 };
 
-class ezGALQueryHandle
+/// \brief Handle to ezGALBindGroupLayout, created via ezGALDevice::CreateBindGroupLayout
+class ezGALBindGroupLayoutHandle
 {
-  EZ_DECLARE_HANDLE_TYPE(ezGALQueryHandle, ezGAL::ez20_12Id);
+  EZ_DECLARE_HANDLE_TYPE(ezGALBindGroupLayoutHandle, ezGAL::ez18_14Id);
 
   friend class ezGALDevice;
 };
 
-struct ezGALTimestampHandle
+/// \brief Handle to ezGALBindGroup, created via ezGALDevice::CreateBindGroup
+class ezGALBindGroupHandle
 {
-  EZ_DECLARE_POD_TYPE();
+  EZ_DECLARE_HANDLE_TYPE(ezGALBindGroupHandle, ezGAL::ez18_14Id);
 
-  ezUInt64 m_uiIndex;
-  ezUInt64 m_uiFrameCounter;
+  friend class ezGALDevice;
 };
+
+/// \brief Handle to ezGALPipelineLayout, created via ezGALDevice::CreatePipelineLayout
+class ezGALPipelineLayoutHandle
+{
+  EZ_DECLARE_HANDLE_TYPE(ezGALPipelineLayoutHandle, ezGAL::ez18_14Id);
+
+  friend class ezGALDevice;
+};
+
+class ezGALGraphicsPipelineHandle
+{
+  EZ_DECLARE_HANDLE_TYPE(ezGALGraphicsPipelineHandle, ezGAL::ez18_14Id);
+
+  friend class ezGALDevice;
+};
+
+class ezGALComputePipelineHandle
+{
+  EZ_DECLARE_HANDLE_TYPE(ezGALComputePipelineHandle, ezGAL::ez18_14Id);
+
+  friend class ezGALDevice;
+};
+
+using ezGALPoolHandle = ezGAL::ez20_44Id;
+using ezGALTimestampHandle = ezGALPoolHandle;
+using ezGALOcclusionHandle = ezGALPoolHandle;
+using ezGALFenceHandle = ezUInt64;
 
 namespace ezGAL
 {

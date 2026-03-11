@@ -2,7 +2,7 @@
 
 #include <EditorPluginAssets/StateMachineAsset/StateMachineAsset.h>
 #include <EditorPluginAssets/StateMachineAsset/StateMachineGraph.h>
-#include <GuiFoundation/NodeEditor/NodeScene.moc.h>
+#include <GuiFoundation/VisualGraph/Scene.moc.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 // clang-format off
@@ -46,21 +46,33 @@ void ezStateMachineAssetDocument::RestoreMetaDataAfterLoading(const ezAbstractOb
   pManager->RestoreMetaDataAfterLoading(graph, bUndoable);
 }
 
-void ezStateMachineAssetDocument::GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_MimeTypes) const
+void ezStateMachineAssetDocument::GetSupportedMimeTypesForPasting(ezDynamicArray<ezString>& out_mimeTypes) const
 {
-  out_MimeTypes.PushBack("application/ezEditor.StateMachineGraph");
+  out_mimeTypes.PushBack("application/ezEditor.StateMachineGraph");
 }
 
 bool ezStateMachineAssetDocument::CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_MimeType) const
 {
   out_MimeType = "application/ezEditor.StateMachineGraph";
 
-  const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
-  return pManager->CopySelectedObjects(out_objectGraph);
+  const ezVisualGraphObjectManager* pManager = static_cast<const ezVisualGraphObjectManager*>(GetObjectManager());
+  if (!pManager->CopySelectedObjects(out_objectGraph))
+    return false;
+
+  // prevent that we get a second node with "IsInitialState" set to true
+  for (auto itNode : out_objectGraph.GetAllNodes())
+  {
+    if (auto pInit = itNode.Value()->FindProperty("IsInitialState"))
+    {
+      pInit->m_Value = false;
+    }
+  }
+
+  return true;
 }
 
 bool ezStateMachineAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, ezStringView sMimeType)
 {
-  ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());
-  return pManager->PasteObjects(info, objectGraph, ezQtNodeScene::GetLastMouseInteractionPos(), bAllowPickedPosition);
+  ezVisualGraphObjectManager* pManager = static_cast<ezVisualGraphObjectManager*>(GetObjectManager());
+  return pManager->PasteObjects(info, objectGraph, ezQtVisualGraphScene::GetLastMouseInteractionPos(), bAllowPickedPosition);
 }

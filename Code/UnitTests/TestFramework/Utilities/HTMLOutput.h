@@ -175,15 +175,6 @@ struct ezOutputToHTML
         htmlFile.close();
 
         std::string sOutputFile = std::string(ezTestFramework::GetInstance()->GetAbsOutputPath()) + "/UnitTestsLog.htm";
-
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-        TestSettings settings = ezTestFramework::GetInstance()->GetSettings();
-        if (settings.m_bOpenHtmlOutputOnError && bError)
-        {
-          // opens the html file in a browser
-          ShellExecuteA(nullptr, "open", sOutputFile.c_str(), nullptr, nullptr, SW_SHOW);
-        }
-#endif
       }
       break;
       default:

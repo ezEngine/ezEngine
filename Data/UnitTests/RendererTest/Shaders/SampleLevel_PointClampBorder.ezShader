@@ -1,0 +1,32 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[RENDERSTATE]
+
+[VERTEXSHADER]
+
+#include "Texture.h"
+
+VS_OUT main(VS_IN Input)
+{
+  VS_OUT RetVal;
+  RetVal.pos = mul(mvp, float4(Input.pos, 1.0));
+  RetVal.texcoord0 = Input.texcoord0;
+  return RetVal;
+}
+
+[PIXELSHADER]
+
+#include <Shaders/Common/Platforms.h>
+#include "Texture.h"
+
+Texture2DArray DepthTexture;
+SamplerState DepthSampler;
+
+float4 main(PS_IN Input) : SV_Target
+{
+  float2 texCoord = Input.texcoord0.xy * 2.0 - 0.5;
+  return ezSampleLevel_PointClampBorder(DepthTexture, DepthSampler, texCoord.xy, 0, 0, float4(1.0, 0,0,1));
+}

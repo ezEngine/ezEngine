@@ -2,16 +2,19 @@
 
 #ifdef BUILDSYSTEM_ENABLE_IMGUI_SUPPORT
 
+#  include <Core/World/World.h>
 #  include <Foundation/IO/TypeVersionContext.h>
 #  include <GameEngine/DearImgui/DearImgui.h>
 #  include <GameEngine/DearImgui/DearImguiRenderer.h>
-#  include <Imgui/imgui_internal.h>
 #  include <RendererCore/Pipeline/ExtractedRenderData.h>
+#  include <RendererCore/Pipeline/RenderDataManager.h>
 #  include <RendererCore/Pipeline/View.h>
 #  include <RendererCore/RenderContext/RenderContext.h>
 #  include <RendererCore/RenderWorld/RenderWorld.h>
 #  include <RendererCore/Shader/ShaderResource.h>
 #  include <RendererFoundation/Device/Device.h>
+
+#  include <Imgui/imgui_internal.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezImguiRenderData, 1, ezRTTINoAllocator)
@@ -65,12 +68,13 @@ void ezImguiExtractor::Extract(const ezView& view, const ezDynamicArray<const ez
 
   if (pDrawData && pDrawData->Valid)
   {
+    EZ_LOCK(view.GetWorld()->GetReadMarker());
+    auto pRenderDataManager = view.GetWorld()->GetModuleReadOnly<ezRenderDataManager>();
+
     for (int draw = 0; draw < pDrawData->CmdListsCount; ++draw)
     {
-      ezImguiRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezImguiRenderData>(nullptr);
+      ezImguiRenderData* pRenderData = pRenderDataManager->CreateRenderDataForThisFrame<ezImguiRenderData>(nullptr);
       pRenderData->m_uiSortingKey = draw;
-      pRenderData->m_GlobalTransform.SetIdentity();
-      pRenderData->m_GlobalBounds = ezBoundingBoxSphere::MakeInvalid();
 
       // copy the vertex data
       // uses the frame allocator to prevent unnecessary deallocations
@@ -141,28 +145,11 @@ ezImguiRenderer::ezImguiRenderer()
 ezImguiRenderer::~ezImguiRenderer()
 {
   m_hShader.Invalidate();
-
-  if (!m_hVertexBuffer.IsInvalidated())
-  {
-    ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hVertexBuffer);
-    m_hVertexBuffer.Invalidate();
-  }
-
-  if (!m_hIndexBuffer.IsInvalidated())
-  {
-    ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hIndexBuffer);
-    m_hIndexBuffer.Invalidate();
-  }
 }
 
-void ezImguiRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& ref_types) const
+void ezImguiRenderer::GetSupportedRenderDataTypes(ezDynamicArray<const ezRTTI*>& out_types) const
 {
-  ref_types.PushBack(ezGetStaticRTTI<ezImguiRenderData>());
-}
-
-void ezImguiRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& ref_categories) const
-{
-  ref_categories.PushBack(ezDefaultRenderDataCategories::GUI);
+  out_types.PushBack(ezGetStaticRTTI<ezImguiRenderData>());
 }
 
 void ezImguiRenderer::RenderBatch(const ezRenderViewContext& renderContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
@@ -171,12 +158,12 @@ void ezImguiRenderer::RenderBatch(const ezRenderViewContext& renderContext, cons
     return;
 
   ezRenderContext* pRenderContext = renderContext.m_pRenderContext;
-  ezGALRenderCommandEncoder* pCommandEncoder = pRenderContext->GetRenderCommandEncoder();
+  ezGALCommandEncoder* pCommandEncoder = pRenderContext->GetCommandEncoder();
 
   pRenderContext->BindShader(m_hShader);
   const auto& textures = ezImgui::GetSingleton()->m_Textures;
   const ezUInt32 numTextures = textures.GetCount();
-
+  ezBindGroupBuilder& bindGroup = pRenderContext->GetBindGroup();
   for (auto it = batch.GetIterator<ezImguiRenderData>(); it.IsValid(); ++it)
   {
     const ezImguiRenderData* pRenderData = it;
@@ -184,10 +171,13 @@ void ezImguiRenderer::RenderBatch(const ezRenderViewContext& renderContext, cons
     EZ_ASSERT_DEV(pRenderData->m_Vertices.GetCount() < s_uiVertexBufferSize, "GUI has too many elements to render in one drawcall");
     EZ_ASSERT_DEV(pRenderData->m_Indices.GetCount() < s_uiIndexBufferSize, "GUI has too many elements to render in one drawcall");
 
-    pCommandEncoder->UpdateBuffer(m_hVertexBuffer, 0, ezMakeArrayPtr(pRenderData->m_Vertices.GetPtr(), pRenderData->m_Vertices.GetCount()).ToByteArray());
-    pCommandEncoder->UpdateBuffer(m_hIndexBuffer, 0, ezMakeArrayPtr(pRenderData->m_Indices.GetPtr(), pRenderData->m_Indices.GetCount()).ToByteArray());
+    ezGALBufferHandle hVertexBuffer = m_VertexBuffer.GetNewBuffer();
+    ezGALBufferHandle hIndexBuffer = m_IndexBuffer.GetNewBuffer();
 
-    pRenderContext->BindMeshBuffer(m_hVertexBuffer, m_hIndexBuffer, &m_VertexDeclarationInfo, ezGALPrimitiveTopology::Triangles, pRenderData->m_Indices.GetCount() / 3);
+    pCommandEncoder->UpdateBuffer(hVertexBuffer, 0, ezMakeArrayPtr(pRenderData->m_Vertices.GetPtr(), pRenderData->m_Vertices.GetCount()).ToByteArray(), ezGALUpdateMode::AheadOfTime);
+    pCommandEncoder->UpdateBuffer(hIndexBuffer, 0, ezMakeArrayPtr(pRenderData->m_Indices.GetPtr(), pRenderData->m_Indices.GetCount()).ToByteArray(), ezGALUpdateMode::AheadOfTime);
+
+    pRenderContext->BindMeshBuffer(ezMakeArrayPtr(&hVertexBuffer, 1), hIndexBuffer, m_VertexAttributes, ezGALPrimitiveTopology::Triangles, pRenderData->m_Indices.GetCount() / 3);
 
     ezUInt32 uiFirstIndex = 0;
     const ezUInt32 numBatches = pRenderData->m_Batches.GetCount();
@@ -198,18 +188,22 @@ void ezImguiRenderer::RenderBatch(const ezRenderViewContext& renderContext, cons
       if (imGuiBatch.m_uiVertexCount > 0 && imGuiBatch.m_uiTextureID < numTextures)
       {
         pCommandEncoder->SetScissorRect(imGuiBatch.m_ScissorRect);
-        pRenderContext->BindTexture2D("BaseTexture", textures[imGuiBatch.m_uiTextureID]);
+        bindGroup.BindTexture("BaseTexture", textures[imGuiBatch.m_uiTextureID]);
         pRenderContext->DrawMeshBuffer(imGuiBatch.m_uiVertexCount / 3, uiFirstIndex / 3).IgnoreResult();
       }
 
       uiFirstIndex += imGuiBatch.m_uiVertexCount;
     }
   }
+
+  // Reset scissor to default.
+  ezRectFloat rect = renderContext.m_pViewData->m_ViewPortRect;
+  pCommandEncoder->SetScissorRect(ezRectU32((ezUInt32)rect.x, (ezUInt32)rect.y, (ezUInt32)rect.width, (ezUInt32)rect.height));
 }
 
 void ezImguiRenderer::SetupRenderer()
 {
-  if (!m_hVertexBuffer.IsInvalidated())
+  if (m_hShader.IsValid())
     return;
 
   // load the shader
@@ -220,13 +214,13 @@ void ezImguiRenderer::SetupRenderer()
   // Create the vertex buffer
   {
     ezGALBufferCreationDescription desc;
-    desc.m_BufferFlags = ezGALBufferUsageFlags::VertexBuffer;
+    desc.m_BufferFlags = ezGALBufferUsageFlags::VertexBuffer | ezGALBufferUsageFlags::Transient;
 
     desc.m_uiStructSize = sizeof(ezImguiVertex);
     desc.m_uiTotalSize = s_uiVertexBufferSize * desc.m_uiStructSize;
     desc.m_ResourceAccess.m_bImmutable = false;
 
-    m_hVertexBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc);
+    m_VertexBuffer.Initialize(desc, "DearImguiRenderer - VertexBuffer");
   }
 
   // Create the index buffer
@@ -234,36 +228,33 @@ void ezImguiRenderer::SetupRenderer()
     ezGALBufferCreationDescription desc;
     desc.m_uiStructSize = sizeof(ImDrawIdx);
     desc.m_uiTotalSize = s_uiIndexBufferSize * desc.m_uiStructSize;
-    desc.m_BufferFlags = ezGALBufferUsageFlags::IndexBuffer;
+    desc.m_BufferFlags = ezGALBufferUsageFlags::IndexBuffer | ezGALBufferUsageFlags::Transient;
     desc.m_ResourceAccess.m_bImmutable = false;
 
-    m_hIndexBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc);
+    m_IndexBuffer.Initialize(desc, "DearImguiRenderer - IndexBuffer");
   }
 
   // Setup the vertex declaration
   {
     {
-      ezVertexStreamInfo& si = m_VertexDeclarationInfo.m_VertexStreams.ExpandAndGetRef();
-      si.m_Semantic = ezGALVertexAttributeSemantic::Position;
-      si.m_Format = ezGALResourceFormat::XYZFloat;
-      si.m_uiOffset = 0;
-      si.m_uiElementSize = 12;
+      auto& va = m_VertexAttributes.ExpandAndGetRef();
+      va.m_eSemantic = ezGALVertexAttributeSemantic::Position;
+      va.m_eFormat = ezGALResourceFormat::XYZFloat;
+      va.m_uiOffset = offsetof(ezImguiVertex, m_Position);
     }
 
     {
-      ezVertexStreamInfo& si = m_VertexDeclarationInfo.m_VertexStreams.ExpandAndGetRef();
-      si.m_Semantic = ezGALVertexAttributeSemantic::TexCoord0;
-      si.m_Format = ezGALResourceFormat::UVFloat;
-      si.m_uiOffset = 12;
-      si.m_uiElementSize = 8;
+      auto& va = m_VertexAttributes.ExpandAndGetRef();
+      va.m_eSemantic = ezGALVertexAttributeSemantic::TexCoord0;
+      va.m_eFormat = ezGALResourceFormat::UVFloat;
+      va.m_uiOffset = offsetof(ezImguiVertex, m_TexCoord);
     }
 
     {
-      ezVertexStreamInfo& si = m_VertexDeclarationInfo.m_VertexStreams.ExpandAndGetRef();
-      si.m_Semantic = ezGALVertexAttributeSemantic::Color0;
-      si.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
-      si.m_uiOffset = 20;
-      si.m_uiElementSize = 4;
+      auto& va = m_VertexAttributes.ExpandAndGetRef();
+      va.m_eSemantic = ezGALVertexAttributeSemantic::Color0;
+      va.m_eFormat = ezGALResourceFormat::RGBAUByteNormalized;
+      va.m_uiOffset = offsetof(ezImguiVertex, m_Color);
     }
   }
 }

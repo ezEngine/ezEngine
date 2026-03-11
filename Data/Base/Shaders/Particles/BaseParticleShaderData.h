@@ -12,10 +12,10 @@ struct EZ_SHADER_STRUCT ezBaseParticleShaderData
 // this is only defined during shader compilation
 #if EZ_ENABLED(PLATFORM_SHADER)
 
-StructuredBuffer<ezBaseParticleShaderData> particleBaseData;
+StructuredBuffer<ezBaseParticleShaderData> particleBaseData BIND_GROUP(BG_DRAW_CALL);
 
 #else // C++
 
-EZ_CHECK_AT_COMPILETIME(sizeof(ezBaseParticleShaderData) == 16);
+static_assert(sizeof(ezBaseParticleShaderData) == 16);
 
 #endif

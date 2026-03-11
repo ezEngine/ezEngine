@@ -1,0 +1,19 @@
+<rml>
+<head>
+	<link type="text/template" href="window.rml"/>
+	<link type="text/rcss" href="demo.rcss"/>
+	<title>Demo Sample</title>
+</head>
+
+<body template="window">
+
+<tabset id="menu">
+<tab>Forms</tab>
+<panel id="stuff">
+    <div style="width: 400dp; height: 400dp; border: 1dp red; transform: rotateZ(25deg) translateY(50dp); overflow: hidden;">
+        <svg src="test.svg" style="width: 600dp; height: 600dp;"/>
+	</div>
+</panel>
+</tabset>
+</body>
+</rml>

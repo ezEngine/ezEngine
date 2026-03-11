@@ -2,7 +2,6 @@
 
 #include <TestFramework/Utilities/TestSetup.h>
 
-#include <TestFramework/Utilities/ConsoleOutput.h>
 #include <TestFramework/Utilities/HTMLOutput.h>
 
 #include <Foundation/System/CrashHandler.h>
@@ -11,28 +10,19 @@
 #ifdef EZ_USE_QT
 #  include <TestFramework/Framework/Qt/qtTestFramework.h>
 #  include <TestFramework/Framework/Qt/qtTestGUI.h>
-#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-#  include <TestFramework/Framework/Uwp/uwpTestFramework.h>
-#endif
-
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#  include <conio.h>
+#else
+#  include <TestFramework_Platform.h>
 #endif
 
 int ezTestSetup::s_iArgc = 0;
 const char** ezTestSetup::s_pArgv = nullptr;
 
+void OutputToConsole(ezTestOutput::Enum type, const char* szMsg);
+
 ezTestFramework* ezTestSetup::InitTestFramework(const char* szTestName, const char* szNiceTestName, int iArgc, const char** pArgv)
 {
   s_iArgc = iArgc;
   s_pArgv = pArgv;
-
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  if (FAILED(RoInitialize(RO_INIT_MULTITHREADED)))
-  {
-    std::cout << "Failed to init WinRT." << std::endl;
-  }
-#endif
 
   // without a proper file system the current working directory is pretty much useless
   std::string sTestFolder = std::string(ezOSFile::GetUserDataFolder());
@@ -46,11 +36,8 @@ ezTestFramework* ezTestSetup::InitTestFramework(const char* szTestName, const ch
 
 #ifdef EZ_USE_QT
   ezTestFramework* pTestFramework = new ezQtTestFramework(szNiceTestName, sTestFolder.c_str(), sTestDataSubFolder.c_str(), iArgc, pArgv);
-#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  // Command line args in UWP are handled differently and can't be retrieved from the main function.
-  ezTestFramework* pTestFramework = new ezUwpTestFramework(szNiceTestName, sTestFolder.c_str(), sTestDataSubFolder.c_str(), 0, nullptr);
 #else
-  ezTestFramework* pTestFramework = new ezTestFramework(szNiceTestName, sTestFolder.c_str(), sTestDataSubFolder.c_str(), iArgc, pArgv);
+  ezTestFramework* pTestFramework = new ezTestFramework_Platform(szNiceTestName, sTestFolder.c_str(), sTestDataSubFolder.c_str(), iArgc, pArgv);
 #endif
 
   // Register some output handlers to forward all the messages to the console and to an HTML file
@@ -67,9 +54,15 @@ ezTestAppRun ezTestSetup::RunTests()
 {
   ezTestFramework* pTestFramework = ezTestFramework::GetInstance();
 
+  // If -list or -help was specified, just quit as these are not supposed to be combined with actual test runs.
+  TestSettings settings = pTestFramework->GetSettings();
+  if (settings.m_bListTests || settings.m_bShowHelp)
+  {
+    return ezTestAppRun::Quit;
+  }
+
   // Todo: Incorporate all the below in a virtual call of testFramework?
 #ifdef EZ_USE_QT
-  TestSettings settings = pTestFramework->GetSettings();
   if (settings.m_bNoGUI)
   {
     return pTestFramework->RunTestExecutionLoop();
@@ -93,6 +86,14 @@ ezTestAppRun ezTestSetup::RunTests()
     qApp->setProperty("Shared", QVariant::fromValue((int)1));
     qApp->setApplicationName(pTestFramework->GetTestName());
     ezQtTestGUI::SetDarkTheme();
+    // Locale fixes required by various third party libraries like RmlGui.
+    QLocale::setDefault(QLocale::C);
+    const char* locales[] = {"C.UTF-8", "C.utf8", "UTF-8"};
+    for (const char* szLocale : locales)
+    {
+      if (setlocale(LC_ALL, szLocale) != nullptr)
+        break;
+    }
   }
 
   // Create main window
@@ -115,12 +116,9 @@ ezTestAppRun ezTestSetup::RunTests()
   }
 
   return ezTestAppRun::Quit;
-#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  static_cast<ezUwpTestFramework*>(pTestFramework)->Run();
-  return ezTestAppRun::Quit;
 #else
   // Run all the tests with the given order
-  return pTestFramework->RunTestExecutionLoop();
+  return pTestFramework->RunTests();
 #endif
 }
 
@@ -130,16 +128,8 @@ void ezTestSetup::DeInitTestFramework(bool bSilent /*= false*/)
 
   ezStartup::ShutdownCoreSystems();
 
-  // In the UWP case we never initialized this thread for ez, so we can't do log output now.
-#if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
-  if (!bSilent)
-  {
-    ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
-  }
-#endif
-
   TestSettings settings = pTestFramework->GetSettings();
-  if (settings.m_bKeepConsoleOpen && !bSilent)
+  if (!bSilent)
   {
     if (ezSystemInformation::IsDebuggerAttached())
     {

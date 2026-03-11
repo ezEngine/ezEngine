@@ -39,7 +39,7 @@ public:
   QPointF MapToScene(const QPoint& pos) const;
 
   void ClearSelection();
-  void GetSelection(ezHybridArray<ezUInt32, 32>& out_selection) const;
+  void GetSelection(ezDynamicArray<ezUInt32>& out_selection) const;
 
 Q_SIGNALS:
   void DoubleClickEvent(double fScenePosX, double fEpsilon);
@@ -100,7 +100,7 @@ private:
 
   bool IsSelected(SelectedPoint cp) const;
   void SetSelection(SelectedPoint cp);
-  void SetSelection(const ezHybridArray<SelectedPoint, 32>& selection);
+  void SetSelection(const ezArrayPtr<SelectedPoint>& selection);
   void ToggleSelected(SelectedPoint cp);
   void SetSelected(SelectedPoint cp, bool set);
 
@@ -112,8 +112,8 @@ private:
   QRectF ComputeViewportSceneRect() const;
   bool PickCpAt(const QPoint& pos, float fMaxPixelDistance, SelectedPoint& out_Result) const;
   ClickTarget DetectClickTarget(const QPoint& pos);
-  void ExecMultiSelection(ezHybridArray<SelectedPoint, 32>& out_Selection);
-  bool CombineSelection(ezHybridArray<SelectedPoint, 32>& inout_Selection, const ezHybridArray<SelectedPoint, 32>& change, bool add);
+  void ExecMultiSelection(ezDynamicArray<SelectedPoint>& out_Selection);
+  bool CombineSelection(ezDynamicArray<SelectedPoint>& inout_Selection, const ezArrayPtr<SelectedPoint>& change, bool add);
   void ComputeSelectionRect();
   SelectArea WhereIsPoint(QPoint pos) const;
   void ClampZoomPan();

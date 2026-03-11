@@ -13,6 +13,7 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OpenDdlReader.h>
 #include <Foundation/Logging/ConsoleWriter.h>
+#include <Foundation/Logging/TraceWriter.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
 #include <Foundation/Platform/PlatformDesc.h>
 #include <Foundation/Types/TagRegistry.h>
@@ -43,7 +44,6 @@ void ezGameApplicationBase::ExecuteInitFunctions()
   Init_LoadWorldModuleConfig();
   Init_LoadProjectPlugins();
   Init_PlatformProfile_LoadForRuntime();
-  Init_ConfigureInput();
   Init_ConfigureTags();
   Init_ConfigureCVars();
   Init_SetupGraphicsDevice();
@@ -78,6 +78,7 @@ void ezGameApplicationBase::BaseInit_ConfigureLogging()
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   ezGlobalLog::RemoveLogWriter(m_LogToConsoleID);
   ezGlobalLog::RemoveLogWriter(m_LogToVsID);
+  ezGlobalLog::RemoveLogWriter(m_LogToTracingID);
 
   if (!opt_DisableConsoleOutput.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified))
   {
@@ -85,6 +86,7 @@ void ezGameApplicationBase::BaseInit_ConfigureLogging()
   }
 
   m_LogToVsID = ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
+  m_LogToTracingID = ezGlobalLog::AddLogWriter(ezLogWriter::Tracing::LogMessageHandler);
 #endif
 }
 
@@ -127,37 +129,41 @@ void ezGameApplicationBase::Init_FileSystem_ConfigureDataDirs()
 
 #if EZ_DISABLED(EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS)
   // On platforms where this is disabled, one can usually only write to the user directory
-  // e.g. on UWP and mobile platforms
+  // e.g. on mobile platforms
   writableBinRoot = sUserDataPath;
-  shaderCacheRoot = sUserDataPath;
 #endif
-  ezFileSystem::CreateDirectoryStructure(shaderCacheRoot).AssertSuccess();
+
+  ezFileSystem::CreateDirectoryStructure(shaderCacheRoot).IgnoreResult();
 
   // for absolute paths, read-only
-  ezFileSystem::AddDataDirectory("", "GameApplicationBase", ":", ezFileSystem::ReadOnly).AssertSuccess();
+  ezFileSystem::AddDataDirectory("", "GameApplicationBase", ":", ezDataDirUsage::ReadOnly).AssertSuccess();
 
   // ":bin/" : writing to the binary directory
-  ezFileSystem::AddDataDirectory(writableBinRoot, "GameApplicationBase", "bin", ezFileSystem::AllowWrites).AssertSuccess();
+  ezFileSystem::AddDataDirectory(writableBinRoot, "GameApplicationBase", "bin", ezDataDirUsage::AllowWrites).AssertSuccess();
 
   // ":shadercache/" for reading and writing shader files
-  ezFileSystem::AddDataDirectory(shaderCacheRoot, "GameApplicationBase", "shadercache", ezFileSystem::AllowWrites).AssertSuccess();
+#if EZ_DISABLED(EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS)
+  ezFileSystem::AddDataDirectory(shaderCacheRoot, "GameApplicationBase", "shadercache", ezDataDirUsage::ReadOnly).AssertSuccess();
+#else
+  ezFileSystem::AddDataDirectory(shaderCacheRoot, "GameApplicationBase", "shadercache", ezDataDirUsage::AllowWrites).AssertSuccess();
+#endif
 
   // ":appdata/" for reading and writing app user data
-  ezFileSystem::AddDataDirectory(sUserDataPath, "GameApplicationBase", "appdata", ezFileSystem::AllowWrites).AssertSuccess();
+  ezFileSystem::AddDataDirectory(sUserDataPath, "GameApplicationBase", "appdata", ezDataDirUsage::AllowWrites).AssertSuccess();
 
   // ":base/" for reading the core engine files
-  ezFileSystem::AddDataDirectory(GetBaseDataDirectoryPath(), "GameApplicationBase", "base", ezFileSystem::DataDirUsage::ReadOnly).IgnoreResult();
+  ezFileSystem::AddDataDirectory(GetBaseDataDirectoryPath(), "GameApplicationBase", "base", ezDataDirUsage::ReadOnly).IgnoreResult();
 
   // ":project/" for reading the project specific files
-  ezFileSystem::AddDataDirectory(GetProjectDataDirectoryPath(), "GameApplicationBase", "project", ezFileSystem::DataDirUsage::ReadOnly).IgnoreResult();
+  ezFileSystem::AddDataDirectory(GetProjectDataDirectoryPath(), "GameApplicationBase", "project", ezDataDirUsage::ReadOnly).IgnoreResult();
 
   // ":plugins/" for plugin specific data (optional, if it exists)
   {
     ezStringBuilder dir;
     ezFileSystem::ResolveSpecialDirectory(">sdk/Data/Plugins", dir).IgnoreResult();
-    if (ezOSFile::ExistsDirectory(dir))
+    if (dir.IsAbsolutePath() && ezOSFile::ExistsDirectory(dir))
     {
-      ezFileSystem::AddDataDirectory(">sdk/Data/Plugins", "GameApplicationBase", "plugins", ezFileSystem::DataDirUsage::ReadOnly).IgnoreResult();
+      ezFileSystem::AddDataDirectory(">sdk/Data/Plugins", "GameApplicationBase", "plugins", ezDataDirUsage::ReadOnly).IgnoreResult();
     }
   }
 
@@ -201,17 +207,11 @@ void ezGameApplicationBase::Init_PlatformProfile_LoadForRuntime()
   m_PlatformProfile.LoadForRuntime(sRuntimeProfileFile).IgnoreResult();
 }
 
-void ezGameApplicationBase::Init_ConfigureInput() {}
-
 void ezGameApplicationBase::Init_ConfigureTags()
 {
   EZ_LOG_BLOCK("Reading Tags", "Tags.ddl");
 
   ezStringView sFile = ":project/RuntimeConfigs/Tags.ddl";
-
-#if EZ_ENABLED(EZ_MIGRATE_RUNTIMECONFIGS)
-  sFile = ezFileSystem::MigrateFileLocation(":project/Tags.ddl", sFile);
-#endif
 
   ezFileReader file;
   if (file.Open(sFile).Failed())

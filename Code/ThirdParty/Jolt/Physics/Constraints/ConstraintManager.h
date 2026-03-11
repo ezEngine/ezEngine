@@ -21,6 +21,9 @@ class DebugRenderer;
 using Constraints = Array<Ref<Constraint>>;
 
 /// A constraint manager manages all constraints of the same type
+///
+/// WARNING: This class is an internal part of PhysicsSystem, it has no functions that can be called by users of the library.
+/// Its functionality is exposed through PhysicsSystem and BodyInterface.
 class JPH_EXPORT ConstraintManager : public NonCopyable
 {
 public:
@@ -32,11 +35,9 @@ public:
 #endif // JPH_ENABLE_ASSERTS
 
 	/// Add a new constraint. This is thread safe.
-	/// Note that the inConstraints array is allowed to have nullptrs, these will be ignored.
 	void					Add(Constraint **inConstraints, int inNumber);
 
 	/// Remove a constraint. This is thread safe.
-	/// Note that the inConstraints array is allowed to have nullptrs, these will be ignored.
 	void					Remove(Constraint **inConstraint, int inNumber);
 
 	/// Get a list of all constraints

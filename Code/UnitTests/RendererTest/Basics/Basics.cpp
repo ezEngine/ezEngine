@@ -51,7 +51,7 @@ ezResult ezRendererTestBasics::DeInitializeSubTest(ezInt32 iIdentifier)
 ezTestAppRun ezRendererTestBasics::SubtestClearScreen()
 {
   BeginFrame();
-  BeginPass("ClearScreen");
+  BeginCommands("ClearScreen");
   switch (m_iFrame)
   {
     case 0:
@@ -68,9 +68,9 @@ ezTestAppRun ezRendererTestBasics::SubtestClearScreen()
       break;
   }
 
-  EZ_TEST_IMAGE(m_iFrame, 1);
   EndRendering();
-  EndPass();
+  EZ_TEST_IMAGE(m_iFrame, 1);
+  EndCommands();
   EndFrame();
 
   return m_iFrame < 3 ? ezTestAppRun::Continue : ezTestAppRun::Quit;

@@ -5,6 +5,7 @@
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Pipeline/Renderer.h>
+#include <RendererFoundation/Resources/BufferPool.h>
 
 class ezRenderDataBatch;
 class ezSceneContext;
@@ -16,6 +17,7 @@ class ezGridRenderData : public ezRenderData
   EZ_ADD_DYNAMIC_REFLECTION(ezGridRenderData, ezRenderData);
 
 public:
+  ezQuat m_qGlobalRotation;
   float m_fDensity;
   ezInt32 m_iFirstLine1;
   ezInt32 m_iLastLine1;
@@ -33,6 +35,8 @@ public:
   ezEditorGridExtractor(const char* szName = "EditorGridExtractor");
 
   virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData) override;
+  virtual void PostSortAndBatch(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData) override {}
+
   virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
   virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
 
@@ -58,8 +62,7 @@ public:
   ezGridRenderer();
 
   // ezRenderer implementation
-  virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& ref_types) const override;
-  virtual void GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& ref_categories) const override;
+  virtual void GetSupportedRenderDataTypes(ezDynamicArray<const ezRTTI*>& out_types) const override;
   virtual void RenderBatch(const ezRenderViewContext& renderContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const override;
 
 protected:
@@ -69,8 +72,8 @@ protected:
   static constexpr ezUInt32 s_uiLineVerticesPerBatch = s_uiBufferSize / sizeof(GridVertex);
 
   ezShaderResourceHandle m_hShader;
-  ezGALBufferHandle m_hVertexBuffer;
-  ezVertexDeclarationInfo m_VertexDeclarationInfo;
+  ezGALBufferPool m_VertexBuffer;
+  ezSmallArray<ezGALVertexAttribute, 2> m_VertexAttributes;
   mutable ezDynamicArray<GridVertex, ezAlignedAllocatorWrapper> m_Vertices;
 
 private:

@@ -18,7 +18,7 @@ static float DistancePoint2Line2D(const float* pPoint, const float* pLine1, cons
   return dx * dx + dz * dz;
 }
 
-void DrawMeshTilePolygons(const dtMeshTile& meshTile, ezDynamicArray<ezDebugRenderer::Triangle>& out_triangles, ezArrayPtr<ezColor> areaColors)
+void DrawMeshTilePolygons(const dtMeshTile& meshTile, ezDynamicArray<ezDebugRendererTriangle>& out_triangles, ezArrayPtr<ezColor> areaColors)
 {
   for (int polyIdx = 0; polyIdx < meshTile.header->polyCount; ++polyIdx)
   {
@@ -33,7 +33,7 @@ void DrawMeshTilePolygons(const dtMeshTile& meshTile, ezDynamicArray<ezDebugRend
     {
       const ezUInt8* pTriangle = &meshTile.detailTris[(polyDetail.triBase + triIdx) * 4]; // 3 indices, one byte flags
 
-      ezDebugRenderer::Triangle& tri = out_triangles.ExpandAndGetRef();
+      ezDebugRendererTriangle& tri = out_triangles.ExpandAndGetRef();
 
       ezUInt8 uiArea = poly.getArea();
       tri.m_color = areaColors[uiArea];
@@ -60,7 +60,7 @@ void DrawMeshTilePolygons(const dtMeshTile& meshTile, ezDynamicArray<ezDebugRend
   }
 }
 
-void DrawMeshTileEdges(const dtMeshTile& meshTile, bool bOuterEdges, bool bInnerEdges, bool bInnerDetailEdges, ezDynamicArray<ezDebugRenderer::Line>& out_lines)
+void DrawMeshTileEdges(const dtMeshTile& meshTile, bool bOuterEdges, bool bInnerEdges, bool bInnerDetailEdges, ezDynamicArray<ezDebugRendererLine>& out_lines)
 {
   constexpr float fThreshold = 0.01f * 0.01f;
 

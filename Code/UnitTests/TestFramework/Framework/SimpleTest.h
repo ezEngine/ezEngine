@@ -36,10 +36,18 @@ private:
   std::deque<SimpleTestEntry> m_SimpleTests;
 };
 
-class EZ_TEST_DLL ezRegisterSimpleTestHelper : public ezEnumerable<ezRegisterSimpleTestHelper>
+class EZ_TEST_DLL ezRegisterTestHelper : public ezEnumerable<ezRegisterTestHelper>
 {
-  EZ_DECLARE_ENUMERABLE_CLASS(ezRegisterSimpleTestHelper);
+  EZ_DECLARE_ENUMERABLE_CLASS(ezRegisterTestHelper);
 
+public:
+  ezRegisterTestHelper() = default;
+  virtual ~ezRegisterTestHelper() = default;
+  virtual void RegisterTest() = 0;
+};
+
+class EZ_TEST_DLL ezRegisterSimpleTestHelper : public ezRegisterTestHelper
+{
 public:
   ezRegisterSimpleTestHelper(ezSimpleTestGroup* pTestGroup, const char* szTestName, ezSimpleTestGroup::SimpleTestFunc func)
   {
@@ -48,7 +56,7 @@ public:
     m_Func = func;
   }
 
-  void RegisterTest() { m_pTestGroup->AddSimpleTest(m_szTestName, m_Func); }
+  virtual void RegisterTest() override { m_pTestGroup->AddSimpleTest(m_szTestName, m_Func); }
 
 private:
   ezSimpleTestGroup* m_pTestGroup;
@@ -56,11 +64,11 @@ private:
   ezSimpleTestGroup::SimpleTestFunc m_Func;
 };
 
-#define EZ_CREATE_SIMPLE_TEST_GROUP(GroupName) ezSimpleTestGroup EZ_CONCAT(g_SimpleTestGroup__, GroupName)(EZ_STRINGIZE(GroupName));
+#define EZ_CREATE_SIMPLE_TEST_GROUP(GroupName) ezSimpleTestGroup EZ_PP_CONCAT(g_SimpleTestGroup__, GroupName)(EZ_PP_STRINGIFY(GroupName));
 
-#define EZ_CREATE_SIMPLE_TEST(GroupName, TestName)                                                                       \
-  extern ezSimpleTestGroup EZ_CONCAT(g_SimpleTestGroup__, GroupName);                                                    \
-  static void ezSimpleTestFunction__##GroupName##_##TestName();                                                          \
-  ezRegisterSimpleTestHelper ezRegisterSimpleTest__##GroupName##TestName(                                                \
-    &EZ_CONCAT(g_SimpleTestGroup__, GroupName), EZ_STRINGIZE(TestName), ezSimpleTestFunction__##GroupName##_##TestName); \
+#define EZ_CREATE_SIMPLE_TEST(GroupName, TestName)                                                                             \
+  extern ezSimpleTestGroup EZ_PP_CONCAT(g_SimpleTestGroup__, GroupName);                                                       \
+  static void ezSimpleTestFunction__##GroupName##_##TestName();                                                                \
+  ezRegisterSimpleTestHelper ezRegisterSimpleTest__##GroupName##TestName(                                                      \
+    &EZ_PP_CONCAT(g_SimpleTestGroup__, GroupName), EZ_PP_STRINGIFY(TestName), ezSimpleTestFunction__##GroupName##_##TestName); \
   static void ezSimpleTestFunction__##GroupName##_##TestName()

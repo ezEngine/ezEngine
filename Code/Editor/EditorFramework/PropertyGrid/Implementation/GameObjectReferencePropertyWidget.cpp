@@ -70,7 +70,7 @@ void ezQtGameObjectReferencePropertyWidget::FillContextMenu(QMenu& menu)
   QAction* pSelectAction =
     menu.addAction(QIcon(":/GuiFoundation/Icons/Go.svg"), QLatin1String("Select Referenced Object"), this, SLOT(OnSelectReferencedObject()));
   QAction* pClearAction =
-    menu.addAction(QIcon(":/GuiFoundation/Icons/Delete.svg"), QLatin1String("Clear Reference"), this, SLOT(OnClearReference()));
+    menu.addAction(QIcon(":/GuiFoundation/Icons/Clear.svg"), QLatin1String("Clear Reference"), this, SLOT(OnClearReference()));
   EZ_IGNORE_UNUSED(pClearAction);
 
   pCopyAction->setEnabled(!m_sInternalValue.isEmpty());

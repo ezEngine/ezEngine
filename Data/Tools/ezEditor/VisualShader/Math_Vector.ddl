@@ -2,15 +2,16 @@ Node %Distance
 {
   string %Category { "Math/Vector" }
   string %Color { "Yellow" }
+  string %Docs { "Calculates the distance between the two vectors." }
 
   InputPin %a
   {
-    string %Type { "float" }
+    string %Type { "auto" }
   }
 
   InputPin %b
   {
-    string %Type { "float" }
+    string %Type { "auto" }
   }
 
   OutputPin %result
@@ -25,10 +26,11 @@ Node %Length
 {
   string %Category { "Math/Vector" }
   string %Color { "Yellow" }
+  string %Docs { "Calculates the length of the vector." }
 
   InputPin %a
   {
-    string %Type { "float" }
+    string %Type { "auto" }
   }
 
   OutputPin %result
@@ -43,16 +45,17 @@ Node %Dot
 {
   string %Category { "Math/Vector" }
   string %Color { "Yellow" }
+  string %Docs { "Outputs the dot-product of the two vectors." }
 
   InputPin %a
   {
-    string %Type { "float" }
+    string %Type { "auto" }
     string %DefaultValue { "0" }
   }
 
   InputPin %b
   {
-    string %Type { "float" }
+    string %Type { "auto" }
     string %DefaultValue { "0" }
   }
 
@@ -68,6 +71,7 @@ Node %Cross
 {
   string %Category { "Math/Vector" }
   string %Color { "Yellow" }
+  string %Docs { "Calculates the cross-product of the two vectors." }
 
   InputPin %a
   {
@@ -93,16 +97,17 @@ Node %Normalize
 {
   string %Category { "Math/Vector" }
   string %Color { "Yellow" }
+  string %Docs { "Outputs the normalized input vector." }
 
   InputPin %vector
   {
-    string %Type { "float" }
+    string %Type { "auto" }
     string %Tooltip { "A vector. Avoid zero vectors to prevent NaN's." }
   }
 
   OutputPin %result
   {
-    string %Type { "float" }
+    string %Type { "auto" }
     string %Inline { "normalize($in0)" }
     string %Tooltip { "The normalized vector." }
   }

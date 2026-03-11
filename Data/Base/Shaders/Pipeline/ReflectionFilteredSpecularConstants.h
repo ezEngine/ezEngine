@@ -6,6 +6,7 @@
 CONSTANT_BUFFER(ezReflectionFilteredSpecularConstants, 3)
 {
   UINT1(MipLevel);
+  UINT1(OutputWidth);
+  UINT1(OutputHeight);
   FLOAT1(Intensity);
-  FLOAT1(Saturation);
 };

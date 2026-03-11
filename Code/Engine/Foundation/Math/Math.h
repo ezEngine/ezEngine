@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Foundation/Math/Angle.h>
 #include <Foundation/Math/Constants.h>
 #include <Foundation/Math/Declarations.h>
 
@@ -14,40 +13,49 @@ namespace ezMath
 {
   /// \brief Returns whether the given value is NaN under this type.
   template <typename Type>
-  constexpr static bool IsNaN(Type value)
+  constexpr static bool IsNaN(Type value) // [tested]
   {
+    EZ_IGNORE_UNUSED(value);
     return false;
   }
 
   /// \brief Returns whether the given value represents a finite value (i.e. not +/- Infinity and not NaN)
   template <typename Type>
-  constexpr static bool IsFinite(Type value)
+  constexpr static bool IsFinite(Type value) // [tested]
   {
+    EZ_IGNORE_UNUSED(value);
     return true;
   }
 
   /// ***** Trigonometric Functions *****
 
   /// \brief Takes an angle, returns its sine
-  [[nodiscard]] float Sin(ezAngle a); // [tested]
+  template <typename Type>
+  [[nodiscard]] Type Sin(ezAngleTemplate<Type> a); // [tested]
 
   /// \brief Takes an angle, returns its cosine
-  [[nodiscard]] float Cos(ezAngle a); // [tested]
+  template <typename Type>
+  [[nodiscard]] Type Cos(ezAngleTemplate<Type> a); // [tested]
 
   /// \brief Takes an angle, returns its tangent
-  [[nodiscard]] float Tan(ezAngle a); // [tested]
+  template <typename Type>
+  [[nodiscard]] Type Tan(ezAngleTemplate<Type> a); // [tested]
 
   /// \brief Returns the arcus sinus of f
-  [[nodiscard]] ezAngle ASin(float f); // [tested]
+  template <typename Type>
+  [[nodiscard]] ezAngleTemplate<Type> ASin(Type f); // [tested]
 
   /// \brief Returns the arcus cosinus of f
-  [[nodiscard]] ezAngle ACos(float f); // [tested]
+  template <typename Type>
+  [[nodiscard]] ezAngleTemplate<Type> ACos(Type f); // [tested]
 
   /// \brief Returns the arcus tangent of f
-  [[nodiscard]] ezAngle ATan(float f); // [tested]
+  template <typename Type>
+  [[nodiscard]] ezAngleTemplate<Type> ATan(Type f); // [tested]
 
   /// \brief Returns the atan2 of x and y
-  [[nodiscard]] ezAngle ATan2(float y, float x); // [tested]
+  template <typename Type>
+  [[nodiscard]] ezAngleTemplate<Type> ATan2(Type y, Type x); // [tested]
 
   /// \brief Returns e^f
   [[nodiscard]] float Exp(float f); // [tested]
@@ -120,6 +128,42 @@ namespace ezMath
   template <typename T>
   [[nodiscard]] constexpr T Clamp(T value, T min_val, T max_val); // [tested]
 
+  /// \brief Wraps uiValue around the maximum value, so that it stays within the range [0; uiExcludedMaxValue-1].
+  ///
+  /// Ie a value of uiExcludedMaxValue would be wrapped to 0, and (uiExcludedMaxValue+1) to 1, etc.
+  /// A value of 0 for uiExcludedMaxValue is invalid and results in a division by zero error.
+  [[nodiscard]] constexpr ezUInt32 WrapUInt(ezUInt32 uiValue, ezUInt32 uiExcludedMaxValue); // [tested]
+
+  /// \brief Wraps iValue around the maximum value, so that it stays within the range [0; uiExcludedMaxValue-1].
+  ///
+  /// Ie a value of uiExcludedMaxValue would be wrapped to 0, and (uiExcludedMaxValue+1) to 1, etc.
+  /// Negative values are wrapped back around to a large value, ie -1 would be wrapped to (uiExcludedMaxValue-1).
+  /// A value of 0 for uiExcludedMaxValue is invalid and results in a division by zero error.
+  [[nodiscard]] constexpr ezInt32 WrapInt(ezInt32 iValue, ezUInt32 uiExcludedMaxValue); // [tested]
+
+  /// \brief Wraps iValue around the minimum and maximum value, so that it stays within the range [iMinValue; iExcludedMaxValue-1].
+  ///
+  /// Ie a value of iExcludedMaxValue would be wrapped to iMinValue, and (iExcludedMaxValue+1) to (iMinValue+1), etc.
+  /// Values below iMinValue are wrapped back around to a large value, ie (iMinValue-1) would be wrapped to (iExcludedMaxValue-1).
+  ///
+  /// Both iMinValue and iExcludedMaxValue can be negative, but iMinValue has to be strictly smaller than iExcludedMaxValue.
+  [[nodiscard]] constexpr ezInt32 WrapInt(ezInt32 iValue, ezInt32 iMinValue, ezInt32 iExcludedMaxValue); // [tested]
+
+  /// \brief Wraps a float value around to stay within the [0; 1] range.
+  ///
+  /// Wrapping happens in both positive and negative direction. Ie -0.1f will be wrapped to 0.9f and 1.1f will be wrapped to 0.1f.
+  /// Note that here the value 1.0f is included in the range. Only values larger than 1.0f get wrapped back to zero.
+  /// Therefore it is different to what 'Fraction' would return.
+    template <typename T>
+  [[nodiscard]] T WrapFloat01(T fValue); // [tested]
+
+  /// \brief Wraps a float value around to stay within the [min; max] range.
+  ///
+  /// Both fMinValue and fMaxValue are inclusive.
+  /// Both values may be negative, but fMinValue has to be strictly smaller than fMaxValue.
+    template <typename T>
+  [[nodiscard]] T WrapFloat(T fValue, T fMinValue, T fMaxValue); // [tested]
+
   /// \brief Clamps "value" to the range [0; 1]. Returns "value", if it is inside the range already
   template <typename T>
   [[nodiscard]] constexpr T Saturate(T value); // [tested]
@@ -127,8 +171,18 @@ namespace ezMath
   /// \brief Returns the next smaller integer, closest to f. Also the SMALLER value, if f is negative.
   [[nodiscard]] float Floor(float f); // [tested]
 
+  /// \brief Returns the next smaller integer, closest to f. Also the SMALLER value, if f is negative.
+  ///
+  /// This function is identical to 'Floor()' except that it already returns the result cast to an int.
+  [[nodiscard]] ezInt32 FloorToInt(float f); // [tested]
+
   /// \brief Returns the next higher integer, closest to f. Also the HIGHER value, if f is negative.
   [[nodiscard]] float Ceil(float f); // [tested]
+
+  /// \brief Returns the next higher integer, closest to f. Also the HIGHER value, if f is negative.
+  ///
+  /// This function is identical to 'Ceil()' except that it already returns the result cast to an int.
+  [[nodiscard]] ezInt32 CeilToInt(float f); // [tested]
 
   /// \brief Returns a multiple of fMultiple that is smaller than f.
   [[nodiscard]] float RoundDown(float f, float fMultiple); // [tested]
@@ -149,7 +203,9 @@ namespace ezMath
   /// \brief Casts the float to an integer, removes the fractional part
   ///
   /// \sa Trunc, Round, Floor, Ceil
-  [[nodiscard]] constexpr ezInt32 FloatToInt(float value);
+  template <typename T>
+  [[nodiscard]] constexpr ezInt32 FloatToInt32(T value);
+
 
   // There is a compiler bug in VS 2019 targeting 32-bit that causes an internal compiler error when casting double to long long.
   // FloatToInt(double) is not available on these version of the MSVC compiler.
@@ -168,13 +224,20 @@ namespace ezMath
   /// \brief Rounds f to the next integer.
   ///
   /// If f is positive 0.5 is rounded UP (i.e. to 1), if f is negative, -0.5 is rounded DOWN (i.e. to -1).
+  ///
+  /// This function is identical to 'Round()' except that it already returns the result cast to an int.
+  [[nodiscard]] ezInt32 RoundToInt(float f); // [tested]
+
+  /// \brief Rounds f to the next integer.
+  ///
+  /// If f is positive 0.5 is rounded UP (i.e. to 1), if f is negative, -0.5 is rounded DOWN (i.e. to -1).
   [[nodiscard]] double Round(double f); // [tested]
 
   /// \brief Rounds f to the closest value of multiple.
-  [[nodiscard]] float RoundToMultiple(float f, float fMultiple);
+  [[nodiscard]] float RoundToMultiple(float f, float fMultiple); // [tested]
 
   /// \brief Rounds f to the closest value of multiple.
-  [[nodiscard]] double RoundToMultiple(double f, double fMultiple);
+  [[nodiscard]] double RoundToMultiple(double f, double fMultiple); // [tested]
 
   /// \brief Returns the fraction-part of f.
   template <typename Type>
@@ -260,13 +323,13 @@ namespace ezMath
   ///
   /// For N >= 32 all bits will be set.
   template <typename Type>
-  [[nodiscard]] Type Bitmask_LowN(ezUInt32 uiNumBitsToSet);
+  [[nodiscard]] constexpr Type Bitmask_LowN(ezUInt32 uiNumBitsToSet); // [tested]
 
   /// \brief Creates a bitmask in which the high N bits are set. For example for N=5, this would be '1111 1000 ... 0000'
   ///
   /// For N >= 32 all bits will be set.
   template <typename Type>
-  [[nodiscard]] Type Bitmask_HighN(ezUInt32 uiNumBitsToSet);
+  [[nodiscard]] constexpr Type Bitmask_HighN(ezUInt32 uiNumBitsToSet); // [tested]
 
   /// \brief Swaps the values in the two variables f1 and f2
   template <typename T>
@@ -325,7 +388,7 @@ namespace ezMath
 
   /// \brief Checks, whether fValue is in the range [fDesired - fMaxImprecision; fDesired + fMaxImprecision].
   template <typename Type>
-  [[nodiscard]] constexpr bool IsEqual(Type lhs, Type rhs, Type fEpsilon);
+  [[nodiscard]] constexpr bool IsEqual(Type lhs, Type rhs, Type fEpsilon); // [tested]
 
   /// \brief Checks whether the value of the first parameter lies between the value of the second and third.
   template <typename T>
@@ -334,6 +397,10 @@ namespace ezMath
   /// \brief Checks whether the given number is close to zero.
   template <typename Type>
   [[nodiscard]] bool IsZero(Type f, Type fEpsilon); // [tested]
+
+  /// \brief Converts a color value from float [0;1] range to unsigned int with the given number of bits, with proper rounding
+  template <ezUInt32 NumBits>
+  [[nodiscard]] ezUInt32 ColorFloatToUnsignedInt(float value);
 
   /// \brief Converts a color value from float [0;1] range to unsigned byte [0;255] range, with proper rounding
   [[nodiscard]] ezUInt8 ColorFloatToByte(float value); // [tested]
@@ -346,6 +413,10 @@ namespace ezMath
 
   /// \brief Converts a color value from float [-1;1] range to signed short [-32767;32767] range, with proper rounding
   [[nodiscard]] ezInt16 ColorFloatToSignedShort(float value); // [tested]
+
+  /// \brief Converts a color value from unsigned int with the given numer of bits to float [0;1] range, with proper rounding
+  template <ezUInt32 NumBits>
+  [[nodiscard]] constexpr float ColorUnsignedIntToFloat(ezUInt32 value);
 
   /// \brief Converts a color value from unsigned byte [0;255] range to float [0;1] range, with proper rounding
   [[nodiscard]] constexpr float ColorByteToFloat(ezUInt8 value); // [tested]
@@ -362,7 +433,12 @@ namespace ezMath
   /// \brief Evaluates the cubic spline defined by four control points at time \a t and returns the interpolated result.
   /// Can be used with T as float, vec2, vec3 or vec4
   template <typename T, typename T2>
-  [[nodiscard]] T EvaluateBezierCurve(T2 t, const T& startPoint, const T& controlPoint1, const T& controlPoint2, const T& endPoint);
+  [[nodiscard]] T EvaluateBezierCurve(T2 t, const T& startPoint, const T& controlPoint1, const T& controlPoint2, const T& endPoint); // [tested]
+
+  /// \brief Evaluates the derivative of a cubic spline defined by four control points at time \a t and returns the interpolated result.
+  /// Can be used with T as float, vec2, vec3 or vec4
+  template <typename T, typename T2>
+  [[nodiscard]] T EvaluateBezierCurveDerivative(T2 t, const T& startPoint, const T& controlPoint1, const T& controlPoint2, const T& endPoint);
 
   /// \brief out_Result = \a a * \a b. If an overflow happens, EZ_FAILURE is returned.
   EZ_FOUNDATION_DLL ezResult TryMultiply32(ezUInt32& out_uiResult, ezUInt32 a, ezUInt32 b, ezUInt32 c = 1, ezUInt32 d = 1); // [tested]
@@ -388,7 +464,11 @@ namespace ezMath
   /// \brief If 'value' is not-a-number (NaN) 'fallback' is returned, otherwise 'value' is passed through unmodified.
   [[nodiscard]] EZ_FOUNDATION_DLL double ReplaceNaN(double fValue, double fFallback); // [tested]
 
+  /// \brief Combines the two 32 bit uint values into one 64 bit value.
+  [[nodiscard]] constexpr ezUInt64 MakeUInt64(ezUInt32 uiHigh32, ezUInt32 uiLow32);
+
 } // namespace ezMath
+
 
 #include <Foundation/Math/Implementation/MathDouble_inl.h>
 #include <Foundation/Math/Implementation/MathFixedPoint_inl.h>

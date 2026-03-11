@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/Math/Math.h>
+#include <Foundation/Math/Angle.h>
 
 #if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
 #  define EZ_VEC2_CHECK_FOR_NAN(obj) (obj)->AssertNotNaN();
@@ -87,6 +88,14 @@ public:
   EZ_DECLARE_IF_FLOAT_TYPE
   Type GetLength() const; // [tested]
 
+  /// \brief Returns the length between this position and rhs.
+  EZ_DECLARE_IF_FLOAT_TYPE
+  Type GetDistanceTo(const ezVec2Template<Type>& rhs) const;
+
+  /// \brief Returns the squared length between this position and rhs.
+  EZ_DECLARE_IF_FLOAT_TYPE
+  Type GetSquaredDistanceTo(const ezVec2Template<Type>& rhs) const;
+
   /// \brief Tries to rescale the vector to the given length. If the vector is too close to zero, EZ_FAILURE is returned and the vector is
   /// set to zero.
   EZ_DECLARE_IF_FLOAT_TYPE
@@ -158,7 +167,7 @@ public:
   // *** Common vector operations ***
 public:
   /// \brief Returns the positive angle between *this and rhs.
-  ezAngle GetAngleBetween(const ezVec2Template<Type>& rhs) const; // [tested]
+  ezAngleTemplate<Type> GetAngleBetween(const ezVec2Template<Type>& rhs) const; // [tested]
 
   /// \brief Returns the Dot-product of the two vectors (commutative, order does not matter)
   Type Dot(const ezVec2Template<Type>& rhs) const; // [tested]

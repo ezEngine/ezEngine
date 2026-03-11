@@ -1,4 +1,13 @@
-# Variable 'task.MSBuild.status' was defined in the Variables tab
+parameters:
+  - name: uploadCaches
+    displayName: 'Upload Caches'
+    type: boolean
+    default: false
+  - name: useVM
+    displayName: 'Start VM before build'
+    type: boolean
+    default: false
+
 trigger:
   branches:
     include:
@@ -9,31 +18,33 @@ resources:
     type: git
     ref: dev
 jobs:
-- job: Job_3
-  displayName: StartVM
-  pool:
-    vmImage: 'windows-2022'
-  steps:
-  - checkout: none
-  - task: AzureKeyVault@1
-    displayName: 'Azure Key Vault: ezKeys'
-    inputs:
-      ConnectedServiceName: a416236e-0672-4024-bca3-853beb235e5e
-      KeyVaultName: ezKeys
-      SecretsFilter: AzureFunctionKey
-  - task: PowerShell@2
+- ${{ if eq(parameters.useVM, true) }}:
+  - job: StartVM
     displayName: StartVM
-    continueOnError: true
-    inputs:
-      targetType: inline
-      script: Invoke-RestMethod -Uri "https://ezengineci.azurewebsites.net/api/StartVM?code=$(AzureFunctionKey)&vmname=Windows10-1809"
-- job: Job_1
+    pool:
+      vmImage: 'windows-latest'
+    steps:
+    - checkout: none
+    - task: AzureKeyVault@2
+      displayName: 'Azure Key Vault: ezKeys'
+      inputs:
+        ConnectedServiceName: 3c1e6edd-3ce0-4297-9a12-163b037ea7bc
+        KeyVaultName: ezKeys
+        SecretsFilter: AzureFunctionKey
+    - task: PowerShell@2
+      displayName: StartVM
+      continueOnError: true
+      inputs:
+        targetType: inline
+        script: Invoke-RestMethod -Uri "https://ezengineci.azurewebsites.net/api/StartVM?code=$(AzureFunctionKey)&vmname=Windows10-1809"
+- job: Windows_x64
   displayName: Windows-x64
   timeoutInMinutes: 180
   pool:
     name: Default
     demands:
     - Agent.OS -equals Windows_NT
+    - GPU
   steps:
   - checkout: self
     submodules: true
@@ -53,31 +64,47 @@ jobs:
             git clean -dfx
             Copy-Item -Path $pathA -Destination $pathB
         }
-  - task: AzureKeyVault@1
+  - task: AzureKeyVault@2
     displayName: 'Azure Key Vault: ezKeys'
     inputs:
-      ConnectedServiceName: a416236e-0672-4024-bca3-853beb235e5e
+      ConnectedServiceName: 3c1e6edd-3ce0-4297-9a12-163b037ea7bc
       KeyVaultName: ezKeys
       SecretsFilter: AzureBlobPW,ThirdPartyWinx64Qt6
   - task: PowerShell@2
     displayName: Delete old crash dumps
     inputs:
       targetType: inline
-      script: >-
-        if ((Test-Path $(System.DefaultWorkingDirectory)\Output\Bin\WinVs2022Dev64))
+      script: |
+        if ((Test-Path $(System.DefaultWorkingDirectory)\Output\Bin\WinVs2026Dev64))
         {
-            Get-ChildItem $(System.DefaultWorkingDirectory)\Output\Bin\WinVs2022Dev64\*.dmp | foreach { Remove-Item -Force -Path $_.FullName }
+            Get-ChildItem $(System.DefaultWorkingDirectory)\Output\Bin\WinVs2026Dev64\*.dmp | foreach { Remove-Item -Force -Path $_.FullName }
         }
+        $defaultDumpPath = Join-Path -Path $env:LOCALAPPDATA -ChildPath "CrashDumps"
+        if (Test-Path $defaultDumpPath) {
+          Get-ChildItem $defaultDumpPath -Recurse -Force -ErrorAction SilentlyContinue | ForEach-Object {
+            Remove-Item -Force -Recurse -Path $_.FullName -ErrorAction SilentlyContinue
+          }
+        }
+  # Disabled for now until pipeline can run with elevation
+  # - task: PowerShell@2
+  #   displayName: Enable Windows Error Reporting
+  #   inputs:
+  #     targetType: inline
+  #     script: |
+  #       New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps" -Force
+  #       New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps" -Name "DumpFolder" -Value "$(System.DefaultWorkingDirectory)\Output\Bin\WinVs2026Dev64" -PropertyType ExpandString -Force
+  #       New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps" -Name "DumpCount" -Value "10" -PropertyType DWORD -Force
+  #       New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps" -Name "DumpType" -Value "2" -PropertyType DWORD -Force
   - task: PowerShell@2
     displayName: Run CMake
     inputs:
       targetType: filePath
       filePath: "$(System.DefaultWorkingDirectory)/RunCMake.ps1"
-      arguments: "-Target Win64vs2022 -NoUnityBuild -NoSubmoduleUpdate -SolutionName solution"
+      arguments: "-Target vs2026x64 -NoUnityBuild -NoSubmoduleUpdate -VulkanSupport 1 -SolutionName solution"
   - task: MSBuild@1
     displayName: Build Solution
     inputs:
-      solution: $(System.DefaultWorkingDirectory)\Workspace\vs2022x64\solution.sln
+      solution: $(System.DefaultWorkingDirectory)\Workspace\vs2026x64\solution.slnx
       msbuildArchitecture: x64
       platform: x64
       configuration: Dev
@@ -93,52 +120,72 @@ jobs:
     env:
       TRACY_NO_INVARIANT_CHECK: 1
     inputs:
-      script: Output\Bin\WinVs2022Dev64\HeaderCheck.exe $(System.DefaultWorkingDirectory)\Code\Engine\Foundation -i $(System.DefaultWorkingDirectory)\Code\Engine -f $(System.DefaultWorkingDirectory)\Code\Engine\Foundation\headerCheckerIgnore.json
+      script: Output\Bin\WinVs2026Dev64\HeaderCheck.exe $(System.DefaultWorkingDirectory)\Code\Engine\Foundation -i $(System.DefaultWorkingDirectory)\Code\Engine -f $(System.DefaultWorkingDirectory)\Code\Engine\Foundation\headerCheckerIgnore.json
   - task: CmdLine@2
     displayName: FoundationTest
     condition: eq(variables['task.MSBuild.status'], 'success')
     env:
       TRACY_NO_INVARIANT_CHECK: 1
     inputs:
-      script: Output\Bin\WinVs2022Dev64\FoundationTest.exe -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\FoundationTest
+      script: Output\Bin\WinVs2026Dev64\FoundationTest.exe -renderer DX11 -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\FoundationTest
   - task: CmdLine@2
     displayName: CoreTest
     condition: eq(variables['task.MSBuild.status'], 'success')
     env:
       TRACY_NO_INVARIANT_CHECK: 1
     inputs:
-      script: Output\Bin\WinVs2022Dev64\CoreTest.exe -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\CoreTest
+      script: Output\Bin\WinVs2026Dev64\CoreTest.exe -renderer DX11 -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\CoreTest
   - task: CmdLine@2
     displayName: ToolsFoundationTest
     condition: eq(variables['task.MSBuild.status'], 'success')
     env:
       TRACY_NO_INVARIANT_CHECK: 1
     inputs:
-      script: Output\Bin\WinVs2022Dev64\ToolsFoundationTest.exe -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\ToolsFoundationTest
+      script: Output\Bin\WinVs2026Dev64\ToolsFoundationTest.exe -renderer DX11 -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\ToolsFoundationTest
   - task: CmdLine@2
     displayName: RendererTest
     condition: eq(variables['task.MSBuild.status'], 'success')
     env:
       TRACY_NO_INVARIANT_CHECK: 1
     inputs:
-      script: Output\Bin\WinVs2022Dev64\RendererTest.exe -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\RendererTest
+      script: Output\Bin\WinVs2026Dev64\RendererTest.exe -renderer DX11 -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\RendererTest
+  - task: CmdLine@2
+    displayName: RendererTest Vulkan
+    condition: eq(variables['task.MSBuild.status'], 'success')
+    env:
+      TRACY_NO_INVARIANT_CHECK: 1
+    inputs:
+      script: Output\Bin\WinVs2026Dev64\RendererTest.exe -renderer Vulkan -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\RendererTestVulkan
   - task: CmdLine@2
     displayName: EditorTest
     condition: eq(variables['task.MSBuild.status'], 'success')
     env:
       TRACY_NO_INVARIANT_CHECK: 1
     inputs:
-      script: >-
-        set QT_PLUGIN_PATH=Output\Bin\WinVs2022Dev64
-
-        Output\Bin\WinVs2022Dev64\EditorTest.exe -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\EditorTest
+      script: |
+        set QT_PLUGIN_PATH=Output\Bin\WinVs2026Dev64
+        Output\Bin\WinVs2026Dev64\EditorTest.exe -renderer DX11 -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\EditorTest
   - task: CmdLine@2
     displayName: GameEngineTest
     condition: eq(variables['task.MSBuild.status'], 'success')
     env:
       TRACY_NO_INVARIANT_CHECK: 1
     inputs:
-      script: Output\Bin\WinVs2022Dev64\GameEngineTest.exe -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\GameEngineTest
+      script: Output\Bin\WinVs2026Dev64\GameEngineTest.exe -renderer DX11 -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\GameEngineTest
+  - task: PowerShell@2
+    displayName: Copy Dumps
+    condition: eq(variables['task.MSBuild.status'], 'success')
+    inputs:
+      targetType: filePath
+      filePath: "Utilities/Scripts/copyDumps.ps1"
+      arguments: "-InputPath $(System.DefaultWorkingDirectory)/Output/Bin/WinVs2026Dev64 -OutputPath $(Build.ArtifactStagingDirectory)/Bin/WinVs2026Dev64"
+  # Disabled for now until pipeline can run with elevation
+  # - task: PowerShell@2
+  #   displayName: Disable Windows Error Reporting
+  #   inputs:
+  #     targetType: inline
+  #     script: |
+  #       New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps" -Name "DumpCount" -Value "0" -PropertyType DWORD -Force
   - task: CmdLine@2
     displayName: List files
     condition: always()
@@ -148,32 +195,22 @@ jobs:
     displayName: Copy Bin
     condition: failed()
     inputs:
-      script: >-
-        REM rmdir /S /Q $(System.DefaultWorkingDirectory)\build
-
-        xcopy Output\Bin\WinVs2022Dev64\*.dll $(Build.ArtifactStagingDirectory)\Bin\WinVs2022Dev64\ /C/D/Y
-
-        xcopy Output\Bin\WinVs2022Dev64\*.pdb $(Build.ArtifactStagingDirectory)\Bin\WinVs2022Dev64\ /C/D/Y
-
-        xcopy Output\Bin\WinVs2022Dev64\*.exe $(Build.ArtifactStagingDirectory)\Bin\WinVs2022Dev64\ /C/D/Y
+      script: |
+        xcopy Output\Bin\WinVs2026Dev64\*.dll $(Build.ArtifactStagingDirectory)\Bin\WinVs2026Dev64\ /C/D/Y
+        xcopy Output\Bin\WinVs2026Dev64\*.pdb $(Build.ArtifactStagingDirectory)\Bin\WinVs2026Dev64\ /C/D/Y
+        xcopy Output\Bin\WinVs2026Dev64\*.exe $(Build.ArtifactStagingDirectory)\Bin\WinVs2026Dev64\ /C/D/Y
+        xcopy Output\Bin\WinVs2026Dev64\*.dmp $(Build.ArtifactStagingDirectory)\Bin\WinVs2026Dev64\ /C/D/Y
   - task: PowerShell@2
     displayName: Copy AssetCaches
     condition: eq(variables['task.MSBuild.status'], 'success')
     inputs:
       targetType: inline
-      script: >-
+      script: |
         $RootDir = "$(System.DefaultWorkingDirectory)"
-
         $TargetDir = "$(Build.ArtifactStagingDirectory)\AssetCache"
-
-
         Set-Location $RootDir
-
         $AssetCaches = (Get-ChildItem $RootDir -Directory -include AssetCache -recurse)
-
-
         foreach($Dir in $AssetCaches)
-
         {
             Write-Host "Dir: $Dir"
             $relativePath = Get-Item $Dir | Resolve-Path -Relative
@@ -188,16 +225,26 @@ jobs:
     inputs:
       PathtoPublish: $(Build.ArtifactStagingDirectory)\Test
       ArtifactName: TestResults
+
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact: Bin'
     condition: failed()
     inputs:
       PathtoPublish: $(Build.ArtifactStagingDirectory)\Bin
       ArtifactName: Bin
-  - task: PublishBuildArtifacts@1
-    displayName: 'Publish Artifact: AssetCache'
-    condition: eq(variables['task.MSBuild.status'], 'success')
-    inputs:
-      PathtoPublish: $(Build.ArtifactStagingDirectory)\AssetCache
-      ArtifactName: AssetCache
+
+  - ${{ if eq(parameters.uploadCaches, true) }}:
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Artifact: AssetCache'
+      condition: eq(variables['task.MSBuild.status'], 'success')
+      inputs:
+        PathtoPublish: $(Build.ArtifactStagingDirectory)\AssetCache
+        ArtifactName: AssetCache
+
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Artifact: ShaderCache'
+      condition: eq(variables['task.MSBuild.status'], 'success')
+      inputs:
+        PathtoPublish: $(System.DefaultWorkingDirectory)\Output\ShaderCache
+        ArtifactName: ShaderCache
 ...

@@ -104,7 +104,7 @@ o
 			s{"Animations/Mattress/Mattress.glb"}
 		}
 		Uuid %DocumentID{u4{14724287148971725713,5055962794478827092}}
-		u4 %Hash{2594176648632617288}
+		u4 %Hash{46850346901702687}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{6016814578704130146,14861106992716424824}}
@@ -301,7 +301,7 @@ o
 		u1 %CollisionLayer{0}
 		Quat %GizmoOffsetRotationRO{f{0xB8C30734,0xB8C307B4,0xF30435BF,0xF304353F}}
 		Vec3 %GizmoOffsetTranslationRO{f{0,0,0xDFCCCC3D}}
-		s %JointType{"ezSkeletonJointType::None"}
+		s %JointType{"ezSkeletonJointType::SwingTwist"}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		s %Name{"Bone.005"}
 		b %OverrideCollisionLayer{0}
@@ -312,7 +312,7 @@ o
 		Angle %SwingLimitZ{f{0xC2B8B23D}}
 		Transform %Transform{f{0,0x0000803E,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %TwistLimitCenterAngle{f{0}}
-		Angle %TwistLimitHalfAngle{f{0x930A063F}}
+		Angle %TwistLimitHalfAngle{f{0xC2B8B23E}}
 	}
 }
 o
@@ -395,7 +395,7 @@ o
 		u1 %CollisionLayer{0}
 		Quat %GizmoOffsetRotationRO{f{0xB8C30734,0xB8C307B4,0xF30435BF,0xF304353F}}
 		Vec3 %GizmoOffsetTranslationRO{f{0x0000003F,0x00000033,0xFCCCCC3D}}
-		s %JointType{"ezSkeletonJointType::None"}
+		s %JointType{"ezSkeletonJointType::SwingTwist"}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		s %Name{"Bone.009"}
 		b %OverrideCollisionLayer{0}
@@ -406,7 +406,7 @@ o
 		Angle %SwingLimitZ{f{0xC2B8B23D}}
 		Transform %Transform{f{0,0x0000803E,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %TwistLimitCenterAngle{f{0}}
-		Angle %TwistLimitHalfAngle{f{0x930A063F}}
+		Angle %TwistLimitHalfAngle{f{0xC2B8B23E}}
 	}
 }
 o
@@ -443,7 +443,7 @@ o
 		u1 %CollisionLayer{0}
 		Quat %GizmoOffsetRotationRO{f{0x56649EB4,0x56649E34,0xF30435BF,0xF304353F}}
 		Vec3 %GizmoOffsetTranslationRO{f{0x000040BF,0x000000B3,0xB8CCCC3D}}
-		s %JointType{"ezSkeletonJointType::None"}
+		s %JointType{"ezSkeletonJointType::SwingTwist"}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		s %Name{"Bone.001"}
 		b %OverrideCollisionLayer{0}
@@ -454,7 +454,7 @@ o
 		Angle %SwingLimitZ{f{0xC2B8B23D}}
 		Transform %Transform{f{0,0x0000803E,0,0xA67717B5,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %TwistLimitCenterAngle{f{0}}
-		Angle %TwistLimitHalfAngle{f{0x930A063F}}
+		Angle %TwistLimitHalfAngle{f{0xC2B8B23E}}
 	}
 }
 o
@@ -473,7 +473,7 @@ o
 		u1 %CollisionLayer{0}
 		Quat %GizmoOffsetRotationRO{f{0xB8C30734,0xB8C307B4,0xF30435BF,0xF304353F}}
 		Vec3 %GizmoOffsetTranslationRO{f{0x0000403F,0,0x08CDCC3D}}
-		s %JointType{"ezSkeletonJointType::None"}
+		s %JointType{"ezSkeletonJointType::SwingTwist"}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		s %Name{"Bone.010"}
 		b %OverrideCollisionLayer{0}
@@ -484,7 +484,7 @@ o
 		Angle %SwingLimitZ{f{0xC2B8B23D}}
 		Transform %Transform{f{0,0x0000803E,0x000000A9,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %TwistLimitCenterAngle{f{0}}
-		Angle %TwistLimitHalfAngle{f{0x930A063F}}
+		Angle %TwistLimitHalfAngle{f{0xC2B8B23E}}
 	}
 }
 o
@@ -551,7 +551,7 @@ o
 		u1 %CollisionLayer{0}
 		Quat %GizmoOffsetRotationRO{f{0xB8C30734,0xB8C307B4,0xF30435BF,0xF304353F}}
 		Vec3 %GizmoOffsetTranslationRO{f{0x000080BE,0x00008031,0xD0CCCC3D}}
-		s %JointType{"ezSkeletonJointType::None"}
+		s %JointType{"ezSkeletonJointType::SwingTwist"}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		s %Name{"Bone.003"}
 		b %OverrideCollisionLayer{0}
@@ -562,7 +562,7 @@ o
 		Angle %SwingLimitZ{f{0xC2B8B23D}}
 		Transform %Transform{f{0,0x0000803E,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %TwistLimitCenterAngle{f{0}}
-		Angle %TwistLimitHalfAngle{f{0x930A063F}}
+		Angle %TwistLimitHalfAngle{f{0xC2B8B23E}}
 	}
 }
 o
@@ -584,7 +584,7 @@ o
 		u1 %CollisionLayer{0}
 		Quat %GizmoOffsetRotationRO{f{0xB8C30734,0xB8C307B4,0xF30435BF,0xF304353F}}
 		Vec3 %GizmoOffsetTranslationRO{f{0x000000BF,0,0xC0CCCC3D}}
-		s %JointType{"ezSkeletonJointType::None"}
+		s %JointType{"ezSkeletonJointType::SwingTwist"}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		s %Name{"Bone.002"}
 		b %OverrideCollisionLayer{0}
@@ -595,7 +595,7 @@ o
 		Angle %SwingLimitZ{f{0xC2B8B23D}}
 		Transform %Transform{f{0,0x0000803E,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %TwistLimitCenterAngle{f{0}}
-		Angle %TwistLimitHalfAngle{f{0x930A063F}}
+		Angle %TwistLimitHalfAngle{f{0xC2B8B23E}}
 	}
 }
 o
@@ -629,7 +629,7 @@ o
 {
 	Uuid %id{u4{18438958234139703198,5441156146816728790}}
 	s %t{"ezEditableSkeleton"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		s %BoneDirection{"ezBasisAxis::PositiveY"}
@@ -640,9 +640,12 @@ o
 		u1 %CollisionLayer{0}
 		s %File{"Animations/Mattress/Mattress.glb"}
 		b %FlipForwardDir{0}
+		s %ImportTransform{"ezMeshImportTransform::Custom"}
+		s %LeftFootJoint{""}
 		f %MaxImpulse{0x0000C842}
 		s %PreviewMesh{""}
 		s %RightDir{"ezBasisAxis::NegativeX"}
+		s %RightFootJoint{""}
 		s %Surface{""}
 		f %UniformScaling{0x0000803F}
 		s %UpDir{"ezBasisAxis::PositiveY"}
@@ -700,7 +703,7 @@ o
 		u1 %CollisionLayer{0}
 		Quat %GizmoOffsetRotationRO{f{0xB8C30734,0xB8C307B4,0xF30435BF,0xF304353F}}
 		Vec3 %GizmoOffsetTranslationRO{f{0x0000803E,0,0xEECCCC3D}}
-		s %JointType{"ezSkeletonJointType::None"}
+		s %JointType{"ezSkeletonJointType::SwingTwist"}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		s %Name{"Bone.008"}
 		b %OverrideCollisionLayer{0}
@@ -711,7 +714,7 @@ o
 		Angle %SwingLimitZ{f{0xC2B8B23D}}
 		Transform %Transform{f{0,0x0000803E,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		Angle %TwistLimitCenterAngle{f{0}}
-		Angle %TwistLimitHalfAngle{f{0x930A063F}}
+		Angle %TwistLimitHalfAngle{f{0xC2B8B23E}}
 	}
 }
 o
@@ -818,6 +821,23 @@ o
 }
 o
 {
+	Uuid %id{u4{16959510582460493866,8962221111705621108}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezMeshImportTransform"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{13569856615221415969,9151104531254943604}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -864,7 +884,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEditableSkeleton"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o

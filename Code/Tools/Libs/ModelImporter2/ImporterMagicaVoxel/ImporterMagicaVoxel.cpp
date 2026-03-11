@@ -125,11 +125,10 @@ namespace ezModelImporter2
 
     ezMeshBufferResourceDescriptor& mb = m_Options.m_pMeshOutput->MeshBufferDesc();
 
-    const ezUInt32 uiPosStream = mb.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-    const ezUInt32 uiNrmStream = mb.AddStream(ezGALVertexAttributeSemantic::Normal, ezMeshNormalPrecision::ToResourceFormatNormal(ezMeshNormalPrecision::_10Bit));
-    const ezUInt32 uiColStream = mb.AddStream(ezGALVertexAttributeSemantic::Color0, ezGALResourceFormat::RGBAUByteNormalized);
+    mb.AddCommonStreams();
+    mb.AddStream(ezMeshVertexStreamType::Color0);
 
-    mb.AllocateStreams(positions.GetCount(), ezGALPrimitiveTopology::Triangles, indices.GetCount() / 3);
+    mb.AllocateStreams(positions.GetCount(), ezGALPrimitiveTopology::Triangles, indices.GetCount() / 3, true);
 
     // Add triangles
     ezUInt32 uiFinalTriIdx = 0;
@@ -140,11 +139,9 @@ namespace ezModelImporter2
 
     for (ezUInt32 i = 0; i < positions.GetCount(); ++i)
     {
-      mb.SetVertexData(uiPosStream, i, positions[i]);
-
-      ezMeshBufferUtils::EncodeNormal(normals[i], mb.GetVertexData(uiNrmStream, i), ezMeshNormalPrecision::_10Bit).IgnoreResult();
-
-      mb.SetVertexData(uiColStream, i, colors[i]);
+      mb.SetPosition(i, positions[i]);
+      mb.SetNormal(i, normals[i]);
+      mb.SetColor0(i, colors[i]);
     }
 
     m_Options.m_pMeshOutput->SetMaterial(0, ezMaterialResource::GetDefaultMaterialFileName(ezMaterialResource::DefaultMaterialType::Lit));

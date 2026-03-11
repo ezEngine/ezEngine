@@ -87,7 +87,7 @@ void ezParticleBehaviorFactory_Flies::Load(ezStreamReader& inout_stream)
 void ezParticleBehavior_Flies::CreateRequiredStreams()
 {
   CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
-  CreateStream("Velocity", ezProcessingStream::DataType::Float3, &m_pStreamVelocity, false);
+  CreateStream("Velocity", ezProcessingStream::DataType::Half4, &m_pStreamVelocity, false);
 
   m_TimeToChangeDir = ezTime::MakeZero();
 }
@@ -108,7 +108,7 @@ void ezParticleBehavior_Flies::Process(ezUInt64 uiNumElements)
   const float fMaxDistanceToEmitterSquared = ezMath::Square(m_fMaxEmitterDistance);
 
   ezProcessingStreamIterator<ezVec4> itPosition(m_pStreamPosition, uiNumElements, 0);
-  ezProcessingStreamIterator<ezVec3> itVelocity(m_pStreamVelocity, uiNumElements, 0);
+  ezProcessingStreamIterator<ezFloat16Vec4> itVelocity(m_pStreamVelocity, uiNumElements, 0);
 
   ezQuat qRot;
 
@@ -118,9 +118,11 @@ void ezParticleBehavior_Flies::Process(ezUInt64 uiNumElements)
 
     const ezVec3 vPartToEm = vEmitterPos - itPosition.Current().GetAsVec3();
     const float fDist = vPartToEm.GetLengthSquared();
-    const ezVec3 vVelocity = itVelocity.Current();
-    ezVec3 vDir = vVelocity;
-    vDir.NormalizeIfNotZero().IgnoreResult();
+
+    const ezVec4 vel = itVelocity.Current();
+    const ezVec3 vDir(vel.x, vel.y, vel.z);
+    const float fSpeed = vel.w;
+    const ezVec3 vVelocity = vDir * fSpeed;
 
     if (fDist > fMaxDistanceToEmitterSquared)
     {
@@ -130,11 +132,17 @@ void ezParticleBehavior_Flies::Process(ezUInt64 uiNumElements)
 
       qRot = ezQuat::MakeFromAxisAndAngle(vPivot, m_MaxSteeringAngle);
 
-      itVelocity.Current() = qRot * vVelocity;
+      const ezVec3 newVel = qRot * vVelocity;
+      const float newSpeed = newVel.GetLength();
+      const ezVec3 newDir = newSpeed > 0.0f ? newVel / newSpeed : ezVec3(0, 0, 1);
+
+      itVelocity.Current() = ezVec4(newDir.x, newDir.y, newDir.z, newSpeed);
     }
     else
     {
-      itVelocity.Current() = ezVec3::MakeRandomDeviation(GetRNG(), m_MaxSteeringAngle, vDir) * m_fSpeed;
+      const ezVec3 newDir = ezVec3::MakeRandomDeviation(GetRNG(), m_MaxSteeringAngle, vDir);
+
+      itVelocity.Current() = ezVec4(newDir.x, newDir.y, newDir.z, m_fSpeed);
     }
 
     itPosition.Advance();

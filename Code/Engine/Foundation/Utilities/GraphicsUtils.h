@@ -4,6 +4,12 @@
 
 namespace ezGraphicsUtils
 {
+  /// \brief Converts a screen-space position from pixel coordinates to normalized coordinates.
+  EZ_FOUNDATION_DLL void ConvertScreenPixelPosToNormalizedPos(const ezUInt32 uiViewportX, const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, ezVec3& inout_vPixelPos);
+
+  /// \brief Converts a screen-space position from normalized coordinates to pixel coordinates.
+  EZ_FOUNDATION_DLL void ConvertScreenNormalizedPosToPixelPos(const ezUInt32 uiViewportX, const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, ezVec3& inout_vNormalizedPos);
+
   /// \brief Projects the given point from 3D world space into screen space, if possible.
   ///
   /// \param ModelViewProjection
@@ -21,6 +27,10 @@ namespace ezGraphicsUtils
     const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, const ezVec3& vPoint, ezVec3& out_vScreenPos,
     ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default); // [tested]
 
+  /// \brief Overload of ConvertWorldPosToScreenPos() that returns the screen position in normalized space ([0; 1] range) and therefore doesn't require the viewport dimensions.
+  EZ_FOUNDATION_DLL ezResult ConvertWorldPosToScreenPos(const ezMat4& mModelViewProjection, const ezVec3& vPoint, ezVec3& out_vScreenPosNormalized,
+    ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default); // [tested]
+
   /// \brief Takes the screen space position (including depth in [0;1] range) and converts it into a world space position.
   ///
   /// \param InverseModelViewProjection
@@ -36,27 +46,35 @@ namespace ezGraphicsUtils
   /// but for orthographic cameras it is not (it's simply the forward vector of the camera).
   /// This function handles both cases properly.
   ///
-  /// The z value of vScreenPos is always expected to be in [0; 1] range (meaning 0 is at the near plane, 1 at the far plane),
+  /// The z value of vScreenPixelPos is always expected to be in [0; 1] range (meaning 0 is at the near plane, 1 at the far plane),
   /// even on platforms that use [-1; +1] range for clip-space z values. The DepthRange parameter needs to be correct to handle this case
   /// properly.
+  ///
+  /// vScreenPixelPos is expected to be in range [viewport x/y; viewport width/height]. There is an overload below that takes just a normalized value
+  /// in range [0; 1].
   EZ_FOUNDATION_DLL ezResult ConvertScreenPosToWorldPos(const ezMat4& mInverseModelViewProjection, const ezUInt32 uiViewportX,
-    const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, const ezVec3& vScreenPos, ezVec3& out_vPoint,
-    ezVec3* out_pDirection = nullptr,
-    ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default); // [tested]
+    const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, const ezVec3& vScreenPixelPos, ezVec3& out_vPoint,
+    ezVec3* out_pDirection = nullptr, ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default); // [tested]
+
+  /// \brief Overload of ConvertScreenPosToWorldPos() that takes the coordinate in normalized space ([0; 1]) and therefore doesn't require the viewport dimensions.
+  EZ_FOUNDATION_DLL ezResult ConvertScreenPosToWorldPos(const ezMat4& mInverseModelViewProjection, const ezVec3& vNormalizedScreenPos, ezVec3& out_vPoint,
+    ezVec3* out_pDirection = nullptr, ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default); // [tested]
 
   /// \brief A double-precision version of ConvertScreenPosToWorldPos()
   EZ_FOUNDATION_DLL ezResult ConvertScreenPosToWorldPos(const ezMat4d& mInverseModelViewProjection, const ezUInt32 uiViewportX,
-    const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, const ezVec3& vScreenPos, ezVec3& out_vPoint,
-    ezVec3* out_pDirection = nullptr,
-    ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default); // [tested]
+    const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, const ezVec3& vScreenPixelPos, ezVec3& out_vPoint,
+    ezVec3* out_pDirection = nullptr, ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default); // [tested]
+
+  /// \brief Double-precision overload of ConvertScreenPosToWorldPos() that takes the coordinate in normalized space ([0; 1]) and therefore doesn't require the viewport dimensions.
+  EZ_FOUNDATION_DLL ezResult ConvertScreenPosToWorldPos(const ezMat4d& mInverseModelViewProjection, const ezVec3& vNormalizedScreenPos,
+    ezVec3& out_vPoint, ezVec3* out_pDirection = nullptr, ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default); // [tested]
 
   /// \brief Checks whether the given transformation matrix would change the winding order of a triangle's vertices and thus requires that
   /// the vertex order gets reversed to compensate.
   EZ_FOUNDATION_DLL bool IsTriangleFlipRequired(const ezMat3& mTransformation);
 
   /// \brief Converts a projection or view-projection matrix from one depth-range convention to another
-  EZ_FOUNDATION_DLL void ConvertProjectionMatrixDepthRange(
-    ezMat4& inout_mMatrix, ezClipSpaceDepthRange::Enum srcDepthRange, ezClipSpaceDepthRange::Enum dstDepthRange); // [tested]
+  EZ_FOUNDATION_DLL void ConvertProjectionMatrixDepthRange(ezMat4& inout_mMatrix, ezClipSpaceDepthRange::Enum srcDepthRange, ezClipSpaceDepthRange::Enum dstDepthRange); // [tested]
 
   /// \brief Retrieves the horizontal and vertical field-of-view angles from the perspective matrix.
   ///
@@ -140,37 +158,30 @@ namespace ezGraphicsUtils
   /// \brief Returns a look-at matrix (only direction, no translation).
   ///
   /// Since this only creates a rotation matrix, vTarget can be interpreted both as a position or a direction.
-  EZ_FOUNDATION_DLL ezMat3 CreateLookAtViewMatrix(
-    const ezVec3& vTarget, const ezVec3& vUpDir, ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
+  EZ_FOUNDATION_DLL ezMat3 CreateLookAtViewMatrix(const ezVec3& vTarget, const ezVec3& vUpDir, ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
 
   /// \brief Same as CreateLookAtViewMatrix() but returns the inverse matrix
-  EZ_FOUNDATION_DLL ezMat3 CreateInverseLookAtViewMatrix(
-    const ezVec3& vTarget, const ezVec3& vUpDir, ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
-
+  EZ_FOUNDATION_DLL ezMat3 CreateInverseLookAtViewMatrix(const ezVec3& vTarget, const ezVec3& vUpDir, ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
 
   /// \brief Returns a look-at matrix with both rotation and translation
   EZ_FOUNDATION_DLL ezMat4 CreateLookAtViewMatrix(const ezVec3& vEyePos, const ezVec3& vLookAtPos, const ezVec3& vUpDir,
     ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
 
   /// \brief Same as CreateLookAtViewMatrix() but returns the inverse matrix
-  EZ_FOUNDATION_DLL ezMat4 CreateInverseLookAtViewMatrix(const ezVec3& vEyePos, const ezVec3& vLookAtPos, const ezVec3& vUpDir,
-    ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
+  EZ_FOUNDATION_DLL ezMat4 CreateInverseLookAtViewMatrix(const ezVec3& vEyePos, const ezVec3& vLookAtPos, const ezVec3& vUpDir, ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
 
   /// \brief Creates a view matrix from the given camera vectors.
   ///
   /// The vectors are put into the appropriate matrix rows and depending on the handedness negated where necessary.
-  EZ_FOUNDATION_DLL ezMat4 CreateViewMatrix(const ezVec3& vPosition, const ezVec3& vForwardDir, const ezVec3& vRightDir, const ezVec3& vUpDir,
-    ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
+  EZ_FOUNDATION_DLL ezMat4 CreateViewMatrix(const ezVec3& vPosition, const ezVec3& vForwardDir, const ezVec3& vRightDir, const ezVec3& vUpDir, ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
 
   /// \brief Similar to CreateViewMatrix() but creates the inverse matrix.
-  EZ_FOUNDATION_DLL ezMat4 CreateInverseViewMatrix(const ezVec3& vPosition, const ezVec3& vForwardDir, const ezVec3& vRightDir, const ezVec3& vUpDir,
-    ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
+  EZ_FOUNDATION_DLL ezMat4 CreateInverseViewMatrix(const ezVec3& vPosition, const ezVec3& vForwardDir, const ezVec3& vRightDir, const ezVec3& vUpDir, ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
 
   /// \brief Extracts the forward, right and up dir and camera position from the given view matrix.
   ///
   /// The handedness should be the same as used in CreateViewMatrix() or CreateLookAtViewMatrix().
-  EZ_FOUNDATION_DLL void DecomposeViewMatrix(ezVec3& out_vPosition, ezVec3& out_vForwardDir, ezVec3& out_vRightDir, ezVec3& out_vUpDir,
-    const ezMat4& mViewMatrix, ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
+  EZ_FOUNDATION_DLL void DecomposeViewMatrix(ezVec3& out_vPosition, ezVec3& out_vForwardDir, ezVec3& out_vRightDir, ezVec3& out_vUpDir, const ezMat4& mViewMatrix, ezHandedness::Enum handedness = ezHandedness::Default); // [tested]
 
   /// \brief Computes the barycentric coordinates of a point in a 3D triangle.
   ///

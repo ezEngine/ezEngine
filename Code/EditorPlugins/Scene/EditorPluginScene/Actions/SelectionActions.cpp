@@ -33,7 +33,10 @@ ezActionDescriptorHandle ezSelectionActions::s_hDetachFromParent;
 ezActionDescriptorHandle ezSelectionActions::s_hConvertToEnginePrefab;
 ezActionDescriptorHandle ezSelectionActions::s_hConvertToEditorPrefab;
 ezActionDescriptorHandle ezSelectionActions::s_hCopyReference;
-
+ezActionDescriptorHandle ezSelectionActions::s_hSelectParent;
+ezActionDescriptorHandle ezSelectionActions::s_hSetActiveParent;
+ezActionDescriptorHandle ezSelectionActions::s_hClearActiveParent;
+ezActionDescriptorHandle ezSelectionActions::s_hUndoSelection;
 
 
 void ezSelectionActions::RegisterActions()
@@ -42,6 +45,8 @@ void ezSelectionActions::RegisterActions()
     ezSelectionAction::ActionType::GroupSelectedItems);
   s_hCreateEmptyChildObject = EZ_REGISTER_ACTION_1("Selection.CreateEmptyChildObject", ezActionScope::Document, "Scene - Selection", "",
     ezSelectionAction, ezSelectionAction::ActionType::CreateEmptyChildObject);
+  s_hSelectParent = EZ_REGISTER_ACTION_1("Selection.SelectParent", ezActionScope::Document, "Scene - Selection", "Ctrl+Q",
+    ezSelectionAction, ezSelectionAction::ActionType::SelectParent);
   s_hCreateEmptyObjectAtPosition = EZ_REGISTER_ACTION_1("Selection.CreateEmptyObjectAtPosition", ezActionScope::Document, "Scene - Selection",
     "Ctrl+Shift+X", ezSelectionAction, ezSelectionAction::ActionType::CreateEmptyObjectAtPosition);
   s_hHideSelectedObjects = EZ_REGISTER_ACTION_1(
@@ -77,6 +82,11 @@ void ezSelectionActions::RegisterActions()
     "Scene.Camera.SnapObjectToCamera", ezActionScope::Document, "Camera", "", ezSelectionAction, ezSelectionAction::ActionType::SnapObjectToCamera);
   s_hCopyReference = EZ_REGISTER_ACTION_1(
     "Selection.CopyReference", ezActionScope::Document, "Scene - Selection", "", ezSelectionAction, ezSelectionAction::ActionType::CopyReference);
+
+  s_hSetActiveParent = EZ_REGISTER_ACTION_1("Selection.SetActiveParent", ezActionScope::Document, "Scene - Selection", "Ctrl+Shift+A", ezSelectionAction, ezSelectionAction::ActionType::SetActiveParent);
+  s_hClearActiveParent = EZ_REGISTER_ACTION_1("Selection.ClearActiveParent", ezActionScope::Document, "Scene - Selection", "Ctrl+Shift+C", ezSelectionAction, ezSelectionAction::ActionType::ClearActiveParent);
+
+  s_hUndoSelection = EZ_REGISTER_ACTION_1("Selection.UndoSelection", ezActionScope::Document, "Scene - Selection", "Ctrl+B", ezSelectionAction, ezSelectionAction::ActionType::UndoSelection);
 }
 
 void ezSelectionActions::UnregisterActions()
@@ -100,6 +110,10 @@ void ezSelectionActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hConvertToEditorPrefab);
   ezActionManager::UnregisterAction(s_hConvertToEnginePrefab);
   ezActionManager::UnregisterAction(s_hCopyReference);
+  ezActionManager::UnregisterAction(s_hSelectParent);
+  ezActionManager::UnregisterAction(s_hSetActiveParent);
+  ezActionManager::UnregisterAction(s_hClearActiveParent);
+  ezActionManager::UnregisterAction(s_hUndoSelection);
 }
 
 void ezSelectionActions::MapActions(ezStringView sMapping)
@@ -110,6 +124,7 @@ void ezSelectionActions::MapActions(ezStringView sMapping)
   pMap->MapAction(s_hCreateEmptyChildObject, "G.Selection", 1.0f);
   pMap->MapAction(s_hCreateEmptyObjectAtPosition, "G.Selection", 1.1f);
   pMap->MapAction(s_hGroupSelectedItems, "G.Selection", 3.7f);
+  pMap->MapAction(s_hSelectParent, "G.Selection", 3.8f);
   pMap->MapAction(s_hHideSelectedObjects, "G.Selection", 4.0f);
   pMap->MapAction(s_hHideUnselectedObjects, "G.Selection", 5.0f);
   pMap->MapAction(s_hShowHiddenObjects, "G.Selection", 6.0f);
@@ -119,6 +134,9 @@ void ezSelectionActions::MapActions(ezStringView sMapping)
   pMap->MapAction(s_hDetachFromParent, "G.Selection", 7.3f);
   pMap->MapAction(s_hSnapObjectToCamera, "G.Selection", 9.0f);
   pMap->MapAction(s_hCopyReference, "G.Selection", 10.0f);
+  pMap->MapAction(s_hSetActiveParent, "G.Selection", 11.0f);
+  pMap->MapAction(s_hClearActiveParent, "G.Selection", 12.0f);
+  pMap->MapAction(s_hUndoSelection, "CmdHistoryCategory", 13.0f);
 
   MapPrefabActions(sMapping, 0.0f);
 }
@@ -145,27 +163,32 @@ void ezSelectionActions::MapContextMenuActions(ezStringView sMapping)
 
   pMap->MapAction(s_hCreateEmptyChildObject, "G.Selection", 0.5f);
   pMap->MapAction(s_hGroupSelectedItems, "G.Selection", 2.0f);
+  pMap->MapAction(s_hSelectParent, "G.Selection", 2.5f);
   pMap->MapAction(s_hHideSelectedObjects, "G.Selection", 3.0f);
   pMap->MapAction(s_hDetachFromParent, "G.Selection", 3.2f);
   pMap->MapAction(s_hCopyReference, "G.Selection", 4.0f);
+  pMap->MapAction(s_hSetActiveParent, "G.Selection", 11.0f);
+  pMap->MapAction(s_hClearActiveParent, "G.Selection", 12.0f);
 
   MapPrefabActions(sMapping, 4.0f);
 }
-
 
 void ezSelectionActions::MapViewContextMenuActions(ezStringView sMapping)
 {
   ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
   EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
+  pMap->MapAction(s_hCreateEmptyObjectAtPosition, "G.Selection", 1.0f);
   pMap->MapAction(s_hGroupSelectedItems, "G.Selection", 2.0f);
-  pMap->MapAction(s_hHideSelectedObjects, "G.Selection", 3.0f);
-  pMap->MapAction(s_hAttachToObject, "G.Selection", 3.1f);
-  pMap->MapAction(s_hDetachFromParent, "G.Selection", 3.2f);
-  pMap->MapAction(s_hSnapObjectToCamera, "G.Selection", 5.0f);
-  pMap->MapAction(s_hCopyReference, "G.Selection", 6.0f);
+  pMap->MapAction(s_hSelectParent, "G.Selection", 3.0f);
+  pMap->MapAction(s_hHideSelectedObjects, "G.Selection", 4.0f);
+  pMap->MapAction(s_hAttachToObject, "G.Selection", 5.0f);
+  pMap->MapAction(s_hDetachFromParent, "G.Selection", 6.0f);
+  pMap->MapAction(s_hSnapObjectToCamera, "G.Selection", 7.0f);
+  pMap->MapAction(s_hCopyReference, "G.Selection", 10.0f);
 
-  MapPrefabActions(sMapping, 7.0f);
+
+  MapPrefabActions(sMapping, 12.0f);
 }
 
 ezSelectionAction::ezSelectionAction(const ezActionContext& context, const char* szName, ezSelectionAction::ActionType type)
@@ -211,25 +234,37 @@ ezSelectionAction::ezSelectionAction(const ezActionContext& context, const char*
       SetIconPath(":/EditorPluginScene/Icons/Duplicate.svg");
       break;
     case ActionType::DeltaTransform:
-      // SetIconPath(":/EditorPluginScene/Icons/Duplicate.svg"); // TODO Icon
+      // SetIconPath(":/EditorPluginScene/Icons/DeltaTransform.svg"); // TODO Icon
       break;
     case ActionType::SnapObjectToCamera:
-      // SetIconPath(":/EditorPluginScene/Icons/Duplicate.svg"); // TODO Icon
+      // SetIconPath(":/EditorPluginScene/Icons/SnapToCamera.svg"); // TODO Icon
       break;
     case ActionType::AttachToObject:
-      // SetIconPath(":/EditorPluginScene/Icons/Duplicate.svg"); // TODO Icon
+      // SetIconPath(":/EditorPluginScene/Icons/Attach.svg"); // TODO Icon
       break;
     case ActionType::DetachFromParent:
-      // SetIconPath(":/EditorPluginScene/Icons/Duplicate.svg"); // TODO Icon
+      // SetIconPath(":/EditorPluginScene/Icons/Detach.svg"); // TODO Icon
       break;
     case ActionType::ConvertToEditorPrefab:
-      // SetIconPath(":/EditorPluginScene/PrefabRevert.png"); // TODO Icon
+      // SetIconPath(":/EditorPluginScene/ToEditorPrefab.png"); // TODO Icon
       break;
     case ActionType::ConvertToEnginePrefab:
-      // SetIconPath(":/EditorPluginScene/PrefabRevert.png"); // TODO Icon
+      // SetIconPath(":/EditorPluginScene/ToEnginePrefab.png"); // TODO Icon
       break;
     case ActionType::CopyReference:
-      // SetIconPath(":/EditorPluginScene/PrefabRevert.png"); // TODO Icon
+      SetIconPath(":/EditorFramework/Icons/id.svg");
+      break;
+    case ActionType::SelectParent:
+      SetIconPath(":/EditorPluginScene/Icons/SelectParent.svg");
+      break;
+    case ActionType::SetActiveParent:
+      // SetIconPath(":/EditorPluginScene/Icons/SelectParent.svg"); // TODO Icon
+      break;
+    case ActionType::ClearActiveParent:
+      // SetIconPath(":/EditorPluginScene/Icons/SelectParent.svg"); // TODO Icon
+      break;
+    case ActionType::UndoSelection:
+      // SetIconPath(":/EditorPluginScene/Icons/SelectParent.svg"); // TODO Icon
       break;
   }
 
@@ -253,13 +288,13 @@ void ezSelectionAction::Execute(const ezVariant& value)
       return;
     case ActionType::CreateEmptyChildObject:
     {
-      auto res = m_pSceneDocument->CreateEmptyObject(true, false);
+      auto res = m_pSceneDocument->CreateEmptyObject(true, false, false);
       ezQtUiServices::MessageBoxStatus(res, "Object creation failed.");
       return;
     }
     case ActionType::CreateEmptyObjectAtPosition:
     {
-      auto res = m_pSceneDocument->CreateEmptyObject(false, true);
+      auto res = m_pSceneDocument->CreateEmptyObject(false, true, true);
       ezQtUiServices::MessageBoxStatus(res, "Object creation failed.");
       return;
     }
@@ -284,10 +319,10 @@ void ezSelectionAction::Execute(const ezVariant& value)
       if (ezQtUiServices::MessageBoxQuestion("Discard all modifications to the selected prefabs and revert to the prefab template state?",
             QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No) == QMessageBox::StandardButton::Yes)
       {
-        ezHybridArray<ezSelectionEntry, 64> selection;
+        ezTempHybridArray<ezSelectionEntry, 64> selection;
         m_pSceneDocument->GetSelectionManager()->GetTopLevelSelectionOfType(ezGetStaticRTTI<ezGameObject>(), selection);
 
-        ezHybridArray<const ezDocumentObject*, 64> selection2;
+        ezTempHybridArray<const ezDocumentObject*, 64> selection2;
         selection2.SetCount(selection.GetCount());
         for (ezUInt32 i = 0; i < selection.GetCount(); ++i)
         {
@@ -304,10 +339,10 @@ void ezSelectionAction::Execute(const ezVariant& value)
       if (ezQtUiServices::MessageBoxQuestion("Unlink the selected prefab instances from their templates?",
             QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No) == QMessageBox::StandardButton::Yes)
       {
-        ezHybridArray<ezSelectionEntry, 64> selection;
+        ezTempHybridArray<ezSelectionEntry, 64> selection;
         m_pSceneDocument->GetSelectionManager()->GetTopLevelSelectionOfType(ezGetStaticRTTI<ezGameObject>(), selection);
 
-        ezHybridArray<const ezDocumentObject*, 64> selection2;
+        ezTempHybridArray<const ezDocumentObject*, 64> selection2;
         selection2.SetCount(selection.GetCount());
         for (ezUInt32 i = 0; i < selection.GetCount(); ++i)
         {
@@ -348,10 +383,10 @@ void ezSelectionAction::Execute(const ezVariant& value)
 
     case ActionType::ConvertToEditorPrefab:
     {
-      ezHybridArray<ezSelectionEntry, 64> selection;
+      ezTempHybridArray<ezSelectionEntry, 64> selection;
       m_pSceneDocument->GetSelectionManager()->GetTopLevelSelectionOfType(ezGetStaticRTTI<ezGameObject>(), selection);
 
-      ezHybridArray<const ezDocumentObject*, 64> selection2;
+      ezTempHybridArray<const ezDocumentObject*, 64> selection2;
       selection2.SetCount(selection.GetCount());
       for (ezUInt32 i = 0; i < selection.GetCount(); ++i)
       {
@@ -367,10 +402,10 @@ void ezSelectionAction::Execute(const ezVariant& value)
       if (ezQtUiServices::MessageBoxQuestion("Discard all modifications to the selected prefabs and convert them to engine prefabs?",
             QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No) == QMessageBox::StandardButton::Yes)
       {
-        ezHybridArray<ezSelectionEntry, 64> selection;
+        ezTempHybridArray<ezSelectionEntry, 64> selection;
         m_pSceneDocument->GetSelectionManager()->GetTopLevelSelectionOfType(ezGetStaticRTTI<ezGameObject>(), selection);
 
-        ezHybridArray<const ezDocumentObject*, 64> selection2;
+        ezTempHybridArray<const ezDocumentObject*, 64> selection2;
         selection2.SetCount(selection.GetCount());
         for (ezUInt32 i = 0; i < selection.GetCount(); ++i)
         {
@@ -381,6 +416,30 @@ void ezSelectionAction::Execute(const ezVariant& value)
       }
     }
     break;
+
+    case ActionType::SelectParent:
+    {
+      m_pSceneDocument->SelectParentObject();
+      return;
+    }
+
+    case ActionType::SetActiveParent:
+    {
+      m_pSceneDocument->SetSelectedAsActiveParent();
+      return;
+    }
+
+    case ActionType::ClearActiveParent:
+    {
+      m_pSceneDocument->ClearActiveParent();
+      return;
+    }
+
+    case ActionType::UndoSelection:
+    {
+      m_pSceneDocument->UndoSelection();
+      return;
+    }
   }
 }
 
@@ -459,23 +518,37 @@ void ezSelectionAction::UpdateEnableState()
   {
     SetEnabled(!m_Context.m_pDocument->GetSelectionManager()->IsSelectionEmpty());
   }
-
-  if (m_Type == ActionType::GroupSelectedItems)
+  else if (m_Type == ActionType::GroupSelectedItems)
   {
     SetEnabled(m_Context.m_pDocument->GetSelectionManager()->GetSelection().GetCount() > 1);
   }
-
-  if (m_Type == ActionType::CreateEmptyChildObject)
+  else if (m_Type == ActionType::CreateEmptyChildObject)
   {
     SetEnabled(m_Context.m_pDocument->GetSelectionManager()->GetSelection().GetCount() <= 1);
   }
-
-  if (m_Type == ActionType::CopyReference)
+  else if (m_Type == ActionType::CopyReference)
   {
     SetEnabled(m_Context.m_pDocument->GetSelectionManager()->GetSelection().GetCount() == 1);
   }
-
-  if (m_Type == ActionType::OpenPrefabDocument)
+  else if (m_Type == ActionType::SelectParent)
+  {
+    SetEnabled(m_Context.m_pDocument->GetSelectionManager()->GetSelection().GetCount() == 1);
+  }
+  else if (m_Type == ActionType::SetActiveParent)
+  {
+    SetEnabled(m_Context.m_pDocument->GetSelectionManager()->GetSelection().GetCount() >= 1);
+  }
+  else if (m_Type == ActionType::ClearActiveParent)
+  {
+    const ezSceneDocument* pScene = static_cast<const ezSceneDocument*>(m_Context.m_pDocument);
+    SetEnabled(pScene->GetActiveParent().IsValid());
+  }
+  else if (m_Type == ActionType::UndoSelection)
+  {
+    const ezSceneDocument* pScene = static_cast<const ezSceneDocument*>(m_Context.m_pDocument);
+    SetEnabled(pScene->CanUndoSelection());
+  }
+  else if (m_Type == ActionType::OpenPrefabDocument)
   {
     const auto& sel = m_Context.m_pDocument->GetSelectionManager()->GetSelection();
 
@@ -491,9 +564,8 @@ void ezSelectionAction::UpdateEnableState()
     SetEnabled(bIsPrefab);
     return;
   }
-
-  if (m_Type == ActionType::RevertPrefab || m_Type == ActionType::UnlinkFromPrefab || m_Type == ActionType::ConvertToEnginePrefab ||
-      m_Type == ActionType::CreatePrefab)
+  else if (m_Type == ActionType::RevertPrefab || m_Type == ActionType::UnlinkFromPrefab || m_Type == ActionType::ConvertToEnginePrefab ||
+           m_Type == ActionType::CreatePrefab)
   {
     const auto& sel = m_Context.m_pDocument->GetSelectionManager()->GetSelection();
 
@@ -517,8 +589,7 @@ void ezSelectionAction::UpdateEnableState()
 
     SetEnabled(bIsPrefab == bShouldBePrefab);
   }
-
-  if (m_Type == ActionType::ConvertToEditorPrefab)
+  else if (m_Type == ActionType::ConvertToEditorPrefab)
   {
     const auto& sel = m_Context.m_pDocument->GetSelectionManager()->GetSelection();
 

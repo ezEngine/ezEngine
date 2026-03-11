@@ -111,6 +111,23 @@ struct EZ_FOUNDATION_DLL ezDiffOperation
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezDiffOperation);
 
 
+/// \brief An intermediate representation for serializing/deserializing reflected objects.
+///
+/// The AbstractObjectGraph represents objects and their properties in a type-independent way,
+/// allowing for versioning, patching, and format conversion. It serves as the core of ezEngine's
+/// serialization system and enables advanced features like:
+///
+/// - Cross-format serialization (DDL, binary, JSON)
+/// - Type versioning and migration
+/// - Graph diffing and merging
+/// - Prefab instantiation and overrides
+/// - Undo/redo systems
+///
+/// Structure:
+/// - Graph contains nodes (ezAbstractObjectNode) identified by GUIDs
+/// - Each node has a type name, version, and properties
+/// - Properties store values as ezVariant (including object references)
+/// - References between objects are stored as GUIDs
 class EZ_FOUNDATION_DLL ezAbstractObjectGraph
 {
 public:
@@ -154,8 +171,12 @@ public:
   /// \brief Deletes everything not accessible by the given root node.
   void PruneGraph(const ezUuid& rootGuid);
 
-  /// \brief Allows for a given node to be modified as a native object.
-  /// Once the callback exits any changes to the sub-hierarchy of the given root node will be written back to the node objects.
+  /// \brief Allows a node to be modified as a native object and automatically syncs changes back.
+  ///
+  /// This temporarily converts the node (and its sub-hierarchy) to native objects, calls the provided
+  /// callback to allow modifications, then converts the modified objects back to the graph representation.
+  /// This is useful for applying complex modifications that are easier to implement on native objects.
+  /// Changes to the object hierarchy (adding/removing children) will be reflected in the graph.
   void ModifyNodeViaNativeCounterpart(ezAbstractObjectNode* pRootNode, ezDelegate<void(void*, const ezRTTI*)> callback);
 
   /// \brief Allows to copy a node from another graph into this graph.

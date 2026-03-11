@@ -54,7 +54,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
 
   ezStringBuilder sOutputFolder1 = ezTestFramework::GetInstance()->GetAbsOutputPath();
 
-  EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder1.GetData(), "test", "output", ezFileSystem::AllowWrites) == EZ_SUCCESS);
+  EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder1.GetData(), "test", "output", ezDataDirUsage::AllowWrites) == EZ_SUCCESS);
 
   // Delete all cvar setting files
   {
@@ -87,7 +87,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SaveCVarsToFile and LoadCVarsFromFile again")
   {
     const char* cvarConfigFileDir = ezTestFramework::GetInstance()->GetAbsOutputPath();
-    EZ_TEST_BOOL_MSG(ezFileSystem::AddDataDirectory(cvarConfigFileDir, "CVarsTest", "CVarConfigTempDir", ezFileSystem::AllowWrites) == EZ_SUCCESS, "Failed to mount data dir '%s'", cvarConfigFileDir);
+    EZ_TEST_BOOL_MSG(ezFileSystem::AddDataDirectory(cvarConfigFileDir, "CVarsTest", "CVarConfigTempDir", ezDataDirUsage::AllowWrites) == EZ_SUCCESS, "Failed to mount data dir '%s'", cvarConfigFileDir);
     ezStringView cvarConfigFile = ":CVarConfigTempDir/CVars.cfg";
 
     ezCVarInt testCVarInt("testCVarInt", 0, ezCVarFlags::Default, "Test");

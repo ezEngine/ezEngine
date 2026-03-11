@@ -95,6 +95,10 @@ public:
 
             int64_t tcpu0 = Profiler::GetTime();
             WaitForQuery(m_disjointQuery);
+            // NOTE: one would expect that by waiting for the enclosing disjoint query to finish,
+            // all timestamp queries within would also be readily available, but that does not
+            // seem to be the case here... See https://github.com/wolfpld/tracy/issues/947
+            WaitForQuery(m_queries[0]);
             int64_t tcpu1 = Profiler::GetTime();
 
             D3D11_QUERY_DATA_TIMESTAMP_DISJOINT disjoint = { };
@@ -109,7 +113,7 @@ public:
 
             UINT64 timestamp = 0;
             if (m_immediateDevCtx->GetData(m_queries[0], &timestamp, sizeof(timestamp), 0) != S_OK)
-                continue;   // this should never happen, since the enclosing disjoint query succeeded
+                continue;   // this should never happen (we waited for the query to finish above)
 
             tcpu = tcpu0 + (tcpu1 - tcpu0) * 1 / 2;
             tgpu = timestamp * (1000000000 / disjoint.Frequency);
@@ -307,13 +311,21 @@ public:
         WriteQueueItem(item, QueueType::GpuZoneBeginSerial, reinterpret_cast<uint64_t>(srcloc));
     }
 
-    tracy_force_inline D3D11ZoneScope( D3D11Ctx* ctx, const SourceLocationData* srcloc, int depth, bool active )
+    tracy_force_inline D3D11ZoneScope( D3D11Ctx* ctx, const SourceLocationData* srcloc, int32_t depth, bool active )
         : D3D11ZoneScope(ctx, active)
     {
         if( !m_active ) return;
 
-        auto* item = Profiler::QueueSerialCallstack(Callstack(depth));
-        WriteQueueItem(item, QueueType::GpuZoneBeginCallstackSerial, reinterpret_cast<uint64_t>(srcloc));
+        if( depth > 0 && has_callstack() )
+        {
+            auto* item = Profiler::QueueSerialCallstack(Callstack(depth));
+            WriteQueueItem(item, QueueType::GpuZoneBeginCallstackSerial, reinterpret_cast<uint64_t>(srcloc));
+        }
+        else
+        {
+            auto* item = Profiler::QueueSerial();
+            WriteQueueItem(item, QueueType::GpuZoneBeginSerial, reinterpret_cast<uint64_t>(srcloc));
+        }
     }
 
     tracy_force_inline D3D11ZoneScope(D3D11Ctx* ctx, uint32_t line, const char* source, size_t sourceSz, const char* function, size_t functionSz, const char* name, size_t nameSz, bool active)
@@ -327,15 +339,23 @@ public:
         WriteQueueItem(item, QueueType::GpuZoneBeginAllocSrcLocSerial, sourceLocation);
     }
 
-    tracy_force_inline D3D11ZoneScope(D3D11Ctx* ctx, uint32_t line, const char* source, size_t sourceSz, const char* function, size_t functionSz, const char* name, size_t nameSz, int depth, bool active)
+    tracy_force_inline D3D11ZoneScope(D3D11Ctx* ctx, uint32_t line, const char* source, size_t sourceSz, const char* function, size_t functionSz, const char* name, size_t nameSz, int32_t depth, bool active)
         : D3D11ZoneScope(ctx, active)
     {
         if( !m_active ) return;
 
         const auto sourceLocation = Profiler::AllocSourceLocation(line, source, sourceSz, function, functionSz, name, nameSz);
 
-        auto* item = Profiler::QueueSerialCallstack(Callstack(depth));
-        WriteQueueItem(item, QueueType::GpuZoneBeginAllocSrcLocCallstackSerial, sourceLocation);
+        if ( depth > 0 && has_callstack() )
+        {
+            auto* item = Profiler::QueueSerialCallstack(Callstack(depth));
+            WriteQueueItem(item, QueueType::GpuZoneBeginAllocSrcLocCallstackSerial, sourceLocation);
+        }
+        else
+        {
+            auto* item = Profiler::QueueSerial();
+            WriteQueueItem(item, QueueType::GpuZoneBeginAllocSrcLocSerial, sourceLocation);
+        }
     }
 
     tracy_force_inline ~D3D11ZoneScope()
@@ -357,7 +377,7 @@ public:
 private:
     tracy_force_inline D3D11ZoneScope( D3D11Ctx* ctx, bool active )
 #ifdef TRACY_ON_DEMAND
-        : m_active( is_active && GetProfiler().IsConnected() )
+        : m_active( active && GetProfiler().IsConnected() )
 #else
         : m_active( active )
 #endif

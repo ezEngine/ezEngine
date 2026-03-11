@@ -9,7 +9,7 @@ EZ_MAKE_MEMBERFUNCTION_CHECKER(Reallocate, ezHasReallocate);
 
 #include <Foundation/Memory/Implementation/AllocatorMixin_inl.h>
 
-/// \brief Policy based allocator implementation of the ezAllocator interface.
+/// \brief Policy-based allocator that combines allocation strategies with tracking modes.
 ///
 /// AllocationPolicy defines how the actual memory is allocated.\n
 /// TrackingFlags defines how stats about allocations are tracked.\n

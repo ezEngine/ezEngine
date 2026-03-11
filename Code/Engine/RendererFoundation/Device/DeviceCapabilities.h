@@ -36,6 +36,19 @@ struct ezGALResourceFormatSupport
 };
 EZ_DECLARE_FLAGS_OPERATORS(ezGALResourceFormatSupport);
 
+struct ezGALBufferLayout
+{
+  using StorageType = ezUInt8;
+  enum Enum
+  {
+    Vulkan_Std140_relaxed, // Vulkan uniform buffer
+    Vulkan_Std430_relaxed, // Vulkan structured buffer
+    DirectX_ConstantButter,
+    DirectX_StructuredButter,
+    Default = DirectX_ConstantButter
+  };
+};
+
 /// \brief This struct holds information about the rendering device capabilities (e.g. what shader stages are supported and more)
 /// To get the device capabilities you need to call the GetCapabilities() function on an ezGALDevice object.
 struct EZ_RENDERERFOUNDATION_DLL ezGALDeviceCapabilities
@@ -48,32 +61,23 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALDeviceCapabilities
   bool m_bHardwareAccelerated = false;
 
   // General capabilities
-  bool m_bMultithreadedResourceCreation = false; ///< whether creating resources is allowed on other threads than the main thread
-  bool m_bNoOverwriteBufferUpdate = false;
+  bool m_bSupportsMultithreadedResourceCreation = false; ///< whether creating resources is allowed on other threads than the main thread
+  bool m_bSupportsMultipleBindGroups = false;
+  ezEnum<ezGALBufferLayout> m_materialBufferLayout;
 
   // Draw related capabilities
   bool m_bShaderStageSupported[ezGALShaderStage::ENUM_COUNT] = {};
-  bool m_bInstancing = false;
-  bool m_b32BitIndices = false;
-  bool m_bIndirectDraw = false;
-  bool m_bConservativeRasterization = false;
-  bool m_bVertexShaderRenderTargetArrayIndex = false;
-  ezUInt16 m_uiMaxConstantBuffers = 0;
+  bool m_bSupportsIndirectDraw = false;
+  bool m_bSupportsConservativeRasterization = false;
+  bool m_bSupportsWireframe = false;
+  bool m_bSupportsVSRenderTargetArrayIndex = false;
+  bool m_bSupportsTexelBuffer = false; ///< Whether ezGALBufferUsageFlags::TexelBuffer is supported. Hardcoded per platform as it must match SUPPORTS_TEXEL_BUFFER shader define.
+  bool m_bSupportsMultipleSRVTypes = true; ///< Whether more than one of ezGALBufferUsageFlags::StructuredBuffer, ezGALBufferUsageFlags::TexelBuffer and ezGALBufferUsageFlags::ByteAddressBuffer is supported on a buffer.
+  bool m_bSupportsMultiSampledArrays = false;
   ezUInt16 m_uiMaxPushConstantsSize = 0;
 
 
   // Texture related capabilities
-  bool m_bTextureArrays = false;
-  bool m_bCubemapArrays = false;
-  bool m_bSharedTextures = false;
-  ezUInt16 m_uiMaxTextureDimension = 0;
-  ezUInt16 m_uiMaxCubemapDimension = 0;
-  ezUInt16 m_uiMax3DTextureDimension = 0;
-  ezUInt16 m_uiMaxAnisotropy = 0;
+  bool m_bSupportsSharedTextures = false;
   ezDynamicArray<ezBitflags<ezGALResourceFormatSupport>> m_FormatSupport;
-
-  // Output related capabilities
-  ezUInt16 m_uiMaxRendertargets = 0;
-  ezUInt16 m_uiUAVCount = 0;
-  bool m_bAlphaToCoverage = false;
 };

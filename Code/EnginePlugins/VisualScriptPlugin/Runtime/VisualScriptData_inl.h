@@ -30,9 +30,14 @@ EZ_FORCE_INLINE ezVisualScriptDataDescription::DataOffset ezVisualScriptDataDesc
 
 //////////////////////////////////////////////////////////////////////////
 
+EZ_ALWAYS_INLINE const ezVisualScriptDataDescription& ezVisualScriptDataStorage::GetDesc() const
+{
+  return *m_pDesc;
+}
+
 EZ_ALWAYS_INLINE bool ezVisualScriptDataStorage::IsAllocated() const
 {
-  return m_Storage.GetByteBlobPtr().IsEmpty() == false;
+  return m_Storage.IsEmpty() == false;
 }
 
 template <typename T>
@@ -42,7 +47,7 @@ const T& ezVisualScriptDataStorage::GetData(DataOffset dataOffset) const
 
   m_pDesc->CheckOffset(dataOffset, ezGetStaticRTTI<T>());
 
-  return *reinterpret_cast<const T*>(m_Storage.GetByteBlobPtr().GetPtr() + dataOffset.m_uiByteOffset);
+  return *reinterpret_cast<const T*>(m_Storage.GetPtr() + dataOffset.m_uiByteOffset);
 }
 
 template <typename T>
@@ -52,7 +57,7 @@ T& ezVisualScriptDataStorage::GetWritableData(DataOffset dataOffset)
 
   m_pDesc->CheckOffset(dataOffset, ezGetStaticRTTI<T>());
 
-  return *reinterpret_cast<T*>(m_Storage.GetByteBlobPtr().GetPtr() + dataOffset.m_uiByteOffset);
+  return *reinterpret_cast<T*>(m_Storage.GetPtr() + dataOffset.m_uiByteOffset);
 }
 
 template <typename T>
@@ -60,11 +65,11 @@ void ezVisualScriptDataStorage::SetData(DataOffset dataOffset, const T& value)
 {
   static_assert(!std::is_pointer<T>::value, "Use SetPointerData instead");
 
-  if (dataOffset.m_uiByteOffset < m_Storage.GetByteBlobPtr().GetCount())
+  if (dataOffset.m_uiByteOffset < m_Storage.GetCount())
   {
     m_pDesc->CheckOffset(dataOffset, ezGetStaticRTTI<T>());
 
-    auto pData = m_Storage.GetByteBlobPtr().GetPtr() + dataOffset.m_uiByteOffset;
+    auto pData = m_Storage.GetPtr() + dataOffset.m_uiByteOffset;
 
     if constexpr (std::is_same<T, ezGameObjectHandle>::value)
     {
@@ -92,9 +97,9 @@ void ezVisualScriptDataStorage::SetPointerData(DataOffset dataOffset, T ptr, con
 {
   static_assert(std::is_pointer<T>::value);
 
-  if (dataOffset.m_uiByteOffset < m_Storage.GetByteBlobPtr().GetCount())
+  if (dataOffset.m_uiByteOffset < m_Storage.GetCount())
   {
-    auto pData = m_Storage.GetByteBlobPtr().GetPtr() + dataOffset.m_uiByteOffset;
+    auto pData = m_Storage.GetPtr() + dataOffset.m_uiByteOffset;
 
     if constexpr (std::is_same<T, ezGameObject*>::value)
     {
@@ -112,7 +117,9 @@ void ezVisualScriptDataStorage::SetPointerData(DataOffset dataOffset, T ptr, con
     }
     else
     {
-      EZ_ASSERT_DEBUG(!pType || pType->IsDerivedFrom<ezComponent>() == false, "Component type '{}' is stored as typed pointer, cast to ezComponent first to ensure correct storage", pType->GetTypeName());
+      const bool bIsAllowedType = !pType || (pType->IsDerivedFrom<ezComponent>() == false && pType->IsDerivedFrom<ezGameObject>() == false);
+      EZ_ASSERT_DEBUG(bIsAllowedType,
+        "GameObject or Component type '{}' is stored as typed pointer, cast to ezGameObject or ezComponent first to ensure correct storage", pType->GetTypeName());
 
       m_pDesc->CheckOffset(dataOffset, pType);
 
@@ -128,13 +135,37 @@ void ezVisualScriptDataStorage::SetPointerData(DataOffset dataOffset, T ptr, con
 inline ezResult ezVisualScriptInstanceData::Serialize(ezStreamWriter& inout_stream) const
 {
   EZ_SUCCEED_OR_RETURN(m_DataOffset.Serialize(inout_stream));
-  inout_stream << m_DefaultValue;
+
+  if (m_DataOffset.GetType() != ezVisualScriptDataType::GameObject &&
+    m_DataOffset.GetType() != ezVisualScriptDataType::Component &&
+    m_DataOffset.GetType() != ezVisualScriptDataType::TypedPointer)
+  {
+    inout_stream << m_DefaultValue;
+  }
+
   return EZ_SUCCESS;
 }
 
 inline ezResult ezVisualScriptInstanceData::Deserialize(ezStreamReader& inout_stream)
 {
   EZ_SUCCEED_OR_RETURN(m_DataOffset.Deserialize(inout_stream));
-  inout_stream >> m_DefaultValue;
+
+  if (m_DataOffset.GetType() == ezVisualScriptDataType::GameObject)
+  {
+    m_DefaultValue = ezGameObjectHandle();
+  }
+  else if (m_DataOffset.GetType() == ezVisualScriptDataType::Component)
+  {
+    m_DefaultValue = ezComponentHandle();
+  }
+  else if (m_DataOffset.GetType() == ezVisualScriptDataType::TypedPointer)
+  {
+    m_DefaultValue = ezTypedPointer();
+  }
+  else
+  {
+    inout_stream >> m_DefaultValue;
+  }
+
   return EZ_SUCCESS;
 }

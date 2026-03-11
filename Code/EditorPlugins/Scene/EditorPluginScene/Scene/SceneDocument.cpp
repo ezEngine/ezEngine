@@ -15,13 +15,15 @@
 #include <Foundation/Serialization/DdlSerializer.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
+#include <GuiFoundation/Widgets/SearchableTypeMenu.moc.h>
 #include <QClipboard>
+#include <QMenu>
 #include <RendererCore/Components/CameraComponent.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Object/ObjectDirectAccessor.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocument, 7, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocument, 8, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 void ezSceneDocument_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
@@ -74,8 +76,9 @@ ezSceneDocument::ezSceneDocument(ezStringView sDocumentPath, DocumentType docume
   m_GameModeData[GameMode::Play].m_bRenderSelectionOverlay = false;
   m_GameModeData[GameMode::Play].m_bRenderShapeIcons = false;
   m_GameModeData[GameMode::Play].m_bRenderVisualizers = false;
-}
 
+  GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezSceneDocument::SelectionManagerEventHandler, this), m_SelectionHandlerUnsubscriber);
+}
 
 void ezSceneDocument::InitializeAfterLoading(bool bFirstTimeCreation)
 {
@@ -101,6 +104,8 @@ void ezSceneDocument::InitializeAfterLoading(bool bFirstTimeCreation)
 
 ezSceneDocument::~ezSceneDocument()
 {
+  m_SelectionHandlerUnsubscriber.Unsubscribe();
+
   m_DocumentObjectMetaData->m_DataModifiedEvent.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::DocumentObjectMetaDataEventHandler, this));
 
   ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::ToolsProjectEventHandler, this));
@@ -118,7 +123,6 @@ void ezSceneDocument::GroupSelection()
   if (numSel <= 1)
     return;
 
-  ezVec3 vCenter(0.0f);
   const ezDocumentObject* pCommonParent = sel[0]->GetParent();
 
   // this happens for top-level objects, their parent object is an ezDocumentRootObject
@@ -127,17 +131,15 @@ void ezSceneDocument::GroupSelection()
     pCommonParent = nullptr;
   }
 
+  const ezTransform tGroup = GetGlobalTransform(GetSelectionManager()->GetCurrentObject());
+
   for (const auto& item : sel)
   {
-    vCenter += GetGlobalTransform(item).m_vPosition;
-
     if (pCommonParent != item->GetParent())
     {
       pCommonParent = nullptr;
     }
   }
-
-  vCenter /= numSel;
 
   auto pHistory = GetCommandHistory();
 
@@ -166,7 +168,7 @@ void ezSceneDocument::GroupSelection()
   }
 
   auto pGroupObject = GetObjectManager()->GetObject(cmdAdd.m_NewObjectGuid);
-  SetGlobalTransform(pGroupObject, ezTransform(vCenter), TransformationChanges::Translation);
+  SetGlobalTransform(pGroupObject, tGroup, TransformationChanges::All);
 
   ezMoveObjectCommand cmdMove;
   cmdMove.m_NewParent = cmdAdd.m_NewObjectGuid;
@@ -188,6 +190,41 @@ void ezSceneDocument::GroupSelection()
   ShowDocumentStatus(ezFmt("Grouped {} objects", numSel));
 }
 
+void ezSceneDocument::SelectParentObject()
+{
+  const auto& Sel = GetSelectionManager()->GetSelection();
+
+  if (Sel.IsEmpty())
+    return;
+
+  const auto& ctxt = ezQtEngineViewWidget::GetInteractionContext();
+
+  const ezDocumentObject* pObject = GetObjectManager()->GetObject(Sel[0]->GetGuid());
+
+  if (pObject->GetParent() && pObject->GetParent() != GetObjectManager()->GetRootObject())
+  {
+    GetSelectionManager()->SetSelection(pObject->GetParent());
+  }
+  else
+  {
+    ShowDocumentStatus("Object has no parent.");
+  }
+}
+
+void ezSceneDocument::SetSelectedAsActiveParent()
+{
+  const auto& sel = GetSelectionManager()->GetSelection();
+
+  if (sel.IsEmpty())
+    return;
+
+  SetActiveParent(sel.PeekBack()->GetGuid());
+}
+
+void ezSceneDocument::ClearActiveParent()
+{
+  SetActiveParent(ezUuid::MakeInvalid());
+}
 
 void ezSceneDocument::DuplicateSpecial()
 {
@@ -234,7 +271,7 @@ void ezSceneDocument::DuplicateSpecial()
 
   history->StartTransaction("Duplicate Special");
 
-  if (history->AddCommand(cmd).m_Result.Failed())
+  if (history->AddCommand(cmd).Failed())
     history->CancelTransaction();
   else
     history->FinishTransaction();
@@ -387,8 +424,27 @@ void ezSceneDocument::CopyReference()
   ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(ezFmt("Copied Object Reference: {}", sGuid), ezTime::MakeFromSeconds(5));
 }
 
-ezStatus ezSceneDocument::CreateEmptyObject(bool bAttachToParent, bool bAtPickedPosition)
+ezStatus ezSceneDocument::CreateEmptyObject(bool bAttachToParent, bool bAtPickedPosition, bool bComponentSelectionMenu)
 {
+  const ezRTTI* pComponentType = ezRTTI::FindTypeByName("ezShapeIconComponent");
+
+  if (bComponentSelectionMenu)
+  {
+    // show the context menu to select a component type
+
+    QMenu m;
+    ezQtTypeMenu tm;
+    tm.FillMenu(&m, ezGetStaticRTTI<ezComponent>(), true, false);
+
+    m.exec(QCursor::pos());
+
+    if (tm.m_pLastSelectedType)
+    {
+      pComponentType = tm.m_pLastSelectedType;
+      tm.m_pLastSelectedType = nullptr;
+    }
+  }
+
   auto history = GetCommandHistory();
 
   history->StartTransaction("Create Node");
@@ -406,6 +462,17 @@ ezStatus ezSceneDocument::CreateEmptyObject(bool bAttachToParent, bool bAtPicked
   {
     cmdAdd.m_NewObjectGuid = ezUuid::MakeUuid();
     NewNode = cmdAdd.m_NewObjectGuid;
+
+    if (!bAttachToParent)
+    {
+      const ezUuid activeParent = GetRedirectedGameObjectDoc()->GetActiveParent();
+
+      // the object may not exist anymore
+      if (auto pParentObj = GetObjectManager()->GetObject(activeParent))
+      {
+        cmdAdd.m_Parent = activeParent;
+      }
+    }
 
     auto res = history->AddCommand(cmdAdd);
     if (res.Failed())
@@ -441,6 +508,14 @@ ezStatus ezSceneDocument::CreateEmptyObject(bool bAttachToParent, bool bAtPicked
     cmdSet.m_Object = NewNode;
     cmdSet.m_sProperty = "LocalPosition";
 
+    if (auto pParentObj = GetObjectManager()->GetObject(cmdAdd.m_Parent))
+    {
+      const ezTransform tParent = GetGlobalTransform(pParentObj);
+      const ezTransform tRel = ezTransform::MakeLocalTransform(tParent, ezTransform(position, ezQuat::MakeIdentity()));
+
+      cmdSet.m_NewValue = tRel.m_vPosition;
+    }
+
     auto res = history->AddCommand(cmdSet);
     if (res.Failed())
     {
@@ -452,7 +527,7 @@ ezStatus ezSceneDocument::CreateEmptyObject(bool bAttachToParent, bool bAtPicked
   // Add a dummy shape icon component, which enables picking
   {
     ezAddObjectCommand cmdAdd;
-    cmdAdd.m_pType = ezRTTI::FindTypeByName("ezShapeIconComponent");
+    cmdAdd.m_pType = pComponentType;
     cmdAdd.m_sParentProperty = "Components";
     cmdAdd.m_Index = -1;
     cmdAdd.m_Parent = NewNode;
@@ -494,7 +569,7 @@ void ezSceneDocument::DuplicateSelection()
 
   history->StartTransaction("Duplicate Selection");
 
-  if (history->AddCommand(cmd).m_Result.Failed())
+  if (history->AddCommand(cmd).Failed())
     history->CancelTransaction();
   else
     history->FinishTransaction();
@@ -513,9 +588,6 @@ void ezSceneDocument::ShowOrHideSelectedObjects(ShowOrHide action)
 
     ApplyRecursive(pItem, [this, bHide](const ezDocumentObject* pObj)
       {
-      // if (!pObj->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
-      // return;
-
       auto pMeta = m_DocumentObjectMetaData->BeginModifyMetaData(pObj->GetGuid());
       if (pMeta->m_bHidden != bHide)
       {
@@ -543,6 +615,7 @@ void ezSceneDocument::SetGameMode(GameMode::Enum mode)
   m_GameModeData[m_GameMode] = m_CurrentMode;
 
   m_GameMode = mode;
+  SetPauseSimulation(false);
 
   switch (m_GameMode)
   {
@@ -576,7 +649,7 @@ void ezSceneDocument::SetGameMode(GameMode::Enum mode)
 
 ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(ezStringView sFile, const ezRTTI* pRootType, ezDelegate<void(ezAbstractObjectNode*)> adjustGraphNodeCB /* = {} */, ezDelegate<void(ezDocumentObject*)> adjustNewNodesCB /* = {} */, ezDelegate<void(ezAbstractObjectGraph& graph, ezDynamicArray<ezAbstractObjectNode*>& graphRootNodes)> finalizeGraphCB /* = {} */)
 {
-  ezHybridArray<ezSelectionEntry, 32> Selection;
+  ezTempHybridArray<ezSelectionEntry, 32> Selection;
   GetSelectionManager()->GetTopLevelSelectionOfType(pRootType, Selection);
 
   if (Selection.IsEmpty())
@@ -754,6 +827,16 @@ bool ezSceneDocument::StopGameMode()
   return true;
 }
 
+void ezSceneDocument::StepSimulation()
+{
+  SetStepSimulation(true);
+}
+
+void ezSceneDocument::PauseSimulation()
+{
+  SetPauseSimulation(true);
+}
+
 void ezSceneDocument::ShowOrHideAllObjects(ShowOrHide action)
 {
   const bool bHide = action == ShowOrHide::Hide;
@@ -775,7 +858,7 @@ void ezSceneDocument::ShowOrHideAllObjects(ShowOrHide action)
 
     m_DocumentObjectMetaData->EndModifyMetaData(uiFlags); });
 }
-void ezSceneDocument::GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_mimeTypes) const
+void ezSceneDocument::GetSupportedMimeTypesForPasting(ezDynamicArray<ezString>& out_mimeTypes) const
 {
   out_mimeTypes.PushBack("application/ezEditor.ezAbstractGraph");
 }
@@ -792,7 +875,7 @@ bool ezSceneDocument::CopySelectedObjects(ezAbstractObjectGraph& ref_graph, ezMa
     return false;
 
   // Serialize selection to graph
-  ezHybridArray<ezSelectionEntry, 64> selection;
+  ezTempHybridArray<ezSelectionEntry, 64> selection;
   GetSelectionManager()->GetTopLevelSelection(selection);
 
   ezDocumentObjectConverterWriter writer(&ref_graph, GetObjectManager());
@@ -827,7 +910,7 @@ bool ezSceneDocument::PasteAt(const ezArrayPtr<PasteInfo>& info, const ezAbstrac
   ezTransform refTransform = ezTransform::MakeIdentity();
   ezUInt32 uiHighestSelectionOrder = 0;
 
-  ezHybridArray<ezTransform, 16> globalTransforms;
+  ezTempHybridArray<ezTransform, 16> globalTransforms;
   globalTransforms.SetCount(info.GetCount(), ezTransform::MakeIdentity());
 
   for (ezUInt32 i = 0; i < info.GetCount(); ++i)
@@ -1007,11 +1090,11 @@ void ezSceneDocument::EnsureSettingsObjectExist()
   // undo ops for this operation.
   ezObjectDirectAccessor accessor(GetObjectManager());
   ezVariant value;
-  EZ_VERIFY(accessor.ezObjectAccessorBase::GetValue(pRoot, "Settings", value).Succeeded(), "The scene doc root should have a settings property.");
+  EZ_VERIFY(accessor.ezObjectAccessorBase::GetValueByName(pRoot, "Settings", value).Succeeded(), "The scene doc root should have a settings property.");
   ezUuid id = value.Get<ezUuid>();
   if (!id.IsValid())
   {
-    EZ_VERIFY(accessor.ezObjectAccessorBase::AddObject(pRoot, "Settings", ezVariant(), pSettingsType, id).Succeeded(), "Adding scene settings object to root failed.");
+    EZ_VERIFY(accessor.ezObjectAccessorBase::AddObjectByName(pRoot, "Settings", ezVariant(), pSettingsType, id).Succeeded(), "Adding scene settings object to root failed.");
   }
   else
   {
@@ -1021,7 +1104,7 @@ void ezSceneDocument::EnsureSettingsObjectExist()
     {
       accessor.RemoveObject(pSettings).AssertSuccess();
       GetObjectManager()->DestroyObject(pSettings);
-      EZ_VERIFY(accessor.ezObjectAccessorBase::AddObject(pRoot, "Settings", ezVariant(), pSettingsType, id).Succeeded(), "Adding scene settings object to root failed.");
+      EZ_VERIFY(accessor.ezObjectAccessorBase::AddObjectByName(pRoot, "Settings", ezVariant(), pSettingsType, id).Succeeded(), "Adding scene settings object to root failed.");
     }
   }
 }
@@ -1030,7 +1113,7 @@ const ezDocumentObject* ezSceneDocument::GetSettingsObject() const
 {
   auto pRoot = GetObjectManager()->GetRootObject();
   ezVariant value;
-  EZ_VERIFY(GetObjectAccessor()->GetValue(pRoot, "Settings", value).Succeeded(), "The scene doc root should have a settings property.");
+  EZ_VERIFY(GetObjectAccessor()->GetValueByName(pRoot, "Settings", value).Succeeded(), "The scene doc root should have a settings property.");
   ezUuid id = value.Get<ezUuid>();
   return GetObjectManager()->GetObject(id);
 }
@@ -1040,54 +1123,67 @@ const ezSceneDocumentSettingsBase* ezSceneDocument::GetSettingsBase() const
   return static_cast<const ezSceneDocumentSettingsBase*>(m_ObjectMirror.GetNativeObjectPointer(GetSettingsObject()));
 }
 
-ezStatus ezSceneDocument::CreateExposedProperty(const ezDocumentObject* pObject, const ezAbstractProperty* pProperty, ezVariant index, ezExposedSceneProperty& out_key) const
+ezStatus ezSceneDocument::CreateExposedProperty(ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezRTTI* pType, const ezAbstractProperty* pProperty, ezVariant index, ezExposedSceneProperty& out_key) const
 {
+  ezTempHybridArray<ezVariant, 2> path;
+  if (index.IsValid())
+    path.PushBack(index);
+
+  pAccessor = pAccessor->ResolveProxy(pObject, pType, pProperty, path);
+
   const ezDocumentObject* pNodeComponent = ezObjectPropertyPath::FindParentNodeComponent(pObject);
   if (!pObject)
     return ezStatus("No parent node or component found.");
 
-  ezObjectPropertyPathContext context = {pNodeComponent, GetObjectAccessor(), "Children"};
-  ezPropertyReference propertyRef = {pObject->GetGuid(), pProperty, index};
+  ezObjectPropertyPathContext context = {pNodeComponent, pAccessor, "Children"};
+  ezVariant firstIndex;
+  if (!path.IsEmpty())
+    firstIndex = path[0];
+
+  ezPropertyReference propertyRef = {pObject->GetGuid(), pProperty, firstIndex};
   ezStringBuilder sPropertyPath;
   ezStatus res = ezObjectPropertyPath::CreatePropertyPath(context, propertyRef, sPropertyPath);
   if (res.Failed())
     return res;
+
+  if (path.GetCount() > 1)
+    ezObjectPropertyPath::AppendSubIndices(sPropertyPath, path.GetArrayPtr().GetSubArray(1));
 
   out_key.m_Object = pNodeComponent->GetGuid();
   out_key.m_sPropertyPath = sPropertyPath;
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezSceneDocument::AddExposedParameter(const char* szName, const ezDocumentObject* pObject, const ezAbstractProperty* pProperty, ezVariant index)
+ezStatus ezSceneDocument::AddExposedParameter(const char* szName, ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezRTTI* pType, const ezAbstractProperty* pProperty, ezVariant index)
 {
   if (m_DocumentType != DocumentType::Prefab)
     return ezStatus("Exposed parameters are only supported in prefab documents.");
 
-  if (FindExposedParameter(pObject, pProperty, index) != -1)
+  if (FindExposedParameter(pAccessor, pObject, pType, pProperty, index) != -1)
     return ezStatus("Exposed parameter already exists.");
 
   ezExposedSceneProperty key;
-  ezStatus res = CreateExposedProperty(pObject, pProperty, index, key);
+  ezStatus res = CreateExposedProperty(pAccessor, pObject, pType, pProperty, index, key);
   if (res.Failed())
     return res;
 
   ezUuid id;
-  res = GetObjectAccessor()->AddObject(GetSettingsObject(), "ExposedProperties", -1, ezGetStaticRTTI<ezExposedSceneProperty>(), id);
+  res = GetObjectAccessor()->AddObjectByName(GetSettingsObject(), "ExposedProperties", -1, ezGetStaticRTTI<ezExposedSceneProperty>(), id);
   if (res.Failed())
     return res;
   const ezDocumentObject* pParam = GetObjectManager()->GetObject(id);
-  GetObjectAccessor()->SetValue(pParam, "Name", szName).LogFailure();
-  GetObjectAccessor()->SetValue(pParam, "Object", key.m_Object).LogFailure();
-  GetObjectAccessor()->SetValue(pParam, "PropertyPath", ezVariant(key.m_sPropertyPath)).LogFailure();
+  GetObjectAccessor()->SetValueByName(pParam, "Name", szName).LogFailure();
+  GetObjectAccessor()->SetValueByName(pParam, "Object", key.m_Object).LogFailure();
+  GetObjectAccessor()->SetValueByName(pParam, "PropertyPath", ezVariant(key.m_sPropertyPath)).LogFailure();
   return ezStatus(EZ_SUCCESS);
 }
 
-ezInt32 ezSceneDocument::FindExposedParameter(const ezDocumentObject* pObject, const ezAbstractProperty* pProperty, ezVariant index)
+ezInt32 ezSceneDocument::FindExposedParameter(ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezRTTI* pType, const ezAbstractProperty* pProperty, ezVariant index)
 {
   EZ_ASSERT_DEV(m_DocumentType == DocumentType::Prefab, "Exposed properties are only supported in prefab documents.");
 
   ezExposedSceneProperty key;
-  ezStatus res = CreateExposedProperty(pObject, pProperty, index, key);
+  ezStatus res = CreateExposedProperty(pAccessor, pObject, pType, pProperty, index, key);
   if (res.Failed())
     return -1;
 
@@ -1104,7 +1200,7 @@ ezInt32 ezSceneDocument::FindExposedParameter(const ezDocumentObject* pObject, c
 ezStatus ezSceneDocument::RemoveExposedParameter(ezInt32 iIndex)
 {
   ezVariant value;
-  auto res = GetObjectAccessor()->GetValue(GetSettingsObject(), "ExposedProperties", value, iIndex);
+  auto res = GetObjectAccessor()->GetValueByName(GetSettingsObject(), "ExposedProperties", value, iIndex);
   if (res.Failed())
     return res;
 
@@ -1201,7 +1297,7 @@ ezResult ezSceneDocument::JumpToLevelCamera(ezUInt8 uiSlot, bool bImmediate)
 
   auto* pObjMan = GetObjectManager();
 
-  ezHybridArray<ezDocumentObject*, 8> stack;
+  ezTempHybridArray<ezDocumentObject*, 8> stack;
   stack.PushBack(pObjMan->GetRootObject());
 
   const ezRTTI* pCamType = ezGetStaticRTTI<ezCameraComponent>();
@@ -1275,7 +1371,7 @@ ezResult ezSceneDocument::CreateLevelCamera(ezUInt8 uiSlot)
   pAccessor->StartTransaction("Create Level Camera");
 
   ezUuid camObjGuid;
-  if (pAccessor->AddObject(pRootObj, "Children", -1, ezGetStaticRTTI<ezGameObject>(), camObjGuid).Failed())
+  if (pAccessor->AddObjectByName(pRootObj, "Children", -1, ezGetStaticRTTI<ezGameObject>(), camObjGuid).Failed())
   {
     pAccessor->CancelTransaction();
     return EZ_FAILURE;
@@ -1292,13 +1388,13 @@ ezResult ezSceneDocument::CreateLevelCamera(ezUInt8 uiSlot)
   SetGlobalTransform(pAccessor->GetObject(camObjGuid), ezTransform(vPos, qRot), TransformationChanges::Translation | TransformationChanges::Rotation);
 
   ezUuid camCompGuid;
-  if (pAccessor->AddObject(pAccessor->GetObject(camObjGuid), "Components", -1, ezGetStaticRTTI<ezCameraComponent>(), camCompGuid).Failed())
+  if (pAccessor->AddObjectByName(pAccessor->GetObject(camObjGuid), "Components", -1, ezGetStaticRTTI<ezCameraComponent>(), camCompGuid).Failed())
   {
     pAccessor->CancelTransaction();
     return EZ_FAILURE;
   }
 
-  if (pAccessor->SetValue(pAccessor->GetObject(camCompGuid), "EditorShortcut", uiSlot).Failed())
+  if (pAccessor->SetValueByName(pAccessor->GetObject(camCompGuid), "EditorShortcut", uiSlot).Failed())
   {
     pAccessor->CancelTransaction();
     return EZ_FAILURE;
@@ -1446,6 +1542,99 @@ void ezSceneDocument::GatherObjectsOfType(ezDocumentObject* pRoot, ezGatherObjec
   }
 }
 
+void ezSceneDocument::SelectionManagerEventHandler(const ezSelectionManagerEvent& e)
+{
+  if (!m_bStoreSelectionChange)
+    return;
+
+  if (m_iAllowSelectionChanges != -1)
+  {
+    if (m_iAllowSelectionChanges == 0)
+      m_SelectionStack.PopBack();
+
+    --m_iAllowSelectionChanges;
+  }
+
+  switch (e.m_Type)
+  {
+    case ezSelectionManagerEvent::Type::ObjectAdded:
+    case ezSelectionManagerEvent::Type::ObjectRemoved:
+    case ezSelectionManagerEvent::Type::SelectionSet:
+    case ezSelectionManagerEvent::Type::SelectionCleared: // empty selections are important to keep, for layer changes to be undoable
+    {
+      const auto& curSel = GetSelectionManager()->GetSelection();
+
+      auto& sel = m_SelectionStack.ExpandAndGetRef();
+
+      sel.m_documentGuid = GetRedirectedGameObjectDoc()->GetGuid();
+
+      sel.m_Objects.SetCountUninitialized(curSel.GetCount());
+
+      for (ezUInt32 i = 0; i < curSel.GetCount(); ++i)
+      {
+        sel.m_Objects[i] = curSel[i]->GetGuid();
+      }
+
+      // discard duplicate selection changes (but keep empty selections)
+      if (m_SelectionStack.GetCount() > 1)
+      {
+        const auto& prev = m_SelectionStack[m_SelectionStack.GetCount() - 2];
+
+        if (prev.m_Objects == sel.m_Objects && prev.m_documentGuid == sel.m_documentGuid)
+        {
+          m_SelectionStack.PopBack();
+        }
+      }
+
+      if (m_SelectionStack.GetCount() > 16)
+      {
+        m_SelectionStack.PopFront();
+      }
+
+      break;
+    }
+
+    default:
+      break;
+  }
+}
+
+bool ezSceneDocument::CanUndoSelection() const
+{
+  return m_SelectionStack.GetCount() > 1;
+}
+
+void ezSceneDocument::UndoSelection()
+{
+  if (m_SelectionStack.IsEmpty())
+    return;
+
+  if (m_SelectionStack.GetCount() > 1)
+    m_SelectionStack.PopBack();
+
+  auto& back = m_SelectionStack.PeekBack();
+
+  m_bStoreSelectionChange = false;
+  EZ_SCOPE_EXIT(m_bStoreSelectionChange = true);
+
+  auto* pDoc = ezDocumentManager::GetDocumentByGuid(back.m_documentGuid);
+  if (pDoc == nullptr)
+    return;
+
+  auto pObjMan = pDoc->GetObjectManager();
+
+  ezDeque<const ezDocumentObject*> newSel;
+  for (const ezUuid& guid : back.m_Objects)
+  {
+    if (auto pDoc = pObjMan->GetObject(guid))
+    {
+      newSel.PushBack(pDoc);
+    }
+  }
+
+  GetSelectionManager()->SetSelection(newSel);
+}
+
 void ezSceneDocument::OnInterDocumentMessage(ezReflectedClass* pMessage, ezDocument* pSender)
 {
   // #TODO needs to be overwritten by Scene2
@@ -1574,7 +1763,7 @@ ezTransformStatus ezSceneDocument::ExportScene(bool bCreateThumbnail)
   // #TODO export layers
   auto saveres = SaveDocument();
 
-  if (saveres.m_Result.Failed())
+  if (saveres.Failed())
     return saveres;
 
   ezTransformStatus res;
@@ -1585,7 +1774,9 @@ ezTransformStatus ezSceneDocument::ExportScene(bool bCreateThumbnail)
     res = ezAssetCurator::GetSingleton()->TransformAsset(GetGuid(), ezTransformFlags::ForceTransform | ezTransformFlags::TriggeredManually);
   }
   else
+  {
     res = TransformAsset(ezTransformFlags::ForceTransform | ezTransformFlags::TriggeredManually);
+  }
 
   if (res.Failed())
     ezLog::Error(res.m_sMessage);

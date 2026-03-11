@@ -18,19 +18,11 @@ void OnLoadPlugin()
   // Mesh
   {
     // Menu Bar
-    ezActionMapManager::RegisterActionMap("SoundBankAssetMenuBar").IgnoreResult();
-    ezStandardMenus::MapActions("SoundBankAssetMenuBar", ezStandardMenuTypes::Default | ezStandardMenuTypes::Edit);
-    ezProjectActions::MapActions("SoundBankAssetMenuBar");
-    ezDocumentActions::MapMenuActions("SoundBankAssetMenuBar");
-    ezAssetActions::MapMenuActions("SoundBankAssetMenuBar");
-    ezCommandHistoryActions::MapActions("SoundBankAssetMenuBar");
+    ezActionMapManager::RegisterActionMap("SoundBankAssetMenuBar", "AssetMenuBar");
 
     // Tool Bar
     {
-      ezActionMapManager::RegisterActionMap("SoundBankAssetToolBar").IgnoreResult();
-      ezDocumentActions::MapToolbarActions("SoundBankAssetToolBar");
-      ezCommandHistoryActions::MapActions("SoundBankAssetToolBar", "");
-      ezAssetActions::MapToolBarActions("SoundBankAssetToolBar", true);
+      ezActionMapManager::RegisterActionMap("SoundBankAssetToolBar", "AssetToolbar");
     }
   }
 
@@ -39,6 +31,7 @@ void OnLoadPlugin()
     // Menu Bar
     {
       ezFmodActions::RegisterActions();
+      ezFmodActions::MapPluginMenuActions("AssetMenuBar");
       ezFmodActions::MapMenuActions("EditorPluginScene_DocumentMenuBar");
       ezFmodActions::MapMenuActions("EditorPluginScene_Scene2MenuBar");
       ezFmodActions::MapToolbarActions("EditorPluginScene_DocumentToolBar");

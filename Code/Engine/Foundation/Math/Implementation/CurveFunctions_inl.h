@@ -11,11 +11,13 @@ namespace ezMath
 
   EZ_ALWAYS_INLINE double GetCurveValue_ConstantZero(double t)
   {
+    EZ_IGNORE_UNUSED(t);
     return 0.0;
   }
 
   EZ_ALWAYS_INLINE double GetCurveValue_ConstantOne(double t)
   {
+    EZ_IGNORE_UNUSED(t);
     return 1.0;
   }
 

@@ -14,7 +14,7 @@ o
 			s{"Animations/Turret/Turret.glb"}
 		}
 		Uuid %DocumentID{u4{1502793621205532301,5668305227750489386}}
-		u4 %Hash{10424763916164472919}
+		u4 %Hash{11556256734387277186}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -82,10 +82,11 @@ o
 		u1 %MeshSimplification{50}
 		s %NormalPrecision{"ezMeshNormalPrecision::_10Bit"}
 		b %NormalizeWeights{1}
-		b %RecalculateNormals{1}
+		b %RecalculateNormals{0}
 		b %RecalculateTangents{1}
 		b %SimplifyMesh{0}
 		s %TexCoordPrecision{"ezMeshTexCoordPrecision::_16Bit"}
+		s %VertexColorConversion{"ezMeshVertexColorConversion::None"}
 	}
 }
 o
@@ -198,6 +199,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshTexCoordPrecision"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{1149684950174857976,12897203947091760514}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezMeshVertexColorConversion"}
 		u3 %TypeVersion{1}
 	}
 }

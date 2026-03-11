@@ -2,6 +2,7 @@
 
 #include <Core/CoreDLL.h>
 
+#include <Core/Prefabs/PrefabResource.h>
 #include <Core/ResourceManager/Resource.h>
 #include <Foundation/Containers/ArrayMap.h>
 #include <Foundation/Reflection/Reflection.h>
@@ -13,6 +14,7 @@ using ezSurfaceResourceHandle = ezTypedResourceHandle<class ezSurfaceResource>;
 using ezPrefabResourceHandle = ezTypedResourceHandle<class ezPrefabResource>;
 
 
+/// \brief Defines how prefabs are aligned when spawned during surface interactions.
 struct ezSurfaceInteractionAlignment
 {
   using StorageType = ezUInt8;
@@ -33,11 +35,12 @@ struct ezSurfaceInteractionAlignment
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezSurfaceInteractionAlignment);
 
 
+/// \brief Describes how a surface responds to a specific type of interaction.
+///
+/// Configures the prefab to spawn, its alignment, impact thresholds, and custom parameters
+/// when objects interact with a surface in a particular way (collision, slide, roll, etc.).
 struct EZ_CORE_DLL ezSurfaceInteraction
 {
-  void SetPrefab(const char* szPrefab);
-  const char* GetPrefab() const;
-
   ezString m_sInteractionType;
 
   ezPrefabResourceHandle m_hPrefab;
@@ -56,6 +59,10 @@ struct EZ_CORE_DLL ezSurfaceInteraction
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezSurfaceInteraction);
 
+/// \brief Descriptor containing all configuration data for a surface resource.
+///
+/// Defines physics properties (restitution, friction), interaction behaviors,
+/// base surface inheritance, and navigation ground type information.
 struct EZ_CORE_DLL ezSurfaceResourceDescriptor : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSurfaceResourceDescriptor, ezReflectedClass);
@@ -63,9 +70,6 @@ struct EZ_CORE_DLL ezSurfaceResourceDescriptor : public ezReflectedClass
 public:
   void Load(ezStreamReader& inout_stream);
   void Save(ezStreamWriter& inout_stream) const;
-
-  void SetBaseSurfaceFile(const char* szFile);
-  const char* GetBaseSurfaceFile() const;
 
   void SetCollisionInteraction(const char* szName);
   const char* GetCollisionInteraction() const;

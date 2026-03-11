@@ -9,9 +9,12 @@ o
 	p
 	{
 		s %AssetType{"Scene"}
-		VarArray %Dependencies{}
+		VarArray %Dependencies
+		{
+			s{"{ 93c2e641-1f6a-43c8-bad0-7b7e9762daae }"}
+		}
 		Uuid %DocumentID{u4{14156501856797205539,10398819186738443508}}
-		u4 %Hash{1024438251055940751}
+		u4 %Hash{15863991170133501154}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -103,6 +106,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 4ec4625e-1f10-465b-b1a1-ee7d66bd8da3 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -115,6 +119,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ e47f405c-c961-8be9-1a93-3768b4d7d487 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -153,6 +158,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ e47f405c-c961-8be9-1a93-3768b4d7d487 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -417,6 +423,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ e47f405c-c961-8be9-1a93-3768b4d7d487 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -531,6 +538,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x148B9E41,0xE2F5CE42,0xC5EF4F43,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 1748bef5-67eb-473a-92d7-e1b59a185ba1 }"}
@@ -567,6 +575,7 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 4795f5c4-4a78-4c13-937e-cf3e6bdecb7c }"}
@@ -625,19 +634,22 @@ o
 {
 	Uuid %id{u4{1854644117689914536,5716389269860087803}}
 	s %t{"ezPointLightComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
 		b %CastShadows{1}
 		f %ConstantBias{0xCDCCCC3D}
+		ColorGamma %EffectiveColor{u1{255,255,255,255}}
 		f %Intensity{0x00007A44}
 		ColorGamma %LightColor{u1{88,199,255,255}}
 		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0x00002041}
+		f %ShadowFadeOutRange{0}
 		f %SlopeBias{0x0000803E}
 		f %SpecularMultiplier{0x0000803F}
 		u3 %Temperature{15000}
+		b %TransparentShadows{0}
 		b %UseColorTemperature{0}
 	}
 }
@@ -695,6 +707,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ e47f405c-c961-8be9-1a93-3768b4d7d487 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -733,6 +746,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ e47f405c-c961-8be9-1a93-3768b4d7d487 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -745,6 +759,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ e47f405c-c961-8be9-1a93-3768b4d7d487 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -793,6 +808,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ e47f405c-c961-8be9-1a93-3768b4d7d487 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -981,6 +997,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ e47f405c-c961-8be9-1a93-3768b4d7d487 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -1007,6 +1024,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 4ec4625e-1f10-465b-b1a1-ee7d66bd8da3 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -1226,17 +1244,19 @@ o
 		b %Active{1}
 		b %CastShadows{1}
 		f %ConstantBias{0xCDCCCC3D}
+		ColorGamma %EffectiveColor{u1{255,255,255,255}}
 		f %FadeOutStart{0xCDCC4C3F}
 		f %Intensity{0x0000A040}
 		ColorGamma %LightColor{u1{255,255,255,255}}
 		f %MinShadowRange{0x0000F041}
 		f %NearPlaneOffset{0x0000C842}
 		u3 %NumCascades{2}
-		f %PenumbraSize{0xCDCCCC3D}
+		f %PenumbraSize{0xCDCC4C3D}
 		f %SlopeBias{0x0000803E}
 		f %SpecularMultiplier{0x0000803F}
 		f %SplitModeWeight{0x3333333F}
 		u3 %Temperature{4179}
+		b %TransparentShadows{0}
 		b %UseColorTemperature{1}
 	}
 }
@@ -1350,6 +1370,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ e47f405c-c961-8be9-1a93-3768b4d7d487 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -1362,6 +1383,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ e47f405c-c961-8be9-1a93-3768b4d7d487 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -1426,6 +1448,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ e47f405c-c961-8be9-1a93-3768b4d7d487 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -1438,6 +1461,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ e47f405c-c961-8be9-1a93-3768b4d7d487 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -1502,6 +1526,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ e47f405c-c961-8be9-1a93-3768b4d7d487 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -1514,6 +1539,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 4ec4625e-1f10-465b-b1a1-ee7d66bd8da3 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -1552,6 +1578,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ 4ec4625e-1f10-465b-b1a1-ee7d66bd8da3 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -1616,6 +1643,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ e47f405c-c961-8be9-1a93-3768b4d7d487 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -1654,6 +1682,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ e47f405c-c961-8be9-1a93-3768b4d7d487 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -1718,6 +1747,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ e47f405c-c961-8be9-1a93-3768b4d7d487 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -1730,6 +1760,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ e47f405c-c961-8be9-1a93-3768b4d7d487 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -2081,6 +2112,7 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ e47f405c-c961-8be9-1a93-3768b4d7d487 }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -2449,7 +2481,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshComponentBase"}
-		u3 %TypeVersion{3}
+		u3 %TypeVersion{4}
 	}
 }
 o
@@ -2687,7 +2719,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezPointLightComponent"}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -2806,7 +2838,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezLightComponent"}
-		u3 %TypeVersion{5}
+		u3 %TypeVersion{6}
 	}
 }
 o

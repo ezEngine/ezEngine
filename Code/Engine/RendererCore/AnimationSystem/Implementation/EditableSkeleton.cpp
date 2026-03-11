@@ -13,7 +13,7 @@
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSkeletonJointGeometryType, 1)
-EZ_ENUM_CONSTANTS(ezSkeletonJointGeometryType::None, ezSkeletonJointGeometryType::Capsule, ezSkeletonJointGeometryType::Sphere, ezSkeletonJointGeometryType::Box)
+EZ_ENUM_CONSTANTS(ezSkeletonJointGeometryType::None, ezSkeletonJointGeometryType::Capsule, ezSkeletonJointGeometryType::CapsuleSideways, ezSkeletonJointGeometryType::Sphere, ezSkeletonJointGeometryType::Box)
 EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditableSkeletonBoneShape, 1, ezRTTIDefaultAllocator<ezEditableSkeletonBoneShape>)
@@ -59,8 +59,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditableSkeletonJoint, 2, ezRTTIDefaultAllocat
     EZ_MEMBER_PROPERTY("SwingLimitY", m_SwingLimitY)->AddAttributes(new ezClampValueAttribute(ezAngle(), ezAngle::MakeFromDegree(170)), new ezDefaultValueAttribute(ezAngle::MakeFromDegree(30))),
     EZ_MEMBER_PROPERTY("SwingLimitZ", m_SwingLimitZ)->AddAttributes(new ezClampValueAttribute(ezAngle(), ezAngle::MakeFromDegree(170)), new ezDefaultValueAttribute(ezAngle::MakeFromDegree(30))),
     EZ_MEMBER_PROPERTY("TwistLimitHalfAngle", m_TwistLimitHalfAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::MakeFromDegree(10), ezAngle::MakeFromDegree(170)), new ezDefaultValueAttribute(ezAngle::MakeFromDegree(30))),
-    EZ_MEMBER_PROPERTY("TwistLimitCenterAngle", m_TwistLimitCenterAngle)->AddAttributes(new ezClampValueAttribute(-ezAngle::MakeFromDegree(170), ezAngle::MakeFromDegree(170))),
-
+    EZ_MEMBER_PROPERTY("TwistLimitCenterAngle", m_TwistLimitCenterAngle),
     EZ_MEMBER_PROPERTY("OverrideSurface", m_bOverrideSurface),
     EZ_MEMBER_PROPERTY("Surface", m_sSurfaceOverride)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
     EZ_MEMBER_PROPERTY("OverrideCollisionLayer", m_bOverrideCollisionLayer),
@@ -79,12 +78,13 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditableSkeletonJoint, 2, ezRTTIDefaultAllocat
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditableSkeleton, 1, ezRTTIDefaultAllocator<ezEditableSkeleton>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditableSkeleton, 2, ezRTTIDefaultAllocator<ezEditableSkeleton>)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("File", m_sSourceFile)->AddAttributes(new ezFileBrowserAttribute("Select Mesh", ezFileBrowserAttribute::MeshesWithAnimations)),
-    EZ_ENUM_MEMBER_PROPERTY("RightDir", ezBasisAxis, m_RightDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveX)),
+    EZ_ENUM_MEMBER_PROPERTY("ImportTransform", ezMeshImportTransform, m_ImportTransform),
+    EZ_ENUM_MEMBER_PROPERTY("RightDir", ezBasisAxis, m_RightDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::NegativeX)),
     EZ_ENUM_MEMBER_PROPERTY("UpDir", ezBasisAxis, m_UpDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveY)),
     EZ_MEMBER_PROPERTY("FlipForwardDir", m_bFlipForwardDir),
     EZ_MEMBER_PROPERTY("UniformScaling", m_fUniformScaling)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0001f, 10000.0f)),
@@ -93,6 +93,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditableSkeleton, 1, ezRTTIDefaultAllocator<ez
     EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
     EZ_MEMBER_PROPERTY("Surface", m_sSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
     EZ_MEMBER_PROPERTY("MaxImpulse", m_fMaxImpulse)->AddAttributes(new ezDefaultValueAttribute(100.f)),
+    EZ_MEMBER_PROPERTY("LeftFootJoint", m_sLeftFootJoint),
+    EZ_MEMBER_PROPERTY("RightFootJoint", m_sRightFootJoint),
 
     EZ_ARRAY_MEMBER_PROPERTY("Children", m_Children)->AddFlags(ezPropertyFlags::PointerOwner | ezPropertyFlags::Hidden),
   }
@@ -227,6 +229,9 @@ void ezEditableSkeleton::FillResourceDescriptor(ezSkeletonResourceDescriptor& re
 
   sb.BuildSkeleton(ref_desc.m_Skeleton);
   ref_desc.m_Skeleton.m_BoneDirection = m_BoneDirection;
+
+  ref_desc.m_uiLeftFootJoint = ref_desc.m_Skeleton.FindJointByName(ezTempHashedString(m_sLeftFootJoint));
+  ref_desc.m_uiRightFootJoint = ref_desc.m_Skeleton.FindJointByName(ezTempHashedString(m_sRightFootJoint));
 }
 
 static void BuildOzzRawSkeleton(const ezEditableSkeletonJoint& srcJoint, ozz::animation::offline::RawSkeleton::Joint& ref_dstJoint)

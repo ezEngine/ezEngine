@@ -2,7 +2,6 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 
-#  include <Foundation/Basics/Platform/Win/Platform_win.h>
 #  include <Foundation/Memory/MemoryTracker.h>
 #  include <Foundation/Memory/PageAllocator.h>
 #  include <Foundation/System/SystemInformation.h>

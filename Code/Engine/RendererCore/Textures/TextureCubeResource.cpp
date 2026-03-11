@@ -16,7 +16,7 @@ EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezTextureCubeResource);
 // clang-format on
 
 ezTextureCubeResource::ezTextureCubeResource()
-  : ezResource(DoUpdate::OnAnyThread, ezTextureUtils::s_bForceFullQualityAlways ? 1 : 2)
+  : ezResource(DoUpdate::OnGraphicsResourceThreads, ezTextureUtils::s_bForceFullQualityAlways ? 1 : 2)
 {
   m_uiLoadedTextures = 0;
   m_uiMemoryGPU[0] = 0;
@@ -33,11 +33,7 @@ ezResourceLoadDesc ezTextureCubeResource::UnloadData(Unload WhatToUnload)
     {
       --m_uiLoadedTextures;
 
-      if (!m_hGALTexture[m_uiLoadedTextures].IsInvalidated())
-      {
-        ezGALDevice::GetDefaultDevice()->DestroyTexture(m_hGALTexture[m_uiLoadedTextures]);
-        m_hGALTexture[m_uiLoadedTextures].Invalidate();
-      }
+      ezGALDevice::GetDefaultDevice()->DestroyTexture(m_hGALTexture[m_uiLoadedTextures]);
 
       m_uiMemoryGPU[m_uiLoadedTextures] = 0;
 
@@ -48,11 +44,7 @@ ezResourceLoadDesc ezTextureCubeResource::UnloadData(Unload WhatToUnload)
 
   if (WhatToUnload == Unload::AllQualityLevels)
   {
-    if (!m_hSamplerState.IsInvalidated())
-    {
-      ezGALDevice::GetDefaultDevice()->DestroySamplerState(m_hSamplerState);
-      m_hSamplerState.Invalidate();
-    }
+    ezGALDevice::GetDefaultDevice()->DestroySamplerState(m_hSamplerState);
   }
 
   ezResourceLoadDesc res;
@@ -118,11 +110,27 @@ ezResourceLoadDesc ezTextureCubeResource::UpdateContent(ezStreamReader* Stream)
   if (pImage->GetNumFaces() == 6)
     texDesc.m_Type = ezGALTextureType::TextureCube;
 
+  if (texDesc.m_uiArraySize > 1)
+  {
+    if (texDesc.m_Type == ezGALTextureType::TextureCube)
+    {
+      texDesc.m_Type = ezGALTextureType::TextureCubeArray;
+    }
+    else if (texDesc.m_Type == ezGALTextureType::Texture2D)
+    {
+      texDesc.m_Type = ezGALTextureType::Texture2DArray;
+    }
+    else
+    {
+      EZ_ASSERT_NOT_IMPLEMENTED;
+    }
+  }
+
   EZ_ASSERT_DEV(pImage->GetNumFaces() == 1 || pImage->GetNumFaces() == 6, "Invalid number of image faces (resource: '{0}')", GetResourceID());
 
   m_uiMemoryGPU[m_uiLoadedTextures] = 0;
 
-  ezHybridArray<ezGALSystemMemoryDescription, 32> InitData;
+  ezTempHybridArray<ezGALSystemMemoryDescription, 32> InitData;
 
   for (ezUInt32 array_index = 0; array_index < pImage->GetNumArrayIndices(); ++array_index)
   {
@@ -132,7 +140,7 @@ ezResourceLoadDesc ezTextureCubeResource::UpdateContent(ezStreamReader* Stream)
       {
         ezGALSystemMemoryDescription& id = InitData.ExpandAndGetRef();
 
-        id.m_pData = pImage->GetPixelPointer<ezUInt8>(mip, face, array_index);
+        id.m_pData = pImage->GetSubImageView(mip, face, array_index).GetByteBlobPtr();
 
         EZ_ASSERT_DEV(pImage->GetDepthPitch(mip) < ezMath::MaxValue<ezUInt32>(), "Depth pitch exceeds ezGAL limits.");
 

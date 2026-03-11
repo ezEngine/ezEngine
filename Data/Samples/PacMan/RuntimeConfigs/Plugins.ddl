@@ -5,11 +5,6 @@ Plugin
 }
 Plugin
 {
-	string %Path{"ezFmodPlugin"}
-	bool %LoadCopy{false}
-}
-Plugin
-{
 	string %Path{"ezGameComponentsPlugin"}
 	bool %LoadCopy{false}
 }
@@ -20,11 +15,11 @@ Plugin
 }
 Plugin
 {
-	string %Path{"ezParticlePlugin"}
+	string %Path{"ezMiniAudioPlugin"}
 	bool %LoadCopy{false}
 }
 Plugin
 {
-	string %Path{"ezXBoxControllerPlugin"}
+	string %Path{"ezParticlePlugin"}
 	bool %LoadCopy{false}
 }

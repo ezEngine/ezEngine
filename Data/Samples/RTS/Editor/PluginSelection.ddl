@@ -18,7 +18,7 @@ PluginState
 }
 PluginState
 {
-	string %ID{"RtsGame"}
+	string %ID{"RTSPlugin"}
 	bool %Selected{true}
 	bool %LoadCopy{true}
 }

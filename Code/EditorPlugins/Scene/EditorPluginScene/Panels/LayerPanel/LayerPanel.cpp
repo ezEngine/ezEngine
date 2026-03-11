@@ -6,10 +6,11 @@
 #include <EditorPluginScene/Panels/ScenegraphPanel/ScenegraphModel.moc.h>
 #include <EditorPluginScene/Scene/Scene2Document.h>
 #include <GuiFoundation/ActionViews/MenuActionMapView.moc.h>
+#include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <QVBoxLayout>
 
-ezQtLayerPanel::ezQtLayerPanel(QWidget* pParent, ezScene2Document* pDocument)
-  : ezQtDocumentPanel(pParent, pDocument)
+ezQtLayerPanel::ezQtLayerPanel(ads::CDockManager* pDockManager, QWidget* pParent, ezScene2Document* pDocument)
+  : ezQtDocumentPanel(pDockManager, pParent, pDocument)
 {
   setObjectName("LayerPanel");
   setWindowTitle("Layers");
@@ -31,6 +32,18 @@ ezQtLayerPanel::ezQtLayerPanel(QWidget* pParent, ezScene2Document* pDocument)
     "signal/slot connection failed");
 
   setWidget(m_pTreeWidget);
+
+  {
+    // Tool Bar
+    ezQtToolBarActionMapView* pToolBar = new ezQtToolBarActionMapView("Toolbar", this);
+    ezActionContext context;
+    context.m_sMapping = "EditorPluginScene_LayerToolbar";
+    context.m_pDocument = pDocument;
+    context.m_pWindow = this;
+    pToolBar->SetActionContext(context);
+    pToolBar->setObjectName("LayerPanel_ToolBar");
+    setToolBar(pToolBar);
+  }
 }
 
 ezQtLayerPanel::~ezQtLayerPanel() = default;

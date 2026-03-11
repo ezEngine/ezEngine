@@ -18,6 +18,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStereoTestPass, 1, ezRTTIDefaultAllocator<ezSt
     EZ_MEMBER_PROPERTY("Output", m_PinOutput)
   }
   EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Unit Tests")
+  }
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
@@ -66,15 +71,16 @@ void ezStereoTestPass::Execute(const ezRenderViewContext& renderViewContext, con
 
   // Setup render target
   ezGALRenderingSetup renderingSetup;
-  renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
+  renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
 
   // Bind render target and viewport
-  auto pCommandEncoder = ezRenderContext::BeginPassAndRenderingScope(renderViewContext, renderingSetup, GetName(), renderViewContext.m_pCamera->IsStereoscopic());
+  auto pCommandEncoder = ezRenderContext::BeginRenderingScope(renderViewContext, renderingSetup, GetName(), renderViewContext.m_pCamera->IsStereoscopic());
 
   renderViewContext.m_pRenderContext->BindShader(m_hShader);
+  renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
 
-  renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
-  renderViewContext.m_pRenderContext->BindTexture2D("ColorTexture", pDevice->GetDefaultResourceView(pInput->m_TextureHandle));
+  ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
+  bindGroup.BindTexture("ColorTexture", pInput->m_TextureHandle);
 
   renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
 }

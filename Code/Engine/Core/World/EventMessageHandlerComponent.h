@@ -1,15 +1,16 @@
 #pragma once
 
-#include <Core/Messages/EventMessage.h>
 #include <Core/World/World.h>
 
-struct ezEventMessage;
-
-/// \brief Base class for components that want to handle 'event messages'
+/// \brief Base class for components that want advanced handling of event messages.
 ///
 /// Event messages are messages that are 'broadcast' to indicate something happened on a component,
 /// e.g. a trigger that got activated or an animation that finished playing. These messages are 'bubbled up'
-/// the object hierarchy to the closest parent object that holds an ezEventMessageHandlerComponent.
+/// the object hierarchy to the closest parent object that holds a component that handles this message.
+/// Event message handler components can control whether the search for handlers should be continued or
+/// can register itself as global event message handlers which will be used if no handler is found in the parent hierarchy.
+/// This is typically used for level-logic scripts that want to react to events happening on any object in the world
+/// without needing to be attached to a specific object in the hierarchy.
 class EZ_CORE_DLL ezEventMessageHandlerComponent : public ezComponent
 {
   EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(ezEventMessageHandlerComponent, ezComponent);

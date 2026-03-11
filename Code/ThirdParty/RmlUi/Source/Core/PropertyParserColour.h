@@ -1,47 +1,16 @@
-/*
- * This source file is part of RmlUi, the HTML/CSS Interface Middleware
- *
- * For the latest information, see http://github.com/mikke89/RmlUi
- *
- * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
- */
-
-#ifndef RMLUI_CORE_PROPERTYPARSERCOLOUR_H
-#define RMLUI_CORE_PROPERTYPARSERCOLOUR_H
+#pragma once
 
 #include "../../Include/RmlUi/Core/PropertyParser.h"
 #include "../../Include/RmlUi/Core/Types.h"
+#include "ControlledLifetimeResource.h"
 
 namespace Rml {
 
 /**
-	A property parser that parses a colour value.
-
-	@author Peter Curry
+    A property parser that parses a colour value.
  */
 
-class PropertyParserColour : public PropertyParser
-{
+class PropertyParserColour : public PropertyParser {
 public:
 	PropertyParserColour();
 	virtual ~PropertyParserColour();
@@ -53,10 +22,33 @@ public:
 	/// @return True if the value was parsed successfully, false otherwise.
 	bool ParseValue(Property& property, const String& value, const ParameterMap& parameters) const override;
 
+	/// Parse a colour directly.
+	static bool ParseColour(Colourb& colour, const String& value);
+
+	static void Initialize();
+	static void Shutdown();
+
 private:
-	using ColourMap = UnorderedMap< String, Colourb>;
-	ColourMap html_colours;
+	static ControlledLifetimeResource<struct PropertyParserColourData> parser_data;
+
+	// Parse a colour in hex-code form (e.g. #FF00FF or #00FF00FF).
+	static bool ParseHexColour(Colourb& colour, const String& value);
+
+	// Parse a colour in RGB form (e.g. rgb(255, 0, 255) or rgba(0, 255, 0, 255)).
+	static bool ParseRGBColour(Colourb& colour, const String& value);
+
+	// Parse a colour in HSL form (e.g. hsl(0, 100%, 50%) or hsla(0, 100%, 50%, 1.0)).
+	static bool ParseHSLColour(Colourb& colour, const String& value);
+
+	// Parse a colour in CIELAB form (e.g. lab(100.0 0.0 0.0) or lab(50.0 -60.0 60.0 / 0.5)
+	//     or CIELCh form (e.g. lch(100.0 0.0 30) or lch(100.0 0.0 60 / 0.5)).
+	static bool ParseCIELABColour(Colourb& colour, const String& value);
+
+	// Parse a colour in Oklab form (e.g. oklab(1.0 0.0 0.0) or oklab(0.5 -0.2 0.2 / 0.5))
+	//     or Oklch form (e.g. oklch(1.0 0.0 30) or oklch(1.0 0.0 60 / 0.5)).
+	static bool ParseOklabColour(Colourb& colour, const String& value);
+
+	static bool GetColourFunctionValues(StringList& values, const String& value, bool is_comma_separated);
 };
 
 } // namespace Rml
-#endif

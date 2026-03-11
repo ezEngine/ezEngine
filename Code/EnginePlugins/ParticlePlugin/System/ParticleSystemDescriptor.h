@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Physics/SurfaceResourceDescriptor.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStream.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
 #include <Foundation/Reflection/Reflection.h>
@@ -10,6 +11,7 @@ class ezParticleEmitterFactory;
 class ezParticleBehaviorFactory;
 class ezParticleInitializerFactory;
 class ezParticleTypeFactory;
+class ezParticleFinalizerFactory;
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleSystemDescriptor final : public ezReflectedClass
 {

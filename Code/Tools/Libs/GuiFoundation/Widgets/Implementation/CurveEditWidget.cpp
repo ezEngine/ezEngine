@@ -795,17 +795,17 @@ void ezQtCurveEditWidget::keyPressEvent(QKeyEvent* e)
 {
   QWidget::keyPressEvent(e);
 
-  if (e->modifiers() == Qt::ControlModifier && e->key() == Qt::Key_F)
+  if (e->modifiers() == Qt::ControlModifier && ezQtUtils::IsEquivalentQtKey(e, Qt::Key_F))
   {
     e->accept();
     FrameCurve();
   }
-  else if (e->modifiers() == Qt::ShiftModifier && e->key() == Qt::Key_F)
+  else if (e->modifiers() == Qt::ShiftModifier && ezQtUtils::IsEquivalentQtKey(e, Qt::Key_F))
   {
     e->accept();
     FrameSelection();
   }
-  else if (e->modifiers() == Qt::ControlModifier && e->key() == Qt::Key_A)
+  else if (e->modifiers() == Qt::ControlModifier && ezQtUtils::IsEquivalentQtKey(e, Qt::Key_A))
   {
     e->accept();
     SelectAll();
@@ -1012,7 +1012,7 @@ void ezQtCurveEditWidget::PaintSelectedTangentLines(QPainter* painter) const
   painter->setBrush(Qt::NoBrush);
   painter->setPen(m_TangentLinePen);
 
-  ezHybridArray<QLine, 50> lines;
+  ezTempHybridArray<QLine, 50> lines;
 
   for (const auto& cpSel : m_SelectedCPs)
   {
@@ -1180,7 +1180,7 @@ void ezQtCurveEditWidget::RenderVerticalGrid(QPainter* painter, const QRectF& vi
     pen.setCosmetic(true);
     painter->setPen(pen);
 
-    ezHybridArray<QLine, 100> lines;
+    ezTempHybridArray<QLine, 100> lines;
 
     for (double x = lowX; x <= highX; x += fRoughGridDensity)
     {
@@ -1229,7 +1229,7 @@ void ezQtCurveEditWidget::RenderSideLinesAndText(QPainter* painter, const QRectF
     pen.setCosmetic(true);
     painter->setPen(pen);
 
-    ezHybridArray<QLine, 100> lines;
+    ezTempHybridArray<QLine, 100> lines;
 
     for (double y = lowY; y <= highY; y += fFineGridDensity)
     {
@@ -1254,7 +1254,7 @@ void ezQtCurveEditWidget::RenderSideLinesAndText(QPainter* painter, const QRectF
     pen.setCosmetic(true);
     painter->setPen(pen);
 
-    ezHybridArray<QLine, 100> lines;
+    ezTempHybridArray<QLine, 100> lines;
 
     for (double y = lowY; y <= highY; y += fRoughGridDensity)
     {

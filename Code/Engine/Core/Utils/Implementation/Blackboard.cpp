@@ -26,6 +26,13 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezBlackboard, ezNoBase, 1, ezRTTINoAllocator)
     EZ_SCRIPT_FUNCTION_PROPERTY(GetName),
     EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_SetEntryValue, In, "Name", In, "Value")->AddAttributes(new ezFunctionArgumentAttributes(0, new ezDynamicStringEnumAttribute("BlackboardKeysEnum"))),
     EZ_SCRIPT_FUNCTION_PROPERTY(GetEntryValue, In, "Name", In, "Fallback")->AddAttributes(new ezFunctionArgumentAttributes(0, new ezDynamicStringEnumAttribute("BlackboardKeysEnum"))),
+
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetBoolValue, In, "Name", In, "Fallback")->AddAttributes(new ezFunctionArgumentAttributes(0, new ezDynamicStringEnumAttribute("BlackboardKeysEnum"))),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetIntValue, In, "Name", In, "Fallback")->AddAttributes(new ezFunctionArgumentAttributes(0, new ezDynamicStringEnumAttribute("BlackboardKeysEnum"))),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetUIntValue, In, "Name", In, "Fallback")->AddAttributes(new ezFunctionArgumentAttributes(0, new ezDynamicStringEnumAttribute("BlackboardKeysEnum"))),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetFloatValue, In, "Name", In, "Fallback")->AddAttributes(new ezFunctionArgumentAttributes(0, new ezDynamicStringEnumAttribute("BlackboardKeysEnum"))),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetStringValue, In, "Name", In, "Fallback")->AddAttributes(new ezFunctionArgumentAttributes(0, new ezDynamicStringEnumAttribute("BlackboardKeysEnum"))),
+
     EZ_SCRIPT_FUNCTION_PROPERTY(IncrementEntryValue, In, "Name")->AddAttributes(new ezFunctionArgumentAttributes(0, new ezDynamicStringEnumAttribute("BlackboardKeysEnum"))),
     EZ_SCRIPT_FUNCTION_PROPERTY(DecrementEntryValue, In, "Name")->AddAttributes(new ezFunctionArgumentAttributes(0, new ezDynamicStringEnumAttribute("BlackboardKeysEnum"))),
     EZ_SCRIPT_FUNCTION_PROPERTY(GetBlackboardChangeCounter),
@@ -211,6 +218,52 @@ ezVariant ezBlackboard::GetEntryValue(const ezTempHashedString& sName, const ezV
 {
   auto pEntry = m_Entries.GetValue(sName);
   return pEntry != nullptr ? pEntry->m_Value : fallback;
+}
+
+bool ezBlackboard::GetBoolValue(const ezTempHashedString& sName, bool bFallback) const
+{
+  return GetEntryValueAs<bool>(sName, bFallback);
+}
+
+int ezBlackboard::GetIntValue(const ezTempHashedString& sName, int iFallback) const
+{
+  return GetEntryValueAs<int>(sName, iFallback);
+}
+
+ezUInt32 ezBlackboard::GetUIntValue(const ezTempHashedString& sName, ezUInt32 uiFallback) const
+{
+  return GetEntryValueAs<ezUInt32>(sName, uiFallback);
+}
+
+float ezBlackboard::GetFloatValue(const ezTempHashedString& sName, float fFallback) const
+{
+  return GetEntryValueAs<float>(sName, fFallback);
+}
+
+ezString ezBlackboard::GetStringValue(const ezTempHashedString& sName, ezStringView sFallback) const
+{
+  return GetEntryValueAs<ezString>(sName, sFallback);
+}
+
+ezResult ezBlackboard::SetEditorIndex(const ezTempHashedString& sName, ezUInt8 uiEditorIndex)
+{
+  auto itEntry = m_Entries.Find(sName);
+  if (!itEntry.IsValid())
+    return EZ_FAILURE;
+
+  itEntry.Value().m_uiEditorIndex = uiEditorIndex;
+  return EZ_SUCCESS;
+}
+
+ezHashedString ezBlackboard::FindNameForEditorIndex(ezUInt8 uiEditorIndex) const
+{
+  for (auto& e : m_Entries)
+  {
+    if (e.Value().m_uiEditorIndex == uiEditorIndex)
+      return e.Key();
+  }
+
+  return {};
 }
 
 ezVariant ezBlackboard::IncrementEntryValue(const ezTempHashedString& sName)

@@ -207,5 +207,3 @@ void RemoveCVarEventHandler()
 }
 
 
-
-EZ_STATICLINK_FILE(InspectorPlugin, InspectorPlugin_CVars);

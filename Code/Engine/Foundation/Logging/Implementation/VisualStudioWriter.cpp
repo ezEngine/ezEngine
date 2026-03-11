@@ -1,15 +1,23 @@
 #include <Foundation/FoundationPCH.h>
 
 #include <Foundation/Logging/VisualStudioWriter.h>
-#include <Foundation/Strings/StringConversion.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+
+#  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
+#  include <Foundation/Strings/StringConversion.h>
 
 void ezLogWriter::VisualStudio::LogMessageHandler(const ezLoggingEventData& eventData)
 {
   if (eventData.m_EventType == ezLogMsgType::Flush)
     return;
+
+#  if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT) && EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+  if (eventData.m_sTag.IsEqual_NoCase("beep"))
+  {
+    MessageBeep(0xFFFFFFFF);
+  }
+#  endif
 
   static ezMutex WriterLock; // will only be created if this writer is used at all
   EZ_LOCK(WriterLock);
@@ -84,6 +92,8 @@ void ezLogWriter::VisualStudio::LogMessageHandler(const ezLoggingEventData& even
 
 #else
 
-void ezLogWriter::VisualStudio::LogMessageHandler(const ezLoggingEventData& eventData) {}
+void ezLogWriter::VisualStudio::LogMessageHandler(const ezLoggingEventData& eventData)
+{
+}
 
 #endif

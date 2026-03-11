@@ -2,7 +2,7 @@
 
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <KrautPlugin/KrautDeclarations.h>
-#include <KrautPlugin/Renderer/KrautRenderData.h>
+#include <KrautPlugin/Resources/KrautGeneratorResource.h>
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/Meshes/MeshResource.h>
 #include <RendererCore/Pipeline/RenderData.h>
@@ -28,6 +28,7 @@ public:
   }
 
   void Update(const ezWorldModule::UpdateContext& context);
+  void UpdateWind(const ezWorldModule::UpdateContext& context);
   void EnqueueUpdate(ezComponentHandle hComponent);
 
 private:
@@ -78,9 +79,6 @@ public:
   /// \brief Currently this adds a cylinder mesh as a rough approximation for the tree collision shape.
   void OnBuildStaticMesh(ezMsgBuildStaticMesh& ref_msg) const;
 
-  void SetKrautFile(const char* szFile); // [ property ]
-  const char* GetKrautFile() const;      // [ property ]
-
   /// \brief If non-default, this chooses a random variation of the tree.
   ///
   /// In the tree editor, designers can add "good seeds", ie seed values that produce nice results.
@@ -99,8 +97,8 @@ public:
   ezUInt16 GetCustomRandomSeed() const;      // [ property ]
 
   /// \brief Sets the Kraut resource that is used to generate the tree mesh.
-  void SetKrautGeneratorResource(const ezKrautGeneratorResourceHandle& hTree);
-  const ezKrautGeneratorResourceHandle& GetKrautGeneratorResource() const { return m_hKrautGenerator; }
+  void SetKrautGeneratorResource(const ezKrautGeneratorResourceHandle& hTree);                          // [ property ]
+  const ezKrautGeneratorResourceHandle& GetKrautGeneratorResource() const { return m_hKrautGenerator; } // [ property ]
 
 private:
   /// \brief Currently this adds a cylinder mesh as a rough approximation of the tree trunk for collision.
@@ -112,9 +110,10 @@ private:
   ezKrautTreeResourceHandle m_hKrautTree;
   ezKrautGeneratorResourceHandle m_hKrautGenerator;
 
-  void ComputeWind() const;
+  void ComputeWind();
 
-  mutable ezUInt64 m_uiLastWindUpdate = (ezUInt64)-1;
-  mutable ezVec3 m_vWindSpringPos;
-  mutable ezVec3 m_vWindSpringVel;
+  ezVec3 m_vWindSpringPos;
+  ezVec3 m_vWindSpringVel;
+
+  mutable ezInstanceDataOffset m_InstanceDataOffset;
 };

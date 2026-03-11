@@ -1,0 +1,14 @@
+<RCC>
+  <qresource prefix="AssetIcons">
+    <file>MiniAudioSound.svg</file>
+  </qresource>
+  <qresource prefix="TypeIcons">
+    <file>ezMiniAudioListenerComponent.svg</file>
+    <file>ezMiniAudioSoundComponent.svg</file>
+  </qresource>  
+  <qresource prefix="Icons">
+    <file>SoundOn.svg</file>
+    <file>SoundOff.svg</file>
+  </qresource>  
+</RCC>
+

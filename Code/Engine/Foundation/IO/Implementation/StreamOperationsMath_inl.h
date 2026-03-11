@@ -3,6 +3,7 @@
 #include <Foundation/Math/BoundingBox.h>
 #include <Foundation/Math/BoundingSphere.h>
 #include <Foundation/Math/Color.h>
+#include <Foundation/Math/Color16f.h>
 #include <Foundation/Math/Color8UNorm.h>
 #include <Foundation/Math/Mat3.h>
 #include <Foundation/Math/Mat4.h>
@@ -12,6 +13,62 @@
 #include <Foundation/Math/Vec2.h>
 #include <Foundation/Math/Vec3.h>
 #include <Foundation/Math/Vec4.h>
+
+// ezFloat16
+
+inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, ezFloat16 value)
+{
+  inout_stream.WriteWordValue(&value).AssertSuccess();
+  return inout_stream;
+}
+
+inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezFloat16& ref_value)
+{
+  inout_stream.ReadWordValue(&ref_value).AssertSuccess();
+  return inout_stream;
+}
+
+// ezFloat16Vec2
+
+inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, const ezFloat16Vec2& value)
+{
+  inout_stream.WriteBytes(&value, sizeof(ezFloat16Vec2)).AssertSuccess();
+  return inout_stream;
+}
+
+inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezFloat16Vec2& ref_value)
+{
+  EZ_VERIFY(inout_stream.ReadBytes(&ref_value, sizeof(ezFloat16Vec2)) == sizeof(ezFloat16Vec2), "End of stream reached.");
+  return inout_stream;
+}
+
+// ezFloat16Vec3
+
+inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, const ezFloat16Vec3& value)
+{
+  inout_stream.WriteBytes(&value, sizeof(ezFloat16Vec3)).AssertSuccess();
+  return inout_stream;
+}
+
+inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezFloat16Vec3& ref_value)
+{
+  EZ_VERIFY(inout_stream.ReadBytes(&ref_value, sizeof(ezFloat16Vec3)) == sizeof(ezFloat16Vec3), "End of stream reached.");
+  return inout_stream;
+}
+
+// ezFloat16Vec4
+
+inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, const ezFloat16Vec4& value)
+{
+  inout_stream.WriteBytes(&value, sizeof(ezFloat16Vec4)).AssertSuccess();
+  return inout_stream;
+}
+
+inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezFloat16Vec4& ref_value)
+{
+  EZ_VERIFY(inout_stream.ReadBytes(&ref_value, sizeof(ezFloat16Vec4)) == sizeof(ezFloat16Vec4), "End of stream reached.");
+  return inout_stream;
+}
 
 // ezVec2Template
 
@@ -309,7 +366,7 @@ inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, const ezBounding
 {
   inout_stream << value.m_vCenter;
   inout_stream << value.m_fSphereRadius;
-  inout_stream << value.m_vBoxHalfExtends;
+  inout_stream << value.m_vBoxHalfExtents;
   return inout_stream;
 }
 
@@ -318,7 +375,7 @@ inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezBoundingBoxSph
 {
   inout_stream >> out_value.m_vCenter;
   inout_stream >> out_value.m_fSphereRadius;
-  inout_stream >> out_value.m_vBoxHalfExtends;
+  inout_stream >> out_value.m_vBoxHalfExtents;
   return inout_stream;
 }
 
@@ -440,4 +497,18 @@ ezResult DeserializeArray(ezStreamReader& inout_stream, ezColorLinearUB* pArray,
     return EZ_SUCCESS;
 
   return EZ_FAILURE;
+}
+
+
+// ezColorLinear16f
+inline ezStreamWriter& operator<<(ezStreamWriter& inout_stream, const ezColorLinear16f& value)
+{
+  inout_stream.WriteBytes(&value, sizeof(ezColorLinear16f)).AssertSuccess();
+  return inout_stream;
+}
+
+inline ezStreamReader& operator>>(ezStreamReader& inout_stream, ezColorLinear16f& ref_value)
+{
+  EZ_VERIFY(inout_stream.ReadBytes(&ref_value, sizeof(ezColorLinear16f)) == sizeof(ezColorLinear16f), "End of stream reached.");
+  return inout_stream;
 }

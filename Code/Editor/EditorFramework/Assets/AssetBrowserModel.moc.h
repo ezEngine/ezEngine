@@ -54,7 +54,7 @@ struct EZ_EDITORFRAMEWORK_DLL ezAssetBrowserItemFlags
 EZ_DECLARE_FLAGS_OPERATORS(ezAssetBrowserItemFlags);
 
 /// \brief Model of the item view in the asset browser.
-class EZ_EDITORFRAMEWORK_DLL ezQtAssetBrowserModel : public QAbstractItemModel
+class EZ_EDITORFRAMEWORK_DLL ezQtAssetBrowserModel : public QAbstractItemModel, public QEnableSharedFromThis<ezQtAssetBrowserModel>
 {
   Q_OBJECT
 public:
@@ -72,6 +72,7 @@ public:
 
   ezQtAssetBrowserModel(QObject* pParent, ezQtAssetFilter* pFilter);
   ~ezQtAssetBrowserModel();
+  void Initialize();
 
   void resetModel();
 
@@ -138,6 +139,8 @@ private:
   ezQtAssetFilter* m_pFilter = nullptr;
   bool m_bIconMode = true;
   ezSet<ezString> m_ImportExtensions;
+  ezEventSubscriptionID m_FileChangedSubscription = 0;
+  ezEventSubscriptionID m_FolderChangedSubscription = 0;
 
   ezMutex m_Mutex;
   ezDynamicArray<FsEvent> m_QueuedFileSystemEvents;

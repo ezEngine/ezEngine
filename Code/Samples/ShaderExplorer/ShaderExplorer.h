@@ -19,7 +19,9 @@
 
 #  if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT) && EZ_DISABLED(EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS)
 // on sandboxed platforms, we can only load data through fileserve, so enforce use of this plugin
-#    define USE_FILESERVE EZ_ON
+// Right now, the only platform that hits this code path is Android, but right now, port forwarding for enet does not seem to work in the emulator so for now this is disabled until this can be debugged further.
+// #    define USE_FILESERVE EZ_ON
+#    define USE_FILESERVE EZ_OFF
 #  else
 #    define USE_FILESERVE EZ_OFF
 #  endif
@@ -33,7 +35,7 @@
 #  define USE_DIRECTORY_WATCHER EZ_OFF
 #endif
 
-class ezShaderExplorerWindow;
+class ezWindow;
 class ezCamera;
 class ezGALDevice;
 class ezDirectoryWatcher;
@@ -48,7 +50,7 @@ public:
 
   ezShaderExplorerApp();
 
-  virtual Execution Run() override;
+  virtual void Run() override;
 
   virtual void AfterCoreSystemsStartup() override;
 
@@ -63,7 +65,7 @@ private:
   void OnFileChanged(ezStringView sFilename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type);
 #endif
 
-  ezShaderExplorerWindow* m_pWindow = nullptr;
+  ezWindow* m_pWindow = nullptr;
   ezGALDevice* m_pDevice = nullptr;
 
   ezGALSwapChainHandle m_hSwapChain;

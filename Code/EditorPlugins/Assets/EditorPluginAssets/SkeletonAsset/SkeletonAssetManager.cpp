@@ -18,7 +18,7 @@ ezSkeletonAssetDocumentManager::ezSkeletonAssetDocumentManager()
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Mesh_Skeleton");
 
-  m_DocTypeDesc.m_sResourceFileExtension = "ezSkeleton";
+  m_DocTypeDesc.m_sResourceFileExtension = "ezBinSkeleton";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::SupportsThumbnail | ezAssetDocumentFlags::AutoTransformOnSave;
 }
 

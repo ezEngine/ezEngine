@@ -393,7 +393,7 @@ public:
     }
 
     // Add the empty data directory to access files via absolute paths
-    ezFileSystem::AddDataDirectory("", "App", ":", ezFileSystem::AllowWrites).IgnoreResult();
+    ezFileSystem::AddDataDirectory("", "App", ":", ezDataDirUsage::AllowWrites).IgnoreResult();
 
     // pass the absolute path to the directory that should be scanned as the first parameter to this application
     ezStringBuilder sCompileCommandsPath;
@@ -984,11 +984,14 @@ public:
     }
   }
 
-  virtual ezApplication::Execution Run() override
+  virtual void Run() override
   {
     // something basic has gone wrong
     if (m_bHadSeriousWarnings || m_bHadErrors)
-      return ezApplication::Execution::Quit;
+    {
+      QuitApplication();
+      return;
+    }
 
     auto start = ezTimestamp::CurrentTimestamp();
 
@@ -1039,7 +1042,7 @@ public:
     ezLog::Info("Time to write out results: {0}s", (writeOutResultsEnd - checkDependendtFilesEnd).AsFloatInSeconds());
     ezLog::Info("Total time taken: {0}s", (writeOutResultsEnd - start).AsFloatInSeconds());
 
-    return ezApplication::Execution::Quit;
+    QuitApplication();
   }
 };
 
@@ -1147,4 +1150,4 @@ void CollectDependenciesTask::OnParsingFinished(ezTaskGroupID taskGroupId)
   }
 }
 
-EZ_CONSOLEAPP_ENTRY_POINT(ezDependencyAnalysisApp);
+EZ_APPLICATION_ENTRY_POINT(ezDependencyAnalysisApp);

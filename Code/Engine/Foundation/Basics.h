@@ -1,12 +1,20 @@
 #pragma once
 
+#define EZ_INCLUDING_BASICS_H
+
+// Very basic Preprocessor defines
 #include <Foundation/Basics/PreprocessorUtils.h>
 
+// Set all feature #defines to EZ_OFF
 #include <Foundation/Basics/AllDefinesOff.h>
 
+// General detection of the OS and hardware
 #include <Foundation/Basics/Platform/DetectArchitecture.h>
-#include <Foundation/Basics/Platform/DetectPlatform.h>
 
+// Here all the different features that each platform supports are declared.
+#include <Foundation/Basics/Platform/PlatformFeatures.h>
+
+// Options by the user to override the build
 #include <Foundation/UserConfig.h>
 
 // Configure the DLL Import/Export Define
@@ -25,24 +33,12 @@
 
 #include <Foundation/FoundationInternal.h>
 
-// include the different headers for the supported platforms
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#  include <Foundation/Basics/Platform/Win/Platform_win.h>
-#elif EZ_ENABLED(EZ_PLATFORM_OSX)
-#  include <Foundation/Basics/Platform/OSX/Platform_OSX.h>
-#elif EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
-#  include <Foundation/Basics/Platform/Linux/Platform_Linux.h>
-#else
-#  error "Undefined platform!"
-#endif
+// include headers for the supported compilers
+#include <Foundation/Basics/Compiler/Clang.h>
+#include <Foundation/Basics/Compiler/GCC.h>
+#include <Foundation/Basics/Compiler/MSVC.h>
 
-// Here all the different features that each platform supports are declared.
-#include <Foundation/Basics/Platform/PlatformFeatures.h>
-
-// Include this last, it will ensure the previous includes have setup everything correctly
-#include <Foundation/Basics/Platform/CheckDefinitions.h>
-
-// Include common definitions and macros (e.g. EZ_CHECK_AT_COMPILETIME)
+// Include common definitions and macros (e.g. static_assert)
 #include <Foundation/Basics/Platform/Common.h>
 
 // Include magic preprocessor macros
@@ -51,31 +47,19 @@
 // Now declare all fundamental types
 #include <Foundation/Types/Types.h>
 
-#ifdef BUILDSYSTEM_BUILDING_FOUNDATION_LIB
-#  if BUILDSYSTEM_COMPILE_ENGINE_AS_DLL && EZ_DISABLED(EZ_COMPILE_ENGINE_AS_DLL)
-#    error "The Buildsystem is configured to build the Engine as a shared library, but EZ_COMPILE_ENGINE_AS_DLL is not defined in UserConfig.h"
-#  endif
-#  if !BUILDSYSTEM_COMPILE_ENGINE_AS_DLL && EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
-#    error "The Buildsystem is configured to build the Engine as a static library, but EZ_COMPILE_ENGINE_AS_DLL is defined in UserConfig.h"
-#  endif
-#endif
-
-// Finally include the rest of basics
-#include <Foundation/Basics/Assert.h>
-
+// Type trait utilities
 #include <Foundation/Types/TypeTraits.h>
 
-#include <Foundation/Memory/Allocator.h>
+// Assert macros should always be available
+#include <Foundation/Basics/Assert.h>
 
-#include <Foundation/Configuration/StaticSubSystem.h>
+// String formatting is needed by the asserts
 #include <Foundation/Strings/FormatString.h>
+
 
 class EZ_FOUNDATION_DLL ezFoundation
 {
 public:
-  static ezAllocator* s_pDefaultAllocator;
-  static ezAllocator* s_pAlignedAllocator;
-
   /// \brief The default allocator can be used for any kind of allocation if no alignment is required
   EZ_ALWAYS_INLINE static ezAllocator* GetDefaultAllocator()
   {
@@ -88,10 +72,10 @@ public:
   /// \brief The aligned allocator should be used for all allocations which need alignment
   EZ_ALWAYS_INLINE static ezAllocator* GetAlignedAllocator()
   {
-    EZ_ASSERT_RELEASE(s_pAlignedAllocator != nullptr, "ezFoundation must have been initialized before this function can be called. This "
-                                                      "error can occur when you have a global variable or a static member variable that "
-                                                      "(indirectly) requires an allocator. Check out the documentation for 'ezStatic' for "
-                                                      "more information about this issue.");
+    EZ_ASSERT_ALWAYS(s_pAlignedAllocator != nullptr,
+      "ezFoundation must have been initialized before this function can be called."
+      "This error can occur when you have a global variable or a static member variable that (indirectly) requires an allocator."
+      "Check out the documentation for 'ezStaticsAllocatorWrapper' for more information about this issue.");
     return s_pAlignedAllocator;
   }
 
@@ -104,4 +88,8 @@ private:
 
   static void Initialize();
   static bool s_bIsInitialized;
+  static ezAllocator* s_pDefaultAllocator;
+  static ezAllocator* s_pAlignedAllocator;
 };
+
+#undef EZ_INCLUDING_BASICS_H

@@ -273,13 +273,17 @@ private:
 };
 
 
-/// \brief Implements a standard compliant JSON writer, all numbers are output as double values.
+/// \brief Standard-compliant JSON writer implementation with MongoDB-style binary data extension.
 ///
-/// ezStandardJSONWriter also implements WriteBinaryData() and the functions WriteVec2() etc., for which there is no standard way to implement them in
-/// JSON. WriteVec2() etc. will simply redirect to WriteBinaryData(), which in turn implements the MongoDB convention of outputting binary data.
-/// I.e. it will turn the data into a JSON object which contains one variable called "$type" that identifies the data type, and one variable called
-/// "$binary" which contains the raw binary data Hex encoded in little endian format.
-/// If you want to write a fully standard compliant JSON file, just don't output any of these types.
+/// StandardJSONWriter produces fully compliant JSON output that can be read by any standard JSON parser.
+/// It extends the base functionality with support for binary data using MongoDB's binary data convention,
+/// allowing ezEngine-specific types to be represented in a standardized way.
+///
+/// Binary data handling:
+/// - ezEngine types (Vec2, Vec3, matrices, etc.) encoded as MongoDB binary objects
+/// - Format: {"$type": "typename", "$binary": "hexdata"}
+/// - Little-endian hex encoding for cross-platform compatibility
+/// - Custom data types supported via WriteBinaryData()
 class EZ_FOUNDATION_DLL ezStandardJSONWriter : public ezJSONWriter
 {
 public:

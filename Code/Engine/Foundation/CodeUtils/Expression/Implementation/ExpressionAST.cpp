@@ -287,7 +287,7 @@ namespace
 // static
 const char* ezExpressionAST::NodeType::GetName(Enum nodeType)
 {
-  EZ_ASSERT_DEBUG(nodeType >= 0 && nodeType < EZ_ARRAY_SIZE(s_szNodeTypeNames), "Out of bounds access");
+  EZ_ASSERT_DEBUG(nodeType >= 0 && static_cast<ezUInt32>(nodeType) < EZ_ARRAY_SIZE(s_szNodeTypeNames), "Out of bounds access");
   return s_szNodeTypeNames[nodeType];
 }
 
@@ -380,7 +380,7 @@ namespace
 // static
 ezVariantType::Enum ezExpressionAST::DataType::GetVariantType(Enum dataType)
 {
-  EZ_ASSERT_DEBUG(dataType >= 0 && dataType < EZ_ARRAY_SIZE(s_DataTypeVariantTypes), "Out of bounds access");
+  EZ_ASSERT_DEBUG(dataType >= 0 && static_cast<ezUInt32>(dataType) < EZ_ARRAY_SIZE(s_DataTypeVariantTypes), "Out of bounds access");
   return s_DataTypeVariantTypes[dataType];
 }
 
@@ -394,7 +394,7 @@ ezExpressionAST::DataType::Enum ezExpressionAST::DataType::FromStreamType(ezProc
 // static
 const char* ezExpressionAST::DataType::GetName(Enum dataType)
 {
-  EZ_ASSERT_DEBUG(dataType >= 0 && dataType < EZ_ARRAY_SIZE(s_szDataTypeNames), "Out of bounds access");
+  EZ_ASSERT_DEBUG(dataType >= 0 && static_cast<ezUInt32>(dataType) < EZ_ARRAY_SIZE(s_szDataTypeNames), "Out of bounds access");
   return s_szDataTypeNames[dataType];
 }
 
@@ -423,7 +423,7 @@ namespace
 // static
 const char* ezExpressionAST::VectorComponent::GetName(Enum vectorComponent)
 {
-  EZ_ASSERT_DEBUG(vectorComponent >= 0 && vectorComponent < EZ_ARRAY_SIZE(s_szVectorComponentNames), "Out of bounds access");
+  EZ_ASSERT_DEBUG(vectorComponent >= 0 && static_cast<ezUInt32>(vectorComponent) < EZ_ARRAY_SIZE(s_szVectorComponentNames), "Out of bounds access");
   return s_szVectorComponentNames[vectorComponent];
 }
 
@@ -431,7 +431,9 @@ ezExpressionAST::VectorComponent::Enum ezExpressionAST::VectorComponent::FromCha
 {
   for (ezUInt32 i = 0; i < Count; ++i)
   {
-    if (uiChar == s_szVectorComponentNames[i][0] || uiChar == s_szVectorComponentAltNames[i][0])
+    const ezUInt32 uiComponentName = s_szVectorComponentNames[i][0];
+    const ezUInt32 uiComponentAltName = s_szVectorComponentAltNames[i][0];
+    if (uiChar == uiComponentName || uiChar == uiComponentAltName)
     {
       return static_cast<Enum>(i);
     }
@@ -443,7 +445,7 @@ ezExpressionAST::VectorComponent::Enum ezExpressionAST::VectorComponent::FromCha
 //////////////////////////////////////////////////////////////////////////
 
 ezExpressionAST::ezExpressionAST()
-  : m_Allocator("Expression AST", ezFoundation::GetAlignedAllocator())
+  : m_Allocator("Expression AST", ezFoundation::GetAlignedAllocator(), 4 * 1024)
 {
   static_assert(sizeof(Node) == 8);
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)
@@ -810,7 +812,7 @@ namespace
 
 void ezExpressionAST::PrintGraph(ezDGMLGraph& inout_graph) const
 {
-  ezHybridArray<NodeInfo, 64> nodeStack;
+  ezTempHybridArray<NodeInfo, 64> nodeStack;
 
   ezStringBuilder sTmp;
   for (auto pOutputNode : m_OutputNodes)
@@ -1110,7 +1112,7 @@ ezExpressionAST::DataType::Enum ezExpressionAST::GetExpectedChildDataType(const 
 // static
 void ezExpressionAST::UpdateHash(Node* pNode)
 {
-  ezHybridArray<ezUInt32, 16> valuesToHash;
+  ezTempHybridArray<ezUInt32, 16> valuesToHash;
 
   const ezUInt32* pBaseValues = reinterpret_cast<const ezUInt32*>(pNode);
   valuesToHash.PushBack(pBaseValues[0]);

@@ -1,5 +1,6 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
+#include <EditorFramework/Assets/AssetBrowserDlg.moc.h>
 #include <EditorFramework/Dialogs/DashboardDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 
@@ -53,7 +54,11 @@ void ezQtEditorApp::GuiCreateDocument()
 
 void ezQtEditorApp::GuiOpenDocument()
 {
-  GuiCreateOrOpenDocument(false);
+  ezQtAssetBrowserDlg dlg(QApplication::activeWindow(), ezUuid(), "", "");
+  if (dlg.exec() == 0)
+    return;
+
+  ezQtEditorApp::GetSingleton()->OpenDocument(dlg.GetSelectedAssetPathAbsolute(), ezDocumentFlags::RequestWindow | ezDocumentFlags::AddToRecentFilesList);
 }
 
 
@@ -92,24 +97,4 @@ ezString ezQtEditorApp::BuildDocumentTypeFileFilter(bool bForCreation)
   }
 
   return sAllFilters;
-}
-
-
-void ezQtEditorApp::DocumentWindowEventHandler(const ezQtDocumentWindowEvent& e)
-{
-  switch (e.m_Type)
-  {
-    case ezQtDocumentWindowEvent::WindowClosed:
-    {
-      // if all windows are closed, show at least the settings window
-      if (ezQtDocumentWindow::GetAllDocumentWindows().GetCount() == 0)
-      {
-        ShowSettingsDocument();
-      }
-    }
-    break;
-
-    default:
-      break;
-  }
 }

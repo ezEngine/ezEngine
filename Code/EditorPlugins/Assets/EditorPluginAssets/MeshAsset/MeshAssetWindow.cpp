@@ -1,8 +1,13 @@
 #include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
+#include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/Assets/AssetProcessor.h>
+#include <EditorFramework/Assets/AssetStatusIndicator.moc.h>
 #include <EditorFramework/DocumentWindow/OrbitCamViewWidget.moc.h>
 #include <EditorFramework/InputContexts/OrbitCameraContext.h>
 #include <EditorPluginAssets/MeshAsset/MeshAssetWindow.moc.h>
+#include <EditorPluginAssets/MeshAsset/MeshEditorContext.h>
+#include <Foundation/Utilities/ConversionUtils.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
@@ -47,21 +52,41 @@ ezQtMeshAssetDocumentWindow::ezQtMeshAssetDocumentWindow(ezMeshAssetDocument* pD
     m_pViewWidget = new ezQtOrbitCamViewWidget(this, &m_ViewConfig);
     m_pViewWidget->ConfigureRelative(ezVec3(0, 0, 1), ezVec3(5.0f), ezVec3(5, -2, 3), 2.0f);
     AddViewWidget(m_pViewWidget);
-    pContainer = new ezQtViewWidgetContainer(this, m_pViewWidget, "MeshAssetViewToolBar");
-    setCentralWidget(pContainer);
+
+    m_pMeshEditorInputContext = EZ_DEFAULT_NEW(ezMeshEditorInputContext, this, m_pViewWidget);
+
+    m_pCameraFlyContext = EZ_DEFAULT_NEW(ezCameraMoveContext, this, m_pViewWidget);
+    m_pCameraFlyContext->SetCamera(&m_ViewConfig.m_Camera);
+    m_pCameraFlyContext->LoadState();
+
+    // Default mode is orbit: [OrbitCamera, MeshEditorInputContext]
+    // The orbit camera was already pushed by ezQtOrbitCamViewWidget; just append our context.
+    m_pViewWidget->m_InputContexts.PushBack(m_pMeshEditorInputContext.Borrow());
+
+    pContainer = new ezQtViewWidgetContainer(GetContainerWindow()->GetDockManager(), this, m_pViewWidget, "MeshAssetViewToolBar");
+    m_pDockManager->setCentralWidget(pContainer);
   }
 
   // Property Grid
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("MeshAssetDockWidget");
     pPropertyPanel->setWindowTitle("Mesh Properties");
-    pPropertyPanel->show();
 
     ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
-    pPropertyPanel->setWidget(pPropertyGrid);
 
-    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
+    QWidget* pWidget = new QWidget();
+    pWidget->setObjectName("Group");
+    pWidget->setLayout(new QVBoxLayout());
+    pWidget->setContentsMargins(0, 0, 0, 0);
+
+    pWidget->layout()->setContentsMargins(0, 0, 0, 0);
+    pWidget->layout()->addWidget(new ezQtAssetStatusIndicator(GetDocument()));
+    pWidget->layout()->addWidget(pPropertyGrid);
+
+    pPropertyPanel->setWidget(pWidget, ads::CDockWidget::ForceNoScrollArea);
+
+    m_pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pPropertyPanel);
 
     pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
   }
@@ -88,6 +113,21 @@ ezMeshAssetDocument* ezQtMeshAssetDocumentWindow::GetMeshDocument()
   return static_cast<ezMeshAssetDocument*>(GetDocument());
 }
 
+void ezQtMeshAssetDocumentWindow::SetCameraMode(int iMode)
+{
+  if (m_iCameraMode == iMode)
+    return;
+  m_iCameraMode = iMode;
+
+  // Rebuild input context list: camera context first, Ctrl+MMB handler second.
+  m_pViewWidget->m_InputContexts.Clear();
+  if (iMode == 0) // Orbit
+    m_pViewWidget->m_InputContexts.PushBack(m_pViewWidget->GetOrbitCamera());
+  else            // Free fly
+    m_pViewWidget->m_InputContexts.PushBack(m_pCameraFlyContext.Borrow());
+  m_pViewWidget->m_InputContexts.PushBack(m_pMeshEditorInputContext.Borrow());
+}
+
 void ezQtMeshAssetDocumentWindow::SendRedrawMsg()
 {
   // do not try to redraw while the process is crashed, it is obviously futile
@@ -96,7 +136,8 @@ void ezQtMeshAssetDocumentWindow::SendRedrawMsg()
 
   for (auto pView : m_ViewWidgets)
   {
-    pView->SetEnablePicking(false);
+    // Picking must always be active to support the hover material display and Ctrl+MMB material opening.
+    pView->SetEnablePicking(true);
     pView->UpdateCameraInterpolation();
     pView->SyncToEngine();
   }
@@ -132,6 +173,7 @@ bool ezQtMeshAssetDocumentWindow::UpdatePreview()
 
   ezEditorEngineSetMaterialsMsg msg;
   msg.m_Materials.SetCount(materials.GetCount());
+  msg.m_SlotNames.SetCount(materials.GetCount());
 
   ezUInt32 uiSlot = 0;
   bool bHighlighted = false;
@@ -150,6 +192,25 @@ bool ezQtMeshAssetDocumentWindow::UpdatePreview()
 
       ++uiSlot;
     }
+
+    // Compute a readable display name: resolve GUID to asset filename, fall back to slot label
+    ezStringBuilder sDisplayName = materials[i].m_sLabel;
+    if (!materials[i].m_sResource.IsEmpty())
+    {
+      if (ezConversionUtils::IsStringUuid(materials[i].m_sResource))
+      {
+        const ezUuid guid = ezConversionUtils::ConvertStringToUuid(materials[i].m_sResource);
+        auto pSubAsset = ezAssetCurator::GetSingleton()->GetSubAsset(guid);
+        if (pSubAsset)
+          sDisplayName = pSubAsset->m_pAssetInfo->m_Path.GetAbsolutePath().GetFileName();
+      }
+      else
+      {
+        ezStringView sv(materials[i].m_sResource);
+        sDisplayName = sv.GetFileName();
+      }
+    }
+    msg.m_SlotNames[i] = sDisplayName;
   }
 
   GetEditorEngineConnection()->SendMessage(&msg);

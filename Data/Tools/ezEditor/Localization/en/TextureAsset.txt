@@ -1,8 +1,8 @@
 # Asset Types
 
-Texture 2D;Texture 2D
-Texture Cube;Texture Cube
-Render Target;Render Target
+Texture 2D;Texture 2D;;https://ezengine.net/pages/docs/graphics/textures-overview.html
+Texture Cube;Texture Cube;;https://ezengine.net/pages/docs/graphics/textures-overview.html
+Render Target;Render Target;;https://ezengine.net/pages/docs/graphics/textures-overview.html
 
 # UI
 
@@ -22,16 +22,24 @@ TextureImport.ORM;Occlusion / Roughness / Metalness
 
 CubemapImport.Skybox;Skybox
 CubemapImport.SkyboxHDR;HDR Skybox
+CubemapImport.SkyboxAuto;Skybox
 
 # Enums
 
 ezTexConvUsage::Hdr;HDR
-ezTexConvUsage::NormalMap_Inverted; Normal Map (inverted)
+ezTexConvUsage::NormalMap; Normal Map (DX)
+ezTexConvUsage::NormalMap_Inverted; Normal Map (GL)
 
 ezRenderTargetFormat::RGBA8;RGBA8 (linear)
 ezRenderTargetFormat::RGBA8sRgb;RGBA8 (sRGB)
 ezRenderTargetFormat::RGB10;RGB10
 ezRenderTargetFormat::RGBA16;RGBA16
+ezRenderTargetFormat::R8;R8 (normalized)
+ezRenderTargetFormat::R16;R16 (half float)
+ezRenderTargetFormat::R32;R32 (full float)
+ezRenderTargetFormat::RG8;RG8 (normalized)
+ezRenderTargetFormat::RG16;RG16 (half float)
+ezRenderTargetFormat::RG32;RG32 (full float)
 
 ezTextureFilterSetting::FixedNearest;Fixed: Nearest
 ezTextureFilterSetting::FixedBilinear;Fixed: Bilinear
@@ -83,6 +91,8 @@ ezTextureChannelMode::Red;Display Channel: Red
 ezTextureChannelMode::Green;Display Channel: Green
 ezTextureChannelMode::Blue;Display Channel: Blue
 ezTextureChannelMode::Alpha;Display Channel: Alpha
+ezTextureChannelMode::CoverageRed;Coverage Preview: Red
+ezTextureChannelMode::CoverageAlpha;Coverage Preview: Alpha
 
 ezTextureCubeUsageEnum::Unknown;Unknown
 ezTextureCubeUsageEnum::Skybox;Skybox

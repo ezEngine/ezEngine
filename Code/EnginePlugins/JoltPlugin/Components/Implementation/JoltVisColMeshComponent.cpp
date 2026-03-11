@@ -6,14 +6,14 @@
 #include <JoltPlugin/Components/JoltVisColMeshComponent.h>
 #include <JoltPlugin/Shapes/JoltShapeConvexHullComponent.h>
 #include <RendererCore/Meshes/CpuMeshResource.h>
-#include <RendererCore/Pipeline/RenderData.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezJoltVisColMeshComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("CollisionMesh", GetMeshFile, SetMeshFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Jolt_Colmesh_Triangle;CompatibleAsset_Jolt_Colmesh_Convex", ezDependencyFlags::Package)),
+    EZ_RESOURCE_ACCESSOR_PROPERTY("CollisionMesh", GetMesh, SetMesh)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Jolt_Colmesh_Triangle;CompatibleAsset_Jolt_Colmesh_Convex", ezDependencyFlags::Package)),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -68,26 +68,6 @@ ezResult ezJoltVisColMeshComponent::GetLocalBounds(ezBoundingBoxSphere& ref_boun
   }
 
   return EZ_FAILURE;
-}
-
-void ezJoltVisColMeshComponent::SetMeshFile(const char* szFile)
-{
-  ezJoltMeshResourceHandle hMesh;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hMesh = ezResourceManager::LoadResource<ezJoltMeshResource>(szFile);
-  }
-
-  SetMesh(hMesh);
-}
-
-const char* ezJoltVisColMeshComponent::GetMeshFile() const
-{
-  if (!m_hCollisionMesh.IsValid())
-    return "";
-
-  return m_hCollisionMesh.GetResourceID();
 }
 
 void ezJoltVisColMeshComponent::SetMesh(const ezJoltMeshResourceHandle& hMesh)
@@ -150,7 +130,13 @@ void ezJoltVisColMeshComponent::CreateCollisionRenderMesh()
 
   ezMeshResourceDescriptor md = pCpuMesh->GetDescriptor();
 
-  md.SetMaterial(0, "Materials/Common/ColMesh.ezMaterial");
+  // replace all materials with the preview material
+  // actually the existing materials here are the surfaces of the collision mesh
+  // so this can't be used for rendering anyway
+  for (ezUInt32 i = 0; i < md.GetMaterials().GetCount(); ++i)
+  {
+    md.SetMaterial(i, "Materials/Common/ColMesh.ezMaterial");
+  }
 
   m_hMesh = ezResourceManager::GetOrCreateResource<ezMeshResource>(sColMeshName, std::move(md), "Collision Mesh Visualization");
 
@@ -164,20 +150,23 @@ void ezJoltVisColMeshComponent::Initialize()
   GetWorld()->GetOrCreateComponentManager<ezJoltVisColMeshComponentManager>()->EnqueueUpdate(GetHandle());
 }
 
+void ezJoltVisColMeshComponent::OnDeactivated()
+{
+  ezRenderDataManager* pRenderDataManager = GetWorld()->GetModule<ezRenderDataManager>();
+  pRenderDataManager->DeleteInstanceData(m_InstanceDataOffset);
+
+  SUPER::OnDeactivated();
+}
+
 void ezJoltVisColMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   if (!m_hMesh.IsValid())
     return;
 
+  const bool bDynamic = GetOwner()->IsDynamic();
+  auto hInstanceDataBuffer = msg.m_pRenderDataManager->GetOrCreateInstanceDataAndFill(*this, bDynamic, GetOwner()->GetGlobalTransform(), m_InstanceDataOffset, GetUniqueIdForRendering());
+
   ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowLoadingFallback);
-
-  ezRenderData::Caching::Enum caching = ezRenderData::Caching::IfStatic;
-
-  if (pMesh.GetAcquireResult() != ezResourceAcquireResult::Final)
-  {
-    caching = ezRenderData::Caching::Never;
-  }
-
   ezArrayPtr<const ezMeshResourceDescriptor::SubMesh> parts = pMesh->GetSubMeshes();
 
   for (ezUInt32 uiPartIndex = 0; uiPartIndex < parts.GetCount(); ++uiPartIndex)
@@ -185,19 +174,11 @@ void ezJoltVisColMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& m
     const ezUInt32 uiMaterialIndex = parts[uiPartIndex].m_uiMaterialIndex;
     ezMaterialResourceHandle hMaterial = pMesh->GetMaterials()[uiMaterialIndex];
 
-    ezMeshRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner());
-    {
-      pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
-      pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
-      pRenderData->m_hMesh = m_hMesh;
-      pRenderData->m_hMaterial = hMaterial;
-      pRenderData->m_uiSubMeshIndex = uiPartIndex;
-      pRenderData->m_uiUniqueID = GetUniqueIdForRendering(uiMaterialIndex);
+    ezMeshRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner());
+    pRenderData->SetFallbackGlobalBounds(GetOwner()->GetGlobalBounds());
+    pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, hMaterial, m_hMesh, uiMaterialIndex, uiPartIndex);
 
-      pRenderData->FillBatchIdAndSortingKey();
-    }
-
-    msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitOpaque, caching);
+    msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitOpaque, ezRenderData::Caching::IfStatic);
   }
 }
 
@@ -208,7 +189,7 @@ void ezJoltVisColMeshComponentManager::Initialize()
   SUPER::Initialize();
 
   ezWorldModule::UpdateFunctionDesc desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezJoltVisColMeshComponentManager::Update, this);
-  desc.m_Phase = UpdateFunctionDesc::Phase::PreAsync;
+  desc.m_Phase = ezWorldUpdatePhase::PreAsync;
 
   RegisterUpdateFunction(desc);
 

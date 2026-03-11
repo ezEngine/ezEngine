@@ -36,7 +36,7 @@ if (EZ_CMAKE_PLATFORM_LINUX)
   )
 endif()
 
-if(CURRENT_OSX_VERSION)
+if(EZ_CMAKE_PLATFORM_OSX)
   find_library(CORESERVICES_LIBRARY CoreServices)
   find_library(COREFOUNDATION_LIBRARY CoreFoundation)
 
@@ -69,7 +69,11 @@ if(EZ_3RDPARTY_GLFW_SUPPORT)
 endif()
 
 if(EZ_3RDPARTY_TRACELOGGING_LTTNG_SUPPORT)
-  target_link_libraries(${PROJECT_NAME} PRIVATE tracelogging)
+  target_link_libraries(${PROJECT_NAME} PUBLIC tracelogging)
+endif()
+
+if(EZ_3RDPARTY_PERFETTO_SUPPORT)
+  target_link_libraries(${PROJECT_NAME} PUBLIC perfetto)
 endif()
 
 if(EZ_3RDPARTY_TRACY_SUPPORT)

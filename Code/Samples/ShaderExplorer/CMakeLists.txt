@@ -7,22 +7,23 @@ get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 
 ez_create_target(APPLICATION ${PROJECT_NAME})
 
-if(EZ_CMAKE_PLATFORM_ANDROID)
-    #TODO: Add actual packaging code. This is done in PRE_BUILD so that it happens before the
-    #apk gen steps that happen in POST_BUILD and which are already done via ez_create_target.
-    add_custom_command(TARGET ${PROJECT_NAME} PRE_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_directory
-            ${EZ_ROOT}/Output/ShaderCache/VULKAN/ ${CMAKE_CURRENT_BINARY_DIR}/package/Assets/Output/ShaderCache/VULKAN/)
-    add_custom_command(TARGET ${PROJECT_NAME} PRE_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_directory
-            ${EZ_ROOT}/Data/Samples/ShaderExplorer/ ${CMAKE_CURRENT_BINARY_DIR}/package/Assets/Data/Samples/ShaderExplorer/)
-    add_custom_command(TARGET ${PROJECT_NAME} PRE_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_directory
-            ${EZ_ROOT}/Data/Base/Shaders/ ${CMAKE_CURRENT_BINARY_DIR}/package/Assets/Data/Base/Shaders/)
+# Package required data files for deployment
+# This ensures the application has access to shaders and sample data
+ez_package_files(${PROJECT_NAME} "${EZ_ROOT}/Data/Samples/ShaderExplorer" "Data/Samples/ShaderExplorer")
+ez_package_files(${PROJECT_NAME} "${EZ_ROOT}/Data/Base/Shaders" "Data/Base/Shaders")
 
+# Package shader cache if available (Vulkan shaders for Android/Web platforms)
+if(EXISTS "${EZ_ROOT}/Output/ShaderCache/VULKAN")
+    ez_package_files(${PROJECT_NAME} "${EZ_ROOT}/Output/ShaderCache/VULKAN" "Output/ShaderCache/VULKAN")
+endif()
+
+if(EZ_CMAKE_PLATFORM_ANDROID)
     target_link_libraries(${PROJECT_NAME}
-            PUBLIC
-            InspectorPlugin
+        PUBLIC
+        InspectorPlugin
+        # To support Fileserve we need to link against the plugin which does unfortunately force loading of it so Fileserve can't be disabled at runtime.
+        # See comments in ShaderExplorer.h for details.
+        # FileservePlugin
     )
 endif()
 
@@ -31,8 +32,4 @@ ez_add_renderers(${PROJECT_NAME})
 target_link_libraries(${PROJECT_NAME}
   PUBLIC
   RendererCore
-)
-
-add_dependencies(${PROJECT_NAME}
-  InspectorPlugin
 )

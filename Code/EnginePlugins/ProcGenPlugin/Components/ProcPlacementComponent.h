@@ -27,7 +27,7 @@ private:
   void PreparePlace(const ezWorldModule::UpdateContext& context);
   void PlaceObjects(const ezWorldModule::UpdateContext& context);
 
-  void DebugDrawTile(const ezProcGenInternal::PlacementTileDesc& desc, const ezColor& color, ezUInt32 uiQueueIndex = ezInvalidIndex);
+  bool DebugDrawTile(const ezProcGenInternal::PlacementTileDesc& desc, const ezColor& color, ezUInt32 uiQueueIndex = ezInvalidIndex);
 
   void AddComponent(ezProcPlacementComponent* pComponent);
   void RemoveComponent(ezProcPlacementComponent* pComponent);
@@ -41,6 +41,7 @@ private:
 
   void RemoveTilesForComponent(ezProcPlacementComponent* pComponent, bool* out_bAnyObjectsRemoved = nullptr);
   void OnResourceEvent(const ezResourceEvent& resourceEvent);
+  void OnAreaInvalidated(const ezProcGenInternal::InvalidatedArea& area);
 
   void AddVisibleComponent(const ezComponentHandle& hComponent, const ezVec3& cameraPosition, const ezVec3& cameraDirection) const;
   void ClearVisibleComponents();
@@ -121,11 +122,8 @@ public:
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
 
-  void SetResourceFile(const char* szFile);
-  const char* GetResourceFile() const;
-
-  void SetResource(const ezProcGenGraphResourceHandle& hResource);
-  const ezProcGenGraphResourceHandle& GetResource() const { return m_hResource; }
+  void SetResource(const ezProcGenGraphResourceHandle& hResource);                // [ property ]
+  const ezProcGenGraphResourceHandle& GetResource() const { return m_hResource; } // [ property ]
 
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ref_msg);
   void OnMsgExtractRenderData(ezMsgExtractRenderData& ref_msg) const;

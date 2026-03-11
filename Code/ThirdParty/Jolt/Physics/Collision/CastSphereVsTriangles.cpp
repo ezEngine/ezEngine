@@ -104,7 +104,7 @@ float CastSphereVsTriangles::RayCylinder(Vec3Arg inRayDirection, Vec3Arg inCylin
 	float c = axis_len_sq * (start.LengthSq() - Square(inRadius)) - Square(start_dot_axis);
 	float det = Square(b) - a * c; // normally 4 * a * c but since both a and c need to be divided by 2 we lose the 4
 	if (det < 0.0f)
-		return FLT_MAX; // No solution to quadractic equation
+		return FLT_MAX; // No solution to quadratic equation
 
 	// Solve fraction t where the ray hits the cylinder
 	float t = -(b + sqrt(det)) / a; // normally divided by 2 * a but since a should be divided by 2 we lose the 2
@@ -117,8 +117,6 @@ float CastSphereVsTriangles::RayCylinder(Vec3Arg inRayDirection, Vec3Arg inCylin
 
 void CastSphereVsTriangles::Cast(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2, uint8 inActiveEdges, const SubShapeID &inSubShapeID2)
 {
-	JPH_PROFILE_FUNCTION();
-
 	// Scale triangle and make it relative to the start of the cast
 	Vec3 v0 = mScale * inV0 - mStart;
 	Vec3 v1 = mScale * inV1 - mStart;
@@ -214,7 +212,9 @@ void CastSphereVsTriangles::Cast(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2, uint8
 		// Get contact point and normal
 		uint32 closest_feature;
 		Vec3 q = ClosestPoint::GetClosestPointOnTriangle(v0 - p, v1 - p, v2 - p, closest_feature);
-		Vec3 contact_normal = q.Normalized();
+		// The distance between p and the triangle should be mRadius, but for very long casts,
+		// floating point accuracy can become low enough so that p is on the plane and q is zero
+		Vec3 contact_normal = q.NormalizedOr(back_facing? triangle_normal : -triangle_normal);
 		Vec3 contact_point_ab = p + q;
 		AddHitWithActiveEdgeDetection(v0, v1, v2, back_facing, triangle_normal, inActiveEdges, inSubShapeID2, fraction, contact_point_ab, contact_point_ab, contact_normal);
 	}

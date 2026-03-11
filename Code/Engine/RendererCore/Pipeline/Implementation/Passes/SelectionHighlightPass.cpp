@@ -25,6 +25,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSelectionHighlightPass, 1, ezRTTIDefaultAlloca
     EZ_MEMBER_PROPERTY("OverlayOpacity", m_fOverlayOpacity)->AddAttributes(new ezDefaultValueAttribute(0.1f))
   }
   EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Effects")
+  }
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
@@ -42,7 +47,6 @@ ezSelectionHighlightPass::ezSelectionHighlightPass(const char* szName)
 ezSelectionHighlightPass::~ezSelectionHighlightPass()
 {
   ezRenderContext::DeleteConstantBufferStorage(m_hConstantBuffer);
-  m_hConstantBuffer.Invalidate();
 }
 
 bool ezSelectionHighlightPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
@@ -91,11 +95,10 @@ void ezSelectionHighlightPass::Execute(const ezRenderViewContext& renderViewCont
     hDepthTexture = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(uiWidth, uiHeight, ezGALResourceFormat::D24S8, sampleCount, uiSliceCount);
 
     ezGALRenderingSetup renderingSetup;
-    renderingSetup.m_RenderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(hDepthTexture));
-    renderingSetup.m_bClearDepth = true;
-    renderingSetup.m_bClearStencil = true;
+    renderingSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(hDepthTexture));
+    renderingSetup.SetClearDepth().SetClearStencil();
 
-    auto pCommandEncoder = ezRenderContext::BeginPassAndRenderingScope(renderViewContext, std::move(renderingSetup), GetName(), renderViewContext.m_pCamera->IsStereoscopic());
+    auto pCommandEncoder = ezRenderContext::BeginRenderingScope(renderViewContext, std::move(renderingSetup), GetName(), renderViewContext.m_pCamera->IsStereoscopic());
 
     renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_DEPTH_ONLY");
 
@@ -109,15 +112,17 @@ void ezSelectionHighlightPass::Execute(const ezRenderViewContext& renderViewCont
     constants->OverlayOpacity = m_fOverlayOpacity;
 
     ezGALRenderingSetup renderingSetup;
-    renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(pColorOutput->m_TextureHandle));
+    renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(pColorOutput->m_TextureHandle));
 
-    auto pCommandEncoder = ezRenderContext::BeginPassAndRenderingScope(renderViewContext, std::move(renderingSetup), GetName(), renderViewContext.m_pCamera->IsStereoscopic());
+    auto pCommandEncoder = ezRenderContext::BeginRenderingScope(renderViewContext, std::move(renderingSetup), GetName(), renderViewContext.m_pCamera->IsStereoscopic());
 
     renderViewContext.m_pRenderContext->BindShader(m_hShader);
-    renderViewContext.m_pRenderContext->BindConstantBuffer("ezSelectionHighlightConstants", m_hConstantBuffer);
-    renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
-    renderViewContext.m_pRenderContext->BindTexture2D("SelectionDepthTexture", pDevice->GetDefaultResourceView(hDepthTexture));
-    renderViewContext.m_pRenderContext->BindTexture2D("SceneDepthTexture", pDevice->GetDefaultResourceView(pDepthInput->m_TextureHandle));
+    renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
+
+    ezBindGroupBuilder& bindGroupRenderPass = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);
+    bindGroupRenderPass.BindBuffer("ezSelectionHighlightConstants", m_hConstantBuffer);
+    bindGroupRenderPass.BindTexture("SelectionDepthTexture", hDepthTexture);
+    bindGroupRenderPass.BindTexture("SceneDepthTexture", pDepthInput->m_TextureHandle);
 
     renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
 

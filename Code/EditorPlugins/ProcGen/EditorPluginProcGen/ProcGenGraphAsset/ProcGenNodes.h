@@ -1,9 +1,10 @@
 #pragma once
 
+#include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenNodePins.h>
 #include <Foundation/CodeUtils/Expression/ExpressionAST.h>
+#include <Foundation/Tracks/CurveEditData.h>
 #include <Foundation/Types/TagSet.h>
 #include <ProcGenPlugin/Resources/ProcGenGraphSharedData.h>
-#include <RendererCore/Pipeline/RenderPipelineNode.h>
 
 class ezProcGenNodeBase : public ezReflectedClass
 {
@@ -20,7 +21,8 @@ public:
     };
 
     ezProcGenInternal::GraphSharedData m_SharedData;
-    ezHybridArray<ezUInt8, 4> m_VolumeTagSetIndices;
+    ezSmallArray<ezUInt8, 4> m_VolumeTagSetIndices;
+    ezSmallArray<ezUInt8, 4> m_CurveIndices;
     OutputType m_OutputType = OutputType::Unknown;
   };
 
@@ -37,10 +39,12 @@ public:
   bool m_bActive = true;
 
   void Save(ezStreamWriter& inout_stream);
+  void CopyValuesFromContext(const GraphContext& context);
 
   ezString m_sName;
 
-  ezHybridArray<ezUInt8, 4> m_VolumeTagSetIndices;
+  ezSmallArray<ezUInt8, 4> m_VolumeTagSetIndices;
+  ezSmallArray<ezUInt8, 4> m_CurveIndices;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -76,12 +80,15 @@ public:
   ezString m_sColorGradient;
 
   ezEnum<ezProcPlacementMode> m_PlacementMode;
+  ezUInt8 m_uiNumAdditionalRays = 4;
+  float m_fRaySpread = 1.0f;
+
   ezEnum<ezProcPlacementPattern> m_PlacementPattern;
 
-  ezRenderPipelineNodeInputPin m_DensityPin;
-  ezRenderPipelineNodeInputPin m_ScalePin;
-  ezRenderPipelineNodeInputPin m_ColorIndexPin;
-  ezRenderPipelineNodeInputPin m_ObjectIndexPin;
+  ezProcGenNodeInputPin m_DensityPin;
+  ezProcGenNodeInputPin m_ScalePin;
+  ezProcGenNodeInputPin m_ColorIndexPin;
+  ezProcGenNodeInputPin m_ObjectIndexPin;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -95,10 +102,10 @@ public:
 
   void Save(ezStreamWriter& inout_stream);
 
-  ezRenderPipelineNodeInputPin m_RPin;
-  ezRenderPipelineNodeInputPin m_GPin;
-  ezRenderPipelineNodeInputPin m_BPin;
-  ezRenderPipelineNodeInputPin m_APin;
+  ezProcGenNodeInputPin m_RPin;
+  ezProcGenNodeInputPin m_GPin;
+  ezProcGenNodeInputPin m_BPin;
+  ezProcGenNodeInputPin m_APin;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -115,7 +122,7 @@ public:
   float m_fOutputMin = 0.0f;
   float m_fOutputMax = 1.0f;
 
-  ezRenderPipelineNodeOutputPin m_OutputValuePin;
+  ezProcGenNodeOutputPin m_OutputValuePin;
 
 private:
   void OnObjectCreated(const ezAbstractObjectNode& node);
@@ -139,7 +146,7 @@ public:
   float m_fOutputMin = 0.0f;
   float m_fOutputMax = 1.0f;
 
-  ezRenderPipelineNodeOutputPin m_OutputValuePin;
+  ezProcGenNodeOutputPin m_OutputValuePin;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -156,9 +163,60 @@ public:
   float m_fInputValueB = 1.0f;
   bool m_bClampOutput = false;
 
-  ezRenderPipelineNodeInputPin m_InputValueAPin;
-  ezRenderPipelineNodeInputPin m_InputValueBPin;
-  ezRenderPipelineNodeOutputPin m_OutputValuePin;
+  ezProcGenNodeInputPin m_InputValueAPin;
+  ezProcGenNodeInputPin m_InputValueBPin;
+  ezProcGenNodeOutputPin m_OutputValuePin;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class ezProcGen_Remap : public ezProcGenNodeBase
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcGen_Remap, ezProcGenNodeBase);
+
+public:
+  virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_ast, GraphContext& ref_context) override;
+
+  float m_fInputMin = 0.0f;
+  float m_fInputMax = 1.0f;
+  float m_fOutputMin = 0.0f;
+  float m_fOutputMax = 1.0f;
+  bool m_bClampIntermediate = false;
+
+  ezProcGenNodeInputPin m_InputValuePin;
+  ezProcGenNodeOutputPin m_OutputValuePin;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class ezProcGen_Curve : public ezProcGenNodeBase
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcGen_Curve, ezProcGenNodeBase);
+
+public:
+  virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_ast, GraphContext& ref_context) override;
+
+  ezSingleCurveData m_CurveData;
+  ezUInt32 m_uiNumSamples = 32;
+
+  ezProcGenNodeInputPin m_InputValuePin;
+  ezProcGenNodeOutputPin m_OutputValuePin;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class ezProcGen_Contrast : public ezProcGenNodeBase
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcGen_Contrast, ezProcGenNodeBase);
+
+public:
+  virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_ast, GraphContext& ref_context) override;
+
+  float m_fInputValue = 0.5f;
+  float m_fContrast = 0.0f;
+
+  ezProcGenNodeInputPin m_InputValuePin;
+  ezProcGenNodeOutputPin m_OutputValuePin;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -175,7 +233,7 @@ public:
   float m_fLowerFade = 0.2f;
   float m_fUpperFade = 0.2f;
 
-  ezRenderPipelineNodeOutputPin m_OutputValuePin;
+  ezProcGenNodeOutputPin m_OutputValuePin;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -192,7 +250,35 @@ public:
   float m_fLowerFade = 0.0f;
   float m_fUpperFade = 0.2f;
 
-  ezRenderPipelineNodeOutputPin m_OutputValuePin;
+  ezProcGenNodeOutputPin m_OutputValuePin;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class ezProcGen_Position : public ezProcGenNodeBase
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcGen_Position, ezProcGenNodeBase);
+
+public:
+  virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_ast, GraphContext& ref_context) override;
+
+  ezProcGenNodeOutputPin m_XPin;
+  ezProcGenNodeOutputPin m_YPin;
+  ezProcGenNodeOutputPin m_ZPin;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class ezProcGen_Normal : public ezProcGenNodeBase
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcGen_Normal, ezProcGenNodeBase);
+
+public:
+  virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_ast, GraphContext& ref_context) override;
+
+  ezProcGenNodeOutputPin m_XPin;
+  ezProcGenNodeOutputPin m_YPin;
+  ezProcGenNodeOutputPin m_ZPin;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -204,10 +290,10 @@ class ezProcGen_MeshVertexColor : public ezProcGenNodeBase
 public:
   virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_ast, GraphContext& ref_context) override;
 
-  ezRenderPipelineNodeOutputPin m_RPin;
-  ezRenderPipelineNodeOutputPin m_GPin;
-  ezRenderPipelineNodeOutputPin m_BPin;
-  ezRenderPipelineNodeOutputPin m_APin;
+  ezProcGenNodeOutputPin m_RPin;
+  ezProcGenNodeOutputPin m_GPin;
+  ezProcGenNodeOutputPin m_BPin;
+  ezProcGenNodeOutputPin m_APin;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -226,6 +312,6 @@ public:
   ezEnum<ezProcVolumeImageMode> m_ImageVolumeMode;
   ezColorGammaUB m_RefColor;
 
-  ezRenderPipelineNodeInputPin m_InputValuePin;
-  ezRenderPipelineNodeOutputPin m_OutputValuePin;
+  ezProcGenNodeInputPin m_InputValuePin;
+  ezProcGenNodeOutputPin m_OutputValuePin;
 };

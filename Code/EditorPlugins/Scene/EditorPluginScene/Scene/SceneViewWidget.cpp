@@ -51,7 +51,7 @@ void ezQtSceneViewWidget::OnOpenContextMenu(QPoint globalPos)
   {
     s_bContextMenuInitialized = true;
 
-    ezActionMapManager::RegisterActionMap("SceneViewContextMenu").IgnoreResult();
+    ezActionMapManager::RegisterActionMap("SceneViewContextMenu");
 
     ezGameObjectSelectionActions::MapViewContextMenuActions("SceneViewContextMenu");
     ezSelectionActions::MapViewContextMenuActions("SceneViewContextMenu");
@@ -101,6 +101,18 @@ void ezQtSceneViewWidget::dragEnterEvent(QDragEnterEvent* e)
     info.m_TargetComponent = res.m_PickedComponent;
     info.m_bShiftKeyDown = e->modifiers() & Qt::ShiftModifier;
     info.m_bCtrlKeyDown = e->modifiers() & Qt::ControlModifier;
+
+    if (ezGameObjectDocument* pSceneDoc = ezDynamicCast<ezGameObjectDocument*>(m_pDocumentWindow->GetDocument()))
+    {
+      pSceneDoc = pSceneDoc->GetRedirectedGameObjectDoc();
+      const ezUuid guid = pSceneDoc->GetActiveParent();
+
+      // the object may not exist anymore
+      if (pSceneDoc->GetObjectManager()->GetObject(guid) != nullptr)
+      {
+        info.m_ActiveParentObject = guid;
+      }
+    }
 
     ezDragDropConfig cfg;
     if (ezDragDropHandler::BeginDragDropOperation(&info, &cfg))
@@ -174,6 +186,8 @@ void ezQtSceneViewWidget::dropEvent(QDropEvent* e)
     info.m_bCtrlKeyDown = e->modifiers() & Qt::ControlModifier;
 
     ezDragDropHandler::FinishDragDrop(&info);
+
+    setFocus();
   }
 
   ezQtEngineViewWidget::dropEvent(e);

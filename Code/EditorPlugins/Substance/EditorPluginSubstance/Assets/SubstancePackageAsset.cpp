@@ -6,6 +6,7 @@
 #include <EditorPluginSubstance/Assets/SubstancePackageAssetManager.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/Utilities/AssetFileHeader.h>
+#include <ToolsFoundation/FileSystem/FileSystemModel.h>
 
 #include <qsettings.h>
 #include <qxmlstream.h>
@@ -258,13 +259,115 @@ namespace
     return EZ_SUCCESS;
   }
 
+  ezStringView AddDependency(ezStringView sDependency, ezStringView sSbsDir, ezSet<ezString>& out_dependencies)
+  {
+    ezStringBuilder sFullPath;
+    if (sDependency.IsAbsolutePath())
+    {
+      EZ_ASSERT_NOT_IMPLEMENTED;
+    }
+    else
+    {
+      sFullPath = sSbsDir;
+      sFullPath.AppendPath(sDependency);
+      sFullPath.MakeCleanPath();
+    }
+
+    if (out_dependencies.Contains(sFullPath) == false)
+    {
+      auto it = out_dependencies.Insert(sFullPath);
+      return it.Key();
+    }
+
+    return "";
+  };
+
+  ezResult ReadExternalCopy(QXmlStreamReader& inout_reader, ezString& out_sExternalCopy)
+  {
+    EZ_ASSERT_DEBUG(inout_reader.name() == QLatin1StringView("source"), "");
+
+    EZ_SUCCEED_OR_RETURN(ReadUntilStartElement(inout_reader, "externalcopy"));
+    EZ_SUCCEED_OR_RETURN(ReadUntilStartElement(inout_reader, "filename"));
+
+    out_sExternalCopy = GetValueAttribute<ezString>(inout_reader);
+
+    EZ_SUCCEED_OR_RETURN(ReadUntilEndElement(inout_reader, "source"));
+    return EZ_SUCCESS;
+  }
+
+  ezResult ReadResources(QXmlStreamReader& inout_reader, ezStringView sSbsDir, ezSet<ezString>& out_dependencies)
+  {
+    EZ_ASSERT_DEBUG(inout_reader.name() == QLatin1StringView("content"), "");
+
+    while (inout_reader.readNextStartElement())
+    {
+      if (inout_reader.name() == QLatin1StringView("resource"))
+      {
+        ezString sFilePath;
+        ezString sExternalCopy;
+
+        while (inout_reader.readNextStartElement())
+        {
+          if (inout_reader.name() == QLatin1StringView("filepath"))
+          {
+            sFilePath = GetValueAttribute<ezString>(inout_reader);
+            inout_reader.skipCurrentElement();
+          }
+          else if (inout_reader.name() == QLatin1StringView("source"))
+          {
+            EZ_SUCCEED_OR_RETURN(ReadExternalCopy(inout_reader, sExternalCopy));
+          }
+          else
+          {
+            inout_reader.skipCurrentElement();
+          }
+        }
+
+        if (sExternalCopy.IsEmpty() == false)
+        {
+          sFilePath = sExternalCopy;
+        }
+
+        AddDependency(sFilePath, sSbsDir, out_dependencies);
+      }
+      else if (inout_reader.name() == QLatin1StringView("resourceScene"))
+      {
+        if (ReadUntilStartElement(inout_reader, "filepath").Failed())
+          continue;
+
+        ezString sFilePath = GetValueAttribute<ezString>(inout_reader);
+        AddDependency(sFilePath, sSbsDir, out_dependencies);
+
+        EZ_SUCCEED_OR_RETURN(ReadUntilEndElement(inout_reader, "resourceScene"));
+      }
+      else if (inout_reader.name() == QLatin1StringView("group"))
+      {
+        EZ_SUCCEED_OR_RETURN(ReadUntilStartElement(inout_reader, "content"));
+
+        EZ_SUCCEED_OR_RETURN(ReadResources(inout_reader, sSbsDir, out_dependencies));
+
+        EZ_SUCCEED_OR_RETURN(ReadUntilEndElement(inout_reader, "group"));
+      }
+      else
+      {
+        inout_reader.skipCurrentElement();
+      }
+    }
+
+    return EZ_SUCCESS;
+  }
+
   ezResult ReadDependencies(ezStringView sSbsFile, ezSet<ezString>& out_dependencies)
   {
+    ezLogBlock logBlock("ReadDependencies", sSbsFile);
+
     ezStringBuilder sAbsolutePath = sSbsFile;
     if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsolutePath))
     {
       return EZ_FAILURE;
     }
+
+    ezStringView sSbsDir = sSbsFile.GetFileDirectory();
 
     ezStringBuilder sFileContent;
     EZ_SUCCEED_OR_RETURN(GetSbsContent(sAbsolutePath, sFileContent));
@@ -286,28 +389,18 @@ namespace
       ezString sDependency = GetValueAttribute<ezString>(reader);
       if (sDependency.EndsWith(".sbs") && sDependency.StartsWith("sbs://") == false)
       {
-        ezStringBuilder sFullPath;
-        if (sDependency.IsAbsolutePath())
+        ezStringView sAddedPath = AddDependency(sDependency, sSbsDir, out_dependencies);
+        if (sAddedPath.IsEmpty() == false)
         {
-          EZ_ASSERT_NOT_IMPLEMENTED;
-        }
-        else
-        {
-          sFullPath = sSbsFile.GetFileDirectory();
-          sFullPath.AppendPath(sDependency);
-          sFullPath.MakeCleanPath();
-        }
-
-        if (out_dependencies.Contains(sFullPath) == false)
-        {
-          out_dependencies.Insert(sFullPath);
-
-          EZ_SUCCEED_OR_RETURN(ReadDependencies(sFullPath, out_dependencies));
+          EZ_SUCCEED_OR_RETURN(ReadDependencies(sAddedPath, out_dependencies));
         }
       }
 
       EZ_SUCCEED_OR_RETURN(ReadUntilEndElement(reader, "dependency"));
     }
+
+    EZ_SUCCEED_OR_RETURN(ReadUntilStartElement(reader, "content"));
+    EZ_SUCCEED_OR_RETURN(ReadResources(reader, sSbsDir, out_dependencies));
 
     return EZ_SUCCESS;
   }
@@ -324,10 +417,13 @@ namespace
 
     auto CheckPath = [&](ezStringView sPath)
     {
+      if (sPath.IsEmpty())
+        return false;
+
       ezStringBuilder path = sPath;
       path.AppendPath("sbscooker.exe");
 
-      if (ezOSFile::ExistsFile(path))
+      if (path.IsAbsolutePath() && ezOSFile::ExistsFile(path))
       {
         s_CachedPath = sPath;
         out_sPath = sPath;
@@ -374,7 +470,7 @@ namespace
 
     arguments << "--no-optimization";
 
-    EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool(sToolPath, arguments, 180, ezLog::GetThreadLocalLogSystem(), ezLogMsgType::InfoMsg));
+    EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool(sToolPath, arguments, 600, ezLog::GetThreadLocalLogSystem(), ezLogMsgType::InfoMsg));
 
     return ezStatus(EZ_SUCCESS);
   }
@@ -418,10 +514,70 @@ namespace
     arguments << "--set-value";
     arguments << sTmp.GetData();
 
-    EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool(sToolPath, arguments, 180, ezLog::GetThreadLocalLogSystem()));
+    EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool(sToolPath, arguments, 600, ezLog::GetThreadLocalLogSystem()));
 
     return ezStatus(EZ_SUCCESS);
   }
+
+  ezStatus WriteOutputSize(ezStringView sFilePath, ezUInt8 uiOutputWidth, ezUInt8 uiOutputHeight)
+  {
+    ezFileWriter writer;
+    EZ_SUCCEED_OR_RETURN(writer.Open(sFilePath));
+
+    ezStringBuilder tmp;
+    tmp.SetFormat("{}x{}", uiOutputWidth, uiOutputHeight);
+
+    EZ_SUCCEED_OR_RETURN(writer.WriteBytes(tmp.GetData(), tmp.GetElementCount()));
+
+    return ezStatus(EZ_SUCCESS);
+  }
+
+  bool HasOutputSizeChanged(ezStringView sFilePath, ezUInt8 uiOutputWidth, ezUInt8 uiOutputHeight)
+  {
+    ezFileReader reader;
+    if (reader.Open(sFilePath).Failed())
+      return true;
+
+    ezStringBuilder tmp;
+    tmp.ReadAll(reader);
+
+    ezTempHybridArray<ezStringView, 2> sizes;
+    tmp.Split(false, sizes, "x");
+
+    if (sizes.GetCount() != 2)
+      return true;
+
+    ezUInt32 uiSize = 0;
+    if (ezConversionUtils::StringToUInt(sizes[0], uiSize).Failed() || uiSize != uiOutputWidth)
+      return true;
+
+    if (ezConversionUtils::StringToUInt(sizes[1], uiSize).Failed() || uiSize != uiOutputHeight)
+      return true;
+
+    return false;
+  }
+
+  ezTimestamp GetModifiedTimestamp(ezStringView sFilePath)
+  {
+    ezFileStatus status;
+    if (ezFileSystemModel::GetSingleton()->FindFile(sFilePath, status).Succeeded())
+    {
+      return status.m_LastModified;
+    }
+
+    ezFileStats stats;
+    if (sFilePath.IsAbsolutePath() && ezOSFile::GetFileStats(sFilePath, stats).Succeeded())
+    {
+      return stats.m_LastModificationTime;
+    }
+    else if (ezFileSystem::GetFileStats(sFilePath, stats).Succeeded())
+    {
+      return stats.m_LastModificationTime;
+    }
+
+    return ezTimestamp();
+  }
+
 } // namespace
 
 // clang-format off
@@ -494,11 +650,19 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSubstancePackageAssetMetaData, 1, ezRTTIDefaul
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSubstancePackageAssetDocument, 1, ezRTTINoAllocator)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ENUM_MEMBER_PROPERTY("ChannelMode", ezTextureChannelMode, m_ChannelMode),
+    EZ_MEMBER_PROPERTY("TextureLod", m_iTextureLod),
+  }
+  EZ_END_PROPERTIES;
+}
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezSubstancePackageAssetDocument::ezSubstancePackageAssetDocument(ezStringView sDocumentPath)
-  : ezSimpleAssetDocument(sDocumentPath, ezAssetDocEngineConnection::None)
+  : ezSimpleAssetDocument(sDocumentPath, ezAssetDocEngineConnection::Simple)
 {
   GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezSubstancePackageAssetDocument::OnPropertyChanged, this));
 }
@@ -517,8 +681,12 @@ void ezSubstancePackageAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInf
   // Dependencies
   {
     pInfo->m_TransformDependencies.Insert(pProp->m_sSubstancePackage);
+    pInfo->m_ThumbnailDependencies.Insert(pProp->m_sSubstancePackage);
 
-    ReadDependencies(pProp->m_sSubstancePackage, pInfo->m_TransformDependencies).IgnoreResult();
+    ezSet<ezString> dependencies;
+    ReadDependencies(pProp->m_sSubstancePackage, dependencies).IgnoreResult();
+    pInfo->m_TransformDependencies.Union(dependencies);
+    pInfo->m_ThumbnailDependencies.Union(dependencies);
   }
 
   // Outputs
@@ -554,8 +722,7 @@ void ezSubstancePackageAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInf
 
 ezTransformStatus ezSubstancePackageAssetDocument::InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& assetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
-  ezSubstancePackageAssetProperties* pProp = GetProperties();
-  ezStringBuilder sAbsolutePackagePath = pProp->m_sSubstancePackage;
+  ezStringBuilder sAbsolutePackagePath = GetProperties()->m_sSubstancePackage;
   if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsolutePackagePath))
   {
     return ezStatus(ezFmt("Couldn't make path absolute: '{0};", sAbsolutePackagePath));
@@ -567,7 +734,15 @@ ezTransformStatus ezSubstancePackageAssetDocument::InternalTransformAsset(const 
   EZ_SUCCEED_OR_RETURN(GetTempDir(sTempDir));
   EZ_SUCCEED_OR_RETURN(ezOSFile::CreateDirectoryStructure(sTempDir));
 
-  EZ_SUCCEED_OR_RETURN(RunSbsCooker(sAbsolutePackagePath, sTempDir));
+  ezTimestamp latestDependencyTimestamp;
+  for (auto& sDependency : GetAssetDocumentInfo()->m_TransformDependencies)
+  {
+    ezTimestamp dependencyTimestamp = GetModifiedTimestamp(sDependency);
+    if (dependencyTimestamp.Compare(latestDependencyTimestamp, ezTimestamp::CompareMode::Newer))
+    {
+      latestDependencyTimestamp = dependencyTimestamp;
+    }
+  }
 
   ezStringView sPackageName = sAbsolutePackagePath.GetFileName();
 
@@ -575,18 +750,29 @@ ezTransformStatus ezSubstancePackageAssetDocument::InternalTransformAsset(const 
   sSbsarPath.AppendPath(sPackageName);
   sSbsarPath.Append(".sbsar");
 
-  ezStringBuilder sOutputName, sPngPath, sTargetFile;
+  ezTimestamp sbsarTimestamp = GetModifiedTimestamp(sSbsarPath);
+
+  if (transformFlags.IsSet(ezTransformFlags::ForceTransform) ||
+      latestDependencyTimestamp.Compare(sbsarTimestamp, ezTimestamp::CompareMode::Newer))
+  {
+    EZ_SUCCEED_OR_RETURN(RunSbsCooker(sAbsolutePackagePath, sTempDir));
+
+    sbsarTimestamp = ezTimestamp::CurrentTimestamp();
+  }
+
+  ezStringBuilder sOutputName, sPngPath, sTargetFile, sOutputSizeFilePath;
   auto& textureTypeDesc = static_cast<const ezSubstancePackageAssetDocumentManager*>(GetDocumentManager())->GetTextureTypeDesc();
   const bool bUpdateThumbnail = pAssetProfile == ezAssetCurator::GetSingleton()->GetDevelopmentAssetProfile();
   auto pAssetConfig = pAssetProfile->GetTypeConfig<ezTextureAssetProfileConfig>();
 
-  for (auto& graph : pProp->m_Graphs)
+  ezTempHybridArray<ezString, 8> pngPaths;
+
+  for (auto& graph : GetProperties()->m_Graphs)
   {
     if (graph.m_bEnabled == false)
       continue;
 
-    EZ_SUCCEED_OR_RETURN(RunSbsRender(sSbsarPath, graph.m_sName, nullptr, nullptr, sTempDir, graph.m_uiOutputWidth, graph.m_uiOutputHeight));
-
+    pngPaths.Clear();
     for (auto& output : graph.m_Outputs)
     {
       if (output.m_bEnabled == false)
@@ -596,13 +782,49 @@ ezTransformStatus ezSubstancePackageAssetDocument::InternalTransformAsset(const 
       sPngPath.AppendPath(sPackageName);
       sPngPath.Append("_", graph.m_sName, "_", output.m_sName, ".png");
 
+      pngPaths.PushBack(sPngPath);
+    }
+
+    sOutputSizeFilePath = sSbsarPath.GetFileDirectory();
+    sOutputSizeFilePath.AppendPath(sPackageName);
+    sOutputSizeFilePath.Append("_", graph.m_sName, "_OutputSize.txt");
+
+    ezTimestamp outputSizeTimestamp = GetModifiedTimestamp(sOutputSizeFilePath);
+
+    if (transformFlags.IsSet(ezTransformFlags::ForceTransform) ||
+        sbsarTimestamp.Compare(outputSizeTimestamp, ezTimestamp::CompareMode::Newer) ||
+        HasOutputSizeChanged(sOutputSizeFilePath, graph.m_uiOutputWidth, graph.m_uiOutputHeight))
+    {
+      ezStatus sbsRenderStatus = RunSbsRender(sSbsarPath, graph.m_sName, nullptr, nullptr, sTempDir, graph.m_uiOutputWidth, graph.m_uiOutputHeight);
+      if (sbsRenderStatus.Failed())
+      {
+        // sbsrender.exe sometimes crashes on exit but has written all the outputs anyways so check here whether this was the case
+        for (auto& png : pngPaths)
+        {
+          ezTimestamp pngTimestamp = GetModifiedTimestamp(png);
+          if (sbsarTimestamp.Compare(pngTimestamp, ezTimestamp::CompareMode::Newer))
+            return sbsRenderStatus;
+        }
+      }
+
+      EZ_SUCCEED_OR_RETURN(WriteOutputSize(sOutputSizeFilePath, graph.m_uiOutputWidth, graph.m_uiOutputHeight));
+    }
+
+    ezUInt32 uiOutputIndex = 0;
+    for (auto& output : graph.m_Outputs)
+    {
+      if (output.m_bEnabled == false)
+        continue;
+
       GenerateOutputName(graph, output, sOutputName);
       sTargetFile = ezStringView(GetDocumentPath()).GetFileDirectory();
       sTargetFile.AppendPath(sOutputName);
       ezString sAbsTargetFile = GetAssetDocumentManager()->GetAbsoluteOutputFileName(&textureTypeDesc, sTargetFile, "", pAssetProfile);
 
       ezString sThumbnailFile = GetAssetDocumentManager()->GenerateResourceThumbnailPath(sTargetFile);
-      EZ_SUCCEED_OR_RETURN(RunTexConv(sPngPath, sAbsTargetFile, assetHeader, output, sThumbnailFile, pAssetConfig));
+      EZ_SUCCEED_OR_RETURN(RunTexConv(pngPaths[uiOutputIndex], sAbsTargetFile, assetHeader, output, sThumbnailFile, pAssetConfig));
+
+      ++uiOutputIndex;
     }
   }
 
@@ -656,7 +878,7 @@ ezTransformStatus ezSubstancePackageAssetDocument::UpdateGraphOutputs(ezStringVi
   ezStringBuilder sFileContent;
   EZ_SUCCEED_OR_RETURN(GetSbsContent(sAbsolutePath, sFileContent));
 
-  ezHybridArray<ezSubstanceGraph, 2> graphs;
+  ezTempHybridArray<ezSubstanceGraph, 2> graphs;
 
   QXmlStreamReader reader(sFileContent.GetData());
   EZ_SUCCEED_OR_RETURN(ReadUntilStartElement(reader, "content"));
@@ -688,6 +910,8 @@ ezTransformStatus ezSubstancePackageAssetDocument::UpdateGraphOutputs(ezStringVi
       if (newGraph.m_sName == existingGraph.m_sName)
       {
         newGraph.m_bEnabled = existingGraph.m_bEnabled;
+        newGraph.m_uiOutputWidth = existingGraph.m_uiOutputWidth;
+        newGraph.m_uiOutputHeight = existingGraph.m_uiOutputHeight;
         pExistingGraph = &existingGraph;
         break;
       }
@@ -856,7 +1080,7 @@ ezStatus ezSubstancePackageAssetDocument::RunTexConv(const char* szInputFile, co
 
   if (sThumbnailFile.IsEmpty() == false)
   {
-    ezUInt64 uiThumbnailHash = ezAssetCurator::GetSingleton()->GetAssetReferenceHash(GetGuid());
+    ezUInt64 uiThumbnailHash = ezAssetCurator::GetSingleton()->GetAssetThumbnailHash(GetGuid());
     EZ_ASSERT_DEV(uiThumbnailHash != 0, "Thumbnail hash should never be zero when reaching this point!");
 
     ThumbnailInfo thumbnailInfo;

@@ -11,20 +11,11 @@
 #include <RendererCore/Decals/DecalAtlasResource.h>
 #include <RendererCore/Decals/DecalComponent.h>
 #include <RendererCore/Decals/DecalResource.h>
-#include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererCore/Decals/Implementation/DecalManager.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererFoundation/Shader/ShaderUtils.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Common/LightData.h>
-
-ezDecalComponentManager::ezDecalComponentManager(ezWorld* pWorld)
-  : ezComponentManager<ezDecalComponent, ezBlockStorageType::Compact>(pWorld)
-{
-}
-
-void ezDecalComponentManager::Initialize()
-{
-  m_hDecalAtlas = ezDecalAtlasResource::GetDecalAtlasResource();
-}
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -198,7 +189,7 @@ ezResult ezDecalComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAl
   float fAspectRatio = 1.0f;
 
   {
-    auto hDecalAtlas = GetWorld()->GetComponentManager<ezDecalComponentManager>()->m_hDecalAtlas;
+    auto hDecalAtlas = ezDecalManager::GetBakedDecalAtlas();
     ezResourceLock<ezDecalAtlasResource> pDecalAtlas(hDecalAtlas, ezResourceAcquireMode::BlockTillLoaded);
 
     const auto& atlas = pDecalAtlas->GetAtlas();
@@ -207,7 +198,8 @@ ezResult ezDecalComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAl
     if (decalIdx != ezInvalidIndex)
     {
       const auto& item = atlas.m_Items.GetValue(decalIdx);
-      fAspectRatio = (float)item.m_LayerRects[0].width / item.m_LayerRects[0].height;
+      const ezUInt32 uiLayerIdx = item.m_LayerRects[0].width > 0 ? 0 : 2;
+      fAspectRatio = (float)item.m_LayerRects[uiLayerIdx].width / item.m_LayerRects[uiLayerIdx].height;
     }
   }
 
@@ -396,7 +388,7 @@ void ezDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
   const float fFadeParamScale = bNoFade ? 0.0f : (1.0f / ezMath::Max(0.001f, (fCosInner - fCosOuter)));
   const float fFadeParamOffset = bNoFade ? 1.0f : (-fCosOuter * fFadeParamScale);
 
-  auto hDecalAtlas = GetWorld()->GetComponentManager<ezDecalComponentManager>()->m_hDecalAtlas;
+  auto hDecalAtlas = ezDecalManager::GetBakedDecalAtlas();
   ezVec4 baseAtlasScaleOffset = ezVec4(0.5f);
   ezVec4 normalAtlasScaleOffset = ezVec4(0.5f);
   ezVec4 ormAtlasScaleOffset = ezVec4(0.5f);
@@ -429,32 +421,35 @@ void ezDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
       normalAtlasScaleOffset = layerRectToScaleOffset(item.m_LayerRects[1], pDecalAtlas->GetNormalTextureSize());
       ormAtlasScaleOffset = layerRectToScaleOffset(item.m_LayerRects[2], pDecalAtlas->GetORMTextureSize());
 
-      fAspectRatio = (float)item.m_LayerRects[0].width / item.m_LayerRects[0].height;
+      const ezUInt32 uiLayerIdx = item.m_LayerRects[0].width > 0 ? 0 : 2;
+      fAspectRatio = (float)item.m_LayerRects[uiLayerIdx].width / item.m_LayerRects[uiLayerIdx].height;
     }
   }
 
-  auto pRenderData = ezCreateRenderDataForThisFrame<ezDecalRenderData>(GetOwner());
+  auto pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezDecalRenderData>(GetOwner());
 
   ezUInt32 uiSortingId = (ezUInt32)(ezMath::Min(m_fSortOrder * 512.0f, 32767.0f) + 32768.0f);
   pRenderData->m_uiSortingKey = (uiSortingId << 16) | (m_uiInternalSortKey & 0xFFFF);
 
   const ezQuat axisRotation = ezBasisAxis::GetBasisRotation_PosX(m_ProjectionAxis);
+  const ezTransform globalTransform = GetOwner()->GetGlobalTransform();
 
-  pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
-  pRenderData->m_GlobalTransform.m_vScale = (axisRotation * (pRenderData->m_GlobalTransform.m_vScale.CompMul(m_vExtents * 0.5f))).Abs();
-  pRenderData->m_GlobalTransform.m_qRotation = pRenderData->m_GlobalTransform.m_qRotation * axisRotation;
+  const ezQuat finalRotation = globalTransform.m_qRotation * axisRotation;
+  pRenderData->m_qGlobalRotation = ezVec4(finalRotation.x, finalRotation.y, finalRotation.z, finalRotation.w);
 
+  ezVec3 finalScale = (axisRotation * (globalTransform.m_vScale.CompMul(m_vExtents * 0.5f))).Abs();
   if (!ezMath::IsEqual(fAspectRatio, 1.0f, 0.001f))
   {
     if (fAspectRatio > 1.0f)
     {
-      pRenderData->m_GlobalTransform.m_vScale.z /= fAspectRatio;
+      finalScale.z /= fAspectRatio;
     }
     else
     {
-      pRenderData->m_GlobalTransform.m_vScale.y *= fAspectRatio;
+      finalScale.y *= fAspectRatio;
     }
   }
+  pRenderData->m_vGlobalScale = finalScale;
 
   pRenderData->m_uiApplyOnlyToId = m_uiApplyOnlyToId;
   pRenderData->m_uiFlags = uiDecalFlags;
@@ -588,9 +583,17 @@ void ezDecalComponent::OnMsgOnlyApplyToObject(ezMsgOnlyApplyToObject& msg)
   SetApplyOnlyTo(msg.m_hObject);
 }
 
-void ezDecalComponent::OnMsgSetColor(ezMsgSetColor& msg)
+void ezDecalComponent::OnMsgSetColor(ezMsgSetColor& ref_msg)
 {
-  msg.ModifyColor(m_Color);
+  ezColor newColor = m_Color;
+  ref_msg.ModifyColor(newColor);
+
+  if (m_Color != newColor)
+  {
+    m_Color = newColor;
+
+    InvalidateCachedRenderData();
+  }
 }
 
 ezUInt32 ezDecalComponent::DecalFile_GetCount() const
@@ -598,30 +601,27 @@ ezUInt32 ezDecalComponent::DecalFile_GetCount() const
   return m_Decals.GetCount();
 }
 
-const char* ezDecalComponent::DecalFile_Get(ezUInt32 uiIndex) const
+ezString ezDecalComponent::DecalFile_Get(ezUInt32 uiIndex) const
 {
-  if (!m_Decals[uiIndex].IsValid())
-    return "";
-
   return m_Decals[uiIndex].GetResourceID();
 }
 
-void ezDecalComponent::DecalFile_Set(ezUInt32 uiIndex, const char* szFile)
+void ezDecalComponent::DecalFile_Set(ezUInt32 uiIndex, ezString sFile)
 {
   ezDecalResourceHandle hResource;
 
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
+  if (!sFile.IsEmpty())
   {
-    hResource = ezResourceManager::LoadResource<ezDecalResource>(szFile);
+    hResource = ezResourceManager::LoadResource<ezDecalResource>(sFile);
   }
 
   SetDecal(uiIndex, hResource);
 }
 
-void ezDecalComponent::DecalFile_Insert(ezUInt32 uiIndex, const char* szFile)
+void ezDecalComponent::DecalFile_Insert(ezUInt32 uiIndex, ezString sFile)
 {
   m_Decals.InsertAt(uiIndex, ezDecalResourceHandle());
-  DecalFile_Set(uiIndex, szFile);
+  DecalFile_Set(uiIndex, sFile);
 }
 
 void ezDecalComponent::DecalFile_Remove(ezUInt32 uiIndex)

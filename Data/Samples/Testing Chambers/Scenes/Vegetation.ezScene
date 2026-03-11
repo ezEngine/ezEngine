@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5610093527764820148,5219027326469845793}}
-		u4 %Hash{6929213846453778072}
+		u4 %Hash{3358686214510699305}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -77,6 +77,7 @@ o
 		b %Active{1}
 		b %CastShadows{1}
 		f %ConstantBias{0xCDCCCC3D}
+		ColorGamma %EffectiveColor{u1{255,255,255,255}}
 		f %FadeOutStart{0xCDCC4C3F}
 		f %Intensity{0x00004040}
 		ColorGamma %LightColor{u1{255,255,255,255}}
@@ -88,6 +89,7 @@ o
 		f %SpecularMultiplier{0x0000803F}
 		f %SplitModeWeight{0x3333333F}
 		u3 %Temperature{6550}
+		b %TransparentShadows{0}
 		b %UseColorTemperature{0}
 	}
 }
@@ -201,7 +203,6 @@ o
 		Vec2 %HalfExtents{f{0x00004843,0x00004843}}
 		f %Height{0x00004842}
 		s %HeightfieldImage{"{ c825b772-d9a8-4666-b265-6a2711b17dad }"}
-		b %IncludeInNavmesh{1}
 		s %Material{"{ ebd75409-6534-49dc-a7a3-ef5bfab657ec }"}
 		Vec2u %Tesselation{u3{256,256}}
 		Vec2 %TexCoordOffset{f{0,0}}
@@ -312,7 +313,7 @@ o
 {
 	Uuid %id{u4{2036813793290266790,5102178232539104883}}
 	s %t{"ezFogComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -321,6 +322,7 @@ o
 		f %HeightFalloff{0xA370CB41}
 		b %ModulateWithSkyColor{0}
 		f %SkyDistance{0x00007A44}
+		f %StartDistance{0}
 	}
 }
 o
@@ -351,23 +353,24 @@ o
 {
 	Uuid %id{u4{17111430926857678529,5389560250686610601}}
 	s %t{"ezSkyLightComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		s %CubeMap{""}
+		f %DiffuseIntensity{0xCDCCCC3D}
+		f %DiffuseSaturation{0x9A99993E}
 		VarArray %ExcludeTags{}
-		f %FarPlane{0x0000C842}
+		f %FarPlane{0x00004843}
 		VarArray %IncludeTags
 		{
 			s{"SkyLight"}
 		}
-		f %Intensity{0xCDCCCC3D}
 		f %NearPlane{0}
 		s %ReflectionProbeMode{"ezReflectionProbeMode::Dynamic"}
-		f %Saturation{0x9A99993E}
 		b %ShowDebugInfo{0}
 		b %ShowMipMaps{0}
+		f %SpecularIntensity{0x0000803F}
 	}
 }
 o
@@ -424,8 +427,9 @@ o
 		b %Active{1}
 		s %BlendMode{"ezProcGenBlendMode::Set"}
 		Vec3 %Extents{f{0x0000C843,0x0000C843,0x0000C842}}
-		Vec3 %Falloff{f{0,0,0}}
 		s %Image{"{ 6f17c604-4d55-401f-9d18-55acceff3215 }"}
+		Vec3 %NegativeFalloff{f{0,0,0}}
+		Vec3 %PositiveFalloff{f{0,0,0}}
 		f %SortOrder{0}
 		f %Value{0x0000803F}
 	}
@@ -466,6 +470,7 @@ o
 		VarArray %Tags
 		{
 			s{"AutoColMesh"}
+			s{"SkyLight"}
 		}
 	}
 }
@@ -511,7 +516,7 @@ o
 			Uuid{u4{17111430926857678529,5389560250686610601}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0,0,0x00004040}}
+		Vec3 %LocalPosition{f{0,0,0x000020C1}}
 		Quat %LocalRotation{f{0x256900BE,0x2F66A73E,0x34BEAB3E,0x5AE35F3F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -640,7 +645,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezFogComponent"}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -865,7 +870,7 @@ o
 		s %PluginName{"ezEditorPluginProcGen"}
 		VarArray %Properties{}
 		s %TypeName{"ezProcVolumeBoxComponent"}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -1205,9 +1210,9 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"Material"}
-		s %Type{"ezConstCharPtr"}
+		s %Type{"ezStringView"}
 	}
 }
 o
@@ -1258,9 +1263,9 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"HeightfieldImage"}
-		s %Type{"ezConstCharPtr"}
+		s %Type{"ezStringView"}
 	}
 }
 o
@@ -1380,24 +1385,6 @@ o
 }
 o
 {
-	Uuid %id{u4{1818273023852886828,13399292060527851325}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Attributes
-		{
-			Uuid{u4{8479325435248502133,15502243072912350370}}
-		}
-		s %Category{"ezPropertyCategory::Member"}
-		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"IncludeInNavmesh"}
-		s %Type{"bool"}
-	}
-}
-o
-{
 	Uuid %id{u4{6892060381895927308,14275815048169232914}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
@@ -1438,7 +1425,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezLightComponent"}
-		u3 %TypeVersion{5}
+		u3 %TypeVersion{6}
 	}
 }
 o
@@ -1455,7 +1442,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSkyLightComponent"}
-		u3 %TypeVersion{3}
+		u3 %TypeVersion{4}
 	}
 }
 o
@@ -1473,16 +1460,6 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezEnumBase"}
 		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{8479325435248502133,15502243072912350370}}
-	s %t{"ezDefaultValueAttribute"}
-	u3 %v{1}
-	p
-	{
-		i3 %Value{1}
 	}
 }
 o
@@ -1511,7 +1488,6 @@ o
 			Uuid{u4{7068800997882447555,17461159107948935986}}
 			Uuid{u4{16946204693861181262,5241691080114262688}}
 			Uuid{u4{507747551448039797,12894743226731186328}}
-			Uuid{u4{1818273023852886828,13399292060527851325}}
 		}
 		s %TypeName{"ezHeightfieldComponent"}
 		u3 %TypeVersion{2}

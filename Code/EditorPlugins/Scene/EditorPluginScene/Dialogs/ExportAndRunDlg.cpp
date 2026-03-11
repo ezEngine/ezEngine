@@ -99,7 +99,12 @@ void ezQtExportAndRunDlg::on_AddToolButton_clicked()
   appDir.MakeCleanPath();
   static QString sLastPath = appDir.GetData();
 
-  const QString sFile = QFileDialog::getOpenFileName(this, "Select Program", sLastPath, "Applicaation (*.exe)", nullptr, QFileDialog::Option::DontResolveSymlinks);
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  const QString sFile = QFileDialog::getOpenFileName(this, "Select Program", sLastPath, "Application (*.exe)", nullptr, QFileDialog::Option::DontResolveSymlinks);
+#else
+  const QString sFile = QFileDialog::getOpenFileName(this, "Select Program", sLastPath, "Executable (*)", nullptr, QFileDialog::Option::DontResolveSymlinks);
+#endif
+
 
   if (sFile.isEmpty())
     return;

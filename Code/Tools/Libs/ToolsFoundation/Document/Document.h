@@ -4,6 +4,7 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Threading/Implementation/TaskSystemDeclarations.h>
+#include <Foundation/Time/Time.h>
 #include <Foundation/Types/Status.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <ToolsFoundation/CommandHistory/CommandHistory.h>
@@ -19,11 +20,12 @@ class ezAbstractObjectNode;
 
 struct EZ_TOOLSFOUNDATION_DLL ezObjectAccessorChangeEvent
 {
-  ezDocument* m_pDocument;
-  ezObjectAccessorBase* m_pOldObjectAccessor;
-  ezObjectAccessorBase* m_pNewObjectAccessor;
+  ezDocument* m_pDocument = nullptr; ///< The document in which the accessor change occurred.
+  ezObjectAccessorBase* m_pOldObjectAccessor = nullptr;
+  ezObjectAccessorBase* m_pNewObjectAccessor = nullptr;
 };
 
+/// \brief Stores meta data for document objects, such as prefab information and visibility in the editor.
 class EZ_TOOLSFOUNDATION_DLL ezDocumentObjectMetaData : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezDocumentObjectMetaData, ezReflectedClass);
@@ -33,26 +35,27 @@ public:
   {
     HiddenFlag = EZ_BIT(0),
     PrefabFlag = EZ_BIT(1),
+    ActiveParentFlag = EZ_BIT(2), ///< This flag is used to update an entry, even though there is no meta data for it.
 
     AllFlags = 0xFFFFFFFF
   };
 
-  ezDocumentObjectMetaData() { m_bHidden = false; }
-
-  bool m_bHidden;            /// Whether the object should be rendered in the editor view (no effect on the runtime)
-  ezUuid m_CreateFromPrefab; /// The asset GUID of the prefab from which this object was created. Invalid GUID, if this is not a prefab instance.
-  ezUuid m_PrefabSeedGuid;   /// The seed GUID used to remap the object GUIDs from the prefab asset into this instance.
-  ezString m_sBasePrefab;    /// The prefab from which this instance was created as complete DDL text (this describes the entire object!). Necessary for
-                             /// three-way-merging the prefab instances.
+  bool m_bHidden = false;    ///< Whether the object should be rendered in the editor view (no effect on the runtime)
+  ezUuid m_CreateFromPrefab; ///< The asset GUID of the prefab from which this object was created. Invalid GUID, if this is not a prefab instance.
+  ezUuid m_PrefabSeedGuid;   ///< The seed GUID used to remap the object GUIDs from the prefab asset into this instance.
+  ezString m_sBasePrefab;    ///< The prefab from which this instance was created as complete DDL text (this describes the entire object!). Necessary for
+                             ///< three-way-merging the prefab instances.
 };
 
+/// \brief Strategies for searching for manipulators in the document.
 enum class ezManipulatorSearchStrategy
 {
-  None,
-  SelectedObject,
-  ChildrenOfSelectedObject
+  None,                    ///< No manipulator search.
+  SelectedObject,          ///< Search for manipulators on the selected document object.
+  ChildrenOfSelectedObject ///< Search for manipulators on the children of the selected document object (e.g. on components of game objects).
 };
 
+/// \brief Base class for all editable documents in the editor. Handles state, object management, undo/redo, and more.
 class EZ_TOOLSFOUNDATION_DLL ezDocument : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezDocument, ezReflectedClass);
@@ -66,6 +69,10 @@ public:
 
   bool IsModified() const { return m_bModified; }
   bool IsReadOnly() const { return m_bReadOnly; }
+
+  /// Returns when the document was last marked as modified. Invalid if the document is not modified.
+  ezTime GetModifiedTime() const { return m_ModifiedTime; }
+
   const ezUuid GetGuid() const { return m_pDocumentInfo ? m_pDocumentInfo->m_DocumentID : ezUuid(); }
 
   const ezDocumentObjectManager* GetObjectManager() const { return m_pObjectManager.Borrow(); }
@@ -90,8 +97,8 @@ public:
   ezDocument* GetActiveSubDocument() { return m_pActiveSubDocument; }
 
 protected:
-  ezDocument* m_pHostDocument = nullptr;
-  ezDocument* m_pActiveSubDocument = nullptr;
+  ezDocument* m_pHostDocument = nullptr;      ///< Pointer to the main document if this is a sub-document, otherwise self.
+  ezDocument* m_pActiveSubDocument = nullptr; ///< Pointer to the currently active sub-document.
 
   ///@}
   /// \name Document Management Functions
@@ -104,19 +111,26 @@ public:
   /// \brief Saves the document, if it is modified.
   /// If bForce is true, the document will be written, even if it is not considered modified.
   ezStatus SaveDocument(bool bForce = false);
+  /// \brief Callback type for asynchronous save operations.
   using AfterSaveCallback = ezDelegate<void(ezDocument*, ezStatus)>;
+  /// \brief Saves the document asynchronously. Calls the callback when done.
   ezTaskGroupID SaveDocumentAsync(AfterSaveCallback callback, bool bForce = false);
+  /// \brief Updates the document path after a rename operation.
   void DocumentRenamed(ezStringView sNewDocumentPath);
 
+  /// \brief Reads a document from disk and parses its header, objects, and types.
   static ezStatus ReadDocument(ezStringView sDocumentPath, ezUniquePtr<ezAbstractObjectGraph>& ref_pHeader, ezUniquePtr<ezAbstractObjectGraph>& ref_pObjects,
     ezUniquePtr<ezAbstractObjectGraph>& ref_pTypes);
+  /// \brief Reads and registers types from the given object graph.
   static ezStatus ReadAndRegisterTypes(const ezAbstractObjectGraph& types);
 
+  /// \brief Loads the document from disk.
   ezStatus LoadDocument() { return InternalLoadDocument(); }
 
   /// \brief Brings the corresponding window to the front.
   void EnsureVisible();
 
+  /// \brief Returns the document manager that owns this document.
   ezDocumentManager* GetDocumentManager() const { return m_pDocumentManager; }
 
   bool HasWindowBeenRequested() const { return m_bWindowRequested; }
@@ -148,19 +162,21 @@ public:
   /// \name Clipboard Functions
   ///@{
 
+  /// \brief Information about a pasted object, including its parent and index.
   struct PasteInfo
   {
     EZ_DECLARE_POD_TYPE();
 
-    ezDocumentObject* m_pObject = nullptr;
-    ezDocumentObject* m_pParent = nullptr;
-    ezInt32 m_Index = -1;
+    ezDocumentObject* m_pObject = nullptr; ///< The object being pasted.
+    ezDocumentObject* m_pParent = nullptr; ///< The parent object to paste into.
+    ezInt32 m_Index = -1;                  ///< The index at which to insert the object.
   };
 
   /// \brief Whether this document supports pasting the given mime format into it
-  virtual void GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_mimeTypes) const {}
+  virtual void GetSupportedMimeTypesForPasting(ezDynamicArray<ezString>& out_mimeTypes) const {}
   /// \brief Creates the abstract graph of data to be copied and returns the mime type for the clipboard to identify the data
   virtual bool CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_sMimeType) const { return false; };
+  /// \brief Pastes objects from the given object graph into the document.
   virtual bool Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, ezStringView sMimeType)
   {
     return false;
@@ -191,10 +207,19 @@ public:
   /// \name Misc Functions
   ///@{
 
+  /// \brief Deletes all currently selected objects in the document.
   virtual void DeleteSelectedObjects() const;
 
+  /// \brief Returns the set of unknown object types encountered during loading.
   const ezSet<ezString>& GetUnknownObjectTypes() const { return m_UnknownObjectTypes; }
+  /// \brief Returns the number of unknown object type instances encountered during loading.
   ezUInt32 GetUnknownObjectTypeInstances() const { return m_uiUnknownObjectTypeInstances; }
+
+  /// \brief Returns errors accumulated during loading (e.g. unresolvable connections).
+  ///
+  /// Non-empty after loading means the document is in a broken state. Transforms should fail,
+  /// and the user should be informed when opening the document.
+  const ezDynamicArray<ezString>& GetLoadingErrors() const { return m_LoadingErrors; }
 
   /// \brief If disabled, this document will not be put into the recent files list.
   void SetAddToResetFilesList(bool b) { m_bAddToRecentFilesList = b; }
@@ -218,7 +243,7 @@ public:
   /// \name Prefab Functions
   ///@{
 
-  /// \brief Whether the document allows to create prefabs in it. This may note be allowed for prefab documents themselves, to prevent nested prefabs.
+  /// \brief Whether the document allows to create prefabs in it. This may not be allowed for prefab documents themselves, to prevent nested prefabs.
   virtual bool ArePrefabsAllowed() const { return true; }
 
   /// \brief Updates ALL prefabs in the document with the latest changes. Merges the current prefab templates with the instances in the document.
@@ -230,32 +255,46 @@ public:
   /// \brief Removes the link between a prefab instance and its template, turning the instance into a regular object.
   virtual void UnlinkPrefabs(ezArrayPtr<const ezDocumentObject*> selection);
 
+  /// \brief Creates a prefab document from the current selection.
   virtual ezStatus CreatePrefabDocumentFromSelection(ezStringView sFile, const ezRTTI* pRootType, ezDelegate<void(ezAbstractObjectNode*)> adjustGraphNodeCB = {}, ezDelegate<void(ezDocumentObject*)> adjustNewNodesCB = {}, ezDelegate<void(ezAbstractObjectGraph& graph, ezDynamicArray<ezAbstractObjectNode*>& graphRootNodes)> finalizeGraphCB = {});
+  /// \brief Creates a prefab document from the given root objects.
   virtual ezStatus CreatePrefabDocument(ezStringView sFile, ezArrayPtr<const ezDocumentObject*> rootObjects, const ezUuid& invPrefabSeed, ezUuid& out_newDocumentGuid, ezDelegate<void(ezAbstractObjectNode*)> adjustGraphNodeCB = {}, bool bKeepOpen = false, ezDelegate<void(ezAbstractObjectGraph& graph, ezDynamicArray<ezAbstractObjectNode*>& graphRootNodes)> finalizeGraphCB = {});
 
-  // Returns new guid of replaced object.
+  /// \brief Replaces the given object by a prefab instance. Returns new guid of replaced object.
   virtual ezUuid ReplaceByPrefab(const ezDocumentObject* pRootObject, ezStringView sPrefabFile, const ezUuid& prefabAsset, const ezUuid& prefabSeed, bool bEnginePrefab);
-  // Returns new guid of reverted object.
+  /// \brief Reverts the given object to its prefab state. Returns new guid of reverted object.
   virtual ezUuid RevertPrefab(const ezDocumentObject* pObject);
 
   ///@}
 
 public:
+  /// \brief Meta data for all document objects.
   ezUniquePtr<ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>> m_DocumentObjectMetaData;
 
+  /// \brief Event for document-specific notifications.
   mutable ezEvent<const ezDocumentEvent&> m_EventsOne;
+  /// \brief Static event for notifications across all documents.
   static ezEvent<const ezDocumentEvent&> s_EventsAny;
 
+  /// \brief Event for object accessor change notifications.
   mutable ezEvent<const ezObjectAccessorChangeEvent&> m_ObjectAccessorChangeEvents;
+
+  /// \brief Adds an error message to the list of loading errors.
+  ///
+  /// This can be used during loading to accumulate errors, e.g. unresolvable connections, missing prefabs, etc.
+  void AddLoadingError(ezStringView sError);
 
 protected:
   void SetModified(bool b);
   void SetReadOnly(bool b);
+  /// \brief Internal save implementation. Returns a task group ID for async save.
   virtual ezTaskGroupID InternalSaveDocument(AfterSaveCallback callback);
+  /// \brief Internal load implementation. Loads the document from disk.
   virtual ezStatus InternalLoadDocument();
+  /// \brief Creates the document info structure. Must be implemented by derived classes.
   virtual ezDocumentInfo* CreateDocumentInfo() = 0;
 
-  /// \brief A hook to execute additional code after SUCCESSFULLY saving a document. E.g. manual asset transform can be done here.
+  /// \brief Hook to execute additional code after successfully saving a document. E.g. manual asset transform can be done here.
   virtual void InternalAfterSaveDocument() {}
 
   virtual void AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const;
@@ -271,6 +310,7 @@ protected:
   /// \name Prefab Functions
   ///@{
 
+  /// \brief Recursively updates all prefab instances starting from the given object.
   virtual void UpdatePrefabsRecursive(ezDocumentObject* pObject);
   virtual void UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, ezStringView sBasePrefab);
 
@@ -292,17 +332,24 @@ private:
 
   void SetupDocumentInfo(const ezDocumentTypeDescriptor* pTypeDescriptor);
 
+  /// \brief The document manager that owns this document.
   ezDocumentManager* m_pDocumentManager = nullptr;
 
+  /// \brief The absolute path to the document file.
   ezString m_sDocumentPath;
-  bool m_bModified;
-  bool m_bReadOnly;
-  bool m_bWindowRequested;
-  bool m_bAddToRecentFilesList;
+  bool m_bModified = true;
+  bool m_bReadOnly = false;
+  bool m_bWindowRequested = false;
+  bool m_bAddToRecentFilesList = true;
+  ezTime m_ModifiedTime;
 
+  /// \brief Set of unknown object types encountered during loading.
   ezSet<ezString> m_UnknownObjectTypes;
-  ezUInt32 m_uiUnknownObjectTypeInstances;
+  /// \brief Number of unknown object type instances encountered during loading.
+  ezUInt32 m_uiUnknownObjectTypeInstances = 0;
+  /// \brief Errors accumulated during loading, e.g. unresolvable connections.
+  ezDynamicArray<ezString> m_LoadingErrors;
 
   ezTaskGroupID m_ActiveSaveTask;
-  ezStatus m_LastSaveResult;
+  ezStatus m_LastSaveResult = EZ_SUCCESS;
 };

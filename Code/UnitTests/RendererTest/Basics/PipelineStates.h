@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../TestClass/TestClass.h"
+#include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 
 class ezRendererTestPipelineStates : public ezGraphicsTest
@@ -17,43 +18,38 @@ private:
     ST_IndexBuffer,
     ST_ConstantBuffer,
     ST_StructuredBuffer,
+    ST_TexelBuffer,
+    ST_ByteAddressBuffer,
     ST_Texture2D,
     ST_Texture2DArray,
     ST_GenerateMipMaps,
     ST_PushConstants,
-    ST_SetsSlots,
+    ST_BindGroups,
     ST_Timestamps,
+    ST_OcclusionQueries,
+    ST_CustomVertexStreams,
   };
 
   enum ImageCaptureFrames
   {
     DefaultCapture = 5,
     StructuredBuffer_InitialData = 5,
-    StructuredBuffer_Discard = 6,
-    StructuredBuffer_NoOverwrite = 8,
-    StructuredBuffer_CopyToTempStorage = 9,
+    StructuredBuffer_UpdateForNextFrame = 6,
+    StructuredBuffer_UpdateForNextFrame2 = 7,
+    StructuredBuffer_Transient1 = 8,
+    StructuredBuffer_Transient2 = 9,
+    StructuredBuffer_UAV = 10,
+    CustomVertexStreams_Offsets = 6,
     Timestamps_MaxWaitTime = ezMath::MaxValue<ezUInt32>(),
   };
 
-  virtual void SetupSubTests() override
-  {
-    AddSubTest("01 - MostBasicShader", SubTests::ST_MostBasicShader);
-    AddSubTest("02 - ViewportScissor", SubTests::ST_ViewportScissor);
-    AddSubTest("03 - VertexBuffer", SubTests::ST_VertexBuffer);
-    AddSubTest("04 - IndexBuffer", SubTests::ST_IndexBuffer);
-    AddSubTest("05 - ConstantBuffer", SubTests::ST_ConstantBuffer);
-    AddSubTest("06 - StructuredBuffer", SubTests::ST_StructuredBuffer);
-    AddSubTest("07 - Texture2D", SubTests::ST_Texture2D);
-    AddSubTest("08 - Texture2DArray", SubTests::ST_Texture2DArray);
-    AddSubTest("09 - GenerateMipMaps", SubTests::ST_GenerateMipMaps);
-    AddSubTest("10 - PushConstants", SubTests::ST_PushConstants);
-    AddSubTest("11 - SetsSlots", SubTests::ST_SetsSlots);
-    // AddSubTest("12 - Timestamps", SubTests::ST_Timestamps); // Disabled due to CI failure on AMD.
-  }
-
+  virtual void SetupSubTests() override;
+  virtual ezResult InitializeTest() override;
+  virtual ezResult DeInitializeTest() override;
   virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
   virtual ezResult DeInitializeSubTest(ezInt32 iIdentifier) override;
   virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount) override;
+  virtual void MapImageNumberToString(const char* szTestName, const ezSubTestEntry& subTest, ezUInt32 uiImageNumber, ezStringBuilder& out_sString) const override;
 
   void RenderBlock(ezMeshBufferResourceHandle mesh, ezColor clearColor = ezColor::CornflowerBlue, ezUInt32 uiRenderTargetClearMask = 0xFFFFFFFF, ezRectFloat* pViewport = nullptr, ezRectU32* pScissor = nullptr);
 
@@ -62,13 +58,16 @@ private:
   void VertexBufferTest();
   void IndexBufferTest();
   void ConstantBufferTest();
-  void StructuredBufferTest();
+  void StructuredBufferTestUpload();
+  void StructuredBufferTest(ezGALShaderResourceType::Enum bufferType);
   void Texture2D();
   void Texture2DArray();
   void GenerateMipMaps();
   void PushConstantsTest();
-  void SetsSlotsTest();
-  void Timestamps();
+  void BindGroupsTest();
+  void CustomVertexStreams();
+  ezTestAppRun Timestamps();
+  ezTestAppRun OcclusionQueries();
 
 private:
   ezShaderResourceHandle m_hMostBasicTriangleShader;
@@ -76,6 +75,8 @@ private:
   ezShaderResourceHandle m_hConstantBufferShader;
   ezShaderResourceHandle m_hPushConstantsShader;
   ezShaderResourceHandle m_hInstancingShader;
+  ezShaderResourceHandle m_hCopyBufferShader;
+  ezShaderResourceHandle m_hCustomVertexStreamShader;
 
   ezMeshBufferResourceHandle m_hTriangleMesh;
   ezMeshBufferResourceHandle m_hSphereMesh;
@@ -85,22 +86,21 @@ private:
   ezConstantBufferStorageHandle m_hTestPositionsConstantBuffer;
 
   ezGALBufferHandle m_hInstancingData;
-  ezGALBufferResourceViewHandle m_hInstancingDataView_8_4;
-  ezGALBufferResourceViewHandle m_hInstancingDataView_12_4;
+  ezGALBufferHandle m_hInstancingDataTransient;
+  ezGALBufferHandle m_hInstancingDataUAV;
+
+  ezGALBufferHandle m_hInstancingDataVertexStream;
+  ezSmallArray<ezGALVertexAttribute, 8> m_VertexAttributes;
 
   ezGALTextureHandle m_hTexture2D;
-  ezGALTextureResourceViewHandle m_hTexture2D_Mip0;
-  ezGALTextureResourceViewHandle m_hTexture2D_Mip1;
-  ezGALTextureResourceViewHandle m_hTexture2D_Mip2;
-  ezGALTextureResourceViewHandle m_hTexture2D_Mip3;
   ezGALTextureHandle m_hTexture2DArray;
-  ezGALTextureResourceViewHandle m_hTexture2DArray_Layer0_Mip0;
-  ezGALTextureResourceViewHandle m_hTexture2DArray_Layer0_Mip1;
-  ezGALTextureResourceViewHandle m_hTexture2DArray_Layer1_Mip0;
-  ezGALTextureResourceViewHandle m_hTexture2DArray_Layer1_Mip1;
 
-  bool m_bTimestampsValid = false;
+
+  // Timestamps / Occlusion Queries test
+  ezInt32 m_iDelay = 0;
   ezTime m_CPUTime[2];
   ezTime m_GPUTime[2];
   ezGALTimestampHandle m_timestamps[2];
+  ezGALOcclusionHandle m_queries[4];
+  ezGALFenceHandle m_hFence = {};
 };

@@ -39,8 +39,8 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
 
   const ezDocumentObject* pRoot = CreateObject(ezGetStaticRTTI<ezMirrorTest>());
 
-  ezUuid mathGuid = pAccessor->Get<ezUuid>(pRoot, "Math");
-  ezUuid objectGuid = pAccessor->Get<ezUuid>(pRoot, "Object");
+  ezUuid mathGuid = pAccessor->GetByName<ezUuid>(pRoot, "Math");
+  ezUuid objectGuid = pAccessor->GetByName<ezUuid>(pRoot, "Object");
 
   const ezDocumentObject* pMath = pAccessor->GetObject(mathGuid);
   const ezDocumentObject* pObjectTest = pAccessor->GetObject(objectGuid);
@@ -58,12 +58,12 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
       ezUInt32 uiUndoHistorySize = doc.GetCommandHistory()->GetUndoStackSize();
 
       pAccessor->StartTransaction("SetValue");
-      EZ_TEST_STATUS(pAccessor->SetValue(pObject, szProperty, value));
+      EZ_TEST_STATUS(pAccessor->SetValueByName(pObject, szProperty, value));
       pAccessor->FinishTransaction();
       EZ_TEST_INT(doc.GetCommandHistory()->GetUndoStackSize(), uiUndoHistorySize + 1);
       EZ_TEST_INT(doc.GetCommandHistory()->GetRedoStackSize(), 0);
       ezVariant newValue;
-      EZ_TEST_STATUS(pAccessor->GetValue(pObject, szProperty, newValue));
+      EZ_TEST_STATUS(pAccessor->GetValueByName(pObject, szProperty, newValue));
       EZ_TEST_BOOL(newValue == value);
 
       EZ_TEST_STATUS(doc.GetCommandHistory()->Undo());
@@ -74,7 +74,7 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
       EZ_TEST_STATUS(doc.GetCommandHistory()->Redo());
       EZ_TEST_INT(doc.GetCommandHistory()->GetUndoStackSize(), uiUndoHistorySize + 1);
       EZ_TEST_INT(doc.GetCommandHistory()->GetRedoStackSize(), 0);
-      EZ_TEST_STATUS(pAccessor->GetValue(pObject, szProperty, newValue));
+      EZ_TEST_STATUS(pAccessor->GetValueByName(pObject, szProperty, newValue));
       EZ_TEST_BOOL(newValue == value);
     };
 
@@ -165,29 +165,29 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
       StoreOriginalState(graph, pObject);
 
       const ezUInt32 uiUndoHistorySize = doc.GetCommandHistory()->GetUndoStackSize();
-      const ezInt32 iArraySize = pAccessor->GetCount(pObject, szProperty);
+      const ezInt32 iArraySize = pAccessor->GetCountByName(pObject, szProperty);
 
       pAccessor->StartTransaction("InsertValue");
-      EZ_TEST_STATUS(pAccessor->InsertValue(pObject, szProperty, value, index));
+      EZ_TEST_STATUS(pAccessor->InsertValueByName(pObject, szProperty, value, index));
       pAccessor->FinishTransaction();
       EZ_TEST_INT(doc.GetCommandHistory()->GetUndoStackSize(), uiUndoHistorySize + 1);
       EZ_TEST_INT(doc.GetCommandHistory()->GetRedoStackSize(), 0);
-      EZ_TEST_INT(pAccessor->GetCount(pObject, szProperty), iArraySize + 1);
+      EZ_TEST_INT(pAccessor->GetCountByName(pObject, szProperty), iArraySize + 1);
       ezVariant newValue;
-      EZ_TEST_STATUS(pAccessor->GetValue(pObject, szProperty, newValue, index));
+      EZ_TEST_STATUS(pAccessor->GetValueByName(pObject, szProperty, newValue, index));
       EZ_TEST_BOOL(newValue == value);
 
       EZ_TEST_STATUS(doc.GetCommandHistory()->Undo());
       EZ_TEST_INT(doc.GetCommandHistory()->GetUndoStackSize(), uiUndoHistorySize);
       EZ_TEST_INT(doc.GetCommandHistory()->GetRedoStackSize(), 1);
-      EZ_TEST_INT(pAccessor->GetCount(pObject, szProperty), iArraySize);
+      EZ_TEST_INT(pAccessor->GetCountByName(pObject, szProperty), iArraySize);
       CompareAgainstOriginalState(graph, pObject);
 
       EZ_TEST_STATUS(doc.GetCommandHistory()->Redo());
       EZ_TEST_INT(doc.GetCommandHistory()->GetUndoStackSize(), uiUndoHistorySize + 1);
       EZ_TEST_INT(doc.GetCommandHistory()->GetRedoStackSize(), 0);
-      EZ_TEST_INT(pAccessor->GetCount(pObject, szProperty), iArraySize + 1);
-      EZ_TEST_STATUS(pAccessor->GetValue(pObject, szProperty, newValue, index));
+      EZ_TEST_INT(pAccessor->GetCountByName(pObject, szProperty), iArraySize + 1);
+      EZ_TEST_STATUS(pAccessor->GetValueByName(pObject, szProperty, newValue, index));
       EZ_TEST_BOOL(newValue == value);
     };
 
@@ -212,42 +212,42 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
       StoreOriginalState(graph, pObject);
 
       const ezUInt32 uiUndoHistorySize = doc.GetCommandHistory()->GetUndoStackSize();
-      const ezInt32 iArraySize = pAccessor->GetCount(pObject, szProperty);
+      const ezInt32 iArraySize = pAccessor->GetCountByName(pObject, szProperty);
       EZ_TEST_INT(iArraySize, expectedOutcome.GetCount());
 
       ezDynamicArray<ezVariant> values;
-      EZ_TEST_STATUS(pAccessor->GetValues(pObject, szProperty, values));
+      EZ_TEST_STATUS(pAccessor->GetValuesByName(pObject, szProperty, values));
       EZ_TEST_INT(iArraySize, values.GetCount());
 
       pAccessor->StartTransaction("MoveValue");
-      EZ_TEST_STATUS(pAccessor->MoveValue(pObject, szProperty, oldIndex, newIndex));
+      EZ_TEST_STATUS(pAccessor->MoveValueByName(pObject, szProperty, oldIndex, newIndex));
       pAccessor->FinishTransaction();
       EZ_TEST_INT(doc.GetCommandHistory()->GetUndoStackSize(), uiUndoHistorySize + 1);
       EZ_TEST_INT(doc.GetCommandHistory()->GetRedoStackSize(), 0);
-      EZ_TEST_INT(pAccessor->GetCount(pObject, szProperty), iArraySize);
+      EZ_TEST_INT(pAccessor->GetCountByName(pObject, szProperty), iArraySize);
 
       for (ezInt32 i = 0; i < iArraySize; i++)
       {
         ezVariant newValue;
-        EZ_TEST_STATUS(pAccessor->GetValue(pObject, szProperty, newValue, i));
+        EZ_TEST_STATUS(pAccessor->GetValueByName(pObject, szProperty, newValue, i));
         EZ_TEST_BOOL(newValue == expectedOutcome[i]);
       }
 
       EZ_TEST_STATUS(doc.GetCommandHistory()->Undo());
       EZ_TEST_INT(doc.GetCommandHistory()->GetUndoStackSize(), uiUndoHistorySize);
       EZ_TEST_INT(doc.GetCommandHistory()->GetRedoStackSize(), 1);
-      EZ_TEST_INT(pAccessor->GetCount(pObject, szProperty), iArraySize);
+      EZ_TEST_INT(pAccessor->GetCountByName(pObject, szProperty), iArraySize);
       CompareAgainstOriginalState(graph, pObject);
 
       EZ_TEST_STATUS(doc.GetCommandHistory()->Redo());
       EZ_TEST_INT(doc.GetCommandHistory()->GetUndoStackSize(), uiUndoHistorySize + 1);
       EZ_TEST_INT(doc.GetCommandHistory()->GetRedoStackSize(), 0);
-      EZ_TEST_INT(pAccessor->GetCount(pObject, szProperty), iArraySize);
+      EZ_TEST_INT(pAccessor->GetCountByName(pObject, szProperty), iArraySize);
 
       for (ezInt32 i = 0; i < iArraySize; i++)
       {
         ezVariant newValue;
-        EZ_TEST_STATUS(pAccessor->GetValue(pObject, szProperty, newValue, i));
+        EZ_TEST_STATUS(pAccessor->GetValueByName(pObject, szProperty, newValue, i));
         EZ_TEST_BOOL(newValue == expectedOutcome[i]);
       }
     };
@@ -321,16 +321,16 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
       StoreOriginalState(graph, pObject);
 
       const ezUInt32 uiUndoHistorySize = doc.GetCommandHistory()->GetUndoStackSize();
-      const ezInt32 iArraySize = pAccessor->GetCount(pObject, szProperty);
+      const ezInt32 iArraySize = pAccessor->GetCountByName(pObject, szProperty);
       EZ_TEST_INT(iArraySize - 1, expectedOutcome.GetCount());
 
       ezDynamicArray<ezVariant> values;
       ezDynamicArray<ezVariant> keys;
       {
-        EZ_TEST_STATUS(pAccessor->GetValues(pObject, szProperty, values));
+        EZ_TEST_STATUS(pAccessor->GetValuesByName(pObject, szProperty, values));
         EZ_TEST_INT(iArraySize, values.GetCount());
 
-        EZ_TEST_STATUS(pAccessor->GetKeys(pObject, szProperty, keys));
+        EZ_TEST_STATUS(pAccessor->GetKeysByName(pObject, szProperty, keys));
         EZ_TEST_INT(iArraySize, keys.GetCount());
         ezUInt32 uiIndex = keys.IndexOf(index);
         keys.RemoveAtAndSwap(uiIndex);
@@ -339,11 +339,11 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
       }
 
       pAccessor->StartTransaction("RemoveValue");
-      EZ_TEST_STATUS(pAccessor->RemoveValue(pObject, szProperty, index));
+      EZ_TEST_STATUS(pAccessor->RemoveValueByName(pObject, szProperty, index));
       pAccessor->FinishTransaction();
       EZ_TEST_INT(doc.GetCommandHistory()->GetUndoStackSize(), uiUndoHistorySize + 1);
       EZ_TEST_INT(doc.GetCommandHistory()->GetRedoStackSize(), 0);
-      EZ_TEST_INT(pAccessor->GetCount(pObject, szProperty), iArraySize - 1);
+      EZ_TEST_INT(pAccessor->GetCountByName(pObject, szProperty), iArraySize - 1);
 
       if (pObject->GetType()->FindPropertyByName(szProperty)->GetCategory() == ezPropertyCategory::Map)
       {
@@ -352,7 +352,7 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
           const ezVariant& key = keys[i];
           const ezVariant& value = values[i];
           ezVariant newValue;
-          EZ_TEST_STATUS(pAccessor->GetValue(pObject, szProperty, newValue, key));
+          EZ_TEST_STATUS(pAccessor->GetValueByName(pObject, szProperty, newValue, key));
           EZ_TEST_BOOL(newValue == value);
           EZ_TEST_BOOL(expectedOutcome.Contains(newValue));
         }
@@ -362,7 +362,7 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
         for (ezInt32 i = 0; i < iArraySize - 1; i++)
         {
           ezVariant newValue;
-          EZ_TEST_STATUS(pAccessor->GetValue(pObject, szProperty, newValue, i));
+          EZ_TEST_STATUS(pAccessor->GetValueByName(pObject, szProperty, newValue, i));
           EZ_TEST_BOOL(newValue == expectedOutcome[i]);
         }
       }
@@ -370,13 +370,13 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
       EZ_TEST_STATUS(doc.GetCommandHistory()->Undo());
       EZ_TEST_INT(doc.GetCommandHistory()->GetUndoStackSize(), uiUndoHistorySize);
       EZ_TEST_INT(doc.GetCommandHistory()->GetRedoStackSize(), 1);
-      EZ_TEST_INT(pAccessor->GetCount(pObject, szProperty), iArraySize);
+      EZ_TEST_INT(pAccessor->GetCountByName(pObject, szProperty), iArraySize);
       CompareAgainstOriginalState(graph, pObject);
 
       EZ_TEST_STATUS(doc.GetCommandHistory()->Redo());
       EZ_TEST_INT(doc.GetCommandHistory()->GetUndoStackSize(), uiUndoHistorySize + 1);
       EZ_TEST_INT(doc.GetCommandHistory()->GetRedoStackSize(), 0);
-      EZ_TEST_INT(pAccessor->GetCount(pObject, szProperty), iArraySize - 1);
+      EZ_TEST_INT(pAccessor->GetCountByName(pObject, szProperty), iArraySize - 1);
 
       if (pObject->GetType()->FindPropertyByName(szProperty)->GetCategory() == ezPropertyCategory::Map)
       {
@@ -385,7 +385,7 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
           const ezVariant& key = keys[i];
           const ezVariant& value = values[i];
           ezVariant newValue;
-          EZ_TEST_STATUS(pAccessor->GetValue(pObject, szProperty, newValue, key));
+          EZ_TEST_STATUS(pAccessor->GetValueByName(pObject, szProperty, newValue, key));
           EZ_TEST_BOOL(newValue == value);
           EZ_TEST_BOOL(expectedOutcome.Contains(newValue));
         }
@@ -395,7 +395,7 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
         for (ezInt32 i = 0; i < iArraySize - 1; i++)
         {
           ezVariant newValue;
-          EZ_TEST_STATUS(pAccessor->GetValue(pObject, szProperty, newValue, i));
+          EZ_TEST_STATUS(pAccessor->GetValueByName(pObject, szProperty, newValue, i));
           EZ_TEST_BOOL(newValue == expectedOutcome[i]);
         }
       }
@@ -455,29 +455,29 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
       StoreOriginalState(graph, pObject);
 
       const ezUInt32 uiUndoHistorySize = doc.GetCommandHistory()->GetUndoStackSize();
-      const ezInt32 iArraySize = pAccessor->GetCount(pObject, szProperty);
+      const ezInt32 iArraySize = pAccessor->GetCountByName(pObject, szProperty);
 
       pAccessor->StartTransaction("TestAddObject");
-      EZ_TEST_STATUS(pAccessor->AddObject(pObject, szProperty, index, pType, inout_object));
+      EZ_TEST_STATUS(pAccessor->AddObjectByName(pObject, szProperty, index, pType, inout_object));
       pAccessor->FinishTransaction();
       EZ_TEST_INT(doc.GetCommandHistory()->GetUndoStackSize(), uiUndoHistorySize + 1);
       EZ_TEST_INT(doc.GetCommandHistory()->GetRedoStackSize(), 0);
-      EZ_TEST_INT(pAccessor->GetCount(pObject, szProperty), iArraySize + 1);
+      EZ_TEST_INT(pAccessor->GetCountByName(pObject, szProperty), iArraySize + 1);
       ezVariant newValue;
-      EZ_TEST_STATUS(pAccessor->GetValue(pObject, szProperty, newValue, index));
+      EZ_TEST_STATUS(pAccessor->GetValueByName(pObject, szProperty, newValue, index));
       EZ_TEST_BOOL(newValue == inout_object);
 
       EZ_TEST_STATUS(doc.GetCommandHistory()->Undo());
       EZ_TEST_INT(doc.GetCommandHistory()->GetUndoStackSize(), uiUndoHistorySize);
       EZ_TEST_INT(doc.GetCommandHistory()->GetRedoStackSize(), 1);
-      EZ_TEST_INT(pAccessor->GetCount(pObject, szProperty), iArraySize);
+      EZ_TEST_INT(pAccessor->GetCountByName(pObject, szProperty), iArraySize);
       CompareAgainstOriginalState(graph, pObject);
 
       EZ_TEST_STATUS(doc.GetCommandHistory()->Redo());
       EZ_TEST_INT(doc.GetCommandHistory()->GetUndoStackSize(), uiUndoHistorySize + 1);
       EZ_TEST_INT(doc.GetCommandHistory()->GetRedoStackSize(), 0);
-      EZ_TEST_INT(pAccessor->GetCount(pObject, szProperty), iArraySize + 1);
-      EZ_TEST_STATUS(pAccessor->GetValue(pObject, szProperty, newValue, index));
+      EZ_TEST_INT(pAccessor->GetCountByName(pObject, szProperty), iArraySize + 1);
+      EZ_TEST_STATUS(pAccessor->GetValueByName(pObject, szProperty, newValue, index));
       EZ_TEST_BOOL(newValue == inout_object);
     };
 
@@ -528,7 +528,7 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
     auto TestMoveObjectFailure = [&](const ezDocumentObject* pObject, const char* szProperty, ezVariant newIndex)
     {
       pAccessor->StartTransaction("MoveObject");
-      EZ_TEST_BOOL(pAccessor->MoveObject(pObject, pObject->GetParent(), szProperty, newIndex).Failed());
+      EZ_TEST_BOOL(pAccessor->MoveObjectByName(pObject, pObject->GetParent(), szProperty, newIndex).Failed());
       pAccessor->CancelTransaction();
     };
 
@@ -538,42 +538,42 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
       StoreOriginalState(graph, pObject->GetParent());
 
       const ezUInt32 uiUndoHistorySize = doc.GetCommandHistory()->GetUndoStackSize();
-      const ezInt32 iArraySize = pAccessor->GetCount(pObject->GetParent(), szProperty);
+      const ezInt32 iArraySize = pAccessor->GetCountByName(pObject->GetParent(), szProperty);
       EZ_TEST_INT(iArraySize, expectedOutcome.GetCount());
 
       ezDynamicArray<ezVariant> values;
-      EZ_TEST_STATUS(pAccessor->GetValues(pObject->GetParent(), szProperty, values));
+      EZ_TEST_STATUS(pAccessor->GetValuesByName(pObject->GetParent(), szProperty, values));
       EZ_TEST_INT(iArraySize, values.GetCount());
 
       pAccessor->StartTransaction("MoveObject");
-      EZ_TEST_STATUS(pAccessor->MoveObject(pObject, pObject->GetParent(), szProperty, newIndex));
+      EZ_TEST_STATUS(pAccessor->MoveObjectByName(pObject, pObject->GetParent(), szProperty, newIndex));
       pAccessor->FinishTransaction();
       EZ_TEST_INT(doc.GetCommandHistory()->GetUndoStackSize(), uiUndoHistorySize + 1);
       EZ_TEST_INT(doc.GetCommandHistory()->GetRedoStackSize(), 0);
-      EZ_TEST_INT(pAccessor->GetCount(pObject->GetParent(), szProperty), iArraySize);
+      EZ_TEST_INT(pAccessor->GetCountByName(pObject->GetParent(), szProperty), iArraySize);
 
       for (ezInt32 i = 0; i < iArraySize; i++)
       {
         ezVariant newValue;
-        EZ_TEST_STATUS(pAccessor->GetValue(pObject->GetParent(), szProperty, newValue, i));
+        EZ_TEST_STATUS(pAccessor->GetValueByName(pObject->GetParent(), szProperty, newValue, i));
         EZ_TEST_BOOL(newValue == expectedOutcome[i]);
       }
 
       EZ_TEST_STATUS(doc.GetCommandHistory()->Undo());
       EZ_TEST_INT(doc.GetCommandHistory()->GetUndoStackSize(), uiUndoHistorySize);
       EZ_TEST_INT(doc.GetCommandHistory()->GetRedoStackSize(), 1);
-      EZ_TEST_INT(pAccessor->GetCount(pObject->GetParent(), szProperty), iArraySize);
+      EZ_TEST_INT(pAccessor->GetCountByName(pObject->GetParent(), szProperty), iArraySize);
       CompareAgainstOriginalState(graph, pObject->GetParent());
 
       EZ_TEST_STATUS(doc.GetCommandHistory()->Redo());
       EZ_TEST_INT(doc.GetCommandHistory()->GetUndoStackSize(), uiUndoHistorySize + 1);
       EZ_TEST_INT(doc.GetCommandHistory()->GetRedoStackSize(), 0);
-      EZ_TEST_INT(pAccessor->GetCount(pObject->GetParent(), szProperty), iArraySize);
+      EZ_TEST_INT(pAccessor->GetCountByName(pObject->GetParent(), szProperty), iArraySize);
 
       for (ezInt32 i = 0; i < iArraySize; i++)
       {
         ezVariant newValue;
-        EZ_TEST_STATUS(pAccessor->GetValue(pObject->GetParent(), szProperty, newValue, i));
+        EZ_TEST_STATUS(pAccessor->GetValueByName(pObject->GetParent(), szProperty, newValue, i));
         EZ_TEST_BOOL(newValue == expectedOutcome[i]);
       }
     };
@@ -625,17 +625,17 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
       ezAbstractObjectGraph graph;
       StoreOriginalState(graph, pParent);
       const ezUInt32 uiUndoHistorySize = doc.GetCommandHistory()->GetUndoStackSize();
-      const ezInt32 iArraySize = pAccessor->GetCount(pParent, sProperty);
+      const ezInt32 iArraySize = pAccessor->GetCountByName(pParent, sProperty);
       EZ_TEST_INT(iArraySize - 1, expectedOutcome.GetCount());
 
 
       ezDynamicArray<ezVariant> values;
       ezDynamicArray<ezVariant> keys;
       {
-        EZ_TEST_STATUS(pAccessor->GetValues(pParent, sProperty, values));
+        EZ_TEST_STATUS(pAccessor->GetValuesByName(pParent, sProperty, values));
         EZ_TEST_INT(iArraySize, values.GetCount());
 
-        EZ_TEST_STATUS(pAccessor->GetKeys(pParent, sProperty, keys));
+        EZ_TEST_STATUS(pAccessor->GetKeysByName(pParent, sProperty, keys));
         EZ_TEST_INT(iArraySize, keys.GetCount());
         ezUInt32 uiIndex = keys.IndexOf(pObject->GetPropertyIndex());
         keys.RemoveAtAndSwap(uiIndex);
@@ -648,7 +648,7 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
       pAccessor->FinishTransaction();
       EZ_TEST_INT(doc.GetCommandHistory()->GetUndoStackSize(), uiUndoHistorySize + 1);
       EZ_TEST_INT(doc.GetCommandHistory()->GetRedoStackSize(), 0);
-      EZ_TEST_INT(pAccessor->GetCount(pParent, sProperty), iArraySize - 1);
+      EZ_TEST_INT(pAccessor->GetCountByName(pParent, sProperty), iArraySize - 1);
 
       if (pParent->GetType()->FindPropertyByName(sProperty)->GetCategory() == ezPropertyCategory::Map)
       {
@@ -657,7 +657,7 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
           const ezVariant& key = keys[i];
           const ezVariant& value = values[i];
           ezVariant newValue;
-          EZ_TEST_STATUS(pAccessor->GetValue(pParent, sProperty, newValue, key));
+          EZ_TEST_STATUS(pAccessor->GetValueByName(pParent, sProperty, newValue, key));
           EZ_TEST_BOOL(newValue == value);
           EZ_TEST_BOOL(expectedOutcome.Contains(newValue.Get<ezUuid>()));
         }
@@ -667,7 +667,7 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
         for (ezInt32 i = 0; i < iArraySize - 1; i++)
         {
           ezVariant newValue;
-          EZ_TEST_STATUS(pAccessor->GetValue(pParent, sProperty, newValue, i));
+          EZ_TEST_STATUS(pAccessor->GetValueByName(pParent, sProperty, newValue, i));
           EZ_TEST_BOOL(newValue == expectedOutcome[i]);
         }
       }
@@ -675,13 +675,13 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
       EZ_TEST_STATUS(doc.GetCommandHistory()->Undo());
       EZ_TEST_INT(doc.GetCommandHistory()->GetUndoStackSize(), uiUndoHistorySize);
       EZ_TEST_INT(doc.GetCommandHistory()->GetRedoStackSize(), 1);
-      EZ_TEST_INT(pAccessor->GetCount(pParent, sProperty), iArraySize);
+      EZ_TEST_INT(pAccessor->GetCountByName(pParent, sProperty), iArraySize);
       CompareAgainstOriginalState(graph, pParent);
 
       EZ_TEST_STATUS(doc.GetCommandHistory()->Redo());
       EZ_TEST_INT(doc.GetCommandHistory()->GetUndoStackSize(), uiUndoHistorySize + 1);
       EZ_TEST_INT(doc.GetCommandHistory()->GetRedoStackSize(), 0);
-      EZ_TEST_INT(pAccessor->GetCount(pParent, sProperty), iArraySize - 1);
+      EZ_TEST_INT(pAccessor->GetCountByName(pParent, sProperty), iArraySize - 1);
 
       if (pParent->GetType()->FindPropertyByName(sProperty)->GetCategory() == ezPropertyCategory::Map)
       {
@@ -690,7 +690,7 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
           const ezVariant& key = keys[i];
           const ezVariant& value = values[i];
           ezVariant newValue;
-          EZ_TEST_STATUS(pAccessor->GetValue(pParent, sProperty, newValue, key));
+          EZ_TEST_STATUS(pAccessor->GetValueByName(pParent, sProperty, newValue, key));
           EZ_TEST_BOOL(newValue == value);
           EZ_TEST_BOOL(expectedOutcome.Contains(newValue.Get<ezUuid>()));
         }
@@ -700,7 +700,7 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, CommandHistory)
         for (ezInt32 i = 0; i < iArraySize - 1; i++)
         {
           ezVariant newValue;
-          EZ_TEST_STATUS(pAccessor->GetValue(pParent, sProperty, newValue, i));
+          EZ_TEST_STATUS(pAccessor->GetValueByName(pParent, sProperty, newValue, i));
           EZ_TEST_BOOL(newValue == expectedOutcome[i]);
         }
       }

@@ -4,7 +4,7 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <RendererCore/Components/SpriteComponent.h>
-#include <RendererCore/Pipeline/ExtractedRenderData.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 
@@ -36,17 +36,20 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpriteRenderData, 1, ezRTTIDefaultAllocator<ez
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezSpriteRenderData::FillBatchIdAndSortingKey()
+void ezSpriteRenderData::FillSortingKey()
 {
   // ignore upper 32 bit of the resource ID hash
   const ezUInt32 uiTextureIDHash = static_cast<ezUInt32>(m_hTexture.GetResourceIDHash());
 
-  // Generate batch id from mode and texture
-  ezUInt32 data[] = {(ezUInt32)m_BlendMode, uiTextureIDHash};
-  m_uiBatchId = ezHashingUtils::xxHash32(data, sizeof(data));
-
   // Sort by mode and then by texture
   m_uiSortingKey = (m_BlendMode << 30) | (uiTextureIDHash & 0x3FFFFFFF);
+}
+
+bool ezSpriteRenderData::CanBatch(const ezRenderData& other0) const
+{
+  const auto& other = ezStaticCast<const ezSpriteRenderData&>(other0);
+
+  return m_BlendMode == other.m_BlendMode && m_hTexture == other.m_hTexture;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -56,7 +59,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpriteComponent, 3, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Texture", GetTextureFile, SetTextureFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_2D")),
+    EZ_RESOURCE_ACCESSOR_PROPERTY("Texture", GetTexture, SetTexture)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_2D")),
     EZ_ENUM_MEMBER_PROPERTY("BlendMode", ezSpriteBlendMode, m_BlendMode),
     EZ_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new ezExposeColorAlphaAttribute()),
     EZ_ACCESSOR_PROPERTY("Size", GetSize, SetSize)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1.0f), new ezSuffixAttribute(" m")),
@@ -97,10 +100,8 @@ void ezSpriteComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) cons
   if (!m_hTexture.IsValid())
     return;
 
-  ezSpriteRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezSpriteRenderData>(GetOwner());
+  ezSpriteRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezSpriteRenderData>(GetOwner());
   {
-    pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
-    pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
     pRenderData->m_hTexture = m_hTexture;
     pRenderData->m_fSize = m_fSize;
     pRenderData->m_fMaxScreenSize = m_fMaxScreenSize;
@@ -111,7 +112,7 @@ void ezSpriteComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) cons
     pRenderData->m_texCoordOffset = ezVec2(0.0f);
     pRenderData->m_uiUniqueID = GetUniqueIdForRendering();
 
-    pRenderData->FillBatchIdAndSortingKey();
+    pRenderData->FillSortingKey();
   }
 
   // Determine render data category.
@@ -174,26 +175,6 @@ void ezSpriteComponent::SetTexture(const ezTexture2DResourceHandle& hTexture)
 const ezTexture2DResourceHandle& ezSpriteComponent::GetTexture() const
 {
   return m_hTexture;
-}
-
-void ezSpriteComponent::SetTextureFile(const char* szFile)
-{
-  ezTexture2DResourceHandle hTexture;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(szFile);
-  }
-
-  SetTexture(hTexture);
-}
-
-const char* ezSpriteComponent::GetTextureFile() const
-{
-  if (!m_hTexture.IsValid())
-    return "";
-
-  return m_hTexture.GetResourceID();
 }
 
 void ezSpriteComponent::SetColor(ezColor color)

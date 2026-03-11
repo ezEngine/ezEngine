@@ -22,9 +22,6 @@ private:
 
 struct ezLodAnimatedMeshLod
 {
-  const char* GetMeshFile() const;
-  void SetMeshFile(const char* szFile);
-
   ezMeshResourceHandle m_hMesh;
   float m_fThreshold;
 };
@@ -50,7 +47,6 @@ protected:
   // ezRenderComponent
 
 public:
-  virtual ezMeshRenderData* CreateRenderData() const;
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
 
   //////////////////////////////////////////////////////////////////////////
@@ -91,13 +87,15 @@ protected:
   void UpdateSelectedLod(const ezView& view) const;
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
 
-  mutable ezInt32 m_iCurLod = 0;
   ezDynamicArray<ezLodAnimatedMeshLod> m_Meshes;
   ezColor m_Color = ezColor::White;
   ezVec4 m_vCustomData = ezVec4(0, 1, 0, 1);
   float m_fSortingDepthOffset = 0.0f;
   ezVec3 m_vBoundsOffset = ezVec3::MakeZero();
   float m_fBoundsRadius = 1.0f;
+
+  mutable ezInt32 m_iCurLod = 0;
+  mutable ezInstanceDataOffset m_InstanceDataOffset;
 
 protected:
   void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg);     // [ msg handler ]

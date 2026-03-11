@@ -1,11 +1,8 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
-#include <Core/Graphics/Camera.h>
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/Gizmos/ClickGizmo.h>
-#include <EditorFramework/Preferences/EditorPreferences.h>
-#include <Foundation/Utilities/GraphicsUtils.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezClickGizmo, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -80,5 +77,6 @@ ezEditorInput ezClickGizmo::DoMouseReleaseEvent(QMouseEvent* e)
   FocusLost(false);
 
   SetActiveInputContext(nullptr);
+
   return ezEditorInput::WasExclusivelyHandled;
 }

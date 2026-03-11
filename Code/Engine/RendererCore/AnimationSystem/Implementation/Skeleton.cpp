@@ -137,7 +137,7 @@ bool ezSkeleton::IsJointDescendantOf(ezUInt16 uiJoint, ezUInt16 uiExpectedParent
 
 static void BuildRawOzzSkeleton(const ezSkeleton& skeleton, ezUInt16 uiExpectedParent, ozz::animation::offline::RawSkeleton::Joint::Children& ref_dstBones)
 {
-  ezHybridArray<ezUInt16, 6> children;
+  ezTempHybridArray<ezUInt16, 6> children;
 
   for (ezUInt16 i = 0; i < skeleton.GetJointCount(); ++i)
   {
@@ -208,12 +208,24 @@ ezUInt64 ezSkeleton::GetHeapMemoryUsage() const
 
 ezAngle ezSkeletonJoint::GetTwistLimitLow() const
 {
-  return ezMath::Max(ezAngle::MakeFromDegree(-179), m_TwistLimitCenterAngle - m_TwistLimitHalfAngle);
+  ezAngle base = m_TwistLimitCenterAngle;
+  base.NormalizeRange();
+
+  if (base > ezAngle::MakeFromDegree(180))
+    base -= ezAngle::MakeFromDegree(360);
+
+  return ezMath::Max(ezAngle::MakeFromDegree(-179), base - m_TwistLimitHalfAngle);
 }
 
 ezAngle ezSkeletonJoint::GetTwistLimitHigh() const
 {
-  return ezMath::Min(ezAngle::MakeFromDegree(179), m_TwistLimitCenterAngle + m_TwistLimitHalfAngle);
+  ezAngle base = m_TwistLimitCenterAngle;
+  base.NormalizeRange();
+
+  if (base > ezAngle::MakeFromDegree(180))
+    base -= ezAngle::MakeFromDegree(360);
+
+  return ezMath::Min(ezAngle::MakeFromDegree(179), base + m_TwistLimitHalfAngle);
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_Implementation_Skeleton);

@@ -26,7 +26,26 @@ EZ_ALWAYS_INLINE ezSimdVec4b::ezSimdVec4b(ezInternal::QuadBool v)
 template <int N>
 EZ_ALWAYS_INLINE bool ezSimdVec4b::GetComponent() const
 {
-  return (&m_v.x)[N] != 0;
+  if constexpr (N == 0)
+  {
+    return m_v.x != 0;
+  }
+  else if constexpr (N == 1)
+  {
+    return m_v.y != 0;
+  }
+  else if constexpr (N == 2)
+  {
+    return m_v.z != 0;
+  }
+  else if constexpr (N == 3)
+  {
+    return m_v.w != 0;
+  }
+  else
+  {
+    return m_v.w != 0;
+  }
 }
 
 EZ_ALWAYS_INLINE bool ezSimdVec4b::x() const

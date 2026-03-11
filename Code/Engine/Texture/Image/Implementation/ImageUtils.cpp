@@ -832,7 +832,7 @@ static float EvaluateAverageCoverage(ezBlobPtr<const ezColor> colors, float fAlp
 
   ezUInt64 totalPixels = colors.GetCount();
   ezUInt64 count = 0;
-  for (ezUInt32 idx = 0; idx < totalPixels; ++idx)
+  for (ezUInt64 idx = 0; idx < totalPixels; ++idx)
   {
     count += colors[idx].a >= fAlphaThreshold;
   }
@@ -840,28 +840,43 @@ static float EvaluateAverageCoverage(ezBlobPtr<const ezColor> colors, float fAlp
   return float(count) / float(totalPixels);
 }
 
-static void NormalizeCoverage(ezBlobPtr<ezColor> colors, float fAlphaThreshold, float fTargetCoverage)
+static void NormalizeCoverage(ezImage& inout_currentMip, const ezImageHeader& fullImageHeader, const ezImageUtils::MipMapOptions& mipOptions, float fTargetCoverage)
 {
   EZ_PROFILE_SCOPE("NormalizeCoverage");
 
   // Based on the idea in http://the-witness.net/news/2010/09/computing-alpha-mipmaps/. Note we're using a histogram
   // to find the new alpha threshold here rather than bisecting.
 
-  // Generate histogram of alpha values
-  ezUInt64 totalPixels = colors.GetCount();
-  ezUInt32 alphaHistogram[256] = {};
-  for (ezUInt64 idx = 0; idx < totalPixels; ++idx)
+  // Early out for very small mips since the algorithm produces unpredictable results for them
+  if (inout_currentMip.GetWidth() <= 2 || inout_currentMip.GetHeight() <= 2)
   {
-    alphaHistogram[ezMath::ColorFloatToByte(colors[idx].a)]++;
+    return;
   }
 
-  // Find range of alpha thresholds so the number of covered pixels matches by summing up the histogram
+  // First bilinear upscale to original resolution
+  ezImage upscaled;
+  ezImageUtils::Scale(inout_currentMip, upscaled, fullImageHeader.GetWidth(), fullImageHeader.GetHeight(), nullptr, mipOptions.m_addressModeU, mipOptions.m_addressModeV).IgnoreResult();
+
+  auto upscaledColors = upscaled.GetBlobPtr<ezColor>();
+
+  // Generate histogram of alpha values
+  ezUInt64 totalPixels = upscaledColors.GetCount();
+
+  constexpr ezUInt32 histogramBits = 8;
+  constexpr ezUInt32 histogramSize = 1 << histogramBits;
+  ezUInt32 alphaHistogram[histogramSize] = {};
+  for (ezUInt64 idx = 0; idx < totalPixels; ++idx)
+  {
+    alphaHistogram[ezMath::ColorFloatToUnsignedInt<histogramBits>(upscaledColors[idx].a)]++;
+  }
+
+  // Find a new alpha threshold so the number of covered pixels matches by summing up the histogram
   ezInt32 targetCount = ezInt32(fTargetCoverage * totalPixels);
   ezInt32 coverageCount = 0;
-  ezInt32 maxThreshold = 255;
-  for (; maxThreshold >= 0; maxThreshold--)
+  ezInt32 newThreshold = histogramSize - 1;
+  for (; newThreshold >= 0; newThreshold--)
   {
-    coverageCount += alphaHistogram[maxThreshold];
+    coverageCount += alphaHistogram[newThreshold];
 
     if (coverageCount >= targetCount)
     {
@@ -869,40 +884,12 @@ static void NormalizeCoverage(ezBlobPtr<ezColor> colors, float fAlphaThreshold, 
     }
   }
 
-  coverageCount = targetCount;
-  ezInt32 minThreshold = 0;
-  for (; minThreshold < 256; minThreshold++)
-  {
-    coverageCount -= alphaHistogram[maxThreshold];
-
-    if (coverageCount <= targetCount)
-    {
-      break;
-    }
-  }
-
-  ezInt32 currentThreshold = ezMath::ColorFloatToByte(fAlphaThreshold);
-
-  // Each of the alpha test thresholds in the range [minThreshold; maxThreshold] will result in the same coverage. Pick a new threshold
-  // close to the old one so we scale by the smallest necessary amount.
-  ezInt32 newThreshold;
-  if (currentThreshold < minThreshold)
-  {
-    newThreshold = minThreshold;
-  }
-  else if (currentThreshold > maxThreshold)
-  {
-    newThreshold = maxThreshold;
-  }
-  else
-  {
-    // Avoid rescaling altogether if the current threshold already preserves coverage
-    return;
-  }
-
   // Rescale alpha values
-  float alphaScale = fAlphaThreshold / (newThreshold / 255.0f);
-  for (ezUInt64 idx = 0; idx < totalPixels; ++idx)
+  auto colors = inout_currentMip.GetBlobPtr<ezColor>();
+
+  const float fNewThreshold = float(newThreshold) / float(histogramSize - 1);
+  const float alphaScale = mipOptions.m_alphaThreshold / fNewThreshold;
+  for (ezUInt64 idx = 0; idx < colors.GetCount(); ++idx)
   {
     colors[idx].a *= alphaScale;
   }
@@ -1004,7 +991,7 @@ ezResult ezImageUtils::Scale3D(const ezImageView& source, ezImage& ref_target, e
     stepSource = &conversionScratch;
   };
 
-  ezHybridArray<ezInt32, 256> firstSampleIndices;
+  ezTempHybridArray<ezInt32, 256> firstSampleIndices;
   firstSampleIndices.Reserve(ezMath::Max(uiWidth, uiHeight, uiDepth));
 
   if (uiWidth != originalWidth)
@@ -1210,7 +1197,7 @@ void ezImageUtils::GenerateMipMaps(const ezImageView& source, ezImage& ref_targe
 
         if (mipMapOptions.m_preserveCoverage)
         {
-          NormalizeCoverage(nextMipMap.GetBlobPtr<ezColor>(), mipMapOptions.m_alphaThreshold, targetCoverage);
+          NormalizeCoverage(nextMipMap, header, mipMapOptions, targetCoverage);
         }
 
         if (mipMapOptions.m_renormalizeNormals)
@@ -1740,18 +1727,57 @@ ezColor ezImageUtils::BilinearSample(const ezColor* pData, ezUInt32 uiWidth, ezU
   return ezMath::Lerp(cr0, cr1, fractionY);
 }
 
+namespace
+{
+  template <typename SrcType, typename DstType, ezUInt8 SrcStride, ezUInt8 DstStride>
+  void CopyChannelLoop(const SrcType* pSrc, DstType* pDst, ezUInt32 uiNumPixels)
+  {
+    for (ezUInt32 i = 0; i < uiNumPixels; ++i)
+    {
+      *pDst = static_cast<DstType>(*pSrc);
+      pSrc += SrcStride;
+      pDst += DstStride;
+    }
+  }
+
+  template <typename SrcType, typename DstType>
+  void CopyChannelImpl(const SrcType* pSrc, ezUInt8 uiSrcStride, DstType* pDst, ezUInt8 uiDstStride, ezUInt32 uiNumPixels)
+  {
+    // Encode both strides into a single value: src in the upper nibble, dst in the lower.
+    // All 16 combinations of stride 1-4 are spelled out so the compiler sees compile-time constants.
+    const ezUInt8 uiKey = (uiSrcStride << 4) | uiDstStride;
+
+    // clang-format off
+    switch (uiKey)
+    {
+      case 0x11: CopyChannelLoop<SrcType, DstType, 1, 1>(pSrc, pDst, uiNumPixels); break;
+      case 0x12: CopyChannelLoop<SrcType, DstType, 1, 2>(pSrc, pDst, uiNumPixels); break;
+      case 0x13: CopyChannelLoop<SrcType, DstType, 1, 3>(pSrc, pDst, uiNumPixels); break;
+      case 0x14: CopyChannelLoop<SrcType, DstType, 1, 4>(pSrc, pDst, uiNumPixels); break;
+      case 0x21: CopyChannelLoop<SrcType, DstType, 2, 1>(pSrc, pDst, uiNumPixels); break;
+      case 0x22: CopyChannelLoop<SrcType, DstType, 2, 2>(pSrc, pDst, uiNumPixels); break;
+      case 0x23: CopyChannelLoop<SrcType, DstType, 2, 3>(pSrc, pDst, uiNumPixels); break;
+      case 0x24: CopyChannelLoop<SrcType, DstType, 2, 4>(pSrc, pDst, uiNumPixels); break;
+      case 0x31: CopyChannelLoop<SrcType, DstType, 3, 1>(pSrc, pDst, uiNumPixels); break;
+      case 0x32: CopyChannelLoop<SrcType, DstType, 3, 2>(pSrc, pDst, uiNumPixels); break;
+      case 0x33: CopyChannelLoop<SrcType, DstType, 3, 3>(pSrc, pDst, uiNumPixels); break;
+      case 0x34: CopyChannelLoop<SrcType, DstType, 3, 4>(pSrc, pDst, uiNumPixels); break;
+      case 0x41: CopyChannelLoop<SrcType, DstType, 4, 1>(pSrc, pDst, uiNumPixels); break;
+      case 0x42: CopyChannelLoop<SrcType, DstType, 4, 2>(pSrc, pDst, uiNumPixels); break;
+      case 0x43: CopyChannelLoop<SrcType, DstType, 4, 3>(pSrc, pDst, uiNumPixels); break;
+      case 0x44: CopyChannelLoop<SrcType, DstType, 4, 4>(pSrc, pDst, uiNumPixels); break;
+
+      default:
+        EZ_ASSERT_NOT_IMPLEMENTED;
+        break;
+    }
+    // clang-format on
+  }
+} // namespace
+
 ezResult ezImageUtils::CopyChannel(ezImage& ref_dstImg, ezUInt8 uiDstChannelIdx, const ezImage& srcImg, ezUInt8 uiSrcChannelIdx)
 {
   EZ_PROFILE_SCOPE("ezImageUtils::CopyChannel");
-
-  if (uiSrcChannelIdx >= 4 || uiDstChannelIdx >= 4)
-    return EZ_FAILURE;
-
-  if (ref_dstImg.GetImageFormat() != ezImageFormat::R32G32B32A32_FLOAT)
-    return EZ_FAILURE;
-
-  if (srcImg.GetImageFormat() != ref_dstImg.GetImageFormat())
-    return EZ_FAILURE;
 
   if (srcImg.GetWidth() != ref_dstImg.GetWidth())
     return EZ_FAILURE;
@@ -1759,25 +1785,73 @@ ezResult ezImageUtils::CopyChannel(ezImage& ref_dstImg, ezUInt8 uiDstChannelIdx,
   if (srcImg.GetHeight() != ref_dstImg.GetHeight())
     return EZ_FAILURE;
 
-  const ezUInt32 uiNumPixels = srcImg.GetWidth() * srcImg.GetHeight();
-  const float* pSrcPixel = srcImg.GetPixelPointer<float>();
-  float* pDstPixel = ref_dstImg.GetPixelPointer<float>();
+  const ezImageFormat::Enum srcFormat = srcImg.GetImageFormat();
+  const ezImageFormat::Enum dstFormat = ref_dstImg.GetImageFormat();
+  const ezUInt8 uiSrcChannels = static_cast<ezUInt8>(ezImageFormat::GetNumChannels(srcFormat));
+  const ezUInt8 uiDstChannels = static_cast<ezUInt8>(ezImageFormat::GetNumChannels(dstFormat));
+  const ezImageFormatType::Enum srcType = ezImageFormat::GetType(srcFormat);
+  const ezImageFormatType::Enum dstType = ezImageFormat::GetType(dstFormat);
+  if (srcType != dstType || srcType != ezImageFormatType::LINEAR)
+    return EZ_FAILURE;
 
-  pSrcPixel += uiSrcChannelIdx;
-  pDstPixel += uiDstChannelIdx;
+  const ezImageFormatDataType::Enum srcDataType = ezImageFormat::GetDataType(srcFormat);
+  const ezImageFormatDataType::Enum dstDataType = ezImageFormat::GetDataType(dstFormat);
+  if (srcDataType != dstDataType || srcDataType >= ezImageFormatDataType::DEPTH_STENCIL)
+    return EZ_FAILURE;
 
-  for (ezUInt32 i = 0; i < uiNumPixels; ++i)
+  // Require uniform bits per channel so the stride-based pixel pointer arithmetic is valid.
+  const ezUInt32 srcBitsPerChannel = ezImageFormat::GetBitsPerChannel(srcFormat, ezImageFormatChannel::R);
+  for (size_t i = 1; i < uiSrcChannels; i++)
   {
-    *pDstPixel = *pSrcPixel;
+    if (ezImageFormat::GetBitsPerChannel(srcFormat, static_cast<ezImageFormatChannel::Enum>(i)) != srcBitsPerChannel)
+      return EZ_FAILURE;
+  }
+  const ezUInt32 dstBitsPerChannel = ezImageFormat::GetBitsPerChannel(dstFormat, ezImageFormatChannel::R);
+  for (size_t i = 1; i < uiDstChannels; i++)
+  {
+    if (ezImageFormat::GetBitsPerChannel(dstFormat, static_cast<ezImageFormatChannel::Enum>(i)) != dstBitsPerChannel)
+      return EZ_FAILURE;
+  }
 
-    pSrcPixel += 4;
-    pDstPixel += 4;
+  if (srcBitsPerChannel != dstBitsPerChannel)
+    return EZ_FAILURE;
+
+  if (uiSrcChannelIdx >= uiSrcChannels || uiDstChannelIdx >= uiDstChannels)
+    return EZ_FAILURE;
+
+  const ezUInt32 uiNumPixels = srcImg.GetWidth() * srcImg.GetHeight();
+
+  switch (srcBitsPerChannel)
+  {
+    case 8:
+    {
+      const ezUInt8* pSrc = srcImg.GetPixelPointer<ezUInt8>() + uiSrcChannelIdx;
+      ezUInt8* pDst = ref_dstImg.GetPixelPointer<ezUInt8>() + uiDstChannelIdx;
+      CopyChannelImpl(pSrc, uiSrcChannels, pDst, uiDstChannels, uiNumPixels);
+    }
+    break;
+    case 16:
+    {
+      const ezUInt16* pSrc = srcImg.GetPixelPointer<ezUInt16>() + uiSrcChannelIdx;
+      ezUInt16* pDst = ref_dstImg.GetPixelPointer<ezUInt16>() + uiDstChannelIdx;
+      CopyChannelImpl(pSrc, uiSrcChannels, pDst, uiDstChannels, uiNumPixels);
+    }
+    break;
+    case 32:
+    {
+      const ezUInt32* pSrc = srcImg.GetPixelPointer<ezUInt32>() + uiSrcChannelIdx;
+      ezUInt32* pDst = ref_dstImg.GetPixelPointer<ezUInt32>() + uiDstChannelIdx;
+      CopyChannelImpl(pSrc, uiSrcChannels, pDst, uiDstChannels, uiNumPixels);
+    }
+    break;
+    default:
+      return EZ_FAILURE;
   }
 
   return EZ_SUCCESS;
 }
 
-static const ezUInt8 s_Base64EncodingTable[64] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x',
+static const char s_Base64EncodingTable[64] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x',
   'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/'};
 
 static const ezUInt8 BASE64_CHARS_PER_LINE = 76;
@@ -1862,7 +1936,7 @@ static ezDynamicArray<char> ArrayToBase64(ezArrayPtr<const ezUInt8> in, bool bIn
 
 void ezImageUtils::EmbedImageData(ezStringBuilder& out_sHtml, const ezImage& image)
 {
-  ezImageFileFormat* format = ezImageFileFormat::GetWriterFormat("png");
+  const ezImageFileFormat* format = ezImageFileFormat::GetWriterFormat("png");
   EZ_ASSERT_DEV(format != nullptr, "No PNG writer found");
 
   ezDynamicArray<ezUInt8> imgData;

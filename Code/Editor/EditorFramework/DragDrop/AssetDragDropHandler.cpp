@@ -18,7 +18,7 @@ ezString ezAssetDragDropHandler::GetAssetGuidString(const ezDragDropInfo* pInfo)
   QByteArray ba = pInfo->m_pMimeData->data("application/ezEditor.AssetGuid");
   QDataStream stream(&ba, QIODevice::ReadOnly);
 
-  ezHybridArray<QString, 1> guids;
+  ezTempHybridArray<QString, 1> guids;
   stream >> guids;
 
   if (guids.GetCount() > 1)

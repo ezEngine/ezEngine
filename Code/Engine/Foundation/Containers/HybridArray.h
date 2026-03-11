@@ -37,7 +37,7 @@ public:
 
 protected:
   /// \brief The fixed size array.
-  struct alignas(EZ_ALIGNMENT_OF(T))
+  struct alignas(alignof(T))
   {
     ezUInt8 m_StaticData[Size * sizeof(T)];
   };
@@ -45,6 +45,26 @@ protected:
   EZ_ALWAYS_INLINE T* GetStaticArray() { return reinterpret_cast<T*>(m_StaticData); }
 
   EZ_ALWAYS_INLINE const T* GetStaticArray() const { return reinterpret_cast<const T*>(m_StaticData); }
+};
+
+/// A hybrid array that uses the temp allocator if it exceeds the in-place storage.
+/// This is ideal for temporary arrays that are only used within a short scope and are not expected to grow beyond the in-place storage size in most cases.
+/// The temp allocator is optimized for short-lived allocations and can be more efficient than the default allocator for this use case.
+template <typename T, ezUInt32 Size>
+class ezTempHybridArray : public ezHybridArray<T, Size>
+{
+public:
+  ezTempHybridArray();
+
+  template <typename AllocatorWrapper>
+  ezTempHybridArray(const ezHybridArray<T, Size, AllocatorWrapper>& other);
+  explicit ezTempHybridArray(const ezArrayPtr<const T>& other);
+
+  template <typename AllocatorWrapper>
+  void operator=(const ezHybridArray<T, Size, AllocatorWrapper>& rhs);
+  void operator=(const ezArrayPtr<const T>& rhs);
+
+  void operator=(ezHybridArray<T, Size>&& rhs) noexcept;
 };
 
 #include <Foundation/Containers/Implementation/HybridArray_inl.h>

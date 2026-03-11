@@ -13,13 +13,12 @@ if (EZ_CMAKE_PLATFORM_WINDOWS)
 endif()
 
 target_link_libraries(${PROJECT_NAME}
-  PRIVATE
+  PUBLIC
   RendererCore
+  SPIRV-Reflect
 )
 
 ez_link_target_dxc(${PROJECT_NAME})
-ez_link_target_vulkan(${PROJECT_NAME})
-ez_sources_target_spirv_reflect(${PROJECT_NAME})
 
 if (EZ_CMAKE_PLATFORM_WINDOWS)
     target_compile_definitions(${PROJECT_NAME} PRIVATE "_CRT_SECURE_NO_WARNINGS")
@@ -31,7 +30,7 @@ if(EZ_CMAKE_COMPILER_CLANG OR EZ_CMAKE_COMPILER_GCC)
     elseif(EZ_CMAKE_PLATFORM_LINUX AND EZ_CMAKE_ARCHITECTURE_64BIT)
         set_source_files_properties("${EZ_VULKAN_DIR}/x86_64/include/SPIRV-Reflect/spirv_reflect.c" PROPERTIES COMPILE_FLAGS "-Wno-switch")
     else()
-        message(FATAL_ERROR "TODO: Vulkan is not yet supported on this platform and/or architecture.")
+        message(FATAL_ERROR "TODO: SPIR-V is not yet supported on this platform and/or architecture.")
     endif()
 endif()
 

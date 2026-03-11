@@ -53,7 +53,8 @@
 			"xxhash.h",
 			"core.h",
 			"WinRTUtils.h",
-			"Profiling_Tracy.h"
+			"Profiling_Tracy.h",
+			"Tracing_Platform.h"
 		]
 	}
 }

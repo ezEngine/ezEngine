@@ -13,7 +13,7 @@ EZ_FOUNDATION_INTERNAL_HEADER
 
 #if HAS_UUID
 
-EZ_CHECK_AT_COMPILETIME(sizeof(ezUInt64) * 2 == sizeof(uuid_t));
+static_assert(sizeof(ezUInt64) * 2 == sizeof(uuid_t));
 
 ezUuid ezUuid::MakeUuid()
 {

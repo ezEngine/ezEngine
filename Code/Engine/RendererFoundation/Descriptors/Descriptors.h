@@ -8,13 +8,62 @@
 #include <Foundation/Types/SharedPtr.h>
 #include <RendererFoundation/Descriptors/Enumerations.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
+#include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <RendererFoundation/Resources/ResourceFormats.h>
 #include <RendererFoundation/Shader/ShaderByteCode.h>
 #include <Texture/Image/ImageEnums.h>
 
 class ezWindowBase;
 
+/// \brief Bind group layout for a single bind group.
+/// Auto created by shader resource. Mostly used to quickly determine if a bind group still matches after e.g. switching the shader.
+struct ezGALBindGroupLayoutCreationDescription
+{
+  ezUInt32 CalculateHash() const;
 
+  ezDynamicArray<ezShaderResourceBinding> m_ResourceBindings;    ///< Must be sorted by m_iSlot. m_iBindGroup must be the same for all bindings in this array.
+  ezHybridArray<ezShaderResourceBinding, 1> m_ImmutableSamplers; ///< If supported by the platform, contains immutable samplers. See ezGALImmutableSamplers.
+};
+
+/// \brief Push constant info
+/// Used by ezGALPipelineLayoutCreationDescription.
+struct ezGALPushConstant
+{
+  ezUInt16 m_uiSize = 0;
+  ezUInt16 m_uiOffset = 0;
+  ezBitflags<ezGALShaderStageFlags> m_Stages;
+};
+
+/// \brief Pipeline layout.
+/// Auto created by shader resource. Mostly used for de-duplication of native resources in case pipelines share the same layout.
+struct ezGALPipelineLayoutCreationDescription : public ezHashableStruct<ezGALPipelineLayoutCreationDescription>
+{
+  ezGALBindGroupLayoutHandle m_BindGroups[EZ_GAL_MAX_BIND_GROUPS]; ///< One for each bind group used in the shader. BG_FRAME, BG_RENDER_PASS, BG_MATERIAL, BG_DRAW_CALL.
+  ezGALPushConstant m_PushConstants;                               ///< Only one push constant block is supported right now.
+};
+
+/// \brief Defines the complete state of a graphics pipeline, excluding bound resources (e.g. textures, buffers) and dynamic states (e.g. viewport).
+/// All handles must be set except for m_hVertexDeclaration which is optional. Creating a graphics pipeline increases the reference count on all valid handles.
+struct ezGALGraphicsPipelineCreationDescription : public ezHashableStruct<ezGALGraphicsPipelineCreationDescription>
+{
+  ezGALShaderHandle m_hShader;                       ///< Also defines pipeline layout
+  ezGALVertexDeclarationHandle m_hVertexDeclaration; ///< Optional
+
+  ezGALRasterizerStateHandle m_hRasterizerState;
+  ezGALBlendStateHandle m_hBlendState;
+  ezGALDepthStencilStateHandle m_hDepthStencilState;
+
+  ezEnum<ezGALPrimitiveTopology> m_Topology;
+
+  ezGALRenderPassDescriptor m_RenderPass; ///< Use ezGALRenderingSetup::GetRenderPass to set this.
+};
+
+/// \brief Defines the complete state of a compute pipeline, excluding bound resources (e.g. textures, buffers).
+/// Creating a compute pipeline increases the reference count on the shader handle.
+struct ezGALComputePipelineCreationDescription : public ezHashableStruct<ezGALComputePipelineCreationDescription>
+{
+  ezGALShaderHandle m_hShader; ///< Also defines pipeline layout
+};
 
 struct ezGALWindowSwapChainCreationDescription : public ezHashableStruct<ezGALWindowSwapChainCreationDescription>
 {
@@ -27,7 +76,6 @@ struct ezGALWindowSwapChainCreationDescription : public ezHashableStruct<ezGALWi
   ezEnum<ezGALPresentMode> m_InitialPresentMode = ezGALPresentMode::VSync;
 
   bool m_bDoubleBuffered = true;
-  bool m_bAllowScreenshots = false;
 };
 
 struct ezGALSwapChainCreationDescription : public ezHashableStruct<ezGALSwapChainCreationDescription>
@@ -43,7 +91,11 @@ struct ezGALDeviceCreationDescription
 struct ezGALShaderCreationDescription : public ezHashableStruct<ezGALShaderCreationDescription>
 {
   ezGALShaderCreationDescription();
+  /// \brief Needs to be overwritten as the base class impl can only handle pod types.
+  ezGALShaderCreationDescription(const ezGALShaderCreationDescription& other);
   ~ezGALShaderCreationDescription();
+  /// \brief Needs to be overwritten as the base class impl can only handle pod types.
+  void operator=(const ezGALShaderCreationDescription& other);
 
   bool HasByteCodeForStage(ezGALShaderStage::Enum stage) const;
 
@@ -91,11 +143,9 @@ struct ezGALDepthStencilStateCreationDescription : public ezHashableStruct<ezGAL
 
   ezEnum<ezGALCompareFunc> m_DepthTestFunc = ezGALCompareFunc::Less;
 
-  bool m_bSeparateFrontAndBack = false; ///< If false, DX11 will use front face values for both front & back face values, GL will not call
-                                        ///< gl*Separate() funcs
-  bool m_bDepthTest = true;
+  bool m_bDepthEnable = true;
   bool m_bDepthWrite = true;
-  bool m_bStencilTest = false;
+  bool m_bStencilEnable = false;
   ezUInt8 m_uiStencilReadMask = 0xFF;
   ezUInt8 m_uiStencilWriteMask = 0xFF;
 };
@@ -135,42 +185,47 @@ struct ezGALSamplerStateCreationDescription : public ezHashableStruct<ezGALSampl
   ezUInt32 m_uiMaxAnisotropy = 4;
 };
 
+struct EZ_RENDERERFOUNDATION_DLL ezGALVertexBinding
+{
+  ezUInt32 m_uiStride = 0;
+  ezEnum<ezGALVertexBindingRate> m_Rate;
+};
+
 struct EZ_RENDERERFOUNDATION_DLL ezGALVertexAttribute
 {
+  EZ_DECLARE_POD_TYPE();
+
   ezGALVertexAttribute() = default;
 
-  ezGALVertexAttribute(ezGALVertexAttributeSemantic::Enum semantic, ezGALResourceFormat::Enum format, ezUInt16 uiOffset, ezUInt8 uiVertexBufferSlot,
-    bool bInstanceData);
+  constexpr ezGALVertexAttribute(ezGALVertexAttributeSemantic::Enum semantic, ezGALResourceFormat::Enum format, ezUInt8 uiOffset, ezUInt8 uiVertexBufferSlot);
 
   ezGALVertexAttributeSemantic::Enum m_eSemantic = ezGALVertexAttributeSemantic::Position;
   ezGALResourceFormat::Enum m_eFormat = ezGALResourceFormat::XYZFloat;
-  ezUInt16 m_uiOffset = 0;
+  ezUInt8 m_uiOffset = 0;
   ezUInt8 m_uiVertexBufferSlot = 0;
-  bool m_bInstanceData = false;
 };
 
 struct EZ_RENDERERFOUNDATION_DLL ezGALVertexDeclarationCreationDescription : public ezHashableStruct<ezGALVertexDeclarationCreationDescription>
 {
-  ezGALShaderHandle m_hShader;
-  ezStaticArray<ezGALVertexAttribute, 16> m_VertexAttributes;
+  ezGALShaderHandle m_hShader; // Needed for attribute indices
+  ezStaticArray<ezGALVertexAttribute, EZ_GAL_MAX_VERTEX_ATTRIBUTE_COUNT> m_VertexAttributes;
+  ezStaticArray<ezGALVertexBinding, EZ_GAL_MAX_VERTEX_BUFFER_COUNT> m_VertexBindings;
 };
 
-// Need to add: immutable (GPU only), default(GPU only, but allows CopyToTempStorage updates), transient (allows ezGALUpdateMode::Discard), staging: read(back), staging: write (constantly mapped), unified memory (mobile, onboard GPU, allows all ops)
-// Or use VmaMemoryUsage  + read write flags?
 struct ezGALResourceAccess
 {
   EZ_ALWAYS_INLINE bool IsImmutable() const { return m_bImmutable; }
 
-  bool m_bReadBack = false;
   bool m_bImmutable = true;
 };
 
 struct ezGALBufferCreationDescription : public ezHashableStruct<ezGALBufferCreationDescription>
 {
-  ezUInt32 m_uiTotalSize = 0;
-  ezUInt32 m_uiStructSize = 0; // Struct or texel size
+  ezUInt32 m_uiTotalSize = 0;           ///< Total size in bytes. Must always be set > 0.
+  ezUInt32 m_uiStructSize = 0;          ///< Struct, Index or Vertex size in bytes. Only valid if StructuredBuffer, VertexBuffer or IndexBuffer flag is set.
   ezBitflags<ezGALBufferUsageFlags> m_BufferFlags;
   ezGALResourceAccess m_ResourceAccess;
+  ezEnum<ezGALResourceFormat> m_Format; ///< Only relevant for TexelBuffer to create the default view.
 };
 
 struct ezGALTextureCreationDescription : public ezHashableStruct<ezGALTextureCreationDescription>
@@ -180,40 +235,18 @@ struct ezGALTextureCreationDescription : public ezHashableStruct<ezGALTextureCre
   ezUInt32 m_uiWidth = 0;
   ezUInt32 m_uiHeight = 0;
   ezUInt32 m_uiDepth = 1;
-  ezUInt32 m_uiMipLevelCount = 1;
-  ezUInt32 m_uiArraySize = 1;
+  ezUInt32 m_uiArraySize = 1; ///< In case of cube maps, the number of cubes instead of faces.
+  ezUInt8 m_uiMipLevelCount = 1;
 
   ezEnum<ezGALResourceFormat> m_Format = ezGALResourceFormat::Invalid;
   ezEnum<ezGALMSAASampleCount> m_SampleCount = ezGALMSAASampleCount::None;
   ezEnum<ezGALTextureType> m_Type = ezGALTextureType::Texture2D;
 
-  bool m_bAllowShaderResourceView = true;
-  bool m_bAllowUAV = false;
-  bool m_bCreateRenderTarget = false;
-  bool m_bAllowDynamicMipGeneration = false;
+  ezBitflags<ezGALTextureUsageFlags> m_TextureFlags = ezGALTextureUsageFlags::ShaderResource;
 
   ezGALResourceAccess m_ResourceAccess;
 
   void* m_pExisitingNativeObject = nullptr; ///< Can be used to encapsulate existing native textures in objects usable by the GAL
-};
-
-struct ezGALTextureResourceViewCreationDescription : public ezHashableStruct<ezGALTextureResourceViewCreationDescription>
-{
-  ezGALTextureHandle m_hTexture;
-  ezEnum<ezGALResourceFormat> m_OverrideViewFormat = ezGALResourceFormat::Invalid;
-  ezUInt32 m_uiMostDetailedMipLevel = 0;
-  ezUInt32 m_uiMipLevelsToUse = 0xFFFFFFFFu;
-  ezUInt32 m_uiFirstArraySlice = 0; // For cubemap array: index of first 2d slice to start with
-  ezUInt32 m_uiArraySize = 1;       // For cubemap array: number of cubemaps
-};
-
-struct ezGALBufferResourceViewCreationDescription : public ezHashableStruct<ezGALBufferResourceViewCreationDescription>
-{
-  ezGALBufferHandle m_hBuffer;
-  ezEnum<ezGALResourceFormat> m_OverrideViewFormat = ezGALResourceFormat::Invalid;
-  ezUInt32 m_uiFirstElement = 0;
-  ezUInt32 m_uiNumElements = 0;
-  bool m_bRawView = false;
 };
 
 struct ezGALRenderTargetViewCreationDescription : public ezHashableStruct<ezGALRenderTargetViewCreationDescription>
@@ -221,6 +254,7 @@ struct ezGALRenderTargetViewCreationDescription : public ezHashableStruct<ezGALR
   ezGALTextureHandle m_hTexture;
 
   ezEnum<ezGALResourceFormat> m_OverrideViewFormat = ezGALResourceFormat::Invalid;
+  ezEnum<ezGALTextureType> m_OverrideViewType = ezGALTextureType::Invalid;
 
   ezUInt32 m_uiMipLevel = 0;
 
@@ -230,54 +264,29 @@ struct ezGALRenderTargetViewCreationDescription : public ezHashableStruct<ezGALR
   bool m_bReadOnly = false; ///< Can be used for depth stencil views to create read only views (e.g. for soft particles using the native depth buffer)
 };
 
-struct ezGALTextureUnorderedAccessViewCreationDescription : public ezHashableStruct<ezGALTextureUnorderedAccessViewCreationDescription>
-{
-  ezGALTextureHandle m_hTexture;
-  ezUInt32 m_uiFirstArraySlice = 0; ///< First depth slice for 3D Textures.
-  ezUInt32 m_uiArraySize = 1;       ///< Number of depth slices for 3D textures.
-  ezUInt16 m_uiMipLevelToUse = 0;   ///< Which MipLevel is accessed with this UAV
-  ezEnum<ezGALResourceFormat> m_OverrideViewFormat = ezGALResourceFormat::Invalid;
-};
-
-struct ezGALBufferUnorderedAccessViewCreationDescription : public ezHashableStruct<ezGALBufferUnorderedAccessViewCreationDescription>
-{
-  ezGALBufferHandle m_hBuffer;
-  ezUInt32 m_uiFirstElement = 0;
-  ezUInt32 m_uiNumElements = 0;
-  ezEnum<ezGALResourceFormat> m_OverrideViewFormat = ezGALResourceFormat::Invalid;
-  bool m_bRawView = false;
-};
-
-struct ezGALQueryCreationDescription : public ezHashableStruct<ezGALQueryCreationDescription>
-{
-  ezEnum<ezGALQueryType> m_type = ezGALQueryType::NumSamplesPassed;
-
-  /// In case this query is used for occlusion culling (type AnySamplesPassed), this determines whether drawing should be done if the query
-  /// status is still unknown.
-  bool m_bDrawIfUnknown = true;
-};
-
 /// \brief Type for important GAL events.
 struct ezGALDeviceEvent
 {
   enum Type
   {
+    BeforeInit,
     AfterInit,
     BeforeShutdown,
+    AfterShutdown,
     BeforeBeginFrame,
     AfterBeginFrame,
     BeforeEndFrame,
     AfterEndFrame,
-    BeforeBeginPipeline,
-    AfterBeginPipeline,
-    BeforeEndPipeline,
-    AfterEndPipeline,
+    BeforeBeginCommands,
+    AfterBeginCommands,
+    BeforeEndCommands,
+    AfterEndCommands,
     // could add resource creation/destruction events, if this would be useful
   };
 
   Type m_Type;
   class ezGALDevice* m_pDevice = nullptr;
-  ezGALSwapChainHandle m_hSwapChain;
+  ezGALCommandEncoder* m_pCommandEncoder = nullptr;
 };
 
 // Opaque platform specific handle

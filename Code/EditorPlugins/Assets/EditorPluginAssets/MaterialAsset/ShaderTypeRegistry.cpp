@@ -170,7 +170,7 @@ namespace
     return pType;
   }
 
-  void AddAttributes(ezShaderParser::ParameterDefinition& ref_def, const ezRTTI* pType, ezHybridArray<const ezPropertyAttribute*, 2>& ref_attributes)
+  void AddAttributes(ezShaderParser::ParameterDefinition& ref_def, const ezRTTI* pType, ezDynamicArray<const ezPropertyAttribute*>& ref_attributes)
   {
     if (ref_def.m_sType.StartsWith_NoCase("texture"))
     {
@@ -310,8 +310,8 @@ void ezShaderTypeRegistry::UpdateShaderType(ShaderData& data)
 {
   EZ_LOG_BLOCK("Updating Shader Parameters", data.m_sShaderPath.GetData());
 
-  ezHybridArray<ezShaderParser::ParameterDefinition, 16> parameters;
-  ezHybridArray<ezShaderParser::EnumDefinition, 4> enumDefinitions;
+  ezTempHybridArray<ezShaderParser::ParameterDefinition, 16> parameters;
+  ezTempHybridArray<ezShaderParser::EnumDefinition, 4> enumDefinitions;
 
   {
     ezFileStats Stats;
@@ -324,7 +324,14 @@ void ezShaderTypeRegistry::UpdateShaderType(ShaderData& data)
       return;
     }
 
-    ezShaderParser::ParseMaterialParameterSection(file, parameters, enumDefinitions);
+    ezString sContent;
+    sContent.ReadAll(file);
+    ezShaderHelper::ezTextSectionizer sections;
+    ezShaderHelper::GetShaderSections(sContent, sections);
+    ezUInt32 uiFirstLine = 0;
+    ezStringView sSectionContent = sections.GetSectionContent(ezShaderHelper::ezShaderSections::MATERIALPARAMETER, uiFirstLine);
+
+    ezShaderParser::ParseMaterialParameterSection(sSectionContent, parameters, enumDefinitions);
     data.m_fileModifiedTime = Stats.m_LastModificationTime;
   }
 

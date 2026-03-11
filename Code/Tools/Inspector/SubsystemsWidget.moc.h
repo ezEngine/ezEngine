@@ -13,7 +13,7 @@ public:
   Q_OBJECT
 
 public:
-  ezQtSubsystemsWidget(QWidget* pParent = 0);
+  ezQtSubsystemsWidget(ads::CDockManager* pDockManager, QWidget* pParent = 0);
 
   static ezQtSubsystemsWidget* s_pWidget;
 

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.01.09.00">
+    <object class="AudioFile" id="{cd0464d8-5e62-4a36-b1d9-0e92df96f17b}">
+        <property name="assetPath">
+            <value>Sonnis/Footsteps/Grass/Footstep_Grass_4.wav</value>
+        </property>
+        <property name="frequencyInKHz">
+            <value>44.0999985</value>
+        </property>
+        <property name="channelCount">
+            <value>1</value>
+        </property>
+        <property name="length">
+            <value>0.31560090702947846</value>
+        </property>
+        <relationship name="masterAssetFolder">
+            <destination>{38395770-0db2-44d2-8ad3-1114e556ca7a}</destination>
+        </relationship>
+    </object>
+</objects>

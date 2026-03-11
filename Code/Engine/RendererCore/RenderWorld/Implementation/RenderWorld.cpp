@@ -118,7 +118,7 @@ namespace ezInternal
   };
 
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)
-  EZ_CHECK_AT_COMPILETIME(sizeof(RenderDataCacheEntry) == 16);
+  static_assert(sizeof(RenderDataCacheEntry) == 16);
 #endif
 } // namespace ezInternal
 
@@ -153,7 +153,6 @@ ezViewHandle ezRenderWorld::CreateView(const char* szName, ezView*& out_pView)
   }
 
   pView->SetName(szName);
-  pView->InitializePins();
 
   pView->m_pRenderDataCache = EZ_NEW(s_pCacheAllocator, ezInternal::RenderDataCache, s_pCacheAllocator);
 
@@ -253,6 +252,11 @@ void ezRenderWorld::ClearMainViews()
 ezArrayPtr<ezViewHandle> ezRenderWorld::GetMainViews()
 {
   return s_MainViews;
+}
+
+bool ezRenderWorld::IsRenderingScheduled()
+{
+  return !s_MainViews.IsEmpty() || !s_FilteredRenderPipelines[GetDataIndexForRendering()].IsEmpty();
 }
 
 void ezRenderWorld::CacheRenderData(const ezView& view, const ezGameObjectHandle& hOwnerObject, const ezComponentHandle& hOwnerComponent, ezUInt16 uiComponentVersion, ezArrayPtr<ezInternal::RenderDataCacheEntry> cacheEntries)
@@ -532,7 +536,10 @@ void ezRenderWorld::ExtractMainViews()
 
 void ezRenderWorld::Render(ezRenderContext* pRenderContext)
 {
-  EZ_PROFILE_SCOPE("ezRenderWorld::Render");
+  const ezUInt64 uiRenderFrame = ezRenderWorld::GetUseMultithreadedRendering() ? ezRenderWorld::GetFrameCounter() - 1 : ezRenderWorld::GetFrameCounter();
+  ezStringBuilder sb;
+  sb.SetFormat("RENDER FRAME {}", uiRenderFrame);
+  EZ_PROFILE_SCOPE(sb.GetData());
 
   ezRenderWorldRenderEvent renderEvent;
   renderEvent.m_Type = ezRenderWorldRenderEvent::Type::BeginRender;
@@ -601,11 +608,27 @@ void ezRenderWorld::BeginFrame()
   }
 
   RebuildPipelines();
+
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+
+  auto& filteredRenderPipelines = s_FilteredRenderPipelines[GetDataIndexForRendering()];
+  for (auto& pRenderPipeline : filteredRenderPipelines)
+  {
+    ezGALSwapChainHandle hSwapChain = pRenderPipeline->GetRenderData().GetViewData().m_hSwapChain;
+    if (!hSwapChain.IsInvalidated())
+    {
+      pDevice->EnqueueFrameSwapChain(hSwapChain);
+    }
+  }
+
+  const ezUInt64 uiRenderFrame = ezRenderWorld::GetUseMultithreadedRendering() ? ezRenderWorld::GetFrameCounter() - 1 : ezRenderWorld::GetFrameCounter();
+  pDevice->BeginFrame(uiRenderFrame);
 }
 
 void ezRenderWorld::EndFrame()
 {
-  EZ_PROFILE_SCOPE("EndFrame");
+  EZ_PROFILE_SCOPE("ezRenderWorld::EndFrame");
+  ezGALDevice::GetDefaultDevice()->EndFrame();
 
   ++s_uiFrameCounter;
 
@@ -819,6 +842,7 @@ void ezRenderWorld::OnEngineShutdown()
   }
 
   s_Views.Clear();
+  s_CameraConfigs.Clear();
 }
 
 void ezRenderWorld::BeginModifyCameraConfigs()

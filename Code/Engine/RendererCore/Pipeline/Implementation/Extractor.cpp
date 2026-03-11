@@ -7,8 +7,8 @@
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <RendererCore/Pipeline/Extractor.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererCore/Pipeline/View.h>
-#include <RendererCore/RenderWorld/RenderWorld.h>
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 ezCVarBool cvar_SpatialVisBounds("Spatial.VisBounds", false, ezCVarFlags::Default, "Enables debug visualization of object bounds");
@@ -33,7 +33,7 @@ namespace
       {
         ezSpatialData::Category filterCategory = ezSpatialData::FindCategory(cvar_SpatialVisDataOnlyCategory.GetValue());
 
-        ezHybridArray<ezBoundingBox, 16> boxes;
+        ezTempHybridArray<ezBoundingBox, 16> boxes;
         pSpatialSystemGrid->GetAllCellBoxes(boxes, filterCategory);
 
         for (auto& box : boxes)
@@ -98,6 +98,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExtractor, 1, ezRTTINoAllocator)
     EZ_BEGIN_ATTRIBUTES
     {
       new ezColorAttribute(ezColorScheme::DarkUI(ezColorScheme::Red)),
+      new ezCategoryAttribute("Extractors")
     }
     EZ_END_ATTRIBUTES;
   }
@@ -155,7 +156,7 @@ void ezExtractor::ExtractRenderData(const ezView& view, const ezGameObject* pObj
     {
       for (auto& data : msg.m_ExtractedRenderData)
       {
-        extractedRenderData.AddRenderData(data.m_pRenderData, ezRenderData::Category(data.m_uiCategory));
+        extractedRenderData.AddRenderData(data.m_pRenderData, data.m_Category);
       }
     }
 
@@ -219,13 +220,13 @@ void ezExtractor::ExtractRenderData(const ezView& view, const ezGameObject* pObj
         // Only cache render data if all parts should be cached otherwise the cache is incomplete and we won't call SendMessage again
         if (msg.m_uiNumCacheIfStatic > 0 && msg.m_ExtractedRenderData.GetCount() == msg.m_uiNumCacheIfStatic)
         {
-          ezHybridArray<ezInternal::RenderDataCacheEntry, 16> newCacheEntries(ezFrameAllocator::GetCurrentAllocator());
+          ezTempHybridArray<ezInternal::RenderDataCacheEntry, 16> newCacheEntries;
 
           for (ezUInt32 uiPartIndex = 0; uiPartIndex < msg.m_ExtractedRenderData.GetCount(); ++uiPartIndex)
           {
             auto& newCacheEntry = newCacheEntries.ExpandAndGetRef();
             newCacheEntry.m_pRenderData = msg.m_ExtractedRenderData[uiPartIndex].m_pRenderData;
-            newCacheEntry.m_uiCategory = msg.m_ExtractedRenderData[uiPartIndex].m_uiCategory;
+            newCacheEntry.m_uiCategory = msg.m_ExtractedRenderData[uiPartIndex].m_Category.m_uiValue;
             newCacheEntry.m_uiComponentIndex = static_cast<ezUInt16>(uiComponentIndex);
             newCacheEntry.m_uiPartIndex = static_cast<ezUInt16>(uiPartIndex);
           }
@@ -258,16 +259,6 @@ void ezExtractor::ExtractRenderData(const ezView& view, const ezGameObject* pObj
   }
 }
 
-void ezExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData)
-{
-}
-
-void ezExtractor::PostSortAndBatch(
-  const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData)
-{
-}
-
-
 ezResult ezExtractor::Serialize(ezStreamWriter& inout_stream) const
 {
   inout_stream << m_bActive;
@@ -298,13 +289,13 @@ ezVisibleObjectsExtractor::ezVisibleObjectsExtractor(const char* szName)
 
 ezVisibleObjectsExtractor::~ezVisibleObjectsExtractor() = default;
 
-void ezVisibleObjectsExtractor::Extract(
-  const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData)
+void ezVisibleObjectsExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData)
 {
   ezMsgExtractRenderData msg;
   msg.m_pView = &view;
-
+  
   EZ_LOCK(view.GetWorld()->GetReadMarker());
+  msg.m_pRenderDataManager = view.GetWorld()->GetModuleReadOnly<ezRenderDataManager>();
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   VisualizeSpatialData(view);
@@ -389,6 +380,7 @@ void ezSelectedObjectsExtractorBase::Extract(
   msg.m_OverrideCategory = m_OverrideCategory;
 
   EZ_LOCK(view.GetWorld()->GetReadMarker());
+  msg.m_pRenderDataManager = view.GetWorld()->GetModuleReadOnly<ezRenderDataManager>();
 
   for (const auto& hObj : *pSelection)
   {

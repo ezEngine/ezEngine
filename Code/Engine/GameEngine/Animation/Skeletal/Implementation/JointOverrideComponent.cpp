@@ -7,11 +7,12 @@
 #include <RendererCore/AnimationSystem/Skeleton.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezJointOverrideComponent, 1, ezComponentMode::Dynamic);
+EZ_BEGIN_COMPONENT_TYPE(ezJointOverrideComponent, 2, ezComponentMode::Dynamic);
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("JointName", GetJointName, SetJointName),
+    EZ_MEMBER_PROPERTY("Weight", m_fWeight)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_MEMBER_PROPERTY("OverridePosition", m_bOverridePosition)->AddAttributes(new ezDefaultValueAttribute(false)),
     EZ_MEMBER_PROPERTY("OverrideRotation", m_bOverrideRotation)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("OverrideScale", m_bOverrideScale)->AddAttributes(new ezDefaultValueAttribute(false)),
@@ -45,18 +46,24 @@ void ezJointOverrideComponent::SerializeComponent(ezWorldWriter& inout_stream) c
   s << m_bOverridePosition;
   s << m_bOverrideRotation;
   s << m_bOverrideScale;
+  s << m_fWeight;
 }
 
 void ezJointOverrideComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = inout_stream.GetStream();
 
   s >> m_sJointToOverride;
   s >> m_bOverridePosition;
   s >> m_bOverrideRotation;
   s >> m_bOverrideScale;
+
+  if (uiVersion >= 2)
+  {
+    s >> m_fWeight;
+  }
 
   m_uiJointIndex = ezInvalidJointIndex;
 }
@@ -76,6 +83,9 @@ void ezJointOverrideComponent::OnAnimationPosePreparing(ezMsgAnimationPosePrepar
 {
   using namespace ozz::math;
 
+  if (m_fWeight <= 0.0f)
+    return;
+
   if (m_uiJointIndex == ezInvalidJointIndex)
   {
     m_uiJointIndex = msg.m_pSkeleton->FindJointByName(m_sJointToOverride);
@@ -88,14 +98,29 @@ void ezJointOverrideComponent::OnAnimationPosePreparing(ezMsgAnimationPosePrepar
   const int soaSubIdx = m_uiJointIndex % 4;
 
   const ezTransform t = GetOwner()->GetLocalTransform();
+  const float fWeight = ezMath::Clamp(m_fWeight, 0.0f, 1.0f);
 
   if (m_bOverridePosition)
   {
-    SimdFloat4 vx = ozz::math::simd_float4::Load1(t.m_vPosition.x);
-    SimdFloat4 vy = ozz::math::simd_float4::Load1(t.m_vPosition.y);
-    SimdFloat4 vz = ozz::math::simd_float4::Load1(t.m_vPosition.z);
-
     auto val = msg.m_LocalTransforms[soaIdx].translation;
+
+    // Extract current position for this joint
+    float currentPos[4];
+    ozz::math::StorePtrU(val.x, currentPos);
+    const float currentX = currentPos[soaSubIdx];
+    ozz::math::StorePtrU(val.y, currentPos);
+    const float currentY = currentPos[soaSubIdx];
+    ozz::math::StorePtrU(val.z, currentPos);
+    const float currentZ = currentPos[soaSubIdx];
+
+    // Blend between current and override position
+    const float blendedX = ezMath::Lerp(currentX, t.m_vPosition.x, fWeight);
+    const float blendedY = ezMath::Lerp(currentY, t.m_vPosition.y, fWeight);
+    const float blendedZ = ezMath::Lerp(currentZ, t.m_vPosition.z, fWeight);
+
+    SimdFloat4 vx = ozz::math::simd_float4::Load1(blendedX);
+    SimdFloat4 vy = ozz::math::simd_float4::Load1(blendedY);
+    SimdFloat4 vz = ozz::math::simd_float4::Load1(blendedZ);
 
     val.x = ozz::math::SetI(val.x, vx, soaSubIdx);
     val.y = ozz::math::SetI(val.y, vy, soaSubIdx);
@@ -106,12 +131,29 @@ void ezJointOverrideComponent::OnAnimationPosePreparing(ezMsgAnimationPosePrepar
 
   if (m_bOverrideRotation)
   {
-    SimdFloat4 vx = ozz::math::simd_float4::Load1(t.m_qRotation.x);
-    SimdFloat4 vy = ozz::math::simd_float4::Load1(t.m_qRotation.y);
-    SimdFloat4 vz = ozz::math::simd_float4::Load1(t.m_qRotation.z);
-    SimdFloat4 vw = ozz::math::simd_float4::Load1(t.m_qRotation.w);
-
     SoaQuaternion val = msg.m_LocalTransforms[soaIdx].rotation;
+
+    // Extract current rotation for this joint
+    float currentRot[4];
+    ozz::math::StorePtrU(val.x, currentRot);
+    const float currentX = currentRot[soaSubIdx];
+    ozz::math::StorePtrU(val.y, currentRot);
+    const float currentY = currentRot[soaSubIdx];
+    ozz::math::StorePtrU(val.z, currentRot);
+    const float currentZ = currentRot[soaSubIdx];
+    ozz::math::StorePtrU(val.w, currentRot);
+    const float currentW = currentRot[soaSubIdx];
+
+    ezQuat currentQuat(currentX, currentY, currentZ, currentW);
+    ezQuat overrideQuat = t.m_qRotation;
+
+    // Slerp between current and override rotation
+    ezQuat blendedQuat = ezQuat::MakeSlerp(currentQuat, overrideQuat, fWeight);
+
+    SimdFloat4 vx = ozz::math::simd_float4::Load1(blendedQuat.x);
+    SimdFloat4 vy = ozz::math::simd_float4::Load1(blendedQuat.y);
+    SimdFloat4 vz = ozz::math::simd_float4::Load1(blendedQuat.z);
+    SimdFloat4 vw = ozz::math::simd_float4::Load1(blendedQuat.w);
 
     val.x = ozz::math::SetI(val.x, vx, soaSubIdx);
     val.y = ozz::math::SetI(val.y, vy, soaSubIdx);
@@ -123,11 +165,25 @@ void ezJointOverrideComponent::OnAnimationPosePreparing(ezMsgAnimationPosePrepar
 
   if (m_bOverrideScale)
   {
-    SimdFloat4 vx = ozz::math::simd_float4::Load1(t.m_vScale.x);
-    SimdFloat4 vy = ozz::math::simd_float4::Load1(t.m_vScale.y);
-    SimdFloat4 vz = ozz::math::simd_float4::Load1(t.m_vScale.z);
-
     auto val = msg.m_LocalTransforms[soaIdx].scale;
+
+    // Extract current scale for this joint
+    float currentScale[4];
+    ozz::math::StorePtrU(val.x, currentScale);
+    const float currentX = currentScale[soaSubIdx];
+    ozz::math::StorePtrU(val.y, currentScale);
+    const float currentY = currentScale[soaSubIdx];
+    ozz::math::StorePtrU(val.z, currentScale);
+    const float currentZ = currentScale[soaSubIdx];
+
+    // Blend between current and override scale
+    const float blendedX = ezMath::Lerp(currentX, t.m_vScale.x, fWeight);
+    const float blendedY = ezMath::Lerp(currentY, t.m_vScale.y, fWeight);
+    const float blendedZ = ezMath::Lerp(currentZ, t.m_vScale.z, fWeight);
+
+    SimdFloat4 vx = ozz::math::simd_float4::Load1(blendedX);
+    SimdFloat4 vy = ozz::math::simd_float4::Load1(blendedY);
+    SimdFloat4 vz = ozz::math::simd_float4::Load1(blendedZ);
 
     val.x = ozz::math::SetI(val.x, vx, soaSubIdx);
     val.y = ozz::math::SetI(val.y, vy, soaSubIdx);

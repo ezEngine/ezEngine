@@ -9,7 +9,11 @@ namespace ezRmlUiInternal
 
   void EventListener::ProcessEvent(Rml::Event& ref_event)
   {
-    static_cast<ezRmlUiContext*>(ref_event.GetTargetElement()->GetContext())->ProcessEvent(m_sIdentifier, ref_event);
+    auto context = ref_event.GetTargetElement()->GetContext();
+    if (context != nullptr)
+    {
+      static_cast<ezRmlUiContext*>(context)->ProcessEvent(m_sIdentifier, ref_event);
+    }
   }
 
   void EventListener::OnDetach(Rml::Element* pElement)
@@ -45,7 +49,7 @@ namespace ezRmlUiInternal
       pListener = &m_EventListenerPool[uiIndex];
     }
 
-    pListener->m_sIdentifier.Assign(value.c_str());
+    pListener->m_sIdentifier.Assign(ezRmlUiConversionUtils::ToStringView(value));
     return pListener;
   }
 

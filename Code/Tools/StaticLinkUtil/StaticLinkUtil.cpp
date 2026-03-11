@@ -125,7 +125,7 @@ public:
     m_sSearchDir = sSearchDir;
 
     // Add the empty data directory to access files via absolute paths
-    ezFileSystem::AddDataDirectory("", "App", ":", ezFileSystem::AllowWrites).IgnoreResult();
+    ezFileSystem::AddDataDirectory("", "App", ":", ezDataDirUsage::AllowWrites).IgnoreResult();
 
     // use such a path to write to an absolute file
     // ':abs/C:/some/file.txt"
@@ -243,12 +243,37 @@ public:
     return EZ_SUCCESS;
   }
 
+  bool IsNearlyIdentical(ezStringView lhs, ezStringView rhs)
+  {
+    while (lhs.EndsWith("\n") || lhs.EndsWith("\r"))
+      lhs.Shrink(0, 1);
+    while (rhs.EndsWith("\n") || rhs.EndsWith("\r"))
+      rhs.Shrink(0, 1);
+
+    while (true)
+    {
+      while (lhs.StartsWith("\n") || lhs.StartsWith("\r"))
+        lhs.ChopAwayFirstCharacterAscii();
+      while (rhs.StartsWith("\n") || rhs.StartsWith("\r"))
+        rhs.ChopAwayFirstCharacterAscii();
+
+      if (lhs == rhs)
+        return true;
+
+      if (lhs.GetCharacter() != rhs.GetCharacter())
+        return false;
+
+      lhs.ChopAwayFirstCharacterUtf8();
+      rhs.ChopAwayFirstCharacterUtf8();
+    }
+  }
+
   void OverwriteFile(ezStringView sFile, const ezStringBuilder& sFileContent)
   {
     ezStringBuilder sOut = sFileContent;
     SanitizeSourceCode(sOut);
 
-    if (m_ModifiedFiles[sFile].m_sFileContent == sOut)
+    if (IsNearlyIdentical(m_ModifiedFiles[sFile].m_sFileContent, sOut))
       return;
 
     m_bAnyFileChanged = true;
@@ -324,7 +349,7 @@ public:
 
         const char* szLineEnd = ezStringUtils::FindSubString(szI, "\n");
 
-        ezStringView si(szI, szLineEnd);
+        ezStringView si(szI, szLineEnd ? szLineEnd : szI + ezStringUtils::GetStringElementCount(szI));
 
         ezStringBuilder sInclude = si;
 
@@ -623,14 +648,14 @@ public:
     {
       if (sFile.HasExtension("h") || sFile.HasExtension("inl"))
       {
-        EZ_LOG_BLOCK("Header", sFile.GetFileNameAndExtension().GetStartPointer());
+        EZ_LOG_BLOCK("Header", sFile.GetFileNameAndExtension());
         FixFileContents(sFile);
         continue;
       }
 
       if (sFile.HasExtension("cpp"))
       {
-        EZ_LOG_BLOCK("Source", sFile.GetFileNameAndExtension().GetStartPointer());
+        EZ_LOG_BLOCK("Source", sFile.GetFileNameAndExtension());
         FixFileContents(sFile);
 
         InsertRefPoint(sFile);
@@ -754,11 +779,14 @@ public:
     MakeSureStaticLinkLibraryMacroExists();
   }
 
-  virtual ezApplication::Execution Run() override
+  virtual void Run() override
   {
     // something basic has gone wrong
     if (m_bHadSeriousWarnings || m_bHadErrors)
-      return ezApplication::Execution::Quit;
+    {
+      QuitApplication();
+      return;
+    }
 
     GatherInformation();
 
@@ -769,9 +797,8 @@ public:
     // RewritePrecompiledHeaderIncludes();
 
     OverwriteModifiedFiles();
-
-    return ezApplication::Execution::Quit;
+    QuitApplication();
   }
 };
 
-EZ_CONSOLEAPP_ENTRY_POINT(ezStaticLinkerApp);
+EZ_APPLICATION_ENTRY_POINT(ezStaticLinkerApp);

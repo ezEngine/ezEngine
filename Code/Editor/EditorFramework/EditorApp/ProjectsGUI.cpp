@@ -1,5 +1,6 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
+#include <EditorFramework/Dialogs/CreateProjectDlg.moc.h>
 #include <EditorFramework/Dialogs/DashboardDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 
@@ -64,21 +65,25 @@ bool ezQtEditorApp::GuiCreateOrOpenProject(bool bCreate)
   const char* szFilter = "ezProject (ezProject)";
 
   if (bCreate)
-    sFile = QFileDialog::getExistingDirectory(
-      QApplication::activeWindow(), QLatin1String("Choose Folder for New Project"), sDir, QFileDialog::Option::DontResolveSymlinks)
-              .toUtf8()
-              .data();
+  {
+    ezQtCreateProjectDlg dlg(nullptr);
+    if (dlg.exec() == QDialog::Rejected)
+      return false;
+
+    sFile = dlg.GetFullTargetPath();
+  }
   else
-    sFile = QFileDialog::getOpenFileName(
-      QApplication::activeWindow(), QLatin1String("Open Project"), sDir, QLatin1String(szFilter), nullptr, QFileDialog::Option::DontResolveSymlinks)
-              .toUtf8()
-              .data();
+  {
+    sFile = QFileDialog::getOpenFileName(QApplication::activeWindow(), QLatin1String("Open Project"), sDir, QLatin1String(szFilter), nullptr, QFileDialog::Option::DontResolveSymlinks).toUtf8().data();
+  }
 
   if (sFile.IsEmpty())
     return false;
 
   if (bCreate)
+  {
     sFile.AppendPath("ezProject");
+  }
 
   m_sLastProjectFolder = ezPathUtils::GetFileDirectory(sFile);
 

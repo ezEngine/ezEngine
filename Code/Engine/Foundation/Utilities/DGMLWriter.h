@@ -2,6 +2,7 @@
 
 #include <Foundation/Math/Color.h>
 #include <Foundation/Strings/String.h>
+#include <Foundation/Types/ArrayPtr.h>
 
 class ezFormatString;
 
@@ -42,6 +43,7 @@ public:
   using NodeId = ezUInt32;
   using PropertyId = ezUInt32;
   using ConnectionId = ezUInt32;
+  using CategoryId = ezUInt32;
 
   struct NodeDesc
   {
@@ -62,8 +64,11 @@ public:
   /// \brief Inserts a node into an existing group node.
   void AddNodeToGroup(NodeId node, NodeId group);
 
+  /// \brief Adds a category with a display color. Returns the category id for use with AddConnection.
+  CategoryId AddConnectionCategory(ezStringView sName, const ezColor& color);
+
   /// \brief Adds a directed connection to the graph (an arrow pointing from source to target node).
-  ConnectionId AddConnection(NodeId source, NodeId target, ezStringView sLabel = {});
+  ConnectionId AddConnection(NodeId source, NodeId target, ezStringView sLabel = {}, CategoryId category = ezInvalidIndex);
 
   /// \brief Adds a property type. All properties currently use the data type 'string'
   PropertyId AddPropertyType(ezStringView sName);
@@ -74,11 +79,18 @@ public:
 protected:
   friend class ezDGMLGraphWriter;
 
+  struct ConnectionCategory
+  {
+    ezString m_sName;
+    ezColor m_Color;
+  };
+
   struct Connection
   {
     NodeId m_Source;
     NodeId m_Target;
     ezString m_sLabel;
+    CategoryId m_uiCategory = ezInvalidIndex;
   };
 
   struct PropertyType
@@ -104,6 +116,8 @@ protected:
   ezHybridArray<Node, 16> m_Nodes;
 
   ezHybridArray<Connection, 32> m_Connections;
+
+  ezHybridArray<ConnectionCategory, 16> m_ConnectionCategories;
 
   ezHybridArray<PropertyType, 16> m_PropertyTypes;
 

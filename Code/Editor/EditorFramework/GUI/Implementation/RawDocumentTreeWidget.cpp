@@ -3,16 +3,43 @@
 #include <EditorFramework/GUI/RawDocumentTreeWidget.moc.h>
 #include <GuiFoundation/ActionViews/QtProxy.moc.h>
 #include <GuiFoundation/Models/TreeSearchFilterModel.moc.h>
+#include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 ezQtDocumentTreeView::ezQtDocumentTreeView(QWidget* pParent)
   : ezQtItemView<QTreeView>(pParent)
 {
+  setObjectName("ezQtDocumentTreeView");
 }
 
 ezQtDocumentTreeView::ezQtDocumentTreeView(QWidget* pParent, ezDocument* pDocument, std::unique_ptr<ezQtDocumentTreeModel> pModel, ezSelectionManager* pSelection)
   : ezQtItemView<QTreeView>(pParent)
 {
+  setObjectName("ezQtDocumentTreeView");
+
   Initialize(pDocument, std::move(pModel), pSelection);
+}
+
+static bool GameObjectFilterFunc(QModelIndex index, const ezSearchPatternFilter& filter)
+{
+  if (const ezQtDocumentTreeModel* pModel = qobject_cast<const ezQtDocumentTreeModel*>(index.model()))
+  {
+    auto pObj = pModel->GetObject(index);
+    auto pAcc = pModel->GetDocumentTree()->GetDocument()->GetObjectAccessor();
+
+    ezVariant comp;
+
+    const ezInt32 iNum = pAcc->GetCountByName(pObj, "Components");
+    for (ezInt32 i = 0; i < iNum; ++i)
+    {
+      if (pAcc->GetValueByName(pObj, "Components", comp, i).Succeeded())
+      {
+        if (filter.PassesFilters(pAcc->GetObject(comp.Get<ezUuid>())->GetType()->GetTypeName()))
+          return true;
+      }
+    }
+  }
+
+  return false;
 }
 
 void ezQtDocumentTreeView::Initialize(ezDocument* pDocument, std::unique_ptr<ezQtDocumentTreeModel> pModel, ezSelectionManager* pSelection)
@@ -28,6 +55,7 @@ void ezQtDocumentTreeView::Initialize(ezDocument* pDocument, std::unique_ptr<ezQ
 
   m_pFilterModel.reset(new ezQtTreeSearchFilterModel(this));
   m_pFilterModel->setSourceModel(m_pModel.get());
+  m_pFilterModel->SetCustomFilterFunc(GameObjectFilterFunc);
 
   setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
   setSelectionMode(QAbstractItemView::SelectionMode::ExtendedSelection);
@@ -68,7 +96,7 @@ void ezQtDocumentTreeView::on_selectionChanged_triggered(const QItemSelection& s
 
   foreach (QModelIndex index, selection)
   {
-    if (index.isValid())
+    if (index.isValid() && index.column() == 0)
     {
       index = m_pFilterModel->mapToSource(index);
 
@@ -93,6 +121,7 @@ void ezQtDocumentTreeView::SelectionEventHandler(const ezSelectionManagerEvent& 
       m_bBlockSelectionSignal = false;
     }
     break;
+
     case ezSelectionManagerEvent::Type::SelectionSet:
     case ezSelectionManagerEvent::Type::ObjectAdded:
     case ezSelectionManagerEvent::Type::ObjectRemoved:
@@ -114,11 +143,14 @@ void ezQtDocumentTreeView::SelectionEventHandler(const ezSelectionManagerEvent& 
         // We need to change the current index as well because the current index can trigger side effects. E.g. deleting the current index row triggers a selection change event.
         selectionModel()->setCurrentIndex(currentIndex, QItemSelectionModel::SelectCurrent);
       }
-      selectionModel()
-        ->select(selection, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows | QItemSelectionModel::NoUpdate);
+      selectionModel()->select(selection, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows | QItemSelectionModel::NoUpdate);
       m_bBlockSelectionSignal = false;
     }
     break;
+
+    case ezSelectionManagerEvent::Type::ChangedRuntimeOverrideSelection:
+      // ignore
+      break;
   }
 }
 

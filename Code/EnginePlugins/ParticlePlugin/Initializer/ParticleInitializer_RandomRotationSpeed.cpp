@@ -119,7 +119,7 @@ void ezParticleInitializer_RandomRotationSpeed::InitializeElements(ezUInt64 uiSt
 
     for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
     {
-      pOffset[i] = (float)rng.DoubleInRange(-ezMath::Pi<double>(), +ezMath::Pi<double>());
+      pOffset[i] = (float)rng.DoubleMinMax(-ezMath::Pi<double>(), +ezMath::Pi<double>());
     }
   }
   else

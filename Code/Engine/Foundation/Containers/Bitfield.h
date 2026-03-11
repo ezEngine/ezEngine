@@ -49,6 +49,9 @@ public:
   /// \brief Clears the given bit to 0.
   void ClearBit(ezUInt32 uiBit); // [tested]
 
+  /// \brief Flips the given bit to the opposite value.
+  void FlipBit(ezUInt32 uiBit); // [tested]
+
   /// \brief Sets the given bit to 1 or 0 depending on the given value.
   void SetBitValue(ezUInt32 uiBit, bool bValue); // [tested]
 
@@ -66,6 +69,9 @@ public:
 
   /// \brief Clears the range starting at uiFirstBit up to (and including) uiLastBit to 0.
   void ClearBitRange(ezUInt32 uiFirstBit, ezUInt32 uiNumBits); // [tested]
+
+  /// \brief Flips the range starting at uiFirstBit up to (and including) uiLastBit.
+  void FlipBitRange(ezUInt32 uiFirstBit, ezUInt32 uiNumBits); // [tested]
 
   /// \brief Swaps two bitfields
   void Swap(ezBitfield<Container>& other); // [tested]

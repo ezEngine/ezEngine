@@ -1,13 +1,71 @@
+<#
+.SYNOPSIS
+    Deploys and runs an ezEngine test application on an Android device via ADB.
+
+.DESCRIPTION
+    Installs an APK (if provided), launches the specified activity, captures logcat output, and waits for the test framework to report results. Downloads any output artifacts from the device when finished.
+
+    The script exits with code 0 if all tests pass, or 1 on failure/timeout.
+
+.PARAMETER deviceAdb
+    ADB device identifier (serial number or IP:port for wireless debugging).
+
+.PARAMETER packageName
+    Android package name of the test application (e.g. "com.ezengine.FoundationTest").
+
+.PARAMETER activityName
+    Fully qualified activity class name (default: "android.app.NativeActivity").
+
+.PARAMETER outputFolder
+    Local directory where logcat output and downloaded artifacts are stored.
+
+.PARAMETER apk
+    Path to the APK file to install before running. If omitted, the script assumes the app is already installed on the device.
+
+.PARAMETER arguments
+    Extra command-line arguments passed to the test application via Android intent extras. The test framework reads these from the "args" intent string extra.
+
+.PARAMETER MessageBoxOnError
+    (Unused) Reserved for CI pipelines that show a message box on failure.
+
+.EXAMPLE
+    # Run FoundationTest with default settings (install APK + run all tests):
+    pwsh ./Utilities/Android/AndroidTest.ps1 `
+        -deviceAdb 192.168.178.77:5555 `
+        -packageName com.ezengine.FoundationTest `
+        -activityName android.app.NativeActivity `
+        -outputFolder ./Output `
+        -apk "./Output/Bin/AndroidNinjaClangDebugArm64/FoundationTest.apk"
+
+.EXAMPLE
+    # Run only the "Tracing" test group:
+    pwsh ./Utilities/Android/AndroidTest.ps1 `
+        -deviceAdb 192.168.178.77:5555 `
+        -packageName com.ezengine.FoundationTest `
+        -activityName android.app.NativeActivity `
+        -outputFolder ./Output `
+        -apk "./Output/Bin/AndroidNinjaClangDebugArm64/FoundationTest.apk" `
+        -arguments "-run -noGui -all -filter Tracing"
+
+.EXAMPLE
+    # Run without re-installing (app already on device):
+    pwsh ./Utilities/Android/AndroidTest.ps1 `
+        -deviceAdb 192.168.178.77:5555 `
+        -packageName com.ezengine.FoundationTest `
+        -activityName android.app.NativeActivity `
+        -outputFolder ./Output
+#>
 param(
     [Parameter(Mandatory=$true)]
     [string]$deviceAdb,
     [Parameter(Mandatory=$true)]
     [string]$packageName,
-    [Parameter(Mandatory=$true)]
-    [string]$activityName,
+    [Parameter(Mandatory=$false)]
+    [string]$activityName = "android.app.NativeActivity",
     [Parameter(Mandatory=$true)]
     [string]$outputFolder,
     [string]$apk,
+    [string]$arguments,
     [switch]$MessageBoxOnError
 )
 
@@ -26,11 +84,21 @@ if ($apk) {
 }
 
 Write-Host "Clearing LogCat..."
-Adb-Cmd -s $deviceAdb logcat --clear
+$clearFunction = {
+    Adb-Cmd -ErrorAction Continue -s $deviceAdb logcat --clear
+}
+Invoke-WithRetry -ScriptBlock $clearFunction -MaxRetryCount 5
 
 Write-Host "Starting $packageName/$activityName..."
-$startFunction = {
-    Adb-Cmd -ErrorAction Continue -s $deviceAdb shell am start -n $packageName/$activityName
+if ($arguments) {
+    Write-Host "With arguments: $arguments"
+    $startFunction = {
+        Adb-Cmd -ErrorAction Continue -s $deviceAdb shell "am start -n $packageName/$activityName --es args '$arguments'"
+    }
+} else {
+    $startFunction = {
+        Adb-Cmd -ErrorAction Continue -s $deviceAdb shell am start -n $packageName/$activityName
+    }
 }
 Invoke-WithRetry -ScriptBlock $startFunction -MaxRetryCount 5
 
@@ -44,7 +112,7 @@ $pinfo.FileName = "$adb"
 $pinfo.RedirectStandardError = $false
 $pinfo.RedirectStandardOutput = $true
 $pinfo.UseShellExecute = $false
-$pinfo.Arguments = "-s $deviceAdb logcat"
+$pinfo.Arguments = "-s $deviceAdb logcat -s ezEngine"
 
 $process = New-Object System.Diagnostics.Process
 $process.StartInfo = $pinfo
@@ -52,7 +120,7 @@ $process.Start() | Out-Null
 
 $startTime = Get-Date
 $maxWaitTime = 300
-$outputContent = ""
+$outputLines = [System.Collections.Generic.List[string]]::new()
 $testSuccess = $false;
 $testFinished = $false;
 $checkActivityTime = Get-Date
@@ -83,9 +151,7 @@ while ((Get-Date) -lt ($startTime.AddSeconds($maxWaitTime)) -and !$process.HasEx
         $line = $stdoutTask.Result
         if ( $null -ne $line) {
             # Log to console
-            if ($line -match "ezEngine") {
-                Write-Host "$line"
-            }
+            Write-Host "$line"
 
             if ($line -match "All tests passed.") {
                 $testSuccess = $true
@@ -96,7 +162,7 @@ while ((Get-Date) -lt ($startTime.AddSeconds($maxWaitTime)) -and !$process.HasEx
             }
 
             # Will write to file later
-            $outputContent += "$line`n"
+            $outputLines.Add($line)
         }
         $stdoutTask = $process.StandardOutput.ReadLineAsync()
     }
@@ -116,15 +182,16 @@ else {
 }
 
 # Write logcat output to file
-$outputContent | Out-File -Encoding "UTF8" $outputFilePath
+$outputLines -join "`n" | Out-File -Encoding "UTF8" $outputFilePath
 
 # Download artifacts from device
 Adb-CopyDirectory -deviceAdb $deviceAdb -packageName $packageName -outputFolder $outputFolder -deviceFolder "/data/data/$packageName/files"
 
-# Sleep a bit before clearing the log
-Start-Sleep -Seconds 1
-Adb-Cmd -s $deviceAdb logcat --clear
-Start-Sleep -Seconds 1
+try {
+    Invoke-WithRetry -ScriptBlock $clearFunction -MaxRetryCount 5
+} catch {
+    Write-Host "Warning: Failed to clear logcat: $_"
+}
 
 if ($testSuccess) {
     exit 0

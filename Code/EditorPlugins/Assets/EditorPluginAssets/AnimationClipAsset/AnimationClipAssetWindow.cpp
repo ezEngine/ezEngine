@@ -1,5 +1,6 @@
 #include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
+#include <EditorFramework/Assets/AssetStatusIndicator.moc.h>
 #include <EditorFramework/DocumentWindow/OrbitCamViewWidget.moc.h>
 #include <EditorFramework/InputContexts/OrbitCameraContext.h>
 #include <EditorPluginAssets/AnimationClipAsset/AnimationClipAssetWindow.moc.h>
@@ -48,21 +49,31 @@ ezQtAnimationClipAssetDocumentWindow::ezQtAnimationClipAssetDocumentWindow(ezAni
     m_pViewWidget = new ezQtOrbitCamViewWidget(this, &m_ViewConfig);
     m_pViewWidget->ConfigureRelative(ezVec3(0, 0, 1), ezVec3(5.0f), ezVec3(5, -2, 3), 2.0f);
     AddViewWidget(m_pViewWidget);
-    pContainer = new ezQtViewWidgetContainer(this, m_pViewWidget, "AnimationClipAssetViewToolBar");
-    setCentralWidget(pContainer);
+    pContainer = new ezQtViewWidgetContainer(GetContainerWindow()->GetDockManager(), this, m_pViewWidget, "AnimationClipAssetViewToolBar");
+    m_pDockManager->setCentralWidget(pContainer);
   }
 
   // Property Grid
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("AnimationClipAssetDockWidget");
     pPropertyPanel->setWindowTitle("Animation Clip Properties");
     pPropertyPanel->show();
 
     ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
-    pPropertyPanel->setWidget(pPropertyGrid);
 
-    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
+    QWidget* pWidget = new QWidget();
+    pWidget->setObjectName("Group");
+    pWidget->setLayout(new QVBoxLayout());
+    pWidget->setContentsMargins(0, 0, 0, 0);
+
+    pWidget->layout()->setContentsMargins(0, 0, 0, 0);
+    pWidget->layout()->addWidget(new ezQtAssetStatusIndicator(GetDocument()));
+    pWidget->layout()->addWidget(pPropertyGrid);
+
+    pPropertyPanel->setWidget(pWidget, ads::CDockWidget::ForceNoScrollArea);
+
+    m_pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pPropertyPanel);
 
     pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
   }
@@ -79,7 +90,7 @@ ezQtAnimationClipAssetDocumentWindow::ezQtAnimationClipAssetDocumentWindow(ezAni
 
   // Event Track Panel
   {
-    m_pEventTrackPanel = new ezQtDocumentPanel(this, pDocument);
+    m_pEventTrackPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     m_pEventTrackPanel->setObjectName("AnimClipEventTrackDockWidget");
     m_pEventTrackPanel->setWindowTitle("Event Track");
     m_pEventTrackPanel->show();
@@ -87,7 +98,7 @@ ezQtAnimationClipAssetDocumentWindow::ezQtAnimationClipAssetDocumentWindow(ezAni
     m_pEventTrackEditor = new ezQtEventTrackEditorWidget(m_pEventTrackPanel);
     m_pEventTrackPanel->setWidget(m_pEventTrackEditor);
 
-    addDockWidget(Qt::DockWidgetArea::BottomDockWidgetArea, m_pEventTrackPanel);
+    m_pDockManager->addDockWidgetTab(ads::BottomDockWidgetArea, m_pEventTrackPanel);
 
     UpdateEventTrackEditor();
   }
@@ -121,6 +132,14 @@ ezAnimationClipAssetDocument* ezQtAnimationClipAssetDocumentWindow::GetAnimation
   return static_cast<ezAnimationClipAssetDocument*>(GetDocument());
 }
 
+void ezQtAnimationClipAssetDocumentWindow::ExtractRootMotionFromFeet()
+{
+  ezSimpleDocumentConfigMsgToEngine msg;
+  msg.m_sWhatToDo = "ExtractRootMotionFromFeet";
+
+  GetDocument()->SendMessageToEngine(&msg);
+}
+
 void ezQtAnimationClipAssetDocumentWindow::SendRedrawMsg()
 {
   // do not try to redraw while the process is crashed, it is obviously futile
@@ -130,7 +149,7 @@ void ezQtAnimationClipAssetDocumentWindow::SendRedrawMsg()
   {
     ezSimpleDocumentConfigMsgToEngine msg;
     msg.m_sWhatToDo = "PlaybackPos";
-    msg.m_fPayload = m_PlaybackPosition.GetSeconds() / m_ClipDuration.GetSeconds();
+    msg.m_PayloadValue = (double)(m_PlaybackPosition.GetSeconds() / m_ClipDuration.GetSeconds());
     GetDocument()->SendMessageToEngine(&msg);
   }
 
@@ -146,9 +165,9 @@ void ezQtAnimationClipAssetDocumentWindow::SendRedrawMsg()
     msg.m_sWhatToDo = "SimulationSpeed";
 
     if (GetAnimationClipDocument()->GetCommonAssetUiState(ezCommonAssetUiState::Pause) != 0.0f)
-      msg.m_fPayload = 0.0;
+      msg.m_PayloadValue = 0.0;
     else
-      msg.m_fPayload = GetAnimationClipDocument()->GetCommonAssetUiState(ezCommonAssetUiState::SimulationSpeed);
+      msg.m_PayloadValue = GetAnimationClipDocument()->GetCommonAssetUiState(ezCommonAssetUiState::SimulationSpeed);
 
     GetEditorEngineConnection()->SendMessage(&msg);
   }
@@ -237,9 +256,9 @@ void ezQtAnimationClipAssetDocumentWindow::ProcessMessageEventHandler(const ezEd
 
   if (auto pMsg = ezDynamicCast<const ezSimpleDocumentConfigMsgToEditor*>(pMsg0))
   {
-    if (pMsg->m_sName == "ClipDuration")
+    if (pMsg->m_sWhatToDo == "ClipDuration")
     {
-      const ezTime newDuration = ezTime::MakeFromSeconds(pMsg->m_fPayload);
+      const ezTime newDuration = pMsg->m_PayloadValue.Get<ezTime>();
 
       if (m_ClipDuration != newDuration)
       {
@@ -249,6 +268,38 @@ void ezQtAnimationClipAssetDocumentWindow::ProcessMessageEventHandler(const ezEd
 
         UpdateEventTrackEditor();
       }
+
+      return;
+    }
+    else if (pMsg->m_sWhatToDo == "ExtractRootMotionFromFeet")
+    {
+      const ezVec4 vResult = pMsg->m_PayloadValue.Get<ezVec4>();
+
+      auto pPropObj = GetAnimationClipDocument()->GetPropertyObject();
+
+      ezObjectCommandAccessor acc(GetAnimationClipDocument()->GetCommandHistory());
+      acc.StartTransaction("Extract Root Motion From Feet");
+
+      acc.SetValueByName(pPropObj, "RootMotion", (ezInt32)ezRootMotionSource::Constant).AssertSuccess();
+      acc.SetValueByName(pPropObj, "ConstantRootMotion", vResult.GetAsVec3()).AssertSuccess();
+      acc.SetValueByName(pPropObj, "RootMotionDistance", vResult.w).AssertSuccess();
+
+      acc.FinishTransaction();
+
+      GetAnimationClipDocument()->GetCommandHistory();
+
+      return;
+    }
+    else if (pMsg->m_sWhatToDo == "ReportError")
+    {
+      QString text = ezMakeQString(pMsg->m_sPayload);
+      QTimer::singleShot(1, [=]()
+        {
+          // we have to break out of this callback, and execute the UI stuff on the main thread
+          ezQtUiServices::MessageBoxInformation(ezFmt(text.toUtf8().data()));
+          //
+        });
+      return;
     }
   }
 

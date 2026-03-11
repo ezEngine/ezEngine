@@ -27,20 +27,7 @@ macro(ez_platform_pull_properties)
 
 endmacro()
 
-macro(ez_platformhook_link_target_vulkan)
-
-    # on linux is the loader a dll
-    get_target_property(_dll_location EzVulkan::Loader IMPORTED_LOCATION)
-
-    if(NOT _dll_location STREQUAL "")
-        add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:EzVulkan::Loader> $<TARGET_FILE_DIR:${TARGET_NAME}>)
-    endif()
-
-    unset(_dll_location)
-
-endmacro()
-
-macro(ez_platformhook_set_build_flags_clang)
+macro(ez_platformhook_set_build_flags_clang TARGET_NAME)
 	target_compile_options(${TARGET_NAME} PRIVATE -fPIC)
 
 	# Look for the super fast ld compatible linker called "mold". If present we want to use it.
@@ -80,6 +67,12 @@ macro(ez_platformhook_set_application_properties TARGET_NAME)
     # We need to link against pthread and rt last or linker errors will occur.
 	target_link_libraries(${TARGET_NAME} PRIVATE pthread rt)
 
+	# Set RPATH so the executable can find shared libraries in its own directory
+	set_target_properties(${TARGET_NAME} PROPERTIES
+		BUILD_RPATH "$ORIGIN"
+		INSTALL_RPATH "$ORIGIN"
+	)
+
 endmacro()
 
 macro(ez_platform_detect_generator)
@@ -112,56 +105,31 @@ macro(ez_platformhook_set_library_properties TARGET_NAME)
     get_property(EZ_CMAKE_COMPILER_GCC GLOBAL PROPERTY EZ_CMAKE_COMPILER_GCC)
     if(EZ_CMAKE_COMPILER_GCC)
         # Workaround for: https://bugs.launchpad.net/ubuntu/+source/gcc-5/+bug/1568899
-        target_link_libraries(${TARGET_NAME} PRIVATE -lgcc_s -lgcc)
+	target_link_libraries(${TARGET_NAME} PRIVATE -lgcc)
     endif()
+
+    # Set RPATH so shared libraries can find other shared libraries in the same directory
+    set_target_properties(${TARGET_NAME} PROPERTIES
+        BUILD_RPATH "$ORIGIN"
+        INSTALL_RPATH "$ORIGIN"
+    )
 endmacro()
 
 macro(ez_platformhook_find_vulkan)
-    if(EZ_CMAKE_ARCHITECTURE_64BIT)
-        if((EZ_VULKAN_DIR STREQUAL "EZ_VULKAN_DIR-NOTFOUND") OR(EZ_VULKAN_DIR STREQUAL ""))
-            # set(CMAKE_FIND_DEBUG_MODE TRUE)
-            unset(EZ_VULKAN_DIR CACHE)
-            unset(EzVulkan_DIR CACHE)
-            find_path(EZ_VULKAN_DIR config/vk_layer_settings.txt
-                PATHS
-                ${EZ_VULKAN_DIR}
-                $ENV{VULKAN_SDK}
-            )
-
-            if(EZ_CMAKE_ARCHITECTURE_X86)
-                if((EZ_VULKAN_DIR STREQUAL "EZ_VULKAN_DIR-NOTFOUND") OR (EZ_VULKAN_DIR STREQUAL ""))
-                    ez_download_and_extract("${EZ_CONFIG_VULKAN_SDK_LINUXX64_URL}" "${CMAKE_BINARY_DIR}/vulkan-sdk" "vulkan-sdk-${EZ_CONFIG_VULKAN_SDK_LINUXX64_VERSION}")
-                    set(EZ_VULKAN_DIR "${CMAKE_BINARY_DIR}/vulkan-sdk/${EZ_CONFIG_VULKAN_SDK_LINUXX64_VERSION}" CACHE PATH "Directory of the Vulkan SDK" FORCE)
-
-                    find_path(EZ_VULKAN_DIR config/vk_layer_settings.txt
-                        PATHS
-                        ${EZ_VULKAN_DIR}
-                        $ENV{VULKAN_SDK}
-                    )
-                endif()
-            endif()
-
-            if((EZ_VULKAN_DIR STREQUAL "EZ_VULKAN_DIR-NOTFOUND") OR (EZ_VULKAN_DIR STREQUAL ""))
-                message(FATAL_ERROR "Failed to find vulkan SDK. Ez requires the vulkan sdk ${EZ_CONFIG_VULKAN_SDK_LINUXX64_VERSION}. Please set the environment variable VULKAN_SDK to the vulkan sdk location.")
-            endif()
-
-            # set(CMAKE_FIND_DEBUG_MODE FALSE)
-        endif()
+    if(EZ_CMAKE_ARCHITECTURE_64BIT AND EZ_CMAKE_ARCHITECTURE_X86)
+        set(EZ_DXC_DIR "${EZ_ROOT}/Workspace/shared/DXC-LinuxX64-${EZ_CONFIG_DIRECTXSHADERCOMPILER_LINUXX64_VERSION}")
+        ez_download_and_extract("${EZ_CONFIG_DIRECTXSHADERCOMPILER_LINUXX64_URL}" "${EZ_DXC_DIR}" "DXC-LinuxX64-${EZ_CONFIG_DIRECTXSHADERCOMPILER_LINUXX64_VERSION}")
     else()
         message(FATAL_ERROR "TODO: Vulkan is not yet supported on this platform and/or architecture.")
     endif()
 
     include(FindPackageHandleStandardArgs)
-    find_package_handle_standard_args(EzVulkan DEFAULT_MSG EZ_VULKAN_DIR)
+    find_package_handle_standard_args(EzVulkan DEFAULT_MSG EZ_DXC_DIR)
     
-	if(EZ_CMAKE_ARCHITECTURE_64BIT)
-		add_library(EzVulkan::Loader SHARED IMPORTED)
-		set_target_properties(EzVulkan::Loader PROPERTIES IMPORTED_LOCATION "${EZ_VULKAN_DIR}/x86_64/lib/libvulkan.so")
-		set_target_properties(EzVulkan::Loader PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${EZ_VULKAN_DIR}/x86_64/include")
-
+	if(EZ_CMAKE_ARCHITECTURE_64BIT AND EZ_CMAKE_ARCHITECTURE_X86)
 		add_library(EzVulkan::DXC SHARED IMPORTED)
-		set_target_properties(EzVulkan::DXC PROPERTIES IMPORTED_LOCATION "${EZ_VULKAN_DIR}/x86_64/lib/libdxcompiler.so")
-		set_target_properties(EzVulkan::DXC PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${EZ_VULKAN_DIR}/x86_64/include")
+		set_target_properties(EzVulkan::DXC PROPERTIES IMPORTED_LOCATION "${EZ_DXC_DIR}/lib/libdxcompiler.so")
+		set_target_properties(EzVulkan::DXC PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${EZ_DXC_DIR}/include/dxc")
 	else()
 		message(FATAL_ERROR "TODO: Vulkan is not yet supported on this platform and/or architecture.")
 	endif()

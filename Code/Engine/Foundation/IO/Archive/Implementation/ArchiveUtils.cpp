@@ -110,16 +110,16 @@ ezResult ezArchiveUtils::WriteEntry(
   ezStreamWriter& inout_stream, ezStringView sAbsSourcePath, ezUInt32 uiPathStringOffset, ezArchiveCompressionMode compression,
   ezInt32 iCompressionLevel, ezArchiveEntry& inout_tocEntry, ezUInt64& inout_uiCurrentStreamPosition, FileWriteProgressCallback progress /*= FileWriteProgressCallback()*/)
 {
+  EZ_IGNORE_UNUSED(iCompressionLevel);
+
   ezFileReader file;
   EZ_SUCCEED_OR_RETURN(file.Open(sAbsSourcePath, 1024 * 1024));
 
   const ezUInt64 uiMaxBytes = file.GetFileSize();
 
+#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
   constexpr ezUInt32 uiMaxNumWorkerThreads = 12u;
 
-  ezUInt8 buf[1024 * 32];
-
-#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
   ezUInt32 uiWorkerThreadCount;
   if (uiMaxBytes > ezMath::MaxValue<ezUInt32>())
   {
@@ -164,9 +164,11 @@ ezResult ezArchiveUtils::WriteEntry(
   inout_tocEntry.m_CompressionMode = compression;
 
   ezUInt64 uiRead = 0;
+  ezDynamicArray<ezUInt8> buf;
+  buf.SetCountUninitialized(1024 * 32);
   while (true)
   {
-    uiRead = file.ReadBytes(buf, EZ_ARRAY_SIZE(buf));
+    uiRead = file.ReadBytes(buf.GetData(), buf.GetCount());
 
     if (uiRead == 0)
       break;
@@ -179,7 +181,7 @@ ezResult ezArchiveUtils::WriteEntry(
         return EZ_FAILURE;
     }
 
-    EZ_SUCCEED_OR_RETURN(pWriter->WriteBytes(buf, uiRead));
+    EZ_SUCCEED_OR_RETURN(pWriter->WriteBytes(buf.GetData(), uiRead));
   }
 
 
@@ -365,7 +367,7 @@ static ezResult VerifyEndMarker(ezUInt64 uiArchiveDataSize, const void* pArchive
     return EZ_FAILURE;
   }
 
-  const void* pStart = ezMemoryUtils::AddByteOffset(pArchiveDataBuffer, uiArchiveDataSize - uiEndMarkerSize);
+  const void* pStart = ezMemoryUtils::AddByteOffset(pArchiveDataBuffer, static_cast<ptrdiff_t>(uiArchiveDataSize - uiEndMarkerSize));
 
   ezRawMemoryStreamReader reader(pStart, uiEndMarkerSize);
 
@@ -399,7 +401,7 @@ ezResult ezArchiveUtils::ExtractTOCMeta(ezUInt64 uiArchiveEndingDataSize, const 
       return EZ_FAILURE;
     }
 
-    const void* pTocMetaStart = ezMemoryUtils::AddByteOffset(pArchiveEndingDataBuffer, uiArchiveEndingDataSize - uiEndMarkerSize - uiTocMetaSize);
+    const void* pTocMetaStart = ezMemoryUtils::AddByteOffset(pArchiveEndingDataBuffer, static_cast<ptrdiff_t>(uiArchiveEndingDataSize - uiEndMarkerSize - uiTocMetaSize));
 
     ezRawMemoryStreamReader tocMetaReader(pTocMetaStart, uiTocMetaSize);
 
@@ -450,7 +452,7 @@ ezResult ezArchiveUtils::ExtractTOC(ezUInt64 uiArchiveEndingDataSize, const void
   }
 
   // get toc data ptr
-  const void* pTocStart = ezMemoryUtils::AddByteOffset(pArchiveEndingDataBuffer, uiArchiveEndingDataSize - tocMeta.m_uiTocOffsetFromArchiveEnd);
+  const void* pTocStart = ezMemoryUtils::AddByteOffset(pArchiveEndingDataBuffer, static_cast<ptrdiff_t>(uiArchiveEndingDataSize - tocMeta.m_uiTocOffsetFromArchiveEnd));
 
   // validate the TOC hash
   if (uiArchiveVersion >= 2)

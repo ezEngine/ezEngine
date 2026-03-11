@@ -1,10 +1,12 @@
 #include <GuiFoundation/GuiFoundationPCH.h>
 
 #include <Foundation/Strings/TranslationLookup.h>
+#include <Foundation/Tracks/ColorGradient.h>
+#include <Foundation/Tracks/CurveEditData.h>
+#include <GuiFoundation/Dialogs/ColorGradientEditDlg.moc.h>
 #include <GuiFoundation/Dialogs/CurveEditDlg.moc.h>
 #include <GuiFoundation/PropertyGrid/Implementation/PropertyWidget.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <GuiFoundation/Widgets/CurveEditData.h>
 #include <GuiFoundation/Widgets/DoubleSpinBox.moc.h>
 #include <QComboBox>
 #include <QLineEdit>
@@ -85,6 +87,16 @@ ezQtPropertyEditorDoubleSpinboxWidget::ezQtPropertyEditorDoubleSpinboxWidget(ezI
 
   QSizePolicy policy = sizePolicy();
 
+  const char* szLabels[] = {"X",
+    "Y",
+    "Z",
+    "W"};
+
+  const ezColorGammaUB labelColors[] = {ezColorScheme::LightUI(ezColorScheme::Red),
+    ezColorScheme::LightUI(ezColorScheme::Green),
+    ezColorScheme::LightUI(ezColorScheme::Blue),
+    ezColorScheme::LightUI(ezColorScheme::Gray)};
+
   for (ezInt32 c = 0; c < m_iNumComponents; ++c)
   {
     m_pWidget[c] = new ezQtDoubleSpinBox(this);
@@ -96,6 +108,15 @@ ezQtPropertyEditorDoubleSpinboxWidget::ezQtPropertyEditorDoubleSpinboxWidget(ezI
 
     policy.setHorizontalStretch(2);
     m_pWidget[c]->setSizePolicy(policy);
+
+    if (m_iNumComponents > 1)
+    {
+      QLabel* pLabel = new QLabel(szLabels[c]);
+      QPalette palette = pLabel->palette();
+      palette.setColor(pLabel->foregroundRole(), QColor(labelColors[c].r, labelColors[c].g, labelColors[c].b));
+      pLabel->setPalette(palette);
+      m_pLayout->addWidget(pLabel);
+    }
 
     m_pLayout->addWidget(m_pWidget[c]);
 
@@ -260,7 +281,16 @@ void ezQtPropertyEditorDoubleSpinboxWidget::InternalSetValue(const ezVariant& va
 {
   ezQtScopedBlockSignals bs(m_pWidget[0], m_pWidget[1], m_pWidget[2], m_pWidget[3]);
 
-  m_OriginalType = value.GetType();
+  m_OriginalType = GetProperty()->GetSpecificType()->GetVariantType();
+  if (m_OriginalType == ezVariantType::Invalid)
+  {
+    m_OriginalType = value.GetType();
+  }
+
+  if (m_OriginalType == ezVariantType::Invalid)
+  {
+    m_OriginalType = ezVariantType::Double;
+  }
 
   if (value.IsValid())
   {
@@ -323,9 +353,10 @@ void ezQtPropertyEditorDoubleSpinboxWidget::on_EditingFinished_triggered()
 void ezQtPropertyEditorDoubleSpinboxWidget::SlotValueChanged()
 {
   if (m_bUseTemporaryTransaction && !m_bTemporaryCommand)
+  {
     Broadcast(ezPropertyEvent::Type::BeginTemporary);
-
-  m_bTemporaryCommand = true;
+    m_bTemporaryCommand = true;
+  }
 
   switch (m_iNumComponents)
   {
@@ -414,9 +445,10 @@ void ezQtPropertyEditorTimeWidget::on_EditingFinished_triggered()
 void ezQtPropertyEditorTimeWidget::SlotValueChanged()
 {
   if (!m_bTemporaryCommand)
+  {
     Broadcast(ezPropertyEvent::Type::BeginTemporary);
-
-  m_bTemporaryCommand = true;
+    m_bTemporaryCommand = true;
+  }
 
   BroadcastValueChanged(ezTime::MakeFromSeconds(m_pWidget->value()));
 }
@@ -504,9 +536,10 @@ void ezQtPropertyEditorAngleWidget::on_EditingFinished_triggered()
 void ezQtPropertyEditorAngleWidget::SlotValueChanged()
 {
   if (!m_bTemporaryCommand)
+  {
     Broadcast(ezPropertyEvent::Type::BeginTemporary);
-
-  m_bTemporaryCommand = true;
+    m_bTemporaryCommand = true;
+  }
 
   BroadcastValueChanged(ezAngle::MakeFromDegree(m_pWidget->value()));
 }
@@ -590,8 +623,10 @@ void ezQtPropertyEditorIntSpinboxWidget::OnInit()
           m_pSlider->setMaximum(iMaxValue);
 
           m_pLayout->insertWidget(0, m_pSlider, 5); // make it take up most of the space
+
+          connect(m_pSlider, SIGNAL(sliderPressed()), this, SLOT(onBeginTemporary()));
+          connect(m_pSlider, SIGNAL(sliderReleased()), this, SLOT(onEndTemporary()));
           connect(m_pSlider, SIGNAL(valueChanged(int)), this, SLOT(SlotSliderValueChanged(int)));
-          connect(m_pSlider, SIGNAL(sliderReleased()), this, SLOT(on_EditingFinished_triggered()));
         }
 
         break;
@@ -741,7 +776,18 @@ void ezQtPropertyEditorIntSpinboxWidget::InternalSetValue(const ezVariant& value
 {
   ezQtScopedBlockSignals bs(m_pWidget[0], m_pWidget[1], m_pWidget[2], m_pWidget[3], m_pSlider);
 
-  m_OriginalType = value.GetType();
+  auto prop = GetProperty();
+  const ezRTTI* type = prop->GetSpecificType();
+  m_OriginalType = type->GetVariantType();
+  if (m_OriginalType == ezVariantType::Invalid)
+  {
+    m_OriginalType = value.GetType();
+  }
+
+  if (m_OriginalType == ezVariantType::Invalid)
+  {
+    m_OriginalType = ezVariantType::Int32;
+  }
 
   switch (m_iNumComponents)
   {
@@ -775,9 +821,10 @@ void ezQtPropertyEditorIntSpinboxWidget::InternalSetValue(const ezVariant& value
 void ezQtPropertyEditorIntSpinboxWidget::SlotValueChanged()
 {
   if (m_bUseTemporaryTransaction && !m_bTemporaryCommand)
+  {
     Broadcast(ezPropertyEvent::Type::BeginTemporary);
-
-  m_bTemporaryCommand = true;
+    m_bTemporaryCommand = true;
+  }
 
   ezVariant newValue;
   switch (m_iNumComponents)
@@ -806,13 +853,25 @@ void ezQtPropertyEditorIntSpinboxWidget::SlotValueChanged()
   BroadcastValueChanged(newValue.ConvertTo(m_OriginalType));
 }
 
-void ezQtPropertyEditorIntSpinboxWidget::SlotSliderValueChanged(int value)
+void ezQtPropertyEditorIntSpinboxWidget::onBeginTemporary()
 {
   if (m_bUseTemporaryTransaction && !m_bTemporaryCommand)
+  {
     Broadcast(ezPropertyEvent::Type::BeginTemporary);
+    m_bTemporaryCommand = true;
+  }
+}
 
-  m_bTemporaryCommand = true;
+void ezQtPropertyEditorIntSpinboxWidget::onEndTemporary()
+{
+  if (m_bTemporaryCommand)
+    Broadcast(ezPropertyEvent::Type::EndTemporary);
 
+  m_bTemporaryCommand = false;
+}
+
+void ezQtPropertyEditorIntSpinboxWidget::SlotSliderValueChanged(int value)
+{
   {
     ezQtScopedBlockSignals b0(m_pWidget[0]);
     m_pWidget[0]->setValue(value);
@@ -823,10 +882,7 @@ void ezQtPropertyEditorIntSpinboxWidget::SlotSliderValueChanged(int value)
 
 void ezQtPropertyEditorIntSpinboxWidget::on_EditingFinished_triggered()
 {
-  if (m_bUseTemporaryTransaction && m_bTemporaryCommand)
-    Broadcast(ezPropertyEvent::Type::EndTemporary);
-
-  m_bTemporaryCommand = false;
+  onEndTemporary();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -942,7 +998,13 @@ void ezQtImageSliderWidget::mouseMoveEvent(QMouseEvent* event)
 
 void ezQtImageSliderWidget::mousePressEvent(QMouseEvent* event)
 {
+  if (event->button() == Qt::LeftButton)
+  {
+    Q_EMIT sliderPressed();
+  }
+
   mouseMoveEvent(event);
+
   event->accept();
 }
 
@@ -980,8 +1042,9 @@ void ezQtPropertyEditorSliderWidget::OnInit()
   m_pSlider = new ezQtImageSliderWidget(ezQtImageSliderWidget::s_ImageGenerators[pSliderAttr->m_sImageGenerator], m_fMinValue, m_fMaxValue, this);
 
   m_pLayout->insertWidget(0, m_pSlider);
+  connect(m_pSlider, SIGNAL(sliderPressed()), this, SLOT(onBeginTemporary()));
+  connect(m_pSlider, SIGNAL(sliderReleased()), this, SLOT(onEndTemporary()));
   connect(m_pSlider, SIGNAL(valueChanged(double)), this, SLOT(SlotSliderValueChanged(double)));
-  connect(m_pSlider, SIGNAL(sliderReleased()), this, SLOT(on_EditingFinished_triggered()));
 
   if (const ezDefaultValueAttribute* pDefault = m_pProp->GetAttributeByType<ezDefaultValueAttribute>())
   {
@@ -998,7 +1061,17 @@ void ezQtPropertyEditorSliderWidget::InternalSetValue(const ezVariant& value)
 {
   ezQtScopedBlockSignals bs(m_pSlider);
 
-  m_OriginalType = value.GetType();
+  m_OriginalType = GetProperty()->GetSpecificType()->GetVariantType();
+
+  if (m_OriginalType == ezVariantType::Invalid)
+  {
+    m_OriginalType = value.GetType();
+  }
+
+  if (m_OriginalType == ezVariantType::Invalid)
+  {
+    m_OriginalType = ezVariantType::Double;
+  }
 
   m_pSlider->SetValue(value.ConvertTo<double>());
 }
@@ -1006,9 +1079,10 @@ void ezQtPropertyEditorSliderWidget::InternalSetValue(const ezVariant& value)
 void ezQtPropertyEditorSliderWidget::SlotSliderValueChanged(double fValue)
 {
   if (!m_bTemporaryCommand)
+  {
     Broadcast(ezPropertyEvent::Type::BeginTemporary);
-
-  m_bTemporaryCommand = true;
+    m_bTemporaryCommand = true;
+  }
 
   BroadcastValueChanged(ezVariant(fValue).ConvertTo(m_OriginalType));
 
@@ -1017,29 +1091,47 @@ void ezQtPropertyEditorSliderWidget::SlotSliderValueChanged(double fValue)
 
 void ezQtPropertyEditorSliderWidget::on_EditingFinished_triggered()
 {
+  onEndTemporary();
+}
+
+void ezQtPropertyEditorSliderWidget::onBeginTemporary()
+{
+  if (!m_bTemporaryCommand)
+  {
+    Broadcast(ezPropertyEvent::Type::BeginTemporary);
+    m_bTemporaryCommand = true;
+  }
+}
+
+void ezQtPropertyEditorSliderWidget::onEndTemporary()
+{
   if (m_bTemporaryCommand)
     Broadcast(ezPropertyEvent::Type::EndTemporary);
 
   m_bTemporaryCommand = false;
 }
 
-
 /// *** QUATERNION ***
 
 ezQtPropertyEditorQuaternionWidget::ezQtPropertyEditorQuaternionWidget()
   : ezQtStandardPropertyWidget()
 {
-  m_bTemporaryCommand = false;
-
-  m_pWidget[0] = nullptr;
-  m_pWidget[1] = nullptr;
-  m_pWidget[2] = nullptr;
-
   m_pLayout = new QHBoxLayout(this);
   m_pLayout->setContentsMargins(0, 0, 0, 0);
   setLayout(m_pLayout);
 
   QSizePolicy policy = sizePolicy();
+
+  const char* szLabels[] = {"R",
+    "P",
+    "Y"};
+  const char* szTooltip[] = {"Roll (Rotation around the forward axis)",
+    "Pitch (Rotation around the side axis)",
+    "Yaw (Rotation around the up axis)"};
+
+  const ezColorGammaUB labelColors[] = {ezColorScheme::LightUI(ezColorScheme::Red),
+    ezColorScheme::LightUI(ezColorScheme::Green),
+    ezColorScheme::LightUI(ezColorScheme::Blue)};
 
   for (ezInt32 c = 0; c < 3; ++c)
   {
@@ -1054,6 +1146,13 @@ ezQtPropertyEditorQuaternionWidget::ezQtPropertyEditorQuaternionWidget()
     policy.setHorizontalStretch(2);
     m_pWidget[c]->setSizePolicy(policy);
 
+    QLabel* pLabel = new QLabel(szLabels[c]);
+    QPalette palette = pLabel->palette();
+    palette.setColor(pLabel->foregroundRole(), QColor(labelColors[c].r, labelColors[c].g, labelColors[c].b));
+    pLabel->setPalette(palette);
+    pLabel->setToolTip(szTooltip[c]);
+
+    m_pLayout->addWidget(pLabel);
     m_pLayout->addWidget(m_pWidget[c]);
 
     connect(m_pWidget[c], SIGNAL(editingFinished()), this, SLOT(on_EditingFinished_triggered()));
@@ -1101,9 +1200,10 @@ void ezQtPropertyEditorQuaternionWidget::on_EditingFinished_triggered()
 void ezQtPropertyEditorQuaternionWidget::SlotValueChanged()
 {
   if (!m_bTemporaryCommand)
+  {
     Broadcast(ezPropertyEvent::Type::BeginTemporary);
-
-  m_bTemporaryCommand = true;
+    m_bTemporaryCommand = true;
+  }
 
   ezAngle x = ezAngle::MakeFromDegree(m_pWidget[0]->value());
   ezAngle y = ezAngle::MakeFromDegree(m_pWidget[1]->value());
@@ -1112,6 +1212,177 @@ void ezQtPropertyEditorQuaternionWidget::SlotValueChanged()
   ezQuat qRot = ezQuat::MakeFromEulerAngles(x, y, z);
 
   BroadcastValueChanged(qRot);
+}
+
+/// *** TRANSFORM ***
+
+ezQtPropertyEditorTransformWidget::ezQtPropertyEditorTransformWidget()
+  : ezQtStandardPropertyWidget()
+{
+  m_pLayout = new QVBoxLayout(this);
+  m_pLayout->setContentsMargins(0, 0, 0, 0);
+  m_pLayout->setSpacing(1);
+  setLayout(m_pLayout);
+
+  QSizePolicy policy = sizePolicy();
+
+  const char* szXYZLabels[] = {"X",
+    "Y",
+    "Z"};
+  const char* szRotLabels[] = {"R",
+    "P",
+    "Y"};
+  const char* szRotTooltip[] = {"Roll (Rotation around the forward axis)",
+    "Pitch (Rotation around the side axis)",
+    "Yaw (Rotation around the up axis)"};
+
+  const ezColorGammaUB labelColors[] = {ezColorScheme::LightUI(ezColorScheme::Red),
+    ezColorScheme::LightUI(ezColorScheme::Green),
+    ezColorScheme::LightUI(ezColorScheme::Blue)};
+
+  ezUInt32 uiCurrentWidget = 0;
+  auto AddWidget = [&](QLayout* layout, double fStep, const char* szLabel, const char* szTooltip, ezColorGammaUB color, const char* szDisplaySuffix)
+  {
+    auto pSpinBox = new ezQtDoubleSpinBox(this);
+    pSpinBox->installEventFilter(this);
+    pSpinBox->setMinimum(-ezMath::Infinity<double>());
+    pSpinBox->setMaximum(ezMath::Infinity<double>());
+    pSpinBox->setSingleStep(fStep);
+    pSpinBox->setAccelerated(true);
+    pSpinBox->setDisplaySuffix(szDisplaySuffix);
+
+    policy.setHorizontalStretch(2);
+    pSpinBox->setSizePolicy(policy);
+
+    QLabel* pLabel = new QLabel(szLabel);
+    QPalette palette = pLabel->palette();
+    palette.setColor(pLabel->foregroundRole(), QColor(color.r, color.g, color.b));
+    pLabel->setPalette(palette);
+    pLabel->setToolTip(szTooltip);
+
+    layout->addWidget(pLabel);
+    layout->addWidget(pSpinBox);
+
+    connect(pSpinBox, SIGNAL(editingFinished()), this, SLOT(on_EditingFinished_triggered()));
+    connect(pSpinBox, SIGNAL(valueChanged(double)), this, SLOT(SlotValueChanged()));
+
+    m_pWidget[uiCurrentWidget] = pSpinBox;
+    ++uiCurrentWidget;
+  };
+
+  // Position
+  {
+    auto pSubLayout = new QHBoxLayout(this);
+    pSubLayout->setSpacing(6);
+    m_pLayout->addLayout(pSubLayout);
+
+    for (ezUInt32 c = 0; c < 3; ++c)
+    {
+      AddWidget(pSubLayout, 0.1, szXYZLabels[c], "", labelColors[c], "");
+    }
+  }
+
+  // Rotation
+  {
+    auto pSubLayout = new QHBoxLayout(this);
+    pSubLayout->setSpacing(6);
+    m_pLayout->addLayout(pSubLayout);
+
+    for (ezUInt32 c = 0; c < 3; ++c)
+    {
+      AddWidget(pSubLayout, 1.0, szRotLabels[c], szRotTooltip[c], labelColors[c], "\xC2\xB0");
+    }
+  }
+
+  // Scale
+  {
+    auto pSubLayout = new QHBoxLayout(this);
+    pSubLayout->setSpacing(6);
+    m_pLayout->addLayout(pSubLayout);
+
+    for (ezUInt32 c = 0; c < 3; ++c)
+    {
+      AddWidget(pSubLayout, 0.1, szXYZLabels[c], "", labelColors[c], "");
+    }
+  }
+}
+
+void ezQtPropertyEditorTransformWidget::OnInit() {}
+
+void ezQtPropertyEditorTransformWidget::InternalSetValue(const ezVariant& value)
+{
+  if (m_bTemporaryCommand)
+    return;
+
+  ezQtScopedBlockSignals b0(m_pWidget[0]);
+  ezQtScopedBlockSignals b1(m_pWidget[1]);
+  ezQtScopedBlockSignals b2(m_pWidget[2]);
+  ezQtScopedBlockSignals b3(m_pWidget[3]);
+  ezQtScopedBlockSignals b4(m_pWidget[4]);
+  ezQtScopedBlockSignals b5(m_pWidget[5]);
+  ezQtScopedBlockSignals b6(m_pWidget[6]);
+  ezQtScopedBlockSignals b7(m_pWidget[7]);
+  ezQtScopedBlockSignals b8(m_pWidget[8]);
+
+  if (value.IsValid())
+  {
+    const ezTransform t = value.ConvertTo<ezTransform>();
+
+    m_pWidget[0]->setValue(t.m_vPosition.x);
+    m_pWidget[1]->setValue(t.m_vPosition.y);
+    m_pWidget[2]->setValue(t.m_vPosition.z);
+
+    ezAngle x, y, z;
+    t.m_qRotation.GetAsEulerAngles(x, y, z);
+    m_pWidget[3]->setValue(x.GetDegree());
+    m_pWidget[4]->setValue(y.GetDegree());
+    m_pWidget[5]->setValue(z.GetDegree());
+
+    m_pWidget[6]->setValue(t.m_vScale.x);
+    m_pWidget[7]->setValue(t.m_vScale.y);
+    m_pWidget[8]->setValue(t.m_vScale.z);
+  }
+  else
+  {
+    for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_pWidget); ++i)
+    {
+      m_pWidget[i]->setValueInvalid();
+    }
+  }
+}
+
+void ezQtPropertyEditorTransformWidget::on_EditingFinished_triggered()
+{
+  if (m_bTemporaryCommand)
+    Broadcast(ezPropertyEvent::Type::EndTemporary);
+
+  m_bTemporaryCommand = false;
+}
+
+void ezQtPropertyEditorTransformWidget::SlotValueChanged()
+{
+  if (!m_bTemporaryCommand)
+  {
+    Broadcast(ezPropertyEvent::Type::BeginTemporary);
+    m_bTemporaryCommand = true;
+  }
+
+  ezTransform t;
+
+  t.m_vPosition.x = m_pWidget[0]->value();
+  t.m_vPosition.y = m_pWidget[1]->value();
+  t.m_vPosition.z = m_pWidget[2]->value();
+
+  ezAngle x = ezAngle::MakeFromDegree(m_pWidget[3]->value());
+  ezAngle y = ezAngle::MakeFromDegree(m_pWidget[4]->value());
+  ezAngle z = ezAngle::MakeFromDegree(m_pWidget[5]->value());
+  t.m_qRotation = ezQuat::MakeFromEulerAngles(x, y, z);
+
+  t.m_vScale.x = m_pWidget[6]->value();
+  t.m_vScale.y = m_pWidget[7]->value();
+  t.m_vScale.z = m_pWidget[8]->value();
+
+  BroadcastValueChanged(t);
 }
 
 /// *** LINEEDIT ***
@@ -1157,7 +1428,17 @@ void ezQtPropertyEditorLineEditWidget::InternalSetValue(const ezVariant& value)
 {
   ezQtScopedBlockSignals b(m_pWidget);
 
-  m_OriginalType = value.GetType();
+  m_OriginalType = GetProperty()->GetSpecificType()->GetVariantType();
+
+  if (m_OriginalType == ezVariantType::Invalid)
+  {
+    m_OriginalType = value.GetType();
+  }
+
+  if (m_OriginalType == ezVariantType::Invalid)
+  {
+    m_OriginalType = ezVariantType::String;
+  }
 
   if (!value.IsValid())
   {
@@ -1207,6 +1488,12 @@ void ezQtColorButtonWidget::SetColor(const ezVariant& color)
   }
   else
   {
+    const ezColorGammaUB col = ezColor::LightGrey;
+
+    QColor qol;
+    qol.setRgb(col.r, col.g, col.b, col.a);
+
+    m_Pal.setBrush(QPalette::Window, QBrush(qol, Qt::DiagCrossPattern));
     setPalette(m_Pal);
   }
 }
@@ -1240,8 +1527,6 @@ QSize ezQtColorButtonWidget::minimumSizeHint() const
 ezQtPropertyEditorColorWidget::ezQtPropertyEditorColorWidget()
   : ezQtStandardPropertyWidget()
 {
-  m_bExposeAlpha = false;
-
   m_pLayout = new QHBoxLayout(this);
   m_pLayout->setContentsMargins(0, 0, 0, 0);
   setLayout(m_pLayout);
@@ -1257,6 +1542,7 @@ ezQtPropertyEditorColorWidget::ezQtPropertyEditorColorWidget()
 void ezQtPropertyEditorColorWidget::OnInit()
 {
   m_bExposeAlpha = (m_pProp->GetAttributeByType<ezExposeColorAlphaAttribute>() != nullptr);
+  m_bExposeAlpha |= (m_pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>());
 }
 
 void ezQtPropertyEditorColorWidget::InternalSetValue(const ezVariant& value)
@@ -1265,31 +1551,28 @@ void ezQtPropertyEditorColorWidget::InternalSetValue(const ezVariant& value)
 
   m_OriginalValue = GetOldValue();
   m_pWidget->SetColor(value);
+
+  m_bIsHDR = value.GetType() == ezVariantType::Color;
 }
 
 void ezQtPropertyEditorColorWidget::on_Button_triggered()
 {
   Broadcast(ezPropertyEvent::Type::BeginTemporary);
 
-  bool bShowHDR = false;
-
   ezColor temp = ezColor::White;
   if (m_OriginalValue.IsValid())
   {
-    bShowHDR = m_OriginalValue.IsA<ezColor>();
-
     temp = m_OriginalValue.ConvertTo<ezColor>();
   }
 
-  ezQtUiServices::GetSingleton()->ShowColorDialog(
-    temp, m_bExposeAlpha, bShowHDR, this, SLOT(on_CurrentColor_changed(const ezColor&)), SLOT(on_Color_accepted()), SLOT(on_Color_reset()));
+  ezQtUiServices::GetSingleton()->ShowColorDialog(temp, m_bExposeAlpha, m_bIsHDR, this, SLOT(on_CurrentColor_changed(const ezColor&)), SLOT(on_Color_accepted()), SLOT(on_Color_reset()));
 }
 
 void ezQtPropertyEditorColorWidget::on_CurrentColor_changed(const ezColor& color)
 {
   ezVariant col;
 
-  if (m_OriginalValue.IsA<ezColorGammaUB>())
+  if (!m_bIsHDR)
   {
     // ezVariant does not down-cast to ezColorGammaUB automatically
     col = ezColorGammaUB(color);
@@ -1325,22 +1608,16 @@ ezQtPropertyEditorEnumWidget::ezQtPropertyEditorEnumWidget()
   m_pLayout = new QHBoxLayout(this);
   m_pLayout->setContentsMargins(0, 0, 0, 0);
   setLayout(m_pLayout);
-
-  m_pWidget = new QComboBox(this);
-  m_pWidget->installEventFilter(this);
-  m_pWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
-  m_pLayout->addWidget(m_pWidget);
-
-  connect(m_pWidget, SIGNAL(currentIndexChanged(int)), this, SLOT(on_CurrentEnum_changed(int)));
 }
 
 void ezQtPropertyEditorEnumWidget::OnInit()
 {
   const ezRTTI* pType = m_pProp->GetSpecificType();
 
-  ezQtScopedBlockSignals bs(m_pWidget);
+  const ezUInt32 uiCount = pType->GetProperties().GetCount();
 
-  ezUInt32 uiCount = pType->GetProperties().GetCount();
+  ezTempHybridArray<const ezAbstractProperty*, 16> props;
+
   // Start at 1 to skip default value.
   for (ezUInt32 i = 1; i < uiCount; ++i)
   {
@@ -1349,34 +1626,101 @@ void ezQtPropertyEditorEnumWidget::OnInit()
     if (pProp->GetCategory() != ezPropertyCategory::Constant)
       continue;
 
-    const ezAbstractConstantProperty* pConstant = static_cast<const ezAbstractConstantProperty*>(pProp);
+    props.PushBack(pProp);
+  }
 
-    m_pWidget->addItem(ezMakeQString(ezTranslate(pConstant->GetPropertyName())), pConstant->GetConstant().ConvertTo<ezInt64>());
+  // this code path implements using multiple buttons in a row instead of a combobox, for small number of entries
+  // it works for 2 elements, but often already looks bad with 3 elements
+  // but even with 2 elements, it just adds visual clutter (unused values are now visible)
+  // so I'm not going to enable it, but keep it in, in case we want to try it again in the future
+  constexpr bool bUseButtons = false;
+
+  if (bUseButtons && props.GetCount() <= EZ_ARRAY_SIZE(m_pButtons))
+  {
+    for (ezUInt32 i = 0; i < props.GetCount(); ++i)
+    {
+      auto pProp = props[i];
+
+      const ezAbstractConstantProperty* pConstant = static_cast<const ezAbstractConstantProperty*>(pProp);
+
+      m_pButtons[i] = new QPushButton(this);
+      m_pButtons[i]->setText(ezMakeQString(ezTranslate(pConstant->GetPropertyName())));
+      m_pButtons[i]->setCheckable(true);
+      m_pButtons[i]->setProperty("value", pConstant->GetConstant().ConvertTo<ezInt64>());
+
+      connect(m_pButtons[i], SIGNAL(clicked(bool)), this, SLOT(on_ButtonClicked_changed(bool)));
+
+      m_pLayout->addWidget(m_pButtons[i]);
+    }
+  }
+  else
+  {
+    m_pWidget = new QComboBox(this);
+    m_pWidget->installEventFilter(this);
+    m_pWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
+    m_pLayout->addWidget(m_pWidget);
+
+    connect(m_pWidget, SIGNAL(currentIndexChanged(int)), this, SLOT(on_CurrentEnum_changed(int)));
+
+    ezQtScopedBlockSignals bs(m_pWidget);
+
+    for (ezUInt32 i = 0; i < props.GetCount(); ++i)
+    {
+      auto pProp = props[i];
+
+      const ezAbstractConstantProperty* pConstant = static_cast<const ezAbstractConstantProperty*>(pProp);
+
+      m_pWidget->addItem(ezMakeQString(ezTranslate(pConstant->GetPropertyName())), pConstant->GetConstant().ConvertTo<ezInt64>());
+    }
   }
 }
 
 void ezQtPropertyEditorEnumWidget::InternalSetValue(const ezVariant& value)
 {
-  ezQtScopedBlockSignals b(m_pWidget);
 
-  if (value.IsValid())
+  if (m_pWidget)
   {
-    ezInt32 iIndex = m_pWidget->findData(value.ConvertTo<ezInt64>());
-    EZ_ASSERT_DEV(iIndex != -1, "Enum widget is set to an invalid value!");
+    ezInt32 iIndex = -1;
+    if (value.IsValid())
+    {
+      iIndex = m_pWidget->findData(value.ConvertTo<ezInt64>());
+      EZ_ASSERT_DEV(iIndex != -1, "Enum widget is set to an invalid value!");
+    }
+
+    ezQtScopedBlockSignals b(m_pWidget);
     m_pWidget->setCurrentIndex(iIndex);
   }
   else
   {
-    m_pWidget->setCurrentIndex(-1);
+    const ezInt64 iValue = value.ConvertTo<ezInt64>();
+
+    for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_pButtons); ++i)
+    {
+      if (m_pButtons[i])
+      {
+        const ezInt64 iButtonValue = m_pButtons[i]->property("value").toLongLong();
+
+        ezQtScopedBlockSignals b(m_pButtons[i]);
+        m_pButtons[i]->setChecked(iButtonValue == iValue);
+      }
+    }
   }
 }
 
 void ezQtPropertyEditorEnumWidget::on_CurrentEnum_changed(int iEnum)
 {
-  ezInt64 iValue = m_pWidget->itemData(iEnum).toLongLong();
+  const ezInt64 iValue = m_pWidget->itemData(iEnum).toLongLong();
   BroadcastValueChanged(iValue);
 }
 
+void ezQtPropertyEditorEnumWidget::on_ButtonClicked_changed(bool checked)
+{
+  if (QPushButton* pButton = qobject_cast<QPushButton*>(sender()))
+  {
+    const ezInt64 iValue = pButton->property("value").toLongLong();
+    BroadcastValueChanged(iValue);
+  }
+}
 
 /// *** BITFLAGS COMBOBOX ***
 
@@ -1523,28 +1867,28 @@ ezQtCurve1DButtonWidget::ezQtCurve1DButtonWidget(QWidget* pParent)
 void ezQtCurve1DButtonWidget::UpdatePreview(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pCurveObject, QColor color, double fLowerExtents, bool bLowerFixed, double fUpperExtents, bool bUpperFixed, double fDefaultValue, double fLowerRange, double fUpperRange)
 {
   ezInt32 iNumPoints = 0;
-  pObjectAccessor->GetCount(pCurveObject, "ControlPoints", iNumPoints).AssertSuccess();
+  pObjectAccessor->GetCountByName(pCurveObject, "ControlPoints", iNumPoints).AssertSuccess();
 
   ezVariant v;
-  ezHybridArray<ezVec2d, 32> points;
+  ezTempHybridArray<ezVec2d, 32> points;
   points.Reserve(iNumPoints);
 
-  double minX = fLowerExtents * 4800.0;
-  double maxX = fUpperExtents * 4800.0;
+  double minX = static_cast<double>(ezColorGradient::TimeToTick(fLowerExtents));
+  double maxX = static_cast<double>(ezColorGradient::TimeToTick(fUpperExtents));
 
   double minY = fLowerRange;
   double maxY = fUpperRange;
 
   for (ezInt32 i = 0; i < iNumPoints; ++i)
   {
-    const ezDocumentObject* pPoint = pObjectAccessor->GetChildObject(pCurveObject, "ControlPoints", i);
+    const ezDocumentObject* pPoint = pObjectAccessor->GetChildObjectByName(pCurveObject, "ControlPoints", i);
 
     ezVec2d p;
 
-    pObjectAccessor->GetValue(pPoint, "Tick", v).AssertSuccess();
+    pObjectAccessor->GetValueByName(pPoint, "Tick", v).AssertSuccess();
     p.x = v.ConvertTo<double>();
 
-    pObjectAccessor->GetValue(pPoint, "Value", v).AssertSuccess();
+    pObjectAccessor->GetValueByName(pPoint, "Value", v).AssertSuccess();
     p.y = v.ConvertTo<double>();
 
     points.PushBack(p);
@@ -1641,15 +1985,42 @@ ezQtPropertyEditorCurve1DWidget::ezQtPropertyEditorCurve1DWidget()
   EZ_VERIFY(connect(m_pButton, SIGNAL(clicked()), this, SLOT(on_Button_triggered())) != nullptr, "signal/slot connection failed");
 }
 
-void ezQtPropertyEditorCurve1DWidget::SetSelection(const ezHybridArray<ezPropertySelection, 8>& items)
+void ezQtPropertyEditorCurve1DWidget::SetSelection(const ezArrayPtr<ezPropertySelection>& items)
 {
   ezQtPropertyWidget::SetSelection(items);
 
   UpdatePreview();
 }
 
-void ezQtPropertyEditorCurve1DWidget::OnInit() {}
-void ezQtPropertyEditorCurve1DWidget::DoPrepareToDie() {}
+void ezQtPropertyEditorCurve1DWidget::OnInit()
+{
+  m_pObjectAccessor->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyEditorCurve1DWidget::PropertyEventHandler, this), m_Unsub);
+}
+
+void ezQtPropertyEditorCurve1DWidget::DoPrepareToDie()
+{
+  m_Unsub.Unsubscribe();
+}
+
+void ezQtPropertyEditorCurve1DWidget::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+{
+  if (IsUndead())
+    return;
+
+  if (m_Items.IsEmpty())
+    return;
+
+  const ezDocumentObject* pParent = m_Items[0].m_pObject;
+  const ezDocumentObject* pCurve = m_pObjectAccessor->GetChildObjectByName(pParent, m_pProp->GetPropertyName(), {});
+
+  if (pCurve == nullptr)
+    return;
+
+  if (e.m_pObject == pCurve || e.m_pObject->GetParent() == pCurve)
+  {
+    UpdatePreview();
+  }
+}
 
 void ezQtPropertyEditorCurve1DWidget::UpdatePreview()
 {
@@ -1657,7 +2028,7 @@ void ezQtPropertyEditorCurve1DWidget::UpdatePreview()
     return;
 
   const ezDocumentObject* pParent = m_Items[0].m_pObject;
-  const ezDocumentObject* pCurve = m_pObjectAccessor->GetChildObject(pParent, m_pProp->GetPropertyName(), {});
+  const ezDocumentObject* pCurve = m_pObjectAccessor->GetChildObjectByName(pParent, m_pProp->GetPropertyName(), {});
   const ezColorAttribute* pColorAttr = m_pProp->GetAttributeByType<ezColorAttribute>();
   const ezCurveExtentsAttribute* pExtentsAttr = m_pProp->GetAttributeByType<ezCurveExtentsAttribute>();
   const ezDefaultValueAttribute* pDefAttr = m_pProp->GetAttributeByType<ezDefaultValueAttribute>();
@@ -1678,7 +2049,7 @@ void ezQtPropertyEditorCurve1DWidget::UpdatePreview()
 void ezQtPropertyEditorCurve1DWidget::on_Button_triggered()
 {
   const ezDocumentObject* pParent = m_Items[0].m_pObject;
-  const ezDocumentObject* pCurve = m_pObjectAccessor->GetChildObject(pParent, m_pProp->GetPropertyName(), {});
+  const ezDocumentObject* pCurve = m_pObjectAccessor->GetChildObjectByName(pParent, m_pProp->GetPropertyName(), {});
   const ezColorAttribute* pColorAttr = m_pProp->GetAttributeByType<ezColorAttribute>();
   const ezCurveExtentsAttribute* pExtentsAttr = m_pProp->GetAttributeByType<ezCurveExtentsAttribute>();
   const ezClampValueAttribute* pClampAttr = m_pProp->GetAttributeByType<ezClampValueAttribute>();
@@ -1687,7 +2058,8 @@ void ezQtPropertyEditorCurve1DWidget::on_Button_triggered()
   // but also be able to undo individual steps while editing
   // m_pObjectAccessor->GetObjectManager()->GetDocument()->GetCommandHistory()->StartTransaction("Edit Curve");
 
-  ezQtCurveEditDlg* pDlg = new ezQtCurveEditDlg(m_pObjectAccessor, pCurve, this);
+  ezStringBuilder sTitle = ezTranslate(m_pProp->GetPropertyName());
+  ezQtCurveEditDlg* pDlg = new ezQtCurveEditDlg(m_pObjectAccessor, pCurve, this, sTitle);
   pDlg->restoreGeometry(ezQtCurveEditDlg::GetLastDialogGeometry());
 
   if (pColorAttr)
@@ -1719,5 +2091,200 @@ void ezQtPropertyEditorCurve1DWidget::on_Button_triggered()
     // m_pObjectAccessor->GetObjectManager()->GetDocument()->GetCommandHistory()->CancelTransaction();
   }
 
+  delete pDlg;
+}
+
+
+/// *** COLOR GRADIENT ***
+
+ezQtColorGradientButtonWidget::ezQtColorGradientButtonWidget(QWidget* pParent)
+  : QLabel(pParent)
+{
+  setAutoFillBackground(true);
+  setCursor(Qt::PointingHandCursor);
+  setScaledContents(true);
+  setMinimumHeight(24);
+}
+
+void ezQtColorGradientButtonWidget::UpdatePreview(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pGradientObject)
+{
+  if (pGradientObject == nullptr)
+  {
+    setPixmap(QPixmap());
+    return;
+  }
+
+  // Reconstruct gradient from document object
+  ezColorGradient gradient;
+
+  // Read ColorCPs array
+  ezInt32 iNumColorCPs = 0;
+  pObjectAccessor->GetCountByName(pGradientObject, "ColorCPs", iNumColorCPs).AssertSuccess();
+
+  for (ezInt32 i = 0; i < iNumColorCPs; ++i)
+  {
+    const ezDocumentObject* pCP = pObjectAccessor->GetChildObjectByName(pGradientObject, "ColorCPs", i);
+    ezVariant v;
+
+    pObjectAccessor->GetValueByName(pCP, "Tick", v).AssertSuccess();
+    ezInt64 tick = v.ConvertTo<ezInt64>();
+
+    pObjectAccessor->GetValueByName(pCP, "Red", v).AssertSuccess();
+    ezUInt8 r = v.ConvertTo<ezUInt8>();
+    pObjectAccessor->GetValueByName(pCP, "Green", v).AssertSuccess();
+    ezUInt8 g = v.ConvertTo<ezUInt8>();
+    pObjectAccessor->GetValueByName(pCP, "Blue", v).AssertSuccess();
+    ezUInt8 b = v.ConvertTo<ezUInt8>();
+
+    gradient.AddColorControlPoint(ezColorGradient::TickToTime(tick), ezColorGammaUB(r, g, b));
+  }
+
+  // Read AlphaCPs array
+  ezInt32 iNumAlphaCPs = 0;
+  pObjectAccessor->GetCountByName(pGradientObject, "AlphaCPs", iNumAlphaCPs).AssertSuccess();
+
+  for (ezInt32 i = 0; i < iNumAlphaCPs; ++i)
+  {
+    const ezDocumentObject* pCP = pObjectAccessor->GetChildObjectByName(pGradientObject, "AlphaCPs", i);
+    ezVariant v;
+
+    pObjectAccessor->GetValueByName(pCP, "Tick", v).AssertSuccess();
+    ezInt64 tick = v.ConvertTo<ezInt64>();
+    pObjectAccessor->GetValueByName(pCP, "Alpha", v).AssertSuccess();
+    ezUInt8 alpha = v.ConvertTo<ezUInt8>();
+
+    gradient.AddAlphaControlPoint(ezColorGradient::TickToTime(tick), alpha);
+  }
+
+  // Read IntensityCPs array
+  ezInt32 iNumIntensityCPs = 0;
+  pObjectAccessor->GetCountByName(pGradientObject, "IntensityCPs", iNumIntensityCPs).AssertSuccess();
+
+  for (ezInt32 i = 0; i < iNumIntensityCPs; ++i)
+  {
+    const ezDocumentObject* pCP = pObjectAccessor->GetChildObjectByName(pGradientObject, "IntensityCPs", i);
+    ezVariant v;
+
+    pObjectAccessor->GetValueByName(pCP, "Tick", v).AssertSuccess();
+    ezInt64 tick = v.ConvertTo<ezInt64>();
+    pObjectAccessor->GetValueByName(pCP, "Intensity", v).AssertSuccess();
+    float intensity = v.ConvertTo<float>();
+
+    gradient.AddIntensityControlPoint(ezColorGradient::TickToTime(tick), intensity);
+  }
+
+  // Generate preview image
+  const int pW = 64;
+  const int pH = 24;
+
+  QPixmap pixmap(pW, pH);
+  QPainter pt(&pixmap);
+
+  pt.fillRect(0, 0, pW, pH, Qt::white);
+
+  if (!gradient.IsEmpty())
+  {
+    // Draw gradient preview
+    for (int x = 0; x < pW; ++x)
+    {
+      const double t = (double)x / (double)(pW - 1);
+
+      ezColorGammaUB rgba;
+      float fIntensity;
+      gradient.Evaluate(t, rgba, fIntensity);
+
+      // Apply intensity to get final color
+      ezColor hdrColor = rgba;
+      hdrColor.r *= fIntensity;
+      hdrColor.g *= fIntensity;
+      hdrColor.b *= fIntensity;
+
+      // Convert to LDR for display
+      ezColorGammaUB ldrColor = hdrColor;
+
+      pt.setPen(QColor(ldrColor.r, ldrColor.g, ldrColor.b, ldrColor.a));
+      pt.drawLine(x, 0, x, pH);
+    }
+  }
+
+  setPixmap(pixmap);
+}
+
+void ezQtColorGradientButtonWidget::mouseReleaseEvent(QMouseEvent* event)
+{
+  Q_EMIT clicked();
+}
+
+
+ezQtPropertyEditorColorGradientWidget::ezQtPropertyEditorColorGradientWidget()
+  : ezQtPropertyWidget()
+{
+  m_pLayout = new QHBoxLayout(this);
+  m_pLayout->setContentsMargins(0, 0, 0, 0);
+  setLayout(m_pLayout);
+
+  m_pButton = new ezQtColorGradientButtonWidget(this);
+  m_pButton->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
+
+  m_pLayout->addWidget(m_pButton);
+
+  EZ_VERIFY(connect(m_pButton, SIGNAL(clicked()), this, SLOT(on_Button_triggered())) != nullptr, "signal/slot connection failed");
+}
+
+void ezQtPropertyEditorColorGradientWidget::SetSelection(const ezArrayPtr<ezPropertySelection>& items)
+{
+  ezQtPropertyWidget::SetSelection(items);
+  UpdatePreview();
+}
+
+void ezQtPropertyEditorColorGradientWidget::OnInit()
+{
+  m_pObjectAccessor->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyEditorColorGradientWidget::PropertyEventHandler, this), m_Unsub);
+  m_pObjectAccessor->GetObjectManager()->m_ObjectEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyEditorColorGradientWidget::ObjectEventHandler, this), m_Unsub2);
+}
+
+void ezQtPropertyEditorColorGradientWidget::DoPrepareToDie()
+{
+  m_Unsub.Unsubscribe();
+  m_Unsub2.Unsubscribe();
+}
+
+void ezQtPropertyEditorColorGradientWidget::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+{
+  if (IsUndead())
+    return;
+
+  UpdatePreview();
+}
+
+void ezQtPropertyEditorColorGradientWidget::ObjectEventHandler(const ezDocumentObjectEvent& e)
+{
+  if (IsUndead())
+    return;
+
+  UpdatePreview();
+}
+
+void ezQtPropertyEditorColorGradientWidget::UpdatePreview()
+{
+  if (m_Items.IsEmpty())
+    return;
+
+  const ezDocumentObject* pParent = m_Items[0].m_pObject;
+  const ezDocumentObject* pGradient = m_pObjectAccessor->GetChildObjectByName(pParent, m_pProp->GetPropertyName(), {});
+
+  m_pButton->UpdatePreview(m_pObjectAccessor, pGradient);
+}
+
+void ezQtPropertyEditorColorGradientWidget::on_Button_triggered()
+{
+  const ezDocumentObject* pParent = m_Items[0].m_pObject;
+  const ezDocumentObject* pGradient = m_pObjectAccessor->GetChildObjectByName(pParent, m_pProp->GetPropertyName(), {});
+
+  ezStringBuilder sTitle = ezTranslate(m_pProp->GetPropertyName());
+  ezQtColorGradientEditDlg* pDlg = new ezQtColorGradientEditDlg(m_pObjectAccessor, pGradient, this, sTitle);
+  pDlg->restoreGeometry(ezQtColorGradientEditDlg::GetLastDialogGeometry());
+
+  pDlg->exec();
   delete pDlg;
 }

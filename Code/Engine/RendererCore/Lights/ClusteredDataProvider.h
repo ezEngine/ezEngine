@@ -4,6 +4,10 @@
 #include <RendererCore/Pipeline/FrameDataProvider.h>
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 
+/// GPU-side data for clustered rendering.
+///
+/// Contains GPU buffers for lights, decals, probes, cluster assignments, and related resources.
+/// Uploaded from ezClusteredDataCPU by the data provider and bound to shaders for rendering.
 struct EZ_RENDERERCORE_DLL ezClusteredDataGPU
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezClusteredDataGPU);
@@ -31,6 +35,11 @@ public:
   void BindResources(ezRenderContext* pRenderContext);
 };
 
+/// Provides GPU buffers for clustered rendering each frame.
+///
+/// Converts CPU-side clustered data from ezClusteredDataExtractor into GPU buffers.
+/// The buffers contain lights, decals, reflection probes, and per-cluster item lists
+/// used by shaders to efficiently look up which items affect each pixel.
 class EZ_RENDERERCORE_DLL ezClusteredDataProvider : public ezFrameDataProvider<ezClusteredDataGPU>
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezClusteredDataProvider, ezFrameDataProviderBase);

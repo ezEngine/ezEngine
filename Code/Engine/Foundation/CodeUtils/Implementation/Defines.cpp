@@ -29,7 +29,7 @@ ezResult ezPreprocessor::StoreDefine(const ezToken* pMacroNameToken, const Token
   MacroDefinition md;
   md.m_MacroIdentifier = pMacroNameToken;
   md.m_bIsFunction = iNumParameters >= 0;
-  md.m_iNumParameters = ezMath::Max(0, iNumParameters);
+  md.m_uiNumParameters = ezMath::Max(0, iNumParameters);
   md.m_bHasVarArgs = bUsesVarArgs;
 
   // removes whitespace at start and end, skips comments, newlines, etc.
@@ -103,7 +103,7 @@ ezResult ezPreprocessor::HandleDefine(const TokenStream& Tokens, ezUInt32& uiCur
     if (Expect(Tokens, uiCurToken, "(").Failed())
       return EZ_FAILURE;
 
-    ezHybridArray<ezString, 16> parameters;
+    ezTempHybridArray<ezString, 16> parameters;
 
     while (!Accept(Tokens, uiCurToken, ")"))
     {
@@ -156,7 +156,7 @@ ezResult ezPreprocessor::AddCustomDefine(ezStringView sDefinition)
   m_CustomDefines.PeekBack().m_Tokenized.Tokenize(m_CustomDefines.PeekBack().m_Content, m_pLog);
 
   ezUInt32 uiFirstToken = 0;
-  ezHybridArray<const ezToken*, 32> Tokens;
+  ezTempHybridArray<const ezToken*, 32> Tokens;
 
   if (m_CustomDefines.PeekBack().m_Tokenized.GetNextLine(uiFirstToken, Tokens).Failed())
     return EZ_FAILURE;

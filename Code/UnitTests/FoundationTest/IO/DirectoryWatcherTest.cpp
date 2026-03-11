@@ -2,6 +2,7 @@
 
 #if EZ_ENABLED(EZ_SUPPORTS_DIRECTORY_WATCHER)
 
+#  include <Foundation/Configuration/CVar.h>
 #  include <Foundation/IO/DirectoryWatcher.h>
 #  include <Foundation/IO/OSFile.h>
 #  include <Foundation/Threading/ThreadUtils.h>
@@ -37,7 +38,8 @@ namespace DirectoryWatcherTestHelpers
   }
 } // namespace DirectoryWatcherTestHelpers
 
-EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
+
+void DirectoryWatcherTest()
 {
   using namespace DirectoryWatcherTestHelpers;
 
@@ -176,6 +178,30 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
       ezOSFile::DeleteFolder(tmp).IgnoreResult();
     }
   };
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "git")
+  {
+    ezOSFile::DeleteFolder(sTestRootPath).IgnoreResult();
+    EZ_TEST_BOOL(ezOSFile::CreateDirectoryStructure(sTestRootPath).Succeeded());
+
+    CreateFile("index");
+
+    ezDirectoryWatcher watcher;
+    EZ_TEST_BOOL(watcher.OpenDirectory(sTestRootPath, ezDirectoryWatcher::Watch::Creates | ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Deletes | ezDirectoryWatcher::Watch::Renames | ezDirectoryWatcher::Watch::Subdirectories).Succeeded());
+
+    CreateFile("index.lock");
+    DeleteFile("index");
+    Rename("index.lock", "index");
+
+    ExpectedEvent expectedEvents[] = {
+      {"index.lock", ezDirectoryWatcherAction::Added, ezDirectoryWatcherType::File},
+      {"index", ezDirectoryWatcherAction::Removed, ezDirectoryWatcherType::File},
+      {"index.lock", ezDirectoryWatcherAction::RenamedOldName, ezDirectoryWatcherType::File},
+      {"index", ezDirectoryWatcherAction::RenamedNewName, ezDirectoryWatcherType::File},
+
+    };
+    CheckExpectedEvents(watcher, expectedEvents);
+  }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Simple Create File")
   {
@@ -757,5 +783,20 @@ EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
 
   ezOSFile::DeleteFolder(sTestRootPath).IgnoreResult();
 }
+
+EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcher)
+{
+  DirectoryWatcherTest();
+}
+
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+EZ_CREATE_SIMPLE_TEST(IO, DirectoryWatcherNonNTFS)
+{
+  auto* pForceNonNTFS = static_cast<ezCVarBool*>(ezCVar::FindCVarByName("Platform.DirectoryWatcher.ForceNonNTFS"));
+  *pForceNonNTFS = true;
+  DirectoryWatcherTest();
+  *pForceNonNTFS = false;
+}
+#  endif
 
 #endif

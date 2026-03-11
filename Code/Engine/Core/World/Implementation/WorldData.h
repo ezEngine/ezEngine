@@ -29,7 +29,7 @@ namespace ezInternal
     mutable ezProxyAllocator m_Allocator;
     ezLocalAllocatorWrapper m_AllocatorWrapper;
     ezInternal::WorldLargeBlockAllocator m_BlockAllocator;
-    ezDoubleBufferedLinearAllocator m_StackAllocator;
+    ezDoubleBufferedLinearAllocator m_LinearAllocator;
 
     enum
     {
@@ -179,7 +179,7 @@ namespace ezInternal
       ezWorldModule::UpdateFunction m_Function;
       ezHashedString m_sFunctionName;
       float m_fPriority;
-      ezUInt16 m_uiGranularity;
+      ezUInt16 m_uiAsyncPhaseBatchSize;
       bool m_bOnlyUpdateWhenSimulating;
 
       void FillFromDesc(const ezWorldModule::UpdateFunctionDesc& desc);
@@ -195,8 +195,9 @@ namespace ezInternal
       ezUInt32 m_uiCount;
     };
 
-    ezDynamicArray<RegisteredUpdateFunction, ezLocalAllocatorWrapper> m_UpdateFunctions[ezWorldModule::UpdateFunctionDesc::Phase::COUNT];
+    ezDynamicArray<RegisteredUpdateFunction, ezLocalAllocatorWrapper> m_UpdateFunctions[ezWorldUpdatePhase::COUNT];
     ezDynamicArray<ezWorldModule::UpdateFunctionDesc, ezLocalAllocatorWrapper> m_UpdateFunctionsToRegister;
+    ezDynamicArray<ezWorldModule::UpdateFunctionDesc, ezLocalAllocatorWrapper> m_UpdateFunctionsToDeregister;
 
     ezDynamicArray<ezSharedPtr<UpdateTask>, ezLocalAllocatorWrapper> m_UpdateTasks;
 
@@ -300,6 +301,11 @@ namespace ezInternal
     WriteMarker m_WriteMarker;
 
     void* m_pUserData = nullptr;
+
+    /// Protects m_BoundsUpdateQueue for concurrent access during the async update phase.
+    ezMutex m_BoundsUpdateMutex;
+    /// Game objects whose local bounds need to be recomputed at the end of the current update phase.
+    ezDynamicArray<ezGameObjectHandle> m_BoundsUpdateQueue;
   };
 } // namespace ezInternal
 

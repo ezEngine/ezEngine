@@ -48,7 +48,12 @@ private:
 class EZ_FOUNDATION_DLL ezTranslatorPassThrough : public ezTranslator
 {
 public:
-  virtual ezStringView Translate(ezStringView sString, ezUInt64 uiStringHash, ezTranslationUsage usage) override { return sString; }
+  virtual ezStringView Translate(ezStringView sString, ezUInt64 uiStringHash, ezTranslationUsage usage) override
+  {
+    EZ_IGNORE_UNUSED(uiStringHash);
+    EZ_IGNORE_UNUSED(usage);
+    return sString;
+  }
 };
 
 /// \brief Can store translated strings and all translation requests will come from that storage. Returns nullptr if the requested string is

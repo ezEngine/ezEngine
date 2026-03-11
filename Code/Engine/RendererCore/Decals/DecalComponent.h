@@ -11,23 +11,16 @@ struct ezMsgComponentInternalTrigger;
 struct ezMsgOnlyApplyToObject;
 struct ezMsgSetColor;
 
-class EZ_RENDERERCORE_DLL ezDecalComponentManager final : public ezComponentManager<class ezDecalComponent, ezBlockStorageType::Compact>
-{
-public:
-  ezDecalComponentManager(ezWorld* pWorld);
-
-  virtual void Initialize() override;
-
-private:
-  friend class ezDecalComponent;
-  ezDecalAtlasResourceHandle m_hDecalAtlas;
-};
+using ezDecalComponentManager = ezComponentManager<class ezDecalComponent, ezBlockStorageType::Compact>;
 
 class EZ_RENDERERCORE_DLL ezDecalRenderData : public ezRenderData
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezDecalRenderData, ezRenderData);
 
 public:
+  ezFloat16Vec4 m_qGlobalRotation;
+  ezFloat16Vec3 m_vGlobalScale;
+
   ezUInt32 m_uiApplyOnlyToId;
   ezUInt32 m_uiFlags;
   ezUInt32 m_uiAngleFadeParams;
@@ -142,11 +135,13 @@ public:
   void SetApplyOnlyTo(ezGameObjectHandle hObject);
   ezGameObjectHandle GetApplyOnlyTo() const;
 
-  ezUInt32 DecalFile_GetCount() const;                         // [ property ]
-  const char* DecalFile_Get(ezUInt32 uiIndex) const;           // [ property ]
-  void DecalFile_Set(ezUInt32 uiIndex, const char* szFile);    // [ property ]
-  void DecalFile_Insert(ezUInt32 uiIndex, const char* szFile); // [ property ]
-  void DecalFile_Remove(ezUInt32 uiIndex);                     // [ property ]
+  // TODO: Using ezStringView for the array accessors doesn't work (currently)
+
+  ezUInt32 DecalFile_GetCount() const;                     // [ property ]
+  ezString DecalFile_Get(ezUInt32 uiIndex) const;          // [ property ]
+  void DecalFile_Set(ezUInt32 uiIndex, ezString sFile);    // [ property ]
+  void DecalFile_Insert(ezUInt32 uiIndex, ezString sFile); // [ property ]
+  void DecalFile_Remove(ezUInt32 uiIndex);                 // [ property ]
 
 
 protected:
@@ -156,7 +151,7 @@ protected:
   void OnTriggered(ezMsgComponentInternalTrigger& msg);
   void OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg);
   void OnMsgOnlyApplyToObject(ezMsgOnlyApplyToObject& msg);
-  void OnMsgSetColor(ezMsgSetColor& msg);
+  void OnMsgSetColor(ezMsgSetColor& ref_msg);
 
   ezVec3 m_vExtents = ezVec3(1.0f);
   float m_fSizeVariance = 0;

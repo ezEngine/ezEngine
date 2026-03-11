@@ -13,6 +13,9 @@ ezResult FindNavMeshPolyAt(dtNavMeshQuery& ref_query, const dtQueryFilter* pQuer
   if (dtStatusFailed(ref_query.findNearestPoly(position, &vSize.x, pQueryFilter, &out_polyRef, resultPos)))
     return EZ_FAILURE;
 
+  if (out_polyRef == 0)
+    return EZ_FAILURE;
+
   if (!ezMath::IsEqual(position.m_Pos[0], resultPos.m_Pos[0], fPlaneEpsilon) ||
       !ezMath::IsEqual(position.m_Pos[1], resultPos.m_Pos[1], fHeightEpsilon) ||
       !ezMath::IsEqual(position.m_Pos[2], resultPos.m_Pos[2], fPlaneEpsilon))
@@ -36,7 +39,6 @@ ezAiNavigation::ezAiNavigation()
 {
   m_uiCurrentPositionChangedBit = 0;
   m_uiTargetPositionChangedBit = 0;
-  m_uiEnvironmentChangedBit = 0;
   m_uiReinitQueryBit = 0;
 
   m_PathCorridor.init(MaxPathNodes);
@@ -230,13 +232,12 @@ const ezVec3& ezAiNavigation::GetTargetPosition() const
   return m_vTargetPosition;
 }
 
-void ezAiNavigation::SetNavmesh(ezAiNavMesh& ref_navmesh)
+void ezAiNavigation::SetNavmesh(ezAiNavMesh* pNavmesh)
 {
-  if (m_pNavmesh == &ref_navmesh)
+  if (m_pNavmesh == pNavmesh)
     return;
 
-  m_pNavmesh = &ref_navmesh;
-  m_uiEnvironmentChangedBit = 1;
+  m_pNavmesh = pNavmesh;
   m_uiReinitQueryBit = 1;
 }
 
@@ -246,7 +247,6 @@ void ezAiNavigation::SetQueryFilter(const dtQueryFilter& filter)
     return;
 
   m_pFilter = &filter;
-  m_uiEnvironmentChangedBit = 1;
 }
 
 void ezAiNavigation::ComputeAllWaypoints(ezDynamicArray<ezVec3>& out_waypoints) const
@@ -264,7 +264,7 @@ void ezAiNavigation::ComputeAllWaypoints(ezDynamicArray<ezVec3>& out_waypoints) 
 
   out_waypoints.SetCountUninitialized((ezUInt32)straightLen);
 
-  for (ezUInt32 i = 0; i < straightLen; ++i)
+  for (int i = 0; i < straightLen; ++i)
   {
     out_waypoints[i] = straightPath[i]; // automatically swaps Y and Z
   }
@@ -361,10 +361,25 @@ bool ezAiNavigation::UpdatePathSearch()
     // the target position here may already differ from the target position when the search was started
     // so we need to use m_vPathSearchTargetPos
     // the final target position will be updated in the next Update()
+    m_PathCorridor.reset(resultPolys[0], ezRcPos(m_vCurrentPosition));
     m_PathCorridor.setCorridor(ezRcPos(m_vPathSearchTargetPos), resultPolys, (ezUInt32)iPathCorridorLength);
 
     m_uiOptimizeTopologyCounter = 0;
     m_uiOptimizeVisibilityCounter = 0;
+  }
+
+  // Replan if path has become invalid due to navmesh modifications
+  if (m_State == State::FullPathFound || m_State == State::PartialPathFound)
+  {
+    constexpr ezInt32 PathLookahead = 10;
+
+    dtPolyRef currentPoly = m_PathCorridor.getFirstPoly();
+    if (!m_Query.isValidPolyRef(currentPoly, m_pFilter) || !m_Query.isValidPolyRef(m_PathSearchTargetPoly, m_pFilter) || !m_PathCorridor.isValid(PathLookahead, &m_Query, m_pFilter))
+    {
+      CancelNavigation();
+      m_State = State::StartNewSearch;
+      return false;
+    }
   }
 
   return true;
@@ -375,7 +390,7 @@ void ezAiNavigation::DebugDrawPathCorridor(const ezDebugRendererContext& context
   const ezUInt32 uiCorrLen = m_PathCorridor.getPathCount();
   const dtPolyRef* pCorrArr = m_PathCorridor.getPath();
 
-  ezHybridArray<ezDebugRenderer::Triangle, 64> tris;
+  ezTempHybridArray<ezDebugRendererTriangle, 64> tris;
 
   const auto pNavmesh = m_Query.getAttachedNavMesh();
 
@@ -410,8 +425,8 @@ void ezAiNavigation::DebugDrawPathCorridor(const ezDebugRendererContext& context
 
 void ezAiNavigation::DebugDrawPathLine(const ezDebugRendererContext& context, ezColor straightLineColor, float fLineRenderOffsetZ)
 {
-  ezHybridArray<ezDebugRenderer::Line, 64> lines;
-  ezHybridArray<ezVec3, 64> waypoints;
+  ezTempHybridArray<ezDebugRendererLine, 64> lines;
+  ezTempHybridArray<ezVec3, 64> waypoints;
   ComputeAllWaypoints(waypoints);
 
   if (!waypoints.IsEmpty())

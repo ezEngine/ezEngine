@@ -28,8 +28,10 @@ macro(ez_pull_config_vars)
 	get_property(EZ_CONFIG_QT_WINX64_URL GLOBAL PROPERTY EZ_CONFIG_QT_WINX64_URL)
 	get_property(EZ_CONFIG_QT_WINX64_VERSION GLOBAL PROPERTY EZ_CONFIG_QT_WINX64_VERSION)
 
-	get_property(EZ_CONFIG_VULKAN_SDK_LINUXX64_VERSION GLOBAL PROPERTY EZ_CONFIG_VULKAN_SDK_LINUXX64_VERSION)
-	get_property(EZ_CONFIG_VULKAN_SDK_LINUXX64_URL GLOBAL PROPERTY EZ_CONFIG_VULKAN_SDK_LINUXX64_URL)
+	get_property(EZ_CONFIG_DIRECTXSHADERCOMPILER_LINUXX64_VERSION GLOBAL PROPERTY EZ_CONFIG_DIRECTXSHADERCOMPILER_LINUXX64_VERSION)
+	get_property(EZ_CONFIG_DIRECTXSHADERCOMPILER_LINUXX64_URL GLOBAL PROPERTY EZ_CONFIG_DIRECTXSHADERCOMPILER_LINUXX64_URL)
+	get_property(EZ_CONFIG_DIRECTXSHADERCOMPILER_WINX64_VERSION GLOBAL PROPERTY EZ_CONFIG_DIRECTXSHADERCOMPILER_WINX64_VERSION)
+	get_property(EZ_CONFIG_DIRECTXSHADERCOMPILER_WINX64_URL GLOBAL PROPERTY EZ_CONFIG_DIRECTXSHADERCOMPILER_WINX64_URL)
 
 	get_property(EZ_CONFIG_VULKAN_VALIDATIONLAYERS_VERSION GLOBAL PROPERTY EZ_CONFIG_VULKAN_VALIDATIONLAYERS_VERSION)
 	get_property(EZ_CONFIG_VULKAN_VALIDATIONLAYERS_ANDROID_URL GLOBAL PROPERTY EZ_CONFIG_VULKAN_VALIDATIONLAYERS_ANDROID_URL)
@@ -68,7 +70,7 @@ macro(ez_pull_output_vars LIB_OUTPUT_DIR DLL_OUTPUT_DIR)
 	elseif(EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)
 		set(PLATFORM_POSTFIX "_win10")
 
-	elseif(EZ_CMAKE_PLATFORM_EMSCRIPTEN)
+	elseif(EZ_CMAKE_PLATFORM_WEB)
 		set(PLATFORM_POSTFIX "_wasm")
 
 	elseif(EZ_CMAKE_PLATFORM_ANDROID)
@@ -77,7 +79,7 @@ macro(ez_pull_output_vars LIB_OUTPUT_DIR DLL_OUTPUT_DIR)
 
 	string(TOLOWER ${EZ_CMAKE_GENERATOR_PREFIX} LOWER_GENERATOR_PREFIX)
 
-	set(PRE_PATH "${EZ_CMAKE_PLATFORM_PREFIX}${EZ_CMAKE_GENERATOR_PREFIX}${EZ_CMAKE_COMPILER_POSTFIX}")
+	set(PRE_PATH "${EZ_CMAKE_PLATFORM_PREFIX}${EZ_OUTPUT_DIRECTORY_PLATFORM_POSTFIX}${EZ_CMAKE_GENERATOR_PREFIX}${EZ_CMAKE_COMPILER_POSTFIX}")
 	set(OUTPUT_DEBUG "${PRE_PATH}${EZ_BUILDTYPENAME_DEBUG}${EZ_CMAKE_ARCHITECTURE_POSTFIX}${SUB_DIR}")
 	set(OUTPUT_RELEASE "${PRE_PATH}${EZ_BUILDTYPENAME_RELEASE}${EZ_CMAKE_ARCHITECTURE_POSTFIX}${SUB_DIR}")
 	set(OUTPUT_DEV "${PRE_PATH}${EZ_BUILDTYPENAME_DEV}${EZ_CMAKE_ARCHITECTURE_POSTFIX}${SUB_DIR}")
@@ -214,6 +216,19 @@ function(ez_set_common_target_definitions TARGET_NAME)
 		target_compile_definitions(${TARGET_NAME} PRIVATE BUILDSYSTEM_ENABLE_VULKAN_SUPPORT)
 	endif()
 
+	if(EZ_BUILD_EXPERIMENTAL_WEBGPU)
+		target_compile_definitions(${TARGET_NAME} PRIVATE BUILDSYSTEM_ENABLE_WEBGPU_SUPPORT)
+	endif()
+
+	# set the BUILDSYSTEM_MIN_REQUIRED_SSE_LEVEL
+	if (EZ_MIN_REQUIRED_SSE_LEVEL STREQUAL "SSE2")
+		target_compile_definitions(${TARGET_NAME} PRIVATE BUILDSYSTEM_MIN_REQUIRED_SSE_LEVEL=20)
+	elseif (EZ_MIN_REQUIRED_SSE_LEVEL STREQUAL "SSE41")
+		target_compile_definitions(${TARGET_NAME} PRIVATE BUILDSYSTEM_MIN_REQUIRED_SSE_LEVEL=41)
+	elseif (EZ_MIN_REQUIRED_SSE_LEVEL STREQUAL "AVX")
+		target_compile_definitions(${TARGET_NAME} PRIVATE BUILDSYSTEM_MIN_REQUIRED_SSE_LEVEL=50)
+	endif()
+
 	# on Windows, make sure to use the Unicode API
 	target_compile_definitions(${TARGET_NAME} PUBLIC UNICODE _UNICODE)
 endfunction()
@@ -254,7 +269,7 @@ function(ez_set_project_ide_folder TARGET_NAME PROJECT_SOURCE_DIR)
 	get_property(EZ_SUBMODULE_MODE GLOBAL PROPERTY EZ_SUBMODULE_MODE)
 
 	if(EZ_SUBMODULE_MODE)
-		set_property(TARGET ${TARGET_NAME} PROPERTY FOLDER "ezEngine/${IDE_FOLDER}")
+		set_property(TARGET ${TARGET_NAME} PROPERTY FOLDER "${EZ_SUBMODULE_ROOT_IDE_FOLDER}/${IDE_FOLDER}")
 	else()
 		set_property(TARGET ${TARGET_NAME} PROPERTY FOLDER ${IDE_FOLDER})
 	endif()
@@ -269,10 +284,18 @@ function(ez_add_output_ez_prefix TARGET_NAME)
 endfunction()
 
 # #####################################
-# ## ez_make_winmain_executable(<target>)
+# ## ez_make_windowapp(<target>)
+# 
+# Turns the target application from a 'console app' into a 'window app', which means it doesn't
+# show a command prompt with the log output on systems that differentiate between the these app types.
 # #####################################
-function(ez_make_winmain_executable TARGET_NAME)
+function(ez_make_windowapp TARGET_NAME)
 	set_property(TARGET ${TARGET_NAME} PROPERTY WIN32_EXECUTABLE ON)
+	target_compile_definitions(${TARGET_NAME} PRIVATE EZ_WINDOWAPP=1)
+
+	if (COMMAND ez_platformhook_make_windowapp)
+		ez_platformhook_make_windowapp(${TARGET_NAME})
+	endif()	
 endfunction()
 
 # #####################################
@@ -313,9 +336,12 @@ function(ez_glob_source_files ROOT_DIR RESULT_ALL_SOURCES)
 		"${ROOT_DIR}/*.ico"
 		"${ROOT_DIR}/*.rc"
 		"${ROOT_DIR}/*.s"
+		"${ROOT_DIR}/*.asm"
 		"${ROOT_DIR}/*.cmake"
 		"${ROOT_DIR}/*.natvis"
 		"${ROOT_DIR}/*.txt"
+		"${ROOT_DIR}/*.md"
+		"${ROOT_DIR}/*.ezPluginBundle"
 		"${ROOT_DIR}/*.ddl"
 		"${ROOT_DIR}/*.ezPermVar"
 		"${ROOT_DIR}/*.ezShader"
@@ -607,6 +633,42 @@ function(ez_set_build_types)
 endfunction()
 
 # #####################################
+# ## ez_create_link(<source> <destination-folder> <destination-name>)
+# #####################################
+function(ez_create_link SOURCE DEST_FOLDER DEST_NAME)
+	if(NOT EXISTS "${DEST_FOLDER}")
+		file(MAKE_DIRECTORY ${DEST_FOLDER})
+	endif()
+
+	# Set DESTINATION to the full path of the link.
+	set(DESTINATION "${DEST_FOLDER}/${DEST_NAME}")
+
+	# We re-create the link every time because it could become a dead link when shared between workspaces.
+	if(EXISTS "${DESTINATION}")
+		file(REMOVE ${DESTINATION})
+	endif()
+
+	file(CREATE_LINK ${SOURCE} ${DESTINATION} RESULT OUT_RESULT SYMBOLIC)
+
+	if (NOT ${OUT_RESULT} EQUAL 0)
+		if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
+		    # On Windows, fall back to creation directory junctions as those don't require admin access.
+			file(TO_NATIVE_PATH ${SOURCE} SOURCE)
+			file(TO_NATIVE_PATH ${DESTINATION} DESTINATION)
+
+			execute_process(
+				COMMAND "cmd" "/C" "mklink" "/D" "/J" "${DESTINATION}" "${SOURCE}" RESULT_VARIABLE OUT_RESULT2
+			)
+			if(NOT OUT_RESULT2 EQUAL 0)
+				message(FATAL_ERROR "Could not create symlink '${DESTINATION}' pointing to '${SOURCE}': ${OUT_RESULT2}")
+			endif()
+		else()
+			message(FATAL_ERROR "Failed to run: file(CREATE_LINK ${SOURCE} ${DEST_FOLDER}/${DEST_NAME} RESULT OUT_RESULT SYMBOLIC) \nRe-run with admin rights:\n${OUT_RESULT}")
+		endif()
+	endif ()
+endfunction()
+
+# #####################################
 # ## ez_download_and_extract(<url-to-download> <dest-folder-path> <dest-filename-without-extension>)
 # #####################################
 function(ez_download_and_extract URL DEST_FOLDER DEST_FILENAME)
@@ -671,6 +733,9 @@ function(ez_download_and_extract URL DEST_FOLDER DEST_FILENAME)
 	file(TOUCH ${EXTRACT_MARKER})
 endfunction()
 
+# #####################################
+# ## ez_get_export_location()
+# #####################################
 function(ez_get_export_location DST_VAR)
 	ez_pull_config_vars()
 	ez_pull_output_vars("" "${EZ_OUTPUT_DIRECTORY_DLL}")
@@ -688,4 +753,39 @@ function(ez_get_export_location DST_VAR)
 			message(FATAL_ERROR "Unknown CMAKE_BUILD_TYPE: '${CMAKE_BUILD_TYPE}'")
 		endif()
 	endif()
+endfunction()
+
+# #####################################
+# ## ez_package_files(TARGET_NAME SRC_FOLDER DST_FOLDER)
+# #####################################
+#
+# Embeds all files in SRC_FOLDER (recursively) into the application package (e.g. APK or WASM)
+# and puts it into the virtual folder DST_FOLDER.
+#
+# It is platform-specific whether this does anyting.
+# Internally it just forwards to ez_platformhook_package_files.
+# #####################################
+function(ez_package_files TARGET_NAME SRC_FOLDER DST_FOLDER)
+
+	if (COMMAND ez_platformhook_package_files)
+		ez_platformhook_package_files(${TARGET_NAME} ${SRC_FOLDER} ${DST_FOLDER})
+	endif()
+
+endfunction()
+
+
+# #####################################
+# ## ez_copy_plugin_bundle(TARGET_NAME FILE_NAME)
+# #####################################
+#
+# Copies the given file with the .ezPluginBundle extension from the current source directory into the target directory.
+#
+# #####################################
+function(ez_copy_plugin_bundle TARGET_NAME FILE_NAME)
+
+	add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/${FILE_NAME}.ezPluginBundle" $<TARGET_FILE_DIR:${TARGET_NAME}>
+			WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+		)
+
 endfunction()

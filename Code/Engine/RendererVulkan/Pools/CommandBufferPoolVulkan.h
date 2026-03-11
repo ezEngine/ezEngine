@@ -2,8 +2,6 @@
 
 #include <RendererVulkan/RendererVulkanDLL.h>
 
-#include <vulkan/vulkan.hpp>
-
 /// \brief Simple pool for command buffers
 ///
 /// Do not call ReclaimCommandBuffer manually, instead call ezGALDeviceVulkan::ReclaimLater which will make sure to reclaim the command buffer once it is no longer in use.
@@ -19,6 +17,7 @@
 class EZ_RENDERERVULKAN_DLL ezCommandBufferPoolVulkan
 {
 public:
+  ezCommandBufferPoolVulkan(ezAllocator* pAllocator);
   ~ezCommandBufferPoolVulkan();
 
   void Initialize(vk::Device device, ezUInt32 graphicsFamilyIndex);

@@ -5,8 +5,7 @@
 #include <EditorPluginJolt/CollisionMeshAsset/JoltCollisionMeshAssetObjects.h>
 
 class ezGeometry;
-class ezChunkStreamWriter;
-struct ezJoltCookingMesh;
+struct ezJoltMeshDesc;
 
 class ezJoltCollisionMeshAssetDocument : public ezSimpleAssetDocument<ezJoltCollisionMeshAssetProperties>
 {
@@ -15,15 +14,13 @@ class ezJoltCollisionMeshAssetDocument : public ezSimpleAssetDocument<ezJoltColl
 public:
   ezJoltCollisionMeshAssetDocument(ezStringView sDocumentPath, bool bConvexMesh);
 
-  static ezStatus WriteToStream(ezChunkStreamWriter& inout_stream, const ezJoltCookingMesh& mesh, const ezJoltCollisionMeshAssetProperties* pProp);
-
 protected:
   virtual void InitializeAfterLoading(bool bFirstTimeCreation) override;
 
   virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
 
-  ezStatus CreateMeshFromFile(ezJoltCookingMesh& outMesh);
-  ezStatus CreateMeshFromGeom(ezGeometry& geom, ezJoltCookingMesh& outMesh);
+  ezStatus CreateMeshFromFile(ezJoltMeshDesc& outMesh);
+  ezStatus CreateMeshFromGeom(ezGeometry& geom, ezJoltMeshDesc& outMesh);
   virtual ezTransformStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
 
   bool m_bIsConvexMesh = false;
@@ -44,7 +41,7 @@ public:
 
   virtual void GetImportModes(ezStringView sAbsInputFile, ezDynamicArray<ezAssetDocumentGenerator::ImportMode>& out_modes) const override;
   virtual ezStringView GetDocumentExtension() const override { return "ezJoltCollisionMeshAsset"; }
-  virtual ezStringView GetGeneratorGroup() const override { return "JoltCollisionMeshes"; }
+  virtual ezStringView GetGeneratorGroup() const override { return "Meshes"; }
   virtual ezStatus Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments) override;
 };
 
@@ -58,6 +55,6 @@ public:
 
   virtual void GetImportModes(ezStringView sAbsInputFile, ezDynamicArray<ezAssetDocumentGenerator::ImportMode>& out_modes) const override;
   virtual ezStringView GetDocumentExtension() const override { return "ezJoltConvexCollisionMeshAsset"; }
-  virtual ezStringView GetGeneratorGroup() const override { return "JoltCollisionMeshes"; }
+  virtual ezStringView GetGeneratorGroup() const override { return "Meshes"; }
   virtual ezStatus Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments) override;
 };

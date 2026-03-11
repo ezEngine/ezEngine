@@ -12,15 +12,15 @@ JPH_NAMESPACE_BEGIN
 /// Class that constructs a BoxShape
 class JPH_EXPORT BoxShapeSettings final : public ConvexShapeSettings
 {
-public:
 	JPH_DECLARE_SERIALIZABLE_VIRTUAL(JPH_EXPORT, BoxShapeSettings)
 
+public:
 	/// Default constructor for deserialization
 							BoxShapeSettings() = default;
 
 	/// Create a box with half edge length inHalfExtent and convex radius inConvexRadius.
 	/// (internally the convex radius will be subtracted from the half extent so the total box will not grow with the convex radius).
-							BoxShapeSettings(Vec3Arg inHalfExtent, float inConvexRadius = cDefaultConvexRadius, const PhysicsMaterial *inMaterial = nullptr) : ConvexShapeSettings(inMaterial), mHalfExtent(inHalfExtent), mConvexRadius(inConvexRadius) { }
+	explicit				BoxShapeSettings(Vec3Arg inHalfExtent, float inConvexRadius = cDefaultConvexRadius, const PhysicsMaterial *inMaterial = nullptr) : ConvexShapeSettings(inMaterial), mHalfExtent(inHalfExtent), mConvexRadius(inConvexRadius) { }
 
 	// See: ShapeSettings
 	virtual ShapeResult		Create() const override;
@@ -41,10 +41,10 @@ public:
 
 	/// Create a box with half edge length inHalfExtent and convex radius inConvexRadius.
 	/// (internally the convex radius will be subtracted from the half extent so the total box will not grow with the convex radius).
-							BoxShape(Vec3Arg inHalfExtent, float inConvexRadius = cDefaultConvexRadius, const PhysicsMaterial *inMaterial = nullptr) : ConvexShape(EShapeSubType::Box, inMaterial), mHalfExtent(inHalfExtent), mConvexRadius(inConvexRadius) { JPH_ASSERT(inConvexRadius >= 0.0f); JPH_ASSERT(inHalfExtent.ReduceMin() >= inConvexRadius); }
+	explicit				BoxShape(Vec3Arg inHalfExtent, float inConvexRadius = cDefaultConvexRadius, const PhysicsMaterial *inMaterial = nullptr) : ConvexShape(EShapeSubType::Box, inMaterial), mHalfExtent(inHalfExtent), mConvexRadius(min(inConvexRadius, inHalfExtent.ReduceMin())) { JPH_ASSERT(inHalfExtent.ReduceMin() >= 0.0f); JPH_ASSERT(inConvexRadius >= 0.0f); }
 
 	/// Get half extent of box
-	Vec3		 			GetHalfExtent() const										{ return mHalfExtent; }
+	Vec3					GetHalfExtent() const										{ return mHalfExtent; }
 
 	// See Shape::GetLocalBounds
 	virtual AABox			GetLocalBounds() const override								{ return AABox(-mHalfExtent, mHalfExtent); }
@@ -77,7 +77,7 @@ public:
 	virtual void			CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator &inSubShapeIDCreator, CollidePointCollector &ioCollector, const ShapeFilter &inShapeFilter = { }) const override;
 
 	// See: Shape::CollideSoftBodyVertices
-	virtual void			CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, SoftBodyVertex *ioVertices, uint inNumVertices, float inDeltaTime, Vec3Arg inDisplacementDueToGravity, int inCollidingShapeIndex) const override;
+	virtual void			CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint inNumVertices, int inCollidingShapeIndex) const override;
 
 	// See Shape::GetTrianglesStart
 	virtual void			GetTrianglesStart(GetTrianglesContext &ioContext, const AABox &inBox, Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale) const override;

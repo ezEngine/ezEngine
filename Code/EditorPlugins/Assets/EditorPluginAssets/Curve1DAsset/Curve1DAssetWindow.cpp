@@ -1,6 +1,7 @@
 #include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/Assets/AssetStatusIndicator.moc.h>
 #include <EditorPluginAssets/Curve1DAsset/Curve1DAsset.h>
 #include <EditorPluginAssets/Curve1DAsset/Curve1DAssetWindow.moc.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
@@ -38,13 +39,26 @@ ezQtCurve1DAssetDocumentWindow::ezQtCurve1DAssetDocumentWindow(ezDocument* pDocu
     addToolBar(pToolBar);
   }
 
-  m_pCurveEditor = new ezQtCurve1DEditorWidget(this);
+  // Central Widget
+  {
+    m_pCurveEditor = new ezQtCurve1DEditorWidget(this);
 
-  QWidget* pContainer = new QWidget(this);
-  pContainer->setLayout(new QVBoxLayout());
-  pContainer->layout()->addWidget(m_pCurveEditor);
+    QWidget* pWidget = new QWidget();
+    pWidget->setObjectName("Group");
+    pWidget->setLayout(new QVBoxLayout());
+    pWidget->setContentsMargins(0, 0, 0, 0);
 
-  setCentralWidget(pContainer);
+    pWidget->layout()->setContentsMargins(0, 0, 0, 0);
+    pWidget->layout()->addWidget(new ezQtAssetStatusIndicator((ezAssetDocument*)GetDocument()));
+    pWidget->layout()->addWidget(m_pCurveEditor);
+
+    ezQtDocumentPanel* pCentral = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    pCentral->setObjectName("ezQtDocumentPanel");
+    pCentral->setWindowTitle("Curve");
+    pCentral->setWidget(pWidget);
+
+    m_pDockManager->setCentralWidget(pCentral);
+  }
 
   connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::InsertCpEvent, this, &ezQtCurve1DAssetDocumentWindow::onInsertCpAt);
   connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::CpMovedEvent, this, &ezQtCurve1DAssetDocumentWindow::onCurveCpMoved);
@@ -60,7 +74,7 @@ ezQtCurve1DAssetDocumentWindow::ezQtCurve1DAssetDocumentWindow(ezDocument* pDocu
 
   if (false)
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("Curve1DAssetDockWidget");
     pPropertyPanel->setWindowTitle("Curve1D Properties");
     pPropertyPanel->show();
@@ -68,7 +82,7 @@ ezQtCurve1DAssetDocumentWindow::ezQtCurve1DAssetDocumentWindow(ezDocument* pDocu
     ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
     pPropertyPanel->setWidget(pPropertyGrid);
 
-    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
+    m_pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pPropertyPanel);
 
     pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
   }
@@ -342,7 +356,7 @@ void ezQtCurve1DAssetDocumentWindow::SendLiveResourcePreview()
 
   // Write Header
   memoryWriter << sAbsFilePath;
-  const ezUInt64 uiHash = ezAssetCurator::GetSingleton()->GetAssetDependencyHash(pDoc->GetGuid());
+  const ezUInt64 uiHash = ezAssetCurator::GetSingleton()->GetAssetTransformHash(pDoc->GetGuid());
   ezAssetFileHeader AssetHeader;
   AssetHeader.SetFileHashAndVersion(uiHash, pDoc->GetAssetTypeVersion());
   AssetHeader.Write(memoryWriter).IgnoreResult();

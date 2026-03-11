@@ -6,11 +6,8 @@
 #include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
 #include <QCloseEvent>
 #include <QLabel>
-#include <QSettings>
 #include <QStatusBar>
 #include <QTabBar>
-#include <QTimer>
-#include <ToolsFoundation/Application/ApplicationServices.h>
 #include <ads/DockAreaWidget.h>
 #include <ads/DockManager.h>
 #include <ads/DockWidgetTab.h>
@@ -19,44 +16,10 @@
 ezQtContainerWindow* ezQtContainerWindow::s_pContainerWindow = nullptr;
 bool ezQtContainerWindow::s_bForceClose = false;
 
-namespace
-{
-  bool GetProjectLayoutPath(ezStringBuilder& out_sFile, bool bWrite)
-  {
-    if (!ezToolsProject::IsProjectOpen())
-    {
-      out_sFile.Clear();
-      return false;
-    }
-    out_sFile = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
-    out_sFile.AppendPath("layout.settings");
-    if (!bWrite && !QFile::exists(out_sFile.GetData()))
-    {
-      out_sFile.Clear();
-      return false;
-    }
-    return true;
-  }
-
-  bool GetApplicationLayoutPath(ezStringBuilder& out_sFile, bool bWrite)
-  {
-    out_sFile = ezApplicationServices::GetSingleton()->GetApplicationPreferencesFolder();
-    out_sFile.AppendPath("layout.settings");
-    if (!bWrite && !QFile::exists(out_sFile.GetData()))
-    {
-      out_sFile.Clear();
-      return false;
-    }
-    return true;
-  }
-} // namespace
-
 ezQtContainerWindow::ezQtContainerWindow()
 {
   setMinimumSize(QSize(800, 600));
-  m_bWindowLayoutRestored = false;
   m_pStatusBarLabel = nullptr;
-  m_iWindowLayoutRestoreScheduled = 0;
 
   s_pContainerWindow = this;
 
@@ -74,17 +37,27 @@ ezQtContainerWindow::ezQtContainerWindow()
     ads::CDockManager::ActiveTabHasCloseButton |
     ads::CDockManager::XmlCompressionEnabled |
     ads::CDockManager::FloatingContainerHasWidgetTitle |
+    ads::CDockManager::FloatingContainerHasWidgetIcon |
+    ads::CDockManager::HideSingleCentralWidgetTitleBar |
     ads::CDockManager::DragPreviewShowsContentPixmap |
-    ads::CDockManager::FocusHighlighting |
-    ads::CDockManager::AlwaysShowTabs |
-    ads::CDockManager::DockAreaHasCloseButton |
+    // ads::CDockManager::FocusHighlighting |
+    // ads::CDockManager::AlwaysShowTabs |
+    // ads::CDockManager::DockAreaHasCloseButton |
     ads::CDockManager::DockAreaCloseButtonClosesTab |
     ads::CDockManager::MiddleMouseButtonClosesTab |
     ads::CDockManager::DockAreaHasTabsMenuButton |
-    ads::CDockManager::FloatingContainerHasWidgetIcon |
-    ads::CDockManager::AllTabsHaveCloseButton |
+    ads::CDockManager::DockAreaDynamicTabsMenuButtonVisibility |
+    // ads::CDockManager::AllTabsHaveCloseButton |
+    ads::CDockManager::RetainTabSizeWhenCloseButtonHidden |
+    ads::CDockManager::DockAreaHideDisabledButtons |
+    ads::CDockManager::DockAreaHasUndockButton |
+    // ads::CDockManager::DoubleClickUndocksWidget | // don't want this
     ads::CDockManager::OpaqueSplitterResize;
   ads::CDockManager::setConfigFlags(flags);
+
+  ads::CDockManager::setAutoHideConfigFlags(ads::CDockManager::DefaultAutoHideConfig);
+  ads::CDockManager::setAutoHideConfigFlag(ads::CDockManager::AutoHideShowOnMouseOver, false);
+  ads::CDockManager::setAutoHideConfigFlag(ads::CDockManager::AutoHideCloseOnOutsideMouseClick, false);
 
   m_pDockManager = new ads::CDockManager(this);
 
@@ -115,22 +88,8 @@ void ezQtContainerWindow::UpdateWindowTitle()
   setWindowTitle(QString::fromUtf8(sTitle.GetData()));
 }
 
-void ezQtContainerWindow::ScheduleRestoreWindowLayout()
-{
-  m_iWindowLayoutRestoreScheduled++;
-  QTimer::singleShot(0, this, SLOT(SlotRestoreLayout()));
-}
-
-void ezQtContainerWindow::SlotRestoreLayout()
-{
-  RestoreWindowLayout();
-}
-
 void ezQtContainerWindow::closeEvent(QCloseEvent* e)
 {
-  SaveWindowLayout();
-  SaveDocumentLayouts();
-
   if (s_bForceClose)
     return;
 
@@ -152,7 +111,6 @@ void ezQtContainerWindow::closeEvent(QCloseEvent* e)
   ezDynamicArray<ezQtDocumentWindow*> windows = m_DocumentWindows;
   for (ezQtDocumentWindow* pWindow : windows)
   {
-    pWindow->DisableWindowLayoutSaving();
     pWindow->ShutdownDocumentWindow();
   }
 
@@ -160,122 +118,6 @@ void ezQtContainerWindow::closeEvent(QCloseEvent* e)
   m_pDockManager->deleteLater();
   m_pDockManager = nullptr;
   QMainWindow::closeEvent(e);
-}
-
-void ezQtContainerWindow::SaveWindowLayout()
-{
-  if (!m_pDockManager)
-    return;
-
-  ezStringBuilder sFile;
-  GetApplicationLayoutPath(sFile, true);
-
-  ezStringBuilder sProjectFile;
-  GetProjectLayoutPath(sProjectFile, true);
-
-  QSettings Settings(ezToolsProject::IsProjectOpen() ? sProjectFile.GetData() : sFile.GetData(), QSettings::IniFormat);
-  Settings.beginGroup(QString::fromUtf8("ContainerWnd_ezEditor"));
-  {
-    Settings.setValue("DockManagerState", m_pDockManager->saveState(1));
-    Settings.setValue("WindowGeometry", saveGeometry());
-    Settings.setValue("WindowState", saveState());
-  }
-  Settings.endGroup();
-
-  if (ezToolsProject::IsProjectOpen())
-  {
-    // The last open project always serves as the default layout in case
-    // a new project is created or a project without layout data is opened.
-    QFile::remove(sFile.GetData());
-    QFile::copy(sProjectFile.GetData(), sFile.GetData());
-  }
-}
-
-void ezQtContainerWindow::SaveDocumentLayouts()
-{
-  for (ezUInt32 i = 0; i < m_DocumentWindows.GetCount(); ++i)
-    m_DocumentWindows[i]->SaveWindowLayout();
-}
-
-void ezQtContainerWindow::RestoreWindowLayout()
-{
-  --m_iWindowLayoutRestoreScheduled;
-  if (m_iWindowLayoutRestoreScheduled > 0)
-    return;
-
-  bool bCreteDefaultLayout = true;
-  EZ_SCOPE_EXIT(bCreteDefaultLayout ? showMaximized() : show(););
-
-  ezStringBuilder sFile;
-  if (!GetProjectLayoutPath(sFile, false))
-  {
-    if (!GetApplicationLayoutPath(sFile, false))
-    {
-      // No project or app settings file found, exiting.
-      return;
-    }
-  }
-
-  {
-    QSettings Settings(sFile.GetData(), QSettings::IniFormat);
-    Settings.beginGroup(QString::fromUtf8("ContainerWnd_ezEditor"));
-    {
-      QByteArray geom = Settings.value("WindowGeometry", QByteArray()).toByteArray();
-      if (!geom.isEmpty())
-      {
-        bCreteDefaultLayout = false;
-        restoreGeometry(geom);
-        restoreState(Settings.value("WindowState", saveState()).toByteArray());
-        auto dockState = Settings.value("DockManagerState");
-        if (dockState.isValid() && dockState.typeId() == QMetaType::QByteArray)
-        {
-          m_pDockManager->restoreState(dockState.toByteArray(), 1);
-          // As document windows can't be in a closed state (as pressing x destroys them),
-          // we need to fix any document window that was accidentally saved in its closed state.
-          for (ads::CDockWidget* dock : m_DocumentDocks)
-          {
-            if (dock->isClosed())
-            {
-              if (dock->dockContainer() == nullptr)
-              {
-                if (m_DocumentDocks.GetCount() >= 2)
-                {
-                  // If we can (we are not the only dock window), we are going to attach to a window that isn't us, ideally the settings window.
-                  ezUInt32 uiBestIndex = 0;
-                  for (ezUInt32 i = 0; i < m_DocumentDocks.GetCount(); i++)
-                  {
-                    if (ezStringUtils::IsEqual(m_DocumentWindows[i]->GetUniqueName(), "Settings"))
-                    {
-                      uiBestIndex = i;
-                      break;
-                    }
-                    else if (m_DocumentDocks[i] != dock)
-                    {
-                      uiBestIndex = i;
-                    }
-                  }
-
-                  ads::CDockAreaWidget* dockArea = m_DocumentDocks[uiBestIndex]->dockAreaWidget();
-                  m_pDockManager->addDockWidgetTabToArea(dock, dockArea);
-                }
-                else
-                {
-                  m_pDockManager->addDockWidgetTab(ads::LeftDockWidgetArea, dock);
-                }
-              }
-              dock->toggleView();
-            }
-          }
-        }
-      }
-    }
-    Settings.endGroup();
-  }
-
-  for (ezUInt32 i = 0; i < m_DocumentWindows.GetCount(); ++i)
-    m_DocumentWindows[i]->RestoreWindowLayout();
-
-  m_bWindowLayoutRestored = true;
 }
 
 void ezQtContainerWindow::SlotUpdateWindowDecoration(void* pDocWindow)
@@ -310,15 +152,6 @@ void ezQtContainerWindow::UpdateWindowDecoration(ezQtDocumentWindow* pDocWindow)
   dock->setTabToolTip(QString::fromUtf8(pDocWindow->GetDisplayName().GetData()));
   dock->setIcon(ezQtUiServices::GetCachedIconResource(pDocWindow->GetWindowIcon().GetData()));
   dock->setWindowTitle(QString::fromUtf8(pDocWindow->GetDisplayNameShort().GetData()));
-
-  // this is a hacky way to detect the ezQtSettingsTab
-  if (pDocWindow->GetDisplayNameShort().IsEmpty())
-  {
-    dock->setFeature(ads::CDockWidget::DockWidgetClosable, false);
-    dock->setFeature(ads::CDockWidget::DockWidgetMovable, false);
-    dock->setFeature(ads::CDockWidget::DockWidgetFloatable, false);
-    dock->setFeature(ads::CDockWidget::NoTab, true);
-  }
 
   if (dock->isFloating())
   {
@@ -356,13 +189,14 @@ void ezQtContainerWindow::RemoveDocumentWindow(ezQtDocumentWindow* pDocWindow)
   {
     iCurIdx = ezMath::Min(iCurIdx, pDockArea->openDockWidgetsCount() - 1);
     pDockArea->setCurrentIndex(iCurIdx);
+    pDockArea->currentDockWidget()->update();
   }
 
   if (pDockArea && pDockArea->openDockWidgetsCount() == 1)
   {
     for (auto pDocWindow2 : m_DocumentWindows)
     {
-      UpdateWindowDecoration(pDocWindow);
+      UpdateWindowDecoration(pDocWindow2);
     }
   }
 }
@@ -382,6 +216,7 @@ void ezQtContainerWindow::RemoveApplicationPanel(ezQtApplicationPanel* pPanel)
 
 void ezQtContainerWindow::AddDocumentWindow(ezQtDocumentWindow* pDocWindow)
 {
+  EZ_PROFILE_SCOPE("AddDocumentWindow");
   EZ_ASSERT_DEV(!pDocWindow->objectName().isEmpty(), "Panel name must be unique and not empty.");
 
   if (m_DocumentWindows.IndexOf(pDocWindow) != ezInvalidIndex)
@@ -395,10 +230,24 @@ void ezQtContainerWindow::AddDocumentWindow(ezQtDocumentWindow* pDocWindow)
   // the base class implementation, NOT the derived one !
   // therefore, we do some stuff in ezQtContainerWindow::UpdateWindowDecoration() instead
 
+  pDocWindow->m_pContainerWindow = this;
+
   m_DocumentWindows.PushBack(pDocWindow);
   ezString displayName = pDocWindow->GetDisplayNameShort();
-  ads::CDockWidget* dock = new ads::CDockWidget(QString::fromUtf8(displayName.GetData(), displayName.GetElementCount()));
+  ads::CDockWidget* dock = new ads::CDockWidget(m_pDockManager, QString::fromUtf8(displayName.GetData(), displayName.GetElementCount()));
   dock->installEventFilter(pDocWindow);
+
+  dock->setFeature(ads::CDockWidget::CustomCloseHandling, true);
+  dock->setFeature(ads::CDockWidget::DockWidgetPinnable, false);
+
+  // this is a hacky way to detect the ezQtSettingsTab
+  if (displayName == "Settings")
+  {
+    dock->setFeature(ads::CDockWidget::DockWidgetClosable, false);
+    dock->setFeature(ads::CDockWidget::DockWidgetMovable, false);
+    dock->setFeature(ads::CDockWidget::DockWidgetFloatable, false);
+    dock->setFeature(ads::CDockWidget::NoTab, true);
+  }
 
   dock->setObjectName(pDocWindow->GetUniqueName());
   EZ_ASSERT_DEV(!dock->objectName().isEmpty(), "Dock name must not be empty.");
@@ -413,10 +262,11 @@ void ezQtContainerWindow::AddDocumentWindow(ezQtDocumentWindow* pDocWindow)
   }
   else
   {
-    m_pDockManager->addDockWidgetTab(ads::LeftDockWidgetArea, dock);
+    EZ_PROFILE_SCOPE("AddDocumentWindow - addDockWidgetTab");
+    m_pDockManager->addDockWidgetTab(ads::CenterDockWidgetArea, dock);
   }
   m_DocumentDocks.PushBack(dock);
-  connect(dock, &ads::CDockWidget::closed, this, &ezQtContainerWindow::SlotDocumentTabCloseRequested);
+  connect(dock, &ads::CDockWidget::closeRequested, this, &ezQtContainerWindow::SlotDocumentTabCloseRequested);
   connect(dock->tabWidget(), &QWidget::customContextMenuRequested, this, &ezQtContainerWindow::SlotTabsContextMenuRequested);
   connect(dock, &ads::CDockWidget::topLevelChanged, this, &ezQtContainerWindow::SlotDockWidgetFloatingChanged);
 
@@ -497,6 +347,69 @@ ezResult ezQtContainerWindow::EnsureVisible(ezQtApplicationPanel* pPanel)
   return EZ_SUCCESS;
 }
 
+void ezQtContainerWindow::SaveDocumentWindowStates(ezMap<ads::CDockWidget*, DocumentWindowState>& out_states)
+{
+  out_states.Clear();
+  for (ads::CDockWidget* pDock : m_DocumentDocks)
+  {
+    DocumentWindowState state;
+    state.m_bFloating = pDock->isFloating();
+    out_states[pDock] = state;
+  }
+}
+
+void ezQtContainerWindow::RestoreDocumentWindowStates(const ezMap<ads::CDockWidget*, DocumentWindowState>& states)
+{
+  if (m_DocumentDocks.IsEmpty())
+    return;
+
+  // Find a dock area where documents are docked (not floating, not closed)
+  ads::CDockAreaWidget* pDocumentArea = nullptr;
+  for (ads::CDockWidget* pDock : m_DocumentDocks)
+  {
+    if (!pDock->isClosed() && !pDock->isFloating())
+    {
+      pDocumentArea = pDock->dockAreaWidget();
+      break;
+    }
+  }
+
+  // Restore each document window to its previous state
+  for (ads::CDockWidget* pDock : m_DocumentDocks)
+  {
+    auto it = states.Find(pDock);
+    const bool bWasFloating = it.IsValid() ? it.Value().m_bFloating : false;
+
+    if (pDock->isClosed())
+    {
+      if (bWasFloating)
+      {
+        // Was floating, make it floating again
+        m_pDockManager->addDockWidgetFloating(pDock);
+      }
+      else
+      {
+        // Was docked, re-dock it
+        if (pDocumentArea != nullptr)
+        {
+          m_pDockManager->addDockWidgetTabToArea(pDock, pDocumentArea);
+        }
+        else
+        {
+          // No area yet, add to center and use that as the document area
+          pDocumentArea = m_pDockManager->addDockWidgetTab(ads::CenterDockWidgetArea, pDock);
+        }
+      }
+    }
+    // If not closed, leave it as-is (it's already visible, either floating or docked)
+  }
+
+  for (auto pDocWindow : m_DocumentWindows)
+  {
+    UpdateWindowDecoration(pDocWindow);
+  }
+}
+
 ezResult ezQtContainerWindow::EnsureVisibleAnyContainer(ezDocument* pDocument)
 {
   // make sure there is a window to make visible in the first place
@@ -519,9 +432,9 @@ bool ezQtContainerWindow::eventFilter(QObject* obj, QEvent* e)
   {
     if (auto* pFloatingWidget = qobject_cast<ads::CFloatingDockContainer*>(obj))
     {
-      ezHybridArray<ezDocument*, 32> docs;
+      ezTempHybridArray<ezDocument*, 32> docs;
       docs.Reserve(m_DocumentWindows.GetCount());
-      ezHybridArray<ezQtDocumentWindow*, 32> windows;
+      ezTempHybridArray<ezQtDocumentWindow*, 32> windows;
       windows.Reserve(m_DocumentWindows.GetCount());
 
       QList<ads::CDockWidget*> floatingDocks = pFloatingWidget->dockWidgets();
@@ -563,11 +476,9 @@ void ezQtContainerWindow::SlotDocumentTabCloseRequested()
 
   if (!pDocWindow->CanCloseWindow())
   {
-    // TODO: There is no CloseRequested event so we just reopen on a timer.
-    QTimer::singleShot(1, [dock]()
-      { dock->toggleView(); });
     return;
   }
+
   pDocWindow->CloseDocumentWindow();
 }
 

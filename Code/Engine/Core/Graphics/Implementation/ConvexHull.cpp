@@ -205,7 +205,7 @@ ezResult ezConvexHullGenerator::InitializeHull()
   if (uiMainAxis1 == uiMainAxis2)
     return EZ_FAILURE;
 
-  ezHybridArray<ezUInt32, 6> testIdx;
+  ezTempHybridArray<ezUInt32, 6> testIdx;
   testIdx.PushBack(uiMainAxis1);
   testIdx.PushBack(uiMainAxis2);
 

@@ -11,6 +11,7 @@
 
 class ezImage;
 class ezAssetFileHeader;
+using ezOsProcessID = ezUInt32;
 
 struct ezAssetExistanceState
 {
@@ -50,6 +51,8 @@ struct ezAssetDocumentFlags
     StorageType OnlyTransformManually : 1;
     StorageType SupportsThumbnail : 1;
     StorageType AutoThumbnailOnTransform : 1;
+    StorageType SubAssetsSupportThumbnail : 1;
+    StorageType SubAssetsAutoThumbnailOnTransform : 1;
   };
 };
 
@@ -142,12 +145,17 @@ struct EZ_EDITORFRAMEWORK_DLL ezTransformStatus
 
   EZ_ALWAYS_INLINE ezTransformStatus(ezStatus r)
     : m_Result(r.Succeeded() ? ezTransformResult::Success : ezTransformResult::Failure)
-    , m_sMessage(r.m_sMessage)
+    , m_sMessage(r.GetMessageString())
   {
   }
 
   EZ_ALWAYS_INLINE ezTransformStatus(ezResult r)
     : m_Result(r.Succeeded() ? ezTransformResult::Success : ezTransformResult::Failure)
+  {
+  }
+
+  EZ_ALWAYS_INLINE ezTransformStatus(ezResultEnum r)
+    : m_Result(r == EZ_SUCCESS ? ezTransformResult::Success : ezTransformResult::Failure)
   {
   }
 
@@ -170,3 +178,22 @@ EZ_ALWAYS_INLINE ezResult ezToResult(const ezTransformStatus& result)
 {
   return result.m_Result == ezTransformResult::Success ? EZ_SUCCESS : EZ_FAILURE;
 }
+
+/// \brief Used by ezEditorProcessorProcess to define the current state of one of the running ezEditorProcessor processes managed by the ezAssetProcessor.
+/// \sa ezAssetProcessor
+struct ezEditorProcessorState
+{
+  bool operator==(const ezEditorProcessorState& rhs)
+  {
+    return m_uiProcessID == rhs.m_uiProcessID && m_bConnected == rhs.m_bConnected && m_bRunning == rhs.m_bRunning && m_bCrashed == rhs.m_bCrashed;
+  }
+  bool operator!=(const ezEditorProcessorState& rhs)
+  {
+    return !(*this == rhs);
+  }
+
+  ezOsProcessID m_uiProcessID = 0;
+  bool m_bConnected = false; ///< The IPC pipe to the process is established.
+  bool m_bRunning = false;   ///< The process is currently running working on an asset.
+  bool m_bCrashed = false;   ///< The process has crashed.
+};

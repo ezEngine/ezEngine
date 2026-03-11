@@ -4,7 +4,15 @@
 
 struct ezMemoryMappedFileImpl;
 
-/// \brief Allows to map an entire file into memory for random access
+/// \brief Platform-abstracted interface for memory-mapped file I/O and shared memory access
+///
+/// Provides efficient file access by mapping files directly into virtual memory, eliminating
+/// the need for explicit read/write operations. Particularly beneficial for large files where
+/// random access patterns would cause excessive disk I/O with traditional file operations.
+/// Also supports creating shared memory regions for inter-process communication.
+///
+/// Memory mapping allows the OS to handle paging and caching automatically, improving performance
+/// for scenarios like asset loading, database files, or large data processing pipelines.
 class EZ_FOUNDATION_DLL ezMemoryMappedFile
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezMemoryMappedFile);

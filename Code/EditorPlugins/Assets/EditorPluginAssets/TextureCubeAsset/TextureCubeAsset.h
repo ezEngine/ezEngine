@@ -2,24 +2,8 @@
 
 #include <EditorFramework/Assets/AssetDocumentGenerator.h>
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
+#include <EditorPluginAssets/TextureAsset/TextureAsset.h>
 #include <EditorPluginAssets/TextureCubeAsset/TextureCubeAssetObjects.h>
-
-struct ezTextureCubeChannelMode
-{
-  using StorageType = ezUInt8;
-
-  enum Enum
-  {
-    RGB,
-    Red,
-    Green,
-    Blue,
-    Alpha,
-
-    Default = RGB
-  };
-};
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTextureCubeChannelMode);
 
 class ezTextureCubeAssetDocument : public ezSimpleAssetDocument<ezTextureCubeAssetProperties>
 {
@@ -29,8 +13,8 @@ public:
   ezTextureCubeAssetDocument(ezStringView sDocumentPath);
 
   // for previewing purposes
-  ezEnum<ezTextureCubeChannelMode> m_ChannelMode;
-  ezInt32 m_iTextureLod; // -1 == regular sampling, >= 0 == sample that level
+  ezEnum<ezTextureChannelMode> m_ChannelMode;
+  ezInt32 m_iTextureLod = -1; // -1 == regular sampling, >= 0 == sample that level
 
 protected:
   virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override

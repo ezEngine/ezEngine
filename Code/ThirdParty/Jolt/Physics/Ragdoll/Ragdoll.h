@@ -20,12 +20,17 @@ class PhysicsSystem;
 /// Contains the structure of a ragdoll
 class JPH_EXPORT RagdollSettings : public RefTarget<RagdollSettings>
 {
-public:
 	JPH_DECLARE_SERIALIZABLE_NON_VIRTUAL(JPH_EXPORT, RagdollSettings)
 
+public:
 	/// Stabilize the constraints of the ragdoll
 	/// @return True on success, false on failure.
 	bool								Stabilize();
+
+	/// Initializes the constraint priorities so that constraints near the leaves of the ragdoll have a lower priority
+	/// than constraints near the root of the ragdoll.
+	/// @param inBasePriority The lowest priority that will be used in the ragdoll.
+	void								CalculateConstraintPriorities(uint32 inBasePriority = 0);
 
 	/// After the ragdoll has been fully configured, call this function to automatically create and add a GroupFilterTable collision filter to all bodies
 	/// and configure them so that parent and children don't collide.
@@ -73,7 +78,7 @@ public:
 	/// Calculate the map needed for GetConstraintIndexToBodyIdxPair()
 	void								CalculateConstraintIndexToBodyIdxPair();
 
-	using BodyIdxPair = pair<int, int>;
+	using BodyIdxPair = std::pair<int, int>;
 
 	/// Table that maps a constraint index (index in mConstraints) to the indices of the bodies that the constraint is connected to (index in mBodyIDs)
 	const Array<BodyIdxPair> &			GetConstraintIndexToBodyIdxPair() const							{ return mConstraintIndexToBodyIdxPair; }
@@ -84,9 +89,9 @@ public:
 	/// A single rigid body sub part of the ragdoll
 	class Part : public BodyCreationSettings
 	{
-	public:
 		JPH_DECLARE_SERIALIZABLE_NON_VIRTUAL(JPH_EXPORT, Part)
 
+	public:
 		Ref<TwoBodyConstraintSettings>	mToParent;
 	};
 
@@ -96,9 +101,9 @@ public:
 	/// A constraint that connects two bodies in a ragdoll (for non parent child related constraints)
 	class AdditionalConstraint
 	{
-	public:
 		JPH_DECLARE_SERIALIZABLE_NON_VIRTUAL(JPH_EXPORT, AdditionalConstraint)
 
+	public:
 		/// Constructors
 										AdditionalConstraint() = default;
 										AdditionalConstraint(int inBodyIdx1, int inBodyIdx2, TwoBodyConstraintSettings *inConstraint) : mBodyIdx { inBodyIdx1, inBodyIdx2 }, mConstraint(inConstraint) { }
@@ -215,7 +220,7 @@ public:
 	const TwoBodyConstraint *			GetConstraint(int inConstraintIndex) const				{ return mConstraints[inConstraintIndex]; }
 
 	/// Get world space bounding box for all bodies of the ragdoll
-	AABox 								GetWorldSpaceBounds(bool inLockBodies = true) const;
+	AABox								GetWorldSpaceBounds(bool inLockBodies = true) const;
 
 	/// Get the settings object that created this ragdoll
 	const RagdollSettings *				GetRagdollSettings() const								{ return mRagdollSettings; }

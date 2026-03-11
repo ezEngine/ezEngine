@@ -6,6 +6,9 @@
 #include <Foundation/Math/Size.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
+#include <RendererFoundation/Resources/ReadbackHelper.h>
+
+struct ezGALDeviceEvent;
 
 /// \brief Creates a swapchain and keeps it up to date with the window.
 ///
@@ -20,11 +23,13 @@ public:
 
   void CreateSwapchain(const ezGALWindowSwapChainCreationDescription& desc);
 
-  virtual void Present(bool bEnableVSync) override;
+  virtual void PresentImage(bool bEnableVSync) override;
+  virtual void AcquireImage() override;
   virtual ezResult CaptureImage(ezImage& out_image) override;
 
   OnSwapChainChanged m_OnSwapChainChanged;
   ezSizeU32 m_Size = ezSizeU32(0, 0);
   ezGALWindowSwapChainCreationDescription m_currentDesc;
   ezGALSwapChainHandle m_hSwapChain;
+  ezGALReadbackTextureHelper m_Readback;
 };

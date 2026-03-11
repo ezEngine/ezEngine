@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Core/Messages/EventMessage.h>
 #include <Core/World/Declarations.h>
 #include <Foundation/Communication/Message.h>
 
@@ -10,6 +9,12 @@ struct EZ_CORE_DLL ezMsgSetPlaying : public ezMessage
   EZ_DECLARE_MESSAGE_TYPE(ezMsgSetPlaying, ezMessage);
 
   bool m_bPlay = true;
+};
+
+/// \brief Common message for components that can or need to be canceled immediately
+struct EZ_CORE_DLL ezMsgInterruptPlaying : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgInterruptPlaying, ezMessage);
 };
 
 /// \brief Basic message to set some generic parameter to a float value.
@@ -25,9 +30,9 @@ struct EZ_CORE_DLL ezMsgSetFloatParameter : public ezMessage
 ///
 /// This is a simple message for simple use cases. Create custom messages for more elaborate cases where a string is not sufficient
 /// information.
-struct EZ_CORE_DLL ezMsgGenericEvent : public ezEventMessage
+struct EZ_CORE_DLL ezMsgGenericEvent : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgGenericEvent, ezEventMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgGenericEvent, ezMessage);
 
   /// A custom string to identify the intent.
   ezHashedString m_sMessage;
@@ -38,7 +43,7 @@ struct EZ_CORE_DLL ezMsgGenericEvent : public ezEventMessage
 ///
 /// This is sent regardless of whether the animation is played once, looped or back and forth,
 /// ie. it should be sent at each 'end' point, even when it then starts another cycle.
-struct EZ_CORE_DLL ezMsgAnimationReachedEnd : public ezEventMessage
+struct EZ_CORE_DLL ezMsgAnimationReachedEnd : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgAnimationReachedEnd, ezEventMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgAnimationReachedEnd, ezMessage);
 };

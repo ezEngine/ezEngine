@@ -38,7 +38,7 @@ public:
   bool GetRenderSelectionBoxes() const { return m_bRenderSelectionBoxes; }
   float GetGridDensity() const { return ezMath::Abs(m_fGridDensity); }
   bool IsGridInGlobalSpace() const { return m_fGridDensity >= 0.0f; }
-  ezTransform GetGridTransform() const { return m_GridTransform; }
+  const ezTransform& GetGridTransform() const { return m_GridTransform; }
 
   ezGameStateBase* GetGameState() const;
   bool IsPlayTheGameActive() const { return GetGameState() != nullptr; }
@@ -103,7 +103,7 @@ private:
   void QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg);
   void OnSimulationEnabled();
   void OnSimulationDisabled();
-  void OnPlayTheGameModeStarted(const ezTransform* pStartPosition);
+  void OnPlayTheGameModeStarted(ezStringView sStartPosition, const ezTransform& startPositionOffset);
 
   void OnResourceManagerEvent(const ezResourceManagerEvent& e);
   void GameApplicationEventHandler(const ezGameApplicationExecutionEvent& e);
@@ -136,4 +136,6 @@ private:
   ezHybridArray<ezTag, 1> m_InvisibleLayerTags;
 
   ezDynamicArray<TagGameObject> m_ObjectsToTag;
+
+  static ezWorld* s_pWorldLinkedWithGameState;
 };

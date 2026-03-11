@@ -6,6 +6,9 @@
 
 using ezCurve1DResourceHandle = ezTypedResourceHandle<class ezCurve1DResource>;
 
+/// Initializer that sets random particle sizes
+///
+/// Sizes can be picked from a variance value or sampled from a curve.
 class EZ_PARTICLEPLUGIN_DLL ezParticleInitializerFactory_RandomSize final : public ezParticleInitializerFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializerFactory_RandomSize, ezParticleInitializerFactory);
@@ -16,9 +19,6 @@ public:
 
   virtual void Save(ezStreamWriter& inout_stream) const override;
   virtual void Load(ezStreamReader& inout_stream) override;
-
-  void SetSizeCurveFile(const char* szFile);
-  const char* GetSizeCurveFile() const;
 
   ezVarianceTypeFloat m_Size;
   ezCurve1DResourceHandle m_hCurve;

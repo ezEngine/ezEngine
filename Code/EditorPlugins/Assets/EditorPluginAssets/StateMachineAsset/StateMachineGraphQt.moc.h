@@ -1,31 +1,41 @@
 #pragma once
 
-#include <GuiFoundation/NodeEditor/Connection.h>
-#include <GuiFoundation/NodeEditor/Node.h>
-#include <GuiFoundation/NodeEditor/NodeScene.moc.h>
-#include <GuiFoundation/NodeEditor/Pin.h>
+#include <GuiFoundation/VisualGraph/Connection.h>
+#include <GuiFoundation/VisualGraph/Node.h>
+#include <GuiFoundation/VisualGraph/Pin.h>
+#include <GuiFoundation/VisualGraph/Scene.moc.h>
 
-class ezQtStateMachinePin : public ezQtPin
+/// Qt graphics item for state machine pins.
+///
+/// Displays connection points for state transitions with custom rectangular pin geometry.
+class ezQtStateMachinePin : public ezQtVisualGraphPin
 {
 public:
   ezQtStateMachinePin();
 
-  virtual void SetPin(const ezPin& pin) override;
+  virtual void SetPin(const ezVisualGraphPin& pin) override;
   virtual QRectF GetPinRect() const override;
 };
 
-class ezQtStateMachineConnection : public ezQtConnection
+/// Qt graphics item for state machine transitions.
+///
+/// Renders the visual connections between states, representing the possible transitions.
+class ezQtStateMachineConnection : public ezQtVisualGraphConnection
 {
 public:
   ezQtStateMachineConnection();
 };
 
-class ezQtStateMachineNode : public ezQtNode
+/// Qt graphics item for state machine nodes.
+///
+/// Represents individual states in a state machine. The initial state and "Any State" are displayed
+/// with distinct header colors for easy identification.
+class ezQtStateMachineNode : public ezQtVisualGraphNode
 {
 public:
   ezQtStateMachineNode();
 
-  virtual void InitNode(const ezDocumentNodeManager* pManager, const ezDocumentObject* pObject) override;
+  virtual void InitNode(const ezVisualGraphObjectManager* pManager, const ezDocumentObject* pObject) override;
   virtual void UpdateGeometry() override;
   virtual void UpdateState() override;
   virtual void ExtendContextMenu(QMenu& ref_menu) override;
@@ -37,7 +47,10 @@ private:
   void UpdateHeaderColor();
 };
 
-class ezQtStateMachineAssetScene : public ezQtNodeScene
+/// Qt scene for state machine graphs.
+///
+/// Manages the visual scene for state machine editing, including handling the designation of the initial state.
+class ezQtStateMachineAssetScene : public ezQtVisualGraphScene
 {
   Q_OBJECT
 
@@ -48,5 +61,5 @@ public:
   void SetInitialState(ezQtStateMachineNode* pNode);
 
 private:
-  virtual ezStatus RemoveNode(ezQtNode* pNode) override;
+  virtual ezStatus RemoveNode(ezQtVisualGraphNode* pNode) override;
 };

@@ -11,15 +11,15 @@
 
 ezQtMainWidget* ezQtMainWidget::s_pWidget = nullptr;
 
-ezQtMainWidget::ezQtMainWidget(QWidget* pParent)
-  : ads::CDockWidget("Main", pParent)
+ezQtMainWidget::ezQtMainWidget(ads::CDockManager* pDockManager, QWidget* pParent)
+  : ads::CDockWidget(pDockManager, "Main", pParent)
 {
   s_pWidget = this;
 
   setupUi(this);
   setWidget(MainWidgetFrame);
 
-  this->setFeature(ads::CDockWidget::DockWidgetClosable, false);
+  setFeature(ads::CDockWidget::DockWidgetClosable, false);
 
   m_uiMaxStatSamples = 20000; // should be enough for 5 minutes of history at 60 Hz
 
@@ -66,11 +66,8 @@ void ezQtMainWidget::ProcessTelemetry(void* pUnuseed)
         if (!it.IsValid())
           break;
 
-        if (it.Value().m_pItem)
-          delete it.Value().m_pItem;
-
-        if (it.Value().m_pItemFavorite)
-          delete it.Value().m_pItemFavorite;
+        delete it.Value().m_pItem;
+        delete it.Value().m_pItemFavorite;
 
         s_pWidget->m_Stats.Remove(it);
       }

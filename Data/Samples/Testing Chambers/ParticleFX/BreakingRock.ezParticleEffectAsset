@@ -11,7 +11,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7797394691505756328,5717546376087507856}}
-		u4 %Hash{15620354964959696470}
+		u4 %Hash{11100578808184150302}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{4938144042801778044,16029806634705731007}}
@@ -147,6 +147,9 @@ o
 		Angle %Deviation{f{0}}
 		f %DistortionStrength{0x0000C842}
 		s %DistortionTexture{""}
+		f %LightDirectionality{0x0000003F}
+		s %LightingMode{"ezParticleLightingMode::VertexLit"}
+		f %NormalCurvature{0x0000003F}
 		u1 %NumSpritesX{1}
 		u1 %NumSpritesY{1}
 		s %Orientation{"ezQuadParticleOrientation::Billboard"}
@@ -183,6 +186,7 @@ o
 		VarDict %ColorParameters{}
 		VarArray %EventReactions{}
 		VarDict %FloatParameters{}
+		Vec3u %NumWindSamples{u3{1,1,1}}
 		VarArray %ParticleSystems
 		{
 			Uuid{u4{15950858524320967811,5477697195598493427}}
@@ -269,6 +273,9 @@ o
 		Angle %Deviation{f{0}}
 		f %DistortionStrength{0x0000C842}
 		s %DistortionTexture{""}
+		f %LightDirectionality{0x0000003F}
+		s %LightingMode{"ezParticleLightingMode::VertexLit"}
+		f %NormalCurvature{0x0000003F}
 		u1 %NumSpritesX{1}
 		u1 %NumSpritesY{1}
 		s %Orientation{"ezQuadParticleOrientation::Rotating_OrthoEmitterDir"}
@@ -315,6 +322,9 @@ o
 		Angle %Deviation{f{0}}
 		f %DistortionStrength{0x0000C842}
 		s %DistortionTexture{""}
+		f %LightDirectionality{0x0000003F}
+		s %LightingMode{"ezParticleLightingMode::Fullbright"}
+		f %NormalCurvature{0x0000003F}
 		u1 %NumSpritesX{1}
 		u1 %NumSpritesY{1}
 		s %Orientation{"ezQuadParticleOrientation::Fixed_RandomDir"}
@@ -613,6 +623,9 @@ o
 		Angle %Deviation{f{0}}
 		f %DistortionStrength{0x0000C842}
 		s %DistortionTexture{""}
+		f %LightDirectionality{0x0000003F}
+		s %LightingMode{"ezParticleLightingMode::VertexLit"}
+		f %NormalCurvature{0x0000003F}
 		u1 %NumSpritesX{1}
 		u1 %NumSpritesY{1}
 		s %Orientation{"ezQuadParticleOrientation::Billboard"}
@@ -734,6 +747,23 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleBehaviorFactory"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{9692001477283607726,5375904088218900509}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleLightingMode"}
 		u3 %TypeVersion{1}
 	}
 }

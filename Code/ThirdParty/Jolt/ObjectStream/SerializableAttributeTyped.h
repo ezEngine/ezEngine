@@ -4,6 +4,8 @@
 
 #pragma once
 
+#ifdef JPH_OBJECT_STREAM
+
 #include <Jolt/ObjectStream/SerializableAttribute.h>
 #include <Jolt/ObjectStream/GetPrimitiveTypeOfType.h>
 #include <Jolt/ObjectStream/ObjectStream.h>
@@ -42,10 +44,17 @@ inline void AddSerializableAttributeTyped(RTTI &inRTTI, uint inOffset, const cha
 
 // JPH_ADD_ATTRIBUTE
 #define JPH_ADD_ATTRIBUTE_WITH_ALIAS(class_name, member_name, alias_name) \
-	AddSerializableAttributeTyped<decltype(class_name::member_name)>(inRTTI, offsetof(class_name, member_name), alias_name);
+	JPH::AddSerializableAttributeTyped<decltype(class_name::member_name)>(inRTTI, offsetof(class_name, member_name), alias_name);
 
 // JPH_ADD_ATTRIBUTE
 #define JPH_ADD_ATTRIBUTE(class_name, member_name) \
 	JPH_ADD_ATTRIBUTE_WITH_ALIAS(class_name, member_name, #member_name)
 
 JPH_NAMESPACE_END
+
+#else
+
+#define JPH_ADD_ATTRIBUTE_WITH_ALIAS(...)
+#define JPH_ADD_ATTRIBUTE(...)
+
+#endif // JPH_OBJECT_STREAM

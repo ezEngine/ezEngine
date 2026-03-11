@@ -1,6 +1,5 @@
 #include <RendererTest/RendererTestPCH.h>
 
-#include <Core/GameState/GameStateWindow.h>
 #include <Core/Graphics/Camera.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
@@ -9,12 +8,51 @@
 #include <RendererFoundation/Resources/Texture.h>
 #include <RendererTest/Basics/Readback.h>
 
-void ezRendererTestReadback::SetupSubTests()
+ezResult ezRendererTestReadback::InitializeTest()
 {
   ezStartup::StartupCoreSystems();
-  SetupRenderer().AssertSuccess();
 
-  const ezGALDeviceCapabilities& caps = ezGALDevice::GetDefaultDevice()->GetCapabilities();
+  if (SetupRenderer().Failed())
+    return EZ_FAILURE;
+
+  EZ_SUCCEED_OR_RETURN(CreateWindow(320, 240));
+
+  m_hUVColorShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/ReadbackFloat.ezShader");
+  m_hUVColorIntShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/ReadbackInt.ezShader");
+  m_hUVColorUIntShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/ReadbackUInt.ezShader");
+  m_hUVColorDepthShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/ReadbackDepth.ezShader");
+
+  m_hTexture2DShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2D.ezShader");
+  m_hTexture2DDepthShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2DReadbackDepth.ezShader");
+  m_hTexture2DIntShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2DReadbackInt.ezShader");
+  m_hTexture2DUIntShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2DReadbackUInt.ezShader");
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezRendererTestReadback::DeInitializeTest()
+{
+  m_hShader.Invalidate();
+  m_hUVColorShader.Invalidate();
+  m_hUVColorIntShader.Invalidate();
+  m_hUVColorUIntShader.Invalidate();
+  m_hUVColorDepthShader.Invalidate();
+  m_hTexture2DShader.Invalidate();
+  m_hTexture2DDepthShader.Invalidate();
+  m_hTexture2DIntShader.Invalidate();
+  m_hTexture2DUIntShader.Invalidate();
+
+  DestroyWindow();
+  ShutdownRenderer();
+  ezStartup::ShutdownCoreSystems();
+  ezMemoryTracker::DumpMemoryLeaks();
+
+  return EZ_SUCCESS;
+}
+
+void ezRendererTestReadback::SetupSubTests()
+{
+  const ezGALDeviceCapabilities& caps = GetDeviceCapabilities();
 
   m_TestableFormats.Clear();
   for (ezUInt32 i = 1; i < ezGALResourceFormat::ENUM_COUNT; i++)
@@ -45,34 +83,20 @@ void ezRendererTestReadback::SetupSubTests()
     m_TestableFormatStrings.PushBack(sFormat);
     AddSubTest(m_TestableFormatStrings.PeekBack(), format);
   }
-
-  ShutdownRenderer();
-  ezStartup::ShutdownCoreSystems();
 }
 
 ezResult ezRendererTestReadback::InitializeSubTest(ezInt32 iIdentifier)
 {
   m_iFrame = -1;
+  m_bCaptureImage = false;
+  m_ImgCompFrames.Clear();
   m_bReadbackInProgress = true;
-
-  EZ_SUCCEED_OR_RETURN(ezGraphicsTest::InitializeSubTest(iIdentifier));
-  EZ_SUCCEED_OR_RETURN(CreateWindow(320, 240));
-
-  m_hUVColorShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/ReadbackFloat.ezShader");
-  m_hUVColorIntShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/ReadbackInt.ezShader");
-  m_hUVColorDepthShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/ReadbackDepth.ezShader");
-
-  m_hTexture2DShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2D.ezShader");
-  m_hTexture2DIntShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2DReadbackInt.ezShader");
-  m_hTexture2DUIntShader = ezResourceManager::LoadResource<ezShaderResource>("RendererTest/Shaders/Texture2DReadbackUInt.ezShader");
 
   // Texture2D
   {
     m_Format = (ezGALResourceFormat::Enum)iIdentifier;
     ezGALTextureCreationDescription desc;
-    desc.SetAsRenderTarget(8, 8, m_Format,
-      ezGALMSAASampleCount::None);
-    desc.m_ResourceAccess.m_bReadBack = true;
+    desc.SetAsRenderTarget(8, 8, m_Format, ezGALMSAASampleCount::None);
     m_hTexture2DReadback = m_pDevice->CreateTexture(desc);
 
     EZ_ASSERT_DEBUG(!m_hTexture2DReadback.IsInvalidated(), "Failed to create readback texture");
@@ -83,6 +107,7 @@ ezResult ezRendererTestReadback::InitializeSubTest(ezInt32 iIdentifier)
 
 ezResult ezRendererTestReadback::DeInitializeSubTest(ezInt32 iIdentifier)
 {
+  m_Readback.Reset();
   m_ReadBackResult.Clear();
   if (!m_hTexture2DReadback.IsInvalidated())
   {
@@ -94,18 +119,8 @@ ezResult ezRendererTestReadback::DeInitializeSubTest(ezInt32 iIdentifier)
     m_pDevice->DestroyTexture(m_hTexture2DUpload);
     m_hTexture2DUpload.Invalidate();
   }
-  m_hShader.Invalidate();
-  m_hUVColorShader.Invalidate();
-  m_hUVColorIntShader.Invalidate();
-  m_hTexture2DShader.Invalidate();
-  m_hTexture2DIntShader.Invalidate();
-  m_hTexture2DUIntShader.Invalidate();
-  m_hUVColorDepthShader.Invalidate();
 
-  DestroyWindow();
-
-  if (ezGraphicsTest::DeInitializeSubTest(iIdentifier).Failed())
-    return EZ_FAILURE;
+  // Don't call parent's DeInitializeSubTest - renderer shutdown happens in DeInitializeTest
 
   return EZ_SUCCESS;
 }
@@ -192,34 +207,40 @@ ezTestAppRun ezRendererTestReadback::Readback(ezUInt32 uiInvocationCount)
   const ezMat4 mMVP = CreateSimpleMVP((float)fElementWidth / (float)fElementHeight);
   const bool bIsDepthTexture = ezGALResourceFormat::IsDepthFormat(m_Format);
   const bool bIsIntTexture = ezGALResourceFormat::IsIntegerFormat(m_Format);
+  const bool bIsSigned = ezGALResourceFormat::IsSignedFormat(m_Format);
   if (m_iFrame == 1)
   {
-    BeginPass("Offscreen");
+    BeginCommands("Offscreen");
     {
       ezGALRenderingSetup renderingSetup;
 
       ezShaderResourceHandle shader;
       if (bIsDepthTexture)
       {
-        renderingSetup.m_bDiscardDepth = true;
-        renderingSetup.m_bClearDepth = true;
-        renderingSetup.m_RenderTargetSetup.SetDepthStencilTarget(m_pDevice->GetDefaultRenderTargetView(m_hTexture2DReadback));
+        renderingSetup.SetDepthStencilTarget(m_pDevice->GetDefaultRenderTargetView(m_hTexture2DReadback));
+        renderingSetup.SetClearDepth().SetClearStencil();
         shader = m_hUVColorDepthShader;
       }
       else
       {
-        renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, m_pDevice->GetDefaultRenderTargetView(m_hTexture2DReadback));
-        shader = bIsIntTexture ? m_hUVColorIntShader : m_hUVColorShader;
+        renderingSetup.SetColorTarget(0, m_pDevice->GetDefaultRenderTargetView(m_hTexture2DReadback));
+        renderingSetup.SetClearColor(0, ezColor::RebeccaPurple);
+        if (bIsIntTexture)
+        {
+          shader = bIsSigned ? m_hUVColorIntShader : m_hUVColorUIntShader;
+        }
+        else
+        {
+          shader = m_hUVColorShader;
+        }
       }
-      renderingSetup.m_ClearColor = ezColor::RebeccaPurple;
-      renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
 
       ezRectFloat viewport = ezRectFloat(0, 0, 8, 8);
-      ezGALRenderCommandEncoder* pCommandEncoder = ezRenderContext::GetDefaultInstance()->BeginRendering(m_pPass, renderingSetup, viewport);
+      ezRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, viewport);
       SetClipSpace();
 
       ezRenderContext::GetDefaultInstance()->BindShader(shader);
-      ezRenderContext::GetDefaultInstance()->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
+      ezRenderContext::GetDefaultInstance()->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
       ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().AssertSuccess();
 
       ezRenderContext::GetDefaultInstance()->EndRendering();
@@ -227,37 +248,37 @@ ezTestAppRun ezRendererTestReadback::Readback(ezUInt32 uiInvocationCount)
 
     // Queue readback
     {
-      auto pCommandEncoder = m_pPass->BeginRendering(ezGALRenderingSetup());
-      pCommandEncoder->ReadbackTexture(m_hTexture2DReadback);
-      m_pPass->EndRendering(pCommandEncoder);
+      m_Readback.ReadbackTexture(*m_pEncoder, m_hTexture2DReadback);
+    }
+
+    // Wait for results
+    {
+      ezEnum<ezGALAsyncResult> res = m_Readback.GetReadbackResult(ezTime::MakeFromHours(1));
+      EZ_ASSERT_ALWAYS(res == ezGALAsyncResult::Ready, "Readback of texture failed");
     }
 
     // Readback result
     {
       m_bReadbackInProgress = false;
-      auto pCommandEncoder = m_pPass->BeginRendering(ezGALRenderingSetup());
 
       const ezGALTexture* pBackbuffer = ezGALDevice::GetDefaultDevice()->GetTexture(m_hTexture2DReadback);
-      const ezEnum<ezGALResourceFormat> format = pBackbuffer->GetDescription().m_Format;
-
-      ezImageHeader header;
-      header.SetWidth(pBackbuffer->GetDescription().m_uiWidth);
-      header.SetHeight(pBackbuffer->GetDescription().m_uiHeight);
-      header.SetImageFormat(ezTextureUtils::GalFormatToImageFormat(format, false));
       ezImage readBackResult;
-      readBackResult.ResetAndAlloc(header);
-
-      ezGALSystemMemoryDescription MemDesc;
-      MemDesc.m_pData = readBackResult.GetPixelPointer<ezUInt8>();
-      MemDesc.m_uiRowPitch = readBackResult.GetRowPitch();
-      MemDesc.m_uiSlicePitch = readBackResult.GetDepthPitch();
-
-      ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescs(&MemDesc, 1);
-      ezGALTextureSubresource sourceSubResource;
-      ezArrayPtr<ezGALTextureSubresource> sourceSubResources(&sourceSubResource, 1);
-      pCommandEncoder->CopyTextureReadbackResult(m_hTexture2DReadback, sourceSubResources, SysMemDescs);
+      {
+        ezGALTextureSubresource sourceSubResource;
+        ezArrayPtr<ezGALTextureSubresource> sourceSubResources(&sourceSubResource, 1);
+        ezTempHybridArray<ezGALSystemMemoryDescription, 1> memory;
+        ezReadbackTextureLock lock = m_Readback.LockTexture(sourceSubResources, memory);
+        EZ_ASSERT_ALWAYS(lock, "Failed to lock readback texture");
+        ezTextureUtils::CopySubResourceToImage(pBackbuffer->GetDescription(), sourceSubResource, memory[0], readBackResult, false);
+      }
 
       {
+        ezGALSystemMemoryDescription MemDesc;
+        MemDesc.m_pData = readBackResult.GetByteBlobPtr();
+        MemDesc.m_uiRowPitch = static_cast<ezUInt32>(readBackResult.GetRowPitch());
+        MemDesc.m_uiSlicePitch = static_cast<ezUInt32>(readBackResult.GetDepthPitch());
+        ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescs(&MemDesc, 1);
+
         ezGALTextureCreationDescription desc;
         desc.m_uiWidth = 8;
         desc.m_uiHeight = 8;
@@ -300,17 +321,17 @@ ezTestAppRun ezRendererTestReadback::Readback(ezUInt32 uiInvocationCount)
         }
       }
       CompareReadbackImage(std::move(readBackResult));
-
-
-
-      m_pPass->EndRendering(pCommandEncoder);
     }
-    EndPass();
+    EndCommands();
   }
 
-  BeginPass("Readback");
+  BeginCommands("Readback");
   {
-    if (bIsIntTexture && !bIsDepthTexture)
+    if (bIsDepthTexture || ezGALResourceFormat::IsFloatFormat(m_Format))
+    {
+      m_hShader = m_hTexture2DDepthShader;
+    }
+    else if (bIsIntTexture)
     {
       m_hShader = ezGALResourceFormat::IsSignedFormat(m_Format) ? m_hTexture2DIntShader : m_hTexture2DUIntShader;
     }
@@ -321,20 +342,21 @@ ezTestAppRun ezRendererTestReadback::Readback(ezUInt32 uiInvocationCount)
 
     {
       ezRectFloat viewport = ezRectFloat(0, 0, fElementWidth, fElementHeight);
-      RenderCube(viewport, mMVP, 0xFFFFFFFF, m_pDevice->GetDefaultResourceView(m_hTexture2DReadback));
+      RenderCube(viewport, mMVP, 0xFFFFFFFF, m_hTexture2DReadback);
     }
     if (!m_bReadbackInProgress)
     {
       ezRectFloat viewport = ezRectFloat(fElementWidth, 0, fElementWidth, fElementHeight);
 
-      ezGALRenderCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0, &viewport);
-      ezRenderContext::GetDefaultInstance()->BindTexture2D("DiffuseTexture", m_pDevice->GetDefaultResourceView(m_hTexture2DUpload));
+      ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0, &viewport);
+      ezBindGroupBuilder& bindGroupTest = ezRenderContext::GetDefaultInstance()->GetBindGroup();
+      bindGroupTest.BindTexture("DiffuseTexture", m_hTexture2DUpload);
       RenderObject(m_hCubeUV, mMVP, ezColor(1, 1, 1, 1), ezShaderBindFlags::None);
-      CompareUploadImage();
       EndRendering();
+      CompareUploadImage();
     }
   }
-  EndPass();
+  EndCommands();
   return m_bReadbackInProgress ? ezTestAppRun::Continue : ezTestAppRun::Quit;
 }
 

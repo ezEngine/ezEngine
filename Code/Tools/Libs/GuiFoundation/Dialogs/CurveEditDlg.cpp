@@ -1,20 +1,26 @@
 #include <GuiFoundation/GuiFoundationPCH.h>
 
+#include <Foundation/Tracks/CurveEditData.h>
 #include <GuiFoundation/Dialogs/CurveEditDlg.moc.h>
 #include <GuiFoundation/Widgets/Curve1DEditorWidget.moc.h>
-#include <GuiFoundation/Widgets/CurveEditData.h>
 #include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 QByteArray ezQtCurveEditDlg::s_LastDialogGeometry;
 
-ezQtCurveEditDlg::ezQtCurveEditDlg(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pCurveObject, QWidget* pParent)
+ezQtCurveEditDlg::ezQtCurveEditDlg(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pCurveObject, QWidget* pParent, ezStringView sTitle)
   : QDialog(pParent)
 {
   m_pObjectAccessor = pObjectAccessor;
   m_pCurveObject = pCurveObject;
 
   setupUi(this);
+
+  if (!sTitle.IsEmpty())
+  {
+    ezStringBuilder tmp;
+    setWindowTitle(sTitle.GetData(tmp));
+  }
 
   ezQtCurve1DEditorWidget* pEdit = CurveEditor;
 
@@ -40,6 +46,8 @@ ezQtCurveEditDlg::ezQtCurveEditDlg(ezObjectAccessorBase* pObjectAccessor, const 
   RetrieveCurveState();
 
   m_uiActionsUndoBaseline = m_pObjectAccessor->GetObjectManager()->GetDocument()->GetCommandHistory()->GetUndoStackSize();
+
+  UpdateUndoRedoState();
 }
 
 void ezQtCurveEditDlg::RetrieveCurveState()
@@ -47,7 +55,7 @@ void ezQtCurveEditDlg::RetrieveCurveState()
   auto& curve = m_Curves.m_Curves.PeekBack();
 
   ezInt32 iNumPoints = 0;
-  m_pObjectAccessor->GetCount(m_pCurveObject, "ControlPoints", iNumPoints).AssertSuccess();
+  m_pObjectAccessor->GetCountByName(m_pCurveObject, "ControlPoints", iNumPoints).AssertSuccess();
   curve->m_ControlPoints.SetCount(iNumPoints);
 
   ezVariant v;
@@ -55,27 +63,27 @@ void ezQtCurveEditDlg::RetrieveCurveState()
   // get a local representation of the curve once, so that we can update the preview more efficiently
   for (ezInt32 i = 0; i < iNumPoints; ++i)
   {
-    const ezDocumentObject* pPoint = m_pObjectAccessor->GetChildObject(m_pCurveObject, "ControlPoints", i);
+    const ezDocumentObject* pPoint = m_pObjectAccessor->GetChildObjectByName(m_pCurveObject, "ControlPoints", i);
 
-    m_pObjectAccessor->GetValue(pPoint, "Tick", v).AssertSuccess();
+    m_pObjectAccessor->GetValueByName(pPoint, "Tick", v).AssertSuccess();
     curve->m_ControlPoints[i].m_iTick = v.ConvertTo<ezInt32>();
 
-    m_pObjectAccessor->GetValue(pPoint, "Value", v).AssertSuccess();
+    m_pObjectAccessor->GetValueByName(pPoint, "Value", v).AssertSuccess();
     curve->m_ControlPoints[i].m_fValue = v.ConvertTo<double>();
 
-    m_pObjectAccessor->GetValue(pPoint, "LeftTangent", v).AssertSuccess();
+    m_pObjectAccessor->GetValueByName(pPoint, "LeftTangent", v).AssertSuccess();
     curve->m_ControlPoints[i].m_LeftTangent = v.ConvertTo<ezVec2>();
 
-    m_pObjectAccessor->GetValue(pPoint, "RightTangent", v).AssertSuccess();
+    m_pObjectAccessor->GetValueByName(pPoint, "RightTangent", v).AssertSuccess();
     curve->m_ControlPoints[i].m_RightTangent = v.ConvertTo<ezVec2>();
 
-    m_pObjectAccessor->GetValue(pPoint, "Linked", v).AssertSuccess();
+    m_pObjectAccessor->GetValueByName(pPoint, "Linked", v).AssertSuccess();
     curve->m_ControlPoints[i].m_bTangentsLinked = v.ConvertTo<bool>();
 
-    m_pObjectAccessor->GetValue(pPoint, "LeftTangentMode", v).AssertSuccess();
+    m_pObjectAccessor->GetValueByName(pPoint, "LeftTangentMode", v).AssertSuccess();
     curve->m_ControlPoints[i].m_LeftTangentMode = (ezCurveTangentMode::Enum)v.ConvertTo<ezInt32>();
 
-    m_pObjectAccessor->GetValue(pPoint, "RightTangentMode", v).AssertSuccess();
+    m_pObjectAccessor->GetValueByName(pPoint, "RightTangentMode", v).AssertSuccess();
     curve->m_ControlPoints[i].m_RightTangentMode = (ezCurveTangentMode::Enum)v.ConvertTo<ezInt32>();
   }
 }
@@ -157,10 +165,10 @@ void ezQtCurveEditDlg::OnCpMovedEvent(ezUInt32 curveIdx, ezUInt32 cpIdx, ezInt64
 
   // update the actual object
   {
-    const ezDocumentObject* pPoint = m_pObjectAccessor->GetChildObject(m_pCurveObject, "ControlPoints", cpIdx);
+    const ezDocumentObject* pPoint = m_pObjectAccessor->GetChildObjectByName(m_pCurveObject, "ControlPoints", cpIdx);
 
-    m_pObjectAccessor->SetValue(pPoint, "Tick", iTickX).AssertSuccess();
-    m_pObjectAccessor->SetValue(pPoint, "Value", newPosY).AssertSuccess();
+    m_pObjectAccessor->SetValueByName(pPoint, "Tick", iTickX).AssertSuccess();
+    m_pObjectAccessor->SetValueByName(pPoint, "Value", newPosY).AssertSuccess();
   }
 }
 
@@ -173,7 +181,7 @@ void ezQtCurveEditDlg::OnCpDeletedEvent(ezUInt32 curveIdx, ezUInt32 cpIdx)
 
   // update the actual object
   {
-    const ezDocumentObject* pPoint = m_pObjectAccessor->GetChildObject(m_pCurveObject, "ControlPoints", cpIdx);
+    const ezDocumentObject* pPoint = m_pObjectAccessor->GetChildObjectByName(m_pCurveObject, "ControlPoints", cpIdx);
     m_pObjectAccessor->RemoveObject(pPoint).AssertSuccess();
   }
 }
@@ -192,12 +200,12 @@ void ezQtCurveEditDlg::OnTangentMovedEvent(ezUInt32 curveIdx, ezUInt32 cpIdx, fl
 
   // update the actual object
   {
-    const ezDocumentObject* pPoint = m_pObjectAccessor->GetChildObject(m_pCurveObject, "ControlPoints", cpIdx);
+    const ezDocumentObject* pPoint = m_pObjectAccessor->GetChildObjectByName(m_pCurveObject, "ControlPoints", cpIdx);
 
     if (rightTangent)
-      m_pObjectAccessor->SetValue(pPoint, "RightTangent", ezVec2(newPosX, newPosY)).AssertSuccess();
+      m_pObjectAccessor->SetValueByName(pPoint, "RightTangent", ezVec2(newPosX, newPosY)).AssertSuccess();
     else
-      m_pObjectAccessor->SetValue(pPoint, "LeftTangent", ezVec2(newPosX, newPosY)).AssertSuccess();
+      m_pObjectAccessor->SetValueByName(pPoint, "LeftTangent", ezVec2(newPosX, newPosY)).AssertSuccess();
   }
 }
 
@@ -215,13 +223,17 @@ void ezQtCurveEditDlg::OnInsertCpEvent(ezUInt32 curveIdx, ezInt64 tickX, double 
   // update the actual object
   {
     ezUuid guid;
-    m_pObjectAccessor->AddObject(m_pCurveObject, "ControlPoints", -1, ezGetStaticRTTI<ezCurveControlPointData>(), guid).AssertSuccess();
+    m_pObjectAccessor->AddObjectByName(m_pCurveObject, "ControlPoints", -1, ezGetStaticRTTI<ezCurveControlPointData>(), guid).AssertSuccess();
 
     const ezDocumentObject* pPoint = m_pObjectAccessor->GetObject(guid);
 
-    m_pObjectAccessor->SetValue(pPoint, "Tick", tickX).AssertSuccess();
-    m_pObjectAccessor->SetValue(pPoint, "Value", value).AssertSuccess();
+    m_pObjectAccessor->SetValueByName(pPoint, "Tick", tickX).AssertSuccess();
+    m_pObjectAccessor->SetValueByName(pPoint, "Value", value).AssertSuccess();
   }
+
+  // Record which point was inserted (will be at the end of the array)
+  m_iInsertedCurveIdx = curveIdx;
+  m_uiInsertedPointIdx = m_Curves.m_Curves[curveIdx]->m_ControlPoints.GetCount() - 1;
 }
 
 void ezQtCurveEditDlg::OnTangentLinkEvent(ezUInt32 curveIdx, ezUInt32 cpIdx, bool bLink)
@@ -234,9 +246,9 @@ void ezQtCurveEditDlg::OnTangentLinkEvent(ezUInt32 curveIdx, ezUInt32 cpIdx, boo
 
   // update the actual object
   {
-    const ezDocumentObject* pPoint = m_pObjectAccessor->GetChildObject(m_pCurveObject, "ControlPoints", cpIdx);
+    const ezDocumentObject* pPoint = m_pObjectAccessor->GetChildObjectByName(m_pCurveObject, "ControlPoints", cpIdx);
 
-    m_pObjectAccessor->SetValue(pPoint, "Linked", bLink).AssertSuccess();
+    m_pObjectAccessor->SetValueByName(pPoint, "Linked", bLink).AssertSuccess();
   }
 }
 
@@ -254,12 +266,12 @@ void ezQtCurveEditDlg::OnCpTangentModeEvent(ezUInt32 curveIdx, ezUInt32 cpIdx, b
 
   // update the actual object
   {
-    const ezDocumentObject* pPoint = m_pObjectAccessor->GetChildObject(m_pCurveObject, "ControlPoints", cpIdx);
+    const ezDocumentObject* pPoint = m_pObjectAccessor->GetChildObjectByName(m_pCurveObject, "ControlPoints", cpIdx);
 
     if (rightTangent)
-      m_pObjectAccessor->SetValue(pPoint, "RightTangentMode", mode).AssertSuccess();
+      m_pObjectAccessor->SetValueByName(pPoint, "RightTangentMode", mode).AssertSuccess();
     else
-      m_pObjectAccessor->SetValue(pPoint, "LeftTangentMode", mode).AssertSuccess();
+      m_pObjectAccessor->SetValueByName(pPoint, "LeftTangentMode", mode).AssertSuccess();
   }
 }
 
@@ -273,6 +285,20 @@ void ezQtCurveEditDlg::OnEndCpChangesEvent()
   m_pObjectAccessor->FinishTransaction();
 
   UpdatePreview();
+  UpdateUndoRedoState();
+
+  // If a control point was inserted, select it now that the operation is complete
+  if (m_iInsertedCurveIdx >= 0)
+  {
+    ezSelectedCurveCP sel;
+    sel.m_uiCurve = static_cast<ezUInt16>(m_iInsertedCurveIdx);
+    sel.m_uiPoint = static_cast<ezUInt16>(m_uiInsertedPointIdx);
+
+    CurveEditor->CurveEdit->ClearSelection();
+    CurveEditor->CurveEdit->SetSelection(sel);
+
+    m_iInsertedCurveIdx = -1;
+  }
 }
 
 void ezQtCurveEditDlg::OnBeginOperationEvent(QString name)
@@ -288,6 +314,7 @@ void ezQtCurveEditDlg::OnEndOperationEvent(bool commit)
     m_pObjectAccessor->CancelTemporaryCommands();
 
   UpdatePreview();
+  UpdateUndoRedoState();
 }
 
 void ezQtCurveEditDlg::on_actionUndo_triggered()
@@ -300,6 +327,7 @@ void ezQtCurveEditDlg::on_actionUndo_triggered()
 
     RetrieveCurveState();
     UpdatePreview();
+    UpdateUndoRedoState();
   }
 }
 
@@ -313,6 +341,7 @@ void ezQtCurveEditDlg::on_actionRedo_triggered()
 
     RetrieveCurveState();
     UpdatePreview();
+    UpdateUndoRedoState();
   }
 }
 
@@ -324,4 +353,25 @@ void ezQtCurveEditDlg::on_ButtonOk_clicked()
 void ezQtCurveEditDlg::on_ButtonCancel_clicked()
 {
   cancel();
+}
+
+void ezQtCurveEditDlg::on_ButtonUndo_clicked()
+{
+  on_actionUndo_triggered();
+}
+
+void ezQtCurveEditDlg::on_ButtonRedo_clicked()
+{
+  on_actionRedo_triggered();
+}
+
+void ezQtCurveEditDlg::UpdateUndoRedoState()
+{
+  auto& cmd = *m_pObjectAccessor->GetObjectManager()->GetDocument()->GetCommandHistory();
+
+  const bool canUndo = cmd.CanUndo() && cmd.GetUndoStackSize() > m_uiActionsUndoBaseline;
+  const bool canRedo = cmd.CanRedo();
+
+  ButtonUndo->setEnabled(canUndo);
+  ButtonRedo->setEnabled(canRedo);
 }

@@ -3,7 +3,7 @@
 #include <EditorFramework/DocumentWindow/GameObjectDocumentWindow.moc.h>
 #include <EditorFramework/EditTools/EditTool.h>
 #include <Foundation/Basics.h>
-#include <GuiFoundation/Widgets/CurveEditData.h>
+#include <Foundation/Tracks/CurveEditData.h>
 #include <QTreeView>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
@@ -57,8 +57,6 @@ class ezQtPropertyAnimAssetDocumentWindow : public ezQtGameObjectDocumentWindow,
 public:
   ezQtPropertyAnimAssetDocumentWindow(ezPropertyAnimAssetDocument* pDocument);
   ~ezQtPropertyAnimAssetDocumentWindow();
-
-  virtual const char* GetWindowLayoutGroupName() const override { return "PropertyAnimAsset"; }
 
 public Q_SLOTS:
   void ToggleViews(QWidget* pView);

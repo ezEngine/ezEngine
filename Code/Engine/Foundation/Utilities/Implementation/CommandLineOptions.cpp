@@ -28,7 +28,7 @@ ezResult ezCommandLineOption::RequireOptions(ezStringView sRequiredOptions, ezSt
 {
   ezStringBuilder tmp;
   ezStringBuilder allOpts = sRequiredOptions;
-  ezHybridArray<ezStringView, 16> options;
+  ezTempHybridArray<ezStringView, 16> options;
   allOpts.Split(false, options, ";");
 
   for (auto opt : options)
@@ -113,7 +113,7 @@ bool ezCommandLineOption::LogAvailableOptions(LogAvailableModes mode, ezStringVi
       pOpt->GetParamDefaultValueDesc(sParamDefault);
       pOpt->GetLongDesc(sLongDesc);
 
-      ezHybridArray<ezStringView, 4> lines;
+      ezTempHybridArray<ezStringView, 4> lines;
 
       sOptions.Split(false, lines, ";", "|");
 
@@ -206,7 +206,7 @@ void ezCommandLineOptionDoc::GetLongDesc(ezStringBuilder& ref_sOut) const
 bool ezCommandLineOptionDoc::IsOptionSpecified(ezStringBuilder* out_pWhich, const ezCommandLineUtils* pUtils /*= ezCommandLineUtils::GetGlobalInstance()*/) const
 {
   ezStringBuilder sOptions, tmp;
-  ezHybridArray<ezStringView, 4> eachOption;
+  ezTempHybridArray<ezStringView, 4> eachOption;
   GetSplitOptions(sOptions, eachOption);
 
   for (auto o : eachOption)
@@ -488,7 +488,7 @@ ezInt32 ezCommandLineOptionEnum::GetOptionValue(LogMode logMode, const ezCommand
   ezStringBuilder sOption;
   const bool bSpecified = IsOptionSpecified(&sOption, pUtils);
 
-  ezHybridArray<EnumKeyValue, 16> keysAndValues;
+  ezTempHybridArray<EnumKeyValue, 16> keysAndValues;
   GetEnumKeysAndValues(keysAndValues);
 
   if (bSpecified)
@@ -533,7 +533,7 @@ found:
 
 void ezCommandLineOptionEnum::GetParamShortDesc(ezStringBuilder& ref_sOut) const
 {
-  ezHybridArray<EnumKeyValue, 16> keysAndValues;
+  ezTempHybridArray<EnumKeyValue, 16> keysAndValues;
   GetEnumKeysAndValues(keysAndValues);
 
   for (const auto& e : keysAndValues)
@@ -547,7 +547,7 @@ void ezCommandLineOptionEnum::GetParamShortDesc(ezStringBuilder& ref_sOut) const
 
 void ezCommandLineOptionEnum::GetParamDefaultValueDesc(ezStringBuilder& ref_sOut) const
 {
-  ezHybridArray<EnumKeyValue, 16> keysAndValues;
+  ezTempHybridArray<EnumKeyValue, 16> keysAndValues;
   GetEnumKeysAndValues(keysAndValues);
 
   for (const auto& e : keysAndValues)
@@ -564,7 +564,7 @@ void ezCommandLineOptionEnum::GetEnumKeysAndValues(ezDynamicArray<EnumKeyValue>&
 {
   ezStringBuilder tmp = m_sEnumKeysAndValues;
 
-  ezHybridArray<ezStringView, 16> enums;
+  ezTempHybridArray<ezStringView, 16> enums;
   tmp.Split(false, enums, ";", "|");
 
   out_keysAndValues.SetCount(enums.GetCount());

@@ -3,10 +3,12 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/CheckVersion.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorFramework/Preferences/EditorPreferences.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/IO/OpenDdlReader.h>
 #include <Foundation/IO/OpenDdlWriter.h>
+#include <Foundation/Utilities/CommandLineUtils.h>
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
 #include <GuiFoundation/UIServices/QtProgressbar.h>
 #include <QFileDialog>
@@ -25,12 +27,16 @@ ezQtEditorApp::ezQtEditorApp()
   m_pVersionChecker = EZ_DEFAULT_NEW(ezQtVersionChecker);
 
   m_pTimer = new QTimer(nullptr);
+  m_pAutoSaveTimer = new QTimer(nullptr);
 }
 
 ezQtEditorApp::~ezQtEditorApp()
 {
   delete m_pTimer;
   m_pTimer = nullptr;
+
+  delete m_pAutoSaveTimer;
+  m_pAutoSaveTimer = nullptr;
 
   CloseSplashScreen();
 }
@@ -65,6 +71,46 @@ void ezQtEditorApp::SlotTimedUpdate()
 void ezQtEditorApp::SlotSaveSettings()
 {
   SaveSettings();
+}
+
+void ezQtEditorApp::SlotAutoSave()
+{
+  const auto* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+  if (!pPreferences || pPreferences->m_uiAutoSaveMinutes == 0)
+    return;
+
+  const ezTime tAutoSaveThreshold = ezTime::MakeFromMinutes(pPreferences->m_uiAutoSaveMinutes);
+  const ezTime tNow = ezTime::Now();
+
+  // Find the oldest modified document that exceeds the auto-save threshold.
+  ezDocument* pOldestDoc = nullptr;
+  ezTime tOldestTime = tNow;
+
+  for (auto pMan : ezDocumentManager::GetAllDocumentManagers())
+  {
+    for (auto pDoc : pMan->ezDocumentManager::GetAllOpenDocuments())
+    {
+      const ezTime tModified = pDoc->GetModifiedTime();
+      if (tModified.IsPositive() && (tNow - tModified) >= tAutoSaveThreshold && tModified < tOldestTime)
+      {
+        pOldestDoc = pDoc;
+        tOldestTime = tModified;
+      }
+    }
+  }
+
+  if (pOldestDoc == nullptr)
+    return;
+
+  ezQtDocumentWindow* pWnd = ezQtDocumentWindow::FindWindowByDocument(pOldestDoc);
+  if (pWnd && pWnd->GetDocument() == pOldestDoc)
+  {
+    pWnd->SaveDocument().IgnoreResult();
+  }
+  else
+  {
+    pOldestDoc->SaveDocument().IgnoreResult();
+  }
 }
 
 void ezQtEditorApp::SlotVersionCheckCompleted(bool bNewVersionReleased, bool bForced)
@@ -150,7 +196,7 @@ void ezQtEditorApp::SaveAllOpenDocuments()
       // Layers for example will share a window with the scene document and the window will always save the scene.
       if (pWnd && pWnd->GetDocument() == pDoc)
       {
-        if (pWnd->SaveDocument().m_Result.Failed())
+        if (pWnd->SaveDocument().Failed())
           return;
       }
       // There might be no window for this document.
@@ -244,6 +290,55 @@ ezResult ezQtEditorApp::AddBundlesInOrder(ezDynamicArray<ezApplicationPluginConf
         p.m_bLoadCopy = bundle.m_bLoadCopy;
       }
     }
+  }
+
+  return EZ_SUCCESS;
+}
+
+static ezStatus ExtractArchive(const ezString& sArchivePath)
+{
+  ezStringBuilder sArchiveDir = sArchivePath;
+  sArchiveDir.PathParentDirectory();
+  sArchiveDir.TrimWordEnd("/");
+
+  QStringList args;
+  args << "x"
+       << "-y" << ezMakeQString(sArchivePath);
+
+  return ezQtEditorApp::GetSingleton()->ExecuteTool("7z", args, 30 * 60, nullptr, ezLogMsgType::WarningMsg, sArchiveDir);
+}
+
+static ezStatus ExtractArchivesInDirectory(const ezStringBuilder& sDirectory)
+{
+  ezDynamicArray<ezString> archiveFiles;
+  ezFileSystemIterator it;
+  for (it.StartSearch(sDirectory, ezFileSystemIteratorFlags::ReportFilesRecursive); it.IsValid(); it.Next())
+  {
+    if (it.GetStats().m_sName.HasExtension("7z"))
+    {
+      ezStringBuilder sFullPath;
+      it.GetStats().GetFullPath(sFullPath);
+      archiveFiles.PushBack(sFullPath);
+    }
+  }
+
+  if (archiveFiles.IsEmpty())
+    return EZ_SUCCESS;
+
+  ezProgressRange unpackProgress("Unpacking Archives", archiveFiles.GetCount(), true);
+
+  for (const ezString& sArchive : archiveFiles)
+  {
+    unpackProgress.BeginNextStep(ezPathUtils::GetFileNameAndExtension(sArchive));
+
+    if (unpackProgress.WasCanceled())
+    {
+      return ezStatus("User canceled");
+    }
+
+    EZ_SUCCEED_OR_RETURN(ExtractArchive(sArchive));
+
+    ezLog::Success("Extracted archive '{}'", sArchive);
   }
 
   return EZ_SUCCESS;
@@ -360,32 +455,84 @@ ezStatus ezQtEditorApp::MakeRemoteProjectLocal(ezStringBuilder& inout_sFilePath)
   // if it is a git repository, clone it
   if (sType == "git" && !sUrl.IsEmpty())
   {
-    QStringList args;
-    args << "clone";
-    args << ezMakeQString(sUrl);
-    args << ezMakeQString(sName);
+    ezProgressRange progress("Downloading Project", 2, true);
+    progress.SetStepWeighting(0, 0.8f);
+    progress.SetStepWeighting(1, 0.2f);
 
-    QProcess proc;
-    proc.setWorkingDirectory(sTargetDir.GetData());
+    {
+      QStringList args;
+      args << "clone";
+      args << ezMakeQString(sUrl);
+      args << ezMakeQString(sName);
+
+      QProcess proc;
+      proc.setWorkingDirectory(sTargetDir.GetData());
+      proc.setProcessChannelMode(QProcess::MergedChannels);
+
+      ezProgressRange cloneProgress("Downloading Project", true);
+      bool bRecursion = false;
+
+      QObject::connect(&proc, &QProcess::readyReadStandardOutput, [&]()
+        {
+          if (bRecursion)
+            return;
+
+          bRecursion = true;
+
+          auto data = proc.readAllStandardOutput();
+          ezStringBuilder str = data.toStdString().c_str();
+          if (const char* szPercent = str.FindLastSubString("%"))
+          {
+            str.SetSubString_FromTo(szPercent - 3, szPercent);
+            str.Trim();
+
+            ezInt32 p;
+            if (ezConversionUtils::StringToInt(str, p).Succeeded())
+            {
+              cloneProgress.SetCompletion(p / 100.0f);
+            }
+          }
+
+          if (cloneProgress.WasCanceled())
+          {
+            proc.close();
+          }
+
+          bRecursion = false;
+          //
+        });
+
+      QApplication::setOverrideCursor(Qt::WaitCursor);
+      EZ_SCOPE_EXIT(QApplication::restoreOverrideCursor());
+
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-    proc.start("git.exe", args);
+      proc.start("git.exe", args);
 #else
-    proc.start("git", args);
+      proc.start("git", args);
 #endif
 
-    if (!proc.waitForStarted())
-    {
-      return ezStatus(ezFmt("Running 'git' to download the remote project failed."));
+      if (!proc.waitForStarted())
+      {
+        return ezStatus(ezFmt("Running 'git' to download the remote project failed."));
+      }
+
+      proc.waitForFinished(60 * 1000);
+
+      if (proc.exitStatus() != QProcess::ExitStatus::NormalExit)
+      {
+        return ezStatus(ezFmt("Failed to git clone the remote project '{}' from '{}'", sName, sUrl));
+      }
+
+      ezLog::Success("Cloned remote project '{}' from '{}' to '{}'", sName, sUrl, sTargetDir);
     }
 
-    proc.waitForFinished(60 * 1000);
-
-    if (proc.exitStatus() != QProcess::ExitStatus::NormalExit)
+    // Find and extract any 7z archives in the cloned directory
     {
-      return ezStatus(ezFmt("Failed to git clone the remote project '{}' from '{}'", sName, sUrl));
-    }
+      ezStringBuilder sClonedDir;
+      sClonedDir.SetFormat("{}/{}", sTargetDir, sName);
 
-    ezLog::Success("Cloned remote project '{}' from '{}' to '{}'", sName, sUrl, sTargetDir);
+      EZ_SUCCEED_OR_RETURN(ExtractArchivesInDirectory(sClonedDir));
+    }
 
     inout_sFilePath.SetFormat("{}/{}/{}", sTargetDir, sName, sProjectFile);
 
@@ -398,7 +545,7 @@ ezStatus ezQtEditorApp::MakeRemoteProjectLocal(ezStringBuilder& inout_sFilePath)
       }
     }
 
-    return ezStatus(EZ_SUCCESS);
+    return EZ_SUCCESS;
   }
 
   return ezStatus(ezFmt("Unknown remote project type '{}' or invalid URL '{}'", sType, sUrl));
@@ -454,6 +601,7 @@ void ezQtEditorApp::CreatePluginSelectionDDL(const char* szProjectFile, const ch
 
 void ezQtEditorApp::LoadPluginBundleDlls(const char* szProjectFile)
 {
+  EZ_PROFILE_SCOPE("LoadPluginBundleDlls");
   ezStringBuilder sPath = szProjectFile;
   sPath.PathParentDirectory();
   sPath.AppendPath("Editor/PluginSelection.ddl");
@@ -528,6 +676,7 @@ void ezQtEditorApp::LoadPluginBundleDlls(const char* szProjectFile)
   ezSet<ezString> NotLoaded;
   for (const ezApplicationPluginConfig::PluginConfig& it : order)
   {
+    EZ_PROFILE_SCOPE(it.m_sAppDirRelativePath.GetData());
     if (ezPlugin::LoadPlugin(it.m_sAppDirRelativePath, it.m_bLoadCopy ? ezPluginLoadFlags::LoadCopy : ezPluginLoadFlags::Default).Failed())
     {
       NotLoaded.Insert(it.m_sAppDirRelativePath);
@@ -578,6 +727,13 @@ void ezQtEditorApp::LaunchEditor(const char* szProject, bool bCreate)
   if (m_StartupFlags.IsSet(StartupFlags::NoRecent))
     args << "-noRecent";
 
+  if (ezCommandLineUtils::GetGlobalInstance()->HasOption("-renderer"))
+  {
+    ezStringBuilder sRenderer = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-renderer");
+    args << "-renderer";
+    args << sRenderer.GetData();
+  }
+
   QProcess proc;
   proc.startDetached(QString::fromUtf8(app, app.GetElementCount()), args);
 }
@@ -586,7 +742,7 @@ const ezApplicationPluginConfig ezQtEditorApp::GetRuntimePluginConfig(bool bIncl
 {
   ezApplicationPluginConfig cfg;
 
-  ezHybridArray<ezString, 16> order;
+  ezTempHybridArray<ezString, 16> order;
   for (auto it : m_PluginBundles.m_Plugins)
   {
     if (it.Value().m_bMandatory || it.Value().m_bSelected)
@@ -604,4 +760,26 @@ void ezQtEditorApp::ReloadEngineResources()
   msg.m_sWhatToDo = "ReloadResources";
   msg.m_sPayload = "ReloadAllResources";
   ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+}
+
+void ezQtEditorApp::OpenDemoDocument()
+{
+  auto* pCurator = ezAssetCurator::GetSingleton();
+  auto assets = pCurator->GetKnownAssets();
+
+  ezStringBuilder sBestDoc;
+
+  for (auto it = assets->GetIterator(); it.IsValid(); ++it)
+  {
+    if (it.Value()->m_Path.GetDataDirRelativePath().GetFileName().IsEqual_NoCase("Main"))
+    {
+      sBestDoc = it.Value()->m_Path.GetAbsolutePath();
+      break;
+    }
+  }
+
+  if (!sBestDoc.IsEmpty())
+  {
+    SlotQueuedOpenDocument(sBestDoc.GetData(), nullptr);
+  }
 }

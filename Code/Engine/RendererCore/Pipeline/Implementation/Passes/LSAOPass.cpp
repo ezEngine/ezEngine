@@ -29,6 +29,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLSAOPass, 1, ezRTTIDefaultAllocator<ezLSAOPass
     EZ_MEMBER_PROPERTY("DistributedGathering", m_bDistributedGathering)->AddAttributes(new ezDefaultValueAttribute(true)),
   }
   EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Post Processing")
+  }
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
@@ -82,7 +87,6 @@ ezLSAOPass::~ezLSAOPass()
   DestroyLineSweepData();
 
   ezRenderContext::DeleteConstantBufferStorage(m_hLineSweepCB);
-  m_hLineSweepCB.Invalidate();
 }
 
 bool ezLSAOPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
@@ -95,7 +99,7 @@ bool ezLSAOPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPt
     ezLog::Error("No depth input connected to ssao pass!");
     return false;
   }
-  if (!inputs[m_PinDepthInput.m_uiInputIndex]->m_bAllowShaderResourceView)
+  if (!inputs[m_PinDepthInput.m_uiInputIndex]->m_TextureFlags.IsSet(ezGALTextureUsageFlags::ShaderResource))
   {
     ezLog::Error("All ssao pass inputs must allow shader resource view.");
     return false;
@@ -138,33 +142,31 @@ void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
     return;
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  ezGALPass* pGALPass = pDevice->BeginPass(GetName());
-  EZ_SCOPE_EXIT(pDevice->EndPass(pGALPass));
 
   ezGALRenderingSetup renderingSetup;
   ezGALTextureHandle tempTexture;
   if (m_bDistributedGathering)
   {
     ezGALTextureCreationDescription tempTextureDesc = outputs[m_PinOutput.m_uiOutputIndex]->m_Desc;
-    tempTextureDesc.m_bAllowShaderResourceView = true;
-    tempTextureDesc.m_bCreateRenderTarget = true;
+    tempTextureDesc.m_TextureFlags.Add(ezGALTextureUsageFlags::ShaderResource | ezGALTextureUsageFlags::RenderTarget);
     tempTexture = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(tempTextureDesc);
-    renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(tempTexture));
+    renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(tempTexture));
   }
   else
   {
-    renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(outputs[m_PinOutput.m_uiOutputIndex]->m_TextureHandle));
+    renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(outputs[m_PinOutput.m_uiOutputIndex]->m_TextureHandle));
   }
 
   // Line Sweep part (compute)
   {
     EZ_PROFILE_SCOPE("Line Sweep");
-    auto pCommandEncoder = renderViewContext.m_pRenderContext->BeginComputeScope(pGALPass, renderViewContext, "Line Sweep");
-    renderViewContext.m_pRenderContext->BindConstantBuffer("ezLSAOConstants", m_hLineSweepCB);
-    renderViewContext.m_pRenderContext->BindTexture2D("DepthBuffer", pDevice->GetDefaultResourceView(inputs[m_PinDepthInput.m_uiInputIndex]->m_TextureHandle));
+    auto computeScope = renderViewContext.m_pRenderContext->BeginComputeScope(renderViewContext, "Line Sweep");
+    ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
+    bindGroup.BindBuffer("ezLSAOConstants", m_hLineSweepCB);
+    bindGroup.BindTexture("DepthBuffer", inputs[m_PinDepthInput.m_uiInputIndex]->m_TextureHandle);
     renderViewContext.m_pRenderContext->BindShader(m_hShaderLineSweep);
-    renderViewContext.m_pRenderContext->BindBuffer("LineInstructions", m_hLineSweepInfoSRV);
-    renderViewContext.m_pRenderContext->BindUAV("LineSweepOutputBuffer", m_hLineSweepOutputUAV);
+    bindGroup.BindBuffer("LineInstructions", m_hLineInfoBuffer);
+    bindGroup.BindBuffer("LineSweepOutputBuffer", m_hLineSweepOutputBuffer, m_LineSweepOutputBufferRange);
 
     const ezUInt32 dispatchSize = m_uiNumSweepLines / SSAO_LINESWEEP_THREAD_GROUP + (m_uiNumSweepLines % SSAO_LINESWEEP_THREAD_GROUP != 0 ? 1 : 0);
     const ezUInt32 uiRenderedInstances = renderViewContext.m_pCamera->IsStereoscopic() ? 2 : 1;
@@ -174,7 +176,7 @@ void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
   // Gather samples.
   {
     EZ_PROFILE_SCOPE("Gather");
-    auto pCommandEncoder = renderViewContext.m_pRenderContext->BeginRenderingScope(pGALPass, renderViewContext, renderingSetup, "Gather Samples", renderViewContext.m_pCamera->IsStereoscopic());
+    auto pCommandEncoder = renderViewContext.m_pRenderContext->BeginRenderingScope(renderViewContext, renderingSetup, "Gather Samples", renderViewContext.m_pCamera->IsStereoscopic());
 
     if (m_bDistributedGathering)
       renderViewContext.m_pRenderContext->SetShaderPermutationVariable("DISTRIBUTED_SSAO_GATHERING", "TRUE");
@@ -194,12 +196,13 @@ void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
         break;
     }
 
-    renderViewContext.m_pRenderContext->BindConstantBuffer("ezLSAOConstants", m_hLineSweepCB);
-    renderViewContext.m_pRenderContext->BindTexture2D("DepthBuffer", pDevice->GetDefaultResourceView(inputs[m_PinDepthInput.m_uiInputIndex]->m_TextureHandle));
+    ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
+    bindGroup.BindBuffer("ezLSAOConstants", m_hLineSweepCB);
+    bindGroup.BindTexture("DepthBuffer", inputs[m_PinDepthInput.m_uiInputIndex]->m_TextureHandle);
     renderViewContext.m_pRenderContext->BindShader(m_hShaderGather);
-    renderViewContext.m_pRenderContext->BindBuffer("LineInstructions", m_hLineSweepInfoSRV);
-    renderViewContext.m_pRenderContext->BindBuffer("LineSweepOutputBuffer", m_hLineSweepOutputSRV);
-    renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
+    bindGroup.BindBuffer("LineInstructions", m_hLineInfoBuffer);
+    bindGroup.BindBuffer("LineSweepOutputBuffer", m_hLineSweepOutputBuffer, m_LineSweepOutputBufferRange);
+    renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
     renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
   }
 
@@ -221,16 +224,18 @@ void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
         break;
     }
 
-    renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(outputs[m_PinOutput.m_uiOutputIndex]->m_TextureHandle));
+    renderingSetup.Reset();
+    renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(outputs[m_PinOutput.m_uiOutputIndex]->m_TextureHandle));
 
-    auto pCommandEncoder = renderViewContext.m_pRenderContext->BeginRenderingScope(pGALPass, renderViewContext, renderingSetup, "Averaging", renderViewContext.m_pCamera->IsStereoscopic());
+    auto pCommandEncoder = renderViewContext.m_pRenderContext->BeginRenderingScope(renderViewContext, renderingSetup, "Averaging", renderViewContext.m_pCamera->IsStereoscopic());
 
-    renderViewContext.m_pRenderContext->BindConstantBuffer("ezLSAOConstants", m_hLineSweepCB);
-    renderViewContext.m_pRenderContext->BindTexture2D("DepthBuffer", pDevice->GetDefaultResourceView(inputs[m_PinDepthInput.m_uiInputIndex]->m_TextureHandle));
+    ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
+    bindGroup.BindBuffer("ezLSAOConstants", m_hLineSweepCB);
+    bindGroup.BindTexture("DepthBuffer", inputs[m_PinDepthInput.m_uiInputIndex]->m_TextureHandle);
     renderViewContext.m_pRenderContext->BindShader(m_hShaderAverage);
-    renderViewContext.m_pRenderContext->BindTexture2D("SSAOGatherOutput", pDevice->GetDefaultResourceView(tempTexture));
+    bindGroup.BindTexture("SSAOGatherOutput", tempTexture);
 
-    renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
+    renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
     renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
 
     // Give back temp texture.
@@ -249,11 +254,10 @@ void ezLSAOPass::ExecuteInactive(const ezRenderViewContext& renderViewContext, c
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
   ezGALRenderingSetup renderingSetup;
-  renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
-  renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
-  renderingSetup.m_ClearColor = ezColor::White;
+  renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
+  renderingSetup.SetClearColor(0, ezColor::White);
 
-  auto pCommandEncoder = ezRenderContext::BeginPassAndRenderingScope(renderViewContext, renderingSetup, "Clear");
+  auto pCommandEncoder = ezRenderContext::BeginRenderingScope(renderViewContext, renderingSetup, "Clear");
 }
 
 ezResult ezLSAOPass::Serialize(ezStreamWriter& inout_stream) const
@@ -320,21 +324,8 @@ void ezLSAOPass::DestroyLineSweepData()
 {
   ezGALDevice* device = ezGALDevice::GetDefaultDevice();
 
-  if (!m_hLineSweepOutputUAV.IsInvalidated())
-    device->DestroyUnorderedAccessView(m_hLineSweepOutputUAV);
-  m_hLineSweepOutputUAV.Invalidate();
-
-  if (!m_hLineSweepOutputSRV.IsInvalidated())
-    device->DestroyResourceView(m_hLineSweepOutputSRV);
-  m_hLineSweepOutputSRV.Invalidate();
-
-  if (!m_hLineSweepOutputBuffer.IsInvalidated())
-    device->DestroyBuffer(m_hLineSweepOutputBuffer);
-  m_hLineSweepOutputBuffer.Invalidate();
-
-  if (!m_hLineInfoBuffer.IsInvalidated())
-    device->DestroyBuffer(m_hLineInfoBuffer);
-  m_hLineInfoBuffer.Invalidate();
+  device->DestroyBuffer(m_hLineSweepOutputBuffer);
+  device->DestroyBuffer(m_hLineInfoBuffer);
 }
 
 void ezLSAOPass::SetupLineSweepData(const ezVec3I32& imageResolution)
@@ -406,24 +397,12 @@ void ezLSAOPass::SetupLineSweepData(const ezVec3I32& imageResolution)
       bufferDesc.m_uiStructSize = 4;
       bufferDesc.m_uiTotalSize = imageResolution.z * 2 * totalNumberOfSamples;
       bufferDesc.m_BufferFlags = ezGALBufferUsageFlags::TexelBuffer | ezGALBufferUsageFlags::ShaderResource | ezGALBufferUsageFlags::UnorderedAccess;
-      bufferDesc.m_ResourceAccess.m_bReadBack = false;
       bufferDesc.m_ResourceAccess.m_bImmutable = false;
+      bufferDesc.m_Format = ezGALResourceFormat::RUInt;
 
       m_hLineSweepOutputBuffer = device->CreateBuffer(bufferDesc);
 
-      ezGALBufferUnorderedAccessViewCreationDescription uavDesc;
-      uavDesc.m_hBuffer = m_hLineSweepOutputBuffer;
-      uavDesc.m_OverrideViewFormat = ezGALResourceFormat::RUInt;
-      uavDesc.m_uiFirstElement = 0;
-      uavDesc.m_uiNumElements = imageResolution.z * totalNumberOfSamples / 2;
-      m_hLineSweepOutputUAV = device->CreateUnorderedAccessView(uavDesc);
-
-      ezGALBufferResourceViewCreationDescription srvDesc;
-      srvDesc.m_hBuffer = m_hLineSweepOutputBuffer;
-      srvDesc.m_OverrideViewFormat = ezGALResourceFormat::RUInt;
-      srvDesc.m_uiFirstElement = 0;
-      srvDesc.m_uiNumElements = imageResolution.z * totalNumberOfSamples / 2;
-      m_hLineSweepOutputSRV = device->CreateResourceView(srvDesc);
+      m_LineSweepOutputBufferRange = {0, static_cast<ezUInt32>(imageResolution.z * totalNumberOfSamples / 2 * sizeof(ezUInt32))};
     }
 
     // Structured buffer per line.
@@ -432,12 +411,9 @@ void ezLSAOPass::SetupLineSweepData(const ezVec3I32& imageResolution)
       bufferDesc.m_uiStructSize = sizeof(LineInstruction);
       bufferDesc.m_uiTotalSize = sizeof(LineInstruction) * m_uiNumSweepLines;
       bufferDesc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
-      bufferDesc.m_ResourceAccess.m_bReadBack = false;
       bufferDesc.m_ResourceAccess.m_bImmutable = true;
 
       m_hLineInfoBuffer = device->CreateBuffer(bufferDesc, ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(lineInstructions.GetData()), lineInstructions.GetCount() * sizeof(LineInstruction)));
-
-      m_hLineSweepInfoSRV = device->GetDefaultResourceView(m_hLineInfoBuffer);
     }
   }
 

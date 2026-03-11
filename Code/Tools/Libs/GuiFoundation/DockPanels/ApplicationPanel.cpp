@@ -5,6 +5,7 @@
 #include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
 #include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
 
+#include <ads/AutoHideDockContainer.h>
 #include <ads/DockAreaWidget.h>
 #include <ads/DockContainerWidget.h>
 #include <ads/DockWidgetTab.h>
@@ -14,8 +15,8 @@ EZ_END_STATIC_REFLECTED_TYPE;
 
 ezDynamicArray<ezQtApplicationPanel*> ezQtApplicationPanel::s_AllApplicationPanels;
 
-ezQtApplicationPanel::ezQtApplicationPanel(const char* szPanelName)
-  : ads::CDockWidget(szPanelName, ezQtContainerWindow::GetContainerWindow())
+ezQtApplicationPanel::ezQtApplicationPanel(ads::CDockManager* pDockManager, const char* szPanelName)
+  : ads::CDockWidget(pDockManager, szPanelName, ezQtContainerWindow::GetContainerWindow())
 {
   ezStringBuilder sPanel("AppPanel_", szPanelName);
 
@@ -43,6 +44,12 @@ void ezQtApplicationPanel::EnsureVisible()
   m_pContainerWindow->EnsureVisible(this).IgnoreResult();
 
   QWidget* pThis = this;
+
+  if (isAutoHide())
+  {
+    // Expand the auto-hide container to make the widget visible
+    autoHideDockContainer()->collapseView(false);
+  }
 
   if (dockAreaWidget())
   {

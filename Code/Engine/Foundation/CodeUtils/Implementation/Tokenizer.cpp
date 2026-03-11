@@ -113,7 +113,7 @@ void ezTokenizer::Tokenize(ezArrayPtr<const ezUInt8> data, ezLogInterface* pLog,
   {
     m_CurMode = ezTokenType::Unknown;
     m_uiCurLine = 1;
-    m_uiCurColumn = -1;
+    m_uiCurColumn = ezInvalidIndex;
     m_uiCurChar = '\0';
     m_uiNextChar = '\0';
     m_uiLastLine = 1;
@@ -301,7 +301,7 @@ void ezTokenizer::HandleString(char terminator)
   while (m_uiCurChar != '\0')
   {
     // Escaped quote \"
-    if ((m_uiCurChar == '\\') && (m_uiNextChar == terminator))
+    if ((m_uiCurChar == '\\') && (m_uiNextChar == ezUInt32(terminator)))
     {
       // skip this one
       NextChar();
@@ -352,7 +352,7 @@ void ezTokenizer::HandleString(char terminator)
       return;
     }
     // end of string
-    else if (m_uiCurChar == terminator)
+    else if (m_uiCurChar == ezUInt32(terminator))
     {
       NextChar();
       AddToken();
@@ -611,34 +611,34 @@ void ezTokenizer::GetAllLines(ezDynamicArray<const ezToken*>& ref_tokens) const
   }
 }
 
-ezResult ezTokenizer::GetNextLine(ezUInt32& ref_uiFirstToken, ezHybridArray<ezToken*, 32>& ref_tokens)
+ezResult ezTokenizer::GetNextLine(ezUInt32& out_uiFirstToken, ezDynamicArray<ezToken*>& out_tokens)
 {
-  ref_tokens.Clear();
+  out_tokens.Clear();
 
-  ezHybridArray<const ezToken*, 32> Tokens0;
-  ezResult r = GetNextLine(ref_uiFirstToken, Tokens0);
+  ezTempHybridArray<const ezToken*, 32> Tokens0;
+  ezResult r = GetNextLine(out_uiFirstToken, Tokens0);
 
-  ref_tokens.SetCountUninitialized(Tokens0.GetCount());
+  out_tokens.SetCountUninitialized(Tokens0.GetCount());
   for (ezUInt32 i = 0; i < Tokens0.GetCount(); ++i)
-    ref_tokens[i] = const_cast<ezToken*>(Tokens0[i]); // soo evil !
+    out_tokens[i] = const_cast<ezToken*>(Tokens0[i]); // soo evil !
 
   return r;
 }
 
-ezResult ezTokenizer::GetNextLine(ezUInt32& ref_uiFirstToken, ezHybridArray<const ezToken*, 32>& ref_tokens) const
+ezResult ezTokenizer::GetNextLine(ezUInt32& out_uiFirstToken, ezDynamicArray<const ezToken*>& out_tokens) const
 {
-  ref_tokens.Clear();
+  out_tokens.Clear();
 
   const ezUInt32 uiMaxTokens = m_Tokens.GetCount() - 1;
 
-  while (ref_uiFirstToken < uiMaxTokens)
+  while (out_uiFirstToken < uiMaxTokens)
   {
-    const ezToken& tCur = m_Tokens[ref_uiFirstToken];
+    const ezToken& tCur = m_Tokens[out_uiFirstToken];
 
     // found a backslash
     if (tCur.m_iType == ezTokenType::NonIdentifier && tCur.m_DataView == "\\")
     {
-      const ezToken& tNext = m_Tokens[ref_uiFirstToken + 1];
+      const ezToken& tNext = m_Tokens[out_uiFirstToken + 1];
 
       // and a newline!
       if (tNext.m_iType == ezTokenType::Newline)
@@ -649,33 +649,33 @@ ezResult ezTokenizer::GetNextLine(ezUInt32& ref_uiFirstToken, ezHybridArray<cons
         // for now we ignore this and assume there is a 'whitespace' between such identifiers
 
         // we could maybe at least output a warning, if we detect it
-        if (ref_uiFirstToken > 0 && m_Tokens[ref_uiFirstToken - 1].m_iType == ezTokenType::Identifier && ref_uiFirstToken + 2 < uiMaxTokens && m_Tokens[ref_uiFirstToken + 2].m_iType == ezTokenType::Identifier)
+        if (out_uiFirstToken > 0 && m_Tokens[out_uiFirstToken - 1].m_iType == ezTokenType::Identifier && out_uiFirstToken + 2 < uiMaxTokens && m_Tokens[out_uiFirstToken + 2].m_iType == ezTokenType::Identifier)
         {
-          ezStringBuilder s1 = m_Tokens[ref_uiFirstToken - 1].m_DataView;
-          ezStringBuilder s2 = m_Tokens[ref_uiFirstToken + 2].m_DataView;
+          ezStringBuilder s1 = m_Tokens[out_uiFirstToken - 1].m_DataView;
+          ezStringBuilder s2 = m_Tokens[out_uiFirstToken + 2].m_DataView;
           ezLog::Warning("Line {0}: The \\ at the line end is in the middle of an identifier name ('{1}' and '{2}'). However, merging identifier "
                          "names is currently not supported.",
-            m_Tokens[ref_uiFirstToken].m_uiLine, s1, s2);
+            m_Tokens[out_uiFirstToken].m_uiLine, s1, s2);
         }
 
         // ignore this
-        ref_uiFirstToken += 2;
+        out_uiFirstToken += 2;
         continue;
       }
     }
 
-    ref_tokens.PushBack(&tCur);
+    out_tokens.PushBack(&tCur);
 
-    if (m_Tokens[ref_uiFirstToken].m_iType == ezTokenType::Newline)
+    if (m_Tokens[out_uiFirstToken].m_iType == ezTokenType::Newline)
     {
-      ++ref_uiFirstToken;
+      ++out_uiFirstToken;
       return EZ_SUCCESS;
     }
 
-    ++ref_uiFirstToken;
+    ++out_uiFirstToken;
   }
 
-  if (ref_tokens.IsEmpty())
+  if (out_tokens.IsEmpty())
     return EZ_FAILURE;
 
   return EZ_SUCCESS;

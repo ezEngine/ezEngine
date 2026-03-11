@@ -184,7 +184,7 @@ namespace
 
 const char* ezExpressionByteCode::OpCode::GetName(Enum code)
 {
-  EZ_ASSERT_DEBUG(code >= 0 && code < EZ_ARRAY_SIZE(s_szOpCodeNames), "Out of bounds access");
+  EZ_ASSERT_DEBUG(code >= 0 && static_cast<ezUInt32>(code) < EZ_ARRAY_SIZE(s_szOpCodeNames), "Out of bounds access");
   return s_szOpCodeNames[code];
 }
 
@@ -454,9 +454,9 @@ ezResult ezExpressionByteCode::Load(ezStreamReader& inout_stream, ezByteArrayPtr
       return EZ_FAILURE;
     }
 
-    if (ezMemoryUtils::IsAligned(externalMemory.GetPtr(), EZ_ALIGNMENT_OF(ezExpression::StreamDesc)) == false)
+    if (ezMemoryUtils::IsAligned(externalMemory.GetPtr(), alignof(ezExpression::StreamDesc)) == false)
     {
-      ezLog::Error("External memory is not properly aligned. Expected an alignment of at least {} bytes.", EZ_ALIGNMENT_OF(ezExpression::StreamDesc));
+      ezLog::Error("External memory is not properly aligned. Expected an alignment of at least {} bytes.", alignof(ezExpression::StreamDesc));
       return EZ_FAILURE;
     }
 
@@ -489,7 +489,7 @@ ezResult ezExpressionByteCode::Load(ezStreamReader& inout_stream, ezByteArrayPtr
 
   // Functions
   {
-    pData = ezMemoryUtils::AlignForwards(pData, EZ_ALIGNMENT_OF(ezExpression::FunctionDesc));
+    pData = ezMemoryUtils::AlignForwards(pData, alignof(ezExpression::FunctionDesc));
 
     inout_stream >> m_uiNumFunctions;
     m_pFunctions = static_cast<ezExpression::FunctionDesc*>(pData);
@@ -503,7 +503,7 @@ ezResult ezExpressionByteCode::Load(ezStreamReader& inout_stream, ezByteArrayPtr
 
   // ByteCode
   {
-    pData = ezMemoryUtils::AlignForwards(pData, EZ_ALIGNMENT_OF(StorageType));
+    pData = ezMemoryUtils::AlignForwards(pData, alignof(StorageType));
 
     inout_stream >> m_uiByteCodeCount;
     m_pByteCode = static_cast<StorageType*>(pData);
@@ -527,11 +527,11 @@ void ezExpressionByteCode::Init(ezArrayPtr<const StorageType> byteCode, ezArrayP
   uiOutputsOffset = uiDataSize;
   uiDataSize += outputs.ToByteArray().GetCount();
 
-  uiDataSize = ezMemoryUtils::AlignSize<ezUInt32>(uiDataSize, EZ_ALIGNMENT_OF(ezExpression::FunctionDesc));
+  uiDataSize = ezMemoryUtils::AlignSize<ezUInt32>(uiDataSize, alignof(ezExpression::FunctionDesc));
   uiFunctionsOffset = uiDataSize;
   uiDataSize += functions.ToByteArray().GetCount();
 
-  uiDataSize = ezMemoryUtils::AlignSize<ezUInt32>(uiDataSize, EZ_ALIGNMENT_OF(StorageType));
+  uiDataSize = ezMemoryUtils::AlignSize<ezUInt32>(uiDataSize, alignof(StorageType));
   uiByteCodeOffset = uiDataSize;
   uiDataSize += byteCode.ToByteArray().GetCount();
 

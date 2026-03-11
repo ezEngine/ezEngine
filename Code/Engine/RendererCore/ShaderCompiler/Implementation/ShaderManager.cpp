@@ -105,7 +105,7 @@ namespace
     return false;
   }
 
-  static ezHashTable<ezUInt64, ezString> s_PermutationPaths;
+  static ezHashTable<ezUInt64, ezUntrackedString> s_PermutationPaths;
 } // namespace
 
 //////////////////////////////////////////////////////////////////////////
@@ -269,7 +269,7 @@ void ezShaderManager::PreloadPermutations(ezShaderResourceHandle hShader, const 
 
   generator.RemoveUnusedPermutations(pShader->GetUsedPermutationVars());
 
-  ezHybridArray<ezPermutationVar, 16> usedPermVars;
+  ezTempHybridArray<ezPermutationVar, 16> usedPermVars;
 
   const ezUInt32 uiPermutationCount = generator.GetPermutationCount();
   for (ezUInt32 uiPermutation = 0; uiPermutation < uiPermutationCount; ++uiPermutation)
@@ -288,7 +288,7 @@ ezShaderPermutationResourceHandle ezShaderManager::PreloadSinglePermutation(ezSh
   if (!pShader->IsShaderValid())
     return ezShaderPermutationResourceHandle();
 
-  ezHybridArray<ezPermutationVar, 64> filteredPermutationVariables(ezFrameAllocator::GetCurrentAllocator());
+  ezTempHybridArray<ezPermutationVar, 64> filteredPermutationVariables;
   ezUInt32 uiPermutationHash = FilterPermutationVars(pShader->GetUsedPermutationVars(), permVars, filteredPermutationVariables);
 
   return PreloadSinglePermutationInternal(pShader->GetResourceID(), pShader->GetResourceIDHash(), uiPermutationHash, filteredPermutationVariables);
@@ -326,25 +326,25 @@ ezUInt32 ezShaderManager::FilterPermutationVars(ezArrayPtr<const ezHashedString>
 
 
 
-ezShaderPermutationResourceHandle ezShaderManager::PreloadSinglePermutationInternal(const char* szResourceId, ezUInt64 uiResourceIdHash, ezUInt32 uiPermutationHash, ezArrayPtr<ezPermutationVar> filteredPermutationVariables)
+ezShaderPermutationResourceHandle ezShaderManager::PreloadSinglePermutationInternal(ezStringView sResourceId, ezUInt64 uiResourceIdHash, ezUInt32 uiPermutationHash, ezArrayPtr<ezPermutationVar> filteredPermutationVariables)
 {
   const ezUInt64 uiPermutationKey = (ezUInt64)ezHashingUtils::StringHashTo32(uiResourceIdHash) << 32 | uiPermutationHash;
 
-  ezString* pPermutationPath = &s_PermutationPaths[uiPermutationKey];
-  if (pPermutationPath->IsEmpty())
+  ezUntrackedString& permutationPath = s_PermutationPaths[uiPermutationKey];
+  if (permutationPath.IsEmpty())
   {
     ezStringBuilder sShaderFile = GetCacheDirectory();
     sShaderFile.AppendPath(GetActivePlatform().GetData());
-    sShaderFile.AppendPath(szResourceId);
+    sShaderFile.AppendPath(sResourceId);
     sShaderFile.ChangeFileExtension("");
     if (sShaderFile.EndsWith("."))
       sShaderFile.Shrink(0, 1);
     sShaderFile.AppendFormat("_{0}.ezPermutation", ezArgU(uiPermutationHash, 8, true, 16, true));
 
-    *pPermutationPath = sShaderFile;
+    permutationPath = sShaderFile;
   }
 
-  ezShaderPermutationResourceHandle hShaderPermutation = ezResourceManager::LoadResource<ezShaderPermutationResource>(pPermutationPath->GetData());
+  ezShaderPermutationResourceHandle hShaderPermutation = ezResourceManager::LoadResource<ezShaderPermutationResource>(permutationPath);
 
   {
     ezResourceLock<ezShaderPermutationResource> pShaderPermutation(hShaderPermutation, ezResourceAcquireMode::PointerOnly);

@@ -141,7 +141,7 @@ private:
 ///
 /// That instructs the ezPlugin system to make sure that Plugin1 gets loaded and initialized before Plugin2 is initialized.
 #define EZ_PLUGIN_DEPENDENCY(PluginName) \
-  ezPlugin::Init EZ_CONCAT(EZ_CONCAT(plugin_dep_, PluginName), EZ_SOURCE_LINE)(EZ_PP_STRINGIFY(PluginName))
+  ezPlugin::Init EZ_PP_CONCAT(EZ_PP_CONCAT(plugin_dep_, PluginName), EZ_SOURCE_LINE)(EZ_PP_STRINGIFY(PluginName))
 
 /// \brief Creates a function that is executed when the plugin gets loaded.
 ///

@@ -10,6 +10,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezResource, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
+ezResource::DoUpdate ezResource::UpdateGraphicsResource = ezResource::DoUpdate::OnAnyThread;
+
 EZ_CORE_DLL void IncreaseResourceRefCount(ezResource* pResource, const void* pOwner)
 {
 #if EZ_ENABLED(EZ_RESOURCEHANDLE_STACK_TRACES)
@@ -22,6 +24,8 @@ EZ_CORE_DLL void IncreaseResourceRefCount(ezResource* pResource, const void* pOw
 
     info.m_uiNumPtrs = ezStackTracer::GetStackTrace(ptr);
   }
+#else
+  EZ_IGNORE_UNUSED(pOwner);
 #endif
 
   pResource->m_iReferenceCount.Increment();
@@ -38,6 +42,8 @@ EZ_CORE_DLL void DecreaseResourceRefCount(ezResource* pResource, const void* pOw
       EZ_REPORT_FAILURE("No associated stack-trace!");
     }
   }
+#else
+  EZ_IGNORE_UNUSED(pOwner);
 #endif
 
   pResource->m_iReferenceCount.Decrement();
@@ -71,6 +77,11 @@ ezResource::~ezResource()
 
 ezResource::ezResource(DoUpdate ResourceUpdateThread, ezUInt8 uiQualityLevelsLoadable)
 {
+  if (ResourceUpdateThread == DoUpdate::OnGraphicsResourceThreads)
+  {
+    ResourceUpdateThread = UpdateGraphicsResource;
+  }
+
   m_Flags.AddOrRemove(ezResourceFlags::UpdateOnMainThread, ResourceUpdateThread == DoUpdate::OnMainThread);
 
   m_uiQualityLevelsLoadable = uiQualityLevelsLoadable;
@@ -124,7 +135,7 @@ void ezResource::SetUniqueID(ezStringView sUniqueID, bool bIsReloadable)
 
 void ezResource::CallUnloadData(Unload WhatToUnload)
 {
-  EZ_LOG_BLOCK("ezResource::UnloadData", GetResourceID().GetData());
+  EZ_LOG_BLOCK("ezResource::UnloadData", GetResourceID());
 
   ezResourceEvent e;
   e.m_pResource = this;
@@ -155,7 +166,7 @@ void ezResource::CallUpdateContent(ezStreamReader* Stream)
 {
   EZ_PROFILE_SCOPE("CallUpdateContent");
 
-  EZ_LOG_BLOCK("ezResource::UpdateContent", GetResourceID().GetData());
+  EZ_LOG_BLOCK("ezResource::UpdateContent", GetResourceDescription());
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   const ezResource* pPreviouslyUpdatingContent = g_pCurrentlyUpdatingContent;
@@ -283,7 +294,7 @@ void ezResource::VerifyAfterCreateResource(const ezResourceLoadDesc& ld)
   e.m_Type = ezResourceEvent::Type::ResourceContentUpdated;
   ezResourceManager::BroadcastResourceEvent(e);
 
-  ezLog::Debug("Created {0} - '{1}' ", GetDynamicRTTI()->GetTypeName(), ezArgSensitive(GetResourceDescription(), "ResourceDesc"));
+  ezLog::Debug("Created {0} - '{1}' ", GetDynamicRTTI()->GetTypeName(), ezArgSensitive(GetResourceIdOrDescription(), "ResourceDesc"));
 }
 
 EZ_STATICLINK_FILE(Core, Core_ResourceManager_Implementation_Resource);

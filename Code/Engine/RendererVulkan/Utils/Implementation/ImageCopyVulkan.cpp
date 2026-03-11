@@ -2,15 +2,14 @@
 
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/RenderTargetView.h>
-#include <RendererFoundation/Resources/ResourceView.h>
 #include <RendererFoundation/Shader/ShaderUtils.h>
-#include <RendererVulkan/Pools/DescriptorSetPoolVulkan.h>
+#include <RendererFoundation/State/PipelineCache.h>
+#include <RendererVulkan/Pools/TransientDescriptorSetPoolVulkan.h>
 #include <RendererVulkan/Resources/BufferVulkan.h>
 #include <RendererVulkan/Resources/RenderTargetViewVulkan.h>
-#include <RendererVulkan/Resources/ResourceViewVulkan.h>
 #include <RendererVulkan/Resources/TextureVulkan.h>
-#include <RendererVulkan/Resources/UnorderedAccessViewVulkan.h>
 #include <RendererVulkan/Shader/VertexDeclarationVulkan.h>
+#include <RendererVulkan/State/GraphicsPipelineVulkan.h>
 #include <RendererVulkan/State/StateVulkan.h>
 #include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
 #include <RendererVulkan/Utils/ImageCopyVulkan.h>
@@ -27,20 +26,6 @@ struct ezHashHelper<ezGALShaderHandle>
   EZ_ALWAYS_INLINE static bool Equal(ezGALShaderHandle a, ezGALShaderHandle b)
   {
     return ezHashHelper<ezGALShaderHandle::IdType::StorageType>::Equal(a.GetInternalID().m_Data, b.GetInternalID().m_Data);
-  }
-};
-
-template <>
-struct ezHashHelper<ezImageCopyVulkan::RenderPassCacheKey>
-{
-  EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezImageCopyVulkan::RenderPassCacheKey& value)
-  {
-    return ezHashingUtils::CombineHashValues32(static_cast<uint32_t>(value.targetFormat), static_cast<uint32_t>(value.targetSamples));
-  }
-
-  EZ_ALWAYS_INLINE static bool Equal(const ezImageCopyVulkan::RenderPassCacheKey& a, const ezImageCopyVulkan::RenderPassCacheKey& b)
-  {
-    return a.targetFormat == b.targetFormat && a.targetSamples == b.targetSamples;
   }
 };
 
@@ -64,7 +49,7 @@ struct ezHashHelper<ezImageCopyVulkan::FramebufferCacheKey>
   EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezImageCopyVulkan::FramebufferCacheKey& value)
   {
     ezHashStreamWriter32 writer;
-    writer << (VkRenderPass)value.m_renderpass;
+    writer << (VkRenderPass)value.m_renderPass;
     writer << (VkImageView)value.m_targetView;
     writer << value.m_extends.x;
     writer << value.m_extends.y;
@@ -74,7 +59,7 @@ struct ezHashHelper<ezImageCopyVulkan::FramebufferCacheKey>
 
   EZ_ALWAYS_INLINE static bool Equal(const ezImageCopyVulkan::FramebufferCacheKey& a, const ezImageCopyVulkan::FramebufferCacheKey& b)
   {
-    return a.m_renderpass == b.m_renderpass && a.m_targetView == b.m_targetView && a.m_extends == b.m_extends && a.m_layerCount == b.m_layerCount;
+    return a.m_renderPass == b.m_renderPass && a.m_targetView == b.m_targetView && a.m_extends == b.m_extends && a.m_layerCount == b.m_layerCount;
   }
 };
 
@@ -118,7 +103,6 @@ ezUniquePtr<ezImageCopyVulkan::Cache> ezImageCopyVulkan::s_cache;
 
 ezImageCopyVulkan::Cache::Cache(ezAllocator* pAllocator)
   : m_vertexDeclarations(pAllocator)
-  , m_renderPasses(pAllocator)
   , m_sourceImageViews(pAllocator)
   , m_imageToSourceImageViewCacheKey(pAllocator)
   , m_targetImageViews(pAllocator)
@@ -139,7 +123,7 @@ ezImageCopyVulkan::~ezImageCopyVulkan() = default;
 
 void ezImageCopyVulkan::Initialize(ezGALDeviceVulkan& GALDeviceVulkan)
 {
-  s_cache = EZ_NEW(&GALDeviceVulkan.GetAllocator(), ezImageCopyVulkan::Cache, &GALDeviceVulkan.GetAllocator());
+  s_cache = EZ_NEW(GALDeviceVulkan.GetAllocator(), ezImageCopyVulkan::Cache, GALDeviceVulkan.GetAllocator());
 
   s_cache->m_onBeforeImageDeletedSubscription = GALDeviceVulkan.OnBeforeImageDestroyed.AddEventHandler(ezMakeDelegate(OnBeforeImageDestroyed));
 }
@@ -150,10 +134,6 @@ void ezImageCopyVulkan::DeInitialize(ezGALDeviceVulkan& GALDeviceVulkan)
   for (auto& kv : (s_cache->m_vertexDeclarations))
   {
     GALDeviceVulkan.DestroyVertexDeclaration(kv.Value());
-  }
-  for (auto& kv : (s_cache->m_renderPasses))
-  {
-    GALDeviceVulkan.GetVulkanDevice().destroyRenderPass(kv.Value());
   }
   for (auto& kv : (s_cache->m_sourceImageViews))
   {
@@ -205,7 +185,6 @@ void ezImageCopyVulkan::Init(const ezGALTextureVulkan* pSource, const ezGALTextu
 
   auto& targetDesc = m_pTarget->GetDescription();
 
-  vk::Image targetImage = m_pTarget->GetImage();
   vk::Format targetFormat = m_pTarget->GetImageFormat();
 
   bool bTargetIsDepth = ezConversionUtilsVulkan::IsDepthFormat(targetFormat);
@@ -213,56 +192,11 @@ void ezImageCopyVulkan::Init(const ezGALTextureVulkan* pSource, const ezGALTextu
 
   // Render pass
   {
-    RenderPassCacheKey cacheEntry = {};
-    cacheEntry.targetFormat = targetFormat;
-    cacheEntry.targetSamples = ezConversionUtilsVulkan::GetSamples(targetDesc.m_SampleCount);
-
-    if (auto it = s_cache->m_renderPasses.Find(cacheEntry); it.IsValid())
-    {
-      m_renderPass = it.Value();
-    }
-    else
-    {
-      ezHybridArray<vk::AttachmentDescription, 4> attachments;
-      ezHybridArray<vk::AttachmentReference, 4> colorAttachmentRefs;
-      vk::AttachmentDescription& vkAttachment = attachments.ExpandAndGetRef();
-      vkAttachment.format = cacheEntry.targetFormat;
-      vkAttachment.samples = cacheEntry.targetSamples;
-      vkAttachment.loadOp = vk::AttachmentLoadOp::eLoad; // #TODO_VULKAN we could replace this with don't care if we knew that all copy commands render to the entire sub-resource.
-      vkAttachment.storeOp = vk::AttachmentStoreOp::eStore;
-      vkAttachment.initialLayout = vk::ImageLayout::eColorAttachmentOptimal;
-      vkAttachment.finalLayout = vk::ImageLayout::eColorAttachmentOptimal;
-
-      vk::AttachmentReference& colorAttachment = colorAttachmentRefs.ExpandAndGetRef();
-      colorAttachment.attachment = 0;
-      colorAttachment.layout = vk::ImageLayout::eColorAttachmentOptimal;
-
-      vk::SubpassDescription subpass;
-      subpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
-      subpass.colorAttachmentCount = colorAttachmentRefs.GetCount();
-      subpass.pColorAttachments = colorAttachmentRefs.GetData();
-      subpass.pDepthStencilAttachment = nullptr;
-
-      vk::SubpassDependency dependency;
-      dependency.dstSubpass = 0;
-      dependency.dstAccessMask |= vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eColorAttachmentRead;
-
-      dependency.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
-      dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-      dependency.srcAccessMask = {};
-      dependency.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests;
-
-      vk::RenderPassCreateInfo renderPassCreateInfo;
-      renderPassCreateInfo.attachmentCount = attachments.GetCount();
-      renderPassCreateInfo.pAttachments = attachments.GetData();
-      renderPassCreateInfo.subpassCount = 1;
-      renderPassCreateInfo.pSubpasses = &subpass;
-      renderPassCreateInfo.dependencyCount = 1;
-      renderPassCreateInfo.pDependencies = &dependency;
-
-      VK_ASSERT_DEV(m_GALDeviceVulkan.GetVulkanDevice().createRenderPass(&renderPassCreateInfo, nullptr, &m_renderPass));
-      s_cache->m_renderPasses.Insert(cacheEntry, m_renderPass);
-    }
+    m_PipelineDesc.m_RenderPass = ezGALRenderPassDescriptor();
+    m_PipelineDesc.m_RenderPass.m_Msaa = targetDesc.m_SampleCount;
+    m_PipelineDesc.m_RenderPass.m_uiRTCount = 1;
+    m_PipelineDesc.m_RenderPass.m_ColorFormat[0] = m_pTarget->GetDescription().m_Format;
+    m_renderPass = ezResourceCacheVulkan::RequestRenderPass(m_PipelineDesc.m_RenderPass);
   }
 
   // Pipeline
@@ -271,12 +205,12 @@ void ezImageCopyVulkan::Init(const ezGALTextureVulkan* pSource, const ezGALTextu
     if (auto it = s_cache->m_shaders.Find(type); it.IsValid())
     {
       m_shader = it.Value();
-      m_PipelineDesc.m_pCurrentRasterizerState = static_cast<const ezGALRasterizerStateVulkan*>(m_GALDeviceVulkan.GetRasterizerState(m_shader.m_hRasterizerState));
-      m_PipelineDesc.m_pCurrentBlendState = static_cast<const ezGALBlendStateVulkan*>(m_GALDeviceVulkan.GetBlendState(m_shader.m_hBlendState));
-      m_PipelineDesc.m_pCurrentDepthStencilState = static_cast<const ezGALDepthStencilStateVulkan*>(m_GALDeviceVulkan.GetDepthStencilState(m_shader.m_hDepthStencilState));
-      m_PipelineDesc.m_pCurrentShader = static_cast<const ezGALShaderVulkan*>(m_GALDeviceVulkan.GetShader(m_shader.m_hActiveGALShader));
+      m_PipelineDesc.m_hRasterizerState = m_shader.m_hRasterizerState;
+      m_PipelineDesc.m_hBlendState = m_shader.m_hBlendState;
+      m_PipelineDesc.m_hDepthStencilState = m_shader.m_hDepthStencilState;
+      m_PipelineDesc.m_hShader = m_shader.m_hActiveGALShader;
 
-      if (!m_PipelineDesc.m_pCurrentRasterizerState || !m_PipelineDesc.m_pCurrentBlendState || !m_PipelineDesc.m_pCurrentDepthStencilState || !m_PipelineDesc.m_pCurrentShader)
+      if (m_PipelineDesc.m_hRasterizerState.IsInvalidated() || m_PipelineDesc.m_hBlendState.IsInvalidated() || m_PipelineDesc.m_hDepthStencilState.IsInvalidated() || m_PipelineDesc.m_hShader.IsInvalidated())
       {
         s_cache->m_shaders.Clear();
         for (auto& kv : (s_cache->m_vertexDeclarations))
@@ -287,24 +221,20 @@ void ezImageCopyVulkan::Init(const ezGALTextureVulkan* pSource, const ezGALTextu
       }
     }
 
-    if (!m_PipelineDesc.m_pCurrentRasterizerState || !m_PipelineDesc.m_pCurrentBlendState || !m_PipelineDesc.m_pCurrentDepthStencilState || !m_PipelineDesc.m_pCurrentShader)
+    if (m_PipelineDesc.m_hRasterizerState.IsInvalidated() || m_PipelineDesc.m_hBlendState.IsInvalidated() || m_PipelineDesc.m_hDepthStencilState.IsInvalidated() || m_PipelineDesc.m_hShader.IsInvalidated())
     {
       ezShaderUtils::RequestBuiltinShader(type, m_shader);
       s_cache->m_shaders.Insert(type, m_shader);
 
-      m_PipelineDesc.m_pCurrentRasterizerState = static_cast<const ezGALRasterizerStateVulkan*>(m_GALDeviceVulkan.GetRasterizerState(m_shader.m_hRasterizerState));
-      m_PipelineDesc.m_pCurrentBlendState = static_cast<const ezGALBlendStateVulkan*>(m_GALDeviceVulkan.GetBlendState(m_shader.m_hBlendState));
-      m_PipelineDesc.m_pCurrentDepthStencilState = static_cast<const ezGALDepthStencilStateVulkan*>(m_GALDeviceVulkan.GetDepthStencilState(m_shader.m_hDepthStencilState));
-      m_PipelineDesc.m_pCurrentShader = static_cast<const ezGALShaderVulkan*>(m_GALDeviceVulkan.GetShader(m_shader.m_hActiveGALShader));
+      m_PipelineDesc.m_hRasterizerState = m_shader.m_hRasterizerState;
+      m_PipelineDesc.m_hBlendState = m_shader.m_hBlendState;
+      m_PipelineDesc.m_hDepthStencilState = m_shader.m_hDepthStencilState;
+      m_PipelineDesc.m_hShader = m_shader.m_hActiveGALShader;
 
-      EZ_ASSERT_DEV(m_PipelineDesc.m_pCurrentRasterizerState && m_PipelineDesc.m_pCurrentBlendState && m_PipelineDesc.m_pCurrentDepthStencilState && m_PipelineDesc.m_pCurrentShader, "");
+      EZ_ASSERT_DEV(!m_PipelineDesc.m_hRasterizerState.IsInvalidated() && !m_PipelineDesc.m_hBlendState.IsInvalidated() && !m_PipelineDesc.m_hDepthStencilState.IsInvalidated() && !m_PipelineDesc.m_hShader.IsInvalidated(), "");
     }
 
-    m_PipelineDesc.m_renderPass = m_renderPass;
-    m_PipelineDesc.m_topology = ezGALPrimitiveTopology::Triangles;
-    m_PipelineDesc.m_msaa = targetDesc.m_SampleCount;
-    m_PipelineDesc.m_uiAttachmentCount = 1;
-
+    m_PipelineDesc.m_Topology = ezGALPrimitiveTopology::Triangles;
 
     // Vertex declaration
     {
@@ -319,17 +249,13 @@ void ezImageCopyVulkan::Init(const ezGALTextureVulkan* pSource, const ezGALTextu
         m_hVertexDecl = m_GALDeviceVulkan.CreateVertexDeclaration(desc);
         s_cache->m_vertexDeclarations.Insert(m_shader.m_hActiveGALShader, m_hVertexDecl);
       }
-      m_PipelineDesc.m_pCurrentVertexDecl = static_cast<const ezGALVertexDeclarationVulkan*>(m_GALDeviceVulkan.GetVertexDeclaration(m_hVertexDecl));
+      m_PipelineDesc.m_hVertexDeclaration = m_hVertexDecl;
     }
 
-    const ezUInt32 uiSets = m_PipelineDesc.m_pCurrentShader->GetSetCount();
-    m_LayoutDesc.m_layout.SetCount(uiSets);
-    for (ezUInt32 uiSet = 0; uiSet < uiSets; ++uiSet)
-    {
-      m_LayoutDesc.m_layout[uiSet] = m_PipelineDesc.m_pCurrentShader->GetDescriptorSetLayout(uiSet);
-    }
-    m_PipelineDesc.m_layout = ezResourceCacheVulkan::RequestPipelineLayout(m_LayoutDesc);
-    m_pipeline = ezResourceCacheVulkan::RequestGraphicsPipeline(m_PipelineDesc);
+    m_hGalPipeline = ezGALPipelineCache::GetPipeline(m_PipelineDesc);
+    const ezGALGraphicsPipelineVulkan* pGraphicsPipeline = static_cast<const ezGALGraphicsPipelineVulkan*>(m_GALDeviceVulkan.GetGraphicsPipeline(m_hGalPipeline));
+    m_pipeline = pGraphicsPipeline->GetPipeline();
+    m_pShader = static_cast<const ezGALShaderVulkan*>(m_GALDeviceVulkan.GetShader(pGraphicsPipeline->GetDescription().m_hShader));
   }
 }
 
@@ -364,8 +290,6 @@ void ezImageCopyVulkan::RenderInternal(const ezVec3U32& sourceOffset, const vk::
   auto& sourceDesc = m_pSource->GetDescription();
   auto& targetDesc = m_pTarget->GetDescription();
 
-  const bool bSourceIsDepth = ezGALResourceFormat::IsDepthFormat(sourceDesc.m_Format);
-
   vk::Image sourceImage = m_pSource->GetImage();
   vk::Format sourceFormat = m_pSource->GetImageFormat();
 
@@ -394,7 +318,7 @@ void ezImageCopyVulkan::RenderInternal(const ezVec3U32& sourceOffset, const vk::
       viewCreateInfo.image = sourceImage;
       viewCreateInfo.subresourceRange = ezConversionUtilsVulkan::GetSubresourceRange(sourceLayers);
       viewCreateInfo.subresourceRange.aspectMask &= ~vk::ImageAspectFlagBits::eStencil;
-      viewCreateInfo.viewType = ezConversionUtilsVulkan::GetImageViewType(sourceDesc.m_Type, true);
+      viewCreateInfo.viewType = ezConversionUtilsVulkan::GetImageArrayViewType(sourceDesc.m_Type);
       if (viewCreateInfo.viewType == vk::ImageViewType::eCube || viewCreateInfo.viewType == vk::ImageViewType::eCubeArray)
       {
         viewCreateInfo.viewType = vk::ImageViewType::e2DArray;
@@ -421,7 +345,7 @@ void ezImageCopyVulkan::RenderInternal(const ezVec3U32& sourceOffset, const vk::
       viewCreateInfo.format = targetFormat;
       viewCreateInfo.image = targetImage;
       viewCreateInfo.subresourceRange = ezConversionUtilsVulkan::GetSubresourceRange(targetLayers);
-      viewCreateInfo.viewType = ezConversionUtilsVulkan::GetImageViewType(targetDesc.m_Type, true);
+      viewCreateInfo.viewType = ezConversionUtilsVulkan::GetImageArrayViewType(targetDesc.m_Type);
       if (viewCreateInfo.viewType == vk::ImageViewType::eCube || viewCreateInfo.viewType == vk::ImageViewType::eCubeArray)
       {
         viewCreateInfo.viewType = vk::ImageViewType::e2DArray;
@@ -436,7 +360,7 @@ void ezImageCopyVulkan::RenderInternal(const ezVec3U32& sourceOffset, const vk::
   // Framebuffer
   {
     FramebufferCacheKey cacheEntry = {};
-    cacheEntry.m_renderpass = m_renderPass;
+    cacheEntry.m_renderPass = m_renderPass;
     cacheEntry.m_targetView = targetView;
     cacheEntry.m_extends = extends;
     cacheEntry.m_layerCount = targetLayers.layerCount;
@@ -461,7 +385,7 @@ void ezImageCopyVulkan::RenderInternal(const ezVec3U32& sourceOffset, const vk::
   }
 
   // Descriptor Set
-  vk::DescriptorSet descriptorSet = ezDescriptorSetPoolVulkan::CreateDescriptorSet(m_LayoutDesc.m_layout[0]);
+  vk::DescriptorSet descriptorSet = ezTransientDescriptorSetPoolVulkan::CreateTransientDescriptorSet(m_pShader->GetDescriptorSetLayout(0));
   {
     ezHybridArray<vk::WriteDescriptorSet, 16> descriptorWrites;
 
@@ -469,7 +393,7 @@ void ezImageCopyVulkan::RenderInternal(const ezVec3U32& sourceOffset, const vk::
     sourceInfo.imageLayout = ezConversionUtilsVulkan::GetDefaultLayout(m_pSource->GetImageFormat());
     sourceInfo.imageView = sourceView;
 
-    ezArrayPtr<const ezShaderResourceBinding> bindingMapping = m_PipelineDesc.m_pCurrentShader->GetBindings();
+    ezArrayPtr<const ezShaderResourceBinding> bindingMapping = m_pShader->GetBindings();
     const ezUInt32 uiCount = bindingMapping.GetCount();
     for (ezUInt32 i = 0; i < uiCount; i++)
     {
@@ -500,15 +424,15 @@ void ezImageCopyVulkan::RenderInternal(const ezVec3U32& sourceOffset, const vk::
           break;
       }
     }
-    ezDescriptorSetPoolVulkan::UpdateDescriptorSet(descriptorSet, descriptorWrites);
-    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_PipelineDesc.m_layout, 0, 1, &descriptorSet, 0, nullptr);
+    ezTransientDescriptorSetPoolVulkan::UpdateDescriptorSet(descriptorSet, descriptorWrites);
+    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_pShader->GetVkPipelineLayout(), 0, 1, &descriptorSet, 0, nullptr);
   }
 
   // Render
   {
     {
       vk::RenderPassBeginInfo begin;
-      begin.renderPass = m_PipelineDesc.m_renderPass;
+      begin.renderPass = ezResourceCacheVulkan::RequestRenderPass(m_PipelineDesc.m_RenderPass);
       begin.framebuffer = frameBuffer;
       begin.renderArea.offset.setX(0).setY(0);
       begin.renderArea.extent.setWidth(extends.x).setHeight(extends.y);

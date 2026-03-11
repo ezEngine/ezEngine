@@ -27,6 +27,7 @@ public:
 protected:
   virtual void Initialize() override;
   virtual void OnActivated() override;
+  virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezRenderComponent
@@ -57,11 +58,11 @@ public:
   void SetVirtualDistance(float fVirtualDistance);                // [ property ]
   float GetVirtualDistance() const { return m_fVirtualDistance; } // [ property ]
 
-  void SetCubeMapFile(const char* szFile);                        // [ property ]
-  const char* GetCubeMapFile() const;                             // [ property ]
+  // adds SetCubeMapFile() and GetCubeMapFile() for convenience
+  EZ_ADD_RESOURCEHANDLE_ACCESSORS_WITH_SETTER(CubeMap, m_hCubeMap, SetCubeMap);
 
-  void SetCubeMap(const ezTextureCubeResourceHandle& hCubeMap);
-  const ezTextureCubeResourceHandle& GetCubeMap() const;
+  void SetCubeMap(const ezTextureCubeResourceHandle& hCubeMap); // [ property ]
+  const ezTextureCubeResourceHandle& GetCubeMap() const;        // [ property ]
 
 private:
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
@@ -76,4 +77,6 @@ private:
 
   ezMeshResourceHandle m_hMesh;
   ezMaterialResourceHandle m_hCubeMapMaterial;
+
+  mutable ezInstanceDataOffset m_InstanceDataOffset;
 };

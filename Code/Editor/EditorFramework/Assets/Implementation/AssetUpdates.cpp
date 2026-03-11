@@ -12,7 +12,7 @@
 // ezAssetCurator Asset Hashing and Status Updates
 ////////////////////////////////////////////////////////////////////////
 
-ezAssetInfo::TransformState ezAssetCurator::HashAsset(ezUInt64 uiSettingsHash, const ezHybridArray<ezString, 16>& assetTransformDeps, const ezHybridArray<ezString, 16>& assetThumbnailDeps, ezSet<ezString>& missingTransformDeps, ezSet<ezString>& missingThumbnailDeps, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, bool bForce)
+ezAssetInfo::TransformState ezAssetCurator::HashAsset(ezUInt64 uiSettingsHash, const ezHybridArray<ezString, 16>& assetTransformDeps, const ezHybridArray<ezString, 16>& assetThumbnailDeps, const ezHybridArray<ezString, 16>& assetPackageDeps, ezSet<ezString>& missingTransformDeps, ezSet<ezString>& missingThumbnailDeps, ezSet<ezString>& missingPackageDeps, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, ezUInt64& out_PackageHash, bool bForce)
 {
   CURATOR_PROFILE("HashAsset");
   ezStringBuilder tmp;
@@ -21,12 +21,13 @@ ezAssetInfo::TransformState ezAssetCurator::HashAsset(ezUInt64 uiSettingsHash, c
     // hash of the main asset file
     out_AssetHash = uiSettingsHash;
     out_ThumbHash = uiSettingsHash;
+    out_PackageHash = uiSettingsHash;
 
     // Iterate dependencies
     for (const auto& dep : assetTransformDeps)
     {
       ezString sPath = dep;
-      if (!AddAssetHash(sPath, false, out_AssetHash, out_ThumbHash, bForce))
+      if (!AddAssetHash(sPath, ezDependencyFlags::Transform, out_AssetHash, out_ThumbHash, out_PackageHash, bForce))
       {
         missingTransformDeps.Insert(sPath);
       }
@@ -35,9 +36,18 @@ ezAssetInfo::TransformState ezAssetCurator::HashAsset(ezUInt64 uiSettingsHash, c
     for (const auto& dep : assetThumbnailDeps)
     {
       ezString sPath = dep;
-      if (!AddAssetHash(sPath, true, out_AssetHash, out_ThumbHash, bForce))
+      if (!AddAssetHash(sPath, ezDependencyFlags::Thumbnail, out_AssetHash, out_ThumbHash, out_PackageHash, bForce))
       {
         missingThumbnailDeps.Insert(sPath);
+      }
+    }
+
+    for (const auto& dep : assetPackageDeps)
+    {
+      ezString sPath = dep;
+      if (!AddAssetHash(sPath, ezDependencyFlags::Package, out_AssetHash, out_ThumbHash, out_PackageHash, bForce))
+      {
+        missingPackageDeps.Insert(sPath);
       }
     }
   }
@@ -53,11 +63,17 @@ ezAssetInfo::TransformState ezAssetCurator::HashAsset(ezUInt64 uiSettingsHash, c
     out_ThumbHash = 0;
     state = ezAssetInfo::MissingTransformDependency;
   }
+  if (!missingPackageDeps.IsEmpty())
+  {
+    out_AssetHash = 0;
+    out_ThumbHash = 0;
+    state = ezAssetInfo::MissingPackageDependency;
+  }
 
   return state;
 }
 
-bool ezAssetCurator::AddAssetHash(ezString& sPath, bool bIsReference, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, bool bForce)
+bool ezAssetCurator::AddAssetHash(ezString& sPath, ezBitflags<ezDependencyFlags> dependencyType, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, ezUInt64& out_PackageHash, bool bForce)
 {
   if (sPath.IsEmpty())
     return true;
@@ -67,19 +83,30 @@ bool ezAssetCurator::AddAssetHash(ezString& sPath, bool bIsReference, ezUInt64& 
     const ezUuid guid = ezConversionUtils::ConvertStringToUuid(sPath);
     ezUInt64 assetHash = 0;
     ezUInt64 thumbHash = 0;
-    ezAssetInfo::TransformState state = UpdateAssetTransformState(guid, assetHash, thumbHash, bForce);
-    if (state == ezAssetInfo::Unknown || state == ezAssetInfo::MissingTransformDependency || state == ezAssetInfo::MissingThumbnailDependency || state == ezAssetInfo::CircularDependency)
+    ezUInt64 packageHash = 0;
+    ezAssetInfo::TransformState state = UpdateAssetTransformState(guid, assetHash, thumbHash, packageHash, bForce);
+    if (state == ezAssetInfo::Unknown || state == ezAssetInfo::MissingTransformDependency || state == ezAssetInfo::MissingThumbnailDependency || state == ezAssetInfo::MissingPackageDependency || state == ezAssetInfo::CircularDependency)
     {
       ezLog::Error("Failed to hash dependency asset '{0}'", sPath);
       return false;
     }
 
-    // Thumbs hash is affected by both transform dependencies and references.
-    out_ThumbHash += thumbHash;
-    if (!bIsReference)
+    for (ezDependencyFlags::Enum dep : dependencyType)
     {
-      // References do not affect the asset hash.
-      out_AssetHash += assetHash;
+      switch (dep)
+      {
+        case ezDependencyFlags::Thumbnail:
+          out_ThumbHash += thumbHash;
+          break;
+        case ezDependencyFlags::Transform:
+          out_AssetHash += assetHash;
+          break;
+        case ezDependencyFlags::Package:
+          out_PackageHash += packageHash;
+          break;
+        default:
+          break;
+      }
     }
     return true;
   }
@@ -102,12 +129,22 @@ bool ezAssetCurator::AddAssetHash(ezString& sPath, bool bIsReference, ezUInt64& 
     return false;
   }
 
-  // Thumbs hash is affected by both transform dependencies and references.
-  out_ThumbHash += fileStatus.m_uiHash;
-  if (!bIsReference)
+  for (ezDependencyFlags::Enum dep : dependencyType)
   {
-    // References do not affect the asset hash.
-    out_AssetHash += fileStatus.m_uiHash;
+    switch (dep)
+    {
+      case ezDependencyFlags::Thumbnail:
+        out_ThumbHash += fileStatus.m_uiHash;
+        break;
+      case ezDependencyFlags::Transform:
+        out_AssetHash += fileStatus.m_uiHash;
+        break;
+      case ezDependencyFlags::Package:
+        out_PackageHash += fileStatus.m_uiHash;
+        break;
+      default:
+        break;
+    }
   }
   return true;
 }
@@ -430,7 +467,7 @@ ezResult ezAssetCurator::ReadAssetDocumentInfo(const ezDataDirPath& absFilePath,
   }
 
   // try to read the asset file
-  ezStatus infoStatus;
+  ezStatus infoStatus(EZ_SUCCESS);
   ezResult res = pFiles->ReadDocument(absFilePath, [&out_assetInfo, &infoStatus](const ezFileStatus& stat, ezStreamReader& ref_reader)
     { infoStatus = out_assetInfo->GetManager()->ReadAssetDocumentInfo(out_assetInfo->m_Info, ref_reader); });
 
@@ -463,7 +500,7 @@ void ezAssetCurator::UpdateSubAssets(ezAssetInfo& assetInfo)
   }
 
   {
-    ezHybridArray<ezSubAssetData, 4> subAssets;
+    ezTempHybridArray<ezSubAssetData, 4> subAssets;
     {
       CURATOR_PROFILE("FillOutSubAssetList");
       assetInfo.GetManager()->FillOutSubAssetList(*assetInfo.m_Info.Borrow(), subAssets);
@@ -547,6 +584,7 @@ void ezAssetCurator::InvalidateAssetTransformState(const ezUuid& assetGuid)
       pAssetInfo->m_LastStateUpdate++;
       pAssetInfo->m_AssetHash = 0;
       pAssetInfo->m_ThumbHash = 0;
+      pAssetInfo->m_PackageHash = 0;
     }
   }
 }
@@ -707,11 +745,12 @@ void ezUpdateTask::Execute()
 
   ezUInt64 uiAssetHash = 0;
   ezUInt64 uiThumbHash = 0;
+  ezUInt64 uiPackageHash = 0;
 
   // Do not log update errors done on the background thread. Only if done explicitly on the main thread or the GUI will not be responsive
   // if the user deleted some base asset and everything starts complaining about it.
   ezLogEntryDelegate logger([&](ezLogEntry& ref_entry) -> void {}, ezLogMsgType::All);
   ezLogSystemScope logScope(&logger);
 
-  ezAssetCurator::GetSingleton()->IsAssetUpToDate(assetGuid, ezAssetCurator::GetSingleton()->GetActiveAssetProfile(), static_cast<const ezAssetDocumentTypeDescriptor*>(pTypeDescriptor), uiAssetHash, uiThumbHash);
+  ezAssetCurator::GetSingleton()->IsAssetUpToDate(assetGuid, ezAssetCurator::GetSingleton()->GetActiveAssetProfile(), static_cast<const ezAssetDocumentTypeDescriptor*>(pTypeDescriptor), uiAssetHash, uiThumbHash, uiPackageHash);
 }

@@ -12,4 +12,5 @@ ez_enable_strict_warnings(${PROJECT_NAME})
 target_link_libraries(${PROJECT_NAME}
   PUBLIC
   Foundation
+  Core
 )

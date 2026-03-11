@@ -16,8 +16,6 @@ class ezQtDecalAssetDocumentWindow : public ezQtEngineDocumentWindow
 public:
   ezQtDecalAssetDocumentWindow(ezDecalAssetDocument* pDocument);
 
-  virtual const char* GetWindowLayoutGroupName() const override { return "DecalAsset"; }
-
 private:
   virtual void InternalRedraw() override;
   void SendRedrawMsg();

@@ -58,8 +58,7 @@ const ezManipulatorAttribute* ezManipulatorManager::GetActiveManipulator(
   return nullptr;
 }
 
-void ezManipulatorManager::InternalSetActiveManipulator(
-  const ezDocument* pDoc, const ezManipulatorAttribute* pManipulator, const ezHybridArray<ezPropertySelection, 8>& selection, bool bUnhide)
+void ezManipulatorManager::InternalSetActiveManipulator(const ezDocument* pDoc, const ezManipulatorAttribute* pManipulator, const ezArrayPtr<ezPropertySelection>& selection, bool bUnhide)
 {
   bool existed = false;
   auto it = m_ActiveManipulator.FindOrAdd(pDoc, &existed);
@@ -90,15 +89,14 @@ void ezManipulatorManager::InternalSetActiveManipulator(
 }
 
 
-void ezManipulatorManager::SetActiveManipulator(
-  const ezDocument* pDoc, const ezManipulatorAttribute* pManipulator, const ezHybridArray<ezPropertySelection, 8>& selection)
+void ezManipulatorManager::SetActiveManipulator(const ezDocument* pDoc, const ezManipulatorAttribute* pManipulator, const ezArrayPtr<ezPropertySelection>& selection)
 {
   InternalSetActiveManipulator(pDoc, pManipulator, selection, true);
 }
 
 void ezManipulatorManager::ClearActiveManipulator(const ezDocument* pDoc)
 {
-  ezHybridArray<ezPropertySelection, 8> clearSel;
+  ezTempHybridArray<ezPropertySelection, 8> clearSel;
 
   InternalSetActiveManipulator(pDoc, nullptr, clearSel, false);
 }
@@ -113,7 +111,7 @@ void ezManipulatorManager::HideActiveManipulator(const ezDocument* pDoc, bool bH
 
     if (bHide)
     {
-      ezHybridArray<ezPropertySelection, 8> clearSel;
+      ezTempHybridArray<ezPropertySelection, 8> clearSel;
       InternalSetActiveManipulator(pDoc, it.Value().m_pAttribute, clearSel, false);
     }
     else
@@ -133,7 +131,7 @@ void ezManipulatorManager::ToggleHideActiveManipulator(const ezDocument* pDoc)
 
     if (it.Value().m_bHideManipulators)
     {
-      ezHybridArray<ezPropertySelection, 8> clearSel;
+      ezTempHybridArray<ezPropertySelection, 8> clearSel;
       InternalSetActiveManipulator(pDoc, it.Value().m_pAttribute, clearSel, false);
     }
     else
@@ -196,7 +194,7 @@ void ezManipulatorManager::TransferToCurrentSelection(const ezDocument* pDoc)
   if (data.m_bHideManipulators)
     return;
 
-  ezHybridArray<ezPropertySelection, 8> newSelection;
+  ezTempHybridArray<ezPropertySelection, 8> newSelection;
 
   const auto& selection = pDoc->GetSelectionManager()->GetSelection();
 

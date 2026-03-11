@@ -3,6 +3,11 @@
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <ToolsFoundation/Object/ObjectDirectAccessor.h>
 
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezObjectDirectAccessor, 1, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
 ezObjectDirectAccessor::ezObjectDirectAccessor(ezDocumentObjectManager* pManager)
   : ezObjectAccessorBase(pManager)
   , m_pManager(pManager)
@@ -19,7 +24,7 @@ ezStatus ezObjectDirectAccessor::GetValue(const ezDocumentObject* pObject, const
   if (pProp == nullptr)
     return ezStatus("Property is null.");
 
-  ezStatus res;
+  ezStatus res(EZ_SUCCESS);
   out_value = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName(), index, &res);
   return res;
 }
@@ -30,7 +35,7 @@ ezStatus ezObjectDirectAccessor::SetValue(
   ezDocumentObject* pObj = m_pManager->GetObject(pObject->GetGuid());
   EZ_ASSERT_DEBUG(pObj, "Object is not part of this document manager.");
   bool bRes = pObj->GetTypeAccessor().SetValue(pProp->GetPropertyName(), newValue, index);
-  return ezStatus(bRes ? EZ_SUCCESS : EZ_FAILURE);
+  return bRes ? EZ_SUCCESS : EZ_FAILURE;
 }
 
 ezStatus ezObjectDirectAccessor::InsertValue(
@@ -39,7 +44,7 @@ ezStatus ezObjectDirectAccessor::InsertValue(
   ezDocumentObject* pObj = m_pManager->GetObject(pObject->GetGuid());
   EZ_ASSERT_DEBUG(pObj, "Object is not part of this document manager.");
   bool bRes = pObj->GetTypeAccessor().InsertValue(pProp->GetPropertyName(), index, newValue);
-  return ezStatus(bRes ? EZ_SUCCESS : EZ_FAILURE);
+  return bRes ? EZ_SUCCESS : EZ_FAILURE;
 }
 
 ezStatus ezObjectDirectAccessor::RemoveValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index)

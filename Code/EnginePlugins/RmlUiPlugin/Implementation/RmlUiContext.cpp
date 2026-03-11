@@ -3,25 +3,13 @@
 #include <Core/Input/InputManager.h>
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RmlUiPlugin/Implementation/Extractor.h>
+#include <RmlUiPlugin/Implementation/RenderInterface.h>
 #include <RmlUiPlugin/RmlUiContext.h>
+#include <RmlUiPlugin/RmlUiSingleton.h>
 
-namespace
-{
-  static const char* s_szEzKeys[] = {ezInputSlot_KeyTab, ezInputSlot_KeyLeft, ezInputSlot_KeyUp, ezInputSlot_KeyRight, ezInputSlot_KeyDown,
-    ezInputSlot_KeyPageUp, ezInputSlot_KeyPageDown, ezInputSlot_KeyHome, ezInputSlot_KeyEnd, ezInputSlot_KeyDelete, ezInputSlot_KeyBackspace,
-    ezInputSlot_KeyReturn, ezInputSlot_KeyNumpadEnter, ezInputSlot_KeyEscape};
 
-  static Rml::Input::KeyIdentifier s_rmlKeys[] = {Rml::Input::KI_TAB, Rml::Input::KI_LEFT, Rml::Input::KI_UP,
-    Rml::Input::KI_RIGHT, Rml::Input::KI_DOWN, Rml::Input::KI_PRIOR, Rml::Input::KI_NEXT, Rml::Input::KI_HOME,
-    Rml::Input::KI_END, Rml::Input::KI_DELETE, Rml::Input::KI_BACK, Rml::Input::KI_RETURN, Rml::Input::KI_RETURN,
-    Rml::Input::KI_ESCAPE};
-
-  EZ_CHECK_AT_COMPILETIME(EZ_ARRAY_SIZE(s_szEzKeys) == EZ_ARRAY_SIZE(s_rmlKeys));
-} // namespace
-
-ezRmlUiContext::ezRmlUiContext(const Rml::String& sName)
-  : Rml::Context(sName)
+ezRmlUiContext::ezRmlUiContext(const Rml::String& sName, Rml::RenderManager* pRenderManager, Rml::TextInputHandler* pTextInputHandler)
+  : Rml::Context(sName, pRenderManager, pTextInputHandler)
 {
 }
 
@@ -29,54 +17,35 @@ ezRmlUiContext::~ezRmlUiContext() = default;
 
 ezResult ezRmlUiContext::LoadDocumentFromResource(const ezRmlUiResourceHandle& hResource)
 {
-  UnloadDocument();
-
-  if (hResource.IsValid())
-  {
-    ezResourceLock<ezRmlUiResource> pResource(hResource, ezResourceAcquireMode::BlockTillLoaded);
-    if (pResource.GetAcquireResult() == ezResourceAcquireResult::Final)
-    {
-      LoadDocument(pResource->GetRmlFile().GetData());
-    }
-  }
-
-  return HasDocument() ? EZ_SUCCESS : EZ_FAILURE;
+  return ezRmlUi::GetSingleton()->LoadDocumentFromResource(*this, hResource);
 }
 
 ezResult ezRmlUiContext::LoadDocumentFromString(const ezStringView& sContent)
 {
-  UnloadDocument();
-
-  if (!sContent.IsEmpty())
-  {
-    Rml::String sRmlContent = Rml::String(sContent.GetStartPointer(), sContent.GetElementCount());
-
-    LoadDocumentFromMemory(sRmlContent);
-  }
-
-  return HasDocument() ? EZ_SUCCESS : EZ_FAILURE;
+  return ezRmlUi::GetSingleton()->LoadDocumentFromString(*this, sContent);
 }
 
 void ezRmlUiContext::UnloadDocument()
 {
-  if (HasDocument())
-  {
-    Rml::Context::UnloadDocument(GetDocument(0));
-  }
+  ezRmlUi::GetSingleton()->UnloadDocument(*this);
 }
 
 ezResult ezRmlUiContext::ReloadDocumentFromResource(const ezRmlUiResourceHandle& hResource)
 {
-  Rml::Factory::ClearStyleSheetCache();
-  Rml::Factory::ClearTemplateCache();
+  ezRmlUi::GetSingleton()->ClearCaches();
 
-  return LoadDocumentFromResource(hResource);
+  EZ_SUCCEED_OR_RETURN(LoadDocumentFromResource(hResource));
+
+  RequestNextUpdate(0.0);
+
+  return EZ_SUCCESS;
 }
 
 void ezRmlUiContext::ShowDocument()
 {
   if (HasDocument())
   {
+    EZ_LOCK(ezRmlUi::GetSingleton()->GetContextMutex());
     GetDocument(0)->Show();
   }
 }
@@ -85,89 +54,83 @@ void ezRmlUiContext::HideDocument()
 {
   if (HasDocument())
   {
+    EZ_LOCK(ezRmlUi::GetSingleton()->GetContextMutex());
     GetDocument(0)->Hide();
   }
+
+  m_bWantsInput = false;
 }
 
-void ezRmlUiContext::UpdateInput(const ezVec2& vMousePos)
+bool ezRmlUiContext::UpdateInput(const ezVec2& vMousePos, const ezRmlUiInputProvider& input)
 {
-  float width = static_cast<float>(GetDimensions().x);
-  float height = static_cast<float>(GetDimensions().y);
-
-  m_bWantsInput = vMousePos.x >= 0.0f && vMousePos.x <= width && vMousePos.y >= 0.0f && vMousePos.y <= height;
-
-  const bool bCtrlPressed = ezInputManager::GetInputSlotState(ezInputSlot_KeyLeftCtrl) >= ezKeyState::Pressed ||
-                            ezInputManager::GetInputSlotState(ezInputSlot_KeyRightCtrl) >= ezKeyState::Pressed;
-  const bool bShiftPressed = ezInputManager::GetInputSlotState(ezInputSlot_KeyLeftShift) >= ezKeyState::Pressed ||
-                             ezInputManager::GetInputSlotState(ezInputSlot_KeyRightShift) >= ezKeyState::Pressed;
-  const bool bAltPressed = ezInputManager::GetInputSlotState(ezInputSlot_KeyLeftAlt) >= ezKeyState::Pressed ||
-                           ezInputManager::GetInputSlotState(ezInputSlot_KeyRightAlt) >= ezKeyState::Pressed;
+  bool bMouseInputConsumed = false;
+  bool bKeyboardInputConsumed = false;
 
   int modifierState = 0;
-  modifierState |= bCtrlPressed ? Rml::Input::KM_CTRL : 0;
-  modifierState |= bShiftPressed ? Rml::Input::KM_SHIFT : 0;
-  modifierState |= bAltPressed ? Rml::Input::KM_ALT : 0;
+  modifierState |= input.IsButtonDown(ezRmlUiInputButtons::Alt) ? Rml::Input::KM_ALT : 0;
+  modifierState |= input.IsButtonDown(ezRmlUiInputButtons::Ctrl) ? Rml::Input::KM_CTRL : 0;
+  modifierState |= input.IsButtonDown(ezRmlUiInputButtons::Shift) ? Rml::Input::KM_SHIFT : 0;
 
   // Mouse
   {
-    ProcessMouseMove(static_cast<int>(vMousePos.x), static_cast<int>(vMousePos.y), modifierState);
+    bMouseInputConsumed |= !ProcessMouseMove(static_cast<int>(vMousePos.x), static_cast<int>(vMousePos.y), modifierState);
 
-    static const char* szMouseButtons[] = {ezInputSlot_MouseButton0, ezInputSlot_MouseButton1, ezInputSlot_MouseButton2};
-    for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(szMouseButtons); ++i)
+    for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(ezRmlUiInputButtons::s_MouseButtonMappings); ++i)
     {
-      ezKeyState::Enum state = ezInputManager::GetInputSlotState(szMouseButtons[i]);
+      ezRmlUiInputButtons::MouseButtonMapping mbm = ezRmlUiInputButtons::s_MouseButtonMappings[i];
+      ezKeyState::Enum state = input.GetButtonState(mbm.uiEzButton);
       if (state == ezKeyState::Pressed)
       {
-        ProcessMouseButtonDown(i, modifierState);
+        bMouseInputConsumed |= !ProcessMouseButtonDown(mbm.uiRmlButton, modifierState);
       }
       else if (state == ezKeyState::Released)
       {
-        ProcessMouseButtonUp(i, modifierState);
+        bMouseInputConsumed |= !ProcessMouseButtonUp(mbm.uiRmlButton, modifierState);
       }
     }
 
-    if (ezInputManager::GetInputSlotState(ezInputSlot_MouseWheelDown) == ezKeyState::Pressed)
+    if (input.IsButtonDown(ezRmlUiInputButtons::MouseWheelDown))
     {
-      m_bWantsInput |= !ProcessMouseWheel(1.0f, modifierState);
+      bKeyboardInputConsumed |= !ProcessMouseWheel(1.0f, modifierState);
     }
-    if (ezInputManager::GetInputSlotState(ezInputSlot_MouseWheelUp) == ezKeyState::Pressed)
+    if (input.IsButtonDown(ezRmlUiInputButtons::MouseWheelUp))
     {
-      m_bWantsInput |= !ProcessMouseWheel(-1.0f, modifierState);
+      bKeyboardInputConsumed |= !ProcessMouseWheel(-1.0f, modifierState);
     }
   }
 
   // Keyboard
   {
-    ezUInt32 uiLastChar = ezInputManager::RetrieveLastCharacter(false);
-    if (uiLastChar >= 32) // >= space
+    ezUInt32 uiLastChar = input.m_uiLastCharacter;
+    if (uiLastChar >= 32 || uiLastChar == '\n') // >= space (+ enter/return)
     {
       char szUtf8[8] = "";
       char* pChar = szUtf8;
       ezUnicodeUtils::EncodeUtf32ToUtf8(uiLastChar, pChar);
       if (!ezStringUtils::IsNullOrEmpty(szUtf8))
       {
-        m_bWantsInput |= !ProcessTextInput(szUtf8);
+        bKeyboardInputConsumed |= !ProcessTextInput(szUtf8);
       }
     }
 
-    for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(s_szEzKeys); ++i)
+    for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(ezRmlUiInputButtons::s_KeyMappings); ++i)
     {
-      ezKeyState::Enum state = ezInputManager::GetInputSlotState(s_szEzKeys[i]);
+      ezRmlUiInputButtons::KeyMapping km = ezRmlUiInputButtons::s_KeyMappings[i];
+      ezKeyState::Enum state = input.GetButtonState(km.uiEzKey);
       if (state == ezKeyState::Pressed)
       {
-        m_bWantsInput |= !ProcessKeyDown(s_rmlKeys[i], modifierState);
+        bKeyboardInputConsumed |= !ProcessKeyDown(km.uiRmlKey, modifierState);
       }
       else if (state == ezKeyState::Released)
       {
-        m_bWantsInput |= !ProcessKeyUp(s_rmlKeys[i], modifierState);
+        bKeyboardInputConsumed |= !ProcessKeyUp(km.uiRmlKey, modifierState);
       }
     }
   }
-}
 
-void ezRmlUiContext::SetOffset(const ezVec2I32& vOffset)
-{
-  m_vOffset = vOffset;
+  m_bWantsInput = bMouseInputConsumed || bKeyboardInputConsumed;
+
+  return bMouseInputConsumed || bKeyboardInputConsumed;
 }
 
 void ezRmlUiContext::SetSize(const ezVec2U32& vSize)
@@ -193,18 +156,39 @@ void ezRmlUiContext::DeregisterEventHandler(const char* szIdentifier)
   m_EventHandler.Remove(ezTempHashedString(szIdentifier));
 }
 
-void ezRmlUiContext::ExtractRenderData(ezRmlUiInternal::Extractor& extractor)
+void ezRmlUiContext::RegisterFallbackEventHandler(FallbackEventHandler handler)
 {
-  if (m_uiExtractedFrame != ezRenderWorld::GetFrameCounter())
+  m_FallbackEventHandler = std::move(handler);
+}
+
+void ezRmlUiContext::DeregisterFallbackEventHandler()
+{
+  m_FallbackEventHandler.Invalidate();
+}
+
+void ezRmlUiContext::Update()
+{
+  EZ_LOCK(ezRmlUi::GetSingleton()->GetContextMutex());
+
+  Rml::Context::Update();
+
+  m_uiUpdatedFrame = ezRenderWorld::GetFrameCounter();
+}
+
+void ezRmlUiContext::ExtractRenderData(ezRmlUiInternal::RenderInterface& renderInterface, ezGALTextureHandle hTexture)
+{
+  if (m_uiExtractedFrame != m_uiUpdatedFrame)
   {
-    extractor.BeginExtraction(m_vOffset);
+    ezHashedString sName;
+    sName.Assign(ezRmlUiConversionUtils::ToStringView(GetName()));
+
+    renderInterface.BeginExtraction(sName, hTexture);
 
     Render();
 
-    extractor.EndExtraction();
+    renderInterface.EndExtraction();
 
-    m_uiExtractedFrame = ezRenderWorld::GetFrameCounter();
-    m_pRenderData = extractor.GetRenderData();
+    m_uiExtractedFrame = m_uiUpdatedFrame;
   }
 }
 
@@ -215,13 +199,17 @@ void ezRmlUiContext::ProcessEvent(const ezHashedString& sIdentifier, Rml::Event&
   {
     (*pEventHandler)(event);
   }
+  else if (m_FallbackEventHandler.IsValid())
+  {
+    m_FallbackEventHandler(sIdentifier, event);
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-Rml::ContextPtr ezRmlUiInternal::ContextInstancer::InstanceContext(const Rml::String& sName)
+Rml::ContextPtr ezRmlUiInternal::ContextInstancer::InstanceContext(const Rml::String& sName, Rml::RenderManager* pRenderManager, Rml::TextInputHandler* pTextInputHandler)
 {
-  return Rml::ContextPtr(EZ_DEFAULT_NEW(ezRmlUiContext, sName));
+  return Rml::ContextPtr(EZ_DEFAULT_NEW(ezRmlUiContext, sName, pRenderManager, pTextInputHandler));
 }
 
 void ezRmlUiInternal::ContextInstancer::ReleaseContext(Rml::Context* pContext)

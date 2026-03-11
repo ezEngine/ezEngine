@@ -12,20 +12,26 @@
 #include <RendererCore/../../../Data/Base/Shaders/Pipeline/ReflectionIrradianceConstants.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezReflectionFilterPass, 1, ezRTTIDefaultAllocator<ezReflectionFilterPass>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezReflectionFilterPass, 2, ezRTTIDefaultAllocator<ezReflectionFilterPass>)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("FilteredSpecular", m_PinFilteredSpecular),
     EZ_MEMBER_PROPERTY("AvgLuminance", m_PinAvgLuminance),
     EZ_MEMBER_PROPERTY("IrradianceData", m_PinIrradianceData),
-    EZ_MEMBER_PROPERTY("Intensity", m_fIntensity)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
-    EZ_MEMBER_PROPERTY("Saturation", m_fSaturation)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
+    EZ_MEMBER_PROPERTY("DiffuseIntensity", m_fDiffuseIntensity)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
+    EZ_MEMBER_PROPERTY("DiffuseSaturation", m_fDiffuseSaturation)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
+    EZ_MEMBER_PROPERTY("SpecularIntensity", m_fSpecularIntensity)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_MEMBER_PROPERTY("SpecularOutputIndex", m_uiSpecularOutputIndex),
     EZ_MEMBER_PROPERTY("IrradianceOutputIndex", m_uiIrradianceOutputIndex),
     EZ_ACCESSOR_PROPERTY("InputCubemap", GetInputCubemap, SetInputCubemap)
   }
   EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Effects")
+  }
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
@@ -48,7 +54,6 @@ ezReflectionFilterPass::ezReflectionFilterPass()
 ezReflectionFilterPass::~ezReflectionFilterPass()
 {
   ezRenderContext::DeleteConstantBufferStorage(m_hIrradianceConstantBuffer);
-  m_hIrradianceConstantBuffer.Invalidate();
 }
 
 bool ezReflectionFilterPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
@@ -59,7 +64,7 @@ bool ezReflectionFilterPass::GetRenderTargetDescriptions(const ezView& view, con
     desc.m_uiHeight = desc.m_uiWidth;
     desc.m_Format = ezGALResourceFormat::RGBAHalf;
     desc.m_Type = ezGALTextureType::TextureCube;
-    desc.m_bAllowUAV = true;
+    desc.m_TextureFlags.Add(ezGALTextureUsageFlags::UnorderedAccess);
     desc.m_uiMipLevelCount = ezMath::Log2i(desc.m_uiWidth) - 1;
     outputs[m_PinFilteredSpecular.m_uiOutputIndex] = desc;
   }
@@ -83,44 +88,37 @@ void ezReflectionFilterPass::Execute(const ezRenderViewContext& renderViewContex
   bool bAllowAsyncShaderLoading = renderViewContext.m_pRenderContext->GetAllowAsyncShaderLoading();
   renderViewContext.m_pRenderContext->SetAllowAsyncShaderLoading(false);
 
-  ezGALPass* pGALPass = pDevice->BeginPass(GetName());
   EZ_SCOPE_EXIT(
-    pDevice->EndPass(pGALPass);
     renderViewContext.m_pRenderContext->SetAllowAsyncShaderLoading(bAllowAsyncShaderLoading));
 
-  if (pInputCubemap->GetDescription().m_bAllowDynamicMipGeneration)
+  if (pInputCubemap->GetDescription().m_TextureFlags.IsSet(ezGALTextureUsageFlags::DynamicMipGeneration))
   {
-    auto pCommandEncoder = ezRenderContext::BeginRenderingScope(pGALPass, renderViewContext, ezGALRenderingSetup(), "MipMaps");
-    pCommandEncoder->GenerateMipMaps(pDevice->GetDefaultResourceView(m_hInputCubemap));
+    renderViewContext.m_pRenderContext->GetCommandEncoder()->GenerateMipMaps(m_hInputCubemap, {});
   }
 
   {
     auto pFilteredSpecularOutput = outputs[m_PinFilteredSpecular.m_uiOutputIndex];
-    if (pFilteredSpecularOutput != nullptr && !pFilteredSpecularOutput->m_TextureHandle.IsInvalidated())
+    if (pFilteredSpecularOutput != nullptr && !pFilteredSpecularOutput->m_TextureHandle.IsInvalidated() && pDevice->GetTexture(pFilteredSpecularOutput->m_TextureHandle) != nullptr)
     {
       ezUInt32 uiNumMipMaps = pFilteredSpecularOutput->m_Desc.m_uiMipLevelCount;
 
       ezUInt32 uiWidth = pFilteredSpecularOutput->m_Desc.m_uiWidth;
       ezUInt32 uiHeight = pFilteredSpecularOutput->m_Desc.m_uiHeight;
 
-      auto pCommandEncoder = ezRenderContext::BeginComputeScope(pGALPass, renderViewContext, "ReflectionFilter");
-      renderViewContext.m_pRenderContext->BindTextureCube("InputCubemap", pDevice->GetDefaultResourceView(m_hInputCubemap));
-      renderViewContext.m_pRenderContext->BindConstantBuffer("ezReflectionFilteredSpecularConstants", m_hFilteredSpecularConstantBuffer);
+      auto computeScope = ezRenderContext::BeginComputeScope(renderViewContext, "ReflectionFilter");
+      ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
+      bindGroup.BindTexture("InputCubemap", m_hInputCubemap);
+      bindGroup.BindBuffer("ezReflectionFilteredSpecularConstants", m_hFilteredSpecularConstantBuffer);
       renderViewContext.m_pRenderContext->BindShader(m_hFilteredSpecularShader);
 
       for (ezUInt32 uiMipMapIndex = 0; uiMipMapIndex < uiNumMipMaps; ++uiMipMapIndex)
       {
-        ezGALTextureUnorderedAccessViewHandle hFilterOutput;
-        {
-          ezGALTextureUnorderedAccessViewCreationDescription desc;
-          desc.m_hTexture = pFilteredSpecularOutput->m_TextureHandle;
-          desc.m_uiMipLevelToUse = uiMipMapIndex;
-          desc.m_uiFirstArraySlice = m_uiSpecularOutputIndex * 6;
-          desc.m_uiArraySize = 6;
-          hFilterOutput = pDevice->CreateUnorderedAccessView(desc);
-        }
-        renderViewContext.m_pRenderContext->BindUAV("ReflectionOutput", hFilterOutput);
-        UpdateFilteredSpecularConstantBuffer(uiMipMapIndex, uiNumMipMaps);
+        ezGALTextureRange textureRange;
+        textureRange.m_uiBaseMipLevel = uiMipMapIndex;
+        textureRange.m_uiBaseArraySlice = m_uiSpecularOutputIndex * 6;
+        textureRange.m_uiArraySlices = 6;
+        bindGroup.BindTexture("ReflectionOutput", pFilteredSpecularOutput->m_TextureHandle, textureRange);
+        UpdateFilteredSpecularConstantBuffer(uiMipMapIndex, uiNumMipMaps, uiWidth, uiHeight);
 
         constexpr ezUInt32 uiThreadsX = 8;
         constexpr ezUInt32 uiThreadsY = 8;
@@ -138,22 +136,15 @@ void ezReflectionFilterPass::Execute(const ezRenderViewContext& renderViewContex
   auto pIrradianceOutput = outputs[m_PinIrradianceData.m_uiOutputIndex];
   if (pIrradianceOutput != nullptr && !pIrradianceOutput->m_TextureHandle.IsInvalidated())
   {
-    auto pCommandEncoder = ezRenderContext::BeginComputeScope(pGALPass, renderViewContext, "Irradiance");
+    auto computeScope = ezRenderContext::BeginComputeScope(renderViewContext, "Irradiance");
 
-    ezGALTextureUnorderedAccessViewHandle hIrradianceOutput;
-    {
-      ezGALTextureUnorderedAccessViewCreationDescription desc;
-      desc.m_hTexture = pIrradianceOutput->m_TextureHandle;
-
-      hIrradianceOutput = pDevice->CreateUnorderedAccessView(desc);
-    }
-    renderViewContext.m_pRenderContext->BindUAV("IrradianceOutput", hIrradianceOutput);
-
-    renderViewContext.m_pRenderContext->BindTextureCube("InputCubemap", pDevice->GetDefaultResourceView(m_hInputCubemap));
+    ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
+    bindGroup.BindTexture("IrradianceOutput", pIrradianceOutput->m_TextureHandle);
+    bindGroup.BindTexture("InputCubemap", m_hInputCubemap);
 
     UpdateIrradianceConstantBuffer();
 
-    renderViewContext.m_pRenderContext->BindConstantBuffer("ezReflectionIrradianceConstants", m_hIrradianceConstantBuffer);
+    bindGroup.BindBuffer("ezReflectionIrradianceConstants", m_hIrradianceConstantBuffer);
     renderViewContext.m_pRenderContext->BindShader(m_hIrradianceShader);
 
     renderViewContext.m_pRenderContext->Dispatch(1).IgnoreResult();
@@ -163,8 +154,9 @@ void ezReflectionFilterPass::Execute(const ezRenderViewContext& renderViewContex
 ezResult ezReflectionFilterPass::Serialize(ezStreamWriter& inout_stream) const
 {
   EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
-  inout_stream << m_fIntensity;
-  inout_stream << m_fSaturation;
+  inout_stream << m_fDiffuseIntensity;
+  inout_stream << m_fDiffuseSaturation;
+  inout_stream << m_fSpecularIntensity;
   inout_stream << m_uiSpecularOutputIndex;
   inout_stream << m_uiIrradianceOutputIndex;
   // inout_stream << m_hInputCubemap; Runtime only property
@@ -175,9 +167,13 @@ ezResult ezReflectionFilterPass::Deserialize(ezStreamReader& inout_stream)
 {
   EZ_SUCCEED_OR_RETURN(SUPER::Deserialize(inout_stream));
   const ezUInt32 uiVersion = ezTypeVersionReadContext::GetContext()->GetTypeVersion(GetStaticRTTI());
-  EZ_IGNORE_UNUSED(uiVersion);
-  inout_stream >> m_fIntensity;
-  inout_stream >> m_fSaturation;
+
+  inout_stream >> m_fDiffuseIntensity;
+  inout_stream >> m_fDiffuseSaturation;
+  if (uiVersion >= 2)
+  {
+    inout_stream >> m_fSpecularIntensity;
+  }
   inout_stream >> m_uiSpecularOutputIndex;
   inout_stream >> m_uiIrradianceOutputIndex;
   return EZ_SUCCESS;
@@ -193,20 +189,21 @@ void ezReflectionFilterPass::SetInputCubemap(ezUInt32 uiCubemapHandle)
   m_hInputCubemap = ezGALTextureHandle(ezGAL::ez18_14Id(uiCubemapHandle));
 }
 
-void ezReflectionFilterPass::UpdateFilteredSpecularConstantBuffer(ezUInt32 uiMipMapIndex, ezUInt32 uiNumMipMaps)
+void ezReflectionFilterPass::UpdateFilteredSpecularConstantBuffer(ezUInt32 uiMipMapIndex, ezUInt32 uiNumMipMaps, ezUInt32 uiWidth, ezUInt32 uiHeight)
 {
   auto constants = ezRenderContext::GetConstantBufferData<ezReflectionFilteredSpecularConstants>(m_hFilteredSpecularConstantBuffer);
   constants->MipLevel = uiMipMapIndex;
-  constants->Intensity = m_fIntensity;
-  constants->Saturation = m_fSaturation;
+  constants->OutputWidth = uiWidth;
+  constants->OutputHeight = uiHeight;
+  constants->Intensity = m_fSpecularIntensity;
 }
 
 void ezReflectionFilterPass::UpdateIrradianceConstantBuffer()
 {
   auto constants = ezRenderContext::GetConstantBufferData<ezReflectionIrradianceConstants>(m_hIrradianceConstantBuffer);
   constants->LodLevel = 6; // TODO: calculate from cubemap size and number of samples
-  constants->Intensity = m_fIntensity;
-  constants->Saturation = m_fSaturation;
+  constants->Intensity = m_fDiffuseIntensity;
+  constants->Saturation = m_fDiffuseSaturation;
   constants->OutputIndex = m_uiIrradianceOutputIndex;
 }
 

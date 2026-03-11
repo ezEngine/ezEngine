@@ -18,9 +18,7 @@ ezString ezQtEditorApp::FindToolApplication(const char* szToolName)
 
   ezEditorPreferencesUser* pPref = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
 
-  ezHybridArray<ezString, 3> sFolders;
-  sFolders.PushBack(ezApplicationServices::GetSingleton()->GetPrecompiledToolsFolder(false));
-  sFolders.PushBack(ezApplicationServices::GetSingleton()->GetPrecompiledToolsFolder(true));
+  ezTempHybridArray<ezString, 3> sFolders;
 
   if (pPref->m_bUsePrecompiledTools)
   {
@@ -29,12 +27,15 @@ ezString ezQtEditorApp::FindToolApplication(const char* szToolName)
       ezStringBuilder customToolsFolder = pPref->m_sCustomPrecompiledToolsFolder;
       customToolsFolder.MakeCleanPath();
       sFolders.PushBack(customToolsFolder);
-      ezMath::Swap(sFolders[0], sFolders[2]);
     }
-    else
-    {
-      ezMath::Swap(sFolders[0], sFolders[1]);
-    }
+
+    sFolders.PushBack(ezApplicationServices::GetSingleton()->GetPrecompiledToolsFolder(true));
+    sFolders.PushBack(ezApplicationServices::GetSingleton()->GetPrecompiledToolsFolder(false));
+  }
+  else
+  {
+    sFolders.PushBack(ezApplicationServices::GetSingleton()->GetPrecompiledToolsFolder(false));
+    sFolders.PushBack(ezApplicationServices::GetSingleton()->GetPrecompiledToolsFolder(true));
   }
 
   ezStringBuilder sTool;
@@ -110,7 +111,7 @@ ezStatus ezQtEditorApp::ExecuteTool(const char* szTool, const QStringList& argum
       ezLogBlock m_Block;
     };
 
-    ezHybridArray<ezUniquePtr<LogBlockData>, 8> blocks;
+    ezTempHybridArray<ezUniquePtr<LogBlockData>, 8> blocks;
 
     QTextStream logoutputStream(&logoutput);
     while (!logoutputStream.atEnd())
@@ -194,7 +195,7 @@ ezString ezQtEditorApp::BuildFileserveCommandLine() const
   ezStringBuilder params;
 
   ezStringBuilder cmd;
-  cmd.Set(sToolPath, " -specialdirs project \"", sProjectDir, "\" -fs_start");
+  cmd.Set(sToolPath, " -specialdirs project \"", sProjectDir, "\"");
 
   return cmd;
 }
@@ -217,4 +218,16 @@ void ezQtEditorApp::RunInspector()
   QStringList args;
 
   QProcess::startDetached(sToolPath.GetData(), args);
+}
+
+void ezQtEditorApp::RunTracy()
+{
+#if BUILDSYSTEM_ENABLE_TRACY_SUPPORT == 0
+  ezQtUiServices::MessageBoxInformation("<html>This build of EZ was compiled without support for Tracy profiling.<br><br>See <a href='https://ezengine.net/pages/docs/debugging/tracy.html'>the documentation</a> for how to enable it.</html>");
+#else
+  const ezStringBuilder sToolPath = ezQtEditorApp::GetSingleton()->FindToolApplication("tracy-profiler");
+  QStringList args;
+
+  QProcess::startDetached(sToolPath.GetData(), args);
+#endif
 }

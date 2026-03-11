@@ -12,9 +12,8 @@
 #include <Jolt/Physics/Collision/RayCast.h>
 #include <Jolt/Physics/Collision/CastResult.h>
 #include <Jolt/Physics/Collision/CollidePointResult.h>
-#include <Jolt/Core/StreamIn.h>
-#include <Jolt/Core/StreamOut.h>
-#include <Jolt/Core/Factory.h>
+#include <Jolt/Core/StreamUtils.h>
+#include <Jolt/Core/UnorderedSet.h>
 #include <Jolt/ObjectStream/TypeDeclarations.h>
 
 JPH_NAMESPACE_BEGIN
@@ -31,6 +30,12 @@ bool Shape::sDrawSubmergedVolumes = false;
 #endif // JPH_DEBUG_RENDERER
 
 ShapeFunctions ShapeFunctions::sRegistry[NumSubShapeTypes];
+
+const Shape *Shape::GetLeafShape([[maybe_unused]] const SubShapeID &inSubShapeID, SubShapeID &outRemainder) const
+{
+	outRemainder = inSubShapeID;
+	return this;
+}
 
 TransformedShape Shape::GetSubShapeTransformedShape(const SubShapeID &inSubShapeID, Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale, SubShapeID &outRemainder) const
 {
@@ -59,7 +64,7 @@ void Shape::TransformShape(Mat44Arg inCenterOfMassTransform, TransformedShapeCol
 	Vec3 scale;
 	Mat44 transform = inCenterOfMassTransform.Decompose(scale);
 	TransformedShape ts(RVec3(transform.GetTranslation()), transform.GetQuaternion(), this, BodyID(), SubShapeIDCreator());
-	ts.SetShapeScale(scale);
+	ts.SetShapeScale(MakeScaleValid(scale));
 	ioCollector.AddHit(ts);
 }
 
@@ -107,7 +112,7 @@ void Shape::SaveWithChildren(StreamOut &inStream, ShapeToIDMap &ioShapeMap, Mate
 	if (shape_id_iter == ioShapeMap.end())
 	{
 		// Write shape ID of this shape
-		uint32 shape_id = (uint32)ioShapeMap.size();
+		uint32 shape_id = ioShapeMap.size();
 		ioShapeMap[this] = shape_id;
 		inStream.Write(shape_id);
 
@@ -117,7 +122,7 @@ void Shape::SaveWithChildren(StreamOut &inStream, ShapeToIDMap &ioShapeMap, Mate
 		// Write the ID's of all sub shapes
 		ShapeList sub_shapes;
 		SaveSubShapeState(sub_shapes);
-		inStream.Write(sub_shapes.size());
+		inStream.Write(uint32(sub_shapes.size()));
 		for (const Shape *shape : sub_shapes)
 		{
 			if (shape == nullptr)
@@ -173,7 +178,7 @@ Shape::ShapeResult Shape::sRestoreWithChildren(StreamIn &inStream, IDToShapeMap 
 	ioShapeMap.push_back(result.Get());
 
 	// Read the sub shapes
-	size_t len;
+	uint32 len;
 	inStream.Read(len);
 	if (inStream.IsEOF() || inStream.IsFailed())
 	{
@@ -215,9 +220,19 @@ Shape::Stats Shape::GetStatsRecursive(VisitedShapes &ioVisitedShapes) const
 	return stats;
 }
 
+bool Shape::IsValidScale(Vec3Arg inScale) const
+{
+	return !ScaleHelpers::IsZeroScale(inScale);
+}
+
+Vec3 Shape::MakeScaleValid(Vec3Arg inScale) const
+{
+	return ScaleHelpers::MakeNonZeroScale(inScale);
+}
+
 Shape::ShapeResult Shape::ScaleShape(Vec3Arg inScale) const
 {
-	const Vec3 unit_scale = Vec3::sReplicate(1.0f);
+	const Vec3 unit_scale = Vec3::sOne();
 
 	if (inScale.IsNearZero())
 	{
@@ -295,7 +310,7 @@ void Shape::sCollidePointUsingRayCast(const Shape &inShape, Vec3Arg inPoint, con
 
 		// Configure the raycast
 		RayCastSettings settings;
-		settings.mBackFaceMode = EBackFaceMode::CollideWithBackFaces;
+		settings.SetBackFaceMode(EBackFaceMode::CollideWithBackFaces);
 
 		// Cast a ray that's 10% longer than the height of our bounding box
 		inShape.CastRay(RayCast { inPoint, 1.1f * bounds.GetSize().GetY() * Vec3::sAxisY() }, settings, inSubShapeIDCreator, collector, inShapeFilter);

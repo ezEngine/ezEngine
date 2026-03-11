@@ -22,8 +22,16 @@ public:
 
   ezJSONReader();
 
-  /// \brief Reads the entire stream and creates the internal data structure that represents the JSON document. Returns EZ_FAILURE if any parsing
-  /// error occurred.
+  /// \brief Reads the entire stream and creates the internal data structure that represents the JSON document.
+  ///
+  /// Parses the complete JSON document from the input stream, building the variant tree structure.
+  /// The entire document must be valid JSON - parsing stops on the first error encountered.
+  ///
+  /// \param ref_input Stream containing the JSON document to parse
+  /// \param uiFirstLineOffset Line number offset for error reporting (useful when JSON is embedded)
+  /// \return EZ_SUCCESS if parsing completed without errors, EZ_FAILURE if any parsing error occurred
+  ///
+  /// \note After successful parsing, use GetTopLevelObject() or GetTopLevelArray() to access the data.
   ezResult Parse(ezStreamReader& ref_input, ezUInt32 uiFirstLineOffset = 0);
 
   /// \brief Returns the top-level object of the JSON document.

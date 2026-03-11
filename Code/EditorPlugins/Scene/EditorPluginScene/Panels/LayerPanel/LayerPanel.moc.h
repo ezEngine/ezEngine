@@ -11,7 +11,7 @@ class ezQtLayerPanel : public ezQtDocumentPanel
   Q_OBJECT
 
 public:
-  ezQtLayerPanel(QWidget* pParent, ezScene2Document* pDocument);
+  ezQtLayerPanel(ads::CDockManager* pDockManager, QWidget* pParent, ezScene2Document* pDocument);
   ~ezQtLayerPanel();
 
 private Q_SLOTS:

@@ -1,0 +1,15 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[COMPUTESHADER]
+
+#include "TestInstancing.h"
+RWStructuredBuffer<ezTestShaderData> instancingTarget;
+
+[numthreads(1, 1, 1)]
+void main(uint3 groupID : SV_GroupID, uint3 groupThreadID : SV_GroupThreadID)
+{
+  instancingTarget[groupID.x] = instancingData[groupID.x];
+}

@@ -63,6 +63,7 @@ void ezGameApplication::Init_ConfigureAssetManagement()
   ezResourceManager::RegisterResourceForAssetType("PropertyAnim", ezGetStaticRTTI<ezPropertyAnimResource>());
   ezResourceManager::RegisterResourceForAssetType("RenderPipeline", ezGetStaticRTTI<ezRenderPipelineResource>());
   ezResourceManager::RegisterResourceForAssetType("Render Target", ezGetStaticRTTI<ezTexture2DResource>());
+  ezResourceManager::RegisterResourceForAssetType("Shader", ezGetStaticRTTI<ezShaderResource>());
   ezResourceManager::RegisterResourceForAssetType("Skeleton", ezGetStaticRTTI<ezSkeletonResource>());
   ezResourceManager::RegisterResourceForAssetType("StateMachine", ezGetStaticRTTI<ezStateMachineResource>());
   ezResourceManager::RegisterResourceForAssetType("Substance Texture", ezGetStaticRTTI<ezTexture2DResource>());
@@ -99,8 +100,8 @@ void ezGameApplication::Init_SetupDefaultResources()
 
   // 2D Textures
   {
-    ezTexture2DResourceHandle hFallbackTexture = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/LoadingTexture_D.dds");
-    ezTexture2DResourceHandle hMissingTexture = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/MissingTexture_D.dds");
+    ezTexture2DResourceHandle hFallbackTexture = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/Loading_D.dds");
+    ezTexture2DResourceHandle hMissingTexture = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/MissingResource_D.dds");
 
     ezResourceManager::SetResourceTypeLoadingFallback<ezTexture2DResource>(hFallbackTexture);
     ezResourceManager::SetResourceTypeMissingFallback<ezTexture2DResource>(hMissingTexture);
@@ -143,7 +144,7 @@ void ezGameApplication::Init_SetupDefaultResources()
   {
     ezResourceManager::AllowResourceTypeAcquireDuringUpdateContent<ezMeshResource, ezMeshBufferResource>();
 
-    ezMeshResourceHandle hMissingMesh = ezResourceManager::LoadResource<ezMeshResource>("Meshes/MissingMesh.ezMesh");
+    ezMeshResourceHandle hMissingMesh = ezResourceManager::LoadResource<ezMeshResource>("Meshes/MissingMesh.ezBinMesh");
     ezResourceManager::SetResourceTypeMissingFallback<ezMeshResource>(hMissingMesh);
   }
 
@@ -153,7 +154,7 @@ void ezGameApplication::Init_SetupDefaultResources()
     // ezPrefabResourceHandle hMissingPrefab = ezResourceManager::CreateResource<ezPrefabResource>("MissingPrefabResource", emptyPrefab,
     // "MissingPrefabResource");
 
-    ezPrefabResourceHandle hMissingPrefab = ezResourceManager::LoadResource<ezPrefabResource>("Prefabs/MissingPrefab.ezObjectGraph");
+    ezPrefabResourceHandle hMissingPrefab = ezResourceManager::LoadResource<ezPrefabResource>("Prefabs/MissingPrefab.ezBinPrefab");
     ezResourceManager::SetResourceTypeMissingFallback<ezPrefabResource>(hMissingPrefab);
   }
 
@@ -176,7 +177,6 @@ void ezGameApplication::Init_SetupDefaultResources()
     ezColorGradientResourceDescriptor cg;
     cg.m_Gradient.AddColorControlPoint(0, ezColor::RebeccaPurple);
     cg.m_Gradient.AddColorControlPoint(1, ezColor::LawnGreen);
-    cg.m_Gradient.SortControlPoints();
 
     ezColorGradientResourceHandle hResource = ezResourceManager::CreateResource<ezColorGradientResource>("MissingColorGradient", std::move(cg), "Missing Color Gradient Resource");
     ezResourceManager::SetResourceTypeMissingFallback<ezColorGradientResource>(hResource);
@@ -286,7 +286,10 @@ void ezGameApplication::Init_LoadRequiredPlugins()
 
 #endif
 
-  EZ_VERIFY(ezPlugin::LoadPlugin(szShaderCompiler).Succeeded(), "Shader compiler '{}' plugin not found", szShaderCompiler);
+  if (ezPlugin::LoadPlugin(szShaderCompiler, ezPluginLoadFlags::PluginIsOptional).Failed())
+  {
+    ezLog::Warning("Shader compiler plugin '{}' not found", szShaderCompiler);
+  }
 }
 
 void ezGameApplication::Deinit_ShutdownGraphicsDevice()

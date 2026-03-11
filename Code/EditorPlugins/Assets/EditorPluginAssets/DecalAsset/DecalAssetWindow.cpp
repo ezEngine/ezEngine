@@ -1,5 +1,6 @@
 #include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
+#include <EditorFramework/Assets/AssetStatusIndicator.moc.h>
 #include <EditorFramework/DocumentWindow/OrbitCamViewWidget.moc.h>
 #include <EditorFramework/InputContexts/EditorInputContext.h>
 #include <EditorPluginAssets/DecalAsset/DecalAsset.h>
@@ -49,22 +50,32 @@ ezQtDecalAssetDocumentWindow::ezQtDecalAssetDocumentWindow(ezDecalAssetDocument*
     m_pViewWidget->ConfigureFixed(ezVec3(0), ezVec3(0.0f), ezVec3(2, 0, 0));
     AddViewWidget(m_pViewWidget);
 
-    ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(nullptr, m_pViewWidget, "DecalAssetViewToolBar");
+    ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(GetContainerWindow()->GetDockManager(), nullptr, m_pViewWidget, "DecalAssetViewToolBar");
 
-    setCentralWidget(pContainer);
+    m_pDockManager->setCentralWidget(pContainer);
   }
 
   // Property Grid
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("DecalAssetDockWidget");
     pPropertyPanel->setWindowTitle("Decal Properties");
     pPropertyPanel->show();
 
     ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
-    pPropertyPanel->setWidget(pPropertyGrid);
 
-    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
+    QWidget* pWidget = new QWidget();
+    pWidget->setObjectName("Group");
+    pWidget->setLayout(new QVBoxLayout());
+    pWidget->setContentsMargins(0, 0, 0, 0);
+
+    pWidget->layout()->setContentsMargins(0, 0, 0, 0);
+    pWidget->layout()->addWidget(new ezQtAssetStatusIndicator(GetDocument()));
+    pWidget->layout()->addWidget(pPropertyGrid);
+
+    pPropertyPanel->setWidget(pWidget, ads::CDockWidget::ForceNoScrollArea);
+
+    m_pDockManager->addDockWidget(ads::RightDockWidgetArea, pPropertyPanel);
 
     pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
   }

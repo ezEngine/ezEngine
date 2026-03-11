@@ -9,7 +9,7 @@
 
 namespace
 {
-  ezSerializedBlock* FindBlock(ezHybridArray<ezSerializedBlock, 3>& ref_blocks, ezStringView sName)
+  ezSerializedBlock* FindBlock(ezDynamicArray<ezSerializedBlock>& ref_blocks, ezStringView sName)
   {
     for (auto& block : ref_blocks)
     {
@@ -21,7 +21,7 @@ namespace
     return nullptr;
   }
 
-  ezSerializedBlock* FindHeaderBlock(ezHybridArray<ezSerializedBlock, 3>& ref_blocks, ezInt32& out_iVersion)
+  ezSerializedBlock* FindHeaderBlock(ezDynamicArray<ezSerializedBlock>& ref_blocks, ezInt32& out_iVersion)
   {
     ezStringBuilder sHeaderName = "HeaderV";
     out_iVersion = 0;
@@ -40,7 +40,7 @@ namespace
     return nullptr;
   }
 
-  ezSerializedBlock* GetOrCreateBlock(ezHybridArray<ezSerializedBlock, 3>& ref_blocks, ezStringView sName)
+  ezSerializedBlock* GetOrCreateBlock(ezDynamicArray<ezSerializedBlock>& ref_blocks, ezStringView sName)
   {
     ezSerializedBlock* pBlock = FindBlock(ref_blocks, sName);
     if (!pBlock)
@@ -230,7 +230,7 @@ ezResult ezAbstractGraphDdlSerializer::Read(const ezOpenDdlReaderElement* pRootE
   return EZ_SUCCESS;
 }
 
-ezResult ezAbstractGraphDdlSerializer::ReadBlocks(ezStreamReader& stream, ezHybridArray<ezSerializedBlock, 3>& blocks)
+ezResult ezAbstractGraphDdlSerializer::ReadBlocks(ezStreamReader& stream, ezDynamicArray<ezSerializedBlock>& blocks)
 {
   ezOpenDdlReader reader;
   if (reader.ParseDocument(stream, 0, ezLog::GetThreadLocalLogSystem()).Failed())
@@ -272,7 +272,7 @@ void ezAbstractGraphDdlSerializer::WriteDocument(ezStreamWriter& inout_stream, c
 ezResult ezAbstractGraphDdlSerializer::ReadDocument(ezStreamReader& inout_stream, ezUniquePtr<ezAbstractObjectGraph>& ref_pHeader,
   ezUniquePtr<ezAbstractObjectGraph>& ref_pGraph, ezUniquePtr<ezAbstractObjectGraph>& ref_pTypes, bool bApplyPatches)
 {
-  ezHybridArray<ezSerializedBlock, 3> blocks;
+  ezTempHybridArray<ezSerializedBlock, 3> blocks;
   if (ReadBlocks(inout_stream, blocks).Failed())
   {
     return EZ_FAILURE;

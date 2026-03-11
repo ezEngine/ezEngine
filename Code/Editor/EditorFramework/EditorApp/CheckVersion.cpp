@@ -8,6 +8,7 @@
 #include <Foundation/IO/OpenDdlReader.h>
 #include <Foundation/IO/OpenDdlUtils.h>
 #include <Foundation/IO/OpenDdlWriter.h>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <QNetworkReply>
 #include <QProcess>
 
@@ -24,7 +25,7 @@ PageDownloader::PageDownloader(const QString& sUrl)
   QStringList args;
 
   args << "-Command";
-  args << QString("(Invoke-webrequest -URI \"%1\").Content > \"%2\"").arg(sUrl).arg(GetVersionFilePath().GetData());
+  args << QString("(Invoke-webrequest -URI \"%1\" -UseBasicParsing).Content > \"%2\"").arg(sUrl).arg(GetVersionFilePath().GetData());
 
   m_pProcess = EZ_DEFAULT_NEW(QProcess);
   connect(m_pProcess.Borrow(), &QProcess::finished, this, &PageDownloader::DownloadDone);
@@ -154,7 +155,7 @@ bool ezQtVersionChecker::Check(bool bForce)
 
 const char* ezQtVersionChecker::GetOwnVersion() const
 {
-  return EZ_PP_STRINGIFY(BUILDSYSTEM_SDKVERSION_MAJOR) "." EZ_PP_STRINGIFY(BUILDSYSTEM_SDKVERSION_MINOR) "." EZ_PP_STRINGIFY(BUILDSYSTEM_SDKVERSION_PATCH);
+  return ezQtUiServices::GetOwnVersionString();
 }
 
 const char* ezQtVersionChecker::GetKnownLatestVersion() const

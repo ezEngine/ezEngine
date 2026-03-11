@@ -12,7 +12,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezRenderTargetActivatorComponent, 1, ezComponentMode::St
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("RenderTarget", GetRenderTargetFile, SetRenderTargetFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_Target", ezDependencyFlags::Package)),
+    EZ_RESOURCE_ACCESSOR_PROPERTY("RenderTarget", GetRenderTarget, SetRenderTarget)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_Target", ezDependencyFlags::Package)),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -85,27 +85,6 @@ void ezRenderTargetActivatorComponent::SetRenderTarget(const ezRenderToTexture2D
 
   TriggerLocalBoundsUpdate();
 }
-
-void ezRenderTargetActivatorComponent::SetRenderTargetFile(const char* szFile)
-{
-  ezRenderToTexture2DResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hResource = ezResourceManager::LoadResource<ezRenderToTexture2DResource>(szFile);
-  }
-
-  SetRenderTarget(hResource);
-}
-
-const char* ezRenderTargetActivatorComponent::GetRenderTargetFile() const
-{
-  if (!m_hRenderTarget.IsValid())
-    return "";
-
-  return m_hRenderTarget.GetResourceID();
-}
-
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_RenderTargetActivatorComponent);

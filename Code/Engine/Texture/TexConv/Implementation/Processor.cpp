@@ -1,7 +1,6 @@
 #include <Texture/TexturePCH.h>
 
 #include <Foundation/Profiling/Profiling.h>
-#include <Foundation/Reflection/ReflectionUtils.h>
 #include <Texture/Image/ImageUtils.h>
 #include <Texture/TexConv/TexConvProcessor.h>
 
@@ -38,10 +37,7 @@ ezResult ezTexConvProcessor::Process()
 
     EZ_SUCCEED_OR_RETURN(AdjustUsage(m_Descriptor.m_InputFiles[0], m_Descriptor.m_InputImages[0], m_Descriptor.m_Usage));
 
-    ezStringBuilder sUsage;
-    ezReflectionUtils::EnumerationToString(
-      ezGetStaticRTTI<ezTexConvUsage>(), m_Descriptor.m_Usage.GetValue(), sUsage, ezReflectionUtils::EnumConversionMode::ValueNameOnly);
-    ezLog::Info("-usage is '{}'", sUsage);
+    ezLog::Info("-usage is '{}'", ezArgEnum(m_Descriptor.m_Usage));
 
     EZ_SUCCEED_OR_RETURN(ForceSRGBFormats());
 

@@ -1,12 +1,12 @@
 PluginState
 {
-	string %ID{"Assets"}
+	string %ID{"AngelScript"}
 	bool %Selected{true}
 	bool %LoadCopy{false}
 }
 PluginState
 {
-	string %ID{"Fmod"}
+	string %ID{"Assets"}
 	bool %Selected{true}
 	bool %LoadCopy{false}
 }
@@ -25,18 +25,6 @@ PluginState
 PluginState
 {
 	string %ID{"Scene"}
-	bool %Selected{true}
-	bool %LoadCopy{false}
-}
-PluginState
-{
-	string %ID{"TypeScript"}
-	bool %Selected{true}
-	bool %LoadCopy{false}
-}
-PluginState
-{
-	string %ID{"XBoxController"}
 	bool %Selected{true}
 	bool %LoadCopy{false}
 }

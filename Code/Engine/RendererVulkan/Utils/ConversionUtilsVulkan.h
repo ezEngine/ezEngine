@@ -5,8 +5,6 @@
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
-#include <vulkan/vulkan.hpp>
-
 EZ_DEFINE_AS_POD_TYPE(vk::PresentModeKHR);
 
 /// \brief Helper functions to convert and extract Vulkan objects from EZ objects.
@@ -27,13 +25,17 @@ public:
     return static_cast<typename T::MaskType>(value);
   }
 
+  static vk::AttachmentLoadOp GetAttachmentLoadOp(ezEnum<ezGALRenderTargetLoadOp> op);
+  static vk::AttachmentStoreOp GetAttachmentStoreOp(ezEnum<ezGALRenderTargetStoreOp> op);
+  static vk::VertexInputRate GetVertexBindingRate(ezEnum<ezGALVertexBindingRate> rate);
   static vk::SampleCountFlagBits GetSamples(ezEnum<ezGALMSAASampleCount> samples);
   static vk::PresentModeKHR GetPresentMode(ezEnum<ezGALPresentMode> presentMode, const ezDynamicArray<vk::PresentModeKHR>& supportedModes);
   static vk::ImageSubresourceRange GetSubresourceRange(const ezGALTextureCreationDescription& texDesc, const ezGALRenderTargetViewCreationDescription& desc);
-  static vk::ImageSubresourceRange GetSubresourceRange(const ezGALTextureCreationDescription& texDesc, const ezGALTextureResourceViewCreationDescription& viewDesc);
-  static vk::ImageSubresourceRange GetSubresourceRange(const ezGALTextureCreationDescription& texDesc, const ezGALTextureUnorderedAccessViewCreationDescription& viewDesc);
   static vk::ImageSubresourceRange GetSubresourceRange(const vk::ImageSubresourceLayers& layers);
-  static vk::ImageViewType GetImageViewType(ezEnum<ezGALTextureType> texType, bool bIsArray);
+  static vk::ImageSubresourceRange GetSubresourceRange(ezGALResourceFormat::Enum format, ezGALTextureRange textureRange);
+  static vk::ImageViewType GetImageViewType(ezEnum<ezGALTextureType> texType);
+  static vk::ImageViewType GetImageViewType(ezEnum<ezGALShaderTextureType> texType);
+  static vk::ImageViewType GetImageArrayViewType(ezEnum<ezGALTextureType> texType);
 
   static bool IsDepthFormat(vk::Format format);
   static bool IsStencilFormat(vk::Format format);

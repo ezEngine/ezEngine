@@ -171,6 +171,20 @@ void ezAssetTableWriter::MainThreadTick()
           msg2.m_sResourceType = reload.m_sType;
           ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg2);
         }
+        else if (ezPathUtils::IsAbsolutePath(reload.m_sResource))
+        {
+          if (reload.m_uiDataDirIndex >= m_DataDirRoots.GetCount())
+            continue;
+
+          ezStringBuilder sTempPath = reload.m_sResource;
+          if (sTempPath.MakeRelativeTo(m_DataDirRoots[reload.m_uiDataDirIndex]).Failed())
+            continue;
+
+          ezReloadResourceMsgToEngine msg2;
+          msg2.m_sResourceID = sTempPath;
+          msg2.m_sResourceType = reload.m_sType;
+          ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg2);
+        }
         else
         {
           // If an asset is not represented by a resource in the table we assume it is represented by a manager resource.
@@ -196,6 +210,7 @@ void ezAssetTableWriter::MainThreadTick()
       }
     }
 
+    // This forces the deletion of cached render data.
     ezSimpleConfigMsgToEngine msg;
     msg.m_sWhatToDo = "ReloadResources";
     ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
@@ -214,6 +229,21 @@ void ezAssetTableWriter::NeedsReloadResource(const ezUuid& assetGuid)
     ezStringBuilder sGuid;
     ezConversionUtils::ToString(assetGuid, sGuid);
     const ezUInt32 uiDataDirIndex = FindDataDir(*asset);
+
+    if (asset->m_bMainAsset)
+    {
+      const ezPlatformProfile* pProfile = ezAssetCurator::GetSingleton()->GetActiveAssetProfile();
+      const ezAssetDocumentManager* pManager = asset->m_pAssetInfo->GetManager();
+      const ezAssetDocumentTypeDescriptor* pDocTypeDesc = asset->m_pAssetInfo->m_pDocumentTypeDescriptor;
+      const ezSet<ezString>& outputs = asset->m_pAssetInfo->m_Info->m_Outputs;
+      for (auto it = outputs.GetIterator(); it.IsValid(); ++it)
+      {
+        // Additional outputs are not written to the asset table, so we assume they are referenced by a relative path in the runtime. We store an absolute path here though so that we can detect additional outputs inside the MainThreadTick function where we flush the resource reloads.
+        const ezString sTargetFile = pManager->GetAbsoluteOutputFileName(pDocTypeDesc, asset->m_pAssetInfo->m_Path.GetAbsolutePath(), it.Key(), pProfile);
+        const ezStringView sDocumentType = pManager->GetOutputDocumentType(pDocTypeDesc, it.Key(), pProfile);
+        m_ReloadResources.PushBack({uiDataDirIndex, sTargetFile, sDocumentType});
+      }
+    }
     m_ReloadResources.PushBack({uiDataDirIndex, sGuid, sDocType});
   }
 }

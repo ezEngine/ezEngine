@@ -23,13 +23,3 @@ EZ_ALWAYS_INLINE const ezGALFormatLookupTableDX11& ezGALDeviceDX11::GetFormatLoo
 {
   return m_FormatLookupTable;
 }
-
-inline ID3D11Query* ezGALDeviceDX11::GetTimestamp(ezGALTimestampHandle hTimestamp)
-{
-  if (hTimestamp.m_uiIndex < m_Timestamps.GetCount())
-  {
-    return m_Timestamps[static_cast<ezUInt32>(hTimestamp.m_uiIndex)];
-  }
-
-  return nullptr;
-}

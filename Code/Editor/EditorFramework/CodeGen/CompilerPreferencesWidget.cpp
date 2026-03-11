@@ -44,7 +44,7 @@ ezQtCompilerPreferencesWidget::ezQtCompilerPreferencesWidget()
 
 ezQtCompilerPreferencesWidget::~ezQtCompilerPreferencesWidget() = default;
 
-void ezQtCompilerPreferencesWidget::SetSelection(const ezHybridArray<ezPropertySelection, 8>& items)
+void ezQtCompilerPreferencesWidget::SetSelection(const ezArrayPtr<ezPropertySelection>& items)
 {
   ezQtScopedUpdatesDisabled _(this);
 
@@ -64,10 +64,10 @@ void ezQtCompilerPreferencesWidget::SetSelection(const ezHybridArray<ezPropertyS
     {
       ezVariant varCompiler, varIsCustomCompiler, varCCompiler, varCppCompiler;
 
-      m_pObjectAccessor->GetValue(pObj, "Compiler", varCompiler).AssertSuccess();
-      m_pObjectAccessor->GetValue(pObj, "CustomCompiler", varIsCustomCompiler).AssertSuccess();
-      m_pObjectAccessor->GetValue(pObj, "CCompiler", varCCompiler).AssertSuccess();
-      m_pObjectAccessor->GetValue(pObj, "CppCompiler", varCppCompiler).AssertSuccess();
+      m_pObjectAccessor->GetValueByName(pObj, "Compiler", varCompiler).AssertSuccess();
+      m_pObjectAccessor->GetValueByName(pObj, "CustomCompiler", varIsCustomCompiler).AssertSuccess();
+      m_pObjectAccessor->GetValueByName(pObj, "CCompiler", varCCompiler).AssertSuccess();
+      m_pObjectAccessor->GetValueByName(pObj, "CppCompiler", varCppCompiler).AssertSuccess();
 
       m_Compiler.SetValue(static_cast<ezCompiler::StorageType>(varCompiler.Get<ezInt64>()));
       bIsCustomCompiler = varIsCustomCompiler.Get<decltype(bIsCustomCompiler)>();
@@ -118,7 +118,7 @@ void ezQtCompilerPreferencesWidget::on_compiler_preset_changed(int index)
 {
   auto compilerPresets = ezCppProject::GetMachineSpecificCompilers();
 
-  if (index >= 0 && index < compilerPresets.GetCount())
+  if (index >= 0 && index < (int)compilerPresets.GetCount())
   {
     const auto& preset = compilerPresets[index];
 
@@ -127,10 +127,10 @@ void ezQtCompilerPreferencesWidget::on_compiler_preset_changed(int index)
 
     auto obj = selection[0].m_pObject;
     m_pObjectAccessor->StartTransaction("Change Compiler Preset");
-    m_pObjectAccessor->SetValue(obj, "Compiler", preset.m_Compiler.GetValue()).AssertSuccess();
-    m_pObjectAccessor->SetValue(obj, "CustomCompiler", preset.m_bIsCustom).AssertSuccess();
-    m_pObjectAccessor->SetValue(obj, "CCompiler", preset.m_sCCompiler).AssertSuccess();
-    m_pObjectAccessor->SetValue(obj, "CppCompiler", preset.m_sCppCompiler).AssertSuccess();
+    m_pObjectAccessor->SetValueByName(obj, "Compiler", preset.m_Compiler.GetValue()).AssertSuccess();
+    m_pObjectAccessor->SetValueByName(obj, "CustomCompiler", preset.m_bIsCustom).AssertSuccess();
+    m_pObjectAccessor->SetValueByName(obj, "CCompiler", preset.m_sCCompiler).AssertSuccess();
+    m_pObjectAccessor->SetValueByName(obj, "CppCompiler", preset.m_sCppCompiler).AssertSuccess();
     m_pObjectAccessor->FinishTransaction();
   }
 }
@@ -153,7 +153,7 @@ void ezCompilerPreferences_PropertyMetaStateEventHandler(ezPropertyMetaStateEven
   }
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   auto compiler = typeAccessor.GetValue("Compiler").Get<ezInt64>();
-  if (compiler == ezCompiler::Vs2022)
+  if (compiler == ezCompiler::Vs2022 || compiler == ezCompiler::Vs2026)
   {
     compilerFieldsVisibility = ezPropertyUiState::Invisible;
   }
@@ -166,6 +166,6 @@ void ezCompilerPreferences_PropertyMetaStateEventHandler(ezPropertyMetaStateEven
 #if EZ_ENABLED(EZ_PLATFORM_LINUX)
   props["RcCompiler"].m_Visibility = ezPropertyUiState::Invisible;
 #else
-  props["RcCompiler"].m_Visibility = (compiler == ezCompiler::Vs2022) ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
+  props["RcCompiler"].m_Visibility = (compiler == ezCompiler::Vs2022 || compiler == ezCompiler::Vs2026) ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
 #endif
 }

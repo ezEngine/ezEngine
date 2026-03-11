@@ -1,13 +1,13 @@
 
-EZ_ALWAYS_INLINE ezDebugRenderer::Line::Line() = default;
+EZ_ALWAYS_INLINE ezDebugRendererLine::ezDebugRendererLine() = default;
 
-EZ_ALWAYS_INLINE ezDebugRenderer::Line::Line(const ezVec3& vStart, const ezVec3& vEnd)
+EZ_ALWAYS_INLINE ezDebugRendererLine::ezDebugRendererLine(const ezVec3& vStart, const ezVec3& vEnd)
   : m_start(vStart)
   , m_end(vEnd)
 {
 }
 
-EZ_ALWAYS_INLINE ezDebugRenderer::Line::Line(const ezVec3& vStart, const ezVec3& vEnd, const ezColor& color)
+EZ_ALWAYS_INLINE ezDebugRendererLine::ezDebugRendererLine(const ezVec3& vStart, const ezVec3& vEnd, const ezColor& color)
   : m_start(vStart)
   , m_end(vEnd)
   , m_startColor(color)
@@ -17,9 +17,9 @@ EZ_ALWAYS_INLINE ezDebugRenderer::Line::Line(const ezVec3& vStart, const ezVec3&
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_ALWAYS_INLINE ezDebugRenderer::Triangle::Triangle() = default;
+EZ_ALWAYS_INLINE ezDebugRendererTriangle::ezDebugRendererTriangle() = default;
 
-EZ_ALWAYS_INLINE ezDebugRenderer::Triangle::Triangle(const ezVec3& v0, const ezVec3& v1, const ezVec3& v2)
+EZ_ALWAYS_INLINE ezDebugRendererTriangle::ezDebugRendererTriangle(const ezVec3& v0, const ezVec3& v1, const ezVec3& v2)
 
 {
   m_position[0] = v0;

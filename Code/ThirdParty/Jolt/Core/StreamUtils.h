@@ -7,18 +7,13 @@
 #include <Jolt/Core/Result.h>
 #include <Jolt/Core/StreamIn.h>
 #include <Jolt/Core/StreamOut.h>
+#include <Jolt/Core/ObjectToIDMap.h>
 #include <Jolt/Core/UnorderedMap.h>
 #include <Jolt/Core/Factory.h>
 
 JPH_NAMESPACE_BEGIN
 
 namespace StreamUtils {
-
-template <class Type>
-using ObjectToIDMap = UnorderedMap<const Type *, uint32>;
-
-template <class Type>
-using IDToObjectMap = Array<Ref<Type>>;
 
 // Restore a single object by reading the hash of the type, constructing it and then calling the restore function
 template <class Type>
@@ -126,7 +121,8 @@ Result<Ref<Type>>	RestoreObjectReference(StreamIn &inStream, IDToObjectMap<Type>
 template <class ArrayType, class ValueType>
 void				SaveObjectArray(StreamOut &inStream, const ArrayType &inArray, ObjectToIDMap<ValueType> *ioObjectToIDMap)
 {
-	inStream.Write(size_t(inArray.size()));
+	uint32 len = uint32(inArray.size());
+	inStream.Write(len);
 	for (const ValueType *value: inArray)
 		SaveObjectReference(inStream, value, ioObjectToIDMap);
 }
@@ -137,7 +133,7 @@ Result<ArrayType>	RestoreObjectArray(StreamIn &inStream, IDToObjectMap<ValueType
 {
 	Result<ArrayType> result;
 
-	size_t len;
+	uint32 len;
 	inStream.Read(len);
 	if (inStream.IsEOF() || inStream.IsFailed())
 	{

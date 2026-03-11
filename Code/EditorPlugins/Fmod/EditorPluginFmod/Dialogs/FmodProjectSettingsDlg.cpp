@@ -33,7 +33,7 @@ ezResult ezQtFmodProjectSettingsDlg::Save()
   if (m_Configs.Save().Failed())
   {
     ezStringBuilder sError;
-    sError.SetFormat("Failed to save the Fmod configuration file\n'{0}'", ezFmodAssetProfiles::s_sConfigFile);
+    sError.SetFormat("Failed to save the FMOD configuration file\n'{0}'", ezFmodAssetProfiles::s_sConfigFile);
 
     ezQtUiServices::GetSingleton()->MessageBoxWarning(sError);
 
@@ -137,9 +137,9 @@ void ezQtFmodProjectSettingsDlg::on_ButtonBox_clicked(QAbstractButton* pButton)
 
     if (m_ConfigsOld.m_AssetProfiles != m_Configs.m_AssetProfiles)
     {
-      if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("Save the changes to the Fmod configuration?\nYou need to reload the project for the changes to take effect.", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::Yes)
+      if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("Save the changes to the FMOD configuration?\nYou need to reload the project for the changes to take effect.", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::Yes)
       {
-        ezQtEditorApp::GetSingleton()->AddReloadProjectRequiredReason("Fmod configuration was modified.");
+        ezQtEditorApp::GetSingleton()->AddReloadProjectRequiredReason("FMOD configuration was modified.");
 
         if (Save().Failed())
           return;

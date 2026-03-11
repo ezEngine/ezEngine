@@ -202,7 +202,3 @@ void ezParticleWorldModule::ReconfigureEffects()
 
   m_EffectsToReconfigure.Clear();
 }
-
-
-
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_WorldModule_ParticleEffects);

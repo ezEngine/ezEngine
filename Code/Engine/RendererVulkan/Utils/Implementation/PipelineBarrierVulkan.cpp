@@ -1,13 +1,12 @@
 #include <RendererVulkan/RendererVulkanPCH.h>
 
+#include <Foundation/Profiling/Profiling.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/RenderTargetView.h>
-#include <RendererFoundation/Resources/ResourceView.h>
 #include <RendererVulkan/Resources/BufferVulkan.h>
 #include <RendererVulkan/Resources/RenderTargetViewVulkan.h>
-#include <RendererVulkan/Resources/ResourceViewVulkan.h>
 #include <RendererVulkan/Resources/TextureVulkan.h>
-#include <RendererVulkan/Resources/UnorderedAccessViewVulkan.h>
+#include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
 #include <RendererVulkan/Utils/PipelineBarrierVulkan.h>
 
 namespace
@@ -23,6 +22,13 @@ namespace
   }
 } // namespace
 
+ezPipelineBarrierVulkan::ezPipelineBarrierVulkan(ezAllocator* pAllocator)
+  : m_bufferBarriers(pAllocator)
+  , m_imageBarriers(pAllocator)
+  , m_imageState(pAllocator)
+  , m_bufferState(pAllocator)
+{
+}
 
 void ezPipelineBarrierVulkan::SetCommandBuffer(vk::CommandBuffer* pCommandBuffer)
 {
@@ -31,6 +37,8 @@ void ezPipelineBarrierVulkan::SetCommandBuffer(vk::CommandBuffer* pCommandBuffer
 
 void ezPipelineBarrierVulkan::Flush()
 {
+  EZ_PROFILE_SCOPE("Flush");
+
   if (m_srcStageMask || m_dstStageMask)
   {
     if (!m_srcStageMask)
@@ -154,10 +162,12 @@ void ezPipelineBarrierVulkan::AccessBuffer(const ezGALBufferVulkan* pBuffer, vk:
   {
     if (IsDirtyInternal(*pState, subState))
     {
+      pState = nullptr;
       Flush();
     }
   }
-  else
+
+  if (!pState)
   {
     BufferState state;
     state.m_pBuffer = pBuffer;
@@ -166,6 +176,7 @@ void ezPipelineBarrierVulkan::AccessBuffer(const ezGALBufferVulkan* pBuffer, vk:
 
   AddBufferBarrierInternal(pBuffer->GetVkBuffer(), offset, length, srcStages, srcAccess, dstStages, dstAccess);
   pState->m_subBufferState.PushBack(subState);
+  pState->m_dirty.SetCount(pState->m_subBufferState.GetCount(), true);
 }
 
 void ezPipelineBarrierVulkan::EnsureImageLayout(const ezGALTextureVulkan* pTexture, vk::ImageLayout dstLayout, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess, bool bDiscardSource)
@@ -179,16 +190,11 @@ void ezPipelineBarrierVulkan::EnsureImageLayout(const ezGALRenderTargetViewVulka
   EnsureImageLayout(pTexture, pTextureView->GetRange(), dstLayout, dstStages, dstAccess, bDiscardSource);
 }
 
-void ezPipelineBarrierVulkan::EnsureImageLayout(const ezGALTextureResourceViewVulkan* pTextureView, vk::ImageLayout dstLayout, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess, bool bDiscardSource)
+void ezPipelineBarrierVulkan::EnsureImageLayout(const ezGALTextureVulkan* pTexture, ezGALTextureRange range, vk::ImageLayout dstLayout, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess, bool bDiscardSource)
 {
-  auto pTexture = static_cast<const ezGALTextureVulkan*>(pTextureView->GetResource()->GetParentResource());
-  EnsureImageLayout(pTexture, pTextureView->GetRange(), dstLayout, dstStages, dstAccess, bDiscardSource);
-}
-
-void ezPipelineBarrierVulkan::EnsureImageLayout(const ezGALTextureUnorderedAccessViewVulkan* pTextureView, vk::ImageLayout dstLayout, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess, bool bDiscardSource)
-{
-  auto pTexture = static_cast<const ezGALTextureVulkan*>(pTextureView->GetResource()->GetParentResource());
-  EnsureImageLayout(pTexture, pTextureView->GetRange(), dstLayout, dstStages, dstAccess, bDiscardSource);
+  vk::ImageSubresourceRange vkRange = ezConversionUtilsVulkan::GetSubresourceRange(pTexture->GetDescription().m_Format, range);
+  auto pTexture2 = static_cast<const ezGALTextureVulkan*>(pTexture->GetParentResource());
+  EnsureImageLayout(pTexture2, vkRange, dstLayout, dstStages, dstAccess, bDiscardSource);
 }
 
 void ezPipelineBarrierVulkan::EnsureImageLayout(const ezGALTextureVulkan* pTexture, vk::ImageSubresourceRange subResources, vk::ImageLayout dstLayout, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess, bool bDiscardSource)
@@ -424,6 +430,9 @@ void ezPipelineBarrierVulkan::FullBarrier()
   vk::MemoryBarrier memoryBarrier;
   memoryBarrier.srcAccessMask = s_writeAccess | s_readAccess;
   memoryBarrier.dstAccessMask = s_writeAccess | s_readAccess;
+  memoryBarrier.srcAccessMask &= ~(vk::AccessFlagBits::eHostRead | vk::AccessFlagBits::eHostWrite);
+  memoryBarrier.dstAccessMask &= ~(vk::AccessFlagBits::eHostRead | vk::AccessFlagBits::eHostWrite);
+
 
   m_pCommandBuffer->pipelineBarrier(vk::PipelineStageFlagBits::eAllCommands, vk::PipelineStageFlagBits::eAllCommands, vk::DependencyFlags(), 1, &memoryBarrier, 0, nullptr, 0, nullptr);
 }

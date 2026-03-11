@@ -26,27 +26,40 @@ struct ezGameApplicationStaticEvent
   Type m_Type;
 };
 
-/// Allows custom code to inject logic at specific update points.
+/// \brief Events fired during game application execution phases.
+///
+/// Allows custom code to inject logic at specific update points during each frame.
 /// The events are listed in the order in which they typically happen.
 struct ezGameApplicationExecutionEvent
 {
   enum class Type
   {
-    BeginAppTick,
-    BeforeWorldUpdates,
-    AfterWorldUpdates,
-    BeforeUpdatePlugins,
-    AfterUpdatePlugins,
-    BeforePresent,
-    AfterPresent,
-    EndAppTick,
+    BeginAppTick,        ///< Fired at the beginning of each application tick
+    BeforeWorldUpdates,  ///< Fired before world updates are processed
+    AfterWorldUpdates,   ///< Fired after world updates are completed
+    BeforeUpdatePlugins, ///< Fired before plugin updates are processed
+    AfterUpdatePlugins,  ///< Fired after plugin updates are completed
+    BeforePresent,       ///< Fired before presenting rendered frames
+    AfterPresent,        ///< Fired after presenting rendered frames
+    EndAppTick,          ///< Fired at the end of each application tick
   };
 
   Type m_Type;
 };
 
-// TODO: document this and update ezGameApplication comments
+/// \brief Defines different update modes for the game application.
+enum class ezGameUpdateMode
+{
+  Skip,                 ///< Skip both updating and rendering
+  Render,               ///< Only render, don't update input or game logic
+  UpdateInputAndRender, ///< Process input, update game logic, and render
+};
 
+/// \brief Base class for game applications that provides fundamental game loop and window management.
+///
+/// Extends ezApplication with game-specific functionality including game state management,
+/// window creation, input handling, screenshot capture, and profiling. Serves as the foundation
+/// for both standalone games and editor applications.
 class EZ_CORE_DLL ezGameApplicationBase : public ezApplication
 {
 public:
@@ -135,7 +148,7 @@ public:
   ///
   /// Broadcasts local event: ezGameApplicationStaticEvent::AfterGameStateActivated
   /// Broadcasts global event: AfterGameStateActivation(ezGameStateBase*)
-  ezResult ActivateGameState(ezWorld* pWorld = nullptr, const ezTransform* pStartPosition = nullptr);
+  void ActivateGameState(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset);
 
   /// \brief Deactivates and destroys the active game state.
   ///
@@ -146,20 +159,12 @@ public:
   /// \brief Returns the currently active game state. Could be nullptr.
   ezGameStateBase* GetActiveGameState() const { return m_pGameState.Borrow(); }
 
-  /// \brief Returns the currently active game state IF it was created for the given world.
-  ///
-  /// This is mostly for editor use cases, where some documents want to handle the game state, but only
-  /// it it was set up for a particular document.
-  ezGameStateBase* GetActiveGameStateLinkedToWorld(const ezWorld* pWorld) const;
-
 protected:
   /// \brief Creates a game state for the application to use.
   ///
-  /// \a pWorld is typically nullptr in a stand-alone app, but may be existing already when called from the editor.
-  ///
   /// The default implementation will query all available game states for the best match.
   /// By overriding this, one can also just create a specific game state directly.
-  virtual ezUniquePtr<ezGameStateBase> CreateGameState(ezWorld* pWorld);
+  virtual ezUniquePtr<ezGameStateBase> CreateGameState();
 
   /// \brief Allows to override whether a game state is created and activated at application startup.
   ///
@@ -168,7 +173,6 @@ protected:
   virtual void ActivateGameStateAtStartup();
 
   ezUniquePtr<ezGameStateBase> m_pGameState;
-  ezWorld* m_pWorldLinkedWithGameState = nullptr;
 
   ///@}
   /// \name Platform Profile
@@ -213,6 +217,7 @@ protected:
 
   ezEventSubscriptionID m_LogToConsoleID = 0;
   ezEventSubscriptionID m_LogToVsID = 0;
+  ezEventSubscriptionID m_LogToTracingID = 0;
 
   /// \brief Executes all 'Init_' functions. Typically done after core system startup
   virtual void ExecuteInitFunctions();
@@ -225,7 +230,6 @@ protected:
   virtual void Init_LoadWorldModuleConfig();
   virtual void Init_LoadProjectPlugins();
   virtual void Init_PlatformProfile_LoadForRuntime();
-  virtual void Init_ConfigureInput();
   virtual void Init_ConfigureTags();
   virtual void Init_ConfigureCVars();
   virtual void Init_SetupGraphicsDevice() = 0;
@@ -249,7 +253,7 @@ protected:
   ///@{
 
 public:
-  virtual ezApplication::Execution Run() override;
+  virtual void Run() override;
 
   void RunOneFrame();
 
@@ -257,16 +261,29 @@ public:
 
   ezTime GetFrameTime() const { return m_FrameTime; }
 
-protected:
-  virtual bool IsGameUpdateEnabled() const { return true; }
+  /// The overridden version also quits the application when the active game state signals to quit.
+  virtual bool ShouldApplicationQuit() const override;
 
-  virtual void Run_InputUpdate();
+protected:
+  virtual ezGameUpdateMode GetGameUpdateMode() const { return ezGameUpdateMode::UpdateInputAndRender; }
+
+  void Run_InputUpdate();
+
+  /// Override this to do custom input handling on the application level.
+  ///
+  /// This is executed before ezGameState::ProcessInput().
+  /// If it returns true, the game state also gets to process input, otherwise it is skipped.
   virtual bool Run_ProcessApplicationInput();
+
+  /// \brief This function can be used to acquire a new window from a swap-chain or do any other update operations on windows before the multi-threaded rendering and update phase starts.
+  virtual void Run_AcquireImage();
+
   virtual void Run_WorldUpdateAndRender() = 0;
   virtual void Run_BeforeWorldUpdate();
   virtual void Run_AfterWorldUpdate();
   virtual void Run_UpdatePlugins();
-  virtual void Run_Present();
+  /// \brief This function can be used to present the final image to a window. It is run at the end of the rendering phase. It can also be used to inspect the swap-chain e.g. for screenshot purposes before presenting.
+  virtual void Run_PresentImage();
   virtual void Run_FinishFrame();
 
   void UpdateFrameTime();

@@ -11,7 +11,7 @@ o
 		s %AssetType{"Collection"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{3499769407349431222,5399866658602215752}}
-		u4 %Hash{8213810113403539547}
+		u4 %Hash{7044419575281043309}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -20,6 +20,7 @@ o
 			s{"{ 2f774bb6-5c47-422d-9383-bf5ecae4cf56 }"}
 			s{"{ 38c808bf-eac8-41ed-8321-04d37e0310f9 }"}
 			s{"{ 42a5822e-ea83-472d-824e-ad9a4b9cf666 }"}
+			s{"{ 4d474e6b-321a-43dd-803e-25d58acf4b20 }"}
 			s{"{ c3029e56-97a2-493c-b179-527127802668 }"}
 			s{"{ cc4ebafc-ae48-4e67-bda4-09962db0b611 }"}
 			s{"{ cedca7a9-1390-4aab-8aae-a5992ea3d395 }"}
@@ -60,6 +61,7 @@ o
 			Uuid{u4{8246294154447366066,5652307840528890526}}
 			Uuid{u4{2352616944818272955,5471803948580538559}}
 			Uuid{u4{1885048385830581153,5363585414773755396}}
+			Uuid{u4{5364537817883617436,5393247920128087090}}
 		}
 	}
 }
@@ -83,6 +85,17 @@ o
 	{
 		s %Asset{"{ cc4ebafc-ae48-4e67-bda4-09962db0b611 }"}
 		s %Name{"ProjectileMesh"}
+	}
+}
+o
+{
+	Uuid %id{u4{5364537817883617436,5393247920128087090}}
+	s %t{"ezCollectionAssetEntry"}
+	u3 %v{1}
+	p
+	{
+		s %Asset{"{ 4d474e6b-321a-43dd-803e-25d58acf4b20 }"}
+		s %Name{"ShipMaterial"}
 	}
 }
 o

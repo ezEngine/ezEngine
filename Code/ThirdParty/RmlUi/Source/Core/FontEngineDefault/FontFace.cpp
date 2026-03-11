@@ -1,70 +1,35 @@
-/*
- * This source file is part of RmlUi, the HTML/CSS Interface Middleware
- *
- * For the latest information, see http://github.com/mikke89/RmlUi
- *
- * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
- */
-
-#include "../../../Include/RmlUi/Core/Log.h"
 #include "FontFace.h"
+#include "../../../Include/RmlUi/Core/Log.h"
 #include "FontFaceHandleDefault.h"
 #include "FreeTypeInterface.h"
 
 namespace Rml {
 
-FontFace::FontFace(FontFaceHandleFreetype _face, Style::FontStyle _style, Style::FontWeight _weight, bool _release_stream)
+FontFace::FontFace(FontFaceHandleFreetype _face, Style::FontStyle _style, Style::FontWeight _weight)
 {
 	style = _style;
 	weight = _weight;
 	face = _face;
-
-	release_stream = _release_stream;
 }
 
 FontFace::~FontFace()
 {
-	if (face) 
-	{
-		FreeType::ReleaseFace(face, release_stream);
-		face = 0;
-	}
-	handles.clear();
+	if (face)
+		FreeType::ReleaseFace(face);
 }
 
-// Returns the style of the font face.
 Style::FontStyle FontFace::GetStyle() const
 {
 	return style;
 }
 
-// Returns the weight of the font face.
 Style::FontWeight FontFace::GetWeight() const
 {
 	return weight;
 }
 
-FontFaceHandleDefault* FontFace::GetHandle(int size) {
+FontFaceHandleDefault* FontFace::GetHandle(int size, bool load_default_glyphs)
+{
 	auto it = handles.find(size);
 	if (it != handles.end())
 		return it->second.get();
@@ -78,7 +43,7 @@ FontFaceHandleDefault* FontFace::GetHandle(int size) {
 
 	// Construct and initialise the new handle.
 	auto handle = MakeUnique<FontFaceHandleDefault>();
-	if (!handle->Initialize(face, size))
+	if (!handle->Initialize(face, size, load_default_glyphs))
 	{
 		handles[size] = nullptr;
 		return nullptr;
@@ -92,5 +57,9 @@ FontFaceHandleDefault* FontFace::GetHandle(int size) {
 	return result;
 }
 
+void FontFace::ReleaseFontResources()
+{
+	HandleMap().swap(handles);
+}
 
 } // namespace Rml

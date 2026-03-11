@@ -1,7 +1,6 @@
 #include <RendererCore/RendererCorePCH.h>
 
 #include <Core/Graphics/Geometry.h>
-#include <Core/Messages/CollisionMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Profiling/Profiling.h>
@@ -9,6 +8,7 @@
 #include <RendererCore/Components/BeamComponent.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/Meshes/MeshComponentBase.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererFoundation/Device/Device.h>
 
 
@@ -18,7 +18,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezBeamComponent, 1, ezComponentMode::Static)
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("TargetObject", DummyGetter, SetTargetObject)->AddAttributes(new ezGameObjectReferenceAttribute()),
-    EZ_ACCESSOR_PROPERTY("Material", GetMaterialFile, SetMaterialFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
+    EZ_RESOURCE_MEMBER_PROPERTY("Material", m_hMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
     EZ_MEMBER_PROPERTY("Color", m_Color)->AddAttributes(new ezDefaultValueAttribute(ezColor::White)),
     EZ_ACCESSOR_PROPERTY("Width", GetWidth, SetWidth)->AddAttributes(new ezDefaultValueAttribute(0.1f), new ezClampValueAttribute(0.001f, ezVariant()), new ezSuffixAttribute(" m")),
     EZ_ACCESSOR_PROPERTY("UVUnitsPerWorldUnit", GetUVUnitsPerWorldUnit, SetUVUnitsPerWorldUnit)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.01f, ezVariant())),
@@ -137,6 +137,9 @@ void ezBeamComponent::OnActivated()
 
 void ezBeamComponent::OnDeactivated()
 {
+  ezRenderDataManager* pRenderDataManager = GetWorld()->GetModule<ezRenderDataManager>();
+  pRenderDataManager->DeleteInstanceData(m_InstanceDataOffset);
+
   SUPER::OnDeactivated();
 
   Cleanup();
@@ -147,22 +150,15 @@ void ezBeamComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
   if (!m_hMesh.IsValid() || !m_hMaterial.IsValid())
     return;
 
-  ezMeshRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner());
-  {
-    pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
-    pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
-    pRenderData->m_hMesh = m_hMesh;
-    pRenderData->m_hMaterial = m_hMaterial;
-    pRenderData->m_Color = m_Color;
-    pRenderData->m_uiSubMeshIndex = 0;
-    pRenderData->m_uiUniqueID = GetUniqueIdForRendering();
+  // Force dynamic instance data buffer since the render data is not cached, so we would trash the static instance data buffer every frame.
+  const bool bDynamic = true;
+  auto hInstanceDataBuffer = msg.m_pRenderDataManager->GetOrCreateInstanceDataAndFill(*this, bDynamic, GetOwner()->GetGlobalTransform(), m_InstanceDataOffset, GetUniqueIdForRendering(), m_Color);
 
-    pRenderData->FillBatchIdAndSortingKey();
-  }
+  ezMeshRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner());
+  pRenderData->SetFallbackGlobalBounds(GetOwner()->GetGlobalBounds());
+  pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, m_hMaterial, m_hMesh);
 
-  // Determine render data category.
-  ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
-  ezRenderData::Category category = pMaterial->GetRenderDataCategory();
+  ezRenderData::Category category = ezMaterialResource::GetRenderDataCategory(m_hMaterial);
 
   msg.AddRenderData(pRenderData, category, ezRenderData::Caching::Never);
 }
@@ -209,26 +205,6 @@ float ezBeamComponent::GetUVUnitsPerWorldUnit() const
   return m_fUVUnitsPerWorldUnit;
 }
 
-void ezBeamComponent::SetMaterialFile(const char* szFile)
-{
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>(szFile);
-  }
-  else
-  {
-    m_hMaterial.Invalidate();
-  }
-}
-
-const char* ezBeamComponent::GetMaterialFile() const
-{
-  if (!m_hMaterial.IsValid())
-    return "";
-
-  return m_hMaterial.GetResourceID();
-}
-
 ezMaterialResourceHandle ezBeamComponent::GetMaterial() const
 {
   return m_hMaterial;
@@ -244,7 +220,7 @@ void ezBeamComponent::CreateMeshes()
   // Create the beam mesh name, it expresses the beam in local space with it's width
   // this way multiple beams in a corridor can share the same mesh for example.
   ezStringBuilder meshName;
-  meshName.SetFormat("ezBeamComponent_{0}_{1}_{2}_{3}.createdAtRuntime.ezMesh", m_fWidth, ezArgF(targetPositionInOwnerSpace.x, 2), ezArgF(targetPositionInOwnerSpace.y, 2), ezArgF(targetPositionInOwnerSpace.z, 2));
+  meshName.SetFormat("ezBeamComponent_{0}_{1}_{2}_{3}.createdAtRuntime.ezBinMesh", m_fWidth, ezArgF(targetPositionInOwnerSpace.x, 2), ezArgF(targetPositionInOwnerSpace.y, 2), ezArgF(targetPositionInOwnerSpace.z, 2));
 
   m_hMesh = ezResourceManager::GetExistingResource<ezMeshResource>(meshName);
 

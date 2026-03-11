@@ -48,11 +48,18 @@ struct EZ_CORE_DLL ezMsgSetColor : public ezMessage
   virtual void Deserialize(ezStreamReader& inout_stream, ezUInt8 uiTypeVersion) override;
 };
 
+/// \brief Message to set custom float data on components.
+///
+/// Provides four float values that can be used to pass arbitrary data to components.
+/// The interpretation of these values depends on the receiving component.
 struct EZ_CORE_DLL ezMsgSetCustomData : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgSetCustomData, ezMessage);
 
-  ezVec4 m_vData;
+  float m_fData0;
+  float m_fData1;
+  float m_fData2;
+  float m_fData3;
 
   virtual void Serialize(ezStreamWriter& inout_stream) const override;
   virtual void Deserialize(ezStreamReader& inout_stream, ezUInt8 uiTypeVersion) override;

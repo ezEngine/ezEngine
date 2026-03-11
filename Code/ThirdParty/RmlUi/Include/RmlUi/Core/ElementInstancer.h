@@ -1,61 +1,29 @@
-/*
- * This source file is part of RmlUi, the HTML/CSS Interface Middleware
- *
- * For the latest information, see http://github.com/mikke89/RmlUi
- *
- * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
- */
+#pragma once
 
-#ifndef RMLUI_CORE_ELEMENTINSTANCER_H
-#define RMLUI_CORE_ELEMENTINSTANCER_H
-
+#include "Element.h"
+#include "Header.h"
+#include "Profiling.h"
 #include "Traits.h"
 #include "Types.h"
-#include "Header.h"
-#include "Element.h"
-#include "Profiling.h"
 
 namespace Rml {
 
 class Element;
 
 /**
-	An element instancer provides a method for allocating
-	and deallocating elements.
+    An element instancer provides a method for allocating
+    and deallocating elements.
 
-	It is important at the same instancer that allocated
-	the element releases it. This ensures there are no
-	issues with memory from different DLLs getting mixed up.
+    It is important at the same instancer that allocated
+    the element releases it. This ensures there are no
+    issues with memory from different DLLs getting mixed up.
 
-	The returned element is a unique pointer. When this is
-	destroyed, it will call	ReleaseElement on the instancer 
-	in which it was instanced.
+    The returned element is a unique pointer. When this is
+    destroyed, it will call	ReleaseElement on the instancer
+    in which it was instanced.
+ */
 
-	@author Lloyd Weehuizen
- */ 
-
-class RMLUICORE_API ElementInstancer : public NonCopyMoveable
-{
+class RMLUICORE_API ElementInstancer : public NonCopyMoveable {
 public:
 	virtual ~ElementInstancer();
 
@@ -70,16 +38,13 @@ public:
 	virtual void ReleaseElement(Element* element) = 0;
 };
 
-
-
 /**
-	The element instancer constructs a plain Element, and is used for most elements.
-	This is a slightly faster version of the generic instancer, making use of a memory
-	pool for allocations.
+    The element instancer constructs a plain Element, and is used for most elements.
+    This is a slightly faster version of the generic instancer, making use of a memory
+    pool for allocations.
  */
 
-class RMLUICORE_API ElementInstancerElement : public ElementInstancer
-{
+class RMLUICORE_API ElementInstancerElement : public ElementInstancer {
 public:
 	ElementPtr InstanceElement(Element* parent, const String& tag, const XMLAttributes& attributes) override;
 	void ReleaseElement(Element* element) override;
@@ -87,34 +52,29 @@ public:
 };
 
 /**
-	The element text instancer constructs ElementText.
-	This is a slightly faster version of the generic instancer, making use of a memory
-	pool for allocations.
+    The element text instancer constructs ElementText.
+    This is a slightly faster version of the generic instancer, making use of a memory
+    pool for allocations.
  */
 
-class RMLUICORE_API ElementInstancerText : public ElementInstancer
-{
+class RMLUICORE_API ElementInstancerText : public ElementInstancer {
 public:
 	ElementPtr InstanceElement(Element* parent, const String& tag, const XMLAttributes& attributes) override;
 	void ReleaseElement(Element* element) override;
 };
 
-
 /**
-	Generic Instancer that creates the provided element type using new and delete. This instancer
-	is typically used for specialized element types.
+    Generic Instancer that creates the provided element type using new and delete. This instancer
+    is typically used for specialized element types.
  */
 
 template <typename T>
-class ElementInstancerGeneric : public ElementInstancer
-{
+class ElementInstancerGeneric : public ElementInstancer {
 public:
 	virtual ~ElementInstancerGeneric() {}
 
-	ElementPtr InstanceElement(Element* RMLUI_UNUSED_PARAMETER(parent), const String& tag, const XMLAttributes& RMLUI_UNUSED_PARAMETER(attributes)) override
+	ElementPtr InstanceElement(Element* /*parent*/, const String& tag, const XMLAttributes& /*attributes*/) override
 	{
-		RMLUI_UNUSED(parent);
-		RMLUI_UNUSED(attributes);
 		RMLUI_ZoneScopedN("ElementGenericInstance");
 		return ElementPtr(new T(tag));
 	}
@@ -126,5 +86,9 @@ public:
 	}
 };
 
+namespace Detail {
+	void InitializeElementInstancerPools();
+	void ShutdownElementInstancerPools();
+} // namespace Detail
+
 } // namespace Rml
-#endif

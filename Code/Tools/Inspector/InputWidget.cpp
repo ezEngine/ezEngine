@@ -9,8 +9,8 @@
 
 ezQtInputWidget* ezQtInputWidget::s_pWidget = nullptr;
 
-ezQtInputWidget::ezQtInputWidget(QWidget* pParent)
-  : ads::CDockWidget("Input Widget", pParent)
+ezQtInputWidget::ezQtInputWidget(ads::CDockManager* pDockManager, QWidget* pParent)
+  : ads::CDockWidget(pDockManager, "Input Widget", pParent)
 {
   s_pWidget = this;
 

@@ -21,7 +21,8 @@ public:
   ~ezQtAnimationClipAssetDocumentWindow();
 
   ezAnimationClipAssetDocument* GetAnimationClipDocument();
-  virtual const char* GetWindowLayoutGroupName() const override { return "AnimationClipAsset"; }
+
+  void ExtractRootMotionFromFeet();
 
 protected:
   virtual void InternalRedraw() override;

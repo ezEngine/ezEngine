@@ -73,7 +73,7 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
 
   if (TransformAll->isChecked())
   {
-    ezStatus stat = ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::TriggeredManually);
+    ezStatus stat = ezAssetCurator::GetSingleton()->TransformAllAssets();
 
     if (stat.Failed())
     {
@@ -113,7 +113,7 @@ void ezQtExportProjectDlg::on_ExportProjectButton_clicked()
   }
   else
   {
-    ezQtUiServices::GetSingleton()->MessageBoxInformation("Project export successful.");
+    ezQtUiServices::GetSingleton()->MessageBoxInformation("Project export successful.", "project-export-success");
     ezQtUiServices::GetSingleton()->OpenInExplorer(szDstFolder, false);
   }
 }

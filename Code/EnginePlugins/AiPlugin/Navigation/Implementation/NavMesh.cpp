@@ -4,8 +4,8 @@
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 
-void DrawMeshTilePolygons(const dtMeshTile& meshTile, ezDynamicArray<ezDebugRenderer::Triangle>& out_triangles, ezArrayPtr<ezColor> areaColors);
-void DrawMeshTileEdges(const dtMeshTile& meshTile, bool bOuterEdges, bool bInnerEdges, bool bInnerDetailEdges, ezDynamicArray<ezDebugRenderer::Line>& out_lines);
+void DrawMeshTilePolygons(const dtMeshTile& meshTile, ezDynamicArray<ezDebugRendererTriangle>& out_triangles, ezArrayPtr<ezColor> areaColors);
+void DrawMeshTileEdges(const dtMeshTile& meshTile, bool bOuterEdges, bool bInnerEdges, bool bInnerDetailEdges, ezDynamicArray<ezDebugRendererLine>& out_lines);
 
 ezAiNavMeshSector::ezAiNavMeshSector()
 {
@@ -17,23 +17,23 @@ ezAiNavMeshSector::ezAiNavMeshSector()
 
 ezAiNavMeshSector::~ezAiNavMeshSector() = default;
 
-ezAiNavMesh::ezAiNavMesh(ezUInt32 uiNumSectorsX, ezUInt32 uiNumSectorsY, float fSectorMetersXY, const ezAiNavmeshConfig& navmeshConfig)
+ezAiNavMesh::ezAiNavMesh(const ezAiNavmeshConfig& navmeshConfig)
 {
-  m_uiNumSectorsX = uiNumSectorsX;
-  m_uiNumSectorsY = uiNumSectorsY;
-  m_fSectorMetersXY = fSectorMetersXY;
-  m_fInvSectorMetersXY = 1.0f / fSectorMetersXY;
+  m_uiNumSectorsX = navmeshConfig.m_uiNumSectorsX;
+  m_uiNumSectorsY = navmeshConfig.m_uiNumSectorsY;
+  m_fSectorMetersXY = navmeshConfig.m_fSectorSize;
+  m_fInvSectorMetersXY = 1.0f / navmeshConfig.m_fSectorSize;
   m_NavmeshConfig = navmeshConfig;
 
   m_pNavMesh = EZ_DEFAULT_NEW(dtNavMesh);
 
   dtNavMeshParams np;
-  np.tileWidth = fSectorMetersXY;
-  np.tileHeight = fSectorMetersXY;
-  np.orig[0] = -(uiNumSectorsX * 0.5f) * fSectorMetersXY;
+  np.tileWidth = navmeshConfig.m_fSectorSize;
+  np.tileHeight = navmeshConfig.m_fSectorSize;
+  np.orig[0] = -(navmeshConfig.m_uiNumSectorsX * 0.5f) * navmeshConfig.m_fSectorSize;
   np.orig[1] = 0.0f;
-  np.orig[2] = -(uiNumSectorsY * 0.5f) * fSectorMetersXY;
-  np.maxTiles = uiNumSectorsX * uiNumSectorsY;
+  np.orig[2] = -(navmeshConfig.m_uiNumSectorsY * 0.5f) * navmeshConfig.m_fSectorSize;
+  np.maxTiles = navmeshConfig.m_uiNumSectorsX * navmeshConfig.m_uiNumSectorsY;
   np.maxPolys = 1 << 16;
 
   m_pNavMesh->init(&np);
@@ -292,7 +292,7 @@ void ezAiNavMesh::DebugDrawSector(ezDebugRendererContext context, const ezAiNavi
   }
 
   {
-    ezDynamicArray<ezDebugRenderer::Triangle> triangles;
+    ezDynamicArray<ezDebugRendererTriangle> triangles;
     triangles.Reserve(pTile->header->polyCount * 2);
 
     DrawMeshTilePolygons(*pTile, triangles, areaColors);
@@ -300,7 +300,7 @@ void ezAiNavMesh::DebugDrawSector(ezDebugRendererContext context, const ezAiNavi
   }
 
   {
-    ezDynamicArray<ezDebugRenderer::Line> lines;
+    ezDynamicArray<ezDebugRendererLine> lines;
     lines.Reserve(pTile->header->polyCount * 10);
     DrawMeshTileEdges(*pTile, true, true, false, lines);
     ezDebugRenderer::DrawLines(context, lines, ezColor::White);

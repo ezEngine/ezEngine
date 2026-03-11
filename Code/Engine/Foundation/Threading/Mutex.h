@@ -52,18 +52,18 @@ public:
   EZ_ALWAYS_INLINE void Lock() {}
 
   /// \brief Implements the 'TryLock' interface function, but does nothing.
-  EZ_ALWAYS_INLINE ezResult TryLock() { return EZ_SUCCESS; }
+  EZ_ALWAYS_INLINE ezResult TryLock()
+  {
+    return EZ_SUCCESS;
+  }
 
   /// \brief Implements the 'Release' interface function, but does nothing.
   EZ_ALWAYS_INLINE void Unlock() {}
 
-  EZ_ALWAYS_INLINE bool IsLocked() const { return false; }
+  EZ_ALWAYS_INLINE bool IsLocked() const
+  {
+    return false;
+  }
 };
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#  include <Foundation/Threading/Implementation/Win/Mutex_win.h>
-#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
-#  include <Foundation/Threading/Implementation/Posix/Mutex_posix.h>
-#else
-#  error "Mutex is not implemented on current platform"
-#endif
+#include <Mutex_Platform.h>

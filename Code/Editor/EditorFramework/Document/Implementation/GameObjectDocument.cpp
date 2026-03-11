@@ -32,8 +32,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezEvent<const ezGameObjectDocumentEvent&> ezGameObjectDocument::s_GameObjectDocumentEvents;
 
-ezGameObjectDocument::ezGameObjectDocument(
-  ezStringView sDocumentPath, ezDocumentObjectManager* pObjectManager, ezAssetDocEngineConnection engineConnectionType)
+ezGameObjectDocument::ezGameObjectDocument(ezStringView sDocumentPath, ezDocumentObjectManager* pObjectManager, ezAssetDocEngineConnection engineConnectionType)
   : ezAssetDocument(sDocumentPath, pObjectManager, engineConnectionType)
 {
   using Meta = ezObjectMetaData<ezUuid, ezGameObjectMetaData>;
@@ -84,8 +83,11 @@ void ezGameObjectDocument::GameObjectDocumentEventHandler(const ezGameObjectDocu
       auto pEditorPrefsUser = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
       if (pEditorPrefsUser && pEditorPrefsUser->m_bClearEditorLogsOnPlay)
       {
+        ezQtLogPanel::GetSingleton()->CombinedLog->GetLog()->Clear();
+
         // on play, the engine log has a lot of activity, so makes sense to clear that first
         ezQtLogPanel::GetSingleton()->EngineLog->GetLog()->Clear();
+
         // but I think we usually want to keep the editor log around
         // ezQtLogPanel::GetSingleton()->EditorLog->GetLog()->Clear();
       }
@@ -203,6 +205,24 @@ void ezGameObjectDocument::SetPickTransparent(bool b)
   }
 }
 
+void ezGameObjectDocument::SetActiveParent(ezUuid object)
+{
+  if (m_ActiveParent != object)
+  {
+    if (auto pMeta = m_DocumentObjectMetaData->BeginModifyMetaData(m_ActiveParent))
+    {
+      m_DocumentObjectMetaData->EndModifyMetaData(ezDocumentObjectMetaData::ActiveParentFlag);
+    }
+
+    m_ActiveParent = object;
+
+    if (auto pMeta = m_DocumentObjectMetaData->BeginModifyMetaData(m_ActiveParent))
+    {
+      m_DocumentObjectMetaData->EndModifyMetaData(ezDocumentObjectMetaData::ActiveParentFlag);
+    }
+  }
+}
+
 void ezGameObjectDocument::SetGizmoWorldSpace(bool bWorldSpace)
 {
   if (m_bGizmoWorldSpace == bWorldSpace)
@@ -308,10 +328,11 @@ void ezGameObjectDocument::DetermineNodeName(const ezDocumentObject* pObject, co
 
     for (auto pProperty : properties)
     {
+      const auto type = pProperty->GetSpecificType();
+
       // search for string properties that also have an asset browser property -> they reference an asset, so this is most likely the most
       // relevant property
-      if (
-        (pProperty->GetSpecificType() == ezGetStaticRTTI<const char*>() || pProperty->GetSpecificType() == ezGetStaticRTTI<ezString>()) && pProperty->GetAttributeByType<ezAssetBrowserAttribute>() != nullptr)
+      if ((type == ezGetStaticRTTI<const char*>() || type == ezGetStaticRTTI<ezString>() || type == ezGetStaticRTTI<ezStringView>()) && pProperty->GetAttributeByType<ezAssetBrowserAttribute>() != nullptr)
       {
         ezStringBuilder sValue;
         if (pProperty->GetCategory() == ezPropertyCategory::Member)
@@ -477,25 +498,20 @@ void ezGameObjectDocument::SetGlobalTransform(const ezDocumentObject* pObject, c
   // if (pObject->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<ezVec3>() != vLocalPos)
   if ((uiTransformationChanges & TransformationChanges::Translation) != 0)
   {
-    pAccessor->SetValue(pObject, "LocalPosition", vLocalPos).LogFailure();
+    pAccessor->SetValueByName(pObject, "LocalPosition", vLocalPos).LogFailure();
   }
 
   // if (pObject->GetTypeAccessor().GetValue("LocalRotation").ConvertTo<ezQuat>() != qLocalRot)
   if ((uiTransformationChanges & TransformationChanges::Rotation) != 0)
   {
-    pAccessor->SetValue(pObject, "LocalRotation", qLocalRot).LogFailure();
+    pAccessor->SetValueByName(pObject, "LocalRotation", qLocalRot).LogFailure();
   }
 
   // if (pObject->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<ezVec3>() != vLocalScale)
   if ((uiTransformationChanges & TransformationChanges::Scale) != 0)
   {
-    pAccessor->SetValue(pObject, "LocalScaling", vLocalScale).LogFailure();
-  }
-
-  // if (pObject->GetTypeAccessor().GetValue("LocalUniformScaling").ConvertTo<float>() != fUniformScale)
-  if ((uiTransformationChanges & TransformationChanges::UniformScale) != 0)
-  {
-    pAccessor->SetValue(pObject, "LocalUniformScaling", fUniformScale).LogFailure();
+    pAccessor->SetValueByName(pObject, "LocalScaling", vLocalScale).LogFailure();
+    pAccessor->SetValueByName(pObject, "LocalUniformScaling", fUniformScale).LogFailure();
   }
 
   // will be recomputed the next time it is queried
@@ -504,7 +520,7 @@ void ezGameObjectDocument::SetGlobalTransform(const ezDocumentObject* pObject, c
 
 void ezGameObjectDocument::SetGlobalTransformParentOnly(const ezDocumentObject* pObject, const ezTransform& t, ezUInt8 uiTransformationChanges) const
 {
-  ezHybridArray<ezTransform, 16> childTransforms;
+  ezTempHybridArray<ezTransform, 16> childTransforms;
   const auto& children = pObject->GetChildren();
 
   childTransforms.SetCountUninitialized(children.GetCount());
@@ -723,74 +739,6 @@ void ezGameObjectDocument::MoveCameraHere()
   ctxt.m_pLastHoveredViewWidget->InterpolateCameraTo(vPos, vCamDir, pCamera->GetFovOrDim(), &vCamUp);
 }
 
-ezStatus ezGameObjectDocument::CreateGameObjectHere()
-{
-  const auto& ctxt = ezQtEngineViewWidget::GetInteractionContext();
-  const bool bCanCreate =
-    ctxt.m_pLastHoveredViewWidget != nullptr && ctxt.m_pLastPickingResult && !ctxt.m_pLastPickingResult->m_vPickedPosition.IsNaN();
-
-  if (!bCanCreate)
-    return ezStatus(EZ_FAILURE);
-
-  auto history = GetCommandHistory();
-
-  history->StartTransaction("Create Node");
-
-  ezAddObjectCommand cmdAdd;
-  cmdAdd.m_pType = ezGetStaticRTTI<ezGameObject>();
-  cmdAdd.m_sParentProperty = "Children";
-  cmdAdd.m_Index = -1;
-
-  ezUuid NewNode;
-
-  const auto& Sel = GetSelectionManager()->GetSelection();
-
-  if (true)
-  {
-    cmdAdd.m_NewObjectGuid = ezUuid::MakeUuid();
-    NewNode = cmdAdd.m_NewObjectGuid;
-
-    auto res = history->AddCommand(cmdAdd);
-    if (res.Failed())
-    {
-      history->CancelTransaction();
-      return res;
-    }
-  }
-
-  ezVec3 vCreatePos = ctxt.m_pLastPickingResult->m_vPickedPosition;
-  ezSnapProvider::SnapTranslation(vCreatePos);
-
-  ezSetObjectPropertyCommand cmdSet;
-  cmdSet.m_NewValue = vCreatePos;
-  cmdSet.m_Object = NewNode;
-  cmdSet.m_sProperty = "LocalPosition";
-
-  auto res = history->AddCommand(cmdSet);
-  if (res.Failed())
-  {
-    history->CancelTransaction();
-    return res;
-  }
-
-  // Add a dummy shape icon component, which enables picking
-  {
-    ezAddObjectCommand cmdAdd2;
-    cmdAdd2.m_pType = ezRTTI::FindTypeByName("ezShapeIconComponent");
-    cmdAdd2.m_sParentProperty = "Components";
-    cmdAdd2.m_Index = -1;
-    cmdAdd2.m_Parent = NewNode;
-
-    auto result = history->AddCommand(cmdAdd2);
-  }
-
-  history->FinishTransaction();
-
-  GetSelectionManager()->SetSelection(GetObjectManager()->GetObject(NewNode));
-
-  return ezStatus(EZ_SUCCESS);
-}
-
 void ezGameObjectDocument::ScheduleSendObjectSelection()
 {
   m_iResendSelection = 2;
@@ -813,6 +761,18 @@ void ezGameObjectDocument::SetSimulationSpeed(float f)
   m_GameObjectEvents.Broadcast(e);
 
   ShowDocumentStatus(ezFmt("Simulation Speed: {0}%%", (ezInt32)(m_fSimulationSpeed * 100.0f)));
+}
+
+void ezGameObjectDocument::SetPauseSimulation(bool b)
+{
+  if (m_bPauseSimulation == b)
+    return;
+
+  m_bPauseSimulation = b;
+
+  ezGameObjectEvent e;
+  e.m_Type = ezGameObjectEvent::Type::SimulationSpeedChanged;
+  m_GameObjectEvents.Broadcast(e);
 }
 
 void ezGameObjectDocument::SetRenderSelectionOverlay(bool b)
@@ -982,7 +942,7 @@ void ezGameObjectDocument::SendObjectSelection()
 
   --m_iResendSelection;
 
-  const auto& sel = GetSelectionManager()->GetSelection();
+  const auto& sel = GetSelectionManager()->GetRuntimeOverrideSelection().IsEmpty() ? GetSelectionManager()->GetSelection() : GetSelectionManager()->GetRuntimeOverrideSelection();
 
   ezObjectSelectionMsgToEngine msg;
   ezStringBuilder sTemp;

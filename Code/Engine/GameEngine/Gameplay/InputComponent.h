@@ -1,10 +1,10 @@
 #pragma once
 
-#include <Core/Input/Declarations.h>
-#include <Core/Messages/EventMessage.h>
-#include <Core/Messages/TriggerMessage.h>
-#include <Core/World/World.h>
 #include <GameEngine/GameEngineDLL.h>
+
+#include <Core/Input/Declarations.h>
+#include <Core/Messages/EventMessageSender.h>
+#include <Core/Messages/TriggerMessage.h>
 
 using ezInputComponentManager = ezComponentManagerSimple<class ezInputComponent, ezComponentUpdateType::WhenSimulating>;
 
@@ -27,9 +27,9 @@ struct EZ_GAMEENGINE_DLL ezInputMessageGranularity
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezInputMessageGranularity);
 
 /// \brief ezInputComponent raises this event when it detects input
-struct EZ_GAMEENGINE_DLL ezMsgInputActionTriggered : public ezEventMessage
+struct EZ_GAMEENGINE_DLL ezMsgInputActionTriggered : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgInputActionTriggered, ezEventMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgInputActionTriggered, ezMessage);
 
   /// The input action string.
   ezHashedString m_sInputAction;

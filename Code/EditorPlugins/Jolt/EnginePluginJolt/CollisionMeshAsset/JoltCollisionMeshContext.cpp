@@ -37,7 +37,7 @@ void ezJoltCollisionMeshContext::HandleMessage(const ezEditorEngineDocumentMsg* 
     {
       if (pMsg->m_sPayload == "Grid")
       {
-        m_bDisplayGrid = pMsg->m_fPayload > 0;
+        m_bDisplayGrid = pMsg->m_PayloadValue.ConvertTo<float>() > 0;
         return;
       }
     }
@@ -113,7 +113,7 @@ void ezJoltCollisionMeshContext::QuerySelectionBBox(const ezEditorEngineDocument
   res.m_uiViewID = msg->m_uiViewID;
   res.m_iPurpose = msg->m_iPurpose;
   res.m_vCenter = bounds.m_vCenter;
-  res.m_vHalfExtents = bounds.m_vBoxHalfExtends;
+  res.m_vHalfExtents = bounds.m_vBoxHalfExtents;
   res.m_DocumentGuid = pMsg->m_DocumentGuid;
 
   SendProcessMessage(&res);

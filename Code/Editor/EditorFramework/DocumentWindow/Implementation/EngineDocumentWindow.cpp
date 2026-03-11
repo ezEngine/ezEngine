@@ -2,6 +2,7 @@
 
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
+#include <EditorFramework/Panels/AssetBrowserPanel/CuratorControl.moc.h>
 
 #include <EditorFramework/Assets/AssetDocument.h>
 
@@ -10,6 +11,9 @@ ezQtEngineDocumentWindow::ezQtEngineDocumentWindow(ezAssetDocument* pDocument)
 {
   pDocument->m_ProcessMessageEvent.AddEventHandler(ezMakeDelegate(&ezQtEngineDocumentWindow::ProcessMessageEventHandler, this));
   pDocument->m_CommonAssetUiChangeEvent.AddEventHandler(ezMakeDelegate(&ezQtEngineDocumentWindow::CommonAssetUiEventHandler, this));
+
+  m_pCuratorControl = new ezQtCuratorControl(this);
+  statusBar()->addPermanentWidget(m_pCuratorControl, 0);
 }
 
 ezQtEngineDocumentWindow::~ezQtEngineDocumentWindow()
@@ -135,7 +139,7 @@ void ezQtEngineDocumentWindow::CommonAssetUiEventHandler(const ezCommonAssetUiSt
 {
   ezSimpleDocumentConfigMsgToEngine msg;
   msg.m_sWhatToDo = "CommonAssetUiState";
-  msg.m_fPayload = e.m_fValue;
+  msg.m_PayloadValue = e.m_fValue;
 
   switch (e.m_State)
   {
@@ -191,4 +195,10 @@ void ezQtEngineDocumentWindow::DestroyAllViews()
   {
     delete m_ViewWidgets[0];
   }
+}
+
+void ezQtEngineDocumentWindow::CreateImageCapture(const char* szOutputPath)
+{
+  if (!m_ViewWidgets.IsEmpty())
+    m_ViewWidgets[0]->TakeScreenshot(szOutputPath);
 }

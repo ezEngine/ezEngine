@@ -44,6 +44,9 @@ void ezTaskSystem::SetWorkerThreadCount(ezInt32 iShortTasks, ezInt32 iLongTasks)
       s_pThreadState->m_uiMaxWorkersToUse[ezWorkerThreadType::LongTasks] == uiLongTasks)
     return;
 
+  ezLog::Dev("CPU core count: {}", iCpuCores);
+  ezLog::Dev("Setting worker thread count to {} (short) / {} (long).", uiShortTasks, uiLongTasks);
+
   StopWorkerThreads();
 
   // this only allocates pointers, i.e. the maximum possible number of threads that we may be able to realloc at runtime

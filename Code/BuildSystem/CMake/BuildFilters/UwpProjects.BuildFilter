@@ -1,13 +1,12 @@
 set_property(GLOBAL PROPERTY EZ_BUILD_FILTER_UwpProjects
 	Core
-	Duktape
 	enet
 	FileservePlugin
 	Foundation
 	InspectorPlugin
 	Lua
 	mikktspace
-	stb_image
+	stb
 	Texture
 	zlib
 	zstd

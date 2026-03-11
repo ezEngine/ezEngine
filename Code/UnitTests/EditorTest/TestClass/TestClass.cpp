@@ -15,14 +15,16 @@
 #include <QMimeData>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/DeviceFactory.h>
+#include <Texture/Image/ImageUtils.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
-ezEditorTestApplication::ezEditorTestApplication()
+ezEditorTestApplication::ezEditorTestApplication(ezStringView sTestName)
   : ezApplication("ezEditor")
 {
   EnableMemoryLeakReporting(true);
 
   m_pEditorApp = new ezQtEditorApp;
+  m_sTestName = sTestName;
 }
 
 ezResult ezEditorTestApplication::BeforeCoreSystemsStartup()
@@ -46,18 +48,17 @@ void ezEditorTestApplication::AfterCoreSystemsShutdown()
   m_pEditorApp = nullptr;
 }
 
-ezApplication::Execution ezEditorTestApplication::Run()
+void ezEditorTestApplication::Run()
 {
   qApp->processEvents();
-  return ezApplication::Execution::Continue;
 }
 
 void ezEditorTestApplication::AfterCoreSystemsStartup()
 {
   EZ_PROFILE_SCOPE("AfterCoreSystemsStartup");
   // We override the user data dir to not pollute the editor settings.
-  ezStringBuilder userDataDir = ezOSFile::GetUserDataFolder();
-  userDataDir.AppendPath("ezEngine Project", "EditorTest");
+  ezStringBuilder userDataDir = ezTestFramework::GetInstance()->GetAbsOutputPath();
+  userDataDir.AppendPath(m_sTestName);
   userDataDir.MakeCleanPath();
 
   ezQtEditorApp::GetSingleton()->StartupEditor(ezQtEditorApp::StartupFlags::SafeMode | ezQtEditorApp::StartupFlags::NoRecent | ezQtEditorApp::StartupFlags::UnitTest, userDataDir);
@@ -65,7 +66,11 @@ void ezEditorTestApplication::AfterCoreSystemsStartup()
   ezQtUiServices::SetHeadless(true);
   ezFileSystem::SetSpecialDirectory("testout", ezTestFramework::GetInstance()->GetAbsOutputPath());
 
-  ezFileSystem::AddDataDirectory(">eztest/", "ImageComparisonDataDir", "imgout", ezFileSystem::AllowWrites).IgnoreResult();
+  ezFileSystem::AddDataDirectory(">eztest/", "ImageComparisonDataDir", "imgout", ezDataDirUsage::AllowWrites).IgnoreResult();
+
+  // To read reference images
+  ezStringBuilder sReadDir(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath());
+  ezFileSystem::AddDataDirectory(sReadDir, "ImageComparisonDataDir").IgnoreResult();
 }
 
 void ezEditorTestApplication::BeforeHighLevelSystemsShutdown()
@@ -85,7 +90,7 @@ ezEditorTest::~ezEditorTest() = default;
 
 ezEditorTestApplication* ezEditorTest::CreateApplication()
 {
-  ezEditorTestApplication* pTestApplication = EZ_DEFAULT_NEW(ezEditorTestApplication);
+  ezEditorTestApplication* pTestApplication = EZ_DEFAULT_NEW(ezEditorTestApplication, GetTestName());
 
   m_CommandLineArguments = ezCommandLineUtils::GetGlobalInstance()->GetCommandLineArray();
   EZ_ASSERT_DEV(m_CommandLineArguments.GetCount() > 0, "There should always be at least 1 command line argument (the executable name)");
@@ -106,7 +111,16 @@ ezResult ezEditorTest::GetImage(ezImage& ref_img, const ezSubTestEntry& subTest,
   if (!m_CapturedImage.IsValid())
     return EZ_FAILURE;
 
-  ref_img.ResetAndMove(std::move(m_CapturedImage));
+  if (m_CapturedImage.GetWidth() == 512 && m_CapturedImage.GetHeight() == 512)
+  {
+    ref_img.ResetAndMove(std::move(m_CapturedImage));
+  }
+  else
+  {
+    // Due to DPI scaling, we can't guarantee that the swapchain is exactly 512x512. The viewport still is though, so as long as we have something bigger the resulting image is correct if we crop off the remaining pixels.
+    ezImageUtils::CropImage(m_CapturedImage, {0, 0}, {512, 512}, ref_img);
+    m_CapturedImage.Clear();
+  }
   return EZ_SUCCESS;
 }
 
@@ -120,13 +134,12 @@ ezResult ezEditorTest::InitializeTest()
 
   EZ_SUCCEED_OR_RETURN(ezRun_Startup(m_pApplication));
 
-  static bool s_bCheckedReferenceDriver = false;
-  static bool s_bIsReferenceDriver = false;
-  static bool s_bIsAMDDriver = false;
+  static bool s_bCheckedAdapter = false;
+  static ezString s_sAdapterName;
 
-  if (!s_bCheckedReferenceDriver)
+  if (!s_bCheckedAdapter)
   {
-    s_bCheckedReferenceDriver = true;
+    s_bCheckedAdapter = true;
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     ezUniquePtr<ezGALDevice> pDevice;
@@ -135,41 +148,21 @@ ezResult ezEditorTest::InitializeTest()
     pDevice = ezGALDeviceFactory::CreateDevice(ezGameApplication::GetActiveRenderer(), ezFoundation::GetDefaultAllocator(), DeviceInit);
 
     EZ_SUCCEED_OR_RETURN(pDevice->Init());
-
-    if (pDevice->GetCapabilities().m_sAdapterName == "Microsoft Basic Render Driver" || pDevice->GetCapabilities().m_sAdapterName.StartsWith_NoCase("Intel(R) UHD Graphics"))
-    {
-      s_bIsReferenceDriver = true;
-    }
-    else if (pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("AMD") || pDevice->GetCapabilities().m_sAdapterName.FindSubString_NoCase("Radeon"))
-    {
-      s_bIsAMDDriver = true;
-    }
-
+    s_sAdapterName = pDevice->GetCapabilities().m_sAdapterName;
     EZ_SUCCEED_OR_RETURN(pDevice->Shutdown());
     pDevice.Clear();
 #endif
   }
 
-  if (ezGameApplication::GetActiveRenderer().IsEqual_NoCase("DX11") && s_bIsReferenceDriver)
-  {
-    // Use different images for comparison when running the D3D11 Reference Device
-    ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_D3D11Ref");
-  }
-  else if (ezGameApplication::GetActiveRenderer().IsEqual_NoCase("DX11") && s_bIsAMDDriver)
-  {
-    // Line rendering on DX11 is different on AMD and requires separate images for tests rendering lines.
-    ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_AMD");
-  }
-  else
-  {
-    ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("");
-  }
+  ezTestFramework::GetInstance()->SetImageReferenceTagsFromEnvironment(EZ_PLATFORM_NAME, ezGameApplication::GetActiveRenderer(), s_sAdapterName);
+  m_UIServicesTickEventHandlerID = ezQtUiServices::s_TickEvent.AddEventHandler(ezMakeDelegate(&ezEditorTest::UIServicesTickEventHandler, this));
 
   return EZ_SUCCESS;
 }
 
 ezResult ezEditorTest::DeInitializeTest()
 {
+  ezQtUiServices::s_TickEvent.RemoveEventHandler(m_UIServicesTickEventHandlerID);
   CloseCurrentProject();
 
   if (m_pApplication)
@@ -336,6 +329,29 @@ void ezEditorTest::ProcessEvents(ezUInt32 uiIterations)
   }
 }
 
+void ezEditorTest::WaitFrames(ezUInt32 uiFrames)
+{
+  EZ_PROFILE_SCOPE("WaitFrames");
+  // Add one because we could have started waiting between start and end frame.
+  uiFrames++;
+  ezUInt32 uiCurrentFrame = m_uiRenderedFrames;
+  if (qApp)
+  {
+    while ((m_uiRenderedFrames - uiCurrentFrame) < uiFrames)
+    {
+      qApp->processEvents();
+    }
+  }
+}
+
+void ezEditorTest::UIServicesTickEventHandler(const ezQtUiServices::TickEvent& e)
+{
+  if (e.m_Type == ezQtUiServices::TickEvent::Type::EndFrame)
+  {
+    m_uiRenderedFrames++;
+  }
+}
+
 std::unique_ptr<QMimeData> ezEditorTest::AssetsToDragMimeData(ezArrayPtr<ezUuid> assetGuids)
 {
   std::unique_ptr<QMimeData> mimeData(new QMimeData());
@@ -360,7 +376,7 @@ std::unique_ptr<QMimeData> ezEditorTest::AssetsToDragMimeData(ezArrayPtr<ezUuid>
 
 std::unique_ptr<QMimeData> ezEditorTest::ObjectsDragMimeData(const ezDeque<const ezDocumentObject*>& objects)
 {
-  ezHybridArray<const ezDocumentObject*, 32> Dragged;
+  ezTempHybridArray<const ezDocumentObject*, 32> Dragged;
   for (const ezDocumentObject* pObject : objects)
   {
     Dragged.PushBack(pObject);
@@ -428,9 +444,9 @@ const ezDocumentObject* ezEditorTest::CreateGameObject(ezScene2Document* pDoc, c
   pAccessor->StartTransaction("Add Game Object");
 
   ezUuid guid;
-  EZ_TEST_STATUS(pAccessor->AddObject(pParent != nullptr ? pParent : pDoc->GetObjectManager()->GetRootObject(), "Children", -1, ezRTTI::FindTypeByName("ezGameObject"), guid));
+  EZ_TEST_STATUS(pAccessor->AddObjectByName(pParent != nullptr ? pParent : pDoc->GetObjectManager()->GetRootObject(), "Children", -1, ezRTTI::FindTypeByName("ezGameObject"), guid));
   const ezDocumentObject* pObject = pAccessor->GetObject(guid);
-  EZ_TEST_STATUS(pAccessor->SetValue(pObject, "Name", sName));
+  EZ_TEST_STATUS(pAccessor->SetValueByName(pObject, "Name", sName));
 
   pAccessor->FinishTransaction();
 

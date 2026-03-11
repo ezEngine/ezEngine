@@ -3,7 +3,7 @@
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 #  include <Foundation/Threading/Mutex.h>
 
-#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 
 template <ezUInt32 a, ezUInt32 b>
 struct SameSize

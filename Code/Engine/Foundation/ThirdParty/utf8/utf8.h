@@ -40,7 +40,7 @@ Some library features will be disabled.
 If you leave UTF_CPP_CPLUSPLUS undefined, it will be internally assigned to __cplusplus.
 */
 
-#include "checked.h"
+// #include "checked.h"
 #include "unchecked.h"
 
 #endif // header guard

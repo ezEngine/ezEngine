@@ -219,9 +219,11 @@ ezResult ezAbstractObjectNode::InlineProperty(ezStringView sName)
       public:
         void RegisterObject(const ezUuid& guid, const ezRTTI* pRtti, void* pObject) override
         {
+          EZ_IGNORE_UNUSED(pRtti);
+          EZ_IGNORE_UNUSED(pObject);
           m_SubTree.PushBack(guid);
         }
-        ezHybridArray<ezUuid, 1> m_SubTree;
+        ezTempHybridArray<ezUuid, 1> m_SubTree;
       };
 
       InlineContext context;
@@ -288,7 +290,7 @@ ezAbstractObjectNode::Property* ezAbstractObjectNode::FindProperty(ezStringView 
 
 void ezAbstractObjectGraph::ReMapNodeGuids(const ezUuid& seedGuid, bool bRemapInverse /*= false*/)
 {
-  ezHybridArray<ezAbstractObjectNode*, 16> nodes;
+  ezTempHybridArray<ezAbstractObjectNode*, 16> nodes;
   nodes.Reserve(m_Nodes.GetCount());
   ezHashTable<ezUuid, ezUuid> guidMap;
   guidMap.Reserve(m_Nodes.GetCount());
@@ -767,7 +769,7 @@ void ezAbstractObjectGraph::MergeDiffs(const ezDeque<ezAbstractGraphDiffOperatio
     bool operator==(const Prop& rhs) const { return m_Node == rhs.m_Node && m_sProperty == rhs.m_sProperty; }
   };
 
-  ezMap<Prop, ezHybridArray<const ezAbstractGraphDiffOperation*, 2>> propChanges;
+  ezMap<Prop, ezTempHybridArray<const ezAbstractGraphDiffOperation*, 2>> propChanges;
   ezSet<ezUuid> removed;
   ezMap<ezUuid, ezUInt32> added;
   for (const ezAbstractGraphDiffOperation& op : lhs)
@@ -817,7 +819,7 @@ void ezAbstractObjectGraph::MergeDiffs(const ezDeque<ezAbstractGraphDiffOperatio
   for (auto it = propChanges.GetIterator(); it.IsValid(); ++it)
   {
     const Prop& key = it.Key();
-    const ezHybridArray<const ezAbstractGraphDiffOperation*, 2>& value = it.Value();
+    const ezTempHybridArray<const ezAbstractGraphDiffOperation*, 2>& value = it.Value();
 
     if (value.GetCount() == 1)
     {

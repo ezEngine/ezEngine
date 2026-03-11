@@ -4,6 +4,7 @@
 #include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Core/World/Declarations.h>
 #include <Core/World/WorldModule.h>
+#include <Foundation/Containers/IdTable.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <JoltPlugin/Declarations.h>
 #include <JoltPlugin/JoltPluginDLL.h>
@@ -11,10 +12,15 @@
 #include <JoltPlugin/Utilities/JoltUserData.h>
 #include <RendererCore/Meshes/DynamicMeshBufferResource.h>
 
+#include <Jolt/Jolt.h>
+#include <Jolt/Physics/PhysicsSystem.h>
+
 class ezJoltCharacterControllerComponent;
 class ezJoltContactListener;
+class ezJoltSoftBodyContactListener;
 class ezJoltRagdollComponent;
 class ezJoltRopeComponent;
+class ezJoltBreakableSlabComponent;
 class ezView;
 
 namespace JPH
@@ -23,7 +29,34 @@ namespace JPH
   class TempAllocator;
   class PhysicsSystem;
   class GroupFilter;
+
+  class BodyInterface;
 } // namespace JPH
+
+struct ezJoltImpulse
+{
+  ezUInt32 m_uiBodyID;
+  ezVec3 m_vImpulse;
+  ezVec3 m_vGlobalPosition;
+
+  enum class Type : ezUInt8
+  {
+    Center,
+    AtGlobalPos,
+    Angular
+  };
+
+  Type m_Type;
+};
+
+struct ezJoltForce
+{
+  ezUInt32 m_uiBodyID;
+  ezTime m_tDisable;
+  ezVec3 m_vForce;
+};
+
+using ezJoltForceId = ezGenericId<24, 8>;
 
 class EZ_JOLTPLUGIN_DLL ezJoltWorldModule : public ezPhysicsWorldModuleInterface
 {
@@ -41,6 +74,8 @@ public:
   JPH::PhysicsSystem* GetJoltSystem() { return m_pSystem.get(); }
   const JPH::PhysicsSystem* GetJoltSystem() const { return m_pSystem.get(); }
 
+  JPH::BodyInterface& GetBodyInterface() { return m_pSystem->GetBodyInterface(); }
+
   ezUInt32 CreateObjectFilterID();
   void DeleteObjectFilterID(ezUInt32& ref_uiObjectFilterID);
 
@@ -52,11 +87,34 @@ public:
   virtual ezVec3 GetGravity() const override { return ezVec3(0, 0, -10); }
   ezVec3 GetCharacterGravity() const { return m_Settings.m_vCharacterGravity; }
 
+  /// \brief Queues an impulse to be applied on the given body as soon as that body is added to the Jolt scene.
+  void AddImpulse(ezUInt32 uiBodyID, const ezVec3& vImpulse, const ezVec3& vGlobalPosition);
+
+  /// \brief Queues an impulse to be applied on the given body as soon as that body is added to the Jolt scene.
+  void AddImpulse(ezUInt32 uiBodyID, const ezVec3& vImpulse);
+
+  /// \brief Queues an angular impulse to be applied on the given body as soon as that body is added to the Jolt scene.
+  void AddTorque(ezUInt32 uiBodyID, const ezVec3& vImpulse);
+
+  /// \brief Creates a force that acts upon the given Jolt body for a limited time.
+  ///
+  /// The force is applied every frame. It can be updated by calling this function again with a previously returned force ID.
+  /// Once the duration is elapsed without an update, the force is removed.
+  ///
+  /// If an invalid ID is passed in, a new force is created and a valid ID is returned.
+  /// If a valid ID is passed in, the existing force gets updated, and the same ID is returned.
+  ezJoltForceId AddOrUpdateForce(ezJoltForceId forceId, ezUInt32 uiBodyID, ezTime duration, const ezVec3& vForce);
+
+  /// \brief Removes a previously added force. See AddOrUpdateForce().
+  void ClearForce(ezJoltForceId id);
+
   //////////////////////////////////////////////////////////////////////////
   // ezPhysicsWorldModuleInterface
   //
 
   virtual ezUInt32 GetCollisionLayerByName(ezStringView sName) const override;
+  virtual ezUInt8 GetWeightCategoryByName(ezStringView sName) const override;
+  virtual ezUInt8 GetImpulseTypeByName(ezStringView sName) const override;
 
   virtual bool Raycast(ezPhysicsCastResult& out_result, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const override;
 
@@ -64,15 +122,27 @@ public:
 
   virtual bool SweepTestSphere(ezPhysicsCastResult& out_result, float fSphereRadius, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const override;
 
-  virtual bool SweepTestBox(ezPhysicsCastResult& out_result, ezVec3 vBoxExtends, const ezTransform& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const override;
+  virtual bool SweepTestBox(ezPhysicsCastResult& out_result, const ezVec3& vBoxExtents, const ezTransform& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const override;
 
   virtual bool SweepTestCapsule(ezPhysicsCastResult& out_result, float fCapsuleRadius, float fCapsuleHeight, const ezTransform& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const override;
 
+  virtual bool SweepTestCylinder(ezPhysicsCastResult& out_result, float fCylinderRadius, float fCylinderHeight, const ezTransform& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const override;
+
   virtual bool OverlapTestSphere(float fSphereRadius, const ezVec3& vPosition, const ezPhysicsQueryParameters& params) const override;
+
+  virtual bool OverlapTestBox(const ezVec3& vBoxExtents, const ezVec3& vPosition, const ezTransform& transform, const ezPhysicsQueryParameters& params) const override;
 
   virtual bool OverlapTestCapsule(float fCapsuleRadius, float fCapsuleHeight, const ezTransform& transform, const ezPhysicsQueryParameters& params) const override;
 
+  virtual bool OverlapTestCylinder(float fCylinderRadius, float fCylinderHeight, const ezTransform& transform, const ezPhysicsQueryParameters& params) const override;
+
   virtual void QueryShapesInSphere(ezPhysicsOverlapResultArray& out_results, float fSphereRadius, const ezVec3& vPosition, const ezPhysicsQueryParameters& params) const override;
+
+  virtual void QueryShapesInBox(ezPhysicsOverlapResultArray& out_results, const ezVec3& vBoxExtents, const ezTransform& transform, const ezPhysicsQueryParameters& params) const override;
+
+  virtual void QueryShapesInCapsule(ezPhysicsOverlapResultArray& out_results, float fCapsuleRadius, float fCapsuleHeight, const ezTransform& transform, const ezPhysicsQueryParameters& params) const override;
+
+  virtual void QueryShapesInCylinder(ezPhysicsOverlapResultArray& out_results, float fCylinderRadius, float fCylinderHeight, const ezTransform& transform, const ezPhysicsQueryParameters& params) const override;
 
   virtual void AddStaticCollisionBox(ezGameObject* pObject, ezVec3 vBoxSize) override;
 
@@ -83,18 +153,14 @@ public:
   ezDeque<ezComponentHandle> m_RequireUpdate;
 
   const ezSet<ezJoltDynamicActorComponent*>& GetActiveActors() const { return m_ActiveActors; }
-  const ezMap<ezJoltRagdollComponent*, ezInt32>& GetActiveRagdolls() const { return m_ActiveRagdolls; }
   const ezMap<ezJoltRopeComponent*, ezInt32>& GetActiveRopes() const { return m_ActiveRopes; }
+  const ezMap<ezJoltRagdollComponent*, ezInt32>& GetActiveRagdolls() const { return m_ActiveRagdolls; }
   ezArrayPtr<ezJoltRagdollComponent*> GetRagdollsPutToSleep() { return m_RagdollsPutToSleep.GetArrayPtr(); }
+  const ezMap<ezJoltBreakableSlabComponent*, ezInt32>& GetActiveSlabs() const { return m_ActiveSlabs; }
+  ezArrayPtr<ezJoltBreakableSlabComponent*> GetSlabsPutToSleep() { return m_SlabsPutToSleep.GetArrayPtr(); }
 
-  /// \brief Returns a uint32 that can be queried for completion with IsBodyStillQueuedToAdd().
-  ezUInt32 QueueBodyToAdd(JPH::Body* pBody, bool bAwake);
-
-  /// \brief Checks whether the last QueueBodyToAdd() has been processed already, or not.
-  ///
-  /// Bodies that aren't added to Jolt yet, may not get locked (they are not in the broadphase).
-  /// If this is still the case, skip operations that wouldn't have an effect anyway.
-  bool IsBodyStillQueuedToAdd(ezUInt32 uiBodiesAddCounter) const { return uiBodiesAddCounter == m_uiBodiesAddCounter; }
+  void QueueBodyToAdd(JPH::Body* pBody, bool bAwake);
+  void RemoveBodyFromQueue(JPH::BodyID bodyId);
 
   JPH::GroupFilter* GetGroupFilter() const { return m_pGroupFilter; }
   JPH::GroupFilter* GetGroupFilterIgnoreSame() const { return m_pGroupFilterIgnoreSame; }
@@ -110,15 +176,25 @@ public:
     return reinterpret_cast<ezJoltContactListener*>(m_pContactListener);
   }
 
+  ezJoltSoftBodyContactListener* GetSoftBodyContactListener()
+  {
+    return reinterpret_cast<ezJoltSoftBodyContactListener*>(m_pSoftBodyContactListener);
+  }
+
   void CheckBreakableConstraints();
 
   ezSet<ezComponentHandle> m_BreakableConstraints;
 
   void QueryGeometryInBox(const ezPhysicsQueryParameters& params, ezBoundingBox box, ezDynamicArray<ezNavmeshTriangle>& out_triangles) const;
 
+  /// \brief Returns the counter of the last Jolt update.
+  /// Can be used to detect when no physics update was done (at high frame rates) to skip duplicate physics modifications.
+  ezUInt64 GetJoltUpdateCounter() const { return m_uiJoltUpdateCounter; }
+
 private:
   bool SweepTest(ezPhysicsCastResult& out_Result, const JPH::Shape& shape, const JPH::Mat44& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection) const;
   bool OverlapTest(const JPH::Shape& shape, const JPH::Mat44& transform, const ezPhysicsQueryParameters& params) const;
+  void QueryShapes(ezPhysicsOverlapResultArray& out_results, const JPH::Shape& shape, const JPH::Mat44& transform, const ezPhysicsQueryParameters& params) const;
 
   void FreeUserDataAfterSimulationStep();
 
@@ -129,6 +205,9 @@ private:
 
   void UpdateSettingsCfg();
   void ApplySettingsCfg();
+
+  void ApplyImpulses();
+  void UpdateForces();
 
   void UpdateConstraints();
 
@@ -170,6 +249,8 @@ private:
     }
   };
 
+  ezUInt64 m_uiJoltUpdateCounter = 0;
+
   ezUInt32 m_uiDebugGeoLastSeenCounter = 0;
   ezMap<DebugBodyShapeKey, DebugGeo> m_DebugDrawComponents;
   ezMap<const void*, DebugGeoShape> m_DebugDrawShapeGeo;
@@ -197,22 +278,30 @@ private:
   ezJoltObjectLayerPairFilter m_ObjectLayerPairFilter;
 
   void* m_pContactListener = nullptr;
+  void* m_pSoftBodyContactListener = nullptr;
   void* m_pActivationListener = nullptr;
   ezSet<ezJoltDynamicActorComponent*> m_ActiveActors;
-  ezMap<ezJoltRagdollComponent*, ezInt32> m_ActiveRagdolls;
   ezMap<ezJoltRopeComponent*, ezInt32> m_ActiveRopes;
+  ezMap<ezJoltRagdollComponent*, ezInt32> m_ActiveRagdolls;
   ezDynamicArray<ezJoltRagdollComponent*> m_RagdollsPutToSleep;
+  ezMap<ezJoltBreakableSlabComponent*, ezInt32> m_ActiveSlabs;
+  ezDynamicArray<ezJoltBreakableSlabComponent*> m_SlabsPutToSleep;
 
   JPH::GroupFilter* m_pGroupFilter = nullptr;
   JPH::GroupFilter* m_pGroupFilterIgnoreSame = nullptr;
 
   ezUInt32 m_uiBodiesAddedSinceOptimize = 100;
-  ezUInt32 m_uiBodiesAddCounter = 1; // increased every time bodies get added, can be used to check whether a queued body is still queued
   ezDeque<ezUInt32> m_BodiesToAdd;
   ezDeque<ezUInt32> m_BodiesToAddAndActivate;
 
   ezHybridArray<ezTime, 4> m_UpdateSteps;
   ezHybridArray<ezJoltCharacterControllerComponent*, 4> m_ActiveCharacters;
+
+  ezMutex m_ImpulsesMutex;
+  ezDeque<ezJoltImpulse> m_Impulses;
+
+  ezMutex m_ForcesMutex;
+  ezIdTable<ezJoltForceId, ezJoltForce> m_Forces;
 };
 
 /// \brief Implementation of the ezNavmeshGeoWorldModuleInterface that uses Jolt physics to retrieve the geometry

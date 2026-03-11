@@ -1,0 +1,58 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+RMLUI_MODE
+
+[RENDERSTATE]
+
+BlendingEnabled0 = true
+DestBlend0 = Blend_InvSrcAlpha
+SourceBlend0 = Blend_One
+DestBlendAlpha0 = Blend_InvSrcAlpha
+SourceBlendAlpha0 = Blend_One
+DepthTest = false
+DepthWrite = false
+CullMode = CullMode_None
+
+[SHADER]
+
+struct PS_IN
+{
+  float4 Position : SV_Position;
+  float2 TexCoord0 : TEXCOORD0;
+};
+
+[VERTEXSHADER]
+
+#include "RmlUiBlitConstants.h"
+
+typedef PS_IN VS_OUT;
+
+VS_OUT main(uint vertexID : SV_VertexID)
+{
+  VS_OUT RetVal;
+
+  float x = float(vertexID & 1);
+  float y = float(vertexID >> 1);
+
+  RetVal.TexCoord0 = float2(x, y);
+  RetVal.Position = float4(RetVal.TexCoord0 * Scale + Offset, 0, 1);
+
+  return RetVal;
+}
+
+[PIXELSHADER]
+
+#include <Shaders/Common/Common.h>
+
+Texture2D BaseTexture;
+SamplerState BaseTexture_AutoSampler;
+
+float4 main(PS_IN Input) : SV_Target
+{
+  float4 color = BaseTexture.Sample(BaseTexture_AutoSampler, Input.TexCoord0.xy);
+  color.rgb = SrgbToLinear(color.rgb);
+  return color;
+}

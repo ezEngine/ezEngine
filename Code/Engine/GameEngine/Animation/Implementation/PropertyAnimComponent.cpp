@@ -10,33 +10,41 @@
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezPropertyAnimComponent, 3, ezComponentMode::Dynamic)
   {
     EZ_BEGIN_PROPERTIES
     {
-      EZ_ACCESSOR_PROPERTY("Animation", GetPropertyAnimFile, SetPropertyAnimFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Property_Animation")),
+      EZ_RESOURCE_MEMBER_PROPERTY("Animation", m_hPropertyAnim)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Property_Animation")),
       EZ_MEMBER_PROPERTY("Playing", m_bPlaying)->AddAttributes(new ezDefaultValueAttribute(true)),
       EZ_ENUM_MEMBER_PROPERTY("Mode", ezPropertyAnimMode, m_AnimationMode),
       EZ_MEMBER_PROPERTY("RandomOffset", m_RandomOffset)->AddAttributes(new ezClampValueAttribute(ezTime::MakeFromSeconds(0), ezVariant())),
       EZ_MEMBER_PROPERTY("Speed", m_fSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(-10.0f, +10.0f)),
       EZ_MEMBER_PROPERTY("RangeLow", m_AnimationRangeLow)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant())),
       EZ_MEMBER_PROPERTY("RangeHigh", m_AnimationRangeHigh)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant()), new ezDefaultValueAttribute(ezTime::MakeFromSeconds(60 * 60))),
-    } EZ_END_PROPERTIES;
+    }
+    EZ_END_PROPERTIES;
     EZ_BEGIN_ATTRIBUTES
     {
       new ezCategoryAttribute("Animation"),
-    } EZ_END_ATTRIBUTES;
+    }
+    EZ_END_ATTRIBUTES;
     EZ_BEGIN_MESSAGEHANDLERS
     {
       EZ_MESSAGE_HANDLER(ezMsgSetPlaying, OnMsgSetPlaying),
-    } EZ_END_MESSAGEHANDLERS;
+    }
+    EZ_END_MESSAGEHANDLERS;
     EZ_BEGIN_MESSAGESENDERS
     {
       EZ_MESSAGE_SENDER(m_EventTrackMsgSender),
       EZ_MESSAGE_SENDER(m_ReachedEndMsgSender),
-    } EZ_END_MESSAGESENDERS;
+    }
+    EZ_END_MESSAGESENDERS;
     EZ_BEGIN_FUNCTIONS
-    {EZ_SCRIPT_FUNCTION_PROPERTY(PlayAnimationRange, In, "RangeLow", In, "RangeHigh")} EZ_END_FUNCTIONS;
+    {
+      EZ_SCRIPT_FUNCTION_PROPERTY(PlayAnimationRange, In, "RangeLow", In, "RangeHigh")
+    }
+    EZ_END_FUNCTIONS;
   }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
@@ -92,26 +100,6 @@ void ezPropertyAnimComponent::DeserializeComponent(ezWorldReader& inout_stream)
   }
 }
 
-void ezPropertyAnimComponent::SetPropertyAnimFile(const char* szFile)
-{
-  ezPropertyAnimResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hResource = ezResourceManager::LoadResource<ezPropertyAnimResource>(szFile);
-  }
-
-  SetPropertyAnim(hResource);
-}
-
-const char* ezPropertyAnimComponent::GetPropertyAnimFile() const
-{
-  if (!m_hPropertyAnim.IsValid())
-    return "";
-
-  return m_hPropertyAnim.GetResourceID();
-}
-
 void ezPropertyAnimComponent::SetPropertyAnim(const ezPropertyAnimResourceHandle& hPropertyAnim)
 {
   m_hPropertyAnim = hPropertyAnim;
@@ -153,7 +141,7 @@ void ezPropertyAnimComponent::CreatePropertyBindings()
 
   for (const ezFloatPropertyAnimEntry& anim : m_pAnimDesc->m_FloatAnimations)
   {
-    ezHybridArray<ezGameObject*, 8> targets;
+    ezTempHybridArray<ezGameObject*, 8> targets;
     GetOwner()->SearchForChildrenByNameSequence(anim.m_sObjectSearchSequence, anim.m_pComponentRtti, targets);
 
     for (ezGameObject* pTargetObject : targets)
@@ -176,7 +164,7 @@ void ezPropertyAnimComponent::CreatePropertyBindings()
 
   for (const ezColorPropertyAnimEntry& anim : m_pAnimDesc->m_ColorAnimations)
   {
-    ezHybridArray<ezGameObject*, 8> targets;
+    ezTempHybridArray<ezGameObject*, 8> targets;
     GetOwner()->SearchForChildrenByNameSequence(anim.m_sObjectSearchSequence, anim.m_pComponentRtti, targets);
 
     for (ezGameObject* pTargetObject : targets)
@@ -261,7 +249,7 @@ void ezPropertyAnimComponent::CreateGameObjectBinding(const ezFloatPropertyAnimE
   }
   else
   {
-    EZ_REPORT_FAILURE("Invalid animation target type '{0}'", pAnim->m_Target.GetValue());
+    EZ_REPORT_FAILURE("Invalid animation target type '{0}'", ezArgEnum(pAnim->m_Target));
   }
 }
 
@@ -334,7 +322,7 @@ void ezPropertyAnimComponent::CreateFloatPropertyBinding(const ezFloatPropertyAn
   }
   else
   {
-    EZ_REPORT_FAILURE("Invalid animation target type '{0}'", pAnim->m_Target.GetValue());
+    EZ_REPORT_FAILURE("Invalid animation target type '{0}'", ezArgEnum(pAnim->m_Target));
   }
 }
 
@@ -556,7 +544,7 @@ void ezPropertyAnimComponent::EvaluateEventTrack(ezTime startTime, ezTime endTim
   if (et.IsEmpty())
     return;
 
-  ezHybridArray<ezHashedString, 8> events;
+  ezTempHybridArray<ezHashedString, 8> events;
   et.Sample(startTime, endTime, events);
 
   for (const ezHashedString& sEvent : events)
@@ -596,7 +584,7 @@ void ezPropertyAnimComponent::StartPlayback()
   if (!m_RandomOffset.IsZero() && m_pAnimDesc->m_AnimationDuration.IsPositive())
   {
     // should the random offset also be scaled by the speed factor? I guess not
-    m_AnimationTime += ezMath::Abs(m_fSpeed) * ezTime::MakeFromSeconds(GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, m_RandomOffset.GetSeconds()));
+    m_AnimationTime += ezMath::Abs(m_fSpeed) * ezTime::MakeFromSeconds(GetWorld()->GetRandomNumberGenerator().DoubleMinMax(0.0, m_RandomOffset.GetSeconds()));
 
     const ezTime duration = m_AnimationRangeHigh - m_AnimationRangeLow;
 

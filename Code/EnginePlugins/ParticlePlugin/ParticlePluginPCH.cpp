@@ -14,8 +14,6 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezParticleTypeRenderMode, 1)
   EZ_ENUM_CONSTANT(ezParticleTypeRenderMode::Blended),
   EZ_ENUM_CONSTANT(ezParticleTypeRenderMode::BlendedForeground),
   EZ_ENUM_CONSTANT(ezParticleTypeRenderMode::BlendedBackground),
-  EZ_ENUM_CONSTANT(ezParticleTypeRenderMode::Distortion),
-  EZ_ENUM_CONSTANT(ezParticleTypeRenderMode::BlendAdd),
 EZ_END_STATIC_REFLECTED_ENUM;
 
 //////////////////////////////////////////////////////////////////////////
@@ -54,6 +52,20 @@ EZ_END_STATIC_REFLECTED_ENUM;
 
 //////////////////////////////////////////////////////////////////////////
 
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezCurveSource, 1)
+  EZ_ENUM_CONSTANT(ezCurveSource::CustomCurve),
+  EZ_ENUM_CONSTANT(ezCurveSource::SharedCurve),
+EZ_END_STATIC_REFLECTED_ENUM;
+
+//////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGradientSource, 1)
+  EZ_ENUM_CONSTANT(ezGradientSource::CustomGradient),
+  EZ_ENUM_CONSTANT(ezGradientSource::SharedGradient),
+EZ_END_STATIC_REFLECTED_ENUM;
+
+//////////////////////////////////////////////////////////////////////////
+
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezParticleOutOfBoundsMode, 1)
   EZ_ENUM_CONSTANT(ezParticleOutOfBoundsMode::Teleport),
   EZ_ENUM_CONSTANT(ezParticleOutOfBoundsMode::Die),
@@ -74,13 +86,13 @@ EZ_STATICLINK_LIBRARY(ParticlePlugin)
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_FadeOut);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_Flies);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_Gravity);
+  EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_Opacity);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_PullAlong);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_Raycast);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_SizeCurve);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_Velocity);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Components_ParticleComponent);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Components_ParticleFinisherComponent);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_Effect_ParticleEffectController);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Effect_ParticleEffectDescriptor);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Effect_ParticleEffectInstance);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Emitter_ParticleEmitter);
@@ -111,7 +123,6 @@ EZ_STATICLINK_LIBRARY(ParticlePlugin)
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Streams_DefaultParticleStreams);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Streams_ParticleStream);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_System_ParticleSystemDescriptor);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_System_ParticleSystemInstance);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Type_Effect_ParticleTypeEffect);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Type_Light_ParticleTypeLight);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Type_Mesh_ParticleTypeMesh);
@@ -122,7 +133,5 @@ EZ_STATICLINK_LIBRARY(ParticlePlugin)
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Type_Quad_QuadParticleRenderer);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Type_Trail_ParticleTypeTrail);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Type_Trail_TrailRenderer);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_WorldModule_ParticleEffects);
-  EZ_STATICLINK_REFERENCE(ParticlePlugin_WorldModule_ParticleSystems);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_WorldModule_ParticleWorldModule);
 }

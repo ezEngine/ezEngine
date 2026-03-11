@@ -3,6 +3,7 @@
 #include <Core/Interfaces/PhysicsQuery.h>
 #include <Core/World/WorldModule.h>
 
+/// A triangle used for navmesh generation.
 struct ezNavmeshTriangle
 {
   ezVec3 m_Vertices[3];
@@ -29,5 +30,10 @@ protected:
   }
 
 public:
+  /// Retrieves triangles within a specified area for navmesh generation.
+  ///
+  /// \param uiCollisionLayer The collision layer to query for geometry
+  /// \param box The bounding box defining the area to retrieve geometry from
+  /// \param out_triangles Array to fill with triangles found in the specified area
   virtual void RetrieveGeometryInArea(ezUInt32 uiCollisionLayer, const ezBoundingBox& box, ezDynamicArray<ezNavmeshTriangle>& out_triangles) const = 0;
 };

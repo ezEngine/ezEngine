@@ -74,7 +74,7 @@ void ezQGridBarWidget::paintEvent(QPaintEvent* e)
 
     painter->setPen(palette().buttonText().color());
 
-    ezHybridArray<QLine, 100> lines;
+    ezTempHybridArray<QLine, 100> lines;
 
     // some overcompensation for the case that the GraphicsView displays a scrollbar at the side
     for (double x = fSceneMinX; x <= fSceneMaxX + m_fTextGridStops; x += m_fFineGridStops)

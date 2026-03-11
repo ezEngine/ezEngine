@@ -29,7 +29,7 @@ namespace
       ezResourceLock<ezScriptClassResource> pScript(m_hScriptClass, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
       if (pScript.GetAcquireResult() != ezResourceAcquireResult::Final)
       {
-        ezLog::Error("Failed to load script '{}'", (m_hScriptClass.IsValid() ? m_hScriptClass.GetResourceID().GetData() : ""));
+        ezLog::Error("Failed to load script '{}'", m_hScriptClass.GetResourceID());
         return;
       }
 

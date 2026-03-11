@@ -6,14 +6,16 @@
 class ezWorld;
 class ezViewHandle;
 
+/// \brief Value used by containers for indices to indicate an invalid index.
+#ifndef ezInvalidIndex
+#  define ezInvalidIndex 0xFFFFFFFF
+#endif
+
 /// \brief Used in ezDebugRenderer to determine where debug geometry should be rendered
 class EZ_RENDERERCORE_DLL ezDebugRendererContext
 {
 public:
-  EZ_ALWAYS_INLINE ezDebugRendererContext()
-    : m_uiId(-1)
-  {
-  }
+  ezDebugRendererContext() = default;
 
   /// \brief If this constructor is used, the geometry is rendered in all views for that scene.
   ezDebugRendererContext(const ezWorld* pWorld);
@@ -26,7 +28,7 @@ public:
 private:
   friend struct ezHashHelper<ezDebugRendererContext>;
 
-  ezUInt32 m_uiId;
+  ezUInt32 m_uiId = ezInvalidIndex;
 };
 
 

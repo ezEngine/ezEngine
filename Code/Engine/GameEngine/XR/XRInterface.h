@@ -2,13 +2,14 @@
 
 #include <GameEngine/GameEngineDLL.h>
 
-#include <Core/ActorSystem/Actor.h>
 #include <Core/ResourceManager/ResourceHandle.h>
+#include <Core/System/WindowManager.h>
 #include <GameEngine/GameApplication/WindowOutputTarget.h>
 #include <GameEngine/XR/Declarations.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
 using ezRenderPipelineResourceHandle = ezTypedResourceHandle<class ezRenderPipelineResource>;
+
 class ezViewHandle;
 class ezCamera;
 class ezGALTextureHandle;
@@ -17,6 +18,7 @@ class ezView;
 class ezXRInputDevice;
 class ezWindowBase;
 class ezWindowOutputTargetBase;
+struct ezGALMSAASampleCount;
 
 /// \brief XR singleton interface. Needs to be initialized to be used for VR or AR purposes.
 ///
@@ -65,7 +67,7 @@ public:
   ///
   /// If SupportsCompanionView is true (VR only), a normal window and window output can be passed in.
   /// The window will be used to blit the VR output into the window.
-  virtual ezUniquePtr<ezActor> CreateActor(ezView* pView, ezGALMSAASampleCount::Enum msaaCount = ezGALMSAASampleCount::None, ezUniquePtr<ezWindowBase> pCompanionWindow = nullptr, ezUniquePtr<ezWindowOutputTargetGAL> pCompanionWindowOutput = nullptr) = 0;
+  virtual ezRegisteredWndHandle CreateXRWindow(ezView* pView, ezGALMSAASampleCount::Enum msaaCount = ezGALMSAASampleCount::None, ezUniquePtr<ezWindowBase> pCompanionWindow = nullptr, ezUniquePtr<ezWindowOutputTargetGAL> pCompanionWindowOutput = nullptr) = 0;
 
   ///@}
   /// \name Internal

@@ -781,7 +781,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
   {
     ezStringBuilder s = "|abc,def<>ghi|,<>jkl|mno,pqr|stu";
 
-    ezHybridArray<ezStringView, 32> SubStrings;
+    ezTempHybridArray<ezStringView, 32> SubStrings;
 
     s.Split(false, SubStrings, ",", "|", "<>");
 
@@ -934,11 +934,9 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
       const char* szAbsPath = "C:\\folder";
       const char* szAbsPathAppendResult = "C:\\folder/File.ext";
-#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#else
       const char* szAbsPath = "/folder";
       const char* szAbsPathAppendResult = "/folder/File.ext";
-#else
-#  error "An absolute path example must be defined for the 'AppendPath' test for each platform!"
 #endif
 
       p = "";
@@ -1235,7 +1233,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST_BOOL(!p.IsRelativePath());
     EZ_TEST_BOOL(p.IsRootedPath());
 
-#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#else
 
     p = "C:\\temp.stuff";
     EZ_TEST_BOOL(!p.IsAbsolutePath());
@@ -1262,8 +1260,6 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST_BOOL(p.IsRelativePath());
     EZ_TEST_BOOL(!p.IsRootedPath());
 
-#else
-#  error "Unknown platform."
 #endif
   }
 

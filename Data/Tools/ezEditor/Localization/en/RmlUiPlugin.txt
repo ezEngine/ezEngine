@@ -1,10 +1,15 @@
 # Asset Types
 
-RmlUi;Rml UI
+RmlUi;Rml UI;;https://ezengine.net/pages/docs/ui/rmlui.html
 
 # Component Types
 
 ezRmlUiCanvas2DComponent;RmlUi Canvas 2D;;https://ezengine.net/pages/docs/ui/rmlui-canvas2d-component.html
+ezRmlUiCanvas3DComponent;RmlUi Canvas 3D;;https://ezengine.net/pages/docs/ui/rmlui-canvas3d-component.html
+ezRmlUiCanvas3DInteractionExampleComponent;RmlUi Canvas 3D Interaction Example;;https://ezengine.net/pages/docs/ui/rmlui-canvas3d-component.html
 
 # Properties
 
+# Actions
+
+RmlUi.OpenInVSC;Open in External Text Editor

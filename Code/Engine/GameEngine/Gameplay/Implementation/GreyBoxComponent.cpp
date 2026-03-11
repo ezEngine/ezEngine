@@ -11,6 +11,7 @@
 #include <RendererCore/Meshes/CpuMeshResource.h>
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <RendererCore/Meshes/MeshResource.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 
 // clang-format off
@@ -30,7 +31,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezGreyBoxComponent, 7, ezComponentMode::Static)
   EZ_BEGIN_PROPERTIES
   {
     EZ_ENUM_ACCESSOR_PROPERTY("Shape", ezGreyBoxShape, GetShape, SetShape),
-    EZ_ACCESSOR_PROPERTY("Material", GetMaterialFile, SetMaterialFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
+    EZ_RESOURCE_MEMBER_PROPERTY("Material", m_hMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
     EZ_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new ezExposeColorAlphaAttribute()),
     EZ_ACCESSOR_PROPERTY("CustomData", GetCustomData, SetCustomData)->AddAttributes(new ezDefaultValueAttribute(ezVec4(0, 1, 0, 1))),
     EZ_ACCESSOR_PROPERTY("SizeNegX", GetSizeNegX, SetSizeNegX)->AddAttributes(new ezGroupAttribute("Size", "Size")),//->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
@@ -45,7 +46,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezGreyBoxComponent, 7, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("SlopedTop", GetSlopedTop, SetSlopedTop),
     EZ_ACCESSOR_PROPERTY("SlopedBottom", GetSlopedBottom, SetSlopedBottom),
     EZ_ACCESSOR_PROPERTY("GenerateCollision", GetGenerateCollision, SetGenerateCollision)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_ACCESSOR_PROPERTY("IncludeInNavmesh", GetIncludeInNavmesh, SetIncludeInNavmesh)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("UseAsOccluder", m_bUseAsOccluder)->AddAttributes(new ezDefaultValueAttribute(true)),
   }
   EZ_END_PROPERTIES;
@@ -99,6 +99,7 @@ void ezGreyBoxComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 
   // Version 4
   s << m_bGenerateCollision;
+  bool m_bIncludeInNavmesh = true; // dummy
   s << m_bIncludeInNavmesh;
 
   // Version 5
@@ -140,6 +141,7 @@ void ezGreyBoxComponent::DeserializeComponent(ezWorldReader& inout_stream)
   if (uiVersion >= 4)
   {
     s >> m_bGenerateCollision;
+    bool m_bIncludeInNavmesh = true; // dummy
     s >> m_bIncludeInNavmesh;
   }
 
@@ -165,6 +167,14 @@ void ezGreyBoxComponent::OnActivated()
   SUPER::OnActivated();
 }
 
+void ezGreyBoxComponent::OnDeactivated()
+{
+  ezRenderDataManager* pRenderDataManager = GetWorld()->GetModule<ezRenderDataManager>();
+  pRenderDataManager->DeleteInstanceData(m_InstanceDataOffset);
+
+  SUPER::OnDeactivated();
+}
+
 ezResult ezGreyBoxComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
 {
   if (m_hMesh.IsValid())
@@ -188,8 +198,8 @@ void ezGreyBoxComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) con
   if (!m_hMesh.IsValid())
     return;
 
-  const ezUInt32 uiFlipWinding = GetOwner()->GetGlobalTransformSimd().ContainsNegativeScale() ? 1 : 0;
-  const ezUInt32 uiUniformScale = GetOwner()->GetGlobalTransformSimd().ContainsUniformScale() ? 1 : 0;
+  const bool bDynamic = GetOwner()->IsDynamic();
+  auto hInstanceDataBuffer = msg.m_pRenderDataManager->GetOrCreateInstanceDataAndFill(*this, bDynamic, GetOwner()->GetGlobalTransform(), m_InstanceDataOffset, GetUniqueIdForRendering(), m_Color, m_vCustomData);
 
   ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowLoadingFallback);
   ezArrayPtr<const ezMeshResourceDescriptor::SubMesh> parts = pMesh->GetSubMeshes();
@@ -199,38 +209,12 @@ void ezGreyBoxComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) con
     const ezUInt32 uiMaterialIndex = parts[uiPartIndex].m_uiMaterialIndex;
     ezMaterialResourceHandle hMaterial = m_hMaterial.IsValid() ? m_hMaterial : pMesh->GetMaterials()[uiMaterialIndex];
 
-    ezMeshRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner());
-    {
-      pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
-      pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
-      pRenderData->m_hMesh = m_hMesh;
-      pRenderData->m_hMaterial = hMaterial;
-      pRenderData->m_Color = m_Color;
-      pRenderData->m_vCustomData = m_vCustomData;
-
-      pRenderData->m_uiSubMeshIndex = uiPartIndex;
-      pRenderData->m_uiFlipWinding = uiFlipWinding;
-      pRenderData->m_uiUniformScale = uiUniformScale;
-
-      pRenderData->m_uiUniqueID = GetUniqueIdForRendering(uiMaterialIndex);
-
-      pRenderData->FillBatchIdAndSortingKey();
-    }
+    ezMeshRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner());
+    pRenderData->SetFallbackGlobalBounds(GetOwner()->GetGlobalBounds());
+    pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, hMaterial, m_hMesh, uiMaterialIndex, uiPartIndex);
 
     bool bDontCacheYet = false;
-
-    // Determine render data category.
-    ezRenderData::Category category = ezDefaultRenderDataCategories::LitOpaque;
-
-    if (hMaterial.IsValid())
-    {
-      ezResourceLock<ezMaterialResource> pMaterial(hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
-
-      if (pMaterial.GetAcquireResult() == ezResourceAcquireResult::LoadingFallback)
-        bDontCacheYet = true;
-
-      category = pMaterial->GetRenderDataCategory();
-    }
+    ezRenderData::Category category = ezMaterialResource::GetRenderDataCategory(hMaterial, &bDontCacheYet);
 
     msg.AddRenderData(pRenderData, category, bDontCacheYet ? ezRenderData::Caching::Never : ezRenderData::Caching::IfStatic);
   }
@@ -264,26 +248,6 @@ void ezGreyBoxComponent::SetCustomData(const ezVec4& vData)
 const ezVec4& ezGreyBoxComponent::GetCustomData() const
 {
   return m_vCustomData;
-}
-
-void ezGreyBoxComponent::SetMaterialFile(const char* szFile)
-{
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>(szFile);
-  }
-  else
-  {
-    m_hMaterial.Invalidate();
-  }
-}
-
-const char* ezGreyBoxComponent::GetMaterialFile() const
-{
-  if (!m_hMaterial.IsValid())
-    return "";
-
-  return m_hMaterial.GetResourceID();
 }
 
 void ezGreyBoxComponent::SetSizeNegX(float f)
@@ -357,11 +321,6 @@ void ezGreyBoxComponent::SetGenerateCollision(bool b)
   m_bGenerateCollision = b;
 }
 
-void ezGreyBoxComponent::SetIncludeInNavmesh(bool b)
-{
-  m_bIncludeInNavmesh = b;
-}
-
 void ezGreyBoxComponent::OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const
 {
   if (!m_bGenerateCollision)
@@ -429,9 +388,6 @@ void ezGreyBoxComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const
   if (msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::CollisionMesh && (m_bGenerateCollision == false || GetOwner()->IsDynamic()))
     return;
 
-  if (msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::NavMeshGeneration && (m_bIncludeInNavmesh == false || GetOwner()->IsDynamic()))
-    return;
-
   msg.AddMeshObject(GetOwner()->GetGlobalTransform(), GenerateMesh<ezCpuMeshResource>());
 }
 
@@ -485,7 +441,7 @@ void ezGreyBoxComponent::OnMsgSetColor(ezMsgSetColor& ref_msg)
 
 void ezGreyBoxComponent::OnMsgSetCustomData(ezMsgSetCustomData& ref_msg)
 {
-  m_vCustomData = ref_msg.m_vData;
+  m_vCustomData.Set(ref_msg.m_fData0, ref_msg.m_fData1, ref_msg.m_fData2, ref_msg.m_fData3);
 
   InvalidateCachedRenderData();
 }

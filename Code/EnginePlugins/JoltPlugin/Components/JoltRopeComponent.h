@@ -1,13 +1,17 @@
 #pragma once
 
 #include <Core/ResourceManager/ResourceHandle.h>
+#include <Core/World/ComponentManager.h>
 #include <JoltPlugin/JoltPluginDLL.h>
 
 struct ezMsgPhysicsAddImpulse;
-struct ezMsgPhysicsAddForce;
+struct ezJoltMsgDisconnectConstraints;
+class ezJoltMaterial;
+
 namespace JPH
 {
   class Constraint;
+  class Ragdoll;
 }
 
 using ezSurfaceResourceHandle = ezTypedResourceHandle<class ezSurfaceResource>;
@@ -81,8 +85,8 @@ public:
   float GetGravityFactor() const { return m_fGravityFactor; } // [ property ]
 
   /// \brief The ezSurfaceResource to be used on the rope physics bodies.
-  void SetSurfaceFile(const char* szFile); // [ property ]
-  const char* GetSurfaceFile() const;      // [ property ]
+  void SetSurfaceFile(ezStringView sFile); // [ property ]
+  ezStringView GetSurfaceFile() const;     // [ property ]
 
   /// Defines which other physics objects the rope collides with.
   ezUInt8 m_uiCollisionLayer = 0; // [ property ]
@@ -106,6 +110,10 @@ public:
   /// How much each rope segment may twist.
   ezAngle m_MaxTwist = ezAngle::MakeFromDegree(15); // [ property ]
 
+  ezUInt8 m_uiWeightCategory = 0;                   // [ property ]
+  ezFloat16 m_fWeightScale = 1.0f;                  // [ property ]
+  ezFloat16 m_fWeightMass = 5.0f;                   // [ property ]
+
   /// \brief Sets the anchor 1 references by object GUID.
   void SetAnchor1Reference(const char* szReference); // [ property ]
 
@@ -117,9 +125,6 @@ public:
 
   /// \brief Sets the anchor 2 reference.
   void SetAnchor2(ezGameObjectHandle hActor);
-
-  /// \brief Adds a force (like wind) to the rope.
-  void AddForceAtPos(ezMsgPhysicsAddForce& ref_msg);
 
   /// \brief Adds an impulse (like an impact) to the rope.
   void AddImpulseAtPos(ezMsgPhysicsAddImpulse& ref_msg);
@@ -145,6 +150,11 @@ private:
   JPH::Constraint* CreateConstraint(const ezGameObjectHandle& hTarget, const ezTransform& dstLoc, ezUInt32 uiBodyID, ezJoltRopeAnchorConstraintMode::Enum mode, ezUInt32& out_uiConnectedToBodyID);
   void UpdatePreview();
 
+  float GetWeight_Scale() const { return m_fWeightScale; }
+  float GetWeight_Mass() const { return m_fWeightMass; }
+  void SetWeight_Scale(float fValue) { m_fWeightScale = fValue; }
+  void SetWeight_Mass(float fValue) { m_fWeightMass = fValue; }
+
   ezSurfaceResourceHandle m_hSurface;
 
   ezGameObjectHandle m_hAnchor1;
@@ -153,7 +163,6 @@ private:
   ezEnum<ezJoltRopeAnchorConstraintMode> m_Anchor1ConstraintMode; // [ property ]
   ezEnum<ezJoltRopeAnchorConstraintMode> m_Anchor2ConstraintMode; // [ property ]
 
-  float m_fTotalMass = 1.0f;
   float m_fMaxForcePerFrame = 0.0f;
   float m_fBendStiffness = 0.0f;
   ezUInt32 m_uiObjectFilterID = ezInvalidIndex;
@@ -167,7 +176,6 @@ private:
   JPH::Constraint* m_pConstraintAnchor2 = nullptr;
   ezUInt32 m_uiAnchor1BodyID = ezInvalidIndex;
   ezUInt32 m_uiAnchor2BodyID = ezInvalidIndex;
-
 
 private:
   const char* DummyGetter() const { return nullptr; }

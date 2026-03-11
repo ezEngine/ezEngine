@@ -19,7 +19,7 @@ ezStateMachineAssetManager::ezStateMachineAssetManager()
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_StateMachine");
 
-  m_DocTypeDesc.m_sResourceFileExtension = "ezStateMachineBin";
+  m_DocTypeDesc.m_sResourceFileExtension = "ezBinStateMachine";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;
 
   ezQtImageCache::GetSingleton()->RegisterTypeImage("StateMachine", ezSvgThumbnailToPixmap(":/AssetIcons/StateMachine.svg"));
@@ -48,8 +48,7 @@ void ezStateMachineAssetManager::OnDocumentManagerEvent(const ezDocumentManager:
   }
 }
 
-void ezStateMachineAssetManager::InternalCreateDocument(
-  ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
+void ezStateMachineAssetManager::InternalCreateDocument(ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)
 {
   out_pDocument = new ezStateMachineAssetDocument(sPath);
 }

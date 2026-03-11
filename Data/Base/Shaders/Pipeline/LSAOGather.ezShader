@@ -6,7 +6,6 @@ ALL
 LSAO_DEPTH_COMPARE
 DISTRIBUTED_SSAO_GATHERING
 CAMERA_MODE
-VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
 
 [RENDERSTATE]
 
@@ -18,10 +17,6 @@ CullMode = CullMode_None
 [VERTEXSHADER]
 
 #include <Shaders/Pipeline/FullscreenTriangleVertexShader.h>
-
-[GEOMETRYSHADER]
-
-#include <Shaders/Pipeline/FullscreenTriangleStereoGeometryShader.h>
 
 [PIXELSHADER]
 

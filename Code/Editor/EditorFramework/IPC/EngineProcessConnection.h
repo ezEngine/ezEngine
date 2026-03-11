@@ -55,6 +55,8 @@ public:
 
   bool IsEngineSetup() const { return m_bClientIsConfigured; }
 
+  ezOsProcessID GetEngineProcessID() const { return m_IPC.GetProcessId(); }
+
   void ActivateRemoteProcess(const ezAssetDocument* pDocument, ezUInt32 uiViewID);
 
   ezProcessCommunicationChannel& GetCommunicationChannel() { return m_IPC; }
@@ -69,6 +71,8 @@ public:
       ProcessShutdown,
       ProcessMessage,
       ProcessRestarted,
+      ProcessStuck,   ///< Engine process is not responding
+      ProcessUnstuck, ///< Engine process started responding again after ProcessStuck was triggered
     };
 
     Event()
@@ -90,12 +94,14 @@ private:
   bool ConnectToRemoteProcess();
   void ShutdownRemoteProcess();
 
-  bool m_bProcessShouldBeRunning;
-  bool m_bProcessCrashed;
-  bool m_bClientIsConfigured;
+  static constexpr ezUInt32 s_uiMaxFailedRedrawCount = 5 * 60;
+  bool m_bProcessShouldBeRunning = false;
+  bool m_bProcessCrashed = false;
+  bool m_bClientIsConfigured = false;
   ezEventSubscriptionID m_TickEventSubscriptionID = 0;
   ezUInt32 m_uiRedrawCountSent = 0;
   ezUInt32 m_uiRedrawCountReceived = 0;
+  ezUInt32 m_uiFailedRedrawCount = 0;
 
   ezEditorProcessCommunicationChannel m_IPC;
   ezUniquePtr<ezEditorProcessRemoteCommunicationChannel> m_pRemoteProcess;

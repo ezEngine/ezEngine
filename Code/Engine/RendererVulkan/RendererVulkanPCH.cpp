@@ -6,5 +6,4 @@ EZ_STATICLINK_LIBRARY(RendererVulkan)
     return;
 
   EZ_STATICLINK_REFERENCE(RendererVulkan_Device_Implementation_DeviceVulkan);
-  EZ_STATICLINK_REFERENCE(RendererVulkan_Resources_Implementation_FallbackResourcesVulkan);
 }

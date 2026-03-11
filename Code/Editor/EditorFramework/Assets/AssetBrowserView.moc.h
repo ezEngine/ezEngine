@@ -25,12 +25,16 @@ public:
   void dragMoveEvent(QDragMoveEvent* pEvent) override;
   void dragLeaveEvent(QDragLeaveEvent* pEvent) override;
   void dropEvent(QDropEvent* pEvent) override;
+  void startDrag(Qt::DropActions supportedActions) override;
 
 Q_SIGNALS:
   void ViewZoomed(ezInt32 iIconSizePercentage);
 
 protected:
   virtual void wheelEvent(QWheelEvent* pEvent) override;
+  virtual void mousePressEvent(QMouseEvent* pEvent) override;
+  virtual void mouseDoubleClickEvent(QMouseEvent* pEvent) override;
+  virtual void mouseMoveEvent(QMouseEvent* pEvent) override;
 
 private:
   bool m_bDialogMode;

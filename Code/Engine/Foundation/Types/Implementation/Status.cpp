@@ -26,7 +26,7 @@ ezStatus::ezStatus(const ezFormatString& fmt)
   m_sMessage = fmt.GetText(sMsg);
 }
 
-bool ezStatus::LogFailure(ezLogInterface* pLog)
+bool ezStatus::LogFailure(ezLogInterface* pLog) const
 {
   if (Failed())
   {
@@ -44,10 +44,10 @@ void ezStatus::AssertSuccess(const char* szMsg /*= nullptr*/) const
 
   if (szMsg)
   {
-    EZ_REPORT_FAILURE(szMsg, m_sMessage.GetData());
+    EZ_REPORT_FAILURE(szMsg, m_sMessage);
   }
   else
   {
-    EZ_REPORT_FAILURE("An operation failed unexpectedly.", m_sMessage.GetData());
+    EZ_REPORT_FAILURE("An operation failed unexpectedly.", m_sMessage);
   }
 }

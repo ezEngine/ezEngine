@@ -4,20 +4,20 @@
 #include <RendererVulkan/Device/InitContext.h>
 #include <RendererVulkan/Pools/CommandBufferPoolVulkan.h>
 #include <RendererVulkan/Pools/StagingBufferPoolVulkan.h>
+#include <RendererVulkan/Resources/BufferVulkan.h>
 #include <RendererVulkan/Resources/TextureVulkan.h>
 #include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
 #include <RendererVulkan/Utils/PipelineBarrierVulkan.h>
 
-
 ezInitContextVulkan::ezInitContextVulkan(ezGALDeviceVulkan* pDevice)
   : m_pDevice(pDevice)
 {
-  ezProxyAllocator& allocator = m_pDevice->GetAllocator();
-  m_pPipelineBarrier = EZ_NEW(&allocator, ezPipelineBarrierVulkan);
-  m_pCommandBufferPool = EZ_NEW(&allocator, ezCommandBufferPoolVulkan);
+  ezAllocator* pAllocator = m_pDevice->GetAllocator();
+  m_pPipelineBarrier = EZ_NEW(pAllocator, ezPipelineBarrierVulkan, pAllocator);
+  m_pCommandBufferPool = EZ_NEW(pAllocator, ezCommandBufferPoolVulkan, pAllocator);
   m_pCommandBufferPool->Initialize(m_pDevice->GetVulkanDevice(), m_pDevice->GetGraphicsQueue().m_uiQueueFamily);
-  m_pStagingBufferPool = EZ_NEW(&allocator, ezStagingBufferPoolVulkan);
-  m_pStagingBufferPool->Initialize(m_pDevice);
+  m_pStagingBufferPool = EZ_NEW(pAllocator, ezStagingBufferPoolVulkan);
+  m_pStagingBufferPool->Initialize(m_pDevice, 50 * 1024 * 1024);
 }
 
 ezInitContextVulkan::~ezInitContextVulkan()
@@ -26,6 +26,16 @@ ezInitContextVulkan::~ezInitContextVulkan()
 
   m_pCommandBufferPool->DeInitialize();
   m_pStagingBufferPool->DeInitialize();
+  m_pPipelineBarrier.Clear();
+  m_pCommandBufferPool.Clear();
+  m_pStagingBufferPool.Clear();
+}
+
+
+void ezInitContextVulkan::AfterBeginFrame()
+{
+  EZ_LOCK(m_Lock);
+  m_pStagingBufferPool->AfterBeginFrame();
 }
 
 vk::CommandBuffer ezInitContextVulkan::GetFinishedCommandBuffer()
@@ -33,7 +43,12 @@ vk::CommandBuffer ezInitContextVulkan::GetFinishedCommandBuffer()
   EZ_LOCK(m_Lock);
   if (m_currentCommandBuffer)
   {
+    m_pStagingBufferPool->BeforeCommandBufferSubmit();
     m_pPipelineBarrier->Submit();
+    if (m_pDevice->GetExtensions().m_bDebugUtilsMarkers)
+    {
+      m_currentCommandBuffer.endDebugUtilsLabelEXT(m_pDevice->GetDispatchContext());
+    }
     vk::CommandBuffer res = m_currentCommandBuffer;
     res.end();
 
@@ -52,14 +67,18 @@ void ezInitContextVulkan::EnsureCommandBufferExists()
     vk::CommandBufferBeginInfo beginInfo;
     m_currentCommandBuffer.begin(&beginInfo);
     m_pPipelineBarrier->SetCommandBuffer(&m_currentCommandBuffer);
+    if (m_pDevice->GetExtensions().m_bDebugUtilsMarkers)
+    {
+      constexpr float markerColor[4] = {0, 0, 0, 0};
+      vk::DebugUtilsLabelEXT markerInfo = {};
+      ezMemoryUtils::Copy(markerInfo.color.data(), markerColor, EZ_ARRAY_SIZE(markerColor));
+      markerInfo.pLabelName = "InitContext";
+
+      m_currentCommandBuffer.beginDebugUtilsLabelEXT(markerInfo, m_pDevice->GetDispatchContext());
+    }
   }
 }
 
-void ezInitContextVulkan::TextureDestroyed(const ezGALTextureVulkan* pTexture)
-{
-  EZ_LOCK(m_Lock);
-  m_pPipelineBarrier->TextureDestroyed(pTexture);
-}
 
 void ezInitContextVulkan::InitTexture(const ezGALTextureVulkan* pTexture, vk::ImageCreateInfo& createInfo, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData)
 {
@@ -78,7 +97,6 @@ void ezInitContextVulkan::InitTexture(const ezGALTextureVulkan* pTexture, vk::Im
 
     m_pPipelineBarrier->SetInitialImageState(pTexture, createInfo.initialLayout);
 
-    ezDynamicArray<ezUInt8> tempData;
     ezDynamicArray<ezGALSystemMemoryDescription> initialData;
     if (pInitialData.IsEmpty())
     {
@@ -94,7 +112,8 @@ void ezInitContextVulkan::InitTexture(const ezGALTextureVulkan* pTexture, vk::Im
           (imageExtent.height + blockExtent[1] - 1) / blockExtent[1],
           (imageExtent.depth + blockExtent[2] - 1) / blockExtent[2]};
         const ezUInt32 uiTotalSize = uiBlockSize * blockCount.width * blockCount.height * blockCount.depth;
-        tempData.SetCount(uiTotalSize, 0);
+        if (m_TempData.GetCount() < uiTotalSize)
+          m_TempData.SetCount(uiTotalSize, 0);
       }
 
       for (ezUInt32 uiLayer = 0; uiLayer < createInfo.arrayLayers; uiLayer++)
@@ -111,7 +130,7 @@ void ezInitContextVulkan::InitTexture(const ezGALTextureVulkan* pTexture, vk::Im
             (imageExtent.depth + blockExtent[2] - 1) / blockExtent[2]};
 
           ezGALSystemMemoryDescription data;
-          data.m_pData = tempData.GetData();
+          data.m_pData = m_TempData.GetByteArrayPtr();
           data.m_uiRowPitch = uiBlockSize * blockCount.width;
           data.m_uiSlicePitch = data.m_uiRowPitch * blockCount.height;
           initialData.PushBack(data);
@@ -138,7 +157,10 @@ void ezInitContextVulkan::InitTexture(const ezGALTextureVulkan* pTexture, vk::Im
         subresourceLayers.baseArrayLayer = uiLayer;
         subresourceLayers.layerCount = 1;
 
-        m_pDevice->UploadTextureStaging(m_pStagingBufferPool.Borrow(), m_pPipelineBarrier.Borrow(), m_currentCommandBuffer, pTexture, subresourceLayers, subResourceData);
+        const vk::Offset3D imageOffset = {0, 0, 0};
+        const vk::Extent3D imageExtent = pTexture->GetMipLevelSize(uiMipLevel);
+
+        m_pDevice->UploadTextureStaging(m_pStagingBufferPool.Borrow(), m_pPipelineBarrier.Borrow(), m_currentCommandBuffer, pTexture, subresourceLayers, imageOffset, imageExtent, subResourceData);
       }
     }
   }
@@ -147,5 +169,140 @@ void ezInitContextVulkan::InitTexture(const ezGALTextureVulkan* pTexture, vk::Im
     // We don't actually know what the current state is of an existing native object. The only use case right now are back buffers created by swap chains so for now we just throw away the current content and barrier into the preferred layout.
     m_pPipelineBarrier->SetInitialImageState(pTexture, vk::ImageLayout::eUndefined);
     m_pPipelineBarrier->EnsureImageLayout(pTexture, pTexture->GetPreferredLayout(), pTexture->GetUsedByPipelineStage(), pTexture->GetAccessMask(), true);
+  }
+}
+
+void ezInitContextVulkan::TextureDestroyed(const ezGALTextureVulkan* pTexture)
+{
+  EZ_LOCK(m_Lock);
+  m_pPipelineBarrier->TextureDestroyed(pTexture);
+}
+
+void ezInitContextVulkan::InitBuffer(const ezGALBufferVulkan* pBuffer, ezConstByteArrayPtr pInitialData)
+{
+  EZ_LOCK(m_Lock);
+
+  EnsureCommandBufferExists();
+
+  // During initialization, there can't be any read/write hazard with the GPU so we can write to the memory directly if supported, e.g. unified memory.
+  const ezVulkanAllocationInfo& allocInfo = pBuffer->GetAllocationInfo();
+  if (allocInfo.m_pMappedData != nullptr)
+  {
+    ezMemoryUtils::Copy((ezUInt8*)allocInfo.m_pMappedData, pInitialData.GetPtr(), pInitialData.GetCount());
+
+    m_pPipelineBarrier->AccessBuffer(pBuffer, 0, pInitialData.GetCount(), vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite, pBuffer->GetUsedByPipelineStage(), pBuffer->GetAccessMask());
+  }
+  else
+  {
+    m_pDevice->UploadBufferStaging(m_pStagingBufferPool.Borrow(), m_pPipelineBarrier.Borrow(), m_currentCommandBuffer, pBuffer, pInitialData, 0);
+  }
+}
+
+void ezInitContextVulkan::UpdateTexture(const ezGALTextureVulkan* pTexture, const ezGALTextureSubresource& subresource, const ezBoundingBoxu32& box, const ezGALSystemMemoryDescription& sourceData)
+{
+  EZ_LOCK(m_Lock);
+
+  EnsureCommandBufferExists();
+
+  const ezVec3U32 boxExtents = box.GetExtents();
+  const vk::Offset3D imageOffset = {(ezInt32)box.m_vMin.x, (ezInt32)box.m_vMin.y, (ezInt32)box.m_vMin.z};
+  const vk::Extent3D imageExtent = {boxExtents.x, boxExtents.y, boxExtents.z};
+
+  vk::ImageSubresourceLayers subresourceLayers;
+  subresourceLayers.aspectMask = ezConversionUtilsVulkan::IsDepthFormat(pTexture->GetImageFormat()) ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
+  subresourceLayers.mipLevel = subresource.m_uiMipLevel;
+  subresourceLayers.baseArrayLayer = subresource.m_uiArraySlice;
+  subresourceLayers.layerCount = 1;
+
+  m_pDevice->UploadTextureStaging(m_pStagingBufferPool.Borrow(), m_pPipelineBarrier.Borrow(), m_currentCommandBuffer, pTexture, subresourceLayers, imageOffset, imageExtent, sourceData);
+}
+
+void ezInitContextVulkan::UpdateBuffer(const ezGALBufferVulkan* pBuffer, ezUInt32 uiOffset, ezConstByteArrayPtr pSourceData)
+{
+  EZ_LOCK(m_Lock);
+
+  EnsureCommandBufferExists();
+  m_pDevice->UploadBufferStaging(m_pStagingBufferPool.Borrow(), m_pPipelineBarrier.Borrow(), m_currentCommandBuffer, pBuffer, pSourceData, uiOffset);
+}
+
+void ezInitContextVulkan::UpdateDynamicUniformBuffer(vk::Buffer gpuBuffer, vk::Buffer stagingBuffer, ezUInt32 uiOffset, ezUInt32 uiSize)
+{
+  EZ_LOCK(m_Lock);
+
+  EnsureCommandBufferExists();
+
+  if (stagingBuffer)
+  {
+    // gpuBuffer can't be accessed on the CPU, so the data is present in stagingBuffer and needs to be copied over.
+    m_pPipelineBarrier->AddBufferBarrierInternal(stagingBuffer, uiOffset, uiSize, vk::PipelineStageFlagBits::eHost, vk::AccessFlagBits::eHostWrite, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferRead);
+
+    m_pPipelineBarrier->Flush();
+
+    vk::BufferCopy bufferCopy = {};
+    bufferCopy.dstOffset = uiOffset;
+    bufferCopy.srcOffset = uiOffset;
+    bufferCopy.size = uiSize;
+    m_currentCommandBuffer.copyBuffer(stagingBuffer, gpuBuffer, 1, &bufferCopy);
+
+    m_pPipelineBarrier->AddBufferBarrierInternal(gpuBuffer, uiOffset, uiSize, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite, vk::PipelineStageFlagBits::eVertexShader, vk::AccessFlagBits::eUniformRead);
+  }
+  else
+  {
+    // gpuBuffer is writable on the CPU and thus we only need to add a barrier.
+    m_pPipelineBarrier->AddBufferBarrierInternal(gpuBuffer, uiOffset, uiSize, vk::PipelineStageFlagBits::eHost, vk::AccessFlagBits::eHostWrite, vk::PipelineStageFlagBits::eVertexShader, vk::AccessFlagBits::eUniformRead);
+  }
+}
+
+void ezInitContextVulkan::ExecutePendingCopies(ezArrayPtr<ezPendingBufferCopyVulkan> buffers, ezArrayPtr<ezPendingTextureCopyVulkan> textures)
+{
+  if (buffers.IsEmpty() && textures.IsEmpty())
+    return;
+
+  auto getRange = [](const vk::ImageSubresourceLayers& layers) -> vk::ImageSubresourceRange
+  {
+    vk::ImageSubresourceRange range;
+    range.aspectMask = layers.aspectMask;
+    range.baseMipLevel = layers.mipLevel;
+    range.levelCount = 1;
+    range.baseArrayLayer = layers.baseArrayLayer;
+    range.layerCount = layers.layerCount;
+    return range;
+  };
+
+  EZ_LOCK(m_Lock);
+  EnsureCommandBufferExists();
+  // First: Add barriers for all buffers and textures and flush:
+  for (const ezPendingBufferCopyVulkan& bufferCopy : buffers)
+  {
+    m_pPipelineBarrier->AddBufferBarrierInternal(bufferCopy.m_SrcBuffer.m_buffer, bufferCopy.m_SrcBuffer.m_uiOffset, bufferCopy.m_Region.size, vk::PipelineStageFlagBits::eHost, vk::AccessFlagBits::eHostWrite, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferRead);
+
+    m_pPipelineBarrier->AccessBuffer(bufferCopy.m_pDstBuffer, bufferCopy.m_Region.dstOffset, bufferCopy.m_Region.size, bufferCopy.m_pDstBuffer->GetUsedByPipelineStage(), bufferCopy.m_pDstBuffer->GetAccessMask(), vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite);
+  }
+  for (const ezPendingTextureCopyVulkan& textureCopy : textures)
+  {
+    m_pPipelineBarrier->EnsureImageLayout(textureCopy.m_pDstTexture, getRange(textureCopy.m_Region.imageSubresource), vk::ImageLayout::eTransferDstOptimal, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite);
+
+    m_pPipelineBarrier->AddBufferBarrierInternal(textureCopy.m_SrcBuffer.m_buffer, textureCopy.m_SrcBuffer.m_uiOffset, textureCopy.m_uiTotalSize, vk::PipelineStageFlagBits::eHost, vk::AccessFlagBits::eHostWrite, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferRead);
+  }
+  m_pPipelineBarrier->Flush();
+
+  // Next: Execute the actual copies
+  for (const ezPendingBufferCopyVulkan& bufferCopy : buffers)
+  {
+    m_currentCommandBuffer.copyBuffer(bufferCopy.m_SrcBuffer.m_buffer, bufferCopy.m_pDstBuffer->GetVkBuffer(), 1, &bufferCopy.m_Region);
+  }
+  for (const ezPendingTextureCopyVulkan& textureCopy : textures)
+  {
+    m_currentCommandBuffer.copyBufferToImage(textureCopy.m_SrcBuffer.m_buffer, textureCopy.m_pDstTexture->GetImage(), textureCopy.m_pDstTexture->GetPreferredLayout(vk::ImageLayout::eTransferDstOptimal), 1, &textureCopy.m_Region);
+  }
+
+  // Finally: Add barriers to revert resources to their default state
+  for (const ezPendingBufferCopyVulkan& bufferCopy : buffers)
+  {
+    m_pPipelineBarrier->AccessBuffer(bufferCopy.m_pDstBuffer, bufferCopy.m_Region.dstOffset, bufferCopy.m_Region.size, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite, bufferCopy.m_pDstBuffer->GetUsedByPipelineStage(), bufferCopy.m_pDstBuffer->GetAccessMask());
+  }
+  for (const ezPendingTextureCopyVulkan& textureCopy : textures)
+  {
+    m_pPipelineBarrier->EnsureImageLayout(textureCopy.m_pDstTexture, getRange(textureCopy.m_Region.imageSubresource), textureCopy.m_pDstTexture->GetPreferredLayout(), textureCopy.m_pDstTexture->GetUsedByPipelineStage(), textureCopy.m_pDstTexture->GetAccessMask());
   }
 }

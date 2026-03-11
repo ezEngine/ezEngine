@@ -4,6 +4,7 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <RendererCore/Components/SkyBoxComponent.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
 
@@ -12,7 +13,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSkyBoxComponent, 4, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("CubeMap", GetCubeMapFile, SetCubeMapFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_Cube")),
+    EZ_RESOURCE_ACCESSOR_PROPERTY("CubeMap", GetCubeMap, SetCubeMap)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_Cube")),
     EZ_ACCESSOR_PROPERTY("ExposureBias", GetExposureBias, SetExposureBias)->AddAttributes(new ezClampValueAttribute(-32.0f, 32.0f)),
     EZ_ACCESSOR_PROPERTY("InverseTonemap", GetInverseTonemap, SetInverseTonemap),
     EZ_ACCESSOR_PROPERTY("UseFog", GetUseFog, SetUseFog)->AddAttributes(new ezDefaultValueAttribute(true)),
@@ -48,7 +49,7 @@ void ezSkyBoxComponent::Initialize()
     geom.AddRect(ezVec2(2.0f));
 
     ezMeshBufferResourceDescriptor desc;
-    desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
+    desc.AddStream(ezMeshVertexStreamType::Position);
     desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
 
     hMeshBuffer = ezResourceManager::GetOrCreateResource<ezMeshBufferResource>(szBufferResourceName, std::move(desc), szBufferResourceName);
@@ -81,6 +82,21 @@ void ezSkyBoxComponent::Initialize()
   UpdateMaterials();
 }
 
+void ezSkyBoxComponent::OnActivated()
+{
+  SUPER::OnActivated();
+
+  UpdateMaterials();
+}
+
+void ezSkyBoxComponent::OnDeactivated()
+{
+  ezRenderDataManager* pRenderDataManager = GetWorld()->GetModule<ezRenderDataManager>();
+  pRenderDataManager->DeleteInstanceData(m_InstanceDataOffset);
+
+  SUPER::OnDeactivated();
+}
+
 ezResult ezSkyBoxComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
 {
   ref_bAlwaysVisible = true;
@@ -93,20 +109,15 @@ void ezSkyBoxComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) cons
   if (msg.m_OverrideCategory != ezInvalidRenderDataCategory || msg.m_pView->GetCamera()->IsOrthographic())
     return;
 
-  ezMeshRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner());
-  {
-    pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
-    pRenderData->m_GlobalTransform.m_vPosition.SetZero(); // skybox should always be at the origin
-    pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
-    pRenderData->m_hMesh = m_hMesh;
-    pRenderData->m_hMaterial = m_hCubeMapMaterial;
-    pRenderData->m_uiSubMeshIndex = 0;
-    pRenderData->m_uiUniqueID = GetUniqueIdForRendering();
+  const bool bDynamic = GetOwner()->IsDynamic();
+  ezTransform globalTransform = GetOwner()->GetGlobalTransform();
+  globalTransform.m_vPosition.SetZero(); // skybox should always be at the origin
+  auto hInstanceDataBuffer = msg.m_pRenderDataManager->GetOrCreateInstanceDataAndFill(*this, bDynamic, globalTransform, m_InstanceDataOffset, GetUniqueIdForRendering());
 
-    pRenderData->FillBatchIdAndSortingKey();
-  }
+  ezMeshRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner());
+  pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, m_hCubeMapMaterial, m_hMesh);
 
-  msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Sky, ezRenderData::Caching::Never);
+  msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Sky, ezRenderData::Caching::IfStatic);
 }
 
 void ezSkyBoxComponent::SerializeComponent(ezWorldWriter& inout_stream) const
@@ -179,22 +190,6 @@ void ezSkyBoxComponent::SetVirtualDistance(float fVirtualDistance)
   UpdateMaterials();
 }
 
-void ezSkyBoxComponent::SetCubeMapFile(const char* szFile)
-{
-  ezTextureCubeResourceHandle hCubeMap;
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hCubeMap = ezResourceManager::LoadResource<ezTextureCubeResource>(szFile);
-  }
-
-  SetCubeMap(hCubeMap);
-}
-
-const char* ezSkyBoxComponent::GetCubeMapFile() const
-{
-  return m_hCubeMap.IsValid() ? m_hCubeMap.GetResourceID().GetData() : "";
-}
-
 void ezSkyBoxComponent::SetCubeMap(const ezTextureCubeResourceHandle& hCubeMap)
 {
   m_hCubeMap = hCubeMap;
@@ -204,13 +199,6 @@ void ezSkyBoxComponent::SetCubeMap(const ezTextureCubeResourceHandle& hCubeMap)
 const ezTextureCubeResourceHandle& ezSkyBoxComponent::GetCubeMap() const
 {
   return m_hCubeMap;
-}
-
-void ezSkyBoxComponent::OnActivated()
-{
-  SUPER::OnActivated();
-
-  UpdateMaterials();
 }
 
 void ezSkyBoxComponent::UpdateMaterials()

@@ -4,6 +4,9 @@
 
 class ezPhysicsWorldModuleInterface;
 
+/// Behavior that restricts particles to a box volume
+///
+/// Particles can be killed, teleported or bounced when leaving the box bounds.
 class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_Bounds final : public ezParticleBehaviorFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory_Bounds, ezParticleBehaviorFactory);

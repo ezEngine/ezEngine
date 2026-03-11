@@ -56,11 +56,9 @@ ezResourceLoadDesc ezKrautTreeResource::UpdateContent(ezStreamReader* Stream)
     return res;
   }
 
-  // skip the absolute file path data that the standard file reader writes into the stream
-  {
-    ezStringBuilder sAbsFilePath;
-    (*Stream) >> sAbsFilePath;
-  }
+  // the standard file reader writes the absolute file path into the stream
+  ezStringBuilder sAbsFilePath;
+  (*Stream) >> sAbsFilePath;
 
   ezAssetFileHeader AssetHash;
   AssetHash.Read(*Stream).IgnoreResult();
@@ -111,24 +109,23 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezKrautTreeResource, ezKrautTreeResourceDescrip
     const ezUInt32 uiNumTriangles = lodSrc.m_Triangles.GetCount();
     const ezUInt32 uiSubMeshes = lodSrc.m_SubMeshes.GetCount();
 
-    buffer.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);                                                // 0
-    buffer.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::XYFloat);                                                // 1
-    buffer.AddStream(ezGALVertexAttributeSemantic::TexCoord1, ezGALResourceFormat::XYFloat);                                                // 2
-    buffer.AddStream(ezGALVertexAttributeSemantic::Normal, ezMeshNormalPrecision::ToResourceFormatNormal(ezMeshNormalPrecision::_10Bit));   // 3
-    buffer.AddStream(ezGALVertexAttributeSemantic::Tangent, ezMeshNormalPrecision::ToResourceFormatTangent(ezMeshNormalPrecision::_10Bit)); // 4
-    buffer.AddStream(ezGALVertexAttributeSemantic::Color0, ezGALResourceFormat::XYZWFloat);                                                 // 5 TODO: better packing
-    buffer.AddStream(ezGALVertexAttributeSemantic::Color1, ezGALResourceFormat::XYZWFloat);                                                 // 6 TODO: better packing
+    buffer.AddCommonStreams();
+    buffer.AddStream(ezMeshVertexStreamType::TexCoord1);
+
+    const bool bFullPrecision = true; // Needs full precision color for now. TODO: better packing
+    buffer.AddStream(ezMeshVertexStreamType::Color0, bFullPrecision);
+    buffer.AddStream(ezMeshVertexStreamType::Color1, bFullPrecision);
     buffer.AllocateStreams(uiNumVertices, ezGALPrimitiveTopology::Triangles, uiNumTriangles);
 
     for (ezUInt32 v = 0; v < uiNumVertices; ++v)
     {
       const auto& vtx = lodSrc.m_Vertices[v];
 
-      buffer.SetVertexData<ezVec3>(0, v, vtx.m_vPosition);
-      buffer.SetVertexData<ezVec2>(1, v, ezVec2(vtx.m_vTexCoord.x, vtx.m_vTexCoord.y));
-      buffer.SetVertexData<ezVec2>(2, v, ezVec2(vtx.m_vTexCoord.z, vtx.m_fAmbientOcclusion));
-      ezMeshBufferUtils::EncodeNormal(vtx.m_vNormal, buffer.GetVertexData(3, v), ezMeshNormalPrecision::_10Bit).IgnoreResult();
-      ezMeshBufferUtils::EncodeTangent(vtx.m_vTangent, 1.0f, buffer.GetVertexData(4, v), ezMeshNormalPrecision::_10Bit).IgnoreResult();
+      buffer.SetPosition(v, vtx.m_vPosition);
+      buffer.SetTexCoord0(v, ezVec2(vtx.m_vTexCoord.x, vtx.m_vTexCoord.y));
+      buffer.SetTexCoord1(v, ezVec2(vtx.m_vTexCoord.z, vtx.m_fAmbientOcclusion));
+      buffer.SetNormal(v, vtx.m_vNormal);
+      buffer.SetTangent(v, vtx.m_vTangent.GetAsVec4(1.0f));
 
       ezColor color;
       color.r = vtx.m_fBendAndFlutterStrength;
@@ -136,9 +133,8 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezKrautTreeResource, ezKrautTreeResourceDescrip
       color.b = ezMath::ColorByteToFloat(vtx.m_uiFlutterPhase);
       color.a = ezMath::ColorByteToFloat(vtx.m_uiColorVariation);
 
-      buffer.SetVertexData<ezColor>(5, v, color);
-
-      buffer.SetVertexData<ezVec4>(6, v, vtx.m_vBendAnchor.GetAsVec4(vtx.m_fAnchorBendStrength));
+      buffer.SetColor0(v, color);
+      buffer.SetColor1(v, ezColor(vtx.m_vBendAnchor.x, vtx.m_vBendAnchor.y, vtx.m_vBendAnchor.z, vtx.m_fAnchorBendStrength));
     }
 
     for (ezUInt32 t = 0; t < uiNumTriangles; ++t)
@@ -409,3 +405,6 @@ ezResult ezKrautTreeResourceDescriptor::Load(ezStreamReader& inout_stream0)
 
   return EZ_SUCCESS;
 }
+
+
+EZ_STATICLINK_FILE(KrautPlugin, KrautPlugin_Resources_KrautTreeResource);

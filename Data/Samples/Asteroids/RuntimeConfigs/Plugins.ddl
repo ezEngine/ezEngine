@@ -1,15 +1,10 @@
 Plugin
 {
-	string %Path{"ezFmodPlugin"}
-	bool %LoadCopy{false}
+	string %Path{"AsteroidsPlugin"}
+	bool %LoadCopy{true}
 }
 Plugin
 {
 	string %Path{"ezParticlePlugin"}
-	bool %LoadCopy{false}
-}
-Plugin
-{
-	string %Path{"ezXBoxControllerPlugin"}
 	bool %LoadCopy{false}
 }

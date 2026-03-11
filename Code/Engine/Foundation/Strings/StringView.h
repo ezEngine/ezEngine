@@ -1,5 +1,11 @@
 #pragma once
 
+#ifndef EZ_INCLUDING_BASICS_H
+#  error "Please don't include StringView.h directly, but instead include Foundation/Basics.h"
+#endif
+
+#include <Foundation/Strings/StringUtils.h>
+
 #include <Foundation/Strings/Implementation/StringIterator.h>
 
 #include <type_traits>
@@ -24,7 +30,7 @@ class ezStringBuilder;
 /// That means that an ezStringView is only valid as long as its source data is not modified. Once you make any kind
 /// of modification to the source data, you should not continue using the ezStringView to that data anymore,
 /// as it might now point into invalid memory.
-struct EZ_FOUNDATION_DLL ezStringView : public ezThisIsAString
+class EZ_FOUNDATION_DLL ezStringView : public ezThisIsAString
 {
 public:
   EZ_DECLARE_POD_TYPE();
@@ -198,7 +204,7 @@ public:
   void ChopAwayFirstCharacterAscii(); // [tested]
 
   /// \brief Removes all characters from the start and end that appear in the given strings by adjusting the begin and end of the view.
-  void Trim(const char* szTrimChars); // [tested]
+  void Trim(const char* szTrimChars = " \f\n\r\t\v"); // [tested]
 
   /// \brief Removes all characters from the start and/or end that appear in the given strings by adjusting the begin and end of the view.
   void Trim(const char* szTrimCharsStart, const char* szTrimCharsEnd); // [tested]

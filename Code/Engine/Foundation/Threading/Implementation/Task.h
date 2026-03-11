@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/Strings/String.h>
+#include <Foundation/Threading/AtomicInteger.h>
 #include <Foundation/Threading/Implementation/TaskSystemDeclarations.h>
 #include <Foundation/Types/RefCounted.h>
 
@@ -72,7 +73,7 @@ protected:
   /// the workload into multiple pieces.
   /// Since the same task is executed multiple times in parallel, tasks with multiplicity should
   /// not have any mutable state, which is why this function is const.
-  virtual void ExecuteWithMultiplicity(ezUInt32 uiInvocation) const {} // [tested]
+  virtual void ExecuteWithMultiplicity(ezUInt32 uiInvocation) const { EZ_IGNORE_UNUSED(uiInvocation); } // [tested]
 
 private:
   // The task system and its worker threads implement most of the functionality of the task handling.

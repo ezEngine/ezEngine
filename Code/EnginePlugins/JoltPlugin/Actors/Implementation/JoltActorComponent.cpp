@@ -91,6 +91,10 @@ void ezJoltActorComponent::OnDeactivated()
     {
       pBodies->RemoveBody(bodyId);
     }
+    else
+    {
+      pModule->RemoveBodyFromQueue(bodyId);
+    }
 
     pBodies->DestroyBody(bodyId);
     m_uiJoltBodyID = JPH::BodyID::cInvalidBodyID;
@@ -104,7 +108,7 @@ void ezJoltActorComponent::OnDeactivated()
 
 void ezJoltActorComponent::GatherShapes(ezDynamicArray<ezJoltSubShape>& shapes, ezGameObject* pObject, const ezTransform& rootTransform, float fDensity, const ezJoltMaterial* pMaterial)
 {
-  ezHybridArray<ezJoltShapeComponent*, 8> shapeComps;
+  ezTempHybridArray<ezJoltShapeComponent*, 8> shapeComps;
   pObject->TryGetComponentsOfBaseType(shapeComps);
 
   for (auto pShape : shapeComps)
@@ -128,7 +132,7 @@ void ezJoltActorComponent::GatherShapes(ezDynamicArray<ezJoltSubShape>& shapes, 
 
 ezResult ezJoltActorComponent::CreateShape(JPH::BodyCreationSettings* pSettings, float fDensity, const ezJoltMaterial* pMaterial)
 {
-  ezHybridArray<ezJoltSubShape, 16> shapes;
+  ezTempHybridArray<ezJoltSubShape, 16> shapes;
   ezTransform towner = GetOwner()->GetGlobalTransform();
   towner.m_vScale.Set(1.0f); // pretend like there is no scaling at the root, so that each shape applies its scale
 
@@ -203,7 +207,7 @@ ezResult ezJoltActorComponent::CreateShape(JPH::BodyCreationSettings* pSettings,
 
 void ezJoltActorComponent::ExtractSubShapeGeometry(const ezGameObject* pObject, ezMsgExtractGeometry& msg) const
 {
-  ezHybridArray<const ezJoltShapeComponent*, 8> shapes;
+  ezTempHybridArray<const ezJoltShapeComponent*, 8> shapes;
   pObject->TryGetComponentsOfBaseType(shapes);
 
   for (auto pShape : shapes)

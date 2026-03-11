@@ -4,10 +4,14 @@
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Strings/String.h>
-#include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
+#include <ToolsFoundation/VisualGraph/VisualGraphObjectManager.h>
 
 class ezOpenDdlReaderElement;
 
+/// Descriptor for a visual shader node pin.
+///
+/// Defines the properties of an input or output pin on a shader node, including its data type,
+/// default value, shader code generation, and visual appearance.
 struct ezVisualShaderPinDescriptor
 {
   ezString m_sName;
@@ -30,16 +34,25 @@ struct ezVisualShaderNodeType
     Generic,
     Main,
     Texture,
+    ShaderState, ///< These have no connections, but must be part of the shader
+    Parameter,   ///< Will be added to the shader, even if there's no connection, to prevent that data is lost while editing
 
     Default = Generic
   };
 };
 
+/// Descriptor for a visual shader node type.
+///
+/// Contains all information needed to create and compile a visual shader node, including
+/// its pins, properties, shader code fragments, and compilation settings.
+/// Node types are typically loaded from configuration files at startup.
 struct ezVisualShaderNodeDescriptor
 {
   ezEnum<ezVisualShaderNodeType> m_NodeType;
   ezString m_sCfgFile; ///< from which config file this node type was loaded
   ezString m_sName;
+  ezString m_sTitle;
+  ezString m_sDocs;
   ezHashedString m_sCategory;
   ezString m_sCheckPermutations;
   ezColorGammaUB m_Color = ezColorScheme::DarkUI(ezColorScheme::Gray);
@@ -50,10 +63,13 @@ struct ezVisualShaderNodeDescriptor
   ezString m_sShaderCodePixelBody;
   ezString m_sShaderCodePermutations;
   ezString m_sShaderCodeMaterialParams;
+  ezString m_sShaderCodeMaterialConstants;
   ezString m_sShaderCodeMaterialCB;
   ezString m_sShaderCodeRenderState;
-  ezString m_sShaderCodeVertexShader;
-  ezString m_sShaderCodeGeometryShader;
+  ezString m_sShaderCodeShaderShared;
+  ezString m_sShaderCodeVertexDefines;
+  ezString m_sShaderCodeVertexIncludes;
+  ezString m_sShaderCodeVertexBody;
 
   ezHybridArray<ezVisualShaderPinDescriptor, 4> m_InputPins;
   ezHybridArray<ezVisualShaderPinDescriptor, 4> m_OutputPins;
@@ -61,13 +77,17 @@ struct ezVisualShaderNodeDescriptor
   ezHybridArray<ezInt8, 4> m_UniquePropertyValueGroups; // no property in the same group may share the same value, -1 for disabled
 };
 
-
+/// Registry for all available visual shader node types.
+///
+/// Loads node type definitions from configuration files and provides access to node descriptors.
+/// Node types can be dynamically reloaded during development for rapid iteration.
 class ezVisualShaderTypeRegistry
 {
   EZ_DECLARE_SINGLETON(ezVisualShaderTypeRegistry);
 
 public:
   ezVisualShaderTypeRegistry();
+  ~ezVisualShaderTypeRegistry();
 
   const ezVisualShaderNodeDescriptor* GetDescriptorForType(const ezRTTI* pRtti) const;
 
@@ -82,12 +102,12 @@ public:
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(EditorPluginAssets, VisualShader);
 
+  void EditorEventHandler(const ezEditorAppEvent& e);
   void LoadNodeData();
   const ezRTTI* GenerateTypeFromDesc(const ezVisualShaderNodeDescriptor& desc);
   void LoadConfigFile(const char* szFile);
 
-  void ExtractNodePins(
-    const ezOpenDdlReaderElement* pNode, const char* szPinType, ezHybridArray<ezVisualShaderPinDescriptor, 4>& pinArray, bool bOutput);
+  void ExtractNodePins(const ezOpenDdlReaderElement* pNode, const char* szPinType, ezDynamicArray<ezVisualShaderPinDescriptor>& pinArray, bool bOutput);
   void ExtractNodeProperties(const ezOpenDdlReaderElement* pNode, ezVisualShaderNodeDescriptor& nd);
   void ExtractNodeConfig(const ezOpenDdlReaderElement* pNode, ezVisualShaderNodeDescriptor& nd);
 

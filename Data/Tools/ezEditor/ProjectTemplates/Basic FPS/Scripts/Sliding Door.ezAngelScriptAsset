@@ -1,0 +1,172 @@
+HeaderV2
+{
+o
+{
+	Uuid %id{u4{688510667040326571,5126078106490734272}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{2}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"AngelScript"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{688510667040326571,5126078106490734272}}
+		u4 %Hash{5460101678133857492}
+		VarArray %MetaInfo
+		{
+			Uuid{u4{8431670757239677114,13625648290821326853}}
+		}
+		VarArray %Outputs{}
+		VarArray %PackageDeps{}
+		VarArray %References{}
+		s %Tags{""}
+	}
+}
+o
+{
+	Uuid %id{u4{8431670757239677114,13625648290821326853}}
+	s %t{"ezExposedParameters"}
+	u3 %v{3}
+	p
+	{
+		VarArray %Parameters{}
+	}
+}
+}
+Objects
+{
+o
+{
+	Uuid %id{u4{16456504621970010244,5308826372077169537}}
+	s %t{"ezAngelScriptAssetProperties"}
+	u3 %v{1}
+	p
+	{
+		s %ClassName{"ScriptObject"}
+		s %Code{"enum State\n{\n\tOpen,\n\tClosed,\n}\n\nclass ScriptObject : ezAngelScriptClass\n{\n\tprivate State m_State = State::Closed;\n\n\tvoid OnMsgGenericEvent(ezMsgGenericEvent@ msg)\n\t{\n\t\tif (msg.Message == \"door-toggle\")\n\t\t{\n\t\t\tif (m_State == State::Closed)\n\t\t\t\tmsg.Message = \"door-open\";\n\t\t\telse\n\t\t\t\tmsg.Message = \"door-close\";\n\t\t}\n\n\t\tif (msg.Message == \"door-open\")\n\t\t{\n\t\t\tif (m_State == State::Closed)\n\t\t\t{\n\t\t\t\tm_State = State::Open;\n\n\t\t\t\tezGameObject@ sliderObj = GetOwner().FindChildByName(\"Slider\");\n\t\t\t\tif (@sliderObj != null)\n\t\t\t\t{\n\t\t\t\t\tezSliderComponent@ sliderComp;\n\t\t\t\t\tif (sliderObj.TryGetComponentOfBaseType(@sliderComp))\n\t\t\t\t\t{\n\t\t\t\t\t\tsliderComp.SetDirectionForwards(true);\n\t\t\t\t\t\tsliderComp.Running = true;\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t\telse if (msg.Message == \"door-close\")\n\t\t{\n\t\t\tif (m_State == State::Open)\n\t\t\t{\n\t\t\t\tm_State = State::Closed;\n\n\t\t\t\tezGameObject@ sliderObj = GetOwner().FindChildByName(\"Slider\");\n\t\t\t\tif (@sliderObj != null)\n\t\t\t\t{\n\t\t\t\t\tezSliderComponent@ sliderComp;\n\t\t\t\t\tif (sliderObj.TryGetComponentOfBaseType(@sliderComp))\n\t\t\t\t\t{\n\t\t\t\t\t\tsliderComp.SetDirectionForwards(false);\n\t\t\t\t\t\tsliderComp.Running = true;\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n}"}
+		VarArray %Dependencies{}
+		VarArray %Parameters{}
+		s %Source{"ezAngelScriptCodeMode::Inline"}
+		s %SourceFile{""}
+	}
+}
+o
+{
+	Uuid %id{u4{18096612296587978288,6449934965513159559}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{16456504621970010244,5308826372077169537}}
+		}
+	}
+}
+}
+Types
+{
+o
+{
+	Uuid %id{u4{8509943957974801055,7464388984120343662}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginAngelScript"}
+		VarArray %Properties{}
+		s %TypeName{"ezAngelScriptAssetProperties"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{13231494322839441943,7887324119527060122}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginAngelScript"}
+		VarArray %Properties{}
+		s %TypeName{"ezAngelScriptCodeMode"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6089094783765586323,8705960867921430659}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentRoot"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{14234517193980461100,14716562946791027194}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginAngelScript"}
+		VarArray %Properties{}
+		s %TypeName{"ezAngelScriptParameter"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2947336711354777548,15013008608905564043}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEnumBase"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{983387834180907111,17935407260904399048}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezReflectedClass"}
+		u3 %TypeVersion{1}
+	}
+}
+}

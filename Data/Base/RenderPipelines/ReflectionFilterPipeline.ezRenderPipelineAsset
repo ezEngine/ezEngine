@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5963804767315103672,5433555503478725399}}
-		u4 %Hash{6656870612682875785}
+		u4 %Hash{17465973183641944916}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
@@ -25,7 +25,7 @@ Objects
 o
 {
 	Uuid %id{u4{11281321821419367342,3985204654413113789}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezRenderPipelineNodeInputProviderPin"}
 	u3 %v{1}
 	p{}
 }
@@ -119,7 +119,7 @@ o
 o
 {
 	Uuid %id{u4{18033239895229086407,5936273586877258208}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezRenderPipelineNodeInputProviderPin"}
 	u3 %v{1}
 	p{}
 }
@@ -144,7 +144,7 @@ o
 o
 {
 	Uuid %id{u4{4351417456117455497,7021933259158745380}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezRenderPipelineNodeInputProviderPin"}
 	u3 %v{1}
 	p{}
 }
@@ -158,21 +158,21 @@ o
 o
 {
 	Uuid %id{u4{12779088908473012928,8843815235720188792}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezRenderPipelineNodeInputProviderPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{9179876790401181893,9404880298870400463}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezRenderPipelineNodeInputProviderPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{5064157575773237196,10846767988578980990}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezRenderPipelineNodeInputProviderPin"}
 	u3 %v{1}
 	p{}
 }
@@ -186,27 +186,44 @@ o
 o
 {
 	Uuid %id{u4{120345010372302782,14904842470169854986}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezRenderPipelineNodeInputProviderPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{13306539704625075368,18181627133137522626}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezRenderPipelineNodeInputProviderPin"}
 	u3 %v{1}
 	p{}
 }
 o
 {
 	Uuid %id{u4{14455014302106423940,18224443472601444815}}
-	s %t{"ezRenderPipelineNodeInputPin"}
+	s %t{"ezRenderPipelineNodeInputProviderPin"}
 	u3 %v{1}
 	p{}
 }
 }
 Types
 {
+o
+{
+	Uuid %id{u4{17523044089822028024,3521005166208929094}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPropertyAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezCategoryAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
 o
 {
 	Uuid %id{u4{877898746071678167,5219608750413080699}}
@@ -221,6 +238,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezRenderPipelineNodeInputPin"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{15609827276967304487,8593125870141909041}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderPipelineNodeInputPin"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezRenderPipelineNodeInputProviderPin"}
 		u3 %TypeVersion{1}
 	}
 }

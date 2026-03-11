@@ -1,11 +1,11 @@
 #include <Core/CorePCH.h>
 
-#include <Core/ActorSystem/ActorManager.h>
 #include <Core/GameApplication/GameApplicationBase.h>
 #include <Core/Input/InputManager.h>
 #include <Core/Interfaces/FrameCaptureInterface.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/System/Window.h>
+#include <Core/System/WindowManager.h>
 #include <Foundation/Communication/GlobalEvent.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Configuration/Singleton.h>
@@ -213,25 +213,21 @@ void ezGameApplicationBase::ExecuteFrameCapture(ezWindowHandle targetWindowHandl
 
 //////////////////////////////////////////////////////////////////////////
 
-ezResult ezGameApplicationBase::ActivateGameState(ezWorld* pWorld /*= nullptr*/, const ezTransform* pStartPosition /*= nullptr*/)
+void ezGameApplicationBase::ActivateGameState(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset)
 {
   EZ_ASSERT_DEBUG(m_pGameState == nullptr, "ActivateGameState cannot be called when another GameState is already active");
 
-  m_pGameState = CreateGameState(pWorld);
+  m_pGameState = CreateGameState();
 
-  if (m_pGameState == nullptr)
-    return EZ_FAILURE;
+  EZ_ASSERT_ALWAYS(m_pGameState != nullptr, "Failed to create a game state.");
 
-  m_pWorldLinkedWithGameState = pWorld;
-  m_pGameState->OnActivation(pWorld, pStartPosition);
+  m_pGameState->OnActivation(pWorld, sStartPosition, startPositionOffset);
 
   ezGameApplicationStaticEvent e;
   e.m_Type = ezGameApplicationStaticEvent::Type::AfterGameStateActivated;
   m_StaticEvents.Broadcast(e);
 
   EZ_BROADCAST_EVENT(AfterGameStateActivation, m_pGameState.Borrow());
-
-  return EZ_SUCCESS;
 }
 
 void ezGameApplicationBase::DeactivateGameState()
@@ -247,50 +243,61 @@ void ezGameApplicationBase::DeactivateGameState()
 
   m_pGameState->OnDeactivation();
 
-  ezActorManager::GetSingleton()->DestroyAllActors(m_pGameState.Borrow());
+  ezWindowManager::GetSingleton()->CloseAll(m_pGameState.Borrow());
 
   m_pGameState = nullptr;
 }
 
-ezGameStateBase* ezGameApplicationBase::GetActiveGameStateLinkedToWorld(const ezWorld* pWorld) const
-{
-  if (m_pWorldLinkedWithGameState == pWorld)
-    return m_pGameState.Borrow();
-
-  return nullptr;
-}
-
-ezUniquePtr<ezGameStateBase> ezGameApplicationBase::CreateGameState(ezWorld* pWorld)
+ezUniquePtr<ezGameStateBase> ezGameApplicationBase::CreateGameState()
 {
   EZ_LOG_BLOCK("Create Game State");
 
   ezUniquePtr<ezGameStateBase> pCurState;
 
-  {
-    ezInt32 iBestPriority = -1;
+  ezRTTI::ForEachDerivedType<ezGameStateBase>(
+    [&](const ezRTTI* pRtti)
+    {
+      ezUniquePtr<ezGameStateBase> pNewState = pRtti->GetAllocator()->Allocate<ezGameStateBase>();
 
-    ezRTTI::ForEachDerivedType<ezGameStateBase>(
-      [&](const ezRTTI* pRtti)
+      if (pCurState == nullptr)
+
       {
-        ezUniquePtr<ezGameStateBase> pState = pRtti->GetAllocator()->Allocate<ezGameStateBase>();
+        pCurState = std::move(pNewState);
+        return;
+      }
 
-        const ezInt32 iPriority = (ezInt32)pState->DeterminePriority(pWorld);
-        if (iPriority > iBestPriority)
+      if (pCurState->IsFallbackGameState() && !pNewState->IsFallbackGameState())
+      {
+        pCurState = std::move(pNewState);
+        return;
+      }
+
+      if (pCurState->IsFallbackGameState() && pNewState->IsFallbackGameState())
+      {
+        if (pNewState->GetDynamicRTTI()->IsDerivedFrom(pCurState->GetDynamicRTTI()))
         {
-          iBestPriority = iPriority;
-
-          pCurState = std::move(pState);
+          pCurState = std::move(pNewState);
+          return;
         }
-      },
-      ezRTTI::ForEachOptions::ExcludeNonAllocatable);
-  }
+
+        ezLog::Warning("Multiple fallback game states found: '{}' and '{}'", pNewState->GetDynamicRTTI()->GetTypeName(), pCurState->GetDynamicRTTI()->GetTypeName());
+        return;
+      }
+
+      if (!pCurState->IsFallbackGameState() && !pNewState->IsFallbackGameState())
+      {
+        ezLog::Warning("Multiple game state implementations found: '{}' and '{}'", pNewState->GetDynamicRTTI()->GetTypeName(), pCurState->GetDynamicRTTI()->GetTypeName());
+        return;
+      }
+    },
+    ezRTTI::ForEachOptions::ExcludeNotConcrete);
 
   return pCurState;
 }
 
 void ezGameApplicationBase::ActivateGameStateAtStartup()
 {
-  ActivateGameState().IgnoreResult();
+  ActivateGameState(nullptr, {}, ezTransform::MakeIdentity());
 }
 
 ezResult ezGameApplicationBase::BeforeCoreSystemsStartup()
@@ -311,7 +318,7 @@ void ezGameApplicationBase::AfterCoreSystemsStartup()
   // If one of the init functions already requested the application to quit,
   // something must have gone wrong. Don't continue initialization and let the
   // application exit.
-  if (WasQuitRequested())
+  if (ShouldApplicationQuit())
   {
     return;
   }
@@ -340,10 +347,9 @@ void ezGameApplicationBase::BeforeHighLevelSystemsShutdown()
 
 void ezGameApplicationBase::BeforeCoreSystemsShutdown()
 {
-  // shut down all actors and APIs that may have been in use
-  if (ezActorManager::GetSingleton() != nullptr)
+  if (ezWindowManager::GetSingleton() != nullptr)
   {
-    ezActorManager::GetSingleton()->Shutdown();
+    ezWindowManager::GetSingleton()->CloseAll(nullptr);
   }
 
   {
@@ -355,6 +361,8 @@ void ezGameApplicationBase::BeforeCoreSystemsShutdown()
     Deinit_ShutdownGraphicsDevice();
     ezResourceManager::FreeAllUnusedResources();
   }
+
+  ezTaskSystem::BroadcastClearThreadLocalsEvent();
 
   Deinit_UnloadPlugins();
 
@@ -372,26 +380,30 @@ static bool s_bUpdatePluginsExecuted = false;
 
 EZ_ON_GLOBAL_EVENT(GameApp_UpdatePlugins)
 {
+  EZ_IGNORE_UNUSED(param0);
+  EZ_IGNORE_UNUSED(param1);
+  EZ_IGNORE_UNUSED(param2);
+  EZ_IGNORE_UNUSED(param3);
+
   s_bUpdatePluginsExecuted = true;
 }
 
-ezApplication::Execution ezGameApplicationBase::Run()
+void ezGameApplicationBase::Run()
 {
-  if (m_bWasQuitRequested)
-    return ezApplication::Execution::Quit;
-
   RunOneFrame();
-  return ezApplication::Execution::Continue;
 }
 
 void ezGameApplicationBase::RunOneFrame()
 {
+  ezProfilingSystem::StartNewFrame();
+
   EZ_PROFILE_SCOPE("Run");
   s_bUpdatePluginsExecuted = false;
 
-  ezActorManager::GetSingleton()->Update();
+  ezWindowManager::GetSingleton()->Update();
 
-  if (!IsGameUpdateEnabled())
+  const ezGameUpdateMode state = GetGameUpdateMode();
+  if (state == ezGameUpdateMode::Skip)
     return;
 
   {
@@ -403,7 +415,12 @@ void ezGameApplicationBase::RunOneFrame()
     m_ExecutionEvents.Broadcast(e);
   }
 
-  Run_InputUpdate();
+  if (state == ezGameUpdateMode::UpdateInputAndRender)
+  {
+    Run_InputUpdate();
+  }
+
+  Run_AcquireImage();
 
   Run_WorldUpdateAndRender();
 
@@ -433,8 +450,8 @@ void ezGameApplicationBase::RunOneFrame()
   }
 
   {
-    EZ_PROFILE_SCOPE("Run_Present");
-    Run_Present();
+    EZ_PROFILE_SCOPE("Run_PresentImage");
+    Run_PresentImage();
   }
   ezClock::GetGlobalClock()->Update();
   UpdateFrameTime();
@@ -450,6 +467,16 @@ void ezGameApplicationBase::RunOneFrame()
     EZ_PROFILE_SCOPE("Run_FinishFrame");
     Run_FinishFrame();
   }
+}
+
+bool ezGameApplicationBase::ShouldApplicationQuit() const
+{
+  if (m_pGameState && m_pGameState->WasQuitRequested())
+  {
+    return true;
+  }
+
+  return ezApplication::ShouldApplicationQuit();
 }
 
 void ezGameApplicationBase::Run_InputUpdate()
@@ -469,6 +496,10 @@ void ezGameApplicationBase::Run_InputUpdate()
 bool ezGameApplicationBase::Run_ProcessApplicationInput()
 {
   return true;
+}
+
+void ezGameApplicationBase::Run_AcquireImage()
+{
 }
 
 void ezGameApplicationBase::Run_BeforeWorldUpdate()
@@ -494,6 +525,8 @@ void ezGameApplicationBase::Run_AfterWorldUpdate()
   if (m_pGameState)
   {
     m_pGameState->AfterWorldUpdate();
+
+    m_pGameState->ConfigureMainCamera();
   }
 
   {
@@ -522,7 +555,7 @@ void ezGameApplicationBase::Run_UpdatePlugins()
   }
 }
 
-void ezGameApplicationBase::Run_Present() {}
+void ezGameApplicationBase::Run_PresentImage() {}
 
 void ezGameApplicationBase::Run_FinishFrame()
 {
@@ -530,10 +563,11 @@ void ezGameApplicationBase::Run_FinishFrame()
   ezResourceManager::PerFrameUpdate();
   ezTaskSystem::FinishFrameTasks();
   ezFrameAllocator::Swap();
-  ezProfilingSystem::StartNewFrame();
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   // if many messages have been logged, make sure they get written to disk
   ezLog::Flush(100, ezTime::MakeFromSeconds(10));
+#endif
 
   // reset this state
   m_bTakeScreenshot = false;
@@ -542,7 +576,7 @@ void ezGameApplicationBase::Run_FinishFrame()
 void ezGameApplicationBase::UpdateFrameTime()
 {
   // Do not use ezClock for this, it smooths and clamps the timestep
-  const ezTime tNow = ezTime::Now();
+  const ezTime tNow = ezClock::GetGlobalClock()->GetLastUpdateTime();
 
   static ezTime tLast = tNow;
   m_FrameTime = tNow - tLast;

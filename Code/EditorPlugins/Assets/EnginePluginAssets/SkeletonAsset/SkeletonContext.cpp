@@ -38,7 +38,7 @@ void ezSkeletonContext::HandleMessage(const ezEditorEngineDocumentMsg* pDocMsg)
     {
       if (pMsg->m_sPayload == "Grid")
       {
-        m_bDisplayGrid = pMsg->m_fPayload > 0;
+        m_bDisplayGrid = pMsg->m_PayloadValue.ConvertTo<float>() > 0;
         return;
       }
     }
@@ -59,7 +59,7 @@ void ezSkeletonContext::HandleMessage(const ezEditorEngineDocumentMsg* pDocMsg)
       ezSkeletonComponent* pSkeleton = nullptr;
       if (m_pWorld->TryGetComponent(m_hSkeletonComponent, pSkeleton))
       {
-        pSkeleton->m_bVisualizeBones = (pMsg->m_fPayload != 0);
+        pSkeleton->m_bVisualizeBones = pMsg->m_PayloadValue.Get<bool>();
       }
 
       // resend the pose every frame (this config message is send every frame)
@@ -78,7 +78,7 @@ void ezSkeletonContext::HandleMessage(const ezEditorEngineDocumentMsg* pDocMsg)
       ezSkeletonComponent* pSkeleton = nullptr;
       if (m_pWorld->TryGetComponent(m_hSkeletonComponent, pSkeleton))
       {
-        pSkeleton->m_bVisualizeColliders = (pMsg->m_fPayload != 0);
+        pSkeleton->m_bVisualizeColliders = pMsg->m_PayloadValue.Get<bool>();
       }
     }
     else if (pMsg->m_sWhatToDo == "RenderJoints")
@@ -88,7 +88,7 @@ void ezSkeletonContext::HandleMessage(const ezEditorEngineDocumentMsg* pDocMsg)
       ezSkeletonComponent* pSkeleton = nullptr;
       if (m_pWorld->TryGetComponent(m_hSkeletonComponent, pSkeleton))
       {
-        pSkeleton->m_bVisualizeJoints = (pMsg->m_fPayload != 0);
+        pSkeleton->m_bVisualizeJoints = pMsg->m_PayloadValue.Get<bool>();
       }
     }
     else if (pMsg->m_sWhatToDo == "RenderSwingLimits")
@@ -98,7 +98,7 @@ void ezSkeletonContext::HandleMessage(const ezEditorEngineDocumentMsg* pDocMsg)
       ezSkeletonComponent* pSkeleton = nullptr;
       if (m_pWorld->TryGetComponent(m_hSkeletonComponent, pSkeleton))
       {
-        pSkeleton->m_bVisualizeSwingLimits = (pMsg->m_fPayload != 0);
+        pSkeleton->m_bVisualizeSwingLimits = pMsg->m_PayloadValue.Get<bool>();
       }
     }
     else if (pMsg->m_sWhatToDo == "RenderTwistLimits")
@@ -108,7 +108,7 @@ void ezSkeletonContext::HandleMessage(const ezEditorEngineDocumentMsg* pDocMsg)
       ezSkeletonComponent* pSkeleton = nullptr;
       if (m_pWorld->TryGetComponent(m_hSkeletonComponent, pSkeleton))
       {
-        pSkeleton->m_bVisualizeTwistLimits = (pMsg->m_fPayload != 0);
+        pSkeleton->m_bVisualizeTwistLimits = pMsg->m_PayloadValue.Get<bool>();
       }
     }
     else if (pMsg->m_sWhatToDo == "PreviewMesh" && m_sAnimatedMeshToUse != pMsg->m_sPayload)
@@ -214,7 +214,7 @@ void ezSkeletonContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg
   res.m_uiViewID = msg->m_uiViewID;
   res.m_iPurpose = msg->m_iPurpose;
   res.m_vCenter = bounds.m_vCenter;
-  res.m_vHalfExtents = bounds.m_vBoxHalfExtends;
+  res.m_vHalfExtents = bounds.m_vBoxHalfExtents;
   res.m_DocumentGuid = pMsg->m_DocumentGuid;
 
   SendProcessMessage(&res);

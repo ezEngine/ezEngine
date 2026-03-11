@@ -17,9 +17,9 @@ class ezRenderPipeline;
 
 /// \brief Encapsulates a view on the given world through the given camera
 /// and rendered with the specified RenderPipeline into the given render target setup.
-class EZ_RENDERERCORE_DLL ezView : public ezRenderPipelineNode
+class EZ_RENDERERCORE_DLL ezView : ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezView, ezRenderPipelineNode);
+  EZ_ADD_DYNAMIC_REFLECTION(ezView, ezReflectedClass);
 
 private:
   /// \brief Use ezRenderLoop::CreateView to create a view.
@@ -89,31 +89,44 @@ public:
   const ezSharedPtr<ezTask>& GetExtractTask();
 
 
-  /// \brief Returns the start position and direction (in world space) of the picking ray through the screen position in this view.
+  /// \brief Calculates the start position and direction (in world space) of the picking ray through the screen position in this view.
   ///
-  /// fScreenPosX and fScreenPosY are expected to be in [0; 1] range (normalized pixel coordinates).
+  /// fNormalizedScreenPosX and fNormalizedScreenPosY are expected to be in [0; 1] range (normalized screen coordinates).
   /// If no ray can be computed, EZ_FAILURE is returned.
-  ezResult ComputePickingRay(float fScreenPosX, float fScreenPosY, ezVec3& out_vRayStartPos, ezVec3& out_vRayDir) const;
+  ezResult ComputePickingRay(float fNormalizedScreenPosX, float fNormalizedScreenPosY, ezVec3& out_vRayStartPos, ezVec3& out_vRayDir) const;
 
-  ezResult ComputeScreenSpacePos(const ezVec3& vPoint, ezVec3& out_vScreenPos) const;
+  /// \brief Calculates the normalized screen-space coordinate ([0; 1] range) that the given world-space point projects to.
+  ///
+  /// Returns EZ_FAILURE, if the point could not be projected into screen-space.
+  ezResult ComputeScreenSpacePos(const ezVec3& vWorldPos, ezVec3& out_vScreenPosNormalized) const;
+
+  /// \brief Calculates the world-space position that the given normalized screen-space coordinate maps to
+  ezResult ComputeWorldSpacePos(float fNormalizedScreenPosX, float fNormalizedScreenPosY, ezVec3& out_vWorldPos) const;
+
+  /// \brief Converts a screen-space position from pixel coordinates to normalized coordinates.
+  void ConvertScreenPixelPosToNormalizedPos(ezVec3& inout_vPixelPos);
+
+  /// \brief Converts a screen-space position from normalized coordinates to pixel coordinates.
+  void ConvertScreenNormalizedPosToPixelPos(ezVec3& inout_vNormalizedPos);
+
 
   /// \brief Returns the current projection matrix.
-  const ezMat4& GetProjectionMatrix(ezCameraEye eye) const;
+  const ezMat4& GetProjectionMatrix(ezCameraEye eye = ezCameraEye::Left) const;
 
   /// \brief Returns the current inverse projection matrix.
-  const ezMat4& GetInverseProjectionMatrix(ezCameraEye eye) const;
+  const ezMat4& GetInverseProjectionMatrix(ezCameraEye eye = ezCameraEye::Left) const;
 
   /// \brief Returns the current view matrix (camera orientation).
-  const ezMat4& GetViewMatrix(ezCameraEye eye) const;
+  const ezMat4& GetViewMatrix(ezCameraEye eye = ezCameraEye::Left) const;
 
   /// \brief Returns the current inverse view matrix (inverse camera orientation).
-  const ezMat4& GetInverseViewMatrix(ezCameraEye eye) const;
+  const ezMat4& GetInverseViewMatrix(ezCameraEye eye = ezCameraEye::Left) const;
 
   /// \brief Returns the current view-projection matrix.
-  const ezMat4& GetViewProjectionMatrix(ezCameraEye eye) const;
+  const ezMat4& GetViewProjectionMatrix(ezCameraEye eye = ezCameraEye::Left) const;
 
   /// \brief Returns the current inverse view-projection matrix.
-  const ezMat4& GetInverseViewProjectionMatrix(ezCameraEye eye) const;
+  const ezMat4& GetInverseViewProjectionMatrix(ezCameraEye eye = ezCameraEye::Left) const;
 
   /// \brief Returns the frustum that should be used for determine visible objects for this view.
   void ComputeCullingFrustum(ezFrustum& out_frustum) const;
@@ -144,7 +157,6 @@ private:
   friend class ezMemoryUtils;
 
   ezViewId m_InternalId;
-  ezHashedString m_sName;
 
   ezSharedPtr<ezTask> m_pExtractTask;
 

@@ -1,5 +1,6 @@
 #include <EditorPluginKraut/EditorPluginKrautPCH.h>
 
+#include <EditorFramework/Assets/AssetStatusIndicator.moc.h>
 #include <EditorFramework/DocumentWindow/OrbitCamViewWidget.moc.h>
 #include <EditorFramework/InputContexts/OrbitCameraContext.h>
 #include <EditorPluginKraut/KrautTreeAsset/KrautTreeAssetWindow.moc.h>
@@ -7,6 +8,8 @@
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
+
+#include <QLayout>
 
 ezQtKrautTreeAssetDocumentWindow::ezQtKrautTreeAssetDocumentWindow(ezAssetDocument* pDocument)
   : ezQtEngineDocumentWindow(pDocument)
@@ -44,21 +47,31 @@ ezQtKrautTreeAssetDocumentWindow::ezQtKrautTreeAssetDocumentWindow(ezAssetDocume
     m_pViewWidget = new ezQtOrbitCamViewWidget(this, &m_ViewConfig);
     m_pViewWidget->ConfigureRelative(ezVec3(0, 0, 2), ezVec3(10.0f), ezVec3(5, -2, 3), 2.0f);
     AddViewWidget(m_pViewWidget);
-    pContainer = new ezQtViewWidgetContainer(this, m_pViewWidget, "MeshAssetViewToolBar");
-    setCentralWidget(pContainer);
+    pContainer = new ezQtViewWidgetContainer(GetContainerWindow()->GetDockManager(), this, m_pViewWidget, "MeshAssetViewToolBar");
+    m_pDockManager->setCentralWidget(pContainer);
   }
 
   // Property Grid
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("KrautTreeAssetDockWidget");
     pPropertyPanel->setWindowTitle("Kraut Tree Properties");
     pPropertyPanel->show();
 
     ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
-    pPropertyPanel->setWidget(pPropertyGrid);
 
-    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
+    QWidget* pWidget = new QWidget();
+    pWidget->setObjectName("Group");
+    pWidget->setLayout(new QVBoxLayout());
+    pWidget->setContentsMargins(0, 0, 0, 0);
+
+    pWidget->layout()->setContentsMargins(0, 0, 0, 0);
+    pWidget->layout()->addWidget(new ezQtAssetStatusIndicator(GetDocument()));
+    pWidget->layout()->addWidget(pPropertyGrid);
+
+    pPropertyPanel->setWidget(pWidget, ads::CDockWidget::ForceNoScrollArea);
+
+    m_pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pPropertyPanel);
 
     pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
   }
@@ -135,7 +148,7 @@ void ezQtKrautTreeAssetDocumentWindow::PropertyEventHandler(const ezDocumentObje
     ezSimpleDocumentConfigMsgToEngine msg;
     msg.m_sWhatToDo = "UpdateTree";
     msg.m_sPayload = "DisplayRandomSeed";
-    msg.m_fPayload = static_cast<ezKrautTreeAssetDocument*>(GetDocument())->GetProperties()->m_uiRandomSeedForDisplay;
+    msg.m_PayloadValue = static_cast<ezKrautTreeAssetDocument*>(GetDocument())->GetProperties()->m_uiRandomSeedForDisplay;
 
     GetDocument()->SendMessageToEngine(&msg);
   }

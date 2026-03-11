@@ -19,6 +19,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSourcePass, 3, ezRTTIDefaultAllocator<ezSource
     EZ_MEMBER_PROPERTY("Clear", m_bClear),
   }
   EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Input")
+  }
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
@@ -39,16 +44,11 @@ EZ_END_STATIC_REFLECTED_ENUM;
 ezSourcePass::ezSourcePass(const char* szName)
   : ezRenderPipelinePass(szName, true)
 {
-  m_Format = ezSourceFormat::Default;
-  m_MsaaMode = ezGALMSAASampleCount::None;
-  m_bClear = true;
-  m_ClearColor = ezColor::Black;
 }
 
 ezSourcePass::~ezSourcePass() = default;
 
-bool ezSourcePass::GetRenderTargetDescriptions(
-  const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+ezGALTextureCreationDescription ezSourcePass::GetOutputDescription(const ezView& view, ezEnum<ezSourceFormat> format, ezEnum<ezGALMSAASampleCount> msaaMode)
 {
   ezUInt32 uiWidth = static_cast<ezUInt32>(view.GetViewport().width);
   ezUInt32 uiHeight = static_cast<ezUInt32>(view.GetViewport().height);
@@ -57,9 +57,10 @@ bool ezSourcePass::GetRenderTargetDescriptions(
   const ezGALRenderTargets& renderTargets = view.GetActiveRenderTargets();
 
   ezGALTextureCreationDescription desc;
+  desc.m_Type = ezGALTextureType::Texture2DArray;
 
   // Color
-  if (m_Format == ezSourceFormat::Color4Channel8BitNormalized || m_Format == ezSourceFormat::Color4Channel8BitNormalized_sRGB)
+  if (format == ezSourceFormat::Color4Channel8BitNormalized || format == ezSourceFormat::Color4Channel8BitNormalized_sRGB)
   {
     ezGALResourceFormat::Enum preferredFormat = ezGALResourceFormat::Invalid;
     if (const ezGALTexture* pTexture = pDevice->GetTexture(renderTargets.m_hRTs[0]))
@@ -74,7 +75,7 @@ bool ezSourcePass::GetRenderTargetDescriptions(
       case ezGALResourceFormat::RGBAUByteNormalized:
       case ezGALResourceFormat::RGBAUByteNormalizedsRGB:
       default:
-        if (m_Format == ezSourceFormat::Color4Channel8BitNormalized_sRGB)
+        if (format == ezSourceFormat::Color4Channel8BitNormalized_sRGB)
         {
           desc.m_Format = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
         }
@@ -85,7 +86,7 @@ bool ezSourcePass::GetRenderTargetDescriptions(
         break;
       case ezGALResourceFormat::BGRAUByteNormalized:
       case ezGALResourceFormat::BGRAUByteNormalizedsRGB:
-        if (m_Format == ezSourceFormat::Color4Channel8BitNormalized_sRGB)
+        if (format == ezSourceFormat::Color4Channel8BitNormalized_sRGB)
         {
           desc.m_Format = ezGALResourceFormat::BGRAUByteNormalizedsRGB;
         }
@@ -98,7 +99,7 @@ bool ezSourcePass::GetRenderTargetDescriptions(
   }
   else
   {
-    switch (m_Format)
+    switch (format)
     {
       case ezSourceFormat::Color4Channel16BitFloat:
         desc.m_Format = ezGALResourceFormat::RGBAHalf;
@@ -107,8 +108,12 @@ bool ezSourcePass::GetRenderTargetDescriptions(
         desc.m_Format = ezGALResourceFormat::RGBAFloat;
         break;
       case ezSourceFormat::Color3Channel11_11_10BitFloat:
-        desc.m_Format = ezGALResourceFormat::RG11B10Float;
+      {
+        const ezGALDeviceCapabilities& caps = ezGALDevice::GetDefaultDevice()->GetCapabilities();
+        const bool bSupportsRG11B10Float = caps.m_FormatSupport[ezGALResourceFormat::RG11B10Float].AreAllSet(ezGALResourceFormatSupport::RenderTarget | ezGALResourceFormatSupport::Texture);
+        desc.m_Format = bSupportsRG11B10Float ? ezGALResourceFormat::RG11B10Float : ezGALResourceFormat::RGBAHalf;
         break;
+      }
       case ezSourceFormat::Depth16Bit:
         desc.m_Format = ezGALResourceFormat::D16;
         break;
@@ -125,12 +130,16 @@ bool ezSourcePass::GetRenderTargetDescriptions(
 
   desc.m_uiWidth = uiWidth;
   desc.m_uiHeight = uiHeight;
-  desc.m_SampleCount = m_MsaaMode;
-  desc.m_bCreateRenderTarget = true;
+  desc.m_SampleCount = msaaMode;
+  desc.m_TextureFlags.Add(ezGALTextureUsageFlags::RenderTarget);
   desc.m_uiArraySize = view.GetCamera()->IsStereoscopic() ? 2 : 1;
+  return desc;
+}
 
-  outputs[m_PinOutput.m_uiOutputIndex] = desc;
-
+bool ezSourcePass::GetRenderTargetDescriptions(
+  const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+{
+  outputs[m_PinOutput.m_uiOutputIndex] = GetOutputDescription(view, m_Format, m_MsaaMode);
   return true;
 }
 
@@ -150,21 +159,18 @@ void ezSourcePass::Execute(const ezRenderViewContext& renderViewContext, const e
 
   // Setup render target
   ezGALRenderingSetup renderingSetup;
-  renderingSetup.m_ClearColor = m_ClearColor;
-  renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
-  renderingSetup.m_bClearDepth = true;
-  renderingSetup.m_bClearStencil = true;
-
   if (ezGALResourceFormat::IsDepthFormat(pOutput->m_Desc.m_Format))
   {
-    renderingSetup.m_RenderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
+    renderingSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
+    renderingSetup.SetClearDepth().SetClearStencil();
   }
   else
   {
-    renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
+    renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
+    renderingSetup.SetClearColor(0, m_ClearColor);
   }
 
-  auto pCommandEncoder = ezRenderContext::BeginPassAndRenderingScope(renderViewContext, renderingSetup, GetName());
+  auto pCommandEncoder = ezRenderContext::BeginRenderingScope(renderViewContext, renderingSetup, GetName());
 }
 
 ezResult ezSourcePass::Serialize(ezStreamWriter& inout_stream) const
@@ -188,6 +194,7 @@ ezResult ezSourcePass::Deserialize(ezStreamReader& inout_stream)
   inout_stream >> m_bClear;
   return EZ_SUCCESS;
 }
+
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////

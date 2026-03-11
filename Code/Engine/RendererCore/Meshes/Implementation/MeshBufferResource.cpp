@@ -1,10 +1,191 @@
 #include <RendererCore/RendererCorePCH.h>
 
 #include <Core/Graphics/Geometry.h>
+#include <Foundation/Containers/IterateBits.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
-#include <RendererCore/Meshes/MeshBufferUtils.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/Buffer.h>
+
+namespace
+{
+  const char* s_szMeshVertexStreamTypeNames[] = {
+    "Position",
+    "NormalTangentAndTexCoord0",
+    "TexCoord1",
+    "Color0",
+    "Color1",
+    "SkinningData",
+    "DataOffsets"};
+
+  static_assert(EZ_ARRAY_SIZE(s_szMeshVertexStreamTypeNames) == ezMeshVertexStreamType::Count);
+} // namespace
+
+// static
+const char* ezMeshVertexStreamType::GetName(Enum type)
+{
+  return s_szMeshVertexStreamTypeNames[type];
+}
+
+////////////////////////////////////////////////////////////////////
+
+EZ_ALWAYS_INLINE static ezUInt32 GetElementSize(ezGALResourceFormat::Enum format)
+{
+  return ezGALResourceFormat::GetBitsPerElement(format) / 8;
+}
+
+constexpr ezGALResourceFormat::Enum s_PositionFormat = ezGALResourceFormat::XYZFloat;
+
+constexpr ezGALResourceFormat::Enum s_NormalFormat_lp = ezGALResourceFormat::RGB10A2UIntNormalized;
+constexpr ezGALResourceFormat::Enum s_NormalFormat_hp = ezGALResourceFormat::RGBAUShortNormalized;
+
+constexpr ezGALResourceFormat::Enum s_TangentFormat_lp = ezGALResourceFormat::RGB10A2UIntNormalized;
+constexpr ezGALResourceFormat::Enum s_TangentFormat_hp = ezGALResourceFormat::RGBAUShortNormalized;
+
+constexpr ezGALResourceFormat::Enum s_TexCoordFormat_lp = ezGALResourceFormat::UVHalf;
+constexpr ezGALResourceFormat::Enum s_TexCoordFormat_hp = ezGALResourceFormat::UVFloat;
+
+constexpr ezGALResourceFormat::Enum s_ColorFormat_lp = ezGALResourceFormat::RGBAUByteNormalized;
+constexpr ezGALResourceFormat::Enum s_ColorFormat_hp = ezGALResourceFormat::RGBAHalf;
+
+constexpr ezGALResourceFormat::Enum s_BoneIndicesFormat = ezGALResourceFormat::RGBAUShort;
+constexpr ezGALResourceFormat::Enum s_BoneWeightsFormat_lp = ezGALResourceFormat::RGBAUByteNormalized;
+constexpr ezGALResourceFormat::Enum s_BoneWeightsFormat_hp = ezGALResourceFormat::RGBAUShortNormalized;
+
+constexpr ezGALResourceFormat::Enum s_DataOffsetsFormat = ezGALResourceFormat::RGBAUInt;
+
+static ezGALVertexAttribute s_VertexAttributes_lp[] = {
+  ezGALVertexAttribute(ezGALVertexAttributeSemantic::Position, s_PositionFormat, 0, 0),
+  ezGALVertexAttribute(ezGALVertexAttributeSemantic::Normal, s_NormalFormat_lp, 0, 1),
+  ezGALVertexAttribute(ezGALVertexAttributeSemantic::Tangent, s_TangentFormat_lp, GetElementSize(s_NormalFormat_lp), 1),
+  ezGALVertexAttribute(ezGALVertexAttributeSemantic::TexCoord0, s_TexCoordFormat_lp, GetElementSize(s_NormalFormat_lp) + GetElementSize(s_TangentFormat_lp), 1),
+  ezGALVertexAttribute(ezGALVertexAttributeSemantic::TexCoord1, s_TexCoordFormat_lp, 0, 2),
+  ezGALVertexAttribute(ezGALVertexAttributeSemantic::Color0, s_ColorFormat_lp, 0, 3),
+  ezGALVertexAttribute(ezGALVertexAttributeSemantic::Color1, s_ColorFormat_lp, 0, 4),
+  ezGALVertexAttribute(ezGALVertexAttributeSemantic::BoneIndices0, s_BoneIndicesFormat, 0, 5),
+  ezGALVertexAttribute(ezGALVertexAttributeSemantic::BoneWeights0, s_BoneWeightsFormat_lp, GetElementSize(s_BoneIndicesFormat), 5),
+  ezGALVertexAttribute(ezGALVertexAttributeSemantic::DataOffsets, s_DataOffsetsFormat, 0, 6),
+};
+
+static ezGALVertexAttribute s_VertexAttributes_hp[] = {
+  ezGALVertexAttribute(ezGALVertexAttributeSemantic::Position, s_PositionFormat, 0, 0),
+  ezGALVertexAttribute(ezGALVertexAttributeSemantic::Normal, s_NormalFormat_hp, 0, 1),
+  ezGALVertexAttribute(ezGALVertexAttributeSemantic::Tangent, s_TangentFormat_hp, GetElementSize(s_NormalFormat_hp), 1),
+  ezGALVertexAttribute(ezGALVertexAttributeSemantic::TexCoord0, s_TexCoordFormat_hp, GetElementSize(s_NormalFormat_hp) + GetElementSize(s_TangentFormat_hp), 1),
+  ezGALVertexAttribute(ezGALVertexAttributeSemantic::TexCoord1, s_TexCoordFormat_hp, 0, 2),
+  ezGALVertexAttribute(ezGALVertexAttributeSemantic::Color0, s_ColorFormat_hp, 0, 3),
+  ezGALVertexAttribute(ezGALVertexAttributeSemantic::Color1, s_ColorFormat_hp, 0, 4),
+  ezGALVertexAttribute(ezGALVertexAttributeSemantic::BoneIndices0, s_BoneIndicesFormat, 0, 5),
+  ezGALVertexAttribute(ezGALVertexAttributeSemantic::BoneWeights0, s_BoneWeightsFormat_hp, GetElementSize(s_BoneIndicesFormat), 5),
+  ezGALVertexAttribute(ezGALVertexAttributeSemantic::DataOffsets, s_DataOffsetsFormat, 0, 6),
+};
+
+static ezUInt32 s_StreamSizes_lp[] = {
+  GetElementSize(s_PositionFormat),
+  GetElementSize(s_NormalFormat_lp) + GetElementSize(s_TangentFormat_lp) + GetElementSize(s_TexCoordFormat_lp),
+  GetElementSize(s_TexCoordFormat_lp),
+  GetElementSize(s_ColorFormat_lp),
+  GetElementSize(s_ColorFormat_lp),
+  GetElementSize(s_BoneIndicesFormat) + GetElementSize(s_BoneWeightsFormat_lp),
+  GetElementSize(s_DataOffsetsFormat),
+};
+
+static_assert(EZ_ARRAY_SIZE(s_StreamSizes_lp) == ezMeshVertexStreamType::Count);
+
+static ezUInt32 s_StreamSizes_hp[] = {
+  GetElementSize(s_PositionFormat),
+  GetElementSize(s_NormalFormat_hp) + GetElementSize(s_TangentFormat_hp) + GetElementSize(s_TexCoordFormat_hp),
+  GetElementSize(s_TexCoordFormat_hp),
+  GetElementSize(s_ColorFormat_hp),
+  GetElementSize(s_ColorFormat_hp),
+  GetElementSize(s_BoneIndicesFormat) + GetElementSize(s_BoneWeightsFormat_hp),
+  GetElementSize(s_DataOffsetsFormat),
+};
+
+static_assert(EZ_ARRAY_SIZE(s_StreamSizes_hp) == ezMeshVertexStreamType::Count);
+
+ezGALResourceFormat::Enum ezMeshVertexStreamConfig::GetPositionFormat() const
+{
+  return s_PositionFormat;
+}
+
+ezGALResourceFormat::Enum ezMeshVertexStreamConfig::GetNormalFormat() const
+{
+  return m_bUseHighPrecision ? s_NormalFormat_hp : s_NormalFormat_lp;
+}
+
+ezGALResourceFormat::Enum ezMeshVertexStreamConfig::GetTangentFormat() const
+{
+  return m_bUseHighPrecision ? s_TangentFormat_hp : s_TangentFormat_lp;
+}
+
+ezGALResourceFormat::Enum ezMeshVertexStreamConfig::GetTexCoordFormat() const
+{
+  return m_bUseHighPrecision ? s_TexCoordFormat_hp : s_TexCoordFormat_lp;
+}
+
+ezGALResourceFormat::Enum ezMeshVertexStreamConfig::GetColorFormat() const
+{
+  return m_bUseHighPrecision ? s_ColorFormat_hp : s_ColorFormat_lp;
+}
+
+ezGALResourceFormat::Enum ezMeshVertexStreamConfig::GetBoneIndicesFormat() const
+{
+  return s_BoneIndicesFormat;
+}
+
+ezGALResourceFormat::Enum ezMeshVertexStreamConfig::GetBoneWeightsFormat() const
+{
+  return m_bUseHighPrecision ? s_BoneWeightsFormat_hp : s_BoneWeightsFormat_lp;
+}
+
+ezUInt32 ezMeshVertexStreamConfig::GetNormalDataOffset() const
+{
+  EZ_ASSERT_DEBUG(s_VertexAttributes_lp[1].m_eSemantic == ezGALVertexAttributeSemantic::Normal && s_VertexAttributes_hp[1].m_eSemantic == ezGALVertexAttributeSemantic::Normal, "");
+  return m_bUseHighPrecision ? s_VertexAttributes_hp[1].m_uiOffset : s_VertexAttributes_lp[1].m_uiOffset;
+}
+
+ezUInt32 ezMeshVertexStreamConfig::GetTangentDataOffset() const
+{
+  EZ_ASSERT_DEBUG(s_VertexAttributes_lp[2].m_eSemantic == ezGALVertexAttributeSemantic::Tangent && s_VertexAttributes_hp[2].m_eSemantic == ezGALVertexAttributeSemantic::Tangent, "");
+  return m_bUseHighPrecision ? s_VertexAttributes_hp[2].m_uiOffset : s_VertexAttributes_lp[2].m_uiOffset;
+}
+
+ezUInt32 ezMeshVertexStreamConfig::GetTexCoord0DataOffset() const
+{
+  EZ_ASSERT_DEBUG(s_VertexAttributes_lp[3].m_eSemantic == ezGALVertexAttributeSemantic::TexCoord0 && s_VertexAttributes_hp[3].m_eSemantic == ezGALVertexAttributeSemantic::TexCoord0, "");
+  return m_bUseHighPrecision ? s_VertexAttributes_hp[3].m_uiOffset : s_VertexAttributes_lp[3].m_uiOffset;
+}
+
+ezUInt32 ezMeshVertexStreamConfig::GetBoneIndicesDataOffset() const
+{
+  EZ_ASSERT_DEBUG(s_VertexAttributes_lp[7].m_eSemantic == ezGALVertexAttributeSemantic::BoneIndices0 && s_VertexAttributes_hp[7].m_eSemantic == ezGALVertexAttributeSemantic::BoneIndices0, "");
+  return m_bUseHighPrecision ? s_VertexAttributes_hp[7].m_uiOffset : s_VertexAttributes_lp[7].m_uiOffset;
+}
+
+ezUInt32 ezMeshVertexStreamConfig::GetBoneWeightsDataOffset() const
+{
+  EZ_ASSERT_DEBUG(s_VertexAttributes_lp[8].m_eSemantic == ezGALVertexAttributeSemantic::BoneWeights0 && s_VertexAttributes_hp[8].m_eSemantic == ezGALVertexAttributeSemantic::BoneWeights0, "");
+  return m_bUseHighPrecision ? s_VertexAttributes_hp[8].m_uiOffset : s_VertexAttributes_lp[8].m_uiOffset;
+}
+
+ezUInt32 ezMeshVertexStreamConfig::GetStreamElementSize(ezMeshVertexStreamType::Enum type) const
+{
+  return m_bUseHighPrecision ? s_StreamSizes_hp[type] : s_StreamSizes_lp[type];
+}
+
+// static
+ezGALVertexAttribute ezMeshVertexStreamConfig::GetDataOffsetsVertexAttribute()
+{
+  EZ_ASSERT_DEBUG(s_VertexAttributes_lp[9].m_eSemantic == ezGALVertexAttributeSemantic::DataOffsets, "");
+  return s_VertexAttributes_lp[9];
+}
+
+ezArrayPtr<ezGALVertexAttribute> ezMeshVertexStreamConfig::GetAllVertexAttributes()
+{
+  return ezMakeArrayPtr(m_bUseHighPrecision ? s_VertexAttributes_hp : s_VertexAttributes_lp);
+}
+
+////////////////////////////////////////////////////////////////////
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshBufferResource, 1, ezRTTIDefaultAllocator<ezMeshBufferResource>)
@@ -13,13 +194,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezMeshBufferResource);
 // clang-format on
 
-ezMeshBufferResourceDescriptor::ezMeshBufferResourceDescriptor()
-{
-  m_Topology = ezGALPrimitiveTopology::Triangles;
-  m_uiVertexSize = 0;
-  m_uiVertexCount = 0;
-}
-
+ezMeshBufferResourceDescriptor::ezMeshBufferResourceDescriptor() = default;
 ezMeshBufferResourceDescriptor::~ezMeshBufferResourceDescriptor() = default;
 
 void ezMeshBufferResourceDescriptor::Clear()
@@ -27,88 +202,69 @@ void ezMeshBufferResourceDescriptor::Clear()
   m_Topology = ezGALPrimitiveTopology::Triangles;
   m_uiVertexSize = 0;
   m_uiVertexCount = 0;
-  m_VertexDeclaration.m_uiHash = 0;
-  m_VertexDeclaration.m_VertexStreams.Clear();
-  m_VertexStreamData.Clear();
+  m_VertexStreamConfig = ezMeshVertexStreamConfig();
+  m_VertexStreamsData.Clear();
   m_IndexBufferData.Clear();
 }
 
-ezArrayPtr<const ezUInt8> ezMeshBufferResourceDescriptor::GetVertexBufferData() const
+void ezMeshBufferResourceDescriptor::AddStream(ezMeshVertexStreamType::Enum type, bool bUseHighPrecision /*= false*/)
 {
-  return m_VertexStreamData.GetArrayPtr();
+  EZ_ASSERT_DEV(m_VertexStreamsData.IsEmpty(), "This function can only be called before 'AllocateStreams' is called");
+
+  m_VertexStreamConfig.AddStream(type);
+  m_VertexStreamConfig.m_bUseHighPrecision |= bUseHighPrecision;
 }
 
-ezArrayPtr<const ezUInt8> ezMeshBufferResourceDescriptor::GetIndexBufferData() const
+void ezMeshBufferResourceDescriptor::AddCommonStreams(bool bUseHighPrecision /*= false*/)
 {
-  return m_IndexBufferData.GetArrayPtr();
+  AddStream(ezMeshVertexStreamType::Position, bUseHighPrecision);
+  AddStream(ezMeshVertexStreamType::NormalTangentAndTexCoord0, bUseHighPrecision);
 }
 
-ezDynamicArray<ezUInt8, ezAlignedAllocatorWrapper>& ezMeshBufferResourceDescriptor::GetVertexBufferData()
+void ezMeshBufferResourceDescriptor::AddStreamConfig(const ezMeshVertexStreamConfig& streamConfig)
 {
-  return m_VertexStreamData;
-}
+  EZ_ASSERT_DEV(m_VertexStreamsData.IsEmpty(), "This function can only be called before 'AllocateStreams' is called");
 
-ezDynamicArray<ezUInt8, ezAlignedAllocatorWrapper>& ezMeshBufferResourceDescriptor::GetIndexBufferData()
-{
-  return m_IndexBufferData;
-}
-
-ezUInt32 ezMeshBufferResourceDescriptor::AddStream(ezGALVertexAttributeSemantic::Enum semantic, ezGALResourceFormat::Enum format)
-{
-  EZ_ASSERT_DEV(m_VertexStreamData.IsEmpty(), "This function can only be called before 'AllocateStreams' is called");
-
-  for (ezUInt32 i = 0; i < m_VertexDeclaration.m_VertexStreams.GetCount(); ++i)
-  {
-    EZ_ASSERT_DEV(m_VertexDeclaration.m_VertexStreams[i].m_Semantic != semantic, "The given semantic {0} is already used by a previous stream", semantic);
-  }
-
-  ezVertexStreamInfo si;
-
-  si.m_Semantic = semantic;
-  si.m_Format = format;
-  si.m_uiOffset = 0;
-  si.m_uiElementSize = static_cast<ezUInt16>(ezGALResourceFormat::GetBitsPerElement(format) / 8);
-  m_uiVertexSize += si.m_uiElementSize;
-
-  EZ_ASSERT_DEV(si.m_uiElementSize > 0, "Invalid Element Size. Format not supported?");
-
-  if (!m_VertexDeclaration.m_VertexStreams.IsEmpty())
-    si.m_uiOffset = m_VertexDeclaration.m_VertexStreams.PeekBack().m_uiOffset + m_VertexDeclaration.m_VertexStreams.PeekBack().m_uiElementSize;
-
-  m_VertexDeclaration.m_VertexStreams.PushBack(si);
-
-  return m_VertexDeclaration.m_VertexStreams.GetCount() - 1;
-}
-
-void ezMeshBufferResourceDescriptor::AddCommonStreams()
-{
-  AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-  AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezMeshTexCoordPrecision::ToResourceFormat(ezMeshTexCoordPrecision::Default));
-  AddStream(ezGALVertexAttributeSemantic::Normal, ezMeshNormalPrecision::ToResourceFormatNormal(ezMeshNormalPrecision::Default));
-  AddStream(ezGALVertexAttributeSemantic::Tangent, ezMeshNormalPrecision::ToResourceFormatTangent(ezMeshNormalPrecision::Default));
+  m_VertexStreamConfig.m_uiTypesMask |= streamConfig.m_uiTypesMask;
+  m_VertexStreamConfig.m_bUseHighPrecision |= streamConfig.m_bUseHighPrecision;
 }
 
 void ezMeshBufferResourceDescriptor::AllocateStreams(ezUInt32 uiNumVertices, ezGALPrimitiveTopology::Enum topology, ezUInt32 uiNumPrimitives, bool bZeroFill /*= false*/)
 {
-  EZ_ASSERT_DEV(!m_VertexDeclaration.m_VertexStreams.IsEmpty(), "You have to add streams via 'AddStream' before calling this function");
+  EZ_ASSERT_DEV(m_VertexStreamConfig.m_uiTypesMask != 0, "You have to add streams via 'AddStream' before calling this function");
 
   m_Topology = topology;
   m_uiVertexCount = uiNumVertices;
-  const ezUInt32 uiVertexStreamSize = m_uiVertexSize * uiNumVertices;
+  m_uiVertexSize = 0;
 
-  if (bZeroFill)
+  const ezUInt32 uiHighestStreamIndex = m_VertexStreamConfig.GetHighestStreamIndex();
+  EZ_ASSERT_DEV(uiHighestStreamIndex < ezMeshVertexStreamType::DataOffsets, "Data Offsets stream is reserved for internal use only");
+
+  m_VertexStreamsData.SetCount(uiHighestStreamIndex + 1);
+
+  for (ezUInt32 uiIndex = ezMeshVertexStreamType::Position; uiIndex < ezMeshVertexStreamType::Count; ++uiIndex)
   {
-    m_VertexStreamData.SetCount(uiVertexStreamSize);
-  }
-  else
-  {
-    m_VertexStreamData.SetCountUninitialized(uiVertexStreamSize);
+    auto type = static_cast<ezMeshVertexStreamType::Enum>(uiIndex);
+    if (!m_VertexStreamConfig.HasStream(type))
+      continue;
+
+    const ezUInt32 uiStreamElementSize = m_VertexStreamConfig.GetStreamElementSize(type);
+    if (bZeroFill)
+    {
+      m_VertexStreamsData[uiIndex].SetCount(m_uiVertexCount * uiStreamElementSize);
+    }
+    else
+    {
+      m_VertexStreamsData[uiIndex].SetCountUninitialized(m_uiVertexCount * uiStreamElementSize);
+    }
+
+    m_uiVertexSize += uiStreamElementSize;
   }
 
   if (uiNumPrimitives > 0)
   {
     // use an index buffer at all
-    ezUInt32 uiIndexBufferSize = uiNumPrimitives * ezGALPrimitiveTopology::VerticesPerPrimitive(topology);
+    ezUInt32 uiIndexBufferSize = ezGALPrimitiveTopology::GetIndexCount(topology, uiNumPrimitives);
 
     if (Uses32BitIndices())
     {
@@ -158,168 +314,410 @@ void ezMeshBufferResourceDescriptor::AllocateStreamsFromGeometry(const ezGeometr
       }
     }
   }
-  AllocateStreams(geom.GetVertices().GetCount(), topology, Indices.GetCount() / (topology + 1));
+  AllocateStreams(geom.GetVertices().GetCount(), topology, Indices.GetCount() / (topology + 1), true);
 
   // Fill vertex buffer.
-  for (ezUInt32 s = 0; s < m_VertexDeclaration.m_VertexStreams.GetCount(); ++s)
   {
-    const ezVertexStreamInfo& si = m_VertexDeclaration.m_VertexStreams[s];
-    switch (si.m_Semantic)
+    if (m_VertexStreamConfig.HasPosition())
     {
-      case ezGALVertexAttributeSemantic::Position:
+      for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
       {
-        if (si.m_Format == ezGALResourceFormat::XYZFloat)
-        {
-          for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
-          {
-            SetVertexData<ezVec3>(s, v, geom.GetVertices()[v].m_vPosition);
-          }
-        }
-        else
-        {
-          ezLog::Error("Position stream with format '{0}' is not supported.", (int)si.m_Format);
-        }
+        SetPosition(v, geom.GetVertices()[v].m_vPosition);
       }
-      break;
+    }
 
-      case ezGALVertexAttributeSemantic::Normal:
+    if (m_VertexStreamConfig.HasNormalTangentAndTexCoord0())
+    {
+      for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
       {
-        for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
-        {
-          if (ezMeshBufferUtils::EncodeNormal(geom.GetVertices()[v].m_vNormal, GetVertexData(s, v), si.m_Format).Failed())
-          {
-            ezLog::Error("Normal stream with format '{0}' is not supported.", (int)si.m_Format);
-            break;
-          }
-        }
-      }
-      break;
+        auto& vert = geom.GetVertices()[v];
 
-      case ezGALVertexAttributeSemantic::Tangent:
+        SetNormal(v, vert.m_vNormal);
+        SetTangent(v, vert.m_vTangent.GetAsVec4(vert.m_fBiTangentSign));
+        SetTexCoord0(v, vert.m_vTexCoord);
+      }
+    }
+
+    if (m_VertexStreamConfig.HasTexCoord1())
+    {
+      for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
       {
-        for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
-        {
-          if (ezMeshBufferUtils::EncodeTangent(geom.GetVertices()[v].m_vTangent, geom.GetVertices()[v].m_fBiTangentSign, GetVertexData(s, v), si.m_Format).Failed())
-          {
-            ezLog::Error("Tangent stream with format '{0}' is not supported.", (int)si.m_Format);
-            break;
-          }
-        }
+        SetTexCoord1(v, geom.GetVertices()[v].m_vTexCoord);
       }
-      break;
+    }
 
-      case ezGALVertexAttributeSemantic::Color0:
-      case ezGALVertexAttributeSemantic::Color1:
+    if (m_VertexStreamConfig.HasColor0())
+    {
+      for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
       {
-        if (si.m_Format == ezGALResourceFormat::RGBAUByteNormalized)
-        {
-          for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
-          {
-            SetVertexData<ezColorLinearUB>(s, v, geom.GetVertices()[v].m_Color);
-          }
-        }
-        else
-        {
-          ezLog::Error("Color stream with format '{0}' is not supported.", (int)si.m_Format);
-        }
+        SetColor0(v, geom.GetVertices()[v].m_Color);
       }
-      break;
+    }
 
-      case ezGALVertexAttributeSemantic::TexCoord0:
-      case ezGALVertexAttributeSemantic::TexCoord1:
+    if (m_VertexStreamConfig.HasColor1())
+    {
+      for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
       {
-        for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
-        {
-          if (ezMeshBufferUtils::EncodeTexCoord(geom.GetVertices()[v].m_vTexCoord, GetVertexData(s, v), si.m_Format).Failed())
-          {
-            ezLog::Error("UV stream with format '{0}' is not supported.", (int)si.m_Format);
-            break;
-          }
-        }
+        SetColor0(v, geom.GetVertices()[v].m_Color);
       }
-      break;
+    }
 
-      case ezGALVertexAttributeSemantic::BoneIndices0:
+    if (m_VertexStreamConfig.HasSkinningData())
+    {
+      for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
       {
-        // if a bone index array is available, move the custom index into it
+        auto& vert = geom.GetVertices()[v];
 
-        if (si.m_Format == ezGALResourceFormat::RGBAUByte)
-        {
-          for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
-          {
-            ezVec4U16 boneIndices = geom.GetVertices()[v].m_BoneIndices;
-            ezVec4U8 storage(static_cast<ezUInt8>(boneIndices.x), static_cast<ezUInt8>(boneIndices.y), static_cast<ezUInt8>(boneIndices.z), static_cast<ezUInt8>(boneIndices.w));
-            SetVertexData<ezVec4U8>(s, v, storage);
-          }
-        }
-        else if (si.m_Format == ezGALResourceFormat::RGBAUShort)
-        {
-          for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
-          {
-            SetVertexData<ezVec4U16>(s, v, geom.GetVertices()[v].m_BoneIndices);
-          }
-        }
+        SetBoneIndices(v, vert.m_BoneIndices);
+        SetBoneWeights(v, ezColor(vert.m_BoneWeights).GetAsVec4());
       }
-      break;
-
-      case ezGALVertexAttributeSemantic::BoneWeights0:
-      {
-        // if a bone weight array is available, set it to fully use the first bone
-
-        if (si.m_Format == ezGALResourceFormat::RGBAUByteNormalized)
-        {
-          for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
-          {
-            SetVertexData<ezColorLinearUB>(s, v, geom.GetVertices()[v].m_BoneWeights);
-          }
-        }
-
-        if (si.m_Format == ezGALResourceFormat::XYZWFloat)
-        {
-          for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
-          {
-            SetVertexData<ezVec4>(s, v, ezColor(geom.GetVertices()[v].m_BoneWeights).GetAsVec4());
-          }
-        }
-      }
-      break;
-
-      case ezGALVertexAttributeSemantic::BoneIndices1:
-      case ezGALVertexAttributeSemantic::BoneWeights1:
-        // Don't error out for these semantics as they may be used by the user (e.g. breakable mesh construction)
-        break;
-
-      default:
-      {
-        ezLog::Error("Streams semantic '{0}' is not supported.", (int)si.m_Semantic);
-      }
-      break;
     }
   }
 
   // Fill index buffer.
-  if (topology == ezGALPrimitiveTopology::Points)
   {
-    for (ezUInt32 t = 0; t < Indices.GetCount(); t += 1)
+    if (topology == ezGALPrimitiveTopology::Points)
     {
-      SetPointIndices(t, Indices[t]);
+      for (ezUInt32 t = 0; t < Indices.GetCount(); t += 1)
+      {
+        SetPointIndices(t, Indices[t]);
+      }
     }
-  }
-  else if (topology == ezGALPrimitiveTopology::Triangles)
-  {
-    for (ezUInt32 t = 0; t < Indices.GetCount(); t += 3)
+    else if (topology == ezGALPrimitiveTopology::Triangles)
     {
-      SetTriangleIndices(t / 3, Indices[t], Indices[t + 1], Indices[t + 2]);
+      for (ezUInt32 t = 0; t < Indices.GetCount(); t += 3)
+      {
+        SetTriangleIndices(t / 3, Indices[t], Indices[t + 1], Indices[t + 2]);
+      }
     }
-  }
-  else if (topology == ezGALPrimitiveTopology::Lines)
-  {
-    for (ezUInt32 t = 0; t < Indices.GetCount(); t += 2)
+    else if (topology == ezGALPrimitiveTopology::Lines)
     {
-      SetLineIndices(t / 2, Indices[t], Indices[t + 1]);
+      for (ezUInt32 t = 0; t < Indices.GetCount(); t += 2)
+      {
+        SetLineIndices(t / 2, Indices[t], Indices[t + 1]);
+      }
     }
   }
 }
+
+ezUInt32 ezMeshBufferResourceDescriptor::GetNumVertexBuffers() const
+{
+  return m_VertexStreamsData.GetCount();
+}
+
+ezArrayPtr<const ezUInt8> ezMeshBufferResourceDescriptor::GetVertexBufferData(ezMeshVertexStreamType::Enum type) const
+{
+  return m_VertexStreamsData[type].GetArrayPtr();
+}
+
+ezArrayPtr<const ezUInt8> ezMeshBufferResourceDescriptor::GetIndexBufferData() const
+{
+  return m_IndexBufferData.GetArrayPtr();
+}
+
+ezDynamicArray<ezUInt8, ezAlignedAllocatorWrapper>& ezMeshBufferResourceDescriptor::GetVertexBufferData(ezMeshVertexStreamType::Enum type)
+{
+  return m_VertexStreamsData[type];
+}
+
+ezDynamicArray<ezUInt8, ezAlignedAllocatorWrapper>& ezMeshBufferResourceDescriptor::GetIndexBufferData()
+{
+  return m_IndexBufferData;
+}
+
+ezArrayPtr<const ezVec3> ezMeshBufferResourceDescriptor::GetPositionData() const
+{
+  auto data = m_VertexStreamsData[ezMeshVertexStreamType::Position].GetArrayPtr();
+  return ezMakeArrayPtr(reinterpret_cast<const ezVec3*>(data.GetPtr()), data.GetCount() / sizeof(ezVec3));
+}
+
+ezArrayPtr<ezVec3> ezMeshBufferResourceDescriptor::GetPositionData()
+{
+  auto data = m_VertexStreamsData[ezMeshVertexStreamType::Position].GetArrayPtr();
+  return ezMakeArrayPtr(reinterpret_cast<ezVec3*>(data.GetPtr()), data.GetCount() / sizeof(ezVec3));
+}
+
+ezArrayPtr<const ezUInt8> ezMeshBufferResourceDescriptor::GetNormalData(ezUInt32* out_pStride /*= nullptr*/) const
+{
+  if (out_pStride != nullptr)
+    *out_pStride = m_VertexStreamConfig.GetNormalTangentAndTexCoord0ElementSize();
+
+  auto data = m_VertexStreamsData[ezMeshVertexStreamType::NormalTangentAndTexCoord0].GetArrayPtr();
+  return data.GetSubArray(m_VertexStreamConfig.GetNormalDataOffset());
+}
+
+ezArrayPtr<ezUInt8> ezMeshBufferResourceDescriptor::GetNormalData(ezUInt32* out_pStride /*= nullptr*/)
+{
+  if (out_pStride != nullptr)
+    *out_pStride = m_VertexStreamConfig.GetNormalTangentAndTexCoord0ElementSize();
+
+  auto data = m_VertexStreamsData[ezMeshVertexStreamType::NormalTangentAndTexCoord0].GetArrayPtr();
+  return data.GetSubArray(m_VertexStreamConfig.GetNormalDataOffset());
+}
+
+ezArrayPtr<const ezUInt8> ezMeshBufferResourceDescriptor::GetTangentData(ezUInt32* out_pStride /*= nullptr*/) const
+{
+  if (out_pStride != nullptr)
+    *out_pStride = m_VertexStreamConfig.GetNormalTangentAndTexCoord0ElementSize();
+
+  auto data = m_VertexStreamsData[ezMeshVertexStreamType::NormalTangentAndTexCoord0].GetArrayPtr();
+  return data.GetSubArray(m_VertexStreamConfig.GetTangentDataOffset());
+}
+
+ezArrayPtr<ezUInt8> ezMeshBufferResourceDescriptor::GetTangentData(ezUInt32* out_pStride /*= nullptr*/)
+{
+  if (out_pStride != nullptr)
+    *out_pStride = m_VertexStreamConfig.GetNormalTangentAndTexCoord0ElementSize();
+
+  auto data = m_VertexStreamsData[ezMeshVertexStreamType::NormalTangentAndTexCoord0].GetArrayPtr();
+  return data.GetSubArray(m_VertexStreamConfig.GetTangentDataOffset());
+}
+
+ezArrayPtr<const ezUInt8> ezMeshBufferResourceDescriptor::GetTexCoord0Data(ezUInt32* out_pStride /*= nullptr*/) const
+{
+  if (out_pStride != nullptr)
+    *out_pStride = m_VertexStreamConfig.GetNormalTangentAndTexCoord0ElementSize();
+
+  auto data = m_VertexStreamsData[ezMeshVertexStreamType::NormalTangentAndTexCoord0].GetArrayPtr();
+  return data.GetSubArray(m_VertexStreamConfig.GetTexCoord0DataOffset());
+}
+
+ezArrayPtr<ezUInt8> ezMeshBufferResourceDescriptor::GetTexCoord0Data(ezUInt32* out_pStride /*= nullptr*/)
+{
+  if (out_pStride != nullptr)
+    *out_pStride = m_VertexStreamConfig.GetNormalTangentAndTexCoord0ElementSize();
+
+  auto data = m_VertexStreamsData[ezMeshVertexStreamType::NormalTangentAndTexCoord0].GetArrayPtr();
+  return data.GetSubArray(m_VertexStreamConfig.GetTexCoord0DataOffset());
+}
+
+ezArrayPtr<const ezUInt8> ezMeshBufferResourceDescriptor::GetTexCoord1Data(ezUInt32* out_pStride /*= nullptr*/) const
+{
+  if (out_pStride != nullptr)
+    *out_pStride = m_VertexStreamConfig.GetTexCoord1ElementSize();
+
+  auto data = m_VertexStreamsData[ezMeshVertexStreamType::TexCoord1].GetArrayPtr();
+  return data;
+}
+
+ezArrayPtr<ezUInt8> ezMeshBufferResourceDescriptor::GetTexCoord1Data(ezUInt32* out_pStride /*= nullptr*/)
+{
+  if (out_pStride != nullptr)
+    *out_pStride = m_VertexStreamConfig.GetTexCoord1ElementSize();
+
+  auto data = m_VertexStreamsData[ezMeshVertexStreamType::TexCoord1].GetArrayPtr();
+  return data;
+}
+
+ezArrayPtr<const ezUInt8> ezMeshBufferResourceDescriptor::GetColor0Data(ezUInt32* out_pStride /*= nullptr*/) const
+{
+  if (out_pStride != nullptr)
+    *out_pStride = m_VertexStreamConfig.GetColor0ElementSize();
+
+  auto data = m_VertexStreamsData[ezMeshVertexStreamType::Color0].GetArrayPtr();
+  return data;
+}
+
+ezArrayPtr<ezUInt8> ezMeshBufferResourceDescriptor::GetColor0Data(ezUInt32* out_pStride /*= nullptr*/)
+{
+  if (out_pStride != nullptr)
+    *out_pStride = m_VertexStreamConfig.GetColor0ElementSize();
+
+  auto data = m_VertexStreamsData[ezMeshVertexStreamType::Color0].GetArrayPtr();
+  return data;
+}
+
+ezArrayPtr<const ezUInt8> ezMeshBufferResourceDescriptor::GetColor1Data(ezUInt32* out_pStride /*= nullptr*/) const
+{
+  if (out_pStride != nullptr)
+    *out_pStride = m_VertexStreamConfig.GetColor1ElementSize();
+
+  auto data = m_VertexStreamsData[ezMeshVertexStreamType::Color1].GetArrayPtr();
+  return data;
+}
+
+ezArrayPtr<ezUInt8> ezMeshBufferResourceDescriptor::GetColor1Data(ezUInt32* out_pStride /*= nullptr*/)
+{
+  if (out_pStride != nullptr)
+    *out_pStride = m_VertexStreamConfig.GetColor1ElementSize();
+
+  auto data = m_VertexStreamsData[ezMeshVertexStreamType::Color1].GetArrayPtr();
+  return data;
+}
+
+const ezVec3& ezMeshBufferResourceDescriptor::GetPosition(ezUInt32 uiVertexIndex) const
+{
+  return reinterpret_cast<const ezVec3&>(m_VertexStreamsData[ezMeshVertexStreamType::Position][uiVertexIndex * sizeof(ezVec3)]);
+}
+
+void ezMeshBufferResourceDescriptor::SetPosition(ezUInt32 uiVertexIndex, const ezVec3& vPos)
+{
+  *reinterpret_cast<ezVec3*>(&m_VertexStreamsData[ezMeshVertexStreamType::Position][uiVertexIndex * sizeof(ezVec3)]) = vPos;
+}
+
+ezVec3 ezMeshBufferResourceDescriptor::GetNormal(ezUInt32 uiVertexIndex) const
+{
+  auto data = GetVertexData(ezMeshVertexStreamType::NormalTangentAndTexCoord0, uiVertexIndex, m_VertexStreamConfig.GetNormalTangentAndTexCoord0ElementSize(), m_VertexStreamConfig.GetNormalDataOffset());
+
+  ezVec3 res;
+  ezMeshBufferUtils::DecodeNormal(data, m_VertexStreamConfig.GetNormalFormat(), res).AssertSuccess();
+
+  return res;
+}
+
+void ezMeshBufferResourceDescriptor::SetNormal(ezUInt32 uiVertexIndex, const ezVec3& vNormal)
+{
+  auto data = GetVertexData(ezMeshVertexStreamType::NormalTangentAndTexCoord0, uiVertexIndex, m_VertexStreamConfig.GetNormalTangentAndTexCoord0ElementSize(), m_VertexStreamConfig.GetNormalDataOffset());
+
+  ezMeshBufferUtils::EncodeNormal(vNormal, data, m_VertexStreamConfig.GetNormalFormat()).AssertSuccess();
+}
+
+ezVec4 ezMeshBufferResourceDescriptor::GetTangent(ezUInt32 uiVertexIndex) const
+{
+  auto data = GetVertexData(ezMeshVertexStreamType::NormalTangentAndTexCoord0, uiVertexIndex, m_VertexStreamConfig.GetNormalTangentAndTexCoord0ElementSize(), m_VertexStreamConfig.GetTangentDataOffset());
+
+  ezVec3 vTangent = ezVec3::MakeZero();
+  float fBiTangentSign = 0.0f;
+  ezMeshBufferUtils::DecodeTangent(data, m_VertexStreamConfig.GetTangentFormat(), vTangent, fBiTangentSign).AssertSuccess();
+
+  return vTangent.GetAsVec4(fBiTangentSign);
+}
+
+void ezMeshBufferResourceDescriptor::SetTangent(ezUInt32 uiVertexIndex, const ezVec4& vTangent)
+{
+  auto data = GetVertexData(ezMeshVertexStreamType::NormalTangentAndTexCoord0, uiVertexIndex, m_VertexStreamConfig.GetNormalTangentAndTexCoord0ElementSize(), m_VertexStreamConfig.GetTangentDataOffset());
+
+  ezMeshBufferUtils::EncodeTangent(vTangent.GetAsVec3(), vTangent.w, data, m_VertexStreamConfig.GetTangentFormat()).AssertSuccess();
+}
+
+ezVec2 ezMeshBufferResourceDescriptor::GetTexCoord0(ezUInt32 uiVertexIndex) const
+{
+  auto data = GetVertexData(ezMeshVertexStreamType::NormalTangentAndTexCoord0, uiVertexIndex, m_VertexStreamConfig.GetNormalTangentAndTexCoord0ElementSize(), m_VertexStreamConfig.GetTexCoord0DataOffset());
+
+  ezVec2 res;
+  ezMeshBufferUtils::DecodeTexCoord(data, m_VertexStreamConfig.GetTexCoordFormat(), res).AssertSuccess();
+
+  return res;
+}
+
+void ezMeshBufferResourceDescriptor::SetTexCoord0(ezUInt32 uiVertexIndex, const ezVec2& vTexCoord)
+{
+  auto data = GetVertexData(ezMeshVertexStreamType::NormalTangentAndTexCoord0, uiVertexIndex, m_VertexStreamConfig.GetNormalTangentAndTexCoord0ElementSize(), m_VertexStreamConfig.GetTexCoord0DataOffset());
+
+  ezMeshBufferUtils::EncodeTexCoord(vTexCoord, data, m_VertexStreamConfig.GetTexCoordFormat()).AssertSuccess();
+}
+
+ezVec2 ezMeshBufferResourceDescriptor::GetTexCoord1(ezUInt32 uiVertexIndex) const
+{
+  auto data = GetVertexData(ezMeshVertexStreamType::TexCoord1, uiVertexIndex, m_VertexStreamConfig.GetTexCoord1ElementSize());
+
+  ezVec2 res;
+  ezMeshBufferUtils::DecodeTexCoord(data, m_VertexStreamConfig.GetTexCoordFormat(), res).AssertSuccess();
+
+  return res;
+}
+
+void ezMeshBufferResourceDescriptor::SetTexCoord1(ezUInt32 uiVertexIndex, const ezVec2& vTexCoord)
+{
+  auto data = GetVertexData(ezMeshVertexStreamType::TexCoord1, uiVertexIndex, m_VertexStreamConfig.GetTexCoord1ElementSize());
+
+  ezMeshBufferUtils::EncodeTexCoord(vTexCoord, data, m_VertexStreamConfig.GetTexCoordFormat()).AssertSuccess();
+}
+
+ezColor ezMeshBufferResourceDescriptor::GetColor0(ezUInt32 uiVertexIndex) const
+{
+  auto data = GetVertexData(ezMeshVertexStreamType::Color0, uiVertexIndex, m_VertexStreamConfig.GetColor0ElementSize());
+
+  ezColor res;
+  ezMeshBufferUtils::DecodeColor(data, m_VertexStreamConfig.GetColorFormat(), res).AssertSuccess();
+
+  return res;
+}
+
+void ezMeshBufferResourceDescriptor::SetColor0(ezUInt32 uiVertexIndex, const ezColorLinearUB& color)
+{
+  auto data = GetVertexData(ezMeshVertexStreamType::Color0, uiVertexIndex, m_VertexStreamConfig.GetColor0ElementSize());
+
+  if (m_VertexStreamConfig.m_bUseHighPrecision)
+  {
+    ezMeshBufferUtils::EncodeColor(color, data, m_VertexStreamConfig.GetColorFormat(), ezMeshVertexColorConversion::None).AssertSuccess();
+  }
+  else
+  {
+    *reinterpret_cast<ezColorLinearUB*>(data.GetPtr()) = color;
+  }
+}
+
+void ezMeshBufferResourceDescriptor::SetColor0(ezUInt32 uiVertexIndex, const ezColor& color, ezMeshVertexColorConversion::Enum conversion /*= ezMeshVertexColorConversion::Default*/)
+{
+  auto data = GetVertexData(ezMeshVertexStreamType::Color0, uiVertexIndex, m_VertexStreamConfig.GetColor0ElementSize());
+
+  ezMeshBufferUtils::EncodeColor(color, data, m_VertexStreamConfig.GetColorFormat(), conversion).AssertSuccess();
+}
+
+ezColor ezMeshBufferResourceDescriptor::GetColor1(ezUInt32 uiVertexIndex) const
+{
+  auto data = GetVertexData(ezMeshVertexStreamType::Color1, uiVertexIndex, m_VertexStreamConfig.GetColor1ElementSize());
+
+  ezColor res;
+  ezMeshBufferUtils::DecodeColor(data, m_VertexStreamConfig.GetColorFormat(), res).AssertSuccess();
+
+  return res;
+}
+
+void ezMeshBufferResourceDescriptor::SetColor1(ezUInt32 uiVertexIndex, const ezColorLinearUB& color)
+{
+  auto data = GetVertexData(ezMeshVertexStreamType::Color1, uiVertexIndex, m_VertexStreamConfig.GetColor1ElementSize());
+
+  if (m_VertexStreamConfig.m_bUseHighPrecision)
+  {
+    ezMeshBufferUtils::EncodeColor(color, data, m_VertexStreamConfig.GetColorFormat(), ezMeshVertexColorConversion::None).AssertSuccess();
+  }
+  else
+  {
+    *reinterpret_cast<ezColorLinearUB*>(data.GetPtr()) = color;
+  }
+}
+
+void ezMeshBufferResourceDescriptor::SetColor1(ezUInt32 uiVertexIndex, const ezColor& color, ezMeshVertexColorConversion::Enum conversion /*= ezMeshVertexColorConversion::Default*/)
+{
+  auto data = GetVertexData(ezMeshVertexStreamType::Color1, uiVertexIndex, m_VertexStreamConfig.GetColor1ElementSize());
+
+  ezMeshBufferUtils::EncodeColor(color, data, m_VertexStreamConfig.GetColorFormat(), conversion).AssertSuccess();
+}
+
+const ezVec4U16& ezMeshBufferResourceDescriptor::GetBoneIndices(ezUInt32 uiVertexIndex) const
+{
+  auto data = GetVertexData(ezMeshVertexStreamType::SkinningData, uiVertexIndex, m_VertexStreamConfig.GetSkinningDataElementSize(), m_VertexStreamConfig.GetBoneIndicesDataOffset());
+
+  return *reinterpret_cast<const ezVec4U16*>(data.GetPtr());
+}
+
+void ezMeshBufferResourceDescriptor::SetBoneIndices(ezUInt32 uiVertexIndex, const ezVec4U16& vIndices)
+{
+  auto data = GetVertexData(ezMeshVertexStreamType::SkinningData, uiVertexIndex, m_VertexStreamConfig.GetSkinningDataElementSize(), m_VertexStreamConfig.GetBoneIndicesDataOffset());
+
+  *reinterpret_cast<ezVec4U16*>(data.GetPtr()) = vIndices;
+}
+
+ezVec4 ezMeshBufferResourceDescriptor::GetBoneWeights(ezUInt32 uiVertexIndex) const
+{
+  auto data = GetVertexData(ezMeshVertexStreamType::SkinningData, uiVertexIndex, m_VertexStreamConfig.GetSkinningDataElementSize(), m_VertexStreamConfig.GetBoneWeightsDataOffset());
+
+  ezVec4 res;
+  ezMeshBufferUtils::DecodeBoneWeights(data, m_VertexStreamConfig.GetBoneWeightsFormat(), res).AssertSuccess();
+
+  return res;
+}
+
+void ezMeshBufferResourceDescriptor::SetBoneWeights(ezUInt32 uiVertexIndex, const ezVec4& vWeights)
+{
+  auto data = GetVertexData(ezMeshVertexStreamType::SkinningData, uiVertexIndex, m_VertexStreamConfig.GetSkinningDataElementSize(), m_VertexStreamConfig.GetBoneWeightsDataOffset());
+
+  ezMeshBufferUtils::EncodeBoneWeights(vWeights, data, m_VertexStreamConfig.GetBoneWeightsFormat()).AssertSuccess();
+}
+
+
 
 void ezMeshBufferResourceDescriptor::SetPointIndices(ezUInt32 uiPoint, ezUInt32 uiVertex0)
 {
@@ -397,21 +795,10 @@ ezBoundingBoxSphere ezMeshBufferResourceDescriptor::ComputeBounds() const
 {
   ezBoundingBoxSphere bounds = ezBoundingBoxSphere::MakeInvalid();
 
-  for (ezUInt32 i = 0; i < m_VertexDeclaration.m_VertexStreams.GetCount(); ++i)
+  if (m_VertexStreamConfig.HasPosition() && !m_VertexStreamsData.IsEmpty() && m_uiVertexCount > 0)
   {
-    if (m_VertexDeclaration.m_VertexStreams[i].m_Semantic == ezGALVertexAttributeSemantic::Position)
-    {
-      EZ_ASSERT_DEBUG(m_VertexDeclaration.m_VertexStreams[i].m_Format == ezGALResourceFormat::XYZFloat, "Position format is not usable");
-
-      const ezUInt32 offset = m_VertexDeclaration.m_VertexStreams[i].m_uiOffset;
-
-      if (!m_VertexStreamData.IsEmpty() && m_uiVertexCount > 0)
-      {
-        bounds = ezBoundingBoxSphere::MakeFromPoints(reinterpret_cast<const ezVec3*>(&m_VertexStreamData[offset]), m_uiVertexCount, m_uiVertexSize);
-      }
-
-      return bounds;
-    }
+    const ezVec3* pPositions = GetPositionData().GetPtr();
+    bounds = ezBoundingBoxSphere::MakeFromPoints(pPositions, m_uiVertexCount);
   }
 
   if (!bounds.IsValid())
@@ -427,27 +814,11 @@ ezResult ezMeshBufferResourceDescriptor::RecomputeNormals()
   if (m_Topology != ezGALPrimitiveTopology::Triangles)
     return EZ_FAILURE; // normals not needed
 
-  const ezUInt32 uiVertexSize = m_uiVertexSize;
-  const ezUInt8* pPositions = nullptr;
-  ezUInt8* pNormals = nullptr;
-  ezGALResourceFormat::Enum normalsFormat = ezGALResourceFormat::XYZFloat;
-
-  for (ezUInt32 i = 0; i < m_VertexDeclaration.m_VertexStreams.GetCount(); ++i)
-  {
-    if (m_VertexDeclaration.m_VertexStreams[i].m_Semantic == ezGALVertexAttributeSemantic::Position && m_VertexDeclaration.m_VertexStreams[i].m_Format == ezGALResourceFormat::XYZFloat)
-    {
-      pPositions = GetVertexData(i, 0).GetPtr();
-    }
-
-    if (m_VertexDeclaration.m_VertexStreams[i].m_Semantic == ezGALVertexAttributeSemantic::Normal)
-    {
-      normalsFormat = m_VertexDeclaration.m_VertexStreams[i].m_Format;
-      pNormals = GetVertexData(i, 0).GetPtr();
-    }
-  }
-
-  if (pPositions == nullptr || pNormals == nullptr)
+  if (!m_VertexStreamConfig.HasPosition() || !m_VertexStreamConfig.HasNormal())
     return EZ_FAILURE; // there are no normals that could be recomputed
+
+  const ezUInt32 uiVertexSize = m_uiVertexSize;
+  const ezVec3* pPositions = GetPositionData().GetPtr();
 
   ezDynamicArray<ezVec3> newNormals;
   newNormals.SetCountUninitialized(m_uiVertexCount);
@@ -471,9 +842,9 @@ ezResult ezMeshBufferResourceDescriptor::RecomputeNormals()
     const ezUInt32 v1 = bUseIndices32 ? pIndices32[triIdx * 3 + 1] : pIndices16[triIdx * 3 + 1];
     const ezUInt32 v2 = bUseIndices32 ? pIndices32[triIdx * 3 + 2] : pIndices16[triIdx * 3 + 2];
 
-    const ezVec3 p0 = *reinterpret_cast<const ezVec3*>(pPositions + ezMath::SafeMultiply64(uiVertexSize, v0));
-    const ezVec3 p1 = *reinterpret_cast<const ezVec3*>(pPositions + ezMath::SafeMultiply64(uiVertexSize, v1));
-    const ezVec3 p2 = *reinterpret_cast<const ezVec3*>(pPositions + ezMath::SafeMultiply64(uiVertexSize, v2));
+    const ezVec3 p0 = pPositions[v0];
+    const ezVec3 p1 = pPositions[v1];
+    const ezVec3 p2 = pPositions[v2];
 
     const ezVec3 d01 = p1 - p0;
     const ezVec3 d02 = p2 - p0;
@@ -494,8 +865,7 @@ ezResult ezMeshBufferResourceDescriptor::RecomputeNormals()
     if (newNormals[i].NormalizeIfNotZero(ezVec3::MakeAxisX()).Failed())
       res = EZ_FAILURE;
 
-    // then encode it in the target format precision and write it back to the buffer
-    EZ_SUCCEED_OR_RETURN(ezMeshBufferUtils::EncodeNormal(newNormals[i], ezByteArrayPtr(pNormals + ezMath::SafeMultiply64(uiVertexSize, i), sizeof(ezVec3)), normalsFormat));
+    SetNormal(i, newNormals[i]);
   }
 
   return res;
@@ -506,25 +876,28 @@ ezResult ezMeshBufferResourceDescriptor::RecomputeNormals()
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
+ezMeshBufferResource::ezMeshBufferResource()
+  : ezResource(DoUpdate::OnGraphicsResourceThreads, 1)
+{
+}
+
 ezMeshBufferResource::~ezMeshBufferResource()
 {
-  EZ_ASSERT_DEBUG(m_hVertexBuffer.IsInvalidated(), "Implementation error");
+  for (auto hVertexBuffer : m_hVertexBuffers)
+  {
+    EZ_ASSERT_DEBUG(hVertexBuffer.IsInvalidated(), "Implementation error");
+  }
   EZ_ASSERT_DEBUG(m_hIndexBuffer.IsInvalidated(), "Implementation error");
 }
 
 ezResourceLoadDesc ezMeshBufferResource::UnloadData(Unload WhatToUnload)
 {
-  if (!m_hVertexBuffer.IsInvalidated())
+  for (auto& hVertexBuffer : m_hVertexBuffers)
   {
-    ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hVertexBuffer);
-    m_hVertexBuffer.Invalidate();
+    ezGALDevice::GetDefaultDevice()->DestroyBuffer(hVertexBuffer);
   }
 
-  if (!m_hIndexBuffer.IsInvalidated())
-  {
-    ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hIndexBuffer);
-    m_hIndexBuffer.Invalidate();
-  }
+  ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hIndexBuffer);
 
   m_uiPrimitiveCount = 0;
 
@@ -556,39 +929,47 @@ void ezMeshBufferResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 
 EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezMeshBufferResource, ezMeshBufferResourceDescriptor)
 {
-  EZ_ASSERT_DEBUG(m_hVertexBuffer.IsInvalidated(), "Implementation error");
+  for (auto hVertexBuffer : m_hVertexBuffers)
+  {
+    EZ_ASSERT_DEBUG(hVertexBuffer.IsInvalidated(), "Implementation error");
+  }
   EZ_ASSERT_DEBUG(m_hIndexBuffer.IsInvalidated(), "Implementation error");
 
-  m_VertexDeclaration = descriptor.GetVertexDeclaration();
-  m_VertexDeclaration.ComputeHash();
-
+  m_VertexStreamConfig = descriptor.GetVertexStreamConfig();
+  m_VertexStreamConfig.FillVertexAttributes(m_VertexAttributes);
   m_uiPrimitiveCount = descriptor.GetPrimitiveCount();
   m_Topology = descriptor.GetTopology();
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-
-  m_hVertexBuffer = pDevice->CreateVertexBuffer(descriptor.GetVertexDataSize(), descriptor.GetVertexCount(), descriptor.GetVertexBufferData().GetArrayPtr());
-
   ezStringBuilder sName;
-  sName.SetFormat("{0} Vertex Buffer", GetResourceDescription());
-  pDevice->GetBuffer(m_hVertexBuffer)->SetDebugName(sName);
 
+  for (ezUInt32 uiIndex : ezIterateBitIndices(m_VertexStreamConfig.m_uiTypesMask))
+  {
+    auto type = static_cast<ezMeshVertexStreamType::Enum>(uiIndex);
+    const ezUInt32 uiElementSize = m_VertexStreamConfig.GetStreamElementSize(type);
+
+    m_hVertexBuffers[uiIndex] = pDevice->CreateVertexBuffer(uiElementSize, descriptor.GetVertexCount(), descriptor.GetVertexBufferData(type));
+
+    sName.SetFormat("{0} Vertex Buffer {1}", GetResourceIdOrDescription(), ezMeshVertexStreamType::GetName(type));
+    pDevice->GetBuffer(m_hVertexBuffers[uiIndex])->SetDebugName(sName);
+  }
+
+  ezUInt32 uiIndexBufferSize = 0;
   if (descriptor.HasIndexBuffer())
   {
-    m_hIndexBuffer = pDevice->CreateIndexBuffer(descriptor.Uses32BitIndices() ? ezGALIndexType::UInt : ezGALIndexType::UShort, m_uiPrimitiveCount * ezGALPrimitiveTopology::VerticesPerPrimitive(m_Topology), descriptor.GetIndexBufferData());
+    const ezUInt32 uiIndexCount = ezGALPrimitiveTopology::GetIndexCount(m_Topology, m_uiPrimitiveCount);
+    m_hIndexBuffer = pDevice->CreateIndexBuffer(descriptor.Uses32BitIndices() ? ezGALIndexType::UInt : ezGALIndexType::UShort, uiIndexCount, descriptor.GetIndexBufferData());
 
-    sName.SetFormat("{0} Index Buffer", GetResourceDescription());
+    sName.SetFormat("{0} Index Buffer", GetResourceIdOrDescription());
     pDevice->GetBuffer(m_hIndexBuffer)->SetDebugName(sName);
 
-    // we only know the memory usage here, so we write it back to the internal variable directly and then read it in UpdateMemoryUsage() again
-    ModifyMemoryUsage().m_uiMemoryGPU = descriptor.GetVertexBufferData().GetCount() + descriptor.GetIndexBufferData().GetCount();
-  }
-  else
-  {
-    // we only know the memory usage here, so we write it back to the internal variable directly and then read it in UpdateMemoryUsage() again
-    ModifyMemoryUsage().m_uiMemoryGPU = descriptor.GetVertexBufferData().GetCount();
+    uiIndexBufferSize = descriptor.GetIndexBufferData().GetCount();
   }
 
+  {
+    // we only know the memory usage here, so we write it back to the internal variable directly and then read it in UpdateMemoryUsage() again
+    ModifyMemoryUsage().m_uiMemoryGPU = (descriptor.GetVertexDataSize() * descriptor.GetVertexCount()) + uiIndexBufferSize;
+  }
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
@@ -598,18 +979,6 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezMeshBufferResource, ezMeshBufferResourceDescr
   m_Bounds = descriptor.ComputeBounds();
 
   return res;
-}
-
-void ezVertexDeclarationInfo::ComputeHash()
-{
-  m_uiHash = 0;
-
-  for (const auto& vs : m_VertexStreams)
-  {
-    m_uiHash += vs.CalculateHash();
-
-    EZ_ASSERT_DEBUG(m_uiHash != 0, "Invalid Hash Value");
-  }
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_MeshBufferResource);

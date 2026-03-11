@@ -144,6 +144,9 @@ public:
   /// \brief If set to true, all #line commands are passed through to the output, otherwise they are removed.
   void SetPassThroughLine(bool bPassThrough) { m_bPassThroughLine = bPassThrough; }
 
+  /// \brief If set to true, all files are treated as if they contain a '#pragma once' directive, ie they will never be #included twice.
+  void SetImplicitPragmaOnce(bool bEnable) { m_bImplicitPragmaOnce = bEnable; }
+
   /// \brief Sets the callback that is used to determine whether an unknown command is passed through or triggers an error.
   void SetPassThroughUnknownCmdsCB(PassThroughUnknownCmdCB callback) { m_PassThroughUnknownCmdCB = callback; }
 
@@ -215,8 +218,9 @@ private:
   // happen before the allocator get destroyed.
   ezAllocatorWithPolicy<ezAllocPolicyHeap, ezAllocatorTrackingMode::Nothing> m_ClassAllocator;
 
-  bool m_bPassThroughPragma;
-  bool m_bPassThroughLine;
+  bool m_bPassThroughPragma = false;
+  bool m_bPassThroughLine = false;
+  bool m_bImplicitPragmaOnce = false; // all files will be treated as if they contain a #pragma once directive
   PassThroughUnknownCmdCB m_PassThroughUnknownCmdCB;
 
   // this file cache is used as long as the user does not provide his own
@@ -245,7 +249,7 @@ private:
 
   ezDeque<IfDefState> m_IfdefActiveStack;
 
-  ezResult ProcessFile(ezStringView sFile, ezTokenParseUtils::TokenStream& TokenOutput);
+  ezResult ProcessFile(ezStringView sFile, ezTokenParseUtils::TokenStream& TokenOutput, const ezToken* pCurParentToken);
   ezResult ProcessCmd(const ezTokenParseUtils::TokenStream& Tokens, ezTokenParseUtils::TokenStream& TokenOutput);
 
 public:
@@ -265,13 +269,11 @@ private: // *** Macro Definition ***
 
   struct MacroDefinition
   {
-    MacroDefinition();
-
-    const ezToken* m_MacroIdentifier;
-    bool m_bIsFunction;
-    bool m_bCurrentlyExpanding;
-    bool m_bHasVarArgs;
-    ezInt32 m_iNumParameters;
+    const ezToken* m_MacroIdentifier = nullptr;
+    bool m_bIsFunction = false;
+    bool m_bCurrentlyExpanding = false;
+    bool m_bHasVarArgs = false;
+    ezUInt32 m_uiNumParameters = ezInvalidIndex;
     ezTokenParseUtils::TokenStream m_Replacement;
   };
 
@@ -300,7 +302,7 @@ private: // *** #if condition parsing ***
 
 private: // *** Parsing ***
   ezResult CopyTokensAndEvaluateDefined(const ezTokenParseUtils::TokenStream& Source, ezUInt32 uiFirstSourceToken, ezTokenParseUtils::TokenStream& Destination);
-  void CopyTokensReplaceParams(const ezTokenParseUtils::TokenStream& Source, ezUInt32 uiFirstSourceToken, ezTokenParseUtils::TokenStream& Destination, const ezHybridArray<ezString, 16>& parameters);
+  void CopyTokensReplaceParams(const ezTokenParseUtils::TokenStream& Source, ezUInt32 uiFirstSourceToken, ezTokenParseUtils::TokenStream& Destination, const ezArrayPtr<ezString>& parameters);
 
   ezResult Expect(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken, ezStringView sToken, ezUInt32* pAccepted = nullptr);
   ezResult Expect(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken, ezTokenType::Enum Type, ezUInt32* pAccepted = nullptr);

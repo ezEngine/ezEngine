@@ -8,7 +8,7 @@
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetDocument, 12, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetDocument, 14, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -16,9 +16,13 @@ static ezMat3 CalculateTransformationMatrix(const ezMeshAssetProperties* pProp)
 {
   const float us = ezMath::Clamp(pProp->m_fUniformScaling, 0.0001f, 10000.0f);
 
-  const ezBasisAxis::Enum forwardDir = ezBasisAxis::GetOrthogonalAxis(pProp->m_RightDir, pProp->m_UpDir, !pProp->m_bFlipForwardDir);
+  auto rightDir = ezMeshImportTransform::GetRightDir(pProp->m_ImportTransform, pProp->m_RightDir);
+  auto upDir = ezMeshImportTransform::GetUpDir(pProp->m_ImportTransform, pProp->m_UpDir);
+  auto flipFwd = ezMeshImportTransform::GetFlipForward(pProp->m_ImportTransform, pProp->m_bFlipForwardDir);
 
-  return ezBasisAxis::CalculateTransformationMatrix(forwardDir, pProp->m_RightDir, pProp->m_UpDir, us);
+  const ezBasisAxis::Enum forwardDir = ezBasisAxis::GetOrthogonalAxis(rightDir, upDir, !flipFwd);
+
+  return ezBasisAxis::CalculateTransformationMatrix(forwardDir, rightDir, upDir, us);
 }
 
 ezMeshAssetDocument::ezMeshAssetDocument(ezStringView sDocumentPath)
@@ -193,10 +197,7 @@ void ezMeshAssetDocument::CreateMeshFromGeom(ezMeshAssetProperties* pProp, ezMes
   // the the procedurally generated geometry we can always use fixed, low precision data, because we know that the geometry isn't detailed enough to run into problems
   // and then we can unclutter the UI a little by not showing those options at all
   auto& mbd = desc.MeshBufferDesc();
-  mbd.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-  mbd.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezMeshTexCoordPrecision::ToResourceFormat(ezMeshTexCoordPrecision::_16Bit /*pProp->m_TexCoordPrecision*/));
-  mbd.AddStream(ezGALVertexAttributeSemantic::Normal, ezMeshNormalPrecision::ToResourceFormatNormal(ezMeshNormalPrecision::_10Bit /*pProp->m_NormalPrecision*/));
-  mbd.AddStream(ezGALVertexAttributeSemantic::Tangent, ezMeshNormalPrecision::ToResourceFormatTangent(ezMeshNormalPrecision::_10Bit /*pProp->m_NormalPrecision*/));
+  mbd.AddCommonStreams();
 
   mbd.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
   desc.AddSubMesh(mbd.GetPrimitiveCount(), 0, 0);
@@ -222,12 +223,33 @@ ezTransformStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties*
   ezModelImporter2::ImportOptions opt;
   opt.m_sSourceFile = sAbsFilename;
   opt.m_bRecomputeNormals = pProp->m_bRecalculateNormals;
-  opt.m_bRecomputeTangents = pProp->m_bRecalculateTrangents;
-  opt.m_pMeshOutput = &desc;
-  opt.m_MeshNormalsPrecision = pProp->m_NormalPrecision;
-  opt.m_MeshTexCoordsPrecision = pProp->m_TexCoordPrecision;
+  opt.m_bRecomputeTangents = pProp->m_bRecalculateTangents;
+  opt.m_bHighPrecision = pProp->m_bHighPrecision;
   opt.m_MeshVertexColorConversion = pProp->m_VertexColorConversion;
   opt.m_RootTransform = CalculateTransformationMatrix(pProp);
+  opt.m_pMeshOutput = &desc;
+
+  // include tags
+  {
+    ezTempHybridArray<ezStringView, 8> tags;
+    pProp->m_sMeshIncludeTags.Split(false, tags, ";");
+    for (ezStringView tag : tags)
+    {
+      tag.Trim();
+      opt.m_MeshIncludeTags.PushBack(tag);
+    }
+  }
+
+  // exclude tags
+  {
+    ezTempHybridArray<ezStringView, 8> tags;
+    pProp->m_sMeshExcludeTags.Split(false, tags, ";");
+    for (ezStringView tag : tags)
+    {
+      tag.Trim();
+      opt.m_MeshExcludeTags.PushBack(tag);
+    }
+  }
 
   if (pProp->m_bSimplifyMesh)
   {
@@ -238,6 +260,17 @@ ezTransformStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties*
 
   if (pImporter->Import(opt).Failed())
     return ezStatus("Model importer was unable to read this asset.");
+
+  if (desc.GetSubMeshes().IsEmpty() || !desc.GetBounds().IsValid())
+    return ezStatus("Imported mesh is empty.");
+
+  for (auto& sm : desc.GetSubMeshes())
+  {
+    if (sm.m_uiPrimitiveCount == 0)
+    {
+      return ezStatus("Imported mesh is empty.");
+    }
+  }
 
   range.BeginNextStep("Importing Materials");
 
@@ -287,72 +320,9 @@ void ezMeshAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) co
     const auto& sMeshFile = GetProperties()->m_sMeshFile;
     pInfo->m_TransformDependencies.Remove(sMeshFile);
   }
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetDocumentGenerator, 1, ezRTTIDefaultAllocator<ezMeshAssetDocumentGenerator>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-ezMeshAssetDocumentGenerator::ezMeshAssetDocumentGenerator()
-{
-  AddSupportedFileType("obj");
-  AddSupportedFileType("fbx");
-  AddSupportedFileType("gltf");
-  AddSupportedFileType("glb");
-  AddSupportedFileType("vox");
-}
-
-ezMeshAssetDocumentGenerator::~ezMeshAssetDocumentGenerator() = default;
-
-void ezMeshAssetDocumentGenerator::GetImportModes(ezStringView sAbsInputFile, ezDynamicArray<ezAssetDocumentGenerator::ImportMode>& out_modes) const
-{
+  else
   {
-    ezAssetDocumentGenerator::ImportMode& info = out_modes.ExpandAndGetRef();
-    info.m_Priority = ezAssetDocGeneratorPriority::DefaultPriority;
-    info.m_sName = "MeshImport.WithMaterials";
-    info.m_sIcon = ":/AssetIcons/Mesh.svg";
+    // For glTF files, add any referenced external buffer files as dependencies
+    ezMeshImportUtils::AddGltfBufferDependencies(GetProperties()->m_sMeshFile, pInfo->m_TransformDependencies);
   }
-
-  {
-    ezAssetDocumentGenerator::ImportMode& info = out_modes.ExpandAndGetRef();
-    info.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
-    info.m_sName = "MeshImport.NoMaterials";
-    info.m_sIcon = ":/AssetIcons/Mesh.svg";
-  }
-}
-
-ezStatus ezMeshAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments)
-{
-  ezStringBuilder sOutFile = sInputFileAbs;
-  sOutFile.ChangeFileExtension(GetDocumentExtension());
-  ezOSFile::FindFreeFilename(sOutFile);
-
-  auto pApp = ezQtEditorApp::GetSingleton();
-
-  ezStringBuilder sInputFileRel = sInputFileAbs;
-  pApp->MakePathDataDirectoryRelative(sInputFileRel);
-
-  ezDocument* pDoc = pApp->CreateDocument(sOutFile, ezDocumentFlags::None);
-  if (pDoc == nullptr)
-    return ezStatus("Could not create target document");
-
-  out_generatedDocuments.PushBack(pDoc);
-
-  ezMeshAssetDocument* pAssetDoc = ezDynamicCast<ezMeshAssetDocument*>(pDoc);
-
-  auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
-  accessor.SetValue("MeshFile", sInputFileRel.GetView());
-
-  if (sMode == "MeshImport.WithMaterials")
-  {
-    accessor.SetValue("ImportMaterials", true);
-  }
-
-  if (sMode == "MeshImport.NoMaterials")
-  {
-    accessor.SetValue("ImportMaterials", false);
-  }
-
-  return ezStatus(EZ_SUCCESS);
 }

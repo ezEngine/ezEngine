@@ -273,7 +273,7 @@ ezResult ezTaskSystem::CancelGroup(ezTaskGroupID group, ezOnTaskRunning::Enum on
 
 void ezTaskSystem::WaitForGroup(ezTaskGroupID group)
 {
-  EZ_PROFILE_SCOPE("WaitForGroup");
+  EZ_PROFILE_SCOPE("ezTaskSystem::WaitForGroup");
 
   EZ_ASSERT_DEV(tl_TaskWorkerInfo.m_bAllowNestedTasks, "The executing task '{}' is flagged to never wait for other tasks but does so anyway. Remove the flag or remove the wait-dependency.", tl_TaskWorkerInfo.m_szTaskName);
 

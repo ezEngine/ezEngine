@@ -155,6 +155,8 @@ EZ_ALWAYS_INLINE bool ezUnicodeUtils::IsValidUtf8(const char* szString, const ch
 
   return utf8::is_valid(szString, szStringEnd);
 #else
+  EZ_IGNORE_UNUSED(szString);
+  EZ_IGNORE_UNUSED(szStringEnd);
   return true;
 #endif
 }

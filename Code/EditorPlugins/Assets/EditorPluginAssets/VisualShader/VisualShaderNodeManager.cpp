@@ -10,7 +10,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualShaderPin, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualShaderPin::ezVisualShaderPin(Type type, const ezVisualShaderPinDescriptor* pDescriptor, const ezDocumentObject* pObject)
-  : ezPin(type, pDescriptor->m_sName, pDescriptor->m_Color, pObject)
+  : ezVisualGraphPin(type, pDescriptor->m_sName, pDescriptor->m_Color, pObject)
 {
   m_pDescriptor = pDescriptor;
 }
@@ -46,18 +46,18 @@ void ezVisualShaderNodeManager::InternalCreatePins(const ezDocumentObject* pObje
 
   for (const auto& pin : pDesc->m_InputPins)
   {
-    auto pPin = EZ_DEFAULT_NEW(ezVisualShaderPin, ezPin::Type::Input, &pin, pObject);
+    auto pPin = EZ_DEFAULT_NEW(ezVisualShaderPin, ezVisualGraphPin::Type::Input, &pin, pObject);
     ref_node.m_Inputs.PushBack(pPin);
   }
 
   for (const auto& pin : pDesc->m_OutputPins)
   {
-    auto pPin = EZ_DEFAULT_NEW(ezVisualShaderPin, ezPin::Type::Output, &pin, pObject);
+    auto pPin = EZ_DEFAULT_NEW(ezVisualShaderPin, ezVisualGraphPin::Type::Output, &pin, pObject);
     ref_node.m_Outputs.PushBack(pPin);
   }
 }
 
-void ezVisualShaderNodeManager::GetNodeCreationTemplates(ezDynamicArray<ezNodeCreationTemplate>& out_templates) const
+void ezVisualShaderNodeManager::GetNodeCreationTemplates(ezDynamicArray<ezVisualGraphNodeDesc>& out_templates) const
 {
   const ezRTTI* pNodeBaseType = ezVisualShaderTypeRegistry::GetSingleton()->GetNodeBaseType();
 
@@ -76,7 +76,7 @@ void ezVisualShaderNodeManager::GetNodeCreationTemplates(ezDynamicArray<ezNodeCr
     ezRTTI::ForEachOptions::ExcludeAbstract);
 }
 
-ezStatus ezVisualShaderNodeManager::InternalCanConnect(const ezPin& source, const ezPin& target, CanConnectResult& out_result) const
+ezStatus ezVisualShaderNodeManager::InternalCanConnect(const ezVisualGraphPin& source, const ezVisualGraphPin& target, CanConnectResult& out_result) const
 {
   const ezVisualShaderPin& pinSource = ezStaticCast<const ezVisualShaderPin&>(source);
   const ezVisualShaderPin& pinTarget = ezStaticCast<const ezVisualShaderPin&>(target);

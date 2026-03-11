@@ -50,11 +50,13 @@ private Q_SLOTS:
   void on_ButtonFrame_clicked();
   void on_GradientWidget_selectionChanged(ezInt32 colorCP, ezInt32 alphaCP, ezInt32 intensityCP);
   void on_SpinPosition_valueChanged(double value);
+  void on_SpinPosition_editingFinished();
   void on_SpinAlpha_valueChanged(int value);
   void on_SliderAlpha_valueChanged(int value);
   void on_SliderAlpha_sliderPressed();
   void on_SliderAlpha_sliderReleased();
   void on_SpinIntensity_valueChanged(double value);
+  void on_SpinIntensity_editingFinished();
   void on_ButtonColor_clicked();
   void onCurrentColorChanged(const ezColor& col);
   void onColorAccepted();
@@ -75,4 +77,6 @@ private:
 
   ezColorGammaUB m_PickColorStart;
   ezColorGammaUB m_PickColorCurrent;
+
+  bool m_bTemporaryTransaction = false;
 };

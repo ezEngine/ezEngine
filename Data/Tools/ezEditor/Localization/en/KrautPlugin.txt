@@ -1,6 +1,6 @@
 # Asset Types
 
-Kraut Tree;Kraut Tree
+Kraut Tree;Kraut Tree;;https://ezengine.net/pages/docs/terrain/kraut-overview.html
 
 # Component Types
 

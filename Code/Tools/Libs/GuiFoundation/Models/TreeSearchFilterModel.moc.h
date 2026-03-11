@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/Containers/Map.h>
+#include <Foundation/Types/Delegate.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <ToolsFoundation/Utilities/SearchPatternFilter.h>
 
@@ -13,6 +14,9 @@ class EZ_GUIFOUNDATION_DLL ezQtTreeSearchFilterModel : public QSortFilterProxyMo
   Q_OBJECT
 
 public:
+  /// Return true to indicate that the model index shall be visible.
+  using CustomFilterFunc = ezDelegate<bool(QModelIndex, const ezSearchPatternFilter&)>;
+
   ezQtTreeSearchFilterModel(QWidget* pParent);
 
   void SetFilterText(const QString& sText);
@@ -20,6 +24,9 @@ public:
   /// \brief By default only nodes (and their parents) are shown that fit the search criterion.
   /// If this is enabled, all child nodes of nodes that fit the criterion are included as well.
   void SetIncludeChildren(bool bInclude);
+
+  /// The custom function is executed when when visibility is updated. Return false to hide an element.
+  void SetCustomFilterFunc(CustomFilterFunc func);
 
 protected:
   void RecomputeVisibleItems();
@@ -30,4 +37,5 @@ protected:
   QAbstractItemModel* m_pSourceModel;
   ezSearchPatternFilter m_Filter;
   ezMap<QModelIndex, bool> m_Visible;
+  CustomFilterFunc m_CustomFilterFunc;
 };

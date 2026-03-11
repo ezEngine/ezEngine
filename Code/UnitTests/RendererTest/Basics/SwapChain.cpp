@@ -1,15 +1,33 @@
 #include <RendererTest/RendererTestPCH.h>
 
-#include <Core/GameState/GameStateWindow.h>
 #include <Core/Graphics/Camera.h>
+#include <Foundation/Configuration/Startup.h>
 #include <RendererTest/Basics/SwapChain.h>
+
+ezResult ezRendererTestSwapChain::InitializeTest()
+{
+  ezStartup::StartupCoreSystems();
+
+  if (SetupRenderer().Failed())
+    return EZ_FAILURE;
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezRendererTestSwapChain::DeInitializeTest()
+{
+  ShutdownRenderer();
+  ezStartup::ShutdownCoreSystems();
+  ezMemoryTracker::DumpMemoryLeaks();
+
+  return EZ_SUCCESS;
+}
 
 ezResult ezRendererTestSwapChain::InitializeSubTest(ezInt32 iIdentifier)
 {
   m_iFrame = -1;
-
-  if (ezGraphicsTest::InitializeSubTest(iIdentifier).Failed())
-    return EZ_FAILURE;
+  m_bCaptureImage = false;
+  m_ImgCompFrames.Clear();
 
   m_CurrentWindowSize = ezSizeU32(320, 240);
 
@@ -18,18 +36,19 @@ ezResult ezRendererTestSwapChain::InitializeSubTest(ezInt32 iIdentifier)
     ezWindowCreationDesc WindowCreationDesc;
     WindowCreationDesc.m_Resolution.width = m_CurrentWindowSize.width;
     WindowCreationDesc.m_Resolution.height = m_CurrentWindowSize.height;
+    WindowCreationDesc.m_bClipMouseCursor = false;
+    WindowCreationDesc.m_bShowMouseCursor = true;
     WindowCreationDesc.m_WindowMode = (iIdentifier == SubTests::ST_ResizeWindow) ? ezWindowMode::WindowResizable : ezWindowMode::WindowFixedResolution;
-    // ezGameStateWindow will write any window size changes into the config.
-    m_pWindow = EZ_DEFAULT_NEW(ezGameStateWindow, WindowCreationDesc);
+    // ezWindow writes any window size changes into the config.
+    m_pWindow = EZ_DEFAULT_NEW(ezWindow);
+    m_pWindow->Initialize(WindowCreationDesc).AssertSuccess("Window creation failed");
   }
 
-  // SwapChain
   {
     ezGALWindowSwapChainCreationDescription swapChainDesc;
     swapChainDesc.m_pWindow = m_pWindow;
     swapChainDesc.m_SampleCount = ezGALMSAASampleCount::None;
-    swapChainDesc.m_bAllowScreenshots = true;
-    swapChainDesc.m_InitialPresentMode = (iIdentifier == SubTests::ST_NoVSync) ? ezGALPresentMode::Immediate : ezGALPresentMode::VSync;
+    swapChainDesc.m_InitialPresentMode = (iIdentifier == SubTests::ST_VSync) ? ezGALPresentMode::VSync : ezGALPresentMode::Immediate;
     m_hSwapChain = ezGALWindowSwapChain::Create(swapChainDesc);
   }
 
@@ -53,7 +72,7 @@ ezResult ezRendererTestSwapChain::InitializeSubTest(ezInt32 iIdentifier)
         break;
     }
 
-    texDesc.m_bCreateRenderTarget = true;
+    texDesc.m_TextureFlags.Add(ezGALTextureUsageFlags::RenderTarget);
     m_hDepthStencilTexture = m_pDevice->CreateTexture(texDesc);
   }
 
@@ -64,8 +83,7 @@ ezResult ezRendererTestSwapChain::DeInitializeSubTest(ezInt32 iIdentifier)
 {
   DestroyWindow();
 
-  if (ezGraphicsTest::DeInitializeSubTest(iIdentifier).Failed())
-    return EZ_FAILURE;
+  // Don't call parent's DeInitializeSubTest - renderer shutdown happens in DeInitializeTest
 
   return EZ_SUCCESS;
 }
@@ -97,7 +115,7 @@ void ezRendererTestSwapChain::ResizeTest(ezUInt32 uiInvocationCount)
       texDesc.m_uiWidth = m_CurrentWindowSize.width;
       texDesc.m_uiHeight = m_CurrentWindowSize.height;
       texDesc.m_Format = ezGALResourceFormat::DFloat;
-      texDesc.m_bCreateRenderTarget = true;
+      texDesc.m_TextureFlags.Add(ezGALTextureUsageFlags::RenderTarget);
       m_hDepthStencilTexture = m_pDevice->CreateTexture(texDesc);
     }
   }
@@ -106,28 +124,26 @@ void ezRendererTestSwapChain::ResizeTest(ezUInt32 uiInvocationCount)
 ezTestAppRun ezRendererTestSwapChain::BasicRenderLoop(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
 {
   BeginFrame();
-  BeginPass("SwapChainTest");
+  BeginCommands("SwapChainTest");
   {
     const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(m_hSwapChain);
 
     ezGALRenderingSetup renderingSetup;
-    renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, m_pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture()));
-    renderingSetup.m_ClearColor = ezColor::CornflowerBlue;
-    renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
+    renderingSetup.SetColorTarget(0, m_pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture()));
+    renderingSetup.SetClearColor(0, ezColor::CornflowerBlue);
     if (!m_hDepthStencilTexture.IsInvalidated())
     {
-      renderingSetup.m_RenderTargetSetup.SetDepthStencilTarget(m_pDevice->GetDefaultRenderTargetView(m_hDepthStencilTexture));
-      renderingSetup.m_bClearDepth = true;
-      renderingSetup.m_bClearStencil = true;
+      renderingSetup.SetDepthStencilTarget(m_pDevice->GetDefaultRenderTargetView(m_hDepthStencilTexture));
+      renderingSetup.SetClearDepth().SetClearStencil();
     }
     ezRectFloat viewport = ezRectFloat(0.0f, 0.0f, (float)m_pWindow->GetClientAreaSize().width, (float)m_pWindow->GetClientAreaSize().height);
 
-    ezRenderContext::GetDefaultInstance()->BeginRendering(m_pPass, renderingSetup, viewport);
+    ezRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, viewport);
     m_pWindow->ProcessWindowMessages();
 
     ezRenderContext::GetDefaultInstance()->EndRendering();
   }
-  EndPass();
+  EndCommands();
   EndFrame();
 
   return m_iFrame < 120 ? ezTestAppRun::Continue : ezTestAppRun::Quit;

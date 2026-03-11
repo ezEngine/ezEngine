@@ -54,9 +54,6 @@ class Animation;
 // optimized through the context. The job does not owned the buffers (in/output)
 // and will thus not delete them during job's destruction.
 struct OZZ_ANIMATION_DLL SamplingJob {
-  // Default constructor, initializes default values.
-  SamplingJob();
-
   // Validates job parameters. Returns true for a valid job, or false otherwise:
   // -if any input pointer is nullptr
   // -if output range is invalid.
@@ -73,16 +70,16 @@ struct OZZ_ANIMATION_DLL SamplingJob {
   // current time in the animation , divided by animation duration.
   // This ratio is clamped before job execution in order to resolves any
   // approximation issue on range bounds.
-  float ratio;
+  float ratio = 0.f;
 
   // The animation to sample.
-  const Animation* animation;
+  const Animation* animation = nullptr;
 
   // Forward declares the context object used by the SamplingJob.
   class Context;
 
   // A context object that must be big enough to sample *this animation.
-  Context* context;
+  Context* context = nullptr;
 
   // Job output.
   // The output range to be filled with sampled joints during job execution.
@@ -114,8 +111,10 @@ class OZZ_ANIMATION_DLL SamplingJob::Context {
   explicit Context(int _max_tracks);
 
   // Disables copy and assignation.
-  Context(Context const&) = delete;
-  Context& operator=(Context const&) = delete;
+  Context(const Context&) = delete;
+  Context& operator=(const Context&) = delete;
+  Context(Context&&) = delete;
+  Context& operator=(Context&&) = delete;
 
   // Deallocates context.
   ~Context();
@@ -138,14 +137,28 @@ class OZZ_ANIMATION_DLL SamplingJob::Context {
   int max_tracks() const { return max_soa_tracks_ * 4; }
   int max_soa_tracks() const { return max_soa_tracks_; }
 
+  struct Cache {
+    // Points to the keys in the animation that are valid for the current time
+    // ratio.
+    span<uint32_t> entries;
+
+    // Outdated soa entries. One bit per soa entry (32 joints per byte).
+    span<byte> outdated;
+
+    // Next key to process in the animation.
+    uint32_t next;
+  };
+
  private:
   friend struct SamplingJob;
 
-  // Steps the context in order to use it for a potentially new animation and
-  // ratio. If the _animation is different from the animation currently cached,
-  // or if the _ratio shows that the animation is played backward, then the
+  // Steps the context in order to use it for a potentially new animation. If
+  // the _animation is different from the animation currently cached, then the
   // context is invalidated and reset for the new _animation and _ratio.
-  void Step(const Animation& _animation, float _ratio);
+  // Return previous ratio.
+  float Step(const Animation& _animation, float _ratio);
+
+  void Deallocate();
 
   // The animation this context refers to. nullptr means that the context is
   // invalid.
@@ -157,26 +170,18 @@ class OZZ_ANIMATION_DLL SamplingJob::Context {
   // The number of soa tracks that can store this context.
   int max_soa_tracks_;
 
-  // Soa hot data to interpolate.
-  internal::InterpSoaFloat3* soa_translations_;
-  internal::InterpSoaQuaternion* soa_rotations_;
-  internal::InterpSoaFloat3* soa_scales_;
+  // Single allocation for the whole context.
+  void* allocation_ = nullptr;
 
-  // Points to the keys in the animation that are valid for the current time
-  // ratio.
-  int* translation_keys_;
-  int* rotation_keys_;
-  int* scale_keys_;
+  // Context cache instances per component.
+  Cache translations_cache_;
+  Cache rotations_cache_;
+  Cache scales_cache_;
 
-  // Current cursors in the animation. 0 means that the context is invalid.
-  int translation_cursor_;
-  int rotation_cursor_;
-  int scale_cursor_;
-
-  // Outdated soa entries. One bit per soa entry (32 joints per byte).
-  uint8_t* outdated_translations_;
-  uint8_t* outdated_rotations_;
-  uint8_t* outdated_scales_;
+  // SoA hot decompressed data to interpolate.
+  span<internal::InterpSoaFloat3> translations_;
+  span<internal::InterpSoaQuaternion> rotations_;
+  span<internal::InterpSoaFloat3> scales_;
 };
 }  // namespace animation
 }  // namespace ozz

@@ -17,7 +17,7 @@ class ezQtMainWidget : public ads::CDockWidget, public Ui_MainWidget
 public:
   static ezQtMainWidget* s_pWidget;
 
-  ezQtMainWidget(QWidget* pParent = nullptr);
+  ezQtMainWidget(ads::CDockManager* pDockManager, QWidget* pParent = nullptr);
   ~ezQtMainWidget();
 
   void ResetStats();

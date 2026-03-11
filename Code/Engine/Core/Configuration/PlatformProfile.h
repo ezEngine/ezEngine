@@ -23,6 +23,11 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
+/// \brief Stores platform-specific configuration data for asset processing and runtime settings.
+///
+/// A platform profile contains multiple configuration objects (ezProfileConfigData) that store
+/// settings for different aspects like asset transforms, rendering options, etc. Each profile
+/// targets a specific platform and maintains a modification counter for change tracking.
 class EZ_CORE_DLL ezPlatformProfile final : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezPlatformProfile, ezReflectedClass);

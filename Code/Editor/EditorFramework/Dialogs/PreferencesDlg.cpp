@@ -8,11 +8,11 @@
 class ezPreferencesObjectManager : public ezDocumentObjectManager
 {
 public:
-  virtual void GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& ref_types) const override
+  virtual void GetCreateableTypes(ezDynamicArray<const ezRTTI*>& out_types) const override
   {
     for (auto pRtti : m_KnownTypes)
     {
-      ref_types.PushBack(pRtti);
+      out_types.PushBack(pRtti);
     }
   }
 
@@ -140,7 +140,7 @@ void ezQtPreferencesDlg::RegisterAllPreferenceTypes()
 {
   ezPreferencesObjectManager* pManager = static_cast<ezPreferencesObjectManager*>(m_pDocument->GetObjectManager());
 
-  ezHybridArray<ezPreferences*, 16> AllPrefs;
+  ezTempHybridArray<ezPreferences*, 16> AllPrefs;
   ezPreferences::GatherAllPreferences(AllPrefs);
 
   for (auto pref : AllPrefs)
@@ -152,10 +152,10 @@ void ezQtPreferencesDlg::RegisterAllPreferenceTypes()
 
 void ezQtPreferencesDlg::AllPreferencesToObject()
 {
-  ezHybridArray<ezPreferences*, 16> AllPrefs;
+  ezTempHybridArray<ezPreferences*, 16> AllPrefs;
   ezPreferences::GatherAllPreferences(AllPrefs);
 
-  ezHybridArray<const ezAbstractProperty*, 32> properties;
+  ezTempHybridArray<const ezAbstractProperty*, 32> properties;
 
   ezMap<ezString, ezPreferences*> appPref;
   ezMap<ezString, ezPreferences*> projPref;

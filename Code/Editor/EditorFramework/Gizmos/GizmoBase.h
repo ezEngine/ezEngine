@@ -48,12 +48,16 @@ protected:
   virtual void OnVisibleChanged(bool bVisible) = 0;
   virtual void OnTransformationChanged(const ezTransform& transform) = 0;
 
-  const ezCamera* m_pCamera;
-  ezGizmoHandle* m_pInteractionGizmoHandle;
+  void GetInverseViewProjectionMatrix(ezMat4& out_mInvViewProj) const;
+  ezResult GetPointOnPlane(const ezPlane& plane, const ezVec2I32& vScreenPos, const ezMat4& mInvViewProj, ezVec3& out_Result) const;
+  ezResult GetPointOnAxis(const ezVec3& vStartPos, const ezVec3& vAxis, const ezVec2I32& vScreenPos, const ezMat4& mInvViewProj, ezVec3& out_Result, float* out_pProjectedLength = nullptr) const;
+
+  const ezCamera* m_pCamera = nullptr;
+  ezGizmoHandle* m_pInteractionGizmoHandle = nullptr;
   ezVec3 m_vInteractionPivot;
   ezVec2I32 m_vViewport;
 
 private:
-  bool m_bVisible;
+  bool m_bVisible = false;
   ezTransform m_Transformation;
 };

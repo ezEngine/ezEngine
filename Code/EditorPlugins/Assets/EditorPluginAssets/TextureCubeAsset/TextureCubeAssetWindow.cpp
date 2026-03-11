@@ -1,5 +1,6 @@
 #include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
+#include <EditorFramework/Assets/AssetStatusIndicator.moc.h>
 #include <EditorFramework/DocumentWindow/OrbitCamViewWidget.moc.h>
 #include <EditorFramework/InputContexts/EditorInputContext.h>
 #include <EditorPluginAssets/TextureCubeAsset/TextureCubeAsset.h>
@@ -49,21 +50,31 @@ ezQtTextureCubeAssetDocumentWindow::ezQtTextureCubeAssetDocumentWindow(ezTexture
     m_pViewWidget = new ezQtOrbitCamViewWidget(this, &m_ViewConfig);
     m_pViewWidget->ConfigureFixed(ezVec3(0), ezVec3(0.0f), ezVec3(-1, 0, 0));
     AddViewWidget(m_pViewWidget);
-    ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(this, m_pViewWidget, nullptr);
+    ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(GetContainerWindow()->GetDockManager(), this, m_pViewWidget, nullptr);
 
-    setCentralWidget(pContainer);
+    m_pDockManager->setCentralWidget(pContainer);
   }
 
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("TextureCubeAssetDockWidget");
     pPropertyPanel->setWindowTitle("Texture Properties");
     pPropertyPanel->show();
 
     ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
-    pPropertyPanel->setWidget(pPropertyGrid);
 
-    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
+    QWidget* pWidget = new QWidget();
+    pWidget->setObjectName("Group");
+    pWidget->setLayout(new QVBoxLayout());
+    pWidget->setContentsMargins(0, 0, 0, 0);
+
+    pWidget->layout()->setContentsMargins(0, 0, 0, 0);
+    pWidget->layout()->addWidget(new ezQtAssetStatusIndicator(GetDocument()));
+    pWidget->layout()->addWidget(pPropertyGrid);
+
+    pPropertyPanel->setWidget(pWidget, ads::CDockWidget::ForceNoScrollArea);
+
+    m_pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pPropertyPanel);
 
     pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
   }
@@ -86,13 +97,22 @@ void ezQtTextureCubeAssetDocumentWindow::SendRedrawMsg()
 
   {
     const ezTextureCubeAssetDocument* pDoc = static_cast<const ezTextureCubeAssetDocument*>(GetDocument());
+    const ezTextureCubeAssetProperties* pProps = pDoc->GetProperties();
 
-    ezDocumentConfigMsgToEngine msg;
-    msg.m_sWhatToDo = "ChannelMode";
-    msg.m_iValue = pDoc->m_ChannelMode.GetValue();
-    msg.m_fValue = pDoc->m_iTextureLod;
+    {
+      ezDocumentConfigMsgToEngine msg;
+      msg.m_sWhatToDo = "SetChannelMode";
+      msg.m_iValue = pDoc->m_ChannelMode.GetValue();
+      msg.m_fValue = 0.5f;
+      GetEditorEngineConnection()->SendMessage(&msg);
+    }
 
-    GetEditorEngineConnection()->SendMessage(&msg);
+    {
+      ezDocumentConfigMsgToEngine msg;
+      msg.m_sWhatToDo = "SetLodLevel";
+      msg.m_iValue = pDoc->m_iTextureLod;
+      GetEditorEngineConnection()->SendMessage(&msg);
+    }
   }
 
   for (auto pView : m_ViewWidgets)

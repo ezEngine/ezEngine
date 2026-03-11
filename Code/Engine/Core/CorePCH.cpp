@@ -5,11 +5,6 @@ EZ_STATICLINK_LIBRARY(Core)
   if (bReturn)
     return;
 
-  EZ_STATICLINK_REFERENCE(Core_ActorSystem_Implementation_Actor);
-  EZ_STATICLINK_REFERENCE(Core_ActorSystem_Implementation_ActorApiService);
-  EZ_STATICLINK_REFERENCE(Core_ActorSystem_Implementation_ActorManager);
-  EZ_STATICLINK_REFERENCE(Core_ActorSystem_Implementation_ActorPlugin);
-  EZ_STATICLINK_REFERENCE(Core_ActorSystem_Implementation_ActorPluginWindow);
   EZ_STATICLINK_REFERENCE(Core_Collection_Implementation_CollectionComponent);
   EZ_STATICLINK_REFERENCE(Core_Collection_Implementation_CollectionResource);
   EZ_STATICLINK_REFERENCE(Core_Configuration_Implementation_PlatformProfile);
@@ -19,11 +14,14 @@ EZ_STATICLINK_LIBRARY(Core)
   EZ_STATICLINK_REFERENCE(Core_GameState_Implementation_ForwardEventsToGameStateComponent);
   EZ_STATICLINK_REFERENCE(Core_GameState_Implementation_GameStateBase);
   EZ_STATICLINK_REFERENCE(Core_Graphics_Implementation_Camera);
+  EZ_STATICLINK_REFERENCE(Core_Graphics_Implementation_Spline);
   EZ_STATICLINK_REFERENCE(Core_Input_DeviceTypes_DeviceTypes);
   EZ_STATICLINK_REFERENCE(Core_Input_Implementation_InputDevice);
   EZ_STATICLINK_REFERENCE(Core_Input_Implementation_Startup);
   EZ_STATICLINK_REFERENCE(Core_Input_Implementation_VirtualThumbStick);
+  EZ_STATICLINK_REFERENCE(Core_Interfaces_NavmeshGeoWorldModule);
   EZ_STATICLINK_REFERENCE(Core_Interfaces_PhysicsWorldModule);
+  EZ_STATICLINK_REFERENCE(Core_Interfaces_SoundInterface);
   EZ_STATICLINK_REFERENCE(Core_Interfaces_WindWorldModule);
   EZ_STATICLINK_REFERENCE(Core_Messages_Implementation_ApplyOnlyToMessage);
   EZ_STATICLINK_REFERENCE(Core_Messages_Implementation_EventMessage);
@@ -31,6 +29,11 @@ EZ_STATICLINK_LIBRARY(Core)
   EZ_STATICLINK_REFERENCE(Core_Messages_Implementation_SetColorMessage);
   EZ_STATICLINK_REFERENCE(Core_Physics_Implementation_SurfaceResource);
   EZ_STATICLINK_REFERENCE(Core_Physics_Implementation_SurfaceResourceDescriptor);
+  EZ_STATICLINK_REFERENCE(Core_Platform_Android_InputDevice_Android);
+  EZ_STATICLINK_REFERENCE(Core_Platform_GLFW_ControllerInput_GLFW);
+  EZ_STATICLINK_REFERENCE(Core_Platform_GLFW_InputDevice_GLFW);
+  EZ_STATICLINK_REFERENCE(Core_Platform_GLFW_Window_GLFW);
+  EZ_STATICLINK_REFERENCE(Core_Platform_Win_InputDevice_Win);
   EZ_STATICLINK_REFERENCE(Core_Prefabs_Implementation_PrefabReferenceComponent);
   EZ_STATICLINK_REFERENCE(Core_Prefabs_Implementation_PrefabResource);
   EZ_STATICLINK_REFERENCE(Core_ResourceManager_Implementation_Resource);
@@ -43,7 +46,12 @@ EZ_STATICLINK_LIBRARY(Core)
   EZ_STATICLINK_REFERENCE(Core_Scripting_ScriptClasses_Implementation_ScriptCoroutine_MoveTo);
   EZ_STATICLINK_REFERENCE(Core_Scripting_ScriptClasses_Implementation_ScriptCoroutine_TweenProperty);
   EZ_STATICLINK_REFERENCE(Core_Scripting_ScriptClasses_Implementation_ScriptCoroutine_Wait);
+  EZ_STATICLINK_REFERENCE(Core_Scripting_ScriptClasses_Implementation_ScriptExtensionClass_CVar);
   EZ_STATICLINK_REFERENCE(Core_Scripting_ScriptClasses_Implementation_ScriptExtensionClass_Log);
+  EZ_STATICLINK_REFERENCE(Core_Scripting_ScriptClasses_Implementation_ScriptExtensionClass_Physics);
+  EZ_STATICLINK_REFERENCE(Core_Scripting_ScriptClasses_Implementation_ScriptExtensionClass_Prefabs);
+  EZ_STATICLINK_REFERENCE(Core_Scripting_ScriptClasses_Implementation_ScriptExtensionClass_StableRandom);
+  EZ_STATICLINK_REFERENCE(Core_System_Implementation_WindowManager);
   EZ_STATICLINK_REFERENCE(Core_Utils_Implementation_Blackboard);
   EZ_STATICLINK_REFERENCE(Core_Utils_Implementation_CustomData);
   EZ_STATICLINK_REFERENCE(Core_Utils_Implementation_IntervalScheduler);

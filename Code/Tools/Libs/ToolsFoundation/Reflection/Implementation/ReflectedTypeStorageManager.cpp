@@ -243,12 +243,14 @@ void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::AddPropertyToIn
 
 void ezReflectedTypeStorageManager::Startup()
 {
+  ezPlugin::Events().AddEventHandler(ezReflectedTypeStorageManager::PluginEventHandler);
   ezPhantomRttiManager::s_Events.AddEventHandler(TypeEventHandler);
 }
 
 void ezReflectedTypeStorageManager::Shutdown()
 {
   ezPhantomRttiManager::s_Events.RemoveEventHandler(TypeEventHandler);
+  ezPlugin::Events().RemoveEventHandler(ezReflectedTypeStorageManager::PluginEventHandler);
 
   for (auto it = s_ReflectedTypeToStorageMapping.GetIterator(); it.IsValid(); ++it)
   {
@@ -349,5 +351,33 @@ void ezReflectedTypeStorageManager::TypeEventHandler(const ezPhantomRttiManagerE
       EZ_DEFAULT_DELETE(pMapping);
     }
     break;
+  }
+}
+
+void ezReflectedTypeStorageManager::PluginEventHandler(const ezPluginEvent& EventData)
+{
+  switch (EventData.m_EventType)
+  {
+    case ezPluginEvent::BeforeUnloading:
+    {
+      for (auto it = s_ReflectedTypeToStorageMapping.GetIterator(); it.IsValid();)
+      {
+        if (it.Key()->GetPluginName() == EventData.m_sPluginBinary)
+        {
+          ReflectedTypeStorageMapping* pMapping = it.Value();
+          EZ_ASSERT_DEV(pMapping->m_Instances.IsEmpty(), "A type was removed which still has instances using the type!");
+          it = s_ReflectedTypeToStorageMapping.Remove(it);
+          EZ_DEFAULT_DELETE(pMapping);
+        }
+        else
+        {
+          ++it;
+        }
+      }
+    }
+    break;
+
+    default:
+      break;
   }
 }

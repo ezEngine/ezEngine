@@ -46,6 +46,9 @@ class CDockContainerWidget;
 class CDockAreaWidget;
 class DockContainerWidgetPrivate;
 class CFloatingDockContainer;
+class CAutoHideTab;
+class CAutoHideDockContainer;
+class CAutoHideSideBar;
 
 /**
  * The QDockWidget class provides a widget that can be docked inside a
@@ -75,6 +78,8 @@ protected:
     friend class CDockWidgetTab;
     friend struct DockWidgetTabPrivate;
     friend struct DockAreaTitleBarPrivate;
+    friend class CAutoHideDockContainer;
+    friend CAutoHideSideBar;
 
     /**
      * Assigns the dock manager that manages this dock widget
@@ -156,9 +161,11 @@ public:
         DockWidgetForceCloseWithArea = 0x040, ///< dock widget will be closed when the dock area hosting it is closed
         NoTab = 0x080, ///< dock widget tab will never be shown if this flag is set
         DeleteContentOnClose = 0x100, ///< deletes only the contained widget on close, keeping the dock widget intact and in place. Attempts to rebuild the contents widget on show if there is a widget factory set.
-        DefaultDockWidgetFeatures = DockWidgetClosable | DockWidgetMovable | DockWidgetFloatable | DockWidgetFocusable,
+        DockWidgetPinnable = 0x200, ///< dock widget can be pinned and added to an auto hide dock container
+        DefaultDockWidgetFeatures = DockWidgetClosable | DockWidgetMovable | DockWidgetFloatable | DockWidgetFocusable | DockWidgetPinnable,
         AllDockWidgetFeatures = DefaultDockWidgetFeatures | DockWidgetDeleteOnClose | CustomCloseHandling,
         DockWidgetAlwaysCloseAndDelete = DockWidgetForceCloseWithArea | DockWidgetDeleteOnClose,
+        GloballyLockableFeatures = DockWidgetClosable | DockWidgetMovable | DockWidgetFloatable | DockWidgetPinnable,
         NoDockWidgetFeatures = 0x000
     };
     Q_DECLARE_FLAGS(DockWidgetFeatures, DockWidgetFeature)
@@ -168,6 +175,12 @@ public:
         StateHidden,
         StateDocked,
         StateFloating
+    };
+
+    enum eToolBarStyleSource
+    {
+    	ToolBarStyleFromDockManager,
+    	ToolBarStyleFromDockWidget
     };
 
     /**
@@ -202,12 +215,17 @@ public:
      * reimplements minimumSizeHint() function to return a very small minimum
      * size hint. If you would like to adhere the minimumSizeHint() from the
      * content widget, then set the minimumSizeHintMode() to
-     * MinimumSizeHintFromContent.
+     * MinimumSizeHintFromContent. If you would like to use the minimumSize()
+     * value of the content widget or the dock widget, then you can use the
+     * MinimumSizeHintFromDockWidgetMinimumSize or
+     * MinimumSizeHintFromContentMinimumSize modes.
      */
     enum eMinimumSizeHintMode
     {
     	MinimumSizeHintFromDockWidget,
-    	MinimumSizeHintFromContent
+    	MinimumSizeHintFromContent,
+    	MinimumSizeHintFromDockWidgetMinimumSize,
+    	MinimumSizeHintFromContentMinimumSize,
     };
 
 
@@ -235,16 +253,43 @@ public:
      * object name is required by the dock manager to properly save and restore
      * the state of the dock widget. That means, the title needs to be unique.
      * If your title is not unique or if you would like to change the title
-     * during runtime, you need to set a unique object name explicitely
+     * during runtime, you need to set a unique object name explicitly
      * by calling setObjectName() after construction.
      * Use the layoutFlags to configure the layout of the dock widget.
+     * \note If you would like to use custom TabWidget implementations, you need
+     * to use the constructor with the CDockManager argument.
      */
-    CDockWidget(const QString &title, QWidget* parent = 0);
+    Q_DECL_DEPRECATED explicit CDockWidget(const QString &title, QWidget* parent = nullptr);
+
+    /**
+     * This constructor creates a dock widget for the given dock manager with the
+     * provided title.
+     *
+     * @param manager Pointer to the dock manager that owns the dock widget.
+     * @param title The title is the text that is shown in the window title when
+     * the dock widget is floating and it is the title that is shown in the
+     * titlebar or the tab of this dock widget if it is tabified.
+     * @param parent Pointer to the parent widget, defaults to nullptr.
+     *
+     * @note The object name of the dock widget is also set to the title. The
+     * object name is required by the dock manager to properly save and restore
+     * the state of the dock widget. That means, the title needs to be unique. If
+     * the title is not unique or if you would like to change the title during
+     * runtime, you need to set a unique object name explicitly by calling
+     * setObjectName() after construction. Use the layoutFlags to configure the
+     * layout of the dock widget.
+     *
+     * @note this constructor is preferred over the two argument version, especially
+     * when custom factories are in use. Indeed, it will use the Dock Manager factory,
+     * and not the default factory. For this reason, the original constructor should
+     * be deprecated in favour of this version.
+     */
+    CDockWidget(CDockManager *manager, const QString &title, QWidget* parent = nullptr);
 
     /**
      * Virtual Destructor
      */
-    virtual ~CDockWidget();
+    ~CDockWidget() override;
 
     /**
      * We return a fixed minimum size hint or the size hint of the content
@@ -320,6 +365,11 @@ public:
     DockWidgetFeatures features() const;
 
     /**
+     * Triggers notification of feature change signals and functions
+     */
+    void notifyFeaturesChanged();
+
+    /**
      * Returns the dock manager that manages the dock widget or 0 if the widget
      * has not been assigned to any dock manager yet
      */
@@ -342,6 +392,35 @@ public:
      * if this dock widget has not been docked yet
      */
     CDockAreaWidget* dockAreaWidget() const;
+
+    /**
+     * Returns the side tab widget for this dock, if this dock widget is in
+     * a auto hide container. If it is not in a auto hide container, then this
+     * function returns a nullptr,
+     */
+    CAutoHideTab* sideTabWidget() const;
+
+    /**
+     * Assign a side tab widget if this dock widget is an auto hide container
+     */
+    void setSideTabWidget(CAutoHideTab* SideTab) const;
+
+    /**
+     * Returns true, if this dock widget is in an auto hide container
+     */
+    bool isAutoHide() const;
+
+    /**
+     * Returns the auto hide dock container of this dock widget
+     * or 0 if there is none
+     */
+    CAutoHideDockContainer* autoHideDockContainer() const;
+
+    /**
+     * Returns the auto hide side bar location or SideBarNone if, this is not
+     * an autohide dock widget
+     */
+    SideBarLocation autoHideLocation() const;
 
     /**
      * This property holds whether the dock widget is floating.
@@ -370,6 +449,12 @@ public:
     QAction* toggleViewAction() const;
 
     /**
+     * Use provided action to be the default toggle view action for this dock widget.
+     * This dock widget now owns the action.
+     */
+    void setToggleViewAction(QAction* action);
+
+    /**
      * Configures the behavior of the toggle view action.
      * \see eToggleViewActionMode for a detailed description
      */
@@ -381,6 +466,11 @@ public:
      * \see eMinimumSizeHintMode for a detailed description
      */
     void setMinimumSizeHintMode(eMinimumSizeHintMode Mode);
+
+    /**
+     * Get the minimum size hint mode configured by setMinimumSizeHintMode
+     */
+    eMinimumSizeHintMode minimumSizeHintMode() const;
 
     /**
      * Returns true if the dock widget is set as central widget of it's dock manager
@@ -400,7 +490,7 @@ public:
 
     /**
      * This function returns the dock widget top tool bar.
-     * If no toolbar is assigned, this function returns nullptr. To get a vaild
+     * If no toolbar is assigned, this function returns nullptr. To get a valid
      * toolbar you either need to create a default empty toolbar via
      * createDefaultToolBar() function or you need to assign your custom
      * toolbar via setToolBar().
@@ -421,6 +511,17 @@ public:
      * on destruction
      */
     void setToolBar(QToolBar* ToolBar);
+
+    /**
+     * Configures, if the dock widget uses the global tool bar styles from
+     * dock manager or if it uses its own tool bar style
+     */
+    void setToolBarStyleSource(eToolBarStyleSource Source);
+
+    /**
+     * Returns the configured tool bar style source
+     */
+    eToolBarStyleSource toolBarStyleSource() const;
 
     /**
      * This function sets the tool button style for the given dock widget state.
@@ -539,9 +640,18 @@ public Q_SLOTS:
     void deleteDockWidget();
 
     /**
-     * Closes the dock widget
+     * Closes the dock widget.
+     * The function forces closing of the dock widget even for CustomCloseHandling.
      */
     void closeDockWidget();
+
+    /**
+     * Request closing of the dock widget.
+     * For DockWidget with default close handling, the function does the same
+     * like clodeDockWidget() but if the flas CustomCloseHandling is set,
+     * the function only emits the closeRequested() signal.
+     */
+    void requestCloseDockWidget();
 
     /**
      * Shows the widget in full-screen mode.
@@ -562,6 +672,18 @@ public Q_SLOTS:
      * after it has been in full screen mode.
      */
     void showNormal();
+
+	/**
+	 * Sets the dock widget into auto hide mode if this feature is enabled
+	 * via CDockManager::setAutoHideFlags(CDockManager::AutoHideFeatureEnabled)
+	 */
+	void setAutoHide(bool Enable, SideBarLocation Location = SideBarNone, int TabIndex = -1);
+
+	/**
+	 * Switches the dock widget to auto hide mode or vice versa depending on its
+	 * current state.
+	 */
+	void toggleAutoHide(SideBarLocation Location = SideBarNone);
 
 
 Q_SIGNALS:

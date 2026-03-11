@@ -10,21 +10,21 @@
 #include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <QDockWidget>
 #include <QLabel>
 #include <QMessageBox>
 #include <QSettings>
 #include <QStatusBar>
-#include <QTimer>
 #include <ToolsFoundation/Document/Document.h>
+#include <ads/DockManager.h>
 #include <ads/DockWidget.h>
 
 ezEvent<const ezQtDocumentWindowEvent&> ezQtDocumentWindow::s_Events;
 ezDynamicArray<ezQtDocumentWindow*> ezQtDocumentWindow::s_AllDocumentWindows;
-bool ezQtDocumentWindow::s_bAllowRestoreWindowLayout = true;
 
 void ezQtDocumentWindow::Constructor()
 {
+  m_pDockManager = new ads::CDockManager(this);
+
   s_AllDocumentWindows.PushBack(this);
 
   // status bar
@@ -42,8 +42,6 @@ void ezQtDocumentWindow::Constructor()
     EZ_VERIFY(connect(m_pPermanentGlobalStatusButton, &QToolButton::clicked, this, &ezQtDocumentWindow::OnPermanentGlobalStatusClicked), "");
   }
 
-  setDockNestingEnabled(true);
-
   ezQtMenuBarActionMapView* pMenuBar = new ezQtMenuBarActionMapView(this);
   setMenuBar(pMenuBar);
 
@@ -53,6 +51,9 @@ void ezQtDocumentWindow::Constructor()
 
   ezQtUiServices::s_Events.AddEventHandler(ezMakeDelegate(&ezQtDocumentWindow::UIServicesEventHandler, this));
   ezQtUiServices::s_TickEvent.AddEventHandler(ezMakeDelegate(&ezQtDocumentWindow::UIServicesTickEventHandler, this));
+
+  // Automatically restore the saved nested layout for this document window type
+  QMetaObject::invokeMethod(this, "SlotRestoreDocumentLayout", Qt::ConnectionType::QueuedConnection);
 }
 
 ezQtDocumentWindow::ezQtDocumentWindow(ezDocument* pDocument)
@@ -102,7 +103,7 @@ void ezQtDocumentWindow::SetVisibleInContainer(bool bVisible)
   if (m_bIsVisibleInContainer)
   {
     // if the window is now visible, immediately do a redraw and trigger the timers
-    SlotRedraw();
+    TriggerRedraw();
     // Make sure the window gains focus as well when it becomes visible so that shortcuts will immediately work.
     setFocus();
   }
@@ -116,18 +117,23 @@ void ezQtDocumentWindow::SetTargetFramerate(ezInt16 iTargetFPS)
   m_iTargetFramerate = iTargetFPS;
 
   if (m_iTargetFramerate != 0)
-    SlotRedraw();
+    TriggerRedraw();
 }
 
 void ezQtDocumentWindow::TriggerRedraw()
 {
-  SlotRedraw();
+  m_bRedrawIsTriggered = true;
 }
 
 void ezQtDocumentWindow::UIServicesTickEventHandler(const ezQtUiServices::TickEvent& e)
 {
-  if (e.m_Type == ezQtUiServices::TickEvent::Type::StartFrame && m_bIsVisibleInContainer)
+  auto ShouldRender = [&]() -> bool
   {
+    if (!m_bIsVisibleInContainer)
+      return false;
+    if (m_bRedrawIsTriggered)
+      return true;
+
     const ezInt32 iSystemFramerate = static_cast<ezInt32>(ezMath::Round(e.m_fRefreshRate));
 
     ezInt32 iTargetFramerate = m_iTargetFramerate;
@@ -143,13 +149,26 @@ void ezQtDocumentWindow::UIServicesTickEventHandler(const ezQtUiServices::TickEv
     {
       ezUInt32 mod = ezMath::Max(1u, (ezUInt32)ezMath::Floor(iSystemFramerate / (double)iTargetFramerate));
       if ((e.m_uiFrame % mod) != 0)
-        return;
+        return false;
     }
+    return true;
+  };
 
-    SlotRedraw();
+  if (e.m_Type == ezQtUiServices::TickEvent::Type::BeforeFrame)
+  {
+    if (ShouldRender())
+    {
+      e.m_uiFrameRequest++;
+    }
+  }
+  else if (e.m_Type == ezQtUiServices::TickEvent::Type::StartFrame)
+  {
+    if (ShouldRender())
+    {
+      SlotRedraw();
+    }
   }
 }
-
 
 void ezQtDocumentWindow::SlotRedraw()
 {
@@ -169,6 +188,7 @@ void ezQtDocumentWindow::SlotRedraw()
   m_bIsDrawingATM = true;
   InternalRedraw();
   m_bIsDrawingATM = false;
+  m_bRedrawIsTriggered = false;
 }
 
 void ezQtDocumentWindow::DocumentEventHandler(const ezDocumentEvent& e)
@@ -335,85 +355,6 @@ void ezQtDocumentWindow::FinishWindowCreation()
 {
   if (centralWidget())
     centralWidget()->installEventFilter(this);
-
-  ScheduleRestoreWindowLayout();
-}
-
-void ezQtDocumentWindow::ScheduleRestoreWindowLayout()
-{
-  QTimer::singleShot(0, this, SLOT(SlotRestoreLayout()));
-}
-
-void ezQtDocumentWindow::SlotRestoreLayout()
-{
-  RestoreWindowLayout();
-}
-
-void ezQtDocumentWindow::SaveWindowLayout()
-{
-  // This is a workaround for newer Qt versions (5.13 or so) that seem to change the state of QDockWidgets to "closed" once the parent
-  // QMainWindow gets the closeEvent, even though they still exist and the QMainWindow is not yet deleted. Previously this function was
-  // called multiple times, including once after the QMainWindow got its closeEvent, which would then save a corrupted state. Therefore,
-  // once the parent ezQtContainerWindow gets the closeEvent, we now prevent further saving of the window layout.
-  if (!m_bAllowSaveWindowLayout)
-    return;
-
-  const bool bMaximized = isMaximized();
-
-  if (bMaximized)
-    showNormal();
-
-  ezStringBuilder sGroup;
-  sGroup.SetFormat("DocumentWnd_{0}", GetWindowLayoutGroupName());
-
-  QSettings Settings;
-  Settings.beginGroup(QString::fromUtf8(sGroup, sGroup.GetElementCount()));
-  {
-    // All other properties are defined by the outer container window.
-    Settings.setValue("WindowState", saveState());
-  }
-  Settings.endGroup();
-}
-
-void ezQtDocumentWindow::RestoreWindowLayout()
-{
-  if (!s_bAllowRestoreWindowLayout)
-    return;
-
-  ezQtScopedUpdatesDisabled _(this);
-
-  ezStringBuilder sGroup;
-  sGroup.SetFormat("DocumentWnd_{0}", GetWindowLayoutGroupName());
-
-  {
-    QSettings Settings;
-    Settings.beginGroup(QString::fromUtf8(sGroup, sGroup.GetElementCount()));
-    {
-      restoreState(Settings.value("WindowState", saveState()).toByteArray());
-    }
-    Settings.endGroup();
-
-    // with certain Qt versions the window state could be saved corrupted
-    // if that is the case, make sure that non-closable widgets get restored to be visible
-    // otherwise the user would need to delete the serialized state from the registry
-    {
-      for (QDockWidget* dockWidget : findChildren<QDockWidget*>())
-      {
-        // not closable means the user can generally not change the visible state -> make sure it is visible
-        if (!dockWidget->features().testFlag(QDockWidget::DockWidgetClosable) && dockWidget->isHidden())
-        {
-          dockWidget->show();
-        }
-      }
-    }
-  }
-
-  statusBar()->clearMessage();
-}
-
-void ezQtDocumentWindow::DisableWindowLayoutSaving()
-{
-  m_bAllowSaveWindowLayout = false;
 }
 
 ezStatus ezQtDocumentWindow::SaveDocument()
@@ -439,7 +380,7 @@ ezStatus ezQtDocumentWindow::SaveDocument()
 
     ezQtUiServices::MessageBoxStatus(res, s, s2);
 
-    if (res.m_Result.Failed())
+    if (res.Failed())
     {
       ShowTemporaryStatusBarMsg("Failed to save document");
       return res;
@@ -557,9 +498,63 @@ void ezQtDocumentWindow::OnStatusBarMessageChanged(const QString& sNewText)
   statusBar()->setPalette(pal);
 }
 
+void ezQtDocumentWindow::SlotRestoreDocumentLayout()
+{
+  if (m_pDockManager == nullptr)
+    return;
+
+  const char* szTypeName = metaObject()->className();
+
+  QSettings settings;
+  settings.beginGroup("DocumentWindowLayouts");
+  QByteArray state = settings.value(szTypeName).toByteArray();
+  settings.endGroup();
+
+  if (!state.isEmpty())
+  {
+    m_pDockManager->restoreState(state);
+  }
+
+  // Schedule capturing the initial state after the layout has stabilized
+  // This needs to happen after the window becomes visible and Qt does its layout adjustments
+  QMetaObject::invokeMethod(this, "SlotCaptureInitialLayoutState", Qt::ConnectionType::QueuedConnection);
+}
+
+void ezQtDocumentWindow::SlotCaptureInitialLayoutState()
+{
+  if (m_pDockManager == nullptr || !m_InitialDocumentLayoutState.isEmpty())
+    return;
+
+  // Only capture once the window is actually visible and layouts have stabilized
+  if (!isVisible())
+  {
+    // If not visible yet, try again later
+    QMetaObject::invokeMethod(this, "SlotCaptureInitialLayoutState", Qt::ConnectionType::QueuedConnection);
+    return;
+  }
+
+  // Capture the baseline state after Qt has done its layout adjustments
+  m_InitialDocumentLayoutState = m_pDockManager->saveState();
+}
+
 void ezQtDocumentWindow::ShutdownDocumentWindow()
 {
-  SaveWindowLayout();
+  // Auto-save the document layout if it changed
+  if (m_pDockManager != nullptr && !m_InitialDocumentLayoutState.isEmpty())
+  {
+    QByteArray currentState = m_pDockManager->saveState();
+
+    // Only save if the layout actually changed
+    if (currentState != m_InitialDocumentLayoutState)
+    {
+      const char* szTypeName = metaObject()->className();
+
+      QSettings settings;
+      settings.beginGroup("DocumentWindowLayouts");
+      settings.setValue(szTypeName, currentState);
+      settings.endGroup();
+    }
+  }
 
   InternalCloseDocumentWindow();
 

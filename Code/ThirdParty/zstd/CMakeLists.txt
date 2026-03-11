@@ -2,6 +2,9 @@ ez_cmake_init()
 
 ez_requires(EZ_3RDPARTY_ZSTD_SUPPORT)
 
+# not sure why this is needed, but otherwise there's a warning for this project
+set(CMAKE_MSVC_RUNTIME_LIBRARY "")
+
 # Get the name of this folder as the project name
 get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 

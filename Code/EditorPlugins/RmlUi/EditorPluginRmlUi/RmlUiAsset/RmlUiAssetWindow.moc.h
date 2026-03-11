@@ -14,8 +14,6 @@ class ezQtRmlUiAssetDocumentWindow : public ezQtEngineDocumentWindow
 public:
   ezQtRmlUiAssetDocumentWindow(ezAssetDocument* pDocument);
 
-  virtual const char* GetWindowLayoutGroupName() const override { return "RmlUiAsset"; }
-
 protected:
   virtual void InternalRedraw() override;
 

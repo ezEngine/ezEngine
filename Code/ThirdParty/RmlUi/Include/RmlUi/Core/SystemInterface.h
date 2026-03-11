@@ -1,65 +1,27 @@
-/*
- * This source file is part of RmlUi, the HTML/CSS Interface Middleware
- *
- * For the latest information, see http://github.com/mikke89/RmlUi
- *
- * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
- */
+#pragma once
 
-#ifndef RMLUI_CORE_SYSTEMINTERFACE_H
-#define RMLUI_CORE_SYSTEMINTERFACE_H
-
-#include "Types.h"
+#include "Header.h"
 #include "Log.h"
 #include "Traits.h"
-#include "Header.h"
+#include "Types.h"
 
 namespace Rml {
 
 /**
-	RmlUi's System Interface.
+    RmlUi's system interface provides an interface for time, translation, logging, and other system utilities.
 
-	This class provides interfaces for Time, Translation and Logging.
-
-	Time is the only required implementation.
-
-	The default implemention of Translation doesn't translate anything
-
-	The default implementation of logging logs Windows Debug Console,
-	or Standard Error, depending on what platform you're using.
-
-	@author Lloyd Weehuizen
+    The default logging implementation outputs to the Windows Debug Console on Windows, and Standard Error on other
+    platforms.
  */
 
-class RMLUICORE_API SystemInterface : public NonCopyMoveable
-{
+class RMLUICORE_API SystemInterface : public NonCopyMoveable {
 public:
 	SystemInterface();
 	virtual ~SystemInterface();
 
 	/// Get the number of seconds elapsed since the start of the application.
 	/// @return Elapsed time, in seconds.
-	virtual double GetElapsedTime() = 0;
+	virtual double GetElapsedTime();
 
 	/// Translate the input string into the translated string.
 	/// @param[out] translated Translated string ready for display.
@@ -91,12 +53,13 @@ public:
 	/// @param[out] text Retrieved text from clipboard.
 	virtual void GetClipboardText(String& text);
 
-	/// Activate keyboard (for touchscreen devices)
-	virtual void ActivateKeyboard();
-	
-	/// Deactivate keyboard (for touchscreen devices)
+	/// Activate keyboard (for touchscreen devices).
+	/// @param[in] caret_position Position of the caret in absolute window coordinates.
+	/// @param[in] line_height Height of the current line being edited.
+	virtual void ActivateKeyboard(Rml::Vector2f caret_position, float line_height);
+
+	/// Deactivate keyboard (for touchscreen devices).
 	virtual void DeactivateKeyboard();
 };
 
 } // namespace Rml
-#endif

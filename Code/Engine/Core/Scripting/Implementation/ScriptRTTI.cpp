@@ -42,6 +42,11 @@ ezScriptRTTI::~ezScriptRTTI()
 {
   UnregisterType();
   m_sTypeName = nullptr;
+
+  // RTTI base class will try to delete the contents of these arrays under the assumption that they were created during static init. Dynamically created types must ensure that these arrays are cleared out before the base class is executed.
+  m_Properties.Clear();
+  m_Functions.Clear();
+  m_Attributes.Clear();
 }
 
 const ezAbstractFunctionProperty* ezScriptRTTI::GetFunctionByIndex(ezUInt32 uiIndex) const
@@ -87,6 +92,18 @@ void ezScriptMessageHandler::FillMessagePropertyValues(const ezMessage& msg, ezD
     if (pProp->GetCategory() == ezPropertyCategory::Member)
     {
       out_propertyValues.PushBack(ezReflectionUtils::GetMemberPropertyValue(static_cast<const ezAbstractMemberProperty*>(pProp), &msg));
+    }
+    else if (pProp->GetCategory() == ezPropertyCategory::Array)
+    {
+      auto pArrayProp = static_cast<const ezAbstractArrayProperty*>(pProp);
+
+      ezVariantArray a;
+      for (ezUInt32 i = 0; i < pArrayProp->GetCount(&msg); ++i)
+      {
+        a.PushBack(ezReflectionUtils::GetArrayPropertyValue(pArrayProp, &msg, i));
+      }
+
+      out_propertyValues.PushBack(a);
     }
     else
     {

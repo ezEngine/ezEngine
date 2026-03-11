@@ -6,12 +6,17 @@
 // TODO
 // Write primitives in HEX (esp. float)
 
-/// \brief The base class for OpenDDL writers.
+/// \brief Writes OpenDDL documents to a stream with configurable formatting
 ///
-/// Declares a common interface for writing OpenDDL files.
+/// OpenDDL (Open Data Description Language) is a text format for describing structured data.
+/// This writer generates OpenDDL text from programmatically created object hierarchies and primitive data.
+/// Supports various output modes including compact/verbose formatting, different type name styles,
+/// and precise floating-point representation. Objects and primitive lists can be nested arbitrarily.
+/// Call SetOutputStream() first, then use BeginObject/EndObject and BeginPrimitiveList/EndPrimitiveList pairs.
 class EZ_FOUNDATION_DLL ezOpenDdlWriter
 {
 public:
+  /// \brief Controls how primitive type names are written in the output
   enum class TypeStringMode
   {
     Compliant,            ///< All primitive types are written as the OpenDDL standard defines them (very verbose)
@@ -20,6 +25,7 @@ public:
                           ///< string, float, double)
   };
 
+  /// \brief Controls how floating-point values are formatted in the output
   enum class FloatPrecisionMode
   {
     Readable, ///< Float values are printed as readable numbers. Precision might get lost though.
@@ -46,8 +52,10 @@ public:
   /// \brief Returns how float values are output.
   FloatPrecisionMode GetFloatPrecisionMode() const { return m_FloatPrecisionMode; }
 
-  /// \brief Allows to set the indentation. Negative values are possible.
-  /// This makes it possible to set the indentation e.g. to -2, thus the output will only have indentation after a level of 3 has been reached.
+  /// \brief Sets the base indentation level for output formatting
+  ///
+  /// Negative values are allowed to delay indentation until deeper nesting levels.
+  /// For example, setting -2 means indentation only starts at nesting level 3.
   void SetIndentation(ezInt8 iIndentation) { m_iIndentation = iIndentation; }
 
   /// \brief Begins outputting an object.
@@ -98,7 +106,10 @@ public:
   /// \brief Writes a single string to the primitive list. Can be called multiple times between BeginPrimitiveList() / EndPrimitiveList().
   void WriteString(const ezStringView& sString); // [tested]
 
-  /// \brief Writes a single string to the primitive list, but the value is a HEX representation of the given binary data.
+  /// \brief Writes binary data as a hexadecimal string to the primitive list
+  ///
+  /// Converts the binary data to a hex string representation and writes it as a string primitive.
+  /// Useful for embedding binary data within OpenDDL text format.
   void WriteBinaryAsString(const void* pData, ezUInt32 uiBytes);
 
 

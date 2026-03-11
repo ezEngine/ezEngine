@@ -27,20 +27,7 @@ macro(ez_platform_detect_generator)
 
 endmacro()
 
-macro(ez_platformhook_link_target_vulkan)
-
-	# on linux is the loader a dll
-	get_target_property(_dll_location EzVulkan::Loader IMPORTED_LOCATION)
-
-	if(NOT _dll_location STREQUAL "")
-		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:EzVulkan::Loader> $<TARGET_FILE_DIR:${TARGET_NAME}>)
-	endif()
-
-	unset(_dll_location)
-
-endmacro()
-
-macro(ez_platformhook_set_build_flags_clang)
+macro(ez_platformhook_set_build_flags_clang TARGET_NAME)
 	target_compile_options(${TARGET_NAME} PRIVATE -fPIC)
 
 	# Look for the super fast ld compatible linker called "mold". If present we want to use it.
@@ -52,7 +39,8 @@ macro(ez_platformhook_set_build_flags_clang)
 
 	if("${TARGET_TYPE}" STREQUAL "SHARED_LIBRARY")
 		if(NOT("${CMAKE_EXE_LINKER_FLAGS}" MATCHES "fuse-ld="))
-			if(MOLD_PATH)
+			# TODO_ANDROID: Mold does not support `--undefined-glob` so we can't use it for Android right now. Either we need to prevent via some other means that the linger drops plugins or figure out which version of mold if any supports `--undefined-glob`.
+			if(false) #if(MOLD_PATH)
 				target_link_options(${TARGET_NAME} PRIVATE "-fuse-ld=${MOLD_PATH}")
 			else()
 				target_link_options(${TARGET_NAME} PRIVATE "-fuse-ld=lld")
@@ -67,57 +55,28 @@ macro(ez_platformhook_set_build_flags_clang)
 endmacro()
 
 macro(ez_platformhook_find_vulkan)
-	if(EZ_CMAKE_ARCHITECTURE_64BIT)
-		if((EZ_VULKAN_DIR STREQUAL "EZ_VULKAN_DIR-NOTFOUND") OR(EZ_VULKAN_DIR STREQUAL ""))
-			set(CMAKE_FIND_DEBUG_MODE TRUE)
-			unset(EZ_VULKAN_DIR CACHE)
-			unset(EzVulkan_DIR CACHE)
 
-			find_path(EZ_VULKAN_DIR config/vk_layer_settings.txt
-					PATHS
-					${EZ_VULKAN_DIR}
-					$ENV{VULKAN_SDK}
-			)
-
-			if((EZ_VULKAN_DIR STREQUAL "EZ_VULKAN_DIR-NOTFOUND") OR (EZ_VULKAN_DIR STREQUAL ""))
-				# When cross-compiling on windows, we assume the env var VULKAN_SDK is set so the previous find_path call should have succeeded.
-				# On Linux, we just download the SDK as we would do when building for Linux directly.
-				# This is a bit wasteful as we already downloaded it and we only need a few headers, but cross workspace dependencies aren't easy to define in cmake. 
-				if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
-					ez_download_and_extract("${EZ_CONFIG_VULKAN_SDK_LINUXX64_URL}" "${CMAKE_BINARY_DIR}/vulkan-sdk" "vulkan-sdk-${EZ_CONFIG_VULKAN_SDK_LINUXX64_VERSION}")
-					set(EZ_VULKAN_DIR "${CMAKE_BINARY_DIR}/vulkan-sdk/${EZ_CONFIG_VULKAN_SDK_LINUXX64_VERSION}" CACHE PATH "Directory of the Vulkan SDK" FORCE)
-
-					find_path(EZ_VULKAN_DIR config/vk_layer_settings.txt
-							PATHS
-							${EZ_VULKAN_DIR}
-							$ENV{VULKAN_SDK}
-					)
-				endif ()
-			endif()
-
-			if((EZ_VULKAN_DIR STREQUAL "EZ_VULKAN_DIR-NOTFOUND") OR (EZ_VULKAN_DIR STREQUAL ""))
-				message(FATAL_ERROR "Failed to find vulkan SDK. Ez requires the vulkan sdk ${EZ_CONFIG_VULKAN_SDK_LINUXX64_VERSION}. Please set the environment variable VULKAN_SDK to the vulkan sdk location.")
-			endif()
-		endif()
-	else()
-		message(FATAL_ERROR "TODO: Vulkan is not yet supported on this platform and/or architecture.")
-	endif()
-
-	set(EZ_VULKAN_VALIDATIONLAYERS_DIR "" CACHE PATH "Directory of the Vulkan Validation Layers")
+	# As we are cross compiling, CMake assumes every path to be located under the Android NDK root. This is not the case for external libraries like the Vulkan SDK, so we need to clear the sysroot and find root path.
+	set(backup_CMAKE_FIND_ROOT_PATH ${CMAKE_FIND_ROOT_PATH})
+	set(backup_CMAKE_SYSROOT ${CMAKE_SYSROOT})
+	set(CMAKE_FIND_ROOT_PATH "")
+	set(CMAKE_SYSROOT "")
 
 	# Download prebuilt VkLayer_khronos_validation for Android
-	if((EZ_VULKAN_VALIDATIONLAYERS_DIR STREQUAL "EZ_VULKAN_VALIDATIONLAYERS_DIR-NOTFOUND") OR (EZ_VULKAN_VALIDATIONLAYERS_DIR STREQUAL ""))
-		ez_download_and_extract("${EZ_CONFIG_VULKAN_VALIDATIONLAYERS_ANDROID_URL}" "${CMAKE_BINARY_DIR}/vulkan-sdk" "vulkan-layers-${EZ_CONFIG_VULKAN_VALIDATIONLAYERS_VERSION}")
-		set(EZ_VULKAN_VALIDATIONLAYERS_DIR "${CMAKE_BINARY_DIR}/vulkan-sdk/android-binaries-${EZ_CONFIG_VULKAN_VALIDATIONLAYERS_VERSION}" CACHE PATH "Directory of the Vulkan Validation Layers" FORCE)
+	set(EZ_SHARED_VULKAN_VALIDATIONLAYERS_DIR "${EZ_ROOT}/Workspace/shared/VulkanValidationLayer-AndroidArm64-${EZ_CONFIG_VULKAN_VALIDATIONLAYERS_VERSION}")
+	ez_download_and_extract("${EZ_CONFIG_VULKAN_VALIDATIONLAYERS_ANDROID_URL}" "${EZ_SHARED_VULKAN_VALIDATIONLAYERS_DIR}" "VulkanValidationLayer-AndroidArm64-${EZ_CONFIG_VULKAN_VALIDATIONLAYERS_VERSION}")
 
-		find_path(EZ_VULKAN_VALIDATIONLAYERS_DIR arm64-v8a/libVkLayer_khronos_validation.so
-			PATHS
-			${EZ_VULKAN_VALIDATIONLAYERS_DIR}
-		)
-	endif()
+	#set(EZ_VULKAN_VALIDATIONLAYERS_DIR "${EZ_SHARED_VULKAN_VALIDATIONLAYERS_DIR}" CACHE PATH "Directory of the Vulkan Validation Layers" FORCE)
+	find_path(EZ_VULKAN_VALIDATIONLAYERS_DIR arm64-v8a/libVkLayer_khronos_validation.so NO_DEFAULT_PATH
+		PATHS
+		${EZ_SHARED_VULKAN_VALIDATIONLAYERS_DIR}/android-binaries-${EZ_CONFIG_VULKAN_VALIDATIONLAYERS_VERSION}
+	)
+
+	set(CMAKE_FIND_ROOT_PATH ${backup_CMAKE_FIND_ROOT_PATH})
+	set(CMAKE_SYSROOT ${backup_CMAKE_SYSROOT})
 
 	include(FindPackageHandleStandardArgs)
-	find_package_handle_standard_args(EzVulkan DEFAULT_MSG EZ_VULKAN_DIR)
+	find_package_handle_standard_args(EzVulkan DEFAULT_MSG EZ_VULKAN_VALIDATIONLAYERS_DIR)
 
 	if(NOT ANDROID_NDK)
 		message(WARNING "ANDROID_NDK not set")
@@ -129,28 +88,19 @@ macro(ez_platformhook_find_vulkan)
 		endif()
 	endif()
 
-	if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
-		set(EZ_VULKAN_INCLUDE_DIR "${EZ_VULKAN_DIR}/x86_64/include")
-	elseif (CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
-		set(EZ_VULKAN_INCLUDE_DIR "${EZ_VULKAN_DIR}/Include")
-	else ()
-		message(FATAL_ERROR "Unknown host system, can't find vulkan include dir.")
-	endif ()
+endmacro()
 
-	if(EZ_CMAKE_ARCHITECTURE_64BIT)
-		if(EZ_CMAKE_ARCHITECTURE_ARM)
-			add_library(EzVulkan::Loader SHARED IMPORTED)
-			set_target_properties(EzVulkan::Loader PROPERTIES IMPORTED_LOCATION "${CMAKE_SYSROOT}/usr/lib/aarch64-linux-android/${ANDROID_PLATFORM}/libvulkan.so")
-			set_target_properties(EzVulkan::Loader PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${EZ_VULKAN_INCLUDE_DIR}")
-		elseif(EZ_CMAKE_ARCHITECTURE_X86)
-			add_library(EzVulkan::Loader SHARED IMPORTED)
-			set_target_properties(EzVulkan::Loader PROPERTIES IMPORTED_LOCATION "${CMAKE_SYSROOT}/usr/lib/x86_64-linux-android/${ANDROID_PLATFORM}/libvulkan.so")
-			set_target_properties(EzVulkan::Loader PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${EZ_VULKAN_INCLUDE_DIR}")
-		endif()
-		# We define EzVulkan::DXC as a stub as we can't compile on android, but the high level init cmake code expects this function to define it.
-		add_library(EzVulkan::DXC SHARED IMPORTED)
-	else()
-		message(FATAL_ERROR "TODO: Vulkan is not yet supported on this platform and/or architecture.")
-	endif()
+macro(ez_platformhook_package_files TARGET_NAME SRC_FOLDER DST_FOLDER)
+
+	# Package files for Android APK by copying them to the Assets directory
+	# This is done in PRE_BUILD so that it happens before the APK generation steps
+	# that happen in POST_BUILD via ez_create_target
+	set(ANDROID_PACKAGE_DIR "${CMAKE_CURRENT_BINARY_DIR}/package/Assets")
+	
+	add_custom_command(TARGET ${TARGET_NAME} PRE_BUILD
+		COMMAND ${CMAKE_COMMAND} -E make_directory "${ANDROID_PACKAGE_DIR}/${DST_FOLDER}"
+		COMMAND ${CMAKE_COMMAND} -E copy_directory
+		"${SRC_FOLDER}" "${ANDROID_PACKAGE_DIR}/${DST_FOLDER}"
+		COMMENT "Packaging ${SRC_FOLDER} -> ${DST_FOLDER} for Android")
 
 endmacro()

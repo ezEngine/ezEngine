@@ -30,6 +30,7 @@ namespace
     "Builtin_SetVariable",
     "Builtin_IncVariable",
     "Builtin_DecVariable",
+    "Builtin_TempVariable",
 
     "Builtin_Branch",
     "Builtin_Switch",
@@ -76,6 +77,7 @@ namespace
     "Builtin_Array_IndexOf",
     "Builtin_Array_Insert",
     "Builtin_Array_PushBack",
+    "Builtin_Array_PushBackRange",
     "Builtin_Array_Remove",
     "Builtin_Array_RemoveAt",
 
@@ -113,7 +115,7 @@ ezVisualScriptNodeDescription::Type::Enum ezVisualScriptNodeDescription::Type::G
   static_assert(Builtin_ToBool + (ezVisualScriptDataType::Float - ezVisualScriptDataType::Bool) == Builtin_ToFloat);
   static_assert(Builtin_ToBool + (ezVisualScriptDataType::Double - ezVisualScriptDataType::Bool) == Builtin_ToDouble);
 
-  if (ezVisualScriptDataType::IsNumber(targetDataType))
+  if (ezVisualScriptDataType::IsNumberOrBool(targetDataType))
     return static_cast<Enum>(Builtin_ToBool + (targetDataType - ezVisualScriptDataType::Bool));
 
   if (targetDataType == ezVisualScriptDataType::String)
@@ -132,7 +134,7 @@ ezVisualScriptNodeDescription::Type::Enum ezVisualScriptNodeDescription::Type::G
 // static
 const char* ezVisualScriptNodeDescription::Type::GetName(Enum type)
 {
-  EZ_ASSERT_DEBUG(type >= 0 && type < EZ_ARRAY_SIZE(s_NodeDescTypeNames), "Out of bounds access");
+  EZ_ASSERT_DEBUG(type >= 0 && static_cast<ezUInt32>(type) < EZ_ARRAY_SIZE(s_NodeDescTypeNames), "Out of bounds access");
   return s_NodeDescTypeNames[type];
 }
 
@@ -155,12 +157,14 @@ ezVisualScriptGraphDescription::ezVisualScriptGraphDescription()
 
 ezVisualScriptGraphDescription::~ezVisualScriptGraphDescription() = default;
 
-static const ezTypeVersion s_uiVisualScriptGraphDescriptionVersion = 3;
+static const ezTypeVersion s_uiVisualScriptGraphDescriptionVersion = 7;
 
 // static
 ezResult ezVisualScriptGraphDescription::Serialize(ezArrayPtr<const ezVisualScriptNodeDescription> nodes, const ezVisualScriptDataDescription& localDataDesc, ezStreamWriter& inout_stream)
 {
   inout_stream.WriteVersion(s_uiVisualScriptGraphDescriptionVersion);
+
+  EZ_SUCCEED_OR_RETURN(localDataDesc.Serialize(inout_stream));
 
   ezDefaultMemoryStreamStorage streamStorage;
   ezMemoryStreamWriter stream(&streamStorage);
@@ -195,18 +199,22 @@ ezResult ezVisualScriptGraphDescription::Serialize(ezArrayPtr<const ezVisualScri
 
   EZ_SUCCEED_OR_RETURN(streamStorage.CopyToStream(inout_stream));
 
-  EZ_SUCCEED_OR_RETURN(localDataDesc.Serialize(inout_stream));
-
   return EZ_SUCCESS;
 }
 
-ezResult ezVisualScriptGraphDescription::Deserialize(ezStreamReader& inout_stream)
+ezResult ezVisualScriptGraphDescription::Deserialize(ezStreamReader& inout_stream, const ezVisualScriptDataDescription& instanceDataDesc, const ezVisualScriptDataDescription& constantDataDesc)
 {
   ezTypeVersion uiVersion = inout_stream.ReadVersion(s_uiVisualScriptGraphDescriptionVersion);
-  if (uiVersion < 3)
+  if (uiVersion < s_uiVisualScriptGraphDescriptionVersion)
   {
-    ezLog::Error("Invalid visual script desc version. Expected >= 3 but got {}. Visual Script needs re-export", uiVersion);
+    ezLog::Error("Invalid visual script desc version. Expected >= {} but got {}. Visual Script needs re-export", s_uiVisualScriptGraphDescriptionVersion, uiVersion);
     return EZ_FAILURE;
+  }
+
+  {
+    ezSharedPtr<ezVisualScriptDataDescription> pLocalDataDesc = EZ_SCRIPT_NEW(ezVisualScriptDataDescription);
+    EZ_SUCCEED_OR_RETURN(pLocalDataDesc->Deserialize(inout_stream));
+    m_pLocalDataDesc = std::move(pLocalDataDesc);
   }
 
   {
@@ -225,6 +233,33 @@ ezResult ezVisualScriptGraphDescription::Deserialize(ezStreamReader& inout_strea
 
   ezUInt8* pAdditionalData = pData + uiNumNodes * sizeof(Node);
 
+  auto GetDataDesc = [&](DataOffset dataOffset) -> const ezVisualScriptDataDescription*
+  {
+    switch (dataOffset.GetSource())
+    {
+      case DataOffset::Source::Local:
+        return m_pLocalDataDesc.Borrow();
+      case DataOffset::Source::Instance:
+        return &instanceDataDesc;
+      case DataOffset::Source::Constant:
+        return &constantDataDesc;
+        EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
+    }
+
+    return nullptr;
+  };
+
+  auto CalculateDataOffsets = [&](DataOffset* pDataOffsets, ezUInt32 uiNumDataOffsets)
+  {
+    DataOffset* pDataOffsetsEnd = pDataOffsets + uiNumDataOffsets;
+    while (pDataOffsets < pDataOffsetsEnd)
+    {
+      auto& dataOffset = *pDataOffsets;
+      dataOffset = GetDataDesc(dataOffset)->GetOffset(dataOffset.GetType(), dataOffset.m_uiByteOffset, dataOffset.GetSource());
+      ++pDataOffsets;
+    }
+  };
+
   for (auto& node : nodes)
   {
     inout_stream >> node.m_Type;
@@ -236,6 +271,9 @@ ezResult ezVisualScriptGraphDescription::Deserialize(ezStreamReader& inout_strea
     EZ_SUCCEED_OR_RETURN(node.m_InputDataOffsets.ReadFromStream(node.m_NumInputDataOffsets, inout_stream, pAdditionalData));
     EZ_SUCCEED_OR_RETURN(node.m_OutputDataOffsets.ReadFromStream(node.m_NumOutputDataOffsets, inout_stream, pAdditionalData));
 
+    CalculateDataOffsets(node.GetInputDataOffsets(), node.m_NumInputDataOffsets);
+    CalculateDataOffsets(node.GetOutputDataOffsets(), node.m_NumOutputDataOffsets);
+
     if (auto func = GetUserDataContext(node.m_Type).m_DeserializeFunc)
     {
       EZ_SUCCEED_OR_RETURN(func(node, inout_stream, pAdditionalData));
@@ -244,10 +282,6 @@ ezResult ezVisualScriptGraphDescription::Deserialize(ezStreamReader& inout_strea
 
   m_Nodes = nodes;
 
-  ezSharedPtr<ezVisualScriptDataDescription> pLocalDataDesc = EZ_SCRIPT_NEW(ezVisualScriptDataDescription);
-  EZ_SUCCEED_OR_RETURN(pLocalDataDesc->Deserialize(inout_stream));
-  m_pLocalDataDesc = pLocalDataDesc;
-
   return EZ_SUCCESS;
 }
 
@@ -255,9 +289,9 @@ ezScriptMessageDesc ezVisualScriptGraphDescription::GetMessageDesc() const
 {
   auto pEntryNode = GetNode(0);
   EZ_ASSERT_DEBUG(pEntryNode != nullptr &&
-                      pEntryNode->m_Type == ezVisualScriptNodeDescription::Type::MessageHandler ||
-                    pEntryNode->m_Type == ezVisualScriptNodeDescription::Type::MessageHandler_Coroutine ||
-                    pEntryNode->m_Type == ezVisualScriptNodeDescription::Type::SendMessage,
+                    (pEntryNode->m_Type == ezVisualScriptNodeDescription::Type::MessageHandler ||
+                      pEntryNode->m_Type == ezVisualScriptNodeDescription::Type::MessageHandler_Coroutine ||
+                      pEntryNode->m_Type == ezVisualScriptNodeDescription::Type::SendMessage),
     "Entry node is invalid or not a message handler");
 
   auto& userData = pEntryNode->GetUserData<NodeUserData_TypeAndProperties>();
@@ -272,9 +306,12 @@ ezScriptMessageDesc ezVisualScriptGraphDescription::GetMessageDesc() const
 
 ezCVarInt cvar_MaxNodeExecutions("VisualScript.MaxNodeExecutions", 100000, ezCVarFlags::Default, "The maximum number of nodes executed within a script invocation");
 
-ezVisualScriptExecutionContext::ezVisualScriptExecutionContext(const ezSharedPtr<const ezVisualScriptGraphDescription>& pDesc)
+ezVisualScriptExecutionContext::ezVisualScriptExecutionContext(const ezSharedPtr<const ezVisualScriptGraphDescription>& pDesc, ezAllocator* pAllocator)
   : m_pDesc(pDesc)
+  , m_LocalDataStorage(pDesc->GetLocalDataDesc())
 {
+  m_LocalDataStorage.AllocateStorage(pAllocator);
+  m_DataStorage[DataOffset::Source::Local] = &m_LocalDataStorage;
 }
 
 ezVisualScriptExecutionContext::~ezVisualScriptExecutionContext()
@@ -282,11 +319,10 @@ ezVisualScriptExecutionContext::~ezVisualScriptExecutionContext()
   Deinitialize();
 }
 
-void ezVisualScriptExecutionContext::Initialize(ezVisualScriptInstance& inout_instance, ezVisualScriptDataStorage& inout_localDataStorage, ezArrayPtr<ezVariant> arguments)
+void ezVisualScriptExecutionContext::Initialize(ezVisualScriptInstance& inout_instance, ezArrayPtr<ezVariant> arguments)
 {
   m_pInstance = &inout_instance;
 
-  m_DataStorage[DataOffset::Source::Local] = &inout_localDataStorage;
   m_DataStorage[DataOffset::Source::Instance] = inout_instance.GetInstanceDataStorage();
   m_DataStorage[DataOffset::Source::Constant] = inout_instance.GetConstantDataStorage();
 
@@ -325,6 +361,14 @@ ezVisualScriptExecutionContext::ExecResult ezVisualScriptExecutionContext::Execu
   auto pNode = m_pDesc->GetNode(m_uiCurrentNode);
   while (pNode != nullptr)
   {
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+    if (pNode->m_Function == nullptr)
+    {
+      ezLog::Error("Node '{}' is not supported by runtime and should have been removed by the compiler.", ezVisualScriptNodeDescription::Type::GetName(pNode->m_Type));
+      return ExecResult::Error();
+    }
+#endif
+
     ExecResult result = pNode->m_Function(*this, *pNode);
     if (result.m_NextExecAndState < ExecResult::State::Completed)
     {
@@ -333,7 +377,7 @@ ezVisualScriptExecutionContext::ExecResult ezVisualScriptExecutionContext::Execu
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
     ++uiCounter;
-    if (uiCounter >= cvar_MaxNodeExecutions)
+    if (uiCounter >= ezUInt32(cvar_MaxNodeExecutions))
     {
       ezLog::Error("Maximum node executions ({}) reached, execution will be aborted. Does the script contain an infinite loop?", cvar_MaxNodeExecutions);
       return ExecResult::Error();
@@ -356,3 +400,6 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezVisualScriptSendMessageMode, 1)
   EZ_ENUM_CONSTANTS(ezVisualScriptSendMessageMode::Direct, ezVisualScriptSendMessageMode::Recursive, ezVisualScriptSendMessageMode::Event)
 EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
+
+
+EZ_STATICLINK_FILE(VisualScriptPlugin, VisualScriptPlugin_Runtime_VisualScript);

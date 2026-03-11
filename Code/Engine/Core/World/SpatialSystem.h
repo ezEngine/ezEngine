@@ -3,9 +3,15 @@
 #include <Core/World/SpatialData.h>
 #include <Foundation/Math/Frustum.h>
 #include <Foundation/Memory/CommonAllocators.h>
+#include <Foundation/Reflection/Reflection.h>
 #include <Foundation/SimdMath/SimdBBoxSphere.h>
 #include <Foundation/Types/TagSet.h>
 
+/// \brief Abstract base class for spatial systems that organize objects for efficient spatial queries.
+///
+/// Spatial systems manage spatial data for objects in a world, enabling efficient queries like
+/// finding objects in a sphere or box, frustum culling, and visibility testing. Concrete
+/// implementations use different spatial data structures (octrees, grids, etc.) for optimization.
 class EZ_CORE_DLL ezSpatialSystem : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSpatialSystem, ezReflectedClass);
@@ -43,13 +49,14 @@ public:
   };
 #endif
 
+  /// \brief Parameters for spatial queries to filter and track results.
   struct QueryParams
   {
-    ezUInt32 m_uiCategoryBitmask = 0;
-    const ezTagSet* m_pIncludeTags = nullptr;
-    const ezTagSet* m_pExcludeTags = nullptr;
+    ezUInt32 m_uiCategoryBitmask = 0;         ///< Bitmask of spatial data categories to include in the query
+    const ezTagSet* m_pIncludeTags = nullptr; ///< Only include objects that have all of these tags
+    const ezTagSet* m_pExcludeTags = nullptr; ///< Exclude objects that have any of these tags
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-    QueryStats* m_pStats = nullptr;
+    QueryStats* m_pStats = nullptr;           ///< Optional stats tracking for development builds
 #endif
   };
 
@@ -65,14 +72,14 @@ public:
 
   using IsOccludedFunc = ezDelegate<bool(const ezSimdBBox&)>;
 
-  virtual void FindVisibleObjects(const ezFrustum& frustum, const QueryParams& queryParams, ezDynamicArray<const ezGameObject*>& out_objects, IsOccludedFunc isOccluded, ezVisibilityState visType) const = 0;
+  virtual void FindVisibleObjects(const ezFrustum& frustum, const QueryParams& queryParams, ezDynamicArray<const ezGameObject*>& out_objects, IsOccludedFunc isOccluded, ezVisibilityState::Enum visType) const = 0;
 
   /// \brief Retrieves a state describing how visible the object is.
   ///
   /// An object may be invisible, fully visible, or indirectly visible (through shadows or reflections).
   ///
   /// \param uiNumFramesBeforeInvisible Used to treat an object that was visible and just became invisible as visible for a few more frames.
-  virtual ezVisibilityState GetVisibilityState(const ezSpatialDataHandle& hData, ezUInt32 uiNumFramesBeforeInvisible) const = 0;
+  virtual ezVisibilityState::Enum GetVisibilityState(const ezSpatialDataHandle& hData, ezUInt32 uiNumFramesBeforeInvisible) const = 0;
 
   ///@}
 
@@ -85,3 +92,13 @@ protected:
 
   ezUInt64 m_uiFrameCounter = 0;
 };
+
+/// \brief Script extension class providing spatial query functions for scripting languages.
+class EZ_CORE_DLL ezScriptExtensionClass_Spatial
+{
+public:
+  /// \brief Finds the closest object in a sphere within the given category.
+  static ezGameObject* FindClosestObjectInSphere(ezWorld* pWorld, ezStringView sCategory, const ezVec3& vCenter, float fRadius);
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezScriptExtensionClass_Spatial);

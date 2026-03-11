@@ -54,7 +54,7 @@ float ezMathExpression::Evaluate(ezArrayPtr<Input> inputs)
     return fOutput;
   }
 
-  ezHybridArray<ezProcessingStream, 8> inputStreams;
+  ezTempHybridArray<ezProcessingStream, 8> inputStreams;
   for (auto& input : inputs)
   {
     if (input.m_sName.IsEmpty())

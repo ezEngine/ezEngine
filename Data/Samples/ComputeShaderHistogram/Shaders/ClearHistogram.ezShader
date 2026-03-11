@@ -1,0 +1,21 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[COMPUTESHADER]
+
+#include "ClearHistogramParams.h"
+
+  RWTexture2D<uint> HistogramOutput;
+
+[numthreads(16, 3, 1)]
+void main(uint3 PixCoord : SV_DispatchThreadID, uint GroupIndex : SV_GroupIndex)
+{
+  if (PixCoord.x >= GET_PUSH_CONSTANT(ClearHistogramParams, Width) || PixCoord.y >= GET_PUSH_CONSTANT(ClearHistogramParams, Height))
+  {
+    return;
+  }
+
+  HistogramOutput[PixCoord.xy] = 0;
+}

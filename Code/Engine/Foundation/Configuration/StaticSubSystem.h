@@ -55,7 +55,7 @@
 /// \brief Finishes a subsystem's startup / shutdown sequence declaration.
 #define EZ_END_SUBSYSTEM_DECLARATION \
   }                                  \
-  static EZ_CONCAT(s_SubSystem, EZ_SOURCE_LINE)
+  static EZ_PP_CONCAT(s_SubSystem, EZ_SOURCE_LINE)
 
 /// \brief Defines what code is to be executed upon base startup.
 ///

@@ -19,6 +19,11 @@ public:
     out_platforms.PushBack("DX11_SM50");
   }
 
+  virtual ezEnum<ezGALBufferLayout> GetMaterialBufferLayout(ezStringView sPlatform) const override
+  {
+    return ezGALBufferLayout::DirectX_ConstantButter;
+  }
+
   virtual ezResult ModifyShaderSource(ezShaderProgramData& inout_data, ezLogInterface* pLog) override;
   virtual ezResult Compile(ezShaderProgramData& inout_data, ezLogInterface* pLog) override;
 
@@ -28,7 +33,8 @@ private:
   void CreateNewShaderResourceDeclaration(ezStringView sPlatform, ezStringView sDeclaration, const ezShaderResourceBinding& binding, ezStringBuilder& out_sDeclaration);
 
   void ReflectShaderStage(ezShaderProgramData& inout_Data, ezGALShaderStage::Enum Stage);
-  ezShaderConstantBufferLayout* ReflectConstantBufferLayout(ezGALShaderByteCode& pStageBinary, ID3D11ShaderReflectionConstantBuffer* pConstantBufferReflection);
+  ezSharedPtr<ezShaderConstantBufferLayout> ReflectConstantBufferLayout(ezGALShaderByteCode& pStageBinary, ID3D11ShaderReflectionConstantBuffer* pConstantBufferReflection);
+  ezResult AddFakeBindGroupAssignments(ezShaderProgramData& inout_Data, ezGALShaderStage::Enum Stage, ezLogInterface* pLog);
   void Initialize();
   static ezGALResourceFormat::Enum GetEZFormat(const _D3D11_SIGNATURE_PARAMETER_DESC& paramDesc);
 

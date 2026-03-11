@@ -357,7 +357,7 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Round() const
 #if EZ_SSE_LEVEL >= EZ_SSE_41
   return _mm_round_ps(m_v, _MM_FROUND_NINT);
 #else
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  return ezSimdVec4f(floorf(static_cast<float>(x()) + 0.5f), floorf(static_cast<float>(y()) + 0.5f), floorf(static_cast<float>(z()) + 0.5f), floorf(static_cast<float>(w()) + 0.5f));
 #endif
 }
 
@@ -366,7 +366,7 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Floor() const
 #if EZ_SSE_LEVEL >= EZ_SSE_41
   return _mm_round_ps(m_v, _MM_FROUND_FLOOR);
 #else
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  return ezSimdVec4f(floorf(static_cast<float>(x())), floorf(static_cast<float>(y())), floorf(static_cast<float>(z())), floorf(static_cast<float>(w())));
 #endif
 }
 
@@ -375,7 +375,7 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Ceil() const
 #if EZ_SSE_LEVEL >= EZ_SSE_41
   return _mm_round_ps(m_v, _MM_FROUND_CEIL);
 #else
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  return ezSimdVec4f(ceilf(static_cast<float>(x())), ceilf(static_cast<float>(y())), ceilf(static_cast<float>(z())), ceilf(static_cast<float>(w())));
 #endif
 }
 
@@ -384,7 +384,8 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Trunc() const
 #if EZ_SSE_LEVEL >= EZ_SSE_41
   return _mm_round_ps(m_v, _MM_FROUND_TRUNC);
 #else
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  return ezSimdVec4f(int(x()), int(y()), int(z()), int(w()));
+  return {};
 #endif
 }
 
@@ -399,7 +400,7 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Select(const ezSimdVec4b& vCmp, const 
 #if EZ_SSE_LEVEL >= EZ_SSE_41
   return _mm_blendv_ps(vFalse.m_v, vTrue.m_v, vCmp.m_v);
 #else
-  return _mm_or_ps(_mm_andnot_ps(cmp.m_v, ifFalse.m_v), _mm_and_ps(cmp.m_v, ifTrue.m_v));
+  return _mm_or_ps(_mm_andnot_ps(vCmp.m_v, vFalse.m_v), _mm_and_ps(vCmp.m_v, vTrue.m_v));
 #endif
 }
 
@@ -572,12 +573,6 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::CrossRH(const ezSimdVec4f& v) const
   __m128 c = _mm_sub_ps(a, b);
 
   return _mm_shuffle_ps(c, c, EZ_TO_SHUFFLE(ezSwizzle::YZXW));
-}
-
-EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::GetOrthogonalVector() const
-{
-  // See http://blog.selfshadow.com/2011/10/17/perp-vectors/ - this is Stark's first variant, SIMDified.
-  return CrossRH(_mm_and_ps(m_v, _mm_cmpeq_ps(m_v, HorizontalMin<3>().m_v)));
 }
 
 // static

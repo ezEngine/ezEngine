@@ -61,7 +61,7 @@ ezEditorInput ezConeAngleGizmo::DoMousePressEvent(QMouseEvent* e)
 
   if (e->button() != Qt::MouseButton::LeftButton)
     return ezEditorInput::MayBeHandledByOthers;
-  if (e->modifiers() != 0)
+  if (e->modifiers() != 0 && e->modifiers() != Qt::KeyboardModifier::ShiftModifier) // allow shift for toggling snapping
     return ezEditorInput::MayBeHandledByOthers;
 
   if (m_pInteractionGizmoHandle == &m_hConeAngle)
@@ -126,8 +126,8 @@ ezEditorInput ezConeAngleGizmo::DoMouseMoveEvent(QMouseEvent* e)
   const ezAngle aSpeed = ezAngle::MakeFromDegree(1.0f);
 
   {
-    m_Angle += vDiff.x * aSpeed;
-    m_Angle -= vDiff.y * aSpeed;
+    m_Angle += float(vDiff.x) * aSpeed;
+    m_Angle -= float(vDiff.y) * aSpeed;
 
     m_Angle = ezMath::Clamp(m_Angle, ezAngle(), ezAngle::MakeFromDegree(179.0f));
 

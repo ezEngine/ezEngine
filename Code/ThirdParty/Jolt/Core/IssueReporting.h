@@ -11,7 +11,7 @@ using TraceFunction = void (*)(const char *inFMT, ...);
 JPH_EXPORT extern TraceFunction Trace;
 
 // Always turn on asserts in Debug mode
-#if defined(_DEBUG) && !defined(JPH_ENABLE_ASSERTS)
+#if defined(JPH_DEBUG) && !defined(JPH_ENABLE_ASSERTS)
 	#define JPH_ENABLE_ASSERTS
 #endif
 
@@ -30,7 +30,7 @@ JPH_EXPORT extern TraceFunction Trace;
 
 	#define JPH_IF_ENABLE_ASSERTS(...)		__VA_ARGS__
 #else
-    #define JPH_ASSERT(...)					((void)0)
+	#define JPH_ASSERT(...)					((void)0)
 
 	#define JPH_IF_ENABLE_ASSERTS(...)
 #endif // JPH_ENABLE_ASSERTS

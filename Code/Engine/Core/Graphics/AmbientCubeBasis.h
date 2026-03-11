@@ -5,6 +5,10 @@
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Math/Vec3.h>
 
+/// \brief Defines the basis directions for ambient cube sampling.
+///
+/// Provides the six cardinal directions (positive/negative X, Y, Z) used for
+/// ambient lighting calculations and directional sampling.
 struct EZ_CORE_DLL ezAmbientCubeBasis
 {
   enum
@@ -22,6 +26,11 @@ struct EZ_CORE_DLL ezAmbientCubeBasis
   static ezVec3 s_Dirs[NumDirs];
 };
 
+/// \brief Template class for storing ambient lighting data in a cube format.
+///
+/// Stores lighting values for six directions (the cardinal axes) to approximate
+/// ambient lighting. Values can be added via directional samples and evaluated
+/// for any normal direction using trilinear interpolation.
 template <typename T>
 struct ezAmbientCube
 {

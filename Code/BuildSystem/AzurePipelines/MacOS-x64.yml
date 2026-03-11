@@ -27,7 +27,7 @@ jobs:
 - job: Job_1
   displayName: MacOS-x64
   pool:
-    vmImage: 'macOS-latest'
+    vmImage: 'macOS-14'
   steps:
   - checkout: self
     submodules: true
@@ -58,21 +58,26 @@ jobs:
       publishJUnitResults: true
   - task: Bash@3
     displayName: Bash Script
+    timeoutInMinutes: 180
     inputs:
       targetType: inline
       filePath: brew install Caskroom/cask/xquartz
       script: |
         # Brew update takes very long. Only enable if below steps start failing.
-        brew update
+        # brew update
+        # brew upgrade
+        echo "--- BREW LIST ---"
         brew list --versions qt@6
-        brew install qt@6
+        echo "--- BREW INSTALL QT6 ---"
+        brew install --verbose qt@6
+        echo "--- BREW INFO QT6 ---"
         brew info qt@6
         brew install Caskroom/cask/xquartz
         brew info Caskroom/cask/xquartz
   - task: CMake@1
     displayName: CMake
     inputs:
-      cmakeArgs: -DCMAKE_PREFIX_PATH=/usr/local/opt/qt@6/ -DEZ_ENABLE_QT_SUPPORT=1 -DCMAKE_BUILD_TYPE=Dev -DEZ_ENABLE_FOLDER_UNITY_FILES=$(unityfiles) -G "Xcode" ../
+      cmakeArgs: -DCMAKE_PREFIX_PATH=/usr/local/opt/qt@6/ -DEZ_ENABLE_QT_SUPPORT=1 -DCMAKE_BUILD_TYPE=Dev -DEZ_ENABLE_FOLDER_UNITY_FILES=$(unityfiles) -DEZ_3RDPARTY_ADS_SUPPORT=0 -G "Xcode" ../
   - task: Xcode@5
     displayName: Xcode build
     inputs:

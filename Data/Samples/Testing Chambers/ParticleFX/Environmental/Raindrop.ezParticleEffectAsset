@@ -11,7 +11,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{2149927829687121805,5257663571342636890}}
-		u4 %Hash{12973030921877503419}
+		u4 %Hash{914767301506662782}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{14493055794658865245,11170587866975433041}}
@@ -192,6 +192,7 @@ o
 		VarDict %ColorParameters{}
 		VarArray %EventReactions{}
 		VarDict %FloatParameters{}
+		Vec3u %NumWindSamples{u3{1,1,1}}
 		VarArray %ParticleSystems
 		{
 			Uuid{u4{16256619260613802899,4995256419460693996}}
@@ -227,10 +228,13 @@ o
 		Angle %Deviation{f{0}}
 		f %DistortionStrength{0x0000C842}
 		s %DistortionTexture{""}
+		f %LightDirectionality{0x0000003F}
+		s %LightingMode{"ezParticleLightingMode::Fullbright"}
+		f %NormalCurvature{0x0000003F}
 		u1 %NumSpritesX{2}
 		u1 %NumSpritesY{2}
 		s %Orientation{"ezQuadParticleOrientation::FixedAxis_EmitterDir"}
-		f %ParticleStretch{0x000080BF}
+		f %ParticleStretch{0x0000803F}
 		s %RenderMode{"ezParticleTypeRenderMode::Blended"}
 		s %Texture{"{ b6b27ea0-a039-42d6-834c-555de0f90c65 }"}
 		s %TextureAtlas{"ezParticleTextureAtlasType::RandomVariations"}
@@ -247,6 +251,9 @@ o
 		Angle %Deviation{f{0}}
 		f %DistortionStrength{0x0000C842}
 		s %DistortionTexture{""}
+		f %LightDirectionality{0x0000003F}
+		s %LightingMode{"ezParticleLightingMode::Fullbright"}
+		f %NormalCurvature{0x0000003F}
 		u1 %NumSpritesX{1}
 		u1 %NumSpritesY{1}
 		s %Orientation{"ezQuadParticleOrientation::Fixed_WorldUp"}
@@ -362,6 +369,23 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleBehaviorFactory"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{9692001477283607726,5375904088218900509}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleLightingMode"}
 		u3 %TypeVersion{1}
 	}
 }

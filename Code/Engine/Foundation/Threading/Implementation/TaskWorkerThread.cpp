@@ -38,6 +38,26 @@ ezResult ezTaskWorkerThread::DeactivateWorker()
   return EZ_SUCCESS;
 }
 
+void ezTaskWorkerThread::BroadcastClearThreadLocalsEvent()
+{
+  m_bClearThreadLocalsEvent = true;
+
+  if (GetThreadStatus() != ezThread::Finished)
+  {
+    // if necessary, wake this thread up
+    WakeUpIfIdle();
+  }
+}
+
+void ezTaskWorkerThread::WaitForBroadcastClearTLS()
+{
+  while (m_bClearThreadLocalsEvent)
+  {
+    WakeUpIfIdle();
+    ezThreadUtils::YieldTimeSlice();
+  }
+}
+
 ezUInt32 ezTaskWorkerThread::Run()
 {
   EZ_ASSERT_DEBUG(
@@ -60,6 +80,16 @@ ezUInt32 ezTaskWorkerThread::Run()
 
   while (m_bActive)
   {
+    if (m_bClearThreadLocalsEvent)
+    {
+      m_bClearThreadLocalsEvent = false;
+
+      ezThreadEvent e;
+      e.m_pThread = this;
+      e.m_Type = ezThreadEvent::Type::ClearThreadLocals;
+      ezThread::s_ThreadEvents.Broadcast(e);
+    }
+
     if (!m_bExecutingTask)
     {
       m_bExecutingTask = true;

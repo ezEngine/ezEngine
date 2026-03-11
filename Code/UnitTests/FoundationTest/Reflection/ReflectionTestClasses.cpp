@@ -34,7 +34,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTestStruct, ezNoBase, 7, ezRTTIDefaultAllocator
     EZ_MEMBER_PROPERTY("Angle", m_Angle)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(0.5))),
     EZ_MEMBER_PROPERTY("DataBuffer", m_DataBuffer)->AddAttributes(new ezDefaultValueAttribute(ezTestStruct::GetDefaultDataBuffer())),
     EZ_MEMBER_PROPERTY("vVec3I", m_vVec3I)->AddAttributes(new ezDefaultValueAttribute(ezVec3I32(1,2,3))),
-    EZ_MEMBER_PROPERTY("VarianceAngle", m_VarianceAngle)->AddAttributes(new ezDefaultValueAttribute(ezVarianceTypeAngle{0.5f, ezAngle::MakeFromDegree(90.0f)})),
+    EZ_MEMBER_PROPERTY("VarianceAngle", m_VarianceAngle)->AddAttributes(new ezDefaultValueAttribute(ezVarianceTypeAngle(ezAngle::MakeFromDegree(90.0f), 0.5f))),
   }
   EZ_END_PROPERTIES;
 }

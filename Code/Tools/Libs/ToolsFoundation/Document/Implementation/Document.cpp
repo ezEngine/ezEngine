@@ -60,7 +60,6 @@ ezDocument::ezDocument(ezStringView sPath, ezDocumentObjectManager* pDocumentObj
 {
   using ObjectMetaData = ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>;
   m_DocumentObjectMetaData = EZ_DEFAULT_NEW(ObjectMetaData);
-  m_pDocumentInfo = nullptr;
   m_sDocumentPath = sPath;
   m_pObjectManager = ezUniquePtr<ezDocumentObjectManager>(pDocumentObjectManagerImpl, ezFoundation::GetDefaultAllocator());
   m_pObjectManager->SetDocument(this);
@@ -71,13 +70,6 @@ ezDocument::ezDocument(ezStringView sPath, ezDocumentObjectManager* pDocumentObj
   {
     m_pObjectAccessor = EZ_DEFAULT_NEW(ezObjectCommandAccessor, m_pCommandHistory.Borrow());
   }
-
-  m_bWindowRequested = false;
-  m_bModified = true;
-  m_bReadOnly = false;
-  m_bAddToRecentFilesList = true;
-
-  m_uiUnknownObjectTypeInstances = 0;
 
   m_pHostDocument = this;
   m_pActiveSubDocument = this;
@@ -109,6 +101,7 @@ void ezDocument::SetModified(bool b)
     return;
 
   m_bModified = b;
+  m_ModifiedTime = b ? ezTime::Now() : ezTime();
 
   ezDocumentEvent e;
   e.m_pDocument = this;
@@ -146,11 +139,14 @@ ezStatus ezDocument::SaveDocument(bool bForce)
     ezTaskSystem::WaitForGroup(m_ActiveSaveTask);
     m_ActiveSaveTask.Invalidate();
   }
-  ezStatus result;
+  ezStatus result(EZ_SUCCESS);
+
   m_ActiveSaveTask = InternalSaveDocument([&result](ezDocument* pDoc, ezStatus res)
     { result = res; });
+
   ezTaskSystem::WaitForGroup(m_ActiveSaveTask);
   m_ActiveSaveTask.Invalidate();
+
   return result;
 }
 
@@ -385,6 +381,11 @@ void ezDocument::SetUnknownObjectTypes(const ezSet<ezString>& Types, ezUInt32 ui
   m_uiUnknownObjectTypeInstances = uiInstances;
 }
 
+void ezDocument::AddLoadingError(ezStringView sError)
+{
+  m_LoadingErrors.PushBack(sError);
+}
+
 
 void ezDocument::BroadcastInterDocumentMessage(ezReflectedClass* pMessage, ezDocument* pSender)
 {
@@ -402,7 +403,7 @@ void ezDocument::BroadcastInterDocumentMessage(ezReflectedClass* pMessage, ezDoc
 
 void ezDocument::DeleteSelectedObjects() const
 {
-  ezHybridArray<ezSelectionEntry, 64> objects;
+  ezTempHybridArray<ezSelectionEntry, 64> objects;
   GetSelectionManager()->GetTopLevelSelection(objects);
 
   // make sure the whole selection is cleared, otherwise each delete command would reduce the selection one by one
@@ -417,7 +418,7 @@ void ezDocument::DeleteSelectedObjects() const
   {
     cmd.m_Object = entry.m_pObject->GetGuid();
 
-    if (history->AddCommand(cmd).m_Result.Failed())
+    if (history->AddCommand(cmd).Failed())
     {
       history->CancelTransaction();
       return;

@@ -1,8 +1,14 @@
 #pragma once
 
 #include <Core/Curves/Curve1DResource.h>
+#include <Foundation/Tracks/Curve1D.h>
+#include <Foundation/Tracks/CurveEditData.h>
 #include <ParticlePlugin/Behavior/ParticleBehavior.h>
 
+/// Behavior that modifies particle size over their lifetime using a curve
+///
+/// The curve is sampled based on the particle's normalized lifetime (0-1).
+/// The final size is: base size + (curve value * curve scale).
 class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_SizeCurve final : public ezParticleBehaviorFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory_SizeCurve, ezParticleBehaviorFactory);
@@ -14,12 +20,12 @@ public:
   virtual void Save(ezStreamWriter& inout_stream) const override;
   virtual void Load(ezStreamReader& inout_stream) override;
 
-  void SetSizeCurveFile(const char* szFile);
-  const char* GetSizeCurveFile() const;
-
-  float m_fBaseSize;
-  float m_fCurveScale;
-  ezCurve1DResourceHandle m_hCurve;
+  ezEnum<ezCurveSource> m_CurveSource;
+  ezSingleCurveData m_Curve;
+  ezCurve1DResourceHandle m_hSharedCurve;
+  float m_fSizeCurveOffset = 0;
+  float m_fSizeCurveScale = 1;
+  mutable ezCurve1D m_RuntimeCurve;
 };
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_SizeCurve final : public ezParticleBehavior
@@ -27,9 +33,9 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_SizeCurve final : public ezPartic
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior_SizeCurve, ezParticleBehavior);
 
 public:
-  float m_fBaseSize;
-  float m_fCurveScale;
-  ezCurve1DResourceHandle m_hCurve;
+  const ezCurve1D* m_pCurve = nullptr;
+  float m_fSizeCurveOffset = 0;
+  float m_fSizeCurveScale = 1;
 
   virtual void CreateRequiredStreams() override;
 

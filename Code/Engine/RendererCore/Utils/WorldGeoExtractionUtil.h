@@ -29,9 +29,8 @@ public:
   /// \brief Describes what the geometry is needed for
   enum class ExtractionMode
   {
-    RenderMesh,        ///< The render geometry is desired. Typically for exporting it to file.
-    CollisionMesh,     ///< The collision geometry is desired. Typically for exporting it to file.
-    NavMeshGeneration, ///< The geometry that participates in navmesh generation is desired.
+    RenderMesh,    ///< The render geometry is desired. Typically for exporting it to file.
+    CollisionMesh, ///< The collision geometry is desired. Typically for exporting it to file.
   };
 
   /// \brief Extracts the desired geometry from all objects in a world

@@ -33,6 +33,7 @@ private:
   ezMeshResourceHandle m_hSphereMesh;
   ezMeshResourceHandle m_hBoxMesh;
   ezMeshResourceHandle m_hPlaneMesh;
+  ezGameObjectHandle m_hMeshObject;
   ezComponentHandle m_hMeshComponent;
 
   enum class PreviewModel : ezUInt8

@@ -18,8 +18,6 @@ class ezQtTextureCubeAssetDocumentWindow : public ezQtEngineDocumentWindow
 public:
   ezQtTextureCubeAssetDocumentWindow(ezTextureCubeAssetDocument* pDocument);
 
-  virtual const char* GetWindowLayoutGroupName() const override { return "TextureCubeAsset"; }
-
 private:
   virtual void InternalRedraw() override;
   void SendRedrawMsg();

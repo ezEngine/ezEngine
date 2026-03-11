@@ -14,7 +14,7 @@ public:
   Q_OBJECT
 
 public:
-  ezQtResourceWidget(QWidget* pParent = 0);
+  ezQtResourceWidget(ads::CDockManager* pDockManager, QWidget* pParent = 0);
 
   static ezQtResourceWidget* s_pWidget;
 

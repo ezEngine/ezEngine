@@ -108,6 +108,11 @@ EZ_ALWAYS_INLINE ezStringView ezGameObject::GetName() const
   return m_sName.GetView();
 }
 
+EZ_ALWAYS_INLINE const ezHashedString& ezGameObject::GetNameHashed() const
+{
+  return m_sName;
+}
+
 EZ_ALWAYS_INLINE void ezGameObject::SetNameInternal(const char* szName)
 {
   m_sName.Assign(szName);
@@ -148,7 +153,7 @@ EZ_ALWAYS_INLINE void ezGameObject::DisableParentChangesNotifications()
   m_Flags.Remove(ezObjectFlags::ParentChangesNotifications);
 }
 
-EZ_ALWAYS_INLINE void ezGameObject::AddChildren(const ezArrayPtr<const ezGameObjectHandle>& children, ezGameObject::TransformPreservation preserve)
+EZ_ALWAYS_INLINE void ezGameObject::AddChildren(const ezArrayPtr<const ezGameObjectHandle>& children, ezTransformPreservation::Enum preserve)
 {
   for (ezUInt32 i = 0; i < children.GetCount(); ++i)
   {
@@ -156,7 +161,7 @@ EZ_ALWAYS_INLINE void ezGameObject::AddChildren(const ezArrayPtr<const ezGameObj
   }
 }
 
-EZ_ALWAYS_INLINE void ezGameObject::DetachChildren(const ezArrayPtr<const ezGameObjectHandle>& children, ezGameObject::TransformPreservation preserve)
+EZ_ALWAYS_INLINE void ezGameObject::DetachChildren(const ezArrayPtr<const ezGameObjectHandle>& children, ezTransformPreservation::Enum preserve)
 {
   for (ezUInt32 i = 0; i < children.GetCount(); ++i)
   {
@@ -557,6 +562,11 @@ EZ_ALWAYS_INLINE bool ezGameObject::SendMessageRecursive(ezMessage& ref_msg) con
 EZ_ALWAYS_INLINE const ezTagSet& ezGameObject::GetTags() const
 {
   return m_Tags;
+}
+
+EZ_ALWAYS_INLINE bool ezGameObject::HasTag(const ezTempHashedString& sTagName) const
+{
+  return m_Tags.IsSetByName(sTagName);
 }
 
 EZ_ALWAYS_INLINE ezUInt32 ezGameObject::GetStableRandomSeed() const

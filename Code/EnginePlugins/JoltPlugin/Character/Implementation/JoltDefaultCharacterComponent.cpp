@@ -63,11 +63,45 @@ EZ_BEGIN_COMPONENT_TYPE(ezJoltDefaultCharacterComponent, 1, ezComponentMode::Dyn
     EZ_SCRIPT_FUNCTION_PROPERTY(IsSlidingOnGround),
     EZ_SCRIPT_FUNCTION_PROPERTY(IsInAir),
     EZ_SCRIPT_FUNCTION_PROPERTY(IsCrouching),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Jump),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Run),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Crouch),
+    EZ_SCRIPT_FUNCTION_PROPERTY(RotateZ, In, "Amount"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Move, In, "Forward", In, "Right"),
   }
   EZ_END_FUNCTIONS;
 }
 EZ_END_COMPONENT_TYPE
 // clang-format on
+
+/// \brief Custom contact listener to send ezMsgPhysicCharacterContact to objects that the CC touches.
+class ezJoltDefaultCharacterContactListener : public JPH::CharacterContactListener
+{
+public:
+  JPH::PhysicsSystem* m_pSystem = nullptr;
+  ezJoltDefaultCharacterComponent* m_pCharacter = nullptr;
+
+  virtual void OnContactAdded(const JPH::CharacterVirtual* pCharacter, const JPH::BodyID& bodyID2, const JPH::SubShapeID& subShapeID2, JPH::RVec3Arg contactPosition, JPH::Vec3Arg contactNormal, JPH::CharacterContactSettings& ref_settings) override
+  {
+    JPH::BodyLockRead lock(m_pSystem->GetBodyLockInterface(), bodyID2);
+    if (lock.Succeeded())
+    {
+      if (ezComponent* pComponent = ezJoltUserData::GetComponent(reinterpret_cast<const void*>(lock.GetBody().GetUserData())))
+      {
+        ezMsgPhysicCharacterContact msg;
+        msg.m_hCharacter = m_pCharacter->GetHandle();
+        msg.m_vGlobalPosition = ezJoltConversionUtils::ToVec3(contactPosition);
+        msg.m_vNormal = ezJoltConversionUtils::ToVec3(contactNormal);
+        msg.m_vCharacterVelocity = ezJoltConversionUtils::ToVec3(pCharacter->GetLinearVelocity());
+        msg.m_fImpact = ezMath::Abs(msg.m_vNormal.Dot(msg.m_vCharacterVelocity));
+
+        pComponent->SendMessage(msg);
+      }
+    }
+
+    JPH::CharacterContactListener::OnContactAdded(pCharacter, bodyID2, subShapeID2, contactPosition, contactNormal, ref_settings);
+  }
+};
 
 ezJoltDefaultCharacterComponent::ezJoltDefaultCharacterComponent() = default;
 ezJoltDefaultCharacterComponent::~ezJoltDefaultCharacterComponent() = default;
@@ -169,27 +203,23 @@ void ezJoltDefaultCharacterComponent::ResetInputState()
 
 void ezJoltDefaultCharacterComponent::SetInputState(ezMsgMoveCharacterController& ref_msg)
 {
-  const float fDistanceToMove = ezMath::Max(ezMath::Abs((float)(ref_msg.m_fMoveForwards - ref_msg.m_fMoveBackwards)), ezMath::Abs((float)(ref_msg.m_fStrafeRight - ref_msg.m_fStrafeLeft)));
+  Move(static_cast<float>(ref_msg.m_fMoveForwards - ref_msg.m_fMoveBackwards), static_cast<float>(ref_msg.m_fStrafeRight - ref_msg.m_fStrafeLeft));
 
-  m_vInputDirection += ezVec2((float)(ref_msg.m_fMoveForwards - ref_msg.m_fMoveBackwards), (float)(ref_msg.m_fStrafeRight - ref_msg.m_fStrafeLeft));
-  m_vInputDirection.NormalizeIfNotZero(ezVec2::MakeZero()).IgnoreResult();
-  m_vInputDirection *= fDistanceToMove;
-
-  m_InputRotateZ += m_RotateSpeed * (float)(ref_msg.m_fRotateRight - ref_msg.m_fRotateLeft);
+  RotateZ((float)(ref_msg.m_fRotateRight - ref_msg.m_fRotateLeft));
 
   if (ref_msg.m_bRun)
   {
-    m_uiInputRunBit = 1;
+    Run();
   }
 
   if (ref_msg.m_bJump)
   {
-    m_uiInputJumpBit = 1;
+    Jump();
   }
 
   if (ref_msg.m_bCrouch)
   {
-    m_uiInputCrouchBit = 1;
+    Crouch();
   }
 }
 
@@ -208,8 +238,40 @@ float ezJoltDefaultCharacterComponent::GetShapeRadius() const
   return m_fShapeRadius;
 }
 
+void ezJoltDefaultCharacterComponent::Jump()
+{
+  m_uiInputJumpBit = 1;
+}
+
+void ezJoltDefaultCharacterComponent::Run()
+{
+  m_uiInputRunBit = 1;
+}
+
+void ezJoltDefaultCharacterComponent::Crouch()
+{
+  m_uiInputCrouchBit = 1;
+}
+
+void ezJoltDefaultCharacterComponent::Move(float fForward, float fRight)
+{
+  const float fDistanceToMove = ezMath::Max(ezMath::Abs(fForward), ezMath::Abs(fRight));
+
+  m_vInputDirection += ezVec2(fForward, fRight);
+  m_vInputDirection.NormalizeIfNotZero(ezVec2::MakeZero()).IgnoreResult();
+  m_vInputDirection *= fDistanceToMove;
+}
+
+void ezJoltDefaultCharacterComponent::RotateZ(float fAmount)
+{
+  m_InputRotateZ += m_RotateSpeed * fAmount;
+}
+
 void ezJoltDefaultCharacterComponent::TeleportCharacter(const ezVec3& vGlobalFootPosition)
 {
+  m_vVelocityLateral.SetZero();
+  m_fVelocityUp = 0;
+  
   TeleportToPosition(vGlobalFootPosition);
 }
 
@@ -225,6 +287,8 @@ void ezJoltDefaultCharacterComponent::OnActivated()
 void ezJoltDefaultCharacterComponent::OnDeactivated()
 {
   SUPER::OnDeactivated();
+
+  m_pContactListener.Clear();
 }
 
 JPH::Ref<JPH::Shape> ezJoltDefaultCharacterComponent::MakeNextCharacterShape()
@@ -260,6 +324,18 @@ void ezJoltDefaultCharacterComponent::OnSimulationStarted()
   // creates the CC, so the next shape size must be set already
   SUPER::OnSimulationStarted();
 
+  if (m_pContactListener == nullptr)
+  {
+    m_pContactListener = EZ_DEFAULT_NEW(ezJoltDefaultCharacterContactListener);
+    ezJoltDefaultCharacterContactListener* pListener = (ezJoltDefaultCharacterContactListener*)m_pContactListener.Borrow();
+    pListener->m_pSystem = GetWorld()->GetModule<ezJoltWorldModule>()->GetJoltSystem();
+    pListener->m_pCharacter = this;
+  }
+
+  // the default CC uses a custom contact listener to send ezMsgPhysicCharacterContact messages to whatever it hits,
+  // so that those objects can react to it (e.g. by breaking apart)
+  GetJoltCharacter()->SetListener(m_pContactListener.Borrow());
+
   ezGameObject* pHeadObject;
   if (!m_hHeadObject.IsInvalidated() && GetWorld()->TryGetObject(m_hHeadObject, pHeadObject))
   {
@@ -279,22 +355,23 @@ void ezJoltDefaultCharacterComponent::ApplyRotationZ()
   GetOwner()->SetGlobalRotation(qRotZ * GetOwner()->GetGlobalRotation());
 }
 
-void ezJoltDefaultCharacterComponent::SetFallbackWalkSurfaceFile(const char* szFile)
+void ezJoltDefaultCharacterComponent::SetFallbackWalkSurfaceFile(ezStringView sFile)
 {
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
+  if (!sFile.IsEmpty())
   {
-    m_hFallbackWalkSurface = ezResourceManager::LoadResource<ezSurfaceResource>(szFile);
+    m_hFallbackWalkSurface = ezResourceManager::LoadResource<ezSurfaceResource>(sFile);
+  }
+  else
+  {
+    m_hFallbackWalkSurface = {};
   }
 
   if (m_hFallbackWalkSurface.IsValid())
     ezResourceManager::PreloadResource(m_hFallbackWalkSurface);
 }
 
-const char* ezJoltDefaultCharacterComponent::GetFallbackWalkSurfaceFile() const
+ezStringView ezJoltDefaultCharacterComponent::GetFallbackWalkSurfaceFile() const
 {
-  if (!m_hFallbackWalkSurface.IsValid())
-    return "";
-
   return m_hFallbackWalkSurface.GetResourceID();
 }
 
@@ -337,6 +414,14 @@ void ezJoltDefaultCharacterComponent::ClampLateralVelocity()
   }
   else
     m_vVelocityLateral.SetZero();
+}
+
+void ezJoltDefaultCharacterComponent::ClampUpVelocity()
+{
+  const ezVec3 endPosition = GetOwner()->GetGlobalPosition();
+  const ezVec3 vVelocity = (endPosition - m_PreviousTransform.m_vPosition) * GetInverseUpdateTimeDelta();
+
+  m_fVelocityUp = ezMath::Min(m_fVelocityUp, vVelocity.z);
 }
 
 void ezJoltDefaultCharacterComponent::InteractWithSurfaces(const ContactPoint& contact, const Config& cfg)
@@ -456,14 +541,20 @@ void ezJoltDefaultCharacterComponent::CheckFeet()
   const float halfHeight = ezMath::Max(0.01f, m_fMaxStepDown - radius);
 
   JPH::CapsuleShape shape(halfHeight, radius);
+  shapeTrans.m_vPosition.z += halfHeight + radius;
 
-  ezHybridArray<ContactPoint, 32> contacts;
-  CollectContacts(contacts, &shape, shapeTrans.m_vPosition, shapeRot, 0.01f);
+  ezTempHybridArray<ContactPoint, 32> contacts;
+  CollectContacts(contacts, &shape, shapeTrans.m_vPosition, shapeRot, m_fMaxStepDown);
 
   for (const auto& contact : contacts)
   {
     ezVec3 gpos = contact.m_vPosition;
     ezVec3 gnom = contact.m_vSurfaceNormal;
+
+    // if the object is not penetrated and stands further than foot radius then skip this object
+    float fXYDistanceSquared = contact.m_fPenetrationDepth < 0 ? (contact.m_fPenetrationDepth * gnom).GetAsVec2().GetLengthSquared() : 0.f;
+    if (fXYDistanceSquared > radius * radius)
+      continue;
 
     ezColor color = ezColor::LightYellow;
     ezQuat rot;
@@ -628,7 +719,7 @@ void ezJoltDefaultCharacterComponent::UpdateCharacter()
 
   ezVec3 vRootVelocity = GetInverseUpdateTimeDelta() * (GetOwner()->GetGlobalRotation() * m_vAbsoluteRootMotion);
 
-  if (!m_vVelocityLateral.IsZero())
+  if (!m_vVelocityLateral.IsZero(ezMath::FloatEpsilon<float>()))
   {
     // remove the lateral velocity component from the root motion
     // to prevent root motion being amplified when both values are active
@@ -668,6 +759,7 @@ void ezJoltDefaultCharacterComponent::UpdateCharacter()
   else
   {
     ClampLateralVelocity();
+    ClampUpVelocity();
   }
 
   m_fVelocityUp += GetUpdateTimeDelta() * pModule->GetCharacterGravity().z;

@@ -51,6 +51,7 @@ public:
 
 protected:
   virtual void Initialize() override;
+  virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezRenderComponent
@@ -65,17 +66,16 @@ public:
   ezJoltVisColMeshComponent();
   ~ezJoltVisColMeshComponent();
 
-  void SetMeshFile(const char* szFile); // [ property ]
-  const char* GetMeshFile() const;      // [ property ]
-
   /// \brief If this is set directly, the mesh is not taken from the sibling components.
-  void SetMesh(const ezJoltMeshResourceHandle& hMesh);
-  EZ_ALWAYS_INLINE const ezJoltMeshResourceHandle& GetMesh() const { return m_hCollisionMesh; }
+  void SetMesh(const ezJoltMeshResourceHandle& hMesh);                                          // [ property ]
+  EZ_ALWAYS_INLINE const ezJoltMeshResourceHandle& GetMesh() const { return m_hCollisionMesh; } // [ property ]
 
 protected:
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
   void CreateCollisionRenderMesh();
 
   ezJoltMeshResourceHandle m_hCollisionMesh;
-  mutable ezMeshResourceHandle m_hMesh;
+  ezMeshResourceHandle m_hMesh;
+
+  mutable ezInstanceDataOffset m_InstanceDataOffset;
 };

@@ -112,8 +112,10 @@ void ezExposedParametersTypeRegistry::UpdateExposedParametersType(ParamData& dat
         pType = pType2;
     }
     if (pType == nullptr)
+    {
+      ezLog::Warning("The exposed parameter '{}' on type '{}' does not have a type defined as is skipped.", parameter->m_sName, name);
       continue;
-
+    }
     ezBitflags<ezPropertyFlags> flags = ezPropertyFlags::Phantom;
     if (pType->IsDerivedFrom<ezEnumBase>())
       flags |= ezPropertyFlags::IsEnum;
@@ -124,10 +126,14 @@ void ezExposedParametersTypeRegistry::UpdateExposedParametersType(ParamData& dat
     else
       flags |= ezPropertyFlags::Class;
 
-    ezReflectedPropertyDescriptor propDesc(ezPropertyCategory::Member, parameter->m_sName, pType->GetTypeName(), flags);
+    ezReflectedPropertyDescriptor propDesc(parameter->m_Category, parameter->m_sName, pType->GetTypeName(), flags);
     for (auto attrib : parameter->m_Attributes)
     {
       propDesc.m_Attributes.PushBack(ezReflectionSerializer::Clone(attrib));
+    }
+    if (parameter->m_DefaultValue.IsValid())
+    {
+      propDesc.m_Attributes.PushBack(EZ_DEFAULT_NEW(ezDefaultValueAttribute, parameter->m_DefaultValue));
     }
     desc.m_Properties.PushBack(propDesc);
   }

@@ -20,8 +20,8 @@ static QColor s_Colors[ezQtTimeWidget::s_uiMaxColors] = {
   QColor(72, 0, 255),  // lilac
 };
 
-ezQtTimeWidget::ezQtTimeWidget(QWidget* pParent)
-  : ads::CDockWidget("Time Widget", pParent)
+ezQtTimeWidget::ezQtTimeWidget(ads::CDockManager* pDockManager, QWidget* pParent)
+  : ads::CDockWidget(pDockManager, "Time Widget", pParent)
 {
   s_pWidget = this;
 

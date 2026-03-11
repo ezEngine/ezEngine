@@ -123,7 +123,7 @@ public:
   bool HasExtension(ezStringView sExtension) const; // [tested]
 
   /// \brief Returns the file extension of the given path. Will be empty, if the path does not end with a proper extension.
-  ezStringView GetFileExtension() const; // [tested]
+  ezStringView GetFileExtension(bool bFullExtension = false) const; // [tested]
 
   /// \brief Returns the file name of a path, excluding the path and extension.
   ///

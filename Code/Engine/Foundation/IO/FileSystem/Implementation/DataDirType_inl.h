@@ -5,13 +5,13 @@
 inline ezDataDirectoryReaderWriterBase::ezDataDirectoryReaderWriterBase(ezInt32 iDataDirUserData, bool bIsReader)
 {
   m_iDataDirUserData = iDataDirUserData;
-  m_pDataDirectory = nullptr;
+  m_pDataDirType = nullptr;
   m_bIsReader = bIsReader;
 }
 
 inline ezResult ezDataDirectoryReaderWriterBase::Open(ezStringView sFile, ezDataDirectoryType* pDataDirectory, ezFileShareMode::Enum fileShareMode)
 {
-  m_pDataDirectory = pDataDirectory;
+  m_pDataDirType = pDataDirectory;
   m_sFilePath = sFile;
 
   return InternalOpen(fileShareMode);
@@ -24,5 +24,5 @@ inline const ezString128& ezDataDirectoryReaderWriterBase::GetFilePath() const
 
 inline ezDataDirectoryType* ezDataDirectoryReaderWriterBase::GetDataDirectory() const
 {
-  return m_pDataDirectory;
+  return m_pDataDirType;
 }

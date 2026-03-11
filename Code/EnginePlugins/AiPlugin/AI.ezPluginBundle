@@ -1,5 +1,5 @@
 // for a description of the options see:
-// Code/EditorPlugins/Assets/EditorPluginAssets/Assets.ezPluginBundle
+// https://ezengine.net/pages/docs/editor/editor-plugins.html
 
 PluginInfo
 {
@@ -8,8 +8,9 @@ PluginInfo
 	string %EditorPlugins{"ezEditorPluginAi"}
 	string %EditorEnginePlugins{}
 	string %RuntimePlugins{"ezAiPlugin"}
-	string %PackageDependencies{}
+	string %PackageDependencies{"Recast.dll"}
 	string %RequiredPlugins{}
 	string %ExclusiveFeatures{}
 	string %EnabledInTemplates{"General3D"}
+	string %CMakeTargetName{"AiPlugin"}
 }

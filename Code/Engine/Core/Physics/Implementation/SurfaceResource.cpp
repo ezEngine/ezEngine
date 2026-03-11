@@ -22,21 +22,23 @@ ezSurfaceResource::ezSurfaceResource()
 
 ezSurfaceResource::~ezSurfaceResource()
 {
+  ezSurfaceResourceEvent e;
+  e.m_pSurface = this;
+  e.m_Type = ezSurfaceResourceEvent::Type::Destroyed;
+  s_Events.Broadcast(e);
+
   EZ_ASSERT_DEV(m_pPhysicsMaterialPhysX == nullptr, "Physics material has not been cleaned up properly");
   EZ_ASSERT_DEV(m_pPhysicsMaterialJolt == nullptr, "Physics material has not been cleaned up properly");
 }
 
 ezResourceLoadDesc ezSurfaceResource::UnloadData(Unload WhatToUnload)
 {
+  EZ_IGNORE_UNUSED(WhatToUnload);
+
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
   res.m_State = ezResourceState::Unloaded;
-
-  ezSurfaceResourceEvent e;
-  e.m_pSurface = this;
-  e.m_Type = ezSurfaceResourceEvent::Type::Destroyed;
-  s_Events.Broadcast(e);
 
   return res;
 }
@@ -57,12 +59,9 @@ ezResourceLoadDesc ezSurfaceResource::UpdateContent(ezStreamReader* Stream)
     return res;
   }
 
-  // skip the absolute file path data that the standard file reader writes into the stream
-  {
-    ezStringBuilder sAbsFilePath;
-    (*Stream) >> sAbsFilePath;
-  }
-
+  // the standard file reader writes the absolute file path into the stream
+  ezStringBuilder sAbsFilePath;
+  (*Stream) >> sAbsFilePath;
 
   ezAssetFileHeader AssetHash;
   AssetHash.Read(*Stream).IgnoreResult();
@@ -215,7 +214,7 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
 
   // random rotation around the spawn direction
   {
-    double randomAngle = pWorld->GetRandomNumberGenerator().DoubleInRange(0.0, ezMath::Pi<double>() * 2.0);
+    double randomAngle = pWorld->GetRandomNumberGenerator().DoubleMinMax(0.0, ezMath::Pi<double>() * 2.0);
 
     ezMat3 rotMat = ezMat3::MakeAxisRotation(vDir, ezAngle::MakeFromRadian((float)randomAngle));
 
@@ -286,7 +285,7 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
     t = ezTransform::MakeLocalTransform(pObject->GetGlobalTransform(), t);
   }
 
-  ezHybridArray<ezGameObject*, 8> rootObjects;
+  ezTempHybridArray<ezGameObject*, 8> rootObjects;
 
   ezPrefabInstantiationOptions options;
   options.m_hParent = hParent;

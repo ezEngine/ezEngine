@@ -6,8 +6,10 @@
 #include <Foundation/Containers/ArrayMap.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Tracks/EventTrack.h>
+#include <ozz/base/memory/unique_ptr.h>
 
 class ezSkeletonResource;
+class ezSkeleton;
 
 namespace ozz::animation
 {
@@ -32,6 +34,7 @@ public:
   ezTime GetDuration() const;
   void SetDuration(ezTime duration);
 
+  void CreateMappedOzzAnimation(ozz::unique_ptr<ozz::animation::Animation>& out_pOzzAnim, const ezSkeleton& skeleton) const;
   const ozz::animation::Animation& GetMappedOzzAnimation(const ezSkeletonResource& skeleton) const;
 
   struct JointInfo
@@ -75,6 +78,7 @@ public:
   bool m_bAdditive = false;
 
 private:
+  mutable ezMutex m_Mutex; ///< Guards m_JointInfos and m_pOzzImpl against concurrent access during async animation sampling.
   ezArrayMap<ezHashedString, JointInfo> m_JointInfos;
   ezDataBuffer m_Transforms;
   ezUInt32 m_uiNumTotalPositions = 0;

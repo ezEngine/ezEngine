@@ -39,7 +39,14 @@ void ezJoltQueryShapeActorComponentManager::UpdateMovingQueryShapes()
     const ezSimdVec4f pos = pObject->GetGlobalPositionSimd();
     const ezSimdQuat rot = pObject->GetGlobalRotationSimd();
 
-    pBodies->SetPositionAndRotation(bodyId, ezJoltConversionUtils::ToVec3(pos), ezJoltConversionUtils::ToQuat(rot), JPH::EActivation::DontActivate);
+    JPH::Quat jRot = ezJoltConversionUtils::ToQuat(rot);
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+    // Jolt is overly strict about normalization
+    jRot = jRot.Normalized();
+#endif
+
+    pBodies->SetPositionAndRotation(bodyId, ezJoltConversionUtils::ToVec3(pos), jRot, JPH::EActivation::DontActivate);
   }
 }
 
@@ -110,9 +117,11 @@ void ezJoltQueryShapeActorComponent::OnSimulationStarted()
   bodyCfg.mUserData = reinterpret_cast<ezUInt64>(pUserData);
 
   JPH::Body* pBody = pBodies->CreateBody(bodyCfg);
+  EZ_ASSERT_DEV(pBody != nullptr, "Jolt body creation failed. You need to increase the maximum number of bodies.");
+
   m_uiJoltBodyID = pBody->GetID().GetIndexAndSequenceNumber();
 
-  pModule->QueueBodyToAdd(pBody, true);
+  pModule->QueueBodyToAdd(pBody, false);
 
   if (GetOwner()->IsDynamic())
   {
@@ -130,22 +139,23 @@ void ezJoltQueryShapeActorComponent::OnDeactivated()
   SUPER::OnDeactivated();
 }
 
-void ezJoltQueryShapeActorComponent::SetSurfaceFile(const char* szFile)
+void ezJoltQueryShapeActorComponent::SetSurfaceFile(ezStringView sFile)
 {
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
+  if (!sFile.IsEmpty())
   {
-    m_hSurface = ezResourceManager::LoadResource<ezSurfaceResource>(szFile);
+    m_hSurface = ezResourceManager::LoadResource<ezSurfaceResource>(sFile);
+  }
+  else
+  {
+    m_hSurface = {};
   }
 
   if (m_hSurface.IsValid())
     ezResourceManager::PreloadResource(m_hSurface);
 }
 
-const char* ezJoltQueryShapeActorComponent::GetSurfaceFile() const
+ezStringView ezJoltQueryShapeActorComponent::GetSurfaceFile() const
 {
-  if (!m_hSurface.IsValid())
-    return "";
-
   return m_hSurface.GetResourceID();
 }
 

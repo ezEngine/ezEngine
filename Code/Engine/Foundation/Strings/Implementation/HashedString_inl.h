@@ -92,6 +92,11 @@ inline bool ezHashedString::operator==(const ezTempHashedString& rhs) const
   return m_Data.Key() == rhs.m_uiHash;
 }
 
+inline bool ezHashedString::operator!=(const ezTempHashedString& rhs) const
+{
+  return m_Data.Key() != rhs.m_uiHash;
+}
+
 inline bool ezHashedString::operator<(const ezHashedString& rhs) const
 {
   return m_Data.Key() < rhs.m_Data.Key();
@@ -134,9 +139,9 @@ EZ_ALWAYS_INLINE ezTempHashedString::ezTempHashedString()
 }
 
 template <size_t N>
-EZ_ALWAYS_INLINE ezTempHashedString::ezTempHashedString(const char (&string)[N])
+constexpr EZ_ALWAYS_INLINE ezTempHashedString::ezTempHashedString(const char (&string)[N])
+  : m_uiHash(ezHashingUtils::StringHash<N>(string))
 {
-  m_uiHash = ezHashingUtils::StringHash<N>(string);
 }
 
 EZ_ALWAYS_INLINE ezTempHashedString::ezTempHashedString(ezStringView sString)

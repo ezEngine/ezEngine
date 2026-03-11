@@ -30,9 +30,12 @@ float3x3 TransformToRotation(Transform t)
   return float3x3(t.r0.xyz, t.r1.xyz, t.r2.xyz);
 }
 
-#  define CONSTANT_BUFFER(Name, Slot) cbuffer Name : register(b##Slot)
-#  define CONSTANT_BUFFER2(Name, Slot, Set) cbuffer Name : register(b##Slot, space##Set)
+
+#  define CONSTANT_BUFFER(Name, Slot) cbuffer Name BIND_RESOURCE(Slot, BG_FRAME)
+#  define CONSTANT_BUFFER2(Name, Slot, Set) cbuffer Name BIND_RESOURCE(Slot, Set)
 #  define STRUCTURED_BUFFER(Name, Type) StructuredBuffer<Type> Name
+
+// Note: If extended, you need to extend Engine/RendererCore/ShaderCompiler/Implementation/ShaderParser.cpp as well as ezShaderConstant::Type.
 #  define FLOAT1(Name) float Name
 #  define FLOAT2(Name) float2 Name
 #  define FLOAT3(Name) float3 Name
@@ -49,17 +52,19 @@ float3x3 TransformToRotation(Transform t)
 #  define MAT4(Name) float4x4 Name
 #  define TRANSFORM(Name) Transform Name
 #  define COLOR4F(Name) float4 Name
-#  define COLOR4UB(Name) uint Name
+// #  define COLOR4UB(Name) uint Name // TODO: this doesn't actually work
 #  define BOOL1(Name) bool Name
+
+// The types below are not supported for material constants
 #  define PACKEDHALF2(Name1, Name2, CombinedName) uint CombinedName
-#  define PACKEDCOLOR4H(Name) \
-    uint EZ_CONCAT(Name, RG); \
-    uint EZ_CONCAT(Name, GB)
+#  define PACKEDCOLOR4H(Name)    \
+    uint EZ_PP_CONCAT(Name, RG); \
+    uint EZ_PP_CONCAT(Name, GB)
 
 #  define UNPACKHALF2(Name1, Name2, CombinedName) \
     float Name1 = f16tof32(CombinedName);         \
     float Name2 = f16tof32(CombinedName >> 16)
-#  define UNPACKCOLOR4H(Name) RGBA16FToFloat4(EZ_CONCAT(Name, RG), EZ_CONCAT(Name, GB))
+#  define UNPACKCOLOR4H(Name) RGBA16FToFloat4(EZ_PP_CONCAT(Name, RG), EZ_PP_CONCAT(Name, GB))
 
 #else
 
@@ -87,10 +92,10 @@ float3x3 TransformToRotation(Transform t)
 #  define UINT3(Name) ezVec3U32 Name
 #  define UINT4(Name) ezVec4U32 Name
 #  define MAT3(Name) ezShaderMat3 Name
-#  define MAT4(Name) ezMat4 Name
+#  define MAT4(Name) ezShaderMat4 Name
 #  define TRANSFORM(Name) ezShaderTransform Name
 #  define COLOR4F(Name) ezColor Name
-#  define COLOR4UB(Name) ezColorGammaUB Name
+// #  define COLOR4UB(Name) ezColorGammaUB Name // TODO: this doesn't actually work (in the shader)
 #  define BOOL1(Name) ezShaderBool Name
 #  define PACKEDHALF2(Name1, Name2, CombinedName) \
     ezFloat16 Name1;                              \

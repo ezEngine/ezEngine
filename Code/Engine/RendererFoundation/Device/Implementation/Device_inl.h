@@ -9,14 +9,30 @@ EZ_ALWAYS_INLINE const ezGALDeviceCreationDescription* ezGALDevice::GetDescripti
   return &m_Description;
 }
 
-EZ_ALWAYS_INLINE ezResult ezGALDevice::GetTimestampResult(ezGALTimestampHandle hTimestamp, ezTime& ref_result)
+EZ_ALWAYS_INLINE ezUInt64 ezGALDevice::GetCurrentFrame() const
 {
-  return GetTimestampResultPlatform(hTimestamp, ref_result);
+  return GetCurrentFramePlatform();
 }
 
-EZ_ALWAYS_INLINE ezGALTimestampHandle ezGALDevice::GetTimestamp()
+EZ_ALWAYS_INLINE ezUInt64 ezGALDevice::GetSafeFrame() const
 {
-  return GetTimestampPlatform();
+  return GetSafeFramePlatform();
+}
+
+EZ_ALWAYS_INLINE ezEnum<ezGALAsyncResult> ezGALDevice::GetTimestampResult(ezGALTimestampHandle hTimestamp, ezTime& out_result)
+{
+  if (hTimestamp.IsInvalidated())
+    return ezGALAsyncResult::Expired;
+
+  return GetTimestampResultPlatform(hTimestamp, out_result);
+}
+
+EZ_ALWAYS_INLINE ezEnum<ezGALAsyncResult> ezGALDevice::GetOcclusionQueryResult(ezGALOcclusionHandle hOcclusion, ezUInt64& out_uiResult)
+{
+  if (hOcclusion.IsInvalidated())
+    return ezGALAsyncResult::Expired;
+
+  return GetOcclusionResultPlatform(hOcclusion, out_uiResult);
 }
 
 template <typename IdTableType, typename ReturnType>
@@ -25,7 +41,8 @@ EZ_ALWAYS_INLINE ReturnType* ezGALDevice::Get(typename IdTableType::TypeOfId hHa
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
   ReturnType* pObject = nullptr;
-  IdTable.TryGetValue(hHandle, pObject);
+  bool _1 = IdTable.TryGetValue(hHandle, pObject);
+  EZ_IGNORE_UNUSED(_1);
   return pObject;
 }
 
@@ -47,6 +64,26 @@ inline const ezGALTexture* ezGALDevice::GetTexture(ezGALTextureHandle hTexture) 
 inline const ezGALBuffer* ezGALDevice::GetBuffer(ezGALBufferHandle hBuffer) const
 {
   return Get<BufferTable, ezGALBuffer>(hBuffer, m_Buffers);
+}
+
+inline const ezGALDynamicBuffer* ezGALDevice::GetDynamicBuffer(ezGALDynamicBufferHandle hBuffer) const
+{
+  return Get<DynamicBufferTable, ezGALDynamicBuffer>(hBuffer, m_DynamicBuffers);
+}
+
+inline ezGALDynamicBuffer* ezGALDevice::GetDynamicBuffer(ezGALDynamicBufferHandle hBuffer)
+{
+  return Get<DynamicBufferTable, ezGALDynamicBuffer>(hBuffer, m_DynamicBuffers);
+}
+
+inline const ezGALReadbackBuffer* ezGALDevice::GetReadbackBuffer(ezGALReadbackBufferHandle hBuffer) const
+{
+  return Get<ReadbackBufferTable, ezGALReadbackBuffer>(hBuffer, m_ReadbackBuffers);
+}
+
+inline const ezGALReadbackTexture* ezGALDevice::GetReadbackTexture(ezGALReadbackTextureHandle hTexture) const
+{
+  return Get<ReadbackTextureTable, ezGALReadbackTexture>(hTexture, m_ReadbackTextures);
 }
 
 inline const ezGALDepthStencilState* ezGALDevice::GetDepthStencilState(ezGALDepthStencilStateHandle hDepthStencilState) const
@@ -74,34 +111,34 @@ inline const ezGALSamplerState* ezGALDevice::GetSamplerState(ezGALSamplerStateHa
   return Get<SamplerStateTable, ezGALSamplerState>(hSamplerState, m_SamplerStates);
 }
 
-inline const ezGALTextureResourceView* ezGALDevice::GetResourceView(ezGALTextureResourceViewHandle hResourceView) const
+inline const ezGALBindGroupLayout* ezGALDevice::GetBindGroupLayout(ezGALBindGroupLayoutHandle hBindGroupLayout) const
 {
-  return Get<TextureResourceViewTable, ezGALTextureResourceView>(hResourceView, m_TextureResourceViews);
+  return Get<BindGroupLayoutTable, ezGALBindGroupLayout>(hBindGroupLayout, m_BindGroupLayouts);
 }
 
-inline const ezGALBufferResourceView* ezGALDevice::GetResourceView(ezGALBufferResourceViewHandle hResourceView) const
+inline const ezGALBindGroup* ezGALDevice::GetBindGroup(ezGALBindGroupHandle hBindGroup) const
 {
-  return Get<BufferResourceViewTable, ezGALBufferResourceView>(hResourceView, m_BufferResourceViews);
+  return Get<BindGroupTable, ezGALBindGroup>(hBindGroup, m_BindGroups);
+}
+
+inline const ezGALPipelineLayout* ezGALDevice::GetPipelineLayout(ezGALPipelineLayoutHandle hPipelineLayout) const
+{
+  return Get<PipelineLayoutTable, ezGALPipelineLayout>(hPipelineLayout, m_PipelineLayouts);
+}
+
+inline const ezGALGraphicsPipeline* ezGALDevice::GetGraphicsPipeline(ezGALGraphicsPipelineHandle hGraphicsPipeline) const
+{
+  return Get<GraphicsPipelineTable, ezGALGraphicsPipeline>(hGraphicsPipeline, m_GraphicsPipelines);
+}
+
+inline const ezGALComputePipeline* ezGALDevice::GetComputePipeline(ezGALComputePipelineHandle hComputePipeline) const
+{
+  return Get<ComputePipelineTable, ezGALComputePipeline>(hComputePipeline, m_ComputePipelines);
 }
 
 inline const ezGALRenderTargetView* ezGALDevice::GetRenderTargetView(ezGALRenderTargetViewHandle hRenderTargetView) const
 {
   return Get<RenderTargetViewTable, ezGALRenderTargetView>(hRenderTargetView, m_RenderTargetViews);
-}
-
-inline const ezGALTextureUnorderedAccessView* ezGALDevice::GetUnorderedAccessView(ezGALTextureUnorderedAccessViewHandle hUnorderedAccessView) const
-{
-  return Get<TextureUnorderedAccessViewTable, ezGALTextureUnorderedAccessView>(hUnorderedAccessView, m_TextureUnorderedAccessViews);
-}
-
-inline const ezGALBufferUnorderedAccessView* ezGALDevice::GetUnorderedAccessView(ezGALBufferUnorderedAccessViewHandle hUnorderedAccessView) const
-{
-  return Get<BufferUnorderedAccessViewTable, ezGALBufferUnorderedAccessView>(hUnorderedAccessView, m_BufferUnorderedAccessViews);
-}
-
-inline const ezGALQuery* ezGALDevice::GetQuery(ezGALQueryHandle hQuery) const
-{
-  return Get<QueryTable, ezGALQuery>(hQuery, m_Queries);
 }
 
 // static
@@ -126,9 +163,9 @@ EZ_ALWAYS_INLINE bool ezGALDevice::HasDefaultDevice()
 template <typename HandleType>
 EZ_FORCE_INLINE void ezGALDevice::AddDeadObject(ezUInt32 uiType, HandleType handle)
 {
-  auto& deadObject = m_DeadObjects.ExpandAndGetRef();
-  deadObject.m_uiType = uiType;
-  deadObject.m_uiHandle = handle.GetInternalID().m_Data;
+  DeadObject deadObject = {uiType, handle.GetInternalID().m_Data};
+  EZ_ASSERT_DEBUG(!m_DeadObjects.Contains(deadObject), "The same object is being destroyed multiple times.");
+  m_DeadObjects.PushBack(deadObject);
 }
 
 template <typename HandleType>
@@ -151,7 +188,12 @@ void ezGALDevice::ReviveDeadObject(ezUInt32 uiType, HandleType handle)
 EZ_ALWAYS_INLINE void ezGALDevice::VerifyMultithreadedAccess() const
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  EZ_ASSERT_DEV(m_Capabilities.m_bMultithreadedResourceCreation || ezThreadUtils::IsMainThread(),
+  EZ_ASSERT_DEV(m_Capabilities.m_bSupportsMultithreadedResourceCreation || ezThreadUtils::IsMainThread(),
     "This device does not support multi-threaded resource creation, therefore this function can only be executed on the main thread.");
 #endif
+}
+
+inline ezAllocator* ezGALDevice::GetAllocator()
+{
+  return &m_Allocator;
 }

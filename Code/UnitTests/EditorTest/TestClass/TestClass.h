@@ -20,10 +20,10 @@ class ezEditorTestApplication : public ezApplication
 public:
   using SUPER = ezApplication;
 
-  ezEditorTestApplication();
+  ezEditorTestApplication(ezStringView sTestName);
   virtual ezResult BeforeCoreSystemsStartup() override;
   virtual void AfterCoreSystemsShutdown() override;
-  virtual Execution Run() override;
+  virtual void Run() override;
 
 
   virtual void AfterCoreSystemsStartup() override;
@@ -33,6 +33,7 @@ public:
 
 public:
   ezQtEditorApp* m_pEditorApp = nullptr;
+  ezString m_sTestName;
 };
 
 class ezEditorTest : public ezTestBaseClass
@@ -61,6 +62,8 @@ protected:
   void CloseCurrentProject();
   void SafeProfilingData();
   void ProcessEvents(ezUInt32 uiIterations = 1);
+  void WaitFrames(ezUInt32 uiFrames = 1);
+  void UIServicesTickEventHandler(const ezQtUiServices::TickEvent& e);
 
   std::unique_ptr<QMimeData> AssetsToDragMimeData(ezArrayPtr<ezUuid> assetGuids);
   std::unique_ptr<QMimeData> ObjectsDragMimeData(const ezDeque<const ezDocumentObject*>& objects);
@@ -74,4 +77,6 @@ protected:
   ezImage m_CapturedImage;
   ezDynamicArray<ezString> m_CommandLineArguments;
   ezDynamicArray<const char*> m_CommandLineArgumentPointers;
+  ezEventSubscriptionID m_UIServicesTickEventHandlerID = {};
+  ezUInt32 m_uiRenderedFrames = 0;
 };

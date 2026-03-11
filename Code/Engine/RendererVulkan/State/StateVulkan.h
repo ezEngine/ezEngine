@@ -1,9 +1,9 @@
 
 #pragma once
 
-#include <RendererFoundation/State/State.h>
+#include <RendererVulkan/RendererVulkanDLL.h>
 
-#include <vulkan/vulkan.hpp>
+#include <RendererFoundation/State/State.h>
 
 class EZ_RENDERERVULKAN_DLL ezGALBlendStateVulkan : public ezGALBlendState
 {

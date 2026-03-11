@@ -25,8 +25,8 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdFloat)
 
     // Make sure the class didn't accidentally change in size.
 #if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
-    EZ_CHECK_AT_COMPILETIME(sizeof(ezSimdFloat) == 16);
-    EZ_CHECK_AT_COMPILETIME(EZ_ALIGNMENT_OF(ezSimdFloat) == 16);
+    static_assert(sizeof(ezSimdFloat) == 16);
+    static_assert(alignof(ezSimdFloat) == 16);
 #endif
 
     ezSimdFloat vInit1F(2.0f);
@@ -56,16 +56,6 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdFloat)
                  vInit1U.m_v.m128_f32[3] == 4553.0f);
 #endif
 
-    ezSimdFloat z = ezSimdFloat::MakeZero();
-    EZ_TEST_BOOL(z == 0.0f);
-
-    // Make sure all components are set to the same value
-#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && EZ_ENABLED(EZ_COMPILER_MSVC)
-    EZ_TEST_BOOL(z.m_v.m128_f32[0] == 0.0f && z.m_v.m128_f32[1] == 0.0f && z.m_v.m128_f32[2] == 0.0f && z.m_v.m128_f32[3] == 0.0f);
-#endif
-  }
-
-  {
     ezSimdFloat z = ezSimdFloat::MakeZero();
     EZ_TEST_BOOL(z == 0.0f);
 

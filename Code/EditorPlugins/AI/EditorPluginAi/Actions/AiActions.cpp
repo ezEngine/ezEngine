@@ -24,8 +24,7 @@ void ezAiActions::UnregisterActions()
 
 void ezAiActions::MapMenuActions()
 {
-  /// \todo Is there a way to integrate into ALL document types in a specific menu (ie. project settings)
-  ezActionMap* pMap = ezActionMapManager::GetActionMap("EditorPluginScene_Scene2MenuBar");
+  ezActionMap* pMap = ezActionMapManager::GetActionMap("AssetMenuBar");
   EZ_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
 
   pMap->MapAction(s_hCategoryAi, "G.Plugins.Settings", 10.0f);

@@ -1,15 +1,14 @@
 #pragma once
 
-#include <Core/Messages/EventMessage.h>
 #include <Core/Utils/IntervalScheduler.h>
 #include <Core/World/World.h>
 #include <GameEngine/GameEngineDLL.h>
 
 class ezPhysicsWorldModuleInterface;
 
-struct EZ_GAMEENGINE_DLL ezMsgSensorDetectedObjectsChanged : public ezEventMessage
+struct EZ_GAMEENGINE_DLL ezMsgSensorDetectedObjectsChanged : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgSensorDetectedObjectsChanged, ezEventMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgSensorDetectedObjectsChanged, ezMessage);
 
   ezArrayPtr<ezGameObjectHandle> m_DetectedObjects;
 };
@@ -84,6 +83,12 @@ public:
   /// Returns true, if there was a change in detected objects, false if the same objects were detected as last time.
   bool RunSensorCheck(ezPhysicsWorldModuleInterface* pPhysicsWorldModule, ezDynamicArray<ezGameObject*>& out_objectsInSensorVolume, ezDynamicArray<ezGameObjectHandle>& ref_detectedObjects, bool bPostChangeMsg) const;
 
+  /// \brief How many objects were detected last.
+  ezUInt32 GetDetectedObjectsCount() const { return m_LastDetectedObjects.GetCount(); } // [ scriptable ]
+
+  /// \brief Returns a handle to the n-th detected object.
+  ezGameObjectHandle GetDetectedObject(ezUInt32 uiIndex) const { return m_LastDetectedObjects[uiIndex]; } // [ scriptable ]
+
 protected:
   void UpdateSpatialCategory();
   void UpdateScheduling();
@@ -91,6 +96,7 @@ protected:
 
   ezEnum<ezUpdateRate> m_UpdateRate;
   bool m_bShowDebugInfo = false;
+  mutable bool m_bHadUpdate = false;
   ezColorGammaUB m_Color = ezColorScheme::LightUI(ezColorScheme::Orange);
 
   ezHashedString m_sSpatialCategory;

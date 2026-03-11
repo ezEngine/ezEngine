@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Foundation/Basics.h>
+
 /// \brief Flags that tell you which SIMD features are available on this processor / OS
 ///
 /// Heavily 'inspired' by https://github.com/Mysticial/FeatureDetector

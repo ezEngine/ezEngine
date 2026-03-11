@@ -57,6 +57,9 @@ public:
   /// \brief Checks whether the named tag is part of this set. Returns false if the tag does not exist.
   bool IsSetByName(ezStringView sTag) const;
 
+  /// \brief Checks whether the named tag is part of this set. Returns false if the tag does not exist.
+  bool IsSetByName(const ezTempHashedString& sTag) const;
+
   /// \brief Allows to iterate over all tags in this set
   class Iterator
   {

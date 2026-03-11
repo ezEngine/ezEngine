@@ -24,8 +24,7 @@ void ezJoltActions::UnregisterActions()
 
 void ezJoltActions::MapMenuActions()
 {
-  /// \todo Is there a way to integrate into ALL document types in a specific menu (ie. project settings)
-  ezActionMap* pMap = ezActionMapManager::GetActionMap("EditorPluginScene_Scene2MenuBar");
+  ezActionMap* pMap = ezActionMapManager::GetActionMap("AssetMenuBar");
   EZ_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
 
   pMap->MapAction(s_hCategoryJolt, "G.Plugins.Settings", 10.0f);
@@ -51,7 +50,7 @@ void ezJoltAction::Execute(const ezVariant& value)
 {
   if (m_Type == ActionType::ProjectSettings)
   {
-    ezQtJoltProjectSettingsDlg dlg(nullptr);
+    ezQtJoltProjectSettingsDlg dlg(value);
     if (dlg.exec() == QDialog::Accepted)
     {
       ezToolsProject::BroadcastConfigChanged();

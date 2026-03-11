@@ -5,7 +5,7 @@
 #include <Foundation/Utilities/ConversionUtils.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #  include <shellapi.h>
 #endif
 
@@ -16,7 +16,7 @@ ezCommandLineUtils* ezCommandLineUtils::GetGlobalInstance()
   return &g_pCmdLineInstance;
 }
 
-void ezCommandLineUtils::SplitCommandLineString(const char* szCommandString, bool bAddExecutableDir, ezDynamicArray<ezString>& out_args, ezDynamicArray<const char*>& out_argsV)
+void ezCommandLineUtils::SplitCommandLineString(ezStringView sCommandString, bool bAddExecutableDir, ezDynamicArray<ezString>& out_args, ezDynamicArray<const char*>& out_argsV)
 {
   // Add application dir as first argument as customary on other platforms.
   if (bAddExecutableDir)
@@ -31,24 +31,38 @@ void ezCommandLineUtils::SplitCommandLineString(const char* szCommandString, boo
   }
 
   // Simple args splitting. Not as powerful as Win32's CommandLineToArgvW.
-  const char* currentChar = szCommandString;
-  const char* lastEnd = currentChar;
-  bool inQuotes = false;
-  while (*currentChar != '\0')
+  // Supports double-quoted tokens that may contain spaces. Quotes are stripped from the result.
+  bool bInQuotes = false;
+  ezStringBuilder current;
+
+  for (auto it = sCommandString.GetIteratorFront(); it.IsValid(); ++it)
   {
-    if (*currentChar == '\"')
-      inQuotes = !inQuotes;
-    else if (*currentChar == ' ' && !inQuotes)
+    const ezUInt32 uiChar = it.GetCharacter();
+
+    if (uiChar == '\"')
     {
-      ezStringBuilder path = ezStringView(lastEnd, currentChar);
-      path.Trim(" \"");
-      out_args.PushBack(path);
-      lastEnd = currentChar + 1;
+      bInQuotes = !bInQuotes;
     }
-    ezUnicodeUtils::MoveToNextUtf8(currentChar).IgnoreResult();
+    else if (uiChar == ' ' && !bInQuotes)
+    {
+      if (!current.IsEmpty())
+      {
+        out_args.PushBack(current);
+        current.Clear();
+      }
+    }
+    else
+    {
+      current.Append(uiChar);
+    }
   }
 
-  out_argsV.Reserve(out_argsV.GetCount());
+  if (!current.IsEmpty())
+  {
+    out_args.PushBack(current);
+  }
+
+  out_argsV.Reserve(out_args.GetCount());
   for (ezString& str : out_args)
     out_argsV.PushBack(str.GetData());
 }
@@ -61,6 +75,8 @@ void ezCommandLineUtils::SetCommandLine(ezUInt32 uiArgc, const char** pArgv, Arg
     SetCommandLine();
     return;
   }
+#else
+  EZ_IGNORE_UNUSED(mode);
 #endif
 
   m_Commands.Clear();
@@ -102,16 +118,6 @@ void ezCommandLineUtils::SetCommandLine()
   LocalFree(argvw);
 }
 
-#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-// Not implemented on Windows UWP.
-#elif EZ_ENABLED(EZ_PLATFORM_OSX)
-// Not implemented on OSX.
-#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
-// Not implemented on Linux.
-#elif EZ_ENABLED(EZ_PLATFORM_ANDROID)
-// Not implemented on Android.
-#else
-#  error "ezCommandLineUtils::SetCommandLine(): Abstraction missing."
 #endif
 
 const ezDynamicArray<ezString>& ezCommandLineUtils::GetCommandLineArray() const
@@ -202,8 +208,12 @@ ezStringView ezCommandLineUtils::GetStringOption(ezStringView sOption, ezUInt32 
 
     // found the right one, return it
     if (uiParamCount == uiArgument)
-      return m_Commands[uiParam].GetData();
-
+    {
+      // We trim " as this is automatically done on Windows when parsing command line arguments and this will make it behave the same on Linux.
+      ezStringView sData = m_Commands[uiParam].GetView();
+      sData.Trim("\"");
+      return sData;
+    }
     ++uiParamCount;
   }
 
@@ -213,7 +223,6 @@ ezStringView ezCommandLineUtils::GetStringOption(ezStringView sOption, ezUInt32 
 const ezString ezCommandLineUtils::GetAbsolutePathOption(ezStringView sOption, ezUInt32 uiArgument /*= 0*/, ezStringView sDefault /*= {} */, bool bCaseSensitive /*= false*/) const
 {
   ezStringView sPath = GetStringOption(sOption, uiArgument, sDefault, bCaseSensitive);
-
   if (sPath.IsEmpty())
     return sPath;
 
@@ -227,15 +236,16 @@ bool ezCommandLineUtils::GetBoolOption(ezStringView sOption, bool bDefault, bool
   if (iIndex < 0)
     return bDefault;
 
-  if (iIndex + 1 == m_Commands.GetCount())    // last command, treat this as 'on'
+  const ezUInt32 uiIndex = iIndex;
+  if (uiIndex + 1 == m_Commands.GetCount())    // last command, treat this as 'on'
     return true;
 
-  if (m_Commands[iIndex + 1].StartsWith("-")) // next command is the next option -> treat this as 'on' as well
+  if (m_Commands[uiIndex + 1].StartsWith("-")) // next command is the next option -> treat this as 'on' as well
     return true;
 
   // otherwise try to convert the next option to a boolean
   bool bRes = bDefault;
-  ezConversionUtils::StringToBool(m_Commands[iIndex + 1].GetData(), bRes).IgnoreResult();
+  ezConversionUtils::StringToBool(m_Commands[uiIndex + 1].GetData(), bRes).IgnoreResult();
 
   return bRes;
 }
@@ -247,12 +257,13 @@ ezInt32 ezCommandLineUtils::GetIntOption(ezStringView sOption, ezInt32 iDefault,
   if (iIndex < 0)
     return iDefault;
 
-  if (iIndex + 1 == m_Commands.GetCount()) // last command
+  const ezUInt32 uiIndex = iIndex;
+  if (uiIndex + 1 == m_Commands.GetCount()) // last command
     return iDefault;
 
   // try to convert the next option to a number
   ezInt32 iRes = iDefault;
-  ezConversionUtils::StringToInt(m_Commands[iIndex + 1].GetData(), iRes).IgnoreResult();
+  ezConversionUtils::StringToInt(m_Commands[uiIndex + 1].GetData(), iRes).IgnoreResult();
 
   return iRes;
 }
@@ -264,12 +275,13 @@ ezUInt32 ezCommandLineUtils::GetUIntOption(ezStringView sOption, ezUInt32 uiDefa
   if (iIndex < 0)
     return uiDefault;
 
-  if (iIndex + 1 == m_Commands.GetCount()) // last command
+  const ezUInt32 uiIndex = iIndex;
+  if (uiIndex + 1 == m_Commands.GetCount()) // last command
     return uiDefault;
 
   // try to convert the next option to a number
   ezUInt32 uiRes = uiDefault;
-  ezConversionUtils::StringToUInt(m_Commands[iIndex + 1].GetData(), uiRes).IgnoreResult();
+  ezConversionUtils::StringToUInt(m_Commands[uiIndex + 1].GetData(), uiRes).IgnoreResult();
 
   return uiRes;
 }
@@ -281,12 +293,13 @@ double ezCommandLineUtils::GetFloatOption(ezStringView sOption, double fDefault,
   if (iIndex < 0)
     return fDefault;
 
-  if (iIndex + 1 == m_Commands.GetCount()) // last command
+  const ezUInt32 uiIndex = iIndex;
+  if (uiIndex + 1 == m_Commands.GetCount()) // last command
     return fDefault;
 
   // try to convert the next option to a number
   double fRes = fDefault;
-  ezConversionUtils::StringToFloat(m_Commands[iIndex + 1].GetData(), fRes).IgnoreResult();
+  ezConversionUtils::StringToFloat(m_Commands[uiIndex + 1].GetData(), fRes).IgnoreResult();
 
   return fRes;
 }

@@ -2,6 +2,7 @@
 
 #include <Foundation/Algorithm/Sorting.h>
 #include <Foundation/Containers/Implementation/ArrayIterator.h>
+#include <Foundation/Memory/Allocator.h>
 #include <Foundation/Memory/AllocatorWrapper.h>
 
 /// \brief Value used by containers for indices to indicate an invalid index.
@@ -14,13 +15,31 @@
 /// The deque allocates elements in fixed size chunks (usually around 4KB per chunk),
 /// but with at least 32 elements per chunk. It will allocate additional chunks when necessary, but never reallocate
 /// already existing data. Therefore it is well suited when it is not known up front how many elements are needed,
-/// as it can start with a small amount of data and grow on demand. Also an element in a deque is never moved around
-/// in memory, thus it is safe to store pointers to elements inside the deque.
-/// The deque uses one redirection to look up elements, for which it uses one index array. Thus a look up into a deque
-/// is slightly slower than a pure array lookup, but still very fast, compared to all other containers.
-/// Deques can easily grow and shrink at both ends and are thus well suited for use as a FIFO or LIFO queue or even
-/// a ring-buffer. It is optimized to even handle the ring-buffer use case without any memory allocations, as long as
-/// the buffer does not need to grow.
+/// as it can start with a small amount of data and grow on demand.
+///
+/// Key characteristics:
+/// - Stable element addresses: Elements are never moved in memory, safe to store pointers to elements
+/// - Efficient insertion/removal at both ends: O(1) PushFront/PopFront and PushBack/PopBack
+/// - Chunked storage: Uses one level of indirection for element access (slightly slower than arrays)
+/// - Optimized for ring-buffer usage: Can grow/shrink without allocations when size variations stay within allocated chunks
+/// - Automatic memory management: Periodically deallocates unused chunks to prevent unlimited memory growth
+///
+/// Performance characteristics:
+/// - Element access: O(1) with one indirection
+/// - Insertion/removal at ends: O(1)
+/// - Insertion/removal in middle: O(n) - requires shifting elements
+/// - Memory overhead: ~4KB per chunk + index array
+///
+/// Use when:
+/// - You need efficient insertion/removal at both ends (FIFO, LIFO, ring buffer)
+/// - Element addresses must remain stable
+/// - Container size varies significantly over time
+/// - You don't know the final size up front
+///
+/// Consider other containers when:
+/// - Only need insertion/removal at one end (use ezDynamicArray)
+/// - Need fastest possible element access (use ezDynamicArray)
+/// - Memory usage is critical and size is predictable (use ezStaticArray or ezHybridArray)
 template <typename T, bool Construct>
 class ezDequeBase
 {

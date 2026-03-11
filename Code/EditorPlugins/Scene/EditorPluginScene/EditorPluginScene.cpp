@@ -15,12 +15,14 @@
 #include <EditorPluginScene/Actions/SelectionActions.h>
 #include <EditorPluginScene/Scene/Scene2Document.h>
 #include <EditorPluginScene/Scene/Scene2DocumentWindow.moc.h>
+#include <EditorPluginScene/Scene/SceneDocumentManager.h>
 #include <EditorPluginScene/Scene/SceneDocumentWindow.moc.h>
 #include <EditorPluginScene/Visualizers/BoxReflectionProbeVisualizerAdapter.h>
 #include <EditorPluginScene/Visualizers/PointLightVisualizerAdapter.h>
 #include <EditorPluginScene/Visualizers/SpotLightVisualizerAdapter.h>
 #include <GameEngine/Configuration/RendererProfileConfigs.h>
 #include <GameEngine/Gameplay/GreyBoxComponent.h>
+#include <GameEngine/Physics/ImpulseType.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/Action/CommandHistoryActions.h>
 #include <GuiFoundation/Action/DocumentActions.h>
@@ -29,11 +31,15 @@
 #include <GuiFoundation/PropertyGrid/Implementation/PropertyWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
+#include <RendererCore/Components/SplineComponent.h>
 #include <RendererCore/Lights/BoxReflectionProbeComponent.h>
 #include <RendererCore/Lights/PointLightComponent.h>
 #include <RendererCore/Lights/SpotLightComponent.h>
 #include <RendererCore/Utils/CoreRenderProfile.h>
+#include <ToolsFoundation/Project/ToolsProject.h>
 #include <ToolsFoundation/Settings/ToolsTagRegistry.h>
+
+static void ToolsProjectEventHandler(const ezToolsProjectEvent& e);
 
 void OnDocumentManagerEvent(const ezDocumentManager::Event& e)
 {
@@ -57,11 +63,25 @@ void OnDocumentManagerEvent(const ezDocumentManager::Event& e)
   }
 }
 
-void ToolsProjectEventHandler(const ezEditorAppEvent& e)
+void ToolsProjectEventHandler(const ezToolsProjectEvent& e)
 {
-  if (e.m_Type == ezEditorAppEvent::Type::BeforeApplyDataDirectories)
+  if (e.m_Type == ezToolsProjectEvent::Type::ProjectFirstSetup)
   {
-    // ezQtEditorApp::GetSingleton()->AddPluginDataDirDependency(">sdk/Data/Base", "base");
+    auto project = ezToolsProject::GetSingleton();
+
+    project->CreateSubFolder("Scenes");
+    project->CreateSubFolder("Prefabs");
+
+    for (auto& dm : ezAssetDocumentManager::GetAllDocumentManagers())
+    {
+      if (dm->IsInstanceOf<ezSceneDocumentManager>())
+      {
+        ezDocument* doc;
+
+        ezStringBuilder path(project->GetProjectDirectory(), "/Scenes/Main.ezScene");
+        dm->CreateDocument("Scene", path, doc).IgnoreResult();
+      }
+    }
   }
 }
 
@@ -92,13 +112,18 @@ void ezSkyLightComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent&
 void ezGreyBoxComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 void ezLightComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 void ezSceneDocument_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
+void ezAreaDamageComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
+void ezProjectileSurfaceInteraction_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
+void ezOccluderComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
+void ezSplineNodeComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
+void ezLensFlareComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 
 QImage SliderImageGenerator_LightTemperature(ezUInt32 uiWidth, ezUInt32 uiHeight, double fMinValue, double fMaxValue)
 {
   // can use a 1D image, height doesn't need to be all used
   QImage image = QImage(uiWidth, 1, QImage::Format::Format_RGB32);
 
-  for (int x = 0; x < uiWidth; ++x)
+  for (ezUInt32 x = 0; x < uiWidth; ++x)
   {
     const double pos = (double)x / (uiWidth - 1.0);
     ezColor c = ezColor::MakeFromKelvin(static_cast<ezUInt32>((pos * (fMaxValue - fMinValue)) + fMinValue));
@@ -112,11 +137,11 @@ QImage SliderImageGenerator_LightTemperature(ezUInt32 uiWidth, ezUInt32 uiHeight
 
 void OnLoadPlugin()
 {
+  ezToolsProject::GetSingleton()->s_Events.AddEventHandler(ToolsProjectEventHandler);
+
   ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezSceneDocument_PropertyMetaStateEventHandler);
 
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(OnDocumentManagerEvent));
-
-  ezQtEditorApp::GetSingleton()->m_Events.AddEventHandler(ToolsProjectEventHandler);
 
   ezAssetCurator::GetSingleton()->m_Events.AddEventHandler(AssetCuratorEventHandler);
 
@@ -139,13 +164,9 @@ void OnLoadPlugin()
   const char* MenuBars[] = {"EditorPluginScene_DocumentMenuBar", "EditorPluginScene_Scene2MenuBar"};
   for (const char* szMenuBar : MenuBars)
   {
-    ezActionMapManager::RegisterActionMap(szMenuBar).AssertSuccess();
-    ezStandardMenus::MapActions(szMenuBar, ezStandardMenuTypes::Default | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Scene | ezStandardMenuTypes::View);
-    ezProjectActions::MapActions(szMenuBar);
-    ezDocumentActions::MapMenuActions(szMenuBar);
-    ezAssetActions::MapMenuActions(szMenuBar);
+    ezActionMapManager::RegisterActionMap(szMenuBar, "AssetMenuBar");
+    ezStandardMenus::MapActions(szMenuBar, ezStandardMenuTypes::Scene | ezStandardMenuTypes::View);
     ezDocumentActions::MapToolsActions(szMenuBar);
-    ezCommandHistoryActions::MapActions(szMenuBar);
     ezTransformGizmoActions::MapMenuActions(szMenuBar);
     ezSceneGizmoActions::MapMenuActions(szMenuBar);
     ezGameObjectSelectionActions::MapActions(szMenuBar);
@@ -159,7 +180,7 @@ void OnLoadPlugin()
   // Scene2 Menu bar adjustments
   {
     ezActionMap* pMap = ezActionMapManager::GetActionMap(MenuBars[1]);
-    pMap->UnmapAction(ezDocumentActions::s_hSave, "G.File.Common").AssertSuccess();
+    pMap->HideAction(ezDocumentActions::s_hSave, "G.File.Common");
     pMap->MapAction(ezLayerActions::s_hSaveActiveLayer, "G.File.Common", 6.5f);
   }
 
@@ -168,9 +189,8 @@ void OnLoadPlugin()
   const char* ToolBars[] = {"EditorPluginScene_DocumentToolBar", "EditorPluginScene_Scene2ToolBar"};
   for (const char* szToolBar : ToolBars)
   {
-    ezActionMapManager::RegisterActionMap(szToolBar).AssertSuccess();
-    ezDocumentActions::MapToolbarActions(szToolBar);
-    ezCommandHistoryActions::MapActions(szToolBar, "");
+    ezActionMapManager::RegisterActionMap(szToolBar, "AssetToolbar");
+
     ezTransformGizmoActions::MapToolbarActions(szToolBar);
     ezSceneGizmoActions::MapToolbarActions(szToolBar);
     ezGameObjectDocumentActions::MapToolbarActions(szToolBar);
@@ -179,13 +199,13 @@ void OnLoadPlugin()
   // Scene2 Tool bar adjustments
   {
     ezActionMap* pMap = ezActionMapManager::GetActionMap(ToolBars[1]);
-    pMap->UnmapAction(ezDocumentActions::s_hSave, "SaveCategory").AssertSuccess();
+    pMap->HideAction(ezDocumentActions::s_hSave, "SaveCategory");
     pMap->MapAction(ezLayerActions::s_hSaveActiveLayer, "SaveCategory", 1.0f);
   }
 
   // View Tool Bar
-  ezActionMapManager::RegisterActionMap("EditorPluginScene_ViewToolBar").AssertSuccess();
-  ezViewActions::MapToolbarActions("EditorPluginScene_ViewToolBar", ezViewActions::PerspectiveMode | ezViewActions::RenderMode | ezViewActions::ActivateRemoteProcess);
+  ezActionMapManager::RegisterActionMap("EditorPluginScene_ViewToolBar", "AssetViewToolbar");
+  ezViewActions::MapToolbarActions("EditorPluginScene_ViewToolBar", ezViewActions::PerspectiveMode | ezViewActions::RenderMode /*| ezViewActions::ActivateRemoteProcess*/);
   ezQuadViewActions::MapToolbarActions("EditorPluginScene_ViewToolBar");
 
   // Visualizers
@@ -197,33 +217,46 @@ void OnLoadPlugin()
     { return EZ_DEFAULT_NEW(ezBoxReflectionProbeVisualizerAdapter); });
 
   // SceneGraph Context Menu
-  ezActionMapManager::RegisterActionMap("EditorPluginScene_ScenegraphContextMenu").AssertSuccess();
+  ezActionMapManager::RegisterActionMap("EditorPluginScene_ScenegraphContextMenu");
   ezGameObjectSelectionActions::MapContextMenuActions("EditorPluginScene_ScenegraphContextMenu");
   ezSelectionActions::MapContextMenuActions("EditorPluginScene_ScenegraphContextMenu");
   ezEditActions::MapContextMenuActions("EditorPluginScene_ScenegraphContextMenu");
 
   // Layer Context Menu
-  ezActionMapManager::RegisterActionMap("EditorPluginScene_LayerContextMenu").AssertSuccess();
+  ezActionMapManager::RegisterActionMap("EditorPluginScene_LayerContextMenu");
   ezLayerActions::MapContextMenuActions("EditorPluginScene_LayerContextMenu");
+
+  ezActionMapManager::RegisterActionMap("EditorPluginScene_LayerToolbar");
+  ezLayerActions::MapToolbarActions("EditorPluginScene_LayerToolbar");
 
   // component property meta states
   ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezCameraComponent_PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezSkyLightComponent_PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezGreyBoxComponent_PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezLightComponent_PropertyMetaStateEventHandler);
+  ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezAreaDamageComponent_PropertyMetaStateEventHandler);
+  ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezProjectileSurfaceInteraction_PropertyMetaStateEventHandler);
+  ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezOccluderComponent_PropertyMetaStateEventHandler);
+  ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezSplineNodeComponent_PropertyMetaStateEventHandler);
+  ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezLensFlareComponent_PropertyMetaStateEventHandler);
 }
 
 void OnUnloadPlugin()
 {
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezSceneDocument_PropertyMetaStateEventHandler);
 
+  ezToolsProject::GetSingleton()->s_Events.RemoveEventHandler(ToolsProjectEventHandler);
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(OnDocumentManagerEvent));
-  ezQtEditorApp::GetSingleton()->m_Events.RemoveEventHandler(ToolsProjectEventHandler);
   ezAssetCurator::GetSingleton()->m_Events.RemoveEventHandler(AssetCuratorEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezGreyBoxComponent_PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezSkyLightComponent_PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezCameraComponent_PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezLightComponent_PropertyMetaStateEventHandler);
+  ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezAreaDamageComponent_PropertyMetaStateEventHandler);
+  ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezProjectileSurfaceInteraction_PropertyMetaStateEventHandler);
+  ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezOccluderComponent_PropertyMetaStateEventHandler);
+  ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezSplineNodeComponent_PropertyMetaStateEventHandler);
+  ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezLensFlareComponent_PropertyMetaStateEventHandler);
 
 
   ezSelectionActions::UnregisterActions();
@@ -337,20 +370,118 @@ void ezGreyBoxComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& 
 
 void ezLightComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
 {
-  static const ezRTTI* pRtti = ezRTTI::FindTypeByName("ezLightComponent");
-  EZ_ASSERT_DEBUG(pRtti != nullptr, "Did the typename change?");
+  static const ezRTTI* pLightComponentRtti = ezRTTI::FindTypeByName("ezLightComponent");
+  static const ezRTTI* pFillLightComponentRtti = ezRTTI::FindTypeByName("ezFillLightComponent");
+  EZ_ASSERT_DEBUG(pLightComponentRtti != nullptr && pFillLightComponentRtti != nullptr, "Did the typename change?");
 
-  if (!e.m_pObject->GetTypeAccessor().GetType()->IsDerivedFrom(pRtti))
+  auto& props = *e.m_pPropertyStates;
+
+  const ezRTTI* pObjectType = e.m_pObject->GetTypeAccessor().GetType();
+  const bool bIsLight = pObjectType->IsDerivedFrom(pLightComponentRtti);
+  const bool bIsFillLight = pObjectType->IsDerivedFrom(pFillLightComponentRtti);
+
+  if (bIsLight || bIsFillLight)
+  {
+    const bool bUseColorTemperature = e.m_pObject->GetTypeAccessor().GetValue("UseColorTemperature").ConvertTo<bool>();
+    props["Temperature"].m_Visibility = bUseColorTemperature ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["LightColor"].m_Visibility = bUseColorTemperature ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
+  }
+
+  if (bIsLight)
+  {
+    const bool bCastShadows = e.m_pObject->GetTypeAccessor().GetValue("CastShadows").ConvertTo<bool>();
+    props["TransparentShadows"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["PenumbraSize"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["SlopeBias"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["ConstantBias"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+
+    // Point/Spot light
+    props["ShadowFadeOutRange"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+
+    // Directional light
+    props["NumCascades"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["MinShadowRange"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["FadeOutStart"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["SplitModeWeight"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["NearPlaneOffset"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+  }
+}
+
+void ezAreaDamageComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+{
+  static const ezRTTI* pRtti = ezRTTI::FindTypeByName("ezAreaDamageComponent");
+
+  if (e.m_pObject->GetTypeAccessor().GetType() != pRtti)
     return;
 
   auto& props = *e.m_pPropertyStates;
 
-  const bool bUseColorTemperature = e.m_pObject->GetTypeAccessor().GetValue("UseColorTemperature").ConvertTo<bool>();
-  props["Temperature"].m_Visibility = bUseColorTemperature ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-  props["LightColor"].m_Visibility = bUseColorTemperature ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
+  const ezInt32 iImpulseType = e.m_pObject->GetTypeAccessor().GetValue("ImpulseType").ConvertTo<ezInt32>();
 
-  const bool bCastShadows = e.m_pObject->GetTypeAccessor().GetValue("CastShadows").ConvertTo<bool>();
-  props["PenumbraSize"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-  props["SlopeBias"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
-  props["ConstantBias"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+  if (iImpulseType != ezImpulseTypeConfig::CustomValueKey)
+  {
+    props["Impulse"].m_Visibility = ezPropertyUiState::Invisible;
+  }
+}
+
+void ezProjectileSurfaceInteraction_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+{
+  static const ezRTTI* pRtti = ezRTTI::FindTypeByName("ezProjectileSurfaceInteraction");
+
+  if (e.m_pObject->GetTypeAccessor().GetType() != pRtti)
+    return;
+
+  auto& props = *e.m_pPropertyStates;
+
+  const ezInt32 iImpulseType = e.m_pObject->GetTypeAccessor().GetValue("ImpulseType").ConvertTo<ezInt32>();
+
+  if (iImpulseType != ezImpulseTypeConfig::CustomValueKey)
+  {
+    props["Impulse"].m_Visibility = ezPropertyUiState::Invisible;
+  }
+}
+
+void ezOccluderComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+{
+  static const ezRTTI* pRtti = ezRTTI::FindTypeByName("ezOccluderComponent");
+  EZ_ASSERT_DEBUG(pRtti != nullptr, "Did the typename change?");
+
+  if (e.m_pObject->GetTypeAccessor().GetType() != pRtti)
+    return;
+
+  const ezInt64 type = e.m_pObject->GetTypeAccessor().GetValue("Type").ConvertTo<ezInt64>();
+  const bool isMesh = (type == 2); // ezOccluderType::Mesh
+
+  auto& props = *e.m_pPropertyStates;
+
+  props["Extents"].m_Visibility = isMesh ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
+  props["Mesh"].m_Visibility = isMesh ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+}
+
+void ezSplineNodeComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+{
+  static const ezRTTI* pRtti = ezRTTI::FindTypeByName("ezSplineNodeComponent");
+
+  if (e.m_pObject->GetTypeAccessor().GetType() != pRtti)
+    return;
+
+  const ezInt32 iTangentModeIn = e.m_pObject->GetTypeAccessor().GetValue("TangentModeIn").ConvertTo<ezInt32>();
+  const ezInt32 iTangentModeOut = e.m_pObject->GetTypeAccessor().GetValue("TangentModeOut").ConvertTo<ezInt32>();
+
+  auto& props = *e.m_pPropertyStates;
+  props["CustomTangentIn"].m_Visibility = iTangentModeIn == ezSplineTangentMode::Custom ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+  props["CustomTangentOut"].m_Visibility = iTangentModeOut == ezSplineTangentMode::Custom ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+}
+
+void ezLensFlareComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+{
+  static const ezRTTI* pRtti = ezRTTI::FindTypeByName("ezLensFlareComponent");
+
+  if (e.m_pObject->GetTypeAccessor().GetType() != pRtti)
+    return;
+
+  const bool bLinkToLightShape = e.m_pObject->GetTypeAccessor().GetValue("LinkToLightShape").ConvertTo<bool>();
+
+  auto& props = *e.m_pPropertyStates;
+  props["LightColor"].m_Visibility = bLinkToLightShape ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
 }

@@ -105,9 +105,15 @@ public:
   /// \brief Launches ezInspector.
   void RunInspector();
 
+  /// \brief Launches Tracy.
+  void RunTracy();
+
   //
   //
   //
+
+  /// \brief Returns whether we are between StartupEditor and ShutdownEditor.
+  bool IsRunning() const { return m_bIsRunning; }
 
   /// \brief Can be set via the command line option '-safe'. In this mode the editor will not automatically load recent documents
   bool IsInSafeMode() const { return m_StartupFlags.IsSet(StartupFlags::SafeMode); }
@@ -230,6 +236,7 @@ private:
 
 private Q_SLOTS:
   void SlotTimedUpdate();
+  void SlotAutoSave();
   void SlotQueuedCloseProject();
   void SlotQueuedOpenProject(QString sProject);
   void SlotQueuedOpenDocument(QString sProject, void* pOpenContext);
@@ -245,7 +252,6 @@ private:
   void DocumentManagerRequestHandler(ezDocumentManager::Request& r);
   void DocumentManagerEventHandler(const ezDocumentManager::Event& r);
   void DocumentEventHandler(const ezDocumentEvent& e);
-  void DocumentWindowEventHandler(const ezQtDocumentWindowEvent& e);
   void ProjectRequestHandler(ezToolsProjectRequest& r);
   void ProjectEventHandler(const ezToolsProjectEvent& r);
   void EngineProcessMsgHandler(const ezEditorEngineProcessConnection::Event& e);
@@ -254,6 +260,7 @@ private:
   void SetupNewProject();
   void LoadEditorPreferences();
   void LoadProjectPreferences();
+  void LogMissingComponentDocumentation();
   void StoreEnginePluginModificationTimes();
   bool CheckForEnginePluginModifications();
   void SaveAllOpenDocuments();
@@ -266,12 +273,15 @@ private:
   void SetupAndShowSplashScreen();
   void CloseSplashScreen();
 
+  void OpenDemoDocument();
+
   ezResult AddBundlesInOrder(ezDynamicArray<ezApplicationPluginConfig::PluginConfig>& order, const ezPluginBundleSet& bundles, const ezString& start, bool bEditor, bool bEditorEngine, bool bRuntime) const;
 
   bool m_bSavePreferencesAfterOpenProject;
   bool m_bLoadingProjectInProgress = false;
   bool m_bAnyProjectOpened = false;
   bool m_bWroteCrashIndicatorFile = false;
+  bool m_bIsRunning = false;
 
   ezBitflags<StartupFlags> m_StartupFlags;
   ezDynamicArray<ezString> m_DocumentsToOpen;
@@ -294,6 +304,7 @@ private:
   QTimer* m_pTimer = nullptr;
 
   QSplashScreen* m_pSplashScreen = nullptr;
+  QTimer* m_pAutoSaveTimer = nullptr;
 
   ezLogWriter::HTML m_LogHTML;
 

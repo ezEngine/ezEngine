@@ -93,12 +93,14 @@ public:
   ezVisualScriptDataStorage(const ezSharedPtr<const ezVisualScriptDataDescription>& pDesc);
   ~ezVisualScriptDataStorage();
 
+  const ezVisualScriptDataDescription& GetDesc() const;
+
   bool IsAllocated() const;
-  void AllocateStorage();
+  void AllocateStorage(ezAllocator* pAllocator);
   void DeallocateStorage();
 
   ezResult Serialize(ezStreamWriter& inout_stream) const;
-  ezResult Deserialize(ezStreamReader& inout_stream);
+  ezResult Deserialize(ezStreamReader& inout_stream, ezAllocator* pAllocator);
 
   using DataOffset = ezVisualScriptDataDescription::DataOffset;
 
@@ -121,7 +123,8 @@ public:
 
 private:
   ezSharedPtr<const ezVisualScriptDataDescription> m_pDesc;
-  ezBlob m_Storage;
+  ezByteArrayPtr m_Storage;
+  ezAllocator* m_pAllocator = nullptr;
 };
 
 struct ezVisualScriptInstanceData

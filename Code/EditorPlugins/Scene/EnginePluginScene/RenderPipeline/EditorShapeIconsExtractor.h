@@ -13,8 +13,9 @@ public:
   ezEditorShapeIconsExtractor(const char* szName = "EditorShapeIconsExtractor");
   ~ezEditorShapeIconsExtractor();
 
-  virtual void Extract(
-    const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData) override;
+  virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData) override;
+  virtual void PostSortAndBatch(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData) override {}
+
   virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
   virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
 
@@ -22,7 +23,7 @@ public:
   ezSceneContext* GetSceneContext() const { return m_pSceneContext; }
 
 private:
-  void ExtractShapeIcon(const ezGameObject* pObject, const ezView& view, ezExtractedRenderData& extractedRenderData, ezRenderData::Category category);
+  void ExtractShapeIcon(const ezGameObject* pObject, const ezView& view, const ezRenderDataManager* pRenderDataManager, ezExtractedRenderData& extractedRenderData, ezRenderData::Category category);
   const ezTypedMemberProperty<ezColor>* FindColorProperty(const ezRTTI* pRtti) const;
   const ezTypedMemberProperty<ezColorGammaUB>* FindColorGammaProperty(const ezRTTI* pRtti) const;
   void FillShapeIconInfo();

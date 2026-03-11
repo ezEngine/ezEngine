@@ -26,17 +26,31 @@ namespace ezMath
   {
     return floor(f);
   }
+  EZ_ALWAYS_INLINE ezInt32 FloorToInt(double f)
+  {
+    return static_cast<ezInt32>(floor(f));
+  }
+
 
   EZ_ALWAYS_INLINE double Ceil(double f)
   {
     return ceil(f);
   }
 
+  EZ_ALWAYS_INLINE ezInt32 CeilToInt(double f)
+  {
+    return static_cast<ezInt32>(ceil(f));
+  }
+
   EZ_ALWAYS_INLINE double Round(double f)
   {
     return Floor(f + 0.5f);
   }
-
+  EZ_ALWAYS_INLINE ezInt32 RoundToInt(double f)
+  {
+    return FloorToInt(f + 0.5);
+  }
+  
   inline double RoundDown(double f, double fMultiple)
   {
     double fDivides = f / fMultiple;

@@ -1,5 +1,6 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
+#include "Plugins.h"
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
@@ -38,6 +39,16 @@ void ezPluginBundle::ReadStateFromDDL(ezOpenDdlReader& ref_ddl, const char* szOw
       m_bLoadCopy = pVal->GetPrimitivesBool()[0];
 
     break;
+  }
+}
+
+void ezPluginBundleSet::SetFromTemplate(const char* szTemplateName)
+{
+  for (auto it : m_Plugins)
+  {
+    ezPluginBundle& bundle = it.Value();
+
+    bundle.m_bSelected = bundle.m_EnabledInTemplates.Contains(szTemplateName);
   }
 }
 
@@ -148,6 +159,9 @@ ezResult ezPluginBundle::ReadBundleFromDDL(ezOpenDdlReader& ref_ddl)
     for (ezUInt32 i = 0; i < pElement->GetNumPrimitives(); ++i)
       m_EnabledInTemplates[i] = pElement->GetPrimitivesString()[i];
   }
+
+  if (auto pElement = pInfo->FindChildOfType(ezOpenDdlPrimitiveType::String, "CMakeTargetName"))
+    m_sCMakeTargetName = pElement->GetPrimitivesString()[0];
 
   m_bMissing = false;
 

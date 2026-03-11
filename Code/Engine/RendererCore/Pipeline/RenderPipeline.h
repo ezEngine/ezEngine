@@ -56,8 +56,10 @@ public:
   }
 
   const ezExtractedRenderData& GetRenderData() const;
-  ezRenderDataBatchList GetRenderDataBatchesWithCategory(
-    ezRenderData::Category category, ezRenderDataBatch::Filter filter = ezRenderDataBatch::Filter()) const;
+  ezRenderDataBatchList GetRenderDataBatchesWithCategory(ezRenderData::Category category) const;
+
+  using RenderDataProcessor = ezDelegate<void(ezExtractedRenderData&)>;
+  ezUInt32 AddRenderDataProcessor(RenderDataProcessor processor);
 
   /// \brief Creates a DGML graph of all passes and textures. Can be used to verify that no accidental temp textures are created due to poorly constructed pipelines or errors in code.
   void CreateDgmlGraph(ezDGMLGraph& ref_graph);
@@ -123,20 +125,20 @@ private: // Member data
     ezDynamicArray<ezRenderPipelinePassConnection*> m_Inputs;
     ezDynamicArray<ezRenderPipelinePassConnection*> m_Outputs;
   };
-  ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> m_Passes;
-  ezMap<const ezRenderPipelinePass*, ConnectionData> m_Connections;
+  ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> m_Passes;       ///< The passes present in the pipeline on no particular order.
+  ezMap<const ezRenderPipelinePass*, ConnectionData> m_Connections; ///< Connections on each pass.
 
   /// \brief Contains all connections that share the same path-through texture and their first and last usage pass index.
   struct TextureUsageData
   {
-    ezHybridArray<ezRenderPipelinePassConnection*, 4> m_UsedBy;
-    ezUInt16 m_uiFirstUsageIdx;
-    ezUInt16 m_uiLastUsageIdx;
-    ezInt32 m_iTargetTextureIndex = -1;
+    ezHybridArray<ezRenderPipelinePassConnection*, 4> m_UsedBy;  ///< All the connections that use this texture. Due to passthrough pins, this can be larger than 1.
+    ezUInt16 m_uiFirstUsageIdx;                                  ///< Used to decide when to acquire a temp texture.
+    ezUInt16 m_uiLastUsageIdx;                                   ///< Used to decide when to return a temp texture.
+    const ezRenderPipelineNodePin* m_pTextureProvider = nullptr; ///< If set, this node and parent pass provide an external texture to the pipeline. This could be a render target from an ezTargetPass or a history buffer that is preserved across frames. At the start of every frame the parent pass will be asked for the current value of the texture a this pin.
   };
-  ezDynamicArray<TextureUsageData> m_TextureUsage;
-  ezDynamicArray<ezUInt16> m_TextureUsageIdxSortedByFirstUsage; ///< Indices map into m_TextureUsage
-  ezDynamicArray<ezUInt16> m_TextureUsageIdxSortedByLastUsage;  ///< Indices map into m_TextureUsage
+  ezDynamicArray<TextureUsageData> m_TextureUsage;               ///< All unique textures used during the pipeline run.
+  ezDynamicArray<ezUInt16> m_TextureUsageIdxSortedByFirstUsage;  ///< Indices map into m_TextureUsage
+  ezDynamicArray<ezUInt16> m_TextureUsageIdxSortedByLastUsage;   ///< Indices map into m_TextureUsage
 
   ezHashTable<ezRenderPipelinePassConnection*, ezUInt32> m_ConnectionToTextureIndex;
 
@@ -147,6 +149,8 @@ private: // Member data
   // Data Providers
   mutable ezDynamicArray<ezUniquePtr<ezFrameDataProviderBase>> m_DataProviders;
   mutable ezHashTable<const ezRTTI*, ezUInt32> m_TypeToDataProviderIndex;
+
+  ezDynamicArray<RenderDataProcessor> m_RenderDataProcessors;
 
   ezDynamicArray<ezPermutationVar> m_PermutationVars;
 

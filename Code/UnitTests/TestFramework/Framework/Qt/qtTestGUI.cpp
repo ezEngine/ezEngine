@@ -66,19 +66,7 @@ ezQtTestGUI::ezQtTestGUI(ezQtTestFramework& ref_testFramework)
   // Sync actions with test framework settings
   TestSettings settings = m_pTestFramework->GetSettings();
   this->actionAssertOnTestFail->setChecked(settings.m_AssertOnTestFail != AssertOnTestFail::DoNotAssert);
-  this->actionOpenHTMLOutput->setChecked(settings.m_bOpenHtmlOutputOnError);
-  this->actionKeepConsoleOpen->setChecked(settings.m_bKeepConsoleOpen);
-  this->actionShowMessageBox->setChecked(settings.m_bShowMessageBox);
   this->actionDisableSuccessfulTests->setChecked(settings.m_bAutoDisableSuccessfulTests);
-
-  // Hide the Windows console if we are its owner
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  DWORD consoleOwner = 0;
-  HWND console = GetConsoleWindow();
-  GetWindowThreadProcessId(console, &consoleOwner);
-  if (consoleOwner == GetCurrentProcessId() && !settings.m_bKeepConsoleOpen)
-    ShowWindow(console, SW_HIDE);
-#  endif
 
   connect(m_pTestFramework, SIGNAL(TestResultReceived(qint32, qint32)), this, SLOT(onTestFrameworkTestResultReceived(qint32, qint32)));
 
@@ -120,45 +108,6 @@ void ezQtTestGUI::on_actionAssertOnTestFail_triggered(bool bChecked)
 {
   TestSettings settings = m_pTestFramework->GetSettings();
   settings.m_AssertOnTestFail = bChecked ? AssertOnTestFail::AssertIfDebuggerAttached : AssertOnTestFail::DoNotAssert;
-  m_pTestFramework->SetSettings(settings);
-}
-
-void ezQtTestGUI::on_actionOpenHTMLOutput_triggered(bool bChecked)
-{
-  TestSettings settings = m_pTestFramework->GetSettings();
-  settings.m_bOpenHtmlOutputOnError = bChecked;
-  m_pTestFramework->SetSettings(settings);
-}
-
-void ezQtTestGUI::on_actionKeepConsoleOpen_triggered(bool bChecked)
-{
-  TestSettings settings = m_pTestFramework->GetSettings();
-  settings.m_bKeepConsoleOpen = bChecked;
-  m_pTestFramework->SetSettings(settings);
-
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  // We should only allow hiding of the console window if this application
-  // is actually the console owner, otherwise we will for example hide all
-  // cmd.exe windows that launch a test framework based application. This
-  // also has another ugly side effect in that the cmd.exe process stays
-  // alive but the console window will never be visible again.
-  DWORD consoleOwner = 0;
-  HWND console = GetConsoleWindow();
-  GetWindowThreadProcessId(console, &consoleOwner);
-  if (consoleOwner == GetCurrentProcessId())
-  {
-    if (!settings.m_bKeepConsoleOpen)
-      ShowWindow(console, SW_HIDE);
-    else
-      ShowWindow(console, SW_SHOW);
-  }
-#  endif
-}
-
-void ezQtTestGUI::on_actionShowMessageBox_triggered(bool bChecked)
-{
-  TestSettings settings = m_pTestFramework->GetSettings();
-  settings.m_bShowMessageBox = bChecked;
   m_pTestFramework->SetSettings(settings);
 }
 
@@ -256,9 +205,6 @@ void ezQtTestGUI::on_actionRunTests_triggered()
   {
     m_pStatusTextWorkState->setText("<p><span style=\"font-weight:600; color:#ff0000;\">  [Tests Aborted]</span></p>");
 
-    if (m_pTestFramework->GetSettings().m_bShowMessageBox)
-      QMessageBox::information(this, "Tests Aborted", "The tests were aborted by the user.", QMessageBox::Ok, QMessageBox::Ok);
-
     m_bAbort = false;
   }
   else
@@ -266,16 +212,10 @@ void ezQtTestGUI::on_actionRunTests_triggered()
     if (m_pTestFramework->GetTotalErrorCount() > 0)
     {
       m_pStatusTextWorkState->setText("<p><span style=\"font-weight:600; color:#ff0000;\">  [Tests Failed]</span></p>");
-
-      if (m_pTestFramework->GetSettings().m_bShowMessageBox)
-        QMessageBox::critical(this, "Tests Failed", "Some tests have failed.", QMessageBox::Ok, QMessageBox::Ok);
     }
     else
     {
       m_pStatusTextWorkState->setText("<p><span style=\"font-weight:600; color:#00aa00;\">  [All Tests Passed]</span></p>");
-
-      if (m_pTestFramework->GetSettings().m_bShowMessageBox)
-        QMessageBox::information(this, "Tests Succeeded", "All tests succeeded.", QMessageBox::Ok, QMessageBox::Ok);
 
       if (m_pTestFramework->GetSettings().m_bCloseOnSuccess)
         QTimer::singleShot(100, this, SLOT(on_actionQuit_triggered()));

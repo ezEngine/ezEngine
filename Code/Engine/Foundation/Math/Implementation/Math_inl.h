@@ -71,7 +71,7 @@ namespace ezMath
   {
     EZ_ASSERT_DEBUG(value != 0, "FirstBitLow is undefined for 0");
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if EZ_ENABLED(EZ_COMPILER_MSVC)
     unsigned long uiIndex = 0;
     _BitScanForward(&uiIndex, value);
     return uiIndex;
@@ -89,7 +89,7 @@ namespace ezMath
 
 #if __castxml__
     return 0;
-#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#elif EZ_ENABLED(EZ_COMPILER_MSVC)
     unsigned long uiIndex = 0;
 #  if EZ_ENABLED(EZ_PLATFORM_64BIT)
 
@@ -120,7 +120,7 @@ namespace ezMath
   {
     EZ_ASSERT_DEBUG(value != 0, "FirstBitHigh is undefined for 0");
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if EZ_ENABLED(EZ_COMPILER_MSVC)
     unsigned long uiIndex = 0;
     _BitScanReverse(&uiIndex, value);
     return uiIndex;
@@ -138,7 +138,7 @@ namespace ezMath
 
 #if __castxml__
     return 0;
-#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#elif EZ_ENABLED(EZ_COMPILER_MSVC)
     unsigned long uiIndex = 0;
 #  if EZ_ENABLED(EZ_PLATFORM_64BIT)
     _BitScanReverse64(&uiIndex, value);
@@ -209,13 +209,13 @@ namespace ezMath
   }
 
   template <typename Type>
-  EZ_ALWAYS_INLINE Type Bitmask_LowN(ezUInt32 uiNumBitsToSet)
+  EZ_ALWAYS_INLINE constexpr Type Bitmask_LowN(ezUInt32 uiNumBitsToSet)
   {
     return (uiNumBitsToSet >= sizeof(Type) * 8) ? ~static_cast<Type>(0) : ((static_cast<Type>(1) << uiNumBitsToSet) - static_cast<Type>(1));
   }
 
   template <typename Type>
-  EZ_ALWAYS_INLINE Type Bitmask_HighN(ezUInt32 uiNumBitsToSet)
+  EZ_ALWAYS_INLINE constexpr Type Bitmask_HighN(ezUInt32 uiNumBitsToSet)
   {
     return (uiNumBitsToSet == 0) ? 0 : ~static_cast<Type>(0) << ((sizeof(Type) * 8) - ezMath::Min<ezUInt32>(uiNumBitsToSet, sizeof(Type) * 8));
   }
@@ -337,8 +337,11 @@ namespace ezMath
     return (x * x * x * (x * ((Type)6 * x - (Type)15) + (Type)10));
   }
 
-  inline ezUInt8 ColorFloatToByte(float value)
+  template <ezUInt32 NumBits>
+  inline ezUInt32 ColorFloatToUnsignedInt(float value)
   {
+    constexpr float fMaxValue = static_cast<float>(ezMath::Bitmask_LowN<ezUInt32>(NumBits));
+
     // Implemented according to
     // https://docs.microsoft.com/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
     if (IsNaN(value))
@@ -347,22 +350,18 @@ namespace ezMath
     }
     else
     {
-      return static_cast<ezUInt8>(Saturate(value) * 255.0f + 0.5f);
+      return static_cast<ezUInt32>(Saturate(value) * fMaxValue + 0.5f);
     }
   }
 
-  inline ezUInt16 ColorFloatToShort(float value)
+  EZ_ALWAYS_INLINE ezUInt8 ColorFloatToByte(float value)
   {
-    // Implemented according to
-    // https://docs.microsoft.com/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
-    if (IsNaN(value))
-    {
-      return 0;
-    }
-    else
-    {
-      return static_cast<ezUInt16>(Saturate(value) * 65535.0f + 0.5f);
-    }
+    return static_cast<ezUInt8>(ColorFloatToUnsignedInt<8>(value));
+  }
+
+  EZ_ALWAYS_INLINE ezUInt16 ColorFloatToShort(float value)
+  {
+    return static_cast<ezUInt16>(ColorFloatToUnsignedInt<16>(value));
   }
 
   inline ezInt8 ColorFloatToSignedByte(float value)
@@ -411,18 +410,24 @@ namespace ezMath
     }
   }
 
-  constexpr inline float ColorByteToFloat(ezUInt8 value)
+  template <ezUInt32 NumBits>
+  constexpr float ColorUnsignedIntToFloat(ezUInt32 value)
   {
     // Implemented according to
-    // https://docs.microsoft.com/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
-    return value * (1.0f / 255.0f);
+    // https://docs.microsoft.com/en-us/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
+    constexpr ezUInt32 uiMaxValue = ezMath::Bitmask_LowN<ezUInt32>(NumBits);
+    constexpr float fMaxValue = static_cast<float>(uiMaxValue);
+    return (value & uiMaxValue) * (1.0f / fMaxValue);
   }
 
-  constexpr inline float ColorShortToFloat(ezUInt16 value)
+  EZ_ALWAYS_INLINE constexpr float ColorByteToFloat(ezUInt8 value)
   {
-    // Implemented according to
-    // https://docs.microsoft.com/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
-    return value * (1.0f / 65535.0f);
+    return ColorUnsignedIntToFloat<8>(value);
+  }
+
+  EZ_ALWAYS_INLINE constexpr float ColorShortToFloat(ezUInt16 value)
+  {
+    return ColorUnsignedIntToFloat<16>(value);
   }
 
   constexpr inline float ColorSignedByteToFloat(ezInt8 value)
@@ -440,29 +445,40 @@ namespace ezMath
   }
 
   template <typename T, typename T2>
-  T EvaluateBezierCurve(T2 t, const T& startPoint, const T& controlPoint1, const T& controlPoint2, const T& endPoint)
+  EZ_FORCE_INLINE T EvaluateBezierCurve(T2 t, const T& startPoint, const T& controlPoint1, const T& controlPoint2, const T& endPoint)
   {
     const T2 mt = 1 - t;
+    const T2 mt2 = mt * mt;
+    const T2 t2 = t * t;
 
-    const T2 f1 = mt * mt * mt;
-    const T2 f2 = 3 * mt * mt * t;
-    const T2 f3 = 3 * mt * t * t;
-    const T2 f4 = t * t * t;
+    const T2 f1 = mt2 * mt;
+    const T2 f2 = 3 * mt2 * t;
+    const T2 f3 = 3 * mt * t2;
+    const T2 f4 = t * t2;
 
     return f1 * startPoint + f2 * controlPoint1 + f3 * controlPoint2 + f4 * endPoint;
   }
+
+  template <typename T, typename T2>
+  EZ_FORCE_INLINE T EvaluateBezierCurveDerivative(T2 t, const T& startPoint, const T& controlPoint1, const T& controlPoint2, const T& endPoint)
+  {
+    const T2 mt = 1 - t;
+
+    const T2 f1 = 3 * mt * mt;
+    const T2 f2 = 6 * mt * t;
+    const T2 f3 = 3 * t * t;
+
+    return f1 * (controlPoint1 - startPoint) + f2 * (controlPoint2 - controlPoint1) + f3 * (endPoint - controlPoint2);
+  }
 } // namespace ezMath
 
-constexpr EZ_FORCE_INLINE ezAngle ezAngle::AngleBetween(ezAngle a, ezAngle b)
-{
-  // taken from http://gamedev.stackexchange.com/questions/4467/comparing-angles-and-working-out-the-difference
-  return ezAngle(Pi<float>() - ezMath::Abs(ezMath::Abs(a.GetRadian() - b.GetRadian()) - Pi<float>()));
-}
 
-constexpr EZ_FORCE_INLINE ezInt32 ezMath::FloatToInt(float value)
+template <typename T>
+constexpr EZ_FORCE_INLINE ezInt32 ezMath::FloatToInt32(T value)
 {
   return static_cast<ezInt32>(value);
 }
+
 
 #if EZ_DISABLED(EZ_PLATFORM_ARCH_X86) || (_MSC_VER <= 1916)
 constexpr EZ_FORCE_INLINE ezInt64 ezMath::FloatToInt(double value)
@@ -493,3 +509,46 @@ EZ_ALWAYS_INLINE size_t ezMath::SafeConvertToSizeT(ezUInt64 uiValue)
   return uiValue;
 }
 #endif
+
+EZ_ALWAYS_INLINE constexpr ezUInt32 ezMath::WrapUInt(ezUInt32 uiValue, ezUInt32 uiExcludedMaxValue)
+{
+  return uiValue % uiExcludedMaxValue;
+}
+
+EZ_ALWAYS_INLINE constexpr ezInt32 ezMath::WrapInt(ezInt32 iValue, ezUInt32 uiExcludedMaxValue)
+{
+  const ezInt32 wrapped = (iValue % static_cast<ezInt32>(uiExcludedMaxValue));
+  return wrapped >= 0 ? wrapped : (wrapped + uiExcludedMaxValue);
+}
+
+EZ_ALWAYS_INLINE constexpr ezInt32 ezMath::WrapInt(ezInt32 iValue, ezInt32 iMinValue, ezInt32 iExcludedMaxValue)
+{
+  EZ_ASSERT_DEBUG(iMinValue < iExcludedMaxValue, "Invalid range to wrap integer around.");
+  return iMinValue + WrapInt(iValue - iMinValue, static_cast<ezUInt32>(iExcludedMaxValue - iMinValue));
+}
+
+template<typename Type>
+EZ_ALWAYS_INLINE Type ezMath::WrapFloat01(Type fValue)
+{
+  if (fValue < (Type)0.0)
+  {
+    return fValue + Ceil(-fValue);
+  }
+  else if (fValue > (Type)1.0)
+  {
+    return fValue - Ceil(fValue - (Type)1.0);
+  }
+
+  return fValue;
+}
+template<typename Type>
+EZ_ALWAYS_INLINE Type ezMath::WrapFloat(Type fValue, Type fMinValue, Type fMaxValue)
+{
+  const Type range = fMaxValue - fMinValue;
+  return fMinValue + WrapFloat01<Type>((fValue - fMinValue) / range) * range;
+}
+
+EZ_ALWAYS_INLINE constexpr ezUInt64 ezMath::MakeUInt64(ezUInt32 uiHigh32, ezUInt32 uiLow32)
+{
+  return (static_cast<ezUInt64>(uiHigh32) << 32) | static_cast<ezUInt64>(uiLow32);
+}

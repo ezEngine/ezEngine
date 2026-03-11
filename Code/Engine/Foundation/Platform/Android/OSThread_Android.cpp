@@ -1,5 +1,6 @@
 #include <Foundation/FoundationPCH.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_ANDROID)
-#  include <Foundation/Platform/Posix/OSThread_Posix.h>
+#  define EZ_POSIX_THREAD_SETNAME
+#  include <Foundation/Platform/Posix/OSThread_Posix.inl>
 #endif

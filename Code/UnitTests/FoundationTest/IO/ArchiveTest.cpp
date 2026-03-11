@@ -21,7 +21,7 @@ EZ_CREATE_SIMPLE_TEST(IO, Archive)
   ezOSFile::DeleteFolder(sOutputFolder).IgnoreResult();
   ezOSFile::CreateDirectoryStructure(sOutputFolder).IgnoreResult();
 
-  if (!EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder, "Clear", "output", ezFileSystem::AllowWrites).Succeeded()))
+  if (!EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder, "Clear", "output", ezDataDirUsage::AllowWrites).Succeeded()))
     return;
 
   const char* szTestData = "TestData";
@@ -125,7 +125,7 @@ EZ_CREATE_SIMPLE_TEST(IO, Archive)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Mount as Data Dir")
   {
-    if (!EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sArchiveFile, "Clear", "archive", ezFileSystem::ReadOnly) == EZ_SUCCESS))
+    if (!EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sArchiveFile, "Clear", "archive", ezDataDirUsage::ReadOnly) == EZ_SUCCESS))
       return;
 
     ezStringBuilder sFileSrc;
@@ -151,7 +151,7 @@ EZ_CREATE_SIMPLE_TEST(IO, Archive)
     }
 
     // mount a second time
-    if (!EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sArchiveFile, "Clear", "archive2", ezFileSystem::ReadOnly) == EZ_SUCCESS))
+    if (!EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sArchiveFile, "Clear", "archive2", ezDataDirUsage::ReadOnly) == EZ_SUCCESS))
       return;
   }
 

@@ -11,6 +11,7 @@ class ezExtractor;
 class ezView;
 class ezRenderer;
 class ezRenderData;
+class ezRenderDataManager;
 class ezRenderDataBatch;
 class ezRenderPipeline;
 class ezRenderPipelinePass;
@@ -49,13 +50,12 @@ namespace ezInternal
 
 struct ezRenderViewContext
 {
-  const ezCamera* m_pCamera;
-  const ezCamera* m_pLodCamera;
-  const ezViewData* m_pViewData;
-  ezRenderContext* m_pRenderContext;
+  const ezCamera* m_pCamera = nullptr;
+  const ezViewData* m_pViewData = nullptr;
+  ezRenderContext* m_pRenderContext = nullptr;
 
-  const ezDebugRendererContext* m_pWorldDebugContext;
-  const ezDebugRendererContext* m_pViewDebugContext;
+  const ezDebugRendererContext* m_pWorldDebugContext = nullptr;
+  const ezDebugRendererContext* m_pViewDebugContext = nullptr;
 };
 
 using ezViewId = ezGenericId<24, 8>;

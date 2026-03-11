@@ -5,7 +5,7 @@
 macro(ez_create_target TYPE TARGET_NAME)
 	ez_apply_build_filter(${TARGET_NAME})
 
-	set(ARG_OPTIONS NO_PCH NO_UNITY NO_QT NO_EZ_PREFIX ENABLE_RTTI NO_WARNINGS_AS_ERRORS NO_COMPLIANCE ALL_SYMBOLS_VISIBLE NO_DEBUG)
+	set(ARG_OPTIONS NO_PCH NO_UNITY NO_QT NO_EZ_PREFIX ENABLE_RTTI NO_WARNINGS_AS_ERRORS NO_COMPLIANCE ALL_SYMBOLS_VISIBLE NO_DEBUG NO_EXPORT)
 	set(ARG_ONEVALUEARGS "")
 	set(ARG_MULTIVALUEARGS EXCLUDE_FOLDER_FOR_UNITY EXCLUDE_FROM_PCH_REGEX MANUAL_SOURCE_FILES)
 	cmake_parse_arguments(ARG "${ARG_OPTIONS}" "${ARG_ONEVALUEARGS}" "${ARG_MULTIVALUEARGS}" ${ARGN})
@@ -47,9 +47,6 @@ macro(ez_create_target TYPE TARGET_NAME)
 			ez_platformhook_set_library_properties(${TARGET_NAME})
 		endif()
 
-		# PLATFORM-TODO (use hook above?)
-		ez_uwp_fix_library_properties(${TARGET_NAME} "${ALL_SOURCE_FILES}")
-
 	elseif(${TYPE} STREQUAL "APPLICATION")
 		message(STATUS "Application: ${TARGET_NAME}")
 
@@ -67,9 +64,6 @@ macro(ez_create_target TYPE TARGET_NAME)
 		else()
 			add_executable(${TARGET_NAME} ${ALL_SOURCE_FILES})
 		endif()
-
-		# PLATFORM-TODO (use hook from below?)
-		ez_uwp_add_default_content(${TARGET_NAME})
 
 		if(COMMAND ez_platformhook_set_application_properties)
 			ez_platformhook_set_application_properties(${TARGET_NAME})
@@ -127,10 +121,19 @@ macro(ez_create_target TYPE TARGET_NAME)
 		endif()
 	endif()
 
+	# add a platform specific include directory
+	if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/Platform/${EZ_CMAKE_PLATFORM_POSTFIX}")
+		target_include_directories(${TARGET_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/Platform/${EZ_CMAKE_PLATFORM_POSTFIX}")
+	endif()
+
 	# PLATFORM-TODO (use general hook as above?)
 	if(EZ_CMAKE_PLATFORM_ANDROID)
 		# Add the location for native_app_glue.h to the include directories.
 		target_include_directories(${TARGET_NAME} PRIVATE "${CMAKE_ANDROID_NDK}/sources/android/native_app_glue")
+	endif()
+
+	if (EZ_CMAKE_PLATFORM_WEB)
+		set_target_properties(${TARGET_NAME} PROPERTIES SUFFIX ".html")
 	endif()
 
 	if(NOT ${ARG_NO_QT})
@@ -149,10 +152,14 @@ macro(ez_create_target TYPE TARGET_NAME)
 		set_property(GLOBAL APPEND PROPERTY "EXTERNAL_PROJECTS" ${TARGET_NAME})
 	endif()
 
-	get_property(GATHER_EXPORT_PROJECTS GLOBAL PROPERTY "GATHER_EXPORT_PROJECTS")
+	if(NOT ${ARG_NO_EXPORT})
+		get_property(GATHER_EXPORT_PROJECTS GLOBAL PROPERTY "GATHER_EXPORT_PROJECTS")
 
-	if(GATHER_EXPORT_PROJECTS)
-		set_property(GLOBAL APPEND PROPERTY "EXPORT_PROJECTS" ${TARGET_NAME})
+		if(GATHER_EXPORT_PROJECTS)
+			set_property(GLOBAL APPEND PROPERTY "EXPORT_PROJECTS" ${TARGET_NAME})
+		endif()
+	else()
+		message(STATUS "${TARGET_NAME} was excluded from export (NO_EXPORT)")
 	endif()
 	
 endmacro()

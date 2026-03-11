@@ -144,7 +144,7 @@ void ezTranslatorFromFiles::LoadTranslationFile(const char* szFullPath)
   ezDeque<ezStringView> Lines;
   sContent.Split(false, Lines, "\n");
 
-  ezHybridArray<ezStringView, 4> entries;
+  ezTempHybridArray<ezStringView, 4> entries;
 
   ezStringBuilder sLine, sKey, sValue, sTooltip, sHelpUrl;
   for (const auto& line : Lines)
@@ -180,6 +180,8 @@ void ezTranslatorFromFiles::LoadTranslationFile(const char* szFullPath)
     sTooltip.Trim(" \t\r\n");
     sHelpUrl.Trim(" \t\r\n");
 
+    sTooltip.ReplaceAll("\\n", "\n");
+
     if (GetHighlightUntranslated())
     {
       sValue.Prepend("# ");
@@ -201,6 +203,8 @@ void ezTranslatorStorage::StoreTranslation(ezStringView sString, ezUInt64 uiStri
 
 ezStringView ezTranslatorStorage::Translate(ezStringView sString, ezUInt64 uiStringHash, ezTranslationUsage usage)
 {
+  EZ_IGNORE_UNUSED(sString);
+
   auto it = m_Translations[(ezUInt32)usage].Find(uiStringHash);
   if (it.IsValid())
     return it.Value().GetData();
@@ -259,12 +263,13 @@ ezStringView ezTranslatorMakeMoreReadable::Translate(ezStringView sString, ezUIn
   ezStringBuilder tmp = sString;
   tmp.Trim(" _-");
 
-  tmp.TrimWordStart("ez");
-
-  ezStringView sComponent = "Component";
-  if (tmp.EndsWith(sComponent) && tmp.GetElementCount() > sComponent.GetElementCount())
+  if (tmp.TrimWordStart("ez"))
   {
-    tmp.Shrink(0, sComponent.GetElementCount());
+    ezStringView sComponent = "Component";
+    if (tmp.EndsWith(sComponent) && tmp.GetElementCount() > sComponent.GetElementCount())
+    {
+      tmp.Shrink(0, sComponent.GetElementCount());
+    }
   }
 
   auto IsUpper = [](ezUInt32 c)

@@ -14,7 +14,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptClassResource, 1, ezRTTIDefaultAll
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezVisualScriptClassResource);
 
-EZ_BEGIN_SUBSYSTEM_DECLARATION(VisualScript, Resource)
+EZ_BEGIN_SUBSYSTEM_DECLARATION(VisualScript, VisualScriptResource)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "ResourceManager" 
@@ -24,7 +24,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(VisualScript, Resource)
   {
     ezResourceManager::RegisterResourceForAssetType("VisualScriptClass", ezGetStaticRTTI<ezVisualScriptClassResource>());
     ezResourceManager::RegisterResourceOverrideType(ezGetStaticRTTI<ezVisualScriptClassResource>(), [](const ezStringBuilder& sResourceID) -> bool  {
-        return sResourceID.HasExtension(".ezVisualScriptClassBin");
+        return sResourceID.HasExtension(".ezBinVisualScriptClass");
       });
   }
 
@@ -64,11 +64,9 @@ ezResourceLoadDesc ezVisualScriptClassResource::UpdateContent(ezStreamReader* pS
     return ld;
   }
 
-  // skip the absolute file path data that the standard file reader writes into the stream
-  {
-    ezString sAbsFilePath;
-    (*pStream) >> sAbsFilePath;
-  }
+  // the standard file reader writes the absolute file path into the stream
+  ezString sAbsFilePath;
+  (*pStream) >> sAbsFilePath;
 
   // skip the asset file header at the start of the file
   ezAssetFileHeader AssetHash;
@@ -101,10 +99,51 @@ ezResourceLoadDesc ezVisualScriptClassResource::UpdateContent(ezStreamReader* pS
           return ld;
         }
       }
+      else if (chunk.GetCurrentChunk().m_sChunkName == "ConstantData")
+      {
+        ezSharedPtr<ezVisualScriptDataDescription> pConstantDataDesc = EZ_SCRIPT_NEW(ezVisualScriptDataDescription);
+        if (pConstantDataDesc->Deserialize(chunk).Failed())
+        {
+          return ld;
+        }
+
+        ezSharedPtr<ezVisualScriptDataStorage> pConstantDataStorage = EZ_SCRIPT_NEW(ezVisualScriptDataStorage, pConstantDataDesc);
+        if (pConstantDataStorage->Deserialize(chunk, ezScriptAllocator::GetAllocator()).Succeeded())
+        {
+          m_pConstantDataStorage = pConstantDataStorage;
+        }
+      }
+      else if (chunk.GetCurrentChunk().m_sChunkName == "InstanceData")
+      {
+        ezSharedPtr<ezVisualScriptDataDescription> pInstanceDataDesc = EZ_SCRIPT_NEW(ezVisualScriptDataDescription);
+        if (pInstanceDataDesc->Deserialize(chunk).Succeeded())
+        {
+          m_pInstanceDataDesc = pInstanceDataDesc;
+        }
+
+        ezSharedPtr<ezVisualScriptInstanceDataMapping> pInstanceDataMapping = EZ_SCRIPT_NEW(ezVisualScriptInstanceDataMapping);
+        if (chunk.ReadHashTable(pInstanceDataMapping->m_Content).Succeeded())
+        {
+          m_pInstanceDataMapping = pInstanceDataMapping;
+
+          // calculate byte offsets from indices
+          for (auto& it : m_pInstanceDataMapping->m_Content)
+          {
+            auto& dataOffset = it.Value().m_DataOffset;
+            dataOffset = m_pInstanceDataDesc->GetOffset(dataOffset.GetType(), dataOffset.m_uiByteOffset, dataOffset.GetSource());
+          }
+        }
+      }
       else if (chunk.GetCurrentChunk().m_sChunkName == "FunctionGraphs")
       {
         ezUInt32 uiNumFunctions;
         chunk >> uiNumFunctions;
+
+        if (m_pInstanceDataDesc == nullptr || m_pConstantDataStorage == nullptr)
+        {
+          ezLog::Error("Old visual script, needs re-export");
+          return ld;
+        }
 
         for (ezUInt32 i = 0; i < uiNumFunctions; ++i)
         {
@@ -116,7 +155,7 @@ ezResourceLoadDesc ezVisualScriptClassResource::UpdateContent(ezStreamReader* pS
           chunk >> coroutineCreationMode;
 
           ezUniquePtr<ezVisualScriptGraphDescription> pDesc = EZ_SCRIPT_NEW(ezVisualScriptGraphDescription);
-          if (pDesc->Deserialize(chunk).Failed())
+          if (pDesc->Deserialize(chunk, *m_pInstanceDataDesc, m_pConstantDataStorage->GetDesc()).Failed())
           {
             ezLog::Error("Invalid visual script desc");
             return ld;
@@ -155,34 +194,6 @@ ezResourceLoadDesc ezVisualScriptClassResource::UpdateContent(ezStreamReader* pS
           }
         }
       }
-      else if (chunk.GetCurrentChunk().m_sChunkName == "ConstantData")
-      {
-        ezSharedPtr<ezVisualScriptDataDescription> pConstantDataDesc = EZ_SCRIPT_NEW(ezVisualScriptDataDescription);
-        if (pConstantDataDesc->Deserialize(chunk).Failed())
-        {
-          return ld;
-        }
-
-        ezSharedPtr<ezVisualScriptDataStorage> pConstantDataStorage = EZ_SCRIPT_NEW(ezVisualScriptDataStorage, pConstantDataDesc);
-        if (pConstantDataStorage->Deserialize(chunk).Succeeded())
-        {
-          m_pConstantDataStorage = pConstantDataStorage;
-        }
-      }
-      else if (chunk.GetCurrentChunk().m_sChunkName == "InstanceData")
-      {
-        ezSharedPtr<ezVisualScriptDataDescription> pInstanceDataDesc = EZ_SCRIPT_NEW(ezVisualScriptDataDescription);
-        if (pInstanceDataDesc->Deserialize(chunk).Succeeded())
-        {
-          m_pInstanceDataDesc = pInstanceDataDesc;
-        }
-
-        ezSharedPtr<ezVisualScriptInstanceDataMapping> pInstanceDataMapping = EZ_SCRIPT_NEW(ezVisualScriptInstanceDataMapping);
-        if (chunk.ReadHashTable(pInstanceDataMapping->m_Content).Succeeded())
-        {
-          m_pInstanceDataMapping = pInstanceDataMapping;
-        }
-      }
 
       chunk.NextChunk();
     }
@@ -204,3 +215,6 @@ ezUniquePtr<ezScriptInstance> ezVisualScriptClassResource::Instantiate(ezReflect
 {
   return EZ_SCRIPT_NEW(ezVisualScriptInstance, inout_owner, pWorld, m_pConstantDataStorage, m_pInstanceDataDesc, m_pInstanceDataMapping);
 }
+
+
+EZ_STATICLINK_FILE(VisualScriptPlugin, VisualScriptPlugin_Resources_VisualScriptClassResource);

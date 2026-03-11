@@ -9,13 +9,16 @@
 #define EZ_OFF !
 
 /// \brief Used in conjunction with EZ_ON and EZ_OFF for safe checks. Use #if EZ_ENABLED(x) or #if EZ_DISABLED(x) in conditional compilation.
-#define EZ_ENABLED(x) (1 EZ_CONCAT(x, =) 1)
+#define EZ_ENABLED(x) (1 EZ_PP_CONCAT(x, =) 1)
 
 /// \brief Used in conjunction with EZ_ON and EZ_OFF for safe checks. Use #if EZ_ENABLED(x) or #if EZ_DISABLED(x) in conditional compilation.
-#define EZ_DISABLED(x) (1 EZ_CONCAT(x, =) 2)
+#define EZ_DISABLED(x) (1 EZ_PP_CONCAT(x, =) 2)
 
 /// \brief Checks whether x AND y are both defined as EZ_ON or EZ_OFF. Usually used to check whether configurations overlap, to issue an error.
-#define EZ_IS_NOT_EXCLUSIVE(x, y) ((1 EZ_CONCAT(x, =) 1) == (1 EZ_CONCAT(y, =) 1))
+#define EZ_IS_NOT_EXCLUSIVE(x, y) ((1 EZ_PP_CONCAT(x, =) 1) == (1 EZ_PP_CONCAT(y, =) 1))
+
+/// \brief Checks that exactly one of x, y and z is defined as EZ_ON
+#define EZ_IS_NOT_EXCLUSIVE3(x, y, z) ((EZ_ENABLED(x) + EZ_ENABLED(y) + EZ_ENABLED(z)) != 1)
 
 
 
@@ -25,8 +28,8 @@
 #define EZ_PLATFORM_WINDOWS_DESKTOP EZ_OFF // enabled for desktop apps, together with EZ_PLATFORM_WINDOWS
 #define EZ_PLATFORM_OSX EZ_OFF
 #define EZ_PLATFORM_LINUX EZ_OFF
-#define EZ_PLATFORM_IOS EZ_OFF
 #define EZ_PLATFORM_ANDROID EZ_OFF
+#define EZ_PLATFORM_WEB EZ_OFF
 
 // Different Bit OSes
 #define EZ_PLATFORM_32BIT EZ_OFF
@@ -35,6 +38,7 @@
 // Different CPU architectures
 #define EZ_PLATFORM_ARCH_X86 EZ_OFF
 #define EZ_PLATFORM_ARCH_ARM EZ_OFF
+#define EZ_PLATFORM_ARCH_WEB EZ_OFF
 
 // Endianess
 #define EZ_PLATFORM_LITTLE_ENDIAN EZ_OFF
@@ -66,6 +70,7 @@
 #define EZ_SUPPORTS_CASE_INSENSITIVE_PATHS EZ_OFF
 #define EZ_SUPPORTS_CRASH_DUMPS EZ_OFF
 #define EZ_SUPPORTS_LONG_PATHS EZ_OFF
+#define EZ_SUPPORTS_IPC EZ_OFF
 
 // Allocators
 #define EZ_ALLOC_GUARD_ALLOCATIONS EZ_OFF
@@ -73,6 +78,7 @@
 
 // Other Features
 #define EZ_USE_PROFILING EZ_OFF
+#define EZ_USE_TRACING EZ_OFF
 #define EZ_USE_STRING_VALIDATION EZ_OFF
 
 // Hashed String
@@ -88,13 +94,20 @@
 #define EZ_SIMD_IMPLEMENTATION_SSE 2
 #define EZ_SIMD_IMPLEMENTATION_NEON 3
 
+
+// SSE levels
+#define EZ_SSE_20 0x20
+#define EZ_SSE_30 0x30
+#define EZ_SSE_31 0x31
+#define EZ_SSE_41 0x41
+#define EZ_SSE_42 0x42
+#define EZ_SSE_AVX 0x50
+#define EZ_SSE_AVX2 0x51
+
 #define EZ_SIMD_IMPLEMENTATION 0
 
 // Application entry point code injection (undef and redefine in UserConfig.h if needed)
 #define EZ_APPLICATION_ENTRY_POINT_CODE_INJECTION
-
-// Whether 'RuntimeConfigs' files should be searched in the old location
-#define EZ_MIGRATE_RUNTIMECONFIGS EZ_OFF
 
 // Interoperability with other libraries
 #define EZ_INTEROP_STL_STRINGS EZ_OFF

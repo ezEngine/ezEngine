@@ -7,7 +7,7 @@
 ezUInt32 ezShaderConstant::s_TypeSize[(ezUInt32)Type::ENUM_COUNT] = {0, sizeof(float) * 1, sizeof(float) * 2, sizeof(float) * 3, sizeof(float) * 4, sizeof(int) * 1, sizeof(int) * 2, sizeof(int) * 3, sizeof(int) * 4, sizeof(ezUInt32) * 1, sizeof(ezUInt32) * 2,
   sizeof(ezUInt32) * 3, sizeof(ezUInt32) * 4, sizeof(ezShaderMat3), sizeof(ezMat4), sizeof(ezShaderTransform), sizeof(ezShaderBool)};
 
-void ezShaderConstant::CopyDataFormVariant(ezUInt8* pDest, ezVariant* pValue) const
+void ezShaderConstant::CopyDataFromVariant(ezUInt8* pDest, const ezVariant* pValue) const
 {
   EZ_ASSERT_DEV(m_uiArrayElements == 1, "Array constants are not supported");
 
@@ -106,7 +106,7 @@ ezResult ezShaderResourceBinding::CreateMergedShaderResourceBinding(const ezArra
 
   auto EqualBindings = [](const ezShaderResourceBinding& a, const ezShaderResourceBinding& b) -> bool
   {
-    return a.m_ResourceType == b.m_ResourceType && a.m_TextureType == b.m_TextureType && a.m_uiArraySize == b.m_uiArraySize && a.m_iSet == b.m_iSet && a.m_iSlot == b.m_iSlot;
+    return a.m_sName == b.m_sName && a.m_ResourceType == b.m_ResourceType && a.m_TextureType == b.m_TextureType && a.m_uiArraySize == b.m_uiArraySize && a.m_iBindGroup == b.m_iBindGroup && a.m_iSlot == b.m_iSlot;
   };
 
   auto AddOrExtendBinding = [&](ezGALShaderStage::Enum stage, ezUInt32 uiStartIndex, const ezShaderResourceBinding& add)
@@ -135,7 +135,7 @@ ezResult ezShaderResourceBinding::CreateMergedShaderResourceBinding(const ezArra
       ezUInt32 uiIndex = ezInvalidIndex;
       if (res.m_ResourceType == ezGALShaderResourceType::Sampler)
       {
-        // #TODO_SHADER Samplers are special! Since the shader compiler edits the reflection data and renames "*_AutoSampler" to just "*", we generate a naming collision between the texture and the sampler. See ezRenderContext::BindTexture2D for binding code. For now, we allow this collision, but it will probably bite us later on.
+        // #TODO_SHADER Samplers are special! Since the shader compiler edits the reflection data and renames "*_AutoSampler" to just "*", we generate a naming collision between the texture and the sampler. See ezBindGroupBuilder::BindTexture for binding code. For now, we allow this collision, but it will probably bite us later on.
         samplerToIndex.TryGetValue(res.m_sName, uiIndex);
       }
       else
@@ -176,22 +176,36 @@ ezResult ezShaderResourceBinding::CreateMergedShaderResourceBinding(const ezArra
       }
     }
   }
+  out_bindings.Sort([](const ezShaderResourceBinding& lhs, const ezShaderResourceBinding& rhs)
+    {
+    if (lhs.m_iBindGroup != rhs.m_iBindGroup)
+      return lhs.m_iBindGroup < rhs.m_iBindGroup;
+
+    return lhs.m_iSlot < rhs.m_iSlot; });
   return EZ_SUCCESS;
 }
 
 ezGALShaderByteCode::ezGALShaderByteCode() = default;
 
-ezGALShaderByteCode::~ezGALShaderByteCode()
-{
-  for (auto& binding : m_ShaderResourceBindings)
-  {
-    if (binding.m_pLayout != nullptr)
-    {
-      ezShaderConstantBufferLayout* pLayout = binding.m_pLayout;
-      binding.m_pLayout = nullptr;
+ezGALShaderByteCode::~ezGALShaderByteCode() = default;
 
-      if (pLayout->GetRefCount() == 0)
-        EZ_DEFAULT_DELETE(pLayout);
-    }
+bool ezShaderConstantBufferLayout::operator==(const ezShaderConstantBufferLayout& rhs) const
+{
+  if (m_uiTotalSize != rhs.m_uiTotalSize || m_Constants.GetCount() != rhs.m_Constants.GetCount())
+    return false;
+
+  const ezUInt32 uiCount = m_Constants.GetCount();
+  for (ezUInt32 i = 0; i < uiCount; ++i)
+  {
+    const ezShaderConstant& a = m_Constants[i];
+    const ezShaderConstant& b = rhs.m_Constants[i];
+
+    // Some platforms return bool or uint1 for a bool type in a shader.
+    ezEnum<ezShaderConstant::Type> aType = a.m_Type == ezShaderConstant::Type::Bool ? ezEnum<ezShaderConstant::Type>(ezShaderConstant::Type::UInt1) : a.m_Type;
+    ezEnum<ezShaderConstant::Type> bType = b.m_Type == ezShaderConstant::Type::Bool ? ezEnum<ezShaderConstant::Type>(ezShaderConstant::Type::UInt1) : b.m_Type;
+
+    if (a.m_sName != b.m_sName || aType != bType || a.m_uiArrayElements != b.m_uiArrayElements || a.m_uiOffset != b.m_uiOffset)
+      return false;
   }
+  return true;
 }

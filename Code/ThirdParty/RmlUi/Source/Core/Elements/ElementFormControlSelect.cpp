@@ -1,40 +1,11 @@
-/*
- * This source file is part of RmlUi, the HTML/CSS Interface Middleware
- *
- * For the latest information, see http://github.com/mikke89/RmlUi
- *
- * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
- */
-
 #include "../../../Include/RmlUi/Core/Elements/ElementFormControlSelect.h"
 #include "../../../Include/RmlUi/Core/ElementText.h"
-#include "../../../Include/RmlUi/Core/Event.h"
 #include "../../../Include/RmlUi/Core/ElementUtilities.h"
+#include "../../../Include/RmlUi/Core/Event.h"
 #include "WidgetDropDown.h"
 
 namespace Rml {
 
-// Constructs a new ElementFormControlSelect.
 ElementFormControlSelect::ElementFormControlSelect(const String& tag) : ElementFormControl(tag), widget(nullptr)
 {
 	widget = new WidgetDropDown(this);
@@ -45,13 +16,11 @@ ElementFormControlSelect::~ElementFormControlSelect()
 	delete widget;
 }
 
-// Returns a string representation of the current value of the form control.
 String ElementFormControlSelect::GetValue() const
 {
 	return GetAttribute("value", String());
 }
 
-// Sets the current value of the form control.
 void ElementFormControlSelect::SetValue(const String& value)
 {
 	MoveChildren();
@@ -59,7 +28,6 @@ void ElementFormControlSelect::SetValue(const String& value)
 	SetAttribute("value", value);
 }
 
-// Sets the index of the selection. If the new index lies outside of the bounds, it will be clamped.
 void ElementFormControlSelect::SetSelection(int selection)
 {
 	MoveChildren();
@@ -67,13 +35,11 @@ void ElementFormControlSelect::SetSelection(int selection)
 	widget->SetSelection(widget->GetOption(selection));
 }
 
-// Returns the index of the currently selected item.
 int ElementFormControlSelect::GetSelection() const
 {
 	return widget->GetSelection();
 }
 
-// Returns one of the select control's option elements.
 Element* ElementFormControlSelect::GetOption(int index)
 {
 	MoveChildren();
@@ -81,7 +47,6 @@ Element* ElementFormControlSelect::GetOption(int index)
 	return widget->GetOption(index);
 }
 
-// Returns the number of options in the select control.
 int ElementFormControlSelect::GetNumOptions()
 {
 	MoveChildren();
@@ -89,7 +54,6 @@ int ElementFormControlSelect::GetNumOptions()
 	return widget->GetNumOptions();
 }
 
-// Adds a new option to the select control.
 int ElementFormControlSelect::Add(const String& rml, const String& value, int before, bool selectable)
 {
 	MoveChildren();
@@ -104,7 +68,6 @@ int ElementFormControlSelect::Add(ElementPtr element, int before)
 	return widget->AddOption(std::move(element), before);
 }
 
-// Removes an option from the select control.
 void ElementFormControlSelect::Remove(int index)
 {
 	MoveChildren();
@@ -112,7 +75,6 @@ void ElementFormControlSelect::Remove(int index)
 	widget->RemoveOption(index);
 }
 
-// Removes all options from the select control.
 void ElementFormControlSelect::RemoveAll()
 {
 	MoveChildren();
@@ -120,7 +82,25 @@ void ElementFormControlSelect::RemoveAll()
 	widget->ClearOptions();
 }
 
-// Moves all children to be under control of the widget.
+void ElementFormControlSelect::ShowSelectBox()
+{
+	widget->ShowSelectBox();
+}
+
+void ElementFormControlSelect::HideSelectBox()
+{
+	widget->HideSelectBox();
+}
+void ElementFormControlSelect::CancelSelectBox()
+{
+	widget->CancelSelectBox();
+}
+
+bool ElementFormControlSelect::IsSelectBoxVisible()
+{
+	return widget->IsSelectBoxVisible();
+}
+
 void ElementFormControlSelect::OnUpdate()
 {
 	ElementFormControl::OnUpdate();
@@ -130,7 +110,6 @@ void ElementFormControlSelect::OnUpdate()
 	widget->OnUpdate();
 }
 
-// Updates the layout of the widget's elements.
 void ElementFormControlSelect::OnRender()
 {
 	ElementFormControl::OnRender();
@@ -138,7 +117,6 @@ void ElementFormControlSelect::OnRender()
 	widget->OnRender();
 }
 
-// Forces an internal layout.
 void ElementFormControlSelect::OnLayout()
 {
 	widget->OnLayout();
@@ -166,7 +144,6 @@ void ElementFormControlSelect::MoveChildren()
 	}
 }
 
-// Returns true to mark this element as replaced.
 bool ElementFormControlSelect::GetIntrinsicDimensions(Vector2f& intrinsic_dimensions, float& /*ratio*/)
 {
 	intrinsic_dimensions.x = 128;

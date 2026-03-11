@@ -3,9 +3,7 @@
 #include <GameComponentsPlugin/GameComponentsDLL.h>
 
 #include <Core/Messages/CommonMessages.h>
-#include <Core/World/Component.h>
-#include <Core/World/World.h>
-#include <Foundation/Time/Time.h>
+#include <Core/Messages/EventMessageSender.h>
 
 struct ezMoveToComponentFlags
 {
@@ -48,6 +46,9 @@ class EZ_GAMECOMPONENTS_DLL ezMoveToComponent : public ezComponent
   //////////////////////////////////////////////////////////////////////////
   // ezComponent
 
+protected:
+  virtual void OnSimulationStarted() override;
+
 public:
   virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
   virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
@@ -60,10 +61,13 @@ public:
   ezMoveToComponent();
   ~ezMoveToComponent();
 
-  /// \brief If set to false, the animation stops immediately.
-  void SetRunning(bool bRunning);             // [ property ]
-  bool IsRunning() const;                     // [ property ]
+  /// If set to false, the animation stops immediately.
+  void SetRunning(bool bRunning); // [ property ]
 
+  /// Returns false, when the component has reached the target position.
+  bool IsRunning() const; // [ property ]
+
+  /// Automatically sets the component to 'running'.
   void SetTargetPosition(const ezVec3& vPos); // [ scriptable ]
 
 protected:

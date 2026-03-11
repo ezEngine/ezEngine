@@ -1,19 +1,20 @@
 #include <EditorEngineProcess/EditorEngineProcessPCH.h>
 
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
-#include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/Logging/ETWWriter.h>
-#include <Foundation/Profiling/ProfilingUtils.h>
-#include <Foundation/System/CrashHandler.h>
-#include <Foundation/System/SystemInformation.h>
-
-#include <Core/Console/QuakeConsole.h>
+#include <Core/Console/Console.h>
 #include <EditorEngineProcess/EngineProcGameApp.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoRenderer.h>
+#include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Foundation/Logging/TraceWriter.h>
+#include <Foundation/Platform/Win/Utils/IncludeWindows.h>
+#include <Foundation/Profiling/ProfilingUtils.h>
+#include <Foundation/System/CrashHandler.h>
+#include <Foundation/System/StackTracer.h>
+#include <Foundation/System/SystemInformation.h>
+#include <Foundation/Utilities/CommandLineOptions.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
@@ -22,12 +23,16 @@
 #  include <shellscalingapi.h>
 #endif
 
+ezCommandLineOptionPath opt_OutputDir("_EditorEngineProcess", "-outputDir", "Output directory", "");
+ezCommandLineOptionString opt_LogName("_EditorEngineProcess", "-logName", "Log File Prefix", "LogEngine");
 
 // Will forward assert messages and crash handler messages to the log system and then to the editor.
 // Note that this is unsafe as in some crash situation allocating memory will not be possible but it's better to have some logs compared to none.
 void EditorPrintFunction(const char* szText)
 {
-  ezLog::Info("{}", szText);
+  ezStringBuilder sError = szText;
+  sError.Trim();
+  ezLog::Error("{}", sError.GetData());
 }
 
 static ezAssertHandler g_PreviousAssertHandler = nullptr;
@@ -121,6 +126,13 @@ void ezEngineProcessGameApplication::WaitForDebugger()
 bool ezEngineProcessGameApplication::EditorAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
 {
   ezLog::Error("*** Assertion ***:\nFile: \"{}\",\nLine: \"{}\",\nFunction: \"{}\",\nExpression: \"{}\",\nMessage: \"{}\"", szSourceFile, uiLine, szFunction, szExpression, szAssertMsg);
+
+  void* pBuffer[64];
+  ezArrayPtr<void*> tempTrace(pBuffer);
+  const ezUInt32 uiNumTraces = ezStackTracer::GetStackTrace(tempTrace, nullptr);
+  ezStackTracer::ResolveStackTrace(tempTrace.GetSubArray(0, uiNumTraces), &ezLog::Print);
+  ezLog::Flush();
+
   // Wait for flush of IPC messages
   ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(500));
 
@@ -155,7 +167,7 @@ void ezEngineProcessGameApplication::BeforeCoreSystemsShutdown()
   SUPER::BeforeCoreSystemsShutdown();
 }
 
-ezApplication::Execution ezEngineProcessGameApplication::Run()
+void ezEngineProcessGameApplication::Run()
 {
   bool bPendingOpInProgress = false;
   do
@@ -167,12 +179,12 @@ ezApplication::Execution ezEngineProcessGameApplication::Run()
     }
   } while (!bPendingOpInProgress && m_uiRedrawCountExecuted == m_uiRedrawCountReceived);
 
-  m_uiRedrawCountExecuted = m_uiRedrawCountReceived;
-
-  // Normally rendering is done in EventHandlerIPC as a response to ezSyncWithProcessMsgToEngine. However, when playing or when pending operations are in progress we need to render even if we didn't receive a draw request.
-  ezApplication::Execution res = SUPER::Run();
+  // If the editor enqueues a frame to be rendered, the loop above will break due to m_uiRedrawCountExecuted != m_uiRedrawCountReceived, and we will render a frame.
+  // Alternatively, a pending operations is active at which point we render as fast as we can, ignoring the editor lock step.
+  // Note there are two other cases in which we render a frame: when "FreeGalResources" or "FreeAllResources" messages are sent we must render a frame to clear pending deletions and free memory.
+  SUPER::Run();
   ezRenderWorld::ClearMainViews();
-  return res;
+  m_uiRedrawCountExecuted = m_uiRedrawCountReceived;
 }
 
 void ezEngineProcessGameApplication::LogWriter(const ezLoggingEventData& e)
@@ -236,8 +248,8 @@ bool ezEngineProcessGameApplication::ProcessIPCMessages(bool bPendingOpInProgres
       // Only suspend and wait if no more pending ops need to be done.
       m_IPC.WaitForMessages();
     }
-    return true;
   }
+  return true;
 }
 
 void ezEngineProcessGameApplication::SendProjectReadyMessage()
@@ -276,13 +288,18 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
 {
   if (const auto* pMsg = ezDynamicCast<const ezSyncWithProcessMsgToEngine*>(e.m_pMessage))
   {
+    ezStringBuilder sRedrawScope;
+    sRedrawScope.SetFormat("Redraw {}", pMsg->m_uiRedrawCount);
+    EZ_PROFILE_SCOPE(sRedrawScope.GetData());
+
     ezSyncWithProcessMsgToEditor msg;
     msg.m_uiRedrawCount = pMsg->m_uiRedrawCount;
     m_uiRedrawCountReceived = msg.m_uiRedrawCount;
 
     // We must clear the main views after rendering so that if the editor runs in lock step with the engine we don't render a view twice or request update again without rendering being done.
-    RunOneFrame();
-    ezRenderWorld::ClearMainViews();
+    // As multiple ezSyncWithProcessMsgToEngine messages could be enqueued we break out of the message processing loop to render this frame.
+    // Previously re renderer int frame on the stack but this caused stuttering so ezEngineProcessGameApplication::Run is now the only place we render in this class.
+    e.m_bInterruptMessageProcessing = true;
 
     m_IPC.SendMessage(&msg);
     return;
@@ -293,7 +310,9 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
     // in non-remote mode, the process needs to be properly killed, to prevent error messages
     // this is taken care of by the editor process
     if (ezEditorEngineProcessApp::GetSingleton()->IsRemoteMode())
-      RequestQuit();
+    {
+      QuitApplication();
+    }
 
     return;
   }
@@ -354,7 +373,15 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
     const ezRTTI* pType = ezResourceManager::FindResourceForAssetType(pMsg1->m_sResourceType);
     if (auto hResource = ezResourceManager::GetExistingResourceByType(pType, pMsg1->m_sResourceID); hResource.IsValid())
     {
+      // reload existing resources
       ezResourceManager::ReloadResource(pType, hResource, false);
+
+      // ReloadResource() only makes sure to UNLOAD a resource, but if it isn't directly polled for, it won't get LOADED again
+      // for most resource types this is fine, but some types need to get LOADED again to set up data that sticks around even while they are unloaded
+      // specifically this happens for ezSurfaceResource, because that signals to the physics engine to set up materials,
+      // which stick around even if the surface resource gets unloaded
+      // this is an editor specific issue, and we only do this here to guarantee an up-to-date representation while editing
+      ezResourceManager::PreloadResource(hResource);
     }
   }
   else if (const auto* pMsg1 = ezDynamicCast<const ezSimpleConfigMsgToEngine*>(e.m_pMessage))
@@ -377,13 +404,31 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
     {
       ezFileSystem::ReloadAllExternalDataDirectoryConfigs();
     }
+    else if (pMsg1->m_sWhatToDo == "FreeGalResources")
+    {
+      ezRenderWorld::ClearMainViews();
+      RunOneFrame();
+      ezGALDevice::GetDefaultDevice()->WaitIdle();
+    }
+    else if (pMsg1->m_sWhatToDo == "FreeAllResources")
+    {
+      ezResourceManager::FreeAllUnusedResources();
+      ezRenderWorld::ClearMainViews();
+      RunOneFrame();
+      ezGALDevice::GetDefaultDevice()->WaitIdle();
+    }
     else if (pMsg1->m_sWhatToDo == "ReloadResources")
     {
       if (pMsg1->m_sPayload == "ReloadAllResources")
       {
+        ezFileSystem::ReloadAllExternalDataDirectoryConfigs();
         ezResourceManager::ReloadAllResources(false);
       }
       ezRenderWorld::DeleteAllCachedRenderData();
+    }
+    else if (pMsg1->m_sWhatToDo == "ForceNoFallbackAcquisition")
+    {
+      ezResourceManager::ForceNoFallbackAcquisition(3);
     }
     else if (pMsg1->m_sWhatToDo == "SaveProfiling")
     {
@@ -535,7 +580,7 @@ ezEngineProcessDocumentContext* ezEngineProcessGameApplication::CreateDocumentCo
               if (ezStringUtils::IsEqual(pFunc->GetPropertyName(), "AllocateContext"))
               {
                 ezVariant res;
-                ezHybridArray<ezVariant, 1> params;
+                ezTempHybridArray<ezVariant, 1> params;
                 params.PushBack(pMsg);
                 pFunc->Execute(nullptr, params, res);
                 if (res.IsA<ezEngineProcessDocumentContext*>())
@@ -598,25 +643,35 @@ void ezEngineProcessGameApplication::Init_FileSystem_ConfigureDataDirs()
 {
   ezStringBuilder sAppDir = ">sdk/Data/Tools/EditorEngineProcess";
   ezStringBuilder sUserData = ">user/ezEngine Project/EditorEngineProcess";
+  if (opt_OutputDir.IsOptionSpecified(nullptr))
+  {
+    sUserData = opt_OutputDir.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
+  }
+
 
   // make sure these directories exist
   ezFileSystem::CreateDirectoryStructure(sAppDir).AssertSuccess();
   ezFileSystem::CreateDirectoryStructure(sUserData).AssertSuccess();
   ezFileSystem::CreateDirectoryStructure(">sdk/Output/").AssertSuccess();
 
-  ezFileSystem::AddDataDirectory("", "EngineProcess", ":", ezFileSystem::AllowWrites).AssertSuccess();                       // for absolute paths
-  ezFileSystem::AddDataDirectory(">appdir/", "EngineProcess", "bin", ezFileSystem::ReadOnly).AssertSuccess();                // writing to the binary directory
-  ezFileSystem::AddDataDirectory(">sdk/Output/", "EngineProcess", "shadercache", ezFileSystem::AllowWrites).AssertSuccess(); // for shader files
-  ezFileSystem::AddDataDirectory(sAppDir.GetData(), "EngineProcess", "app").AssertSuccess();                                 // app specific data
-  ezFileSystem::AddDataDirectory(sUserData, "EngineProcess", "appdata", ezFileSystem::AllowWrites).AssertSuccess();          // for writing app user data
+  ezFileSystem::AddDataDirectory("", "EngineProcess", ":", ezDataDirUsage::AllowWrites).AssertSuccess();                       // for absolute paths
+  ezFileSystem::AddDataDirectory(">appdir/", "EngineProcess", "bin", ezDataDirUsage::ReadOnly).AssertSuccess();                // writing to the binary directory
+  ezFileSystem::AddDataDirectory(">sdk/Output/", "EngineProcess", "shadercache", ezDataDirUsage::AllowWrites).AssertSuccess(); // for shader files
+  ezFileSystem::AddDataDirectory(sAppDir.GetData(), "EngineProcess", "app").AssertSuccess();                                   // app specific data
+  ezFileSystem::AddDataDirectory(sUserData, "EngineProcess", "appdata", ezDataDirUsage::AllowWrites).AssertSuccess();          // for writing app user data
 
   m_CustomFileSystemConfig.Apply();
 
   {
     // We need the file system before we can start the html logger.
+    ezStringBuilder sLogName = "LogEngine";
+    if (opt_LogName.IsOptionSpecified(nullptr))
+    {
+      sLogName = opt_LogName.GetOptionValue(ezCommandLineOption::LogMode::Never);
+    }
     ezOsProcessID uiProcessID = ezProcess::GetCurrentProcessID();
     ezStringBuilder sLogFile;
-    sLogFile.SetFormat(":appdata/Log_{0}.htm", uiProcessID);
+    sLogFile.SetFormat(":appdata/Logs/{0}_{1}.htm", sLogName, uiProcessID);
     m_LogHTML.BeginLog(sLogFile, "EditorEngineProcess");
   }
 }
@@ -624,11 +679,11 @@ void ezEngineProcessGameApplication::Init_FileSystem_ConfigureDataDirs()
 bool ezEngineProcessGameApplication::Run_ProcessApplicationInput()
 {
   // override the escape action to not shut down the app, but instead close the play-the-game window
-  if (ezInputManager::GetInputActionState("GameApp", "CloseApp") != ezKeyState::Up)
+  if (ezInputManager::GetInputActionState("GameApp", "CloseApp") == ezKeyState::Pressed)
   {
     if (m_pGameState)
     {
-      m_pGameState->RequestQuit();
+      m_pGameState->RequestQuit("editor-esc");
     }
   }
   else
@@ -650,7 +705,6 @@ void ezEngineProcessGameApplication::BaseInit_ConfigureLogging()
 
   ezGlobalLog::AddLogWriter(ezMakeDelegate(&ezEngineProcessGameApplication::LogWriter, this));
   ezGlobalLog::AddLogWriter(ezLoggingEvent::Handler(&ezLogWriter::HTML::LogMessageHandler, &m_LogHTML));
-  ezGlobalLog::AddLogWriter(ezLogWriter::ETW::LogMessageHandler);
 
   ezLog::SetCustomPrintFunction(&EditorPrintFunction);
 

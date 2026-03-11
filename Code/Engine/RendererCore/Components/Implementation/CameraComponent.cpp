@@ -25,7 +25,7 @@ ezCameraComponentManager::~ezCameraComponentManager()
 void ezCameraComponentManager::Initialize()
 {
   auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezCameraComponentManager::Update, this);
-  desc.m_Phase = UpdateFunctionDesc::Phase::PostTransform;
+  desc.m_Phase = ezWorldUpdatePhase::PostTransform;
 
   this->RegisterUpdateFunction(desc);
 
@@ -370,13 +370,13 @@ void ezCameraComponent::SetUsageHint(ezEnum<ezCameraUsageHint> val)
   MarkAsModified();
 }
 
-void ezCameraComponent::SetRenderTargetFile(const char* szFile)
+void ezCameraComponent::SetRenderTargetFile(ezStringView sFile)
 {
   DeactivateRenderToTexture();
 
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
+  if (!sFile.IsEmpty())
   {
-    m_hRenderTarget = ezResourceManager::LoadResource<ezRenderToTexture2DResource>(szFile);
+    m_hRenderTarget = ezResourceManager::LoadResource<ezRenderToTexture2DResource>(sFile);
   }
   else
   {
@@ -388,11 +388,8 @@ void ezCameraComponent::SetRenderTargetFile(const char* szFile)
   MarkAsModified();
 }
 
-const char* ezCameraComponent::GetRenderTargetFile() const
+ezStringView ezCameraComponent::GetRenderTargetFile() const
 {
-  if (!m_hRenderTarget.IsValid())
-    return "";
-
   return m_hRenderTarget.GetResourceID();
 }
 

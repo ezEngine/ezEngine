@@ -1,11 +1,17 @@
 #pragma once
 
 #include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Math/Rect.h>
 #include <Foundation/Math/Vec2.h>
 #include <Texture/TextureDLL.h>
 
+struct stbrp_node;
+struct stbrp_rect;
+
 class EZ_TEXTURE_DLL ezTexturePacker
 {
+  EZ_DISALLOW_COPY_AND_ASSIGN(ezTexturePacker);
+
 public:
   struct Texture
   {
@@ -13,7 +19,6 @@ public:
 
     ezVec2U32 m_Size;
     ezVec2U32 m_Position;
-    ezInt32 m_Priority = 0;
   };
 
   ezTexturePacker();
@@ -28,14 +33,11 @@ public:
   ezResult PackTextures();
 
 private:
-  bool CanPlaceAt(ezVec2U32 pos, ezVec2U32 size);
-  bool TryPlaceAt(ezVec2U32 pos, ezVec2U32 size);
-  ezUInt32 PosToIndex(ezUInt32 x, ezUInt32 y) const;
-  bool TryPlaceTexture(ezUInt32 idx);
-
   ezUInt32 m_uiWidth = 0;
   ezUInt32 m_uiHeight = 0;
 
   ezDynamicArray<Texture> m_Textures;
-  ezDynamicArray<bool> m_Grid;
+
+  ezDynamicArray<stbrp_node> m_Nodes;
+  ezDynamicArray<stbrp_rect> m_Rects;
 };

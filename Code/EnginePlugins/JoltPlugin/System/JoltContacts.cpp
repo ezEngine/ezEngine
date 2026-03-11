@@ -34,20 +34,46 @@ void ezJoltContactListener::RemoveTrigger(const ezJoltTriggerComponent* pTrigger
   }
 }
 
-void ezJoltContactListener::OnContactAdded(const JPH::Body& body0, const JPH::Body& body1, const JPH::ContactManifold& manifold, JPH::ContactSettings& ref_settings)
+EZ_ALWAYS_INLINE bool OnDebrisContact(const JPH::Body& body1, const JPH::Body& body2, JPH::ContactSettings& ref_settings)
 {
-  const ezUInt64 uiBody0id = body0.GetID().GetIndexAndSequenceNumber();
-  const ezUInt64 uiBody1id = body1.GetID().GetIndexAndSequenceNumber();
+  // one-way physics for debris
+  // debris may be pushed by everything else, but it doesn't push anything else
+  // debris also generally doesn't collide with itself
 
-  if (ActivateTrigger(body0, body1, uiBody0id, uiBody1id))
+  if (body1.GetBroadPhaseLayer().GetValue() == (ezUInt8)ezJoltBroadphaseLayer::Debris)
+  {
+    ref_settings.mInvMassScale2 = 0;
+    ref_settings.mInvInertiaScale2 = 0;
+    return true;
+  }
+  else if (body2.GetBroadPhaseLayer().GetValue() == (ezUInt8)ezJoltBroadphaseLayer::Debris)
+  {
+    ref_settings.mInvMassScale1 = 0;
+    ref_settings.mInvInertiaScale1 = 0;
+    return true;
+  }
+
+  return false;
+}
+
+void ezJoltContactListener::OnContactAdded(const JPH::Body& body1, const JPH::Body& body2, const JPH::ContactManifold& manifold, JPH::ContactSettings& ref_settings)
+{
+  const bool bIsDebrisContact = OnDebrisContact(body1, body2, ref_settings);
+
+  const ezUInt64 uiBody1id = body1.GetID().GetIndexAndSequenceNumber();
+  const ezUInt64 uiBody2id = body2.GetID().GetIndexAndSequenceNumber();
+
+  if (!bIsDebrisContact && ActivateTrigger(body1, body2, uiBody1id, uiBody2id))
     return;
 
-  OnContact(body0, body1, manifold, ref_settings, false);
+  OnContact(body1, body2, manifold, ref_settings, false, bIsDebrisContact);
 }
 
 void ezJoltContactListener::OnContactPersisted(const JPH::Body& body1, const JPH::Body& body2, const JPH::ContactManifold& manifold, JPH::ContactSettings& ref_settings)
 {
-  OnContact(body1, body2, manifold, ref_settings, true);
+  const bool bIsDebrisContact = OnDebrisContact(body1, body2, ref_settings);
+
+  OnContact(body1, body2, manifold, ref_settings, true, bIsDebrisContact);
 }
 
 void ezJoltContactListener::OnContactRemoved(const JPH::SubShapeIDPair& subShapePair)
@@ -58,73 +84,103 @@ void ezJoltContactListener::OnContactRemoved(const JPH::SubShapeIDPair& subShape
   DeactivateTrigger(uiBody1id, uiBody2id);
 }
 
-void ezJoltContactListener::OnContact(const JPH::Body& body0, const JPH::Body& body1, const JPH::ContactManifold& manifold, JPH::ContactSettings& ref_settings, bool bPersistent)
+void ezJoltContactListener::OnContact(const JPH::Body& body0, const JPH::Body& body1, const JPH::ContactManifold& manifold, JPH::ContactSettings& ref_settings, bool bPersistent, bool bIsDebrisContact)
 {
   // compute per-material friction and restitution
   {
-    const ezJoltMaterial* pMat0 = static_cast<const ezJoltMaterial*>(body0.GetShape()->GetMaterial(manifold.mSubShapeID1));
-    const ezJoltMaterial* pMat1 = static_cast<const ezJoltMaterial*>(body1.GetShape()->GetMaterial(manifold.mSubShapeID2));
 
-    if (pMat0 && pMat1)
+    float fRes0 = 0.2f;
+    float fRes1 = 0.2f;
+
+    float fFri0 = 0.5f;
+    float fFri1 = 0.5f;
+
+    if (const ezJoltMaterial* pMat0 = static_cast<const ezJoltMaterial*>(body0.GetShape()->GetMaterial(manifold.mSubShapeID1)))
     {
-      ref_settings.mCombinedRestitution = ezMath::Max(pMat0->m_fRestitution, pMat1->m_fRestitution);
-      ref_settings.mCombinedFriction = ezMath::Sqrt(pMat0->m_fFriction * pMat1->m_fFriction);
+      fRes0 = pMat0->m_fRestitution;
+      fFri0 = pMat0->m_fFriction;
     }
+
+    if (const ezJoltMaterial* pMat1 = static_cast<const ezJoltMaterial*>(body1.GetShape()->GetMaterial(manifold.mSubShapeID2)))
+    {
+      fRes1 = pMat1->m_fRestitution;
+      fFri1 = pMat1->m_fFriction;
+    }
+
+    ref_settings.mCombinedRestitution = ezMath::Max(fRes0, fRes1);
+    ref_settings.mCombinedFriction = ezMath::Sqrt(fFri0 * fFri1);
   }
 
   m_ContactEvents.m_pWorld = m_pWorld;
 
-  const ezJoltDynamicActorComponent* pActor0 = ezJoltUserData::GetDynamicActorComponent(reinterpret_cast<const void*>(body0.GetUserData()));
-  const ezJoltDynamicActorComponent* pActor1 = ezJoltUserData::GetDynamicActorComponent(reinterpret_cast<const void*>(body1.GetUserData()));
+  ezBitflags<ezOnJoltContact> ContactFlags0 = ezJoltUserData::GetContactFlags(reinterpret_cast<const void*>(body0.GetUserData()));
+  ezBitflags<ezOnJoltContact> ContactFlags1 = ezJoltUserData::GetContactFlags(reinterpret_cast<const void*>(body1.GetUserData()));
 
-  if (pActor0 || pActor1)
+  if (bIsDebrisContact)
   {
-    const ezBitflags<ezOnJoltContact> ContactFlags0 = pActor0 ? pActor0->m_OnContact : ezOnJoltContact::None;
-    const ezBitflags<ezOnJoltContact> ContactFlags1 = pActor1 ? pActor1->m_OnContact : ezOnJoltContact::None;
+    // debris is specifically excluded from triggering various interactions, to reduce the load on the system and prevent undesireable behavior
+    ContactFlags0.Remove(ezOnJoltContact::SendContactMsg | ezOnJoltContact::SlideAndRollReactions);
+    ContactFlags1.Remove(ezOnJoltContact::SendContactMsg | ezOnJoltContact::SlideAndRollReactions);
+  }
 
-    ezBitflags<ezOnJoltContact> CombinedContactFlags;
-    CombinedContactFlags.SetValue(ContactFlags0.GetValue() | ContactFlags1.GetValue());
+  ezBitflags<ezOnJoltContact> CombinedContactFlags;
+  CombinedContactFlags.SetValue(ContactFlags0.GetValue() | ContactFlags1.GetValue());
 
-    // bSendContactReport = bSendContactReport || CombinedContactFlags.IsSet(ezOnJoltContact::SendReportMsg);
+  if (CombinedContactFlags.IsAnySet(ezOnJoltContact::AllReactions))
+  {
+    ezVec3 vAvgPos(0);
+    const ezVec3 vAvgNormal = ezJoltConversionUtils::ToVec3(manifold.mWorldSpaceNormal);
 
-    if (CombinedContactFlags.IsAnySet(ezOnJoltContact::AllReactions))
+    const float fImpactSqr = (body0.GetLinearVelocity() - body1.GetLinearVelocity()).LengthSq();
+
+    for (ezUInt32 uiContactPointIndex = 0; uiContactPointIndex < manifold.mRelativeContactPointsOn1.size(); ++uiContactPointIndex)
     {
-      ezVec3 vAvgPos(0);
-      const ezVec3 vAvgNormal = ezJoltConversionUtils::ToVec3(manifold.mWorldSpaceNormal);
+      vAvgPos += ezJoltConversionUtils::ToVec3(manifold.GetWorldSpaceContactPointOn1(uiContactPointIndex));
+      vAvgPos -= vAvgNormal * manifold.mPenetrationDepth;
+    }
 
-      const float fImpactSqr = (body0.GetLinearVelocity() - body1.GetLinearVelocity()).LengthSq();
+    vAvgPos /= (float)manifold.mRelativeContactPointsOn1.size();
 
-      for (ezUInt32 uiContactPointIndex = 0; uiContactPointIndex < manifold.mRelativeContactPointsOn1.size(); ++uiContactPointIndex)
+    if (bPersistent)
+    {
+      m_ContactEvents.OnContact_SlideAndRollReaction(body0, body1, manifold, ContactFlags0, ContactFlags1, vAvgPos, vAvgNormal, CombinedContactFlags);
+    }
+    else if (fImpactSqr >= 1.0f && CombinedContactFlags.IsAnySet(ezOnJoltContact::ImpactReactions))
+    {
+      const ezJoltMaterial* pMat1 = static_cast<const ezJoltMaterial*>(body0.GetShape()->GetMaterial(manifold.mSubShapeID1));
+      const ezJoltMaterial* pMat2 = static_cast<const ezJoltMaterial*>(body1.GetShape()->GetMaterial(manifold.mSubShapeID2));
+
+      if (pMat1 == nullptr)
+        pMat1 = static_cast<const ezJoltMaterial*>(ezJoltMaterial::sDefault.GetPtr());
+      if (pMat2 == nullptr)
+        pMat2 = static_cast<const ezJoltMaterial*>(ezJoltMaterial::sDefault.GetPtr());
+
+      m_ContactEvents.OnContact_ImpactReaction(vAvgPos, vAvgNormal, fImpactSqr, pMat1->m_pSurface, pMat2->m_pSurface, body0.IsStatic() || body0.IsKinematic());
+    }
+
+    if (CombinedContactFlags.IsSet(ezOnJoltContact::SendContactMsg))
+    {
+      auto pComp0 = ezJoltUserData::GetComponent(reinterpret_cast<const void*>(body0.GetUserData()));
+      auto pComp1 = ezJoltUserData::GetComponent(reinterpret_cast<const void*>(body1.GetUserData()));
+
+      ezMsgPhysicContact msg;
+      msg.m_vGlobalPosition = vAvgPos;
+      msg.m_vNormal = vAvgNormal;
+      msg.m_fImpactSqr = fImpactSqr;
+
+      if (ContactFlags0.IsSet(ezOnJoltContact::SendContactMsg) && pComp0 != nullptr)
       {
-        vAvgPos += ezJoltConversionUtils::ToVec3(manifold.GetWorldSpaceContactPointOn1(uiContactPointIndex));
-        vAvgPos -= vAvgNormal * manifold.mPenetrationDepth;
+        msg.m_hOtherObject = pComp1 ? pComp1->GetOwner()->GetHandle() : ezGameObjectHandle();
+        pComp0->SendMessage(msg);
       }
 
-      vAvgPos /= (float)manifold.mRelativeContactPointsOn1.size();
-
-      if (bPersistent)
+      if (ContactFlags1.IsSet(ezOnJoltContact::SendContactMsg) && pComp1 != nullptr)
       {
-        m_ContactEvents.OnContact_SlideAndRollReaction(body0, body1, manifold, ContactFlags0, ContactFlags1, vAvgPos, vAvgNormal, CombinedContactFlags);
-      }
-      else if (fImpactSqr >= 1.0f && CombinedContactFlags.IsAnySet(ezOnJoltContact::ImpactReactions))
-      {
-        const ezJoltMaterial* pMat1 = static_cast<const ezJoltMaterial*>(body0.GetShape()->GetMaterial(manifold.mSubShapeID1));
-        const ezJoltMaterial* pMat2 = static_cast<const ezJoltMaterial*>(body1.GetShape()->GetMaterial(manifold.mSubShapeID2));
-
-        if (pMat1 == nullptr)
-          pMat1 = static_cast<const ezJoltMaterial*>(ezJoltMaterial::sDefault.GetPtr());
-        if (pMat2 == nullptr)
-          pMat2 = static_cast<const ezJoltMaterial*>(ezJoltMaterial::sDefault.GetPtr());
-
-        m_ContactEvents.OnContact_ImpactReaction(vAvgPos, vAvgNormal, fImpactSqr, pMat1->m_pSurface, pMat2->m_pSurface, body0.IsStatic() || body0.IsKinematic());
+        msg.m_hOtherObject = pComp0 ? pComp0->GetOwner()->GetHandle() : ezGameObjectHandle();
+        pComp1->SendMessage(msg);
       }
     }
   }
-
-  //   if (bSendContactReport)
-  //   {
-  //     SendContactReport(pairHeader, pairs, nbPairs);
-  //   }
 }
 
 bool ezJoltContactListener::ActivateTrigger(const JPH::Body& body1, const JPH::Body& body2, ezUInt64 uiBody1id, ezUInt64 uiBody2id)
@@ -148,9 +204,9 @@ bool ezJoltContactListener::ActivateTrigger(const JPH::Body& body1, const JPH::B
 
   if (pTrigger && pComponent)
   {
-    pTrigger->PostTriggerMessage(pComponent->GetOwner()->GetHandle(), ezTriggerState::Activated);
-
     EZ_LOCK(m_TriggerMutex);
+
+    pTrigger->PostTriggerMessage(pComponent->GetOwner()->GetHandle(), ezTriggerState::Activated);
 
     const ezUInt64 uiStoreID = (uiBody1id < uiBody2id) ? (uiBody1id << 32 | uiBody2id) : (uiBody2id << 32 | uiBody1id);
     auto& trig = m_Trigs[uiStoreID];
@@ -197,6 +253,7 @@ void ezJoltContactEvents::SpawnPhysicsImpactReactions()
         if (cvar_PhysicsReactionsVisImpacts)
         {
           ezDebugRenderer::AddPersistentCross(m_pWorld, 1.0f, ezColor::LightGreen, ezTransform(ic.m_vPosition), ezTime::MakeFromSeconds(3));
+          ezDebugRenderer::AddPersistentInfoText(m_pWorld, ezDebugTextPlacement::BottomLeft, ezFmt("Impact: {}", ezMath::Sqrt(ic.m_fImpulseSqr)), ezTime::Seconds(3), ezColor::White);
         }
       }
       else
@@ -231,7 +288,7 @@ void ezJoltContactEvents::UpdatePhysicsSlideReactions()
         ezResourceLock<ezPrefabResource> pPrefab(hPrefab, ezResourceAcquireMode::AllowLoadingFallback_NeverFail);
         if (pPrefab.GetAcquireResult() == ezResourceAcquireResult::Final)
         {
-          ezHybridArray<ezGameObject*, 8> created;
+          ezTempHybridArray<ezGameObject*, 8> created;
 
           ezPrefabInstantiationOptions options;
           options.m_pCreatedRootObjectsOut = &created;
@@ -291,7 +348,7 @@ void ezJoltContactEvents::UpdatePhysicsRollReactions()
         ezResourceLock<ezPrefabResource> pPrefab(hPrefab, ezResourceAcquireMode::AllowLoadingFallback_NeverFail);
         if (pPrefab.GetAcquireResult() == ezResourceAcquireResult::Final)
         {
-          ezHybridArray<ezGameObject*, 8> created;
+          ezTempHybridArray<ezGameObject*, 8> created;
 
           ezPrefabInstantiationOptions options;
           options.m_pCreatedRootObjectsOut = &created;
@@ -593,7 +650,7 @@ void ezJoltContactEvents::OnContact_SlideReaction(const JPH::Body& body0, const 
 
 void ezJoltContactEvents::OnContact_SlideAndRollReaction(const JPH::Body& body0, const JPH::Body& body1, const JPH::ContactManifold& manifold, ezBitflags<ezOnJoltContact> onContact0, ezBitflags<ezOnJoltContact> onContact1, const ezVec3& vAvgPos, const ezVec3& vAvgNormal, ezBitflags<ezOnJoltContact> combinedContactFlags)
 {
-  if (manifold.mRelativeContactPointsOn1.size() >= 2 && combinedContactFlags.IsAnySet(ezOnJoltContact::SlideReactions))
+  if (combinedContactFlags.IsAnySet(ezOnJoltContact::SlideReactions) && manifold.mRelativeContactPointsOn1.size() >= 2)
   {
     OnContact_SlideReaction(body0, body1, manifold, onContact0, onContact1, vAvgPos, vAvgNormal);
   }
@@ -604,5 +661,14 @@ void ezJoltContactEvents::OnContact_SlideAndRollReaction(const JPH::Body& body0,
   }
 }
 
+JPH::SoftBodyValidateResult ezJoltSoftBodyContactListener::OnSoftBodyContactValidate(const JPH::Body& softBody, const JPH::Body& otherBody, JPH::SoftBodyContactSettings& ref_settings)
+{
+  // give the rigid body "infinite mass" -> soft bodies can't push them
+  // so the interaction is always one sided
+  ref_settings.mInvMassScale2 = 0.0f;
+  ref_settings.mInvInertiaScale2 = 0.0f;
+
+  return JPH::SoftBodyValidateResult::AcceptContact;
+}
 
 EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_System_JoltContacts);

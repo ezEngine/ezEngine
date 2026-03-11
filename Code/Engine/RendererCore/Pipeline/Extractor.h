@@ -20,9 +20,9 @@ public:
   /// \brief returns the name of the extractor.
   const char* GetName() const;
 
-  virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData);
+  virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData) = 0;
 
-  virtual void PostSortAndBatch(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData);
+  virtual void PostSortAndBatch(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData) = 0;
 
   virtual ezResult Serialize(ezStreamWriter& inout_stream) const;
   virtual ezResult Deserialize(ezStreamReader& inout_stream);
@@ -60,6 +60,8 @@ public:
   ~ezVisibleObjectsExtractor();
 
   virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData) override;
+  virtual void PostSortAndBatch(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData) override {}
+
   virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
   virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
 };
@@ -73,6 +75,8 @@ public:
   ~ezSelectedObjectsExtractorBase();
 
   virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData) override;
+  virtual void PostSortAndBatch(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData) override {}
+
   virtual const ezDeque<ezGameObjectHandle>* GetSelection() = 0;
 
   ezRenderData::Category m_OverrideCategory;

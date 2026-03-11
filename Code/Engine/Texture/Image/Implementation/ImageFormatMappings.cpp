@@ -204,6 +204,7 @@ ezUInt32 ezImageFormatMappings::ToDxgiFormat(ezImageFormat::Enum format)
       CASE_EZ2DXGI(BC7_UNORM_SRGB);
       CASE_EZ2DXGI(B4G4R4A4_UNORM);
       CASE_EZ2DXGI(NV12);
+      CASE_EZ2DXGI(P010);
   }
 }
 
@@ -286,6 +287,7 @@ ezImageFormat::Enum ezImageFormatMappings::FromDxgiFormat(ezUInt32 uiDxgiFormat)
       CASE_DXGI2EZ(BC7_UNORM_SRGB);
       CASE_DXGI2EZ(B4G4R4A4_UNORM);
       CASE_DXGI2EZ(NV12);
+      CASE_DXGI2EZ(P010);
   }
 }
 

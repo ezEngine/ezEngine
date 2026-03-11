@@ -8,6 +8,10 @@
 
 class ezProcessingStream;
 
+/// Base class for all particle system modules
+///
+/// Modules process particle data through streams.
+/// Derived types include emitters, initializers, behaviors, and finalizers.
 class EZ_PARTICLEPLUGIN_DLL ezParticleModule : public ezProcessingStreamProcessor
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleModule, ezProcessingStreamProcessor);
@@ -26,7 +30,7 @@ public:
     OnReset();
   }
 
-  /// \brief Called after everything is set up.
+  /// Called after everything is set up.
   virtual void OnFinalize() {}
 
   ezParticleSystemInstance* GetOwnerSystem() { return m_pOwnerSystem; }
@@ -35,11 +39,13 @@ public:
 
   ezParticleEffectInstance* GetOwnerEffect() const { return m_pOwnerSystem->GetOwnerEffect(); }
 
-  /// \brief Override this to cache world module pointers for later (through ezParticleWorldModule::GetCachedWorldModule()).
+  /// Override this to cache world module pointers for later access.
+  ///
+  /// Cached modules can be retrieved via ezParticleWorldModule::GetCachedWorldModule().
   virtual void RequestRequiredWorldModulesForCache(ezParticleWorldModule* pParticleModule) {}
 
 protected:
-  /// \brief Called by Reset()
+  /// Called by Reset() to perform custom cleanup
   virtual void OnReset() {}
 
   void CreateStream(const char* szName, ezProcessingStream::DataType Type, ezProcessingStream** ppStream, bool bWillInitializeStream)

@@ -77,8 +77,8 @@ namespace ezModelImporter2
       TryReadAssimpTextures(tr, aiTextureType_DIFFUSE, TextureSemantic::DiffuseMap, *pMat);
       TryReadAssimpTextures(tr, aiTextureType_BASE_COLOR, TextureSemantic::DiffuseMap, *pMat);          // override aiTextureType_DIFFUSE
       TryReadAssimpTextures(tr, aiTextureType_SHININESS, TextureSemantic::RoughnessMap, *pMat);
+      TryReadAssimpTextures(tr, aiTextureType_SPECULAR, TextureSemantic::RoughnessMap, *pMat);
       TryReadAssimpTextures(tr, aiTextureType_DIFFUSE_ROUGHNESS, TextureSemantic::RoughnessMap, *pMat); // override aiTextureType_SHININESS
-      TryReadAssimpTextures(tr, aiTextureType_SPECULAR, TextureSemantic::MetallicMap, *pMat);
       TryReadAssimpTextures(tr, aiTextureType_METALNESS, TextureSemantic::MetallicMap, *pMat);          // override aiTextureType_SPECULAR
       TryReadAssimpTextures(tr, aiTextureType_AMBIENT, TextureSemantic::OcclusionMap, *pMat);
       TryReadAssimpTextures(tr, aiTextureType_AMBIENT_OCCLUSION, TextureSemantic::OcclusionMap, *pMat); // override aiTextureType_AMBIENT

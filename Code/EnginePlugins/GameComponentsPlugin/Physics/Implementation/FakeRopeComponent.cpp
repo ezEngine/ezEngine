@@ -304,7 +304,7 @@ void ezFakeRopeComponent::RuntimeUpdate()
   if (m_uiSleepCounter > 10)
     return;
 
-  ezVisibilityState visType = GetOwner()->GetVisibilityState();
+  ezVisibilityState::Enum visType = GetOwner()->GetVisibilityState();
 
   if (visType == ezVisibilityState::Invisible)
     return;
@@ -333,7 +333,7 @@ void ezFakeRopeComponent::SendCurrentPose()
 {
   ezMsgRopePoseUpdated poseMsg;
 
-  ezDynamicArray<ezTransform> pieces(ezFrameAllocator::GetCurrentAllocator());
+  ezTempArray<ezTransform> pieces;
 
   if (m_RopeSim.m_Nodes.GetCount() >= 2)
   {
@@ -350,7 +350,14 @@ void ezFakeRopeComponent::SendCurrentPose()
       const ezSimdVec4f p1 = m_RopeSim.m_Nodes[i + 1].m_vPosition;
       ezSimdVec4f dir = p1 - p0;
 
-      dir.NormalizeIfNotZero<3>();
+      if (dir.IsZero<3>(0.0001f))
+      {
+        dir.Set(1, 0, 0, 0);
+      }
+      else
+      {
+        dir.Normalize<3>();
+      }
 
       tGlobal.m_vPosition = ezSimdConversion::ToVec3(p0);
       tGlobal.m_qRotation = ezQuat::MakeShortestRotation(ezVec3::MakeAxisX(), ezSimdConversion::ToVec3(dir));
@@ -454,8 +461,9 @@ void ezFakeRopeComponentManager::Initialize()
 
   {
     auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezFakeRopeComponentManager::Update, this);
-    desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::Async;
+    desc.m_Phase = ezWorldUpdatePhase::Async;
     desc.m_bOnlyUpdateWhenSimulating = false;
+    desc.m_uiAsyncPhaseBatchSize = 4;
 
     this->RegisterUpdateFunction(desc);
   }
@@ -487,3 +495,6 @@ void ezFakeRopeComponentManager::Update(const ezWorldModule::UpdateContext& cont
     }
   }
 }
+
+
+EZ_STATICLINK_FILE(GameComponentsPlugin, GameComponentsPlugin_Physics_Implementation_FakeRopeComponent);

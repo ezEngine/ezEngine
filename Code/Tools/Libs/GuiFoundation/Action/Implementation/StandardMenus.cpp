@@ -10,25 +10,31 @@ ezActionDescriptorHandle ezStandardMenus::s_hMenuProject;
 ezActionDescriptorHandle ezStandardMenus::s_hMenuFile;
 ezActionDescriptorHandle ezStandardMenus::s_hMenuEdit;
 ezActionDescriptorHandle ezStandardMenus::s_hMenuPanels;
+ezActionDescriptorHandle ezStandardMenus::s_hMenuPanelsAll;
 ezActionDescriptorHandle ezStandardMenus::s_hMenuScene;
+ezActionDescriptorHandle ezStandardMenus::s_hMenuAsset;
 ezActionDescriptorHandle ezStandardMenus::s_hMenuView;
 ezActionDescriptorHandle ezStandardMenus::s_hMenuTools;
 ezActionDescriptorHandle ezStandardMenus::s_hMenuHelp;
 ezActionDescriptorHandle ezStandardMenus::s_hCheckForUpdates;
 ezActionDescriptorHandle ezStandardMenus::s_hReportProblem;
+ezActionDescriptorHandle ezStandardMenus::s_hAskQuestion;
 
 void ezStandardMenus::RegisterActions()
 {
   s_hMenuProject = EZ_REGISTER_MENU("G.Project");
   s_hMenuFile = EZ_REGISTER_MENU("G.File");
   s_hMenuEdit = EZ_REGISTER_MENU("G.Edit");
-  s_hMenuPanels = EZ_REGISTER_DYNAMIC_MENU("G.Panels", ezApplicationPanelsMenuAction, "");
+  s_hMenuPanels = EZ_REGISTER_MENU("G.Panels");
+  s_hMenuPanelsAll = EZ_REGISTER_DYNAMIC_MENU("Panels.All", ezApplicationPanelsMenuAction, "Show Panels");
   s_hMenuScene = EZ_REGISTER_MENU("G.Scene");
+  s_hMenuAsset = EZ_REGISTER_MENU("G.Asset");
   s_hMenuView = EZ_REGISTER_MENU("G.View");
   s_hMenuTools = EZ_REGISTER_MENU("G.Tools");
   s_hMenuHelp = EZ_REGISTER_MENU("G.Help");
   s_hCheckForUpdates = EZ_REGISTER_ACTION_1("Help.CheckForUpdates", ezActionScope::Global, "Help", "", ezHelpActions, ezHelpActions::ButtonType::CheckForUpdates);
   s_hReportProblem = EZ_REGISTER_ACTION_1("Help.ReportProblem", ezActionScope::Global, "Help", "", ezHelpActions, ezHelpActions::ButtonType::ReportProblem);
+  s_hAskQuestion = EZ_REGISTER_ACTION_1("Help.AskQuestion", ezActionScope::Global, "Help", "", ezHelpActions, ezHelpActions::ButtonType::AskQuestion);
 }
 
 void ezStandardMenus::UnregisterActions()
@@ -37,12 +43,15 @@ void ezStandardMenus::UnregisterActions()
   ezActionManager::UnregisterAction(s_hMenuFile);
   ezActionManager::UnregisterAction(s_hMenuEdit);
   ezActionManager::UnregisterAction(s_hMenuPanels);
+  ezActionManager::UnregisterAction(s_hMenuPanelsAll);
   ezActionManager::UnregisterAction(s_hMenuScene);
+  ezActionManager::UnregisterAction(s_hMenuAsset);
   ezActionManager::UnregisterAction(s_hMenuView);
   ezActionManager::UnregisterAction(s_hMenuTools);
   ezActionManager::UnregisterAction(s_hMenuHelp);
   ezActionManager::UnregisterAction(s_hCheckForUpdates);
   ezActionManager::UnregisterAction(s_hReportProblem);
+  ezActionManager::UnregisterAction(s_hAskQuestion);
 }
 
 void ezStandardMenus::MapActions(ezStringView sMapping, const ezBitflags<ezStandardMenuTypes>& menus)
@@ -64,19 +73,26 @@ void ezStandardMenus::MapActions(ezStringView sMapping, const ezBitflags<ezStand
   if (menus.IsAnySet(ezStandardMenuTypes::Scene))
     pMap->MapAction(s_hMenuScene, "", 3.0f);
 
+  if (menus.IsAnySet(ezStandardMenuTypes::Asset))
+    pMap->MapAction(s_hMenuAsset, "", 4.0f);
+
   if (menus.IsAnySet(ezStandardMenuTypes::View))
-    pMap->MapAction(s_hMenuView, "", 4.0f);
+    pMap->MapAction(s_hMenuView, "", 5.0f);
 
   if (menus.IsAnySet(ezStandardMenuTypes::Tools))
-    pMap->MapAction(s_hMenuTools, "", 5.0f);
+    pMap->MapAction(s_hMenuTools, "", 6.0f);
 
   if (menus.IsAnySet(ezStandardMenuTypes::Panels))
-    pMap->MapAction(s_hMenuPanels, "", 6.0f);
+  {
+    pMap->MapAction(s_hMenuPanels, "", 7.0f);
+    pMap->MapAction(s_hMenuPanelsAll, "G.Panels", 1.0f);
+  }
 
   if (menus.IsAnySet(ezStandardMenuTypes::Help))
   {
-    pMap->MapAction(s_hMenuHelp, "", 7.0f);
+    pMap->MapAction(s_hMenuHelp, "", 8.0f);
     pMap->MapAction(s_hReportProblem, "G.Help", 3.0f);
+    pMap->MapAction(s_hAskQuestion, "G.Help", 4.0f);
     pMap->MapAction(s_hCheckForUpdates, "G.Help", 10.0f);
   }
 }
@@ -103,7 +119,7 @@ struct ezComparePanels
 };
 
 
-void ezApplicationPanelsMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_entries)
+void ezApplicationPanelsMenuAction::GetEntries(ezDynamicArray<Item>& out_entries)
 {
   out_entries.Clear();
 
@@ -151,7 +167,11 @@ ezHelpActions::ezHelpActions(const ezActionContext& context, const char* szName,
 
   if (button == ButtonType::ReportProblem)
   {
-    SetIconPath(":/EditorFramework/Icons/GitHub-Light.svg");
+    SetIconPath(":/EditorFramework/Icons/GitHub.svg");
+  }
+  if (button == ButtonType::AskQuestion)
+  {
+    SetIconPath(":/EditorFramework/Icons/GitHub.svg");
   }
 }
 
@@ -163,7 +183,11 @@ void ezHelpActions::Execute(const ezVariant& value)
   {
     QDesktopServices::openUrl(QUrl("https://github.com/ezEngine/ezEngine/issues"));
   }
-  if (m_ButtonType == ButtonType::CheckForUpdates)
+  else if (m_ButtonType == ButtonType::AskQuestion)
+  {
+    QDesktopServices::openUrl(QUrl("https://github.com/ezEngine/ezEngine/discussions"));
+  }
+  else if (m_ButtonType == ButtonType::CheckForUpdates)
   {
     ezQtUiServices::CheckForUpdates();
   }

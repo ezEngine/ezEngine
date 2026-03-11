@@ -9,6 +9,7 @@ class EZ_GAMEENGINE_DLL ezCollisionFilterConfig
 {
 public:
   ezCollisionFilterConfig();
+  ~ezCollisionFilterConfig();
 
   void SetGroupName(ezUInt32 uiGroup, ezStringView sName);
 
@@ -44,5 +45,5 @@ public:
 
 private:
   ezUInt32 m_GroupMasks[32];
-  char m_GroupNames[32][32];
+  ezString m_GroupNames[32];
 };

@@ -13,7 +13,6 @@ class EZ_RENDERERCORE_DLL ezRenderComponent : public ezComponent
   // ezComponent
 
 protected:
-  virtual void Deinitialize() override;
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
 
@@ -34,13 +33,16 @@ public:
   /// \brief Call this when some value was modified that affects the size of the local bounding box and it should be recomputed.
   void TriggerLocalBoundsUpdate();
 
-  /// \brief Computes a unique ID for the given component, that is usually given to the renderer to distinguish objects.
-  static ezUInt32 GetUniqueIdForRendering(const ezComponent& component, ezUInt32 uiInnerIndex = 0, ezUInt32 uiInnerIndexShift = 24);
+  /// \brief Like TriggerLocalBoundsUpdate(), but defers the update and is safe to call from async update functions.
+  void QueueLocalBoundsUpdate();
 
   /// \brief Computes a unique ID for the given component, that is usually given to the renderer to distinguish objects.
-  EZ_ALWAYS_INLINE ezUInt32 GetUniqueIdForRendering(ezUInt32 uiInnerIndex = 0, ezUInt32 uiInnerIndexShift = 24) const
+  static ezUInt32 GetUniqueIdForRendering(const ezComponent& component);
+
+  /// \brief Computes a unique ID for the given component, that is usually given to the renderer to distinguish objects.
+  EZ_ALWAYS_INLINE ezUInt32 GetUniqueIdForRendering() const
   {
-    return GetUniqueIdForRendering(*this, uiInnerIndex, uiInnerIndexShift);
+    return GetUniqueIdForRendering(*this);
   }
 
 protected:

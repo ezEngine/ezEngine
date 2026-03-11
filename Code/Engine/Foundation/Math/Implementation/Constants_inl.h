@@ -159,6 +159,16 @@ namespace ezMath
     return 0xFFFFFFFFu;
   }
 
+#if EZ_ENABLED(EZ_COMPILER_CLANG)
+#  if EZ_ENABLED(EZ_PLATFORM_32BIT)
+  template <>
+  constexpr size_t MaxValue()
+  {
+    return 0xFFFFFFFFu;
+  }
+#  endif
+#endif
+
   template <>
   constexpr ezUInt64 MaxValue()
   {
@@ -292,29 +302,142 @@ namespace ezMath
   }
 
 
+
+  template <typename TYPE>
+  constexpr TYPE SqrtEpsilon()
+  {
+    if constexpr (std::is_same_v<TYPE, float>)
+    {
+      return (TYPE)0.000001; 
+    }
+    else if constexpr (std::is_same_v<TYPE, double>)
+    {
+      return (TYPE)0.000001; 
+    }
+    else
+    {
+      return (TYPE)0.000001; 
+    }
+  }
+
+
+
+  template <typename TYPE>
+  constexpr TYPE VeryVerySmallEpsilon()
+  {
+    if constexpr (std::is_same_v<TYPE, float>)
+    {
+      return (TYPE)0.00000001;  
+    }
+    else if constexpr (std::is_same_v<TYPE, double>)
+    {
+      return (TYPE)0.000000000001;
+    }
+    else
+    {
+      return (TYPE)0.00000001;  
+    }
+  }
+  template <typename TYPE>
+  constexpr TYPE VerySmallEpsilon()
+  {
+    if constexpr (std::is_same_v<TYPE, float>)
+    {
+      return (TYPE)0.0000001;  
+    }
+    else if constexpr (std::is_same_v<TYPE, double>)
+    {
+      return (TYPE)0.00000000001;
+    }
+    else
+    {
+      return (TYPE)0.0000001;  
+    }
+  }
   template <typename TYPE>
   constexpr TYPE SmallEpsilon()
   {
-    return (TYPE)0.000001;
+    if constexpr (std::is_same_v<TYPE, float>)
+    {
+      return (TYPE)0.000001;  
+    }
+    else if constexpr (std::is_same_v<TYPE, double>)
+    {
+      return (TYPE)0.0000000001;
+    }
+    else
+    {
+      return (TYPE)0.000001;  
+    }
   }
 
   template <typename TYPE>
   constexpr TYPE DefaultEpsilon()
   {
-    return (TYPE)0.00001;
+    if constexpr (std::is_same_v<TYPE, float>)
+    {
+      return (TYPE)0.00001; 
+    }
+    else if constexpr (std::is_same_v<TYPE, double>)
+    {
+      return (TYPE)0.000000001;
+    }
+    else
+    {
+      return (TYPE)0.00001; 
+    }
   }
 
   template <typename TYPE>
   constexpr TYPE LargeEpsilon()
   {
-    return (TYPE)0.0001;
+    if constexpr (std::is_same_v<TYPE, float>)
+    {
+      return (TYPE)0.0001; 
+    }
+    else if constexpr (std::is_same_v<TYPE, double>)
+    {
+      return (TYPE)0.00000001;
+    }
+    else
+    {
+      return (TYPE)0.0001;  
+    }
   }
 
   template <typename TYPE>
   constexpr TYPE HugeEpsilon()
   {
-    return (TYPE)0.001;
+    if constexpr (std::is_same_v<TYPE, float>)
+    {
+      return (TYPE)0.001; 
+    }
+    else if constexpr (std::is_same_v<TYPE, double>)
+    {
+      return (TYPE)0.0000001;
+    }
+    else
+    {
+      return (TYPE)0.001; 
+    }
   }
+  template <typename TYPE>
+  constexpr TYPE VeryHugeEpsilon()
+  {
+    if constexpr (std::is_same_v<TYPE, float>)
+    {
+      return (TYPE)0.01; 
+    }
+    else if constexpr (std::is_same_v<TYPE, double>)
+    {
+      return (TYPE)0.000001;
+    }
+    else
+    {
+      return (TYPE)0.01; 
+    }
+  }
+
 
   //////////////////////////////////////////////////////////////////////////
 

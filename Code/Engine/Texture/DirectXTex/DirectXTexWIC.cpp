@@ -280,7 +280,7 @@ namespace
         _In_ IWICBitmapFrameDecode *frame,
         _Out_ TexMetadata& metadata,
         _Out_opt_ WICPixelFormatGUID* pConvert,
-        _In_opt_ std::function<void(IWICMetadataQueryReader*)> getMQR)
+        _In_ std::function<void(IWICMetadataQueryReader*)> getMQR)
     {
         if (!decoder || !frame)
             return E_POINTER;
@@ -828,7 +828,7 @@ namespace
         _In_ REFGUID containerFormat,
         _Inout_ IStream* stream,
         _In_opt_ const GUID* targetFormat,
-        _In_opt_ std::function<void(IPropertyBag2*)> setCustomProps)
+        _In_ std::function<void(IPropertyBag2*)> setCustomProps)
     {
         if (!stream)
             return E_INVALIDARG;
@@ -893,7 +893,7 @@ namespace
         _In_ REFGUID containerFormat,
         _Inout_ IStream* stream,
         _In_opt_ const GUID* targetFormat,
-        _In_opt_ std::function<void(IPropertyBag2*)> setCustomProps)
+        _In_ std::function<void(IPropertyBag2*)> setCustomProps)
     {
         if (!stream || nimages < 2)
             return E_INVALIDARG;

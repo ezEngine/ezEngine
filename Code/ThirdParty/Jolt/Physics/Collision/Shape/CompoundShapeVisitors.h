@@ -19,7 +19,7 @@ JPH_NAMESPACE_BEGIN
 
 struct CompoundShape::CastRayVisitor
 {
-	JPH_INLINE 			CastRayVisitor(const RayCast &inRay, const CompoundShape *inShape, const SubShapeIDCreator &inSubShapeIDCreator, RayCastResult &ioHit) :
+	JPH_INLINE			CastRayVisitor(const RayCast &inRay, const CompoundShape *inShape, const SubShapeIDCreator &inSubShapeIDCreator, RayCastResult &ioHit) :
 		mRay(inRay),
 		mHit(ioHit),
 		mSubShapeIDCreator(inSubShapeIDCreator),
@@ -64,7 +64,7 @@ struct CompoundShape::CastRayVisitor
 
 struct CompoundShape::CastRayVisitorCollector
 {
-	JPH_INLINE 			CastRayVisitorCollector(const RayCast &inRay, const RayCastSettings &inRayCastSettings, const CompoundShape *inShape, const SubShapeIDCreator &inSubShapeIDCreator, CastRayCollector &ioCollector, const ShapeFilter &inShapeFilter) :
+	JPH_INLINE			CastRayVisitorCollector(const RayCast &inRay, const RayCastSettings &inRayCastSettings, const CompoundShape *inShape, const SubShapeIDCreator &inSubShapeIDCreator, CastRayCollector &ioCollector, const ShapeFilter &inShapeFilter) :
 		mRay(inRay),
 		mCollector(ioCollector),
 		mSubShapeIDCreator(inSubShapeIDCreator),
@@ -225,7 +225,7 @@ struct CompoundShape::CastShapeVisitor
 
 struct CompoundShape::CollectTransformedShapesVisitor
 {
-	JPH_INLINE 			CollectTransformedShapesVisitor(const AABox &inBox, const CompoundShape *inShape, Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale, const SubShapeIDCreator &inSubShapeIDCreator, TransformedShapeCollector &ioCollector, const ShapeFilter &inShapeFilter) :
+	JPH_INLINE			CollectTransformedShapesVisitor(const AABox &inBox, const CompoundShape *inShape, Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale, const SubShapeIDCreator &inSubShapeIDCreator, TransformedShapeCollector &ioCollector, const ShapeFilter &inShapeFilter) :
 		mBox(inBox),
 		mLocalBox(Mat44::sInverseRotationTranslation(inRotation, inPositionCOM), inBox),
 		mPositionCOM(inPositionCOM),
@@ -271,8 +271,8 @@ struct CompoundShape::CollectTransformedShapesVisitor
 		inSubShape.mShape->CollectTransformedShapes(mBox, position, rotation, inSubShape.TransformScale(mScale), sub_shape_id, mCollector, mShapeFilter);
 	}
 
-	AABox 							mBox;
-	OrientedBox 					mLocalBox;
+	AABox							mBox;
+	OrientedBox						mLocalBox;
 	Vec3							mPositionCOM;
 	Quat							mRotation;
 	Vec3							mScale;
@@ -302,6 +302,7 @@ struct CompoundShape::CollideCompoundVsShapeVisitor
 
 		// Convert bounding box of 2 into space of 1
 		mBoundsOf2InSpaceOf1 = inShape2->GetLocalBounds().Scaled(inScale2).Transformed(transform2_to_1);
+		mBoundsOf2InSpaceOf1.ExpandBy(Vec3::sReplicate(inCollideShapeSettings.mMaxSeparationDistance));
 	}
 
 	/// Returns true when collision detection should abort because it's not possible to find a better hit

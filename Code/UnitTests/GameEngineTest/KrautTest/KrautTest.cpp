@@ -1,6 +1,6 @@
 #include <GameEngineTest/GameEngineTestPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP) || EZ_ENABLED(EZ_PLATFORM_LINUX)
 
 #  include "KrautTest.h"
 #  include <Core/WorldSerializer/WorldReader.h>
@@ -35,10 +35,10 @@ ezResult ezGameEngineTestKraut::InitializeSubTest(ezInt32 iIdentifier)
 
   if (iIdentifier == SubTests::TreeRendering)
   {
-    m_ImgCompFrames.PushBack(1);
+    m_ImgCompFrames.PushBack(3);
     m_ImgCompFrames.PushBack(60);
 
-    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("PlatformWin/AssetCache/Common/Kraut/Kraut.ezObjectGraph"));
+    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("PlatformWin/AssetCache/Common/Kraut/Kraut.ezBinScene"));
     return EZ_SUCCESS;
   }
 
@@ -49,12 +49,13 @@ ezTestAppRun ezGameEngineTestKraut::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiI
 {
   ++m_iFrame;
 
-  if (m_pOwnApplication->Run() == ezApplication::Execution::Quit)
+  m_pOwnApplication->Run();
+  if (m_pOwnApplication->ShouldApplicationQuit())
     return ezTestAppRun::Quit;
 
   if (m_ImgCompFrames[m_uiImgCompIdx] == m_iFrame)
   {
-    EZ_TEST_IMAGE(m_uiImgCompIdx, 200);
+    EZ_TEST_IMAGE(m_uiImgCompIdx, 450);
     ++m_uiImgCompIdx;
 
     if (m_uiImgCompIdx >= m_ImgCompFrames.GetCount())

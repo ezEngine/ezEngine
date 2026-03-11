@@ -11,11 +11,7 @@
 
 struct ezOSFileData;
 
-#if EZ_ENABLED(EZ_USE_POSIX_FILE_API)
-#  include <Foundation/IO/Implementation/Posix/OSFileDeclarations_posix.h>
-#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#  include <Foundation/IO/Implementation/Win/OSFileDeclarations_win.h>
-#endif
+#include <OSFileDecl_Platform.h>
 
 /// \brief Defines in which mode to open a file.
 struct ezFileOpenMode
@@ -175,6 +171,10 @@ public:
   ~ezOSFile();
 
   /// \brief Opens a file for reading or writing. Returns EZ_SUCCESS if the file could be opened successfully.
+  ///
+  /// \param sFile Absolute path to the file to open
+  /// \param openMode How to open the file (Read, Write, Append)
+  /// \param fileShareMode How the file can be shared with other processes (platform-specific)
   ezResult Open(ezStringView sFile, ezFileOpenMode::Enum openMode, ezFileShareMode::Enum fileShareMode = ezFileShareMode::Default); // [tested]
 
   /// \brief Returns true if a file is currently open.

@@ -52,6 +52,18 @@ EZ_IMPLEMENT_IF_FLOAT_TYPE EZ_ALWAYS_INLINE Type ezVec2Template<Type>::GetLength
 }
 
 template <typename Type>
+EZ_IMPLEMENT_IF_FLOAT_TYPE EZ_ALWAYS_INLINE Type ezVec2Template<Type>::GetDistanceTo(const ezVec2Template<Type>& rhs) const
+{
+  return (*this - rhs).GetLength();
+}
+
+template <typename Type>
+EZ_IMPLEMENT_IF_FLOAT_TYPE EZ_ALWAYS_INLINE Type ezVec2Template<Type>::GetSquaredDistanceTo(const ezVec2Template<Type>& rhs) const
+{
+  return (*this - rhs).GetLengthSquared();
+}
+
+template <typename Type>
 EZ_IMPLEMENT_IF_FLOAT_TYPE ezResult ezVec2Template<Type>::SetLength(Type fNewLength, Type fEpsilon /* = ezMath::DefaultEpsilon<Type>() */)
 {
   if (NormalizeIfNotZero(ezVec2Template<Type>::MakeZero(), fEpsilon) == EZ_FAILURE)
@@ -242,12 +254,12 @@ EZ_FORCE_INLINE Type ezVec2Template<Type>::Dot(const ezVec2Template<Type>& rhs) 
 }
 
 template <typename Type>
-inline ezAngle ezVec2Template<Type>::GetAngleBetween(const ezVec2Template<Type>& rhs) const
+inline ezAngleTemplate<Type> ezVec2Template<Type>::GetAngleBetween(const ezVec2Template<Type>& rhs) const
 {
   EZ_ASSERT_DEBUG(this->IsNormalized(), "This vector must be normalized.");
   EZ_ASSERT_DEBUG(rhs.IsNormalized(), "The other vector must be normalized.");
 
-  return ezMath::ACos(static_cast<float>(ezMath::Clamp<Type>(this->Dot(rhs), (Type)-1, (Type)1)));
+  return ezMath::ACos(static_cast<Type>(ezMath::Clamp<Type>(this->Dot(rhs), (Type)-1, (Type)1)));
 }
 
 template <typename Type>

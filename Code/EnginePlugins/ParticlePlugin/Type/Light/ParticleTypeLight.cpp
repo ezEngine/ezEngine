@@ -6,7 +6,7 @@
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <ParticlePlugin/Type/Light/ParticleTypeLight.h>
 #include <RendererCore/Lights/PointLightComponent.h>
-#include <RendererCore/Pipeline/RenderData.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererCore/Pipeline/View.h>
 
 // clang-format off
@@ -109,7 +109,7 @@ void ezParticleTypeLight::CreateRequiredStreams()
 
   if (m_uiPercentage < 100)
   {
-    CreateStream("OnOff", ezProcessingStream::DataType::Int, &m_pStreamOnOff, false); /// \todo Initialize (instead of during extraction)
+    CreateStream("OnOff", ezProcessingStream::DataType::Byte, &m_pStreamOnOff, false); /// \todo Initialize (instead of during extraction)
   }
 }
 
@@ -125,11 +125,11 @@ void ezParticleTypeLight::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg,
   if (pPosition == nullptr || pSize == nullptr || pColor == nullptr)
     return;
 
-  ezInt32* pOnOff = nullptr;
+  ezInt8* pOnOff = nullptr;
 
   if (m_pStreamOnOff)
   {
-    pOnOff = m_pStreamOnOff->GetWritableData<ezInt32>();
+    pOnOff = m_pStreamOnOff->GetWritableData<ezInt8>();
 
     if (pOnOff == nullptr)
       return;
@@ -171,17 +171,16 @@ void ezParticleTypeLight::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg,
         continue;
     }
 
-    auto pRenderData = ezCreateRenderDataForThisFrame<ezPointLightRenderData>(nullptr);
+    auto pRenderData = ref_msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezPointLightRenderData>(nullptr);
 
-    pRenderData->m_GlobalTransform.SetIdentity();
-    pRenderData->m_GlobalTransform.m_vPosition = transform * pPosition[i].GetAsVec3();
+    pRenderData->m_vGlobalPosition = transform * pPosition[i].GetAsVec3();
     pRenderData->m_LightColor = tintColor * pColor[i].ToLinearFloat();
     pRenderData->m_fIntensity = intensity;
     pRenderData->m_fSpecularMultiplier = 1.0f;
     pRenderData->m_fRange = pSize[i] * sizeFactor;
-    pRenderData->m_uiShadowDataOffset = ezInvalidIndex;
+    pRenderData->m_uiShadowDataOffsetAndFadeOut = 0;
 
-    float fScreenSpaceSize = ezLightComponent::CalculateScreenSpaceSize(ezBoundingSphere::MakeFromCenterAndRadius(pRenderData->m_GlobalTransform.m_vPosition, pRenderData->m_fRange * 0.5f), *ref_msg.m_pView->GetCullingCamera());
+    float fScreenSpaceSize = ezLightComponent::CalculateScreenSpaceSize(ezBoundingSphere::MakeFromCenterAndRadius(pRenderData->m_vGlobalPosition, pRenderData->m_fRange * 0.5f), *ref_msg.m_pView->GetCullingCamera());
     pRenderData->FillBatchIdAndSortingKey(fScreenSpaceSize);
 
     ref_msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, ezRenderData::Caching::Never);

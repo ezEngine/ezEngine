@@ -31,6 +31,7 @@ inline ezStringWChar::ezStringWChar(const wchar_t* pWChar, ezAllocator* pAllocat
 }
 
 inline ezStringWChar::ezStringWChar(ezStringView sUtf8, ezAllocator* pAllocator /*= ezFoundation::GetDefaultAllocator()*/)
+  : m_Data(pAllocator)
 {
   *this = sUtf8;
 }
@@ -67,22 +68,6 @@ inline ezStringUtf8::ezStringUtf8(const wchar_t* pWChar, ezAllocator* pAllocator
 {
   *this = pWChar;
 }
-
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-
-inline ezStringUtf8::ezStringUtf8(
-  const Microsoft::WRL::Wrappers::HString& hstring, ezAllocator* pAllocator /*= ezFoundation::GetDefaultAllocator()*/)
-  : m_Data(pAllocator)
-{
-  *this = hstring;
-}
-
-inline ezStringUtf8::ezStringUtf8(const HSTRING& hstring, ezAllocator* pAllocator /*= ezFoundation::GetDefaultAllocator()*/)
-{
-  *this = hstring;
-}
-
-#endif
 
 // **************** ezStringUtf16 ****************
 

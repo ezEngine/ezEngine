@@ -19,7 +19,7 @@ ezCurve1DAssetDocumentManager::ezCurve1DAssetDocumentManager()
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Data_Curve");
 
-  m_DocTypeDesc.m_sResourceFileExtension = "ezCurve1D";
+  m_DocTypeDesc.m_sResourceFileExtension = "ezBinCurve1D";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave | ezAssetDocumentFlags::SupportsThumbnail;
 }
 

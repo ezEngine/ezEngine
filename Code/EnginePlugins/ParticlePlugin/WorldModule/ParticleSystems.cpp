@@ -33,6 +33,3 @@ void ezParticleWorldModule::DestroySystemInstance(ezParticleSystemInstance* pIns
   pInstance->Destruct();
   m_ParticleSystemFreeList.PushBack(pInstance);
 }
-
-
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_WorldModule_ParticleSystems);

@@ -97,6 +97,13 @@ ezStringView ezPathUtils::GetFileName(ezStringView sPath, bool bRemoveFullExtens
   // reduce the problem to just the filename + extension
   sPath = GetFileNameAndExtension(sPath);
 
+  return GetWithoutExtension(sPath, bRemoveFullExtension);
+}
+
+ezStringView ezPathUtils::GetWithoutExtension(ezStringView sPath, bool bRemoveFullExtension)
+{
+  // TODO: unit test
+
   ezStringView ext = GetFileExtension(sPath, bRemoveFullExtension);
 
   if (ext.IsEmpty())
@@ -123,36 +130,28 @@ ezStringView ezPathUtils::GetFileDirectory(ezStringView sPath)
   return ezStringView(sPath.GetStartPointer(), szSeparator + 1);
 }
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-const char ezPathUtils::OsSpecificPathSeparator = '\\';
-#elif EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
-const char ezPathUtils::OsSpecificPathSeparator = '/';
-#elif EZ_ENABLED(EZ_PLATFORM_OSX)
-const char ezPathUtils::OsSpecificPathSeparator = '/';
-#else
-#  error "Unknown platform."
-#endif
+const char ezPathUtils::OsSpecificPathSeparator = EZ_PLATFORM_PATH_SEPARATOR;
 
 bool ezPathUtils::IsAbsolutePath(ezStringView sPath)
 {
-  if (sPath.GetElementCount() < 2)
+  if (sPath.GetElementCount() < 1)
     return false;
 
   const char* szPath = sPath.GetStartPointer();
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+
+  if (sPath.GetElementCount() < 2)
+    return false;
+
   // szPath[0] will not be \0 -> so we can access szPath[1] without problems
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   /// if it is an absolute path, character 0 must be ASCII (A - Z)
   /// checks for local paths, i.e. 'C:\stuff' and UNC paths, i.e. '\\server\stuff'
   /// not sure if we should handle '//' identical to '\\' (currently we do)
   return ((szPath[1] == ':') || (IsPathSeparator(szPath[0]) && IsPathSeparator(szPath[1])));
-#elif EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
-  return (szPath[0] == '/');
-#elif EZ_ENABLED(EZ_PLATFORM_OSX)
-  return (szPath[0] == '/');
 #else
-#  error "Unknown platform."
+  return (szPath[0] == '/');
 #endif
 }
 

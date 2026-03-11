@@ -26,48 +26,4 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgMoveCharacterController, 1, ezRTTIDefaultAl
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-//////////////////////////////////////////////////////////////////////////
-
-EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezCharacterControllerComponent, 1)
-{
-  EZ_BEGIN_ATTRIBUTES
-  {
-    new ezCategoryAttribute("Physics"),
-  }
-  EZ_END_ATTRIBUTES;
-  EZ_BEGIN_FUNCTIONS
-  {
-    EZ_SCRIPT_FUNCTION_PROPERTY(RawMove, In, "moveDeltaGlobal"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(TeleportCharacter, In, "globalFootPosition"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(IsDestinationUnobstructed, In, "globalFootPosition", In, "characterHeight"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(IsTouchingGround),
-    EZ_SCRIPT_FUNCTION_PROPERTY(IsCrouching),
-  }
-  EZ_END_FUNCTIONS;
-  EZ_BEGIN_MESSAGEHANDLERS
-  {
-    EZ_MESSAGE_HANDLER(ezMsgMoveCharacterController, MoveCharacter),
-  }
-  EZ_END_MESSAGEHANDLERS;
-}
-EZ_END_ABSTRACT_COMPONENT_TYPE;
-// clang-format on
-
-ezCharacterControllerComponent::ezCharacterControllerComponent() = default;
-
-void ezCharacterControllerComponent::SerializeComponent(ezWorldWriter& inout_stream) const
-{
-  SUPER::SerializeComponent(inout_stream);
-  // auto& s = stream.GetStream();
-}
-
-void ezCharacterControllerComponent::DeserializeComponent(ezWorldReader& inout_stream)
-{
-  SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  // auto& s = stream.GetStream();
-}
-
-
-
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Physics_Implementation_CharacterControllerComponent);

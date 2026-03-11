@@ -1,23 +1,17 @@
 #pragma once
 
-#include <Core/ResourceManager/Resource.h>
 #include <Foundation/Containers/Map.h>
-#include <Foundation/Math/Rect.h>
-#include <Foundation/Strings/String.h>
 #include <RendererCore/Declarations.h>
+#include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/Pipeline/ViewData.h>
+#include <RendererCore/RenderContext/BindGroupBuilder.h>
 #include <RendererCore/RenderContext/Implementation/RenderContextStructs.h>
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 #include <RendererCore/Shader/ShaderStageBinary.h>
 #include <RendererCore/ShaderCompiler/PermutationGenerator.h>
-#include <RendererCore/Textures/Texture2DResource.h>
-#include <RendererCore/Textures/Texture3DResource.h>
-#include <RendererCore/Textures/TextureCubeResource.h>
-#include <RendererFoundation/CommandEncoder/ComputeCommandEncoder.h>
-#include <RendererFoundation/CommandEncoder/RenderCommandEncoder.h>
+#include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
-#include <RendererFoundation/Device/Pass.h>
-#include <RendererFoundation/Shader/Shader.h>
+#include <RendererFoundation/Shader/BindGroup.h>
 #include <RendererFoundation/Shader/ShaderUtils.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Common/GlobalConstants.h>
@@ -31,16 +25,17 @@ struct ezRenderWorldRenderEvent;
 class EZ_RENDERERCORE_DLL ezRenderContext
 {
 private:
-  ezRenderContext();
+  ezRenderContext(ezGALCommandEncoder* pCommandEncoder);
   ~ezRenderContext();
   friend class ezMemoryUtils;
 
   static ezRenderContext* s_pDefaultInstance;
+  static ezGALCommandEncoder* s_pCommandEncoder;
   static ezHybridArray<ezRenderContext*, 4> s_Instances;
 
 public:
   static ezRenderContext* GetDefaultInstance();
-  static ezRenderContext* CreateInstance();
+  static ezRenderContext* CreateInstance(ezGALCommandEncoder* pCommandEncoder);
   static void DestroyInstance(ezRenderContext* pRenderer);
 
 public:
@@ -50,18 +45,20 @@ public:
     void Reset();
 
     ezUInt32 m_uiFailedDrawcalls;
+    ezUInt32 m_uiModifiedBindGroup[EZ_GAL_MAX_BIND_GROUPS] = {0};
+    ezUInt32 m_uiLayoutChanged[EZ_GAL_MAX_BIND_GROUPS] = {0};
   };
 
   Statistics GetAndResetStatistics();
 
-  ezGALRenderCommandEncoder* BeginRendering(ezGALPass* pGALPass, const ezGALRenderingSetup& renderingSetup, const ezRectFloat& viewport, const char* szName = "", bool bStereoRendering = false);
+  void BeginRendering(const ezGALRenderingSetup& renderingSetup, const ezRectFloat& viewport, const char* szName = "", bool bStereoRendering = false);
   void EndRendering();
 
-  ezGALComputeCommandEncoder* BeginCompute(ezGALPass* pGALPass, const char* szName = "");
+  void BeginCompute(const char* szName = "");
   void EndCompute();
 
   // Helper class to automatically end rendering or compute on scope exit
-  template <typename T>
+  template <int ScopeType>
   class CommandEncoderScope
   {
     EZ_DISALLOW_COPY_AND_ASSIGN(CommandEncoderScope);
@@ -69,76 +66,69 @@ public:
   public:
     EZ_ALWAYS_INLINE ~CommandEncoderScope()
     {
-      m_RenderContext.EndCommandEncoder(m_pGALCommandEncoder);
+      if constexpr (ScopeType == 0)
+        m_RenderContext.EndRendering();
+      else
+        m_RenderContext.EndCompute();
 
-      if (m_pGALPass != nullptr)
+      if (m_pCommandsScope != nullptr)
       {
-        ezGALDevice::GetDefaultDevice()->EndPass(m_pGALPass);
+        ezGALDevice::GetDefaultDevice()->EndCommands(m_pCommandsScope);
       }
     }
 
-    EZ_ALWAYS_INLINE T* operator->() { return m_pGALCommandEncoder; }
-    EZ_ALWAYS_INLINE operator const T*() { return m_pGALCommandEncoder; }
+    EZ_ALWAYS_INLINE ezGALCommandEncoder* operator->() { return m_pGALCommandEncoder; }
+    EZ_ALWAYS_INLINE operator const ezGALCommandEncoder*() { return m_pGALCommandEncoder; }
 
   private:
     friend class ezRenderContext;
 
-    EZ_ALWAYS_INLINE CommandEncoderScope(ezRenderContext& renderContext, ezGALPass* pGALPass, T* pGALCommandEncoder)
+    EZ_ALWAYS_INLINE CommandEncoderScope(ezRenderContext& renderContext, ezGALCommandEncoder* pCommandsScope)
       : m_RenderContext(renderContext)
-      , m_pGALPass(pGALPass)
-      , m_pGALCommandEncoder(pGALCommandEncoder)
+      , m_pCommandsScope(pCommandsScope)
     {
+      m_pGALCommandEncoder = renderContext.GetCommandEncoder();
     }
 
     ezRenderContext& m_RenderContext;
-    ezGALPass* m_pGALPass;
-    T* m_pGALCommandEncoder;
+    ezGALCommandEncoder* m_pCommandsScope;
+    ezGALCommandEncoder* m_pGALCommandEncoder;
   };
 
-  using RenderingScope = CommandEncoderScope<ezGALRenderCommandEncoder>;
-  EZ_ALWAYS_INLINE static RenderingScope BeginRenderingScope(ezGALPass* pGALPass, const ezRenderViewContext& viewContext, const ezGALRenderingSetup& renderingSetup, const char* szName = "", bool bStereoRendering = false)
+  using RenderingScope = CommandEncoderScope<0>;
+  EZ_ALWAYS_INLINE static RenderingScope BeginRenderingScope(const ezRenderViewContext& viewContext, const ezGALRenderingSetup& renderingSetup, const char* szName = "", bool bStereoRendering = false)
   {
-    return RenderingScope(*viewContext.m_pRenderContext, nullptr, viewContext.m_pRenderContext->BeginRendering(pGALPass, renderingSetup, viewContext.m_pViewData->m_ViewPortRect, szName, bStereoRendering));
+    viewContext.m_pRenderContext->BeginRendering(renderingSetup, viewContext.m_pViewData->m_ViewPortRect, szName, bStereoRendering);
+    return RenderingScope(*viewContext.m_pRenderContext, nullptr);
   }
 
-  EZ_ALWAYS_INLINE static RenderingScope BeginPassAndRenderingScope(const ezRenderViewContext& viewContext, const ezGALRenderingSetup& renderingSetup, const char* szName, bool bStereoRendering = false)
+  EZ_ALWAYS_INLINE static RenderingScope BeginCommandsAndRenderingScope(const ezRenderViewContext& viewContext, const ezGALRenderingSetup& renderingSetup, const char* szName, bool bStereoRendering = false)
   {
-    ezGALPass* pGALPass = ezGALDevice::GetDefaultDevice()->BeginPass(szName);
-
-    return RenderingScope(*viewContext.m_pRenderContext, pGALPass, viewContext.m_pRenderContext->BeginRendering(pGALPass, renderingSetup, viewContext.m_pViewData->m_ViewPortRect, "", bStereoRendering));
+    ezGALCommandEncoder* pCommandEncoder = ezGALDevice::GetDefaultDevice()->BeginCommands(szName);
+    viewContext.m_pRenderContext->BeginRendering(renderingSetup, viewContext.m_pViewData->m_ViewPortRect, "", bStereoRendering);
+    return RenderingScope(*viewContext.m_pRenderContext, pCommandEncoder);
   }
 
-  using ComputeScope = CommandEncoderScope<ezGALComputeCommandEncoder>;
-  EZ_ALWAYS_INLINE static ComputeScope BeginComputeScope(ezGALPass* pGALPass, const ezRenderViewContext& viewContext, const char* szName = "")
+  using ComputeScope = CommandEncoderScope<1>;
+  EZ_ALWAYS_INLINE static ComputeScope BeginComputeScope(const ezRenderViewContext& viewContext, const char* szName = "")
   {
-    return ComputeScope(*viewContext.m_pRenderContext, nullptr, viewContext.m_pRenderContext->BeginCompute(pGALPass, szName));
+    viewContext.m_pRenderContext->BeginCompute(szName);
+    return ComputeScope(*viewContext.m_pRenderContext, nullptr);
   }
 
-  EZ_ALWAYS_INLINE static ComputeScope BeginPassAndComputeScope(const ezRenderViewContext& viewContext, const char* szName)
+  EZ_ALWAYS_INLINE static ComputeScope BeginCommandsAndComputeScope(const ezRenderViewContext& viewContext, const char* szName)
   {
-    ezGALPass* pGALPass = ezGALDevice::GetDefaultDevice()->BeginPass(szName);
+    ezGALCommandEncoder* pCommandEncoder = ezGALDevice::GetDefaultDevice()->BeginCommands(szName);
 
-    return ComputeScope(*viewContext.m_pRenderContext, pGALPass, viewContext.m_pRenderContext->BeginCompute(pGALPass));
+    viewContext.m_pRenderContext->BeginCompute();
+    return ComputeScope(*viewContext.m_pRenderContext, pCommandEncoder);
   }
 
   EZ_ALWAYS_INLINE ezGALCommandEncoder* GetCommandEncoder()
   {
-    EZ_ASSERT_DEBUG(m_pGALCommandEncoder != nullptr, "BeginRendering/Compute has not been called");
+    EZ_ASSERT_DEBUG(m_pGALCommandEncoder != nullptr, "Outside of BeginCommands / EndCommands scope of the device");
     return m_pGALCommandEncoder;
   }
-
-  EZ_ALWAYS_INLINE ezGALRenderCommandEncoder* GetRenderCommandEncoder()
-  {
-    EZ_ASSERT_DEBUG(m_pGALCommandEncoder != nullptr && !m_bCompute, "BeginRendering has not been called");
-    return static_cast<ezGALRenderCommandEncoder*>(m_pGALCommandEncoder);
-  }
-
-  EZ_ALWAYS_INLINE ezGALComputeCommandEncoder* GetComputeCommandEncoder()
-  {
-    EZ_ASSERT_DEBUG(m_pGALCommandEncoder != nullptr && m_bCompute, "BeginCompute has not been called");
-    return static_cast<ezGALComputeCommandEncoder*>(m_pGALCommandEncoder);
-  }
-
 
   // Member Functions
   void SetShaderPermutationVariable(const char* szName, const ezTempHashedString& sValue);
@@ -146,37 +136,20 @@ public:
 
   void BindMaterial(const ezMaterialResourceHandle& hMaterial);
 
-  void BindTexture2D(const ezTempHashedString& sSlotName, const ezTexture2DResourceHandle& hTexture, ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowLoadingFallback);
-  void BindTexture3D(const ezTempHashedString& sSlotName, const ezTexture3DResourceHandle& hTexture, ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowLoadingFallback);
-  void BindTextureCube(const ezTempHashedString& sSlotName, const ezTextureCubeResourceHandle& hTexture, ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowLoadingFallback);
-
-  void BindTexture2D(const ezTempHashedString& sSlotName, ezGALTextureResourceViewHandle hResourceView);
-  void BindTexture3D(const ezTempHashedString& sSlotName, ezGALTextureResourceViewHandle hResourceView);
-  void BindTextureCube(const ezTempHashedString& sSlotName, ezGALTextureResourceViewHandle hResourceView);
-
-  /// Binds a read+write texture or buffer
-  void BindUAV(const ezTempHashedString& sSlotName, ezGALTextureUnorderedAccessViewHandle hUnorderedAccessViewHandle);
-  void BindUAV(const ezTempHashedString& sSlotName, ezGALBufferUnorderedAccessViewHandle hUnorderedAccessViewHandle);
-
-  void BindSamplerState(const ezTempHashedString& sSlotName, ezGALSamplerStateHandle hSamplerSate);
-
-  void BindBuffer(const ezTempHashedString& sSlotName, ezGALBufferResourceViewHandle hResourceView);
-
-  void BindConstantBuffer(const ezTempHashedString& sSlotName, ezGALBufferHandle hConstantBuffer);
-  void BindConstantBuffer(const ezTempHashedString& sSlotName, ezConstantBufferStorageHandle hConstantBufferStorage);
+  ezBindGroupBuilder& GetBindGroup(ezUInt32 uiBindGroup = 0);
 
   /// \brief Sets push constants to the given data block.
   /// Note that for platforms that don't support push constants, this is emulated via a constant buffer. Thus, a slot name must be provided as well which matches the name of the BEGIN_PUSH_CONSTANTS block in the shader.
   /// \param sSlotName Name of the BEGIN_PUSH_CONSTANTS block in the shader.
   /// \param data Data of the push constants. If more than 128 bytes, ezGALDeviceCapabilities::m_uiMaxPushConstantsSize should be checked to ensure the data block is not too big for the platform.
-  void SetPushConstants(const ezTempHashedString& sSlotName, ezArrayPtr<const ezUInt8> data);
+  void SetPushConstants(ezTempHashedString sSlotName, ezArrayPtr<const ezUInt8> data);
 
   /// Templated version of SetPushConstants.
   /// \tparam T Type of the push constants struct.
   /// \param sSlotName Name of the BEGIN_PUSH_CONSTANTS block in the shader.
   /// \param constants Instance of type T that contains the push constants.
   template <typename T>
-  EZ_ALWAYS_INLINE void SetPushConstants(const ezTempHashedString& sSlotName, const T& constants)
+  EZ_ALWAYS_INLINE void SetPushConstants(ezTempHashedString sSlotName, const T& constants)
   {
     SetPushConstants(sSlotName, ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(&constants), sizeof(T)));
   }
@@ -185,24 +158,31 @@ public:
   ///
   /// This function has no effect until the next draw or dispatch call on the context.
   void BindShader(const ezShaderResourceHandle& hShader, ezBitflags<ezShaderBindFlags> flags = ezShaderBindFlags::Default);
+  void SetBlendState(ezGALBlendStateHandle hBlendState);
+  void SetDepthStencilState(ezGALDepthStencilStateHandle hDepthStencilState);
+  void SetRasterizerState(ezGALRasterizerStateHandle hRasterizerState);
+  void SetStencilRefValue(ezUInt8 uiStencilRefValue);
 
-  void BindMeshBuffer(const ezDynamicMeshBufferResourceHandle& hDynamicMeshBuffer);
-  void BindMeshBuffer(const ezMeshBufferResourceHandle& hMeshBuffer);
-  void BindMeshBuffer(ezGALBufferHandle hVertexBuffer, ezGALBufferHandle hIndexBuffer, const ezVertexDeclarationInfo* pVertexDeclarationInfo, ezGALPrimitiveTopology::Enum topology, ezUInt32 uiPrimitiveCount, ezGALBufferHandle hVertexBuffer2 = {}, ezGALBufferHandle hVertexBuffer3 = {}, ezGALBufferHandle hVertexBuffer4 = {});
-  EZ_ALWAYS_INLINE void BindNullMeshBuffer(ezGALPrimitiveTopology::Enum topology, ezUInt32 uiPrimitiveCount)
+  void BindMeshBuffer(const ezMeshBufferResourceHandle& hMeshBuffer, ezGALBufferHandle hDataOffsetsBuffer = {}, ezUInt32 uiFirstDataOffset = 0);
+  void BindMeshBuffer(const ezDynamicMeshBufferResourceHandle& hDynamicMeshBuffer, ezGALBufferHandle hDataOffsetsBuffer = {}, ezUInt32 uiFirstDataOffset = 0);
+  void BindMeshBuffer(ezArrayPtr<const ezGALBufferHandle> vertexBuffers, ezGALBufferHandle hIndexBuffer, ezArrayPtr<const ezGALVertexAttribute> vertexAttributes, ezGALPrimitiveTopology::Enum topology, ezUInt32 uiPrimitiveCount, ezGALBufferHandle hDataOffsetsBuffer = {}, ezUInt32 uiFirstDataOffset = 0);
+  EZ_ALWAYS_INLINE void BindNullMeshBuffer(ezGALPrimitiveTopology::Enum topology, ezUInt32 uiPrimitiveCount, ezGALBufferHandle hDataOffsetsBuffer = {}, ezUInt32 uiFirstDataOffset = 0)
   {
-    BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, topology, uiPrimitiveCount);
+    BindMeshBuffer({}, {}, {}, topology, uiPrimitiveCount, hDataOffsetsBuffer, uiFirstDataOffset);
   }
+
+  void BindVertexBuffer(ezGALBufferHandle hVertexBuffer, ezUInt32 uiSlot, ezEnum<ezGALVertexBindingRate> rate = ezGALVertexBindingRate::Vertex, ezUInt32 uiOffset = 0);
+  void SetVertexAttributes(ezArrayPtr<ezGALVertexAttribute> vertexAttributes);
 
   ezResult DrawMeshBuffer(ezUInt32 uiPrimitiveCount = 0xFFFFFFFF, ezUInt32 uiFirstPrimitive = 0, ezUInt32 uiInstanceCount = 1);
 
   ezResult Dispatch(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThreadGroupCountY = 1, ezUInt32 uiThreadGroupCountZ = 1);
 
   ezResult ApplyContextStates(bool bForce = false);
-  void ResetContextState();
 
   ezGlobalConstants& WriteGlobalConstants();
   const ezGlobalConstants& ReadGlobalConstants() const;
+  void SetGlobalAndWorldTimeConstants(ezTime worldTime);
 
   /// \brief Sets the texture filter mode that is used by default for texture resources.
   ///
@@ -253,7 +233,7 @@ public:
   }
 
   static ezConstantBufferStorageHandle CreateConstantBufferStorage(ezUInt32 uiSizeInBytes, ezConstantBufferStorageBase*& out_pStorage);
-  static void DeleteConstantBufferStorage(ezConstantBufferStorageHandle hStorage);
+  static void DeleteConstantBufferStorage(ezConstantBufferStorageHandle& inout_hStorage);
 
   template <typename T>
   EZ_FORCE_INLINE static bool TryGetConstantBufferStorage(ezConstantBufferStorageHandle hStorage, ezConstantBufferStorage<T>*& out_pStorage)
@@ -265,6 +245,7 @@ public:
   }
 
   static bool TryGetConstantBufferStorage(ezConstantBufferStorageHandle hStorage, ezConstantBufferStorageBase*& out_pStorage);
+  static void MarktConstantBufferStorageModified(ezConstantBufferStorageBase* pDirtyStorage);
 
   template <typename T>
   EZ_FORCE_INLINE static T* GetConstantBufferData(ezConstantBufferStorageHandle hStorage)
@@ -284,64 +265,56 @@ public:
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererCore, RendererContext);
 
+  void ResetContextState();
   static void LoadBuiltinShader(ezShaderUtils::ezBuiltinShaderType type, ezShaderUtils::ezBuiltinShader& out_shader);
   static void RegisterImmutableSamplers();
   static void OnEngineStartup();
   static void OnEngineShutdown();
+  static void GALStaticDeviceEventHandler(const ezGALDeviceEvent& e);
 
 private:
   Statistics m_Statistics;
   ezBitflags<ezRenderContextFlags> m_StateFlags;
-  ezShaderResourceHandle m_hActiveShader;
-  ezGALShaderHandle m_hActiveGALShader;
 
-  ezHashTable<ezHashedString, ezHashedString> m_PermutationVariables;
+  // Material
   ezMaterialResourceHandle m_hNewMaterial;
   ezMaterialResourceHandle m_hMaterial;
+  const ezMaterialResource* m_pMaterial = nullptr;      ///< Must never be accessed, just used as key to ezMaterialManager::GetMaterialBindGroup
+  const ezGALBindGroup* m_pMaterialBindGroup = nullptr; ///< Only stored here to assert is we generate a layout missmatch.
 
+  // Shader Resource
+  ezShaderResourceHandle m_hActiveShader;
+  ezHashTable<ezHashedString, ezHashedString> m_PermutationVariables;
+
+  // Shader Permutation
   ezShaderPermutationResourceHandle m_hActiveShaderPermutation;
-
+  ezString m_sActiveShader;
+  ezGALShaderHandle m_hActiveGALShader;
+  const ezGALShader* m_pActiveGALShader = nullptr;
   ezBitflags<ezShaderBindFlags> m_ShaderBindFlags;
 
-  ezGALBufferHandle m_hVertexBuffers[4];
+  // Vertex / Index Buffer
+  ezGALBufferHandle m_hVertexBuffers[EZ_GAL_MAX_VERTEX_BUFFER_COUNT];
+  ezUInt32 m_VertexBufferStrides[EZ_GAL_MAX_VERTEX_BUFFER_COUNT] = {};
+  ezUInt32 m_VertexBufferOffsets[EZ_GAL_MAX_VERTEX_BUFFER_COUNT] = {};
+  ezEnum<ezGALVertexBindingRate> m_VertexBufferBindingRates[EZ_GAL_MAX_VERTEX_BUFFER_COUNT];
   ezGALBufferHandle m_hIndexBuffer;
-  const ezVertexDeclarationInfo* m_pVertexDeclarationInfo;
-  ezGALPrimitiveTopology::Enum m_Topology;
+  ezSmallArray<ezGALVertexAttribute, 16> m_VertexAttributes;
+
   ezUInt32 m_uiMeshBufferPrimitiveCount;
   ezEnum<ezTextureFilterSetting> m_DefaultTextureFilter;
   bool m_bAllowAsyncShaderLoading;
   bool m_bStereoRendering = false;
 
-  ezHashTable<ezUInt64, ezGALTextureResourceViewHandle> m_BoundTextures2D;
-  ezHashTable<ezUInt64, ezGALTextureResourceViewHandle> m_BoundTextures3D;
-  ezHashTable<ezUInt64, ezGALTextureResourceViewHandle> m_BoundTexturesCube;
-  ezHashTable<ezUInt64, ezGALTextureUnorderedAccessViewHandle> m_BoundTextureUAVs;
+  ezUInt8 m_uiUserStencilRefValue = 0;
+  ezUInt8 m_uiShaderStencilRefValue = 0;
+  bool m_bUseUserStencilRefValue = false;
 
-  ezHashTable<ezUInt64, ezGALSamplerStateHandle> m_BoundSamplers;
-
-  ezHashTable<ezUInt64, ezGALBufferResourceViewHandle> m_BoundBuffer;
-  ezHashTable<ezUInt64, ezGALBufferUnorderedAccessViewHandle> m_BoundBufferUAVs;
-  ezGALSamplerStateHandle m_hFallbackSampler;
-
-  struct BoundConstantBuffer
-  {
-    EZ_DECLARE_POD_TYPE();
-
-    BoundConstantBuffer() = default;
-    BoundConstantBuffer(ezGALBufferHandle hConstantBuffer)
-      : m_hConstantBuffer(hConstantBuffer)
-    {
-    }
-    BoundConstantBuffer(ezConstantBufferStorageHandle hConstantBufferStorage)
-      : m_hConstantBufferStorage(hConstantBufferStorage)
-    {
-    }
-
-    ezGALBufferHandle m_hConstantBuffer;
-    ezConstantBufferStorageHandle m_hConstantBufferStorage;
-  };
-
-  ezHashTable<ezUInt64, BoundConstantBuffer> m_BoundConstantBuffers;
+  ezGALGraphicsPipelineCreationDescription m_GraphicsPipeline;
+  ezGALComputePipelineCreationDescription m_ComputePipeline;
+  ezBindGroupBuilder m_BindGroupBuilders[EZ_GAL_MAX_BIND_GROUPS];
+  ezGALBindGroupCreationDescription m_BindGroups[EZ_GAL_MAX_BIND_GROUPS];
+  bool m_bDirtyBindGroups[EZ_GAL_MAX_BIND_GROUPS] = {};
 
   ezConstantBufferStorageHandle m_hGlobalConstantBufferStorage;
   ezConstantBufferStorageHandle m_hPushConstantsStorage;
@@ -349,7 +322,7 @@ private:
   struct ShaderVertexDecl
   {
     ezGALShaderHandle m_hShader;
-    ezUInt32 m_uiVertexDeclarationHash;
+    ezUInt32 m_uiVertexAttributesHash;
 
     EZ_FORCE_INLINE bool operator<(const ShaderVertexDecl& rhs) const
     {
@@ -357,31 +330,28 @@ private:
         return true;
       if (rhs.m_hShader < m_hShader)
         return false;
-      return m_uiVertexDeclarationHash < rhs.m_uiVertexDeclarationHash;
+      return m_uiVertexAttributesHash < rhs.m_uiVertexAttributesHash;
     }
 
     EZ_FORCE_INLINE bool operator==(const ShaderVertexDecl& rhs) const
     {
-      return (m_hShader == rhs.m_hShader && m_uiVertexDeclarationHash == rhs.m_uiVertexDeclarationHash);
+      return (m_hShader == rhs.m_hShader && m_uiVertexAttributesHash == rhs.m_uiVertexAttributesHash);
     }
   };
 
-  static ezResult BuildVertexDeclaration(ezGALShaderHandle hShader, const ezVertexDeclarationInfo& decl, ezGALVertexDeclarationHandle& out_Declaration);
+  static ezResult BuildVertexDeclaration(ezGALShaderHandle hShader, ezArrayPtr<ezUInt32> vertexBufferStrides, ezArrayPtr<ezEnum<ezGALVertexBindingRate>> vertexBufferBindingRates, ezArrayPtr<ezGALVertexAttribute> vertexAttributes, ezGALVertexDeclarationHandle& out_Declaration);
 
   static ezMap<ShaderVertexDecl, ezGALVertexDeclarationHandle> s_GALVertexDeclarations;
 
   static ezMutex s_ConstantBufferStorageMutex;
   static ezIdTable<ezConstantBufferStorageId, ezConstantBufferStorageBase*> s_ConstantBufferStorageTable;
   static ezMap<ezUInt32, ezDynamicArray<ezConstantBufferStorageBase*>> s_FreeConstantBufferStorage;
+  static ezSet<ezConstantBufferStorageBase*> s_DirtyConstantBuffers;
 
 private: // Per Renderer States
-  friend RenderingScope;
-  friend ComputeScope;
-  EZ_ALWAYS_INLINE void EndCommandEncoder(ezGALRenderCommandEncoder*) { EndRendering(); }
-  EZ_ALWAYS_INLINE void EndCommandEncoder(ezGALComputeCommandEncoder*) { EndCompute(); }
-
-  ezGALPass* m_pGALPass = nullptr;
   ezGALCommandEncoder* m_pGALCommandEncoder = nullptr;
+  ezEventSubscriptionID m_GALdeviceEventsId = 0;
+  bool m_bRendering = false;
   bool m_bCompute = false;
 
   // Member Functions
@@ -389,11 +359,7 @@ private: // Per Renderer States
 
   void SetShaderPermutationVariableInternal(const ezHashedString& sName, const ezHashedString& sValue);
   void BindShaderInternal(const ezShaderResourceHandle& hShader, ezBitflags<ezShaderBindFlags> flags);
-  ezShaderPermutationResource* ApplyShaderState();
-  ezMaterialResource* ApplyMaterialState();
-  void ApplyConstantBufferBindings(const ezGALShader* pShader);
-  void ApplyTextureBindings(const ezGALShader* pShader);
-  void ApplyUAVBindings(const ezGALShader* pShader);
-  void ApplySamplerBindings(const ezGALShader* pShader);
-  void ApplyBufferBindings(const ezGALShader* pShader);
+  ezResult ApplyShaderState();
+  void ApplyMaterialState();
+  ezResult ApplyBindGroup(const ezGALShader* pShader, ezUInt32 uiBindGroup);
 };

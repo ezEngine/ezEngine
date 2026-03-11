@@ -1,12 +1,15 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <GuiFoundation/NodeEditor/NodeScene.moc.h>
+#include <GuiFoundation/VisualGraph/Scene.moc.h>
 
-class ezQtNodeScene;
-class ezQtNodeView;
+class ezQtVisualGraphScene;
+class ezQtVisualGraphView;
 
-class ezQtAnimationGraphAssetScene : public ezQtNodeScene
+/// Qt scene for animation graph asset editing.
+///
+/// Manages the visual scene for editing animation graph assets in the editor.
+class ezQtAnimationGraphAssetScene : public ezQtVisualGraphScene
 {
   Q_OBJECT
 

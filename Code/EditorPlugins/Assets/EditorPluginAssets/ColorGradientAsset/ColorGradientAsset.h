@@ -1,60 +1,14 @@
 #pragma once
 
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
-
-class ezColorGradient;
-
-class ezColorControlPoint : public ezReflectedClass
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezColorControlPoint, ezReflectedClass);
-
-public:
-  ezTime GetTickAsTime() const { return ezTime::MakeFromSeconds(m_iTick / 4800.0); }
-  void SetTickFromTime(ezTime time, ezInt64 iFps);
-
-  // double m_fPositionX;
-  ezInt64 m_iTick; // 4800 ticks per second
-  ezUInt8 m_Red;
-  ezUInt8 m_Green;
-  ezUInt8 m_Blue;
-};
-
-class ezAlphaControlPoint : public ezReflectedClass
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezAlphaControlPoint, ezReflectedClass);
-
-public:
-  ezTime GetTickAsTime() const { return ezTime::MakeFromSeconds(m_iTick / 4800.0); }
-  void SetTickFromTime(ezTime time, ezInt64 iFps);
-
-  // double m_fPositionX;
-  ezInt64 m_iTick; // 4800 ticks per second
-  ezUInt8 m_Alpha;
-};
-
-class ezIntensityControlPoint : public ezReflectedClass
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezIntensityControlPoint, ezReflectedClass);
-
-public:
-  ezTime GetTickAsTime() const { return ezTime::MakeFromSeconds(m_iTick / 4800.0); }
-  void SetTickFromTime(ezTime time, ezInt64 iFps);
-
-  // double m_fPositionX;
-  ezInt64 m_iTick; // 4800 ticks per second
-  float m_fIntensity;
-};
+#include <Foundation/Tracks/ColorGradient.h>
 
 class ezColorGradientAssetData : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezColorGradientAssetData, ezReflectedClass);
 
 public:
-  ezDynamicArray<ezColorControlPoint> m_ColorCPs;
-  ezDynamicArray<ezAlphaControlPoint> m_AlphaCPs;
-  ezDynamicArray<ezIntensityControlPoint> m_IntensityCPs;
-
-  static ezInt64 TickFromTime(ezTime time);
+  ezColorGradient m_Gradient;
 
   /// \brief Fills out the ezColorGradient structure with an exact copy of the data in the asset.
   /// Does NOT yet sort the control points, so before evaluating the color gradient, that must be called manually.

@@ -1,5 +1,6 @@
 #include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
+#include <EditorFramework/Assets/AssetStatusIndicator.moc.h>
 #include <EditorFramework/DocumentWindow/OrbitCamViewWidget.moc.h>
 #include <EditorFramework/InputContexts/EditorInputContext.h>
 #include <EditorPluginAssets/TextureAsset/TextureAsset.h>
@@ -20,17 +21,29 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezTextureChannelModeAction::ezTextureChannelModeAction(const ezActionContext& context, const char* szName, const char* szIconPath)
   : ezEnumerationMenuAction(context, szName, szIconPath)
 {
-  InitEnumerationType(ezGetStaticRTTI<ezTextureChannelMode>());
+  auto pDocument = context.m_pDocument;
+  m_pValueProperty = ezReflectionUtils::GetMemberProperty(pDocument->GetDynamicRTTI(), "ChannelMode");
+
+  const ezRTTI* pEnumRTTI = m_pValueProperty != nullptr ? m_pValueProperty->GetSpecificType() : ezGetStaticRTTI<ezTextureChannelMode>();
+  InitEnumerationType(pEnumRTTI);
 }
 
 ezInt64 ezTextureChannelModeAction::GetValue() const
 {
-  return static_cast<const ezTextureAssetDocument*>(m_Context.m_pDocument)->m_ChannelMode.GetValue();
+  ezVariant value = 0;
+  if (m_pValueProperty)
+  {
+    value = ezReflectionUtils::GetMemberPropertyValue(m_pValueProperty, m_Context.m_pDocument);
+  }
+  return value.ConvertTo<ezInt64>();
 }
 
 void ezTextureChannelModeAction::Execute(const ezVariant& value)
 {
-  ((ezTextureAssetDocument*)m_Context.m_pDocument)->m_ChannelMode.SetValue(value.ConvertTo<ezInt32>());
+  if (m_pValueProperty)
+  {
+    ezReflectionUtils::SetMemberPropertyValue(m_pValueProperty, m_Context.m_pDocument, value);
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -38,22 +51,31 @@ void ezTextureChannelModeAction::Execute(const ezVariant& value)
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureLodSliderAction, 1, ezRTTINoAllocator)
-  ;
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
 ezTextureLodSliderAction::ezTextureLodSliderAction(const ezActionContext& context, const char* szName)
   : ezSliderAction(context, szName)
 {
-  m_pDocument = const_cast<ezTextureAssetDocument*>(static_cast<const ezTextureAssetDocument*>(context.m_pDocument));
+  auto pDocument = context.m_pDocument;
+  m_pValueProperty = ezReflectionUtils::GetMemberProperty(pDocument->GetDynamicRTTI(), "TextureLod");
+
+  ezVariant currentValue = -1;
+  if (m_pValueProperty)
+  {
+    currentValue = ezReflectionUtils::GetMemberPropertyValue(m_pValueProperty, pDocument);
+  }
 
   SetRange(-1, 13);
-  SetValue(m_pDocument->m_iTextureLod);
+  SetValue(currentValue.ConvertTo<int>());
 }
 
 void ezTextureLodSliderAction::Execute(const ezVariant& value)
 {
-  m_pDocument->m_iTextureLod = value.Get<ezInt32>();
+  if (m_pValueProperty)
+  {
+    ezReflectionUtils::SetMemberPropertyValue(m_pValueProperty, m_Context.m_pDocument, value);
+  }
 }
 
 
@@ -125,21 +147,31 @@ ezQtTextureAssetDocumentWindow::ezQtTextureAssetDocumentWindow(ezTextureAssetDoc
     m_pViewWidget = new ezQtOrbitCamViewWidget(this, &m_ViewConfig);
     m_pViewWidget->ConfigureFixed(ezVec3(0), ezVec3(0.0f), ezVec3(-1, 0, 0));
     AddViewWidget(m_pViewWidget);
-    ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(this, m_pViewWidget, nullptr);
+    ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(GetContainerWindow()->GetDockManager(), this, m_pViewWidget, nullptr);
 
-    setCentralWidget(pContainer);
+    m_pDockManager->setCentralWidget(pContainer);
   }
 
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("TextureAssetDockWidget");
     pPropertyPanel->setWindowTitle("Texture Properties");
     pPropertyPanel->show();
 
     ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
-    pPropertyPanel->setWidget(pPropertyGrid);
 
-    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
+    QWidget* pWidget = new QWidget();
+    pWidget->setObjectName("Group");
+    pWidget->setLayout(new QVBoxLayout());
+    pWidget->setContentsMargins(0, 0, 0, 0);
+
+    pWidget->layout()->setContentsMargins(0, 0, 0, 0);
+    pWidget->layout()->addWidget(new ezQtAssetStatusIndicator(GetDocument()));
+    pWidget->layout()->addWidget(pPropertyGrid);
+
+    pPropertyPanel->setWidget(pWidget, ads::CDockWidget::ForceNoScrollArea);
+
+    m_pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pPropertyPanel);
 
     pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
   }
@@ -162,13 +194,22 @@ void ezQtTextureAssetDocumentWindow::SendRedrawMsg()
 
   {
     const ezTextureAssetDocument* pDoc = static_cast<const ezTextureAssetDocument*>(GetDocument());
+    const ezTextureAssetProperties* pProps = pDoc->GetProperties();
 
-    ezDocumentConfigMsgToEngine msg;
-    msg.m_sWhatToDo = "ChannelMode";
-    msg.m_iValue = pDoc->m_ChannelMode.GetValue();
-    msg.m_fValue = pDoc->m_iTextureLod;
+    {
+      ezDocumentConfigMsgToEngine msg;
+      msg.m_sWhatToDo = "SetChannelMode";
+      msg.m_iValue = pDoc->m_ChannelMode.GetValue();
+      msg.m_fValue = pProps->m_fAlphaThreshold;
+      GetEditorEngineConnection()->SendMessage(&msg);
+    }
 
-    GetEditorEngineConnection()->SendMessage(&msg);
+    {
+      ezDocumentConfigMsgToEngine msg;
+      msg.m_sWhatToDo = "SetLodLevel";
+      msg.m_iValue = pDoc->m_iTextureLod;
+      GetEditorEngineConnection()->SendMessage(&msg);
+    }
   }
 
   for (auto pView : m_ViewWidgets)

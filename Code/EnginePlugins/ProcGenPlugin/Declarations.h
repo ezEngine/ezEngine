@@ -2,13 +2,13 @@
 
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/World/Declarations.h>
+#include <Foundation/CodeUtils/Expression/ExpressionByteCode.h>
 #include <Foundation/Math/Color16f.h>
 #include <Foundation/SimdMath/SimdTransform.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Types/SharedPtr.h>
 #include <ProcGenPlugin/ProcGenPluginDLL.h>
 
-class ezExpressionByteCode;
 using ezColorGradientResourceHandle = ezTypedResourceHandle<class ezColorGradientResource>;
 using ezPrefabResourceHandle = ezTypedResourceHandle<class ezPrefabResource>;
 using ezSurfaceResourceHandle = ezTypedResourceHandle<class ezSurfaceResource>;
@@ -91,6 +91,7 @@ struct ezProcPlacementMode
   enum Enum
   {
     Raycast,
+    RaycastHighQuality,
     Fixed,
 
     Default = Raycast
@@ -170,13 +171,14 @@ namespace ezProcGenInternal
     virtual ~GraphSharedDataBase();
   };
 
-  struct Output : public ezRefCounted
+  struct EZ_PROCGENPLUGIN_DLL Output : public ezRefCounted
   {
     virtual ~Output();
 
     ezHashedString m_sName;
 
-    ezHybridArray<ezUInt8, 4> m_VolumeTagSetIndices;
+    ezSmallArray<ezUInt8, 4> m_VolumeTagSetIndices;
+    ezSmallArray<ezUInt8, 4> m_CurveIndices;
     ezSharedPtr<const GraphSharedDataBase> m_pGraphSharedData;
 
     ezUniquePtr<ezExpressionByteCode> m_pByteCode;
@@ -214,9 +216,11 @@ namespace ezProcGenInternal
     ezSurfaceResourceHandle m_hSurface;
 
     ezEnum<ezProcPlacementMode> m_Mode;
+    ezUInt8 m_uiNumAdditionalRays = 4;
+    float m_fRaySpread = 1.0f;
   };
 
-  struct VertexColorOutput : public Output
+  struct EZ_PROCGENPLUGIN_DLL VertexColorOutput : public Output
   {
   };
 

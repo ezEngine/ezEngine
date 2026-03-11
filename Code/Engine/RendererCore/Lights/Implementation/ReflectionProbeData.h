@@ -32,8 +32,9 @@ struct EZ_RENDERERCORE_DLL ezReflectionProbeDesc
   bool m_bShowDebugInfo = false;
   bool m_bShowMipMaps = false;
 
-  float m_fIntensity = 1.0f;
-  float m_fSaturation = 1.0f;
+  float m_fDiffuseIntensity = 0.4f;
+  float m_fDiffuseSaturation = 0.3f;
+  float m_fSpecularIntensity = 1.0f;
   float m_fNearPlane = 0.0f;
   float m_fFarPlane = 100.0f;
   ezVec3 m_vCaptureOffset = ezVec3::MakeZero();
@@ -61,9 +62,9 @@ public:
     m_vHalfExtents.SetZero();
   }
 
+  ezTransform m_GlobalTransform;
   ezReflectionProbeId m_Id;
   ezUInt32 m_uiIndex = 0;
-  ezVec3 m_vProbePosition; ///< Probe position in world space.
   ezVec3 m_vHalfExtents;
   ezVec3 m_vPositiveFalloff;
   ezVec3 m_vNegativeFalloff;
@@ -82,7 +83,7 @@ struct ezReflectionProbeRef
   ezUInt32 m_uiWorldIndex = 0;
   ezReflectionProbeId m_Id;
 };
-EZ_CHECK_AT_COMPILETIME(sizeof(ezReflectionProbeRef) == 8);
+static_assert(sizeof(ezReflectionProbeRef) == 8);
 
 template <>
 struct ezHashHelper<ezReflectionProbeRef>

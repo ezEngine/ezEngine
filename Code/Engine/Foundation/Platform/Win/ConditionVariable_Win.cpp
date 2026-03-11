@@ -3,6 +3,7 @@
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 
 #  include <Foundation/Threading/ConditionVariable.h>
+#  include <Foundation/Time/Time.h>
 
 static_assert(sizeof(CONDITION_VARIABLE) == sizeof(ezConditionVariableHandle), "not equal!");
 

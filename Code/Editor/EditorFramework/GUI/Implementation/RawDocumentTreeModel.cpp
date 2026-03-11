@@ -146,12 +146,14 @@ bool ezQtNameableAdapter::setData(const ezDocumentObject* pObject, int iRow, int
 
 Qt::ItemFlags ezQtNameableAdapter::flags(const ezDocumentObject* pObject, int iRow, int iColumn) const
 {
+  Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
+
   if (iColumn == 0)
   {
-    return (Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled);
+    return flags | Qt::ItemIsEditable;
   }
 
-  return Qt::ItemFlag::NoItemFlags;
+  return flags;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -181,7 +183,9 @@ void ezQtDocumentTreeModel::AddAdapter(ezQtDocumentTreeModelAdapter* pAdapter)
     auto index = ComputeModelIndex(pObject);
     if (!index.isValid())
       return;
-    dataChanged(index, index, roles); });
+
+    QModelIndex idx2 = index.siblingAtColumn(columnCount() - 1); // mark the entire row as modified
+    Q_EMIT dataChanged(index, idx2, roles); });
   m_Adapters.Insert(pAdapter->GetType(), pAdapter);
   beginResetModel();
   endResetModel();
@@ -469,7 +473,7 @@ bool ezQtDocumentTreeModel::canDropMimeData(const QMimeData* pData, Qt::DropActi
     // Test 'CanMove' of the target object manager.
     QByteArray encodedData = pData->data("application/ezEditor.ObjectSelection");
     QDataStream stream(&encodedData, QIODevice::ReadOnly);
-    ezHybridArray<ezDocumentObject*, 32> Dragged;
+    ezTempHybridArray<ezDocumentObject*, 32> Dragged;
     stream >> Dragged;
 
     auto pType = pNewParent->GetTypeAccessor().GetType();
@@ -526,7 +530,7 @@ bool ezQtDocumentTreeModel::MoveObjects(const ezDragDropInfo& info)
 
     QByteArray encodedData = info.m_pMimeData->data("application/ezEditor.ObjectSelection");
     QDataStream stream(&encodedData, QIODevice::ReadOnly);
-    ezHybridArray<ezDocumentObject*, 32> Dragged;
+    ezTempHybridArray<ezDocumentObject*, 32> Dragged;
     stream >> Dragged;
 
     for (const ezDocumentObject* pDocObject : Dragged)
@@ -568,11 +572,11 @@ bool ezQtDocumentTreeModel::MoveObjects(const ezDragDropInfo& info)
       cmd.m_NewParent = pTarget->GetGuid();
 
       res = pHistory->AddCommand(cmd);
-      if (res.m_Result.Failed())
+      if (res.Failed())
         break;
     }
 
-    if (res.m_Result.Failed())
+    if (res.Failed())
       pHistory->CancelTransaction();
     else
       pHistory->FinishTransaction();
@@ -582,6 +586,11 @@ bool ezQtDocumentTreeModel::MoveObjects(const ezDragDropInfo& info)
   }
 
   return false;
+}
+
+const ezDocumentObject* ezQtDocumentTreeModel::GetObject(const QModelIndex index) const
+{
+  return (const ezDocumentObject*)index.internalPointer();
 }
 
 QStringList ezQtDocumentTreeModel::mimeTypes() const
@@ -600,7 +609,7 @@ QMimeData* ezQtDocumentTreeModel::mimeData(const QModelIndexList& indexes) const
   if (!m_bAllowDragDrop)
     return nullptr;
 
-  ezHybridArray<void*, 1> ptrs;
+  ezTempHybridArray<void*, 1> ptrs;
   for (const QModelIndex& index : indexes)
   {
     if (index.isValid())

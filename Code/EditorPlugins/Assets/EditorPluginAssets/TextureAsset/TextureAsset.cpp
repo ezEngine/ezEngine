@@ -7,6 +7,14 @@
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetDocument, 6, ezRTTINoAllocator)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ENUM_MEMBER_PROPERTY("ChannelMode", ezTextureChannelMode, m_ChannelMode),
+    EZ_MEMBER_PROPERTY("TextureLod", m_iTextureLod),
+  }
+  EZ_END_PROPERTIES;
+}
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTextureChannelMode, 1)
@@ -15,14 +23,15 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTextureChannelMode, 1)
   EZ_ENUM_CONSTANT(ezTextureChannelMode::Red)->AddAttributes(new ezGroupAttribute("Single", 0.0f)),
   EZ_ENUM_CONSTANT(ezTextureChannelMode::Green)->AddAttributes(new ezGroupAttribute("Single", 1.0f)),
   EZ_ENUM_CONSTANT(ezTextureChannelMode::Blue)->AddAttributes(new ezGroupAttribute("Single", 2.0f)),
-  EZ_ENUM_CONSTANT(ezTextureChannelMode::Alpha)->AddAttributes(new ezGroupAttribute("Single", 3.0f))
+  EZ_ENUM_CONSTANT(ezTextureChannelMode::Alpha)->AddAttributes(new ezGroupAttribute("Single", 3.0f)),
+  EZ_ENUM_CONSTANT(ezTextureChannelMode::CoverageRed)->AddAttributes(new ezGroupAttribute("Coverage", 0.0f)),
+  EZ_ENUM_CONSTANT(ezTextureChannelMode::CoverageAlpha)->AddAttributes(new ezGroupAttribute("Coverage", 1.0f)),
 EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
 ezTextureAssetDocument::ezTextureAssetDocument(ezStringView sDocumentPath)
   : ezSimpleAssetDocument<ezTextureAssetProperties>(sDocumentPath, ezAssetDocEngineConnection::Simple)
 {
-  m_iTextureLod = -1;
 }
 
 static const char* ToWrapMode(ezImageAddressMode::Enum mode)
@@ -334,7 +343,7 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
 
   if (bUpdateThumbnail)
   {
-    ezUInt64 uiThumbnailHash = ezAssetCurator::GetSingleton()->GetAssetReferenceHash(GetGuid());
+    ezUInt64 uiThumbnailHash = ezAssetCurator::GetSingleton()->GetAssetThumbnailHash(GetGuid());
     EZ_ASSERT_DEV(uiThumbnailHash != 0, "Thumbnail hash should never be zero when reaching this point!");
 
     ThumbnailInfo thumbnailInfo;
@@ -373,7 +382,7 @@ void ezTextureAssetDocument::InitializeAfterLoading(bool bFirstTimeCreation)
     if (GetProperties()->m_bIsRenderTarget == false)
     {
       GetCommandHistory()->StartTransaction("MakeRenderTarget");
-      GetObjectAccessor()->SetValue(GetPropertyObject(), "IsRenderTarget", true).AssertSuccess();
+      GetObjectAccessor()->SetValueByName(GetPropertyObject(), "IsRenderTarget", true).AssertSuccess();
       GetCommandHistory()->FinishTransaction();
       GetCommandHistory()->ClearUndoHistory();
     }
@@ -424,6 +433,32 @@ ezTransformStatus ezTextureAssetDocument::InternalTransformAsset(const char* szT
       case ezRenderTargetFormat::RGBA16:
         format = ezGALResourceFormat::RGBAHalf;
         break;
+
+      case ezRenderTargetFormat::R8:
+        format = ezGALResourceFormat::RUByteNormalized;
+        break;
+
+      case ezRenderTargetFormat::R16:
+        format = ezGALResourceFormat::RHalf;
+        break;
+
+      case ezRenderTargetFormat::R32:
+        format = ezGALResourceFormat::RFloat;
+        break;
+
+      case ezRenderTargetFormat::RG8:
+        format = ezGALResourceFormat::RGUByteNormalized;
+        break;
+
+      case ezRenderTargetFormat::RG16:
+        format = ezGALResourceFormat::RGHalf;
+        break;
+
+      case ezRenderTargetFormat::RG32:
+        format = ezGALResourceFormat::RGFloat;
+        break;
+
+        EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
     }
 
     file << bIsSRGB;
@@ -800,7 +835,12 @@ ezStatus ezTextureAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, e
 
   ezStringBuilder sOutFile = sInputFileAbs;
   sOutFile.ChangeFileExtension(GetDocumentExtension());
-  ezOSFile::FindFreeFilename(sOutFile);
+
+  if (ezOSFile::ExistsFile(sOutFile))
+  {
+    ezLog::Info("Skipping texture import, file has been imported before: '{}'", sOutFile);
+    return ezStatus(EZ_SUCCESS);
+  }
 
   auto pApp = ezQtEditorApp::GetSingleton();
 
@@ -862,6 +902,8 @@ ezStatus ezTextureAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, e
     accessor.SetValue("ChannelMapping", (int)ezTexture2DChannelMappingEnum::RGB1);
     accessor.SetValue("TextureFilter", (int)ezTextureFilterSetting::LowQuality);
   }
+
+  ezLog::Success("Imported texture: '{}'", sOutFile);
 
   return ezStatus(EZ_SUCCESS);
 }

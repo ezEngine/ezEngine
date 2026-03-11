@@ -8,6 +8,7 @@
 #include <EditorPluginScene/Dialogs/ExportAndRunDlg.moc.h>
 #include <EditorPluginScene/Dialogs/ExtractGeometryDlg.moc.h>
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/Utilities/CommandLineUtils.h>
 #include <Foundation/Utilities/Progress.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
@@ -25,6 +26,7 @@ ezActionDescriptorHandle ezSceneActions::s_hGameModeSimulate;
 ezActionDescriptorHandle ezSceneActions::s_hGameModePlay;
 ezActionDescriptorHandle ezSceneActions::s_hGameModePlayFromHere;
 ezActionDescriptorHandle ezSceneActions::s_hGameModeStop;
+ezActionDescriptorHandle ezSceneActions::s_hGameModePause;
 ezActionDescriptorHandle ezSceneActions::s_hUtilExportSceneToOBJ;
 ezActionDescriptorHandle ezSceneActions::s_hKeepSimulationChanges;
 ezActionDescriptorHandle ezSceneActions::s_hCreateThumbnail;
@@ -43,10 +45,12 @@ void ezSceneActions::RegisterActions()
   s_hGameModeSimulate = EZ_REGISTER_ACTION_1("Scene.GameMode.Simulate", ezActionScope::Document, "Scene", "F5", ezSceneAction, ezSceneAction::ActionType::StartGameModeSimulate);
   s_hGameModePlay = EZ_REGISTER_ACTION_1("Scene.GameMode.Play", ezActionScope::Document, "Scene", "Ctrl+F5", ezSceneAction, ezSceneAction::ActionType::StartGameModePlay);
 
-  s_hGameModePlayFromHere = EZ_REGISTER_ACTION_1("Scene.GameMode.PlayFromHere", ezActionScope::Document, "Scene", "Ctrl+Shift+F5", ezSceneAction,
+  s_hGameModePlayFromHere = EZ_REGISTER_ACTION_1("Scene.GameMode.PlayFromHere", ezActionScope::Document, "Scene", "F6", ezSceneAction,
     ezSceneAction::ActionType::StartGameModePlayFromHere);
 
   s_hGameModeStop = EZ_REGISTER_ACTION_1("Scene.GameMode.Stop", ezActionScope::Document, "Scene", "Shift+F5", ezSceneAction, ezSceneAction::ActionType::StopGameMode);
+
+  s_hGameModePause = EZ_REGISTER_ACTION_1("Scene.GameMode.Pause", ezActionScope::Document, "Scene", "Pause", ezSceneAction, ezSceneAction::ActionType::PauseSimulation);
 
   s_hUtilExportSceneToOBJ = EZ_REGISTER_ACTION_1("Scene.ExportSceneToOBJ", ezActionScope::Document, "Scene", "", ezSceneAction, ezSceneAction::ActionType::ExportSceneToOBJ);
 
@@ -112,6 +116,7 @@ void ezSceneActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hGameModePlay);
   ezActionManager::UnregisterAction(s_hGameModePlayFromHere);
   ezActionManager::UnregisterAction(s_hGameModeStop);
+  ezActionManager::UnregisterAction(s_hGameModePause);
   ezActionManager::UnregisterAction(s_hUtilExportSceneToOBJ);
   ezActionManager::UnregisterAction(s_hKeepSimulationChanges);
   ezActionManager::UnregisterAction(s_hCreateThumbnail);
@@ -157,6 +162,7 @@ void ezSceneActions::MapMenuActions(ezStringView sMapping)
     pMap->MapAction(s_hGameModeSimulate, szSubPath, 5.0f);
     pMap->MapAction(s_hGameModePlay, szSubPath, 6.0f);
     pMap->MapAction(s_hGameModePlayFromHere, szSubPath, 7.0f);
+    pMap->MapAction(s_hGameModePause, szSubPath, 8.0f);
   }
 }
 
@@ -172,6 +178,7 @@ void ezSceneActions::MapToolbarActions(ezStringView sMapping)
     /// \todo This works incorrectly with value 6.0f -> it places the action inside the snap category
     pMap->MapAction(s_hSceneCategory, "", 11.0f);
     pMap->MapAction(s_hGameModeStop, szSubPath, 1.0f);
+    pMap->MapAction(s_hGameModePause, szSubPath, 1.5f);
     pMap->MapAction(s_hGameModeSimulate, szSubPath, 2.0f);
     pMap->MapAction(s_hGameModePlay, szSubPath, 3.0f);
     pMap->MapAction(s_hExportScene, szSubPath, 4.0f);
@@ -183,7 +190,7 @@ void ezSceneActions::MapViewContextMenuActions(ezStringView sMapping)
   ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
   EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", sMapping);
 
-  pMap->MapAction(s_hGameModePlayFromHere, "", 1.0f);
+  pMap->MapAction(s_hGameModePlayFromHere, "", 0.0f);
 }
 
 ezSceneAction::ezSceneAction(const ezActionContext& context, const char* szName, ezSceneAction::ActionType type)
@@ -201,9 +208,7 @@ ezSceneAction::ezSceneAction(const ezActionContext& context, const char* szName,
       break;
 
     case ActionType::StartGameModeSimulate:
-      SetCheckable(true);
       SetIconPath(":/EditorPluginScene/Icons/ScenePlay.svg");
-      SetChecked(m_pSceneDocument->GetGameMode() == GameMode::Simulate);
       SetEnabled(m_pSceneDocument->GetGameMode() != GameMode::Play);
       break;
 
@@ -217,6 +222,10 @@ ezSceneAction::ezSceneAction(const ezActionContext& context, const char* szName,
 
     case ActionType::StopGameMode:
       SetIconPath(":/EditorPluginScene/Icons/SceneStop.svg");
+      break;
+
+    case ActionType::PauseSimulation:
+      SetIconPath(":/EditorPluginScene/Icons/ScenePause.svg");
       break;
 
     case ActionType::ExportSceneToOBJ:
@@ -288,7 +297,7 @@ void ezSceneAction::Execute(const ezVariant& value)
       range.BeginNextStep("Transform Assets");
       if (dlg.s_bTransformAll)
       {
-        if (ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::None).Succeeded())
+        if (ezAssetCurator::GetSingleton()->TransformAllAssets().Succeeded())
         {
           // once all assets have been transformed, disable it for the next export
           dlg.s_bTransformAll = false;
@@ -364,11 +373,25 @@ void ezSceneAction::Execute(const ezVariant& value)
       return;
 
     case ActionType::StartGameModeSimulate:
-      m_pSceneDocument->StartSimulateWorld();
+      if (m_pSceneDocument->GetPauseSimulation())
+      {
+        m_pSceneDocument->SetPauseSimulation(false);
+      }
+      else
+      {
+        m_pSceneDocument->StartSimulateWorld();
+      }
       return;
 
     case ActionType::StopGameMode:
       m_pSceneDocument->StopGameMode();
+      return;
+
+    case ActionType::PauseSimulation:
+      if (m_pSceneDocument->GetPauseSimulation())
+        m_pSceneDocument->StepSimulation();
+      else
+        m_pSceneDocument->PauseSimulation();
       return;
 
     case ActionType::ExportSceneToOBJ:
@@ -489,12 +512,17 @@ void ezSceneAction::LaunchPlayer(const char* szPlayerApp)
 {
   ezStringBuilder sCmd;
   QStringList arguments = GetPlayerCommandLine(sCmd);
-
   ezLog::Info("Running: {} {}", szPlayerApp, sCmd);
   m_pSceneDocument->ShowDocumentStatus(ezFmt("Running: {} {}", szPlayerApp, sCmd));
 
-  QProcess proc;
-  proc.startDetached(QString::fromUtf8(szPlayerApp), arguments);
+  ezStringBuilder sPlayerApp = szPlayerApp;
+#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+  if (sPlayerApp.IsRelativePath())
+  {
+    sPlayerApp.Prepend("./");
+  }
+#endif
+  QProcess::startDetached(QString::fromUtf8(sPlayerApp.GetData()), arguments, QCoreApplication::applicationDirPath());
 }
 
 QStringList ezSceneAction::GetPlayerCommandLine(ezStringBuilder& out_sSingleLine) const
@@ -519,12 +547,6 @@ QStringList ezSceneAction::GetPlayerCommandLine(ezStringBuilder& out_sSingleLine
   ezStringBuilder sWndCfgPath = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
   sWndCfgPath.AppendPath("RuntimeConfigs/Window.ddl");
 
-#if EZ_ENABLED(EZ_MIGRATE_RUNTIMECONFIGS)
-  ezStringBuilder sWndCfgPathOld = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
-  sWndCfgPathOld.AppendPath("Window.ddl");
-  sWndCfgPath = ezFileSystem::MigrateFileLocation(sWndCfgPathOld, sWndCfgPath);
-#endif
-
   if (ezOSFile::ExistsFile(sWndCfgPath))
   {
     arguments << "-wnd";
@@ -533,6 +555,13 @@ QStringList ezSceneAction::GetPlayerCommandLine(ezStringBuilder& out_sSingleLine
 
   arguments << "-profile";
   arguments << ezString(ezAssetCurator::GetSingleton()->GetActiveAssetProfile()->GetConfigName()).GetData();
+
+  if (ezCommandLineUtils::GetGlobalInstance()->HasOption("-renderer"))
+  {
+    ezStringBuilder sRenderer = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-renderer");
+    arguments << "-renderer";
+    arguments << sRenderer.GetData();
+  }
 
   for (QString s : arguments)
   {
@@ -550,6 +579,7 @@ void ezSceneAction::SceneEventHandler(const ezGameObjectEvent& e)
   switch (e.m_Type)
   {
     case ezGameObjectEvent::Type::GameModeChanged:
+    case ezGameObjectEvent::Type::SimulationSpeedChanged:
       UpdateState();
       break;
 
@@ -560,7 +590,17 @@ void ezSceneAction::SceneEventHandler(const ezGameObjectEvent& e)
 
 void ezSceneAction::UpdateState()
 {
-  if (m_Type == ActionType::StartGameModeSimulate || m_Type == ActionType::StartGameModePlay || m_Type == ActionType::ExportAndRunScene)
+  if (m_Type == ActionType::StartGameModeSimulate)
+  {
+    if (m_pSceneDocument->GetGameMode() == GameMode::Off)
+      SetEnabled(true);
+    else if (m_pSceneDocument->GetPauseSimulation() && (m_pSceneDocument->GetGameMode() == GameMode::Simulate || m_pSceneDocument->GetGameMode() == GameMode::Play))
+      SetEnabled(true);
+    else
+      SetEnabled(false);
+  }
+
+  if (m_Type == ActionType::ExportAndRunScene || m_Type == ActionType::StartGameModePlay)
   {
     SetEnabled(m_pSceneDocument->GetGameMode() == GameMode::Off);
   }
@@ -568,6 +608,22 @@ void ezSceneAction::UpdateState()
   if (m_Type == ActionType::StopGameMode)
   {
     SetEnabled(m_pSceneDocument->GetGameMode() != GameMode::Off);
+  }
+
+  if (m_Type == ActionType::PauseSimulation)
+  {
+    SetEnabled(m_pSceneDocument->GetGameMode() != GameMode::Off);
+
+    if (m_pSceneDocument->GetPauseSimulation())
+    {
+      SetIconPath(":/EditorPluginScene/Icons/SceneStep.svg");
+    }
+    else
+    {
+      SetIconPath(":/EditorPluginScene/Icons/ScenePause.svg");
+    }
+
+    TriggerUpdate();
   }
 
   if (m_Type == ActionType::KeepSimulationChanges)

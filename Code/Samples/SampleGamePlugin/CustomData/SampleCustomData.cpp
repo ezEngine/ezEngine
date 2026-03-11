@@ -19,18 +19,3 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_DEFINE_CUSTOM_DATA_RESOURCE(SampleCustomData);
 // END-DOCS-CODE-SNIPPET
-
-
-// clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(SampleCustomData2, 1, ezRTTIDefaultAllocator<SampleCustomData2>)
-{
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_MEMBER_PROPERTY("Text", m_sText),
-  }
-  EZ_END_PROPERTIES;
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-// clang-format on
-
-EZ_DEFINE_CUSTOM_DATA_RESOURCE(SampleCustomData2);

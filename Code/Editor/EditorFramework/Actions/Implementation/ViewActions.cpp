@@ -14,10 +14,8 @@ void ezViewActions::RegisterActions()
 {
   s_hRenderMode = EZ_REGISTER_DYNAMIC_MENU("View.RenderMode", ezRenderModeAction, ":/EditorFramework/Icons/RenderMode.svg");
   s_hPerspective = EZ_REGISTER_DYNAMIC_MENU("View.RenderPerspective", ezPerspectiveAction, ":/EditorFramework/Icons/Perspective.svg");
-  s_hActivateRemoteProcess = EZ_REGISTER_ACTION_1(
-    "View.ActivateRemoteProcess", ezActionScope::Window, "View", "", ezViewAction, ezViewAction::ButtonType::ActivateRemoteProcess);
-  s_hLinkDeviceCamera =
-    EZ_REGISTER_ACTION_1("View.LinkDeviceCamera", ezActionScope::Window, "View", "", ezViewAction, ezViewAction::ButtonType::LinkDeviceCamera);
+  s_hActivateRemoteProcess = EZ_REGISTER_ACTION_1("View.ActivateRemoteProcess", ezActionScope::Window, "View", "", ezViewAction, ezViewAction::ButtonType::ActivateRemoteProcess);
+  s_hLinkDeviceCamera = EZ_REGISTER_ACTION_1("View.LinkDeviceCamera", ezActionScope::Window, "View", "", ezViewAction, ezViewAction::ButtonType::LinkDeviceCamera);
 }
 
 void ezViewActions::UnregisterActions()

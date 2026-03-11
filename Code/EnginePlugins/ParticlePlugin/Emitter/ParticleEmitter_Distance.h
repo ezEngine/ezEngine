@@ -3,6 +3,10 @@
 #include <Foundation/Types/VarianceTypes.h>
 #include <ParticlePlugin/Emitter/ParticleEmitter.h>
 
+/// Emitter that spawns particles based on distance traveled
+///
+/// Spawns particles when the effect moves a certain distance from the last spawn position.
+/// Useful for creating trails or footstep effects.
 class EZ_PARTICLEPLUGIN_DLL ezParticleEmitterFactory_Distance final : public ezParticleEmitterFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleEmitterFactory_Distance, ezParticleEmitterFactory);
@@ -18,10 +22,10 @@ public:
   virtual void Load(ezStreamReader& inout_stream) override;
 
 public:
-  float m_fDistanceThreshold = 0.1f;
-  ezUInt32 m_uiSpawnCountMin = 1;
-  ezUInt32 m_uiSpawnCountRange = 0;
-  ezString m_sSpawnCountScaleParameter;
+  float m_fDistanceThreshold = 0.1f;    ///< Distance that must be traveled before spawning
+  ezUInt32 m_uiSpawnCountMin = 1;       ///< Minimum particles per spawn
+  ezUInt32 m_uiSpawnCountRange = 0;     ///< Random range added to spawn count
+  ezString m_sSpawnCountScaleParameter; ///< Optional parameter to scale spawn count
 };
 
 

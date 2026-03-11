@@ -1,18 +1,49 @@
 #include <RendererFoundation/Resources/ResourceFormats.h>
 #include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
 
-
-namespace
+EZ_ALWAYS_INLINE vk::AttachmentLoadOp ezConversionUtilsVulkan::GetAttachmentLoadOp(ezEnum<ezGALRenderTargetLoadOp> op)
 {
-  bool IsArrayViewInternal(const ezGALTextureCreationDescription& texDesc, const ezGALTextureResourceViewCreationDescription& viewDesc)
+  switch (op)
   {
-    return texDesc.m_uiArraySize > 1 || viewDesc.m_uiFirstArraySlice > 0;
+    case ezGALRenderTargetLoadOp::Load:
+      return vk::AttachmentLoadOp::eLoad;
+    case ezGALRenderTargetLoadOp::Clear:
+      return vk::AttachmentLoadOp::eClear;
+    case ezGALRenderTargetLoadOp::DontCare:
+      return vk::AttachmentLoadOp::eDontCare;
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+      return vk::AttachmentLoadOp::eLoad;
   }
-  bool IsArrayViewInternal(const ezGALTextureCreationDescription& texDesc, const ezGALTextureUnorderedAccessViewCreationDescription& viewDesc)
+}
+
+EZ_ALWAYS_INLINE vk::AttachmentStoreOp ezConversionUtilsVulkan::GetAttachmentStoreOp(ezEnum<ezGALRenderTargetStoreOp> op)
+{
+  switch (op)
   {
-    return texDesc.m_uiArraySize > 1 || viewDesc.m_uiFirstArraySlice > 0;
+    case ezGALRenderTargetStoreOp::Store:
+      return vk::AttachmentStoreOp::eStore;
+    case ezGALRenderTargetStoreOp::Discard:
+      return vk::AttachmentStoreOp::eDontCare;
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+      return vk::AttachmentStoreOp::eStore;
   }
-} // namespace
+}
+
+EZ_ALWAYS_INLINE vk::VertexInputRate ezConversionUtilsVulkan::GetVertexBindingRate(ezEnum<ezGALVertexBindingRate> rate)
+{
+  switch (rate)
+  {
+    case ezGALVertexBindingRate::Vertex:
+      return vk::VertexInputRate::eVertex;
+    case ezGALVertexBindingRate::Instance:
+      return vk::VertexInputRate::eInstance;
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+      return vk::VertexInputRate::eVertex;
+  }
+}
 
 EZ_ALWAYS_INLINE vk::SampleCountFlagBits ezConversionUtilsVulkan::GetSamples(ezEnum<ezGALMSAASampleCount> samples)
 {
@@ -53,92 +84,12 @@ EZ_ALWAYS_INLINE vk::PresentModeKHR ezConversionUtilsVulkan::GetPresentMode(ezEn
   }
 }
 
-EZ_ALWAYS_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresourceRange(const ezGALTextureCreationDescription& texDesc, const ezGALRenderTargetViewCreationDescription& viewDesc)
+EZ_FORCE_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresourceRange(const ezGALTextureCreationDescription& texDesc, const ezGALRenderTargetViewCreationDescription& viewDesc)
 {
   vk::ImageSubresourceRange range;
   ezGALResourceFormat::Enum viewFormat = viewDesc.m_OverrideViewFormat == ezGALResourceFormat::Invalid ? texDesc.m_Format : viewDesc.m_OverrideViewFormat;
   range.aspectMask = ezGALResourceFormat::IsDepthFormat(viewFormat) ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
   range.setBaseMipLevel(viewDesc.m_uiMipLevel).setLevelCount(1).setBaseArrayLayer(viewDesc.m_uiFirstSlice).setLayerCount(viewDesc.m_uiSliceCount);
-  return range;
-}
-
-EZ_ALWAYS_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresourceRange(const ezGALTextureCreationDescription& texDesc, const ezGALTextureResourceViewCreationDescription& viewDesc)
-{
-  vk::ImageSubresourceRange range;
-
-  const bool bIsArrayView = IsArrayViewInternal(texDesc, viewDesc);
-
-  ezGALResourceFormat::Enum viewFormat = viewDesc.m_OverrideViewFormat == ezGALResourceFormat::Invalid ? texDesc.m_Format : viewDesc.m_OverrideViewFormat;
-  range.aspectMask = ezGALResourceFormat::IsDepthFormat(viewFormat) ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
-  if (viewFormat == ezGALResourceFormat::D24S8)
-  {
-    range.aspectMask |= vk::ImageAspectFlagBits::eStencil;
-  }
-  range.baseMipLevel = viewDesc.m_uiMostDetailedMipLevel;
-  range.levelCount = ezMath::Min(viewDesc.m_uiMipLevelsToUse, texDesc.m_uiMipLevelCount - range.baseMipLevel);
-
-  switch (texDesc.m_Type)
-  {
-    case ezGALTextureType::Texture2D:
-    case ezGALTextureType::Texture2DProxy:
-    case ezGALTextureType::Texture2DShared:
-      range.layerCount = viewDesc.m_uiArraySize;
-      range.baseArrayLayer = viewDesc.m_uiFirstArraySlice;
-      break;
-    case ezGALTextureType::TextureCube:
-      range.baseArrayLayer = viewDesc.m_uiFirstArraySlice;
-      range.layerCount = viewDesc.m_uiArraySize * 6;
-      break;
-    case ezGALTextureType::Texture3D:
-      range.layerCount = 1;
-      break;
-    default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
-  }
-  return range;
-}
-
-
-EZ_ALWAYS_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresourceRange(const ezGALTextureCreationDescription& texDesc, const ezGALTextureUnorderedAccessViewCreationDescription& viewDesc)
-{
-  vk::ImageSubresourceRange range;
-
-  const bool bIsArrayView = IsArrayViewInternal(texDesc, viewDesc);
-
-  ezGALResourceFormat::Enum viewFormat = viewDesc.m_OverrideViewFormat == ezGALResourceFormat::Invalid ? texDesc.m_Format : viewDesc.m_OverrideViewFormat;
-  range.aspectMask = ezGALResourceFormat::IsDepthFormat(viewFormat) ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
-  if (viewFormat == ezGALResourceFormat::D24S8)
-  {
-    range.aspectMask |= vk::ImageAspectFlagBits::eStencil;
-  }
-
-  range.baseMipLevel = viewDesc.m_uiMipLevelToUse;
-  range.levelCount = 1;
-  range.layerCount = viewDesc.m_uiArraySize;
-
-  switch (texDesc.m_Type)
-  {
-    case ezGALTextureType::Texture2D:
-    case ezGALTextureType::Texture2DProxy:
-    case ezGALTextureType::Texture2DShared:
-      range.baseArrayLayer = viewDesc.m_uiFirstArraySlice;
-      break;
-    case ezGALTextureType::TextureCube:
-      range.baseArrayLayer = viewDesc.m_uiFirstArraySlice;
-      break;
-    case ezGALTextureType::Texture3D:
-      if (bIsArrayView)
-      {
-        EZ_ASSERT_NOT_IMPLEMENTED;
-      }
-      else
-      {
-        range.baseArrayLayer = viewDesc.m_uiFirstArraySlice;
-      }
-      break;
-    default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
-  }
   return range;
 }
 
@@ -154,32 +105,85 @@ EZ_ALWAYS_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresour
   return range;
 }
 
-EZ_ALWAYS_INLINE vk::ImageViewType ezConversionUtilsVulkan::GetImageViewType(ezEnum<ezGALTextureType> texType, bool bIsArrayView)
+EZ_ALWAYS_INLINE vk::ImageSubresourceRange ezConversionUtilsVulkan::GetSubresourceRange(ezGALResourceFormat::Enum format, ezGALTextureRange textureRange)
+{
+  vk::ImageSubresourceRange range;
+  range.aspectMask = ezGALResourceFormat::IsDepthFormat(format) ? vk::ImageAspectFlagBits::eDepth : vk::ImageAspectFlagBits::eColor;
+  if (format == ezGALResourceFormat::D24S8)
+  {
+    range.aspectMask |= vk::ImageAspectFlagBits::eStencil;
+  }
+  range.baseMipLevel = textureRange.m_uiBaseMipLevel;
+  range.levelCount = textureRange.m_uiMipLevels;
+  range.baseArrayLayer = textureRange.m_uiBaseArraySlice;
+  range.layerCount = textureRange.m_uiArraySlices;
+  return range;
+}
+
+EZ_ALWAYS_INLINE vk::ImageViewType ezConversionUtilsVulkan::GetImageViewType(ezEnum<ezGALTextureType> texType)
 {
   switch (texType)
   {
     case ezGALTextureType::Texture2D:
-    case ezGALTextureType::Texture2DProxy:
     case ezGALTextureType::Texture2DShared:
-      if (!bIsArrayView)
-      {
-        return vk::ImageViewType::e2D;
-      }
-      else
-      {
-        return vk::ImageViewType::e2DArray;
-      }
+    case ezGALTextureType::Texture2DProxy:
+      return vk::ImageViewType::e2D;
+
+    case ezGALTextureType::Texture2DArray:
+      return vk::ImageViewType::e2DArray;
+
     case ezGALTextureType::TextureCube:
-      if (!bIsArrayView)
-      {
-        return vk::ImageViewType::eCube;
-      }
-      else
-      {
-        return vk::ImageViewType::eCubeArray;
-      }
+      return vk::ImageViewType::eCube;
+
+    case ezGALTextureType::TextureCubeArray:
+      return vk::ImageViewType::eCubeArray;
+
     case ezGALTextureType::Texture3D:
       return vk::ImageViewType::e3D;
+
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+      return vk::ImageViewType::e1D;
+  }
+}
+
+EZ_ALWAYS_INLINE vk::ImageViewType ezConversionUtilsVulkan::GetImageViewType(ezEnum<ezGALShaderTextureType> texType)
+{
+  switch (texType)
+  {
+    case ezGALShaderTextureType::Texture2D:
+    case ezGALShaderTextureType::Texture2DMS:
+      return vk::ImageViewType::e2D;
+    case ezGALShaderTextureType::Texture2DArray:
+    case ezGALShaderTextureType::Texture2DMSArray:
+      return vk::ImageViewType::e2DArray;
+    case ezGALShaderTextureType::Texture3D:
+      return vk::ImageViewType::e3D;
+    case ezGALShaderTextureType::TextureCube:
+      return vk::ImageViewType::eCube;
+    case ezGALShaderTextureType::TextureCubeArray:
+      return vk::ImageViewType::eCubeArray;
+    case ezGALShaderTextureType::Texture1D:
+    case ezGALShaderTextureType::Texture1DArray:
+    case ezGALShaderTextureType::Unknown:
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+      return vk::ImageViewType::e1D;
+  }
+}
+
+EZ_ALWAYS_INLINE vk::ImageViewType ezConversionUtilsVulkan::GetImageArrayViewType(ezEnum<ezGALTextureType> texType)
+{
+  switch (texType)
+  {
+    case ezGALTextureType::Texture2D:
+    case ezGALTextureType::Texture2DArray:
+    case ezGALTextureType::Texture2DProxy:
+      return vk::ImageViewType::e2DArray;
+
+    case ezGALTextureType::TextureCube:
+    case ezGALTextureType::TextureCubeArray:
+      return vk::ImageViewType::eCubeArray;
 
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
@@ -231,6 +235,8 @@ EZ_ALWAYS_INLINE vk::PrimitiveTopology ezConversionUtilsVulkan::GetPrimitiveTopo
       return vk::PrimitiveTopology::eLineList;
     case ezGALPrimitiveTopology::Triangles:
       return vk::PrimitiveTopology::eTriangleList;
+    case ezGALPrimitiveTopology::TriangleStrip:
+      return vk::PrimitiveTopology::eTriangleStrip;
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
       return vk::PrimitiveTopology::ePointList;
@@ -313,7 +319,7 @@ EZ_ALWAYS_INLINE vk::DescriptorType ezConversionUtilsVulkan::GetDescriptorType(e
     case ezGALShaderResourceType::Sampler:
       return vk::DescriptorType::eSampler;
     case ezGALShaderResourceType::ConstantBuffer:
-      return vk::DescriptorType::eUniformBuffer;
+      return vk::DescriptorType::eUniformBufferDynamic;
     case ezGALShaderResourceType::Texture:
       return vk::DescriptorType::eSampledImage;
     case ezGALShaderResourceType::TextureAndSampler:
@@ -322,14 +328,21 @@ EZ_ALWAYS_INLINE vk::DescriptorType ezConversionUtilsVulkan::GetDescriptorType(e
       return vk::DescriptorType::eUniformTexelBuffer;
     case ezGALShaderResourceType::StructuredBuffer:
       return vk::DescriptorType::eStorageBuffer;
+    case ezGALShaderResourceType::ByteAddressBuffer:
+      return vk::DescriptorType::eStorageBuffer;
     case ezGALShaderResourceType::TextureRW:
       return vk::DescriptorType::eStorageImage;
     case ezGALShaderResourceType::TexelBufferRW:
       return vk::DescriptorType::eStorageTexelBuffer;
     case ezGALShaderResourceType::StructuredBufferRW:
       return vk::DescriptorType::eStorageBuffer;
+    case ezGALShaderResourceType::ByteAddressBufferRW:
+      return vk::DescriptorType::eStorageBuffer;
+    case ezGALShaderResourceType::COUNT:
+      EZ_REPORT_FAILURE("COUNT is not a valid resource type");
+      break;
   }
-
+  EZ_REPORT_FAILURE("Unknown resource type: {}", (int)type);
   return vk::DescriptorType::eMutableVALVE;
 }
 
@@ -352,9 +365,9 @@ EZ_ALWAYS_INLINE vk::PipelineStageFlags ezConversionUtilsVulkan::GetPipelineStag
   return res;
 }
 
-EZ_CHECK_AT_COMPILETIME((ezUInt32)vk::ShaderStageFlagBits::eVertex == (ezUInt32)ezGALShaderStageFlags::VertexShader);
-EZ_CHECK_AT_COMPILETIME((ezUInt32)vk::ShaderStageFlagBits::eTessellationControl == (ezUInt32)ezGALShaderStageFlags::HullShader);
-EZ_CHECK_AT_COMPILETIME((ezUInt32)vk::ShaderStageFlagBits::eTessellationEvaluation == (ezUInt32)ezGALShaderStageFlags::DomainShader);
-EZ_CHECK_AT_COMPILETIME((ezUInt32)vk::ShaderStageFlagBits::eGeometry == (ezUInt32)ezGALShaderStageFlags::GeometryShader);
-EZ_CHECK_AT_COMPILETIME((ezUInt32)vk::ShaderStageFlagBits::eFragment == (ezUInt32)ezGALShaderStageFlags::PixelShader);
-EZ_CHECK_AT_COMPILETIME((ezUInt32)vk::ShaderStageFlagBits::eCompute == (ezUInt32)ezGALShaderStageFlags::ComputeShader);
+static_assert((ezUInt32)vk::ShaderStageFlagBits::eVertex == (ezUInt32)ezGALShaderStageFlags::VertexShader);
+static_assert((ezUInt32)vk::ShaderStageFlagBits::eTessellationControl == (ezUInt32)ezGALShaderStageFlags::HullShader);
+static_assert((ezUInt32)vk::ShaderStageFlagBits::eTessellationEvaluation == (ezUInt32)ezGALShaderStageFlags::DomainShader);
+static_assert((ezUInt32)vk::ShaderStageFlagBits::eGeometry == (ezUInt32)ezGALShaderStageFlags::GeometryShader);
+static_assert((ezUInt32)vk::ShaderStageFlagBits::eFragment == (ezUInt32)ezGALShaderStageFlags::PixelShader);
+static_assert((ezUInt32)vk::ShaderStageFlagBits::eCompute == (ezUInt32)ezGALShaderStageFlags::ComputeShader);

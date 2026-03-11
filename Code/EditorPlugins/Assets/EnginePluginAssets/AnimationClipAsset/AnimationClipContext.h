@@ -25,6 +25,7 @@ protected:
 private:
   void QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg);
   void SetPlaybackPosition(double pos);
+  void ExtractRootMotionFromFeet();
 
   ezGameObject* m_pGameObject = nullptr;
   ezString m_sAnimatedMeshToUse;

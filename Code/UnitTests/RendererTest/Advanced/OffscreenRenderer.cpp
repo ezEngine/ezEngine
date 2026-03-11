@@ -65,7 +65,7 @@ ezOffscreenRendererTest::ezOffscreenRendererTest()
 
 ezOffscreenRendererTest::~ezOffscreenRendererTest() = default;
 
-ezApplication::Execution ezOffscreenRendererTest::Run()
+void ezOffscreenRendererTest::Run()
 {
   EZ_PROFILE_SCOPE("Run");
 
@@ -93,41 +93,35 @@ ezApplication::Execution ezOffscreenRendererTest::Run()
     sTemp.SetFormat("Render {}|{}", action.m_Texture.m_uiCurrentTextureIndex, action.m_Texture.m_uiCurrentSemaphoreValue);
     EZ_PROFILE_SCOPE(sTemp);
 
-    // Before starting to render in a frame call this function
+    m_pDevice->EnqueueFrameSwapChain(m_hSwapChain);
     device->BeginFrame();
 
-    device->BeginPipeline(sTemp, m_hSwapChain);
-
-    ezGALPass* pGALPass = device->BeginPass("OffscreenRender");
+    ezGALCommandEncoder* pCommandEncoder = device->BeginCommands(sTemp);
 
     ezGALRenderingSetup renderingSetup;
     ezGALRenderTargetViewHandle hBackbufferRTV = device->GetDefaultRenderTargetView(pSwapChain->GetRenderTargets().m_hRTs[0]);
-    renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, hBackbufferRTV);
-    renderingSetup.m_ClearColor = ezColor::Pink;
-    renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
+    renderingSetup.SetColorTarget(0, hBackbufferRTV);
+    renderingSetup.SetClearColor(0, ezColor::Pink);
 
     ezRectFloat viewport = ezRectFloat(0, 0, 8, 8);
-    ezGALRenderCommandEncoder* pCommandEncoder = ezRenderContext::GetDefaultInstance()->BeginRendering(pGALPass, renderingSetup, viewport);
+    ezRenderContext::GetDefaultInstance()->BeginRendering(renderingSetup, viewport);
     ezGraphicsTest::SetClipSpace();
 
     ezRenderContext::GetDefaultInstance()->BindShader(m_hScreenShader);
-    ezRenderContext::GetDefaultInstance()->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
+    ezRenderContext::GetDefaultInstance()->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
     ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().AssertSuccess();
 
     ezRenderContext::GetDefaultInstance()->EndRendering();
 
-    device->EndPass(pGALPass);
-
-    device->EndPipeline(m_hSwapChain);
+    device->EndCommands(pCommandEncoder);
 
     device->EndFrame();
-    ezRenderContext::GetDefaultInstance()->ResetContextState();
   }
 
   if (m_RequestedFrames.IsEmpty() && m_bExiting)
   {
     SetReturnCode(0);
-    RequestQuit();
+    QuitApplication();
   }
 
   // needs to be called once per frame
@@ -137,8 +131,6 @@ ezApplication::Execution ezOffscreenRendererTest::Run()
   // this has to be done at the very end, so that the task system will only use up the time that is left in this frame for
   // uploading GPU data etc.
   ezTaskSystem::FinishFrameTasks();
-
-  return WasQuitRequested() ? ezApplication::Execution::Quit : ezApplication::Execution::Continue;
 }
 
 void ezOffscreenRendererTest::OnPresent(ezUInt32 uiCurrentTexture, ezUInt64 uiCurrentSemaphoreValue)
@@ -173,7 +165,7 @@ void ezOffscreenRendererTest::AfterCoreSystemsStartup()
   {
     EZ_REPORT_FAILURE("Command Line does not contain -IPC parameter");
     SetReturnCode(-1);
-    RequestQuit();
+    QuitApplication();
     return;
   }
 
@@ -181,7 +173,7 @@ void ezOffscreenRendererTest::AfterCoreSystemsStartup()
   {
     EZ_REPORT_FAILURE("Command Line does not contain -PID parameter");
     SetReturnCode(-2);
-    RequestQuit();
+    QuitApplication();
     return;
   }
 
@@ -190,7 +182,7 @@ void ezOffscreenRendererTest::AfterCoreSystemsStartup()
   {
     EZ_REPORT_FAILURE("Command Line -PID parameter could not be converted to int");
     SetReturnCode(-3);
-    RequestQuit();
+    QuitApplication();
     return;
   }
 
@@ -246,9 +238,9 @@ void ezOffscreenRendererTest::BeforeCoreSystemsShutdown()
   SUPER::BeforeCoreSystemsShutdown();
 }
 
-void ezOffscreenRendererTest::MessageFunc(const ezProcessMessage* pMsg)
+void ezOffscreenRendererTest::MessageFunc(const ezIpcProcessMessageProtocol::Event& msg)
 {
-  if (const auto* pAction = ezDynamicCast<const ezOffscreenTest_OpenMsg*>(pMsg))
+  if (const auto* pAction = ezDynamicCast<const ezOffscreenTest_OpenMsg*>(msg.m_pMessage))
   {
     ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
     EZ_ASSERT_DEBUG(m_hSwapChain.IsInvalidated(), "SwapChain creation should only happen once");
@@ -263,14 +255,14 @@ void ezOffscreenRendererTest::MessageFunc(const ezProcessMessage* pMsg)
     {
       EZ_REPORT_FAILURE("Failed to create shared texture swapchain");
       SetReturnCode(-4);
-      RequestQuit();
+      QuitApplication();
     }
   }
-  else if (const auto* pAction = ezDynamicCast<const ezOffscreenTest_CloseMsg*>(pMsg))
+  else if (const auto* pAction = ezDynamicCast<const ezOffscreenTest_CloseMsg*>(msg.m_pMessage))
   {
     m_bExiting = true;
   }
-  else if (const auto* pAction = ezDynamicCast<const ezOffscreenTest_RenderMsg*>(pMsg))
+  else if (const auto* pAction = ezDynamicCast<const ezOffscreenTest_RenderMsg*>(msg.m_pMessage))
   {
     EZ_ASSERT_DEBUG(m_bExiting == false, "No new frame requests should come in at this point.");
     m_RequestedFrames.PushBack(*pAction);

@@ -16,7 +16,7 @@ static ezFmodSoundBankResourceLoader s_SoundBankResourceLoader;
 static ezFmodSoundEventResourceLoader s_SoundEventResourceLoader;
 
 // clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(Fmod, FmodPlugin)
+EZ_BEGIN_SUBSYSTEM_DECLARATION(FMOD, FmodPlugin)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "Foundation",
@@ -161,13 +161,6 @@ ezResult ezFmodAssetProfiles::Save(ezStringView sFile) const
 ezResult ezFmodAssetProfiles::Load(ezStringView sFile)
 {
   m_AssetProfiles.Clear();
-
-#if EZ_ENABLED(EZ_MIGRATE_RUNTIMECONFIGS)
-  if (sFile == s_sConfigFile)
-  {
-    sFile = ezFileSystem::MigrateFileLocation(":project/FmodConfig.ddl", s_sConfigFile);
-  }
-#endif
 
   ezFileReader file;
   EZ_SUCCEED_OR_RETURN(file.Open(sFile));

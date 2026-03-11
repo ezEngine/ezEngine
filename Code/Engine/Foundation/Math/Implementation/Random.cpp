@@ -3,19 +3,41 @@
 #include <Foundation/Math/Random.h>
 #include <Foundation/Time/Timestamp.h>
 
-ezRandom::ezRandom()
+// clang-format off
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezRandom, ezNoBase, 1, ezRTTINoAllocator)
 {
-  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_uiState); ++i)
-    m_uiState[i] = 0;
-
-  m_uiIndex = 0xFFFFFFFF;
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_SCRIPT_FUNCTION_PROPERTY(UInt)->AddFlags(ezPropertyFlags::PureFunction),
+    EZ_SCRIPT_FUNCTION_PROPERTY(UIntInRange, In, "Range")->AddFlags(ezPropertyFlags::PureFunction),
+    EZ_SCRIPT_FUNCTION_PROPERTY(UInt32Index, In, "ArraySize", In, "FallbackValue")->AddFlags(ezPropertyFlags::PureFunction)->AddAttributes(new ezFunctionArgumentAttributes(1, new ezDefaultValueAttribute(-1))),
+    EZ_SCRIPT_FUNCTION_PROPERTY(UInt16Index, In, "ArraySize", In, "FallbackValue")->AddFlags(ezPropertyFlags::PureFunction)->AddAttributes(new ezFunctionArgumentAttributes(1, new ezDefaultValueAttribute(-1))),
+    EZ_SCRIPT_FUNCTION_PROPERTY(IntMinMax, In, "MinValue", In, "MaxValue")->AddFlags(ezPropertyFlags::PureFunction),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Bool)->AddFlags(ezPropertyFlags::PureFunction),
+    EZ_SCRIPT_FUNCTION_PROPERTY(DoubleZeroToOneExclusive)->AddFlags(ezPropertyFlags::PureFunction),
+    EZ_SCRIPT_FUNCTION_PROPERTY(DoubleZeroToOneInclusive)->AddFlags(ezPropertyFlags::PureFunction),
+    EZ_SCRIPT_FUNCTION_PROPERTY(DoubleMinMax, In, "MinValue", In, "MaxValue")->AddFlags(ezPropertyFlags::PureFunction),
+    EZ_SCRIPT_FUNCTION_PROPERTY(DoubleVariance, In, "Value", In, "Variance")->AddFlags(ezPropertyFlags::PureFunction),
+    EZ_SCRIPT_FUNCTION_PROPERTY(DoubleVarianceAroundZero, In, "AbsMaxValue")->AddFlags(ezPropertyFlags::PureFunction),
+    EZ_SCRIPT_FUNCTION_PROPERTY(FloatZeroToOneExclusive)->AddFlags(ezPropertyFlags::PureFunction),
+    EZ_SCRIPT_FUNCTION_PROPERTY(FloatZeroToOneInclusive)->AddFlags(ezPropertyFlags::PureFunction),
+    EZ_SCRIPT_FUNCTION_PROPERTY(FloatMinMax, In, "MinValue", In, "MaxValue")->AddFlags(ezPropertyFlags::PureFunction),
+    EZ_SCRIPT_FUNCTION_PROPERTY(FloatVariance, In, "Value", In, "Variance")->AddFlags(ezPropertyFlags::PureFunction),
+    EZ_SCRIPT_FUNCTION_PROPERTY(FloatVarianceAroundZero, In, "AbsMaxValue")->AddFlags(ezPropertyFlags::PureFunction),
+  }
+  EZ_END_FUNCTIONS;
 }
+EZ_END_STATIC_REFLECTED_TYPE;
+// clang-format on
+
+ezRandom::ezRandom() = default;
+ezRandom::~ezRandom() = default;
 
 void ezRandom::Initialize(ezUInt64 uiSeed)
 {
   // make sure the seed is never zero
   // otherwise the state will become zero and the RNG will produce only zeros
-  uiSeed |= 0x0102030405060708;
+  uiSeed ^= 0x0102030405060708llu;
 
   m_uiIndex = 0;
 
@@ -35,8 +57,11 @@ void ezRandom::Initialize(ezUInt64 uiSeed)
 
 void ezRandom::InitializeFromCurrentTime()
 {
+  // needed to fix quick calls to this function that would result in an identical timestamp (it's not high resolution enough for that)
+  static ezAtomicInteger32 rndAdd;
+
   ezTimestamp ts = ezTimestamp::CurrentTimestamp();
-  Initialize(static_cast<ezUInt64>(ts.GetInt64(ezSIUnitOfTime::Nanosecond)));
+  Initialize(static_cast<ezUInt64>(ts.GetInt64(ezSIUnitOfTime::Nanosecond)) + rndAdd.Increment());
 }
 
 void ezRandom::Save(ezStreamWriter& inout_stream) const
@@ -95,21 +120,27 @@ ezUInt32 ezRandom::UIntInRange(ezUInt32 uiRange)
   return result % uiRange;
 }
 
-ezInt32 ezRandom::IntInRange(ezInt32 iMinValue, ezUInt32 uiRange)
+ezUInt32 ezRandom::UInt32Index(ezUInt32 uiArraySize, ezUInt32 uiFallbackValue /*= ezInvalidIndex*/)
 {
-  return iMinValue + (ezInt32)UIntInRange(uiRange);
+  if (uiArraySize == 0)
+    return uiFallbackValue;
+
+  return UIntInRange(uiArraySize);
+}
+
+ezUInt16 ezRandom::UInt16Index(ezUInt16 uiArraySize, ezUInt16 uiFallbackValue /*= 0xFFFF*/)
+{
+  if (uiArraySize == 0)
+    return uiFallbackValue;
+
+  return static_cast<ezUInt16>(UIntInRange(uiArraySize));
 }
 
 ezInt32 ezRandom::IntMinMax(ezInt32 iMinValue, ezInt32 iMaxValue)
 {
   EZ_ASSERT_DEBUG(iMinValue <= iMaxValue, "Invalid min/max values");
 
-  return IntInRange(iMinValue, iMaxValue - iMinValue + 1);
-}
-
-double ezRandom::DoubleInRange(double fMinValue, double fRange)
-{
-  return fMinValue + DoubleZeroToOneExclusive() * fRange;
+  return iMinValue + (ezInt32)UIntInRange(iMaxValue - iMinValue + 1);
 }
 
 double ezRandom::DoubleMinMax(double fMinValue, double fMaxValue)
@@ -184,7 +215,7 @@ void ezRandomGauss::SetupTable(ezUInt32 uiMaxValue, float fSigma)
 
 ezUInt32 ezRandomGauss::UnsignedValue()
 {
-  const double fRand = m_Generator.DoubleInRange(0, m_fAreaSum);
+  const double fRand = m_Generator.DoubleMinMax(0, m_fAreaSum);
 
   const ezUInt32 uiMax = m_GaussAreaSum.GetCount();
   for (ezUInt32 i = 0; i < uiMax; ++i)
@@ -198,7 +229,7 @@ ezUInt32 ezRandomGauss::UnsignedValue()
 
 ezInt32 ezRandomGauss::SignedValue()
 {
-  const double fRand = m_Generator.DoubleInRange(-m_fAreaSum, m_fAreaSum * 2.0);
+  const double fRand = m_Generator.DoubleMinMax(-m_fAreaSum, m_fAreaSum);
   const ezUInt32 uiMax = m_GaussAreaSum.GetCount();
 
   if (fRand >= 0.0)
@@ -244,3 +275,6 @@ void ezRandomGauss::Load(ezStreamReader& inout_stream)
 
   m_Generator.Load(inout_stream);
 }
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Math_Implementation_Random);

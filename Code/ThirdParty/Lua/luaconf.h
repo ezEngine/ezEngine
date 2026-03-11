@@ -55,18 +55,18 @@
 */
 #if !defined(LUA_USE_C89) && defined(_WIN32) && !defined(_WIN32_WCE)
 
-#pragma warning(disable:4244)
-
 // BEGIN EZ SPECIFIC UWP FIX
+#include <winapifamily.h>
 #if WINAPI_FAMILY != WINAPI_FAMILY_APP
-#define LUA_USE_WINDOWS  /* enable goodies for regular Windows */
+#define LUA_USE_WINDOWS  /* enable goodies for Desktop Windows */
 #else
   // system and getenv are not supported on UWP
-  inline char* getenv(const char* name) { return "NOT SUPPORTED ON UWP"; }
-  inline int system(const char* command) { return 0; }
+  inline char* getenv(const char* name) { (void)name; return "NOT SUPPORTED ON UWP"; }
+  inline int system(const char* command) { (void)command; return 0; }
 #endif
 // END EZ SPECIFIC UWP FIX
 
+#define LUA_USE_WINDOWS  /* enable goodies for regular Windows */
 #endif
 
 
@@ -85,6 +85,12 @@
 #if defined(LUA_USE_MACOSX)
 #define LUA_USE_POSIX
 #define LUA_USE_DLOPEN		/* MacOS does not need -ldl */
+#endif
+
+
+#if defined(LUA_USE_IOS)
+#define LUA_USE_POSIX
+#define LUA_USE_DLOPEN
 #endif
 
 
@@ -268,6 +274,15 @@
 #endif
 
 #endif
+
+
+/*
+** LUA_IGMARK is a mark to ignore all after it when building the
+** module name (e.g., used to build the luaopen_ function name).
+** Typically, the suffix after the mark is the module version,
+** as in "mod-v1.2.so".
+*/
+#define LUA_IGMARK		"-"
 
 /* }================================================================== */
 
@@ -503,7 +518,6 @@
 @@ LUA_MAXINTEGER is the maximum value for a LUA_INTEGER.
 @@ LUA_MININTEGER is the minimum value for a LUA_INTEGER.
 @@ LUA_MAXUNSIGNED is the maximum value for a LUA_UNSIGNED.
-@@ LUA_UNSIGNEDBITS is the number of bits in a LUA_UNSIGNED.
 @@ lua_integer2str converts an integer to a string.
 */
 
@@ -522,9 +536,6 @@
 ** can turn a comparison between unsigneds into a signed comparison)
 */
 #define LUA_UNSIGNED		unsigned LUAI_UACINT
-
-
-#define LUA_UNSIGNEDBITS	(sizeof(LUA_UNSIGNED) * CHAR_BIT)
 
 
 /* now the variable definitions */
@@ -750,7 +761,7 @@
 ** CHANGE it if you need a different limit. This limit is arbitrary;
 ** its only purpose is to stop Lua from consuming unlimited stack
 ** space (and to reserve some numbers for pseudo-indices).
-** (It must fit into max(size_t)/32.)
+** (It must fit into max(size_t)/32 and max(int)/2.)
 */
 #if LUAI_IS32INT
 #define LUAI_MAXSTACK		1000000
@@ -769,14 +780,15 @@
 
 /*
 @@ LUA_IDSIZE gives the maximum size for the description of the source
-@@ of a function in debug information.
+** of a function in debug information.
 ** CHANGE it if you want a different size.
 */
 #define LUA_IDSIZE	60
 
 
 /*
-@@ LUAL_BUFFERSIZE is the buffer size used by the lauxlib buffer system.
+@@ LUAL_BUFFERSIZE is the initial buffer size used by the lauxlib
+** buffer system.
 */
 #define LUAL_BUFFERSIZE   ((int)(16 * sizeof(void*) * sizeof(lua_Number)))
 

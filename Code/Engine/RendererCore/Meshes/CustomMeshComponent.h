@@ -1,7 +1,26 @@
 #pragma once
 
 #include <RendererCore/Meshes/MeshComponentBase.h>
-#include <RendererCore/Pipeline/Renderer.h>
+
+/// \brief Render data used to feed the ezMeshRenderer.
+class EZ_RENDERERCORE_DLL ezCustomMeshRenderData : public ezInstanceableRenderData
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezCustomMeshRenderData, ezInstanceableRenderData);
+
+public:
+  void FillSortingKey();
+  virtual bool CanBatch(const ezRenderData& other) const override;
+
+  ezMaterialResourceHandle m_hMaterial;
+  ezDynamicMeshBufferResourceHandle m_hDynamicMeshBuffer;
+
+  ezUInt32 m_uiFirstPrimitive = 0;
+  ezUInt32 m_uiNumPrimitives = 0xFFFFFFFF;
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  ezBoundingBox m_FallbackGlobalBBox = ezBoundingBox::MakeInvalid();
+#endif
+};
 
 using ezDynamicMeshBufferResourceHandle = ezTypedResourceHandle<class ezDynamicMeshBufferResource>;
 using ezCustomMeshComponentManager = ezComponentManager<class ezCustomMeshComponent, ezBlockStorageType::Compact>;
@@ -20,6 +39,9 @@ class EZ_RENDERERCORE_DLL ezCustomMeshComponent : public ezRenderComponent
   // ezComponent
 
 public:
+  virtual void OnActivated() override;
+  virtual void OnDeactivated() override;
+
   virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
   virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
@@ -65,8 +87,8 @@ public:
   /// \brief Returns the material that is used for rendering.
   ezMaterialResourceHandle GetMaterial() const;
 
-  void SetMaterialFile(const char* szMaterial); // [ property ]
-  const char* GetMaterialFile() const;          // [ property ]
+  // adds SetMaterialFile() and GetMaterialFile() for convenience
+  EZ_ADD_RESOURCEHANDLE_ACCESSORS(Material, m_hMaterial);
 
   /// \brief Sets the mesh instance color.
   void SetColor(const ezColor& color); // [ property ]
@@ -85,51 +107,14 @@ public:
 protected:
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
 
-  ezMaterialResourceHandle m_hMaterial;
+  ezMaterialResourceHandle m_hMaterial; // [ property ]
   ezColor m_Color = ezColor::White;
   ezVec4 m_vCustomData = ezVec4(0, 1, 0, 1);
+  ezBoundingBoxSphere m_Bounds = ezBoundingBoxSphere::MakeInvalid();
+
+  mutable ezInstanceDataOffset m_InstanceDataOffset;
+
   ezUInt32 m_uiFirstPrimitive = 0;
   ezUInt32 m_uiNumPrimitives = 0xFFFFFFFF;
-  ezBoundingBoxSphere m_Bounds;
-
   ezDynamicMeshBufferResourceHandle m_hDynamicMesh;
-
-  virtual void OnActivated() override;
-};
-
-/// \brief Temporary data used to feed the ezCustomMeshRenderer.
-class EZ_RENDERERCORE_DLL ezCustomMeshRenderData : public ezRenderData
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezCustomMeshRenderData, ezRenderData);
-
-public:
-  virtual void FillBatchIdAndSortingKey();
-
-  ezDynamicMeshBufferResourceHandle m_hMesh;
-  ezMaterialResourceHandle m_hMaterial;
-  ezColor m_Color = ezColor::White;
-  ezVec4 m_vCustomData = ezVec4(0, 1, 0, 1);
-
-  ezUInt32 m_uiFlipWinding : 1;
-  ezUInt32 m_uiUniformScale : 1;
-
-  ezUInt32 m_uiFirstPrimitive = 0;
-  ezUInt32 m_uiNumPrimitives = 0xFFFFFFFF;
-
-  ezUInt32 m_uiUniqueID = 0;
-};
-
-/// \brief A renderer that handles all ezCustomMeshRenderData.
-class EZ_RENDERERCORE_DLL ezCustomMeshRenderer : public ezRenderer
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezCustomMeshRenderer, ezRenderer);
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezCustomMeshRenderer);
-
-public:
-  ezCustomMeshRenderer();
-  ~ezCustomMeshRenderer();
-
-  virtual void GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& ref_categories) const override;
-  virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& ref_types) const override;
-  virtual void RenderBatch(const ezRenderViewContext& renderContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const override;
 };

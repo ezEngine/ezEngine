@@ -1,7 +1,9 @@
 #include <Foundation/FoundationInternal.h>
 EZ_FOUNDATION_INTERNAL_HEADER
 
+#include <Foundation/Threading/ConditionVariable.h>
 #include <Foundation/Threading/ThreadUtils.h>
+#include <Foundation/Time/Time.h>
 
 // Posix implementation of thread helper functions
 

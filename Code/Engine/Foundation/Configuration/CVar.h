@@ -118,7 +118,7 @@ public:
   /// After setting the storage folder, one should immediately load all CVars via LoadCVars.
   static void SetStorageFolder(ezStringView sFolder); // [tested]
 
-  /// \brief Searches all CVars for one with the given name. Returns nullptr if no CVar could be found. The name is case-sensitive.
+  /// \brief Searches all CVars for one with the given name. Returns nullptr if no CVar could be found. The name is case-insensitive.
   static ezCVar* FindCVarByName(ezStringView sName); // [tested]
 
   /// \brief Stores all CVar values in files in the storage folder, that must have been set via 'SetStorageFolder'.
@@ -210,8 +210,10 @@ public:
   /// \brief Returns all the CVar flags.
   ezBitflags<ezCVarFlags> GetFlags() const { return m_Flags; } // [tested]
 
+  using CVarEvents = ezEvent<const ezCVarEvent&, ezMutex, ezStaticsAllocatorWrapper>;
+
   /// \brief Code that needs to be execute whenever a cvar is changed can register itself here to be notified of such events.
-  ezEvent<const ezCVarEvent&, ezNoMutex, ezStaticsAllocatorWrapper> m_CVarEvents; // [tested]
+  CVarEvents m_CVarEvents; // [tested]
 
   /// \brief Broadcasts changes to ANY CVar. Thus code that needs to update when any one of them changes can use this to be notified.
   static ezEvent<const ezCVarEvent&> s_AllCVarEvents;
@@ -234,7 +236,7 @@ private:
   static void PluginEventHandler(const ezPluginEvent& EventData);
 
   /// \brief Loads CVar values for the given vars from the given config file path. Returns the ezCVars which have actually been loaded.
-  static void LoadCVarsFromFileInternal(ezStringView path, const ezDynamicArray<ezCVar*>& vars, bool bOnlyNewOnes, bool bSetAsCurrentValue, ezDynamicArray<ezCVar*>* pOutCVars);
+  static void LoadCVarsFromFileInternal(ezStringView path, const ezDynamicArray<ezCVar*>& vars, bool bSetAsCurrentValue, ezDynamicArray<ezCVar*>* pOutCVars);
 
   /// \brief Stores the values of the given vars to the given config file path.
   static void SaveCVarsToFileInternal(ezStringView path, const ezDynamicArray<ezCVar*>& vars);

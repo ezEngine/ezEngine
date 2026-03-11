@@ -92,7 +92,7 @@ ezColor PlacementTile::GetDebugColor() const
   }
 }
 
-void PlacementTile::PreparePlacementData(const ezWorld* pWorld, const ezPhysicsWorldModuleInterface* pPhysicsModule, PlacementData& ref_placementData)
+void PlacementTile::PreparePlacementData(const ezWorld* pWorld, const ezPhysicsWorldModuleInterface* pPhysicsModule, bool bDebugVisualization, PlacementData& ref_placementData)
 {
   const ezUInt64 uiOutputNameHash = m_pOutput->m_sName.GetHash();
   ezUInt32 hashData[] = {
@@ -107,6 +107,7 @@ void PlacementTile::PreparePlacementData(const ezWorld* pWorld, const ezPhysicsW
   ref_placementData.m_pOutput = m_pOutput;
   ref_placementData.m_uiTileSeed = ezHashingUtils::xxHash32(hashData, sizeof(hashData));
   ref_placementData.m_TileBoundingBox = GetBoundingBox();
+  ref_placementData.m_bDebugVisualization = bDebugVisualization;
   ref_placementData.m_GlobalToLocalBoxTransforms = m_Desc.m_GlobalToLocalBoxTransforms;
 
   m_State = State::Scheduled;
@@ -119,7 +120,7 @@ ezUInt32 PlacementTile::PlaceObjects(ezWorld& ref_world, ezArrayPtr<const Placem
   ezGameObjectDesc desc;
   auto& objectsToPlace = m_pOutput->m_ObjectsToPlace;
 
-  ezHybridArray<ezPrefabResource*, 4> prefabs;
+  ezTempHybridArray<ezPrefabResource*, 4> prefabs;
   prefabs.SetCount(objectsToPlace.GetCount());
 
 
@@ -136,7 +137,7 @@ ezUInt32 PlacementTile::PlaceObjects(ezWorld& ref_world, ezArrayPtr<const Placem
     }
 
     ezTransform transform = ezSimdConversion::ToTransform(objectTransform.m_Transform);
-    ezHybridArray<ezGameObject*, 8> rootObjects;
+    ezTempHybridArray<ezGameObject*, 8> rootObjects;
 
     ezPrefabInstantiationOptions options;
     options.m_pCreatedRootObjectsOut = &rootObjects;

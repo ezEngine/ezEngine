@@ -4,6 +4,7 @@
 #include <ParticlePlugin/Type/Point/PointRenderer.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
+/// Factory for creating point particle types.
 class EZ_PARTICLEPLUGIN_DLL ezParticleTypePointFactory final : public ezParticleTypeFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleTypePointFactory, ezParticleTypeFactory);
@@ -16,6 +17,7 @@ public:
   virtual void Load(ezStreamReader& inout_stream) override;
 };
 
+/// Renders particles as single-pixel points.
 class EZ_PARTICLEPLUGIN_DLL ezParticleTypePoint final : public ezParticleType
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleTypePoint, ezParticleType);
@@ -27,6 +29,7 @@ public:
 
   virtual void ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const override;
 
+  /// Point particles have no radius for culling purposes.
   virtual float GetMaxParticleRadius(float fParticleSize) const override { return 0.0f; }
 
 protected:

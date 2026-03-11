@@ -53,23 +53,23 @@ bool ezOpaqueForwardRenderPass::GetRenderTargetDescriptions(const ezView& view, 
   return true;
 }
 
-void ezOpaqueForwardRenderPass::SetupResources(ezGALPass* pGALPass, const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+void ezOpaqueForwardRenderPass::SetupResources(ezGALCommandEncoder* pCommandEncoder, const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
-  SUPER::SetupResources(pGALPass, renderViewContext, inputs, outputs);
+  SUPER::SetupResources(pCommandEncoder, renderViewContext, inputs, outputs);
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
+  ezBindGroupBuilder& bindGroupRenderPass = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);
   // SSAO texture
   if (m_ShadingQuality == ezForwardRenderShadingQuality::Normal)
   {
     if (inputs[m_PinSSAO.m_uiInputIndex])
     {
-      ezGALTextureResourceViewHandle ssaoResourceViewHandle = pDevice->GetDefaultResourceView(inputs[m_PinSSAO.m_uiInputIndex]->m_TextureHandle);
-      renderViewContext.m_pRenderContext->BindTexture2D("SSAOTexture", ssaoResourceViewHandle);
+      bindGroupRenderPass.BindTexture("SSAOTexture", inputs[m_PinSSAO.m_uiInputIndex]->m_TextureHandle);
     }
     else
     {
-      renderViewContext.m_pRenderContext->BindTexture2D("SSAOTexture", m_hWhiteTexture, ezResourceAcquireMode::BlockTillLoaded);
+      bindGroupRenderPass.BindTexture("SSAOTexture", m_hWhiteTexture, ezResourceAcquireMode::BlockTillLoaded);
     }
   }
 }
@@ -90,8 +90,10 @@ void ezOpaqueForwardRenderPass::SetupPermutationVars(const ezRenderViewContext& 
 
 void ezOpaqueForwardRenderPass::RenderObjects(const ezRenderViewContext& renderViewContext)
 {
-  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitOpaque);
-  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMasked);
+  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitOpaqueStatic);
+  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitOpaqueDynamic);
+  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMaskedStatic);
+  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMaskedDynamic);
 }
 
 

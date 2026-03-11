@@ -1,24 +1,26 @@
 #pragma once
 
-#include <Foundation/Types/UniquePtr.h>
 #include <RmlUiPlugin/Resources/RmlUiResource.h>
+#include <RmlUiPlugin/RmlUiInput.h>
 #include <RmlUiPlugin/RmlUiPluginDLL.h>
 
 #include <RmlUi/Include/RmlUi/Core.h>
 
-class ezRenderData;
+#include <Foundation/Types/UniquePtr.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
+
 class ezBlackboard;
 
 namespace ezRmlUiInternal
 {
-  class Extractor;
+  class RenderInterface;
   class EventListener;
 } // namespace ezRmlUiInternal
 
 class EZ_RMLUIPLUGIN_DLL ezRmlUiContext final : public Rml::Context
 {
 public:
-  ezRmlUiContext(const Rml::String& sName);
+  ezRmlUiContext(const Rml::String& sName, Rml::RenderManager* pRenderManager, Rml::TextInputHandler* pTextInputHandler);
   ~ezRmlUiContext();
 
 public:
@@ -28,36 +30,51 @@ public:
   void UnloadDocument();
   ezResult ReloadDocumentFromResource(const ezRmlUiResourceHandle& hResource);
 
+  bool HasDocument() { return GetNumDocuments() > 0; }
+
   void ShowDocument();
   void HideDocument();
 
-  void UpdateInput(const ezVec2& vMousePos);
+  /// \brief Returns true if the input was consumed
+  bool UpdateInput(const ezVec2& vMousePos, const ezRmlUiInputProvider& input);
   bool WantsInput() const { return m_bWantsInput; }
 
-  void SetOffset(const ezVec2I32& vOffset);
   void SetSize(const ezVec2U32& vSize);
   void SetDpiScale(float fScale);
 
   using EventHandler = ezDelegate<void(Rml::Event&)>;
 
+  /// \brief Registers an event handler for a RmlUI event (such as 'onclick')
+  ///
+  /// There can only be one event handler for each event type.
+  /// If called multiple times, the existing event handler is overridden.
   void RegisterEventHandler(const char* szIdentifier, EventHandler handler);
+
+  /// \brief Removes a previously registered RmlUI event handler.
   void DeregisterEventHandler(const char* szIdentifier);
 
-private:
-  bool HasDocument() { return GetNumDocuments() > 0; }
+  using FallbackEventHandler = ezDelegate<void(const ezHashedString&, Rml::Event&)>;
 
+  /// \brief Registers a fallback event handler for RmlUI events which is called when no specific event handler is registered for the event's type.
+  void RegisterFallbackEventHandler(FallbackEventHandler handler);
+
+  /// \brief Removes the previously registered fallback event handler.
+  void DeregisterFallbackEventHandler();
+
+  void Update();
+
+private:
   friend class ezRmlUi;
-  void ExtractRenderData(ezRmlUiInternal::Extractor& extractor);
+  void ExtractRenderData(ezRmlUiInternal::RenderInterface& renderInterface, ezGALTextureHandle hTexture);
 
   friend class ezRmlUiInternal::EventListener;
   void ProcessEvent(const ezHashedString& sIdentifier, Rml::Event& event);
 
-  ezVec2I32 m_vOffset = ezVec2I32::MakeZero();
-
   ezHashTable<ezHashedString, EventHandler> m_EventHandler;
+  FallbackEventHandler m_FallbackEventHandler;
 
-  ezUInt64 m_uiExtractedFrame = 0;
-  ezRenderData* m_pRenderData = nullptr;
+  ezUInt64 m_uiUpdatedFrame = ezUInt64(-1);
+  ezUInt64 m_uiExtractedFrame = ezUInt64(-1);
 
   bool m_bWantsInput = false;
 };
@@ -67,7 +84,7 @@ namespace ezRmlUiInternal
   class ContextInstancer : public Rml::ContextInstancer
   {
   public:
-    virtual Rml::ContextPtr InstanceContext(const Rml::String& sName) override;
+    virtual Rml::ContextPtr InstanceContext(const Rml::String& sName, Rml::RenderManager* pRenderManager, Rml::TextInputHandler* pTextInputHandler) override;
     virtual void ReleaseContext(Rml::Context* pContext) override;
 
   private:

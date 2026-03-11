@@ -53,7 +53,7 @@ void ezMaterialDragDropHandler::OnDragUpdate(const ezDragDropInfo* pInfo)
   m_AppliedToComponent = pInfo->m_TargetComponent;
   m_iAppliedToSlot = pInfo->m_iTargetObjectSubID;
 
-  if (pComponent->GetTypeAccessor().GetType()->IsDerivedFrom<ezMeshComponent>())
+  if (pComponent->GetTypeAccessor().GetType()->IsDerivedFrom<ezMeshComponentBase>())
   {
     ezResizeAndSetObjectPropertyCommand cmd;
     cmd.m_Object = pInfo->m_TargetComponent;

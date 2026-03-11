@@ -17,7 +17,7 @@ JPH_NAMESPACE_BEGIN
 
 JPH_IMPLEMENT_SERIALIZABLE_VIRTUAL(MotorcycleControllerSettings)
 {
-	JPH_ADD_BASE_CLASS(MotorcycleControllerSettings, VehicleControllerSettings)
+	JPH_ADD_BASE_CLASS(MotorcycleControllerSettings, WheeledVehicleControllerSettings)
 
 	JPH_ADD_ATTRIBUTE(MotorcycleControllerSettings, mMaxLeanAngle)
 	JPH_ADD_ATTRIBUTE(MotorcycleControllerSettings, mLeanSpringConstant)
@@ -146,7 +146,7 @@ void MotorcycleController::PreCollide(float inDeltaTime, PhysicsSystem &inPhysic
 	// TurnRadius = WheelBase / (Sin(SteerAngle) * Cos(CasterAngle))
 	// => SteerAngle = ASin(WheelBase * Tan(LeanAngle) * Gravity / (Velocity^2 * Cos(CasterAngle))
 	// The caster angle is different for each wheel so we can only calculate part of the equation here
-	float max_steer_angle_factor = wheel_base * Tan(mMaxLeanAngle) * inPhysicsSystem.GetGravity().Length();
+	float max_steer_angle_factor = wheel_base * Tan(mMaxLeanAngle) * (mConstraint.IsGravityOverridden()? mConstraint.GetGravityOverride() : inPhysicsSystem.GetGravity()).Length();
 
 	// Calculate forward velocity
 	float velocity = body->GetLinearVelocity().Dot(forward);
@@ -289,5 +289,18 @@ void MotorcycleController::Draw(DebugRenderer *inRenderer) const
 }
 
 #endif // JPH_DEBUG_RENDERER
+
+Ref<VehicleControllerSettings> MotorcycleController::GetSettings() const
+{
+	MotorcycleControllerSettings *settings = new MotorcycleControllerSettings;
+	ToSettings(*settings);
+	settings->mMaxLeanAngle = mMaxLeanAngle;
+	settings->mLeanSpringConstant = mLeanSpringConstant;
+	settings->mLeanSpringDamping = settings->mLeanSpringDamping;
+	settings->mLeanSpringIntegrationCoefficient = mLeanSpringIntegrationCoefficient;
+	settings->mLeanSpringIntegrationCoefficientDecay = mLeanSpringIntegrationCoefficientDecay;
+	settings->mLeanSmoothingFactor = mLeanSmoothingFactor;
+	return settings;
+}
 
 JPH_NAMESPACE_END

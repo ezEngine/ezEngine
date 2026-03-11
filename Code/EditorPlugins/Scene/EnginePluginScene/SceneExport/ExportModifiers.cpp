@@ -2,7 +2,8 @@
 
 #include <EnginePluginScene/Components/ShapeIconComponent.h>
 #include <EnginePluginScene/SceneExport/ExportModifiers.h>
-#include <GameEngine/Animation/PathComponent.h>
+#include <GameEngine/Messages/ExportMessage.h>
+#include <RendererCore/Components/SplineComponent.h>
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -19,7 +20,7 @@ void ezSceneExportModifier_RemoveShapeIconComponents::ModifyWorld(ezWorld& ref_w
   {
     for (auto it = pSiMan->GetComponents(); it.IsValid(); it.Next())
     {
-      pSiMan->DeleteComponent(it->GetHandle());
+      pSiMan->DeleteComponent(it);
     }
   }
 }
@@ -38,18 +39,9 @@ void ezSceneExportModifier_RemovePathNodeComponents::ModifyWorld(ezWorld& ref_wo
 
   EZ_LOCK(ref_world.GetWriteMarker());
 
-  if (ezPathComponentManager* pSiMan = ref_world.GetComponentManager<ezPathComponentManager>())
+  if (ezSplineNodeComponentManager* pManager = ref_world.GetComponentManager<ezSplineNodeComponentManager>())
   {
-    for (auto it = pSiMan->GetComponents(); it.IsValid(); it.Next())
-    {
-      it->EnsureControlPointRepresentationIsUpToDate();
-      it->SetDisableControlPointUpdates(true);
-    }
-  }
-
-  if (ezPathNodeComponentManager* pSiMan = ref_world.GetComponentManager<ezPathNodeComponentManager>())
-  {
-    for (auto it = pSiMan->GetComponents(); it.IsValid(); it.Next())
+    for (auto it = pManager->GetComponents(); it.IsValid(); it.Next())
     {
       if (it->GetOwner()->GetComponents().GetCount() == 1 && it->GetOwner()->GetChildCount() == 0)
       {
@@ -57,9 +49,37 @@ void ezSceneExportModifier_RemovePathNodeComponents::ModifyWorld(ezWorld& ref_wo
         it->GetOwner()->SetName(ezStringView());
       }
 
-      pSiMan->DeleteComponent(it->GetHandle());
+      pManager->DeleteComponent(it);
     }
   }
 }
 
 //////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneExportModifier_GenericExport, 1, ezRTTIDefaultAllocator<ezSceneExportModifier_GenericExport>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+void ezSceneExportModifier_GenericExport::ModifyWorld(ezWorld& ref_world, ezStringView sDocumentType, const ezUuid& documentGuid, bool bForExport)
+{
+  if (!bForExport)
+    return;
+
+  ezStringBuilder sb;
+  ezConversionUtils::ToString(documentGuid, sb);
+
+  EZ_LOCK(ref_world.GetWriteMarker());
+
+  ezMsgExport msg;
+  msg.m_sDocumentType = sDocumentType;
+  msg.m_sDocumentGuid = sb;
+
+  for (auto it = ref_world.GetObjects(); it.IsValid(); ++it)
+  {
+    if (!it->IsStatic())
+      continue;
+
+    it->SendMessage(msg);
+  }
+}

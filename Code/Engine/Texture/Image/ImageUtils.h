@@ -6,13 +6,22 @@
 #include <Texture/Image/ImageEnums.h>
 #include <Texture/Image/ImageFilter.h>
 
+/// \brief Collection of utility functions for image processing, analysis, and manipulation.
 class EZ_TEXTURE_DLL ezImageUtils
 {
 public:
-  /// \brief Returns the image with the difference (absolute values) between ImageA and ImageB.
+  /// \brief Computes the absolute difference between two images for comparison analysis.
+  ///
+  /// Both images must have the same dimensions and format. The output difference image
+  /// contains the absolute difference for each channel. Useful for regression testing
+  /// and quality analysis.
   static void ComputeImageDifferenceABS(const ezImageView& imageA, const ezImageView& imageB, ezImage& out_difference);
 
-  /// \brief Same as ComputeImageDifferenceABS, but for every pixel in imageA, the minimum diff in imageB is searched in a 1-pixel radius, allowing pixels in B to shift slightly without incurring a difference.
+  /// \brief Computes relaxed difference allowing for 1-pixel shifts between images.
+  ///
+  /// For each pixel in imageA, searches for the minimum difference within a 1-pixel radius
+  /// in imageB. This accounts for minor alignment differences or sub-pixel shifts that
+  /// shouldn't be considered significant differences.
   static void ComputeImageDifferenceABSRelaxed(const ezImageView& imageA, const ezImageView& imageB, ezImage& out_difference);
 
   /// \brief Computes the mean square error for the block at (offsetx, offsety) to (offsetx + uiBlockSize, offsety + uiBlockSize).
@@ -53,13 +62,23 @@ public:
     /// The filter to use for mipmap generation. Defaults to bilinear filtering (Triangle filter) if none is given.
     const ezImageFilter* m_filter = nullptr;
 
-    /// Rescale RGB components to unit length.
+    /// Rescale RGB components to unit length for normal maps.
+    ///
+    /// Enable this when generating mipmaps for normal maps to maintain
+    /// proper normal vector length after filtering.
     bool m_renormalizeNormals = false;
 
-    /// If true, the alpha values are scaled to preserve the average coverage when alpha testing is enabled,
+    /// Preserve alpha coverage for alpha testing.
+    ///
+    /// When enabled, alpha values are scaled to maintain the same coverage
+    /// percentage as the original image when using alpha testing. Essential
+    /// for proper rendering of vegetation and other alpha-tested geometry.
     bool m_preserveCoverage = false;
 
-    /// The alpha test threshold to use when m_preserveCoverage == true.
+    /// Alpha test threshold for coverage preservation.
+    ///
+    /// Only used when m_preserveCoverage is true. Pixels with alpha >= threshold
+    /// are considered opaque for coverage calculations.
     float m_alphaThreshold = 0.5f;
 
     /// The address mode for samples when filtering outside of the image dimensions in the horizontal direction.
@@ -71,10 +90,13 @@ public:
     /// The address mode for samples when filtering outside of the image dimensions in the depth direction.
     ezImageAddressMode::Enum m_addressModeW = ezImageAddressMode::Clamp;
 
-    /// The border color if texture address mode equals BORDER.
+    /// Border color for ClampBorder address mode.
     ezColor m_borderColor = ezColor::Black;
 
-    /// How many mip maps should be generated. Pass 0 to generate all mip map levels.
+    /// Number of mip levels to generate.
+    ///
+    /// Set to 0 to generate all possible mip levels down to 1x1.
+    /// Set to a specific value to limit the number of generated levels.
     ezUInt32 m_numMipMaps = 0;
   };
 
@@ -150,10 +172,11 @@ public:
   /// should be retrieved only once from the source image, as ezImage::GetPixelPointer() is rather slow due to validation overhead.
   static ezColor BilinearSample(const ezColor* pPixelPointer, ezUInt32 uiWidth, ezUInt32 uiHeight, ezImageAddressMode::Enum addressMode, ezVec2 vUv);
 
-  /// \brief Copies channel 0, 1, 2 or 3 from srcImg into dstImg.
+  /// \brief Copies a single channel from srcImg into a single channel of ref_dstImg.
   ///
-  /// Currently only supports images of format R32G32B32A32_FLOAT and with identical resolution.
-  /// Returns failure if any of those requirements are not met.
+  /// Source and destination may use different formats, as long as both are LINEAR and use the same data type
+  /// (e.g. both UNORM or both FLOAT) with uniform bits per channel (8, 16, or 32). The channel counts may differ,
+  /// allowing copies between e.g. R8_UNORM and R8G8B8A8_UNORM. Both images must have identical width and height.
   static ezResult CopyChannel(ezImage& ref_dstImg, ezUInt8 uiDstChannelIdx, const ezImage& srcImg, ezUInt8 uiSrcChannelIdx);
 
   /// \brief Embeds the image as Base64 encoded text into an HTML file.

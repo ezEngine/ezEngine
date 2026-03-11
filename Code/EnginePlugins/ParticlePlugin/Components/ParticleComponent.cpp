@@ -85,6 +85,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezParticleComponent, 5, ezComponentMode::Static)
   EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgSetPlaying, OnMsgSetPlaying),
+    EZ_MESSAGE_HANDLER(ezMsgInterruptPlaying, OnMsgInterruptPlaying),
     EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
     EZ_MESSAGE_HANDLER(ezMsgDeleteGameObject, OnMsgDeleteGameObject),
   }
@@ -107,6 +108,7 @@ ezParticleComponent::~ezParticleComponent() = default;
 void ezParticleComponent::OnDeactivated()
 {
   m_EffectController.Invalidate();
+  SetUserFlag(0, false);
 
   ezRenderComponent::OnDeactivated();
 }
@@ -256,7 +258,6 @@ bool ezParticleComponent::IsEffectActive() const
   return m_EffectController.IsAlive();
 }
 
-
 void ezParticleComponent::OnMsgSetPlaying(ezMsgSetPlaying& ref_msg)
 {
   if (ref_msg.m_bPlay)
@@ -269,6 +270,11 @@ void ezParticleComponent::OnMsgSetPlaying(ezMsgSetPlaying& ref_msg)
   }
 }
 
+void ezParticleComponent::OnMsgInterruptPlaying(ezMsgInterruptPlaying& ref_msg)
+{
+  InterruptEffect();
+}
+
 void ezParticleComponent::SetParticleEffect(const ezParticleEffectResourceHandle& hEffect)
 {
   m_EffectController.Invalidate();
@@ -279,20 +285,20 @@ void ezParticleComponent::SetParticleEffect(const ezParticleEffectResourceHandle
 }
 
 
-void ezParticleComponent::SetParticleEffectFile(const char* szFile)
+void ezParticleComponent::SetParticleEffectFile(ezStringView sFile)
 {
   ezParticleEffectResourceHandle hEffect;
 
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
+  if (!sFile.IsEmpty())
   {
-    hEffect = ezResourceManager::LoadResource<ezParticleEffectResource>(szFile);
+    hEffect = ezResourceManager::LoadResource<ezParticleEffectResource>(sFile);
   }
 
   SetParticleEffect(hEffect);
 }
 
 
-const char* ezParticleComponent::GetParticleEffectFile() const
+ezStringView ezParticleComponent::GetParticleEffectFile() const
 {
   if (!m_hEffectResource.IsValid())
     return "";
@@ -333,9 +339,15 @@ ezResult ezParticleComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bo
 
 void ezParticleComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
-  // do not extract particles during shadow map rendering
-  if (msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow)
-    return;
+  switch (msg.m_pView->GetCameraUsageHint())
+  {
+    case ezCameraUsageHint::Shadow:
+    case ezCameraUsageHint::Reflection:
+      return;
+
+    default:
+      break;
+  }
 
   m_EffectController.ExtractRenderData(msg, GetPfxTransform());
 }
@@ -347,11 +359,11 @@ void ezParticleComponent::OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg)
 
 void ezParticleComponent::Update()
 {
-  if (!m_EffectController.IsAlive() && m_bSpawnAtStart)
+  if (!m_EffectController.IsAlive() && m_bSpawnAtStart && !GetUserFlag(0))
   {
     if (StartEffect())
     {
-      m_bSpawnAtStart = false;
+      SetUserFlag(0, true); // already spawned
 
       if (m_EffectController.IsContinuousEffect())
       {
@@ -361,7 +373,7 @@ void ezParticleComponent::Update()
         }
         else
         {
-          m_bSpawnAtStart = true;
+          SetUserFlag(0, false);
         }
       }
     }
@@ -373,7 +385,7 @@ void ezParticleComponent::Update()
 
     if (m_RestartTime == ezTime())
     {
-      const ezTime tDiff = ezTime::MakeFromSeconds(GetWorld()->GetRandomNumberGenerator().DoubleInRange(m_MinRestartDelay.GetSeconds(), m_RestartDelayRange.GetSeconds()));
+      const ezTime tDiff = ezTime::MakeFromSeconds(GetWorld()->GetRandomNumberGenerator().DoubleMinMax(m_MinRestartDelay.GetSeconds(), m_MinRestartDelay.GetSeconds() + m_RestartDelayRange.GetSeconds()));
 
       m_RestartTime = tNow + tDiff;
     }

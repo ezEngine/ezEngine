@@ -7,19 +7,8 @@
 #include <Jolt/Core/JobSystemThreadPool.h>
 #include <Jolt/Core/Profiler.h>
 #include <Jolt/Core/FPException.h>
+#include <Jolt/Core/IncludeWindows.h>
 
-#ifdef JPH_PLATFORM_WINDOWS
-	JPH_SUPPRESS_WARNING_PUSH
-	JPH_MSVC_SUPPRESS_WARNING(5039) // winbase.h(13179): warning C5039: 'TpSetCallbackCleanupGroup': pointer or reference to potentially throwing function passed to 'extern "C"' function under -EHc. Undefined behavior may occur if this function throws an exception.
-	#define WIN32_LEAN_AND_MEAN
-#ifndef JPH_COMPILER_MINGW
-	#include <Windows.h>
-#else
-	#include <windows.h>
-#endif
-
-	JPH_SUPPRESS_WARNING_POP
-#endif
 #ifdef JPH_PLATFORM_LINUX
 	#include <sys/prctl.h>
 #endif
@@ -46,8 +35,9 @@ JobSystemThreadPool::JobSystemThreadPool(uint inMaxJobs, uint inMaxBarriers, int
 	Init(inMaxJobs, inMaxBarriers, inNumThreads);
 }
 
-void JobSystemThreadPool::StartThreads(int inNumThreads)
+void JobSystemThreadPool::StartThreads([[maybe_unused]] int inNumThreads)
 {
+#if !defined(JPH_CPU_WASM) || defined(__EMSCRIPTEN_PTHREADS__) // If we're running without threads support we cannot create threads and we ignore the inNumThreads parameter
 	// Auto detect number of threads
 	if (inNumThreads < 0)
 		inNumThreads = thread::hardware_concurrency() - 1;
@@ -69,6 +59,7 @@ void JobSystemThreadPool::StartThreads(int inNumThreads)
 	mThreads.reserve(inNumThreads);
 	for (int i = 0; i < inNumThreads; ++i)
 		mThreads.emplace_back([this, i] { ThreadMain(i); });
+#endif
 }
 
 JobSystemThreadPool::~JobSystemThreadPool()
@@ -318,6 +309,9 @@ void JobSystemThreadPool::ThreadMain(int inThreadIndex)
 
 	JPH_PROFILE_THREAD_START(name);
 
+	// Call the thread init function
+	mThreadInitFunction(inThreadIndex);
+
 	atomic<uint> &head = mHeads[inThreadIndex];
 
 	while (!mQuit)
@@ -347,6 +341,9 @@ void JobSystemThreadPool::ThreadMain(int inThreadIndex)
 			}
 		}
 	}
+
+	// Call the thread exit function
+	mThreadExitFunction(inThreadIndex);
 
 	JPH_PROFILE_THREAD_END();
 }

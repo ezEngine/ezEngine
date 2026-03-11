@@ -8,10 +8,6 @@ get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 ez_create_target(LIBRARY ${PROJECT_NAME})
 
 target_link_libraries(${PROJECT_NAME}
-  PRIVATE
-)
-
-target_link_libraries(${PROJECT_NAME}
   PUBLIC
   RendererCore
   ozz
@@ -22,11 +18,22 @@ if (EZ_3RDPARTY_IMGUI_SUPPORT)
   target_link_libraries(${PROJECT_NAME} PUBLIC Imgui)
 endif()
 
-if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)
+# XBOX controller support
+if (EZ_CMAKE_PLATFORM_WINDOWS)
 
-  target_link_libraries(${PROJECT_NAME}
-    PRIVATE
-    FileservePlugin
-  )
+  if (EZ_3RDPARTY_GLFW_SUPPORT)
+    # When using glfw, glfw will handle xbox controller input, and this plugin is not needed.
+  else()
+
+    if (EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)
+
+      target_link_libraries(${PROJECT_NAME}
+        PRIVATE
+        XINPUT9_1_0
+      )
+
+    endif()
+
+  endif()
 
 endif()

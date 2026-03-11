@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Core/ActorSystem/ActorPluginWindow.h>
 #include <Core/ResourceManager/ResourceHandle.h>
+#include <Core/System/Window.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <GameEngine/GameApplication/WindowOutputTarget.h>
 #include <RendererCore/Shader/ConstantBufferStorage.h>
@@ -20,6 +20,7 @@ public:
 
   virtual ezWindowHandle GetNativeWindowHandle() const override;
 
+  virtual bool IsVisible() const override { return true; }
   virtual bool IsFullscreenWindow(bool bOnlyProperFullscreenMode) const override;
 
   virtual void ProcessWindowMessages() override;
@@ -43,8 +44,10 @@ public:
   ezWindowOutputTargetXR(ezXRInterface* pVrInterface, ezUniquePtr<ezWindowOutputTargetGAL> pCompanionWindowOutputTarget);
   ~ezWindowOutputTargetXR();
 
-  virtual void Present(bool bEnableVSync) override;
-  void RenderCompanionView(bool bThrottleCompanionView = true);
+  virtual void AcquireImage() override {}
+  virtual void PresentImage(bool bEnableVSync) override;
+  void CompanionViewBeginFrame(bool bThrottleCompanionView = true);
+  void CompanionViewEndFrame();
   virtual ezResult CaptureImage(ezImage& out_image) override;
 
   /// \brief Returns the companion window output target if present.
@@ -56,26 +59,5 @@ private:
   ezUniquePtr<ezWindowOutputTargetGAL> m_pCompanionWindowOutputTarget;
   ezConstantBufferStorageHandle m_hCompanionConstantBuffer;
   ezShaderResourceHandle m_hCompanionShader;
-};
-
-/// \brief XR actor plugin window base implementation. Optionally wraps a companion window and output target.
-class EZ_GAMEENGINE_DLL ezActorPluginWindowXR : public ezActorPluginWindow
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezActorPluginWindowXR, ezActorPluginWindow);
-
-public:
-  ezActorPluginWindowXR(ezXRInterface* pVrInterface, ezUniquePtr<ezWindowBase> pCompanionWindow, ezUniquePtr<ezWindowOutputTargetGAL> pCompanionWindowOutput);
-  ~ezActorPluginWindowXR();
-  void Initialize();
-
-  virtual ezWindowBase* GetWindow() const override;
-  virtual ezWindowOutputTargetBase* GetOutputTarget() const override;
-
-protected:
-  virtual void Update() override;
-
-private:
-  ezXRInterface* m_pVrInterface = nullptr;
-  ezUniquePtr<ezWindowXR> m_pWindow;
-  ezUniquePtr<ezWindowOutputTargetXR> m_pWindowOutputTarget;
+  bool m_bRender = false;
 };

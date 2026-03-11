@@ -1,11 +1,15 @@
 #pragma once
 
 #include <Core/World/Declarations.h>
-#include <Physics/Collision/ContactListener.h>
+#include <Jolt/Jolt.h>
+#include <Jolt/Physics/Collision/ContactListener.h>
+#include <Jolt/Physics/SoftBody/SoftBodyContactListener.h>
 
 class ezWorld;
 class ezJoltTriggerComponent;
 class ezJoltContactEvents;
+class ezSurfaceResource;
+struct ezOnJoltContact;
 
 namespace JPH
 {
@@ -84,9 +88,15 @@ public:
 
   virtual void OnContactRemoved(const JPH::SubShapeIDPair& subShapePair) override;
 
-  void OnContact(const JPH::Body& body0, const JPH::Body& body1, const JPH::ContactManifold& manifold, JPH::ContactSettings& ref_settings, bool bPersistent);
+  void OnContact(const JPH::Body& body0, const JPH::Body& body1, const JPH::ContactManifold& manifold, JPH::ContactSettings& ref_settings, bool bPersistent, bool bIsDebrisContact);
 
   bool ActivateTrigger(const JPH::Body& body1, const JPH::Body& body2, ezUInt64 uiBody1id, ezUInt64 uiBody2id);
 
   void DeactivateTrigger(ezUInt64 uiBody1id, ezUInt64 uiBody2id);
+};
+
+class ezJoltSoftBodyContactListener : public JPH::SoftBodyContactListener
+{
+public:
+  virtual JPH::SoftBodyValidateResult OnSoftBodyContactValidate(const JPH::Body& softBody, const JPH::Body& otherBody, JPH::SoftBodyContactSettings& ref_settings) override;
 };

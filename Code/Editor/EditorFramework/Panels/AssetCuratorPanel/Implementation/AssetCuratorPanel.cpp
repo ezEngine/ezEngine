@@ -24,8 +24,7 @@ bool ezQtAssetCuratorFilter::IsAssetFiltered(ezStringView sDataDirParentRelative
   if (!pInfo->m_bMainAsset)
     return true;
 
-  if (pInfo->m_pAssetInfo->m_TransformState != ezAssetInfo::MissingTransformDependency && pInfo->m_pAssetInfo->m_TransformState != ezAssetInfo::CircularDependency &&
-      pInfo->m_pAssetInfo->m_TransformState != ezAssetInfo::MissingThumbnailDependency && pInfo->m_pAssetInfo->m_TransformState != ezAssetInfo::TransformError)
+  if ((pInfo->m_pAssetInfo->m_TransformState != ezAssetInfo::MissingTransformDependency) && (pInfo->m_pAssetInfo->m_TransformState != ezAssetInfo::CircularDependency) && (pInfo->m_pAssetInfo->m_TransformState != ezAssetInfo::MissingThumbnailDependency) && (pInfo->m_pAssetInfo->m_TransformState != ezAssetInfo::MissingPackageDependency) && (pInfo->m_pAssetInfo->m_TransformState != ezAssetInfo::TransformError))
   {
     return true;
   }
@@ -44,6 +43,19 @@ bool ezQtAssetCuratorFilter::IsAssetFiltered(ezStringView sDataDirParentRelative
 
       return true;
     }
+
+    if (pInfo->m_pAssetInfo->m_TransformState == ezAssetInfo::MissingPackageDependency)
+    {
+      for (auto& ref : pInfo->m_pAssetInfo->m_MissingPackageDeps)
+      {
+        if (!ezAssetCurator::GetSingleton()->FindSubAsset(ref).isValid())
+        {
+          return false;
+        }
+      }
+
+      return true;
+    }
   }
 
   return false;
@@ -51,8 +63,8 @@ bool ezQtAssetCuratorFilter::IsAssetFiltered(ezStringView sDataDirParentRelative
 
 EZ_IMPLEMENT_SINGLETON(ezQtAssetCuratorPanel);
 
-ezQtAssetCuratorPanel::ezQtAssetCuratorPanel()
-  : ezQtApplicationPanel("Panel.AssetCurator")
+ezQtAssetCuratorPanel::ezQtAssetCuratorPanel(ads::CDockManager* pDockManager)
+  : ezQtApplicationPanel(pDockManager, "Panel.AssetCurator")
   , m_SingletonRegistrar(this)
 {
   QWidget* pDummy = new QWidget();
@@ -70,18 +82,24 @@ ezQtAssetCuratorPanel::ezQtAssetCuratorPanel()
 
   ezAssetProcessor::GetSingleton()->AddLogWriter(ezMakeDelegate(&ezQtAssetCuratorPanel::LogWriter, this));
 
+  ProcessorProgress->SetGridBarWidget(ProcessorProgressGridBar);
+  ProcessorProgress->SetScrollBarWidget(ProcessorScrollBar);
+
   m_pFilter = new ezQtAssetCuratorFilter(this);
-  m_pModel = new ezQtAssetBrowserModel(this, m_pFilter);
-  m_pModel->SetIconMode(false);
+  m_Model = QSharedPointer<ezQtAssetBrowserModel>(new ezQtAssetBrowserModel(this, m_pFilter));
+  m_Model->Initialize();
+  m_Model->SetIconMode(false);
 
   TransformLog->ShowControls(false);
 
-  ListAssets->setModel(m_pModel);
+  CuratorLog->setVisible(false);
+
+  ListAssets->setModel(m_Model.data());
   ListAssets->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
   EZ_VERIFY(
     connect(ListAssets->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ezQtAssetCuratorPanel::OnAssetSelectionChanged) != nullptr,
     "signal/slot connection failed");
-  EZ_VERIFY(connect(m_pModel, &QAbstractItemModel::dataChanged, this,
+  EZ_VERIFY(connect(m_Model.data(), &QAbstractItemModel::dataChanged, this,
               [this](const QModelIndex& topLeft, const QModelIndex& bottomRight, const QVector<int>& roles)
               {
                 if (m_SelectedIndex.isValid() && topLeft.row() <= m_SelectedIndex.row() && m_SelectedIndex.row() <= bottomRight.row())
@@ -91,13 +109,15 @@ ezQtAssetCuratorPanel::ezQtAssetCuratorPanel()
               }),
     "signal/slot connection failed");
 
-  EZ_VERIFY(connect(m_pModel, &QAbstractItemModel::modelReset, this,
+  EZ_VERIFY(connect(m_Model.data(), &QAbstractItemModel::modelReset, this,
               [this]()
               {
                 m_SelectedIndex = QPersistentModelIndex();
                 UpdateIssueInfo();
               }),
     "signal/slot connection failed");
+
+  EZ_VERIFY(connect(ClearHistory, &QToolButton::clicked, ProcessorProgress, &ezQtAssetProcessorProgressWidget::ClearHistory), "");
 }
 
 ezQtAssetCuratorPanel::~ezQtAssetCuratorPanel()
@@ -117,7 +137,7 @@ void ezQtAssetCuratorPanel::OnAssetSelectionChanged(const QItemSelection& select
 
 void ezQtAssetCuratorPanel::onListAssetsDoubleClicked(const QModelIndex& index)
 {
-  QString sAbsPath = m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString();
+  QString sAbsPath = m_Model->data(index, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString();
 
   ezQtEditorApp::GetSingleton()->OpenDocumentQueued(sAbsPath.toUtf8().data());
 }
@@ -125,7 +145,7 @@ void ezQtAssetCuratorPanel::onListAssetsDoubleClicked(const QModelIndex& index)
 void ezQtAssetCuratorPanel::onCheckIndirectToggled(bool checked)
 {
   m_pFilter->SetFilterTransitive(!checked);
-  m_pModel->resetModel();
+  m_Model->resetModel();
 }
 
 void ezQtAssetCuratorPanel::LogWriter(const ezLoggingEventData& e)
@@ -143,7 +163,7 @@ void ezQtAssetCuratorPanel::UpdateIssueInfo()
     return;
   }
 
-  ezUuid assetGuid = m_pModel->data(m_SelectedIndex, ezQtAssetBrowserModel::UserRoles::AssetGuid).value<ezUuid>();
+  ezUuid assetGuid = m_Model->data(m_SelectedIndex, ezQtAssetBrowserModel::UserRoles::AssetGuid).value<ezUuid>();
   auto pSubAsset = ezAssetCurator::GetSingleton()->GetSubAsset(assetGuid);
   if (pSubAsset == nullptr)
   {
@@ -203,6 +223,15 @@ void ezQtAssetCuratorPanel::UpdateIssueInfo()
   {
     ezLog::Error(&logger, "Missing Thumbnail Dependency:");
     for (const ezString& ref : pAssetInfo->m_MissingThumbnailDeps)
+    {
+      ezStringBuilder m_sNiceName = getNiceName(ref);
+      ezLog::Error(&logger, "{0}", m_sNiceName);
+    }
+  }
+  else if (pAssetInfo->m_TransformState == ezAssetInfo::MissingPackageDependency)
+  {
+    ezLog::Error(&logger, "Missing Package Dependency:");
+    for (const ezString& ref : pAssetInfo->m_MissingPackageDeps)
     {
       ezStringBuilder m_sNiceName = getNiceName(ref);
       ezLog::Error(&logger, "{0}", m_sNiceName);

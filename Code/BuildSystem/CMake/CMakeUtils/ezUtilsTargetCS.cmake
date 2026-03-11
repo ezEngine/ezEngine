@@ -50,7 +50,7 @@ macro(ez_create_target_cs TYPE TARGET_NAME)
 	target_compile_options(${TARGET_NAME} PRIVATE "/langversion:default")
 
 	# setting this turns the app into a "Windows" application, not a "Console" application
-	# use ez_make_winmain_executable if this is desired
+	# use ez_make_windowapp if this is desired
 	# set_property(TARGET ${TARGET_NAME} PROPERTY WIN32_EXECUTABLE TRUE)
 	if(ARG_DOTNET_VERSION)
 		# message(STATUS "Custom .NET version: ${ARG_DOTNET_VERSION}")

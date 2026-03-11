@@ -6,7 +6,7 @@
 
 using ezJointOverrideComponentManager = ezComponentManager<class ezJointOverrideComponent, ezBlockStorageType::FreeList>;
 
-/// \brief Overrides the local transform of a bone in a skeletal animation.
+/// Overrides the local transform of a bone in a skeletal animation.
 ///
 /// Every time a new animation pose is prepared, this component replaces the transform of the chosen bone
 /// to be the same as the local transform of the owner game object.
@@ -33,18 +33,21 @@ public:
   ezJointOverrideComponent();
   ~ezJointOverrideComponent();
 
-  /// \brief The name of the bone whose transform should be replaced with the transform of this game object.
+  /// The name of the bone whose transform should be replaced with the transform of this game object.
   void SetJointName(const char* szName); // [ property ]
   const char* GetJointName() const;      // [ property ]
 
-  /// \brief If true, the position of the bone will be overridden.
+  /// If true, the position of the bone will be overridden.
   bool m_bOverridePosition = false; // [ property ]
 
-  /// \brief If true, the rotation of the bone will be overridden.
+  /// If true, the rotation of the bone will be overridden.
   bool m_bOverrideRotation = true; // [ property ]
 
-  /// \brief If true, the scale of the bone will be overridden.
-  bool m_bOverrideScale = false;                                         // [ property ]
+  /// If true, the scale of the bone will be overridden.
+  bool m_bOverrideScale = false; // [ property ]
+
+  /// Set a weight between 0 and 1 to fade the override in our out.
+  float m_fWeight = 1.0f;                                                // [ property ]
 
 protected:
   void OnAnimationPosePreparing(ezMsgAnimationPosePreparing& msg) const; // [ msg handler ]

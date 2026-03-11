@@ -13,7 +13,5 @@ public:
   ~ezLayerDocument();
 
   virtual void InitializeAfterLoading(bool bFirstTimeCreation) override;
-  virtual void InitializeAfterLoadingAndSaving() override;
-
   virtual ezVariant GetCreateEngineMetaData() const override;
 };

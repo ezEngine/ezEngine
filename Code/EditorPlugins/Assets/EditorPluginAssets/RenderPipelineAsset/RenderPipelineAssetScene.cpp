@@ -4,7 +4,7 @@
 
 
 ezQtRenderPipelineAssetScene::ezQtRenderPipelineAssetScene(QObject* pParent)
-  : ezQtNodeScene(pParent)
+  : ezQtVisualGraphScene(pParent)
 {
 }
 

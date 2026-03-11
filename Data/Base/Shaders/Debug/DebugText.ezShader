@@ -4,7 +4,6 @@ ALL
 [PERMUTATIONS]
 
 CAMERA_MODE
-VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
 TOPOLOGY
 
 [RENDERSTATE]
@@ -32,7 +31,7 @@ struct GlyphData
 	uint glyphIndexAndSize;
 };
 
-StructuredBuffer<GlyphData> glyphData;
+StructuredBuffer<GlyphData> glyphData BIND_GROUP(BG_RENDER_PASS);
 
 VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
 {
@@ -66,17 +65,14 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
 	RetVal.Position = float4(screenPosition, 0.0, 1.0);
 	RetVal.TexCoord0 = (float2(texCoordX, texCoordY) + vertexPosition) * invAtlasSize;
 	RetVal.Color0 = RGBA8ToFloat4(data.color);
-	RetVal.InstanceID = InstanceID;
+#if defined(CAMERA_MODE)
+#  if CAMERA_MODE == CAMERA_MODE_STEREO
+    RetVal.RenderTargetArrayIndex = InstanceID % 2;
+#  endif
+#endif
 
 	return RetVal;
 }
-
-[GEOMETRYSHADER]
-
-#define USE_TEXCOORD0
-#define USE_COLOR0
-
-#include <Shaders/Materials/StereoGeometryShader.h>
 
 [PIXELSHADER]
 
@@ -85,8 +81,8 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
 
 #include <Shaders/Materials/MaterialInterpolator.h>
 
-Texture2D FontTexture;
-SamplerState FontTexture_AutoSampler;
+Texture2D FontTexture BIND_GROUP(BG_RENDER_PASS);
+SamplerState FontTexture_AutoSampler BIND_GROUP(BG_RENDER_PASS);
 
 float4 main(PS_IN Input) : SV_Target
 {
@@ -94,5 +90,5 @@ float4 main(PS_IN Input) : SV_Target
   float c = saturate(glyph * 2.0 - 1.0); // 0.5 - 1 is color content
   float a = saturate(glyph * 2.0); // 0 - 0.5 is alpha content
 
-	return float4(c, c, c, a) * Input.Color0;
+  return float4(c, c, c, a) * Input.Color0;
 }

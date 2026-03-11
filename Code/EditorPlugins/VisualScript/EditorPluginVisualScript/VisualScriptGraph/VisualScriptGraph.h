@@ -1,11 +1,17 @@
 #pragma once
 
 #include <EditorPluginVisualScript/VisualScriptGraph/VisualScriptNodeRegistry.h>
-#include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
+#include <ToolsFoundation/VisualGraph/VisualGraphObjectManager.h>
 
-class ezVisualScriptPin : public ezPin
+struct ezVisualScriptVariable;
+
+/// Visual graph pin for visual script nodes.
+///
+/// Extends the base pin with visual scripting metadata including execution flow pins, data type information,
+/// and support for type deduction. Pins can represent both execution flow and data connections.
+class ezVisualScriptPin : public ezVisualGraphPin
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptPin, ezPin);
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptPin, ezVisualGraphPin);
 
 public:
   ezVisualScriptPin(Type type, ezStringView sName, const ezVisualScriptNodeRegistry::PinDesc& pinDesc, const ezDocumentObject* pObject, ezUInt32 uiDataPinIndex, ezUInt32 uiElementIndex);
@@ -37,7 +43,12 @@ private:
   ezUInt32 m_uiElementIndex = 0;
 };
 
-class ezVisualScriptNodeManager : public ezDocumentNodeManager
+/// Object manager for visual script graphs.
+///
+/// Manages visual script nodes and their connections, including both execution flow and data flow.
+/// Handles complex features such as type deduction, dynamic pin creation, variable management,
+/// and coroutine detection. Validates connections based on script data types and execution flow rules.
+class ezVisualScriptNodeManager : public ezVisualGraphObjectManager
 {
 public:
   ezVisualScriptNodeManager();
@@ -47,7 +58,8 @@ public:
   bool IsFilteredByBaseClass(const ezRTTI* pNodeType, const ezVisualScriptNodeRegistry::NodeDesc& nodeDesc, const ezHashedString& sBaseClass, bool bLogWarning = false) const;
 
   ezVisualScriptDataType::Enum GetVariableType(ezTempHashedString sName) const;
-  ezResult GetVariableDefaultValue(ezTempHashedString sName, ezVariant& out_value) const;
+  ezResult GetVariable(ezTempHashedString sName, ezVisualScriptVariable& out_variable) const;
+  void GetAllVariables(ezDynamicArray<ezVisualScriptVariable>& out_variables) const;
 
   void GetInputExecutionPins(const ezDocumentObject* pObject, ezDynamicArray<const ezVisualScriptPin*>& out_pins) const;
   void GetOutputExecutionPins(const ezDocumentObject* pObject, ezDynamicArray<const ezVisualScriptPin*>& out_pins) const;
@@ -71,25 +83,25 @@ public:
 private:
   virtual bool InternalIsNode(const ezDocumentObject* pObject) const override;
   virtual bool InternalIsDynamicPinProperty(const ezDocumentObject* pObject, const ezAbstractProperty* pProp) const override;
-  virtual ezStatus InternalCanConnect(const ezPin& source, const ezPin& target, CanConnectResult& out_Result) const override;
+  virtual ezStatus InternalCanConnect(const ezVisualGraphPin& source, const ezVisualGraphPin& target, CanConnectResult& out_Result) const override;
 
   virtual void InternalCreatePins(const ezDocumentObject* pObject, NodeInternal& node) override;
 
-  virtual void GetNodeCreationTemplates(ezDynamicArray<ezNodeCreationTemplate>& out_templates) const override;
+  virtual void GetNodeCreationTemplates(ezDynamicArray<ezVisualGraphNodeDesc>& out_templates) const override;
 
-  void NodeEventsHandler(const ezDocumentNodeManagerEvent& e);
+  void NodeEventsHandler(const ezVisualGraphObjectManagerEvent& e);
   void PropertyEventsHandler(const ezDocumentObjectPropertyEvent& e);
 
   friend class ezVisualScriptPin;
   void RemoveDeductedPinType(const ezVisualScriptPin& pin);
-  void DeductNodeTypeAndAllPinTypes(const ezDocumentObject* pObject, const ezPin* pDisconnectedPin = nullptr);
-  void UpdateCoroutine(const ezDocumentObject* pTargetNode, const ezConnection& changedConnection, bool bIsAboutToDisconnect = false);
-  bool IsConnectedToCoroutine(const ezDocumentObject* pEntryNode, const ezConnection& changedConnection, bool bIsAboutToDisconnect = false) const;
+  void DeductNodeTypeAndAllPinTypes(const ezDocumentObject* pObject, const ezVisualGraphPin* pDisconnectedPin = nullptr);
+  void UpdateCoroutine(const ezDocumentObject* pTargetNode, const ezVisualGraphConnection& changedConnection, bool bIsAboutToDisconnect = false);
+  bool IsConnectedToCoroutine(const ezDocumentObject* pEntryNode, const ezVisualGraphConnection& changedConnection, bool bIsAboutToDisconnect = false) const;
 
   ezHashTable<const ezDocumentObject*, ezEnum<ezVisualScriptDataType>> m_ObjectToDeductedType;
   ezHashTable<const ezVisualScriptPin*, ezEnum<ezVisualScriptDataType>> m_PinToDeductedType;
   ezHashSet<const ezDocumentObject*> m_CoroutineObjects;
 
-  mutable ezDynamicArray<ezNodePropertyValue> m_PropertyValues;
+  mutable ezDynamicArray<ezVisualGraphNodeProperty> m_PropertyValues;
   mutable ezDeque<ezString> m_VariableNodeTypeNames;
 };

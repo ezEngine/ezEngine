@@ -270,7 +270,7 @@ public:
   virtual void AfterCoreSystemsStartup() override
   {
     // Add the empty data directory to access files via absolute paths
-    ezFileSystem::AddDataDirectory("", "App", ":", ezFileSystem::AllowWrites).IgnoreResult();
+    ezFileSystem::AddDataDirectory("", "App", ":", ezDataDirUsage::AllowWrites).IgnoreResult();
 
     ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
     ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
@@ -368,14 +368,15 @@ public:
     return EZ_SUCCESS;
   }
 
-  virtual Execution Run() override
+  virtual void Run() override
   {
     {
       ezStringBuilder cmdHelp;
       if (ezCommandLineOption::LogAvailableOptionsToBuffer(cmdHelp, ezCommandLineOption::LogAvailableModes::IfHelpRequested, "_ArchiveTool"))
       {
         ezLog::Print(cmdHelp);
-        return ezApplication::Execution::Quit;
+        QuitApplication();
+        return;
       }
     }
 
@@ -384,7 +385,8 @@ public:
     if (ParseArguments().Failed())
     {
       SetReturnCode(1);
-      return ezApplication::Execution::Quit;
+      QuitApplication();
+      return;
     }
 
     if (m_Mode == ArchiveMode::Pack)
@@ -396,7 +398,8 @@ public:
       }
 
       ezLog::Success("Finished packing archive in {}", sw.GetRunningTotal());
-      return ezApplication::Execution::Quit;
+      QuitApplication();
+      return;
     }
 
     if (m_Mode == ArchiveMode::Unpack)
@@ -408,12 +411,13 @@ public:
       }
 
       ezLog::Success("Finished extracting archive in {}", sw.GetRunningTotal());
-      return ezApplication::Execution::Quit;
+      QuitApplication();
+      return;
     }
 
     ezLog::Error("Unknown mode");
-    return ezApplication::Execution::Quit;
+    QuitApplication();
   }
 };
 
-EZ_CONSOLEAPP_ENTRY_POINT(ezArchiveTool);
+EZ_APPLICATION_ENTRY_POINT(ezArchiveTool);

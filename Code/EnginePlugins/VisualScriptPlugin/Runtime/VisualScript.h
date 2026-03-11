@@ -35,6 +35,7 @@ struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptNodeDescription
       Builtin_SetVariable,
       Builtin_IncVariable,
       Builtin_DecVariable,
+      Builtin_TempVariable,
 
       Builtin_Branch,
       Builtin_Switch,
@@ -81,6 +82,7 @@ struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptNodeDescription
       Builtin_Array_IndexOf,
       Builtin_Array_Insert,
       Builtin_Array_PushBack,
+      Builtin_Array_PushBackRange,
       Builtin_Array_Remove,
       Builtin_Array_RemoveAt,
 
@@ -135,7 +137,7 @@ public:
   ~ezVisualScriptGraphDescription();
 
   static ezResult Serialize(ezArrayPtr<const ezVisualScriptNodeDescription> nodes, const ezVisualScriptDataDescription& localDataDesc, ezStreamWriter& inout_stream);
-  ezResult Deserialize(ezStreamReader& inout_stream);
+  ezResult Deserialize(ezStreamReader& inout_stream, const ezVisualScriptDataDescription& instanceDataDesc, const ezVisualScriptDataDescription& constantDataDesc);
 
   template <typename T, ezUInt32 Size>
   struct EmbeddedArrayOrPointer
@@ -149,7 +151,7 @@ public:
     static void AddAdditionalDataSize(ezArrayPtr<const T> a, ezUInt32& inout_uiAdditionalDataSize);
     static void AddAdditionalDataSize(ezUInt32 uiSize, ezUInt32 uiAlignment, ezUInt32& inout_uiAdditionalDataSize);
 
-    T* Init(ezUInt8 uiCount, ezUInt8*& inout_pAdditionalData);
+    T* Init(ezUInt8 uiCount, ezUInt32 uiAlignment, ezUInt8*& inout_pAdditionalData);
     ezResult ReadFromStream(ezUInt8& out_uiCount, ezStreamReader& inout_stream, ezUInt8*& inout_pAdditionalData);
   };
 
@@ -208,11 +210,17 @@ public:
     DataOffset GetInputDataOffset(ezUInt32 uiSlot) const;
     DataOffset GetOutputDataOffset(ezUInt32 uiSlot) const;
 
+    DataOffset* GetInputDataOffsets();
+    DataOffset* GetOutputDataOffsets();
+
+    template <typename T>
+    static constexpr ezUInt32 GetUserDataAlignment();
+
     template <typename T>
     const T& GetUserData() const;
 
     template <typename T>
-    T& InitUserData(ezUInt8*& inout_pAdditionalData, ezUInt32 uiByteSize = sizeof(T));
+    T& InitUserData(ezUInt8*& inout_pAdditionalData, ezUInt32 uiByteSize = sizeof(T), ezUInt32 uiAlignment = GetUserDataAlignment<T>());
   };
 
   const Node* GetNode(ezUInt32 uiIndex) const;
@@ -233,10 +241,10 @@ private:
 class EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptExecutionContext
 {
 public:
-  ezVisualScriptExecutionContext(const ezSharedPtr<const ezVisualScriptGraphDescription>& pDesc);
+  ezVisualScriptExecutionContext(const ezSharedPtr<const ezVisualScriptGraphDescription>& pDesc, ezAllocator* pAllocator);
   ~ezVisualScriptExecutionContext();
 
-  void Initialize(ezVisualScriptInstance& inout_instance, ezVisualScriptDataStorage& inout_localDataStorage, ezArrayPtr<ezVariant> arguments);
+  void Initialize(ezVisualScriptInstance& inout_instance, ezArrayPtr<ezVariant> arguments);
   void Deinitialize();
 
   using ExecResult = ezVisualScriptGraphDescription::ExecResult;
@@ -275,6 +283,7 @@ private:
   ezUInt32 m_uiExecutionCounter = 0;
   ezTime m_DeltaTimeSinceLastExecution;
 
+  ezVisualScriptDataStorage m_LocalDataStorage;
   ezVisualScriptDataStorage* m_DataStorage[DataOffset::Source::Count] = {};
 
   ezScriptCoroutine* m_pCurrentCoroutine = nullptr;

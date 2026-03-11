@@ -168,7 +168,7 @@ ezVariant ezDynamicDefaultStateProvider::GetDefaultValue(SuperArray superPtr, ez
 
           if (!index.IsValid())
           {
-            ezHybridArray<ezString, 16> keys;
+            ezTempHybridArray<ezString, 16> keys;
             pMapProp->GetKeys(pLeaf, keys);
 
             ezVariantDictionary varDict;

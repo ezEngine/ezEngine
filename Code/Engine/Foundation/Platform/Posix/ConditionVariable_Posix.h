@@ -2,6 +2,7 @@
 EZ_FOUNDATION_INTERNAL_HEADER
 
 #include <Foundation/Threading/ConditionVariable.h>
+#include <Foundation/Time/Time.h>
 
 #include <errno.h>
 #include <pthread.h>

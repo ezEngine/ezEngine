@@ -55,9 +55,69 @@ static PS_GLOBALS G;
 void FillCustomGlobals();
 #endif
 
+#if defined(USE_FINALIZE_MATERIAL)
+void FinalizeMaterial(inout ezMaterialData matData);
+#endif
+
+#if defined(USE_CUSTOM_DITHER_NOISE)
+float4 GetDitherNoise(float2 pixelCoord);
+#endif
+
 uint CalculateCoverage()
 {
-#if defined(USE_ALPHA_TEST_SUPER_SAMPLING) && defined(USE_TEXCOORD0)
+#if defined(USE_DITHERING)
+  float4 worldOrigin = TransformToPosition(GetInstanceData().ObjectToWorld);
+  float2 randomOffset;
+  randomOffset.x = frac(dot(worldOrigin.xz, float2(13.57, 17.32)));
+  randomOffset.y = frac(dot(worldOrigin.yz, float2(23.89, 19.43)));
+
+  float2 pixelPos = G.Input.Position.xy + randomOffset * 233;
+
+#  if defined(CAMERA_MODE) && CAMERA_MODE == CAMERA_MODE_ORTHO
+  float4 screenOrigin = mul(GetWorldToScreenMatrix(), worldOrigin);
+  screenOrigin.xy = screenOrigin.xy * float2(0.5, -0.5) + 0.5;
+  screenOrigin.xy *= ViewportSize.xy;
+  pixelPos -= screenOrigin.xy;
+#  endif
+
+#  if defined(USE_CUSTOM_DITHER_NOISE)
+  float4 ditherNoise = GetDitherNoise(pixelPos);
+#  else
+  float4 bayerMatrix[] = {
+    float4(01.0 / 16.0, 09.0 / 16.0, 03.0 / 16.0, 11.0 / 16.0),
+    float4(13.0 / 16.0, 05.0 / 16.0, 15.0 / 16.0, 07.0 / 16.0),
+    float4(04.0 / 16.0, 12.0 / 16.0, 02.0 / 16.0, 10.0 / 16.0),
+    float4(16.0 / 16.0, 08.0 / 16.0, 14.0 / 16.0, 06.0 / 16.0),
+  };
+
+  uint2 pos = pixelPos - 4 * floor(pixelPos / 4);
+#    if defined(WRITE_COVERAGE)
+  float4 ditherNoise;
+  ditherNoise.x = bayerMatrix[(pos.y + 0) % 4u][(pos.x + 0) % 4u];
+  ditherNoise.y = bayerMatrix[(pos.y + 1) % 4u][(pos.x + 3) % 4u];
+  ditherNoise.z = bayerMatrix[(pos.y + 2) % 4u][(pos.x + 1) % 4u];
+  ditherNoise.w = bayerMatrix[(pos.y + 3) % 4u][(pos.x + 2) % 4u];
+#    else
+  float4 ditherNoise = bayerMatrix[pos.y % 4u][pos.x % 4u];
+#    endif
+#  endif
+
+  float opacity = GetOpacity();
+
+#  if defined(WRITE_COVERAGE)
+  uint coverage = 0;
+
+  for (uint i = 0; i < NumMsaaSamples; ++i)
+  {
+    coverage |= (opacity >= ditherNoise[i % 4u]) ? (1u << i) : 0;
+  }
+
+  return coverage;
+#  else
+  return opacity >= ditherNoise.x;
+#  endif
+
+#elif defined(WRITE_COVERAGE) && defined(USE_TEXCOORD0)
   uint coverage = 0;
 
   float2 texCoords = G.Input.TexCoord0;
@@ -67,7 +127,7 @@ uint CalculateCoverage()
     G.Input.TexCoord0 = ezEvaluateAttributeAtSample(texCoords, i, NumMsaaSamples);
 
     float opacity = GetOpacity();
-    coverage |= (opacity > 0.0) ? (1U << i) : 0;
+    coverage |= (opacity > 0.0) ? (1u << i) : 0;
   }
 
   G.Input.TexCoord0 = texCoords;
@@ -88,25 +148,24 @@ ezMaterialData FillMaterialData()
   matData.worldPosition = float3(0.0, 0.0, 0.0);
 #endif
 
-#if SHADING_MODE == SHADING_MODE_FULLBRIGHT
-  matData.worldNormal = float3(0, 0, 1);
-#else
-  float3 worldNormal = normalize(GetNormal());
+#if defined(USE_NORMAL)
 #  if TWO_SIDED == TRUE && defined(USE_TWO_SIDED_LIGHTING)
 #    if FLIP_WINDING == TRUE
-  matData.worldNormal = G.Input.FrontFace ? -worldNormal : worldNormal;
+  G.Input.Normal = G.Input.FrontFace ? -G.Input.Normal : G.Input.Normal;
 #    else
-  matData.worldNormal = G.Input.FrontFace ? worldNormal : -worldNormal;
+  G.Input.Normal = G.Input.FrontFace ? G.Input.Normal : -G.Input.Normal;
 #    endif
-#  else
-  matData.worldNormal = worldNormal;
 #  endif
-#endif
 
-#if defined(USE_NORMAL)
   matData.vertexNormal = normalize(G.Input.Normal);
 #else
   matData.vertexNormal = float3(0, 0, 1);
+#endif
+
+#if SHADING_MODE == SHADING_MODE_FULLBRIGHT
+  matData.worldNormal = float3(0, 0, 1);
+#else
+  matData.worldNormal = normalize(GetNormal());
 #endif
 
 #if defined(USE_SIMPLE_MATERIAL_MODEL)
@@ -155,13 +214,7 @@ ezMaterialData FillMaterialData()
   matData.roughness = RoughnessFromPerceptualRoughness(matData.perceptualRoughness);
 
 #if defined(USE_MATERIAL_OCCLUSION)
-#  if defined(USE_NORMAL)
-  float3 viewVector = normalize(GetCameraPosition() - matData.worldPosition);
-  float occlusionFade = saturate(dot(matData.vertexNormal, viewVector));
-#  else
-  float occlusionFade = 1.0f;
-#  endif
-  matData.occlusion = lerp(1.0f, GetOcclusion(), occlusionFade);
+  matData.occlusion = GetOcclusion();
 #else
   matData.occlusion = 1.0f;
 #endif
@@ -234,5 +287,13 @@ float4 SampleColorPalette(Texture2D paletteTex, uint row, float column)
   paletteTex.GetDimensions(width, height);
 
   float2 uv = float2(column, (row + 0.5f) / height);
-  return paletteTex.Sample(LinearClampSampler, uv);
+  return paletteTex.SampleLevel(LinearClampSampler, uv, 0);
+}
+
+float AOFresnel(float3 worldPosition, float3 vertexNormal, float ao, float fresnelStrength)
+{
+  float3 viewVector = normalize(GetCameraPosition() - worldPosition);
+  float occlusionFade = saturate(saturate(dot(vertexNormal, viewVector)) - fresnelStrength + 1);
+
+  return lerp(1.0f, ao, occlusionFade);
 }

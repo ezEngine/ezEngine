@@ -26,6 +26,10 @@ namespace ezShaderHelper
     for (ezUInt32 s = 0; s < m_Sections.GetCount(); ++s)
     {
       m_Sections[s].m_szSectionStart = m_sText.FindSubString_NoCase(m_Sections[s].m_sName.GetData());
+      while ((m_Sections[s].m_szSectionStart != nullptr) && (m_Sections[s].m_szSectionStart != m_sText.GetData()) && (*(m_Sections[s].m_szSectionStart - 1) != '\n'))
+      {
+        m_Sections[s].m_szSectionStart = m_sText.FindSubString_NoCase(m_Sections[s].m_sName.GetData(), m_Sections[s].m_szSectionStart + 1);
+      }
 
       if (m_Sections[s].m_szSectionStart != nullptr)
         m_Sections[s].m_Content = ezStringView(m_Sections[s].m_szSectionStart + m_Sections[s].m_sName.GetElementCount());
@@ -60,6 +64,7 @@ namespace ezShaderHelper
           const char* szSectionEnd = ezMath::Min(m_Sections[s].m_Content.GetEndPointer(), m_Sections[s2].m_szSectionStart);
 
           m_Sections[s].m_Content = ezStringView(szContentStart, szSectionEnd);
+          m_Sections[s].m_Content.Trim(" \t\r\n");
         }
       }
     }
@@ -79,6 +84,7 @@ namespace ezShaderHelper
     out_sections.AddSection("[PERMUTATIONS]");
     out_sections.AddSection("[MATERIALPARAMETER]");
     out_sections.AddSection("[MATERIALCONFIG]");
+    out_sections.AddSection("[MATERIALCONSTANTS]");
     out_sections.AddSection("[RENDERSTATE]");
     out_sections.AddSection("[SHADER]");
     out_sections.AddSection("[VERTEXSHADER]");
@@ -94,7 +100,7 @@ namespace ezShaderHelper
 
   ezUInt32 CalculateHash(const ezArrayPtr<ezPermutationVar>& vars)
   {
-    ezHybridArray<ezUInt64, 128> buffer;
+    ezTempHybridArray<ezUInt64, 128> buffer;
     buffer.SetCountUninitialized(vars.GetCount() * 2);
 
     for (ezUInt32 i = 0; i < vars.GetCount(); ++i)

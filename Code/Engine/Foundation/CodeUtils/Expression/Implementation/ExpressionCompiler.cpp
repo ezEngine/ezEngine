@@ -155,7 +155,7 @@ ezResult ezExpressionCompiler::Compile(ezExpressionAST& ref_ast, ezExpressionByt
 
   EZ_SUCCEED_OR_RETURN(TransformAndOptimizeAST(ref_ast, sDebugAstOutputPath));
   EZ_SUCCEED_OR_RETURN(BuildNodeInstructions(ref_ast));
-  EZ_SUCCEED_OR_RETURN(UpdateRegisterLifetime(ref_ast));
+  EZ_SUCCEED_OR_RETURN(UpdateRegisterLifetime());
   EZ_SUCCEED_OR_RETURN(AssignRegisters());
   EZ_SUCCEED_OR_RETURN(GenerateByteCode(ref_ast, out_byteCode));
 
@@ -282,7 +282,7 @@ ezResult ezExpressionCompiler::BuildNodeInstructions(const ezExpressionAST& ast)
   return EZ_SUCCESS;
 }
 
-ezResult ezExpressionCompiler::UpdateRegisterLifetime(const ezExpressionAST& ast)
+ezResult ezExpressionCompiler::UpdateRegisterLifetime()
 {
   ezUInt32 uiNumInstructions = m_NodeInstructions.GetCount();
   for (ezUInt32 uiInstructionIndex = 0; uiInstructionIndex < uiNumInstructions; ++uiInstructionIndex)
@@ -320,8 +320,8 @@ ezResult ezExpressionCompiler::AssignRegisters()
     { return a.m_uiStart < b.m_uiStart; });
 
   // Assign registers
-  ezHybridArray<LiveInterval, 64> activeIntervals;
-  ezHybridArray<ezUInt32, 64> freeRegisters;
+  ezTempHybridArray<LiveInterval, 64> activeIntervals;
+  ezTempHybridArray<ezUInt32, 64> freeRegisters;
 
   for (auto& liveInterval : m_LiveIntervals)
   {
@@ -359,9 +359,9 @@ ezResult ezExpressionCompiler::AssignRegisters()
 
 ezResult ezExpressionCompiler::GenerateByteCode(const ezExpressionAST& ast, ezExpressionByteCode& out_byteCode)
 {
-  ezHybridArray<ezExpression::StreamDesc, 8> inputs;
-  ezHybridArray<ezExpression::StreamDesc, 8> outputs;
-  ezHybridArray<ezExpression::FunctionDesc, 4> functions;
+  ezTempHybridArray<ezExpression::StreamDesc, 8> inputs;
+  ezTempHybridArray<ezExpression::StreamDesc, 8> outputs;
+  ezTempHybridArray<ezExpression::FunctionDesc, 4> functions;
 
   m_ByteCode.Clear();
 

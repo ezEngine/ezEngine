@@ -16,7 +16,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezFmodProjectPreferences::ezFmodProjectPreferences()
-  : ezPreferences(Domain::Project, "Fmod")
+  : ezPreferences(Domain::Project, "FMOD")
 {
   ezEditorEngineProcessConnection::s_Events.AddEventHandler(ezMakeDelegate(&ezFmodProjectPreferences::ProcessEventHandler, this));
 }
@@ -46,7 +46,7 @@ void ezFmodProjectPreferences::SyncCVars()
 
   {
     ezChangeCVarMsgToEngine msg;
-    msg.m_sCVarName = "Fmod.Mute";
+    msg.m_sCVarName = "FMOD.Mute";
     msg.m_NewValue = m_bMute;
 
     ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
@@ -54,7 +54,7 @@ void ezFmodProjectPreferences::SyncCVars()
 
   {
     ezChangeCVarMsgToEngine msg;
-    msg.m_sCVarName = "Fmod.MasterVolume";
+    msg.m_sCVarName = "FMOD.MasterVolume";
     msg.m_NewValue = m_fMasterVolume;
 
     ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);

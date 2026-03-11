@@ -1,8 +1,10 @@
 #pragma once
 
-/// \file
+#ifndef EZ_INCLUDING_BASICS_H
+#  error "Please don't include Assert.h directly, but instead include Foundation/Basics.h"
+#endif
 
-#include <Foundation/Basics.h>
+/// \file
 
 /// ***** Assert Usage Guidelines *****
 ///
@@ -27,7 +29,7 @@
 /// is not executed anymore.
 ///
 
-
+class ezFormatString;
 
 /// \brief Assert handler callback. Should return true to trigger a break point or false if the assert should be ignored
 using ezAssertHandler = bool (*)(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg);
@@ -123,7 +125,7 @@ EZ_FOUNDATION_DLL void MSVC_OutOfLine_DebugBreak(...);
 
 
 // Occurrences of EZ_ASSERT_DEV are compiled out in non-development builds
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT) || EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 
 /// \brief Macro to raise an error, if a condition is not met.
 ///

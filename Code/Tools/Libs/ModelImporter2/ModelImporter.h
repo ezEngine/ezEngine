@@ -5,6 +5,6 @@
 
 namespace ezModelImporter2
 {
-  EZ_MODELIMPORTER2_DLL ezUniquePtr<Importer> RequestImporterForFileType(const char* szFile);
+  EZ_MODELIMPORTER2_DLL ezUniquePtr<Importer> RequestImporterForFileType(ezStringView sFile);
 
 } // namespace ezModelImporter2

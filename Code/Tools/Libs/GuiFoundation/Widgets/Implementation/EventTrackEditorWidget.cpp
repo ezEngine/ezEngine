@@ -91,7 +91,7 @@ void ezQtEventTrackEditorWidget::on_InsertEventButton_clicked()
 
 void ezQtEventTrackEditorWidget::onDeleteControlPoints()
 {
-  ezHybridArray<ezUInt32, 32> selection;
+  ezTempHybridArray<ezUInt32, 32> selection;
   EventTrackEdit->GetSelection(selection);
 
   if (selection.IsEmpty())
@@ -122,7 +122,7 @@ void ezQtEventTrackEditorWidget::onMoveControlPoints(double x)
 {
   m_fControlPointMove += x;
 
-  ezHybridArray<ezUInt32, 32> selection;
+  ezTempHybridArray<ezUInt32, 32> selection;
   EventTrackEdit->GetSelection(selection);
 
   if (selection.IsEmpty())
@@ -188,7 +188,7 @@ void ezQtEventTrackEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
   QMenu m(this);
   m.setDefaultAction(m.addAction("Add Event", this, SLOT(onAddPoint())));
 
-  ezHybridArray<ezUInt32, 32> selection;
+  ezTempHybridArray<ezUInt32, 32> selection;
   EventTrackEdit->GetSelection(selection);
 
   if (!selection.IsEmpty())
@@ -224,7 +224,7 @@ void ezQtEventTrackEditorWidget::onSelectionChanged()
 
 void ezQtEventTrackEditorWidget::UpdateSpinBoxes()
 {
-  ezHybridArray<ezUInt32, 32> selection;
+  ezTempHybridArray<ezUInt32, 32> selection;
   EventTrackEdit->GetSelection(selection);
 
   ezQtScopedBlockSignals _1(LinePosition, SelectedTypeLabel);
@@ -301,7 +301,7 @@ void ezQtEventTrackEditorWidget::on_LinePosition_editingFinished()
   if (value < 0)
     return;
 
-  ezHybridArray<ezUInt32, 32> selection;
+  ezTempHybridArray<ezUInt32, 32> selection;
   EventTrackEdit->GetSelection(selection);
   if (selection.IsEmpty())
     return;

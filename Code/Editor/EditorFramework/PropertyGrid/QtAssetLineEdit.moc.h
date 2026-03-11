@@ -12,12 +12,17 @@ class EZ_EDITORFRAMEWORK_DLL ezQtAssetLineEdit : public QLineEdit
 {
   Q_OBJECT
 
+Q_SIGNALS:
+  void OpenAsset();
+  void SelectAsset();
+
 public:
   explicit ezQtAssetLineEdit(QWidget* pParent = nullptr);
   virtual void dragMoveEvent(QDragMoveEvent* e) override;
   virtual void dragEnterEvent(QDragEnterEvent* e) override;
   virtual void dropEvent(QDropEvent* e) override;
   virtual void paintEvent(QPaintEvent* e) override;
+  virtual void mousePressEvent(QMouseEvent* e) override;
 
   ezQtAssetPropertyWidget* m_pOwner = nullptr;
 };

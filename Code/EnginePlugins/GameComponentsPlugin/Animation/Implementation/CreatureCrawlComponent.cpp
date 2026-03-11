@@ -129,7 +129,7 @@ void ezCreatureCrawlComponent::Update()
   const ezVec3 vCenterPos = GetOwner()->GetGlobalPosition();
   const ezQuat qCenterRot = GetOwner()->GetGlobalRotation();
 
-  ezHybridArray<ezVec3, 8> vNewTargetPos;
+  ezTempHybridArray<ezVec3, 8> vNewTargetPos;
   vNewTargetPos.SetCount(uiNumLegs);
 
   ezWorld* pWorld = GetWorld();
@@ -138,9 +138,9 @@ void ezCreatureCrawlComponent::Update()
   // TODO: make step height configurable
   const ezTime tStepDuration = ezTime::MakeFromMilliseconds(150);
   const float fStepHeight = 0.3f;
-  const float fMoveAdd = ezMath::Min<float>(1.0f, GetWorld()->GetClock().GetTimeDiff().AsFloatInSeconds() / tStepDuration.GetSeconds());
+  const float fMoveAdd = ezMath::Min<float>(1.0f, GetWorld()->GetClock().GetTimeDiff().AsFloatInSeconds() / tStepDuration.AsFloatInSeconds());
 
-  ezHybridArray<bool, 8> bLegMoving;
+  ezTempHybridArray<bool, 8> bLegMoving;
   bLegMoving.SetCount(uiNumLegs);
   bool bAnyLegMoving = false;
 
@@ -312,3 +312,6 @@ void ezCreatureCrawlComponent::Update()
     }
   }
 }
+
+
+EZ_STATICLINK_FILE(GameComponentsPlugin, GameComponentsPlugin_Animation_Implementation_CreatureCrawlComponent);

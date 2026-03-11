@@ -1,5 +1,6 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
+#include <EditorFramework/CodeGen/CppProject.h>
 #include <EditorFramework/Dialogs/PluginSelectionDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/IO/OpenDdlWriter.h>
@@ -28,6 +29,7 @@ void ezQtPluginSelectionDlg::on_Buttons_clicked(QAbstractButton* pButton)
       *m_pPluginSet = m_LocalPluginSet;
 
       ezQtEditorApp::GetSingleton()->WritePluginSelectionStateDDL();
+      ezCppProject::UpdateEnginePluginDependencies().IgnoreResult();
       ezQtEditorApp::GetSingleton()->AddRestartRequiredReason("The set of active plugins has changed.");
     }
 

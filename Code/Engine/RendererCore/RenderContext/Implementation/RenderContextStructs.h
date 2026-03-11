@@ -50,29 +50,26 @@ struct EZ_RENDERERCORE_DLL ezRenderContextFlags
   {
     None = 0,
     ShaderStateChanged = EZ_BIT(0),
-    TextureBindingChanged = EZ_BIT(1),
-    UAVBindingChanged = EZ_BIT(2),
-    SamplerBindingChanged = EZ_BIT(3),
-    BufferBindingChanged = EZ_BIT(4),
-    ConstantBufferBindingChanged = EZ_BIT(5),
-    MeshBufferBindingChanged = EZ_BIT(6),
-    MaterialBindingChanged = EZ_BIT(7),
+    BindGroupChanged = EZ_BIT(1),
+    BindGroupLayoutChanged = EZ_BIT(2),
+    MeshBufferBindingChanged = EZ_BIT(3),
+    MaterialBindingChanged = EZ_BIT(4),
+    PipelineChanged = EZ_BIT(5),
+    NonPipelineStateChanged = EZ_BIT(6),
 
-    AllStatesInvalid = ShaderStateChanged | TextureBindingChanged | UAVBindingChanged | SamplerBindingChanged | BufferBindingChanged |
-                       ConstantBufferBindingChanged | MeshBufferBindingChanged,
+    AllStatesInvalid = ShaderStateChanged | BindGroupChanged | BindGroupLayoutChanged | MeshBufferBindingChanged | PipelineChanged | NonPipelineStateChanged,
     Default = None
   };
 
   struct Bits
   {
     StorageType ShaderStateChanged : 1;
-    StorageType TextureBindingChanged : 1;
-    StorageType UAVBindingChanged : 1;
-    StorageType SamplerBindingChanged : 1;
-    StorageType BufferBindingChanged : 1;
-    StorageType ConstantBufferBindingChanged : 1;
+    StorageType BindGroupChanged : 1;
+    StorageType BindGroupLayoutChanged : 1;
     StorageType MeshBufferBindingChanged : 1;
     StorageType MaterialBindingChanged : 1;
+    StorageType PipelineChanged : 1;
+    StorageType NonPipelineStateChanged : 1;
   };
 };
 

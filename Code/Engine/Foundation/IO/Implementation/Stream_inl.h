@@ -5,7 +5,7 @@
 template <typename T>
 ezResult ezStreamReader::ReadWordValue(T* pWordValue)
 {
-  EZ_CHECK_AT_COMPILETIME(sizeof(T) == sizeof(ezUInt16));
+  static_assert(sizeof(T) == sizeof(ezUInt16));
 
   ezUInt16 uiTemp;
 
@@ -19,7 +19,7 @@ ezResult ezStreamReader::ReadWordValue(T* pWordValue)
 template <typename T>
 ezResult ezStreamReader::ReadDWordValue(T* pDWordValue)
 {
-  EZ_CHECK_AT_COMPILETIME(sizeof(T) == sizeof(ezUInt32));
+  static_assert(sizeof(T) == sizeof(ezUInt32));
 
   ezUInt32 uiTemp;
 
@@ -33,7 +33,7 @@ ezResult ezStreamReader::ReadDWordValue(T* pDWordValue)
 template <typename T>
 ezResult ezStreamReader::ReadQWordValue(T* pQWordValue)
 {
-  EZ_CHECK_AT_COMPILETIME(sizeof(T) == sizeof(ezUInt64));
+  static_assert(sizeof(T) == sizeof(ezUInt64));
 
   ezUInt64 uiTemp;
 
@@ -49,7 +49,7 @@ ezResult ezStreamReader::ReadQWordValue(T* pQWordValue)
 template <typename T>
 ezResult ezStreamWriter::WriteWordValue(const T* pWordValue)
 {
-  EZ_CHECK_AT_COMPILETIME(sizeof(T) == sizeof(ezUInt16));
+  static_assert(sizeof(T) == sizeof(ezUInt16));
 
   ezUInt16 uiTemp = *reinterpret_cast<const ezUInt16*>(pWordValue);
   uiTemp = ezEndianHelper::Switch(uiTemp);
@@ -60,7 +60,7 @@ ezResult ezStreamWriter::WriteWordValue(const T* pWordValue)
 template <typename T>
 ezResult ezStreamWriter::WriteDWordValue(const T* pDWordValue)
 {
-  EZ_CHECK_AT_COMPILETIME(sizeof(T) == sizeof(ezUInt32));
+  static_assert(sizeof(T) == sizeof(ezUInt32));
 
   ezUInt32 uiTemp = *reinterpret_cast<const ezUInt32*>(pDWordValue);
   uiTemp = ezEndianHelper::Switch(uiTemp);
@@ -71,7 +71,7 @@ ezResult ezStreamWriter::WriteDWordValue(const T* pDWordValue)
 template <typename T>
 ezResult ezStreamWriter::WriteQWordValue(const T* pQWordValue)
 {
-  EZ_CHECK_AT_COMPILETIME(sizeof(T) == sizeof(ezUInt64));
+  static_assert(sizeof(T) == sizeof(ezUInt64));
 
   ezUInt64 uiTemp = *reinterpret_cast<const ezUInt64*>(pQWordValue);
   uiTemp = ezEndianHelper::Switch(uiTemp);
@@ -84,7 +84,7 @@ ezResult ezStreamWriter::WriteQWordValue(const T* pQWordValue)
 template <typename T>
 ezResult ezStreamReader::ReadWordValue(T* pWordValue)
 {
-  EZ_CHECK_AT_COMPILETIME(sizeof(T) == sizeof(ezUInt16));
+  static_assert(sizeof(T) == sizeof(ezUInt16));
 
   if (ReadBytes(reinterpret_cast<ezUInt8*>(pWordValue), sizeof(T)) != sizeof(T))
     return EZ_FAILURE;
@@ -95,7 +95,7 @@ ezResult ezStreamReader::ReadWordValue(T* pWordValue)
 template <typename T>
 ezResult ezStreamReader::ReadDWordValue(T* pDWordValue)
 {
-  EZ_CHECK_AT_COMPILETIME(sizeof(T) == sizeof(ezUInt32));
+  static_assert(sizeof(T) == sizeof(ezUInt32));
 
   if (ReadBytes(reinterpret_cast<ezUInt8*>(pDWordValue), sizeof(T)) != sizeof(T))
     return EZ_FAILURE;
@@ -106,7 +106,7 @@ ezResult ezStreamReader::ReadDWordValue(T* pDWordValue)
 template <typename T>
 ezResult ezStreamReader::ReadQWordValue(T* pQWordValue)
 {
-  EZ_CHECK_AT_COMPILETIME(sizeof(T) == sizeof(ezUInt64));
+  static_assert(sizeof(T) == sizeof(ezUInt64));
 
   if (ReadBytes(reinterpret_cast<ezUInt8*>(pQWordValue), sizeof(T)) != sizeof(T))
     return EZ_FAILURE;
@@ -117,7 +117,7 @@ ezResult ezStreamReader::ReadQWordValue(T* pQWordValue)
 template <typename T>
 ezResult ezStreamWriter::WriteWordValue(const T* pWordValue)
 {
-  EZ_CHECK_AT_COMPILETIME(sizeof(T) == sizeof(ezUInt16));
+  static_assert(sizeof(T) == sizeof(ezUInt16));
 
   return WriteBytes(reinterpret_cast<const ezUInt8*>(pWordValue), sizeof(T));
 }
@@ -125,7 +125,7 @@ ezResult ezStreamWriter::WriteWordValue(const T* pWordValue)
 template <typename T>
 ezResult ezStreamWriter::WriteDWordValue(const T* pDWordValue)
 {
-  EZ_CHECK_AT_COMPILETIME(sizeof(T) == sizeof(ezUInt32));
+  static_assert(sizeof(T) == sizeof(ezUInt32));
 
   return WriteBytes(reinterpret_cast<const ezUInt8*>(pDWordValue), sizeof(T));
 }
@@ -133,17 +133,23 @@ ezResult ezStreamWriter::WriteDWordValue(const T* pDWordValue)
 template <typename T>
 ezResult ezStreamWriter::WriteQWordValue(const T* pQWordValue)
 {
-  EZ_CHECK_AT_COMPILETIME(sizeof(T) == sizeof(ezUInt64));
+  static_assert(sizeof(T) == sizeof(ezUInt64));
 
   return WriteBytes(reinterpret_cast<const ezUInt8*>(pQWordValue), sizeof(T));
 }
 
 #endif
 
-ezTypeVersion ezStreamReader::ReadVersion(ezTypeVersion expectedMaxVersion)
+ezTypeVersion ezStreamReader::ReadVersion()
 {
   ezTypeVersion v = 0;
   ReadWordValue(&v).IgnoreResult();
+  return v;
+}
+
+ezTypeVersion ezStreamReader::ReadVersion(ezTypeVersion expectedMaxVersion)
+{
+  ezTypeVersion v = ReadVersion();
 
   EZ_ASSERT_ALWAYS(v <= expectedMaxVersion, "Read version ({0}) is larger than expected max version ({1}).", v, expectedMaxVersion);
   EZ_ASSERT_ALWAYS(v > 0, "Invalid version.");
@@ -191,13 +197,11 @@ namespace ezStreamWriterUtil
 
   // serialization of array
 
-#if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
   template <class T>
   EZ_ALWAYS_INLINE auto SerializeArrayImpl(ezStreamWriter& inout_stream, const T* pArray, ezUInt64 uiCount, int) -> decltype(SerializeArray(inout_stream, pArray, uiCount), ezResult(EZ_SUCCESS))
   {
     return SerializeArray(inout_stream, pArray, uiCount);
   }
-#endif
 
   template <class T>
   ezResult SerializeArrayImpl(ezStreamWriter& inout_stream, const T* pArray, ezUInt64 uiCount, long)
@@ -318,13 +322,11 @@ namespace ezStreamReaderUtil
 
   // serialization of array
 
-#if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
   template <class T>
   EZ_ALWAYS_INLINE auto DeserializeArrayImpl(ezStreamReader& inout_stream, T* pArray, ezUInt64 uiCount, int) -> decltype(DeserializeArray(inout_stream, pArray, uiCount), ezResult(EZ_SUCCESS))
   {
     return DeserializeArray(inout_stream, pArray, uiCount);
   }
-#endif
 
   template <class T>
   ezResult DeserializeArrayImpl(ezStreamReader& inout_stream, T* pArray, ezUInt64 uiCount, long)

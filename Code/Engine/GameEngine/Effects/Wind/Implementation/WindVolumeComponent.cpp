@@ -91,7 +91,7 @@ void ezWindVolumeComponent::DeserializeComponent(ezWorldReader& inout_stream)
   {
     bool bReverse = false;
     s >> bReverse;
-    m_fStrengthFactor = bReverse ? -1 : 1;
+    m_fStrengthFactor = bReverse ? -1.0f : 1.0f;
   }
 
   if (uiVersion >= 3)
@@ -152,7 +152,7 @@ public:
     auto pReverseDirection = pNode->FindProperty("ReverseDirection");
     if (pReverseDirection && pReverseDirection->m_Value.IsA<bool>())
     {
-      float fFactor = pReverseDirection->m_Value.Get<bool>() ? -1 : 1;
+      float fFactor = pReverseDirection->m_Value.Get<bool>() ? -1.0f : 1.0f;
       pNode->AddProperty("StrengthFactor", fFactor);
     }
   }

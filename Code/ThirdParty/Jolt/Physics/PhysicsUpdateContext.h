@@ -19,7 +19,10 @@ class Constraint;
 class TempAllocator;
 class SoftBodyUpdateContext;
 
-/// Information used during the Update call
+/// @cond INTERNAL
+/// Internal information used during the PhysicsSystem::Update call
+///
+/// WARNING: This class is an internal part of PhysicsSystem, it has no functions that can be called by users of the library.
 class PhysicsUpdateContext : public NonCopyable
 {
 public:
@@ -142,7 +145,7 @@ public:
 		JobHandle			mStartNextStep;											///< Job that kicks the next step (empty for the last step)
 	};
 
-	using Steps = std::vector<Step, STLTempAllocator<Step>>;
+	using Steps = Array<Step, STLTempAllocator<Step>>;
 
 	/// Maximum amount of concurrent jobs on this machine
 	int						GetMaxConcurrency() const								{ const int max_concurrency = PhysicsUpdateContext::cMaxConcurrency; return min(max_concurrency, mJobSystem->GetMaxConcurrency()); } ///< Need to put max concurrency in temp var as min requires a reference
@@ -168,5 +171,6 @@ public:
 	SoftBodyUpdateContext *	mSoftBodyUpdateContexts = nullptr;						///< Contexts for updating soft bodies
 	atomic<uint>			mSoftBodyToCollide { 0 };								///< Next soft body to take when running SoftBodyCollide jobs
 };
+/// @endcond
 
 JPH_NAMESPACE_END

@@ -5,8 +5,8 @@
 #include <EditorFramework/Object/ObjectPropertyPath.h>
 #include <EditorPluginAssets/ColorGradientAsset/ColorGradientAsset.h>
 #include <Foundation/Communication/Event.h>
+#include <Foundation/Tracks/CurveEditData.h>
 #include <GameEngine/Animation/PropertyAnimResource.h>
-#include <GuiFoundation/Widgets/CurveEditData.h>
 #include <GuiFoundation/Widgets/EventTrackEditData.h>
 
 struct ezGameObjectContextEvent;
@@ -142,10 +142,8 @@ private:
   void RebuildMapping();
   void RemoveTrack(const ezUuid& track);
   void AddTrack(const ezUuid& track);
-  ezStatus FindTrackKeys(
-    const char* szObjectSearchSequence, const char* szComponentType, const char* szPropertyPath, ezHybridArray<ezPropertyReference, 1>& keys) const;
-  void GenerateTrackInfo(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezStringBuilder& sObjectSearchSequence,
-    ezStringBuilder& sComponentType, ezStringBuilder& sPropertyPath) const;
+  ezStatus FindTrackKeys(const char* szObjectSearchSequence, const char* szComponentType, const char* szPropertyPath, ezDynamicArray<ezPropertyReference>& keys) const;
+  void GenerateTrackInfo(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezStringBuilder& sObjectSearchSequence, ezStringBuilder& sComponentType, ezStringBuilder& sPropertyPath) const;
   void ApplyAnimation();
   void ApplyAnimation(const ezPropertyReference& key, const PropertyValue& value);
 

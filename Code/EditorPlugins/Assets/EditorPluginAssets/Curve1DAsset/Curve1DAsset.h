@@ -1,7 +1,7 @@
 #pragma once
 
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
-#include <GuiFoundation/Widgets/CurveEditData.h>
+#include <Foundation/Tracks/CurveEditData.h>
 
 class ezCurve1D;
 

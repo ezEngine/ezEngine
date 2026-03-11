@@ -9,25 +9,30 @@
 
 #ifdef EZ_USE_QT
 #  include <Fileserve/Gui.moc.h>
-#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#  include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #  include <QApplication>
+#  include <QFileDialog>
+#  include <QSettings>
 #endif
 
 #ifdef EZ_USE_QT
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int iCmdShow)
+int main(int iArgc, char** pArgv)
 {
 #else
-int main(int argc, const char** argv)
+int main(int iArgc, const char** pArgv)
 {
 #endif
   ezFileserverApp* pApp = new ezFileserverApp();
 
 #ifdef EZ_USE_QT
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   ezCommandLineUtils::GetGlobalInstance()->SetCommandLine();
-
-  int argc = 0;
-  char** argv = nullptr;
-  QApplication* pQtApplication = new QApplication(argc, const_cast<char**>(argv));
+#  else
+  ezCommandLineUtils::GetGlobalInstance()->SetCommandLine(iArgc, pArgv);
+#  endif
+  int dummyArgc = 0;
+  char** dummyArgv = nullptr;
+  QApplication* pQtApplication = new QApplication(dummyArgc, const_cast<char**>(dummyArgv));
   pQtApplication->setApplicationName("ezFileserve");
   pQtApplication->setOrganizationDomain("www.ezEngine.net");
   pQtApplication->setOrganizationName("ezEngine Project");
@@ -39,7 +44,7 @@ int main(int argc, const char** argv)
   pQtApplication->exec();
   ezRun_Shutdown(pApp);
 #else
-  pApp->SetCommandLineArguments((ezUInt32)argc, argv);
+  pApp->SetCommandLineArguments((ezUInt32)iArgc, pArgv);
   ezRun(pApp);
 #endif
 
@@ -66,6 +71,33 @@ ezResult ezFileserverApp::BeforeCoreSystemsStartup()
 {
   ezStartup::AddApplicationTag("tool");
   ezStartup::AddApplicationTag("fileserve");
+
+#ifdef EZ_USE_QT
+  if (!ezCommandLineUtils::GetGlobalInstance()->HasOption("-specialdirs"))
+  {
+    QString sLastFolder;
+
+    {
+      QSettings Settings;
+      Settings.beginGroup(QLatin1String("Fileserve"));
+      sLastFolder = Settings.value("LastProject", "").toString();
+      Settings.endGroup();
+    }
+
+    QString folder = QFileDialog::getExistingDirectory(nullptr, "Select Project Folder", sLastFolder);
+    if (!folder.isEmpty())
+    {
+      QSettings Settings;
+      Settings.beginGroup(QLatin1String("Fileserve"));
+      Settings.setValue("LastProject", folder);
+      Settings.endGroup();
+
+      ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("-specialdirs");
+      ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("project");
+      ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument(folder.toUtf8().data());
+    }
+  }
+#endif
 
   return SUPER::BeforeCoreSystemsStartup();
 }
@@ -100,7 +132,7 @@ void ezFileserverApp::ShaderMessageHandler(ezFileserveClientContext& ref_ctxt, e
   {
     for (auto& dd : ref_ctxt.m_MountedDataDirs)
     {
-      ezFileSystem::AddDataDirectory(dd.m_sPathOnServer, "FileServe", dd.m_sRootName, ezFileSystem::AllowWrites).IgnoreResult();
+      ezFileSystem::AddDataDirectory(dd.m_sPathOnServer, "FileServe", dd.m_sRootName, ezDataDirUsage::AllowWrites).IgnoreResult();
     }
 
     auto& r = ref_msg.GetReader();
@@ -108,7 +140,7 @@ void ezFileserverApp::ShaderMessageHandler(ezFileserveClientContext& ref_ctxt, e
     ezStringBuilder tmp;
     ezStringBuilder file, platform;
     ezUInt32 numPermVars;
-    ezHybridArray<ezPermutationVar, 16> permVars;
+    ezTempHybridArray<ezPermutationVar, 16> permVars;
 
     r >> file;
     r >> platform;
@@ -149,7 +181,7 @@ void ezFileserverApp::ShaderMessageHandler(ezFileserveClientContext& ref_ctxt, e
     {
       logActivity("[ERROR] Shader Compilation failed:");
 
-      ezHybridArray<ezStringView, 32> lines;
+      ezTempHybridArray<ezStringView, 32> lines;
       log.m_sBuffer.Split(false, lines, "\n", "\r");
 
       for (auto line : lines)

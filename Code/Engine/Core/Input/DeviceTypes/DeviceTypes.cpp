@@ -2,6 +2,7 @@
 
 #include <Core/Input/DeviceTypes/Controller.h>
 #include <Core/Input/DeviceTypes/MouseKeyboard.h>
+#include <Foundation/Time/Clock.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInputDeviceMouseKeyboard, 1, ezRTTINoAllocator)
@@ -11,16 +12,15 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInputDeviceController, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezInt32 ezInputDeviceMouseKeyboard::s_iMouseIsOverWindowNumber = -1;
+ezInputDevice* ezInputDeviceMouseKeyboard::s_pMouseOver = nullptr;
 
 ezInputDeviceController::ezInputDeviceController()
 {
-  m_uiVibrationTrackPos = 0;
-
   for (ezInt8 c = 0; c < MaxControllers; ++c)
   {
     m_bVibrationEnabled[c] = false;
-    m_iControllerMapping[c] = c;
+    m_iPhysicalToVirtualControllerMapping[c] = 0; // by default, map all physical controllers to the first virtual controller
+    m_RecentPhysicalControllerInput[c].Clear();
 
     for (ezInt8 m = 0; m < Motor::ENUM_COUNT; ++m)
     {
@@ -62,44 +62,38 @@ float ezInputDeviceController::GetVibrationStrength(ezUInt8 uiVirtual, Motor::En
   return m_fVibrationStrength[uiVirtual][motor];
 }
 
-void ezInputDeviceController::SetControllerMapping(ezUInt8 uiVirtualController, ezInt8 iTakeInputFromPhysical)
+void ezInputDeviceController::SetPhysicalControllerMapping(ezUInt8 uiPhysicalController, ezInt8 iVirtualController)
 {
-  EZ_ASSERT_DEV(
-    uiVirtualController < MaxControllers, "Virtual Controller Index {0} is larger than allowed ({1}).", uiVirtualController, MaxControllers);
-  EZ_ASSERT_DEV(
-    iTakeInputFromPhysical < MaxControllers, "Physical Controller Index {0} is larger than allowed ({1}).", iTakeInputFromPhysical, MaxControllers);
+  EZ_ASSERT_DEV(uiPhysicalController < MaxControllers, "Physical Controller Index {0} is larger than allowed ({1}).", uiPhysicalController, MaxControllers);
+  EZ_ASSERT_DEV(iVirtualController < MaxControllers, "Virtual Controller Index {0} is larger than allowed ({1}).", iVirtualController, MaxControllers);
 
-  if (iTakeInputFromPhysical < 0)
+  m_iPhysicalToVirtualControllerMapping[uiPhysicalController] = iVirtualController;
+
+  if (iVirtualController < 0)
   {
-    // deactivates this virtual controller
-    m_iControllerMapping[uiVirtualController] = -1;
+    ezLog::Dev("Input from physical controller {} got deactivated", uiPhysicalController);
   }
   else
   {
-    // if any virtual controller already maps to the given physical controller, let it use the physical controller that
-    // uiVirtualController is currently mapped to
-    for (ezInt32 c = 0; c < MaxControllers; ++c)
-    {
-      if (m_iControllerMapping[c] == iTakeInputFromPhysical)
-      {
-        m_iControllerMapping[c] = m_iControllerMapping[uiVirtualController];
-        break;
-      }
-    }
-
-    m_iControllerMapping[uiVirtualController] = iTakeInputFromPhysical;
+    ezLog::Dev("Mapped physical controller {} to virtual controller {}", uiPhysicalController, iVirtualController);
   }
 }
 
-ezInt8 ezInputDeviceController::GetControllerMapping(ezUInt8 uiVirtual) const
+ezInt8 ezInputDeviceController::GetPhysicalControllerMapping(ezUInt8 uiPhysical) const
 {
-  EZ_ASSERT_DEV(uiVirtual < MaxControllers, "Virtual Controller Index {0} is larger than allowed ({1}).", uiVirtual, MaxControllers);
+  EZ_ASSERT_DEV(uiPhysical < MaxControllers, "Physical Controller Index {0} is larger than allowed ({1}).", uiPhysical, MaxControllers);
 
-  return m_iControllerMapping[uiVirtual];
+  return m_iPhysicalToVirtualControllerMapping[uiPhysical];
 }
 
-void ezInputDeviceController::AddVibrationTrack(
-  ezUInt8 uiVirtual, Motor::Enum motor, float* pVibrationTrackValue, ezUInt32 uiSamples, float fScalingFactor)
+ezBitflags<ezPhysicalControllerInput> ezInputDeviceController::GetRecentPhysicalControllerInput(ezUInt8 uiPhysical) const
+{
+  EZ_ASSERT_DEV(uiPhysical < MaxControllers, "Physical Controller Index {0} is larger than allowed ({1}).", uiPhysical, MaxControllers);
+
+  return m_RecentPhysicalControllerInput[uiPhysical];
+}
+
+void ezInputDeviceController::AddVibrationTrack(ezUInt8 uiVirtual, Motor::Enum motor, float* pVibrationTrackValue, ezUInt32 uiSamples, float fScalingFactor)
 {
   uiSamples = ezMath::Min<ezUInt32>(uiSamples, MaxVibrationSamples);
 
@@ -140,7 +134,9 @@ void ezInputDeviceController::UpdateVibration(ezTime tTimeDifference)
   for (ezUInt32 c = 0; c < MaxControllers; ++c)
   {
     for (ezUInt32 m = 0; m < Motor::ENUM_COUNT; ++m)
+    {
       fVibrationToApply[c][m] = 0.0f;
+    }
   }
 
   // go through all controllers and motors
@@ -150,14 +146,15 @@ void ezInputDeviceController::UpdateVibration(ezTime tTimeDifference)
     if (!m_bVibrationEnabled[c])
       continue;
 
-    // check which physical controller this virtual controller is attached to
-    const ezInt8 iPhysical = GetControllerMapping(c);
-
-    // if it is attached to any physical controller, store the vibration value
-    if (iPhysical >= 0)
+    for (ezUInt8 p = 0; p < MaxControllers; ++p)
     {
-      for (ezUInt32 m = 0; m < Motor::ENUM_COUNT; ++m)
-        fVibrationToApply[(ezUInt8)iPhysical][m] = ezMath::Max(m_fVibrationStrength[c][m], m_fVibrationTracks[c][m][m_uiVibrationTrackPos]);
+      if (m_iPhysicalToVirtualControllerMapping[p] == c)
+      {
+        for (ezUInt32 m = 0; m < Motor::ENUM_COUNT; ++m)
+        {
+          fVibrationToApply[p][m] = ezMath::Max(m_fVibrationStrength[c][m], m_fVibrationTracks[c][m][m_uiVibrationTrackPos]);
+        }
+      }
     }
   }
 
@@ -177,7 +174,7 @@ void ezInputDeviceMouseKeyboard::UpdateInputSlotValues()
   const char* slots[3] = {ezInputSlot_MouseButton0, ezInputSlot_MouseButton1, ezInputSlot_MouseButton2};
   const char* dlbSlots[3] = {ezInputSlot_MouseDblClick0, ezInputSlot_MouseDblClick1, ezInputSlot_MouseDblClick2};
 
-  const ezTime tNow = ezTime::Now();
+  const ezTime tNow = ezClock::GetGlobalClock()->GetLastUpdateTime();
 
   for (int i = 0; i < 3; ++i)
   {

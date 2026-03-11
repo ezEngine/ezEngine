@@ -104,7 +104,7 @@ void ezPreferences::Save() const
 {
   bool bNothingToSerialize = true;
 
-  ezHybridArray<const ezAbstractProperty*, 32> allProperties;
+  ezTempHybridArray<const ezAbstractProperty*, 32> allProperties;
   GetDynamicRTTI()->GetAllProperties(allProperties);
 
   for (const ezAbstractProperty* pProp : allProperties)
@@ -192,7 +192,7 @@ void ezPreferences::ClearApplicationPreferences()
   ClearPreferences(nullptr, Domain::Application);
 }
 
-void ezPreferences::GatherAllPreferences(ezHybridArray<ezPreferences*, 16>& out_allPreferences)
+void ezPreferences::GatherAllPreferences(ezDynamicArray<ezPreferences*>& out_allPreferences)
 {
   out_allPreferences.Clear();
   out_allPreferences.Reserve(s_Preferences.GetCount() * 2);

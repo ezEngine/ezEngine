@@ -19,9 +19,6 @@ ezPreprocessor::ezPreprocessor()
   SetCustomFileCache();
   m_pLog = nullptr;
 
-  m_bPassThroughPragma = false;
-  m_bPassThroughLine = false;
-
   m_FileLocatorCallback = DefaultFileLocator;
   m_FileOpenCallback = DefaultFileOpen;
 
@@ -62,12 +59,19 @@ ezToken* ezPreprocessor::AddCustomToken(const ezToken* pPrevious, const ezString
   return &pToken->m_Token;
 }
 
-ezResult ezPreprocessor::ProcessFile(ezStringView sFile, TokenStream& TokenOutput)
+ezResult ezPreprocessor::ProcessFile(ezStringView sFile, TokenStream& TokenOutput, const ezToken* pCurParentToken)
 {
   const ezTokenizer* pTokenizer = nullptr;
 
   if (OpenFile(sFile, &pTokenizer).Failed())
+  {
+    if (pCurParentToken)
+    {
+      PP_LOG(Error, "Invalid #include '{}'", pCurParentToken, sFile);
+    }
+
     return EZ_FAILURE;
+  }
 
   FileData fd;
   fd.m_sFileName.Assign(sFile);
@@ -138,7 +142,7 @@ ezResult ezPreprocessor::Process(ezStringView sMainFile, TokenStream& ref_tokenO
     MacroDefinition md;
     md.m_MacroIdentifier = &m_TokenFile;
     md.m_bIsFunction = false;
-    md.m_iNumParameters = 0;
+    md.m_uiNumParameters = 0;
     md.m_bHasVarArgs = false;
 
     m_Macros.Insert("__FILE__", md);
@@ -152,7 +156,7 @@ ezResult ezPreprocessor::Process(ezStringView sMainFile, TokenStream& ref_tokenO
     MacroDefinition md;
     md.m_MacroIdentifier = &m_TokenLine;
     md.m_bIsFunction = false;
-    md.m_iNumParameters = 0;
+    md.m_uiNumParameters = 0;
     md.m_bHasVarArgs = false;
 
     m_Macros.Insert("__LINE__", md);
@@ -168,7 +172,7 @@ ezResult ezPreprocessor::Process(ezStringView sMainFile, TokenStream& ref_tokenO
     return EZ_FAILURE;
   }
 
-  if (ProcessFile(sFileToOpen, ref_tokenOutput).Failed())
+  if (ProcessFile(sFileToOpen, ref_tokenOutput, nullptr).Failed())
     return EZ_FAILURE;
 
   m_IfdefActiveStack.PopBack();
@@ -359,6 +363,8 @@ ezResult ezPreprocessor::HandleLine(const TokenStream& Tokens, ezUInt32 uiCurTok
 
 ezResult ezPreprocessor::HandleIfdef(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken, bool bIsIfdef)
 {
+  EZ_IGNORE_UNUSED(uiDirectiveToken);
+
   if (m_IfdefActiveStack.PeekBack().m_ActiveState != IfDefActivity::IsActive)
   {
     m_IfdefActiveStack.PushBack(IfDefActivity::IsInactive);
@@ -387,6 +393,8 @@ ezResult ezPreprocessor::HandleIfdef(const TokenStream& Tokens, ezUInt32 uiCurTo
 
 ezResult ezPreprocessor::HandleElse(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken)
 {
+  EZ_IGNORE_UNUSED(uiCurToken);
+
   const IfDefActivity bCur = m_IfdefActiveStack.PeekBack().m_ActiveState;
   m_IfdefActiveStack.PopBack();
 
@@ -420,6 +428,8 @@ ezResult ezPreprocessor::HandleElse(const TokenStream& Tokens, ezUInt32 uiCurTok
 
 ezResult ezPreprocessor::HandleIf(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken)
 {
+  EZ_IGNORE_UNUSED(uiDirectiveToken);
+
   if (m_IfdefActiveStack.PeekBack().m_ActiveState != IfDefActivity::IsActive)
   {
     m_IfdefActiveStack.PushBack(IfDefActivity::IsInactive);
@@ -495,6 +505,8 @@ ezResult ezPreprocessor::HandleEndif(const TokenStream& Tokens, ezUInt32 uiCurTo
 
 ezResult ezPreprocessor::HandleUndef(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken)
 {
+  EZ_IGNORE_UNUSED(uiDirectiveToken);
+
   ezUInt32 uiIdentifierToken = uiCurToken;
 
   if (Expect(Tokens, uiCurToken, ezTokenType::Identifier, &uiIdentifierToken).Failed())

@@ -5,13 +5,12 @@
 #include <TestFramework/Framework/TestBaseClass.h>
 #include <Texture/Image/Image.h>
 
-class ezGameEngineTestGameState : public ezFallbackGameState
+class ezGameEngineTestGameState : public ezGameState
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezGameEngineTestGameState, ezFallbackGameState);
+  EZ_ADD_DYNAMIC_REFLECTION(ezGameEngineTestGameState, ezGameState);
 
 public:
   virtual void ProcessInput() override;
-  virtual ezGameStatePriority DeterminePriority(ezWorld* pWorld) const override;
   virtual void ConfigureInputActions() override;
 };
 
@@ -35,7 +34,7 @@ protected:
   virtual void BeforeHighLevelSystemsShutdown() override;
   virtual void StoreScreenshot(ezImage&& image, ezStringView sContext) override;
   virtual void Init_FileSystem_ConfigureDataDirs() override;
-  virtual ezUniquePtr<ezGameStateBase> CreateGameState(ezWorld* pWorld) override;
+  virtual ezUniquePtr<ezGameStateBase> CreateGameState() override;
 
   ezString m_sProjectDirName;
   ezUniquePtr<ezWorld> m_pWorld;

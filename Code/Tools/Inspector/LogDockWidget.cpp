@@ -9,8 +9,8 @@
 
 ezQtLogDockWidget* ezQtLogDockWidget::s_pWidget = nullptr;
 
-ezQtLogDockWidget::ezQtLogDockWidget(QWidget* pParent)
-  : ads::CDockWidget("Log", pParent)
+ezQtLogDockWidget::ezQtLogDockWidget(ads::CDockManager* pDockManager, QWidget* pParent)
+  : ads::CDockWidget(pDockManager, "Log", pParent)
 {
   s_pWidget = this;
   setupUi(this);

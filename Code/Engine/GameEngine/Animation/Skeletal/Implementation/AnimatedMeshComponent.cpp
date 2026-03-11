@@ -6,10 +6,8 @@
 #include <GameEngine/Physics/CharacterControllerComponent.h>
 #include <RendererCore/AnimationSystem/Declarations.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
-#include <RendererCore/Debug/DebugRenderer.h>
-#include <RendererFoundation/Device/Device.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 
-#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <ozz/animation/runtime/local_to_model_job.h>
 #include <ozz/animation/runtime/skeleton.h>
 #include <ozz/base/containers/vector.h>
@@ -18,11 +16,11 @@
 #include <ozz/base/span.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezAnimatedMeshComponent, 13, ezComponentMode::Dynamic); // TODO: why dynamic ? (I guess because the overridden CreateRenderData() has to be called every frame)
+EZ_BEGIN_COMPONENT_TYPE(ezAnimatedMeshComponent, 13, ezComponentMode::Static);
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Mesh", GetMeshFile, SetMeshFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Skinned")),
+    EZ_RESOURCE_ACCESSOR_PROPERTY("Mesh", GetMesh, SetMesh)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Skinned")),
     EZ_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new ezExposeColorAlphaAttribute()),
     EZ_ACCESSOR_PROPERTY("CustomData", GetCustomData, SetCustomData)->AddAttributes(new ezDefaultValueAttribute(ezVec4(0, 1, 0, 1))),
     EZ_ARRAY_ACCESSOR_PROPERTY("Materials", Materials_GetCount, Materials_GetValue, Materials_SetValue, Materials_Insert, Materials_Remove)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material")),
@@ -39,6 +37,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezAnimatedMeshComponent, 13, ezComponentMode::Dynamic); 
   {
     EZ_MESSAGE_HANDLER(ezMsgAnimationPoseUpdated, OnAnimationPoseUpdated),
     EZ_MESSAGE_HANDLER(ezMsgQueryAnimationSkeleton, OnQueryAnimationSkeleton),
+    EZ_MESSAGE_HANDLER(ezMsgCustomInstanceDataOffsetChanged, OnMsgCustomInstanceDataOffsetChanged),
   }
   EZ_END_MESSAGEHANDLERS;
 }
@@ -106,18 +105,19 @@ void ezAnimatedMeshComponent::InitializeAnimationPose()
     const ozz::animation::Skeleton* pOzzSkeleton = &pSkeleton->GetDescriptor().m_Skeleton.GetOzzSkeleton();
     const ezUInt32 uiNumSkeletonJoints = pOzzSkeleton->num_joints();
 
-    ezArrayPtr<ezMat4> pPoseMatrices = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezMat4, uiNumSkeletonJoints);
-
+    ezTempArray<ozz::math::Float4x4> poseMatrices;
+    poseMatrices.SetCountUninitialized(uiNumSkeletonJoints);
+    EZ_ASSERT_DEBUG(ezMemoryUtils::IsAligned(poseMatrices.GetData(), alignof(ozz::math::Float4x4)), "Unaligned cast");
     {
       ozz::animation::LocalToModelJob job;
       job.input = pOzzSkeleton->joint_rest_poses();
-      job.output = ozz::span<ozz::math::Float4x4>(reinterpret_cast<ozz::math::Float4x4*>(pPoseMatrices.GetPtr()), reinterpret_cast<ozz::math::Float4x4*>(pPoseMatrices.GetEndPtr()));
+      job.output = ozz::span<ozz::math::Float4x4>(poseMatrices.GetData(), poseMatrices.GetCount());
       job.skeleton = pOzzSkeleton;
       job.Run();
     }
 
     ezMsgAnimationPoseUpdated msg;
-    msg.m_ModelTransforms = pPoseMatrices;
+    msg.m_ModelTransforms = poseMatrices.GetArrayPtr().Cast<const ezMat4>();
     msg.m_pRootTransform = &pSkeleton->GetDescriptor().m_RootTransform;
     msg.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
 
@@ -130,7 +130,7 @@ void ezAnimatedMeshComponent::InitializeAnimationPose()
 
 void ezAnimatedMeshComponent::MapModelSpacePoseToSkinningSpace(const ezHashTable<ezHashedString, ezMeshResourceDescriptor::BoneData>& bones, const ezSkeleton& skeleton, ezArrayPtr<const ezMat4> modelSpaceTransforms, ezBoundingBox* bounds)
 {
-  m_SkinningState.m_Transforms.SetCountUninitialized(bones.GetCount());
+  auto boneTransforms = m_SkinningState.GetOrCreateBoneTransformsForWriting(*this, bones.GetCount());
 
   if (bounds)
   {
@@ -142,7 +142,7 @@ void ezAnimatedMeshComponent::MapModelSpacePoseToSkinningSpace(const ezHashTable
         continue;
 
       bounds->ExpandToInclude(modelSpaceTransforms[uiJointIdx].GetTranslationVector());
-      m_SkinningState.m_Transforms[itBone.Value().m_uiBoneIndex] = modelSpaceTransforms[uiJointIdx] * itBone.Value().m_GlobalInverseRestPoseMatrix;
+      boneTransforms[itBone.Value().m_uiBoneIndex] = modelSpaceTransforms[uiJointIdx] * itBone.Value().m_GlobalInverseRestPoseMatrix;
     }
   }
   else
@@ -154,17 +154,22 @@ void ezAnimatedMeshComponent::MapModelSpacePoseToSkinningSpace(const ezHashTable
       if (uiJointIdx == ezInvalidJointIndex)
         continue;
 
-      m_SkinningState.m_Transforms[itBone.Value().m_uiBoneIndex] = modelSpaceTransforms[uiJointIdx] * itBone.Value().m_GlobalInverseRestPoseMatrix;
+      boneTransforms[itBone.Value().m_uiBoneIndex] = modelSpaceTransforms[uiJointIdx] * itBone.Value().m_GlobalInverseRestPoseMatrix;
     }
   }
 }
 
-ezMeshRenderData* ezAnimatedMeshComponent::CreateRenderData() const
+ezTransform ezAnimatedMeshComponent::GetFinalGlobalTransform() const
 {
-  auto pRenderData = ezCreateRenderDataForThisFrame<ezSkinnedMeshRenderData>(GetOwner());
-  pRenderData->m_GlobalTransform = m_RootTransform;
+  return GetOwner()->GetGlobalTransform() * m_RootTransform;
+}
 
-  m_SkinningState.FillSkinnedMeshRenderData(*pRenderData);
+ezMeshRenderData* ezAnimatedMeshComponent::CreateRenderData(const ezRenderDataManager* pRenderDataManager) const
+{
+  auto pRenderData = pRenderDataManager->CreateRenderDataForThisFrame<ezSkinnedMeshRenderData>(GetOwner());
+
+  pRenderData->m_DataOffsets.m_uiSkinning = m_SkinningState.m_DataOffset.m_uiOffset;
+  pRenderData->m_hSkinningBuffer = pRenderDataManager->GetSkinningDataBuffer();
 
   return pRenderData;
 }
@@ -181,6 +186,7 @@ void ezAnimatedMeshComponent::RetrievePose(ezDynamicArray<ezMat4>& out_modelTran
   ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::BlockTillLoaded);
 
   const ezHashTable<ezHashedString, ezMeshResourceDescriptor::BoneData>& bones = pMesh->m_Bones;
+  auto boneTransforms = m_SkinningState.GetBoneTransformsForReading();
 
   out_modelTransforms.SetCount(skeleton.GetJointCount(), ezMat4::MakeIdentity());
 
@@ -191,7 +197,7 @@ void ezAnimatedMeshComponent::RetrievePose(ezDynamicArray<ezMat4>& out_modelTran
     if (uiJointIdx == ezInvalidJointIndex)
       continue;
 
-    out_modelTransforms[uiJointIdx] = m_SkinningState.m_Transforms[itBone.Value().m_uiBoneIndex].GetAsMat4() * itBone.Value().m_GlobalInverseRestPoseMatrix.GetInverse();
+    out_modelTransforms[uiJointIdx] = boneTransforms[itBone.Value().m_uiBoneIndex].GetAsMat4() * itBone.Value().m_GlobalInverseRestPoseMatrix.GetInverse();
   }
 }
 
@@ -211,15 +217,13 @@ void ezAnimatedMeshComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& 
   if (poseBounds.IsValid() && (!m_MaxBounds.IsValid() || !m_MaxBounds.Contains(poseBounds)))
   {
     m_MaxBounds.ExpandToInclude(poseBounds);
-    TriggerLocalBoundsUpdate();
+    QueueLocalBoundsUpdate();
   }
   else if (((ezRenderWorld::GetFrameCounter() + GetUniqueIdForRendering()) & (EZ_BIT(10) - 1)) == 0) // reset the bbox every once in a while
   {
     m_MaxBounds = poseBounds;
-    TriggerLocalBoundsUpdate();
+    QueueLocalBoundsUpdate();
   }
-
-  m_SkinningState.TransformsChanged();
 }
 
 void ezAnimatedMeshComponent::OnQueryAnimationSkeleton(ezMsgQueryAnimationSkeleton& msg)
@@ -234,6 +238,13 @@ void ezAnimatedMeshComponent::OnQueryAnimationSkeleton(ezMsgQueryAnimationSkelet
       msg.m_hSkeleton = pMesh->m_hDefaultSkeleton;
     }
   }
+}
+
+void ezAnimatedMeshComponent::OnMsgCustomInstanceDataOffsetChanged(ezMsgCustomInstanceDataOffsetChanged& msg)
+{
+  m_SkinningState.m_DataOffset = msg.m_NewOffset;
+
+  InvalidateCachedRenderData();
 }
 
 ezResult ezAnimatedMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)

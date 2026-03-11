@@ -75,7 +75,7 @@ public:
 	virtual void		RemoveBodies(BodyID *ioBodies, int inNumber) = 0;
 
 	/// Call whenever the aabb of a body changes (can change order of ioBodies array)
-	/// inTakeLock should be false if we're between LockModifications/UnlockModificiations in which case care needs to be taken to not call this between UpdatePrepare/UpdateFinalize
+	/// inTakeLock should be false if we're between LockModifications/UnlockModifications, in which case care needs to be taken to not call this between UpdatePrepare/UpdateFinalize
 	virtual void		NotifyBodiesAABBChanged(BodyID *ioBodies, int inNumber, bool inTakeLock = true) = 0;
 
 	/// Call whenever the layer (and optionally the aabb as well) of a body changes (can change order of ioBodies array)
@@ -94,9 +94,6 @@ public:
 
 	/// Same as BroadPhaseQuery::CastAABox but can be implemented in a way to take no broad phase locks.
 	virtual void		CastAABoxNoLock(const AABoxCast &inBox, CastShapeBodyCollector &ioCollector, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter, const ObjectLayerFilter &inObjectLayerFilter) const = 0;
-
-	/// Get the bounding box of all objects in the broadphase
-	virtual AABox		GetBounds() const = 0;
 
 #ifdef JPH_TRACK_BROADPHASE_STATS
 	/// Trace the collected broadphase stats in CSV form.

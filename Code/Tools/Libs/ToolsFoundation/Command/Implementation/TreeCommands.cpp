@@ -255,7 +255,7 @@ ezStatus ezPasteObjectsCommand::DoInternal(bool bRedo)
 
     ezDocumentObjectConverterReader reader(&graph, pDocument->GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateOnly);
 
-    ezHybridArray<ezAbstractObjectNode*, 16> RootNodes;
+    ezTempHybridArray<ezAbstractObjectNode*, 16> RootNodes;
     auto& nodes = graph.GetAllNodes();
     for (auto it = nodes.GetIterator(); it.IsValid(); ++it)
     {
@@ -276,7 +276,7 @@ ezStatus ezPasteObjectsCommand::DoInternal(bool bRedo)
       }
       return a < b; });
 
-    ezHybridArray<ezDocument::PasteInfo, 16> ToBePasted;
+    ezTempHybridArray<ezDocument::PasteInfo, 16> ToBePasted;
     for (ezAbstractObjectNode* pNode : RootNodes)
     {
       auto* pNewObject = reader.CreateObjectFromNode(pNode);
@@ -379,7 +379,7 @@ ezStatus ezInstantiatePrefabCommand::DoInternal(bool bRedo)
     ezStringView sParentProperty = "Children"_ezsv;
 
     ezDocumentObject* pRootObject = nullptr;
-    ezHybridArray<ezDocument::PasteInfo, 16> ToBePasted;
+    ezTempHybridArray<ezDocument::PasteInfo, 16> ToBePasted;
     ezAbstractObjectGraph graph;
 
     // create root object
@@ -447,7 +447,7 @@ ezStatus ezInstantiatePrefabCommand::DoInternal(bool bRedo)
     graph.ReMapNodeGuids(m_RemapGuid);
 
     // a prefab can have multiple top level nodes
-    ezHybridArray<ezAbstractObjectNode*, 4> rootNodes;
+    ezTempHybridArray<ezAbstractObjectNode*, 4> rootNodes;
     ezPrefabUtils::GetRootNodes(graph, rootNodes);
 
     for (auto* pPrefabRoot : rootNodes)
@@ -702,6 +702,13 @@ ezStatus ezSetObjectPropertyCommand::DoInternal(bool bRedo)
 
   if (!bRedo)
   {
+    // if this assert triggers because of a stringview, check the caller and make sure to copy the stringview into a string first
+    // something like this:
+    // const ezVariantType::Enum storageType = ezToolsReflectionUtils::GetStorageType(pProp);
+    // if (op.m_Value.GetType() != storageType)
+    //{
+    //  op.m_Value = op.m_Value.ConvertTo(storageType);
+    //}
     EZ_ASSERT_DEBUG(m_NewValue.GetType() != ezVariantType::StringView && m_NewValue.GetType() != ezVariantType::TypedPointer, "Variants that are stored in the command history must hold ownership of their value.");
 
     if (m_Object.IsValid())
@@ -715,10 +722,12 @@ ezStatus ezSetObjectPropertyCommand::DoInternal(bool bRedo)
 
     ezIReflectedTypeAccessor& accessor0 = m_pObject->GetTypeAccessor();
 
-    ezStatus res;
+    ezStatus res(EZ_SUCCESS);
     m_OldValue = accessor0.GetValue(m_sProperty, m_Index, &res);
+
     if (res.Failed())
       return res;
+
     const ezAbstractProperty* pProp = accessor0.GetType()->FindPropertyByName(m_sProperty);
     if (pProp == nullptr)
       return ezStatus(ezFmt("Set Property: The property '{0}' does not exist", m_sProperty));
@@ -882,13 +891,17 @@ ezStatus ezRemoveObjectPropertyCommand::DoInternal(bool bRedo)
       m_pObject = pDocument->GetObjectManager()->GetObject(m_Object);
       if (m_pObject == nullptr)
         return ezStatus("Remove Property: The given object does not exist!");
-      ezStatus res;
+
+      ezStatus res(EZ_SUCCESS);
+
       m_OldValue = m_pObject->GetTypeAccessor().GetValue(m_sProperty, m_Index, &res);
       if (res.Failed())
         return res;
     }
     else
+    {
       return ezStatus("Remove Property: The given object does not exist!");
+    }
   }
 
   return pDocument->GetObjectManager()->RemoveValue(m_pObject, m_sProperty, m_Index);

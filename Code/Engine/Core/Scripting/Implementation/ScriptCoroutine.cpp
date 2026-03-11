@@ -115,6 +115,11 @@ ezScriptCoroutineRTTI::~ezScriptCoroutineRTTI()
 {
   UnregisterType();
   m_sTypeName = nullptr;
+
+  // RTTI base class will try to delete the contents of these arrays under the assumption that they were created during static init. Dynamically created types must ensure that these arrays are cleared out before the base class is executed.
+  m_Properties.Clear();
+  m_Functions.Clear();
+  m_Attributes.Clear();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -130,6 +135,8 @@ ezScriptCoroutineFunctionProperty::~ezScriptCoroutineFunctionProperty() = defaul
 
 void ezScriptCoroutineFunctionProperty::Execute(void* pInstance, ezArrayPtr<ezVariant> arguments, ezVariant& out_returnValue) const
 {
+  EZ_IGNORE_UNUSED(out_returnValue);
+
   EZ_ASSERT_DEBUG(pInstance != nullptr, "Invalid instance");
   auto pScriptInstance = static_cast<ezScriptInstance*>(pInstance);
 
@@ -147,7 +154,7 @@ void ezScriptCoroutineFunctionProperty::Execute(void* pInstance, ezArrayPtr<ezVa
 
   if (pCoroutine != nullptr)
   {
-    ezHybridArray<ezVariant, 8> finalArgs;
+    ezTempHybridArray<ezVariant, 8> finalArgs;
     finalArgs = arguments;
     finalArgs.PushBack(hCoroutine);
 
@@ -190,7 +197,7 @@ void ezScriptCoroutineMessageHandler::Dispatch(ezAbstractMessageHandler* pSelf, 
 
   if (pCoroutine != nullptr)
   {
-    ezHybridArray<ezVariant, 8> arguments;
+    ezTempHybridArray<ezVariant, 8> arguments;
     pHandler->FillMessagePropertyValues(ref_msg, arguments);
     arguments.PushBack(hCoroutine);
 

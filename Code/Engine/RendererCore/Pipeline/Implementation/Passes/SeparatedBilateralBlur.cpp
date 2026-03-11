@@ -24,6 +24,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSeparatedBilateralBlurPass, 2, ezRTTIDefaultAl
     EZ_ACCESSOR_PROPERTY("Sharpness", GetSharpness, SetSharpness)->AddAttributes(new ezDefaultValueAttribute(120.0f)),
   }
   EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Utilities")
+  }
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
@@ -46,7 +51,6 @@ ezSeparatedBilateralBlurPass::ezSeparatedBilateralBlurPass()
 ezSeparatedBilateralBlurPass::~ezSeparatedBilateralBlurPass()
 {
   ezRenderContext::DeleteConstantBufferStorage(m_hBilateralBlurCB);
-  m_hBilateralBlurCB.Invalidate();
 }
 
 bool ezSeparatedBilateralBlurPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
@@ -59,7 +63,7 @@ bool ezSeparatedBilateralBlurPass::GetRenderTargetDescriptions(const ezView& vie
     ezLog::Error("No blur target connected to bilateral blur pass!");
     return false;
   }
-  if (!inputs[m_PinBlurSourceInput.m_uiInputIndex]->m_bAllowShaderResourceView)
+  if (!inputs[m_PinBlurSourceInput.m_uiInputIndex]->m_TextureFlags.IsSet(ezGALTextureUsageFlags::ShaderResource))
   {
     ezLog::Error("All bilateral blur pass inputs must allow shader resoure view.");
     return false;
@@ -71,7 +75,7 @@ bool ezSeparatedBilateralBlurPass::GetRenderTargetDescriptions(const ezView& vie
     ezLog::Error("No depth connected to bilateral blur pass!");
     return false;
   }
-  if (!inputs[m_PinDepthInput.m_uiInputIndex]->m_bAllowShaderResourceView)
+  if (!inputs[m_PinDepthInput.m_uiInputIndex]->m_TextureFlags.IsSet(ezGALTextureUsageFlags::ShaderResource))
   {
     ezLog::Error("All bilateral blur pass inputs must allow shader resoure view.");
     return false;
@@ -94,49 +98,38 @@ void ezSeparatedBilateralBlurPass::Execute(const ezRenderViewContext& renderView
   if (outputs[m_PinOutput.m_uiOutputIndex])
   {
     ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-    ezGALPass* pGALPass = pDevice->BeginPass(GetName());
-    EZ_SCOPE_EXIT(pDevice->EndPass(pGALPass));
-
-    // Setup input view and sampler
-    ezGALTextureResourceViewCreationDescription rvcd;
-    rvcd.m_hTexture = inputs[m_PinBlurSourceInput.m_uiInputIndex]->m_TextureHandle;
-    ezGALTextureResourceViewHandle hBlurSourceInputView = ezGALDevice::GetDefaultDevice()->CreateResourceView(rvcd);
-    rvcd.m_hTexture = inputs[m_PinDepthInput.m_uiInputIndex]->m_TextureHandle;
-    ezGALTextureResourceViewHandle hDepthInputView = ezGALDevice::GetDefaultDevice()->CreateResourceView(rvcd);
 
     // Get temp texture for horizontal target / vertical source.
     ezGALTextureCreationDescription tempTextureDesc = outputs[m_PinBlurSourceInput.m_uiInputIndex]->m_Desc;
-    tempTextureDesc.m_bAllowShaderResourceView = true;
-    tempTextureDesc.m_bCreateRenderTarget = true;
+    tempTextureDesc.m_TextureFlags.Add(ezGALTextureUsageFlags::ShaderResource | ezGALTextureUsageFlags::RenderTarget);
     ezGALTextureHandle tempTexture = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(tempTextureDesc);
-    rvcd.m_hTexture = tempTexture;
-    ezGALTextureResourceViewHandle hTempTextureRView = ezGALDevice::GetDefaultDevice()->CreateResourceView(rvcd);
 
     ezGALRenderingSetup renderingSetup;
 
     // Bind shader and inputs
     renderViewContext.m_pRenderContext->BindShader(m_hShader);
-    renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
-    renderViewContext.m_pRenderContext->BindTexture2D("DepthBuffer", hDepthInputView);
-    renderViewContext.m_pRenderContext->BindConstantBuffer("ezBilateralBlurConstants", m_hBilateralBlurCB);
+    renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
+    ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
+    bindGroup.BindTexture("DepthBuffer", inputs[m_PinDepthInput.m_uiInputIndex]->m_TextureHandle);
+    bindGroup.BindBuffer("ezBilateralBlurConstants", m_hBilateralBlurCB);
 
     // Horizontal
     {
-      renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(tempTexture));
-      auto pCommandEncoder = ezRenderContext::BeginRenderingScope(pGALPass, renderViewContext, renderingSetup, "", renderViewContext.m_pCamera->IsStereoscopic());
+      renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(tempTexture));
+      ezRenderContext::BeginRenderingScope(renderViewContext, renderingSetup, "", renderViewContext.m_pCamera->IsStereoscopic());
 
       renderViewContext.m_pRenderContext->SetShaderPermutationVariable("BLUR_DIRECTION", "BLUR_DIRECTION_HORIZONTAL");
-      renderViewContext.m_pRenderContext->BindTexture2D("BlurSource", hBlurSourceInputView);
+      bindGroup.BindTexture("BlurSource", inputs[m_PinBlurSourceInput.m_uiInputIndex]->m_TextureHandle);
       renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
     }
 
     // Vertical
     {
-      renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(outputs[m_PinOutput.m_uiOutputIndex]->m_TextureHandle));
-      auto pCommandEncoder = ezRenderContext::BeginRenderingScope(pGALPass, renderViewContext, renderingSetup, "", renderViewContext.m_pCamera->IsStereoscopic());
+      renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(outputs[m_PinOutput.m_uiOutputIndex]->m_TextureHandle));
+      ezRenderContext::BeginRenderingScope(renderViewContext, renderingSetup, "", renderViewContext.m_pCamera->IsStereoscopic());
 
       renderViewContext.m_pRenderContext->SetShaderPermutationVariable("BLUR_DIRECTION", "BLUR_DIRECTION_VERTICAL");
-      renderViewContext.m_pRenderContext->BindTexture2D("BlurSource", hTempTextureRView);
+      bindGroup.BindTexture("BlurSource", tempTexture);
       renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
     }
 

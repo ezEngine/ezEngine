@@ -2,7 +2,10 @@
 
 #include <RendererCore/Pipeline/Passes/ForwardRenderPass.h>
 
-/// \brief A forward render pass that renders all opaque objects into the color target.
+/// Forward render pass that renders opaque objects.
+///
+/// Renders all opaque geometry with full lighting and shading.
+/// Optionally accepts an ambient occlusion input for enhanced shading.
 class EZ_RENDERERCORE_DLL ezOpaqueForwardRenderPass : public ezForwardRenderPass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezOpaqueForwardRenderPass, ezForwardRenderPass);
@@ -14,16 +17,14 @@ public:
   virtual bool GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs) override;
 
 protected:
-  virtual void SetupResources(ezGALPass* pGALPass, const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
+  virtual void SetupResources(ezGALCommandEncoder* pCommandEncoder, const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
   virtual void SetupPermutationVars(const ezRenderViewContext& renderViewContext) override;
 
   virtual void RenderObjects(const ezRenderViewContext& renderViewContext) override;
 
-  ezRenderPipelineNodeInputPin m_PinSSAO;
-  // ezRenderPipelineNodeOutputPin m_PinNormal;
-  // ezRenderPipelineNodeOutputPin m_PinSpecularColorRoughness;
+  ezRenderPipelineNodeInputPin m_PinSSAO;    ///< Optional SSAO input for ambient occlusion.
 
-  bool m_bWriteDepth = true;
+  bool m_bWriteDepth = true;                 ///< Whether to write to the depth buffer.
 
-  ezTexture2DResourceHandle m_hWhiteTexture;
+  ezTexture2DResourceHandle m_hWhiteTexture; ///< Fallback white texture for unbound inputs.
 };

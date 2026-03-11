@@ -1,3 +1,4 @@
+#ez-version 2
 cmake_minimum_required(VERSION 3.21)
 
 project (PacMan VERSION 1.0 LANGUAGES C CXX)
@@ -30,5 +31,11 @@ if(PROJECT_IS_TOP_LEVEL)
 
 endif()
 
-# include all projects in the sub-folders
-ez_add_all_subdirs()
+# Include optional user extensions for custom build configuration
+# This file can be used to add custom CMake logic without modifying this template
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/CMakeExtensions.txt")
+	include("${CMAKE_CURRENT_SOURCE_DIR}/CMakeExtensions.txt")
+endif()
+
+add_subdirectory("PacManPlugin")
+add_subdirectory("PacManGame")

@@ -91,6 +91,27 @@ ezRTTI::~ezRTTI()
   {
     UnregisterType();
   }
+
+  // To ensure unloading plugins does not leak any heap allocated attributes etc, we need to properly clean up the RTTI members. The assumption is that anything that is deleted here was created using global 'new' when declaring the reflection information inside EZ_BEGIN_PROPERTIES etc. Thus, any derived ezRTTI class must make sure these arrays are cleared out before this destructor is called.
+  if (m_sPluginName != "Static")
+  {
+    // We only delete plugin types. For statically created types we can't ensure a proper destruction order so it's better to just leak the data and the the OS clean it up.
+    for (auto pProp : m_Properties)
+    {
+      auto pPropNonConst = const_cast<ezAbstractProperty*>(pProp);
+      delete pPropNonConst;
+    }
+    for (auto pFunc : m_Functions)
+    {
+      auto pFuncNonConst = const_cast<ezAbstractFunctionProperty*>(pFunc);
+      delete pFuncNonConst;
+    }
+    for (auto pAttrib : m_Attributes)
+    {
+      auto pAttribNonConst = const_cast<ezPropertyAttribute*>(pAttrib);
+      delete pAttribNonConst;
+    }
+  }
 }
 
 void ezRTTI::GatherDynamicMessageHandlers()

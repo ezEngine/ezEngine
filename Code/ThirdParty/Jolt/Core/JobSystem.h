@@ -33,9 +33,9 @@ JPH_NAMESPACE_BEGIN
 ///		barrier->AddJob(third_job);
 ///		job_system->WaitForJobs(barrier);
 ///
-/// 	// Clean up
-/// 	job_system->DestroyBarrier(barrier);
-/// 	delete job_system;
+///		// Clean up
+///		job_system->DestroyBarrier(barrier);
+///		delete job_system;
 ///
 ///	Jobs are guaranteed to be started in the order that their dependency counter becomes zero (in case they're scheduled on a background thread)
 ///	or in the order they're added to the barrier (when dependency count is zero and when executing on the thread that calls WaitForJobs).
@@ -195,6 +195,7 @@ protected:
 		}
 		inline void			Release()
 		{
+		#ifndef JPH_TSAN_ENABLED
 			// Releasing a reference must use release semantics...
 			if (mReferenceCount.fetch_sub(1, memory_order_release) == 1)
 			{
@@ -202,6 +203,11 @@ protected:
 				atomic_thread_fence(memory_order_acquire);
 				mJobSystem->FreeJob(this);
 			}
+		#else
+			// But under TSAN, we cannot use atomic_thread_fence, so we use an acq_rel operation unconditionally instead
+			if (mReferenceCount.fetch_sub(1, memory_order_acq_rel) == 1)
+				mJobSystem->FreeJob(this);
+		#endif
 		}
 
 		/// Add to the dependency counter.

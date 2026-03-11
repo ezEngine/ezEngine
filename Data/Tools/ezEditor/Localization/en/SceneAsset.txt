@@ -1,8 +1,10 @@
 # Asset Types
 
-Layer;Scene Layer
-Prefab;Prefab
-Scene;Scene
+Layer;Scene Layer;;https://ezengine.net/pages/docs/scenes/scene-layers.html
+Prefab;Prefab;;https://ezengine.net/pages/docs/prefabs/prefabs-overview.html
+Scene;Scene;;https://ezengine.net/pages/docs/scenes/scene-editing.html
+BlackboardTemplate;Blackboard Template;;https://ezengine.net/pages/docs/misc/blackboard-template-asset.html
+CustomData;Custom Data;;https://ezengine.net/pages/docs/misc/custom-data.html
 
 # Component Types
 
@@ -10,20 +12,20 @@ ezAlwaysVisibleComponent;Always Visible;;https://ezengine.net/pages/docs/graphic
 ezAmbientLightComponent;Ambient Light;;https://ezengine.net/pages/docs/graphics/lighting/ambient-light-component.html
 ezAreaDamageComponent;Area Damage;;https://ezengine.net/pages/docs/gameplay/area-damage-component.html
 ezBeamComponent;Beam;;https://ezengine.net/pages/docs/effects/beam-component.html
-ezLocalBlackboardComponent;Local Blackboard;;https://ezengine.net/pages/docs/Miscellaneous/local-blackboard-component.html
-ezGlobalBlackboardComponent;Global Blackboard;;https://ezengine.net/pages/docs/Miscellaneous/global-blackboard-component.html
+ezLocalBlackboardComponent;Local Blackboard;;https://ezengine.net/pages/docs/misc/local-blackboard-component.html
+ezGlobalBlackboardComponent;Global Blackboard;;https://ezengine.net/pages/docs/misc/global-blackboard-component.html
 ezBoxReflectionProbeComponent;Box Reflection Probe;;https://ezengine.net/pages/docs/graphics/lighting/reflection-probe-components.html
 ezCameraComponent;Camera;;https://ezengine.net/pages/docs/graphics/camera-component.html
 ezClothSheetComponent;Cloth Sheet;;http://ezengine.net/pages/docs/effects/cloth-sheet-component.html
 ezColorAnimationComponent;Color Animation;;https://ezengine.net/pages/docs/animation/property-animation/color-animation-component.html
-ezCommentComponent;Comment;;https://ezengine.net/pages/docs/Miscellaneous/components/comment-component.html
+ezCommentComponent;Comment;;https://ezengine.net/pages/docs/misc/components/comment-component.html
+ezCustomMeshComponent;Custom Mesh;;https://ezengine.net/pages/docs/graphics/meshes/custom-mesh-component.html
 ezDebugTextComponent;Debug Text;;https://ezengine.net/pages/docs/debugging/components/debug-text-component.html
 ezDirectionalLightComponent;Directional Light;;https://ezengine.net/pages/docs/graphics/lighting/directional-light-component.html
 ezFakeRopeComponent;Fake Rope Simulation;;https://ezengine.net/pages/docs/effects/ropes/fake-rope-component.html
 ezFogComponent;Fog;;https://ezengine.net/pages/docs/effects/fog.html
 ezGrabbableItemComponent;Grabbable Item;;https://ezengine.net/pages/docs/gameplay/grabbable-item-component.html
 ezGreyBoxComponent;Grey Boxing;;https://ezengine.net/pages/docs/scenes/greyboxing.html
-ezHeadBoneComponent;Head Bone;;https://ezengine.net/pages/docs/gameplay/headbone-component.html
 ezHeightfieldComponent;Heightfield;;https://ezengine.net/pages/docs/terrain/heightfield-component.html
 ezInputComponent;Input;;https://ezengine.net/pages/docs/input/input-component.html
 ezInstancedMeshComponent;Instanced Mesh;;https://ezengine.net/pages/docs/graphics/meshes/instanced-mesh-component.html
@@ -33,13 +35,16 @@ ezLensFlareComponent;Lens Flare;;https://ezengine.net/pages/docs/effects/lensfla
 ezLineToComponent;Draw Line To Object;;https://ezengine.net/pages/docs/debugging/components/draw-line-component.html
 ezMarkerComponent;Marker;;https://ezengine.net/pages/docs/gameplay/marker-component.html
 ezMeshComponent;Mesh;;https://ezengine.net/pages/docs/graphics/meshes/mesh-component.html
+ezLodMeshComponent;LOD Mesh;;https://ezengine.net/pages/docs/graphics/meshes/lod-mesh-component.html
 ezMoveToComponent;Move To;;https://ezengine.net/pages/docs/animation/property-animation/move-to-component.html
 ezOccluderComponent;Occluder Component;;https://ezengine.net/pages/docs/graphics/occluder-component.html
 ezPlayerStartPointComponent;Player Start Point;;https://ezengine.net/pages/docs/gameplay/player-start-point.html
 ezPointLightComponent;Point Light;;https://ezengine.net/pages/docs/graphics/lighting/point-light-component.html
+ezFillLightComponent;Fill Light;;https://ezengine.net/pages/docs/graphics/lighting/fill-light-component.html
 ezPrefabReferenceComponent;Prefab Reference;;https://ezengine.net/pages/docs/prefabs/prefabs-overview.html
 ezProjectileComponent;Projectile;;https://ezengine.net/pages/docs/gameplay/projectile-component.html
 ezPropertyAnimComponent;Property Animation;;https://ezengine.net/pages/docs/animation/property-animation/property-animation-component.html
+ezRandomPrefabComponent;Random Prefab;;https://ezengine.net/pages/docs/prefabs/random-prefab-component.html
 ezRaycastComponent;Raycast Placement;;https://ezengine.net/pages/docs/gameplay/raycast-placement-component.html
 ezRenderTargetActivatorComponent;Render Target Activator;;https://ezengine.net/pages/docs/graphics/render-to-texture/render-target-activator-component.html
 ezRopeRenderComponent;Rope Renderer;;https://ezengine.net/pages/docs/effects/ropes/rope-render-component.html
@@ -65,24 +70,30 @@ ezWindVolumeSphereComponent;Sphere Wind Volume;;https://ezengine.net/pages/docs/
 ezBakedProbesComponent;Baked Probes
 ezBakedProbesVolumeComponent;Baked Probes Volume
 ezScriptComponent;Script Component;;https://ezengine.net/pages/docs/custom-code/visual-script/script-component.html
-ezPathComponent;Path Shape;;https://ezengine.net/pages/docs/animation/paths/path-component.html
-ezPathNodeComponent;Path Node;;https://ezengine.net/pages/docs/animation/paths/path-node-component.html
-ezFollowPathComponent;Follow Path;;https://ezengine.net/pages/docs/animation/paths/follow-path-component.html
+ezSplineComponent;Spline;;https://ezengine.net/pages/docs/animation/paths/spline-component.html
+ezSplineNodeComponent;Spline Node;;https://ezengine.net/pages/docs/animation/paths/spline-node-component.html
 ezPowerConnectorComponent;Power Connector;;https://ezengine.net/pages/docs/gameplay/power-connector-component.html
 ezTriggerDelayModifierComponent;Trigger Delay Modifier;;https://ezengine.net/pages/docs/custom-code/game-logic/trigger-delay-modifier-component.html
-ezCommentComponent;Comment;;https://ezengine.net/pages/docs/Miscellaneous/components/comment-component.html
+ezCommentComponent;Comment;;https://ezengine.net/pages/docs/misc/components/comment-component.html
 ezForwardEventsToGameStateComponent;Forward Events To Game State;;https://ezengine.net/pages/docs/custom-code/game-logic/forward-events-to-game-state-component.html
 ezResetTransformComponent;Reset Transform;;https://ezengine.net/pages/docs/animation/property-animation/reset-transform-component.html
 ezVolumeBoxComponent;Box Volume;;https://ezengine.net/pages/docs/effects/post-processing/volume-components.html
 ezVolumeSphereComponent;Sphere Volume;;https://ezengine.net/pages/docs/effects/post-processing/volume-components.html
 ezPostProcessingComponent;Post Processing;;https://ezengine.net/pages/docs/effects/post-processing/post-processing-component.html
+ezTwoBoneIKComponent;Two Bone IK;;https://ezengine.net/pages/docs/animation/skeletal-animation/ik/two-bone-ik-component.html
+ezAimIKComponent;Aim IK;;https://ezengine.net/pages/docs/animation/skeletal-animation/ik/aim-ik-component.html
+ezCreatureCrawlComponent;Creature Crawl;;https://ezengine.net/pages/docs/gameplay/creature-crawl-component.html
+ezLodComponent;LOD Component;;https://ezengine.net/pages/docs/graphics/lod-component.html
+ezSceneTransitionComponent;Scene Transition;;https://ezengine.net/pages/docs/gameplay/scene-transition-component.html
+ezSplineMeshComponent;Spline Mesh;;https://ezengine.net/pages/docs/animation/paths/spline-mesh-component.html
+ezFollowSplineComponent;Follow Spline;;https://ezengine.net/pages/docs/animation/paths/follow-path-component.html
+ezVolumeSamplerComponent;Volume Sampler;;https://ezengine.net/pages/docs/gameplay/volume-sampler-component.html
 
 # Properties
 
 EditorShortcut;Editor Shortcut;Press ALT+Number to jump to this camera.
 Scene.CreateThumbnail;Create Scene Thumbnail
 Scene.GameMode.PlayFromHere;Play From Here
-Scene.GameObject.CreateEmptyHere;Create Empty Object Here
 Scene.Camera.Create.0;Create Level Camera 0;Creates a camera node at the current editor camera position and configures its shortcut
 Scene.Camera.Create.1;Create Level Camera 1;Creates a camera node at the current editor camera position and configures its shortcut
 Scene.Camera.Create.2;Create Level Camera 2;Creates a camera node at the current editor camera position and configures its shortcut
@@ -133,6 +144,7 @@ Scene.FavoriteCams.Menu;Favorite Cameras
 Scene.GameMode.Play;Play the Game
 Scene.GameMode.Simulate;Simulate World
 Scene.GameMode.Stop;Reset World
+Scene.GameMode.Pause;Pause Game / Step Game;Pauses the running simulation. When paused, press again to step one frame at a time.
 Scene.KeepSimulationChanges;Keep Simulation Changes;Only possible during simulation. Synchronizes the position of selected objects back to the editor.
 Scene.Render.AddAmbient;Add Ambient Light
 Scene.Render.Grid;Show Grid
@@ -161,6 +173,7 @@ Layer.SaveLayer;Save Layer
 Layer.SaveActiveLayer;Save Active Layer
 Layer.LayerLoaded;Layer Loaded
 Layer.LayerVisible;Layer Visible
+Layer.SwitchOnSelection;Auto Switch Layer to Selection;Automatically switch to the layer that a selected object is in. If disabled, only objects in the active layer can be selected, to prevent accidentally editing a different layer.
 
 ezLogicOperator::Equal;=
 ezLogicOperator::Unequal;<>

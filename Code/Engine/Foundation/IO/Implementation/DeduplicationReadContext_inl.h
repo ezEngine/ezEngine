@@ -30,6 +30,7 @@ ezResult ezDeduplicationReadContext::ReadObject(ezStreamReader& inout_stream, T*
 
   if (bIsRealObject)
   {
+    EZ_ASSERT_DEBUG(pAllocator != nullptr, "Valid allocator required");
     ref_pObject = EZ_NEW(pAllocator, T);
     EZ_SUCCEED_OR_RETURN(ezStreamReaderUtil::Deserialize<T>(inout_stream, *ref_pObject));
 

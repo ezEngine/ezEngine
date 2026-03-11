@@ -55,7 +55,7 @@ void ezDirectionVisualizerAdapter::UpdateGizmoTransform()
     fScale *= value.ConvertTo<float>();
   }
 
-  ezBasisAxis::Enum axis = pAttr->m_Axis;
+  ezVec3 axis = ezBasisAxis::GetBasisVector(pAttr->m_Axis);
 
   if (!pAttr->GetAxisProperty().IsEmpty())
   {
@@ -64,12 +64,21 @@ void ezDirectionVisualizerAdapter::UpdateGizmoTransform()
     ezVariant value;
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetAxisProperty()), value).AssertSuccess();
 
-    EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezInt32>(), "Invalid property bound to ezDirectionVisualizerAttribute 'length'");
+    if (value.IsA<ezVec3>())
+    {
+      axis = value.ConvertTo<ezVec3>();
+      fScale *= axis.GetLength();
+      axis.NormalizeIfNotZero(ezVec3::MakeAxisX()).IgnoreResult();
+    }
+    else
+    {
+      EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezInt32>(), "Invalid property bound to ezDirectionVisualizerAttribute 'length'");
 
-    axis = static_cast<ezBasisAxis::Enum>(value.ConvertTo<ezInt32>());
+      axis = ezBasisAxis::GetBasisVector(static_cast<ezBasisAxis::Enum>(value.ConvertTo<ezInt32>()));
+    }
   }
 
-  const ezQuat axisRotation = ezBasisAxis::GetBasisRotation_PosX(axis);
+  const ezQuat axisRotation = ezQuat::MakeShortestRotation(ezVec3::MakeAxisX(), axis);
 
   ezTransform t;
   t.m_qRotation = axisRotation;

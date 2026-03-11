@@ -37,7 +37,7 @@ TWO_SIDED
 %endif
 
 // SYSTEM permutations:
-// all of these are automatically set by the engine 
+// all of these are automatically set by the engine
 FLIP_WINDING
 RENDER_PASS
 FORWARD_PASS_WRITE_DEPTH
@@ -45,7 +45,6 @@ MSAA
 CAMERA_MODE
 SHADING_QUALITY
 VERTEX_SKINNING
-VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
 // SYSTEM permutations
 
 [MATERIALPARAMETER]
@@ -53,6 +52,7 @@ VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
 // Permutation options let the user choose the value of a permutation variable.
 // bool / float / int / Color options let the user set a fixed value for a CONSTANT_BUFFER variable.
 // Texture2D options let the user choose a texture for that slot.
+// See https://ezengine.net/pages/docs/graphics/shaders/shaders-overview.html#material-sections
 
 %if TEMPLATE_BLEND_MODE == TEMPLATE_BLEND_MODE_SELECTABLE
 // exposes the BLEND_MODE option in the material UI
@@ -90,6 +90,26 @@ Texture2D OcclusionTexture;
 
 bool UseOrmTexture;
 Texture2D OrmTexture;
+
+[MATERIALCONSTANTS]
+// This section defines the material constants. A sub-set of these can be exposed in the GUI via the [MATERIALPARAMETER] section.
+// Only parameter macros defined in Data/Base/Shaders/Common/ConstantBufferMacros.h are allowed in this section.
+// The shader compiler will use the parameters in this section to define an ezMaterialConstants struct and prepend it
+// to every shader stage, e.g. VERTEXSHADER, GEOMETRYSHADER and PIXELSHADER even before the [SHADER] section is prepended.
+// See https://ezengine.net/pages/docs/graphics/shaders/shaders-overview.html#material-sections
+
+COLOR4F(BaseColor);
+COLOR4F(EmissiveColor);
+FLOAT1(MetallicValue);
+FLOAT1(RoughnessValue);
+FLOAT1(MaskThreshold);
+BOOL1(UseBaseTexture);
+BOOL1(UseNormalTexture);
+BOOL1(UseRoughnessTexture);
+BOOL1(UseMetallicTexture);
+BOOL1(UseEmissiveTexture);
+BOOL1(UseOcclusionTexture);
+BOOL1(UseOrmTexture);
 
 [RENDERSTATE]
 // This section defines the render pipeline state with which to execute this shader.
@@ -134,35 +154,14 @@ Texture2D OrmTexture;
 #define CUSTOM_INTERPOLATOR float4 ProcColor : PROC_COLOR;
 %endif
 
-#include <Shaders/Common/GlobalConstants.h>
-
-// The values of the variables in the MATERIALPARAMETER section are written to this constant buffer.
-// The constant buffer is available to all shader stages and these variables
-// can be read anywhere like global variables.
-CONSTANT_BUFFER(ezMaterialConstants, 1)
-{
-  COLOR4F(BaseColor);
-  COLOR4F(EmissiveColor);
-  FLOAT1(MetallicValue);
-  FLOAT1(ReflectanceValue);
-  FLOAT1(RoughnessValue);
-%if TEMPLATE_BLEND_MODE == TEMPLATE_BLEND_MODE_SELECTABLE
-  FLOAT1(MaskThreshold);
-%endif
-  BOOL1(UseBaseTexture);
-  BOOL1(UseNormalTexture);
-  BOOL1(UseRoughnessTexture);
-  BOOL1(UseMetallicTexture);
-  BOOL1(UseEmissiveTexture);
-  BOOL1(UseOcclusionTexture);
-  BOOL1(UseOrmTexture);
-};
-
 [VERTEXSHADER]
 // This section contains the vertex shader code.
 // Note that code from the [SHADER] section is prepended, as well.
 
 #include <Shaders/Materials/MaterialVertexShader.h>
+%if TEMPLATE_VERTEX_COLORS == TEMPLATE_VERTEX_COLORS_PROCEDURAL
+#include <ProcGen/ProcGenVertexColor.h>
+%endif
 
 VS_OUT main(VS_IN Input)
 {
@@ -170,22 +169,15 @@ VS_OUT main(VS_IN Input)
   // Search for USE_OBJECT_POSITION_OFFSET and USE_WORLD_POSITION_OFFSET to inject custom offsets,
   // or manipulate the Input or Output structures directly.
   VS_OUT Output = FillVertexData(Input);
-  
+
 %if TEMPLATE_VERTEX_COLORS == TEMPLATE_VERTEX_COLORS_PROCEDURAL
   // Fetch the procedural vertex colors from the per instance vertex color buffer
-  float4 instanceVertexColor0 = RGBA8ToFloat4(GetInstanceVertexColors(0));  
+  float4 instanceVertexColor0 = GetInstanceVertexColors(0);
   Output.ProcColor = instanceVertexColor0;
 %endif
 
   return Output;
 }
-
-
-[GEOMETRYSHADER]
-// This section contains the geometry shader code.
-// Note that code from the [SHADER] section is prepended, as well.
-
-#include <Shaders/Materials/MaterialStereoGeometryShader.h>
 
 
 [PIXELSHADER]
@@ -197,31 +189,31 @@ VS_OUT main(VS_IN Input)
 #define USE_MATERIAL_OCCLUSION    // remove if you don't need occlusion
 #define USE_TWO_SIDED_LIGHTING    // only used if TWO_SIDED == TRUE
 #define USE_DECALS                // whether decals should be applied to this material
-#define USE_FOG                   // whether fog should be applied to this material 
+#define USE_FOG                   // whether fog should be applied to this material
 
 #include <Shaders/Materials/MaterialPixelShader.h>
 
 // if you remove any of these, make sure to also remove them from the MATERIALPARAMETER section and CONSTANT_BUFFER
-Texture2D BaseTexture;
-SamplerState BaseTexture_AutoSampler;
+Texture2D BaseTexture BIND_GROUP(BG_MATERIAL);
+SamplerState BaseTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 
-Texture2D NormalTexture;
-SamplerState NormalTexture_AutoSampler;
+Texture2D NormalTexture BIND_GROUP(BG_MATERIAL);
+SamplerState NormalTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 
-Texture2D MetallicTexture;
-SamplerState MetallicTexture_AutoSampler;
+Texture2D MetallicTexture BIND_GROUP(BG_MATERIAL);
+SamplerState MetallicTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 
-Texture2D RoughnessTexture;
-SamplerState RoughnessTexture_AutoSampler;
+Texture2D RoughnessTexture BIND_GROUP(BG_MATERIAL);
+SamplerState RoughnessTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 
-Texture2D EmissiveTexture;
-SamplerState EmissiveTexture_AutoSampler;
+Texture2D EmissiveTexture BIND_GROUP(BG_MATERIAL);
+SamplerState EmissiveTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 
-Texture2D OcclusionTexture;
-SamplerState OcclusionTexture_AutoSampler;
+Texture2D OcclusionTexture BIND_GROUP(BG_MATERIAL);
+SamplerState OcclusionTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 
-Texture2D OrmTexture;
-SamplerState OrmTexture_AutoSampler;
+Texture2D OrmTexture BIND_GROUP(BG_MATERIAL);
+SamplerState OrmTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 
 ////////////////////////////////////////////////////////
 // For custom shader effects, the code below is usually the part that you edit the most.
@@ -251,7 +243,7 @@ SamplerState OrmTexture_AutoSampler;
 float3 GetNormal()
 {
   [branch]
-  if (UseNormalTexture)
+  if (GetMaterialData(UseNormalTexture))
   {
     // per-pixel normal read from the provided texture
     float3 normalTS = DecodeNormalTexture(NormalTexture.Sample(NormalTexture_AutoSampler, G.Input.TexCoord0.xy));
@@ -269,7 +261,7 @@ float3 GetBaseColor()
 {
   // BaseColor comes from the material itself
   // GetInstanceData() comes from the specific mesh instance
-  float3 baseColor = BaseColor.rgb * GetInstanceData().Color.rgb;
+  float3 baseColor = GetMaterialData(BaseColor).rgb * GetInstanceData().Color.rgb;
 
 %if TEMPLATE_VERTEX_COLORS == TEMPLATE_VERTEX_COLORS_0
   // a vertex color stream is available (and required)
@@ -286,7 +278,7 @@ float3 GetBaseColor()
 %endif
 
   [branch]
-  if (UseBaseTexture)
+  if (GetMaterialData(UseBaseTexture))
   {
     baseColor *= BaseTexture.Sample(BaseTexture_AutoSampler, G.Input.TexCoord0.xy).rgb;
   }
@@ -312,17 +304,17 @@ float3 GetBaseColor()
 float GetMetallic()
 {
   [branch]
-  if (UseOrmTexture)
+  if (GetMaterialData(UseOrmTexture))
   {
     return OrmTexture.Sample(OrmTexture_AutoSampler, G.Input.TexCoord0.xy).b;
   }
-  else if (UseMetallicTexture)
+  else if (GetMaterialData(UseMetallicTexture))
   {
     return MetallicTexture.Sample(MetallicTexture_AutoSampler, G.Input.TexCoord0.xy).r;
   }
   else
   {
-    return MetallicValue;
+    return GetMaterialData(MetallicValue);
   }
 }
 
@@ -337,17 +329,17 @@ float GetReflectance()
 float GetRoughness()
 {
   [branch]
-  if (UseOrmTexture)
+  if (GetMaterialData(UseOrmTexture))
   {
-    return RoughnessValue * OrmTexture.Sample(OrmTexture_AutoSampler, G.Input.TexCoord0.xy).g;
+    return GetMaterialData(RoughnessValue) * OrmTexture.Sample(OrmTexture_AutoSampler, G.Input.TexCoord0.xy).g;
   }
-  else if (UseRoughnessTexture)
+  else if (GetMaterialData(UseRoughnessTexture))
   {
-    return RoughnessValue * RoughnessTexture.Sample(RoughnessTexture_AutoSampler, G.Input.TexCoord0.xy).r;
+    return GetMaterialData(RoughnessValue) * RoughnessTexture.Sample(RoughnessTexture_AutoSampler, G.Input.TexCoord0.xy).r;
   }
   else
   {
-    return RoughnessValue;
+    return GetMaterialData(RoughnessValue);
   }
 }
 
@@ -356,17 +348,17 @@ float GetRoughness()
 // if alpha clipping (masked mode) is used, values below 0 make the pixel fully see through
 float GetOpacity()
 {
-  float opacity = BaseColor.a * GetInstanceData().Color.a;
+  float opacity = GetMaterialData(BaseColor).a * GetInstanceData().Color.a;
 
   [branch]
-  if (UseBaseTexture)
+  if (GetMaterialData(UseBaseTexture))
   {
     opacity *= BaseTexture.Sample(BaseTexture_AutoSampler, G.Input.TexCoord0.xy).a;
   }
 
 %if TEMPLATE_BLEND_MODE == TEMPLATE_BLEND_MODE_SELECTABLE
   #if BLEND_MODE == BLEND_MODE_MASKED
-    return opacity - MaskThreshold;
+    return opacity - GetMaterialData(MaskThreshold);
   #else
     return opacity;
   #endif
@@ -379,13 +371,13 @@ float GetOpacity()
 float3 GetEmissiveColor()
 {
   [branch]
-  if (UseEmissiveTexture)
+  if (GetMaterialData(UseEmissiveTexture))
   {
-    return EmissiveTexture.Sample(EmissiveTexture_AutoSampler, G.Input.TexCoord0.xy).rgb * EmissiveColor.rgb;
+    return EmissiveTexture.Sample(EmissiveTexture_AutoSampler, G.Input.TexCoord0.xy).rgb * GetMaterialData(EmissiveColor).rgb;
   }
   else
   {
-    return EmissiveColor.rgb;
+    return GetMaterialData(EmissiveColor).rgb;
   }
 }
 
@@ -394,11 +386,11 @@ float3 GetEmissiveColor()
 float GetOcclusion()
 {
   [branch]
-  if (UseOrmTexture)
+  if (GetMaterialData(UseOrmTexture))
   {
     return OrmTexture.Sample(OrmTexture_AutoSampler, G.Input.TexCoord0.xy).r;
   }
-  else if (UseOcclusionTexture)
+  else if (GetMaterialData(UseOcclusionTexture))
   {
     return OcclusionTexture.Sample(OcclusionTexture_AutoSampler, G.Input.TexCoord0.xy).r;
   }

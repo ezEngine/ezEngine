@@ -65,11 +65,6 @@ ezDecalAtlasResource::ezDecalAtlasResource()
 {
 }
 
-ezDecalAtlasResourceHandle ezDecalAtlasResource::GetDecalAtlasResource()
-{
-  return ezResourceManager::LoadResource<ezDecalAtlasResource>("{ ProjectDecalAtlas }");
-}
-
 ezResourceLoadDesc ezDecalAtlasResource::UnloadData(Unload WhatToUnload)
 {
   ezResourceLoadDesc res;
@@ -92,11 +87,9 @@ ezResourceLoadDesc ezDecalAtlasResource::UpdateContent(ezStreamReader* Stream)
   if (Stream == nullptr)
     return res;
 
-  // skip the absolute file path data that the standard file reader writes into the stream
-  {
-    ezStringBuilder sAbsFilePath;
-    (*Stream) >> sAbsFilePath;
-  }
+  // the standard file reader writes the absolute file path into the stream
+  ezStringBuilder sAbsFilePath;
+  (*Stream) >> sAbsFilePath;
 
   // skip the asset header
   {
@@ -178,7 +171,7 @@ void ezDecalAtlasResource::CreateLayerTexture(const ezImage& img, bool bSRGB, ez
   td.m_SamplerDesc.m_AddressW = ezImageAddressMode::Clamp;
 
   ezUInt32 uiMemory;
-  ezHybridArray<ezGALSystemMemoryDescription, 32> initData;
+  ezTempHybridArray<ezGALSystemMemoryDescription, 32> initData;
   ezTexture2DResource::FillOutDescriptor(td, &img, bSRGB, img.GetNumMipLevels(), uiMemory, initData);
   ezTextureUtils::ConfigureSampler(ezTextureFilterSetting::HighQuality, td.m_SamplerDesc);
 

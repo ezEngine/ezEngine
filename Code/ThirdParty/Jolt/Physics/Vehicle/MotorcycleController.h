@@ -12,9 +12,9 @@ JPH_NAMESPACE_BEGIN
 /// Note: The motor cycle controller is still in development and may need a lot of tweaks/hacks to work properly!
 class JPH_EXPORT MotorcycleControllerSettings : public WheeledVehicleControllerSettings
 {
-public:
 	JPH_DECLARE_SERIALIZABLE_VIRTUAL(JPH_EXPORT, MotorcycleControllerSettings)
 
+public:
 	// See: VehicleControllerSettings
 	virtual VehicleController *	ConstructController(VehicleConstraint &inConstraint) const override;
 	virtual void				SaveBinaryState(StreamOut &inStream) const override;
@@ -82,6 +82,9 @@ public:
 	/// Note that this is frame rate dependent because the formula is: smoothing_factor * previous + (1 - smoothing_factor) * current
 	void						SetLeanSmoothingFactor(float inFactor)				{ mLeanSmoothingFactor = inFactor; }
 	float						GetLeanSmoothingFactor() const						{ return mLeanSmoothingFactor; }
+
+	// See: VehicleController
+	virtual Ref<VehicleControllerSettings> GetSettings() const override;
 
 protected:
 	// See: VehicleController

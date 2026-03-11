@@ -1,22 +1,20 @@
 #include <Foundation/FoundationPCH.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
-#  include <Foundation/Basics/Platform/Win/MinWindows.h>
 #  include <Foundation/IO/OSFile.h>
 #  include <Foundation/Platform/Win/DosDevicePath_Win.h>
+#  include <Foundation/Platform/Win/Utils/MinWindows.h>
 #  include <Foundation/System/MiniDumpUtils.h>
 #  include <Foundation/System/ProcessGroup.h>
 #  include <Foundation/Types/ScopeExit.h>
 #  include <Foundation/Utilities/CommandLineOptions.h>
 #  include <Foundation/Utilities/CommandLineUtils.h>
 
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-
-#    include <Dbghelp.h>
-#    include <Shlwapi.h>
-#    include <tchar.h>
-#    include <werapi.h>
+#  include <Dbghelp.h>
+#  include <Shlwapi.h>
+#  include <tchar.h>
+#  include <werapi.h>
 
 ezCommandLineOptionBool opt_FullCrashDumps("app", "-fullcrashdumps", "If enabled, crash dumps will contain the full memory image.", false);
 
@@ -95,7 +93,7 @@ ezStatus ezMiniDumpUtils::WriteProcessMiniDump(ezStringView sDumpFile, ezUInt32 
     return ezStatus(ezFmt("Writing dump file failed: '{}'.", ezArgErrorCode(GetLastError())));
   }
 
-  return ezStatus(EZ_SUCCESS);
+  return EZ_SUCCESS;
 }
 
 ezStatus ezMiniDumpUtils::WriteOwnProcessMiniDump(ezStringView sDumpFile, struct _EXCEPTION_POINTERS* pExceptionInfo, ezDumpType dumpTypeOverride)
@@ -108,11 +106,8 @@ ezStatus ezMiniDumpUtils::WriteExternalProcessMiniDump(ezStringView sDumpFile, e
   return WriteProcessMiniDump(sDumpFile, uiProcessID, hProcess, nullptr, dumpTypeOverride);
 }
 
-#  endif
-
 ezStatus ezMiniDumpUtils::WriteExternalProcessMiniDump(ezStringView sDumpFile, ezUInt32 uiProcessID, ezDumpType dumpTypeOverride)
 {
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   HANDLE hProcess = ezMiniDumpUtils::GetProcessHandleWithNecessaryRights(uiProcessID);
 
   if (hProcess == nullptr)
@@ -121,21 +116,16 @@ ezStatus ezMiniDumpUtils::WriteExternalProcessMiniDump(ezStringView sDumpFile, e
   }
 
   return WriteProcessMiniDump(sDumpFile, uiProcessID, hProcess, nullptr, dumpTypeOverride);
-
-#  else
-  return ezStatus("Not implemented on UPW");
-#  endif
 }
 
 ezStatus ezMiniDumpUtils::LaunchMiniDumpTool(ezStringView sDumpFile, ezDumpType dumpTypeOverride)
 {
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   ezStringBuilder sDumpToolPath = ezOSFile::GetApplicationDirectory();
-  sDumpToolPath.AppendPath("MiniDumpTool.exe");
+  sDumpToolPath.AppendPath("ezMiniDumpTool.exe");
   sDumpToolPath.MakeCleanPath();
 
   if (!ezOSFile::ExistsFile(sDumpToolPath))
-    return ezStatus(ezFmt("MiniDumpTool.exe not found in '{}'", sDumpToolPath));
+    return ezStatus(ezFmt("ezMiniDumpTool.exe not found in '{}'", sDumpToolPath));
 
   ezProcessOptions procOpt;
   procOpt.m_sProcess = sDumpToolPath;
@@ -155,13 +145,9 @@ ezStatus ezMiniDumpUtils::LaunchMiniDumpTool(ezStringView sDumpFile, ezDumpType 
     return ezStatus(ezFmt("Failed to launch '{}'", sDumpToolPath));
 
   if (proc.WaitToFinish().Failed())
-    return ezStatus("Waiting for MiniDumpTool to finish failed.");
+    return ezStatus("Waiting for ezMiniDumpTool to finish failed.");
 
-  return ezStatus(EZ_SUCCESS);
-
-#  else
-  return ezStatus("Not implemented on UPW");
-#  endif
+  return EZ_SUCCESS;
 }
 
 #endif

@@ -37,7 +37,9 @@ ezResult ezOSFile::Open(ezStringView sFile, ezFileOpenMode::Enum openMode, ezFil
   EZ_ASSERT_DEV(openMode >= ezFileOpenMode::Read && openMode <= ezFileOpenMode::Append, "Invalid Mode");
   EZ_ASSERT_DEV(!IsOpen(), "The file has already been opened.");
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   const ezTime t0 = ezTime::Now();
+#endif
 
   m_sFileName = sFile;
   m_sFileName.MakeCleanPath();
@@ -69,8 +71,12 @@ ezResult ezOSFile::Open(ezStringView sFile, ezFileOpenMode::Enum openMode, ezFil
   goto done;
 
 done:
-  const ezTime t1 = ezTime::Now();
-  const ezTime tdiff = t1 - t0;
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  const ezTime tdiff = ezTime::Now() - t0;
+#else
+  const ezTime tdiff = ezTime::MakeZero();
+#endif
 
   EventData e;
   e.m_bSuccess = Res == EZ_SUCCESS;
@@ -95,12 +101,17 @@ void ezOSFile::Close()
   if (!IsOpen())
     return;
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   const ezTime t0 = ezTime::Now();
+#endif
 
   InternalClose();
 
-  const ezTime t1 = ezTime::Now();
-  const ezTime tdiff = t1 - t0;
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  const ezTime tdiff = ezTime::Now() - t0;
+#else
+  const ezTime tdiff = ezTime::MakeZero();
+#endif
 
   EventData e;
   e.m_bSuccess = true;
@@ -117,15 +128,23 @@ void ezOSFile::Close()
 
 ezResult ezOSFile::Write(const void* pBuffer, ezUInt64 uiBytes)
 {
+  if (uiBytes == 0)
+    return EZ_SUCCESS;
+
   EZ_ASSERT_DEV((m_FileMode == ezFileOpenMode::Write) || (m_FileMode == ezFileOpenMode::Append), "The file is not opened for writing.");
   EZ_ASSERT_DEV(pBuffer != nullptr, "pBuffer must not be nullptr.");
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   const ezTime t0 = ezTime::Now();
+#endif
 
   const ezResult Res = InternalWrite(pBuffer, uiBytes);
 
-  const ezTime t1 = ezTime::Now();
-  const ezTime tdiff = t1 - t0;
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  const ezTime tdiff = ezTime::Now() - t0;
+#else
+  const ezTime tdiff = ezTime::MakeZero();
+#endif
 
   EventData e;
   e.m_bSuccess = Res == EZ_SUCCESS;
@@ -145,12 +164,17 @@ ezUInt64 ezOSFile::Read(void* pBuffer, ezUInt64 uiBytes)
   EZ_ASSERT_DEV(m_FileMode == ezFileOpenMode::Read, "The file is not opened for reading.");
   EZ_ASSERT_DEV(pBuffer != nullptr, "pBuffer must not be nullptr.");
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   const ezTime t0 = ezTime::Now();
+#endif
 
   const ezUInt64 Res = InternalRead(pBuffer, uiBytes);
 
-  const ezTime t1 = ezTime::Now();
-  const ezTime tdiff = t1 - t0;
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  const ezTime tdiff = ezTime::Now() - t0;
+#else
+  const ezTime tdiff = ezTime::MakeZero();
+#endif
 
   EventData e;
   e.m_bSuccess = (Res == uiBytes);
@@ -228,16 +252,23 @@ const ezString ezOSFile::MakePathAbsoluteWithCWD(ezStringView sPath)
 
 bool ezOSFile::ExistsFile(ezStringView sFile)
 {
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   const ezTime t0 = ezTime::Now();
+#endif
 
   ezStringBuilder s(sFile);
   s.MakeCleanPath();
   s.MakePathSeparatorsNative();
 
+  EZ_ASSERT_DEV(s.IsAbsolutePath(), "Path must be absolute: '{}'", sFile);
+
   const bool bRes = InternalExistsFile(s);
 
-  const ezTime t1 = ezTime::Now();
-  const ezTime tdiff = t1 - t0;
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  const ezTime tdiff = ezTime::Now() - t0;
+#else
+  const ezTime tdiff = ezTime::MakeZero();
+#endif
 
 
   EventData e;
@@ -254,19 +285,23 @@ bool ezOSFile::ExistsFile(ezStringView sFile)
 
 bool ezOSFile::ExistsDirectory(ezStringView sDirectory)
 {
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   const ezTime t0 = ezTime::Now();
+#endif
 
   ezStringBuilder s(sDirectory);
   s.MakeCleanPath();
   s.MakePathSeparatorsNative();
 
-  EZ_ASSERT_DEV(s.IsAbsolutePath(), "Path must be absolute");
+  EZ_ASSERT_DEV(s.IsAbsolutePath(), "Path must be absolute: '{}'", sDirectory);
 
   const bool bRes = InternalExistsDirectory(s);
 
-  const ezTime t1 = ezTime::Now();
-  const ezTime tdiff = t1 - t0;
-
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  const ezTime tdiff = ezTime::Now() - t0;
+#else
+  const ezTime tdiff = ezTime::MakeZero();
+#endif
 
   EventData e;
   e.m_bSuccess = bRes;
@@ -291,7 +326,7 @@ void ezOSFile::FindFreeFilename(ezStringBuilder& inout_sPath, ezStringView sSuff
 
   ezStringBuilder newName;
 
-  for (ezUInt32 i = 1; i < 100000; ++i)
+  for (ezUInt32 i = 2; i < 100000; ++i)
   {
     newName.SetFormat("{}{}{}", orgName, sSuffix, i);
 
@@ -305,7 +340,9 @@ void ezOSFile::FindFreeFilename(ezStringBuilder& inout_sPath, ezStringView sSuff
 
 ezResult ezOSFile::DeleteFile(ezStringView sFile)
 {
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   const ezTime t0 = ezTime::Now();
+#endif
 
   ezStringBuilder s(sFile);
   s.MakeCleanPath();
@@ -313,9 +350,11 @@ ezResult ezOSFile::DeleteFile(ezStringView sFile)
 
   const ezResult Res = InternalDeleteFile(s.GetData());
 
-  const ezTime t1 = ezTime::Now();
-  const ezTime tdiff = t1 - t0;
-
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  const ezTime tdiff = ezTime::Now() - t0;
+#else
+  const ezTime tdiff = ezTime::MakeZero();
+#endif
   EventData e;
   e.m_bSuccess = Res == EZ_SUCCESS;
   e.m_Duration = tdiff;
@@ -334,15 +373,17 @@ ezStringView ezOSFile::GetApplicationDirectory()
   {
     // s_sApplicationPath is filled out and cached by GetApplicationPath(), so call that first, if necessary
     GetApplicationPath();
+    EZ_ASSERT_ALWAYS(!s_sApplicationPath.IsEmpty(), "Invalid application directory");
   }
 
-  EZ_ASSERT_ALWAYS(!s_sApplicationPath.IsEmpty(), "Invalid application directory");
   return s_sApplicationPath.GetFileDirectory();
 }
 
 ezResult ezOSFile::CreateDirectoryStructure(ezStringView sDirectory)
 {
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   const ezTime t0 = ezTime::Now();
+#endif
 
   ezStringBuilder s(sDirectory);
   s.MakeCleanPath();
@@ -374,8 +415,11 @@ ezResult ezOSFile::CreateDirectoryStructure(ezStringView sDirectory)
     }
   }
 
-  const ezTime t1 = ezTime::Now();
-  const ezTime tdiff = t1 - t0;
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  const ezTime tdiff = ezTime::Now() - t0;
+#else
+  const ezTime tdiff = ezTime::MakeZero();
+#endif
 
   EventData e;
   e.m_bSuccess = Res == EZ_SUCCESS;
@@ -404,7 +448,9 @@ ezResult ezOSFile::MoveFileOrDirectory(ezStringView sDirectoryFrom, ezStringView
 
 ezResult ezOSFile::CopyFile(ezStringView sSource, ezStringView sDestination)
 {
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   const ezTime t0 = ezTime::Now();
+#endif
 
   ezOSFile SrcFile, DstFile;
 
@@ -440,8 +486,11 @@ ezResult ezOSFile::CopyFile(ezStringView sSource, ezStringView sDestination)
 
 done:
 
-  const ezTime t1 = ezTime::Now();
-  const ezTime tdiff = t1 - t0;
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  const ezTime tdiff = ezTime::Now() - t0;
+#else
+  const ezTime tdiff = ezTime::MakeZero();
+#endif
 
   EventData e;
   e.m_bSuccess = Res == EZ_SUCCESS;
@@ -460,7 +509,9 @@ done:
 
 ezResult ezOSFile::GetFileStats(ezStringView sFileOrFolder, ezFileStats& out_stats)
 {
+#  if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   const ezTime t0 = ezTime::Now();
+#  endif
 
   ezStringBuilder s = sFileOrFolder;
   s.MakeCleanPath();
@@ -470,8 +521,11 @@ ezResult ezOSFile::GetFileStats(ezStringView sFileOrFolder, ezFileStats& out_sta
 
   const ezResult Res = InternalGetFileStats(s.GetData(), out_stats);
 
-  const ezTime t1 = ezTime::Now();
-  const ezTime tdiff = t1 - t0;
+#  if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  const ezTime tdiff = ezTime::Now() - t0;
+#  else
+  const ezTime tdiff = ezTime::MakeZero();
+#  endif
 
   EventData e;
   e.m_bSuccess = Res == EZ_SUCCESS;
@@ -490,7 +544,9 @@ ezResult ezOSFile::GetFileCasing(ezStringView sFileOrFolder, ezStringBuilder& ou
 {
   /// \todo We should implement this also on ezFileSystem, to be able to support stats through virtual filesystems
 
+#    if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   const ezTime t0 = ezTime::Now();
+#    endif
 
   ezStringBuilder s(sFileOrFolder);
   s.MakeCleanPath();
@@ -529,8 +585,11 @@ ezResult ezOSFile::GetFileCasing(ezStringView sFileOrFolder, ezStringBuilder& ou
     ++it;
   }
 
-  const ezTime t1 = ezTime::Now();
-  const ezTime tdiff = t1 - t0;
+#    if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  const ezTime tdiff = ezTime::Now() - t0;
+#    else
+  const ezTime tdiff = ezTime::MakeZero();
+#    endif
 
   EventData e;
   e.m_bSuccess = Res == EZ_SUCCESS;

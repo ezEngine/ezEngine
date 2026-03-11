@@ -1,0 +1,16 @@
+// for a description of the options see:
+// https://ezengine.net/pages/docs/editor/editor-plugins.html
+
+PluginInfo
+{
+	string %DisplayName{"Jolt Physics"}
+	string %Description{"Adds support for 3D physics simulation via Jolt."}
+	string %EditorPlugins{"ezEditorPluginJolt"}
+	string %EditorEnginePlugins{"ezEnginePluginJolt"}
+	string %RuntimePlugins{"ezJoltPlugin"}
+	string %PackageDependencies{"Jolt.dll"}
+	string %RequiredPlugins{}
+	string %ExclusiveFeatures{"physics"}
+	string %EnabledInTemplates{"General3D"}
+	string %CMakeTargetName{"JoltPlugin"}
+}

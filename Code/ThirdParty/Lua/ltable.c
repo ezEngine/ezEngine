@@ -84,8 +84,6 @@
 #define hashstr(t,str)		hashpow2(t, (str)->hash)
 #define hashboolean(t,p)	hashpow2(t, p)
 
-#define hashint(t,i)		hashpow2(t, i)
-
 
 #define hashpointer(t,p)	hashmod(t, point2uint(p))
 
@@ -100,6 +98,20 @@ static const Node dummynode_ = {
 
 static const TValue absentkey = {ABSTKEYCONSTANT};
 
+
+/*
+** Hash for integers. To allow a good hash, use the remainder operator
+** ('%'). If integer fits as a non-negative int, compute an int
+** remainder, which is faster. Otherwise, use an unsigned-integer
+** remainder, which uses all bits and ensures a non-negative result.
+*/
+static Node *hashint (const Table *t, lua_Integer i) {
+  lua_Unsigned ui = l_castS2U(i);
+  if (ui <= cast_uint(INT_MAX))
+    return hashmod(t, cast_int(ui));
+  else
+    return hashmod(t, ui);
+}
 
 
 /*
@@ -134,26 +146,24 @@ static int l_hashfloat (lua_Number n) {
 
 /*
 ** returns the 'main' position of an element in a table (that is,
-** the index of its hash value). The key comes broken (tag in 'ktt'
-** and value in 'vkl') so that we can call it on keys inserted into
-** nodes.
+** the index of its hash value).
 */
-static Node *mainposition (const Table *t, int ktt, const Value *kvl) {
-  switch (withvariant(ktt)) {
+static Node *mainpositionTV (const Table *t, const TValue *key) {
+  switch (ttypetag(key)) {
     case LUA_VNUMINT: {
-      lua_Integer key = ivalueraw(*kvl);
-      return hashint(t, key);
+      lua_Integer i = ivalue(key);
+      return hashint(t, i);
     }
     case LUA_VNUMFLT: {
-      lua_Number n = fltvalueraw(*kvl);
+      lua_Number n = fltvalue(key);
       return hashmod(t, l_hashfloat(n));
     }
     case LUA_VSHRSTR: {
-      TString *ts = tsvalueraw(*kvl);
+      TString *ts = tsvalue(key);
       return hashstr(t, ts);
     }
     case LUA_VLNGSTR: {
-      TString *ts = tsvalueraw(*kvl);
+      TString *ts = tsvalue(key);
       return hashpow2(t, luaS_hashlongstr(ts));
     }
     case LUA_VFALSE:
@@ -161,26 +171,25 @@ static Node *mainposition (const Table *t, int ktt, const Value *kvl) {
     case LUA_VTRUE:
       return hashboolean(t, 1);
     case LUA_VLIGHTUSERDATA: {
-      void *p = pvalueraw(*kvl);
+      void *p = pvalue(key);
       return hashpointer(t, p);
     }
     case LUA_VLCF: {
-      lua_CFunction f = fvalueraw(*kvl);
+      lua_CFunction f = fvalue(key);
       return hashpointer(t, f);
     }
     default: {
-      GCObject *o = gcvalueraw(*kvl);
+      GCObject *o = gcvalue(key);
       return hashpointer(t, o);
     }
   }
 }
 
 
-/*
-** Returns the main position of an element given as a 'TValue'
-*/
-static Node *mainpositionTV (const Table *t, const TValue *key) {
-  return mainposition(t, rawtt(key), valraw(key));
+l_sinline Node *mainpositionfromnode (const Table *t, Node *nd) {
+  TValue key;
+  getnodekey(cast(lua_State *, NULL), &key, nd);
+  return mainpositionTV(t, &key);
 }
 
 
@@ -243,14 +252,16 @@ LUAI_FUNC unsigned int luaH_realasize (const Table *t) {
     return t->alimit;  /* this is the size */
   else {
     unsigned int size = t->alimit;
-    /* compute the smallest power of 2 not smaller than 'n' */
+    /* compute the smallest power of 2 not smaller than 'size' */
     size |= (size >> 1);
     size |= (size >> 2);
     size |= (size >> 4);
     size |= (size >> 8);
+#if (UINT_MAX >> 14) > 3  /* unsigned int has more than 16 bits */
     size |= (size >> 16);
 #if (UINT_MAX >> 30) > 3
     size |= (size >> 32);  /* unsigned int has more than 32 bits */
+#endif
 #endif
     size++;
     lua_assert(ispow2(size) && size/2 < t->alimit && t->alimit < size);
@@ -479,7 +490,7 @@ static void setnodevector (lua_State *L, Table *t, unsigned int size) {
       luaG_runerror(L, "table overflow");
     size = twoto(lsize);
     t->node = luaM_newvector(L, size, Node);
-    for (i = 0; i < (int)size; i++) {
+    for (i = 0; i < cast_int(size); i++) {
       Node *n = gnode(t, i);
       gnext(n) = 0;
       setnilkey(n);
@@ -651,7 +662,8 @@ static Node *getfreepos (Table *t) {
 ** put new key in its main position; otherwise (colliding node is in its main
 ** position), new key goes to an empty position.
 */
-void luaH_newkey (lua_State *L, Table *t, const TValue *key, TValue *value) {
+static void luaH_newkey (lua_State *L, Table *t, const TValue *key,
+                                                 TValue *value) {
   Node *mp;
   TValue aux;
   if (l_unlikely(ttisnil(key)))
@@ -679,7 +691,7 @@ void luaH_newkey (lua_State *L, Table *t, const TValue *key, TValue *value) {
       return;
     }
     lua_assert(!isdummy(t));
-    othern = mainposition(t, keytt(mp), &keyval(mp));
+    othern = mainpositionfromnode(t, mp);
     if (othern != mp) {  /* is colliding node out of its main position? */
       /* yes; move colliding node into free position */
       while (othern + gnext(othern) != mp)  /* find previous */
@@ -710,22 +722,36 @@ void luaH_newkey (lua_State *L, Table *t, const TValue *key, TValue *value) {
 
 /*
 ** Search function for integers. If integer is inside 'alimit', get it
-** directly from the array part. Otherwise, if 'alimit' is not equal to
-** the real size of the array, key still can be in the array part. In
-** this case, try to avoid a call to 'luaH_realasize' when key is just
-** one more than the limit (so that it can be incremented without
-** changing the real size of the array).
+** directly from the array part. Otherwise, if 'alimit' is not
+** the real size of the array, the key still can be in the array part.
+** In this case, do the "Xmilia trick" to check whether 'key-1' is
+** smaller than the real size.
+** The trick works as follow: let 'p' be an integer such that
+**   '2^(p+1) >= alimit > 2^p', or  '2^(p+1) > alimit-1 >= 2^p'.
+** That is, 2^(p+1) is the real size of the array, and 'p' is the highest
+** bit on in 'alimit-1'. What we have to check becomes 'key-1 < 2^(p+1)'.
+** We compute '(key-1) & ~(alimit-1)', which we call 'res'; it will
+** have the 'p' bit cleared. If the key is outside the array, that is,
+** 'key-1 >= 2^(p+1)', then 'res' will have some bit on higher than 'p',
+** therefore it will be larger or equal to 'alimit', and the check
+** will fail. If 'key-1 < 2^(p+1)', then 'res' has no bit on higher than
+** 'p', and as the bit 'p' itself was cleared, 'res' will be smaller
+** than 2^p, therefore smaller than 'alimit', and the check succeeds.
+** As special cases, when 'alimit' is 0 the condition is trivially false,
+** and when 'alimit' is 1 the condition simplifies to 'key-1 < alimit'.
+** If key is 0 or negative, 'res' will have its higher bit on, so that
+** if cannot be smaller than alimit.
 */
 const TValue *luaH_getint (Table *t, lua_Integer key) {
-  if (l_castS2U(key) - 1u < t->alimit)  /* 'key' in [1, t->alimit]? */
+  lua_Unsigned alimit = t->alimit;
+  if (l_castS2U(key) - 1u < alimit)  /* 'key' in [1, t->alimit]? */
     return &t->array[key - 1];
-  else if (!limitequalsasize(t) &&  /* key still may be in the array part? */
-           (l_castS2U(key) == t->alimit + 1 ||
-            l_castS2U(key) - 1u < luaH_realasize(t))) {
+  else if (!isrealasize(t) &&  /* key still may be in the array part? */
+           (((l_castS2U(key) - 1u) & ~(alimit - 1u)) < alimit)) {
     t->alimit = cast_uint(key);  /* probably '#t' is here now */
     return &t->array[key - 1];
   }
-  else {
+  else {  /* key is not in the array part; check the hash */
     Node *n = hashint(t, key);
     for (;;) {  /* check whether 'key' is somewhere in the chain */
       if (keyisinteger(n) && keyival(n) == key)
@@ -965,7 +991,5 @@ lua_Unsigned luaH_getn (Table *t) {
 Node *luaH_mainposition (const Table *t, const TValue *key) {
   return mainpositionTV(t, key);
 }
-
-int luaH_isdummy (const Table *t) { return isdummy(t); }
 
 #endif

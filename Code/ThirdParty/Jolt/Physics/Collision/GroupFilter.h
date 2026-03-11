@@ -16,9 +16,9 @@ class StreamOut;
 /// Abstract class that checks if two CollisionGroups collide
 class JPH_EXPORT GroupFilter : public SerializableObject, public RefTarget<GroupFilter>
 {
-public:
 	JPH_DECLARE_SERIALIZABLE_ABSTRACT(JPH_EXPORT, GroupFilter)
 
+public:
 	/// Virtual destructor
 	virtual						~GroupFilter() override = default;
 
@@ -34,6 +34,11 @@ public:
 	static GroupFilterResult	sRestoreFromBinaryState(StreamIn &inStream);
 
 protected:
+	/// Don't allow (copy) constructing this base class, but allow derived classes to (copy) construct themselves
+								GroupFilter() = default;
+								GroupFilter(const GroupFilter &) = default;
+	GroupFilter &				operator = (const GroupFilter &) = default;
+
 	/// This function should not be called directly, it is used by sRestoreFromBinaryState.
 	virtual void				RestoreBinaryState(StreamIn &inStream);
 };

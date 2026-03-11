@@ -17,7 +17,7 @@
 /// ezConditionVariable is a low-level threading construct. Higher level functionality such as
 /// ezThreadSignal may be more suitable for most use cases.
 ///
-/// \sa ezThreadSignal
+/// \sa ezThreadSignal, ezMutex
 class EZ_FOUNDATION_DLL ezConditionVariable
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezConditionVariable);
@@ -25,8 +25,8 @@ class EZ_FOUNDATION_DLL ezConditionVariable
 public:
   enum class WaitResult
   {
-    Signaled,
-    Timeout
+    Signaled, ///< A signal was received before the timeout
+    Timeout   ///< The timeout period elapsed without receiving a signal
   };
 
   ezConditionVariable();
@@ -41,9 +41,10 @@ public:
   /// \brief Unlocks the internal mutex. Must be called as often as it was locked.
   void Unlock();
 
-  /// \brief Wakes up one of the threads that are currently waiting for the variable.
+  /// \brief Wakes up one waiting thread
   ///
-  /// If no thread is currently waiting, this has no effect. In rare cases more than one thread can be woken up, called a spurious wake up.
+  /// If no threads are waiting, this has no effect. Due to OS scheduling behavior,
+  /// spurious wakeups may occasionally wake more than one thread.
   void SignalOne();
 
   /// \brief Wakes up all the threads that are currently waiting for the variable.

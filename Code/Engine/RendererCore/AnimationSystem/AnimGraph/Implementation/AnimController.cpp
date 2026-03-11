@@ -18,6 +18,22 @@ ezAnimController::~ezAnimController() = default;
 
 void ezAnimController::Initialize(const ezSkeletonResourceHandle& hSkeleton, ezAnimPoseGenerator& ref_poseGenerator, const ezSharedPtr<ezBlackboard>& pBlackboard /*= nullptr*/)
 {
+  m_Instances.Clear();
+  m_PinDataBoneWeights.Clear();
+  m_PinDataLocalTransforms.Clear();
+  m_PinDataModelTransforms.Clear();
+  m_AnimationClipMapping.Clear();
+  m_CurrentLocalTransformOutputs.Clear();
+  m_pBlackboard.Clear();
+  m_BlendMask.Clear();
+  m_pPoseGenerator = nullptr;
+  m_pCurrentModelTransforms = nullptr;
+  m_hSkeleton = {};
+  m_vRootMotion.SetZero();
+  m_RootRotationX = {};
+  m_RootRotationY = {};
+  m_RootRotationZ = {};
+
   m_hSkeleton = hSkeleton;
   m_pPoseGenerator = &ref_poseGenerator;
   m_pBlackboard = pBlackboard;
@@ -31,14 +47,14 @@ void ezAnimController::GetRootMotion(ezVec3& ref_vTranslation, ezAngle& ref_rota
   ref_rotationZ = m_RootRotationZ;
 }
 
-void ezAnimController::Update(ezTime diff, ezGameObject* pTarget, bool bEnableIK)
+bool ezAnimController::Update(ezTime diff, ezGameObject* pTarget, bool bEnableIK)
 {
   if (!m_hSkeleton.IsValid())
-    return;
+    return false;
 
   ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
   if (pSkeleton.GetAcquireResult() != ezResourceAcquireResult::Final)
-    return;
+    return false;
 
   m_pCurrentModelTransforms = nullptr;
 
@@ -55,8 +71,6 @@ void ezAnimController::Update(ezTime diff, ezGameObject* pTarget, bool bEnableIK
   m_PinDataLocalTransforms.Clear();
   m_PinDataModelTransforms.Clear();
 
-  // TODO: step all instances
-
   for (auto& inst : m_Instances)
   {
     inst.m_pInstance->Update(*this, diff, pTarget, pSkeleton.GetPointer());
@@ -64,27 +78,28 @@ void ezAnimController::Update(ezTime diff, ezGameObject* pTarget, bool bEnableIK
 
   GenerateLocalResultProcessors(pSkeleton.GetPointer());
 
-  {
-    ezMsgAnimationPoseGeneration poseGenMsg;
-    poseGenMsg.m_pGenerator = &GetPoseGenerator();
-    pTarget->SendMessageRecursive(poseGenMsg);
-  }
-
   GetPoseGenerator().UpdatePose(bEnableIK);
 
-  if (auto newPose = GetPoseGenerator().GetCurrentPose(); !newPose.IsEmpty())
+  if (GetPoseGenerator().ShouldSendPoseResultMsg())
   {
-    ezMsgAnimationPoseUpdated msg;
-    msg.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
-    msg.m_ModelTransforms = newPose;
+    if (auto newPose = GetPoseGenerator().GetCurrentPose(); !newPose.IsEmpty())
+    {
+      ezMsgAnimationPoseUpdated msg;
+      msg.m_pSkeleton = &pSkeleton->GetDescriptor().m_Skeleton;
+      msg.m_ModelTransforms = newPose;
 
-    // TODO: root transform has to be applied first, only then can the world-space IK be done, and then the pose can be finalized
-    msg.m_pRootTransform = &pSkeleton->GetDescriptor().m_RootTransform;
+      // TODO: root transform has to be applied first, only then can the world-space IK be done, and then the pose can be finalized
+      msg.m_pRootTransform = &pSkeleton->GetDescriptor().m_RootTransform;
 
-    // recursive, so that objects below the mesh can also listen in on these changes
-    // for example bone attachments
-    pTarget->SendMessageRecursive(msg);
+      // recursive, so that objects below the mesh can also listen in on these changes
+      // for example bone attachments
+      pTarget->SendMessageRecursive(msg);
+
+      return msg.m_bContinueAnimating;
+    }
   }
+
+  return true;
 }
 
 void ezAnimController::SetOutputModelTransform(ezAnimGraphPinDataModelTransforms* pModelTransform)
@@ -151,7 +166,7 @@ void ezAnimController::GenerateLocalResultProcessors(const ezSkeletonResource* p
       float m_fPinWeight = 0.0f;
     };
 
-    ezHybridArray<PinWeight, 16> pw;
+    ezTempHybridArray<PinWeight, 16> pw;
     pw.SetCount(m_CurrentLocalTransformOutputs.GetCount());
 
     for (ezUInt32 i = 0; i < m_CurrentLocalTransformOutputs.GetCount(); ++i)
@@ -360,4 +375,9 @@ const ezAnimController::AnimClipInfo& ezAnimController::GetAnimationClipInfo(ezT
     return m_InvalidClipInfo;
 
   return it.Value();
+}
+
+void ezAnimController::SetAnimationClipInfo(const ezHashedString& sClipName, const AnimClipInfo& info)
+{
+  m_AnimationClipMapping[sClipName] = info;
 }

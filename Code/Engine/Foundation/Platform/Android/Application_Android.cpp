@@ -3,8 +3,8 @@
 #if EZ_ENABLED(EZ_PLATFORM_ANDROID)
 
 #  include <Foundation/Application/Application.h>
-#  include <Foundation/Application/Implementation/Android/Application_android.h>
 #  include <Foundation/Logging/Log.h>
+#  include <Foundation/Platform/Android/Application_Android.h>
 #  include <android/log.h>
 #  include <android_native_app_glue.h>
 
@@ -52,11 +52,17 @@ void ezAndroidApplication::AndroidRun()
     if (!m_bStarted)
       continue;
 
-    if (bRun && m_pEzApp->Run() != ezApplication::Execution::Continue)
+    if (bRun)
     {
-      bRun = false;
-      ANativeActivity_finish(m_pApp->activity);
+      m_pEzApp->Run();
+
+      if (m_pEzApp->ShouldApplicationQuit())
+      {
+        bRun = false;
+        ANativeActivity_finish(m_pApp->activity);
+      }
     }
+
     if (m_pApp->destroyRequested)
     {
       break;
@@ -80,7 +86,7 @@ void ezAndroidApplication::HandleCmd(int32_t cmd)
       }
       break;
     case APP_CMD_TERM_WINDOW:
-      m_pEzApp->RequestQuit();
+      m_pEzApp->QuitApplication();
       break;
     default:
       break;

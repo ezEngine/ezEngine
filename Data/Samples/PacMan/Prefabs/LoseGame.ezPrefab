@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{700904007887938185,5040641367436512625}}
-		u4 %Hash{507098002767825138}
+		u4 %Hash{9561118899862250208}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{1122891664815712761,6582274232334490271}}
@@ -20,7 +20,7 @@ o
 		VarArray %PackageDeps
 		{
 			s{"{ 9e0adbd0-1cbe-4fee-abcf-835aab816fda }"}
-			s{"{ cf8c458b-d364-441a-921c-825c03af8c85 }"}
+			s{"{ a3bada34-26e0-4683-8c51-2048176db1e8 }"}
 		}
 		VarArray %References{}
 		s %Tags{""}
@@ -41,20 +41,17 @@ Objects
 {
 o
 {
-	Uuid %id{u4{13509151712637269025,169590236148402558}}
-	s %t{"ezFmodEventComponent"}
-	u3 %v{4}
+	Uuid %id{u4{10155788745598208702,4796884169021391151}}
+	s %t{"ezMiniAudioSoundComponent"}
+	u3 %v{1}
 	p
 	{
 		b %Active{1}
-		u1 %OcclusionCollisionLayer{0}
-		f %OcclusionThreshold{0x0000003F}
-		s %OnFinishedAction{"ezOnComponentFinishedAction::DeleteGameObject"}
+		b %NoGlobalPitch{0}
+		s %OnFinishedAction{"ezOnComponentFinishedAction2::DeleteGameObject"}
 		b %Paused{0}
 		f %Pitch{0x0000803F}
-		b %ShowDebugInfo{0}
-		s %SoundEvent{"{ cf8c458b-d364-441a-921c-825c03af8c85 }"}
-		b %UseOcclusion{0}
+		s %Sound{"{ a3bada34-26e0-4683-8c51-2048176db1e8 }"}
 		f %Volume{0x0000803F}
 	}
 }
@@ -69,7 +66,7 @@ o
 		s %Effect{"{ 9e0adbd0-1cbe-4fee-abcf-835aab816fda }"}
 		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
-		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
+		s %OnFinishedAction{"ezOnComponentFinishedAction2::DeleteGameObject"}
 		VarDict %Parameters{}
 		u4 %RandomSeed{0}
 		Time %RestartDelayRange{d{0}}
@@ -100,6 +97,7 @@ o
 		VarArray %Components
 		{
 			Uuid{u4{4656822518939170489,5143601445086682401}}
+			Uuid{u4{10155788745598208702,4796884169021391151}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0,0,0x2857A73F}}
@@ -141,10 +139,7 @@ o
 		{
 			Uuid{u4{3069385639484307631,5607102816335493741}}
 		}
-		VarArray %Components
-		{
-			Uuid{u4{13509151712637269025,169590236148402558}}
-		}
+		VarArray %Components{}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0,0,0}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
@@ -161,6 +156,17 @@ o
 }
 Types
 {
+o
+{
+	Uuid %id{u4{5944452786959486061,314585235827350796}}
+	s %t{"ezFunctionArgumentDescriptor"}
+	u3 %v{1}
+	p
+	{
+		s %Flags{""}
+		s %Type{""}
+	}
+}
 o
 {
 	Uuid %id{u4{6914292285925798136,1108246313736053318}}
@@ -180,19 +186,42 @@ o
 }
 o
 {
-	Uuid %id{u4{7306866003362116324,1480773640113041639}}
-	s %t{"ezReflectedTypeDescriptor"}
+	Uuid %id{u4{3030323781899084198,1435743725542305850}}
+	s %t{"ezReflectedFunctionDescriptor"}
 	u3 %v{1}
 	p
 	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezFmodComponent"}
-		s %PluginName{"ezEditorPluginFmod"}
-		VarArray %Properties{}
-		s %TypeName{"ezFmodEventComponent"}
-		u3 %TypeVersion{4}
+		VarArray %Arguments{}
+		VarArray %Attributes
+		{
+			Uuid{u4{15968480430941414509,9943324065167619333}}
+		}
+		s %Flags{"ezPropertyFlags::Phantom"}
+		s %Name{"Stop"}
+		Uuid %ReturnValue{u4{9929403954837631675,12518282729196522558}}
+		s %Type{"ezFunctionType::Member"}
+	}
+}
+o
+{
+	Uuid %id{u4{5752211433454004650,1920967673555991481}}
+	s %t{"ezFunctionArgumentDescriptor"}
+	u3 %v{1}
+	p
+	{
+		s %Flags{"ezPropertyFlags::StandardType"}
+		s %Type{"ezTime"}
+	}
+}
+o
+{
+	Uuid %id{u4{17953891867419186591,2041200610504206215}}
+	s %t{"ezFunctionArgumentDescriptor"}
+	u3 %v{1}
+	p
+	{
+		s %Flags{""}
+		s %Type{""}
 	}
 }
 o
@@ -231,6 +260,24 @@ o
 }
 o
 {
+	Uuid %id{u4{12065733874645308117,3291824917131328131}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{16119137772014719694,9589609959097633653}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"Sound"}
+		s %Type{"ezStringView"}
+	}
+}
+o
+{
 	Uuid %id{u4{17523044089822028024,3521005166208929094}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -248,6 +295,126 @@ o
 }
 o
 {
+	Uuid %id{u4{1533786214040389956,4112081172761652408}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{10927651418804751325,12514111582462821626}}
+		}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		VarArray %Functions
+		{
+			Uuid{u4{4065944160951397251,4543404691927671867}}
+			Uuid{u4{10328798150196905109,11537288432150929098}}
+			Uuid{u4{3030323781899084198,1435743725542305850}}
+			Uuid{u4{3657515522385237811,13835892416447566492}}
+			Uuid{u4{14537608703998826391,12150375951896066655}}
+		}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"ezMiniAudioPlugin"}
+		VarArray %Properties
+		{
+			Uuid{u4{12065733874645308117,3291824917131328131}}
+			Uuid{u4{17917143750792666146,14130292860600114995}}
+			Uuid{u4{12807804742950472799,10780239010343642682}}
+			Uuid{u4{9534994428701339412,4316540460870026798}}
+			Uuid{u4{15199435045617956384,7955814743700342401}}
+			Uuid{u4{94493443873642167,5972970065648459641}}
+		}
+		s %TypeName{"ezMiniAudioSoundComponent"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{9534994428701339412,4316540460870026798}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{1631490409243340284,10891355789020216546}}
+			Uuid{u4{2748080426190571367,6734042537454975880}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"Pitch"}
+		s %Type{"float"}
+	}
+}
+o
+{
+	Uuid %id{u4{4065944160951397251,4543404691927671867}}
+	s %t{"ezReflectedFunctionDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Arguments{}
+		VarArray %Attributes
+		{
+			Uuid{u4{9735481140438559066,13461405738053266214}}
+		}
+		s %Flags{"ezPropertyFlags::Phantom"}
+		s %Name{"Play"}
+		Uuid %ReturnValue{u4{17953891867419186591,2041200610504206215}}
+		s %Type{"ezFunctionType::Member"}
+	}
+}
+o
+{
+	Uuid %id{u4{11958197738496244787,5313407469871239836}}
+	s %t{"ezClampValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Max{0x0000803F}
+		f %Min{0}
+	}
+}
+o
+{
+	Uuid %id{u4{16920252989059572756,5938961656698343188}}
+	s %t{"ezFunctionArgumentDescriptor"}
+	u3 %v{1}
+	p
+	{
+		s %Flags{""}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{94493443873642167,5972970065648459641}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::IsEnum|ezPropertyFlags::Phantom"}
+		s %Name{"OnFinishedAction"}
+		s %Type{"ezOnComponentFinishedAction2"}
+	}
+}
+o
+{
+	Uuid %id{u4{2748080426190571367,6734042537454975880}}
+	s %t{"ezClampValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Max{0x00002041}
+		f %Min{0xCDCCCC3D}
+	}
+}
+o
+{
 	Uuid %id{u4{13649880205026559927,7297274558339895637}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -261,6 +428,32 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezGameObject"}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{15199435045617956384,7955814743700342401}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"NoGlobalPitch"}
+		s %Type{"bool"}
+	}
+}
+o
+{
+	Uuid %id{u4{14104805980652648570,8426172019457079889}}
+	s %t{"ezScriptableFunctionAttribute"}
+	u3 %v{1}
+	p
+	{
+		VarArray %ArgNames{}
+		VarArray %ArgTypes{}
 	}
 }
 o
@@ -350,19 +543,65 @@ o
 }
 o
 {
-	Uuid %id{u4{1059777785414581172,10096107093115669027}}
-	s %t{"ezReflectedTypeDescriptor"}
+	Uuid %id{u4{16119137772014719694,9589609959097633653}}
+	s %t{"ezAssetBrowserAttribute"}
 	u3 %v{1}
 	p
 	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezComponent"}
-		s %PluginName{"ezEditorPluginFmod"}
-		VarArray %Properties{}
-		s %TypeName{"ezFmodComponent"}
-		u3 %TypeVersion{1}
+		s %DependencyFlags{"ezDependencyFlags::Package"}
+		s %Filter{";CompatibleAsset_MiniAudio_Sound;"}
+		s %RequiredTag{""}
+	}
+}
+o
+{
+	Uuid %id{u4{12947991332431115400,9904619820678688557}}
+	s %t{"ezFunctionArgumentDescriptor"}
+	u3 %v{1}
+	p
+	{
+		s %Flags{""}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{15968480430941414509,9943324065167619333}}
+	s %t{"ezScriptableFunctionAttribute"}
+	u3 %v{1}
+	p
+	{
+		VarArray %ArgNames{}
+		VarArray %ArgTypes{}
+	}
+}
+o
+{
+	Uuid %id{u4{12807804742950472799,10780239010343642682}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{8987518809445278363,12983264837688283265}}
+			Uuid{u4{11958197738496244787,5313407469871239836}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"Volume"}
+		s %Type{"float"}
+	}
+}
+o
+{
+	Uuid %id{u4{1631490409243340284,10891355789020216546}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0x0000803F}
 	}
 }
 o
@@ -384,19 +623,37 @@ o
 }
 o
 {
-	Uuid %id{u4{2869469983493172804,11764438314605031013}}
-	s %t{"ezReflectedTypeDescriptor"}
+	Uuid %id{u4{10328798150196905109,11537288432150929098}}
+	s %t{"ezReflectedFunctionDescriptor"}
 	u3 %v{1}
 	p
 	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezEnumBase"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezOnComponentFinishedAction"}
-		u3 %TypeVersion{1}
+		VarArray %Arguments{}
+		VarArray %Attributes
+		{
+			Uuid{u4{14104805980652648570,8426172019457079889}}
+		}
+		s %Flags{"ezPropertyFlags::Phantom"}
+		s %Name{"Pause"}
+		Uuid %ReturnValue{u4{12947991332431115400,9904619820678688557}}
+		s %Type{"ezFunctionType::Member"}
+	}
+}
+o
+{
+	Uuid %id{u4{10472113501323793213,11660486632732281280}}
+	s %t{"ezScriptableFunctionAttribute"}
+	u3 %v{1}
+	p
+	{
+		VarArray %ArgNames
+		{
+			s{"Delay"}
+		}
+		VarArray %ArgTypes
+		{
+			u1{0}
+		}
 	}
 }
 o
@@ -418,6 +675,45 @@ o
 }
 o
 {
+	Uuid %id{u4{14537608703998826391,12150375951896066655}}
+	s %t{"ezReflectedFunctionDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Arguments{}
+		VarArray %Attributes
+		{
+			Uuid{u4{17464991445712172678,15761822338941112025}}
+		}
+		s %Flags{"ezPropertyFlags::Phantom"}
+		s %Name{"StartOneShot"}
+		Uuid %ReturnValue{u4{5944452786959486061,314585235827350796}}
+		s %Type{"ezFunctionType::Member"}
+	}
+}
+o
+{
+	Uuid %id{u4{10927651418804751325,12514111582462821626}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Sound/MiniAudio"}
+	}
+}
+o
+{
+	Uuid %id{u4{9929403954837631675,12518282729196522558}}
+	s %t{"ezFunctionArgumentDescriptor"}
+	u3 %v{1}
+	p
+	{
+		s %Flags{""}
+		s %Type{""}
+	}
+}
+o
+{
 	Uuid %id{u4{9604010176759229512,12868035041842190965}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -435,6 +731,63 @@ o
 }
 o
 {
+	Uuid %id{u4{8987518809445278363,12983264837688283265}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0x0000803F}
+	}
+}
+o
+{
+	Uuid %id{u4{9735481140438559066,13461405738053266214}}
+	s %t{"ezScriptableFunctionAttribute"}
+	u3 %v{1}
+	p
+	{
+		VarArray %ArgNames{}
+		VarArray %ArgTypes{}
+	}
+}
+o
+{
+	Uuid %id{u4{3657515522385237811,13835892416447566492}}
+	s %t{"ezReflectedFunctionDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Arguments
+		{
+			Uuid{u4{5752211433454004650,1920967673555991481}}
+		}
+		VarArray %Attributes
+		{
+			Uuid{u4{10472113501323793213,11660486632732281280}}
+		}
+		s %Flags{"ezPropertyFlags::Phantom"}
+		s %Name{"FadeOut"}
+		Uuid %ReturnValue{u4{16920252989059572756,5938961656698343188}}
+		s %Type{"ezFunctionType::Member"}
+	}
+}
+o
+{
+	Uuid %id{u4{17917143750792666146,14130292860600114995}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
+		Invalid %ConstantValue{}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"Paused"}
+		s %Type{"bool"}
+	}
+}
+o
+{
 	Uuid %id{u4{2947336711354777548,15013008608905564043}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -448,6 +801,17 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezEnumBase"}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{17464991445712172678,15761822338941112025}}
+	s %t{"ezScriptableFunctionAttribute"}
+	u3 %v{1}
+	p
+	{
+		VarArray %ArgNames{}
+		VarArray %ArgTypes{}
 	}
 }
 o

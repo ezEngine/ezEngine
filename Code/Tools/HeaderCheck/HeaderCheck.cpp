@@ -45,7 +45,7 @@ private:
   bool m_bHadErrors;
   bool m_bHadSeriousWarnings;
   bool m_bHadWarnings;
-  ezUniquePtr<ezLinearAllocator<ezAllocatorTrackingMode::Nothing>> m_pStackAllocator;
+  ezUniquePtr<ezLinearAllocator<ezAllocatorTrackingMode::Nothing>> m_pLinearAllocator;
   ezDynamicArray<ezString> m_IncludeDirectories;
 
   struct IgnoreInfo
@@ -177,13 +177,14 @@ public:
     ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
     ezGlobalLog::AddLogWriter(LogInspector);
 
-    m_pStackAllocator = EZ_DEFAULT_NEW(ezLinearAllocator<ezAllocatorTrackingMode::Nothing>, "Temp Allocator", ezFoundation::GetAlignedAllocator());
+    constexpr ezUInt32 uiInitalAllocatorSize = 1024 * 1024;
+    m_pLinearAllocator = EZ_DEFAULT_NEW(ezLinearAllocator<ezAllocatorTrackingMode::Nothing>, "Temp Allocator", ezFoundation::GetAlignedAllocator(), uiInitalAllocatorSize);
 
     if (GetArgumentCount() < 2)
       ezLog::Error("This tool requires at leas one command-line argument: An absolute path to the top-level folder of a library.");
 
     // Add the empty data directory to access files via absolute paths
-    ezFileSystem::AddDataDirectory("", "App", ":", ezFileSystem::AllowWrites).IgnoreResult();
+    ezFileSystem::AddDataDirectory("", "App", ":", ezDataDirUsage::AllowWrites).IgnoreResult();
 
     // pass the absolute path to the directory that should be scanned as the first parameter to this application
     ezStringBuilder sSearchDir;
@@ -278,7 +279,7 @@ public:
     else
       SetReturnCode(0);
 
-    m_pStackAllocator = nullptr;
+    m_pLinearAllocator = nullptr;
 
     ezGlobalLog::RemoveLogWriter(LogInspector);
     ezGlobalLog::RemoveLogWriter(ezLogWriter::Console::LogMessageHandler);
@@ -348,13 +349,13 @@ public:
         // file extensions are always converted to lower-case actually
         sExt = currentFile.GetFileExtension();
 
-        if (sExt.IsEqual_NoCase("h") || sExt.IsEqual_NoCase("inl"))
+        if (sExt.IsEqual_NoCase("h"))
         {
           ezLog::Info("Checking: {}", currentFile);
 
           EZ_LOG_BLOCK("Header", &currentFile.GetData()[uiSearchDirLength]);
           CheckHeaderFile(currentFile);
-          m_pStackAllocator->Reset();
+          m_pLinearAllocator->Reset();
         }
       }
     }
@@ -364,7 +365,7 @@ public:
 
   void CheckInclude(const ezStringBuilder& sCurrentFile, const ezStringBuilder& sIncludePath, ezUInt32 uiLine)
   {
-    ezStringBuilder absIncludePath(m_pStackAllocator.Borrow());
+    ezStringBuilder absIncludePath(m_pLinearAllocator.Borrow());
     bool includeOutside = true;
     if (sIncludePath.IsAbsolutePath())
     {
@@ -406,7 +407,8 @@ public:
       ezStringBuilder currentFileLower = sCurrentFile.GetFileNameAndExtension();
       currentFileLower.ToLower();
 
-      bool ignore = m_IgnoreTarget.m_byName.Contains(includeFileLower) || m_IgnoreSource.m_byName.Contains(currentFileLower);
+      // ignore includes ending in "_Platform.h", they redirect to platform specific EZ headers
+      const bool ignore = m_IgnoreTarget.m_byName.Contains(includeFileLower) || m_IgnoreSource.m_byName.Contains(currentFileLower) || includeFileLower.EndsWith_NoCase("_Platform.h");
 
       if (!ignore)
       {
@@ -420,16 +422,16 @@ public:
 
   void CheckHeaderFile(const ezStringBuilder& sCurrentFile)
   {
-    ezStringBuilder fileContents(m_pStackAllocator.Borrow());
+    ezStringBuilder fileContents(m_pLinearAllocator.Borrow());
     ReadEntireFile(sCurrentFile.GetData(), fileContents).IgnoreResult();
 
     auto fileDir = sCurrentFile.GetFileDirectory();
 
-    ezStringBuilder internalMacroToken(m_pStackAllocator.Borrow());
+    ezStringBuilder internalMacroToken(m_pLinearAllocator.Borrow());
     internalMacroToken.Append("EZ_", m_sProjectName, "_INTERNAL_HEADER");
     auto internalMacroTokenView = internalMacroToken.GetView();
 
-    ezTokenizer tokenizer(m_pStackAllocator.Borrow());
+    ezTokenizer tokenizer(m_pLinearAllocator.Borrow());
     auto dataView = fileContents.GetView();
     tokenizer.Tokenize(ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(dataView.GetStartPointer()), dataView.GetElementCount()), ezLog::GetThreadLocalLogSystem());
 
@@ -466,8 +468,8 @@ public:
           if (curToken.m_iType == ezTokenType::String1)
           {
             // #include "bla"
-            ezStringBuilder absIncludePath(m_pStackAllocator.Borrow());
-            ezStringBuilder relativePath(m_pStackAllocator.Borrow());
+            ezStringBuilder absIncludePath(m_pLinearAllocator.Borrow());
+            ezStringBuilder relativePath(m_pLinearAllocator.Borrow());
             relativePath = curToken.m_DataView;
             relativePath.Trim("\"");
             relativePath.MakeCleanPath();
@@ -511,7 +513,7 @@ public:
             }
             else if (!isInternalHeader)
             {
-              ezStringBuilder includePath(m_pStackAllocator.Borrow());
+              ezStringBuilder includePath(m_pLinearAllocator.Borrow());
               includePath = ezStringView(startToken.m_DataView.GetEndPointer(), curToken.m_DataView.GetStartPointer());
               includePath.MakeCleanPath();
               CheckInclude(sCurrentFile, includePath, startToken.m_uiLine);
@@ -548,16 +550,18 @@ public:
     }
   }
 
-  virtual ezApplication::Execution Run() override
+  virtual void Run() override
   {
     // something basic has gone wrong
     if (m_bHadSeriousWarnings || m_bHadErrors)
-      return ezApplication::Execution::Quit;
+    {
+      QuitApplication();
+      return;
+    }
 
     IterateOverFiles();
-
-    return ezApplication::Execution::Quit;
+    QuitApplication();
   }
 };
 
-EZ_CONSOLEAPP_ENTRY_POINT(ezHeaderCheckApp);
+EZ_APPLICATION_ENTRY_POINT(ezHeaderCheckApp);

@@ -7,6 +7,7 @@
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Math/Size.h>
 #include <QWidget>
+#include <ads/DockWidget.h>
 
 class ezQtEngineDocumentWindow;
 class ezEditorInputContext;
@@ -89,6 +90,9 @@ public:
   /// \brief Starts a picking operation for the given pixel position in this view. Returns the most recent picking information in the meantime.
   const ezObjectPickingResult& PickObject(ezUInt16 uiScreenPosX, ezUInt16 uiScreenPosY) const;
 
+  /// \brief Clears the last stored picking position. Only needed when it is vital that no stale picking data can be used next time.
+  void ClearLastPickedObject();
+
   /// \brief Similar to PickObject, but computes the intersection with the given plane instead.
   ezResult PickPlane(ezUInt16 uiScreenPosX, ezUInt16 uiScreenPosY, const ezPlane& plane, ezVec3& out_vPosition) const;
 
@@ -128,6 +132,8 @@ protected:
 protected:
   void EngineViewProcessEventHandler(const ezEditorEngineProcessConnection::Event& e);
   void ShowRestartButton(bool bShow);
+  void ShowProcessStuckIndicator(bool bShow);
+  void RecreateEngineViewport();
   virtual void OnOpenContextMenu(QPoint globalPos) {}
   virtual void HandleMarqueePickingResult(const ezViewMarqueePickingResultMsgToEditor* pMsg) {}
 
@@ -139,7 +145,7 @@ protected:
   bool m_bPickTransparent = true;
   bool m_bInDragAndDropOperation;
   ezUInt32 m_uiViewID;
-  ezQtEngineDocumentWindow* m_pDocumentWindow;
+  ezQtEngineDocumentWindow* m_pDocumentWindow = nullptr;
 
   static ezUInt32 s_uiNextViewID;
 
@@ -154,8 +160,10 @@ protected:
   ezVec3 m_vCameraUp;
   ezTime m_LastCameraUpdate;
 
-  QHBoxLayout* m_pRestartButtonLayout;
-  QPushButton* m_pRestartButton;
+  QHBoxLayout* m_pMainLayout = nullptr;
+  QPushButton* m_pRestartButton = nullptr;
+  QWidget* m_pViewportWidget = nullptr;
+  QWidget* m_pStuckIndicator = nullptr;
 
   mutable ezObjectPickingResult m_LastPickingResult;
 
@@ -163,12 +171,12 @@ protected:
 };
 
 /// \brief Wraps and decorates a view widget with a toolbar and layout.
-class EZ_EDITORFRAMEWORK_DLL ezQtViewWidgetContainer : public QWidget
+class EZ_EDITORFRAMEWORK_DLL ezQtViewWidgetContainer : public ads::CDockWidget
 {
   Q_OBJECT
 
 public:
-  ezQtViewWidgetContainer(QWidget* pParent, ezQtEngineViewWidget* pViewWidget, const char* szToolBarMapping);
+  ezQtViewWidgetContainer(ads::CDockManager* pDockManager, QWidget* pParent, ezQtEngineViewWidget* pViewWidget, const char* szToolBarMapping);
   ~ezQtViewWidgetContainer();
 
   ezQtEngineViewWidget* GetViewWidget() const { return m_pViewWidget; }

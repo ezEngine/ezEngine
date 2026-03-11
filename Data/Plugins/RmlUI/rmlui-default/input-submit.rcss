@@ -1,0 +1,37 @@
+/* Styles for submit button input elements.
+   Similar to regular buttons but includes disabled state styling.
+*/
+
+input.submit {
+	margin-left: 0;
+	display: inline-block;
+
+	width: 159dp;
+	height: 33dp;
+	padding-top: 12dp;
+
+	font-size: 16dp;
+	text-align: center;
+	tab-index: auto;
+
+	decorator: image(button);
+}
+
+input.submit:focus {
+	font-effect: blur(3dp #fff);
+}
+
+input.submit:hover,
+input.submit:focus-visible {
+	decorator: image(button-hover);
+}
+
+input.submit:active {
+	decorator: image(button-active);
+}
+
+input.submit:disabled {
+	decorator: image(button);
+	image-color: rgba(50, 150, 150, 120);
+	cursor: unavailable;
+}

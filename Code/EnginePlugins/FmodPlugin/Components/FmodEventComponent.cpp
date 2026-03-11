@@ -15,7 +15,7 @@
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
-EZ_CHECK_AT_COMPILETIME(sizeof(ezFmodParameterId) == sizeof(FMOD_STUDIO_PARAMETER_ID));
+static_assert(sizeof(ezFmodParameterId) == sizeof(FMOD_STUDIO_PARAMETER_ID));
 
 EZ_ALWAYS_INLINE FMOD_STUDIO_PARAMETER_ID ConvertEzToFmodId(ezFmodParameterId paramId)
 {
@@ -38,7 +38,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
 
-ezCVarInt cvar_FmodOcclusionNumRays("Fmod.Occlusion.NumRays", 2, ezCVarFlags::Default, "Number of occlusion rays per component per frame");
+ezCVarInt cvar_FmodOcclusionNumRays("FMOD.Occlusion.NumRays", 2, ezCVarFlags::Default, "Number of occlusion rays per component per frame");
 
 static ezVec3 s_InSpherePositions[32];
 static bool s_bInSpherePositionsInitialized = false;
@@ -75,15 +75,16 @@ void ezFmodEventComponentManager::Initialize()
 
   {
     auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezFmodEventComponentManager::UpdateOcclusion, this);
-    desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::Async;
+    desc.m_Phase = ezWorldUpdatePhase::Async;
     desc.m_bOnlyUpdateWhenSimulating = true;
+    desc.m_uiAsyncPhaseBatchSize = 8;
 
     this->RegisterUpdateFunction(desc);
   }
 
   {
     auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezFmodEventComponentManager::UpdateEvents, this);
-    desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PostTransform;
+    desc.m_Phase = ezWorldUpdatePhase::PostTransform;
     desc.m_bOnlyUpdateWhenSimulating = true;
 
     this->RegisterUpdateFunction(desc);
@@ -185,14 +186,33 @@ void ezFmodEventComponentManager::UpdateOcclusion(const ezWorldModule::UpdateCon
 
 void ezFmodEventComponentManager::UpdateEvents(const ezWorldModule::UpdateContext& context)
 {
-  for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
+  constexpr ezUInt32 uiUpdatesPerSec = 20;
+  constexpr ezTime tUpdateRate = ezTime::Milliseconds(1000 / uiUpdatesPerSec);
+
+  const float fUpdateFraction = (GetWorld()->GetClock().GetTimeDiff() / tUpdateRate).AsFloatInSeconds();
+
+  const ezUInt32 uiNumComps = m_ComponentStorage.GetCount();
+
+  if (m_uiFirstComponentIndex >= uiNumComps)
+  {
+    m_uiFirstComponentIndex = 0;
+  }
+
+  const ezUInt32 uiNumUpdate = static_cast<ezUInt32>(uiNumComps * fUpdateFraction) + 1;
+  const ezUInt32 uiLastCompP1 = ezMath::Min(m_uiFirstComponentIndex + uiNumUpdate, uiNumComps);
+
+  for (auto it = m_ComponentStorage.GetIterator(m_uiFirstComponentIndex, uiNumComps); it.IsValid(); ++it)
   {
     ComponentType* pComponent = it;
+
+    // a lot of components will actually be inactive (waiting to be reused)
     if (pComponent->IsActiveAndInitialized())
     {
       pComponent->Update();
     }
   }
+
+  m_uiFirstComponentIndex = uiLastCompP1;
 }
 
 void ezFmodEventComponentManager::ResourceEventHandler(const ezResourceEvent& e)
@@ -220,8 +240,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezFmodEventComponent, 4, ezComponentMode::Static)
   {
     EZ_ACCESSOR_PROPERTY("Paused", GetPaused, SetPaused),
     EZ_ACCESSOR_PROPERTY("Volume", GetVolume, SetVolume)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 1.0f)),
-    EZ_ACCESSOR_PROPERTY("Pitch", GetPitch, SetPitch)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.01f, 100.0f)),
-    EZ_ACCESSOR_PROPERTY("SoundEvent", GetSoundEventFile, SetSoundEventFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Fmod_Event", ezDependencyFlags::Package)),
+    EZ_ACCESSOR_PROPERTY("Pitch", GetPitch, SetPitch)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, 10.0f)),
+    EZ_ACCESSOR_PROPERTY("NoGlobalPitch", GetNoGlobalPitch, SetNoGlobalPitch),
+    EZ_RESOURCE_ACCESSOR_PROPERTY("SoundEvent", GetSoundEvent, SetSoundEvent)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Fmod_Event", ezDependencyFlags::Package)),
     EZ_ACCESSOR_PROPERTY("UseOcclusion", GetUseOcclusion, SetUseOcclusion),
     EZ_ACCESSOR_PROPERTY("OcclusionThreshold", GetOcclusionThreshold, SetOcclusionThreshold)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_ACCESSOR_PROPERTY("OcclusionCollisionLayer", GetOcclusionCollisionLayer, SetOcclusionCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
@@ -243,9 +264,11 @@ EZ_BEGIN_COMPONENT_TYPE(ezFmodEventComponent, 4, ezComponentMode::Static)
   EZ_END_MESSAGESENDERS;
   EZ_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(Restart),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Play),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Pause),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Stop),
+    EZ_SCRIPT_FUNCTION_PROPERTY(FadeOut),
     EZ_SCRIPT_FUNCTION_PROPERTY(StartOneShot),
-    EZ_SCRIPT_FUNCTION_PROPERTY(StopSound, In, "Immediate"),
     EZ_SCRIPT_FUNCTION_PROPERTY(SoundCue),
     EZ_SCRIPT_FUNCTION_PROPERTY(SetEventParameter, In, "ParamName", In, "Value"),
   }
@@ -256,7 +279,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 enum
 {
-  ShowDebugInfoFlag = 0
+  ShowDebugInfoFlag = 0,
+  NoGlobalPitch = 1,
 };
 
 ezFmodEventComponent::ezFmodEventComponent()
@@ -345,13 +369,13 @@ void ezFmodEventComponent::SetPaused(bool b)
 
   m_bPaused = b;
 
-  if (m_pEventInstance != nullptr)
+  if (m_bPaused)
   {
-    EZ_FMOD_ASSERT(m_pEventInstance->setPaused(m_bPaused));
+    Pause();
   }
-  else if (!m_bPaused)
+  else
   {
-    Restart();
+    Play();
   }
 }
 
@@ -393,8 +417,14 @@ void ezFmodEventComponent::SetPitch(float f)
 
   if (m_pEventInstance != nullptr)
   {
-    /// \todo Global pitch might better be a bus setting
-    EZ_FMOD_ASSERT(m_pEventInstance->setPitch(m_fPitch * (float)GetWorld()->GetClock().GetSpeed()));
+    if (GetNoGlobalPitch())
+    {
+      EZ_FMOD_ASSERT(m_pEventInstance->setPitch(m_fPitch));
+    }
+    else
+    {
+      EZ_FMOD_ASSERT(m_pEventInstance->setPitch(m_fPitch * (float)GetWorld()->GetClock().GetSpeed()));
+    }
   }
 }
 
@@ -411,31 +441,11 @@ void ezFmodEventComponent::SetVolume(float f)
   }
 }
 
-void ezFmodEventComponent::SetSoundEventFile(const char* szFile)
-{
-  ezFmodSoundEventResourceHandle hRes;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hRes = ezResourceManager::LoadResource<ezFmodSoundEventResource>(szFile);
-  }
-
-  SetSoundEvent(hRes);
-}
-
-const char* ezFmodEventComponent::GetSoundEventFile() const
-{
-  if (!m_hSoundEvent.IsValid())
-    return "";
-
-  return m_hSoundEvent.GetResourceID();
-}
-
 void ezFmodEventComponent::SetSoundEvent(const ezFmodSoundEventResourceHandle& hSoundEvent)
 {
   if (m_pEventInstance)
   {
-    StopSound(false);
+    Stop();
 
     EZ_FMOD_ASSERT(m_pEventInstance->release());
     m_pEventInstance = nullptr;
@@ -455,11 +465,21 @@ bool ezFmodEventComponent::GetShowDebugInfo() const
   return GetUserFlag(ShowDebugInfoFlag);
 }
 
+void ezFmodEventComponent::SetNoGlobalPitch(bool bEnable)
+{
+  SetUserFlag(NoGlobalPitch, bEnable);
+}
+
+bool ezFmodEventComponent::GetNoGlobalPitch() const
+{
+  return GetUserFlag(NoGlobalPitch);
+}
+
 void ezFmodEventComponent::OnSimulationStarted()
 {
   if (!m_bPaused)
   {
-    Restart();
+    Play();
   }
 }
 
@@ -471,32 +491,11 @@ void ezFmodEventComponent::OnDeactivated()
     m_uiOcclusionStateIndex = ezInvalidIndex;
   }
 
-  if (m_pEventInstance != nullptr)
-  {
-    // we could expose this decision as a property 'AlwaysFinish' or so
-    bool bLetFinish = true;
-
-    FMOD::Studio::EventDescription* pDesc = nullptr;
-    m_pEventInstance->getDescription(&pDesc);
-    pDesc->isOneshot(&bLetFinish);
-
-    // if this is a looped sound, or the world is not simulating (usually because it is shutting down), stop the sound immediately
-    if (!bLetFinish || !GetWorld()->GetWorldSimulationEnabled())
-    {
-      EZ_FMOD_ASSERT(m_pEventInstance->stop(FMOD_STUDIO_STOP_ALLOWFADEOUT));
-    }
-
-    EZ_FMOD_ASSERT(m_pEventInstance->release());
-    m_pEventInstance = nullptr;
-    m_iTimelinePosition = -1;
-  }
+  FadeOut();
 }
 
-void ezFmodEventComponent::Restart()
+void ezFmodEventComponent::Play()
 {
-  // reset this, using the value is handled outside this function
-  m_iTimelinePosition = -1;
-
   if (!m_hSoundEvent.IsValid() || !IsActiveAndSimulating())
     return;
 
@@ -510,18 +509,54 @@ void ezFmodEventComponent::Restart()
     m_pEventInstance = pEvent->CreateInstance();
     if (m_pEventInstance == nullptr)
     {
-      ezLog::Debug("Cannot start sound event, instance could not be created.");
+      ezLog::Error("Failed to start sound event '{}'.", m_hSoundEvent.GetResourceIdOrDescription());
       return;
     }
   }
 
-  m_bPaused = false;
+  if (m_bPaused)
+  {
+    m_bPaused = false;
+    EZ_FMOD_ASSERT(m_pEventInstance->setPaused(false));
+  }
 
   UpdateParameters(m_pEventInstance);
 
-  EZ_FMOD_ASSERT(m_pEventInstance->setPaused(false));
+  FMOD_STUDIO_PLAYBACK_STATE state;
+  EZ_FMOD_ASSERT(m_pEventInstance->getPlaybackState(&state));
 
-  EZ_FMOD_ASSERT(m_pEventInstance->start());
+  if (state != FMOD_STUDIO_PLAYBACK_PLAYING && state != FMOD_STUDIO_PLAYBACK_SUSTAINING)
+  {
+    // reset this, using the value is handled outside this function
+    m_iTimelinePosition = -1;
+
+    EZ_FMOD_ASSERT(m_pEventInstance->start());
+  }
+}
+
+void ezFmodEventComponent::Pause()
+{
+  if (m_bPaused)
+    return;
+
+  m_bPaused = true;
+
+  if (m_pEventInstance == nullptr)
+    return;
+
+  EZ_FMOD_ASSERT(m_pEventInstance->setPaused(m_bPaused));
+}
+
+void ezFmodEventComponent::FadeOut()
+{
+  if (m_pEventInstance == nullptr)
+    return;
+
+  EZ_FMOD_ASSERT(m_pEventInstance->stop(FMOD_STUDIO_STOP_ALLOWFADEOUT));
+
+  EZ_FMOD_ASSERT(m_pEventInstance->release());
+  m_pEventInstance = nullptr;
+  m_iTimelinePosition = -1;
 }
 
 void ezFmodEventComponent::StartOneShot()
@@ -567,13 +602,13 @@ void ezFmodEventComponent::StartOneShot()
   EZ_FMOD_ASSERT(pEventInstance->release());
 }
 
-void ezFmodEventComponent::StopSound(bool bImmediate)
+void ezFmodEventComponent::Stop()
 {
-  if (m_pEventInstance != nullptr)
-  {
-    m_iTimelinePosition = -1;
-    EZ_FMOD_ASSERT(m_pEventInstance->stop(bImmediate ? FMOD_STUDIO_STOP_IMMEDIATE : FMOD_STUDIO_STOP_ALLOWFADEOUT));
-  }
+  if (m_pEventInstance == nullptr)
+    return;
+
+  m_iTimelinePosition = -1;
+  EZ_FMOD_ASSERT(m_pEventInstance->stop(FMOD_STUDIO_STOP_IMMEDIATE));
 }
 
 void ezFmodEventComponent::SoundCue()
@@ -625,8 +660,9 @@ float ezFmodEventComponent::GetParameter(ezFmodParameterId paramId) const
     return 0.0f;
 
   float value = 0;
-  m_pEventInstance->getParameterByID(ConvertEzToFmodId(paramId), &value, nullptr);
-  return value;
+  float fFinalValue = 0.0f;
+  m_pEventInstance->getParameterByID(ConvertEzToFmodId(paramId), &value, &fFinalValue);
+  return fFinalValue;
 }
 
 void ezFmodEventComponent::SetEventParameter(const char* szParamName, float fValue)
@@ -678,7 +714,7 @@ void ezFmodEventComponent::Update()
     // Restore the event to the last playback position
     const ezInt32 iTimelinePos = m_iTimelinePosition;
 
-    Restart(); // will reset m_iTimelinePosition, that's why it is copied first
+    Play(); // will reset m_iTimelinePosition, that's why it is copied first
 
     if (m_pEventInstance)
     {
@@ -770,8 +806,16 @@ void ezFmodEventComponent::UpdateParameters(FMOD::Studio::EventInstance* pInstan
   attr.velocity.y = vel.y;
   attr.velocity.z = vel.z;
 
-  // have to update pitch every time, in case the clock speed changes
-  EZ_FMOD_ASSERT(pInstance->setPitch(m_fPitch * (float)GetWorld()->GetClock().GetSpeed()));
+  if (GetNoGlobalPitch())
+  {
+    EZ_FMOD_ASSERT(pInstance->setPitch(m_fPitch));
+  }
+  else
+  {
+    // have to update pitch every time, in case the clock speed changes
+    EZ_FMOD_ASSERT(pInstance->setPitch(m_fPitch * (float)GetWorld()->GetClock().GetSpeed()));
+  }
+
   EZ_FMOD_ASSERT(pInstance->setVolume(m_fVolume));
   EZ_FMOD_ASSERT(pInstance->set3DAttributes(&attr));
 }
@@ -783,7 +827,7 @@ void ezFmodEventComponent::UpdateOcclusion()
     ezFmodParameterId occlusionParamId = FindParameter("Occlusion");
     if (occlusionParamId.IsInvalidated())
     {
-      ezLog::Warning("'Occlusion' Fmod Event Parameter could not be found.");
+      ezLog::Warning("'Occlusion' FMOD Event Parameter could not be found.");
       m_bUseOcclusion = false;
       return;
     }
@@ -836,8 +880,6 @@ void ezFmodEventComponent::InvalidateResource(bool bTryToRestore)
 
     // pointer is no longer valid!
     m_pEventInstance = nullptr;
-
-    // ezLog::Debug("Fmod instance pointer has been invalidated.");
   }
 }
 

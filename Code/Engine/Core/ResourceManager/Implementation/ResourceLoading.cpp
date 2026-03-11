@@ -16,7 +16,9 @@ void ezResourceManager::InternalPreloadResource(ezResource* pResource, bool bHig
   if (s_pState->m_bShutdown)
     return;
 
-  EZ_PROFILE_SCOPE("InternalPreloadResource");
+  // Runtime created resources without loaders are not loaded via tasks but created on the stack directly.
+  if (pResource->GetBaseResourceFlags().IsSet(ezResourceFlags::IsCreatedResource) && !pResource->GetBaseResourceFlags().IsSet(ezResourceFlags::HasCustomDataLoader))
+    return;
 
   EZ_LOCK(s_ResourceMutex);
 
@@ -28,6 +30,8 @@ void ezResourceManager::InternalPreloadResource(ezResource* pResource, bool bHig
     // pResource->GetDynamicRTTI()->GetTypeName());
     return;
   }
+
+  EZ_PROFILE_SCOPE("InternalPreloadResource");
 
   EZ_ASSERT_DEV(!s_pState->m_bExportMode, "Resources should not be loaded in export mode");
 
@@ -56,7 +60,7 @@ void ezResourceManager::InternalPreloadResource(ezResource* pResource, bool bHig
       ezResourceManager::s_pState->m_bAllowLaunchDataLoadTask = true;
     }
 
-    RunWorkerTask(pResource);
+    RunWorkerTask();
   }
 }
 
@@ -93,7 +97,7 @@ void ezResourceManager::SetupWorkerTasks()
   }
 }
 
-void ezResourceManager::RunWorkerTask(ezResource* pResource)
+void ezResourceManager::RunWorkerTask()
 {
   if (s_pState->m_bShutdown)
     return;
@@ -328,7 +332,7 @@ bool ezResourceManager::ReloadResource(ezResource* pResource, bool bForce)
   }
   else
   {
-    s_pState->m_ResourcesToUnloadOnMainThread.Insert(ezTempHashedString(pResource->GetResourceID().GetData()), pResource->GetDynamicRTTI());
+    s_pState->m_ResourcesToUnloadOnMainThread.Insert(ezTempHashedString(pResource->GetResourceID()), pResource->GetDynamicRTTI());
   }
 
   if (bAllowPreloading)
@@ -404,13 +408,19 @@ void ezResourceManager::UpdateResourceWithCustomLoader(const ezTypelessResourceH
   ReloadResource(hResource.m_pResource, true);
 };
 
-void ezResourceManager::EnsureResourceLoadingState(ezResource* pResourceToLoad, const ezResourceState RequestedState)
+void ezResourceManager::EnsureResourceLoadingState(ezResource* pResource, const ezResourceState RequestedState)
+{
+  return EnsureResourceCondition(pResource, [=]() -> bool
+    { return (ezInt32)pResource->GetLoadingState() >= (ezInt32)RequestedState ||
+             (pResource->GetLoadingState() == ezResourceState::LoadedResourceMissing); });
+}
+
+void ezResourceManager::EnsureResourceCondition(ezResource* pResourceToLoad, const ezDelegate<bool()>& condition)
 {
   const ezRTTI* pOwnRtti = pResourceToLoad->GetDynamicRTTI();
 
   // help loading until the requested resource is available
-  while ((ezInt32)pResourceToLoad->GetLoadingState() < (ezInt32)RequestedState &&
-         (pResourceToLoad->GetLoadingState() != ezResourceState::LoadedResourceMissing))
+  while (!condition())
   {
     ezTaskGroupID tgid;
 
@@ -439,9 +449,7 @@ void ezResourceManager::EnsureResourceLoadingState(ezResource* pResourceToLoad, 
     else
     {
       // do not use ezThreadUtils::YieldTimeSlice here, otherwise the thread is not tagged as 'blocked' in the TaskSystem
-      ezTaskSystem::WaitForCondition([=]() -> bool
-        { return (ezInt32)pResourceToLoad->GetLoadingState() >= (ezInt32)RequestedState ||
-                 (pResourceToLoad->GetLoadingState() == ezResourceState::LoadedResourceMissing); });
+      ezTaskSystem::WaitForCondition(condition);
     }
   }
 }

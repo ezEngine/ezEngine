@@ -7,7 +7,7 @@ void ezSearchPatternFilter::SetSearchText(ezStringView sSearchText)
   m_sSearchText = sSearchText;
   m_Parts.Clear();
 
-  ezHybridArray<ezStringView, 4> searchParts;
+  ezTempHybridArray<ezStringView, 4> searchParts;
   m_sSearchText.Split(false, searchParts, " ");
 
   for (auto& searchPart : searchParts)

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Graphics/Spline.h>
 #include <Core/World/World.h>
 #include <Foundation/Math/Float16.h>
 #include <Foundation/Types/TagSet.h>
@@ -12,6 +13,9 @@ class EZ_PROCGENPLUGIN_DLL ezVolumeCollection : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezVolumeCollection, ezReflectedClass);
 
 public:
+  ezVolumeCollection();
+  ~ezVolumeCollection();
+
   struct ShapeType
   {
     using StorageType = ezUInt8;
@@ -21,6 +25,7 @@ public:
       Sphere,
       Box,
       Image,
+      Spline,
 
       Default = Sphere
     };
@@ -44,40 +49,50 @@ public:
 
   struct Sphere : public Shape
   {
-    float m_fFadeOutScale;
-    float m_fFadeOutBias;
+    EZ_DECLARE_POD_TYPE();
+
+    float m_fFadeOut;
   };
 
   struct Box : public Shape
   {
-    ezVec3 m_vFadeOutScale;
-    ezVec3 m_vFadeOutBias;
+    EZ_DECLARE_POD_TYPE();
+
+    ezVec3 m_vPositiveFadeOut;
+    ezVec3 m_vNegativeFadeOut;
   };
 
   struct Image : public Box
   {
-    ezImageDataResourceHandle m_Image;
+    ezImageDataResourceHandle m_hImage;
     const ezColor* m_pPixelData = nullptr;
     ezUInt32 m_uiImageWidth = 0;
     ezUInt32 m_uiImageHeight = 0;
   };
 
-  bool IsEmpty() { return m_Spheres.IsEmpty() && m_Boxes.IsEmpty(); }
+  struct Spline : public Shape
+  {
+    ezSpline m_Spline;
+    ezBoundingBox m_BoundingBox;
+    float m_fInvRadius;
+    float m_fFadeOut;
+    float m_fMaxError;
+  };
+
+  bool IsEmpty() { return m_SortedShapes.IsEmpty(); }
 
   float EvaluateAtGlobalPosition(const ezSimdVec4f& vPosition, float fInitialValue, ezProcVolumeImageMode::Enum imgMode, const ezColor& refColor) const;
 
   static void ExtractVolumesInBox(const ezWorld& world, const ezBoundingBox& box, ezSpatialData::Category spatialCategory, const ezTagSet& includeTags, ezVolumeCollection& out_collection, const ezRTTI* pComponentBaseType = nullptr);
 
-  void AddSphere(const ezSimdTransform& transform, float fRadius, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder, float fValue, float fFadeOutStart);
+  void AddSphere(const ezSimdTransform& transform, float fRadius, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder, float fValue, float fFalloff);
 
-  void AddBox(const ezSimdTransform& transform, const ezVec3& vExtents, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder, float fValue, const ezVec3& vFadeOutStart);
+  void AddBox(const ezSimdTransform& transform, const ezVec3& vExtents, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder, float fValue, const ezVec3& vPositiveFalloff, const ezVec3& vNegativeFalloff, const ezImageDataResourceHandle& hImage = {});
 
-  void AddImage(const ezSimdTransform& transform, const ezVec3& vExtents, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder, float fValue, const ezVec3& vFadeOutStart, const ezImageDataResourceHandle& hImage);
+  void AddSpline(const ezSimdTransform& transform, const ezSpline& spline, float fRadius, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder, float fValue, float fFalloff);
 
 private:
-  ezDynamicArray<Sphere, ezAlignedAllocatorWrapper> m_Spheres;
-  ezDynamicArray<Box, ezAlignedAllocatorWrapper> m_Boxes;
-  ezDynamicArray<Image, ezAlignedAllocatorWrapper> m_Images;
+  ezLinearAllocator<ezAllocatorTrackingMode::Basics> m_Allocator;
 
   ezDynamicArray<const Shape*> m_SortedShapes;
 };

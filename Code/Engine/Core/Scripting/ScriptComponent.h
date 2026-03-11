@@ -1,11 +1,17 @@
 #pragma once
 
+#include <Core/Messages/EventMessageSender.h>
 #include <Core/Scripting/ScriptClassResource.h>
 #include <Core/World/EventMessageHandlerComponent.h>
 #include <Foundation/Types/RangeView.h>
 
 using ezScriptComponentManager = ezComponentManager<class ezScriptComponent, ezBlockStorageType::FreeList>;
 
+/// \brief Component that hosts and executes a script class instance on a game object.
+///
+/// Manages script execution lifecycle, variable access, parameter exposure, and event handling.
+/// Supports configurable update intervals and simulation-only updates. Provides integration
+/// between game objects and scripting systems through the ezScriptClassResource.
 class EZ_CORE_DLL ezScriptComponent : public ezEventMessageHandlerComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezScriptComponent, ezEventMessageHandlerComponent, ezScriptComponentManager);
@@ -28,17 +34,19 @@ public:
   ezScriptComponent();
   ~ezScriptComponent();
 
-  void SetScriptVariable(const ezHashedString& sName, const ezVariant& value); // [ scriptable ]
-  ezVariant GetScriptVariable(const ezHashedString& sName) const;              // [ scriptable ]
+  void SetScriptVariable(const ezHashedString& sName, const ezVariant& value);         // [ scriptable ]
+  ezVariant GetScriptVariable(const ezHashedString& sName) const;                      // [ scriptable ]
 
-  void SetScriptClass(const ezScriptClassResourceHandle& hScript);
-  const ezScriptClassResourceHandle& GetScriptClass() const { return m_hScriptClass; }
+  void SetScriptClass(const ezScriptClassResourceHandle& hScript);                     // [ property ]
+  const ezScriptClassResourceHandle& GetScriptClass() const { return m_hScriptClass; } // [ property ]
 
-  void SetScriptClassFile(const char* szFile); // [ property ]
-  const char* GetScriptClassFile() const;      // [ property ]
+  void SetUpdateInterval(ezTime interval);                                             // [ property ]
+  ezTime GetUpdateInterval() const { return m_UpdateInterval; }                        // [ property ]
 
-  void SetUpdateInterval(ezTime interval);     // [ property ]
-  ezTime GetUpdateInterval() const;            // [ property ]
+  void SetUpdateOnlyWhenSimulating(bool bUpdate);                                      // [ property ]
+  bool GetUpdateOnlyWhenSimulating() const { return m_bUpdateOnlyWhenSimulating; }     // [ property ]
+
+  void BroadcastEventMsg(ezMessage& ref_msg);
 
   //////////////////////////////////////////////////////////////////////////
   // Exposed Parameters
@@ -64,7 +72,17 @@ private:
 
   ezScriptClassResourceHandle m_hScriptClass;
   ezTime m_UpdateInterval = ezTime::MakeZero();
+  bool m_bUpdateOnlyWhenSimulating = true;
 
   ezSharedPtr<ezScriptRTTI> m_pScriptType;
   ezUniquePtr<ezScriptInstance> m_pInstance;
+
+private:
+  struct EventSender
+  {
+    const ezRTTI* m_pMsgType = nullptr;
+    ezEventMessageSender<ezMessage> m_Sender;
+  };
+
+  ezSmallArray<EventSender, 1> m_EventSenders;
 };

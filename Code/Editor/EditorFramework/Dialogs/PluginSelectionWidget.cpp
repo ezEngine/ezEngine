@@ -81,6 +81,11 @@ void ezQtPluginSelectionWidget::SyncStateToSet()
   }
 }
 
+void ezQtPluginSelectionWidget::SelectTemplate(const char* szTemplate)
+{
+  Template->setCurrentText(szTemplate);
+}
+
 void ezQtPluginSelectionWidget::on_PluginsList_currentItemChanged(QListWidgetItem* current, QListWidgetItem* previous)
 {
   if (previous)

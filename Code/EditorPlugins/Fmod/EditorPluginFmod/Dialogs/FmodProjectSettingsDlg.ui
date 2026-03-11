@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Fmod Project Settings</string>
+   <string>FMOD Project Settings</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../QtResources/resources.qrc">
@@ -119,7 +119,7 @@
        <item>
         <widget class="QComboBox" name="ComboMode">
          <property name="toolTip">
-          <string>Must be identical to what has been configured in Fmod Studio for this platform.</string>
+          <string>Must be identical to what has been configured in FMOD Studio for this platform.</string>
          </property>
          <item>
           <property name="text">

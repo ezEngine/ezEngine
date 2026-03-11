@@ -34,7 +34,7 @@ ezQtCodeEditorPreferencesWidget::ezQtCodeEditorPreferencesWidget()
 
 ezQtCodeEditorPreferencesWidget::~ezQtCodeEditorPreferencesWidget() = default;
 
-void ezQtCodeEditorPreferencesWidget::SetSelection(const ezHybridArray<ezPropertySelection, 8>& items)
+void ezQtCodeEditorPreferencesWidget::SetSelection(const ezArrayPtr<ezPropertySelection>& items)
 {
   ezQtScopedUpdatesDisabled _(this);
 
@@ -48,7 +48,7 @@ void ezQtCodeEditorPreferencesWidget::SetSelection(const ezHybridArray<ezPropert
     auto pObj = selection[0].m_pObject;
 
     ezVariant varIsVisualStudio;
-    m_pObjectAccessor->GetValue(pObj, "IsVisualStudio", varIsVisualStudio).AssertSuccess();
+    m_pObjectAccessor->GetValueByName(pObj, "IsVisualStudio", varIsVisualStudio).AssertSuccess();
     bool bIsVisualStudio = varIsVisualStudio.Get<decltype(bIsVisualStudio)>();
 
     m_pCodeEditor->blockSignals(true);
@@ -71,19 +71,19 @@ void ezQtCodeEditorPreferencesWidget::on_code_editor_changed(int index)
   {
     auto obj = selection[0].m_pObject;
     m_pObjectAccessor->StartTransaction("Change Code Editor Preset");
-    m_pObjectAccessor->SetValue(obj, "IsVisualStudio", true).AssertSuccess();
+    m_pObjectAccessor->SetValueByName(obj, "IsVisualStudio", true).AssertSuccess();
     m_pObjectAccessor->FinishTransaction();
     return;
   }
 
   auto obj = selection[0].m_pObject;
   m_pObjectAccessor->StartTransaction("Change Code Editor Preset");
-  m_pObjectAccessor->SetValue(obj, "IsVisualStudio", false).AssertSuccess();
+  m_pObjectAccessor->SetValueByName(obj, "IsVisualStudio", false).AssertSuccess();
 
   ezVariant editorArgs;
-  if (m_pObjectAccessor->GetValue(obj, "CodeEditorArgs", editorArgs).Succeeded() && editorArgs.Get<ezString>().IsEmpty())
+  if (m_pObjectAccessor->GetValueByName(obj, "CodeEditorArgs", editorArgs).Succeeded() && editorArgs.Get<ezString>().IsEmpty())
   {
-    m_pObjectAccessor->SetValue(obj, "CodeEditorArgs", "{file} {line}").AssertSuccess();
+    m_pObjectAccessor->SetValueByName(obj, "CodeEditorArgs", "{file} {line}").AssertSuccess();
   }
   m_pObjectAccessor->FinishTransaction();
 }
@@ -99,7 +99,7 @@ void ezCodeEditorPreferences_PropertyMetaStateEventHandler(ezPropertyMetaStateEv
 
   ezPropertyUiState::Visibility codeEditorFieldsVisibility = ezPropertyUiState::Default;
 
-  ezStatus res;
+  ezStatus res(EZ_SUCCESS);
   if (typeAccessor.GetValue("IsVisualStudio", ezVariant(), &res).Get<bool>() && res.Succeeded())
   {
     codeEditorFieldsVisibility = ezPropertyUiState::Invisible;

@@ -196,6 +196,7 @@ void ezEventBase<EventData, MutexType, EventType>::Broadcast(EventData eventData
       return;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+    EZ_ASSERT_ALWAYS(m_pSelf != nullptr, "This ezEvent is broadcasted before it was initialized.");
     EZ_ASSERT_ALWAYS(m_pSelf == this, "The ezEvent was relocated in memory. This is not allowed, as it breaks the Unsubscribers.");
 #endif
 

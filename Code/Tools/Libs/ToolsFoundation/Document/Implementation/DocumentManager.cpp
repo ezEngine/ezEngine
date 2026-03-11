@@ -140,7 +140,7 @@ void ezDocumentManager::GetSupportedDocumentTypes(ezDynamicArray<const ezDocumen
 
 ezStatus ezDocumentManager::CanOpenDocument(ezStringView sFilePath) const
 {
-  ezHybridArray<const ezDocumentTypeDescriptor*, 4> DocumentTypes;
+  ezTempHybridArray<const ezDocumentTypeDescriptor*, 4> DocumentTypes;
   GetSupportedDocumentTypes(DocumentTypes);
 
   ezStringBuilder sPath = sFilePath;
@@ -182,6 +182,7 @@ void ezDocumentManager::EnsureWindowRequested(ezDocument* pDocument, const ezDoc
 ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, ezStringView sDocumentTypeName, ezStringView sPath2, ezDocument*& out_pDocument,
   ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext /*= nullptr*/)
 {
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
   ezFileStats fs;
   ezStringBuilder sPath = sPath2;
   sPath.MakeCleanPath();
@@ -192,20 +193,19 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, ezStringView sDoc
 
   Request r;
   r.m_Type = Request::Type::DocumentAllowedToOpen;
-  r.m_RequestStatus.m_Result = EZ_SUCCESS;
   r.m_sDocumentType = sDocumentTypeName;
   r.m_sDocumentPath = sPath;
   s_Requests.Broadcast(r);
 
   // if for example no project is open, or not the correct one, then a document cannot be opened
-  if (r.m_RequestStatus.m_Result.Failed())
+  if (r.m_RequestStatus.Failed())
     return r.m_RequestStatus;
 
   out_pDocument = nullptr;
 
-  ezStatus status;
+  ezStatus status(EZ_SUCCESS);
 
-  ezHybridArray<const ezDocumentTypeDescriptor*, 4> DocumentTypes;
+  ezTempHybridArray<const ezDocumentTypeDescriptor*, 4> DocumentTypes;
   GetSupportedDocumentTypes(DocumentTypes);
 
   for (ezUInt32 i = 0; i < DocumentTypes.GetCount(); ++i)
@@ -226,7 +226,7 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, ezStringView sDoc
           {
             if (OpenDocument(sDocumentTypeName, sPath, out_pDocument, flags, pOpenContext).Succeeded())
             {
-              return ezStatus(EZ_SUCCESS);
+              return EZ_SUCCESS;
             }
           }
 
@@ -238,12 +238,12 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, ezStringView sDoc
 
       {
         EZ_PROFILE_SCOPE(sDocumentTypeName);
-        status = ezStatus(EZ_SUCCESS);
+        status = EZ_SUCCESS;
         InternalCreateDocument(sDocumentTypeName, sPath, bCreate, out_pDocument, pOpenContext);
       }
       out_pDocument->SetAddToResetFilesList(flags.IsSet(ezDocumentFlags::AddToRecentFilesList));
 
-      if (status.m_Result.Succeeded())
+      if (status.Succeeded())
       {
         out_pDocument->SetupDocumentInfo(DocumentTypes[i]);
 
@@ -295,10 +295,13 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, ezStringView sDoc
 
   EZ_REPORT_FAILURE("This document manager does not support the document type '{0}'", sDocumentTypeName);
   return status;
+#else
+  EZ_ASSERT_NOT_IMPLEMENTED;
+  return ezStatus("Not implemented");
+#endif
 }
 
-ezStatus ezDocumentManager::CreateDocument(
-  ezStringView sDocumentTypeName, ezStringView sPath, ezDocument*& out_pDocument, ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext)
+ezStatus ezDocumentManager::CreateDocument(ezStringView sDocumentTypeName, ezStringView sPath, ezDocument*& out_pDocument, ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext)
 {
   return CreateOrOpenDocument(true, sDocumentTypeName, sPath, out_pDocument, flags, pOpenContext);
 }
@@ -514,7 +517,7 @@ const ezMap<ezString, const ezDocumentTypeDescriptor*>& ezDocumentManager::GetAl
   {
     for (ezDocumentManager* pMan : ezDocumentManager::GetAllDocumentManagers())
     {
-      ezHybridArray<const ezDocumentTypeDescriptor*, 4> descriptors;
+      ezTempHybridArray<const ezDocumentTypeDescriptor*, 4> descriptors;
       pMan->GetSupportedDocumentTypes(descriptors);
 
       for (auto pDesc : descriptors)

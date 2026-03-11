@@ -211,7 +211,7 @@ public:
     // As we only need access to files through global paths, we add the "empty data directory"
     // This data dir will manage all accesses through absolute paths, unless any other data directory can handle them
     // since we don't add any further data dirs, this is it
-    ezFileSystem::AddDataDirectory("", "", ":", ezFileSystem::AllowWrites).IgnoreResult();
+    ezFileSystem::AddDataDirectory("", "", ":", ezDataDirUsage::AllowWrites).IgnoreResult();
 
 
     // now we can set up the logging system (we could do it earlier, but the HTML writer needs access to the file system)
@@ -235,7 +235,7 @@ public:
     g_HtmlLog.EndLog();
   }
 
-  virtual ezApplication::Execution Run() override
+  virtual void Run() override
   {
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) || defined(EZ_DOCS)
 
@@ -310,9 +310,9 @@ public:
 #else
     EZ_REPORT_FAILURE("No file system iterator support, LineCount sample can't run.");
 #endif
-    return ezApplication::Execution::Quit;
+
+    QuitApplication();
   }
 };
 
-
-EZ_CONSOLEAPP_ENTRY_POINT(ezLineCountApp);
+EZ_APPLICATION_ENTRY_POINT(ezLineCountApp);

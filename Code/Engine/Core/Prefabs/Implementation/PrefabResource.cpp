@@ -24,8 +24,8 @@ void ezPrefabResource::InstantiatePrefab(ezWorld& ref_world, const ezTransform& 
 
   if (pExposedParamValues != nullptr && !pExposedParamValues->IsEmpty())
   {
-    ezHybridArray<ezGameObject*, 8> createdRootObjects;
-    ezHybridArray<ezGameObject*, 8> createdChildObjects;
+    ezTempHybridArray<ezGameObject*, 8> createdRootObjects;
+    ezTempHybridArray<ezGameObject*, 8> createdChildObjects;
 
     if (options.m_pCreatedRootObjectsOut == nullptr)
     {
@@ -143,11 +143,9 @@ ezResourceLoadDesc ezPrefabResource::UpdateContent(ezStreamReader* Stream)
 
   ezStreamReader& s = *Stream;
 
-  // skip the absolute file path data that the standard file reader writes into the stream
-  {
-    ezString sAbsFilePath;
-    s >> sAbsFilePath;
-  }
+  // the standard file reader writes the absolute file path into the stream
+  ezString sAbsFilePath;
+  s >> sAbsFilePath;
 
   ezAssetFileHeader assetHeader;
   assetHeader.Read(s).IgnoreResult();
@@ -213,6 +211,8 @@ void ezPrefabResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 
 EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezPrefabResource, ezPrefabResourceDescriptor)
 {
+  EZ_IGNORE_UNUSED(descriptor);
+
   ezResourceLoadDesc desc;
   desc.m_State = ezResourceState::Loaded;
   desc.m_uiQualityLevelsDiscardable = 0;

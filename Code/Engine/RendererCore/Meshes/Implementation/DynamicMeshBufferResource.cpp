@@ -1,12 +1,68 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <Foundation/Configuration/Startup.h>
+#include <Foundation/Containers/IterateBits.h>
+#include <Foundation/SimdMath/SimdConversion.h>
 #include <RendererCore/Meshes/DynamicMeshBufferResource.h>
-#include <RendererCore/Meshes/MeshBufferUtils.h>
-#include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/Buffer.h>
 
+namespace
+{
+  static ezMutex s_ResourcesToUploadMutex;
+  static ezHashSet<ezDynamicMeshBufferResource*> s_ResourcesToUpload;
+} // namespace
+
+struct ezDynamicMeshBufferManager
+{
+  static void AddResourceToUpload(ezDynamicMeshBufferResource* pResource)
+  {
+    EZ_LOCK(s_ResourcesToUploadMutex);
+    s_ResourcesToUpload.Insert(pResource);
+  }
+
+  static void RemoveResourceToUpload(ezDynamicMeshBufferResource* pResource)
+  {
+    EZ_LOCK(s_ResourcesToUploadMutex);
+    s_ResourcesToUpload.Remove(pResource);
+  }
+
+  static void OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
+  {
+    if (e.m_Type != ezRenderWorldExtractionEvent::Type::EndExtraction)
+      return;
+
+    EZ_LOCK(s_ResourcesToUploadMutex);
+
+    for (auto it : s_ResourcesToUpload)
+    {
+      it->UploadChangesForNextFrame();
+    }
+
+    s_ResourcesToUpload.Clear();
+  }
+};
+
 // clang-format off
+EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, DynamicMeshBufferManager)
+  BEGIN_SUBSYSTEM_DEPENDENCIES
+    "Foundation",
+    "Core",
+    "RenderWorld"
+  END_SUBSYSTEM_DEPENDENCIES
+
+  ON_HIGHLEVELSYSTEMS_STARTUP
+  {
+    ezRenderWorld::GetExtractionEvent().AddEventHandler(ezDynamicMeshBufferManager::OnExtractionEvent);
+  }
+
+  ON_HIGHLEVELSYSTEMS_SHUTDOWN
+  {
+    ezRenderWorld::GetExtractionEvent().RemoveEventHandler(ezDynamicMeshBufferManager::OnExtractionEvent);
+  }
+EZ_END_SUBSYSTEM_DECLARATION;
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDynamicMeshBufferResource, 1, ezRTTIDefaultAllocator<ezDynamicMeshBufferResource>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
@@ -14,36 +70,29 @@ EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezDynamicMeshBufferResource);
 // clang-format on
 
 ezDynamicMeshBufferResource::ezDynamicMeshBufferResource()
-  : ezResource(DoUpdate::OnAnyThread, 1)
+  : ezResource(DoUpdate::OnGraphicsResourceThreads, 1)
 {
 }
 
 ezDynamicMeshBufferResource::~ezDynamicMeshBufferResource()
 {
-  EZ_ASSERT_DEBUG(m_hVertexBuffer.IsInvalidated(), "Implementation error");
+  for (auto& hVertexBuffer : m_hVertexBuffers)
+  {
+    EZ_ASSERT_DEBUG(hVertexBuffer.IsInvalidated(), "Implementation error");
+  }
   EZ_ASSERT_DEBUG(m_hIndexBuffer.IsInvalidated(), "Implementation error");
-  EZ_ASSERT_DEBUG(m_hColorBuffer.IsInvalidated(), "Implementation error");
 }
 
 ezResourceLoadDesc ezDynamicMeshBufferResource::UnloadData(Unload WhatToUnload)
 {
-  if (!m_hVertexBuffer.IsInvalidated())
+  ezDynamicMeshBufferManager::RemoveResourceToUpload(this);
+
+  for (auto& hVertexBuffer : m_hVertexBuffers)
   {
-    ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hVertexBuffer);
-    m_hVertexBuffer.Invalidate();
+    ezGALDevice::GetDefaultDevice()->DestroyBuffer(hVertexBuffer);
   }
 
-  if (!m_hIndexBuffer.IsInvalidated())
-  {
-    ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hIndexBuffer);
-    m_hIndexBuffer.Invalidate();
-  }
-
-  if (!m_hColorBuffer.IsInvalidated())
-  {
-    ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hColorBuffer);
-    m_hColorBuffer.Invalidate();
-  }
+  ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hIndexBuffer);
 
   // we cannot compute this in UpdateMemoryUsage(), so we only read the data there, therefore we need to update this information here
   ModifyMemoryUsage().m_uiMemoryGPU = 0;
@@ -67,99 +116,83 @@ void ezDynamicMeshBufferResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUs
 {
   // we cannot compute this data here, so we update it wherever we know the memory usage
 
-  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezDynamicMeshBufferResource) + m_VertexData.GetHeapMemoryUsage() + m_Index16Data.GetHeapMemoryUsage() + m_Index32Data.GetHeapMemoryUsage() + m_ColorData.GetHeapMemoryUsage();
+  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezDynamicMeshBufferResource) + m_PositionData.GetHeapMemoryUsage() + m_NTTData.GetHeapMemoryUsage() + m_ColorData.GetHeapMemoryUsage() + m_IndexData.GetHeapMemoryUsage();
   out_NewMemoryUsage.m_uiMemoryGPU = ModifyMemoryUsage().m_uiMemoryGPU;
 }
 
 EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezDynamicMeshBufferResource, ezDynamicMeshBufferResourceDescriptor)
 {
-  EZ_ASSERT_DEBUG(m_hVertexBuffer.IsInvalidated(), "Implementation error");
+  for (auto& hVertexBuffer : m_hVertexBuffers)
+  {
+    EZ_ASSERT_DEBUG(hVertexBuffer.IsInvalidated(), "Implementation error");
+  }
   EZ_ASSERT_DEBUG(m_hIndexBuffer.IsInvalidated(), "Implementation error");
-  EZ_ASSERT_DEBUG(m_hColorBuffer.IsInvalidated(), "Implementation error");
 
   m_Descriptor = descriptor;
 
-  m_VertexData.SetCountUninitialized(m_Descriptor.m_uiMaxVertices);
-
+  ezMeshVertexStreamConfig config;
   {
-    ezVertexStreamInfo si;
-    si.m_uiOffset = 0;
-    si.m_Format = ezGALResourceFormat::XYZFloat;
-    si.m_Semantic = ezGALVertexAttributeSemantic::Position;
-    si.m_uiElementSize = sizeof(ezVec3);
-    m_VertexDeclaration.m_VertexStreams.PushBack(si);
-
-    si.m_uiOffset += si.m_uiElementSize;
-    si.m_Format = ezGALResourceFormat::XYFloat;
-    si.m_Semantic = ezGALVertexAttributeSemantic::TexCoord0;
-    si.m_uiElementSize = sizeof(ezVec2);
-    m_VertexDeclaration.m_VertexStreams.PushBack(si);
-
-    si.m_uiOffset += si.m_uiElementSize;
-    si.m_Format = ezGALResourceFormat::XYZFloat;
-    si.m_Semantic = ezGALVertexAttributeSemantic::Normal;
-    si.m_uiElementSize = sizeof(ezVec3);
-    m_VertexDeclaration.m_VertexStreams.PushBack(si);
-
-    si.m_uiOffset += si.m_uiElementSize;
-    si.m_Format = ezGALResourceFormat::XYZWFloat;
-    si.m_Semantic = ezGALVertexAttributeSemantic::Tangent;
-    si.m_uiElementSize = sizeof(ezVec4);
-    m_VertexDeclaration.m_VertexStreams.PushBack(si);
-
+    config.m_bUseHighPrecision = true;
+    config.AddStream(ezMeshVertexStreamType::Position);
+    config.AddStream(ezMeshVertexStreamType::NormalTangentAndTexCoord0);
     if (m_Descriptor.m_bColorStream)
     {
-      si.m_uiVertexBufferSlot = 1; // separate buffer
-      si.m_uiOffset = 0;
-      si.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
-      si.m_Semantic = ezGALVertexAttributeSemantic::Color0;
-      si.m_uiElementSize = sizeof(ezColorLinearUB);
-      m_VertexDeclaration.m_VertexStreams.PushBack(si);
+      config.AddStream(ezMeshVertexStreamType::Color0);
     }
 
-    m_VertexDeclaration.ComputeHash();
+    EZ_ASSERT_DEBUG(config.GetNormalFormat() == ezGALResourceFormat::RGBAUShortNormalized, "Unexpected normal format");
+    EZ_ASSERT_DEBUG(config.GetTangentFormat() == ezGALResourceFormat::RGBAUShortNormalized, "Unexpected tangent format");
+    EZ_ASSERT_DEBUG(config.GetTexCoordFormat() == ezGALResourceFormat::XYFloat, "Unexpected texcoord format");
+    EZ_ASSERT_DEBUG(config.GetColorFormat() == ezGALResourceFormat::RGBAHalf, "Unexpected color format");
+
+    EZ_ASSERT_DEBUG(config.GetNormalDataOffset() == offsetof(ezDynamicMeshVertexNTT, m_vEncodedNormal), "Unexpected normal offset");
+    EZ_ASSERT_DEBUG(config.GetTangentDataOffset() == offsetof(ezDynamicMeshVertexNTT, m_vEncodedTangent), "Unexpected tangent offset");
+    EZ_ASSERT_DEBUG(config.GetTexCoord0DataOffset() == offsetof(ezDynamicMeshVertexNTT, m_vTexCoord), "Unexpected texcoord offset");
+
+    config.FillVertexAttributes(m_VertexAttributes);
   }
+
+  const ezUInt32 uiVertexCount = ezMath::Max(1u, m_Descriptor.m_uiMaxVertices);
+  const ezUInt32 uiIndexCount = ezGALPrimitiveTopology::GetIndexCount(m_Descriptor.m_Topology, m_Descriptor.m_uiMaxPrimitives);
+  const bool bUseIndices = uiIndexCount > 0 && descriptor.m_IndexType != ezGALIndexType::None;
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-
-  m_hVertexBuffer = pDevice->CreateVertexBuffer(sizeof(ezDynamicMeshVertex), m_Descriptor.m_uiMaxVertices /* no initial data -> mutable */);
-
   ezStringBuilder sName;
-  sName.SetFormat("{0} - Dynamic Vertex Buffer", GetResourceDescription());
-  pDevice->GetBuffer(m_hVertexBuffer)->SetDebugName(sName);
 
-  const ezUInt32 uiMaxIndices = ezGALPrimitiveTopology::VerticesPerPrimitive(m_Descriptor.m_Topology) * m_Descriptor.m_uiMaxPrimitives;
+  for (ezUInt32 uiIndex : ezIterateBitIndices(config.m_uiTypesMask))
+  {
+    auto type = static_cast<ezMeshVertexStreamType::Enum>(uiIndex);
+    const ezUInt32 uiElementSize = config.GetStreamElementSize(type);
 
+    m_hVertexBuffers[uiIndex] = pDevice->CreateVertexBuffer(uiElementSize, uiVertexCount, ezConstByteArrayPtr(), true);
+
+    sName.SetFormat("{0} Dynamic Vertex Buffer {1}", GetResourceIdOrDescription(), ezMeshVertexStreamType::GetName(type));
+    pDevice->GetBuffer(m_hVertexBuffers[uiIndex])->SetDebugName(sName);
+  }
+
+  if (bUseIndices)
+  {
+    m_hIndexBuffer = pDevice->CreateIndexBuffer(descriptor.m_IndexType, uiIndexCount, ezConstByteArrayPtr(), true);
+
+    sName.SetFormat("{0} Dynamic Index Buffer", GetResourceIdOrDescription());
+    pDevice->GetBuffer(m_hIndexBuffer)->SetDebugName(sName);
+  }
+
+
+  m_PositionData.SetCountUninitialized(m_Descriptor.m_uiMaxVertices);
+  m_NTTData.SetCountUninitialized(m_Descriptor.m_uiMaxVertices);
   if (m_Descriptor.m_bColorStream)
   {
-    m_ColorData.SetCountUninitialized(uiMaxIndices);
-    m_hColorBuffer = pDevice->CreateVertexBuffer(sizeof(ezColorLinearUB), m_Descriptor.m_uiMaxVertices /* no initial data -> mutable */);
-
-    sName.SetFormat("{0} - Dynamic Color Buffer", GetResourceDescription());
-    pDevice->GetBuffer(m_hColorBuffer)->SetDebugName(sName);
+    m_ColorData.SetCountUninitialized(m_Descriptor.m_uiMaxVertices);
   }
 
-  if (m_Descriptor.m_IndexType == ezGALIndexType::UInt)
+  if (bUseIndices)
   {
-    m_Index32Data.SetCountUninitialized(uiMaxIndices);
-
-    m_hIndexBuffer = pDevice->CreateIndexBuffer(ezGALIndexType::UInt, uiMaxIndices /* no initial data -> mutable */);
-
-    sName.SetFormat("{0} - Dynamic Index32 Buffer", GetResourceDescription());
-    pDevice->GetBuffer(m_hIndexBuffer)->SetDebugName(sName);
-  }
-  else if (m_Descriptor.m_IndexType == ezGALIndexType::UShort)
-  {
-    m_Index16Data.SetCountUninitialized(uiMaxIndices);
-
-    m_hIndexBuffer = pDevice->CreateIndexBuffer(ezGALIndexType::UShort, uiMaxIndices /* no initial data -> mutable */);
-
-    sName.SetFormat("{0} - Dynamic Index16 Buffer", GetResourceDescription());
-    pDevice->GetBuffer(m_hIndexBuffer)->SetDebugName(sName);
+    m_IndexData.SetCountUninitialized(uiIndexCount * ezGALIndexType::GetSize(descriptor.m_IndexType));
   }
 
   // we only know the memory usage here, so we write it back to the internal variable directly and then read it in UpdateMemoryUsage() again
-  ModifyMemoryUsage().m_uiMemoryGPU = m_VertexData.GetHeapMemoryUsage() + m_Index32Data.GetHeapMemoryUsage() + m_Index16Data.GetHeapMemoryUsage() + m_ColorData.GetHeapMemoryUsage();
+  ModifyMemoryUsage().m_uiMemoryGPU = m_PositionData.GetHeapMemoryUsage() + m_NTTData.GetHeapMemoryUsage() + m_ColorData.GetHeapMemoryUsage() + m_IndexData.GetHeapMemoryUsage();
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
@@ -169,60 +202,167 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezDynamicMeshBufferResource, ezDynamicMeshBuffe
   return res;
 }
 
-void ezDynamicMeshBufferResource::UpdateGpuBuffer(ezGALCommandEncoder* pGALCommandEncoder, ezUInt32 uiFirstVertex, ezUInt32 uiNumVertices, ezUInt32 uiFirstIndex, ezUInt32 uiNumIndices, ezGALUpdateMode::Enum mode /*= ezGALUpdateMode::Discard*/)
+void ezDynamicMeshBufferResource::MarkAsDirty()
 {
-  if (m_bAccessedVB && uiNumVertices > 0)
+  ezDynamicMeshBufferManager::AddResourceToUpload(this);
+}
+
+void ezDynamicMeshBufferResource::UploadChangesForNextFrame()
+{
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+
+  if (m_ModifiedPositionDataRange.IsValid())
   {
-    if (uiNumVertices == ezMath::MaxValue<ezUInt32>())
-      uiNumVertices = m_VertexData.GetCount() - uiFirstVertex;
+    auto data = m_PositionData.GetArrayPtr().GetSubArray(m_ModifiedPositionDataRange.m_uiMin, m_ModifiedPositionDataRange.GetCount());
 
-    EZ_ASSERT_DEV(uiNumVertices <= m_VertexData.GetCount(), "Can't upload {} vertices, the buffer was allocated to hold a maximum of {} vertices.", uiNumVertices, m_VertexData.GetCount());
+    pDevice->UpdateBufferForNextFrame(m_hVertexBuffers[ezMeshVertexStreamType::Position], data.ToByteArray(), m_ModifiedPositionDataRange.m_uiMin);
 
-    m_bAccessedVB = false;
-
-    pGALCommandEncoder->UpdateBuffer(m_hVertexBuffer, sizeof(ezDynamicMeshVertex) * uiFirstVertex, m_VertexData.GetArrayPtr().GetSubArray(uiFirstVertex, uiNumVertices).ToByteArray(), mode);
+    m_ModifiedPositionDataRange.Reset();
   }
 
-  if (m_bAccessedCB && uiNumVertices > 0)
+  if (m_ModifiedNTTDataRange.IsValid())
   {
-    if (uiNumVertices == ezMath::MaxValue<ezUInt32>())
-      uiNumVertices = m_ColorData.GetCount() - uiFirstVertex;
+    auto data = m_NTTData.GetArrayPtr().GetSubArray(m_ModifiedNTTDataRange.m_uiMin, m_ModifiedNTTDataRange.GetCount());
 
-    EZ_ASSERT_DEV(uiNumVertices <= m_ColorData.GetCount(), "Can't upload {} vertices, the buffer was allocated to hold a maximum of {} vertices.", uiNumVertices, m_ColorData.GetCount());
+    pDevice->UpdateBufferForNextFrame(m_hVertexBuffers[ezMeshVertexStreamType::NormalTangentAndTexCoord0], data.ToByteArray(), m_ModifiedNTTDataRange.m_uiMin);
 
-    m_bAccessedCB = false;
-
-    pGALCommandEncoder->UpdateBuffer(m_hColorBuffer, sizeof(ezColorLinearUB) * uiFirstVertex, m_ColorData.GetArrayPtr().GetSubArray(uiFirstVertex, uiNumVertices).ToByteArray(), mode);
+    m_ModifiedNTTDataRange.Reset();
   }
 
-  if (m_bAccessedIB && uiNumIndices > 0 && !m_hIndexBuffer.IsInvalidated())
+  if (m_ModifiedColorDataRange.IsValid())
   {
-    m_bAccessedIB = false;
+    auto data = m_ColorData.GetArrayPtr().GetSubArray(m_ModifiedColorDataRange.m_uiMin, m_ModifiedColorDataRange.GetCount());
 
-    if (!m_Index16Data.IsEmpty())
+    pDevice->UpdateBufferForNextFrame(m_hVertexBuffers[ezMeshVertexStreamType::Color0], data.ToByteArray(), m_ModifiedColorDataRange.m_uiMin);
+
+    m_ModifiedColorDataRange.Reset();
+  }
+
+  if (m_ModifiedIndexDataRange.IsValid())
+  {
+    auto data = m_IndexData.GetArrayPtr().GetSubArray(m_ModifiedIndexDataRange.m_uiMin, m_ModifiedIndexDataRange.GetCount());
+
+    pDevice->UpdateBufferForNextFrame(m_hIndexBuffer, data, m_ModifiedIndexDataRange.m_uiMin);
+
+    m_ModifiedIndexDataRange.Reset();
+  }
+}
+
+// static
+void ezDynamicMeshBufferResource::CreateGridXY(ezDynamicMeshBufferResource* pDynamicMeshBuffer, const ezVec2& vSize, const ezVec2U32& vNumVertices, const ezVec2& vTextureScale)
+{
+  EZ_ASSERT_DEV(vNumVertices.x > 1 && vNumVertices.y > 1, "Invalid number of vertices");
+
+  const ezUInt32 uiNumVertsX = vNumVertices.x;
+  const ezUInt32 uiNumVertsY = vNumVertices.y;
+  const ezUInt32 uiNumSegmentsX = uiNumVertsX - 1;
+  const ezUInt32 uiNumSegmentsY = uiNumVertsY - 1;
+
+  EZ_ASSERT_DEV(pDynamicMeshBuffer->m_Descriptor.m_uiMaxVertices == uiNumVertsX * uiNumVertsY, "Invalid number of vertices");
+  EZ_ASSERT_DEV(pDynamicMeshBuffer->m_Descriptor.m_uiMaxPrimitives = uiNumSegmentsX * uiNumSegmentsY * 2, "Invalid number of primitives");
+
+  {
+    const ezVec3 dirX = ezVec3(1, 0, 0);
+    const ezVec3 dirY = ezVec3(0, 1, 0);
+
+    ezDynamicMeshVertexNTT v;
+    v.EncodeNormal(ezVec3(0, 0, 1));
+    v.EncodeTangent(dirX, 1.0f);
+
+    ezVec2 dist = vSize;
+    dist.x /= (float)uiNumSegmentsX;
+    dist.y /= (float)uiNumSegmentsY;
+
+    const float fDivU = (1.0f / uiNumSegmentsX) * vTextureScale.x;
+    const float fDivV = (1.0f / uiNumSegmentsY) * vTextureScale.y;
+
+    auto positions = pDynamicMeshBuffer->AccessPositionData();
+    auto ntt = pDynamicMeshBuffer->AccessNormalTangentTexCoord0Data();
+
+    for (ezUInt32 y = 0; y < uiNumVertsY; ++y)
     {
-      EZ_ASSERT_DEV(uiFirstIndex < m_Index16Data.GetCount(), "Invalid first index value {}", uiFirstIndex);
+      for (ezUInt32 x = 0; x < uiNumVertsX; ++x)
+      {
+        const ezUInt32 idx = (y * uiNumVertsX) + x;
 
-      if (uiNumIndices == ezMath::MaxValue<ezUInt32>())
-        uiNumIndices = m_Index16Data.GetCount() - uiFirstIndex;
-
-      EZ_ASSERT_DEV(uiNumIndices <= m_Index16Data.GetCount(), "Can't upload {} indices, the buffer was allocated to hold a maximum of {} indices.", uiNumIndices, m_Index16Data.GetCount());
-
-      pGALCommandEncoder->UpdateBuffer(m_hIndexBuffer, sizeof(ezUInt16) * uiFirstIndex, m_Index16Data.GetArrayPtr().GetSubArray(uiFirstIndex, uiNumIndices).ToByteArray(), mode);
+        positions[idx] = dirX * (x * dist.x) + dirY * (y * dist.y);
+        ntt[idx].m_vEncodedNormal = v.m_vEncodedNormal;
+        ntt[idx].m_vEncodedTangent = v.m_vEncodedTangent;
+        ntt[idx].m_vTexCoord = ezVec2(x * fDivU, y * fDivV);
+      }
     }
-    else if (!m_Index32Data.IsEmpty())
+  }
+
+  {
+    auto indices = pDynamicMeshBuffer->AccessIndex16Data();
+
+    ezUInt32 tidx = 0;
+    ezUInt32 vidx = 0;
+    for (ezUInt32 y = 0; y < uiNumSegmentsY; ++y)
     {
-      EZ_ASSERT_DEV(uiFirstIndex < m_Index32Data.GetCount(), "Invalid first index value {}", uiFirstIndex);
+      for (ezUInt32 x = 0; x < uiNumSegmentsX; ++x, ++vidx)
+      {
+        indices[tidx++] = vidx;
+        indices[tidx++] = vidx + 1;
+        indices[tidx++] = vidx + uiNumVertsX;
 
-      if (uiNumIndices == ezMath::MaxValue<ezUInt32>())
-        uiNumIndices = m_Index32Data.GetCount() - uiFirstIndex;
+        indices[tidx++] = vidx + 1;
+        indices[tidx++] = vidx + uiNumVertsX + 1;
+        indices[tidx++] = vidx + uiNumVertsX;
+      }
 
-      EZ_ASSERT_DEV(uiNumIndices <= m_Index32Data.GetCount(), "Can't upload {} indices, the buffer was allocated to hold a maximum of {} indices.", uiNumIndices, m_Index32Data.GetCount());
-
-      pGALCommandEncoder->UpdateBuffer(m_hIndexBuffer, sizeof(ezUInt32) * uiFirstIndex, m_Index32Data.GetArrayPtr().GetSubArray(uiFirstIndex, uiNumIndices).ToByteArray(), mode);
+      ++vidx;
     }
   }
 }
 
+void ezDynamicMeshBufferResource::CalculateGridNormalAndTangents(ezDynamicMeshBufferResource* pDynamicMeshBuffer, const ezVec2U32& vNumVertices)
+{
+  auto positions = pDynamicMeshBuffer->AccessPositionData();
+  auto ntt = pDynamicMeshBuffer->AccessNormalTangentTexCoord0Data();
+
+  const ezUInt32 width = vNumVertices.x;
+  const ezUInt32 height = vNumVertices.y;
+  const ezUInt32 widthM1 = width - 1;
+  const ezUInt32 heightM1 = height - 1;
+
+  ezUInt32 topIdx = 0;
+
+  ezUInt32 vidx = 0;
+  for (ezUInt32 y = 0; y < height; ++y)
+  {
+    ezUInt32 leftIdx = 0;
+    const ezUInt32 bottomIdx = ezMath::Min<ezUInt32>(y + 1, heightM1);
+
+    const ezUInt32 yOff = y * width;
+    const ezUInt32 yOffTop = topIdx * width;
+    const ezUInt32 yOffBottom = bottomIdx * width;
+
+    for (ezUInt32 x = 0; x < width; ++x, ++vidx)
+    {
+      const ezUInt32 rightIdx = ezMath::Min<ezUInt32>(x + 1, widthM1);
+
+      const ezSimdVec4f leftPos = ezSimdConversion::ToVec3(positions[yOff + leftIdx]);
+      const ezSimdVec4f rightPos = ezSimdConversion::ToVec3(positions[yOff + rightIdx]);
+      const ezSimdVec4f topPos = ezSimdConversion::ToVec3(positions[yOffTop + x]);
+      const ezSimdVec4f bottomPos = ezSimdConversion::ToVec3(positions[yOffBottom + x]);
+
+      const ezSimdVec4f leftToRight = rightPos - leftPos;
+      const ezSimdVec4f bottomToTop = topPos - bottomPos;
+      ezSimdVec4f normal = -leftToRight.CrossRH(bottomToTop);
+      normal.NormalizeIfNotZero<3>(ezSimdVec4f(0, 0, 1));
+
+      ezSimdVec4f tangent = leftToRight;
+      tangent.NormalizeIfNotZero<3>(ezSimdVec4f(1, 0, 0));
+
+      ntt[vidx].EncodeNormal(ezSimdConversion::ToVec3(normal));
+      ntt[vidx].EncodeTangent(ezSimdConversion::ToVec3(tangent), 1.0f);
+
+      leftIdx = x;
+    }
+
+    topIdx = y;
+  }
+}
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_DynamicMeshBufferResource);

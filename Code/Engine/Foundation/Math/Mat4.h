@@ -1,11 +1,20 @@
 #pragma once
 
-#include <Foundation/Math/Angle.h>
+
 #include <Foundation/Math/Math.h>
+#include <Foundation/Math/Angle.h>
 #include <Foundation/Math/Vec3.h>
 #include <Foundation/Math/Vec4.h>
 
-/// \brief A 4x4 component matrix class.
+/// \brief 4x4 matrix template for 3D transformations and projection operations.
+///
+/// Matrix layout:
+/// ```
+/// | m00 m10 m20 m30 |   Column 0: (m00, m01, m02, m03)
+/// | m01 m11 m21 m31 |   Column 1: (m10, m11, m12, m13)
+/// | m02 m12 m22 m32 |   Column 2: (m20, m21, m22, m23)
+/// | m03 m13 m23 m33 |   Column 3: (m30, m31, m32, m33)
+/// ```
 template <typename Type>
 class ezMat4Template
 {
@@ -80,16 +89,16 @@ public:
   [[nodiscard]] static ezMat4Template<Type> MakeScaling(const ezVec3Template<Type>& vScale);
 
   /// \brief Creates a matrix that is a rotation matrix around the X-axis.
-  [[nodiscard]] static ezMat4Template<Type> MakeRotationX(ezAngle angle);
+  [[nodiscard]] static ezMat4Template<Type> MakeRotationX(ezAngleTemplate<Type> angle);
 
   /// \brief Creates a matrix that is a rotation matrix around the Y-axis.
-  [[nodiscard]] static ezMat4Template<Type> MakeRotationY(ezAngle angle);
+  [[nodiscard]] static ezMat4Template<Type> MakeRotationY(ezAngleTemplate<Type> angle);
 
   /// \brief Creates a matrix that is a rotation matrix around the Z-axis.
-  [[nodiscard]] static ezMat4Template<Type> MakeRotationZ(ezAngle angle);
+  [[nodiscard]] static ezMat4Template<Type> MakeRotationZ(ezAngleTemplate<Type> angle);
 
   /// \brief Creates a matrix that is a rotation matrix around the given axis.
-  [[nodiscard]] static ezMat4Template<Type> MakeAxisRotation(const ezVec3Template<Type>& vAxis, ezAngle angle);
+  [[nodiscard]] static ezMat4Template<Type> MakeAxisRotation(const ezVec3Template<Type>& vAxis, ezAngleTemplate<Type> angle);
 
   /// \brief Copies the 16 values of this matrix into the given array. 'layout' defines whether the data should end up in column-major or
   /// row-major format.

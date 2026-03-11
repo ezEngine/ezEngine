@@ -6,6 +6,7 @@
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
@@ -44,7 +45,7 @@ namespace
     return false;
   }
 
-  static void GenerateDefines(const char* szPlatform, const ezArrayPtr<ezPermutationVar>& permutationVars, ezHybridArray<ezString, 32>& out_defines)
+  static void GenerateDefines(const char* szPlatform, const ezArrayPtr<ezPermutationVar>& permutationVars, ezDynamicArray<ezString>& out_defines)
   {
     ezStringBuilder sTemp;
 
@@ -98,6 +99,8 @@ namespace
 
 ezResult ezShaderCompiler::FileOpen(ezStringView sAbsoluteFile, ezDynamicArray<ezUInt8>& FileContent, ezTimestamp& out_FileModification)
 {
+  EZ_PROFILE_SCOPE("ezShaderCompiler::FileOpen");
+
   if (sAbsoluteFile == "ShaderRenderState")
   {
     const ezString& sData = m_ShaderData.m_StateSource;
@@ -181,8 +184,10 @@ void ezShaderCompiler::ShaderCompileMsg(ezRemoteMessage& msg)
   }
 }
 
-ezResult ezShaderCompiler::CompileShaderPermutationForPlatforms(ezStringView sFile, const ezArrayPtr<const ezPermutationVar>& permutationVars, ezLogInterface* pLog, ezStringView sPlatform)
+ezResult ezShaderCompiler::CompileShaderPermutationForPlatforms(ezStringView sFile, const ezArrayPtr<const ezPermutationVar>& permutationVars, ezLogInterface* pLog, ezStringView sPlatform, ezTokenizedFileCache* pFileCache)
 {
+  EZ_PROFILE_SCOPE("ezShaderCompiler::CompileShaderPermutationForPlatforms");
+
   if (ezRemoteToolingInterface* pTooling = ezSingletonRegistry::GetSingletonInstance<ezRemoteToolingInterface>())
   {
     auto pNet = pTooling->GetRemoteInterface();
@@ -236,7 +241,7 @@ ezResult ezShaderCompiler::CompileShaderPermutationForPlatforms(ezStringView sFi
 
   m_ShaderData.m_Platforms = sTemp;
 
-  ezHybridArray<ezHashedString, 16> usedPermutations;
+  ezTempHybridArray<ezHashedString, 16> usedPermutations;
   ezShaderParser::ParsePermutationSection(Sections.GetSectionContent(ezShaderHelper::ezShaderSections::PERMUTATIONS, uiFirstLine), usedPermutations, m_ShaderData.m_FixedPermVars);
 
   for (const ezHashedString& usedPermutationVar : usedPermutations)
@@ -270,8 +275,55 @@ ezResult ezShaderCompiler::CompileShaderPermutationForPlatforms(ezStringView sFi
   ezUInt32 uiFirstShaderLine = 0;
   ezStringView sShaderSource = Sections.GetSectionContent(ezShaderHelper::ezShaderSections::SHADER, uiFirstShaderLine);
 
+  ezUInt32 uiFirstMaterialConstantsLine = 0;
+  ezStringView sMaterialConstantsSource = Sections.GetSectionContent(ezShaderHelper::ezShaderSections::MATERIALCONSTANTS, uiFirstMaterialConstantsLine);
+
+  ezStringView sMaterialParametersSection = Sections.GetSectionContent(ezShaderHelper::ezShaderSections::MATERIALPARAMETER, uiFirstLine);
+
+  // Gather material parameters to force these into the material bind group to make migration of other shaders easier.
+  m_MaterialParameters.Clear();
+  ezTempHybridArray<ezShaderParser::ParameterDefinition, 16> parameters;
+  ezTempHybridArray<ezShaderParser::EnumDefinition, 4> enumDefinitions;
+  ezShaderParser::ParseMaterialParameterSection(sMaterialParametersSection, parameters, enumDefinitions);
+  for (ezUInt32 i = 0; i < parameters.GetCount(); ++i)
+  {
+    const ezShaderParser::ParameterDefinition& param = parameters[i];
+    if (param.m_sType == "Texture2D" || param.m_sType == "TextureCube" || param.m_sType == "Texture3D")
+    {
+      m_MaterialParameters.Insert(param.m_sName);
+    }
+  }
+
+  ezStringBuilder sMaterialConstantsTemplate;
+  // If this is a material shader (i.e. it has a [MATERIALCONSTANTS] section), we need to parse the section and also load the MaterialConstants.template file which will be used to generate the material constants struct which is prepended before every shader and defines the HAS_MATERIAL_CONSTANTS define.
+  if (!sMaterialConstantsSource.IsEmpty())
+  {
+    m_pMaterialBufferLayout = EZ_DEFAULT_NEW(ezShaderConstantBufferLayout);
+    ezStatus res = ezShaderParser::ParseMaterialConstantsSection(sMaterialConstantsSource, m_pMaterialBufferLayout);
+    if (res.LogFailure())
+      return EZ_FAILURE;
+
+    ezStringView sMaterialConstantsTemplateFile = "Shaders/Materials/MaterialConstants.template";
+    ezFileReader materialConstantsTemplate;
+    if (materialConstantsTemplate.Open(sMaterialConstantsTemplateFile).Failed())
+    {
+      ezLog::Error(pLog, "Failed to load the '{}' file. Can't compile material shader", sMaterialConstantsTemplateFile);
+      return EZ_FAILURE;
+    }
+    sMaterialConstantsTemplate.ReadAll(materialConstantsTemplate);
+    m_IncludeFiles.Insert(sMaterialConstantsTemplateFile);
+  }
+
+  ezStringView extensions[]{"vs", "hs", "ds", "gs", "ps", "cs"};
+  static_assert(EZ_ARRAY_SIZE(extensions) == ezGALShaderStage::ENUM_COUNT);
+  ezStringBuilder tmp = sFile;
+  tmp.MakeCleanPath();
+
   for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
   {
+    m_StageSourceFile[stage] = tmp;
+    m_StageSourceFile[stage].ChangeFileExtension(extensions[stage]);
+
     ezStringView sStageSource = Sections.GetSectionContent(ezShaderHelper::ezShaderSections::VERTEXSHADER + stage, uiFirstLine);
 
     // later code checks whether the string is empty, to see whether we have any shader source, so this has to be kept empty
@@ -279,10 +331,21 @@ ezResult ezShaderCompiler::CompileShaderPermutationForPlatforms(ezStringView sFi
     {
       sTemp.Clear();
 
+      // prepend material constants section if there is any
+      if (!sMaterialConstantsSource.IsEmpty())
+      {
+        // We need to fill teh template not only with the section content but also the starting line and filename to get correct line numbers for all compile failures.
+        sTemp.AppendFormat(sMaterialConstantsTemplate, uiFirstMaterialConstantsLine, m_StageSourceFile[stage], sMaterialConstantsSource);
+        if (!sTemp.EndsWith_NoCase("\n"))
+          sTemp.Append("\n");
+      }
+
       // prepend common shader section if there is any
       if (!sShaderSource.IsEmpty())
       {
         sTemp.AppendFormat("#line {0}\n{1}", uiFirstShaderLine, sShaderSource);
+        if (!sTemp.EndsWith_NoCase("\n"))
+          sTemp.Append("\n");
       }
 
       sTemp.AppendFormat("#line {0}\n{1}", uiFirstLine, sStageSource);
@@ -295,50 +358,39 @@ ezResult ezShaderCompiler::CompileShaderPermutationForPlatforms(ezStringView sFi
     }
   }
 
-  ezStringBuilder tmp = sFile;
-  tmp.MakeCleanPath();
-
-  m_StageSourceFile[ezGALShaderStage::VertexShader] = tmp;
-  m_StageSourceFile[ezGALShaderStage::VertexShader].ChangeFileExtension("vs");
-
-  m_StageSourceFile[ezGALShaderStage::HullShader] = tmp;
-  m_StageSourceFile[ezGALShaderStage::HullShader].ChangeFileExtension("hs");
-
-  m_StageSourceFile[ezGALShaderStage::DomainShader] = tmp;
-  m_StageSourceFile[ezGALShaderStage::DomainShader].ChangeFileExtension("ds");
-
-  m_StageSourceFile[ezGALShaderStage::GeometryShader] = tmp;
-  m_StageSourceFile[ezGALShaderStage::GeometryShader].ChangeFileExtension("gs");
-
-  m_StageSourceFile[ezGALShaderStage::PixelShader] = tmp;
-  m_StageSourceFile[ezGALShaderStage::PixelShader].ChangeFileExtension("ps");
-
-  m_StageSourceFile[ezGALShaderStage::ComputeShader] = tmp;
-  m_StageSourceFile[ezGALShaderStage::ComputeShader].ChangeFileExtension("cs");
-
   // try out every compiler that we can find
-  ezResult result = EZ_SUCCESS;
+  ezTempHybridArray<const ezRTTI*, 2> compilers;
   ezRTTI::ForEachDerivedType<ezShaderProgramCompiler>(
     [&](const ezRTTI* pRtti)
     {
-      ezUniquePtr<ezShaderProgramCompiler> pCompiler = pRtti->GetAllocator()->Allocate<ezShaderProgramCompiler>();
-
-      if (RunShaderCompiler(sFile, sPlatform, pCompiler.Borrow(), pLog).Failed())
-        result = EZ_FAILURE;
+      compilers.PushBack(pRtti);
     },
     ezRTTI::ForEachOptions::ExcludeNonAllocatable);
 
+  ezResult result = EZ_SUCCESS;
+  for (auto pCompilerRtti : compilers)
+  {
+    ezUniquePtr<ezShaderProgramCompiler> pCompiler = pCompilerRtti->GetAllocator()->Allocate<ezShaderProgramCompiler>();
+
+    if (RunShaderCompiler(sFile, sPlatform, pCompiler.Borrow(), pLog, pFileCache).Failed())
+      result = EZ_FAILURE;
+  }
   return result;
 }
 
-ezResult ezShaderCompiler::RunShaderCompiler(ezStringView sFile, ezStringView sPlatform, ezShaderProgramCompiler* pCompiler, ezLogInterface* pLog)
+ezResult ezShaderCompiler::RunShaderCompiler(ezStringView sFile, ezStringView sPlatform, ezShaderProgramCompiler* pCompiler, ezLogInterface* pLog, ezTokenizedFileCache* pFileCache)
 {
+  EZ_PROFILE_SCOPE("ezShaderCompiler::RunShaderCompiler");
   EZ_LOG_BLOCK(pLog, "Compiling Shader", sFile);
 
   ezStringBuilder sProcessed[ezGALShaderStage::ENUM_COUNT];
 
-  ezHybridArray<ezString, 4> Platforms;
+  ezTempHybridArray<ezString, 4> Platforms;
   pCompiler->GetSupportedPlatforms(Platforms);
+  if (m_pMaterialBufferLayout)
+  {
+    ezShaderParser::LayoutMaterialConstants(*m_pMaterialBufferLayout, pCompiler->GetMaterialBufferLayout(sPlatform));
+  }
 
   for (ezUInt32 p = 0; p < Platforms.GetCount(); ++p)
   {
@@ -354,19 +406,20 @@ ezResult ezShaderCompiler::RunShaderCompiler(ezStringView sFile, ezStringView sP
     ezShaderProgramData spd;
     spd.m_sSourceFile = sFile;
     spd.m_sPlatform = Platforms[p];
+    spd.m_MaterialParameters = m_MaterialParameters;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
     // 'DEBUG' is a platform tag that enables additional compiler flags
     if (PlatformEnabled(m_ShaderData.m_Platforms, "DEBUG"))
     {
-      ezLog::Warning("Shader specifies the 'DEBUG' platform, which enables the debug shader compiler flag.");
+      ezLog::Warning(pLog, "Shader specifies the 'DEBUG' platform, which enables the debug shader compiler flag.");
       spd.m_Flags.Add(ezShaderCompilerFlags::Debug);
     }
 #endif
 
     m_IncludeFiles.Clear();
 
-    ezHybridArray<ezString, 32> defines;
+    ezTempHybridArray<ezString, 32> defines;
     GenerateDefines(Platforms[p], m_ShaderData.m_Permutations, defines);
     GenerateDefines(Platforms[p], m_ShaderData.m_FixedPermVars, defines);
 
@@ -377,7 +430,7 @@ ezResult ezShaderCompiler::RunShaderCompiler(ezStringView sFile, ezStringView sP
       EZ_LOG_BLOCK(pLog, "Preprocessing Shader State Source");
 
       ezPreprocessor pp;
-      pp.SetCustomFileCache(&m_FileCache);
+      pp.SetCustomFileCache(pFileCache != nullptr ? pFileCache : &m_FileCache);
       pp.SetLogInterface(ezLog::GetThreadLocalLogSystem());
       pp.SetFileOpenFunction(ezPreprocessor::FileOpenCB(&ezShaderCompiler::FileOpen, this));
       pp.SetPassThroughPragma(false);
@@ -389,13 +442,13 @@ ezResult ezShaderCompiler::RunShaderCompiler(ezStringView sFile, ezStringView sP
       }
 
       bool bFoundUndefinedVars = false;
-      pp.m_ProcessingEvents.AddEventHandler([&bFoundUndefinedVars](const ezPreprocessor::ProcessingEvent& e)
+      pp.m_ProcessingEvents.AddEventHandler([&bFoundUndefinedVars, pLog](const ezPreprocessor::ProcessingEvent& e)
         {
         if (e.m_Type == ezPreprocessor::ProcessingEvent::EvaluateUnknown)
         {
           bFoundUndefinedVars = true;
 
-          ezLog::Error("Undefined variable is evaluated: '{0}' (File: '{1}', Line: {2}", e.m_pToken->m_DataView, e.m_pToken->m_File, e.m_pToken->m_uiLine);
+          ezLog::Error(pLog, "Undefined variable is evaluated: '{0}' (File: '{1}', Line: {2}", e.m_pToken->m_DataView, e.m_pToken->m_File, e.m_pToken->m_uiLine);
         } });
 
       ezStringBuilder sOutput;
@@ -425,19 +478,19 @@ ezResult ezShaderCompiler::RunShaderCompiler(ezStringView sFile, ezStringView sP
       bool bFoundUndefinedVars = false;
 
       ezPreprocessor pp;
-      pp.SetCustomFileCache(&m_FileCache);
+      pp.SetCustomFileCache(pFileCache != nullptr ? pFileCache : &m_FileCache);
       pp.SetLogInterface(ezLog::GetThreadLocalLogSystem());
       pp.SetFileOpenFunction(ezPreprocessor::FileOpenCB(&ezShaderCompiler::FileOpen, this));
       pp.SetPassThroughPragma(true);
       pp.SetPassThroughUnknownCmdsCB(ezMakeDelegate(&ezShaderCompiler::PassThroughUnknownCommandCB, this));
       pp.SetPassThroughLine(false);
-      pp.m_ProcessingEvents.AddEventHandler([&bFoundUndefinedVars](const ezPreprocessor::ProcessingEvent& e)
+      pp.m_ProcessingEvents.AddEventHandler([&bFoundUndefinedVars, pLog](const ezPreprocessor::ProcessingEvent& e)
         {
         if (e.m_Type == ezPreprocessor::ProcessingEvent::EvaluateUnknown)
         {
           bFoundUndefinedVars = true;
 
-          ezLog::Error("Undefined variable is evaluated: '{0}' (File: '{1}', Line: {2}", e.m_pToken->m_DataView, e.m_pToken->m_File, e.m_pToken->m_uiLine);
+          ezLog::Error(pLog, "Undefined variable is evaluated: '{0}' (File: '{1}', Line: {2}", e.m_pToken->m_DataView, e.m_pToken->m_File, e.m_pToken->m_uiLine);
         } });
 
       EZ_SUCCEED_OR_RETURN(pp.AddCustomDefine(s_szStageDefines[stage]));
@@ -506,6 +559,40 @@ ezResult ezShaderCompiler::RunShaderCompiler(ezStringView sFile, ezStringView sP
       return EZ_FAILURE;
     }
 
+    ezTempHashedString sMaterialConstants("ezMaterialConstants");
+    ezTempHashedString sMaterialData("materialData");
+    for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
+    {
+      if (!spd.m_ByteCode[stage])
+        continue;
+
+      for (const ezShaderResourceBinding& binding : spd.m_ByteCode[stage]->m_ShaderResourceBindings)
+      {
+        if (binding.m_sName == sMaterialConstants)
+        {
+          if (sFile.EndsWith(".autogen.ezShader"))
+          {
+            ezLog::Error(pLog, "Compiled {} references a ezMaterialConstants buffer in the reflection. As this is a Visual Shader, please re-transform your material asset. File: {}", ezGALShaderStage::Names[stage], sFile);
+          }
+          else
+          {
+            ezLog::Error(pLog, "Compiled {} references a ezMaterialConstants buffer in the reflection. Please port your material shader to the new [MATERIALCONSTANTS] section. File: {}", ezGALShaderStage::Names[stage], sFile);
+          }
+
+          return EZ_FAILURE;
+        }
+
+        if (binding.m_sName != sMaterialData || !m_pMaterialBufferLayout)
+          continue;
+
+        if (binding.m_pLayout && *binding.m_pLayout != *m_pMaterialBufferLayout)
+        {
+          ezLog::Error(pLog, "Compiled {}'s layout of ezMaterialConstants struct differs from the parsed result via ezShaderParser::ParseMaterialConstantsSection / LayoutMaterialConstants. Either ifdefs where used in the [MATERIALCONSTANTS], unsupported macros where used or one of the functions is bugged. File: {}", ezGALShaderStage::Names[stage], sFile);
+          return EZ_FAILURE;
+        }
+      }
+    }
+
     for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
     {
       if (spd.m_uiSourceHash[stage] != 0 && spd.m_bWriteToDisk[stage])
@@ -560,6 +647,8 @@ ezResult ezShaderCompiler::RunShaderCompiler(ezStringView sFile, ezStringView sP
 
 void ezShaderCompiler::WriteFailedShaderSource(ezShaderProgramData& spd, ezLogInterface* pLog)
 {
+  EZ_PROFILE_SCOPE("ezShaderCompiler::WriteFailedShaderSource");
+
   for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
   {
     if (spd.m_uiSourceHash[stage] != 0 && spd.m_bWriteToDisk[stage])

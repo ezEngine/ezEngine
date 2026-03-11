@@ -49,6 +49,7 @@ public:
   {
     enum class Type
     {
+      BeforeFrame, ///< Check for any request for a frame.
       StartFrame,
       EndFrame,
     };
@@ -57,12 +58,16 @@ public:
     ezUInt32 m_uiFrame = 0;
     ezTime m_Time;
     double m_fRefreshRate = 60.0;
+    mutable ezUInt32 m_uiFrameRequest = 0;     ///< Only valid for Type::BeforeFrame. Increased by an event handler to request a frame. If zero after the broadcast, no frame is started.
+    mutable ezUInt32 m_uiForceCancelFrame = 0; ///< Only valid for Type::BeforeFrame. Increased by an event handler to cancel the frame. Regardless of m_uiFrameRequest, no frame is started if != zero.
   };
 
   static ezEvent<const ezQtUiServices::TickEvent&> s_TickEvent;
 
 public:
   ezQtUiServices();
+
+  static const char* GetOwnVersionString();
 
   /// \brief True if the application doesn't show any window and only works in the background
   static bool IsHeadless();
@@ -80,7 +85,7 @@ public:
   static void MessageBoxStatus(const ezStatus& s, const char* szFailureMsg, const char* szSuccessMsg = "", bool bOnlySuccessMsgIfDetails = true);
 
   /// \brief Shows an information message box
-  static void MessageBoxInformation(const ezFormatString& msg);
+  static void MessageBoxInformation(const ezFormatString& msg, ezStringView sDontShowAgainID = {});
 
   /// \brief Shows an warning message box
   static void MessageBoxWarning(const ezFormatString& msg);
@@ -98,10 +103,19 @@ public:
   static void ShowGlobalStatusBarMessage(const ezFormatString& msg);
 
   /// \brief Opens the given file in the program that is registered in the OS to handle that file type.
-  static bool OpenFileInDefaultProgram(const char* szPath);
+  static ezResult OpenFileInDefaultProgram(const char* szPath);
+
+  /// \brief Open the given file in Visual Studio
+  static ezResult OpenInVisualStudio(const char* szPath);
+
+  /// \brief Open the given file in Jetbrains Rider
+  static ezResult OpenInRider(const char* szPath);
 
   /// \brief Opens the given file or folder in the Explorer
   static void OpenInExplorer(const char* szPath, bool bIsFile);
+
+  /// \brief Shows the "Open With" dialog
+  static void OpenWith(const char* szPath);
 
   /// \brief Attempts to launch Visual Studio Code with the given command line
   static ezStatus OpenInVsCode(const QStringList& arguments);

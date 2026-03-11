@@ -48,7 +48,9 @@ private:
       return EZ_FAILURE;
     }
 
-    ezFileSystem::AddDataDirectory(">eztest/", "TexConvDataDir", "imgout", ezFileSystem::AllowWrites).IgnoreResult();
+    ezFileSystem::AddDataDirectory(">eztest/", "TexConvDataDir", "imgout", ezDataDirUsage::AllowWrites).IgnoreResult();
+
+    ezTestFramework::GetInstance()->SetImageReferenceTagsFromEnvironment(EZ_PLATFORM_NAME, {}, {});
 
     return EZ_SUCCESS;
   }

@@ -49,7 +49,7 @@ void ezSceneExportModifier_RemoveCommentComponents::ModifyWorld(ezWorld& ref_wor
   {
     for (auto it = pMan->GetComponents(); it.IsValid(); it.Next())
     {
-      pMan->DeleteComponent(it->GetHandle());
+      pMan->DeleteComponent(it);
     }
   }
 }

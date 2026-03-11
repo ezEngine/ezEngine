@@ -7,6 +7,7 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
 #include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Resources/ReadbackHelper.h>
 #include <TestFramework/Framework/TestBaseClass.h>
 
 #undef CreateWindow
@@ -42,27 +43,29 @@ protected:
   ezSizeU32 GetResolution() const;
 
 protected:
+  const ezGALDeviceCapabilities& GetDeviceCapabilities();
   ezResult SetupRenderer();
   void ShutdownRenderer();
 
   ezResult CreateWindow(ezUInt32 uiResolutionX = 960, ezUInt32 uiResolutionY = 540);
   void DestroyWindow();
 
-  void BeginFrame(const char* szPipe = "GraphicsTest");
+  void BeginFrame();
   void EndFrame();
 
-  void BeginPass(const char* szPassName);
-  void EndPass();
+  void BeginCommands(const char* szPassName);
+  void EndCommands();
 
-  ezGALRenderCommandEncoder* BeginRendering(ezColor clearColor, ezUInt32 uiRenderTargetClearMask = 0xFFFFFFFF, ezRectFloat* pViewport = nullptr, ezRectU32* pScissor = nullptr);
+  ezGALCommandEncoder* BeginRendering(ezColor clearColor, ezUInt32 uiRenderTargetClearMask = 0xFFFFFFFF, ezRectFloat* pViewport = nullptr, ezRectU32* pScissor = nullptr);
   void EndRendering();
 
   /// \brief Renders a unit cube and makes an image comparison if m_bCaptureImage is set and the current frame is in m_ImgCompFrames.
   /// \param viewport Viewport to render into.
   /// \param mMVP Model View Projection matrix for camera. Use CreateSimpleMVP for convenience.
   /// \param uiRenderTargetClearMask What render targets if any should be cleared.
-  /// \param hSRV The texture to render onto the cube.
-  void RenderCube(ezRectFloat viewport, ezMat4 mMVP, ezUInt32 uiRenderTargetClearMask, ezGALTextureResourceViewHandle hSRV);
+  /// \param hTexture The texture to render onto the cube.
+  /// \param textureRange The texture range to use when rendering the cube.
+  void RenderCube(ezRectFloat viewport, ezMat4 mMVP, ezUInt32 uiRenderTargetClearMask, ezGALTextureHandle hTexture, const ezGALTextureRange& textureRange = {});
 
   ezMat4 CreateSimpleMVP(float fAspectRatio);
 
@@ -76,7 +79,7 @@ protected:
 
   ezWindow* m_pWindow = nullptr;
   ezGALDevice* m_pDevice = nullptr;
-  ezGALPass* m_pPass = nullptr;
+  ezGALCommandEncoder* m_pEncoder = nullptr;
 
   ezGALSwapChainHandle m_hSwapChain;
   ezGALTextureHandle m_hDepthStencilTexture;
@@ -88,4 +91,5 @@ protected:
   ezInt32 m_iFrame = 0;
   bool m_bCaptureImage = false;
   ezHybridArray<ezUInt32, 8> m_ImgCompFrames;
+  ezGALReadbackTextureHelper m_Readback;
 };

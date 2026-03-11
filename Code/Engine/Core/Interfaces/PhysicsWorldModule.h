@@ -1,14 +1,19 @@
 #pragma once
 
 #include <Core/Interfaces/PhysicsQuery.h>
-#include <Core/Messages/EventMessage.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/World/WorldModule.h>
 #include <Foundation/Communication/Message.h>
+#include <Foundation/Math/BoundingBoxSphere.h>
 
 struct ezGameObjectHandle;
 struct ezSkeletonResourceDescriptor;
 
+/// Interface for physics world modules that provide physics simulation and queries.
+///
+/// Physics world modules implement physics functionality for a world, including
+/// collision detection, raycasting, and shape queries. Different physics engines
+/// can provide their own implementations of this interface.
 class EZ_CORE_DLL ezPhysicsWorldModuleInterface : public ezWorldModule
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezPhysicsWorldModuleInterface, ezWorldModule);
@@ -25,21 +30,43 @@ public:
   /// Returns ezInvalidIndex if no such collision layer exists.
   virtual ezUInt32 GetCollisionLayerByName(ezStringView sName) const = 0;
 
+  /// \brief Searches for a weight category with the given name and returns its key.
+  ///
+  /// Returns ezWeightCategoryConfig::InvalidKey if no such category exists.
+  virtual ezUInt8 GetWeightCategoryByName(ezStringView sName) const = 0;
+
+  /// \brief Searches for an impulse type with the given name and returns its key.
+  ///
+  /// Returns ezImpulseTypeConfig::InvalidKey if no such category exists.
+  virtual ezUInt8 GetImpulseTypeByName(ezStringView sName) const = 0;
+
   virtual bool Raycast(ezPhysicsCastResult& out_result, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const = 0;
 
   virtual bool RaycastAll(ezPhysicsCastResultArray& out_results, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params) const = 0;
 
   virtual bool SweepTestSphere(ezPhysicsCastResult& out_result, float fSphereRadius, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const = 0;
 
-  virtual bool SweepTestBox(ezPhysicsCastResult& out_result, ezVec3 vBoxExtends, const ezTransform& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const = 0;
+  virtual bool SweepTestBox(ezPhysicsCastResult& out_result, const ezVec3& vBoxExtents, const ezTransform& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const = 0;
 
   virtual bool SweepTestCapsule(ezPhysicsCastResult& out_result, float fCapsuleRadius, float fCapsuleHeight, const ezTransform& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const = 0;
 
+  virtual bool SweepTestCylinder(ezPhysicsCastResult& out_result, float fCylinderRadius, float fCylinderHeight, const ezTransform& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const = 0;
+
   virtual bool OverlapTestSphere(float fSphereRadius, const ezVec3& vPosition, const ezPhysicsQueryParameters& params) const = 0;
+
+  virtual bool OverlapTestBox(const ezVec3& vBoxExtents, const ezVec3& vPosition, const ezTransform& transform, const ezPhysicsQueryParameters& params) const = 0;
 
   virtual bool OverlapTestCapsule(float fCapsuleRadius, float fCapsuleHeight, const ezTransform& transform, const ezPhysicsQueryParameters& params) const = 0;
 
+  virtual bool OverlapTestCylinder(float fCylinderRadius, float fCylinderHeight, const ezTransform& transform, const ezPhysicsQueryParameters& params) const = 0;
+
   virtual void QueryShapesInSphere(ezPhysicsOverlapResultArray& out_results, float fSphereRadius, const ezVec3& vPosition, const ezPhysicsQueryParameters& params) const = 0;
+
+  virtual void QueryShapesInBox(ezPhysicsOverlapResultArray& out_results, const ezVec3& vBoxExtents, const ezTransform& transform, const ezPhysicsQueryParameters& params) const = 0;
+
+  virtual void QueryShapesInCapsule(ezPhysicsOverlapResultArray& out_results, float fCapsuleRadius, float fCapsuleHeight, const ezTransform& transform, const ezPhysicsQueryParameters& params) const = 0;
+
+  virtual void QueryShapesInCylinder(ezPhysicsOverlapResultArray& out_results, float fCylinderRadius, float fCylinderHeight, const ezTransform& transform, const ezPhysicsQueryParameters& params) const = 0;
 
   virtual ezVec3 GetGravity() const = 0;
 
@@ -51,7 +78,11 @@ public:
   // Add functions on demand.
 
   /// \brief Adds a static actor with a box shape to pOwner.
-  virtual void AddStaticCollisionBox(ezGameObject* pOwner, ezVec3 vBoxSize) {}
+  virtual void AddStaticCollisionBox(ezGameObject* pOwner, ezVec3 vBoxSize)
+  {
+    EZ_IGNORE_UNUSED(pOwner);
+    EZ_IGNORE_UNUSED(vBoxSize);
+  }
 
   struct JointConfig
   {
@@ -66,10 +97,21 @@ public:
   };
 
   /// \brief Adds a fixed joint to pOwner.
-  virtual void AddFixedJointComponent(ezGameObject* pOwner, const ezPhysicsWorldModuleInterface::FixedJointConfig& cfg) {}
+  virtual void AddFixedJointComponent(ezGameObject* pOwner, const ezPhysicsWorldModuleInterface::FixedJointConfig& cfg)
+  {
+    EZ_IGNORE_UNUSED(pOwner);
+    EZ_IGNORE_UNUSED(cfg);
+  }
 
   /// \brief Gets world space bounds of a physics object if its shape type is included in shapeTypes and its collision layer interacts with uiCollisionLayer.
-  virtual ezBoundingBoxSphere GetWorldSpaceBounds(ezGameObject* pOwner, ezUInt32 uiCollisionLayer, ezBitflags<ezPhysicsShapeType> shapeTypes, bool bIncludeChildObjects) const { return ezBoundingBoxSphere::MakeInvalid(); }
+  virtual ezBoundingBoxSphere GetWorldSpaceBounds(ezGameObject* pOwner, ezUInt32 uiCollisionLayer, ezBitflags<ezPhysicsShapeType> shapeTypes, bool bIncludeChildObjects) const
+  {
+    EZ_IGNORE_UNUSED(pOwner);
+    EZ_IGNORE_UNUSED(uiCollisionLayer);
+    EZ_IGNORE_UNUSED(shapeTypes);
+    EZ_IGNORE_UNUSED(bIncludeChildObjects);
+    return ezBoundingBoxSphere::MakeInvalid();
+  }
 };
 
 /// \brief Used to apply a physical impulse on the object
@@ -79,6 +121,7 @@ struct EZ_CORE_DLL ezMsgPhysicsAddImpulse : public ezMessage
 
   ezVec3 m_vGlobalPosition;
   ezVec3 m_vImpulse;
+  ezUInt8 m_uiImpulseType = 0;
   ezUInt32 m_uiObjectFilterID = ezInvalidIndex;
 
   // Physics-engine specific information, may be available or not.
@@ -86,22 +129,9 @@ struct EZ_CORE_DLL ezMsgPhysicsAddImpulse : public ezMessage
   void* m_pInternalPhysicsActor = nullptr;
 };
 
-/// \brief Used to apply a physical force on the object
-struct EZ_CORE_DLL ezMsgPhysicsAddForce : public ezMessage
+struct EZ_CORE_DLL ezMsgPhysicsJointBroke : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgPhysicsAddForce, ezMessage);
-
-  ezVec3 m_vGlobalPosition;
-  ezVec3 m_vForce;
-
-  // Physics-engine specific information, may be available or not.
-  void* m_pInternalPhysicsShape = nullptr;
-  void* m_pInternalPhysicsActor = nullptr;
-};
-
-struct EZ_CORE_DLL ezMsgPhysicsJointBroke : public ezEventMessage
-{
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgPhysicsJointBroke, ezEventMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgPhysicsJointBroke, ezMessage);
 
   ezGameObjectHandle m_hJointObject;
 };
@@ -123,9 +153,38 @@ struct EZ_CORE_DLL ezMsgReleaseObjectGrab : public ezMessage
   ezGameObjectHandle m_hGrabbedObjectToRelease;
 };
 
-//////////////////////////////////////////////////////////////////////////
+/// \brief Can be sent by character controllers to inform objects when a CC pushes into them.
+///
+/// Whether this message is sent, depends on the character controller implementation.
+/// This is mainly meant for less important interactions, like breaking decorative things.
+struct EZ_CORE_DLL ezMsgPhysicCharacterContact : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgPhysicCharacterContact, ezMessage);
 
-#include <Foundation/Communication/Message.h>
+  ezComponentHandle m_hCharacter;
+  ezVec3 m_vGlobalPosition;
+  ezVec3 m_vNormal;
+  ezVec3 m_vCharacterVelocity;
+  float m_fImpact;
+};
+
+/// \brief Sent to physics components that have contact reporting enabled (see ezOnJoltContact::SendContactMsg).
+///
+/// Only sent for certain physics object combinations, e.g. debris doesn't trigger this.
+/// The reported contact position and normal is an average of the contact manifold.
+/// This is mainly meant for less important interactions, like breaking decorative things.
+struct EZ_CORE_DLL ezMsgPhysicContact : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgPhysicContact, ezMessage);
+
+  ezGameObjectHandle m_hOtherObject;
+  ezVec3 m_vGlobalPosition;
+  ezVec3 m_vNormal;
+  float m_fImpactSqr;
+};
+
+
+//////////////////////////////////////////////////////////////////////////
 
 struct EZ_CORE_DLL ezSmcTriangle
 {

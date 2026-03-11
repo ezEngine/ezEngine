@@ -1,12 +1,16 @@
 #include <EditorPluginJolt/EditorPluginJoltPCH.h>
 
+#include <EditorFramework/Assets/AssetStatusIndicator.moc.h>
 #include <EditorFramework/DocumentWindow/OrbitCamViewWidget.moc.h>
+#include <EditorFramework/InputContexts/CameraMoveContext.h>
 #include <EditorFramework/InputContexts/OrbitCameraContext.h>
 #include <EditorPluginJolt/CollisionMeshAsset/JoltCollisionMeshAssetWindow.moc.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
+
+#include <QLayout>
 
 ezQtJoltCollisionMeshAssetDocumentWindow::ezQtJoltCollisionMeshAssetDocumentWindow(ezAssetDocument* pDocument)
   : ezQtEngineDocumentWindow(pDocument)
@@ -44,21 +48,36 @@ ezQtJoltCollisionMeshAssetDocumentWindow::ezQtJoltCollisionMeshAssetDocumentWind
     m_pViewWidget = new ezQtOrbitCamViewWidget(this, &m_ViewConfig);
     m_pViewWidget->ConfigureRelative(ezVec3(0), ezVec3(5.0f), ezVec3(5, -2, 3), 2.0f);
     AddViewWidget(m_pViewWidget);
-    pContainer = new ezQtViewWidgetContainer(this, m_pViewWidget, "MeshAssetViewToolBar");
-    setCentralWidget(pContainer);
+
+    m_pCameraFlyContext = EZ_DEFAULT_NEW(ezCameraMoveContext, this, m_pViewWidget);
+    m_pCameraFlyContext->SetCamera(&m_ViewConfig.m_Camera);
+    m_pCameraFlyContext->LoadState();
+
+    pContainer = new ezQtViewWidgetContainer(GetContainerWindow()->GetDockManager(), this, m_pViewWidget, "JoltCollisionMeshAssetViewToolBar");
+    m_pDockManager->setCentralWidget(pContainer);
   }
 
   // Property Grid
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("JoltCollisionMeshAssetDockWidget");
     pPropertyPanel->setWindowTitle("Collision Mesh Properties");
     pPropertyPanel->show();
 
     ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
-    pPropertyPanel->setWidget(pPropertyGrid);
 
-    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
+    QWidget* pWidget = new QWidget();
+    pWidget->setObjectName("Group");
+    pWidget->setLayout(new QVBoxLayout());
+    pWidget->setContentsMargins(0, 0, 0, 0);
+
+    pWidget->layout()->setContentsMargins(0, 0, 0, 0);
+    pWidget->layout()->addWidget(new ezQtAssetStatusIndicator(GetDocument()));
+    pWidget->layout()->addWidget(pPropertyGrid);
+
+    pPropertyPanel->setWidget(pWidget, ads::CDockWidget::ForceNoScrollArea);
+
+    m_pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pPropertyPanel);
 
     pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
   }
@@ -91,6 +110,19 @@ void ezQtJoltCollisionMeshAssetDocumentWindow::QueryObjectBBox(ezInt32 iPurpose 
   msg.m_uiViewID = 0xFFFFFFFF;
   msg.m_iPurpose = iPurpose;
   GetDocument()->SendMessageToEngine(&msg);
+}
+
+void ezQtJoltCollisionMeshAssetDocumentWindow::SetCameraMode(int iMode)
+{
+  if (m_iCameraMode == iMode)
+    return;
+  m_iCameraMode = iMode;
+
+  m_pViewWidget->m_InputContexts.Clear();
+  if (iMode == 0) // Orbit
+    m_pViewWidget->m_InputContexts.PushBack(m_pViewWidget->GetOrbitCamera());
+  else            // Free fly
+    m_pViewWidget->m_InputContexts.PushBack(m_pCameraFlyContext.Borrow());
 }
 
 void ezQtJoltCollisionMeshAssetDocumentWindow::InternalRedraw()

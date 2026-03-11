@@ -19,6 +19,8 @@ struct ezHashTableBaseConstIterator
 
   EZ_DECLARE_POD_TYPE();
 
+  ezHashTableBaseConstIterator() = default;
+
   /// \brief Checks whether this iterator points to a valid element.
   bool IsValid() const; // [tested]
 
@@ -109,6 +111,17 @@ private:
 
 #if EZ_ENABLED(EZ_USE_CPP20_OPERATORS)
 public:
+  struct Pointer
+  {
+    std::pair<const KeyType&, ValueType&> value;
+    const std::pair<const KeyType&, ValueType&>* operator->() const { return &value; }
+  };
+
+  EZ_ALWAYS_INLINE Pointer operator->() const
+  {
+    return Pointer{.value = {ezHashTableBaseConstIterator<KeyType, ValueType, Hasher>::Key(), Value()}};
+  }
+
   // These functions are used to return the values for structured bindings.
   // The number and type of type of each slot are defined in the inl file.
   template <std::size_t Index>
@@ -135,11 +148,28 @@ public:
 ///
 /// The hashtable maps keys to values by using the hash of the key as an index into the table.
 /// This implementation uses linear-probing to resolve hash collisions which means all key/value pairs are stored
-/// in a linear array.
-/// All insertion/erasure/lookup functions take O(1) time if the table does not need to be expanded,
-/// which happens when the load gets greater than 60%.
+/// in a linear array. Automatic resizing maintains a load factor below 60% for optimal performance.
+///
+/// Performance characteristics:
+/// - Average case: O(1) - insertion, erasure, lookup
+/// - Worst case: O(n) - when all keys hash to the same location (very rare with good hash functions)
+/// - Resizing: O(n) - occurs when load factor exceeds 60%, amortized cost is still O(1) per operation
+/// - Memory usage: More memory efficient than tree-based containers, ~1.67x element storage
+/// - Iteration: O(n) in hash order (not sorted)
+///
+/// Use when:
+/// - Fast lookup/insertion/removal is the primary concern
+/// - You don't need sorted iteration
+/// - Memory efficiency is important
+/// - You have a good hash function for your key type
+///
+/// Consider ezMap instead when:
+/// - You need sorted iteration by key
+/// - You need stable element addresses (no reallocation)
+/// - You need range queries (lower_bound, upper_bound)
+/// - Predictable O(log n) performance is more important than average O(1)
+///
 /// The hash function can be customized by providing a Hasher helper class like ezHashHelper.
-
 /// \see ezHashHelper
 template <typename KeyType, typename ValueType, typename Hasher>
 class ezHashTableBase
@@ -239,7 +269,7 @@ public:
   ValueType& operator[](const KeyType& key); // [tested]
 
   /// \brief Returns the value stored at the given key. If none exists, one is created. \a bExisted indicates whether an element needed to be created.
-  ValueType& FindOrAdd(const KeyType& key, bool* out_pExisted); // [tested]
+  ValueType& FindOrAdd(const KeyType& key, bool* out_pExisted = nullptr); // [tested]
 
   /// \brief Returns if an entry with given key exists in the table.
   template <typename CompatibleKeyType>

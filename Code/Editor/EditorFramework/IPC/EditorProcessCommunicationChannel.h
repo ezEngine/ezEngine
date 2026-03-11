@@ -1,7 +1,9 @@
 #pragma once
 
-#include <EditorEngineProcessFramework/IPC/ProcessCommunicationChannel.h>
 #include <EditorFramework/EditorFrameworkDLL.h>
+
+#include <EditorEngineProcessFramework/IPC/ProcessCommunicationChannel.h>
+#include <Foundation/System/Process.h>
 
 template <typename T>
 class QList;
@@ -14,12 +16,10 @@ class EZ_EDITORFRAMEWORK_DLL ezEditorProcessCommunicationChannel : public ezProc
 public:
   ezResult StartClientProcess(const char* szProcess, const QStringList& args, bool bRemote, const ezRTTI* pFirstAllowedMessageType = nullptr,
     ezUInt32 uiMemSize = 1024 * 1024 * 10);
-
   bool IsClientAlive() const;
-
   void CloseConnection();
-
   ezString GetStdoutContents();
+  ezOsProcessID GetProcessId() const;
 
 private:
   QProcess* m_pClientProcess = nullptr;

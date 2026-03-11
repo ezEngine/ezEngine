@@ -76,6 +76,7 @@ private:
   void SetActiveRange(ezProgressRange* pRange);
 
   ezProgressRange* m_pActiveRange = nullptr;
+  ezProgressRange* m_pRootRange = nullptr;
 
   ezString m_sCurrentDisplayText;
   bool m_bCancelClicked = false;

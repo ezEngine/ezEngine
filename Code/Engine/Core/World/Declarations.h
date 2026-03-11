@@ -84,7 +84,11 @@ struct ezGameObjectHandle
 template <>
 struct ezHashHelper<ezGameObjectHandle>
 {
-  EZ_ALWAYS_INLINE static ezUInt32 Hash(ezGameObjectHandle value) { return ezHashHelper<ezUInt64>::Hash(value.GetInternalID().m_Data); }
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(ezGameObjectHandle value)
+  {
+    const ezUInt64 data = value.GetInternalID().m_Data;
+    return ezHashingUtils::xxHash32(&data, sizeof(data));
+  }
 
   EZ_ALWAYS_INLINE static bool Equal(ezGameObjectHandle a, ezGameObjectHandle b) { return a == b; }
 };
@@ -177,9 +181,8 @@ struct ezHashHelper<ezComponentHandle>
 {
   EZ_ALWAYS_INLINE static ezUInt32 Hash(ezComponentHandle value)
   {
-    ezComponentId id = value.GetInternalID();
-    ezUInt64 data = *reinterpret_cast<ezUInt64*>(&id);
-    return ezHashHelper<ezUInt64>::Hash(data);
+    const ezUInt64 data = value.GetInternalID().m_Data;
+    return ezHashingUtils::xxHash32(&data, sizeof(data));
   }
 
   EZ_ALWAYS_INLINE static bool Equal(ezComponentHandle a, ezComponentHandle b) { return a == b; }
@@ -217,6 +220,7 @@ struct ezObjectFlags
     ParentChangesNotifications = EZ_BIT(12),          ///< The object should send a notification message when the parent is changes.
 
     CreatedByPrefab = EZ_BIT(13),                     ///< Such flagged objects and components are ignored during scene export (see ezWorldWriter) and will be removed when a prefab needs to be re-instantiated.
+    HideShapeIcon = EZ_BIT(14),                       ///< Hide the shape icon of the object in the editor.
 
     UserFlag0 = EZ_BIT(24),
     UserFlag1 = EZ_BIT(25),
@@ -247,8 +251,9 @@ struct ezObjectFlags
     StorageType ParentChangesNotifications : 1;          //< 12
 
     StorageType CreatedByPrefab : 1;                     //< 13
+    StorageType HideShapeIcon : 1;                       //< 14
 
-    StorageType Padding : 10;                            // 14 - 23
+    StorageType Padding : 9;                             // 15 - 23
 
     StorageType UserFlag0 : 1;                           //< 24
     StorageType UserFlag1 : 1;                           //< 25
@@ -286,12 +291,18 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezObjectMode);
 /// \sa ezObjectFlags
 struct ezComponentMode
 {
+  using StorageType = ezUInt8;
+
   enum Enum
   {
     Static,
-    Dynamic
+    Dynamic,
+
+    Default = Static
   };
 };
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezComponentMode);
 
 /// \brief Specifies at which phase the queued message should be processed.
 struct ezObjectMsgQueueType
@@ -304,9 +315,13 @@ struct ezObjectMsgQueueType
     PostTransform,    ///< Process the message in the PostTransform phase.
     NextFrame,        ///< Process the message in the PreAsync phase of the next frame.
     AfterInitialized, ///< Process the message after new components have been initialized.
-    COUNT
+    COUNT,
+
+    Default = NextFrame
   };
 };
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezObjectMsgQueueType);
 
 /// \brief Certain components may delete themselves or their owner when they are finished with their main purpose
 struct EZ_CORE_DLL ezOnComponentFinishedAction

@@ -17,18 +17,42 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 CppProjectGameState::CppProjectGameState() = default;
 CppProjectGameState::~CppProjectGameState() = default;
 
-void CppProjectGameState::OnActivation(ezWorld* pWorld, const ezTransform* pStartPosition)
+void CppProjectGameState::GetStartupOptions(ezString& out_sScene, ezString& out_sPreloadCollection)
+{
+  // replace this to load a certain scene at startup
+  // the default implementation looks at the command line "-scene" argument
+
+  // if we have a "-scene" command line argument, it was launched from the editor and we should load that
+  if (ezCommandLineUtils::GetGlobalInstance()->HasOption("-scene"))
+  {
+    out_sScene = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-scene");
+  }
+  else
+  {
+    // otherwise, we use the hardcoded 'Main.ezScene'
+    // if that doesn't exist, this function has to be adjusted
+    // note that you can return an asset GUID here, instead of a path
+    out_sScene = "AssetCache/Common/Scenes/Main.ezBinScene";
+  }
+
+  ezStringBuilder sPreloadCollection = out_sScene;
+  sPreloadCollection.ChangeFileExtension("ezBinCollection");
+  if (ezFileSystem::ExistsFile(sPreloadCollection))
+  {
+    out_sPreloadCollection = sPreloadCollection;
+  }
+}
+
+void CppProjectGameState::OnActivation(ezWorld* pWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset)
 {
   EZ_LOG_BLOCK("GameState::Activate");
 
-  SUPER::OnActivation(pWorld, pStartPosition);
-}
+  SUPER::OnActivation(pWorld, sStartPosition, startPositionOffset);
 
-void CppProjectGameState::OnDeactivation()
-{
-  EZ_LOG_BLOCK("GameState::Deactivate");
-
-  SUPER::OnDeactivation();
+  // the main entry point when the game starts
+  // could do some setup here, but in a lot of cases it is better to leave this as is
+  // and instead override the various other virtual functions that the game state provides
+  // see below and see ezGameState for additional details
 }
 
 void CppProjectGameState::AfterWorldUpdate()
@@ -46,19 +70,25 @@ void CppProjectGameState::AfterWorldUpdate()
 
 void CppProjectGameState::BeforeWorldUpdate()
 {
+  SUPER::BeforeWorldUpdate();
+
   EZ_LOCK(m_pMainWorld->GetWriteMarker());
+
+  // if you need to modify the world, this is a good place to do it
 }
 
-ezGameStatePriority CppProjectGameState::DeterminePriority(ezWorld* pWorld) const
+ezResult CppProjectGameState::SpawnPlayer(ezStringView sStartPosition, const ezTransform& startPositionOffset)
 {
-  return ezGameStatePriority::Default;
+  // replace this to create a custom player object or load a prefab
+  return SUPER::SpawnPlayer(sStartPosition, startPositionOffset);
 }
 
-void CppProjectGameState::ConfigureMainWindowInputDevices(ezWindow* pWindow)
+void CppProjectGameState::OnChangedMainWorld(ezWorld* pPrevWorld, ezWorld* pNewWorld, ezStringView sStartPosition, const ezTransform& startPositionOffset)
 {
-  SUPER::ConfigureMainWindowInputDevices(pWindow);
+  SUPER::OnChangedMainWorld(pPrevWorld, pNewWorld, sStartPosition, startPositionOffset);
 
-  // setup devices here
+  // called whenever the main world is changed, ie when transitioning between levels
+  // may need to update references to the world here or reset some state
 }
 
 static void RegisterInputAction(const char* szInputSet, const char* szInputAction, const char* szKey1, const char* szKey2 = nullptr, const char* szKey3 = nullptr)
@@ -110,7 +140,7 @@ void CppProjectGameState::ProcessInput()
     // Here we use a path relative to the project directory.
     // We have to reference the 'transformed' file, not the source file.
     // This would break if the source asset is moved or renamed.
-    pMesh->SetMeshFile("AssetCache/Common/Meshes/Sphere.ezMesh");
+    pMesh->SetMeshFile("AssetCache/Common/Meshes/Sphere.ezBinMesh");
 
     // here we use the asset GUID to reference the transformed asset
     // we can copy the GUID from the asset browser

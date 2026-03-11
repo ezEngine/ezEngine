@@ -5,6 +5,11 @@
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <ToolsFoundation/Object/ObjectCommandAccessor.h>
 
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezObjectCommandAccessor, 1, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
 ezObjectCommandAccessor::ezObjectCommandAccessor(ezCommandHistory* pHistory)
   : ezObjectDirectAccessor(const_cast<ezDocumentObjectManager*>(pHistory->GetDocument()->GetObjectManager()))
   , m_pHistory(pHistory)
@@ -83,8 +88,7 @@ ezStatus ezObjectCommandAccessor::MoveValue(
   return m_pHistory->AddCommand(cmd);
 }
 
-ezStatus ezObjectCommandAccessor::AddObject(
-  const ezDocumentObject* pParent, const ezAbstractProperty* pParentProp, const ezVariant& index, const ezRTTI* pType, ezUuid& inout_objectGuid)
+ezStatus ezObjectCommandAccessor::AddObject(const ezDocumentObject* pParent, const ezAbstractProperty* pParentProp, const ezVariant& index, const ezRTTI* pType, ezUuid& inout_objectGuid)
 {
   ezAddObjectCommand cmd;
   cmd.m_Parent = pParent ? pParent->GetGuid() : ezUuid();
@@ -93,7 +97,7 @@ ezStatus ezObjectCommandAccessor::AddObject(
   cmd.m_NewObjectGuid = inout_objectGuid;
   cmd.m_sParentProperty = pParentProp ? pParentProp->GetPropertyName() : "Children";
   ezStatus res = m_pHistory->AddCommand(cmd);
-  if (res.m_Result.Succeeded())
+  if (res.Succeeded())
     inout_objectGuid = cmd.m_NewObjectGuid;
   return res;
 }

@@ -4,21 +4,19 @@
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <GameEngine/Physics/CollisionFilter.h>
 
-
 ezCollisionFilterConfig::ezCollisionFilterConfig()
 {
-  for (int i = 0; i < 32; ++i)
+  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_GroupMasks); ++i)
   {
-    ezMemoryUtils::ZeroFill<char>(m_GroupNames[i], 32);
-
-    m_GroupMasks[i] = 0xFFFFFFFF; // collide with everything
+    m_GroupMasks[i] = 0;
   }
 }
 
+ezCollisionFilterConfig::~ezCollisionFilterConfig() = default;
+
 void ezCollisionFilterConfig::SetGroupName(ezUInt32 uiGroup, ezStringView sName)
 {
-  ezStringBuilder tmp;
-  ezStringUtils::Copy(m_GroupNames[uiGroup], 32, sName.GetData(tmp));
+  m_GroupNames[uiGroup] = sName;
 }
 
 ezStringView ezCollisionFilterConfig::GetGroupName(ezUInt32 uiGroup) const
@@ -51,7 +49,7 @@ ezUInt32 ezCollisionFilterConfig::GetNumNamedGroups() const
 
   for (ezUInt32 i = 0; i < 32; ++i)
   {
-    if (!ezStringUtils::IsNullOrEmpty(m_GroupNames[i]))
+    if (!m_GroupNames[i].IsEmpty())
       ++count;
   }
 
@@ -62,7 +60,7 @@ ezUInt32 ezCollisionFilterConfig::GetNamedGroupIndex(ezUInt32 uiGroup) const
 {
   for (ezUInt32 i = 0; i < 32; ++i)
   {
-    if (!ezStringUtils::IsNullOrEmpty(m_GroupNames[i]))
+    if (!m_GroupNames[i].IsEmpty())
     {
       if (uiGroup == 0)
         return i;
@@ -90,7 +88,7 @@ ezUInt32 ezCollisionFilterConfig::FindUnnamedGroup() const
 {
   for (ezUInt32 i = 0; i < 32; ++i)
   {
-    if (ezStringUtils::IsNullOrEmpty(m_GroupNames[i]))
+    if (m_GroupNames[i].IsEmpty())
       return i;
   }
 
@@ -110,13 +108,6 @@ ezResult ezCollisionFilterConfig::Save(ezStringView sFile) const
 
 ezResult ezCollisionFilterConfig::Load(ezStringView sFile)
 {
-#if EZ_ENABLED(EZ_MIGRATE_RUNTIMECONFIGS)
-  if (sFile == s_sConfigFile)
-  {
-    sFile = ezFileSystem::MigrateFileLocation(":project/CollisionLayers.cfg", s_sConfigFile);
-  }
-#endif
-
   ezFileReader file;
   if (file.Open(sFile).Failed())
     return EZ_FAILURE;
@@ -127,12 +118,16 @@ ezResult ezCollisionFilterConfig::Load(ezStringView sFile)
 
 void ezCollisionFilterConfig::Save(ezStreamWriter& inout_stream) const
 {
-  const ezUInt8 uiVersion = 1;
+  const ezUInt8 uiVersion = 2;
 
   inout_stream << uiVersion;
 
-  inout_stream.WriteBytes(m_GroupMasks, sizeof(ezUInt32) * 32).IgnoreResult();
-  inout_stream.WriteBytes(m_GroupNames, sizeof(char) * 32 * 32).IgnoreResult();
+  inout_stream.WriteBytes(m_GroupMasks, sizeof(ezUInt32) * 32).AssertSuccess();
+
+  for (ezUInt32 i = 0; i < 32; ++i)
+  {
+    inout_stream << m_GroupNames[i];
+  }
 }
 
 
@@ -142,8 +137,41 @@ void ezCollisionFilterConfig::Load(ezStreamReader& inout_stream)
 
   inout_stream >> uiVersion;
 
-  EZ_ASSERT_DEV(uiVersion == 1, "Invalid version {0} for ezCollisionFilterConfig file", uiVersion);
+  EZ_ASSERT_DEV(uiVersion == 1 || uiVersion == 2, "Invalid version {0} for ezCollisionFilterConfig file", uiVersion);
 
   inout_stream.ReadBytes(m_GroupMasks, sizeof(ezUInt32) * 32);
-  inout_stream.ReadBytes(m_GroupNames, sizeof(char) * 32 * 32);
+
+  for (ezUInt32 i1 = 0; i1 < 32; ++i1)
+  {
+    for (ezUInt32 i2 = 0; i2 < 32; ++i2)
+    {
+      const bool b1 = (m_GroupMasks[i1] & EZ_BIT(i2)) != 0;
+      const bool b2 = (m_GroupMasks[i2] & EZ_BIT(i1)) != 0;
+
+      if (b1 != b2)
+      {
+        // reset group masks that differ due to previously uninitialized memory
+        m_GroupMasks[i1] &= ~EZ_BIT(i2);
+        m_GroupMasks[i2] &= ~EZ_BIT(i1);
+      }
+    }
+  }
+
+  if (uiVersion == 1)
+  {
+    char groupNames[32][32];
+    inout_stream.ReadBytes(groupNames, sizeof(char) * 32 * 32);
+
+    for (ezUInt32 i = 0; i < 32; ++i)
+    {
+      m_GroupNames[i] = groupNames[i];
+    }
+  }
+  else
+  {
+    for (ezUInt32 i = 0; i < 32; ++i)
+    {
+      inout_stream >> m_GroupNames[i];
+    }
+  }
 }

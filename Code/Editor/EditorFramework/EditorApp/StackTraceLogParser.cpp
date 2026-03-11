@@ -14,7 +14,7 @@ namespace ezStackTraceLogParser
 
     if (!ParseStackTraceFileNameAndLineNumber(sLogText, sFileName, lineNumber))
     {
-      if(!ParseAssertFileNameAndLineNumber(sLogText, sFileName, lineNumber))
+      if (!ParseAssertFileNameAndLineNumber(sLogText, sFileName, lineNumber))
       {
         return;
       }
@@ -28,9 +28,9 @@ namespace ezStackTraceLogParser
   bool ParseAssertFileNameAndLineNumber(const ezStringView& sLine, ezStringView& ref_sFileName, ezInt32& ref_iLineNumber)
   {
     const char* szFileMarker = "File: ";
-    const ezUInt32 fileMarkerLength = strlen(szFileMarker);
+    const ezUInt32 fileMarkerLength = ezStringUtils::GetStringElementCount(szFileMarker);
     const char* szLineMarker = "Line: ";
-    const ezUInt32 lineMarkerLength = strlen(szLineMarker);
+    const ezUInt32 lineMarkerLength = ezStringUtils::GetStringElementCount(szLineMarker);
 
     if (sLine.FindSubString("*** Assertion ***") == nullptr)
     {
@@ -49,19 +49,19 @@ namespace ezStackTraceLogParser
       return false;
     }
 
-    const char* szFileEnd = ezStringUtils::FindSubString(szFile + fileMarkerLength + 1,"\"",sLine.GetEndPointer());
-    if(szFileEnd == nullptr)
+    const char* szFileEnd = ezStringUtils::FindSubString(szFile + fileMarkerLength + 1, "\"", sLine.GetEndPointer());
+    if (szFileEnd == nullptr)
     {
       return false;
     }
 
-    const char* szLineEnd = ezStringUtils::FindSubString(szLine + lineMarkerLength + 1,"\"",sLine.GetEndPointer());
-    if(szLineEnd == nullptr)
+    const char* szLineEnd = ezStringUtils::FindSubString(szLine + lineMarkerLength + 1, "\"", sLine.GetEndPointer());
+    if (szLineEnd == nullptr)
     {
       return false;
     }
 
-    ref_sFileName = ezStringView(szFile + fileMarkerLength + 1,szFileEnd);
+    ref_sFileName = ezStringView(szFile + fileMarkerLength + 1, szFileEnd);
     ref_sFileName.Trim(" ");
 
     if (!ref_sFileName.IsAbsolutePath())

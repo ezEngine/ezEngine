@@ -5,11 +5,15 @@
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureCubeAssetDocument, 3, ezRTTINoAllocator)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ENUM_MEMBER_PROPERTY("ChannelMode", ezTextureChannelMode, m_ChannelMode),
+    EZ_MEMBER_PROPERTY("TextureLod", m_iTextureLod),
+  }
+  EZ_END_PROPERTIES;
+}
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTextureCubeChannelMode, 1)
-  EZ_ENUM_CONSTANTS(ezTextureCubeChannelMode::RGB, ezTextureCubeChannelMode::Red, ezTextureCubeChannelMode::Green, ezTextureCubeChannelMode::Blue, ezTextureCubeChannelMode::Alpha)
-EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
 const char* ToFilterMode(ezTextureFilterSetting::Enum mode);
@@ -20,7 +24,6 @@ const char* ToMipmapMode(ezTexConvMipmapMode::Enum mode);
 ezTextureCubeAssetDocument::ezTextureCubeAssetDocument(ezStringView sDocumentPath)
   : ezSimpleAssetDocument<ezTextureCubeAssetProperties>(sDocumentPath, ezAssetDocEngineConnection::Simple)
 {
-  m_iTextureLod = -1;
 }
 
 ezStatus ezTextureCubeAssetDocument::RunTexConv(const char* szTargetFile, const ezAssetFileHeader& AssetHeader, bool bUpdateThumbnail)
@@ -154,7 +157,7 @@ ezStatus ezTextureCubeAssetDocument::RunTexConv(const char* szTargetFile, const 
 
   if (bUpdateThumbnail)
   {
-    ezUInt64 uiThumbnailHash = ezAssetCurator::GetSingleton()->GetAssetReferenceHash(GetGuid());
+    ezUInt64 uiThumbnailHash = ezAssetCurator::GetSingleton()->GetAssetThumbnailHash(GetGuid());
     EZ_ASSERT_DEV(uiThumbnailHash != 0, "Thumbnail hash should never be zero when reaching this point!");
 
     ThumbnailInfo thumbnailInfo;
@@ -235,12 +238,19 @@ ezTextureCubeAssetDocumentGenerator::~ezTextureCubeAssetDocumentGenerator() = de
 
 void ezTextureCubeAssetDocumentGenerator::GetImportModes(ezStringView sAbsInputFile, ezDynamicArray<ezAssetDocumentGenerator::ImportMode>& out_modes) const
 {
+  if (sAbsInputFile.IsEmpty())
+  {
+    // called with an empty string to populate the "Import As" menu
+    ezAssetDocumentGenerator::ImportMode& info = out_modes.ExpandAndGetRef();
+    info.m_sName = "CubemapImport.SkyboxAuto";
+    info.m_sIcon = ":/AssetIcons/Texture_Cube.svg";
+    return;
+  }
+
   const ezStringBuilder baseFilename = sAbsInputFile.GetFileName();
   const bool isHDR = sAbsInputFile.HasExtension("hdr") || sAbsInputFile.HasExtension("exr");
 
   const bool isCubemap = ((baseFilename.FindSubString_NoCase("cubemap") != nullptr) || (baseFilename.FindSubString_NoCase("skybox") != nullptr));
-
-  // TODO: if (sAbsInputFile.IsEmpty()) -> CubemapImport.SkyboxAuto
 
   if (isHDR)
   {
@@ -266,7 +276,12 @@ ezStatus ezTextureCubeAssetDocumentGenerator::Generate(ezStringView sInputFileAb
 {
   ezStringBuilder sOutFile = sInputFileAbs;
   sOutFile.ChangeFileExtension(GetDocumentExtension());
-  ezOSFile::FindFreeFilename(sOutFile);
+
+  if (ezOSFile::ExistsFile(sOutFile))
+  {
+    ezLog::Info("Skipping cubemap import, file has been imported before: '{}'", sOutFile);
+    return EZ_SUCCESS;
+  }
 
   auto pApp = ezQtEditorApp::GetSingleton();
 
@@ -285,6 +300,19 @@ ezStatus ezTextureCubeAssetDocumentGenerator::Generate(ezStringView sInputFileAb
   accessor.SetValue("Input1", sInputFileRel.GetView());
   accessor.SetValue("ChannelMapping", (int)ezTextureCubeChannelMappingEnum::RGB1);
 
+  if (sMode == "CubemapImport.SkyboxAuto")
+  {
+    const bool isHDR = sInputFileAbs.HasExtension("hdr") || sInputFileAbs.HasExtension("exr");
+    if (isHDR)
+    {
+      sMode = "CubemapImport.SkyboxHDR";
+    }
+    else
+    {
+      sMode = "CubemapImport.Skybox";
+    }
+  }
+
   if (sMode == "CubemapImport.SkyboxHDR")
   {
     accessor.SetValue("Usage", (int)ezTexConvUsage::Hdr);
@@ -293,6 +321,8 @@ ezStatus ezTextureCubeAssetDocumentGenerator::Generate(ezStringView sInputFileAb
   {
     accessor.SetValue("Usage", (int)ezTexConvUsage::Color);
   }
+
+  ezLog::Success("Imported cubemap: '{}'", sOutFile);
 
   return ezStatus(EZ_SUCCESS);
 }

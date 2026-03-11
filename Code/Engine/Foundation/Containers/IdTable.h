@@ -91,6 +91,9 @@ public:
   /// \brief Returns the number of active entries in the table.
   IndexType GetCount() const; // [tested]
 
+  /// \brief Returns the capacity of the table.
+  IndexType GetCapacity() const; // [tested]
+
   /// \brief Returns true, if the table does not contain any elements.
   bool IsEmpty() const; // [tested]
 
@@ -107,10 +110,10 @@ public:
   bool Remove(const IdType id, ValueType* out_pOldValue = nullptr); // [tested]
 
   /// \brief Returns if an entry with the given id was found and if found writes out the corresponding value to out_value.
-  bool TryGetValue(const IdType id, ValueType& out_value) const; // [tested]
+  [[nodiscard]] bool TryGetValue(const IdType id, ValueType& out_value) const; // [tested]
 
   /// \brief Returns if an entry with the given id was found and if found writes out the pointer to the corresponding value to out_pValue.
-  bool TryGetValue(const IdType id, ValueType*& out_pValue) const; // [tested]
+  [[nodiscard]] bool TryGetValue(const IdType id, ValueType*& out_pValue) const; // [tested]
 
   /// \brief Returns the value to the given id. Does bounds checks in debug builds.
   const ValueType& operator[](const IdType id) const; // [tested]
@@ -123,6 +126,9 @@ public:
 
   /// \brief Returns the value at the given index. Does bounds checks in debug builds but does not check for stale access.
   ValueType& GetValueUnchecked(const IndexType index);
+
+  /// \brief Returns the id of the entry at the given index. Does bounds checks in debug builds but does not check for stale access.
+  IdType GetIdUnchecked(const IndexType index) const;
 
   /// \brief Returns if the table contains an entry corresponding to the given id.
   bool Contains(const IdType id) const; // [tested]

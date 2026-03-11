@@ -4,7 +4,15 @@
 #include <Core/Messages/SetColorMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
+#include <Foundation/Configuration/CVar.h>
+#include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Lights/LightComponent.h>
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+ezCVarBool cvar_RenderingLightingVisScreenSpaceSize("Rendering.Lighting.VisScreenSpaceSize", false, ezCVarFlags::Default, "Enables debug visualization of light screen space size calculation");
+#endif
+
+//////////////////////////////////////////////////////////////////////////
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLightRenderData, 1, ezRTTINoAllocator)
@@ -13,23 +21,31 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 void ezLightRenderData::FillBatchIdAndSortingKey(float fScreenSpaceSize)
 {
-  m_uiSortingKey = (m_uiShadowDataOffset != ezInvalidIndex) ? 0 : 1;
+  m_uiSortingKey = (m_uiShadowDataOffsetAndFadeOut != 0) ? 0 : 1;
+}
+
+void ezLightRenderData::FillShadowDataOffsetAndFadeOut(ezUInt32 uiDataOffset, float fFadeOut)
+{
+  ezUInt32 uiFadeOut = ezMath::ColorFloatToUnsignedInt<12>(fFadeOut);
+  m_uiShadowDataOffsetAndFadeOut = uiDataOffset | (uiFadeOut << 20);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezLightComponent, 5)
+EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezLightComponent, 6)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("UseColorTemperature", GetUsingColorTemperature, SetUsingColorTemperature),
+    EZ_ACCESSOR_PROPERTY_READ_ONLY("EffectiveColor", GetEffectiveColor)->AddAttributes(new ezHiddenAttribute),
+    EZ_ACCESSOR_PROPERTY("UseColorTemperature", GetUsingColorTemperature, SetUsingColorTemperature),    
     EZ_ACCESSOR_PROPERTY("LightColor", GetLightColor, SetLightColor),
     EZ_ACCESSOR_PROPERTY("Temperature", GetTemperature, SetTemperature)->AddAttributes(new ezImageSliderUiAttribute("LightTemperature"), new ezDefaultValueAttribute(6550), new ezClampValueAttribute(1000, 15000)),
     EZ_ACCESSOR_PROPERTY("Intensity", GetIntensity, SetIntensity)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(10.0f)),
     EZ_ACCESSOR_PROPERTY("SpecularMultiplier", GetSpecularMultiplier, SetSpecularMultiplier)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1.0f)),
     EZ_ACCESSOR_PROPERTY("CastShadows", GetCastShadows, SetCastShadows),
-    EZ_ACCESSOR_PROPERTY("PenumbraSize", GetPenumbraSize, SetPenumbraSize)->AddAttributes(new ezClampValueAttribute(0.0f, 0.5f), new ezDefaultValueAttribute(0.1f), new ezSuffixAttribute(" m")),
+    EZ_ACCESSOR_PROPERTY("TransparentShadows", GetTransparentShadows, SetTransparentShadows),
+    EZ_ACCESSOR_PROPERTY("PenumbraSize", GetPenumbraSize, SetPenumbraSize)->AddAttributes(new ezClampValueAttribute(0.0f, 0.5f), new ezDefaultValueAttribute(0.05f), new ezSuffixAttribute(" m")),
     EZ_ACCESSOR_PROPERTY("SlopeBias", GetSlopeBias, SetSlopeBias)->AddAttributes(new ezClampValueAttribute(0.0f, 10.0f), new ezDefaultValueAttribute(0.25f)),
     EZ_ACCESSOR_PROPERTY("ConstantBias", GetConstantBias, SetConstantBias)->AddAttributes(new ezClampValueAttribute(0.0f, 10.0f), new ezDefaultValueAttribute(0.1f))
   }
@@ -53,9 +69,12 @@ ezLightComponent::~ezLightComponent() = default;
 
 void ezLightComponent::SetUsingColorTemperature(bool bUseColorTemperature)
 {
-  m_bUseColorTemperature = bUseColorTemperature;
+  if (m_bUseColorTemperature != bUseColorTemperature)
+  {
+    m_bUseColorTemperature = bUseColorTemperature;
 
-  InvalidateCachedRenderData();
+    InvalidateCachedRenderData();
+  }
 }
 
 bool ezLightComponent::GetUsingColorTemperature() const
@@ -63,19 +82,39 @@ bool ezLightComponent::GetUsingColorTemperature() const
   return m_bUseColorTemperature;
 }
 
-void ezLightComponent::SetLightColor(ezColorGammaUB lightColor)
+void ezLightComponent::SetTemperature(ezUInt32 uiTemperature)
 {
-  m_LightColor = lightColor;
+  uiTemperature = ezMath::Clamp(uiTemperature, 1500u, 40000u);
 
-  InvalidateCachedRenderData();
+  if (m_uiTemperature != uiTemperature)
+  {
+    m_uiTemperature = uiTemperature;
+
+    InvalidateCachedRenderData();
+  }
 }
 
-ezColorGammaUB ezLightComponent::GetBaseLightColor() const
+ezUInt32 ezLightComponent::GetTemperature() const
+{
+  return m_uiTemperature;
+}
+
+void ezLightComponent::SetLightColor(ezColorGammaUB lightColor)
+{
+  if (m_LightColor != lightColor)
+  {
+    m_LightColor = lightColor;
+
+    InvalidateCachedRenderData();
+  }
+}
+
+ezColorGammaUB ezLightComponent::GetLightColor() const
 {
   return m_LightColor;
 }
 
-ezColorGammaUB ezLightComponent::GetLightColor() const
+ezColorGammaUB ezLightComponent::GetEffectiveColor() const
 {
   if (m_bUseColorTemperature)
   {
@@ -89,21 +128,15 @@ ezColorGammaUB ezLightComponent::GetLightColor() const
 
 void ezLightComponent::SetIntensity(float fIntensity)
 {
-  m_fIntensity = ezMath::Max(fIntensity, 0.0f);
+  fIntensity = ezMath::Max(fIntensity, 0.0f);
 
-  TriggerLocalBoundsUpdate();
-}
+  if (m_fIntensity != fIntensity)
+  {
+    m_fIntensity = fIntensity;
 
-void ezLightComponent::SetTemperature(ezUInt32 uiTemperature)
-{
-  m_uiTemperature = ezMath::Clamp(uiTemperature, 1500u, 40000u);
-
-  InvalidateCachedRenderData();
-}
-
-ezUInt32 ezLightComponent::GetTemperature() const
-{
-  return m_uiTemperature;
+    TriggerLocalBoundsUpdate();
+    InvalidateCachedRenderData();
+  }
 }
 
 float ezLightComponent::GetIntensity() const
@@ -113,9 +146,14 @@ float ezLightComponent::GetIntensity() const
 
 void ezLightComponent::SetSpecularMultiplier(float fSpecularMultiplier)
 {
-  m_fSpecularMultiplier = ezMath::Max(fSpecularMultiplier, 0.0f);
+  fSpecularMultiplier = ezMath::Max(fSpecularMultiplier, 0.0f);
 
-  InvalidateCachedRenderData();
+  if (m_fSpecularMultiplier != fSpecularMultiplier)
+  {
+    m_fSpecularMultiplier = fSpecularMultiplier;
+
+    InvalidateCachedRenderData();
+  }
 }
 
 float ezLightComponent::GetSpecularMultiplier() const
@@ -125,9 +163,12 @@ float ezLightComponent::GetSpecularMultiplier() const
 
 void ezLightComponent::SetCastShadows(bool bCastShadows)
 {
-  m_bCastShadows = bCastShadows;
+  if (m_bCastShadows != bCastShadows)
+  {
+    m_bCastShadows = bCastShadows;
 
-  InvalidateCachedRenderData();
+    InvalidateCachedRenderData();
+  }
 }
 
 bool ezLightComponent::GetCastShadows() const
@@ -135,11 +176,29 @@ bool ezLightComponent::GetCastShadows() const
   return m_bCastShadows;
 }
 
+void ezLightComponent::SetTransparentShadows(bool bShadows)
+{
+  if (m_bTransparentShadows != bShadows)
+  {
+    m_bTransparentShadows = bShadows;
+
+    InvalidateCachedRenderData();
+  }
+}
+
+bool ezLightComponent::GetTransparentShadows() const
+{
+  return m_bTransparentShadows;
+}
+
 void ezLightComponent::SetPenumbraSize(float fPenumbraSize)
 {
-  m_fPenumbraSize = fPenumbraSize;
+  if (m_fPenumbraSize != fPenumbraSize)
+  {
+    m_fPenumbraSize = fPenumbraSize;
 
-  InvalidateCachedRenderData();
+    InvalidateCachedRenderData();
+  }
 }
 
 float ezLightComponent::GetPenumbraSize() const
@@ -149,9 +208,12 @@ float ezLightComponent::GetPenumbraSize() const
 
 void ezLightComponent::SetSlopeBias(float fBias)
 {
-  m_fSlopeBias = fBias;
+  if (m_fSlopeBias != fBias)
+  {
+    m_fSlopeBias = fBias;
 
-  InvalidateCachedRenderData();
+    InvalidateCachedRenderData();
+  }
 }
 
 float ezLightComponent::GetSlopeBias() const
@@ -161,9 +223,12 @@ float ezLightComponent::GetSlopeBias() const
 
 void ezLightComponent::SetConstantBias(float fBias)
 {
-  m_fConstantBias = fBias;
+  if (m_fConstantBias != fBias)
+  {
+    m_fConstantBias = fBias;
 
-  InvalidateCachedRenderData();
+    InvalidateCachedRenderData();
+  }
 }
 
 float ezLightComponent::GetConstantBias() const
@@ -182,6 +247,7 @@ void ezLightComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   s << m_fSlopeBias;
   s << m_fConstantBias;
   s << m_bCastShadows;
+  s << m_bTransparentShadows;
   s << m_bUseColorTemperature;
   s << m_uiTemperature;
   s << m_fSpecularMultiplier;
@@ -210,9 +276,13 @@ void ezLightComponent::DeserializeComponent(ezWorldReader& inout_stream)
 
   s >> m_bCastShadows;
 
+  if (uiVersion >= 6)
+  {
+    s >> m_bTransparentShadows;
+  }
+
   if (uiVersion >= 5)
   {
-
     s >> m_bUseColorTemperature;
     s >> m_uiTemperature;
     s >> m_fSpecularMultiplier;
@@ -221,9 +291,15 @@ void ezLightComponent::DeserializeComponent(ezWorldReader& inout_stream)
 
 void ezLightComponent::OnMsgSetColor(ezMsgSetColor& ref_msg)
 {
-  ref_msg.ModifyColor(m_LightColor);
+  ezColor newColor = m_LightColor;
+  ref_msg.ModifyColor(newColor);
 
-  InvalidateCachedRenderData();
+  if (m_LightColor != newColor)
+  {
+    m_LightColor = newColor;
+
+    InvalidateCachedRenderData();
+  }
 }
 
 // static
@@ -249,7 +325,7 @@ float ezLightComponent::CalculateScreenSpaceSize(const ezBoundingSphere& sphere,
   {
     float dist = (sphere.m_vCenter - camera.GetPosition()).GetLength();
     float fHalfHeight = ezMath::Tan(camera.GetFovY(1.0f) * 0.5f) * dist;
-    return ezMath::Pow(sphere.m_fRadius / fHalfHeight, 0.8f); // tweak factor to make transitions more linear.
+    return sphere.m_fRadius / fHalfHeight;
   }
   else
   {
@@ -257,6 +333,40 @@ float ezLightComponent::CalculateScreenSpaceSize(const ezBoundingSphere& sphere,
     return sphere.m_fRadius / fHalfHeight;
   }
 }
+
+float ezLightComponent::CalculateShadowFadeOut(const ezBoundingSphere& sphere, float fShadowFadeOutRange, const ezCamera& camera, float& out_fShadowScreenSize) const
+{
+  if (!m_bCastShadows)
+    return 0.0f;
+
+  ezBoundingSphere shadowBounds = sphere;
+  if (fShadowFadeOutRange > 0.0f)
+  {
+    shadowBounds.m_fRadius = fShadowFadeOutRange;
+  }
+  out_fShadowScreenSize = CalculateScreenSpaceSize(shadowBounds, camera);
+  return ezMath::Saturate(ezMath::Unlerp(0.8f, 1.0f, out_fShadowScreenSize));
+}
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+void ezLightComponent::VisualizeScreenSpaceSize(ezViewHandle hView, const ezBoundingSphere& sphere, float fScreenSize, float fShadowScreenSize, float fShadowFadeOut) const
+{
+  if (cvar_RenderingLightingVisScreenSpaceSize)
+  {
+    ezColor c = ezColorScheme::LightUI(ezColorScheme::Cyan);
+    if (m_bCastShadows)
+    {
+      ezDebugRenderer::Draw3DText(hView,
+        ezFmt("ScreenSize: {}\nShadowScreenSize: {}\n ShadowFadeOut: {}", ezArgF(fScreenSize, 3), ezArgF(fShadowScreenSize, 3), ezArgF(fShadowFadeOut, 3)), sphere.m_vCenter, c);
+    }
+    else
+    {
+      ezDebugRenderer::Draw3DText(hView, ezFmt("ScreenSize: {}", ezArgF(fScreenSize, 3)), sphere.m_vCenter, c);
+    }
+    ezDebugRenderer::DrawLineSphere(hView, sphere, c);
+  }
+}
+#endif
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////

@@ -1,6 +1,7 @@
 #include <CoreTest/CoreTestPCH.h>
 
 #include <Core/ResourceManager/ResourceManager.h>
+#include <Foundation/Threading/Thread.h>
 #include <Foundation/Types/ScopeExit.h>
 
 EZ_CREATE_SIMPLE_TEST_GROUP(ResourceManager);
@@ -9,10 +10,16 @@ namespace
 {
   using TestResourceHandle = ezTypedResourceHandle<class TestResource>;
 
+  struct TestResourceDescriptor
+  {
+    ezUInt32 m_uiData = 0;
+  };
+
   class TestResource : public ezResource
   {
     EZ_ADD_DYNAMIC_REFLECTION(TestResource, ezResource);
     EZ_RESOURCE_DECLARE_COMMON_CODE(TestResource);
+    EZ_RESOURCE_DECLARE_CREATEABLE(TestResource, TestResourceDescriptor);
 
   public:
     TestResource()
@@ -81,6 +88,21 @@ namespace
     ezDynamicArray<ezUInt32> m_Data;
   };
 
+  EZ_RESOURCE_IMPLEMENT_CREATEABLE(TestResource, TestResourceDescriptor)
+  {
+    ezResourceLoadDesc res;
+    res.m_State = ezResourceState::Loaded;
+    res.m_uiQualityLevelsDiscardable = 0;
+    res.m_uiQualityLevelsLoadable = 0;
+
+    EZ_TEST_INT(m_Data.GetCount(), 0);
+    m_Data.PushBack(descriptor.m_uiData);
+    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(50));
+    EZ_TEST_INT(m_Data.GetCount(), 1);
+
+    return res;
+  }
+
   class TestResourceTypeLoader : public ezResourceTypeLoader
   {
   public:
@@ -126,6 +148,26 @@ namespace
   EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(TestResource, 1, ezRTTIDefaultAllocator<TestResource>)
   EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+
+  class ResourceTestThread : public ezThread
+  {
+  public:
+    ezDelegate<int()> m_Lambda;
+
+    ResourceTestThread()
+      : ezThread("Resource Test Thread")
+    {
+    }
+
+    virtual ezUInt32 Run()
+    {
+      if (m_Lambda.IsValid())
+      {
+        return m_Lambda();
+      }
+      return 0;
+    }
+  };
 } // namespace
 
 EZ_CREATE_SIMPLE_TEST(ResourceManager, Basics)
@@ -190,6 +232,54 @@ EZ_CREATE_SIMPLE_TEST(ResourceManager, Basics)
   }
 }
 
+
+EZ_CREATE_SIMPLE_TEST(ResourceManager, ThreadedCreateResource)
+{
+  TestResourceTypeLoader TypeLoader;
+  ezResourceManager::AllowResourceTypeAcquireDuringUpdateContent<TestResource, TestResource>();
+  ezResourceManager::SetResourceTypeLoader<TestResource>(&TypeLoader);
+  EZ_SCOPE_EXIT(ezResourceManager::SetResourceTypeLoader<TestResource>(nullptr));
+
+  auto testLambda = []() -> int
+  {
+    TestResourceDescriptor desc;
+    TestResourceHandle hTest = ezResourceManager::GetOrCreateResource<TestResource>("test1", std::move(desc));
+    {
+      ezResourceLock<TestResource> pTest(hTest, ezResourceAcquireMode::PointerOnly);
+      EZ_TEST_INT((int)pTest.GetAcquireResult(), (int)ezResourceAcquireResult::Final);
+    }
+    EZ_TEST_INT(ezResourceManager::GetAllResourcesOfType<TestResource>()->GetCount(), 1);
+    return 0;
+  };
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ThreadedCreateResource")
+  {
+    ezTempHybridArray<ezUniquePtr<ResourceTestThread>, 8> threads;
+    for (ezUInt32 i = 0; i < 8; ++i)
+    {
+      ezUniquePtr<ResourceTestThread> thread = EZ_DEFAULT_NEW(ResourceTestThread);
+      thread->m_Lambda = testLambda;
+      threads.PushBack(std::move(thread));
+    }
+
+    EZ_TEST_INT(ezResourceManager::GetAllResourcesOfType<TestResource>()->GetCount(), 0);
+
+    for (ezUInt32 i = 0; i < 8; ++i)
+    {
+      threads[i]->Start();
+    }
+
+    for (ezUInt32 i = 0; i < 8; ++i)
+    {
+      threads[i]->Join();
+    }
+    EZ_TEST_INT(ezResourceManager::GetAllResourcesOfType<TestResource>()->GetCount(), 1);
+
+    threads.Clear();
+  }
+}
+
+
 EZ_CREATE_SIMPLE_TEST(ResourceManager, NestedLoading)
 {
   TestResourceTypeLoader TypeLoader;
@@ -232,6 +322,11 @@ EZ_CREATE_SIMPLE_TEST(ResourceManager, NestedLoading)
     EZ_TEST_INT(ezResourceManager::GetAllResourcesOfType<TestResource>()->GetCount(), uiNumResources + 1);
 
     hResources.Clear();
+
+    while (ezResourceManager::IsAnyLoadingInProgress())
+    {
+      ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(100));
+    }
 
     ezResourceManager::FreeAllUnusedResources();
     EZ_TEST_INT(ezResourceManager::GetAllResourcesOfType<TestResource>()->GetCount(), 0);

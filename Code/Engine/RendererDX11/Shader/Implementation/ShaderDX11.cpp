@@ -13,9 +13,10 @@ ezGALShaderDX11::ezGALShaderDX11(const ezGALShaderCreationDescription& Descripti
 
 ezGALShaderDX11::~ezGALShaderDX11() = default;
 
-void ezGALShaderDX11::SetDebugName(const char* szName) const
+void ezGALShaderDX11::SetDebugName(ezStringView sName) const
 {
-  ezUInt32 uiLength = ezStringUtils::GetStringElementCount(szName);
+  const char* szName = sName.GetStartPointer();
+  const ezUInt32 uiLength = sName.GetElementCount();
 
   if (m_pVertexShader != nullptr)
   {
@@ -50,7 +51,9 @@ void ezGALShaderDX11::SetDebugName(const char* szName) const
 
 ezResult ezGALShaderDX11::InitPlatform(ezGALDevice* pDevice)
 {
+  m_pDevice = pDevice;
   EZ_SUCCEED_OR_RETURN(CreateBindingMapping(true));
+  EZ_SUCCEED_OR_RETURN(CreateLayouts(pDevice, false));
 
   ezGALDeviceDX11* pDXDevice = static_cast<ezGALDeviceDX11*>(pDevice);
   ID3D11Device* pD3D11Device = pDXDevice->GetDXDevice();
@@ -122,6 +125,8 @@ ezResult ezGALShaderDX11::InitPlatform(ezGALDevice* pDevice)
 ezResult ezGALShaderDX11::DeInitPlatform(ezGALDevice* pDevice)
 {
   DestroyBindingMapping();
+  DestroyLayouts(pDevice);
+
   EZ_GAL_DX11_RELEASE(m_pVertexShader);
   EZ_GAL_DX11_RELEASE(m_pHullShader);
   EZ_GAL_DX11_RELEASE(m_pDomainShader);

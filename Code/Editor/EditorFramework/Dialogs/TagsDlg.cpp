@@ -127,7 +127,7 @@ void ezQtTagsDlg::LoadTags()
 {
   m_Tags.Clear();
 
-  ezHybridArray<const ezToolsTag*, 16> tags;
+  ezTempHybridArray<const ezToolsTag*, 16> tags;
   ezToolsTagRegistry::GetAllTags(tags);
 
   for (const ezToolsTag* pTag : tags)

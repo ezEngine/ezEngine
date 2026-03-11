@@ -8,8 +8,9 @@
 
 namespace
 {
-  // for some reason MSVC does not accept the template keyword here
-#if EZ_ENABLED(EZ_COMPILER_MSVC_PURE)
+  // for some reason older MSVC versions do not accept the template keyword here
+  // For newer MSVC (e.g. Visual Studio 2026 and later) use the `template` form.
+#if EZ_ENABLED(EZ_COMPILER_MSVC_PURE) && (_MSC_VER < 1950)
 #  define CALL_FUNCTOR(functor, type) functor.operator()<type>(std::forward<Args>(args)...)
 #else
 #  define CALL_FUNCTOR(functor, type) functor.template operator()<type>(std::forward<Args>(args)...)
@@ -117,6 +118,7 @@ namespace
     ezVariantFromProperty(ezVariant& value, const ezAbstractProperty* pProp)
       : m_value(value)
     {
+      EZ_IGNORE_UNUSED(pProp);
     }
     ~ezVariantFromProperty()
     {
@@ -140,6 +142,7 @@ namespace
     ezVariantFromProperty(ezVariant& value, const ezAbstractProperty* pProp)
       : m_value(value)
     {
+      EZ_IGNORE_UNUSED(pProp);
     }
 
     operator void*()
@@ -211,6 +214,7 @@ namespace
   {
     ezVariantToProperty(const ezVariant& value, const ezAbstractProperty* pProp)
     {
+      EZ_IGNORE_UNUSED(pProp);
       m_tempValue = value.ConvertTo<typename ezPropertyValue<T>::StorageType>();
     }
 
@@ -227,6 +231,7 @@ namespace
   {
     ezVariantToProperty(const ezVariant& value, const ezAbstractProperty* pProp)
     {
+      EZ_IGNORE_UNUSED(pProp);
       m_sData = value.ConvertTo<ezString>();
       m_pValue = m_sData;
     }
@@ -245,6 +250,7 @@ namespace
     ezVariantToProperty(const ezVariant& value, const ezAbstractProperty* pProp)
       : m_value(value)
     {
+      EZ_IGNORE_UNUSED(pProp);
     }
 
     operator const void*()
@@ -260,7 +266,17 @@ namespace
   {
     ezVariantToProperty(const ezVariant& value, const ezAbstractProperty* pProp)
     {
-      m_ptr = value.Get<ezTypedPointer>();
+      EZ_IGNORE_UNUSED(pProp);
+
+      if (!value.IsValid() || (value.IsString() && value.Get<ezString>().IsEmpty()))
+      {
+        m_ptr.m_pType = nullptr;
+        m_ptr.m_pObject = nullptr;
+      }
+      else
+      {
+        m_ptr = value.Get<ezTypedPointer>();
+      }
       EZ_ASSERT_DEBUG(!m_ptr.m_pType || m_ptr.m_pType->IsDerivedFrom(pProp->GetSpecificType()),
         "Pointer of type '{0}' does not derive from '{}'", m_ptr.m_pType->GetTypeName(), pProp->GetSpecificType()->GetTypeName());
     }
@@ -279,6 +295,7 @@ namespace
   {
     ezVariantToProperty(const ezVariant& value, const ezAbstractProperty* pProp)
     {
+      EZ_IGNORE_UNUSED(pProp);
       m_pPtr = value.GetData();
     }
 
@@ -401,7 +418,13 @@ namespace
   template <typename T>
   struct SetComponentValueImpl
   {
-    EZ_FORCE_INLINE static void impl(ezVariant* pVector, ezUInt32 uiComponent, double fValue) { EZ_ASSERT_DEBUG(false, "ezReflectionUtils::SetComponent was called with a non-vector variant '{0}'", pVector->GetType()); }
+    EZ_FORCE_INLINE static void impl(ezVariant* pVector, ezUInt32 uiComponent, double fValue)
+    {
+      EZ_IGNORE_UNUSED(pVector);
+      EZ_IGNORE_UNUSED(uiComponent);
+      EZ_IGNORE_UNUSED(fValue);
+      EZ_ASSERT_DEBUG(false, "ezReflectionUtils::SetComponent was called with a non-vector variant '{0}'", pVector->GetType());
+    }
   };
 
   template <typename T>
@@ -409,6 +432,7 @@ namespace
   {
     EZ_FORCE_INLINE static void impl(ezVariant* pVector, ezUInt32 uiComponent, double fValue)
     {
+      EZ_ASSERT_DEBUG(uiComponent < 2, "uiComponent out of range");
       auto vec = pVector->Get<ezVec2Template<T>>();
       switch (uiComponent)
       {
@@ -428,6 +452,7 @@ namespace
   {
     EZ_FORCE_INLINE static void impl(ezVariant* pVector, ezUInt32 uiComponent, double fValue)
     {
+      EZ_ASSERT_DEBUG(uiComponent < 3, "uiComponent out of range");
       auto vec = pVector->Get<ezVec3Template<T>>();
       switch (uiComponent)
       {
@@ -450,6 +475,7 @@ namespace
   {
     EZ_FORCE_INLINE static void impl(ezVariant* pVector, ezUInt32 uiComponent, double fValue)
     {
+      EZ_ASSERT_DEBUG(uiComponent < 4, "uiComponent out of range");
       auto vec = pVector->Get<ezVec4Template<T>>();
       switch (uiComponent)
       {
@@ -485,22 +511,29 @@ namespace
   template <typename T>
   struct GetComponentValueImpl
   {
-    EZ_FORCE_INLINE static void impl(const ezVariant* pVector, ezUInt32 uiComponent, double& ref_fValue) { EZ_ASSERT_DEBUG(false, "ezReflectionUtils::SetComponent was called with a non-vector variant '{0}'", pVector->GetType()); }
+    EZ_FORCE_INLINE static void impl(const ezVariant* pVector, ezUInt32 uiComponent, double& out_fValue)
+    {
+      EZ_IGNORE_UNUSED(pVector);
+      EZ_IGNORE_UNUSED(uiComponent);
+      EZ_IGNORE_UNUSED(out_fValue);
+      EZ_ASSERT_DEBUG(false, "ezReflectionUtils::SetComponent was called with a non-vector variant '{0}'", pVector->GetType());
+    }
   };
 
   template <typename T>
   struct GetComponentValueImpl<ezVec2Template<T>>
   {
-    EZ_FORCE_INLINE static void impl(const ezVariant* pVector, ezUInt32 uiComponent, double& ref_fValue)
+    EZ_FORCE_INLINE static void impl(const ezVariant* pVector, ezUInt32 uiComponent, double& out_fValue)
     {
+      EZ_ASSERT_DEBUG(uiComponent < 2, "uiComponent out of range");
       const auto& vec = pVector->Get<ezVec2Template<T>>();
       switch (uiComponent)
       {
         case 0:
-          ref_fValue = static_cast<double>(vec.x);
+          out_fValue = static_cast<double>(vec.x);
           break;
         case 1:
-          ref_fValue = static_cast<double>(vec.y);
+          out_fValue = static_cast<double>(vec.y);
           break;
       }
     }
@@ -509,19 +542,20 @@ namespace
   template <typename T>
   struct GetComponentValueImpl<ezVec3Template<T>>
   {
-    EZ_FORCE_INLINE static void impl(const ezVariant* pVector, ezUInt32 uiComponent, double& ref_fValue)
+    EZ_FORCE_INLINE static void impl(const ezVariant* pVector, ezUInt32 uiComponent, double& out_fValue)
     {
+      EZ_ASSERT_DEBUG(uiComponent < 3, "uiComponent out of range");
       const auto& vec = pVector->Get<ezVec3Template<T>>();
       switch (uiComponent)
       {
         case 0:
-          ref_fValue = static_cast<double>(vec.x);
+          out_fValue = static_cast<double>(vec.x);
           break;
         case 1:
-          ref_fValue = static_cast<double>(vec.y);
+          out_fValue = static_cast<double>(vec.y);
           break;
         case 2:
-          ref_fValue = static_cast<double>(vec.z);
+          out_fValue = static_cast<double>(vec.z);
           break;
       }
     }
@@ -530,22 +564,23 @@ namespace
   template <typename T>
   struct GetComponentValueImpl<ezVec4Template<T>>
   {
-    EZ_FORCE_INLINE static void impl(const ezVariant* pVector, ezUInt32 uiComponent, double& ref_fValue)
+    EZ_FORCE_INLINE static void impl(const ezVariant* pVector, ezUInt32 uiComponent, double& out_fValue)
     {
+      EZ_ASSERT_DEBUG(uiComponent < 4, "uiComponent out of range");
       const auto& vec = pVector->Get<ezVec4Template<T>>();
       switch (uiComponent)
       {
         case 0:
-          ref_fValue = static_cast<double>(vec.x);
+          out_fValue = static_cast<double>(vec.x);
           break;
         case 1:
-          ref_fValue = static_cast<double>(vec.y);
+          out_fValue = static_cast<double>(vec.y);
           break;
         case 2:
-          ref_fValue = static_cast<double>(vec.z);
+          out_fValue = static_cast<double>(vec.z);
           break;
         case 3:
-          ref_fValue = static_cast<double>(vec.w);
+          out_fValue = static_cast<double>(vec.w);
           break;
       }
     }
@@ -591,7 +626,7 @@ bool ezReflectionUtils::IsBasicType(const ezRTTI* pRtti)
 {
   EZ_ASSERT_DEBUG(pRtti != nullptr, "IsBasicType: missing data!");
   ezVariant::Type::Enum type = pRtti->GetVariantType();
-  return type >= ezVariant::Type::FirstStandardType && type <= ezVariant::Type::LastStandardType;
+  return (type >= ezVariant::Type::FirstStandardType && type <= ezVariant::Type::LastStandardType) || pRtti == ezGetStaticRTTI<ezVariant>();
 }
 
 bool ezReflectionUtils::IsValueType(const ezAbstractProperty* pProp)
@@ -806,7 +841,7 @@ const ezAbstractMemberProperty* ezReflectionUtils::GetMemberProperty(const ezRTT
   if (pRtti == nullptr)
     return nullptr;
 
-  ezHybridArray<const ezAbstractProperty*, 32> props;
+  ezTempHybridArray<const ezAbstractProperty*, 32> props;
   pRtti->GetAllProperties(props);
   if (uiPropertyIndex < props.GetCount())
   {
@@ -834,7 +869,8 @@ const ezAbstractMemberProperty* ezReflectionUtils::GetMemberProperty(const ezRTT
 
 void ezReflectionUtils::GatherTypesDerivedFromClass(const ezRTTI* pBaseRtti, ezSet<const ezRTTI*>& out_types)
 {
-  ezRTTI::ForEachDerivedType(pBaseRtti,
+  ezRTTI::ForEachDerivedType(
+    pBaseRtti,
     [&](const ezRTTI* pRtti)
     {
       out_types.Insert(pRtti);
@@ -971,7 +1007,7 @@ void ezReflectionUtils::GetEnumKeysAndValues(const ezRTTI* pEnumerationRtti, ezD
 
   ref_entries.Clear();
 
-  if (pEnumerationRtti->IsDerivedFrom<ezEnumBase>())
+  if (pEnumerationRtti->IsDerivedFrom<ezEnumBase>() || pEnumerationRtti->IsDerivedFrom<ezBitflagsBase>())
   {
     for (auto pProp : pEnumerationRtti->GetProperties().GetSubArray(1))
     {
@@ -1011,7 +1047,7 @@ bool ezReflectionUtils::StringToEnumeration(const ezRTTI* pEnumerationRtti, cons
   else if (pEnumerationRtti->IsDerivedFrom<ezBitflagsBase>())
   {
     ezStringBuilder temp = szValue;
-    ezHybridArray<ezStringView, 32> values;
+    ezTempHybridArray<ezStringView, 32> values;
     temp.Split(false, values, "|");
     for (auto sValue : values)
     {
@@ -1243,9 +1279,9 @@ bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, const
     {
       auto pSpecific = static_cast<const ezAbstractSetProperty*>(pProp);
 
-      ezHybridArray<ezVariant, 16> values;
+      ezTempHybridArray<ezVariant, 16> values;
       pSpecific->GetValues(pObject, values);
-      ezHybridArray<ezVariant, 16> values2;
+      ezTempHybridArray<ezVariant, 16> values2;
       pSpecific->GetValues(pObject2, values2);
 
       const ezUInt32 uiCount = values.GetCount();
@@ -1293,9 +1329,9 @@ bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, const
     {
       auto pSpecific = static_cast<const ezAbstractMapProperty*>(pProp);
 
-      ezHybridArray<ezString, 16> keys;
+      ezTempHybridArray<ezString, 16> keys;
       pSpecific->GetKeys(pObject, keys);
-      ezHybridArray<ezString, 16> keys2;
+      ezTempHybridArray<ezString, 16> keys2;
       pSpecific->GetKeys(pObject2, keys2);
 
       const ezUInt32 uiCount = keys.GetCount();
@@ -1635,7 +1671,7 @@ ezVariant ezReflectionUtils::GetDefaultVariantFromType(const ezRTTI* pRtti)
 
 void ezReflectionUtils::SetAllMemberPropertiesToDefault(const ezRTTI* pRtti, void* pObject)
 {
-  ezHybridArray<const ezAbstractProperty*, 32> properties;
+  ezTempHybridArray<const ezAbstractProperty*, 32> properties;
   pRtti->GetAllProperties(properties);
 
   for (auto pProp : properties)
@@ -1665,6 +1701,8 @@ namespace
   {
     static EZ_ALWAYS_INLINE ezResult Func(ezVariant& value, const ezClampValueAttribute* pAttrib)
     {
+      EZ_IGNORE_UNUSED(value);
+      EZ_IGNORE_UNUSED(pAttrib);
       return EZ_FAILURE;
     }
   };

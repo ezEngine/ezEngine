@@ -18,17 +18,9 @@ EZ_ALWAYS_INLINE ezRenderDataBatch::Iterator<T>::operator const T*() const
 }
 
 template <typename T>
-EZ_FORCE_INLINE void ezRenderDataBatch::Iterator<T>::Next()
+EZ_ALWAYS_INLINE void ezRenderDataBatch::Iterator<T>::Next()
 {
   ++m_pCurrent;
-
-  if (m_Filter.IsValid())
-  {
-    while (m_pCurrent < m_pEnd && m_Filter(m_pCurrent->m_pRenderData))
-    {
-      ++m_pCurrent;
-    }
-  }
 }
 
 template <typename T>
@@ -44,40 +36,45 @@ EZ_ALWAYS_INLINE void ezRenderDataBatch::Iterator<T>::operator++()
 }
 
 template <typename T>
-EZ_FORCE_INLINE ezRenderDataBatch::Iterator<T>::Iterator(const SortableRenderData* pStart, const SortableRenderData* pEnd, Filter filter)
-  : m_Filter(filter)
+EZ_ALWAYS_INLINE ezRenderDataBatch::Iterator<T>::Iterator(const SortableRenderData* pStart, const SortableRenderData* pEnd)
 {
-  const SortableRenderData* pCurrent = pStart;
-  if (m_Filter.IsValid())
-  {
-    while (pCurrent < pEnd && m_Filter(pCurrent->m_pRenderData))
-    {
-      ++pCurrent;
-    }
-  }
-
-  m_pCurrent = pCurrent;
+  m_pCurrent = pStart;
   m_pEnd = pEnd;
 }
 
+//////////////////////////////////////////////////////////////////////////
 
-EZ_ALWAYS_INLINE ezUInt32 ezRenderDataBatch::GetCount() const
+EZ_ALWAYS_INLINE ezUInt32 ezRenderDataBatch::GetDataCount() const
 {
   return m_Data.GetCount();
 }
 
 template <typename T>
-EZ_FORCE_INLINE const T* ezRenderDataBatch::GetFirstData() const
+EZ_ALWAYS_INLINE const T* ezRenderDataBatch::GetFirstData() const
 {
-  auto it = Iterator<T>(m_Data.GetPtr(), m_Data.GetPtr() + m_Data.GetCount(), m_Filter);
-  return it.IsValid() ? (const T*)it : nullptr;
+  return m_Data.IsEmpty() == false ? ezStaticCast<const T*>(m_Data.GetPtr()->m_pRenderData) : nullptr;
 }
 
 template <typename T>
-EZ_FORCE_INLINE ezRenderDataBatch::Iterator<T> ezRenderDataBatch::GetIterator(ezUInt32 uiStartIndex, ezUInt32 uiCount) const
+EZ_ALWAYS_INLINE ezRenderDataBatch::Iterator<T> ezRenderDataBatch::GetIterator(ezUInt32 uiStartIndex, ezUInt32 uiCount) const
 {
   ezUInt32 uiEndIndex = ezMath::Min(uiStartIndex + uiCount, m_Data.GetCount());
-  return Iterator<T>(m_Data.GetPtr() + uiStartIndex, m_Data.GetPtr() + uiEndIndex, m_Filter);
+  return Iterator<T>(m_Data.GetPtr() + uiStartIndex, m_Data.GetPtr() + uiEndIndex);
+}
+
+EZ_ALWAYS_INLINE ezGALBufferHandle ezRenderDataBatch::GetDataOffsetsBuffer() const
+{
+  return m_hDataOffsetsBuffer;
+}
+
+EZ_ALWAYS_INLINE ezUInt32 ezRenderDataBatch::GetFirstDataOffsetIndex() const
+{
+  return m_uiFirstDataOffsetIndex;
+}
+
+EZ_ALWAYS_INLINE ezUInt32 ezRenderDataBatch::GetInstanceCount() const
+{
+  return m_uiInstanceCount;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -87,10 +84,7 @@ EZ_ALWAYS_INLINE ezUInt32 ezRenderDataBatchList::GetBatchCount() const
   return m_Batches.GetCount();
 }
 
-EZ_FORCE_INLINE ezRenderDataBatch ezRenderDataBatchList::GetBatch(ezUInt32 uiIndex) const
+EZ_ALWAYS_INLINE const ezRenderDataBatch& ezRenderDataBatchList::GetBatch(ezUInt32 uiIndex) const
 {
-  ezRenderDataBatch batch = m_Batches[uiIndex];
-  batch.m_Filter = m_Filter;
-
-  return batch;
+  return m_Batches[uiIndex];
 }

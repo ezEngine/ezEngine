@@ -3,6 +3,7 @@
 #include <ParticlePlugin/Renderer/ParticleRenderer.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Resources/BufferPool.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleRenderer, 1, ezRTTINoAllocator)
@@ -14,7 +15,8 @@ ezParticleRenderer::TempSystemCB::TempSystemCB(ezRenderContext* pRenderContext)
   // TODO This pattern looks like it is inefficient. Should it use the GPU pool instead somehow?
   m_hConstantBuffer = ezRenderContext::CreateConstantBufferStorage(m_pConstants);
 
-  pRenderContext->BindConstantBuffer("ezParticleSystemConstants", m_hConstantBuffer);
+  ezBindGroupBuilder& bindGroupMaterial = ezRenderContext::GetDefaultInstance()->GetBindGroup(EZ_GAL_BIND_GROUP_DRAW_CALL);
+  bindGroupMaterial.BindBuffer("ezParticleSystemConstants", m_hConstantBuffer);
 }
 
 ezParticleRenderer::TempSystemCB::~TempSystemCB()
@@ -22,23 +24,18 @@ ezParticleRenderer::TempSystemCB::~TempSystemCB()
   ezRenderContext::DeleteConstantBufferStorage(m_hConstantBuffer);
 }
 
-void ezParticleRenderer::TempSystemCB::SetGenericData(bool bApplyObjectTransform, const ezTransform& objectTransform, ezTime effectLifeTime, ezUInt8 uiNumVariationsX, ezUInt8 uiNumVariationsY, ezUInt8 uiNumFlipbookAnimsX, ezUInt8 uiNumFlipbookAnimsY, float fDistortionStrength, float fNormalCurvature, float fLightDirectionality)
+void ezParticleRenderer::TempSystemCB::SetGenericData(const ezTransform& objectTransform, ezTime effectLifeTime, ezUInt8 uiNumVariationsX, ezUInt8 uiNumVariationsY, ezUInt8 uiNumFlipbookAnimsX, ezUInt8 uiNumFlipbookAnimsY, float fNormalCurvature, float fLightDirectionality)
 {
   ezParticleSystemConstants& cb = m_pConstants->GetDataForWriting();
+  cb.ObjectToWorldMatrix = objectTransform.GetAsMat4();
   cb.TextureAtlasVariationFramesX = uiNumVariationsX;
   cb.TextureAtlasVariationFramesY = uiNumVariationsY;
   cb.TextureAtlasFlipbookFramesX = uiNumFlipbookAnimsX;
   cb.TextureAtlasFlipbookFramesY = uiNumFlipbookAnimsY;
-  cb.DistortionStrength = fDistortionStrength;
   cb.TotalEffectLifeTime = effectLifeTime.AsFloatInSeconds();
   cb.NormalCurvature = fNormalCurvature;
   cb.LightDirectionality = fLightDirectionality;
   cb.ParticlePadding.SetZero();
-
-  if (bApplyObjectTransform)
-    cb.ObjectToWorldMatrix = objectTransform.GetAsMat4();
-  else
-    cb.ObjectToWorldMatrix.SetIdentity();
 }
 
 
@@ -52,32 +49,26 @@ void ezParticleRenderer::TempSystemCB::SetTrailData(float fSnapshotFraction, ezI
 ezParticleRenderer::ezParticleRenderer() = default;
 ezParticleRenderer::~ezParticleRenderer() = default;
 
-void ezParticleRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& ref_categories) const
+void ezParticleRenderer::CreateParticleDataBuffer(ezGALBufferPool& inout_Buffer, ezUInt32 uiDataTypeSize, ezUInt32 uiNumParticlesPerBatch)
 {
-  ref_categories.PushBack(ezDefaultRenderDataCategories::LitTransparent);
-}
-
-void ezParticleRenderer::CreateParticleDataBuffer(ezGALBufferHandle& inout_hBuffer, ezUInt32 uiDataTypeSize, ezUInt32 uiNumParticlesPerBatch)
-{
-  if (inout_hBuffer.IsInvalidated())
+  if (!inout_Buffer.IsInitialized())
   {
     ezGALBufferCreationDescription desc;
     desc.m_uiStructSize = uiDataTypeSize;
     desc.m_uiTotalSize = uiNumParticlesPerBatch * desc.m_uiStructSize;
-    desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
+    desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource | ezGALBufferUsageFlags::Transient;
     desc.m_ResourceAccess.m_bImmutable = false;
 
-    inout_hBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc);
+    inout_Buffer.Initialize(desc, "ParticleRenderer - StructuredBuffer");
   }
 }
 
 
-void ezParticleRenderer::DestroyParticleDataBuffer(ezGALBufferHandle& inout_hBuffer)
+void ezParticleRenderer::DestroyParticleDataBuffer(ezGALBufferPool& inout_Buffer)
 {
-  if (!inout_hBuffer.IsInvalidated())
+  if (inout_Buffer.IsInitialized())
   {
-    ezGALDevice::GetDefaultDevice()->DestroyBuffer(inout_hBuffer);
-    inout_hBuffer.Invalidate();
+    inout_Buffer.Deinitialize();
   }
 }
 

@@ -10,7 +10,7 @@
 
 namespace
 {
-  bool GetVec3FromLine(ezHybridArray<const ezToken*, 32> line, ezUInt32 uiSkip, ezVec3& ref_vOut)
+  bool GetVec3FromLine(ezArrayPtr<const ezToken*> line, ezUInt32 uiSkip, ezVec3& ref_vOut)
   {
     if (line.GetCount() < (uiSkip + 3 + 2))
     {
@@ -68,7 +68,7 @@ ezStatus ezAdobeCUBEReader::ParseFile(ezStreamReader& inout_stream, ezLogInterfa
 
   auto tokens = tokenizer.GetTokens();
 
-  ezHybridArray<const ezToken*, 32> line;
+  ezTempHybridArray<const ezToken*, 32> line;
   ezUInt32 firstToken = 0;
 
   while (tokenizer.GetNextLine(firstToken, line).Succeeded())

@@ -7,33 +7,41 @@
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 #include <RendererCore/Shader/ShaderResource.h>
+#include <RendererCore/Textures/TextureCubeResource.h>
 
 using ezMaterialResourceHandle = ezTypedResourceHandle<class ezMaterialResource>;
 using ezTexture2DResourceHandle = ezTypedResourceHandle<class ezTexture2DResource>;
 using ezTextureCubeResourceHandle = ezTypedResourceHandle<class ezTextureCubeResource>;
 
+/// Descriptor for creating material resources.
+///
+/// Materials can inherit from a base material and override shader, parameters, and textures.
+/// Supports shader permutation variables, numeric/color parameters, and 2D/cube texture bindings.
 struct ezMaterialResourceDescriptor
 {
+  /// A shader parameter name-value pair.
   struct Parameter
   {
-    ezHashedString m_Name;
-    ezVariant m_Value;
+    ezHashedString m_Name; ///< Parameter name (must match shader constant).
+    ezVariant m_Value;     ///< Parameter value (numeric or color).
 
     EZ_FORCE_INLINE bool operator==(const Parameter& other) const { return m_Name == other.m_Name && m_Value == other.m_Value; }
   };
 
+  /// A 2D texture binding.
   struct Texture2DBinding
   {
-    ezHashedString m_Name;
-    ezTexture2DResourceHandle m_Value;
+    ezHashedString m_Name;             ///< Texture slot name (must match shader resource).
+    ezTexture2DResourceHandle m_Value; ///< Texture resource handle.
 
     EZ_FORCE_INLINE bool operator==(const Texture2DBinding& other) const { return m_Name == other.m_Name && m_Value == other.m_Value; }
   };
 
+  /// A cube texture binding.
   struct TextureCubeBinding
   {
-    ezHashedString m_Name;
-    ezTextureCubeResourceHandle m_Value;
+    ezHashedString m_Name;               ///< Texture slot name (must match shader resource).
+    ezTextureCubeResourceHandle m_Value; ///< Cube map resource handle.
 
     EZ_FORCE_INLINE bool operator==(const TextureCubeBinding& other) const { return m_Name == other.m_Name && m_Value == other.m_Value; }
   };
@@ -43,23 +51,41 @@ struct ezMaterialResourceDescriptor
   bool operator==(const ezMaterialResourceDescriptor& other) const;
   EZ_FORCE_INLINE bool operator!=(const ezMaterialResourceDescriptor& other) const { return !(*this == other); }
 
-  ezMaterialResourceHandle m_hBaseMaterial;
-  // ezSurfaceResource is not linked into this project (not true anymore -> could be changed)
-  // this is not used for game purposes but rather for automatic collision mesh generation, so we only store the asset ID here
-  ezHashedString m_sSurface;
-  ezShaderResourceHandle m_hShader;
-  ezDynamicArray<ezPermutationVar> m_PermutationVars;
-  ezDynamicArray<Parameter> m_Parameters;
-  ezDynamicArray<Texture2DBinding> m_Texture2DBindings;
-  ezDynamicArray<TextureCubeBinding> m_TextureCubeBindings;
-  ezRenderData::Category m_RenderDataCategory;
+  ezMaterialResourceHandle m_hBaseMaterial;                 ///< Base material to inherit from (optional).
+  ezHashedString m_sSurface;                                ///< Surface type for physics/collision properties.
+  ezShaderResourceHandle m_hShader;                         ///< Shader used for rendering.
+  ezDynamicArray<ezPermutationVar> m_PermutationVars;       ///< Shader permutation variable values.
+  ezDynamicArray<Parameter> m_Parameters;                   ///< Shader constant parameters.
+  ezDynamicArray<Texture2DBinding> m_Texture2DBindings;     ///< 2D texture bindings.
+  ezDynamicArray<TextureCubeBinding> m_TextureCubeBindings; ///< Cube texture bindings.
+  ezRenderData::Category m_RenderDataCategory;              ///< Render data category (opaque, transparent, etc.).
 };
 
+/// Resource representing a material with shader, parameters, and textures.
+///
+/// Materials define the visual appearance of rendered objects. They reference a shader and provide
+/// values for shader parameters and texture slots. Supports material inheritance through base materials.
 class EZ_RENDERERCORE_DLL ezMaterialResource final : public ezResource
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezMaterialResource, ezResource);
   EZ_RESOURCE_DECLARE_COMMON_CODE(ezMaterialResource);
   EZ_RESOURCE_DECLARE_CREATEABLE(ezMaterialResource, ezMaterialResourceDescriptor);
+
+public:
+  /// Default material types with pre-defined shaders.
+  ///
+  /// Use with GetDefaultMaterialFileName() to get file paths for these materials.
+  enum class DefaultMaterialType
+  {
+    Fullbright,          ///< Unlit material without lighting calculations.
+    FullbrightAlphaTest, ///< Unlit material with alpha testing.
+    Lit,                 ///< Standard lit material.
+    LitAlphaTest,        ///< Lit material with alpha testing.
+    Sky,                 ///< Sky material for skyboxes.
+    MissingMaterial      ///< Placeholder for missing materials.
+  };
+
+  using ezMaterialId = ezGenericId<24, 8>;
 
 public:
   ezMaterialResource();
@@ -81,6 +107,7 @@ public:
   ezTextureCubeResourceHandle GetTextureCubeBinding(const ezTempHashedString& sName);
 
   ezRenderData::Category GetRenderDataCategory();
+  static ezRenderData::Category GetRenderDataCategory(const ezMaterialResourceHandle& hMaterial, bool* out_pWasFallback = nullptr, ezRenderData::Category fallbackCategory = ezDefaultRenderDataCategories::LitOpaque);
 
   /// \brief Copies current desc to original desc so the material is not modified on reset
   void PreserveCurrentDesc();
@@ -88,16 +115,11 @@ public:
 
   const ezMaterialResourceDescriptor& GetCurrentDesc() const;
 
-  /// \brief Use these enum values together with GetDefaultMaterialFileName() to get the default file names for these material types.
-  enum class DefaultMaterialType
-  {
-    Fullbright,
-    FullbrightAlphaTest,
-    Lit,
-    LitAlphaTest,
-    Sky,
-    MissingMaterial
-  };
+  /// \brief In case the renderer uses structured buffers to store materials, this is the index into the buffer returns by ezMaterialManager::GetMaterialData.
+  ///
+  /// You only need to call this if you want to persist the index in some other storage as ezMaterialManager::GetMaterialData will return the index as well.
+  /// Important: The index can change if the shader changes. This can only be done by unloading and reloading the material in which case the [] event is fired.
+  ezMaterialId GetMaterialId() const { return m_MaterialId; }
 
   /// \brief Returns the default material file name for the given type (materials in Data/Base/Materials/BaseMaterials).
   static const char* GetDefaultMaterialFileName(DefaultMaterialType materialType);
@@ -107,52 +129,54 @@ private:
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
-private:
-  ezMaterialResourceDescriptor m_mOriginalDesc; // stores the state at loading, such that SetParameter etc. calls can be reset later
-  ezMaterialResourceDescriptor m_mDesc;
-
-  friend class ezRenderContext;
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererCore, MaterialResource);
-
-  ezEvent<const ezMaterialResource*, ezMutex> m_ModifiedEvent;
-  void OnBaseMaterialModified(const ezMaterialResource* pModifiedMaterial);
-  void OnResourceEvent(const ezResourceEvent& resourceEvent);
-
-  void AddPermutationVar(ezStringView sName, ezStringView sValue);
-
-  ezAtomicInteger32 m_iLastModified;
-  ezAtomicInteger32 m_iLastConstantsModified;
-  ezInt32 m_iLastUpdated;
-  ezInt32 m_iLastConstantsUpdated;
-
-  bool IsModified();
-  bool AreConstantsModified();
-
-  void UpdateConstantBuffer(ezShaderPermutationResource* pShaderPermutation);
-
-  ezConstantBufferStorageHandle m_hConstantBufferStorage;
-
-  struct CachedValues
+public:
+  struct DirtyFlags
   {
-    ezShaderResourceHandle m_hShader;
-    ezHashTable<ezHashedString, ezHashedString> m_PermutationVars;
-    ezHashTable<ezHashedString, ezVariant> m_Parameters;
-    ezHashTable<ezHashedString, ezTexture2DResourceHandle> m_Texture2DBindings;
-    ezHashTable<ezHashedString, ezTextureCubeResourceHandle> m_TextureCubeBindings;
-    ezRenderData::Category m_RenderDataCategory;
+    using StorageType = ezUInt8;
 
-    void Reset();
+    enum Enum
+    {
+      Parameter = EZ_BIT(0),
+      Texture2D = EZ_BIT(1),
+      TextureCube = EZ_BIT(2),
+      PermutationVar = EZ_BIT(3),
+      ShaderAndId = EZ_BIT(4),
+      ResourceReset = Parameter | Texture2D | TextureCube | PermutationVar,
+      ResourceCreation = ResourceReset | ShaderAndId,
+      Default = 0
+    };
+
+    struct Bits
+    {
+      StorageType Parameter : 1;
+      StorageType Texture2D : 1;
+      StorageType TextureCube : 1;
+      StorageType PermutationVar : 1;
+      StorageType ShaderAndId : 1;
+    };
   };
 
-  ezUInt32 m_uiCacheIndex;
-  CachedValues* m_pCachedValues;
+private:
+  friend class ezRenderContext;
+  friend class ezMaterialManager;
 
-  CachedValues* GetOrUpdateCachedValues();
-  static CachedValues* AllocateCache(ezUInt32& inout_uiCacheIndex);
-  static void DeallocateCache(ezUInt32 uiCacheIndex);
+  ezEvent<const ezMaterialResource*, ezMutex> m_ModifiedEvent;
 
-  ezMutex m_UpdateCacheMutex;
-  static ezDeque<ezMaterialResource::CachedValues> s_CachedValues;
+  void AddPermutationVar(ezStringView sName, ezStringView sValue);
+  void SetModified(DirtyFlags::Enum flag);
+  void FlattenOriginalDescHierarchy();
+  void ComputeRenderDataCategory();
 
-  static void ClearCache();
+private:
+  ezMaterialResourceDescriptor m_mOriginalDesc; // stores the state at loading, such that SetParameter etc. calls can be reset later
+
+  // Dynamic data
+  ezMaterialResourceDescriptor m_mDesc; // Current desc of the material. Contains any changes done after loading.
+  ezBitflags<DirtyFlags> m_DirtyFlags;  // Flags indicating what has changed in m_mDesc this frame.
+
+  // ezMaterialManager registration
+  ezShaderResourceHandle m_hShader;
+  ezMaterialId m_MaterialId;
 };
+
+EZ_DECLARE_FLAGS_OPERATORS(ezMaterialResource::DirtyFlags);

@@ -13,7 +13,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpawnComponent, 3, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Prefab", GetPrefabFile, SetPrefabFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab", ezDependencyFlags::Package)),
+    EZ_RESOURCE_MEMBER_PROPERTY("Prefab", m_hPrefab)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab", ezDependencyFlags::Package)),
     EZ_MAP_ACCESSOR_PROPERTY("Parameters", GetParameters, GetParameter, SetParameter, RemoveParameter)->AddAttributes(new ezExposedParametersAttribute("Prefab")),
     EZ_ACCESSOR_PROPERTY("AttachAsChild", GetAttachAsChild, SetAttachAsChild),
     EZ_ACCESSOR_PROPERTY("SpawnAtStart", GetSpawnAtStart, SetSpawnAtStart),
@@ -81,8 +81,8 @@ bool ezSpawnComponent::SpawnOnce(const ezVec3& vLocalOffset)
       const ezVec3 vTiltAxis = ezVec3(0, 1, 0);
       const ezVec3 vTurnAxis = ezVec3(1, 0, 0);
 
-      const ezAngle tiltAngle = ezAngle::MakeFromRadian((float)GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, (double)m_MaxDeviation.GetRadian()));
-      const ezAngle turnAngle = ezAngle::MakeFromRadian((float)GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, ezMath::Pi<double>() * 2.0));
+      const ezAngle tiltAngle = ezAngle::MakeFromRadian((float)GetWorld()->GetRandomNumberGenerator().DoubleMinMax(0.0, (double)m_MaxDeviation.GetRadian()));
+      const ezAngle turnAngle = ezAngle::MakeFromRadian((float)GetWorld()->GetRandomNumberGenerator().DoubleMinMax(0.0, ezMath::Pi<double>() * 2.0));
 
       ezQuat qTilt, qTurn, qDeviate;
       qTilt = ezQuat::MakeFromAxisAndAngle(vTiltAxis, tiltAngle);
@@ -118,6 +118,7 @@ void ezSpawnComponent::DoSpawn(const ezTransform& tLocalSpawn)
   {
     ezTransform tGlobalSpawn;
     tGlobalSpawn = ezTransform::MakeGlobalTransform(GetOwner()->GetGlobalTransform(), tLocalSpawn);
+    tGlobalSpawn.m_vScale.Set(1);
 
     pResource->InstantiatePrefab(*GetWorld(), tGlobalSpawn, options, &m_Parameters);
   }
@@ -135,7 +136,7 @@ void ezSpawnComponent::ScheduleSpawn()
 
   ezWorld* pWorld = GetWorld();
 
-  const ezTime tKill = ezTime::MakeFromSeconds(pWorld->GetRandomNumberGenerator().DoubleInRange(m_MinDelay.GetSeconds(), m_DelayRange.GetSeconds()));
+  const ezTime tKill = ezTime::MakeFromSeconds(pWorld->GetRandomNumberGenerator().DoubleMinMax(m_MinDelay.GetSeconds(), m_MinDelay.GetSeconds() + m_DelayRange.GetSeconds()));
 
   PostMessage(msg, tKill);
 }
@@ -198,26 +199,6 @@ bool ezSpawnComponent::TriggerManualSpawn(bool bIgnoreSpawnDelay /*= false*/, co
   return SpawnOnce(vLocalOffset);
 }
 
-void ezSpawnComponent::SetPrefabFile(const char* szFile)
-{
-  ezPrefabResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hResource = ezResourceManager::LoadResource<ezPrefabResource>(szFile);
-  }
-
-  SetPrefab(hResource);
-}
-
-const char* ezSpawnComponent::GetPrefabFile() const
-{
-  if (!m_hPrefab.IsValid())
-    return "";
-
-  return m_hPrefab.GetResourceID();
-}
-
 bool ezSpawnComponent::GetSpawnAtStart() const
 {
   return m_SpawnFlags.IsAnySet(ezSpawnComponentFlags::SpawnAtStart);
@@ -248,11 +229,6 @@ void ezSpawnComponent::SetAttachAsChild(bool b)
   m_SpawnFlags.AddOrRemove(ezSpawnComponentFlags::AttachAsChild, b);
 }
 
-void ezSpawnComponent::SetPrefab(const ezPrefabResourceHandle& hPrefab)
-{
-  m_hPrefab = hPrefab;
-}
-
 void ezSpawnComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
 {
   if (msg.m_sMessage == ezTempHashedString("scheduled_spawn"))
@@ -276,9 +252,12 @@ void ezSpawnComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
 const ezRangeView<const char*, ezUInt32> ezSpawnComponent::GetParameters() const
 {
   return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32
-    { return 0; }, [this]() -> ezUInt32
-    { return m_Parameters.GetCount(); }, [](ezUInt32& ref_uiIt)
-    { ++ref_uiIt; }, [this](const ezUInt32& uiIt) -> const char*
+    { return 0; },
+    [this]() -> ezUInt32
+    { return m_Parameters.GetCount(); },
+    [](ezUInt32& ref_uiIt)
+    { ++ref_uiIt; },
+    [this](const ezUInt32& uiIt) -> const char*
     { return m_Parameters.GetKey(uiIt).GetString().GetData(); });
 }
 

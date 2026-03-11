@@ -37,11 +37,14 @@ public:
   void SetReflectionProbeMode(ezEnum<ezReflectionProbeMode> mode); // [ property ]
   ezEnum<ezReflectionProbeMode> GetReflectionProbeMode() const;    // [ property ]
 
-  void SetIntensity(float fIntensity);                             // [ property ]
-  float GetIntensity() const;                                      // [ property ]
+  void SetDiffuseIntensity(float fIntensity);                      // [ property ]
+  float GetDiffuseIntensity() const;                               // [ property ]
 
-  void SetSaturation(float fSaturation);                           // [ property ]
-  float GetSaturation() const;                                     // [ property ]
+  void SetDiffuseSaturation(float fSaturation);                    // [ property ]
+  float GetDiffuseSaturation() const;                              // [ property ]
+
+  void SetSpecularIntensity(float fIntensity);                     // [ property ]
+  float GetSpecularIntensity() const;                              // [ property ]
 
   const ezTagSet& GetIncludeTags() const;                          // [ property ]
   void InsertIncludeTag(const char* szTag);                        // [ property ]
@@ -57,8 +60,9 @@ public:
   void SetShowMipMaps(bool bShowMipMaps);                          // [ property ]
   bool GetShowMipMaps() const;                                     // [ property ]
 
-  void SetCubeMapFile(const char* szFile);                         // [ property ]
-  const char* GetCubeMapFile() const;                              // [ property ]
+  void SetCubeMapFile(ezStringView sFile);                         // [ property ]
+  ezStringView GetCubeMapFile() const;                             // [ property ]
+
   ezTextureCubeResourceHandle GetCubeMap() const
   {
     return m_hCubeMap;

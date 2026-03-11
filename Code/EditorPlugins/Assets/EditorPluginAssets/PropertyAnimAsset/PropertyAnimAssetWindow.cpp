@@ -1,5 +1,6 @@
 #include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
+#include <EditorFramework/Assets/AssetStatusIndicator.moc.h>
 #include <EditorFramework/DocumentWindow/GameObjectViewWidget.moc.h>
 #include <EditorFramework/DocumentWindow/QuadViewWidget.moc.h>
 #include <EditorFramework/InputContexts/EditorInputContext.h>
@@ -35,7 +36,15 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
 
   pDocument->m_PropertyAnimEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::PropertyAnimAssetEventHandler, this));
 
-  setCentralWidget(m_pQuadViewWidget);
+  {
+    ezQtDocumentPanel* pViewPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    pViewPanel->setObjectName("ezQtDocumentPanel");
+    pViewPanel->setWindowTitle("3D View");
+    pViewPanel->setWidget(m_pQuadViewWidget);
+
+    m_pDockManager->setCentralWidget(pViewPanel);
+  }
+
   SetTargetFramerate(25);
 
   // Menu Bar
@@ -66,26 +75,36 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
     pModel->AddAdapter(new ezQtDummyAdapter(pDocument->GetObjectManager(), ezGetStaticRTTI<ezDocumentRoot>(), "TempObjects"));
     pModel->AddAdapter(new ezQtGameObjectAdapter(pDocument->GetObjectManager()));
 
-    ezQtDocumentPanel* pGameObjectPanel = new ezQtGameObjectPanel(this, pDocument, "PropertyAnimAsset_ScenegraphContextMenu", std::move(pModel));
-    addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pGameObjectPanel);
+    ezQtDocumentPanel* pGameObjectPanel = new ezQtGameObjectPanel(GetContainerWindow()->GetDockManager(), this, pDocument, "PropertyAnimAsset_ScenegraphContextMenu", std::move(pModel));
+    m_pDockManager->addDockWidgetTab(ads::LeftDockWidgetArea, pGameObjectPanel);
   }
 
   // Property Grid
   {
-    ezQtDocumentPanel* pPanel = new ezQtDocumentPanel(this, pDocument);
+    ezQtDocumentPanel* pPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPanel->setObjectName("PropertyAnimAssetDockWidget");
     pPanel->setWindowTitle("Object Properties");
     pPanel->show();
 
     ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPanel, pDocument);
-    pPanel->setWidget(pPropertyGrid);
 
-    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPanel);
+    QWidget* pWidget = new QWidget();
+    pWidget->setObjectName("Group");
+    pWidget->setLayout(new QVBoxLayout());
+    pWidget->setContentsMargins(0, 0, 0, 0);
+
+    pWidget->layout()->setContentsMargins(0, 0, 0, 0);
+    pWidget->layout()->addWidget(new ezQtAssetStatusIndicator(GetDocument()));
+    pWidget->layout()->addWidget(pPropertyGrid);
+
+    pPanel->setWidget(pWidget, ads::CDockWidget::ForceNoScrollArea);
+
+    m_pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pPanel);
   }
 
   // Property Tree View
   {
-    ezQtDocumentPanel* pPanel = new ezQtDocumentPanel(this, pDocument);
+    ezQtDocumentPanel* pPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPanel->setObjectName("PropertyAnimPropertiesDockWidget");
     pPanel->setWindowTitle("Animated Properties");
     pPanel->show();
@@ -106,7 +125,7 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
     connect(m_pPropertyTreeView, &ezQtPropertyAnimAssetTreeView::FrameSelectedItemsEvent, this,
       &ezQtPropertyAnimAssetDocumentWindow::onFrameSelectedTracks);
 
-    addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pPanel);
+    m_pDockManager->addDockWidgetTab(ads::LeftDockWidgetArea, pPanel);
   }
 
   // Property Model
@@ -130,7 +149,7 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
 
   // Float Curve Panel
   {
-    m_pCurvePanel = new ezQtDocumentPanel(this, pDocument);
+    m_pCurvePanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     m_pCurvePanel->setObjectName("PropertyAnimFloatCurveDockWidget");
     m_pCurvePanel->setWindowTitle("Curves");
     m_pCurvePanel->show();
@@ -138,12 +157,12 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
     m_pCurveEditor = new ezQtCurve1DEditorWidget(m_pCurvePanel);
     m_pCurvePanel->setWidget(m_pCurveEditor);
 
-    addDockWidget(Qt::DockWidgetArea::BottomDockWidgetArea, m_pCurvePanel);
+    m_pDockManager->addDockWidgetTab(ads::BottomDockWidgetArea, m_pCurvePanel);
   }
 
   // Color Gradient Panel
   {
-    m_pColorGradientPanel = new ezQtDocumentPanel(this, pDocument);
+    m_pColorGradientPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     m_pColorGradientPanel->setObjectName("PropertyAnimColorGradientDockWidget");
     m_pColorGradientPanel->setWindowTitle("Color Gradient");
     m_pColorGradientPanel->show();
@@ -151,12 +170,12 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
     m_pGradientEditor = new ezQtColorGradientEditorWidget(m_pColorGradientPanel);
     m_pColorGradientPanel->setWidget(m_pGradientEditor);
 
-    addDockWidget(Qt::DockWidgetArea::BottomDockWidgetArea, m_pColorGradientPanel);
+    m_pDockManager->addDockWidgetTab(ads::BottomDockWidgetArea, m_pColorGradientPanel);
   }
 
   // Event Track Panel
   {
-    m_pEventTrackPanel = new ezQtDocumentPanel(this, pDocument);
+    m_pEventTrackPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     m_pEventTrackPanel->setObjectName("PropertyAnimEventTrackDockWidget");
     m_pEventTrackPanel->setWindowTitle("Event Track");
     m_pEventTrackPanel->show();
@@ -164,7 +183,7 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
     m_pEventTrackEditor = new ezQtEventTrackEditorWidget(m_pEventTrackPanel);
     m_pEventTrackPanel->setWidget(m_pEventTrackEditor);
 
-    addDockWidget(Qt::DockWidgetArea::BottomDockWidgetArea, m_pEventTrackPanel);
+    m_pDockManager->addDockWidgetTab(ads::BottomDockWidgetArea, m_pEventTrackPanel);
   }
 
   // Time Scrubber
@@ -459,7 +478,7 @@ void ezQtPropertyAnimAssetDocumentWindow::onDeleteSelectedItems()
 
   // delete the tracks with the highest index first, otherwise the lower indices become invalid
   // do this before modifying anything, as m_MapSelectionToTrack will change once the remove commands are executed
-  ezHybridArray<ezInt32, 16> sortedTrackIDs;
+  ezTempHybridArray<ezInt32, 16> sortedTrackIDs;
   {
     for (ezInt32 iTrack : m_MapSelectionToTrack)
     {
@@ -500,7 +519,7 @@ void ezQtPropertyAnimAssetDocumentWindow::onRebindSelectedItems()
   auto pDoc = GetPropertyAnimDocument();
   auto pHistory = pDoc->GetCommandHistory();
 
-  ezHybridArray<ezUuid, 16> rebindTracks;
+  ezTempHybridArray<ezUuid, 16> rebindTracks;
 
   for (ezInt32 iTrack : m_MapSelectionToTrack)
   {
@@ -908,7 +927,7 @@ void ezQtPropertyAnimAssetDocumentWindow::onGradientColorCpAdded(double posX, co
     return;
 
   const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", m_iMapGradientToTrack);
-  ezInt64 tickX = ezColorGradientAssetData::TickFromTime(ezTime::MakeFromSeconds(posX));
+  ezInt64 tickX = ezColorGradient::TimeToTick(posX);
   pDoc->InsertGradientColorCpAt(trackGuid.Get<ezUuid>(), tickX, color);
 }
 
@@ -921,7 +940,7 @@ void ezQtPropertyAnimAssetDocumentWindow::onGradientAlphaCpAdded(double posX, ez
     return;
 
   const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", m_iMapGradientToTrack);
-  ezInt64 tickX = ezColorGradientAssetData::TickFromTime(ezTime::MakeFromSeconds(posX));
+  ezInt64 tickX = ezColorGradient::TimeToTick(posX);
   pDoc->InsertGradientAlphaCpAt(trackGuid.Get<ezUuid>(), tickX, alpha);
 }
 
@@ -934,7 +953,7 @@ void ezQtPropertyAnimAssetDocumentWindow::onGradientIntensityCpAdded(double posX
     return;
 
   const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", m_iMapGradientToTrack);
-  ezInt64 tickX = ezColorGradientAssetData::TickFromTime(ezTime::MakeFromSeconds(posX));
+  ezInt64 tickX = ezColorGradient::TimeToTick(posX);
   pDoc->InsertGradientIntensityCpAt(trackGuid.Get<ezUuid>(), tickX, intensity);
 }
 
@@ -959,7 +978,7 @@ void ezQtPropertyAnimAssetDocumentWindow::MoveGradientCP(ezInt32 idx, double new
   cmdSet.m_Object = objGuid.Get<ezUuid>();
 
   cmdSet.m_sProperty = "Tick";
-  cmdSet.m_NewValue = pDoc->GetProperties()->m_Tracks[m_iMapGradientToTrack]->m_ColorGradient.TickFromTime(ezTime::MakeFromSeconds(newPosX));
+  cmdSet.m_NewValue = ezColorGradient::TimeToTick(newPosX);
   history->AddCommand(cmdSet).AssertSuccess();
 
   history->FinishTransaction();
@@ -974,7 +993,6 @@ void ezQtPropertyAnimAssetDocumentWindow::onGradientAlphaCpMoved(ezInt32 idx, do
 {
   MoveGradientCP(idx, newPosX, "AlphaCPs");
 }
-
 
 void ezQtPropertyAnimAssetDocumentWindow::onGradientIntensityCpMoved(ezInt32 idx, double newPosX)
 {

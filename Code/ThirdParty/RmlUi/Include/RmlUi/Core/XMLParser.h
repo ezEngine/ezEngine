@@ -1,37 +1,8 @@
-/*
- * This source file is part of RmlUi, the HTML/CSS Interface Middleware
- *
- * For the latest information, see http://github.com/mikke89/RmlUi
- *
- * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
- */
+#pragma once
 
-#ifndef RMLUI_CORE_XMLPARSER_H
-#define RMLUI_CORE_XMLPARSER_H
-
-#include <stack>
-#include "Header.h"
 #include "BaseXMLParser.h"
+#include "Header.h"
+#include <stack>
 
 namespace Rml {
 
@@ -41,16 +12,20 @@ class XMLNodeHandler;
 class URL;
 
 /**
-	RmlUi's XML parsing engine. The factory creates an instance of this class for each RML parse.
-
-	@author Lloyd Weehuizen
+    RmlUi's XML parsing engine. The factory creates an instance of this class for each RML parse.
  */
 
-class RMLUICORE_API XMLParser : public BaseXMLParser
-{
+class RMLUICORE_API XMLParser : public BaseXMLParser {
 public:
 	XMLParser(Element* root);
 	~XMLParser();
+
+	/// Registers a tag were its contents should be treated as CDATA.
+	///		Whereas BaseXMLParser RegisterCDataTag only registeres a
+	///		tag for a parser instance, this function willl register
+	///		a tag for all XMLParser instances created after this call.
+	/// @param[in] _tag The tag for contents to be treated as CDATA
+	static void RegisterPersistentCDATATag(const String& _tag);
 
 	/// Registers a custom node handler to be used to a given tag.
 	/// @param[in] tag The tag the custom parser will handle.
@@ -69,8 +44,7 @@ public:
 	DocumentHeader* GetDocumentHeader();
 
 	// The parse stack.
-	struct ParseFrame
-	{
+	struct ParseFrame {
 		// Tag being parsed.
 		String tag;
 
@@ -97,25 +71,19 @@ public:
 	/// Returns the source URL of this parse.
 	const URL& GetSourceURL() const;
 
+	/// Called when the parser encounters data.
+	void HandleData(const String& data, XMLDataType type) override;
+
 protected:
 	/// Called when the parser finds the beginning of an element tag.
 	void HandleElementStart(const String& name, const XMLAttributes& attributes) override;
 	/// Called when the parser finds the end of an element tag.
 	void HandleElementEnd(const String& name) override;
-	/// Called when the parser encounters data.
-	void HandleData(const String& data, XMLDataType type) override;
 
 private:
-	// The header of the document being parsed.
 	UniquePtr<DocumentHeader> header;
-
-	// The active node handler.
 	XMLNodeHandler* active_handler;
-
-	// The parser stack.
-	using ParserStack = Stack< ParseFrame >;
-	ParserStack stack;
+	Stack<ParseFrame> stack;
 };
 
 } // namespace Rml
-#endif

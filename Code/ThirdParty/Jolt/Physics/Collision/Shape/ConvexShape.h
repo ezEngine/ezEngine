@@ -16,9 +16,9 @@ class CollideShapeSettings;
 /// Class that constructs a ConvexShape (abstract)
 class JPH_EXPORT ConvexShapeSettings : public ShapeSettings
 {
-public:
 	JPH_DECLARE_SERIALIZABLE_ABSTRACT(JPH_EXPORT, ConvexShapeSettings)
 
+public:
 	/// Constructor
 									ConvexShapeSettings() = default;
 	explicit						ConvexShapeSettings(const PhysicsMaterial *inMaterial)		: mMaterial(inMaterial) { }
@@ -46,7 +46,7 @@ public:
 	virtual uint					GetSubShapeIDBitsRecursive() const override					{ return 0; } // Convex shapes don't have sub shapes
 
 	// See Shape::GetMaterial
-	virtual const PhysicsMaterial *	GetMaterial(const SubShapeID &inSubShapeID) const override	{ JPH_ASSERT(inSubShapeID.IsEmpty(), "Invalid subshape ID"); return GetMaterial(); }
+	virtual const PhysicsMaterial *	GetMaterial([[maybe_unused]] const SubShapeID &inSubShapeID) const override	{ JPH_ASSERT(inSubShapeID.IsEmpty(), "Invalid subshape ID"); return GetMaterial(); }
 
 	// See Shape::CastRay
 	virtual bool					CastRay(const RayCast &inRay, const SubShapeIDCreator &inSubShapeIDCreator, RayCastResult &ioHit) const override;
@@ -132,7 +132,7 @@ protected:
 	virtual void					RestoreBinaryState(StreamIn &inStream) override;
 
 	/// Vertex list that forms a unit sphere
-	static const std::vector<Vec3>	sUnitSphereTriangles;
+	static const StaticArray<Vec3, 384> sUnitSphereTriangles;
 
 private:
 	// Class for GetTrianglesStart/Next

@@ -2,6 +2,7 @@
 
 #include <EnginePluginScene/Grid/GridRenderer.h>
 #include <Foundation/IO/TypeVersionContext.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/Shader/ShaderResource.h>
 
@@ -34,19 +35,14 @@ ezGridRenderer::ezGridRenderer()
   CreateVertexBuffer();
 }
 
-void ezGridRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& ref_types) const
+void ezGridRenderer::GetSupportedRenderDataTypes(ezDynamicArray<const ezRTTI*>& out_types) const
 {
-  ref_types.PushBack(ezGetStaticRTTI<ezGridRenderData>());
-}
-
-void ezGridRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& ref_categories) const
-{
-  ref_categories.PushBack(ezDefaultRenderDataCategories::SimpleTransparent);
+  out_types.PushBack(ezGetStaticRTTI<ezGridRenderData>());
 }
 
 void ezGridRenderer::CreateVertexBuffer()
 {
-  if (!m_hVertexBuffer.IsInvalidated())
+  if (m_VertexBuffer.IsInitialized())
     return;
 
   // load the shader
@@ -59,28 +55,26 @@ void ezGridRenderer::CreateVertexBuffer()
     ezGALBufferCreationDescription desc;
     desc.m_uiStructSize = sizeof(GridVertex);
     desc.m_uiTotalSize = s_uiBufferSize;
-    desc.m_BufferFlags = ezGALBufferUsageFlags::VertexBuffer;
+    desc.m_BufferFlags = ezGALBufferUsageFlags::VertexBuffer | ezGALBufferUsageFlags::Transient;
     desc.m_ResourceAccess.m_bImmutable = false;
 
-    m_hVertexBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc);
+    m_VertexBuffer.Initialize(desc, "GridRenderer - VertexBuffer");
   }
 
   // Setup the vertex declaration
   {
     {
-      ezVertexStreamInfo& si = m_VertexDeclarationInfo.m_VertexStreams.ExpandAndGetRef();
-      si.m_Semantic = ezGALVertexAttributeSemantic::Position;
-      si.m_Format = ezGALResourceFormat::XYZFloat;
-      si.m_uiOffset = 0;
-      si.m_uiElementSize = 12;
+      auto& va = m_VertexAttributes.ExpandAndGetRef();
+      va.m_eSemantic = ezGALVertexAttributeSemantic::Position;
+      va.m_eFormat = ezGALResourceFormat::XYZFloat;
+      va.m_uiOffset = offsetof(GridVertex, m_position);
     }
 
     {
-      ezVertexStreamInfo& si = m_VertexDeclarationInfo.m_VertexStreams.ExpandAndGetRef();
-      si.m_Semantic = ezGALVertexAttributeSemantic::Color0;
-      si.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
-      si.m_uiOffset = 12;
-      si.m_uiElementSize = 4;
+      auto& va = m_VertexAttributes.ExpandAndGetRef();
+      va.m_eSemantic = ezGALVertexAttributeSemantic::Color0;
+      va.m_eFormat = ezGALResourceFormat::RGBAUByteNormalized;
+      va.m_uiOffset = offsetof(GridVertex, m_color);
     }
   }
 }
@@ -90,9 +84,9 @@ void ezGridRenderer::CreateGrid(const ezGridRenderData& rd) const
   m_Vertices.Clear();
   m_Vertices.Reserve(100);
 
-  const ezVec3 vCenter = rd.m_GlobalTransform.m_vPosition;
-  const ezVec3 vTangent1 = rd.m_GlobalTransform.m_qRotation * ezVec3(1, 0, 0);
-  const ezVec3 vTangent2 = rd.m_GlobalTransform.m_qRotation * ezVec3(0, 1, 0);
+  const ezVec3 vCenter = rd.m_vGlobalPosition;
+  const ezVec3 vTangent1 = rd.m_qGlobalRotation * ezVec3(1, 0, 0);
+  const ezVec3 vTangent2 = rd.m_qGlobalRotation * ezVec3(0, 1, 0);
   const ezInt32 iNumLines1 = rd.m_iLastLine1 - rd.m_iFirstLine1;
   const ezInt32 iNumLines2 = rd.m_iLastLine2 - rd.m_iFirstLine2;
   const float maxExtent1 = iNumLines1 * rd.m_fDensity;
@@ -188,12 +182,13 @@ void ezGridRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, c
 
     while (uiNumLineVertices > 0)
     {
+      ezGALBufferHandle hBuffer = m_VertexBuffer.GetNewBuffer();
       const ezUInt32 uiNumLineVerticesInBatch = ezMath::Min<ezUInt32>(uiNumLineVertices, s_uiLineVerticesPerBatch);
       EZ_ASSERT_DEBUG(uiNumLineVerticesInBatch % 2 == 0, "Vertex count must be a multiple of 2.");
 
-      pRenderContext->GetCommandEncoder()->UpdateBuffer(m_hVertexBuffer, 0, ezMakeArrayPtr(pLineData, uiNumLineVerticesInBatch).ToByteArray());
+      pRenderContext->GetCommandEncoder()->UpdateBuffer(hBuffer, 0, ezMakeArrayPtr(pLineData, uiNumLineVerticesInBatch).ToByteArray(), ezGALUpdateMode::AheadOfTime);
 
-      pRenderContext->BindMeshBuffer(m_hVertexBuffer, ezGALBufferHandle(), &m_VertexDeclarationInfo, ezGALPrimitiveTopology::Lines, uiNumLineVerticesInBatch / 2);
+      pRenderContext->BindMeshBuffer(ezMakeArrayPtr(&hBuffer, 1), ezGALBufferHandle(), m_VertexAttributes, ezGALPrimitiveTopology::Lines, uiNumLineVerticesInBatch / 2);
       pRenderContext->DrawMeshBuffer().IgnoreResult();
 
       uiNumLineVertices -= uiNumLineVerticesInBatch;
@@ -230,8 +225,10 @@ void ezEditorGridExtractor::Extract(const ezView& view, const ezDynamicArray<con
   const ezCamera* cam = view.GetCamera();
   float fDensity = m_pSceneContext->GetGridDensity();
 
-  ezGridRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezGridRenderData>(nullptr);
-  pRenderData->m_GlobalBounds = ezBoundingBoxSphere::MakeInvalid();
+  EZ_LOCK(view.GetWorld()->GetReadMarker());
+  auto pRenderDataManager = view.GetWorld()->GetModuleReadOnly<ezRenderDataManager>();
+
+  ezGridRenderData* pRenderData = pRenderDataManager->CreateRenderDataForThisFrame<ezGridRenderData>(nullptr);
   pRenderData->m_bOrthoMode = cam->IsOrthographic();
   pRenderData->m_bGlobal = m_pSceneContext->IsGridInGlobalSpace();
 
@@ -244,14 +241,13 @@ void ezEditorGridExtractor::Extract(const ezView& view, const ezDynamicArray<con
     fDensity = AdjustGridDensity(fDensity, (ezUInt32)view.GetViewport().width, fDimX, 10);
     pRenderData->m_fDensity = fDensity;
 
-    pRenderData->m_GlobalTransform.SetIdentity();
-    pRenderData->m_GlobalTransform.m_vPosition = cam->GetCenterDirForwards() * cam->GetFarPlane() * 0.9f;
+    pRenderData->m_vGlobalPosition = cam->GetCenterDirForwards() * cam->GetFarPlane() * 0.9f;
 
     ezMat3 mRot;
     mRot.SetColumn(0, cam->GetCenterDirRight());
     mRot.SetColumn(1, cam->GetCenterDirUp());
     mRot.SetColumn(2, cam->GetCenterDirForwards());
-    pRenderData->m_GlobalTransform.m_qRotation = ezQuat::MakeFromMat3(mRot);
+    pRenderData->m_qGlobalRotation = ezQuat::MakeFromMat3(mRot);
 
     const ezVec3 vBottomLeft = cam->GetCenterPosition() - cam->GetCenterDirRight() * fDimX - cam->GetCenterDirUp() * fDimY;
     const ezVec3 vTopRight = cam->GetCenterPosition() + cam->GetCenterDirRight() * fDimX + cam->GetCenterDirUp() * fDimY;
@@ -267,7 +263,7 @@ void ezEditorGridExtractor::Extract(const ezView& view, const ezDynamicArray<con
     const float fLastDist2 = plane2.GetDistanceTo(vTopRight) + fDensity;
 
 
-    ezVec3& val = pRenderData->m_GlobalTransform.m_vPosition;
+    ezVec3& val = pRenderData->m_vGlobalPosition;
     val.x = ezMath::RoundToMultiple(val.x, pRenderData->m_fDensity);
     val.y = ezMath::RoundToMultiple(val.y, pRenderData->m_fDensity);
     val.z = ezMath::RoundToMultiple(val.z, pRenderData->m_fDensity);
@@ -279,11 +275,14 @@ void ezEditorGridExtractor::Extract(const ezView& view, const ezDynamicArray<con
   }
   else
   {
-    pRenderData->m_GlobalTransform = m_pSceneContext->GetGridTransform();
+    auto& globalTransform = m_pSceneContext->GetGridTransform();
 
     // grid is disabled
-    if (pRenderData->m_GlobalTransform.m_vScale.IsZero(0.001f))
+    if (globalTransform.m_vScale.IsZero(0.001f))
       return;
+
+    pRenderData->m_vGlobalPosition = globalTransform.m_vPosition;
+    pRenderData->m_qGlobalRotation = globalTransform.m_qRotation;
 
     pRenderData->m_fDensity = fDensity;
 

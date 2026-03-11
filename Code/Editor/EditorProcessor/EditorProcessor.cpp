@@ -1,6 +1,6 @@
 #include <EditorProcessor/EditorProcessorPCH.h>
 
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessCommunicationChannel.h>
@@ -22,16 +22,17 @@ ezCommandLineOptionBool opt_Resave("_EditorProcessor", "-resave", "If specified,
 ezCommandLineOptionString opt_Transform("_EditorProcessor", "-transform", "If specified, assets will be transformed for the given platform profile.\n\
 \n\
 Example:\n\
-  -transform PC\n\
+  -transform Default\n\
 ",
   "");
+ezCommandLineOptionBool opt_Compile("_EditorProcessor", "-compile", "If specified, the C++ project will be generated and compiled.", false);
 
-class ezEditorApplication : public ezApplication
+class ezEditorProcessorApplication : public ezApplication
 {
 public:
   using SUPER = ezApplication;
 
-  ezEditorApplication()
+  ezEditorProcessorApplication()
     : ezApplication("ezEditor")
   {
     EnableMemoryLeakReporting(true);
@@ -76,6 +77,7 @@ public:
       }
 
       ezProcessAssetResponseMsg msg;
+      msg.m_StartedProcessing = ezTime::Now();
       {
         ezLogEntryDelegate logger([&msg](ezLogEntry& ref_entry) -> void
           { msg.m_LogEntries.PushBack(std::move(ref_entry)); },
@@ -92,6 +94,7 @@ public:
         {
           ezUInt64 uiAssetHash = 0;
           ezUInt64 uiThumbHash = 0;
+          ezUInt64 uiPackageHash = 0;
 
           // TODO: there is currently no 'nice' way to switch the active platform for the asset processors
           // it is also not clear whether this is actually safe to execute here
@@ -115,11 +118,22 @@ public:
           ezAssetCurator::GetSingleton()->NotifyOfFileChange(pMsg->m_sAssetPath);
 
           // Next, we force checking that the asset is up to date. This EditorProcessor instance might not have observed the generation of the output files of various dependencies yet and incorrectly assume that some dependencies still need to be transformed. To prevent this, we force checking the asset and all its dependencies via the filesystem, ignoring the caching.
-          ezAssetInfo::TransformState state = ezAssetCurator::GetSingleton()->IsAssetUpToDate(pMsg->m_AssetGuid, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform), nullptr, uiAssetHash, uiThumbHash, true);
+          ezAssetInfo::TransformState state = ezAssetCurator::GetSingleton()->IsAssetUpToDate(pMsg->m_AssetGuid, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform), nullptr, uiAssetHash, uiThumbHash, uiPackageHash, true);
+          msg.m_StartedTransform = ezTime::Now();
 
-          if (uiAssetHash != pMsg->m_AssetHash || uiThumbHash != pMsg->m_ThumbHash)
+          if ((uiAssetHash != pMsg->m_AssetHash) || (uiThumbHash != pMsg->m_ThumbHash))
           {
-            ezLog::Warning("Asset '{}' of state '{}' in processor with hashes '{}{}' differs from the state in the editor with hashes '{}{}'", pMsg->m_sAssetPath, (int)state, uiAssetHash, uiThumbHash, pMsg->m_AssetHash, pMsg->m_ThumbHash);
+            ezLog::Warning("Asset '{}' of state '{}' in processor with hashes '{}|{}' differs from the state in the editor with hashes '{}|{}'", pMsg->m_sAssetPath, (int)state, uiAssetHash, uiThumbHash, pMsg->m_AssetHash, pMsg->m_ThumbHash);
+            msg.m_uiMissmatchAssetHash = uiAssetHash;
+            msg.m_uiMissmatchThumbHash = uiThumbHash;
+
+            ezSet<ezString> dependencies;
+            ezAssetCurator::GetSingleton()->GenerateTransitiveHull(pMsg->m_sAssetPath, dependencies, ezDependencyFlags::Transform);
+            ezAssetCurator::GetSingleton()->GenerateSettingsHashMap(dependencies, ezDependencyFlags::Transform, msg.m_MissmatchTransformDependencies);
+
+            dependencies.Clear();
+            ezAssetCurator::GetSingleton()->GenerateTransitiveHull(pMsg->m_sAssetPath, dependencies, ezDependencyFlags::Thumbnail);
+            ezAssetCurator::GetSingleton()->GenerateSettingsHashMap(dependencies, ezDependencyFlags::Thumbnail, msg.m_MissmatchThumbnailDependencies);
           }
 
           if (state == ezAssetInfo::NeedsThumbnail || state == ezAssetInfo::NeedsTransform)
@@ -131,6 +145,11 @@ public:
               // make sure the result message ends up in the log
               ezLog::Error("{}", msg.m_Status.m_sMessage);
             }
+
+            // As there is no game loop that would progress frames in the engine process as it only waits for messages, we have to forcefully destroy pending deletion in the GAL after each transform or the process might never free those resources if it doesn't get a thumbnail job to do which has to tick the render loop.
+            ezSimpleConfigMsgToEngine msg;
+            msg.m_sWhatToDo = "FreeGalResources";
+            ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
           }
           else if (state == ezAssetInfo::UpToDate)
           {
@@ -144,18 +163,27 @@ public:
           }
         }
       }
+      msg.m_FinishedProcessing = ezTime::Now();
       m_IPC.SendMessage(&msg);
+    }
+    else if (const ezFreeAllResourcesMsg* pMsg = ezDynamicCast<const ezFreeAllResourcesMsg*>(e.m_pMessage))
+    {
+      // We have no more jobs for this processor so let's tell the engine process to free up resources.
+      ezSimpleConfigMsgToEngine msg;
+      msg.m_sWhatToDo = "FreeAllResources";
+      ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
     }
   }
 
-  virtual Execution Run() override
+  virtual void Run() override
   {
     {
       ezStringBuilder cmdHelp;
       if (ezCommandLineOption::LogAvailableOptionsToBuffer(cmdHelp, ezCommandLineOption::LogAvailableModes::IfHelpRequested, "_EditorProcessor;cvar"))
       {
         ezQtUiServices::GetSingleton()->MessageBoxInformation(cmdHelp);
-        return ezApplication::Execution::Quit;
+        QuitApplication();
+        return;
       }
     }
 
@@ -166,24 +194,32 @@ public:
     SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
 #endif
     const ezString sTransformProfile = opt_Transform.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
+    const bool bCompile = opt_Compile.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
     const bool bResave = opt_Resave.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified);
-    const bool bBackgroundMode = sTransformProfile.IsEmpty() && !bResave;
+    const bool bBackgroundMode = sTransformProfile.IsEmpty() && !bResave && !bCompile;
     const ezString sOutputDir = opt_OutputDir.GetOptionValue(ezCommandLineOption::LogMode::Always);
     const ezBitflags<ezQtEditorApp::StartupFlags> startupFlags = bBackgroundMode ? ezQtEditorApp::StartupFlags::Headless | ezQtEditorApp::StartupFlags::Background : ezQtEditorApp::StartupFlags::Headless;
     ezQtEditorApp::GetSingleton()->StartupEditor(startupFlags, sOutputDir);
     ezQtUiServices::SetHeadless(true);
 
+    QCoreApplication::sendPostedEvents();
+    qApp->processEvents();
+
+    EZ_SCOPE_EXIT(ezQtEditorApp::GetSingleton()->ShutdownEditor(); QuitApplication(););
+
     const ezStringBuilder sProject = opt_Project.GetOptionValue(ezCommandLineOption::LogMode::Always);
 
-    if (!sTransformProfile.IsEmpty())
+    // Project is opened by StartupEditor
+    if (!sProject.IsEmpty() && !ezToolsProject::IsProjectOpen())
     {
-      if (ezQtEditorApp::GetSingleton()->OpenProject(sProject).Failed())
-      {
-        SetReturnCode(2);
-        return ezApplication::Execution::Quit;
-      }
+      ezLog::Error("Failed to open project: {}", sProject);
+      SetReturnCode(2);
+      return;
+    }
 
-      // before we transform any assets, make sure the C++ code is properly built
+    if (!sTransformProfile.IsEmpty() || bCompile)
+    {
+      // before we transform any assets or if specifically asked, make sure the C++ code is built
       {
         ezCppSettings cppSettings;
         if (cppSettings.Load().Succeeded())
@@ -191,45 +227,53 @@ public:
           if (ezCppProject::BuildCodeIfNecessary(cppSettings).Failed())
           {
             SetReturnCode(3);
-            return ezApplication::Execution::Quit;
+            return;
           }
 
           ezQtEditorApp::GetSingleton()->RestartEngineProcessIfPluginsChanged(true);
         }
       }
 
-      bool bTransform = true;
+      if (!sTransformProfile.IsEmpty())
+      {
+        bool bTransform = true;
 
-      ezQtEditorApp::GetSingleton()->connect(ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this, &bTransform, &sTransformProfile]()
-        {
-        if (!bTransform)
-          return;
-
-        bTransform = false;
-
-        const ezUInt32 uiPlatform = ezAssetCurator::GetSingleton()->FindAssetProfileByName(sTransformProfile);
-
-        if (uiPlatform == ezInvalidIndex)
-        {
-          ezLog::Error("Asset platform config '{0}' is unknown", sTransformProfile);
-        }
-        else
-        {
-          ezStatus status = ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::TriggeredManually, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform));
-          if (status.Failed())
+        ezQtEditorApp::GetSingleton()->connect(ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this, &bTransform, &sTransformProfile]()
           {
-            status.LogFailure();
-            SetReturnCode(1);
+          if (!bTransform)
+            return;
+
+          bTransform = false;
+
+          const ezUInt32 uiPlatform = ezAssetCurator::GetSingleton()->FindAssetProfileByName(sTransformProfile);
+
+          if (uiPlatform == ezInvalidIndex)
+          {
+            ezLog::Error("Asset platform config '{0}' is unknown", sTransformProfile);
+          }
+          else
+          {
+            ezStatus status = ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::TriggeredManually, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform));
+            if (status.Failed())
+            {
+              status.LogFailure();
+              SetReturnCode(1);
+            }
+
+            if (opt_SaveProfilingData.GetOptionValue(ezCommandLineOption::LogMode::Always))
+            {
+              ezActionContext context;
+              ezActionManager::ExecuteAction("Engine", "Editor.SaveProfiling", context).IgnoreResult();
+            }
           }
 
-          if (opt_SaveProfilingData.GetOptionValue(ezCommandLineOption::LogMode::Always))
-          {
-            ezActionContext context;
-            ezActionManager::ExecuteAction("Engine", "Editor.SaveProfiling", context).IgnoreResult();
-          }
-        }
-
-        QApplication::quit(); });
+          QApplication::quit(); });
+      }
+      else
+      {
+        ezQtEditorApp::GetSingleton()->connect(ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this]()
+          { QApplication::quit(); });
+      }
 
       const ezInt32 iReturnCode = ezQtEditorApp::GetSingleton()->RunEditor();
       if (iReturnCode != 0)
@@ -237,11 +281,9 @@ public:
     }
     else if (opt_Resave.GetOptionValue(ezCommandLineOption::LogMode::AlwaysIfSpecified))
     {
-      ezQtEditorApp::GetSingleton()->OpenProject(sProject).IgnoreResult();
-
       ezQtEditorApp::GetSingleton()->connect(ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this]()
         {
-        ezAssetCurator::GetSingleton()->ResaveAllAssets();
+        ezAssetCurator::GetSingleton()->ResaveAllAssets("");
 
         if (opt_SaveProfilingData.GetOptionValue(ezCommandLineOption::LogMode::Always))
         {
@@ -260,9 +302,7 @@ public:
       ezResult res = m_IPC.ConnectToHostProcess();
       if (res.Succeeded())
       {
-        m_IPC.m_Events.AddEventHandler(ezMakeDelegate(&ezEditorApplication::EventHandlerIPC, this));
-
-        ezQtEditorApp::GetSingleton()->OpenProject(sProject).IgnoreResult();
+        m_IPC.m_Events.AddEventHandler(ezMakeDelegate(&ezEditorProcessorApplication::EventHandlerIPC, this));
         ezQtEditorApp::GetSingleton()->connect(ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this]()
           {
           static bool bRecursionBlock = false;
@@ -285,10 +325,6 @@ public:
         ezLog::Error("Failed to connect with host process");
       }
     }
-
-    ezQtEditorApp::GetSingleton()->ShutdownEditor();
-
-    return ezApplication::Execution::Quit;
   }
 
 private:
@@ -297,4 +333,4 @@ private:
   ezUniquePtr<ezEditorEngineProcessApp> m_pEditorEngineProcessAppDummy;
 };
 
-EZ_APPLICATION_ENTRY_POINT(ezEditorApplication);
+EZ_APPLICATION_ENTRY_POINT(ezEditorProcessorApplication);

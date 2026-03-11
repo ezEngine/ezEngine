@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Transformed by: SVG Repo Mixer Tools -->
+
+<svg
+   width="800px"
+   height="800px"
+   viewBox="0 0 16 16"
+   fill="none"
+   version="1.1"
+   id="svg1"
+   sodipodi:docname="TypeScript.svg"
+   inkscape:version="1.3 (0e150ed6c4, 2023-07-21)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1">
+    <rect
+       x="206.50954"
+       y="227.16049"
+       width="80.808081"
+       height="138.2716"
+       id="rect5" />
+  </defs>
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="true"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="1.11375"
+     inkscape:cx="400"
+     inkscape:cy="402.6936"
+     inkscape:window-width="1920"
+     inkscape:window-height="1129"
+     inkscape:window-x="1912"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1" />
+  <g
+     id="SVGRepo_bgCarrier"
+     stroke-width="0" />
+  <g
+     id="SVGRepo_tracerCarrier"
+     stroke-linecap="round"
+     stroke-linejoin="round"
+     inkscape:label="SVGRepo_tracerCarrier" />
+  <g
+     id="SVGRepo_iconCarrier">
+    <path
+       fill-rule="nonzero"
+       clip-rule="nonzero"
+       d="M 0,1.75 C 0,0.783501 0.783502,0 1.75,0 h 12.5 C 15.2165,0 16,0.783502 16,1.75 v 2 C 16,4.16421 15.6642,4.5 15.25,4.5 14.8358,4.5 14.5,4.16421 14.5,3.75 v -2 C 14.5,1.61193 14.3881,1.5 14.25,1.5 H 1.75 C 1.61193,1.5 1.5,1.61193 1.5,1.75 v 12.5 c 0,0.1381 0.11193,0.25 0.25,0.25 h 13.5 C 15.6642,14.5 16,14.8358 16,15.25 16,15.6642 15.6642,16 15.25,16 H 1.75 C 0.783501,16 0,15.2165 0,14.25 Z"
+       fill="#ffffff"
+       id="path1"
+       style="fill:#ffffff;fill-opacity:1"
+       sodipodi:nodetypes="sssssssssssssssssss" />
+  </g>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.9743px;line-height:0;font-family:Calibri;-inkscape-font-specification:'Calibri Bold';fill:#ffffff;fill-opacity:1;stroke:#ffffff;stroke-width:0.224518;stroke-dasharray:none;stroke-opacity:1"
+     x="3.2641454"
+     y="13.261153"
+     id="text5"><tspan
+       sodipodi:role="line"
+       id="tspan5"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Calibri;-inkscape-font-specification:'Calibri Bold';stroke:#ffffff;stroke-width:0.224518;stroke-opacity:1"
+       x="3.2641454"
+       y="13.261153">AS</tspan></text>
+</svg>

@@ -12,38 +12,55 @@
 #define LIGHT_TYPE_POINT 0
 #define LIGHT_TYPE_SPOT 1
 #define LIGHT_TYPE_DIR 2
+#define LIGHT_TYPE_FILL_ADDITIVE 3
+#define LIGHT_TYPE_FILL_MODULATE_INDIRECT 4
 
 struct EZ_SHADER_STRUCT ezPerLightData
 {
   UINT1(colorAndType);
   FLOAT1(intensity);
   UINT1(direction); // 10 bits fixed point per axis
-  UINT1(shadowDataOffset);
+  UINT1(shadowDataOffsetAndFadeOut); // 20 bits offset, 12 bits fade out
 
   FLOAT3(position);
   FLOAT1(invSqrAttRadius);
 
-  UINT1(spotParams); // scale and offset as 16 bit floats
-  UINT1(projectorAtlasOffset); // xy as 16 bit floats
-  UINT1(projectorAtlasScale); // xy as 16 bit floats
+  UINT1(spotOrFillParams); // spot: scale and offset as 16 bit floats, fill: falloff exponent and directionality as 16 bit floats
   FLOAT1(specularMultiplier);
+  UINT1(cookieParams0); // x: cookie index, y: cookie right dir z as 16 bit float
+  UINT1(cookieParams1); // xy: cookie right dir xy as 16 bit floats
 };
 
 #if EZ_ENABLED(PLATFORM_SHADER)
   StructuredBuffer<ezPerLightData> perLightDataBuffer;
+
+  uint GetLightType(ezPerLightData data)
+  {
+    return (data.colorAndType >> 24) & 0xFF;
+  }
+
+  float3 GetLightColor(ezPerLightData data)
+  {
+    return RGB8ToFloat3(data.colorAndType);
+  }
+
+  float3 GetLightDirection(ezPerLightData data)
+  {
+    return normalize(RGB10ToFloat3(data.direction) * 2.0 - 1.0);
+  }
 #else
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezPerLightData) == 48);
+  static_assert(sizeof(ezPerLightData) == 48);
 #endif
 
 struct EZ_SHADER_STRUCT ezPointShadowData
 {
-  FLOAT4(shadowParams); // x = slope bias, y = constant bias, z = penumbra size in texel, w = fadeout
+  FLOAT4(shadowParams); // x = slope bias, y = constant bias, z = penumbra size in texel, w = unused
   MAT4(worldToLightMatrix)[6];
 };
 
 struct EZ_SHADER_STRUCT ezSpotShadowData
 {
-  FLOAT4(shadowParams); // x = slope bias, y = constant bias, z = penumbra size in texel, w = fadeout
+  FLOAT4(shadowParams); // x = slope bias, y = constant bias, z = penumbra size in texel, w = unused
   MAT4(worldToLightMatrix);
 };
 
@@ -102,7 +119,19 @@ struct EZ_SHADER_STRUCT ezPerDecalData
 #if EZ_ENABLED(PLATFORM_SHADER)
   StructuredBuffer<ezPerDecalData> perDecalDataBuffer;
 #else // C++
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezPerDecalData) == 96);
+  static_assert(sizeof(ezPerDecalData) == 96);
+#endif
+
+struct ezPerDecalAtlasData
+{
+  UINT1(scale);
+  UINT1(offset);
+};
+
+#if EZ_ENABLED(PLATFORM_SHADER)
+  StructuredBuffer<ezPerDecalAtlasData> perDecalAtlasDataBuffer;
+#else // C++
+  static_assert(sizeof(ezPerDecalAtlasData) == 8);
 #endif
 
 #define REFLECTION_PROBE_IS_SPHERE (1 << 31)
@@ -128,7 +157,7 @@ struct EZ_SHADER_STRUCT ezPerDecalData
 #if EZ_ENABLED(PLATFORM_SHADER)
   StructuredBuffer<ezPerReflectionProbeData> perPerReflectionProbeDataBuffer;
 #else // C++
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezPerReflectionProbeData) == 160);
+  static_assert(sizeof(ezPerReflectionProbeData) == 160);
 #endif
 
   CONSTANT_BUFFER(ezClusteredDataConstants, 3)
@@ -139,8 +168,8 @@ struct EZ_SHADER_STRUCT ezPerDecalData
 
     UINT1(NumLights);
     UINT1(NumDecals);
-    UINT1(Padding);
 
+    UINT1(BrightestDirectionalLightIndex); // aka sun
     UINT1(SkyIrradianceIndex);
 
     FLOAT1(FogHeight);
@@ -149,6 +178,7 @@ struct EZ_SHADER_STRUCT ezPerDecalData
     FLOAT1(FogDensity);
     COLOR4F(FogColor);
     FLOAT1(FogInvSkyDistance);
+    FLOAT1(FogStartDistance);
 };
 
 #define NUM_CLUSTERS_X 16
@@ -176,6 +206,16 @@ struct ezPerClusterData
 #if EZ_ENABLED(PLATFORM_SHADER)
   StructuredBuffer<ezPerClusterData> perClusterDataBuffer;
   StructuredBuffer<uint> clusterItemBuffer;
+
+  ezPerLightData GetBrightestDirectionalLightData()
+  {
+    if (BrightestDirectionalLightIndex != 0xFFFFFFFF)
+    {
+      return perLightDataBuffer[BrightestDirectionalLightIndex];
+    }
+    
+    return (ezPerLightData)0;
+  }
 #endif
 
 // clang-format on

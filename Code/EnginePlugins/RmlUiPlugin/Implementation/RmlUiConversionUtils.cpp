@@ -40,7 +40,7 @@ namespace ezRmlUiConversionUtils
         break;
 
       case Rml::Variant::STRING:
-        result = value.Get<Rml::String>().c_str();
+        result = ToString(value.Get<Rml::String>());
         break;
 
       default:
@@ -94,6 +94,9 @@ namespace ezRmlUiConversionUtils
 
       case ezVariant::Type::String:
         return Rml::Variant(value.Get<ezString>());
+
+      case ezVariant::Type::HashedString:
+        return Rml::Variant(value.Get<ezHashedString>().GetString());
 
       default:
         EZ_ASSERT_NOT_IMPLEMENTED;

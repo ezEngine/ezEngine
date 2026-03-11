@@ -18,7 +18,7 @@ EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezShaderPermutationResource);
 static ezShaderPermutationResourceLoader g_PermutationResourceLoader;
 
 ezShaderPermutationResource::ezShaderPermutationResource()
-  : ezResource(DoUpdate::OnAnyThread, 1)
+  : ezResource(DoUpdate::OnGraphicsResourceThreads, 1)
 {
   m_bShaderPermutationValid = false;
 
@@ -34,30 +34,10 @@ ezResourceLoadDesc ezShaderPermutationResource::UnloadData(Unload WhatToUnload)
 
   auto pDevice = ezGALDevice::GetDefaultDevice();
 
-  if (!m_hShader.IsInvalidated())
-  {
-    pDevice->DestroyShader(m_hShader);
-    m_hShader.Invalidate();
-  }
-
-  if (!m_hBlendState.IsInvalidated())
-  {
-    pDevice->DestroyBlendState(m_hBlendState);
-    m_hBlendState.Invalidate();
-  }
-
-  if (!m_hDepthStencilState.IsInvalidated())
-  {
-    pDevice->DestroyDepthStencilState(m_hDepthStencilState);
-    m_hDepthStencilState.Invalidate();
-  }
-
-  if (!m_hRasterizerState.IsInvalidated())
-  {
-    pDevice->DestroyRasterizerState(m_hRasterizerState);
-    m_hRasterizerState.Invalidate();
-  }
-
+  pDevice->DestroyShader(m_hShader);
+  pDevice->DestroyBlendState(m_hBlendState);
+  pDevice->DestroyDepthStencilState(m_hDepthStencilState);
+  pDevice->DestroyRasterizerState(m_hRasterizerState);
 
   ezResourceLoadDesc res;
   res.m_State = ezResourceState::Unloaded;
@@ -101,6 +81,8 @@ ezResourceLoadDesc ezShaderPermutationResource::UpdateContent(ezStreamReader* St
     m_hBlendState = pDevice->CreateBlendState(PermutationBinary.m_StateDescriptor.m_BlendDesc);
     m_hDepthStencilState = pDevice->CreateDepthStencilState(PermutationBinary.m_StateDescriptor.m_DepthStencilDesc);
     m_hRasterizerState = pDevice->CreateRasterizerState(PermutationBinary.m_StateDescriptor.m_RasterizerDesc);
+    m_uiShaderStencilRef = PermutationBinary.m_StateDescriptor.m_uiShaderStencilRef;
+    m_bUseUserStencilRef = PermutationBinary.m_StateDescriptor.m_bUseUserStencilRefValue;
   }
 
   ezGALShaderCreationDescription ShaderDesc;
@@ -262,7 +244,7 @@ ezResourceLoadData ezShaderPermutationResourceLoader::OpenDataStream(const ezRes
 
   {
     ezFileReader File;
-    if (File.Open(pResource->GetResourceID().GetData()).Failed())
+    if (File.Open(pResource->GetResourceID()).Failed())
     {
       ezLog::Debug("Shader Permutation '{0}' does not exist, triggering recompile.", pResource->GetResourceID());
 
@@ -271,7 +253,7 @@ ezResourceLoadData ezShaderPermutationResourceLoader::OpenDataStream(const ezRes
         return res;
 
       // try again
-      if (File.Open(pResource->GetResourceID().GetData()).Failed())
+      if (File.Open(pResource->GetResourceID()).Failed())
       {
         ezLog::Debug("Shader Permutation '{0}' still does not exist after recompile.", pResource->GetResourceID());
         return res;
@@ -309,7 +291,7 @@ ezResourceLoadData ezShaderPermutationResourceLoader::OpenDataStream(const ezRes
 
     ezFileReader File;
 
-    if (File.Open(pResource->GetResourceID().GetData()).Failed())
+    if (File.Open(pResource->GetResourceID()).Failed())
     {
       ezLog::Error("Shader Permutation '{0}': Failed to open the file", pResource->GetResourceID());
       return res;

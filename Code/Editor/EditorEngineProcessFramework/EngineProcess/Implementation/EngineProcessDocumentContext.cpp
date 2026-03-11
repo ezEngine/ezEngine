@@ -10,9 +10,8 @@
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Textures/TextureUtils.h>
-#include <RendererFoundation/CommandEncoder/RenderCommandEncoder.h>
+#include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
-#include <RendererFoundation/Device/Pass.h>
 #include <RendererFoundation/Resources/Texture.h>
 #include <Texture/Image/ImageUtils.h>
 
@@ -150,6 +149,15 @@ void ezEngineProcessDocumentContext::Deinitialize()
 
 void ezEngineProcessDocumentContext::SendProcessMessage(ezProcessMessage* pMsg)
 {
+  if (ezEditorEngineDocumentMsg* pEngineMsg = ezDynamicCast<ezEditorEngineDocumentMsg*>(pMsg))
+  {
+    if (!pEngineMsg->m_DocumentGuid.IsValid())
+    {
+      // automatically fill this out, if it wasn't done by the calling code
+      pEngineMsg->m_DocumentGuid = GetDocumentGuid();
+    }
+  }
+
   m_pIPC->SendMessage(pMsg);
 }
 
@@ -210,7 +218,7 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
 
     ezStatus res = ExportDocument(pMsg2);
     ret.m_bOutputSuccess = res.Succeeded();
-    ret.m_sFailureMsg = res.m_sMessage;
+    ret.m_sFailureMsg = res.GetMessageString();
 
     if (!ret.m_bOutputSuccess)
     {
@@ -405,7 +413,7 @@ void ezEngineProcessDocumentContext::OnDeinitialize() {}
 
 bool ezEngineProcessDocumentContext::PendingOperationInProgress() const
 {
-  auto pState = ezGameApplicationBase::GetGameApplicationBaseInstance()->GetActiveGameStateLinkedToWorld(GetWorld());
+  auto pState = ezGameApplicationBase::GetGameApplicationBaseInstance()->GetActiveGameState();
   return m_pThumbnailViewContext != nullptr || pState != nullptr;
 }
 
@@ -418,15 +426,6 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
     {
       if (pView)
         pView->Redraw(false);
-    }
-  }
-
-  {
-    // If we have a running game state we always want to render it (e.g. play the game).
-    auto pState = ezGameApplicationBase::GetGameApplicationBaseInstance()->GetActiveGameStateLinkedToWorld(GetWorld());
-    if (pState != nullptr)
-    {
-      pState->ScheduleRendering();
     }
   }
 
@@ -445,49 +444,40 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
       ezCreateThumbnailMsgToEditor ret;
       ret.m_DocumentGuid = GetDocumentGuid();
 
-      // Download image
+      // Start readback image
       {
-        auto pGALPass = ezGALDevice::GetDefaultDevice()->BeginPass("Thumbnail Readback");
-        EZ_SCOPE_EXIT(ezGALDevice::GetDefaultDevice()->EndPass(pGALPass));
+        auto pCommandEncoder = ezGALDevice::GetDefaultDevice()->BeginCommands("Thumbnail Readback");
+        EZ_SCOPE_EXIT(ezGALDevice::GetDefaultDevice()->EndCommands(pCommandEncoder));
 
-        auto pGALCommandEncoder = pGALPass->BeginRendering(ezGALRenderingSetup());
-        EZ_SCOPE_EXIT(pGALPass->EndRendering(pGALCommandEncoder));
+        m_ThumbnailReadback.ReadbackTexture(*pCommandEncoder, m_hThumbnailColorRT);
+        pCommandEncoder->Flush();
+      }
+      // Wait for results
+      {
+        ezEnum<ezGALAsyncResult> res = m_ThumbnailReadback.GetReadbackResult(ezTime::MakeFromHours(1));
+        EZ_ASSERT_ALWAYS(res == ezGALAsyncResult::Ready, "Readback of texture failed");
 
-        pGALCommandEncoder->ReadbackTexture(m_hThumbnailColorRT);
         const ezGALTexture* pThumbnailColor = ezGALDevice::GetDefaultDevice()->GetTexture(m_hThumbnailColorRT);
-        const ezEnum<ezGALResourceFormat> format = pThumbnailColor->GetDescription().m_Format;
-
-        ezGALSystemMemoryDescription MemDesc;
-        {
-          MemDesc.m_uiRowPitch = 4 * m_uiThumbnailWidth;
-          MemDesc.m_uiSlicePitch = 4 * m_uiThumbnailWidth * m_uiThumbnailHeight;
-        }
-
-        ezImageHeader header;
-        header.SetImageFormat(ezTextureUtils::GalFormatToImageFormat(format, true));
-        header.SetWidth(m_uiThumbnailWidth);
-        header.SetHeight(m_uiThumbnailHeight);
-        ezImage image;
-        image.ResetAndAlloc(header);
-        EZ_ASSERT_DEV(static_cast<ezUInt64>(m_uiThumbnailWidth) * static_cast<ezUInt64>(m_uiThumbnailHeight) * 4 == header.ComputeDataSize(), "Thumbnail ezImage has different size than data buffer!");
-
-        MemDesc.m_pData = image.GetPixelPointer<ezUInt8>();
-        ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescs(&MemDesc, 1);
 
         ezGALTextureSubresource sourceSubResource;
         ezArrayPtr<ezGALTextureSubresource> sourceSubResources(&sourceSubResource, 1);
+        ezTempHybridArray<ezGALSystemMemoryDescription, 1> memory;
 
-        pGALCommandEncoder->CopyTextureReadbackResult(m_hThumbnailColorRT, sourceSubResources, SysMemDescs);
+        ezReadbackTextureLock lock = m_ThumbnailReadback.LockTexture(sourceSubResources, memory);
+        EZ_ASSERT_ALWAYS(lock, "Failed to lock readback texture");
+
+        ezImage tmp;
+        ezImageView imageView = ezTextureUtils::MakeImageViewFromSubResource(pThumbnailColor->GetDescription(), sourceSubResource, memory[0], tmp, true);
 
         ezImage imageSwap;
-        ezImage* pImage = &image;
+        ezImage* pImage = &tmp;
         ezImage* pImageSwap = &imageSwap;
         for (ezUInt32 uiSuperscaleFactor = ThumbnailSuperscaleFactor; uiSuperscaleFactor > 1; uiSuperscaleFactor /= 2)
         {
-          ezImageUtils::Scale(*pImage, *pImageSwap, pImage->GetWidth() / 2, pImage->GetHeight() / 2).IgnoreResult();
+          ezImageView& sourceView = uiSuperscaleFactor == ThumbnailSuperscaleFactor ? imageView : *pImage;
+          ezImageUtils::Scale(sourceView, *pImageSwap, sourceView.GetWidth() / 2, sourceView.GetHeight() / 2).IgnoreResult();
           ezMath::Swap(pImage, pImageSwap);
         }
-
 
         ret.m_ThumbnailData.SetCountUninitialized((m_uiThumbnailWidth / ThumbnailSuperscaleFactor) * (m_uiThumbnailHeight / ThumbnailSuperscaleFactor) * 4);
         ezMemoryUtils::Copy(ret.m_ThumbnailData.GetData(), pImage->GetPixelPointer<ezUInt8>(), ret.m_ThumbnailData.GetCount());
@@ -515,7 +505,7 @@ void ezEngineProcessDocumentContext::CreateThumbnailViewContext(const ezCreateTh
 {
   EZ_ASSERT_DEV(!ezEditorEngineProcessApp::GetSingleton()->IsRemoteMode(), "Wrong mode for thumbnail creation");
   EZ_ASSERT_DEV(m_pThumbnailViewContext == nullptr, "Thumbnail rendering already in progress.");
-  EZ_CHECK_AT_COMPILETIME_MSG((ThumbnailSuperscaleFactor & (ThumbnailSuperscaleFactor - 1)) == 0, "ThumbnailSuperscaleFactor must be power of 2.");
+  static_assert((ThumbnailSuperscaleFactor & (ThumbnailSuperscaleFactor - 1)) == 0, "ThumbnailSuperscaleFactor must be power of 2.");
   m_uiThumbnailConvergenceFrames = 0;
   m_uiThumbnailWidth = pMsg->m_uiWidth * ThumbnailSuperscaleFactor;
   m_uiThumbnailHeight = pMsg->m_uiHeight * ThumbnailSuperscaleFactor;
@@ -532,12 +522,8 @@ void ezEngineProcessDocumentContext::CreateThumbnailViewContext(const ezCreateTh
 
   // Create render target for picking
   ezGALTextureCreationDescription tcd;
-  tcd.m_bAllowDynamicMipGeneration = false;
-  tcd.m_bAllowShaderResourceView = false;
-  tcd.m_bAllowUAV = false;
-  tcd.m_bCreateRenderTarget = true;
+  tcd.m_TextureFlags = ezGALTextureUsageFlags::RenderTarget;
   tcd.m_Format = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
-  tcd.m_ResourceAccess.m_bReadBack = true;
   tcd.m_Type = ezGALTextureType::Texture2D;
   tcd.m_uiWidth = m_uiThumbnailWidth;
   tcd.m_uiHeight = m_uiThumbnailHeight;
@@ -545,7 +531,6 @@ void ezEngineProcessDocumentContext::CreateThumbnailViewContext(const ezCreateTh
   m_hThumbnailColorRT = pDevice->CreateTexture(tcd);
 
   tcd.m_Format = ezGALResourceFormat::DFloat;
-  tcd.m_ResourceAccess.m_bReadBack = false;
 
   m_hThumbnailDepthRT = pDevice->CreateTexture(tcd);
 

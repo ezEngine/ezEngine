@@ -2,10 +2,13 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_ANDROID)
 
-#  include <Foundation/Basics/Platform/Android/AndroidUtils.h>
 #  include <Foundation/Logging/Log.h>
+#  include <Foundation/Platform/Android/Utils/AndroidJni.h>
+#  include <Foundation/Platform/Android/Utils/AndroidUtils.h>
+#  include <Foundation/Utilities/CommandLineUtils.h>
 #  include <TestFramework/Platform/Android/AndroidTestApplication.h>
 #  include <TestFramework/Utilities/TestSetup.h>
+#  include <android/log.h>
 #  include <android/native_activity.h>
 #  include <android_native_app_glue.h>
 
@@ -24,7 +27,26 @@ void ezAndroidTestApplication::HandleCmd(int32_t cmd)
     case APP_CMD_INIT_WINDOW:
       if (m_pApp->window != nullptr)
       {
-        ezAndroidMain(0, nullptr);
+        // Retrieve command line arguments from Intent extras.
+        ezDynamicArray<ezString> args;
+        ezDynamicArray<const char*> argv;
+        {
+          ezJniAttachment jni;
+          ezJniObject activity = jni.GetActivity();
+          ezJniObject intent = activity.Call<ezJniObject>("getIntent");
+          if (!intent.IsNull())
+          {
+            ezJniString argsExtra = intent.Call<ezJniString>("getStringExtra", ezJniString("args"));
+            if (!argsExtra.IsNull())
+            {
+              const char* szArgs = argsExtra.GetData();
+              __android_log_print(ANDROID_LOG_INFO, "ezEngine", "Received arguments from Intent: '%s'", szArgs);
+              ezCommandLineUtils::SplitCommandLineString(szArgs, false, args, argv);
+            }
+          }
+        }
+
+        ezAndroidMain(static_cast<int>(argv.GetCount()), argv.IsEmpty() ? nullptr : const_cast<char**>(argv.GetData()));
         m_bStarted = true;
 
         int width = ANativeWindow_getWidth(m_pApp->window);

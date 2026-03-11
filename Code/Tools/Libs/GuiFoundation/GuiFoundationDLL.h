@@ -22,6 +22,7 @@
 
 class QWidget;
 class QObject;
+class QKeyEvent;
 
 
 Q_DECLARE_METATYPE(ezUuid);
@@ -96,7 +97,7 @@ void operator>>(QDataStream& inout_stream, ezDynamicArray<T>& rhs)
   rhs.Clear();
   rhs.Reserve(uiIndices);
 
-  for (int i = 0; i < uiIndices; ++i)
+  for (ezUInt32 i = 0; i < uiIndices; ++i)
   {
     T obj = {};
     inout_stream >> obj;
@@ -107,11 +108,23 @@ void operator>>(QDataStream& inout_stream, ezDynamicArray<T>& rhs)
 template <typename T>
 void operator<<(QDataStream& inout_stream, ezDynamicArray<T>& rhs)
 {
-  ezUInt32 iIndices = rhs.GetCount();
-  inout_stream << iIndices;
+  ezUInt32 uiIndices = rhs.GetCount();
+  inout_stream << uiIndices;
 
-  for (ezUInt32 i = 0; i < iIndices; ++i)
+  for (ezUInt32 i = 0; i < uiIndices; ++i)
   {
     inout_stream << rhs[i];
   }
 }
+
+namespace ezQtUtils
+{
+  /// Uses keyboard layout independent scan-codes to check whether the key of the QKeyEvent represents the desired key.
+  ///
+  /// Use this when the position of the key on the keyboard is the desired aspect, not the actual character.
+  /// For example for navigation (WSAD) in a viewport.
+  ///
+  /// Assumes the standard US keyboard layout for the reference keys.
+  EZ_GUIFOUNDATION_DLL bool IsEquivalentQtKey(const QKeyEvent* e, Qt::Key reference);
+
+} // namespace ezQtUtils

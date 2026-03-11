@@ -18,7 +18,7 @@ public:
 public:
   static const ezUInt8 s_uiMaxColors = 9;
 
-  ezQtTimeWidget(QWidget* pParent = 0);
+  ezQtTimeWidget(ads::CDockManager* pDockManager, QWidget* pParent = 0);
 
   static ezQtTimeWidget* s_pWidget;
 

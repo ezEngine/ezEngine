@@ -13,7 +13,7 @@ class ezQtAssetBrowserModel;
 struct ezAssetCuratorEvent;
 class ezQtAssetBrowserModel;
 
-class ezQtAssetBrowserWidget : public QWidget, public Ui_AssetBrowserWidget
+class EZ_EDITORFRAMEWORK_DLL ezQtAssetBrowserWidget : public QWidget, public Ui_AssetBrowserWidget
 {
   Q_OBJECT
 public:
@@ -42,8 +42,8 @@ public:
   void dragLeaveEvent(QDragLeaveEvent* pEvent) override;
   void dropEvent(QDropEvent* pEvent) override;
 
-  ezQtAssetBrowserModel* GetAssetBrowserModel() { return m_pModel; }
-  const ezQtAssetBrowserModel* GetAssetBrowserModel() const { return m_pModel; }
+  ezQtAssetBrowserModel* GetAssetBrowserModel() { return m_Model.data(); }
+  const ezQtAssetBrowserModel* GetAssetBrowserModel() const { return m_Model.data(); }
   ezQtAssetBrowserFilter* GetAssetBrowserFilter() { return m_pFilter; }
   const ezQtAssetBrowserFilter* GetAssetBrowserFilter() const { return m_pFilter; }
 
@@ -56,6 +56,7 @@ private Q_SLOTS:
   void OnTextFilterChanged();
   void OnTypeFilterChanged();
   void OnPathFilterChanged();
+  void OnFilterChanged();
   void on_ListAssets_doubleClicked(const QModelIndex& index);
   void on_ListAssets_activated(const QModelIndex& index);
   void on_ListAssets_clicked(const QModelIndex& index);
@@ -63,6 +64,7 @@ private Q_SLOTS:
   void on_ButtonIconMode_clicked();
   void on_IconSizeSlider_valueChanged(int iValue);
   void on_ListAssets_ViewZoomed(ezInt32 iIconSizePercentage);
+  void on_ResetTypeFilter_clicked();
   void OnSearchWidgetTextChanged(const QString& text);
   void on_TreeFolderFilter_customContextMenuRequested(const QPoint& pt);
   void on_TypeFilter_currentIndexChanged(int index);
@@ -70,9 +72,11 @@ private Q_SLOTS:
   void OnScrollToFile(QString sPreselectedFile);
   void OnShowSubFolderItemsToggled();
   void OnShowHiddenFolderItemsToggled();
+  void OnResaveAssets();
   void on_ListAssets_customContextMenuRequested(const QPoint& pt);
   void OnListOpenExplorer();
   void OnListOpenAssetDocument();
+  void OnListOpenFileWith();
   void OnTransform();
   void OnListToggleSortByRecentlyUsed();
   void OnListCopyAssetGuid();
@@ -86,13 +90,17 @@ private Q_SLOTS:
   void OnFileEditingFinished(const QString& sAbsPath, const QString& sNewName, bool bIsAsset);
   void ImportSelection();
   void OnOpenImportReferenceAsset();
-  void DeleteSelection();
+  void RenameCurrent();
+  void DeleteSelection(bool bAskUser);
+  void DeleteAndReplaceSelection();
   void OnImportAsAboutToShow();
   void OnImportAsClicked();
+  void OnExportAssetWithDependencies();
 
 
 private:
   virtual void keyPressEvent(QKeyEvent* e) override;
+  virtual void mousePressEvent(QMouseEvent* e) override;
 
 private:
   void AssetCuratorEventHandler(const ezAssetCuratorEvent& e);
@@ -105,7 +113,7 @@ private:
   Mode m_Mode = Mode::Browser;
   ezQtToolBarActionMapView* m_pToolbar = nullptr;
   ezString m_sAllTypesFilter;
-  ezQtAssetBrowserModel* m_pModel = nullptr;
+  QSharedPointer<ezQtAssetBrowserModel> m_Model;
   ezQtAssetBrowserFilter* m_pFilter = nullptr;
 
   /// \brief After creating a new asset and renaming it, we want to open it as well.

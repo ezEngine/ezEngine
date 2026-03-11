@@ -1,33 +1,60 @@
 #include <RendererDX11/RendererDX11PCH.h>
 
 #include <Core/System/Window.h>
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <Foundation/Configuration/Startup.h>
+#include <Foundation/Memory/FrameAllocator.h>
+#include <Foundation/Platform/Win/Utils/IncludeWindows.h>
+#include <Foundation/System/SystemInformation.h>
 #include <RendererDX11/CommandEncoder/CommandEncoderImplDX11.h>
 #include <RendererDX11/Device/DeviceDX11.h>
-#include <RendererDX11/Device/PassDX11.h>
 #include <RendererDX11/Device/SwapChainDX11.h>
+#include <RendererDX11/Pools/FencePoolDX11.h>
+#include <RendererDX11/Pools/QueryPoolDX11.h>
 #include <RendererDX11/Resources/BufferDX11.h>
-#include <RendererDX11/Resources/QueryDX11.h>
+#include <RendererDX11/Resources/ReadbackBufferDX11.h>
+#include <RendererDX11/Resources/ReadbackTextureDX11.h>
 #include <RendererDX11/Resources/RenderTargetViewDX11.h>
-#include <RendererDX11/Resources/ResourceViewDX11.h>
 #include <RendererDX11/Resources/SharedTextureDX11.h>
 #include <RendererDX11/Resources/TextureDX11.h>
-#include <RendererDX11/Resources/UnorderedAccessViewDX11.h>
+#include <RendererDX11/Shader/BindGroupDX11.h>
+#include <RendererDX11/Shader/BindGroupLayoutDX11.h>
+#include <RendererDX11/Shader/PipelineLayoutDX11.h>
 #include <RendererDX11/Shader/ShaderDX11.h>
 #include <RendererDX11/Shader/VertexDeclarationDX11.h>
+#include <RendererDX11/State/ComputePipelineDX11.h>
+#include <RendererDX11/State/GraphicsPipelineDX11.h>
 #include <RendererDX11/State/StateDX11.h>
-#include <RendererFoundation/CommandEncoder/RenderCommandEncoder.h>
+#include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Device/DeviceFactory.h>
 #include <RendererFoundation/Profiling/Profiling.h>
 
 #include <d3d11.h>
 #include <d3d11_3.h>
+#include <dxgi1_6.h>
 #include <dxgidebug.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-#  include <d3d11_1.h>
-#endif
+namespace
+{
+  IDXGIAdapter1* CreateHighPerformanceAdapter()
+  {
+    IDXGIFactory1* pFactory1 = nullptr;
+    IDXGIFactory6* pFactory6 = nullptr;
+    IDXGIAdapter1* pAdapter = nullptr;
+    EZ_SCOPE_EXIT(EZ_GAL_DX11_RELEASE(pFactory1));
+    EZ_SCOPE_EXIT(EZ_GAL_DX11_RELEASE(pFactory6));
+
+    if (FAILED(CreateDXGIFactory1(IID_PPV_ARGS(&pFactory1))))
+      return nullptr;
+
+    if (FAILED(pFactory1->QueryInterface(IID_PPV_ARGS(&pFactory6))))
+      return nullptr;
+
+    if (pFactory6->EnumAdapterByGpuPreference(0, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(&pAdapter)) == DXGI_ERROR_NOT_FOUND)
+      return nullptr;
+
+    return pAdapter;
+  }
+} // namespace
 
 ezInternal::NewInstance<ezGALDevice> CreateDX11Device(ezAllocator* pAllocator, const ezGALDeviceCreationDescription& description)
 {
@@ -116,9 +143,31 @@ retry:
 
     const char* FeatureLevelNames[] = {"11.1", "11.0", "10.1", "10", "9.3"};
 
-    EZ_CHECK_AT_COMPILETIME(EZ_ARRAY_SIZE(FeatureLevels) == EZ_ARRAY_SIZE(FeatureLevelNames));
+    static_assert(EZ_ARRAY_SIZE(FeatureLevels) == EZ_ARRAY_SIZE(FeatureLevelNames));
 
-    ezLog::Success("Initialized D3D11 device with feature level {0}.", FeatureLevelNames[FeatureLevelIdx]);
+    // Get the adapter from the device
+    IDXGIDevice* pDXGIDevice = nullptr;
+    IDXGIAdapter* pAdapter = nullptr;
+    DXGI_ADAPTER_DESC desc1 = {};
+
+    if (SUCCEEDED(m_pDevice->QueryInterface(__uuidof(IDXGIDevice), (void**)&pDXGIDevice)))
+    {
+      if (SUCCEEDED(pDXGIDevice->GetAdapter(&pAdapter)))
+      {
+        pAdapter->GetDesc(&desc1);
+        pAdapter->Release();
+      }
+      pDXGIDevice->Release();
+    }
+
+    ezLog::Success("Initialized D3D11 device '{}' with feature level {}.", desc1.Description, FeatureLevelNames[FeatureLevelIdx]);
+
+    // Validate that we got the minimum required feature level
+    if (m_uiFeatureLevel < D3D_FEATURE_LEVEL_11_1)
+    {
+      EZ_REPORT_FAILURE("The graphics hardware only supports Direct3D feature level {0}, but ezEngine requires feature level 11.1 or higher. ", FeatureLevelNames[FeatureLevelIdx]);
+      return EZ_FAILURE;
+    }
   }
 
   if (m_Description.m_bDebugDevice)
@@ -129,7 +178,7 @@ retry:
       if (SUCCEEDED(m_pDebug->QueryInterface(__uuidof(ID3D11InfoQueue), (void**)&pInfoQueue)))
       {
         // only do this when a debugger is attached, otherwise the app would crash on every DX error
-        if (IsDebuggerPresent())
+        if (ezSystemInformation::IsDebuggerAttached())
         {
           pInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_CORRUPTION, TRUE);
           pInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_ERROR, TRUE);
@@ -147,7 +196,7 @@ retry:
           };
           D3D11_INFO_QUEUE_FILTER filter;
           ezMemoryUtils::ZeroFill(&filter, 1);
-          filter.DenyList.NumIDs = _countof(hide);
+          filter.DenyList.NumIDs = EZ_ARRAY_SIZE(hide);
           filter.DenyList.pIDList = hide;
           pInfoQueue->AddStorageFilterEntries(&filter);
         }
@@ -159,7 +208,8 @@ retry:
 
 
   // Create default pass
-  m_pDefaultPass = EZ_NEW(&m_Allocator, ezGALPassDX11, *this);
+  m_pCommandEncoderImpl = EZ_DEFAULT_NEW(ezGALCommandEncoderImplDX11, *this);
+  m_pCommandEncoder = EZ_DEFAULT_NEW(ezGALCommandEncoder, *this, *m_pCommandEncoderImpl);
 
   if (FAILED(m_pDevice->QueryInterface(__uuidof(IDXGIDevice1), (void**)&m_pDXGIDevice)))
   {
@@ -188,54 +238,29 @@ retry:
     return EZ_FAILURE;
   }
 
+  ezFencePoolDX11::Initialize(this);
+  m_pFenceQueue = EZ_NEW(&m_Allocator, ezFenceQueueDX11, &m_Allocator);
+
   // Fill lookup table
   FillFormatLookupTable();
 
   ezClipSpaceDepthRange::Default = ezClipSpaceDepthRange::ZeroToOne;
   ezClipSpaceYMode::RenderToTextureDefault = ezClipSpaceYMode::Regular;
 
-  // Per frame data & timer data
-  D3D11_QUERY_DESC disjointQueryDesc;
-  disjointQueryDesc.Query = D3D11_QUERY_TIMESTAMP_DISJOINT;
-  disjointQueryDesc.MiscFlags = 0;
-
-  D3D11_QUERY_DESC timerQueryDesc;
-  timerQueryDesc.Query = D3D11_QUERY_TIMESTAMP;
-  timerQueryDesc.MiscFlags = 0;
-
-  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_PerFrameData); ++i)
+  m_pQueryPool = EZ_NEW(&m_Allocator, ezQueryPoolDX11, this);
+  if (m_pQueryPool->Initialize().Failed())
   {
-    auto& perFrameData = m_PerFrameData[i];
-
-    D3D11_QUERY_DESC QueryDesc;
-    QueryDesc.Query = D3D11_QUERY_EVENT;
-    QueryDesc.MiscFlags = 0;
-    if (SUCCEEDED(GetDXDevice()->CreateQuery(&QueryDesc, &perFrameData.m_pFence)))
-
-      if (FAILED(m_pDevice->CreateQuery(&disjointQueryDesc, &perFrameData.m_pDisjointTimerQuery)))
-      {
-        ezLog::Error("Creation of native DirectX query for disjoint query has failed!");
-        return EZ_FAILURE;
-      }
+    return EZ_FAILURE;
   }
-
-  // #TODO_DX11 Replace ring buffer with proper pool like in Vulkan to prevent buffer overrun.
-  m_Timestamps.SetCountUninitialized(2048);
-  for (ezUInt32 i = 0; i < m_Timestamps.GetCount(); ++i)
-  {
-    if (FAILED(m_pDevice->CreateQuery(&timerQueryDesc, &m_Timestamps[i])))
-    {
-      ezLog::Error("Creation of native DirectX query for timestamp has failed!");
-      return EZ_FAILURE;
-    }
-  }
-
-  m_SyncTimeDiff = ezTime::MakeZero();
 
   ezGALWindowSwapChain::SetFactoryMethod([this](const ezGALWindowSwapChainCreationDescription& desc) -> ezGALSwapChainHandle
     { return CreateSwapChain([&desc](ezAllocator* pAllocator) -> ezGALSwapChain*
         { return EZ_NEW(pAllocator, ezGALSwapChainDX11, desc); }); });
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  // RenderDoc cannot handle buffers that are mapped in a different frame than the current one
+  m_bSupportsAlwaysMappedTempResources = GetModuleHandleA("renderdoc.dll") == nullptr;
+#endif
   return EZ_SUCCESS;
 }
 
@@ -246,16 +271,14 @@ ezStringView ezGALDeviceDX11::GetRendererPlatform()
 
 ezResult ezGALDeviceDX11::InitPlatform()
 {
-  return InitPlatform(0, nullptr);
+  IDXGIAdapter1* pAdapter = CreateHighPerformanceAdapter();
+  EZ_SCOPE_EXIT(EZ_GAL_DX11_RELEASE(pAdapter));
+  return InitPlatform(0, pAdapter);
 }
 
 void ezGALDeviceDX11::ReportLiveGpuObjects()
 {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  // not implemented
-  return;
-
-#else
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 
   const HMODULE hDxgiDebugDLL = LoadLibraryW(L"Dxgidebug.dll");
 
@@ -298,10 +321,10 @@ ezResult ezGALDeviceDX11::ShutdownPlatform()
   {
     for (auto it = m_FreeTempResources[type].GetIterator(); it.IsValid(); ++it)
     {
-      ezDynamicArray<ID3D11Resource*>& resources = it.Value();
-      for (auto pResource : resources)
+      ezDynamicArray<TempResource>& tempResources = it.Value();
+      for (auto tempResource : tempResources)
       {
-        EZ_GAL_DX11_RELEASE(pResource);
+        EZ_GAL_DX11_RELEASE(tempResource.m_pResource);
       }
     }
     m_FreeTempResources[type].Clear();
@@ -313,36 +336,13 @@ ezResult ezGALDeviceDX11::ShutdownPlatform()
     m_UsedTempResources[type].Clear();
   }
 
-  for (auto& timestamp : m_Timestamps)
-  {
-    EZ_GAL_DX11_RELEASE(timestamp);
-  }
-  m_Timestamps.Clear();
+  m_pQueryPool->DeInitialize();
+  m_pQueryPool = nullptr;
+  m_pFenceQueue = nullptr;
+  ezFencePoolDX11::DeInitialize();
 
-  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_PerFrameData); ++i)
-  {
-    auto& perFrameData = m_PerFrameData[i];
-
-    EZ_GAL_DX11_RELEASE(perFrameData.m_pFence);
-    perFrameData.m_pFence = nullptr;
-
-    EZ_GAL_DX11_RELEASE(perFrameData.m_pDisjointTimerQuery);
-  }
-
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  // Force immediate destruction of all objects destroyed so far.
-  // This is necessary if we want to create a new primary swap chain/device right after this.
-  // See: https://msdn.microsoft.com/en-us/library/windows/desktop/ff476425(v=vs.85).aspx#Defer_Issues_with_Flip
-  // Strictly speaking we should do this right after we destroy the swap chain and flush all contexts that are affected.
-  // However, the particular usecase where this problem comes up is usually a restart scenario.
-  if (m_pImmediateContext != nullptr)
-  {
-    m_pImmediateContext->ClearState();
-    m_pImmediateContext->Flush();
-  }
-#endif
-
-  m_pDefaultPass = nullptr;
+  m_pCommandEncoder = nullptr;
+  m_pCommandEncoderImpl = nullptr;
 
   EZ_GAL_DX11_RELEASE(m_pImmediateContext);
   EZ_GAL_DX11_RELEASE(m_pDevice3);
@@ -357,57 +357,32 @@ ezResult ezGALDeviceDX11::ShutdownPlatform()
   return EZ_SUCCESS;
 }
 
-// Pipeline & Pass functions
+// Command encoder functions
 
-void ezGALDeviceDX11::BeginPipelinePlatform(const char* szName, ezGALSwapChain* pSwapChain)
+ezGALCommandEncoder* ezGALDeviceDX11::BeginCommandsPlatform(const char* szName)
 {
 #if EZ_ENABLED(EZ_USE_PROFILING)
-  m_pPipelineTimingScope = ezProfilingScopeAndMarker::Start(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), szName);
+  m_pPassTimingScope = ezProfilingScopeAndMarker::Start(m_pCommandEncoder.Borrow(), szName);
+#else
+  EZ_IGNORE_UNUSED(szName);
 #endif
 
-  if (pSwapChain)
-  {
-    pSwapChain->AcquireNextRenderTarget(this);
-  }
+  return m_pCommandEncoder.Borrow();
 }
 
-void ezGALDeviceDX11::EndPipelinePlatform(ezGALSwapChain* pSwapChain)
+void ezGALDeviceDX11::EndCommandsPlatform(ezGALCommandEncoder* pPass)
 {
-  if (pSwapChain)
-  {
-    pSwapChain->PresentRenderTarget(this);
-  }
+  EZ_ASSERT_DEV(m_pCommandEncoder.Borrow() == pPass, "Invalid pass");
+  EZ_IGNORE_UNUSED(pPass);
 
 #if EZ_ENABLED(EZ_USE_PROFILING)
-  ezProfilingScopeAndMarker::Stop(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), m_pPipelineTimingScope);
+  ezProfilingScopeAndMarker::Stop(m_pCommandEncoder.Borrow(), m_pPassTimingScope);
 #endif
-}
-
-ezGALPass* ezGALDeviceDX11::BeginPassPlatform(const char* szName)
-{
-#if EZ_ENABLED(EZ_USE_PROFILING)
-  m_pPassTimingScope = ezProfilingScopeAndMarker::Start(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), szName);
-#endif
-
-  m_pDefaultPass->BeginPass(szName);
-
-  return m_pDefaultPass.Borrow();
-}
-
-void ezGALDeviceDX11::EndPassPlatform(ezGALPass* pPass)
-{
-  EZ_ASSERT_DEV(m_pDefaultPass.Borrow() == pPass, "Invalid pass");
-
-#if EZ_ENABLED(EZ_USE_PROFILING)
-  ezProfilingScopeAndMarker::Stop(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), m_pPassTimingScope);
-#endif
-
-  m_pDefaultPass->EndPass();
 }
 
 void ezGALDeviceDX11::FlushPlatform()
 {
-  m_pImmediateContext->Flush();
+  m_pCommandEncoderImpl->FlushPlatform();
 }
 
 // State creation functions
@@ -500,6 +475,116 @@ void ezGALDeviceDX11::DestroySamplerStatePlatform(ezGALSamplerState* pSamplerSta
   EZ_DELETE(&m_Allocator, pDX11SamplerState);
 }
 
+ezGALBindGroupLayout* ezGALDeviceDX11::CreateBindGroupLayoutPlatform(const ezGALBindGroupLayoutCreationDescription& Description)
+{
+  ezGALBindGroupLayoutDX11* pDX11BindGroupLayout = EZ_NEW(&m_Allocator, ezGALBindGroupLayoutDX11, Description);
+
+  if (pDX11BindGroupLayout->InitPlatform(this).Succeeded())
+  {
+    return pDX11BindGroupLayout;
+  }
+  else
+  {
+    EZ_DELETE(&m_Allocator, pDX11BindGroupLayout);
+    return nullptr;
+  }
+}
+
+void ezGALDeviceDX11::DestroyBindGroupLayoutPlatform(ezGALBindGroupLayout* pBindGroupLayout)
+{
+  ezGALBindGroupLayoutDX11* pDX11BindGroupLayout = static_cast<ezGALBindGroupLayoutDX11*>(pBindGroupLayout);
+  pDX11BindGroupLayout->DeInitPlatform(this).IgnoreResult();
+  EZ_DELETE(&m_Allocator, pDX11BindGroupLayout);
+}
+
+ezGALBindGroup* ezGALDeviceDX11::CreateBindGroupPlatform(const ezGALBindGroupCreationDescription& Description)
+{
+  ezGALBindGroupDX11* pDX11BindGroup = EZ_NEW(&m_Allocator, ezGALBindGroupDX11, Description);
+
+  if (pDX11BindGroup->InitPlatform(this).Succeeded())
+  {
+    return pDX11BindGroup;
+  }
+  else
+  {
+    EZ_DELETE(&m_Allocator, pDX11BindGroup);
+    return nullptr;
+  }
+}
+
+void ezGALDeviceDX11::DestroyBindGroupPlatform(ezGALBindGroup* pBindGroup)
+{
+  ezGALBindGroupDX11* pDX11BindGroup = static_cast<ezGALBindGroupDX11*>(pBindGroup);
+  pDX11BindGroup->DeInitPlatform(this).IgnoreResult();
+  EZ_DELETE(&m_Allocator, pDX11BindGroup);
+}
+
+
+ezGALPipelineLayout* ezGALDeviceDX11::CreatePipelineLayoutPlatform(const ezGALPipelineLayoutCreationDescription& Description)
+{
+  ezGALPipelineLayoutDX11* pDX11PipelineLayout = EZ_NEW(&m_Allocator, ezGALPipelineLayoutDX11, Description);
+
+  if (pDX11PipelineLayout->InitPlatform(this).Succeeded())
+  {
+    return pDX11PipelineLayout;
+  }
+  else
+  {
+    EZ_DELETE(&m_Allocator, pDX11PipelineLayout);
+    return nullptr;
+  }
+}
+
+void ezGALDeviceDX11::DestroyPipelineLayoutPlatform(ezGALPipelineLayout* pPipelineLayout)
+{
+  ezGALPipelineLayoutDX11* pDX11PipelineLayout = static_cast<ezGALPipelineLayoutDX11*>(pPipelineLayout);
+  pDX11PipelineLayout->DeInitPlatform(this).IgnoreResult();
+  EZ_DELETE(&m_Allocator, pDX11PipelineLayout);
+}
+
+ezGALGraphicsPipeline* ezGALDeviceDX11::CreateGraphicsPipelinePlatform(const ezGALGraphicsPipelineCreationDescription& Description)
+{
+  ezGALGraphicsPipelineDX11* pGraphicsPipeline = EZ_NEW(&m_Allocator, ezGALGraphicsPipelineDX11, Description);
+
+  if (pGraphicsPipeline->InitPlatform(this).Succeeded())
+  {
+    return pGraphicsPipeline;
+  }
+  else
+  {
+    EZ_DELETE(&m_Allocator, pGraphicsPipeline);
+    return nullptr;
+  }
+}
+
+void ezGALDeviceDX11::DestroyGraphicsPipelinePlatform(ezGALGraphicsPipeline* pGraphicsPipeline)
+{
+  ezGALGraphicsPipelineDX11* pGraphicsPipelineDX11 = static_cast<ezGALGraphicsPipelineDX11*>(pGraphicsPipeline);
+  pGraphicsPipelineDX11->DeInitPlatform(this).IgnoreResult();
+  EZ_DELETE(&m_Allocator, pGraphicsPipelineDX11);
+}
+
+ezGALComputePipeline* ezGALDeviceDX11::CreateComputePipelinePlatform(const ezGALComputePipelineCreationDescription& Description)
+{
+  ezGALComputePipelineDX11* pComputePipeline = EZ_NEW(&m_Allocator, ezGALComputePipelineDX11, Description);
+
+  if (pComputePipeline->InitPlatform(this).Succeeded())
+  {
+    return pComputePipeline;
+  }
+  else
+  {
+    EZ_DELETE(&m_Allocator, pComputePipeline);
+    return nullptr;
+  }
+}
+
+void ezGALDeviceDX11::DestroyComputePipelinePlatform(ezGALComputePipeline* pComputePipeline)
+{
+  ezGALComputePipelineDX11* pComputePipelineDX11 = static_cast<ezGALComputePipelineDX11*>(pComputePipeline);
+  pComputePipelineDX11->DeInitPlatform(this).IgnoreResult();
+  EZ_DELETE(&m_Allocator, pComputePipelineDX11);
+}
 
 // Resource creation functions
 
@@ -525,6 +610,17 @@ void ezGALDeviceDX11::DestroyShaderPlatform(ezGALShader* pShader)
 
 ezGALBuffer* ezGALDeviceDX11::CreateBufferPlatform(const ezGALBufferCreationDescription& Description, ezArrayPtr<const ezUInt8> pInitialData)
 {
+  if (Description.m_BufferFlags.AreAllSet(ezGALBufferUsageFlags::DrawIndirect | ezGALBufferUsageFlags::StructuredBuffer))
+  {
+    ezLog::Error("DX11 does not support creating buffers with both DrawIndirect and StructuredBuffer set");
+    return nullptr;
+  }
+  if (Description.m_BufferFlags.AreAllSet(ezGALBufferUsageFlags::DrawIndirect | ezGALBufferUsageFlags::ConstantBuffer))
+  {
+    ezLog::Error("DX11 does not support creating buffers with both DrawIndirect and ConstantBuffer set");
+    return nullptr;
+  }
+
   ezGALBufferDX11* pBuffer = EZ_NEW(&m_Allocator, ezGALBufferDX11, Description);
 
   if (!pBuffer->InitPlatform(this, pInitialData).Succeeded())
@@ -539,6 +635,19 @@ ezGALBuffer* ezGALDeviceDX11::CreateBufferPlatform(const ezGALBufferCreationDesc
 void ezGALDeviceDX11::DestroyBufferPlatform(ezGALBuffer* pBuffer)
 {
   ezGALBufferDX11* pDX11Buffer = static_cast<ezGALBufferDX11*>(pBuffer);
+
+  for (ezUInt32 i = 0; i < m_PendingCopies.GetCount(); ++i)
+  {
+    auto& copy = m_PendingCopies[i];
+
+    if (copy.m_pDestResource == pDX11Buffer->GetDXBuffer())
+    {
+      UnmapTempResource(copy.m_SourceResource);
+      m_PendingCopies.RemoveAtAndSwap(i);
+      --i;
+    }
+  }
+
   pDX11Buffer->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pDX11Buffer);
 }
@@ -559,6 +668,19 @@ ezGALTexture* ezGALDeviceDX11::CreateTexturePlatform(const ezGALTextureCreationD
 void ezGALDeviceDX11::DestroyTexturePlatform(ezGALTexture* pTexture)
 {
   ezGALTextureDX11* pDX11Texture = static_cast<ezGALTextureDX11*>(pTexture);
+
+  for (ezUInt32 i = 0; i < m_PendingCopies.GetCount(); ++i)
+  {
+    auto& copy = m_PendingCopies[i];
+
+    if (copy.m_pDestResource == pDX11Texture->GetDXTexture())
+    {
+      UnmapTempResource(copy.m_SourceResource);
+      m_PendingCopies.RemoveAtAndSwap(i);
+      --i;
+    }
+  }
+
   pDX11Texture->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pDX11Texture);
 }
@@ -583,44 +705,46 @@ void ezGALDeviceDX11::DestroySharedTexturePlatform(ezGALTexture* pTexture)
   EZ_DELETE(&m_Allocator, pDX11Texture);
 }
 
-ezGALTextureResourceView* ezGALDeviceDX11::CreateResourceViewPlatform(ezGALTexture* pResource, const ezGALTextureResourceViewCreationDescription& Description)
+ezGALReadbackBuffer* ezGALDeviceDX11::CreateReadbackBufferPlatform(const ezGALBufferCreationDescription& Description)
 {
-  ezGALTextureResourceViewDX11* pResourceView = EZ_NEW(&m_Allocator, ezGALTextureResourceViewDX11, pResource, Description);
+  ezGALReadbackBufferDX11* pReadbackBuffer = EZ_NEW(&m_Allocator, ezGALReadbackBufferDX11, Description);
 
-  if (!pResourceView->InitPlatform(this).Succeeded())
+  if (!pReadbackBuffer->InitPlatform(this).Succeeded())
   {
-    EZ_DELETE(&m_Allocator, pResourceView);
+    EZ_DELETE(&m_Allocator, pReadbackBuffer);
     return nullptr;
   }
 
-  return pResourceView;
+  return pReadbackBuffer;
 }
 
-void ezGALDeviceDX11::DestroyResourceViewPlatform(ezGALTextureResourceView* pResourceView)
+void ezGALDeviceDX11::DestroyReadbackBufferPlatform(ezGALReadbackBuffer* pReadbackBuffer)
 {
-  ezGALTextureResourceViewDX11* pDX11ResourceView = static_cast<ezGALTextureResourceViewDX11*>(pResourceView);
-  pDX11ResourceView->DeInitPlatform(this).IgnoreResult();
-  EZ_DELETE(&m_Allocator, pDX11ResourceView);
+  ezGALReadbackBufferDX11* pDX11ReadbackBuffer = static_cast<ezGALReadbackBufferDX11*>(pReadbackBuffer);
+
+  pDX11ReadbackBuffer->DeInitPlatform(this).IgnoreResult();
+  EZ_DELETE(&m_Allocator, pDX11ReadbackBuffer);
 }
 
-ezGALBufferResourceView* ezGALDeviceDX11::CreateResourceViewPlatform(ezGALBuffer* pResource, const ezGALBufferResourceViewCreationDescription& Description)
+ezGALReadbackTexture* ezGALDeviceDX11::CreateReadbackTexturePlatform(const ezGALTextureCreationDescription& Description)
 {
-  ezGALBufferResourceViewDX11* pResourceView = EZ_NEW(&m_Allocator, ezGALBufferResourceViewDX11, pResource, Description);
+  ezGALReadbackTextureDX11* pReadbackTexture = EZ_NEW(&m_Allocator, ezGALReadbackTextureDX11, Description);
 
-  if (!pResourceView->InitPlatform(this).Succeeded())
+  if (!pReadbackTexture->InitPlatform(this).Succeeded())
   {
-    EZ_DELETE(&m_Allocator, pResourceView);
+    EZ_DELETE(&m_Allocator, pReadbackTexture);
     return nullptr;
   }
 
-  return pResourceView;
+  return pReadbackTexture;
 }
 
-void ezGALDeviceDX11::DestroyResourceViewPlatform(ezGALBufferResourceView* pResourceView)
+void ezGALDeviceDX11::DestroyReadbackTexturePlatform(ezGALReadbackTexture* pReadbackTexture)
 {
-  ezGALBufferResourceViewDX11* pDX11ResourceView = static_cast<ezGALBufferResourceViewDX11*>(pResourceView);
-  pDX11ResourceView->DeInitPlatform(this).IgnoreResult();
-  EZ_DELETE(&m_Allocator, pDX11ResourceView);
+  ezGALReadbackTextureDX11* pDX11ReadbackTexture = static_cast<ezGALReadbackTextureDX11*>(pReadbackTexture);
+
+  pDX11ReadbackTexture->DeInitPlatform(this).IgnoreResult();
+  EZ_DELETE(&m_Allocator, pDX11ReadbackTexture);
 }
 
 ezGALRenderTargetView* ezGALDeviceDX11::CreateRenderTargetViewPlatform(ezGALTexture* pTexture, const ezGALRenderTargetViewCreationDescription& Description)
@@ -643,67 +767,7 @@ void ezGALDeviceDX11::DestroyRenderTargetViewPlatform(ezGALRenderTargetView* pRe
   EZ_DELETE(&m_Allocator, pDX11RenderTargetView);
 }
 
-ezGALTextureUnorderedAccessView* ezGALDeviceDX11::CreateUnorderedAccessViewPlatform(ezGALTexture* pTextureOfBuffer, const ezGALTextureUnorderedAccessViewCreationDescription& Description)
-{
-  ezGALTextureUnorderedAccessViewDX11* pUnorderedAccessView = EZ_NEW(&m_Allocator, ezGALTextureUnorderedAccessViewDX11, pTextureOfBuffer, Description);
-
-  if (!pUnorderedAccessView->InitPlatform(this).Succeeded())
-  {
-    EZ_DELETE(&m_Allocator, pUnorderedAccessView);
-    return nullptr;
-  }
-
-  return pUnorderedAccessView;
-}
-
-void ezGALDeviceDX11::DestroyUnorderedAccessViewPlatform(ezGALTextureUnorderedAccessView* pUnorderedAccessView)
-{
-  ezGALTextureUnorderedAccessViewDX11* pUnorderedAccessViewDX11 = static_cast<ezGALTextureUnorderedAccessViewDX11*>(pUnorderedAccessView);
-  pUnorderedAccessViewDX11->DeInitPlatform(this).IgnoreResult();
-  EZ_DELETE(&m_Allocator, pUnorderedAccessViewDX11);
-}
-
-ezGALBufferUnorderedAccessView* ezGALDeviceDX11::CreateUnorderedAccessViewPlatform(ezGALBuffer* pBufferOfBuffer, const ezGALBufferUnorderedAccessViewCreationDescription& Description)
-{
-  ezGALBufferUnorderedAccessViewDX11* pUnorderedAccessView = EZ_NEW(&m_Allocator, ezGALBufferUnorderedAccessViewDX11, pBufferOfBuffer, Description);
-
-  if (!pUnorderedAccessView->InitPlatform(this).Succeeded())
-  {
-    EZ_DELETE(&m_Allocator, pUnorderedAccessView);
-    return nullptr;
-  }
-
-  return pUnorderedAccessView;
-}
-
-void ezGALDeviceDX11::DestroyUnorderedAccessViewPlatform(ezGALBufferUnorderedAccessView* pUnorderedAccessView)
-{
-  ezGALBufferUnorderedAccessViewDX11* pUnorderedAccessViewDX11 = static_cast<ezGALBufferUnorderedAccessViewDX11*>(pUnorderedAccessView);
-  pUnorderedAccessViewDX11->DeInitPlatform(this).IgnoreResult();
-  EZ_DELETE(&m_Allocator, pUnorderedAccessViewDX11);
-}
-
 // Other rendering creation functions
-
-ezGALQuery* ezGALDeviceDX11::CreateQueryPlatform(const ezGALQueryCreationDescription& Description)
-{
-  ezGALQueryDX11* pQuery = EZ_NEW(&m_Allocator, ezGALQueryDX11, Description);
-
-  if (!pQuery->InitPlatform(this).Succeeded())
-  {
-    EZ_DELETE(&m_Allocator, pQuery);
-    return nullptr;
-  }
-
-  return pQuery;
-}
-
-void ezGALDeviceDX11::DestroyQueryPlatform(ezGALQuery* pQuery)
-{
-  ezGALQueryDX11* pQueryDX11 = static_cast<ezGALQueryDX11*>(pQuery);
-  pQueryDX11->DeInitPlatform(this).IgnoreResult();
-  EZ_DELETE(&m_Allocator, pQueryDX11);
-}
 
 ezGALVertexDeclaration* ezGALDeviceDX11::CreateVertexDeclarationPlatform(const ezGALVertexDeclarationCreationDescription& Description)
 {
@@ -727,153 +791,274 @@ void ezGALDeviceDX11::DestroyVertexDeclarationPlatform(ezGALVertexDeclaration* p
   EZ_DELETE(&m_Allocator, pVertexDeclarationDX11);
 }
 
-ezGALTimestampHandle ezGALDeviceDX11::GetTimestampPlatform()
+void ezGALDeviceDX11::UpdateBufferForNextFramePlatform(const ezGALBuffer* pBuffer, ezConstByteArrayPtr sourceData, ezUInt32 uiDestOffset)
 {
-  ezUInt32 uiIndex = m_uiNextTimestamp;
-  m_uiNextTimestamp = (m_uiNextTimestamp + 1) % m_Timestamps.GetCount();
-  return {uiIndex, m_uiFrameCounter};
-}
+  const ezGALBufferDX11* pBufferDX11 = static_cast<const ezGALBufferDX11*>(pBuffer);
 
-ezResult ezGALDeviceDX11::GetTimestampResultPlatform(ezGALTimestampHandle hTimestamp, ezTime& result)
-{
-  // Check whether frequency and sync timer are already available for the frame of the timestamp
-  ezUInt64 uiFrameCounter = hTimestamp.m_uiFrameCounter;
-
-  PerFrameData* pPerFrameData = nullptr;
-  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_PerFrameData); ++i)
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  for (auto& copy : m_PendingCopies)
   {
-    if (m_PerFrameData[i].m_uiFrame == uiFrameCounter && m_PerFrameData[i].m_fInvTicksPerSecond >= 0.0)
+    if (copy.m_pDestResource == pBufferDX11->GetDXBuffer())
     {
-      pPerFrameData = &m_PerFrameData[i];
-      break;
+      const bool bWholeBuffer = copy.m_vSourceSize.x == ezInvalidIndex;
+      const bool bOverlapping = uiDestOffset < copy.m_vDestPoint.x + copy.m_vSourceSize.x && copy.m_vDestPoint.x < uiDestOffset + sourceData.GetCount();
+      if (bWholeBuffer || bOverlapping)
+      {
+        ezLog::Error("Buffer range is already updated for next frame.");
+        return;
+      }
     }
   }
+#endif
 
-  if (pPerFrameData == nullptr)
+  const ezUInt32 uiDestBufferSize = pBuffer->GetDescription().m_uiTotalSize;
+
+  auto& copy = m_PendingCopies.ExpandAndGetRef();
+  if (m_bSupportsAlwaysMappedTempResources)
   {
-    return EZ_FAILURE;
-  }
-
-  ID3D11Query* pQuery = GetTimestamp(hTimestamp);
-
-  ezUInt64 uiTimestamp;
-  if (FAILED(m_pImmediateContext->GetData(pQuery, &uiTimestamp, sizeof(uiTimestamp), D3D11_ASYNC_GETDATA_DONOTFLUSH)))
-  {
-    return EZ_FAILURE;
-  }
-
-  if (pPerFrameData->m_fInvTicksPerSecond == 0.0)
-  {
-    result = ezTime::MakeZero();
+    copy.m_SourceResource = CopyToTempBuffer(sourceData, m_uiFrameCounter + 1);
   }
   else
   {
-    result = ezTime::MakeFromSeconds(double(uiTimestamp) * pPerFrameData->m_fInvTicksPerSecond) + m_SyncTimeDiff;
+    auto sourceDataCopy = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezUInt8, sourceData.GetCount());
+    ezMemoryUtils::Copy(sourceDataCopy.GetPtr(), sourceData.GetPtr(), sourceData.GetCount());
+    copy.m_SourceData.m_pData = sourceDataCopy;
+  }
+  copy.m_pDestResource = pBufferDX11->GetDXBuffer();
+  copy.m_vDestPoint.Set(uiDestOffset, 0, 0);
+  copy.m_vSourceSize = ezVec3U32(sourceData.GetCount(), 1, 1);
+  copy.m_bCopySubresource = uiDestOffset != 0 || copy.m_SourceResource.m_uiRowPitch != uiDestBufferSize;
+}
+
+void ezGALDeviceDX11::UpdateTextureForNextFramePlatform(const ezGALTexture* pTexture, const ezGALSystemMemoryDescription& sourceData, const ezGALTextureSubresource& destinationSubResource, const ezBoundingBoxu32& destinationBox)
+{
+  const ezGALTextureDX11* pTextureDX11 = static_cast<const ezGALTextureDX11*>(pTexture);
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  for (auto& copy : m_PendingCopies)
+  {
+    if (copy.m_pDestResource == pTextureDX11->GetDXTexture())
+    {
+      ezLog::Error("Texture is already updated for next frame.");
+      return;
+    }
+  }
+#endif
+
+  auto& desc = pTexture->GetDescription();
+
+  const ezUInt32 uiWidth = destinationBox.m_vMax.x - destinationBox.m_vMin.x;
+  const ezUInt32 uiHeight = destinationBox.m_vMax.y - destinationBox.m_vMin.y;
+  const ezUInt32 uiDepth = destinationBox.m_vMax.z - destinationBox.m_vMin.z;
+
+  auto& copy = m_PendingCopies.ExpandAndGetRef();
+  if (m_bSupportsAlwaysMappedTempResources)
+  {
+    copy.m_SourceResource = CopyToTempTexture(sourceData, uiWidth, uiHeight, uiDepth, desc.m_Format, m_uiFrameCounter + 1);
+  }
+  else
+  {
+    const ezUInt32 uiSourceDataCount = static_cast<ezUInt32>(sourceData.m_pData.GetCount());
+
+    auto sourceDataCopy = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezUInt8, uiSourceDataCount);
+    ezMemoryUtils::Copy(sourceDataCopy.GetPtr(), sourceData.m_pData.GetPtr(), uiSourceDataCount);
+    copy.m_SourceData.m_pData = sourceDataCopy;
+    copy.m_SourceData.m_uiRowPitch = sourceData.m_uiRowPitch;
+    copy.m_SourceData.m_uiSlicePitch = sourceData.m_uiSlicePitch;
+    copy.m_SourceFormat = desc.m_Format;
+  }
+  copy.m_pDestResource = pTextureDX11->GetDXTexture();
+  copy.m_uiDestSubResource = D3D11CalcSubresource(destinationSubResource.m_uiMipLevel, destinationSubResource.m_uiArraySlice, desc.m_uiMipLevelCount);
+  copy.m_vDestPoint = destinationBox.m_vMin;
+  copy.m_vSourceSize = ezVec3U32(uiWidth, uiHeight, uiDepth);
+  copy.m_bCopySubresource = !destinationBox.m_vMin.IsZero() || destinationBox.m_vMax != ezVec3U32(desc.m_uiWidth, desc.m_uiHeight, desc.m_uiDepth);
+}
+
+ezEnum<ezGALAsyncResult> ezGALDeviceDX11::GetTimestampResultPlatform(ezGALTimestampHandle hTimestamp, ezTime& out_result)
+{
+  return m_pQueryPool->GetTimestampResult(hTimestamp, out_result);
+}
+
+ezEnum<ezGALAsyncResult> ezGALDeviceDX11::GetOcclusionResultPlatform(ezGALOcclusionHandle hOcclusion, ezUInt64& out_uiResult)
+{
+  return m_pQueryPool->GetOcclusionQueryResult(hOcclusion, out_uiResult);
+}
+
+ezEnum<ezGALAsyncResult> ezGALDeviceDX11::GetFenceResultPlatform(ezGALFenceHandle hFence, ezTime timeout)
+{
+  if (m_pFenceQueue->GetCurrentFenceHandle() == hFence && timeout.IsPositive())
+  {
+    // Fence has not been submitted yet, force submit of the command buffer or we would deadlock here.
+    Flush();
+  }
+
+  return m_pFenceQueue->GetFenceResult(hFence, timeout);
+}
+
+ezResult ezGALDeviceDX11::LockBufferPlatform(const ezGALReadbackBuffer* pBuffer, ezArrayPtr<const ezUInt8>& out_Memory) const
+{
+  const ezGALReadbackBufferDX11* pDXBuffer = static_cast<const ezGALReadbackBufferDX11*>(pBuffer);
+
+  D3D11_MAPPED_SUBRESOURCE Mapped;
+  HRESULT hr = GetDXImmediateContext()->Map(pDXBuffer->GetDXBuffer(), 0, D3D11_MAP_READ, 0, &Mapped);
+  if (FAILED(hr))
+  {
+    return EZ_FAILURE;
+  }
+  out_Memory = ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(Mapped.pData), pBuffer->GetDescription().m_uiTotalSize);
+  return EZ_SUCCESS;
+}
+
+void ezGALDeviceDX11::UnlockBufferPlatform(const ezGALReadbackBuffer* pBuffer) const
+{
+  const ezGALReadbackBufferDX11* pDXBuffer = static_cast<const ezGALReadbackBufferDX11*>(pBuffer);
+  GetDXImmediateContext()->Unmap(pDXBuffer->GetDXBuffer(), 0);
+}
+
+ezResult ezGALDeviceDX11::LockTexturePlatform(const ezGALReadbackTexture* pTexture, const ezArrayPtr<const ezGALTextureSubresource>& subResources, ezDynamicArray<ezGALSystemMemoryDescription>& out_Memory) const
+{
+  out_Memory.Clear();
+  const ezGALReadbackTextureDX11* pDXTexture = static_cast<const ezGALReadbackTextureDX11*>(pTexture);
+
+  const ezUInt32 uiSubResources = subResources.GetCount();
+  for (ezUInt32 i = 0; i < uiSubResources; i++)
+  {
+    const ezGALTextureSubresource& subRes = subResources[i];
+    ezGALSystemMemoryDescription& memDesc = out_Memory.ExpandAndGetRef();
+    const ezUInt32 uiSubResourceIndex = D3D11CalcSubresource(subRes.m_uiMipLevel, subRes.m_uiArraySlice, pTexture->GetDescription().m_uiMipLevelCount);
+
+    D3D11_MAPPED_SUBRESOURCE Mapped;
+    if (FAILED(GetDXImmediateContext()->Map(pDXTexture->GetDXTexture(), uiSubResourceIndex, D3D11_MAP_READ, 0, &Mapped)))
+    {
+      ezLog::Error("Failed to map sub resource with miplevel {} and array slice {}.", subRes.m_uiMipLevel, subRes.m_uiArraySlice);
+    }
+    else
+    {
+      switch (pTexture->GetDescription().m_Type)
+      {
+        case ezGALTextureType::Texture2D:
+        case ezGALTextureType::Texture2DProxy:
+        case ezGALTextureType::Texture2DShared:
+        case ezGALTextureType::TextureCube:
+          memDesc.m_pData = ezMakeByteBlobPtr(Mapped.pData, Mapped.RowPitch * pTexture->GetDescription().m_uiHeight);
+          memDesc.m_uiRowPitch = Mapped.RowPitch;
+          memDesc.m_uiSlicePitch = 0;
+        case ezGALTextureType::Texture3D:
+          memDesc.m_pData = ezMakeByteBlobPtr(Mapped.pData, Mapped.DepthPitch * pTexture->GetDescription().m_uiDepth);
+          memDesc.m_uiRowPitch = Mapped.RowPitch;
+          memDesc.m_uiSlicePitch = Mapped.DepthPitch;
+          break;
+        default:
+          break;
+      }
+    }
   }
   return EZ_SUCCESS;
+}
+
+void ezGALDeviceDX11::UnlockTexturePlatform(const ezGALReadbackTexture* pTexture, const ezArrayPtr<const ezGALTextureSubresource>& subResources) const
+{
+  const ezGALReadbackTextureDX11* pDXTexture = static_cast<const ezGALReadbackTextureDX11*>(pTexture);
+
+  const ezUInt32 uiSubResources = subResources.GetCount();
+  for (ezUInt32 i = 0; i < uiSubResources; i++)
+  {
+    const ezGALTextureSubresource& subRes = subResources[i];
+    const ezUInt32 uiSubResourceIndex = D3D11CalcSubresource(subRes.m_uiMipLevel, subRes.m_uiArraySlice, pTexture->GetDescription().m_uiMipLevelCount);
+
+    GetDXImmediateContext()->Unmap(pDXTexture->GetDXTexture(), uiSubResourceIndex);
+  }
 }
 
 // Swap chain functions
 
 void ezGALDeviceDX11::PresentPlatform(const ezGALSwapChain* pSwapChain, bool bVSync)
 {
+  EZ_IGNORE_UNUSED(pSwapChain);
+  EZ_IGNORE_UNUSED(bVSync);
 }
 
 // Misc functions
 
-void ezGALDeviceDX11::BeginFramePlatform(const ezUInt64 uiRenderFrame)
+void ezGALDeviceDX11::BeginFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains, const ezUInt64 uiAppFrame)
 {
-  ezStringBuilder sb;
-  sb.SetFormat("Frame {}", uiRenderFrame);
-
-#if EZ_ENABLED(EZ_USE_PROFILING)
-  m_pFrameTimingScope = ezProfilingScopeAndMarker::Start(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), sb);
-#endif
-
-  // check if fence is reached and wait if the disjoint timer is about to be re-used
+  // check if fence is reached
+  for (ezUInt64 uiFrame = m_uiSafeFrame + 1; uiFrame < m_uiFrameCounter; uiFrame++)
   {
-    auto& perFrameData = m_PerFrameData[m_uiCurrentPerFrameData];
+    auto& perFrameData = m_PerFrameData[uiFrame % FRAMES];
+
+    // if we accumulate more frames than we can hold in the ring buffer, force waiting for fences.
+    const bool bForce = uiFrame % FRAMES == m_uiFrameCounter % FRAMES;
     if (perFrameData.m_uiFrame != ((ezUInt64)-1))
     {
-
-      bool bFenceReached = IsFenceReachedPlatform(GetDXImmediateContext(), perFrameData.m_pFence);
-      if (!bFenceReached && m_uiNextPerFrameData == m_uiCurrentPerFrameData)
+      EZ_ASSERT_DEBUG(uiFrame == perFrameData.m_uiFrame, "Frame data was likely overwritten and no longer matches the expected previous frame index. This should have been prevented by bForce above.");
+      bool bFenceReached = m_pFenceQueue->GetFenceResult(perFrameData.m_hFence) == ezGALAsyncResult::Ready;
+      if (!bFenceReached && bForce)
       {
-        WaitForFencePlatform(GetDXImmediateContext(), perFrameData.m_pFence);
+        m_pFenceQueue->GetFenceResult(perFrameData.m_hFence, ezTime::MakeFromHours(1));
+        bFenceReached = true;
       }
+      if (bFenceReached)
+      {
+        FreeTempResources(perFrameData.m_uiFrame);
+        perFrameData.m_hFence = {};
+        m_uiSafeFrame = uiFrame;
+      }
+      else
+        break;
     }
   }
 
-  {
-    auto& perFrameData = m_PerFrameData[m_uiNextPerFrameData];
-    m_pImmediateContext->Begin(perFrameData.m_pDisjointTimerQuery);
+  EZ_ASSERT_DEBUG((m_uiFrameCounter % FRAMES) == m_uiCurrentPerFrameData, "");
+  m_PerFrameData[m_uiCurrentPerFrameData].m_uiFrame = m_uiFrameCounter;
 
-    perFrameData.m_fInvTicksPerSecond = -1.0f;
+  m_pQueryPool->BeginFrame();
+
+#if EZ_ENABLED(EZ_USE_PROFILING)
+  ezStringBuilder sb;
+  sb.SetFormat("RENDER FRAME {}", uiAppFrame);
+  m_pFrameTimingScope = ezProfilingScopeAndMarker::Start(m_pCommandEncoder.Borrow(), sb);
+#else
+  EZ_IGNORE_UNUSED(uiAppFrame);
+#endif
+
+  ProcessPendingCopies();
+
+  for (ezGALSwapChain* pSwapChain : swapchains)
+  {
+    pSwapChain->AcquireNextRenderTarget(this);
   }
 }
 
-void ezGALDeviceDX11::EndFramePlatform()
+void ezGALDeviceDX11::EndFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchains)
 {
+  for (ezGALSwapChain* pSwapChain : swapchains)
+  {
+    pSwapChain->PresentRenderTarget(this);
+  }
+
 #if EZ_ENABLED(EZ_USE_PROFILING)
-  ezProfilingScopeAndMarker::Stop(m_pDefaultPass->m_pRenderCommandEncoder.Borrow(), m_pFrameTimingScope);
+  ezProfilingScopeAndMarker::Stop(m_pCommandEncoder.Borrow(), m_pFrameTimingScope);
 #endif
 
-  // end disjoint query
-  {
-    auto& perFrameData = m_PerFrameData[m_uiNextPerFrameData];
-    m_pImmediateContext->End(perFrameData.m_pDisjointTimerQuery);
-  }
+  m_pCommandEncoderImpl->EndFrame();
+  m_pQueryPool->EndFrame();
 
-  // check if fence is reached and update per frame data
-  {
-    auto& perFrameData = m_PerFrameData[m_uiCurrentPerFrameData];
-    if (perFrameData.m_uiFrame != ((ezUInt64)-1))
-    {
-      if (IsFenceReachedPlatform(GetDXImmediateContext(), perFrameData.m_pFence))
-      {
-        FreeTempResources(perFrameData.m_uiFrame);
-
-        D3D11_QUERY_DATA_TIMESTAMP_DISJOINT data;
-        if (FAILED(m_pImmediateContext->GetData(perFrameData.m_pDisjointTimerQuery, &data, sizeof(data), D3D11_ASYNC_GETDATA_DONOTFLUSH)) || data.Disjoint)
-        {
-          perFrameData.m_fInvTicksPerSecond = 0.0f;
-        }
-        else
-        {
-          perFrameData.m_fInvTicksPerSecond = 1.0 / (double)data.Frequency;
-
-          if (m_bSyncTimeNeeded)
-          {
-            ezGALTimestampHandle hTimestamp = m_pDefaultPass->m_pRenderCommandEncoder->InsertTimestamp();
-            ID3D11Query* pQuery = GetTimestamp(hTimestamp);
-
-            ezUInt64 uiTimestamp;
-            while (m_pImmediateContext->GetData(pQuery, &uiTimestamp, sizeof(uiTimestamp), 0) != S_OK)
-            {
-              ezThreadUtils::YieldTimeSlice();
-            }
-
-            m_SyncTimeDiff = ezTime::Now() - ezTime::MakeFromSeconds(double(uiTimestamp) * perFrameData.m_fInvTicksPerSecond);
-            m_bSyncTimeNeeded = false;
-          }
-        }
-
-        m_uiCurrentPerFrameData = (m_uiCurrentPerFrameData + 1) % EZ_ARRAY_SIZE(m_PerFrameData);
-      }
-    }
-  }
-
-  {
-    auto& perFrameData = m_PerFrameData[m_uiNextPerFrameData];
-    perFrameData.m_uiFrame = m_uiFrameCounter;
-
-    // insert fence
-    InsertFencePlatform(GetDXImmediateContext(), perFrameData.m_pFence);
-
-    m_uiNextPerFrameData = (m_uiNextPerFrameData + 1) % EZ_ARRAY_SIZE(m_PerFrameData);
-  }
+  auto& currentFrameData = m_PerFrameData[m_uiCurrentPerFrameData];
+  currentFrameData.m_hFence = m_pFenceQueue->SubmitCurrentFence();
 
   ++m_uiFrameCounter;
+  m_uiCurrentPerFrameData = (m_uiFrameCounter) % FRAMES;
+}
+
+ezUInt64 ezGALDeviceDX11::GetCurrentFramePlatform() const
+{
+  return m_uiFrameCounter;
+}
+
+ezUInt64 ezGALDeviceDX11::GetSafeFramePlatform() const
+{
+  return m_uiSafeFrame;
 }
 
 void ezGALDeviceDX11::FillCapabilitiesPlatform()
@@ -887,86 +1072,35 @@ void ezGALDeviceDX11::FillCapabilitiesPlatform()
     m_Capabilities.m_uiDedicatedSystemRAM = static_cast<ezUInt64>(adapterDesc.DedicatedSystemMemory);
     m_Capabilities.m_uiSharedSystemRAM = static_cast<ezUInt64>(adapterDesc.SharedSystemMemory);
     m_Capabilities.m_bHardwareAccelerated = (adapterDesc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) == 0;
+    m_Capabilities.m_bSupportsTexelBuffer = true;
+    m_Capabilities.m_bSupportsMultipleSRVTypes = false;
+    m_Capabilities.m_bSupportsMultiSampledArrays = true;
   }
 
-  m_Capabilities.m_bMultithreadedResourceCreation = true;
+  m_Capabilities.m_bSupportsMultithreadedResourceCreation = true;
 
   switch (m_uiFeatureLevel)
   {
     case D3D_FEATURE_LEVEL_11_1:
-      m_Capabilities.m_bNoOverwriteBufferUpdate = true;
-      [[fallthrough]];
-
-    case D3D_FEATURE_LEVEL_11_0:
       m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::VertexShader] = true;
       m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::HullShader] = true;
       m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::DomainShader] = true;
       m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::GeometryShader] = true;
       m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::PixelShader] = true;
       m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::ComputeShader] = true;
-      m_Capabilities.m_bInstancing = true;
-      m_Capabilities.m_b32BitIndices = true;
-      m_Capabilities.m_bIndirectDraw = true;
-      m_Capabilities.m_uiMaxConstantBuffers = D3D11_COMMONSHADER_CONSTANT_BUFFER_HW_SLOT_COUNT;
-      m_Capabilities.m_bTextureArrays = true;
-      m_Capabilities.m_bCubemapArrays = true;
-      m_Capabilities.m_bSharedTextures = true;
-      m_Capabilities.m_uiMaxTextureDimension = D3D11_REQ_TEXTURE2D_U_OR_V_DIMENSION;
-      m_Capabilities.m_uiMaxCubemapDimension = D3D11_REQ_TEXTURECUBE_DIMENSION;
-      m_Capabilities.m_uiMax3DTextureDimension = D3D11_REQ_TEXTURE3D_U_V_OR_W_DIMENSION;
-      m_Capabilities.m_uiMaxAnisotropy = D3D11_REQ_MAXANISOTROPY;
-      m_Capabilities.m_uiMaxRendertargets = D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT;
-      m_Capabilities.m_uiUAVCount = (m_uiFeatureLevel == D3D_FEATURE_LEVEL_11_1 ? 64 : 8);
-      m_Capabilities.m_bAlphaToCoverage = true;
+      m_Capabilities.m_bSupportsIndirectDraw = true;
+      m_Capabilities.m_bSupportsSharedTextures = true;
+      m_Capabilities.m_bSupportsWireframe = true;
       break;
 
-    case D3D_FEATURE_LEVEL_10_1:
-    case D3D_FEATURE_LEVEL_10_0:
-      m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::VertexShader] = true;
-      m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::HullShader] = false;
-      m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::DomainShader] = false;
-      m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::GeometryShader] = true;
-      m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::PixelShader] = true;
-      m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::ComputeShader] = false;
-      m_Capabilities.m_bInstancing = true;
-      m_Capabilities.m_b32BitIndices = true;
-      m_Capabilities.m_bIndirectDraw = false;
-      m_Capabilities.m_uiMaxConstantBuffers = D3D11_COMMONSHADER_CONSTANT_BUFFER_HW_SLOT_COUNT;
-      m_Capabilities.m_bTextureArrays = true;
-      m_Capabilities.m_bCubemapArrays = (m_uiFeatureLevel == D3D_FEATURE_LEVEL_10_1 ? true : false);
-      m_Capabilities.m_uiMaxTextureDimension = D3D10_REQ_TEXTURE2D_U_OR_V_DIMENSION;
-      m_Capabilities.m_uiMaxCubemapDimension = D3D10_REQ_TEXTURECUBE_DIMENSION;
-      m_Capabilities.m_uiMax3DTextureDimension = D3D10_REQ_TEXTURE3D_U_V_OR_W_DIMENSION;
-      m_Capabilities.m_uiMaxAnisotropy = D3D10_REQ_MAXANISOTROPY;
-      m_Capabilities.m_uiMaxRendertargets = D3D10_SIMULTANEOUS_RENDER_TARGET_COUNT;
-      m_Capabilities.m_uiUAVCount = 0;
-      m_Capabilities.m_bAlphaToCoverage = true;
-      break;
-
-    case D3D_FEATURE_LEVEL_9_3:
-      m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::VertexShader] = true;
-      m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::HullShader] = false;
-      m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::DomainShader] = false;
-      m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::GeometryShader] = false;
-      m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::PixelShader] = true;
-      m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::ComputeShader] = false;
-      m_Capabilities.m_bInstancing = true;
-      m_Capabilities.m_b32BitIndices = true;
-      m_Capabilities.m_bIndirectDraw = false;
-      m_Capabilities.m_uiMaxConstantBuffers = D3D11_COMMONSHADER_CONSTANT_BUFFER_HW_SLOT_COUNT;
-      m_Capabilities.m_bTextureArrays = false;
-      m_Capabilities.m_bCubemapArrays = false;
-      m_Capabilities.m_uiMaxTextureDimension = D3D_FL9_3_REQ_TEXTURE1D_U_DIMENSION;
-      m_Capabilities.m_uiMaxCubemapDimension = D3D_FL9_3_REQ_TEXTURECUBE_DIMENSION;
-      m_Capabilities.m_uiMax3DTextureDimension = 0;
-      m_Capabilities.m_uiMaxAnisotropy = 16;
-      m_Capabilities.m_uiMaxRendertargets = D3D_FL9_3_SIMULTANEOUS_RENDER_TARGET_COUNT;
-      m_Capabilities.m_uiUAVCount = 0;
-      m_Capabilities.m_bAlphaToCoverage = false;
-      break;
+      // not supported any longer
+      // case D3D_FEATURE_LEVEL_11_0:
+      // case D3D_FEATURE_LEVEL_10_1:
+      // case D3D_FEATURE_LEVEL_10_0:
+      // case D3D_FEATURE_LEVEL_9_3:
 
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      EZ_ASSERT_ALWAYS(false, "Unsupported Direct3D feature level. This should have been caught during device initialization.");
       break;
   }
 
@@ -975,13 +1109,13 @@ void ezGALDeviceDX11::FillCapabilitiesPlatform()
     D3D11_FEATURE_DATA_D3D11_OPTIONS2 featureOpts2;
     if (SUCCEEDED(m_pDevice3->CheckFeatureSupport(D3D11_FEATURE_D3D11_OPTIONS2, &featureOpts2, sizeof(featureOpts2))))
     {
-      m_Capabilities.m_bConservativeRasterization = (featureOpts2.ConservativeRasterizationTier != D3D11_CONSERVATIVE_RASTERIZATION_NOT_SUPPORTED);
+      m_Capabilities.m_bSupportsConservativeRasterization = (featureOpts2.ConservativeRasterizationTier != D3D11_CONSERVATIVE_RASTERIZATION_NOT_SUPPORTED);
     }
 
     D3D11_FEATURE_DATA_D3D11_OPTIONS3 featureOpts3;
     if (SUCCEEDED(m_pDevice3->CheckFeatureSupport(D3D11_FEATURE_D3D11_OPTIONS3, &featureOpts3, sizeof(featureOpts3))))
     {
-      m_Capabilities.m_bVertexShaderRenderTargetArrayIndex = featureOpts3.VPAndRTArrayIndexFromAnyShaderFeedingRasterizer != 0;
+      m_Capabilities.m_bSupportsVSRenderTargetArrayIndex = featureOpts3.VPAndRTArrayIndexFromAnyShaderFeedingRasterizer != 0;
     }
   }
 
@@ -1072,11 +1206,13 @@ const ezGALSharedTexture* ezGALDeviceDX11::GetSharedTexture(ezGALTextureHandle h
   return static_cast<const ezGALSharedTextureDX11*>(pTexture->GetParentResource());
 }
 
-ID3D11Resource* ezGALDeviceDX11::FindTempBuffer(ezUInt32 uiSize)
+ezGALDeviceDX11::TempResource ezGALDeviceDX11::CopyToTempBuffer(ezConstByteArrayPtr sourceData, ezUInt64 uiLastUseFrame /*= ezUInt64(-1)*/)
 {
-  const ezUInt32 uiExpGrowthLimit = 16 * 1024 * 1024;
+  EZ_GALDEVICE_LOCK_AND_CHECK();
 
-  uiSize = ezMath::Max(uiSize, 256U);
+  constexpr ezUInt32 uiExpGrowthLimit = 16 * 1024 * 1024;
+
+  ezUInt32 uiSize = ezMath::Max(sourceData.GetCount(), 256U);
   if (uiSize < uiExpGrowthLimit)
   {
     uiSize = ezMath::PowerOfTwo_Ceil(uiSize);
@@ -1086,19 +1222,19 @@ ID3D11Resource* ezGALDeviceDX11::FindTempBuffer(ezUInt32 uiSize)
     uiSize = ezMemoryUtils::AlignSize(uiSize, uiExpGrowthLimit);
   }
 
-  ID3D11Resource* pResource = nullptr;
+  TempResource tempResource;
   auto it = m_FreeTempResources[TempResourceType::Buffer].Find(uiSize);
   if (it.IsValid())
   {
-    ezDynamicArray<ID3D11Resource*>& resources = it.Value();
+    ezDynamicArray<TempResource>& resources = it.Value();
     if (!resources.IsEmpty())
     {
-      pResource = resources[0];
+      tempResource = resources[0];
       resources.RemoveAtAndSwap(0);
     }
   }
 
-  if (pResource == nullptr)
+  if (tempResource.m_pResource == nullptr)
   {
     D3D11_BUFFER_DESC desc;
     desc.ByteWidth = uiSize;
@@ -1108,42 +1244,66 @@ ID3D11Resource* ezGALDeviceDX11::FindTempBuffer(ezUInt32 uiSize)
     desc.MiscFlags = 0;
     desc.StructureByteStride = 0;
 
-    ID3D11Buffer* pBuffer = nullptr;
-    if (!SUCCEEDED(m_pDevice->CreateBuffer(&desc, nullptr, &pBuffer)))
+    D3D11_SUBRESOURCE_DATA initData;
+    initData.pSysMem = sourceData.GetPtr();
+    initData.SysMemPitch = initData.SysMemSlicePitch = 0;
+
+    if (uiSize > sourceData.GetCount())
     {
-      return nullptr;
+      ezUInt8* dataCopy = EZ_NEW_RAW_BUFFER(ezFrameAllocator::GetCurrentAllocator(), ezUInt8, uiSize);
+      memcpy(dataCopy, sourceData.GetPtr(), sourceData.GetCount());
+      initData.pSysMem = dataCopy;
     }
 
-    pResource = pBuffer;
+    ID3D11Buffer* pBuffer = nullptr;
+    if (!SUCCEEDED(m_pDevice->CreateBuffer(&desc, &initData, &pBuffer)))
+    {
+      return {};
+    }
+
+    tempResource.m_pResource = pBuffer;
+    tempResource.m_uiRowPitch = uiSize;
+  }
+  else
+  {
+    if (!m_bSupportsAlwaysMappedTempResources)
+    {
+      MapTempResource(tempResource);
+    }
+
+    EZ_ASSERT_DEBUG(tempResource.m_pData != nullptr, "Must be mapped at this point");
+    memcpy(tempResource.m_pData, sourceData.GetPtr(), sourceData.GetCount());
   }
 
-  auto& tempResource = m_UsedTempResources[TempResourceType::Buffer].ExpandAndGetRef();
-  tempResource.m_pResource = pResource;
-  tempResource.m_uiFrame = m_uiFrameCounter;
-  tempResource.m_uiHash = uiSize;
+  auto& usedTempResource = m_UsedTempResources[TempResourceType::Buffer].ExpandAndGetRef();
+  usedTempResource.m_pResource = tempResource.m_pResource;
+  usedTempResource.m_uiFrame = uiLastUseFrame != ezUInt64(-1) ? uiLastUseFrame : m_uiFrameCounter;
+  usedTempResource.m_uiHash = uiSize;
 
-  return pResource;
+  return tempResource;
 }
 
 
-ID3D11Resource* ezGALDeviceDX11::FindTempTexture(ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiDepth, ezGALResourceFormat::Enum format)
+ezGALDeviceDX11::TempResource ezGALDeviceDX11::CopyToTempTexture(const ezGALSystemMemoryDescription& sourceData, ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiDepth, ezGALResourceFormat::Enum format, ezUInt64 uiLastUseFrame /*= ezUInt64(-1)*/)
 {
-  ezUInt32 data[] = {uiWidth, uiHeight, uiDepth, (ezUInt32)format};
-  ezUInt32 uiHash = ezHashingUtils::xxHash32(data, sizeof(data));
+  EZ_GALDEVICE_LOCK_AND_CHECK();
 
-  ID3D11Resource* pResource = nullptr;
+  ezUInt32 hashData[] = {uiWidth, uiHeight, uiDepth, (ezUInt32)format};
+  ezUInt32 uiHash = ezHashingUtils::xxHash32(hashData, sizeof(hashData));
+
+  TempResource tempResource;
   auto it = m_FreeTempResources[TempResourceType::Texture].Find(uiHash);
   if (it.IsValid())
   {
-    ezDynamicArray<ID3D11Resource*>& resources = it.Value();
+    ezDynamicArray<TempResource>& resources = it.Value();
     if (!resources.IsEmpty())
     {
-      pResource = resources[0];
+      tempResource = resources[0];
       resources.RemoveAtAndSwap(0);
     }
   }
 
-  if (pResource == nullptr)
+  if (tempResource.m_pResource == nullptr)
   {
     if (uiDepth == 1)
     {
@@ -1160,53 +1320,151 @@ ID3D11Resource* ezGALDeviceDX11::FindTempTexture(ezUInt32 uiWidth, ezUInt32 uiHe
       desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
       desc.MiscFlags = 0;
 
+      D3D11_SUBRESOURCE_DATA initData;
+      initData.pSysMem = sourceData.m_pData.GetPtr();
+      initData.SysMemPitch = sourceData.m_uiRowPitch;
+      initData.SysMemSlicePitch = sourceData.m_uiSlicePitch;
+
       ID3D11Texture2D* pTexture = nullptr;
-      if (!SUCCEEDED(m_pDevice->CreateTexture2D(&desc, nullptr, &pTexture)))
+      if (!SUCCEEDED(m_pDevice->CreateTexture2D(&desc, &initData, &pTexture)))
       {
-        return nullptr;
+        return {};
       }
 
-      pResource = pTexture;
+      tempResource.m_pResource = pTexture;
     }
     else
     {
       EZ_ASSERT_NOT_IMPLEMENTED;
-      return nullptr;
+      return {};
+    }
+  }
+  else
+  {
+    EZ_ASSERT_DEBUG(tempResource.m_pData != nullptr, "Must be mapped at this point");
+    if (tempResource.m_uiRowPitch == sourceData.m_uiRowPitch && tempResource.m_uiDepthPitch == sourceData.m_uiSlicePitch)
+    {
+      memcpy(tempResource.m_pData, sourceData.m_pData.GetPtr(), sourceData.m_uiSlicePitch * uiDepth);
+    }
+    else
+    {
+      // Copy row by row
+      for (ezUInt32 z = 0; z < uiDepth; ++z)
+      {
+        const void* pSource = ezMemoryUtils::AddByteOffset(sourceData.m_pData.GetPtr(), z * sourceData.m_uiSlicePitch);
+        void* pDest = ezMemoryUtils::AddByteOffset(tempResource.m_pData, z * tempResource.m_uiDepthPitch);
+
+        for (ezUInt32 y = 0; y < uiHeight; ++y)
+        {
+          memcpy(pDest, pSource, sourceData.m_uiRowPitch);
+
+          pSource = ezMemoryUtils::AddByteOffset(pSource, sourceData.m_uiRowPitch);
+          pDest = ezMemoryUtils::AddByteOffset(pDest, tempResource.m_uiRowPitch);
+        }
+      }
     }
   }
 
-  auto& tempResource = m_UsedTempResources[TempResourceType::Texture].ExpandAndGetRef();
-  tempResource.m_pResource = pResource;
-  tempResource.m_uiFrame = m_uiFrameCounter;
-  tempResource.m_uiHash = uiHash;
+  auto& usedTempResource = m_UsedTempResources[TempResourceType::Buffer].ExpandAndGetRef();
+  usedTempResource.m_pResource = tempResource.m_pResource;
+  usedTempResource.m_uiFrame = uiLastUseFrame != ezUInt64(-1) ? uiLastUseFrame : m_uiFrameCounter;
+  usedTempResource.m_uiHash = uiHash;
 
-  return pResource;
+  return tempResource;
+}
+
+void ezGALDeviceDX11::MapTempResource(TempResource& tempResource)
+{
+  EZ_ASSERT_DEBUG(tempResource.m_pData == nullptr, "Must NOT be mapped at this point");
+
+  D3D11_MAPPED_SUBRESOURCE mapped;
+  HRESULT hRes = m_pImmediateContext->Map(tempResource.m_pResource, 0, D3D11_MAP_WRITE, 0, &mapped);
+  EZ_ASSERT_DEV(SUCCEEDED(hRes), "Implementation error");
+  EZ_IGNORE_UNUSED(hRes);
+
+  tempResource.m_pData = mapped.pData;
+  tempResource.m_uiRowPitch = mapped.RowPitch;
+  tempResource.m_uiDepthPitch = mapped.DepthPitch;
+}
+
+void ezGALDeviceDX11::UnmapTempResource(TempResource& tempResource)
+{
+  if (tempResource.m_pData != nullptr)
+  {
+    m_pImmediateContext->Unmap(tempResource.m_pResource, 0);
+    tempResource.m_pData = nullptr;
+    tempResource.m_uiRowPitch = 0;
+    tempResource.m_uiDepthPitch = 0;
+  }
 }
 
 void ezGALDeviceDX11::FreeTempResources(ezUInt64 uiFrame)
 {
   for (ezUInt32 type = 0; type < TempResourceType::ENUM_COUNT; ++type)
   {
-    while (!m_UsedTempResources[type].IsEmpty())
+    auto& usedTempResources = m_UsedTempResources[type];
+
+    for (ezUInt32 i = 0; i < usedTempResources.GetCount();)
     {
-      auto& usedTempResource = m_UsedTempResources[type].PeekFront();
-      if (usedTempResource.m_uiFrame == uiFrame)
+      UsedTempResource& usedTempResource = usedTempResources[i];
+      if (usedTempResource.m_uiFrame <= uiFrame)
       {
         auto it = m_FreeTempResources[type].Find(usedTempResource.m_uiHash);
         if (!it.IsValid())
         {
-          it = m_FreeTempResources[type].Insert(usedTempResource.m_uiHash, ezDynamicArray<ID3D11Resource*>(&m_Allocator));
+          it = m_FreeTempResources[type].Insert(usedTempResource.m_uiHash, ezDynamicArray<TempResource>(&m_Allocator));
         }
 
-        it.Value().PushBack(usedTempResource.m_pResource);
-        m_UsedTempResources[type].PopFront();
+        auto& tempResource = it.Value().ExpandAndGetRef();
+        tempResource.m_pResource = usedTempResource.m_pResource;
+
+        if (m_bSupportsAlwaysMappedTempResources)
+        {
+          MapTempResource(tempResource);
+        }
+
+        usedTempResources.RemoveAtAndSwap(i);
       }
       else
       {
-        break;
+        ++i;
       }
     }
   }
+}
+
+void ezGALDeviceDX11::ProcessPendingCopies()
+{
+  EZ_PROFILE_AND_MARKER(GetCommandEncoder(), "PendingCopies");
+
+  for (auto& copy : m_PendingCopies)
+  {
+    TempResource tempResource = copy.m_SourceResource;
+
+    if (!m_bSupportsAlwaysMappedTempResources)
+    {
+      if (copy.m_SourceData.m_uiRowPitch == 0)
+      {
+        tempResource = CopyToTempBuffer(ezMakeArrayPtr(copy.m_SourceData.m_pData.GetPtr(), static_cast<ezUInt32>(copy.m_SourceData.m_pData.GetCount())), m_uiFrameCounter);
+      }
+      else
+      {
+        tempResource = CopyToTempTexture(copy.m_SourceData, copy.m_vSourceSize.x, copy.m_vSourceSize.y, copy.m_vSourceSize.z, copy.m_SourceFormat, m_uiFrameCounter);
+      }
+    }
+    UnmapTempResource(tempResource);
+
+    if (copy.m_bCopySubresource)
+    {
+      D3D11_BOX srcBox = {0, 0, 0, copy.m_vSourceSize.x, copy.m_vSourceSize.y, copy.m_vSourceSize.z};
+      m_pImmediateContext->CopySubresourceRegion(copy.m_pDestResource, copy.m_uiDestSubResource, copy.m_vDestPoint.x, copy.m_vDestPoint.y, copy.m_vDestPoint.z, tempResource.m_pResource, 0, &srcBox);
+    }
+    else
+    {
+      m_pImmediateContext->CopyResource(copy.m_pDestResource, tempResource.m_pResource);
+    }
+  }
+  m_PendingCopies.Clear();
 }
 
 void ezGALDeviceDX11::FillFormatLookupTable()
@@ -1344,37 +1602,19 @@ void ezGALDeviceDX11::FillFormatLookupTable()
   m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::BC7UNormalizedsRGB, ezGALFormatLookupEntryDX11(DXGI_FORMAT_BC7_TYPELESS).RV(DXGI_FORMAT_BC7_UNORM_SRGB));
 }
 
-ezGALRenderCommandEncoder* ezGALDeviceDX11::GetRenderCommandEncoder() const
+ezGALCommandEncoder* ezGALDeviceDX11::GetCommandEncoder() const
 {
-  return m_pDefaultPass->m_pRenderCommandEncoder.Borrow();
+  return m_pCommandEncoder.Borrow();
 }
 
-void ezGALDeviceDX11::InsertFencePlatform(ID3D11DeviceContext* pContext, ID3D11Query* pFence)
+ezFenceQueueDX11& ezGALDeviceDX11::GetFenceQueue() const
 {
-  pContext->End(pFence);
+  return *m_pFenceQueue.Borrow();
 }
 
-bool ezGALDeviceDX11::IsFenceReachedPlatform(ID3D11DeviceContext* pContext, ID3D11Query* pFence)
+ezQueryPoolDX11& ezGALDeviceDX11::GetQueryPool() const
 {
-  BOOL data = FALSE;
-  if (pContext->GetData(pFence, &data, sizeof(data), 0) == S_OK)
-  {
-    EZ_ASSERT_DEV(data != FALSE, "Implementation error");
-    return true;
-  }
-
-  return false;
-}
-
-void ezGALDeviceDX11::WaitForFencePlatform(ID3D11DeviceContext* pContext, ID3D11Query* pFence)
-{
-  BOOL data = FALSE;
-  while (pContext->GetData(pFence, &data, sizeof(data), 0) != S_OK)
-  {
-    ezThreadUtils::YieldTimeSlice();
-  }
-
-  EZ_ASSERT_DEV(data != FALSE, "Implementation error");
+  return *m_pQueryPool.Borrow();
 }
 
 EZ_STATICLINK_FILE(RendererDX11, RendererDX11_Device_Implementation_DeviceDX11);

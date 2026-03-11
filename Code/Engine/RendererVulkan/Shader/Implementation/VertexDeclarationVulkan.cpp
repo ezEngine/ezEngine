@@ -4,6 +4,7 @@
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/Shader/ShaderVulkan.h>
 #include <RendererVulkan/Shader/VertexDeclarationVulkan.h>
+#include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
 
 ezGALVertexDeclarationVulkan::ezGALVertexDeclarationVulkan(const ezGALVertexDeclarationCreationDescription& Description)
   : ezGALVertexDeclaration(Description)
@@ -48,7 +49,7 @@ ezResult ezGALVertexDeclarationVulkan::InitPlatform(ezGALDevice* pDevice)
     const ezUInt32 uiLocation = FindLocation(Current.m_eSemantic, Current.m_eFormat);
     if (uiLocation == ezMath::MaxValue<ezUInt32>())
     {
-      ezLog::Warning("Vertex buffer semantic {} not used by shader", Current.m_eSemantic);
+      // ezLog::Warning("Vertex buffer semantic {} not used by shader", Current.m_eSemantic);
       continue;
     }
     vk::VertexInputAttributeDescription& attrib = m_attributes.ExpandAndGetRef();
@@ -64,15 +65,20 @@ ezResult ezGALVertexDeclarationVulkan::InitPlatform(ezGALDevice* pDevice)
     }
 
     usedBindings |= EZ_BIT(Current.m_uiVertexBufferSlot);
-    if (Current.m_uiVertexBufferSlot >= m_bindings.GetCount())
-    {
-      m_bindings.SetCount(Current.m_uiVertexBufferSlot + 1);
-    }
-    vk::VertexInputBindingDescription& binding = m_bindings[Current.m_uiVertexBufferSlot];
-    binding.binding = Current.m_uiVertexBufferSlot;
-    binding.stride = 0;
-    binding.inputRate = Current.m_bInstanceData ? vk::VertexInputRate::eInstance : vk::VertexInputRate::eVertex;
   }
+
+  const ezUInt32 uiBindings = m_Description.m_VertexBindings.GetCount();
+  m_bindings.SetCount(uiBindings);
+  for (ezUInt32 uiBinding = 0; uiBinding < uiBindings; ++uiBinding)
+  {
+    const ezGALVertexBinding& binding = m_Description.m_VertexBindings[uiBinding];
+    vk::VertexInputBindingDescription& vkBinding = m_bindings[uiBinding];
+    vkBinding.binding = uiBinding;
+    vkBinding.stride = binding.m_uiStride;
+    vkBinding.inputRate = ezConversionUtilsVulkan::GetVertexBindingRate(binding.m_Rate);
+  }
+
+  // Remove unused vertex bindings.
   for (ezInt32 i = (ezInt32)m_bindings.GetCount() - 1; i >= 0; --i)
   {
     if ((usedBindings & EZ_BIT(i)) == 0)
@@ -80,6 +86,11 @@ ezResult ezGALVertexDeclarationVulkan::InitPlatform(ezGALDevice* pDevice)
       m_bindings.RemoveAtAndCopy(i);
     }
   }
+
+  m_createInfo.pVertexAttributeDescriptions = m_attributes.GetData();
+  m_createInfo.vertexAttributeDescriptionCount = m_attributes.GetCount();
+  m_createInfo.pVertexBindingDescriptions = m_bindings.GetData();
+  m_createInfo.vertexBindingDescriptionCount = m_bindings.GetCount();
 
   if (!vias.IsEmpty())
   {
@@ -93,5 +104,3 @@ ezResult ezGALVertexDeclarationVulkan::DeInitPlatform(ezGALDevice* pDevice)
 {
   return EZ_SUCCESS;
 }
-
-

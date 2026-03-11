@@ -12,7 +12,7 @@ namespace PluginsDetail
 
     ezTelemetry::Broadcast(ezTelemetry::Reliable, 'PLUG', ' CLR', nullptr, 0);
 
-    ezHybridArray<ezPlugin::PluginInfo, 16> infos;
+    ezTempHybridArray<ezPlugin::PluginInfo, 16> infos;
     ezPlugin::GetAllPluginInfos(infos);
 
     for (const auto& pi : infos)
@@ -75,5 +75,3 @@ void RemovePluginEventHandler()
 }
 
 
-
-EZ_STATICLINK_FILE(InspectorPlugin, InspectorPlugin_Plugins);

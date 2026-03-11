@@ -5,11 +5,11 @@
 #include <EditorPluginVisualScript/VisualScriptGraph/VisualScriptVariable.moc.h>
 
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
-#include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
+#include <ToolsFoundation/VisualGraph/VisualGraphObjectManager.h>
 
-#include <Core/Messages/EventMessage.h>
 #include <Core/Scripting/ScriptAttributes.h>
 #include <Core/Scripting/ScriptCoroutine.h>
+#include <Core/World/World.h>
 #include <Foundation/CodeUtils/Expression/ExpressionDeclarations.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/SimdMath/SimdRandom.h>
@@ -67,6 +67,12 @@ namespace
       propDesc.m_Category = ezPropertyCategory::Member;
       propDesc.m_sType = pRtti->GetTypeName();
       propDesc.m_Flags = ezPropertyFlags::IsEnum;
+    }
+    else if (pRtti->GetTypeFlags().IsSet(ezTypeFlags::Bitflags))
+    {
+      propDesc.m_Category = ezPropertyCategory::Member;
+      propDesc.m_sType = pRtti->GetTypeName();
+      propDesc.m_Flags = ezPropertyFlags::Bitflags;
     }
     else
     {
@@ -165,7 +171,7 @@ static_assert(EZ_ARRAY_SIZE(s_scriptDataTypeToPinColor) == ezVisualScriptDataTyp
 // static
 ezColor ezVisualScriptNodeRegistry::PinDesc::GetColorForScriptDataType(ezVisualScriptDataType::Enum dataType)
 {
-  if (dataType == ezVisualScriptDataType::EnumValue)
+  if (dataType == ezVisualScriptDataType::EnumValue || dataType == ezVisualScriptDataType::BitflagValue)
   {
     return ezColorScheme::DarkUI(ezColorScheme::Teal);
   }
@@ -186,7 +192,7 @@ ezColor ezVisualScriptNodeRegistry::PinDesc::GetColor() const
     return GetColorForScriptDataType(m_ScriptDataType);
   }
 
-  if (m_ScriptDataType == ezVisualScriptDataType::EnumValue)
+  if (m_ScriptDataType == ezVisualScriptDataType::EnumValue || m_ScriptDataType == ezVisualScriptDataType::BitflagValue)
   {
     return ezColorScheme::DarkUI(ezColorScheme::Teal);
   }
@@ -282,6 +288,14 @@ void ezVisualScriptNodeRegistry::PhantomTypeRegistryEventHandler(const ezPhantom
       e.m_Type == ezPhantomRttiManagerEvent::Type::TypeChanged)
   {
     UpdateNodeType(e.m_pChangedType);
+
+    // Also update dependent types
+    for (const ezRTTI* pRtti : m_TypesToUpdate)
+    {
+      if (m_ExposedTypes.Contains(pRtti) == false)
+        UpdateNodeType(pRtti, true);
+    }
+    m_TypesToUpdate.Clear();
   }
 }
 
@@ -307,14 +321,21 @@ void ezVisualScriptNodeRegistry::UpdateNodeTypes()
     m_bBuiltinTypesCreated = true;
   }
 
-  auto& componentTypesDynEnum = ezDynamicStringEnum::CreateDynamicEnum("ComponentTypes");
   auto& scriptBaseClassesDynEnum = ezDynamicStringEnum::CreateDynamicEnum("ScriptBaseClasses");
 
   ezRTTI::ForEachType([this](const ezRTTI* pRtti)
     { UpdateNodeType(pRtti); });
+
+  // Also update dependent types
+  for (const ezRTTI* pRtti : m_TypesToUpdate)
+  {
+    if (m_ExposedTypes.Contains(pRtti) == false)
+      UpdateNodeType(pRtti, true);
+  }
+  m_TypesToUpdate.Clear();
 }
 
-void ezVisualScriptNodeRegistry::UpdateNodeType(const ezRTTI* pRtti)
+void ezVisualScriptNodeRegistry::UpdateNodeType(const ezRTTI* pRtti, bool bForceExpose /*= false*/)
 {
   static ezHashedString sType = ezMakeHashedString("Type");
   static ezHashedString sProperty = ezMakeHashedString("Property");
@@ -322,12 +343,6 @@ void ezVisualScriptNodeRegistry::UpdateNodeType(const ezRTTI* pRtti)
 
   if (pRtti->GetAttributeByType<ezHiddenAttribute>() != nullptr || pRtti->GetAttributeByType<ezExcludeFromScript>() != nullptr)
     return;
-
-  if (pRtti->IsDerivedFrom<ezComponent>())
-  {
-    auto& componentTypesDynEnum = ezDynamicStringEnum::GetDynamicEnum("ComponentTypes");
-    componentTypesDynEnum.AddValidValue(pRtti->GetTypeName(), true);
-  }
 
   if (pRtti->IsDerivedFrom<ezScriptCoroutine>())
   {
@@ -342,7 +357,7 @@ void ezVisualScriptNodeRegistry::UpdateNodeType(const ezRTTI* pRtti)
     // expose reflected functions and properties to visual scripts
     {
       // All components should be exposed to visual scripts, furthermore all classes that have script-able functions are also exposed
-      bool bExposeToVisualScript = pRtti->IsDerivedFrom<ezComponent>();
+      bool bExposeToVisualScript = pRtti->IsDerivedFrom<ezComponent>() || bForceExpose;
       bool bHasBaseClassFunctions = false;
 
       ezStringBuilder sCategory;
@@ -379,8 +394,9 @@ void ezVisualScriptNodeRegistry::UpdateNodeType(const ezRTTI* pRtti)
         CreateFunctionCallNodeType(pRtti, bIsBaseClassFunction ? sEventHandlerCategory : sCategoryHashed, pFuncProp, pScriptableFunctionAttribute, bIsBaseClassFunction);
       }
 
-      if (bExposeToVisualScript)
+      if (bExposeToVisualScript && m_ExposedTypes.Insert(pRtti) == false)
       {
+        ezStringView sTypeName = GetTypeName(pRtti);
         ezStringBuilder sPropertyNodeTypeName;
 
         for (const ezAbstractProperty* pProp : pRtti->GetProperties())
@@ -395,18 +411,18 @@ void ezVisualScriptNodeRegistry::UpdateNodeType(const ezRTTI* pRtti)
           }
 
           ezUInt32 uiStart = m_PropertyValues.GetCount();
-          m_PropertyValues.PushBack({sType, pRtti->GetTypeName()});
+          m_PropertyValues.PushBack({sType, sTypeName});
           m_PropertyValues.PushBack({sProperty, pProp->GetPropertyName()});
           m_PropertyValues.PushBack({sValue, ezReflectionUtils::GetDefaultValue(pProp)});
 
           // Setter
           {
             sPropertyNodeTypeName.Set("Set", pProp->GetPropertyName());
-            m_PropertyNodeTypeNames.PushBack(sPropertyNodeTypeName);
+            auto it = m_PropertyNodeTypeNames.Insert(sPropertyNodeTypeName);
 
             auto& nodeTemplate = m_NodeCreationTemplates.ExpandAndGetRef();
             nodeTemplate.m_pType = m_pSetPropertyType;
-            nodeTemplate.m_sTypeName = m_PropertyNodeTypeNames.PeekBack();
+            nodeTemplate.m_sTypeName = it.Key();
             nodeTemplate.m_sCategory = sCategoryHashed;
             nodeTemplate.m_uiPropertyValuesStart = uiStart;
             nodeTemplate.m_uiPropertyValuesCount = 3;
@@ -415,11 +431,11 @@ void ezVisualScriptNodeRegistry::UpdateNodeType(const ezRTTI* pRtti)
           // Getter
           {
             sPropertyNodeTypeName.Set("Get", pProp->GetPropertyName());
-            m_PropertyNodeTypeNames.PushBack(sPropertyNodeTypeName);
+            auto it = m_PropertyNodeTypeNames.Insert(sPropertyNodeTypeName);
 
             auto& nodeTemplate = m_NodeCreationTemplates.ExpandAndGetRef();
             nodeTemplate.m_pType = m_pGetPropertyType;
-            nodeTemplate.m_sTypeName = m_PropertyNodeTypeNames.PeekBack();
+            nodeTemplate.m_sTypeName = it.Key();
             nodeTemplate.m_sCategory = sCategoryHashed;
             nodeTemplate.m_uiPropertyValuesStart = uiStart;
             nodeTemplate.m_uiPropertyValuesCount = 2;
@@ -461,7 +477,7 @@ ezVisualScriptDataType::Enum ezVisualScriptNodeRegistry::GetScriptDataType(const
   if (pProp->GetCategory() == ezPropertyCategory::Member)
   {
     ezVisualScriptDataType::Enum result = ezVisualScriptDataType::Invalid;
-    GetScriptDataType(pProp->GetSpecificType(), result).IgnoreResult();
+    GetScriptDataType(pProp->GetSpecificType(), result, "Member", pProp->GetPropertyName()).IgnoreResult();
     return result;
   }
   else if (pProp->GetCategory() == ezPropertyCategory::Array)
@@ -535,7 +551,7 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
     NodeDesc nodeDesc;
     nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::GetReflectedProperty;
     nodeDesc.m_DeductTypeFunc = &ezVisualScriptTypeDeduction::DeductFromPropertyProperty;
-    nodeDesc.AddInputDataPin("Object", nullptr, ezVisualScriptDataType::AnyPointer, true, ezHashedString(), &ezVisualScriptTypeDeduction::DeductFromTypeProperty);
+    nodeDesc.AddInputDataPin("Object", nullptr, ezVisualScriptDataType::Any, true, ezHashedString(), &ezVisualScriptTypeDeduction::DeductFromTypeProperty);
     nodeDesc.AddOutputDataPin("Value", nullptr, ezVisualScriptDataType::Any);
 
     m_pGetPropertyType = RegisterNodeType(typeDesc, std::move(nodeDesc), sPropertiesCategory);
@@ -556,7 +572,7 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
     nodeDesc.m_DeductTypeFunc = &ezVisualScriptTypeDeduction::DeductFromPropertyProperty;
     nodeDesc.AddInputExecutionPin("");
     nodeDesc.AddOutputExecutionPin("");
-    nodeDesc.AddInputDataPin("Object", nullptr, ezVisualScriptDataType::AnyPointer, true, ezHashedString(), &ezVisualScriptTypeDeduction::DeductFromTypeProperty);
+    nodeDesc.AddInputDataPin("Object", nullptr, ezVisualScriptDataType::Any, true, ezHashedString(), &ezVisualScriptTypeDeduction::DeductFromTypeProperty);
     AddInputDataPin_Any(typeDesc, nodeDesc, "Value", false, true);
 
     m_pSetPropertyType = RegisterNodeType(typeDesc, std::move(nodeDesc), sPropertiesCategory);
@@ -631,6 +647,21 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
 
       RegisterNodeType(typeDesc, std::move(nodeDesc), sVariablesCategory);
     }
+  }
+
+  // Builtin_TempVariable
+  {
+    FillDesc(typeDesc, "Builtin_TempVariable", logicColor);
+
+    NodeDesc nodeDesc;
+    nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_TempVariable;
+    nodeDesc.m_DeductTypeFunc = &ezVisualScriptTypeDeduction::DeductFromAllInputPins;
+    nodeDesc.AddInputExecutionPin("");
+    nodeDesc.AddOutputExecutionPin("");
+    AddInputDataPin_Any(typeDesc, nodeDesc, "Value", false, true);
+    nodeDesc.AddOutputDataPin("Value", nullptr, ezVisualScriptDataType::Any);
+
+    RegisterNodeType(typeDesc, std::move(nodeDesc), sVariablesCategory);
   }
 
   // Builtin_Branch
@@ -1240,6 +1271,21 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
     RegisterNodeType(typeDesc, std::move(nodeDesc), sArrayCategory);
   }
 
+  // Builtin_Array_PushBackRange
+  {
+    FillDesc(typeDesc, "Builtin_Array::PushBackRange", variantColor);
+
+    NodeDesc nodeDesc;
+    nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_Array_PushBackRange;
+
+    nodeDesc.AddInputExecutionPin("");
+    nodeDesc.AddOutputExecutionPin("");
+    nodeDesc.AddInputDataPin("Array", ezGetStaticRTTI<ezVariantArray>(), ezVisualScriptDataType::Array, true);
+    nodeDesc.AddInputDataPin("Range", ezGetStaticRTTI<ezVariantArray>(), ezVisualScriptDataType::Array, true);
+
+    RegisterNodeType(typeDesc, std::move(nodeDesc), sArrayCategory);
+  }
+
   // Builtin_Array_Remove
   {
     FillDesc(typeDesc, "Builtin_Array_Remove", variantColor);
@@ -1287,11 +1333,11 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
       propDesc.m_sType = ezGetStaticRTTI<ezString>()->GetTypeName();
       propDesc.m_Flags = ezPropertyFlags::StandardType;
 
-      auto pAttr = EZ_DEFAULT_NEW(ezDynamicStringEnumAttribute, "ComponentTypes");
+      auto pAttr = EZ_DEFAULT_NEW(ezRttiTypeStringAttribute, "ezComponent");
       propDesc.m_Attributes.PushBack(pAttr);
     }
 
-    auto pAttr = EZ_DEFAULT_NEW(ezTitleAttribute, "GameObject::TryGetComponentOfBaseType {TypeName}");
+    auto pAttr = EZ_DEFAULT_NEW(ezTitleAttribute, "GameObject::TryGet {TypeName}");
     typeDesc.m_Attributes.PushBack(pAttr);
 
     NodeDesc nodeDesc;
@@ -1461,7 +1507,7 @@ void ezVisualScriptNodeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
     }
   }
 
-  ezHybridArray<const ezFunctionArgumentAttributes*, 8> argumentAttributes;
+  ezTempHybridArray<const ezFunctionArgumentAttributes*, 8> argumentAttributes;
   CollectFunctionArgumentAttributes(pFunction, argumentAttributes);
 
   ezStringView sTypeName = StripTypeName(pRtti->GetTypeName());
@@ -1541,6 +1587,8 @@ void ezVisualScriptNodeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
           return;
         }
 
+        m_TypesToUpdate.Insert(pReturnRtti);
+
         nodeDesc.AddOutputDataPin("Result", pReturnRtti, scriptDataType);
       }
     }
@@ -1581,6 +1629,8 @@ void ezVisualScriptNodeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
         pinScriptDataType = ezVisualScriptDataType::Variant;
       }
 
+      m_TypesToUpdate.Insert(pArgRtti);
+
       if (bIsEntryFunction)
       {
         nodeDesc.AddOutputDataPin(sArgName, pArgRtti, scriptDataType);
@@ -1608,22 +1658,16 @@ void ezVisualScriptNodeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
             titleArgIdx = argIdx;
           }
         }
-        else if (argType == ezScriptableFunctionAttribute::Out || argType == ezScriptableFunctionAttribute::Inout)
+
+        if (argType == ezScriptableFunctionAttribute::Out || argType == ezScriptableFunctionAttribute::Inout)
         {
-          ezLog::Error("Script function out parameter are not yet supported");
-          return;
-
-#if 0
-          if (!pFunction->GetArgumentFlags(argIdx).IsSet(ezPropertyFlags::Reference))
+          if (!pFunction->GetArgumentFlags(argIdx).IsAnySet(ezPropertyFlags::Reference | ezPropertyFlags::Pointer))
           {
-            // TODO: ezPropertyFlags::Reference is also set for const-ref parameters, should we change that ?
-
-            ezLog::Error("Script function '{}' argument {} is marked 'out' but is not a non-const reference value", pRtti->GetTypeName(), argIdx);
+            ezLog::Error("Script function '{}::{}' argument {} is marked 'out' but is not a non-const reference or pointer value", sTypeName, sFunctionName, argIdx);
             return;
           }
 
-          nodeDesc.AddOutputDataPin(sArgName, pArgRtti, scriptDataType, sDynamicPinProperty);
-#endif
+          nodeDesc.AddOutputDataPin(sArgName, pArgRtti, scriptDataType);
         }
       }
     }
@@ -1708,7 +1752,7 @@ void ezVisualScriptNodeRegistry::CreateCoroutineNodeType(const ezRTTI* pRtti)
     auto argType = pScriptableFuncAttribute->GetArgumentType(argIdx);
     if (argType != ezScriptableFunctionAttribute::In)
     {
-      ezLog::Error("Script function out parameter are not yet supported");
+      // ezLog::Error("Script function out parameter are not yet supported");
       return;
     }
 
@@ -1732,7 +1776,6 @@ void ezVisualScriptNodeRegistry::CreateCoroutineNodeType(const ezRTTI* pRtti)
 void ezVisualScriptNodeRegistry::CreateMessageNodeTypes(const ezRTTI* pRtti)
 {
   if (pRtti == ezGetStaticRTTI<ezMessage>() ||
-      pRtti == ezGetStaticRTTI<ezEventMessage>() ||
       pRtti->GetTypeFlags().IsSet(ezTypeFlags::Abstract))
     return;
 
@@ -1757,7 +1800,7 @@ void ezVisualScriptNodeRegistry::CreateMessageNodeTypes(const ezRTTI* pRtti)
 
     nodeDesc.AddOutputExecutionPin("");
 
-    ezHybridArray<const ezAbstractProperty*, 32> properties;
+    ezTempHybridArray<const ezAbstractProperty*, 32> properties;
     pRtti->GetAllProperties(properties);
     for (auto pProp : properties)
     {
@@ -1802,7 +1845,7 @@ void ezVisualScriptNodeRegistry::CreateMessageNodeTypes(const ezRTTI* pRtti)
     AddInputDataPin<ezVisualScriptSendMessageMode>(typeDesc, nodeDesc, "SendMode");
     AddInputDataPin<ezTime>(typeDesc, nodeDesc, "Delay");
 
-    ezHybridArray<const ezAbstractProperty*, 32> properties;
+    ezTempHybridArray<const ezAbstractProperty*, 32> properties;
     pRtti->GetAllProperties(properties);
     for (auto pProp : properties)
     {
@@ -1832,7 +1875,7 @@ void ezVisualScriptNodeRegistry::CreateMessageNodeTypes(const ezRTTI* pRtti)
 
 void ezVisualScriptNodeRegistry::CreateEnumNodeTypes(const ezRTTI* pRtti)
 {
-  if (m_EnumTypes.Insert(pRtti))
+  if (m_ExposedTypes.Insert(pRtti))
     return;
 
   ezStringView sTypeName = GetTypeName(pRtti);
@@ -1881,7 +1924,7 @@ void ezVisualScriptNodeRegistry::CreateEnumNodeTypes(const ezRTTI* pRtti)
     nodeDesc.AddInputExecutionPin("");
     nodeDesc.AddInputDataPin("Value", pRtti, ezVisualScriptDataType::EnumValue, false);
 
-    ezHybridArray<ezReflectionUtils::EnumKeyValuePair, 16> enumKeysAndValues;
+    ezTempHybridArray<ezReflectionUtils::EnumKeyValuePair, 16> enumKeysAndValues;
     ezReflectionUtils::GetEnumKeysAndValues(pRtti, enumKeysAndValues, ezReflectionUtils::EnumConversionMode::ValueNameOnly);
     for (auto& keyAndValue : enumKeysAndValues)
     {
@@ -1948,11 +1991,12 @@ void ezVisualScriptNodeRegistry::FillDesc(ezReflectedTypeDescriptor& desc, ezStr
 const ezRTTI* ezVisualScriptNodeRegistry::RegisterNodeType(ezReflectedTypeDescriptor& typeDesc, NodeDesc&& nodeDesc, const ezHashedString& sCategory)
 {
   const ezRTTI* pRtti = ezPhantomRttiManager::RegisterType(typeDesc);
-  m_TypeToNodeDescs.Insert(pRtti, std::move(nodeDesc));
-
-  auto& nodeTemplate = m_NodeCreationTemplates.ExpandAndGetRef();
-  nodeTemplate.m_pType = pRtti;
-  nodeTemplate.m_sCategory = sCategory;
+  if (m_TypeToNodeDescs.Insert(pRtti, std::move(nodeDesc)) == false)
+  {
+    auto& nodeTemplate = m_NodeCreationTemplates.ExpandAndGetRef();
+    nodeTemplate.m_pType = pRtti;
+    nodeTemplate.m_sCategory = sCategory;
+  }
 
   return pRtti;
 }

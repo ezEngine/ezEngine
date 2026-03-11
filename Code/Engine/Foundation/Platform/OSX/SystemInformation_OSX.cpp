@@ -74,7 +74,8 @@ void ezSystemInformation::Initialize()
 #    error "32 Bit builds are not supported on OSX"
 #  endif
 
-  s_SystemInformation.m_szPlatformName = "OSX";
+  s_SystemInformation.m_szPlatformName = EZ_PLATFORM_NAME;
+
 #  if defined BUILDSYSTEM_BUILDTYPE
   s_SystemInformation.m_szBuildConfiguration = BUILDSYSTEM_BUILDTYPE;
 #  else

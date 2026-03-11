@@ -8,10 +8,8 @@
 namespace ezModelImporter2
 {
 
-  ezUniquePtr<Importer> RequestImporterForFileType(const char* szFile)
+  ezUniquePtr<Importer> RequestImporterForFileType(ezStringView sFile)
   {
-    ezStringBuilder sFile = szFile;
-
     if (sFile.HasExtension(".fbx") || sFile.HasExtension(".obj") || sFile.HasExtension(".gltf") || sFile.HasExtension(".glb") || sFile.HasExtension(".blend"))
     {
       return EZ_DEFAULT_NEW(ImporterAssimp);

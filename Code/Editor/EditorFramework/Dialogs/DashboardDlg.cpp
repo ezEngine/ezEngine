@@ -95,7 +95,7 @@ void ezQtDashboardDlg::FillRecentProjectsList()
 
 void ezQtDashboardDlg::FillSampleProjectsList()
 {
-  ezHybridArray<ezString, 32> samples;
+  ezTempHybridArray<ezString, 32> samples;
   FindSampleProjects(samples);
 
   SamplesList->clear();
@@ -290,6 +290,11 @@ void ezQtDashboardDlg::on_OpenDiscord_clicked()
 void ezQtDashboardDlg::on_OpenTwitter_clicked()
 {
   QDesktopServices::openUrl(QUrl("https://twitter.com/ezEngineProject"));
+}
+
+void ezQtDashboardDlg::on_OpenBsky_clicked()
+{
+  QDesktopServices::openUrl(QUrl("https://bsky.app/profile/ezengine.bsky.social"));
 }
 
 bool ezQtDashboardDlg::eventFilter(QObject* obj, QEvent* e)

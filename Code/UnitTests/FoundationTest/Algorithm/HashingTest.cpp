@@ -331,7 +331,7 @@ EZ_CREATE_SIMPLE_TEST(Algorithm, HashableStruct)
   SimpleStruct NonAutomaticInst;
   ezMemoryUtils::ZeroFill(&NonAutomaticInst, 1);
 
-  EZ_CHECK_AT_COMPILETIME(sizeof(AutomaticInst) == sizeof(NonAutomaticInst));
+  static_assert(sizeof(AutomaticInst) == sizeof(NonAutomaticInst));
 
   EZ_TEST_INT(ezMemoryUtils::Compare<ezUInt8>((ezUInt8*)&AutomaticInst, (ezUInt8*)&NonAutomaticInst, sizeof(AutomaticInst)), 0);
 
@@ -351,4 +351,32 @@ EZ_CREATE_SIMPLE_TEST(Algorithm, HashableStruct)
   uiAutomaticHash = AutomaticInst.CalculateHash();
 
   EZ_TEST_BOOL(uiAutomaticHash != uiNonAutomaticHash);
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Compare")
+  {
+    SimpleHashableStruct LeftSide;
+    LeftSide.m_uiTestMember1 = 1;
+    LeftSide.m_uiTestMember2 = 2;
+    LeftSide.m_uiTestMember3 = 3;
+    SimpleHashableStruct RightSide = LeftSide;
+    EZ_TEST_BOOL(LeftSide == RightSide);
+    EZ_TEST_BOOL(!(LeftSide != RightSide));
+    EZ_TEST_BOOL(!(LeftSide < RightSide));
+    EZ_TEST_BOOL(!(RightSide < LeftSide));
+    EZ_TEST_BOOL(LeftSide.CalculateHash() == RightSide.CalculateHash());
+
+    LeftSide.m_uiTestMember3 = 2;
+    EZ_TEST_BOOL(!(LeftSide == RightSide));
+    EZ_TEST_BOOL(LeftSide != RightSide);
+    EZ_TEST_BOOL(LeftSide < RightSide);
+    EZ_TEST_BOOL(!(RightSide < LeftSide));
+    EZ_TEST_BOOL(LeftSide.CalculateHash() != RightSide.CalculateHash());
+
+    RightSide.m_uiTestMember1 = 0;
+    EZ_TEST_BOOL(!(LeftSide == RightSide));
+    EZ_TEST_BOOL(LeftSide != RightSide);
+    EZ_TEST_BOOL(!(LeftSide < RightSide));
+    EZ_TEST_BOOL(RightSide < LeftSide);
+    EZ_TEST_BOOL(LeftSide.CalculateHash() != RightSide.CalculateHash());
+  }
 }

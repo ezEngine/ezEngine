@@ -1,3 +1,4 @@
+#include <EditorFramework/Assets/AssetStatusIndicator.moc.h>
 #include <EditorPluginAssets/EditorPluginAssetsPCH.h>
 
 #include <EditorPluginAssets/ImageDataAsset/ImageDataAsset.h>
@@ -36,23 +37,40 @@ ezQtImageDataAssetDocumentWindow::ezQtImageDataAssetDocumentWindow(ezImageDataAs
     addToolBar(pToolBar);
   }
 
+  // Central Widget
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
-    pPropertyPanel->setObjectName("ImageDataAssetDockWidget");
-    pPropertyPanel->setWindowTitle("Properties");
-    pPropertyPanel->show();
+    m_pImageWidget = new ezQtImageWidget(this);
+
+    ezQtDocumentPanel* pCentral = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    pCentral->setObjectName("ImageDataView");
+    pCentral->setWindowTitle("Image");
+    pCentral->setWidget(m_pImageWidget);
+
+    m_pDockManager->setCentralWidget(pCentral);
+  }
+
+  {
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    pPropertyPanel->setObjectName("ImageDataProperties");
+    pPropertyPanel->setWindowTitle("Image Properties");
 
     ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
-    pPropertyPanel->setWidget(pPropertyGrid);
 
-    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
+    QWidget* pWidget = new QWidget();
+    pWidget->setObjectName("Group");
+    pWidget->setLayout(new QVBoxLayout());
+    pWidget->setContentsMargins(0, 0, 0, 0);
+
+    pWidget->layout()->setContentsMargins(0, 0, 0, 0);
+    pWidget->layout()->addWidget(new ezQtAssetStatusIndicator((ezAssetDocument*)GetDocument()));
+    pWidget->layout()->addWidget(pPropertyGrid);
+
+    pPropertyPanel->setWidget(pWidget, ads::CDockWidget::ForceNoScrollArea);
+
+    m_pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pPropertyPanel);
 
     pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
   }
-
-  m_pImageWidget = new ezQtImageWidget(this);
-
-  setCentralWidget(m_pImageWidget);
 
   FinishWindowCreation();
 

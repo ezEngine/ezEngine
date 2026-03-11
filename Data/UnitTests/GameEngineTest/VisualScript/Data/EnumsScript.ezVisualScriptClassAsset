@@ -24,7 +24,7 @@ o
 		s %AssetType{"VisualScriptClass"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{14943798498816879012,4748717509462753451}}
-		u4 %Hash{2386474541914289032}
+		u4 %Hash{1028495937291924429}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{13274271596864051794,1603839497365192548}}
@@ -766,7 +766,10 @@ o
 	u3 %v{2}
 	p
 	{
-		VarArray %Attributes{}
+		VarArray %Attributes
+		{
+			Uuid{u4{10568763562914783905,10530531365321929534}}
+		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
@@ -1073,6 +1076,13 @@ o
 }
 o
 {
+	Uuid %id{u4{15637767251822793677,7099346497836275084}}
+	s %t{"ezExposeColorAlphaAttribute"}
+	u3 %v{1}
+	p{}
+}
+o
+{
 	Uuid %id{u4{13799489209839999719,7295405495570511845}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
@@ -1256,7 +1266,10 @@ o
 	u3 %v{2}
 	p
 	{
-		VarArray %Attributes{}
+		VarArray %Attributes
+		{
+			Uuid{u4{15637767251822793677,7099346497836275084}}
+		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
@@ -1298,6 +1311,13 @@ o
 	{
 		s %Title{"TriggerState::{Value}"}
 	}
+}
+o
+{
+	Uuid %id{u4{10568763562914783905,10530531365321929534}}
+	s %t{"ezExposeColorAlphaAttribute"}
+	u3 %v{1}
+	p{}
 }
 o
 {

@@ -10,8 +10,5 @@ EZ_STATICLINK_LIBRARY(OpenXRPlugin)
   if (bReturn)
     return;
 
-  EZ_STATICLINK_REFERENCE(OpenXRPlugin_OpenXRSingleton);
-  EZ_STATICLINK_REFERENCE(OpenXRPlugin_OpenXRStartup);
-  EZ_STATICLINK_REFERENCE(OpenXRPlugin_OpenXRSpatialAnchors);
-  EZ_STATICLINK_REFERENCE(OpenXRPlugin_OpenXRHandTracking);
+  EZ_STATICLINK_REFERENCE(OpenXRPlugin_OpenXRInputDevice);
 }

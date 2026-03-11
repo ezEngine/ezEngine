@@ -24,6 +24,9 @@ EZ_CORE_DLL void MigrateResourceRefCount(ezResource* pResource, const void* pOld
 #else
 EZ_ALWAYS_INLINE void MigrateResourceRefCount(ezResource* pResource, const void* pOldOwner, const void* pNewOwner)
 {
+  EZ_IGNORE_UNUSED(pResource);
+  EZ_IGNORE_UNUSED(pOldOwner);
+  EZ_IGNORE_UNUSED(pNewOwner);
 }
 #endif
 
@@ -73,8 +76,13 @@ public:
   ezUInt64 GetResourceIDHash() const;
 
   /// \brief Returns the Resource ID of the exact resource that this handle points to, without acquiring the resource.
-  /// The handle must be valid.
-  const ezString& GetResourceID() const;
+  /// If the handle is not valid, an empty string is returned.
+  ezStringView GetResourceID() const;
+
+  /// \brief The returns the resource description, if available, otherwise the resource ID.
+  /// This is mainly for logging, where you want the more user friendly description, but the ID, if no description is available.
+  /// If the handle is not valid, an empty string is returned.
+  ezStringView GetResourceIdOrDescription() const;
 
   /// \brief Releases the current reference and increases the refcount of the given resource.
   void operator=(const ezTypelessResourceHandle& rhs);
@@ -217,7 +225,12 @@ public:
 
   /// \brief Returns the Resource ID of the exact resource that this handle points to, without acquiring the resource.
   /// The handle must be valid.
-  EZ_ALWAYS_INLINE const ezString& GetResourceID() const { return m_hTypeless.GetResourceID(); }
+  EZ_ALWAYS_INLINE ezStringView GetResourceID() const { return m_hTypeless.GetResourceID(); }
+
+  /// \brief The returns the resource description, if available, otherwise the resource ID.
+  /// This is mainly for logging, where you want the more user friendly description, but the ID, if no description is available.
+  /// If the handle is not valid, an empty string is returned.
+  EZ_ALWAYS_INLINE ezStringView GetResourceIdOrDescription() const { return m_hTypeless.GetResourceIdOrDescription(); }
 
   /// \brief Attempts to copy the given typeless handle to this handle.
   ///

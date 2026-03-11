@@ -18,7 +18,7 @@ public:
 public:
   static const ezUInt8 s_uiMaxColors = 9;
 
-  ezQtStatVisWidget(QWidget* pParent, ezInt32 iWindowNumber);
+  ezQtStatVisWidget(ads::CDockManager* pDockManager, QWidget* pParent, ezInt32 iWindowNumber);
   ~ezQtStatVisWidget();
 
   void UpdateStats();

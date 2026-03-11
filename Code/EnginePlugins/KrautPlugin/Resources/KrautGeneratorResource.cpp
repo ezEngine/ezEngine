@@ -260,9 +260,9 @@ void ezKrautGeneratorResource::GenerateTreeDescriptor(ezKrautTreeResourceDescrip
     constexpr float fDivCluster = 1.0f / fCluster;
 
     ezVec3I32 ipos;
-    ipos.x = ezMath::FloatToInt(vPos.x * fCluster);
-    ipos.y = ezMath::FloatToInt(vPos.y * fCluster);
-    ipos.z = ezMath::FloatToInt(vPos.z * fCluster);
+    ipos.x = ezMath::FloatToInt32(vPos.x * fCluster);
+    ipos.y = ezMath::FloatToInt32(vPos.y * fCluster);
+    ipos.z = ezMath::FloatToInt32(vPos.z * fCluster);
 
     for (ezUInt32 i = aoResults.GetCount(); i > 0; --i)
     {
@@ -604,15 +604,13 @@ ezResourceLoadDesc ezKrautGeneratorResource::UpdateContent(ezStreamReader* Strea
     return res;
   }
 
-  // skip the absolute file path data that the standard file reader writes into the stream
-  {
-    ezStringBuilder sAbsFilePath;
-    (*Stream) >> sAbsFilePath;
+  // the standard file reader writes the absolute file path into the stream
+  ezStringBuilder sAbsFilePath;
+  (*Stream) >> sAbsFilePath;
 
-    if (ezPathUtils::HasExtension(sAbsFilePath, ".tree"))
-    {
-      return res;
-    }
+  if (ezPathUtils::HasExtension(sAbsFilePath, ".tree"))
+  {
+    return res;
   }
 
   ezAssetFileHeader AssetHash;
@@ -885,7 +883,7 @@ ezResult ezKrautGeneratorResourceDescriptor::Deserialize(ezStreamReader& inout_s
   }
   else if (version == 5)
   {
-    ezHybridArray<ezUInt32, 16> dummy;
+    ezTempHybridArray<ezUInt32, 16> dummy;
     EZ_SUCCEED_OR_RETURN(inout_stream.ReadArray(dummy));
   }
 
@@ -896,3 +894,6 @@ ezResult ezKrautGeneratorResourceDescriptor::Deserialize(ezStreamReader& inout_s
 
   return EZ_SUCCESS;
 }
+
+
+EZ_STATICLINK_FILE(KrautPlugin, KrautPlugin_Resources_KrautGeneratorResource);

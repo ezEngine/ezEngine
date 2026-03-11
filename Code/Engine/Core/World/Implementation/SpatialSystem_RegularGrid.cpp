@@ -173,6 +173,21 @@ namespace
 
     return result;
   }
+
+  EZ_ALWAYS_INLINE ezUInt64 EncodeLastVisibleFrameIndexAndVisType(ezUInt64 uiFrameCounter, ezVisibilityState::Enum visType)
+  {
+    return (uiFrameCounter << 4) | static_cast<ezUInt64>(visType);
+  }
+
+  EZ_ALWAYS_INLINE ezUInt64 ExtractLastVisibleFrameIndex(ezUInt64 uiLastVisibleFrameIdxAndVisType)
+  {
+    return (uiLastVisibleFrameIdxAndVisType >> 4);
+  }
+
+  EZ_ALWAYS_INLINE ezVisibilityState::Enum ExtractVisType(ezUInt64 uiLastVisibleFrameIdxAndVisType)
+  {
+    return static_cast<ezVisibilityState::Enum>(uiLastVisibleFrameIdxAndVisType & static_cast<ezUInt64>(15));
+  }
 } // namespace
 
 //////////////////////////////////////////////////////////////////////////
@@ -243,8 +258,38 @@ struct CellKeyHashHelper
 {
   EZ_ALWAYS_INLINE static ezUInt32 Hash(ezUInt64 value)
   {
-    // return ezUInt32(value * 2654435761U);
-    return ezHashHelper<ezUInt64>::Hash(value);
+    // manually unrolled MurmurHash32
+    const ezUInt32 m = ezInternal::MURMUR_M;
+    const ezUInt32 r = ezInternal::MURMUR_R;
+
+    ezUInt32 h = 8;
+    {
+      ezUInt32 k = ezUInt32(value);
+
+      k *= m;
+      k ^= k >> r;
+      k *= m;
+
+      h *= m;
+      h ^= k;
+    }
+
+    {
+      ezUInt32 k = ezUInt32(value >> 32);
+
+      k *= m;
+      k ^= k >> r;
+      k *= m;
+
+      h *= m;
+      h ^= k;
+    }
+
+    h ^= h >> 13;
+    h *= m;
+    h ^= h >> 15;
+
+    return h;
   }
 
   EZ_ALWAYS_INLINE static bool Equal(ezUInt64 a, ezUInt64 b) { return a == b; }
@@ -376,30 +421,47 @@ struct ezSpatialSystem_RegularGrid::Grid
     const ezInt32 iDiffZ = diff.z();
     const ezInt32 iNumIterations = iDiffX * iDiffY * iDiffZ;
 
-    for (ezInt32 i = 0; i < iNumIterations; ++i)
+    // The hash grid approach below is about 10 times slower than simply iterating over all cells
+    // and doing an AABB overlap test
+    const ezUInt64 uiHashGridCost = ezUInt64(iNumIterations) * 10;
+    if (uiHashGridCost > m_Cells.GetCount())
     {
-      ezInt32 index = i;
-      ezInt32 z = i / (iDiffX * iDiffY);
-      index -= z * iDiffX * iDiffY;
-      ezInt32 y = index / iDiffX;
-      ezInt32 x = index - (y * iDiffX);
-
-      x += iMinX;
-      y += iMinY;
-      z += iMinZ;
-
-      ezUInt64 cellKey = GetCellKey(x, y, z);
-      ezUInt32 cellIndex = 0;
-      if (m_CellKeyToCellIndex.TryGetValue(cellKey, cellIndex))
+      for (auto& pCell : m_Cells)
       {
-        const Cell& constCell = *m_Cells[cellIndex];
-        if (func(constCell) == ezVisitorExecution::Stop)
+        if (box.Overlaps(pCell->m_Bounds.GetBox()) == false)
+          continue;
+
+        if (func(*pCell) == ezVisitorExecution::Stop)
           return;
       }
     }
+    else
+    {
+      for (ezInt32 i = 0; i < iNumIterations; ++i)
+      {
+        ezInt32 index = i;
+        ezInt32 z = i / (iDiffX * iDiffY);
+        index -= z * iDiffX * iDiffY;
+        ezInt32 y = index / iDiffX;
+        ezInt32 x = index - (y * iDiffX);
 
-    const Cell& overflowCell = *m_Cells[m_uiOverflowCellIndex];
-    func(overflowCell);
+        x += iMinX;
+        y += iMinY;
+        z += iMinZ;
+
+        ezUInt64 cellKey = GetCellKey(x, y, z);
+        ezUInt32 cellIndex = 0;
+        if (m_CellKeyToCellIndex.TryGetValue(cellKey, cellIndex))
+        {
+          const Cell& constCell = *m_Cells[cellIndex];
+          if (func(constCell) == ezVisitorExecution::Stop)
+            return;
+        }
+      }
+
+      const Cell& overflowCell = *m_Cells[m_uiOverflowCellIndex];
+      func(overflowCell);
+    }
   }
 
   ezSpatialSystem_RegularGrid& m_System;
@@ -442,8 +504,10 @@ namespace ezInternal
     };
 
     template <typename T, bool UseTagsFilter>
-    static ezVisitorExecution::Enum ShapeQueryCallback(const ezSpatialSystem_RegularGrid::Cell& cell, const ezSpatialSystem::QueryParams& queryParams, ezSpatialSystem_RegularGrid::Stats& ref_stats, void* pUserData, ezVisibilityState visType)
+    static ezVisitorExecution::Enum ShapeQueryCallback(const ezSpatialSystem_RegularGrid::Cell& cell, const ezSpatialSystem::QueryParams& queryParams, ezSpatialSystem_RegularGrid::Stats& ref_stats, void* pUserData, ezVisibilityState::Enum visType)
     {
+      EZ_IGNORE_UNUSED(visType);
+
       auto pQueryData = static_cast<const ShapeQueryData<T>*>(pUserData);
       T shape = pQueryData->m_Shape;
 
@@ -490,7 +554,7 @@ namespace ezInternal
     };
 
     template <bool UseTagsFilter, bool UseOcclusionCallback>
-    static ezVisitorExecution::Enum FrustumQueryCallback(const ezSpatialSystem_RegularGrid::Cell& cell, const ezSpatialSystem::QueryParams& queryParams, ezSpatialSystem_RegularGrid::Stats& ref_stats, void* pUserData, ezVisibilityState visType)
+    static ezVisitorExecution::Enum FrustumQueryCallback(const ezSpatialSystem_RegularGrid::Cell& cell, const ezSpatialSystem::QueryParams& queryParams, ezSpatialSystem_RegularGrid::Stats& ref_stats, void* pUserData, ezVisibilityState::Enum visType)
     {
       auto pQueryData = static_cast<FrustumQueryData*>(pUserData);
       PlaneData planeData = pQueryData->m_PlaneData;
@@ -517,7 +581,7 @@ namespace ezInternal
       ref_stats.m_uiNumObjectsTested += numSpheres;
 
       ezUInt32 currentIndex = 0;
-      const ezUInt64 uiFrameIdxAndType = (pQueryData->m_uiFrameCounter << 4) | static_cast<ezUInt64>(visType);
+      const ezUInt64 uiFrameIdxAndType = EncodeLastVisibleFrameIndexAndVisType(pQueryData->m_uiFrameCounter, visType);
 
       while (currentIndex < numSpheres)
       {
@@ -616,7 +680,7 @@ ezSpatialSystem_RegularGrid::ezSpatialSystem_RegularGrid(ezUInt32 uiCellSize /*=
   , m_Grids(&m_Allocator)
   , m_DataTable(&m_Allocator)
 {
-  EZ_CHECK_AT_COMPILETIME(sizeof(Data) == 8);
+  static_assert(sizeof(Data) == 8);
 
   m_Grids.SetCount(MAX_NUM_GRIDS);
 
@@ -757,6 +821,7 @@ void ezSpatialSystem_RegularGrid::DeleteSpatialData(const ezSpatialDataHandle& h
   ForEachGrid(oldData, hData,
     [&](Grid& ref_grid, const CellDataMapping& mapping)
     {
+      EZ_IGNORE_UNUSED(mapping);
       ref_grid.RemoveSpatialData(hData);
       return ezVisitorExecution::Continue;
     });
@@ -813,8 +878,6 @@ void ezSpatialSystem_RegularGrid::UpdateSpatialDataObject(const ezSpatialDataHan
 
 void ezSpatialSystem_RegularGrid::FindObjectsInSphere(const ezBoundingSphere& sphere, const QueryParams& queryParams, QueryCallback callback) const
 {
-  EZ_PROFILE_SCOPE("FindObjectsInSphere");
-
   ezSimdBSphere simdSphere(ezSimdConversion::ToVec3(sphere.m_vCenter), sphere.m_fRadius);
 
   const ezSimdBBox simdBox = ezSimdBBox::MakeFromCenterAndHalfExtents(simdSphere.m_CenterAndRadius, simdSphere.m_CenterAndRadius.Get<ezSwizzle::WWWW>());
@@ -829,8 +892,6 @@ void ezSpatialSystem_RegularGrid::FindObjectsInSphere(const ezBoundingSphere& sp
 
 void ezSpatialSystem_RegularGrid::FindObjectsInBox(const ezBoundingBox& box, const QueryParams& queryParams, QueryCallback callback) const
 {
-  EZ_PROFILE_SCOPE("FindObjectsInBox");
-
   ezSimdBBox simdBox(ezSimdConversion::ToVec3(box.m_vMin), ezSimdConversion::ToVec3(box.m_vMax));
 
   ezInternal::QueryHelper::ShapeQueryData<ezSimdBBox> queryData = {simdBox, callback};
@@ -841,9 +902,9 @@ void ezSpatialSystem_RegularGrid::FindObjectsInBox(const ezBoundingBox& box, con
     &queryData, ezVisibilityState::Indirect);
 }
 
-void ezSpatialSystem_RegularGrid::FindVisibleObjects(const ezFrustum& frustum, const QueryParams& queryParams, ezDynamicArray<const ezGameObject*>& out_Objects, ezSpatialSystem::IsOccludedFunc IsOccluded, ezVisibilityState visType) const
+void ezSpatialSystem_RegularGrid::FindVisibleObjects(const ezFrustum& frustum, const QueryParams& queryParams, ezDynamicArray<const ezGameObject*>& out_Objects, ezSpatialSystem::IsOccludedFunc IsOccluded, ezVisibilityState::Enum visType) const
 {
-  EZ_PROFILE_SCOPE("FindVisibleObjects");
+  EZ_PROFILE_SCOPE("ezSpatialSystem_RegularGrid::FindVisibleObjects");
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   ezStopwatch timer;
@@ -914,7 +975,7 @@ void ezSpatialSystem_RegularGrid::FindVisibleObjects(const ezFrustum& frustum, c
 #endif
 }
 
-ezVisibilityState ezSpatialSystem_RegularGrid::GetVisibilityState(const ezSpatialDataHandle& hData, ezUInt32 uiNumFramesBeforeInvisible) const
+ezVisibilityState::Enum ezSpatialSystem_RegularGrid::GetVisibilityState(const ezSpatialDataHandle& hData, ezUInt32 uiNumFramesBeforeInvisible) const
 {
   Data* pData = nullptr;
   EZ_VERIFY(m_DataTable.TryGetValue(hData.GetInternalID(), pData), "Invalid spatial data handle");
@@ -931,13 +992,12 @@ ezVisibilityState ezSpatialSystem_RegularGrid::GetVisibilityState(const ezSpatia
       return ezVisitorExecution::Continue;
     });
 
-  const ezUInt64 uiLastVisibleFrameIdx = (uiLastVisibleFrameIdxAndVisType >> 4);
-  const ezUInt64 uiLastVisibilityType = (uiLastVisibleFrameIdxAndVisType & static_cast<ezUInt64>(15)); // mask out lower 4 bits
+  const ezUInt64 uiLastVisibleFrameIdx = ExtractLastVisibleFrameIndex(uiLastVisibleFrameIdxAndVisType);
 
   if (m_uiFrameCounter > uiLastVisibleFrameIdx + uiNumFramesBeforeInvisible)
     return ezVisibilityState::Invisible;
 
-  return static_cast<ezVisibilityState>(uiLastVisibilityType);
+  return ExtractVisType(uiLastVisibleFrameIdxAndVisType);
 }
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
@@ -1036,7 +1096,8 @@ ezSpatialDataHandle ezSpatialSystem_RegularGrid::AddSpatialDataToGrids(const ezS
       pGrid = EZ_NEW(&m_Allocator, Grid, *this, ezSpatialData::Category(static_cast<ezUInt16>(uiGridIndex)));
     }
 
-    pGrid->AddSpatialData(bounds, tags, pObject, m_uiFrameCounter, hData);
+    const ezUInt64 uiLastVisibleFrameIdxAndVisType = EncodeLastVisibleFrameIndexAndVisType(m_uiFrameCounter, ezVisibilityState::Direct);
+    pGrid->AddSpatialData(bounds, tags, pObject, uiLastVisibleFrameIdxAndVisType, hData);
   }
 
   return hData;
@@ -1061,7 +1122,7 @@ EZ_FORCE_INLINE void ezSpatialSystem_RegularGrid::ForEachGrid(const Data& data, 
   }
 }
 
-void ezSpatialSystem_RegularGrid::ForEachCellInBoxInMatchingGrids(const ezSimdBBox& box, const QueryParams& queryParams, CellCallback noFilterCallback, CellCallback filterByTagsCallback, void* pUserData, ezVisibilityState visType) const
+void ezSpatialSystem_RegularGrid::ForEachCellInBoxInMatchingGrids(const ezSimdBBox& box, const QueryParams& queryParams, CellCallback noFilterCallback, CellCallback filterByTagsCallback, void* pUserData, ezVisibilityState::Enum visType) const
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   if (queryParams.m_pStats != nullptr)

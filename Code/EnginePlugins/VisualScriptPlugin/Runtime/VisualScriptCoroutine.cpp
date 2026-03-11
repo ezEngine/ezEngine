@@ -4,8 +4,7 @@
 #include <VisualScriptPlugin/Runtime/VisualScriptInstance.h>
 
 ezVisualScriptCoroutine::ezVisualScriptCoroutine(const ezSharedPtr<const ezVisualScriptGraphDescription>& pDesc)
-  : m_LocalDataStorage(pDesc->GetLocalDataDesc())
-  , m_Context(pDesc)
+  : m_Context(pDesc, ezScriptAllocator::GetAllocator())
 {
 }
 
@@ -13,10 +12,8 @@ ezVisualScriptCoroutine::~ezVisualScriptCoroutine() = default;
 
 void ezVisualScriptCoroutine::StartWithVarargs(ezArrayPtr<ezVariant> arguments)
 {
-  m_LocalDataStorage.AllocateStorage();
-
   auto pVisualScriptInstance = static_cast<ezVisualScriptInstance*>(GetScriptInstance());
-  m_Context.Initialize(*pVisualScriptInstance, m_LocalDataStorage, arguments);
+  m_Context.Initialize(*pVisualScriptInstance, arguments);
 }
 
 void ezVisualScriptCoroutine::Stop()

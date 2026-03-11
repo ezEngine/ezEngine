@@ -70,5 +70,3 @@ bool ezBlob::IsEmpty() const
 {
   return 0 == m_uiSize;
 }
-
-EZ_STATICLINK_FILE(Foundation, Foundation_Containers_Implementation_Blob);

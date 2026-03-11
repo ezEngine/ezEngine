@@ -9,6 +9,11 @@
 class ezAbstractObjectGraph;
 class ezAbstractObjectNode;
 
+/// \brief Simple wrapper that pairs a runtime type with an object instance pointer.
+///
+/// This structure is used throughout the RTTI converter system to maintain type safety
+/// when working with void pointers. It ensures that object pointers are always associated
+/// with their correct runtime type information.
 struct EZ_FOUNDATION_DLL ezRttiConverterObject
 {
   ezRttiConverterObject()
@@ -24,14 +29,33 @@ struct EZ_FOUNDATION_DLL ezRttiConverterObject
 
   EZ_DECLARE_POD_TYPE();
 
-  const ezRTTI* m_pType;
-  void* m_pObject;
+  const ezRTTI* m_pType; ///< Runtime type information for the object
+  void* m_pObject;       ///< Pointer to the actual object instance
 };
 
 
+/// \brief Context object that manages object lifetime and relationships during RTTI-based conversion.
+///
+/// This class provides the infrastructure for converting between native objects and abstract
+/// object graphs. It handles object creation, deletion, GUID management, and type resolution
+/// during both serialization and deserialization processes.
+///
+/// Key responsibilities:
+/// - Object lifecycle management (creation, registration, deletion)
+/// - GUID generation and object-to-GUID mapping
+/// - Type resolution and unknown type handling
+/// - Object queuing for deferred processing
+/// - Cross-reference resolution during deserialization
+///
+/// The context can be customized by overriding virtual methods to implement:
+/// - Custom GUID generation strategies
+/// - Alternative object creation patterns
+/// - Specialized type resolution logic
+/// - Custom error handling for unknown types
 class EZ_FOUNDATION_DLL ezRttiConverterContext
 {
 public:
+  /// \brief Clears all cached objects and resets the context state.
   virtual void Clear();
 
   /// \brief Generates a guid for a new object. Default implementation generates stable guids derived from
@@ -77,12 +101,30 @@ protected:
 };
 
 
+/// \brief Converts native objects to abstract object graph representation using reflection.
+///
+/// This class traverses object hierarchies using RTTI and converts them into abstract
+/// object graphs that can be serialized to various formats. It handles object references,
+/// inheritance hierarchies, and complex property types automatically.
 class EZ_FOUNDATION_DLL ezRttiConverterWriter
 {
 public:
+  /// \brief Filter function type for controlling which properties are serialized.
+  ///
+  /// Return true to include the property, false to skip it. Allows fine-grained control
+  /// over what gets serialized based on object state, property attributes, or other criteria.
   using FilterFunction = ezDelegate<bool(const void* pObject, const ezAbstractProperty* pProp)>;
 
+  /// \brief Constructs a writer with boolean flags for common filtering options.
+  ///
+  /// \param bSerializeReadOnly If true, includes read-only properties in the output
+  /// \param bSerializeOwnerPtrs If true, serializes objects pointed to by owner pointers
   ezRttiConverterWriter(ezAbstractObjectGraph* pGraph, ezRttiConverterContext* pContext, bool bSerializeReadOnly, bool bSerializeOwnerPtrs);
+
+  /// \brief Constructs a writer with a custom filter function for maximum control.
+  ///
+  /// The filter function is called for each property and can implement complex logic
+  /// to determine what should be serialized.
   ezRttiConverterWriter(ezAbstractObjectGraph* pGraph, ezRttiConverterContext* pContext, FilterFunction filter);
 
   ezAbstractObjectNode* AddObjectToGraph(ezReflectedClass* pObject, const char* szNodeName = nullptr)
@@ -102,9 +144,15 @@ private:
   FilterFunction m_Filter;
 };
 
+/// \brief Converts abstract object graphs back to native objects using reflection.
+///
+/// This class performs the reverse operation of ezRttiConverterWriter, reconstructing
+/// native object hierarchies from abstract object graphs. It handles object creation,
+/// property restoration, and reference resolution automatically.
 class EZ_FOUNDATION_DLL ezRttiConverterReader
 {
 public:
+  /// \brief Constructs a reader for the given object graph and context.
   ezRttiConverterReader(const ezAbstractObjectGraph* pGraph, ezRttiConverterContext* pContext);
 
   ezInternal::NewInstance<void> CreateObjectFromNode(const ezAbstractObjectNode* pNode);

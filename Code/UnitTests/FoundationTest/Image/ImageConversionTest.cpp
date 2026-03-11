@@ -62,7 +62,7 @@ private:
     }
 
     {
-      ezHybridArray<ezImageConversion::ConversionPathNode, 16> decodingPath;
+      ezTempHybridArray<ezImageConversion::ConversionPathNode, 16> decodingPath;
       ezUInt32 decodingPathScratchBuffers;
       ezImageConversion::BuildPath(format, defaultFormat, false, decodingPath, decodingPathScratchBuffers).IgnoreResult();
 
@@ -75,7 +75,7 @@ private:
     }
 
     {
-      ezHybridArray<ezImageConversion::ConversionPathNode, 16> encodingPath;
+      ezTempHybridArray<ezImageConversion::ConversionPathNode, 16> encodingPath;
       ezUInt32 encodingPathScratchBuffers;
       ezImageConversion::BuildPath(defaultFormat, format, false, encodingPath, encodingPathScratchBuffers).IgnoreResult();
 
@@ -201,12 +201,10 @@ private:
       return EZ_FAILURE;
     }
 
-    ezFileSystem::AddDataDirectory(">eztest/", "ImageComparisonDataDir", "imgout", ezFileSystem::AllowWrites).IgnoreResult();
+    ezFileSystem::AddDataDirectory(">eztest/", "ImageComparisonDataDir", "imgout", ezDataDirUsage::AllowWrites).IgnoreResult();
 
-#if EZ_ENABLED(EZ_PLATFORM_LINUX)
     // On linux we use CPU based BC6 and BC7 compression, which sometimes gives slightly different results from the GPU compression on Windows.
-    ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_Linux");
-#endif
+    ezTestFramework::GetInstance()->SetImageReferenceTagsFromEnvironment(EZ_PLATFORM_NAME, {}, {});
 
     return EZ_SUCCESS;
   }

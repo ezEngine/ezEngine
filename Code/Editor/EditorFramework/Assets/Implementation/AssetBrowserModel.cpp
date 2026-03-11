@@ -108,8 +108,19 @@ ezQtAssetBrowserModel::ezQtAssetBrowserModel(QObject* pParent, ezQtAssetFilter* 
   : QAbstractItemModel(pParent)
   , m_pFilter(pFilter)
 {
-  EZ_ASSERT_DEBUG(pFilter != nullptr, "ezQtAssetBrowserModel requires a valid filter.");
-  connect(pFilter, &ezQtAssetFilter::FilterChanged, this, [this]()
+}
+
+ezQtAssetBrowserModel::~ezQtAssetBrowserModel()
+{
+  ezFileSystemModel::GetSingleton()->m_FileChangedEvents.RemoveEventHandler(m_FileChangedSubscription);
+  ezFileSystemModel::GetSingleton()->m_FolderChangedEvents.RemoveEventHandler(m_FolderChangedSubscription);
+  ezAssetCurator::GetSingleton()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtAssetBrowserModel::AssetCuratorEventHandler, this));
+}
+
+void ezQtAssetBrowserModel::Initialize()
+{
+  EZ_ASSERT_DEBUG(m_pFilter != nullptr, "ezQtAssetBrowserModel requires a valid filter.");
+  connect(m_pFilter, &ezQtAssetFilter::FilterChanged, this, [this]()
     { resetModel(); });
 
   ezAssetCurator::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtAssetBrowserModel::AssetCuratorEventHandler, this));
@@ -122,15 +133,20 @@ ezQtAssetBrowserModel::ezQtAssetBrowserModel(QObject* pParent, ezQtAssetFilter* 
   EZ_VERIFY(connect(ezQtImageCache::GetSingleton(), &ezQtImageCache::ImageInvalidated, this, &ezQtAssetBrowserModel::ThumbnailInvalidated) != nullptr,
     "signal/slot connection failed");
 
-  ezFileSystemModel::GetSingleton()->m_FileChangedEvents.AddEventHandler(ezMakeDelegate(&ezQtAssetBrowserModel::FileSystemFileEventHandler, this));
-  ezFileSystemModel::GetSingleton()->m_FolderChangedEvents.AddEventHandler(ezMakeDelegate(&ezQtAssetBrowserModel::FileSystemFolderEventHandler, this));
-}
-
-ezQtAssetBrowserModel::~ezQtAssetBrowserModel()
-{
-  ezFileSystemModel::GetSingleton()->m_FileChangedEvents.RemoveEventHandler(ezMakeDelegate(&ezQtAssetBrowserModel::FileSystemFileEventHandler, this));
-  ezFileSystemModel::GetSingleton()->m_FolderChangedEvents.RemoveEventHandler(ezMakeDelegate(&ezQtAssetBrowserModel::FileSystemFolderEventHandler, this));
-  ezAssetCurator::GetSingleton()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtAssetBrowserModel::AssetCuratorEventHandler, this));
+  QWeakPointer<ezQtAssetBrowserModel> pWeak = sharedFromThis();
+  m_FileChangedSubscription = ezFileSystemModel::GetSingleton()->m_FileChangedEvents.AddEventHandler([pWeak](const ezFileChangedEvent& e)
+    {
+      if (QSharedPointer<ezQtAssetBrowserModel> strong = pWeak.toStrongRef())
+      {
+        strong->FileSystemFileEventHandler(e);
+      } });
+  m_FolderChangedSubscription = ezFileSystemModel::GetSingleton()->m_FolderChangedEvents.AddEventHandler([pWeak](const ezFolderChangedEvent& e)
+    {
+      if (QSharedPointer<ezQtAssetBrowserModel> strong = pWeak.toStrongRef())
+      {
+        strong->FileSystemFolderEventHandler(e);
+      } });
+  ezAssetDocumentGenerator::GetSupportsFileTypes(m_ImportExtensions);
 }
 
 void ezQtAssetBrowserModel::AssetCuratorEventHandler(const ezAssetCuratorEvent& e)
@@ -142,7 +158,11 @@ void ezQtAssetBrowserModel::AssetCuratorEventHandler(const ezAssetCuratorEvent& 
       VisibleEntry ve;
       ve.m_Guid = e.m_AssetGuid;
       ve.m_sAbsFilePath = e.m_pInfo->m_pAssetInfo->m_Path;
-
+      ve.m_Flags = ezAssetBrowserItemFlags::File;
+      if (ve.m_Guid.IsValid())
+      {
+        ve.m_Flags |= ezAssetBrowserItemFlags::Asset;
+      }
       HandleEntry(ve, AssetOp::Updated);
       break;
     }
@@ -194,6 +214,11 @@ void ezQtAssetBrowserModel::resetModel()
   m_EntriesToDisplay.Clear();
   m_DisplayedEntries.Clear();
 
+  // Get Curator Mutex first to prevent deadlocks
+  ezAssetCurator::ezLockedSubAssetTable AllAssetsLocked = ezAssetCurator::GetSingleton()->GetKnownSubAssets();
+  const ezHashTable<ezUuid, ezSubAsset>& AllAssets = *(AllAssetsLocked.operator->());
+
+  auto allFiles = ezFileSystemModel::GetSingleton()->GetFiles();
   auto allFolders = ezFileSystemModel::GetSingleton()->GetFolders();
 
   for (const auto& folder : *allFolders)
@@ -205,8 +230,6 @@ void ezQtAssetBrowserModel::resetModel()
     entry.m_Flags = folder.Key().GetDataDirRelativePath().IsEmpty() ? ezAssetBrowserItemFlags::DataDirectory : ezAssetBrowserItemFlags::Folder;
     entry.m_sAbsFilePath = folder.Key();
   }
-
-  auto allFiles = ezFileSystemModel::GetSingleton()->GetFiles();
 
   for (const auto& file : *allFiles)
   {
@@ -251,8 +274,6 @@ void ezQtAssetBrowserModel::resetModel()
     }
   }
 
-  ezAssetCurator::ezLockedSubAssetTable AllAssetsLocked = ezAssetCurator::GetSingleton()->GetKnownSubAssets();
-  const ezHashTable<ezUuid, ezSubAsset>& AllAssets = *(AllAssetsLocked.operator->());
 
   FileComparer cmp(this, AllAssets);
   m_EntriesToDisplay.Sort(cmp);
@@ -320,25 +341,28 @@ void ezQtAssetBrowserModel::HandleEntry(const VisibleEntry& entry, AssetOp op)
       endRemoveRows();
     }
   }
-  else
+  else // Updated
   {
-    // Equal?
+    // Updated entries can cause the filter function `IsAssetFiltered` to change its result, e.g. the transform issues list in the curator panel shows assets that were updated from a healthy state to an error state. Thus, updated entries could be missing in the list at this point, so we need to first check if the item already exists:
     if (uiInsertIndex < m_EntriesToDisplay.GetCount() && !cmp.Less(*pLB, entry) && !cmp.Less(entry, *pLB))
     {
+      // Already exists
       QModelIndex idx = index(uiInsertIndex, 0);
       Q_EMIT dataChanged(idx, idx);
     }
     else
     {
+      // Item not found. Do an exhaustive search in case the name was changed in which the order is no longer the same.
       ezInt32 oldIndex = FindAssetIndex(entry.m_Guid);
       if (oldIndex != -1)
       {
-        // Name has changed, remove old entry
+        // Order (most likely name) has changed, remove old entry and insert new one
         beginRemoveRows(QModelIndex(), oldIndex, oldIndex);
         m_EntriesToDisplay.RemoveAtAndCopy(oldIndex);
         m_DisplayedEntries.Remove(entry.m_Guid);
         endRemoveRows();
       }
+      // Reinsert the updated entry.
       HandleEntry(entry, AssetOp::Add);
     }
   }
@@ -479,7 +503,7 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int iRole) const
 
       case Qt::EditRole:
       {
-        ezStringView sFilename = entry.m_sAbsFilePath.GetAbsolutePath().GetFileNameAndExtension();
+        ezStringView sFilename = entry.m_sAbsFilePath.GetAbsolutePath().GetFileName(); // remove the file extension
         return ezMakeQString(sFilename);
       }
 
@@ -563,6 +587,9 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int iRole) const
           case ezAssetInfo::MissingTransformDependency:
             sToolTip.Append("Missing Transform Dependency");
             break;
+          case ezAssetInfo::MissingPackageDependency:
+            sToolTip.Append("Missing Package Dependency");
+            break;
           case ezAssetInfo::MissingThumbnailDependency:
             sToolTip.Append("Missing Thumbnail Dependency");
             break;
@@ -618,6 +645,9 @@ bool ezQtAssetBrowserModel::setData(const QModelIndex& index, const QVariant& va
   if (!index.isValid())
     return false;
 
+  if (iRole != Qt::EditRole)
+    return false;
+
   const ezInt32 iRow = index.row();
   if (iRow < 0 || iRow >= (ezInt32)m_EntriesToDisplay.GetCount())
     return false;
@@ -648,9 +678,14 @@ Qt::ItemFlags ezQtAssetBrowserModel::flags(const QModelIndex& index) const
 
   Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 
-  if (entry.m_Flags.IsAnySet(ezAssetBrowserItemFlags::File | ezAssetBrowserItemFlags::Folder))
+  if (entry.m_Flags.IsAnySet(ezAssetBrowserItemFlags::File | ezAssetBrowserItemFlags::Folder | ezAssetBrowserItemFlags::Asset))
   {
     flags |= Qt::ItemIsDragEnabled | Qt::ItemIsEditable;
+  }
+
+  if (entry.m_Flags.IsAnySet(ezAssetBrowserItemFlags::SubAsset))
+  {
+    flags |= Qt::ItemIsDragEnabled;
   }
 
   return flags;
@@ -707,8 +742,8 @@ QMimeData* ezQtAssetBrowserModel::mimeData(const QModelIndexList& indexes) const
 {
   QString sGuids;
   QList<QUrl> urls;
-  ezHybridArray<QString, 1> guids;
-  ezHybridArray<QString, 1> files;
+  ezTempHybridArray<QString, 1> guids;
+  ezTempHybridArray<QString, 1> files;
 
   ezStringBuilder tmp;
 

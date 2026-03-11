@@ -5,15 +5,7 @@
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Logging/Log.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#  include <Foundation/Configuration/Implementation/Win/Plugin_Win.h>
-#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
-#  include <Foundation/Configuration/Implementation/Posix/Plugin_Posix.h>
-#elif EZ_ENABLED(EZ_PLATFORM_ANDROID)
-#  include <Foundation/Configuration/Implementation/Android/Plugin_Android.h>
-#else
-#  error "Plugins not implemented on this Platform."
-#endif
+#include <Plugin_Platform.inl>
 
 ezResult UnloadPluginModule(ezPluginModule& ref_pModule, ezStringView sPluginFile);
 ezResult LoadPluginModule(ezStringView sFileToLoad, ezPluginModule& ref_pModule, ezStringView sPluginFile);
@@ -212,6 +204,8 @@ static ezResult UnloadPluginInternal(ezStringView sPluginFile)
   return EZ_SUCCESS;
 }
 
+#if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
+
 static ezResult LoadPluginInternal(ezStringView sPluginFile, ezBitflags<ezPluginLoadFlags> flags)
 {
   ezUInt8 uiFileNumber = 0;
@@ -300,6 +294,8 @@ success:
   return EZ_SUCCESS;
 }
 
+#endif
+
 bool ezPlugin::ExistsPluginFile(ezStringView sPluginFile)
 {
   ezStringBuilder sOriginalFile, sCopiedFile;
@@ -323,8 +319,9 @@ ezResult ezPlugin::LoadPlugin(ezStringView sPluginFile, ezBitflags<ezPluginLoadF
 
 #if EZ_DISABLED(EZ_COMPILE_ENGINE_AS_DLL)
   // #TODO EZ_COMPILE_ENGINE_AS_DLL and being able to load plugins are not necessarily the same thing.
+  EZ_IGNORE_UNUSED(flags);
   return EZ_FAILURE;
-#endif
+#else
 
   if (flags.IsSet(ezPluginLoadFlags::PluginIsOptional))
   {
@@ -351,6 +348,7 @@ ezResult ezPlugin::LoadPlugin(ezStringView sPluginFile, ezBitflags<ezPluginLoadF
   }
 
   return res;
+#endif
 }
 
 void ezPlugin::UnloadAllPlugins()

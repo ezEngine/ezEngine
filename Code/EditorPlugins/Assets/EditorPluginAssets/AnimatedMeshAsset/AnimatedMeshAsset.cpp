@@ -7,7 +7,7 @@
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimatedMeshAssetDocument, 8, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimatedMeshAssetDocument, 9, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -70,14 +70,33 @@ ezStatus ezAnimatedMeshAssetDocument::CreateMeshFromFile(ezAnimatedMeshAssetProp
   opt.m_sSourceFile = sAbsFilename;
   opt.m_bImportSkinningData = true;
   opt.m_bRecomputeNormals = pProp->m_bRecalculateNormals;
-  opt.m_bRecomputeTangents = pProp->m_bRecalculateTrangents;
-  opt.m_pMeshOutput = &desc;
-  opt.m_MeshNormalsPrecision = pProp->m_NormalPrecision;
-  opt.m_MeshTexCoordsPrecision = pProp->m_TexCoordPrecision;
+  opt.m_bRecomputeTangents = pProp->m_bRecalculateTangents;
+  opt.m_bHighPrecision = pProp->m_bHighPrecision;
   opt.m_MeshVertexColorConversion = pProp->m_VertexColorConversion;
-  opt.m_MeshBoneWeightPrecision = pProp->m_BoneWeightPrecision;
   opt.m_bNormalizeWeights = pProp->m_bNormalizeWeights;
-  // opt.m_RootTransform = CalculateTransformationMatrix(pProp);
+  opt.m_pMeshOutput = &desc;
+
+  // include tags
+  {
+    ezTempHybridArray<ezStringView, 8> tags;
+    pProp->m_sMeshIncludeTags.Split(false, tags, ";");
+    for (ezStringView tag : tags)
+    {
+      tag.Trim();
+      opt.m_MeshIncludeTags.PushBack(tag);
+    }
+  }
+
+  // exclude tags
+  {
+    ezTempHybridArray<ezStringView, 8> tags;
+    pProp->m_sMeshExcludeTags.Split(false, tags, ";");
+    for (ezStringView tag : tags)
+    {
+      tag.Trim();
+      opt.m_MeshExcludeTags.PushBack(tag);
+    }
+  }
 
   if (pProp->m_bSimplifyMesh)
   {
@@ -88,6 +107,17 @@ ezStatus ezAnimatedMeshAssetDocument::CreateMeshFromFile(ezAnimatedMeshAssetProp
 
   if (pImporter->Import(opt).Failed())
     return ezStatus("Model importer was unable to read this asset.");
+
+  if (desc.GetSubMeshes().IsEmpty() || !desc.GetBounds().IsValid())
+    return ezStatus("Imported mesh is empty.");
+
+  for (auto& sm : desc.GetSubMeshes())
+  {
+    if (sm.m_uiPrimitiveCount == 0)
+    {
+      return ezStatus("Imported mesh is empty.");
+    }
+  }
 
   range.BeginNextStep("Importing Materials");
 
@@ -121,69 +151,10 @@ ezTransformStatus ezAnimatedMeshAssetDocument::InternalCreateThumbnail(const Thu
   return status;
 }
 
-
-//////////////////////////////////////////////////////////////////////////
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimatedMeshAssetDocumentGenerator, 1, ezRTTIDefaultAllocator<ezAnimatedMeshAssetDocumentGenerator>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-ezAnimatedMeshAssetDocumentGenerator::ezAnimatedMeshAssetDocumentGenerator()
+void ezAnimatedMeshAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
 {
-  AddSupportedFileType("fbx");
-  AddSupportedFileType("gltf");
-  AddSupportedFileType("glb");
-}
+  SUPER::UpdateAssetDocumentInfo(pInfo);
 
-ezAnimatedMeshAssetDocumentGenerator::~ezAnimatedMeshAssetDocumentGenerator() = default;
-
-void ezAnimatedMeshAssetDocumentGenerator::GetImportModes(ezStringView sAbsInputFile, ezDynamicArray<ezAssetDocumentGenerator::ImportMode>& out_modes) const
-{
-  {
-    ezAssetDocumentGenerator::ImportMode& info = out_modes.ExpandAndGetRef();
-    info.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
-    info.m_sName = "AnimatedMeshImport.WithMaterials";
-    info.m_sIcon = ":/AssetIcons/Animated_Mesh.svg";
-  }
-
-  {
-    ezAssetDocumentGenerator::ImportMode& info = out_modes.ExpandAndGetRef();
-    info.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
-    info.m_sName = "AnimatedMeshImport.NoMaterials";
-    info.m_sIcon = ":/AssetIcons/Animated_Mesh.svg";
-  }
-}
-
-ezStatus ezAnimatedMeshAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezStringView sMode, ezDynamicArray<ezDocument*>& out_generatedDocuments)
-{
-  ezStringBuilder sOutFile = sInputFileAbs;
-  sOutFile.ChangeFileExtension(GetDocumentExtension());
-  ezOSFile::FindFreeFilename(sOutFile);
-
-  auto pApp = ezQtEditorApp::GetSingleton();
-
-  ezStringBuilder sInputFileRel = sInputFileAbs;
-  pApp->MakePathDataDirectoryRelative(sInputFileRel);
-
-  ezDocument* pDoc = pApp->CreateDocument(sOutFile, ezDocumentFlags::None);
-  if (pDoc == nullptr)
-    return ezStatus("Could not create target document");
-
-  out_generatedDocuments.PushBack(pDoc);
-
-  ezAnimatedMeshAssetDocument* pAssetDoc = ezDynamicCast<ezAnimatedMeshAssetDocument*>(pDoc);
-
-  auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
-  accessor.SetValue("MeshFile", sInputFileRel.GetView());
-
-  if (sMode == "AnimatedMeshImport.WithMaterials")
-  {
-    accessor.SetValue("ImportMaterials", true);
-  }
-
-  if (sMode == "AnimatedMeshImport.NoMaterials")
-  {
-    accessor.SetValue("ImportMaterials", false);
-  }
-
-  return ezStatus(EZ_SUCCESS);
+  // For glTF files, add any referenced external buffer files as dependencies
+  ezMeshImportUtils::AddGltfBufferDependencies(GetProperties()->m_sMeshFile, pInfo->m_TransformDependencies);
 }

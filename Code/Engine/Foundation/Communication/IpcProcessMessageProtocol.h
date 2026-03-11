@@ -30,11 +30,17 @@ public:
   ezResult WaitForMessages(ezTime timeout = ezTime::MakeZero());
 
 public:
-  ezEvent<const ezProcessMessage*> m_MessageEvent; ///< Will be sent from thread calling ProcessMessages or WaitForMessages.
+  struct Event
+  {
+    const ezProcessMessage* m_pMessage;
+    // Set to true in a message handler to cancel the ProcessMessages function and return to the caller before all messages have been processed.
+    mutable bool m_bInterruptMessageProcessing = false;
+  };
+  ezEvent<const Event&> m_MessageEvent; ///< Will be sent from thread calling ProcessMessages or WaitForMessages.
 
 private:
   void EnqueueMessage(ezUniquePtr<ezProcessMessage>&& msg);
-  void SwapWorkQueue(ezDeque<ezUniquePtr<ezProcessMessage>>& messages);
+  ezUniquePtr<ezProcessMessage> PopMessage();
   void ReceiveMessageData(ezArrayPtr<const ezUInt8> data);
 
 private:

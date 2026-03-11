@@ -68,7 +68,14 @@ bool ezDynamicStringEnum::IsValueValid(ezStringView sValue) const
 
 void ezDynamicStringEnum::SortValues()
 {
-  m_ValidValues.Sort();
+  ezCompareString_NoCase cmp;
+  m_ValidValues.Sort(cmp);
+}
+
+void ezDynamicStringEnum::SetEditCommand(ezStringView sCmd, const ezVariant& value)
+{
+  m_sEditCommand = sCmd;
+  m_EditCommandValue = value;
 }
 
 void ezDynamicStringEnum::ReadFromStorage()
@@ -83,7 +90,7 @@ void ezDynamicStringEnum::ReadFromStorage()
 
   sFile.ReadAll(file);
 
-  ezHybridArray<ezStringView, 32> values;
+  ezTempHybridArray<ezStringView, 32> values;
 
   sFile.Split(false, values, "\n", "\r");
 

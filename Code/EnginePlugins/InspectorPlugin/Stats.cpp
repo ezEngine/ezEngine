@@ -163,5 +163,3 @@ void RemoveStatsEventHandler()
 }
 
 
-
-EZ_STATICLINK_FILE(InspectorPlugin, InspectorPlugin_Stats);

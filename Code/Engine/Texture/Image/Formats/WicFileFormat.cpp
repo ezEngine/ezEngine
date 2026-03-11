@@ -1,12 +1,13 @@
 #include <Texture/TexturePCH.h>
 
-#include <Foundation/Basics/Platform/Win/HResultUtils.h>
 #include <Foundation/Containers/StaticArray.h>
 #include <Foundation/IO/Stream.h>
+#include <Foundation/Platform/Win/Utils/HResultUtils.h>
 #include <Texture/Image/Formats/ImageFormatMappings.h>
 #include <Texture/Image/Formats/WicFileFormat.h>
 #include <Texture/Image/Image.h>
 #include <Texture/Image/ImageConversion.h>
+#include <Texture/Image/ImageUtils.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
@@ -18,8 +19,7 @@ using namespace DirectX;
 
 EZ_DEFINE_AS_POD_TYPE(DirectX::Image); // Allow for storing this struct in ez containers
 
-// EZ_STATICLINK_FORCE
-ezWicFileFormat g_wicFormat;
+EZ_STATICLINK_FORCE static ezImageFileFormatRegistrator<ezWicFileFormat> g_wicFormat;
 
 namespace
 {
@@ -126,6 +126,10 @@ ezResult ezWicFileFormat::ReadImageHeader(ezStreamReader& inout_stream, ezImageH
 
   SetHeader(ref_header, imageFormat, metadata);
 
+  // Expand grayscale to RGB so that imported grayscale textures don't turn red. See end of ReadImage below.
+  if (metadata.format == DXGI_FORMAT_R8_UNORM)
+    ref_header.SetImageFormat(ezImageFormat::R8G8B8_UNORM);
+
   return EZ_SUCCESS;
 }
 
@@ -158,6 +162,7 @@ ezResult ezWicFileFormat::ReadImage(ezStreamReader& inout_stream, ezImage& ref_i
     ezLog::Warning("Unable to use image format from '{}' file - trying conversion.", sFileExtension);
     wicFlags |= WIC_FLAGS_FORCE_RGB;
     LoadFromWICMemory(storage.GetData(), storage.GetCount(), wicFlags, nullptr, scratchImage);
+    metadata = scratchImage.GetMetadata();
     imageFormat = ezImageFormatMappings::FromDxgiFormat(metadata.format);
   }
 
@@ -208,6 +213,14 @@ ezResult ezWicFileFormat::ReadImage(ezStreamReader& inout_stream, ezImage& ref_i
         }
       }
     }
+  }
+
+  // Expand grayscale to RGB so that imported grayscale textures don't turn red.
+  if (metadata.format == DXGI_FORMAT_R8_UNORM)
+  {
+    ref_image.Convert(ezImageFormat::R8G8B8_UNORM).AssertSuccess();
+    ezImageUtils::CopyChannel(ref_image, 1, ref_image, 0).AssertSuccess();
+    ezImageUtils::CopyChannel(ref_image, 2, ref_image, 0).AssertSuccess();
   }
 
   return EZ_SUCCESS;

@@ -7,11 +7,8 @@ using ezLodMeshComponentManager = ezComponentManager<class ezLodMeshComponent, e
 
 struct ezLodMeshLod
 {
-  const char* GetMeshFile() const;
-  void SetMeshFile(const char* szFile);
-
-  ezMeshResourceHandle m_hMesh;
-  float m_fThreshold;
+  ezMeshResourceHandle m_hMesh; // [ property ]
+  float m_fThreshold;           // [ property ]
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezLodMeshLod);
@@ -33,6 +30,8 @@ class EZ_RENDERERCORE_DLL ezLodMeshComponent : public ezRenderComponent
   // ezComponent
 
 public:
+  virtual void OnDeactivated() override;
+
   virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
   virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
@@ -75,16 +74,16 @@ public:
   void OnMsgSetCustomData(ezMsgSetCustomData& ref_msg); // [ msg handler ]
 
 protected:
-  virtual ezMeshRenderData* CreateRenderData() const;
-
   void UpdateSelectedLod(const ezView& view) const;
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
 
-  mutable ezInt32 m_iCurLod = 0;
   ezDynamicArray<ezLodMeshLod> m_Meshes;
   ezColor m_Color = ezColor::White;
   ezVec4 m_vCustomData = ezVec4(0, 1, 0, 1);
   float m_fSortingDepthOffset = 0.0f;
   ezVec3 m_vBoundsOffset = ezVec3::MakeZero();
   float m_fBoundsRadius = 1.0f;
+
+  mutable ezInt32 m_iCurLod = 0;
+  mutable ezInstanceDataOffset m_InstanceDataOffset;
 };

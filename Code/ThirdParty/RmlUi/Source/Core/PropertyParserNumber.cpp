@@ -1,68 +1,47 @@
-/*
- * This source file is part of RmlUi, the HTML/CSS Interface Middleware
- *
- * For the latest information, see http://github.com/mikke89/RmlUi
- *
- * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
- */
-
 #include "PropertyParserNumber.h"
 #include <stdlib.h>
 
 namespace Rml {
 
-static const UnorderedMap<String, Property::Unit> g_property_unit_string_map =
-{
-	{"", Property::NUMBER},
-	{"%", Property::PERCENT},
-	{"px", Property::PX},
-	{"dp", Property::DP},
-	{"x", Property::X},
-	{"vw", Property::VW},
-	{"vh", Property::VH},
-	{"em", Property::EM},
-	{"rem", Property::REM},
-	{"in", Property::INCH},
-	{"cm", Property::CM},
-	{"mm", Property::MM},
-	{"pt", Property::PT},
-	{"pc", Property::PC},
-	{"deg", Property::DEG},
-	{"rad", Property::RAD},
+struct PropertyParserNumberData {
+	const UnorderedMap<String, Unit> unit_string_map = {
+		{"", Unit::NUMBER},
+		{"%", Unit::PERCENT},
+		{"px", Unit::PX},
+		{"dp", Unit::DP},
+		{"x", Unit::X},
+		{"vw", Unit::VW},
+		{"vh", Unit::VH},
+		{"em", Unit::EM},
+		{"rem", Unit::REM},
+		{"in", Unit::INCH},
+		{"cm", Unit::CM},
+		{"mm", Unit::MM},
+		{"pt", Unit::PT},
+		{"pc", Unit::PC},
+		{"deg", Unit::DEG},
+		{"rad", Unit::RAD},
+	};
 };
 
-PropertyParserNumber::PropertyParserNumber(int units, Property::Unit zero_unit)
-	: units(units), zero_unit(zero_unit)
-{}
+ControlledLifetimeResource<PropertyParserNumberData> PropertyParserNumber::parser_data;
 
-PropertyParserNumber::~PropertyParserNumber()
-{}
-
-// Called to parse a RCSS number declaration.
-bool PropertyParserNumber::ParseValue(Property& property, const String& value, const ParameterMap& RMLUI_UNUSED_PARAMETER(parameters)) const
+void PropertyParserNumber::Initialize()
 {
-	RMLUI_UNUSED(parameters);
+	parser_data.Initialize();
+}
 
+void PropertyParserNumber::Shutdown()
+{
+	parser_data.Shutdown();
+}
+
+PropertyParserNumber::PropertyParserNumber(Units units, Unit zero_unit) : units(units), zero_unit(zero_unit) {}
+
+PropertyParserNumber::~PropertyParserNumber() {}
+
+bool PropertyParserNumber::ParseValue(Property& property, const String& value, const ParameterMap& /*parameters*/) const
+{
 	// Find the beginning of the unit string in 'value'.
 	size_t unit_pos = 0;
 	for (size_t i = value.size(); i--;)
@@ -86,16 +65,16 @@ bool PropertyParserNumber::ParseValue(Property& property, const String& value, c
 		return false;
 	}
 
-	const auto it = g_property_unit_string_map.find(str_unit);
-	if (it == g_property_unit_string_map.end())
+	const auto it = parser_data->unit_string_map.find(str_unit);
+	if (it == parser_data->unit_string_map.end())
 	{
 		// Invalid unit name
 		return false;
 	}
 
-	const Property::Unit unit = it->second;
+	const Unit unit = it->second;
 
-	if (unit & units)
+	if (Any(unit & units))
 	{
 		property.value = float_value;
 		property.unit = unit;
@@ -104,9 +83,9 @@ bool PropertyParserNumber::ParseValue(Property& property, const String& value, c
 
 	// Detected unit not allowed.
 	// However, we allow a value of "0" if zero_unit is set and no unit specified (that is, unit is a pure NUMBER).
-	if (unit == Property::NUMBER)
+	if (unit == Unit::NUMBER)
 	{
-		if (zero_unit != Property::UNKNOWN && float_value == 0.0f)
+		if (zero_unit != Unit::UNKNOWN && float_value == 0.0f)
 		{
 			property.unit = zero_unit;
 			property.value = Variant(0.0f);

@@ -1,6 +1,7 @@
 #include <EditorPluginProcGen/EditorPluginProcGenPCH.h>
 
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/Assets/AssetStatusIndicator.moc.h>
 #include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenGraphAsset.h>
 #include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenGraphAssetWindow.moc.h>
 #include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenGraphQt.h>
@@ -8,15 +9,16 @@
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
-#include <GuiFoundation/NodeEditor/NodeView.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
+#include <GuiFoundation/VisualGraph/View.moc.h>
 #include <ToolsFoundation/CommandHistory/CommandHistory.h>
 
 ezProcGenGraphAssetDocumentWindow::ezProcGenGraphAssetDocumentWindow(ezProcGenGraphAssetDocument* pDocument)
   : ezQtDocumentWindow(pDocument)
 {
-  GetDocument()->GetCommandHistory()->m_Events.AddEventHandler(ezMakeDelegate(&ezProcGenGraphAssetDocumentWindow::TransationEventHandler, this));
+  GetDocument()->GetCommandHistory()->m_Events.AddEventHandler(ezMakeDelegate(&ezProcGenGraphAssetDocumentWindow::TransactionEventHandler, this));
   GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezProcGenGraphAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezProcGenGraphAssetDocumentWindow::SelectionEventHandler, this));
 
   // Menu Bar
   {
@@ -40,34 +42,59 @@ ezProcGenGraphAssetDocumentWindow::ezProcGenGraphAssetDocumentWindow(ezProcGenGr
     addToolBar(pToolBar);
   }
 
+  // Central Widget
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
+    m_pScene = new ezQtProcGenScene(this);
+    m_pScene->InitScene(static_cast<const ezVisualGraphObjectManager*>(pDocument->GetObjectManager()));
+
+    m_pView = new ezQtVisualGraphView(this);
+    m_pView->SetScene(m_pScene);
+
+    ezQtDocumentPanel* pCentral = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    pCentral->setObjectName("ProcGenGraphView");
+    pCentral->setWindowTitle("Graph");
+    pCentral->setWidget(m_pView);
+
+    m_pDockManager->setCentralWidget(pCentral);
+  }
+
+  {
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("ProcGenAssetDockWidget");
     pPropertyPanel->setWindowTitle("Node Properties");
     pPropertyPanel->show();
 
     ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
-    pPropertyPanel->setWidget(pPropertyGrid);
 
-    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
+    QWidget* pWidget = new QWidget();
+    pWidget->setObjectName("Group");
+    pWidget->setLayout(new QVBoxLayout());
+    pWidget->setContentsMargins(0, 0, 0, 0);
+
+    pWidget->layout()->setContentsMargins(0, 0, 0, 0);
+    pWidget->layout()->addWidget(new ezQtAssetStatusIndicator((ezAssetDocument*)GetDocument()));
+    pWidget->layout()->addWidget(pPropertyGrid);
+
+    pPropertyPanel->setWidget(pWidget, ads::CDockWidget::ForceNoScrollArea);
+
+    m_pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pPropertyPanel);
   }
-
-  m_pScene = new ezQtProcGenScene(this);
-  m_pScene->InitScene(static_cast<const ezDocumentNodeManager*>(pDocument->GetObjectManager()));
-
-  m_pView = new ezQtNodeView(this);
-  m_pView->SetScene(m_pScene);
-  setCentralWidget(m_pView);
 
   UpdatePreview();
 
   FinishWindowCreation();
+
+  SelectionEventHandler(ezSelectionManagerEvent());
 }
 
 ezProcGenGraphAssetDocumentWindow::~ezProcGenGraphAssetDocumentWindow()
 {
-  GetDocument()->GetCommandHistory()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezProcGenGraphAssetDocumentWindow::TransationEventHandler, this));
-  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezProcGenGraphAssetDocumentWindow::PropertyEventHandler, this));
+  if (GetDocument() != nullptr)
+  {
+    GetDocument()->GetCommandHistory()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezProcGenGraphAssetDocumentWindow::TransactionEventHandler, this));
+    GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezProcGenGraphAssetDocumentWindow::PropertyEventHandler, this));
+    GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezProcGenGraphAssetDocumentWindow::SelectionEventHandler, this));
+  }
 
   RestoreResource();
 }
@@ -96,7 +123,7 @@ void ezProcGenGraphAssetDocumentWindow::UpdatePreview()
   sAbsFilePath.ChangeFileExtension("ezProcGenGraph");
   // Write Header
   memoryWriter << sAbsFilePath;
-  const ezUInt64 uiHash = ezAssetCurator::GetSingleton()->GetAssetDependencyHash(GetDocument()->GetGuid());
+  const ezUInt64 uiHash = ezAssetCurator::GetSingleton()->GetAssetTransformHash(GetDocument()->GetGuid());
   ezAssetFileHeader AssetHeader;
   AssetHeader.SetFileHashAndVersion(uiHash, GetProcGenGraphDocument()->GetAssetTypeVersion());
   AssetHeader.Write(memoryWriter).IgnoreResult();
@@ -127,12 +154,37 @@ void ezProcGenGraphAssetDocumentWindow::PropertyEventHandler(const ezDocumentObj
   {
     UpdatePreview();
   }
+  else if (e.m_pObject->GetType() == ezGetStaticRTTI<ezProcGenGraphAssetProperties>())
+  {
+    GetProcGenGraphDocument()->UpdateDebugNode();
+    UpdatePreview();
+  }
 }
 
-void ezProcGenGraphAssetDocumentWindow::TransationEventHandler(const ezCommandHistoryEvent& e)
+void ezProcGenGraphAssetDocumentWindow::TransactionEventHandler(const ezCommandHistoryEvent& e)
 {
   if (e.m_Type == ezCommandHistoryEvent::Type::TransactionEnded || e.m_Type == ezCommandHistoryEvent::Type::UndoEnded || e.m_Type == ezCommandHistoryEvent::Type::RedoEnded)
   {
     UpdatePreview();
+  }
+}
+
+void ezProcGenGraphAssetDocumentWindow::SelectionEventHandler(const ezSelectionManagerEvent& e)
+{
+  if (GetDocument()->GetSelectionManager()->IsSelectionEmpty())
+  {
+    // delayed execution
+    QTimer::singleShot(1,
+      [this]()
+      {
+        auto pDocument = GetDocument();
+        auto pSelectionManager = pDocument->GetSelectionManager();
+
+        // Check again if the selection is empty. This could have changed due to the delayed execution.
+        if (pSelectionManager->IsSelectionEmpty())
+        {
+          pSelectionManager->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
+        }
+      });
   }
 }

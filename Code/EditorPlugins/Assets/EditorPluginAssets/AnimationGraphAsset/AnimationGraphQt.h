@@ -1,12 +1,15 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <GuiFoundation/NodeEditor/Connection.h>
-#include <GuiFoundation/NodeEditor/Node.h>
-#include <GuiFoundation/NodeEditor/NodeScene.moc.h>
-#include <GuiFoundation/NodeEditor/Pin.h>
+#include <GuiFoundation/VisualGraph/Connection.h>
+#include <GuiFoundation/VisualGraph/Node.h>
+#include <GuiFoundation/VisualGraph/Pin.h>
+#include <GuiFoundation/VisualGraph/Scene.moc.h>
 
-class ezQtAnimationGraphNode : public ezQtNode
+/// Qt graphics item for animation graph nodes.
+///
+/// Visual representation of nodes in an animation graph, such as animation clips, blend nodes, or state transitions.
+class ezQtAnimationGraphNode : public ezQtVisualGraphNode
 {
 public:
   ezQtAnimationGraphNode();

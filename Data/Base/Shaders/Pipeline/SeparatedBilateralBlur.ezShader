@@ -5,7 +5,6 @@ ALL
 
 BLUR_DIRECTION
 CAMERA_MODE
-VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
 
 [RENDERSTATE]
 
@@ -18,16 +17,11 @@ CullMode = CullMode_None
 
 #include <Shaders/Pipeline/FullscreenTriangleVertexShader.h>
 
-[GEOMETRYSHADER]
-
-#include <Shaders/Pipeline/FullscreenTriangleStereoGeometryShader.h>
-
 [PIXELSHADER]
 
 #include <Shaders/Pipeline/FullscreenTriangleInterpolator.h>
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Common/ObjectConstants.h>
-#include <Shaders/Materials/DefaultMaterialCB.h>
 #include "BilateralBlurConstants.h"
 #include "Utils.h"
 

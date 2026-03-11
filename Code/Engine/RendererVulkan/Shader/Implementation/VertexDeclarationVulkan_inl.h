@@ -1,11 +1,6 @@
 
 
-ezArrayPtr<const vk::VertexInputAttributeDescription> ezGALVertexDeclarationVulkan::GetAttributes() const
+const vk::PipelineVertexInputStateCreateInfo& ezGALVertexDeclarationVulkan::GetCreateInfo() const
 {
-  return m_attributes.GetArrayPtr();
-}
-
-ezArrayPtr<const vk::VertexInputBindingDescription> ezGALVertexDeclarationVulkan::GetBindings() const
-{
-  return m_bindings.GetArrayPtr();
+  return m_createInfo;
 }

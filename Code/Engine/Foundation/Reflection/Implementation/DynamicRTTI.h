@@ -4,11 +4,15 @@
 
 #include <Foundation/Reflection/Implementation/StaticRTTI.h>
 
-/// \brief This needs to be put into the class declaration of EVERY dynamically reflectable class.
+/// \brief Adds dynamic reflection capabilities to a class declaration.
 ///
-/// This macro extends a class, such that it is now able to return its own type information via GetDynamicRTTI(),
-/// which is a virtual function, that is reimplemented on each type. A class needs to be derived from ezReflectedClass
-/// (at least indirectly) for this.
+/// This macro must be placed in the class declaration of every type that needs dynamic reflection.
+/// It adds the necessary infrastructure for runtime type identification, including static RTTI
+/// storage and helper typedefs. The class must derive from ezReflectedClass (directly or indirectly)
+/// to provide the virtual GetDynamicRTTI() method.
+///
+/// Unlike EZ_ADD_DYNAMIC_REFLECTION, this variant does not automatically implement GetDynamicRTTI(),
+/// allowing for custom implementations or abstract base classes.
 #define EZ_ADD_DYNAMIC_REFLECTION_NO_GETTER(SELF, BASE_TYPE) \
   EZ_ALLOW_PRIVATE_PROPERTIES(SELF);                         \
                                                              \
@@ -50,17 +54,21 @@ public:                                                 \
 #endif
 
 
-/// \brief Implements the necessary functionality for a type to be dynamically reflectable.
+/// \brief Begins the implementation block for dynamic reflection of a type.
+///
+/// This macro starts the definition of the static RTTI object for a type, enabling
+/// runtime type information, property access, and dynamic instantiation. Must be
+/// paired with EZ_END_DYNAMIC_REFLECTED_TYPE in the implementation file.
 ///
 /// \param Type
-///   The type for which the reflection functionality should be implemented.
-/// \param BaseType
-///   The base class type of \a Type. If it has no base class, pass ezNoBase
+///   The type being reflected. Must have used EZ_ADD_DYNAMIC_REFLECTION in its declaration.
+/// \param Version
+///   Version number for serialization compatibility. Increment when changing reflection data.
 /// \param AllocatorType
-///   The type of an ezRTTIAllocator that can be used to create and destroy instances
-///   of \a Type. Pass ezRTTINoAllocator for types that should not be created dynamically.
-///   Pass ezRTTIDefaultAllocator<Type> for types that should be created on the default heap.
-///   Pass a custom ezRTTIAllocator type to handle allocation differently.
+///   Controls dynamic instantiation capability:
+///   - ezRTTINoAllocator: Type cannot be instantiated dynamically (abstract/interface types)
+///   - ezRTTIDefaultAllocator<Type>: Standard heap allocation for concrete types
+///   - Custom allocator: Specialized allocation strategy for pool/stack allocated types
 #define EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Type, Version, AllocatorType) \
   EZ_RTTIINFO_DECL(Type, Type::SUPER, Version)                        \
   ezRTTI Type::s_RTTI = GetRTTI((Type*)0);                            \
@@ -81,7 +89,16 @@ public:                                                 \
 
 #define EZ_END_ABSTRACT_DYNAMIC_REFLECTED_TYPE EZ_END_DYNAMIC_REFLECTED_TYPE
 
-/// \brief All classes that should be dynamically reflectable, need to be derived from this base class.
+/// \brief Base class for all types that support dynamic reflection and runtime type identification.
+///
+/// This class provides the fundamental virtual interface for runtime type queries and
+/// the foundational reflection infrastructure. All types that need dynamic reflection
+/// must derive from this class, either directly or through an inheritance chain.
+///
+/// Key capabilities provided:
+/// - Virtual GetDynamicRTTI() for runtime type identification
+/// - IsInstanceOf() for type checking and inheritance queries
+/// - Foundation for property access, serialization, and other reflection features
 class EZ_FOUNDATION_DLL ezReflectedClass : public ezNoBase
 {
   EZ_ADD_DYNAMIC_REFLECTION_NO_GETTER(ezReflectedClass, ezNoBase);

@@ -45,5 +45,3 @@ void RemoveLogWriter()
 }
 
 
-
-EZ_STATICLINK_FILE(InspectorPlugin, InspectorPlugin_Log);

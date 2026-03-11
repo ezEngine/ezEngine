@@ -2,8 +2,12 @@
 
 #include <Foundation/Basics.h>
 
-/// \brief A simple size class templated on the type for width and height.
+/// \brief Generic two-dimensional size representation with width and height components
 ///
+/// Provides a simple container for representing rectangular dimensions in 2D space.
+/// The template parameter allows using different numeric types (integers, floats) depending
+/// on precision requirements. Common typedefs include ezSizeU32, ezSizeFloat, and ezSizeDouble.
+/// Primarily used for representing viewport dimensions, texture sizes, and UI element bounds.
 template <typename Type>
 class ezSizeTemplate
 {
@@ -41,3 +45,5 @@ bool operator!=(const ezSizeTemplate<Type>& v1, const ezSizeTemplate<Type>& v2);
 using ezSizeU32 = ezSizeTemplate<ezUInt32>;
 using ezSizeFloat = ezSizeTemplate<float>;
 using ezSizeDouble = ezSizeTemplate<double>;
+
+EZ_FOUNDATION_DLL ezStringView BuildString(char* szTmp, ezUInt32 uiLength, const ezSizeU32& arg);

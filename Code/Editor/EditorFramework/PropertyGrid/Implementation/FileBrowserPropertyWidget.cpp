@@ -31,11 +31,17 @@ ezQtFilePropertyWidget::ezQtFilePropertyWidget()
     QMenu* pMenu = new QMenu();
 
     pMenu->setDefaultAction(pMenu->addAction(QIcon(), QLatin1String("Select File"), this, SLOT(on_BrowseFile_clicked())));
-    QAction* pDocAction = pMenu->addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Document.svg")), QLatin1String("Open File"), this, SLOT(OnOpenFile())) /*->setEnabled(!m_pWidget->text().isEmpty())*/;
+    QAction* pActionOpenFile = pMenu->addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Document.svg")), QLatin1String("Open File"), this, SLOT(OnOpenFile()));
+    QAction* pActionOpenWith = pMenu->addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Document.svg")), QLatin1String("Open With..."), this, SLOT(OnOpenFileWith()));
+
     pMenu->addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder.svg")), QLatin1String("Open in Explorer"), this, SLOT(OnOpenExplorer()));
 
     connect(pMenu, &QMenu::aboutToShow, pMenu, [=]()
-      { pDocAction->setEnabled(!m_pWidget->text().isEmpty()); });
+      {
+        pActionOpenFile->setEnabled(!m_pWidget->text().isEmpty());
+        pActionOpenWith->setEnabled(!m_pWidget->text().isEmpty());
+        //
+      });
 
     m_pButton->setMenu(pMenu);
   }
@@ -48,7 +54,7 @@ bool ezQtFilePropertyWidget::IsValidFileReference(ezStringView sFile) const
 {
   auto pAttr = m_pProp->GetAttributeByType<ezFileBrowserAttribute>();
 
-  ezHybridArray<ezStringView, 8> extensions;
+  ezTempHybridArray<ezStringView, 8> extensions;
   ezStringView sTemp = pAttr->GetTypeFilter();
   sTemp.Split(false, extensions, ";");
   for (ezStringView& ext : extensions)
@@ -70,6 +76,11 @@ void ezQtFilePropertyWidget::OnInit()
 {
   auto pAttr = m_pProp->GetAttributeByType<ezFileBrowserAttribute>();
   EZ_ASSERT_DEV(pAttr != nullptr, "ezQtFilePropertyWidget was created without a ezFileBrowserAttribute!");
+
+  if (!pAttr->GetCreateTitle().IsEmpty())
+  {
+    m_pButton->menu()->addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/DocumentAdd.svg")), QString("Create %1...").arg(ezMakeQString(pAttr->GetCreateTitle())), this, SLOT(OnCreateFile()));
+  }
 
   if (!pAttr->GetCustomAction().IsEmpty())
   {
@@ -145,10 +156,69 @@ void ezQtFilePropertyWidget::OnOpenFile()
   if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath))
     return;
 
-  if (!ezQtUiServices::OpenFileInDefaultProgram(sPath))
+  if (ezQtUiServices::OpenFileInDefaultProgram(sPath).Failed())
+  {
     ezQtUiServices::MessageBoxInformation(ezFmt("File could not be opened:\n{0}\nCheck that the file exists, that a program is associated "
                                                 "with this file type and that access to this file is not denied.",
       sPath));
+  }
+}
+
+void ezQtFilePropertyWidget::OnOpenFileWith()
+{
+  ezString sPath = m_pWidget->text().toUtf8().data();
+  if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath))
+    return;
+
+  ezQtUiServices::OpenWith(sPath);
+}
+
+void ezQtFilePropertyWidget::OnCreateFile()
+{
+  const ezFileBrowserAttribute* pFileAttribute = m_pProp->GetAttributeByType<ezFileBrowserAttribute>();
+
+  ezStringBuilder sStartDir = m_pGrid->GetDocument()->GetDocumentPath();
+  sStartDir.RemoveFileExtension();
+
+  const QString sTitle = QString("Create %1").arg(ezMakeQString(pFileAttribute->GetCreateTitle()));
+  const QString sExt = QString("%1 %2").arg(ezMakeQString(pFileAttribute->GetCreateTitle())).arg(ezMakeQString(pFileAttribute->GetTypeFilter()));
+
+  QString sResult = QFileDialog::getSaveFileName(this, sTitle, sStartDir.GetData(), sExt, nullptr);
+
+  if (sResult.isEmpty())
+    return;
+
+
+  ezStringBuilder sPath = sResult.toUtf8().data();
+
+  if (!ezOSFile::ExistsFile(sPath))
+  {
+    ezStringBuilder sTemplateDoc = "Editor/DocumentTemplates/Default";
+    sTemplateDoc.ChangeFileExtension(sPath.GetFileExtension());
+
+    bool bCreate = true;
+
+    ezStringBuilder sAbs;
+    if (ezFileSystem::ResolvePath(sTemplateDoc, &sAbs, nullptr).Succeeded())
+    {
+      if (ezOSFile::CopyFile(sAbs, sPath).Succeeded())
+      {
+        bCreate = false;
+      }
+    }
+
+    if (bCreate)
+    {
+      ezOSFile file;
+      file.Open(sPath, ezFileOpenMode::Write).IgnoreResult();
+    }
+  }
+
+  if (!ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sPath))
+    return;
+
+  m_pWidget->setText(ezMakeQString(sPath));
+  on_TextFinished_triggered();
 }
 
 static ezMap<ezString, ezString> s_StartDirs;
@@ -221,11 +291,16 @@ ezQtExternalFilePropertyWidget::ezQtExternalFilePropertyWidget()
     QMenu* pMenu = new QMenu();
 
     pMenu->setDefaultAction(pMenu->addAction(QIcon(), QLatin1String("Select File"), this, SLOT(on_BrowseFile_clicked())));
-    QAction* pDocAction = pMenu->addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Document.svg")), QLatin1String("Open File"), this, SLOT(OnOpenFile())) /*->setEnabled(!m_pWidget->text().isEmpty())*/;
+    QAction* pActionOpenFile = pMenu->addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Document.svg")), QLatin1String("Open File"), this, SLOT(OnOpenFile()));
+    QAction* pActionOpenWith = pMenu->addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Document.svg")), QLatin1String("Open With..."), this, SLOT(OnOpenFileWith()));
     pMenu->addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder.svg")), QLatin1String("Open in Explorer"), this, SLOT(OnOpenExplorer()));
 
-    connect(pMenu, &QMenu::aboutToShow, pMenu, [=]() { pDocAction->setEnabled(!m_pWidget->text().isEmpty()); });
-
+    connect(pMenu, &QMenu::aboutToShow, pMenu, [=]()
+      {
+        pActionOpenFile->setEnabled(!m_pWidget->text().isEmpty());
+        pActionOpenWith->setEnabled(!m_pWidget->text().isEmpty());
+        //
+      });
     m_pButton->setMenu(pMenu);
   }
 
@@ -237,7 +312,7 @@ bool ezQtExternalFilePropertyWidget::IsValidFileReference(ezStringView sFile) co
 {
   auto pAttr = m_pProp->GetAttributeByType<ezExternalFileBrowserAttribute>();
 
-  ezHybridArray<ezStringView, 8> extensions;
+  ezTempHybridArray<ezStringView, 8> extensions;
   ezStringView sTemp = pAttr->GetTypeFilter();
   sTemp.Split(false, extensions, ";");
   for (ezStringView& ext : extensions)
@@ -302,10 +377,21 @@ void ezQtExternalFilePropertyWidget::OnOpenFile()
   if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath))
     return;
 
-  if (!ezQtUiServices::OpenFileInDefaultProgram(sPath))
+  if (ezQtUiServices::OpenFileInDefaultProgram(sPath).Failed())
+  {
     ezQtUiServices::MessageBoxInformation(ezFmt("File could not be opened:\n{0}\nCheck that the file exists, that a program is associated "
                                                 "with this file type and that access to this file is not denied.",
       sPath));
+  }
+}
+
+void ezQtExternalFilePropertyWidget::OnOpenFileWith()
+{
+  ezString sPath = m_pWidget->text().toUtf8().data();
+  if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath))
+    return;
+
+  ezQtUiServices::OpenWith(sPath);
 }
 
 void ezQtExternalFilePropertyWidget::on_BrowseFile_clicked()

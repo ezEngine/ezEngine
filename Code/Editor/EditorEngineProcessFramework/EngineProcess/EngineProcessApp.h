@@ -2,12 +2,12 @@
 
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/System/Window.h>
+#include <Core/System/WindowManager.h>
 #include <EditorEngineProcessFramework/EditorEngineProcessFrameworkDLL.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <RendererCore/Pipeline/Declarations.h>
 
-class ezActor;
 
 using ezRenderPipelineResourceHandle = ezTypedResourceHandle<class ezRenderPipelineResource>;
 
@@ -15,11 +15,6 @@ enum class ezEditorEngineProcessMode
 {
   Primary,
   Remote,
-};
-
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezRemoteProcessWindow : public ezWindow
-{
-public:
 };
 
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEditorEngineProcessApp
@@ -45,6 +40,6 @@ protected:
 
   ezEditorEngineProcessMode m_Mode = ezEditorEngineProcessMode::Primary;
 
-  ezActor* m_pActor = nullptr;
+  ezRegisteredWndHandle m_hWindow;
   ezViewHandle m_hRemoteView;
 };

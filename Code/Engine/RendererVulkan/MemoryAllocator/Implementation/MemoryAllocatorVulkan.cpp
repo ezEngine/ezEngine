@@ -1,15 +1,6 @@
 #include <RendererVulkan/RendererVulkanPCH.h>
 
-
-VKAPI_ATTR void VKAPI_CALL vkGetDeviceBufferMemoryRequirements(
-  VkDevice device,
-  const VkDeviceBufferMemoryRequirements* pInfo,
-  VkMemoryRequirements2* pMemoryRequirements)
-{
-  EZ_REPORT_FAILURE("FIXME: Added to prevent the error: The procedure entry point vkGetDeviceBufferMemoryRequirements could not be located in the dynamic link library ezRendererVulkan.dll.");
-}
-
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#include <Foundation/Platform/Win/Utils/IncludeWindows.h>
 #include <Foundation/Types/UniquePtr.h>
 
 #define VMA_VULKAN_VERSION 1001000
@@ -32,35 +23,36 @@ VKAPI_ATTR void VKAPI_CALL vkGetDeviceBufferMemoryRequirements(
 #define VMA_IMPLEMENTATION
 
 #ifndef VA_IGNORE_THIS_FILE
-#  define VA_INCLUDE_HIDDEN <vma/vk_mem_alloc.h>
+#  define VA_INCLUDE_HIDDEN <vk_mem_alloc.h>
 #else
 #  define VA_INCLUDE_HIDDEN ""
 #endif
 
 #include VA_INCLUDE_HIDDEN
 
-EZ_CHECK_AT_COMPILETIME(VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT == (ezUInt32)ezVulkanAllocationCreateFlags::DedicatedMemory);
-EZ_CHECK_AT_COMPILETIME(VMA_ALLOCATION_CREATE_NEVER_ALLOCATE_BIT == (ezUInt32)ezVulkanAllocationCreateFlags::NeverAllocate);
-EZ_CHECK_AT_COMPILETIME(VMA_ALLOCATION_CREATE_MAPPED_BIT == (ezUInt32)ezVulkanAllocationCreateFlags::Mapped);
-EZ_CHECK_AT_COMPILETIME(VMA_ALLOCATION_CREATE_CAN_ALIAS_BIT == (ezUInt32)ezVulkanAllocationCreateFlags::CanAlias);
-EZ_CHECK_AT_COMPILETIME(VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT == (ezUInt32)ezVulkanAllocationCreateFlags::HostAccessSequentialWrite);
-EZ_CHECK_AT_COMPILETIME(VMA_ALLOCATION_CREATE_HOST_ACCESS_RANDOM_BIT == (ezUInt32)ezVulkanAllocationCreateFlags::HostAccessRandom);
-EZ_CHECK_AT_COMPILETIME(VMA_ALLOCATION_CREATE_STRATEGY_MIN_MEMORY_BIT == (ezUInt32)ezVulkanAllocationCreateFlags::StrategyMinMemory);
-EZ_CHECK_AT_COMPILETIME(VMA_ALLOCATION_CREATE_STRATEGY_MIN_TIME_BIT == (ezUInt32)ezVulkanAllocationCreateFlags::StrategyMinTime);
+static_assert(VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT == (ezUInt32)ezVulkanAllocationCreateFlags::DedicatedMemory);
+static_assert(VMA_ALLOCATION_CREATE_NEVER_ALLOCATE_BIT == (ezUInt32)ezVulkanAllocationCreateFlags::NeverAllocate);
+static_assert(VMA_ALLOCATION_CREATE_MAPPED_BIT == (ezUInt32)ezVulkanAllocationCreateFlags::Mapped);
+static_assert(VMA_ALLOCATION_CREATE_CAN_ALIAS_BIT == (ezUInt32)ezVulkanAllocationCreateFlags::CanAlias);
+static_assert(VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT == (ezUInt32)ezVulkanAllocationCreateFlags::HostAccessSequentialWrite);
+static_assert(VMA_ALLOCATION_CREATE_HOST_ACCESS_RANDOM_BIT == (ezUInt32)ezVulkanAllocationCreateFlags::HostAccessRandom);
+static_assert(VMA_ALLOCATION_CREATE_HOST_ACCESS_ALLOW_TRANSFER_INSTEAD_BIT == (ezUInt32)ezVulkanAllocationCreateFlags::AllowTransferInstead);
+static_assert(VMA_ALLOCATION_CREATE_STRATEGY_MIN_MEMORY_BIT == (ezUInt32)ezVulkanAllocationCreateFlags::StrategyMinMemory);
+static_assert(VMA_ALLOCATION_CREATE_STRATEGY_MIN_TIME_BIT == (ezUInt32)ezVulkanAllocationCreateFlags::StrategyMinTime);
 
-EZ_CHECK_AT_COMPILETIME(VMA_MEMORY_USAGE_UNKNOWN == (ezUInt32)ezVulkanMemoryUsage::Unknown);
-EZ_CHECK_AT_COMPILETIME(VMA_MEMORY_USAGE_GPU_LAZILY_ALLOCATED == (ezUInt32)ezVulkanMemoryUsage::GpuLazilyAllocated);
-EZ_CHECK_AT_COMPILETIME(VMA_MEMORY_USAGE_AUTO == (ezUInt32)ezVulkanMemoryUsage::Auto);
-EZ_CHECK_AT_COMPILETIME(VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE == (ezUInt32)ezVulkanMemoryUsage::AutoPreferDevice);
-EZ_CHECK_AT_COMPILETIME(VMA_MEMORY_USAGE_AUTO_PREFER_HOST == (ezUInt32)ezVulkanMemoryUsage::AutoPreferHost);
+static_assert(VMA_MEMORY_USAGE_UNKNOWN == (ezUInt32)ezVulkanMemoryUsage::Unknown);
+static_assert(VMA_MEMORY_USAGE_GPU_LAZILY_ALLOCATED == (ezUInt32)ezVulkanMemoryUsage::GpuLazilyAllocated);
+static_assert(VMA_MEMORY_USAGE_AUTO == (ezUInt32)ezVulkanMemoryUsage::Auto);
+static_assert(VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE == (ezUInt32)ezVulkanMemoryUsage::AutoPreferDevice);
+static_assert(VMA_MEMORY_USAGE_AUTO_PREFER_HOST == (ezUInt32)ezVulkanMemoryUsage::AutoPreferHost);
 
-EZ_CHECK_AT_COMPILETIME(sizeof(ezVulkanAllocation) == sizeof(VmaAllocation));
+static_assert(sizeof(ezVulkanAllocation) == sizeof(VmaAllocation));
 
-EZ_CHECK_AT_COMPILETIME(sizeof(ezVulkanAllocationInfo) == sizeof(VmaAllocationInfo));
+static_assert(sizeof(ezVulkanAllocationInfo) == sizeof(VmaAllocationInfo));
 
 EZ_DEFINE_AS_POD_TYPE(VkExportMemoryAllocateInfo);
 
-namespace
+namespace ezMemoryAllocatorVulkanInternal
 {
   struct ExportedSharedPool
   {
@@ -76,19 +68,21 @@ struct ezMemoryAllocatorVulkan::Impl
 {
   VmaAllocator m_allocator;
   ezMutex m_exportedSharedPoolsMutex;
-  ezHashTable<uint32_t, ExportedSharedPool> m_exportedSharedPools;
+  ezHashTable<uint32_t, ezMemoryAllocatorVulkanInternal::ExportedSharedPool> m_exportedSharedPools;
 };
+
+using ExportedSharedPool = ezMemoryAllocatorVulkanInternal::ExportedSharedPool;
 
 ezMemoryAllocatorVulkan::Impl* ezMemoryAllocatorVulkan::m_pImpl = nullptr;
 
-vk::Result ezMemoryAllocatorVulkan::Initialize(vk::PhysicalDevice physicalDevice, vk::Device device, vk::Instance instance)
+vk::Result ezMemoryAllocatorVulkan::Initialize(vk::PhysicalDevice physicalDevice, vk::Device device, vk::Instance instance, PFN_vkGetInstanceProcAddr instanceProcAddr, PFN_vkGetDeviceProcAddr deviceProcAddr)
 {
   EZ_ASSERT_DEV(m_pImpl == nullptr, "ezMemoryAllocatorVulkan::Initialize was already called");
   m_pImpl = EZ_DEFAULT_NEW(Impl);
 
   VmaVulkanFunctions vulkanFunctions = {};
-  vulkanFunctions.vkGetInstanceProcAddr = &vkGetInstanceProcAddr;
-  vulkanFunctions.vkGetDeviceProcAddr = &vkGetDeviceProcAddr;
+  vulkanFunctions.vkGetInstanceProcAddr = instanceProcAddr;
+  vulkanFunctions.vkGetDeviceProcAddr = deviceProcAddr;
 
   VmaAllocatorCreateInfo allocatorCreateInfo = {};
   allocatorCreateInfo.vulkanApiVersion = VK_API_VERSION_1_1;
@@ -117,10 +111,10 @@ void ezMemoryAllocatorVulkan::DeInitialize()
   m_pImpl->m_exportedSharedPools.Clear();
 
   // Uncomment below to debug leaks in VMA.
-  /*
+
   char* pStats = nullptr;
   vmaBuildStatsString(m_pImpl->m_allocator, &pStats, true);
-  */
+
   vmaDestroyAllocator(m_pImpl->m_allocator);
   EZ_DEFAULT_DELETE(m_pImpl);
 }
@@ -217,6 +211,13 @@ ezVulkanAllocationInfo ezMemoryAllocatorVulkan::GetAllocationInfo(ezVulkanAlloca
   return reinterpret_cast<ezVulkanAllocationInfo&>(info);
 }
 
+vk::MemoryPropertyFlags ezMemoryAllocatorVulkan::GetAllocationFlags(ezVulkanAllocation alloc)
+{
+  VkMemoryPropertyFlags memPropFlags;
+  vmaGetAllocationMemoryProperties(m_pImpl->m_allocator, reinterpret_cast<VmaAllocation&>(alloc), &memPropFlags);
+  return reinterpret_cast<vk::MemoryPropertyFlags&>(memPropFlags);
+}
+
 void ezMemoryAllocatorVulkan::SetAllocationUserData(ezVulkanAllocation alloc, const char* pUserData)
 {
   vmaSetAllocationUserData(m_pImpl->m_allocator, reinterpret_cast<VmaAllocation&>(alloc), (void*)pUserData);
@@ -240,4 +241,24 @@ vk::Result ezMemoryAllocatorVulkan::FlushAllocation(ezVulkanAllocation alloc, vk
 vk::Result ezMemoryAllocatorVulkan::InvalidateAllocation(ezVulkanAllocation alloc, vk::DeviceSize offset, vk::DeviceSize size)
 {
   return (vk::Result)vmaInvalidateAllocation(m_pImpl->m_allocator, reinterpret_cast<VmaAllocation&>(alloc), offset, size);
+}
+
+EZ_DEFINE_AS_POD_TYPE(VmaBudget);
+
+ezVulkanMemoryStatistics ezMemoryAllocatorVulkan::GetStats()
+{
+  ezVulkanMemoryStatistics stats;
+  const ezUInt32 uiHeapCount = m_pImpl->m_allocator->GetMemoryHeapCount();
+  ezHybridArray<VmaBudget, 4> budgets;
+  budgets.SetCount(uiHeapCount);
+  vmaGetHeapBudgets(m_pImpl->m_allocator, budgets.GetData());
+  for (ezUInt32 i = 0; i < uiHeapCount; ++i)
+  {
+    const VmaBudget& budget = budgets[i];
+    stats.m_uiBlockCount += budget.statistics.blockCount;
+    stats.m_uiAllocationCount += budget.statistics.allocationCount;
+    stats.m_uiBlockBytes += (ezUInt64)budget.statistics.blockBytes;
+    stats.m_uiAllocationBytes += (ezUInt64)budget.statistics.allocationBytes;
+  }
+  return stats;
 }

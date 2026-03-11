@@ -6,6 +6,7 @@
 class ezView;
 class ezExtractedRenderData;
 
+/// Factory for creating light particle types.
 class EZ_PARTICLEPLUGIN_DLL ezParticleTypeLightFactory final : public ezParticleTypeFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleTypeLightFactory, ezParticleTypeFactory);
@@ -27,6 +28,11 @@ public:
   ezString m_sSizeScaleParameter;
 };
 
+/// Renders particles as dynamic point lights.
+///
+/// Each particle creates a point light with range based on particle size.
+/// Not all particles need to emit light - the percentage can be controlled
+/// to reduce performance cost. Light properties can be modulated by effect parameters.
 class EZ_PARTICLEPLUGIN_DLL ezParticleTypeLight final : public ezParticleType
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleTypeLight, ezParticleType);

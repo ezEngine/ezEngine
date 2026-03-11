@@ -1,0 +1,34 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[RENDERSTATE]
+
+DepthTest = false
+DepthWrite = false
+CullMode = CullMode_None
+
+[VERTEXSHADER]
+
+#include "Common.h"
+
+VS_OUT main(VS_IN Input)
+{
+  VS_OUT RetVal;
+  RetVal.pos = mul(mvp, float4(Input.pos, 1.0));
+  RetVal.color = float4(1, 1, 1, 1);
+  RetVal.normal = float3(0, 0, 1);
+  RetVal.texcoord0 = float2(0, 0);
+
+  return RetVal;
+}
+
+[PIXELSHADER]
+
+#include "Common.h"
+
+float4 main(PS_IN Input) : SV_Target
+{
+  return ObjectColor;
+}

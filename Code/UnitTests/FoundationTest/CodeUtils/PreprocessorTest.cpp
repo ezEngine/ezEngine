@@ -70,7 +70,8 @@ public:
           m_sOutput.Append("Warning: ");
           break;
         case ezPreprocessor::ProcessingEvent::BeginExpansion:
-          m_sOutput.AppendFormat("In Macro: '{0}'", ezString(event.m_pToken->m_DataView));
+          if (event.m_pToken != nullptr)
+            m_sOutput.AppendFormat("In Macro: '{0}'", ezString(event.m_pToken->m_DataView));
           break;
         case ezPreprocessor::ProcessingEvent::EndExpansion:
           break;
@@ -94,8 +95,9 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
   ezStringBuilder sReadDir(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath());
   ezStringBuilder sWriteDir = ezTestFramework::GetInstance()->GetAbsOutputPath();
 
+  EZ_TEST_BOOL(ezFileSystem::DetectSdkRootDirectory() == EZ_SUCCESS);
   EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sReadDir, "PreprocessorTest") == EZ_SUCCESS);
-  EZ_TEST_BOOL_MSG(ezFileSystem::AddDataDirectory(sWriteDir, "PreprocessorTest", "output", ezFileSystem::AllowWrites) == EZ_SUCCESS, "Failed to mount data dir '%s'", sWriteDir.GetData());
+  EZ_TEST_BOOL_MSG(ezFileSystem::AddDataDirectory(sWriteDir, "PreprocessorTest", "output", ezDataDirUsage::AllowWrites) == EZ_SUCCESS, "Failed to mount data dir '%s'", sWriteDir.GetData());
 
   ezTokenizedFileCache SharedCache;
 

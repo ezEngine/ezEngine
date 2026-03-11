@@ -5,8 +5,8 @@
 #  include <Foundation/Communication/Implementation/MessageLoop.h>
 #  include <Foundation/Communication/RemoteMessage.h>
 #  include <Foundation/Logging/Log.h>
-#  include <Foundation/Platform/Win/MessageLoop_Win.h>
-#  include <Foundation/Platform/Win/PipeChannel_Win.h>
+#  include <Foundation/Platform/Win/MessageLoop_Platform.h>
+#  include <Foundation/Platform/Win/PipeChannel_Platform.h>
 #  include <Foundation/Serialization/ReflectionSerializer.h>
 
 ezPipeChannel_win::State::State(ezPipeChannel_win* pChannel)
@@ -317,6 +317,8 @@ bool ezPipeChannel_win::ProcessOutgoingMessages(DWORD uiBytesWritten)
 
 void ezPipeChannel_win::OnIOCompleted(IOContext* pContext, DWORD uiBytesTransfered, DWORD uiError)
 {
+  EZ_IGNORE_UNUSED(uiError);
+
   EZ_ASSERT_DEBUG(m_ThreadId == ezThreadUtils::GetCurrentThreadID(), "Function must be called from worker thread!");
   bool bRes = true;
   if (pContext == &m_InputState.Context)

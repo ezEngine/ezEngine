@@ -4,7 +4,7 @@
 
 
 ezQtAnimationGraphAssetScene::ezQtAnimationGraphAssetScene(QObject* pParent)
-  : ezQtNodeScene(pParent)
+  : ezQtVisualGraphScene(pParent)
 {
 }
 

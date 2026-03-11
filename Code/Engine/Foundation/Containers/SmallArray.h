@@ -50,6 +50,11 @@ public:
   bool operator==(const ezArrayPtr<const T>& rhs) const; // [tested]
   EZ_ADD_DEFAULT_OPERATOR_NOTEQUAL(const ezArrayPtr<const T>&);
 #endif
+
+  /// \brief Compares this array to another contiguous array type.
+  bool operator<(const ezSmallArrayBase<T, Size>& rhs) const; // [tested]
+  bool operator<(const ezArrayPtr<const T>& rhs) const;       // [tested]
+
   /// \brief Returns the element at the given index. Does bounds checks in debug builds.
   const T& operator[](ezUInt32 uiIndex) const; // [tested]
 
@@ -171,6 +176,8 @@ public:
   /// \brief Returns the amount of bytes that are currently allocated on the heap.
   ezUInt64 GetHeapMemoryUsage() const; // [tested]
 
+  using value_type = T;
+  using const_reference = const T&;
   using const_iterator = const T*;
   using const_reverse_iterator = const_reverse_pointer_iterator<T>;
   using iterator = T*;
@@ -200,7 +207,7 @@ protected:
 
   union
   {
-    struct alignas(EZ_ALIGNMENT_OF(T))
+    struct alignas(alignof(T))
     {
       ezUInt8 m_StaticData[Size * sizeof(T)];
     };
@@ -224,7 +231,7 @@ public:
   ezSmallArray();
 
   ezSmallArray(const ezSmallArray<T, Size, AllocatorWrapper>& other);
-  ezSmallArray(const ezArrayPtr<const T>& other);
+  explicit ezSmallArray(const ezArrayPtr<const T>& other);
   ezSmallArray(ezSmallArray<T, Size, AllocatorWrapper>&& other);
 
   ~ezSmallArray();

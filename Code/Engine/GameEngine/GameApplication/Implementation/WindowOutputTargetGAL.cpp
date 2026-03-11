@@ -2,10 +2,11 @@
 
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/GameApplication/WindowOutputTarget.h>
+#include <RendererCore/Pipeline/Declarations.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Textures/TextureUtils.h>
-#include <RendererFoundation/CommandEncoder/RenderCommandEncoder.h>
+#include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
-#include <RendererFoundation/Device/Pass.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <RendererFoundation/Resources/Texture.h>
 #include <Texture/Image/Image.h>
@@ -49,15 +50,21 @@ void ezWindowOutputTargetGAL::CreateSwapchain(const ezGALWindowSwapChainCreation
   }
 }
 
-void ezWindowOutputTargetGAL::Present(bool bEnableVSync)
+void ezWindowOutputTargetGAL::PresentImage(bool bEnableVSync)
 {
+  // For now, the actual present call is done during ezGALDevice::EndFrame by calling ezGALDevice::EnqueueFrameSwapChain before the render loop.
+}
+
+void ezWindowOutputTargetGAL::AcquireImage()
+{
+  // For now, the actual acquire call is done during ezGALDevice::BeginFrame by calling ezGALDevice::EnqueueFrameSwapChain before the render loop.
+  // This call is only used to recreate the swapchain at a safe location.
+
   // Only re-create the swapchain if somebody is listening to changes.
   if (m_OnSwapChainChanged.IsValid())
   {
     ezEnum<ezGALPresentMode> presentMode = ezGameApplication::cvar_AppVSync ? ezGALPresentMode::VSync : ezGALPresentMode::Immediate;
 
-    // The actual present call is done by setting the swapchain to an ezView.
-    // This call is only used to recreate the swapchain at a safe location.
     if (m_Size != m_currentDesc.m_pWindow->GetClientAreaSize() || presentMode != m_currentDesc.m_InitialPresentMode)
     {
       CreateSwapchain(m_currentDesc);
@@ -68,45 +75,28 @@ void ezWindowOutputTargetGAL::Present(bool bEnableVSync)
 ezResult ezWindowOutputTargetGAL::CaptureImage(ezImage& out_image)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  ezGALTextureHandle hBackbuffer;
+  // Start readback image
+  {
+    auto pCommandEncoder = pDevice->BeginCommands("CaptureImage");
+    EZ_SCOPE_EXIT(pDevice->EndCommands(pCommandEncoder));
 
-  auto pGALPass = pDevice->BeginPass("CaptureImage");
-  EZ_SCOPE_EXIT(pDevice->EndPass(pGALPass));
+    const ezGALSwapChain* pSwapChain = pDevice->GetSwapChain(m_hSwapChain);
+    hBackbuffer = pSwapChain ? pSwapChain->GetRenderTargets().m_hRTs[0] : ezGALTextureHandle();
+    m_Readback.ReadbackTexture(*pCommandEncoder, hBackbuffer);
+  }
+  // Wait for results
+  {
+    ezEnum<ezGALAsyncResult> res = m_Readback.GetReadbackResult(ezTime::MakeFromHours(1));
+    EZ_ASSERT_ALWAYS(res == ezGALAsyncResult::Ready, "Readback of texture failed");
+  }
 
-  auto pGALCommandEncoder = pGALPass->BeginRendering(ezGALRenderingSetup());
-  EZ_SCOPE_EXIT(pGALPass->EndRendering(pGALCommandEncoder));
-
-  const ezGALSwapChain* pSwapChain = pDevice->GetSwapChain(m_hSwapChain);
-  ezGALTextureHandle hBackbuffer = pSwapChain ? pSwapChain->GetRenderTargets().m_hRTs[0] : ezGALTextureHandle();
-
-  pGALCommandEncoder->ReadbackTexture(hBackbuffer);
-
-  const ezGALTexture* pBackbuffer = ezGALDevice::GetDefaultDevice()->GetTexture(hBackbuffer);
-  const ezUInt32 uiWidth = pBackbuffer->GetDescription().m_uiWidth;
-  const ezUInt32 uiHeight = pBackbuffer->GetDescription().m_uiHeight;
-  const ezEnum<ezGALResourceFormat> format = pBackbuffer->GetDescription().m_Format;
-
-  ezDynamicArray<ezUInt8> backbufferData;
-  backbufferData.SetCountUninitialized(uiWidth * uiHeight * 4);
-
-  ezGALSystemMemoryDescription MemDesc;
-  MemDesc.m_uiRowPitch = 4 * uiWidth;
-  MemDesc.m_uiSlicePitch = 4 * uiWidth * uiHeight;
-
-  /// \todo Make this more efficient
-  MemDesc.m_pData = backbufferData.GetData();
-  ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescsDepth(&MemDesc, 1);
   ezGALTextureSubresource sourceSubResource;
   ezArrayPtr<ezGALTextureSubresource> sourceSubResources(&sourceSubResource, 1);
-  pGALCommandEncoder->CopyTextureReadbackResult(hBackbuffer, sourceSubResources, SysMemDescsDepth);
-
-  ezImageHeader header;
-  header.SetWidth(uiWidth);
-  header.SetHeight(uiHeight);
-  header.SetImageFormat(ezTextureUtils::GalFormatToImageFormat(format, true));
-  out_image.ResetAndAlloc(header);
-  ezUInt8* pData = out_image.GetPixelPointer<ezUInt8>();
-
-  ezMemoryUtils::Copy(pData, backbufferData.GetData(), backbufferData.GetCount());
-
+  ezTempHybridArray<ezGALSystemMemoryDescription, 1> memory;
+  ezReadbackTextureLock lock = m_Readback.LockTexture(sourceSubResources, memory);
+  EZ_ASSERT_ALWAYS(lock, "Failed to lock readback texture");
+  const ezGALTexture* pBackbuffer = ezGALDevice::GetDefaultDevice()->GetTexture(hBackbuffer);
+  ezTextureUtils::CopySubResourceToImage(pBackbuffer->GetDescription(), sourceSubResource, memory[0], out_image, true);
   return EZ_SUCCESS;
 }

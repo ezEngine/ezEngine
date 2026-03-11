@@ -36,9 +36,9 @@ ezGALTextureHandle ezGPUResourcePool::GetRenderTarget(const ezGALTextureCreation
 {
   EZ_LOCK(m_Lock);
 
-  if (!textureDesc.m_bCreateRenderTarget)
+  if (!textureDesc.m_TextureFlags.IsSet(ezGALTextureUsageFlags::RenderTarget))
   {
-    ezLog::Error("Texture description for render target usage has not set bCreateRenderTarget!");
+    ezLog::Error("Texture description for render target usage has not set the RenderTargetView flag!");
     return ezGALTextureHandle();
   }
 
@@ -86,18 +86,17 @@ ezGALTextureHandle ezGPUResourcePool::GetRenderTarget(const ezGALTextureCreation
   return hNewTexture;
 }
 
-ezGALTextureHandle ezGPUResourcePool::GetRenderTarget(
-  ezUInt32 uiWidth, ezUInt32 uiHeight, ezGALResourceFormat::Enum format, ezGALMSAASampleCount::Enum sampleCount, ezUInt32 uiSliceColunt)
+ezGALTextureHandle ezGPUResourcePool::GetRenderTarget(ezUInt32 uiWidth, ezUInt32 uiHeight, ezGALResourceFormat::Enum format, ezGALMSAASampleCount::Enum sampleCount, ezUInt32 uiSliceCount, ezGALTextureType::Enum textureType)
 {
   ezGALTextureCreationDescription TextureDesc;
-  TextureDesc.m_bCreateRenderTarget = true;
-  TextureDesc.m_bAllowShaderResourceView = true;
+  TextureDesc.m_TextureFlags = ezGALTextureUsageFlags::RenderTarget | ezGALTextureUsageFlags::ShaderResource;
   TextureDesc.m_Format = format;
-  TextureDesc.m_Type = ezGALTextureType::Texture2D;
+  TextureDesc.m_Type = textureType;
   TextureDesc.m_uiWidth = uiWidth;
   TextureDesc.m_uiHeight = uiHeight;
   TextureDesc.m_SampleCount = sampleCount;
-  TextureDesc.m_uiArraySize = uiSliceColunt;
+  TextureDesc.m_uiArraySize = uiSliceCount;
+  TextureDesc.m_Type = ezGALTextureType::Texture2DArray;
 
   return GetRenderTarget(TextureDesc);
 }
@@ -136,6 +135,8 @@ void ezGPUResourcePool::ReturnRenderTarget(ezGALTextureHandle hRenderTarget)
 ezGALBufferHandle ezGPUResourcePool::GetBuffer(const ezGALBufferCreationDescription& bufferDesc)
 {
   EZ_LOCK(m_Lock);
+
+  EZ_ASSERT_DEBUG(bufferDesc.m_BufferFlags.IsSet(ezGALBufferUsageFlags::Transient), "Resource pool buffers must be transient");
 
   const ezUInt32 uiBufferDescHash = bufferDesc.CalculateHash();
 
@@ -196,19 +197,7 @@ void ezGPUResourcePool::ReturnBuffer(ezGALBufferHandle hBuffer)
 #endif
 
   m_BuffersInUse.Remove(hBuffer);
-
-  if (const ezGALBuffer* pBuffer = m_pDevice->GetBuffer(hBuffer))
-  {
-    const ezUInt32 uiBufferDescHash = pBuffer->GetDescription().CalculateHash();
-
-    auto it = m_AvailableBuffers.Find(uiBufferDescHash);
-    if (!it.IsValid())
-    {
-      it = m_AvailableBuffers.Insert(uiBufferDescHash, ezDynamicArray<BufferHandleWithAge>());
-    }
-
-    it.Value().PushBack({hBuffer, ezRenderWorld::GetFrameCounter()});
-  }
+  m_BuffersToBeReused.PushBack(hBuffer);
 }
 
 void ezGPUResourcePool::RunGC(ezUInt32 uiMinimumAge)
@@ -331,6 +320,23 @@ void ezGPUResourcePool::GALDeviceEventHandler(const ezGALDeviceEvent& e)
 {
   if (e.m_Type == ezGALDeviceEvent::AfterEndFrame)
   {
+    for (ezGALBufferHandle hBuffer : m_BuffersToBeReused)
+    {
+      if (const ezGALBuffer* pBuffer = m_pDevice->GetBuffer(hBuffer))
+      {
+        const ezUInt32 uiBufferDescHash = pBuffer->GetDescription().CalculateHash();
+
+        auto it = m_AvailableBuffers.Find(uiBufferDescHash);
+        if (!it.IsValid())
+        {
+          it = m_AvailableBuffers.Insert(uiBufferDescHash, ezDynamicArray<BufferHandleWithAge>());
+        }
+
+        it.Value().PushBack({hBuffer, ezRenderWorld::GetFrameCounter()});
+      }
+    }
+    m_BuffersToBeReused.Clear();
+
     ++m_uiFramesSinceLastGC;
     if (m_uiFramesSinceLastGC >= m_uiFramesThresholdSinceLastGC)
     {

@@ -4,6 +4,13 @@
 #include <Foundation/Math/Vec3.h>
 
 /// \brief A 3x3 component matrix class.
+///
+/// Matrix layout (column-major):
+/// ```
+/// | m00 m10 m20 |   Column 0: (m00, m01, m02)
+/// | m01 m11 m21 |   Column 1: (m10, m11, m12)
+/// | m02 m12 m22 |   Column 2: (m20, m21, m22)
+/// ```
 template <typename Type>
 class ezMat3Template
 {
@@ -48,16 +55,16 @@ public:
   [[nodiscard]] static ezMat3Template<Type> MakeScaling(const ezVec3Template<Type>& vScale);
 
   /// \brief Creates a matrix that is a rotation matrix around the X-axis.
-  [[nodiscard]] static ezMat3Template<Type> MakeRotationX(ezAngle angle);
+  [[nodiscard]] static ezMat3Template<Type> MakeRotationX(ezAngleTemplate<Type> angle);
 
   /// \brief Creates a matrix that is a rotation matrix around the Y-axis.
-  [[nodiscard]] static ezMat3Template<Type> MakeRotationY(ezAngle angle);
+  [[nodiscard]] static ezMat3Template<Type> MakeRotationY(ezAngleTemplate<Type> angle);
 
   /// \brief Creates a matrix that is a rotation matrix around the Z-axis.
-  [[nodiscard]] static ezMat3Template<Type> MakeRotationZ(ezAngle angle);
+  [[nodiscard]] static ezMat3Template<Type> MakeRotationZ(ezAngleTemplate<Type> angle);
 
   /// \brief Creates a matrix that is a rotation matrix around the given axis.
-  [[nodiscard]] static ezMat3Template<Type> MakeAxisRotation(const ezVec3Template<Type>& vAxis, ezAngle angle);
+  [[nodiscard]] static ezMat3Template<Type> MakeAxisRotation(const ezVec3Template<Type>& vAxis, ezAngleTemplate<Type> angle);
 
 #if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   void AssertNotNaN() const

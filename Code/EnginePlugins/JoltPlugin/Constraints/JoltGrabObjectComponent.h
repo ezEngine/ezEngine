@@ -42,7 +42,7 @@ public:
 
   /// \brief Checks whether there is an object nearby. Note that this function reports static and dynamic objects that are within reach.
   /// Whether these objects are interact able or not is up to the caller.
-  bool FindNearbyObject(ezGameObject*& out_pObject, ezTransform& out_localGrabPoint) const;
+  bool FindNearbyObject(ezGameObject*& out_pObject, ezTransform& out_localGrabPoint, bool bIgnoreGrabbedActor = true) const;
 
   /// \brief Grabs the given object at the given grab point if possible.
   bool GrabObject(ezGameObject* pObjectToGrab, const ezTransform& localGrabPoint);
@@ -60,10 +60,21 @@ public:
   float GetGrabbedActorMass() const { return m_fGrabbedActorInverseMass > 0.0f ? 1.0f / m_fGrabbedActorInverseMass : 0.0f; }
 
   /// \brief The grabbed object is dropped in place.
-  void DropGrabbedObject(); // [ scriptable ]
+  ///
+  /// If an impulse type is given (see ezImpulseTypeConfig) the dropped object is allowed to retain as much linear velocity
+  /// as a push with such a force would give it.
+  /// E.g. if you pass in the same impulse type as in ThrowGrabbedObject(), releasing a grabbed object while
+  /// rotating, would allow to throw it as far as if you had actually "thrown" the object.
+  /// If any invalid impulse type is passed in (e.g. 0 or 1), the object drops in place.
+  /// However, momentum from the character (this objects owner) is always preserved.
+  void DropGrabbedObject(ezUInt8 uiImpulseType = 0); // [ scriptable ]
 
   /// \brief Throws the held object away.
-  void ThrowGrabbedObject(const ezVec3& vRelativeDir); // [ scriptable ]
+  ///
+  /// See ezImpulseTypeConfig for impulse types.
+  /// If a non-zero impulse type is given, vRelativeDir is scaled by the impulse type,
+  /// such that heavy and light objects may get a different impulse.
+  void ThrowGrabbedObject(const ezVec3& vRelativeDir, ezUInt8 uiImpulseType = 0); // [ scriptable ]
 
   /// \brief Similar to DropGrabbedObject() but additionally posts the event message ezMsgPhysicsJointBroke.
   ///
@@ -101,7 +112,7 @@ public:
 
 protected:
   void Update();
-  void ReleaseGrabbedObject();
+  void ReleaseGrabbedObject(float fMaxAllowedImpulse);
 
   ezJoltDynamicActorComponent* GetAttachToActor();
   ezResult DetermineGrabPoint(const ezComponent* pActor, ezTransform& out_LocalGrabPoint) const;

@@ -29,7 +29,7 @@ EZ_ALWAYS_INLINE constexpr bool ezStringUtils::IsNullOrEmpty(const T* pString)
 template <typename T>
 EZ_ALWAYS_INLINE bool ezStringUtils::IsNullOrEmpty(const T* pString, const T* pStringEnd)
 {
-  return (pString == nullptr) || (pString[0] == '\0') || pString == pStringEnd;
+  return (pString == nullptr) || pString == pStringEnd || (pString[0] == '\0');
 }
 
 template <typename T>
@@ -69,7 +69,7 @@ ezUInt32 ezStringUtils::GetStringElementCount(const T* pString, const T* pString
     return (ezUInt32)(pStringEnd - pString);
 
   ezUInt32 uiCount = 0;
-  while ((*pString != '\0') && (pString < pStringEnd))
+  while ((pString < pStringEnd) && (*pString != '\0'))
   {
     ++pString;
     ++uiCount;
@@ -85,7 +85,7 @@ inline ezUInt32 ezStringUtils::GetCharacterCount(const char* szUtf8, const char*
 
   ezUInt32 uiCharacters = 0;
 
-  while ((*szUtf8 != '\0') && (szUtf8 < pStringEnd))
+  while ((szUtf8 < pStringEnd) && (*szUtf8 != '\0'))
   {
     // skip all the Utf8 continuation bytes
     if (!ezUnicodeUtils::IsUtf8ContinuationByte(*szUtf8))

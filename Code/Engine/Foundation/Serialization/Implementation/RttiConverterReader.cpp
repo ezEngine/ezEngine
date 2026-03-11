@@ -194,6 +194,7 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, const ezAbstractPropert
           const ezUuid temp = ezUuid::MakeUuid();
 
           void* pValuePtr = m_pContext->CreateObject(temp, pPropType);
+          EZ_ASSERT_DEBUG(pValuePtr != nullptr, "Failed to create value object. No allocator?");
 
           for (ezUInt32 i = 0; i < array.GetCount(); ++i)
           {
@@ -224,7 +225,7 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, const ezAbstractPropert
       // Delete old values
       if (pProp->GetFlags().AreAllSet(ezPropertyFlags::Pointer | ezPropertyFlags::PointerOwner))
       {
-        ezHybridArray<ezVariant, 16> keys;
+        ezTempHybridArray<ezVariant, 16> keys;
         pSpecific->GetValues(pObject, keys);
         pSpecific->Clear(pObject);
         for (ezVariant& value : keys)
@@ -308,7 +309,7 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, const ezAbstractPropert
       // Delete old values
       if (pProp->GetFlags().AreAllSet(ezPropertyFlags::Pointer | ezPropertyFlags::PointerOwner))
       {
-        ezHybridArray<ezString, 16> keys;
+        ezTempHybridArray<ezString, 16> keys;
         pSpecific->GetKeys(pObject, keys);
         for (const ezString& sKey : keys)
         {
@@ -400,7 +401,7 @@ void ezRttiConverterReader::CallOnObjectCreated(const ezAbstractObjectNode* pNod
     // TODO: Make this compare faster
     if (ezStringUtils::IsEqual(pFunc->GetPropertyName(), "OnObjectCreated"))
     {
-      ezHybridArray<ezVariant, 1> params;
+      ezTempHybridArray<ezVariant, 1> params;
       params.PushBack(ezVariant(pNode));
       ezVariant ret;
       pFunc->Execute(pObject, params, ret);

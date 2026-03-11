@@ -513,5 +513,3 @@ void ezFileserver::SetCustomMessageHandler(ezUInt32 uiSystemID, ClientMessageHan
 {
   m_CustomMessageHandlers[uiSystemID] = handler;
 }
-
-EZ_STATICLINK_FILE(FileservePlugin, FileservePlugin_Fileserver_Fileserver);

@@ -59,7 +59,7 @@ void ezCustomDataAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pIn
 
   const ezDocumentObject* pObject = GetPropertyObject();
 
-  const ezUuid typeGuid = GetObjectAccessor()->Get<ezUuid>(pObject, "Type");
+  const ezUuid typeGuid = GetObjectAccessor()->GetByName<ezUuid>(pObject, "Type");
   if (const ezDocumentObject* pDataObject = GetObjectAccessor()->GetObject(typeGuid))
   {
     const ezRTTI* pRtti = pDataObject->GetType();

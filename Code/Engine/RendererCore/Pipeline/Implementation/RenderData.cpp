@@ -1,42 +1,17 @@
 #include <RendererCore/RendererCorePCH.h>
 
 #include <RendererCore/Pipeline/RenderData.h>
-#include <RendererCore/Pipeline/Renderer.h>
 #include <RendererCore/Pipeline/SortingFunctions.h>
-
-// clang-format off
-EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, RenderData)
-
-  BEGIN_SUBSYSTEM_DEPENDENCIES
-    "Foundation"
-  END_SUBSYSTEM_DEPENDENCIES
-
-  ON_HIGHLEVELSYSTEMS_STARTUP
-  {
-    ezRenderData::UpdateRendererTypes();
-
-    ezPlugin::Events().AddEventHandler(ezRenderData::PluginEventHandler);
-  }
-
-  ON_HIGHLEVELSYSTEMS_SHUTDOWN
-  {
-    ezPlugin::Events().RemoveEventHandler(ezRenderData::PluginEventHandler);
-
-    ezRenderData::ClearRendererInstances();
-  }
-
-EZ_END_SUBSYSTEM_DECLARATION;
-// clang-format on
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderer, 1, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInstanceableRenderData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgExtractRenderData);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgExtractRenderData, 1, ezRTTIDefaultAllocator<ezMsgExtractRenderData>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgExtractRenderData, 1, ezRTTINoAllocator)
 {
   EZ_BEGIN_ATTRIBUTES
   {
@@ -47,7 +22,18 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgExtractRenderData, 1, ezRTTIDefaultAllocato
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgExtractOccluderData);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgExtractOccluderData, 1, ezRTTIDefaultAllocator<ezMsgExtractOccluderData>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgExtractOccluderData, 1, ezRTTINoAllocator)
+{
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezExcludeFromScript()
+  }
+  EZ_END_ATTRIBUTES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgCustomInstanceDataOffsetChanged);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgCustomInstanceDataOffsetChanged, 1, ezRTTINoAllocator)
 {
   EZ_BEGIN_ATTRIBUTES
   {
@@ -58,11 +44,15 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgExtractOccluderData, 1, ezRTTIDefaultAlloca
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezHybridArray<ezRenderData::CategoryData, 32> ezRenderData::s_CategoryData;
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+static_assert(sizeof(ezRenderData) == 48);
+static_assert(sizeof(ezInstanceableRenderData) == 72);
+#else
+static_assert(sizeof(ezRenderData) == 40);
+static_assert(sizeof(ezInstanceableRenderData) == 64);
+#endif
 
-ezHybridArray<const ezRTTI*, 16> ezRenderData::s_RendererTypes;
-ezDynamicArray<ezUniquePtr<ezRenderer>> ezRenderData::s_RendererInstances;
-bool ezRenderData::s_bRendererInstancesDirty = false;
+ezHybridArray<ezRenderData::CategoryData, 32> ezRenderData::s_CategoryData;
 
 // static
 ezRenderData::Category ezRenderData::RegisterCategory(const char* szCategoryName, SortingKeyFunc sortingKeyFunc)
@@ -84,6 +74,27 @@ ezRenderData::Category ezRenderData::RegisterCategory(const char* szCategoryName
 }
 
 // static
+ezRenderData::Category ezRenderData::RegisterDerivedCategory(const char* szCategoryName, Category baseCategory)
+{
+  auto& baseCategoryData = s_CategoryData[baseCategory.m_uiValue];
+
+  Category derivedCategory = RegisterCategory(szCategoryName, baseCategoryData.m_sortingKeyFunc);
+  s_CategoryData[derivedCategory.m_uiValue].m_baseCategory = baseCategory;
+
+  return derivedCategory;
+}
+
+// static
+ezRenderData::Category ezRenderData::RegisterRedirectedCategory(const char* szCategoryName, Category staticCategory, Category dynamicCategory)
+{
+  Category newCategory = RegisterCategory(szCategoryName, nullptr);
+  s_CategoryData[newCategory.m_uiValue].m_staticCategory = staticCategory;
+  s_CategoryData[newCategory.m_uiValue].m_dynamicCategory = dynamicCategory;
+
+  return newCategory;
+}
+
+// static
 ezRenderData::Category ezRenderData::FindCategory(ezTempHashedString sCategoryName)
 {
   for (ezUInt32 uiCategoryIndex = 0; uiCategoryIndex < s_CategoryData.GetCount(); ++uiCategoryIndex)
@@ -93,6 +104,18 @@ ezRenderData::Category ezRenderData::FindCategory(ezTempHashedString sCategoryNa
   }
 
   return ezInvalidRenderDataCategory;
+}
+
+// static
+ezRenderData::Category ezRenderData::ResolveCategory(Category category, bool bDynamic)
+{
+  auto& categoryData = s_CategoryData[category.m_uiValue];
+  if (categoryData.m_staticCategory != ezInvalidRenderDataCategory)
+  {
+    return bDynamic ? categoryData.m_dynamicCategory : categoryData.m_staticCategory;
+  }
+
+  return category;
 }
 
 // static
@@ -106,103 +129,38 @@ void ezRenderData::GetAllCategoryNames(ezDynamicArray<ezHashedString>& out_categ
   }
 }
 
-// static
-void ezRenderData::PluginEventHandler(const ezPluginEvent& e)
-{
-  switch (e.m_EventType)
-  {
-    case ezPluginEvent::AfterPluginChanges:
-      UpdateRendererTypes();
-      break;
+//////////////////////////////////////////////////////////////////////////
 
-    default:
-      break;
-  }
-}
+ezRenderData::Category ezDefaultRenderDataCategories::Light = ezRenderData::RegisterCategory("Light", &ezRenderSortingFunctions::ByRenderDataThenFrontToBackFunc);
+ezRenderData::Category ezDefaultRenderDataCategories::Decal = ezRenderData::RegisterCategory("Decal", &ezRenderSortingFunctions::ByRenderDataThenFrontToBackFunc);
+ezRenderData::Category ezDefaultRenderDataCategories::ReflectionProbe = ezRenderData::RegisterCategory("ReflectionProbe", &ezRenderSortingFunctions::ByRenderDataThenFrontToBackFunc);
+ezRenderData::Category ezDefaultRenderDataCategories::Sky = ezRenderData::RegisterCategory("Sky", &ezRenderSortingFunctions::ByRenderDataThenFrontToBackFunc);
 
-// static
-void ezRenderData::UpdateRendererTypes()
-{
-  s_RendererTypes.Clear();
+ezRenderData::Category ezDefaultRenderDataCategories::LitOpaqueStatic = ezRenderData::RegisterCategory("LitOpaqueStatic", &ezRenderSortingFunctions::ByRenderDataThenFrontToBackFunc);
+ezRenderData::Category ezDefaultRenderDataCategories::LitOpaqueDynamic = ezRenderData::RegisterCategory("LitOpaqueDynamic", &ezRenderSortingFunctions::ByRenderDataThenFrontToBackFunc);
+ezRenderData::Category ezDefaultRenderDataCategories::LitOpaque = ezRenderData::RegisterRedirectedCategory("LitOpaque", ezDefaultRenderDataCategories::LitOpaqueStatic, ezDefaultRenderDataCategories::LitOpaqueDynamic);
 
-  ezRTTI::ForEachDerivedType<ezRenderer>([](const ezRTTI* pRtti)
-    { s_RendererTypes.PushBack(pRtti); },
-    ezRTTI::ForEachOptions::ExcludeNonAllocatable);
+ezRenderData::Category ezDefaultRenderDataCategories::LitMaskedStatic = ezRenderData::RegisterCategory("LitMaskedStatic", &ezRenderSortingFunctions::ByRenderDataThenFrontToBackFunc);
+ezRenderData::Category ezDefaultRenderDataCategories::LitMaskedDynamic = ezRenderData::RegisterCategory("LitMaskedDynamic", &ezRenderSortingFunctions::ByRenderDataThenFrontToBackFunc);
+ezRenderData::Category ezDefaultRenderDataCategories::LitMasked = ezRenderData::RegisterRedirectedCategory("LitMasked", ezDefaultRenderDataCategories::LitMaskedStatic, ezDefaultRenderDataCategories::LitMaskedDynamic);
 
-  s_bRendererInstancesDirty = true;
-}
+ezRenderData::Category ezDefaultRenderDataCategories::LitTransparent = ezRenderData::RegisterCategory("LitTransparent", &ezRenderSortingFunctions::BackToFrontThenByRenderDataFunc);
+ezRenderData::Category ezDefaultRenderDataCategories::LitForeground = ezRenderData::RegisterCategory("LitForeground", &ezRenderSortingFunctions::ByRenderDataThenFrontToBackFunc);
 
-// static
-void ezRenderData::CreateRendererInstances()
-{
-  ClearRendererInstances();
+ezRenderData::Category ezDefaultRenderDataCategories::SimpleOpaque = ezRenderData::RegisterCategory("SimpleOpaque", &ezRenderSortingFunctions::ByRenderDataThenFrontToBackFunc);
+ezRenderData::Category ezDefaultRenderDataCategories::SimpleTransparent = ezRenderData::RegisterCategory("SimpleTransparent", &ezRenderSortingFunctions::BackToFrontThenByRenderDataFunc);
+ezRenderData::Category ezDefaultRenderDataCategories::SimpleForeground = ezRenderData::RegisterCategory("SimpleForeground", &ezRenderSortingFunctions::ByRenderDataThenFrontToBackFunc);
 
-  for (auto pRendererType : s_RendererTypes)
-  {
-    EZ_ASSERT_DEV(pRendererType->IsDerivedFrom(ezGetStaticRTTI<ezRenderer>()), "Renderer type '{}' must be derived from ezRenderer",
-      pRendererType->GetTypeName());
-
-    auto pRenderer = pRendererType->GetAllocator()->Allocate<ezRenderer>();
-
-    ezUInt32 uiIndex = s_RendererInstances.GetCount();
-    s_RendererInstances.PushBack(pRenderer);
-
-    ezHybridArray<Category, 8> supportedCategories;
-    pRenderer->GetSupportedRenderDataCategories(supportedCategories);
-
-    ezHybridArray<const ezRTTI*, 8> supportedTypes;
-    pRenderer->GetSupportedRenderDataTypes(supportedTypes);
-
-    for (Category category : supportedCategories)
-    {
-      auto& categoryData = s_CategoryData[category.m_uiValue];
-
-      for (ezUInt32 i = 0; i < supportedTypes.GetCount(); ++i)
-      {
-        categoryData.m_TypeToRendererIndex.Insert(supportedTypes[i], uiIndex);
-      }
-    }
-  }
-
-  s_bRendererInstancesDirty = false;
-}
-
-// static
-void ezRenderData::ClearRendererInstances()
-{
-  s_RendererInstances.Clear();
-
-  for (auto& categoryData : s_CategoryData)
-  {
-    categoryData.m_TypeToRendererIndex.Clear();
-  }
-}
+ezRenderData::Category ezDefaultRenderDataCategories::Selection = ezRenderData::RegisterCategory("Selection", &ezRenderSortingFunctions::ByRenderDataThenFrontToBackFunc);
+ezRenderData::Category ezDefaultRenderDataCategories::GUI = ezRenderData::RegisterCategory("GUI", &ezRenderSortingFunctions::BackToFrontThenByRenderDataFunc);
 
 //////////////////////////////////////////////////////////////////////////
 
-ezRenderData::Category ezDefaultRenderDataCategories::Light = ezRenderData::RegisterCategory("Light", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
-ezRenderData::Category ezDefaultRenderDataCategories::Decal = ezRenderData::RegisterCategory("Decal", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
-ezRenderData::Category ezDefaultRenderDataCategories::ReflectionProbe = ezRenderData::RegisterCategory("ReflectionProbe", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
-ezRenderData::Category ezDefaultRenderDataCategories::Sky = ezRenderData::RegisterCategory("Sky", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
-ezRenderData::Category ezDefaultRenderDataCategories::LitOpaque = ezRenderData::RegisterCategory("LitOpaque", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
-ezRenderData::Category ezDefaultRenderDataCategories::LitMasked = ezRenderData::RegisterCategory("LitMasked", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
-ezRenderData::Category ezDefaultRenderDataCategories::LitTransparent = ezRenderData::RegisterCategory("LitTransparent", &ezRenderSortingFunctions::BackToFrontThenByRenderData);
-ezRenderData::Category ezDefaultRenderDataCategories::LitForeground = ezRenderData::RegisterCategory("LitForeground", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
-ezRenderData::Category ezDefaultRenderDataCategories::LitScreenFX = ezRenderData::RegisterCategory("LitScreenFX", &ezRenderSortingFunctions::BackToFrontThenByRenderData);
-ezRenderData::Category ezDefaultRenderDataCategories::SimpleOpaque = ezRenderData::RegisterCategory("SimpleOpaque", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
-ezRenderData::Category ezDefaultRenderDataCategories::SimpleTransparent = ezRenderData::RegisterCategory("SimpleTransparent", &ezRenderSortingFunctions::BackToFrontThenByRenderData);
-ezRenderData::Category ezDefaultRenderDataCategories::SimpleForeground = ezRenderData::RegisterCategory("SimpleForeground", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
-ezRenderData::Category ezDefaultRenderDataCategories::Selection = ezRenderData::RegisterCategory("Selection", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
-ezRenderData::Category ezDefaultRenderDataCategories::GUI = ezRenderData::RegisterCategory("GUI", &ezRenderSortingFunctions::BackToFrontThenByRenderData);
-
-//////////////////////////////////////////////////////////////////////////
-
-void ezMsgExtractRenderData::AddRenderData(
-  const ezRenderData* pRenderData, ezRenderData::Category category, ezRenderData::Caching::Enum cachingBehavior)
+void ezMsgExtractRenderData::AddRenderData(const ezRenderData* pRenderData, ezRenderData::Category category, ezRenderData::Caching::Enum cachingBehavior)
 {
   auto& cached = m_ExtractedRenderData.ExpandAndGetRef();
   cached.m_pRenderData = pRenderData;
-  cached.m_uiCategory = category.m_uiValue;
+  cached.m_Category = ezRenderData::ResolveCategory(category, pRenderData->m_Flags.IsSet(ezRenderData::Flags::Dynamic));
 
   if (cachingBehavior == ezRenderData::Caching::IfStatic)
   {

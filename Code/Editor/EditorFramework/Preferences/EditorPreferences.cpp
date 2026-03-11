@@ -5,6 +5,7 @@
 #include <EditorFramework/Preferences/EditorPreferences.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <GuiFoundation/PropertyGrid/Implementation/AddSubElementButton.moc.h>
+#include <GuiFoundation/Widgets/SearchableTypeMenu.moc.h>
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -14,9 +15,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorPreferencesUser, 1, ezRTTIDefaultAllocat
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("RestoreProjectOnStartup", m_bLoadLastProjectAtStartup)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("ShowSplashscreen", m_bShowSplashscreen)->AddAttributes(new ezDefaultValueAttribute(true)),
+    EZ_MEMBER_PROPERTY("ShowSplashscreen", m_bShowSplashscreen)->AddAttributes(new ezDefaultValueAttribute(false)),
     EZ_MEMBER_PROPERTY("BackgroundAssetProcessing", m_bBackgroundAssetProcessing)->AddAttributes(new ezDefaultValueAttribute(true)),
+    EZ_MEMBER_PROPERTY("MaxAssetProcessors", m_uiMaxAssetProcessors)->AddAttributes(new ezDefaultValueAttribute(8), new ezClampValueAttribute(1, 8)),
     EZ_MEMBER_PROPERTY("FieldOfView", m_fPerspectiveFieldOfView)->AddAttributes(new ezDefaultValueAttribute(70.0f), new ezClampValueAttribute(10.0f, 150.0f)),
+    EZ_MEMBER_PROPERTY("CameraRotationSpeed", m_fCameraRotationSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.01f, 100.0f)),
     EZ_MEMBER_PROPERTY("MaxFramerate", m_uiMaxFramerate)->AddAttributes(new ezDefaultValueAttribute(60)),
     EZ_ACCESSOR_PROPERTY("GizmoSize", GetGizmoSize, SetGizmoSize)->AddAttributes(new ezDefaultValueAttribute(1.5f), new ezClampValueAttribute(0.2f, 5.0f)),
     EZ_ACCESSOR_PROPERTY("ShowInDevelopmentFeatures", GetShowInDevelopmentFeatures, SetShowInDevelopmentFeatures),
@@ -27,7 +30,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorPreferencesUser, 1, ezRTTIDefaultAllocat
     EZ_MEMBER_PROPERTY("CustomPrecompiledToolsFolder", m_sCustomPrecompiledToolsFolder),
     EZ_MEMBER_PROPERTY("ExpandSceneTreeOnSelection", m_bExpandSceneTreeOnSelection)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("ClearEditorLogsOnPlay", m_bClearEditorLogsOnPlay)->AddAttributes(new ezDefaultValueAttribute(true)),
+    EZ_MEMBER_PROPERTY("CombinedEditorAndEngineLogs", m_bCombinedEditorAndEngineLogs)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_ACCESSOR_PROPERTY("HighlightUntranslatedUI", GetHighlightUntranslatedUI, SetHighlightUntranslatedUI),
+    EZ_MEMBER_PROPERTY("AssetBrowserShowItemsInSubFolders", m_bAssetBrowserShowItemsInSubFolders)->AddAttributes(new ezDefaultValueAttribute(true), new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("AutoSaveMinutes", m_uiAutoSaveMinutes)->AddAttributes(new ezDefaultValueAttribute(5), new ezClampValueAttribute(0, 24 * 60)),
 
     // START GROUP Engine View Light Settings
     EZ_MEMBER_PROPERTY("SkyBox", m_bSkyBox)->AddAttributes(new ezDefaultValueAttribute(true), new ezGroupAttribute("Engine View Light Settings")),
@@ -35,10 +41,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorPreferencesUser, 1, ezRTTIDefaultAllocat
     EZ_MEMBER_PROPERTY("SkyLightCubeMap", m_sSkyLightCubeMap)->AddAttributes(new ezDefaultValueAttribute(ezStringView("{ 0b202e08-a64f-465d-b38e-15b81d161822 }")), new ezAssetBrowserAttribute("CompatibleAsset_Texture_Cube")),
     EZ_MEMBER_PROPERTY("SkyLightIntensity", m_fSkyLightIntensity)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 20.0f)),
     EZ_MEMBER_PROPERTY("DirectionalLight", m_bDirectionalLight)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("DirectionalLightAngle", m_DirectionalLightAngle)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(30.0f)), new ezClampValueAttribute(ezAngle::MakeFromDegree(-90.0f), ezAngle::MakeFromDegree(90.0f))),
+    EZ_MEMBER_PROPERTY("DirectionalLightAngle", m_DirectionalLightAngle)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(70.0f)), new ezClampValueAttribute(ezAngle::MakeFromDegree(0.0f), ezAngle::MakeFromDegree(360.0f))),
     EZ_MEMBER_PROPERTY("DirectionalLightShadows", m_bDirectionalLightShadows),
     EZ_MEMBER_PROPERTY("DirectionalLightIntensity", m_fDirectionalLightIntensity)->AddAttributes(new ezDefaultValueAttribute(10.0f)),
     EZ_MEMBER_PROPERTY("Fog", m_bFog),
+    EZ_ARRAY_MEMBER_PROPERTY("RecentTypes", m_RecentlyCreatedTypes)->AddAttributes(new ezHiddenAttribute()),
   }
   EZ_END_PROPERTIES;
 }
@@ -48,9 +55,13 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezEditorPreferencesUser::ezEditorPreferencesUser()
   : ezPreferences(Domain::Application, "General")
 {
+  ezQtTypeMenu::s_pRecentList = &m_RecentlyCreatedTypes;
 }
 
-ezEditorPreferencesUser::~ezEditorPreferencesUser() = default;
+ezEditorPreferencesUser::~ezEditorPreferencesUser()
+{
+  ezQtTypeMenu::s_pRecentList = nullptr;
+}
 
 void ezEditorPreferencesUser::ApplyDefaultValues(ezEngineViewLightSettings& ref_settings)
 {
@@ -83,7 +94,7 @@ void ezEditorPreferencesUser::SetShowInDevelopmentFeatures(bool b)
 {
   m_bShowInDevelopmentFeatures = b;
 
-  ezQtAddSubElementButton::s_bShowInDevelopmentFeatures = b;
+  ezQtTypeMenu::s_bShowInDevelopmentFeatures = b;
 }
 
 void ezEditorPreferencesUser::SetHighlightUntranslatedUI(bool b)

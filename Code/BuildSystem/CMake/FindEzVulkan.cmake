@@ -1,11 +1,9 @@
 # find the folder into which the Vulkan SDK has been installed
 
 # early out, if this target has been created before
-if((TARGET EzVulkan::Loader) AND(TARGET EzVulkan::DXC))
+if(EzVulkan_FOUND)
 	return()
 endif()
-
-set(EZ_VULKAN_DIR $ENV{VULKAN_SDK} CACHE PATH "Directory of the Vulkan SDK")
 
 ez_pull_compiler_and_architecture_vars()
 ez_pull_config_vars()

@@ -74,19 +74,51 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGALMSAASampleCount, 1)
 EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGALTextureType, 1)
-  EZ_ENUM_CONSTANTS(ezGALTextureType::Invalid, ezGALTextureType::Texture2D, ezGALTextureType::TextureCube, ezGALTextureType::Texture3D, ezGALTextureType::Texture2DProxy, ezGALTextureType::Texture2DShared)
+  EZ_ENUM_CONSTANTS(ezGALTextureType::Invalid, ezGALTextureType::Texture2D, ezGALTextureType::TextureCube, ezGALTextureType::Texture3D, ezGALTextureType::Texture2DProxy, ezGALTextureType::Texture2DShared, ezGALTextureType::Texture2DArray, ezGALTextureType::TextureCubeArray)
+EZ_END_STATIC_REFLECTED_ENUM;
+
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGALShaderResourceType, 1)
+  EZ_ENUM_CONSTANTS(ezGALShaderResourceType::Unknown,
+  ezGALShaderResourceType::Sampler,
+  ezGALShaderResourceType::ConstantBuffer,
+  ezGALShaderResourceType::PushConstants,
+  ezGALShaderResourceType::Texture,
+  ezGALShaderResourceType::TextureAndSampler,
+  ezGALShaderResourceType::TexelBuffer,
+  ezGALShaderResourceType::StructuredBuffer,
+  ezGALShaderResourceType::ByteAddressBuffer,
+  ezGALShaderResourceType::TextureRW)
+  EZ_ENUM_CONSTANTS(ezGALShaderResourceType::TexelBufferRW,
+  ezGALShaderResourceType::StructuredBufferRW,
+  ezGALShaderResourceType::ByteAddressBufferRW)
+EZ_END_STATIC_REFLECTED_ENUM;
+
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGALShaderTextureType, 1)
+  EZ_ENUM_CONSTANTS(ezGALShaderTextureType::Unknown,
+  ezGALShaderTextureType::Texture1D,
+  ezGALShaderTextureType::Texture1DArray,
+  ezGALShaderTextureType::Texture2D,
+  ezGALShaderTextureType::Texture2DArray,
+  ezGALShaderTextureType::Texture2DMS,
+  ezGALShaderTextureType::Texture2DMSArray,
+  ezGALShaderTextureType::Texture3D,
+  ezGALShaderTextureType::TextureCube,
+  ezGALShaderTextureType::TextureCubeArray)
 EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGALResourceAccess, ezNoBase, 1, ezRTTIDefaultAllocator<ezGALResourceAccess>)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("ReadBack", m_bReadBack),
     EZ_MEMBER_PROPERTY("Immutable", m_bImmutable),
   }
   EZ_END_PROPERTIES;
 }
 EZ_END_STATIC_REFLECTED_TYPE;
+
+EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezGALTextureUsageFlags, 1)
+  EZ_BITFLAGS_CONSTANTS(ezGALTextureUsageFlags::ShaderResource, ezGALTextureUsageFlags::UnorderedAccess, ezGALTextureUsageFlags::RenderTarget, ezGALTextureUsageFlags::DynamicMipGeneration)
+EZ_END_STATIC_REFLECTED_BITFLAGS;
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGALTextureCreationDescription, ezNoBase, 1, ezRTTIDefaultAllocator<ezGALTextureCreationDescription>)
 {
@@ -100,10 +132,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGALTextureCreationDescription, ezNoBase, 1, ezR
     EZ_ENUM_MEMBER_PROPERTY("Format", ezGALResourceFormat, m_Format),
     EZ_ENUM_MEMBER_PROPERTY("SampleCount", ezGALMSAASampleCount, m_SampleCount),
     EZ_ENUM_MEMBER_PROPERTY("Type", ezGALTextureType, m_Type),
-    EZ_MEMBER_PROPERTY("AllowShaderResourceView", m_bAllowShaderResourceView),
-    EZ_MEMBER_PROPERTY("AllowUAV", m_bAllowUAV),
-    EZ_MEMBER_PROPERTY("CreateRenderTarget", m_bCreateRenderTarget),
-    EZ_MEMBER_PROPERTY("AllowDynamicMipGeneration", m_bAllowDynamicMipGeneration),
+    EZ_BITFLAGS_MEMBER_PROPERTY("TextureFlags", ezGALTextureUsageFlags, m_TextureFlags),
     EZ_MEMBER_PROPERTY("ResourceAccess", m_ResourceAccess),
     // m_pExisitingNativeObject deliberately not reflected as it can't be serialized in any meaningful way.
   }

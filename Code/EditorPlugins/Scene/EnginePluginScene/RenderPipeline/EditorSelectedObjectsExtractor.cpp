@@ -6,6 +6,7 @@
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererFoundation/Device/SwapChain.h>
 
 // clang-format off
@@ -38,8 +39,7 @@ const ezDeque<ezGameObjectHandle>* ezEditorSelectedObjectsExtractor::GetSelectio
   return &m_pSceneContext->GetSelectionWithChildren();
 }
 
-void ezEditorSelectedObjectsExtractor::Extract(
-  const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData)
+void ezEditorSelectedObjectsExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& ref_extractedRenderData)
 {
   const bool bShowCameraOverlays = view.GetCameraUsageHint() == ezCameraUsageHint::EditorView;
 

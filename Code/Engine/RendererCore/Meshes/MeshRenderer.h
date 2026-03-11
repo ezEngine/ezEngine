@@ -5,7 +5,9 @@
 class ezMeshRenderData;
 struct ezPerInstanceData;
 
-/// \brief Implements rendering of static meshes
+/// Implements rendering of static meshes.
+///
+/// All meshes in one batch are rendered with a single instanced draw call.
 class EZ_RENDERERCORE_DLL ezMeshRenderer : public ezRenderer
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezMeshRenderer, ezRenderer);
@@ -16,13 +18,12 @@ public:
   ~ezMeshRenderer();
 
   // ezRenderer implementation
-  virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& ref_types) const override;
-  virtual void GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& ref_categories) const override;
-  virtual void RenderBatch(
-    const ezRenderViewContext& renderContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const override;
+  virtual void GetSupportedRenderDataTypes(ezDynamicArray<const ezRTTI*>& out_types) const override;
+  virtual void RenderBatch(const ezRenderViewContext& renderContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const override;
 
 protected:
+  /// Sets additional shader data specific to the current render data.
+  ///
+  /// Can be overridden to bind custom per-object data.
   virtual void SetAdditionalData(const ezRenderViewContext& renderViewContext, const ezMeshRenderData* pRenderData) const;
-  virtual void FillPerInstanceData(
-    ezArrayPtr<ezPerInstanceData> instanceData, const ezRenderDataBatch& batch, ezUInt32 uiStartIndex, ezUInt32& out_uiFilteredCount) const;
 };

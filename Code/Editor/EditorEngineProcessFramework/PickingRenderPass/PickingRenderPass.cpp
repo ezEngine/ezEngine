@@ -2,8 +2,10 @@
 
 #include <EditorEngineProcessFramework/PickingRenderPass/PickingRenderPass.h>
 #include <RendererCore/Lights/ClusteredDataProvider.h>
+#include <RendererCore/Pipeline/SortingFunctions.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/Textures/TextureUtils.h>
 #include <RendererFoundation/Resources/Texture.h>
 
 // clang-format off
@@ -19,13 +21,27 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPickingRenderPass, 1, ezRTTIDefaultAllocator<e
     EZ_MEMBER_PROPERTY("MarqueeActionID", m_uiMarqueeActionID),
   }
   EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Rendering")
+  }
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
+static ezRenderData::Category s_LitOpaqueWithoutSelection = ezRenderData::RegisterDerivedCategory("LitOpaqueWithoutSelection", ezDefaultRenderDataCategories::LitOpaqueStatic);
+static ezRenderData::Category s_LitMaskedWithoutSelection = ezRenderData::RegisterDerivedCategory("LitMaskedWithoutSelection", ezDefaultRenderDataCategories::LitMaskedStatic);
+static ezRenderData::Category s_LitMaskedDynamicWithoutSelection = ezRenderData::RegisterDerivedCategory("LitMaskedDynamicWithoutSelection", ezDefaultRenderDataCategories::LitMaskedDynamic);
+
+static ezRenderData::Category s_LitTransparentWithoutSelection = ezRenderData::RegisterDerivedCategory("LitTransparentWithoutSelection", ezDefaultRenderDataCategories::LitTransparent);
+static ezRenderData::Category s_SimpleTransparentWithoutSelection = ezRenderData::RegisterDerivedCategory("SimpleTransparentWithoutSelection", ezDefaultRenderDataCategories::SimpleTransparent);
+
 ezPickingRenderPass::ezPickingRenderPass()
   : ezRenderPipelinePass("EditorPickingRenderPass")
 {
+  m_pGridRenderDataType = ezRTTI::FindTypeByName("ezGridRenderData");
+  EZ_ASSERT_DEV(m_pGridRenderDataType != nullptr, "ezGridRenderData type not found. Type renamed?");
 }
 
 ezPickingRenderPass::~ezPickingRenderPass()
@@ -54,6 +70,11 @@ void ezPickingRenderPass::InitRenderPipelinePass(const ezArrayPtr<ezRenderPipeli
 {
   DestroyTarget();
   CreateTarget();
+
+  if (m_uiProcessorId == ezInvalidIndex)
+  {
+    m_uiProcessorId = GetPipeline()->AddRenderDataProcessor(ezMakeDelegate(&ezPickingRenderPass::ProcessPickingRenderData, this));
+  }
 }
 
 void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
@@ -66,81 +87,99 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   EZ_ASSERT_DEV(m_uiWindowWidth == pDepthTexture->GetDescription().m_uiWidth, "");
   EZ_ASSERT_DEV(m_uiWindowHeight == pDepthTexture->GetDescription().m_uiHeight, "");
 
-  ezGALRenderingSetup renderingSetup;
-  renderingSetup.m_RenderTargetSetup = m_RenderTargetSetup;
-  renderingSetup.m_uiRenderTargetClearMask = 0xFFFFFFFF;
-  renderingSetup.m_bClearDepth = true;
-  renderingSetup.m_bClearStencil = true;
-
-  auto pCommandEncoder = ezRenderContext::BeginPassAndRenderingScope(renderViewContext, renderingSetup, GetName());
-
-  ezViewRenderMode::Enum viewRenderMode = renderViewContext.m_pViewData->m_ViewRenderMode;
-  if (viewRenderMode == ezViewRenderMode::WireframeColor || viewRenderMode == ezViewRenderMode::WireframeMonochrome)
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_PICKING_WIREFRAME");
-  else
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_PICKING");
-
-  // Setup clustered data
-  auto pClusteredData = GetPipeline()->GetFrameDataProvider<ezClusteredDataProvider>()->GetData(renderViewContext);
-  pClusteredData->BindResources(renderViewContext.m_pRenderContext);
-
-  // copy selection to set for faster checks
-  m_SelectionSet.Clear();
-
-  auto batchList = GetPipeline()->GetRenderDataBatchesWithCategory(ezDefaultRenderDataCategories::Selection);
-  const ezUInt32 uiBatchCount = batchList.GetBatchCount();
-  for (ezUInt32 i = 0; i < uiBatchCount; ++i)
   {
-    const ezRenderDataBatch& batch = batchList.GetBatch(i);
-    for (auto it = batch.GetIterator<ezRenderData>(); it.IsValid(); ++it)
+    auto pCommandEncoder = ezRenderContext::BeginRenderingScope(renderViewContext, m_RenderTargetSetup, GetName());
+
+    ezViewRenderMode::Enum viewRenderMode = renderViewContext.m_pViewData->m_ViewRenderMode;
+    if (viewRenderMode == ezViewRenderMode::WireframeColor || viewRenderMode == ezViewRenderMode::WireframeMonochrome)
+      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_PICKING_WIREFRAME");
+    else
+      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_PICKING");
+
+    // Setup clustered data
+    auto pClusteredData = GetPipeline()->GetFrameDataProvider<ezClusteredDataProvider>()->GetData(renderViewContext);
+    pClusteredData->BindResources(renderViewContext.m_pRenderContext);
+
+    RenderDataWithCategory(renderViewContext, s_LitOpaqueWithoutSelection);
+    RenderDataWithCategory(renderViewContext, s_LitMaskedWithoutSelection);
+
+    if (m_bPickTransparent)
     {
-      m_SelectionSet.Insert(it->m_hOwner);
+      RenderDataWithCategory(renderViewContext, s_LitTransparentWithoutSelection);
+
+      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "TRUE");
+      RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitForeground);
+
+      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "FALSE");
+      RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitForeground);
+    }
+
+    if (m_bPickSelected)
+    {
+      RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Selection);
+    }
+
+    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleOpaque);
+
+    if (m_bPickTransparent)
+    {
+      RenderDataWithCategory(renderViewContext, s_SimpleTransparentWithoutSelection);
+    }
+
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "TRUE");
+    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleForeground);
+
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "FALSE");
+    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleForeground);
+
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_FORWARD");
+  }
+
+  if (m_PendingReadback.m_bReadbackInProgress)
+  {
+    // Wait for results
+    {
+      ezEnum<ezGALAsyncResult> res = m_PendingReadback.m_PickingReadback.GetReadbackResult(ezTime::MakeFromHours(1));
+      EZ_ASSERT_ALWAYS(res == ezGALAsyncResult::Ready, "Readback of texture failed");
+      res = m_PendingReadback.m_PickingDepthReadback.GetReadbackResult(ezTime::MakeFromHours(1));
+      EZ_ASSERT_ALWAYS(res == ezGALAsyncResult::Ready, "Readback of texture failed");
+      m_PendingReadback.m_bReadbackInProgress = false;
+    }
+
+    ezGALTextureSubresource sourceSubResource;
+    ezArrayPtr<ezGALTextureSubresource> sourceSubResources(&sourceSubResource, 1);
+    ezTempHybridArray<ezGALSystemMemoryDescription, 1> memory;
+
+    m_PickingResultsDepth.Clear();
+    m_PickingResultsID.Clear();
+    m_mPickingInverseViewProjectionMatrix = ezMat4::MakeZero();
+    // If the resolution has changed, discard the readback result.
+    if (m_uiWindowHeight == m_PendingReadback.m_uiWindowHeight && m_uiWindowWidth == m_PendingReadback.m_uiWindowWidth)
+    {
+      {
+        m_PickingResultsDepth.SetCountUninitialized(m_uiWindowWidth * m_uiWindowHeight);
+        ezReadbackTextureLock lock = m_PendingReadback.m_PickingDepthReadback.LockTexture(sourceSubResources, memory);
+        EZ_ASSERT_ALWAYS(lock, "Failed to lock readback texture");
+        const ezGALTexture* pReadbackTexture = ezGALDevice::GetDefaultDevice()->GetTexture(GetPickingDepthRT());
+        ezTextureUtils::CopySubResourceToMemory(pReadbackTexture->GetDescription(), sourceSubResource, memory[0], m_PickingResultsDepth.GetByteArrayPtr(), m_uiWindowWidth * sizeof(float));
+      }
+      {
+        m_PickingResultsID.SetCountUninitialized(m_uiWindowWidth * m_uiWindowHeight);
+        ezReadbackTextureLock lock = m_PendingReadback.m_PickingReadback.LockTexture(sourceSubResources, memory);
+        EZ_ASSERT_ALWAYS(lock, "Failed to lock readback texture");
+        const ezGALTexture* pReadbackTexture = ezGALDevice::GetDefaultDevice()->GetTexture(GetPickingIdRT());
+        ezTextureUtils::CopySubResourceToMemory(pReadbackTexture->GetDescription(), sourceSubResource, memory[0], m_PickingResultsID.GetByteArrayPtr(), m_uiWindowWidth * sizeof(ezUInt32));
+      }
+      m_mPickingInverseViewProjectionMatrix = m_PendingReadback.m_mPickingInverseViewProjectionMatrix;
     }
   }
 
-  // filter out all selected objects
-  ezRenderDataBatch::Filter filter([&](const ezRenderData* pRenderData)
-    { return m_SelectionSet.Contains(pRenderData->m_hOwner); });
-
-  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitOpaque, filter);
-  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMasked, filter);
-
-  if (m_bPickTransparent)
-  {
-    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitTransparent, filter);
-
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "TRUE");
-    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitForeground);
-
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "FALSE");
-    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitForeground);
-  }
-
-  if (m_bPickSelected)
-  {
-    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Selection);
-  }
-
-  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleOpaque);
-
-  if (m_bPickTransparent)
-  {
-    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleTransparent, filter);
-  }
-
-  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "TRUE");
-  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleForeground);
-
-  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "FALSE");
-  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleForeground);
-
-  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_FORWARD");
-
-  // download the picking information from the GPU
+  // Start transferring the picking information from the GPU to the CPU
   if (m_uiWindowWidth != 0 && m_uiWindowHeight != 0)
   {
-    pCommandEncoder->ReadbackTexture(GetPickingDepthRT());
-    pCommandEncoder->ReadbackTexture(GetPickingIdRT());
+    m_PendingReadback.m_PickingReadback.ReadbackTexture(*renderViewContext.m_pRenderContext->GetCommandEncoder(), GetPickingIdRT());
+    m_PendingReadback.m_PickingDepthReadback.ReadbackTexture(*renderViewContext.m_pRenderContext->GetCommandEncoder(), GetPickingDepthRT());
+    renderViewContext.m_pRenderContext->GetCommandEncoder()->Flush();
 
     ezMat4 mProj;
     renderViewContext.m_pCamera->GetProjectionMatrix((float)m_uiWindowWidth / m_uiWindowHeight, mProj);
@@ -156,31 +195,10 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
       return;
     }
 
-    m_mPickingInverseViewProjectionMatrix = inv;
-
-    ezGALSystemMemoryDescription MemDesc;
-    MemDesc.m_uiRowPitch = 4 * m_uiWindowWidth;
-    MemDesc.m_uiSlicePitch = 4 * m_uiWindowWidth * m_uiWindowHeight;
-    ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescs(&MemDesc, 1);
-
-    ezGALTextureSubresource sourceSubResource;
-    ezArrayPtr<ezGALTextureSubresource> sourceSubResources(&sourceSubResource, 1);
-
-    {
-      m_PickingResultsDepth.Clear();
-      m_PickingResultsDepth.SetCountUninitialized(m_uiWindowWidth * m_uiWindowHeight);
-
-      MemDesc.m_pData = m_PickingResultsDepth.GetData();
-      pCommandEncoder->CopyTextureReadbackResult(GetPickingDepthRT(), sourceSubResources, SysMemDescs);
-    }
-
-    {
-      m_PickingResultsID.Clear();
-      m_PickingResultsID.SetCountUninitialized(m_uiWindowWidth * m_uiWindowHeight);
-
-      MemDesc.m_pData = m_PickingResultsID.GetData();
-      pCommandEncoder->CopyTextureReadbackResult(GetPickingIdRT(), sourceSubResources, SysMemDescs);
-    }
+    m_PendingReadback.m_mPickingInverseViewProjectionMatrix = inv;
+    m_PendingReadback.m_uiWindowWidth = m_uiWindowWidth;
+    m_PendingReadback.m_uiWindowHeight = m_uiWindowHeight;
+    m_PendingReadback.m_bReadbackInProgress = true;
   }
 }
 
@@ -196,12 +214,8 @@ void ezPickingRenderPass::CreateTarget()
 
   // Create render target for picking
   ezGALTextureCreationDescription tcd;
-  tcd.m_bAllowDynamicMipGeneration = false;
-  tcd.m_bAllowShaderResourceView = false;
-  tcd.m_bAllowUAV = false;
-  tcd.m_bCreateRenderTarget = true;
+  tcd.m_TextureFlags = ezGALTextureUsageFlags::RenderTarget;
   tcd.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
-  tcd.m_ResourceAccess.m_bReadBack = true;
   tcd.m_Type = ezGALTextureType::Texture2D;
   tcd.m_uiWidth = (ezUInt32)m_TargetRect.width;
   tcd.m_uiHeight = (ezUInt32)m_TargetRect.height;
@@ -209,29 +223,21 @@ void ezPickingRenderPass::CreateTarget()
   m_hPickingIdRT = pDevice->CreateTexture(tcd);
 
   tcd.m_Format = ezGALResourceFormat::DFloat;
-  tcd.m_ResourceAccess.m_bReadBack = true;
 
   m_hPickingDepthRT = pDevice->CreateTexture(tcd);
 
-  m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(m_hPickingIdRT)).SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(m_hPickingDepthRT));
+  m_RenderTargetSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(m_hPickingIdRT)).SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(m_hPickingDepthRT));
+  m_RenderTargetSetup.SetClearColor(0);
+  m_RenderTargetSetup.SetClearDepth().SetClearStencil();
 }
 
 void ezPickingRenderPass::DestroyTarget()
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
-  m_RenderTargetSetup.DestroyAllAttachedViews();
-  if (!m_hPickingIdRT.IsInvalidated())
-  {
-    pDevice->DestroyTexture(m_hPickingIdRT);
-    m_hPickingIdRT.Invalidate();
-  }
-
-  if (!m_hPickingDepthRT.IsInvalidated())
-  {
-    pDevice->DestroyTexture(m_hPickingDepthRT);
-    m_hPickingDepthRT.Invalidate();
-  }
+  m_RenderTargetSetup.Reset();
+  pDevice->DestroyTexture(m_hPickingIdRT);
+  pDevice->DestroyTexture(m_hPickingDepthRT);
 }
 
 void ezPickingRenderPass::ReadBackPropertiesSinglePick(ezView* pView)
@@ -254,8 +260,8 @@ void ezPickingRenderPass::ReadBackPropertiesSinglePick(ezView* pView)
   ezVec3 vPickedPosition(0);
   {
     const float fDepth = m_PickingResultsDepth[uiIndex];
-    ezGraphicsUtils::ConvertScreenPosToWorldPos(m_mPickingInverseViewProjectionMatrix, 0, 0, m_uiWindowWidth, m_uiWindowHeight, ezVec3((float)x, (float)(m_uiWindowHeight - y), fDepth), vPickedPosition).IgnoreResult();
-    ezGraphicsUtils::ConvertScreenPosToWorldPos(m_mPickingInverseViewProjectionMatrix, 0, 0, m_uiWindowWidth, m_uiWindowHeight, ezVec3((float)x, (float)(m_uiWindowHeight - y), 0), vPickingRayStartPosition).IgnoreResult();
+    ezGraphicsUtils::ConvertScreenPosToWorldPos(m_mPickingInverseViewProjectionMatrix, 0, 0, m_uiWindowWidth, m_uiWindowHeight, ezVec3((float)x, (float)y, fDepth), vPickedPosition).IgnoreResult();
+    ezGraphicsUtils::ConvertScreenPosToWorldPos(m_mPickingInverseViewProjectionMatrix, 0, 0, m_uiWindowWidth, m_uiWindowHeight, ezVec3((float)x, (float)y, 0), vPickingRayStartPosition).IgnoreResult();
 
     float fOtherDepths[4] = {fDepth, fDepth, fDepth, fDepth};
     ezVec3 vOtherPos[4];
@@ -270,10 +276,10 @@ void ezPickingRenderPass::ReadBackPropertiesSinglePick(ezView* pView)
     if (y > 0)
       fOtherDepths[3] = m_PickingResultsDepth[((y - 1) * m_uiWindowWidth) + x];
 
-    ezGraphicsUtils::ConvertScreenPosToWorldPos(m_mPickingInverseViewProjectionMatrix, 0, 0, m_uiWindowWidth, m_uiWindowHeight, ezVec3((float)(x + 1), (float)(m_uiWindowHeight - y), fOtherDepths[0]), vOtherPos[0]).IgnoreResult();
-    ezGraphicsUtils::ConvertScreenPosToWorldPos(m_mPickingInverseViewProjectionMatrix, 0, 0, m_uiWindowWidth, m_uiWindowHeight, ezVec3((float)(x - 1), (float)(m_uiWindowHeight - y), fOtherDepths[1]), vOtherPos[1]).IgnoreResult();
-    ezGraphicsUtils::ConvertScreenPosToWorldPos(m_mPickingInverseViewProjectionMatrix, 0, 0, m_uiWindowWidth, m_uiWindowHeight, ezVec3((float)x, (float)(m_uiWindowHeight - (y + 1)), fOtherDepths[2]), vOtherPos[2]).IgnoreResult();
-    ezGraphicsUtils::ConvertScreenPosToWorldPos(m_mPickingInverseViewProjectionMatrix, 0, 0, m_uiWindowWidth, m_uiWindowHeight, ezVec3((float)x, (float)(m_uiWindowHeight - (y - 1)), fOtherDepths[3]), vOtherPos[3]).IgnoreResult();
+    ezGraphicsUtils::ConvertScreenPosToWorldPos(m_mPickingInverseViewProjectionMatrix, 0, 0, m_uiWindowWidth, m_uiWindowHeight, ezVec3((float)(x + 1), (float)y, fOtherDepths[0]), vOtherPos[0]).IgnoreResult();
+    ezGraphicsUtils::ConvertScreenPosToWorldPos(m_mPickingInverseViewProjectionMatrix, 0, 0, m_uiWindowWidth, m_uiWindowHeight, ezVec3((float)(x - 1), (float)y, fOtherDepths[1]), vOtherPos[1]).IgnoreResult();
+    ezGraphicsUtils::ConvertScreenPosToWorldPos(m_mPickingInverseViewProjectionMatrix, 0, 0, m_uiWindowWidth, m_uiWindowHeight, ezVec3((float)x, (float)(y + 1), fOtherDepths[2]), vOtherPos[2]).IgnoreResult();
+    ezGraphicsUtils::ConvertScreenPosToWorldPos(m_mPickingInverseViewProjectionMatrix, 0, 0, m_uiWindowWidth, m_uiWindowHeight, ezVec3((float)x, (float)(y - 1), fOtherDepths[3]), vOtherPos[3]).IgnoreResult();
 
     vNormals[0].CalculateNormal(vPickedPosition, vOtherPos[0], vOtherPos[2]).IgnoreResult();
     vNormals[1].CalculateNormal(vPickedPosition, vOtherPos[2], vOtherPos[1]).IgnoreResult();
@@ -343,7 +349,7 @@ void ezPickingRenderPass::ReadBackPropertiesMarqueePick(ezView* pView)
   m_MarqueePickPosition1.Set(-1);
   pView->SetRenderPassReadBackProperty(GetName(), "MarqueeActionID", m_uiMarqueeActionID);
 
-  ezHybridArray<ezUInt32, 32> IDs;
+  ezTempHybridArray<ezUInt32, 32> IDs;
   ezVariantArray resArray;
 
   const ezUInt32 lowX = ezMath::Min(x0, x1);
@@ -374,4 +380,42 @@ void ezPickingRenderPass::ReadBackPropertiesMarqueePick(ezView* pView)
   }
 
   pView->SetRenderPassReadBackProperty(GetName(), "MarqueeResult", resArray);
+}
+
+void ezPickingRenderPass::ProcessPickingRenderData(ezExtractedRenderData& extractedRenderData)
+{
+  // copy selection to set for faster checks
+  m_SelectionSet.Clear();
+  {
+    auto renderDataList = extractedRenderData.GetRawRenderDataWithCategory(ezDefaultRenderDataCategories::Selection);
+    for (auto& sortableRenderData : renderDataList)
+    {
+      m_SelectionSet.Insert(sortableRenderData.m_pRenderData->m_hOwner);
+    }
+  }
+
+  auto Filter = [&](ezRenderData::Category originalCategory, ezRenderData::Category filteredCategory)
+  {
+    auto renderDataList = extractedRenderData.GetRawRenderDataWithCategory(originalCategory);
+    for (auto& sortableRenderData : renderDataList)
+    {
+      auto pRenderData = sortableRenderData.m_pRenderData;
+      if (m_SelectionSet.Contains(pRenderData->m_hOwner) || pRenderData->IsInstanceOf(m_pGridRenderDataType))
+        continue;
+
+      extractedRenderData.AddRenderData(pRenderData, filteredCategory);
+    }
+  };
+
+  Filter(ezDefaultRenderDataCategories::LitOpaqueStatic, s_LitOpaqueWithoutSelection);
+  Filter(ezDefaultRenderDataCategories::LitOpaqueDynamic, s_LitOpaqueWithoutSelection);
+
+  Filter(ezDefaultRenderDataCategories::LitMaskedStatic, s_LitMaskedWithoutSelection);
+  Filter(ezDefaultRenderDataCategories::LitMaskedDynamic, s_LitOpaqueWithoutSelection);
+
+  if (m_bPickTransparent)
+  {
+    Filter(ezDefaultRenderDataCategories::LitTransparent, s_LitTransparentWithoutSelection);
+    Filter(ezDefaultRenderDataCategories::SimpleTransparent, s_SimpleTransparentWithoutSelection);
+  }
 }

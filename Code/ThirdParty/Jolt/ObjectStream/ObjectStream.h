@@ -10,6 +10,8 @@
 #include <Jolt/Core/NonCopyable.h>
 #include <Jolt/ObjectStream/SerializableAttribute.h>
 
+#ifdef JPH_OBJECT_STREAM
+
 JPH_NAMESPACE_BEGIN
 
 /// Base class for object stream input and output streams.
@@ -56,10 +58,12 @@ public:
 	virtual bool				ReadPrimitiveData(bool &outPrimitive) = 0;
 	virtual bool				ReadPrimitiveData(String &outPrimitive) = 0;
 	virtual bool				ReadPrimitiveData(Float3 &outPrimitive) = 0;
+	virtual bool				ReadPrimitiveData(Float4 &outPrimitive) = 0;
 	virtual bool				ReadPrimitiveData(Double3 &outPrimitive) = 0;
 	virtual bool				ReadPrimitiveData(Vec3 &outPrimitive) = 0;
 	virtual bool				ReadPrimitiveData(DVec3 &outPrimitive) = 0;
 	virtual bool				ReadPrimitiveData(Vec4 &outPrimitive) = 0;
+	virtual bool				ReadPrimitiveData(UVec4 &outPrimitive) = 0;
 	virtual bool				ReadPrimitiveData(Quat &outPrimitive) = 0;
 	virtual bool				ReadPrimitiveData(Mat44 &outPrimitive) = 0;
 	virtual bool				ReadPrimitiveData(DMat44 &outPrimitive) = 0;
@@ -90,10 +94,12 @@ public:
 	virtual void				WritePrimitiveData(const bool &inPrimitive) = 0;
 	virtual void				WritePrimitiveData(const String &inPrimitive) = 0;
 	virtual void				WritePrimitiveData(const Float3 &inPrimitive) = 0;
+	virtual void				WritePrimitiveData(const Float4 &inPrimitive) = 0;
 	virtual void				WritePrimitiveData(const Double3 &inPrimitive) = 0;
 	virtual void				WritePrimitiveData(const Vec3 &inPrimitive) = 0;
 	virtual void				WritePrimitiveData(const DVec3 &inPrimitive) = 0;
 	virtual void				WritePrimitiveData(const Vec4 &inPrimitive) = 0;
+	virtual void				WritePrimitiveData(const UVec4 &inPrimitive) = 0;
 	virtual void				WritePrimitiveData(const Quat &inPrimitive) = 0;
 	virtual void				WritePrimitiveData(const Mat44 &inPrimitive) = 0;
 	virtual void				WritePrimitiveData(const DMat44 &inPrimitive) = 0;
@@ -119,8 +125,8 @@ public:
 #include <Jolt/ObjectStream/ObjectStreamTypes.h>
 
 // Define serialization templates
-template <class T>
-bool OSIsType(Array<T> *, int inArrayDepth, EOSDataType inDataType, const char *inClassName)
+template <class T, class A>
+bool OSIsType(Array<T, A> *, int inArrayDepth, EOSDataType inDataType, const char *inClassName)
 {
 	return (inArrayDepth > 0 && OSIsType(static_cast<T *>(nullptr), inArrayDepth - 1, inDataType, inClassName));
 }
@@ -150,8 +156,8 @@ bool OSIsType(RefConst<T> *, int inArrayDepth, EOSDataType inDataType, const cha
 }
 
 /// Define serialization templates for dynamic arrays
-template <class T>
-bool OSReadData(IObjectStreamIn &ioStream, Array<T> &inArray)
+template <class T, class A>
+bool OSReadData(IObjectStreamIn &ioStream, Array<T, A> &inArray)
 {
 	bool continue_reading = true;
 
@@ -230,15 +236,15 @@ bool OSReadData(IObjectStreamIn &ioStream, RefConst<T> &inRef)
 }
 
 // Define serialization templates for dynamic arrays
-template <class T>
-void OSWriteDataType(IObjectStreamOut &ioStream, Array<T> *)
+template <class T, class A>
+void OSWriteDataType(IObjectStreamOut &ioStream, Array<T, A> *)
 {
 	ioStream.WriteDataType(EOSDataType::Array);
 	OSWriteDataType(ioStream, static_cast<T *>(nullptr));
 }
 
-template <class T>
-void OSWriteData(IObjectStreamOut &ioStream, const Array<T> &inArray)
+template <class T, class A>
+void OSWriteData(IObjectStreamOut &ioStream, const Array<T, A> &inArray)
 {
 	// Write size of array
 	ioStream.HintNextItem();
@@ -327,3 +333,5 @@ void OSWriteData(IObjectStreamOut &ioStream, const RefConst<T> &inRef)
 }
 
 JPH_NAMESPACE_END
+
+#endif // JPH_OBJECT_STREAM

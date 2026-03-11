@@ -11,3 +11,5 @@ target_link_libraries(${PROJECT_NAME}
   PUBLIC
   GameEngine
 )
+
+ez_copy_plugin_bundle(${PROJECT_NAME} "Particles")

@@ -11,16 +11,24 @@ TWO_SIDED = TRUE
 FLIP_WINDING
 SHADING_QUALITY
 CAMERA_MODE
-VERTEX_SHADER_RENDER_TARGET_ARRAY_INDEX
 MSAA = FALSE
 
 [RENDERSTATE]
 
 #include <Shaders/Materials/MaterialState.h>
 
+[MATERIALCONSTANTS]
+
+  COLOR4F(BaseColor);
+
 [VERTEXSHADER]
 
-#include <Shaders/Materials/DefaultMaterialCB.h>
+#if defined(WGSL) && TOPOLOGY == TOPOLOGY_TRIANGLES
+  #define USE_NORMAL
+#endif
+
+#define PASS_THROUGH_INSTANCE_ID
+
 #include <Shaders/Materials/MaterialVertexShader.h>
 
 VS_OUT main(VS_IN Input)
@@ -36,6 +44,7 @@ struct GS_IN
 {
   float4 Position : SV_Position;
   float3 WorldPos : WORLDPOS;
+  nointerpolation uint3 DataOffsets : DATAOFFSETS;
   uint InstanceID : SV_InstanceID;
 };
 
@@ -44,7 +53,7 @@ struct GS_OUT
   float4 Position : SV_Position;
   float3 WorldPos : WORLDPOS;
   float3 Normal : NORMAL;
-  uint InstanceID : SV_InstanceID;
+  nointerpolation uint3 DataOffsets : DATAOFFSETS;
 #if CAMERA_MODE == CAMERA_MODE_STEREO
   uint RenderTargetArrayIndex : SV_RenderTargetArrayIndex;
 #endif
@@ -64,7 +73,7 @@ void main( triangle GS_IN input[3], inout TriangleStream<GS_OUT> outputStream )
     output.Position = input[i].Position;
     output.WorldPos = input[i].WorldPos;
     output.Normal = normal;
-    output.InstanceID = input[i].InstanceID;
+    output.DataOffsets = input[i].DataOffsets;
 #if CAMERA_MODE == CAMERA_MODE_STEREO
     output.RenderTargetArrayIndex = input[i].InstanceID % 2;
 #endif
@@ -83,12 +92,10 @@ void main( triangle GS_IN input[3], inout TriangleStream<GS_OUT> outputStream )
   #define USE_NORMAL
 #endif
 
-#include <Shaders/Materials/DefaultMaterialCB.h>
 #include <Shaders/Materials/MaterialPixelShader.h>
 
-
-Texture2D BaseTexture;
-SamplerState BaseTexture_AutoSampler;
+Texture2D BaseTexture BIND_GROUP(BG_MATERIAL);
+SamplerState BaseTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 
 float3 GetNormal()
 {
@@ -102,9 +109,9 @@ float3 GetNormal()
 float3 GetDiffuseColor()
 {
   #if TOPOLOGY == TOPOLOGY_TRIANGLES
-    return SampleTexture3Way(BaseTexture, BaseTexture_AutoSampler, G.Input.Normal, G.Input.WorldPosition, 1.0).rgb;
+    return SampleTexture3Way(BaseTexture, BaseTexture_AutoSampler, G.Input.Normal, G.Input.WorldPosition + 0.5, 1.0).rgb * GetMaterialData(BaseColor).rgb;
   #else
-    return float3(0.5, 0.5, 0.5);
+    return float3(0.5, 0.5, 0.5) * GetMaterialData(BaseColor).rgb;
   #endif
 }
 

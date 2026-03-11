@@ -43,11 +43,8 @@ public:
   ezSkeletonComponent();
   ~ezSkeletonComponent();
 
-  void SetSkeletonFile(const char* szFile); // [ property ]
-  const char* GetSkeletonFile() const;      // [ property ]
-
-  void SetSkeleton(const ezSkeletonResourceHandle& hResource);
-  const ezSkeletonResourceHandle& GetSkeleton() const { return m_hSkeleton; }
+  void SetSkeleton(const ezSkeletonResourceHandle& hResource);                // [ property ]
+  const ezSkeletonResourceHandle& GetSkeleton() const { return m_hSkeleton; } // [ property ]
 
   /// \brief Sets a semicolon-separated list of bone names that should be highlighted.
   ///
@@ -73,7 +70,7 @@ protected:
   void BuildJointVisualization(ezMsgAnimationPoseUpdated& msg);
 
   void OnQueryAnimationSkeleton(ezMsgQueryAnimationSkeleton& msg);
-  ezDebugRenderer::Line& AddLine(const ezVec3& vStart, const ezVec3& vEnd, const ezColor& color);
+  ezDebugRendererLine& AddLine(const ezVec3& vStart, const ezVec3& vEnd, const ezColor& color);
 
   ezSkeletonResourceHandle m_hSkeleton;
   ezTransform m_RootTransform = ezTransform::MakeIdentity();
@@ -81,7 +78,7 @@ protected:
   ezString m_sBonesToHighlight;
 
   ezBoundingBox m_MaxBounds;
-  ezDynamicArray<ezDebugRenderer::Line> m_LinesSkeleton;
+  ezDynamicArray<ezDebugRendererLine> m_LinesSkeleton;
 
   struct SphereShape
   {

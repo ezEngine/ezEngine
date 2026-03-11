@@ -40,7 +40,16 @@ public:
     Hide
   };
 
+  /// \brief Creates a new object and attaches all currently selected objects to it.
   void GroupSelection();
+
+  /// \brief Changes the selection to the parent object.
+  void SelectParentObject();
+
+  /// \brief Sets the last selected object as the 'active parent'.
+  void SetSelectedAsActiveParent();
+  /// \brief Clears the 'active parent' object.
+  void ClearActiveParent();
 
   /// \brief Opens the Duplicate Special dialog
   void DuplicateSpecial();
@@ -63,7 +72,7 @@ public:
   void CopyReference();
 
   /// \brief Creates a new empty object, either top-level (selection empty) or as a child of the selected item
-  ezStatus CreateEmptyObject(bool bAttachToParent, bool bAtPickedPosition);
+  ezStatus CreateEmptyObject(bool bAttachToParent, bool bAtPickedPosition, bool bComponentSelectionMenu);
 
   void DuplicateSelection();
   void ShowOrHideSelectedObjects(ShowOrHide action);
@@ -83,10 +92,9 @@ public:
   virtual bool ArePrefabsAllowed() const override { return !IsPrefab(); }
 
 
-  virtual void GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_mimeTypes) const override;
+  virtual void GetSupportedMimeTypesForPasting(ezDynamicArray<ezString>& out_mimeTypes) const override;
   virtual bool CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_sMimeType) const override;
-  virtual bool Paste(
-    const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, ezStringView sMimeType) override;
+  virtual bool Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, ezStringView sMimeType) override;
   bool DuplicateSelectedObjects(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bSetSelected);
   bool CopySelectedObjects(ezAbstractObjectGraph& ref_graph, ezMap<ezUuid, ezUuid>* out_pParents) const;
   bool PasteAt(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, const ezVec3& vPos);
@@ -119,9 +127,11 @@ public:
   /// Stops the world simulation, if it is running. Returns true, when the simulation needed to be stopped.
   bool StopGameMode();
 
+  void StepSimulation();
+  void PauseSimulation();
+
   ezTransformStatus ExportScene(bool bCreateThumbnail);
-  void ExportSceneGeometry(
-    const char* szFile, bool bOnlySelection, int iExtractionMode /* ezWorldGeoExtractionUtil::ExtractionMode */, const ezMat3& mTransform);
+  void ExportSceneGeometry(const char* szFile, bool bOnlySelection, int iExtractionMode /* ezWorldGeoExtractionUtil::ExtractionMode */, const ezMat3& mTransform);
 
   virtual void HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg) override;
   void HandleGameModeMsg(const ezGameModeMsgToEditor* pMsg);
@@ -141,10 +151,9 @@ public:
     return ezDynamicCast<const T*>(GetSettingsBase());
   }
 
-  ezStatus CreateExposedProperty(
-    const ezDocumentObject* pObject, const ezAbstractProperty* pProperty, ezVariant index, ezExposedSceneProperty& out_key) const;
-  ezStatus AddExposedParameter(const char* szName, const ezDocumentObject* pObject, const ezAbstractProperty* pProperty, ezVariant index);
-  ezInt32 FindExposedParameter(const ezDocumentObject* pObject, const ezAbstractProperty* pProperty, ezVariant index);
+  ezStatus CreateExposedProperty(ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezRTTI* pType, const ezAbstractProperty* pProperty, ezVariant index, ezExposedSceneProperty& out_key) const;
+  ezStatus AddExposedParameter(const char* szName, ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezRTTI* pType, const ezAbstractProperty* pProperty, ezVariant index);
+  ezInt32 FindExposedParameter(ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezRTTI* pType, const ezAbstractProperty* pProperty, ezVariant index);
   ezStatus RemoveExposedParameter(ezInt32 iIndex);
   ///@}
 
@@ -173,6 +182,9 @@ public:
   }
 
   ///@}
+
+  bool CanUndoSelection() const;
+  virtual void UndoSelection();
 
 protected:
   void SetGameMode(GameMode::Enum mode);
@@ -222,6 +234,21 @@ protected:
   // Local mirror for settings
   ezDocumentObjectMirror m_ObjectMirror;
   ezRttiConverterContext m_Context;
+
+  //////////////////////////////////////////////////////////////////////////
+protected:
+  bool m_bStoreSelectionChange = true;
+  ezInt8 m_iAllowSelectionChanges = -1;
+  ezCopyOnBroadcastEvent<const ezSelectionManagerEvent&>::Unsubscriber m_SelectionHandlerUnsubscriber;
+  void SelectionManagerEventHandler(const ezSelectionManagerEvent& e);
+
+  struct SelectionHistory
+  {
+    ezDynamicArray<ezUuid> m_Objects;
+    ezUuid m_documentGuid;
+  };
+
+  ezDeque<SelectionHistory> m_SelectionStack;
 
   //////////////////////////////////////////////////////////////////////////
   /// Communication with other document types

@@ -4,6 +4,8 @@
 
 #include <Jolt/Jolt.h>
 
+#ifdef JPH_OBJECT_STREAM
+
 #include <Jolt/ObjectStream/ObjectStreamBinaryOut.h>
 #include <Jolt/Core/StringTools.h>
 
@@ -109,6 +111,11 @@ void ObjectStreamBinaryOut::WritePrimitiveData(const Float3 &inPrimitive)
 	mStream.write((const char *)&inPrimitive, sizeof(Float3));
 }
 
+void ObjectStreamBinaryOut::WritePrimitiveData(const Float4 &inPrimitive)
+{
+	mStream.write((const char *)&inPrimitive, sizeof(Float4));
+}
+
 void ObjectStreamBinaryOut::WritePrimitiveData(const Double3 &inPrimitive)
 {
 	mStream.write((const char *)&inPrimitive, sizeof(Double3));
@@ -125,6 +132,11 @@ void ObjectStreamBinaryOut::WritePrimitiveData(const DVec3 &inPrimitive)
 }
 
 void ObjectStreamBinaryOut::WritePrimitiveData(const Vec4 &inPrimitive)
+{
+	mStream.write((const char *)&inPrimitive, sizeof(inPrimitive));
+}
+
+void ObjectStreamBinaryOut::WritePrimitiveData(const UVec4 &inPrimitive)
 {
 	mStream.write((const char *)&inPrimitive, sizeof(inPrimitive));
 }
@@ -148,3 +160,6 @@ void ObjectStreamBinaryOut::WritePrimitiveData(const DMat44 &inPrimitive)
 }
 
 JPH_NAMESPACE_END
+
+#endif // JPH_OBJECT_STREAM
+

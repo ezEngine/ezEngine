@@ -13,26 +13,58 @@
       "architecture": "x64",
       "binaryDir": "${sourceDir}/Workspace/${presetName}",
       "cacheVariables": {
-        "EZ_BUILD_EXPERIMENTAL_VULKAN": "ON",
         "EZ_ENABLE_FOLDER_UNITY_FILES" : "ON",
         "EZ_COMPILE_ENGINE_AS_DLL" : "ON"
       },
       "environment": {}
     },
     {
-      "name": "linux-clang-base",
+      "name": "vs2026x64",
+      "hidden": false,
+      "generator": "Visual Studio 18 2026",
+      "architecture": "x64",
+      "binaryDir": "${sourceDir}/Workspace/${presetName}",
+      "cacheVariables": {
+        "EZ_ENABLE_FOLDER_UNITY_FILES" : "ON",
+        "EZ_COMPILE_ENGINE_AS_DLL" : "ON"
+      },
+      "environment": {}
+    },
+    {
+      "name": "linux-base",
       "hidden": true,
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/Workspace/${presetName}",
       "cacheVariables": {
         "EZ_EXPERIMENTAL_EDITOR_ON_LINUX": "ON",
         "EZ_BUILD_EXPERIMENTAL_VULKAN": "ON",
-        "EZ_ENABLE_FOLDER_UNITY_FILES" : "OFF",
+        "EZ_ENABLE_FOLDER_UNITY_FILES" : "ON",
         "EZ_COMPILE_ENGINE_AS_DLL" : "ON",
-        "CMAKE_CXX_COMPILER" : "clang++",
-        "CMAKE_C_COMPILER" : "clang"
+        "CMAKE_EXPORT_COMPILE_COMMANDS" : "ON",
+        "EZ_BUILD_OPENXR": "ON"
       },
-      "environment": {}
+      "environment": {
+        "VK_LAYER_PATH" : "${sourceDir}/Workspace/shared/vulkan-sdk/1.3.275.0/x86_64/share/vulkan/explicit_layer.d",
+        "LD_LIBRARY_PATH" : "${sourceDir}/Workspace/shared/vulkan-sdk/1.3.275.0/x86_64/lib"
+      }
+    },
+    {
+      "name": "linux-clang-base",
+      "inherits" : ["linux-base"],
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER" : "clang++-14",
+        "CMAKE_C_COMPILER" : "clang-14"
+      }
+    },
+    {
+      "name": "linux-gcc-base",
+      "inherits" : ["linux-base"],
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER" : "g++-12",
+        "CMAKE_C_COMPILER" : "gcc-12" 
+      }
     },
     {
       "name": "android-base",
@@ -46,7 +78,11 @@
         "ANDROID_PLATFORM" : "29",
         "CMAKE_TOOLCHAIN_FILE" : "$env{ANDROID_NDK_HOME}/build/cmake/android.toolchain.cmake"
       },
-      "environment": {}
+      "environment": {
+        "ANDROID_HOME" : "${sourceDir}/Workspace/shared/android",
+        "ANDROID_NDK_HOME" : "${sourceDir}/Workspace/shared/android/ndk/26.1.10909125",
+        "JAVA_HOME" : "${sourceDir}/Workspace/shared/android/jdk17"
+      }
     },
 
     {
@@ -80,7 +116,7 @@
     {
       "name": "android-x64-debug",
       "inherits" : ["android-base"],
-      "hidden" : false,    
+      "hidden" : false,
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "ANDROID_ABI": "x86_64"
@@ -89,7 +125,7 @@
     {
       "name": "android-x64-dev",
       "inherits" : ["android-base"],
-      "hidden" : false,    
+      "hidden" : false,
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Dev",
         "ANDROID_ABI": "x86_64"
@@ -98,7 +134,7 @@
     {
       "name": "android-x64-shipping",
       "inherits" : ["android-base"],
-      "hidden" : false,    
+      "hidden" : false,
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Shipping",
         "ANDROID_ABI": "x86_64"
@@ -108,7 +144,7 @@
     {
       "name": "linux-clang-debug",
       "inherits" : ["linux-clang-base"],
-      "hidden" : true,
+      "hidden" : false,
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug"
       }
@@ -116,7 +152,7 @@
     {
       "name": "linux-clang-dev",
       "inherits" : ["linux-clang-base"],
-      "hidden" : true,
+      "hidden" : false,
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Dev"
       }
@@ -124,7 +160,68 @@
     {
       "name": "linux-clang-shipping",
       "inherits" : ["linux-clang-base"],
-      "hidden" : true,
+      "hidden" : false,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Shipping"
+      }
+    },
+    {
+      "name": "linux-gcc-debug",
+      "inherits" : ["linux-gcc-base"],
+      "hidden" : false,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "linux-gcc-dev",
+      "inherits" : ["linux-gcc-base"],
+      "hidden" : false,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Dev"
+      }
+    },
+    {
+      "name": "linux-gcc-shipping",
+      "inherits" : ["linux-gcc-base"],
+      "hidden" : false,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Shipping"
+      }
+    },
+    {
+      "name": "linux-steam-clang-base",
+      "inherits":["linux-clang-base"],
+      "hidden": true,
+      "cacheVariables": {
+        "EZ_ENABLE_QT_SUPPORT": "OFF",
+        "EZ_EXPERIMENTAL_EDITOR_ON_LINUX": "OFF",
+        "EZ_3RDPARTY_ASSIMP_SUPPORT": "OFF",
+        "EZ_3RDPARTY_BC7ENC_RDO_SUPPORT": "OFF",
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/Code/BuildSystem/CMake/toolchain-steamrt.cmake",
+        "EZ_FMOD_SDK_LOCATION": "${sourceDir}/Code/ThirdParty/fmod/linux"
+      }
+    },
+    {
+      "name": "linux-steam-clang-debug",
+      "inherits" : ["linux-steam-clang-base"],
+      "hidden" : false,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "linux-steam-clang-dev",
+      "inherits" : ["linux-steam-clang-base"],
+      "hidden" : false,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Dev"
+      }
+    },
+    {
+      "name": "linux-steam-clang-shipping",
+      "inherits" : ["linux-steam-clang-base"],
+      "hidden" : false,
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Shipping"
       }

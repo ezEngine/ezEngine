@@ -5,6 +5,7 @@
 
 class ezPhysicsWorldModuleInterface;
 
+/// Factory for volume finalizers.
 class EZ_PARTICLEPLUGIN_DLL ezParticleFinalizerFactory_Volume final : public ezParticleFinalizerFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleFinalizerFactory_Volume, ezParticleFinalizerFactory);
@@ -18,6 +19,11 @@ public:
 };
 
 
+/// Computes the bounding volume for the entire particle system.
+///
+/// Calculates a bounding box-sphere from all particle positions and optionally considers
+/// particle sizes to determine the maximum extent. The computed volume is used for culling
+/// and rendering optimizations. If no particles exist, the process is skipped.
 class EZ_PARTICLEPLUGIN_DLL ezParticleFinalizer_Volume final : public ezParticleFinalizer
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleFinalizer_Volume, ezParticleFinalizer);

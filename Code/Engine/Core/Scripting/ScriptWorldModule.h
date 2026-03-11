@@ -9,6 +9,11 @@
 using ezScriptClassResourceHandle = ezTypedResourceHandle<class ezScriptClassResource>;
 class ezScriptInstance;
 
+/// World module responsible for script execution and coroutine management.
+///
+/// Handles the execution of script functions, manages script coroutines,
+/// and provides scheduling for script update functions. This module ensures
+/// scripts are properly integrated with the world update cycle.
 class EZ_CORE_DLL ezScriptWorldModule : public ezWorldModule
 {
   EZ_DECLARE_WORLD_MODULE();
@@ -22,44 +27,55 @@ public:
   virtual void Initialize() override;
   virtual void WorldClear() override;
 
+  /// Schedules a script function to be called at regular intervals.
   void AddUpdateFunctionToSchedule(const ezAbstractFunctionProperty* pFunction, void* pInstance, ezTime updateInterval, bool bOnlyWhenSimulating);
+
+  /// Removes a previously scheduled script function from the scheduler.
   void RemoveUpdateFunctionToSchedule(const ezAbstractFunctionProperty* pFunction, void* pInstance);
 
   /// \name Coroutine Functions
   ///@{
 
-  /// \brief Creates a new coroutine of pCoroutineType with the given name. If the creationMode prevents creating a new coroutine,
-  /// this function will return an invalid handle and a nullptr in out_pCoroutine if there is already a coroutine running
-  /// with the same name on the given instance.
+  /// Creates a new coroutine of the specified type with the given name.
+  ///
+  /// Returns an invalid handle if the creationMode prevents creating a new coroutine
+  /// and there is already a coroutine running with the same name on the given instance.
   ezScriptCoroutineHandle CreateCoroutine(const ezRTTI* pCoroutineType, ezStringView sName, ezScriptInstance& inout_instance, ezScriptCoroutineCreationMode::Enum creationMode, ezScriptCoroutine*& out_pCoroutine);
 
-  /// \brief Starts the coroutine with the given arguments. This will call the Start() function and then UpdateAndSchedule() once on the coroutine object.
+  /// Starts the coroutine with the given arguments.
+  ///
+  /// Calls the Start() function and then UpdateAndSchedule() once on the coroutine object.
   void StartCoroutine(ezScriptCoroutineHandle hCoroutine, ezArrayPtr<ezVariant> arguments);
 
-  /// \brief Stops and deletes the coroutine. This will call the Stop() function and will delete the coroutine on next update of the script world module.
+  /// Stops and deletes the coroutine.
+  ///
+  /// Calls the Stop() function and deletes the coroutine on the next update cycle.
   void StopAndDeleteCoroutine(ezScriptCoroutineHandle hCoroutine);
 
-  /// \brief Stops and deletes all coroutines with the given name on pInstance.
+  /// Stops and deletes all coroutines with the given name on the specified instance.
   void StopAndDeleteCoroutine(ezStringView sName, ezScriptInstance* pInstance);
 
-  /// \brief Stops and deletes all coroutines on pInstance.
+  /// Stops and deletes all coroutines on the specified instance.
   void StopAndDeleteAllCoroutines(ezScriptInstance* pInstance);
 
-  /// \brief Returns whether the coroutine has already finished or has been stopped.
+  /// Returns whether the coroutine has finished or been stopped.
   bool IsCoroutineFinished(ezScriptCoroutineHandle hCoroutine) const;
 
   ///@}
 
-  /// \brief Returns a expression vm that can be used in custom script implementations.
-  /// Make sure to only execute one expression at a time, the VM is NOT thread safe.
+  /// Returns a shared expression VM for custom script implementations.
+  ///
+  /// The VM is NOT thread safe - only execute one expression at a time.
   ezExpressionVM& GetSharedExpressionVM() { return m_SharedExpressionVM; }
 
+  /// Context information for scheduled script functions.
   struct FunctionContext
   {
+    /// Flags controlling when the function should be executed.
     enum Flags : ezUInt8
     {
-      None,
-      OnlyWhenSimulating
+      None,              ///< Execute always
+      OnlyWhenSimulating ///< Execute only during simulation
     };
 
     ezPointerWithFlags<const ezAbstractFunctionProperty, 1> m_pFunctionAndFlags;

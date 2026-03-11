@@ -4,20 +4,16 @@
 
 #include <Foundation/Containers/Bitfield.h>
 
-#include <vulkan/vulkan.hpp>
-
 class ezGALBufferVulkan;
 class ezGALTextureVulkan;
 class ezGALRenderTargetViewVulkan;
-class ezGALTextureResourceViewVulkan;
-class ezGALBufferResourceViewVulkan;
-class ezGALTextureUnorderedAccessViewVulkan;
-class ezGALBufferUnorderedAccessViewVulkan;
 
 /// \brief
 class EZ_RENDERERVULKAN_DLL ezPipelineBarrierVulkan
 {
 public:
+  ezPipelineBarrierVulkan(ezAllocator* pAllocator);
+
   /// \name Barrier handling
   ///@{
 
@@ -66,12 +62,15 @@ public:
   /// \param bDiscardSource Discard the previous layout, replaces current layout with unknown.
   void EnsureImageLayout(const ezGALTextureVulkan* pTexture, vk::ImageLayout dstLayout, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess, bool bDiscardSource = false);
   void EnsureImageLayout(const ezGALRenderTargetViewVulkan* pTextureView, vk::ImageLayout dstLayout, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess, bool bDiscardSource = false);
-  void EnsureImageLayout(const ezGALTextureResourceViewVulkan* pTextureView, vk::ImageLayout dstLayout, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess, bool bDiscardSource = false);
-  void EnsureImageLayout(const ezGALTextureUnorderedAccessViewVulkan* pTextureView, vk::ImageLayout dstLayout, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess, bool bDiscardSource = false);
+  void EnsureImageLayout(const ezGALTextureVulkan* pTexture, ezGALTextureRange range, vk::ImageLayout dstLayout, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess, bool bDiscardSource = false);
   void EnsureImageLayout(const ezGALTextureVulkan* pTexture, vk::ImageSubresourceRange subResources, vk::ImageLayout dstLayout, vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess, bool bDiscardSource = false);
 
   bool IsDirty(vk::Image image, const vk::ImageSubresourceRange& subResources) const;
   ///@}
+
+  bool AddBufferBarrierInternal(vk::Buffer buffer, vk::DeviceSize offset, vk::DeviceSize length,
+    vk::PipelineStageFlags srcStages, vk::AccessFlags srcAccess,
+    vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess);
 
 private:
   struct SubElementState
@@ -108,9 +107,6 @@ private:
     ezHybridArray<SubBufferState, 1> m_subBufferState;
   };
 
-  bool AddBufferBarrierInternal(vk::Buffer buffer, vk::DeviceSize offset, vk::DeviceSize length,
-    vk::PipelineStageFlags srcStages, vk::AccessFlags srcAccess,
-    vk::PipelineStageFlags dstStages, vk::AccessFlags dstAccess);
   bool IsDirtyInternal(const BufferState& state, const SubBufferState& subState) const;
 
   bool AddImageBarrierInternal(vk::Image image, const vk::ImageSubresourceRange& subResources,

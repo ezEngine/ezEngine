@@ -2,6 +2,7 @@
 
 #include <ParticlePlugin/Initializer/ParticleInitializer.h>
 
+/// Initializer that spawns particles in a box volume
 class EZ_PARTICLEPLUGIN_DLL ezParticleInitializerFactory_BoxPosition final : public ezParticleInitializerFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializerFactory_BoxPosition, ezParticleInitializerFactory);
@@ -17,11 +18,11 @@ public:
   virtual void Load(ezStreamReader& inout_stream) override;
 
 public:
-  ezVec3 m_vPositionOffset;
-  ezVec3 m_vSize;
-  ezString m_sScaleXParameter;
-  ezString m_sScaleYParameter;
-  ezString m_sScaleZParameter;
+  ezVec3 m_vPositionOffset;    ///< Center of the spawn box
+  ezVec3 m_vSize;              ///< Size of the spawn box (full size, not half extents)
+  ezString m_sScaleXParameter; ///< Optional parameter name to scale box width
+  ezString m_sScaleYParameter; ///< Optional parameter name to scale box depth
+  ezString m_sScaleZParameter; ///< Optional parameter name to scale box height
 };
 
 

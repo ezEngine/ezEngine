@@ -690,7 +690,9 @@ static pthread_key_t _memory_thread_heap;
 #    define _Thread_local __declspec(thread)
 #    define TLS_MODEL
 #  else
-#    ifndef __HAIKU__
+#    if defined(__ANDROID__) && __ANDROID_API__ >= 29 && defined(__NDK_MAJOR__) && __NDK_MAJOR__ >= 26
+#      define TLS_MODEL __attribute__((tls_model("local-dynamic")))
+#    elif !defined(__HAIKU__)
 #      define TLS_MODEL __attribute__((tls_model("initial-exec")))
 #    else
 #      define TLS_MODEL
@@ -781,7 +783,7 @@ rpmalloc_set_main_thread(void) {
 
 static void
 _rpmalloc_spin(void) {
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) && !(defined(_M_ARM) || defined(_M_ARM64))
 	_mm_pause();
 #elif defined(__x86_64__) || defined(__i386__)
 	__asm__ volatile("pause" ::: "memory");
@@ -793,8 +795,7 @@ _rpmalloc_spin(void) {
 #elif defined(__sparc__)
 	__asm__ volatile("rd %ccr, %g0 \n\trd %ccr, %g0 \n\trd %ccr, %g0");
 #else
-	struct timespec ts = {0};
-	nanosleep(&ts, 0);
+	std::this_thread::yield();
 #endif
 }
 

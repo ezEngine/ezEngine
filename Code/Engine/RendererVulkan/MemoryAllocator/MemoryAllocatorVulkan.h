@@ -1,9 +1,8 @@
 #pragma once
 
 #include <Foundation/Types/Bitflags.h>
+#include <RendererVulkan/Device/DeclarationsVulkan.h>
 #include <RendererVulkan/RendererVulkanDLL.h>
-
-#include <vulkan/vulkan.hpp>
 
 /// \brief Subset of VmaAllocationCreateFlagBits. Duplicated for abstraction purposes.
 struct ezVulkanAllocationCreateFlags
@@ -17,8 +16,10 @@ struct ezVulkanAllocationCreateFlags
     CanAlias = 0x00000200,
     HostAccessSequentialWrite = 0x00000400,
     HostAccessRandom = 0x00000800,
+    AllowTransferInstead = 0x00001000,
     StrategyMinMemory = 0x00010000,
     StrategyMinTime = 0x00020000,
+
     Default = 0,
   };
 
@@ -85,15 +86,22 @@ struct ezVulkanAllocationInfo
   const char* m_pName;
 };
 
+/// \brief Copy of VmaStatistics. Duplicated for abstraction purposes.
+struct ezVulkanMemoryStatistics
+{
+  ezUInt32 m_uiBlockCount = 0;
+  ezUInt32 m_uiAllocationCount = 0;
+  ezUInt64 m_uiBlockBytes = 0;
+  ezUInt64 m_uiAllocationBytes = 0;
+};
 
-VK_DEFINE_HANDLE(ezVulkanAllocation)
 
 /// \brief Thin abstraction layer over VulkanMemoryAllocator to allow for abstraction and prevent pulling in its massive header into other files.
 /// Functions are a subset of VMA's. To be extended once a use-case comes up.
 class EZ_RENDERERVULKAN_DLL ezMemoryAllocatorVulkan
 {
 public:
-  static vk::Result Initialize(vk::PhysicalDevice physicalDevice, vk::Device device, vk::Instance instance);
+  static vk::Result Initialize(vk::PhysicalDevice physicalDevice, vk::Device device, vk::Instance instance, PFN_vkGetInstanceProcAddr instanceProcAddr, PFN_vkGetDeviceProcAddr deviceProcAddr);
   static void DeInitialize();
 
   static vk::Result CreateImage(const vk::ImageCreateInfo& imageCreateInfo, const ezVulkanAllocationCreateInfo& allocationCreateInfo, vk::Image& out_image, ezVulkanAllocation& out_alloc, ezVulkanAllocationInfo* pAllocInfo = nullptr);
@@ -103,6 +111,7 @@ public:
   static void DestroyBuffer(vk::Buffer& buffer, ezVulkanAllocation& alloc);
 
   static ezVulkanAllocationInfo GetAllocationInfo(ezVulkanAllocation alloc);
+  static vk::MemoryPropertyFlags GetAllocationFlags(ezVulkanAllocation alloc);
   static void SetAllocationUserData(ezVulkanAllocation alloc, const char* pUserData);
 
   static vk::Result MapMemory(ezVulkanAllocation alloc, void** pData);
@@ -110,6 +119,7 @@ public:
   static vk::Result FlushAllocation(ezVulkanAllocation alloc, vk::DeviceSize offset = 0, vk::DeviceSize size = VK_WHOLE_SIZE);
   static vk::Result InvalidateAllocation(ezVulkanAllocation alloc, vk::DeviceSize offset = 0, vk::DeviceSize size = VK_WHOLE_SIZE);
 
+  static ezVulkanMemoryStatistics GetStats();
 
 private:
   struct Impl;

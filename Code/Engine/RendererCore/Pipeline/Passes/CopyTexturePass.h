@@ -3,6 +3,10 @@
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererCore/Shader/ShaderResource.h>
 
+/// Render pass that copies a texture from input to output.
+///
+/// Simple utility pass for duplicating textures within the render pipeline.
+/// Can be used to preserve intermediate results or create copies for multi-pass effects.
 class EZ_RENDERERCORE_DLL ezCopyTexturePass : public ezRenderPipelinePass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezCopyTexturePass, ezRenderPipelinePass);

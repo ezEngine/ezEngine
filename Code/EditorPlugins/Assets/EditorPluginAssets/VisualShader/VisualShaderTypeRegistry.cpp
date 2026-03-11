@@ -5,6 +5,7 @@
 #include <EditorPluginAssets/VisualShader/VisualShaderTypeRegistry.h>
 #include <Foundation/IO/OpenDdlReader.h>
 #include <Foundation/IO/OpenDdlUtils.h>
+#include <GuiFoundation/UIServices/DynamicStringEnum.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
 EZ_IMPLEMENT_SINGLETON(ezVisualShaderTypeRegistry);
@@ -23,16 +24,16 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorPluginAssets, VisualShader)
     ezVisualShaderTypeRegistry::GetSingleton()->LoadNodeData();
     const ezRTTI* pBaseType = ezVisualShaderTypeRegistry::GetSingleton()->GetNodeBaseType();
 
-    ezQtNodeScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezVisualShaderPin>(), [](const ezRTTI* pRtti)->ezQtPin* { return new ezQtVisualShaderPin(); });
-    ezQtNodeScene::GetNodeFactory().RegisterCreator(pBaseType, [](const ezRTTI* pRtti)->ezQtNode* { return new ezQtVisualShaderNode(); });
+    ezQtVisualGraphScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezVisualShaderPin>(), [](const ezRTTI* pRtti)->ezQtVisualGraphPin* { return new ezQtVisualShaderPin(); });
+    ezQtVisualGraphScene::GetNodeFactory().RegisterCreator(pBaseType, [](const ezRTTI* pRtti)->ezQtVisualGraphNode* { return new ezQtVisualShaderNode(); });
   }
 
   ON_CORESYSTEMS_SHUTDOWN
   {
     const ezRTTI* pBaseType = ezVisualShaderTypeRegistry::GetSingleton()->GetNodeBaseType();
 
-    ezQtNodeScene::GetPinFactory().UnregisterCreator(ezGetStaticRTTI<ezVisualShaderPin>());
-    ezQtNodeScene::GetNodeFactory().UnregisterCreator(pBaseType);
+    ezQtVisualGraphScene::GetPinFactory().UnregisterCreator(ezGetStaticRTTI<ezVisualShaderPin>());
+    ezQtVisualGraphScene::GetNodeFactory().UnregisterCreator(pBaseType);
 
     ezVisualShaderTypeRegistry* pDummy = ezVisualShaderTypeRegistry::GetSingleton();
     EZ_DEFAULT_DELETE(pDummy);
@@ -97,6 +98,12 @@ ezVisualShaderTypeRegistry::ezVisualShaderTypeRegistry()
 {
   m_pBaseType = nullptr;
   m_pSamplerPinType = nullptr;
+  ezQtEditorApp::m_Events.AddEventHandler(ezMakeDelegate(&ezVisualShaderTypeRegistry::EditorEventHandler, this));
+}
+
+ezVisualShaderTypeRegistry::~ezVisualShaderTypeRegistry()
+{
+  ezQtEditorApp::m_Events.RemoveEventHandler(ezMakeDelegate(&ezVisualShaderTypeRegistry::EditorEventHandler, this));
 }
 
 const ezVisualShaderNodeDescriptor* ezVisualShaderTypeRegistry::GetDescriptorForType(const ezRTTI* pRtti) const
@@ -109,9 +116,21 @@ const ezVisualShaderNodeDescriptor* ezVisualShaderTypeRegistry::GetDescriptorFor
   return &it.Value();
 }
 
+void ezVisualShaderTypeRegistry::EditorEventHandler(const ezEditorAppEvent& e)
+{
+  if (e.m_Type == ezEditorAppEvent::Type::EditorStarted)
+  {
+    UpdateNodeData();
+  }
+}
 
 void ezVisualShaderTypeRegistry::UpdateNodeData()
 {
+  // If the assets plugin is statically linked, ON_CORESYSTEMS_STARTUP is fired before the editor is running, at which point the data directories are not set up yet so the code below will fail. Therefore, we also run this code in the EditorEventHandler code above to ensure that we run this code at the appropriate time.
+  // If linked dynamically, the plugin will be loaded during project open, at which point everything is already running.
+  if (!ezQtEditorApp::GetSingleton() || !ezQtEditorApp::GetSingleton()->IsRunning())
+    return;
+
   ezStringBuilder sSearchDir = ezApplicationServices::GetSingleton()->GetApplicationDataFolder();
   sSearchDir.AppendPath("VisualShader/*.ddl");
 
@@ -125,8 +144,11 @@ void ezVisualShaderTypeRegistry::UpdateNodeData()
 
 void ezVisualShaderTypeRegistry::UpdateNodeData(ezStringView sCfgFileRelative)
 {
-  ezStringBuilder sPath(":app/VisualShader/", sCfgFileRelative);
-
+  ezStringBuilder sPath = sCfgFileRelative;
+  if (!ezPathUtils::IsAbsolutePath(sCfgFileRelative))
+  {
+    sPath.SetFormat(":app/VisualShader/{}", sCfgFileRelative);
+  }
   LoadConfigFile(sPath);
 }
 
@@ -291,7 +313,7 @@ static ezVariant ExtractDefaultValue(const ezRTTI* pType, const char* szDefault)
   return ezVariant();
 }
 
-void ezVisualShaderTypeRegistry::ExtractNodePins(const ezOpenDdlReaderElement* pNode, const char* szPinType, ezHybridArray<ezVisualShaderPinDescriptor, 4>& pinArray, bool bOutput)
+void ezVisualShaderTypeRegistry::ExtractNodePins(const ezOpenDdlReaderElement* pNode, const char* szPinType, ezDynamicArray<ezVisualShaderPinDescriptor>& pinArray, bool bOutput)
 {
   for (const ezOpenDdlReaderElement* pElement = pNode->GetFirstChild(); pElement != nullptr; pElement = pElement->GetSibling())
   {
@@ -332,6 +354,8 @@ void ezVisualShaderTypeRegistry::ExtractNodePins(const ezOpenDdlReaderElement* p
           pin.m_pDataType = ezGetStaticRTTI<ezString>();
         else if (sType == "sampler")
           pin.m_pDataType = m_pSamplerPinType;
+        else if (sType == "auto")
+          pin.m_pDataType = nullptr; // nullptr indicates "auto" type - computed from inputs at code generation time
         else
         {
           ezLog::Error("Invalid pin type '{0}'", sType);
@@ -389,9 +413,12 @@ void ezVisualShaderTypeRegistry::ExtractNodePins(const ezOpenDdlReaderElement* p
         pin.m_PropertyDesc.m_sName = pin.m_sName;
         pin.m_PropertyDesc.m_Category = ezPropertyCategory::Member;
         pin.m_PropertyDesc.m_Flags.SetValue((ezUInt16)ezPropertyFlags::Phantom | (ezUInt16)ezPropertyFlags::StandardType);
-        pin.m_PropertyDesc.m_sType = pin.m_pDataType->GetTypeName();
 
-        const ezVariant def = ExtractDefaultValue(pin.m_pDataType, pin.m_sDefaultValue);
+        // For "auto" type pins, use float as the fallback type for the property GUI
+        const ezRTTI* pPropertyType = pin.m_pDataType != nullptr ? pin.m_pDataType : ezGetStaticRTTI<float>();
+        pin.m_PropertyDesc.m_sType = pPropertyType->GetTypeName();
+
+        const ezVariant def = ExtractDefaultValue(pPropertyType, pin.m_sDefaultValue);
 
         if (def.IsValid())
         {
@@ -478,6 +505,48 @@ void ezVisualShaderTypeRegistry::ExtractNodeProperties(const ezOpenDdlReaderElem
 
           iValueGroup = 1; // currently no way to specify the group
         }
+        else if (sType == "enum")
+        {
+          pRtti = ezGetStaticRTTI<ezString>();
+
+          // Read enum values from EnumValues property
+          const ezOpenDdlReaderElement* pEnumValues = pElement->FindChildOfType(ezOpenDdlPrimitiveType::String, "EnumValues");
+          if (pEnumValues)
+          {
+            // Create a unique enum name based on the node and property name
+            ezStringBuilder sEnumName;
+            sEnumName.SetFormat("{}_{}", nd.m_sName, prop.m_sName);
+
+            ezDynamicStringEnumAttribute* pAttr = EZ_DEFAULT_NEW(ezDynamicStringEnumAttribute, sEnumName);
+            prop.m_Attributes.PushBack(pAttr);
+
+            // Parse and register the enum values with the dynamic enum registry
+            ezStringBuilder enumValuesStr = pEnumValues->GetPrimitivesString()[0];
+
+            // Create or get the dynamic enum
+            auto& dynEnum = ezDynamicStringEnum::CreateDynamicEnum(sEnumName);
+            dynEnum.Clear();
+
+            // Parse comma-separated values
+            ezTempHybridArray<ezStringView, 32> values;
+            enumValuesStr.Split(false, values, ",");
+
+            for (const ezStringView& value : values)
+            {
+              ezStringBuilder trimmedValue = value;
+              trimmedValue.Trim(" \t\r\n");
+              if (!trimmedValue.IsEmpty())
+              {
+                dynEnum.AddValidValue(trimmedValue, false);
+              }
+            }
+          }
+          else
+          {
+            ezLog::Error("Property '{}' of type 'enum' is missing 'EnumValues'", prop.m_sName);
+            continue;
+          }
+        }
         else if (sType == "Texture2D")
         {
           pRtti = ezGetStaticRTTI<ezString>();
@@ -534,12 +603,24 @@ void ezVisualShaderTypeRegistry::ExtractNodeConfig(const ezOpenDdlReaderElement*
           nd.m_NodeType = ezVisualShaderNodeType::Main;
         else if (pElement->GetPrimitivesString()[0] == "Texture")
           nd.m_NodeType = ezVisualShaderNodeType::Texture;
+        else if (pElement->GetPrimitivesString()[0] == "ShaderState")
+          nd.m_NodeType = ezVisualShaderNodeType::ShaderState;
+        else if (pElement->GetPrimitivesString()[0] == "Parameter")
+          nd.m_NodeType = ezVisualShaderNodeType::Parameter;
         else
           nd.m_NodeType = ezVisualShaderNodeType::Generic;
       }
       else if (pElement->GetName() == "Category")
       {
         nd.m_sCategory.Assign(pElement->GetPrimitivesString()[0]);
+      }
+      else if (pElement->GetName() == "Docs")
+      {
+        nd.m_sDocs = pElement->GetPrimitivesString()[0];
+      }
+      else if (pElement->GetName() == "Title")
+      {
+        nd.m_sTitle = pElement->GetPrimitivesString()[0];
       }
       else if (pElement->GetName() == "CheckPermutations")
       {
@@ -564,19 +645,33 @@ void ezVisualShaderTypeRegistry::ExtractNodeConfig(const ezOpenDdlReaderElement*
           temp.Append("\n");
         nd.m_sShaderCodeRenderState = temp;
       }
-      else if (pElement->GetName() == "CodeVertexShader")
+      else if (pElement->GetName() == "CodeShaderShared")
       {
         temp = pElement->GetPrimitivesString()[0];
         if (!temp.IsEmpty() && !temp.EndsWith("\n"))
           temp.Append("\n");
-        nd.m_sShaderCodeVertexShader = temp;
+        nd.m_sShaderCodeShaderShared = temp;
       }
-      else if (pElement->GetName() == "CodeGeometryShader")
+      else if (pElement->GetName() == "CodeVertexDefines")
       {
         temp = pElement->GetPrimitivesString()[0];
         if (!temp.IsEmpty() && !temp.EndsWith("\n"))
           temp.Append("\n");
-        nd.m_sShaderCodeGeometryShader = temp;
+        nd.m_sShaderCodeVertexDefines = temp;
+      }
+      else if (pElement->GetName() == "CodeVertexIncludes")
+      {
+        temp = pElement->GetPrimitivesString()[0];
+        if (!temp.IsEmpty() && !temp.EndsWith("\n"))
+          temp.Append("\n");
+        nd.m_sShaderCodeVertexIncludes = temp;
+      }
+      else if (pElement->GetName() == "CodeVertexBody")
+      {
+        temp = pElement->GetPrimitivesString()[0];
+        if (!temp.IsEmpty() && !temp.EndsWith("\n"))
+          temp.Append("\n");
+        nd.m_sShaderCodeVertexBody = temp;
       }
       else if (pElement->GetName() == "CodeMaterialParams")
       {
@@ -584,6 +679,13 @@ void ezVisualShaderTypeRegistry::ExtractNodeConfig(const ezOpenDdlReaderElement*
         if (!temp.IsEmpty() && !temp.EndsWith("\n"))
           temp.Append("\n");
         nd.m_sShaderCodeMaterialParams = temp;
+      }
+      else if (pElement->GetName() == "CodeMaterialConstants")
+      {
+        temp = pElement->GetPrimitivesString()[0];
+        if (!temp.IsEmpty() && !temp.EndsWith("\n"))
+          temp.Append("\n");
+        nd.m_sShaderCodeMaterialConstants = temp;
       }
       else if (pElement->GetName() == "CodeMaterialCB")
       {

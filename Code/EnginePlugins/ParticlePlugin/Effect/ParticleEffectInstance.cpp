@@ -83,6 +83,8 @@ void ezParticleEffectInstance::Destruct()
 
   m_WindSampleGrids[0] = nullptr;
   m_WindSampleGrids[1] = nullptr;
+
+  m_EventQueue.Clear();
 }
 
 void ezParticleEffectInstance::Interrupt()
@@ -340,7 +342,7 @@ void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticl
     ezUInt32 m_uiCount = 0;
   };
 
-  ezHybridArray<MulCount, 8> systemMaxParticles;
+  ezTempHybridArray<MulCount, 8> systemMaxParticles;
   {
     systemMaxParticles.SetCountUninitialized(systems.GetCount());
     for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
@@ -572,7 +574,7 @@ void ezParticleEffectInstance::UpdateWindSamples(ezTime diff)
 
   const ezSimdBBox boundingBox = ezSimdConversion::ToBBox(m_BoundingVolume.GetBox());
   const ezSimdVec4f boundsSize = boundingBox.GetExtents();
-  const ezSimdVec4f gridSize = ezSimdVec4f(uiNumSamplesX, uiNumSamplesY, uiNumSamplesZ);
+  const ezSimdVec4f gridSize = ezSimdVec4i(uiNumSamplesX, uiNumSamplesY, uiNumSamplesZ).ToFloat();
   ezSimdVec4f cellSize = boundsSize.CompDiv(gridSize);
   const ezSimdVec4f minPos = boundingBox.m_Min + cellSize * 0.5f;
   const ezSimdVec4f maxPos = boundingBox.m_Max - cellSize * 0.5f;
@@ -597,7 +599,7 @@ void ezParticleEffectInstance::UpdateWindSamples(ezTime diff)
       const ezUInt32 y = index / uiNumSamplesX;
       const ezUInt32 x = index - (y * uiNumSamplesX);
 
-      const ezSimdVec4f samplePos = grid.m_vMinPos + cellSize.CompMul(ezSimdVec4f(x, y, z));
+      const ezSimdVec4f samplePos = grid.m_vMinPos + cellSize.CompMul(ezSimdVec4i(x, y, z).ToFloat());
 
       grid.m_Samples[i] = ezSimdVec4f::Lerp(oldGrid.m_Samples[i], pWind->GetWindAtSimd(samplePos), interpolationFactor);
 

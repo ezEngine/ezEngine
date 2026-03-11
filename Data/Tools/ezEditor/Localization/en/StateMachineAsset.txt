@@ -1,6 +1,6 @@
 # Asset Types
 
-StateMachine;State Machine
+StateMachine;State Machine;;https://ezengine.net/pages/docs/custom-code/game-logic/state-machine-asset.html
 
 # Component Types
 

@@ -15,6 +15,8 @@ public:
 
   virtual void UpdateStatusBarText(ezQtEngineDocumentWindow* pWindow) override;
 
+  void EnableAxis(bool x, bool y, bool z, bool bXyz);
+
 protected:
   virtual void DoFocusLost(bool bCancel) override;
 
@@ -27,6 +29,11 @@ protected:
   virtual void OnTransformationChanged(const ezTransform& transform) override;
 
 protected:
+  bool m_bEnableAxisX = true;
+  bool m_bEnableAxisY = true;
+  bool m_bEnableAxisZ = true;
+  bool m_bEnableAxisXYZ = true;
+
   ezEngineGizmoHandle m_hAxisX;
   ezEngineGizmoHandle m_hAxisY;
   ezEngineGizmoHandle m_hAxisZ;

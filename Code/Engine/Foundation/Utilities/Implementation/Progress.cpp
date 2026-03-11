@@ -63,22 +63,28 @@ void ezProgress::SetActiveRange(ezProgressRange* pRange)
   }
 
   m_pActiveRange = pRange;
+  m_pRootRange = m_pActiveRange;
+
+  while (m_pRootRange && m_pRootRange->m_pParentRange)
+  {
+    m_pRootRange = m_pRootRange->m_pParentRange;
+  }
 }
 
 ezStringView ezProgress::GetMainDisplayText() const
 {
-  if (m_pActiveRange == nullptr)
+  if (m_pRootRange == nullptr)
     return {};
 
-  return m_pActiveRange->m_sDisplayText;
+  return m_pRootRange->m_sDisplayText;
 }
 
 ezStringView ezProgress::GetStepDisplayText() const
 {
-  if (m_pActiveRange == nullptr)
+  if (m_pRootRange == nullptr)
     return {};
 
-  return m_pActiveRange->m_sStepDisplayText;
+  return m_pRootRange->m_sStepDisplayText;
 }
 
 void ezProgress::UserClickedCancel()

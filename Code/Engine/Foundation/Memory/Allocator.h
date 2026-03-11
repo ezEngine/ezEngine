@@ -19,6 +19,20 @@
 using ezAllocatorId = ezGenericId<24, 8>;
 
 /// \brief Base class for all memory allocators.
+///
+/// This abstract base class defines the interface for all allocators in ezEngine. Allocators are responsible
+/// for memory management and can implement different allocation strategies (heap, linear, frame, etc.).
+///
+/// Key concepts:
+/// - All allocators provide aligned memory allocation
+/// - Optional tracking of allocation statistics and debugging information
+/// - Virtual interface allows swapping allocator implementations
+/// - Thread safety depends on specific allocator implementation
+///
+/// Usage:
+/// - Use EZ_NEW/EZ_DELETE macros instead of calling Allocate/Deallocate directly
+/// - Different allocator types optimize for different usage patterns
+/// - Always pair allocations with deallocations using the same allocator instance
 class EZ_FOUNDATION_DLL ezAllocator
 {
 public:
@@ -38,15 +52,28 @@ public:
   virtual ~ezAllocator();
 
   /// \brief Interface, do not use this directly, always use the new/delete macros below
+  ///
+  /// Allocates aligned memory of the specified size. The destructorFunc parameter is used for
+  /// automatic cleanup when the allocator is reset or destroyed (mainly used by linear allocators).
   virtual void* Allocate(size_t uiSize, size_t uiAlign, ezMemoryUtils::DestructorFunction destructorFunc = nullptr) = 0;
+
+  /// \brief Deallocates memory previously allocated by this allocator.
+  ///
+  /// The pointer must have been returned by a previous call to Allocate() on this allocator instance.
+  /// Passing nullptr is safe and will be ignored.
   virtual void Deallocate(void* pPtr) = 0;
+
+  /// \brief Reallocates memory, potentially moving the data to a new location.
+  ///
+  /// Default implementation allocates new memory, copies old data, and deallocates the old memory.
+  /// Some allocators may provide more efficient implementations.
   virtual void* Reallocate(void* pPtr, size_t uiCurrentSize, size_t uiNewSize, size_t uiAlign);
 
   /// \brief Returns the number of bytes allocated at this address.
   ///
-  /// \note Careful! This information is only available, if allocation tracking is enabled!
-  /// Otherwise 0 is returned.
-  /// See ezAllocatorTrackingMode and EZ_ALLOC_TRACKING_DEFAULT.
+  /// This information is only available if allocation tracking is enabled (see ezAllocatorTrackingMode
+  /// and EZ_ALLOC_TRACKING_DEFAULT). Returns 0 when tracking is disabled or for invalid pointers.
+  /// Primarily used for debugging and memory analysis.
   virtual size_t AllocatedSize(const void* pPtr) = 0;
 
   virtual ezAllocatorId GetId() const = 0;
@@ -61,7 +88,7 @@ private:
 /// \brief creates a new instance of type using the given allocator
 #define EZ_NEW(allocator, type, ...) \
   ezInternal::NewInstance<type>(     \
-    new ((allocator)->Allocate(sizeof(type), EZ_ALIGNMENT_OF(type), ezMemoryUtils::MakeDestructorFunction<type>())) type(__VA_ARGS__), (allocator))
+    new ((allocator)->Allocate(sizeof(type), alignof(type), ezMemoryUtils::MakeDestructorFunction<type>())) type(__VA_ARGS__), (allocator))
 
 /// \brief deletes the instance stored in ptr using the given allocator and sets ptr to nullptr
 #define EZ_DELETE(allocator, ptr)       \

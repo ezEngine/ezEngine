@@ -35,6 +35,13 @@ void ezEditorEngineProcessConnection::HandleIPCEvent(const ezProcessCommunicatio
   {
     const ezSyncWithProcessMsgToEditor* msg = static_cast<const ezSyncWithProcessMsgToEditor*>(e.m_pMessage);
     m_uiRedrawCountReceived = msg->m_uiRedrawCount;
+    if (m_uiFailedRedrawCount >= s_uiMaxFailedRedrawCount)
+    {
+      Event e;
+      e.m_Type = Event::Type::ProcessUnstuck;
+      s_Events.Broadcast(e);
+    }
+    m_uiFailedRedrawCount = 0;
   }
   if (e.m_pMessage->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineDocumentMsg>())
   {
@@ -58,19 +65,36 @@ void ezEditorEngineProcessConnection::HandleIPCEvent(const ezProcessCommunicatio
 
 void ezEditorEngineProcessConnection::UIServicesTickEventHandler(const ezQtUiServices::TickEvent& e)
 {
-  if (e.m_Type == ezQtUiServices::TickEvent::Type::EndFrame)
+  if (e.m_Type == ezQtUiServices::TickEvent::Type::BeforeFrame)
+  {
+    if (IsProcessCrashed())
+    {
+      e.m_uiForceCancelFrame++;
+      return;
+    }
+
+    m_IPC.ProcessMessages();
+    // We still didn't get confirmation from the engine that the frame was drawn, so don't render another frame yet.
+    if (m_uiRedrawCountSent > m_uiRedrawCountReceived)
+    {
+      m_uiFailedRedrawCount++;
+      e.m_uiForceCancelFrame++;
+      if (m_uiFailedRedrawCount == s_uiMaxFailedRedrawCount)
+      {
+        Event e;
+        e.m_Type = Event::Type::ProcessStuck;
+        s_Events.Broadcast(e);
+      }
+      return;
+    }
+  }
+  else if (e.m_Type == ezQtUiServices::TickEvent::Type::EndFrame)
   {
     if (!IsProcessCrashed())
     {
       ezSyncWithProcessMsgToEngine sm;
       sm.m_uiRedrawCount = m_uiRedrawCountSent + 1;
       SendMessage(&sm);
-
-      if (m_uiRedrawCountSent > m_uiRedrawCountReceived)
-      {
-        WaitForMessage(ezGetStaticRTTI<ezSyncWithProcessMsgToEditor>(), ezTime::MakeFromSeconds(2.0)).IgnoreResult();
-      }
-
       ++m_uiRedrawCountSent;
     }
   }
@@ -120,12 +144,6 @@ void ezEditorEngineProcessConnection::Initialize(const ezRTTI* pFirstAllowedMess
     ezStringBuilder sWndCfgPath = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
     sWndCfgPath.AppendPath("RuntimeConfigs/Window.ddl");
 
-#if EZ_ENABLED(EZ_MIGRATE_RUNTIMECONFIGS)
-    ezStringBuilder sWndCfgPathOld = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
-    sWndCfgPathOld.AppendPath("Window.ddl");
-    sWndCfgPath = ezFileSystem::MigrateFileLocation(sWndCfgPathOld, sWndCfgPath);
-#endif
-
     if (ezFileSystem::ExistsFile(sWndCfgPath))
     {
       args << "-wnd";
@@ -138,6 +156,30 @@ void ezEditorEngineProcessConnection::Initialize(const ezRTTI* pFirstAllowedMess
     args << "-TelemetryPort";
     args << ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-TelemetryPort", 0, "1050").GetData(tmp);
   }
+
+  {
+    ezStringBuilder sRelativeData;
+    sRelativeData = ":APPDATA";
+
+    ezStringBuilder sAbsoluteData;
+    ezFileSystem::ResolvePath(sRelativeData, &sAbsoluteData, nullptr).AssertSuccess("Failed to resolve APPDATA dir!");
+
+    args << "-outputDir";
+    args << sAbsoluteData.GetData();
+    args << "-logName";
+
+    if (ezQtEditorApp::GetSingleton()->IsInHeadlessMode())
+    {
+      tmp.SetFormat("LogEditorProcessor_{}_Engine", ezCommandLineUtils::GetGlobalInstance()->GetIntOption("-appid", 0));
+      args << tmp.GetData();
+    }
+    else
+    {
+      tmp.SetFormat("LogEditor_{}_Engine", ezCommandLineUtils::GetGlobalInstance()->GetIntOption("-appid", 0));
+      args << tmp.GetData();
+    }
+  }
+
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   const char* EditorEngineProcessExecutableName = "ezEditorEngineProcess.exe";
@@ -268,6 +310,7 @@ void ezEditorEngineProcessConnection::ShutdownProcess()
 
   m_bClientIsConfigured = false;
   m_bProcessShouldBeRunning = false;
+  m_uiRedrawCountReceived = m_uiRedrawCountSent;
   m_IPC.CloseConnection();
 
   Event e;
@@ -360,7 +403,7 @@ ezResult ezEditorEngineProcessConnection::RestartProcess()
     msg.m_FileSystemConfig = m_FileSystemConfig;
     msg.m_PluginConfig = m_PluginConfig;
     msg.m_sAssetProfile = ezAssetCurator::GetSingleton()->GetActiveAssetProfile()->GetConfigName();
-    msg.m_fDevicePixelRatio = QApplication::activeWindow() != nullptr ? QApplication::activeWindow()->devicePixelRatio() : 1.0f;
+    msg.m_fDevicePixelRatio = QApplication::activeWindow() != nullptr ? QApplication::activeWindow()->devicePixelRatio() : QGuiApplication::primaryScreen()->devicePixelRatio();
 
     SendMessage(&msg);
   }
@@ -376,7 +419,7 @@ ezResult ezEditorEngineProcessConnection::RestartProcess()
 
   ezLog::Dev("Transmitting open documents to Engine Process");
 
-  ezHybridArray<ezAssetDocument*, 6> docs;
+  ezTempHybridArray<ezAssetDocument*, 6> docs;
   docs.Reserve(m_DocumentByGuid.GetCount());
 
   // Resend all open documents. Make sure to send main documents before child documents.
@@ -400,6 +443,8 @@ ezResult ezEditorEngineProcessConnection::RestartProcess()
   ezLog::Success("Engine Process is running");
 
   m_bClientIsConfigured = true;
+  // We could have crashed while a render was in flight which will now never complete so reset the received counter.
+  m_uiRedrawCountReceived = m_uiRedrawCountSent;
 
   Event e;
   e.m_Type = Event::Type::ProcessRestarted;

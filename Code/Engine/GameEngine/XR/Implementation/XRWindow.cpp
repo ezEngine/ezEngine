@@ -10,12 +10,6 @@
 #include <RendererFoundation/Resources/Resource.h>
 #include <RendererFoundation/Resources/Texture.h>
 
-// clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezActorPluginWindowXR, 1, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-// clang-format on
-
-
 //////////////////////////////////////////////////////////////////////////
 
 ezWindowXR::ezWindowXR(ezXRInterface* pVrInterface, ezUniquePtr<ezWindowBase> pCompanionWindow)
@@ -80,21 +74,30 @@ ezWindowOutputTargetXR::~ezWindowOutputTargetXR()
 {
   // Delete companion resources.
   ezRenderContext::DeleteConstantBufferStorage(m_hCompanionConstantBuffer);
-  m_hCompanionConstantBuffer.Invalidate();
 }
 
-void ezWindowOutputTargetXR::Present(bool bEnableVSync)
+void ezWindowOutputTargetXR::PresentImage(bool bEnableVSync)
 {
   // Swapchain present is handled by the rendering of the view automatically and RenderCompanionView is called by the ezXRInterface now.
 }
 
-void ezWindowOutputTargetXR::RenderCompanionView(bool bThrottleCompanionView)
+void ezWindowOutputTargetXR::CompanionViewBeginFrame(bool bThrottleCompanionView)
 {
   ezTime currentTime = ezTime::Now();
   if (bThrottleCompanionView && currentTime < (m_LastPresent + ezTime::MakeFromMilliseconds(16)))
     return;
 
   m_LastPresent = currentTime;
+  ezGALDevice::GetDefaultDevice()->EnqueueFrameSwapChain(m_pCompanionWindowOutputTarget->m_hSwapChain);
+  m_bRender = true;
+}
+
+void ezWindowOutputTargetXR::CompanionViewEndFrame()
+{
+  if (!m_bRender)
+    return;
+
+  m_bRender = false;
 
   EZ_PROFILE_SCOPE("RenderCompanionView");
   ezGALTextureHandle m_hColorRT = m_pXrInterface->GetCurrentTexture();
@@ -105,9 +108,7 @@ void ezWindowOutputTargetXR::RenderCompanionView(bool bThrottleCompanionView)
   ezRenderContext* m_pRenderContext = ezRenderContext::GetDefaultInstance();
 
   {
-    pDevice->BeginPipeline("VR CompanionView", m_pCompanionWindowOutputTarget->m_hSwapChain);
-
-    auto pPass = pDevice->BeginPass("Blit CompanionView");
+    auto pEncoder = pDevice->BeginCommands("Blit CompanionView");
 
     const ezGALSwapChain* pSwapChain = ezGALDevice::GetDefaultDevice()->GetSwapChain(m_pCompanionWindowOutputTarget->m_hSwapChain);
     ezGALTextureHandle hCompanionRenderTarget = pSwapChain->GetBackBufferTexture();
@@ -116,27 +117,26 @@ void ezWindowOutputTargetXR::RenderCompanionView(bool bThrottleCompanionView)
     ezVec2 targetSize = ezVec2((float)tex->GetDescription().m_uiWidth, (float)tex->GetDescription().m_uiHeight);
 
     ezGALRenderingSetup renderingSetup;
-    renderingSetup.m_RenderTargetSetup.SetRenderTarget(0, hRenderTargetView);
+    renderingSetup.SetColorTarget(0, hRenderTargetView);
 
-    m_pRenderContext->BeginRendering(pPass, renderingSetup, ezRectFloat(targetSize.x, targetSize.y));
+    m_pRenderContext->BeginRendering(renderingSetup, ezRectFloat(targetSize.x, targetSize.y));
 
-    m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
-    m_pRenderContext->BindConstantBuffer("ezVRCompanionViewConstants", m_hCompanionConstantBuffer);
+    m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
+
     m_pRenderContext->BindShader(m_hCompanionShader);
 
     auto* constants = ezRenderContext::GetConstantBufferData<ezVRCompanionViewConstants>(m_hCompanionConstantBuffer);
     constants->TargetSize = targetSize;
 
-    ezGALTextureResourceViewHandle hInputView = pDevice->GetDefaultResourceView(m_hColorRT);
-    m_pRenderContext->BindTexture2D("VRTexture", hInputView);
+    ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
+    bindGroup.BindBuffer("ezVRCompanionViewConstants", m_hCompanionConstantBuffer);
+    bindGroup.BindTexture("VRTexture", m_hColorRT);
+
     m_pRenderContext->DrawMeshBuffer().IgnoreResult();
 
     m_pRenderContext->EndRendering();
 
-    pDevice->EndPass(pPass);
-
-    pDevice->EndPipeline(m_pCompanionWindowOutputTarget->m_hSwapChain);
-    m_pRenderContext->ResetContextState();
+    pDevice->EndCommands(pEncoder);
   }
 }
 
@@ -144,6 +144,9 @@ ezResult ezWindowOutputTargetXR::CaptureImage(ezImage& out_image)
 {
   if (m_pCompanionWindowOutputTarget)
   {
+    // If we are capturing an image, we need to update the companion view first.
+    // If not, CompanionViewEndFrame will be called by the XR implementation.
+    CompanionViewEndFrame();
     return m_pCompanionWindowOutputTarget->CaptureImage(out_image);
   }
   return EZ_FAILURE;
@@ -154,38 +157,4 @@ const ezWindowOutputTargetBase* ezWindowOutputTargetXR::GetCompanionWindowOutput
   return m_pCompanionWindowOutputTarget.Borrow();
 }
 
-//////////////////////////////////////////////////////////////////////////
 
-ezActorPluginWindowXR::ezActorPluginWindowXR(ezXRInterface* pVrInterface, ezUniquePtr<ezWindowBase> pCompanionWindow, ezUniquePtr<ezWindowOutputTargetGAL> pCompanionWindowOutput)
-  : m_pVrInterface(pVrInterface)
-{
-  m_pWindow = EZ_DEFAULT_NEW(ezWindowXR, pVrInterface, std::move(pCompanionWindow));
-  m_pWindowOutputTarget = EZ_DEFAULT_NEW(ezWindowOutputTargetXR, pVrInterface, std::move(pCompanionWindowOutput));
-}
-
-ezActorPluginWindowXR::~ezActorPluginWindowXR()
-{
-  m_pVrInterface->OnActorDestroyed();
-}
-
-void ezActorPluginWindowXR::Initialize() {}
-
-ezWindowBase* ezActorPluginWindowXR::GetWindow() const
-{
-  return m_pWindow.Borrow();
-}
-
-ezWindowOutputTargetBase* ezActorPluginWindowXR::GetOutputTarget() const
-{
-  return m_pWindowOutputTarget.Borrow();
-}
-
-void ezActorPluginWindowXR::Update()
-{
-  if (GetWindow())
-  {
-    GetWindow()->ProcessWindowMessages();
-  }
-}
-
-EZ_STATICLINK_FILE(GameEngine, GameEngine_XR_Implementation_XRWindow);

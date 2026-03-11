@@ -118,7 +118,7 @@ ezCVar* ezCVar::FindCVarByName(ezStringView sName)
 
   while (pCVar)
   {
-    if (pCVar->GetName() == sName)
+    if (pCVar->GetName().IsEqual_NoCase(sName))
       return pCVar;
 
     pCVar = pCVar->GetNextInstance();
@@ -136,7 +136,7 @@ ezCommandLineOptionBool opt_NoFileCVars("cvar", "-no-file-cvars", "Disables load
 
 void ezCVar::SaveCVarsToFile(ezStringView sPath, bool bIgnoreSaveFlag)
 {
-  ezHybridArray<ezCVar*, 128> allCVars;
+  ezTempHybridArray<ezCVar*, 128> allCVars;
 
   for (ezCVar* pCVar = ezCVar::GetFirstInstance(); pCVar != nullptr; pCVar = pCVar->GetNextInstance())
   {
@@ -334,7 +334,7 @@ void ezCVar::LoadCVarsFromFile(bool bOnlyNewOnes, bool bSetAsCurrentValue, ezDyn
       // create the plugin specific file
       sTemp.SetFormat("{0}/CVars_{1}.cfg", s_sStorageFolder, it.Key());
 
-      LoadCVarsFromFileInternal(sTemp.GetView(), it.Value(), bOnlyNewOnes, bSetAsCurrentValue, pOutCVars);
+      LoadCVarsFromFileInternal(sTemp.GetView(), it.Value(), bSetAsCurrentValue, pOutCVars);
 
       // continue with the next plugin
       ++it;
@@ -344,7 +344,7 @@ void ezCVar::LoadCVarsFromFile(bool bOnlyNewOnes, bool bSetAsCurrentValue, ezDyn
 
 void ezCVar::LoadCVarsFromFile(ezStringView sPath, bool bOnlyNewOnes, bool bSetAsCurrentValue, bool bIgnoreSaveFlag, ezDynamicArray<ezCVar*>* pOutCVars)
 {
-  ezHybridArray<ezCVar*, 128> allCVars;
+  ezTempHybridArray<ezCVar*, 128> allCVars;
 
   for (ezCVar* pCVar = ezCVar::GetFirstInstance(); pCVar != nullptr; pCVar = pCVar->GetNextInstance())
   {
@@ -360,10 +360,10 @@ void ezCVar::LoadCVarsFromFile(ezStringView sPath, bool bOnlyNewOnes, bool bSetA
     pCVar->m_bHasNeverBeenLoaded = false;
   }
 
-  LoadCVarsFromFileInternal(sPath, allCVars, bOnlyNewOnes, bSetAsCurrentValue, pOutCVars);
+  LoadCVarsFromFileInternal(sPath, allCVars, bSetAsCurrentValue, pOutCVars);
 }
 
-void ezCVar::LoadCVarsFromFileInternal(ezStringView path, const ezDynamicArray<ezCVar*>& vars, bool bOnlyNewOnes, bool bSetAsCurrentValue, ezDynamicArray<ezCVar*>* pOutCVars)
+void ezCVar::LoadCVarsFromFileInternal(ezStringView path, const ezDynamicArray<ezCVar*>& vars, bool bSetAsCurrentValue, ezDynamicArray<ezCVar*>* pOutCVars)
 {
   ezFileReader File;
   ezStringBuilder sTemp;

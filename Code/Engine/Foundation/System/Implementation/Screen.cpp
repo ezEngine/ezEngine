@@ -2,7 +2,7 @@
 
 #include <Foundation/System/Screen.h>
 
-void ezScreen::PrintScreenInfo(const ezHybridArray<ezScreenInfo, 2>& screens, ezLogInterface* pLog /*= ezLog::GetThreadLocalLogSystem()*/)
+void ezScreen::PrintScreenInfo(const ezArrayPtr<ezScreenInfo>& screens, ezLogInterface* pLog /*= ezLog::GetThreadLocalLogSystem()*/)
 {
   EZ_LOG_BLOCK(pLog, "Screens");
 

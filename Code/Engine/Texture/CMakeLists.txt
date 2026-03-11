@@ -20,7 +20,7 @@ target_link_libraries(${PROJECT_NAME}
     Foundation
 
   PRIVATE
-    stb_image
+    stb
 )
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC BUILDSYSTEM_HAS_TEXTURE)
@@ -28,10 +28,16 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC BUILDSYSTEM_HAS_TEXTURE)
 if(EZ_CMAKE_PLATFORM_LINUX)
   set(THIRDPARTY_DIR "${EZ_ROOT}/Code/ThirdParty")
   target_include_directories(${PROJECT_NAME} PRIVATE "${THIRDPARTY_DIR}/DirectXMath/include" "${THIRDPARTY_DIR}/sal")
+  if(EZ_3RDPARTY_BC7ENC_RDO_SUPPORT)
+    target_link_libraries(${PROJECT_NAME} PRIVATE bc7enc_rdo)
+  endif()
 endif()
 
-if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)
-  # CMake is stupid
-else()
+if(EZ_3RDPARTY_TINYEXR_SUPPORT)
   target_link_libraries(${PROJECT_NAME} PRIVATE tinyexr)
 endif()
+
+# everything after this will be skipped, if RmlUI is not available
+ez_requires_rmlui()
+target_link_libraries(${PROJECT_NAME} PUBLIC lunasvg)
+

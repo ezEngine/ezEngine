@@ -10,13 +10,17 @@ class EZ_CORE_DLL ezResource : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezResource, ezReflectedClass);
 
-protected:
+public:
   enum class DoUpdate
   {
     OnMainThread,
-    OnAnyThread
+    OnAnyThread,
+    OnGraphicsResourceThreads ///< If set, the setting from UpdateGraphicsResource is used. This must be configured by the active renderer.
   };
 
+  static DoUpdate UpdateGraphicsResource /*= DoUpdate::OnAnyThread*/;
+
+protected:
   enum class Unload
   {
     AllQualityLevels,
@@ -44,7 +48,7 @@ public:
 
   /// \brief Returns the unique ID that identifies this resource. On a file resource this might be a path. Can also be a GUID or any other
   /// scheme that uniquely identifies the resource.
-  EZ_ALWAYS_INLINE const ezString& GetResourceID() const { return m_sUniqueID; }
+  EZ_ALWAYS_INLINE ezStringView GetResourceID() const { return m_sUniqueID; }
 
   /// \brief Returns the hash of the unique ID.
   EZ_ALWAYS_INLINE ezUInt64 GetResourceIDHash() const { return m_uiUniqueIDHash; }
@@ -168,10 +172,9 @@ private:
   virtual ezResourceTypeLoader* GetDefaultResourceTypeLoader() const;
 
 private:
-  volatile ezResourceState m_LoadingState = ezResourceState::Unloaded;
-
-  ezUInt8 m_uiQualityLevelsDiscardable = 0;
-  ezUInt8 m_uiQualityLevelsLoadable = 0;
+  ezAtomicInteger<ezResourceState> m_LoadingState = ezResourceState::Unloaded;
+  ezAtomicInteger<ezUInt8> m_uiQualityLevelsDiscardable = 0;
+  ezAtomicInteger<ezUInt8> m_uiQualityLevelsLoadable = 0;
 
 
 protected:

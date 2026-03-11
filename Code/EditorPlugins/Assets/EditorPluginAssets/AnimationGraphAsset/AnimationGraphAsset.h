@@ -5,16 +5,19 @@
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphPins.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphResource.h>
-#include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
+#include <ToolsFoundation/VisualGraph/VisualGraphObjectManager.h>
 
 using ezAnimationClipResourceHandle = ezTypedResourceHandle<class ezAnimationClipResource>;
 
 class ezAnimGraphInstance;
 class ezAnimGraphNode;
 
-class ezAnimationGraphNodePin : public ezPin
+/// Visual graph pin for animation graph nodes.
+///
+/// Stores animation-specific pin metadata such as the animation data type and whether it supports multiple inputs.
+class ezAnimationGraphNodePin : public ezVisualGraphPin
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAnimationGraphNodePin, ezPin);
+  EZ_ADD_DYNAMIC_REFLECTION(ezAnimationGraphNodePin, ezVisualGraphPin);
 
 public:
   ezAnimationGraphNodePin(Type type, const char* szName, const ezColorGammaUB& color, const ezDocumentObject* pObject);
@@ -24,14 +27,18 @@ public:
   ezAnimGraphPin::Type m_DataType = ezAnimGraphPin::Invalid;
 };
 
-class ezAnimationGraphNodeManager : public ezDocumentNodeManager
+/// Object manager for animation graphs.
+///
+/// Manages animation graph nodes and their connections. Handles dynamic pin creation for nodes
+/// that support variable numbers of inputs, and validates connections based on animation data types.
+class ezAnimationGraphNodeManager : public ezVisualGraphObjectManager
 {
 public:
   virtual bool InternalIsNode(const ezDocumentObject* pObject) const override;
   virtual void InternalCreatePins(const ezDocumentObject* pObject, NodeInternal& ref_node) override;
-  virtual void GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& ref_types) const override;
+  virtual void GetCreateableTypes(ezDynamicArray<const ezRTTI*>& out_types) const override;
 
-  virtual ezStatus InternalCanConnect(const ezPin& source, const ezPin& target, CanConnectResult& out_result) const override;
+  virtual ezStatus InternalCanConnect(const ezVisualGraphPin& source, const ezVisualGraphPin& target, CanConnectResult& out_result) const override;
 
 private:
   virtual bool InternalIsDynamicPinProperty(const ezDocumentObject* pObject, const ezAbstractProperty* pProp) const override;
@@ -64,7 +71,7 @@ protected:
 
   virtual ezTransformStatus InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
 
-  virtual void GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_MimeTypes) const override;
+  virtual void GetSupportedMimeTypesForPasting(ezDynamicArray<ezString>& out_mimeTypes) const override;
   virtual bool CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_MimeType) const override;
   virtual bool Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, ezStringView sMimeType) override;
 

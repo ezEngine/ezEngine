@@ -1,6 +1,8 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <Core/System/Window.h>
+#include <Core/World/Component.h>
+#include <EditorFramework/Actions/WindowLayoutActions.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetProcessor.h>
 #include <EditorFramework/CodeGen/CppProject.h>
@@ -47,11 +49,14 @@ ezResult ezQtEditorApp::OpenProject(const char* szProject, bool bImmediate /*= f
 
 void ezQtEditorApp::SlotQueuedOpenProject(QString sProject)
 {
-  CreateOrOpenProject(false, sProject.toUtf8().data()).IgnoreResult();
+  // Don't try to execute a queued project open if we have already shutdown the editor.
+  if (m_bIsRunning)
+    CreateOrOpenProject(false, sProject.toUtf8().data()).IgnoreResult();
 }
 
 ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, ezStringView sFile0)
 {
+  EZ_PROFILE_SCOPE("CreateOrOpenProject");
   ezStringBuilder sFile = sFile0;
   if (!bCreate)
   {
@@ -59,7 +64,7 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, ezStringView sFile0)
     if (status.Failed())
     {
       // if the message is empty, the user decided not to continue, so don't show an error message in this case
-      if (!status.m_sMessage.IsEmpty())
+      if (!status.GetMessageString().IsEmpty())
       {
         ezQtUiServices::GetSingleton()->MessageBoxStatus(status, "Opening remote project failed.");
       }
@@ -69,7 +74,7 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, ezStringView sFile0)
   }
 
   // check that we don't attempt to open a project from a different repository, due to code changes this often doesn't work too well
-  if (!IsInHeadlessMode())
+  if (!IsInHeadlessMode() && !m_bAnyProjectOpened)
   {
     ezStringBuilder sdkDirFromProject;
     if (ezFileSystem::FindFolderWithSubPath(sdkDirFromProject, sFile, "Data/Base", "ezSdkRoot.txt").Succeeded())
@@ -90,7 +95,7 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, ezStringView sFile0)
     }
   }
 
-  EZ_PROFILE_SCOPE("CreateOrOpenProject");
+
   m_bLoadingProjectInProgress = true;
   EZ_SCOPE_EXIT(m_bLoadingProjectInProgress = false;);
 
@@ -119,7 +124,8 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, ezStringView sFile0)
   if (!ExistsPluginSelectionStateDDL(sProjectFile))
     CreatePluginSelectionDDL(sProjectFile, "General3D");
 
-  ezStatus res;
+  ezStatus res(EZ_SUCCESS);
+
   if (bCreate)
   {
     if (m_bAnyProjectOpened)
@@ -189,7 +195,7 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, ezStringView sFile0)
     }
   }
 
-  if (res.m_Result.Failed())
+  if (res.Failed())
   {
     ezStringBuilder s;
     s.SetFormat("Failed to open project:\n'{0}'", sProjectFile);
@@ -237,12 +243,15 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, ezStringView sFile0)
         // range.BeginNextStep(doc.m_File);
         SlotQueuedOpenDocument(doc.m_File.GetData(), nullptr);
       }
+
+      if (allDocs.GetFileList().IsEmpty())
+      {
+        OpenDemoDocument();
+      }
     }
 
-    if (!ezQtEditorApp::GetSingleton()->IsInSafeMode())
-    {
-      ezQtContainerWindow::GetContainerWindow()->ScheduleRestoreWindowLayout();
-    }
+    // Show the window maximized when opening a project
+    ezQtContainerWindow::GetContainerWindow()->showMaximized();
   }
   return EZ_SUCCESS;
 }
@@ -270,6 +279,8 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
       {
         m_pTranslatorFromFiles->AddTranslationFilesFromFolder(":project/Editor/Localization/en");
       }
+
+      LogMissingComponentDocumentation();
 
       // tell the engine process which file system and plugin configuration to use
       ezEditorEngineProcessConnection::GetSingleton()->SetFileSystemConfig(m_FileSystemConfig);
@@ -312,7 +323,7 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
             ezQtUiServices::MessageBoxWarning(ezFmt("<html>The compiler preferences are invalid.<br><br>\
               This project has <a href='https://ezengine.net/pages/docs/custom-code/cpp/cpp-project-generation.html'>a dedicated C++ plugin</a> with custom code.<br><br>\
               The compiler set in the preferences does not appear to work, as a result the plugin cannot be compiled <br><br><b>Error:</b> {}</html>",
-              compilerStatus.m_sMessage.GetView()));
+              compilerStatus.GetMessageString()));
             break;
           }
           else if (ezCppProject::IsBuildRequired())
@@ -336,7 +347,7 @@ It is advised to compile the plugin now, but you can also do so later.</html>",
         if (pPreferences->m_bBackgroundAssetProcessing)
         {
           QTimer::singleShot(2000, this, [this]()
-            { ezAssetProcessor::GetSingleton()->StartProcessTask(); });
+            { ezAssetProcessor::GetSingleton()->StartProcessor(); });
         }
         else if (!lastTransform.IsValid() || (ezTimestamp::CurrentTimestamp() - lastTransform).GetHours() > 5 * 24)
         {
@@ -352,7 +363,7 @@ Explanation: For assets to work properly, they must be <a href='https://ezengine
 
           // check whether the project needs to be transformed
           QTimer::singleShot(2000, this, [this]()
-            { ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::Default).IgnoreResult(); });
+            { ezAssetCurator::GetSingleton()->TransformAllAssets().IgnoreResult(); });
         }
       }
 
@@ -363,6 +374,12 @@ Explanation: For assets to work properly, they must be <a href='https://ezengine
     {
       m_RecentProjects.Insert(ezToolsProject::GetSingleton()->GetProjectFile(), 0);
       SaveSettings();
+
+      // Auto-save the global editor layout before documents are closed
+      if (!IsInHeadlessMode() && !IsInSafeMode() && !ezToolsProject::GetSingleton()->IsProjectClosing())
+      {
+        ezWindowLayoutActions::SaveUserLayout();
+      }
       break;
     }
 
@@ -422,7 +439,7 @@ void ezQtEditorApp::ProjectRequestHandler(ezToolsProjectRequest& r)
       if (r.m_bCanClose == false)
         return;
 
-      ezHybridArray<ezDocument*, 32> ModifiedDocs;
+      ezTempHybridArray<ezDocument*, 32> ModifiedDocs;
       if (r.m_Type == ezToolsProjectRequest::Type::CanCloseProject)
       {
         for (ezDocumentManager* pMan : ezDocumentManager::GetAllDocumentManagers())
@@ -482,17 +499,18 @@ void ezQtEditorApp::SetupNewProject()
 {
   ezToolsProject::GetSingleton()->CreateSubFolder("Editor");
   ezToolsProject::GetSingleton()->CreateSubFolder("RuntimeConfigs");
-  ezToolsProject::GetSingleton()->CreateSubFolder("Scenes");
-  ezToolsProject::GetSingleton()->CreateSubFolder("Prefabs");
 
   // write the default window config
   {
     ezStringBuilder sPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
     sPath.AppendPath("RuntimeConfigs/Window.ddl");
 
-    ezWindowCreationDesc desc;
-    desc.m_Title = ezToolsProject::GetSingleton()->GetProjectName(false);
-    desc.SaveToDDL(sPath).IgnoreResult();
+    if (!ezFileSystem::ExistsFile(sPath))
+    {
+      ezWindowCreationDesc desc;
+      desc.m_Title = ezToolsProject::GetSingleton()->GetProjectName(false);
+      desc.SaveToDDL(sPath).IgnoreResult();
+    }
   }
 
   // write a stub input mapping
@@ -500,20 +518,44 @@ void ezQtEditorApp::SetupNewProject()
     ezStringBuilder sPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
     sPath.AppendPath("RuntimeConfigs/InputConfig.ddl");
 
-    ezDeferredFileWriter file;
-    file.SetOutput(sPath);
+    if (!ezFileSystem::ExistsFile(sPath))
+    {
+      ezDeferredFileWriter file;
+      file.SetOutput(sPath);
 
-    ezHybridArray<ezGameAppInputConfig, 4> actions;
-    ezGameAppInputConfig& a = actions.ExpandAndGetRef();
-    a.m_sInputSet = "Default";
-    a.m_sInputAction = "Interact";
-    a.m_bApplyTimeScaling = false;
-    a.m_sInputSlotTrigger[0] = ezInputSlot_KeySpace;
-    a.m_sInputSlotTrigger[1] = ezInputSlot_MouseButton0;
-    a.m_sInputSlotTrigger[2] = ezInputSlot_Controller0_ButtonA;
+      ezTempHybridArray<ezGameAppInputConfig, 4> actions;
+      ezGameAppInputConfig& a = actions.ExpandAndGetRef();
+      a.m_sInputSet = "Default";
+      a.m_sInputAction = "Interact";
+      a.m_bApplyTimeScaling = false;
+      a.m_sInputSlotTrigger[0] = ezInputSlot_KeySpace;
+      a.m_sInputSlotTrigger[1] = ezInputSlot_MouseButton0;
+      a.m_sInputSlotTrigger[2] = ezInputSlot_Controller0_ButtonA;
 
-    ezGameAppInputConfig::WriteToDDL(file, actions);
+      ezGameAppInputConfig::WriteToDDL(file, actions);
 
-    file.Close().IgnoreResult();
+      file.Close().IgnoreResult();
+    }
   }
+}
+
+void ezQtEditorApp::LogMissingComponentDocumentation()
+{
+  EZ_LOG_BLOCK("Missing Component Documentation");
+
+  ezRTTI::ForEachDerivedType<ezComponent>(
+    [](const ezRTTI* pRtti)
+    {
+      if (pRtti->GetAttributeByType<ezInDevelopmentAttribute>() != nullptr)
+        return;
+      if (pRtti->GetAttributeByType<ezHiddenAttribute>() != nullptr)
+        return;
+
+      ezStringView sTypeName = pRtti->GetTypeName();
+      if (ezTranslateHelpURL(sTypeName).IsEmpty())
+      {
+        ezLog::Warning("Component '{}' has no documentation link.", sTypeName);
+      }
+    },
+    ezRTTI::ForEachOptions::ExcludeAbstract);
 }

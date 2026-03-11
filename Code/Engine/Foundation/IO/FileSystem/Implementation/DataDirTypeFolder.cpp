@@ -89,8 +89,12 @@ namespace ezDataDirectory
     return m_File.GetFileSize();
   }
 
-  ezDataDirectoryType* FolderType::Factory(ezStringView sDataDirectory, ezStringView sGroup, ezStringView sRootName, ezFileSystem::DataDirUsage usage)
+  ezDataDirectoryType* FolderType::Factory(ezStringView sDataDirectory, ezStringView sGroup, ezStringView sRootName, ezDataDirUsage usage)
   {
+    EZ_IGNORE_UNUSED(sGroup);
+    EZ_IGNORE_UNUSED(sRootName);
+    EZ_IGNORE_UNUSED(usage);
+
     FolderType* pDataDir = EZ_DEFAULT_NEW(FolderType);
 
     if (pDataDir->InitializeDataDirectory(sDataDirectory) == EZ_SUCCESS)
@@ -156,7 +160,8 @@ namespace ezDataDirectory
       ezOSFile file;
       if (file.Open(sRedirectionFile, ezFileOpenMode::Read).Succeeded())
       {
-        ezHybridArray<char, 1024 * 10> content;
+        ezTempHybridArray<char, 1024 * 10> content;
+        content.Reserve((ezUInt32)(file.GetFileSize() + 1));
         char uiTemp[4096];
 
         ezUInt64 uiRead = 0;
@@ -201,16 +206,22 @@ namespace ezDataDirectory
 
   bool FolderType::ExistsFile(ezStringView sFile, bool bOneSpecificDataDir)
   {
+    EZ_IGNORE_UNUSED(bOneSpecificDataDir);
+
     ezStringBuilder sRedirectedAsset;
     ResolveAssetRedirection(sFile, sRedirectedAsset);
 
     ezStringBuilder sPath = GetRedirectedDataDirectoryPath();
     sPath.AppendPath(sRedirectedAsset);
-    return ezOSFile::ExistsFile(sPath);
+    sPath.MakeCleanPath();
+
+    return sPath.IsAbsolutePath() && ezOSFile::ExistsFile(sPath);
   }
 
   ezResult FolderType::GetFileStats(ezStringView sFileOrFolder, bool bOneSpecificDataDir, ezFileStats& out_Stats)
   {
+    EZ_IGNORE_UNUSED(bOneSpecificDataDir);
+
     ezStringBuilder sRedirectedAsset;
     ResolveAssetRedirection(sFileOrFolder, sRedirectedAsset);
 
@@ -252,7 +263,7 @@ namespace ezDataDirectory
       m_sRedirectedDataDirPath = sDirectory;
     }
 
-    if (!ezOSFile::ExistsDirectory(m_sRedirectedDataDirPath))
+    if (!m_sRedirectedDataDirPath.IsAbsolutePath() || !ezOSFile::ExistsDirectory(m_sRedirectedDataDirPath))
       return EZ_FAILURE;
 
     ReloadExternalConfigs();
@@ -287,6 +298,8 @@ namespace ezDataDirectory
 
   ezDataDirectoryReader* FolderType::OpenFileToRead(ezStringView sFile, ezFileShareMode::Enum FileShareMode, bool bSpecificallyThisDataDir)
   {
+    EZ_IGNORE_UNUSED(bSpecificallyThisDataDir);
+
     ezStringBuilder sFileToOpen;
     ResolveAssetRedirection(sFile, sFileToOpen);
 

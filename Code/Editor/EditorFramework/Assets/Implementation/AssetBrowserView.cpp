@@ -24,6 +24,26 @@ ezQtAssetBrowserView::ezQtAssetBrowserView(QWidget* pParent)
   SetIconScale(m_iIconSizePercentage);
 }
 
+void ezQtAssetBrowserView::startDrag(Qt::DropActions supportedActions)
+{
+  // overridden so that we can get rid of the preview image
+
+  QModelIndexList indexes = selectedIndexes();
+  if (indexes.count() > 0)
+  {
+    QMimeData* data = model()->mimeData(indexes);
+    if (!data)
+    {
+      return;
+    }
+
+    QDrag* drag = new QDrag(this);
+    drag->setMimeData(data);
+
+    drag->exec(supportedActions, Qt::MoveAction);
+  }
+}
+
 void ezQtAssetBrowserView::SetDialogMode(bool bDialogMode)
 {
   m_bDialogMode = bDialogMode;
@@ -104,13 +124,13 @@ void ezQtAssetBrowserView::dropEvent(QDropEvent* pEvent)
     return;
 
   QList<QUrl> paths = pEvent->mimeData()->urls();
-  const ezString targetDirectory = indexAt(pEvent->pos()).data(ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString().toUtf8().data();
+  const ezString targetDirectory = indexAt(pEvent->position().toPoint()).data(ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString().toUtf8().data();
   if (targetDirectory.IsEmpty())
   {
     return;
   }
 
-  ezHybridArray<ezString, 32> touchedFiles;
+  ezTempHybridArray<ezString, 32> touchedFiles;
   // make sure to notify the filesystem of files and folders that were touched
   EZ_SCOPE_EXIT(NotifyFileChanges(touchedFiles));
 
@@ -121,11 +141,17 @@ void ezQtAssetBrowserView::dropEvent(QDropEvent* pEvent)
     src.MakeCleanPath();
 
     ezStringBuilder dst = targetDirectory;
-    dst.AppendPath(qtToEzString(it->fileName()));
     dst.MakeCleanPath();
 
+    // prevent moving stuff into itself
     if (src == dst)
       continue;
+
+    // don't allow dropping anything onto an existing file
+    if (ezOSFile::ExistsFile(dst))
+      continue;
+
+    dst.AppendPath(qtToEzString(it->fileName()));
 
     if (ezOSFile::ExistsDirectory(src))
     {
@@ -196,6 +222,39 @@ void ezQtAssetBrowserView::wheelEvent(QWheelEvent* pEvent)
   }
 
   QListView::wheelEvent(pEvent);
+}
+
+void ezQtAssetBrowserView::mouseDoubleClickEvent(QMouseEvent* pEvent)
+{
+  if (pEvent->button() == Qt::MouseButton::BackButton)
+  {
+    pEvent->ignore();
+    return;
+  }
+
+  QListView::mouseDoubleClickEvent(pEvent);
+}
+
+void ezQtAssetBrowserView::mousePressEvent(QMouseEvent* pEvent)
+{
+  if (pEvent->button() == Qt::MouseButton::BackButton)
+  {
+    pEvent->ignore();
+    return;
+  }
+
+  QListView::mousePressEvent(pEvent);
+}
+
+void ezQtAssetBrowserView::mouseMoveEvent(QMouseEvent* pEvent)
+{
+  // only allow dragging with left mouse button
+  if (state() == DraggingState && !pEvent->buttons().testFlag(Qt::MouseButton::LeftButton))
+  {
+    return;
+  }
+
+  QListView::mouseMoveEvent(pEvent);
 }
 
 ezQtIconViewDelegate::ezQtIconViewDelegate(ezQtAssetBrowserView* pParent)
@@ -413,6 +472,9 @@ void ezQtIconViewDelegate::paint(QPainter* pPainter, const QStyleOptionViewItem&
           ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetOk.svg").paint(pPainter, thumbnailRect);
           break;
         case ezAssetInfo::TransformState::MissingTransformDependency:
+          ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetMissingDependency.svg").paint(pPainter, thumbnailRect);
+          break;
+        case ezAssetInfo::TransformState::MissingPackageDependency:
           ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetMissingDependency.svg").paint(pPainter, thumbnailRect);
           break;
         case ezAssetInfo::TransformState::MissingThumbnailDependency:

@@ -1,0 +1,14 @@
+{
+  "Registrations": [
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator",
+          "commitHash": "1d8f600fd424278486eade7ed3e877c99f0846b1"
+        }
+      }
+    }
+  ],
+  "$schema": "https://json.schemastore.org/component-detection-manifest.json"
+}

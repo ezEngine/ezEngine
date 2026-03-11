@@ -8,6 +8,11 @@ InputAction
 		string %Key{"keyboard_up"}
 		float %Scale{1}
 	}
+	Slot
+	{
+		string %Key{"controller0_leftstick_posy"}
+		float %Scale{1}
+	}
 }
 InputAction
 {
@@ -17,6 +22,11 @@ InputAction
 	Slot
 	{
 		string %Key{"keyboard_down"}
+		float %Scale{1}
+	}
+	Slot
+	{
+		string %Key{"controller0_leftstick_negy"}
 		float %Scale{1}
 	}
 }
@@ -30,6 +40,11 @@ InputAction
 		string %Key{"keyboard_left"}
 		float %Scale{1}
 	}
+	Slot
+	{
+		string %Key{"controller0_leftstick_negx"}
+		float %Scale{1}
+	}
 }
 InputAction
 {
@@ -39,6 +54,11 @@ InputAction
 	Slot
 	{
 		string %Key{"keyboard_right"}
+		float %Scale{1}
+	}
+	Slot
+	{
+		string %Key{"controller0_leftstick_posx"}
 		float %Scale{1}
 	}
 }

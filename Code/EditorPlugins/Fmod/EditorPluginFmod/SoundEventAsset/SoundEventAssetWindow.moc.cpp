@@ -1,3 +1,4 @@
+#include <EditorFramework/Assets/AssetStatusIndicator.moc.h>
 #include <EditorPluginFmod/EditorPluginFmodPCH.h>
 
 #include <EditorPluginFmod/SoundEventAsset/SoundEventAssetWindow.moc.h>
@@ -33,25 +34,27 @@ ezSoundEventAssetDocumentWindow::ezSoundEventAssetDocumentWindow(ezDocument* pDo
   }
 
   {
-    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this, pDocument);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
     pPropertyPanel->setObjectName("SoundEventAssetDockWidget");
     pPropertyPanel->setWindowTitle("Sound Event Properties");
     pPropertyPanel->show();
 
     ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
-    pPropertyPanel->setWidget(pPropertyGrid);
 
-    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
+    QWidget* pWidget = new QWidget();
+    pWidget->setObjectName("Group");
+    pWidget->setLayout(new QVBoxLayout());
+    pWidget->setContentsMargins(0, 0, 0, 0);
+
+    pWidget->layout()->setContentsMargins(0, 0, 0, 0);
+    pWidget->layout()->addWidget(new ezQtAssetStatusIndicator((ezAssetDocument*)GetDocument()));
+    pWidget->layout()->addWidget(pPropertyGrid);
+
+    pPropertyPanel->setWidget(pWidget, ads::CDockWidget::ForceNoScrollArea);
+
+    m_pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pPropertyPanel);
 
     pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
-  }
-
-  // central widget
-  {
-    m_pLabelInfo = new QLabel(this);
-    setCentralWidget(m_pLabelInfo);
-
-    m_pLabelInfo->setText("<Information>");
   }
 
   m_pAssetDoc = static_cast<ezSoundEventAssetDocument*>(pDocument);

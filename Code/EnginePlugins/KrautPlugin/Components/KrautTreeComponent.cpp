@@ -8,13 +8,13 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <KrautPlugin/Components/KrautTreeComponent.h>
-#include <KrautPlugin/Renderer/KrautRenderData.h>
 #include <KrautPlugin/Resources/KrautGeneratorResource.h>
 #include <KrautPlugin/Resources/KrautTreeResource.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Meshes/CpuMeshResource.h>
 #include <RendererCore/Meshes/MeshComponentBase.h>
-#include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
+#include <RendererCore/Pipeline/View.h>
 #include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 
 // clang-format off
@@ -22,7 +22,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezKrautTreeComponent, 3, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("KrautTree", GetKrautFile, SetKrautFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Kraut_Tree")),
+    EZ_RESOURCE_ACCESSOR_PROPERTY("KrautTree", GetKrautGeneratorResource, SetKrautGeneratorResource)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Kraut_Tree")),
     EZ_ACCESSOR_PROPERTY("VariationIndex", GetVariationIndex, SetVariationIndex)->AddAttributes(new ezDefaultValueAttribute(0xFFFF)),
   }
   EZ_END_PROPERTIES;
@@ -105,33 +105,13 @@ ezResult ezKrautTreeComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool&
       // even when not looking at the tree, thus resulting in decent shadows
 
       bounds.m_fSphereRadius *= s_iLocalBoundsScale;
-      bounds.m_vBoxHalfExtends *= (float)s_iLocalBoundsScale;
+      bounds.m_vBoxHalfExtents *= (float)s_iLocalBoundsScale;
     }
 
     return EZ_SUCCESS;
   }
 
   return EZ_FAILURE;
-}
-
-void ezKrautTreeComponent::SetKrautFile(const char* szFile)
-{
-  ezKrautGeneratorResourceHandle hTree;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hTree = ezResourceManager::LoadResource<ezKrautGeneratorResource>(szFile);
-  }
-
-  SetKrautGeneratorResource(hTree);
-}
-
-const char* ezKrautTreeComponent::GetKrautFile() const
-{
-  if (!m_hKrautGenerator.IsValid())
-    return "";
-
-  return m_hKrautGenerator.GetResourceID();
 }
 
 void ezKrautTreeComponent::SetVariationIndex(ezUInt16 uiIndex)
@@ -207,10 +187,22 @@ void ezKrautTreeComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
   // if (pTree.GetAcquireResult() != ezResourceAcquireResult::Final)
   //   return;
 
-  ComputeWind();
+  const ezGameObject* pOwner = GetOwner();
+  const ezTransform tOwner = pOwner->GetGlobalTransform();
+  const float fGlobalUniformScale = pOwner->GetGlobalScalingSimd().HorizontalSum<3>() * ezSimdFloat(1.0f / 3.0f);
+
+  const ezVec3 vLodCamPos = msg.m_pView->GetLodCamera()->GetPosition();
+  const bool bIsShadowView = msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow;
+  const float fDistanceSQR = (tOwner.m_vPosition - vLodCamPos).GetLengthSquared();
 
   // ignore scale, the shader expects the wind strength in the global 0-20 m/sec range
-  const ezVec3 vLocalWind = GetOwner()->GetGlobalRotation().GetInverse() * m_vWindSpringPos;
+  const ezVec3 vLocalWind = pOwner->GetGlobalRotation().GetInverse() * m_vWindSpringPos;
+
+  // changes every frame
+  const bool bDynamic = true;
+  const ezColor color = ezColor(vLocalWind.x, vLocalWind.y, vLocalWind.z, vLocalWind.GetLength());
+  const ezVec4 customData = pTree->GetDetails().m_vLeafCenter.GetAsVec4(0.0f);
+  auto hInstanceDataBuffer = msg.m_pRenderDataManager->GetOrCreateInstanceDataAndFill(*this, bDynamic, tOwner, m_InstanceDataOffset, GetUniqueIdForRendering(), color, customData);
 
   const ezUInt8 uiMaxLods = static_cast<ezUInt8>(pTree->GetTreeLODs().GetCount());
   for (ezUInt8 uiCurLod = 0; uiCurLod < uiMaxLods; ++uiCurLod)
@@ -220,62 +212,27 @@ void ezKrautTreeComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
     if (!lodData.m_hMesh.IsValid())
       continue;
 
-    const ezUInt32 uiMeshIDHash = ezHashingUtils::StringHashTo32(lodData.m_hMesh.GetResourceIDHash());
+    const float fMinDistSQR = ezMath::Square(fGlobalUniformScale * lodData.m_fMinLodDistance);
+    const float fMaxDistSQR = ezMath::Square(fGlobalUniformScale * lodData.m_fMaxLodDistance);
+
+    if (fDistanceSQR < fMinDistSQR || fDistanceSQR >= fMaxDistSQR)
+      continue;
+
+    if (bIsShadowView && lodData.m_LodType != ezKrautLodType::Mesh)
+      continue;
 
     ezResourceLock<ezMeshResource> pMesh(lodData.m_hMesh, ezResourceAcquireMode::AllowLoadingFallback);
     ezArrayPtr<const ezMeshResourceDescriptor::SubMesh> subMeshes = pMesh->GetSubMeshes();
 
-    const auto materials = pMesh->GetMaterials();
-
-    const ezGameObject* pOwner = GetOwner();
-
-    float fGlobalUniformScale = pOwner->GetGlobalScalingSimd().HorizontalSum<3>() * ezSimdFloat(1.0f / 3.0f);
-
-    const ezTransform tOwner = pOwner->GetGlobalTransform();
-    const ezBoundingBoxSphere bounds = pOwner->GetGlobalBounds();
-    const float fMinDistSQR = ezMath::Square(fGlobalUniformScale * lodData.m_fMinLodDistance);
-    const float fMaxDistSQR = ezMath::Square(fGlobalUniformScale * lodData.m_fMaxLodDistance);
-
     for (ezUInt32 subMeshIdx = 0; subMeshIdx < subMeshes.GetCount(); ++subMeshIdx)
     {
-      const auto& subMesh = subMeshes[subMeshIdx];
+      const ezUInt32 uiMaterialIndex = subMeshes[subMeshIdx].m_uiMaterialIndex;
+      ezMaterialResourceHandle hMaterial = pMesh->GetMaterials()[uiMaterialIndex];
 
-      const ezUInt32 uiMaterialIndex = subMesh.m_uiMaterialIndex;
+      ezMeshRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezMeshRenderData>(pOwner);
+      pRenderData->SetFallbackGlobalBounds(GetOwner()->GetGlobalBounds());
+      pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, hMaterial, lodData.m_hMesh, uiMaterialIndex, subMeshIdx);
 
-      if (uiMaterialIndex >= materials.GetCount())
-        continue;
-
-      const ezMaterialResourceHandle& hMaterial = materials[uiMaterialIndex];
-      const ezUInt32 uiMaterialIDHash = hMaterial.IsValid() ? ezHashingUtils::StringHashTo32(hMaterial.GetResourceIDHash()) : 0;
-
-      // Generate batch id from mesh, material and part index.
-      const ezUInt32 data[] = {uiMeshIDHash, uiMaterialIDHash, subMeshIdx, 0};
-      const ezUInt32 uiBatchId = ezHashingUtils::xxHash32(data, sizeof(data));
-
-      ezKrautRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezKrautRenderData>(GetOwner());
-
-      {
-        pRenderData->m_uiBatchId = uiBatchId;
-        pRenderData->m_uiSortingKey = (uiMaterialIDHash << 16) | ((uiMeshIDHash + subMeshIdx) & 0xFFFF);
-
-        pRenderData->m_uiThisLodIndex = uiCurLod;
-
-        pRenderData->m_GlobalTransform = tOwner;
-        pRenderData->m_GlobalBounds = bounds;
-        pRenderData->m_hMesh = lodData.m_hMesh;
-        pRenderData->m_uiSubMeshIndex = static_cast<ezUInt8>(subMeshIdx);
-        pRenderData->m_uiUniqueID = GetUniqueIdForRendering(uiMaterialIndex);
-        pRenderData->m_bCastShadows = (lodData.m_LodType == ezKrautLodType::Mesh);
-
-        pRenderData->m_vLeafCenter = pTree->GetDetails().m_vLeafCenter;
-        pRenderData->m_fLodDistanceMinSQR = fMinDistSQR;
-        pRenderData->m_fLodDistanceMaxSQR = fMaxDistSQR;
-
-        pRenderData->m_vWindTrunk = vLocalWind;
-        pRenderData->m_vWindBranches = vLocalWind;
-      }
-
-      // TODO: somehow make Kraut render data static again and pass along the wind vectors differently
       msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitOpaque, ezRenderData::Caching::Never);
     }
   }
@@ -310,7 +267,7 @@ ezResult ezKrautTreeComponent::CreateGeometry(ezGeometry& geo, ezWorldGeoExtract
     if (details.m_fStaticColliderRadius * fMaxScale <= 0.0f)
       return EZ_FAILURE;
 
-    const float fTreeHeight = (details.m_Bounds.m_vCenter.z + details.m_Bounds.m_vBoxHalfExtends.z) * 0.9f;
+    const float fTreeHeight = (details.m_Bounds.m_vCenter.z + details.m_Bounds.m_vBoxHalfExtents.z) * 0.9f;
 
     if (fHeightScale * fTreeHeight <= 0.0f)
       return EZ_FAILURE;
@@ -362,18 +319,10 @@ void ezKrautTreeComponent::EnsureTreeIsGenerated()
   }
 }
 
-void ezKrautTreeComponent::ComputeWind() const
+void ezKrautTreeComponent::ComputeWind()
 {
-  if (!IsActiveAndSimulating())
+  if (!IsActiveAndSimulating() || GetOwner()->GetVisibilityState() == ezVisibilityState::Invisible)
     return;
-
-  // ComputeWind() is called by the renderer extraction, which happens once for every view
-  // make sure the wind update happens only once per frame, otherwise the spring would behave differently
-  // depending on how many light sources (with shadows) shine on a tree
-  if (ezRenderWorld::GetFrameCounter() == m_uiLastWindUpdate)
-    return;
-
-  m_uiLastWindUpdate = ezRenderWorld::GetFrameCounter();
 
   const ezWindWorldModuleInterface* pWindInterface = GetWorld()->GetModuleReadOnly<ezWindWorldModuleInterface>();
 
@@ -413,7 +362,7 @@ void ezKrautTreeComponent::ComputeWind() const
   {
     const ezVec3 offset = GetOwner()->GetGlobalPosition() + ezVec3(2, 0, 1);
 
-    ezHybridArray<ezDebugRenderer::Line, 2> lines;
+    ezTempHybridArray<ezDebugRendererLine, 2> lines;
 
     // actual wind
     {
@@ -497,8 +446,16 @@ void ezKrautTreeComponent::OnBuildStaticMesh(ezMsgBuildStaticMesh& ref_msg) cons
 
     if (!details.m_sSurfaceResource.IsEmpty())
     {
-      subMesh.m_uiSurfaceIndex = static_cast<ezUInt16>(desc.m_Surfaces.GetCount());
-      desc.m_Surfaces.PushBack(details.m_sSurfaceResource);
+      const ezUInt32 uiSurfIdx = desc.m_Surfaces.IndexOf(details.m_sSurfaceResource);
+      if (uiSurfIdx == ezInvalidIndex)
+      {
+        subMesh.m_uiSurfaceIndex = static_cast<ezUInt16>(desc.m_Surfaces.GetCount());
+        desc.m_Surfaces.PushBack(details.m_sSurfaceResource);
+      }
+      else
+      {
+        subMesh.m_uiSurfaceIndex = static_cast<ezUInt16>(uiSurfIdx);
+      }
     }
   }
 
@@ -529,10 +486,21 @@ void ezKrautTreeComponentManager::Initialize()
 {
   SUPER::Initialize();
 
-  ezWorldModule::UpdateFunctionDesc desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezKrautTreeComponentManager::Update, this);
-  desc.m_Phase = UpdateFunctionDesc::Phase::PreAsync;
+  {
+    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezKrautTreeComponentManager::Update, this);
+    desc.m_Phase = ezWorldUpdatePhase::PreAsync;
 
-  RegisterUpdateFunction(desc);
+    RegisterUpdateFunction(desc);
+  }
+
+  {
+    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezKrautTreeComponentManager::UpdateWind, this);
+    desc.m_Phase = ezWorldUpdatePhase::Async;
+    desc.m_bOnlyUpdateWhenSimulating = true;
+    desc.m_uiAsyncPhaseBatchSize = 16;
+
+    RegisterUpdateFunction(desc);
+  }
 
   ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&ezKrautTreeComponentManager::ResourceEventHandler, this));
 }
@@ -566,6 +534,15 @@ void ezKrautTreeComponentManager::Update(const ezWorldModule::UpdateContext& con
   }
 }
 
+void ezKrautTreeComponentManager::UpdateWind(const ezWorldModule::UpdateContext& context)
+{
+  for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
+  {
+    ezKrautTreeComponent* pComponent = it;
+    pComponent->ComputeWind();
+  }
+}
+
 void ezKrautTreeComponentManager::EnqueueUpdate(ezComponentHandle hComponent)
 {
   EZ_LOCK(m_Mutex);
@@ -595,3 +572,6 @@ void ezKrautTreeComponentManager::ResourceEventHandler(const ezResourceEvent& e)
     }
   }
 }
+
+
+EZ_STATICLINK_FILE(KrautPlugin, KrautPlugin_Components_KrautTreeComponent);

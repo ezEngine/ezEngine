@@ -11,7 +11,7 @@ o
 		s %AssetType{"Collection"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{2066776411180025002,5593963395639352612}}
-		u4 %Hash{15497182228426562331}
+		u4 %Hash{5449322969311165397}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -30,6 +30,7 @@ o
 			s{"{ abb5f06e-f4f2-4fb1-94e9-eed4a51e4490 }"}
 			s{"{ b4b75b1c-c2c8-4a0e-8076-780bdd46d18b }"}
 			s{"{ c533e113-2a4c-4f42-a546-653c78f5e8a7 }"}
+			s{"{ c542b3fa-0c24-4bac-97b7-e481f66f18f1 }"}
 			s{"{ da463c4d-c984-4910-b0b7-a0b3891d0448 }"}
 			s{"{ e9e6b167-c18c-4260-9b0e-4cf4503c1463 }"}
 			s{"{ f962fc28-661b-485c-a527-c997e239a3f0 }"}
@@ -186,6 +187,17 @@ o
 }
 o
 {
+	Uuid %id{u4{14920552245640418198,5536017218139124870}}
+	s %t{"ezCollectionAssetEntry"}
+	u3 %v{1}
+	p
+	{
+		s %Asset{"{ c542b3fa-0c24-4bac-97b7-e481f66f18f1 }"}
+		s %Name{"DecalCopy"}
+	}
+}
+o
+{
 	Uuid %id{u4{14869427072941527221,5569673947838956507}}
 	s %t{"ezCollectionAssetData"}
 	u3 %v{1}
@@ -210,6 +222,7 @@ o
 			Uuid{u4{9763702991569668230,5044119589064127174}}
 			Uuid{u4{9678958425463295414,5623681418031130790}}
 			Uuid{u4{9702148624811856300,5624788208411000712}}
+			Uuid{u4{14920552245640418198,5536017218139124870}}
 		}
 	}
 }

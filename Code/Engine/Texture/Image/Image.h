@@ -8,7 +8,17 @@
 #include <Texture/Image/Formats/ImageFileFormat.h>
 #include <Texture/Image/ImageHeader.h>
 
-/// \brief A class referencing image data and holding metadata about the image.
+/// \brief A lightweight view to image data without owning the memory.
+///
+/// ezImageView provides read-only access to image data along with the metadata needed to interpret it.
+/// It does not own the image data, so the underlying memory must remain valid for the lifetime of the view.
+/// This class is ideal for passing image data around without unnecessary copying.
+///
+/// Use cases:
+/// - Passing images to functions that only read data
+/// - Creating temporary views to sub-regions of larger images
+/// - Interfacing with external image processing libraries
+/// - Converting between different image representations
 class EZ_TEXTURE_DLL ezImageView : protected ezImageHeader
 {
 public:
@@ -18,13 +28,16 @@ public:
   /// \brief Constructs an image view with the given header and image data.
   ezImageView(const ezImageHeader& header, ezConstByteBlobPtr imageData);
 
-  /// \brief Constructs an empty image view.
+  /// \brief Resets to an empty state, releasing the reference to external data.
   void Clear();
 
   /// \brief Returns false if the image view does not reference any data yet.
   bool IsValid() const;
 
-  /// \brief Constructs an image view with the given header and image data.
+  /// \brief Resets the view to reference new external image data.
+  ///
+  /// Any previous data reference is released. The new data must remain valid
+  /// for the lifetime of this view.
   void ResetAndViewExternalStorage(const ezImageHeader& header, ezConstByteBlobPtr imageData);
 
   /// \brief Convenience function to save the image to the given file.
@@ -91,14 +104,37 @@ protected:
   ezBlobPtr<ezUInt8> m_DataPtr;
 };
 
-/// \brief A class containing image data and associated meta data.
+/// \brief Container for image data with automatic memory management.
 ///
-/// This class is a lightweight container for image data and the description required for interpreting the data,
-/// such as the image format, its dimensions, number of sub-images (i.e. cubemap faces, mip levels and array sub-images).
-/// However, it does not provide any methods for interpreting or  modifying of the image data.
+/// ezImage extends ezImageView by owning the image data it references. It can use either internal storage
+/// or attach to external memory. This class handles allocation, deallocation, and provides convenient
+/// methods for loading, saving, and converting images.
 ///
-/// The sub-images are stored in a predefined order compatible with the layout of DDS files, that is, it first stores
-/// the mip chain for each image, then all faces in a case of a cubemap, then the individual images of an image array.
+/// Memory management:
+/// - Internal storage: ezImage allocates and manages its own memory
+/// - External storage: ezImage references user-provided memory (user manages lifetime)
+/// - Storage can be switched between internal and external as needed
+///
+/// The sub-images are stored in a predefined order compatible with DDS files:
+/// For each array slice: mip level 0, mip level 1, ..., mip level N
+/// For cubemaps: +X, -X, +Y, -Y, +Z, -Z faces in that order
+/// For texture arrays: array slice 0, array slice 1, ..., array slice N
+///
+/// Common usage patterns:
+/// ```cpp
+/// // Load from file
+/// ezImage image;
+/// image.LoadFrom("texture.png");
+///
+/// // Create with specific format
+/// ezImageHeader header;
+/// header.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM);
+/// header.SetWidth(256); header.SetHeight(256);
+/// ezImage image(header);
+///
+/// // Convert format
+/// image.Convert(ezImageFormat::BC1_UNORM);
+/// ```
 class EZ_TEXTURE_DLL ezImage : public ezImageView
 {
   /// Use Reset() instead
@@ -130,26 +166,30 @@ public:
   /// \brief Constructs an empty image. If the image is attached to an external storage, the attachment is discarded.
   void Clear();
 
-  /// \brief Constructs an image with the given header and ensures sufficient storage is allocated.
+  /// \brief Allocates storage for an image with the given header.
   ///
-  /// \note If this ezImage was previously attached to external storage, this will reuse that storage.
-  /// However, if the external storage is not sufficiently large, ResetAndAlloc() will detach from it and allocate internal storage.
+  /// If currently using external storage and it's large enough, that storage will be reused.
+  /// Otherwise, the image will detach from external storage and allocate internal storage.
+  /// Any existing data is discarded.
   void ResetAndAlloc(const ezImageHeader& header);
 
-  /// \brief Constructs an image with the given header and attaches to the user-supplied external storage.
+  /// \brief Attaches the image to external storage provided by the user.
   ///
-  /// The user is responsible to keep the external storage alive as long as this ezImage is alive.
+  /// The external storage must remain valid for the lifetime of this ezImage.
+  /// The storage must be large enough to hold the image data described by the header.
+  /// Use this when you want to avoid memory allocation or work with memory-mapped files.
   void ResetAndUseExternalStorage(const ezImageHeader& header, ezByteBlobPtr externalData);
 
-  /// \brief Moves the given data into this object.
+  /// \brief Takes ownership of another image's data via move semantics.
   ///
-  /// If \a other is attached to an external storage, this object will also be attached to it,
-  /// so life-time requirements for the external storage are now bound to this instance.
+  /// The other image is left in an empty state. If the other image uses external storage,
+  /// this image will also reference that storage and inherit the lifetime requirements.
   void ResetAndMove(ezImage&& other);
 
-  /// \brief Constructs from an image view. Copies the image data to internal storage.
+  /// \brief Copies data from an image view into internal storage.
   ///
-  /// If the image is currently attached to external storage, the attachment is discarded.
+  /// If currently attached to external storage, the attachment is discarded and internal
+  /// storage is allocated. The source view's data is copied completely.
   void ResetAndCopy(const ezImageView& other);
 
   /// \brief Convenience function to load the image from the given file.

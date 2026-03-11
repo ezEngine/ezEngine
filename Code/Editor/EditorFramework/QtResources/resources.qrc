@@ -3,6 +3,8 @@
     <file>Icons/Connection.svg</file>
     <file>Icons/Tag.svg</file>
     <file>Icons/Perspective.svg</file>
+    <file>Icons/ObjectsVisible.svg</file>
+    <file>Icons/ObjectsHidden.svg</file>
     <file>Icons/RenderMode.svg</file>
     <file>Icons/Asset.svg</file>
     <file>Icons/AssetCurator.svg</file>
@@ -19,17 +21,17 @@
     <file>Icons/DataDirectory.svg</file>
     <file>Icons/Folder.svg</file>
     <file>Icons/ImportableFileType.svg</file>
-	<file>Icons/ImportableFile.svg</file>
+    <file>Icons/ImportableFile.svg</file>
     <file>Icons/ImportedFile.svg</file>
     <file>Icons/StoredSettings.svg</file>
     <file>Icons/Input.svg</file>
     <file>Icons/AssetUnknown.svg</file>
     <file>Icons/AssetNeedsTransform.svg</file>
     <file>Icons/AssetNeedsThumbnail.svg</file>
-	<file>Icons/AssetNeedsImport.svg</file>
+    <file>Icons/AssetNeedsImport.svg</file>
     <file>Icons/AssetProcessingPause.svg</file>
     <file>Icons/AssetProcessingStart.svg</file>
-	<file>Icons/AssetProcessingForceStop.svg</file>
+    <file>Icons/AssetProcessingForceStop.svg</file>
     <file>Icons/AssetOk.svg</file>
     <file>Icons/ResavAllAssets.svg</file>
     <file>Icons/AssetMissingDependency.svg</file>
@@ -37,8 +39,10 @@
     <file>Icons/AssetFailedTransform.svg</file>
     <file>Icons/WindowConfig.svg</file>
     <file>Icons/SwitchToRemoteProcess.svg</file>
+    <file>Icons/ExposedParameterViewToggle.svg</file>
     <file>Icons/Fileserve.svg</file>
     <file>Icons/Inspector.svg</file>
+    <file>Icons/Tracy.svg</file>
     <file>Icons/GizmoNone.svg</file>
     <file>Icons/WorldSpace.svg</file>
     <file>Icons/TransformParent.svg</file>
@@ -55,10 +59,43 @@
     <file>Icons/CreateEmpty.svg</file>
     <file>Icons/Discord.svg</file>
     <file>Icons/Twitter.svg</file>
+    <file>Icons/Bluesky.svg</file>
     <file>Icons/GitHub.svg</file>
-    <file>Icons/GitHub-Light.svg</file>
     <file>Icons/ViewLightMenu.svg</file>
-	<file>Icons/VisualStudio.svg</file>
+    <file>Icons/VisualStudio.svg</file>
+    <file>Icons/MoveCameraHere.svg</file>
+    <file>Icons/Camera.svg</file>
+    <file>Icons/id.svg</file>
+    <file>Icons/ActiveParent.svg</file>
+    <file>Icons/Snap0cm.svg</file>
+    <file>Icons/Snap1cm.svg</file>
+    <file>Icons/Snap5cm.svg</file>
+    <file>Icons/Snap10cm.svg</file>
+    <file>Icons/Snap20cm.svg</file>
+    <file>Icons/Snap25cm.svg</file>
+    <file>Icons/Snap50cm.svg</file>
+    <file>Icons/Snap100cm.svg</file>
+    <file>Icons/Snap200cm.svg</file>
+    <file>Icons/Snap400cm.svg</file>
+    <file>Icons/Snap500cm.svg</file>
+    <file>Icons/Snap800cm.svg</file>
+    <file>Icons/Snap1000cm.svg</file>
+    <file>Icons/Snap0deg.svg</file>
+    <file>Icons/Snap1deg.svg</file>
+    <file>Icons/Snap5deg.svg</file>
+    <file>Icons/Snap10deg.svg</file>
+    <file>Icons/Snap15deg.svg</file>
+    <file>Icons/Snap22deg.svg</file>
+    <file>Icons/Snap30deg.svg</file>
+    <file>Icons/Snap45deg.svg</file>
+    <file>Icons/Snap90deg.svg</file>
+    <file>Icons/Snap0x.svg</file>
+    <file>Icons/Snap0125x.svg</file>
+    <file>Icons/Snap025x.svg</file>
+    <file>Icons/Snap05x.svg</file>
+    <file>Icons/Snap1x.svg</file>
+    <file>Icons/Snap2x.svg</file>
+    <file>Icons/Snap4x.svg</file>
   </qresource>
   <qresource prefix="TypeIcons">
     <file>ezDragToPositionGizmoEditTool.svg</file>
@@ -68,19 +105,18 @@
   </qresource>
   <qresource prefix="Splash">
     <file>Splash/splash.svg</file>
-	<file>Splash/splash.png</file>
+    <file>Splash/splash.png</file>
   </qresource>
   <qresource prefix="AssetIcons">
     <file>Icons/AllAssets.svg</file>
-  </qresource>  
+  </qresource>
   <qresource prefix="Platforms">
     <file>Icons/PlatformWindows.svg</file>
     <file>Icons/PlatformAndroid.svg</file>
     <file>Icons/PlatformOSX.svg</file>
-	<file>Icons/PlatformSwitch.svg</file>
-	<file>Icons/PlatformXbox.svg</file>
-	<file>Icons/PlatformLinux.svg</file>
-	<file>Icons/PlatformUWP.svg</file>
-	<file>Icons/PlatformPlayStation.svg</file>
-  </qresource>  
+    <file>Icons/PlatformSwitch.svg</file>
+    <file>Icons/PlatformXbox.svg</file>
+    <file>Icons/PlatformLinux.svg</file>
+    <file>Icons/PlatformPlayStation.svg</file>
+  </qresource>
 </RCC>

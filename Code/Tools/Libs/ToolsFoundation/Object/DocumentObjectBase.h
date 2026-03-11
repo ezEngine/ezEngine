@@ -10,13 +10,12 @@ class ezDocumentObjectManager;
 class EZ_TOOLSFOUNDATION_DLL ezDocumentObject
 {
 public:
-  ezDocumentObject()
-
-    = default;
+  ezDocumentObject() = default;
   virtual ~ezDocumentObject() = default;
 
   // Accessors
   const ezUuid& GetGuid() const { return m_Guid; }
+  /// \brief Returns the RTTI type of the object that is represented by this ezDocumentObject.
   const ezRTTI* GetType() const { return GetTypeAccessor().GetType(); }
 
   const ezDocumentObjectManager* GetDocumentObjectManager() const { return m_pDocumentObjectManager; }

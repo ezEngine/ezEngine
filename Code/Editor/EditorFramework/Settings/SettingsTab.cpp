@@ -16,19 +16,18 @@ ezString ezQtSettingsTab::GetWindowIcon() const
 
 ezString ezQtSettingsTab::GetDisplayNameShort() const
 {
-  return "";
+  return "Settings";
 }
 
 void ezQtEditorApp::ShowSettingsDocument()
 {
+  EZ_PROFILE_SCOPE("ShowSettingsDocument");
   ezQtSettingsTab* pSettingsTab = ezQtSettingsTab::GetSingleton();
 
   if (pSettingsTab == nullptr)
   {
     pSettingsTab = new ezQtSettingsTab();
   }
-
-  pSettingsTab->EnsureVisible();
 }
 
 void ezQtEditorApp::CloseSettingsDocument()
@@ -45,12 +44,6 @@ ezQtSettingsTab::ezQtSettingsTab()
   : ezQtDocumentWindow("Settings")
   , m_SingletonRegistrar(this)
 {
-  setCentralWidget(new QWidget());
-  EZ_ASSERT_DEV(centralWidget() != nullptr, "");
-
-  setupUi(centralWidget());
-  QMetaObject::connectSlotsByName(this);
-
   ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
   ezActionContext context;
   context.m_sMapping = "SettingsTabMenuBar";
@@ -58,34 +51,9 @@ ezQtSettingsTab::ezQtSettingsTab()
   pMenuBar->SetActionContext(context);
 
   FinishWindowCreation();
-
-  ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezQtSettingsTab::ToolsProjectEventHandler, this));
 }
 
-ezQtSettingsTab::~ezQtSettingsTab()
-{
-  ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtSettingsTab::ToolsProjectEventHandler, this));
-}
-
-void ezQtSettingsTab::on_OpenScene_clicked()
-{
-  ezQtAssetBrowserDlg dlg(this, ezUuid(), "Scene");
-  if (dlg.exec() == 0)
-    return;
-
-  ezQtEditorApp::GetSingleton()->OpenDocument(dlg.GetSelectedAssetPathAbsolute(), ezDocumentFlags::RequestWindow | ezDocumentFlags::AddToRecentFilesList);
-}
-
-void ezQtSettingsTab::on_OpenProject_clicked()
-{
-  ezQtDashboardDlg dlg(nullptr, ezQtDashboardDlg::DashboardTab::Samples);
-  dlg.exec();
-}
-
-void ezQtSettingsTab::on_GettingStarted_clicked()
-{
-  QDesktopServices::openUrl(QUrl("https://ezengine.net/pages/getting-started/editor-overview.html"));
-}
+ezQtSettingsTab::~ezQtSettingsTab() = default;
 
 bool ezQtSettingsTab::InternalCanCloseWindow()
 {
@@ -97,25 +65,4 @@ void ezQtSettingsTab::InternalCloseDocumentWindow()
 {
   // make sure this instance isn't used anymore
   UnregisterSingleton();
-}
-
-void ezQtSettingsTab::ToolsProjectEventHandler(const ezToolsProjectEvent& e)
-{
-  if (e.m_Type == ezToolsProjectEvent::Type::ProjectClosed || e.m_Type == ezToolsProjectEvent::Type::ProjectCreated || e.m_Type == ezToolsProjectEvent::Type::ProjectOpened)
-  {
-    ezStringBuilder txt = "<html><head/><body><p align=\"center\"><span style=\" font-size:18pt;\">Open Project:</span></p><p align=\"center\"><span style=\" font-size:18pt;\">None</span></p></body></html>";
-
-    if (ezToolsProject::GetSingleton()->IsProjectOpen())
-    {
-      txt.ReplaceAll("None", ezToolsProject::GetSingleton()->GetProjectName(false));
-      OpenScene->setVisible(true);
-    }
-    else
-    {
-      txt = "<html><head/><body><p align=\"center\"><span style=\" font-size:18pt;\">No Project Open</span></p></body></html>";
-      OpenScene->setVisible(false);
-    }
-
-    ProjectLabel->setText(txt.GetData());
-  }
 }

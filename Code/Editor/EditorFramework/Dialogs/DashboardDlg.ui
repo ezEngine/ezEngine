@@ -392,57 +392,6 @@
          </item>
          <item>
           <layout class="QGridLayout" name="gridLayout">
-           <item row="2" column="1">
-            <widget class="QPushButton" name="OpenTwitter">
-             <property name="minimumSize">
-              <size>
-               <width>200</width>
-               <height>60</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>@ezEngineProject on Twitter</string>
-             </property>
-             <property name="icon">
-              <iconset resource="../QtResources/resources.qrc">
-               <normaloff>:/EditorFramework/Icons/Twitter.svg</normaloff>:/EditorFramework/Icons/Twitter.svg</iconset>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0">
-            <widget class="QPushButton" name="OpenDocs">
-             <property name="minimumSize">
-              <size>
-               <width>200</width>
-               <height>60</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Open Documentation</string>
-             </property>
-             <property name="icon">
-              <iconset resource="../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
-               <normaloff>:/GuiFoundation/EZ-logo.svg</normaloff>:/GuiFoundation/EZ-logo.svg</iconset>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QPushButton" name="OpenDiscord">
-             <property name="minimumSize">
-              <size>
-               <width>200</width>
-               <height>60</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Join Discord Server</string>
-             </property>
-             <property name="icon">
-              <iconset resource="../QtResources/resources.qrc">
-               <normaloff>:/EditorFramework/Icons/Discord.svg</normaloff>:/EditorFramework/Icons/Discord.svg</iconset>
-             </property>
-            </widget>
-           </item>
            <item row="1" column="1">
             <widget class="QPushButton" name="ReportProblem">
              <property name="minimumSize">
@@ -477,6 +426,40 @@
              </property>
             </widget>
            </item>
+           <item row="0" column="0">
+            <widget class="QPushButton" name="OpenDocs">
+             <property name="minimumSize">
+              <size>
+               <width>200</width>
+               <height>60</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Open Documentation</string>
+             </property>
+             <property name="icon">
+              <iconset resource="../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
+               <normaloff>:/GuiFoundation/Icons/Help.svg</normaloff>:/GuiFoundation/Icons/Help.svg</iconset>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QPushButton" name="OpenTwitter">
+             <property name="minimumSize">
+              <size>
+               <width>200</width>
+               <height>60</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>@ezEngineProject on Twitter</string>
+             </property>
+             <property name="icon">
+              <iconset resource="../QtResources/resources.qrc">
+               <normaloff>:/EditorFramework/Icons/Twitter.svg</normaloff>:/EditorFramework/Icons/Twitter.svg</iconset>
+             </property>
+            </widget>
+           </item>
            <item row="0" column="1">
             <widget class="QPushButton" name="OpenApiDocs">
              <property name="minimumSize">
@@ -491,6 +474,40 @@
              <property name="icon">
               <iconset resource="../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
                <normaloff>:/GuiFoundation/EZ-logo.svg</normaloff>:/GuiFoundation/EZ-logo.svg</iconset>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QPushButton" name="OpenBsky">
+             <property name="minimumSize">
+              <size>
+               <width>200</width>
+               <height>60</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>@ezEngine on Bluesky</string>
+             </property>
+             <property name="icon">
+              <iconset resource="../QtResources/resources.qrc">
+               <normaloff>:/EditorFramework/Icons/Bluesky.svg</normaloff>:/EditorFramework/Icons/Bluesky.svg</iconset>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QPushButton" name="OpenDiscord">
+             <property name="minimumSize">
+              <size>
+               <width>200</width>
+               <height>60</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Join Discord Server</string>
+             </property>
+             <property name="icon">
+              <iconset resource="../QtResources/resources.qrc">
+               <normaloff>:/EditorFramework/Icons/Discord.svg</normaloff>:/EditorFramework/Icons/Discord.svg</iconset>
              </property>
             </widget>
            </item>

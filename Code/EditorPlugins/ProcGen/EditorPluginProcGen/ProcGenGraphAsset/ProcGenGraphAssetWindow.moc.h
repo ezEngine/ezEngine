@@ -5,8 +5,8 @@
 
 class ezProcGenGraphAssetDocument;
 
-class ezQtNodeScene;
-class ezQtNodeView;
+class ezQtVisualGraphScene;
+class ezQtVisualGraphView;
 struct ezCommandHistoryEvent;
 
 class ezProcGenGraphAssetDocumentWindow : public ezQtDocumentWindow
@@ -19,8 +19,6 @@ public:
 
   ezProcGenGraphAssetDocument* GetProcGenGraphDocument();
 
-  virtual const char* GetWindowLayoutGroupName() const override { return "ProcGenAsset"; }
-
 private Q_SLOTS:
 
 
@@ -30,8 +28,10 @@ private:
 
   // needed for setting the debug pin
   void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
-  void TransationEventHandler(const ezCommandHistoryEvent& e);
+  void TransactionEventHandler(const ezCommandHistoryEvent& e);
 
-  ezQtNodeScene* m_pScene;
-  ezQtNodeView* m_pView;
+  void SelectionEventHandler(const ezSelectionManagerEvent& e);
+
+  ezQtVisualGraphScene* m_pScene;
+  ezQtVisualGraphView* m_pView;
 };

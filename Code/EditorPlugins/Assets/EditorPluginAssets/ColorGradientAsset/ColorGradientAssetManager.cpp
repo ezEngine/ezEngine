@@ -18,8 +18,9 @@ ezColorGradientAssetDocumentManager::ezColorGradientAssetDocumentManager()
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezColorGradientAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
   m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Data_Gradient");
+  m_DocTypeDesc.m_CompatibleTypes.PushBack("CompatibleAsset_Texture_2D"); // color gradients can be used as 2D textures
 
-  m_DocTypeDesc.m_sResourceFileExtension = "ezColorGradient";
+  m_DocTypeDesc.m_sResourceFileExtension = "ezBinColorGradient";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave | ezAssetDocumentFlags::SupportsThumbnail;
 }
 

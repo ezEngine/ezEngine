@@ -2,11 +2,15 @@
 
 #include <RmlUiPlugin/RmlUiPluginDLL.h>
 
+#include <Core/ResourceManager/ResourceHandle.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Types/UniquePtr.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
 
 class ezRmlUiContext;
 struct ezMsgExtractRenderData;
+
+using ezRmlUiResourceHandle = ezTypedResourceHandle<class ezRmlUiResource>;
 
 /// \brief The RML configuration to be used on a specific platform
 struct EZ_RMLUIPLUGIN_DLL ezRmlUiConfiguration
@@ -35,7 +39,16 @@ public:
 
   bool AnyContextWantsInput();
 
-  void ExtractContext(ezRmlUiContext& ref_context, ezMsgExtractRenderData& ref_msg);
+  ezResult LoadDocumentFromResource(ezRmlUiContext& ref_context, const ezRmlUiResourceHandle& hResource);
+  ezResult LoadDocumentFromString(ezRmlUiContext& ref_context, const ezStringView& sContent);
+
+  void UnloadDocument(ezRmlUiContext& ref_context);
+
+  void ClearCaches();
+
+  void ExtractContext(ezRmlUiContext& ref_context, ezGALTextureHandle hTexture);
+
+  ezMutex& GetContextMutex();
 
 private:
   struct Data;

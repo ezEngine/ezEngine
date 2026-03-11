@@ -90,11 +90,11 @@ JPH_NAMESPACE_BEGIN
 ///		IsKindOf(bar_ptr, RTTI(Foo)) returns true
 ///		IsKindOf(bar_ptr, RTTI(Bar)) returns true
 ///
-///		StaticCast<Bar>(foo_ptr) asserts and returns foo_ptr casted to pBar
-///		StaticCast<Bar>(bar_ptr) returns bar_ptr casted to pBar
+///		StaticCast<Bar>(foo_ptr) asserts and returns foo_ptr casted to Bar *
+///		StaticCast<Bar>(bar_ptr) returns bar_ptr casted to Bar *
 ///
 ///		DynamicCast<Bar>(foo_ptr) returns nullptr
-///		DynamicCast<Bar>(bar_ptr) returns bar_ptr casted to pBar
+///		DynamicCast<Bar>(bar_ptr) returns bar_ptr casted to Bar *
 ///
 /// Other feature of DynamicCast:
 ///
@@ -162,10 +162,12 @@ public:
 	/// Cast inObject of this type to object of type inRTTI, returns nullptr if the cast is unsuccessful
 	const void *				CastTo(const void *inObject, const RTTI *inRTTI) const;
 
+#ifdef JPH_OBJECT_STREAM
 	/// Attribute access
 	void						AddAttribute(const SerializableAttribute &inAttribute);
 	int							GetAttributeCount() const;
 	const SerializableAttribute & GetAttribute(int inIdx) const;
+#endif // JPH_OBJECT_STREAM
 
 protected:
 	/// Base class information
@@ -180,7 +182,9 @@ protected:
 	StaticArray<BaseClass, 4>	mBaseClasses;												///< Names of base classes
 	pCreateObjectFunction		mCreate;													///< Pointer to a function that will create a new instance of this class
 	pDestructObjectFunction		mDestruct;													///< Pointer to a function that will destruct an object of this class
+#ifdef JPH_OBJECT_STREAM
 	StaticArray<SerializableAttribute, 32> mAttributes;										///< All attributes of this class
+#endif // JPH_OBJECT_STREAM
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -191,18 +195,18 @@ protected:
 #define JPH_DECLARE_RTTI_NON_VIRTUAL(linkage, class_name)															\
 public:																												\
 	JPH_OVERRIDE_NEW_DELETE																							\
-	friend linkage RTTI *		GetRTTIOfType(class_name *);														\
-	friend inline const RTTI *	GetRTTI([[maybe_unused]] const class_name *inObject) { return GetRTTIOfType(static_cast<class_name *>(nullptr)); }\
-	static void					sCreateRTTI(RTTI &inRTTI);															\
+	friend linkage JPH::RTTI *	GetRTTIOfType(class_name *);														\
+	friend inline const JPH::RTTI *GetRTTI([[maybe_unused]] const class_name *inObject) { return GetRTTIOfType(static_cast<class_name *>(nullptr)); } \
+	static void					sCreateRTTI(JPH::RTTI &inRTTI);														\
 
 // JPH_IMPLEMENT_RTTI_NON_VIRTUAL
 #define JPH_IMPLEMENT_RTTI_NON_VIRTUAL(class_name)																	\
-	RTTI *						GetRTTIOfType(class_name *)															\
+	JPH::RTTI *					GetRTTIOfType(class_name *)															\
 	{																												\
-		static RTTI rtti(#class_name, sizeof(class_name), []() -> void * { return new class_name; }, [](void *inObject) { delete (class_name *)inObject; }, &class_name::sCreateRTTI); \
+		static JPH::RTTI rtti(#class_name, sizeof(class_name), []() -> void * { return new class_name; }, [](void *inObject) { delete (class_name *)inObject; }, &class_name::sCreateRTTI); \
 		return &rtti;																								\
 	}																												\
-	void						class_name::sCreateRTTI(RTTI &inRTTI)												\
+	void						class_name::sCreateRTTI(JPH::RTTI &inRTTI)											\
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Same as above, but when you cannot insert the declaration in the class
@@ -211,18 +215,18 @@ public:																												\
 
 // JPH_DECLARE_RTTI_OUTSIDE_CLASS
 #define JPH_DECLARE_RTTI_OUTSIDE_CLASS(linkage, class_name)															\
-	linkage RTTI *				GetRTTIOfType(class_name *);														\
-	inline const RTTI *			GetRTTI(const class_name *inObject) { return GetRTTIOfType((class_name *)nullptr); }\
-	void						CreateRTTI##class_name(RTTI &inRTTI);												\
+	linkage JPH::RTTI *			GetRTTIOfType(class_name *);														\
+	inline const JPH::RTTI *	GetRTTI(const class_name *inObject) { return GetRTTIOfType((class_name *)nullptr); }\
+	void						CreateRTTI##class_name(JPH::RTTI &inRTTI);											\
 
 // JPH_IMPLEMENT_RTTI_OUTSIDE_CLASS
 #define JPH_IMPLEMENT_RTTI_OUTSIDE_CLASS(class_name)																\
-	RTTI *						GetRTTIOfType(class_name *)															\
+	JPH::RTTI *					GetRTTIOfType(class_name *)															\
 	{																												\
-		static RTTI rtti((const char *)#class_name, sizeof(class_name), []() -> void * { return new class_name; }, [](void *inObject) { delete (class_name *)inObject; }, &CreateRTTI##class_name); \
+		static JPH::RTTI rtti((const char *)#class_name, sizeof(class_name), []() -> void * { return new class_name; }, [](void *inObject) { delete (class_name *)inObject; }, &CreateRTTI##class_name); \
 		return &rtti;																								\
 	}																												\
-	void						CreateRTTI##class_name(RTTI &inRTTI)
+	void						CreateRTTI##class_name(JPH::RTTI &inRTTI)
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Same as above, but for classes that have virtual functions
@@ -231,11 +235,11 @@ public:																												\
 #define JPH_DECLARE_RTTI_HELPER(linkage, class_name, modifier)														\
 public:																												\
 	JPH_OVERRIDE_NEW_DELETE																							\
-	friend linkage RTTI *		GetRTTIOfType(class_name *);														\
-	friend inline const RTTI *	GetRTTI(const class_name *inObject) { return inObject->GetRTTI(); }					\
-	virtual const RTTI *		GetRTTI() const modifier;															\
-	virtual const void *		CastTo(const RTTI *inRTTI) const modifier;											\
-	static void					sCreateRTTI(RTTI &inRTTI);															\
+	friend linkage JPH::RTTI *	GetRTTIOfType(class_name *);														\
+	friend inline const JPH::RTTI *GetRTTI(const class_name *inObject) { return inObject->GetRTTI(); }				\
+	virtual const JPH::RTTI *	GetRTTI() const modifier;															\
+	virtual const void *		CastTo(const JPH::RTTI *inRTTI) const modifier;										\
+	static void					sCreateRTTI(JPH::RTTI &inRTTI);														\
 
 // JPH_DECLARE_RTTI_VIRTUAL - for derived classes with RTTI
 #define JPH_DECLARE_RTTI_VIRTUAL(linkage, class_name)																\
@@ -243,20 +247,20 @@ public:																												\
 
 // JPH_IMPLEMENT_RTTI_VIRTUAL
 #define JPH_IMPLEMENT_RTTI_VIRTUAL(class_name)																		\
-	RTTI *			GetRTTIOfType(class_name *)																		\
+	JPH::RTTI *					GetRTTIOfType(class_name *)															\
 	{																												\
-		static RTTI rtti(#class_name, sizeof(class_name), []() -> void * { return new class_name; }, [](void *inObject) { delete (class_name *)inObject; }, &class_name::sCreateRTTI); \
+		static JPH::RTTI rtti(#class_name, sizeof(class_name), []() -> void * { return new class_name; }, [](void *inObject) { delete (class_name *)inObject; }, &class_name::sCreateRTTI); \
 		return &rtti;																								\
 	}																												\
-	const RTTI *				class_name::GetRTTI() const															\
+	const JPH::RTTI *			class_name::GetRTTI() const															\
 	{																												\
 		return JPH_RTTI(class_name);																				\
 	}																												\
-	const void *				class_name::CastTo(const RTTI *inRTTI) const										\
+	const void *				class_name::CastTo(const JPH::RTTI *inRTTI) const									\
 	{																												\
 		return JPH_RTTI(class_name)->CastTo((const void *)this, inRTTI);											\
 	}																												\
-	void						class_name::sCreateRTTI(RTTI &inRTTI)												\
+	void						class_name::sCreateRTTI(JPH::RTTI &inRTTI)											\
 
 // JPH_DECLARE_RTTI_VIRTUAL_BASE - for concrete base class that has RTTI
 #define JPH_DECLARE_RTTI_VIRTUAL_BASE(linkage, class_name)															\
@@ -272,20 +276,20 @@ public:																												\
 
 // JPH_IMPLEMENT_RTTI_ABSTRACT
 #define JPH_IMPLEMENT_RTTI_ABSTRACT(class_name)																		\
-	RTTI *						GetRTTIOfType(class_name *)															\
+	JPH::RTTI *					GetRTTIOfType(class_name *)															\
 	{																												\
-		static RTTI rtti(#class_name, sizeof(class_name), nullptr, [](void *inObject) { delete (class_name *)inObject; }, &class_name::sCreateRTTI); \
+		static JPH::RTTI rtti(#class_name, sizeof(class_name), nullptr, [](void *inObject) { delete (class_name *)inObject; }, &class_name::sCreateRTTI); \
 		return &rtti;																								\
 	}																												\
-	const RTTI *				class_name::GetRTTI() const															\
+	const JPH::RTTI *			class_name::GetRTTI() const															\
 	{																												\
 		return JPH_RTTI(class_name);																				\
 	}																												\
-	const void *				class_name::CastTo(const RTTI *inRTTI) const										\
+	const void *				class_name::CastTo(const JPH::RTTI *inRTTI) const									\
 	{																												\
 		return JPH_RTTI(class_name)->CastTo((const void *)this, inRTTI);											\
 	}																												\
-	void						class_name::sCreateRTTI(RTTI &inRTTI)												\
+	void						class_name::sCreateRTTI(JPH::RTTI &inRTTI)											\
 
 // JPH_DECLARE_RTTI_ABSTRACT_BASE - for abstract base class that has RTTI
 #define JPH_DECLARE_RTTI_ABSTRACT_BASE(linkage, class_name)															\
@@ -300,12 +304,12 @@ public:																												\
 //////////////////////////////////////////////////////////////////////////////////////////
 
 #define JPH_DECLARE_RTTI_FOR_FACTORY(linkage, class_name)															\
-	linkage RTTI *				GetRTTIOfType(class class_name *);
+	linkage JPH::RTTI *			GetRTTIOfType(class class_name *);
 
 #define JPH_DECLARE_RTTI_WITH_NAMESPACE_FOR_FACTORY(linkage, name_space, class_name)								\
 	namespace name_space {																							\
-		class class_name; 																							\
-		linkage RTTI *			GetRTTIOfType(class class_name *);													\
+		class class_name;																							\
+		linkage JPH::RTTI *		GetRTTIOfType(class class_name *);													\
 	}
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -331,7 +335,7 @@ public:																												\
 //////////////////////////////////////////////////////////////////////////////////////////
 
 /// Define very dirty macro to get the offset of a baseclass into a class
-#define JPH_BASE_CLASS_OFFSET(inClass, inBaseClass)	((int(uint64((inBaseClass *)((inClass *)0x10000))))-0x10000)
+#define JPH_BASE_CLASS_OFFSET(inClass, inBaseClass)	((int(JPH::uint64((inBaseClass *)((inClass *)0x10000))))-0x10000)
 
 // JPH_ADD_BASE_CLASS
 #define JPH_ADD_BASE_CLASS(class_name, base_class_name)																\
@@ -380,31 +384,27 @@ inline bool IsKindOf(const Ref<Type> &inObject, const RTTI *inRTTI)
 }
 
 /// Cast inObject to DstType, asserts on failure
-template <class DstType, class SrcType>
+template <class DstType, class SrcType, std::enable_if_t<std::is_base_of_v<DstType, SrcType> || std::is_base_of_v<SrcType, DstType>, bool> = true>
 inline const DstType *StaticCast(const SrcType *inObject)
 {
-	JPH_ASSERT(IsKindOf(inObject, JPH_RTTI(DstType)), "Invalid cast");
 	return static_cast<const DstType *>(inObject);
 }
 
-template <class DstType, class SrcType>
+template <class DstType, class SrcType, std::enable_if_t<std::is_base_of_v<DstType, SrcType> || std::is_base_of_v<SrcType, DstType>, bool> = true>
 inline DstType *StaticCast(SrcType *inObject)
 {
-	JPH_ASSERT(IsKindOf(inObject, JPH_RTTI(DstType)), "Invalid cast");
 	return static_cast<DstType *>(inObject);
 }
 
-template <class DstType, class SrcType>
-inline RefConst<DstType> StaticCast(RefConst<SrcType> &inObject)
+template <class DstType, class SrcType, std::enable_if_t<std::is_base_of_v<DstType, SrcType> || std::is_base_of_v<SrcType, DstType>, bool> = true>
+inline const DstType *StaticCast(const RefConst<SrcType> &inObject)
 {
-	JPH_ASSERT(IsKindOf(inObject, JPH_RTTI(DstType)), "Invalid cast");
 	return static_cast<const DstType *>(inObject.GetPtr());
 }
 
-template <class DstType, class SrcType>
-inline Ref<DstType> StaticCast(Ref<SrcType> &inObject)
+template <class DstType, class SrcType, std::enable_if_t<std::is_base_of_v<DstType, SrcType> || std::is_base_of_v<SrcType, DstType>, bool> = true>
+inline DstType *StaticCast(const Ref<SrcType> &inObject)
 {
-	JPH_ASSERT(IsKindOf(inObject, JPH_RTTI(DstType)), "Invalid cast");
 	return static_cast<DstType *>(inObject.GetPtr());
 }
 
@@ -422,13 +422,13 @@ inline DstType *DynamicCast(SrcType *inObject)
 }
 
 template <class DstType, class SrcType>
-inline RefConst<DstType> DynamicCast(RefConst<SrcType> &inObject)
+inline const DstType *DynamicCast(const RefConst<SrcType> &inObject)
 {
 	return inObject != nullptr? reinterpret_cast<const DstType *>(inObject->CastTo(JPH_RTTI(DstType))) : nullptr;
 }
 
 template <class DstType, class SrcType>
-inline Ref<DstType> DynamicCast(Ref<SrcType> &inObject)
+inline DstType *DynamicCast(const Ref<SrcType> &inObject)
 {
 	return inObject != nullptr? const_cast<DstType *>(reinterpret_cast<const DstType *>(inObject->CastTo(JPH_RTTI(DstType)))) : nullptr;
 }

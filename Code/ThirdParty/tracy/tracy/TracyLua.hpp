@@ -120,6 +120,8 @@ static inline void LuaRemove( char* script )
     }
 }
 
+static inline void LuaHook( lua_State* L, lua_Debug* ar ) {}
+
 }
 
 #else
@@ -142,6 +144,13 @@ TRACY_API LuaZoneState& GetLuaZoneState();
 
 namespace detail
 {
+
+static inline void LuaShortenSrc( char* dst, const char* src )
+{
+    size_t l = std::min( (size_t)255, strlen( src ) );
+    memcpy( dst, src, l );
+    dst[l] = 0;
+}
 
 #ifdef TRACY_HAS_CALLSTACK
 static tracy_force_inline void SendLuaCallstack( lua_State* L, uint32_t depth )
@@ -207,7 +216,9 @@ static inline int LuaZoneBeginS( lua_State* L )
     lua_Debug dbg;
     lua_getstack( L, 1, &dbg );
     lua_getinfo( L, "Snl", &dbg );
-    const auto srcloc = Profiler::AllocSourceLocation( dbg.currentline, dbg.source, dbg.name ? dbg.name : dbg.short_src );
+    char src[256];
+    LuaShortenSrc( src, dbg.source );
+    const auto srcloc = Profiler::AllocSourceLocation( dbg.currentline, src, dbg.name ? dbg.name : dbg.short_src );
 
     TracyQueuePrepare( QueueType::ZoneBeginAllocSrcLocCallstack );
     MemWrite( &item->zoneBegin.time, Profiler::GetTime() );
@@ -237,8 +248,10 @@ static inline int LuaZoneBeginNS( lua_State* L )
     lua_getstack( L, 1, &dbg );
     lua_getinfo( L, "Snl", &dbg );
     size_t nsz;
+    char src[256];
+    LuaShortenSrc( src, dbg.source );
     const auto name = lua_tolstring( L, 1, &nsz );
-    const auto srcloc = Profiler::AllocSourceLocation( dbg.currentline, dbg.source, dbg.name ? dbg.name : dbg.short_src, name, nsz );
+    const auto srcloc = Profiler::AllocSourceLocation( dbg.currentline, src, dbg.name ? dbg.name : dbg.short_src, name, nsz );
 
     TracyQueuePrepare( QueueType::ZoneBeginAllocSrcLocCallstack );
     MemWrite( &item->zoneBegin.time, Profiler::GetTime() );
@@ -264,7 +277,9 @@ static inline int LuaZoneBegin( lua_State* L )
     lua_Debug dbg;
     lua_getstack( L, 1, &dbg );
     lua_getinfo( L, "Snl", &dbg );
-    const auto srcloc = Profiler::AllocSourceLocation( dbg.currentline, dbg.source, dbg.name ? dbg.name : dbg.short_src );
+    char src[256];
+    LuaShortenSrc( src, dbg.source );
+    const auto srcloc = Profiler::AllocSourceLocation( dbg.currentline, src, dbg.name ? dbg.name : dbg.short_src );
 
     TracyQueuePrepare( QueueType::ZoneBeginAllocSrcLoc );
     MemWrite( &item->zoneBegin.time, Profiler::GetTime() );
@@ -290,8 +305,10 @@ static inline int LuaZoneBeginN( lua_State* L )
     lua_getstack( L, 1, &dbg );
     lua_getinfo( L, "Snl", &dbg );
     size_t nsz;
+    char src[256];
+    LuaShortenSrc( src, dbg.source );
     const auto name = lua_tolstring( L, 1, &nsz );
-    const auto srcloc = Profiler::AllocSourceLocation( dbg.currentline, dbg.source, dbg.name ? dbg.name : dbg.short_src, name, nsz );
+    const auto srcloc = Profiler::AllocSourceLocation( dbg.currentline, src, dbg.name ? dbg.name : dbg.short_src, name, nsz );
 
     TracyQueuePrepare( QueueType::ZoneBeginAllocSrcLoc );
     MemWrite( &item->zoneBegin.time, Profiler::GetTime() );
@@ -423,6 +440,44 @@ static inline void LuaRegister( lua_State* L )
 }
 
 static inline void LuaRemove( char* script ) {}
+
+static inline void LuaHook( lua_State* L, lua_Debug* ar )
+{
+    if ( ar->event == LUA_HOOKCALL )
+    {
+#ifdef TRACY_ON_DEMAND
+        const auto zoneCnt = GetLuaZoneState().counter++;
+        if ( zoneCnt != 0 && !GetLuaZoneState().active ) return;
+        GetLuaZoneState().active = GetProfiler().IsConnected();
+        if ( !GetLuaZoneState().active ) return;
+#endif
+        lua_getinfo( L, "Snl", ar );
+
+        char src[256];
+        detail::LuaShortenSrc( src, ar->short_src );
+
+        const auto srcloc = Profiler::AllocSourceLocation( ar->currentline, src, ar->name ? ar->name : ar->short_src );
+        TracyQueuePrepare( QueueType::ZoneBeginAllocSrcLoc );
+        MemWrite( &item->zoneBegin.time, Profiler::GetTime() );
+        MemWrite( &item->zoneBegin.srcloc, srcloc );
+        TracyQueueCommit( zoneBeginThread );
+    }
+    else if (ar->event == LUA_HOOKRET) {
+#ifdef TRACY_ON_DEMAND
+        assert( GetLuaZoneState().counter != 0 );
+        GetLuaZoneState().counter--;
+        if ( !GetLuaZoneState().active ) return;
+        if ( !GetProfiler().IsConnected() )
+        {
+            GetLuaZoneState().active = false;
+            return;
+        }
+#endif
+        TracyQueuePrepare( QueueType::ZoneEnd );
+        MemWrite( &item->zoneEnd.time, Profiler::GetTime() );
+        TracyQueueCommit( zoneEndThread );
+    }
+}
 
 }
 

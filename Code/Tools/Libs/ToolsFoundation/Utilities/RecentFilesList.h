@@ -1,3 +1,5 @@
+#pragma once
+
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Strings/String.h>
 #include <ToolsFoundation/ToolsFoundationDLL.h>
@@ -30,7 +32,7 @@ public:
   /// \brief Returns all files in the list.
   const ezDeque<RecentFile>& GetFileList() const { return m_Files; }
 
-  /// \brief Clears the list
+  /// \brief Clears the list.
   void Clear() { m_Files.Clear(); }
 
   /// \brief Saves the recent files list to the given file. Uses a simple text file format (one line per item).

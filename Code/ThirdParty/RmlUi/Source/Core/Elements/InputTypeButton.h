@@ -1,49 +1,18 @@
-/*
- * This source file is part of RmlUi, the HTML/CSS Interface Middleware
- *
- * For the latest information, see http://github.com/mikke89/RmlUi
- *
- * Copyright (c) 2008-2010 CodePoint Ltd, Shift Technology Ltd
- * Copyright (c) 2019 The RmlUi Team, and contributors
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
- */
+#pragma once
 
-#ifndef RMLUI_CORE_ELEMENTS_INPUTTYPEBUTTON_H
-#define RMLUI_CORE_ELEMENTS_INPUTTYPEBUTTON_H
-
-#include "../../../Include/RmlUi/Core/EventListener.h"
 #include "../../../Include/RmlUi/Core/ElementDocument.h"
+#include "../../../Include/RmlUi/Core/ElementText.h"
+#include "../../../Include/RmlUi/Core/EventListener.h"
 #include "InputType.h"
 
 namespace Rml {
 
 /**
-	A button input type handler. The only functionality a button provides over a normal element is the ability
-	to be disabled. This prevents 'click' events on this element and the ability to receive focus.
-
-	@author Peter Curry
+    A button input type handler. The only functionality a button provides over a normal element is the ability
+    to be disabled. This prevents 'click' events on this element and the ability to receive focus.
  */
 
-class InputTypeButton : public InputType
-{
+class InputTypeButton : public InputType {
 public:
 	InputTypeButton(ElementFormControlInput* element);
 	virtual ~InputTypeButton();
@@ -52,6 +21,11 @@ public:
 	/// @return True if the form control is to be submitted, false otherwise.
 	bool IsSubmitted() override;
 
+	/// Called when an attribute of the element has changed.
+	/// @param[in] changed_attributes The attributes that have changed.
+	/// @return True if no layout is required, false if the layout needs to be dirtied.
+	bool OnAttributeChange(const ElementAttributes& changed_attributes) override;
+
 	/// Checks for necessary functional changes in the control as a result of the event.
 	/// @param[in] event The event to process.
 	void ProcessDefaultAction(Event& event) override;
@@ -59,7 +33,9 @@ public:
 	/// Sizes the dimensions to the element's inherent size.
 	/// @return False.
 	bool GetIntrinsicDimensions(Vector2f& dimensions, float& ratio) override;
+
+private:
+	ElementText* value_element = nullptr;
 };
 
 } // namespace Rml
-#endif

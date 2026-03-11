@@ -4,18 +4,19 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <RendererCore/Components/FogComponent.h>
-#include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererCore/Pipeline/RenderDataManager.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFogRenderData, 1, ezRTTIDefaultAllocator<ezFogRenderData>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_COMPONENT_TYPE(ezFogComponent, 2, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezFogComponent, 3, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new ezDefaultValueAttribute(ezColorGammaUB(ezColor(0.2f, 0.2f, 0.3f)))),
     EZ_ACCESSOR_PROPERTY("Density", GetDensity, SetDensity)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1.0f)),
+    EZ_ACCESSOR_PROPERTY("StartDistance", GetStartDistance, SetStartDistance)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ACCESSOR_PROPERTY("HeightFalloff", GetHeightFalloff, SetHeightFalloff)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(10.0f)),
     EZ_ACCESSOR_PROPERTY("ModulateWithSkyColor", GetModulateWithSkyColor, SetModulateWithSkyColor),
     EZ_ACCESSOR_PROPERTY("SkyDistance", GetSkyDistance, SetSkyDistance)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1000.0f)),
@@ -59,7 +60,11 @@ void ezFogComponent::OnDeactivated()
 void ezFogComponent::SetColor(ezColor color)
 {
   m_Color = color;
-  SetModified(EZ_BIT(1));
+
+  if (IsActiveAndInitialized())
+  {
+    ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
+  }
 }
 
 ezColor ezFogComponent::GetColor() const
@@ -70,7 +75,11 @@ ezColor ezFogComponent::GetColor() const
 void ezFogComponent::SetDensity(float fDensity)
 {
   m_fDensity = ezMath::Max(fDensity, 0.0f);
-  SetModified(EZ_BIT(2));
+
+  if (IsActiveAndInitialized())
+  {
+    ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
+  }
 }
 
 float ezFogComponent::GetDensity() const
@@ -81,7 +90,11 @@ float ezFogComponent::GetDensity() const
 void ezFogComponent::SetHeightFalloff(float fHeightFalloff)
 {
   m_fHeightFalloff = ezMath::Max(fHeightFalloff, 0.0f);
-  SetModified(EZ_BIT(3));
+
+  if (IsActiveAndInitialized())
+  {
+    ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
+  }
 }
 
 float ezFogComponent::GetHeightFalloff() const
@@ -92,7 +105,11 @@ float ezFogComponent::GetHeightFalloff() const
 void ezFogComponent::SetModulateWithSkyColor(bool bModulate)
 {
   m_bModulateWithSkyColor = bModulate;
-  SetModified(EZ_BIT(4));
+
+  if (IsActiveAndInitialized())
+  {
+    ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
+  }
 }
 
 bool ezFogComponent::GetModulateWithSkyColor() const
@@ -103,12 +120,31 @@ bool ezFogComponent::GetModulateWithSkyColor() const
 void ezFogComponent::SetSkyDistance(float fDistance)
 {
   m_fSkyDistance = fDistance;
-  SetModified(EZ_BIT(5));
+
+  if (IsActiveAndInitialized())
+  {
+    ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
+  }
 }
 
 float ezFogComponent::GetSkyDistance() const
 {
   return m_fSkyDistance;
+}
+
+void ezFogComponent::SetStartDistance(float fDistance)
+{
+  m_fStartDistance = fDistance;
+
+  if (IsActiveAndInitialized())
+  {
+    ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
+  }
+}
+
+float ezFogComponent::GetStartDistance() const
+{
+  return m_fStartDistance;
 }
 
 void ezFogComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
@@ -121,13 +157,14 @@ void ezFogComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
   if (msg.m_OverrideCategory != ezInvalidRenderDataCategory)
     return;
 
-  auto pRenderData = ezCreateRenderDataForThisFrame<ezFogRenderData>(GetOwner());
+  auto pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezFogRenderData>(GetOwner());
 
-  pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
   pRenderData->m_Color = m_Color;
   pRenderData->m_fDensity = m_fDensity / 100.0f;
+  pRenderData->m_fBaseHeight = GetOwner()->GetGlobalTransform().m_vPosition.z;
   pRenderData->m_fHeightFalloff = m_fHeightFalloff;
   pRenderData->m_fInvSkyDistance = m_bModulateWithSkyColor ? 1.0f / m_fSkyDistance : 0.0f;
+  pRenderData->m_fFogStartDistance = m_fStartDistance;
 
   msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, ezRenderData::Caching::IfStatic);
 }
@@ -143,6 +180,7 @@ void ezFogComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   s << m_fHeightFalloff;
   s << m_fSkyDistance;
   s << m_bModulateWithSkyColor;
+  s << m_fStartDistance;
 }
 
 void ezFogComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -159,6 +197,11 @@ void ezFogComponent::DeserializeComponent(ezWorldReader& inout_stream)
   {
     s >> m_fSkyDistance;
     s >> m_bModulateWithSkyColor;
+  }
+
+  if (uiVersion >= 3)
+  {
+    s >> m_fStartDistance;
   }
 }
 

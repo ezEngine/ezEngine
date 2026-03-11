@@ -18,7 +18,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSkeletonPoseComponent, 4, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Skeleton", GetSkeletonFile, SetSkeletonFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Skeleton")),
+    EZ_RESOURCE_ACCESSOR_PROPERTY("Skeleton", GetSkeleton, SetSkeleton)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Mesh_Skeleton")),
     EZ_ENUM_ACCESSOR_PROPERTY("Mode", ezSkeletonPoseMode, GetPoseMode, SetPoseMode),
     EZ_MEMBER_PROPERTY("EditBones", m_fDummy),
     EZ_MAP_ACCESSOR_PROPERTY("Bones", GetBones, GetBone, SetBone, RemoveBone)->AddAttributes(new ezExposedParametersAttribute("Skeleton"), new ezContainerAttribute(false, true, false)),
@@ -125,26 +125,6 @@ void ezSkeletonPoseComponent::OnSimulationStarted()
   ResendPose();
 }
 
-void ezSkeletonPoseComponent::SetSkeletonFile(const char* szFile)
-{
-  ezSkeletonResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hResource = ezResourceManager::LoadResource<ezSkeletonResource>(szFile);
-  }
-
-  SetSkeleton(hResource);
-}
-
-const char* ezSkeletonPoseComponent::GetSkeletonFile() const
-{
-  if (!m_hSkeleton.IsValid())
-    return "";
-
-  return m_hSkeleton.GetResourceID();
-}
-
 void ezSkeletonPoseComponent::SetSkeleton(const ezSkeletonResourceHandle& hResource)
 {
   if (m_hSkeleton != hResource)
@@ -243,13 +223,13 @@ void ezSkeletonPoseComponent::SendRestPose()
   if (skel.GetJointCount() == 0)
     return;
 
-  ezHybridArray<ezMat4, 32> finalTransforms(ezFrameAllocator::GetCurrentAllocator());
-  finalTransforms.SetCountUninitialized(skel.GetJointCount());
-
+  ezTempArray<ozz::math::Float4x4> poseMatrices;
+  poseMatrices.SetCountUninitialized(skel.GetJointCount());
+  EZ_ASSERT_DEBUG(ezMemoryUtils::IsAligned(poseMatrices.GetData(), alignof(ozz::math::Float4x4)), "Unaligned cast");
   {
     ozz::animation::LocalToModelJob job;
     job.input = skel.GetOzzSkeleton().joint_rest_poses();
-    job.output = ozz::span<ozz::math::Float4x4>(reinterpret_cast<ozz::math::Float4x4*>(finalTransforms.GetData()), finalTransforms.GetCount());
+    job.output = ozz::span<ozz::math::Float4x4>(poseMatrices.GetData(), poseMatrices.GetCount());
     job.skeleton = &skel.GetOzzSkeleton();
     job.Run();
   }
@@ -257,9 +237,9 @@ void ezSkeletonPoseComponent::SendRestPose()
   ezMsgAnimationPoseUpdated msg;
   msg.m_pRootTransform = &desc.m_RootTransform;
   msg.m_pSkeleton = &skel;
-  msg.m_ModelTransforms = finalTransforms;
+  msg.m_ModelTransforms = poseMatrices.GetArrayPtr().Cast<const ezMat4>();
 
-  GetOwner()->SendMessage(msg);
+  GetOwner()->SendMessageRecursive(msg);
 
   if (msg.m_bContinueAnimating == false)
     m_PoseMode = ezSkeletonPoseMode::Disabled;
@@ -274,12 +254,13 @@ void ezSkeletonPoseComponent::SendCustomPose()
   const auto& desc = pSkeleton->GetDescriptor();
   const auto& skel = desc.m_Skeleton;
 
-  ezHybridArray<ezMat4, 32> finalTransforms(ezFrameAllocator::GetCurrentAllocator());
+  ezTempArray<ozz::math::Float4x4> finalTransforms;
   finalTransforms.SetCountUninitialized(skel.GetJointCount());
+  EZ_ASSERT_DEBUG(ezMemoryUtils::IsAligned(finalTransforms.GetData(), alignof(ozz::math::Float4x4)), "Unaligned cast");
 
   for (ezUInt32 i = 0; i < finalTransforms.GetCount(); ++i)
   {
-    finalTransforms[i].SetIdentity();
+    finalTransforms[i] = ozz::math::Float4x4::identity();
   }
 
   ozz::vector<ozz::math::SoaTransform> ozzLocalTransforms;
@@ -321,7 +302,7 @@ void ezSkeletonPoseComponent::SendCustomPose()
 
   ozz::animation::LocalToModelJob job;
   job.input = ozz::span<const ozz::math::SoaTransform>(ozzLocalTransforms.data(), ozzLocalTransforms.size());
-  job.output = ozz::span<ozz::math::Float4x4>(reinterpret_cast<ozz::math::Float4x4*>(finalTransforms.GetData()), finalTransforms.GetCount());
+  job.output = ozz::span<ozz::math::Float4x4>(finalTransforms.GetData(), finalTransforms.GetCount());
   job.skeleton = &skel.GetOzzSkeleton();
   EZ_ASSERT_DEBUG(job.Validate(), "");
   job.Run();
@@ -330,9 +311,9 @@ void ezSkeletonPoseComponent::SendCustomPose()
   ezMsgAnimationPoseUpdated msg;
   msg.m_pRootTransform = &desc.m_RootTransform;
   msg.m_pSkeleton = &skel;
-  msg.m_ModelTransforms = finalTransforms;
+  msg.m_ModelTransforms = finalTransforms.GetArrayPtr().Cast<const ezMat4>();
 
-  GetOwner()->SendMessage(msg);
+  GetOwner()->SendMessageRecursive(msg);
 
   if (msg.m_bContinueAnimating == false)
     m_PoseMode = ezSkeletonPoseMode::Disabled;
@@ -374,7 +355,7 @@ void ezSkeletonPoseComponentManager::Initialize()
   SUPER::Initialize();
 
   ezWorldModule::UpdateFunctionDesc desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezSkeletonPoseComponentManager::Update, this);
-  desc.m_Phase = UpdateFunctionDesc::Phase::PreAsync;
+  desc.m_Phase = ezWorldUpdatePhase::PreAsync;
 
   RegisterUpdateFunction(desc);
 }

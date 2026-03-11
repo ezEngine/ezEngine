@@ -1,0 +1,25 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+CAMERA_MODE = CAMERA_MODE_PERSPECTIVE
+
+[RENDERSTATE]
+
+DepthTest = false
+DepthWrite = false
+CullMode = CullMode_None
+
+[VERTEXSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleVertexShader.h>
+
+[PIXELSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleInterpolator.h>
+#include <Shaders/Common/Common.h>
+
+float4 main(PS_IN Input) : SV_Target
+{
+  return float4(Input.TexCoord0.xy, 1, 1);
+}

@@ -160,7 +160,26 @@ EZ_ALWAYS_INLINE bool ezSimdVec4f::IsValid() const
 template <int N>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::GetComponent() const
 {
-  return (&m_v.x)[N];
+  if constexpr (N == 0)
+  {
+    return m_v.x;
+  }
+  else if constexpr (N == 1)
+  {
+    return m_v.y;
+  }
+  else if constexpr (N == 2)
+  {
+    return m_v.z;
+  }
+  else if constexpr (N == 3)
+  {
+    return m_v.w;
+  }
+  else
+  {
+    return m_v.w;
+  }
 }
 
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::x() const
@@ -473,18 +492,6 @@ EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::Dot(const ezSimdVec4f& v) const
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::CrossRH(const ezSimdVec4f& v) const
 {
   return m_v.GetAsVec3().CrossRH(v.m_v.GetAsVec3()).GetAsVec4(0.0f);
-}
-
-EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::GetOrthogonalVector() const
-{
-  if (ezMath::Abs(m_v.y) < 0.99f)
-  {
-    return ezVec4(-m_v.z, 0.0f, m_v.x, 0.0f);
-  }
-  else
-  {
-    return ezVec4(0.0f, m_v.z, -m_v.y, 0.0f);
-  }
 }
 
 // static

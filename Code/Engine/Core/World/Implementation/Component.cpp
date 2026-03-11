@@ -19,6 +19,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezComponent, 1, ezRTTINoAllocator)
     EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_GetOwner),
     EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_GetWorld),
     EZ_SCRIPT_FUNCTION_PROPERTY(GetUniqueID),
+    EZ_SCRIPT_FUNCTION_PROPERTY(DeleteComponent),
     EZ_SCRIPT_FUNCTION_PROPERTY(Initialize)->AddAttributes(new ezScriptBaseClassFunctionAttribute(ezComponent_ScriptBaseClassFunctions::Initialize)),
     EZ_SCRIPT_FUNCTION_PROPERTY(Deinitialize)->AddAttributes(new ezScriptBaseClassFunctionAttribute(ezComponent_ScriptBaseClassFunctions::Deinitialize)),
     EZ_SCRIPT_FUNCTION_PROPERTY(OnActivated)->AddAttributes(new ezScriptBaseClassFunctionAttribute(ezComponent_ScriptBaseClassFunctions::OnActivated)),
@@ -53,10 +54,12 @@ const ezWorld* ezComponent::GetWorld() const
 
 void ezComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
+  EZ_IGNORE_UNUSED(inout_stream);
 }
 
 void ezComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
+  EZ_IGNORE_UNUSED(inout_stream);
 }
 
 void ezComponent::EnsureInitialized()
@@ -128,6 +131,11 @@ bool ezComponent::GetUserFlag(ezUInt8 uiFlagIndex) const
   return m_ComponentFlags.IsSet(static_cast<ezObjectFlags::Enum>(ezObjectFlags::UserFlag0 << uiFlagIndex));
 }
 
+void ezComponent::DeleteComponent()
+{
+  GetOwningManager()->DeleteComponent(this);
+}
+
 void ezComponent::Initialize() {}
 
 void ezComponent::Deinitialize()
@@ -150,11 +158,15 @@ void ezComponent::EnableUnhandledMessageHandler(bool enable)
 
 bool ezComponent::OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg)
 {
+  EZ_IGNORE_UNUSED(msg);
+  EZ_IGNORE_UNUSED(bWasPostedMsg);
   return false;
 }
 
 bool ezComponent::OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg) const
 {
+  EZ_IGNORE_UNUSED(msg);
+  EZ_IGNORE_UNUSED(bWasPostedMsg);
   return false;
 }
 
@@ -198,6 +210,7 @@ ezWorld* ezComponent::Reflection_GetWorld() const
 
 void ezComponent::Reflection_Update(ezTime deltaTime)
 {
+  EZ_IGNORE_UNUSED(deltaTime);
   // This is just a dummy function for the scripting reflection
 }
 

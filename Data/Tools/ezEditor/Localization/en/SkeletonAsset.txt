@@ -1,6 +1,6 @@
 # Asset Types
 
-Skeleton;Skeleton
+Skeleton;Skeleton;;https://ezengine.net/pages/docs/animation/skeletal-animation/skeleton-asset.html
 
 # Component Types
 

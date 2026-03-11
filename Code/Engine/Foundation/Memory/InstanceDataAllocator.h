@@ -24,13 +24,24 @@ struct EZ_FOUNDATION_DLL ezInstanceDataDesc
   EZ_ALWAYS_INLINE void FillFromType()
   {
     m_uiTypeSize = sizeof(T);
-    m_uiTypeAlignment = EZ_ALIGNMENT_OF(T);
+    m_uiTypeAlignment = alignof(T);
     m_ConstructorFunction = ezMemoryUtils::MakeConstructorFunction<SkipTrivialTypes, T>();
     m_DestructorFunction = ezMemoryUtils::MakeDestructorFunction<T>();
   }
 };
 
-/// \brief Helper class to manager instance data allocation, construction and destruction
+/// \brief Manages complex multi-type instance data allocation with proper construction and destruction.
+///
+/// This allocator is designed for systems that need to allocate heterogeneous data structures
+/// in a single memory block, such as VM instances, state machines, or script execution contexts.
+/// It calculates proper alignments for mixed data types and handles construction/destruction
+/// automatically.
+///
+/// Typical workflow:
+/// 1. Use AddDesc() to register all data types needed for an instance
+/// 2. Call AllocateAndConstruct() to create initialized memory
+/// 3. Use GetInstanceData() to access individual data by offset
+/// 4. Call DestructAndDeallocate() when the instance is no longer needed
 class EZ_FOUNDATION_DLL ezInstanceDataAllocator
 {
 public:

@@ -24,7 +24,7 @@ bool ezAssetFileExtensionWhitelist::IsFileOnAssetWhitelist(ezStringView sAssetTy
   ezStringBuilder sLowerType = sAssetType;
   sLowerType.ToLower();
 
-  ezHybridArray<ezString, 16> Types;
+  ezTempHybridArray<ezString, 16> Types;
   sLowerType.Split(false, Types, ";");
 
   for (const auto& filter : Types)

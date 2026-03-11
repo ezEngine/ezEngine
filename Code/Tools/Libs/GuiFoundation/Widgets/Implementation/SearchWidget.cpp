@@ -18,7 +18,8 @@ ezQtSearchWidget::ezQtSearchWidget(QWidget* pParent)
     m_pClearButton->setAutoDefault(false);
     m_pClearButton->setDefault(false);
     m_pClearButton->setEnabled(false);
-    m_pClearButton->setIcon(QIcon(":/GuiFoundation/Icons/Delete.svg"));
+    m_pClearButton->setIcon(QIcon(":/GuiFoundation/Icons/Clear.svg"));
+    m_pClearButton->setToolTip("Clear the search text.");
   }
 
   {

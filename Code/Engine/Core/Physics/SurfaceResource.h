@@ -11,6 +11,7 @@
 class ezWorld;
 class ezUuid;
 
+/// \brief Event data for surface resource lifecycle notifications.
 struct ezSurfaceResourceEvent
 {
   enum class Type
@@ -20,9 +21,14 @@ struct ezSurfaceResourceEvent
   };
 
   Type m_Type;
-  ezSurfaceResource* m_pSurface;
+  ezSurfaceResource* m_pSurface = nullptr;
 };
 
+/// \brief Resource representing a physics surface with material properties and interaction behaviors.
+///
+/// Defines how objects interact with a surface through collision responses, sound effects,
+/// particle effects, and other configurable behaviors. Supports inheritance from base surfaces
+/// and provides integration with physics engines through material pointers.
 class EZ_CORE_DLL ezSurfaceResource : public ezResource
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSurfaceResource, ezResource);

@@ -11,6 +11,11 @@ struct EZ_AIPLUGIN_DLL ezAiNavmeshConfig
 {
   ezString m_sName;
 
+  ezUInt16 m_uiNumSectorsX = 64;
+  ezUInt16 m_uiNumSectorsY = 64;
+
+  float m_fSectorSize = 32.0f;
+
   /// The physics collision layer to use for building this navmesh (retrieving the physics geometry).
   ezUInt8 m_uiCollisionLayer = 0;
 

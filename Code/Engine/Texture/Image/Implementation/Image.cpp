@@ -62,9 +62,9 @@ ezResult ezImageView::SaveTo(ezStringView sFileName) const
 
   ezStringView it = ezPathUtils::GetFileExtension(sFileName);
 
-  if (ezImageFileFormat* pFormat = ezImageFileFormat::GetWriterFormat(it.GetStartPointer()))
+  if (const ezImageFileFormat* pFormat = ezImageFileFormat::GetWriterFormat(it))
   {
-    if (pFormat->WriteImage(writer, *this, it.GetStartPointer()) != EZ_SUCCESS)
+    if (pFormat->WriteImage(writer, *this, it) != EZ_SUCCESS)
     {
       ezLog::Error("Failed to write image file '{0}'", sFileName);
       return EZ_FAILURE;
@@ -149,6 +149,11 @@ ezUInt64 ezImageView::ComputeLayout()
 
 void ezImageView::ValidateSubImageIndices(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex, ezUInt32 uiPlaneIndex) const
 {
+  EZ_IGNORE_UNUSED(uiMipLevel);
+  EZ_IGNORE_UNUSED(uiFace);
+  EZ_IGNORE_UNUSED(uiArrayIndex);
+  EZ_IGNORE_UNUSED(uiPlaneIndex);
+
   EZ_ASSERT_DEV(uiMipLevel < m_uiNumMipLevels, "Invalid mip level");
   EZ_ASSERT_DEV(uiFace < m_uiNumFaces, "Invalid uiFace");
   EZ_ASSERT_DEV(uiArrayIndex < m_uiNumArrayIndices, "Invalid array slice");
@@ -255,8 +260,7 @@ void ezImage::ResetAndCopy(const ezImageView& other)
 ezResult ezImage::LoadFrom(ezStringView sFileName)
 {
   EZ_LOG_BLOCK("Loading Image", sFileName);
-
-  EZ_PROFILE_SCOPE(ezPathUtils::GetFileNameAndExtension(sFileName).GetStartPointer());
+  EZ_PROFILE_SCOPE(ezPathUtils::GetFileNameAndExtension(sFileName));
 
   ezFileReader reader;
   if (reader.Open(sFileName) == EZ_FAILURE)
@@ -267,9 +271,9 @@ ezResult ezImage::LoadFrom(ezStringView sFileName)
 
   ezStringView it = ezPathUtils::GetFileExtension(sFileName);
 
-  if (ezImageFileFormat* pFormat = ezImageFileFormat::GetReaderFormat(it.GetStartPointer()))
+  if (const ezImageFileFormat* pFormat = ezImageFileFormat::GetReaderFormat(it))
   {
-    if (pFormat->ReadImage(reader, *this, it.GetStartPointer()) != EZ_SUCCESS)
+    if (pFormat->ReadImage(reader, *this, it) != EZ_SUCCESS)
     {
       ezLog::Warning("Failed to read image file '{0}'", ezArgSensitive(sFileName, "File"));
       return EZ_FAILURE;

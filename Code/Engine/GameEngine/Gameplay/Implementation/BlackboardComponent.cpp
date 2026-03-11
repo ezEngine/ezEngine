@@ -18,7 +18,8 @@ struct BCFlags
   {
     ShowDebugInfo = 0,
     SendEntryChangedMessage,
-    InitializedFromTemplate
+    InitializedFromTemplate,
+    IsRuntimeSerialized,
   };
 };
 
@@ -78,7 +79,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezBlackboardComponent, 3)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Template", GetTemplateFile, SetTemplateFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_BlackboardTemplate")),
+    EZ_RESOURCE_MEMBER_PROPERTY("Template", m_hTemplate)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_BlackboardTemplate")),
     EZ_ACCESSOR_PROPERTY("ShowDebugInfo", GetShowDebugInfo, SetShowDebugInfo),
   }
   EZ_END_PROPERTIES;
@@ -92,7 +93,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezBlackboardComponent, 3)
 
   EZ_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_FindBlackboard, In, "SearchObject", In, "BlackboardName")->AddFlags(ezPropertyFlags::Const)->AddAttributes(new ezFunctionArgumentAttributes(1, new ezDynamicStringEnumAttribute("BlackboardNamesEnum"))),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Reflection_FindBlackboard, In, "SearchObject", In, "BlackboardName")->AddFlags(ezPropertyFlags::PureFunction)->AddAttributes(new ezFunctionArgumentAttributes(1, new ezDynamicStringEnumAttribute("BlackboardNamesEnum"))),
     EZ_SCRIPT_FUNCTION_PROPERTY(SetEntryValue, In, "Name", In, "Value")->AddAttributes(new ezFunctionArgumentAttributes(0, new ezDynamicStringEnumAttribute("BlackboardKeysEnum"))),
     EZ_SCRIPT_FUNCTION_PROPERTY(GetEntryValue, In, "Name")->AddAttributes(new ezFunctionArgumentAttributes(0, new ezDynamicStringEnumAttribute("BlackboardKeysEnum"))),
   }
@@ -202,28 +203,6 @@ void ezBlackboardComponent::SetShowDebugInfo(bool bShow)
 bool ezBlackboardComponent::GetShowDebugInfo() const
 {
   return GetUserFlag(BCFlags::ShowDebugInfo);
-}
-
-void ezBlackboardComponent::SetTemplateFile(const char* szName)
-{
-  ezBlackboardTemplateResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szName))
-  {
-    hResource = ezResourceManager::LoadResource<ezBlackboardTemplateResource>(szName);
-  }
-
-  m_hTemplate = hResource;
-}
-
-const char* ezBlackboardComponent::GetTemplateFile() const
-{
-  if (m_hTemplate.IsValid())
-  {
-    return m_hTemplate.GetResourceID();
-  }
-
-  return "";
 }
 
 void ezBlackboardComponent::SetEntryValue(const char* szName, const ezVariant& value)
@@ -354,6 +333,13 @@ void ezLocalBlackboardComponent::OnSimulationStarted()
   // and we then press play, to have the new entries in the BB
   // this would NOT update the initial values, though, if they changed
   InitializeFromTemplate();
+
+  // override with the component specific initial entries
+  for (auto& entry : m_InitialEntries)
+  {
+    m_pBoard->SetEntryValue(entry.m_sName, entry.m_InitialValue);
+    m_pBoard->SetEntryFlags(entry.m_sName, entry.m_Flags).AssertSuccess();
+  }
 }
 
 void ezLocalBlackboardComponent::SerializeComponent(ezWorldWriter& inout_stream) const
@@ -367,6 +353,8 @@ void ezLocalBlackboardComponent::SerializeComponent(ezWorldWriter& inout_stream)
 
 void ezLocalBlackboardComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
+  SetUserFlag(BCFlags::IsRuntimeSerialized, true);
+
   const ezUInt32 uiBaseVersion = inout_stream.GetComponentTypeVersion(ezBlackboardComponent::GetStaticRTTI());
   if (uiBaseVersion < 3)
     return;
@@ -385,10 +373,13 @@ void ezLocalBlackboardComponent::DeserializeComponent(ezWorldReader& inout_strea
   ezDynamicArray<ezBlackboardEntry> initialEntries;
   if (s.ReadArray(initialEntries).Succeeded())
   {
-    for (auto& entry : initialEntries)
+    for (ezUInt32 i = 0; i < initialEntries.GetCount(); ++i)
     {
+      auto& entry = initialEntries[i];
+
       m_pBoard->SetEntryValue(entry.m_sName, entry.m_InitialValue);
       m_pBoard->SetEntryFlags(entry.m_sName, entry.m_Flags).AssertSuccess();
+      m_pBoard->SetEditorIndex(entry.m_sName, static_cast<ezUInt8>(i)).AssertSuccess(); // allows us to map exposed parameters to the proper value
     }
   }
 }
@@ -425,49 +416,75 @@ const char* ezLocalBlackboardComponent::GetBlackboardName() const
   return m_pBoard->GetName();
 }
 
-
 ezUInt32 ezLocalBlackboardComponent::Entries_GetCount() const
 {
-  return m_InitialEntries.GetCount();
-}
-
-const ezBlackboardEntry& ezLocalBlackboardComponent::Entries_GetValue(ezUInt32 uiIndex) const
-{
-  return m_InitialEntries[uiIndex];
-}
-
-void ezLocalBlackboardComponent::Entries_SetValue(ezUInt32 uiIndex, const ezBlackboardEntry& entry)
-{
-  m_InitialEntries.EnsureCount(uiIndex + 1);
-
-  if (const ezBlackboard::Entry* pEntry = m_pBoard->GetEntry(m_InitialEntries[uiIndex].m_sName))
+  if (IsEditor())
   {
-    if (m_InitialEntries[uiIndex].m_sName != entry.m_sName)
+    return m_InitialEntries.GetCount();
+  }
+  return m_pBoard->GetAllEntries().GetCount();
+}
+
+ezBlackboardEntry ezLocalBlackboardComponent::Entries_GetValue(ezUInt32 uiIndex) const
+{
+  if (IsEditor())
+  {
+    return m_InitialEntries[uiIndex];
+  }
+
+  ezHashedString sName = m_pBoard->FindNameForEditorIndex(static_cast<ezUInt8>(uiIndex));
+  ezBlackboardEntry tempEntry;
+  if (!sName.IsEmpty())
+  {
+    tempEntry.m_sName = sName;
+    tempEntry.m_InitialValue = m_pBoard->GetEntryValue(sName);
+    tempEntry.m_Flags = m_pBoard->GetEntryFlags(sName);
+  }
+  return tempEntry;
+}
+
+void ezLocalBlackboardComponent::Entries_SetValue(ezUInt32 uiIndex, ezBlackboardEntry entry)
+{
+  if (IsEditor())
+  {
+    m_InitialEntries.EnsureCount(uiIndex + 1);
+
+    // Remove old name under this index
+    if (const ezBlackboard::Entry* pEntry = m_pBoard->GetEntry(m_InitialEntries[uiIndex].m_sName))
     {
-      m_pBoard->RemoveEntry(m_InitialEntries[uiIndex].m_sName);
+      if (m_InitialEntries[uiIndex].m_sName != entry.m_sName)
+      {
+        m_pBoard->RemoveEntry(m_InitialEntries[uiIndex].m_sName);
+      }
     }
+    m_InitialEntries[uiIndex] = entry;
   }
 
   m_pBoard->SetEntryValue(entry.m_sName, entry.m_InitialValue);
   m_pBoard->SetEntryFlags(entry.m_sName, entry.m_Flags).AssertSuccess();
-
-  m_InitialEntries[uiIndex] = entry;
 }
 
-void ezLocalBlackboardComponent::Entries_Insert(ezUInt32 uiIndex, const ezBlackboardEntry& entry)
+void ezLocalBlackboardComponent::Entries_Insert(ezUInt32 uiIndex, ezBlackboardEntry entry)
 {
-  m_InitialEntries.InsertAt(uiIndex, entry);
+  if (IsEditor())
+  {
+    m_InitialEntries.InsertAt(uiIndex, entry);
+  }
 
   m_pBoard->SetEntryValue(entry.m_sName, entry.m_InitialValue);
   m_pBoard->SetEntryFlags(entry.m_sName, entry.m_Flags).AssertSuccess();
+  m_pBoard->SetEditorIndex(entry.m_sName, static_cast<ezUInt8>(uiIndex)).AssertSuccess();
 }
 
 void ezLocalBlackboardComponent::Entries_Remove(ezUInt32 uiIndex)
 {
-  auto& entry = m_InitialEntries[uiIndex];
-  m_pBoard->RemoveEntry(entry.m_sName);
+  if (IsEditor())
+  {
+    auto& entry = m_InitialEntries[uiIndex];
+    m_pBoard->RemoveEntry(entry.m_sName);
 
-  m_InitialEntries.RemoveAtAndCopy(uiIndex);
+    m_InitialEntries.RemoveAtAndCopy(uiIndex);
+  }
 }
 
 void ezLocalBlackboardComponent::OnEntryChanged(const ezBlackboard::EntryEvent& e)
@@ -498,6 +515,11 @@ void ezLocalBlackboardComponent::InitializeFromTemplate()
     m_pBoard->SetEntryValue(entry.m_sName, entry.m_InitialValue);
     m_pBoard->SetEntryFlags(entry.m_sName, entry.m_Flags).AssertSuccess();
   }
+}
+
+bool ezLocalBlackboardComponent::IsEditor() const
+{
+  return !GetUserFlag(BCFlags::IsRuntimeSerialized);
 }
 
 //////////////////////////////////////////////////////////////////////////

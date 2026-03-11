@@ -14,9 +14,10 @@ struct ezStandardMenuTypes
     Edit = EZ_BIT(2),
     Panels = EZ_BIT(3),
     Scene = EZ_BIT(4),
-    View = EZ_BIT(5),
-    Tools = EZ_BIT(6),
-    Help = EZ_BIT(7),
+    Asset = EZ_BIT(5),
+    View = EZ_BIT(6),
+    Tools = EZ_BIT(7),
+    Help = EZ_BIT(8),
 
     Default = Project | File | Panels | Tools | Help
   };
@@ -28,6 +29,7 @@ struct ezStandardMenuTypes
     StorageType Edit : 1;
     StorageType Panels : 1;
     StorageType Scene : 1;
+    StorageType Asset : 1;
     StorageType View : 1;
     StorageType Tools : 1;
     StorageType Help : 1;
@@ -49,12 +51,15 @@ public:
   static ezActionDescriptorHandle s_hMenuFile;
   static ezActionDescriptorHandle s_hMenuEdit;
   static ezActionDescriptorHandle s_hMenuPanels;
+  static ezActionDescriptorHandle s_hMenuPanelsAll;
   static ezActionDescriptorHandle s_hMenuScene;
+  static ezActionDescriptorHandle s_hMenuAsset;
   static ezActionDescriptorHandle s_hMenuView;
   static ezActionDescriptorHandle s_hMenuTools;
   static ezActionDescriptorHandle s_hMenuHelp;
   static ezActionDescriptorHandle s_hCheckForUpdates;
   static ezActionDescriptorHandle s_hReportProblem;
+  static ezActionDescriptorHandle s_hAskQuestion;
 };
 
 ///
@@ -67,7 +72,7 @@ public:
     : ezDynamicMenuAction(context, szName, szIconPath)
   {
   }
-  virtual void GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_entries) override;
+  virtual void GetEntries(ezDynamicArray<Item>& out_entries) override;
   virtual void Execute(const ezVariant& value) override;
 };
 
@@ -82,6 +87,7 @@ public:
   {
     CheckForUpdates,
     ReportProblem,
+    AskQuestion,
   };
 
   ezHelpActions(const ezActionContext& context, const char* szName, ButtonType button);
