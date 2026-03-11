@@ -336,9 +336,9 @@ void ezRandomPrefabComponent::InstantiatePrefabs()
     }
   };
 
-  ezHybridArray<ezGameObject*, 64> allCreatedRootObjects;
-  ezHybridArray<ezGameObject*, 8> createdRootObjects;
-  ezHybridArray<ezGameObject*, 8> createdChildObjects;
+  ezTempHybridArray<ezGameObject*, 64> allCreatedRootObjects;
+  ezTempHybridArray<ezGameObject*, 8> createdRootObjects;
+  ezTempHybridArray<ezGameObject*, 8> createdChildObjects;
 
   const bool bAttachAsChildren = m_bInstantiateAsChildren || bIsInEditor;
 

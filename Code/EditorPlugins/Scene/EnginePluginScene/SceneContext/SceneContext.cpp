@@ -87,7 +87,7 @@ void ezSceneContext::UpdateInvisibleLayerTags()
       }
     }
 
-    ezHybridArray<ezTag, 1> newInvisibleLayerTags;
+    ezTempHybridArray<ezTag, 1> newInvisibleLayerTags;
     newInvisibleLayerTags.Reserve(m_InvisibleLayers.GetCount());
     for (const ezUuid& guid : m_InvisibleLayers)
     {
@@ -820,7 +820,7 @@ ezStatus ezSceneContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
 
 void ezSceneContext::ExportExposedParameters(const ezWorldWriter& ww, ezDeferredFileWriter& file) const
 {
-  ezHybridArray<ezExposedPrefabParameterDesc, 16> exposedParams;
+  ezTempHybridArray<ezExposedPrefabParameterDesc, 16> exposedParams;
 
   for (const auto& esp : m_ExposedSceneProperties)
   {

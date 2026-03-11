@@ -136,7 +136,7 @@ ezCommandLineOptionBool opt_NoFileCVars("cvar", "-no-file-cvars", "Disables load
 
 void ezCVar::SaveCVarsToFile(ezStringView sPath, bool bIgnoreSaveFlag)
 {
-  ezHybridArray<ezCVar*, 128> allCVars;
+  ezTempHybridArray<ezCVar*, 128> allCVars;
 
   for (ezCVar* pCVar = ezCVar::GetFirstInstance(); pCVar != nullptr; pCVar = pCVar->GetNextInstance())
   {
@@ -344,7 +344,7 @@ void ezCVar::LoadCVarsFromFile(bool bOnlyNewOnes, bool bSetAsCurrentValue, ezDyn
 
 void ezCVar::LoadCVarsFromFile(ezStringView sPath, bool bOnlyNewOnes, bool bSetAsCurrentValue, bool bIgnoreSaveFlag, ezDynamicArray<ezCVar*>* pOutCVars)
 {
-  ezHybridArray<ezCVar*, 128> allCVars;
+  ezTempHybridArray<ezCVar*, 128> allCVars;
 
   for (ezCVar* pCVar = ezCVar::GetFirstInstance(); pCVar != nullptr; pCVar = pCVar->GetNextInstance())
   {

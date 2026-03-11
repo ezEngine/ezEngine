@@ -127,7 +127,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, MathExpression)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Variables")
   {
-    ezHybridArray<ezMathExpression::Input, 4> inputs;
+    ezTempHybridArray<ezMathExpression::Input, 4> inputs;
     inputs.SetCount(4);
 
     {

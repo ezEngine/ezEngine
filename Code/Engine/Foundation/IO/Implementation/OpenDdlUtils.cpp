@@ -1507,7 +1507,7 @@ void ezOpenDdlUtils::StoreVariant(ezOpenDdlWriter& ref_writer, const ezVariant& 
       {
         ref_writer.BeginObject(obj.m_pType->GetTypeName(), sName, bGlobalName);
         {
-          ezHybridArray<const ezAbstractProperty*, 32> properties;
+          ezTempHybridArray<const ezAbstractProperty*, 32> properties;
           obj.m_pType->GetAllProperties(properties);
           for (const ezAbstractProperty* pProp : properties)
           {

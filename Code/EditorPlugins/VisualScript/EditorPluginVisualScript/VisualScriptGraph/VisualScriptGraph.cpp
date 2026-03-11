@@ -258,11 +258,11 @@ void ezVisualScriptNodeManager::GetOutputDataPins(const ezDocumentObject* pObjec
 
 void ezVisualScriptNodeManager::GetEntryNodes(const ezDocumentObject* pObject, ezDynamicArray<const ezDocumentObject*>& out_entryNodes) const
 {
-  ezHybridArray<const ezDocumentObject*, 64> nodeStack;
+  ezTempHybridArray<const ezDocumentObject*, 64> nodeStack;
   nodeStack.PushBack(pObject);
 
   ezHashSet<const ezDocumentObject*> visitedNodes;
-  ezHybridArray<const ezVisualScriptPin*, 16> pins;
+  ezTempHybridArray<const ezVisualScriptPin*, 16> pins;
 
   while (nodeStack.IsEmpty() == false)
   {
@@ -438,7 +438,7 @@ void ezVisualScriptNodeManager::InternalCreatePins(const ezDocumentObject* pObje
   if (pNodeDesc == nullptr)
     return;
 
-  ezHybridArray<ezString, 16> dynamicPinNames;
+  ezTempHybridArray<ezString, 16> dynamicPinNames;
   auto CreatePins = [&](const ezVisualScriptNodeRegistry::PinDesc& pinDesc, ezVisualGraphPin::Type type, ezDynamicArray<ezUniquePtr<ezVisualGraphPin>>& out_pins, ezUInt32& inout_dataPinIndex)
   {
     if (pinDesc.m_sDynamicPinProperty.IsEmpty() == false)
@@ -651,7 +651,7 @@ void ezVisualScriptNodeManager::DeductNodeTypeAndAllPinTypes(const ezDocumentObj
   }
 
   bool bAnyInputPinChanged = false;
-  ezHybridArray<const ezVisualScriptPin*, 16> pins;
+  ezTempHybridArray<const ezVisualScriptPin*, 16> pins;
   GetInputDataPins(pObject, pins);
   for (auto pPin : pins)
   {
@@ -707,7 +707,7 @@ void ezVisualScriptNodeManager::UpdateCoroutine(const ezDocumentObject* pTargetN
   if (vsPin.IsExecutionPin() == false)
     return;
 
-  ezHybridArray<const ezDocumentObject*, 16> entryNodes;
+  ezTempHybridArray<const ezDocumentObject*, 16> entryNodes;
   GetEntryNodes(pTargetNode, entryNodes);
 
   for (auto pEntryNode : entryNodes)
@@ -733,11 +733,11 @@ void ezVisualScriptNodeManager::UpdateCoroutine(const ezDocumentObject* pTargetN
 
 bool ezVisualScriptNodeManager::IsConnectedToCoroutine(const ezDocumentObject* pEntryNode, const ezVisualGraphConnection& changedConnection, bool bIsAboutToDisconnect) const
 {
-  ezHybridArray<const ezDocumentObject*, 64> nodeStack;
+  ezTempHybridArray<const ezDocumentObject*, 64> nodeStack;
   nodeStack.PushBack(pEntryNode);
 
   ezHashSet<const ezDocumentObject*> visitedNodes;
-  ezHybridArray<const ezVisualScriptPin*, 16> pins;
+  ezTempHybridArray<const ezVisualScriptPin*, 16> pins;
 
   while (nodeStack.IsEmpty() == false)
   {

@@ -137,7 +137,7 @@ bool ezSkeleton::IsJointDescendantOf(ezUInt16 uiJoint, ezUInt16 uiExpectedParent
 
 static void BuildRawOzzSkeleton(const ezSkeleton& skeleton, ezUInt16 uiExpectedParent, ozz::animation::offline::RawSkeleton::Joint::Children& ref_dstBones)
 {
-  ezHybridArray<ezUInt16, 6> children;
+  ezTempHybridArray<ezUInt16, 6> children;
 
   for (ezUInt16 i = 0; i < skeleton.GetJointCount(); ++i)
   {

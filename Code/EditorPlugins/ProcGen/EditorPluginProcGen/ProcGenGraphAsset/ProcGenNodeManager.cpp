@@ -49,7 +49,7 @@ void ezProcGenNodeManager::InternalCreatePins(const ezDocumentObject* pObject, N
   if (!pType->IsDerivedFrom(pNodeBaseType))
     return;
 
-  ezHybridArray<const ezAbstractProperty*, 32> properties;
+  ezTempHybridArray<const ezAbstractProperty*, 32> properties;
   pType->GetAllProperties(properties);
 
   for (auto pProp : properties)

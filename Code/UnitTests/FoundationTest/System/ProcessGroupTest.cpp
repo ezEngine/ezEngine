@@ -45,7 +45,7 @@ EZ_CREATE_SIMPLE_TEST(System, ProcessGroup)
   {
     ezProcessGroup pgroup;
 
-    ezHybridArray<ezProcess, 8> procs;
+    ezTempHybridArray<ezProcess, 8> procs;
 
     for (ezUInt32 i = 0; i < 8; ++i)
     {

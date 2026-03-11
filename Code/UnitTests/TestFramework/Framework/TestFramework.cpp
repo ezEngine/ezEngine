@@ -1453,7 +1453,7 @@ bool ezTestFramework::PerformImageComparison(ezStringBuilder sImgName, const ezI
   // 1. Base image (no suffix)
   // 2. Single-tag suffixes in registration order
   // 3. Multi-tag combinations (pairs, triples, ...) in registration order
-  ezHybridArray<ezStringBuilder, 8> candidatePaths;
+  ezTempHybridArray<ezStringBuilder, 8> candidatePaths;
 
   {
     // Base path

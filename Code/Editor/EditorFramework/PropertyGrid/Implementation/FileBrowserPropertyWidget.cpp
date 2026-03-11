@@ -54,7 +54,7 @@ bool ezQtFilePropertyWidget::IsValidFileReference(ezStringView sFile) const
 {
   auto pAttr = m_pProp->GetAttributeByType<ezFileBrowserAttribute>();
 
-  ezHybridArray<ezStringView, 8> extensions;
+  ezTempHybridArray<ezStringView, 8> extensions;
   ezStringView sTemp = pAttr->GetTypeFilter();
   sTemp.Split(false, extensions, ";");
   for (ezStringView& ext : extensions)
@@ -312,7 +312,7 @@ bool ezQtExternalFilePropertyWidget::IsValidFileReference(ezStringView sFile) co
 {
   auto pAttr = m_pProp->GetAttributeByType<ezExternalFileBrowserAttribute>();
 
-  ezHybridArray<ezStringView, 8> extensions;
+  ezTempHybridArray<ezStringView, 8> extensions;
   ezStringView sTemp = pAttr->GetTypeFilter();
   sTemp.Split(false, extensions, ";");
   for (ezStringView& ext : extensions)

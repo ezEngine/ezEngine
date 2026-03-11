@@ -87,7 +87,7 @@ void PlacementTask::FindPlacementPoints()
   ezVec3 rayDir = ezVec3(0, 0, -1);
   ezUInt32 uiCollisionLayer = pOutput->m_uiCollisionLayer;
 
-  ezHybridArray<ezDebugRendererLine, 16> debugLines;
+  ezTempHybridArray<ezDebugRendererLine, 16> debugLines;
   ezColor hitColor = ezColorScheme::LightUI(ezColorScheme::Green);
   ezColor missColor = ezColorScheme::LightUI(ezColorScheme::Red);
 
@@ -141,7 +141,7 @@ void PlacementTask::FindPlacementPoints()
         const ezAngle angleStep = ezAngle::MakeFromDegree(360.0f / uiNumAdditionalRays);
         const float fSpread = ezMath::Max(pOutput->m_fRaySpread * pOutput->m_fFootprint, 0.01f);
 
-        ezHybridArray<ezVec3, 32> hitPositions;
+        ezTempHybridArray<ezVec3, 32> hitPositions;
 
         bool bAllValid = true;
         for (ezUInt32 i = 0; i < uiNumAdditionalRays; ++i)
@@ -249,7 +249,7 @@ void PlacementTask::ExecuteVM()
     ezUInt32 uiNumInstances = m_InputPoints.GetCount();
     m_Density.SetCountUninitialized(uiNumInstances);
 
-    ezHybridArray<ezProcessingStream, 8> inputs;
+    ezTempHybridArray<ezProcessingStream, 8> inputs;
     {
       inputs.PushBack(MakeInputStream(ExpressionInputs::s_sPositionX, offsetof(PlacementPoint, m_vPosition.x)));
       inputs.PushBack(MakeInputStream(ExpressionInputs::s_sPositionY, offsetof(PlacementPoint, m_vPosition.y)));
@@ -262,7 +262,7 @@ void PlacementTask::ExecuteVM()
       inputs.PushBack(MakeInputStream(ExpressionInputs::s_sPointIndex, offsetof(PlacementPoint, m_uiPointIndex), ezProcessingStream::DataType::Short));
     }
 
-    ezHybridArray<ezProcessingStream, 8> outputs;
+    ezTempHybridArray<ezProcessingStream, 8> outputs;
     {
       outputs.PushBack(ezProcessingStream(ExpressionOutputs::s_sOutDensity, m_Density.GetByteArrayPtr(), ezProcessingStream::DataType::Float));
       outputs.PushBack(MakeOutputStream(ExpressionOutputs::s_sOutScale, offsetof(PlacementPoint, m_fScale)));

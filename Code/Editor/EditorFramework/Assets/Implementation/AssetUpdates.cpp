@@ -500,7 +500,7 @@ void ezAssetCurator::UpdateSubAssets(ezAssetInfo& assetInfo)
   }
 
   {
-    ezHybridArray<ezSubAssetData, 4> subAssets;
+    ezTempHybridArray<ezSubAssetData, 4> subAssets;
     {
       CURATOR_PROFILE("FillOutSubAssetList");
       assetInfo.GetManager()->FillOutSubAssetList(*assetInfo.m_Info.Borrow(), subAssets);

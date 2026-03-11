@@ -628,7 +628,7 @@ void ezInputDeviceMouseKeyboard_Win::WindowMessage(ezMinWindows::UINT msg, ezMin
       if (uiSize == 0)
         return;
 
-      ezHybridArray<ezUInt8, sizeof(RAWINPUT)> InputData;
+      ezTempHybridArray<ezUInt8, sizeof(RAWINPUT)> InputData;
       InputData.SetCountUninitialized(uiSize);
 
       if (GetRawInputData((HRAWINPUT)lparam, RID_INPUT, &InputData[0], &uiSize, sizeof(RAWINPUTHEADER)) != uiSize)

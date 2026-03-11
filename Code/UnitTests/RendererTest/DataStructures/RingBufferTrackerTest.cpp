@@ -37,7 +37,7 @@ EZ_CREATE_SIMPLE_RENDERER_TEST(DataStructures, RingBufferTracker)
     EZ_TEST_INT(tracker.GetFreeMemory(), 0);
     EZ_TEST_INT(tracker.GetUsedMemory(), 1024);
 
-    ezHybridArray<ezRingBufferTracker::FrameData, 2> frames;
+    ezTempHybridArray<ezRingBufferTracker::FrameData, 2> frames;
     EZ_TEST_RESULT(tracker.SubmitFrame(1, frames));
     EZ_TEST_INT(frames.GetCount(), 1);
     EZ_TEST_INT(frames[0].m_uiFrame, 1);
@@ -61,7 +61,7 @@ EZ_CREATE_SIMPLE_RENDERER_TEST(DataStructures, RingBufferTracker)
       tracker.Free(i - 4);
       EZ_TEST_RESULT(tracker.Allocate(256, i, uiOffset));
       EZ_TEST_INT(uiOffset, (i * 256) % 1024);
-      ezHybridArray<ezRingBufferTracker::FrameData, 2> frames;
+      ezTempHybridArray<ezRingBufferTracker::FrameData, 2> frames;
       EZ_TEST_RESULT(tracker.SubmitFrame(i, frames));
       EZ_TEST_INT(frames.GetCount(), 1);
       EZ_TEST_INT(frames[0].m_uiFrame, i);
@@ -79,7 +79,7 @@ EZ_CREATE_SIMPLE_RENDERER_TEST(DataStructures, RingBufferTracker)
     EZ_TEST_RESULT(tracker.Allocate(800, 1, uiOffset));
     EZ_TEST_INT(uiOffset, 0);
     EZ_TEST_INT(tracker.GetUsedMemory(), 800);
-    ezHybridArray<ezRingBufferTracker::FrameData, 2> frames;
+    ezTempHybridArray<ezRingBufferTracker::FrameData, 2> frames;
     EZ_TEST_RESULT(tracker.SubmitFrame(1, frames));
     EZ_TEST_INT(frames.GetCount(), 1);
     EZ_TEST_INT(frames[0].m_uiFrame, 1);
@@ -119,7 +119,7 @@ EZ_CREATE_SIMPLE_RENDERER_TEST(DataStructures, RingBufferTracker)
     EZ_TEST_RESULT(tracker.Allocate(800, 1, uiOffset));
     EZ_TEST_INT(uiOffset, 0);
     EZ_TEST_INT(tracker.GetUsedMemory(), 800);
-    ezHybridArray<ezRingBufferTracker::FrameData, 2> frames;
+    ezTempHybridArray<ezRingBufferTracker::FrameData, 2> frames;
     EZ_TEST_RESULT(tracker.SubmitFrame(1, frames));
     EZ_TEST_INT(frames.GetCount(), 1);
     EZ_TEST_INT(frames[0].m_uiFrame, 1);

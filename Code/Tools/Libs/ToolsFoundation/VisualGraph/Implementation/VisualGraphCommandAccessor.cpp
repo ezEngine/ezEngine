@@ -35,7 +35,7 @@ ezStatus ezVisualGraphCommandAccessor::SetValue(const ezDocumentObject* pObject,
 
     if (IsDynamicPinProperty(pNodeObject, pDynamicPinProperty))
     {
-      ezHybridArray<ConnectionInfo, 16> oldConnections;
+      ezTempHybridArray<ConnectionInfo, 16> oldConnections;
       EZ_SUCCEED_OR_RETURN(DisconnectAllPins(pNodeObject, oldConnections));
 
       // TODO: remap oldConnections
@@ -53,7 +53,7 @@ ezStatus ezVisualGraphCommandAccessor::InsertValue(const ezDocumentObject* pObje
 {
   if (IsDynamicPinProperty(pObject, pProp))
   {
-    ezHybridArray<ConnectionInfo, 16> oldConnections;
+    ezTempHybridArray<ConnectionInfo, 16> oldConnections;
     EZ_SUCCEED_OR_RETURN(DisconnectAllPins(pObject, oldConnections));
 
     EZ_SUCCEED_OR_RETURN(ezObjectCommandAccessor::InsertValue(pObject, pProp, newValue, index));
@@ -70,7 +70,7 @@ ezStatus ezVisualGraphCommandAccessor::RemoveValue(const ezDocumentObject* pObje
 {
   if (IsDynamicPinProperty(pObject, pProp))
   {
-    ezHybridArray<ConnectionInfo, 16> oldConnections;
+    ezTempHybridArray<ConnectionInfo, 16> oldConnections;
     EZ_SUCCEED_OR_RETURN(DisconnectAllPins(pObject, oldConnections));
 
     EZ_SUCCEED_OR_RETURN(ezObjectCommandAccessor::RemoveValue(pObject, pProp, index));
@@ -87,7 +87,7 @@ ezStatus ezVisualGraphCommandAccessor::MoveValue(const ezDocumentObject* pObject
 {
   if (IsDynamicPinProperty(pObject, pProp))
   {
-    ezHybridArray<ConnectionInfo, 16> oldConnections;
+    ezTempHybridArray<ConnectionInfo, 16> oldConnections;
     EZ_SUCCEED_OR_RETURN(DisconnectAllPins(pObject, oldConnections));
 
     // TODO: remap oldConnections
@@ -106,7 +106,7 @@ ezStatus ezVisualGraphCommandAccessor::AddObject(const ezDocumentObject* pParent
 {
   if (IsDynamicPinProperty(pParent, pParentProp))
   {
-    ezHybridArray<ConnectionInfo, 16> oldConnections;
+    ezTempHybridArray<ConnectionInfo, 16> oldConnections;
     EZ_SUCCEED_OR_RETURN(DisconnectAllPins(pParent, oldConnections));
 
     // TODO: remap oldConnections
@@ -128,7 +128,7 @@ ezStatus ezVisualGraphCommandAccessor::RemoveObject(const ezDocumentObject* pObj
     const ezAbstractProperty* pProp = pParent->GetType()->FindPropertyByName(pObject->GetParentProperty());
     if (IsDynamicPinProperty(pParent, pProp))
     {
-      ezHybridArray<ConnectionInfo, 16> oldConnections;
+      ezTempHybridArray<ConnectionInfo, 16> oldConnections;
       EZ_SUCCEED_OR_RETURN(DisconnectAllPins(pParent, oldConnections));
 
       // TODO: remap oldConnections

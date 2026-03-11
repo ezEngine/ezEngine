@@ -222,7 +222,7 @@ void ezQtLogModel::ProcessNewMessages()
   ezStringBuilder sLatestError;
 
   // Collect messages to add to visible list
-  ezHybridArray<const ezLogEntry*, 64> messagesToAdd;
+  ezTempHybridArray<const ezLogEntry*, 64> messagesToAdd;
 
   {
     EZ_LOCK(m_NewMessagesMutex);

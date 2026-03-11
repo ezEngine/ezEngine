@@ -318,7 +318,7 @@ void ezRmlUiCanvasComponentBase::UpdateAutobinding()
 
   if (m_bAutobindBlackboards)
   {
-    ezHybridArray<ezBlackboardComponent*, 4> blackboardComponents;
+    ezTempHybridArray<ezBlackboardComponent*, 4> blackboardComponents;
 
     ezGameObject* pObject = GetOwner();
     while (pObject != nullptr)

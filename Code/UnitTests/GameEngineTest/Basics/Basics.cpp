@@ -555,7 +555,7 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingExec(ezInt
 
   // Lines
   {
-    ezHybridArray<ezDebugRendererLine, 4> lines;
+    ezTempHybridArray<ezDebugRendererLine, 4> lines;
     lines.PushBack(ezDebugRendererLine(ezVec3(3, -4, -4), ezVec3(4, -2, -3)));
     lines.PushBack(ezDebugRendererLine(ezVec3(4, -2, -3), ezVec3(2, 2, -2)));
     ezDebugRenderer::DrawLines(m_pWorld.Borrow(), lines, ezColor::SkyBlue);
@@ -563,7 +563,7 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingExec(ezInt
 
   // Triangles
   {
-    ezHybridArray<ezDebugRendererTriangle, 4> tris;
+    ezTempHybridArray<ezDebugRendererTriangle, 4> tris;
     tris.PushBack(ezDebugRendererTriangle(ezVec3(7, 0, 0), ezVec3(7, 2, 0), ezVec3(7, 2, 1)));
     tris.PushBack(ezDebugRendererTriangle(ezVec3(7, 3, 0), ezVec3(7, 1, 0), ezVec3(7, 3, 1)));
     ezDebugRenderer::DrawSolidTriangles(m_pWorld.Borrow(), tris, ezColor::Gainsboro);

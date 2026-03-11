@@ -63,7 +63,7 @@ ezAbstractObjectNode* ezPrefabUtils::GetFirstRootNode(ezAbstractObjectGraph& ref
   return nullptr;
 }
 
-void ezPrefabUtils::GetRootNodes(ezAbstractObjectGraph& ref_graph, ezHybridArray<ezAbstractObjectNode*, 4>& out_nodes)
+void ezPrefabUtils::GetRootNodes(ezAbstractObjectGraph& ref_graph, ezDynamicArray<ezAbstractObjectNode*>& out_nodes)
 {
   auto& nodes = ref_graph.GetAllNodes();
   for (auto it = nodes.GetIterator(); it.IsValid(); ++it)

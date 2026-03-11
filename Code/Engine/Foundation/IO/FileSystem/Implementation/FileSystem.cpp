@@ -1008,7 +1008,7 @@ void ezFileSystem::StartSearch(ezFileSystemIterator& ref_iterator, ezStringView 
   EZ_ASSERT_DEV(s_pData != nullptr, "FileSystem is not initialized.");
   EZ_LOCK(s_pData->m_FsMutex);
 
-  ezHybridArray<ezString, 16> folders;
+  ezTempHybridArray<ezString, 16> folders;
   ezStringBuilder sDdPath, sRelPath;
 
   if (sSearchTerm.IsRootedPath())

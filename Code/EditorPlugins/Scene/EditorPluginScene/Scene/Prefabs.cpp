@@ -40,7 +40,7 @@ bool ezSceneDocument::IsObjectEnginePrefab(const ezUuid& object, ezUuid* out_pPr
 {
   const ezDocumentObject* pObject = GetObjectManager()->GetObject(object);
 
-  ezHybridArray<ezVariant, 16> values;
+  ezTempHybridArray<ezVariant, 16> values;
   pObject->GetTypeAccessor().GetValues("Components", values);
 
   for (ezVariant& value : values)

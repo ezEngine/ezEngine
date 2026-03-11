@@ -154,7 +154,7 @@ void ezScriptCoroutineFunctionProperty::Execute(void* pInstance, ezArrayPtr<ezVa
 
   if (pCoroutine != nullptr)
   {
-    ezHybridArray<ezVariant, 8> finalArgs;
+    ezTempHybridArray<ezVariant, 8> finalArgs;
     finalArgs = arguments;
     finalArgs.PushBack(hCoroutine);
 
@@ -197,7 +197,7 @@ void ezScriptCoroutineMessageHandler::Dispatch(ezAbstractMessageHandler* pSelf, 
 
   if (pCoroutine != nullptr)
   {
-    ezHybridArray<ezVariant, 8> arguments;
+    ezTempHybridArray<ezVariant, 8> arguments;
     pHandler->FillMessagePropertyValues(ref_msg, arguments);
     arguments.PushBack(hCoroutine);
 

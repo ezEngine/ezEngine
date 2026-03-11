@@ -342,7 +342,7 @@ void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticl
     ezUInt32 m_uiCount = 0;
   };
 
-  ezHybridArray<MulCount, 8> systemMaxParticles;
+  ezTempHybridArray<MulCount, 8> systemMaxParticles;
   {
     systemMaxParticles.SetCountUninitialized(systems.GetCount());
     for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)

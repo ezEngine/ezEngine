@@ -95,7 +95,7 @@ ezStatus ezVariantSubAccessor::GetValues(const ezDocumentObject* pObject, const 
 {
   ezVariant subValue;
   EZ_SUCCEED_OR_RETURN(GetSubValue(pObject, pProp, subValue));
-  ezHybridArray<ezVariant, 16> keys;
+  ezTempHybridArray<ezVariant, 16> keys;
   ezVariantStorageAccessor accessor(pProp->GetPropertyName(), subValue);
   EZ_SUCCEED_OR_RETURN(accessor.GetKeys(keys));
   out_values.Clear();

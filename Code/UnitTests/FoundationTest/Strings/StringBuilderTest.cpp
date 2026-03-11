@@ -781,7 +781,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
   {
     ezStringBuilder s = "|abc,def<>ghi|,<>jkl|mno,pqr|stu";
 
-    ezHybridArray<ezStringView, 32> SubStrings;
+    ezTempHybridArray<ezStringView, 32> SubStrings;
 
     s.Split(false, SubStrings, ",", "|", "<>");
 

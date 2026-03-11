@@ -144,7 +144,7 @@ void ezGameApplication::RegisterGameApplicationInputActions(ezBitflags<ezGameApp
     ezFileReader file;
     if (file.Open(sConfigFile).Succeeded())
     {
-      ezHybridArray<ezGameAppInputConfig, 32> InputActions;
+      ezTempHybridArray<ezGameAppInputConfig, 32> InputActions;
 
       ezGameAppInputConfig::ReadFromDDL(file, InputActions);
       ezGameAppInputConfig::ApplyAll(InputActions);
@@ -227,7 +227,7 @@ void ezGameApplication::Run_AcquireImage()
 {
   auto pWinMan = ezWindowManager::GetSingleton();
 
-  ezHybridArray<ezRegisteredWndHandle, 8> windows;
+  ezTempHybridArray<ezRegisteredWndHandle, 8> windows;
   pWinMan->GetRegistered(windows);
 
   for (auto id : windows)
@@ -244,7 +244,7 @@ void ezGameApplication::Run_PresentImage()
 {
   auto pWinMan = ezWindowManager::GetSingleton();
 
-  ezHybridArray<ezRegisteredWndHandle, 8> windows;
+  ezTempHybridArray<ezRegisteredWndHandle, 8> windows;
   pWinMan->GetRegistered(windows);
 
   bool bExecutedFrameCapture = false;
@@ -289,8 +289,7 @@ void ezGameApplication::UpdateWorldsAndExtractViews()
 
   Run_BeforeWorldUpdate();
 
-  static ezHybridArray<ezWorld*, 16> worldsToUpdate;
-  worldsToUpdate.Clear();
+  ezTempHybridArray<ezWorld*, 16> worldsToUpdate;
 
   auto mainViews = ezRenderWorld::GetMainViews();
   for (auto hView : mainViews)

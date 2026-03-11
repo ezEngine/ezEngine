@@ -746,8 +746,8 @@ void ezShadowPool::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
     ezUInt32 uiMaxShadowMapSize = cvar_RenderingShadowsMaxShadowMapSize;
     const ezUInt32 uiShadowMapSize = ezMath::PowerOfTwo_Ceil((ezUInt32)(uiMaxShadowMapSize * ezMath::Saturate(shadowData.m_fShadowMapScale)));
 
-    ezHybridArray<ezView*, 8> shadowViews;
-    ezHybridArray<ezRectU16, 8> atlasRects;
+    ezTempHybridArray<ezView*, 8> shadowViews;
+    ezTempHybridArray<ezRectU16, 8> atlasRects;
 
     // Fill atlas
     for (ezUInt32 uiViewIndex = 0; uiViewIndex < shadowData.m_Views.GetCount(); ++uiViewIndex)

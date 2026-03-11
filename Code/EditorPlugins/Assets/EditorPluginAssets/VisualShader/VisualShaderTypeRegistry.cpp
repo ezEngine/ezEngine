@@ -528,7 +528,7 @@ void ezVisualShaderTypeRegistry::ExtractNodeProperties(const ezOpenDdlReaderElem
             dynEnum.Clear();
 
             // Parse comma-separated values
-            ezHybridArray<ezStringView, 32> values;
+            ezTempHybridArray<ezStringView, 32> values;
             enumValuesStr.Split(false, values, ",");
 
             for (const ezStringView& value : values)

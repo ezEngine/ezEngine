@@ -841,7 +841,7 @@ const ezAbstractMemberProperty* ezReflectionUtils::GetMemberProperty(const ezRTT
   if (pRtti == nullptr)
     return nullptr;
 
-  ezHybridArray<const ezAbstractProperty*, 32> props;
+  ezTempHybridArray<const ezAbstractProperty*, 32> props;
   pRtti->GetAllProperties(props);
   if (uiPropertyIndex < props.GetCount())
   {
@@ -1047,7 +1047,7 @@ bool ezReflectionUtils::StringToEnumeration(const ezRTTI* pEnumerationRtti, cons
   else if (pEnumerationRtti->IsDerivedFrom<ezBitflagsBase>())
   {
     ezStringBuilder temp = szValue;
-    ezHybridArray<ezStringView, 32> values;
+    ezTempHybridArray<ezStringView, 32> values;
     temp.Split(false, values, "|");
     for (auto sValue : values)
     {
@@ -1279,9 +1279,9 @@ bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, const
     {
       auto pSpecific = static_cast<const ezAbstractSetProperty*>(pProp);
 
-      ezHybridArray<ezVariant, 16> values;
+      ezTempHybridArray<ezVariant, 16> values;
       pSpecific->GetValues(pObject, values);
-      ezHybridArray<ezVariant, 16> values2;
+      ezTempHybridArray<ezVariant, 16> values2;
       pSpecific->GetValues(pObject2, values2);
 
       const ezUInt32 uiCount = values.GetCount();
@@ -1329,9 +1329,9 @@ bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, const
     {
       auto pSpecific = static_cast<const ezAbstractMapProperty*>(pProp);
 
-      ezHybridArray<ezString, 16> keys;
+      ezTempHybridArray<ezString, 16> keys;
       pSpecific->GetKeys(pObject, keys);
-      ezHybridArray<ezString, 16> keys2;
+      ezTempHybridArray<ezString, 16> keys2;
       pSpecific->GetKeys(pObject2, keys2);
 
       const ezUInt32 uiCount = keys.GetCount();
@@ -1671,7 +1671,7 @@ ezVariant ezReflectionUtils::GetDefaultVariantFromType(const ezRTTI* pRtti)
 
 void ezReflectionUtils::SetAllMemberPropertiesToDefault(const ezRTTI* pRtti, void* pObject)
 {
-  ezHybridArray<const ezAbstractProperty*, 32> properties;
+  ezTempHybridArray<const ezAbstractProperty*, 32> properties;
   pRtti->GetAllProperties(properties);
 
   for (auto pProp : properties)

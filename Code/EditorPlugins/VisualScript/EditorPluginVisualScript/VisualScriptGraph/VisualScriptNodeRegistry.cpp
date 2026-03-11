@@ -1507,7 +1507,7 @@ void ezVisualScriptNodeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
     }
   }
 
-  ezHybridArray<const ezFunctionArgumentAttributes*, 8> argumentAttributes;
+  ezTempHybridArray<const ezFunctionArgumentAttributes*, 8> argumentAttributes;
   CollectFunctionArgumentAttributes(pFunction, argumentAttributes);
 
   ezStringView sTypeName = StripTypeName(pRtti->GetTypeName());
@@ -1800,7 +1800,7 @@ void ezVisualScriptNodeRegistry::CreateMessageNodeTypes(const ezRTTI* pRtti)
 
     nodeDesc.AddOutputExecutionPin("");
 
-    ezHybridArray<const ezAbstractProperty*, 32> properties;
+    ezTempHybridArray<const ezAbstractProperty*, 32> properties;
     pRtti->GetAllProperties(properties);
     for (auto pProp : properties)
     {
@@ -1845,7 +1845,7 @@ void ezVisualScriptNodeRegistry::CreateMessageNodeTypes(const ezRTTI* pRtti)
     AddInputDataPin<ezVisualScriptSendMessageMode>(typeDesc, nodeDesc, "SendMode");
     AddInputDataPin<ezTime>(typeDesc, nodeDesc, "Delay");
 
-    ezHybridArray<const ezAbstractProperty*, 32> properties;
+    ezTempHybridArray<const ezAbstractProperty*, 32> properties;
     pRtti->GetAllProperties(properties);
     for (auto pProp : properties)
     {
@@ -1924,7 +1924,7 @@ void ezVisualScriptNodeRegistry::CreateEnumNodeTypes(const ezRTTI* pRtti)
     nodeDesc.AddInputExecutionPin("");
     nodeDesc.AddInputDataPin("Value", pRtti, ezVisualScriptDataType::EnumValue, false);
 
-    ezHybridArray<ezReflectionUtils::EnumKeyValuePair, 16> enumKeysAndValues;
+    ezTempHybridArray<ezReflectionUtils::EnumKeyValuePair, 16> enumKeysAndValues;
     ezReflectionUtils::GetEnumKeysAndValues(pRtti, enumKeysAndValues, ezReflectionUtils::EnumConversionMode::ValueNameOnly);
     for (auto& keyAndValue : enumKeysAndValues)
     {

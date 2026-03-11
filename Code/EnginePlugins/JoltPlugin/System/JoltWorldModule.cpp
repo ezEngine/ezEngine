@@ -476,7 +476,7 @@ void ezJoltWorldModule::UpdateForces()
 
   EZ_LOCK(m_ForcesMutex);
 
-  ezHybridArray<ezJoltForceId, 32> forcesToRemove;
+  ezTempHybridArray<ezJoltForceId, 32> forcesToRemove;
 
   auto* pBodies = &m_pSystem->GetBodyInterface();
   const ezTime tNow = GetWorld()->GetClock().GetAccumulatedTime();
@@ -1126,8 +1126,8 @@ void ezJoltWorldModule::DebugDrawGeometry(const ezVec3& vCenter, float fRadius, 
   ezStaticArray<const JPH::PhysicsMaterial*, cMaxTriangles> materialsTmp;
   materialsTmp.SetCountUninitialized(cMaxTriangles);
 
-  ezHybridArray<ezVec3, cMaxTriangles * 3> positionsTmp2;
-  ezHybridArray<const JPH::PhysicsMaterial*, cMaxTriangles> materialsTmp2;
+  ezTempHybridArray<ezVec3, cMaxTriangles * 3> positionsTmp2;
+  ezTempHybridArray<const JPH::PhysicsMaterial*, cMaxTriangles> materialsTmp2;
 
   for (const JPH::TransformedShape& ts : collector.mHits)
   {
@@ -1281,7 +1281,7 @@ void ezJoltWorldModule::ApplyImpulses()
     return;
 
   auto* pBodies = &m_pSystem->GetBodyInterface();
-  ezHybridArray<ezJoltImpulse, 64> retain;
+  ezTempHybridArray<ezJoltImpulse, 64> retain;
 
   EZ_LOCK(m_ImpulsesMutex);
 

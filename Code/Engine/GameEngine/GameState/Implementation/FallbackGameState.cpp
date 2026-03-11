@@ -149,7 +149,7 @@ const ezCameraComponent* ezFallbackGameState::FindActiveCameraComponent()
 
   auto itComp = pManager->GetComponents();
 
-  ezHybridArray<const ezCameraComponent*, 32> Cameras[ezCameraUsageHint::ENUM_COUNT];
+  ezTempHybridArray<const ezCameraComponent*, 32> Cameras[ezCameraUsageHint::ENUM_COUNT];
 
   // first find all cameras and sort them by usage type
   while (itComp.IsValid())

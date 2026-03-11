@@ -9,7 +9,7 @@ EZ_CREATE_SIMPLE_TEST(Tracks, EventTrack)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Empty")
   {
     ezEventTrack et;
-    ezHybridArray<ezHashedString, 8> result;
+    ezTempHybridArray<ezHashedString, 8> result;
 
     EZ_TEST_BOOL(et.IsEmpty());
     et.Sample(ezTime::MakeZero(), ezTime::MakeFromSeconds(1.0), result);
@@ -20,7 +20,7 @@ EZ_CREATE_SIMPLE_TEST(Tracks, EventTrack)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Sample")
   {
     ezEventTrack et;
-    ezHybridArray<ezHashedString, 8> result;
+    ezTempHybridArray<ezHashedString, 8> result;
 
     et.AddControlPoint(ezTime::MakeFromSeconds(3.0), "Event3");
     et.AddControlPoint(ezTime::MakeFromSeconds(0.0), "Event0");
@@ -106,7 +106,7 @@ EZ_CREATE_SIMPLE_TEST(Tracks, EventTrack)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Reverse Sample")
   {
     ezEventTrack et;
-    ezHybridArray<ezHashedString, 8> result;
+    ezTempHybridArray<ezHashedString, 8> result;
 
     et.AddControlPoint(ezTime::MakeFromSeconds(3.0), "Event3");
     et.AddControlPoint(ezTime::MakeFromSeconds(0.0), "Event0");

@@ -269,7 +269,7 @@ void ezShaderManager::PreloadPermutations(ezShaderResourceHandle hShader, const 
 
   generator.RemoveUnusedPermutations(pShader->GetUsedPermutationVars());
 
-  ezHybridArray<ezPermutationVar, 16> usedPermVars;
+  ezTempHybridArray<ezPermutationVar, 16> usedPermVars;
 
   const ezUInt32 uiPermutationCount = generator.GetPermutationCount();
   for (ezUInt32 uiPermutation = 0; uiPermutation < uiPermutationCount; ++uiPermutation)

@@ -310,8 +310,8 @@ void ezShaderTypeRegistry::UpdateShaderType(ShaderData& data)
 {
   EZ_LOG_BLOCK("Updating Shader Parameters", data.m_sShaderPath.GetData());
 
-  ezHybridArray<ezShaderParser::ParameterDefinition, 16> parameters;
-  ezHybridArray<ezShaderParser::EnumDefinition, 4> enumDefinitions;
+  ezTempHybridArray<ezShaderParser::ParameterDefinition, 16> parameters;
+  ezTempHybridArray<ezShaderParser::EnumDefinition, 4> enumDefinitions;
 
   {
     ezFileStats Stats;

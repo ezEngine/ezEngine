@@ -110,7 +110,7 @@ public:
     if (ezAbstractObjectNode::Property* pProp = pNode->FindProperty("Flags"))
     {
       ezStringBuilder sValue = pProp->m_Value.Get<ezString>();
-      ezHybridArray<ezStringView, 32> values;
+      ezTempHybridArray<ezStringView, 32> values;
       sValue.Split(false, values, "|");
 
       ezStringBuilder sNewValue;

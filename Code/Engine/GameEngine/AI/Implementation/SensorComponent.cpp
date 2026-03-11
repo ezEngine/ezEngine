@@ -690,7 +690,7 @@ void ezSensorWorldModule::UpdateSensors(const ezWorldModule::UpdateContext& cont
 
 void ezSensorWorldModule::DebugDrawSensors(const ezWorldModule::UpdateContext& context)
 {
-  ezHybridArray<ezDebugRendererLine, 256> lines;
+  ezTempHybridArray<ezDebugRendererLine, 256> lines;
   const ezWorld* pWorld = GetWorld();
 
   for (ezComponentHandle hComponent : m_DebugComponents)

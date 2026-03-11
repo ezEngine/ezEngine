@@ -62,7 +62,7 @@ private:
     }
 
     {
-      ezHybridArray<ezImageConversion::ConversionPathNode, 16> decodingPath;
+      ezTempHybridArray<ezImageConversion::ConversionPathNode, 16> decodingPath;
       ezUInt32 decodingPathScratchBuffers;
       ezImageConversion::BuildPath(format, defaultFormat, false, decodingPath, decodingPathScratchBuffers).IgnoreResult();
 
@@ -75,7 +75,7 @@ private:
     }
 
     {
-      ezHybridArray<ezImageConversion::ConversionPathNode, 16> encodingPath;
+      ezTempHybridArray<ezImageConversion::ConversionPathNode, 16> encodingPath;
       ezUInt32 encodingPathScratchBuffers;
       ezImageConversion::BuildPath(defaultFormat, format, false, encodingPath, encodingPathScratchBuffers).IgnoreResult();
 

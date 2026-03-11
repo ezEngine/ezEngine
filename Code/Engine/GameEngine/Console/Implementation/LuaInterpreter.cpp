@@ -34,7 +34,7 @@ static int LUAFUNC_ConsoleFunc(lua_State* pState)
     return s.ReturnToScript();
   }
 
-  ezHybridArray<ezVariant, 8> m_Params;
+  ezTempHybridArray<ezVariant, 8> m_Params;
   m_Params.SetCount(pFunc->GetNumParameters());
 
   for (ezUInt32 p = 0; p < pFunc->GetNumParameters(); ++p)

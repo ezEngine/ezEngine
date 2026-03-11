@@ -742,7 +742,7 @@ const ezApplicationPluginConfig ezQtEditorApp::GetRuntimePluginConfig(bool bIncl
 {
   ezApplicationPluginConfig cfg;
 
-  ezHybridArray<ezString, 16> order;
+  ezTempHybridArray<ezString, 16> order;
   for (auto it : m_PluginBundles.m_Plugins)
   {
     if (it.Value().m_bMandatory || it.Value().m_bSelected)

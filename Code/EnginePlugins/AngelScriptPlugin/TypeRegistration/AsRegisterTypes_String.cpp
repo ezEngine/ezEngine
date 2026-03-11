@@ -286,8 +286,8 @@ static void ezStringBuilder_Format(ezStringBuilder& ref_sStr, asIScriptGeneric* 
   const ezUInt32 uiNumArgs = (ezUInt32)pGen->GetArgCount();
   const ezStringView sText = *((ezStringView*)pGen->GetArgObject(0));
 
-  ezHybridArray<ezString, 12> stringStorage;
-  ezHybridArray<ezStringView, 12> stringViews;
+  ezTempHybridArray<ezString, 12> stringStorage;
+  ezTempHybridArray<ezStringView, 12> stringViews;
   stringStorage.Reserve(pGen->GetArgCount() - 1);
 
   ezVariant res;

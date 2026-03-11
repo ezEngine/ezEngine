@@ -215,7 +215,7 @@ void ezConsole::LoadInputHistory(ezStringView sFile)
   ezStringBuilder str;
   str.ReadAll(file);
 
-  ezHybridArray<ezStringView, 32> lines;
+  ezTempHybridArray<ezStringView, 32> lines;
   str.Split(false, lines, "\n", "\r");
 
   for (ezUInt32 i = 0; i < lines.GetCount(); ++i)

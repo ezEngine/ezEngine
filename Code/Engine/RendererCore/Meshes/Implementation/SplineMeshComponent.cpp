@@ -771,7 +771,7 @@ ezResult ezSplineMeshComponent::GenerateDistribution(const ezSplineComponent& sp
 ezUInt32 ezSplineMeshComponent::FindBestMiddlePart(float fRequestedLength, ezArrayPtr<const ezVec2> middleLengthAndOffset, bool bAllowOverlapFront, bool bAllowOverlapBack, int& inout_iRandomPos, ezUInt32 uiSeed) const
 {
   float fBestDiff = ezMath::MaxValue<float>();
-  ezHybridArray<ezUInt32, 8> candidateIndices;
+  ezTempHybridArray<ezUInt32, 8> candidateIndices;
 
   EZ_ASSERT_DEBUG(m_MiddleParts.GetCount() == middleLengthAndOffset.GetCount(), "Mismatched array sizes");
   for (ezUInt32 i = 0; i < m_MiddleParts.GetCount(); ++i)

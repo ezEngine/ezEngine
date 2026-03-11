@@ -37,7 +37,7 @@ ezResult ezWindowAndroid::InitializeWindow()
       {
       if (iCmd == APP_CMD_WINDOW_RESIZED)
       {
-        ezHybridArray<ezScreenInfo, 2> screens;
+        ezTempHybridArray<ezScreenInfo, 2> screens;
         if (ezScreen::EnumerateScreens(screens).Succeeded())
         {
           m_CreationDescription.m_Resolution.width = screens[0].m_iResolutionX;

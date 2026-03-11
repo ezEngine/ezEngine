@@ -24,14 +24,14 @@ EZ_END_STATIC_REFLECTED_TYPE;
 
 static ezStringView BuildFormattedText(ezStringView sText, const ezVariantArray& params, ezStringBuilder& ref_sStorage)
 {
-  ezHybridArray<ezString, 12> stringStorage;
+  ezTempHybridArray<ezString, 12> stringStorage;
   stringStorage.Reserve(params.GetCount());
   for (auto& param : params)
   {
     stringStorage.PushBack(param.ConvertTo<ezString>());
   }
 
-  ezHybridArray<ezStringView, 12> stringViews;
+  ezTempHybridArray<ezStringView, 12> stringViews;
   stringViews.Reserve(stringStorage.GetCount());
   for (auto& s : stringStorage)
   {

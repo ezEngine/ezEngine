@@ -823,7 +823,7 @@ ezString ezAngelScriptUtils::RegisterEnumType(asIScriptEngine* pEngine, const ez
   pEnumTypeInfo = pEngine->GetTypeInfoByName(enumName);
   pEnumTypeInfo->SetUserData((void*)pEnumType, ezAsUserData::RttiPtr);
 
-  ezHybridArray<ezReflectionUtils::EnumKeyValuePair, 16> enumValues;
+  ezTempHybridArray<ezReflectionUtils::EnumKeyValuePair, 16> enumValues;
   ezReflectionUtils::GetEnumKeysAndValues(pEnumType, enumValues, ezReflectionUtils::EnumConversionMode::ValueNameOnly);
   for (auto& enumValue : enumValues)
   {

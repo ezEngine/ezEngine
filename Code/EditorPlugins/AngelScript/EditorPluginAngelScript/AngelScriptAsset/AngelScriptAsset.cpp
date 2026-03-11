@@ -130,7 +130,7 @@ ezTransformStatus ezAngelScriptAssetDocument::InternalTransformAsset(const char*
 
   if (preProc.Process().Succeeded())
   {
-    ezHybridArray<ezString, 16> newDeps;
+    ezTempHybridArray<ezString, 16> newDeps;
     for (const auto& str : preProc.m_Dependencies)
     {
       newDeps.PushBack(str);

@@ -19,7 +19,7 @@ EZ_DEFINE_AS_POD_TYPE(__m128);
 
 void ezRasterizerObject::CreateMesh(const ezGeometry& geo)
 {
-  ezHybridArray<__m128, 64, ezAlignedAllocatorWrapper> vertices;
+  ezTempHybridArray<__m128, 64> vertices;
   vertices.Reserve(geo.GetPolygons().GetCount() * 4);
 
   Aabb bounds;

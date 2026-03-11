@@ -696,7 +696,7 @@ void ezMaterialResource::SetModified(ezMaterialResource::DirtyFlags::Enum flag)
 
 void ezMaterialResource::FlattenOriginalDescHierarchy()
 {
-  ezHybridArray<ezMaterialResource*, 16> materialHierarchy;
+  ezTempHybridArray<ezMaterialResource*, 16> materialHierarchy;
   ezMaterialResource* pCurrentMaterial = this;
 
   while (true)

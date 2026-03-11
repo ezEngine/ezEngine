@@ -102,9 +102,9 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
   const ezUInt32 uiNumBlurPasses = (ezUInt32)ezMath::Ceil(fNumBlurPasses);
 
   // Find temp targets
-  ezHybridArray<ezVec2, 8> targetSizes;
-  ezHybridArray<ezGALTextureHandle, 8> tempDownscaleTextures;
-  ezHybridArray<ezGALTextureHandle, 8> tempUpscaleTextures;
+  ezTempHybridArray<ezVec2, 8> targetSizes;
+  ezTempHybridArray<ezGALTextureHandle, 8> tempDownscaleTextures;
+  ezTempHybridArray<ezGALTextureHandle, 8> tempUpscaleTextures;
 
   for (ezUInt32 i = 0; i < uiNumBlurPasses; ++i)
   {

@@ -52,7 +52,7 @@ void ezBreakable2D::ShatterShard(ezUInt32 uiShardIdx, const ezVec2& vShatterPosi
   if (uiAllowedBreakPatterns == (ezUInt8)ezBreakablePattern::None)
     return;
 
-  ezHybridArray<ClipPlane, 6> clipPlanes;
+  ezTempHybridArray<ClipPlane, 6> clipPlanes;
   {
     const ezVec3 vNormal = ezVec3::MakeAxisZ();
     const auto& shard = m_Shards[uiShardIdx];
@@ -126,7 +126,7 @@ void ezBreakable2D::ShatterWithRadialPattern(ezArrayPtr<const ClipPlane> clipPla
   const float fMinAngle = 15.0f;
   const float fMaxAngle = 30.0f;
 
-  ezHybridArray<ezAngle, 32> angles;
+  ezTempHybridArray<ezAngle, 32> angles;
   float fRemainingAngle = 360.0f;
 
   while (fRemainingAngle > fMaxAngle)
@@ -139,15 +139,15 @@ void ezBreakable2D::ShatterWithRadialPattern(ezArrayPtr<const ClipPlane> clipPla
 
   const ezUInt32 uiRingDetail = angles.GetCount();
 
-  ezHybridArray<ezQuat, 32> qRots;
-  ezHybridArray<float, 32> radii1;
-  ezHybridArray<float, 32> radii2;
-  ezHybridArray<float, 32> radii3;
-  ezHybridArray<float, 32> radii4;
-  ezHybridArray<float, 32> radii5;
-  ezHybridArray<float, 32> radii6;
-  ezHybridArray<ezVec2, 16> ring0, ring1;
-  ezHybridArray<ezUInt32, 16> shardIDs0, shardIDs1;
+  ezTempHybridArray<ezQuat, 32> qRots;
+  ezTempHybridArray<float, 32> radii1;
+  ezTempHybridArray<float, 32> radii2;
+  ezTempHybridArray<float, 32> radii3;
+  ezTempHybridArray<float, 32> radii4;
+  ezTempHybridArray<float, 32> radii5;
+  ezTempHybridArray<float, 32> radii6;
+  ezTempHybridArray<ezVec2, 16> ring0, ring1;
+  ezTempHybridArray<ezUInt32, 16> shardIDs0, shardIDs1;
 
   radii1.Reserve(uiRingDetail);
   radii2.Reserve(uiRingDetail);
@@ -226,7 +226,7 @@ void ezBreakable2D::GenerateRingShards(ezArrayPtr<const ClipPlane> clipPlanes, e
 {
   out_ShardIDs.Clear();
 
-  ezHybridArray<ezBreakableShard2D::Edge, 6> shape;
+  ezTempHybridArray<ezBreakableShard2D::Edge, 6> shape;
 
   const ezUInt32 uiRingDetail = innerVertices.GetCount() / 2;
 
@@ -256,8 +256,8 @@ void ezBreakable2D::GenerateRingShards(ezArrayPtr<const ClipPlane> clipPlanes, e
 
 ezUInt32 ezBreakable2D::AddShard(ezArrayPtr<const ClipPlane> clipPlanes, ezArrayPtr<ezBreakableShard2D::Edge> shape)
 {
-  ezHybridArray<ezBreakableShard2D::Edge, 16> input(shape);
-  ezHybridArray<ezBreakableShard2D::Edge, 16> output;
+  ezTempHybridArray<ezBreakableShard2D::Edge, 16> input(shape);
+  ezTempHybridArray<ezBreakableShard2D::Edge, 16> output;
 
   for (ezUInt32 pIdx = 0; pIdx < clipPlanes.GetCount(); ++pIdx)
   {
@@ -442,7 +442,7 @@ bool ezBreakable2D::ShatterWithCellularPattern(ezUInt32 uiShardIdx, ezArrayPtr<c
   const ezVec2 pointStep = ezVec2(ezMath::Clamp(fShardSize, 0.2f, 2.0f));
   const ezVec2 variation = pointStep * 0.7f;
 
-  ezHybridArray<jcv_point, 64> diagramPoints;
+  ezTempHybridArray<jcv_point, 64> diagramPoints;
 
   for (float y = pointCenter.y - pointBounds.y; y < pointCenter.y + pointBounds.y; y += pointStep.y)
   {
@@ -471,7 +471,7 @@ bool ezBreakable2D::ShatterWithCellularPattern(ezUInt32 uiShardIdx, ezArrayPtr<c
   if (diagram.numsites == 0)
     return false;
 
-  ezHybridArray<ezBreakableShard2D::Edge, 12> shape, shapeInv;
+  ezTempHybridArray<ezBreakableShard2D::Edge, 12> shape, shapeInv;
 
   const jcv_site* sites = jcv_diagram_get_sites(&diagram);
 

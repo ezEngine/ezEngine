@@ -148,7 +148,7 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
 
     ezGALTextureSubresource sourceSubResource;
     ezArrayPtr<ezGALTextureSubresource> sourceSubResources(&sourceSubResource, 1);
-    ezHybridArray<ezGALSystemMemoryDescription, 1> memory;
+    ezTempHybridArray<ezGALSystemMemoryDescription, 1> memory;
 
     m_PickingResultsDepth.Clear();
     m_PickingResultsID.Clear();
@@ -349,7 +349,7 @@ void ezPickingRenderPass::ReadBackPropertiesMarqueePick(ezView* pView)
   m_MarqueePickPosition1.Set(-1);
   pView->SetRenderPassReadBackProperty(GetName(), "MarqueeActionID", m_uiMarqueeActionID);
 
-  ezHybridArray<ezUInt32, 32> IDs;
+  ezTempHybridArray<ezUInt32, 32> IDs;
   ezVariantArray resArray;
 
   const ezUInt32 lowX = ezMath::Min(x0, x1);

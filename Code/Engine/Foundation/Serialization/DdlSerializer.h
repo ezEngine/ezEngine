@@ -62,5 +62,5 @@ public:
   static ezResult ReadHeader(ezStreamReader& inout_stream, ezAbstractObjectGraph* pGraph);
 
 private:
-  static ezResult ReadBlocks(ezStreamReader& stream, ezHybridArray<ezSerializedBlock, 3>& blocks);
+  static ezResult ReadBlocks(ezStreamReader& stream, ezDynamicArray<ezSerializedBlock>& blocks);
 };

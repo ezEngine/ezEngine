@@ -812,7 +812,7 @@ namespace
 
 void ezExpressionAST::PrintGraph(ezDGMLGraph& inout_graph) const
 {
-  ezHybridArray<NodeInfo, 64> nodeStack;
+  ezTempHybridArray<NodeInfo, 64> nodeStack;
 
   ezStringBuilder sTmp;
   for (auto pOutputNode : m_OutputNodes)
@@ -1112,7 +1112,7 @@ ezExpressionAST::DataType::Enum ezExpressionAST::GetExpectedChildDataType(const 
 // static
 void ezExpressionAST::UpdateHash(Node* pNode)
 {
-  ezHybridArray<ezUInt32, 16> valuesToHash;
+  ezTempHybridArray<ezUInt32, 16> valuesToHash;
 
   const ezUInt32* pBaseValues = reinterpret_cast<const ezUInt32*>(pNode);
   valuesToHash.PushBack(pBaseValues[0]);

@@ -67,7 +67,7 @@ EZ_DEFINE_AS_POD_TYPE(D3D11_INPUT_ELEMENT_DESC);
 
 ezResult ezGALVertexDeclarationDX11::InitPlatform(ezGALDevice* pDevice)
 {
-  ezHybridArray<D3D11_INPUT_ELEMENT_DESC, 8> DXInputElementDescs;
+  ezTempHybridArray<D3D11_INPUT_ELEMENT_DESC, 8> DXInputElementDescs;
 
   ezGALDeviceDX11* pDXDevice = static_cast<ezGALDeviceDX11*>(pDevice);
 

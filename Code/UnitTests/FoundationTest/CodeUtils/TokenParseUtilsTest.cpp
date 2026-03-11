@@ -125,7 +125,7 @@ Identifier
   {
     ezUInt32 uiCurToken = 0;
     ezTokenParseUtils::TokenMatch templatePattern[] = {ezTokenType::Newline, ezTokenType::Newline, "Identifier"_ezsv};
-    ezHybridArray<ezUInt32, 8> acceptedTokens;
+    ezTempHybridArray<ezUInt32, 8> acceptedTokens;
     EZ_TEST_BOOL(!ezTokenParseUtils::Accept(tokens, uiCurToken, templatePattern, &acceptedTokens));
     uiCurToken++;
     EZ_TEST_BOOL(ezTokenParseUtils::Accept(tokens, uiCurToken, templatePattern, &acceptedTokens));
@@ -149,7 +149,7 @@ Identifier
 
     ezUInt32 uiCurToken = 0;
     ezTokenParseUtils::TokenMatch templatePattern[] = {"Vec2"_ezsv, "("_ezsv, ezTokenType::Float, ","_ezsv, ezTokenType::Float, ")"_ezsv};
-    ezHybridArray<ezUInt32, 6> acceptedTokens;
+    ezTempHybridArray<ezUInt32, 6> acceptedTokens;
     EZ_TEST_BOOL(ezTokenParseUtils::Accept(tokens2, uiCurToken, templatePattern, &acceptedTokens));
     EZ_TEST_INT(uiCurToken, 7);
     EZ_TEST_INT(acceptedTokens.GetCount(), EZ_ARRAY_SIZE(templatePattern));
@@ -195,7 +195,7 @@ Identifier
     EZ_TEST_INT(result.GetCount(), 5);
 
     ezTokenParseUtils::TokenMatch templatePattern[] = {ezTokenType::Newline, "ID1"_ezsv, ezTokenType::Newline, "ID2"_ezsv, ezTokenType::EndOfFile};
-    ezHybridArray<ezUInt32, 8> acceptedTokens;
+    ezTempHybridArray<ezUInt32, 8> acceptedTokens;
     EZ_TEST_BOOL(ezTokenParseUtils::Accept(result, uiCurToken, templatePattern, nullptr));
     EZ_TEST_INT(uiCurToken, 5);
   }

@@ -165,7 +165,7 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
     ezImage coloredMips;
     ezRendererTestUtils::CreateImage(coloredMips, galTexDesc.m_uiWidth, galTexDesc.m_uiHeight, 1, true);
 
-    ezHybridArray<ezGALSystemMemoryDescription, 1> initialData;
+    ezTempHybridArray<ezGALSystemMemoryDescription, 1> initialData;
     initialData.SetCount(galTexDesc.m_uiMipLevelCount);
     for (ezUInt32 m = 0; m < galTexDesc.m_uiMipLevelCount; m++)
     {

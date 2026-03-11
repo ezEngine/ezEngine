@@ -672,7 +672,7 @@ namespace SourceBSP
     }
 
     // Add vertices and triangles
-    ezHybridArray<ezModelImporter::VertexDataStream*, 3> streams;
+    ezTempHybridArray<ezModelImporter::VertexDataStream*, 3> streams;
 
     auto positionDataStream = pMesh->GetDataStream(ezGALVertexAttributeSemantic::Position);
     auto normalDataStream = pMesh->GetDataStream(ezGALVertexAttributeSemantic::Normal);

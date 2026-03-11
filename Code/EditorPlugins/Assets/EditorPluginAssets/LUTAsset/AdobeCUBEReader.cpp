@@ -68,7 +68,7 @@ ezStatus ezAdobeCUBEReader::ParseFile(ezStreamReader& inout_stream, ezLogInterfa
 
   auto tokens = tokenizer.GetTokens();
 
-  ezHybridArray<const ezToken*, 32> line;
+  ezTempHybridArray<const ezToken*, 32> line;
   ezUInt32 firstToken = 0;
 
   while (tokenizer.GetNextLine(firstToken, line).Succeeded())

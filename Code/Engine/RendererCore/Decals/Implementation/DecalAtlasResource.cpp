@@ -171,7 +171,7 @@ void ezDecalAtlasResource::CreateLayerTexture(const ezImage& img, bool bSRGB, ez
   td.m_SamplerDesc.m_AddressW = ezImageAddressMode::Clamp;
 
   ezUInt32 uiMemory;
-  ezHybridArray<ezGALSystemMemoryDescription, 32> initData;
+  ezTempHybridArray<ezGALSystemMemoryDescription, 32> initData;
   ezTexture2DResource::FillOutDescriptor(td, &img, bSRGB, img.GetNumMipLevels(), uiMemory, initData);
   ezTextureUtils::ConfigureSampler(ezTextureFilterSetting::HighQuality, td.m_SamplerDesc);
 

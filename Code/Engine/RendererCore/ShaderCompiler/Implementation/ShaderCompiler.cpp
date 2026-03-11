@@ -241,7 +241,7 @@ ezResult ezShaderCompiler::CompileShaderPermutationForPlatforms(ezStringView sFi
 
   m_ShaderData.m_Platforms = sTemp;
 
-  ezHybridArray<ezHashedString, 16> usedPermutations;
+  ezTempHybridArray<ezHashedString, 16> usedPermutations;
   ezShaderParser::ParsePermutationSection(Sections.GetSectionContent(ezShaderHelper::ezShaderSections::PERMUTATIONS, uiFirstLine), usedPermutations, m_ShaderData.m_FixedPermVars);
 
   for (const ezHashedString& usedPermutationVar : usedPermutations)
@@ -282,8 +282,8 @@ ezResult ezShaderCompiler::CompileShaderPermutationForPlatforms(ezStringView sFi
 
   // Gather material parameters to force these into the material bind group to make migration of other shaders easier.
   m_MaterialParameters.Clear();
-  ezHybridArray<ezShaderParser::ParameterDefinition, 16> parameters;
-  ezHybridArray<ezShaderParser::EnumDefinition, 4> enumDefinitions;
+  ezTempHybridArray<ezShaderParser::ParameterDefinition, 16> parameters;
+  ezTempHybridArray<ezShaderParser::EnumDefinition, 4> enumDefinitions;
   ezShaderParser::ParseMaterialParameterSection(sMaterialParametersSection, parameters, enumDefinitions);
   for (ezUInt32 i = 0; i < parameters.GetCount(); ++i)
   {
@@ -359,7 +359,7 @@ ezResult ezShaderCompiler::CompileShaderPermutationForPlatforms(ezStringView sFi
   }
 
   // try out every compiler that we can find
-  ezHybridArray<const ezRTTI*, 2> compilers;
+  ezTempHybridArray<const ezRTTI*, 2> compilers;
   ezRTTI::ForEachDerivedType<ezShaderProgramCompiler>(
     [&](const ezRTTI* pRtti)
     {
@@ -385,7 +385,7 @@ ezResult ezShaderCompiler::RunShaderCompiler(ezStringView sFile, ezStringView sP
 
   ezStringBuilder sProcessed[ezGALShaderStage::ENUM_COUNT];
 
-  ezHybridArray<ezString, 4> Platforms;
+  ezTempHybridArray<ezString, 4> Platforms;
   pCompiler->GetSupportedPlatforms(Platforms);
   if (m_pMaterialBufferLayout)
   {
@@ -419,7 +419,7 @@ ezResult ezShaderCompiler::RunShaderCompiler(ezStringView sFile, ezStringView sP
 
     m_IncludeFiles.Clear();
 
-    ezHybridArray<ezString, 32> defines;
+    ezTempHybridArray<ezString, 32> defines;
     GenerateDefines(Platforms[p], m_ShaderData.m_Permutations, defines);
     GenerateDefines(Platforms[p], m_ShaderData.m_FixedPermVars, defines);
 

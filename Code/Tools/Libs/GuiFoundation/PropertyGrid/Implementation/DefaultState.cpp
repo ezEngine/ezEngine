@@ -119,7 +119,7 @@ ezStatus ezDefaultObjectState::RevertObject()
   {
     ezDefaultStateProvider::SuperArray super = m_Providers[i].GetArrayPtr().GetSubArray(1);
 
-    ezHybridArray<const ezAbstractProperty*, 32> properties;
+    ezTempHybridArray<const ezAbstractProperty*, 32> properties;
     m_Selection[i].m_pObject->GetType()->GetAllProperties(properties);
     for (auto pProp : properties)
     {

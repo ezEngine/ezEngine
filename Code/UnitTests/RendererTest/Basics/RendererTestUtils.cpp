@@ -15,7 +15,7 @@ ezTransform ezRendererTestUtils::CreateTransform(const ezUInt32 uiColumns, const
   }
   return t;
 }
-void ezRendererTestUtils::FillStructuredBuffer(ezHybridArray<ezTestShaderData, 16>& ref_instanceData, ezUInt32 uiColorOffset, ezUInt32 uiSlotOffset)
+void ezRendererTestUtils::FillStructuredBuffer(ezDynamicArray<ezTestShaderData>& ref_instanceData, ezUInt32 uiColorOffset, ezUInt32 uiSlotOffset)
 {
   ref_instanceData.SetCount(16);
   const ezUInt32 uiColumns = 4;

@@ -379,8 +379,8 @@ void ezAnimPoseGenerator::ExecuteCmd(ezAnimPoseGeneratorCommandCombinePoses& cmd
 {
   auto transforms = AcquireLocalPoseTransforms(cmd.m_LocalPoseOutput);
 
-  ezHybridArray<ozz::animation::BlendingJob::Layer, 8> bl;
-  ezHybridArray<ozz::animation::BlendingJob::Layer, 8> blAdd;
+  ezTempHybridArray<ozz::animation::BlendingJob::Layer, 8> bl;
+  ezTempHybridArray<ozz::animation::BlendingJob::Layer, 8> blAdd;
 
   for (ezUInt32 i = 0; i < cmd.m_Inputs.GetCount(); ++i)
   {
@@ -810,7 +810,7 @@ void ezAnimPoseGenerator::SampleEventTrack(const ezAnimationClipResource* pResou
   const ezTime tStart = ezTime::MakeZero();
   const ezTime tEnd = duration + ezTime::MakeFromSeconds(1.0); // sampling position is EXCLUSIVE
 
-  ezHybridArray<ezHashedString, 16> events;
+  ezTempHybridArray<ezHashedString, 16> events;
 
   switch (mode)
   {

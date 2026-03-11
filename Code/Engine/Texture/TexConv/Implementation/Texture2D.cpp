@@ -16,7 +16,7 @@ ezResult ezTexConvProcessor::Assemble2DTexture(const ezImageHeader& refImg, ezIm
 
 ezResult ezTexConvProcessor::Assemble2DSlice(const ezTexConvSliceChannelMapping& mapping, ezUInt32 uiResolutionX, ezUInt32 uiResolutionY, ezColor* pPixelOut) const
 {
-  ezHybridArray<const ezColor*, 16> pSource;
+  ezTempHybridArray<const ezColor*, 16> pSource;
   for (ezUInt32 i = 0; i < m_Descriptor.m_InputImages.GetCount(); ++i)
   {
     pSource.ExpandAndGetRef() = m_Descriptor.m_InputImages[i].GetPixelPointer<ezColor>();

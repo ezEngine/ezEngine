@@ -141,7 +141,7 @@ void ezQtAssetBrowserWidget::dropEvent(QDropEvent* pEvent)
   }
 
   QList<QUrl> urlList = mime->urls();
-  ezHybridArray<ezString, 16> assetsToImport;
+  ezTempHybridArray<ezString, 16> assetsToImport;
 
   // if we leave this function prematurely, delete all these temp files
   EZ_SCOPE_EXIT(CleanUpFiles(assetsToImport));
@@ -364,7 +364,7 @@ void ezQtAssetBrowserWidget::AddAssetCreatorMenu(QMenu* pMenu, bool useSelectedA
   if (m_Mode != Mode::Browser)
     return;
 
-  const ezHybridArray<ezDocumentManager*, 16>& managers = ezDocumentManager::GetAllDocumentManagers();
+  const ezTempHybridArray<ezDocumentManager*, 16>& managers = ezDocumentManager::GetAllDocumentManagers();
 
   ezDynamicArray<const ezDocumentTypeDescriptor*> documentTypes;
 
@@ -423,7 +423,7 @@ void ezQtAssetBrowserWidget::AddImportedViaMenu(QMenu* pMenu)
   }
 
   // Sort by path
-  ezHybridArray<ezUuid, 8> importedViaSorted;
+  ezTempHybridArray<ezUuid, 8> importedViaSorted;
   {
     importedViaSorted.Reserve(importedVia.GetCount());
     ezAssetCurator::ezLockedSubAssetTable allAssets = ezAssetCurator::GetSingleton()->GetKnownSubAssets();
@@ -915,7 +915,7 @@ void ezQtAssetBrowserWidget::OnImportAsAboutToShow()
   if (!pMenu->actions().isEmpty())
     return;
 
-  ezHybridArray<ezString, 8> filesToImport;
+  ezTempHybridArray<ezString, 8> filesToImport;
   GetSelectedImportableFiles(filesToImport);
 
   if (filesToImport.IsEmpty())
@@ -930,9 +930,9 @@ void ezQtAssetBrowserWidget::OnImportAsAboutToShow()
     extensions.Insert(sExt);
   }
 
-  ezHybridArray<ezAssetDocumentGenerator*, 16> generators;
+  ezTempHybridArray<ezAssetDocumentGenerator*, 16> generators;
   ezAssetDocumentGenerator::CreateGenerators(generators);
-  ezHybridArray<ezAssetDocumentGenerator::ImportMode, 16> importModes;
+  ezTempHybridArray<ezAssetDocumentGenerator::ImportMode, 16> importModes;
 
   for (ezAssetDocumentGenerator* pGen : generators)
   {
@@ -960,13 +960,13 @@ void ezQtAssetBrowserWidget::OnImportAsClicked()
 {
   EZ_LOG_BLOCK("Importing Assets");
 
-  ezHybridArray<ezString, 8> filesToImport;
+  ezTempHybridArray<ezString, 8> filesToImport;
   GetSelectedImportableFiles(filesToImport);
 
   QAction* act = qobject_cast<QAction*>(sender());
   ezString sMode = qtToEzString(act->data().toString());
 
-  ezHybridArray<ezAssetDocumentGenerator*, 16> generators;
+  ezTempHybridArray<ezAssetDocumentGenerator*, 16> generators;
   ezAssetDocumentGenerator::CreateGenerators(generators);
 
   ezAssetProcessor::GetSingleton()->m_iPauseProcessing.Increment();
@@ -974,7 +974,7 @@ void ezQtAssetBrowserWidget::OnImportAsClicked()
 
   ezProgressRange progress("Importing Assets", filesToImport.GetCount(), true);
 
-  ezHybridArray<ezAssetDocumentGenerator::ImportMode, 16> importModes;
+  ezTempHybridArray<ezAssetDocumentGenerator::ImportMode, 16> importModes;
   for (ezAssetDocumentGenerator* pGen : generators)
   {
     importModes.Clear();
@@ -1687,7 +1687,7 @@ void ezQtAssetBrowserWidget::OnFileEditingFinished(const QString& sAbsPath, cons
 
 void ezQtAssetBrowserWidget::ImportSelection()
 {
-  ezHybridArray<ezString, 4> filesToImport;
+  ezTempHybridArray<ezString, 4> filesToImport;
   GetSelectedImportableFiles(filesToImport);
 
   if (filesToImport.IsEmpty())

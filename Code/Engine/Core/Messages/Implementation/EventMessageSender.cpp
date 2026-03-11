@@ -12,7 +12,7 @@ namespace ezInternal
     {
       using ComponentType = typename std::conditional<std::is_const<World>::value, const ezComponent*, ezComponent*>::type;
 
-      ezHybridArray<ComponentType, 4> eventMsgHandlers;
+      ezTempHybridArray<ComponentType, 4> eventMsgHandlers;
       ref_world.FindEventMsgHandlers(msg, pSenderComponent, pSearchObject, eventMsgHandlers);
 
       for (auto pEventMsgHandler : eventMsgHandlers)

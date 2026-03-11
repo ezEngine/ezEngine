@@ -195,7 +195,7 @@ ezStatus ezJoltCollisionMeshAssetDocument::CreateMeshFromFile(ezJoltMeshDesc& ou
 
   // include tags
   {
-    ezHybridArray<ezStringView, 8> tags;
+    ezTempHybridArray<ezStringView, 8> tags;
     pProp->m_sMeshIncludeTags.Split(false, tags, ";");
     for (ezStringView tag : tags)
     {
@@ -206,7 +206,7 @@ ezStatus ezJoltCollisionMeshAssetDocument::CreateMeshFromFile(ezJoltMeshDesc& ou
 
   // exclude tags
   {
-    ezHybridArray<ezStringView, 8> tags;
+    ezTempHybridArray<ezStringView, 8> tags;
     pProp->m_sMeshExcludeTags.Split(false, tags, ";");
     for (ezStringView tag : tags)
     {

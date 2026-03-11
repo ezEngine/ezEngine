@@ -173,7 +173,7 @@ void ezEditAction::Execute(const ezVariant& value)
       QClipboard* clipboard = QApplication::clipboard();
       auto mimedata = clipboard->mimeData();
 
-      ezHybridArray<ezString, 4> MimeTypes;
+      ezTempHybridArray<ezString, 4> MimeTypes;
       m_Context.m_pDocument->GetSupportedMimeTypesForPasting(MimeTypes);
 
       ezInt32 iFormat = -1;

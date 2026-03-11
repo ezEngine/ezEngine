@@ -316,8 +316,8 @@ ezResult ezShaderStateResourceDescriptor::Parse(const char* szSource)
   {
     ezStringBuilder sSource = szSource;
 
-    ezHybridArray<ezStringView, 32> allAssignments;
-    ezHybridArray<ezStringView, 4> components;
+    ezTempHybridArray<ezStringView, 32> allAssignments;
+    ezTempHybridArray<ezStringView, 4> components;
     sSource.Split(false, allAssignments, "\n", ";", "\r");
 
     ezStringBuilder temp;

@@ -816,7 +816,7 @@ bool ezImGuiConsole::CVarNamePassesFilter(ezStringView sCVarName) const
     return true;
 
   // Split filter text by spaces to get individual search parts
-  ezHybridArray<ezStringView, 4> filterParts;
+  ezTempHybridArray<ezStringView, 4> filterParts;
   ezStringBuilder filterText = m_sCVarFilter;
   filterText.Split(false, filterParts, " ");
 

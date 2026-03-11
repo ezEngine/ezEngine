@@ -486,8 +486,8 @@ void ezQtEventTrackWidget::mouseReleaseEvent(QMouseEvent* e)
 
     if (!m_MultiSelectRect.isEmpty())
     {
-      ezHybridArray<SelectedPoint, 32> newSelection = m_SelectedPoints;
-      ezHybridArray<SelectedPoint, 32> change;
+      ezTempHybridArray<SelectedPoint, 32> newSelection = m_SelectedPoints;
+      ezTempHybridArray<SelectedPoint, 32> change;
       ExecMultiSelection(change);
       m_MultiSelectRect = QRect();
 
@@ -720,10 +720,10 @@ void ezQtEventTrackWidget::PaintControlPoints(QPainter* painter) const
 
   painter->save();
 
-  ezHybridArray<QLineF, 100> lines;
-  ezHybridArray<QRectF, 100> rects;
-  ezHybridArray<QLineF, 100> linesSelected;
-  ezHybridArray<QRectF, 100> rectsSelected;
+  ezTempHybridArray<QLineF, 100> lines;
+  ezTempHybridArray<QRectF, 100> rects;
+  ezTempHybridArray<QLineF, 100> linesSelected;
+  ezTempHybridArray<QRectF, 100> rectsSelected;
 
   const double fRectLeft = rect().left() - 10;
   const double fRectRight = rect().right() + 10;
@@ -874,7 +874,7 @@ void ezQtEventTrackWidget::RenderVerticalGrid(QPainter* painter, const QRectF& v
     pen.setCosmetic(true);
     painter->setPen(pen);
 
-    ezHybridArray<QLine, 100> lines;
+    ezTempHybridArray<QLine, 100> lines;
 
     for (double x = lowX; x <= highX; x += fRoughGridDensity)
     {
@@ -945,7 +945,7 @@ ezQtEventTrackWidget::ClickTarget ezQtEventTrackWidget::DetectClickTarget(const 
   return ClickTarget::Nothing;
 }
 
-void ezQtEventTrackWidget::ExecMultiSelection(ezHybridArray<SelectedPoint, 32>& out_Selection)
+void ezQtEventTrackWidget::ExecMultiSelection(ezDynamicArray<SelectedPoint>& out_Selection)
 {
   out_Selection.Clear();
 
@@ -980,8 +980,7 @@ void ezQtEventTrackWidget::ExecMultiSelection(ezHybridArray<SelectedPoint, 32>& 
   }
 }
 
-bool ezQtEventTrackWidget::CombineSelection(
-  ezHybridArray<SelectedPoint, 32>& inout_Selection, const ezHybridArray<SelectedPoint, 32>& change, bool add)
+bool ezQtEventTrackWidget::CombineSelection(ezDynamicArray<SelectedPoint>& inout_Selection, const ezArrayPtr<SelectedPoint>& change, bool add)
 {
   bool bChange = false;
 

@@ -136,7 +136,7 @@ void SampleRenderComponent::Update()
 
   if (m_RenderTypes.IsSet(SampleRenderComponentMask::Quad) && m_hTexture.IsValid())
   {
-    ezHybridArray<ezDebugRendererTexturedTriangle, 16> triangles;
+    ezTempHybridArray<ezDebugRendererTexturedTriangle, 16> triangles;
 
     {
       auto& t0 = triangles.ExpandAndGetRef();

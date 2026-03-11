@@ -403,7 +403,7 @@ void ezDocument::BroadcastInterDocumentMessage(ezReflectedClass* pMessage, ezDoc
 
 void ezDocument::DeleteSelectedObjects() const
 {
-  ezHybridArray<ezSelectionEntry, 64> objects;
+  ezTempHybridArray<ezSelectionEntry, 64> objects;
   GetSelectionManager()->GetTopLevelSelection(objects);
 
   // make sure the whole selection is cleared, otherwise each delete command would reduce the selection one by one

@@ -110,7 +110,7 @@ ezVisualGraphObjectManager::~ezVisualGraphObjectManager()
 
 void ezVisualGraphObjectManager::GetNodeCreationTemplates(ezDynamicArray<ezVisualGraphNodeDesc>& out_templates) const
 {
-  ezHybridArray<const ezRTTI*, 32> types;
+  ezTempHybridArray<const ezRTTI*, 32> types;
   GetCreateableTypes(types);
 
   for (auto pType : types)

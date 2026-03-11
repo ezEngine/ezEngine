@@ -266,8 +266,8 @@ void ezJoltGenerateCollisionComponent::OnMsgGenerateSplineMeshCollision(ezMsgGen
 
   m_sCollisionMeshPath.Clear();
 
-  ezHybridArray<ezCpuMeshResourceHandle, 16> cpuMeshes;
-  ezHybridArray<ezVec2, 16> scaleOffsets;
+  ezTempHybridArray<ezCpuMeshResourceHandle, 16> cpuMeshes;
+  ezTempHybridArray<ezVec2, 16> scaleOffsets;
   for (ezUInt32 i = 0; i < ref_msg.m_RenderMeshes.GetCount(); ++i)
   {
     auto hCpuMesh = GetCollisionCpuMeshForRenderMesh(ref_msg.m_RenderMeshes[i]);

@@ -104,7 +104,7 @@ void ezQtCVarWidget::UpdateCVarUI(const ezMap<ezString, ezCVarWidgetData>& cvars
 
 void ezQtCVarWidget::AddConsoleStrings(const ezStringBuilder& sEncoded)
 {
-  ezHybridArray<ezStringView, 64> lines;
+  ezTempHybridArray<ezStringView, 64> lines;
   sEncoded.Split(false, lines, ";;");
 
   ezStringBuilder tmp;
@@ -439,7 +439,7 @@ ezQtCVarModel::Entry* ezQtCVarModel::CreateEntry(const char* szName)
   ezStringBuilder tmp = szName;
   ezStringBuilder tmp2;
 
-  ezHybridArray<ezStringView, 8> pieces;
+  ezTempHybridArray<ezStringView, 8> pieces;
   tmp.Split(false, pieces, ".", "_");
 
   ezDynamicArray<Entry*>* vals = &m_RootEntries;

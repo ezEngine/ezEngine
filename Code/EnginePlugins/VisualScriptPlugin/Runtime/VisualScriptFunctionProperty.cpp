@@ -48,7 +48,7 @@ void ezVisualScriptMessageHandler::Dispatch(ezAbstractMessageHandler* pSelf, voi
   auto pComponent = static_cast<ezScriptComponent*>(pInstance);
   auto pVisualScriptInstance = static_cast<ezVisualScriptInstance*>(pComponent->GetScriptInstance());
 
-  ezHybridArray<ezVariant, 8> arguments;
+  ezTempHybridArray<ezVariant, 8> arguments;
   pHandler->FillMessagePropertyValues(ref_msg, arguments);
 
   ezVisualScriptExecutionContext context(pHandler->m_pDesc, ezTempAllocator::Get());

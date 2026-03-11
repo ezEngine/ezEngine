@@ -104,7 +104,7 @@ void ezPreferences::Save() const
 {
   bool bNothingToSerialize = true;
 
-  ezHybridArray<const ezAbstractProperty*, 32> allProperties;
+  ezTempHybridArray<const ezAbstractProperty*, 32> allProperties;
   GetDynamicRTTI()->GetAllProperties(allProperties);
 
   for (const ezAbstractProperty* pProp : allProperties)

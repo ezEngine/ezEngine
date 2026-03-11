@@ -103,7 +103,7 @@ ezResult ezPreprocessor::HandleDefine(const TokenStream& Tokens, ezUInt32& uiCur
     if (Expect(Tokens, uiCurToken, "(").Failed())
       return EZ_FAILURE;
 
-    ezHybridArray<ezString, 16> parameters;
+    ezTempHybridArray<ezString, 16> parameters;
 
     while (!Accept(Tokens, uiCurToken, ")"))
     {
@@ -156,7 +156,7 @@ ezResult ezPreprocessor::AddCustomDefine(ezStringView sDefinition)
   m_CustomDefines.PeekBack().m_Tokenized.Tokenize(m_CustomDefines.PeekBack().m_Content, m_pLog);
 
   ezUInt32 uiFirstToken = 0;
-  ezHybridArray<const ezToken*, 32> Tokens;
+  ezTempHybridArray<const ezToken*, 32> Tokens;
 
   if (m_CustomDefines.PeekBack().m_Tokenized.GetNextLine(uiFirstToken, Tokens).Failed())
     return EZ_FAILURE;

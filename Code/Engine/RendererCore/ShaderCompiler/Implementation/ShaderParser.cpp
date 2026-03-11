@@ -225,7 +225,7 @@ namespace
       ++ref_uiCurToken;
       Accept(tokens, ref_uiCurToken, "(");
 
-      ezHybridArray<ezVariant, 8> constructorArgs;
+      ezTempHybridArray<ezVariant, 8> constructorArgs;
 
       while (!Accept(tokens, ref_uiCurToken, ")"))
       {
@@ -249,7 +249,7 @@ namespace
       {
         if (pFunc->GetFunctionType() == ezFunctionType::Constructor && pFunc->GetArgumentCount() == constructorArgs.GetCount())
         {
-          ezHybridArray<ezVariant, 8> convertedArgs;
+          ezTempHybridArray<ezVariant, 8> convertedArgs;
           bool bAllArgsValid = true;
 
           for (ezUInt32 uiArg = 0; uiArg < pFunc->GetArgumentCount(); ++uiArg)
@@ -646,7 +646,7 @@ void ezShaderParser::ParsePermutationSection(ezStringView s, ezDynamicArray<ezHa
 
 ezStatus ParseShaderConstant(const TokenStream& tokens, ezUInt32& ref_uiCurToken, ezShaderConstantBufferLayout& ref_materialConstantBufferLayout)
 {
-  ezHybridArray<ezUInt32, 8> acceptedTokens;
+  ezTempHybridArray<ezUInt32, 8> acceptedTokens;
   TokenMatch constantPattern[] = {ezTokenType::Identifier, "("_ezsv, ezTokenType::Identifier, ")"_ezsv, ";"_ezsv};
   TokenMatch packedhalf2Pattern[] = {ezTokenType::Identifier, "("_ezsv, ezTokenType::Identifier, ","_ezsv, ezTokenType::Identifier, ","_ezsv, ezTokenType::Identifier, ")"_ezsv, ";"_ezsv};
   const ezUInt32 uiStartToken = ref_uiCurToken;
@@ -791,7 +791,7 @@ ezStatus ezShaderParser::ParseMaterialConstantsSection(ezStringView sMaterialCon
   tokenizer.GetAllLines(tokens);
 
   ezUInt32 uiCurToken = 0;
-  ezHybridArray<ezUInt32, 8> acceptedTokens;
+  ezTempHybridArray<ezUInt32, 8> acceptedTokens;
 
   out_pMaterialConstantBufferLayout = EZ_DEFAULT_NEW(ezShaderConstantBufferLayout);
   const ezStatus res = ParseMaterialConstants(tokens, uiCurToken, *out_pMaterialConstantBufferLayout);
@@ -890,7 +890,7 @@ ezResult ParseResource(const TokenStream& tokens, ezUInt32& ref_uiCurToken, ezSh
 
   // Skip optional template
   TokenMatch templatePattern[] = {"<"_ezsv, ezTokenType::Identifier, ">"_ezsv};
-  ezHybridArray<ezUInt32, 8> acceptedTokens;
+  ezTempHybridArray<ezUInt32, 8> acceptedTokens;
   Accept(tokens, ref_uiCurToken, templatePattern, &acceptedTokens);
 
   // Match name
@@ -1059,7 +1059,7 @@ ezResult ezShaderParser::SanityCheckShaderResourceBindings(const ezHashTable<ezH
 void ezShaderParser::ApplyShaderResourceBindings(ezStringView sPlatform, ezStringView sShaderStageSource, const ezDynamicArray<ezShaderResourceDefinition>& resources, const ezHashTable<ezHashedString, ezShaderResourceBinding>& bindings, const CreateResourceDeclaration& createDeclaration, ezStringBuilder& out_sShaderStageSource)
 {
   ezDeque<ezString> partStorage;
-  ezHybridArray<ezStringView, 16> parts;
+  ezTempHybridArray<ezStringView, 16> parts;
 
   ezStringBuilder sDeclaration;
   const char* szStart = sShaderStageSource.GetStartPointer();

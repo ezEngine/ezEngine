@@ -130,7 +130,7 @@ ezResourceLoadDesc ezTextureCubeResource::UpdateContent(ezStreamReader* Stream)
 
   m_uiMemoryGPU[m_uiLoadedTextures] = 0;
 
-  ezHybridArray<ezGALSystemMemoryDescription, 32> InitData;
+  ezTempHybridArray<ezGALSystemMemoryDescription, 32> InitData;
 
   for (ezUInt32 array_index = 0; array_index < pImage->GetNumArrayIndices(); ++array_index)
   {

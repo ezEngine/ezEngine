@@ -117,7 +117,7 @@ void ezGameObjectContextDocument::ClearContext()
   m_ContextDocument = ezUuid();
   m_ContextObject = ezUuid();
   ezDocumentObject* pRoot = GetObjectManager()->GetRootObject();
-  ezHybridArray<ezVariant, 16> values;
+  ezTempHybridArray<ezVariant, 16> values;
   GetObjectAccessor()->GetValuesByName(pRoot, "TempObjects", values).AssertSuccess();
   for (ezInt32 i = (ezInt32)values.GetCount() - 1; i >= 0; --i)
   {

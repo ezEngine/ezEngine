@@ -535,7 +535,7 @@ void ezSplineComponent::CreateDistanceToKeyRemapping()
   m_DistanceToKey.Insert(0.0f, 0.0f);
   constexpr float fMaxErrorSqr = ezMath::Square(0.1f);
 
-  ezHybridArray<float, 64> segmentTs;
+  ezTempHybridArray<float, 64> segmentTs;
   const ezUInt32 uiNumSegments = m_Spline.m_bClosed ? uiNumCPs : uiNumCPs - 1;
   for (ezUInt32 uiSegment = 0; uiSegment < uiNumSegments; ++uiSegment)
   {
@@ -574,7 +574,7 @@ void ezSplineComponent::DrawDebugVisualizations(ezBitflags<ezSplineComponentFlag
   const bool bVisPath = flags.IsSet(ezSplineComponentFlags::VisualizeSpline);
   const bool bVisUp = flags.IsSet(ezSplineComponentFlags::VisualizeUpDir);
 
-  ezHybridArray<ezDebugRendererLine, 32> lines;
+  ezTempHybridArray<ezDebugRendererLine, 32> lines;
   ezColor c = ezColorScheme::DarkUI(ezColorScheme::Red);
   ezColor cUp = ezColorScheme::LightUI(ezColorScheme::Blue);
 
@@ -643,7 +643,7 @@ void ezSplineComponent::DrawDebugTangents(ezUInt32 uiPointIndex, ezSplineTangent
     ezDebugRenderer::DrawLineSphere(GetWorld(), ezBoundingSphere::MakeFromCenterAndRadius(vTangentIn, 0.05f), tInColor, t);
     ezDebugRenderer::DrawLineSphere(GetWorld(), ezBoundingSphere::MakeFromCenterAndRadius(vTangentOut, 0.05f), tOutColor, t);
 
-    ezHybridArray<ezDebugRendererLine, 2> lines;
+    ezTempHybridArray<ezDebugRendererLine, 2> lines;
     lines.PushBack(ezDebugRendererLine(ezVec3::MakeZero(), vTangentIn, tInColor));
     lines.PushBack(ezDebugRendererLine(ezVec3::MakeZero(), vTangentOut, tOutColor));
     ezDebugRenderer::DrawLines(GetWorld(), lines, ezColor::White, t);

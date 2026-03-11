@@ -172,7 +172,7 @@ void ezRopeRenderComponent::SetThickness(float fThickness)
     {
       auto boneTransforms = m_SkinningState.GetBoneTransformsForReading();
 
-      ezHybridArray<ezTransform, 128> transforms;
+      ezTempHybridArray<ezTransform, 128> transforms;
       transforms.SetCountUninitialized(boneTransforms.GetCount());
 
       ezMat4 offsetMat;

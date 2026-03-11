@@ -390,7 +390,7 @@ void ezAiNavigation::DebugDrawPathCorridor(const ezDebugRendererContext& context
   const ezUInt32 uiCorrLen = m_PathCorridor.getPathCount();
   const dtPolyRef* pCorrArr = m_PathCorridor.getPath();
 
-  ezHybridArray<ezDebugRendererTriangle, 64> tris;
+  ezTempHybridArray<ezDebugRendererTriangle, 64> tris;
 
   const auto pNavmesh = m_Query.getAttachedNavMesh();
 
@@ -425,8 +425,8 @@ void ezAiNavigation::DebugDrawPathCorridor(const ezDebugRendererContext& context
 
 void ezAiNavigation::DebugDrawPathLine(const ezDebugRendererContext& context, ezColor straightLineColor, float fLineRenderOffsetZ)
 {
-  ezHybridArray<ezDebugRendererLine, 64> lines;
-  ezHybridArray<ezVec3, 64> waypoints;
+  ezTempHybridArray<ezDebugRendererLine, 64> lines;
+  ezTempHybridArray<ezVec3, 64> waypoints;
   ComputeAllWaypoints(waypoints);
 
   if (!waypoints.IsEmpty())

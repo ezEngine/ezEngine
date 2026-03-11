@@ -310,7 +310,7 @@ void ezReflectionPool::OnRenderEvent(const ezRenderWorldRenderEvent& e)
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
   auto pCommandEncoder = pDevice->BeginCommands("Sky Irradiance Texture Update");
-  ezHybridArray<ezGALTextureHandle, 4> atlasToClear;
+  ezTempHybridArray<ezGALTextureHandle, 4> atlasToClear;
 
   for (ezUInt32 i = 0; i < skyIrradianceStorage.GetCount(); ++i)
   {

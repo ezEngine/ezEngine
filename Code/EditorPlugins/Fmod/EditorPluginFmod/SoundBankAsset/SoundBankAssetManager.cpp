@@ -125,7 +125,7 @@ void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentI
   sAssetsDocumentTypeName.Assign("Sound Event");
 
   auto* pSystem = m_pFmod->GetSystem();
-  ezHybridArray<FMOD::Studio::Bank*, 16> loadedBanks;
+  ezTempHybridArray<FMOD::Studio::Bank*, 16> loadedBanks;
 
 
   // TODO: it is unclear whether the code below can produce deadlocks, because of locked soundbank files on disk

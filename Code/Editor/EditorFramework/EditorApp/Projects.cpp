@@ -439,7 +439,7 @@ void ezQtEditorApp::ProjectRequestHandler(ezToolsProjectRequest& r)
       if (r.m_bCanClose == false)
         return;
 
-      ezHybridArray<ezDocument*, 32> ModifiedDocs;
+      ezTempHybridArray<ezDocument*, 32> ModifiedDocs;
       if (r.m_Type == ezToolsProjectRequest::Type::CanCloseProject)
       {
         for (ezDocumentManager* pMan : ezDocumentManager::GetAllDocumentManagers())
@@ -523,7 +523,7 @@ void ezQtEditorApp::SetupNewProject()
       ezDeferredFileWriter file;
       file.SetOutput(sPath);
 
-      ezHybridArray<ezGameAppInputConfig, 4> actions;
+      ezTempHybridArray<ezGameAppInputConfig, 4> actions;
       ezGameAppInputConfig& a = actions.ExpandAndGetRef();
       a.m_sInputSet = "Default";
       a.m_sInputAction = "Interact";

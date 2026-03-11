@@ -127,7 +127,7 @@ ezResult ezRenderDoc::GetLastAbsCaptureFileName(ezStringBuilder& out_sFileName) 
     ezUInt32 uiFilePathLength = 0;
     if (m_pRenderDocAPI->GetCapture(uiNumCaptures - 1, nullptr, &uiFilePathLength, nullptr))
     {
-      ezHybridArray<char, 128> filePathBuffer;
+      ezTempHybridArray<char, 128> filePathBuffer;
       filePathBuffer.SetCount(uiFilePathLength);
       m_pRenderDocAPI->GetCapture(uiNumCaptures - 1, filePathBuffer.GetArrayPtr().GetPtr(), nullptr, nullptr);
       out_sFileName = filePathBuffer.GetArrayPtr().GetPtr();

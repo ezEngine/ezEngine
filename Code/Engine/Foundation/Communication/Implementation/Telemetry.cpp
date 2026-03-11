@@ -287,7 +287,7 @@ ezResult ezTelemetry::InitializeAsClient(ezStringView sConnectTo0)
     enet_address_set_host(&g_pServerAddress, "localhost");
   else if (sConnectTo.FindSubString(".") != nullptr)
   {
-    ezHybridArray<ezString, 8> IP;
+    ezTempHybridArray<ezString, 8> IP;
     sConnectTo.Split(false, IP, ".");
 
     if (IP.GetCount() != 4)
@@ -402,7 +402,7 @@ void ezTelemetry::Send(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, c
   {
     // when we do have a connection, just send the message out
 
-    ezHybridArray<ezUInt8, 64> TempData;
+    ezTempHybridArray<ezUInt8, 64> TempData;
     TempData.SetCountUninitialized(8 + uiDataBytes);
     *((ezUInt32*)&TempData[0]) = uiSystemID;
     *((ezUInt32*)&TempData[4]) = uiMsgID;
@@ -429,7 +429,7 @@ void ezTelemetry::Send(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, e
 
   const ezUInt32 uiStackSize = 1024;
 
-  ezHybridArray<ezUInt8, uiStackSize + 8> TempData;
+  ezTempHybridArray<ezUInt8, uiStackSize + 8> TempData;
   TempData.SetCountUninitialized(8);
   *((ezUInt32*)&TempData[0]) = uiSystemID;
   *((ezUInt32*)&TempData[4]) = uiMsgID;

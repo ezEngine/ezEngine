@@ -285,7 +285,7 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
     t = ezTransform::MakeLocalTransform(pObject->GetGlobalTransform(), t);
   }
 
-  ezHybridArray<ezGameObject*, 8> rootObjects;
+  ezTempHybridArray<ezGameObject*, 8> rootObjects;
 
   ezPrefabInstantiationOptions options;
   options.m_hParent = hParent;

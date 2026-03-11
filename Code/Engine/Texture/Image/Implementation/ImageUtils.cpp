@@ -991,7 +991,7 @@ ezResult ezImageUtils::Scale3D(const ezImageView& source, ezImage& ref_target, e
     stepSource = &conversionScratch;
   };
 
-  ezHybridArray<ezInt32, 256> firstSampleIndices;
+  ezTempHybridArray<ezInt32, 256> firstSampleIndices;
   firstSampleIndices.Reserve(ezMath::Max(uiWidth, uiHeight, uiDepth));
 
   if (uiWidth != originalWidth)

@@ -61,7 +61,7 @@ void ezSceneSelectionContext::SelectPickedObject(const ezObjectPickingResult& re
 
 ezUuid ezSceneSelectionContext::FindLayerByObject(ezUuid objectGuid, const ezDocumentObject*& out_pObject) const
 {
-  ezHybridArray<ezSceneDocument*, 8> loadedLayers;
+  ezTempHybridArray<ezSceneDocument*, 8> loadedLayers;
   const ezScene2Document* pSceneDocument = ezDynamicCast<const ezScene2Document*>(GetOwnerWindow()->GetDocument());
   pSceneDocument->GetLoadedLayers(loadedLayers);
   for (ezSceneDocument* pLayer : loadedLayers)

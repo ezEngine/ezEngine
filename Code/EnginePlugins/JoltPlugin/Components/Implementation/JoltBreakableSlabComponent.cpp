@@ -103,7 +103,7 @@ void ezJoltBreakableSlabComponentManager::PostAsyncUpdate(const ezWorldModule::U
   // when updating slabs, we activate bodies, which would immediately modify the active slabs map
   // and then create a crash during iteration
   // therefore we have to make a copy of the active slabs first
-  ezHybridArray<ezJoltBreakableSlabComponent*, 64> activeSlabs;
+  ezTempHybridArray<ezJoltBreakableSlabComponent*, 64> activeSlabs;
   activeSlabs.Reserve(pModule->GetActiveSlabs().GetCount());
 
   for (auto it : pModule->GetActiveSlabs())
@@ -301,7 +301,7 @@ void ezJoltBreakableSlabComponent::OnSimulationStarted()
     pUserData->Init(this, ezOnJoltContact::ImpactReactions);
   }
 
-  ezHybridArray<JPH::Ref<JPH::ConvexShape>, 2> shapes;
+  ezTempHybridArray<JPH::Ref<JPH::ConvexShape>, 2> shapes;
 
   if (m_Shape == ezJoltBreakableShape::Rectangle)
   {
@@ -440,7 +440,7 @@ void ezJoltBreakableSlabComponent::Restore()
   ReinitMeshes();
   TriggerLocalBoundsUpdate();
 
-  ezHybridArray<JPH::Ref<JPH::ConvexShape>, 2> shapes;
+  ezTempHybridArray<JPH::Ref<JPH::ConvexShape>, 2> shapes;
   PrepareShardColliders(0, shapes);
 
   CreateShardColliders(0, shapes);
@@ -809,8 +809,8 @@ ezMeshResourceHandle ezJoltBreakableSlabComponent::CreateShardsMesh() const
   meshName.SetFormat("JoltSlab-{}-{}", ezArgP(this), s_iShardMeshCounter.Increment());
 
   ezGeometry geo;
-  ezHybridArray<ezUInt32, 16> vtxIdx1;
-  ezHybridArray<ezUInt32, 16> vtxIdx2;
+  ezTempHybridArray<ezUInt32, 16> vtxIdx1;
+  ezTempHybridArray<ezUInt32, 16> vtxIdx2;
 
   const ezVec3 vNormal(0, 0, 1);
 

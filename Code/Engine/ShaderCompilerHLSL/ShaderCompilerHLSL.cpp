@@ -610,7 +610,7 @@ ezResult ezShaderCompilerHLSL::DefineShaderResourceBindings(const ezShaderProgra
   }
 
   // Create stable order of resources
-  ezHybridArray<ezHashedString, 16> order[DX11ResourceCategory::ENUM_COUNT];
+  ezTempHybridArray<ezHashedString, 16> order[DX11ResourceCategory::ENUM_COUNT];
   for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
   {
     if (data.m_sShaderSource[stage].IsEmpty())

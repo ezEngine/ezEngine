@@ -46,7 +46,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, DataDirPath)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Windows Path copy ctor")
   {
-    ezHybridArray<ezString, 2> rootFolders;
+    ezTempHybridArray<ezString, 2> rootFolders;
     rootFolders.PushBack("C:/SomeOtherFolder/Folder");
     rootFolders.PushBack(sDataDirView);
 
@@ -61,7 +61,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, DataDirPath)
     ezString sFilePathView = "/Code/ezEngine/Data/Samples/Testing Chambers/Objects/Barrel.ezPrefab"_ezsv;
     ezString sFilePath = sFilePathView;
     auto sDataDir = "/Code/ezEngine/Data/Samples/Testing Chambers"_ezsv;
-    ezHybridArray<ezString, 2> rootFolders;
+    ezTempHybridArray<ezString, 2> rootFolders;
     rootFolders.PushBack(sDataDir);
     rootFolders.PushBack("/SomeOtherFolder/Folder");
 
@@ -84,7 +84,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, DataDirPath)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Path to DataDir Itself")
   {
     ezString sDataDirView = (const char*)u8"/Code/ezEngine/Data/Sämples/Testing Chämbers";
-    ezHybridArray<ezString, 2> rootFolders;
+    ezTempHybridArray<ezString, 2> rootFolders;
     rootFolders.PushBack(sDataDirView);
 
     ezDataDirPath path(sDataDirView.GetView(), rootFolders);
@@ -103,7 +103,7 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, DataDirPath)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Move")
   {
-    ezHybridArray<ezString, 2> rootFolders;
+    ezTempHybridArray<ezString, 2> rootFolders;
     rootFolders.PushBack(sDataDirView);
 
     ezString sFilePath = sFilePathView;
@@ -125,14 +125,14 @@ EZ_CREATE_SIMPLE_TEST(FileSystem, DataDirPath)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Rebuild")
   {
-    ezHybridArray<ezString, 2> rootFolders;
+    ezTempHybridArray<ezString, 2> rootFolders;
     rootFolders.PushBack(sDataDirView);
 
     ezDataDirPath path(sFilePathView, rootFolders);
     CheckIsValid(path);
     EZ_TEST_INT(path.GetDataDirIndex(), 0);
 
-    ezHybridArray<ezString, 2> newRootFolders;
+    ezTempHybridArray<ezString, 2> newRootFolders;
     newRootFolders.PushBack(sDataDirView);
     newRootFolders.PushBack("C:/Some/Other/DataDir");
 
@@ -169,7 +169,7 @@ void FileSystemModelTest()
   ezStringBuilder sOutputFolderResolved;
   ezFileSystem::ResolveSpecialDirectory(sOutputFolder, sOutputFolderResolved).IgnoreResult();
 
-  ezHybridArray<ezString, 1> rootFolders;
+  ezTempHybridArray<ezString, 1> rootFolders;
 
   ezApplicationFileSystemConfig fsConfig;
   ezApplicationFileSystemConfig::DataDirConfig& dataDir = fsConfig.m_DataDirs.ExpandAndGetRef();
@@ -179,8 +179,8 @@ void FileSystemModelTest()
   rootFolders.PushBack(sOutputFolder);
 
   // Files
-  ezHybridArray<ezFileChangedEvent, 2> fileEvents;
-  ezHybridArray<ezTime, 2> fileEventTimestamps;
+  ezTempHybridArray<ezFileChangedEvent, 2> fileEvents;
+  ezTempHybridArray<ezTime, 2> fileEventTimestamps;
   ezMutex fileEventLock;
   auto fileEvent = [&](const ezFileChangedEvent& e)
   {
@@ -208,8 +208,8 @@ void FileSystemModelTest()
   ezEventSubscriptionID fileId = ezFileSystemModel::GetSingleton()->m_FileChangedEvents.AddEventHandler(fileEvent);
 
   // Folders
-  ezHybridArray<ezFolderChangedEvent, 2> folderEvents;
-  ezHybridArray<ezTime, 2> folderEventTimestamps;
+  ezTempHybridArray<ezFolderChangedEvent, 2> folderEvents;
+  ezTempHybridArray<ezTime, 2> folderEventTimestamps;
   ezMutex folderEventLock;
   auto folderEvent = [&](const ezFolderChangedEvent& e)
   {

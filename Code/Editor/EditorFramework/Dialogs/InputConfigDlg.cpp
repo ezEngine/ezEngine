@@ -8,7 +8,7 @@
 
 void UpdateInputDynamicEnumValues()
 {
-  ezHybridArray<ezGameAppInputConfig, 32> Actions;
+  ezTempHybridArray<ezGameAppInputConfig, 32> Actions;
 
   ezStringBuilder sPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
   sPath.AppendPath("RuntimeConfigs/InputConfig.ddl");

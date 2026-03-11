@@ -97,7 +97,7 @@ ezStatus ezExposedParameterCommandAccessor::GetCount(const ezDocumentObject* pOb
 {
   if (m_pParameterProp == pProp)
   {
-    ezHybridArray<ezVariant, 16> keys;
+    ezTempHybridArray<ezVariant, 16> keys;
     GetKeys(pObject, pProp, keys).AssertSuccess();
     out_iCount = keys.GetCount();
     return ezStatus(EZ_SUCCESS);
@@ -117,7 +117,7 @@ ezStatus ezExposedParameterCommandAccessor::GetKeys(
         out_keys.PushBack(ezVariant(pParam->m_sName));
       }
 
-      ezHybridArray<ezVariant, 16> realKeys;
+      ezTempHybridArray<ezVariant, 16> realKeys;
       ezStatus res = ezObjectProxyAccessor::GetKeys(pObject, pProp, realKeys);
       for (const auto& key : realKeys)
       {
@@ -137,7 +137,7 @@ ezStatus ezExposedParameterCommandAccessor::GetValues(
 {
   if (m_pParameterProp == pProp)
   {
-    ezHybridArray<ezVariant, 16> keys;
+    ezTempHybridArray<ezVariant, 16> keys;
     GetKeys(pObject, pProp, keys).AssertSuccess();
     for (const auto& key : keys)
     {
@@ -289,7 +289,7 @@ ezStatus ezExposedParametersAsTypeCommandAccessor::GetValues(const ezDocumentObj
 {
   ezVariant subValue;
   EZ_SUCCEED_OR_RETURN(GetSubValue(pObject, pProp, subValue));
-  ezHybridArray<ezVariant, 16> keys;
+  ezTempHybridArray<ezVariant, 16> keys;
   ezVariantStorageAccessor accessor(pProp->GetPropertyName(), subValue);
   EZ_SUCCEED_OR_RETURN(accessor.GetKeys(keys));
   out_values.Clear();
@@ -656,7 +656,7 @@ bool ezQtExposedParametersPropertyWidget::RemoveUnusedKeys(bool bTestOnly)
   {
     if (const ezExposedParameters* pParams = m_pProxy->GetExposedParams(item.m_pObject))
     {
-      ezHybridArray<ezVariant, 16> keys;
+      ezTempHybridArray<ezVariant, 16> keys;
       EZ_VERIFY(m_pSourceObjectAccessor->GetKeys(item.m_pObject, m_pProp, keys).Succeeded(), "");
       for (auto& key : keys)
       {
@@ -689,7 +689,7 @@ bool ezQtExposedParametersPropertyWidget::FixKeyTypes(bool bTestOnly)
   {
     if (const ezExposedParameters* pParams = m_pProxy->GetExposedParams(item.m_pObject))
     {
-      ezHybridArray<ezVariant, 16> keys;
+      ezTempHybridArray<ezVariant, 16> keys;
       EZ_VERIFY(m_pSourceObjectAccessor->GetKeys(item.m_pObject, m_pProp, keys).Succeeded(), "");
       for (auto& key : keys)
       {

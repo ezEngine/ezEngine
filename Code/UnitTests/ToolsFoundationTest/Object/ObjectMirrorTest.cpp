@@ -191,7 +191,7 @@ void RecursiveModifyProperty(const ezDocumentObject* pObject, const ezAbstractPr
     else if (pProp->GetFlags().IsSet(ezPropertyFlags::Class))
     {
       ezInt32 iCurrentCount = pObject->GetTypeAccessor().GetCount(pProp->GetPropertyName());
-      ezHybridArray<ezVariant, 16> currentValues;
+      ezTempHybridArray<ezVariant, 16> currentValues;
       pObject->GetTypeAccessor().GetValues(pProp->GetPropertyName(), currentValues);
       for (ezInt32 i = iCurrentCount - 1; i >= 0; --i)
       {
@@ -211,7 +211,7 @@ void RecursiveModifyProperty(const ezDocumentObject* pObject, const ezAbstractPr
         !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
     {
       ezInt32 iCurrentCount = pObjectAccessor->GetCount(pObject, pProp);
-      ezHybridArray<ezVariant, 16> keys;
+      ezTempHybridArray<ezVariant, 16> keys;
       pObjectAccessor->GetKeys(pObject, pProp, keys).AssertSuccess();
       for (const ezVariant& key : keys)
       {
@@ -226,7 +226,7 @@ void RecursiveModifyProperty(const ezDocumentObject* pObject, const ezAbstractPr
     else if (pProp->GetFlags().IsSet(ezPropertyFlags::Class))
     {
       ezInt32 iCurrentCount = pObject->GetTypeAccessor().GetCount(pProp->GetPropertyName());
-      ezHybridArray<ezVariant, 16> currentValues;
+      ezTempHybridArray<ezVariant, 16> currentValues;
       pObject->GetTypeAccessor().GetValues(pProp->GetPropertyName(), currentValues);
       for (ezInt32 i = iCurrentCount - 1; i >= 0; --i)
       {
@@ -241,7 +241,7 @@ void RecursiveModifyProperty(const ezDocumentObject* pObject, const ezAbstractPr
 
 void RecursiveModifyObject(const ezDocumentObject* pObject, ezObjectAccessorBase* pAccessor)
 {
-  ezHybridArray<const ezAbstractProperty*, 32> properties;
+  ezTempHybridArray<const ezAbstractProperty*, 32> properties;
   pObject->GetTypeAccessor().GetType()->GetAllProperties(properties);
   for (const auto* pProp : properties)
   {

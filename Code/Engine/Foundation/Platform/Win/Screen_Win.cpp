@@ -12,8 +12,8 @@ static void QueryMonitorNames(ezMap<ezString, ezString>& out_deviceIDtoName)
 {
   out_deviceIDtoName.Clear();
 
-  ezHybridArray<DISPLAYCONFIG_PATH_INFO, 4> paths;
-  ezHybridArray<DISPLAYCONFIG_MODE_INFO, 4> modes;
+  ezTempHybridArray<DISPLAYCONFIG_PATH_INFO, 4> paths;
+  ezTempHybridArray<DISPLAYCONFIG_MODE_INFO, 4> modes;
   UINT32 flags = QDC_ONLY_ACTIVE_PATHS;
   LONG isError = ERROR_INSUFFICIENT_BUFFER;
 
@@ -88,7 +88,7 @@ static BOOL CALLBACK ezMonitorEnumProc(HMONITOR pMonitor, HDC pHdcMonitor, LPREC
   EZ_IGNORE_UNUSED(pHdcMonitor);
   EZ_IGNORE_UNUSED(pLprcMonitor);
 
-  ezHybridArray<ezScreenInfo, 2>* pScreens = (ezHybridArray<ezScreenInfo, 2>*)data;
+  ezTempHybridArray<ezScreenInfo, 2>* pScreens = (ezTempHybridArray<ezScreenInfo, 2>*)data;
 
   MONITORINFOEXW info;
   info.cbSize = sizeof(info);

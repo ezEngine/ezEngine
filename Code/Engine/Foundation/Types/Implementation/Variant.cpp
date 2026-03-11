@@ -190,7 +190,7 @@ ezUInt64 ComputeHashFunc::operator()<ezVariantDictionary>(const ezVariant& v, co
 
   auto pVariantDictionary = static_cast<const ezVariantDictionary*>(pData);
 
-  ezHybridArray<ezUInt64, 128> hashes;
+  ezTempHybridArray<ezUInt64, 128> hashes;
   hashes.Reserve(pVariantDictionary->GetCount() * 2);
 
   for (auto& it : *pVariantDictionary)

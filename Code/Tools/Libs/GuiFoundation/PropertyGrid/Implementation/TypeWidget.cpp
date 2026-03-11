@@ -191,7 +191,7 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const ezMap<ezString, const ez
 void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const char* szIncludeProperties, const char* szExcludeProperties)
 {
   ezMap<ezString, const ezManipulatorAttribute*> manipulatorMap;
-  ezHybridArray<ezUniquePtr<PropertyGroup>, 6> groups;
+  ezTempHybridArray<ezUniquePtr<PropertyGroup>, 6> groups;
   PropertyGroup* pCurrentGroup = nullptr;
   float fOrder = -1.0f;
 
@@ -236,7 +236,7 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const char* szIncludePropertie
   };
 
   // Build type hierarchy array.
-  ezHybridArray<const ezRTTI*, 6> typeHierarchy;
+  ezTempHybridArray<const ezRTTI*, 6> typeHierarchy;
   const ezRTTI* pParentType = pType;
   while (pParentType != nullptr)
   {

@@ -166,7 +166,7 @@ void ezAnimController::GenerateLocalResultProcessors(const ezSkeletonResource* p
       float m_fPinWeight = 0.0f;
     };
 
-    ezHybridArray<PinWeight, 16> pw;
+    ezTempHybridArray<PinWeight, 16> pw;
     pw.SetCount(m_CurrentLocalTransformOutputs.GetCount());
 
     for (ezUInt32 i = 0; i < m_CurrentLocalTransformOutputs.GetCount(); ++i)

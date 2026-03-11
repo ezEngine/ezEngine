@@ -167,7 +167,7 @@ void ezQtAssetBrowserFilter::SetFileExtensionFilters(ezStringView sExtensions)
 {
   m_FileExtensions.Clear();
 
-  ezHybridArray<ezStringView, 8> filters;
+  ezTempHybridArray<ezStringView, 8> filters;
   sExtensions.Split(false, filters, ";", "*", ".");
 
   ezStringBuilder tmp;

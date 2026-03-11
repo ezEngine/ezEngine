@@ -93,7 +93,7 @@ ezResult ezWindowOutputTargetGAL::CaptureImage(ezImage& out_image)
 
   ezGALTextureSubresource sourceSubResource;
   ezArrayPtr<ezGALTextureSubresource> sourceSubResources(&sourceSubResource, 1);
-  ezHybridArray<ezGALSystemMemoryDescription, 1> memory;
+  ezTempHybridArray<ezGALSystemMemoryDescription, 1> memory;
   ezReadbackTextureLock lock = m_Readback.LockTexture(sourceSubResources, memory);
   EZ_ASSERT_ALWAYS(lock, "Failed to lock readback texture");
   const ezGALTexture* pBackbuffer = ezGALDevice::GetDefaultDevice()->GetTexture(hBackbuffer);

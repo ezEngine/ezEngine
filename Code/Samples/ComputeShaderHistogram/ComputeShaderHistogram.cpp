@@ -170,7 +170,7 @@ void ezComputeShaderHistogramApp::AfterCoreSystemsStartup()
   {
     auto pWinMan = ezWindowManager::GetSingleton();
 
-    ezHybridArray<ezRegisteredWndHandle, 8> windowIds;
+    ezTempHybridArray<ezRegisteredWndHandle, 8> windowIds;
     pWinMan->GetRegistered(windowIds);
 
     for (auto id : windowIds)

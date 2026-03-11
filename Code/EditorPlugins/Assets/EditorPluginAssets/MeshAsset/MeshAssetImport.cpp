@@ -139,7 +139,7 @@ ezStatus ezMeshAssetDocumentGenerator::Generate(ezStringView sInputFileAbs, ezSt
     sMaterialFolder = sSharedMaterialsFolderAbs;
   }
 
-  ezHybridArray<ezMaterialResourceSlot, 8> materials;
+  ezTempHybridArray<ezMaterialResourceSlot, 8> materials;
   ezUniquePtr<ezModelImporter2::Importer> pImporter;
 
   if (s_bCreateMaterials || (m_bAnimatedMesh && s_bImportAllClips))

@@ -883,7 +883,7 @@ ezResult ezKrautGeneratorResourceDescriptor::Deserialize(ezStreamReader& inout_s
   }
   else if (version == 5)
   {
-    ezHybridArray<ezUInt32, 16> dummy;
+    ezTempHybridArray<ezUInt32, 16> dummy;
     EZ_SUCCEED_OR_RETURN(inout_stream.ReadArray(dummy));
   }
 

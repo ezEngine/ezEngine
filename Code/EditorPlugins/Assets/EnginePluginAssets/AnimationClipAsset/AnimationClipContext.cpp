@@ -284,7 +284,7 @@ void ezAnimationClipContext::ExtractRootMotionFromFeet()
 
   // find shared parent bone
   {
-    ezHybridArray<ezUInt16, 32> parents;
+    ezTempHybridArray<ezUInt16, 32> parents;
 
     auto* pJoint = &skel.GetJointByIndex(uiFoot1);
 

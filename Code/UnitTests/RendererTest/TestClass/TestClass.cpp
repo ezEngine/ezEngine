@@ -375,7 +375,7 @@ ezResult ezGraphicsTest::GetImage(ezImage& ref_img, const ezSubTestEntry& subTes
 
   ezGALTextureSubresource sourceSubResource;
   ezArrayPtr<ezGALTextureSubresource> sourceSubResources(&sourceSubResource, 1);
-  ezHybridArray<ezGALSystemMemoryDescription, 1> memory;
+  ezTempHybridArray<ezGALSystemMemoryDescription, 1> memory;
   ezReadbackTextureLock lock = m_Readback.LockTexture(sourceSubResources, memory);
   EZ_ASSERT_ALWAYS(lock, "Failed to lock readback texture");
   ezTextureUtils::CopySubResourceToImage(pBackbuffer->GetDescription(), sourceSubResource, memory[0], ref_img, true);

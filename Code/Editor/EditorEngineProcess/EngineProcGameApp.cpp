@@ -580,7 +580,7 @@ ezEngineProcessDocumentContext* ezEngineProcessGameApplication::CreateDocumentCo
               if (ezStringUtils::IsEqual(pFunc->GetPropertyName(), "AllocateContext"))
               {
                 ezVariant res;
-                ezHybridArray<ezVariant, 1> params;
+                ezTempHybridArray<ezVariant, 1> params;
                 params.PushBack(pMsg);
                 pFunc->Execute(nullptr, params, res);
                 if (res.IsA<ezEngineProcessDocumentContext*>())

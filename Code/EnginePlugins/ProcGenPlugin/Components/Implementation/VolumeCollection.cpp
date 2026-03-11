@@ -194,7 +194,7 @@ void ezVolumeCollection::ExtractVolumesInBox(const ezWorld& world, const ezBound
     {
       if (pComponentBaseType != nullptr)
       {
-        ezHybridArray<const ezComponent*, 8> components;
+        ezTempHybridArray<const ezComponent*, 8> components;
         pObject->TryGetComponentsOfBaseType(pComponentBaseType, components);
 
         for (auto pComponent : components)

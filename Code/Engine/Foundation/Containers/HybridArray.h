@@ -56,7 +56,12 @@ class ezTempHybridArray : public ezHybridArray<T, Size>
 public:
   ezTempHybridArray();
 
-  void operator=(const ezHybridArray<T, Size>& rhs);
+  template <typename AllocatorWrapper>
+  ezTempHybridArray(const ezHybridArray<T, Size, AllocatorWrapper>& other);
+  explicit ezTempHybridArray(const ezArrayPtr<const T>& other);
+
+  template <typename AllocatorWrapper>
+  void operator=(const ezHybridArray<T, Size, AllocatorWrapper>& rhs);
   void operator=(const ezArrayPtr<const T>& rhs);
 
   void operator=(ezHybridArray<T, Size>&& rhs) noexcept;

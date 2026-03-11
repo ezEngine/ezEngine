@@ -175,7 +175,7 @@ void ezRenderDataManager::CompactCustomInstanceDataBuffer(ezUInt32 uiCustomDataI
 
   auto pInstanceDataBuffer = ezGALDevice::GetDefaultDevice()->GetDynamicBuffer(m_Buffers[uiCustomDataIndex]);
 
-  ezHybridArray<ezGALDynamicBuffer::ChangedAllocation, 16> changedAllocations;
+  ezTempHybridArray<ezGALDynamicBuffer::ChangedAllocation, 16> changedAllocations;
   pInstanceDataBuffer->RunCompactionSteps(changedAllocations, uiMaxSteps);
 
   for (const auto& changedAllocation : changedAllocations)

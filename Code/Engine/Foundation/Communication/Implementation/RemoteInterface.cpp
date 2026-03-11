@@ -362,7 +362,7 @@ ezResult ezRemoteInterface::DetermineTargetAddress(ezStringView sConnectTo0, ezU
   }
   else if (sConnectTo.FindSubString(".") != nullptr)
   {
-    ezHybridArray<ezString, 8> IP;
+    ezTempHybridArray<ezString, 8> IP;
     sConnectTo.Split(false, IP, ".");
 
     if (IP.GetCount() != 4)

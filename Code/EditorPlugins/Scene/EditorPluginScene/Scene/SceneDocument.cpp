@@ -649,7 +649,7 @@ void ezSceneDocument::SetGameMode(GameMode::Enum mode)
 
 ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(ezStringView sFile, const ezRTTI* pRootType, ezDelegate<void(ezAbstractObjectNode*)> adjustGraphNodeCB /* = {} */, ezDelegate<void(ezDocumentObject*)> adjustNewNodesCB /* = {} */, ezDelegate<void(ezAbstractObjectGraph& graph, ezDynamicArray<ezAbstractObjectNode*>& graphRootNodes)> finalizeGraphCB /* = {} */)
 {
-  ezHybridArray<ezSelectionEntry, 32> Selection;
+  ezTempHybridArray<ezSelectionEntry, 32> Selection;
   GetSelectionManager()->GetTopLevelSelectionOfType(pRootType, Selection);
 
   if (Selection.IsEmpty())
@@ -875,7 +875,7 @@ bool ezSceneDocument::CopySelectedObjects(ezAbstractObjectGraph& ref_graph, ezMa
     return false;
 
   // Serialize selection to graph
-  ezHybridArray<ezSelectionEntry, 64> selection;
+  ezTempHybridArray<ezSelectionEntry, 64> selection;
   GetSelectionManager()->GetTopLevelSelection(selection);
 
   ezDocumentObjectConverterWriter writer(&ref_graph, GetObjectManager());
@@ -910,7 +910,7 @@ bool ezSceneDocument::PasteAt(const ezArrayPtr<PasteInfo>& info, const ezAbstrac
   ezTransform refTransform = ezTransform::MakeIdentity();
   ezUInt32 uiHighestSelectionOrder = 0;
 
-  ezHybridArray<ezTransform, 16> globalTransforms;
+  ezTempHybridArray<ezTransform, 16> globalTransforms;
   globalTransforms.SetCount(info.GetCount(), ezTransform::MakeIdentity());
 
   for (ezUInt32 i = 0; i < info.GetCount(); ++i)
@@ -1125,7 +1125,7 @@ const ezSceneDocumentSettingsBase* ezSceneDocument::GetSettingsBase() const
 
 ezStatus ezSceneDocument::CreateExposedProperty(ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezRTTI* pType, const ezAbstractProperty* pProperty, ezVariant index, ezExposedSceneProperty& out_key) const
 {
-  ezHybridArray<ezVariant, 2> path;
+  ezTempHybridArray<ezVariant, 2> path;
   if (index.IsValid())
     path.PushBack(index);
 
@@ -1297,7 +1297,7 @@ ezResult ezSceneDocument::JumpToLevelCamera(ezUInt8 uiSlot, bool bImmediate)
 
   auto* pObjMan = GetObjectManager();
 
-  ezHybridArray<ezDocumentObject*, 8> stack;
+  ezTempHybridArray<ezDocumentObject*, 8> stack;
   stack.PushBack(pObjMan->GetRootObject());
 
   const ezRTTI* pCamType = ezGetStaticRTTI<ezCameraComponent>();

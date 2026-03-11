@@ -253,7 +253,7 @@ ezTransformStatus ezScene2Document::InternalTransformAsset(const char* szTargetF
   // We need to wait for layers to be fully loaded before we can transform, i.e. export, a scene.
   EZ_SUCCEED_OR_RETURN(WaitForEngineStatusLoaded());
 
-  ezHybridArray<ezSceneDocument*, 4> layers;
+  ezTempHybridArray<ezSceneDocument*, 4> layers;
   GetLoadedLayers(layers);
 
   for (ezSceneDocument* pLayer : layers)

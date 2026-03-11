@@ -209,7 +209,7 @@ void ezJoltRopeComponent::CreateRope()
   if (hAnchor1 == hAnchor2)
     return;
 
-  ezHybridArray<ezTransform, 65> nodes;
+  ezTempHybridArray<ezTransform, 65> nodes;
   float fPieceLength;
   if (CreateSegmentTransforms(nodes, fPieceLength, hAnchor1, hAnchor2).Failed())
     return;

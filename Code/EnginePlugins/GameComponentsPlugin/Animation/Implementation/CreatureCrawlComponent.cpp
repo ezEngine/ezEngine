@@ -129,7 +129,7 @@ void ezCreatureCrawlComponent::Update()
   const ezVec3 vCenterPos = GetOwner()->GetGlobalPosition();
   const ezQuat qCenterRot = GetOwner()->GetGlobalRotation();
 
-  ezHybridArray<ezVec3, 8> vNewTargetPos;
+  ezTempHybridArray<ezVec3, 8> vNewTargetPos;
   vNewTargetPos.SetCount(uiNumLegs);
 
   ezWorld* pWorld = GetWorld();
@@ -140,7 +140,7 @@ void ezCreatureCrawlComponent::Update()
   const float fStepHeight = 0.3f;
   const float fMoveAdd = ezMath::Min<float>(1.0f, GetWorld()->GetClock().GetTimeDiff().AsFloatInSeconds() / tStepDuration.AsFloatInSeconds());
 
-  ezHybridArray<bool, 8> bLegMoving;
+  ezTempHybridArray<bool, 8> bLegMoving;
   bLegMoving.SetCount(uiNumLegs);
   bool bAnyLegMoving = false;
 

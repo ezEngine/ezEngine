@@ -51,7 +51,7 @@ void ezQtProcGenNode::UpdateState()
     ezStringBuilder temp;
     ezStringBuilder temp2;
 
-    ezHybridArray<const ezAbstractProperty*, 32> properties;
+    ezTempHybridArray<const ezAbstractProperty*, 32> properties;
     pRtti->GetAllProperties(properties);
 
     sTitle = pAttr->GetTitle();
@@ -81,7 +81,7 @@ void ezQtProcGenNode::UpdateState()
       {
         sVal = "{";
 
-        ezHybridArray<ezVariant, 16> values;
+        ezTempHybridArray<ezVariant, 16> values;
         typeAccessor.GetValues(prop->GetPropertyName(), values);
         for (auto& setVal : values)
         {

@@ -365,7 +365,7 @@ void ezQtPropertyGridWidget::SetSelection(const ezDeque<const ezDocumentObject*>
     return;
 
   {
-    ezHybridArray<ezPropertySelection, 8> Items;
+    ezTempHybridArray<ezPropertySelection, 8> Items;
     Items.Reserve(m_Selection.GetCount());
 
     for (const auto* sel : m_Selection)

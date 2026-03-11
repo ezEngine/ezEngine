@@ -834,8 +834,8 @@ void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fPosit
 
   // cylinder wall
   {
-    ezHybridArray<ezUInt32, 512> VertsTop;
-    ezHybridArray<ezUInt32, 512> VertsBottom;
+    ezTempHybridArray<ezUInt32, 512> VertsTop;
+    ezTempHybridArray<ezUInt32, 512> VertsBottom;
 
     for (ezInt32 i = 0; i <= uiSegments; ++i)
     {
@@ -893,7 +893,7 @@ void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fPosit
 
   if (bCapBottom)
   {
-    ezHybridArray<ezUInt32, 512> VertsBottom;
+    ezTempHybridArray<ezUInt32, 512> VertsBottom;
 
     if (bIsFraction)
     {
@@ -942,7 +942,7 @@ void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fPosit
 
   if (bCapTop)
   {
-    ezHybridArray<ezUInt32, 512> VertsTop;
+    ezTempHybridArray<ezUInt32, 512> VertsTop;
 
     if (bIsFraction)
     {
@@ -1005,8 +1005,8 @@ void ezGeometry::AddCylinderOnePiece(float fRadiusTop, float fRadiusBottom, floa
 
   // cylinder wall
   {
-    ezHybridArray<ezUInt32, 512> VertsTop;
-    ezHybridArray<ezUInt32, 512> VertsBottom;
+    ezTempHybridArray<ezUInt32, 512> VertsTop;
+    ezTempHybridArray<ezUInt32, 512> VertsBottom;
 
     for (ezInt32 i = 0; i < uiSegments; ++i)
     {
@@ -1048,7 +1048,7 @@ void ezGeometry::AddCone(float fRadius, float fHeight, bool bCap, ezUInt16 uiSeg
 
   const bool bFlipWinding = options.IsFlipWindingNecessary();
 
-  ezHybridArray<ezUInt32, 512> VertsBottom;
+  ezTempHybridArray<ezUInt32, 512> VertsBottom;
 
   const ezAngle fDegStep = ezAngle::MakeFromDegree(360.0f / uiSegments);
 
@@ -1249,7 +1249,7 @@ void ezGeometry::AddHalfSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiSt
 
   if (bCap)
   {
-    ezHybridArray<ezUInt32, 256> uiCap;
+    ezTempHybridArray<ezUInt32, 256> uiCap;
 
     for (ezUInt32 i = uiTopVertex - 1; i >= uiTopVertex - uiSegments; --i)
       uiCap.PushBack(i);

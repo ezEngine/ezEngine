@@ -33,7 +33,7 @@ ezResult ezGALTextureDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSy
       D3D11_TEXTURE2D_DESC Tex2DDesc = {};
       EZ_SUCCEED_OR_RETURN(Create2DDesc(m_Description, pDXDevice, Tex2DDesc));
 
-      ezHybridArray<D3D11_SUBRESOURCE_DATA, 16> InitialData;
+      ezTempHybridArray<D3D11_SUBRESOURCE_DATA, 16> InitialData;
       ConvertInitialData(m_Description, initialData, InitialData);
 
       if (FAILED(pDXDevice->GetDXDevice()->CreateTexture2D(&Tex2DDesc, initialData.IsEmpty() ? nullptr : &InitialData[0], reinterpret_cast<ID3D11Texture2D**>(&m_pDXTexture))))
@@ -48,7 +48,7 @@ ezResult ezGALTextureDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSy
       D3D11_TEXTURE3D_DESC Tex3DDesc = {};
       EZ_SUCCEED_OR_RETURN(Create3DDesc(m_Description, pDXDevice, Tex3DDesc));
 
-      ezHybridArray<D3D11_SUBRESOURCE_DATA, 16> InitialData;
+      ezTempHybridArray<D3D11_SUBRESOURCE_DATA, 16> InitialData;
       ConvertInitialData(m_Description, initialData, InitialData);
 
       if (FAILED(pDXDevice->GetDXDevice()->CreateTexture3D(&Tex3DDesc, initialData.IsEmpty() ? nullptr : &InitialData[0], reinterpret_cast<ID3D11Texture3D**>(&m_pDXTexture))))

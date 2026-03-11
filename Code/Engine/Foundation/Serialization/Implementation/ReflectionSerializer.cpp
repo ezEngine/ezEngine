@@ -270,7 +270,7 @@ namespace
         // Delete old values
         if (pProp->GetFlags().AreAllSet(ezPropertyFlags::Pointer | ezPropertyFlags::PointerOwner))
         {
-          ezHybridArray<ezVariant, 16> keys;
+          ezTempHybridArray<ezVariant, 16> keys;
           pSpecific->GetValues(pClone, keys);
           pSpecific->Clear(pClone);
           for (ezVariant& value : keys)
@@ -282,7 +282,7 @@ namespace
         }
         pSpecific->Clear(pClone);
 
-        ezHybridArray<ezVariant, 16> values;
+        ezTempHybridArray<ezVariant, 16> values;
         pSpecific->GetValues(pObject, values);
 
 
@@ -315,7 +315,7 @@ namespace
         // Delete old values
         if (pProp->GetFlags().AreAllSet(ezPropertyFlags::Pointer | ezPropertyFlags::PointerOwner))
         {
-          ezHybridArray<ezString, 16> keys;
+          ezTempHybridArray<ezString, 16> keys;
           pSpecific->GetKeys(pClone, keys);
           for (const ezString& sKey : keys)
           {
@@ -328,7 +328,7 @@ namespace
         }
         pSpecific->Clear(pClone);
 
-        ezHybridArray<ezString, 16> keys;
+        ezTempHybridArray<ezString, 16> keys;
         pSpecific->GetKeys(pObject, keys);
 
         for (ezUInt32 i = 0; i < keys.GetCount(); ++i)

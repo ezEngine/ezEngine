@@ -169,7 +169,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StreamOperation)
 
       // This intentionally uses a different array type for the read back
       // to verify that it is a) compatible and b) all arrays are somewhat tested
-      ezHybridArray<SerializableStructWithMethods, 1> ReadArray;
+      ezTempHybridArray<SerializableStructWithMethods, 1> ReadArray;
 
       StreamReader.ReadArray(ReadArray).IgnoreResult();
 

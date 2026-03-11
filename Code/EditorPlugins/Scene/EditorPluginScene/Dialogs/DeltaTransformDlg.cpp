@@ -198,7 +198,7 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
   auto history = m_pSceneDocument->GetCommandHistory();
   auto selman = m_pSceneDocument->GetSelectionManager();
 
-  ezHybridArray<ezSelectionEntry, 64> selection;
+  ezTempHybridArray<ezSelectionEntry, 64> selection;
   selman->GetTopLevelSelection(selection);
   const ezDocumentObject* pCurObj = selman->GetCurrentObject();
 

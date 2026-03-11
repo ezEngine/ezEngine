@@ -432,9 +432,9 @@ bool ezQtContainerWindow::eventFilter(QObject* obj, QEvent* e)
   {
     if (auto* pFloatingWidget = qobject_cast<ads::CFloatingDockContainer*>(obj))
     {
-      ezHybridArray<ezDocument*, 32> docs;
+      ezTempHybridArray<ezDocument*, 32> docs;
       docs.Reserve(m_DocumentWindows.GetCount());
-      ezHybridArray<ezQtDocumentWindow*, 32> windows;
+      ezTempHybridArray<ezQtDocumentWindow*, 32> windows;
       windows.Reserve(m_DocumentWindows.GetCount());
 
       QList<ads::CDockWidget*> floatingDocks = pFloatingWidget->dockWidgets();

@@ -368,10 +368,10 @@ namespace
     Compile<T>(testCode, testByteCode);
 
     constexpr ezUInt32 uiCount = 17;
-    ezHybridArray<T, uiCount> a;
-    ezHybridArray<T, uiCount> b;
-    ezHybridArray<T, uiCount> o;
-    ezHybridArray<float, uiCount> expectedOutput;
+    ezTempHybridArray<T, uiCount> a;
+    ezTempHybridArray<T, uiCount> b;
+    ezTempHybridArray<T, uiCount> o;
+    ezTempHybridArray<float, uiCount> expectedOutput;
     a.SetCountUninitialized(uiCount);
     b.SetCountUninitialized(uiCount);
     o.SetCount(uiCount);

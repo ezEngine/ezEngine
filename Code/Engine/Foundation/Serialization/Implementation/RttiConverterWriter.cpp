@@ -344,7 +344,7 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
     {
       const ezAbstractSetProperty* pSpecific = static_cast<const ezAbstractSetProperty*>(pProp);
 
-      ezHybridArray<ezVariant, 16> values;
+      ezTempHybridArray<ezVariant, 16> values;
       pSpecific->GetValues(pObject, values);
 
       ezVariantArray ValuesCopied(values);
@@ -383,7 +383,7 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
     {
       const ezAbstractMapProperty* pSpecific = static_cast<const ezAbstractMapProperty*>(pProp);
 
-      ezHybridArray<ezString, 16> keys;
+      ezTempHybridArray<ezString, 16> keys;
       pSpecific->GetKeys(pObject, keys);
 
       ezVariantDictionary ValuesCopied;

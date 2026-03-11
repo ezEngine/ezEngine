@@ -541,7 +541,7 @@ namespace
     ezStringBuilder tmp;
     tmp.ReadAll(reader);
 
-    ezHybridArray<ezStringView, 2> sizes;
+    ezTempHybridArray<ezStringView, 2> sizes;
     tmp.Split(false, sizes, "x");
 
     if (sizes.GetCount() != 2)
@@ -765,7 +765,7 @@ ezTransformStatus ezSubstancePackageAssetDocument::InternalTransformAsset(const 
   const bool bUpdateThumbnail = pAssetProfile == ezAssetCurator::GetSingleton()->GetDevelopmentAssetProfile();
   auto pAssetConfig = pAssetProfile->GetTypeConfig<ezTextureAssetProfileConfig>();
 
-  ezHybridArray<ezString, 8> pngPaths;
+  ezTempHybridArray<ezString, 8> pngPaths;
 
   for (auto& graph : GetProperties()->m_Graphs)
   {
@@ -878,7 +878,7 @@ ezTransformStatus ezSubstancePackageAssetDocument::UpdateGraphOutputs(ezStringVi
   ezStringBuilder sFileContent;
   EZ_SUCCEED_OR_RETURN(GetSbsContent(sAbsolutePath, sFileContent));
 
-  ezHybridArray<ezSubstanceGraph, 2> graphs;
+  ezTempHybridArray<ezSubstanceGraph, 2> graphs;
 
   QXmlStreamReader reader(sFileContent.GetData());
   EZ_SUCCEED_OR_RETURN(ReadUntilStartElement(reader, "content"));

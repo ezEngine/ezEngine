@@ -18,7 +18,7 @@ void ezLogWriter::Console::LogMessageHandler(const ezLoggingEventData& eventData
   if (eventData.m_EventType == ezLogMsgType::BeginGroup)
     printf("\n");
 
-  ezHybridArray<char, 11> indentation;
+  ezTempHybridArray<char, 11> indentation;
   indentation.SetCount(eventData.m_uiIndentation + 1, ' ');
   indentation[eventData.m_uiIndentation] = 0;
 

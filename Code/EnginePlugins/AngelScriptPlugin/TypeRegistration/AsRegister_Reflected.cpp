@@ -431,7 +431,7 @@ void ezAngelScriptEngineSingleton::RegisterSingleGenericFunction(const char* szF
 
   decl.Append(szFuncName, "(");
 
-  ezHybridArray<const ezFunctionArgumentAttributes*, 8> argAttributes;
+  ezTempHybridArray<const ezFunctionArgumentAttributes*, 8> argAttributes;
   if (const ezFunctionArgumentAttributes* pArgAttr = pFunc->GetAttributeByType<ezFunctionArgumentAttributes>())
   {
     argAttributes.SetCount(pFunc->GetArgumentCount());

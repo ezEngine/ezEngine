@@ -447,7 +447,7 @@ ezSimdVec4f ezSpline::FindClosestPoint(const ezSimdVec4f& vPoint, float& out_fT,
   }
 
   const ezUInt32 uiNumSegments = GetNumSegments();
-  ezHybridArray<ezSimdBBox, 32, ezAlignedAllocatorWrapper> segmentBounds;
+  ezTempHybridArray<ezSimdBBox, 32> segmentBounds;
   segmentBounds.SetCountUninitialized(uiNumSegments);
 
   ezUInt32 uiClosestSegment = 0;

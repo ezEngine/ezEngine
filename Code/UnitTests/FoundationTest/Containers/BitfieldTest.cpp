@@ -344,7 +344,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Bitfield)
         bitfield.SetCount(uiNumBits, false);
 
         // Add some random bits and ensure they appear in the iterator in order.
-        ezHybridArray<ezUInt32, 3> bits;
+        ezTempHybridArray<ezUInt32, 3> bits;
         for (int i = 0; i < uiNumBits / 2; ++i)
         {
           ezUInt32 bit = (ezUInt32)rnd.IntMinMax(0, uiNumBits - 1);
@@ -616,7 +616,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, StaticBitfield)
       for (ezUInt32 uiNumBits = 2; uiNumBits <= 32; ++uiNumBits)
       {
         // Add some random bits and ensure they appear in the iterator in order.
-        ezHybridArray<ezUInt32, 3> bits;
+        ezTempHybridArray<ezUInt32, 3> bits;
         ezUInt32 uiBits = 0;
         for (int i = 0; i < uiNumBits; ++i)
         {
@@ -648,7 +648,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, StaticBitfield)
       for (ezUInt32 uiNumBits = 2; uiNumBits <= 63; ++uiNumBits)
       {
         // Add some random bits and ensure they appear in the iterator in order.
-        ezHybridArray<ezUInt32, 3> bits;
+        ezTempHybridArray<ezUInt32, 3> bits;
         ezUInt64 uiBits = 0;
         for (int i = 0; i < uiNumBits; ++i)
         {

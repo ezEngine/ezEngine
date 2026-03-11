@@ -121,7 +121,7 @@ namespace
       ++uiInputSlot;
     }
 
-    ezHybridArray<ezVariant, 8> args;
+    ezTempHybridArray<ezVariant, 8> args;
     if (FillFunctionArgs(inout_context, node, pFunction, userData.m_uiInputArgsMask, uiInputSlot, args).Failed())
     {
       return ExecResult::Error();
@@ -272,7 +272,7 @@ namespace
       EZ_ASSERT_DEBUG(userData.m_pProperty->GetCategory() == ezPropertyCategory::Function, "Property '{}' is not a function", userData.m_pProperty->GetPropertyName());
       auto pFunction = static_cast<const ezAbstractFunctionProperty*>(userData.m_pProperty);
 
-      ezHybridArray<ezVariant, 8> args;
+      ezTempHybridArray<ezVariant, 8> args;
       if (FillFunctionArgs(inout_context, node, pFunction, userData.m_uiInputArgsMask, 0, args).Failed())
       {
         return ExecResult::Error();
@@ -891,7 +891,7 @@ namespace
     static ezHashedString sStream = ezMakeHashedString("VsStream");
 
     int iDummy = 0;
-    ezHybridArray<ezProcessingStream, 8> inputStreams;
+    ezTempHybridArray<ezProcessingStream, 8> inputStreams;
     for (ezUInt32 i = 0; i < node.m_NumInputDataOffsets; ++i)
     {
       auto dataOffset = node.GetInputDataOffset(i);
@@ -915,7 +915,7 @@ namespace
     auto& userData = node.GetUserData<NodeUserData_Expression>();
 
     ezUInt8 dummyOutput[sizeof(ezVec4)];
-    ezHybridArray<ezProcessingStream, 8> outputStreams;
+    ezTempHybridArray<ezProcessingStream, 8> outputStreams;
     for (ezUInt32 i = 0; i < node.m_NumOutputDataOffsets; ++i)
     {
       auto dataOffset = node.GetOutputDataOffset(i);
@@ -1080,14 +1080,14 @@ namespace
   {
     auto& sText = inout_context.GetData<ezString>(node.GetInputDataOffset(0));
 
-    ezHybridArray<ezString, 12> stringStorage;
+    ezTempHybridArray<ezString, 12> stringStorage;
     stringStorage.Reserve(node.m_NumInputDataOffsets - 1);
     for (ezUInt32 i = 1; i < node.m_NumInputDataOffsets; ++i)
     {
       stringStorage.PushBack(inout_context.GetDataAsVariant(node.GetInputDataOffset(i), nullptr).ConvertTo<ezString>());
     }
 
-    ezHybridArray<ezStringView, 12> stringViews;
+    ezTempHybridArray<ezStringView, 12> stringViews;
     stringViews.Reserve(stringStorage.GetCount());
     for (auto& s : stringStorage)
     {

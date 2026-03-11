@@ -174,7 +174,7 @@ void ezDocumentObject::HashPropertiesRecursive(const ezIReflectedTypeAccessor& a
     }
     else if (pProperty->GetCategory() == ezPropertyCategory::Array || pProperty->GetCategory() == ezPropertyCategory::Set)
     {
-      ezHybridArray<ezVariant, 16> keys;
+      ezTempHybridArray<ezVariant, 16> keys;
       acc.GetValues(pProperty->GetPropertyName(), keys);
       for (const ezVariant& var : keys)
       {
@@ -183,7 +183,7 @@ void ezDocumentObject::HashPropertiesRecursive(const ezIReflectedTypeAccessor& a
     }
     else if (pProperty->GetCategory() == ezPropertyCategory::Map)
     {
-      ezHybridArray<ezVariant, 16> keys;
+      ezTempHybridArray<ezVariant, 16> keys;
       acc.GetKeys(pProperty->GetPropertyName(), keys);
       keys.Sort([](const ezVariant& a, const ezVariant& b)
         { return a.Get<ezString>().Compare(b.Get<ezString>()) < 0; });

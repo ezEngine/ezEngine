@@ -132,7 +132,7 @@ ezResult ezShaderCompilerApplication::CompileShader(ezStringView sShaderFile)
       if (!bContinue)
         return;
 
-      ezHybridArray<ezPermutationVar, 16> PermVars;
+      ezTempHybridArray<ezPermutationVar, 16> PermVars;
 
       ezTokenizedFileCache fileCache;
       for (ezUInt32 perm = idx; perm < num; ++perm)
@@ -180,8 +180,8 @@ ezResult ezShaderCompilerApplication::ExtractPermutationVarValues(ezStringView s
   ezShaderHelper::ezTextSectionizer Sections;
   ezShaderHelper::GetShaderSections(sContent.GetData(), Sections);
 
-  ezHybridArray<ezHashedString, 16> permVars;
-  ezHybridArray<ezPermutationVar, 16> fixedPermVars;
+  ezTempHybridArray<ezHashedString, 16> permVars;
+  ezTempHybridArray<ezPermutationVar, 16> fixedPermVars;
   ezUInt32 uiFirstLine = 0;
   ezStringView sPermutations = Sections.GetSectionContent(ezShaderHelper::ezShaderSections::PERMUTATIONS, uiFirstLine);
   ezShaderParser::ParsePermutationSection(sPermutations, permVars, fixedPermVars);
@@ -198,7 +198,7 @@ ezResult ezShaderCompilerApplication::ExtractPermutationVarValues(ezStringView s
   {
     for (const auto& s : permVars)
     {
-      ezHybridArray<ezHashedString, 16> values;
+      ezTempHybridArray<ezHashedString, 16> values;
       ezShaderManager::GetPermutationValues(s, values);
 
       for (const auto& val : values)

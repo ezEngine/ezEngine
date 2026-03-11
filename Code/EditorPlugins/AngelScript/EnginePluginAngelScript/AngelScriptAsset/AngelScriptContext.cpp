@@ -46,7 +46,7 @@ ezStatus ezAngelScriptDocumentContext::ExportDocument(const ezExportDocumentMsgT
     return ezStatus(logBuffer.m_sBuffer.GetView());
   }
 
-  ezHybridArray<ezUInt8, 1024 * 8> bytecode;
+  ezTempHybridArray<ezUInt8, 1024 * 8> bytecode;
   ezAngelScriptUtils::SaveByteCode(pModule, bytecode);
   pModule->Discard();
 

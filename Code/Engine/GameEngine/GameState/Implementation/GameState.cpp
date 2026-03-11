@@ -431,7 +431,7 @@ ezUniquePtr<ezWindow> ezGameState::CreateMainWindow()
 {
   if (false)
   {
-    ezHybridArray<ezScreenInfo, 2> screens;
+    ezTempHybridArray<ezScreenInfo, 2> screens;
     ezScreen::EnumerateScreens(screens).IgnoreResult();
     ezScreen::PrintScreenInfo(screens);
   }

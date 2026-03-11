@@ -18,7 +18,7 @@ ezString ezQtEditorApp::FindToolApplication(const char* szToolName)
 
   ezEditorPreferencesUser* pPref = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
 
-  ezHybridArray<ezString, 3> sFolders;
+  ezTempHybridArray<ezString, 3> sFolders;
 
   if (pPref->m_bUsePrecompiledTools)
   {
@@ -111,7 +111,7 @@ ezStatus ezQtEditorApp::ExecuteTool(const char* szTool, const QStringList& argum
       ezLogBlock m_Block;
     };
 
-    ezHybridArray<ezUniquePtr<LogBlockData>, 8> blocks;
+    ezTempHybridArray<ezUniquePtr<LogBlockData>, 8> blocks;
 
     QTextStream logoutputStream(&logoutput);
     while (!logoutputStream.atEnd())

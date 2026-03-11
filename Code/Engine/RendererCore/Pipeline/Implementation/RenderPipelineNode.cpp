@@ -42,7 +42,7 @@ void ezRenderPipelineNode::InitializePins()
 
   const ezRTTI* pType = GetDynamicRTTI();
 
-  ezHybridArray<const ezAbstractProperty*, 32> properties;
+  ezTempHybridArray<const ezAbstractProperty*, 32> properties;
   pType->GetAllProperties(properties);
 
   for (auto pProp : properties)

@@ -43,7 +43,7 @@ ezVisualScriptDataType::Enum ezVisualScriptTypeDeduction::DeductFromAllInputPins
 
   ezVisualScriptDataType::Enum deductedType = ezVisualScriptDataType::Invalid;
 
-  ezHybridArray<const ezVisualScriptPin*, 16> pins;
+  ezTempHybridArray<const ezVisualScriptPin*, 16> pins;
   pManager->GetInputDataPins(pObject, pins);
   for (auto pPin : pins)
   {

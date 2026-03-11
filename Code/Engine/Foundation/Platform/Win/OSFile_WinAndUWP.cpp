@@ -53,7 +53,7 @@ ezStringView ezOSFile::GetApplicationPath()
   if (s_sApplicationPath.IsEmpty())
   {
     ezUInt32 uiRequiredLength = 512;
-    ezHybridArray<wchar_t, 1024> tmp;
+    ezTempHybridArray<wchar_t, 1024> tmp;
 
     while (true)
     {
@@ -90,7 +90,7 @@ const ezString ezOSFile::GetCurrentWorkingDirectory()
 {
   const ezUInt32 uiRequiredLength = GetCurrentDirectoryW(0, nullptr);
 
-  ezHybridArray<wchar_t, 1024> tmp;
+  ezTempHybridArray<wchar_t, 1024> tmp;
   tmp.SetCountUninitialized(uiRequiredLength + 16);
 
   if (GetCurrentDirectoryW(tmp.GetCount() - 1, tmp.GetData()) == 0)

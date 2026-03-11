@@ -140,7 +140,7 @@ void ezDocumentManager::GetSupportedDocumentTypes(ezDynamicArray<const ezDocumen
 
 ezStatus ezDocumentManager::CanOpenDocument(ezStringView sFilePath) const
 {
-  ezHybridArray<const ezDocumentTypeDescriptor*, 4> DocumentTypes;
+  ezTempHybridArray<const ezDocumentTypeDescriptor*, 4> DocumentTypes;
   GetSupportedDocumentTypes(DocumentTypes);
 
   ezStringBuilder sPath = sFilePath;
@@ -205,7 +205,7 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, ezStringView sDoc
 
   ezStatus status(EZ_SUCCESS);
 
-  ezHybridArray<const ezDocumentTypeDescriptor*, 4> DocumentTypes;
+  ezTempHybridArray<const ezDocumentTypeDescriptor*, 4> DocumentTypes;
   GetSupportedDocumentTypes(DocumentTypes);
 
   for (ezUInt32 i = 0; i < DocumentTypes.GetCount(); ++i)
@@ -517,7 +517,7 @@ const ezMap<ezString, const ezDocumentTypeDescriptor*>& ezDocumentManager::GetAl
   {
     for (ezDocumentManager* pMan : ezDocumentManager::GetAllDocumentManagers())
     {
-      ezHybridArray<const ezDocumentTypeDescriptor*, 4> descriptors;
+      ezTempHybridArray<const ezDocumentTypeDescriptor*, 4> descriptors;
       pMan->GetSupportedDocumentTypes(descriptors);
 
       for (auto pDesc : descriptors)

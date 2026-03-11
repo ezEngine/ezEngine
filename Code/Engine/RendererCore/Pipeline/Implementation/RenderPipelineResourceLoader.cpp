@@ -61,7 +61,7 @@ ezInternal::NewInstance<ezRenderPipeline> ezRenderPipelineResourceLoader::Create
 
   ezStringBuilder sTypeName;
 
-  ezHybridArray<ezRenderPipelinePass*, 16> passes;
+  ezTempHybridArray<ezRenderPipelinePass*, 16> passes;
 
   // Passes
   {
@@ -133,9 +133,9 @@ ezInternal::NewInstance<ezRenderPipeline> ezRenderPipelineResourceLoader::Create
 // static
 void ezRenderPipelineResourceLoader::CreateRenderPipelineResourceDescriptor(const ezRenderPipeline* pPipeline, ezRenderPipelineResourceDescriptor& ref_desc)
 {
-  ezHybridArray<const ezRenderPipelinePass*, 16> passes;
-  ezHybridArray<const ezExtractor*, 16> extractors;
-  ezHybridArray<ezRenderPipelineResourceLoaderConnection, 16> connections;
+  ezTempHybridArray<const ezRenderPipelinePass*, 16> passes;
+  ezTempHybridArray<const ezExtractor*, 16> extractors;
+  ezTempHybridArray<ezRenderPipelineResourceLoaderConnection, 16> connections;
 
   ezHashTable<const ezRenderPipelineNode*, ezUInt32> passToIndex;
   pPipeline->GetPasses(passes);

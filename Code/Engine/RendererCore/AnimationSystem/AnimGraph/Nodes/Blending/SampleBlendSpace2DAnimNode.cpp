@@ -195,7 +195,7 @@ void ezSampleBlendSpace2DAnimNode::Step(ezAnimController& ref_controller, ezAnim
   const auto& centerInfo = ref_controller.GetAnimationClipInfo(m_sCenterClip);
 
   ezUInt32 uiMaxWeightClip = 0;
-  ezHybridArray<ClipToPlay, 8> clips;
+  ezTempHybridArray<ClipToPlay, 8> clips;
   ComputeClipsAndWeights(ref_controller, centerInfo, ezVec2(pState->m_fLastValueX, pState->m_fLastValueY), clips, uiMaxWeightClip);
 
   PlayClips(ref_controller, centerInfo, pState, ref_graph, tDiff, clips, uiMaxWeightClip);
@@ -323,7 +323,7 @@ void ezSampleBlendSpace2DAnimNode::PlayClips(ezAnimController& ref_controller, c
 
   ezTime tAvgDuration = ezTime::MakeZero();
 
-  ezHybridArray<ezAnimPoseGeneratorCommandSampleTrack*, 8> pSampleTrack;
+  ezTempHybridArray<ezAnimPoseGeneratorCommandSampleTrack*, 8> pSampleTrack;
   pSampleTrack.SetCountUninitialized(clips.GetCount());
 
   ezVec3 vRootMotion = ezVec3::MakeZero();

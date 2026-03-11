@@ -216,7 +216,7 @@ bool ezActionMap::FindObjectByPath(ezStringView sPath, ezUuid& out_guid) const
     return true;
 
   ezStringBuilder sPathBuilder(sPath);
-  ezHybridArray<ezStringView, 8> parts;
+  ezTempHybridArray<ezStringView, 8> parts;
   sPathBuilder.Split(false, parts, "/");
 
   const ezTreeNode<ezActionMapDescriptor>* pParent = &m_Root;
@@ -301,7 +301,7 @@ const ezTreeNode<ezActionMapDescriptor>* ezActionMap::GetChildByName(const ezTre
 const ezActionMap::TreeNode* ezActionMap::BuildActionTree()
 {
   ezUInt32 uiCurrentTransitiveEditCounter = 0;
-  ezHybridArray<const ezActionMap*, 3> mappings;
+  ezTempHybridArray<const ezActionMap*, 3> mappings;
   {
     const ezActionMap* pCurrent = this;
     while (pCurrent)

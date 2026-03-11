@@ -69,7 +69,7 @@ void ezSwitchPoseAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIns
   if (!m_OutPose.IsConnected() || !m_InIndex.IsConnected())
     return;
 
-  ezHybridArray<const ezAnimGraphLocalPoseInputPin*, 12> pPins;
+  ezTempHybridArray<const ezAnimGraphLocalPoseInputPin*, 12> pPins;
   for (ezUInt32 i = 0; i < m_InPoses.GetCount(); ++i)
   {
     pPins.PushBack(&m_InPoses[i]);

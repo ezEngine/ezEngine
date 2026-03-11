@@ -136,7 +136,7 @@ void ezEditorSceneDocumentTest::LayerOperations()
 
   ezScene2Document* pDoc = nullptr;
   ezEventSubscriptionID layerEventsID = 0;
-  ezHybridArray<ezScene2LayerEvent, 2> expectedEvents;
+  ezTempHybridArray<ezScene2LayerEvent, 2> expectedEvents;
   ezUuid sceneGuid;
   ezUuid layer1Guid;
   ezLayerDocument* pLayer1 = nullptr;
@@ -182,7 +182,7 @@ void ezEditorSceneDocumentTest::LayerOperations()
     pLayer1 = ezDynamicCast<ezLayerDocument*>(pDoc->GetLayerDocument(layer1Guid));
     EZ_TEST_BOOL(pLayer1 != nullptr);
 
-    ezHybridArray<ezSceneDocument*, 2> layers;
+    ezTempHybridArray<ezSceneDocument*, 2> layers;
     pDoc->GetLoadedLayers(layers);
     EZ_TEST_INT(layers.GetCount(), 2);
     EZ_TEST_BOOL(layers.Contains(pLayer1));
@@ -240,7 +240,7 @@ void ezEditorSceneDocumentTest::LayerOperations()
     EZ_TEST_BOOL(pDoc->IsLayerLoaded(sceneGuid));
 
     pLayer1 = ezDynamicCast<ezLayerDocument*>(pDoc->GetLayerDocument(layer1Guid));
-    ezHybridArray<ezSceneDocument*, 2> layers;
+    ezTempHybridArray<ezSceneDocument*, 2> layers;
     pDoc->GetLoadedLayers(layers);
     EZ_TEST_INT(layers.GetCount(), 2);
     EZ_TEST_BOOL(layers.Contains(pLayer1));
@@ -365,7 +365,7 @@ void ezEditorSceneDocumentTest::PrefabOperations()
 
     {
       // Check that modifications above changed properties from their default state.
-      ezHybridArray<ezPropertySelection, 1> selection;
+      ezTempHybridArray<ezPropertySelection, 1> selection;
       selection.PushBack({pSphere1, ezVariant()});
       ezDefaultObjectState defaultState(pSphere1->GetType(), pAccessor, selection);
       EZ_TEST_STRING(defaultState.GetStateProviderName(), "Attribute");
@@ -395,7 +395,7 @@ void ezEditorSceneDocumentTest::PrefabOperations()
 
     {
       // pSphere2 should be unmodified except for the component array.
-      ezHybridArray<ezPropertySelection, 1> selection;
+      ezTempHybridArray<ezPropertySelection, 1> selection;
       selection.PushBack({pSphere2, ezVariant()});
       ezDefaultObjectState defaultState(pSphere2->GetType(), pAccessor, selection);
       EZ_TEST_BOOL(defaultState.IsDefaultValue("Name"));
@@ -408,7 +408,7 @@ void ezEditorSceneDocumentTest::PrefabOperations()
 
     {
       // Multi-selection should not be default if one in the selection is not.
-      ezHybridArray<ezPropertySelection, 1> selection;
+      ezTempHybridArray<ezPropertySelection, 1> selection;
       selection.PushBack({pSphere1, ezVariant()});
       selection.PushBack({pSphere2, ezVariant()});
       ezDefaultObjectState defaultState(pSphere1->GetType(), pAccessor, selection);
@@ -422,7 +422,7 @@ void ezEditorSceneDocumentTest::PrefabOperations()
 
     {
       // Default state object array
-      ezHybridArray<ezPropertySelection, 1> selection;
+      ezTempHybridArray<ezPropertySelection, 1> selection;
       selection.PushBack({pSphere1, ezVariant()});
       ezDefaultContainerState defaultState(pSphere1->GetType(), pAccessor, selection, "Components");
       EZ_TEST_STRING(defaultState.GetStateProviderName(), "Attribute");
@@ -436,7 +436,7 @@ void ezEditorSceneDocumentTest::PrefabOperations()
 
     {
       // Default state value array
-      ezHybridArray<ezPropertySelection, 1> selection;
+      ezTempHybridArray<ezPropertySelection, 1> selection;
       selection.PushBack({pMeshComponent, ezVariant()});
       ezDefaultContainerState defaultState(pMeshComponent->GetType(), pAccessor, selection, "Materials");
       EZ_TEST_STRING(defaultState.GetStateProviderName(), "Attribute");
@@ -517,7 +517,7 @@ void ezEditorSceneDocumentTest::PrefabOperations()
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Change Prefab Type")
   {
     ezVariant oldIndex = pPrefab1->GetPropertyIndex();
-    ezHybridArray<const ezDocumentObject*, 8> selection;
+    ezTempHybridArray<const ezDocumentObject*, 8> selection;
     {
       selection.PushBack(pPrefab1);
       m_pDoc->ConvertToEditorPrefab(selection);
@@ -554,14 +554,14 @@ void ezEditorSceneDocumentTest::PrefabOperations()
 
   auto IsObjectDefault = [&](const ezDocumentObject* pChild)
   {
-    ezHybridArray<ezPropertySelection, 1> selection;
+    ezTempHybridArray<ezPropertySelection, 1> selection;
     selection.PushBack({pChild, ezVariant()});
     ezDefaultObjectState defaultState(pChild->GetType(), pAccessor, selection);
     // The root node of the prefab is not actually part of the prefab in the sense that it is just the container and does not actually exist in the prefab itself.
     const char* szExpectedProvider = pChild == pPrefab3 ? "Attribute" : "Prefab";
     EZ_TEST_STRING(defaultState.GetStateProviderName(), szExpectedProvider);
 
-    ezHybridArray<const ezAbstractProperty*, 32> properties;
+    ezTempHybridArray<const ezAbstractProperty*, 32> properties;
     pChild->GetType()->GetAllProperties(properties);
     for (auto pProp : properties)
     {
@@ -591,7 +591,7 @@ void ezEditorSceneDocumentTest::PrefabOperations()
 
     {
       // Remove part of the prefab
-      ezHybridArray<ezVariant, 16> values;
+      ezTempHybridArray<ezVariant, 16> values;
       EZ_TEST_STATUS(pAccessor->GetValues(pPrefab3, pProp, values));
       EZ_TEST_INT(values.GetCount(), 2);
       const ezDocumentObject* pChild0 = pAccessor->GetObject(values[0].Get<ezUuid>());
@@ -609,7 +609,7 @@ void ezEditorSceneDocumentTest::PrefabOperations()
 
     {
       // Revert prefab
-      ezHybridArray<const ezDocumentObject*, 2> selection;
+      ezTempHybridArray<const ezDocumentObject*, 2> selection;
       selection.PushBack(pPrefab3);
       m_pDoc->RevertPrefabs(selection);
 
@@ -623,7 +623,7 @@ void ezEditorSceneDocumentTest::PrefabOperations()
 
     {
       // Modify the prefab
-      ezHybridArray<ezVariant, 16> values;
+      ezTempHybridArray<ezVariant, 16> values;
       EZ_TEST_STATUS(pAccessor->GetValues(pPrefab3, pProp, values));
       EZ_TEST_INT(values.GetCount(), 2);
       const ezDocumentObject* pChild0 = pAccessor->GetObject(values[0].Get<ezUuid>());
@@ -644,7 +644,7 @@ void ezEditorSceneDocumentTest::PrefabOperations()
 
       // Check default states
       {
-        ezHybridArray<ezPropertySelection, 1> selection;
+        ezTempHybridArray<ezPropertySelection, 1> selection;
         selection.PushBack({pChild0, ezVariant()});
         ezDefaultContainerState defaultObjectState(pChild0->GetType(), pAccessor, selection, "Components");
         EZ_TEST_STRING(defaultObjectState.GetStateProviderName(), "Prefab");
@@ -652,7 +652,7 @@ void ezEditorSceneDocumentTest::PrefabOperations()
       }
 
       {
-        ezHybridArray<ezPropertySelection, 1> selection;
+        ezTempHybridArray<ezPropertySelection, 1> selection;
         selection.PushBack({pChild1, ezVariant()});
         ezDefaultContainerState defaultObjectState(pChild1->GetType(), pAccessor, selection, "Components");
         EZ_TEST_STRING(defaultObjectState.GetStateProviderName(), "Prefab");
@@ -660,7 +660,7 @@ void ezEditorSceneDocumentTest::PrefabOperations()
       }
 
       {
-        ezHybridArray<ezPropertySelection, 1> selection;
+        ezTempHybridArray<ezPropertySelection, 1> selection;
         selection.PushBack({pComp, ezVariant()});
         ezDefaultObjectState defaultObjectState(pComp->GetType(), pAccessor, selection);
         EZ_TEST_STRING(defaultObjectState.GetStateProviderName(), "Attribute");
@@ -677,7 +677,7 @@ void ezEditorSceneDocumentTest::PrefabOperations()
       const ezDocumentObject* pChild1 = pAccessor->GetChildObjectByName(pPrefab3, "Children", 0);
       const ezDocumentObject* pChild2 = pAccessor->GetChildObjectByName(pPrefab3, "Children", 1);
       {
-        ezHybridArray<ezPropertySelection, 1> selection;
+        ezTempHybridArray<ezPropertySelection, 1> selection;
         selection.PushBack({pChild1, ezVariant()});
         selection.PushBack({pChild2, ezVariant()});
         ezDefaultContainerState defaultState(pChild1->GetType(), pAccessor, selection, "Components");
@@ -690,7 +690,7 @@ void ezEditorSceneDocumentTest::PrefabOperations()
 
     {
       // Verify prefab was reverted
-      ezHybridArray<ezVariant, 16> values;
+      ezTempHybridArray<ezVariant, 16> values;
       EZ_TEST_STATUS(pAccessor->GetValues(pPrefab3, pProp, values));
       EZ_TEST_INT(values.GetCount(), 2);
       const ezDocumentObject* pChild0 = pAccessor->GetObject(values[0].Get<ezUuid>());
@@ -733,11 +733,11 @@ void ezEditorSceneDocumentTest::ComponentOperations()
 
   auto IsObjectDefault = [&](const ezDocumentObject* pChild)
   {
-    ezHybridArray<ezPropertySelection, 1> selection;
+    ezTempHybridArray<ezPropertySelection, 1> selection;
     selection.PushBack({pChild, ezVariant()});
     ezDefaultObjectState defaultState(pChild->GetType(), pAccessor, selection);
 
-    ezHybridArray<const ezAbstractProperty*, 32> properties;
+    ezTempHybridArray<const ezAbstractProperty*, 32> properties;
     pChild->GetType()->GetAllProperties(properties);
     for (auto pProp : properties)
     {
@@ -787,7 +787,7 @@ void ezEditorSceneDocumentTest::ComponentOperations()
     EZ_TEST_BOOL(m_pDoc != nullptr);
     m_SceneGuid = m_pDoc->GetGuid();
 
-    ezHybridArray<ezUuid, 2> layers;
+    ezTempHybridArray<ezUuid, 2> layers;
     m_pDoc->GetAllLayers(layers);
 
     EZ_TEST_BOOL(layers.Contains(layerGuid));
@@ -843,7 +843,7 @@ void ezEditorSceneDocumentTest::ObjectPropertyPath()
     EZ_TEST_BOOL(sComponentType.IsEmpty());
     EZ_TEST_STRING(sPropertyPath, "Active");
 
-    ezHybridArray<ezPropertyReference, 2> properties;
+    ezTempHybridArray<ezPropertyReference, 2> properties;
     EZ_TEST_BOOL(ezObjectPropertyPath::ResolvePath(context, properties, "A/B/D", "", sPropertyPath).Failed());                                    // Path does not exist.
     EZ_TEST_BOOL(ezObjectPropertyPath::ResolvePath(context, properties, sObjectSearchSequence, "ezPointLightComponent", sPropertyPath).Failed()); // Component does not exist.
     EZ_TEST_BOOL(ezObjectPropertyPath::ResolvePath(context, properties, sObjectSearchSequence, "", "Bla").Failed());                              // Property does not exist.
@@ -872,7 +872,7 @@ void ezEditorSceneDocumentTest::ObjectPropertyPath()
     EZ_TEST_STRING(sComponentType, "ezDecalComponent");
     EZ_TEST_STRING(sPropertyPath, "Color");
 
-    ezHybridArray<ezPropertyReference, 2> properties;
+    ezTempHybridArray<ezPropertyReference, 2> properties;
     EZ_TEST_BOOL(ezObjectPropertyPath::ResolvePath(context, properties, sObjectSearchSequence, sComponentType, "Bla").Failed()); // Property does not exist.
     EZ_TEST_STATUS(ezObjectPropertyPath::ResolvePath(context, properties, sObjectSearchSequence, sComponentType, sPropertyPath));
     EZ_TEST_INT(properties.GetCount(), 1);
@@ -899,7 +899,7 @@ void ezEditorSceneDocumentTest::ObjectPropertyPath()
     EZ_TEST_STRING(sComponentType, "ezDecalComponent");
     EZ_TEST_STRING(sPropertyPath, "Decals[0]");
 
-    ezHybridArray<ezPropertyReference, 2> properties;
+    ezTempHybridArray<ezPropertyReference, 2> properties;
     EZ_TEST_BOOL(ezObjectPropertyPath::ResolvePath(context, properties, sObjectSearchSequence, sComponentType, "Decals[1]").Failed()); // Index out of range.
     EZ_TEST_STATUS(ezObjectPropertyPath::ResolvePath(context, properties, sObjectSearchSequence, sComponentType, sPropertyPath));
     EZ_TEST_INT(properties.GetCount(), 1);

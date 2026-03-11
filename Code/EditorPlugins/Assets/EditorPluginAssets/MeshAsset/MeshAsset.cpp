@@ -231,7 +231,7 @@ ezTransformStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties*
 
   // include tags
   {
-    ezHybridArray<ezStringView, 8> tags;
+    ezTempHybridArray<ezStringView, 8> tags;
     pProp->m_sMeshIncludeTags.Split(false, tags, ";");
     for (ezStringView tag : tags)
     {
@@ -242,7 +242,7 @@ ezTransformStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties*
 
   // exclude tags
   {
-    ezHybridArray<ezStringView, 8> tags;
+    ezTempHybridArray<ezStringView, 8> tags;
     pProp->m_sMeshExcludeTags.Split(false, tags, ";");
     for (ezStringView tag : tags)
     {

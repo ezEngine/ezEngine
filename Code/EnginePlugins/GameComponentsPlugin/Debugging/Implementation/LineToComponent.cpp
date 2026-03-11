@@ -40,7 +40,7 @@ void ezLineToComponent::Update()
     return;
   }
 
-  ezHybridArray<ezDebugRendererLine, 1> lines;
+  ezTempHybridArray<ezDebugRendererLine, 1> lines;
 
   auto& line = lines.ExpandAndGetRef();
   line.m_start = GetOwner()->GetGlobalPosition();

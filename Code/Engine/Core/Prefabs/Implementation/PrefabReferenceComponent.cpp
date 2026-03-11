@@ -39,7 +39,7 @@ void ezPrefabReferenceComponent::SerializePrefabParameters(const ezWorld& world,
   auto& s = inout_stream.GetStream();
   const ezUInt32 numParams = parameters.GetCount();
 
-  ezHybridArray<ezGameObjectHandle, 8> GoReferences;
+  ezTempHybridArray<ezGameObjectHandle, 8> GoReferences;
 
   // Version 4
   {
@@ -104,7 +104,7 @@ void ezPrefabReferenceComponent::DeserializePrefabParameters(ezArrayMap<ezHashed
   auto& s = inout_stream.GetStream();
 
   // temp array to hold (and remap) the serialized game object handles
-  ezHybridArray<ezGameObjectHandle, 8> GoReferences;
+  ezTempHybridArray<ezGameObjectHandle, 8> GoReferences;
 
   if (uiVersion >= 4)
   {
@@ -244,8 +244,8 @@ void ezPrefabReferenceComponent::InstantiatePrefab()
     // replicate the same ID across all instantiated sub components to get correct picking behavior
     if (GetUniqueID() != ezInvalidIndex)
     {
-      ezHybridArray<ezGameObject*, 8> createdRootObjects;
-      ezHybridArray<ezGameObject*, 16> createdChildObjects;
+      ezTempHybridArray<ezGameObject*, 8> createdRootObjects;
+      ezTempHybridArray<ezGameObject*, 16> createdChildObjects;
 
       options.m_pCreatedRootObjectsOut = &createdRootObjects;
       options.m_pCreatedChildObjectsOut = &createdChildObjects;

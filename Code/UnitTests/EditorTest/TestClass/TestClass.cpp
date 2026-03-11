@@ -376,7 +376,7 @@ std::unique_ptr<QMimeData> ezEditorTest::AssetsToDragMimeData(ezArrayPtr<ezUuid>
 
 std::unique_ptr<QMimeData> ezEditorTest::ObjectsDragMimeData(const ezDeque<const ezDocumentObject*>& objects)
 {
-  ezHybridArray<const ezDocumentObject*, 32> Dragged;
+  ezTempHybridArray<const ezDocumentObject*, 32> Dragged;
   for (const ezDocumentObject* pObject : objects)
   {
     Dragged.PushBack(pObject);

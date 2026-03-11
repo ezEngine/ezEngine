@@ -33,7 +33,7 @@ ezResult ezPropertyPath::InitializeFromPath(const ezRTTI& rootObjectRtti, const 
   ezStringBuilder sIndex;
   ezStringBuilder sFieldName;
 
-  ezHybridArray<ezStringView, 4> parts;
+  ezTempHybridArray<ezStringView, 4> parts;
   sPathParts.Split(false, parts, "/");
 
   // an empty path is valid as well

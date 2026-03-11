@@ -30,7 +30,7 @@ void ezSceneExportModifier::DestroyModifiers(ezDynamicArray<ezSceneExportModifie
 
 void ezSceneExportModifier::ApplyAllModifiers(ezWorld& ref_world, ezStringView sDocumentType, const ezUuid& documentGuid, bool bForExport)
 {
-  ezHybridArray<ezSceneExportModifier*, 8> modifiers;
+  ezTempHybridArray<ezSceneExportModifier*, 8> modifiers;
   CreateModifiers(modifiers);
 
   for (auto pMod : modifiers)

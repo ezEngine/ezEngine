@@ -1115,7 +1115,7 @@ void ezGameObject::PostMessageRecursive(const ezMessage& msg, ezTime delay, ezOb
 
 bool ezGameObject::SendEventMessage(ezMessage& ref_msg, const ezComponent* pSenderComponent)
 {
-  ezHybridArray<ezComponent*, 4> eventMsgHandlers;
+  ezTempHybridArray<ezComponent*, 4> eventMsgHandlers;
   GetWorld()->FindEventMsgHandlers(ref_msg, pSenderComponent, this, eventMsgHandlers);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
@@ -1138,7 +1138,7 @@ bool ezGameObject::SendEventMessage(ezMessage& ref_msg, const ezComponent* pSend
 
 bool ezGameObject::SendEventMessage(ezMessage& ref_msg, const ezComponent* pSenderComponent) const
 {
-  ezHybridArray<const ezComponent*, 4> eventMsgHandlers;
+  ezTempHybridArray<const ezComponent*, 4> eventMsgHandlers;
   GetWorld()->FindEventMsgHandlers(ref_msg, pSenderComponent, this, eventMsgHandlers);
 
   bool bResult = false;
@@ -1151,7 +1151,7 @@ bool ezGameObject::SendEventMessage(ezMessage& ref_msg, const ezComponent* pSend
 
 void ezGameObject::PostEventMessage(ezMessage& ref_msg, const ezComponent* pSenderComponent, ezTime delay, ezObjectMsgQueueType::Enum queueType) const
 {
-  ezHybridArray<const ezComponent*, 4> eventMsgHandlers;
+  ezTempHybridArray<const ezComponent*, 4> eventMsgHandlers;
   GetWorld()->FindEventMsgHandlers(ref_msg, pSenderComponent, this, eventMsgHandlers);
 
   for (auto pEventMsgHandler : eventMsgHandlers)

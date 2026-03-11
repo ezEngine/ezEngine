@@ -77,7 +77,7 @@ void ezRendererRegistry::CreateRendererInstances()
     ezUInt32 uiIndex = s_RendererInstances.GetCount();
     s_RendererInstances.PushBack(pRenderer);
 
-    ezHybridArray<const ezRTTI*, 8> supportedTypes;
+    ezTempHybridArray<const ezRTTI*, 8> supportedTypes;
     pRenderer->GetSupportedRenderDataTypes(supportedTypes);
 
     for (auto pType : supportedTypes)

@@ -33,7 +33,7 @@ namespace
       {
         ezSpatialData::Category filterCategory = ezSpatialData::FindCategory(cvar_SpatialVisDataOnlyCategory.GetValue());
 
-        ezHybridArray<ezBoundingBox, 16> boxes;
+        ezTempHybridArray<ezBoundingBox, 16> boxes;
         pSpatialSystemGrid->GetAllCellBoxes(boxes, filterCategory);
 
         for (auto& box : boxes)

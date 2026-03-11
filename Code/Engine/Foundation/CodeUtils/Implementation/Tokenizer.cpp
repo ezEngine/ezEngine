@@ -615,7 +615,7 @@ ezResult ezTokenizer::GetNextLine(ezUInt32& out_uiFirstToken, ezDynamicArray<ezT
 {
   out_tokens.Clear();
 
-  ezHybridArray<const ezToken*, 32> Tokens0;
+  ezTempHybridArray<const ezToken*, 32> Tokens0;
   ezResult r = GetNextLine(out_uiFirstToken, Tokens0);
 
   out_tokens.SetCountUninitialized(Tokens0.GetCount());

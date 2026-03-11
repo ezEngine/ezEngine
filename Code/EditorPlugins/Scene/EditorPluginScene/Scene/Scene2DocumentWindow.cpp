@@ -124,7 +124,7 @@ ezStatus ezQtScene2DocumentWindow::SaveAllLayers()
 {
   ezScene2Document* pDoc = static_cast<ezScene2Document*>(GetDocument());
 
-  ezHybridArray<ezSceneDocument*, 16> layers;
+  ezTempHybridArray<ezSceneDocument*, 16> layers;
   pDoc->GetLoadedLayers(layers);
 
   for (auto pLayer : layers)

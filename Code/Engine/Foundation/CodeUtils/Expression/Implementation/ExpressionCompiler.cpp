@@ -320,8 +320,8 @@ ezResult ezExpressionCompiler::AssignRegisters()
     { return a.m_uiStart < b.m_uiStart; });
 
   // Assign registers
-  ezHybridArray<LiveInterval, 64> activeIntervals;
-  ezHybridArray<ezUInt32, 64> freeRegisters;
+  ezTempHybridArray<LiveInterval, 64> activeIntervals;
+  ezTempHybridArray<ezUInt32, 64> freeRegisters;
 
   for (auto& liveInterval : m_LiveIntervals)
   {
@@ -359,9 +359,9 @@ ezResult ezExpressionCompiler::AssignRegisters()
 
 ezResult ezExpressionCompiler::GenerateByteCode(const ezExpressionAST& ast, ezExpressionByteCode& out_byteCode)
 {
-  ezHybridArray<ezExpression::StreamDesc, 8> inputs;
-  ezHybridArray<ezExpression::StreamDesc, 8> outputs;
-  ezHybridArray<ezExpression::FunctionDesc, 4> functions;
+  ezTempHybridArray<ezExpression::StreamDesc, 8> inputs;
+  ezTempHybridArray<ezExpression::StreamDesc, 8> outputs;
+  ezTempHybridArray<ezExpression::FunctionDesc, 4> functions;
 
   m_ByteCode.Clear();
 

@@ -389,7 +389,7 @@ void ezDocumentObjectMirror::CreatePath(ezObjectChange& out_change, const ezDocu
 {
   if (pRoot && pRoot->GetDocumentObjectManager()->GetRootObject() != pRoot)
   {
-    ezHybridArray<const ezDocumentObject*, 8> path;
+    ezTempHybridArray<const ezDocumentObject*, 8> path;
     out_change.m_Root = FindRootOpObject(pRoot, path);
     FlattenSteps(path, out_change.m_Steps);
   }
@@ -397,13 +397,13 @@ void ezDocumentObjectMirror::CreatePath(ezObjectChange& out_change, const ezDocu
   out_change.m_Change.m_sProperty = sProperty;
 }
 
-ezUuid ezDocumentObjectMirror::FindRootOpObject(const ezDocumentObject* pParent, ezHybridArray<const ezDocumentObject*, 8>& path)
+ezUuid ezDocumentObjectMirror::FindRootOpObject(const ezDocumentObject* pParent, ezDynamicArray<const ezDocumentObject*>& out_path)
 {
-  path.PushBack(pParent);
+  out_path.PushBack(pParent);
 
   if (!pParent->IsOnHeap())
   {
-    return FindRootOpObject(pParent->GetParent(), path);
+    return FindRootOpObject(pParent->GetParent(), out_path);
   }
   else
   {
@@ -411,7 +411,7 @@ ezUuid ezDocumentObjectMirror::FindRootOpObject(const ezDocumentObject* pParent,
   }
 }
 
-void ezDocumentObjectMirror::FlattenSteps(const ezArrayPtr<const ezDocumentObject* const> path, ezHybridArray<ezPropertyPathStep, 2>& out_steps)
+void ezDocumentObjectMirror::FlattenSteps(const ezArrayPtr<const ezDocumentObject* const> path, ezDynamicArray<ezPropertyPathStep>& out_steps)
 {
   ezUInt32 uiCount = path.GetCount();
   EZ_ASSERT_DEV(uiCount > 0, "Path must not be empty!");

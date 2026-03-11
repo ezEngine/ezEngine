@@ -37,9 +37,9 @@ public:
   static bool RemoveTag(ezStringView sName);
 
   /// \brief Retrieves all tags in the registry.
-  static void GetAllTags(ezHybridArray<const ezToolsTag*, 16>& out_tags);
+  static void GetAllTags(ezDynamicArray<const ezToolsTag*>& out_tags);
   /// \brief Retrieves all tags in the given categories.
-  static void GetTagsByCategory(const ezArrayPtr<ezStringView>& categories, ezHybridArray<const ezToolsTag*, 16>& out_tags);
+  static void GetTagsByCategory(const ezArrayPtr<ezStringView>& categories, ezDynamicArray<const ezToolsTag*>& out_tags);
 
 private:
   static ezMap<ezString, ezToolsTag> s_NameToTags;

@@ -473,7 +473,7 @@ bool ezQtDocumentTreeModel::canDropMimeData(const QMimeData* pData, Qt::DropActi
     // Test 'CanMove' of the target object manager.
     QByteArray encodedData = pData->data("application/ezEditor.ObjectSelection");
     QDataStream stream(&encodedData, QIODevice::ReadOnly);
-    ezHybridArray<ezDocumentObject*, 32> Dragged;
+    ezTempHybridArray<ezDocumentObject*, 32> Dragged;
     stream >> Dragged;
 
     auto pType = pNewParent->GetTypeAccessor().GetType();
@@ -530,7 +530,7 @@ bool ezQtDocumentTreeModel::MoveObjects(const ezDragDropInfo& info)
 
     QByteArray encodedData = info.m_pMimeData->data("application/ezEditor.ObjectSelection");
     QDataStream stream(&encodedData, QIODevice::ReadOnly);
-    ezHybridArray<ezDocumentObject*, 32> Dragged;
+    ezTempHybridArray<ezDocumentObject*, 32> Dragged;
     stream >> Dragged;
 
     for (const ezDocumentObject* pDocObject : Dragged)
@@ -609,7 +609,7 @@ QMimeData* ezQtDocumentTreeModel::mimeData(const QModelIndexList& indexes) const
   if (!m_bAllowDragDrop)
     return nullptr;
 
-  ezHybridArray<void*, 1> ptrs;
+  ezTempHybridArray<void*, 1> ptrs;
   for (const QModelIndex& index : indexes)
   {
     if (index.isValid())

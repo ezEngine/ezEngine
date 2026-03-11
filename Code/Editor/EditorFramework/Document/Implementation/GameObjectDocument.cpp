@@ -520,7 +520,7 @@ void ezGameObjectDocument::SetGlobalTransform(const ezDocumentObject* pObject, c
 
 void ezGameObjectDocument::SetGlobalTransformParentOnly(const ezDocumentObject* pObject, const ezTransform& t, ezUInt8 uiTransformationChanges) const
 {
-  ezHybridArray<ezTransform, 16> childTransforms;
+  ezTempHybridArray<ezTransform, 16> childTransforms;
   const auto& children = pObject->GetChildren();
 
   childTransforms.SetCountUninitialized(children.GetCount());

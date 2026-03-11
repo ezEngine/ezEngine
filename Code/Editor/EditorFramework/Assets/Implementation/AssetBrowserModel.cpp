@@ -742,8 +742,8 @@ QMimeData* ezQtAssetBrowserModel::mimeData(const QModelIndexList& indexes) const
 {
   QString sGuids;
   QList<QUrl> urls;
-  ezHybridArray<QString, 1> guids;
-  ezHybridArray<QString, 1> files;
+  ezTempHybridArray<QString, 1> guids;
+  ezTempHybridArray<QString, 1> files;
 
   ezStringBuilder tmp;
 

@@ -52,7 +52,7 @@ ezTransformStatus ezVisualScriptClassAssetDocument::InternalTransformAsset(ezStr
   ezVisualScriptCompiler compiler(*pManager);
   compiler.InitModule(sBaseClassName, sScriptClassName);
 
-  ezHybridArray<const ezVisualScriptPin*, 16> pins;
+  ezTempHybridArray<const ezVisualScriptPin*, 16> pins;
   for (const ezDocumentObject* pObject : children)
   {
     if (pManager->IsNode(pObject) == false)

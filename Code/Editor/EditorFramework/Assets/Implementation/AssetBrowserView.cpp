@@ -130,7 +130,7 @@ void ezQtAssetBrowserView::dropEvent(QDropEvent* pEvent)
     return;
   }
 
-  ezHybridArray<ezString, 32> touchedFiles;
+  ezTempHybridArray<ezString, 32> touchedFiles;
   // make sure to notify the filesystem of files and folders that were touched
   EZ_SCOPE_EXIT(NotifyFileChanges(touchedFiles));
 

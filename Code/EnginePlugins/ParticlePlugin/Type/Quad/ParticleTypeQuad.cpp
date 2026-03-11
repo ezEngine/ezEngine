@@ -257,7 +257,7 @@ void ezParticleTypeQuad::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, 
     {
       // TODO: Using the frame allocator this way results in memory corruptions.
       // Not sure, whether this is supposed to work.
-      ezHybridArray<sod, 64> sorted; // (ezFrameAllocator::GetCurrentAllocator());
+      ezTempHybridArray<sod, 64> sorted; // (ezFrameAllocator::GetCurrentAllocator());
       sorted.SetCountUninitialized(numParticles);
 
       const ezVec3 vCameraPos = ref_msg.m_pView->GetCullingCamera()->GetCenterPosition();

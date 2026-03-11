@@ -223,7 +223,7 @@ void ezReflectionPool::Data::PreExtraction()
 
   // Schedule new dynamic updates
   {
-    ezHybridArray<ezReflectionProbeRef, 4> updatesFinished;
+    ezTempHybridArray<ezReflectionProbeRef, 4> updatesFinished;
     const ezUInt32 uiCount = ezMath::Min(m_ReflectionProbeUpdater.GetFreeUpdateSlots(updatesFinished), m_DynamicUpdateQueue.GetCount());
     for (const ezReflectionProbeRef& probe : updatesFinished)
     {

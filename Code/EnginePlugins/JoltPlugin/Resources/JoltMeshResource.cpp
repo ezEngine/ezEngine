@@ -478,7 +478,7 @@ JPH::Shape* ezJoltMeshResource::InstantiateTriangleMesh(ezUInt64 uiUserData, con
       return nullptr;
     }
 
-    ezHybridArray<JPH::PhysicsMaterialRefC, 32> materials;
+    ezTempHybridArray<JPH::PhysicsMaterialRefC, 32> materials;
     materials.SetCount(m_Surfaces.GetCount());
 
     for (ezUInt32 i = 0; i < m_Surfaces.GetCount(); ++i)
@@ -557,7 +557,7 @@ JPH::Shape* ezJoltMeshResource::InstantiateConvexPart(ezUInt32 uiPartIdx, ezUInt
     JPH::ConvexShape* pConvexShape = static_cast<JPH::ConvexShape*>(shapeRes.Get().GetPtr());
     pConvexShape->SetDensity(1.0f); // density will be multiplied by the decoration shape, so set the base value to 1
 
-    ezHybridArray<JPH::PhysicsMaterialRefC, 1> materials;
+    ezTempHybridArray<JPH::PhysicsMaterialRefC, 1> materials;
     materials.SetCount(m_Surfaces.GetCount());
 
     for (ezUInt32 i = 0; i < m_Surfaces.GetCount(); ++i)

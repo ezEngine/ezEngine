@@ -265,7 +265,7 @@ ezJniObject ezJniObject::FindMethod(
     return ezJniObject();
   }
 
-  ezHybridArray<ezJniObject, 32> bestCandidates;
+  ezTempHybridArray<ezJniObject, 32> bestCandidates;
 
   // In case of no parameters, fetch the method directly.
   if (N == 0)
@@ -440,7 +440,7 @@ ezJniObject ezJniObject::FindConstructor(const ezJniClass& type, ezJniClass* inp
     return ezJniObject();
   }
 
-  ezHybridArray<ezJniObject, 32> bestCandidates;
+  ezTempHybridArray<ezJniObject, 32> bestCandidates;
 
   // In case of no parameters, fetch the method directly.
   if (N == 0)

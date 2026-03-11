@@ -78,7 +78,7 @@ ezStatus ezAnimatedMeshAssetDocument::CreateMeshFromFile(ezAnimatedMeshAssetProp
 
   // include tags
   {
-    ezHybridArray<ezStringView, 8> tags;
+    ezTempHybridArray<ezStringView, 8> tags;
     pProp->m_sMeshIncludeTags.Split(false, tags, ";");
     for (ezStringView tag : tags)
     {
@@ -89,7 +89,7 @@ ezStatus ezAnimatedMeshAssetDocument::CreateMeshFromFile(ezAnimatedMeshAssetProp
 
   // exclude tags
   {
-    ezHybridArray<ezStringView, 8> tags;
+    ezTempHybridArray<ezStringView, 8> tags;
     pProp->m_sMeshExcludeTags.Split(false, tags, ";");
     for (ezStringView tag : tags)
     {

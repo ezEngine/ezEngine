@@ -41,7 +41,7 @@ void ezQtCuratorControl::paintEvent(QPaintEvent* e)
   painter.setPen(QPen(Qt::NoPen));
 
   ezUInt32 uiNumAssets;
-  ezHybridArray<ezUInt32, ezAssetInfo::TransformState::COUNT> sections;
+  ezTempHybridArray<ezUInt32, ezAssetInfo::TransformState::COUNT> sections;
   ezAssetCurator::GetSingleton()->GetAssetTransformStats(uiNumAssets, sections);
   QColor colors[ezAssetInfo::TransformState::COUNT];
   colors[ezAssetInfo::TransformState::Unknown] = ezToQtColor(ezColorScheme::DarkUI(ezColorScheme::Gray));
@@ -154,7 +154,7 @@ void ezQtCuratorControl::SlotUpdateTransformStats()
   m_bScheduled = false;
 
   ezUInt32 uiNumAssets;
-  ezHybridArray<ezUInt32, ezAssetInfo::TransformState::COUNT> sections;
+  ezTempHybridArray<ezUInt32, ezAssetInfo::TransformState::COUNT> sections;
   ezAssetCurator::GetSingleton()->GetAssetTransformStats(uiNumAssets, sections);
 
   ezStringBuilder s;

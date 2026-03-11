@@ -38,7 +38,7 @@ ezInputDevice_Android::~ezInputDevice_Android()
 
 void ezInputDevice_Android::InitializeDevice()
 {
-  ezHybridArray<ezScreenInfo, 2> screens;
+  ezTempHybridArray<ezScreenInfo, 2> screens;
   if (ezScreen::EnumerateScreens(screens).Succeeded())
   {
     m_iResolutionX = screens[0].m_iResolutionX;
@@ -122,7 +122,7 @@ void ezInputDevice_Android::AndroidAppCommandEventHandler(ezInt32 iCmd)
 {
   if (iCmd == APP_CMD_WINDOW_RESIZED)
   {
-    ezHybridArray<ezScreenInfo, 2> screens;
+    ezTempHybridArray<ezScreenInfo, 2> screens;
     if (ezScreen::EnumerateScreens(screens).Succeeded())
     {
       m_iResolutionX = screens[0].m_iResolutionX;

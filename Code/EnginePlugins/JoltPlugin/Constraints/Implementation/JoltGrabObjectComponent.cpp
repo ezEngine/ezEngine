@@ -360,7 +360,7 @@ ezResult ezJoltGrabObjectComponent::DetermineGrabPoint(const ezComponent* pActor
   const auto pActorObj = pActorComp->GetOwner();
 
   const ezTransform& actorTransform = pActorObj->GetGlobalTransform();
-  ezHybridArray<ezGrabbableItemGrabPoint, 16> grabPoints;
+  ezTempHybridArray<ezGrabbableItemGrabPoint, 16> grabPoints;
 
   const ezGrabbableItemComponent* pGrabbableItemComp = nullptr;
   if (pActorObj->TryGetComponentOfBaseType(pGrabbableItemComp) && !pGrabbableItemComp->m_GrabPoints.IsEmpty())

@@ -225,7 +225,7 @@ void ezQtDataWidget::on_ComboItems_currentIndexChanged(int index)
   {
     const ezUInt32 uiMaxBytes = ezMath::Min<ezUInt32>(1024 * 16, Reader.GetByteCount32());
 
-    ezHybridArray<ezUInt8, 1024> Temp;
+    ezTempHybridArray<ezUInt8, 1024> Temp;
     Temp.SetCountUninitialized(uiMaxBytes + 1);
 
     Reader.ReadBytes(Temp.GetData(), uiMaxBytes);
@@ -255,7 +255,7 @@ bool ezQtDataWidget::SaveToFile(TransferDataObject& item, ezStringView sFile)
     return false;
   }
 
-  ezHybridArray<ezUInt8, 1024> Temp;
+  ezTempHybridArray<ezUInt8, 1024> Temp;
   Temp.SetCountUninitialized(Reader.GetByteCount32());
 
   Reader.ReadBytes(&Temp[0], Reader.GetByteCount32());

@@ -71,7 +71,7 @@ void ezSwitchBoneWeightsAnimNode::Step(ezAnimController& ref_controller, ezAnimG
   if (!m_OutWeights.IsConnected() || !m_InIndex.IsConnected() || m_InWeights.IsEmpty())
     return;
 
-  ezHybridArray<const ezAnimGraphBoneWeightsInputPin*, 12> pPins;
+  ezTempHybridArray<const ezAnimGraphBoneWeightsInputPin*, 12> pPins;
   for (ezUInt32 i = 0; i < m_InWeights.GetCount(); ++i)
   {
     pPins.PushBack(&m_InWeights[i]);

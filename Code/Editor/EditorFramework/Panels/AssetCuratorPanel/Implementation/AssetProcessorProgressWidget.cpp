@@ -732,7 +732,7 @@ void ezQtAssetProcessorProgressWidget::DrawProcessorRow(QPainter& painter, ezUIn
   // Copy state data and history under lock, then draw without lock
   ezEditorProcessorState state;
   ezDynamicArray<ProcessorTask> visibleTasks;
-  ezHybridArray<ezTime, 8> skipOffsets;
+  ezTempHybridArray<ezTime, 8> skipOffsets;
   ezTime currentTime;
 
   {

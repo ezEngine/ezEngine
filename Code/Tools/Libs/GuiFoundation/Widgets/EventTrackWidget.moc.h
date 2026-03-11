@@ -112,8 +112,8 @@ private:
   QRectF ComputeViewportSceneRect() const;
   bool PickCpAt(const QPoint& pos, float fMaxPixelDistance, SelectedPoint& out_Result) const;
   ClickTarget DetectClickTarget(const QPoint& pos);
-  void ExecMultiSelection(ezHybridArray<SelectedPoint, 32>& out_Selection);
-  bool CombineSelection(ezHybridArray<SelectedPoint, 32>& inout_Selection, const ezHybridArray<SelectedPoint, 32>& change, bool add);
+  void ExecMultiSelection(ezDynamicArray<SelectedPoint>& out_Selection);
+  bool CombineSelection(ezDynamicArray<SelectedPoint>& inout_Selection, const ezArrayPtr<SelectedPoint>& change, bool add);
   void ComputeSelectionRect();
   SelectArea WhereIsPoint(QPoint pos) const;
   void ClampZoomPan();

@@ -144,7 +144,7 @@ void ezJoltStaticActorComponent::CreateShapes(ezDynamicArray<ezJoltSubShape>& ou
 
   if (auto pTriMesh = pMesh->HasTriangleMesh())
   {
-    ezHybridArray<const ezJoltMaterial*, 32> materials;
+    ezTempHybridArray<const ezJoltMaterial*, 32> materials;
 
     if (pMaterial != nullptr)
     {

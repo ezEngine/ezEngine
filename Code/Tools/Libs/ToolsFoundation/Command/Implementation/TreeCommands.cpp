@@ -255,7 +255,7 @@ ezStatus ezPasteObjectsCommand::DoInternal(bool bRedo)
 
     ezDocumentObjectConverterReader reader(&graph, pDocument->GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateOnly);
 
-    ezHybridArray<ezAbstractObjectNode*, 16> RootNodes;
+    ezTempHybridArray<ezAbstractObjectNode*, 16> RootNodes;
     auto& nodes = graph.GetAllNodes();
     for (auto it = nodes.GetIterator(); it.IsValid(); ++it)
     {
@@ -276,7 +276,7 @@ ezStatus ezPasteObjectsCommand::DoInternal(bool bRedo)
       }
       return a < b; });
 
-    ezHybridArray<ezDocument::PasteInfo, 16> ToBePasted;
+    ezTempHybridArray<ezDocument::PasteInfo, 16> ToBePasted;
     for (ezAbstractObjectNode* pNode : RootNodes)
     {
       auto* pNewObject = reader.CreateObjectFromNode(pNode);
@@ -379,7 +379,7 @@ ezStatus ezInstantiatePrefabCommand::DoInternal(bool bRedo)
     ezStringView sParentProperty = "Children"_ezsv;
 
     ezDocumentObject* pRootObject = nullptr;
-    ezHybridArray<ezDocument::PasteInfo, 16> ToBePasted;
+    ezTempHybridArray<ezDocument::PasteInfo, 16> ToBePasted;
     ezAbstractObjectGraph graph;
 
     // create root object
@@ -447,7 +447,7 @@ ezStatus ezInstantiatePrefabCommand::DoInternal(bool bRedo)
     graph.ReMapNodeGuids(m_RemapGuid);
 
     // a prefab can have multiple top level nodes
-    ezHybridArray<ezAbstractObjectNode*, 4> rootNodes;
+    ezTempHybridArray<ezAbstractObjectNode*, 4> rootNodes;
     ezPrefabUtils::GetRootNodes(graph, rootNodes);
 
     for (auto* pPrefabRoot : rootNodes)

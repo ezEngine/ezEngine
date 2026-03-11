@@ -49,7 +49,7 @@ void ezFileSystemWatcher::Initialize()
 
   m_pWatcherTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "Watcher Changes", ezTaskNesting::Never, [this]()
     {
-      ezHybridArray<WatcherResult, 16> watcherResults;
+      ezTempHybridArray<WatcherResult, 16> watcherResults;
       for (ezDirectoryWatcher* pWatcher : m_Watchers)
       {
         pWatcher->EnumerateChanges([pWatcher, &watcherResults](ezStringView sFilename, ezDirectoryWatcherAction action, ezDirectoryWatcherType type)
@@ -191,7 +191,7 @@ void ezFileSystemWatcher::AddEntry(ezDynamicArray<PendingUpdate>& container, con
 
 void ezFileSystemWatcher::ConsumeEntry(ezDynamicArray<PendingUpdate>& container, ezFileSystemWatcherEvent::Type type, const ezDelegate<void(const ezString& sAbsPath, ezFileSystemWatcherEvent::Type type)>& consume)
 {
-  ezHybridArray<PendingUpdate, 16> updates;
+  ezTempHybridArray<PendingUpdate, 16> updates;
   {
     EZ_LOCK(m_WatcherMutex);
     for (ezUInt32 i = container.GetCount(); i > 0; --i)

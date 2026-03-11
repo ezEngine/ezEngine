@@ -27,7 +27,7 @@ void FindPlacementTilesTask::Execute()
   m_NewTiles.Clear();
   m_OldTileKeys.Clear();
 
-  ezHybridArray<ezSimdMat4f, 8, ezAlignedAllocatorWrapper> globalToLocalBoxTransforms;
+  ezTempHybridArray<ezSimdMat4f, 8> globalToLocalBoxTransforms;
 
   auto& outputContext = m_pComponent->m_OutputContexts[m_uiOutputIndex];
 

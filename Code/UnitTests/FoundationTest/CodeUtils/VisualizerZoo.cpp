@@ -107,11 +107,11 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, VisualizerZoo)
     dynamicArray.PushBack("Item1");
     dynamicArray.PushBack("Item2");
 
-    ezHybridArray<StuffStruct, 4> hybridArray;
+    ezTempHybridArray<StuffStruct, 4> hybridArray;
     hybridArray.PushBack({1, 2.0f, "Item3"});
     hybridArray.PushBack({2, 3.0f, "Item4"});
 
-    ezHybridArray<StuffStruct, 1> hybridArray2;
+    ezTempHybridArray<StuffStruct, 1> hybridArray2;
     hybridArray2.PushBack({1, 2.0f, "Item3"});
     hybridArray2.PushBack({2, 3.0f, "Item4"});
     hybridArray2.PushBack({3, 4.0f, "Item5"});
@@ -238,7 +238,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, VisualizerZoo)
   {
     ezEnum<ezVariantType> enumTest = ezVariantType::Angle;
     ezEnum<ezVariantType> enumArray[3] = {ezVariantType::Int32, ezVariantType::String, ezVariantType::Color};
-    ezHybridArray<ezEnum<ezVariantType>, 3> hybridEnumArray;
+    ezTempHybridArray<ezEnum<ezVariantType>, 3> hybridEnumArray;
     hybridEnumArray.PushBack(ezVariantType::Int32);
     hybridEnumArray.PushBack(ezVariantType::String);
     EZ_TEST_BOOL(true);
@@ -258,7 +258,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, VisualizerZoo)
     bitflagsArray[0].Add(TestFlags::Bit3);
     bitflagsArray[1].Add(TestFlags::Bit4);
 
-    ezHybridArray<ezBitflags<TestFlags>, 2> hybridBitflagsArray;
+    ezTempHybridArray<ezBitflags<TestFlags>, 2> hybridBitflagsArray;
     hybridBitflagsArray.PushBack(TestFlags::Bit1 | TestFlags::Bit2);
     hybridBitflagsArray.PushBack(TestFlags::Bit3 | TestFlags::Bit4);
     EZ_TEST_BOOL(true);

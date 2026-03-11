@@ -90,7 +90,7 @@ ezTestAppRun ezEditorTestMisc::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvoca
   //  ezAssetCurator::GetSingleton()->TransformAllAssets();
 
   //  ezUInt32 uiNumAssets;
-  //  ezHybridArray<ezUInt32, ezAssetInfo::TransformState::COUNT> sections;
+  //  ezTempHybridArray<ezUInt32, ezAssetInfo::TransformState::COUNT> sections;
   //  ezAssetCurator::GetSingleton()->GetAssetTransformStats(uiNumAssets, sections);
 
   //  EZ_TEST_INT(sections[ezAssetInfo::TransformState::TransformError], 0);
@@ -154,14 +154,14 @@ ezTestAppRun ezEditorTestMisc::GameObjectReferencesTest()
 
   // Move everything to the layer and repeat the test.
   ezScene2Document* pScene = ezDynamicCast<ezScene2Document*>(m_pDocument);
-  ezHybridArray<ezUuid, 2> layerGuids;
+  ezTempHybridArray<ezUuid, 2> layerGuids;
   pScene->GetAllLayers(layerGuids);
   EZ_TEST_INT(layerGuids.GetCount(), 2);
   ezUuid layerGuid = layerGuids[0] == pScene->GetGuid() ? layerGuids[1] : layerGuids[0];
 
   auto pAccessor = pScene->GetObjectAccessor();
   auto pRoot = pScene->GetObjectManager()->GetRootObject();
-  ezHybridArray<ezVariant, 16> values;
+  ezTempHybridArray<ezVariant, 16> values;
   pAccessor->GetValuesByName(pRoot, "Children", values).AssertSuccess();
 
   ezDeque<const ezDocumentObject*> assets;

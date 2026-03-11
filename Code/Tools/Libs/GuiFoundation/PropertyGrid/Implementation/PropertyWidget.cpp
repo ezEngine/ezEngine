@@ -1616,7 +1616,7 @@ void ezQtPropertyEditorEnumWidget::OnInit()
 
   const ezUInt32 uiCount = pType->GetProperties().GetCount();
 
-  ezHybridArray<const ezAbstractProperty*, 16> props;
+  ezTempHybridArray<const ezAbstractProperty*, 16> props;
 
   // Start at 1 to skip default value.
   for (ezUInt32 i = 1; i < uiCount; ++i)
@@ -1870,7 +1870,7 @@ void ezQtCurve1DButtonWidget::UpdatePreview(ezObjectAccessorBase* pObjectAccesso
   pObjectAccessor->GetCountByName(pCurveObject, "ControlPoints", iNumPoints).AssertSuccess();
 
   ezVariant v;
-  ezHybridArray<ezVec2d, 32> points;
+  ezTempHybridArray<ezVec2d, 32> points;
   points.Reserve(iNumPoints);
 
   double minX = static_cast<double>(ezColorGradient::TimeToTick(fLowerExtents));

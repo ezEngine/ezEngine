@@ -141,7 +141,7 @@ void ezPropertyAnimComponent::CreatePropertyBindings()
 
   for (const ezFloatPropertyAnimEntry& anim : m_pAnimDesc->m_FloatAnimations)
   {
-    ezHybridArray<ezGameObject*, 8> targets;
+    ezTempHybridArray<ezGameObject*, 8> targets;
     GetOwner()->SearchForChildrenByNameSequence(anim.m_sObjectSearchSequence, anim.m_pComponentRtti, targets);
 
     for (ezGameObject* pTargetObject : targets)
@@ -164,7 +164,7 @@ void ezPropertyAnimComponent::CreatePropertyBindings()
 
   for (const ezColorPropertyAnimEntry& anim : m_pAnimDesc->m_ColorAnimations)
   {
-    ezHybridArray<ezGameObject*, 8> targets;
+    ezTempHybridArray<ezGameObject*, 8> targets;
     GetOwner()->SearchForChildrenByNameSequence(anim.m_sObjectSearchSequence, anim.m_pComponentRtti, targets);
 
     for (ezGameObject* pTargetObject : targets)
@@ -544,7 +544,7 @@ void ezPropertyAnimComponent::EvaluateEventTrack(ezTime startTime, ezTime endTim
   if (et.IsEmpty())
     return;
 
-  ezHybridArray<ezHashedString, 8> events;
+  ezTempHybridArray<ezHashedString, 8> events;
   et.Sample(startTime, endTime, events);
 
   for (const ezHashedString& sEvent : events)

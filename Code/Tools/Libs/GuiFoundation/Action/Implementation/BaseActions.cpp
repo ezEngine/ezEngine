@@ -76,7 +76,7 @@ void ezEnumerationMenuAction::GetEntries(ezDynamicArray<Item>& out_entries)
     }
   };
 
-  ezHybridArray<ItemWithOrder, 16> unsortedItems;
+  ezTempHybridArray<ItemWithOrder, 16> unsortedItems;
 
   auto appendToOutput = [&]()
   {

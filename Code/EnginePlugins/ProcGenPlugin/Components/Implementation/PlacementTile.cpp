@@ -120,7 +120,7 @@ ezUInt32 PlacementTile::PlaceObjects(ezWorld& ref_world, ezArrayPtr<const Placem
   ezGameObjectDesc desc;
   auto& objectsToPlace = m_pOutput->m_ObjectsToPlace;
 
-  ezHybridArray<ezPrefabResource*, 4> prefabs;
+  ezTempHybridArray<ezPrefabResource*, 4> prefabs;
   prefabs.SetCount(objectsToPlace.GetCount());
 
 
@@ -137,7 +137,7 @@ ezUInt32 PlacementTile::PlaceObjects(ezWorld& ref_world, ezArrayPtr<const Placem
     }
 
     ezTransform transform = ezSimdConversion::ToTransform(objectTransform.m_Transform);
-    ezHybridArray<ezGameObject*, 8> rootObjects;
+    ezTempHybridArray<ezGameObject*, 8> rootObjects;
 
     ezPrefabInstantiationOptions options;
     options.m_pCreatedRootObjectsOut = &rootObjects;

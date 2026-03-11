@@ -118,9 +118,9 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
 
   // Find temp targets
   ezGALTextureHandle hzbTexture;
-  ezHybridArray<ezVec2, 8> hzbSizes;
-  ezHybridArray<ezGALTextureRange, 8> hzbResourceViews;
-  ezHybridArray<ezGALRenderTargetViewHandle, 8> hzbRenderTargetViews;
+  ezTempHybridArray<ezVec2, 8> hzbSizes;
+  ezTempHybridArray<ezGALTextureRange, 8> hzbResourceViews;
+  ezTempHybridArray<ezGALRenderTargetViewHandle, 8> hzbRenderTargetViews;
 
   ezGALTextureHandle tempSSAOTexture;
 

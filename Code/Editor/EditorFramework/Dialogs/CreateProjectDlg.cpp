@@ -143,7 +143,7 @@ void ezQtCreateProjectDlg::FindProjectTemplates(ezDynamicArray<ezString>& out_Pr
 
 void ezQtCreateProjectDlg::FillProjectTemplatesList()
 {
-  ezHybridArray<ezString, 32> templates;
+  ezTempHybridArray<ezString, 32> templates;
   FindProjectTemplates(templates);
 
   ProjectTemplates->clear();

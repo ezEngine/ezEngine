@@ -110,8 +110,8 @@ void ezInputDeviceXBoxController::SetValue(ezInt32 iController, const char* szBu
 
 void ezInputDeviceXBoxController::SetupControllerMappingInOrder()
 {
-  ezHybridArray<ezUInt8, MaxControllers> connected;
-  ezHybridArray<ezUInt8, MaxControllers> disconnected;
+  ezTempHybridArray<ezUInt8, MaxControllers> connected;
+  ezTempHybridArray<ezUInt8, MaxControllers> disconnected;
 
   for (ezUInt32 uiPhysical = 0; uiPhysical < MaxControllers; ++uiPhysical)
   {

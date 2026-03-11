@@ -45,7 +45,7 @@ void ezQtEditorApp::SaveOpenDocumentsList()
   allWindows.Reserve(windows.GetCount());
   {
     auto* container = ezQtContainerWindow::GetContainerWindow();
-    ezHybridArray<ezQtDocumentWindow*, 16> docWindows;
+    ezTempHybridArray<ezQtDocumentWindow*, 16> docWindows;
     container->GetDocumentWindows(docWindows);
     for (auto* pWindow : docWindows)
     {

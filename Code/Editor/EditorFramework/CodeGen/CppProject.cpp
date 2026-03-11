@@ -110,12 +110,12 @@ namespace
     if (ezProcess::Execute(po).Failed())
       return EZ_FAILURE;
 
-    ezHybridArray<ezStringView, 8> lines;
+    ezTempHybridArray<ezStringView, 8> lines;
     sStdout.Split(false, lines, "\r", "\n");
     if (lines.IsEmpty())
       return EZ_FAILURE;
 
-    ezHybridArray<ezStringView, 4> splitResult;
+    ezTempHybridArray<ezStringView, 4> splitResult;
     lines[0].Split(false, splitResult, " ");
 
     if (splitResult.IsEmpty())
@@ -731,7 +731,7 @@ ezResult ezCppProject::PopulateWithDefaultSources(const ezCppSettings& cfg, ezUI
     ezString m_sDestination;
   };
 
-  ezHybridArray<FileToCopy, 32> filesCopied;
+  ezTempHybridArray<FileToCopy, 32> filesCopied;
 
   // gather files
   {
@@ -925,7 +925,7 @@ ezResult ezCppProject::CompileSolution(const ezCppSettings& cfg)
 
   EZ_LOG_BLOCK("Compile C++ Plugin");
 
-  ezHybridArray<ezString, 32> errors;
+  ezTempHybridArray<ezString, 32> errors;
   ezInt32 iReturnCode = 0;
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   if (ezSystemInformation::IsDebuggerAttached())

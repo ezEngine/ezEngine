@@ -116,7 +116,7 @@ void ezQtPropertyWidget::ExtendContextMenu(QMenu& m)
             else
             {
               // Revert objects pointed to by the object type element
-              ezHybridArray<ezPropertySelection, 8> ResolvedObjects;
+              ezTempHybridArray<ezPropertySelection, 8> ResolvedObjects;
               for (const auto& item : m_Items)
               {
                 ezUuid ObjectGuid = m_pObjectAccessor->Get<ezUuid>(item.m_pObject, m_pProp, item.m_Index);
@@ -654,8 +654,8 @@ void ezQtPropertyPointerWidget::SetSelection(const ezArrayPtr<ezPropertySelectio
   }
 
 
-  ezHybridArray<ezPropertySelection, 8> emptyItems;
-  ezHybridArray<ezPropertySelection, 8> subItems;
+  ezTempHybridArray<ezPropertySelection, 8> emptyItems;
+  ezTempHybridArray<ezPropertySelection, 8> subItems;
   for (const auto& item : m_Items)
   {
     ezUuid ObjectGuid = m_pObjectAccessor->Get<ezUuid>(item.m_pObject, m_pProp, item.m_Index);
@@ -722,7 +722,7 @@ void ezQtPropertyPointerWidget::OnDeleteButtonClicked()
   m_pObjectAccessor->StartTransaction("Delete Object");
 
   ezStatus res(EZ_SUCCESS);
-  const ezHybridArray<ezPropertySelection, 8> selection = m_pTypeWidget->GetSelection();
+  const ezTempHybridArray<ezPropertySelection, 8> selection = m_pTypeWidget->GetSelection();
   for (auto& item : selection)
   {
     res = m_pObjectAccessor->RemoveObject(item.m_pObject);
@@ -933,7 +933,7 @@ void ezQtPropertyTypeWidget::SetSelection(const ezArrayPtr<ezPropertySelection>&
 
   // Retrieve the objects the property points to. This could be an embedded class or
   // an element of an array, be it pointer or embedded class.
-  ezHybridArray<ezPropertySelection, 8> ResolvedObjects;
+  ezTempHybridArray<ezPropertySelection, 8> ResolvedObjects;
   for (const auto& item : m_Items)
   {
     ezUuid ObjectGuid = m_pObjectAccessor->Get<ezUuid>(item.m_pObject, m_pProp, item.m_Index);
@@ -1059,7 +1059,7 @@ void ezQtPropertyContainerWidget::dropEvent(QDropEvent* event)
     if (pDragElement)
     {
       const ezAbstractProperty* pProp = pDragElement->m_pWidget->GetProperty();
-      ezHybridArray<ezPropertySelection, 8> items = pDragElement->m_pWidget->GetSelection();
+      ezTempHybridArray<ezPropertySelection, 8> items = pDragElement->m_pWidget->GetSelection();
       if (m_iDropSource != m_iDropTarget && (m_iDropSource + 1) != m_iDropTarget)
       {
         MoveItems(items, m_iDropTarget - m_iDropSource);
@@ -1154,7 +1154,7 @@ void ezQtPropertyContainerWidget::OnElementButtonClicked()
 {
   ezQtElementGroupButton* pButton = qobject_cast<ezQtElementGroupButton*>(sender());
   const ezAbstractProperty* pProp = pButton->GetGroupWidget()->GetProperty();
-  ezHybridArray<ezPropertySelection, 8> items = pButton->GetGroupWidget()->GetSelection();
+  ezTempHybridArray<ezPropertySelection, 8> items = pButton->GetGroupWidget()->GetSelection();
 
   switch (pButton->GetAction())
   {
@@ -1330,7 +1330,7 @@ void ezQtPropertyContainerWidget::GetRequiredElements(ezDynamicArray<ezVariant>&
   if (GetContainerCategory() == ezPropertyCategory::Map)
   {
     EZ_VERIFY(m_pObjectAccessor->GetKeys(m_Items[0].m_pObject, m_pProp, out_keys).Succeeded(), "GetKeys should always succeed.");
-    ezHybridArray<ezVariant, 16> keys;
+    ezTempHybridArray<ezVariant, 16> keys;
     for (ezUInt32 i = 1; i < m_Items.GetCount(); i++)
     {
       keys.Clear();
@@ -1585,7 +1585,7 @@ void ezQtPropertyStandardTypeContainerWidget::UpdateElement(ezUInt32 index)
 {
   Element& elem = m_Elements[index];
 
-  ezHybridArray<ezPropertySelection, 8> SubItems;
+  ezTempHybridArray<ezPropertySelection, 8> SubItems;
 
   for (const auto& item : m_Items)
   {
@@ -1629,7 +1629,7 @@ void ezQtPropertyTypeContainerWidget::OnInit()
 void ezQtPropertyTypeContainerWidget::UpdateElement(ezUInt32 index)
 {
   Element& elem = m_Elements[index];
-  ezHybridArray<ezPropertySelection, 8> SubItems;
+  ezTempHybridArray<ezPropertySelection, 8> SubItems;
 
   // To be in line with all other ezQtPropertyWidget the container element will
   // be given a selection in the form of this is the parent object, this is the property and in this
@@ -1646,7 +1646,7 @@ void ezQtPropertyTypeContainerWidget::UpdateElement(ezUInt32 index)
   {
     // To get the correct name we actually need to resolve the selection to the actual objects
     // they are pointing to.
-    ezHybridArray<ezPropertySelection, 8> ResolvedObjects;
+    ezTempHybridArray<ezPropertySelection, 8> ResolvedObjects;
     for (const auto& item : SubItems)
     {
       ezUuid ObjectGuid = m_pObjectAccessor->Get<ezUuid>(item.m_pObject, m_pProp, item.m_Index);

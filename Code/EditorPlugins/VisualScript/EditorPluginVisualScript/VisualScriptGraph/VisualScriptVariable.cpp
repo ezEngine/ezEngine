@@ -203,7 +203,7 @@ ezQtVisualScriptVariableTypeDeclarationWidget::~ezQtVisualScriptVariableTypeDecl
 
 void ezQtVisualScriptVariableTypeDeclarationWidget::OnInit()
 {
-  ezHybridArray<ezReflectionUtils::EnumKeyValuePair, 16> enumValues;
+  ezTempHybridArray<ezReflectionUtils::EnumKeyValuePair, 16> enumValues;
 
   {
     ezReflectionUtils::GetEnumKeysAndValues(ezGetStaticRTTI<ezVisualScriptVariableType>(), enumValues);

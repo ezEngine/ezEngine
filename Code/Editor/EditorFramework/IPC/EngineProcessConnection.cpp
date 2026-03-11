@@ -419,7 +419,7 @@ ezResult ezEditorEngineProcessConnection::RestartProcess()
 
   ezLog::Dev("Transmitting open documents to Engine Process");
 
-  ezHybridArray<ezAssetDocument*, 6> docs;
+  ezTempHybridArray<ezAssetDocument*, 6> docs;
   docs.Reserve(m_DocumentByGuid.GetCount());
 
   // Resend all open documents. Make sure to send main documents before child documents.

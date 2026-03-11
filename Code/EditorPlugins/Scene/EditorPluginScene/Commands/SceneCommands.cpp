@@ -59,7 +59,7 @@ ezStatus ezDuplicateObjectsCommand::DoInternal(bool bRedo)
 
     if (m_uiNumberOfCopies == 0)
     {
-      ezHybridArray<ezDocument::PasteInfo, 16> ToBePasted;
+      ezTempHybridArray<ezDocument::PasteInfo, 16> ToBePasted;
       CreateOneDuplicate(graph, ToBePasted);
     }
     else
@@ -67,7 +67,7 @@ ezStatus ezDuplicateObjectsCommand::DoInternal(bool bRedo)
       // store original selection
       m_OriginalSelection = m_pDocument->GetSelectionManager()->GetSelection();
 
-      ezHybridArray<ezHybridArray<ezDocument::PasteInfo, 16>, 8> ToBePasted;
+      ezTempHybridArray<ezTempHybridArray<ezDocument::PasteInfo, 16>, 8> ToBePasted;
       ToBePasted.SetCount(m_uiNumberOfCopies);
 
       for (ezUInt32 copies = 0; copies < m_uiNumberOfCopies; ++copies)
@@ -171,7 +171,7 @@ void ezDuplicateObjectsCommand::CreateOneDuplicate(ezAbstractObjectGraph& graph,
     ParentGuids[guidObj] = ezConversionUtils::ConvertStringToUuid(sNextParentGuid);
   }
 
-  ezHybridArray<ezUInt32, 32> selectionOrder;
+  ezTempHybridArray<ezUInt32, 32> selectionOrder;
 
   auto& nodes = graph.GetAllNodes();
   for (auto it = nodes.GetIterator(); it.IsValid(); ++it)

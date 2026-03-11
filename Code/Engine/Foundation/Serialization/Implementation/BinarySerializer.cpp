@@ -27,7 +27,7 @@ static void WriteGraph(const ezAbstractObjectGraph* pGraph, ezStreamWriter& inou
     inout_stream << node.GetTypeVersion();
     inout_stream << node.GetNodeName();
 
-    const ezHybridArray<ezAbstractObjectNode::Property, 16>& properties = node.GetProperties();
+    const auto& properties = node.GetProperties();
     ezUInt32 uiProps = properties.GetCount();
     inout_stream << uiProps;
     for (const ezAbstractObjectNode::Property& prop : properties)

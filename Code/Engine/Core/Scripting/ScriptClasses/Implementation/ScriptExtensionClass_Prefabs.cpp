@@ -41,8 +41,8 @@ void SpawnPrefabHelper(ezWorld& ref_world, ezStringView sPrefab, ezGameObjectHan
   if (pPrefab.GetAcquireResult() != ezResourceAcquireResult::Final)
     return;
 
-  ezHybridArray<ezGameObject*, 8> createdRootObjects;
-  ezHybridArray<ezGameObject*, 8> createdChildObjects;
+  ezTempHybridArray<ezGameObject*, 8> createdRootObjects;
+  ezTempHybridArray<ezGameObject*, 8> createdChildObjects;
 
   ezPrefabInstantiationOptions opt;
   opt.m_hParent = hParent;

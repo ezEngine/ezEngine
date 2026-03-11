@@ -28,7 +28,7 @@ ezArrayPtr<const ezShaderVertexInputAttribute> ezGALShader::GetVertexInputAttrib
 
 ezResult ezGALShader::CreateBindingMapping(bool bAllowMultipleBindingPerName)
 {
-  ezHybridArray<ezArrayPtr<const ezShaderResourceBinding>, ezGALShaderStage::ENUM_COUNT> resourceBinding;
+  ezTempHybridArray<ezArrayPtr<const ezShaderResourceBinding>, ezGALShaderStage::ENUM_COUNT> resourceBinding;
   resourceBinding.SetCount(ezGALShaderStage::ENUM_COUNT);
   for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
   {

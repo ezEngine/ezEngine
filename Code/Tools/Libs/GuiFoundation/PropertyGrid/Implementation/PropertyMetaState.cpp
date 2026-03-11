@@ -39,7 +39,7 @@ void ezPropertyMetaState::GetTypePropertiesState(const ezDocumentObject* pObject
   m_Events.Broadcast(eventData);
 }
 
-void ezPropertyMetaState::GetTypePropertiesState(const ezHybridArray<ezPropertySelection, 8>& items, ezMap<ezString, ezPropertyUiState>& out_propertyStates)
+void ezPropertyMetaState::GetTypePropertiesState(const ezArrayPtr<ezPropertySelection>& items, ezMap<ezString, ezPropertyUiState>& out_propertyStates)
 {
   for (const auto& sel : items)
   {
@@ -66,7 +66,7 @@ void ezPropertyMetaState::GetContainerElementsState(const ezDocumentObject* pObj
   m_ContainerEvents.Broadcast(eventData);
 }
 
-void ezPropertyMetaState::GetContainerElementsState(const ezHybridArray<ezPropertySelection, 8>& items, const char* szProperty, ezHashTable<ezVariant, ezPropertyUiState>& out_propertyStates)
+void ezPropertyMetaState::GetContainerElementsState(const ezArrayPtr<ezPropertySelection>& items, const char* szProperty, ezHashTable<ezVariant, ezPropertyUiState>& out_propertyStates)
 {
   for (const auto& sel : items)
   {

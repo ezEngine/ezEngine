@@ -150,7 +150,7 @@ void ezVisualShaderCodeGenerator::DetermineConfigFileDependencies(const ezVisual
 void ezVisualShaderCodeGenerator::CollectReachableNodes(const ezDocumentObject* pRootNode, ezHashSet<const ezDocumentObject*>& out_Nodes) const
 {
   out_Nodes.Clear();
-  ezHybridArray<const ezDocumentObject*, 64> nodeStack;
+  ezTempHybridArray<const ezDocumentObject*, 64> nodeStack;
   nodeStack.PushBack(pRootNode);
 
   while (!nodeStack.IsEmpty())
@@ -207,7 +207,7 @@ ezResult ezVisualShaderCodeGenerator::CollectNodesInTopologicalOrder(const ezDoc
 
   ezHashSet<const ezDocumentObject*> visitedNodes;
   visitedNodes.Reserve(reachableNodes.GetCount());
-  ezHybridArray<const ezDocumentObject*, 64> nodeStack;
+  ezTempHybridArray<const ezDocumentObject*, 64> nodeStack;
   nodeStack.PushBack(pRootNode);
 
   while (!nodeStack.IsEmpty())
@@ -275,7 +275,7 @@ void ezVisualShaderCodeGenerator::ComputeOutputPinDimensions()
   m_OutputPinDimensions.Clear();
 
   // Find all root nodes (nodes with no outputs connected)
-  ezHybridArray<const ezDocumentObject*, 16> rootNodes;
+  ezTempHybridArray<const ezDocumentObject*, 16> rootNodes;
   for (auto& nodeIt : m_Nodes)
   {
     const ezDocumentObject* pNode = nodeIt.Key();

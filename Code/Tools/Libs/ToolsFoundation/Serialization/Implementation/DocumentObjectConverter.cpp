@@ -101,7 +101,7 @@ void ezDocumentObjectConverterWriter::AddProperty(ezAbstractObjectNode* pNode, c
 
       ezVariantDictionary values;
       values.Reserve(iCount);
-      ezHybridArray<ezVariant, 16> keys;
+      ezTempHybridArray<ezVariant, 16> keys;
       pObject->GetTypeAccessor().GetKeys(pProp->GetPropertyName(), keys);
 
       for (const ezVariant& key : keys)
@@ -126,7 +126,7 @@ void ezDocumentObjectConverterWriter::AddProperty(ezAbstractObjectNode* pNode, c
 
 void ezDocumentObjectConverterWriter::AddProperties(ezAbstractObjectNode* pNode, const ezDocumentObject* pObject)
 {
-  ezHybridArray<const ezAbstractProperty*, 32> properties;
+  ezTempHybridArray<const ezAbstractProperty*, 32> properties;
   pObject->GetTypeAccessor().GetType()->GetAllProperties(properties);
 
   for (const auto* pProp : properties)
@@ -186,7 +186,7 @@ void ezDocumentObjectConverterReader::AddObject(ezDocumentObject* pObject, ezDoc
 void ezDocumentObjectConverterReader::ApplyPropertiesToObject(const ezAbstractObjectNode* pNode, ezDocumentObject* pObject)
 {
   // EZ_ASSERT_DEV(pObject->GetChildren().GetCount() == 0, "Can only apply properties to empty objects!");
-  ezHybridArray<const ezAbstractProperty*, 32> properties;
+  ezTempHybridArray<const ezAbstractProperty*, 32> properties;
   pObject->GetTypeAccessor().GetType()->GetAllProperties(properties);
 
   for (auto* pProp : properties)
@@ -201,7 +201,7 @@ void ezDocumentObjectConverterReader::ApplyPropertiesToObject(const ezAbstractOb
 
 void ezDocumentObjectConverterReader::ApplyDiffToObject(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pObject, ezDeque<ezAbstractGraphDiffOperation>& ref_diff)
 {
-  ezHybridArray<ezAbstractGraphDiffOperation*, 4> change;
+  ezTempHybridArray<ezAbstractGraphDiffOperation*, 4> change;
 
   for (auto& op : ref_diff)
   {
@@ -326,7 +326,7 @@ void ezDocumentObjectConverterReader::ApplyDiff(ezObjectAccessorBase* pObjectAcc
       {
         const ezInt32 iCurrentCount2 = pObject->GetTypeAccessor().GetCount(pProp->GetPropertyName());
 
-        ezHybridArray<ezVariant, 16> currentValues;
+        ezTempHybridArray<ezVariant, 16> currentValues;
         pObject->GetTypeAccessor().GetValues(pProp->GetPropertyName(), currentValues);
         for (ezInt32 i = iCurrentCount2 - 1; i >= 0; --i)
         {
@@ -353,7 +353,7 @@ void ezDocumentObjectConverterReader::ApplyDiff(ezObjectAccessorBase* pObjectAcc
     case ezPropertyCategory::Map:
     {
       const ezVariantDictionary& values = op.m_Value.Get<ezVariantDictionary>();
-      ezHybridArray<ezVariant, 16> keys;
+      ezTempHybridArray<ezVariant, 16> keys;
       EZ_VERIFY(pObjectAccessor->GetKeys(pObject, pProp, keys).Succeeded(), "Property is not a map, getting keys failed.");
 
       if (bIsValueType || (pProp->GetFlags().IsAnySet(ezPropertyFlags::Pointer) && !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner)))
@@ -529,7 +529,7 @@ void ezDocumentObjectConverterReader::ApplyProperty(ezDocumentObject* pObject, c
     case ezPropertyCategory::Map:
     {
       const ezVariantDictionary& values = pSource->m_Value.Get<ezVariantDictionary>();
-      ezHybridArray<ezVariant, 16> keys;
+      ezTempHybridArray<ezVariant, 16> keys;
       pObject->GetTypeAccessor().GetKeys(pProp->GetPropertyName(), keys);
 
       if (bIsValueType || (pProp->GetFlags().IsAnySet(ezPropertyFlags::Pointer) && !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner)))

@@ -288,7 +288,7 @@ void ezJoltContactEvents::UpdatePhysicsSlideReactions()
         ezResourceLock<ezPrefabResource> pPrefab(hPrefab, ezResourceAcquireMode::AllowLoadingFallback_NeverFail);
         if (pPrefab.GetAcquireResult() == ezResourceAcquireResult::Final)
         {
-          ezHybridArray<ezGameObject*, 8> created;
+          ezTempHybridArray<ezGameObject*, 8> created;
 
           ezPrefabInstantiationOptions options;
           options.m_pCreatedRootObjectsOut = &created;
@@ -348,7 +348,7 @@ void ezJoltContactEvents::UpdatePhysicsRollReactions()
         ezResourceLock<ezPrefabResource> pPrefab(hPrefab, ezResourceAcquireMode::AllowLoadingFallback_NeverFail);
         if (pPrefab.GetAcquireResult() == ezResourceAcquireResult::Final)
         {
-          ezHybridArray<ezGameObject*, 8> created;
+          ezTempHybridArray<ezGameObject*, 8> created;
 
           ezPrefabInstantiationOptions options;
           options.m_pCreatedRootObjectsOut = &created;

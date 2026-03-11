@@ -222,8 +222,8 @@ void ezEditorAssetDocumentTest::FileOperations()
 
 
     ezMutex m_EventMutex;
-    ezHybridArray<ezFileChangedEvent, 4> m_FileEvents;
-    ezHybridArray<AssetEvent, 4> m_AssetEvents;
+    ezTempHybridArray<ezFileChangedEvent, 4> m_FileEvents;
+    ezTempHybridArray<AssetEvent, 4> m_AssetEvents;
 
   private:
     ezEventSubscriptionID m_FileID = 0;
@@ -309,7 +309,7 @@ void ezEditorAssetDocumentTest::FileOperations()
     }
   };
 
-  ezHybridArray<ezString, 4> rootFolders(ezFileSystemModel::GetSingleton()->GetDataDirectoryRoots());
+  ezTempHybridArray<ezString, 4> rootFolders(ezFileSystemModel::GetSingleton()->GetDataDirectoryRoots());
   auto MakePath = [&](ezStringView sPath)
   {
     return ezDataDirPath(sPath, rootFolders);

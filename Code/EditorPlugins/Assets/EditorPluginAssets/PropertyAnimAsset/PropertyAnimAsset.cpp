@@ -329,7 +329,7 @@ void ezPropertyAnimAssetDocument::RebuildMapping()
 
   const ezAbstractProperty* pTracksProp = ezGetStaticRTTI<ezPropertyAnimationTrackGroup>()->FindPropertyByName("Tracks");
   EZ_ASSERT_DEBUG(pTracksProp, "Name of property ezPropertyAnimationTrackGroup::m_Tracks has changed.");
-  ezHybridArray<ezVariant, 16> values;
+  ezTempHybridArray<ezVariant, 16> values;
   m_pObjectAccessor->GetValues(GetPropertyObject(), pTracksProp, values).AssertSuccess();
   for (const ezVariant& value : values)
   {
@@ -611,7 +611,7 @@ ezStatus ezPropertyAnimAssetDocument::CanAnimate(
     return ezStatus("Empty node name only allowed on context root object animations.");
   }
 
-  ezHybridArray<ezPropertyReference, 1> keys;
+  ezTempHybridArray<ezPropertyReference, 1> keys;
   return FindTrackKeys(sObjectSearchSequence.GetData(), sComponentType.GetData(), sPropertyPath.GetData(), keys);
 }
 

@@ -63,7 +63,7 @@ ezQtScenegraphPanel::ezQtScenegraphPanel(ads::CDockManager* pDockManager, QWidge
   m_pStack->addWidget(m_pMainGameObjectWidget);
 
   pDocument->m_LayerEvents.AddEventHandler(ezMakeDelegate(&ezQtScenegraphPanel::LayerEventHandler, this), m_LayerEventUnsubscriber);
-  ezHybridArray<ezSceneDocument*, 16> layers;
+  ezTempHybridArray<ezSceneDocument*, 16> layers;
   pDocument->GetLoadedLayers(layers);
   for (ezSceneDocument* pLayer : layers)
   {

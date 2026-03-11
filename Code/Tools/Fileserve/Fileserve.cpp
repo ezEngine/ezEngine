@@ -140,7 +140,7 @@ void ezFileserverApp::ShaderMessageHandler(ezFileserveClientContext& ref_ctxt, e
     ezStringBuilder tmp;
     ezStringBuilder file, platform;
     ezUInt32 numPermVars;
-    ezHybridArray<ezPermutationVar, 16> permVars;
+    ezTempHybridArray<ezPermutationVar, 16> permVars;
 
     r >> file;
     r >> platform;
@@ -181,7 +181,7 @@ void ezFileserverApp::ShaderMessageHandler(ezFileserveClientContext& ref_ctxt, e
     {
       logActivity("[ERROR] Shader Compilation failed:");
 
-      ezHybridArray<ezStringView, 32> lines;
+      ezTempHybridArray<ezStringView, 32> lines;
       log.m_sBuffer.Split(false, lines, "\n", "\r");
 
       for (auto line : lines)

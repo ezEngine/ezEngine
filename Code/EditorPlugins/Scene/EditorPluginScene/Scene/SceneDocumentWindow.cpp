@@ -311,7 +311,7 @@ void ezQtSceneDocumentWindowBase::ExtendPropertyGridContextMenu(QMenu& menu, ezQ
   const ezRTTI* pType = pPropWidget->GetType();
   const ezAbstractProperty* pProp = pPropWidget->GetProperty();
   ezObjectAccessorBase* pAccessor = pPropWidget->GetObjectAccessor();
-  const ezHybridArray<ezPropertySelection, 8>& items = pPropWidget->GetSelection();
+  const ezTempHybridArray<ezPropertySelection, 8>& items = pPropWidget->GetSelection();
 
   ezUInt32 iExposed = 0;
   for (ezUInt32 i = 0; i < items.GetCount(); i++)

@@ -148,7 +148,7 @@ void VertexColorTask::Execute()
     ezUInt32 uiNumVertices = m_InputVertices.GetCount();
     m_TempData.SetCountUninitialized(uiNumVertices);
 
-    ezHybridArray<ezProcessingStream, 8> inputs;
+    ezTempHybridArray<ezProcessingStream, 8> inputs;
     {
       inputs.PushBack(MakeStream(m_InputVertices.GetArrayPtr(), offsetof(InputVertex, m_vPosition.x), ExpressionInputs::s_sPositionX));
       inputs.PushBack(MakeStream(m_InputVertices.GetArrayPtr(), offsetof(InputVertex, m_vPosition.y), ExpressionInputs::s_sPositionY));
@@ -166,7 +166,7 @@ void VertexColorTask::Execute()
       inputs.PushBack(MakeStream(m_InputVertices.GetArrayPtr(), offsetof(InputVertex, m_uiIndex), ExpressionInputs::s_sPointIndex, ezProcessingStream::DataType::Int));
     }
 
-    ezHybridArray<ezProcessingStream, 8> outputs;
+    ezTempHybridArray<ezProcessingStream, 8> outputs;
     {
       outputs.PushBack(MakeStream(m_TempData.GetArrayPtr(), offsetof(ezColor, r), ExpressionOutputs::s_sOutColorR));
       outputs.PushBack(MakeStream(m_TempData.GetArrayPtr(), offsetof(ezColor, g), ExpressionOutputs::s_sOutColorG));

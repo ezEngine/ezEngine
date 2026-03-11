@@ -4,7 +4,7 @@
 
 bool ezIReflectedTypeAccessor::GetValues(ezStringView sProperty, ezDynamicArray<ezVariant>& out_values) const
 {
-  ezHybridArray<ezVariant, 16> keys;
+  ezTempHybridArray<ezVariant, 16> keys;
   if (!GetKeys(sProperty, keys))
     return false;
 

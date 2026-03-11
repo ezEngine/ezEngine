@@ -263,7 +263,7 @@ void ezAssetCurator::MainThreadTick(bool bTopLevel)
   ezFileSystemModel::GetSingleton()->MainThreadTick();
 
   EZ_LOCK(m_CuratorMutex);
-  ezHybridArray<ezAssetInfo*, 32> deletedAssets;
+  ezTempHybridArray<ezAssetInfo*, 32> deletedAssets;
   for (const ezUuid& guid : m_SubAssetChanged)
   {
     ezSubAsset* pInfo = GetSubAssetInternal(guid);
@@ -879,11 +879,11 @@ ezAssetInfo::TransformState ezAssetCurator::UpdateAssetTransformState(ezUuid ass
   ezString sAssetFile;
   ezUInt8 uiLastStateUpdate = 0;
   ezUInt64 uiSettingsHash = 0;
-  ezHybridArray<ezString, 16> transformDeps;
-  ezHybridArray<ezString, 16> thumbnailDeps;
-  ezHybridArray<ezString, 16> packageDeps;
-  ezHybridArray<ezString, 16> outputs;
-  ezHybridArray<ezString, 16> subAssetNames;
+  ezTempHybridArray<ezString, 16> transformDeps;
+  ezTempHybridArray<ezString, 16> thumbnailDeps;
+  ezTempHybridArray<ezString, 16> packageDeps;
+  ezTempHybridArray<ezString, 16> outputs;
+  ezTempHybridArray<ezString, 16> subAssetNames;
 
   // Lock asset and get all data needed for update computation.
   {
@@ -1272,7 +1272,7 @@ void ezAssetCurator::GenerateTransitiveHull(const ezStringView sAssetOrPath, ezS
 {
   EZ_LOCK(m_CuratorMutex);
 
-  ezHybridArray<ezString, 6> toDoList;
+  ezTempHybridArray<ezString, 6> toDoList;
   if (ezConversionUtils::IsStringUuid(sAssetOrPath))
   {
     inout_deps.Insert(sAssetOrPath);
@@ -1344,7 +1344,7 @@ void ezAssetCurator::GenerateTransitiveHull(const ezStringView sAssetOrPath, ezS
 
 void ezAssetCurator::GenerateTransitiveAssetHull(const ezUuid& assetGuid, ezSet<ezUuid>& inout_deps, ezBitflags<ezDependencyFlags> dependencyTypes)
 {
-  ezHybridArray<ezUuid, 6> toDoList;
+  ezTempHybridArray<ezUuid, 6> toDoList;
 
   auto AddDependencies = [&](const ezSet<ezString>& dependencies)
   {
@@ -1448,7 +1448,7 @@ void ezAssetCurator::GenerateInverseTransitiveHull(const ezAssetInfo* pAssetInfo
 {
   EZ_LOCK(m_CuratorMutex);
 
-  ezHybridArray<const ezAssetInfo*, 6> toDoList;
+  ezTempHybridArray<const ezAssetInfo*, 6> toDoList;
   toDoList.PushBack(pAssetInfo);
   inout_inverseDeps.Insert(pAssetInfo->m_Info->m_DocumentID);
 
@@ -2026,7 +2026,7 @@ void ezAssetCurator::ProcessAllCoreAssets()
       if (pSubAsset)
       {
         // prefer certain asset types over others, to ensure that thumbnail generation works
-        ezHybridArray<ezTempHashedString, 4> transformOrder;
+        ezTempHybridArray<ezTempHashedString, 4> transformOrder;
         transformOrder.PushBack(ezTempHashedString("RenderPipeline"));
         transformOrder.PushBack(ezTempHashedString());
 
@@ -2446,7 +2446,7 @@ ezUInt32 ezAssetCurator::ReplaceAssetReferenceInObject(ezObjectAccessorBase* pAc
   ezUInt32 uiReplacementCount = 0;
 
   const ezRTTI* pType = pObject->GetTypeAccessor().GetType();
-  ezHybridArray<const ezAbstractProperty*, 32> properties;
+  ezTempHybridArray<const ezAbstractProperty*, 32> properties;
   pType->GetAllProperties(properties);
 
   for (const ezAbstractProperty* pProp : properties)

@@ -393,7 +393,7 @@ ezExpressionAST::Node* ezExpressionAST::ReplaceUnsupportedInstructions(Node* pNo
       const bool isWholeNumber = fExpValue == ezMath::Trunc(fExpValue);
       if (isWholeNumber && fExpValue > 1 && fExpValue < EZ_ARRAY_SIZE(s_MultiplicationChains))
       {
-        ezHybridArray<Node*, 8> multiplierStack;
+        ezTempHybridArray<Node*, 8> multiplierStack;
         multiplierStack.PushBack(pBase);
 
         const auto& chain = s_MultiplicationChains[(ezUInt32)fExpValue].m_Chain;

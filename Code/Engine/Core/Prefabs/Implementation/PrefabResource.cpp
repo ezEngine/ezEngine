@@ -24,8 +24,8 @@ void ezPrefabResource::InstantiatePrefab(ezWorld& ref_world, const ezTransform& 
 
   if (pExposedParamValues != nullptr && !pExposedParamValues->IsEmpty())
   {
-    ezHybridArray<ezGameObject*, 8> createdRootObjects;
-    ezHybridArray<ezGameObject*, 8> createdChildObjects;
+    ezTempHybridArray<ezGameObject*, 8> createdRootObjects;
+    ezTempHybridArray<ezGameObject*, 8> createdChildObjects;
 
     if (options.m_pCreatedRootObjectsOut == nullptr)
     {

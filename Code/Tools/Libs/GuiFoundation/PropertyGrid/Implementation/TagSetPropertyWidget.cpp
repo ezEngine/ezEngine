@@ -52,11 +52,11 @@ void ezQtPropertyEditorTagSetWidget::OnInit()
   const ezTagSetWidgetAttribute* pAssetAttribute = m_pProp->GetAttributeByType<ezTagSetWidgetAttribute>();
   EZ_ASSERT_DEV(pAssetAttribute != nullptr, "ezQtPropertyEditorTagSetWidget needs ezTagSetWidgetAttribute to be set.");
   ezStringBuilder sTagFilter = pAssetAttribute->GetTagFilter();
-  ezHybridArray<ezStringView, 4> categories;
+  ezTempHybridArray<ezStringView, 4> categories;
   sTagFilter.Split(false, categories, ";");
 
   // Get tags by categories.
-  ezHybridArray<const ezToolsTag*, 16> tags;
+  ezTempHybridArray<const ezToolsTag*, 16> tags;
   ezToolsTagRegistry::GetTagsByCategory(categories, tags);
 
   const char* szCurrentCategory = "";
@@ -115,7 +115,7 @@ void ezQtPropertyEditorTagSetWidget::InternalUpdateValue()
   // Count used tags of each object in the selection.
   for (auto& item : m_Items)
   {
-    ezHybridArray<ezVariant, 16> currentSetValues;
+    ezTempHybridArray<ezVariant, 16> currentSetValues;
     ezStatus status = m_pObjectAccessor->GetValues(item.m_pObject, m_pProp, currentSetValues);
     EZ_ASSERT_DEV(status.Succeeded(), "Failed to get tag keys!");
     for (const ezVariant& key : currentSetValues)
@@ -178,7 +178,7 @@ void ezQtPropertyEditorTagSetWidget::onCheckBoxClicked(bool bChecked)
     // Add tag to all objects in selection that don't have it yet.
     for (auto& item : m_Items)
     {
-      ezHybridArray<ezVariant, 16> currentSetValues;
+      ezTempHybridArray<ezVariant, 16> currentSetValues;
 
       ezStatus status = m_pObjectAccessor->GetValues(item.m_pObject, m_pProp, currentSetValues);
       EZ_ASSERT_DEV(status.Succeeded(), "Failed to get tag keys!");
@@ -202,7 +202,7 @@ void ezQtPropertyEditorTagSetWidget::onCheckBoxClicked(bool bChecked)
     // Remove tag from all objects in selection that have it.
     for (auto& item : m_Items)
     {
-      ezHybridArray<ezVariant, 16> currentSetValues;
+      ezTempHybridArray<ezVariant, 16> currentSetValues;
       ezStatus status = m_pObjectAccessor->GetValues(item.m_pObject, m_pProp, currentSetValues);
       EZ_ASSERT_DEV(status.Succeeded(), "Failed to get tag keys!");
       ezUInt32 uiIndex = currentSetValues.IndexOf(value);

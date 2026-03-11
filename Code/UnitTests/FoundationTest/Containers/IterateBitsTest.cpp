@@ -76,7 +76,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, IterateBits)
     {
       // Some bits set
       ezUInt64 uiBitMask = 0b1101;
-      ezHybridArray<ezUInt64, 3> bits;
+      ezTempHybridArray<ezUInt64, 3> bits;
       bits.PushBack(0b0001);
       bits.PushBack(0b0100);
       bits.PushBack(0b1000);
@@ -111,7 +111,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, IterateBits)
     {
       // Some bits set
       ezUInt64 uiBitMask = 0b1101;
-      ezHybridArray<ezUInt64, 3> bits;
+      ezTempHybridArray<ezUInt64, 3> bits;
       bits.PushBack(0);
       bits.PushBack(2);
       bits.PushBack(3);

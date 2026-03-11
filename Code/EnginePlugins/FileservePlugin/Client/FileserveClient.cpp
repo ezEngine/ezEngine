@@ -820,7 +820,7 @@ ezResult ezFileserveClient::WaitForServerInfo(ezTime timeout /*= ezTime::MakeFro
     return EZ_FAILURE;
 
   ezUInt16 uiPort = 1042;
-  ezHybridArray<ezStringBuilder, 4> sServerIPs;
+  ezTempHybridArray<ezStringBuilder, 4> sServerIPs;
 
   {
     ezUniquePtr<ezRemoteInterfaceEnet> network = ezRemoteInterfaceEnet::Make(); /// \todo Abstract this somehow ?

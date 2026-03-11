@@ -244,7 +244,7 @@ void ezQtVisualShaderNode::UpdateState()
     }
 
     // Replace property name placeholders (e.g., {PropertyName} or {$PropertyName})
-    ezHybridArray<const ezAbstractProperty*, 32> properties;
+    ezTempHybridArray<const ezAbstractProperty*, 32> properties;
     GetObject()->GetType()->GetAllProperties(properties);
 
     for (const auto& prop : properties)

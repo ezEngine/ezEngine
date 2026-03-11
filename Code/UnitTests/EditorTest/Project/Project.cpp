@@ -93,7 +93,7 @@ ezTestAppRun ezEditorTestProject::CreateDocuments()
     ezAssetCurator::GetSingleton()->TransformAllAssets().IgnoreResult();
 
     ezUInt32 uiNumAssets;
-    ezHybridArray<ezUInt32, ezAssetInfo::TransformState::COUNT> sections;
+    ezTempHybridArray<ezUInt32, ezAssetInfo::TransformState::COUNT> sections;
     ezAssetCurator::GetSingleton()->GetAssetTransformStats(uiNumAssets, sections);
 
     EZ_TEST_INT(sections[ezAssetInfo::TransformState::TransformError], 0);

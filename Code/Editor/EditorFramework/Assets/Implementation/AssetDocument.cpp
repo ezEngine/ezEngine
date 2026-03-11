@@ -185,7 +185,7 @@ void ezAssetDocument::AddPrefabDependencies(const ezDocumentObject* pObject, ezA
   }
 
 
-  const ezHybridArray<ezDocumentObject*, 8>& children = pObject->GetChildren();
+  const ezTempHybridArray<ezDocumentObject*, 8>& children = pObject->GetChildren();
 
   for (auto pChild : children)
   {
@@ -213,7 +213,7 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
   }
 
   const ezRTTI* pType = pObject->GetTypeAccessor().GetType();
-  ezHybridArray<const ezAbstractProperty*, 32> Properties;
+  ezTempHybridArray<const ezAbstractProperty*, 32> Properties;
   pType->GetAllProperties(Properties);
   for (auto pProp : Properties)
   {
@@ -247,7 +247,7 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
           {
             if (bInsidePrefab)
             {
-              ezHybridArray<ezPropertySelection, 1> selection;
+              ezTempHybridArray<ezPropertySelection, 1> selection;
               selection.PushBack({pObject, ezVariant()});
               ezDefaultObjectState defaultState(pType, GetObjectAccessor(), selection.GetArrayPtr());
               if (defaultState.GetStateProviderName() == "Prefab" && defaultState.IsDefaultValue(pProp))
@@ -277,7 +277,7 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
 
             if (bInsidePrefab)
             {
-              ezHybridArray<ezPropertySelection, 1> selection;
+              ezTempHybridArray<ezPropertySelection, 1> selection;
               selection.PushBack({pObject, ezVariant()});
               ezDefaultContainerState defaultState(pType, GetObjectAccessor(), selection.GetArrayPtr(), pProp->GetPropertyName());
               for (ezInt32 i = 0; i < iCount; ++i)
@@ -325,7 +325,7 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
             const ezVariantDictionary& varDict = value.Get<ezVariantDictionary>();
             if (bInsidePrefab)
             {
-              ezHybridArray<ezPropertySelection, 1> selection;
+              ezTempHybridArray<ezPropertySelection, 1> selection;
               selection.PushBack({pObject, ezVariant()});
               ezDefaultContainerState defaultState(pType, GetObjectAccessor(), selection.GetArrayPtr(), pProp->GetPropertyName());
               for (auto it : varDict)
@@ -368,7 +368,7 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
     }
   }
 
-  const ezHybridArray<ezDocumentObject*, 8>& children = pObject->GetChildren();
+  const ezTempHybridArray<ezDocumentObject*, 8>& children = pObject->GetChildren();
 
   for (auto pChild : children)
   {

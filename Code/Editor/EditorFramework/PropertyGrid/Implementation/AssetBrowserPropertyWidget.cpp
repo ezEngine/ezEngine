@@ -373,7 +373,7 @@ void ezQtAssetPropertyWidget::OnCreateNewAsset()
   const ezAssetBrowserAttribute* pAssetAttribute = m_pProp->GetAttributeByType<ezAssetBrowserAttribute>();
   ezStringBuilder sTypeFilter = pAssetAttribute->GetTypeFilter();
 
-  ezHybridArray<ezString, 4> allowedTypes;
+  ezTempHybridArray<ezString, 4> allowedTypes;
   sTypeFilter.Split(false, allowedTypes, ";");
 
   ezStringBuilder tmp;
@@ -400,7 +400,7 @@ void ezQtAssetPropertyWidget::OnCreateNewAsset()
     {
       if (auto pAssetMan = ezDynamicCast<ezAssetDocumentManager*>(pMan))
       {
-        ezHybridArray<const ezDocumentTypeDescriptor*, 4> documentTypes;
+        ezTempHybridArray<const ezDocumentTypeDescriptor*, 4> documentTypes;
         pAssetMan->GetSupportedDocumentTypes(documentTypes);
 
         for (const ezDocumentTypeDescriptor* pType : documentTypes)

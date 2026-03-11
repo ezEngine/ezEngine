@@ -90,7 +90,7 @@ void ezDynamicStringEnum::ReadFromStorage()
 
   sFile.ReadAll(file);
 
-  ezHybridArray<ezStringView, 32> values;
+  ezTempHybridArray<ezStringView, 32> values;
 
   sFile.Split(false, values, "\n", "\r");
 

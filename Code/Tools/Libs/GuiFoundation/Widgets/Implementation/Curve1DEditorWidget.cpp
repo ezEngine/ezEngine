@@ -263,7 +263,7 @@ void ezQtCurve1DEditorWidget::ClearAllPoints()
 {
   Q_EMIT BeginCpChangesEvent("Delete Points");
 
-  ezHybridArray<PtToDelete, 16> delOrder;
+  ezTempHybridArray<PtToDelete, 16> delOrder;
 
   for (ezUInt32 curveIdx = 0; curveIdx < m_Curves.m_Curves.GetCount(); ++curveIdx)
   {
@@ -399,7 +399,7 @@ void ezQtCurve1DEditorWidget::onDeleteControlPoints()
 
   Q_EMIT BeginCpChangesEvent("Delete Points");
 
-  ezHybridArray<PtToDelete, 16> delOrder;
+  ezTempHybridArray<PtToDelete, 16> delOrder;
 
   for (const auto& item : selection)
   {
@@ -977,7 +977,7 @@ void ezQtCurve1DEditorWidget::onGenerateCurve(ezCurveFunction::Enum function, bo
     bool m_bInserted = false;
   };
 
-  ezHybridArray<Sample, 60> samples;
+  ezTempHybridArray<Sample, 60> samples;
   samples.SetCount(uiFrames + 1);
 
   for (ezUInt32 i = 0; i <= uiFrames; ++i)

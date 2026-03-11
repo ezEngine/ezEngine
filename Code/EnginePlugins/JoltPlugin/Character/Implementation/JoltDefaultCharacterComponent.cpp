@@ -543,7 +543,7 @@ void ezJoltDefaultCharacterComponent::CheckFeet()
   JPH::CapsuleShape shape(halfHeight, radius);
   shapeTrans.m_vPosition.z += halfHeight + radius;
 
-  ezHybridArray<ContactPoint, 32> contacts;
+  ezTempHybridArray<ContactPoint, 32> contacts;
   CollectContacts(contacts, &shape, shapeTrans.m_vPosition, shapeRot, m_fMaxStepDown);
 
   for (const auto& contact : contacts)

@@ -117,7 +117,7 @@ namespace
     ezUInt32 m_bitsPerBlock;
   };
 
-  ezUInt32 allocateScratchBufferIndex(ezHybridArray<IntermediateBuffer, 16>& ref_scratchBuffers, ezUInt32 uiBitsPerBlock, ezUInt32 uiExcludedIndex)
+  ezUInt32 allocateScratchBufferIndex(ezDynamicArray<IntermediateBuffer>& ref_scratchBuffers, ezUInt32 uiBitsPerBlock, ezUInt32 uiExcludedIndex)
   {
     int foundIndex = -1;
 
@@ -159,8 +159,7 @@ ezImageConversionStep::~ezImageConversionStep()
   s_conversionTableValid = false;
 }
 
-ezResult ezImageConversion::BuildPath(ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat, bool bSourceEqualsTarget,
-  ezHybridArray<ezImageConversion::ConversionPathNode, 16>& out_path, ezUInt32& out_uiNumScratchBuffers)
+ezResult ezImageConversion::BuildPath(ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat, bool bSourceEqualsTarget, ezDynamicArray<ezImageConversion::ConversionPathNode>& out_path, ezUInt32& out_uiNumScratchBuffers)
 {
   EZ_LOCK(s_conversionTableLock);
 
@@ -207,7 +206,7 @@ ezResult ezImageConversion::BuildPath(ezImageFormat::Enum sourceFormat, ezImageF
     out_path.PushBack(step);
   }
 
-  ezHybridArray<IntermediateBuffer, 16> scratchBuffers;
+  ezTempHybridArray<IntermediateBuffer, 16> scratchBuffers;
   scratchBuffers.PushBack(IntermediateBuffer(ezImageFormat::GetBitsPerBlock(targetFormat)));
 
   const int iLastPathIndex = out_path.GetCount() - 1;
@@ -394,7 +393,7 @@ ezResult ezImageConversion::Convert(const ezImageView& source, ezImage& ref_targ
     return EZ_SUCCESS;
   }
 
-  ezHybridArray<ConversionPathNode, 16> path;
+  ezTempHybridArray<ConversionPathNode, 16> path;
   ezUInt32 numScratchBuffers = 0;
   if (BuildPath(sourceFormat, targetFormat, &source == &ref_target, path, numScratchBuffers).Failed())
   {
@@ -409,7 +408,7 @@ ezResult ezImageConversion::Convert(const ezImageView& source, ezImage& ref_targ
   EZ_ASSERT_DEV(path.GetCount() > 0, "Invalid conversion path");
   EZ_ASSERT_DEV(path[0].m_sourceFormat == source.GetImageFormat(), "Invalid conversion path");
 
-  ezHybridArray<ezImage, 16> intermediates;
+  ezTempHybridArray<ezImage, 16> intermediates;
   intermediates.SetCount(uiNumScratchBuffers);
 
   const ezImageView* pSource = &source;
@@ -452,7 +451,7 @@ ezResult ezImageConversion::ConvertRaw(
     return EZ_FAILURE;
   }
 
-  ezHybridArray<ConversionPathNode, 16> path;
+  ezTempHybridArray<ConversionPathNode, 16> path;
   ezUInt32 numScratchBuffers;
   if (BuildPath(sourceFormat, targetFormat, source.GetPtr() == target.GetPtr(), path, numScratchBuffers).Failed())
   {
@@ -477,7 +476,7 @@ ezResult ezImageConversion::ConvertRaw(
     return EZ_FAILURE;
   }
 
-  ezHybridArray<ezBlob, 16> intermediates;
+  ezTempHybridArray<ezBlob, 16> intermediates;
   intermediates.SetCount(uiNumScratchBuffers);
 
   for (ezUInt32 i = 0; i < path.GetCount(); ++i)
@@ -583,7 +582,7 @@ ezResult ezImageConversion::ConvertSingleStepDecompress(
 
         // Decompress into a temp memory block so we don't have to explicitly handle the case where the image is not a multiple of the block
         // size
-        ezHybridArray<ezUInt8, 256> tempBuffer;
+        ezTempHybridArray<ezUInt8, 256> tempBuffer;
         tempBuffer.SetCount(numBlocksX * blockSizeX * blockSizeY * targetBytesPerPixel);
 
         for (ezUInt32 slice = 0; slice < source.GetDepth(mipLevel); slice++)
@@ -696,7 +695,7 @@ ezResult ezImageConversion::ConvertSingleStepDeplanarize(
         const ezUInt32 width = target.GetWidth(mipLevel);
         const ezUInt32 height = target.GetHeight(mipLevel);
 
-        ezHybridArray<ezImageView, 2> sourcePlanes;
+        ezTempHybridArray<ezImageView, 2> sourcePlanes;
         for (ezUInt32 planeIndex = 0; planeIndex < source.GetPlaneCount(); ++planeIndex)
         {
           const ezUInt32 blockSizeX = ezImageFormat::GetBlockWidth(sourceFormat, planeIndex);
@@ -736,7 +735,7 @@ ezResult ezImageConversion::ConvertSingleStepPlanarize(
         const ezUInt32 width = target.GetWidth(mipLevel);
         const ezUInt32 height = target.GetHeight(mipLevel);
 
-        ezHybridArray<ezImage, 2> targetPlanes;
+        ezTempHybridArray<ezImage, 2> targetPlanes;
         for (ezUInt32 planeIndex = 0; planeIndex < target.GetPlaneCount(); ++planeIndex)
         {
           const ezUInt32 blockSizeX = ezImageFormat::GetBlockWidth(targetFormat, planeIndex);

@@ -95,7 +95,7 @@ void ezQtDashboardDlg::FillRecentProjectsList()
 
 void ezQtDashboardDlg::FillSampleProjectsList()
 {
-  ezHybridArray<ezString, 32> samples;
+  ezTempHybridArray<ezString, 32> samples;
   FindSampleProjects(samples);
 
   SamplesList->clear();

@@ -72,7 +72,7 @@ ezQtAssetBrowserDlg::ezQtAssetBrowserDlg(QWidget* pParent, const ezUuid& presele
 {
   {
     ezStringBuilder temp = sVisibleFilters;
-    ezHybridArray<ezStringView, 4> compTypes;
+    ezTempHybridArray<ezStringView, 4> compTypes;
     temp.Split(false, compTypes, ";");
     ezStringBuilder allFiltered = sVisibleFilters;
 

@@ -4,7 +4,7 @@
 #include <Foundation/Utilities/ConversionUtils.h>
 #include <ToolsFoundation/Utilities/StringAlgorithms.h>
 
-static void ParseSegments(ezStringView sName, ezHybridArray<ezInt32, 8>& out_segs)
+static void ParseSegments(ezStringView sName, ezTempHybridArray<ezInt32, 8>& out_segs)
 {
   out_segs.Clear();
   while (!sName.IsEmpty())
@@ -37,7 +37,7 @@ static void AppendSegments(ezArrayPtr<const ezInt32> segs, ezStringBuilder& ref_
   }
 }
 
-static void FindMidpointWithVirtual(ezArrayPtr<const ezInt32> leftSegs, ezInt32 iVirtualRight, ezHybridArray<ezInt32, 8>& ref_result)
+static void FindMidpointWithVirtual(ezArrayPtr<const ezInt32> leftSegs, ezInt32 iVirtualRight, ezTempHybridArray<ezInt32, 8>& ref_result)
 {
   while (true)
   {
@@ -57,7 +57,7 @@ static void FindMidpointWithVirtual(ezArrayPtr<const ezInt32> leftSegs, ezInt32 
   }
 }
 
-static void FindMidpoint(ezArrayPtr<const ezInt32> leftSegs, ezArrayPtr<const ezInt32> rightSegs, ezHybridArray<ezInt32, 8>& ref_result)
+static void FindMidpoint(ezArrayPtr<const ezInt32> leftSegs, ezArrayPtr<const ezInt32> rightSegs, ezTempHybridArray<ezInt32, 8>& ref_result)
 {
   // Strip matching prefix
   while (!leftSegs.IsEmpty() && !rightSegs.IsEmpty() && leftSegs[0] == rightSegs[0])
@@ -129,7 +129,7 @@ void ezStringAlgorithms::ComputeNameBetween(ezStringView sLeft, ezStringView sRi
 
   const ezStringView sResultPrefix = sLeft.IsEmpty() ? sRightPrefix : sLeftPrefix;
 
-  ezHybridArray<ezInt32, 8> lSegs, rSegs, midSegs;
+  ezTempHybridArray<ezInt32, 8> lSegs, rSegs, midSegs;
 
   if (sLeft.IsEmpty())
   {

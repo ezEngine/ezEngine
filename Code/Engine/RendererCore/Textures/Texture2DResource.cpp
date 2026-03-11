@@ -222,7 +222,7 @@ ezResourceLoadDesc ezTexture2DResource::UpdateContent(ezStreamReader* Stream)
     {
       EZ_ASSERT_DEBUG(m_uiLoadedTextures < 2, "Invalid texture upload");
 
-      ezHybridArray<ezGALSystemMemoryDescription, 32> initData;
+      ezTempHybridArray<ezGALSystemMemoryDescription, 32> initData;
       FillOutDescriptor(td, pImage, texFormat.m_bSRGB, uiUploadNumMipLevels, m_uiMemoryGPU[m_uiLoadedTextures], initData);
 
       ezTextureUtils::ConfigureSampler(static_cast<ezTextureFilterSetting::Enum>(texFormat.m_TextureFilter.GetValue()), td.m_SamplerDesc);

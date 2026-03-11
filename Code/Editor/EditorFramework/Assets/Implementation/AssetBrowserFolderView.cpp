@@ -230,7 +230,7 @@ void eqQtAssetBrowserFolderView::dragMoveEvent(QDragMoveEvent* e)
 {
   QTreeWidget::dragMoveEvent(e);
 
-  ezHybridArray<ezString, 1> files;
+  ezTempHybridArray<ezString, 1> files;
   ezString sTarget;
   ezStatus res = canDrop(e, files, sTarget);
   if (res.Failed())
@@ -277,7 +277,7 @@ ezStatus eqQtAssetBrowserFolderView::canDrop(QDropEvent* e, ezDynamicArray<ezStr
   out_files.Clear();
   QByteArray encodedData = e->mimeData()->data("application/ezEditor.files");
   QDataStream stream(&encodedData, QIODevice::ReadOnly);
-  ezHybridArray<QString, 1> files;
+  ezTempHybridArray<QString, 1> files;
   stream >> files;
 
   QModelIndex dropIndex = indexAt(e->position().toPoint());
@@ -304,7 +304,7 @@ ezStatus eqQtAssetBrowserFolderView::canDrop(QDropEvent* e, ezDynamicArray<ezStr
 void eqQtAssetBrowserFolderView::dropEvent(QDropEvent* e)
 {
   ezQtUiServices::ShowGlobalStatusBarMessage({});
-  ezHybridArray<ezString, 1> files;
+  ezTempHybridArray<ezString, 1> files;
   ezString sTargetFolder;
   // Always accept and call base class to end the drop operation as a no-op in the base class.
   e->accept();
@@ -366,7 +366,7 @@ Qt::DropActions eqQtAssetBrowserFolderView::supportedDropActions() const
 
 QMimeData* eqQtAssetBrowserFolderView::mimeData(const QList<QTreeWidgetItem*>& items) const
 {
-  ezHybridArray<QString, 1> files;
+  ezTempHybridArray<QString, 1> files;
   for (const QTreeWidgetItem* pItem : items)
   {
     QModelIndex id = indexFromItem(pItem);

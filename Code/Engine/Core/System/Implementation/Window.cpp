@@ -10,7 +10,7 @@
 
 ezResult ezWindowCreationDesc::AdjustWindowSizeAndPosition()
 {
-  ezHybridArray<ezScreenInfo, 2> screens;
+  ezTempHybridArray<ezScreenInfo, 2> screens;
   if (ezScreen::EnumerateScreens(screens).Failed() || screens.IsEmpty())
     return EZ_FAILURE;
 

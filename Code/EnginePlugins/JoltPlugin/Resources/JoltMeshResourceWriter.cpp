@@ -204,7 +204,7 @@ ezResult ezJoltMeshResourceWriter::CookSingleConvexJoltMesh(const ezDynamicArray
     JPH::RegisterDefaultAllocator();
   }
 
-  ezHybridArray<JPH::Vec3, 256> verts;
+  ezTempHybridArray<JPH::Vec3, 256> verts;
   verts.SetCountUninitialized(vertices.GetCount());
 
   for (ezUInt32 i = 0; i < verts.GetCount(); ++i)
@@ -339,7 +339,7 @@ ezResult ezJoltMeshResourceWriter::CookConvexMesh(const ezJoltMeshDesc& meshDesc
 
   range.BeginNextStep("Computing Convex Hull");
 
-  ezHybridArray<ezVec3, 256> hullVertices;
+  ezTempHybridArray<ezVec3, 256> hullVertices;
   EZ_SUCCEED_OR_RETURN(ComputeConvexHull(meshDesc.m_Vertices, hullVertices));
 
   range.BeginNextStep("Cooking Convex Hull");
@@ -405,7 +405,7 @@ ezResult ezJoltMeshResourceWriter::CookDecomposedConvexMesh(const ezJoltMeshDesc
 
   inout_stream << uiNumParts;
 
-  ezHybridArray<ezVec3, 256> hullVertices;
+  ezTempHybridArray<ezVec3, 256> hullVertices;
   for (ezUInt32 i = 0; i < pConDec->GetNConvexHulls(); ++i)
   {
     IVHACD::ConvexHull ch;
@@ -455,7 +455,7 @@ ezResult ezJoltMeshResourceWriter::CookConvexHullGroup(const ezJoltMeshDesc& mes
   for (auto it : parts)
   {
     const auto& meshPartVertices = it.Value();
-    ezHybridArray<ezVec3, 256> hullVertices;
+    ezTempHybridArray<ezVec3, 256> hullVertices;
     EZ_SUCCEED_OR_RETURN(ComputeConvexHull(meshPartVertices, hullVertices));
 
     EZ_SUCCEED_OR_RETURN(CookSingleConvexJoltMesh(hullVertices, inout_stream));

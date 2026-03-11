@@ -121,7 +121,7 @@ void ezQtVisualScriptNode::UpdateState()
   {
     sTitle = pTitleAttribute->GetTitle();
 
-    ezHybridArray<const ezAbstractProperty*, 32> properties;
+    ezTempHybridArray<const ezAbstractProperty*, 32> properties;
     GetObject()->GetType()->GetAllProperties(properties);
 
     ezStringBuilder temp;

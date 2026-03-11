@@ -67,7 +67,7 @@ namespace
       int bytesNeeded = WideCharToMultiByte(CP_UTF8, 0, directory.GetPtr(), directory.GetCount(), nullptr, 0, nullptr, nullptr);
       if (bytesNeeded > 0)
       {
-        ezHybridArray<char, 1024> dir;
+        ezTempHybridArray<char, 1024> dir;
         dir.SetCountUninitialized(bytesNeeded);
         WideCharToMultiByte(CP_UTF8, 0, directory.GetPtr(), directory.GetCount(), dir.GetData(), dir.GetCount(), nullptr, nullptr);
 
@@ -107,7 +107,7 @@ namespace
       int bytesNeeded = WideCharToMultiByte(CP_UTF8, 0, directory.GetPtr(), directory.GetCount(), nullptr, 0, nullptr, nullptr);
       if (bytesNeeded > 0)
       {
-        ezHybridArray<char, 1024> dir;
+        ezTempHybridArray<char, 1024> dir;
         dir.SetCountUninitialized(bytesNeeded);
         WideCharToMultiByte(CP_UTF8, 0, directory.GetPtr(), directory.GetCount(), dir.GetData(), dir.GetCount(), nullptr, nullptr);
 
@@ -131,7 +131,7 @@ namespace
 
   void PostProcessNonNTFSChanges(ezDynamicArray<Change>& ref_changes, ezFileSystemMirrorType* pMirror)
   {
-    ezHybridArray<ezInt32, 4> nextOp;
+    ezTempHybridArray<ezInt32, 4> nextOp;
     // Figure what changes belong to the same object by creating a linked list of changes. This part is tricky as we basically have to handle all the oddities that ezDirectoryWatcher::EnumerateChanges already does again to figure out which operations belong to the same object.
     {
       ezMap<ezStringView, ezUInt32> lastChangeAtPath;
@@ -210,7 +210,7 @@ namespace
     pendingChanges.SetCount(ref_changes.GetCount(), true);
 
     // Get start of first object.
-    ezHybridArray<Change*, 4> objectChanges;
+    ezTempHybridArray<Change*, 4> objectChanges;
     auto it = pendingChanges.GetIterator();
     while (it.IsValid())
     {
@@ -401,9 +401,9 @@ void ezDirectoryWatcherImpl::DoRead()
 
 void ezDirectoryWatcherImpl::EnumerateChangesImpl(ezStringView sDirectoryPath, ezTime waitUpTo, const ezDelegate<void(const Change&)>& callback)
 {
-  ezHybridArray<Change, 6> changes;
+  ezTempHybridArray<Change, 6> changes;
 
-  ezHybridArray<ezUInt8, 4096> buffer;
+  ezTempHybridArray<ezUInt8, 4096> buffer;
   while (WaitForSingleObject(m_overlappedEvent, static_cast<DWORD>(waitUpTo.GetMilliseconds())) == WAIT_OBJECT_0)
   {
     waitUpTo = ezTime::MakeZero(); // only wait on the first call to GetQueuedCompletionStatus
@@ -672,7 +672,7 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func, ezTime 
 
 void ezDirectoryWatcher::EnumerateChanges(ezArrayPtr<ezDirectoryWatcher*> watchers, EnumerateChangesFunction func, ezTime waitUpTo)
 {
-  ezHybridArray<HANDLE, 16> events;
+  ezTempHybridArray<HANDLE, 16> events;
   events.SetCount(watchers.GetCount());
 
   for (ezUInt32 i = 0; i < watchers.GetCount(); ++i)

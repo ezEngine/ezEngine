@@ -108,7 +108,7 @@ ezTestAppRun ezRendererTestDynamicBuffer::RunSubTest(ezInt32 iIdentifier, ezUInt
     auto pDevice = ezGALDevice::GetDefaultDevice();
     auto pDynamicBuffer = pDevice->GetDynamicBuffer(m_hDynamicBuffer);
 
-    ezHybridArray<ezUInt32, 16> offsets;
+    ezTempHybridArray<ezUInt32, 16> offsets;
     for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(uiAllocationSizes); ++i)
     {
       offsets.PushBack(pDynamicBuffer->Allocate(i, uiAllocationSizes[i]));
@@ -146,7 +146,7 @@ ezTestAppRun ezRendererTestDynamicBuffer::RunSubTest(ezInt32 iIdentifier, ezUInt
     auto pDevice = ezGALDevice::GetDefaultDevice();
     auto pDynamicBuffer = pDevice->GetDynamicBuffer(m_hDynamicBuffer);
 
-    ezHybridArray<ezUInt32, 16> offsets;
+    ezTempHybridArray<ezUInt32, 16> offsets;
     for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(uiAllocationSizes); ++i)
     {
       offsets.PushBack(pDynamicBuffer->Allocate(i, uiAllocationSizes[i]));
@@ -160,7 +160,7 @@ ezTestAppRun ezRendererTestDynamicBuffer::RunSubTest(ezInt32 iIdentifier, ezUInt
     pDynamicBuffer->Deallocate(offsets[1]);
     pDynamicBuffer->Deallocate(offsets[3]);
 
-    ezHybridArray<ezGALDynamicBuffer::ChangedAllocation, 16> changedAllocations;
+    ezTempHybridArray<ezGALDynamicBuffer::ChangedAllocation, 16> changedAllocations;
 
     // The first compaction step should move the last allocation into the first hole
     {
@@ -207,8 +207,8 @@ ezTestAppRun ezRendererTestDynamicBuffer::RunSubTest(ezInt32 iIdentifier, ezUInt
     auto pDevice = ezGALDevice::GetDefaultDevice();
     auto pDynamicBuffer = pDevice->GetDynamicBuffer(m_hDynamicBuffer);
 
-    ezHybridArray<ezUInt32, 16> offsets;
-    ezHybridArray<ezArrayPtr<ezUInt64>, 16> mappings;
+    ezTempHybridArray<ezUInt32, 16> offsets;
+    ezTempHybridArray<ezArrayPtr<ezUInt64>, 16> mappings;
     offsets.SetCount(6);
     mappings.SetCount(6);
 

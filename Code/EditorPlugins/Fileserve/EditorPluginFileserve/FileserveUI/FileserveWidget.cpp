@@ -209,7 +209,7 @@ void ezQtFileserveWidget::on_ConnectClient_clicked()
   }
 
   ezStringBuilder sDisplayString;
-  ezHybridArray<ezStringBuilder, 4> AllIPs;
+  ezTempHybridArray<ezStringBuilder, 4> AllIPs;
   FindOwnIP(sDisplayString, &AllIPs);
 
   if (ezFileserver::SendConnectionInfo(sIP.toUtf8().data(), PortLineEdit->text().toInt(), AllIPs).Succeeded())

@@ -149,7 +149,7 @@ ezResult ezGameEngineTestProcGen::TestOutput(const ezHashedString& sOutputName, 
     m_pVM->RegisterFunction(ezProcGenExpressionFunctions::s_SampleCurveFunc);
   }
 
-  ezHybridArray<ezProcessingStream, 8> inputs;
+  ezTempHybridArray<ezProcessingStream, 8> inputs;
   {
     inputs.PushBack(MakeStream(inputVertices, offsetof(InputVertex, m_vPosition.x), ezProcGenInternal::ExpressionInputs::s_sPositionX));
     inputs.PushBack(MakeStream(inputVertices, offsetof(InputVertex, m_vPosition.y), ezProcGenInternal::ExpressionInputs::s_sPositionY));
@@ -167,10 +167,10 @@ ezResult ezGameEngineTestProcGen::TestOutput(const ezHashedString& sOutputName, 
     inputs.PushBack(MakeStream(inputVertices, offsetof(InputVertex, m_uiIndex), ezProcGenInternal::ExpressionInputs::s_sPointIndex, ezProcessingStream::DataType::Int));
   }
 
-  ezHybridArray<ezVec4, 16> m_TempData;
+  ezTempHybridArray<ezVec4, 16> m_TempData;
   m_TempData.SetCountUninitialized(inputVertices.GetCount());
 
-  ezHybridArray<ezProcessingStream, 8> outputs;
+  ezTempHybridArray<ezProcessingStream, 8> outputs;
   {
     outputs.PushBack(MakeStream(m_TempData.GetArrayPtr(), offsetof(ezVec4, x), ezProcGenInternal::ExpressionOutputs::s_sOutColorR));
     outputs.PushBack(MakeStream(m_TempData.GetArrayPtr(), offsetof(ezVec4, y), ezProcGenInternal::ExpressionOutputs::s_sOutColorG));

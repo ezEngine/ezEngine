@@ -26,7 +26,7 @@ namespace ezMeshImportUtils
       return ezString();
     }
 
-    ezHybridArray<ezString, 16> allowedExtensions;
+    ezTempHybridArray<ezString, 16> allowedExtensions;
     FillFileFilter(allowedExtensions, ezFileBrowserAttribute::ImagesLdrAndHdr);
 
     ezStringBuilder sFinalTextureName;
@@ -407,7 +407,7 @@ namespace ezMeshImportUtils
 
     ezHashTable<const ezModelImporter2::OutputMaterial*, ezString> importMatToGuid;
 
-    ezHybridArray<ezDocument*, 32> pendingSaveTasks;
+    ezTempHybridArray<ezDocument*, 32> pendingSaveTasks;
 
     auto WaitForPendingTasks = [&pendingSaveTasks]()
     {
@@ -419,7 +419,7 @@ namespace ezMeshImportUtils
       pendingSaveTasks.Clear();
     };
 
-    ezHybridArray<ezString, 16> allowedExtensions;
+    ezTempHybridArray<ezString, 16> allowedExtensions;
     FillFileFilter(allowedExtensions, ezFileBrowserAttribute::ImagesLdrAndHdr);
 
     for (const auto& itTex : pImporter->m_OutputTextures)

@@ -448,7 +448,7 @@ void ezQtMaterialAssetDocumentWindow::VisualShaderEventHandler(const ezMaterialV
 
     ezStringBuilder err = e.m_sTransformError;
 
-    ezHybridArray<ezStringView, 16> lines;
+    ezTempHybridArray<ezStringView, 16> lines;
     err.Split(false, lines, "\n");
 
     for (const ezStringView& line : lines)

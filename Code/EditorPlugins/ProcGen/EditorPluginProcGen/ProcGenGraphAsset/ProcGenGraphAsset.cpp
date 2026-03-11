@@ -414,7 +414,7 @@ ezExpressionAST::Node* ezProcGenGraphAssetDocument::GenerateExpressionAST(const 
 
   auto inputPins = pManager->GetInputPins(outputNode);
 
-  ezHybridArray<ezExpressionAST::Node*, 8> inputAstNodes;
+  ezTempHybridArray<ezExpressionAST::Node*, 8> inputAstNodes;
   inputAstNodes.SetCount(inputPins.GetCount());
 
   for (ezUInt32 i = 0; i < inputPins.GetCount(); ++i)
@@ -475,7 +475,7 @@ ezExpressionAST::Node* ezProcGenGraphAssetDocument::GenerateDebugExpressionAST(G
     EZ_ASSERT_DEBUG(pPinSource != nullptr, "Invalid connection");
   }
 
-  ezHybridArray<ezExpressionAST::Node*, 8> inputAstNodes;
+  ezTempHybridArray<ezExpressionAST::Node*, 8> inputAstNodes;
   inputAstNodes.SetCount(4); // placement output node has 4 inputs
 
   // Recursively generate all dependent code and pretend it is connected to the color index input of the debug placement output node.

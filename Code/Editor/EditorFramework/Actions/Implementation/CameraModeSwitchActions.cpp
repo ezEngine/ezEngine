@@ -46,7 +46,7 @@ void ezCameraModeSwitchAction::GetEntries(ezDynamicArray<Item>& out_entries)
 
   const int iMode = pWindow->GetCameraMode();
 
-  ezHybridArray<ezString, 8> names;
+  ezTempHybridArray<ezString, 8> names;
   pWindow->GetCameraModeNames(names);
 
   for (ezUInt32 i = 0; i < names.GetCount(); ++i)

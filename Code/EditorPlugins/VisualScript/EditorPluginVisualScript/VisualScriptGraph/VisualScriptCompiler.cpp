@@ -107,7 +107,7 @@ namespace
     auto pNodeDesc = ezVisualScriptNodeRegistry::GetSingleton()->GetNodeDescForType(pObject->GetType());
     if (pNodeDesc->m_pTargetType != nullptr)
     {
-      ezHybridArray<ezReflectionUtils::EnumKeyValuePair, 16> enumKeysAndValues;
+      ezTempHybridArray<ezReflectionUtils::EnumKeyValuePair, 16> enumKeysAndValues;
       ezReflectionUtils::GetEnumKeysAndValues(pNodeDesc->m_pTargetType, enumKeysAndValues, ezReflectionUtils::EnumConversionMode::ValueNameOnly);
       for (auto& keyAndValue : enumKeysAndValues)
       {
@@ -147,9 +147,9 @@ namespace
   {
     auto pManager = static_cast<const ezVisualScriptNodeManager*>(pObject->GetDocumentObjectManager());
 
-    ezHybridArray<const ezVisualScriptPin*, 16> pins;
+    ezTempHybridArray<const ezVisualScriptPin*, 16> pins;
 
-    ezHybridArray<ezExpression::StreamDesc, 8> inputs;
+    ezTempHybridArray<ezExpression::StreamDesc, 8> inputs;
     pManager->GetInputDataPins(pObject, pins);
     for (auto pPin : pins)
     {
@@ -158,7 +158,7 @@ namespace
       input.m_DataType = ezVisualScriptDataType::GetStreamDataType(pPin->GetResolvedScriptDataType());
     }
 
-    ezHybridArray<ezExpression::StreamDesc, 8> outputs;
+    ezTempHybridArray<ezExpression::StreamDesc, 8> outputs;
     pManager->GetOutputDataPins(pObject, pins);
     for (auto pPin : pins)
     {
@@ -202,7 +202,7 @@ namespace
     EZ_SUCCEED_OR_RETURN(FillUserData_CoroutineMode(inout_astNode, pCompiler, pObject, pEntryObject));
 
     auto pManager = static_cast<const ezVisualScriptNodeManager*>(pObject->GetDocumentObjectManager());
-    ezHybridArray<const ezVisualScriptPin*, 16> pins;
+    ezTempHybridArray<const ezVisualScriptPin*, 16> pins;
     pManager->GetOutputExecutionPins(pObject, pins);
 
     const ezUInt32 uiCoroutineBodyIndex = 1;
@@ -767,7 +767,7 @@ ezVisualScriptCompiler::DataOffset ezVisualScriptCompiler::GetInstanceDataOffset
 
 ezResult ezVisualScriptCompiler::BuildInstanceDataMapping()
 {
-  ezHybridArray<ezVisualScriptVariable, 16> variables;
+  ezTempHybridArray<ezVisualScriptVariable, 16> variables;
   m_NodeManager.GetAllVariables(variables);
 
   for (auto& variable : variables)
@@ -809,8 +809,8 @@ ezVisualScriptCompiler::AstNode* ezVisualScriptCompiler::BuildExecutionFlow(cons
     pEntryAstNode = &astNode;
   }
 
-  ezHybridArray<const ezVisualScriptPin*, 16> pins;
-  ezHybridArray<const ezDocumentObject*, 64> objectStack;
+  ezTempHybridArray<const ezVisualScriptPin*, 16> pins;
+  ezTempHybridArray<const ezDocumentObject*, 64> objectStack;
   objectStack.PushBack(pEntryObject);
 
   while (objectStack.IsEmpty() == false)
@@ -875,7 +875,7 @@ ezResult ezVisualScriptCompiler::BuildDataStack(AstNode* pEntryAstNode, AstNode*
   if (pEntryAstNode->m_pObject == nullptr)
     return EZ_SUCCESS;
 
-  ezHybridArray<const ezVisualScriptPin*, 16> pins;
+  ezTempHybridArray<const ezVisualScriptPin*, 16> pins;
 
   struct ObjectContext
   {
@@ -883,14 +883,14 @@ ezResult ezVisualScriptCompiler::BuildDataStack(AstNode* pEntryAstNode, AstNode*
     const ezVisualScriptNodeRegistry::NodeDesc* m_pNodeDesc = nullptr;
   };
 
-  ezHybridArray<ObjectContext, 32> objectStack;
+  ezTempHybridArray<ObjectContext, 32> objectStack;
   objectStack.PushBack({pEntryAstNode->m_pObject, ezVisualScriptNodeRegistry::GetSingleton()->GetNodeDescForType(pEntryAstNode->m_pObject->GetType())});
 
   // Start from scratch for each data stack
   m_CompilationState.m_DataObjectToAstNode.Clear();
   m_CompilationState.m_DataObjectToAstNode.Insert(pEntryAstNode->m_pObject, pEntryAstNode);
 
-  ezHybridArray<AstNode*, 32> dataStack;
+  ezTempHybridArray<AstNode*, 32> dataStack;
 
   while (objectStack.IsEmpty() == false)
   {
@@ -1047,7 +1047,7 @@ ezResult ezVisualScriptCompiler::BuildDataStack(AstNode* pEntryAstNode, AstNode*
   }
 
   // Traverse in topological order and connect executions
-  ezHybridArray<AstNode*, 32> sortedDataStack;
+  ezTempHybridArray<AstNode*, 32> sortedDataStack;
 
   while (dataStack.IsEmpty() == false)
   {
@@ -1432,7 +1432,7 @@ ezResult ezVisualScriptCompiler::ReplaceLoop(AstNode* pLoopNode)
     pJumpNode = pLoopIncrement;
   }
 
-  ezHybridArray<AstNode*, 8> nodesConnectedToBreak;
+  ezTempHybridArray<AstNode*, 8> nodesConnectedToBreak;
 
   if (TraverseAstDepthFirst(pLoopBody,
         [&](AstNode*& pAstNode)
@@ -1527,7 +1527,7 @@ ezResult ezVisualScriptCompiler::ReplaceLoop(AstNode* pLoopNode)
 
 ezResult ezVisualScriptCompiler::ReplaceUnsupportedNodes(AstNode* pEntryAstNode)
 {
-  ezHybridArray<AstNode*, 64> unsupportedNodes;
+  ezTempHybridArray<AstNode*, 64> unsupportedNodes;
 
   if (TraverseAstDepthFirst(pEntryAstNode,
         [&](AstNode*& pAstNode)
@@ -1702,8 +1702,8 @@ ezResult ezVisualScriptCompiler::AssignLocalVariables(AstNode* pEntryAstNode, ez
     });
 
   // Assign local vars
-  ezHybridArray<LiveLocalVar, 64> activeIntervals;
-  ezHybridArray<DataOffset, 64> freeDataOffsets;
+  ezTempHybridArray<LiveLocalVar, 64> activeIntervals;
+  ezTempHybridArray<DataOffset, 64> freeDataOffsets;
 
   for (auto& liveInterval : m_CompilationState.m_LiveLocalVars)
   {
@@ -1905,7 +1905,7 @@ ezResult ezVisualScriptCompiler::TraverseAstDepthFirst(AstNode* pEntryAstNode, e
 
   m_CompilationState.m_VisitedNodes.Clear();
 
-  ezHybridArray<AstNode*, 64> nodeStack;
+  ezTempHybridArray<AstNode*, 64> nodeStack;
   nodeStack.PushBack(pEntryAstNode);
 
   while (nodeStack.IsEmpty() == false)
@@ -1961,7 +1961,7 @@ ezResult ezVisualScriptCompiler::TraverseAstTopologicalOrder(const AstNode* pEnt
 
   m_CompilationState.m_VisitedNodes.Clear();
 
-  ezHybridArray<const AstNode*, 64> nodeStack;
+  ezTempHybridArray<const AstNode*, 64> nodeStack;
   nodeStack.PushBack(pEntryAstNode);
 
   while (nodeStack.IsEmpty() == false)

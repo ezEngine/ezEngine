@@ -277,10 +277,10 @@ namespace
     ezStringBuilder tmp;
     ezStringView text = text0.GetText(tmp);
 
-    ezHybridArray<ezStringView, 8> lines;
+    ezTempHybridArray<ezStringView, 8> lines;
     ezUInt32 maxLineLength = 0;
 
-    ezHybridArray<ezUInt32, 8> maxColumWidth;
+    ezTempHybridArray<ezUInt32, 8> maxColumWidth;
     bool isTabular = false;
 
     ezStringBuilder sb;
@@ -1180,8 +1180,8 @@ void ezDebugRenderer::DrawAngle(const ezDebugRendererContext& context, ezAngle s
 {
   const ezMat4& transform = mTransform0.m_Mat4;
 
-  ezHybridArray<ezDebugRendererTriangle, 64> tris;
-  ezHybridArray<ezDebugRendererLine, 64> lines;
+  ezTempHybridArray<ezDebugRendererTriangle, 64> tris;
+  ezTempHybridArray<ezDebugRendererLine, 64> lines;
 
   startAngle.NormalizeRange();
   endAngle.NormalizeRange();
@@ -1245,8 +1245,8 @@ void ezDebugRenderer::DrawOpeningCone(const ezDebugRendererContext& context, ezA
 {
   const ezMat4& transform = mTransform0.m_Mat4;
 
-  ezHybridArray<ezDebugRendererTriangle, 64> trisInside;
-  ezHybridArray<ezDebugRendererTriangle, 64> trisOutside;
+  ezTempHybridArray<ezDebugRendererTriangle, 64> trisInside;
+  ezTempHybridArray<ezDebugRendererTriangle, 64> trisOutside;
 
   halfAngle = ezMath::Clamp(halfAngle, ezAngle(), ezAngle::MakeFromDegree(180));
 
@@ -1294,8 +1294,8 @@ void ezDebugRenderer::DrawLimitCone(const ezDebugRendererContext& context, ezAng
   const ezMat4& transform = mTransform0.m_Mat4;
 
   constexpr ezUInt32 NUM_LINES = 32;
-  ezHybridArray<ezDebugRendererLine, NUM_LINES * 2> lines;
-  ezHybridArray<ezDebugRendererTriangle, NUM_LINES * 2> tris;
+  ezTempHybridArray<ezDebugRendererLine, NUM_LINES * 2> lines;
+  ezTempHybridArray<ezDebugRendererTriangle, NUM_LINES * 2> tris;
 
   // no clue how this works
   // copied 1:1 from NVIDIA's PhysX SDK: Cm::visualizeLimitCone
@@ -1354,8 +1354,8 @@ void ezDebugRenderer::DrawCylinder(const ezDebugRendererContext& context, float 
   const ezMat4 transform = mTransform0.m_Mat4 * tilt.GetAsMat4();
 
   constexpr ezUInt32 NUM_SEGMENTS = 16;
-  ezHybridArray<ezDebugRendererLine, NUM_SEGMENTS * 3> lines;
-  ezHybridArray<ezDebugRendererTriangle, NUM_SEGMENTS * 2 * 2> tris;
+  ezTempHybridArray<ezDebugRendererLine, NUM_SEGMENTS * 3> lines;
+  ezTempHybridArray<ezDebugRendererTriangle, NUM_SEGMENTS * 2 * 2> tris;
 
   const ezAngle step = ezAngle::MakeFromDegree(360) / float(NUM_SEGMENTS);
   ezAngle angle = {};

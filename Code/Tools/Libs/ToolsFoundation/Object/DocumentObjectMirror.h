@@ -61,8 +61,8 @@ protected:
   bool IsHeapAllocated(const ezDocumentObject* pParent, ezStringView sParentProperty);
   bool IsDiscardedByFilter(const ezDocumentObject* pObject, ezStringView sProperty) const;
   static void CreatePath(ezObjectChange& out_change, const ezDocumentObject* pRoot, ezStringView sProperty);
-  static ezUuid FindRootOpObject(const ezDocumentObject* pObject, ezHybridArray<const ezDocumentObject*, 8>& path);
-  static void FlattenSteps(const ezArrayPtr<const ezDocumentObject* const> path, ezHybridArray<ezPropertyPathStep, 2>& out_steps);
+  static ezUuid FindRootOpObject(const ezDocumentObject* pObject, ezDynamicArray<const ezDocumentObject*>& out_path);
+  static void FlattenSteps(const ezArrayPtr<const ezDocumentObject* const> path, ezDynamicArray<ezPropertyPathStep>& out_steps);
 
   virtual void ApplyOp(ezObjectChange& change);
   void ApplyOp(ezRttiConverterObject object, const ezObjectChange& change);

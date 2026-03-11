@@ -55,7 +55,7 @@ ezResourceLoadDesc ezShaderResource::UpdateContent(ezStreamReader* stream)
   ezShaderHelper::GetShaderSections(sContent.GetData(), Sections);
 
   ezUInt32 uiFirstLine = 0;
-  ezHybridArray<ezPermutationVar, 16> fixedPermVars; // ignored here
+  ezTempHybridArray<ezPermutationVar, 16> fixedPermVars; // ignored here
   ezStringView sPermutations = Sections.GetSectionContent(ezShaderHelper::ezShaderSections::PERMUTATIONS, uiFirstLine);
   ezShaderParser::ParsePermutationSection(sPermutations, m_PermutationVarsUsed, fixedPermVars);
 

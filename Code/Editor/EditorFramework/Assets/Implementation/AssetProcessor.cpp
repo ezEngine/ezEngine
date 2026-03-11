@@ -197,7 +197,7 @@ void ezAssetProcessor::RemoveLogWriter(ezLoggingEvent::Handler handler)
 
 void ezAssetProcessor::UpdateProcessStates()
 {
-  ezHybridArray<ezUInt8, 8> changedProcesses;
+  ezTempHybridArray<ezUInt8, 8> changedProcesses;
   {
     EZ_LOCK(m_ProcessorMutex);
     for (ezUInt32 i = 0; i < m_Processes.GetCount(); i++)

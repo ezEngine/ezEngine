@@ -30,7 +30,7 @@ void ezVisualizeHandComponent::Update()
   if (!pXRHand)
     return;
 
-  ezHybridArray<ezXRHandBone, 6> bones;
+  ezTempHybridArray<ezXRHandBone, 6> bones;
   for (ezXRHand::Enum hand : {ezXRHand::Left, ezXRHand::Right})
   {
     for (ezUInt32 uiPart = 0; uiPart < ezXRHandPart::COUNT; ++uiPart)
@@ -38,7 +38,7 @@ void ezVisualizeHandComponent::Update()
       ezXRHandPart::Enum part = static_cast<ezXRHandPart::Enum>(uiPart);
       if (pXRHand->TryGetBoneTransforms(hand, part, ezXRTransformSpace::Global, bones) == ezXRHandTrackingInterface::HandPartTrackingState::Tracked)
       {
-        ezHybridArray<ezDebugRendererLine, 6> m_Lines;
+        ezTempHybridArray<ezDebugRendererLine, 6> m_Lines;
         for (ezUInt32 uiBone = 0; uiBone < bones.GetCount(); uiBone++)
         {
           const ezXRHandBone& bone = bones[uiBone];

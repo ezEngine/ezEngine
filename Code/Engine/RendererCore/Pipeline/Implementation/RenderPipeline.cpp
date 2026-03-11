@@ -321,11 +321,11 @@ bool ezRenderPipeline::RebuildInternal(const ezView& view)
 bool ezRenderPipeline::SortPasses()
 {
   ezLogBlock b("Sort Passes");
-  ezHybridArray<ezRenderPipelinePass*, 32> done;
+  ezTempHybridArray<ezRenderPipelinePass*, 32> done;
   done.Reserve(m_Passes.GetCount());
 
-  ezHybridArray<ezRenderPipelinePass*, 8> usable;     // Stack of passes with all connections setup, they can be asked for descriptions.
-  ezHybridArray<ezRenderPipelinePass*, 8> candidates; // Not usable yet, but all input connections are available
+  ezTempHybridArray<ezRenderPipelinePass*, 8> usable;     // Stack of passes with all connections setup, they can be asked for descriptions.
+  ezTempHybridArray<ezRenderPipelinePass*, 8> candidates; // Not usable yet, but all input connections are available
 
   // Find all source passes from which we can start the output description propagation.
   for (auto& pPass : m_Passes)
@@ -409,7 +409,7 @@ bool ezRenderPipeline::SortPasses()
     /// \brief Returns true if a is equal to b
     EZ_ALWAYS_INLINE bool Equal(const ezUniquePtr<ezRenderPipelinePass>& a, const ezUniquePtr<ezRenderPipelinePass>& b) const { return a.Borrow() == b.Borrow(); }
 
-    ezHybridArray<ezRenderPipelinePass*, 32>* m_pDone;
+    ezTempHybridArray<ezRenderPipelinePass*, 32>* m_pDone;
   };
 
   ezPipelineSorter sorter;
@@ -421,8 +421,8 @@ bool ezRenderPipeline::SortPasses()
 bool ezRenderPipeline::InitRenderTargetDescriptions(const ezView& view)
 {
   ezLogBlock b("Init Render Target Descriptions");
-  ezHybridArray<ezGALTextureCreationDescription*, 10> inputs;
-  ezHybridArray<ezGALTextureCreationDescription, 10> outputs;
+  ezTempHybridArray<ezGALTextureCreationDescription*, 10> inputs;
+  ezTempHybridArray<ezGALTextureCreationDescription, 10> outputs;
 
   for (auto& pPass : m_Passes)
   {

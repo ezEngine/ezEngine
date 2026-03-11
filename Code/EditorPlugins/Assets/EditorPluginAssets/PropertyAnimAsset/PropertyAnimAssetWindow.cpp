@@ -478,7 +478,7 @@ void ezQtPropertyAnimAssetDocumentWindow::onDeleteSelectedItems()
 
   // delete the tracks with the highest index first, otherwise the lower indices become invalid
   // do this before modifying anything, as m_MapSelectionToTrack will change once the remove commands are executed
-  ezHybridArray<ezInt32, 16> sortedTrackIDs;
+  ezTempHybridArray<ezInt32, 16> sortedTrackIDs;
   {
     for (ezInt32 iTrack : m_MapSelectionToTrack)
     {
@@ -519,7 +519,7 @@ void ezQtPropertyAnimAssetDocumentWindow::onRebindSelectedItems()
   auto pDoc = GetPropertyAnimDocument();
   auto pHistory = pDoc->GetCommandHistory();
 
-  ezHybridArray<ezUuid, 16> rebindTracks;
+  ezTempHybridArray<ezUuid, 16> rebindTracks;
 
   for (ezInt32 iTrack : m_MapSelectionToTrack)
   {

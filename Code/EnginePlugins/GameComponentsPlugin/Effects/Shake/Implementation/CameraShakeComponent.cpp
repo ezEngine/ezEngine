@@ -93,7 +93,7 @@ float ezCameraShakeComponent::GetStrengthAtPosition() const
   {
     const ezVec3 vPosition = GetOwner()->GetGlobalPosition();
 
-    ezHybridArray<ezGameObject*, 16> volumes;
+    ezTempHybridArray<ezGameObject*, 16> volumes;
 
     ezSpatialSystem::QueryParams queryParams;
     queryParams.m_uiCategoryBitmask = ezCameraShakeVolumeComponent::SpatialDataCategory.GetBitmask();

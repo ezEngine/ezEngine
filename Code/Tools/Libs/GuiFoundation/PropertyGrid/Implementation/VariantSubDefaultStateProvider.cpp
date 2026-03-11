@@ -82,7 +82,7 @@ ezResult ezVariantSubDefaultStateProvider::GetDefaultValueInternal(ezDefaultStat
   // As m_pAccessor is a view into an ezVariant we first need to take the same steps into the defaultValue retrieved from the root accessor to have the same view so we can compare the same subset of both ezVariants.
   out_DefaultValue = superPtr[0]->GetDefaultValue(superPtr.GetSubArray(1), m_pRootAccessor, pObject, pProp);
 
-  ezHybridArray<ezVariant, 4> path;
+  ezTempHybridArray<ezVariant, 4> path;
   EZ_SUCCEED_OR_RETURN(m_pAccessor->GetPath(pObject, path));
   if (index.IsValid())
     path.PushBack(index);

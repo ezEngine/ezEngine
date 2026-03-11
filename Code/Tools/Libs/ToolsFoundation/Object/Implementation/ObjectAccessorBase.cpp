@@ -129,7 +129,7 @@ ezStatus ezObjectAccessorBase::ClearByName(const ezDocumentObject* pObject, ezSt
   if (!pProp)
     return ezStatus(ezFmt("The property '{0}' does not exist in type '{1}'.", sProp, pObject->GetType()->GetTypeName()));
 
-  ezHybridArray<ezVariant, 8> keys;
+  ezTempHybridArray<ezVariant, 8> keys;
   ezStatus res = GetKeys(pObject, pProp, keys);
   if (res.Failed())
     return res;

@@ -20,7 +20,7 @@ const ezRTTI* ezLayerDragDropHandler::GetCommonBaseType(const ezDragDropInfo* pI
 {
   QByteArray encodedData = pInfo->m_pMimeData->data("application/ezEditor.ObjectSelection");
   QDataStream stream(&encodedData, QIODevice::ReadOnly);
-  ezHybridArray<ezDocumentObject*, 32> Dragged;
+  ezTempHybridArray<ezDocumentObject*, 32> Dragged;
   stream >> Dragged;
 
   const ezRTTI* pCommonBaseType = nullptr;
@@ -103,7 +103,7 @@ void ezGameObjectOnLayerDragDropHandler::OnDrop(const ezDragDropInfo* pInfo)
 
     QByteArray encodedData = pInfo->m_pMimeData->data("application/ezEditor.ObjectSelection");
     QDataStream stream(&encodedData, QIODevice::ReadOnly);
-    ezHybridArray<ezDocumentObject*, 32> Dragged;
+    ezTempHybridArray<ezDocumentObject*, 32> Dragged;
     stream >> Dragged;
 
     // We are dragging game objects on another layer => delete objects and recreate in target layer.

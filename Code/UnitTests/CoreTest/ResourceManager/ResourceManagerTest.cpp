@@ -254,7 +254,7 @@ EZ_CREATE_SIMPLE_TEST(ResourceManager, ThreadedCreateResource)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ThreadedCreateResource")
   {
-    ezHybridArray<ezUniquePtr<ResourceTestThread>, 8> threads;
+    ezTempHybridArray<ezUniquePtr<ResourceTestThread>, 8> threads;
     for (ezUInt32 i = 0; i < 8; ++i)
     {
       ezUniquePtr<ResourceTestThread> thread = EZ_DEFAULT_NEW(ResourceTestThread);

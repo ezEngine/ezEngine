@@ -59,7 +59,23 @@ ezTempHybridArray<T, Size>::ezTempHybridArray()
 }
 
 template <typename T, ezUInt32 Size>
-void ezTempHybridArray<T, Size>::operator=(const ezHybridArray<T, Size>& rhs)
+template <typename AllocatorWrapper>
+ezTempHybridArray<T, Size>::ezTempHybridArray(const ezHybridArray<T, Size, AllocatorWrapper>& other)
+  : ezHybridArray<T, Size>(ezTempAllocator::Get())
+{
+  *this = other;
+}
+
+template <typename T, ezUInt32 Size>
+ezTempHybridArray<T, Size>::ezTempHybridArray(const ezArrayPtr<const T>& other)
+  : ezHybridArray<T, Size>(ezTempAllocator::Get())
+{
+  *this = other;
+}
+
+template <typename T, ezUInt32 Size>
+template <typename AllocatorWrapper>
+void ezTempHybridArray<T, Size>::operator=(const ezHybridArray<T, Size, AllocatorWrapper>& rhs)
 {
   ezDynamicArray<T>::operator=(rhs);
 }

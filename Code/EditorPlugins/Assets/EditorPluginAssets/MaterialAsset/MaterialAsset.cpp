@@ -34,7 +34,7 @@ namespace
     {
       ezInt64 iValue = pObject->GetTypeAccessor().GetValue(szName).ConvertTo<ezInt64>();
 
-      ezHybridArray<ezReflectionUtils::EnumKeyValuePair, 16> enumValues;
+      ezTempHybridArray<ezReflectionUtils::EnumKeyValuePair, 16> enumValues;
       ezReflectionUtils::GetEnumKeysAndValues(pProp->GetSpecificType(), enumValues, ezReflectionUtils::EnumConversionMode::ValueNameOnly);
       for (auto& enumValue : enumValues)
       {
@@ -61,9 +61,9 @@ namespace
     if (file.Open(sRelativeFileName).Failed())
       return EZ_FAILURE;
 
-    ezHybridArray<ezString, 16> defines;
+    ezTempHybridArray<ezString, 16> defines;
     {
-      ezHybridArray<const ezAbstractProperty*, 32> properties;
+      ezTempHybridArray<const ezAbstractProperty*, 32> properties;
       pShaderPropertyObject->GetType()->GetAllProperties(properties);
 
       for (auto& pProp : properties)
@@ -86,11 +86,11 @@ namespace
     ezStringBuilder sOutput;
     EZ_SUCCEED_OR_RETURN(ezShaderParser::PreprocessSection(sSectionContent, defines, sOutput));
 
-    ezHybridArray<ezStringView, 32> allAssignments;
+    ezTempHybridArray<ezStringView, 32> allAssignments;
     sOutput.Split(false, allAssignments, "\n", ";", "\r");
 
     ezStringBuilder temp;
-    ezHybridArray<ezStringView, 4> components;
+    ezTempHybridArray<ezStringView, 4> components;
     for (const ezStringView& assignment : allAssignments)
     {
       temp = assignment;
@@ -352,7 +352,7 @@ void ezMaterialAssetProperties::SaveOldValues()
   {
     const ezIReflectedTypeAccessor& accessor = pPropObject->GetTypeAccessor();
     const ezRTTI* pType = accessor.GetType();
-    ezHybridArray<const ezAbstractProperty*, 32> properties;
+    ezTempHybridArray<const ezAbstractProperty*, 32> properties;
     pType->GetAllProperties(properties);
     for (auto pProp : properties)
     {
@@ -372,7 +372,7 @@ void ezMaterialAssetProperties::LoadOldValues()
   {
     const ezIReflectedTypeAccessor& accessor = pPropObject->GetTypeAccessor();
     const ezRTTI* pType = accessor.GetType();
-    ezHybridArray<const ezAbstractProperty*, 32> properties;
+    ezTempHybridArray<const ezAbstractProperty*, 32> properties;
     pType->GetAllProperties(properties);
     for (auto pProp : properties)
     {
@@ -512,7 +512,7 @@ void ezMaterialAssetDocument::SetBaseMaterial(const char* szBaseMaterial)
   auto pAssetInfo = ezAssetCurator::GetSingleton()->FindSubAsset(szBaseMaterial);
   if (pAssetInfo == nullptr)
   {
-    ezHybridArray<const ezDocumentObject*, 2> sel;
+    ezTempHybridArray<const ezDocumentObject*, 2> sel;
     sel.PushBack(pObject);
     UnlinkPrefabs(sel);
   }
@@ -971,20 +971,20 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& inout_strea
     ezString sRelativeShaderPath = pProp->ResolveRelativeShaderPath();
     stream << sRelativeShaderPath;
 
-    ezHybridArray<const ezAbstractProperty*, 16> Textures2D;
-    ezHybridArray<const ezAbstractProperty*, 16> TexturesCube;
-    ezHybridArray<const ezAbstractProperty*, 16> Permutations;
-    ezHybridArray<const ezAbstractProperty*, 16> Constants;
+    ezTempHybridArray<const ezAbstractProperty*, 16> Textures2D;
+    ezTempHybridArray<const ezAbstractProperty*, 16> TexturesCube;
+    ezTempHybridArray<const ezAbstractProperty*, 16> Permutations;
+    ezTempHybridArray<const ezAbstractProperty*, 16> Constants;
 
     const ezDocumentObject* pObject = GetShaderPropertyObject();
     if (pObject != nullptr)
     {
       bool hasBaseMaterial = ezPrefabUtils::GetPrefabRoot(pObject, *m_DocumentObjectMetaData).IsValid();
       auto pType = pObject->GetTypeAccessor().GetType();
-      ezHybridArray<const ezAbstractProperty*, 32> properties;
+      ezTempHybridArray<const ezAbstractProperty*, 32> properties;
       pType->GetAllProperties(properties);
 
-      ezHybridArray<ezPropertySelection, 1> selection;
+      ezTempHybridArray<ezPropertySelection, 1> selection;
       selection.PushBack({pObject, ezVariant()});
       ezDefaultObjectState defaultState(pType, GetObjectAccessor(), selection.GetArrayPtr());
 
@@ -1291,7 +1291,7 @@ void ezMaterialAssetDocument::RemoveDisconnectedNodes()
   const ezDocumentObject* pRoot = pNodeManager->GetRootObject();
   const ezRTTI* pNodeBaseRtti = ezVisualShaderTypeRegistry::GetSingleton()->GetNodeBaseType();
 
-  const ezHybridArray<ezDocumentObject*, 8>& children = pRoot->GetChildren();
+  const ezTempHybridArray<ezDocumentObject*, 8>& children = pRoot->GetChildren();
   ezMap<const ezDocumentObject*, bool> AllNodes;
 
   for (ezUInt32 i = 0; i < children.GetCount(); ++i)

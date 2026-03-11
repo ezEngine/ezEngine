@@ -15,7 +15,7 @@ public:
 
   static ezAbstractObjectNode* GetFirstRootNode(ezAbstractObjectGraph& ref_graph);
 
-  static void GetRootNodes(ezAbstractObjectGraph& ref_graph, ezHybridArray<ezAbstractObjectNode*, 4>& out_nodes);
+  static void GetRootNodes(ezAbstractObjectGraph& ref_graph, ezDynamicArray<ezAbstractObjectNode*>& out_nodes);
 
   static ezUuid GetPrefabRoot(const ezDocumentObject* pObject, const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>& documentObjectMetaData, ezInt32* pDepth = nullptr);
 

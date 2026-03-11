@@ -747,7 +747,7 @@ ezVec3 ezJoltRagdollComponent::RetrieveRagdollPose()
   const ezMat4 mInv = m_mInvSkeletonRootTransform * qGlobalRot.GetInverse().GetAsMat4() * mInvScale;
   const ezMat4 mScale = ezMat4::MakeScaling(rootTransform.m_vScale * fObjectScale);
 
-  ezHybridArray<ezMat4, 128> relativeTransforms;
+  ezTempHybridArray<ezMat4, 128> relativeTransforms;
 
   {
     // m_CurrentLimbTransforms is stored in model space
@@ -1045,7 +1045,7 @@ void ezJoltRagdollComponent::CreateAllLimbs(const ezSkeletonResource& skeletonRe
   limbConstructionInfos.FindOrAdd(ezInvalidJointIndex); // dummy root link
 
   ezUInt16 uiLastLimbIdx = ezInvalidJointIndex;
-  ezHybridArray<const ezSkeletonResourceGeometry*, 8> geometries;
+  ezTempHybridArray<const ezSkeletonResourceGeometry*, 8> geometries;
 
   for (const auto& geo : skeletonResource.GetDescriptor().m_Geometry)
   {
@@ -1178,7 +1178,7 @@ JPH::Shape* ezJoltRagdollComponent::CreateLimbGeoShape(const LimbConstructionInf
       out_shapeTransform = limbConstructionInfo.m_GlobalTransform.GetInverse() * GetOwner()->GetGlobalTransform() * skeletonRootTransform;
       out_shapeTransform.m_vPosition *= fObjectScale;
 
-      ezHybridArray<JPH::Vec3, 256> verts;
+      ezTempHybridArray<JPH::Vec3, 256> verts;
       verts.SetCountUninitialized(geo.m_VertexPositions.GetCount());
 
       for (ezUInt32 i = 0; i < verts.GetCount(); ++i)

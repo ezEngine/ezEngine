@@ -230,7 +230,7 @@ void ezSkeletonComponent::BuildSkeletonVisualization(ezMsgAnimationPoseUpdated& 
     bool highlight = false;
   };
 
-  ezHybridArray<Bone, 128> bones;
+  ezTempHybridArray<Bone, 128> bones;
 
   bones.SetCount(msg.m_pSkeleton->GetJointCount());
   m_LinesSkeleton.Reserve(m_LinesSkeleton.GetCount() + msg.m_pSkeleton->GetJointCount());

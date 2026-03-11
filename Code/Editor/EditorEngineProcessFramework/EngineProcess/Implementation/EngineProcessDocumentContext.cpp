@@ -461,7 +461,7 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
 
         ezGALTextureSubresource sourceSubResource;
         ezArrayPtr<ezGALTextureSubresource> sourceSubResources(&sourceSubResource, 1);
-        ezHybridArray<ezGALSystemMemoryDescription, 1> memory;
+        ezTempHybridArray<ezGALSystemMemoryDescription, 1> memory;
 
         ezReadbackTextureLock lock = m_ThumbnailReadback.LockTexture(sourceSubResources, memory);
         EZ_ASSERT_ALWAYS(lock, "Failed to lock readback texture");

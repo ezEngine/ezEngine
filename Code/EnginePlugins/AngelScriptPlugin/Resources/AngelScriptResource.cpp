@@ -139,7 +139,7 @@ ezResourceLoadDesc ezAngelScriptResource::UpdateContent(ezStreamReader* pStream)
   }
   else
   {
-    ezHybridArray<ezUInt8, 1024 * 8> bytecode;
+    ezTempHybridArray<ezUInt8, 1024 * 8> bytecode;
     stream.ReadArray(bytecode).AssertSuccess();
 
     if (uiVersion >= 3)
@@ -167,7 +167,7 @@ ezResourceLoadDesc ezAngelScriptResource::UpdateContent(ezStreamReader* pStream)
 
   ezStringBuilder sFunctionName;
 
-  ezHybridArray<ezString, 16> funcNames;
+  ezTempHybridArray<ezString, 16> funcNames;
 
   for (auto pCompFunc : pBaseType->GetFunctions())
   {

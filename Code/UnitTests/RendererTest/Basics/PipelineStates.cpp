@@ -175,7 +175,7 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
     }
 
     // We only fill the first 8 elements with data. The rest is dynamically updated during testing.
-    ezHybridArray<ezTestShaderData, 16> instanceData;
+    ezTempHybridArray<ezTestShaderData, 16> instanceData;
     ezRendererTestUtils::FillStructuredBuffer(instanceData);
     m_hInstancingData = m_pDevice->CreateBuffer(desc, instanceData.GetByteArrayPtr());
 
@@ -212,7 +212,7 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
     desc.m_BufferFlags = ezGALBufferUsageFlags::VertexBuffer;
     desc.m_ResourceAccess.m_bImmutable = false;
 
-    ezHybridArray<ezTestShaderData, 16> instanceData;
+    ezTempHybridArray<ezTestShaderData, 16> instanceData;
     ezRendererTestUtils::FillStructuredBuffer(instanceData);
     m_hInstancingDataVertexStream = m_pDevice->CreateBuffer(desc, instanceData.GetByteArrayPtr());
 
@@ -280,7 +280,7 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
       }
     }
 
-    ezHybridArray<ezGALSystemMemoryDescription, 4> initialData;
+    ezTempHybridArray<ezGALSystemMemoryDescription, 4> initialData;
     initialData.SetCount(desc.m_uiMipLevelCount);
     for (ezUInt32 m = 0; m < desc.m_uiMipLevelCount; m++)
     {
@@ -306,7 +306,7 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
     ezRendererTestUtils::CreateImage(coloredMips[0], desc.m_uiWidth, desc.m_uiHeight, desc.m_uiMipLevelCount, false, 0);
     ezRendererTestUtils::CreateImage(coloredMips[1], desc.m_uiWidth, desc.m_uiHeight, desc.m_uiMipLevelCount, false, 255);
 
-    ezHybridArray<ezGALSystemMemoryDescription, 8> initialData;
+    ezTempHybridArray<ezGALSystemMemoryDescription, 8> initialData;
     initialData.SetCount(desc.m_uiArraySize * desc.m_uiMipLevelCount);
     for (ezUInt32 l = 0; l < desc.m_uiArraySize; l++)
     {
@@ -755,14 +755,14 @@ void ezRendererTestPipelineStates::StructuredBufferTestUpload()
   if (m_iFrame == ImageCaptureFrames::StructuredBuffer_UpdateForNextFrame)
   {
     // Replace the elements at [0, 3] with more green ones by offsetting the color by 16.
-    ezHybridArray<ezTestShaderData, 16> instanceData;
+    ezTempHybridArray<ezTestShaderData, 16> instanceData;
     ezRendererTestUtils::FillStructuredBuffer(instanceData, 16 /*green*/);
     m_pDevice->UpdateBufferForNextFrame(m_hInstancingData, instanceData.GetArrayPtr().GetSubArray(0, 4).ToByteArray());
   }
   if (m_iFrame == ImageCaptureFrames::StructuredBuffer_UpdateForNextFrame2)
   {
     // Replace the elements at [8, 15] with the same data as the original 8 elements. We will render these afterwards using custom buffer views.
-    ezHybridArray<ezTestShaderData, 16> instanceData;
+    ezTempHybridArray<ezTestShaderData, 16> instanceData;
     ezRendererTestUtils::FillStructuredBuffer(instanceData);
     m_pDevice->UpdateBufferForNextFrame(m_hInstancingData, instanceData.GetArrayPtr().GetSubArray(0, 8).ToByteArray(), sizeof(ezTestShaderData) * 8);
   }
@@ -812,7 +812,7 @@ void ezRendererTestPipelineStates::StructuredBufferTest(ezGALShaderResourceType:
       }
       else if (m_iFrame == ImageCaptureFrames::StructuredBuffer_Transient1)
       {
-        ezHybridArray<ezTestShaderData, 16> instanceData;
+        ezTempHybridArray<ezTestShaderData, 16> instanceData;
         ezRendererTestUtils::FillStructuredBuffer(instanceData, 16 /*green*/);
         // Update the entire buffer in lots of little upload calls with greener versions.
         for (ezUInt32 i = 0; i < 16; i++)
@@ -824,7 +824,7 @@ void ezRendererTestPipelineStates::StructuredBufferTest(ezGALShaderResourceType:
       }
       else if (m_iFrame == ImageCaptureFrames::StructuredBuffer_Transient2)
       {
-        ezHybridArray<ezTestShaderData, 16> instanceData;
+        ezTempHybridArray<ezTestShaderData, 16> instanceData;
         ezRendererTestUtils::FillStructuredBuffer(instanceData);
         // Update with one single update call for the first 8 elements matching the initial state.
         pCommandEncoder->UpdateBuffer(m_hInstancingDataTransient, 0, instanceData.GetArrayPtr().GetSubArray(0, 8).ToByteArray(), ezGALUpdateMode::AheadOfTime);

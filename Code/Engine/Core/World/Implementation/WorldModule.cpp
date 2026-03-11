@@ -236,7 +236,7 @@ void ezWorldModuleFactory::FillBaseTypeIds()
   // the mapping for m_TypeToId[ezWorldModule(interface)], such that querying the TypeID for the interface works as well
   // and yields the implementation
 
-  ezHybridArray<NewEntry, 64, ezStaticsAllocatorWrapper> newEntries;
+  ezTempHybridArray<NewEntry, 64> newEntries;
   const ezRTTI* pModuleRtti = ezGetStaticRTTI<ezWorldModule>(); // base type where we want to stop iterating upwards
 
   // explicit mappings

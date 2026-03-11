@@ -152,7 +152,7 @@ ezResult ezProjectExport::CopyFiles(const char* szSrcFolder, const char* szDstFo
 
 ezResult ezProjectExport::GatherGeneratedAssetManagerFiles(ezSet<ezString>& out_Files)
 {
-  ezHybridArray<ezString, 4> addFiles;
+  ezTempHybridArray<ezString, 4> addFiles;
 
   for (auto pMan : ezDocumentManager::GetAllDocumentManagers())
   {
@@ -197,7 +197,7 @@ ezResult ezProjectExport::ReadExportFilters(ezPathPatternFilter& out_DataFilter,
   sDefine.SetFormat("PLATFORM_PROFILE_{} 1", pPlatformProfile->GetConfigName());
   sDefine.ToUpper();
 
-  ezHybridArray<ezString, 1> ppDefines;
+  ezTempHybridArray<ezString, 1> ppDefines;
   ppDefines.PushBack(sDefine);
 
   if (ezProjectExport::CreateExportFilterFile(":project/ProjectData.ezExportFilter", "CommonData.ezExportFilter").Failed())
@@ -418,7 +418,7 @@ ezResult ezProjectExport::ExportProject(const char* szTargetDirectory, const ezP
   mainProgress.SetStepWeighting(6, 0.01f); // Finish up
 
   ezStringBuilder sProjectRootDir;
-  ezHybridArray<ezString, 16> sceneFiles;
+  ezTempHybridArray<ezString, 16> sceneFiles;
   ezProjectExport::DirectoryMapping fileList;
 
   ezPathPatternFilter dataFilter;

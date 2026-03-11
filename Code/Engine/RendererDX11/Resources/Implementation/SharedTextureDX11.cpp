@@ -60,7 +60,7 @@ ezResult ezGALSharedTextureDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<e
   if (m_SharedType == ezGALSharedTextureType::Exported)
     Tex2DDesc.MiscFlags |= D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX;
 
-  ezHybridArray<D3D11_SUBRESOURCE_DATA, 16> InitialData;
+  ezTempHybridArray<D3D11_SUBRESOURCE_DATA, 16> InitialData;
   ConvertInitialData(m_Description, pInitialData, InitialData);
 
   if (FAILED(pDXDevice->GetDXDevice()->CreateTexture2D(&Tex2DDesc, pInitialData.IsEmpty() ? nullptr : &InitialData[0], reinterpret_cast<ID3D11Texture2D**>(&m_pDXTexture))))

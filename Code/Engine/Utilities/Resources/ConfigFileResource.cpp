@@ -219,7 +219,7 @@ ezResourceLoadData ezConfigFileResourceLoader::OpenDataStream(const ezResource* 
     sConfig.ReplaceAll("\r", "");
     sConfig.ReplaceAll("\n", ";");
 
-    ezHybridArray<ezStringView, 32> lines;
+    ezTempHybridArray<ezStringView, 32> lines;
     sConfig.Split(false, lines, ";");
 
     ezStringBuilder key, value, line;

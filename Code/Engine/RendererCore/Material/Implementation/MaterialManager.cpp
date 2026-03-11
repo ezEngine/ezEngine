@@ -407,7 +407,7 @@ void ezMaterialManager::ApplyMaterialChanges()
   m_DirtyBindGroups.Clear();
 
   // We need to make sure that we are not holding the m_MaterialShaderMutex when calling MaterialShaderConstants::UpdateConstantBuffers or we may deadlock. See comment in that function.
-  ezHybridArray<MaterialShaderConstants*, 8> requireUpdates;
+  ezTempHybridArray<MaterialShaderConstants*, 8> requireUpdates;
   {
     EZ_LOCK(m_MaterialShaderMutex);
     for (auto it = m_MaterialShaders.GetIterator(); it.IsValid();)

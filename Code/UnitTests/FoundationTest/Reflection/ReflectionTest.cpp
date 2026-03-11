@@ -269,7 +269,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Types)
       EZ_TEST_STRING(Props[6]->GetPropertyName(), "Array");
       EZ_TEST_STRING(Props[7]->GetPropertyName(), "Variant");
 
-      ezHybridArray<const ezAbstractProperty*, 32> AllProps;
+      ezTempHybridArray<const ezAbstractProperty*, 32> AllProps;
       pType->GetAllProperties(AllProps);
 
       EZ_TEST_INT(AllProps.GetCount(), 11);
@@ -1078,7 +1078,7 @@ void TestSetProperty(const char* szPropName, void* pObject, const ezRTTI* pRtti,
   EZ_TEST_BOOL(pSetProp->Contains(pObject, &ref_value2));
 
 
-  ezHybridArray<ezVariant, 16> keys;
+  ezTempHybridArray<ezVariant, 16> keys;
   pSetProp->GetValues(pObject, keys);
   EZ_TEST_INT(keys.GetCount(), 2);
 }
@@ -1201,7 +1201,7 @@ void TestMapProperty(const char* szPropName, void* pObject, const ezRTTI* pRtti,
   EZ_TEST_BOOL(pMapProp->GetValue(pObject, "value2", &getValue2));
   EZ_TEST_BOOL(getValue2 == ref_value2);
 
-  ezHybridArray<ezString, 16> keys;
+  ezTempHybridArray<ezString, 16> keys;
   pMapProp->GetKeys(pObject, keys);
   EZ_TEST_INT(keys.GetCount(), 2);
   keys.Sort();

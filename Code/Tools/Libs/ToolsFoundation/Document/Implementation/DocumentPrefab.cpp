@@ -57,13 +57,13 @@ void ezDocument::UnlinkPrefabs(ezArrayPtr<const ezDocumentObject*> selection)
 
 ezStatus ezDocument::CreatePrefabDocumentFromSelection(ezStringView sFile, const ezRTTI* pRootType, ezDelegate<void(ezAbstractObjectNode*)> adjustGraphNodeCB, ezDelegate<void(ezDocumentObject*)> adjustNewNodesCB, ezDelegate<void(ezAbstractObjectGraph& graph, ezDynamicArray<ezAbstractObjectNode*>& graphRootNodes)> finalizeGraphCB)
 {
-  ezHybridArray<ezSelectionEntry, 64> selection;
+  ezTempHybridArray<ezSelectionEntry, 64> selection;
   GetSelectionManager()->GetTopLevelSelectionOfType(pRootType, selection);
 
   if (selection.IsEmpty())
     return ezStatus("To create a prefab, the selection must not be empty");
 
-  ezHybridArray<const ezDocumentObject*, 32> nodes;
+  ezTempHybridArray<const ezDocumentObject*, 32> nodes;
   nodes.Reserve(selection.GetCount());
   for (const auto& e : selection)
   {
@@ -122,7 +122,7 @@ ezStatus ezDocument::CreatePrefabDocument(ezStringView sFile, ezArrayPtr<const e
   ezAbstractObjectGraph PrefabGraph;
   ezDocumentObjectConverterWriter writer(&PrefabGraph, GetObjectManager());
 
-  ezHybridArray<ezAbstractObjectNode*, 32> graphRootNodes;
+  ezTempHybridArray<ezAbstractObjectNode*, 32> graphRootNodes;
   graphRootNodes.Reserve(rootObjects.GetCount() + 1);
 
   for (ezUInt32 i = 0; i < rootObjects.GetCount(); ++i)

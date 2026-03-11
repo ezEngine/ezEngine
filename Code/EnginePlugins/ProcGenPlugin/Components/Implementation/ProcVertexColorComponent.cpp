@@ -242,7 +242,7 @@ void ezProcVertexColorComponentManager::UpdateComponentVertexColors(const Update
   const auto meshBBox = pCpuMesh->GetDescriptor().GetBounds().GetBox();
   auto vertexColorData = buffer.MapForWriting<ezColorLinearUB>(context.m_uiVertexColorOffset);
 
-  ezHybridArray<ezProcVertexColorMapping, 2> outputMappings;
+  ezTempHybridArray<ezProcVertexColorMapping, 2> outputMappings;
   for (auto& outputDesc : pComponent->m_OutputDescs)
   {
     outputMappings.PushBack(outputDesc.m_Mapping);
@@ -317,7 +317,7 @@ void ezProcVertexColorComponentManager::OnAreaInvalidated(const ezProcGenInterna
   GetWorld()->GetSpatialSystem()->FindObjectsInBox(area.m_Box, queryParams,
     [this](ezGameObject* pObject)
     {
-      ezHybridArray<ezProcVertexColorComponent*, 4> components;
+      ezTempHybridArray<ezProcVertexColorComponent*, 4> components;
       pObject->TryGetComponentsOfBaseType(components);
 
       for (auto pComponent : components)
@@ -491,7 +491,7 @@ void ezProcVertexColorComponent::DeserializeComponent(ezWorldReader& inout_strea
   }
   else
   {
-    ezHybridArray<ezHashedString, 2> outputNames;
+    ezTempHybridArray<ezHashedString, 2> outputNames;
     s.ReadArray(outputNames).IgnoreResult();
 
     for (auto& outputName : outputNames)
