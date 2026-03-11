@@ -27,48 +27,48 @@ static void ParseSegments(ezStringView sName, ezHybridArray<ezInt32, 8>& out_seg
   }
 }
 
-static void AppendSegments(ezArrayPtr<const ezInt32> segs, ezStringBuilder& ref_sb)
+static void AppendSegments(ezArrayPtr<const ezInt32> segs, ezStringBuilder& ref_sText)
 {
   for (ezUInt32 i = 0; i < segs.GetCount(); ++i)
   {
     if (i > 0)
-      ref_sb.Append(".");
-    ref_sb.AppendFormat("{}", segs[i]);
+      ref_sText.Append(".");
+    ref_sText.AppendFormat("{}", segs[i]);
   }
 }
 
-static void FindMidpointWithVirtual(ezArrayPtr<const ezInt32> lSegs, ezInt32 virtualRight, ezHybridArray<ezInt32, 8>& ref_result)
+static void FindMidpointWithVirtual(ezArrayPtr<const ezInt32> leftSegs, ezInt32 iVirtualRight, ezHybridArray<ezInt32, 8>& ref_result)
 {
   while (true)
   {
-    const ezInt32 lRoot = lSegs.IsEmpty() ? 0 : lSegs[0];
-    const ezInt32 diff = virtualRight - lRoot;
+    const ezInt32 lRoot = leftSegs.IsEmpty() ? 0 : leftSegs[0];
+    const ezInt32 diff = iVirtualRight - lRoot;
 
     if (diff > 1)
     {
-      ref_result.PushBack((lRoot + virtualRight) / 2);
+      ref_result.PushBack((lRoot + iVirtualRight) / 2);
       return;
     }
 
     // diff == 1: adjacent values, go one level deeper
     ref_result.PushBack(lRoot);
-    lSegs = lSegs.IsEmpty() ? lSegs : lSegs.GetSubArray(1);
-    virtualRight = 10;
+    leftSegs = leftSegs.IsEmpty() ? leftSegs : leftSegs.GetSubArray(1);
+    iVirtualRight = 10;
   }
 }
 
-static void FindMidpoint(ezArrayPtr<const ezInt32> lSegs, ezArrayPtr<const ezInt32> rSegs, ezHybridArray<ezInt32, 8>& ref_result)
+static void FindMidpoint(ezArrayPtr<const ezInt32> leftSegs, ezArrayPtr<const ezInt32> rightSegs, ezHybridArray<ezInt32, 8>& ref_result)
 {
   // Strip matching prefix
-  while (!lSegs.IsEmpty() && !rSegs.IsEmpty() && lSegs[0] == rSegs[0])
+  while (!leftSegs.IsEmpty() && !rightSegs.IsEmpty() && leftSegs[0] == rightSegs[0])
   {
-    ref_result.PushBack(lSegs[0]);
-    lSegs = lSegs.GetSubArray(1);
-    rSegs = rSegs.GetSubArray(1);
+    ref_result.PushBack(leftSegs[0]);
+    leftSegs = leftSegs.GetSubArray(1);
+    rightSegs = rightSegs.GetSubArray(1);
   }
 
-  const ezInt32 lRoot = lSegs.IsEmpty() ? 0 : lSegs[0];
-  const ezInt32 rRoot = rSegs.IsEmpty() ? lRoot + 1 : rSegs[0];
+  const ezInt32 lRoot = leftSegs.IsEmpty() ? 0 : leftSegs[0];
+  const ezInt32 rRoot = rightSegs.IsEmpty() ? lRoot + 1 : rightSegs[0];
   const ezInt32 diff = rRoot - lRoot;
 
   EZ_ASSERT_DEBUG(diff > 0, "Left segment value must be less than right segment value");
@@ -81,7 +81,7 @@ static void FindMidpoint(ezArrayPtr<const ezInt32> lSegs, ezArrayPtr<const ezInt
 
   // diff == 1: fall back to sub-level notation
   ref_result.PushBack(lRoot);
-  const ezArrayPtr<const ezInt32> lTail = lSegs.IsEmpty() ? lSegs : lSegs.GetSubArray(1);
+  const ezArrayPtr<const ezInt32> lTail = leftSegs.IsEmpty() ? leftSegs : leftSegs.GetSubArray(1);
   FindMidpointWithVirtual(lTail, 10, ref_result);
 }
 
