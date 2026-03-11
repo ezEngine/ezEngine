@@ -45,7 +45,7 @@ namespace
     return false;
   }
 
-  static void GenerateDefines(const char* szPlatform, const ezArrayPtr<ezPermutationVar>& permutationVars, ezHybridArray<ezString, 32>& out_defines)
+  static void GenerateDefines(const char* szPlatform, const ezArrayPtr<ezPermutationVar>& permutationVars, ezDynamicArray<ezString>& out_defines)
   {
     ezStringBuilder sTemp;
 

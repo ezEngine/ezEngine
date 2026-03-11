@@ -22,7 +22,7 @@ public:
 
   static void ApplyAll(const ezArrayPtr<ezGameAppInputConfig>& actions);
   static void WriteToDDL(ezStreamWriter& inout_stream, const ezArrayPtr<ezGameAppInputConfig>& actions);
-  static void ReadFromDDL(ezStreamReader& inout_stream, ezHybridArray<ezGameAppInputConfig, 32>& out_actions);
+  static void ReadFromDDL(ezStreamReader& inout_stream, ezDynamicArray<ezGameAppInputConfig>& out_actions);
 
   ezString m_sInputSet;
   ezString m_sInputAction;

@@ -343,9 +343,9 @@ ezTransformStatus ezProcGenGraphAssetDocument::InternalTransformAsset(ezStreamWr
   return WriteAsset(stream, pAssetProfile, false);
 }
 
-void ezProcGenGraphAssetDocument::GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_MimeTypes) const
+void ezProcGenGraphAssetDocument::GetSupportedMimeTypesForPasting(ezDynamicArray<ezString>& out_mimeTypes) const
 {
-  out_MimeTypes.PushBack("application/ezEditor.ProcGenGraph");
+  out_mimeTypes.PushBack("application/ezEditor.ProcGenGraph");
 }
 
 bool ezProcGenGraphAssetDocument::CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_MimeType) const

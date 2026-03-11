@@ -8,11 +8,11 @@
 class ezPreferencesObjectManager : public ezDocumentObjectManager
 {
 public:
-  virtual void GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& ref_types) const override
+  virtual void GetCreateableTypes(ezDynamicArray<const ezRTTI*>& out_types) const override
   {
     for (auto pRtti : m_KnownTypes)
     {
-      ref_types.PushBack(pRtti);
+      out_types.PushBack(pRtti);
     }
   }
 

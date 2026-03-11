@@ -189,7 +189,7 @@ void ezQtEventTrackWidget::ClearSelection()
 }
 
 
-void ezQtEventTrackWidget::GetSelection(ezHybridArray<ezUInt32, 32>& out_selection) const
+void ezQtEventTrackWidget::GetSelection(ezDynamicArray<ezUInt32>& out_selection) const
 {
   out_selection.Clear();
 
@@ -217,7 +217,7 @@ void ezQtEventTrackWidget::SetSelection(SelectedPoint cp)
   Q_EMIT SelectionChangedEvent();
 }
 
-void ezQtEventTrackWidget::SetSelection(const ezHybridArray<SelectedPoint, 32>& selection)
+void ezQtEventTrackWidget::SetSelection(const ezArrayPtr<SelectedPoint>& selection)
 {
   for (const auto& cpSel : m_SelectedPoints)
   {

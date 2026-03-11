@@ -44,7 +44,7 @@ ezQtCompilerPreferencesWidget::ezQtCompilerPreferencesWidget()
 
 ezQtCompilerPreferencesWidget::~ezQtCompilerPreferencesWidget() = default;
 
-void ezQtCompilerPreferencesWidget::SetSelection(const ezHybridArray<ezPropertySelection, 8>& items)
+void ezQtCompilerPreferencesWidget::SetSelection(const ezArrayPtr<ezPropertySelection>& items)
 {
   ezQtScopedUpdatesDisabled _(this);
 

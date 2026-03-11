@@ -34,7 +34,7 @@ ezQtCodeEditorPreferencesWidget::ezQtCodeEditorPreferencesWidget()
 
 ezQtCodeEditorPreferencesWidget::~ezQtCodeEditorPreferencesWidget() = default;
 
-void ezQtCodeEditorPreferencesWidget::SetSelection(const ezHybridArray<ezPropertySelection, 8>& items)
+void ezQtCodeEditorPreferencesWidget::SetSelection(const ezArrayPtr<ezPropertySelection>& items)
 {
   ezQtScopedUpdatesDisabled _(this);
 

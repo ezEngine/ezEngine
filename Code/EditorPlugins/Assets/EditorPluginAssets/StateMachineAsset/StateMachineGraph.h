@@ -34,7 +34,7 @@ private:
 
   virtual void InternalCreatePins(const ezDocumentObject* pObject, NodeInternal& node) override;
 
-  virtual void GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& Types) const override;
+  virtual void GetCreateableTypes(ezDynamicArray<const ezRTTI*>& out_types) const override;
   virtual const ezRTTI* GetConnectionType() const override;
 
   void StructureEventHandler(const ezDocumentObjectStructureEvent& e);

@@ -17,7 +17,7 @@ public:
   ezQtPropertyEditorTagSetWidget();
   virtual ~ezQtPropertyEditorTagSetWidget();
 
-  virtual void SetSelection(const ezHybridArray<ezPropertySelection, 8>& items) override;
+  virtual void SetSelection(const ezArrayPtr<ezPropertySelection>& items) override;
   virtual bool HasLabel() const override { return true; }
 
 protected:

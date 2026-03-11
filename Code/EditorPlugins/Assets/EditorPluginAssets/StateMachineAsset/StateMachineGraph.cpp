@@ -119,10 +119,10 @@ void ezStateMachineNodeManager::InternalCreatePins(const ezDocumentObject* pObje
   }
 }
 
-void ezStateMachineNodeManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& Types) const
+void ezStateMachineNodeManager::GetCreateableTypes(ezDynamicArray<const ezRTTI*>& out_types) const
 {
-  Types.PushBack(ezGetStaticRTTI<ezStateMachineNode>());
-  Types.PushBack(ezGetStaticRTTI<ezStateMachineNodeAny>());
+  out_types.PushBack(ezGetStaticRTTI<ezStateMachineNode>());
+  out_types.PushBack(ezGetStaticRTTI<ezStateMachineNodeAny>());
 }
 
 const ezRTTI* ezStateMachineNodeManager::GetConnectionType() const

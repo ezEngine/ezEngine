@@ -33,7 +33,7 @@ ezUInt32 ezPermutationGenerator::GetPermutationCount() const
   return uiPermutations;
 }
 
-void ezPermutationGenerator::GetPermutation(ezUInt32 uiPerm, ezHybridArray<ezPermutationVar, 16>& out_permVars) const
+void ezPermutationGenerator::GetPermutation(ezUInt32 uiPerm, ezDynamicArray<ezPermutationVar>& out_permVars) const
 {
   out_permVars.Clear();
 

@@ -164,19 +164,12 @@ void ezAnimationGraphNodeManager::InternalCreatePins(const ezDocumentObject* pOb
   }
 }
 
-void ezAnimationGraphNodeManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& ref_types) const
+void ezAnimationGraphNodeManager::GetCreateableTypes(ezDynamicArray<const ezRTTI*>& out_types) const
 {
-  ezSet<const ezRTTI*> typeSet;
-  ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezAnimGraphNode>(), typeSet);
-
-  ref_types.Clear();
-  for (auto pType : typeSet)
-  {
-    if (pType->GetTypeFlags().IsAnySet(ezTypeFlags::Abstract))
-      continue;
-
-    ref_types.PushBack(pType);
-  }
+  ezRTTI::ForEachDerivedType<ezAnimGraphNode>(
+    [&](const ezRTTI* pRtti)
+    { out_types.PushBack(pRtti); },
+    ezRTTI::ForEachOptions::ExcludeAbstract);
 }
 
 ezStatus ezAnimationGraphNodeManager::InternalCanConnect(const ezVisualGraphPin& source, const ezVisualGraphPin& target, CanConnectResult& out_result) const
@@ -343,9 +336,9 @@ void ezAnimationGraphAssetDocument::RestoreMetaDataAfterLoading(const ezAbstract
 
 
 
-void ezAnimationGraphAssetDocument::GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_MimeTypes) const
+void ezAnimationGraphAssetDocument::GetSupportedMimeTypesForPasting(ezDynamicArray<ezString>& out_mimeTypes) const
 {
-  out_MimeTypes.PushBack("application/ezEditor.AnimationGraphGraph");
+  out_mimeTypes.PushBack("application/ezEditor.AnimationGraphGraph");
 }
 
 bool ezAnimationGraphAssetDocument::CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_MimeType) const

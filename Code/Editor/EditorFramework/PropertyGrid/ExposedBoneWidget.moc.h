@@ -14,7 +14,7 @@ class ezQtExposedBoneWidget : public ezQtStandardPropertyWidget
 public:
   ezQtExposedBoneWidget();
 
-  virtual void SetSelection(const ezHybridArray<ezPropertySelection, 8>& items) override;
+  virtual void SetSelection(const ezArrayPtr<ezPropertySelection>& items) override;
 
 private Q_SLOTS:
   void onBeginTemporary();

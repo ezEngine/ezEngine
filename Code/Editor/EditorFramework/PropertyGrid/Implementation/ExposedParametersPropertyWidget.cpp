@@ -195,7 +195,7 @@ const ezRTTI* ezExposedParameterCommandAccessor::GetExposedParamsType(const ezDo
   return nullptr;
 }
 
-const ezRTTI* ezExposedParameterCommandAccessor::GetCommonExposedParamsType(const ezHybridArray<ezPropertySelection, 8>& items)
+const ezRTTI* ezExposedParameterCommandAccessor::GetCommonExposedParamsType(const ezArrayPtr<ezPropertySelection>& items)
 {
   const ezRTTI* type = nullptr;
   bool bFirst = true;
@@ -443,7 +443,7 @@ ezQtExposedParametersPropertyWidget::~ezQtExposedParametersPropertyWidget()
   ezPhantomRttiManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtExposedParametersPropertyWidget::PhantomTypeRegistryEventHandler, this));
 }
 
-void ezQtExposedParametersPropertyWidget::SetSelection(const ezHybridArray<ezPropertySelection, 8>& items)
+void ezQtExposedParametersPropertyWidget::SetSelection(const ezArrayPtr<ezPropertySelection>& items)
 {
   const ezRTTI* pCommonType = m_pProxy->GetCommonExposedParamsType(items);
   if (m_pTypeWidget && m_pTypeWidget->GetType() != pCommonType)

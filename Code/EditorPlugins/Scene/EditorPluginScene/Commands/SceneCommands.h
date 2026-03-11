@@ -37,9 +37,8 @@ private:
 
   void DeserializeGraph(ezAbstractObjectGraph& graph);
 
-  void CreateOneDuplicate(ezAbstractObjectGraph& graph, ezHybridArray<ezDocument::PasteInfo, 16>& ToBePasted);
-  void AdjustObjectPositions(ezHybridArray<ezDocument::PasteInfo, 16>& Duplicates, ezUInt32 uiNumDuplicate, ezRandomGauss& rngRotX,
-    ezRandomGauss& rngRotY, ezRandomGauss& rngRotZ, ezRandomGauss& rngTransX, ezRandomGauss& rngTransY, ezRandomGauss& rngTransZ);
+  void CreateOneDuplicate(ezAbstractObjectGraph& graph, ezDynamicArray<ezDocument::PasteInfo>& out_toBePasted);
+  void AdjustObjectPositions(const ezArrayPtr<ezDocument::PasteInfo>& duplicates, ezUInt32 uiNumDuplicate, ezRandomGauss& rngRotX, ezRandomGauss& rngRotY, ezRandomGauss& rngRotZ, ezRandomGauss& rngTransX, ezRandomGauss& rngTransY, ezRandomGauss& rngTransZ);
 
   virtual ezStatus UndoInternal(bool bFireEvents) override;
   virtual void CleanupInternal(CommandState state) override;

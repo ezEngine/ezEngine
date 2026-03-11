@@ -9,7 +9,7 @@
 
 namespace
 {
-  ezSerializedBlock* FindBlock(ezHybridArray<ezSerializedBlock, 3>& ref_blocks, ezStringView sName)
+  ezSerializedBlock* FindBlock(ezDynamicArray<ezSerializedBlock>& ref_blocks, ezStringView sName)
   {
     for (auto& block : ref_blocks)
     {
@@ -21,7 +21,7 @@ namespace
     return nullptr;
   }
 
-  ezSerializedBlock* FindHeaderBlock(ezHybridArray<ezSerializedBlock, 3>& ref_blocks, ezInt32& out_iVersion)
+  ezSerializedBlock* FindHeaderBlock(ezDynamicArray<ezSerializedBlock>& ref_blocks, ezInt32& out_iVersion)
   {
     ezStringBuilder sHeaderName = "HeaderV";
     out_iVersion = 0;
@@ -40,7 +40,7 @@ namespace
     return nullptr;
   }
 
-  ezSerializedBlock* GetOrCreateBlock(ezHybridArray<ezSerializedBlock, 3>& ref_blocks, ezStringView sName)
+  ezSerializedBlock* GetOrCreateBlock(ezDynamicArray<ezSerializedBlock>& ref_blocks, ezStringView sName)
   {
     ezSerializedBlock* pBlock = FindBlock(ref_blocks, sName);
     if (!pBlock)

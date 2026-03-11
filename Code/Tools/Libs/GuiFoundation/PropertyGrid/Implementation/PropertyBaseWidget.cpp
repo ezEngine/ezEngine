@@ -68,7 +68,7 @@ void ezQtPropertyWidget::Init(ezQtPropertyGridWidget* pGrid, ezObjectAccessorBas
   OnInit();
 }
 
-void ezQtPropertyWidget::SetSelection(const ezHybridArray<ezPropertySelection, 8>& items)
+void ezQtPropertyWidget::SetSelection(const ezArrayPtr<ezPropertySelection>& items)
 {
   m_Items = items;
 }
@@ -310,7 +310,7 @@ void ezQtPropertyWidget::ExtendContextMenu(QMenu& m)
   }
 }
 
-const ezRTTI* ezQtPropertyWidget::GetCommonBaseType(const ezHybridArray<ezPropertySelection, 8>& items)
+const ezRTTI* ezQtPropertyWidget::GetCommonBaseType(const ezArrayPtr<ezPropertySelection>& items)
 {
   const ezRTTI* pSubtype = nullptr;
 
@@ -346,8 +346,7 @@ QColor ezQtPropertyWidget::SetPaletteBackgroundColor(ezColorGammaUB inputColor, 
   return qColor;
 }
 
-bool ezQtPropertyWidget::GetCommonVariantSubType(
-  const ezHybridArray<ezPropertySelection, 8>& items, const ezAbstractProperty* pProperty, ezVariantType::Enum& out_type)
+bool ezQtPropertyWidget::GetCommonVariantSubType(const ezArrayPtr<ezPropertySelection>& items, const ezAbstractProperty* pProperty, ezVariantType::Enum& out_type)
 {
   bool bFirst = true;
   // check if we have multiple values
@@ -374,7 +373,7 @@ bool ezQtPropertyWidget::GetCommonVariantSubType(
   return true;
 }
 
-ezVariant ezQtPropertyWidget::GetCommonValue(const ezHybridArray<ezPropertySelection, 8>& items, const ezAbstractProperty* pProperty)
+ezVariant ezQtPropertyWidget::GetCommonValue(const ezArrayPtr<ezPropertySelection>& items, const ezAbstractProperty* pProperty)
 {
   if (!items[0].m_Index.IsValid() && (m_pProp->GetCategory() == ezPropertyCategory::Array || m_pProp->GetCategory() == ezPropertyCategory::Set))
   {
@@ -568,7 +567,7 @@ ezQtStandardPropertyWidget::ezQtStandardPropertyWidget()
 {
 }
 
-void ezQtStandardPropertyWidget::SetSelection(const ezHybridArray<ezPropertySelection, 8>& items)
+void ezQtStandardPropertyWidget::SetSelection(const ezArrayPtr<ezPropertySelection>& items)
 {
   ezQtPropertyWidget::SetSelection(items);
 
@@ -641,7 +640,7 @@ void ezQtPropertyPointerWidget::OnInit()
     ezMakeDelegate(&ezQtPropertyPointerWidget::StructureEventHandler, this));
 }
 
-void ezQtPropertyPointerWidget::SetSelection(const ezHybridArray<ezPropertySelection, 8>& items)
+void ezQtPropertyPointerWidget::SetSelection(const ezArrayPtr<ezPropertySelection>& items)
 {
   ezQtScopedUpdatesDisabled _(this);
 
@@ -781,7 +780,7 @@ ezQtEmbeddedClassPropertyWidget::~ezQtEmbeddedClassPropertyWidget()
   m_pGrid->GetCommandHistory()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtEmbeddedClassPropertyWidget::CommandHistoryEventHandler, this));
 }
 
-void ezQtEmbeddedClassPropertyWidget::SetSelection(const ezHybridArray<ezPropertySelection, 8>& items)
+void ezQtEmbeddedClassPropertyWidget::SetSelection(const ezArrayPtr<ezPropertySelection>& items)
 {
   ezQtScopedUpdatesDisabled _(this);
 
@@ -917,7 +916,7 @@ void ezQtPropertyTypeWidget::OnInit()
   }
 }
 
-void ezQtPropertyTypeWidget::SetSelection(const ezHybridArray<ezPropertySelection, 8>& items)
+void ezQtPropertyTypeWidget::SetSelection(const ezArrayPtr<ezPropertySelection>& items)
 {
   ezQtScopedUpdatesDisabled _(this);
 
@@ -1007,7 +1006,7 @@ ezQtPropertyContainerWidget::~ezQtPropertyContainerWidget()
   Clear();
 }
 
-void ezQtPropertyContainerWidget::SetSelection(const ezHybridArray<ezPropertySelection, 8>& items)
+void ezQtPropertyContainerWidget::SetSelection(const ezArrayPtr<ezPropertySelection>& items)
 {
   ezQtPropertyWidget::SetSelection(items);
 
@@ -2019,7 +2018,7 @@ void ezQtVariantContainerWidget::OnInit()
   ezQtPropertyContainerWidget::OnInit();
 }
 
-void ezQtVariantContainerWidget::SetSelection(const ezHybridArray<ezPropertySelection, 8>& items)
+void ezQtVariantContainerWidget::SetSelection(const ezArrayPtr<ezPropertySelection>& items)
 {
   ezMap<const ezDocumentObject*, ezVariant> subItems;
   for (auto it : items)

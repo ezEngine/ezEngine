@@ -49,17 +49,17 @@ namespace
 
   using ezFileSystemMirrorType = ezFileSystemMirror<bool>;
 
-  void GetChangesNTFS(ezStringView sDirectoryPath, const ezHybridArray<ezUInt8, 4096>& buffer, ezDynamicArray<Change>& ref_changes)
+  void GetChangesNTFS(ezStringView sDirectoryPath, const ezByteArrayPtr& buffer, ezDynamicArray<Change>& ref_changes)
   {
     ezUInt32 uiChanges = 1;
-    auto info = (const FILE_NOTIFY_EXTENDED_INFORMATION*)buffer.GetData();
+    auto info = (const FILE_NOTIFY_EXTENDED_INFORMATION*)buffer.GetPtr();
     while (info->NextEntryOffset != 0)
     {
       uiChanges++;
       info = (const FILE_NOTIFY_EXTENDED_INFORMATION*)(((ezUInt8*)info) + info->NextEntryOffset);
     }
     ref_changes.Reserve(uiChanges);
-    info = (const FILE_NOTIFY_EXTENDED_INFORMATION*)buffer.GetData();
+    info = (const FILE_NOTIFY_EXTENDED_INFORMATION*)buffer.GetPtr();
 
     while (true)
     {
@@ -89,17 +89,17 @@ namespace
     }
   }
 
-  void GetChangesNonNTFS(ezStringView sDirectoryPath, const ezHybridArray<ezUInt8, 4096>& buffer, ezDynamicArray<Change>& ref_changes)
+  void GetChangesNonNTFS(ezStringView sDirectoryPath, const ezByteArrayPtr& buffer, ezDynamicArray<Change>& ref_changes)
   {
     ezUInt32 uiChanges = 1;
-    auto info = (const FILE_NOTIFY_INFORMATION*)buffer.GetData();
+    auto info = (const FILE_NOTIFY_INFORMATION*)buffer.GetPtr();
     while (info->NextEntryOffset != 0)
     {
       uiChanges++;
       info = (const FILE_NOTIFY_INFORMATION*)(((ezUInt8*)info) + info->NextEntryOffset);
     }
     ref_changes.Reserve(ref_changes.GetCount() + uiChanges);
-    info = (const FILE_NOTIFY_INFORMATION*)buffer.GetData();
+    info = (const FILE_NOTIFY_INFORMATION*)buffer.GetPtr();
 
     while (true)
     {

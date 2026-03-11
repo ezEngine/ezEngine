@@ -44,7 +44,7 @@ public:
   ///
   /// If the array holds more than one element, the user selected multiple objects. In this case, the code should check whether
   /// the values differ across the selected objects and if so, the widget should display "multiple values".
-  virtual void SetSelection(const ezHybridArray<ezPropertySelection, 8>& items);
+  virtual void SetSelection(const ezArrayPtr<ezPropertySelection>& items);
   const ezHybridArray<ezPropertySelection, 8>& GetSelection() const { return m_Items; }
 
   /// \brief If this returns true (default), a QLabel is created and the text that GetLabel() returns is displayed.
@@ -60,17 +60,16 @@ public:
 
   /// \brief If the property is of type ezVariant this function returns whether all items have the same type.
   /// If true is returned, out_Type contains the common type. Note that 'invalid' can be a common type.
-  bool GetCommonVariantSubType(
-    const ezHybridArray<ezPropertySelection, 8>& items, const ezAbstractProperty* pProperty, ezVariantType::Enum& out_type);
+  bool GetCommonVariantSubType(const ezArrayPtr<ezPropertySelection>& items, const ezAbstractProperty* pProperty, ezVariantType::Enum& out_type);
 
-  ezVariant GetCommonValue(const ezHybridArray<ezPropertySelection, 8>& items, const ezAbstractProperty* pProperty);
+  ezVariant GetCommonValue(const ezArrayPtr<ezPropertySelection>& items, const ezAbstractProperty* pProperty);
   void PrepareToDie();
 
   /// \brief By default disables the widget, but can be overridden to make a widget more interactable (for example to be able to copy text from it).
   virtual void SetReadOnly(bool bReadOnly = true);
 
 public:
-  static const ezRTTI* GetCommonBaseType(const ezHybridArray<ezPropertySelection, 8>& items);
+  static const ezRTTI* GetCommonBaseType(const ezArrayPtr<ezPropertySelection>& items);
   static QColor SetPaletteBackgroundColor(ezColorGammaUB inputColor, QPalette& ref_palette);
 
 public Q_SLOTS:
@@ -126,7 +125,7 @@ class EZ_GUIFOUNDATION_DLL ezQtStandardPropertyWidget : public ezQtPropertyWidge
 public:
   explicit ezQtStandardPropertyWidget();
 
-  virtual void SetSelection(const ezHybridArray<ezPropertySelection, 8>& items) override;
+  virtual void SetSelection(const ezArrayPtr<ezPropertySelection>& items) override;
 
 protected:
   void BroadcastValueChanged(const ezVariant& NewValue);
@@ -150,7 +149,7 @@ public:
   explicit ezQtEmbeddedClassPropertyWidget();
   ~ezQtEmbeddedClassPropertyWidget();
 
-  virtual void SetSelection(const ezHybridArray<ezPropertySelection, 8>& items) override;
+  virtual void SetSelection(const ezArrayPtr<ezPropertySelection>& items) override;
 
 protected:
   void SetPropertyValue(const ezAbstractProperty* pProperty, const ezVariant& NewValue);
@@ -184,7 +183,7 @@ public:
   explicit ezQtPropertyTypeWidget(bool bAddCollapsibleGroup = false);
   virtual ~ezQtPropertyTypeWidget();
 
-  virtual void SetSelection(const ezHybridArray<ezPropertySelection, 8>& items) override;
+  virtual void SetSelection(const ezArrayPtr<ezPropertySelection>& items) override;
   virtual bool HasLabel() const override { return false; }
   virtual void SetIsDefault(bool bIsDefault) override;
 
@@ -208,7 +207,7 @@ public:
   explicit ezQtPropertyPointerWidget();
   virtual ~ezQtPropertyPointerWidget();
 
-  virtual void SetSelection(const ezHybridArray<ezPropertySelection, 8>& items) override;
+  virtual void SetSelection(const ezArrayPtr<ezPropertySelection>& items) override;
   virtual bool HasLabel() const override { return false; }
 
 
@@ -240,7 +239,7 @@ public:
   ezQtPropertyContainerWidget();
   virtual ~ezQtPropertyContainerWidget();
 
-  virtual void SetSelection(const ezHybridArray<ezPropertySelection, 8>& items) override;
+  virtual void SetSelection(const ezArrayPtr<ezPropertySelection>& items) override;
   virtual bool HasLabel() const override { return false; }
   virtual void SetIsDefault(bool bIsDefault) override;
 
@@ -379,7 +378,7 @@ public:
 
 protected:
   virtual void OnInit() override;
-  virtual void SetSelection(const ezHybridArray<ezPropertySelection, 8>& items) override;
+  virtual void SetSelection(const ezArrayPtr<ezPropertySelection>& items) override;
   virtual ezPropertyCategory::Enum GetContainerCategory() const override;
 
 private:

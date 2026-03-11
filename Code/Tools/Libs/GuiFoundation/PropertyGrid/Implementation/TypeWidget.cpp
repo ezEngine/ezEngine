@@ -56,7 +56,7 @@ ezQtTypeWidget::~ezQtTypeWidget()
   ezManipulatorManager::GetSingleton()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtTypeWidget::ManipulatorManagerEventHandler, this));
 }
 
-void ezQtTypeWidget::SetSelection(const ezHybridArray<ezPropertySelection, 8>& items)
+void ezQtTypeWidget::SetSelection(const ezArrayPtr<ezPropertySelection>& items)
 {
   ezQtScopedUpdatesDisabled _(this);
 

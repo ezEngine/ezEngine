@@ -68,7 +68,7 @@ void ezAssetDocumentGenerator::AppendFileFilterStrings(ezStringBuilder& out_sFil
   }
 }
 
-void ezAssetDocumentGenerator::CreateGenerators(ezHybridArray<ezAssetDocumentGenerator*, 16>& out_generators)
+void ezAssetDocumentGenerator::CreateGenerators(ezDynamicArray<ezAssetDocumentGenerator*>& out_generators)
 {
   ezRTTI::ForEachDerivedType<ezAssetDocumentGenerator>(
     [&](const ezRTTI* pRtti)
@@ -82,7 +82,7 @@ void ezAssetDocumentGenerator::CreateGenerators(ezHybridArray<ezAssetDocumentGen
     { return lhs->GetDocumentExtension().Compare_NoCase(rhs->GetDocumentExtension()) < 0; });
 }
 
-void ezAssetDocumentGenerator::DestroyGenerators(const ezHybridArray<ezAssetDocumentGenerator*, 16>& generators)
+void ezAssetDocumentGenerator::DestroyGenerators(const ezDynamicArray<ezAssetDocumentGenerator*>& generators)
 {
   for (ezAssetDocumentGenerator* pGen : generators)
   {
@@ -174,7 +174,7 @@ void ezAssetDocumentGenerator::ImportAssets()
   ImportAssets(filesToImport);
 }
 
-void ezAssetDocumentGenerator::CreateImportOptionList(const ezDynamicArray<ezString>& filesToImport, ezDynamicArray<ezAssetDocumentGenerator::ImportGroupOptions>& allImports, const ezHybridArray<ezAssetDocumentGenerator*, 16>& generators)
+void ezAssetDocumentGenerator::CreateImportOptionList(const ezDynamicArray<ezString>& filesToImport, ezDynamicArray<ezAssetDocumentGenerator::ImportGroupOptions>& allImports, const ezDynamicArray<ezAssetDocumentGenerator*>& generators)
 {
   ezQtEditorApp* pApp = ezQtEditorApp::GetSingleton();
   ezStringBuilder sInputRelative, sGroup;

@@ -617,7 +617,7 @@ const ezGameObject* ezGameObject::SearchForChildByNameSequence(ezStringView sObj
   return pThis->SearchForChildByNameSequence(sObjectSequence, pExpectedComponent);
 }
 
-void ezGameObject::SearchForChildrenByNameSequence(ezStringView sObjectSequence, const ezRTTI* pExpectedComponent, ezHybridArray<ezGameObject*, 8>& out_objects)
+void ezGameObject::SearchForChildrenByNameSequence(ezStringView sObjectSequence, const ezRTTI* pExpectedComponent, ezDynamicArray<ezGameObject*>& out_objects)
 {
   if (sObjectSequence.IsEmpty())
   {

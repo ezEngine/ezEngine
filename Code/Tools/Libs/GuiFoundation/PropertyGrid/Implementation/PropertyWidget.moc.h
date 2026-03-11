@@ -420,7 +420,7 @@ private Q_SLOTS:
   void on_Button_triggered();
 
 protected:
-  virtual void SetSelection(const ezHybridArray<ezPropertySelection, 8>& items) override;
+  virtual void SetSelection(const ezArrayPtr<ezPropertySelection>& items) override;
   virtual void OnInit() override;
   virtual void DoPrepareToDie() override;
   void UpdatePreview();
@@ -461,7 +461,7 @@ private Q_SLOTS:
   void on_Button_triggered();
 
 protected:
-  virtual void SetSelection(const ezHybridArray<ezPropertySelection, 8>& items) override;
+  virtual void SetSelection(const ezArrayPtr<ezPropertySelection>& items) override;
   virtual void OnInit() override;
   virtual void DoPrepareToDie() override;
   void UpdatePreview();

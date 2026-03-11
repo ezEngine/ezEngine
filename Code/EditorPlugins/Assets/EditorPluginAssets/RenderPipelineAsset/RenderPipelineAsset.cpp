@@ -68,19 +68,17 @@ void ezRenderPipelineNodeManager::InternalCreatePins(const ezDocumentObject* pOb
   }
 }
 
-void ezRenderPipelineNodeManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& ref_types) const
+void ezRenderPipelineNodeManager::GetCreateableTypes(ezDynamicArray<const ezRTTI*>& out_types) const
 {
-  ezSet<const ezRTTI*> typeSet;
-  ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezRenderPipelinePass>(), typeSet);
-  ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezExtractor>(), typeSet);
-  ref_types.Clear();
-  for (auto pType : typeSet)
-  {
-    if (pType->GetTypeFlags().IsAnySet(ezTypeFlags::Abstract))
-      continue;
+  ezRTTI::ForEachDerivedType<ezRenderPipelinePass>(
+    [&](const ezRTTI* pRtti)
+    { out_types.PushBack(pRtti); },
+    ezRTTI::ForEachOptions::ExcludeAbstract);
 
-    ref_types.PushBack(pType);
-  }
+  ezRTTI::ForEachDerivedType<ezExtractor>(
+    [&](const ezRTTI* pRtti)
+    { out_types.PushBack(pRtti); },
+    ezRTTI::ForEachOptions::ExcludeAbstract);
 }
 
 ezStatus ezRenderPipelineNodeManager::InternalCanConnect(const ezVisualGraphPin& source, const ezVisualGraphPin& target, CanConnectResult& out_result) const
@@ -132,9 +130,9 @@ void ezRenderPipelineAssetDocument::RestoreMetaDataAfterLoading(const ezAbstract
 
 
 
-void ezRenderPipelineAssetDocument::GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_MimeTypes) const
+void ezRenderPipelineAssetDocument::GetSupportedMimeTypesForPasting(ezDynamicArray<ezString>& out_mimeTypes) const
 {
-  out_MimeTypes.PushBack("application/ezEditor.RenderPipelineGraph");
+  out_mimeTypes.PushBack("application/ezEditor.RenderPipelineGraph");
 }
 
 bool ezRenderPipelineAssetDocument::CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_MimeType) const

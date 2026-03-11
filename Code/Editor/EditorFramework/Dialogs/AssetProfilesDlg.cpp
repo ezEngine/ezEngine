@@ -11,7 +11,7 @@
 class ezAssetProfilesObjectManager : public ezDocumentObjectManager
 {
 public:
-  virtual void GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& ref_types) const override { ref_types.PushBack(ezGetStaticRTTI<ezPlatformProfile>()); }
+  virtual void GetCreateableTypes(ezDynamicArray<const ezRTTI*>& out_types) const override { out_types.PushBack(ezGetStaticRTTI<ezPlatformProfile>()); }
 };
 
 class ezAssetProfilesDocument : public ezDocument

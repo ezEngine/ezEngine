@@ -858,7 +858,7 @@ void ezSceneDocument::ShowOrHideAllObjects(ShowOrHide action)
 
     m_DocumentObjectMetaData->EndModifyMetaData(uiFlags); });
 }
-void ezSceneDocument::GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_mimeTypes) const
+void ezSceneDocument::GetSupportedMimeTypesForPasting(ezDynamicArray<ezString>& out_mimeTypes) const
 {
   out_mimeTypes.PushBack("application/ezEditor.ezAbstractGraph");
 }

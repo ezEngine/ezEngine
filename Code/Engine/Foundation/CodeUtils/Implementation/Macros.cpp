@@ -4,7 +4,7 @@
 
 using namespace ezTokenParseUtils;
 
-void ezPreprocessor::CopyTokensReplaceParams(const TokenStream& Source, ezUInt32 uiFirstSourceToken, TokenStream& Destination, const ezHybridArray<ezString, 16>& parameters)
+void ezPreprocessor::CopyTokensReplaceParams(const TokenStream& Source, ezUInt32 uiFirstSourceToken, TokenStream& Destination, const ezArrayPtr<ezString>& parameters)
 {
   Destination.Clear();
   Destination.Reserve(Source.GetCount() - uiFirstSourceToken);

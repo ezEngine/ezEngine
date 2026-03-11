@@ -44,7 +44,7 @@ ezQtVarianceTypeWidget::ezQtVarianceTypeWidget()
   connect(m_pVarianceWidget, SIGNAL(valueChanged(int)), this, SLOT(SlotVarianceChanged()));
 }
 
-void ezQtVarianceTypeWidget::SetSelection(const ezHybridArray<ezPropertySelection, 8>& items)
+void ezQtVarianceTypeWidget::SetSelection(const ezArrayPtr<ezPropertySelection>& items)
 {
   ezQtStandardPropertyWidget::SetSelection(items);
   EZ_ASSERT_DEBUG(m_pProp->GetSpecificType()->IsDerivedFrom<ezVarianceTypeBase>(), "Selection does not match ezVarianceType.");

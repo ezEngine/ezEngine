@@ -46,9 +46,9 @@ void ezStateMachineAssetDocument::RestoreMetaDataAfterLoading(const ezAbstractOb
   pManager->RestoreMetaDataAfterLoading(graph, bUndoable);
 }
 
-void ezStateMachineAssetDocument::GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_MimeTypes) const
+void ezStateMachineAssetDocument::GetSupportedMimeTypesForPasting(ezDynamicArray<ezString>& out_mimeTypes) const
 {
-  out_MimeTypes.PushBack("application/ezEditor.StateMachineGraph");
+  out_mimeTypes.PushBack("application/ezEditor.StateMachineGraph");
 }
 
 bool ezStateMachineAssetDocument::CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_MimeType) const

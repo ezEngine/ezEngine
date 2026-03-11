@@ -43,13 +43,13 @@ ezSceneObjectManager::ezSceneObjectManager()
 {
 }
 
-void ezSceneObjectManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& ref_types) const
+void ezSceneObjectManager::GetCreateableTypes(ezDynamicArray<const ezRTTI*>& out_types) const
 {
-  ref_types.PushBack(ezGetStaticRTTI<ezGameObject>());
+  out_types.PushBack(ezGetStaticRTTI<ezGameObject>());
 
   ezRTTI::ForEachDerivedType<ezComponent>(
     [&](const ezRTTI* pRtti)
-    { ref_types.PushBack(pRtti); },
+    { out_types.PushBack(pRtti); },
     ezRTTI::ForEachOptions::ExcludeAbstract);
 }
 

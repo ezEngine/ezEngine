@@ -37,7 +37,7 @@ ezQtPropertyEditorTagSetWidget::~ezQtPropertyEditorTagSetWidget()
   m_pMenu = nullptr;
 }
 
-void ezQtPropertyEditorTagSetWidget::SetSelection(const ezHybridArray<ezPropertySelection, 8>& items)
+void ezQtPropertyEditorTagSetWidget::SetSelection(const ezArrayPtr<ezPropertySelection>& items)
 {
   ezQtPropertyWidget::SetSelection(items);
   InternalUpdateValue();

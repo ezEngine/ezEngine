@@ -7,7 +7,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneExportModifier, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezSceneExportModifier::CreateModifiers(ezHybridArray<ezSceneExportModifier*, 8>& ref_modifiers)
+void ezSceneExportModifier::CreateModifiers(ezDynamicArray<ezSceneExportModifier*>& ref_modifiers)
 {
   ezRTTI::ForEachDerivedType<ezSceneExportModifier>(
     [&](const ezRTTI* pRtti)
@@ -18,7 +18,7 @@ void ezSceneExportModifier::CreateModifiers(ezHybridArray<ezSceneExportModifier*
     ezRTTI::ForEachOptions::ExcludeNonAllocatable);
 }
 
-void ezSceneExportModifier::DestroyModifiers(ezHybridArray<ezSceneExportModifier*, 8>& ref_modifiers)
+void ezSceneExportModifier::DestroyModifiers(ezDynamicArray<ezSceneExportModifier*>& ref_modifiers)
 {
   for (auto pMod : ref_modifiers)
   {

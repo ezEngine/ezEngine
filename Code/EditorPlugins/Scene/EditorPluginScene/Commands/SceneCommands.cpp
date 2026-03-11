@@ -141,7 +141,7 @@ void ezDuplicateObjectsCommand::DeserializeGraph(ezAbstractObjectGraph& graph)
   ezAbstractGraphDdlSerializer::Read(memoryReader, &graph).IgnoreResult();
 }
 
-void ezDuplicateObjectsCommand::CreateOneDuplicate(ezAbstractObjectGraph& graph, ezHybridArray<ezDocument::PasteInfo, 16>& ToBePasted)
+void ezDuplicateObjectsCommand::CreateOneDuplicate(ezAbstractObjectGraph& graph, ezDynamicArray<ezDocument::PasteInfo>& out_toBePasted)
 {
   ezSceneDocument* pDocument = static_cast<ezSceneDocument*>(GetDocument());
 
@@ -193,7 +193,7 @@ void ezDuplicateObjectsCommand::CreateOneDuplicate(ezAbstractObjectGraph& graph,
           selectionOrder.PeekBack() = pProperty->m_Value.ConvertTo<ezUInt32>();
         }
 
-        auto& ref = ToBePasted.ExpandAndGetRef();
+        auto& ref = out_toBePasted.ExpandAndGetRef();
         ref.m_pObject = pNewObject;
         ref.m_pParent = nullptr;
 
@@ -205,12 +205,11 @@ void ezDuplicateObjectsCommand::CreateOneDuplicate(ezAbstractObjectGraph& graph,
     }
   }
 
-  if (pDocument->DuplicateSelectedObjects(ToBePasted, graph, false))
+  if (pDocument->DuplicateSelectedObjects(out_toBePasted, graph, false))
   {
-    for (ezUInt32 i = 0; i < ToBePasted.GetCount(); ++i)
+    for (ezUInt32 i = 0; i < out_toBePasted.GetCount(); ++i)
     {
-      const auto& item = ToBePasted[i];
-
+      const auto& item = out_toBePasted[i];
       auto& po = m_DuplicatedObjects.ExpandAndGetRef();
       po.m_pObject = item.m_pObject;
       po.m_Index = item.m_pObject->GetPropertyIndex();
@@ -221,7 +220,7 @@ void ezDuplicateObjectsCommand::CreateOneDuplicate(ezAbstractObjectGraph& graph,
   }
   else
   {
-    for (const auto& item : ToBePasted)
+    for (const auto& item : out_toBePasted)
     {
       pDocument->GetObjectManager()->DestroyObject(item.m_pObject);
     }
@@ -232,7 +231,7 @@ void ezDuplicateObjectsCommand::CreateOneDuplicate(ezAbstractObjectGraph& graph,
 }
 
 
-void ezDuplicateObjectsCommand::AdjustObjectPositions(ezHybridArray<ezDocument::PasteInfo, 16>& Duplicates, ezUInt32 uiNumDuplicate, ezRandomGauss& rngRotX, ezRandomGauss& rngRotY, ezRandomGauss& rngRotZ, ezRandomGauss& rngTransX, ezRandomGauss& rngTransY, ezRandomGauss& rngTransZ)
+void ezDuplicateObjectsCommand::AdjustObjectPositions(const ezArrayPtr<ezDocument::PasteInfo>& duplicates, ezUInt32 uiNumDuplicate, ezRandomGauss& rngRotX, ezRandomGauss& rngRotY, ezRandomGauss& rngRotZ, ezRandomGauss& rngTransX, ezRandomGauss& rngTransY, ezRandomGauss& rngTransZ)
 {
   ezSceneDocument* pScene = static_cast<ezSceneDocument*>(m_pDocument);
 
@@ -287,7 +286,7 @@ void ezDuplicateObjectsCommand::AdjustObjectPositions(ezHybridArray<ezDocument::
 
   ezQuat qRot = ezQuat::MakeFromEulerAngles(ezAngle::MakeFromDegree(fStep * m_vAccumulativeRotation.x + vRandR.x), ezAngle::MakeFromDegree(fStep * m_vAccumulativeRotation.y + vRandR.y), ezAngle::MakeFromDegree(fStep * m_vAccumulativeRotation.z + vRandR.z));
 
-  for (const auto& pi : Duplicates)
+  for (const auto& pi : duplicates)
   {
     ezTransform tGlobal = pScene->GetGlobalTransform(pi.m_pObject);
 

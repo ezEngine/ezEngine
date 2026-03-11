@@ -113,9 +113,9 @@ public:
   /// That means all such sequences will be ignored. Therefore the tokens that are returned as one line might not
   /// contain all tokens that are actually in the stream. Also the tokens might have different line numbers, when
   /// two or more lines from the file are merged into one logical line.
-  ezResult GetNextLine(ezUInt32& ref_uiFirstToken, ezHybridArray<const ezToken*, 32>& ref_tokens) const;
+  ezResult GetNextLine(ezUInt32& out_uiFirstToken, ezDynamicArray<const ezToken*>& out_tokens) const;
 
-  ezResult GetNextLine(ezUInt32& ref_uiFirstToken, ezHybridArray<ezToken*, 32>& ref_tokens);
+  ezResult GetNextLine(ezUInt32& out_uiFirstToken, ezDynamicArray<ezToken*>& out_tokens);
 
   /// \brief Returns the internal copy of the tokenized data. Will be empty if Tokenize was called with 'bCopyData' equals 'false'.
   const ezArrayPtr<const ezUInt8> GetTokenizedData() const { return m_Data; }

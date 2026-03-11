@@ -21,7 +21,7 @@ public:
   ezQtTypeWidget(QWidget* pParent, ezQtPropertyGridWidget* pGrid, ezObjectAccessorBase* pObjectAccessor, const ezRTTI* pType,
     const char* szIncludeProperties, const char* szExcludeProperties);
   ~ezQtTypeWidget();
-  void SetSelection(const ezHybridArray<ezPropertySelection, 8>& items);
+  void SetSelection(const ezArrayPtr<ezPropertySelection>& items);
   const ezHybridArray<ezPropertySelection, 8>& GetSelection() const { return m_Items; }
   const ezRTTI* GetType() const { return m_pType; }
   void PrepareToDie();

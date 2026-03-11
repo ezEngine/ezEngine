@@ -39,7 +39,7 @@ public:
   QPointF MapToScene(const QPoint& pos) const;
 
   void ClearSelection();
-  void GetSelection(ezHybridArray<ezUInt32, 32>& out_selection) const;
+  void GetSelection(ezDynamicArray<ezUInt32>& out_selection) const;
 
 Q_SIGNALS:
   void DoubleClickEvent(double fScenePosX, double fEpsilon);
@@ -100,7 +100,7 @@ private:
 
   bool IsSelected(SelectedPoint cp) const;
   void SetSelection(SelectedPoint cp);
-  void SetSelection(const ezHybridArray<SelectedPoint, 32>& selection);
+  void SetSelection(const ezArrayPtr<SelectedPoint>& selection);
   void ToggleSelected(SelectedPoint cp);
   void SetSelected(SelectedPoint cp, bool set);
 

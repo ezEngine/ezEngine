@@ -38,7 +38,7 @@ ezQtExposedBoneWidget::ezQtExposedBoneWidget()
   }
 }
 
-void ezQtExposedBoneWidget::SetSelection(const ezHybridArray<ezPropertySelection, 8>& items)
+void ezQtExposedBoneWidget::SetSelection(const ezArrayPtr<ezPropertySelection>& items)
 {
   ezQtStandardPropertyWidget::SetSelection(items);
   EZ_ASSERT_DEBUG(m_pProp->GetSpecificType()->IsDerivedFrom<ezExposedBone>(), "Selection does not match ezExposedBone.");

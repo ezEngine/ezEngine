@@ -27,7 +27,7 @@ public:
   ezUInt32 GetPermutationCount() const;
 
   /// \brief Returns the n-th permutation.
-  void GetPermutation(ezUInt32 uiPerm, ezHybridArray<ezPermutationVar, 16>& out_permVars) const;
+  void GetPermutation(ezUInt32 uiPerm, ezDynamicArray<ezPermutationVar>& out_permVars) const;
 
 private:
   ezMap<ezHashedString, ezHashSet<ezHashedString>> m_Permutations;

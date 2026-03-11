@@ -52,5 +52,5 @@ public:
   static ezResult EnumerateScreens(ezDynamicArray<ezScreenInfo>& out_screens);
 
   /// \brief Prints the available screen information to the provided log.
-  static void PrintScreenInfo(const ezHybridArray<ezScreenInfo, 2>& screens, ezLogInterface* pLog = ezLog::GetThreadLocalLogSystem());
+  static void PrintScreenInfo(const ezArrayPtr<ezScreenInfo>& screens, ezLogInterface* pLog = ezLog::GetThreadLocalLogSystem());
 };

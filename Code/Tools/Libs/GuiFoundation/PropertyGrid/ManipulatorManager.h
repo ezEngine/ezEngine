@@ -49,7 +49,7 @@ public:
 
   /// Sets the active manipulator for a document and broadcasts the change.
   /// Also resets the hidden flag so the gizmo becomes visible.
-  void SetActiveManipulator(const ezDocument* pDoc, const ezManipulatorAttribute* pManipulator, const ezHybridArray<ezPropertySelection, 8>& selection);
+  void SetActiveManipulator(const ezDocument* pDoc, const ezManipulatorAttribute* pManipulator, const ezArrayPtr<ezPropertySelection>& selection);
 
   /// Deactivates the manipulator for the given document and broadcasts the change.
   void ClearActiveManipulator(const ezDocument* pDoc);
@@ -71,7 +71,7 @@ private:
     bool m_bHideManipulators = false;
   };
 
-  void InternalSetActiveManipulator(const ezDocument* pDoc, const ezManipulatorAttribute* pManipulator, const ezHybridArray<ezPropertySelection, 8>& selection, bool bUnhide);
+  void InternalSetActiveManipulator(const ezDocument* pDoc, const ezManipulatorAttribute* pManipulator, const ezArrayPtr<ezPropertySelection>& selection, bool bUnhide);
 
   void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
   void SelectionEventHandler(const ezSelectionManagerEvent& e);

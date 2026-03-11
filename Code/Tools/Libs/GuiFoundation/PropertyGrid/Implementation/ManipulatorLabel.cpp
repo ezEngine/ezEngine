@@ -8,18 +8,12 @@
 
 ezQtManipulatorLabel::ezQtManipulatorLabel(QWidget* pParent, Qt::WindowFlags f)
   : QLabel(pParent, f)
-  , m_pItems(nullptr)
-  , m_pManipulator(nullptr)
-  , m_bActive(false)
 {
   setCursor(Qt::WhatsThisCursor);
 }
 
 ezQtManipulatorLabel::ezQtManipulatorLabel(const QString& sText, QWidget* pParent, Qt::WindowFlags f)
   : QLabel(sText, pParent, f)
-  , m_pItems(nullptr)
-  , m_pManipulator(nullptr)
-  , m_bActive(false)
   , m_bIsDefault(true)
 {
 }
@@ -55,9 +49,9 @@ void ezQtManipulatorLabel::SetManipulatorActive(bool bActive)
   }
 }
 
-void ezQtManipulatorLabel::SetSelection(const ezHybridArray<ezPropertySelection, 8>& items)
+void ezQtManipulatorLabel::SetSelection(const ezArrayPtr<ezPropertySelection>& items)
 {
-  m_pItems = &items;
+  m_Items = items;
 }
 
 
@@ -92,12 +86,12 @@ void ezQtManipulatorLabel::mousePressEvent(QMouseEvent* ev)
   if (m_pManipulator == nullptr)
     return;
 
-  const ezDocument* pDoc = (*m_pItems)[0].m_pObject->GetDocumentObjectManager()->GetDocument()->GetMainDocument();
+  const ezDocument* pDoc = m_Items[0].m_pObject->GetDocumentObjectManager()->GetDocument()->GetMainDocument();
 
   if (m_bActive)
     ezManipulatorManager::GetSingleton()->ClearActiveManipulator(pDoc);
   else
-    ezManipulatorManager::GetSingleton()->SetActiveManipulator(pDoc, m_pManipulator, *m_pItems);
+    ezManipulatorManager::GetSingleton()->SetActiveManipulator(pDoc, m_pManipulator, m_Items);
 }
 
 #if QT_VERSION > QT_VERSION_CHECK(6, 0, 0)

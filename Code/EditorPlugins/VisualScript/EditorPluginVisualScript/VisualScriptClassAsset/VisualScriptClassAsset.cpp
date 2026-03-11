@@ -148,9 +148,9 @@ void ezVisualScriptClassAssetDocument::RestoreMetaDataAfterLoading(const ezAbstr
   pManager->RestoreMetaDataAfterLoading(graph, bUndoable);
 }
 
-void ezVisualScriptClassAssetDocument::GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_MimeTypes) const
+void ezVisualScriptClassAssetDocument::GetSupportedMimeTypesForPasting(ezDynamicArray<ezString>& out_mimeTypes) const
 {
-  out_MimeTypes.PushBack("application/ezEditor.VisualScriptClassGraph");
+  out_mimeTypes.PushBack("application/ezEditor.VisualScriptClassGraph");
 }
 
 bool ezVisualScriptClassAssetDocument::CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_MimeType) const

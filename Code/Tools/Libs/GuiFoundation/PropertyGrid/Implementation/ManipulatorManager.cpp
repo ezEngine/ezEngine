@@ -58,8 +58,7 @@ const ezManipulatorAttribute* ezManipulatorManager::GetActiveManipulator(
   return nullptr;
 }
 
-void ezManipulatorManager::InternalSetActiveManipulator(
-  const ezDocument* pDoc, const ezManipulatorAttribute* pManipulator, const ezHybridArray<ezPropertySelection, 8>& selection, bool bUnhide)
+void ezManipulatorManager::InternalSetActiveManipulator(const ezDocument* pDoc, const ezManipulatorAttribute* pManipulator, const ezArrayPtr<ezPropertySelection>& selection, bool bUnhide)
 {
   bool existed = false;
   auto it = m_ActiveManipulator.FindOrAdd(pDoc, &existed);
@@ -90,8 +89,7 @@ void ezManipulatorManager::InternalSetActiveManipulator(
 }
 
 
-void ezManipulatorManager::SetActiveManipulator(
-  const ezDocument* pDoc, const ezManipulatorAttribute* pManipulator, const ezHybridArray<ezPropertySelection, 8>& selection)
+void ezManipulatorManager::SetActiveManipulator(const ezDocument* pDoc, const ezManipulatorAttribute* pManipulator, const ezArrayPtr<ezPropertySelection>& selection)
 {
   InternalSetActiveManipulator(pDoc, pManipulator, selection, true);
 }

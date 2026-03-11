@@ -15,7 +15,7 @@ public:
   explicit ezQtCodeEditorPreferencesWidget();
   virtual ~ezQtCodeEditorPreferencesWidget();
 
-  virtual void SetSelection(const ezHybridArray<ezPropertySelection, 8>& items) override;
+  virtual void SetSelection(const ezArrayPtr<ezPropertySelection>& items) override;
 
 protected:
   QComboBox* m_pCodeEditor;
