@@ -169,17 +169,13 @@ protected:
   /// \brief Informs the spline component, that its shape has changed. Sent by spline nodes when they are modified.
   void OnMsgSplineChanged(ezMsgSplineChanged& ref_msg); // [ message handler ]
 
-  void SendSplineChangedEvent();
+  /// \brief Sets the order of spline nodes. Called directly via reflection to avoid message routing timing constraints.
+  void SetChildOrder(const ezVariantArray& handles); // [ editor function ]
 
-  ezUInt32 Nodes_GetCount() const { return m_Nodes.GetCount(); }                           // [ property ]
-  const ezHashedString& Nodes_GetNode(ezUInt32 uiIndex) const { return m_Nodes[uiIndex]; } // [ property ]
-  void Nodes_SetNode(ezUInt32 uiIndex, const ezHashedString& sNodeName);                   // [ property ]
-  void Nodes_Insert(ezUInt32 uiIndex, const ezHashedString& sNodeName);                    // [ property ]
-  void Nodes_Remove(ezUInt32 uiIndex);                                                     // [ property ]
+  void SendSplineChangedEvent();
 
   void UpdateSpline(bool bSendChangedEvent = true);
 
-  ezSplineNodeComponent* FindNodeComponent(const ezHashedString& sNodeName);
   void UpdateFromNodeObjects();
 
   void InsertHalfPoint(ezDynamicArray<float>& ref_Ts, ezUInt32 uiCp0, float fLowerT, float fUpperT, const ezSimdVec4f& vLowerPos, const ezSimdVec4f& vUpperPos, float fDistSqr, ezInt32 iMinSteps, ezInt32 iMaxSteps) const;
@@ -196,13 +192,13 @@ protected:
 
   ezSpline m_Spline;
 
-  ezSmallArray<ezHashedString, 1> m_Nodes; // [ property ]
+  ezSmallArray<ezGameObjectHandle, 1> m_Nodes;
 
   ezArrayMap<float, float> m_DistanceToKey;
   float m_fTotalLength = 0.0f;
 
   ezBitflags<ezSplineComponentFlags> m_SplineFlags; // [ property ]
-  ezUInt8 m_uiDummy = 0;
+  bool m_bEditDummy = false;
   mutable ezUInt16 m_uiExtractedFrame = 0;
 
   ezUuid m_Uuid;
@@ -268,5 +264,5 @@ protected:
   ezVec3 m_vCustomTangentIn = ezVec3::MakeZero();
   ezVec3 m_vCustomTangentOut = ezVec3::MakeZero();
 
-  ezUInt8 m_uiDummy = 0;
+  bool m_bEditDummy = false;
 };

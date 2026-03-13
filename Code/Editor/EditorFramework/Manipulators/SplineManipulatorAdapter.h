@@ -17,8 +17,7 @@ public:
   ezSplineManipulatorAdapter();
   ~ezSplineManipulatorAdapter();
 
-  static ezResult BuildSpline(const ezDocumentObject* pSplineComponent, ezStringView sNodesPropertyName, ezStringView sClosedPropertyName, ezSpline& out_spline, ezStringView sNodeName = ezStringView(), ezUInt32* out_pNodeIndex = nullptr);
-  static const ezDocumentObject* FindSplineNodeComponent(const ezDocumentObject* pSplineObject, ezStringView sNodeName);
+  static ezResult BuildSpline(const ezDocumentObject* pSplineComponent, ezStringView sClosedPropertyName, ezSpline& out_spline, ezStringView sNodeName = ezStringView(), ezUInt32* out_pNodeIndex = nullptr);
   static ezResult FillControlPointFromNodeComponent(const ezDocumentObject* pNodeComponent, ezSpline::ControlPoint& out_cp);
 
 protected:

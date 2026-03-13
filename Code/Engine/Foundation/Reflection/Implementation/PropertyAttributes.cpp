@@ -638,7 +638,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSplineManipulatorAttribute, 1, ezRTTIDefaultAl
 {
   EZ_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*, const char*),
+    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*),
   }
   EZ_END_FUNCTIONS;
 }
@@ -650,8 +650,8 @@ ezSplineManipulatorAttribute::ezSplineManipulatorAttribute()
 {
 }
 
-ezSplineManipulatorAttribute::ezSplineManipulatorAttribute(const char* szNodesProperty, const char* szClosedProperty, const char* szBindTo)
-  : ezManipulatorAttribute(szNodesProperty, szClosedProperty, szBindTo)
+ezSplineManipulatorAttribute::ezSplineManipulatorAttribute(const char* szBindTo, const char* szClosedProperty)
+  : ezManipulatorAttribute(szBindTo, szClosedProperty)
 {
 }
 
@@ -1277,6 +1277,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRttiTypeStringAttribute, 1, ezRTTIDefaultAlloc
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
+
+//////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSyncChildOrderAttribute, 1, ezRTTIDefaultAllocator<ezSyncChildOrderAttribute>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
 

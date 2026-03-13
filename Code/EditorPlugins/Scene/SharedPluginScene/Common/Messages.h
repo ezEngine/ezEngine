@@ -72,3 +72,17 @@ class EZ_SHAREDPLUGINSCENE_DLL ezLayerVisibilityChangedMsgToEngine : public ezEd
 public:
   ezHybridArray<ezUuid, 1> m_HiddenLayers;
 };
+
+/// \brief Sent from the editor to the engine to communicate the desired child object order for a component.
+///
+/// Targets a component identified by its GUID. The component must handle ezMsgSyncChildOrder.
+/// Used in conjunction with ezSyncChildOrderAttribute.
+class EZ_SHAREDPLUGINSCENE_DLL ezSyncChildOrderMsgToEngine : public ezEditorEngineDocumentMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezSyncChildOrderMsgToEngine, ezEditorEngineDocumentMsg);
+
+public:
+  ezUuid m_LayerGuid;
+  ezUuid m_ComponentGuid;
+  ezDynamicArray<ezUuid> m_ChildOrder;
+};

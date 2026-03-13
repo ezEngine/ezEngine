@@ -122,6 +122,7 @@ public:
   virtual void InitializeAfterLoadingAndSaving() override;
   virtual const ezDocumentObject* GetSettingsObject() const override;
   virtual void HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg) override;
+  virtual void SyncAllChildOrders() override;
   virtual ezTaskGroupID InternalSaveDocument(AfterSaveCallback callback) override;
   virtual void SendGameWorldToEngine() override;
   virtual ezTransformStatus InternalTransformAsset(const char* szTargetFile, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile,

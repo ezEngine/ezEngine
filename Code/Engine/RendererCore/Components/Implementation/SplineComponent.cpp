@@ -80,8 +80,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSplineComponent, 2, ezComponentMode::Static)
   {
     EZ_BITFLAGS_ACCESSOR_PROPERTY("Flags", ezSplineComponentFlags, GetSplineFlags, SetSplineFlags),
     EZ_ACCESSOR_PROPERTY("Closed", GetClosed, SetClosed),
-    EZ_MEMBER_PROPERTY("EditNodes", m_uiDummy),
-    EZ_ARRAY_ACCESSOR_PROPERTY("Nodes", Nodes_GetCount, Nodes_GetNode, Nodes_SetNode, Nodes_Insert, Nodes_Remove),
+    EZ_MEMBER_PROPERTY("EditNodes", m_bEditDummy),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -106,18 +105,19 @@ EZ_BEGIN_COMPONENT_TYPE(ezSplineComponent, 2, ezComponentMode::Static)
     EZ_SCRIPT_FUNCTION_PROPERTY(GetScaleAtDistance, In, "Distance", In, "Space"),
     EZ_SCRIPT_FUNCTION_PROPERTY(GetTransformAtDistance, In, "Distance", In, "Space"),
 
-    EZ_SCRIPT_FUNCTION_PROPERTY(FindKeyClosestToPoint, In, "Point", Out, "DistanceToPoint", In, "Space", In, "MaxError")->AddAttributes(
-      new ezFunctionArgumentAttributes(3, new ezDefaultValueAttribute(0.1))),
+    EZ_SCRIPT_FUNCTION_PROPERTY(FindKeyClosestToPoint, In, "Point", Out, "DistanceToPoint", In, "Space", In, "MaxError")->AddAttributes(new ezFunctionArgumentAttributes(3, new ezDefaultValueAttribute(0.1))),
 
     EZ_SCRIPT_FUNCTION_PROPERTY(GetChangeCounter),
 
     EZ_FUNCTION_PROPERTY(OnObjectCreated),
+    EZ_FUNCTION_PROPERTY(SetChildOrder),
   }
   EZ_END_FUNCTIONS;
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Utilities/Splines"),
-    new ezSplineManipulatorAttribute("Nodes", "Closed", "EditNodes"),
+    new ezSyncChildOrderAttribute(),
+    new ezSplineManipulatorAttribute("EditNodes", "Closed"),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -377,6 +377,17 @@ void ezSplineComponent::OnMsgSplineChanged(ezMsgSplineChanged& ref_msg)
   UpdateSpline();
 }
 
+void ezSplineComponent::SetChildOrder(const ezVariantArray& handles)
+{
+  m_Nodes.Clear();
+  m_Nodes.Reserve(handles.GetCount());
+
+  for (const ezVariant& v : handles)
+    m_Nodes.PushBack(v.Get<ezGameObjectHandle>());
+
+  UpdateSpline();
+}
+
 void ezSplineComponent::SendSplineChangedEvent()
 {
   ezMsgSplineChanged msg;
@@ -389,33 +400,6 @@ void ezSplineComponent::SendSplineChangedEvent()
       pComp->SendMessage(msg);
     }
   }
-}
-
-void ezSplineComponent::Nodes_SetNode(ezUInt32 uiIndex, const ezHashedString& sNodeName)
-{
-  m_Nodes[uiIndex] = sNodeName;
-
-  UpdateSpline();
-}
-
-void ezSplineComponent::Nodes_Insert(ezUInt32 uiIndex, const ezHashedString& sNodeName)
-{
-  m_Nodes.InsertAt(uiIndex, sNodeName);
-
-  UpdateSpline();
-}
-
-void ezSplineComponent::Nodes_Remove(ezUInt32 uiIndex)
-{
-  const ezHashedString& sNodeName = m_Nodes[uiIndex];
-  if (ezSplineNodeComponent* pNodeComponent = FindNodeComponent(sNodeName))
-  {
-    pNodeComponent->m_uiNodeIndex = ezSmallInvalidIndex;
-  }
-
-  m_Nodes.RemoveAtAndCopy(uiIndex);
-
-  UpdateSpline();
 }
 
 void ezSplineComponent::UpdateSpline(bool bSendChangedEvent /* = true*/)
@@ -437,17 +421,6 @@ void ezSplineComponent::UpdateSpline(bool bSendChangedEvent /* = true*/)
   }
 }
 
-ezSplineNodeComponent* ezSplineComponent::FindNodeComponent(const ezHashedString& sNodeName)
-{
-  ezGameObject* pNodeObj = GetWorld()->SearchForObject(sNodeName, GetOwner(), ezGetStaticRTTI<ezSplineNodeComponent>());
-  if (pNodeObj == nullptr)
-    return nullptr;
-
-  ezSplineNodeComponent* pNodeComponent = nullptr;
-  bool _ = pNodeObj->TryGetComponentOfBaseType(pNodeComponent);
-  return pNodeComponent;
-}
-
 void ezSplineComponent::UpdateFromNodeObjects()
 {
   EZ_ASSERT_DEV(!GetUserFlag(SplineComponentInternalFlags::DisallowUpdateFromNodes), "This function should not be called when updates from nodes are disabled.");
@@ -458,10 +431,14 @@ void ezSplineComponent::UpdateFromNodeObjects()
   if (m_Nodes.GetCount() < 2)
     return;
 
-  for (const ezHashedString& sNode : m_Nodes)
+  for (ezGameObjectHandle hNode : m_Nodes)
   {
-    ezSplineNodeComponent* pNodeComponent = FindNodeComponent(sNode);
-    if (pNodeComponent == nullptr)
+    ezGameObject* pNode;
+    if (!GetWorld()->TryGetObject(hNode, pNode))
+      continue;
+
+    ezSplineNodeComponent* pNodeComponent = nullptr;
+    if (!pNode->TryGetComponentOfBaseType(pNodeComponent))
       continue;
 
     pNodeComponent->m_uiNodeIndex = points.GetCount();
@@ -701,7 +678,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSplineNodeComponent, 1, ezComponentMode::Static)
     EZ_ENUM_ACCESSOR_PROPERTY("TangentModeOut", ezSplineTangentMode, GetTangentModeOut, SetTangentModeOut),
     EZ_ACCESSOR_PROPERTY("CustomTangentOut", GetCustomTangentOut, SetCustomTangentOut),
     EZ_ACCESSOR_PROPERTY("LinkCustomTangents", GetLinkCustomTangents, SetLinkCustomTangents),
-    EZ_MEMBER_PROPERTY("EditNodes", m_uiDummy),
+    EZ_MEMBER_PROPERTY("EditNodes", m_bEditDummy),
   }
   EZ_END_PROPERTIES;
 
@@ -717,7 +694,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSplineNodeComponent, 1, ezComponentMode::Static)
     new ezCategoryAttribute("Utilities/Splines"),
     new ezSplineTangentManipulatorAttribute("TangentModeIn", "CustomTangentIn"),
     new ezSplineTangentManipulatorAttribute("TangentModeOut", "CustomTangentOut"),
-    new ezSplineManipulatorAttribute("Nodes", "Closed", "EditNodes"),
+    new ezSplineManipulatorAttribute("EditNodes", "Closed"),
   }
   EZ_END_ATTRIBUTES;
 }

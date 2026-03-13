@@ -10,7 +10,7 @@ ezSplineManipulatorAdapter::ezSplineManipulatorAdapter() = default;
 ezSplineManipulatorAdapter::~ezSplineManipulatorAdapter() = default;
 
 // static
-ezResult ezSplineManipulatorAdapter::BuildSpline(const ezDocumentObject* pSplineComponent, ezStringView sNodesPropertyName, ezStringView sClosedPropertyName, ezSpline& out_spline, ezStringView sNodeName /*= ezStringView()*/, ezUInt32* out_pNodeIndex /*= nullptr*/)
+ezResult ezSplineManipulatorAdapter::BuildSpline(const ezDocumentObject* pSplineComponent, ezStringView sClosedPropertyName, ezSpline& out_spline, ezStringView sNodeName /*= ezStringView()*/, ezUInt32* out_pNodeIndex /*= nullptr*/)
 {
   out_spline.m_ControlPoints.Clear();
   out_spline.m_bClosed = false;
@@ -18,20 +18,34 @@ ezResult ezSplineManipulatorAdapter::BuildSpline(const ezDocumentObject* pSpline
   if (pSplineComponent == nullptr)
     return EZ_FAILURE;
 
-  auto& typeAccessor = pSplineComponent->GetTypeAccessor();
-
-  out_spline.m_bClosed = typeAccessor.GetValue(sClosedPropertyName).ConvertTo<bool>();
-
-  ezVariantArray nodeNames;
-  if (!typeAccessor.GetValues(sNodesPropertyName, nodeNames))
+  const ezDocumentObject* pParent = pSplineComponent->GetParent();
+  if (pParent == nullptr)
     return EZ_FAILURE;
 
-  for (auto& v : nodeNames)
+  out_spline.m_bClosed = pSplineComponent->GetTypeAccessor().GetValue(sClosedPropertyName).ConvertTo<bool>();
+
+  const ezIReflectedTypeAccessor& parentAccessor = pParent->GetTypeAccessor();
+  const ezInt32 iChildCount = parentAccessor.GetCount("Children");
+  for (ezInt32 i = 0; i < iChildCount; ++i)
   {
-    if (!v.IsA<ezHashedString>())
+    ezVariant val = parentAccessor.GetValue("Children", i);
+    if (!val.IsA<ezUuid>())
       continue;
 
-    const ezDocumentObject* pNodeComponent = FindSplineNodeComponent(pSplineComponent->GetParent(), v.Get<ezHashedString>());
+    const ezDocumentObject* pChild = pParent->GetDocumentObjectManager()->GetObject(val.Get<ezUuid>());
+    if (pChild == nullptr)
+      continue;
+
+    const ezDocumentObject* pNodeComponent = nullptr;
+    for (const ezDocumentObject* pComp : pChild->GetChildren())
+    {
+      if (pComp->GetParentProperty() == "Components" && pComp->GetType()->GetTypeName() == "ezSplineNodeComponent")
+      {
+        pNodeComponent = pComp;
+        break;
+      }
+    }
+
     if (pNodeComponent == nullptr)
       continue;
 
@@ -40,9 +54,11 @@ ezResult ezSplineManipulatorAdapter::BuildSpline(const ezDocumentObject* pSpline
     {
       out_spline.m_ControlPoints.PushBack(cp);
 
-      if (out_pNodeIndex != nullptr && v.Get<ezHashedString>() == sNodeName)
+      if (out_pNodeIndex != nullptr && !sNodeName.IsEmpty())
       {
-        *out_pNodeIndex = out_spline.m_ControlPoints.GetCount() - 1;
+        ezVariant name = pChild->GetTypeAccessor().GetValue("Name");
+        if (name.IsA<ezString>() && name.Get<ezString>() == sNodeName)
+          *out_pNodeIndex = out_spline.m_ControlPoints.GetCount() - 1;
       }
     }
   }
@@ -50,36 +66,6 @@ ezResult ezSplineManipulatorAdapter::BuildSpline(const ezDocumentObject* pSpline
   out_spline.CalculateUpDirAndAutoTangents();
 
   return EZ_SUCCESS;
-}
-
-// static
-const ezDocumentObject* ezSplineManipulatorAdapter::FindSplineNodeComponent(const ezDocumentObject* pSplineObject, ezStringView sNodeName)
-{
-  ezVariantArray componentUuids;
-
-  for (auto pSplineNodeObject : pSplineObject->GetChildren())
-  {
-    ezVariant name = pSplineNodeObject->GetTypeAccessor().GetValue("Name");
-    if (!name.IsA<ezString>() || name.Get<ezString>() != sNodeName)
-      continue;
-
-    if (!pSplineNodeObject->GetTypeAccessor().GetValues("Components", componentUuids))
-      continue;
-
-    for (const auto& v : componentUuids)
-    {
-      if (v.IsA<ezUuid>())
-      {
-        const ezDocumentObject* pComponent = pSplineObject->GetDocumentObjectManager()->GetObject(v.Get<ezUuid>());
-        if (pComponent != nullptr && pComponent->GetType()->GetTypeName() == "ezSplineNodeComponent")
-        {
-          return pComponent;
-        }
-      }
-    }
-  }
-
-  return nullptr;
 }
 
 // static
@@ -121,7 +107,7 @@ void ezSplineManipulatorAdapter::Finalize()
   auto HasSplineProperties = [&](const ezDocumentObject* pObj) -> bool
   {
     const ezRTTI* pType = pObj->GetTypeAccessor().GetType();
-    return pType->FindPropertyByName(pAttr->GetNodesProperty()) != nullptr &&
+    return pType->FindPropertyByName(pAttr->GetBindTo()) != nullptr &&
            pType->FindPropertyByName(pAttr->GetClosedProperty()) != nullptr;
   };
 
@@ -247,16 +233,6 @@ void ezSplineManipulatorAdapter::ClickGizmoEventHandler(const ezGizmoEvent& e)
     }
   }
 
-  // Finally insert the name into the nodes list
-  {
-    const ezSplineManipulatorAttribute* pAttr = static_cast<const ezSplineManipulatorAttribute*>(m_pManipulatorAttr);
-    if (pObjectAcessor->InsertValueByName(m_pObject, pAttr->GetNodesProperty(), sNewNodeName.GetView(), index).Failed())
-    {
-      pObjectAcessor->CancelTransaction();
-      return;
-    }
-  }
-
   pObjectAcessor->FinishTransaction();
 
   Update();
@@ -369,10 +345,10 @@ void ezSplineManipulatorAdapter::BuildSpline()
   m_Spline.m_bClosed = false;
 
   const ezSplineManipulatorAttribute* pAttr = static_cast<const ezSplineManipulatorAttribute*>(m_pManipulatorAttr);
-  if (pAttr->GetNodesProperty().IsEmpty() || pAttr->GetClosedProperty().IsEmpty())
+  if (pAttr->GetBindTo().IsEmpty() || pAttr->GetClosedProperty().IsEmpty())
     return;
 
-  BuildSpline(m_pObject, pAttr->GetNodesProperty(), pAttr->GetClosedProperty(), m_Spline).AssertSuccess();
+  BuildSpline(m_pObject, pAttr->GetClosedProperty(), m_Spline).AssertSuccess();
 }
 
 void ezSplineManipulatorAdapter::ConfigureGizmos()
@@ -402,9 +378,40 @@ void ezSplineManipulatorAdapter::ConfigureGizmos()
 
 void ezSplineManipulatorAdapter::MakeUniqueName(ezInt32 iIndex, ezStringBuilder& ref_sName)
 {
-  const ezSplineManipulatorAttribute* pAttr = static_cast<const ezSplineManipulatorAttribute*>(m_pManipulatorAttr);
-  ezVariantArray nodeNames;
-  m_pObject->GetTypeAccessor().GetValues(pAttr->GetNodesProperty(), nodeNames);
+  // Collect names of existing spline node children in array order.
+  ezDynamicArray<ezString> nodeNames;
+  const ezDocumentObject* pParent = m_pObject->GetParent();
+  if (pParent != nullptr)
+  {
+    const ezIReflectedTypeAccessor& parentAccessor = pParent->GetTypeAccessor();
+    const ezInt32 iChildCount = parentAccessor.GetCount("Children");
+    for (ezInt32 i = 0; i < iChildCount; ++i)
+    {
+      ezVariant val = parentAccessor.GetValue("Children", i);
+      if (!val.IsA<ezUuid>())
+        continue;
+
+      const ezDocumentObject* pChild = pParent->GetDocumentObjectManager()->GetObject(val.Get<ezUuid>());
+      if (pChild == nullptr)
+        continue;
+
+      bool bHasSplineNode = false;
+      for (const ezDocumentObject* pComp : pChild->GetChildren())
+      {
+        if (pComp->GetParentProperty() == "Components" && pComp->GetType()->GetTypeName() == "ezSplineNodeComponent")
+        {
+          bHasSplineNode = true;
+          break;
+        }
+      }
+
+      if (!bHasSplineNode)
+        continue;
+
+      ezVariant name = pChild->GetTypeAccessor().GetValue("Name");
+      nodeNames.PushBack(name.IsA<ezString>() ? name.Get<ezString>() : ezString());
+    }
+  }
 
   if (nodeNames.IsEmpty())
   {
@@ -414,16 +421,16 @@ void ezSplineManipulatorAdapter::MakeUniqueName(ezInt32 iIndex, ezStringBuilder&
 
   auto IsUniqueName = [&](ezStringView sName) -> bool
   {
-    for (const auto& v : nodeNames)
+    for (const auto& s : nodeNames)
     {
-      if (v.Get<ezHashedString>() == sName)
+      if (s == sName)
         return false;
     }
     return true;
   };
 
-  const ezStringView sLeft = (iIndex > 0) ? nodeNames[iIndex - 1].Get<ezHashedString>().GetView() : ezStringView();
-  const ezStringView sRight = (iIndex < (ezInt32)nodeNames.GetCount()) ? nodeNames[iIndex].Get<ezHashedString>().GetView() : ezStringView();
+  const ezStringView sLeft = (iIndex > 0 && iIndex <= (ezInt32)nodeNames.GetCount()) ? nodeNames[iIndex - 1].GetView() : ezStringView();
+  const ezStringView sRight = (iIndex < (ezInt32)nodeNames.GetCount()) ? nodeNames[iIndex].GetView() : ezStringView();
 
   ezStringAlgorithms::ComputeNameBetween(sLeft, sRight, ref_sName);
 

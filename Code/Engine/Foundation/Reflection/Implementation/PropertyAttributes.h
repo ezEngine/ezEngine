@@ -746,11 +746,10 @@ class EZ_FOUNDATION_DLL ezSplineManipulatorAttribute : public ezManipulatorAttri
 
 public:
   ezSplineManipulatorAttribute();
-  ezSplineManipulatorAttribute(const char* szNodesProperty, const char* szClosedProperty, const char* szBindTo);
+  ezSplineManipulatorAttribute(const char* szBindTo, const char* szClosedProperty);
 
-  const ezUntrackedString& GetNodesProperty() const { return m_sProperty1; }
+  const ezUntrackedString& GetBindTo() const { return m_sProperty1; }
   const ezUntrackedString& GetClosedProperty() const { return m_sProperty2; }
-  const ezUntrackedString& GetBindTo() const { return m_sProperty3; }
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -1164,4 +1163,14 @@ public:
 
 private:
   ezUntrackedString m_sBaseType;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+/// Marks a component type as requiring child-order synchronization from the editor.
+/// The editor uses this attribute to identify components that need to receive an ordered
+/// list of their parent game object's children via the reflected function SetChildOrder.
+class EZ_FOUNDATION_DLL ezSyncChildOrderAttribute : public ezPropertyAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezSyncChildOrderAttribute, ezPropertyAttribute);
 };

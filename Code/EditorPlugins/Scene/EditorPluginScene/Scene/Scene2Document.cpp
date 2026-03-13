@@ -79,6 +79,8 @@ ezScene2Document::ezScene2Document(ezStringView sDocumentPath)
 
 ezScene2Document::~ezScene2Document()
 {
+  m_ChildOrderStructureEventUnsubscriber.Unsubscribe();
+  m_ChildOrderCommandHistoryUnsubscriber.Unsubscribe();
   m_SelectionHandlerUnsubscriber.Unsubscribe();
 
   SetActiveLayer(GetGuid()).LogFailure();
@@ -90,6 +92,18 @@ ezScene2Document::~ezScene2Document()
   // Game object document subscribed to the true document originally but we rerouted that to the mock data.
   // In order to destroy the game object document we need to revert this and subscribe to the true document again.
   UnsubscribeGameObjectEventHandlers();
+
+  // close the layers before we move (and thus potentially destroy) the managers below
+  for (auto it : m_Layers)
+  {
+    auto pDoc = it.Value().m_pLayer;
+
+    if (pDoc && pDoc != this)
+    {
+      ezDocumentManager* pManager = pDoc->GetDocumentManager();
+      pManager->CloseDocument(pDoc);
+    }
+  }
 
   // Move the preserved real scene document back.
   m_pSelectionManager = std::move(m_pSceneSelectionManager);
@@ -108,17 +122,6 @@ ezScene2Document::~ezScene2Document()
   m_CommandHistoryEventSubscriber.Unsubscribe();
 
   m_pLayerSelection = nullptr;
-
-  for (auto it : m_Layers)
-  {
-    auto pDoc = it.Value().m_pLayer;
-
-    if (pDoc && pDoc != this)
-    {
-      ezDocumentManager* pManager = pDoc->GetDocumentManager();
-      pManager->CloseDocument(pDoc);
-    }
-  }
 }
 
 void ezScene2Document::SetSwitchLayerToSelection(bool bEnable)
@@ -202,6 +205,13 @@ void ezScene2Document::InitializeAfterLoadingAndSaving()
   // change the selection handler to our custom selection manager
   m_SelectionHandlerUnsubscriber.Unsubscribe();
   GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezScene2Document::SelectionManagerEventHandler, this), m_SelectionHandlerUnsubscriber);
+
+  m_ChildOrderStructureEventUnsubscriber.Unsubscribe();
+  GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezScene2Document::ChildOrderStructureEventHandler, this), m_ChildOrderStructureEventUnsubscriber);
+
+  m_ChildOrderCommandHistoryUnsubscriber.Unsubscribe();
+  ezCommandHistory* pHistory = IsMainDocument() ? GetCommandHistory() : static_cast<ezSceneDocument*>(GetMainDocument())->GetCommandHistory();
+  pHistory->m_Events.AddEventHandler(ezMakeDelegate(&ezScene2Document::ChildOrderCommandHistoryEventHandler, this), m_ChildOrderCommandHistoryUnsubscriber);
 }
 
 const ezDocumentObject* ezScene2Document::GetSettingsObject() const
@@ -372,6 +382,17 @@ void ezScene2Document::CommandHistoryEventHandler(const ezCommandHistoryEvent& e
       break;
     default:
       return;
+  }
+}
+
+void ezScene2Document::SyncAllChildOrders()
+{
+  SUPER::SyncAllChildOrders();
+
+  for (auto it = m_Layers.GetIterator(); it.IsValid(); ++it)
+  {
+    if (it.Value().m_pLayer != nullptr && it.Value().m_pLayer != this)
+      it.Value().m_pLayer->SyncAllChildOrders();
   }
 }
 

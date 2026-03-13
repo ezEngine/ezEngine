@@ -154,7 +154,7 @@ void ezSplineTangentManipulatorAdapter::BuildSpline()
       return;
   }
 
-  ezSplineManipulatorAdapter::BuildSpline(pSplineComponent, "Nodes", "Closed", m_Spline, sNodeName, &m_uiNodeIndex).AssertSuccess();
+  ezSplineManipulatorAdapter::BuildSpline(pSplineComponent, "Closed", m_Spline, sNodeName, &m_uiNodeIndex).AssertSuccess();
 }
 
 void ezSplineTangentManipulatorAdapter::ConfigureGizmos()
