@@ -1,9 +1,10 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <Core/Messages/CommonMessages.h>
 #include <Core/Messages/TransformChangedMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/SimdMath/SimdRandom.h>
 #include <Foundation/Utilities/AssetFileHeader.h>
@@ -11,6 +12,94 @@
 #include <RendererCore/Meshes/CpuMeshResource.h>
 #include <RendererCore/Meshes/SplineMeshComponent.h>
 #include <RendererCore/Utils/WorldGeoExtractionUtil.h>
+
+class SplineMeshGenerationTask : public ezTask
+{
+public:
+  SplineMeshGenerationTask(const ezGameObjectHandle& hOwnerObject, const ezComponentHandle& hOwnerComponent, const ezComponentHandle& hSplineComponent, const ezStringView sSplineMeshPath, const ezSpline& spline, ezArrayMap<float, float> distanceToKey, ezArrayPtr<ezMeshResourceHandle> meshes, ezArrayPtr<ezVec2> scaleOffsets, float fLocalOffsetY, float fLocalOffsetZ)
+    : m_hOwnerObject(hOwnerObject)
+    , m_hOwnerComponent(hOwnerComponent)
+    , m_hSplineComponent(hSplineComponent)
+    , m_sSplineMeshPath(sSplineMeshPath)
+    , m_Spline(spline)
+    , m_DistanceToKey(distanceToKey)
+    , m_Meshes(meshes)
+    , m_ScaleOffsets(scaleOffsets)
+    , m_fLocalOffsetY(fLocalOffsetY)
+    , m_fLocalOffsetZ(fLocalOffsetZ)
+  {
+  }
+
+  virtual void Execute() override
+  {
+    ezTempHybridArray<ezCpuMeshResource*, 16> cpuMeshes;
+
+    for (auto& hMesh : m_Meshes)
+    {
+      auto hMeshCpu = ezResourceManager::LoadResource<ezCpuMeshResource>(hMesh.GetResourceID());
+      ezCpuMeshResource* pMeshCpu = ezResourceManager::BeginAcquireResource<ezCpuMeshResource>(hMeshCpu, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+      EZ_ASSERT_DEV(pMeshCpu != nullptr, "Failed to load cpu mesh resource for spline mesh generation");
+      cpuMeshes.PushBack(pMeshCpu);
+    }
+
+    EZ_SCOPE_EXIT(
+      for (auto pMeshCpu : cpuMeshes) {
+        ezResourceManager::EndAcquireResource(pMeshCpu);
+      });
+
+    ezMeshResourceDescriptor splineMeshDesc;
+    if (ezSplineMeshComponent::GenerateSplineMeshDesc(m_Spline, m_DistanceToKey, cpuMeshes, m_ScaleOffsets, m_fLocalOffsetY, m_fLocalOffsetZ, splineMeshDesc).Failed())
+      return;
+
+    ezDeferredFileWriter fileWriter;
+    fileWriter.SetOutput(m_sSplineMeshPath);
+
+    ezAssetFileHeader header;
+    header.SetFileHashAndVersion(0, 0);
+    header.Write(fileWriter).IgnoreResult();
+
+    splineMeshDesc.Save(fileWriter);
+
+    if (fileWriter.Close().Failed())
+    {
+      ezLog::Error("Could not write spline mesh file to '{}'", m_sSplineMeshPath);
+    }
+
+    {
+      ezMsgGenericEvent msg;
+      msg.m_sMessage.Assign("GenerationDone");
+      msg.m_Value = m_sSplineMeshPath;
+
+      ezWorld::GetWorld(m_hOwnerComponent)->PostMessage(m_hOwnerComponent, msg, ezTime::MakeZero());
+    }
+
+    {
+      ezMsgGenerateSplineMeshCollision msg;
+      msg.m_hSplineComponent = m_hSplineComponent;
+      msg.m_RenderMeshes = m_Meshes;
+      msg.m_ScaleOffsets = m_ScaleOffsets;
+      msg.m_fLocalOffsetY = m_fLocalOffsetY;
+      msg.m_fLocalOffsetZ = m_fLocalOffsetZ;
+
+      ezWorld::GetWorld(m_hOwnerComponent)->PostMessage(m_hOwnerObject, msg, ezTime::MakeZero());
+    }
+  }
+
+private:
+  ezGameObjectHandle m_hOwnerObject;
+  ezComponentHandle m_hOwnerComponent;
+  ezComponentHandle m_hSplineComponent;
+
+  ezString m_sSplineMeshPath;
+  ezSpline m_Spline;
+  ezArrayMap<float, float> m_DistanceToKey;
+  ezDynamicArray<ezMeshResourceHandle> m_Meshes;
+  ezDynamicArray<ezVec2> m_ScaleOffsets;
+  float m_fLocalOffsetY = 0;
+  float m_fLocalOffsetZ = 0;
+};
+
+//////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -151,6 +240,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSplineMeshComponent, 1, ezComponentMode::Static)
   {
     EZ_MESSAGE_HANDLER(ezMsgSplineChanged, OnMsgSplineChanged),
     EZ_MESSAGE_HANDLER(ezMsgExtractGeometry, OnMsgExtractGeometry),
+    EZ_MESSAGE_HANDLER(ezMsgGenericEvent, OnMsgGenericEvent),
   }
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_FUNCTIONS
@@ -182,6 +272,8 @@ void ezSplineMeshComponent::OnActivated()
 void ezSplineMeshComponent::OnDeactivated()
 {
   SUPER::OnDeactivated();
+
+  ezTaskSystem::WaitForGroup(m_TaskGroupID);
 }
 
 void ezSplineMeshComponent::SerializeComponent(ezWorldWriter& inout_stream) const
@@ -573,22 +665,39 @@ void ezSplineMeshComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& ref_msg) 
   if (hMesh.IsValid())
   {
     ref_msg.AddMeshObject(GetOwner()->GetGlobalTransform(), ezResourceManager::LoadResource<ezCpuMeshResource>(hMesh.GetResourceID()));
-    return;
   }
+}
 
-  const ezSplineComponent* pSplineComponent = GetSplineComponent();
-  if (pSplineComponent == nullptr)
-    return;
-
-  ezMeshResourceDescriptor splineMeshDesc;
-  if (GenerateSplineMesh(*pSplineComponent, splineMeshDesc).Succeeded())
+void ezSplineMeshComponent::OnMsgGenericEvent(ezMsgGenericEvent& ref_msg)
+{
+  if (ref_msg.m_sMessage == "GenerationDone")
   {
-    ezStringBuilder sGuid;
-    sGuid.SetFormat("SplineMeshCpu_{}", s_iSplineMeshResources.Increment());
+    ezStringView sMeshPath = ref_msg.m_Value.Get<ezString>();
 
-    auto hMeshCpu = ezResourceManager::CreateResource<ezCpuMeshResource>(sGuid, std::move(splineMeshDesc));
+    auto hSplineMesh = ezResourceManager::LoadResource<ezMeshResource>(sMeshPath);
+    if (GetMesh() == hSplineMesh)
+    {
+      ezResourceManager::ReloadResource(hSplineMesh, true);
 
-    ref_msg.AddMeshObject(GetOwner()->GetGlobalTransform(), hMeshCpu);
+      auto hCpuMeshResource = ezResourceManager::GetExistingResource<ezCpuMeshResource>(sMeshPath);
+      if (hCpuMeshResource.IsValid())
+      {
+        ezResourceManager::ReloadResource(hCpuMeshResource, true);
+      }
+    }
+    else
+    {
+      SetMesh(hSplineMesh);
+    }
+
+    m_pGenerationTask = nullptr;
+
+    if (m_pNextGenerationTask != nullptr)
+    {
+      m_pGenerationTask = std::move(m_pNextGenerationTask);
+      m_TaskGroupID = ezTaskSystem::StartSingleTask(m_pGenerationTask, ezTaskPriority::LongRunning);
+      m_pNextGenerationTask = nullptr;
+    }
   }
 }
 
@@ -823,41 +932,6 @@ ezUInt32 ezSplineMeshComponent::FindBestMiddlePart(float fRequestedLength, ezArr
   return candidateIndices[uiRandom];
 }
 
-ezResult ezSplineMeshComponent::GenerateSplineMesh(const ezSplineComponent& splineComponent, ezMeshResourceDescriptor& out_splineMeshDesc, ezMsgGenerateSplineMeshCollision* out_pMsg /*= nullptr*/) const
-{
-  EZ_PROFILE_SCOPE("GenerateSplineMesh");
-
-  ezTempHybridArray<ezMeshResourceHandle, 16> meshes;
-  ezTempHybridArray<ezVec2, 16> scaleOffsets;
-  EZ_SUCCEED_OR_RETURN(GenerateDistribution(splineComponent, meshes, scaleOffsets));
-
-  if (out_pMsg != nullptr)
-  {
-    out_pMsg->m_hSplineComponent = splineComponent.GetHandle();
-    out_pMsg->m_RenderMeshes = meshes;
-    out_pMsg->m_ScaleOffsets = scaleOffsets;
-    out_pMsg->m_fLocalOffsetY = m_fOffsetY;
-    out_pMsg->m_fLocalOffsetZ = m_fOffsetZ;
-  }
-
-  ezTempHybridArray<ezCpuMeshResource*, 16> cpuMeshes;
-
-  for (auto& hMesh : meshes)
-  {
-    auto hMeshCpu = ezResourceManager::LoadResource<ezCpuMeshResource>(hMesh.GetResourceID());
-    ezCpuMeshResource* pMeshCpu = ezResourceManager::BeginAcquireResource<ezCpuMeshResource>(hMeshCpu, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-    EZ_ASSERT_DEV(pMeshCpu != nullptr, "Failed to load cpu mesh resource for spline mesh generation");
-    cpuMeshes.PushBack(pMeshCpu);
-  }
-
-  EZ_SCOPE_EXIT(
-    for (auto pMeshCpu : cpuMeshes) {
-      ezResourceManager::EndAcquireResource(pMeshCpu);
-    });
-
-  return GenerateSplineMeshDesc(splineComponent.GetSpline(), splineComponent.GetDistanceToKeyRemapping(), cpuMeshes, scaleOffsets, m_fOffsetY, m_fOffsetZ, out_splineMeshDesc);
-}
-
 void ezSplineMeshComponent::UpdateSplineMesh()
 {
   const ezSplineComponent* pSplineComponent = GetSplineComponent();
@@ -869,45 +943,35 @@ void ezSplineMeshComponent::UpdateSplineMesh()
 
   if (GetUniqueID() != ezInvalidIndex)
   {
-    // Only generate in the editor
-    ezMeshResourceDescriptor splineMeshDesc;
-    ezMsgGenerateSplineMeshCollision genColMsg;
-    if (GenerateSplineMesh(*pSplineComponent, splineMeshDesc, &genColMsg).Failed())
+    ezTempHybridArray<ezMeshResourceHandle, 16> meshes;
+    ezTempHybridArray<ezVec2, 16> scaleOffsets;
+    if (GenerateDistribution(*pSplineComponent, meshes, scaleOffsets).Failed())
       return;
 
     m_uiLastSplineChangeCounter = pSplineComponent->GetChangeCounter();
 
-    {
-      EZ_PROFILE_SCOPE("SaveSplineMeshToDisk");
+    auto pTask = EZ_DEFAULT_NEW(SplineMeshGenerationTask, GetOwner()->GetHandle(), GetHandle(), pSplineComponent->GetHandle(), sMeshPath, pSplineComponent->GetSpline(), pSplineComponent->GetDistanceToKeyRemapping(), meshes, scaleOffsets, m_fOffsetY, m_fOffsetZ);
+    pTask->ConfigureTask("Generate Spline Mesh", ezTaskNesting::Maybe);
 
-      ezFileWriter file;
-      if (file.Open(sMeshPath).Succeeded())
-      {
-        ezAssetFileHeader header;
-        header.SetFileHashAndVersion(m_uiStableId, 0);
-        header.Write(file).IgnoreResult();
-
-        splineMeshDesc.Save(file);
-      }
-      else
-      {
-        ezLog::Error("Failed to save generated spline mesh to '{}'", sMeshPath);
-        return;
-      }
-    }
-
-    GetOwner()->PostMessage(genColMsg, ezTime::MakeZero());
-  }
-
-  auto hSplineMesh = ezResourceManager::LoadResource<ezMeshResource>(sMeshPath);
-  if (GetMesh() == hSplineMesh)
-  {
-    ezResourceManager::ReloadResource(hSplineMesh, true);
+    StartGenerateTask(pTask);
   }
   else
   {
+    auto hSplineMesh = ezResourceManager::LoadResource<ezMeshResource>(sMeshPath);
     SetMesh(hSplineMesh);
   }
+}
+
+void ezSplineMeshComponent::StartGenerateTask(ezSharedPtr<ezTask>&& pTask)
+{
+  if (m_pGenerationTask != nullptr)
+  {
+    m_pNextGenerationTask = pTask;
+    return;
+  }
+
+  m_pGenerationTask = pTask;
+  m_TaskGroupID = ezTaskSystem::StartSingleTask(m_pGenerationTask, ezTaskPriority::LongRunning);
 }
 
 const ezSplineComponent* ezSplineMeshComponent::GetSplineComponent() const

@@ -8,7 +8,7 @@
 #include <ProcGenPlugin/Components/ProcVolumeComponent.h>
 #include <ProcGenPlugin/Tasks/VertexColorTask.h>
 #include <RendererCore/Meshes/CpuMeshResource.h>
-#include <RendererCore/Meshes/MeshComponentBase.h>
+#include <RendererCore/Meshes/SplineMeshComponent.h>
 #include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Utils/WorldGeoExtractionUtil.h>
@@ -383,7 +383,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezProcVertexColorComponent, 2, ezComponentMode::Static)
   EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgTransformChanged, OnMsgTransformChanged),
-    EZ_MESSAGE_HANDLER(ezMsgCustomInstanceDataOffsetChanged, OnMsgCustomInstanceDataOffsetChanged)
+    EZ_MESSAGE_HANDLER(ezMsgCustomInstanceDataOffsetChanged, OnMsgCustomInstanceDataOffsetChanged),
+    EZ_MESSAGE_HANDLER(ezMsgGenerateSplineMeshCollision, OnMsgGenerateSplineMeshCollision),
   }
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
