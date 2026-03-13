@@ -1,5 +1,6 @@
 #include <EditorPluginScene/EditorPluginScenePCH.h>
 
+#include <Core/Prefabs/PrefabReferenceComponent.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <EditorPluginScene/Scene/LayerDocument.h>
@@ -8,7 +9,6 @@
 #include <EditorPluginScene/Scene/SceneDocumentManager.h>
 #include <Foundation/Strings/PathUtils.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
-#include <Core/Prefabs/PrefabReferenceComponent.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocumentManager, 1, ezRTTIDefaultAllocator<ezSceneDocumentManager>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
