@@ -383,14 +383,15 @@ ezResult ezSplineMeshComponent::GenerateSplineMeshDesc(const ezSpline& spline, c
   ezTempHybridArray<ezUInt32, 16> firstVertexPerMesh;
   firstVertexPerMesh.SetCount(uiNumMeshes);
 
-  const bool bHasNTT = splineMeshBufferDesc.GetVertexStreamConfig().HasNormalTangentAndTexCoord0();
-  const bool bHasTexCoord1 = splineMeshBufferDesc.GetVertexStreamConfig().HasTexCoord1();
-  const bool bHasColor0 = splineMeshBufferDesc.GetVertexStreamConfig().HasColor0();
-  const bool bHasColor1 = splineMeshBufferDesc.GetVertexStreamConfig().HasColor1();
+  const bool bShouldHaveNTT = splineMeshBufferDesc.GetVertexStreamConfig().HasNormalTangentAndTexCoord0();
+  const bool bShouldHaveTexCoord1 = splineMeshBufferDesc.GetVertexStreamConfig().HasTexCoord1();
+  const bool bShouldHaveColor0 = splineMeshBufferDesc.GetVertexStreamConfig().HasColor0();
+  const bool bShouldHaveColor1 = splineMeshBufferDesc.GetVertexStreamConfig().HasColor1();
 
   for (ezUInt32 uiMeshIndex = 0; uiMeshIndex < uiNumMeshes; ++uiMeshIndex)
   {
     auto& meshBufferDesc = meshes[uiMeshIndex]->GetDescriptor().MeshBufferDesc();
+    auto& vertexStreamConfig = meshBufferDesc.GetVertexStreamConfig();
     const ezVec2& scaleOffset = scaleOffsets[uiMeshIndex];
 
     for (ezUInt32 v = 0; v < meshBufferDesc.GetVertexCount(); ++v)
@@ -405,31 +406,40 @@ ezResult ezSplineMeshComponent::GenerateSplineMeshDesc(const ezSpline& spline, c
       pos = transform.TransformPosition(ezVec3(0, pos.y + fLocalOffsetY, pos.z + fLocalOffsetZ));
       splineMeshBufferDesc.SetPosition(uiTargetVertex, pos);
 
-      if (bHasNTT)
+      if (bShouldHaveNTT)
       {
-        const ezVec3 normal = transform.TransformDirection(meshBufferDesc.GetNormal(v));
+        if (vertexStreamConfig.HasNormalTangentAndTexCoord0())
+        {
+          const ezVec3 normal = transform.TransformDirection(meshBufferDesc.GetNormal(v));
 
-        ezVec4 tangent = meshBufferDesc.GetTangent(v);
-        tangent = transform.TransformDirection(tangent.GetAsVec3()).GetAsVec4(tangent.w);
+          ezVec4 tangent = meshBufferDesc.GetTangent(v);
+          tangent = transform.TransformDirection(tangent.GetAsVec3()).GetAsVec4(tangent.w);
 
-        splineMeshBufferDesc.SetNormal(uiTargetVertex, normal);
-        splineMeshBufferDesc.SetTangent(uiTargetVertex, tangent);
-        splineMeshBufferDesc.SetTexCoord0(uiTargetVertex, meshBufferDesc.GetTexCoord0(v));
+          splineMeshBufferDesc.SetNormal(uiTargetVertex, normal);
+          splineMeshBufferDesc.SetTangent(uiTargetVertex, tangent);
+          splineMeshBufferDesc.SetTexCoord0(uiTargetVertex, meshBufferDesc.GetTexCoord0(v));
+        }
+        else
+        {
+          splineMeshBufferDesc.SetNormal(uiTargetVertex, ezVec3::MakeAxisZ());
+          splineMeshBufferDesc.SetTangent(uiTargetVertex, ezVec3::MakeAxisX().GetAsVec4(1.0f));
+          splineMeshBufferDesc.SetTexCoord0(uiTargetVertex, ezVec2::MakeZero());
+        }
       }
 
-      if (bHasTexCoord1)
+      if (bShouldHaveTexCoord1)
       {
-        splineMeshBufferDesc.SetTexCoord1(uiTargetVertex, meshBufferDesc.GetTexCoord1(v));
+        splineMeshBufferDesc.SetTexCoord1(uiTargetVertex, vertexStreamConfig.HasTexCoord1() ? meshBufferDesc.GetTexCoord1(v) : ezVec2::MakeZero());
       }
 
-      if (bHasColor0)
+      if (bShouldHaveColor0)
       {
-        splineMeshBufferDesc.SetColor0(uiTargetVertex, meshBufferDesc.GetColor0(v));
+        splineMeshBufferDesc.SetColor0(uiTargetVertex, vertexStreamConfig.HasColor0() ? meshBufferDesc.GetColor0(v) : ezColor::Black);
       }
 
-      if (bHasColor1)
+      if (bShouldHaveColor1)
       {
-        splineMeshBufferDesc.SetColor1(uiTargetVertex, meshBufferDesc.GetColor1(v));
+        splineMeshBufferDesc.SetColor1(uiTargetVertex, vertexStreamConfig.HasColor1() ? meshBufferDesc.GetColor1(v) : ezColor::Black);
       }
     }
 
@@ -450,7 +460,7 @@ ezResult ezSplineMeshComponent::GenerateSplineMeshDesc(const ezSpline& spline, c
     if (meshBufferDesc.HasIndexBuffer())
     {
       auto sourceIndices = meshBufferDesc.GetIndexBufferData();
-      EZ_ASSERT_DEV(meshBufferDesc.Uses32BitIndices() == splineMeshBufferDesc.Uses32BitIndices(), "Index buffer format mismatch");
+      bool bSourceUses32BitIndices = meshBufferDesc.Uses32BitIndices();
 
       const ezUInt32 uiFirstVertex = firstVertexPerMesh[subMeshInfo.uiMeshIndex];
       const ezUInt32 uiSourceFirstIndex = ezGALPrimitiveTopology::GetIndexCount(topology, subMeshInfo.uiFirstPrimitive);
@@ -460,16 +470,31 @@ ezResult ezSplineMeshComponent::GenerateSplineMeshDesc(const ezSpline& spline, c
 
       if (splineMeshBufferDesc.Uses32BitIndices())
       {
-        auto pSourceIndices32 = reinterpret_cast<const ezUInt32*>(sourceIndices.GetPtr());
-        auto pTargetIndices32 = reinterpret_cast<ezUInt32*>(targetIndices.GetData());
-        for (ezUInt32 i = 0; i < uiSourceIndexCount; ++i)
+        if (bSourceUses32BitIndices)
         {
-          pTargetIndices32[uiTargetIndex] = pSourceIndices32[i + uiSourceFirstIndex] + uiFirstVertex;
-          ++uiTargetIndex;
+          auto pSourceIndices32 = reinterpret_cast<const ezUInt32*>(sourceIndices.GetPtr());
+          auto pTargetIndices32 = reinterpret_cast<ezUInt32*>(targetIndices.GetData());
+          for (ezUInt32 i = 0; i < uiSourceIndexCount; ++i)
+          {
+            pTargetIndices32[uiTargetIndex] = pSourceIndices32[i + uiSourceFirstIndex] + uiFirstVertex;
+            ++uiTargetIndex;
+          }
+        }
+        else
+        {
+          auto pSourceIndices16 = reinterpret_cast<const ezUInt16*>(sourceIndices.GetPtr());
+          auto pTargetIndices32 = reinterpret_cast<ezUInt32*>(targetIndices.GetData());
+          for (ezUInt32 i = 0; i < uiSourceIndexCount; ++i)
+          {
+            pTargetIndices32[uiTargetIndex] = pSourceIndices16[i + uiSourceFirstIndex] + uiFirstVertex;
+            ++uiTargetIndex;
+          }
         }
       }
       else
       {
+        EZ_ASSERT_DEV(bSourceUses32BitIndices == false, "Mesh uses 32 bit indices, but target buffer is configured for 16 bit indices. This should not happen.");
+
         auto pSourceIndices16 = reinterpret_cast<const ezUInt16*>(sourceIndices.GetPtr());
         auto pTargetIndices16 = reinterpret_cast<ezUInt16*>(targetIndices.GetData());
         for (ezUInt32 i = 0; i < uiSourceIndexCount; ++i)
@@ -800,6 +825,8 @@ ezUInt32 ezSplineMeshComponent::FindBestMiddlePart(float fRequestedLength, ezArr
 
 ezResult ezSplineMeshComponent::GenerateSplineMesh(const ezSplineComponent& splineComponent, ezMeshResourceDescriptor& out_splineMeshDesc, ezMsgGenerateSplineMeshCollision* out_pMsg /*= nullptr*/) const
 {
+  EZ_PROFILE_SCOPE("GenerateSplineMesh");
+
   ezTempHybridArray<ezMeshResourceHandle, 16> meshes;
   ezTempHybridArray<ezVec2, 16> scaleOffsets;
   EZ_SUCCEED_OR_RETURN(GenerateDistribution(splineComponent, meshes, scaleOffsets));
@@ -850,19 +877,23 @@ void ezSplineMeshComponent::UpdateSplineMesh()
 
     m_uiLastSplineChangeCounter = pSplineComponent->GetChangeCounter();
 
-    ezFileWriter file;
-    if (file.Open(sMeshPath).Succeeded())
     {
-      ezAssetFileHeader header;
-      header.SetFileHashAndVersion(m_uiStableId, 0);
-      header.Write(file).IgnoreResult();
+      EZ_PROFILE_SCOPE("SaveSplineMeshToDisk");
 
-      splineMeshDesc.Save(file);
-    }
-    else
-    {
-      ezLog::Error("Failed to save generated spline mesh to '{}'", sMeshPath);
-      return;
+      ezFileWriter file;
+      if (file.Open(sMeshPath).Succeeded())
+      {
+        ezAssetFileHeader header;
+        header.SetFileHashAndVersion(m_uiStableId, 0);
+        header.Write(file).IgnoreResult();
+
+        splineMeshDesc.Save(file);
+      }
+      else
+      {
+        ezLog::Error("Failed to save generated spline mesh to '{}'", sMeshPath);
+        return;
+      }
     }
 
     GetOwner()->PostMessage(genColMsg, ezTime::MakeZero());
