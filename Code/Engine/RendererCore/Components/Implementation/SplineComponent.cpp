@@ -210,69 +210,63 @@ void ezSplineComponent::SetSplineFlags(ezBitflags<ezSplineComponentFlags> flags)
 
 ezVec3 ezSplineComponent::GetPositionAtKey(float fKey, ezEnum<ezSplineComponentSpace> space /* = ezSplineComponentSpace::Default*/) const
 {
-  ezVec3 pos = ezSimdConversion::ToVec3(m_Spline.EvaluatePosition(fKey));
+  ezSimdVec4f pos = m_Spline.EvaluatePosition(fKey);
 
   if (space == ezSplineComponentSpace::Global)
   {
-    pos = GetOwner()->GetGlobalTransform().TransformPosition(pos);
+    pos = GetOwner()->GetGlobalTransformSimd().TransformPosition(pos);
   }
 
-  return pos;
+  return ezSimdConversion::ToVec3(pos);
 }
 
 ezVec3 ezSplineComponent::GetForwardDirAtKey(float fKey, ezEnum<ezSplineComponentSpace> space /* = ezSplineComponentSpace::Default*/) const
 {
-  auto dir0 = m_Spline.EvaluateDerivative(fKey);
-  ezVec3 dir = ezSimdConversion::ToVec3(dir0);
-
-  if (dir.IsZero(0.0001f))
-  {
-    dir = ezVec3::MakeAxisX();
-  }
-
+  ezSimdVec4f dir = m_Spline.EvaluateDerivative(fKey);
+  dir.NormalizeIfNotZero<3>(ezSimdVec4f(1, 0, 0, 0), 0.0001f);
 
   if (space == ezSplineComponentSpace::Global)
   {
-    dir = GetOwner()->GetGlobalTransform().TransformDirection(dir);
+    dir = GetOwner()->GetGlobalTransformSimd().TransformDirection(dir);
   }
 
-  return dir;
+  return ezSimdConversion::ToVec3(dir);
 }
 
 ezVec3 ezSplineComponent::GetUpDirAtKey(float fKey, ezEnum<ezSplineComponentSpace> space /* = ezSplineComponentSpace::Default*/) const
 {
-  ezVec3 dir = ezSimdConversion::ToVec3(m_Spline.EvaluateUpDirection(fKey));
+  ezSimdVec4f dir = m_Spline.EvaluateUpDirection(fKey);
 
   if (space == ezSplineComponentSpace::Global)
   {
-    dir = GetOwner()->GetGlobalTransform().TransformDirection(dir);
+    dir = GetOwner()->GetGlobalTransformSimd().TransformDirection(dir);
   }
 
-  return dir;
+  return ezSimdConversion::ToVec3(dir);
 }
 
 ezVec3 ezSplineComponent::GetScaleAtKey(float fKey, ezEnum<ezSplineComponentSpace> space /* = ezSplineComponentSpace::Default*/) const
 {
-  ezVec3 scale = ezSimdConversion::ToVec3(m_Spline.EvaluateScale(fKey));
+  ezSimdVec4f scale = m_Spline.EvaluateScale(fKey);
 
   if (space == ezSplineComponentSpace::Global)
   {
-    scale = scale.CompMul(GetOwner()->GetGlobalTransform().m_vScale);
+    scale = scale.CompMul(GetOwner()->GetGlobalTransformSimd().m_Scale);
   }
 
-  return scale;
+  return ezSimdConversion::ToVec3(scale);
 }
 
 ezTransform ezSplineComponent::GetTransformAtKey(float fKey, ezEnum<ezSplineComponentSpace> space /* = ezSplineComponentSpace::Default*/) const
 {
-  ezTransform t = ezSimdConversion::ToTransform(m_Spline.EvaluateTransform(fKey));
+  ezSimdTransform t = m_Spline.EvaluateTransform(fKey);
 
   if (space == ezSplineComponentSpace::Global)
   {
-    t = ezTransform::MakeGlobalTransform(GetOwner()->GetGlobalTransform(), t);
+    t = ezSimdTransform::MakeGlobalTransform(GetOwner()->GetGlobalTransformSimd(), t);
   }
 
-  return t;
+  return ezSimdConversion::ToTransform(t);
 }
 
 float ezSplineComponent::GetSegmentLength(ezUInt32 uiSegmentIndex) const
