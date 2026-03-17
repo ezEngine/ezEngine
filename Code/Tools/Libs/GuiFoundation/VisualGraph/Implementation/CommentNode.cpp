@@ -26,6 +26,7 @@ void ezQtVisualGraphCommentNode::InitNode(const ezVisualGraphObjectManager* pMan
   m_pManager = pManager;
 
   m_pCommentLabel = new QGraphicsTextItem(this);
+  m_pCommentLabel->setAcceptHoverEvents(false); // let hover events fall through to the parent so resize cursor detection works correctly
 
   QFont font = QApplication::font();
   font.setPointSizeF(font.pointSizeF() * 1.1f);
@@ -230,8 +231,10 @@ void ezQtVisualGraphCommentNode::mousePressEvent(QGraphicsSceneMouseEvent* event
         continue;
 
       // Only if the node's center is inside the comment bounds
+      // Skip selected nodes: they are already moved by the scene's selection logic,
+      // so adding them here would apply the movement delta twice.
       QPointF nodeCenter = pItem->mapToScene(pItem->boundingRect().center());
-      if (sceneRect.contains(nodeCenter))
+      if (sceneRect.contains(nodeCenter) && !pItem->isSelected())
       {
         m_ContainedNodes.PushBack(pItem);
       }
