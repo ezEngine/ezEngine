@@ -106,6 +106,7 @@ private:
 protected:
   virtual ezStatus RemoveNode(ezQtVisualGraphNode* pNode);
   virtual void RemoveSelectedNodesAction();
+  virtual void AddCommentAroundSelectionAction();
   virtual void ConnectPinsAction(const ezVisualGraphPin& sourcePin, const ezVisualGraphPin& targetPin);
   virtual void DisconnectPinsAction(ezQtVisualGraphConnection* pConnection);
   virtual void DisconnectPinsAction(ezQtVisualGraphPin* pPin);

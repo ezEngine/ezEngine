@@ -378,6 +378,15 @@ void ezQtVisualGraphScene::contextMenuEvent(QGraphicsSceneContextMenuEvent* cont
         });
     }
 
+    // Add Comment
+    {
+      QAction* pAction = new QAction("Add Comment", &menu);
+      pAction->setShortcut(QKeySequence("Ctrl+K"));
+      menu.addAction(pAction);
+      connect(pAction, &QAction::triggered, this, [this](bool bChecked)
+        { AddCommentAroundSelectionAction(); });
+    }
+
     pNode->ExtendContextMenu(menu);
   }
   else if (iType == Type::Connection)
@@ -421,6 +430,10 @@ void ezQtVisualGraphScene::keyPressEvent(QKeyEvent* event)
   else if (event->key() == Qt::Key_Space)
   {
     OpenSearchMenu(QCursor::pos());
+  }
+  else if (event->key() == Qt::Key_K && event->modifiers() == Qt::ControlModifier)
+  {
+    AddCommentAroundSelectionAction();
   }
 
   // Pass Shortcuts/KeyPresses up the chain again, so e.g. Ctrl+S work even if inside a window
@@ -879,6 +892,68 @@ void ezQtVisualGraphScene::RemoveSelectedNodesAction()
   }
 
   history->FinishTransaction();
+}
+
+void ezQtVisualGraphScene::AddCommentAroundSelectionAction()
+{
+  constexpr float fPadding = 20.0f;
+  constexpr float fHeaderHeight = 26.0f;
+
+  ezVec2 vPos = m_vMousePos;
+  ezVec2 vSize(300.0f, 200.0f);
+  bool bCustomSize = false;
+
+  ezDeque<ezQtVisualGraphNode*> selection;
+  GetSelectedNodes(selection);
+
+  if (!selection.IsEmpty())
+  {
+    QRectF bounds;
+    for (const ezQtVisualGraphNode* pNode : selection)
+      bounds = bounds.united(pNode->sceneBoundingRect());
+
+    vPos.x = static_cast<float>(bounds.left()) - fPadding;
+    vPos.y = static_cast<float>(bounds.top()) - fHeaderHeight - fPadding;
+    vSize.x = static_cast<float>(bounds.width()) + fPadding * 2.0f;
+    vSize.y = static_cast<float>(bounds.height()) + fHeaderHeight + fPadding * 2.0f;
+    bCustomSize = true;
+  }
+
+  ezCommandHistory* history = m_pManager->GetDocument()->GetCommandHistory();
+  history->StartTransaction("Add Comment");
+
+  ezStatus res(EZ_SUCCESS);
+  {
+    ezAddObjectCommand cmd;
+    cmd.m_pType = ezGetStaticRTTI<ezVisualGraphComment>();
+    cmd.m_NewObjectGuid = ezUuid::MakeUuid();
+    cmd.m_Index = -1;
+    res = history->AddCommand(cmd);
+
+    if (res.Succeeded())
+    {
+      ezMoveNodeCommand move;
+      move.m_Object = cmd.m_NewObjectGuid;
+      move.m_NewPos = vPos;
+      res = history->AddCommand(move);
+    }
+
+    if (res.Succeeded() && bCustomSize)
+    {
+      ezSetObjectPropertyCommand setCmd;
+      setCmd.m_Object = cmd.m_NewObjectGuid;
+      setCmd.m_sProperty = "Size";
+      setCmd.m_NewValue = vSize;
+      res = history->AddCommand(setCmd);
+    }
+  }
+
+  if (res.Failed())
+    history->CancelTransaction();
+  else
+    history->FinishTransaction();
+
+  ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Adding comment node failed.");
 }
 
 void ezQtVisualGraphScene::ConnectPinsAction(const ezVisualGraphPin& sourcePin, const ezVisualGraphPin& targetPin)
