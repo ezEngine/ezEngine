@@ -12,7 +12,6 @@ class ezQtVisualGraphScene;
 /// Renders a grid background and handles the display of the graph scene.
 class EZ_GUIFOUNDATION_DLL ezQtVisualGraphView : public QGraphicsView
 {
-
   Q_OBJECT
 public:
   explicit ezQtVisualGraphView(QWidget* pParent = nullptr);
@@ -22,6 +21,8 @@ public:
   ezQtVisualGraphScene* GetScene();
 
   /// Centers and scales the view to frame all visible scene items with some margin.
+  ///
+  /// Frames only the selected items if a selection exists, otherwise all visible nodes.
   void FrameContent();
 
 protected:

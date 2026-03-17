@@ -202,6 +202,8 @@ void ezQtVisualGraphView::drawBackground(QPainter* painter, const QRectF& r)
 {
   if (m_bFrameOnNextDraw)
   {
+    // Frame is deferred until drawBackground because SetScene() is called before the
+    // widget has its final geometry, so width()/height() would be zero at that point.
     m_bFrameOnNextDraw = false;
     ezQtVisualGraphView::FrameContent();
     UpdateView();

@@ -897,7 +897,7 @@ void ezQtVisualGraphScene::RemoveSelectedNodesAction()
 void ezQtVisualGraphScene::AddCommentAroundSelectionAction()
 {
   constexpr float fPadding = 20.0f;
-  constexpr float fHeaderHeight = 26.0f;
+  constexpr float fHeaderHeight = 26.0f; // must match ezQtVisualGraphCommentNode::s_fHeaderHeight
 
   ezVec2 vPos = m_vMousePos;
   ezVec2 vSize(300.0f, 200.0f);

@@ -17,7 +17,7 @@ ezQtVisualGraphCommentNode::ezQtVisualGraphCommentNode()
 {
   m_CommentColor = QColor(70, 70, 70, 200);
 
-  setZValue(-100);
+  setZValue(-100); // render below all regular nodes
   setAcceptHoverEvents(true);
 }
 
@@ -136,6 +136,8 @@ void ezQtVisualGraphCommentNode::paint(QPainter* painter, const QStyleOptionGrap
   painter->setBrush(Qt::NoBrush);
   painter->drawPath(path());
 
+  // Invert the theme text color when the comment background is light,
+  // so that the label stays readable on both dark and light comment colors.
   QColor textColor = palette.buttonText().color();
   const bool bBackgroundIsLight = m_CommentColor.lightnessF() > 0.6f;
   if (bBackgroundIsLight)
@@ -220,7 +222,7 @@ void ezQtVisualGraphCommentNode::mousePressEvent(QGraphicsSceneMouseEvent* event
 
     for (QGraphicsItem* pItem : items)
     {
-      if (pItem == this || pItem->parentItem() != nullptr)
+      if (pItem == this || pItem->parentItem() != nullptr) // skip self and child items (e.g. pin graphics items)
         continue;
 
       // Only include top-level items that are our node type
