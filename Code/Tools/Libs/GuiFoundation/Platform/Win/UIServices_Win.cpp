@@ -6,8 +6,8 @@
 #  include <ToolsFoundation/Application/ApplicationServices.h>
 #  include <ToolsFoundation/Project/ToolsProject.h>
 
+#  include <Foundation/IO/OSFile.h>
 #  include <ShlObj_core.h>
-#include <Foundation/IO/OSFile.h>
 
 void ezQtUiServices::OpenInExplorer(const char* szPath, bool bIsFile)
 {
