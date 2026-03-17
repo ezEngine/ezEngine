@@ -6,6 +6,7 @@
 #include <ToolsFoundation/CommandHistory/CommandHistory.h>
 #include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
+#include <ToolsFoundation/VisualGraph/VisualGraphCommentNode.h>
 #include <ToolsFoundation/VisualGraph/VisualGraphObjectManager.h>
 
 // clang-format off

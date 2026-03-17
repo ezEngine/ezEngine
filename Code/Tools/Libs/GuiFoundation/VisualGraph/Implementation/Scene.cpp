@@ -4,12 +4,11 @@
 #include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <GuiFoundation/VisualGraph/CommentNode.h>
 #include <GuiFoundation/VisualGraph/Connection.h>
 #include <GuiFoundation/VisualGraph/Node.h>
 #include <GuiFoundation/VisualGraph/Pin.h>
 #include <GuiFoundation/Widgets/SearchableMenu.moc.h>
-#include <QGraphicsSceneMouseEvent>
-#include <QMenu>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Command/VisualGraphCommands.h>
 #include <ToolsFoundation/VisualGraph/VisualGraphCommentNode.h>
@@ -19,6 +18,7 @@ ezRttiMappedObjectFactory<ezQtVisualGraphPin> ezQtVisualGraphScene::s_PinFactory
 ezRttiMappedObjectFactory<ezQtVisualGraphConnection> ezQtVisualGraphScene::s_ConnectionFactory;
 
 ezVec2 ezQtVisualGraphScene::s_vLastMouseInteraction(0);
+
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, VisualGraphComment)
 

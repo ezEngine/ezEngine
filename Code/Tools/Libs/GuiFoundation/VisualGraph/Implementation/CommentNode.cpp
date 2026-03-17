@@ -103,8 +103,11 @@ void ezQtVisualGraphCommentNode::paint(QPainter* painter, const QStyleOptionGrap
   auto palette = QApplication::palette();
 
   // Background
+  QColor backgroundColor = m_CommentColor;
+  backgroundColor.setAlphaF(0.3f);
+
   painter->setPen(Qt::NoPen);
-  painter->setBrush(m_CommentColor);
+  painter->setBrush(backgroundColor);
   painter->drawPath(path());
 
   // Header bar
