@@ -35,6 +35,38 @@ ezQtVisualGraphScene* ezQtVisualGraphView::GetScene()
   return m_pScene;
 }
 
+void ezQtVisualGraphView::FrameContent()
+{
+  if (m_pScene == nullptr || width() == 0 || height() == 0)
+    return;
+
+  // bounding rect of all visible items
+  QRectF contentRect;
+  for (QGraphicsItem* pItem : m_pScene->items())
+  {
+    if (pItem->isVisible() && pItem->parentItem() == nullptr)
+    {
+      contentRect = contentRect.united(pItem->sceneBoundingRect());
+    }
+  }
+
+  if (contentRect.isEmpty())
+    return;
+
+  // margin
+  const double fMargin = 50.0;
+  contentRect.adjust(-fMargin, -fMargin, fMargin, fMargin);
+
+  const double fScaleX = width() / contentRect.width();
+  const double fScaleY = height() / contentRect.height();
+  double fScale = qMin(fScaleX, fScaleY);
+  fScale = ezMath::Clamp(fScale, 0.01, 2.0);
+
+  m_ViewScale = QPointF(fScale, fScale);
+  m_ViewPos = contentRect.topLeft();
+  UpdateView();
+}
+
 void ezQtVisualGraphView::mousePressEvent(QMouseEvent* event)
 {
   QGraphicsView::mousePressEvent(event);

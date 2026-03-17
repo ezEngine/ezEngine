@@ -33,7 +33,9 @@ public:
   const QPointF& GetOutPos() const { return m_OutPoint; }
 
   bool m_bAdjacentNodeSelected = false;
-
+  // NOTE(Mikael A.): This is for AnimGraph debugging only, to mark the connection as active. other plugins could take advantage?
+  bool m_bIsActive = false;
+  
   virtual void ExtendContextMenu(QMenu& ref_menu) {}
 
 protected:

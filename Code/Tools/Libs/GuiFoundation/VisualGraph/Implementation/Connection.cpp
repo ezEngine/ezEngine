@@ -152,6 +152,11 @@ QPen ezQtVisualGraphConnection::DeterminePen() const
   {
     color = ezMath::Lerp(sourceColor, targetColor, 0.8f);
   }
+  else if (m_bIsActive)
+  {
+    color = ezMath::Lerp(color, ezColor::White, 0.3f);
+    return QPen(QBrush(ezToQtColor(color)), 4, Qt::SolidLine);
+  }
   else
   {
     color = ezMath::Lerp(sourceColor, targetColor, 0.5f);

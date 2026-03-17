@@ -11,11 +11,33 @@
 #include <QMenu>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Command/VisualGraphCommands.h>
+#include <ToolsFoundation/VisualGraph/VisualGraphCommentNode.h>
 
 ezRttiMappedObjectFactory<ezQtVisualGraphNode> ezQtVisualGraphScene::s_NodeFactory;
 ezRttiMappedObjectFactory<ezQtVisualGraphPin> ezQtVisualGraphScene::s_PinFactory;
 ezRttiMappedObjectFactory<ezQtVisualGraphConnection> ezQtVisualGraphScene::s_ConnectionFactory;
+
 ezVec2 ezQtVisualGraphScene::s_vLastMouseInteraction(0);
+// clang-format off
+EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, VisualGraphComment)
+
+  BEGIN_SUBSYSTEM_DEPENDENCIES
+    "ReflectedTypeManager"
+  END_SUBSYSTEM_DEPENDENCIES
+
+  ON_CORESYSTEMS_STARTUP
+  {
+    ezQtVisualGraphScene::GetNodeFactory().RegisterCreator(ezGetStaticRTTI<ezVisualGraphComment>(), [](const ezRTTI* pRtti) -> ezQtVisualGraphNode*
+      { return new ezQtVisualGraphCommentNode(); });
+  }
+
+  ON_CORESYSTEMS_SHUTDOWN
+  {
+    ezQtVisualGraphScene::GetNodeFactory().UnregisterCreator(ezGetStaticRTTI<ezVisualGraphComment>());
+  }
+
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 ezQtVisualGraphScene::ezQtVisualGraphScene(QObject* pParent)
   : QGraphicsScene(pParent)
@@ -754,6 +776,14 @@ void ezQtVisualGraphScene::OpenSearchMenu(QPoint screenPos)
 
   m_NodeCreationTemplates.Clear();
   m_pManager->GetNodeCreationTemplates(m_NodeCreationTemplates);
+
+  // Add comment node template
+  {
+    ezVisualGraphNodeDesc& commentDesc = m_NodeCreationTemplates.ExpandAndGetRef();
+    commentDesc.m_pType = ezGetStaticRTTI<ezVisualGraphComment>();
+    commentDesc.m_sTypeName = "Comment";
+    commentDesc.m_sCategory = ezMakeHashedString("Misc");
+  }
 
   for (ezUInt32 i = 0; i < m_NodeCreationTemplates.GetCount(); ++i)
   {

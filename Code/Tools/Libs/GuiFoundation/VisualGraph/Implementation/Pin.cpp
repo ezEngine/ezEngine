@@ -46,6 +46,11 @@ void ezQtVisualGraphPin::ConnectedStateChanged(bool bConnected)
   UpdatePinColors();
 }
 
+ezQtVisualGraphPin* ezQtVisualGraphPin::GetInternalPin()
+{
+  return m_pPin;
+}
+
 void ezQtVisualGraphPin::SetPin(const ezVisualGraphPin& pin)
 {
   m_pPin = &pin;

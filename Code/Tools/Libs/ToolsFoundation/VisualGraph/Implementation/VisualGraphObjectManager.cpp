@@ -212,6 +212,14 @@ bool ezVisualGraphObjectManager::IsConnection(const ezDocumentObject* pObject) c
   return InternalIsConnection(pObject);
 }
 
+bool ezVisualGraphObjectManager::IsComment(const ezDocumentObject* pObject) const
+{
+  if (pObject == nullptr)
+    return false;
+
+  return pObject->GetType()->IsDerivedFrom<ezVisualGraphComment>();
+}
+
 bool ezVisualGraphObjectManager::IsDynamicPinProperty(const ezDocumentObject* pObject, const ezAbstractProperty* pProp) const
 {
   if (IsNode(pObject) == false)
