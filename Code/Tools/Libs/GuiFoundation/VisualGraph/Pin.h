@@ -51,7 +51,6 @@ public:
 protected:
   virtual bool UpdatePinColors(const ezColorGammaUB* pOverwriteColor = nullptr);
   virtual QVariant itemChange(GraphicsItemChange change, const QVariant& value) override;
-  ezVisualGraphPin* GetInternalPin();
   
   ezQtVisualGraphPinHighlight m_HighlightState = ezQtVisualGraphPinHighlight::None;
   QGraphicsTextItem* m_pLabel;

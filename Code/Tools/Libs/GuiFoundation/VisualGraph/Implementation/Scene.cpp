@@ -1,5 +1,6 @@
 #include <GuiFoundation/GuiFoundationPCH.h>
 
+#include <Foundation/Configuration/Startup.h>
 #include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>

@@ -198,6 +198,9 @@ bool ezVisualGraphObjectManager::IsNode(const ezDocumentObject* pObject) const
   if (pObject == GetRootObject())
     return false;
 
+  if (pObject->GetType()->IsDerivedFrom<ezVisualGraphComment>())
+    return true;
+
   return InternalIsNode(pObject);
 }
 
