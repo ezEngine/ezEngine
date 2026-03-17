@@ -213,7 +213,7 @@ void ezQtVisualGraphCommentNode::mousePressEvent(QGraphicsSceneMouseEvent* event
   m_ContainedNodes.Clear();
   m_vPrevPos = pos();
 
-  if (scene())
+  if (scene() && !(event->modifiers() & Qt::Modifier::SHIFT)) // holding SHIFT deactivates movement of contained nodes
   {
     QRectF sceneRect = mapToScene(path().boundingRect()).boundingRect();
     QList<QGraphicsItem*> items = scene()->items(sceneRect, Qt::IntersectsItemBoundingRect);
