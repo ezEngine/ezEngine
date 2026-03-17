@@ -363,7 +363,7 @@ void ezQtVisualGraphScene::contextMenuEvent(QGraphicsSceneContextMenuEvent* cont
     // Frame Content
     {
       QAction* pAction = new QAction("Frame", &menu);
-      pAction->setShortcut(QKeySequence("Ctrl+F"));
+      pAction->setShortcut(QKeySequence("F"));
 
       menu.addAction(pAction);
       connect(pAction, &QAction::triggered, this, [this](bool bChecked)
@@ -381,7 +381,7 @@ void ezQtVisualGraphScene::contextMenuEvent(QGraphicsSceneContextMenuEvent* cont
     // Add Comment
     {
       QAction* pAction = new QAction("Add Comment", &menu);
-      pAction->setShortcut(QKeySequence("Ctrl+K"));
+      pAction->setShortcut(QKeySequence("C"));
       menu.addAction(pAction);
       connect(pAction, &QAction::triggered, this, [this](bool bChecked)
         { AddCommentAroundSelectionAction(); });
@@ -431,7 +431,7 @@ void ezQtVisualGraphScene::keyPressEvent(QKeyEvent* event)
   {
     OpenSearchMenu(QCursor::pos());
   }
-  else if (event->key() == Qt::Key_K && event->modifiers() == Qt::ControlModifier)
+  else if (event->key() == Qt::Key_C && event->modifiers() == Qt::NoModifier)
   {
     AddCommentAroundSelectionAction();
   }

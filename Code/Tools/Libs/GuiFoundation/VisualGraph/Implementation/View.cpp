@@ -181,7 +181,7 @@ void ezQtVisualGraphView::contextMenuEvent(QContextMenuEvent* event)
 
 void ezQtVisualGraphView::keyPressEvent(QKeyEvent* event)
 {
-  if (event->key() == Qt::Key_F && event->modifiers() == Qt::ControlModifier)
+  if (event->key() == Qt::Key_F && event->modifiers() == Qt::NoModifier)
   {
     FrameContent();
     event->accept();
@@ -205,9 +205,7 @@ void ezQtVisualGraphView::drawBackground(QPainter* painter, const QRectF& r)
     // Frame is deferred until drawBackground because SetScene() is called before the
     // widget has its final geometry, so width()/height() would be zero at that point.
     m_bFrameOnNextDraw = false;
-    ezQtVisualGraphView::FrameContent();
-    UpdateView();
-    return;
+    QTimer::singleShot(10, this, &ezQtVisualGraphView::FrameContent);
   }
 
   QGraphicsView::drawBackground(painter, r);
