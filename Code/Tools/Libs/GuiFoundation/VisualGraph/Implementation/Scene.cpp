@@ -76,7 +76,7 @@ void ezQtVisualGraphScene::InitScene(const ezVisualGraphObjectManager* pManager)
   const auto& rootObjects = pManager->GetRootObject()->GetChildren();
   for (const auto& pObject : rootObjects)
   {
-    if (pManager->IsNode(pObject))
+    if (pManager->IsNode(pObject) || pManager->IsComment(pObject))
     {
       CreateQtNode(pObject);
     }
@@ -439,7 +439,7 @@ void ezQtVisualGraphScene::CreateQtNode(const ezDocumentObject* pObject)
 
   pNode->ResetFlags();
 
-  // Note: We dont create connections here as it can cause recusion issues
+  // Note: We don't create connections here as it can cause recursion issues
   if (m_pTempConnection)
   {
     m_pTempNode = pNode;
