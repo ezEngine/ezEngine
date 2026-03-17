@@ -8,6 +8,7 @@
 #include <GuiFoundation/VisualGraph/Connection.h>
 #include <GuiFoundation/VisualGraph/Node.h>
 #include <GuiFoundation/VisualGraph/Pin.h>
+#include <GuiFoundation/VisualGraph/View.moc.h>
 #include <GuiFoundation/Widgets/SearchableMenu.moc.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Command/VisualGraphCommands.h>
@@ -353,9 +354,28 @@ void ezQtVisualGraphScene::contextMenuEvent(QGraphicsSceneContextMenuEvent* cont
     // Delete Node
     {
       QAction* pAction = new QAction("Remove", &menu);
+      pAction->setShortcut(QKeySequence("Del"));
       menu.addAction(pAction);
       connect(pAction, &QAction::triggered, this, [this](bool bChecked)
         { RemoveSelectedNodesAction(); });
+    }
+
+    // Frame Content
+    {
+      QAction* pAction = new QAction("Frame", &menu);
+      pAction->setShortcut(QKeySequence("Ctrl+F"));
+
+      menu.addAction(pAction);
+      connect(pAction, &QAction::triggered, this, [this](bool bChecked)
+        {
+          QList<QGraphicsView*> viewList = views();
+          if (!viewList.isEmpty())
+          {
+            if (ezQtVisualGraphView* pView = qobject_cast<ezQtVisualGraphView*>(viewList.first()))
+              pView->FrameContent();
+          }
+          //
+        });
     }
 
     pNode->ExtendContextMenu(menu);

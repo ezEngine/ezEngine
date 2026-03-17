@@ -2,7 +2,9 @@
 
 #include <GuiFoundation/VisualGraph/Scene.moc.h>
 #include <GuiFoundation/VisualGraph/View.moc.h>
+#include <QKeyEvent>
 #include <QMouseEvent>
+#include <QTimer>
 
 ezQtVisualGraphView::ezQtVisualGraphView(QWidget* pParent)
   : QGraphicsView(pParent)
@@ -27,6 +29,7 @@ void ezQtVisualGraphView::SetScene(ezQtVisualGraphScene* pScene)
   QRectF sceneRect = m_pScene->sceneRect();
   m_ViewPos = sceneRect.topLeft();
   m_ViewScale = QPointF(1, 1);
+  m_bFrameOnNextDraw = true;
   UpdateView();
 }
 
@@ -40,13 +43,23 @@ void ezQtVisualGraphView::FrameContent()
   if (m_pScene == nullptr || width() == 0 || height() == 0)
     return;
 
-  // bounding rect of all visible items
+  // use selected nodes if any, otherwise all visible top-level items
   QRectF contentRect;
-  for (QGraphicsItem* pItem : m_pScene->items())
+  const QList<QGraphicsItem*> selection = m_pScene->selectedItems();
+  if (!selection.isEmpty())
   {
-    if (pItem->isVisible() && pItem->parentItem() == nullptr)
+    for (QGraphicsItem* pItem : selection)
     {
-      contentRect = contentRect.united(pItem->sceneBoundingRect());
+      if (pItem->isVisible())
+        contentRect = contentRect.united(pItem->sceneBoundingRect());
+    }
+  }
+  else
+  {
+    for (QGraphicsItem* pItem : m_pScene->items())
+    {
+      if (pItem->isVisible() && pItem->type() == ezQtVisualGraphScene::Node)
+        contentRect = contentRect.united(pItem->sceneBoundingRect());
     }
   }
 
@@ -63,7 +76,11 @@ void ezQtVisualGraphView::FrameContent()
   fScale = ezMath::Clamp(fScale, 0.01, 2.0);
 
   m_ViewScale = QPointF(fScale, fScale);
-  m_ViewPos = contentRect.topLeft();
+
+  const double fViewWidth = width() / fScale;
+  const double fViewHeight = height() / fScale;
+  m_ViewPos = QPointF(contentRect.center().x() - fViewWidth * 0.5, contentRect.center().y() - fViewHeight * 0.5);
+
   UpdateView();
 }
 
@@ -162,14 +179,35 @@ void ezQtVisualGraphView::contextMenuEvent(QContextMenuEvent* event)
   QGraphicsView::contextMenuEvent(event);
 }
 
+void ezQtVisualGraphView::keyPressEvent(QKeyEvent* event)
+{
+  if (event->key() == Qt::Key_F && event->modifiers() == Qt::ControlModifier)
+  {
+    FrameContent();
+    event->accept();
+    return;
+  }
+
+  QGraphicsView::keyPressEvent(event);
+}
+
 void ezQtVisualGraphView::resizeEvent(QResizeEvent* event)
 {
   QGraphicsView::resizeEvent(event);
+
   UpdateView();
 }
 
 void ezQtVisualGraphView::drawBackground(QPainter* painter, const QRectF& r)
 {
+  if (m_bFrameOnNextDraw)
+  {
+    m_bFrameOnNextDraw = false;
+    ezQtVisualGraphView::FrameContent();
+    UpdateView();
+    return;
+  }
+
   QGraphicsView::drawBackground(painter, r);
 
   if (m_ViewScale.manhattanLength() > 1.0)

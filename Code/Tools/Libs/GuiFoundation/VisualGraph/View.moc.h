@@ -30,6 +30,7 @@ protected:
   virtual void mouseReleaseEvent(QMouseEvent* event) override;
   virtual void wheelEvent(QWheelEvent* event) override;
   virtual void contextMenuEvent(QContextMenuEvent* event) override;
+  virtual void keyPressEvent(QKeyEvent* event) override;
   virtual void resizeEvent(QResizeEvent*) override;
   virtual void drawBackground(QPainter* painter, const QRectF& r) override;
 
@@ -42,6 +43,7 @@ private:
 private:
   ezQtVisualGraphScene* m_pScene = nullptr;
   bool m_bPanning = false;
+  bool m_bFrameOnNextDraw = false;
   ezInt32 m_iPanCounter = 0;
 
   QPointF m_ViewPos;
