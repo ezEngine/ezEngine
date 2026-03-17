@@ -136,9 +136,15 @@ void ezQtVisualGraphCommentNode::paint(QPainter* painter, const QStyleOptionGrap
   painter->setBrush(Qt::NoBrush);
   painter->drawPath(path());
 
-  // Text color adapts to background brightness
-  const bool bBackgroundIsLight = m_CommentColor.lightnessF() > 0.5f;
-  QColor textColor = bBackgroundIsLight ? QColor(30, 30, 30) : QColor(220, 220, 220);
+  QColor textColor = palette.buttonText().color();
+  const bool bBackgroundIsLight = m_CommentColor.lightnessF() > 0.6f;
+  if (bBackgroundIsLight)
+  {
+    textColor.setRed(255 - textColor.red());
+    textColor.setGreen(255 - textColor.green());
+    textColor.setBlue(255 - textColor.blue());
+  }
+
   m_pCommentLabel->setDefaultTextColor(textColor);
 }
 
@@ -273,7 +279,6 @@ void ezQtVisualGraphCommentNode::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
     setPath(p);
 
     float padding = 8.0f;
-    m_pCommentLabel->setPos(padding, s_fHeaderHeight + padding);
     m_pCommentLabel->setTextWidth(m_vCurrentSize.x - padding * 2);
 
     setPos(newPos);
