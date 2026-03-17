@@ -108,4 +108,4 @@ void ezRmlUiCanvas3DInteractionExampleComponent::Update()
   Interact(input);
 }
 
-EZ_STATICLINK_FILE(RmlUiPlugin, RmlUiPlugin_Components_Implementation_RmlUiCanvas3DInteractionComponent);
+EZ_STATICLINK_FILE(RmlUiPlugin, RmlUiPlugin_Components_Implementation_RmlUiCanvas3DInteractionExampleComponent);

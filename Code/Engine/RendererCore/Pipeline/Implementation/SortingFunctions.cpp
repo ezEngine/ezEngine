@@ -83,3 +83,7 @@ ezRenderSortingFunctions::Func ezRenderSortingFunctions::GetFunction(Enum sortin
 
   return nullptr;
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_SortingFunctions);
+
