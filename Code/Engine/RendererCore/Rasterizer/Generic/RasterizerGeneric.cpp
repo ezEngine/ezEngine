@@ -416,14 +416,15 @@ void RasterizerGeneric::SetModelViewProjection(const float* pMatrix)
 
 void RasterizerGeneric::Clear()
 {
-  // 0.0f indicates a cleared block (no occluder has written to it)
+  // Use -1.0f as cleared sentinel. This is distinct from any valid depth (in [0,1])
+  // and matches the AVX2 version's use of uint16(1) as a cleared marker.
   for (ezUInt32 i = 0; i < m_HiZ.GetCount(); ++i)
   {
-    m_HiZ[i] = 0.0f;
+    m_HiZ[i] = -1.0f;
   }
 
-  // Also clear depth buffer to avoid stale values from previous frames leaking through
-  // when a partial block mask writes only some pixels on the first visit.
+  // Clear depth buffer so uncovered pixels in partial writes
+  // don't contain stale values from previous frames.
   ezMemoryUtils::ZeroFill(m_DepthBuffer.GetData(), m_DepthBuffer.GetCount());
 }
 
@@ -678,15 +679,13 @@ void RasterizerGeneric::Rasterize(const OccluderGeneric& occluder)
     ezSimdVec4f invW0, invW1, invW2, invW3;
     if constexpr (PossiblyNearClipped)
     {
-      // Note: The AVX2 version clamps invW to [-maxInvW, +maxInvW] here, but the CompMax/CompMin
-      // operations can change the bit pattern of the result even for values within range due to
-      // SSE min/max NaN handling semantics (-0.0 vs +0.0, signaling NaN propagation).
-      // Since the clamp range is sqrt(FLT_MAX) which is never reached in practice for valid
-      // geometry, we skip the clamp and just do a plain reciprocal like the non-clipped path.
-      invW0 = W0.GetReciprocal<ezMathAcc::BITS_12>();
-      invW1 = W1.GetReciprocal<ezMathAcc::BITS_12>();
-      invW2 = W2.GetReciprocal<ezMathAcc::BITS_12>();
-      invW3 = W3.GetReciprocal<ezMathAcc::BITS_12>();
+      // Clamp invW to [-maxInvW, +maxInvW] to prevent overflow, matching the AVX2 version.
+      const ezSimdVec4f vLowerBound(-s_fMaxInvW);
+      const ezSimdVec4f vUpperBound(s_fMaxInvW);
+      invW0 = W0.GetReciprocal<ezMathAcc::BITS_12>().CompMax(vLowerBound).CompMin(vUpperBound);
+      invW1 = W1.GetReciprocal<ezMathAcc::BITS_12>().CompMax(vLowerBound).CompMin(vUpperBound);
+      invW2 = W2.GetReciprocal<ezMathAcc::BITS_12>().CompMax(vLowerBound).CompMin(vUpperBound);
+      invW3 = W3.GetReciprocal<ezMathAcc::BITS_12>().CompMax(vLowerBound).CompMin(vUpperBound);
     }
     else
     {
@@ -1108,8 +1107,9 @@ void RasterizerGeneric::Rasterize(const OccluderGeneric& occluder)
         {
           const float fHiZ = pBlockRowHiZ[blockX];
 
-          // Hi-Z test: if the entire block is farther than our maximum depth, skip
-          if (fHiZ >= fPrimitiveMaxZ && fHiZ != 0.0f)
+          // Hi-Z test: if the entire block is farther than our maximum depth, skip.
+          // Cleared blocks have HiZ = -1.0f which is always < fPrimitiveMaxZ, so they pass through.
+          if (fHiZ >= fPrimitiveMaxZ)
           {
             curDepthBase += fDepthDx;
             for (int e = 0; e < 4; ++e)
@@ -1219,8 +1219,7 @@ void RasterizerGeneric::Rasterize(const OccluderGeneric& occluder)
           // Write depth for this block
           float* pBlockDepth = pBlockRowDepth + blockX * 64;
 
-          const bool bClearedBlock = (fHiZ == 0.0f);
-          float fBlockMinZ = ezMath::MaxValue<float>();
+          const bool bClearedBlock = (fHiZ < 0.0f);
 
           for (int py = 0; py < 8; ++py)
           {
@@ -1245,26 +1244,17 @@ void RasterizerGeneric::Rasterize(const OccluderGeneric& occluder)
               {
                 pBlockDepth[uiPixelIdx] = ezMath::Max(pBlockDepth[uiPixelIdx], fDepth);
               }
-
-              fBlockMinZ = ezMath::Min(fBlockMinZ, pBlockDepth[uiPixelIdx]);
             }
           }
 
-          // Update Hi-Z: minimum depth across all written pixels.
-          // For non-cleared blocks, combine with prior HiZ. If the prior HiZ is 0
-          // (from a previous partial write), it stays at 0 to prevent false rejection.
-          // For cleared blocks with partial coverage, set HiZ to 0 so later primitives
-          // writing to uncovered pixels aren't falsely Hi-Z rejected.
-          if (bClearedBlock)
+          // Update Hi-Z: recompute minimum depth across all 64 pixels in the block.
+          // Matches AVX2 which always computes min across the full stored block.
+          // Uncovered pixels remain at 0.0f (from Clear), so partial coverage yields HiZ = 0.
           {
-            if (blockMask == static_cast<ezUInt64>(-1))
-              pBlockRowHiZ[blockX] = fBlockMinZ; // All 64 pixels written
-            else
-              pBlockRowHiZ[blockX] = 0.0f; // Partial — keep at 0
-          }
-          else
-          {
-            pBlockRowHiZ[blockX] = ezMath::Min(fBlockMinZ, fHiZ);
+            float fNewMinZ = pBlockDepth[0];
+            for (int i = 1; i < 64; ++i)
+              fNewMinZ = ezMath::Min(fNewMinZ, pBlockDepth[i]);
+            pBlockRowHiZ[blockX] = fNewMinZ;
           }
 
           curDepthBase += fDepthDx;
@@ -1414,18 +1404,15 @@ bool RasterizerGeneric::Query2D(ezUInt32 uiMinX, ezUInt32 uiMaxX, ezUInt32 uiMin
     {
       const float fHiZ = pHiZBuffer[blockY * m_uiBlocksX + blockX];
 
-      // Hi-Z rejection
-      if (fMaxZ <= fHiZ && fHiZ != 0.0f)
+      // Hi-Z rejection. Cleared blocks have HiZ = -1.0f, so fMaxZ <= -1.0f is always
+      // false for valid depths — cleared blocks correctly pass through.
+      if (fMaxZ <= fHiZ)
         continue;
 
       const ezUInt32 startX = ezMath::Max(static_cast<ezInt32>(uiMinX) - static_cast<ezInt32>(blockX * 8), 0);
       const ezUInt32 endX = ezMath::Min(static_cast<ezInt32>(uiMaxX) - static_cast<ezInt32>(blockX * 8), 7);
 
       const bool bInteriorBlock = (startY == 0) && (endY == 7) && (startX == 0) && (endX == 7);
-
-      // If fully interior and cleared, the object is visible
-      if (bInteriorBlock && fHiZ == 0.0f)
-        return true;
 
       if (bInteriorBlock)
         return true; // No masking needed and Hi-Z didn't reject → visible
@@ -1456,31 +1443,15 @@ void RasterizerGeneric::ReadBackDepth(void* pTarget) const
     {
       const float fHiZ = m_HiZ[blockY * m_uiBlocksX + blockX];
 
-      if (fHiZ == 0.0f)
+      if (fHiZ < 0.0f)
       {
-        // Check if any pixel has been written (partial coverage with HiZ kept at 0)
-        const float* pBlockDepth = m_DepthBuffer.GetData() + 64 * (blockY * m_uiBlocksX + blockX);
-        bool bAnyWritten = false;
-        for (int i = 0; i < 64; ++i)
+        // Cleared block — zero-fill output
+        for (ezUInt32 y = 0; y < 8; ++y)
         {
-          if (pBlockDepth[i] != 0.0f)
-          {
-            bAnyWritten = true;
-            break;
-          }
+          ezUInt8* pDest = static_cast<ezUInt8*>(pTarget) + 4 * (8 * blockX + m_uiWidth * (8 * blockY + y));
+          ezMemoryUtils::ZeroFill(pDest, 32);
         }
-
-        if (!bAnyWritten)
-        {
-          // Truly cleared block
-          for (ezUInt32 y = 0; y < 8; ++y)
-          {
-            ezUInt8* pDest = static_cast<ezUInt8*>(pTarget) + 4 * (8 * blockX + m_uiWidth * (8 * blockY + y));
-            ezMemoryUtils::ZeroFill(pDest, 32);
-          }
-          continue;
-        }
-        // Fall through to per-pixel processing
+        continue;
       }
 
       const float* pBlockDepth = m_DepthBuffer.GetData() + 64 * (blockY * m_uiBlocksX + blockX);
