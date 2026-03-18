@@ -83,6 +83,7 @@ void OccluderGeneric::Bake(const ezSimdVec4f* pVertices, ezUInt32 uiNumVertices,
   }
 
   // Reorder vertices by cluster assignment
+  // Reorder vertices by cluster assignment
   ezTempHybridArray<ezSimdVec4f, 64> orderedVertices;
   for (ezUInt32 k = 0; k < centroids.GetCount(); ++k)
   {

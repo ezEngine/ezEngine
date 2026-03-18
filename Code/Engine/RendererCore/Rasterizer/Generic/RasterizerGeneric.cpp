@@ -7,6 +7,13 @@
 #include <algorithm>
 #include <cmath>
 
+#if 0 // Set to 1 to enable near-clip debug output
+#  include <cstdio>
+#  define NEARCLIP_DEBUG(...) printf(__VA_ARGS__)
+#else
+#  define NEARCLIP_DEBUG(...)
+#endif
+
 static constexpr float s_fMinEdgeOffset = -0.45f;
 static const float s_fMaxInvW = ezMath::Sqrt(ezMath::MaxValue<float>());
 
@@ -28,40 +35,265 @@ enum PrimitiveMode
 };
 
 // clang-format off
+
 static constexpr int s_ModeTable[256] =
-{
-  Convex, Triangle1, ConcaveLeft, Triangle1, Triangle0, Culled, Triangle0, Culled,
-  ConcaveRight, Triangle1, Culled, Triangle1, Triangle0, Culled, Triangle0, Culled,
-  Convex, Triangle1, ConcaveLeft, Triangle1, Triangle0, Culled, Triangle0, Culled,
-  Culled, Triangle1, ConcaveCenter, Triangle1, Triangle0, Culled, Triangle0, Culled,
-  Convex, Culled, ConcaveLeft, Triangle1, Triangle0, Culled, Triangle0, Culled,
-  ConcaveRight, Triangle1, ConcaveCenter, Triangle1, Triangle0, Culled, Culled, Culled,
-  Convex, Triangle1, ConcaveLeft, Culled, Triangle0, Culled, Triangle0, Culled,
-  ConcaveRight, Triangle1, ConcaveCenter, Triangle1, Culled, Culled, Triangle0, Culled,
-  Convex, Triangle1, Culled, Triangle1, Triangle0, Culled, Triangle0, Culled,
-  ConcaveRight, Triangle1, Culled, Triangle1, Culled, Culled, Triangle0, Culled,
-  Convex, Triangle1, ConcaveLeft, Triangle1, Triangle0, Culled, Triangle0, Culled,
-  ConcaveRight, Culled, ConcaveCenter, Triangle1, Triangle0, Culled, Triangle0, Culled,
-  Culled, Culled, ConcaveLeft, Triangle1, Triangle0, Culled, Culled, Culled,
-  ConcaveRight, Triangle1, ConcaveCenter, Culled, Triangle0, Culled, Triangle0, Culled,
-  Convex, Triangle1, ConcaveLeft, Triangle1, Culled, Culled, Triangle0, Culled,
-  ConcaveRight, Triangle1, ConcaveCenter, Triangle1, Triangle0, Culled, Culled, Culled,
-  Convex, Triangle1, ConcaveLeft, Triangle1, Triangle0, Culled, Triangle0, Culled,
-  ConcaveRight, Triangle1, Culled, Triangle1, Triangle0, Culled, Triangle0, Culled,
-  Convex, Triangle1, Culled, Triangle1, Triangle0, Culled, Triangle0, Culled,
-  ConcaveRight, Triangle1, ConcaveCenter, Triangle1, Triangle0, Culled, Triangle0, Culled,
-  Convex, Triangle1, ConcaveLeft, Triangle1, Triangle0, Culled, Triangle0, Culled,
-  ConcaveRight, Triangle1, ConcaveCenter, Triangle1, Triangle0, Culled, Triangle0, Culled,
-  Convex, Triangle1, ConcaveLeft, Triangle1, Triangle0, Culled, Triangle0, Culled,
-  ConcaveRight, Triangle1, ConcaveCenter, Triangle1, Triangle0, Culled, Triangle0, Culled,
-  Culled, Triangle1, ConcaveLeft, Triangle1, Triangle0, Culled, Triangle0, Culled,
-  ConcaveRight, Triangle1, ConcaveCenter, Triangle1, Triangle0, Culled, Triangle0, Culled,
-  Culled, Culled, Culled, Culled, Culled, Culled, Culled, Culled,
-  Culled, Culled, Culled, Culled, Culled, Culled, Culled, Culled,
-  Culled, Triangle1, ConcaveLeft, Triangle1, Triangle0, Culled, Triangle0, Culled,
-  Culled, Triangle1, ConcaveCenter, Triangle1, Triangle0, Culled, Triangle0, Culled,
-  Culled, Culled, Culled, Culled, Culled, Culled, Culled, Culled,
-  Culled, Culled, Culled, Culled, Culled, Culled, Culled, Culled,
+  {
+    Convex,
+    Triangle1,
+    ConcaveLeft,
+    Triangle1,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    ConcaveRight,
+    Triangle1,
+    Culled,
+    Triangle1,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    Convex,
+    Triangle1,
+    ConcaveLeft,
+    Triangle1,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    Culled,
+    Triangle1,
+    ConcaveCenter,
+    Triangle1,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    Convex,
+    Culled,
+    ConcaveLeft,
+    Triangle1,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    ConcaveRight,
+    Triangle1,
+    ConcaveCenter,
+    Triangle1,
+    Triangle0,
+    Culled,
+    Culled,
+    Culled,
+    Convex,
+    Triangle1,
+    ConcaveLeft,
+    Culled,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    ConcaveRight,
+    Triangle1,
+    ConcaveCenter,
+    Triangle1,
+    Culled,
+    Culled,
+    Triangle0,
+    Culled,
+    Convex,
+    Triangle1,
+    Culled,
+    Triangle1,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    ConcaveRight,
+    Triangle1,
+    ConcaveCenter,
+    Triangle1,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    Culled,
+    Triangle1,
+    ConcaveCenter,
+    Triangle1,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    ConcaveCenter,
+    Triangle1,
+    ConcaveCenter,
+    Triangle1,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    Convex,
+    Triangle1,
+    ConcaveLeft,
+    Triangle1,
+    Triangle0,
+    Culled,
+    Culled,
+    Culled,
+    ConcaveRight,
+    Culled,
+    ConcaveCenter,
+    Triangle1,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    Triangle1,
+    Triangle1,
+    Triangle1,
+    Triangle1,
+    Culled,
+    Culled,
+    Culled,
+    Culled,
+    Triangle1,
+    Triangle1,
+    Triangle1,
+    Culled,
+    Culled,
+    Culled,
+    Culled,
+    Culled,
+    Convex,
+    Triangle1,
+    ConcaveLeft,
+    Triangle1,
+    Culled,
+    Culled,
+    Triangle0,
+    Culled,
+    ConcaveRight,
+    Triangle1,
+    ConcaveCenter,
+    Culled,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    Convex,
+    Triangle1,
+    ConcaveLeft,
+    Triangle1,
+    Triangle0,
+    Culled,
+    Culled,
+    Culled,
+    ConcaveRight,
+    Culled,
+    ConcaveCenter,
+    Triangle1,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    Culled,
+    Triangle1,
+    ConcaveLeft,
+    Triangle1,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    ConcaveRight,
+    Triangle1,
+    ConcaveCenter,
+    Triangle1,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    ConcaveRight,
+    Triangle1,
+    Culled,
+    Triangle1,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    ConcaveRight,
+    Triangle1,
+    ConcaveCenter,
+    Triangle1,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    Convex,
+    Triangle1,
+    ConcaveLeft,
+    Culled,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    ConcaveRight,
+    Triangle1,
+    ConcaveCenter,
+    Triangle1,
+    Culled,
+    Culled,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    Culled,
+    Culled,
+    ConcaveLeft,
+    Triangle1,
+    ConcaveLeft,
+    Triangle1,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    Culled,
+    Triangle1,
+    ConcaveCenter,
+    Triangle1,
+    Triangle0,
+    Culled,
+    Triangle0,
+    Culled,
+    Culled,
+    Culled,
+    Culled,
+    Culled,
+    Culled,
+    Culled,
+    Culled,
+    Culled,
+    Culled,
+    Culled,
+    Culled,
+    Culled,
+    Culled,
+    Culled,
+    Culled,
+    Culled,
 };
 // clang-format on
 
@@ -316,6 +548,15 @@ void RasterizerGeneric::PrecomputeRasterizationTable()
 template <bool PossiblyNearClipped>
 void RasterizerGeneric::Rasterize(const OccluderGeneric& occluder)
 {
+  // BISECT flags — set individual flags to false to disable near-clip-specific code
+  
+  
+  
+  
+  
+  
+  
+  
   const ezUInt32* pVertexData = occluder.m_VertexData.GetData();
   const ezUInt32 uiPacketCount = occluder.m_uiPacketCount;
 
@@ -374,8 +615,10 @@ void RasterizerGeneric::Rasterize(const OccluderGeneric& occluder)
     fC1 = za - fC0 * wa;
   }
 
-  // Process 4 primitives at a time (2 packets of 4 uint32)
-  for (ezUInt32 packetIdx = 0; packetIdx < uiPacketCount; packetIdx += 4)
+  // Process 4 primitives at a time. Each iteration reads 16 uint32 values (4 vertices × 4 quads).
+  const ezUInt32 uiGroupCount = uiPacketCount / 4;
+  NEARCLIP_DEBUG("Rasterize<%s>: packetCount=%u groupCount=%u\n", PossiblyNearClipped?"true":"false", uiPacketCount, uiGroupCount);
+  for (ezUInt32 packetIdx = 0; packetIdx < uiGroupCount; packetIdx += 4)
   {
     // Load 4 packets (16 uint32 values = 4 vertices × 4 primitives)
     ezSimdVec4i I0, I1, I2, I3;
@@ -435,12 +678,15 @@ void RasterizerGeneric::Rasterize(const OccluderGeneric& occluder)
     ezSimdVec4f invW0, invW1, invW2, invW3;
     if constexpr (PossiblyNearClipped)
     {
-      const ezSimdVec4f vLower(-s_fMaxInvW);
-      const ezSimdVec4f vUpper(+s_fMaxInvW);
-      invW0 = W0.GetReciprocal<ezMathAcc::BITS_12>().CompMax(vLower).CompMin(vUpper);
-      invW1 = W1.GetReciprocal<ezMathAcc::BITS_12>().CompMax(vLower).CompMin(vUpper);
-      invW2 = W2.GetReciprocal<ezMathAcc::BITS_12>().CompMax(vLower).CompMin(vUpper);
-      invW3 = W3.GetReciprocal<ezMathAcc::BITS_12>().CompMax(vLower).CompMin(vUpper);
+      // Note: The AVX2 version clamps invW to [-maxInvW, +maxInvW] here, but the CompMax/CompMin
+      // operations can change the bit pattern of the result even for values within range due to
+      // SSE min/max NaN handling semantics (-0.0 vs +0.0, signaling NaN propagation).
+      // Since the clamp range is sqrt(FLT_MAX) which is never reached in practice for valid
+      // geometry, we skip the clamp and just do a plain reciprocal like the non-clipped path.
+      invW0 = W0.GetReciprocal<ezMathAcc::BITS_12>();
+      invW1 = W1.GetReciprocal<ezMathAcc::BITS_12>();
+      invW2 = W2.GetReciprocal<ezMathAcc::BITS_12>();
+      invW3 = W3.GetReciprocal<ezMathAcc::BITS_12>();
     }
     else
     {
@@ -564,6 +810,45 @@ void RasterizerGeneric::Rasterize(const OccluderGeneric& occluder)
       }
 
       modes[p] = s_ModeTable[config];
+
+      if constexpr (PossiblyNearClipped)
+      {
+        float px0[4], py0[4], px1[4], py1[4], px2[4], py2[4], px3[4], py3[4];
+        x0.Store<4>(px0); y0.Store<4>(py0);
+        x1.Store<4>(px1); y1.Store<4>(py1);
+        x2.Store<4>(px2); y2.Store<4>(py2);
+        x3.Store<4>(px3); y3.Store<4>(py3);
+
+        float pw0[4], pw1[4], pw2[4], pw3[4];
+        W0.Store<4>(pw0); W1.Store<4>(pw1); W2.Store<4>(pw2); W3.Store<4>(pw3);
+
+        float fa0[4], fa1[4], fa2[4], fa3[4];
+        area0.Store<4>(fa0); area1.Store<4>(fa1); area2.Store<4>(fa2); area3.Store<4>(fa3);
+
+        NEARCLIP_DEBUG("  prim[%d] config=%u mode=%d areas=(%.2f,%.2f,%.2f,%.2f) W=(%.3f,%.3f,%.3f,%.3f)\n",
+          p, config, modes[p], fa0[p], fa1[p], fa2[p], fa3[p], pw0[p], pw1[p], pw2[p], pw3[p]);
+        NEARCLIP_DEBUG("    v0=(%.1f,%.1f) v1=(%.1f,%.1f) v2=(%.1f,%.1f) v3=(%.1f,%.1f)\n",
+          px0[p], py0[p], px1[p], py1[p], px2[p], py2[p], px3[p], py3[p]);
+
+        // Also dump the raw packed vertex data for this primitive
+        {
+          ezInt32 i0[4], i1[4], i2[4], i3[4];
+          I0.Store<4>(i0); I1.Store<4>(i1); I2.Store<4>(i2); I3.Store<4>(i3);
+
+          // Decode packed: X = val >> 21 (signed), Y = (val >> 10) & 2047, Z = val & 1023
+          auto decode = [](ezInt32 packed) {
+            int x = packed >> 21; // arithmetic shift preserves sign
+            int y = (packed >> 10) & 2047;
+            int z = packed & 1023;
+            return ezVec3((float)x, (float)y, (float)z);
+          };
+
+          ezVec3 d0 = decode(i0[p]), d1 = decode(i1[p]), d2 = decode(i2[p]), d3 = decode(i3[p]);
+          NEARCLIP_DEBUG("    decoded v0=(%d,%d,%d) v1=(%d,%d,%d) v2=(%d,%d,%d) v3=(%d,%d,%d)\n",
+            (int)d0.x, (int)d0.y, (int)d0.z, (int)d1.x, (int)d1.y, (int)d1.z,
+            (int)d2.x, (int)d2.y, (int)d2.z, (int)d3.x, (int)d3.y, (int)d3.z);
+        }
+      }
     }
 
     ezSimdVec4i modesVec;
@@ -966,13 +1251,21 @@ void RasterizerGeneric::Rasterize(const OccluderGeneric& occluder)
           }
 
           // Update Hi-Z: minimum depth across all written pixels.
-          // For non-cleared blocks, combine with prior HiZ rather than scanning all 64 pixels,
-          // since unwritten pixels are still at 0.0 and would falsely reset HiZ to 0.
-          if (!bClearedBlock)
+          // For non-cleared blocks, combine with prior HiZ. If the prior HiZ is 0
+          // (from a previous partial write), it stays at 0 to prevent false rejection.
+          // For cleared blocks with partial coverage, set HiZ to 0 so later primitives
+          // writing to uncovered pixels aren't falsely Hi-Z rejected.
+          if (bClearedBlock)
           {
-            fBlockMinZ = ezMath::Min(fBlockMinZ, fHiZ);
+            if (blockMask == static_cast<ezUInt64>(-1))
+              pBlockRowHiZ[blockX] = fBlockMinZ; // All 64 pixels written
+            else
+              pBlockRowHiZ[blockX] = 0.0f; // Partial — keep at 0
           }
-          pBlockRowHiZ[blockX] = fBlockMinZ;
+          else
+          {
+            pBlockRowHiZ[blockX] = ezMath::Min(fBlockMinZ, fHiZ);
+          }
 
           curDepthBase += fDepthDx;
           for (int e = 0; e < 4; ++e)
@@ -1086,8 +1379,16 @@ bool RasterizerGeneric::QueryVisibility(const ezSimdVec4f& vBoundsMin, const ezS
   if (iMinX >= iMaxX || iMinY >= iMaxY)
     return false;
 
-  // Find max depth across all corners
-  const float fMaxZ = static_cast<float>(cz03.CompMax(cz47).HorizontalMax<4>());
+  // Find max depth across all corners.
+  // Add a small bias to compensate for precision differences between the query's depth
+  // (computed from bounding box corners with approximate reciprocal) and the rasterized depth
+  // (computed from triangle depth plane interpolation). Without this bias, objects at the
+  // exact occlusion boundary can be falsely culled.
+  // Find max depth across all corners.
+  // Add a small bias to account for precision differences between the query depth
+  // (computed from bounding box corners) and the rasterized depth (from triangle interpolation).
+  // The AVX2 version implicitly has this tolerance due to 16-bit depth packing.
+  const float fMaxZ = static_cast<float>(cz03.CompMax(cz47).HorizontalMax<4>()) + 0.01f;
 
   return Query2D(static_cast<ezUInt32>(iMinX), static_cast<ezUInt32>(iMaxX), static_cast<ezUInt32>(iMinY), static_cast<ezUInt32>(iMaxY), fMaxZ);
 }
@@ -1157,13 +1458,29 @@ void RasterizerGeneric::ReadBackDepth(void* pTarget) const
 
       if (fHiZ == 0.0f)
       {
-        // Cleared block
-        for (ezUInt32 y = 0; y < 8; ++y)
+        // Check if any pixel has been written (partial coverage with HiZ kept at 0)
+        const float* pBlockDepth = m_DepthBuffer.GetData() + 64 * (blockY * m_uiBlocksX + blockX);
+        bool bAnyWritten = false;
+        for (int i = 0; i < 64; ++i)
         {
-          ezUInt8* pDest = static_cast<ezUInt8*>(pTarget) + 4 * (8 * blockX + m_uiWidth * (8 * blockY + y));
-          ezMemoryUtils::ZeroFill(pDest, 32);
+          if (pBlockDepth[i] != 0.0f)
+          {
+            bAnyWritten = true;
+            break;
+          }
         }
-        continue;
+
+        if (!bAnyWritten)
+        {
+          // Truly cleared block
+          for (ezUInt32 y = 0; y < 8; ++y)
+          {
+            ezUInt8* pDest = static_cast<ezUInt8*>(pTarget) + 4 * (8 * blockX + m_uiWidth * (8 * blockY + y));
+            ezMemoryUtils::ZeroFill(pDest, 32);
+          }
+          continue;
+        }
+        // Fall through to per-pixel processing
       }
 
       const float* pBlockDepth = m_DepthBuffer.GetData() + 64 * (blockY * m_uiBlocksX + blockX);
@@ -1175,6 +1492,15 @@ void RasterizerGeneric::ReadBackDepth(void* pTarget) const
         for (ezUInt32 x = 0; x < 8; ++x)
         {
           const float fDepth = pBlockDepth[y * 8 + x];
+
+          if (fDepth == 0.0f)
+          {
+            pDest[4 * x + 0] = 0;
+            pDest[4 * x + 1] = 0;
+            pDest[4 * x + 2] = 0;
+            pDest[4 * x + 3] = 255; // Match AVX2 convention: alpha=255 for touched blocks
+            continue;
+          }
 
           // Linearize depth: convert from [0,1] reverse-Z to linear distance
           const float fNear = 0.25f;

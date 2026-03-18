@@ -1,5 +1,7 @@
 #include <RasterizerExplorer/RasterizerExplorer.h>
 
+#include "Foundation/Math/Random.h"
+
 #include <Core/Graphics/Camera.h>
 #include <Core/Graphics/Geometry.h>
 #include <Core/Input/DeviceTypes/MouseKeyboard.h>
@@ -38,12 +40,12 @@ void ezRasterizerExplorerApp::PrintTestCode()
   ezLog::Info("");
   ezLog::Info("// --- Paste this into RasterizerTest.cpp ---");
   ezLog::Info("EZ_TEST_BLOCK(ezTestBlock::Enabled, \"Custom orientation\")");
-  ezLog::Info("{{");
+  ezLog::Info("{");
   ezLog::Info("  constexpr ezUInt32 uiSize = 128;");
   ezLog::Info("  ezRasterizerView view;");
   ezLog::Info("  view.SetResolution(uiSize, uiSize, 0.0f);");
   ezLog::Info("  ezCamera camera;");
-  ezLog::Info("  camera.LookAt(ezVec3({:.4f}f, {:.4f}f, {:.4f}f), ezVec3({:.4f}f, {:.4f}f, {:.4f}f), ezVec3(0, 1, 0));",
+  ezLog::Info("  camera.LookAt(ezVec3({}f, {}f, {}f), ezVec3({}f, {}f, {}f), ezVec3(0, 1, 0));",
     vPos.x, vPos.y, vPos.z, vTarget.x, vTarget.y, vTarget.z);
   ezLog::Info("  camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, 90.0f, 0.1f, 100.0f);");
   ezLog::Info("  view.SetCamera(&camera);");
@@ -53,7 +55,7 @@ void ezRasterizerExplorerApp::PrintTestCode()
   ezLog::Info("  view.EndScene();");
   ezLog::Info("  ezRasterizerTestGroup::SetImage(view);");
   ezLog::Info("  EZ_TEST_LINE_IMAGE(99, 200);");
-  ezLog::Info("}}");
+  ezLog::Info("}");
   ezLog::Info("// --- End of test code ---");
   ezLog::Info("");
 }
@@ -63,11 +65,44 @@ void ezRasterizerExplorerApp::RenderRasterizer()
   m_pRasterizerView->SetResolution(RasterizerSize, RasterizerSize, 0.0f);
   m_pRasterizerView->SetCamera(m_pCamera.Borrow());
 
-  auto pBox = ezRasterizerObject::CreateBox(ezVec3(4, 4, 4));
+  constexpr ezUInt32 uiNumBoxes = 100;
 
+  auto pBox = ezRasterizerObject::CreateBox(ezVec3(2, 2, 2));
+
+  // Generate deterministic random transforms
+  ezRandom rng;
+  rng.Initialize(42);
+
+  ezHybridArray<ezTransform, 128> transforms;
+  transforms.SetCount(uiNumBoxes);
+
+  for (ezUInt32 i = 0; i < uiNumBoxes; ++i)
+  {
+    const float x = (rng.DoubleMinMax(-8.0, 8.0));
+    const float y = (rng.DoubleMinMax(-8.0, 8.0));
+    const float z = (rng.DoubleMinMax(-5.0, 5.0));
+
+    const float ax = (rng.DoubleMinMax(0.0, 360.0));
+    const float ay = (rng.DoubleMinMax(0.0, 360.0));
+    const float az = (rng.DoubleMinMax(0.0, 360.0));
+
+    ezQuat rot = ezQuat::MakeFromEulerAngles(ezAngle::MakeFromDegree(ax), ezAngle::MakeFromDegree(ay), ezAngle::MakeFromDegree(az));
+    transforms[i] = ezTransform(ezVec3(x, y, z), rot);
+  }
+
+  // Warm up
   m_pRasterizerView->BeginScene();
-  m_pRasterizerView->AddObject(pBox.Borrow(), ezTransform::MakeIdentity());
+  for (ezUInt32 i = 0; i < uiNumBoxes; ++i)
+    m_pRasterizerView->AddObject(pBox.Borrow(), transforms[i]);
   m_pRasterizerView->EndScene();
+
+  //
+  // auto pBox = ezRasterizerObject::CreateBox(ezVec3(4, 4, 4));
+  //
+  // m_pRasterizerView->BeginScene();
+  // m_pRasterizerView->AddObject(pBox.Borrow(), ezTransform::MakeIdentity());
+  // m_pRasterizerView->AddObject(pBox.Borrow(), ezTransform(ezVec3(5, 0, 0)));
+  // m_pRasterizerView->EndScene();
 }
 
 void ezRasterizerExplorerApp::Run()
