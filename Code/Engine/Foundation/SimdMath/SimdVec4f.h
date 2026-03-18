@@ -3,6 +3,8 @@
 #include <Foundation/SimdMath/SimdFloat.h>
 #include <Foundation/SimdMath/SimdVec4b.h>
 
+class ezSimdVec4i;
+
 /// \brief A 4-component SIMD vector class
 class EZ_FOUNDATION_DLL ezSimdVec4f
 {
@@ -193,6 +195,9 @@ public:
 
   /// \brief Returns a vector with the magnitude from vMagnitude and the sign from vSign.
   [[nodiscard]] static ezSimdVec4f CopySign(const ezSimdVec4f& vMagnitude, const ezSimdVec4f& vSign);        // [tested]
+
+  /// Reinterprets the bit pattern of this float vector as a signed integer vector. No conversion is performed.
+  [[nodiscard]] ezSimdVec4i ReinterpretAsInt() const;
 
 public:
   ezInternal::QuadFloat m_v;

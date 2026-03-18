@@ -3,8 +3,11 @@
 #include <Core/Graphics/Geometry.h>
 #include <Foundation/SimdMath/SimdVec4f.h>
 #include <RendererCore/Rasterizer/RasterizerObject.h>
-#include <RendererCore/Rasterizer/Thirdparty/Occluder.h>
-#include <RendererCore/Rasterizer/Thirdparty/VectorMath.h>
+
+#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
+#  include <RendererCore/Rasterizer/Thirdparty/Occluder.h>
+#  include <RendererCore/Rasterizer/Thirdparty/VectorMath.h>
+#endif
 
 ezMutex ezRasterizerObject::s_Mutex;
 ezMap<ezString, ezSharedPtr<ezRasterizerObject>> ezRasterizerObject::s_Objects;
@@ -162,26 +165,116 @@ ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::CreateMesh(ezStringVie
 
 void ezRasterizerObject::CreateMesh(const ezGeometry& geo)
 {
+  ezHybridArray<ezSimdVec4f, 64> vertices;
+  vertices.Reserve(geo.GetPolygons().GetCount() * 4);
+
+  ezSimdVec4f vBoundsMin(ezMath::MaxValue<float>());
+  ezSimdVec4f vBoundsMax(-ezMath::MaxValue<float>());
+
+  for (const auto& poly : geo.GetPolygons())
+  {
+    const ezUInt32 uiNumVertices = poly.m_Vertices.GetCount();
+    ezUInt32 uiQuadVtx = 0;
+
+    if (uiNumVertices > 4)
+      continue;
+
+    for (ezUInt32 i = 0; i < uiNumVertices; ++i)
+    {
+      if (uiQuadVtx == 4)
+        break;
+
+      const ezUInt32 vtxIdx = poly.m_Vertices[i];
+      const ezVec3& pos = geo.GetVertices()[vtxIdx].m_vPosition;
+
+      ezSimdVec4f v;
+      v.Load<4>(pos.GetAsPositionVec4().GetData());
+      vertices.PushBack(v);
+
+      vBoundsMin = vBoundsMin.CompMin(v);
+      vBoundsMax = vBoundsMax.CompMax(v);
+      ++uiQuadVtx;
+    }
+
+    if (uiQuadVtx == 3)
+    {
+      vertices.PushBack(vertices.PeekBack());
+      ++uiQuadVtx;
+    }
+
+    if (uiQuadVtx == 4)
+    {
+      const ezUInt32 n = vertices.GetCount();
+      ezMath::Swap(vertices[n - 1], vertices[n - 3]);
+    }
+  }
+
+  // Pad to 16 for alignment during baking
+  while (vertices.GetCount() % 16 != 0)
+  {
+    vertices.PushBack(vertices[0]);
+  }
+
+  m_Occluder.Bake(vertices.GetData(), vertices.GetCount(), vBoundsMin, vBoundsMax);
 }
 
 ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::GetObject(ezStringView sUniqueName)
 {
+  EZ_LOCK(s_Mutex);
+  auto it = s_Objects.Find(sUniqueName);
+  if (it.IsValid())
+    return it.Value();
   return nullptr;
 }
 
 ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::CreateBox(const ezVec3& vFullExtents)
 {
-  return nullptr;
+  EZ_LOCK(s_Mutex);
+
+  ezStringBuilder sName;
+  sName.SetFormat("Box-{}-{}-{}", vFullExtents.x, vFullExtents.y, vFullExtents.z);
+
+  ezSharedPtr<ezRasterizerObject>& pObj = s_Objects[sName];
+  if (pObj == nullptr)
+  {
+    pObj = EZ_NEW(ezFoundation::GetAlignedAllocator(), ezRasterizerObject);
+    ezGeometry geometry;
+    geometry.AddBox(vFullExtents, false, {});
+    pObj->CreateMesh(geometry);
+  }
+  return pObj;
 }
 
 ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::CreateQuadX(const ezVec2& vYZExtents)
 {
-  return nullptr;
+  EZ_LOCK(s_Mutex);
+
+  ezStringBuilder sName;
+  sName.SetFormat("Quad-{}-{}", vYZExtents.x, vYZExtents.y);
+
+  ezSharedPtr<ezRasterizerObject>& pObj = s_Objects[sName];
+  if (pObj == nullptr)
+  {
+    pObj = EZ_NEW(ezFoundation::GetAlignedAllocator(), ezRasterizerObject);
+    ezGeometry::GeoOptions opt;
+    opt.m_MainAxis = ezBasisAxis::PositiveX;
+    ezGeometry geometry;
+    geometry.AddRect(vYZExtents, 1, 1, opt);
+    pObj->CreateMesh(geometry);
+  }
+  return pObj;
 }
 
 ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::CreateMesh(ezStringView sUniqueName, const ezGeometry& geometry)
 {
-  return nullptr;
+  EZ_LOCK(s_Mutex);
+  ezSharedPtr<ezRasterizerObject>& pObj = s_Objects[sUniqueName];
+  if (pObj == nullptr)
+  {
+    pObj = EZ_NEW(ezFoundation::GetAlignedAllocator(), ezRasterizerObject);
+    pObj->CreateMesh(geometry);
+  }
+  return pObj;
 }
 
 #endif

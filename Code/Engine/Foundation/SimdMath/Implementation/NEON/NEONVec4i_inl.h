@@ -318,6 +318,16 @@ EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::Select(const ezSimdVec4b& vCmp, const 
   return vbslq_s32(vCmp.m_v, vTrue.m_v, vFalse.m_v);
 }
 
+EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4i::ReinterpretAsFloat() const
+{
+  return vreinterpretq_f32_s32(m_v);
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4f::ReinterpretAsInt() const
+{
+  return vreinterpretq_s32_f32(m_v);
+}
+
 // not needed atm
 #if 0
 void ezSimdVec4i::Transpose(ezSimdVec4i& v0, ezSimdVec4i& v1, ezSimdVec4i& v2, ezSimdVec4i& v3)

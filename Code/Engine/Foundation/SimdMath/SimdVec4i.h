@@ -98,6 +98,9 @@ public:
 
   [[nodiscard]] static ezSimdVec4i Select(const ezSimdVec4b& vCmp, const ezSimdVec4i& vTrue, const ezSimdVec4i& vFalse); // [tested]
 
+  /// Reinterprets the bit pattern of this integer vector as a float vector. No conversion is performed.
+  [[nodiscard]] ezSimdVec4f ReinterpretAsFloat() const;
+
 public:
   ezInternal::QuadInt m_v;
 };

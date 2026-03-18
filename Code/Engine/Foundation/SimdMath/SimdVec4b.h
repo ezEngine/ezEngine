@@ -44,6 +44,9 @@ public:
 
   static ezSimdVec4b Select(const ezSimdVec4b& vCmp, const ezSimdVec4b& vTrue, const ezSimdVec4b& vFalse); // [tested]
 
+  /// Returns a 4-bit mask where bit N is set if component N is true.
+  [[nodiscard]] ezUInt32 GetMoveMask() const;
+
 public:
   ezInternal::QuadBool m_v;
 };

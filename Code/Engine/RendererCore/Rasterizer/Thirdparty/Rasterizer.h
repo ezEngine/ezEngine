@@ -5,6 +5,51 @@
 
 #if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
 #  include <immintrin.h>
+
+template <typename T, size_t Alignment>
+struct AlignedAllocator
+{
+  using value_type = T;
+
+  AlignedAllocator() = default;
+
+  template <typename U>
+  AlignedAllocator(const AlignedAllocator<U, Alignment>&) {}
+
+  template <typename U>
+  struct rebind { using other = AlignedAllocator<U, Alignment>; };
+
+  T* allocate(size_t n)
+  {
+    void* ptr = nullptr;
+    size_t size = n * sizeof(T);
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+    ptr = _aligned_malloc(size, Alignment);
+#  else
+    if (posix_memalign(&ptr, Alignment, size) != 0)
+      ptr = nullptr;
+#  endif
+    if (!ptr)
+      throw std::bad_alloc();
+    return static_cast<T*>(ptr);
+  }
+
+  void deallocate(T* ptr, size_t)
+  {
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+    _aligned_free(ptr);
+#  else
+    free(ptr);
+#  endif
+  }
+
+  template <typename U>
+  bool operator==(const AlignedAllocator<U, Alignment>&) const { return true; }
+
+  template <typename U>
+  bool operator!=(const AlignedAllocator<U, Alignment>&) const { return false; }
+};
+
 #endif
 
 struct Occluder;
@@ -79,7 +124,7 @@ private:
   float m_modelViewProjectionRaw[16];
 
   static std::vector<int64_t> m_precomputedRasterTables;
-  std::vector<__m128i> m_depthBuffer;
+  std::vector<__m128i, AlignedAllocator<__m128i, 32>> m_depthBuffer;
   std::vector<uint16_t> m_hiZ;
 
   uint32_t m_width;

@@ -5,6 +5,18 @@ get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 
 ez_create_target(LIBRARY ${PROJECT_NAME})
 
+# The AVX2 software rasterizer needs AVX2+FMA compile flags on non-MSVC compilers.
+# MSVC enables these intrinsics without explicit flags.
+if (NOT MSVC)
+  set_source_files_properties(
+    Rasterizer/Thirdparty/Rasterizer.cpp
+    Rasterizer/Thirdparty/Occluder.cpp
+    PROPERTIES
+      COMPILE_OPTIONS "-mavx2;-mfma"
+      SKIP_PRECOMPILE_HEADERS ON
+  )
+endif()
+
 target_link_libraries(${PROJECT_NAME}
   PUBLIC
   Core

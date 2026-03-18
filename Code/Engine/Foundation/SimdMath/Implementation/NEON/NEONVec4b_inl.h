@@ -108,3 +108,8 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4b::Select(const ezSimdVec4b& vCmp, const 
 {
   return vbslq_u32(vCmp.m_v, vTrue.m_v, vFalse.m_v);
 }
+
+EZ_ALWAYS_INLINE ezUInt32 ezSimdVec4b::GetMoveMask() const
+{
+  return ezInternal::NeonMoveMask(m_v);
+}

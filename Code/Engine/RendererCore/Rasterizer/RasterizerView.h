@@ -5,9 +5,14 @@
 #include <Foundation/Threading/Mutex.h>
 #include <Foundation/Types/ArrayPtr.h>
 #include <Foundation/Types/UniquePtr.h>
+#include <RendererCore/Rasterizer/Thirdparty/Occluder.h>
 #include <RendererCore/RendererCoreDLL.h>
 
+#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
 class Rasterizer;
+#else
+class RasterizerGeneric;
+#endif
 class ezRasterizerObject;
 class ezColorLinearUB;
 class ezCamera;
@@ -74,7 +79,11 @@ private:
   ezUInt32 m_uiResolutionX = 0;
   ezUInt32 m_uiResolutionY = 0;
   float m_fAspectRation = 1.0f;
+#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
   ezUniquePtr<Rasterizer> m_pRasterizer;
+#else
+  ezUniquePtr<RasterizerGeneric> m_pRasterizer;
+#endif
 
   struct Instance
   {

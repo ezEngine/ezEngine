@@ -7,8 +7,14 @@
 #include <Foundation/SimdMath/SimdConversion.h>
 #include <RendererCore/Rasterizer/RasterizerObject.h>
 #include <RendererCore/Rasterizer/RasterizerView.h>
-#include <RendererCore/Rasterizer/Thirdparty/Occluder.h>
-#include <RendererCore/Rasterizer/Thirdparty/Rasterizer.h>
+
+#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
+#  include <RendererCore/Rasterizer/Thirdparty/Occluder.h>
+#  include <RendererCore/Rasterizer/Thirdparty/Rasterizer.h>
+#else
+#  include <RendererCore/Rasterizer/Generic/OccluderGeneric.h>
+#  include <RendererCore/Rasterizer/Generic/RasterizerGeneric.h>
+#endif
 
 ezCVarInt cvar_SpatialCullingOcclusionMaxResolution("Spatial.Occlusion.MaxResolution", 512, ezCVarFlags::Default, "Max resolution for occlusion buffers.");
 ezCVarInt cvar_SpatialCullingOcclusionMaxOccluders("Spatial.Occlusion.MaxOccluders", 64, ezCVarFlags::Default, "Max number of occluders to rasterize per frame.");
@@ -23,7 +29,12 @@ void ezRasterizerView::SetResolution(ezUInt32 uiWidth, ezUInt32 uiHeight, float 
     m_uiResolutionX = uiWidth;
     m_uiResolutionY = uiHeight;
 
+#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
+
     m_pRasterizer = EZ_DEFAULT_NEW(Rasterizer, uiWidth, uiHeight);
+#else
+    m_pRasterizer = EZ_DEFAULT_NEW(RasterizerGeneric, uiWidth, uiHeight);
+#endif
   }
 
   if (fAspectRatio == 0.0f)
@@ -38,7 +49,11 @@ void ezRasterizerView::BeginScene()
 
   EZ_PROFILE_SCOPE("ezRasterizerView::BeginScene");
 
+#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
   m_pRasterizer->clear();
+#else
+  m_pRasterizer->Clear();
+#endif
   m_bAnyOccludersRasterized = false;
 }
 
@@ -49,7 +64,11 @@ void ezRasterizerView::ReadBackFrame(ezArrayPtr<ezColorLinearUB> targetBuffer) c
   EZ_ASSERT_DEV(m_pRasterizer != nullptr, "Call SetResolution() first.");
   EZ_ASSERT_DEV(targetBuffer.GetCount() >= m_uiResolutionX * m_uiResolutionY, "Target buffer is too small.");
 
+#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
   m_pRasterizer->readBackDepth(targetBuffer.GetPtr());
+#else
+  m_pRasterizer->ReadBackDepth(targetBuffer.GetPtr());
+#endif
 }
 
 void ezRasterizerView::EndScene()
@@ -68,14 +87,18 @@ void ezRasterizerView::EndScene()
 
   m_Instances.Clear();
 
+#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
   m_pRasterizer->setModelViewProjection(m_mViewProjection.m_fElementsCM);
+#else
+  m_pRasterizer->SetModelViewProjection(m_mViewProjection.m_fElementsCM);
+#endif
 }
 
 void ezRasterizerView::RasterizeObjects(ezUInt32 uiMaxObjects)
 {
-#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
-
   EZ_PROFILE_SCOPE("ezRasterizerView::RasterizeObjects");
+
+#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
 
   for (const Instance& inst : m_Instances)
   {
@@ -101,6 +124,34 @@ void ezRasterizerView::RasterizeObjects(ezUInt32 uiMaxObjects)
         return;
     }
   }
+
+#else
+
+  for (const Instance& inst : m_Instances)
+  {
+    ApplyModelViewProjectionMatrix(inst.m_Transform);
+
+    bool bNeedsClipping;
+    const auto& occluder = inst.m_pObject->m_Occluder;
+
+    if (m_pRasterizer->QueryVisibility(occluder.m_vBoundsMin, occluder.m_vBoundsMax, bNeedsClipping))
+    {
+      m_bAnyOccludersRasterized = true;
+
+      if (bNeedsClipping)
+      {
+        m_pRasterizer->Rasterize<true>(occluder);
+      }
+      else
+      {
+        m_pRasterizer->Rasterize<false>(occluder);
+      }
+
+      if (--uiMaxObjects == 0)
+        return;
+    }
+  }
+
 #endif
 }
 
@@ -117,12 +168,15 @@ void ezRasterizerView::ApplyModelViewProjectionMatrix(const ezTransform& modelTr
   const ezMat4 mModel = modelTransform.GetAsMat4();
   const ezMat4 mMVP = m_mViewProjection * mModel;
 
+#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
   m_pRasterizer->setModelViewProjection(mMVP.m_fElementsCM);
+#else
+  m_pRasterizer->SetModelViewProjection(mMVP.m_fElementsCM);
+#endif
 }
 
 void ezRasterizerView::SortObjectsFrontToBack()
 {
-#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
   EZ_PROFILE_SCOPE("ezRasterizerView::SortObjectsFrontToBack");
 
   const ezVec3 camPos = m_pCamera->GetCenterPosition();
@@ -133,12 +187,10 @@ void ezRasterizerView::SortObjectsFrontToBack()
       const float d2 = (i2.m_Transform.m_vPosition - camPos).GetLengthSquared();
 
       return d1 < d2; });
-#endif
 }
 
 bool ezRasterizerView::IsVisible(const ezSimdBBox& aabb) const
 {
-#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
   if (!m_bAnyOccludersRasterized)
     return true; // assume that people already do frustum culling anyway
 
@@ -151,9 +203,11 @@ bool ezRasterizerView::IsVisible(const ezSimdBBox& aabb) const
   vmax.SetW(1);
 
   bool needsClipping = false;
+
+#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
   return m_pRasterizer->queryVisibility(vmin.m_v, vmax.m_v, needsClipping);
 #else
-  return true;
+  return m_pRasterizer->QueryVisibility(vmin, vmax, needsClipping);
 #endif
 }
 

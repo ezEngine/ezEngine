@@ -7,6 +7,21 @@
 #  include <cassert>
 #  include <cmath>
 
+// Compatibility shims for MSVC-specific intrinsics and keywords
+#  if EZ_DISABLED(EZ_COMPILER_MSVC)
+#    define __forceinline inline __attribute__((always_inline))
+#    define __debugbreak() __builtin_trap()
+#    define _mm_cvtsi64x_si128(a) _mm_cvtsi64_si128(a)
+
+inline bool _BitScanForward(unsigned long* index, unsigned long mask)
+{
+  if (mask == 0)
+    return false;
+  *index = __builtin_ctz(mask);
+  return true;
+}
+#  endif
+
 static constexpr float floatCompressionBias = 2.5237386e-29f; // 0xFFFF << 12 reinterpreted as float
 static constexpr float minEdgeOffset = -0.45f;
 static const float maxInvW = std::sqrt(std::numeric_limits<float>::max());
@@ -1312,19 +1327,19 @@ void Rasterizer::rasterize(const Occluder& occluder)
     _mm256_storeu_si256(reinterpret_cast<__m256i*>(rangesY), rangeY);
 
     // Transpose into AoS
-    __m128 depthPlane[8];
+    alignas(32) __m128 depthPlane[8];
     transpose256(depthPlane0, depthPlane1, depthPlane2, _mm256_setzero_ps(), depthPlane);
 
-    __m128 edgeNormalsX[8];
+    alignas(32) __m128 edgeNormalsX[8];
     transpose256(edgeNormalsX0, edgeNormalsX1, edgeNormalsX2, edgeNormalsX3, edgeNormalsX);
 
-    __m128 edgeNormalsY[8];
+    alignas(32) __m128 edgeNormalsY[8];
     transpose256(edgeNormalsY0, edgeNormalsY1, edgeNormalsY2, edgeNormalsY3, edgeNormalsY);
 
-    __m128 edgeOffsets[8];
+    alignas(32) __m128 edgeOffsets[8];
     transpose256(edgeOffsets0, edgeOffsets1, edgeOffsets2, edgeOffsets3, edgeOffsets);
 
-    __m128i slopeLookups[8];
+    alignas(32) __m128i slopeLookups[8];
     transpose256i(slopeLookups0, slopeLookups1, slopeLookups2, slopeLookups3, slopeLookups);
 
     uint32_t validMask = _mm256_movemask_ps(_mm256_castsi256_ps(primitiveValid));

@@ -7,6 +7,9 @@
 #include <Foundation/Types/RefCounted.h>
 #include <Foundation/Types/SharedPtr.h>
 #include <RendererCore/Rasterizer/Thirdparty/Occluder.h>
+#if !EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
+#  include <RendererCore/Rasterizer/Generic/OccluderGeneric.h>
+#endif
 #include <RendererCore/RendererCoreDLL.h>
 
 class ezGeometry;
@@ -43,7 +46,12 @@ private:
   void CreateMesh(const ezGeometry& geometry);
 
   friend class ezRasterizerView;
+
+#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
   Occluder m_Occluder;
+#else
+  OccluderGeneric m_Occluder;
+#endif
 
   static ezMutex s_Mutex;
   static ezMap<ezString, ezSharedPtr<ezRasterizerObject>> s_Objects;
