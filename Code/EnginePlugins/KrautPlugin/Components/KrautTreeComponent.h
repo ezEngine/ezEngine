@@ -45,7 +45,19 @@ protected:
   virtual void Deinitialize() override;
 };
 
-/// \brief Instantiates a Kraut tree model.
+/// Instantiates a Kraut tree model.
+///
+/// References an ezKrautGeneratorResource and selects a random seed to determine the tree's
+/// visual variation. The component requests LOD meshes on demand via the generator resource
+/// and renders the tree using the appropriate LOD for the current camera distance.
+///
+/// Seed selection priority (highest to lowest):
+///   1. CustomRandomSeed — if set, always uses this exact seed.
+///   2. VariationIndex — selects from the generator's curated "good seeds" list.
+///   3. Owner object's stable random seed — used when neither override is set.
+///
+/// The local bounds are scaled by s_iLocalBoundsScale to give the renderer early visibility
+/// even when only a rough bounding box is available before full mesh generation.
 class EZ_KRAUTPLUGIN_DLL ezKrautTreeComponent : public ezRenderComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezKrautTreeComponent, ezRenderComponent, ezKrautTreeComponentManager);
@@ -104,6 +116,13 @@ public:
   void SetKrautGeneratorResource(const ezKrautGeneratorResourceHandle& hTree);                          // [ property ]
   const ezKrautGeneratorResourceHandle& GetKrautGeneratorResource() const { return m_hKrautGenerator; } // [ property ]
 
+  // Development options for the Kraut asset preview
+  ezInt8 m_iLodOverride = -1;             ///< When >= 0, forces a specific LOD index regardless of camera distance. -1 = automatic.
+  bool m_bHideFrondsAndLeafs = false;     ///< When true, frond and leaf sub-meshes are skipped during rendering.
+  bool m_bForceGenerateImmediate = false; ///< When true, LOD generation runs synchronously instead of via background tasks.
+
+  const ezKrautTreeResourceHandle& GetKrautTreeResource() const { return m_hKrautTree; }
+
 private:
   /// Currently this adds a cylinder mesh as a rough approximation of the tree trunk for collision.
   ezResult CreateGeometry(ezGeometry& geo, ezWorldGeoExtractionUtil::ExtractionMode mode) const;
@@ -111,6 +130,13 @@ private:
 
   ezUInt16 m_uiVariationIndex = 0xFFFF;
   ezUInt16 m_uiCustomRandomSeed = 0xFFFF;
+  ezUInt32 m_uiCurrentSeed = 0;
+
+  /// The LOD index rendered in the most recent frame, or -1 if nothing has been rendered yet.
+  /// Used by EnsureTreeIsGenerated() to delay switching to a regenerated tree until that LOD is ready,
+  /// so the old tree continues to render without flickering.
+  mutable ezInt8 m_iLastRenderedLod = -1;
+
   ezKrautTreeResourceHandle m_hKrautTree;
   ezKrautGeneratorResourceHandle m_hKrautGenerator;
 

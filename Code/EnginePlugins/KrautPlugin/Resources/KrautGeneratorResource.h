@@ -87,6 +87,12 @@ public:
   /// Also queues async generation of the base data (tree structure + bounds).
   ezKrautTreeResourceHandle GetOrCreateTreeResource(ezUInt32 uiSeed);
 
+  /// Requests that a specific LOD mesh be generated.
+  ///
+  /// uiLodIndex 0 = full-detail LOD, 1..N = runtime LODs.
+  /// When bImmediate is true, generation runs synchronously on the calling thread,
+  /// which will block until the mesh is ready. Returns true if the LOD is already Ready.
+  bool RequestLodMesh(ezKrautTreeResourceHandle hTree, ezUInt32 uiSeed, ezUInt32 uiLodIndex, bool bImmediate) const;
 
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
@@ -128,4 +134,32 @@ private:
   void ComputeBendinessAlongBranches(TreeStructureExtraData& extraData, const Kraut::TreeStructure& treeStructure, float fWoodBendiness, float fTwigBendiness) const;
   void ComputeBendinessToAnchors(TreeStructureExtraData& extraData, const Kraut::TreeStructure& treeStructure) const;
   void GenerateExtraData(TreeStructureExtraData& treeStructureExtraData, const Kraut::TreeStructureDesc& treeStructureDesc, const Kraut::TreeStructure& treeStructure, ezUInt32 uiRandomSeed, float fWoodBendiness, float fTwigBendiness) const;
+
+public:
+  // Forward declarations for internal implementation types defined in KrautGeneratorResource.cpp.
+  // Public so that helper free functions in the .cpp can reference the type names.
+  struct ezKrautSharedTreeData;
+  class ezKrautBaseDataTask;
+  class ezKrautLodGenerationTask;
+
+private:
+  /// Tracks the async generation state for a single seed value.
+  ///
+  /// Each seed that has been requested via GetOrCreateTreeResource() gets one SeedState entry.
+  /// m_pSharedData is null until the base data task completes; LOD tasks must not start before that.
+  struct SeedState
+  {
+    ~SeedState();                                     // defined in KrautGeneratorResource.cpp where task types are complete
+
+    ezKrautTreeResourceHandle m_hTree;
+    ezSharedPtr<ezKrautSharedTreeData> m_pSharedData; ///< Null until the base data task completes.
+    ezSharedPtr<ezKrautBaseDataTask> m_pBaseDataTask;
+    ezSharedPtr<ezKrautLodGenerationTask> m_PendingLodTasks[6];
+  };
+
+  mutable ezMutex m_GenerationMutex;
+  mutable ezHashTable<ezUInt32, SeedState> m_SeedStates;
+
+  void GenerateBaseDataImmediate(SeedState& state, ezUInt32 uiSeed, const ezSharedPtr<ezKrautGeneratorResourceDescriptor>& desc) const;
+  void GenerateSingleLodMeshImmediate(const ezSharedPtr<ezKrautSharedTreeData>& pSharedData, ezUInt32 uiLodIndex, ezKrautTreeResourceHandle hTree) const;
 };

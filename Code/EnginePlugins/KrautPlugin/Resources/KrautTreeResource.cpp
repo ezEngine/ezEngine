@@ -59,100 +59,27 @@ void ezKrautTreeResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 
 EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezKrautTreeResource, ezKrautTreeResourceDescriptor)
 {
+  EZ_LOCK(m_LodMutex);
+
   m_TreeLODs.Clear();
   m_Details = descriptor.m_Details;
+  m_Materials = descriptor.m_Materials;
 
-  ezStringBuilder sResName, sResDesc;
-
+  // Create skeleton slots: distance/type info only, no mesh data yet.
+  // Meshes are generated on demand via SetLodMesh().
   for (ezUInt32 lodIdx = 0; lodIdx < descriptor.m_Lods.GetCount(); ++lodIdx)
   {
     const auto& lodSrc = descriptor.m_Lods[lodIdx];
 
     if (lodSrc.m_LodType != ezKrautLodType::Mesh)
-    {
-      // ignore impostor LODs
       break;
-    }
 
     auto& lodDst = m_TreeLODs.ExpandAndGetRef();
-
     lodDst.m_LodType = lodSrc.m_LodType;
     lodDst.m_fMinLodDistance = lodSrc.m_fMinLodDistance;
     lodDst.m_fMaxLodDistance = lodSrc.m_fMaxLodDistance;
-
-    ezMeshResourceDescriptor md;
-    auto& buffer = md.MeshBufferDesc();
-
-    const ezUInt32 uiNumVertices = lodSrc.m_Vertices.GetCount();
-    const ezUInt32 uiNumTriangles = lodSrc.m_Triangles.GetCount();
-    const ezUInt32 uiSubMeshes = lodSrc.m_SubMeshes.GetCount();
-
-    buffer.AddCommonStreams();
-    buffer.AddStream(ezMeshVertexStreamType::TexCoord1);
-
-    const bool bFullPrecision = true; // Needs full precision color for now. TODO: better packing
-    buffer.AddStream(ezMeshVertexStreamType::Color0, bFullPrecision);
-    buffer.AddStream(ezMeshVertexStreamType::Color1, bFullPrecision);
-    buffer.AllocateStreams(uiNumVertices, ezGALPrimitiveTopology::Triangles, uiNumTriangles);
-
-    for (ezUInt32 v = 0; v < uiNumVertices; ++v)
-    {
-      const auto& vtx = lodSrc.m_Vertices[v];
-
-      buffer.SetPosition(v, vtx.m_vPosition);
-      buffer.SetTexCoord0(v, ezVec2(vtx.m_vTexCoord.x, vtx.m_vTexCoord.y));
-      buffer.SetTexCoord1(v, ezVec2(vtx.m_vTexCoord.z, vtx.m_fAmbientOcclusion));
-      buffer.SetNormal(v, vtx.m_vNormal);
-      buffer.SetTangent(v, vtx.m_vTangent.GetAsVec4(1.0f));
-
-      ezColor color;
-      color.r = vtx.m_fBendAndFlutterStrength;
-      color.g = (float)vtx.m_uiBranchLevel;
-      color.b = ezMath::ColorByteToFloat(vtx.m_uiFlutterPhase);
-      color.a = ezMath::ColorByteToFloat(vtx.m_uiColorVariation);
-
-      buffer.SetColor0(v, color);
-      buffer.SetColor1(v, ezColor(vtx.m_vBendAnchor.x, vtx.m_vBendAnchor.y, vtx.m_vBendAnchor.z, vtx.m_fAnchorBendStrength));
-    }
-
-    for (ezUInt32 t = 0; t < uiNumTriangles; ++t)
-    {
-      const auto& tri = lodSrc.m_Triangles[t];
-
-      buffer.SetTriangleIndices(t, tri.m_uiVertexIndex[0], tri.m_uiVertexIndex[1], tri.m_uiVertexIndex[2]);
-    }
-
-    for (ezUInt32 sm = 0; sm < uiSubMeshes; ++sm)
-    {
-      const auto& subMesh = lodSrc.m_SubMeshes[sm];
-
-      md.AddSubMesh(subMesh.m_uiNumTriangles, subMesh.m_uiFirstTriangle, subMesh.m_uiMaterialIndex);
-    }
-
-    md.ComputeBounds();
-
-    for (ezUInt32 mat = 0; mat < descriptor.m_Materials.GetCount(); ++mat)
-    {
-      md.SetMaterial(mat, descriptor.m_Materials[mat].m_sMaterial);
-    }
-
-    sResName.SetFormat("{0}_{1}_LOD{2}", GetResourceID(), GetCurrentResourceChangeCounter(), lodIdx);
-
-    if (GetResourceDescription().IsEmpty())
-    {
-      sResDesc = sResName;
-    }
-    else
-    {
-      sResDesc.SetFormat("{0}_{1}_LOD{2}", GetResourceDescription(), GetCurrentResourceChangeCounter(), lodIdx);
-    }
-
-    lodDst.m_hMesh = ezResourceManager::GetExistingResource<ezMeshResource>(sResName);
-
-    if (!lodDst.m_hMesh.IsValid())
-    {
-      lodDst.m_hMesh = ezResourceManager::GetOrCreateResource<ezMeshResource>(sResName, std::move(md), sResDesc);
-    }
+    lodDst.m_uiNumBones = lodSrc.m_uiNumBones;
+    lodDst.m_State = ezKrautLodState::NotGenerated;
   }
 
   ezResourceLoadDesc res;
@@ -161,6 +88,142 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezKrautTreeResource, ezKrautTreeResourceDescrip
   res.m_State = ezResourceState::Loaded;
 
   return res;
+}
+
+void ezKrautTreeResource::SetDetails(const ezKrautTreeResourceDetails& details, ezArrayPtr<const ezKrautTreeResourceDescriptor::MaterialData> materials)
+{
+  EZ_LOCK(m_LodMutex);
+  m_Details = details;
+  m_Materials = materials;
+}
+
+void ezKrautTreeResource::SetLodMesh(ezUInt32 uiLodIndex, const ezKrautTreeResourceDescriptor::LodData& lodSrc, ezArrayPtr<const ezKrautTreeResourceDescriptor::MaterialData> materials)
+{
+  EZ_LOCK(m_LodMutex);
+
+  if (uiLodIndex >= m_TreeLODs.GetCount())
+    return;
+
+  auto& lodDst = m_TreeLODs[uiLodIndex];
+
+  if (lodDst.m_State == ezKrautLodState::Ready)
+    return; // already set
+
+  lodDst.m_Materials = materials;
+
+  // Count triangles by material type
+  lodDst.m_uiNumTrianglesBranch = 0;
+  lodDst.m_uiNumTrianglesFrond = 0;
+  lodDst.m_uiNumTrianglesLeaf = 0;
+
+  for (const auto& subMesh : lodSrc.m_SubMeshes)
+  {
+    if (subMesh.m_uiMaterialIndex < materials.GetCount())
+    {
+      const ezUInt32 uiTris = subMesh.m_uiNumTriangles;
+      switch (materials[subMesh.m_uiMaterialIndex].m_MaterialType)
+      {
+        case ezKrautMaterialType::Branch:
+          lodDst.m_uiNumTrianglesBranch += uiTris;
+          break;
+        case ezKrautMaterialType::Frond:
+          lodDst.m_uiNumTrianglesFrond += uiTris;
+          break;
+        case ezKrautMaterialType::Leaf:
+          lodDst.m_uiNumTrianglesLeaf += uiTris;
+          break;
+        default:
+          break;
+      }
+    }
+  }
+
+  const ezUInt32 uiNumVertices = lodSrc.m_Vertices.GetCount();
+  const ezUInt32 uiNumTriangles = lodSrc.m_Triangles.GetCount();
+  const ezUInt32 uiSubMeshes = lodSrc.m_SubMeshes.GetCount();
+
+  ezMeshResourceDescriptor md;
+  auto& buffer = md.MeshBufferDesc();
+
+  buffer.AddCommonStreams();
+  buffer.AddStream(ezMeshVertexStreamType::TexCoord1);
+
+  const bool bFullPrecision = true;
+  buffer.AddStream(ezMeshVertexStreamType::Color0, bFullPrecision);
+  buffer.AddStream(ezMeshVertexStreamType::Color1, bFullPrecision);
+  buffer.AllocateStreams(uiNumVertices, ezGALPrimitiveTopology::Triangles, uiNumTriangles);
+
+  for (ezUInt32 v = 0; v < uiNumVertices; ++v)
+  {
+    const auto& vtx = lodSrc.m_Vertices[v];
+
+    buffer.SetPosition(v, vtx.m_vPosition);
+    buffer.SetTexCoord0(v, ezVec2(vtx.m_vTexCoord.x, vtx.m_vTexCoord.y));
+    buffer.SetTexCoord1(v, ezVec2(vtx.m_vTexCoord.z, vtx.m_fAmbientOcclusion));
+    buffer.SetNormal(v, vtx.m_vNormal);
+    buffer.SetTangent(v, vtx.m_vTangent.GetAsVec4(1.0f));
+
+    ezColor color;
+    color.r = vtx.m_fBendAndFlutterStrength;
+    color.g = (float)vtx.m_uiBranchLevel;
+    color.b = ezMath::ColorByteToFloat(vtx.m_uiFlutterPhase);
+    color.a = ezMath::ColorByteToFloat(vtx.m_uiColorVariation);
+
+    buffer.SetColor0(v, color);
+    buffer.SetColor1(v, ezColor(vtx.m_vBendAnchor.x, vtx.m_vBendAnchor.y, vtx.m_vBendAnchor.z, vtx.m_fAnchorBendStrength));
+  }
+
+  for (ezUInt32 t = 0; t < uiNumTriangles; ++t)
+  {
+    const auto& tri = lodSrc.m_Triangles[t];
+    buffer.SetTriangleIndices(t, tri.m_uiVertexIndex[0], tri.m_uiVertexIndex[1], tri.m_uiVertexIndex[2]);
+  }
+
+  for (ezUInt32 sm = 0; sm < uiSubMeshes; ++sm)
+  {
+    const auto& subMesh = lodSrc.m_SubMeshes[sm];
+    md.AddSubMesh(subMesh.m_uiNumTriangles, subMesh.m_uiFirstTriangle, subMesh.m_uiMaterialIndex);
+  }
+
+  md.ComputeBounds();
+
+  for (ezUInt32 mat = 0; mat < materials.GetCount(); ++mat)
+  {
+    md.SetMaterial(mat, materials[mat].m_sMaterial);
+  }
+
+  ezStringBuilder sResName, sResDesc;
+  sResName.SetFormat("{0}_{1}_LOD{2}", GetResourceID(), GetCurrentResourceChangeCounter(), uiLodIndex);
+
+  if (GetResourceDescription().IsEmpty())
+    sResDesc = sResName;
+  else
+    sResDesc.SetFormat("{0}_{1}_LOD{2}", GetResourceDescription(), GetCurrentResourceChangeCounter(), uiLodIndex);
+
+  lodDst.m_hMesh = ezResourceManager::GetExistingResource<ezMeshResource>(sResName);
+
+  if (!lodDst.m_hMesh.IsValid())
+    lodDst.m_hMesh = ezResourceManager::GetOrCreateResource<ezMeshResource>(sResName, std::move(md), sResDesc);
+
+  lodDst.m_State = ezKrautLodState::Ready;
+}
+
+void ezKrautTreeResource::SetLodState(ezUInt32 uiLodIndex, ezKrautLodState state)
+{
+  EZ_LOCK(m_LodMutex);
+
+  if (uiLodIndex < m_TreeLODs.GetCount())
+    m_TreeLODs[uiLodIndex].m_State = state;
+}
+
+ezKrautLodState ezKrautTreeResource::GetLodState(ezUInt32 uiLodIndex) const
+{
+  EZ_LOCK(m_LodMutex);
+
+  if (uiLodIndex < m_TreeLODs.GetCount())
+    return m_TreeLODs[uiLodIndex].m_State;
+
+  return ezKrautLodState::NotGenerated;
 }
 
 //////////////////////////////////////////////////////////////////////////
