@@ -2,6 +2,8 @@
 
 #include <KrautPlugin/KrautPluginDLL.h>
 
+#include <Foundation/Reflection/Reflection.h>
+
 struct ezResourceEvent;
 
 class ezKrautLodInfo;
@@ -103,4 +105,5 @@ struct ezKrautTreeTypeBits
 };
 
 EZ_DECLARE_FLAGS_OPERATORS(ezKrautTreeTypeBits);
+
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_KRAUTPLUGIN_DLL, ezKrautTreeTypeBits);

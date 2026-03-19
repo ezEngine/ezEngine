@@ -35,12 +35,12 @@ Kraut.ToggleFrondsLeaves;Display Fronds and Leaves
 
 # Properties
 
-GrowSubBranchType1
-GrowSubBranchType2
-GrowSubBranchType3
+GrowSubBranchType1;Grow Sub-Branch Type 1
+GrowSubBranchType2;Grow Sub-Branch Type 2
+GrowSubBranchType3;Grow Sub-Branch Type 3
 
 ezKrautAssetBranchType::SegmentLength;Branch Segment Length;How long one segment of a branch of this type is (in full detail, before LODs are generated).\n\nThe segment length influences how detailed the tree can grow. Branches can only change their direction once per segment. That means the more segments there are, the more often a branch can change its direction. So for very short branches (like twigs) the segment length should be short.However the number of segments also influences how much processing time is needed to generate a tree, and how detailed the tree is before the LOD computations take place. A tree with fewer segments can usually be edited with a better framerate and the generated meshes might be smaller (although that depends on the LOD settings and the actual curvature of the tree).In general it is not recommended to change this setting unless you want to have branches be more winding than the predefined segment length allows. In that case slightly reduce the segment length until satisfied.
-ezKrautAssetBranchType::BranchType
+ezKrautAssetBranchType::BranchType;Branch Type
 ezKrautAssetBranchType::BranchlessPartABS;Branchless Part at Start;An absolute distance from the beginning of the branch, in which no sub-branches are spawned.\n\nYou can also use the "Lower Usage Range" to prevent branches in a certain range.
 ezKrautAssetBranchType::BranchlessPartEndABS;Branchless Part at End;An absolute distance from the end of the branch, in which no sub-branches are spawned.\n\nYou can also use the "Upper Usage Range" to prevent branches in a certain range.
 ezKrautAssetBranchType::LowerBound;Lower Usage Range;These two sliders define in which range along the parent branch a branch may be spawned, at all.\n\nBy default the range is 0 to 1 meaning the branch type may be spawned all over the parent branch without restrictions.\n\nHowever, by setting the "Lower Usage Range" to 0.5 branches of this type may only be spawned in the second half of the parent branch.\n\nConversely, setting the "Upper Usage Range" to 0.5 instead, would mean that branches of this type may only be spawned in the first half of the parent branch.

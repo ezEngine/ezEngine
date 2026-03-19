@@ -20,5 +20,3 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualGraphComment, 1, ezRTTIDefaultAllocator<
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
-
-EZ_STATICLINK_FILE(ToolsFoundation, ToolsFoundation_VisualGraph_Implementation_VisualGraphCommentNode);

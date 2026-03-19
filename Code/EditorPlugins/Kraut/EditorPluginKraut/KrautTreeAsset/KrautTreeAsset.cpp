@@ -56,7 +56,7 @@ void ezKrautTreeAssetDocument::SetShowFrondsLeaves(bool bShow)
 
 //////////////////////////////////////////////////////////////////////////
 
-void CopyKrautConfig(Kraut::SpawnNodeDesc& node, const ezKrautAssetBranchType& bt, ezDynamicArray<ezKrautMaterialDescriptor>& materials, ezKrautBranchType branchType);
+void CopyKrautConfig(Kraut::SpawnNodeDesc& ref_node, const ezKrautAssetBranchType& bt, ezDynamicArray<ezKrautMaterialDescriptor>& ref_materials, ezKrautBranchType branchType);
 
 class KrautStreamIn : public aeStreamIn
 {
@@ -117,7 +117,7 @@ static void GetMaterialLabel(ezStringBuilder& ref_sOut, ezKrautBranchType branch
 }
 
 
-ezStatus ezKrautTreeAssetDocument::WriteKrautAsset(ezStreamWriter& stream) const
+ezStatus ezKrautTreeAssetDocument::WriteKrautAsset(ezStreamWriter& ref_stream) const
 {
   const ezKrautTreeAssetProperties* pProp = GetProperties();
 
@@ -207,7 +207,7 @@ ezStatus ezKrautTreeAssetDocument::WriteKrautAsset(ezStreamWriter& stream) const
     desc.m_fTreeStiffness = pProp->m_fTreeStiffness;
     desc.m_fMinAmbientOcclusion = pProp->m_fMinAmbientOcclusion;
 
-    if (desc.Serialize(stream).Failed())
+    if (desc.Serialize(ref_stream).Failed())
     {
       return ezStatus("Writing KrautGenerator resource descriptor failed.");
     }

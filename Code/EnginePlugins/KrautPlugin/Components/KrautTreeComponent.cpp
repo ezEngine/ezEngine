@@ -386,20 +386,29 @@ void ezKrautTreeComponent::EnsureTreeIsGenerated()
   {
     const ezUInt32 uiRequiredLod = static_cast<ezUInt32>(m_iLastRenderedLod);
 
-    // Kick off generation of the required LOD on the new tree resource.
-    pResource->RequestLodMesh(hNewTree, uiSeed, uiRequiredLod, false);
+    // Kick off (or force) generation of the required LOD on the new tree resource.
+    pResource->RequestLodMesh(hNewTree, uiSeed, uiRequiredLod, m_bForceGenerateImmediate);
 
-    // Check whether it is ready yet.
+    if (!m_bForceGenerateImmediate)
     {
+      // Check whether the LOD is ready yet; if not, retry next frame so the old tree keeps rendering.
       ezResourceLock<ezKrautTreeResource> pNewTree(hNewTree, ezResourceAcquireMode::PointerOnly);
       if (pNewTree.IsValid() && uiRequiredLod < pNewTree->GetTreeLODs().GetCount() &&
           pNewTree->GetLodState(uiRequiredLod) != ezKrautLodState::Ready)
       {
-        // Not ready yet — retry next frame; keep rendering the old tree in the meantime.
         GetWorld()->GetOrCreateComponentManager<ezKrautTreeComponentManager>()->EnqueueUpdate(GetHandle());
         return;
       }
     }
+    // When m_bForceGenerateImmediate, RequestLodMesh generated synchronously — no need to retry.
+  }
+  else if (m_bForceGenerateImmediate)
+  {
+    // No previously rendered LOD to wait for. Generate base data + the coarsest runtime LOD
+    // synchronously so that bounds are valid within this same frame. This makes first-frame
+    // rendering deterministic, which is required for image comparison tests.
+    constexpr ezUInt32 uiCoarsestRuntimeLod = 1;
+    pResource->RequestLodMesh(hNewTree, uiSeed, uiCoarsestRuntimeLod, true);
   }
 
   m_uiCurrentSeed = uiSeed;

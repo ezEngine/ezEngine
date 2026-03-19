@@ -11,7 +11,7 @@ o
 		s %AssetType{"Kraut Tree"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{16242289591921312934,5331298968656744613}}
-		u4 %Hash{270083958931111867}
+		u4 %Hash{11860501782431373159}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -74,14 +74,14 @@ o
 		s %AllowFrond{"ezKrautTreeTypeBits::Trunk1|ezKrautTreeTypeBits::Trunk2|ezKrautTreeTypeBits::Trunk3|ezKrautTreeTypeBits::MainBranches1|ezKrautTreeTypeBits::MainBranches2|ezKrautTreeTypeBits::MainBranches3|ezKrautTreeTypeBits::SubBranches1|ezKrautTreeTypeBits::SubBranches2|ezKrautTreeTypeBits::SubBranches3|ezKrautTreeTypeBits::Twigs1|ezKrautTreeTypeBits::Twigs2|ezKrautTreeTypeBits::Twigs3"}
 		s %AllowLeaf{"ezKrautTreeTypeBits::Trunk1|ezKrautTreeTypeBits::Trunk2|ezKrautTreeTypeBits::Trunk3|ezKrautTreeTypeBits::MainBranches1|ezKrautTreeTypeBits::MainBranches2|ezKrautTreeTypeBits::MainBranches3|ezKrautTreeTypeBits::SubBranches1|ezKrautTreeTypeBits::SubBranches2|ezKrautTreeTypeBits::SubBranches3|ezKrautTreeTypeBits::Twigs1|ezKrautTreeTypeBits::Twigs2|ezKrautTreeTypeBits::Twigs3"}
 		s %BranchSpikeTipMode{"ezKrautBranchSpikeTipMode::FullDetail"}
-		f %CurvatureThreshold{0x00000040}
+		f %CurvatureThreshold{0x0000C03F}
 		i1 %FrondDetailReduction{0}
-		u3 %LodDistance{10}
+		u3 %LodDistance{25}
 		i1 %MaxFrondDetail{32}
 		s %Mode{"ezKrautLodMode::Full"}
-		f %ThicknessThreshold{0xCDCC4C3D}
-		f %TipDetail{0x0AD7233D}
-		f %VertexRingDetail{0xCDCC4C3E}
+		f %ThicknessThreshold{0x0AD7233D}
+		f %TipDetail{0x8FC2F53C}
+		f %VertexRingDetail{0x9A99193E}
 	}
 }
 o
@@ -147,7 +147,12 @@ o
 	p
 	{
 		ColorGamma %Color{u1{148,216,45,255}}
-		VarArray %ControlPoints{}
+		VarArray %ControlPoints
+		{
+			Uuid{u4{16036814228113018041,5060826213581489639}}
+			Uuid{u4{13351307406643305883,5512334121556082233}}
+			Uuid{u4{13063001730383654570,5728401409869361718}}
+		}
 	}
 }
 o
@@ -306,15 +311,15 @@ o
 		s %AllowBranch{"ezKrautTreeTypeBits::Trunk1|ezKrautTreeTypeBits::Trunk2|ezKrautTreeTypeBits::Trunk3|ezKrautTreeTypeBits::MainBranches1|ezKrautTreeTypeBits::MainBranches2|ezKrautTreeTypeBits::MainBranches3|ezKrautTreeTypeBits::SubBranches1|ezKrautTreeTypeBits::SubBranches2|ezKrautTreeTypeBits::SubBranches3|ezKrautTreeTypeBits::Twigs1|ezKrautTreeTypeBits::Twigs2|ezKrautTreeTypeBits::Twigs3"}
 		s %AllowFrond{"ezKrautTreeTypeBits::Trunk1|ezKrautTreeTypeBits::Trunk2|ezKrautTreeTypeBits::Trunk3|ezKrautTreeTypeBits::MainBranches1|ezKrautTreeTypeBits::MainBranches2|ezKrautTreeTypeBits::MainBranches3|ezKrautTreeTypeBits::SubBranches1|ezKrautTreeTypeBits::SubBranches2|ezKrautTreeTypeBits::SubBranches3|ezKrautTreeTypeBits::Twigs1|ezKrautTreeTypeBits::Twigs2|ezKrautTreeTypeBits::Twigs3"}
 		s %AllowLeaf{"ezKrautTreeTypeBits::Trunk1|ezKrautTreeTypeBits::Trunk2|ezKrautTreeTypeBits::Trunk3|ezKrautTreeTypeBits::MainBranches1|ezKrautTreeTypeBits::MainBranches2|ezKrautTreeTypeBits::MainBranches3|ezKrautTreeTypeBits::SubBranches1|ezKrautTreeTypeBits::SubBranches2|ezKrautTreeTypeBits::SubBranches3|ezKrautTreeTypeBits::Twigs1|ezKrautTreeTypeBits::Twigs2|ezKrautTreeTypeBits::Twigs3"}
-		s %BranchSpikeTipMode{"ezKrautBranchSpikeTipMode::FullDetail"}
-		f %CurvatureThreshold{0x0000A041}
-		i1 %FrondDetailReduction{4}
-		u3 %LodDistance{1000}
-		i1 %MaxFrondDetail{0}
+		s %BranchSpikeTipMode{"ezKrautBranchSpikeTipMode::Hole"}
+		f %CurvatureThreshold{0x00007041}
+		i1 %FrondDetailReduction{3}
+		u3 %LodDistance{50}
+		i1 %MaxFrondDetail{2}
 		s %Mode{"ezKrautLodMode::Disabled"}
-		f %ThicknessThreshold{0x0000803E}
-		f %TipDetail{0xCDCCCC3E}
-		f %VertexRingDetail{0x0000803F}
+		f %ThicknessThreshold{0xCDCC4C3E}
+		f %TipDetail{0x9A99993E}
+		f %VertexRingDetail{0xCDCC4C3F}
 	}
 }
 o
@@ -400,6 +405,22 @@ o
 }
 o
 {
+	Uuid %id{u4{16036814228113018041,5060826213581489639}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{720}
+		d %Value{0xDC43131BCC78D83F}
+	}
+}
+o
+{
 	Uuid %id{u4{5101323386866554807,5138982381412055676}}
 	s %t{"ezKrautAssetMaterial"}
 	u3 %v{1}
@@ -440,6 +461,22 @@ o
 	{
 		ColorGamma %Color{u1{148,216,45,255}}
 		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{13351307406643305883,5512334121556082233}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{4800}
+		d %Value{0xFEA6EAE816D4DE3F}
 	}
 }
 o
@@ -498,6 +535,22 @@ o
 		f %StaticColliderRadius{0x9A99193F}
 		s %Surface{""}
 		f %TreeStiffness{0x00007041}
+	}
+}
+o
+{
+	Uuid %id{u4{13063001730383654570,5728401409869361718}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{2320}
+		d %Value{0x20850CEED854EE3F}
 	}
 }
 o
@@ -1168,10 +1221,10 @@ o
 		s %AllowBranch{"ezKrautTreeTypeBits::Trunk1|ezKrautTreeTypeBits::Trunk2|ezKrautTreeTypeBits::Trunk3|ezKrautTreeTypeBits::MainBranches1|ezKrautTreeTypeBits::MainBranches2|ezKrautTreeTypeBits::MainBranches3|ezKrautTreeTypeBits::SubBranches1|ezKrautTreeTypeBits::SubBranches2|ezKrautTreeTypeBits::SubBranches3|ezKrautTreeTypeBits::Twigs1|ezKrautTreeTypeBits::Twigs2|ezKrautTreeTypeBits::Twigs3"}
 		s %AllowFrond{"ezKrautTreeTypeBits::Trunk1|ezKrautTreeTypeBits::Trunk2|ezKrautTreeTypeBits::Trunk3|ezKrautTreeTypeBits::MainBranches1|ezKrautTreeTypeBits::MainBranches2|ezKrautTreeTypeBits::MainBranches3|ezKrautTreeTypeBits::SubBranches1|ezKrautTreeTypeBits::SubBranches2|ezKrautTreeTypeBits::SubBranches3|ezKrautTreeTypeBits::Twigs1|ezKrautTreeTypeBits::Twigs2|ezKrautTreeTypeBits::Twigs3"}
 		s %AllowLeaf{"ezKrautTreeTypeBits::Trunk1|ezKrautTreeTypeBits::Trunk2|ezKrautTreeTypeBits::Trunk3|ezKrautTreeTypeBits::MainBranches1|ezKrautTreeTypeBits::MainBranches2|ezKrautTreeTypeBits::MainBranches3|ezKrautTreeTypeBits::SubBranches1|ezKrautTreeTypeBits::SubBranches2|ezKrautTreeTypeBits::SubBranches3|ezKrautTreeTypeBits::Twigs1|ezKrautTreeTypeBits::Twigs2|ezKrautTreeTypeBits::Twigs3"}
-		s %BranchSpikeTipMode{"ezKrautBranchSpikeTipMode::FullDetail"}
+		s %BranchSpikeTipMode{"ezKrautBranchSpikeTipMode::Hole"}
 		f %CurvatureThreshold{0x0000A040}
 		i1 %FrondDetailReduction{1}
-		u3 %LodDistance{20}
+		u3 %LodDistance{50}
 		i1 %MaxFrondDetail{6}
 		s %Mode{"ezKrautLodMode::Full"}
 		f %ThicknessThreshold{0xCDCCCC3D}
@@ -1211,10 +1264,10 @@ o
 		s %AllowBranch{"ezKrautTreeTypeBits::Trunk1|ezKrautTreeTypeBits::Trunk2|ezKrautTreeTypeBits::Trunk3|ezKrautTreeTypeBits::MainBranches1|ezKrautTreeTypeBits::MainBranches2|ezKrautTreeTypeBits::MainBranches3|ezKrautTreeTypeBits::SubBranches1|ezKrautTreeTypeBits::SubBranches2|ezKrautTreeTypeBits::SubBranches3|ezKrautTreeTypeBits::Twigs1|ezKrautTreeTypeBits::Twigs2|ezKrautTreeTypeBits::Twigs3"}
 		s %AllowFrond{"ezKrautTreeTypeBits::Trunk1|ezKrautTreeTypeBits::Trunk2|ezKrautTreeTypeBits::Trunk3|ezKrautTreeTypeBits::MainBranches1|ezKrautTreeTypeBits::MainBranches2|ezKrautTreeTypeBits::MainBranches3|ezKrautTreeTypeBits::SubBranches1|ezKrautTreeTypeBits::SubBranches2|ezKrautTreeTypeBits::SubBranches3|ezKrautTreeTypeBits::Twigs1|ezKrautTreeTypeBits::Twigs2|ezKrautTreeTypeBits::Twigs3"}
 		s %AllowLeaf{"ezKrautTreeTypeBits::Trunk1|ezKrautTreeTypeBits::Trunk2|ezKrautTreeTypeBits::Trunk3|ezKrautTreeTypeBits::MainBranches1|ezKrautTreeTypeBits::MainBranches2|ezKrautTreeTypeBits::MainBranches3|ezKrautTreeTypeBits::SubBranches1|ezKrautTreeTypeBits::SubBranches2|ezKrautTreeTypeBits::SubBranches3|ezKrautTreeTypeBits::Twigs1|ezKrautTreeTypeBits::Twigs2|ezKrautTreeTypeBits::Twigs3"}
-		s %BranchSpikeTipMode{"ezKrautBranchSpikeTipMode::FullDetail"}
+		s %BranchSpikeTipMode{"ezKrautBranchSpikeTipMode::Hole"}
 		f %CurvatureThreshold{0x00002041}
 		i1 %FrondDetailReduction{2}
-		u3 %LodDistance{30}
+		u3 %LodDistance{75}
 		i1 %MaxFrondDetail{4}
 		s %Mode{"ezKrautLodMode::Full"}
 		f %ThicknessThreshold{0x9A99193E}
@@ -1538,10 +1591,10 @@ o
 		s %AllowBranch{"ezKrautTreeTypeBits::Trunk1|ezKrautTreeTypeBits::Trunk2|ezKrautTreeTypeBits::Trunk3|ezKrautTreeTypeBits::MainBranches1|ezKrautTreeTypeBits::MainBranches2|ezKrautTreeTypeBits::MainBranches3|ezKrautTreeTypeBits::SubBranches1|ezKrautTreeTypeBits::SubBranches2|ezKrautTreeTypeBits::SubBranches3|ezKrautTreeTypeBits::Twigs1|ezKrautTreeTypeBits::Twigs2|ezKrautTreeTypeBits::Twigs3"}
 		s %AllowFrond{"ezKrautTreeTypeBits::Trunk1|ezKrautTreeTypeBits::Trunk2|ezKrautTreeTypeBits::Trunk3|ezKrautTreeTypeBits::MainBranches1|ezKrautTreeTypeBits::MainBranches2|ezKrautTreeTypeBits::MainBranches3|ezKrautTreeTypeBits::SubBranches1|ezKrautTreeTypeBits::SubBranches2|ezKrautTreeTypeBits::SubBranches3|ezKrautTreeTypeBits::Twigs1|ezKrautTreeTypeBits::Twigs2|ezKrautTreeTypeBits::Twigs3"}
 		s %AllowLeaf{"ezKrautTreeTypeBits::Trunk1|ezKrautTreeTypeBits::Trunk2|ezKrautTreeTypeBits::Trunk3|ezKrautTreeTypeBits::MainBranches1|ezKrautTreeTypeBits::MainBranches2|ezKrautTreeTypeBits::MainBranches3|ezKrautTreeTypeBits::SubBranches1|ezKrautTreeTypeBits::SubBranches2|ezKrautTreeTypeBits::SubBranches3|ezKrautTreeTypeBits::Twigs1|ezKrautTreeTypeBits::Twigs2|ezKrautTreeTypeBits::Twigs3"}
-		s %BranchSpikeTipMode{"ezKrautBranchSpikeTipMode::FullDetail"}
+		s %BranchSpikeTipMode{"ezKrautBranchSpikeTipMode::Hole"}
 		f %CurvatureThreshold{0x00007041}
 		i1 %FrondDetailReduction{3}
-		u3 %LodDistance{40}
+		u3 %LodDistance{200}
 		i1 %MaxFrondDetail{2}
 		s %Mode{"ezKrautLodMode::Full"}
 		f %ThicknessThreshold{0xCDCC4C3E}

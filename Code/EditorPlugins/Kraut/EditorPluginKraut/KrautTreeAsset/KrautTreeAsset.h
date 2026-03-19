@@ -31,7 +31,7 @@ class ezKrautTreeAssetDocument : public ezSimpleAssetDocument<ezKrautTreeAssetPr
 public:
   ezKrautTreeAssetDocument(ezStringView sDocumentPath);
 
-  ezStatus WriteKrautAsset(ezStreamWriter& stream) const;
+  ezStatus WriteKrautAsset(ezStreamWriter& ref_stream) const;
 
   ezKrautWindStrength::Enum GetWindStrength() const { return m_WindStrength; }
   void SetWindStrength(ezKrautWindStrength::Enum strength);

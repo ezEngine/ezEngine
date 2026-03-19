@@ -611,7 +611,7 @@ void ezQtKrautTreeAssetDocumentWindow::UpdatePreview()
   AssetHeader.Write(memoryWriter).AssertSuccess();
 
   // Write Asset Data
-  GetKrautDocument()->WriteKrautAsset(memoryWriter);
+  GetKrautDocument()->WriteKrautAsset(memoryWriter).AssertSuccess();
   msg.m_Data = ezArrayPtr<const ezUInt8>(streamStorage.GetData(), streamStorage.GetStorageSize32());
 
   ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);

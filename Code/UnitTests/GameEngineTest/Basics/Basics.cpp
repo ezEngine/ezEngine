@@ -209,7 +209,7 @@ EZ_CREATE_SIMPLE_TEST(00_Init, TransformStateMachine)
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformPlatformWin)
 {
-  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/PlatformWin/ezProject", 5).Succeeded());
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/PlatformWin/ezProject", 6).Succeeded());
 }
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformXR)

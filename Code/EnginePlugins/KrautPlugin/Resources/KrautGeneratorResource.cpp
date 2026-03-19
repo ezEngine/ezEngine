@@ -168,26 +168,36 @@ private:
 };
 
 /// Generates tree structure + AO data asynchronously; does NOT generate any mesh.
+///
+/// Does not hold a resource handle to the generator to avoid a reference cycle:
+/// the generator owns the SeedState which holds a shared_ptr to this task, so if this
+/// task also held a handle to the generator the generator's reference count would never
+/// reach zero and UnloadData() would never be called.
+///
+/// Instead, the descriptor is captured by shared_ptr at task-creation time, and the
+/// generator raw pointer is used only for calling GenerateExtraData() (a pure computation
+/// helper). Safety is guaranteed because UnloadData() calls WaitTillFinished before
+/// the generator object is freed.
+///
+/// The result (m_pResult) is left in place after Execute() completes; the generator
+/// picks it up in RequestLodMesh() on the next frame.
 class ezKrautGeneratorResource::ezKrautBaseDataTask final : public ezTask
 {
 public:
-  ezKrautGeneratorResourceHandle m_hGenerator;
+  /// Raw pointer — valid for the duration of Execute() because UnloadData() calls
+  /// WaitTillFinished before the generator object is freed.
+  const ezKrautGeneratorResource* m_pGenerator = nullptr;
+  ezSharedPtr<ezKrautGeneratorResourceDescriptor> m_pDesc;
   ezKrautTreeResourceHandle m_hTree;
   ezUInt32 m_uiRandomSeed = 0;
   ezSharedPtr<ezKrautGeneratorResource::ezKrautSharedTreeData> m_pResult;
 
   virtual void Execute() override
   {
-    if (HasBeenCanceled())
+    if (HasBeenCanceled() || m_pDesc == nullptr || m_pGenerator == nullptr)
       return;
 
-    ezResourceLock<ezKrautGeneratorResource> pGenerator(m_hGenerator, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-    if (pGenerator.GetAcquireResult() != ezResourceAcquireResult::Final)
-      return;
-
-    auto pDesc = pGenerator->GetDescriptor();
-    if (pDesc == nullptr)
-      return;
+    const auto& pDesc = m_pDesc;
 
     m_pResult = EZ_DEFAULT_NEW(ezKrautSharedTreeData);
     m_pResult->m_pDescriptor = pDesc;
@@ -205,7 +215,7 @@ public:
     const float fTwigBendiness = 0.1f * fWoodBendiness;
 
     // Generate extra data (bendiness, etc.)
-    pGenerator->GenerateExtraData(m_pResult->m_ExtraData, pDesc->m_TreeStructureDesc, m_pResult->m_TreeStructure, m_uiRandomSeed, fWoodBendiness, fTwigBendiness);
+    m_pGenerator->GenerateExtraData(m_pResult->m_ExtraData, pDesc->m_TreeStructureDesc, m_pResult->m_TreeStructure, m_uiRandomSeed, fWoodBendiness, fTwigBendiness);
 
     if (HasBeenCanceled())
       return;
@@ -271,17 +281,7 @@ public:
         pTree->SetDetails(details, materials);
     }
 
-    // Store result in SeedState (under generation mutex)
-    {
-      ezResourceLock<ezKrautGeneratorResource> pGen(m_hGenerator, ezResourceAcquireMode::PointerOnly);
-      if (pGen.IsValid())
-      {
-        EZ_LOCK(pGen->m_GenerationMutex);
-        SeedState* pState = pGen->m_SeedStates.GetValue(m_uiRandomSeed);
-        if (pState != nullptr)
-          pState->m_pSharedData = m_pResult;
-      }
-    }
+    // Result is left in m_pResult; the generator picks it up in RequestLodMesh() on the next frame.
   }
 };
 
@@ -292,13 +292,13 @@ ezKrautGeneratorResource::SeedState::~SeedState() = default;
 ezUInt32 ezKrautGeneratorResource::GetLodCount() const
 {
   EZ_LOCK(m_DataMutex);
-  if (m_GeneratorDesc == nullptr)
+  if (m_pGeneratorDesc == nullptr)
     return 0;
 
   ezUInt32 uiCount = 0;
   for (ezUInt32 i = 0; i < 5; ++i)
   {
-    if (m_GeneratorDesc->m_LodDesc[i].m_Mode == Kraut::LodMode::Full)
+    if (m_pGeneratorDesc->m_LodDesc[i].m_Mode == Kraut::LodMode::Full)
       ++uiCount;
     else
       break;
@@ -309,9 +309,9 @@ ezUInt32 ezKrautGeneratorResource::GetLodCount() const
 float ezKrautGeneratorResource::GetLodDistance(ezUInt32 uiLodIndex) const
 {
   EZ_LOCK(m_DataMutex);
-  if (m_GeneratorDesc == nullptr || uiLodIndex >= 5)
+  if (m_pGeneratorDesc == nullptr || uiLodIndex >= 5)
     return 0.0f;
-  return m_GeneratorDesc->m_LodDesc[uiLodIndex].m_uiLodDistance * m_GeneratorDesc->m_fLodDistanceScale * m_GeneratorDesc->m_fUniformScaling;
+  return m_pGeneratorDesc->m_LodDesc[uiLodIndex].m_uiLodDistance * m_pGeneratorDesc->m_fLodDistanceScale * m_pGeneratorDesc->m_fUniformScaling;
 }
 
 ezKrautTreeResourceHandle ezKrautGeneratorResource::GetOrCreateTreeResource(ezUInt32 uiSeed)
@@ -337,7 +337,7 @@ ezKrautTreeResourceHandle ezKrautGeneratorResource::GetOrCreateTreeResource(ezUI
     ezSharedPtr<ezKrautGeneratorResourceDescriptor> pDesc;
     {
       EZ_LOCK(m_DataMutex);
-      pDesc = m_GeneratorDesc;
+      pDesc = m_pGeneratorDesc;
     }
 
     ezKrautTreeResourceDescriptor skelDesc;
@@ -372,12 +372,18 @@ ezKrautTreeResourceHandle ezKrautGeneratorResource::GetOrCreateTreeResource(ezUI
   SeedState& state = m_SeedStates[uiSeed];
   state.m_hTree = hTree;
 
-  // Queue base data task if not already started
+  // Queue base data task if not already started.
+  // Note: the task does NOT hold a resource handle to the generator (which would create a
+  // reference cycle); instead it holds a raw pointer and a shared_ptr to the descriptor.
   if (state.m_pBaseDataTask == nullptr || state.m_pBaseDataTask->IsTaskFinished())
   {
     auto pTask = EZ_DEFAULT_NEW(ezKrautBaseDataTask);
     pTask->ConfigureTask("KrautBaseData", ezTaskNesting::Never);
-    pTask->m_hGenerator = ezKrautGeneratorResourceHandle(this);
+    pTask->m_pGenerator = this;
+    {
+      EZ_LOCK(m_DataMutex);
+      pTask->m_pDesc = m_pGeneratorDesc;
+    }
     pTask->m_hTree = hTree;
     pTask->m_uiRandomSeed = uiSeed;
     state.m_pBaseDataTask = pTask;
@@ -410,12 +416,12 @@ bool ezKrautGeneratorResource::RequestLodMesh(ezKrautTreeResourceHandle hTree, e
     {
       // Cancel async task if running, then generate synchronously
       if (pState->m_pBaseDataTask != nullptr && !pState->m_pBaseDataTask->IsTaskFinished())
-        ezTaskSystem::CancelTask(pState->m_pBaseDataTask, ezOnTaskRunning::WaitTillFinished);
+        ezTaskSystem::CancelTask(pState->m_pBaseDataTask, ezOnTaskRunning::WaitTillFinished).IgnoreResult();
 
       ezSharedPtr<ezKrautGeneratorResourceDescriptor> pDesc;
       {
         EZ_LOCK(m_DataMutex);
-        pDesc = m_GeneratorDesc;
+        pDesc = m_pGeneratorDesc;
       }
 
       if (pDesc != nullptr)
@@ -426,7 +432,7 @@ bool ezKrautGeneratorResource::RequestLodMesh(ezKrautTreeResourceHandle hTree, e
     {
       // Cancel any pending async LOD task for this slot
       if (pState->m_PendingLodTasks[uiLodIndex] != nullptr && !pState->m_PendingLodTasks[uiLodIndex]->IsTaskFinished())
-        ezTaskSystem::CancelTask(pState->m_PendingLodTasks[uiLodIndex], ezOnTaskRunning::WaitTillFinished);
+        ezTaskSystem::CancelTask(pState->m_PendingLodTasks[uiLodIndex], ezOnTaskRunning::WaitTillFinished).IgnoreResult();
 
       GenerateSingleLodMeshImmediate(pState->m_pSharedData, uiLodIndex, hTree);
     }
@@ -435,9 +441,19 @@ bool ezKrautGeneratorResource::RequestLodMesh(ezKrautTreeResourceHandle hTree, e
     return pTree.IsValid() && pTree->GetLodState(uiLodIndex) == ezKrautLodState::Ready;
   }
 
-  // Async path: check if base data is ready
+  // Async path: check if base data is ready.
+  // The base data task no longer writes the result into SeedState directly (to avoid a
+  // reference cycle via m_hGenerator). Pick it up here once the task signals completion.
   if (pState->m_pSharedData == nullptr)
-    return false; // retry next frame once base data task completes
+  {
+    if (pState->m_pBaseDataTask != nullptr && pState->m_pBaseDataTask->IsTaskFinished() && pState->m_pBaseDataTask->m_pResult != nullptr)
+    {
+      pState->m_pSharedData = pState->m_pBaseDataTask->m_pResult;
+    }
+
+    if (pState->m_pSharedData == nullptr)
+      return false; // retry next frame once base data task completes
+  }
 
   ezUInt32 uiNumLods = 0;
   {
@@ -533,13 +549,59 @@ void ezKrautGeneratorResource::GenerateBaseDataImmediate(SeedState& state, ezUIn
   }
 
   state.m_pSharedData = pData;
+
+  // Set bounds and details on the tree resource so GetLocalBounds() returns a valid box immediately.
+  // This matches what ezKrautBaseDataTask::Execute() does in the async path.
+  if (state.m_hTree.IsValid())
+  {
+    ezKrautTreeResourceDetails details;
+    details.m_fStaticColliderRadius = pDesc->m_fStaticColliderRadius;
+    details.m_sSurfaceResource = pDesc->m_sSurfaceResource;
+
+    const auto bbox = pData->m_TreeStructure.ComputeBoundingBox();
+    if (!bbox.IsInvalid())
+    {
+      ezBoundingBox bbox2 = ezBoundingBox::MakeFromMinMax(ToEzSwizzle(bbox.m_vMin), ToEzSwizzle(bbox.m_vMax));
+      details.m_Bounds = ezBoundingBoxSphere::MakeFromBox(bbox2);
+      details.m_vLeafCenter = details.m_Bounds.m_vCenter;
+
+      ezBoundingBox leafBox = ezBoundingBox::MakeInvalid();
+      for (ezUInt32 b = 0; b < pData->m_TreeStructure.m_BranchStructures.size(); ++b)
+      {
+        const auto& branch = pData->m_TreeStructure.m_BranchStructures[b];
+        if (branch.m_Type < Kraut::BranchType::Twigs1)
+          continue;
+        for (ezUInt32 n = 0; n < branch.m_Nodes.size(); ++n)
+          leafBox.ExpandToInclude(ToEzSwizzle(branch.m_Nodes[n].m_vPosition));
+      }
+      if (leafBox.IsValid())
+        details.m_vLeafCenter = leafBox.GetCenter();
+    }
+    else
+    {
+      details.m_Bounds = ezBoundingBoxSphere::MakeInvalid();
+      details.m_vLeafCenter = ezVec3::MakeZero();
+    }
+
+    ezHybridArray<ezKrautTreeResourceDescriptor::MaterialData, 8> materials;
+    for (const auto& srcMat : pDesc->m_Materials)
+    {
+      if (srcMat.m_hMaterial.IsValid())
+      {
+        auto& dstMat = materials.ExpandAndGetRef();
+        dstMat.m_MaterialType = srcMat.m_MaterialType;
+        dstMat.m_BranchType = srcMat.m_BranchType;
+        dstMat.m_sMaterial = srcMat.m_hMaterial.GetResourceID();
+      }
+    }
+
+    ezResourceLock<ezKrautTreeResource> pTree(state.m_hTree, ezResourceAcquireMode::PointerOnly);
+    if (pTree.IsValid())
+      pTree->SetDetails(details, materials);
+  }
 }
 
-static void GenerateLodMeshData(
-  const ezKrautGeneratorResource::ezKrautSharedTreeData& sharedData,
-  ezUInt32 uiLodIndex,
-  ezKrautTreeResourceDescriptor::LodData& out_LodData,
-  ezHybridArray<ezKrautTreeResourceDescriptor::MaterialData, 8>& inout_Materials)
+static void GenerateLodMeshData(const ezKrautGeneratorResource::ezKrautSharedTreeData& sharedData, ezUInt32 uiLodIndex, ezKrautTreeResourceDescriptor::LodData& out_lodData, ezHybridArray<ezKrautTreeResourceDescriptor::MaterialData, 8>& inout_materials)
 {
   const auto& pDesc = *sharedData.m_pDescriptor;
   const auto& treeStructure = sharedData.m_TreeStructure;
@@ -596,10 +658,10 @@ static void GenerateLodMeshData(
   meshGen.m_pTreeMesh = &mesh;
   meshGen.GenerateTreeMesh();
 
-  out_LodData.m_LodType = ezKrautLodType::Mesh;
-  out_LodData.m_uiNumBones = treeLod.GetNumBones();
-  out_LodData.m_fMinLodDistance = fMinLodDistance;
-  out_LodData.m_fMaxLodDistance = fMaxLodDistance;
+  out_lodData.m_LodType = ezKrautLodType::Mesh;
+  out_lodData.m_uiNumBones = treeLod.GetNumBones();
+  out_lodData.m_fMinLodDistance = fMinLodDistance;
+  out_lodData.m_fMaxLodDistance = fMaxLodDistance;
 
   const float fVertexScale = pDesc.m_fUniformScaling;
 
@@ -608,8 +670,8 @@ static void GenerateLodMeshData(
     for (ezUInt32 geometryType = 0; geometryType < Kraut::BranchGeometryType::ENUM_COUNT; ++geometryType)
       uiMaxTriangles += mesh.m_BranchMeshes[branchIdx].m_Mesh[geometryType].m_Triangles.size();
 
-  out_LodData.m_Vertices.Reserve(uiMaxTriangles * 3);
-  out_LodData.m_Triangles.Reserve(uiMaxTriangles);
+  out_lodData.m_Vertices.Reserve(uiMaxTriangles * 3);
+  out_lodData.m_Triangles.Reserve(uiMaxTriangles);
 
   // AO check lambda with a per-task ring buffer to cache recent results (thread-safe, no shared state).
   ezStaticRingBuffer<AoPositionResult, 16> aoResults;
@@ -656,7 +718,7 @@ static void GenerateLodMeshData(
   {
     for (ezUInt32 branchType = 0; branchType < Kraut::BranchType::ENUM_COUNT; ++branchType)
     {
-      const ezUInt32 uiFirstTriangleIdx = out_LodData.m_Triangles.GetCount();
+      const ezUInt32 uiFirstTriangleIdx = out_lodData.m_Triangles.GetCount();
 
       for (ezUInt32 branchIdx = 0; branchIdx < mesh.m_BranchMeshes.size(); ++branchIdx)
       {
@@ -669,12 +731,12 @@ static void GenerateLodMeshData(
 
         aoResults.Clear();
 
-        const ezUInt32 uiVertexOffset = out_LodData.m_Vertices.GetCount();
+        const ezUInt32 uiVertexOffset = out_lodData.m_Vertices.GetCount();
 
         for (ezUInt32 vidx = 0; vidx < srcMesh.m_Vertices.size(); ++vidx)
         {
           const auto& srcVtx = srcMesh.m_Vertices[vidx];
-          auto& dstVtx = out_LodData.m_Vertices.ExpandAndGetRef();
+          auto& dstVtx = out_lodData.m_Vertices.ExpandAndGetRef();
 
           dstVtx.m_vPosition = ToEzSwizzle(srcVtx.m_vPosition) * fVertexScale;
           dstVtx.m_uiColorVariation = srcVtx.m_uiColorVariation;
@@ -751,19 +813,19 @@ static void GenerateLodMeshData(
         for (ezUInt32 tidx = 0; tidx < srcMesh.m_Triangles.size(); ++tidx)
         {
           const auto& srcTri = srcMesh.m_Triangles[tidx];
-          auto& dstTri = out_LodData.m_Triangles.ExpandAndGetRef();
+          auto& dstTri = out_lodData.m_Triangles.ExpandAndGetRef();
           dstTri.m_uiVertexIndex[0] = uiVertexOffset + srcTri.m_uiVertexIDs[0];
           dstTri.m_uiVertexIndex[1] = uiVertexOffset + srcTri.m_uiVertexIDs[2];
           dstTri.m_uiVertexIndex[2] = uiVertexOffset + srcTri.m_uiVertexIDs[1];
         }
       }
 
-      if (uiFirstTriangleIdx == out_LodData.m_Triangles.GetCount())
+      if (uiFirstTriangleIdx == out_lodData.m_Triangles.GetCount())
         continue;
 
-      auto& subMesh = out_LodData.m_SubMeshes.ExpandAndGetRef();
+      auto& subMesh = out_lodData.m_SubMeshes.ExpandAndGetRef();
       subMesh.m_uiFirstTriangle = static_cast<ezUInt16>(uiFirstTriangleIdx);
-      subMesh.m_uiNumTriangles = static_cast<ezUInt16>(out_LodData.m_Triangles.GetCount() - uiFirstTriangleIdx);
+      subMesh.m_uiNumTriangles = static_cast<ezUInt16>(out_lodData.m_Triangles.GetCount() - uiFirstTriangleIdx);
 
       for (const auto& srcMat : pDesc.m_Materials)
       {
@@ -771,8 +833,8 @@ static void GenerateLodMeshData(
         {
           if (srcMat.m_hMaterial.IsValid())
           {
-            subMesh.m_uiMaterialIndex = static_cast<ezUInt8>(inout_Materials.GetCount());
-            auto& mat = inout_Materials.ExpandAndGetRef();
+            subMesh.m_uiMaterialIndex = static_cast<ezUInt8>(inout_materials.GetCount());
+            auto& mat = inout_materials.ExpandAndGetRef();
             mat.m_MaterialType = static_cast<ezKrautMaterialType>(geometryType);
             mat.m_BranchType = static_cast<ezKrautBranchType>(branchType);
             mat.m_sMaterial = srcMat.m_hMaterial.GetResourceID();
@@ -782,7 +844,7 @@ static void GenerateLodMeshData(
       }
 
       if (subMesh.m_uiMaterialIndex == 255)
-        out_LodData.m_SubMeshes.PopBack();
+        out_lodData.m_SubMeshes.PopBack();
     }
   }
 }
@@ -831,14 +893,18 @@ ezResourceLoadDesc ezKrautGeneratorResource::UnloadData(Unload WhatToUnload)
       auto& state = it.Value();
       if (state.m_pBaseDataTask != nullptr && !state.m_pBaseDataTask->IsTaskFinished())
       {
-        ezTaskSystem::CancelTask(state.m_pBaseDataTask, ezOnTaskRunning::ReturnWithoutBlocking);
+        // WaitTillFinished is required: the base data task holds a raw m_pGenerator pointer that
+        // becomes dangling once UnloadData returns and the resource is freed. Waiting ensures the
+        // task cannot access the generator after this point.
+        ezTaskSystem::CancelTask(state.m_pBaseDataTask, ezOnTaskRunning::WaitTillFinished).IgnoreResult();
       }
 
       for (auto& pLodTask : state.m_PendingLodTasks)
       {
         if (pLodTask != nullptr && !pLodTask->IsTaskFinished())
         {
-          ezTaskSystem::CancelTask(pLodTask, ezOnTaskRunning::ReturnWithoutBlocking);
+          // Same reasoning as above: LOD tasks also hold a raw m_pGenerator pointer.
+          ezTaskSystem::CancelTask(pLodTask, ezOnTaskRunning::WaitTillFinished).IgnoreResult();
         }
       }
     }
@@ -846,7 +912,7 @@ ezResourceLoadDesc ezKrautGeneratorResource::UnloadData(Unload WhatToUnload)
 
   {
     EZ_LOCK(m_DataMutex);
-    m_GeneratorDesc.Clear();
+    m_pGeneratorDesc.Clear();
   }
 
   ezResourceLoadDesc res;
@@ -910,14 +976,14 @@ ezResourceLoadDesc ezKrautGeneratorResource::UpdateContent(ezStreamReader* Strea
   if (desc->Deserialize(*Stream).Failed())
   {
     EZ_LOCK(m_DataMutex);
-    m_GeneratorDesc.Clear();
+    m_pGeneratorDesc.Clear();
     res.m_State = ezResourceState::LoadedResourceMissing;
     return res;
   }
 
   {
     EZ_LOCK(m_DataMutex);
-    m_GeneratorDesc = desc;
+    m_pGeneratorDesc = desc;
   }
 
   return res;
@@ -928,7 +994,7 @@ void ezKrautGeneratorResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage
   out_NewMemoryUsage.m_uiMemoryGPU = sizeof(*this);
   out_NewMemoryUsage.m_uiMemoryCPU = 0;
 
-  auto desc = m_GeneratorDesc;
+  auto desc = m_pGeneratorDesc;
 
   if (desc != nullptr)
   {

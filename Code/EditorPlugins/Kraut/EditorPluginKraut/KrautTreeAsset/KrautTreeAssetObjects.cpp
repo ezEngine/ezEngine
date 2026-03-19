@@ -353,11 +353,11 @@ void ezKrautTreeAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaSta
   }
 }
 
-static void CopyKrautCurve(Kraut::Curve& dst, const ezSingleCurveData& src, ezUInt32 uiNumSamples, float fDefaultValue)
+static void CopyKrautCurve(Kraut::Curve& ref_dst, const ezSingleCurveData& src, ezUInt32 uiNumSamples, float fDefaultValue)
 {
   if (src.m_ControlPoints.IsEmpty())
   {
-    dst.Initialize(1, fDefaultValue, 0.0f, 1.0f);
+    ref_dst.Initialize(1, fDefaultValue, 0.0f, 1.0f);
   }
   else
   {
@@ -366,32 +366,32 @@ static void CopyKrautCurve(Kraut::Curve& dst, const ezSingleCurveData& src, ezUI
     c.SortControlPoints();
     c.CreateLinearApproximation();
 
-    dst.Initialize(uiNumSamples, fDefaultValue, 0.0f, 1.0f);
+    ref_dst.Initialize(uiNumSamples, fDefaultValue, 0.0f, 1.0f);
 
     const double invSam = 1.0 / (uiNumSamples - 1);
     for (ezUInt32 i = 0; i < uiNumSamples; ++i)
     {
       const double val = c.Evaluate(i * invSam);
-      dst.m_Values[i] = (float)val;
+      ref_dst.m_Values[i] = (float)val;
     }
   }
 }
 
-void CopyKrautConfig(Kraut::SpawnNodeDesc& nd, const ezKrautAssetBranchType& bt, ezDynamicArray<ezKrautMaterialDescriptor>& materials, ezKrautBranchType branchType)
+void CopyKrautConfig(Kraut::SpawnNodeDesc& ref_node, const ezKrautAssetBranchType& bt, ezDynamicArray<ezKrautMaterialDescriptor>& ref_materials, ezKrautBranchType branchType)
 {
   // === Administrative ===
 
-  nd.m_bAllowSubType[0] = bt.m_bGrowSubBranchType1;
-  nd.m_bAllowSubType[1] = bt.m_bGrowSubBranchType2;
-  nd.m_bAllowSubType[2] = bt.m_bGrowSubBranchType3;
+  ref_node.m_bAllowSubType[0] = bt.m_bGrowSubBranchType1;
+  ref_node.m_bAllowSubType[1] = bt.m_bGrowSubBranchType2;
+  ref_node.m_bAllowSubType[2] = bt.m_bGrowSubBranchType3;
 
-  nd.m_bEnable[Kraut::BranchGeometryType::Branch] = bt.m_bEnableMesh;
-  nd.m_bEnable[Kraut::BranchGeometryType::Frond] = bt.m_bEnableFronds;
-  nd.m_bEnable[Kraut::BranchGeometryType::Leaf] = bt.m_bEnableLeaves;
+  ref_node.m_bEnable[Kraut::BranchGeometryType::Branch] = bt.m_bEnableMesh;
+  ref_node.m_bEnable[Kraut::BranchGeometryType::Frond] = bt.m_bEnableFronds;
+  ref_node.m_bEnable[Kraut::BranchGeometryType::Leaf] = bt.m_bEnableLeaves;
 
   if (bt.m_bEnableMesh && !bt.m_sBranchMaterial.IsEmpty())
   {
-    auto& m = materials.ExpandAndGetRef();
+    auto& m = ref_materials.ExpandAndGetRef();
     m.m_BranchType = branchType;
     m.m_MaterialType = ezKrautMaterialType::Branch;
     m.m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>(bt.m_sBranchMaterial);
@@ -399,7 +399,7 @@ void CopyKrautConfig(Kraut::SpawnNodeDesc& nd, const ezKrautAssetBranchType& bt,
 
   if (bt.m_bEnableFronds && !bt.m_sFrondMaterial.IsEmpty())
   {
-    auto& m = materials.ExpandAndGetRef();
+    auto& m = ref_materials.ExpandAndGetRef();
     m.m_BranchType = branchType;
     m.m_MaterialType = ezKrautMaterialType::Frond;
     m.m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>(bt.m_sFrondMaterial);
@@ -408,7 +408,7 @@ void CopyKrautConfig(Kraut::SpawnNodeDesc& nd, const ezKrautAssetBranchType& bt,
 
   if (bt.m_bEnableLeaves && !bt.m_sLeafMaterial.IsEmpty())
   {
-    auto& m = materials.ExpandAndGetRef();
+    auto& m = ref_materials.ExpandAndGetRef();
     m.m_BranchType = branchType;
     m.m_MaterialType = ezKrautMaterialType::Leaf;
     m.m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>(bt.m_sLeafMaterial);
@@ -419,49 +419,49 @@ void CopyKrautConfig(Kraut::SpawnNodeDesc& nd, const ezKrautAssetBranchType& bt,
 
   // General
 
-  nd.m_iSegmentLengthCM = ezMath::Clamp<ezInt8>(bt.m_uiSegmentLengthCM, 1, 50);
-  nd.m_BranchTypeMode = (Kraut::BranchTypeMode::Enum)bt.m_BranchTypeMode.GetValue();
-  nd.m_fBranchlessPartABS = bt.m_fBranchlessPartABS;
-  nd.m_fBranchlessPartEndABS = bt.m_fBranchlessPartEndABS;
-  nd.m_uiLowerBound = ezMath::Clamp<ezUInt8>(bt.m_uiLowerBound, 0, 100);
-  nd.m_uiUpperBound = ezMath::Clamp<ezUInt8>(bt.m_uiUpperBound, nd.m_uiLowerBound, 100);
-  nd.m_uiMinBranchThicknessInCM = ezMath::Clamp<ezUInt16>(bt.m_uiMinBranchThicknessInCM, 1, 100);
-  nd.m_uiMaxBranchThicknessInCM = ezMath::Clamp<ezUInt16>(bt.m_uiMaxBranchThicknessInCM, nd.m_uiMinBranchThicknessInCM, 100);
+  ref_node.m_iSegmentLengthCM = ezMath::Clamp<ezInt8>(bt.m_uiSegmentLengthCM, 1, 50);
+  ref_node.m_BranchTypeMode = (Kraut::BranchTypeMode::Enum)bt.m_BranchTypeMode.GetValue();
+  ref_node.m_fBranchlessPartABS = bt.m_fBranchlessPartABS;
+  ref_node.m_fBranchlessPartEndABS = bt.m_fBranchlessPartEndABS;
+  ref_node.m_uiLowerBound = ezMath::Clamp<ezUInt8>(bt.m_uiLowerBound, 0, 100);
+  ref_node.m_uiUpperBound = ezMath::Clamp<ezUInt8>(bt.m_uiUpperBound, ref_node.m_uiLowerBound, 100);
+  ref_node.m_uiMinBranchThicknessInCM = ezMath::Clamp<ezUInt16>(bt.m_uiMinBranchThicknessInCM, 1, 100);
+  ref_node.m_uiMaxBranchThicknessInCM = ezMath::Clamp<ezUInt16>(bt.m_uiMaxBranchThicknessInCM, ref_node.m_uiMinBranchThicknessInCM, 100);
 
   // Spawn Nodes
 
-  nd.m_uiMinBranches = ezMath::Clamp<ezUInt16>(bt.m_uiMinBranches, 0, 32);
-  nd.m_uiMaxBranches = ezMath::Clamp<ezUInt16>(bt.m_uiMaxBranches, nd.m_uiMinBranches, 32);
-  nd.m_fNodeSpacingBefore = bt.m_fNodeSpacingBefore;
-  nd.m_fNodeSpacingAfter = bt.m_fNodeSpacingAfter;
-  nd.m_fNodeHeight = bt.m_fNodeHeight;
+  ref_node.m_uiMinBranches = ezMath::Clamp<ezUInt16>(bt.m_uiMinBranches, 0, 32);
+  ref_node.m_uiMaxBranches = ezMath::Clamp<ezUInt16>(bt.m_uiMaxBranches, ref_node.m_uiMinBranches, 32);
+  ref_node.m_fNodeSpacingBefore = bt.m_fNodeSpacingBefore;
+  ref_node.m_fNodeSpacingAfter = bt.m_fNodeSpacingAfter;
+  ref_node.m_fNodeHeight = bt.m_fNodeHeight;
 
 
   // === Growth ===
 
   // Start Direction
 
-  nd.m_fMaxRotationalDeviation = bt.m_MaxRotationalDeviation.GetDegree();
-  nd.m_fBranchAngle = bt.m_BranchAngle.GetDegree();
-  nd.m_fMaxBranchAngleDeviation = bt.m_MaxBranchAngleDeviation.GetDegree();
+  ref_node.m_fMaxRotationalDeviation = bt.m_MaxRotationalDeviation.GetDegree();
+  ref_node.m_fBranchAngle = bt.m_BranchAngle.GetDegree();
+  ref_node.m_fMaxBranchAngleDeviation = bt.m_MaxBranchAngleDeviation.GetDegree();
 
   // Target Direction
 
-  nd.m_TargetDirection = (Kraut::BranchTargetDir::Enum)bt.m_TargetDirection.GetValue();
-  nd.m_bTargetDirRelative = bt.m_bTargetDirRelative;
-  nd.m_TargetDir2Usage = (Kraut::BranchTargetDir2Usage::Enum)bt.m_TargetDir2Usage.GetValue();
-  nd.m_fTargetDir2Usage = bt.m_fTargetDir2Usage;
-  nd.m_TargetDirection2 = (Kraut::BranchTargetDir::Enum)bt.m_TargetDirection2.GetValue();
-  nd.m_fMaxTargetDirDeviation = bt.m_MaxTargetDirDeviation.GetDegree();
+  ref_node.m_TargetDirection = (Kraut::BranchTargetDir::Enum)bt.m_TargetDirection.GetValue();
+  ref_node.m_bTargetDirRelative = bt.m_bTargetDirRelative;
+  ref_node.m_TargetDir2Usage = (Kraut::BranchTargetDir2Usage::Enum)bt.m_TargetDir2Usage.GetValue();
+  ref_node.m_fTargetDir2Usage = bt.m_fTargetDir2Usage;
+  ref_node.m_TargetDirection2 = (Kraut::BranchTargetDir::Enum)bt.m_TargetDirection2.GetValue();
+  ref_node.m_fMaxTargetDirDeviation = bt.m_MaxTargetDirDeviation.GetDegree();
 
   // Growth
 
-  nd.m_uiMinBranchLengthInCM = ezMath::Clamp<ezUInt16>(bt.m_uiMinBranchLengthInCM, 1, 10000);
-  nd.m_uiMaxBranchLengthInCM = ezMath::Clamp<ezUInt16>(bt.m_uiMaxBranchLengthInCM, nd.m_uiMinBranchLengthInCM, 10000);
-  CopyKrautCurve(nd.m_MaxBranchLengthParentScale, bt.m_MaxBranchLengthParentScale, 20, 1.0f);
-  nd.m_fGrowMaxTargetDirDeviation = bt.m_GrowMaxTargetDirDeviation.GetDegree();
-  nd.m_fGrowMaxDirChangePerSegment = bt.m_GrowMaxDirChangePerSegment.GetDegree();
-  nd.m_bRestrictGrowthToFrondPlane = bt.m_bRestrictGrowthToFrondPlane;
+  ref_node.m_uiMinBranchLengthInCM = ezMath::Clamp<ezUInt16>(bt.m_uiMinBranchLengthInCM, 1, 10000);
+  ref_node.m_uiMaxBranchLengthInCM = ezMath::Clamp<ezUInt16>(bt.m_uiMaxBranchLengthInCM, ref_node.m_uiMinBranchLengthInCM, 10000);
+  CopyKrautCurve(ref_node.m_MaxBranchLengthParentScale, bt.m_MaxBranchLengthParentScale, 20, 1.0f);
+  ref_node.m_fGrowMaxTargetDirDeviation = bt.m_GrowMaxTargetDirDeviation.GetDegree();
+  ref_node.m_fGrowMaxDirChangePerSegment = bt.m_GrowMaxDirChangePerSegment.GetDegree();
+  ref_node.m_bRestrictGrowthToFrondPlane = bt.m_bRestrictGrowthToFrondPlane;
 
   // Obstacles
 
@@ -475,35 +475,35 @@ void CopyKrautConfig(Kraut::SpawnNodeDesc& nd, const ezKrautAssetBranchType& bt,
 
   // Branch Mesh
 
-  CopyKrautCurve(nd.m_BranchContour, bt.m_BranchContour, 50, 1.0f);
-  nd.m_fRoundnessFactor = bt.m_fRoundnessFactor;
-  nd.m_uiFlares = bt.m_uiFlares;
-  nd.m_fFlareWidth = bt.m_fFlareWidth;
-  CopyKrautCurve(nd.m_FlareWidthCurve, bt.m_FlareWidthCurve, 50, 1.0f);
-  nd.m_fFlareRotation = bt.m_FlareRotation.GetDegree();
-  nd.m_bRotateTexCoords = bt.m_bRotateTexCoords;
+  CopyKrautCurve(ref_node.m_BranchContour, bt.m_BranchContour, 50, 1.0f);
+  ref_node.m_fRoundnessFactor = bt.m_fRoundnessFactor;
+  ref_node.m_uiFlares = bt.m_uiFlares;
+  ref_node.m_fFlareWidth = bt.m_fFlareWidth;
+  CopyKrautCurve(ref_node.m_FlareWidthCurve, bt.m_FlareWidthCurve, 50, 1.0f);
+  ref_node.m_fFlareRotation = bt.m_FlareRotation.GetDegree();
+  ref_node.m_bRotateTexCoords = bt.m_bRotateTexCoords;
 
   // Fronds
 
-  nd.m_fTextureRepeat = bt.m_fTextureRepeat;
-  nd.m_FrondUpOrientation = (Kraut::LeafOrientation::Enum)bt.m_FrondUpOrientation.GetValue();
-  nd.m_uiMaxFrondOrientationDeviation = (ezUInt8)bt.m_MaxFrondOrientationDeviation.GetDegree();
-  nd.m_uiNumFronds = bt.m_uiNumFronds;
-  nd.m_bAlignFrondsOnSurface = bt.m_bAlignFrondsOnSurface;
-  nd.m_uiFrondDetail = bt.m_uiFrondDetail;
-  CopyKrautCurve(nd.m_FrondContour, bt.m_FrondContour, 40, 1.0f);
-  nd.m_FrondContourMode = (Kraut::SpawnNodeDesc::FrondContourMode)bt.m_FrondContourMode.GetValue();
-  nd.m_fFrondHeight = (bt.m_FrondContourMode == ezKrautFrondContourMode::Off) ? 0.0f : bt.m_fFrondHeight;
-  CopyKrautCurve(nd.m_FrondHeight, bt.m_FrondHeight, 50, 0.0f);
-  nd.m_fFrondWidth = bt.m_fFrondWidth;
-  CopyKrautCurve(nd.m_FrondWidth, bt.m_FrondWidth, 50, 1.0f);
+  ref_node.m_fTextureRepeat = bt.m_fTextureRepeat;
+  ref_node.m_FrondUpOrientation = (Kraut::LeafOrientation::Enum)bt.m_FrondUpOrientation.GetValue();
+  ref_node.m_uiMaxFrondOrientationDeviation = (ezUInt8)bt.m_MaxFrondOrientationDeviation.GetDegree();
+  ref_node.m_uiNumFronds = bt.m_uiNumFronds;
+  ref_node.m_bAlignFrondsOnSurface = bt.m_bAlignFrondsOnSurface;
+  ref_node.m_uiFrondDetail = bt.m_uiFrondDetail;
+  CopyKrautCurve(ref_node.m_FrondContour, bt.m_FrondContour, 40, 1.0f);
+  ref_node.m_FrondContourMode = (Kraut::SpawnNodeDesc::FrondContourMode)bt.m_FrondContourMode.GetValue();
+  ref_node.m_fFrondHeight = (bt.m_FrondContourMode == ezKrautFrondContourMode::Off) ? 0.0f : bt.m_fFrondHeight;
+  CopyKrautCurve(ref_node.m_FrondHeight, bt.m_FrondHeight, 50, 0.0f);
+  ref_node.m_fFrondWidth = bt.m_fFrondWidth;
+  CopyKrautCurve(ref_node.m_FrondWidth, bt.m_FrondWidth, 50, 1.0f);
 
   // Leaves
 
-  nd.m_bBillboardLeaves = bt.m_bBillboardLeaves;
-  nd.m_fLeafSize = bt.m_fLeafSize;
-  CopyKrautCurve(nd.m_LeafScale, bt.m_LeafScale, 25, 1.0f);
-  nd.m_fLeafInterval = bt.m_fLeafInterval;
+  ref_node.m_bBillboardLeaves = bt.m_bBillboardLeaves;
+  ref_node.m_fLeafSize = bt.m_fLeafSize;
+  CopyKrautCurve(ref_node.m_LeafScale, bt.m_LeafScale, 25, 1.0f);
+  ref_node.m_fLeafInterval = bt.m_fLeafInterval;
 
   // Shared
   // ezUInt8 m_uiTextureTilingX[Kraut::BranchGeometryType::ENUM_COUNT] = {1, 1, 1};

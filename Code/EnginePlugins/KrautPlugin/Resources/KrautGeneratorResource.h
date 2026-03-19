@@ -74,7 +74,7 @@ public:
 
   const ezSharedPtr<ezKrautGeneratorResourceDescriptor>& GetDescriptor() const
   {
-    return m_GeneratorDesc;
+    return m_pGeneratorDesc;
   }
 
   /// Returns the number of runtime LODs (indices 1..N in the internal representation; excludes LOD0 full-detail).
@@ -100,7 +100,7 @@ private:
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
   mutable ezMutex m_DataMutex;
-  ezSharedPtr<ezKrautGeneratorResourceDescriptor> m_GeneratorDesc;
+  ezSharedPtr<ezKrautGeneratorResourceDescriptor> m_pGeneratorDesc;
 
   /// Per-node wind data computed during extra-data initialization.
   struct BranchNodeExtraData
