@@ -2,6 +2,9 @@
 
 #include <EnginePluginKraut/KrautTreeAsset/KrautTreeContext.h>
 #include <EnginePluginKraut/KrautTreeAsset/KrautTreeView.h>
+#include <KrautPlugin/Components/KrautTreeComponent.h>
+#include <KrautPlugin/Resources/KrautGeneratorResource.h>
+#include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
@@ -41,26 +44,74 @@ void ezKrautTreeViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
 {
   ezEngineProcessViewContext::SetCamera(pMsg);
 
-  // const ezUInt32 viewHeight = pMsg->m_uiWindowHeight;
+  ezStringBuilder sText;
 
-  ezBoundingBox bbox = ezBoundingBox::MakeFromCenterAndHalfExtents(ezVec3::MakeZero(), ezVec3::MakeZero());
+  // Distance from camera to tree (tree preview is always at world origin)
+  const float fDistance = m_Camera.GetPosition().GetLength();
+  sText.AppendFormat("Distance: \t{0}m\t\n", ezArgF(fDistance, 1));
 
-  auto hResource = m_pKrautTreeContext->GetResource();
-  if (hResource.IsValid())
+  // Determine which regular LOD would be auto-selected at this distance
+  ezInt32 iAutoLod = -1; // -1 = beyond all LOD distances (would not render in auto mode)
+  ezInt32 iLodOverride = -1;
+
+  auto hGenRes = m_pKrautTreeContext->GetResource();
+  if (hGenRes.IsValid())
   {
-    // ezResourceLock<ezKrautGeneratorResource> pResource(hResource, ezResourceAcquireMode::AllowLoadingFallback);
+    ezResourceLock<ezKrautGeneratorResource> pGenRes(hGenRes, ezResourceAcquireMode::AllowLoadingFallback);
+    const auto& pDesc = pGenRes->GetDescriptor();
+    if (pDesc != nullptr)
+    {
+      const float fDistSqr = fDistance * fDistance;
+      float fPrevMaxDist = 0.0f;
 
-    // TODO
+      for (ezUInt32 n = 0; n < 5; ++n)
+      {
+        const Kraut::LodDesc& lodDesc = pDesc->m_LodDesc[n];
+        if (lodDesc.m_Mode != Kraut::LodMode::Full)
+          break;
 
-    // if (pResource->GetDetails().m_Bounds.IsValid())
-    //{
-    //   bbox = pResource->GetDetails().m_Bounds.GetBox();
-
-    //  ezStringBuilder sText;
-    //  sText.PrependFormat("Bounding Box: width={0}, depth={1}, height={2}", ezArgF(bbox.GetHalfExtents().x * 2, 2),
-    //    ezArgF(bbox.GetHalfExtents().y * 2, 2), ezArgF(bbox.GetHalfExtents().z * 2, 2));
-
-    //  ezDebugRenderer::Draw2DText(m_hView, sText, ezVec2I32(10, viewHeight - 26), ezColor::White);
-    //}
+        const float fMaxDist = lodDesc.m_uiLodDistance * pDesc->m_fLodDistanceScale * pDesc->m_fUniformScaling;
+        if (fDistSqr >= (fPrevMaxDist * fPrevMaxDist) && fDistSqr < (fMaxDist * fMaxDist))
+        {
+          iAutoLod = (ezInt32)n;
+          break;
+        }
+        fPrevMaxDist = fMaxDist;
+      }
+    }
   }
+
+  // Get the active LOD override from the Kraut tree component
+  ezWorld* pWorld = m_pKrautTreeContext->GetWorld();
+  if (pWorld != nullptr)
+  {
+    EZ_LOCK(pWorld->GetReadMarker());
+    ezKrautTreeComponent* pTree = nullptr;
+    if (pWorld->TryGetComponent(m_pKrautTreeContext->GetKrautComponentHandle(), pTree))
+      iLodOverride = pTree->m_iLodOverride;
+  }
+
+  if (iLodOverride == -1)
+  {
+    // Automatic LOD selection: the auto-selected LOD is also the active one
+    if (iAutoLod < 0)
+      sText.AppendFormat("Active LOD: \tNone (hidden)");
+    else
+      sText.AppendFormat("Active LOD: \tLOD {}", iAutoLod);
+  }
+  else
+  {
+    if (iLodOverride == 0)
+      sText.AppendFormat("Active LOD: \tFull Detail (fixed)\n");
+    else
+      sText.AppendFormat("Active LOD: \tLOD {} (fixed)\n", iLodOverride - 1);
+
+    // Fixed LOD: show both the auto-selected and the actually forced LOD
+    if (iAutoLod < 0)
+      sText.AppendFormat("Auto LOD: \tNone (hidden)");
+    else
+      sText.AppendFormat("Auto LOD: \tLOD {}", iAutoLod);
+  }
+
+  ezDebugRenderer::DrawInfoText(m_hView, ezDebugTextPlacement::BottomLeft, "KrautStats", sText);
 }
