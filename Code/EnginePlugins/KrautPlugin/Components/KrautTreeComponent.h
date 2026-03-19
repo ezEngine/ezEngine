@@ -17,6 +17,9 @@ class ezAbstractObjectNode;
 using ezKrautTreeResourceHandle = ezTypedResourceHandle<class ezKrautTreeResource>;
 using ezKrautGeneratorResourceHandle = ezTypedResourceHandle<class ezKrautGeneratorResource>;
 
+/// Component manager for ezKrautTreeComponent.
+///
+/// Drives per-frame LOD updates and wind simulation for all active tree components.
 class EZ_KRAUTPLUGIN_DLL ezKrautTreeComponentManager : public ezComponentManager<class ezKrautTreeComponent, ezBlockStorageType::Compact>
 {
 public:
@@ -74,14 +77,14 @@ public:
   // see ezKrautTreeComponent::GetLocalBounds for details
   static const int s_iLocalBoundsScale = 3;
 
-  /// \brief Currently this adds a cylinder mesh as a rough approximation for the tree collision shape.
+  /// Currently this adds a cylinder mesh as a rough approximation for the tree collision shape.
   void OnMsgExtractGeometry(ezMsgExtractGeometry& ref_msg) const;
-  /// \brief Currently this adds a cylinder mesh as a rough approximation for the tree collision shape.
+  /// Currently this adds a cylinder mesh as a rough approximation for the tree collision shape.
   void OnBuildStaticMesh(ezMsgBuildStaticMesh& ref_msg) const;
 
-  /// \brief If non-default, this chooses a random variation of the tree.
+  /// Selects a variation from the generator resource's curated "good seeds" list.
   ///
-  /// In the tree editor, designers can add "good seeds", ie seed values that produce nice results.
+  /// In the tree editor, designers can add "good seeds", i.e. seed values that produce nice results.
   /// Using the variation index you can select one of those good seeds.
   ///
   /// VariationIndex and CustomRandomSeed are mutually exclusive.
@@ -90,18 +93,19 @@ public:
   void SetVariationIndex(ezUInt16 uiIndex); // [ property ]
   ezUInt16 GetVariationIndex() const;       // [ property ]
 
-  /// \brief Trees with the same random seed look identical, different seeds produce different trees.
+  /// Overrides the seed used for tree generation with a fixed value.
   ///
-  /// \see SetVariationIndex()
+  /// Trees with the same random seed look identical; different seeds produce different trees.
+  /// Mutually exclusive with SetVariationIndex().
   void SetCustomRandomSeed(ezUInt16 uiSeed); // [ property ]
   ezUInt16 GetCustomRandomSeed() const;      // [ property ]
 
-  /// \brief Sets the Kraut resource that is used to generate the tree mesh.
+  /// Sets the Kraut resource that is used to generate the tree mesh.
   void SetKrautGeneratorResource(const ezKrautGeneratorResourceHandle& hTree);                          // [ property ]
   const ezKrautGeneratorResourceHandle& GetKrautGeneratorResource() const { return m_hKrautGenerator; } // [ property ]
 
 private:
-  /// \brief Currently this adds a cylinder mesh as a rough approximation of the tree trunk for collision.
+  /// Currently this adds a cylinder mesh as a rough approximation of the tree trunk for collision.
   ezResult CreateGeometry(ezGeometry& geo, ezWorldGeoExtractionUtil::ExtractionMode mode) const;
   void EnsureTreeIsGenerated();
 

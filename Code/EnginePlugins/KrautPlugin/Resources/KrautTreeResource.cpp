@@ -1,6 +1,5 @@
 #include <KrautPlugin/KrautPluginPCH.h>
 
-#include <Foundation/Utilities/AssetFileHeader.h>
 #include <KrautPlugin/Resources/KrautTreeResource.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/MeshBufferUtils.h>
@@ -27,49 +26,28 @@ ezKrautTreeResource::ezKrautTreeResource()
 
 ezResourceLoadDesc ezKrautTreeResource::UnloadData(Unload WhatToUnload)
 {
-  ezResourceLoadDesc res;
-  res.m_State = GetLoadingState();
-  res.m_uiQualityLevelsDiscardable = GetNumQualityLevelsDiscardable();
-  res.m_uiQualityLevelsLoadable = GetNumQualityLevelsLoadable();
+  EZ_LOCK(m_LodMutex);
 
-  // we currently can only unload the entire KrautTree
-  // if (WhatToUnload == Unload::AllQualityLevels)
-  {
-    res.m_uiQualityLevelsDiscardable = 0;
-    res.m_uiQualityLevelsLoadable = 0;
-    res.m_State = ezResourceState::Unloaded;
-  }
+  m_Details.m_Bounds = ezBoundingBoxSphere::MakeInvalid();
+  m_Materials.Clear();
+  m_TreeLODs.Clear();
+
+  ezResourceLoadDesc res;
+  res.m_uiQualityLevelsDiscardable = 0;
+  res.m_uiQualityLevelsLoadable = 0;
+  res.m_State = ezResourceState::Unloaded;
 
   return res;
 }
 
 ezResourceLoadDesc ezKrautTreeResource::UpdateContent(ezStreamReader* Stream)
 {
-  ezKrautTreeResourceDescriptor desc;
+  // Tree meshes are generated at runtime; there is no stream-based loading path.
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
-
-  if (Stream == nullptr)
-  {
-    res.m_State = ezResourceState::LoadedResourceMissing;
-    return res;
-  }
-
-  // the standard file reader writes the absolute file path into the stream
-  ezStringBuilder sAbsFilePath;
-  (*Stream) >> sAbsFilePath;
-
-  ezAssetFileHeader AssetHash;
-  AssetHash.Read(*Stream).IgnoreResult();
-
-  if (desc.Load(*Stream).Failed())
-  {
-    res.m_State = ezResourceState::LoadedResourceMissing;
-    return res;
-  }
-
-  return CreateResource(std::move(desc));
+  res.m_State = (Stream == nullptr) ? ezResourceState::LoadedResourceMissing : ezResourceState::Loaded;
+  return res;
 }
 
 void ezKrautTreeResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
@@ -189,7 +167,7 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezKrautTreeResource, ezKrautTreeResourceDescrip
 
 void ezKrautTreeResourceDescriptor::Save(ezStreamWriter& inout_stream0) const
 {
-  ezUInt8 uiVersion = 15;
+  ezUInt8 uiVersion = 17;
 
   inout_stream0 << uiVersion;
 
@@ -246,6 +224,8 @@ void ezKrautTreeResourceDescriptor::Save(ezStreamWriter& inout_stream0) const
       stream << sm.m_uiNumTriangles;
       stream << sm.m_uiMaterialIndex;
     }
+
+    stream << lod.m_uiNumBones;
   }
 
   const ezUInt8 uiNumMats = static_cast<ezUInt8>(m_Materials.GetCount());
@@ -254,6 +234,7 @@ void ezKrautTreeResourceDescriptor::Save(ezStreamWriter& inout_stream0) const
   for (const auto& mat : m_Materials)
   {
     stream << static_cast<ezUInt8>(mat.m_MaterialType);
+    stream << static_cast<ezUInt8>(mat.m_BranchType);
     stream << mat.m_sMaterial;
     stream << mat.m_VariationColor;
   }
@@ -278,6 +259,12 @@ ezResult ezKrautTreeResourceDescriptor::Load(ezStreamReader& inout_stream0)
 
   if (uiVersion < 15)
     return EZ_FAILURE;
+
+  if (uiVersion > 17)
+  {
+    ezLog::Error("Unsupported Kraut tree resource version {0}. Maximum supported version is 17.", uiVersion);
+    return EZ_FAILURE;
+  }
 
   ezUInt8 uiCompressionMode = 0;
   inout_stream0 >> uiCompressionMode;
@@ -361,6 +348,11 @@ ezResult ezKrautTreeResourceDescriptor::Load(ezStreamReader& inout_stream0)
       stream >> sm.m_uiNumTriangles;
       stream >> sm.m_uiMaterialIndex;
     }
+
+    if (uiVersion >= 17)
+    {
+      stream >> lod.m_uiNumBones;
+    }
   }
 
   ezUInt8 uiNumMats = 0;
@@ -373,6 +365,13 @@ ezResult ezKrautTreeResourceDescriptor::Load(ezStreamReader& inout_stream0)
     ezUInt8 matType = 0;
     stream >> matType;
     mat.m_MaterialType = static_cast<ezKrautMaterialType>(matType);
+
+    if (uiVersion >= 16)
+    {
+      ezUInt8 branchType = 0;
+      stream >> branchType;
+      mat.m_BranchType = static_cast<ezKrautBranchType>(branchType);
+    }
 
     if (uiVersion >= 14)
     {

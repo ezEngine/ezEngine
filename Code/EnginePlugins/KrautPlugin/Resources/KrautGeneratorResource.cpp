@@ -3,7 +3,6 @@
 #include <KrautPlugin/Resources/KrautGeneratorResource.h>
 #include <KrautPlugin/Resources/KrautTreeResource.h>
 
-#include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <Foundation/Containers/StaticRingBuffer.h>
 #include <Foundation/Math/BoundingSphere.h>
 #include <Foundation/Time/Stopwatch.h>
@@ -48,7 +47,6 @@ struct AoData
   float m_fAO;
   ezUInt32 m_uiBranch;
   ezVec3 m_vPosition;
-  ezUInt32* m_pOccChecks;
 };
 
 struct AoPositionResult
@@ -59,7 +57,12 @@ struct AoPositionResult
 
 static void GenerateAmbientOcclusionSpheres(ezDynamicOctree& ref_octree, const ezBoundingBox& bbox, ezDynamicArray<ezDynamicArray<ezBoundingSphere>>& ref_occlusionSpheres, const Kraut::TreeStructure& treeStructure)
 {
-  ezStopwatch swAO;
+  ref_occlusionSpheres.Clear();
+
+  if (!bbox.IsValid())
+    return;
+
+  EZ_PROFILE_SCOPE("Kraut::GenerateAmbientOcclusionSpheres");
 
   ref_octree.CreateTree(bbox.GetCenter(), bbox.GetHalfExtents() + ezVec3(1.0f), 0.1f);
 
@@ -98,8 +101,6 @@ static void GenerateAmbientOcclusionSpheres(ezDynamicOctree& ref_octree, const e
       }
     }
   }
-
-  ezLog::Debug("Building Kraut AO data structure: {} ({} spheres)", swAO.GetRunningTotal(), uiNumSpheres);
 }
 
 static bool FindAoSpheres(void* pPassThrough, ezDynamicTreeObjectConst object)
@@ -109,8 +110,6 @@ static bool FindAoSpheres(void* pPassThrough, ezDynamicTreeObjectConst object)
 
   if (ocd->m_uiBranch == val.m_iObjectType)
     return true;
-
-  (*ocd->m_pOccChecks)++;
 
   const auto& sphere = (*ocd->m_pOcclusionSpheres)[val.m_iObjectType][val.m_iObjectInstance];
 
@@ -256,6 +255,9 @@ void ezKrautGeneratorResource::GenerateTreeDescriptor(ezKrautTreeResourceDescrip
 
   auto CheckOcclusion = [&](ezUInt32 uiBranch, const ezVec3& vPos) -> float
   {
+    if (pDesc.m_fMinAmbientOcclusion >= 1.0f)
+      return 1.0f;
+
     constexpr float fCluster = 4.0f;
     constexpr float fDivCluster = 1.0f / fCluster;
 
@@ -622,11 +624,18 @@ ezResourceLoadDesc ezKrautGeneratorResource::UpdateContent(ezStreamReader* Strea
     return res;
   }
 
-  m_pDescriptor = EZ_DEFAULT_NEW(ezKrautGeneratorResourceDescriptor);
-  if (m_pDescriptor->Deserialize(*Stream).Failed())
+  auto desc = EZ_DEFAULT_NEW(ezKrautGeneratorResourceDescriptor);
+  if (desc->Deserialize(*Stream).Failed())
   {
+    EZ_LOCK(m_DataMutex);
+    m_GeneratorDesc.Clear();
     res.m_State = ezResourceState::LoadedResourceMissing;
     return res;
+  }
+
+  {
+    EZ_LOCK(m_DataMutex);
+    m_GeneratorDesc = desc;
   }
 
   return res;
@@ -637,9 +646,11 @@ void ezKrautGeneratorResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage
   out_NewMemoryUsage.m_uiMemoryGPU = sizeof(*this);
   out_NewMemoryUsage.m_uiMemoryCPU = 0;
 
-  if (m_pDescriptor != nullptr)
+  auto desc = m_GeneratorDesc;
+
+  if (desc != nullptr)
   {
-    out_NewMemoryUsage.m_uiMemoryCPU += sizeof(ezKrautGeneratorResourceDescriptor) + m_pDescriptor->m_Materials.GetHeapMemoryUsage();
+    out_NewMemoryUsage.m_uiMemoryCPU += sizeof(ezKrautGeneratorResourceDescriptor) + desc->m_Materials.GetHeapMemoryUsage();
   }
 }
 
@@ -787,7 +798,7 @@ void ezKrautGeneratorResource::GenerateExtraData(TreeStructureExtraData& extraDa
 
 ezResult ezKrautGeneratorResourceDescriptor::Serialize(ezStreamWriter& inout_stream) const
 {
-  inout_stream.WriteVersion(7);
+  inout_stream.WriteVersion(8);
 
   KrautStreamOut kstream;
   kstream.m_pStream = &inout_stream;
@@ -821,13 +832,14 @@ ezResult ezKrautGeneratorResourceDescriptor::Serialize(ezStreamWriter& inout_str
   EZ_SUCCEED_OR_RETURN(inout_stream.WriteArray(m_GoodRandomSeeds));
 
   inout_stream << m_fTreeStiffness;
+  inout_stream << m_fMinAmbientOcclusion;
 
   return EZ_SUCCESS;
 }
 
 ezResult ezKrautGeneratorResourceDescriptor::Deserialize(ezStreamReader& inout_stream)
 {
-  auto version = inout_stream.ReadVersion(7);
+  auto version = inout_stream.ReadVersion(8);
 
   KrautStreamIn kstream;
   kstream.m_pStream = &inout_stream;
@@ -890,6 +902,11 @@ ezResult ezKrautGeneratorResourceDescriptor::Deserialize(ezStreamReader& inout_s
   if (version >= 7)
   {
     inout_stream >> m_fTreeStiffness;
+  }
+
+  if (version >= 8)
+  {
+    inout_stream >> m_fMinAmbientOcclusion;
   }
 
   return EZ_SUCCESS;

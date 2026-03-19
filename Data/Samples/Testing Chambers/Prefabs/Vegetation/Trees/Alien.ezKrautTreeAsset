@@ -11,7 +11,7 @@ o
 		s %AssetType{"Kraut Tree"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{15484710852909599622,5114518352703152825}}
-		u4 %Hash{4987114217467120763}
+		u4 %Hash{3137664940982695805}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -219,8 +219,8 @@ o
 		f %FrondWidth{0x0000003F}
 		Uuid %FrondWidthScale{u4{17176350277001726661,5244473377584717118}}
 		b %GrowSubBranchType1{1}
-		b %GrowSubBranchType2{1}
-		b %GrowSubBranchType3{1}
+		b %GrowSubBranchType2{0}
+		b %GrowSubBranchType3{0}
 		f %LeafInterval{0}
 		s %LeafMaterial{""}
 		Uuid %LeafScale{u4{13294617454996343210,15009938063409587347}}
@@ -269,7 +269,7 @@ o
 		i1 %FrondDetailReduction{3}
 		u3 %LodDistance{35}
 		i1 %MaxFrondDetail{2}
-		s %Mode{"ezKrautLodMode::TwoQuads"}
+		s %Mode{"ezKrautLodMode::Full"}
 		f %ThicknessThreshold{0xCDCC4C3E}
 		f %TipDetail{0x0000803E}
 		f %VertexRingDetail{0xCDCC4C3E}
@@ -1245,9 +1245,9 @@ o
 		s %FrondUpOrientation{"ezKrautLeafOrientation::Upwards"}
 		f %FrondWidth{0x0000003F}
 		Uuid %FrondWidthScale{u4{2999266125320013228,7482422757954939570}}
-		b %GrowSubBranchType1{1}
-		b %GrowSubBranchType2{1}
-		b %GrowSubBranchType3{1}
+		b %GrowSubBranchType1{0}
+		b %GrowSubBranchType2{0}
+		b %GrowSubBranchType3{0}
 		f %LeafInterval{0}
 		s %LeafMaterial{""}
 		Uuid %LeafScale{u4{7370983178072947790,1210981679805511789}}
@@ -1398,7 +1398,7 @@ o
 		i1 %FrondDetailReduction{4}
 		u3 %LodDistance{50}
 		i1 %MaxFrondDetail{0}
-		s %Mode{"ezKrautLodMode::Billboard"}
+		s %Mode{"ezKrautLodMode::Full"}
 		f %ThicknessThreshold{0x0000803E}
 		f %TipDetail{0x0000803E}
 		f %VertexRingDetail{0xCDCC4C3E}

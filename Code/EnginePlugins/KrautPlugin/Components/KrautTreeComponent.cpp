@@ -529,7 +529,6 @@ void ezKrautTreeComponentManager::Update(const ezWorldModule::UpdateContext& con
     if (!TryGetComponent(hComp, pComp) || !pComp->IsActiveAndInitialized())
       continue;
 
-    // TODO: this could be wrapped into a task
     pComp->EnsureTreeIsGenerated();
   }
 }
