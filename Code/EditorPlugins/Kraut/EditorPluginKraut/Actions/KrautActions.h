@@ -43,7 +43,7 @@ class ezKrautAction : public ezButtonAction
 public:
   enum class ActionType
   {
-    WindStrength,     ///< Sets the preview wind strength to a specific ezKrautWindStrength preset.
+    WindStrength,       ///< Sets the preview wind strength to a specific ezKrautWindStrength preset.
     ToggleFrondsLeaves, ///< Toggles visibility of frond and leaf geometry in the preview.
   };
 

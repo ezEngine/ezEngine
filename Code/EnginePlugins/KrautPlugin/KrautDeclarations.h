@@ -22,8 +22,8 @@ enum class ezKrautLodState : ezUInt8
 enum class ezKrautLodType : ezUInt8
 {
   None = 0xFF,
-  Mesh = 0,             ///< Standard triangle mesh.
-  StaticImpostor = 1,   ///< Pre-baked static impostor quad(s).
+  Mesh = 0,              ///< Standard triangle mesh.
+  StaticImpostor = 1,    ///< Pre-baked static impostor quad(s).
   BillboardImpostor = 2, ///< Camera-facing billboard impostor.
 };
 
