@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Transformed by: SVG Repo Mixer Tools -->
+
+<svg
+   width="800px"
+   height="800px"
+   viewBox="0 -0.5 21 21"
+   version="1.1"
+   fill="#ffffff"
+   id="svg1"
+   sodipodi:docname="Preset.svg"
+   inkscape:version="1.3 (0e150ed6c4, 2023-07-21)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#505050"
+     bordercolor="#ffffff"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="1"
+     inkscape:deskcolor="#505050"
+     inkscape:zoom="1.15625"
+     inkscape:cx="400"
+     inkscape:cy="400"
+     inkscape:window-width="2194"
+     inkscape:window-height="1163"
+     inkscape:window-x="1912"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="Dribbble-Light-Preview" />
+  <g
+     id="SVGRepo_bgCarrier"
+     stroke-width="0" />
+  <g
+     id="SVGRepo_tracerCarrier"
+     stroke-linecap="round"
+     stroke-linejoin="round" />
+  <g
+     id="SVGRepo_iconCarrier">
+    <title
+       id="title1">option_bar_settings [#ffffff]</title>
+    <desc
+       id="desc1">Created with Sketch.</desc>
+    <defs
+       id="defs1" />
+    <g
+       id="Page-1"
+       stroke="none"
+       stroke-width="1"
+       fill="none"
+       fill-rule="evenodd"
+       style="stroke-width:0.99999375;stroke-dasharray:none">
+      <g
+         id="Dribbble-Light-Preview"
+         transform="translate(-419.000000, -680.000000)"
+         fill="#ffffff"
+         style="stroke-width:0.99999375;stroke-dasharray:none">
+        <g
+           id="icons"
+           transform="translate(56.000000, 160.000000)"
+           style="stroke-width:0.99999375;stroke-dasharray:none;fill:#578cb7;fill-opacity:1">
+          <path
+             d="M381.9,529 L381.9,520 L379.8,520 L379.8,529 L377.7,529 L377.7,531 L379.8,531 L379.8,540 L381.9,540 L381.9,531 L384,531 L384,529 L381.9,529 Z M374.55,520 L372.45,520 L372.45,524 L370.35,524 L370.35,526 L372.45,526 L372.45,540 L374.55,540 L374.55,526 L376.65,526 L376.65,524 L374.55,524 L374.55,520 Z M367.2,529 L369.3,529 L369.3,531 L367.2,531 L367.2,540 L365.1,540 L365.1,531 L363,531 L363,529 L365.1,529 L365.1,520 L367.2,520 L367.2,529 Z"
+             id="option_bar_settings-[#ffffff]"
+             style="stroke-width:0.99999375;stroke-dasharray:none;fill:#578cb7;fill-opacity:1" />
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

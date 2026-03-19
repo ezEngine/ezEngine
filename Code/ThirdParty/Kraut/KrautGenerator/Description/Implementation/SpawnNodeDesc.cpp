@@ -53,7 +53,7 @@ namespace Kraut
     m_bTargetDirRelative = false;
     m_TargetDirection = Kraut::BranchTargetDir::Straight;
     m_TargetDirection2 = Kraut::BranchTargetDir::Upwards;
-    m_TargetDir2Uage = Kraut::BranchTargetDir2Usage::Off;
+    m_TargetDir2Usage = Kraut::BranchTargetDir2Usage::Off;
     m_fTargetDir2Usage = 2.5f;
     m_fMaxTargetDirDeviation = 0.0f;
 
@@ -235,7 +235,7 @@ namespace Kraut
     // Version 12
     td = m_TargetDirection2;
     s << td;
-    td = m_TargetDir2Uage;
+    td = m_TargetDir2Usage;
     s << td;
     s << m_fTargetDir2Usage;
 
@@ -516,7 +516,7 @@ namespace Kraut
       s >> td;
       m_TargetDirection2 = (Kraut::BranchTargetDir::Enum)td;
       s >> td;
-      m_TargetDir2Uage = (Kraut::BranchTargetDir2Usage::Enum)td;
+      m_TargetDir2Usage = (Kraut::BranchTargetDir2Usage::Enum)td;
       s >> m_fTargetDir2Usage;
     }
 

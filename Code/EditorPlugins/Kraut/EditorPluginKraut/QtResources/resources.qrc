@@ -4,6 +4,10 @@
   </qresource>
   <qresource prefix="TypeIcons">
     <file>ezKrautTreeComponent.svg</file>
-  </qresource>  
+  </qresource>
+  <qresource prefix="EditorPluginKraut">
+    <file>Wind.svg</file>
+    <file>Leaf.svg</file>
+  </qresource>
 </RCC>
 

@@ -66,6 +66,7 @@
     <file>Icons/Manipulator-on.svg</file>
     <file>Icons/Manipulator-off.svg</file>
     <file>Icons/Object.svg</file>
-	<file>Icons/Edit.svg</file>
+    <file>Icons/Edit.svg</file>
+    <file>Icons/Preset.svg</file>
   </qresource>
 </RCC>

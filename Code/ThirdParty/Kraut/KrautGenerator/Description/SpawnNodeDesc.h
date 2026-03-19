@@ -59,7 +59,7 @@ namespace Kraut
     bool m_bTargetDirRelative;                           //!< Whether the target dir is relative to the parent branch, or in global space
     Kraut::BranchTargetDir::Enum m_TargetDirection;      //!< The general grow direction for branches
     Kraut::BranchTargetDir::Enum m_TargetDirection2;     //!< The general grow direction for branches at a later stage
-    Kraut::BranchTargetDir2Usage::Enum m_TargetDir2Uage; //!< How to use the second target direction
+    Kraut::BranchTargetDir2Usage::Enum m_TargetDir2Usage; //!< How to use the second target direction
     float m_fTargetDir2Usage;                            //!< At which time / distance to switch to the second target dir
     float m_fMaxTargetDirDeviation;                      //!< How much the branch may deviate from its general grow direction
 
