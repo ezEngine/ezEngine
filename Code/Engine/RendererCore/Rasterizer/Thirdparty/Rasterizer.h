@@ -131,5 +131,8 @@ private:
   uint32_t m_height;
   uint32_t m_blocksX;
   uint32_t m_blocksY;
+
+
+  ezUInt64 s_AAA = 0;
 #endif
 };

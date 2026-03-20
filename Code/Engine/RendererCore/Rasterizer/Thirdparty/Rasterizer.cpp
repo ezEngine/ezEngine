@@ -870,6 +870,7 @@ void Rasterizer::precomputeRasterizationTable()
 template <bool possiblyNearClipped>
 void Rasterizer::rasterize(const Occluder& occluder)
 {
+
   const __m256i* vertexData = occluder.m_vertexData;
   size_t packetCount = occluder.m_packetCount;
 
@@ -1412,6 +1413,7 @@ void Rasterizer::rasterize(const Occluder& occluder)
           uint16_t hiZ = *pBlockRowHiZ;
           if (hiZ >= primitiveMaxZ)
           {
+            //s_AAA++;
             continue;
           }
 

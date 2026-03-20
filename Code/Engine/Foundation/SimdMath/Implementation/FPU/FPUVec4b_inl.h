@@ -182,3 +182,9 @@ EZ_ALWAYS_INLINE ezUInt32 ezSimdVec4b::GetMoveMask() const
   if (m_v.w) mask |= 8;
   return mask;
 }
+
+// static
+EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4b::MakeFromBitMask(ezUInt32 uiMask)
+{
+  return ezSimdVec4b((uiMask & 1) != 0, (uiMask & 2) != 0, (uiMask & 4) != 0, (uiMask & 8) != 0);
+}

@@ -444,7 +444,7 @@ ezTestAppRun ezRasterizerTest::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvoca
 
       constexpr ezUInt32 uiSize = 256;
       constexpr ezUInt32 uiNumBoxes = 100;
-      constexpr ezUInt32 uiIterations = 100;
+      constexpr ezUInt32 uiIterations = 10000;
 
       auto pView = CreateView(uiSize, uiSize);
 

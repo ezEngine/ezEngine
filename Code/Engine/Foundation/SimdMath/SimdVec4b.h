@@ -47,6 +47,9 @@ public:
   /// Returns a 4-bit mask where bit N is set if component N is true.
   [[nodiscard]] ezUInt32 GetMoveMask() const;
 
+  /// Creates a mask from a 4-bit integer: lane N is set if bit N of uiMask is set.
+  [[nodiscard]] static ezSimdVec4b MakeFromBitMask(ezUInt32 uiMask);
+
 public:
   ezInternal::QuadBool m_v;
 };

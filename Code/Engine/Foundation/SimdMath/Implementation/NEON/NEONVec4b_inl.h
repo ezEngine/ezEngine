@@ -113,3 +113,12 @@ EZ_ALWAYS_INLINE ezUInt32 ezSimdVec4b::GetMoveMask() const
 {
   return ezInternal::NeonMoveMask(m_v);
 }
+
+// static
+EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4b::MakeFromBitMask(ezUInt32 uiMask)
+{
+  alignas(16) ezUInt32 bits[4] = {1, 2, 4, 8};
+  uint32x4_t vBits = vld1q_u32(bits);
+  uint32x4_t vMask = vmovq_n_u32(uiMask);
+  return vceqq_u32(vandq_u32(vMask, vBits), vBits);
+}

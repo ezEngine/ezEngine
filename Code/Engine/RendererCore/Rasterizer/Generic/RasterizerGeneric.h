@@ -60,4 +60,6 @@ private:
   ezUInt32 m_uiHeight;
   ezUInt32 m_uiBlocksX;
   ezUInt32 m_uiBlocksY;
+
+  ezUInt64 s_BBB = 0;
 };
