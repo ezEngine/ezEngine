@@ -10,9 +10,8 @@
 
 #if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
 class Rasterizer;
-#else
-class RasterizerGeneric;
 #endif
+class RasterizerGeneric;
 class ezRasterizerObject;
 class ezColorLinearUB;
 class ezCamera;
@@ -23,7 +22,8 @@ class EZ_RENDERERCORE_DLL ezRasterizerView final
   EZ_DISALLOW_COPY_AND_ASSIGN(ezRasterizerView);
 
 public:
-  ezRasterizerView();
+  /// \param bUseOptimized If true and the platform supports it, uses the AVX2-optimized rasterizer. Otherwise uses the generic implementation.
+  explicit ezRasterizerView(bool bUseOptimized = true);
   ~ezRasterizerView();
 
   /// \brief Changes the resolution of the view. Has to be called at least once before starting to render anything.
@@ -31,6 +31,15 @@ public:
 
   ezUInt32 GetResolutionX() const { return m_uiResolutionX; }
   ezUInt32 GetResolutionY() const { return m_uiResolutionY; }
+
+  bool IsUsingOptimizedRasterizer() const
+  {
+#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
+    return m_bUseOptimized;
+#else
+    return false;
+#endif
+  }
 
   /// \brief Prepares the view to rasterize a new scene.
   void BeginScene();
@@ -79,11 +88,12 @@ private:
   ezUInt32 m_uiResolutionX = 0;
   ezUInt32 m_uiResolutionY = 0;
   float m_fAspectRation = 1.0f;
+
 #if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
+  bool m_bUseOptimized = true;
   ezUniquePtr<Rasterizer> m_pRasterizer;
-#else
-  ezUniquePtr<RasterizerGeneric> m_pRasterizer;
 #endif
+  ezUniquePtr<RasterizerGeneric> m_pRasterizerGeneric;
 
   struct Instance
   {
@@ -98,14 +108,14 @@ private:
 class ezRasterizerViewPool
 {
 public:
-  ezRasterizerView* GetRasterizerView(ezUInt32 uiWidth, ezUInt32 uiHeight, float fAspectRatio);
+  ezRasterizerView* GetRasterizerView(ezUInt32 uiWidth, ezUInt32 uiHeight, float fAspectRatio, bool bUseOptimized = true);
   void ReturnRasterizerView(ezRasterizerView* pView);
 
 private:
   struct PoolEntry
   {
     bool m_bInUse = false;
-    ezRasterizerView m_RasterizerView;
+    ezUniquePtr<ezRasterizerView> m_pRasterizerView;
   };
 
   ezMutex m_Mutex;

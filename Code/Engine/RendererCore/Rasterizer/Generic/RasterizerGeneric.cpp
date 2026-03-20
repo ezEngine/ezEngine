@@ -1248,8 +1248,11 @@ void RasterizerGeneric::Rasterize(const OccluderGeneric& occluder)
           }
 
           // Update Hi-Z: recompute minimum depth across all 64 pixels in the block.
-          // Matches AVX2 which always computes min across the full stored block.
-          // Uncovered pixels remain at 0.0f (from Clear), so partial coverage yields HiZ = 0.
+          // The minimum represents the farthest geometry (near=high, far=0).
+          // This matches the AVX2 version: if a query's nearest point is behind even the
+          // farthest pixel in the block, the query is fully occluded.
+          // Uncovered pixels remain at 0.0f (far plane) and prevent the block from
+          // rejecting anything, which is correct — partial blocks can't guarantee occlusion.
           {
             float fNewMinZ = pBlockDepth[0];
             for (int i = 1; i < 64; ++i)
@@ -1378,7 +1381,7 @@ bool RasterizerGeneric::QueryVisibility(const ezSimdVec4f& vBoundsMin, const ezS
   // Add a small bias to account for precision differences between the query depth
   // (computed from bounding box corners) and the rasterized depth (from triangle interpolation).
   // The AVX2 version implicitly has this tolerance due to 16-bit depth packing.
-  const float fMaxZ = static_cast<float>(cz03.CompMax(cz47).HorizontalMax<4>()) + 0.01f;
+  const float fMaxZ = static_cast<float>(cz03.CompMax(cz47).HorizontalMax<4>());
 
   return Query2D(static_cast<ezUInt32>(iMinX), static_cast<ezUInt32>(iMaxX), static_cast<ezUInt32>(iMinY), static_cast<ezUInt32>(iMaxY), fMaxZ);
 }
@@ -1404,8 +1407,6 @@ bool RasterizerGeneric::Query2D(ezUInt32 uiMinX, ezUInt32 uiMaxX, ezUInt32 uiMin
     {
       const float fHiZ = pHiZBuffer[blockY * m_uiBlocksX + blockX];
 
-      // Hi-Z rejection. Cleared blocks have HiZ = -1.0f, so fMaxZ <= -1.0f is always
-      // false for valid depths — cleared blocks correctly pass through.
       if (fMaxZ <= fHiZ)
         continue;
 
@@ -1415,7 +1416,7 @@ bool RasterizerGeneric::Query2D(ezUInt32 uiMinX, ezUInt32 uiMaxX, ezUInt32 uiMin
       const bool bInteriorBlock = (startY == 0) && (endY == 7) && (startX == 0) && (endX == 7);
 
       if (bInteriorBlock)
-        return true; // No masking needed and Hi-Z didn't reject → visible
+        return true;
 
       const float* pBlockDepth = pDepthBuffer + 64 * (blockY * m_uiBlocksX + blockX);
 

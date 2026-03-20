@@ -11,15 +11,20 @@
 #if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
 #  include <RendererCore/Rasterizer/Thirdparty/Occluder.h>
 #  include <RendererCore/Rasterizer/Thirdparty/Rasterizer.h>
-#else
-#  include <RendererCore/Rasterizer/Generic/OccluderGeneric.h>
-#  include <RendererCore/Rasterizer/Generic/RasterizerGeneric.h>
 #endif
+#include <RendererCore/Rasterizer/Generic/OccluderGeneric.h>
+#include <RendererCore/Rasterizer/Generic/RasterizerGeneric.h>
 
 ezCVarInt cvar_SpatialCullingOcclusionMaxResolution("Spatial.Occlusion.MaxResolution", 512, ezCVarFlags::Default, "Max resolution for occlusion buffers.");
 ezCVarInt cvar_SpatialCullingOcclusionMaxOccluders("Spatial.Occlusion.MaxOccluders", 64, ezCVarFlags::Default, "Max number of occluders to rasterize per frame.");
 
-ezRasterizerView::ezRasterizerView() = default;
+ezRasterizerView::ezRasterizerView([[maybe_unused]] bool bUseOptimized)
+{
+#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
+  m_bUseOptimized = bUseOptimized;
+#endif
+}
+
 ezRasterizerView::~ezRasterizerView() = default;
 
 void ezRasterizerView::SetResolution(ezUInt32 uiWidth, ezUInt32 uiHeight, float fAspectRatio)
@@ -30,11 +35,19 @@ void ezRasterizerView::SetResolution(ezUInt32 uiWidth, ezUInt32 uiHeight, float 
     m_uiResolutionY = uiHeight;
 
 #if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
-
-    m_pRasterizer = EZ_DEFAULT_NEW(Rasterizer, uiWidth, uiHeight);
-#else
-    m_pRasterizer = EZ_DEFAULT_NEW(RasterizerGeneric, uiWidth, uiHeight);
+    if (m_bUseOptimized)
+    {
+      m_pRasterizer = EZ_DEFAULT_NEW(Rasterizer, uiWidth, uiHeight);
+      m_pRasterizerGeneric.Clear();
+    }
+    else
 #endif
+    {
+      m_pRasterizerGeneric = EZ_DEFAULT_NEW(RasterizerGeneric, uiWidth, uiHeight);
+#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
+      m_pRasterizer.Clear();
+#endif
+    }
   }
 
   if (fAspectRatio == 0.0f)
@@ -45,15 +58,21 @@ void ezRasterizerView::SetResolution(ezUInt32 uiWidth, ezUInt32 uiHeight, float 
 
 void ezRasterizerView::BeginScene()
 {
-  EZ_ASSERT_DEV(m_pRasterizer != nullptr, "Call SetResolution() first.");
-
   EZ_PROFILE_SCOPE("ezRasterizerView::BeginScene");
 
 #if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
-  m_pRasterizer->clear();
-#else
-  m_pRasterizer->Clear();
+  if (m_bUseOptimized)
+  {
+    EZ_ASSERT_DEV(m_pRasterizer != nullptr, "Call SetResolution() first.");
+    m_pRasterizer->clear();
+  }
+  else
 #endif
+  {
+    EZ_ASSERT_DEV(m_pRasterizerGeneric != nullptr, "Call SetResolution() first.");
+    m_pRasterizerGeneric->Clear();
+  }
+
   m_bAnyOccludersRasterized = false;
 }
 
@@ -61,14 +80,20 @@ void ezRasterizerView::ReadBackFrame(ezArrayPtr<ezColorLinearUB> targetBuffer) c
 {
   EZ_PROFILE_SCOPE("ezRasterizerView::ReadBackFrame");
 
-  EZ_ASSERT_DEV(m_pRasterizer != nullptr, "Call SetResolution() first.");
   EZ_ASSERT_DEV(targetBuffer.GetCount() >= m_uiResolutionX * m_uiResolutionY, "Target buffer is too small.");
 
 #if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
-  m_pRasterizer->readBackDepth(targetBuffer.GetPtr());
-#else
-  m_pRasterizer->ReadBackDepth(targetBuffer.GetPtr());
+  if (m_bUseOptimized)
+  {
+    EZ_ASSERT_DEV(m_pRasterizer != nullptr, "Call SetResolution() first.");
+    m_pRasterizer->readBackDepth(targetBuffer.GetPtr());
+  }
+  else
 #endif
+  {
+    EZ_ASSERT_DEV(m_pRasterizerGeneric != nullptr, "Call SetResolution() first.");
+    m_pRasterizerGeneric->ReadBackDepth(targetBuffer.GetPtr());
+  }
 }
 
 void ezRasterizerView::EndScene()
@@ -88,10 +113,11 @@ void ezRasterizerView::EndScene()
   m_Instances.Clear();
 
 #if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
-  m_pRasterizer->setModelViewProjection(m_mViewProjection.m_fElementsCM);
-#else
-  m_pRasterizer->SetModelViewProjection(m_mViewProjection.m_fElementsCM);
+  if (m_bUseOptimized)
+    m_pRasterizer->setModelViewProjection(m_mViewProjection.m_fElementsCM);
+  else
 #endif
+    m_pRasterizerGeneric->SetModelViewProjection(m_mViewProjection.m_fElementsCM);
 }
 
 void ezRasterizerView::RasterizeObjects(ezUInt32 uiMaxObjects)
@@ -99,60 +125,62 @@ void ezRasterizerView::RasterizeObjects(ezUInt32 uiMaxObjects)
   EZ_PROFILE_SCOPE("ezRasterizerView::RasterizeObjects");
 
 #if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
-
-  for (const Instance& inst : m_Instances)
+  if (m_bUseOptimized)
   {
-    ApplyModelViewProjectionMatrix(inst.m_Transform);
-
-    bool bNeedsClipping;
-    const Occluder& occluder = inst.m_pObject->m_Occluder;
-
-    if (m_pRasterizer->queryVisibility(occluder.m_boundsMin, occluder.m_boundsMax, bNeedsClipping))
+    for (ezUInt32 i = 0; i < m_Instances.GetCount(); ++i)
     {
-      m_bAnyOccludersRasterized = true;
+      const Instance& inst = m_Instances[i]; 
+      ApplyModelViewProjectionMatrix(inst.m_Transform);
 
-      if (bNeedsClipping)
-      {
-        m_pRasterizer->rasterize<true>(occluder);
-      }
-      else
-      {
-        m_pRasterizer->rasterize<false>(occluder);
-      }
+      bool bNeedsClipping;
+      const Occluder& occluder = inst.m_pObject->m_Occluder;
 
-      if (--uiMaxObjects == 0)
-        return;
+      if (m_pRasterizer->queryVisibility(occluder.m_boundsMin, occluder.m_boundsMax, bNeedsClipping))
+      {
+        m_bAnyOccludersRasterized = true;
+
+        if (bNeedsClipping)
+        {
+          m_pRasterizer->rasterize<true>(occluder);
+        }
+        else
+        {
+          m_pRasterizer->rasterize<false>(occluder);
+        }
+
+        if (--uiMaxObjects == 0)
+          return;
+      }
     }
   }
-
-#else
-
-  for (const Instance& inst : m_Instances)
-  {
-    ApplyModelViewProjectionMatrix(inst.m_Transform);
-
-    bool bNeedsClipping;
-    const auto& occluder = inst.m_pObject->m_Occluder;
-
-    if (m_pRasterizer->QueryVisibility(occluder.m_vBoundsMin, occluder.m_vBoundsMax, bNeedsClipping))
-    {
-      m_bAnyOccludersRasterized = true;
-
-      if (bNeedsClipping)
-      {
-        m_pRasterizer->Rasterize<true>(occluder);
-      }
-      else
-      {
-        m_pRasterizer->Rasterize<false>(occluder);
-      }
-
-      if (--uiMaxObjects == 0)
-        return;
-    }
-  }
-
+  else
 #endif
+  {
+    for (const Instance& inst : m_Instances)
+    {
+      ApplyModelViewProjectionMatrix(inst.m_Transform);
+
+      bool bNeedsClipping;
+      const auto& occluder = inst.m_pObject->m_OccluderGeneric;
+
+      if (m_pRasterizerGeneric->QueryVisibility(occluder.m_vBoundsMin, occluder.m_vBoundsMax, bNeedsClipping))
+      {
+        m_bAnyOccludersRasterized = true;
+
+        if (bNeedsClipping)
+        {
+          m_pRasterizerGeneric->Rasterize<true>(occluder);
+        }
+        else
+        {
+          m_pRasterizerGeneric->Rasterize<false>(occluder);
+        }
+
+        if (--uiMaxObjects == 0)
+          return;
+      }
+    }
+  }
 }
 
 void ezRasterizerView::UpdateViewProjectionMatrix()
@@ -169,10 +197,11 @@ void ezRasterizerView::ApplyModelViewProjectionMatrix(const ezTransform& modelTr
   const ezMat4 mMVP = m_mViewProjection * mModel;
 
 #if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
-  m_pRasterizer->setModelViewProjection(mMVP.m_fElementsCM);
-#else
-  m_pRasterizer->SetModelViewProjection(mMVP.m_fElementsCM);
+  if (m_bUseOptimized)
+    m_pRasterizer->setModelViewProjection(mMVP.m_fElementsCM);
+  else
 #endif
+    m_pRasterizerGeneric->SetModelViewProjection(mMVP.m_fElementsCM);
 }
 
 void ezRasterizerView::SortObjectsFrontToBack()
@@ -205,13 +234,13 @@ bool ezRasterizerView::IsVisible(const ezSimdBBox& aabb) const
   bool needsClipping = false;
 
 #if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
-  return m_pRasterizer->queryVisibility(vmin.m_v, vmax.m_v, needsClipping);
-#else
-  return m_pRasterizer->QueryVisibility(vmin, vmax, needsClipping);
+  if (m_bUseOptimized)
+    return m_pRasterizer->queryVisibility(vmin.m_v, vmax.m_v, needsClipping);
 #endif
+  return m_pRasterizerGeneric->QueryVisibility(vmin, vmax, needsClipping);
 }
 
-ezRasterizerView* ezRasterizerViewPool::GetRasterizerView(ezUInt32 uiWidth, ezUInt32 uiHeight, float fAspectRatio)
+ezRasterizerView* ezRasterizerViewPool::GetRasterizerView(ezUInt32 uiWidth, ezUInt32 uiHeight, float fAspectRatio, bool bUseOptimized)
 {
   EZ_PROFILE_SCOPE("ezRasterizerViewPool::GetRasterizerView");
 
@@ -238,19 +267,22 @@ ezRasterizerView* ezRasterizerViewPool::GetRasterizerView(ezUInt32 uiWidth, ezUI
     if (entry.m_bInUse)
       continue;
 
-    if (entry.m_RasterizerView.GetResolutionX() == uiWidth && entry.m_RasterizerView.GetResolutionY() == uiHeight)
+    if (entry.m_pRasterizerView->GetResolutionX() == uiWidth &&
+        entry.m_pRasterizerView->GetResolutionY() == uiHeight &&
+        entry.m_pRasterizerView->IsUsingOptimizedRasterizer() == bUseOptimized)
     {
       entry.m_bInUse = true;
-      entry.m_RasterizerView.SetResolution(uiWidth, uiHeight, fAspectRatio);
-      return &entry.m_RasterizerView;
+      entry.m_pRasterizerView->SetResolution(uiWidth, uiHeight, fAspectRatio);
+      return entry.m_pRasterizerView.Borrow();
     }
   }
 
   auto& ne = m_Entries.ExpandAndGetRef();
-  ne.m_RasterizerView.SetResolution(uiWidth, uiHeight, fAspectRatio);
+  ne.m_pRasterizerView = EZ_DEFAULT_NEW(ezRasterizerView, bUseOptimized);
+  ne.m_pRasterizerView->SetResolution(uiWidth, uiHeight, fAspectRatio);
   ne.m_bInUse = true;
 
-  return &ne.m_RasterizerView;
+  return ne.m_pRasterizerView.Borrow();
 }
 
 void ezRasterizerViewPool::ReturnRasterizerView(ezRasterizerView* pView)
@@ -266,7 +298,7 @@ void ezRasterizerViewPool::ReturnRasterizerView(ezRasterizerView* pView)
 
   for (PoolEntry& entry : m_Entries)
   {
-    if (&entry.m_RasterizerView == pView)
+    if (entry.m_pRasterizerView.Borrow() == pView)
     {
       entry.m_bInUse = false;
       return;

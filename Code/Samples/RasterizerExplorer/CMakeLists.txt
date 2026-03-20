@@ -10,5 +10,7 @@ ez_add_renderers(${PROJECT_NAME})
 
 target_link_libraries(${PROJECT_NAME}
   PUBLIC
+  GameEngine
   RendererCore
+  Texture
 )
