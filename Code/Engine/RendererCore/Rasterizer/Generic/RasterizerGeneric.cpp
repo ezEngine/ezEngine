@@ -310,30 +310,35 @@ EZ_ALWAYS_INLINE static ezSimdVec4b IsNegative(const ezSimdVec4f& v)
 /// Output: out[0] = {a0,b0,c0,d0}, out[1] = {a1,b1,c1,d1}, out[2] = {a2,b2,c2,d2}, out[3] = {a3,b3,c3,d3}
 static void Transpose4x4(const ezSimdVec4f& a, const ezSimdVec4f& b, const ezSimdVec4f& c, const ezSimdVec4f& d, ezSimdVec4f* pOut)
 {
-  float fa[4], fb[4], fc[4], fd[4];
-  a.Store<4>(fa);
-  b.Store<4>(fb);
-  c.Store<4>(fc);
-  d.Store<4>(fd);
-
-  pOut[0] = ezSimdVec4f(fa[0], fb[0], fc[0], fd[0]);
-  pOut[1] = ezSimdVec4f(fa[1], fb[1], fc[1], fd[1]);
-  pOut[2] = ezSimdVec4f(fa[2], fb[2], fc[2], fd[2]);
-  pOut[3] = ezSimdVec4f(fa[3], fb[3], fc[3], fd[3]);
+  ezSimdMat4f tmp;
+  tmp.m_col0 = a;
+  tmp.m_col1 = b;
+  tmp.m_col2 = c;
+  tmp.m_col3 = d;
+  tmp.Transpose();
+  pOut[0] = tmp.m_col0;
+  pOut[1] = tmp.m_col1;
+  pOut[2] = tmp.m_col2;
+  pOut[3] = tmp.m_col3;
 }
 
 static void Transpose4x4i(const ezSimdVec4i& a, const ezSimdVec4i& b, const ezSimdVec4i& c, const ezSimdVec4i& d, ezSimdVec4i* pOut)
 {
-  ezInt32 fa[4], fb[4], fc[4], fd[4];
-  a.Store<4>(fa);
-  b.Store<4>(fb);
-  c.Store<4>(fc);
-  d.Store<4>(fd);
-
-  pOut[0] = ezSimdVec4i(fa[0], fb[0], fc[0], fd[0]);
-  pOut[1] = ezSimdVec4i(fa[1], fb[1], fc[1], fd[1]);
-  pOut[2] = ezSimdVec4i(fa[2], fb[2], fc[2], fd[2]);
-  pOut[3] = ezSimdVec4i(fa[3], fb[3], fc[3], fd[3]);
+  // No ezSimdMat4i with Transpose, so use float reinterpretation
+  ezSimdMat4f tmp;
+  tmp.m_col0 = ezSimdVec4f::MakeZero();
+  tmp.m_col1 = ezSimdVec4f::MakeZero();
+  tmp.m_col2 = ezSimdVec4f::MakeZero();
+  tmp.m_col3 = ezSimdVec4f::MakeZero();
+  ezMemoryUtils::Copy(reinterpret_cast<ezSimdVec4i*>(&tmp.m_col0), &a, 1);
+  ezMemoryUtils::Copy(reinterpret_cast<ezSimdVec4i*>(&tmp.m_col1), &b, 1);
+  ezMemoryUtils::Copy(reinterpret_cast<ezSimdVec4i*>(&tmp.m_col2), &c, 1);
+  ezMemoryUtils::Copy(reinterpret_cast<ezSimdVec4i*>(&tmp.m_col3), &d, 1);
+  tmp.Transpose();
+  ezMemoryUtils::Copy(pOut + 0, reinterpret_cast<const ezSimdVec4i*>(&tmp.m_col0), 1);
+  ezMemoryUtils::Copy(pOut + 1, reinterpret_cast<const ezSimdVec4i*>(&tmp.m_col1), 1);
+  ezMemoryUtils::Copy(pOut + 2, reinterpret_cast<const ezSimdVec4i*>(&tmp.m_col2), 1);
+  ezMemoryUtils::Copy(pOut + 3, reinterpret_cast<const ezSimdVec4i*>(&tmp.m_col3), 1);
 }
 
 // ===== Static member =====
@@ -363,55 +368,28 @@ RasterizerGeneric::RasterizerGeneric(ezUInt32 uiWidth, ezUInt32 uiHeight)
 
 void RasterizerGeneric::SetModelViewProjection(const float* pMatrix)
 {
-  // Load 4x4 matrix rows
-  ezSimdVec4f mat0, mat1, mat2, mat3;
-  mat0.Load<4>(pMatrix + 0);
-  mat1.Load<4>(pMatrix + 4);
-  mat2.Load<4>(pMatrix + 8);
-  mat3.Load<4>(pMatrix + 12);
+  // Input is row-major. Load as rows, then transpose to get column-major.
+  ezSimdVec4f row0, row1, row2, row3;
+  row0.Load<4>(pMatrix + 0);
+  row1.Load<4>(pMatrix + 4);
+  row2.Load<4>(pMatrix + 8);
+  row3.Load<4>(pMatrix + 12);
 
-  // Transpose to column-major
-  float r0[4], r1[4], r2[4], r3[4];
-  mat0.Store<4>(r0);
-  mat1.Store<4>(r1);
-  mat2.Store<4>(r2);
-  mat3.Store<4>(r3);
+  ezSimdMat4f rawMVP;
+  rawMVP.SetRows(row0, row1, row2, row3);
 
-  // Transposed rows → stored as raw
-  m_ModelViewProjectionRaw[0] = r0[0]; m_ModelViewProjectionRaw[1] = r1[0]; m_ModelViewProjectionRaw[2] = r2[0]; m_ModelViewProjectionRaw[3] = r3[0];
-  m_ModelViewProjectionRaw[4] = r0[1]; m_ModelViewProjectionRaw[5] = r1[1]; m_ModelViewProjectionRaw[6] = r2[1]; m_ModelViewProjectionRaw[7] = r3[1];
-  m_ModelViewProjectionRaw[8] = r0[2]; m_ModelViewProjectionRaw[9] = r1[2]; m_ModelViewProjectionRaw[10] = r2[2]; m_ModelViewProjectionRaw[11] = r3[2];
-  m_ModelViewProjectionRaw[12] = r0[3]; m_ModelViewProjectionRaw[13] = r1[3]; m_ModelViewProjectionRaw[14] = r2[3]; m_ModelViewProjectionRaw[15] = r3[3];
-
-  // Bake viewport transform into matrix
+  // Bake viewport transform into column-major matrix
   const float fHalfW = m_uiWidth * 0.5f - 4.0f;
   const float fHalfH = m_uiHeight * 0.5f - 4.0f;
 
-  // After transpose: mat0/1/2/3 become columns
-  ezSimdVec4f col0(m_ModelViewProjectionRaw[0], m_ModelViewProjectionRaw[1], m_ModelViewProjectionRaw[2], m_ModelViewProjectionRaw[3]);
-  ezSimdVec4f col1(m_ModelViewProjectionRaw[4], m_ModelViewProjectionRaw[5], m_ModelViewProjectionRaw[6], m_ModelViewProjectionRaw[7]);
-  ezSimdVec4f col2(m_ModelViewProjectionRaw[8], m_ModelViewProjectionRaw[9], m_ModelViewProjectionRaw[10], m_ModelViewProjectionRaw[11]);
-  ezSimdVec4f col3(m_ModelViewProjectionRaw[12], m_ModelViewProjectionRaw[13], m_ModelViewProjectionRaw[14], m_ModelViewProjectionRaw[15]);
+  ezSimdMat4f baked;
+  baked.m_col0 = (rawMVP.m_col0 + rawMVP.m_col3) * ezSimdFloat(fHalfW);
+  baked.m_col1 = (rawMVP.m_col1 + rawMVP.m_col3) * ezSimdFloat(fHalfH);
+  baked.m_col2 = (rawMVP.m_col3 - rawMVP.m_col2) * ezSimdFloat(0.5f);
+  baked.m_col3 = rawMVP.m_col3;
 
-  // Bake viewport: X = (X + W) * halfW, Y = (Y + W) * halfH, Z = (W - Z) * 0.5
-  // (The original AVX2 code uses a special float compression bias for 16-bit depth.
-  // Since we use 32-bit float depth, we store Z in [0,1] range directly.)
-  col0 = (col0 + col3) * ezSimdFloat(fHalfW);
-  col1 = (col1 + col3) * ezSimdFloat(fHalfH);
-  col2 = (col3 - col2) * ezSimdFloat(0.5f); // Maps depth to [0,1] where 0=far, 1=near
-
-  // Transpose back to row-major storage for the rasterizer
-  float c0[4], c1[4], c2[4], c3[4];
-  col0.Store<4>(c0);
-  col1.Store<4>(c1);
-  col2.Store<4>(c2);
-  col3.Store<4>(c3);
-
-  // Store as row-major columns (matching original layout)
-  m_ModelViewProjection[0] = c0[0]; m_ModelViewProjection[1] = c1[0]; m_ModelViewProjection[2] = c2[0]; m_ModelViewProjection[3] = c3[0];
-  m_ModelViewProjection[4] = c0[1]; m_ModelViewProjection[5] = c1[1]; m_ModelViewProjection[6] = c2[1]; m_ModelViewProjection[7] = c3[1];
-  m_ModelViewProjection[8] = c0[2]; m_ModelViewProjection[9] = c1[2]; m_ModelViewProjection[10] = c2[2]; m_ModelViewProjection[11] = c3[2];
-  m_ModelViewProjection[12] = c0[3]; m_ModelViewProjection[13] = c1[3]; m_ModelViewProjection[14] = c2[3]; m_ModelViewProjection[15] = c3[3];
+  // Rasterize and QueryVisibility load m_MVP as rows, so transpose back to row-major.
+  m_MVP = baked.GetTranspose();
 }
 
 void RasterizerGeneric::Clear()
@@ -564,12 +542,11 @@ void RasterizerGeneric::Rasterize(const OccluderGeneric& occluder)
   const ezSimdVec4i maskY(2047 << 10);
   const ezSimdVec4i maskZ(1023);
 
-  // Load model-view-projection matrix
-  ezSimdVec4f mat0, mat1, mat2, mat3;
-  mat0.Load<4>(m_ModelViewProjection + 0);
-  mat1.Load<4>(m_ModelViewProjection + 4);
-  mat2.Load<4>(m_ModelViewProjection + 8);
-  mat3.Load<4>(m_ModelViewProjection + 12);
+  // Load model-view-projection matrix (rows stored in m_col0..3 due to row-major layout)
+  ezSimdVec4f mat0 = m_MVP.m_col0;
+  ezSimdVec4f mat1 = m_MVP.m_col1;
+  ezSimdVec4f mat2 = m_MVP.m_col2;
+  ezSimdVec4f mat3 = m_MVP.m_col3;
 
   const ezSimdVec4f vBoundsMin = occluder.m_vRefMin;
   const ezSimdVec4f vBoundsExtents = occluder.m_vRefMax - vBoundsMin;
@@ -590,18 +567,18 @@ void RasterizerGeneric::Rasterize(const OccluderGeneric& occluder)
   mat1 = mat1 - mat0;
   mat2 = mat2 - mat0;
 
-  // Transpose to get column vectors
+  // Transpose to get row vectors (mat0..3 are currently columns after the transforms above)
   {
-    float m0[4], m1[4], m2[4], m3[4];
-    mat0.Store<4>(m0);
-    mat1.Store<4>(m1);
-    mat2.Store<4>(m2);
-    mat3.Store<4>(m3);
-
-    mat0 = ezSimdVec4f(m0[0], m1[0], m2[0], m3[0]);
-    mat1 = ezSimdVec4f(m0[1], m1[1], m2[1], m3[1]);
-    mat2 = ezSimdVec4f(m0[2], m1[2], m2[2], m3[2]);
-    mat3 = ezSimdVec4f(m0[3], m1[3], m2[3], m3[3]);
+    ezSimdMat4f tmp;
+    tmp.m_col0 = mat0;
+    tmp.m_col1 = mat1;
+    tmp.m_col2 = mat2;
+    tmp.m_col3 = mat3;
+    tmp.Transpose();
+    mat0 = tmp.m_col0;
+    mat1 = tmp.m_col1;
+    mat2 = tmp.m_col2;
+    mat3 = tmp.m_col3;
   }
 
   // Compute depth coefficients: Z = c0 * W + c1 (linear relationship between Z and W)
@@ -1072,17 +1049,14 @@ void RasterizerGeneric::Rasterize(const OccluderGeneric& occluder)
       const ezUInt32 uiBlockRangeY = static_cast<ezUInt32>(rangesY_arr[primitiveIdx]);
 
       // Depth plane for this primitive: {z0, dz_dx, dz_dy, 0}
-      float dp[4];
-      depthPlanes[primitiveIdx].Store<4>(dp);
-      const float fDepthBase = dp[0];
-      const float fDepthDx = dp[1];
-      const float fDepthDy = dp[2];
+      const ezSimdVec4f vDepthPlane = depthPlanes[primitiveIdx];
+      const float fDepthBase = vDepthPlane.GetComponent<0>();
+      const float fDepthDx = vDepthPlane.GetComponent<1>();
+      const float fDepthDy = vDepthPlane.GetComponent<2>();
 
-      // Edge data
-      float enx[4], eny[4], eo[4];
-      edgeNormXArr[primitiveIdx].Store<4>(enx);
-      edgeNormYArr[primitiveIdx].Store<4>(eny);
-      edgeOffsArr[primitiveIdx].Store<4>(eo);
+      // Edge data as SIMD vectors
+      const ezSimdVec4f vEdgeNormX = edgeNormXArr[primitiveIdx];
+      const ezSimdVec4f vEdgeNormY = edgeNormYArr[primitiveIdx];
 
       ezInt32 sl[4];
       slopeLookupsArr[primitiveIdx].Store<4>(sl);
@@ -1091,7 +1065,7 @@ void RasterizerGeneric::Rasterize(const OccluderGeneric& occluder)
       float* pPrimitiveOut = pDepthBuffer + 64 * uiFirstBlock;
 
       float lineDepthBase = fDepthBase;
-      float lineEdgeOfs[4] = {eo[0], eo[1], eo[2], eo[3]};
+      ezSimdVec4f vLineEdgeOfs = edgeOffsArr[primitiveIdx];
 
       for (ezUInt32 blockY = 0; blockY < uiBlockRangeY; ++blockY)
       {
@@ -1099,7 +1073,7 @@ void RasterizerGeneric::Rasterize(const OccluderGeneric& occluder)
         float* pBlockRowDepth = pPrimitiveOut + blockY * m_uiBlocksX * 64;
 
         float curDepthBase = lineDepthBase;
-        float curEdgeOfs[4] = {lineEdgeOfs[0], lineEdgeOfs[1], lineEdgeOfs[2], lineEdgeOfs[3]};
+        ezSimdVec4f vCurEdgeOfs = vLineEdgeOfs;
 
         bool bAnyBlockHit = false;
 
@@ -1112,8 +1086,7 @@ void RasterizerGeneric::Rasterize(const OccluderGeneric& occluder)
           if (fHiZ >= fPrimitiveMaxZ)
           {
             curDepthBase += fDepthDx;
-            for (int e = 0; e < 4; ++e)
-              curEdgeOfs[e] += enx[e];
+            vCurEdgeOfs = vCurEdgeOfs + vEdgeNormX;
             continue;
           }
 
@@ -1122,32 +1095,24 @@ void RasterizerGeneric::Rasterize(const OccluderGeneric& occluder)
 
           if (uiPrimMode == Convex)
           {
-            bool bAnyOutside = false;
-            for (int e = 0; e < 4; ++e)
-            {
-              if (curEdgeOfs[e] >= static_cast<float>(OFFSET_QUANTIZATION_FACTOR - 1))
-              {
-                bAnyOutside = true;
-                break;
-              }
-            }
-
-            if (bAnyOutside)
+            // Check if any edge offset is outside the quantization range
+            const ezSimdVec4b bAnyOutside = vCurEdgeOfs >= ezSimdVec4f(static_cast<float>(OFFSET_QUANTIZATION_FACTOR - 1));
+            if (bAnyOutside.AnySet<4>())
             {
               if (bAnyBlockHit)
                 break; // Convex: past the last block in this row
 
               curDepthBase += fDepthDx;
-              for (int e = 0; e < 4; ++e)
-                curEdgeOfs[e] += enx[e];
+              vCurEdgeOfs = vCurEdgeOfs + vEdgeNormX;
               continue;
             }
 
             bAnyBlockHit = true;
 
+            const ezSimdVec4i vOffsetClamped = ezSimdVec4i::Truncate(vCurEdgeOfs).CompMax(ezSimdVec4i(0));
+
             ezInt32 offsetClamped[4];
-            for (int e = 0; e < 4; ++e)
-              offsetClamped[e] = ezMath::Clamp(static_cast<ezInt32>(curEdgeOfs[e]), 0, OFFSET_QUANTIZATION_FACTOR - 1);
+            vOffsetClamped.Store<4>(offsetClamped);
 
             const ezUInt32 uiTableSize = static_cast<ezUInt32>(s_PrecomputedRasterTables.GetCount());
             const ezUInt32 idxA = ezMath::Min(static_cast<ezUInt32>(sl[0]) | static_cast<ezUInt32>(offsetClamped[0]), uiTableSize - 1);
@@ -1165,16 +1130,16 @@ void RasterizerGeneric::Rasterize(const OccluderGeneric& occluder)
             if (!blockMask)
             {
               curDepthBase += fDepthDx;
-              for (int e = 0; e < 4; ++e)
-                curEdgeOfs[e] += enx[e];
+              vCurEdgeOfs = vCurEdgeOfs + vEdgeNormX;
               continue;
             }
           }
           else
           {
+            const ezSimdVec4i vOffsetClamped2 = ezSimdVec4i::Truncate(vCurEdgeOfs).CompMax(ezSimdVec4i(0)).CompMin(ezSimdVec4i(OFFSET_QUANTIZATION_FACTOR - 1));
+
             ezInt32 offsetClamped[4];
-            for (int e = 0; e < 4; ++e)
-              offsetClamped[e] = ezMath::Clamp(static_cast<ezInt32>(curEdgeOfs[e]), 0, OFFSET_QUANTIZATION_FACTOR - 1);
+            vOffsetClamped2.Store<4>(offsetClamped);
 
             const ezUInt32 uiTableSize2 = static_cast<ezUInt32>(s_PrecomputedRasterTables.GetCount());
             const ezUInt32 idxA2 = ezMath::Min(static_cast<ezUInt32>(sl[0]) | static_cast<ezUInt32>(offsetClamped[0]), uiTableSize2 - 1);
@@ -1210,8 +1175,7 @@ void RasterizerGeneric::Rasterize(const OccluderGeneric& occluder)
             if (!blockMask)
             {
               curDepthBase += fDepthDx;
-              for (int e = 0; e < 4; ++e)
-                curEdgeOfs[e] += enx[e];
+              vCurEdgeOfs = vCurEdgeOfs + vEdgeNormX;
               continue;
             }
           }
@@ -1247,27 +1211,25 @@ void RasterizerGeneric::Rasterize(const OccluderGeneric& occluder)
             }
           }
 
-          // Update Hi-Z: recompute minimum depth across all 64 pixels in the block.
-          // The minimum represents the farthest geometry (near=high, far=0).
-          // This matches the AVX2 version: if a query's nearest point is behind even the
-          // farthest pixel in the block, the query is fully occluded.
-          // Uncovered pixels remain at 0.0f (far plane) and prevent the block from
-          // rejecting anything, which is correct — partial blocks can't guarantee occlusion.
+          // Update Hi-Z: find minimum depth across all 64 pixels using SIMD reduction.
           {
-            float fNewMinZ = pBlockDepth[0];
-            for (int i = 1; i < 64; ++i)
-              fNewMinZ = ezMath::Min(fNewMinZ, pBlockDepth[i]);
-            pBlockRowHiZ[blockX] = fNewMinZ;
+            ezSimdVec4f vMin;
+            vMin.Load<4>(pBlockDepth + 0);
+            for (int i = 4; i < 64; i += 4)
+            {
+              ezSimdVec4f v;
+              v.Load<4>(pBlockDepth + i);
+              vMin = vMin.CompMin(v);
+            }
+            pBlockRowHiZ[blockX] = vMin.HorizontalMin<4>();
           }
 
           curDepthBase += fDepthDx;
-          for (int e = 0; e < 4; ++e)
-            curEdgeOfs[e] += enx[e];
+          vCurEdgeOfs = vCurEdgeOfs + vEdgeNormX;
         }
 
         lineDepthBase += fDepthDy;
-        for (int e = 0; e < 4; ++e)
-          lineEdgeOfs[e] += eny[e];
+        vLineEdgeOfs = vLineEdgeOfs + vEdgeNormY;
       }
     }
   }
@@ -1282,12 +1244,11 @@ bool RasterizerGeneric::QueryVisibility(const ezSimdVec4f& vBoundsMin, const ezS
 {
   const ezSimdVec4f vExtents = vBoundsMax - vBoundsMin;
 
-  // Load prebaked projection matrix
-  ezSimdVec4f col0, col1, col2, col3;
-  col0.Load<4>(m_ModelViewProjection + 0);
-  col1.Load<4>(m_ModelViewProjection + 4);
-  col2.Load<4>(m_ModelViewProjection + 8);
-  col3.Load<4>(m_ModelViewProjection + 12);
+  // Load prebaked projection matrix (rows stored in m_col0..3 due to row-major layout)
+  ezSimdVec4f col0 = m_MVP.m_col0;
+  ezSimdVec4f col1 = m_MVP.m_col1;
+  ezSimdVec4f col2 = m_MVP.m_col2;
+  ezSimdVec4f col3 = m_MVP.m_col3;
 
   // Transform edges
   const ezSimdVec4f edge0 = col0 * vExtents.GetComponent<0>();
@@ -1420,13 +1381,27 @@ bool RasterizerGeneric::Query2D(ezUInt32 uiMinX, ezUInt32 uiMaxX, ezUInt32 uiMin
 
       const float* pBlockDepth = pDepthBuffer + 64 * (blockY * m_uiBlocksX + blockX);
 
+      // SIMD comparison: check if fMaxZ > any pixel depth in the partial block.
+      // Each row is 8 floats = 2 ezSimdVec4f loads.
+      const ezSimdVec4f vMaxZ(fMaxZ);
+
       for (ezUInt32 y = startY; y <= endY; ++y)
       {
-        for (ezUInt32 x = startX; x <= endX; ++x)
-        {
-          if (fMaxZ > pBlockDepth[y * 8 + x])
-            return true;
-        }
+        const float* pRow = pBlockDepth + y * 8;
+        ezSimdVec4f rowA, rowB;
+        rowA.Load<4>(pRow);
+        rowB.Load<4>(pRow + 4);
+
+        // fMaxZ > depth means the query is nearer → visible at this pixel
+        const ezUInt32 maskA = (vMaxZ > rowA).GetMoveMask();
+        const ezUInt32 maskB = (vMaxZ > rowB).GetMoveMask();
+
+        // Build a bit mask for the valid X range within this row
+        const ezUInt32 xMaskA = (startX < 4) ? ((0xFu >> (3 - ezMath::Min(endX, 3u) + startX)) << startX) : 0;
+        const ezUInt32 xMaskB = (endX >= 4) ? ((0xFu >> (7 - endX + ezMath::Max(startX, 4u) - 4)) << (ezMath::Max(startX, 4u) - 4)) : 0;
+
+        if ((maskA & xMaskA) || (maskB & xMaskB))
+          return true;
       }
     }
   }

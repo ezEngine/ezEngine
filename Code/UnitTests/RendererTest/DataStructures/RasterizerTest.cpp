@@ -118,6 +118,11 @@ void ezRasterizerTest::SetupSubTests()
   AddSubTest("20 - OrientOffset", ST_OrientOffset);
   AddSubTest("21 - DepthArbitrary", ST_DepthArbitrary);
   AddSubTest("22 - OccludedBoxVisibility", ST_OccludedBoxVisibility);
+  AddSubTest("23 - PartiallyVisibleBox", ST_PartiallyVisibleBox);
+  AddSubTest("24 - BoxBesideOccluder", ST_BoxBesideOccluder);
+  AddSubTest("25 - BoxInFrontOfOccluder", ST_BoxInFrontOfOccluder);
+  AddSubTest("26 - SmallOccluderLargeQuery", ST_SmallOccluderLargeQuery);
+  AddSubTest("27 - MultipleOccluders", ST_MultipleOccluders);
 }
 
 // --- Sub-test execution ---
@@ -645,6 +650,161 @@ ezTestAppRun ezRasterizerTest::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvoca
       const bool bFrontVisible = pView->IsVisible(frontBox);
       EZ_TEST_BOOL_MSG(bFrontVisible, "Box in front of occluder should be reported as VISIBLE");
 
+      break;
+    }
+
+    case ST_PartiallyVisibleBox:
+    {
+      // A box that is only partially behind a small occluder should be visible.
+      constexpr ezUInt32 uiSize = 128;
+      auto pView = CreateView(uiSize, uiSize);
+
+      ezCamera camera;
+      camera.LookAt(ezVec3(0, 0, -10), ezVec3(0, 0, 0), ezVec3(0, 1, 0));
+      camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, 90.0f, 0.1f, 100.0f);
+      pView->SetCamera(&camera);
+
+      // Small occluder centered in the view
+      auto pSmallWall = ezRasterizerObject::CreateBox(ezVec3(4, 4, 0.5f));
+
+      pView->BeginScene();
+      pView->AddObject(pSmallWall.Borrow(), ezTransform(ezVec3(0, 0, 0)));
+      pView->EndScene();
+
+      // Query a large box behind the wall — extends beyond the wall's edges
+      ezSimdBBox largeBox;
+      largeBox.m_Min = ezSimdVec4f(-5, -5, 2, 1);
+      largeBox.m_Max = ezSimdVec4f(5, 5, 4, 1);
+
+      EZ_TEST_BOOL_MSG(pView->IsVisible(largeBox), "Box partially behind a small occluder should be VISIBLE");
+      break;
+    }
+
+    case ST_BoxBesideOccluder:
+    {
+      // A box next to (not behind) an occluder should be visible.
+      constexpr ezUInt32 uiSize = 128;
+      auto pView = CreateView(uiSize, uiSize);
+
+      ezCamera camera;
+      camera.LookAt(ezVec3(0, 0, -10), ezVec3(0, 0, 0), ezVec3(0, 1, 0));
+      camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, 90.0f, 0.1f, 100.0f);
+      pView->SetCamera(&camera);
+
+      auto pWall = ezRasterizerObject::CreateBox(ezVec3(20, 20, 0.5f));
+
+      pView->BeginScene();
+      pView->AddObject(pWall.Borrow(), ezTransform(ezVec3(0, 0, 0)));
+      pView->EndScene();
+
+      // Box at the same depth but off to the side (still in front of the wall)
+      ezSimdBBox sideBox;
+      sideBox.m_Min = ezSimdVec4f(3, 3, -2, 1);
+      sideBox.m_Max = ezSimdVec4f(5, 5, 0, 1);
+
+      EZ_TEST_BOOL_MSG(pView->IsVisible(sideBox), "Box beside the occluder (in front) should be VISIBLE");
+
+      // Box at the same depth behind the wall but off to where the wall covers
+      ezSimdBBox behindSideBox;
+      behindSideBox.m_Min = ezSimdVec4f(3, 3, 2, 1);
+      behindSideBox.m_Max = ezSimdVec4f(5, 5, 4, 1);
+
+      EZ_TEST_BOOL_MSG(!pView->IsVisible(behindSideBox), "Box behind a full-screen occluder should be OCCLUDED");
+      break;
+    }
+
+    case ST_BoxInFrontOfOccluder:
+    {
+      // A box in front of an occluder should always be visible.
+      constexpr ezUInt32 uiSize = 128;
+      auto pView = CreateView(uiSize, uiSize);
+
+      ezCamera camera;
+      camera.LookAt(ezVec3(0, 0, -10), ezVec3(0, 0, 0), ezVec3(0, 1, 0));
+      camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, 90.0f, 0.1f, 100.0f);
+      pView->SetCamera(&camera);
+
+      auto pWall = ezRasterizerObject::CreateBox(ezVec3(20, 20, 0.5f));
+
+      pView->BeginScene();
+      pView->AddObject(pWall.Borrow(), ezTransform(ezVec3(0, 0, 0)));
+      pView->EndScene();
+
+      // Small box directly in front of the wall
+      ezSimdBBox frontBox;
+      frontBox.m_Min = ezSimdVec4f(-1, -1, -3, 1);
+      frontBox.m_Max = ezSimdVec4f(1, 1, -1, 1);
+
+      EZ_TEST_BOOL_MSG(pView->IsVisible(frontBox), "Box in front of occluder should be VISIBLE");
+
+      // Box very close to the camera
+      ezSimdBBox nearBox;
+      nearBox.m_Min = ezSimdVec4f(-0.5f, -0.5f, -9, 1);
+      nearBox.m_Max = ezSimdVec4f(0.5f, 0.5f, -8, 1);
+
+      EZ_TEST_BOOL_MSG(pView->IsVisible(nearBox), "Box near the camera should be VISIBLE");
+      break;
+    }
+
+    case ST_SmallOccluderLargeQuery:
+    {
+      // A tiny occluder should not occlude a large query box that extends around it.
+      constexpr ezUInt32 uiSize = 128;
+      auto pView = CreateView(uiSize, uiSize);
+
+      ezCamera camera;
+      camera.LookAt(ezVec3(0, 0, -10), ezVec3(0, 0, 0), ezVec3(0, 1, 0));
+      camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, 90.0f, 0.1f, 100.0f);
+      pView->SetCamera(&camera);
+
+      auto pTinyWall = ezRasterizerObject::CreateBox(ezVec3(1, 1, 0.5f));
+
+      pView->BeginScene();
+      pView->AddObject(pTinyWall.Borrow(), ezTransform(ezVec3(0, 0, 0)));
+      pView->EndScene();
+
+      // Large box behind the tiny wall — most of it is not covered
+      ezSimdBBox largeBox;
+      largeBox.m_Min = ezSimdVec4f(-8, -8, 2, 1);
+      largeBox.m_Max = ezSimdVec4f(8, 8, 4, 1);
+
+      EZ_TEST_BOOL_MSG(pView->IsVisible(largeBox), "Large box behind a tiny occluder should be VISIBLE");
+      break;
+    }
+
+    case ST_MultipleOccluders:
+    {
+      // Two occluders side by side that together cover a query box behind them.
+      constexpr ezUInt32 uiSize = 128;
+      auto pView = CreateView(uiSize, uiSize);
+
+      ezCamera camera;
+      camera.LookAt(ezVec3(0, 0, -10), ezVec3(0, 0, 0), ezVec3(0, 1, 0));
+      camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, 90.0f, 0.1f, 100.0f);
+      pView->SetCamera(&camera);
+
+      auto pWall = ezRasterizerObject::CreateBox(ezVec3(20, 20, 0.5f));
+
+      // Two walls side by side, together covering the entire screen
+      pView->BeginScene();
+      pView->AddObject(pWall.Borrow(), ezTransform(ezVec3(-10, 0, 0)));
+      pView->AddObject(pWall.Borrow(), ezTransform(ezVec3(10, 0, 0)));
+      pView->EndScene();
+
+      // Box behind both walls
+      ezSimdBBox behindBox;
+      behindBox.m_Min = ezSimdVec4f(-1, -1, 4, 1);
+      behindBox.m_Max = ezSimdVec4f(1, 1, 6, 1);
+
+      EZ_TEST_BOOL_MSG(!pView->IsVisible(behindBox), "Box behind two combined occluders should be OCCLUDED");
+
+      // Box that extends beyond the occluders' coverage is visible
+      // (only if the walls don't fully tile - but 20-wide walls at ±10 DO fully tile, so this should be occluded)
+      ezSimdBBox centerBox;
+      centerBox.m_Min = ezSimdVec4f(-0.5f, -0.5f, 4, 1);
+      centerBox.m_Max = ezSimdVec4f(0.5f, 0.5f, 6, 1);
+
+      EZ_TEST_BOOL_MSG(!pView->IsVisible(centerBox), "Small box behind two tiled occluders should be OCCLUDED");
       break;
     }
 

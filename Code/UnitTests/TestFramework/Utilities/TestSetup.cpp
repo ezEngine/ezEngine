@@ -131,12 +131,13 @@ void ezTestSetup::DeInitTestFramework(bool bSilent /*= false*/)
   TestSettings settings = pTestFramework->GetSettings();
   if (!bSilent)
   {
-    if (ezSystemInformation::IsDebuggerAttached())
-    {
-      std::cout << "Press the any key to continue...\n";
-      fflush(stdin);
-      [[maybe_unused]] int c = getchar();
-    }
+
+    // if (ezSystemInformation::IsDebuggerAttached())
+    // {
+    //   std::cout << "Press the any key to continue...\n";
+    //   fflush(stdin);
+    //   [[maybe_unused]] int c = getchar();
+    // }
   }
 
   // This is needed as at least windows can't be bothered to write anything

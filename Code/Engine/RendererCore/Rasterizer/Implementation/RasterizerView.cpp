@@ -43,7 +43,7 @@ void ezRasterizerView::SetResolution(ezUInt32 uiWidth, ezUInt32 uiHeight, float 
     else
 #endif
     {
-      m_pRasterizerGeneric = EZ_DEFAULT_NEW(RasterizerGeneric, uiWidth, uiHeight);
+      m_pRasterizerGeneric = EZ_NEW(ezFoundation::GetAlignedAllocator(), RasterizerGeneric, uiWidth, uiHeight);
 #if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
       m_pRasterizer.Clear();
 #endif

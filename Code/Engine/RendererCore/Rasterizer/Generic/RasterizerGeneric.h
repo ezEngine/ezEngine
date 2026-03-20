@@ -2,6 +2,7 @@
 
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Containers/StaticArray.h>
+#include <Foundation/SimdMath/SimdMat4f.h>
 #include <Foundation/SimdMath/SimdVec4f.h>
 #include <Foundation/SimdMath/SimdVec4i.h>
 #include <RendererCore/RendererCoreDLL.h>
@@ -43,8 +44,7 @@ private:
 
   static void PrecomputeRasterizationTable();
 
-  float m_ModelViewProjection[16];
-  float m_ModelViewProjectionRaw[16];
+  ezSimdMat4f m_MVP;
 
   static ezDynamicArray<ezInt64> s_PrecomputedRasterTables;
 

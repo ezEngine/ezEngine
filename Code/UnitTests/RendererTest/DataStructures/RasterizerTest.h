@@ -38,6 +38,11 @@ private:
     ST_OrientOffset,
     ST_DepthArbitrary,
     ST_OccludedBoxVisibility,
+    ST_PartiallyVisibleBox,
+    ST_BoxBesideOccluder,
+    ST_BoxInFrontOfOccluder,
+    ST_SmallOccluderLargeQuery,
+    ST_MultipleOccluders,
   };
 
   virtual void SetupSubTests() override;
