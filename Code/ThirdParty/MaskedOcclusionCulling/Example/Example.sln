@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Example", "Example.vcxproj", "{0A343471-42A8-4C29-AD98-9A976C514336}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug_LLVM|x64 = Debug_LLVM|x64
+		Debug|x64 = Debug|x64
+		Release_LLVM|x64 = Release_LLVM|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0A343471-42A8-4C29-AD98-9A976C514336}.Debug_LLVM|x64.ActiveCfg = Debug_LLVM|x64
+		{0A343471-42A8-4C29-AD98-9A976C514336}.Debug_LLVM|x64.Build.0 = Debug_LLVM|x64
+		{0A343471-42A8-4C29-AD98-9A976C514336}.Debug|x64.ActiveCfg = Debug|x64
+		{0A343471-42A8-4C29-AD98-9A976C514336}.Debug|x64.Build.0 = Debug|x64
+		{0A343471-42A8-4C29-AD98-9A976C514336}.Release_LLVM|x64.ActiveCfg = Release_LLVM|x64
+		{0A343471-42A8-4C29-AD98-9A976C514336}.Release_LLVM|x64.Build.0 = Release_LLVM|x64
+		{0A343471-42A8-4C29-AD98-9A976C514336}.Release|x64.ActiveCfg = Release|x64
+		{0A343471-42A8-4C29-AD98-9A976C514336}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

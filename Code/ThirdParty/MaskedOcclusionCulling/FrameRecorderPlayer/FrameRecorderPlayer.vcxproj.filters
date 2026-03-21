@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="FrameRecorderPlayer.cpp" />
+    <ClCompile Include="..\CullingThreadpool.cpp">
+      <Filter>MaskedOcclusionCulling</Filter>
+    </ClCompile>
+    <ClCompile Include="..\MaskedOcclusionCulling.cpp">
+      <Filter>MaskedOcclusionCulling</Filter>
+    </ClCompile>
+    <ClCompile Include="..\MaskedOcclusionCullingAVX2.cpp">
+      <Filter>MaskedOcclusionCulling</Filter>
+    </ClCompile>
+    <ClCompile Include="..\MaskedOcclusionCullingAVX512.cpp">
+      <Filter>MaskedOcclusionCulling</Filter>
+    </ClCompile>
+    <ClCompile Include="..\FrameRecorder.cpp">
+      <Filter>MaskedOcclusionCulling</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\CullingThreadpool.h">
+      <Filter>MaskedOcclusionCulling</Filter>
+    </ClInclude>
+    <ClInclude Include="..\MaskedOcclusionCulling.h">
+      <Filter>MaskedOcclusionCulling</Filter>
+    </ClInclude>
+    <ClInclude Include="..\FrameRecorder.h">
+      <Filter>MaskedOcclusionCulling</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="MaskedOcclusionCulling">
+      <UniqueIdentifier>{b848f282-5fc0-4806-b33e-649bedd84f85}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\MaskedOcclusionCullingCommon.inl">
+      <Filter>MaskedOcclusionCulling</Filter>
+    </None>
+  </ItemGroup>
+</Project>

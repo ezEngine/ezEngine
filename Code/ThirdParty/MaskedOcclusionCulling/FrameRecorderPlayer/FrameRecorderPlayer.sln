@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FrameRecorderPlayer", "FrameRecorderPlayer.vcxproj", "{D9BAD3FB-95A9-4AB4-9B2B-DAC2A103345F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug_LLVM|x64 = Debug_LLVM|x64
+		Debug|x64 = Debug|x64
+		Release_LLVM|x64 = Release_LLVM|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D9BAD3FB-95A9-4AB4-9B2B-DAC2A103345F}.Debug_LLVM|x64.ActiveCfg = Debug_LLVM|x64
+		{D9BAD3FB-95A9-4AB4-9B2B-DAC2A103345F}.Debug_LLVM|x64.Build.0 = Debug_LLVM|x64
+		{D9BAD3FB-95A9-4AB4-9B2B-DAC2A103345F}.Debug|x64.ActiveCfg = Debug|x64
+		{D9BAD3FB-95A9-4AB4-9B2B-DAC2A103345F}.Debug|x64.Build.0 = Debug|x64
+		{D9BAD3FB-95A9-4AB4-9B2B-DAC2A103345F}.Release_LLVM|x64.ActiveCfg = Release_LLVM|x64
+		{D9BAD3FB-95A9-4AB4-9B2B-DAC2A103345F}.Release_LLVM|x64.Build.0 = Release_LLVM|x64
+		{D9BAD3FB-95A9-4AB4-9B2B-DAC2A103345F}.Release|x64.ActiveCfg = Release|x64
+		{D9BAD3FB-95A9-4AB4-9B2B-DAC2A103345F}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

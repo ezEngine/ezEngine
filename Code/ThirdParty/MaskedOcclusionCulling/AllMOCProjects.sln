@@ -1,0 +1,99 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27004.2002
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "D3DValidate", "D3DValidate\D3DValidate.vcxproj", "{02474EA7-2575-4AE7-A86C-6125EE7D1F08}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Example", "Example\Example.vcxproj", "{0A343471-42A8-4C29-AD98-9A976C514336}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FillrateTest", "FillrateTest\FillrateTest.vcxproj", "{C4229C47-7922-417C-9931-348CA8750D53}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FrameRecorderPlayer", "FrameRecorderPlayer\FrameRecorderPlayer.vcxproj", "{D9BAD3FB-95A9-4AB4-9B2B-DAC2A103345F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StaticLib", "StaticLib\StaticLib.vcxproj", "{958E770F-16AB-468D-9DA8-C2DFF91824BB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug_LLVM|x64 = Debug_LLVM|x64
+		Debug_LLVM|x86 = Debug_LLVM|x86
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release_LLVM|x64 = Release_LLVM|x64
+		Release_LLVM|x86 = Release_LLVM|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{02474EA7-2575-4AE7-A86C-6125EE7D1F08}.Debug_LLVM|x64.ActiveCfg = Debug_LLVM|x64
+		{02474EA7-2575-4AE7-A86C-6125EE7D1F08}.Debug_LLVM|x64.Build.0 = Debug_LLVM|x64
+		{02474EA7-2575-4AE7-A86C-6125EE7D1F08}.Debug_LLVM|x86.ActiveCfg = Debug_LLVM|x64
+		{02474EA7-2575-4AE7-A86C-6125EE7D1F08}.Debug|x64.ActiveCfg = Debug|x64
+		{02474EA7-2575-4AE7-A86C-6125EE7D1F08}.Debug|x64.Build.0 = Debug|x64
+		{02474EA7-2575-4AE7-A86C-6125EE7D1F08}.Debug|x86.ActiveCfg = Debug|x64
+		{02474EA7-2575-4AE7-A86C-6125EE7D1F08}.Release_LLVM|x64.ActiveCfg = Release_LLVM|x64
+		{02474EA7-2575-4AE7-A86C-6125EE7D1F08}.Release_LLVM|x64.Build.0 = Release_LLVM|x64
+		{02474EA7-2575-4AE7-A86C-6125EE7D1F08}.Release_LLVM|x86.ActiveCfg = Release_LLVM|x64
+		{02474EA7-2575-4AE7-A86C-6125EE7D1F08}.Release|x64.ActiveCfg = Release|x64
+		{02474EA7-2575-4AE7-A86C-6125EE7D1F08}.Release|x64.Build.0 = Release|x64
+		{02474EA7-2575-4AE7-A86C-6125EE7D1F08}.Release|x86.ActiveCfg = Release|x64
+		{0A343471-42A8-4C29-AD98-9A976C514336}.Debug_LLVM|x64.ActiveCfg = Debug_LLVM|x64
+		{0A343471-42A8-4C29-AD98-9A976C514336}.Debug_LLVM|x64.Build.0 = Debug_LLVM|x64
+		{0A343471-42A8-4C29-AD98-9A976C514336}.Debug_LLVM|x86.ActiveCfg = Debug_LLVM|x64
+		{0A343471-42A8-4C29-AD98-9A976C514336}.Debug|x64.ActiveCfg = Debug|x64
+		{0A343471-42A8-4C29-AD98-9A976C514336}.Debug|x64.Build.0 = Debug|x64
+		{0A343471-42A8-4C29-AD98-9A976C514336}.Debug|x86.ActiveCfg = Debug|x64
+		{0A343471-42A8-4C29-AD98-9A976C514336}.Release_LLVM|x64.ActiveCfg = Release_LLVM|x64
+		{0A343471-42A8-4C29-AD98-9A976C514336}.Release_LLVM|x64.Build.0 = Release_LLVM|x64
+		{0A343471-42A8-4C29-AD98-9A976C514336}.Release_LLVM|x86.ActiveCfg = Release_LLVM|x64
+		{0A343471-42A8-4C29-AD98-9A976C514336}.Release|x64.ActiveCfg = Release|x64
+		{0A343471-42A8-4C29-AD98-9A976C514336}.Release|x64.Build.0 = Release|x64
+		{0A343471-42A8-4C29-AD98-9A976C514336}.Release|x86.ActiveCfg = Release|x64
+		{C4229C47-7922-417C-9931-348CA8750D53}.Debug_LLVM|x64.ActiveCfg = Debug_LLVM|x64
+		{C4229C47-7922-417C-9931-348CA8750D53}.Debug_LLVM|x64.Build.0 = Debug_LLVM|x64
+		{C4229C47-7922-417C-9931-348CA8750D53}.Debug_LLVM|x86.ActiveCfg = Debug_LLVM|x64
+		{C4229C47-7922-417C-9931-348CA8750D53}.Debug|x64.ActiveCfg = Debug|x64
+		{C4229C47-7922-417C-9931-348CA8750D53}.Debug|x64.Build.0 = Debug|x64
+		{C4229C47-7922-417C-9931-348CA8750D53}.Debug|x86.ActiveCfg = Debug|x64
+		{C4229C47-7922-417C-9931-348CA8750D53}.Release_LLVM|x64.ActiveCfg = Release_LLVM|x64
+		{C4229C47-7922-417C-9931-348CA8750D53}.Release_LLVM|x64.Build.0 = Release_LLVM|x64
+		{C4229C47-7922-417C-9931-348CA8750D53}.Release_LLVM|x86.ActiveCfg = Release_LLVM|x64
+		{C4229C47-7922-417C-9931-348CA8750D53}.Release|x64.ActiveCfg = Release|x64
+		{C4229C47-7922-417C-9931-348CA8750D53}.Release|x64.Build.0 = Release|x64
+		{C4229C47-7922-417C-9931-348CA8750D53}.Release|x86.ActiveCfg = Release|x64
+		{D9BAD3FB-95A9-4AB4-9B2B-DAC2A103345F}.Debug_LLVM|x64.ActiveCfg = Debug_LLVM|x64
+		{D9BAD3FB-95A9-4AB4-9B2B-DAC2A103345F}.Debug_LLVM|x64.Build.0 = Debug_LLVM|x64
+		{D9BAD3FB-95A9-4AB4-9B2B-DAC2A103345F}.Debug_LLVM|x86.ActiveCfg = Debug_LLVM|x64
+		{D9BAD3FB-95A9-4AB4-9B2B-DAC2A103345F}.Debug|x64.ActiveCfg = Debug|x64
+		{D9BAD3FB-95A9-4AB4-9B2B-DAC2A103345F}.Debug|x64.Build.0 = Debug|x64
+		{D9BAD3FB-95A9-4AB4-9B2B-DAC2A103345F}.Debug|x86.ActiveCfg = Debug|x64
+		{D9BAD3FB-95A9-4AB4-9B2B-DAC2A103345F}.Release_LLVM|x64.ActiveCfg = Release_LLVM|x64
+		{D9BAD3FB-95A9-4AB4-9B2B-DAC2A103345F}.Release_LLVM|x64.Build.0 = Release_LLVM|x64
+		{D9BAD3FB-95A9-4AB4-9B2B-DAC2A103345F}.Release_LLVM|x86.ActiveCfg = Release_LLVM|x64
+		{D9BAD3FB-95A9-4AB4-9B2B-DAC2A103345F}.Release|x64.ActiveCfg = Release|x64
+		{D9BAD3FB-95A9-4AB4-9B2B-DAC2A103345F}.Release|x64.Build.0 = Release|x64
+		{D9BAD3FB-95A9-4AB4-9B2B-DAC2A103345F}.Release|x86.ActiveCfg = Release|x64
+		{958E770F-16AB-468D-9DA8-C2DFF91824BB}.Debug_LLVM|x64.ActiveCfg = Debug|x64
+		{958E770F-16AB-468D-9DA8-C2DFF91824BB}.Debug_LLVM|x64.Build.0 = Debug|x64
+		{958E770F-16AB-468D-9DA8-C2DFF91824BB}.Debug_LLVM|x86.ActiveCfg = Debug|Win32
+		{958E770F-16AB-468D-9DA8-C2DFF91824BB}.Debug_LLVM|x86.Build.0 = Debug|Win32
+		{958E770F-16AB-468D-9DA8-C2DFF91824BB}.Debug|x64.ActiveCfg = Debug|x64
+		{958E770F-16AB-468D-9DA8-C2DFF91824BB}.Debug|x64.Build.0 = Debug|x64
+		{958E770F-16AB-468D-9DA8-C2DFF91824BB}.Debug|x86.ActiveCfg = Debug|Win32
+		{958E770F-16AB-468D-9DA8-C2DFF91824BB}.Debug|x86.Build.0 = Debug|Win32
+		{958E770F-16AB-468D-9DA8-C2DFF91824BB}.Release_LLVM|x64.ActiveCfg = Release|x64
+		{958E770F-16AB-468D-9DA8-C2DFF91824BB}.Release_LLVM|x64.Build.0 = Release|x64
+		{958E770F-16AB-468D-9DA8-C2DFF91824BB}.Release_LLVM|x86.ActiveCfg = Release|Win32
+		{958E770F-16AB-468D-9DA8-C2DFF91824BB}.Release_LLVM|x86.Build.0 = Release|Win32
+		{958E770F-16AB-468D-9DA8-C2DFF91824BB}.Release|x64.ActiveCfg = Release|x64
+		{958E770F-16AB-468D-9DA8-C2DFF91824BB}.Release|x64.Build.0 = Release|x64
+		{958E770F-16AB-468D-9DA8-C2DFF91824BB}.Release|x86.ActiveCfg = Release|Win32
+		{958E770F-16AB-468D-9DA8-C2DFF91824BB}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4EE1E6EF-D6F0-4F01-B18A-433CFE41B240}
+	EndGlobalSection
+EndGlobal
