@@ -1,0 +1,58 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+CAMERA_MODE
+
+[COMPUTESHADER]
+
+#include <Shaders/Common/Common.h>
+#include <Shaders/Common/GlobalConstants.h>
+#include <Shaders/Common/GBufferEncoding.h>
+#include "SSRConstants.h"
+
+Texture2DArray GBuffer1Texture;
+Texture2DArray SceneDepth;
+
+RWByteAddressBuffer SSRClassifyBuffer;
+RWByteAddressBuffer SSRIndirectArgs;
+
+[numthreads(8, 8, 1)]
+void main(uint3 dispatchThreadId : SV_DispatchThreadID)
+{
+#if CAMERA_MODE == CAMERA_MODE_STEREO
+  s_ActiveCameraEyeIndex = 0; // SSR currently processes eye 0 only
+#endif
+
+  uint2 pixelCoord = dispatchThreadId.xy;
+
+  if (pixelCoord.x >= SSRResolutionX || pixelCoord.y >= SSRResolutionY)
+    return;
+
+  float3 uvSlice = float3((float2(pixelCoord) + 0.5) * SSRInverseResolution, s_ActiveCameraEyeIndex);
+
+  // Sample depth — skip sky pixels
+  float depthFromZBuffer = SceneDepth.SampleLevel(PointClampSampler, uvSlice, 0).r;
+  if (depthFromZBuffer >= 1.0)
+    return;
+
+  if (SSRHasGBuffer)
+  {
+    // Deferred path: decode roughness from GBuffer1 and skip rough pixels
+    float4 gb1 = GBuffer1Texture.SampleLevel(PointClampSampler, uvSlice, 0);
+    float roughness = gb1.z;
+
+    if (roughness > SSRRoughnessThreshold)
+      return;
+  }
+  // Forward+ path: no roughness data available, classify all non-sky pixels.
+  // A roughness-based fade is still applied during confidence calculation in the trace shader.
+
+  // Atomically append this pixel to the work list
+  uint index;
+  SSRIndirectArgs.InterlockedAdd(0, 1, index);
+
+  // Store packed pixel coordinate (y in high 16 bits, x in low 16 bits)
+  uint packedCoord = (pixelCoord.y << 16) | pixelCoord.x;
+  SSRClassifyBuffer.Store(index * 4, packedCoord);
+}

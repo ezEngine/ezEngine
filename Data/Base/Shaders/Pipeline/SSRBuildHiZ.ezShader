@@ -1,0 +1,44 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[COMPUTESHADER]
+
+#include <Shaders/Common/Common.h>
+#include <Shaders/Common/GlobalConstants.h>
+#include "SSRConstants.h"
+
+Texture2D<float> HiZSource;
+RWTexture2D<float> HiZDest;
+
+[numthreads(8, 8, 1)]
+void main(uint3 dispatchThreadId : SV_DispatchThreadID)
+{
+  uint destWidth = SSRHiZResolutionX;
+  uint destHeight = SSRHiZResolutionY;
+
+  if (dispatchThreadId.x >= destWidth || dispatchThreadId.y >= destHeight)
+    return;
+
+  if (SSRCurrentMipLevel == 0)
+  {
+    // Mip 0: copy depth directly
+    float depth = HiZSource.Load(int3(dispatchThreadId.xy, 0)).r;
+    HiZDest[dispatchThreadId.xy] = depth;
+  }
+  else
+  {
+    // Subsequent mips: max-reduce 2x2 from source
+    uint2 srcCoord = dispatchThreadId.xy * 2;
+
+    float d0 = HiZSource.Load(int3(srcCoord + uint2(0, 0), SSRCurrentMipLevel - 1)).r;
+    float d1 = HiZSource.Load(int3(srcCoord + uint2(1, 0), SSRCurrentMipLevel - 1)).r;
+    float d2 = HiZSource.Load(int3(srcCoord + uint2(0, 1), SSRCurrentMipLevel - 1)).r;
+    float d3 = HiZSource.Load(int3(srcCoord + uint2(1, 1), SSRCurrentMipLevel - 1)).r;
+
+    // Max depth = farthest surface (conservative for ray marching)
+    float maxDepth = max(max(d0, d1), max(d2, d3));
+    HiZDest[dispatchThreadId.xy] = maxDepth;
+  }
+}

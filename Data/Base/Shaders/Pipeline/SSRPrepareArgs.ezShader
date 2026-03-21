@@ -1,0 +1,26 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[COMPUTESHADER]
+
+#include "SSRConstants.h"
+
+RWByteAddressBuffer SSRIndirectArgs;
+
+[numthreads(1, 1, 1)]
+void main()
+{
+  // Read the pixel count written by the classify pass
+  uint pixelCount = SSRIndirectArgs.Load(0);
+
+  // Convert to number of thread groups (each group processes SSR_TRACE_THREAD_GROUP_SIZE pixels)
+  uint threadGroups = (pixelCount + SSR_TRACE_THREAD_GROUP_SIZE - 1) / SSR_TRACE_THREAD_GROUP_SIZE;
+
+  // Write indirect dispatch args: (threadGroupCountX, 1, 1)
+  SSRIndirectArgs.Store(0, threadGroups);
+  // Y and Z were pre-cleared to 1, but write them to be safe
+  SSRIndirectArgs.Store(4, 1);
+  SSRIndirectArgs.Store(8, 1);
+}

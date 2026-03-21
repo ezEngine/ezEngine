@@ -1,0 +1,100 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+CAMERA_MODE
+BLUR_DIRECTION
+SSS_USE_GBUFFER
+
+[RENDERSTATE]
+DepthTest = false
+DepthWrite = false
+CullMode = CullMode_None
+
+[VERTEXSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleVertexShader.h>
+
+[PIXELSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleInterpolator.h>
+#include <Shaders/Common/Common.h>
+#include <Shaders/Common/GlobalConstants.h>
+
+#include <Shaders/Pipeline/SSSConstants.h>
+
+#include <Shaders/Common/SSSProfiles.h>
+#include <Shaders/Common/GBufferEncoding.h>
+
+Texture2DArray BlurSource BIND_GROUP(BG_RENDER_PASS);
+Texture2DArray DepthBuffer BIND_GROUP(BG_RENDER_PASS);
+
+#if SSS_USE_GBUFFER == TRUE
+// Deferred path: GBuffer1 for material flag testing
+Texture2DArray GBuffer1Texture BIND_GROUP(BG_RENDER_PASS);
+#endif
+
+float4 main(PS_IN Input) : SV_Target
+{
+#if CAMERA_MODE == CAMERA_MODE_STEREO
+  s_ActiveCameraEyeIndex = Input.RenderTargetArrayIndex;
+#endif
+
+  float2 uv = Input.TexCoord0.xy;
+  float3 uvSlice = float3(uv, s_ActiveCameraEyeIndex);
+
+  // Sample center pixel
+  float4 centerColor = BlurSource.SampleLevel(PointClampSampler, uvSlice, 0);
+  float centerDepth = LinearizeZBufferDepth(DepthBuffer.SampleLevel(PointClampSampler, uvSlice, 0).r);
+
+  uint profileIndex = ProfileIndex;
+
+#if SSS_USE_GBUFFER == TRUE
+  // Deferred path: check material flags from GBuffer
+  // GBuffer1.a encodes flags: 0 = no SSS, 1-3 = SSS with profile index
+  float4 gb1 = GBuffer1Texture.SampleLevel(PointClampSampler, uvSlice, 0);
+  uint matFlags = uint(gb1.w * 3.0 + 0.5);
+
+  if (matFlags == GBUFFER_MATFLAG_DEFAULT)
+  {
+    return centerColor;
+  }
+
+  profileIndex = matFlags - 1;
+#endif
+
+  // Depth-aware separable SSS blur
+  float3 totalColor = float3(0, 0, 0);
+  float3 totalWeight = float3(0, 0, 0);
+
+  // Scale kernel offsets by depth (further = smaller blur in screen space)
+  // This provides a view-consistent blur width
+  float distanceScale = 1.0 / max(centerDepth, 0.1);
+  float sssWidth = SSSStrength * distanceScale;
+
+  uint kernelSize = min(KernelSize, SSS_MAX_KERNEL_SIZE);
+
+  for (uint i = 0; i < kernelSize; ++i)
+  {
+    SSSKernelSample ks = GetKernelSample(profileIndex, i);
+
+    float2 sampleOffset = BlurDirection * ks.offset * sssWidth * InverseScreenSize;
+    float3 sampleUV = float3(uv + sampleOffset, s_ActiveCameraEyeIndex);
+
+    float4 sampleColor = BlurSource.SampleLevel(LinearClampSampler, sampleUV, 0);
+    float sampleDepth = LinearizeZBufferDepth(DepthBuffer.SampleLevel(PointClampSampler, sampleUV, 0).r);
+
+    // Depth-aware weight: reduce contribution for samples at very different depths
+    float depthDiff = abs(centerDepth - sampleDepth);
+    float depthWeight = saturate(1.0 - depthDiff / max(DepthThreshold * centerDepth, 0.001));
+
+    float3 weight = ks.weight * depthWeight;
+    totalColor += sampleColor.rgb * weight;
+    totalWeight += weight;
+  }
+
+  // Normalize
+  float3 blurredColor = totalColor / max(totalWeight, 0.001);
+
+  return float4(blurredColor, centerColor.a);
+}

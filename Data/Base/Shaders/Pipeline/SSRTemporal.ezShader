@@ -1,0 +1,121 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+CAMERA_MODE
+
+[COMPUTESHADER]
+
+#include <Shaders/Common/Common.h>
+#include <Shaders/Common/GlobalConstants.h>
+#include <Shaders/Common/GBufferEncoding.h>
+#include "SSRConstants.h"
+
+Texture2D<float4> SSRCurrentInput;
+Texture2D<float4> SSRHistoryInput;
+Texture2DArray SceneDepth;
+Texture2DArray GBuffer1Texture;
+
+RWTexture2D<float4> SSRTemporalOutput;
+
+float3 ClipAABB(float3 color, float3 minColor, float3 maxColor)
+{
+  float3 center = 0.5 * (maxColor + minColor);
+  float3 halfExtent = 0.5 * (maxColor - minColor) + 0.001;
+  float3 offset = color - center;
+  float3 ts = abs(offset / halfExtent);
+  float t = max(ts.x, max(ts.y, ts.z));
+  if (t > 1.0)
+    return center + offset / t;
+  return color;
+}
+
+[numthreads(SSR_TEMPORAL_THREAD_GROUP_SIZE, SSR_TEMPORAL_THREAD_GROUP_SIZE, 1)]
+void main(uint3 dispatchThreadId : SV_DispatchThreadID)
+{
+#if CAMERA_MODE == CAMERA_MODE_STEREO
+  s_ActiveCameraEyeIndex = 0;
+#endif
+
+  uint2 pixelCoord = dispatchThreadId.xy;
+
+  if (pixelCoord.x >= SSRResolutionX || pixelCoord.y >= SSRResolutionY)
+    return;
+
+  float2 uv = (float2(pixelCoord) + 0.5) * SSRInverseResolution;
+
+  float4 currentSSR = SSRCurrentInput.Load(int3(pixelCoord, 0));
+
+  // Reproject to previous frame
+  float3 uvSlice = float3(uv, s_ActiveCameraEyeIndex);
+  float depthFromZBuffer = SceneDepth.SampleLevel(PointClampSampler, uvSlice, 0).r;
+
+  float2 clipXY = uv * float2(2.0, -2.0) + float2(-1.0, 1.0);
+  float4 worldPosH = mul(GetScreenToWorldMatrix(), float4(clipXY, depthFromZBuffer, 1.0));
+  float3 worldPos = worldPosH.xyz / worldPosH.w;
+  float4 prevClipPos = mul(SSRPrevWorldToClipMatrix, float4(worldPos, 1.0));
+  float2 prevUV = (prevClipPos.xy / prevClipPos.w) * float2(0.5, -0.5) + 0.5;
+
+  // Sample history with bilinear filtering at reprojected position
+  float4 historySSR = float4(0, 0, 0, 0);
+  bool validHistory = false;
+
+  if (all(prevUV >= 0.0) && all(prevUV <= 1.0))
+  {
+    historySSR = SSRHistoryInput.SampleLevel(LinearClampSampler, prevUV, 0);
+    validHistory = true;
+  }
+
+  // Neighborhood clamping with variance-based AABB expansion
+  if (validHistory)
+  {
+    float3 minColor = currentSSR.rgb;
+    float3 maxColor = currentSSR.rgb;
+    float3 moment1 = currentSSR.rgb;
+    float3 moment2 = currentSSR.rgb * currentSSR.rgb;
+
+    [unroll]
+    for (int dy = -1; dy <= 1; ++dy)
+    {
+      [unroll]
+      for (int dx = -1; dx <= 1; ++dx)
+      {
+        if (dx == 0 && dy == 0)
+          continue;
+
+        int2 neighborCoord = clamp(int2(pixelCoord) + int2(dx, dy),
+          int2(0, 0), int2(SSRResolutionX - 1, SSRResolutionY - 1));
+        float3 c = SSRCurrentInput.Load(int3(neighborCoord, 0)).rgb;
+        minColor = min(minColor, c);
+        maxColor = max(maxColor, c);
+        moment1 += c;
+        moment2 += c * c;
+      }
+    }
+
+    // Variance-based AABB expansion for stochastic sampling convergence
+    float3 mean = moment1 / 9.0;
+    float3 variance = max(moment2 / 9.0 - mean * mean, 0.0);
+    float3 stddev = sqrt(variance);
+
+    minColor = min(minColor, mean - stddev * 0.75);
+    maxColor = max(maxColor, mean + stddev * 0.75);
+
+    historySSR.rgb = ClipAABB(historySSR.rgb, minColor, maxColor);
+    historySSR.a = clamp(historySSR.a, 0.0, 1.0);
+  }
+
+  // Roughness-aware blend weight: rough surfaces use more history for convergence
+  float roughness = 0.0;
+  if (SSRHasGBuffer)
+  {
+    roughness = GBuffer1Texture.SampleLevel(PointClampSampler, uvSlice, 0).z;
+  }
+
+  float blendWeight = validHistory
+    ? lerp(SSRTemporalBlendWeight * 0.5, SSRTemporalBlendWeight, 1.0 - roughness)
+    : 1.0;
+  float4 result = lerp(historySSR, currentSSR, blendWeight);
+
+  SSRTemporalOutput[pixelCoord] = result;
+}

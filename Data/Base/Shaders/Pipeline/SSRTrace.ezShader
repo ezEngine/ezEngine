@@ -1,0 +1,279 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+CAMERA_MODE
+
+[COMPUTESHADER]
+
+#include <Shaders/Common/Common.h>
+#include <Shaders/Common/GlobalConstants.h>
+#include <Shaders/Common/CameraConstantsAccess.h>
+#include <Shaders/Common/GBufferEncoding.h>
+#include "SSRConstants.h"
+
+Texture2D<float> HiZTexture;
+Texture2DArray SceneDepth;
+Texture2DArray GBuffer1Texture;
+Texture2DArray PreviousFrameColor;
+
+ByteAddressBuffer SSRClassifyBuffer;
+RWTexture2D<float4> SSRResult;
+
+//////////////////////////////////////////////////////////////////////////
+// Noise
+
+// Interleaved gradient noise with per-frame temporal offset (golden ratio)
+float InterleavedGradientNoise(float2 pixelCoord, uint frameIndex)
+{
+  float3 magic = float3(0.06711056, 0.00583715, 52.9829189);
+  float offset = float(frameIndex % 64) * 0.7618033988;
+  return frac(magic.z * frac(dot(pixelCoord + offset, magic.xy)));
+}
+
+float InterleavedGradientNoise2(float2 pixelCoord, uint frameIndex)
+{
+  return InterleavedGradientNoise(pixelCoord.yx + float2(47.17, 93.43), frameIndex);
+}
+
+//////////////////////////////////////////////////////////////////////////
+// GGX Importance Sampling
+
+// Sample GGX microfacet normal (half-vector) in tangent space
+float3 ImportanceSampleGGX(float2 Xi, float roughness)
+{
+  float a = roughness * roughness;
+  float a2 = a * a;
+  float phi = 2.0 * 3.14159265 * Xi.x;
+  float cosTheta = sqrt((1.0 - Xi.y) / (1.0 + (a2 - 1.0) * Xi.y));
+  float sinTheta = sqrt(1.0 - cosTheta * cosTheta);
+  return float3(cos(phi) * sinTheta, sin(phi) * sinTheta, cosTheta);
+}
+
+float3x3 BuildTBN(float3 N)
+{
+  float3 T = select(abs(N.z) < 0.999, float3(0, 0, 1), float3(1, 0, 0));
+  T = normalize(cross(T, N));
+  float3 B = cross(N, T);
+  return float3x3(T, B, N);
+}
+
+//////////////////////////////////////////////////////////////////////////
+// Geometry helpers
+
+float3 ReconstructWorldPosition(float2 uv, float depthFromZBuffer)
+{
+  float2 clipXY = uv * float2(2.0, -2.0) + float2(-1.0, 1.0);
+  float4 worldPosH = mul(GetScreenToWorldMatrix(), float4(clipXY, depthFromZBuffer, 1.0));
+  return worldPosH.xyz / worldPosH.w;
+}
+
+float3 ReconstructNormalFromDepth(float2 uv, float centerDepth)
+{
+  float2 texelSize = SSRInverseResolution;
+
+  float leftDepth = SceneDepth.SampleLevel(PointClampSampler, float3(uv - float2(texelSize.x, 0), s_ActiveCameraEyeIndex), 0).r;
+  float rightDepth = SceneDepth.SampleLevel(PointClampSampler, float3(uv + float2(texelSize.x, 0), s_ActiveCameraEyeIndex), 0).r;
+  float topDepth = SceneDepth.SampleLevel(PointClampSampler, float3(uv - float2(0, texelSize.y), s_ActiveCameraEyeIndex), 0).r;
+  float bottomDepth = SceneDepth.SampleLevel(PointClampSampler, float3(uv + float2(0, texelSize.y), s_ActiveCameraEyeIndex), 0).r;
+
+  float3 center = ReconstructWorldPosition(uv, centerDepth);
+
+  float3 left = ReconstructWorldPosition(uv - float2(texelSize.x, 0), leftDepth);
+  float3 right = ReconstructWorldPosition(uv + float2(texelSize.x, 0), rightDepth);
+  float3 top = ReconstructWorldPosition(uv - float2(0, texelSize.y), topDepth);
+  float3 bottom = ReconstructWorldPosition(uv + float2(0, texelSize.y), bottomDepth);
+
+  float3 dx = select(abs(leftDepth - centerDepth) < abs(rightDepth - centerDepth),
+    center - left, right - center);
+  float3 dy = select(abs(topDepth - centerDepth) < abs(bottomDepth - centerDepth),
+    center - top, bottom - center);
+
+  return normalize(cross(dx, dy));
+}
+
+float3 ProjectToScreen(float3 worldPos)
+{
+  float4 clipPos = mul(GetWorldToScreenMatrix(), float4(worldPos, 1.0));
+  clipPos.xyz /= clipPos.w;
+  float2 uv = clipPos.xy * float2(0.5, -0.5) + 0.5;
+  return float3(uv, clipPos.z);
+}
+
+//////////////////////////////////////////////////////////////////////////
+// Hi-Z Ray March
+
+float4 HiZTrace(float3 rayOriginSS, float3 rayDirSS, float roughness)
+{
+  float3 rayPos = rayOriginSS;
+
+  float2 rayDirUV = rayDirSS.xy;
+  float rayLen = length(rayDirUV);
+  if (rayLen < 1e-6)
+    return float4(0, 0, 0, 0);
+
+  float maxTraversalPixels = SSRMaxDistance;
+  float3 rayStep = rayDirSS / rayLen;
+  rayStep *= max(SSRInverseResolution.x, SSRInverseResolution.y);
+
+  int currentMip = 0;
+  currentMip = min(currentMip, (int)SSRHiZMipCount - 1);
+
+  float stepScale = float(1U << currentMip);
+
+  for (uint i = 0; i < SSRMaxSteps; ++i)
+  {
+    rayPos += rayStep * stepScale;
+
+    if (any(rayPos.xy < 0.0) || any(rayPos.xy > 1.0))
+      return float4(0, 0, 0, 0);
+
+    if (rayPos.z < 0.0 || rayPos.z > 1.0)
+      return float4(0, 0, 0, 0);
+
+    int2 hiZCoord = int2(rayPos.xy * float2(SSRResolutionX, SSRResolutionY)) >> currentMip;
+    hiZCoord = max(hiZCoord, int2(0, 0));
+    float hiZDepth = HiZTexture.Load(int3(hiZCoord, currentMip)).r;
+
+    if (rayPos.z > hiZDepth)
+    {
+      if (currentMip == 0)
+      {
+        // Linear depth thickness test
+        float hitLinearDepth = LinearizeZBufferDepth(hiZDepth);
+        float rayLinearDepth = LinearizeZBufferDepth(rayPos.z);
+        float linearDiff = abs(rayLinearDepth - hitLinearDepth);
+
+        if (linearDiff < SSRThickness)
+        {
+          float2 hitUV = rayPos.xy;
+          float confidence = 1.0;
+
+          // Configurable screen-edge fade
+          float2 edgeFade = smoothstep(0.0, SSREdgeFadeStart, hitUV) *
+                            (1.0 - smoothstep(1.0 - SSREdgeFadeEnd, 1.0, hitUV));
+          confidence *= edgeFade.x * edgeFade.y;
+
+          // Roughness fade
+          confidence *= 1.0 - (roughness / max(SSRRoughnessThreshold, 0.001));
+
+          // Ray travel distance fade
+          float travelDist = length((rayPos.xy - rayOriginSS.xy) * float2(SSRResolutionX, SSRResolutionY));
+          confidence *= saturate(1.0 - travelDist / maxTraversalPixels);
+
+          // Depth similarity confidence
+          float depthConfidence = 1.0 - saturate(linearDiff / SSRThickness);
+          confidence *= depthConfidence;
+
+          confidence = saturate(confidence);
+
+          return float4(hitUV, hiZDepth, confidence);
+        }
+        else
+        {
+          return float4(0, 0, 0, 0);
+        }
+      }
+      else
+      {
+        rayPos -= rayStep * stepScale;
+        currentMip--;
+        stepScale = float(1U << currentMip);
+      }
+    }
+    else
+    {
+      if (currentMip < (int)SSRHiZMipCount - 1 && currentMip < 4)
+      {
+        currentMip++;
+        stepScale = float(1U << currentMip);
+      }
+    }
+  }
+
+  return float4(0, 0, 0, 0);
+}
+
+//////////////////////////////////////////////////////////////////////////
+// Main
+
+[numthreads(64, 1, 1)]
+void main(uint3 dispatchThreadId : SV_DispatchThreadID)
+{
+#if CAMERA_MODE == CAMERA_MODE_STEREO
+  s_ActiveCameraEyeIndex = 0;
+#endif
+
+  uint packedCoord = SSRClassifyBuffer.Load(dispatchThreadId.x * 4);
+  uint2 pixelCoord = uint2(packedCoord & 0xFFFF, packedCoord >> 16);
+
+  if (pixelCoord.x >= SSRResolutionX || pixelCoord.y >= SSRResolutionY)
+    return;
+
+  float2 uv = (float2(pixelCoord) + 0.5) * SSRInverseResolution;
+  float3 uvSlice = float3(uv, s_ActiveCameraEyeIndex);
+
+  float depthFromZBuffer = SceneDepth.SampleLevel(PointClampSampler, uvSlice, 0).r;
+
+  float3 worldNormal;
+  float roughness;
+
+  if (SSRHasGBuffer)
+  {
+    float4 gb1 = GBuffer1Texture.SampleLevel(PointClampSampler, uvSlice, 0);
+    worldNormal = DecodeNormalOctahedral(gb1.xy);
+    roughness = gb1.z;
+  }
+  else
+  {
+    worldNormal = ReconstructNormalFromDepth(uv, depthFromZBuffer);
+    roughness = 0.0;
+  }
+
+  float3 worldPos = ReconstructWorldPosition(uv, depthFromZBuffer);
+  float3 viewDir = normalize(GetCameraPosition() - worldPos);
+
+  // Compute reflection direction: stochastic GGX for rough surfaces, mirror for smooth
+  float3 reflectDir;
+  float clampedRoughness = max(roughness, 0.001);
+
+  if (clampedRoughness < 0.04)
+  {
+    reflectDir = reflect(-viewDir, worldNormal);
+  }
+  else
+  {
+    float2 xi = float2(
+      InterleavedGradientNoise(float2(pixelCoord), SSRFrameIndex),
+      InterleavedGradientNoise2(float2(pixelCoord), SSRFrameIndex)
+    );
+    float3x3 TBN = BuildTBN(worldNormal);
+    float3 H = mul(ImportanceSampleGGX(xi, clampedRoughness), TBN);
+    reflectDir = reflect(-viewDir, H);
+  }
+
+  // Ensure reflection is in the correct hemisphere
+  if (dot(reflectDir, worldNormal) < 0.0)
+    reflectDir = reflect(-viewDir, worldNormal);
+
+  // Adaptive ray start offset scaled by distance from camera
+  float linearDepth = LinearizeZBufferDepth(depthFromZBuffer);
+  float rayStartOffset = max(0.01, linearDepth * 0.001);
+  float3 reflectedWorldPos = worldPos + reflectDir * rayStartOffset;
+
+  float3 originSS = float3(uv, depthFromZBuffer);
+  float3 reflectedSS = ProjectToScreen(reflectedWorldPos);
+  float3 rayDirSS = reflectedSS - originSS;
+
+  float4 hitResult = HiZTrace(originSS, rayDirSS, roughness);
+
+  if (hitResult.w > 0.0)
+  {
+    float3 hitColor = PreviousFrameColor.SampleLevel(LinearClampSampler, float3(hitResult.xy, s_ActiveCameraEyeIndex), 0).rgb;
+    SSRResult[pixelCoord] = float4(hitColor, hitResult.w);
+  }
+  else
+  {
+    SSRResult[pixelCoord] = float4(0, 0, 0, 0);
+  }
+}

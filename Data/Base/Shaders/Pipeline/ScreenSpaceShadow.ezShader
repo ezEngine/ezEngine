@@ -1,0 +1,97 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+CAMERA_MODE
+
+[COMPUTESHADER]
+
+#include <Shaders/Common/Common.h>
+#include <Shaders/Common/GlobalConstants.h>
+#include "ScreenSpaceShadowConstants.h"
+
+Texture2D<float> DepthTexture;
+RWTexture2D<float> OutputTexture;
+
+// Project world position to screen space (UV + NDC depth), matching SSR's proven convention.
+float3 ProjectToScreen(float3 worldPos)
+{
+  float4 clipPos = mul(GetWorldToScreenMatrix(), float4(worldPos, 1.0));
+  clipPos.xyz /= clipPos.w;
+  float2 uv = clipPos.xy * float2(0.5, -0.5) + 0.5;
+  return float3(uv, clipPos.z);
+}
+
+float3 ReconstructWorldPosition(float2 uv, float depth)
+{
+  float2 clipXY = uv * float2(2.0, -2.0) + float2(-1.0, 1.0);
+  float4 worldPosH = mul(GetScreenToWorldMatrix(), float4(clipXY, depth, 1.0));
+  return worldPosH.xyz / worldPosH.w;
+}
+
+[numthreads(SSS_THREAD_GROUP_SIZE, SSS_THREAD_GROUP_SIZE, 1)]
+void main(uint3 dispatchThreadID : SV_DispatchThreadID)
+{
+  uint2 pixelCoord = dispatchThreadID.xy;
+
+  if (pixelCoord.x >= SSSResolutionX || pixelCoord.y >= SSSResolutionY)
+    return;
+
+  float centerDepth = DepthTexture[pixelCoord];
+  if (centerDepth >= 1.0 || centerDepth <= 0.0)
+  {
+    OutputTexture[pixelCoord] = 1.0;
+    return;
+  }
+
+  // Reconstruct world position
+  float2 uv = (float2(pixelCoord) + 0.5) * SSSTexelSize;
+  float3 worldPos = ReconstructWorldPosition(uv, centerDepth);
+  float centerLinearDepth = LinearizeZBufferDepth(centerDepth);
+
+  // March in world space toward the light, compare in screen space
+  float3 lightDir = normalize(SSSLightDirectionWS);
+  float stepLength = SSSMaxRayDistance / (float)SSSMaxSteps;
+  float3 worldStep = lightDir * stepLength;
+
+  // Start the ray 1 step ahead to avoid self-intersection.
+  // Add a 0-1 noise offset on top for temporal dithering (requires TAA).
+  float noise = InterleavedGradientNoise(float2(pixelCoord) + float(SSSFrameIndex % 16));
+  float3 rayWorldPos = worldPos + worldStep * (1.0 + noise);
+
+  float occlusion = 0.0;
+
+  [loop]
+  for (uint i = 0; i < SSSMaxSteps; i++)
+  {
+    rayWorldPos += worldStep;
+
+    // Project the ray position to screen space
+    float3 raySS = ProjectToScreen(rayWorldPos);
+
+    // Check if the ray is still within the screen
+    if (any(raySS.xy < 0.0) || any(raySS.xy > 1.0))
+      break;
+
+    // Sample the depth buffer at the ray's screen position
+    float sceneDepthNDC = DepthTexture.SampleLevel(PointClampSampler, raySS.xy, 0);
+    if (sceneDepthNDC >= 1.0)
+      continue;
+
+    float rayLinearDepth = LinearizeZBufferDepth(raySS.z);
+    float sceneLinearDepth = LinearizeZBufferDepth(sceneDepthNDC);
+
+    // The ray is occluded when it passes behind scene geometry (further from camera).
+    float depthDelta = rayLinearDepth - sceneLinearDepth;
+
+    if (depthDelta > 0.0 && depthDelta < SSSSurfaceThickness)
+    {
+      // Screen edge fade to prevent hard cutoff artifacts
+      float2 fade = saturate(raySS.xy / 0.05) * saturate((1.0 - raySS.xy) / 0.05);
+      occlusion = fade.x * fade.y;
+      break;
+    }
+  }
+
+  OutputTexture[pixelCoord] = 1.0 - occlusion * SSSShadowIntensity;
+}

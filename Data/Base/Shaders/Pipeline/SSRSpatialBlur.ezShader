@@ -1,0 +1,108 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+CAMERA_MODE
+
+[COMPUTESHADER]
+
+#include <Shaders/Common/Common.h>
+#include <Shaders/Common/GlobalConstants.h>
+#include <Shaders/Common/CameraConstantsAccess.h>
+#include <Shaders/Common/GBufferEncoding.h>
+#include "SSRConstants.h"
+
+Texture2D<float4> SSRInput;
+Texture2DArray SceneDepth;
+Texture2DArray GBuffer1Texture;
+
+RWTexture2D<float4> SSRBlurOutput;
+
+[numthreads(SSR_BLUR_THREAD_GROUP_SIZE, SSR_BLUR_THREAD_GROUP_SIZE, 1)]
+void main(uint3 dispatchThreadId : SV_DispatchThreadID)
+{
+#if CAMERA_MODE == CAMERA_MODE_STEREO
+  s_ActiveCameraEyeIndex = 0;
+#endif
+
+  uint2 pixelCoord = dispatchThreadId.xy;
+  if (pixelCoord.x >= SSRResolutionX || pixelCoord.y >= SSRResolutionY)
+    return;
+
+  float2 uv = (float2(pixelCoord) + 0.5) * SSRInverseResolution;
+  float4 centerSSR = SSRInput.Load(int3(pixelCoord, 0));
+
+  // Early out for pixels with no SSR data
+  if (centerSSR.a <= 0.001)
+  {
+    SSRBlurOutput[pixelCoord] = centerSSR;
+    return;
+  }
+
+  float centerDepth = LinearizeZBufferDepth(
+    SceneDepth.SampleLevel(PointClampSampler, float3(uv, s_ActiveCameraEyeIndex), 0).r);
+
+  // Get roughness for blur radius
+  float roughness = 0.0;
+  if (SSRHasGBuffer)
+  {
+    roughness = GBuffer1Texture.SampleLevel(PointClampSampler, float3(uv, s_ActiveCameraEyeIndex), 0).z;
+  }
+
+  // Smooth surfaces: skip blur entirely
+  if (roughness < 0.04)
+  {
+    SSRBlurOutput[pixelCoord] = centerSSR;
+    return;
+  }
+
+  // Roughness-dependent blur radius (quadratic ramp)
+  float blurRadius = SSRBlurRadius * roughness * roughness;
+  int iRadius = max(1, int(blurRadius));
+
+  float4 accumColor = centerSSR;
+  float totalWeight = 1.0;
+
+  // Cross-shaped bilateral filter (horizontal + vertical)
+  for (int i = -iRadius; i <= iRadius; ++i)
+  {
+    if (i == 0)
+      continue;
+
+    // Horizontal sample
+    {
+      int2 sampleCoord = int2(pixelCoord) + int2(i, 0);
+      sampleCoord = clamp(sampleCoord, int2(0, 0), int2(SSRResolutionX - 1, SSRResolutionY - 1));
+      float2 sampleUV = (float2(sampleCoord) + 0.5) * SSRInverseResolution;
+
+      float sampleDepth = LinearizeZBufferDepth(
+        SceneDepth.SampleLevel(PointClampSampler, float3(sampleUV, s_ActiveCameraEyeIndex), 0).r);
+      float depthDiff = abs(centerDepth - sampleDepth);
+      float depthWeight = exp(-depthDiff * depthDiff * SSRBlurSharpness);
+      float spatialWeight = 1.0 - abs(float(i)) / (float(iRadius) + 1.0);
+      float w = depthWeight * spatialWeight;
+
+      accumColor += SSRInput.Load(int3(sampleCoord, 0)) * w;
+      totalWeight += w;
+    }
+
+    // Vertical sample
+    {
+      int2 sampleCoord = int2(pixelCoord) + int2(0, i);
+      sampleCoord = clamp(sampleCoord, int2(0, 0), int2(SSRResolutionX - 1, SSRResolutionY - 1));
+      float2 sampleUV = (float2(sampleCoord) + 0.5) * SSRInverseResolution;
+
+      float sampleDepth = LinearizeZBufferDepth(
+        SceneDepth.SampleLevel(PointClampSampler, float3(sampleUV, s_ActiveCameraEyeIndex), 0).r);
+      float depthDiff = abs(centerDepth - sampleDepth);
+      float depthWeight = exp(-depthDiff * depthDiff * SSRBlurSharpness);
+      float spatialWeight = 1.0 - abs(float(i)) / (float(iRadius) + 1.0);
+      float w = depthWeight * spatialWeight;
+
+      accumColor += SSRInput.Load(int3(sampleCoord, 0)) * w;
+      totalWeight += w;
+    }
+  }
+
+  SSRBlurOutput[pixelCoord] = accumColor / totalWeight;
+}
