@@ -43,6 +43,7 @@ private:
     ST_BoxInFrontOfOccluder,
     ST_SmallOccluderLargeQuery,
     ST_MultipleOccluders,
+    ST_CityPerformance,
   };
 
   virtual void SetupSubTests() override;

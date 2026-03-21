@@ -59,8 +59,8 @@ void RasterizerExplorerState::OnActivation(ezWorld* pWorld, ezStringView sStartP
 
   SUPER::OnActivation(pWorld, sStartPosition, startPositionOffset);
 
-  m_MainCamera.LookAt(ezVec3(-15, 0, 0), ezVec3(0, 0, 0), ezVec3(0, 0, 1));
-  m_MainCamera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, 90.0f, 0.1f, 100.0f);
+  m_MainCamera.LookAt(ezVec3(-1, 0, 40), ezVec3(0, 0, 0), ezVec3(0, 0, 1));
+  m_MainCamera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, 70.0f, 0.1f, 200.0f);
 
 #ifdef BUILDSYSTEM_ENABLE_IMGUI_SUPPORT
   if (ezImgui::GetSingleton() == nullptr)
@@ -74,7 +74,7 @@ void RasterizerExplorerState::OnActivation(ezWorld* pWorld, ezStringView sStartP
 
   CreateOverlayObject();
 
-  GenerateTransforms();
+  GenerateCity();
 
   LoadSettings();
 }
@@ -153,12 +153,12 @@ void RasterizerExplorerState::ProcessInput()
 
   if (ezInputManager::GetInputActionState("Rasterizer", "NextCube") == ezKeyState::Pressed)
   {
-    m_iSelectedCube = (m_iSelectedCube + 1) % (ezInt32)NumBoxes;
+    m_iSelectedBuilding = (m_iSelectedBuilding + 1) % (ezInt32)m_Buildings.GetCount();
   }
 
   if (ezInputManager::GetInputActionState("Rasterizer", "PrevCube") == ezKeyState::Pressed)
   {
-    m_iSelectedCube = (m_iSelectedCube - 1 + (ezInt32)NumBoxes) % (ezInt32)NumBoxes;
+    m_iSelectedBuilding = (m_iSelectedBuilding - 1 + (ezInt32)m_Buildings.GetCount()) % (ezInt32)m_Buildings.GetCount();
   }
 
   if (ezInputManager::GetInputActionState("Rasterizer", "OverlayOptimized") == ezKeyState::Pressed)
@@ -201,41 +201,35 @@ void RasterizerExplorerState::ProcessInput()
   }
 }
 
-void RasterizerExplorerState::GenerateTransforms()
+void RasterizerExplorerState::GenerateCity()
 {
   ezRandom rng;
-  rng.Initialize(42);
+  rng.Initialize(123);
 
-  m_Transforms.SetCount(NumBoxes);
+  m_Buildings.Clear();
 
-  for (ezUInt32 i = 0; i < NumBoxes; ++i)
+  for (ezUInt32 gx = 0; gx < GridSize; ++gx)
   {
-    const float x = (float)rng.DoubleMinMax(-8.0, 8.0);
-    const float y = (float)rng.DoubleMinMax(-8.0, 8.0);
-    const float z = (float)rng.DoubleMinMax(-5.0, 5.0);
+    for (ezUInt32 gz = 0; gz < GridSize; ++gz)
+    {
+      const float fHeight = 2.0f + (float)rng.DoubleMinMax(0.0, 8.0);
+      const float fWidth = BlockSize * (0.6f + (float)rng.DoubleMinMax(0.0, 0.4));
+      const float fDepth = BlockSize * (0.6f + (float)rng.DoubleMinMax(0.0, 0.4));
 
-    const float ax = (float)rng.DoubleMinMax(0.0, 360.0);
-    const float ay = (float)rng.DoubleMinMax(0.0, 360.0);
-    const float az = (float)rng.DoubleMinMax(0.0, 360.0);
+      const float x = -GroundHalf + StreetWidth + gx * CellSize + BlockSize * 0.5f;
+      const float y = -GroundHalf + StreetWidth + gz * CellSize + BlockSize * 0.5f;
+      const float z = fHeight * 0.5f;
 
-    ezQuat rot = ezQuat::MakeFromEulerAngles(ezAngle::MakeFromDegree(ax), ezAngle::MakeFromDegree(ay), ezAngle::MakeFromDegree(az));
-    m_Transforms[i] = ezTransform(ezVec3(x, y, z), rot);
+      auto& b = m_Buildings.ExpandAndGetRef();
+      b.m_vExtents = ezVec3(fWidth, fDepth, fHeight);
+      b.m_Transform = ezTransform(ezVec3(x, y, z));
+    }
   }
-}
-
-bool RasterizerExplorerState::IsCubeVisible(ezUInt32 uiIndex) const
-{
-  if (!m_bCullNearby || m_iSelectedCube < 0)
-    return true;
-
-  const ezVec3 vSelected = m_Transforms[m_iSelectedCube].m_vPosition;
-  const ezVec3 vCube = m_Transforms[uiIndex].m_vPosition;
-  return (vCube - vSelected).GetLengthSquared() <= m_fCullDistance * m_fCullDistance;
 }
 
 void RasterizerExplorerState::RunRasterizers()
 {
-  auto pBox = ezRasterizerObject::CreateBox(ezVec3(2, 2, 2));
+  auto pGround = ezRasterizerObject::CreateBox(ezVec3(GroundSize, GroundSize, 0.5f));
 
   // Use the main view's viewport size so the rasterizer matches the screen
   ezUInt32 uiWidth = RasterizerSize;
@@ -256,57 +250,56 @@ void RasterizerExplorerState::RunRasterizers()
     pRasterView->SetCamera(&m_MainCamera);
 
     pRasterView->BeginScene();
-    for (ezUInt32 i = 0; i < NumBoxes; ++i)
+
+    // Ground plane
+    pRasterView->AddObject(pGround.Borrow(), ezTransform(ezVec3(0, 0, -0.25f)));
+
+    // Buildings
+    for (ezUInt32 i = 0; i < m_Buildings.GetCount(); ++i)
     {
-      if (IsCubeVisible(i))
-      {
-        pRasterView->AddObject(pBox.Borrow(), m_Transforms[i]);
-      }
+      auto pBuilding = ezRasterizerObject::CreateBox(m_Buildings[i].m_vExtents);
+      pRasterView->AddObject(pBuilding.Borrow(), m_Buildings[i].m_Transform);
     }
+
     pRasterView->EndScene();
   }
 }
 
 void RasterizerExplorerState::DrawDebugGeometry()
 {
-  const ezVec3 vBoxHalfExtents(1, 1, 1);
-  const ezBoundingBox localBox = ezBoundingBox::MakeFromMinMax(-vBoxHalfExtents, vBoxHalfExtents);
+  // Draw ground plane outline
+  const ezBoundingBox groundBox = ezBoundingBox::MakeFromMinMax(
+    ezVec3(-GroundHalf, -GroundHalf, -0.5f),
+    ezVec3(GroundHalf, GroundHalf, 0.0f));
+  ezDebugRenderer::DrawLineBox(m_pMainWorld, groundBox, ezColor::DarkGray);
 
-  ezUInt32 uiVisibleCount = 0;
-  for (ezUInt32 i = 0; i < NumBoxes; ++i)
+  // Draw buildings
+  for (ezUInt32 i = 0; i < m_Buildings.GetCount(); ++i)
   {
-    if (!IsCubeVisible(i))
-      continue;
+    const auto& b = m_Buildings[i];
+    const ezVec3 half = b.m_vExtents * 0.5f;
+    const ezBoundingBox localBox = ezBoundingBox::MakeFromMinMax(-half, half);
 
-    ++uiVisibleCount;
-
-    ezColor color = (m_iSelectedCube == (ezInt32)i) ? ezColor::Orange : ezColor::GreenYellow;
-    ezDebugRenderer::DrawLineBox(m_pMainWorld, localBox, color, m_Transforms[i]);
-  }
-
-  // Draw cull radius sphere around selected cube
-  if (m_bCullNearby && m_iSelectedCube >= 0)
-  {
-    ezBoundingSphere sphere = ezBoundingSphere::MakeFromCenterAndRadius(m_Transforms[m_iSelectedCube].m_vPosition, m_fCullDistance);
-    ezDebugRenderer::DrawLineSphere(m_pMainWorld, sphere, ezColor::CornflowerBlue);
+    ezColor color = (m_iSelectedBuilding == (ezInt32)i) ? ezColor::Orange : ezColor::GreenYellow;
+    ezDebugRenderer::DrawLineBox(m_pMainWorld, localBox, color, b.m_Transform);
   }
 
   ezDebugRenderer::Draw2DText(m_pMainWorld,
-    ezFmt("Rasterizer Explorer - Visible: {} / {}", uiVisibleCount, NumBoxes),
+    ezFmt("City Scene - Buildings: {}", m_Buildings.GetCount()),
     ezVec2I32(10, 10), ezColor::White);
 
   ezDebugRenderer::Draw2DText(m_pMainWorld,
-    "WASD = move, RMB+mouse = look, ESC = quit",
+    "WASD = move, RMB+mouse = look, Up/Down = select building, ESC = quit",
     ezVec2I32(10, 30), ezColor::LightGray);
 
-  // Query visibility of the selected cube against both rasterizers
-  if (m_iSelectedCube >= 0 && IsCubeVisible(m_iSelectedCube))
+  // Query visibility of the selected building against both rasterizers
+  if (m_iSelectedBuilding >= 0 && m_iSelectedBuilding < (ezInt32)m_Buildings.GetCount())
   {
-    const ezBoundingBox localBox2 = ezBoundingBox::MakeFromMinMax(-vBoxHalfExtents, vBoxHalfExtents);
-    const ezTransform& t = m_Transforms[m_iSelectedCube];
-    const ezMat4 mTransform = t.GetAsMat4();
+    const auto& b = m_Buildings[m_iSelectedBuilding];
+    const ezVec3 half = b.m_vExtents * 0.5f;
+    const ezBoundingBox localBox2 = ezBoundingBox::MakeFromMinMax(-half, half);
+    const ezMat4 mTransform = b.m_Transform.GetAsMat4();
 
-    // Transform the 8 corners to get the world-space AABB
     ezVec3 corners[8];
     localBox2.GetCorners(corners);
 
@@ -326,7 +319,7 @@ void RasterizerExplorerState::DrawDebugGeometry()
     const bool bVisGen = m_pRasterizerViewGeneric->IsVisible(simdBox);
 
     ezDebugRenderer::Draw2DText(m_pMainWorld,
-      ezFmt("Cube {} - Optimized: {}  Generic: {}", m_iSelectedCube, bVisOpt ? "VISIBLE" : "OCCLUDED", bVisGen ? "VISIBLE" : "OCCLUDED"),
+      ezFmt("Building {} - Optimized: {}  Generic: {}", m_iSelectedBuilding, bVisOpt ? "VISIBLE" : "OCCLUDED", bVisGen ? "VISIBLE" : "OCCLUDED"),
       ezVec2I32(10, 50), bVisOpt == bVisGen ? ezColor::White : ezColor::Red);
   }
 }
@@ -362,7 +355,7 @@ void RasterizerExplorerState::DrawImGuiPanel()
 
   static const char* szOverlayNames[] = {"None", "Optimized (1)", "Generic (2)", "Diff (3)"};
 
-  if (ImGui::Begin("Cubes"))
+  if (ImGui::Begin("City"))
   {
     // Overlay controls
     ImGui::Text("Overlay:");
@@ -378,6 +371,16 @@ void RasterizerExplorerState::DrawImGuiPanel()
     if (ImGui::Button("Save Settings"))
     {
       SaveSettings();
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Print LookAt"))
+    {
+      const ezVec3 vPos = m_MainCamera.GetCenterPosition();
+      const ezVec3 vDir = m_MainCamera.GetCenterDirForwards();
+      const ezVec3 vUp = m_MainCamera.GetCenterDirUp();
+      const ezVec3 vTarget = vPos + vDir;
+      ezLog::Info("camera.LookAt(ezVec3({}f, {}f, {}f), ezVec3({}f, {}f, {}f), ezVec3({}f, {}f, {}f));",
+        vPos.x, vPos.y, vPos.z, vTarget.x, vTarget.y, vTarget.z, vUp.x, vUp.y, vUp.z);
     }
 
     // Max occluders CVar
@@ -399,29 +402,29 @@ void RasterizerExplorerState::DrawImGuiPanel()
       ImGui::SliderFloat("Cull Distance", &m_fCullDistance, 0.5f, 30.0f, "%.1f");
     }
 
-    if (m_iSelectedCube >= 0)
+    if (m_iSelectedBuilding >= 0)
     {
-      ImGui::Text("Selected: Cube %d", m_iSelectedCube);
+      ImGui::Text("Selected: Building %d", m_iSelectedBuilding);
     }
     else
     {
-      ImGui::TextDisabled("No cube selected");
+      ImGui::TextDisabled("No building selected");
     }
 
     ImGui::Separator();
 
-    if (ImGui::BeginChild("CubeList", ImVec2(0, 0), ImGuiChildFlags_None))
+    if (ImGui::BeginChild("BuildingList", ImVec2(0, 0), ImGuiChildFlags_None))
     {
-      for (ezUInt32 i = 0; i < NumBoxes; ++i)
+      for (ezUInt32 i = 0; i < m_Buildings.GetCount(); ++i)
       {
         ezStringBuilder sLabel;
-        sLabel.SetFormat("Cube {}", i);
+        sLabel.SetFormat("Building {}", i);
 
-        bool bIsSelected = (m_iSelectedCube == (ezInt32)i);
+        bool bIsSelected = (m_iSelectedBuilding == (ezInt32)i);
 
         if (ImGui::Selectable(sLabel, bIsSelected))
         {
-          m_iSelectedCube = bIsSelected ? -1 : (ezInt32)i;
+          m_iSelectedBuilding = bIsSelected ? -1 : (ezInt32)i;
         }
       }
     }
@@ -606,7 +609,7 @@ void RasterizerExplorerState::SaveSettings()
     writer.WriteFloat(&vUp.z);
     writer.EndPrimitiveList();
 
-    ezOpenDdlUtils::StoreInt32(writer, m_iSelectedCube, "SelectedCube");
+    ezOpenDdlUtils::StoreInt32(writer, m_iSelectedBuilding, "SelectedCube");
     ezOpenDdlUtils::StoreBool(writer, m_bCullNearby, "CullNearby");
     ezOpenDdlUtils::StoreFloat(writer, m_fCullDistance, "CullDistance");
     ezOpenDdlUtils::StoreInt32(writer, (ezInt32)m_Overlay, "Overlay");
@@ -656,7 +659,7 @@ void RasterizerExplorerState::LoadSettings()
   m_MainCamera.LookAt(vPos, vPos + vDir, vUp);
 
   if (auto p = pSettings->FindChildOfType(ezOpenDdlPrimitiveType::Int32, "SelectedCube"))
-    m_iSelectedCube = p->GetPrimitivesInt32()[0];
+    m_iSelectedBuilding = p->GetPrimitivesInt32()[0];
 
   if (auto p = pSettings->FindChildOfType(ezOpenDdlPrimitiveType::Bool, "CullNearby"))
     m_bCullNearby = p->GetPrimitivesBool()[0];

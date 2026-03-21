@@ -527,15 +527,6 @@ void RasterizerGeneric::PrecomputeRasterizationTable()
 template <bool PossiblyNearClipped>
 void RasterizerGeneric::Rasterize(const OccluderGeneric& occluder)
 {
-  // BISECT flags — set individual flags to false to disable near-clip-specific code
-  
-  
-  
-  
-  
-  
-  
-  
   const ezUInt32* pVertexData = occluder.m_VertexData.GetData();
   const ezUInt32 uiPacketCount = occluder.m_uiPacketCount;
 
@@ -1085,7 +1076,7 @@ void RasterizerGeneric::Rasterize(const OccluderGeneric& occluder)
           // Cleared blocks have HiZ = -1.0f which is always < fPrimitiveMaxZ, so they pass through.
           if (fHiZ >= fPrimitiveMaxZ)
           {
-            //s_BBB++;
+            s_BBB++;
             curDepthBase += fDepthDx;
             vCurEdgeOfs = vCurEdgeOfs + vEdgeNormX;
             continue;
@@ -1182,19 +1173,14 @@ void RasterizerGeneric::Rasterize(const OccluderGeneric& occluder)
           }
 
           // Write depth for this block using SIMD row processing.
-          // Block mask uses column-major bit layout: bit (8*px + py) for pixel at column px, row py.
-          // For each row py, we extract the 8 column bits and process as 2x ezSimdVec4f.
           float* pBlockDepth = pBlockRowDepth + blockX * 64;
 
           const bool bClearedBlock = (fHiZ < 0.0f);
-          const ezSimdVec4f vZero = ezSimdVec4f::MakeZero();
 
-          // Precompute depth ramp for columns 0-7: base + col * dx/8
-          // Pixel centers at (px - 3.5) / 8.0 for px = 0..7
+          // Precompute depth ramp for columns 0-7
           const float fColStep = fDepthDx / 8.0f;
           const float fRowStep = fDepthDy / 8.0f;
           const float fColBase = curDepthBase + (-3.5f / 8.0f) * fDepthDx;
-          const ezSimdVec4f vColStep(fColStep);
           const ezSimdVec4f vDepthCol0123(fColBase, fColBase + fColStep, fColBase + 2.0f * fColStep, fColBase + 3.0f * fColStep);
           const ezSimdVec4f vDepthCol4567 = vDepthCol0123 + ezSimdVec4f(4.0f * fColStep);
           const ezSimdVec4f vRowStep(fRowStep);
@@ -1202,50 +1188,65 @@ void RasterizerGeneric::Rasterize(const OccluderGeneric& occluder)
           ezSimdVec4f vRowDepthA = vDepthCol0123 + ezSimdVec4f((-3.5f / 8.0f) * fDepthDy);
           ezSimdVec4f vRowDepthB = vDepthCol4567 + ezSimdVec4f((-3.5f / 8.0f) * fDepthDy);
 
-          for (int py = 0; py < 8; ++py)
+          if (bClearedBlock)
           {
-            // Extract row mask: for row py, column bits are at positions py, 8+py, 16+py, ..., 56+py
-            const ezUInt32 uiRowMaskBits =
-              ((blockMask >> py) & 1) |
-              (((blockMask >> (8 + py)) & 1) << 1) |
-              (((blockMask >> (16 + py)) & 1) << 2) |
-              (((blockMask >> (24 + py)) & 1) << 3) |
-              (((blockMask >> (32 + py)) & 1) << 4) |
-              (((blockMask >> (40 + py)) & 1) << 5) |
-              (((blockMask >> (48 + py)) & 1) << 6) |
-              (((blockMask >> (56 + py)) & 1) << 7);
+            const ezSimdVec4f vZero = ezSimdVec4f::MakeZero();
 
-            if (uiRowMaskBits == 0)
+            for (int py = 0; py < 8; ++py)
             {
+              const ezUInt32 uiRowMaskBits =
+                ((blockMask >> py) & 1) |
+                (((blockMask >> (8 + py)) & 1) << 1) |
+                (((blockMask >> (16 + py)) & 1) << 2) |
+                (((blockMask >> (24 + py)) & 1) << 3) |
+                (((blockMask >> (32 + py)) & 1) << 4) |
+                (((blockMask >> (40 + py)) & 1) << 5) |
+                (((blockMask >> (48 + py)) & 1) << 6) |
+                (((blockMask >> (56 + py)) & 1) << 7);
+
+              if (uiRowMaskBits != 0)
+              {
+                float* pRow = pBlockDepth + py * 8;
+                const ezSimdVec4b maskA = ezSimdVec4b::MakeFromBitMask(uiRowMaskBits & 0xF);
+                const ezSimdVec4b maskB = ezSimdVec4b::MakeFromBitMask((uiRowMaskBits >> 4) & 0xF);
+                ezSimdVec4f::Select(maskA, vRowDepthA, vZero).Store<4>(pRow);
+                ezSimdVec4f::Select(maskB, vRowDepthB, vZero).Store<4>(pRow + 4);
+              }
+
               vRowDepthA = vRowDepthA + vRowStep;
               vRowDepthB = vRowDepthB + vRowStep;
-              continue;
             }
-
-            float* pRow = pBlockDepth + py * 8;
-
-            const ezSimdVec4b maskA = ezSimdVec4b::MakeFromBitMask(uiRowMaskBits & 0xF);
-            const ezSimdVec4b maskB = ezSimdVec4b::MakeFromBitMask((uiRowMaskBits >> 4) & 0xF);
-
-            if (bClearedBlock)
+          }
+          else
+          {
+            for (int py = 0; py < 8; ++py)
             {
-              // Direct write: select depth where mask is set, zero where not
-              ezSimdVec4f::Select(maskA, vRowDepthA, vZero).Store<4>(pRow);
-              ezSimdVec4f::Select(maskB, vRowDepthB, vZero).Store<4>(pRow + 4);
-            }
-            else
-            {
-              // Max-merge: load existing, compute max, select between new max and existing based on mask
-              ezSimdVec4f existA, existB;
-              existA.Load<4>(pRow);
-              existB.Load<4>(pRow + 4);
+              const ezUInt32 uiRowMaskBits =
+                ((blockMask >> py) & 1) |
+                (((blockMask >> (8 + py)) & 1) << 1) |
+                (((blockMask >> (16 + py)) & 1) << 2) |
+                (((blockMask >> (24 + py)) & 1) << 3) |
+                (((blockMask >> (32 + py)) & 1) << 4) |
+                (((blockMask >> (40 + py)) & 1) << 5) |
+                (((blockMask >> (48 + py)) & 1) << 6) |
+                (((blockMask >> (56 + py)) & 1) << 7);
 
-              ezSimdVec4f::Select(maskA, vRowDepthA.CompMax(existA), existA).Store<4>(pRow);
-              ezSimdVec4f::Select(maskB, vRowDepthB.CompMax(existB), existB).Store<4>(pRow + 4);
-            }
+              if (uiRowMaskBits != 0)
+              {
+                float* pRow = pBlockDepth + py * 8;
+                ezSimdVec4f existA, existB;
+                existA.Load<4>(pRow);
+                existB.Load<4>(pRow + 4);
 
-            vRowDepthA = vRowDepthA + vRowStep;
-            vRowDepthB = vRowDepthB + vRowStep;
+                const ezSimdVec4b maskA = ezSimdVec4b::MakeFromBitMask(uiRowMaskBits & 0xF);
+                const ezSimdVec4b maskB = ezSimdVec4b::MakeFromBitMask((uiRowMaskBits >> 4) & 0xF);
+                ezSimdVec4f::Select(maskA, vRowDepthA.CompMax(existA), existA).Store<4>(pRow);
+                ezSimdVec4f::Select(maskB, vRowDepthB.CompMax(existB), existB).Store<4>(pRow + 4);
+              }
+
+              vRowDepthA = vRowDepthA + vRowStep;
+              vRowDepthB = vRowDepthB + vRowStep;
+            }
           }
 
           // Update Hi-Z: find minimum depth across all 64 pixels using SIMD reduction.

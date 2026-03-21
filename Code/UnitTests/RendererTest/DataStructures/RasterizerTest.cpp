@@ -11,8 +11,8 @@
 #include <RendererCore/Rasterizer/RasterizerObject.h>
 
 // Two global instances: one per rasterizer implementation.
-static ezRasterizerTest g_RasterizerTestOptimized("Rasterizer_Optimized", true);
-static ezRasterizerTest g_RasterizerTestGeneric("Rasterizer_Generic", false);
+static ezRasterizerTest g_RasterizerTestOptimized("Rasterizer_1_Optimized", true);
+static ezRasterizerTest g_RasterizerTestGeneric("Rasterizer_2_Generic", false);
 
 // --- Construction ---
 
@@ -123,6 +123,7 @@ void ezRasterizerTest::SetupSubTests()
   AddSubTest("25 - BoxInFrontOfOccluder", ST_BoxInFrontOfOccluder);
   AddSubTest("26 - SmallOccluderLargeQuery", ST_SmallOccluderLargeQuery);
   AddSubTest("27 - MultipleOccluders", ST_MultipleOccluders);
+  AddSubTest("28 - CityPerformance", ST_CityPerformance);
 }
 
 // --- Sub-test execution ---
@@ -805,6 +806,137 @@ ezTestAppRun ezRasterizerTest::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvoca
       centerBox.m_Max = ezSimdVec4f(0.5f, 0.5f, 6, 1);
 
       EZ_TEST_BOOL_MSG(!pView->IsVisible(centerBox), "Small box behind two tiled occluders should be OCCLUDED");
+      break;
+    }
+
+    case ST_CityPerformance:
+    {
+      if (auto pCVar = static_cast<ezCVarInt*>(ezCVar::FindCVarByName("Spatial.Occlusion.MaxOccluders")))
+        *pCVar = 500;
+
+      constexpr ezUInt32 uiSize = 512;
+      constexpr ezUInt32 uiIterations = 1000;
+
+      // City layout: buildings on a grid with streets between them.
+      // Grid is 10x10 blocks, each block is a box of varying height.
+      constexpr ezUInt32 uiGridSize = 10;
+      constexpr float fBlockSize = 4.0f;   // building footprint
+      constexpr float fStreetWidth = 2.0f;  // gap between buildings
+      constexpr float fCellSize = fBlockSize + fStreetWidth;
+      constexpr float fGroundSize = uiGridSize * fCellSize + fStreetWidth;
+      constexpr float fGroundHalf = fGroundSize * 0.5f;
+
+      // Create building and ground meshes
+      auto pGround = ezRasterizerObject::CreateBox(ezVec3(fGroundSize, fGroundSize, 0.5f));
+
+      // Generate deterministic building heights
+      ezRandom rng;
+      rng.Initialize(123);
+
+      struct Building
+      {
+        ezTransform m_Transform;
+        ezSharedPtr<const ezRasterizerObject> m_pMesh;
+      };
+
+      ezHybridArray<Building, 128> buildings;
+
+      for (ezUInt32 gx = 0; gx < uiGridSize; ++gx)
+      {
+        for (ezUInt32 gz = 0; gz < uiGridSize; ++gz)
+        {
+          const float fHeight = 2.0f + (float)rng.DoubleMinMax(0.0, 8.0);
+          const float fWidth = fBlockSize * (0.6f + (float)rng.DoubleMinMax(0.0, 0.4));
+          const float fDepth = fBlockSize * (0.6f + (float)rng.DoubleMinMax(0.0, 0.4));
+
+          const float x = -fGroundHalf + fStreetWidth + gx * fCellSize + fBlockSize * 0.5f;
+          const float y = -fGroundHalf + fStreetWidth + gz * fCellSize + fBlockSize * 0.5f;
+          const float z = fHeight * 0.5f;
+
+          auto& b = buildings.ExpandAndGetRef();
+          b.m_pMesh = ezRasterizerObject::CreateBox(ezVec3(fWidth, fDepth, fHeight));
+          b.m_Transform = ezTransform(ezVec3(x, y, z));
+        }
+      }
+
+      const ezUInt32 uiTotalObjects = 1 + buildings.GetCount(); // ground + buildings
+
+      auto addScene = [&](ezRasterizerView& view)
+      {
+        view.AddObject(pGround.Borrow(), ezTransform(ezVec3(0, 0, -0.25f)));
+        for (auto& b : buildings)
+          view.AddObject(b.m_pMesh.Borrow(), b.m_Transform);
+      };
+
+      // --- Aerial view ---
+      {
+        auto pView = CreateView(uiSize, uiSize);
+
+        ezCamera camera;
+        camera.LookAt(ezVec3(40, 0, 30), ezVec3(0, 0, 0), ezVec3(0, 0, 1));
+        camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, 70.0f, 0.1f, 200.0f);
+        pView->SetCamera(&camera);
+
+        // Warm up
+        pView->BeginScene();
+        addScene(*pView);
+        pView->EndScene();
+
+        const ezTime tStart = ezTime::Now();
+        for (ezUInt32 iter = 0; iter < uiIterations; ++iter)
+        {
+          pView->BeginScene();
+          addScene(*pView);
+          pView->EndScene();
+        }
+        const ezTime tEnd = ezTime::Now();
+        const double fTotalMs = (tEnd - tStart).GetMilliseconds();
+        const double fPerIterMs = fTotalMs / uiIterations;
+
+        ezTestFramework::Output(ezTestOutput::Details,
+          "City aerial: %u objects x %u iterations in %.2f ms (%.3f ms/iter, %.1f us/obj)",
+          uiTotalObjects, uiIterations, fTotalMs, fPerIterMs, fPerIterMs * 1000.0 / uiTotalObjects);
+
+        SetDepthImage(*pView);
+        EZ_TEST_LINE_IMAGE(0, 200);
+      }
+
+      // --- Street level view ---
+      {
+        auto pView = CreateView(uiSize, uiSize);
+
+        // Camera at street level looking down a street
+        const float fStreetZ = 1.5f;
+        const float fStreetX = -fGroundHalf + fStreetWidth * 0.5f + fCellSize * 2;
+        ezCamera camera;
+        camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, 90.0f, 0.1f, 200.0f);
+        camera.LookAt(ezVec3(-20.366854f, 0.109184f, 3.287282f), ezVec3(-19.391014f, -0.108945f, 3.299851f), ezVec3(-0.012266f, 0.002741f, 0.999921f));
+        pView->SetCamera(&camera);
+
+        // Warm up
+        pView->BeginScene();
+        addScene(*pView);
+        pView->EndScene();
+
+        const ezTime tStart = ezTime::Now();
+        for (ezUInt32 iter = 0; iter < uiIterations; ++iter)
+        {
+          pView->BeginScene();
+          addScene(*pView);
+          pView->EndScene();
+        }
+        const ezTime tEnd = ezTime::Now();
+        const double fTotalMs = (tEnd - tStart).GetMilliseconds();
+        const double fPerIterMs = fTotalMs / uiIterations;
+
+        ezTestFramework::Output(ezTestOutput::Details,
+          "City street: %u objects x %u iterations in %.2f ms (%.3f ms/iter, %.1f us/obj)",
+          uiTotalObjects, uiIterations, fTotalMs, fPerIterMs, fPerIterMs * 1000.0 / uiTotalObjects);
+
+        SetDepthImage(*pView);
+        EZ_TEST_LINE_IMAGE(1, 300);
+      }
+
       break;
     }
 

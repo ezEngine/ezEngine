@@ -39,11 +39,10 @@ private:
   virtual void BeforeWorldUpdate() override;
   virtual void AfterWorldUpdate() override;
 
-  void GenerateTransforms();
+  void GenerateCity();
   void RunRasterizers();
   void DrawDebugGeometry();
   void DrawImGuiPanel();
-  bool IsCubeVisible(ezUInt32 uiIndex) const;
 
   void CreateOverlayObject();
   void DestroyOverlayObject();
@@ -51,14 +50,20 @@ private:
   void SaveSettings();
   void LoadSettings();
 
+  struct Building
+  {
+    ezTransform m_Transform;
+    ezVec3 m_vExtents;
+  };
+
   ezUniquePtr<ezWorld> m_pWorld;
   ezUniquePtr<ezRasterizerView> m_pRasterizerViewOptimized;
   ezUniquePtr<ezRasterizerView> m_pRasterizerViewGeneric;
 
-  ezHybridArray<ezTransform, 128> m_Transforms;
-  ezInt32 m_iSelectedCube = -1;
+  ezHybridArray<Building, 128> m_Buildings;
+  ezInt32 m_iSelectedBuilding = -1;
   bool m_bCullNearby = false;
-  float m_fCullDistance = 5.0f;
+  float m_fCullDistance = 20.0f;
 
   RasterizerOverlay m_Overlay = RasterizerOverlay::None;
   ezGALTextureHandle m_hOverlayTexture;
@@ -66,6 +71,11 @@ private:
   ezComponentHandle m_hOverlayComponent;
   ezDynamicArray<ezColorLinearUB> m_OverlayBuffer;
 
-  static constexpr ezUInt32 NumBoxes = 100;
+  static constexpr ezUInt32 GridSize = 10;
+  static constexpr float BlockSize = 4.0f;
+  static constexpr float StreetWidth = 2.0f;
+  static constexpr float CellSize = BlockSize + StreetWidth;
+  static constexpr float GroundSize = GridSize * CellSize + StreetWidth;
+  static constexpr float GroundHalf = GroundSize * 0.5f;
   static constexpr ezUInt32 RasterizerSize = 512;
 };

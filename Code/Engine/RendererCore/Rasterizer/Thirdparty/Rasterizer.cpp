@@ -1413,7 +1413,7 @@ void Rasterizer::rasterize(const Occluder& occluder)
           uint16_t hiZ = *pBlockRowHiZ;
           if (hiZ >= primitiveMaxZ)
           {
-            //s_AAA++;
+            s_AAA++;
             continue;
           }
 
