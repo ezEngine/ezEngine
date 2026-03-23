@@ -27,6 +27,7 @@ public:
 private:
   enum SubTests
   {
+    // tests that reference particle assets directly
     BillboardRenderer,
     ColorGradientBehavior,
     FliesBehavior,
@@ -51,15 +52,18 @@ private:
     QuadRotatingOrtho,
     QuadFixedEmDir,
     QuadAxisEmDir,
+    SphereBounds,
+    Turbulence,
 
+    // tests that use a dedicated scene
     Billboards,
     PullAlongBehavior,
     DistanceEmitter,
     SharedInstances,
     EventReactionEffect,
     LocalSpaceSim,
-
-    Lighting
+    Lighting,
+    Attractors,
   };
 
   virtual void SetupSubTests() override;

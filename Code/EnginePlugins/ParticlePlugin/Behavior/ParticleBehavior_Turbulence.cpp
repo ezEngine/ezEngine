@@ -79,67 +79,80 @@ void ezParticleBehaviorFactory_Turbulence::Load(ezStreamReader& inout_stream)
   inout_stream >> m_bAffectVelocity;
 }
 
+void ezParticleBehavior_Turbulence::OnFinalize()
+{
+  m_Noise.Initialize(GetOwnerEffect()->GetRNG());
+}
+
 void ezParticleBehavior_Turbulence::CreateRequiredStreams()
 {
   CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
-  CreateStream("Velocity", ezProcessingStream::DataType::Half4, &m_pStreamVelocity, false);
+
+  if (m_bAffectVelocity)
+  {
+    CreateStream("Velocity", ezProcessingStream::DataType::Half4, &m_pStreamVelocity, false);
+  }
 }
 
 void ezParticleBehavior_Turbulence::Process(ezUInt64 uiNumElements)
 {
   EZ_PROFILE_SCOPE("PFX: NoiseForce");
 
-  const float tDiff = (float)m_TimeDiff.GetSeconds();
+  const float tDiff = m_TimeDiff.AsFloatInSeconds();
   if (tDiff <= 0.0f)
     return;
 
-  m_fTotalTime += tDiff;
+  m_TotalTime += m_TimeDiff;
 
   const float freq = m_fFrequency;
-  const ezVec3 scroll = m_vScrollSpeed * m_fTotalTime;
+  const ezVec3 scroll = m_vScrollSpeed * m_TotalTime.AsFloatInSeconds();
 
   // Small offsets for curl noise approximation: sample noise at 3 different offsets
-  // to get decorrelated X, Y, Z force components
+  // to get uncorrelated X, Y, Z force components
   const float kOffset1 = 31.416f;
   const float kOffset2 = 67.123f;
 
   ezProcessingStreamIterator<ezSimdVec4f> itPosition(m_pStreamPosition, uiNumElements, 0);
-  ezProcessingStreamIterator<ezFloat16Vec4> itVelocity(m_pStreamVelocity, uiNumElements, 0);
 
   const ezSimdVec4f constHalf(0.5f);
-  const ezSimdVec4f constMul = ezSimdVec4f(2.0f * m_fStrength * tDiff);
+  const ezSimdVec4f constMul(2.0f * m_fStrength * tDiff);
+
+  // Precompute (scroll * freq) so per-particle noise coords can be computed with a single MulAdd
+  const ezSimdVec4f simdScrollFreq(scroll.x * freq, scroll.y * freq, scroll.z * freq, 0.0f);
+  const ezSimdFloat simdFreq(freq);
 
   if (m_bAffectVelocity)
   {
+    ezProcessingStreamIterator<ezFloat16Vec4> itVelocity(m_pStreamVelocity, uiNumElements, 0);
+
     while (!itPosition.HasReachedEnd())
     {
       const ezSimdVec4f simPos = itPosition.Current();
-      const float px = simPos.GetComponent<0>();
-      const float py = simPos.GetComponent<1>();
-      const float pz = simPos.GetComponent<2>();
 
-      // Noise sampling coordinates with scroll and frequency.
-      const float sx = (px + scroll.x) * freq;
-      const float sy = (py + scroll.y) * freq;
-      const float sz = (pz + scroll.z) * freq;
+      // Noise sampling coordinates: (pos + scroll) * freq, computed per-axis via SIMD
+      const ezSimdVec4f sPos = ezSimdVec4f::MulAdd(simPos, simdFreq, simdScrollFreq);
+      const float sx = sPos.GetComponent<0>();
+      const float sy = sPos.GetComponent<1>();
+      const float sz = sPos.GetComponent<2>();
 
       // Sample noise at 3 offset positions for curl-noise approximation
       // Each component uses a different spatial offset to get uncorrelated values
       const ezSimdVec4f noise = m_Noise.NoiseZeroToOne(ezSimdVec4f(sx, sx + kOffset1, sx + kOffset2, 0), ezSimdVec4f(sy, sy + kOffset1, sy + kOffset2, 0), ezSimdVec4f(sz, sz + kOffset1, sz + kOffset2, 0), m_uiOctaves);
 
-      // Map [0,1] -> [-1,1]
-      const ezVec3 force = ezSimdConversion::ToVec3((noise - constHalf).CompMul(constMul));
+      // Map [0,1] -> [-1,1]; velocity is stored as (dirX, dirY, dirZ, speed)
+      const ezSimdVec4f forceSimd = (noise - constHalf).CompMul(constMul);
 
-      // Decompose velocity: (dirX, dirY, dirZ, speed)
-      const ezVec4 vel = itVelocity.Current();
-      const ezVec3 dir(vel.x, vel.y, vel.z);
-      const float speed = vel.w;
+      const ezVec4 vel4 = itVelocity.Current();
+      ezSimdVec4f velSimd = ezSimdConversion::ToVec4(vel4);
 
-      const ezVec3 newVel = dir * speed + force;
-      const float newSpeed = newVel.GetLength();
-      const ezVec3 newDir = newSpeed > 0.0f ? newVel / newSpeed : ezVec3(0, 0, 1);
+      // Compute dir * speed + force in SIMD (velSimd.w = speed, broadcast via w())
+      ezSimdVec4f newVelSimd = ezSimdVec4f::MulAdd(velSimd, velSimd.w(), forceSimd);
 
-      itVelocity.Current() = ezVec4(newDir.x, newDir.y, newDir.z, newSpeed);
+      const ezSimdFloat newSpeed = newVelSimd.GetLength<3>();
+      newVelSimd.NormalizeIfNotZero<3>(ezSimdVec4f(0.0f, 0.0f, 1.0f, 0.0f));
+      newVelSimd.SetW(newSpeed);
+
+      itVelocity.Current() = ezSimdConversion::ToVec4(newVelSimd);
 
       itPosition.Advance();
       itVelocity.Advance();
@@ -151,13 +164,11 @@ void ezParticleBehavior_Turbulence::Process(ezUInt64 uiNumElements)
     while (!itPosition.HasReachedEnd())
     {
       const ezSimdVec4f simPos = itPosition.Current();
-      const float px = simPos.GetComponent<0>();
-      const float py = simPos.GetComponent<1>();
-      const float pz = simPos.GetComponent<2>();
 
-      const float sx = (px + scroll.x) * freq;
-      const float sy = (py + scroll.y) * freq;
-      const float sz = (pz + scroll.z) * freq;
+      const ezSimdVec4f sPos = ezSimdVec4f::MulAdd(simPos, simdFreq, simdScrollFreq);
+      const float sx = sPos.GetComponent<0>();
+      const float sy = sPos.GetComponent<1>();
+      const float sz = sPos.GetComponent<2>();
 
       const ezSimdVec4f noise = m_Noise.NoiseZeroToOne(ezSimdVec4f(sx, sx + kOffset1, sx + kOffset2, 0), ezSimdVec4f(sy, sy + kOffset1, sy + kOffset2, 0), ezSimdVec4f(sz, sz + kOffset1, sz + kOffset2, 0), m_uiOctaves);
 
@@ -166,7 +177,6 @@ void ezParticleBehavior_Turbulence::Process(ezUInt64 uiNumElements)
       itPosition.Current() = simPos + offset;
 
       itPosition.Advance();
-      itVelocity.Advance();
     }
   }
 }

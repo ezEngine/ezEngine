@@ -37,6 +37,7 @@ public:
   void GetBoundingVolume(ezBoundingBoxSphere& ref_volume) const;
 
   void UpdateWindSamples(ezTime diff);
+  void FindNearbyAttractors(ezTime diff);
 
   /// \brief Ensures that the effect is considered to be 'visible', which affects the update rate.
   void ForceVisible();

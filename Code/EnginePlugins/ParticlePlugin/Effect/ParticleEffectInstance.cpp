@@ -2,10 +2,13 @@
 
 #include <Core/Interfaces/WindWorldModule.h>
 #include <Core/ResourceManager/ResourceManager.h>
+#include <Core/World/SpatialData.h>
+#include <Core/World/SpatialSystem.h>
 #include <Core/World/World.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Time/Clock.h>
+#include <ParticlePlugin/Components/ParticleAttractorComponent.h>
 #include <ParticlePlugin/Effect/ParticleEffectDescriptor.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <ParticlePlugin/Emitter/ParticleEmitter.h>
@@ -83,6 +86,12 @@ void ezParticleEffectInstance::Destruct()
 
   m_WindSampleGrids[0] = nullptr;
   m_WindSampleGrids[1] = nullptr;
+
+  m_uiMaxAttractors = 0;
+  m_uiAttractorSearchTimer = 0;
+  m_AttractorHandles.Clear();
+  m_AttractorData[0].Clear();
+  m_AttractorData[1].Clear();
 
   m_EventQueue.Clear();
 }
@@ -631,6 +640,103 @@ void ezParticleEffectInstance::UpdateWindSamples(ezTime diff)
       sample.SetZero();
     }
   }
+}
+
+void ezParticleEffectInstance::RequestAttractorSamples(ezUInt8 uiMaxAttractors)
+{
+  m_uiMaxAttractors = ezMath::Clamp<ezUInt8>(uiMaxAttractors, m_uiMaxAttractors, 4);
+}
+
+void ezParticleEffectInstance::FindNearbyAttractors(ezTime diff)
+{
+  if (m_uiMaxAttractors == 0)
+    return;
+
+  // Refresh which attractors are nearby roughly once per second.
+  if (m_uiAttractorSearchTimer == 0)
+  {
+    m_uiAttractorSearchTimer = 90;
+    m_AttractorHandles.Clear();
+
+    ezSpatialSystem* pSpatialSystem = m_pWorld->GetSpatialSystem();
+    if (pSpatialSystem != nullptr)
+    {
+      const ezSpatialData::Category category = ezParticleAttractorComponent::GetSpatialCategory();
+
+      ezBoundingBoxSphere effectBounds;
+      GetBoundingVolume(effectBounds);
+
+      const ezVec3 worldCenter = m_Transform.TransformPosition(effectBounds.m_vCenter);
+      const float fSearchRadius = ezMath::Max(0.0f, effectBounds.m_fSphereRadius);
+
+      ezSpatialSystem::QueryParams queryParams;
+      queryParams.m_uiCategoryBitmask = category.GetBitmask();
+
+      struct SortEntry
+      {
+        EZ_DECLARE_POD_TYPE();
+        float fDistSqr;
+        ezComponentHandle hComponent;
+      };
+
+      ezTempHybridArray<SortEntry, 8> candidates;
+
+      pSpatialSystem->FindObjectsInSphere(
+        ezBoundingSphere::MakeFromCenterAndRadius(worldCenter, fSearchRadius),
+        queryParams,
+        [&](ezGameObject* pObject) -> ezVisitorExecution::Enum
+        {
+          ezParticleAttractorComponent* pAttractor = nullptr;
+          if (pObject->TryGetComponentOfBaseType(pAttractor))
+          {
+            SortEntry entry;
+            entry.hComponent = pAttractor->GetHandle();
+            entry.fDistSqr = (pObject->GetGlobalPosition() - worldCenter).GetLengthSquared();
+            candidates.PushBack(entry);
+          }
+          return ezVisitorExecution::Continue;
+        });
+
+      candidates.Sort([](const SortEntry& a, const SortEntry& b)
+        { return a.fDistSqr < b.fDistSqr; });
+
+      const ezUInt32 uiCount = ezMath::Min(candidates.GetCount(), (ezUInt32)m_uiMaxAttractors);
+      for (ezUInt32 i = 0; i < uiCount; ++i)
+      {
+        m_AttractorHandles.PushBack(candidates[i].hComponent);
+      }
+    }
+  }
+  else
+  {
+    m_uiAttractorSearchTimer--;
+  }
+
+  // Every frame: resolve handles and read live position/properties into the write slot.
+  // Worker threads read from the opposite slot (written last frame), so there is no data race.
+  const ezUInt32 uiWriteIdx = ezRenderWorld::GetFrameCounter() & 1;
+  auto& writeBuffer = m_AttractorData[uiWriteIdx];
+  writeBuffer.Clear();
+  for (const ezComponentHandle& hComponent : m_AttractorHandles)
+  {
+    ezParticleAttractorComponent* pAttractor = nullptr;
+    if (m_pWorld->TryGetComponent(hComponent, pAttractor))
+    {
+      ezParticleAttractorData& data = writeBuffer.ExpandAndGetRef();
+      data.m_vPosition = pAttractor->GetOwner()->GetGlobalPosition();
+      data.m_fStrength = pAttractor->m_fStrength;
+      data.m_fRadius = pAttractor->m_fRadius;
+      data.m_fMinDistance = pAttractor->m_fMinDistance;
+      data.m_fKillDistance = pAttractor->m_fKillDistance;
+    }
+  }
+}
+
+ezArrayPtr<const ezParticleAttractorData> ezParticleEffectInstance::GetAttractorData() const
+{
+  // Read from the slot opposite to what the main thread is currently writing.
+  const ezUInt32 uiReadIdx = (ezRenderWorld::GetFrameCounter() + 1) & 1;
+  return m_AttractorData[uiReadIdx];
 }
 
 ezUInt64 ezParticleEffectInstance::GetNumActiveParticles() const

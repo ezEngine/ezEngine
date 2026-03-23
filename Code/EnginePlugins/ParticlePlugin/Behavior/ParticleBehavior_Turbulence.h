@@ -40,12 +40,14 @@ public:
   bool m_bAffectVelocity = true;
 
 protected:
+  virtual void OnFinalize() override;
+
   virtual void CreateRequiredStreams() override;
   virtual void Process(ezUInt64 uiNumElements) override;
 
   ezProcessingStream* m_pStreamPosition = nullptr;
   ezProcessingStream* m_pStreamVelocity = nullptr;
 
-  ezSimdPerlinNoise m_Noise{12345};
-  float m_fTotalTime = 0.0f;
+  ezSimdPerlinNoise m_Noise;
+  ezTime m_TotalTime;
 };

@@ -46,12 +46,15 @@ void ezGameEngineTestParticles::SetupSubTests()
   AddSubTest("QuadFixedEmDir", SubTests::QuadFixedEmDir);
   AddSubTest("QuadAxisEmDir", SubTests::QuadAxisEmDir);
   AddSubTest("EventReactionEffect", SubTests::EventReactionEffect);
+  AddSubTest("SphereBounds", SubTests::SphereBounds);
+  AddSubTest("Turbulence", SubTests::Turbulence);
 
   AddSubTest("Billboards", SubTests::Billboards);
   AddSubTest("PullAlongBehavior", SubTests::PullAlongBehavior);
   AddSubTest("DistanceEmitter", SubTests::DistanceEmitter);
   AddSubTest("SharedInstances", SubTests::SharedInstances);
   AddSubTest("LocalSpaceSim", SubTests::LocalSpaceSim);
+  AddSubTest("Attractors", SubTests::Attractors);
 
   AddSubTest("Lighting", SubTests::Lighting);
 }
@@ -98,6 +101,11 @@ ezResult ezGameEngineTestParticles::InitializeSubTest(ezInt32 iIdentifier)
     m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/Lighting.ezBinScene");
     return EZ_SUCCESS;
   }
+  else if (iIdentifier == SubTests::Attractors)
+  {
+    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/Attractors.ezBinScene");
+    return EZ_SUCCESS;
+  }
   else
   {
     const char* szEffects[] = {
@@ -125,6 +133,8 @@ ezResult ezGameEngineTestParticles::InitializeSubTest(ezInt32 iIdentifier)
       "{ 116d2eb4-e990-4796-ab0a-f6a42284feb7 }", // QuadRotatingOrtho
       "{ 81d2474b-8edd-464d-a828-7e398376ef5c }", // QuadFixedEmDir
       "{ dfbb5432-f850-4e4b-b6b2-dcc1f10f3a3c }", // QuadAxisEmDir
+      "{ ea65b845-86ec-4d16-a764-35cac6565f2a }", // SphereBounds
+      "{ 9d85e9ab-53dd-4545-b70c-b2fbf04e2408 }", // Turbulence
     };
 
     m_pOwnApplication->SetupParticleSubTest(szEffects[iIdentifier]);

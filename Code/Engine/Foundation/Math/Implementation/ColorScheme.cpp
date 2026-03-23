@@ -223,7 +223,11 @@ ezColor ezColorScheme::GetCategoryColor(ezStringView sCategory, CategoryColorUsa
 {
   if (s_CategoryColorFunc != nullptr)
   {
-    return s_CategoryColorFunc(sCategory, usage);
+    const ezColor ret = s_CategoryColorFunc(sCategory, usage);
+
+    // if valid, use this color
+    if (ret != ezColor::MakeZero())
+      return ret;
   }
 
   ezInt8 iBrightnessOffset = -3;

@@ -139,6 +139,14 @@ void ezParticleEffectController::UpdateWindSamples(ezTime diff)
   }
 }
 
+void ezParticleEffectController::FindNearbyAttractors(ezTime diff)
+{
+  if (ezParticleEffectInstance* pEffect = GetInstance())
+  {
+    pEffect->FindNearbyAttractors(diff);
+  }
+}
+
 void ezParticleEffectController::ForceVisible()
 {
   if (ezParticleEffectInstance* pEffect = GetInstance())

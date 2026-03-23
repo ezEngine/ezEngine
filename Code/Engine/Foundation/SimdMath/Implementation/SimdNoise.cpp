@@ -3,16 +3,25 @@
 #include <Foundation/Math/Random.h>
 #include <Foundation/SimdMath/SimdNoise.h>
 
-ezSimdPerlinNoise::ezSimdPerlinNoise(ezUInt32 uiSeed)
+ezSimdPerlinNoise::ezSimdPerlinNoise()
 {
   for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_Permutations); ++i)
   {
     m_Permutations[i] = static_cast<ezUInt8>(i);
   }
+}
 
+ezSimdPerlinNoise::ezSimdPerlinNoise(ezUInt32 uiSeed)
+  : ezSimdPerlinNoise()
+{
   ezRandom rnd;
   rnd.Initialize(uiSeed);
 
+  Initialize(rnd);
+}
+
+void ezSimdPerlinNoise::Initialize(ezRandom& rnd)
+{
   for (ezUInt32 i = EZ_ARRAY_SIZE(m_Permutations) - 1; i > 0; --i)
   {
     ezUInt32 uiRandomIndex = rnd.UIntInRange(EZ_ARRAY_SIZE(m_Permutations));

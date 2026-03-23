@@ -66,6 +66,7 @@ ezParticleEventReactionFactory_Prefab;Prefab Reaction
 
 ezParticleBehaviorFactory_BoundsSphere;Bounds: Sphere
 ezParticleBehaviorFactory_Turbulence;Turbulence
+ezParticleBehaviorFactory_Attract;Attract
 ezQuadParticleOrientation::Rotating_OrthoEmitterDir;Rotating: Ortho Emitter Dir
 ezQuadParticleOrientation::Rotating_EmitterDir;Rotating: Emitter Dir
 ezQuadParticleOrientation::Fixed_EmitterDir;Fixed: Emitter Dir

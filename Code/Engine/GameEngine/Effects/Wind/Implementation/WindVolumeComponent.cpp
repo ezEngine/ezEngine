@@ -180,6 +180,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezWindVolumeSphereComponent, 1, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezSphereVisualizerAttribute("Radius", ezColor::CornflowerBlue),
+    new ezSphereManipulatorAttribute("Radius"),
   }
   EZ_END_ATTRIBUTES;
 }

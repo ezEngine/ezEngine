@@ -1,11 +1,25 @@
 #pragma once
 
+#include <Core/World/Declarations.h>
+#include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Math/Transform.h>
 #include <Foundation/SimdMath/SimdVec4i.h>
 #include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Types/SharedPtr.h>
 
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
+
+/// \brief Pre-computed data for one attractor, written by the main thread and consumed by particle tasks.
+struct ezParticleAttractorData
+{
+  EZ_DECLARE_POD_TYPE();
+
+  ezVec3 m_vPosition;
+  float m_fStrength;
+  float m_fRadius;
+  float m_fMinDistance;
+  float m_fKillDistance;
+};
 
 
 class ezParticleEffectInstance;
@@ -65,6 +79,24 @@ public:
   void RequestWindSamples();
   void UpdateWindSamples(ezTime diff);
 
+  /// \brief Called by a behavior to signal that this effect needs attractor sampling each frame.
+  ///
+  /// \a uiMaxAttractors limits how many of the closest attractors are tracked.
+  void RequestAttractorSamples(ezUInt8 uiMaxAttractors);
+
+  /// \brief Refreshes the nearby attractor list and reads live properties.
+  ///
+  /// Must be called from the main thread before particle tasks are dispatched. The spatial
+  /// query (which attractors exist) is repeated ~once per second; position and properties
+  /// are resolved from stored handles every frame so moving attractors stay accurate.
+  void FindNearbyAttractors(ezTime diff);
+
+  /// \brief Returns the pre-computed attractor data, valid for use on worker threads during the current frame.
+  ///
+  /// Reads from the slot opposite to the one currently being written by the main thread,
+  /// matching the double-buffer scheme used by the wind sampling system.
+  ezArrayPtr<const ezParticleAttractorData> GetAttractorData() const;
+
   /// \brief Returns the number of currently active particles across all systems.
   ezUInt64 GetNumActiveParticles() const;
 
@@ -111,6 +143,11 @@ private:
 
   ezVec4I32 m_vNumWindSamples; // not unsigned so it can be loaded directly to a SIMD register, w contains total num samples
   mutable ezUniquePtr<WindSampleGrid> m_WindSampleGrids[2];
+
+  ezUInt8 m_uiAttractorSearchTimer = 0;
+  ezUInt8 m_uiMaxAttractors = 0;
+  ezSmallArray<ezComponentHandle, 1> m_AttractorHandles;
+  ezSmallArray<ezParticleAttractorData, 1> m_AttractorData[2];
 
   /// @}
   /// @name Updates

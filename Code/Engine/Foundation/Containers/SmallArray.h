@@ -9,9 +9,13 @@ constexpr ezUInt32 ezSmallInvalidIndex = 0xFFFF;
 
 /// \brief Implementation of a dynamically growing array with in-place storage and small memory overhead.
 ///
-/// Best-case performance for the PushBack operation is in O(1) if the ezHybridArray does not need to be expanded.
-/// In the worst case, PushBack is in O(n).
-/// Look-up is guaranteed to always be in O(1).
+/// Contrary to ezDynamicArray and ezHybridArray, the ezSmallArray only uses a 16-bit index,
+/// so it can only hold 64K items (65535). It is meant for use cases, where the maximum required size
+/// is low, but the size of the container itself should also be as small as possible.
+///
+/// Best-case performance for the PushBack operation is in O(1) if the ezSmallArray does not need to be expanded.
+/// In the worst case, PushBack is O(n).
+/// Look-up is guaranteed to always be O(1).
 template <typename T, ezUInt16 Size>
 class ezSmallArrayBase
 {

@@ -38,5 +38,5 @@ public:
 protected:
   virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
 
-  ezProcessingStream* m_pStreamSize;
+  ezProcessingStream* m_pStreamSize = nullptr;
 };

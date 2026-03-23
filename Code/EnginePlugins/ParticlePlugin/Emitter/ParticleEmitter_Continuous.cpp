@@ -148,7 +148,7 @@ void ezParticleEmitterFactory_Continuous::Load(ezStreamReader& inout_stream)
 void ezParticleEmitter_Continuous::OnFinalize()
 {
   m_CountCurveTime = ezTime::MakeZero();
-  m_fCurSpawnPerSec = (float)GetRNG().DoubleMinMax(m_uiSpawnCountPerSec, m_uiSpawnCountPerSec + m_uiSpawnCountPerSecRange);
+  m_fCurSpawnPerSec = GetRNG().FloatMinMax(m_uiSpawnCountPerSec, m_uiSpawnCountPerSec + m_uiSpawnCountPerSecRange);
   m_TimeSinceRandom = ezTime::MakeZero();
   m_fCurSpawnCounter = 1; // make sure to always spawn at least one particle right away in the first frame
 }
