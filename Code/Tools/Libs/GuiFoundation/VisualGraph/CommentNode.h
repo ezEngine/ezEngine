@@ -44,13 +44,13 @@ private:
 
   // Resize state
   ezUInt8 m_uiActiveResizeEdge = None;
-  QPointF m_vResizeStartMouseScene;
-  QPointF m_vResizeStartPos;
+  QPointF m_ResizeStartMouseScene;
+  QPointF m_ResizeStartPos;
   ezVec2 m_vResizeStartSize;
   ezVec2 m_vCurrentSize = ezVec2(300, 200);
 
   // Containment tracking: when moving the comment, contained nodes move with it
-  QPointF m_vPrevPos;
+  QPointF m_PrevPos;
   ezDynamicArray<QGraphicsItem*> m_ContainedNodes;
 
   static constexpr float s_fEdgeThreshold = 10.0f;

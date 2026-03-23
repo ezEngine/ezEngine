@@ -24,9 +24,6 @@ public:
   ezProcessingStream::DataType GetStreamDataType() const;
   const char* GetStreamName() const;
 
-  /// Constructs a full stream name by appending the data type in parentheses (e.g., "Position(3)" for Float4).
-  static void GetFullStreamName(const char* szName, ezProcessingStream::DataType type, ezStringBuilder& out_sResult);
-
   /// Creates and initializes a new particle stream instance for the given particle system.
   ezParticleStream* CreateParticleStream(ezParticleSystemInstance* pOwner) const;
 

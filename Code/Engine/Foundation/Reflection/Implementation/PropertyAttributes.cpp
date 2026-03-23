@@ -1007,6 +1007,41 @@ ezCameraVisualizerAttribute::ezCameraVisualizerAttribute(const char* szModePrope
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPositionVisualizerAttribute, 1, ezRTTIDefaultAllocator<ezPositionVisualizerAttribute>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("SizeScale", m_fSizeScale),
+    EZ_MEMBER_PROPERTY("Color", m_Color),
+  }
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_CONSTRUCTOR_PROPERTY(const char*, float, const ezColor&, const char*),
+    EZ_CONSTRUCTOR_PROPERTY(const char*, float, const ezColor&),
+    EZ_CONSTRUCTOR_PROPERTY(const char*, float),
+    EZ_CONSTRUCTOR_PROPERTY(const char*),
+  }
+  EZ_END_FUNCTIONS;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezPositionVisualizerAttribute::ezPositionVisualizerAttribute()
+  : ezVisualizerAttribute(nullptr)
+{
+}
+
+ezPositionVisualizerAttribute::ezPositionVisualizerAttribute(const char* szPositionProperty, float fSizeScale, const ezColor& fixedColor, const char* szColorProperty)
+  : ezVisualizerAttribute(szPositionProperty, szColorProperty)
+  , m_fSizeScale(fSizeScale)
+  , m_Color(fixedColor)
+{
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaxArraySizeAttribute, 1, ezRTTIDefaultAllocator<ezMaxArraySizeAttribute>)
 {
   EZ_BEGIN_PROPERTIES

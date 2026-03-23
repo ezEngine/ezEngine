@@ -43,7 +43,7 @@ ezParticleBehaviorFactory_FadeOut;Fade Out
 ezParticleBehaviorFactory_PullAlong;Pull Along
 ezParticleBehaviorFactory_SizeCurve;Size Curve
 ezParticleBehaviorFactory_Flies;Flies
-ezParticleBehaviorFactory_Bounds;Bounds
+ezParticleBehaviorFactory_Bounds;Bounds: Box
 ezParticleBehaviorFactory_Opacity;Opacity
 ezParticleBehaviorFactory_Wind;Wind
 ezParticleBehaviorFactory_Move;Move
@@ -64,6 +64,8 @@ ezParticleInitializerFactory_VelocityCone;Velocity Cone
 ezParticleEventReactionFactory_Effect;Effect Reaction
 ezParticleEventReactionFactory_Prefab;Prefab Reaction
 
+ezParticleBehaviorFactory_BoundsSphere;Bounds: Sphere
+ezParticleBehaviorFactory_Turbulence;Turbulence
 ezQuadParticleOrientation::Rotating_OrthoEmitterDir;Rotating: Ortho Emitter Dir
 ezQuadParticleOrientation::Rotating_EmitterDir;Rotating: Emitter Dir
 ezQuadParticleOrientation::Fixed_EmitterDir;Fixed: Emitter Dir

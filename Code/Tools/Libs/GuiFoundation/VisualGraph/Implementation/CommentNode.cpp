@@ -203,8 +203,8 @@ void ezQtVisualGraphCommentNode::mousePressEvent(QGraphicsSceneMouseEvent* event
   {
     // Start resize: disable movement, track resize state
     m_uiActiveResizeEdge = uiEdge;
-    m_vResizeStartMouseScene = event->scenePos();
-    m_vResizeStartPos = pos();
+    m_ResizeStartMouseScene = event->scenePos();
+    m_ResizeStartPos = pos();
     m_vResizeStartSize = m_vCurrentSize;
 
     setFlag(QGraphicsItem::ItemIsMovable, false);
@@ -214,7 +214,7 @@ void ezQtVisualGraphCommentNode::mousePressEvent(QGraphicsSceneMouseEvent* event
 
   // Normal move: find nodes contained within this comment
   m_ContainedNodes.Clear();
-  m_vPrevPos = pos();
+  m_PrevPos = pos();
 
   if (scene() && !(event->modifiers() & Qt::Modifier::SHIFT)) // holding SHIFT deactivates movement of contained nodes
   {
@@ -248,10 +248,10 @@ void ezQtVisualGraphCommentNode::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
   if (m_uiActiveResizeEdge != None)
   {
-    QPointF delta = event->scenePos() - m_vResizeStartMouseScene;
+    QPointF delta = event->scenePos() - m_ResizeStartMouseScene;
 
     ezVec2 newSize = m_vResizeStartSize;
-    QPointF newPos = m_vResizeStartPos;
+    QPointF newPos = m_ResizeStartPos;
 
     if (m_uiActiveResizeEdge & Right)
       newSize.x = ezMath::Max(m_vResizeStartSize.x + (float)delta.x(), s_fMinWidth);
@@ -264,7 +264,7 @@ void ezQtVisualGraphCommentNode::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
       float maxDeltaX = m_vResizeStartSize.x - s_fMinWidth;
       float dx = ezMath::Clamp((float)delta.x(), -10000.0f, maxDeltaX);
       newSize.x = m_vResizeStartSize.x - dx;
-      newPos.setX(m_vResizeStartPos.x() + dx);
+      newPos.setX(m_ResizeStartPos.x() + dx);
     }
 
     if (m_uiActiveResizeEdge & Top)
@@ -272,7 +272,7 @@ void ezQtVisualGraphCommentNode::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
       float maxDeltaY = m_vResizeStartSize.y - s_fMinHeight;
       float dy = ezMath::Clamp((float)delta.y(), -10000.0f, maxDeltaY);
       newSize.y = m_vResizeStartSize.y - dy;
-      newPos.setY(m_vResizeStartPos.y() + dy);
+      newPos.setY(m_ResizeStartPos.y() + dy);
     }
 
     m_vCurrentSize = newSize;
@@ -355,8 +355,8 @@ QVariant ezQtVisualGraphCommentNode::itemChange(GraphicsItemChange change, const
       if (!pHistory->IsInUndoRedo() && !pHistory->IsInTransaction())
       {
         QPointF newPos = value.toPointF();
-        QPointF delta = newPos - m_vPrevPos;
-        m_vPrevPos = newPos;
+        QPointF delta = newPos - m_PrevPos;
+        m_PrevPos = newPos;
 
         for (QGraphicsItem* pItem : m_ContainedNodes)
         {

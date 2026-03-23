@@ -54,6 +54,7 @@ enum ezEngineGizmoHandleType
   LineBox,
   Cone,
   Frustum,
+  Cross,
   FromFile,
 };
 

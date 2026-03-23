@@ -438,6 +438,37 @@ static ezMeshBufferResourceHandle CreateMeshBufferFrustum()
   return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Frustum", ezGALPrimitiveTopology::Lines);
 }
 
+static ezMeshBufferResourceHandle CreateMeshBufferCross()
+{
+  const char* szResourceName = "{3D2A1B4C-8F5E-4D7A-B963-2C1E4F0A8B7D}";
+
+  ezMeshBufferResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szResourceName);
+
+  if (hMesh.IsValid())
+    return hMesh;
+
+  ezMat4 m;
+  m.SetIdentity();
+
+  ezGeometry geom;
+
+  // X axis
+  geom.AddVertex(m, ezVec3(-1.0f, 0, 0), ezVec3(0, 0, 1));
+  geom.AddVertex(m, ezVec3(1.0f, 0, 0), ezVec3(0, 0, 1));
+  // Y axis
+  geom.AddVertex(m, ezVec3(0, -1.0f, 0), ezVec3(0, 0, 1));
+  geom.AddVertex(m, ezVec3(0, 1.0f, 0), ezVec3(0, 0, 1));
+  // Z axis
+  geom.AddVertex(m, ezVec3(0, 0, -1.0f), ezVec3(0, 0, 1));
+  geom.AddVertex(m, ezVec3(0, 0, 1.0f), ezVec3(0, 0, 1));
+
+  geom.AddLine(0, 1);
+  geom.AddLine(2, 3);
+  geom.AddLine(4, 5);
+
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Cross", ezGALPrimitiveTopology::Lines);
+}
+
 static ezMeshBufferResourceHandle CreateMeshBufferFromFile(const char* szFile)
 {
   const char* szResourceName = szFile;
@@ -625,6 +656,12 @@ bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextCompone
     {
       szMeshGuid = "{22EC5D48-E8BE-410B-8EAD-51B7775BA058}";
       hMeshBuffer = CreateMeshBufferFrustum();
+    }
+    break;
+    case ezEngineGizmoHandleType::Cross:
+    {
+      hMeshBuffer = CreateMeshBufferCross();
+      szMeshGuid = "{1A3B5C7D-9E2F-4A6B-8C0D-E1F2A3B4C5D6}";
     }
     break;
     case ezEngineGizmoHandleType::FromFile:
