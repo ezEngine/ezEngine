@@ -266,6 +266,9 @@ namespace
     nullptr,                                         // Builtin_Subtract,
     nullptr,                                         // Builtin_Multiply,
     nullptr,                                         // Builtin_Divide,
+    nullptr,                                         // Builtin_Min,
+    nullptr,                                         // Builtin_Max,
+    nullptr,                                         // Builtin_Clamp,
     &FillUserData_Builtin_Expression,                // Builtin_Expression,
 
     nullptr,                                         // Builtin_ToBool,
@@ -275,10 +278,12 @@ namespace
     nullptr,                                         // Builtin_ToFloat,
     nullptr,                                         // Builtin_ToDouble,
     nullptr,                                         // Builtin_ToString,
-    nullptr,                                         // Builtin_String_Format,
     nullptr,                                         // Builtin_ToHashedString,
     nullptr,                                         // Builtin_ToVariant,
     nullptr,                                         // Builtin_Variant_ConvertTo,
+
+    nullptr,                                         // Builtin_String_Format,
+    nullptr,                                         // Builtin_String_GetCharacterCount,
 
     nullptr,                                         // Builtin_MakeArray
     nullptr,                                         // Builtin_Array_GetElement,

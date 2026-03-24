@@ -882,6 +882,101 @@ namespace
 
   MAKE_EXEC_FUNC_GETTER(NodeFunction_Builtin_Div);
 
+  template <typename T>
+  static ExecResult NodeFunction_Builtin_Min(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    if constexpr (std::is_same_v<T, ezUInt8> ||
+                  std::is_same_v<T, ezInt32> ||
+                  std::is_same_v<T, ezInt64> ||
+                  std::is_same_v<T, float> ||
+                  std::is_same_v<T, double> ||
+                  std::is_same_v<T, ezTime> ||
+                  std::is_same_v<T, ezAngle>)
+    {
+      const T& a = inout_context.GetData<T>(node.GetInputDataOffset(0));
+      const T& b = inout_context.GetData<T>(node.GetInputDataOffset(1));
+      inout_context.SetData(node.GetOutputDataOffset(0), ezMath::Min(a, b));
+    }
+    else if constexpr (std::is_same_v<T, ezVec3>)
+    {
+      const ezVec3& a = inout_context.GetData<ezVec3>(node.GetInputDataOffset(0));
+      const ezVec3& b = inout_context.GetData<ezVec3>(node.GetInputDataOffset(1));
+      inout_context.SetData(node.GetOutputDataOffset(0), a.CompMin(b));
+    }
+    else
+    {
+      ezLog::Error("Min is not defined for type '{}'", GetTypeName<T>());
+    }
+
+    return ExecResult::RunNext(0);
+  }
+
+  MAKE_EXEC_FUNC_GETTER(NodeFunction_Builtin_Min);
+
+  template <typename T>
+  static ExecResult NodeFunction_Builtin_Max(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    if constexpr (std::is_same_v<T, ezUInt8> ||
+                  std::is_same_v<T, ezInt32> ||
+                  std::is_same_v<T, ezInt64> ||
+                  std::is_same_v<T, float> ||
+                  std::is_same_v<T, double> ||
+                  std::is_same_v<T, ezTime> ||
+                  std::is_same_v<T, ezAngle>)
+    {
+      const T& a = inout_context.GetData<T>(node.GetInputDataOffset(0));
+      const T& b = inout_context.GetData<T>(node.GetInputDataOffset(1));
+      inout_context.SetData(node.GetOutputDataOffset(0), ezMath::Max(a, b));
+    }
+    else if constexpr (std::is_same_v<T, ezVec3>)
+    {
+      const ezVec3& a = inout_context.GetData<ezVec3>(node.GetInputDataOffset(0));
+      const ezVec3& b = inout_context.GetData<ezVec3>(node.GetInputDataOffset(1));
+      inout_context.SetData(node.GetOutputDataOffset(0), a.CompMax(b));
+    }
+    else
+    {
+      ezLog::Error("Max is not defined for type '{}'", GetTypeName<T>());
+    }
+
+    return ExecResult::RunNext(0);
+  }
+
+  MAKE_EXEC_FUNC_GETTER(NodeFunction_Builtin_Max);
+
+  template <typename T>
+  static ExecResult NodeFunction_Builtin_Clamp(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    if constexpr (std::is_same_v<T, ezUInt8> ||
+                  std::is_same_v<T, ezInt32> ||
+                  std::is_same_v<T, ezInt64> ||
+                  std::is_same_v<T, float> ||
+                  std::is_same_v<T, double> ||
+                  std::is_same_v<T, ezTime> ||
+                  std::is_same_v<T, ezAngle>)
+    {
+      const T& x = inout_context.GetData<T>(node.GetInputDataOffset(0));
+      const T& a = inout_context.GetData<T>(node.GetInputDataOffset(1));
+      const T& b = inout_context.GetData<T>(node.GetInputDataOffset(2));
+      inout_context.SetData(node.GetOutputDataOffset(0), ezMath::Clamp(x, a, b));
+    }
+    else if constexpr (std::is_same_v<T, ezVec3>)
+    {
+      const ezVec3& x = inout_context.GetData<ezVec3>(node.GetInputDataOffset(0));
+      const ezVec3& a = inout_context.GetData<ezVec3>(node.GetInputDataOffset(1));
+      const ezVec3& b = inout_context.GetData<ezVec3>(node.GetInputDataOffset(2));
+      inout_context.SetData(node.GetOutputDataOffset(0), x.CompClamp(a, b));
+    }
+    else
+    {
+      ezLog::Error("Clamp is not defined for type '{}'", GetTypeName<T>());
+    }
+
+    return ExecResult::RunNext(0);
+  }
+
+  MAKE_EXEC_FUNC_GETTER(NodeFunction_Builtin_Clamp);
+
   static ExecResult NodeFunction_Builtin_Expression(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
   {
     auto pModule = GetScriptModule(inout_context);
@@ -1076,32 +1171,6 @@ namespace
 
   MAKE_EXEC_FUNC_GETTER(NodeFunction_Builtin_ToString);
 
-  static ExecResult NodeFunction_Builtin_String_Format(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
-  {
-    auto& sText = inout_context.GetData<ezString>(node.GetInputDataOffset(0));
-
-    ezTempHybridArray<ezString, 12> stringStorage;
-    stringStorage.Reserve(node.m_NumInputDataOffsets - 1);
-    for (ezUInt32 i = 1; i < node.m_NumInputDataOffsets; ++i)
-    {
-      stringStorage.PushBack(inout_context.GetDataAsVariant(node.GetInputDataOffset(i), nullptr).ConvertTo<ezString>());
-    }
-
-    ezTempHybridArray<ezStringView, 12> stringViews;
-    stringViews.Reserve(stringStorage.GetCount());
-    for (auto& s : stringStorage)
-    {
-      stringViews.PushBack(s);
-    }
-
-    ezFormatString fs(sText.GetView());
-    ezStringBuilder sStorage;
-    ezStringView sFormatted = fs.BuildFormattedText(sStorage, stringViews.GetData(), stringViews.GetCount());
-
-    inout_context.SetData(node.GetOutputDataOffset(0), sFormatted);
-    return ExecResult::RunNext(0);
-  }
-
   template <typename T>
   static ExecResult NodeFunction_Builtin_ToHashedString(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
   {
@@ -1193,6 +1262,41 @@ namespace
   }
 
   MAKE_EXEC_FUNC_GETTER(NodeFunction_Builtin_Variant_ConvertTo);
+
+  //////////////////////////////////////////////////////////////////////////
+
+  static ExecResult NodeFunction_Builtin_String_Format(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    auto& sText = inout_context.GetData<ezString>(node.GetInputDataOffset(0));
+
+    ezTempHybridArray<ezString, 12> stringStorage;
+    stringStorage.Reserve(node.m_NumInputDataOffsets - 1);
+    for (ezUInt32 i = 1; i < node.m_NumInputDataOffsets; ++i)
+    {
+      stringStorage.PushBack(inout_context.GetDataAsVariant(node.GetInputDataOffset(i), nullptr).ConvertTo<ezString>());
+    }
+
+    ezTempHybridArray<ezStringView, 12> stringViews;
+    stringViews.Reserve(stringStorage.GetCount());
+    for (auto& s : stringStorage)
+    {
+      stringViews.PushBack(s);
+    }
+
+    ezFormatString fs(sText.GetView());
+    ezStringBuilder sStorage;
+    ezStringView sFormatted = fs.BuildFormattedText(sStorage, stringViews.GetData(), stringViews.GetCount());
+
+    inout_context.SetData(node.GetOutputDataOffset(0), sFormatted);
+    return ExecResult::RunNext(0);
+  }
+
+  static ExecResult NodeFunction_Builtin_String_GetCharacterCount(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    auto& sText = inout_context.GetData<ezString>(node.GetInputDataOffset(0));
+    inout_context.SetData(node.GetOutputDataOffset(0), sText.GetCharacterCount());
+    return ExecResult::RunNext(0);
+  }
 
   //////////////////////////////////////////////////////////////////////////
 
@@ -1532,6 +1636,9 @@ namespace
     {nullptr, &NodeFunction_Builtin_Sub_Getter},               // Builtin_Subtract,
     {nullptr, &NodeFunction_Builtin_Mul_Getter},               // Builtin_Multiply,
     {nullptr, &NodeFunction_Builtin_Div_Getter},               // Builtin_Divide,
+    {nullptr, &NodeFunction_Builtin_Min_Getter},               // Builtin_Min,
+    {nullptr, &NodeFunction_Builtin_Max_Getter},               // Builtin_Max,
+    {nullptr, &NodeFunction_Builtin_Clamp_Getter},             // Builtin_Clamp,
     {&NodeFunction_Builtin_Expression},                        // Builtin_Expression,
 
     {nullptr, &NodeFunction_Builtin_ToBool_Getter},            // Builtin_ToBool,
@@ -1541,10 +1648,12 @@ namespace
     {nullptr, &NodeFunction_Builtin_ToFloat_Getter},           // Builtin_ToFloat,
     {nullptr, &NodeFunction_Builtin_ToDouble_Getter},          // Builtin_ToDouble,
     {nullptr, &NodeFunction_Builtin_ToString_Getter},          // Builtin_ToString,
-    {&NodeFunction_Builtin_String_Format},                     // Builtin_String_Format,
     {nullptr, &NodeFunction_Builtin_ToHashedString_Getter},    // Builtin_ToHashedString,
     {nullptr, &NodeFunction_Builtin_ToVariant_Getter},         // Builtin_ToVariant,
     {nullptr, &NodeFunction_Builtin_Variant_ConvertTo_Getter}, // Builtin_Variant_ConvertTo,
+
+    {&NodeFunction_Builtin_String_Format},                     // Builtin_String_Format,
+    {&NodeFunction_Builtin_String_GetCharacterCount},          // Builtin_String_GetCharacterCount,
 
     {&NodeFunction_Builtin_MakeArray},                         // Builtin_MakeArray
     {&NodeFunction_Builtin_Array_GetElement},                  // Builtin_Array_GetElement,
