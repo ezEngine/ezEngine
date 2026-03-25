@@ -1179,7 +1179,7 @@ ezResult ezVisualScriptCompiler::InsertTypeConversions(AstNode* pEntryAstNode)
 
         if (dataOutput.m_DataOffset.GetType() != inputDataType)
         {
-          if (ezVisualScriptDataType::IsNumberOrBool(outputDataType) && inputDataType == ezVisualScriptDataType::Vector3)
+          if (ezVisualScriptDataType::IsNumberOrBool(outputDataType) && ezVisualScriptDataType::IsVector(inputDataType))
           {
             AstNode* pSourceNode = dataInput.m_pSourceNode;
             ezUInt32 uiSourcePinIndex = dataInput.m_uiSourcePinIndex;
@@ -1190,22 +1190,27 @@ ezResult ezVisualScriptCompiler::InsertTypeConversions(AstNode* pEntryAstNode)
               uiSourcePinIndex = 0;
             }
 
-            auto& makeVec3Node = CreateAstNode(ezVisualScriptNodeDescription::Type::ReflectedFunction, inputDataType, true);
-            makeVec3Node.m_sTargetTypeName.Assign("ezVec3");
+            auto& makeVecXNode = CreateAstNode(ezVisualScriptNodeDescription::Type::ReflectedFunction, inputDataType, true);
+            const ezRTTI* pRtti = ezVisualScriptDataType::GetRtti(inputDataType);
+            makeVecXNode.m_sTargetTypeName.Assign(pRtti->GetTypeName());
 
             ezVariantArray a;
             a.PushBack(ezMakeHashedString("Make"));
-            makeVec3Node.m_Value = a;
+            makeVecXNode.m_Value = a;
 
-            AddDataInput(makeVec3Node, pSourceNode, uiSourcePinIndex, ezVisualScriptDataType::Float);
-            AddDataInput(makeVec3Node, pSourceNode, uiSourcePinIndex, ezVisualScriptDataType::Float);
-            AddDataInput(makeVec3Node, pSourceNode, uiSourcePinIndex, ezVisualScriptDataType::Float);
-            AddDataOutput(makeVec3Node, ezVisualScriptDataType::Vector3);
+            AddDataInput(makeVecXNode, pSourceNode, uiSourcePinIndex, ezVisualScriptDataType::Float);
+            AddDataInput(makeVecXNode, pSourceNode, uiSourcePinIndex, ezVisualScriptDataType::Float);
+            if (inputDataType >= ezVisualScriptDataType::Vector3)
+              AddDataInput(makeVecXNode, pSourceNode, uiSourcePinIndex, ezVisualScriptDataType::Float);
+            if (inputDataType == ezVisualScriptDataType::Vector4)
+              AddDataInput(makeVecXNode, pSourceNode, uiSourcePinIndex, ezVisualScriptDataType::Float);
 
-            dataInput.m_pSourceNode = &makeVec3Node;
+            AddDataOutput(makeVecXNode, inputDataType);
+
+            dataInput.m_pSourceNode = &makeVecXNode;
             dataInput.m_uiSourcePinIndex = 0;
 
-            ExecuteBefore(*pAstNode, makeVec3Node, makeVec3Node);
+            ExecuteBefore(*pAstNode, makeVecXNode, makeVecXNode);
           }
           else if (outputDataType == ezVisualScriptDataType::Vector3 && inputDataType == ezVisualScriptDataType::Transform)
           {

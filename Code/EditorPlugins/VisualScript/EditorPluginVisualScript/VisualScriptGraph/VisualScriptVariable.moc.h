@@ -17,7 +17,9 @@ struct ezVisualScriptVariableType
     Float,
     Double,
     Color,
+    Vector2,
     Vector3,
+    Vector4,
     Quaternion,
     Transform,
     Time,
@@ -164,8 +166,9 @@ struct ezVisualScriptExpressionDataType
   {
     Int = static_cast<ezUInt8>(ezProcessingStream::DataType::Int),
     Float = static_cast<ezUInt8>(ezProcessingStream::DataType::Float),
+    Vector2 = static_cast<ezUInt8>(ezProcessingStream::DataType::Float2),
     Vector3 = static_cast<ezUInt8>(ezProcessingStream::DataType::Float3),
-    Color = static_cast<ezUInt8>(ezProcessingStream::DataType::Float4),
+    Vector4 = static_cast<ezUInt8>(ezProcessingStream::DataType::Float4),
 
     Default = Float
   };

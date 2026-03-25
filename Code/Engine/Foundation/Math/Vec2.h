@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/Math/Math.h>
+// inclusion order matters to avoid circular dependencies
 #include <Foundation/Math/Angle.h>
 
 #if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
@@ -40,14 +41,13 @@ public:
 
   /// \brief Returns a vector with all components set to Not-a-Number (NaN).
   EZ_DECLARE_IF_FLOAT_TYPE
-  [[nodiscard]] static const ezVec2Template<Type>
-  MakeNaN()
-  {
-    return ezVec2Template<Type>(ezMath::NaN<Type>());
-  }
+  [[nodiscard]] static const ezVec2Template<Type> MakeNaN() { return ezVec2Template<Type>(ezMath::NaN<Type>()); }
 
   /// \brief Static function that returns a zero-vector.
   [[nodiscard]] static constexpr ezVec2Template<Type> MakeZero() { return ezVec2Template(0); } // [tested]
+
+  /// \brief Returns a vector initialized to x,y
+  [[nodiscard]] static ezVec2Template<Type> Make(Type x, Type y) { return ezVec2Template<Type>(x, y); } // [tested]
 
 #if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   void AssertNotNaN() const

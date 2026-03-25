@@ -13,7 +13,9 @@ ezVisualScriptDataType::Int64;Int64
 ezVisualScriptDataType::Float;Float
 ezVisualScriptDataType::Double;Double
 ezVisualScriptDataType::Color;Color
+ezVisualScriptDataType::Vector2;Vector2
 ezVisualScriptDataType::Vector3;Vector3
+ezVisualScriptDataType::Vector4;Vector4
 ezVisualScriptDataType::Quaternion;Quaternion
 ezVisualScriptDataType::Transform;Transform
 ezVisualScriptDataType::Time;Time

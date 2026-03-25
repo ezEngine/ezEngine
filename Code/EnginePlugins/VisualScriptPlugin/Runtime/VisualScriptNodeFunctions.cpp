@@ -21,7 +21,9 @@ using ExecuteFunctionGetter = ezVisualScriptGraphDescription::ExecuteFunction (*
       &funcName<float>,                                                                                                  \
       &funcName<double>,                                                                                                 \
       &funcName<ezColor>,                                                                                                \
+      &funcName<ezVec2>,                                                                                                 \
       &funcName<ezVec3>,                                                                                                 \
+      &funcName<ezVec4>,                                                                                                 \
       &funcName<ezQuat>,                                                                                                 \
       &funcName<ezTransform>,                                                                                            \
       &funcName<ezTime>,                                                                                                 \
@@ -565,7 +567,9 @@ namespace
                   std::is_same_v<T, float> ||
                   std::is_same_v<T, double> ||
                   std::is_same_v<T, ezColor> ||
+                  std::is_same_v<T, ezVec2> ||
                   std::is_same_v<T, ezVec3> ||
+                  std::is_same_v<T, ezVec4> ||
                   std::is_same_v<T, ezTime> ||
                   std::is_same_v<T, ezAngle> ||
                   std::is_same_v<T, ezString> ||
@@ -651,9 +655,17 @@ namespace
     {
       bIsValid = inout_context.GetData<ezColor>(dataOffset).IsValid();
     }
+    else if constexpr (std::is_same_v<T, ezVec2>)
+    {
+      bIsValid = inout_context.GetData<ezVec2>(dataOffset).IsValid();
+    }
     else if constexpr (std::is_same_v<T, ezVec3>)
     {
       bIsValid = inout_context.GetData<ezVec3>(dataOffset).IsValid();
+    }
+    else if constexpr (std::is_same_v<T, ezVec4>)
+    {
+      bIsValid = inout_context.GetData<ezVec4>(dataOffset).IsValid();
     }
     else if constexpr (std::is_same_v<T, ezQuat>)
     {
@@ -718,7 +730,9 @@ namespace
                   std::is_same_v<T, float> ||
                   std::is_same_v<T, double> ||
                   std::is_same_v<T, ezColor> ||
+                  std::is_same_v<T, ezVec2> ||
                   std::is_same_v<T, ezVec3> ||
+                  std::is_same_v<T, ezVec4> ||
                   std::is_same_v<T, ezTime> ||
                   std::is_same_v<T, ezAngle>)
     {
@@ -773,7 +787,9 @@ namespace
                   std::is_same_v<T, float> ||
                   std::is_same_v<T, double> ||
                   std::is_same_v<T, ezColor> ||
+                  std::is_same_v<T, ezVec2> ||
                   std::is_same_v<T, ezVec3> ||
+                  std::is_same_v<T, ezVec4> ||
                   std::is_same_v<T, ezTime> ||
                   std::is_same_v<T, ezAngle>)
     {
@@ -812,10 +828,10 @@ namespace
       const T& b = inout_context.GetData<T>(node.GetInputDataOffset(1));
       inout_context.SetData(node.GetOutputDataOffset(0), T(a * b));
     }
-    else if constexpr (std::is_same_v<T, ezVec3>)
+    else if constexpr (std::is_same_v<T, ezVec2> || std::is_same_v<T, ezVec3> || std::is_same_v<T, ezVec4>)
     {
-      const ezVec3& a = inout_context.GetData<ezVec3>(node.GetInputDataOffset(0));
-      const ezVec3& b = inout_context.GetData<ezVec3>(node.GetInputDataOffset(1));
+      const T& a = inout_context.GetData<T>(node.GetInputDataOffset(0));
+      const T& b = inout_context.GetData<T>(node.GetInputDataOffset(1));
       inout_context.SetData(node.GetOutputDataOffset(0), a.CompMul(b));
     }
     else if constexpr (std::is_same_v<T, ezAngle>)
@@ -854,10 +870,10 @@ namespace
       const T& b = inout_context.GetData<T>(node.GetInputDataOffset(1));
       inout_context.SetData(node.GetOutputDataOffset(0), T(a / b));
     }
-    else if constexpr (std::is_same_v<T, ezVec3>)
+    else if constexpr (std::is_same_v<T, ezVec2> || std::is_same_v<T, ezVec3> || std::is_same_v<T, ezVec4>)
     {
-      const ezVec3& a = inout_context.GetData<ezVec3>(node.GetInputDataOffset(0));
-      const ezVec3& b = inout_context.GetData<ezVec3>(node.GetInputDataOffset(1));
+      const T& a = inout_context.GetData<T>(node.GetInputDataOffset(0));
+      const T& b = inout_context.GetData<T>(node.GetInputDataOffset(1));
       inout_context.SetData(node.GetOutputDataOffset(0), a.CompDiv(b));
     }
     else if constexpr (std::is_same_v<T, ezAngle>)
@@ -897,10 +913,10 @@ namespace
       const T& b = inout_context.GetData<T>(node.GetInputDataOffset(1));
       inout_context.SetData(node.GetOutputDataOffset(0), ezMath::Min(a, b));
     }
-    else if constexpr (std::is_same_v<T, ezVec3>)
+    else if constexpr (std::is_same_v<T, ezVec2> || std::is_same_v<T, ezVec3> || std::is_same_v<T, ezVec4>)
     {
-      const ezVec3& a = inout_context.GetData<ezVec3>(node.GetInputDataOffset(0));
-      const ezVec3& b = inout_context.GetData<ezVec3>(node.GetInputDataOffset(1));
+      const T& a = inout_context.GetData<T>(node.GetInputDataOffset(0));
+      const T& b = inout_context.GetData<T>(node.GetInputDataOffset(1));
       inout_context.SetData(node.GetOutputDataOffset(0), a.CompMin(b));
     }
     else
@@ -928,10 +944,10 @@ namespace
       const T& b = inout_context.GetData<T>(node.GetInputDataOffset(1));
       inout_context.SetData(node.GetOutputDataOffset(0), ezMath::Max(a, b));
     }
-    else if constexpr (std::is_same_v<T, ezVec3>)
+    else if constexpr (std::is_same_v<T, ezVec2> || std::is_same_v<T, ezVec3> || std::is_same_v<T, ezVec4>)
     {
-      const ezVec3& a = inout_context.GetData<ezVec3>(node.GetInputDataOffset(0));
-      const ezVec3& b = inout_context.GetData<ezVec3>(node.GetInputDataOffset(1));
+      const T& a = inout_context.GetData<T>(node.GetInputDataOffset(0));
+      const T& b = inout_context.GetData<T>(node.GetInputDataOffset(1));
       inout_context.SetData(node.GetOutputDataOffset(0), a.CompMax(b));
     }
     else
@@ -960,11 +976,11 @@ namespace
       const T& b = inout_context.GetData<T>(node.GetInputDataOffset(2));
       inout_context.SetData(node.GetOutputDataOffset(0), ezMath::Clamp(x, a, b));
     }
-    else if constexpr (std::is_same_v<T, ezVec3>)
+    else if constexpr (std::is_same_v<T, ezVec2> || std::is_same_v<T, ezVec3> || std::is_same_v<T, ezVec4>)
     {
-      const ezVec3& x = inout_context.GetData<ezVec3>(node.GetInputDataOffset(0));
-      const ezVec3& a = inout_context.GetData<ezVec3>(node.GetInputDataOffset(1));
-      const ezVec3& b = inout_context.GetData<ezVec3>(node.GetInputDataOffset(2));
+      const T& x = inout_context.GetData<T>(node.GetInputDataOffset(0));
+      const T& a = inout_context.GetData<T>(node.GetInputDataOffset(1));
+      const T& b = inout_context.GetData<T>(node.GetInputDataOffset(2));
       inout_context.SetData(node.GetOutputDataOffset(0), x.CompClamp(a, b));
     }
     else

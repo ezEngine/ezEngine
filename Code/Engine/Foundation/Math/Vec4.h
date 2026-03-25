@@ -34,11 +34,13 @@ public:
 
   /// \brief Returns a vector with all components set to Not-a-Number (NaN).
   EZ_DECLARE_IF_FLOAT_TYPE
-  [[nodiscard]] static ezVec4Template<Type>
-  MakeNaN() { return ezVec4Template<Type>(ezMath::NaN<Type>()); }
+  [[nodiscard]] static ezVec4Template<Type> MakeNaN() { return ezVec4Template<Type>(ezMath::NaN<Type>()); }
 
   /// \brief Returns a vector with all components set to zero.
   [[nodiscard]] static ezVec4Template<Type> MakeZero() { return ezVec4Template<Type>(0); } // [tested]
+
+  /// \brief Returns a vector initialized to x,y,z,w
+  [[nodiscard]] static ezVec4Template<Type> Make(Type x, Type y, Type z, Type w) { return ezVec4Template<Type>(x, y, z, w); } // [tested]
 
 #if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   void AssertNotNaN() const
