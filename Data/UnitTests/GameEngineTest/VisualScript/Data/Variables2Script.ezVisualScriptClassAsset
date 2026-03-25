@@ -45,7 +45,7 @@ o
 		s %AssetType{"VisualScriptClass"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{11431841809097844415,5175375775129178543}}
-		u4 %Hash{11652817565814930943}
+		u4 %Hash{3856257986682416015}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{14002855338004243431,3905677055100369170}}
@@ -166,7 +166,7 @@ o
 {
 	Uuid %id{u4{13663500191183114912,4762877995182374992}}
 	s %t{"ezVisualScriptVariable"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %ClampRange{0}
@@ -176,7 +176,7 @@ o
 		HashedString %Name{s{"Name"}}
 		ezVisualScriptVariableTypeDeclaration %Type
 		{
-			i4 %Type{14}
+			i4 %Type{16}
 			i4 %Category{0}
 			b %Public{1}
 		}
@@ -263,7 +263,7 @@ o
 {
 	Uuid %id{u4{5139759125173383065,4883253150028673026}}
 	s %t{"ezVisualScriptVariable"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %ClampRange{1}
@@ -299,7 +299,7 @@ o
 {
 	Uuid %id{u4{6318337616863523240,4893613394363813868}}
 	s %t{"ezVisualScriptVariable"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %ClampRange{0}
@@ -309,7 +309,7 @@ o
 		HashedString %Name{s{"InternalGameObject"}}
 		ezVisualScriptVariableTypeDeclaration %Type
 		{
-			i4 %Type{15}
+			i4 %Type{17}
 			i4 %Category{0}
 			b %Public{0}
 		}
@@ -615,7 +615,7 @@ o
 {
 	Uuid %id{u4{12111864076179091125,5322874666685927006}}
 	s %t{"ezVisualScriptVariable"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %ClampRange{0}
@@ -1212,7 +1212,7 @@ o
 		s %PluginName{"ezEditorPluginVisualScript"}
 		VarArray %Properties{}
 		s %TypeName{"ezVisualScriptVariable"}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o

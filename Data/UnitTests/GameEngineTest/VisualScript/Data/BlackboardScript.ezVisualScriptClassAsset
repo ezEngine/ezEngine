@@ -4,13 +4,14 @@ o
 {
 	Uuid %id{u4{8896415881071178642,2222965498447370827}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		s %DefaultValue{"0"}
 		s %Name{"Name"}
-		s %Type{""}
+		s %Type{"ezString"}
 	}
 }
 o
@@ -24,7 +25,7 @@ o
 		s %AssetType{"VisualScriptClass"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{11410758142063444412,5252298219396556696}}
-		u4 %Hash{12052479720800246514}
+		u4 %Hash{5765133772987612893}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{15977922773034048496,17053314215109263305}}
@@ -395,12 +396,20 @@ o
 {
 	Uuid %id{u4{17773311795422433721,5260356449420220805}}
 	s %t{"ezVisualScriptVariable"}
-	u3 %v{1}
+	u3 %v{3}
 	p
 	{
+		b %ClampRange{0}
 		s %DefaultValue{"0"}
-		b %Expose{1}
+		d %MaxValue{0x000000000000F03F}
+		d %MinValue{0}
 		HashedString %Name{s{"Name"}}
+		ezVisualScriptVariableTypeDeclaration %Type
+		{
+			i4 %Type{15}
+			i4 %Category{0}
+			b %Public{1}
+		}
 	}
 }
 o
@@ -1183,7 +1192,7 @@ o
 		s %PluginName{"ezEditorPluginVisualScript"}
 		VarArray %Properties{}
 		s %TypeName{"ezVisualScriptVariable"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -1196,6 +1205,7 @@ o
 		VarArray %Attributes
 		{
 			Uuid{u4{10568763562914783905,10530531365321929534}}
+			Uuid{u4{15821409306570619249,4381476243306451718}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		Invalid %ConstantValue{}
@@ -1429,6 +1439,13 @@ o
 }
 o
 {
+	Uuid %id{u4{15821409306570619249,4381476243306451718}}
+	s %t{"ezExposeColorAlphaAttribute"}
+	u3 %v{1}
+	p{}
+}
+o
+{
 	Uuid %id{u4{2900718011769325292,4524107477861958439}}
 	s %t{"ezVisualScriptVariableAttribute"}
 	u3 %v{1}
@@ -1583,6 +1600,23 @@ o
 	s %t{"ezVisualScriptVariableAttribute"}
 	u3 %v{1}
 	p{}
+}
+o
+{
+	Uuid %id{u4{5514559133848394859,6944786798886162182}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginVisualScript"}
+		VarArray %Properties{}
+		s %TypeName{"ezVisualScriptVariableCategory"}
+		u3 %TypeVersion{1}
+	}
 }
 o
 {
@@ -1792,6 +1826,23 @@ o
 			Uuid{u4{9782905273916265350,14361451267853912358}}
 		}
 		s %TypeName{"VisualScriptNode_Debug::Draw3DText"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{17031262981869958585,9370940739905747393}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginVisualScript"}
+		VarArray %Properties{}
+		s %TypeName{"ezVisualScriptVariableType"}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2254,6 +2305,23 @@ o
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"Name"}
 		s %Type{"ezHashedString"}
+	}
+}
+o
+{
+	Uuid %id{u4{16046955658216964626,14620062218799320494}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"ezEditorPluginVisualScript"}
+		VarArray %Properties{}
+		s %TypeName{"ezVisualScriptVariableTypeDeclaration"}
+		u3 %TypeVersion{1}
 	}
 }
 o
