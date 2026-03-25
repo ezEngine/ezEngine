@@ -551,6 +551,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezVisualScriptExpressionDataType, 1)
   EZ_ENUM_CONSTANT(ezVisualScriptExpressionDataType::Vector2),
   EZ_ENUM_CONSTANT(ezVisualScriptExpressionDataType::Vector3),
   EZ_ENUM_CONSTANT(ezVisualScriptExpressionDataType::Vector4),
+  EZ_ENUM_CONSTANT(ezVisualScriptExpressionDataType::Color),
 EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezVisualScriptExpressionVariable, ezNoBase, 1, ezRTTIDefaultAllocator<ezVisualScriptExpressionVariable>)
@@ -579,6 +580,8 @@ ezVisualScriptDataType::Enum ezVisualScriptExpressionDataType::GetVisualScriptDa
       return ezVisualScriptDataType::Vector3;
     case Vector4:
       return ezVisualScriptDataType::Vector4;
+    case Color:
+      return ezVisualScriptDataType::Color;
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
   }

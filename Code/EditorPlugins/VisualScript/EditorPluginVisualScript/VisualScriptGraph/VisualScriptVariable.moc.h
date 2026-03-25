@@ -164,11 +164,12 @@ struct ezVisualScriptExpressionDataType
 
   enum Enum
   {
-    Int = static_cast<ezUInt8>(ezProcessingStream::DataType::Int),
-    Float = static_cast<ezUInt8>(ezProcessingStream::DataType::Float),
-    Vector2 = static_cast<ezUInt8>(ezProcessingStream::DataType::Float2),
-    Vector3 = static_cast<ezUInt8>(ezProcessingStream::DataType::Float3),
-    Vector4 = static_cast<ezUInt8>(ezProcessingStream::DataType::Float4),
+    Int,
+    Float,
+    Vector2,
+    Vector3,
+    Vector4,
+    Color,
 
     Default = Float
   };

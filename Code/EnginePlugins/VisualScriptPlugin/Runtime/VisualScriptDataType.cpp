@@ -188,10 +188,16 @@ ezVisualScriptDataType::Enum ezVisualScriptDataType::FromVariantType(ezVariantTy
     case ezVariantType::Color:
       return Color;
     case ezVariantType::Vector2:
+    case ezVariantType::Vector2I:
+    case ezVariantType::Vector2U:
       return Vector2;
     case ezVariantType::Vector3:
+    case ezVariantType::Vector3I:
+    case ezVariantType::Vector3U:
       return Vector3;
     case ezVariantType::Vector4:
+    case ezVariantType::Vector4I:
+    case ezVariantType::Vector4U:
       return Vector4;
     case ezVariantType::Quaternion:
       return Quaternion;
