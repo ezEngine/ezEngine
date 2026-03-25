@@ -225,6 +225,13 @@ void ezParticleEffectInstance::PreSimulate()
     m_PreSimulateDuration = ezTime::MakeFromSeconds(0);
   }
 
+  // Ensure the first game-world update after pre-simulation is not throttled by the
+  // invisible-update-rate check. PreSimulate() decrements m_iMinSimStepsToDo to 0, which
+  // would cause Update() to skip simulation if the effect hasn't been rendered yet
+  // (m_EffectIsVisible == 0). Resetting to 1 here forces exactly one non-throttled update,
+  // making simulation deterministic regardless of how much real time elapsed during initialization.
+  m_iMinSimStepsToDo = 1;
+
   if (!IsContinuous())
   {
     // Can't check this at the beginning, because the particle systems are only set up during StepSimulation.

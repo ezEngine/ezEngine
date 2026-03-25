@@ -85,7 +85,7 @@ public:
     {
       const ezUInt32 uiOffsetMask = ezMath::Bitmask_LowN<ezUInt32>(m_uiMaxAllocSizeLog2);
 
-      m_uiCurrentBucketIndex = lastAlloc.m_uiGlobalOffset >> m_uiMaxAllocSizeLog2;
+      m_uiCurrentBucketIndex = static_cast<ezUInt16>(lastAlloc.m_uiGlobalOffset >> m_uiMaxAllocSizeLog2);
       m_uiCurrentBucketOffset = lastAlloc.m_uiGlobalOffset & uiOffsetMask;
 
       if constexpr (OverwriteMemoryOnFree)
@@ -101,7 +101,7 @@ public:
         if (alloc.m_Ptr != nullptr)
           return;
 
-        m_uiCurrentBucketIndex = alloc.m_uiGlobalOffset >> m_uiMaxAllocSizeLog2;
+        m_uiCurrentBucketIndex = static_cast<ezUInt16>(alloc.m_uiGlobalOffset >> m_uiMaxAllocSizeLog2);
         m_uiCurrentBucketOffset = alloc.m_uiGlobalOffset & uiOffsetMask;
 
         m_Allocations.PopBack();
@@ -142,7 +142,7 @@ private:
     const bool bFitsIntoCurrentBucket = !m_Buckets.IsEmpty() && m_uiCurrentBucketOffset + uiRequestedSize <= uiMaxAllocSize;
     if (!bFitsIntoCurrentBucket)
     {
-      m_uiCurrentBucketIndex = m_Buckets.GetCount();
+      m_uiCurrentBucketIndex = static_cast<ezUInt16>(m_Buckets.GetCount());
 
       auto newBucket = ezMakeArrayPtr(static_cast<ezUInt8*>(m_pParent->Allocate(uiMaxAllocSize, Alignment)), uiMaxAllocSize);
       m_Buckets.PushBack(newBucket);

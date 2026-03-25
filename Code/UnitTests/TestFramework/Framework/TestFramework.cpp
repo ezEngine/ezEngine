@@ -921,6 +921,13 @@ void ezTestFramework::ExecuteNextTest()
 void ezTestFramework::EndTests()
 {
   m_bTestsRunning = false;
+
+  if (GetTestsPassedCount() + GetTestsFailedCount() == 0)
+  {
+    ezTestFramework::Output(ezTestOutput::Error, "No tests were run. The -filter option may not have matched any tests.");
+    m_iTestsFailed++;
+  }
+
   if (GetTestsFailedCount() == 0)
     ezTestFramework::Output(ezTestOutput::FinalResult, "All tests passed.");
   else
