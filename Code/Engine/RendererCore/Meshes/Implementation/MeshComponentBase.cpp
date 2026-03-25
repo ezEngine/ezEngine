@@ -318,13 +318,11 @@ void ezMeshComponentBase::OnMsgSetColor(ezMsgSetColor& ref_msg)
 
 void ezMeshComponentBase::OnMsgSetCustomData(ezMsgSetCustomData& ref_msg)
 {
-  ezVec4 vNewCustomData(ref_msg.m_fData0, ref_msg.m_fData1, ref_msg.m_fData2, ref_msg.m_fData3);
-
   // Use a bitwise comparison since some systems store arbitrary data casted to floats which can look like NaNs.
   // These would compare false or trigger the NaN check in ezMath when comparing the vectors.
-  if (!ezMemoryUtils::IsEqual(&m_vCustomData, &vNewCustomData))
+  if (!ezMemoryUtils::IsEqual(&m_vCustomData, &ref_msg.m_vData))
   {
-    m_vCustomData = vNewCustomData;
+    m_vCustomData = ref_msg.m_vData;
 
     InvalidateCachedRenderData();
   }

@@ -18,20 +18,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgSetColor, 1, ezRTTIDefaultAllocator<ezMsgSe
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgSetCustomData);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgSetCustomData, 1, ezRTTIDefaultAllocator<ezMsgSetCustomData>)
-{
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_MEMBER_PROPERTY("Data0", m_fData0),
-    EZ_MEMBER_PROPERTY("Data1", m_fData1),
-    EZ_MEMBER_PROPERTY("Data2", m_fData2),
-    EZ_MEMBER_PROPERTY("Data3", m_fData3),
-  }
-  EZ_END_PROPERTIES;
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 void ezMsgSetColor::ModifyColor(ezColor& ref_color) const
@@ -88,22 +74,28 @@ void ezMsgSetColor::Deserialize(ezStreamReader& inout_stream, ezUInt8 uiTypeVers
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgSetCustomData);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgSetCustomData, 1, ezRTTIDefaultAllocator<ezMsgSetCustomData>)
+  {
+    EZ_BEGIN_PROPERTIES
+    {
+      EZ_MEMBER_PROPERTY("Data", m_vData),
+    } EZ_END_PROPERTIES;
+  }
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
 void ezMsgSetCustomData::Serialize(ezStreamWriter& inout_stream) const
 {
-  inout_stream << m_fData0;
-  inout_stream << m_fData1;
-  inout_stream << m_fData2;
-  inout_stream << m_fData3;
+  inout_stream << m_vData;
 }
 
 void ezMsgSetCustomData::Deserialize(ezStreamReader& inout_stream, ezUInt8 uiTypeVersion)
 {
   EZ_IGNORE_UNUSED(uiTypeVersion);
 
-  inout_stream >> m_fData0;
-  inout_stream >> m_fData1;
-  inout_stream >> m_fData2;
-  inout_stream >> m_fData3;
+  inout_stream >> m_vData;
 }
 
 

@@ -279,7 +279,7 @@ void ezLodAnimatedMeshComponent::OnMsgSetColor(ezMsgSetColor& ref_msg)
 
 void ezLodAnimatedMeshComponent::OnMsgSetCustomData(ezMsgSetCustomData& ref_msg)
 {
-  m_vCustomData.Set(ref_msg.m_fData0, ref_msg.m_fData1, ref_msg.m_fData2, ref_msg.m_fData3);
+  m_vCustomData = ref_msg.m_vData;
 
   InvalidateCachedRenderData();
 }
