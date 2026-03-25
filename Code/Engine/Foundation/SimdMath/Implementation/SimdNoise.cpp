@@ -20,11 +20,11 @@ ezSimdPerlinNoise::ezSimdPerlinNoise(ezUInt32 uiSeed)
   Initialize(rnd);
 }
 
-void ezSimdPerlinNoise::Initialize(ezRandom& rnd)
+void ezSimdPerlinNoise::Initialize(ezRandom& ref_rng)
 {
   for (ezUInt32 i = EZ_ARRAY_SIZE(m_Permutations) - 1; i > 0; --i)
   {
-    ezUInt32 uiRandomIndex = rnd.UIntInRange(EZ_ARRAY_SIZE(m_Permutations));
+    ezUInt32 uiRandomIndex = ref_rng.UIntInRange(EZ_ARRAY_SIZE(m_Permutations));
     ezMath::Swap(m_Permutations[i], m_Permutations[uiRandomIndex]);
   }
 }

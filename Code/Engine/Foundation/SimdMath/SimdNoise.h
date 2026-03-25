@@ -8,7 +8,7 @@ public:
   ezSimdPerlinNoise();
   ezSimdPerlinNoise(ezUInt32 uiSeed);
 
-  void Initialize(ezRandom& rng);
+  void Initialize(ezRandom& ref_rng);
 
   ezSimdVec4f NoiseZeroToOne(const ezSimdVec4f& x, const ezSimdVec4f& y, const ezSimdVec4f& z, ezUInt32 uiNumOctaves = 1);
 

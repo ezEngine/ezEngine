@@ -60,7 +60,7 @@ void ezParticleBehaviorFactory_Attract::Save(ezStreamWriter& inout_stream) const
 
 void ezParticleBehaviorFactory_Attract::Load(ezStreamReader& inout_stream)
 {
-  ezUInt8 uiVersion = inout_stream.ReadVersion(1);
+  /*const auto version =*/ inout_stream.ReadVersion(1);
 
   inout_stream >> m_fInfluence;
   inout_stream >> m_bAffectVelocity;
