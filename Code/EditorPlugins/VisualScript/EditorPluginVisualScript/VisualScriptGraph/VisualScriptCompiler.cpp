@@ -266,6 +266,7 @@ namespace
     nullptr,                                         // Builtin_Subtract,
     nullptr,                                         // Builtin_Multiply,
     nullptr,                                         // Builtin_Divide,
+    nullptr,                                         // Builtin_Modulo,
     nullptr,                                         // Builtin_Min,
     nullptr,                                         // Builtin_Max,
     nullptr,                                         // Builtin_Clamp,

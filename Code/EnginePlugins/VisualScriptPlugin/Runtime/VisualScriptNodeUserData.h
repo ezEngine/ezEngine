@@ -571,6 +571,7 @@ namespace
     {},                                           // Builtin_Subtract,
     {},                                           // Builtin_Multiply,
     {},                                           // Builtin_Divide,
+    {},                                           // Builtin_Modulo,
     {},                                           // Builtin_Min,
     {},                                           // Builtin_Max,
     {},                                           // Builtin_Clamp,

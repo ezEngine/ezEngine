@@ -942,13 +942,14 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
     RegisterNodeType(typeDesc, std::move(nodeDesc), sLogicCategory);
   }
 
-  // Builtin_Add, Builtin_Sub, Builtin_Mul, Builtin_Div, Builtin_Min, Builtin_Max
+  // Builtin_Add, Builtin_Sub, Builtin_Mul, Builtin_Div, Builtin_Modulo, Builtin_Min, Builtin_Max
   {
     ezVisualScriptNodeDescription::Type::Enum mathNodeTypes[] = {
       ezVisualScriptNodeDescription::Type::Builtin_Add,
       ezVisualScriptNodeDescription::Type::Builtin_Subtract,
       ezVisualScriptNodeDescription::Type::Builtin_Multiply,
       ezVisualScriptNodeDescription::Type::Builtin_Divide,
+      ezVisualScriptNodeDescription::Type::Builtin_Modulo,
       ezVisualScriptNodeDescription::Type::Builtin_Min,
       ezVisualScriptNodeDescription::Type::Builtin_Max,
     };
@@ -958,6 +959,7 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
       "{A} - {B}",
       "{A} * {B}",
       "{A} / {B}",
+      "{A} % {B}",
       "Min({A}, {B})",
       "Max({A}, {B})",
     };

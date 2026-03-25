@@ -899,6 +899,33 @@ namespace
   MAKE_EXEC_FUNC_GETTER(NodeFunction_Builtin_Div);
 
   template <typename T>
+  static ExecResult NodeFunction_Builtin_Mod(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
+  {
+    if constexpr (std::is_same_v<T, ezUInt8> ||
+                  std::is_same_v<T, ezInt32> ||
+                  std::is_same_v<T, ezInt64>)
+    {
+      const T& a = inout_context.GetData<T>(node.GetInputDataOffset(0));
+      const T& b = inout_context.GetData<T>(node.GetInputDataOffset(1));
+      inout_context.SetData(node.GetOutputDataOffset(0), T(a % b));
+    }
+    else if constexpr (std::is_same_v<T, float> || std::is_same_v<T, double>)
+    {
+      const T& a = inout_context.GetData<T>(node.GetInputDataOffset(0));
+      const T& b = inout_context.GetData<T>(node.GetInputDataOffset(1));
+      inout_context.SetData(node.GetOutputDataOffset(0), T(ezMath::Mod(a, b)));
+    }
+    else
+    {
+      ezLog::Error("Modulo is not defined for type '{}'", GetTypeName<T>());
+    }
+
+    return ExecResult::RunNext(0);
+  }
+
+  MAKE_EXEC_FUNC_GETTER(NodeFunction_Builtin_Mod);
+
+  template <typename T>
   static ExecResult NodeFunction_Builtin_Min(ezVisualScriptExecutionContext& inout_context, const ezVisualScriptGraphDescription::Node& node)
   {
     if constexpr (std::is_same_v<T, ezUInt8> ||
@@ -1652,6 +1679,7 @@ namespace
     {nullptr, &NodeFunction_Builtin_Sub_Getter},               // Builtin_Subtract,
     {nullptr, &NodeFunction_Builtin_Mul_Getter},               // Builtin_Multiply,
     {nullptr, &NodeFunction_Builtin_Div_Getter},               // Builtin_Divide,
+    {nullptr, &NodeFunction_Builtin_Mod_Getter},               // Builtin_Modulo,
     {nullptr, &NodeFunction_Builtin_Min_Getter},               // Builtin_Min,
     {nullptr, &NodeFunction_Builtin_Max_Getter},               // Builtin_Max,
     {nullptr, &NodeFunction_Builtin_Clamp_Getter},             // Builtin_Clamp,
