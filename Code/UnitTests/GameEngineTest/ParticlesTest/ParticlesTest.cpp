@@ -48,6 +48,7 @@ void ezGameEngineTestParticles::SetupSubTests()
   AddSubTest("EventReactionEffect", SubTests::EventReactionEffect);
   AddSubTest("SphereBounds", SubTests::SphereBounds);
   AddSubTest("Turbulence", SubTests::Turbulence);
+  AddSubTest("Expression", SubTests::Expression);
 
   AddSubTest("Billboards", SubTests::Billboards);
   AddSubTest("PullAlongBehavior", SubTests::PullAlongBehavior);
@@ -135,6 +136,7 @@ ezResult ezGameEngineTestParticles::InitializeSubTest(ezInt32 iIdentifier)
       "{ dfbb5432-f850-4e4b-b6b2-dcc1f10f3a3c }", // QuadAxisEmDir
       "{ ea65b845-86ec-4d16-a764-35cac6565f2a }", // SphereBounds
       "{ 9d85e9ab-53dd-4545-b70c-b2fbf04e2408 }", // Turbulence
+      "{ 4316dcc6-7d5d-434c-a5a1-aa5d9f9def4e }", // Expression
     };
 
     m_pOwnApplication->SetupParticleSubTest(szEffects[iIdentifier]);

@@ -61,7 +61,7 @@ void ezParticleBehaviorFactory_BoundsSphere::Save(ezStreamWriter& inout_stream) 
   inout_stream << m_OutOfBoundsMode;
 }
 
-void ezParticleBehaviorFactory_BoundsSphere::Load(ezStreamReader& inout_stream)
+void ezParticleBehaviorFactory_BoundsSphere::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
 {
   ezUInt8 uiVersion = 0;
   inout_stream >> uiVersion;

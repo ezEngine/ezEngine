@@ -24,7 +24,7 @@ public:
   ezParticleInitializer* CreateInitializer(ezParticleSystemInstance* pOwner) const;
 
   virtual void Save(ezStreamWriter& inout_stream) const = 0;
-  virtual void Load(ezStreamReader& inout_stream) = 0;
+  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) = 0;
 
   virtual void QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const {}
 };

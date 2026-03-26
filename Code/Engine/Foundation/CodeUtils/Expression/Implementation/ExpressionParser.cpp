@@ -562,7 +562,14 @@ ezExpressionAST::Node* ezExpressionParser::ParseFunctionCall(ezStringView sFunct
   {
     do
     {
-      arguments.PushBack(ParseExpression());
+      auto pExpression = ParseExpression();
+      if (pExpression == nullptr)
+      {
+        ReportError(m_TokenStream[m_uiCurrentToken], ezFmt("Invalid argument {} for '{}'", arguments.GetCount(), sFunctionName));
+        return nullptr;
+      }
+
+      arguments.PushBack(pExpression);
     } while (Accept(m_TokenStream, m_uiCurrentToken, ","));
 
     if (Expect(")").Failed())
@@ -649,7 +656,7 @@ ezExpressionAST::Node* ezExpressionParser::ParseFunctionCall(ezStringView sFunct
 
 ezExpressionAST::Node* ezExpressionParser::ParseSwizzle(ezExpressionAST::Node* pExpression)
 {
-  if (Accept(m_TokenStream, m_uiCurrentToken, "."))
+  if (pExpression != nullptr && Accept(m_TokenStream, m_uiCurrentToken, "."))
   {
     const ezToken* pSwizzleToken = nullptr;
     if (Expect(ezTokenType::Identifier, &pSwizzleToken).Failed())

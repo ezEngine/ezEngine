@@ -22,7 +22,7 @@ public:
   virtual void QueryMaxParticleCount(ezUInt32& out_uiMaxParticlesAbs, ezUInt32& out_uiMaxParticlesPerSecond) const = 0;
 
   virtual void Save(ezStreamWriter& inout_stream) const = 0;
-  virtual void Load(ezStreamReader& inout_stream) = 0;
+  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) = 0;
 };
 
 /// Current state of a particle emitter

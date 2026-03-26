@@ -2,7 +2,9 @@
 
 #include <GuiFoundation/PropertyGrid/Implementation/ExpressionPropertyWidget.moc.h>
 
+#include <Foundation/CodeUtils/Expression/ExpressionDeclarations.h>
 #include <Foundation/CodeUtils/Expression/ExpressionParser.h>
+#include <Foundation/Math/ColorScheme.h>
 
 ezQtPropertyEditorExpressionWidget::ezQtPropertyEditorExpressionWidget()
   : ezQtStandardPropertyWidget()
@@ -38,6 +40,27 @@ ezQtPropertyEditorExpressionWidget::~ezQtPropertyEditorExpressionWidget()
 
 void ezQtPropertyEditorExpressionWidget::OnInit()
 {
+  if (const ezExpressionWidgetAttribute* pAttr = m_pProp->GetAttributeByType<ezExpressionWidgetAttribute>())
+  {
+    const char* szKeywords = pAttr->GetCustomKeywords();
+    if (!ezStringUtils::IsNullOrEmpty(szKeywords))
+    {
+      QSet<QString> keywords;
+      ezStringBuilder sKeywords = szKeywords;
+      ezHybridArray<ezStringView, 16> parts;
+      sKeywords.Split(false, parts, ";");
+      for (ezStringView part : parts)
+      {
+        ezStringBuilder sTrimmed = part;
+        sTrimmed.Trim(" \t");
+        if (!sTrimmed.IsEmpty())
+          keywords.insert(QString::fromUtf8(sTrimmed.GetData()));
+      }
+
+      const ezColorGammaUB c = pAttr->GetCustomKeywordColor();
+      static_cast<ExpressionHighlighter*>(m_pHighlighter)->SetCustomKeywords(keywords, QColor(c.r, c.g, c.b));
+    }
+  }
 }
 
 void ezQtPropertyEditorExpressionWidget::InternalSetValue(const ezVariant& value)
@@ -76,6 +99,16 @@ ExpressionHighlighter::ExpressionHighlighter(QTextDocument* pParent)
   m_Colors[ExpressionTokenType::Bracket] = QColor(200, 200, 200);
   m_Colors[ExpressionTokenType::Type] = QColor(86, 156, 214);
   m_Colors[ExpressionTokenType::BuiltIn] = QColor(216, 160, 223);
+  {
+    const ezColorGammaUB c = ezColorScheme::DarkUI(ezColorScheme::Yellow);
+    m_Colors[ExpressionTokenType::Custom] = QColor(c.r, c.g, c.b);
+  }
+}
+
+void ExpressionHighlighter::SetCustomKeywords(const QSet<QString>& keywords, QColor color)
+{
+  m_CustomKeywords = keywords;
+  m_Colors[ExpressionTokenType::Custom] = color;
 }
 
 void ExpressionHighlighter::highlightBlock(const QString& text)
@@ -179,6 +212,10 @@ void ExpressionHighlighter::highlightBlock(const QString& text)
           else if (builtinFunctions.Contains(tokenHashed))
           {
             setFormat(start, i - start, m_Colors[ExpressionTokenType::BuiltIn]);
+          }
+          else if (m_CustomKeywords.contains(token))
+          {
+            setFormat(start, i - start, m_Colors[ExpressionTokenType::Custom]);
           }
           state = Start;
         }

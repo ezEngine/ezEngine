@@ -62,7 +62,7 @@ void ezParticleInitializerFactory_RandomRotationSpeed::Save(ezStreamWriter& inou
   inout_stream << m_bRandomStartAngle;
 }
 
-void ezParticleInitializerFactory_RandomRotationSpeed::Load(ezStreamReader& inout_stream)
+void ezParticleInitializerFactory_RandomRotationSpeed::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
 {
   ezUInt8 uiVersion = 0;
   inout_stream >> uiVersion;

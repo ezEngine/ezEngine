@@ -58,7 +58,7 @@ void ezParticleBehaviorFactory_Attract::Save(ezStreamWriter& inout_stream) const
   inout_stream << m_uiMaxAttractors;
 }
 
-void ezParticleBehaviorFactory_Attract::Load(ezStreamReader& inout_stream)
+void ezParticleBehaviorFactory_Attract::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
 {
   /*const auto version =*/inout_stream.ReadVersion(1);
 

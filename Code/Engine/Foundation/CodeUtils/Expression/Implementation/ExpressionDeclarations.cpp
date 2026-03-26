@@ -199,11 +199,14 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExpressionWidgetAttribute, 1, ezRTTIDefaultAll
   {
     EZ_MEMBER_PROPERTY("InputsProperty", m_sInputsProperty),
     EZ_MEMBER_PROPERTY("OutputsProperty", m_sOutputsProperty),
+    EZ_MEMBER_PROPERTY("CustomKeywords", m_sCustomKeywords),
+    EZ_MEMBER_PROPERTY("CustomKeywordColor", m_CustomKeywordColor),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_FUNCTIONS
   {
     EZ_CONSTRUCTOR_PROPERTY(const char*, const char*),
+    EZ_CONSTRUCTOR_PROPERTY(const char*, ezColorGammaUB),
   }
   EZ_END_FUNCTIONS;
 }

@@ -8,6 +8,7 @@
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Math/Float16.h>
 #include <Foundation/Types/UniquePtr.h>
+#include <TestFramework/Utilities/TestLogInterface.h>
 
 namespace
 {
@@ -121,6 +122,13 @@ namespace
   {
     static constexpr ezProcessingStream::DataType Type = ezProcessingStream::DataType::Int3;
     static ezVec3I32 Default() { return ezVec3I32(ezMath::MinValue<int>()); }
+  };
+
+  template <>
+  struct StreamDataTypeDeduction<ezVec4>
+  {
+    static constexpr ezProcessingStream::DataType Type = ezProcessingStream::DataType::Float4;
+    static ezVec4 Default() { return ezVec4(ezMath::MinValue<float>()); }
   };
 
   template <typename T>
@@ -1191,5 +1199,44 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Expression)
     ezExpressionByteCode testByteCode;
     Compile<ezVec3>(testCode, testByteCode);
     EZ_TEST_VEC3(Execute<ezVec3>(testByteCode), ezVec3(61, 54, 54), ezMath::DefaultEpsilon<float>());
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Parser errors")
+  {
+    ezExpression::StreamDesc inputs[] = {
+      {s_sA, StreamDataTypeDeduction<ezVec4>::Type},
+      {s_sB, StreamDataTypeDeduction<ezVec4>::Type},
+      {s_sC, StreamDataTypeDeduction<ezVec4>::Type},
+      {s_sD, StreamDataTypeDeduction<ezVec4>::Type},
+    };
+
+    ezExpression::StreamDesc outputs[] = {
+      {s_sOutput, StreamDataTypeDeduction<ezVec4>::Type},
+    };
+
+    {
+      ezStringView testCode = "output = vec4(.x, abs(a.z) * 0.1, 0, 1)";
+
+      ezTestLogInterface log;
+      ezTestLogSystemScope logSystemScope(&log);
+
+      log.ExpectMessage("(1,15): Invalid argument 0 for 'vec4'", ezLogMsgType::ErrorMsg);
+
+      ezExpressionAST ast;
+      EZ_TEST_BOOL(s_pParser->Parse(testCode, inputs, outputs, {}, ast).Failed());
+    }
+
+    {
+      ezStringView testCode = "output = vec4(a.x, abs(a.z) * 0.1, a., 1)";
+
+      ezTestLogInterface log;
+      ezTestLogSystemScope logSystemScope(&log);
+
+      log.ExpectMessage("(1,38): Syntax error, expected token type Identifier but got NonIdentifier", ezLogMsgType::ErrorMsg);
+      log.ExpectMessage("(1,38): Invalid argument 2 for 'vec4'", ezLogMsgType::ErrorMsg);
+
+      ezExpressionAST ast;
+      EZ_TEST_BOOL(s_pParser->Parse(testCode, inputs, outputs, {}, ast).Failed());
+    }
   }
 }

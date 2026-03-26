@@ -189,7 +189,7 @@ EZ_CREATE_SIMPLE_TEST(00_Init, TransformBasics)
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformParticles)
 {
-  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Particles/ezProject", 4).Succeeded());
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Particles/ezProject", 5).Succeeded());
 }
 
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformEffects)

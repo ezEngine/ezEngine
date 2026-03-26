@@ -80,7 +80,7 @@ void ezParticleTypeLightFactory::Save(ezStreamWriter& inout_stream) const
   inout_stream << m_sSizeScaleParameter;
 }
 
-void ezParticleTypeLightFactory::Load(ezStreamReader& inout_stream)
+void ezParticleTypeLightFactory::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
 {
   ezUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
@@ -177,7 +177,7 @@ void ezParticleTypeLight::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg,
     pRenderData->m_LightColor = tintColor * pColor[i].ToLinearFloat();
     pRenderData->m_fIntensity = intensity;
     pRenderData->m_fSpecularMultiplier = 1.0f;
-    pRenderData->m_fRange = pSize[i] * sizeFactor;
+    pRenderData->m_fRange = ezMath::Max(0.01f, pSize[i] * sizeFactor);
     pRenderData->m_uiShadowDataOffsetAndFadeOut = 0;
 
     float fScreenSpaceSize = ezLightComponent::CalculateScreenSpaceSize(ezBoundingSphere::MakeFromCenterAndRadius(pRenderData->m_vGlobalPosition, pRenderData->m_fRange * 0.5f), *ref_msg.m_pView->GetCullingCamera());

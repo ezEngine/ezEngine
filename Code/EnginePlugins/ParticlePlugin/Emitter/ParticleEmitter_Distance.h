@@ -19,7 +19,7 @@ public:
   virtual void QueryMaxParticleCount(ezUInt32& out_uiMaxParticlesAbs, ezUInt32& out_uiMaxParticlesPerSecond) const override;
 
   virtual void Save(ezStreamWriter& inout_stream) const override;
-  virtual void Load(ezStreamReader& inout_stream) override;
+  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
 
 public:
   float m_fDistanceThreshold = 0.1f;    ///< Distance that must be traveled before spawning

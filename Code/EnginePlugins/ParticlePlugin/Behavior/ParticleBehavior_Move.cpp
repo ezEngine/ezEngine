@@ -126,7 +126,7 @@ void ezParticleBehaviorFactory_Move::Save(ezStreamWriter& inout_stream) const
   m_RuntimeMoveZ_Curve.Save(inout_stream);
 }
 
-void ezParticleBehaviorFactory_Move::Load(ezStreamReader& inout_stream)
+void ezParticleBehaviorFactory_Move::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
 {
   ezUInt8 uiVersion = 0;
   inout_stream >> uiVersion;

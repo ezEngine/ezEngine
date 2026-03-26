@@ -33,7 +33,7 @@ public:
   virtual void CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const override;
 
   virtual void Save(ezStreamWriter& inout_stream) const override;
-  virtual void Load(ezStreamReader& inout_stream) override;
+  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
 
   ezVec3 m_vCenterOffset = ezVec3::MakeZero();
   float m_fRadius = 3.0f;

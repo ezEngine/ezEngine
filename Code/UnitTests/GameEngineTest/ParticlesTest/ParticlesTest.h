@@ -54,6 +54,7 @@ private:
     QuadAxisEmDir,
     SphereBounds,
     Turbulence,
+    Expression,
 
     // tests that use a dedicated scene
     Billboards,

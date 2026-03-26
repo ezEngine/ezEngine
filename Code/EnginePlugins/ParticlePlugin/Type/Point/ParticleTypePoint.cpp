@@ -47,7 +47,7 @@ void ezParticleTypePointFactory::Save(ezStreamWriter& inout_stream) const
   inout_stream << uiVersion;
 }
 
-void ezParticleTypePointFactory::Load(ezStreamReader& inout_stream)
+void ezParticleTypePointFactory::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
 {
   ezUInt8 uiVersion = 0;
   inout_stream >> uiVersion;

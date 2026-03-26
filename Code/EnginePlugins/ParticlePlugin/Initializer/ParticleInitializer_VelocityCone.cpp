@@ -58,7 +58,7 @@ void ezParticleInitializerFactory_VelocityCone::Save(ezStreamWriter& inout_strea
   inout_stream << m_Speed.m_fVariance;
 }
 
-void ezParticleInitializerFactory_VelocityCone::Load(ezStreamReader& inout_stream)
+void ezParticleInitializerFactory_VelocityCone::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
 {
   ezUInt8 uiVersion = 0;
   inout_stream >> uiVersion;

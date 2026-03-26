@@ -35,7 +35,7 @@ public:
   virtual void QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const {}
 
   virtual void Save(ezStreamWriter& inout_stream) const = 0;
-  virtual void Load(ezStreamReader& inout_stream) = 0;
+  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) = 0;
 };
 
 /// Base class for particle types that define how particles are rendered.

@@ -1238,6 +1238,52 @@ bool ezStringBuilder::TrimWordEnd(ezStringView sWord)
   return trimmed;
 }
 
+void ezStringBuilder::RemoveCStyleComments()
+{
+  const char* p = GetData();
+  const char* pEnd = p + GetElementCount();
+
+  ezStringBuilder result;
+  result.Reserve(GetElementCount());
+
+  const char* pChunkStart = p;
+
+  while (p < pEnd)
+  {
+    if (p[0] == '/' && p + 1 < pEnd && p[1] == '/')
+    {
+      result.Append(ezStringView(pChunkStart, p));
+      while (p < pEnd && *p != '\n')
+        ++p;
+      pChunkStart = p;
+    }
+    else if (p[0] == '/' && p + 1 < pEnd && p[1] == '*')
+    {
+      result.Append(ezStringView(pChunkStart, p));
+      p += 2;
+      while (p < pEnd)
+      {
+        if (*p == '*' && p + 1 < pEnd && p[1] == '/')
+        {
+          p += 2;
+          break;
+        }
+        if (*p == '\n')
+          result.Append('\n');
+        ++p;
+      }
+      pChunkStart = p;
+    }
+    else
+    {
+      ++p;
+    }
+  }
+
+  result.Append(ezStringView(pChunkStart, p));
+  *this = result;
+}
+
 void ezStringBuilder::SetFormat(const ezFormatString& string)
 {
   Clear();

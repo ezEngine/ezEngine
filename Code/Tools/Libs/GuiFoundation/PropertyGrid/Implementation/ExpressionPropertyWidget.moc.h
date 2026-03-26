@@ -36,6 +36,7 @@ struct ExpressionTokenType
     Bracket,
     Type,
     BuiltIn,
+    Custom,
 
     Count,
   };
@@ -46,9 +47,12 @@ class ExpressionHighlighter : public QSyntaxHighlighter
 public:
   ExpressionHighlighter(QTextDocument* pParent = 0);
 
+  void SetCustomKeywords(const QSet<QString>& keywords, QColor color);
+
 protected:
   void highlightBlock(const QString& text) override;
 
 private:
   QColor m_Colors[ExpressionTokenType::Count];
+  QSet<QString> m_CustomKeywords;
 };

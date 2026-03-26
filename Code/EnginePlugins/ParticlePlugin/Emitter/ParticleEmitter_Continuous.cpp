@@ -105,7 +105,7 @@ void ezParticleEmitterFactory_Continuous::Save(ezStreamWriter& inout_stream) con
   inout_stream << m_sSpawnCountScaleParameter;
 }
 
-void ezParticleEmitterFactory_Continuous::Load(ezStreamReader& inout_stream)
+void ezParticleEmitterFactory_Continuous::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
 {
   ezUInt8 uiVersion = 0;
   inout_stream >> uiVersion;

@@ -6,42 +6,42 @@
 
 ```shell
 # Generate and build Debug configuration (use by default)
-powershell -NoProfile -ExecutionPolicy ByPass ./RunCMake.ps1 -Target vs2022x64 -SolutionName "ClaudeBuild" -WorkspaceDir "claude-build"
-cmake --build Workspace/claude-build --config Debug
+powershell -NoProfile -ExecutionPolicy ByPass ./RunCMake.ps1 -Target vs2026x64 -SolutionName "ClaudeBuild" -WorkspaceDir "claude-build"
+Data/Tools/Precompiled/cmake/bin/cmake --build Workspace/claude-build --config Debug
 
 # Generate and build Dev configuration
-powershell -NoProfile -ExecutionPolicy ByPass ./RunCMake.ps1 -Target vs2022x64 -SolutionName "ClaudeBuild" -WorkspaceDir "claude-build"
-cmake --build Workspace/claude-build --config Dev
+powershell -NoProfile -ExecutionPolicy ByPass ./RunCMake.ps1 -Target vs2026x64 -SolutionName "ClaudeBuild" -WorkspaceDir "claude-build"
+Data/Tools/Precompiled/cmake/bin/cmake --build Workspace/claude-build --config Dev
 
 # Clean build
-cmake --build Workspace/claude-build --target clean
+Data/Tools/Precompiled/cmake/bin/cmake --build Workspace/claude-build --target clean
 ```
 
 ### Build Outputs
 
 - **Solution Location**: `Workspace/claude-build/`
-- **Binary Output**: `Workspace/claude-build-output/Bin/WinVs2022[Config]64/`
-- **Library Output**: `Workspace/claude-build-output/Lib/WinVs2022[Config]64/`
+- **Binary Output**: `Workspace/claude-build-output/Bin/WinVs2026[Config]64/`
+- **Library Output**: `Workspace/claude-build-output/Lib/WinVs2026[Config]64/`
 
 ### Running Tests
 
 ```shell
 # Build and run specific test
-cmake --build Workspace/claude-build --config Debug --target FoundationTest
-ctest --test-dir Workspace/claude-build -C Debug -R FoundationTest
+Data/Tools/Precompiled/cmake/bin/cmake --build Workspace/claude-build --config Debug --target FoundationTest
+Data/Tools/Precompiled/cmake/bin/ctest --test-dir Workspace/claude-build -C Debug -R FoundationTest
 
 # Run all available tests
-ctest --test-dir Workspace/claude-build -C Debug
+Data/Tools/Precompiled/cmake/bin/ctest --test-dir Workspace/claude-build -C Debug
 
 # Run tests with verbose output
-ctest --test-dir Workspace/claude-build -C Debug -V
+Data/Tools/Precompiled/cmake/bin/ctest --test-dir Workspace/claude-build -C Debug -V
 ```
 
 To find more arguments for the test framework, run `FoundationTest.exe -help -close`.
 
 ### Important Notes
 
-- **cmake location**: The repository ships a precompiled cmake at `Data/Tools/Precompiled/cmake/bin/cmake`. Use the full path when invoking cmake directly: `Data/Tools/Precompiled/cmake/bin/cmake --build ...`
+- **cmake location**: The repository ships a precompiled cmake at `Data/Tools/Precompiled/cmake/bin/`. Always use this path for `cmake` and `ctest` commands rather than any system-installed version.
 
 - **Isolated Builds**: Using `-WorkspaceDir "claude-build"` creates a completely separate build environment, avoiding any conflicts with other builds
 

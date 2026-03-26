@@ -19,7 +19,7 @@ public:
   virtual void QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const override;
 
   virtual void Save(ezStreamWriter& inout_stream) const override;
-  virtual void Load(ezStreamReader& inout_stream) override;
+  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
 
   float m_fStrength = 2.0f;
   float m_fFrequency = 1.0f;

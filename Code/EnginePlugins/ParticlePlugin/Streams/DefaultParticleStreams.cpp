@@ -195,8 +195,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezParticleStreamFactory_OnOff::ezParticleStreamFactory_OnOff()
   : ezParticleStreamFactory("OnOff", ezProcessingStream::DataType::Byte, ezGetStaticRTTI<ezParticleStream_ZeroInit>())
 {
-  // TODO: smaller data type
-  // TODO: "Byte" type results in memory corruptions
 }
 
 //////////////////////////////////////////////////////////////////////////
