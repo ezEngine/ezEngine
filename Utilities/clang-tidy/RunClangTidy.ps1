@@ -493,6 +493,6 @@ finally
    $job | Remove-Job -Force
    if($DeleteTempDir)
    {
-       Remove-Item -Recurse -Force $TempDir
+       Remove-Item -Recurse -Force $TempDir -ErrorAction SilentlyContinue
    }
 }
