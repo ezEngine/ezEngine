@@ -5,6 +5,7 @@ Particle Effect;Particle Effect;;https://ezengine.net/pages/docs/effects/particl
 # Component Types
 
 ezParticleComponent;Particle;;https://ezengine.net/pages/docs/effects/particle-effects/particle-effect-component.html
+ezParticleAttractorComponent;Particle Attractor;;https://ezengine.net/pages/docs/effects/particle-effects/particle-attractor-component.html
 
 # UI
 
@@ -67,6 +68,7 @@ ezParticleEventReactionFactory_Prefab;Prefab Reaction
 ezParticleBehaviorFactory_BoundsSphere;Bounds: Sphere
 ezParticleBehaviorFactory_Turbulence;Turbulence
 ezParticleBehaviorFactory_Attract;Attract
+ezParticleBehaviorFactory_Expression;Expression
 ezQuadParticleOrientation::Rotating_OrthoEmitterDir;Rotating: Ortho Emitter Dir
 ezQuadParticleOrientation::Rotating_EmitterDir;Rotating: Emitter Dir
 ezQuadParticleOrientation::Fixed_EmitterDir;Fixed: Emitter Dir

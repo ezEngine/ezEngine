@@ -119,7 +119,6 @@ void ezParticleFinalizer_Age::Process(ezUInt64 uiNumElements)
     {
       pLifeTime[i].x = 0;
 
-      /// \todo Get current element index from iterator ?
       m_pStreamGroup->RemoveElement(i);
     }
   }

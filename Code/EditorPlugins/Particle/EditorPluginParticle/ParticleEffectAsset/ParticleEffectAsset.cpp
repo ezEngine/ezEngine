@@ -5,6 +5,7 @@
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <GuiFoundation/PropertyGrid/VisualizerManager.h>
 #include <ParticlePlugin/Behavior/ParticleBehavior_ColorGradient.h>
+#include <ParticlePlugin/Behavior/ParticleBehavior_Expression.h>
 #include <ParticlePlugin/Behavior/ParticleBehavior_Move.h>
 #include <ParticlePlugin/Behavior/ParticleBehavior_Opacity.h>
 #include <ParticlePlugin/Behavior/ParticleBehavior_SizeCurve.h>
@@ -190,6 +191,21 @@ void ezParticleEffectAssetDocument::PropertyMetaStateEventHandler(ezPropertyMeta
 
     props["Gradient"].m_Visibility = (gradientSource == ezGradientSource::CustomGradient) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
     props["SharedGradient"].m_Visibility = (gradientSource == ezGradientSource::SharedGradient) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+  }
+  else if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezParticleBehaviorFactory_Expression>())
+  {
+    auto& props = *e.m_pPropertyStates;
+
+    const ezInt64 mode = e.m_pObject->GetTypeAccessor().GetValue("Mode").ConvertTo<ezInt64>();
+    const bool bDiscard = (mode == ezParticleExpressionMode::Discard);
+    const bool bLookupCurve = (mode == ezParticleExpressionMode::LookupCurve);
+    const bool bLookupSharedCurve = (mode == ezParticleExpressionMode::LookupSharedCurve);
+
+    props["Modify"].m_Visibility = bDiscard ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
+    props["Comparison"].m_Visibility = bDiscard ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["DiscardThreshold"].m_Visibility = bDiscard ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["Curve"].m_Visibility = bLookupCurve ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["SharedCurve"].m_Visibility = bLookupSharedCurve ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
   }
 }
 
