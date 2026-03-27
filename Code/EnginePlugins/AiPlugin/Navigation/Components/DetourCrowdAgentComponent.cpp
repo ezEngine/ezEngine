@@ -11,6 +11,7 @@
 
 ezCVarBool cvar_DetourCrowdVisAgents("DetourCrowd.Debug.VisAgents", false, ezCVarFlags::Default, "Draws DetourCrowd agents, if any");
 ezCVarBool cvar_DetourCrowdVisCorners("DetourCrowd.Debug.VisCorners", false, ezCVarFlags::Default, "Draws next few path corners of the DetourCrowd agents");
+ezCVarBool cvar_DetourCrowdVisDestination("DetourCrowd.Debug.VisDestination", false, ezCVarFlags::Default, "Draws destination points of the DetourCrowd agents");
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -36,7 +37,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezDetourCrowdAgentComponent, 1, ezComponentMode::Dynamic
     EZ_MEMBER_PROPERTY("Height",m_fHeight)->AddAttributes(new ezDefaultValueAttribute(1.8f),new ezClampValueAttribute(0.01f, ezVariant())),
     EZ_MEMBER_PROPERTY("MaxSpeed",m_fMaxSpeed)->AddAttributes(new ezDefaultValueAttribute(3.5f),new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_MEMBER_PROPERTY("MaxAcceleration",m_fMaxAcceleration)->AddAttributes(new ezDefaultValueAttribute(10.0f),new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_MEMBER_PROPERTY("StoppingDistance",m_fStoppingDistance)->AddAttributes(new ezDefaultValueAttribute(0.2f),new ezClampValueAttribute(0.001f, ezVariant())),
+    EZ_MEMBER_PROPERTY("StoppingDistance",m_fStoppingDistance)->AddAttributes(new ezDefaultValueAttribute(0.3f),new ezClampValueAttribute(0.001f, ezVariant())),
     EZ_MEMBER_PROPERTY("MaxAngularSpeed",m_MaxAngularSpeed)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(360.0f)),new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ENUM_MEMBER_PROPERTY("RotationMode",ezDetourCrowdAgentRotationMode,m_RotationMode),
     EZ_MEMBER_PROPERTY("Pushiness",m_fPushiness)->AddAttributes(new ezDefaultValueAttribute(1.0f),new ezClampValueAttribute(0.0f, ezVariant())),
@@ -47,6 +48,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezDetourCrowdAgentComponent, 1, ezComponentMode::Dynamic
   {
     EZ_SCRIPT_FUNCTION_PROPERTY(SetDestination, In, "Destination", In, "AllowPartialPaths"),
     EZ_SCRIPT_FUNCTION_PROPERTY(CancelNavigation),
+    EZ_SCRIPT_FUNCTION_PROPERTY(HasDestination),
   }
   EZ_END_FUNCTIONS;
 }
@@ -195,7 +197,7 @@ void ezDetourCrowdAgentComponentManager::Initialize()
   }
 
   {
-    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezDetourCrowdAgentComponentManager::Update, this);
+    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezDetourCrowdAgentComponentManager::SyncTransforms, this);
     desc.m_Phase = ezWorldUpdatePhase::PostAsync;
     desc.m_bOnlyUpdateWhenSimulating = true;
 
@@ -364,13 +366,16 @@ void ezDetourCrowdAgentComponentManager::AsyncUpdate(const UpdateContext& ctx)
         }
       }
 
+      // Check if we've reached the destination
       if (pAgent->m_uiHasDestinationBit)
       {
-        const ezVec3 vPos = ezRcPos(pDtAgent->npos);
-        const ezVec3 vTargetPos = ezRcPos(pDtAgent->targetPos);
-        const float fDistSquared = vPos.GetSquaredDistanceTo(vTargetPos);
+        ezVec3 vTargetPos = ezRcPos(pDtAgent->targetPos);
+        if (pDtAgent->targetState == DT_CROWDAGENT_TARGET_VALID)
+          vTargetPos = ezRcPos(pDtAgent->corridor.getTarget());
+        const float fDistSquared = vTargetPos.GetSquaredDistanceTo(ezRcPos(pDtAgent->npos));
 
-        if (fDistSquared < pAgent->m_fStoppingDistance * pAgent->m_fStoppingDistance)
+        // Check if we're close enough or pathfinding has failed
+        if (pDtAgent->targetState == DT_CROWDAGENT_TARGET_FAILED || fDistSquared < pAgent->m_fStoppingDistance * pAgent->m_fStoppingDistance)
         {
           pDtCrowd->resetMoveTarget(iAgentId);
           pAgent->m_uiHasDestinationBit = 0;
@@ -401,7 +406,7 @@ void ezDetourCrowdAgentComponentManager::AsyncUpdate(const UpdateContext& ctx)
   }
 }
 
-void ezDetourCrowdAgentComponentManager::Update(const UpdateContext& ctx)
+void ezDetourCrowdAgentComponentManager::SyncTransforms(const UpdateContext& ctx)
 {
   const float fDeltaTime = GetWorld()->GetClock().GetTimeDiff().AsFloatInSeconds();
 
@@ -428,8 +433,33 @@ void ezDetourCrowdAgentComponentManager::Update(const UpdateContext& ctx)
         vTargetDir.z = 0;
         vTargetDir.NormalizeIfNotZero(vLookDir).IgnoreResult();
 
-        const ezAngle turnAngle = ezMath::Min(vLookDir.GetAngleBetween(vTargetDir), fDeltaTime * pAgent->m_MaxAngularSpeed);
-        const ezQuat qRot = ezQuat::MakeFromAxisAndAngle(ezVec3::MakeAxisZ(), turnAngle);
+        if (pAgent->m_RotationMode == ezDetourCrowdAgentRotationMode::LookAtNextPathCorner && pDtAgent->ncorners > 0)
+        {
+          ezVec3 vNextCorner = ezRcPos(pDtAgent->cornerVerts);
+          ezVec3 vDiff = vNextCorner - vPosition;
+          vDiff.z = 0;
+
+          if (vDiff.GetLengthSquared() > 0.001f)
+          {
+            vTargetDir = vDiff.GetNormalized();
+          }
+          else if (pDtAgent->ncorners > 1)
+          {
+            vNextCorner = ezRcPos(pDtAgent->cornerVerts + 3);
+            vDiff = vNextCorner - vPosition;
+            vDiff.z = 0;
+            if (vDiff.GetLengthSquared() > 0.001f)
+            {
+              vTargetDir = vDiff.GetNormalized();
+            }
+          }
+        }
+
+        const float maxTurnAngle = fDeltaTime * pAgent->m_MaxAngularSpeed.GetRadian();
+        float turnAngle = vLookDir.GetAngleBetween(vTargetDir, ezVec3::MakeAxisZ()).GetRadian();
+        turnAngle = ezMath::Sign(turnAngle) * ezMath::Min(ezMath::Abs(turnAngle), maxTurnAngle);
+
+        const ezQuat qRot = ezQuat::MakeFromAxisAndAngle(ezVec3::MakeAxisZ(), ezAngle::MakeFromRadian(turnAngle));
         const ezVec3 vNewLookDir = qRot * pAgent->GetOwner()->GetGlobalDirForwards();
 
         ezTransform transform = pAgent->GetOwner()->GetGlobalTransform();
@@ -441,10 +471,15 @@ void ezDetourCrowdAgentComponentManager::Update(const UpdateContext& ctx)
       }
 
       // Draw destination
-      if (pAgent->HasDestination())
+      if (cvar_DetourCrowdVisDestination && pAgent->HasDestination())
       {
-        ezDebugRenderer::DrawLineSphere(GetWorld(), ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), 0.2f), ezColor::Azure, ezTransform::Make(pAgent->m_vDestination));
-        ezDebugRenderer::DrawLineSphere(GetWorld(), ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), 0.2f), ezColor::Aquamarine, ezTransform::Make(pAgent->m_vActualDestination));
+        ezDebugRendererLine line{};
+        line.m_start = pAgent->GetOwner()->GetGlobalPosition();
+        line.m_end = pAgent->m_vActualDestination;
+
+        ezDebugRenderer::DrawLines(GetWorld(), ezArrayPtr(&line, 1), ezColor::DarkSalmon, ezTransform::Make(ezVec3(0.0f, 0.0f, 0.1f)));
+
+        ezDebugRenderer::DrawLineSphere(GetWorld(), ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), 0.2f), ezColor::DarkSalmon, ezTransform::Make(pAgent->m_vActualDestination));
       }
     }
   }

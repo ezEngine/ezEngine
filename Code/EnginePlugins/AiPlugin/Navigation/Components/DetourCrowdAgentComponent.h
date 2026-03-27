@@ -39,7 +39,7 @@ public:
 
 private:
   void AsyncUpdate(const UpdateContext& ctx);
-  void Update(const UpdateContext& ctx);
+  void SyncTransforms(const UpdateContext& ctx);
 
   static void FillDtCrowdAgentParams(const ezDetourCrowdAgentComponent* pAgent, dtCrowdAgentParams& out_params);
   static dtCrowdAgent* TryGetValidDtAgent(dtCrowd* pDtCrowd, const ezDetourCrowdAgentComponent* pAgent);
@@ -91,7 +91,7 @@ protected:
   float m_fHeight = 1.8f;                                      ///< [ property ]
   float m_fMaxSpeed = 3.5f;                                    ///< [ property ]
   float m_fMaxAcceleration = 10.0f;                            ///< [ property ]
-  float m_fStoppingDistance = 0.2f;                            ///< [ property ] If distance to the target is less than the stopping distance, the target is reached.
+  float m_fStoppingDistance = 0.1f;                            ///< [ property ] If distance to the target is less than the stopping distance, the target is reached.
   ezAngle m_MaxAngularSpeed = ezAngle::MakeFromDegree(360.0f); ///< [ property ]
   ezEnum<ezDetourCrowdAgentRotationMode> m_RotationMode;       ///< [ property ]
   float m_fPushiness = 1.0f;                                   ///< [ property ] The agent will push other agents with lower pushiness and will get pushed by agents with higher pushiness.
@@ -120,7 +120,6 @@ public:
   void SetPushiness(float fPushiness);
 
   ezVec3 GetVelocity() const { return m_vVelocity; }
-  ezAngle GetAngularSpeed() const { return m_AngularSpeed; }
 
   //////////////////////////////////////////////////////////////////////////
   // Other
