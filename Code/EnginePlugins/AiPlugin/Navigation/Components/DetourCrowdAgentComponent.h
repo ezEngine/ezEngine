@@ -5,7 +5,6 @@
 #include <AiPlugin/AiPluginDLL.h>
 #include <Foundation/Containers/ArrayMap.h>
 
-class ezDetourCrowdWorldModule;
 class ezDetourCrowdAgentComponent;
 
 //////////////////////////////////////////////////////////////////////////

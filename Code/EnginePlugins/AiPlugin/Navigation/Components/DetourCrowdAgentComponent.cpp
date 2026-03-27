@@ -1,8 +1,9 @@
+#include <AiPlugin/AiPluginPCH.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
-#include <AiPlugin/Utils/RcMath.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <DetourCrowd.h>
+#include <AiPlugin/Utils/RcMath.h>
 #include <AiPlugin/Navigation/Components/DetourCrowdAgentComponent.h>
 #include <AiPlugin/Navigation/Navigation.h>
 #include <AiPlugin/Navigation/NavMeshWorldModule.h>
