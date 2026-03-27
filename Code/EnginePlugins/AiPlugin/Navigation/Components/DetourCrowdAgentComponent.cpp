@@ -498,11 +498,11 @@ void ezDetourCrowdAgentComponentManager::SyncTransforms(const UpdateContext& ctx
           const float fHeight = pDtAgent->params.height;
           const float fRadius = pDtAgent->params.radius;
 
-          ezTransform xform(ezRcPos(pDtAgent->npos));
-          xform.m_vPosition.z += fHeight * 0.5f;
+          ezTransform transform(ezRcPos(pDtAgent->npos));
+          transform.m_vPosition.z += fHeight * 0.5f;
 
           // Draw agent cylinder
-          ezDebugRenderer::DrawLineCylinderZ(GetWorld(), fHeight, fRadius, ezColor::BlueViolet, xform);
+          ezDebugRenderer::DrawLineCylinderZ(GetWorld(), fHeight, fRadius, ezColor::BlueViolet, transform);
 
           // Draw velocity arrow
           ezVec3 vVelocity = ezRcPos(pDtAgent->vel);
@@ -510,11 +510,11 @@ void ezDetourCrowdAgentComponentManager::SyncTransforms(const UpdateContext& ctx
           if (!vVelocity.IsZero())
           {
             vVelocity.Normalize();
-            xform.m_qRotation = ezQuat::MakeShortestRotation(ezVec3(1, 0, 0), vVelocity);
-            ezDebugRenderer::DrawArrow(GetWorld(), 1.0f, ezColor::BlueViolet, xform);
+            transform.m_qRotation = ezQuat::MakeShortestRotation(ezVec3(1, 0, 0), vVelocity);
+            ezDebugRenderer::DrawArrow(GetWorld(), 1.0f, ezColor::BlueViolet, transform);
           }
 
-          // Draw corners
+          // Draw path corners
           if (cvar_DetourCrowdVisCorners.GetValue() && pDtAgent->ncorners > 0)
           {
             ezDebugRendererLine lines[DT_CROWDAGENT_MAX_CORNERS];
@@ -522,10 +522,10 @@ void ezDetourCrowdAgentComponentManager::SyncTransforms(const UpdateContext& ctx
             lines[0].m_start = ezRcPos(pDtAgent->npos);
             lines[0].m_end = ezRcPos(pDtAgent->cornerVerts);
 
-            for (int i = 1; i < pDtAgent->ncorners; ++i)
+            for (int i = 0; i < pDtAgent->ncorners - 1; ++i)
             {
-              lines[i].m_start = ezRcPos(pDtAgent->cornerVerts + 3 * (i-1));
-              lines[i].m_end = ezRcPos(pDtAgent->cornerVerts + 3 * i);
+              lines[i].m_start = ezRcPos(pDtAgent->cornerVerts + 3 * i);
+              lines[i].m_end = ezRcPos(pDtAgent->cornerVerts + 3 * i + 3);
             }
 
             ezDebugRenderer::DrawLines(GetWorld(), ezArrayPtr(lines, pDtAgent->ncorners), ezColor::Cyan, ezTransform::Make(ezVec3(0.0f, 0.0f, 0.1f)));
