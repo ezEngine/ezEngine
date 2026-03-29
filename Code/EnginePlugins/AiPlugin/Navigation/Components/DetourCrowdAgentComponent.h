@@ -51,11 +51,12 @@ private:
 
 /// \brief Implements navigation, path following and obstacle avoidance. Requires Recast navmesh.
 ///
-/// This component provides the ability to intelligently navigate around the level (using Recast navmesh)
+/// This component provides the ability to navigate around the level (using Recast navmesh)
 /// while avoiding other agents.
 ///
-/// Usage: call SetTargetPosition() to command the agent to go somewhere. Subscribe to m_SteeringEvents
-/// to receive feedback (target reached, pathfinding failed, etc).
+/// Call SetDestination() to command the agent to navigate to a position. Check HasDestination() to
+/// determine whether the agent is still navigating. If pathfinding fails and AllowPartialPath was
+/// false, m_uiSteeringFailedBit is set.
 class EZ_AIPLUGIN_DLL ezDetourCrowdAgentComponent : public ezComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezDetourCrowdAgentComponent, ezComponent, ezDetourCrowdAgentComponentManager);
@@ -125,8 +126,9 @@ public:
 protected:
   ezUInt8 m_uiDestinationChangedBit : 1;
   ezUInt8 m_uiHasDestinationBit : 1;
-  ezUInt8 m_uiSteeringFailedBit : 1;
+  ezUInt8 m_uiSteeringFailedBit : 1;  ///< Set when pathfinding fails and AllowPartialPath is false.
   ezUInt8 m_uiParamsChangedBit : 1;
+  ezUInt8 m_uiAllowPartialPathBit : 1;
 
   ezUInt32 m_uiCrowdId = 0;
   ezUInt32 m_uiAgentId = 0;

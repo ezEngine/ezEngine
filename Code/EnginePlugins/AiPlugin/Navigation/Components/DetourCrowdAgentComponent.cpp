@@ -62,6 +62,7 @@ ezDetourCrowdAgentComponent::ezDetourCrowdAgentComponent()
   m_uiDestinationChangedBit = 0;
   m_uiSteeringFailedBit = 0;
   m_uiParamsChangedBit = 0;
+  m_uiAllowPartialPathBit = 0;
 }
 
 ezDetourCrowdAgentComponent::~ezDetourCrowdAgentComponent() = default;
@@ -149,7 +150,8 @@ void ezDetourCrowdAgentComponent::SetDestination(const ezVec3& vGlobalPos, bool 
 
   if (pNavMesh)
   {
-    EZ_IGNORE_UNUSED(bAllowPartialPath); // TODO
+    m_uiAllowPartialPathBit = bAllowPartialPath ? 1 : 0;
+    m_uiSteeringFailedBit = 0;
     m_vDestination = vGlobalPos;
     m_uiDestinationChangedBit = 1;
     m_uiHasDestinationBit = 1;
@@ -245,9 +247,8 @@ void ezDetourCrowdAgentComponentManager::AsyncUpdate(const UpdateContext& ctx)
 
     if (pNavMesh->GetDetourNavMesh() != pair.value->getNavMeshQuery()->getAttachedNavMesh())
     {
-      // TODO: fetch these from navmesh config
       const ezInt32 iMaxAgents = 128;
-      const float fMaxAgentRadius = 1.0f;
+      const float fMaxAgentRadius = pNavMesh->GetConfig().m_fAgentRadius;
 
       pair.value->init(iMaxAgents, fMaxAgentRadius, const_cast<dtNavMesh*>(pNavMesh->GetDetourNavMesh()));
     }
@@ -277,9 +278,8 @@ void ezDetourCrowdAgentComponentManager::AsyncUpdate(const UpdateContext& ctx)
         {
           pDtCrowd = dtAllocCrowd();
 
-          // TODO: fetch these from navmesh config
           const ezInt32 iMaxAgents = 128;
-          const float fMaxAgentRadius = 1.0f;
+          const float fMaxAgentRadius = pNavMesh->GetConfig().m_fAgentRadius;
 
           pDtCrowd->init(iMaxAgents, fMaxAgentRadius, const_cast<dtNavMesh*>(pNavMesh->GetDetourNavMesh()));
 
@@ -346,10 +346,14 @@ void ezDetourCrowdAgentComponentManager::AsyncUpdate(const UpdateContext& ctx)
         if (pAgent->m_uiHasDestinationBit)
         {
           float vNavPos[3];
-          dtPolyRef navPolyRef;
-          const ezVec3 vQueryHalfExtents = ezVec3(1, 1, 2); // TODO: make it configurable? grow it iteratively?
+          dtPolyRef navPolyRef = 0;
+          ezVec3 vQueryHalfExtents = ezVec3(1, 1, 2);
 
-          pDtCrowd->getNavMeshQuery()->findNearestPoly(ezRcPos(pAgent->m_vDestination), ezRcPos(vQueryHalfExtents), pDtCrowd->getFilter(0), &navPolyRef, vNavPos);
+          // Grow search extents until a polygon is found, up to 3 attempts.
+          for (int iTry = 0; iTry < 3 && navPolyRef == 0; ++iTry, vQueryHalfExtents *= 2.0f)
+          {
+            pDtCrowd->getNavMeshQuery()->findNearestPoly(ezRcPos(pAgent->m_vDestination), ezRcPos(vQueryHalfExtents), pDtCrowd->getFilter(0), &navPolyRef, vNavPos);
+          }
 
           if (navPolyRef != 0)
           {
@@ -360,6 +364,8 @@ void ezDetourCrowdAgentComponentManager::AsyncUpdate(const UpdateContext& ctx)
           {
             pDtCrowd->resetMoveTarget(iAgentId);
             pAgent->m_uiHasDestinationBit = 0;
+            if (!pAgent->m_uiAllowPartialPathBit)
+              pAgent->m_uiSteeringFailedBit = 1;
           }
         }
         else
@@ -376,8 +382,14 @@ void ezDetourCrowdAgentComponentManager::AsyncUpdate(const UpdateContext& ctx)
           vTargetPos = ezRcPos(pDtAgent->corridor.getTarget());
         const float fDistSquared = vTargetPos.GetSquaredDistanceTo(ezRcPos(pDtAgent->npos));
 
-        // Check if we're close enough or pathfinding has failed
-        if (pDtAgent->targetState == DT_CROWDAGENT_TARGET_FAILED || fDistSquared < pAgent->m_fStoppingDistance * pAgent->m_fStoppingDistance)
+        if (pDtAgent->targetState == DT_CROWDAGENT_TARGET_FAILED)
+        {
+          pDtCrowd->resetMoveTarget(iAgentId);
+          pAgent->m_uiHasDestinationBit = 0;
+          if (!pAgent->m_uiAllowPartialPathBit)
+            pAgent->m_uiSteeringFailedBit = 1;
+        }
+        else if (fDistSquared < pAgent->m_fStoppingDistance * pAgent->m_fStoppingDistance)
         {
           pDtCrowd->resetMoveTarget(iAgentId);
           pAgent->m_uiHasDestinationBit = 0;
