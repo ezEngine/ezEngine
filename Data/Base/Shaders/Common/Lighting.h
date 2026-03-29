@@ -635,7 +635,58 @@ AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clus
 #endif
       }
     }
-    else // Fill Light
+    else if (type >= LIGHT_TYPE_TUBE) // Area Lights (rect and tube)
+    {
+      float2 dims = GetAreaLightDimensions(lightData);
+      float range2 = 1.0 / lightData.invSqrAttRadius;
+
+      float3 lightColor = GetLightColor(lightData);
+      float shadowTerm = 1.0;
+      float subsurfaceShadow = 1.0;
+
+      AccumulatedLight areaLight;
+      {
+        float3 tubeAxis = GetLightDirection(lightData);
+        float halfLength = dims.x * 0.5;
+        float radius = dims.y;
+
+        // Closest point on tube axis for attenuation
+        float3 endA = lightData.position - tubeAxis * halfLength;
+        float3 endB = lightData.position + tubeAxis * halfLength;
+        float3 closestOnAxis = ClosestPointOnSegment(matData.worldPosition, endA, endB);
+        float3 Lunnorm = closestOnAxis - matData.worldPosition;
+        float dist2 = dot(Lunnorm, Lunnorm);
+
+        float attenuation = AttenuationPointLight(dist2, range2);
+
+        [branch] if (attenuation > 0.0f)
+        {
+          attenuation *= lightData.intensity;
+
+          // Scale down intensity proportional to sphere volume so that larger radii don't
+          // produce more total energy than a point light of the same intensity setting.
+          if (radius > 0)
+          {
+            float sphereVol = (4.0 / 3.0) * PI * radius * radius * radius;
+            lightColor /= max(1.0, sphereVol);
+          }
+
+          [branch] if (lightData.shadowDataOffsetAndFadeOut != 0)
+          {
+            float3 debugColor;
+            float3 lightDir = normalize(lightData.position - matData.worldPosition);
+            float distanceToLight = dist2 * lightData.invSqrAttRadius;
+            shadowTerm = CalculateShadowTerm(matData.worldPosition, matData.vertexNormal, lightDir, distanceToLight, LIGHT_TYPE_POINT, lightData.shadowDataOffsetAndFadeOut, noise, randomRotation, 1.0, subsurfaceShadow, debugColor);
+          }
+
+          areaLight = TubeLightShading(matData, viewVector, lightData.position,
+            tubeAxis, halfLength, radius);
+
+          AccumulateLight(totalLight, areaLight, lightColor * (attenuation * shadowTerm), lightData.specularMultiplier);
+        }
+      }
+    }
+    else // Fill Light (LIGHT_TYPE_FILL_ADDITIVE and LIGHT_TYPE_FILL_MODULATE_INDIRECT)
     {
       EvaluateFillLight(matData.worldPosition, matData.worldNormal, matData.diffuseColor, 1.0, lightData, type, totalLight.diffuseLight, indirectLightModulation);
     }

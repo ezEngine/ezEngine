@@ -42,6 +42,10 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, ShadowPool)
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
+// Note: LightComponent.h is included here rather than above to avoid shifting the line number of
+// EZ_END_SUBSYSTEM_DECLARATION, which would cause a name collision with ReflectionPool.cpp in unity builds.
+#include <RendererCore/Lights/LightComponent.h>
+
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 ezCVarBool cvar_RenderingShadowsShowAtlasTexture("Rendering.Shadows.ShowAtlasTexture", false, ezCVarFlags::Default, "Display the shadow atlas texture");
 ezCVarBool cvar_RenderingShadowsVisCascadeBounds("Rendering.Shadows.VisCascadeBounds", false, ezCVarFlags::Default, "Visualizes the bounding volumes of shadow cascades");
@@ -523,7 +527,7 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
 }
 
 // static
-ezUInt32 ezShadowPool::AddPointLight(const ezPointLightComponent* pPointLight, float fScreenSpaceSize, const ezView* pReferenceView)
+ezUInt32 ezShadowPool::AddAsPointLight(const ezLightComponent* pPointLight, float fEffectiveRange, float fScreenSpaceSize, const ezView* pReferenceView)
 {
   EZ_ASSERT_DEBUG(pPointLight->GetCastShadows(), "Implementation error");
 
@@ -565,7 +569,7 @@ ezUInt32 ezShadowPool::AddPointLight(const ezPointLightComponent* pPointLight, f
 
   ///\todo expose somewhere
   float fNearPlane = 0.1f;
-  float fFarPlane = pPointLight->GetEffectiveRange();
+  float fFarPlane = fEffectiveRange;
 
   ezStringBuilder tmp;
 

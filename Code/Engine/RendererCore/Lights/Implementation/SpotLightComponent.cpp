@@ -8,6 +8,10 @@
 #include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererCore/Pipeline/View.h>
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+extern ezCVarBool cvar_RenderingLightingVisScreenSpaceSize;
+#endif
+
 constexpr ezAngle c_MaxSpotAngle = ezAngle::MakeFromDegree(160.0f);
 
 // clang-format off
@@ -261,6 +265,10 @@ void ezSpotLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
   pRenderData->FillSortingKey(fScreenSpaceSize);
 
   ezRenderData::Caching::Enum caching = (m_bCastShadows || m_CookieId.IsInvalidated() == false) ? ezRenderData::Caching::Never : ezRenderData::Caching::IfStatic;
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  if (cvar_RenderingLightingVisScreenSpaceSize)
+    caching = ezRenderData::Caching::Never;
+#endif
   msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, caching);
 }
 

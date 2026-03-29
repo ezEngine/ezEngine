@@ -245,6 +245,26 @@ namespace
     out_perLightData.auxParams = ezShaderUtils::Float2ToRG16F(ezVec2(fFalloffExponent, pFillLightRenderData->m_fDirectionality));
   }
 
+  void FillTubeLightData(ezPerLightData& out_perLightData, const ezTubeLightRenderData* pTubeLightRenderData)
+  {
+    FillLightData(out_perLightData, pTubeLightRenderData, LIGHT_TYPE_TUBE);
+
+    // Tube axis direction (X axis of rotation)
+    const ezVec3 axisDir = pTubeLightRenderData->m_qGlobalRotation * ezVec3(1.0f, 0.0f, 0.0f);
+    out_perLightData.direction = ezShaderUtils::Float3ToRGB10(axisDir);
+
+    out_perLightData.position = pTubeLightRenderData->m_vGlobalPosition;
+    out_perLightData.invSqrAttRadius = 1.0f / (pTubeLightRenderData->m_fRange * pTubeLightRenderData->m_fRange);
+
+    // Pack length and radius as fp16
+    out_perLightData.auxParams = ezShaderUtils::Float2ToRG16F(ezVec2(pTubeLightRenderData->m_fLength, pTubeLightRenderData->m_fRadius));
+
+    // Pack a perpendicular direction (Y axis) for orientation recovery on GPU
+    const ezVec3 rightDir = pTubeLightRenderData->m_qGlobalRotation * ezVec3(0.0f, 1.0f, 0.0f);
+    out_perLightData.cookieParams0 = ezFloat16(rightDir.z).GetRawData() << 16;
+    out_perLightData.cookieParams1 = ezShaderUtils::Float2ToRG16F(rightDir.GetAsVec2());
+  }
+
   void FillDecalData(ezPerDecalData& out_perDecalData, const ezDecalRenderData* pDecalRenderData)
   {
     const ezVec4 rotationValues = pDecalRenderData->m_qGlobalRotation;

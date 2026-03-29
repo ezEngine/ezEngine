@@ -210,7 +210,12 @@ void ezFillLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
 
   pRenderData->FillSortingKey(fScreenSpaceSize);
 
-  msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, ezRenderData::Caching::IfStatic);
+  ezRenderData::Caching::Enum caching = ezRenderData::Caching::IfStatic;
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  if (cvar_RenderingLightingVisScreenSpaceSize)
+    caching = ezRenderData::Caching::Never;
+#endif
+  msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, caching);
 }
 
 

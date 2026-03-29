@@ -13,7 +13,18 @@ class EZ_RENDERERCORE_DLL ezPointLightRenderData : public ezLightRenderData
 
 public:
   float m_fRange;
-  // ezTextureCubeResourceHandle m_hProjectedTexture;
+};
+
+/// Render data for tube (capsule) area lights.
+class EZ_RENDERERCORE_DLL ezTubeLightRenderData : public ezLightRenderData
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezTubeLightRenderData, ezLightRenderData);
+
+public:
+  float m_fLength;
+  float m_fRadius;
+  float m_fRange;
+  ezQuat m_qGlobalRotation;
 };
 
 /// \brief Adds a dynamic point light to the scene, optionally casting shadows.
@@ -52,6 +63,14 @@ public:
   /// \brief Returns the final radius of the lightsource.
   float GetEffectiveRange() const;
 
+  /// \brief Sets the length of the tube. Zero means the light is a point light.
+  void SetLength(float fLength); // [ property ]
+  float GetLength() const;       // [ property ]
+
+  /// \brief Radius of the tube's cross-section. Affects the size of specular highlights. Zero means the light is a point light.
+  void SetRadius(float fRadius); // [ property ]
+  float GetRadius() const;       // [ property ]
+
   /// \brief Sets the radius that is used to determine when to fade out shadows. If zero the radius of the lightsource is used.
   void SetShadowFadeOutRange(float fRange); // [ property ]
   float GetShadowFadeOutRange() const;      // [ property ]
@@ -65,6 +84,8 @@ public:
 protected:
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
 
+  float m_fLength = 0.0f;
+  float m_fRadius = 0.0f;
   float m_fRange = 0.0f;
   float m_fEffectiveRange = 0.0f;
   float m_fShadowFadeOutRange = 0.0f;
@@ -84,4 +105,23 @@ public:
   const ezUntrackedString& GetRangeProperty() const { return m_sProperty1; }
   const ezUntrackedString& GetIntensityProperty() const { return m_sProperty2; }
   const ezUntrackedString& GetColorProperty() const { return m_sProperty3; }
+};
+
+/// Visualizer attribute for tube (capsule) area lights.
+///
+/// Shows a wireframe capsule with the tube's dimensions and range in the editor.
+class EZ_RENDERERCORE_DLL ezTubeLightVisualizerAttribute : public ezVisualizerAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezTubeLightVisualizerAttribute, ezVisualizerAttribute);
+
+public:
+  ezTubeLightVisualizerAttribute();
+  ezTubeLightVisualizerAttribute(
+    const char* szLengthProperty, const char* szRadiusProperty, const char* szRangeProperty, const char* szIntensityProperty, const char* szColorProperty);
+
+  const ezUntrackedString& GetLengthProperty() const { return m_sProperty1; }
+  const ezUntrackedString& GetRadiusProperty() const { return m_sProperty2; }
+  const ezUntrackedString& GetRangeProperty() const { return m_sProperty3; }
+  const ezUntrackedString& GetIntensityProperty() const { return m_sProperty4; }
+  const ezUntrackedString& GetColorProperty() const { return m_sProperty5; }
 };

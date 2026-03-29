@@ -2,22 +2,31 @@
 
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
+#include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Lights/Implementation/ShadowPool.h>
 #include <RendererCore/Lights/PointLightComponent.h>
 #include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererCore/Pipeline/View.h>
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+extern ezCVarBool cvar_RenderingLightingVisScreenSpaceSize;
+#endif
+
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPointLightRenderData, 1, ezRTTIDefaultAllocator<ezPointLightRenderData>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_COMPONENT_TYPE(ezPointLightComponent, 3, ezComponentMode::Static)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTubeLightRenderData, 1, ezRTTIDefaultAllocator<ezTubeLightRenderData>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_BEGIN_COMPONENT_TYPE(ezPointLightComponent, 4, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
+    EZ_ACCESSOR_PROPERTY("Length", GetLength, SetLength)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezSuffixAttribute(" m")),
+    EZ_ACCESSOR_PROPERTY("Radius", GetRadius, SetRadius)->AddAttributes(new ezClampValueAttribute(0.0f, 0.5f), new ezSuffixAttribute(" m")),
     EZ_ACCESSOR_PROPERTY("Range", GetRange, SetRange)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezSuffixAttribute(" m"), new ezMinValueTextAttribute("Auto")),
     EZ_ACCESSOR_PROPERTY("ShadowFadeOutRange", GetShadowFadeOutRange, SetShadowFadeOutRange)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezSuffixAttribute(" m"), new ezMinValueTextAttribute("Auto")),
-    //EZ_ACCESSOR_PROPERTY("ProjectedTexture", GetProjectedTextureFile, SetProjectedTextureFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Texture_Cube")),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -28,7 +37,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPointLightComponent, 3, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezSphereManipulatorAttribute("Range"),
-    new ezPointLightVisualizerAttribute("Range", "Intensity", "LightColor"),
+    new ezTubeLightVisualizerAttribute("Length", "Radius", "Range", "Intensity", "LightColor"),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -42,7 +51,8 @@ ezResult ezPointLightComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, 
 {
   m_fEffectiveRange = CalculateEffectiveRange(m_fRange, m_fIntensity);
 
-  ref_bounds = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), m_fEffectiveRange);
+  const float fBoundingRadius = m_fEffectiveRange + m_fLength * 0.5f;
+  ref_bounds = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), fBoundingRadius);
   return EZ_SUCCESS;
 }
 
@@ -63,6 +73,28 @@ float ezPointLightComponent::GetEffectiveRange() const
   return m_fEffectiveRange;
 }
 
+void ezPointLightComponent::SetLength(float fLength)
+{
+  m_fLength = ezMath::Max(fLength, 0.0f);
+  TriggerLocalBoundsUpdate();
+}
+
+float ezPointLightComponent::GetLength() const
+{
+  return m_fLength;
+}
+
+void ezPointLightComponent::SetRadius(float fRadius)
+{
+  m_fRadius = ezMath::Max(fRadius, 0.0f);
+  InvalidateCachedRenderData();
+}
+
+float ezPointLightComponent::GetRadius() const
+{
+  return m_fRadius;
+}
+
 void ezPointLightComponent::SetShadowFadeOutRange(float fRange)
 {
   m_fShadowFadeOutRange = ezMath::Max(fRange, 0.0f);
@@ -75,38 +107,6 @@ float ezPointLightComponent::GetShadowFadeOutRange() const
   return m_fShadowFadeOutRange;
 }
 
-// void ezPointLightComponent::SetProjectedTexture(const ezTextureCubeResourceHandle& hProjectedTexture)
-//{
-//   m_hProjectedTexture = hProjectedTexture;
-//
-//   InvalidateCachedRenderData();
-// }
-//
-// const ezTextureCubeResourceHandle& ezPointLightComponent::GetProjectedTexture() const
-//{
-//   return m_hProjectedTexture;
-// }
-
-// void ezPointLightComponent::SetProjectedTextureFile(const char* szFile)
-//{
-//   ezTextureCubeResourceHandle hProjectedTexture;
-//
-//   if (!ezStringUtils::IsNullOrEmpty(szFile))
-//   {
-//     hProjectedTexture = ezResourceManager::LoadResource<ezTextureCubeResource>(szFile);
-//   }
-//
-//   SetProjectedTexture(hProjectedTexture);
-// }
-//
-// const char* ezPointLightComponent::GetProjectedTextureFile() const
-//{
-//   if (!m_hProjectedTexture.IsValid())
-//     return "";
-//
-//   return m_hProjectedTexture.GetResourceID();
-// }
-
 void ezPointLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   // Don't extract light render data for selection or in shadow views.
@@ -117,36 +117,98 @@ void ezPointLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
     return;
 
   const ezTransform t = GetOwner()->GetGlobalTransform();
-  const ezBoundingSphere bounds = ezBoundingSphere::MakeFromCenterAndRadius(t.m_vPosition, m_fEffectiveRange);
-  const float fScreenSpaceSize = CalculateScreenSpaceSize(bounds, *msg.m_pView->GetCullingCamera());
-  float fShadowScreenSize = 0.0f;
-  const float fShadowFadeOut = CalculateShadowFadeOut(bounds, m_fShadowFadeOutRange, *msg.m_pView->GetCullingCamera(), fShadowScreenSize);
+  const bool bIsTubeLight = (m_fLength > 0.0f || m_fRadius > 0.0f);
+
+  if (bIsTubeLight)
+  {
+    // Clamp to minimum to avoid degenerate TubeLightShading shader math (division by zero when halfLength=0)
+    const float fEffectiveLength = ezMath::Max(m_fLength, 0.001f);
+    const float fEffectiveRadius = ezMath::Max(m_fRadius, 0.001f);
+    const float fBoundingRadius = m_fEffectiveRange + fEffectiveLength * 0.5f;
+    const ezBoundingSphere bounds = ezBoundingSphere::MakeFromCenterAndRadius(t.m_vPosition, fBoundingRadius);
+    const float fScreenSpaceSize = CalculateScreenSpaceSize(bounds, *msg.m_pView->GetCullingCamera());
+    float fShadowScreenSize = 0.0f;
+    const float fShadowFadeOut = CalculateShadowFadeOut(bounds, m_fShadowFadeOutRange, *msg.m_pView->GetCullingCamera(), fShadowScreenSize);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  VisualizeScreenSpaceSize(msg.m_pView->GetHandle(), bounds, fScreenSpaceSize, fShadowScreenSize, fShadowFadeOut);
+    if (cvar_RenderingLightingVisScreenSpaceSize)
+    {
+      VisualizeScreenSpaceSize(msg.m_pView->GetHandle(), bounds, fScreenSpaceSize, fShadowScreenSize, fShadowFadeOut);
+
+      ezMat4 capsuleMat = ezMat4::MakeTranslation(t.m_vPosition);
+      ezMat3 rotXtoZ;
+      rotXtoZ.SetColumn(0, ezVec3(0, 0, 1));
+      rotXtoZ.SetColumn(1, ezVec3(0, 1, 0));
+      rotXtoZ.SetColumn(2, ezVec3(-1, 0, 0));
+      capsuleMat.SetRotationalPart(t.m_qRotation.GetAsMat3() * rotXtoZ);
+      ezDebugRenderer::DrawLineCapsuleZ(msg.m_pView->GetHandle(), fEffectiveLength, fEffectiveRadius, ezColorScheme::LightUI(ezColorScheme::Yellow), capsuleMat);
+    }
 #endif
 
-  auto pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezPointLightRenderData>(GetOwner());
+    auto pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezTubeLightRenderData>(GetOwner());
 
-  pRenderData->m_LightColor = GetEffectiveColor();
-  pRenderData->m_fIntensity = m_fIntensity;
-  pRenderData->m_fSpecularMultiplier = m_fSpecularMultiplier;
-  pRenderData->m_fRange = m_fEffectiveRange;
-  // pRenderData->m_hProjectedTexture = m_hProjectedTexture;
+    pRenderData->m_LightColor = GetEffectiveColor();
+    pRenderData->m_fIntensity = m_fIntensity;
+    pRenderData->m_fSpecularMultiplier = m_fSpecularMultiplier;
+    pRenderData->m_fLength = fEffectiveLength;
+    pRenderData->m_fRadius = fEffectiveRadius;
+    pRenderData->m_fRange = m_fEffectiveRange;
+    pRenderData->m_qGlobalRotation = t.m_qRotation;
 
-  if (m_bCastShadows && fShadowFadeOut > 0.0f)
-  {
-    pRenderData->FillShadowDataOffsetAndFadeOut(ezShadowPool::AddPointLight(this, fScreenSpaceSize, msg.m_pView), fShadowFadeOut);
+    if (m_bCastShadows && fShadowFadeOut > 0.0f)
+    {
+      pRenderData->FillShadowDataOffsetAndFadeOut(ezShadowPool::AddAsPointLight(this, m_fEffectiveRange, fScreenSpaceSize, msg.m_pView), fShadowFadeOut);
+    }
+    else
+    {
+      pRenderData->m_uiShadowDataOffsetAndFadeOut = 0;
+    }
+
+    pRenderData->FillSortingKey(fScreenSpaceSize);
+
+    ezRenderData::Caching::Enum caching = m_bCastShadows ? ezRenderData::Caching::Never : ezRenderData::Caching::IfStatic;
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+    if (cvar_RenderingLightingVisScreenSpaceSize)
+      caching = ezRenderData::Caching::Never;
+#endif
+    msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, caching);
   }
   else
   {
-    pRenderData->m_uiShadowDataOffsetAndFadeOut = 0;
+    const ezBoundingSphere bounds = ezBoundingSphere::MakeFromCenterAndRadius(t.m_vPosition, m_fEffectiveRange);
+    const float fScreenSpaceSize = CalculateScreenSpaceSize(bounds, *msg.m_pView->GetCullingCamera());
+    float fShadowScreenSize = 0.0f;
+    const float fShadowFadeOut = CalculateShadowFadeOut(bounds, m_fShadowFadeOutRange, *msg.m_pView->GetCullingCamera(), fShadowScreenSize);
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+    VisualizeScreenSpaceSize(msg.m_pView->GetHandle(), bounds, fScreenSpaceSize, fShadowScreenSize, fShadowFadeOut);
+#endif
+
+    auto pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezPointLightRenderData>(GetOwner());
+
+    pRenderData->m_LightColor = GetEffectiveColor();
+    pRenderData->m_fIntensity = m_fIntensity;
+    pRenderData->m_fSpecularMultiplier = m_fSpecularMultiplier;
+    pRenderData->m_fRange = m_fEffectiveRange;
+
+    if (m_bCastShadows && fShadowFadeOut > 0.0f)
+    {
+      pRenderData->FillShadowDataOffsetAndFadeOut(ezShadowPool::AddAsPointLight(this, GetEffectiveRange(), fScreenSpaceSize, msg.m_pView), fShadowFadeOut);
+    }
+    else
+    {
+      pRenderData->m_uiShadowDataOffsetAndFadeOut = 0;
+    }
+
+    pRenderData->FillSortingKey(fScreenSpaceSize);
+
+    ezRenderData::Caching::Enum caching = m_bCastShadows ? ezRenderData::Caching::Never : ezRenderData::Caching::IfStatic;
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+    if (cvar_RenderingLightingVisScreenSpaceSize)
+      caching = ezRenderData::Caching::Never;
+#endif
+    msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, caching);
   }
-
-  pRenderData->FillSortingKey(fScreenSpaceSize);
-
-  ezRenderData::Caching::Enum caching = m_bCastShadows ? ezRenderData::Caching::Never : ezRenderData::Caching::IfStatic;
-  msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, caching);
 }
 
 void ezPointLightComponent::SerializeComponent(ezWorldWriter& inout_stream) const
@@ -160,6 +222,8 @@ void ezPointLightComponent::SerializeComponent(ezWorldWriter& inout_stream) cons
   s << m_fRange;
   s << m_fShadowFadeOutRange;
   s << m_hProjectedTexture;
+  s << m_fLength;
+  s << m_fRadius;
 }
 
 void ezPointLightComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -176,6 +240,11 @@ void ezPointLightComponent::DeserializeComponent(ezWorldReader& inout_stream)
     s >> m_fShadowFadeOutRange;
   }
   s >> m_hProjectedTexture;
+  if (uiVersion >= 4)
+  {
+    s >> m_fLength;
+    s >> m_fRadius;
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -191,6 +260,22 @@ ezPointLightVisualizerAttribute::ezPointLightVisualizerAttribute()
 ezPointLightVisualizerAttribute::ezPointLightVisualizerAttribute(
   const char* szRangeProperty, const char* szIntensityProperty, const char* szColorProperty)
   : ezVisualizerAttribute(szRangeProperty, szIntensityProperty, szColorProperty)
+{
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTubeLightVisualizerAttribute, 1, ezRTTIDefaultAllocator<ezTubeLightVisualizerAttribute>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+ezTubeLightVisualizerAttribute::ezTubeLightVisualizerAttribute()
+  : ezVisualizerAttribute(nullptr)
+{
+}
+
+ezTubeLightVisualizerAttribute::ezTubeLightVisualizerAttribute(
+  const char* szLengthProperty, const char* szRadiusProperty, const char* szRangeProperty, const char* szIntensityProperty, const char* szColorProperty)
+  : ezVisualizerAttribute(szLengthProperty, szRadiusProperty, szRangeProperty, szIntensityProperty, szColorProperty)
 {
 }
 
