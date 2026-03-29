@@ -48,6 +48,11 @@ Color EmissiveColor @Default(Color(0.0, 0.0, 0.0));
 bool UseEmissiveTexture;
 Texture2D EmissiveTexture;
 
+bool UseHeightTexture;
+Texture2D HeightTexture;
+float HeightScale @Default(0.05) @Clamp(-0.3, 0.3);
+int PomMaxSteps @Default(16) @Clamp(4, 64);
+
 [MATERIALCONFIG]
 
 #include <Shaders/Materials/MaterialConfig.h>
@@ -70,6 +75,9 @@ BOOL1(UseMetallicTexture);
 BOOL1(UseEmissiveTexture);
 BOOL1(UseOcclusionTexture);
 BOOL1(UseOrmTexture);
+BOOL1(UseHeightTexture);
+FLOAT1(HeightScale);
+INT1(PomMaxSteps);
 
 [VERTEXSHADER]
 
@@ -104,6 +112,7 @@ VS_OUT main(VS_IN Input)
 #define USE_DECALS
 #define USE_FOG
 #define USE_CUSTOM_DITHER_NOISE
+#define CUSTOM_GLOBALS float2 ParallaxTexCoord;
 
 #if RENDER_PASS == RENDER_PASS_EDITOR
   #define USE_DEBUG_INTERPOLATOR
@@ -134,12 +143,34 @@ SamplerState OrmTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 
 Texture2D DitherNoiseTexture BIND_GROUP(BG_MATERIAL);
 
+Texture2D HeightTexture BIND_GROUP(BG_MATERIAL);
+SamplerState HeightTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
+
+#include <Shaders/Common/ParallaxMapping.h>
+
+void FillCustomGlobals()
+{
+  G.ParallaxTexCoord = G.Input.TexCoord0.xy;
+
+  [branch]
+  if (GetMaterialData(UseHeightTexture))
+  {
+    float3 viewDirWS = normalize(GetCameraPosition() - G.Input.WorldPosition);
+    float3 viewDirTS = WorldToTangentSpace(viewDirWS);
+
+    G.ParallaxTexCoord = ParallaxOcclusionMapping(
+      HeightTexture, HeightTexture_AutoSampler,
+      G.Input.TexCoord0.xy, viewDirTS,
+      GetMaterialData(HeightScale), GetMaterialData(PomMaxSteps));
+  }
+}
+
 float3 GetNormal()
 {
   [branch]
   if (GetMaterialData(UseNormalTexture))
   {
-    float3 normalTS = DecodeNormalTexture(NormalTexture.Sample(NormalTexture_AutoSampler, G.Input.TexCoord0.xy));
+    float3 normalTS = DecodeNormalTexture(NormalTexture.Sample(NormalTexture_AutoSampler, G.ParallaxTexCoord));
     return TangentToWorldSpace(normalTS);
   }
   else
@@ -160,7 +191,7 @@ float3 GetBaseColor()
   [branch]
   if (GetMaterialData(UseBaseTexture))
   {
-    baseColor *= BaseTexture.Sample(BaseTexture_AutoSampler, G.Input.TexCoord0.xy).rgb;
+    baseColor *= BaseTexture.Sample(BaseTexture_AutoSampler, G.ParallaxTexCoord).rgb;
   }
 
   return baseColor;
@@ -171,11 +202,11 @@ float GetMetallic()
   [branch]
   if (GetMaterialData(UseOrmTexture))
   {
-    return OrmTexture.Sample(OrmTexture_AutoSampler, G.Input.TexCoord0.xy).b;
+    return OrmTexture.Sample(OrmTexture_AutoSampler, G.ParallaxTexCoord).b;
   }
   else if (GetMaterialData(UseMetallicTexture))
   {
-    return MetallicTexture.Sample(MetallicTexture_AutoSampler, G.Input.TexCoord0.xy).r;
+    return MetallicTexture.Sample(MetallicTexture_AutoSampler, G.ParallaxTexCoord).r;
   }
   else
   {
@@ -193,11 +224,11 @@ float GetRoughness()
   [branch]
   if (GetMaterialData(UseOrmTexture))
   {
-    return GetMaterialData(RoughnessValue) * OrmTexture.Sample(OrmTexture_AutoSampler, G.Input.TexCoord0.xy).g;
+    return GetMaterialData(RoughnessValue) * OrmTexture.Sample(OrmTexture_AutoSampler, G.ParallaxTexCoord).g;
   }
   else if (GetMaterialData(UseRoughnessTexture))
   {
-    return GetMaterialData(RoughnessValue) * RoughnessTexture.Sample(RoughnessTexture_AutoSampler, G.Input.TexCoord0.xy).r;
+    return GetMaterialData(RoughnessValue) * RoughnessTexture.Sample(RoughnessTexture_AutoSampler, G.ParallaxTexCoord).r;
   }
   else
   {
@@ -212,7 +243,7 @@ float GetOpacity()
   [branch]
   if (GetMaterialData(UseBaseTexture))
   {
-    opacity *= BaseTexture.Sample(BaseTexture_AutoSampler, G.Input.TexCoord0.xy).a;
+    opacity *= BaseTexture.Sample(BaseTexture_AutoSampler, G.ParallaxTexCoord).a;
   }
 
   #if BLEND_MODE == BLEND_MODE_MASKED
@@ -227,7 +258,7 @@ float3 GetEmissiveColor()
   [branch]
   if (GetMaterialData(UseEmissiveTexture))
   {
-    return EmissiveTexture.Sample(EmissiveTexture_AutoSampler, G.Input.TexCoord0.xy).rgb * GetMaterialData(EmissiveColor).rgb;
+    return EmissiveTexture.Sample(EmissiveTexture_AutoSampler, G.ParallaxTexCoord).rgb * GetMaterialData(EmissiveColor).rgb;
   }
   else
   {
@@ -240,11 +271,11 @@ float GetOcclusion()
   [branch]
   if (GetMaterialData(UseOrmTexture))
   {
-    return OrmTexture.Sample(OrmTexture_AutoSampler, G.Input.TexCoord0.xy).r;
+    return OrmTexture.Sample(OrmTexture_AutoSampler, G.ParallaxTexCoord).r;
   }
   else if (GetMaterialData(UseOcclusionTexture))
   {
-    return OcclusionTexture.Sample(OcclusionTexture_AutoSampler, G.Input.TexCoord0.xy).r;
+    return OcclusionTexture.Sample(OcclusionTexture_AutoSampler, G.ParallaxTexCoord).r;
   }
   else
   {
