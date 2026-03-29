@@ -301,6 +301,7 @@ void ezDetourCrowdAgentComponentManager::AsyncUpdate(const UpdateContext& ctx)
       {
         pDtCrowd->removeAgent(iAgentId);
         pDtAgent = nullptr;
+        pAgent->m_uiHasDestinationBit = 0;
       }
 
       // If ezAgent doesn't have a corresponding dtAgent, create one
