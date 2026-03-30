@@ -13,9 +13,6 @@
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleExpressionCurveSamples, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezParticleExpressionInput, ezNoBase, 1, ezRTTIDefaultAllocator<ezParticleExpressionInput>)
 {
   EZ_BEGIN_PROPERTIES
@@ -46,79 +43,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_Expression, 1, ezRTTIDefaultAllocator<ezParticleBehavior_Expression>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
-
-//////////////////////////////////////////////////////////////////////////
-// sampleCurve(index, at) expression function
-
-static ezHashedString s_sParticleCurves = ezMakeHashedString("ParticleCurves");
-
-static const ezEnum<ezExpression::RegisterType> s_SampleCurveTypes[] = {
-  ezExpression::RegisterType::Int,   // index
-  ezExpression::RegisterType::Float, // at
-};
-
-static void SampleCurveFunc(ezExpression::Inputs inputs, ezExpression::Output output, const ezExpression::GlobalData& globalData)
-{
-  const ezVariant* pCurvesVar = globalData.GetValue(s_sParticleCurves);
-  if (pCurvesVar == nullptr)
-    return;
-
-  const ezVariantArray& curves = pCurvesVar->Get<ezVariantArray>();
-
-  const ezUInt32 uiCurveIndex = static_cast<ezUInt32>(inputs[0].GetPtr()->i.x());
-  if (uiCurveIndex >= curves.GetCount())
-    return;
-
-  const auto* pSamples = static_cast<const ezParticleExpressionCurveSamples*>(curves[uiCurveIndex].Get<ezReflectedClass*>());
-  if (pSamples == nullptr || pSamples->m_Samples.IsEmpty())
-    return;
-
-  const ezUInt32 uiMaxIdx = pSamples->m_Samples.GetCount() - 1;
-  const ezSimdVec4f vOffsetX = ezSimdVec4f(-pSamples->m_fMinX);
-  const float fRange = pSamples->m_fMaxX - pSamples->m_fMinX;
-  const ezSimdVec4f vScale = ezSimdVec4f(fRange > 0.0f ? static_cast<float>(uiMaxIdx) / fRange : 0.0f);
-  const ezSimdVec4i vMaxIdx = ezSimdVec4i(uiMaxIdx);
-  const float* samples = pSamples->m_Samples.GetData();
-
-  const ezExpression::Register* pAt = inputs[1].GetPtr();
-  const ezExpression::Register* pAtEnd = inputs[1].GetEndPtr();
-  ezExpression::Register* pOutput = output.GetPtr();
-
-  while (pAt < pAtEnd)
-  {
-    const ezSimdVec4f vT = (pAt->f + vOffsetX).CompMul(vScale);
-    const ezSimdVec4i vIdx0 = ezSimdVec4i::Truncate(vT).CompMax(ezSimdVec4i::MakeZero()).CompMin(vMaxIdx);
-    const ezSimdVec4i vIdx1 = (vIdx0 + ezSimdVec4i(1)).CompMin(vMaxIdx);
-    const ezSimdVec4f vFrac = vT - vIdx0.ToFloat();
-
-    const float sample0[] = {samples[vIdx0.x()], samples[vIdx0.y()], samples[vIdx0.z()], samples[vIdx0.w()]};
-    const float sample1[] = {samples[vIdx1.x()], samples[vIdx1.y()], samples[vIdx1.z()], samples[vIdx1.w()]};
-    ezSimdVec4f vSample0, vSample1;
-    vSample0.Load<4>(sample0);
-    vSample1.Load<4>(sample1);
-
-    pOutput->f = ezSimdVec4f::Lerp(vSample0, vSample1, vFrac);
-
-    ++pAt;
-    ++pOutput;
-  }
-}
-
-static ezResult SampleCurveValidate(const ezExpression::GlobalData& globalData)
-{
-  if (const ezVariant* pValue = globalData.GetValue(s_sParticleCurves))
-  {
-    if (pValue->GetType() == ezVariantType::VariantArray)
-      return EZ_SUCCESS;
-  }
-  return EZ_FAILURE;
-}
-
-static ezExpressionFunction s_SampleCurveExprFunc = {
-  {ezMakeHashedString("sampleCurve"), ezExpression::FunctionDesc::TypeList(s_SampleCurveTypes), 2, ezExpression::RegisterType::Float},
-  &SampleCurveFunc,
-  &SampleCurveValidate,
-};
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -324,7 +248,7 @@ void ezParticleBehaviorFactory_Expression::CompileExpression(const ezParticleEff
   }
 
   ezExpressionParser parser;
-  parser.RegisterFunction(s_SampleCurveExprFunc.m_Desc);
+  parser.RegisterFunction(ezExtendedExpressionFunctions::s_SampleCurveFunc.m_Desc);
 
   ezExpressionParser::Options options;
   ezExpressionAST ast;
@@ -390,23 +314,8 @@ void ezParticleBehaviorFactory_Expression::BuildCurveSamples()
       continue;
     }
 
-    runtimeCurve.CreateLinearApproximation();
-
-    double fMinX, fMaxX;
-    runtimeCurve.QueryExtents(fMinX, fMaxX);
-
-    samples.m_fMinX = static_cast<float>(fMinX);
-    samples.m_fMaxX = static_cast<float>(fMaxX);
-
     constexpr ezUInt32 k_uiSampleCount = 256;
-    samples.m_Samples.SetCount(k_uiSampleCount);
-
-    const double fRange = fMaxX - fMinX;
-    for (ezUInt32 j = 0; j < k_uiSampleCount; ++j)
-    {
-      const double x = (fRange > 0.0) ? (fMinX + fRange * (j / static_cast<double>(k_uiSampleCount - 1))) : fMinX;
-      samples.m_Samples[j] = static_cast<float>(runtimeCurve.Evaluate(x));
-    }
+    runtimeCurve.GenerateSampledCurve(k_uiSampleCount, samples).AssertSuccess();
   }
 }
 
@@ -417,7 +326,7 @@ ezParticleBehavior_Expression::ezParticleBehavior_Expression()
   // execute last
   m_fPriority = 1000.0f;
 
-  m_VM.RegisterFunction(s_SampleCurveExprFunc);
+  m_VM.RegisterFunction(ezExtendedExpressionFunctions::s_SampleCurveFunc);
 }
 
 void ezParticleBehavior_Expression::CreateRequiredStreams()
@@ -601,9 +510,9 @@ void ezParticleBehavior_Expression::UpdateElements(ezUInt64 uiStartIndex, ezUInt
     curves.SetCount(m_pCurveSamples->GetCount());
     for (ezUInt32 i = 0; i < m_pCurveSamples->GetCount(); ++i)
     {
-      curves[i] = ezVariant(const_cast<ezParticleExpressionCurveSamples*>(&(*m_pCurveSamples)[i]));
+      curves[i] = ezVariant(const_cast<ezSampledCurve1D*>(&(*m_pCurveSamples)[i]));
     }
-    globalData.Insert(s_sParticleCurves, curves);
+    globalData.Insert(ezMakeHashedString("Curves"), curves);
   }
 
   if (m_VM.Execute(*m_pByteCode, vmInputs, vmOutputs, uiCount, globalData).Failed())

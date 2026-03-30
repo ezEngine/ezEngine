@@ -120,10 +120,17 @@ struct ezExpressionFunction
   ezExpression::ValidateGlobalDataFunction m_ValidateGlobalDataFunc;
 };
 
+/// \brief Contains the default expression functions that are always available in the expression system.
 struct EZ_FOUNDATION_DLL ezDefaultExpressionFunctions
 {
   static ezExpressionFunction s_RandomFunc;
   static ezExpressionFunction s_PerlinNoiseFunc;
+};
+
+/// \brief Contains extended expression functions that need to be registered explicitly with the expression VM.
+struct EZ_FOUNDATION_DLL ezExtendedExpressionFunctions
+{
+  static ezExpressionFunction s_SampleCurveFunc;
 };
 
 /// \brief Add this attribute a string property that should be interpreted as expression source.

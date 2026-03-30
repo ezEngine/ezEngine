@@ -1,5 +1,7 @@
 #pragma once
 
+#include <ProcGenPlugin/ProcGenPluginDLL.h>
+
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/World/Declarations.h>
 #include <Foundation/CodeUtils/Expression/ExpressionByteCode.h>
@@ -7,7 +9,6 @@
 #include <Foundation/SimdMath/SimdTransform.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Types/SharedPtr.h>
-#include <ProcGenPlugin/ProcGenPluginDLL.h>
 
 using ezColorGradientResourceHandle = ezTypedResourceHandle<class ezColorGradientResource>;
 using ezPrefabResourceHandle = ezTypedResourceHandle<class ezPrefabResource>;

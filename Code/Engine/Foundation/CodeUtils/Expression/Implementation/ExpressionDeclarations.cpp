@@ -3,6 +3,7 @@
 #include <Foundation/CodeUtils/Expression/ExpressionDeclarations.h>
 #include <Foundation/SimdMath/SimdNoise.h>
 #include <Foundation/SimdMath/SimdRandom.h>
+#include <Foundation/Tracks/Curve1D.h>
 
 using namespace ezExpression;
 
@@ -147,6 +148,8 @@ namespace
     }
   }
 
+  //////////////////////////////////////////////////////////////////////////
+
   static ezSimdPerlinNoise s_PerlinNoise(12345);
   static const ezEnum<RegisterType> s_PerlinNoiseInputTypes[] = {
     RegisterType::Float,
@@ -178,16 +181,92 @@ namespace
       ++pOutput;
     }
   }
+
+  //////////////////////////////////////////////////////////////////////////
+
+  static ezHashedString s_sCurves = ezMakeHashedString("Curves");
+
+  static const ezEnum<ezExpression::RegisterType> s_SampleCurvesInputTypes[] = {
+    ezExpression::RegisterType::Int,   // CurveIndex
+    ezExpression::RegisterType::Float, // X
+  };
+
+  static void SampleCurve(ezExpression::Inputs inputs, ezExpression::Output output, const ezExpression::GlobalData& globalData)
+  {
+    const ezVariantArray& curves = globalData.GetValue(s_sCurves)->Get<ezVariantArray>();
+    if (curves.IsEmpty())
+      return;
+
+    ezUInt32 uiCurveIndex = inputs[0].GetPtr()->i.x();
+    if (uiCurveIndex >= curves.GetCount())
+      return;
+
+    auto pSampledCurve = ezDynamicCast<const ezSampledCurve1D*>(curves[uiCurveIndex].Get<ezReflectedClass*>());
+    if (pSampledCurve == nullptr || pSampledCurve->m_Samples.IsEmpty())
+      return;
+
+    const ezUInt32 uiMaxIdx = pSampledCurve->m_Samples.GetCount() - 1;
+    const ezSimdVec4f vOffsetX = ezSimdVec4f(-pSampledCurve->m_fMinX);
+    const float fRange = pSampledCurve->m_fMaxX - pSampledCurve->m_fMinX;
+    const ezSimdVec4f vScale = ezSimdVec4f(fRange > 0.0f ? static_cast<float>(uiMaxIdx) / fRange : 0.0f);
+    const ezSimdVec4i vMaxIdx = ezSimdVec4i(uiMaxIdx);
+    const float* samples = pSampledCurve->m_Samples.GetData();
+
+    const ezExpression::Register* pX = inputs[1].GetPtr();
+    const ezExpression::Register* pXEnd = inputs[1].GetEndPtr();
+    ezExpression::Register* pOutput = output.GetPtr();
+
+    while (pX < pXEnd)
+    {
+      const ezSimdVec4f vT = (pX->f + vOffsetX).CompMul(vScale);
+      const ezSimdVec4i vIdx0 = ezSimdVec4i::Truncate(vT).CompMax(ezSimdVec4i::MakeZero()).CompMin(vMaxIdx);
+      const ezSimdVec4i vIdx1 = (vIdx0 + ezSimdVec4i(1)).CompMin(vMaxIdx);
+      const ezSimdVec4f vFrac = vT - vIdx0.ToFloat();
+
+      const float sample0[] = {samples[vIdx0.x()], samples[vIdx0.y()], samples[vIdx0.z()], samples[vIdx0.w()]};
+      const float sample1[] = {samples[vIdx1.x()], samples[vIdx1.y()], samples[vIdx1.z()], samples[vIdx1.w()]};
+      ezSimdVec4f vSample0, vSample1;
+      vSample0.Load<4>(sample0);
+      vSample1.Load<4>(sample1);
+
+      pOutput->f = ezSimdVec4f::Lerp(vSample0, vSample1, vFrac);
+
+      ++pX;
+      ++pOutput;
+    }
+  }
+
+  static ezResult SampleCurveValidate(const ezExpression::GlobalData& globalData)
+  {
+    if (!globalData.IsEmpty())
+    {
+      if (const ezVariant* pValue = globalData.GetValue(s_sCurves))
+      {
+        if (pValue->GetType() == ezVariantType::VariantArray)
+        {
+          return EZ_SUCCESS;
+        }
+      }
+    }
+
+    return EZ_FAILURE;
+  }
 } // namespace
 
 ezExpressionFunction ezDefaultExpressionFunctions::s_RandomFunc = {
-  {ezMakeHashedString("Random"), ezExpression::FunctionDesc::TypeList(s_RandomInputTypes), 1, RegisterType::Float},
+  {ezMakeHashedString("random"), ezExpression::FunctionDesc::TypeList(s_RandomInputTypes), 1, RegisterType::Float},
   &Random,
 };
 
 ezExpressionFunction ezDefaultExpressionFunctions::s_PerlinNoiseFunc = {
-  {ezMakeHashedString("PerlinNoise"), ezExpression::FunctionDesc::TypeList(s_PerlinNoiseInputTypes), 3, RegisterType::Float},
+  {ezMakeHashedString("perlinNoise"), ezExpression::FunctionDesc::TypeList(s_PerlinNoiseInputTypes), 3, RegisterType::Float},
   &PerlinNoise,
+};
+
+ezExpressionFunction ezExtendedExpressionFunctions::s_SampleCurveFunc = {
+  {ezMakeHashedString("sampleCurve"), ezExpression::FunctionDesc::TypeList(s_SampleCurvesInputTypes), 2, ezExpression::RegisterType::Float},
+  &SampleCurve,
+  &SampleCurveValidate,
 };
 
 //////////////////////////////////////////////////////////////////////////

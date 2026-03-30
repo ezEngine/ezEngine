@@ -4,10 +4,12 @@
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Math/Color.h>
 #include <Foundation/Math/Vec2.h>
+#include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Types/Enum.h>
 
 class ezStreamWriter;
 class ezStreamReader;
+class ezSampledCurve1D;
 
 struct EZ_FOUNDATION_DLL ezCurveTangentMode
 {
@@ -150,6 +152,8 @@ public:
   void MakeAutoTangentLeft(ezUInt32 uiCpIdx);
   void MakeAutoTangentRight(ezUInt32 uiCpIdx);
 
+  ezResult GenerateSampledCurve(ezUInt32 uiNumSamples, ezSampledCurve1D& out_sampledCurve);
+
 private:
   void RecomputeLinearApproxExtremes();
   void ApproximateMinMaxValues(const ControlPoint& lhs, const ControlPoint& rhs, double& fMinY, double& fMaxY);
@@ -163,4 +167,23 @@ private:
   double m_fMinY, m_fMaxY;
   ezHybridArray<ControlPoint, 8> m_ControlPoints;
   ezHybridArray<ezVec2d, 24> m_LinearApproximation;
+};
+
+/// \brief A simple curve representation that only stores the precomputed sample points for linear interpolation.
+/// This allows fast evaluation at runtime at the cost of accuracy.
+///
+/// The curve is defined by a set of sample points, where the x values are evenly distributed between a specified minimum and maximum x value.
+/// The y values of the sample points can be used to approximate the curve through linear interpolation.
+class EZ_FOUNDATION_DLL ezSampledCurve1D : public ezReflectedClass
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezSampledCurve1D, ezReflectedClass);
+
+  ezDynamicArray<float> m_Samples;
+  float m_fMinX = 0.0f;
+  float m_fMaxX = 1.0f;
+
+  bool operator==(const ezSampledCurve1D& rhs) const;
+
+  void Save(ezStreamWriter& inout_stream) const;
+  ezResult Load(ezStreamReader& inout_stream);
 };

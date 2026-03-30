@@ -12,16 +12,6 @@
 
 EZ_DECLARE_FLAGS(ezUInt16, ezParticleStreamMask, Position, Velocity, Color, Size, LifeTime, Rotation);
 
-/// Pre-sampled curve data for fast lookups via sampleCurve() in expressions.
-struct EZ_PARTICLEPLUGIN_DLL ezParticleExpressionCurveSamples : public ezReflectedClass
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleExpressionCurveSamples, ezReflectedClass);
-
-  ezDynamicArray<float> m_Samples; ///< Uniformly spaced samples covering [m_fMinX, m_fMaxX].
-  float m_fMinX = 0.0f;            ///< X position of the first sample.
-  float m_fMaxX = 1.0f;            ///< X position of the last sample.
-};
-
 /// One input slot for the expression behavior, holding either an inline or shared curve.
 struct EZ_PARTICLEPLUGIN_DLL ezParticleExpressionInput
 {
@@ -76,7 +66,7 @@ private:
   bool m_bUsesDiscard = false;
   ezBitflags<ezParticleStreamMask> m_InputStreams;
   ezBitflags<ezParticleStreamMask> m_OutputStreams;
-  ezDynamicArray<ezParticleExpressionCurveSamples> m_CurveSamples;
+  ezDynamicArray<ezSampledCurve1D> m_CurveSamples;
   ezDynamicArray<ezHashedString> m_FloatParamNames;
   ezDynamicArray<ezHashedString> m_ColorParamNames;
 };
@@ -96,7 +86,7 @@ public:
   const ezExpressionByteCode* m_pByteCode = nullptr;
 
   /// Points to the pre-sampled curve data owned by the factory. Null if there are no curve inputs.
-  const ezDynamicArray<ezParticleExpressionCurveSamples>* m_pCurveSamples = nullptr;
+  const ezDynamicArray<ezSampledCurve1D>* m_pCurveSamples = nullptr;
 
   /// Points to the effect parameter name lists owned by the factory. Null if no parameters are used.
   const ezDynamicArray<ezHashedString>* m_pFloatParamNames = nullptr;
