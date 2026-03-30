@@ -257,8 +257,7 @@ float3 WorldToTangentSpace(float3 worldVec)
   return float3(
     dot(worldVec, G.Input.Tangent),
     dot(worldVec, G.Input.BiTangent),
-    dot(worldVec, G.Input.Normal)
-  );
+    dot(worldVec, G.Input.Normal));
 }
 #  endif
 #endif

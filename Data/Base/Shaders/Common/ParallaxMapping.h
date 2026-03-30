@@ -20,8 +20,7 @@ float2 ParallaxOcclusionMapping(Texture2D heightTex, SamplerState samp, float2 t
   float currentHeight = heightTex.SampleLevel(samp, currentUV, 0).r;
 
   // Steep parallax: march until we go below the surface
-  [loop]
-  for (int i = 0; i < numSteps && currentLayerDepth < currentHeight; ++i)
+  [loop] for (int i = 0; i < numSteps && currentLayerDepth < currentHeight; ++i)
   {
     currentUV -= deltaUV;
     currentHeight = heightTex.SampleLevel(samp, currentUV, 0).r;
@@ -32,8 +31,7 @@ float2 ParallaxOcclusionMapping(Texture2D heightTex, SamplerState samp, float2 t
   float2 prevUV = currentUV + deltaUV;
   float prevLayerDepth = currentLayerDepth - layerDepth;
 
-  [unroll]
-  for (int j = 0; j < 4; ++j)
+  [unroll] for (int j = 0; j < 4; ++j)
   {
     float2 midUV = (prevUV + currentUV) * 0.5;
     float midLayerDepth = (prevLayerDepth + currentLayerDepth) * 0.5;
