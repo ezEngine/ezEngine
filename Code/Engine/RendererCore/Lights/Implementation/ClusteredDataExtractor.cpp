@@ -5,6 +5,7 @@
 #include <Foundation/IO/TypeVersionContext.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <RendererCore/Components/FogComponent.h>
+#include <RendererCore/Components/LightShaftsComponent.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Lights/AmbientLightComponent.h>
 #include <RendererCore/Lights/ClusteredDataExtractor.h>
@@ -365,6 +366,14 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
           pData->m_fFogStartDistance = pFogRenderData->m_fFogStartDistance;
 
           pData->m_FogColor = pFogRenderData->m_Color;
+        }
+        else if (auto pLightShaftsRenderData = ezDynamicCast<const ezLightShaftsRenderData*>(it))
+        {
+          pData->m_vLightShaftsDirection = pLightShaftsRenderData->m_vDirection;
+          pData->m_fLightShaftsIntensity = pLightShaftsRenderData->m_fIntensity;
+          pData->m_fLightShaftsMaxBrightness = pLightShaftsRenderData->m_fMaxBrightness;
+          pData->m_fLightShaftsBrightnessThreshold = pLightShaftsRenderData->m_fBrightnessThreshold;
+          pData->m_fLightShaftsDiskMaskRadius = pLightShaftsRenderData->m_fDiskMaskRadius;
         }
         else
         {

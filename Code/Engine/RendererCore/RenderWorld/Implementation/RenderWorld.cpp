@@ -770,6 +770,8 @@ void ezRenderWorld::UpdateRenderDataCache()
 // static
 void ezRenderWorld::AddRenderPipelineToRebuild(ezRenderPipeline* pRenderPipeline, const ezViewHandle& hView)
 {
+  EZ_ASSERT_DEV(pRenderPipeline != nullptr, "Pipeline must not be null");
+
   EZ_LOCK(s_PipelinesToRebuildMutex);
 
   for (auto& pipelineToRebuild : s_PipelinesToRebuild)

@@ -1,0 +1,42 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+CAMERA_MODE
+
+[RENDERSTATE]
+
+DepthTest = false
+DepthWrite = false
+CullMode = CullMode_None
+
+[VERTEXSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleVertexShader.h>
+
+[PIXELSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleInterpolator.h>
+#include <Shaders/Common/Common.h>
+#include "LightShaftsConstants.h"
+
+Texture2DArray LightShaftsTexture BIND_GROUP(BG_RENDER_PASS);
+
+float4 main(PS_IN input) : SV_Target
+{
+  #if CAMERA_MODE == CAMERA_MODE_STEREO
+    s_ActiveCameraEyeIndex = input.RenderTargetArrayIndex;
+  #endif
+
+  float2 blurVector = (LightShaftsOriginUVs - input.TexCoord0) * LightShaftsBlurStep;
+
+  float3 blurredColor = 0;
+
+  for (uint i = 0; i < LightShaftsNumBlurSamples; ++i)
+  {
+    float2 sampleUV = input.TexCoord0 + blurVector * i;
+    blurredColor += LightShaftsTexture.SampleLevel(LinearClampSampler, float3(sampleUV, s_ActiveCameraEyeIndex), 0).rgb;
+  }
+
+  return float4(blurredColor / (float)LightShaftsNumBlurSamples, 1.0);
+}

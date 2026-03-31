@@ -328,7 +328,10 @@ void ezView::EnsureUpToDate()
       m_uiRenderPipelineResourceDescriptionCounter = uiCounter;
 
       m_pRenderPipeline = pPipeline->CreateRenderPipeline();
-      ezRenderWorld::AddRenderPipelineToRebuild(m_pRenderPipeline, GetHandle());
+      if (m_pRenderPipeline != nullptr)
+      {
+        ezRenderWorld::AddRenderPipelineToRebuild(m_pRenderPipeline, GetHandle());
+      }
 
       m_bPermutationVarsDirty = true;
       ResetAllPropertyStates(m_PassProperties);
@@ -344,6 +347,9 @@ void ezView::EnsureUpToDate()
 void ezView::ApplyPermutationVars()
 {
   if (!m_bPermutationVarsDirty)
+    return;
+
+  if (m_pRenderPipeline == nullptr)
     return;
 
   m_pRenderPipeline->m_PermutationVars = m_PermutationVars;
@@ -409,6 +415,9 @@ void ezView::ResetAllPropertyStates(ezMap<ezString, PropertyValue>& map)
 
 void ezView::ApplyRenderPassProperties()
 {
+  if (m_pRenderPipeline == nullptr)
+    return;
+
   for (auto it = m_PassProperties.GetIterator(); it.IsValid(); ++it)
   {
     auto& propertyValue = it.Value();
@@ -443,6 +452,9 @@ void ezView::ApplyRenderPassProperties()
 
 void ezView::ApplyExtractorProperties()
 {
+  if (m_pRenderPipeline == nullptr)
+    return;
+
   for (auto it = m_ExtractorProperties.GetIterator(); it.IsValid(); ++it)
   {
     if (!it.Value().m_bIsValid || !it.Value().m_bIsDirty)

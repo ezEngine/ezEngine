@@ -44,6 +44,12 @@ public:
   float m_fFogStartDistance = 0.0f;
   float m_fFogInvSkyDistance = 0.0f;
   ezColor m_FogColor = ezColor::Black;
+
+  ezVec3 m_vLightShaftsDirection = ezVec3::MakeZero();
+  float m_fLightShaftsIntensity = 0.0f;
+  float m_fLightShaftsMaxBrightness = 0.0f;
+  float m_fLightShaftsBrightnessThreshold = 0.0f;
+  float m_fLightShaftsDiskMaskRadius = 0.0f;
 };
 
 /// Extracts lights, decals, and reflection probes into a clustered data structure.

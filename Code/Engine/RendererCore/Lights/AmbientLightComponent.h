@@ -8,9 +8,9 @@ struct ezMsgUpdateLocalBounds;
 
 using ezAmbientLightComponentManager = ezSettingsComponentManager<class ezAmbientLightComponent>;
 
-class EZ_RENDERERCORE_DLL ezAmbientLightComponent : public ezSettingsComponent
+class EZ_RENDERERCORE_DLL ezAmbientLightComponent : public ezComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezAmbientLightComponent, ezSettingsComponent, ezAmbientLightComponentManager);
+  EZ_DECLARE_COMPONENT_TYPE(ezAmbientLightComponent, ezComponent, ezAmbientLightComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
   // ezComponent
