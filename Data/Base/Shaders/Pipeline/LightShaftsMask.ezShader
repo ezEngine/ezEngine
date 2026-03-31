@@ -29,7 +29,7 @@ float4 main(PS_IN input) : SV_Target
     s_ActiveCameraEyeIndex = input.RenderTargetArrayIndex;
   #endif
 
-  float3 sceneColor = SceneColor.SampleLevel(PointClampSampler, float3(input.TexCoord0, s_ActiveCameraEyeIndex), 0).rgb;
+  float3 sceneColor = SceneColor.SampleLevel(LinearClampSampler, float3(input.TexCoord0, s_ActiveCameraEyeIndex), 0).rgb;
   float luminance = max(GetLuminance(sceneColor), 0.0001);
   float adjustedLuminance = clamp(luminance - LightShaftsBrightnessThreshold, 0.0, LightShaftsMaxBrightness);
   sceneColor = sceneColor * (adjustedLuminance / luminance);
@@ -37,11 +37,9 @@ float4 main(PS_IN input) : SV_Target
   float depthFromZBuffer = SceneDepth.SampleLevel(PointClampSampler, float3(input.TexCoord0, s_ActiveCameraEyeIndex), 0).r;
   float occlusion = (depthFromZBuffer >= 0.9999) ? 1.0 : 0.0;
 
-  // Looks better without edge mask, leave the code in here in case we need it later  
-  //float2 edges = input.TexCoord0 * (1 - input.TexCoord0);
-  //float edgeMask = saturate(edges.x * edges.y * 22.0);
-  //edgeMask = edgeMask * edgeMask;
-  float edgeMask = 1;
+  float2 edges = input.TexCoord0 * (1 - input.TexCoord0);
+  float edgeMask = saturate(edges.x * edges.y * 22.0);
+  edgeMask = edgeMask * edgeMask;
 
   float aspectRatio = ViewportSize.x * ViewportSize.w; // width / height;
   float distToOrigin = length((input.TexCoord0 - LightShaftsOriginUVs) * float2(aspectRatio, 1));

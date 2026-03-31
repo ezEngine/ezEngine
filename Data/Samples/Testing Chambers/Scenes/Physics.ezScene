@@ -11,13 +11,12 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{16033299415433335720,5748835052109362040}}
-		u4 %Hash{225075562554263424}
+		u4 %Hash{14180767751991875881}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
 		{
 			s{"{ 0af8fc54-92ce-464e-b825-661c83f34a3a }"}
-			s{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
 			s{"{ 0f1377ce-df3d-4462-afab-c46a83f30fe5 }"}
 			s{"{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"}
 			s{"{ 2a5d16b1-6867-4b5b-89b2-8436f11381cb }"}
@@ -62,7 +61,6 @@ o
 		VarArray %References
 		{
 			s{"{ 0af8fc54-92ce-464e-b825-661c83f34a3a }"}
-			s{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
 			s{"{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"}
 			s{"{ 2a5d16b1-6867-4b5b-89b2-8436f11381cb }"}
 			s{"{ 317e4b00-3e99-4f42-a175-2f7cdfc3fd7f }"}
@@ -4813,12 +4811,12 @@ o
 			Uuid{u4{7132107664114317247,5510487133735445722}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0,0,0x00000040}}
-		Quat %LocalRotation{f{0x21EDB6BE,0x09D7863E,0x671D083F,0xE4A7383F}}
+		Vec3 %LocalPosition{f{0,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{"Sun"}
+		s %Name{"Sky"}
 		VarArray %Tags
 		{
 			s{"CastShadow"}
@@ -6202,7 +6200,7 @@ o
 	p
 	{
 		b %Active{1}
-		Color %Color{f{0xEBE30040,0xEBE30040,0xEBE30040,0x0000803F}}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		f %Density{0xCDCC4C3E}
 		f %HeightFalloff{0x00002041}
 		b %ModulateWithSkyColor{0}
@@ -12587,7 +12585,10 @@ o
 	p
 	{
 		b %Active{1}
-		VarDict %Parameters{}
+		VarDict %Parameters
+		{
+			f %ShaftsIntensity{0x0000003F}
+		}
 		s %Prefab{"{ 330fcf7d-fc4f-93cc-0fe4-55516ffd1dbe }"}
 		b %ShowShapeIcons{0}
 	}
@@ -14312,21 +14313,6 @@ o
 }
 o
 {
-	Uuid %id{u4{1132496036963258277,5704873252973894874}}
-	s %t{"ezSkyBoxComponent"}
-	u3 %v{4}
-	p
-	{
-		b %Active{1}
-		s %CubeMap{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
-		f %ExposureBias{0x0000803F}
-		b %InverseTonemap{0}
-		b %UseFog{1}
-		f %VirtualDistance{0x00007A44}
-	}
-}
-o
-{
 	Uuid %id{u4{12170750595662081953,5705495748048694190}}
 	s %t{"ezJoltHingeConstraintComponent"}
 	u3 %v{1}
@@ -14638,34 +14624,6 @@ o
 		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{"{ 1fdb4b29-ec28-c1cf-4d4c-29cbbd0279ce }"}
-	}
-}
-o
-{
-	Uuid %id{u4{5645514703857992853,5746048108495037991}}
-	s %t{"ezGameObject"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		VarArray %Children{}
-		VarArray %Components
-		{
-			Uuid{u4{1132496036963258277,5704873252973894874}}
-		}
-		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0,0,0x0000803F}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
-		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{""}
-		VarArray %Tags
-		{
-			s{"CastShadow"}
-			s{"AutoColMesh"}
-			s{"SkyLight"}
-		}
 	}
 }
 o
@@ -15405,7 +15363,6 @@ o
 		{
 			Uuid{u4{4571308331243103908,4670223957156564199}}
 			Uuid{u4{1574542424891590816,4934785444043847285}}
-			Uuid{u4{5645514703857992853,5746048108495037991}}
 			Uuid{u4{4364524368742340543,4621356167221899837}}
 			Uuid{u4{4867977916421681314,5613440934209396133}}
 			Uuid{u4{7540764372658095539,4613898391692869152}}
@@ -40525,23 +40482,6 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezJoltStaticActorComponent"}
 		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{8781371220448777178,8391987746845008996}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezRenderComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezSkyBoxComponent"}
-		u3 %TypeVersion{4}
 	}
 }
 o

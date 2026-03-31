@@ -2,12 +2,65 @@ HeaderV2
 {
 o
 {
+	Uuid %id{u4{17547225339477474078,1174184337242109880}}
+	s %t{"ezClampValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		Invalid %Max{}
+		f %Min{0}
+	}
+}
+o
+{
+	Uuid %id{u4{5476597580463811589,2844873523143377165}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0x0000803F}
+	}
+}
+o
+{
+	Uuid %id{u4{7182890095702215436,5158136437573185792}}
+	s %t{"ezExposedParameter"}
+	u3 %v{3}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{17547225339477474078,1174184337242109880}}
+			Uuid{u4{5476597580463811589,2844873523143377165}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		f %DefaultValue{0x9A99993E}
+		s %Name{"ShaftsIntensity"}
+		s %Type{"float"}
+	}
+}
+o
+{
+	Uuid %id{u4{10582759948463870667,8631383783228501765}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0xCDCCCC3E}
+	}
+}
+o
+{
 	Uuid %id{u4{13850971636205318926,9059842567955752105}}
 	s %t{"ezExposedParameters"}
 	u3 %v{3}
 	p
 	{
-		VarArray %Parameters{}
+		VarArray %Parameters
+		{
+			Uuid{u4{1539312393514689488,17539949993289584731}}
+			Uuid{u4{7182890095702215436,5158136437573185792}}
+		}
 	}
 }
 o
@@ -21,7 +74,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{13699384296078697487,10650164635913670525}}
-		u4 %Hash{935783151640662809}
+		u4 %Hash{1112317417148540322}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{13850971636205318926,9059842567955752105}}
@@ -31,6 +84,7 @@ o
 		{
 			s{"{ 6a8c184d-5957-471b-8d3f-7ff220ff4bec }"}
 			s{"{ 78b2bb14-5ff1-45e4-9699-73519b967a62 }"}
+			s{"{ ab653368-c695-4085-8f58-1456e853558a }"}
 			s{"{ e00262e8-58f5-42f5-880d-569257047201 }"}
 			s{"{ ec2d7b9a-6f2a-421e-bc57-5b589c66a0a5 }"}
 		}
@@ -38,15 +92,57 @@ o
 		{
 			s{"{ 6a8c184d-5957-471b-8d3f-7ff220ff4bec }"}
 			s{"{ 78b2bb14-5ff1-45e4-9699-73519b967a62 }"}
+			s{"{ ab653368-c695-4085-8f58-1456e853558a }"}
 			s{"{ e00262e8-58f5-42f5-880d-569257047201 }"}
 			s{"{ ec2d7b9a-6f2a-421e-bc57-5b589c66a0a5 }"}
 		}
 		s %Tags{""}
 	}
 }
+o
+{
+	Uuid %id{u4{15623056018567663670,16598476743468991806}}
+	s %t{"ezClampValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		Invalid %Max{}
+		f %Min{0}
+	}
+}
+o
+{
+	Uuid %id{u4{1539312393514689488,17539949993289584731}}
+	s %t{"ezExposedParameter"}
+	u3 %v{3}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{15623056018567663670,16598476743468991806}}
+			Uuid{u4{10582759948463870667,8631383783228501765}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		f %DefaultValue{0x0000003F}
+		s %Name{"SkyLightDiffuseIntensity"}
+		s %Type{"float"}
+	}
+}
 }
 Objects
 {
+o
+{
+	Uuid %id{u4{10081778166464099989,4677534726861315126}}
+	s %t{"ezExposedSceneProperty"}
+	u3 %v{1}
+	p
+	{
+		s %Name{"SkyLightDiffuseIntensity"}
+		Uuid %Object{u4{4163122571750637622,10089923543834106546}}
+		s %PropertyPath{"DiffuseIntensity"}
+	}
+}
 o
 {
 	Uuid %id{u4{14737824997050113921,4701838202341345428}}
@@ -57,8 +153,20 @@ o
 		b %Active{1}
 		f %BrightnessThreshold{0}
 		f %DiskMaskRadius{0xCDCCCC3D}
-		f %Intensity{0x0000803F}
+		f %Intensity{0x9A99993E}
 		f %MaxBrightness{0x00002041}
+	}
+}
+o
+{
+	Uuid %id{u4{13674849904739941258,5476620442687622839}}
+	s %t{"ezExposedSceneProperty"}
+	u3 %v{1}
+	p
+	{
+		s %Name{"ShaftsIntensity"}
+		Uuid %Object{u4{14737824997050113921,4701838202341345428}}
+		s %PropertyPath{"Intensity"}
 	}
 }
 o
@@ -72,6 +180,7 @@ o
 		VarArray %Children
 		{
 			Uuid{u4{15973917836162598677,10070470487208098421}}
+			Uuid{u4{14652980052838072637,10796890929942502482}}
 		}
 		Uuid %Settings{u4{4194885932382357009,10676439309129156486}}
 	}
@@ -87,7 +196,7 @@ o
 		Color %Color{f{0x50FE953D,0x8B5D403D,0x8B5D403D,0x0000803F}}
 		b %GreyscaleTexture{1}
 		b %InverseTonemap{0}
-		f %MaxScreenSize{0x0AD7A33E}
+		f %MaxScreenSize{0x9A99193E}
 		b %ModulateByLightColor{1}
 		f %ShiftToCenter{0xB81E053F}
 		f %Size{0x00401C46}
@@ -112,11 +221,11 @@ o
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0,0,0}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Quat %LocalRotation{f{0x547DABBE,0xD1BCA23E,0xD6B6243F,0xD74E1C3F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{"<Prefab-Root>"}
+		s %Name{"Sun"}
 		VarArray %Tags
 		{
 			s{"AutoColMesh"}
@@ -132,7 +241,7 @@ o
 	{
 		b %Active{1}
 		s %CubeMap{""}
-		f %DiffuseIntensity{0x0000803E}
+		f %DiffuseIntensity{0x0000003F}
 		f %DiffuseSaturation{0x9A99993E}
 		VarArray %ExcludeTags{}
 		f %FarPlane{0x0000C842}
@@ -154,7 +263,11 @@ o
 	u3 %v{1}
 	p
 	{
-		VarArray %ExposedProperties{}
+		VarArray %ExposedProperties
+		{
+			Uuid{u4{10081778166464099989,4677534726861315126}}
+			Uuid{u4{13674849904739941258,5476620442687622839}}
+		}
 	}
 }
 o
@@ -197,6 +310,49 @@ o
 		f %OcclusionDepthOffset{0}
 		f %OcclusionSampleRadius{0xCDCCCC3D}
 		f %OcclusionSampleSpread{0x0000003F}
+	}
+}
+o
+{
+	Uuid %id{u4{10139961385943338061,10755716074421359365}}
+	s %t{"ezSkyBoxComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		s %CubeMap{"{ ab653368-c695-4085-8f58-1456e853558a }"}
+		f %ExposureBias{0xCDCCCC3F}
+		b %InverseTonemap{0}
+		b %UseFog{1}
+		f %VirtualDistance{0x00007A44}
+	}
+}
+o
+{
+	Uuid %id{u4{14652980052838072637,10796890929942502482}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{10139961385943338061,10755716074421359365}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"Sky"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+			s{"SkyLight"}
+		}
 	}
 }
 o
@@ -449,6 +605,23 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezBitflagsBase"}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{8781371220448777178,8391987746845008996}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSkyBoxComponent"}
+		u3 %TypeVersion{4}
 	}
 }
 o
