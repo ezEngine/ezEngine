@@ -15,7 +15,6 @@ public:
   virtual void Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
 
 protected:
-
   ezRenderPipelineNodePassThroughPin m_PinColor;
   ezRenderPipelineNodeInputPin m_PinResolvedDepth;
 };

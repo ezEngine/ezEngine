@@ -152,4 +152,3 @@ void ezLightShaftsComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg)
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_LightShaftsComponent);
-
