@@ -11,12 +11,12 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{2505730330314084745,5650601960057022934}}
-		u4 %Hash{777786165305624731}
+		u4 %Hash{14380427448785858295}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
 		{
-			s{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
+			s{"{ 330fcf7d-fc4f-93cc-0fe4-55516ffd1dbe }"}
 			s{"{ 3613e1e7-9dd4-4307-9406-44143bbc4f91 }"}
 			s{"{ c78f2a5e-574b-4ced-94bd-7a0642ab3df2 }"}
 			s{"{ e1147a38-d34d-4a74-90e0-466784a70e51 }"}
@@ -24,7 +24,7 @@ o
 		}
 		VarArray %References
 		{
-			s{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
+			s{"{ 330fcf7d-fc4f-93cc-0fe4-55516ffd1dbe }"}
 			s{"{ c78f2a5e-574b-4ced-94bd-7a0642ab3df2 }"}
 			s{"{ e1147a38-d34d-4a74-90e0-466784a70e51 }"}
 			s{"{ fe3fc7bc-21dc-4ad3-8d1e-9f9e005eaad3 }"}
@@ -20175,6 +20175,7 @@ o
 		b %Active{1}
 		Vec3 %CustomTangentIn{f{0,0,0}}
 		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %EditNodes{0}
 		b %LinkCustomTangents{0}
 		Angle %Roll{f{0}}
 		s %TangentModeIn{"ezSplineTangentMode::Auto"}
@@ -20875,6 +20876,7 @@ o
 		b %Active{1}
 		Vec3 %CustomTangentIn{f{0,0,0}}
 		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %EditNodes{0}
 		b %LinkCustomTangents{0}
 		Angle %Roll{f{0}}
 		s %TangentModeIn{"ezSplineTangentMode::Auto"}
@@ -21648,8 +21650,7 @@ o
 		b %Active{1}
 		VarArray %Children
 		{
-			Uuid{u4{7396821538475140760,5101311227674562725}}
-			Uuid{u4{9432373413275825285,5373122485189657950}}
+			Uuid{u4{5141233040728727202,14929877762635369303}}
 			Uuid{u4{17243318032295899015,5072894093785083903}}
 			Uuid{u4{8507594523425807539,4907559205037845664}}
 		}
@@ -21707,21 +21708,6 @@ o
 		Vec4 %CustomData{f{0,0x0000803F,0,0x0000803F}}
 		VarArray %Materials{}
 		s %Mesh{"{ c78f2a5e-574b-4ced-94bd-7a0642ab3df2 }"}
-	}
-}
-o
-{
-	Uuid %id{u4{9110870064173836473,5017754116889727719}}
-	s %t{"ezSkyBoxComponent"}
-	u3 %v{4}
-	p
-	{
-		b %Active{1}
-		s %CubeMap{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
-		f %ExposureBias{0x0000803F}
-		b %InverseTonemap{0}
-		b %UseFog{1}
-		f %VirtualDistance{0x00007A44}
 	}
 }
 o
@@ -22210,6 +22196,7 @@ o
 		b %Active{1}
 		Vec3 %CustomTangentIn{f{0,0,0}}
 		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %EditNodes{0}
 		b %LinkCustomTangents{0}
 		Angle %Roll{f{0}}
 		s %TangentModeIn{"ezSplineTangentMode::Auto"}
@@ -22310,37 +22297,11 @@ o
 		b %Active{1}
 		Vec3 %CustomTangentIn{f{0,0,0}}
 		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %EditNodes{0}
 		b %LinkCustomTangents{0}
 		Angle %Roll{f{0}}
 		s %TangentModeIn{"ezSplineTangentMode::Auto"}
 		s %TangentModeOut{"ezSplineTangentMode::Auto"}
-	}
-}
-o
-{
-	Uuid %id{u4{7396821538475140760,5101311227674562725}}
-	s %t{"ezGameObject"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		VarArray %Children{}
-		VarArray %Components
-		{
-			Uuid{u4{9314030895507258243,5508493243338994035}}
-			Uuid{u4{7407126270044106407,5952243201375463668}}
-		}
-		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0,0,0x00000040}}
-		Quat %LocalRotation{f{0xBE2BA7BE,0xBD2BA73E,0xED90203F,0xEC90203F}}
-		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{""}
-		VarArray %Tags
-		{
-			s{"CastShadow"}
-		}
 	}
 }
 o
@@ -22686,6 +22647,7 @@ o
 		b %Active{1}
 		Vec3 %CustomTangentIn{f{0,0,0}}
 		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %EditNodes{0}
 		b %LinkCustomTangents{0}
 		Angle %Roll{f{0}}
 		s %TangentModeIn{"ezSplineTangentMode::Auto"}
@@ -23305,6 +23267,7 @@ o
 		b %Active{1}
 		Vec3 %CustomTangentIn{f{0,0,0}}
 		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %EditNodes{0}
 		b %LinkCustomTangents{0}
 		Angle %Roll{f{0}}
 		s %TangentModeIn{"ezSplineTangentMode::Auto"}
@@ -23747,6 +23710,7 @@ o
 		b %Active{1}
 		Vec3 %CustomTangentIn{f{0,0,0}}
 		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %EditNodes{0}
 		b %LinkCustomTangents{0}
 		Angle %Roll{f{0}}
 		s %TangentModeIn{"ezSplineTangentMode::Auto"}
@@ -24214,32 +24178,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-		}
-	}
-}
-o
-{
-	Uuid %id{u4{9432373413275825285,5373122485189657950}}
-	s %t{"ezGameObject"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		VarArray %Children{}
-		VarArray %Components
-		{
-			Uuid{u4{9110870064173836473,5017754116889727719}}
-		}
-		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0,0,0x0000803F}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
-		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{""}
-		VarArray %Tags
-		{
-			s{"SkyLight"}
 		}
 	}
 }
@@ -25049,30 +24987,6 @@ o
 }
 o
 {
-	Uuid %id{u4{9314030895507258243,5508493243338994035}}
-	s %t{"ezSkyLightComponent"}
-	u3 %v{4}
-	p
-	{
-		b %Active{1}
-		s %CubeMap{""}
-		f %DiffuseIntensity{0xCDCCCC3E}
-		f %DiffuseSaturation{0x9A99993E}
-		VarArray %ExcludeTags{}
-		f %FarPlane{0x0000C842}
-		VarArray %IncludeTags
-		{
-			s{"SkyLight"}
-		}
-		f %NearPlane{0}
-		s %ReflectionProbeMode{"ezReflectionProbeMode::Dynamic"}
-		b %ShowDebugInfo{0}
-		b %ShowMipMaps{0}
-		f %SpecularIntensity{0x0000803F}
-	}
-}
-o
-{
 	Uuid %id{u4{12945877869289486597,5511469445160858130}}
 	s %t{"ezAnimationControllerComponent"}
 	u3 %v{4}
@@ -25178,24 +25092,8 @@ o
 	{
 		b %Active{1}
 		b %Closed{0}
-		u1 %EditNodes{1}
+		b %EditNodes{1}
 		s %Flags{""}
-		VarArray %Nodes
-		{
-			HashedString{s{"1"}}
-			HashedString{s{"2"}}
-			HashedString{s{"3"}}
-			HashedString{s{"4"}}
-			HashedString{s{"5"}}
-			HashedString{s{"5.1"}}
-			HashedString{s{"6"}}
-			HashedString{s{"7"}}
-			HashedString{s{"8"}}
-			HashedString{s{"9"}}
-			HashedString{s{"10.1"}}
-			HashedString{s{"10"}}
-			HashedString{s{"12"}}
-		}
 	}
 }
 o
@@ -25814,6 +25712,7 @@ o
 		b %Active{1}
 		Vec3 %CustomTangentIn{f{0,0,0}}
 		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %EditNodes{0}
 		b %LinkCustomTangents{0}
 		Angle %Roll{f{0}}
 		s %TangentModeIn{"ezSplineTangentMode::Auto"}
@@ -26033,6 +25932,7 @@ o
 		b %Active{1}
 		Vec3 %CustomTangentIn{f{0,0,0}}
 		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %EditNodes{0}
 		b %LinkCustomTangents{0}
 		Angle %Roll{f{0}}
 		s %TangentModeIn{"ezSplineTangentMode::Auto"}
@@ -26079,6 +25979,7 @@ o
 		b %Active{1}
 		Vec3 %CustomTangentIn{f{0,0,0}}
 		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %EditNodes{0}
 		b %LinkCustomTangents{0}
 		Angle %Roll{f{0}}
 		s %TangentModeIn{"ezSplineTangentMode::Auto"}
@@ -27194,32 +27095,6 @@ o
 		s %ScriptClass{"{ 3613e1e7-9dd4-4307-9406-44143bbc4f91 }"}
 		Time %UpdateInterval{d{0}}
 		b %UpdateOnlyWhenSimulating{1}
-	}
-}
-o
-{
-	Uuid %id{u4{7407126270044106407,5952243201375463668}}
-	s %t{"ezDirectionalLightComponent"}
-	u3 %v{3}
-	p
-	{
-		b %Active{1}
-		b %CastShadows{1}
-		f %ConstantBias{0xCDCCCC3D}
-		ColorGamma %EffectiveColor{u1{255,255,255,255}}
-		f %FadeOutStart{0xCDCC4C3F}
-		f %Intensity{0x0000A040}
-		ColorGamma %LightColor{u1{255,255,255,255}}
-		f %MinShadowRange{0x0000F041}
-		f %NearPlaneOffset{0x0000C842}
-		u3 %NumCascades{2}
-		f %PenumbraSize{0xCDCC4C3D}
-		f %SlopeBias{0x0000803E}
-		f %SpecularMultiplier{0x0000803F}
-		f %SplitModeWeight{0x3333333F}
-		u3 %Temperature{6550}
-		b %TransparentShadows{0}
-		b %UseColorTemperature{0}
 	}
 }
 o
@@ -42200,6 +42075,7 @@ o
 		b %Active{1}
 		Vec3 %CustomTangentIn{f{0,0,0}}
 		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %EditNodes{0}
 		b %LinkCustomTangents{0}
 		Angle %Roll{f{0}}
 		s %TangentModeIn{"ezSplineTangentMode::Auto"}
@@ -45836,6 +45712,7 @@ o
 		b %Active{1}
 		Vec3 %CustomTangentIn{f{0,0,0}}
 		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %EditNodes{0}
 		b %LinkCustomTangents{0}
 		Angle %Roll{f{0}}
 		s %TangentModeIn{"ezSplineTangentMode::Auto"}
@@ -46233,6 +46110,19 @@ o
 		b %EnableIK{0}
 		s %InvisibleUpdateRate{"ezAnimationInvisibleUpdateRate::Max5FPS"}
 		s %RootMotionMode{"ezRootMotionMode::Ignore"}
+	}
+}
+o
+{
+	Uuid %id{u4{1285344585511613462,10133453178598703439}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ 330fcf7d-fc4f-93cc-0fe4-55516ffd1dbe }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -65251,6 +65141,7 @@ o
 		b %Active{1}
 		Vec3 %CustomTangentIn{f{0,0,0}}
 		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %EditNodes{0}
 		b %LinkCustomTangents{0}
 		Angle %Roll{f{0}}
 		s %TangentModeIn{"ezSplineTangentMode::Auto"}
@@ -65610,6 +65501,29 @@ o
 		{
 			s{"CastShadow"}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{5141233040728727202,14929877762635369303}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{1285344585511613462,10133453178598703439}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x241E6DC1,0xB1805442,0xEE19DF3C}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"Sky"}
+		VarArray %Tags{}
 	}
 }
 o
@@ -82370,6 +82284,23 @@ o
 }
 o
 {
+	Uuid %id{u4{15206751466792366313,1123861201670545443}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezVariantArray"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{5752776564527608594,1125183500781470124}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -82502,6 +82433,23 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezCameraMode"}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{1168477127324465164,3417260966341483024}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezPrefabReferenceComponent"}
+		u3 %TypeVersion{4}
 	}
 }
 o
@@ -82846,23 +82794,6 @@ o
 }
 o
 {
-	Uuid %id{u4{8781371220448777178,8391987746845008996}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezRenderComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezSkyBoxComponent"}
-		u3 %TypeVersion{4}
-	}
-}
-o
-{
 	Uuid %id{u4{6089094783765586323,8705960867921430659}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -82944,23 +82875,6 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezCameraVisualizerAttribute"}
 		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{14619222012368174598,9914418461412086272}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezLightComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezDirectionalLightComponent"}
-		u3 %TypeVersion{3}
 	}
 }
 o
@@ -83067,23 +82981,6 @@ o
 }
 o
 {
-	Uuid %id{u4{14929650074649117491,12034915874076129355}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezSettingsComponent"}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
 	Uuid %id{u4{16777871838542487558,12116962178824346014}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -83135,6 +83032,23 @@ o
 }
 o
 {
+	Uuid %id{u4{5292472142899984827,13813128825879118617}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPropertyAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSyncChildOrderAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{14632264051441319294,14723708231366072684}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -83165,40 +83079,6 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezGreyBoxComponent"}
 		u3 %TypeVersion{7}
-	}
-}
-o
-{
-	Uuid %id{u4{12814930320360971966,14780945004767832345}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezRenderComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezLightComponent"}
-		u3 %TypeVersion{6}
-	}
-}
-o
-{
-	Uuid %id{u4{9327907810903036587,14925289355879257238}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezSettingsComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezSkyLightComponent"}
-		u3 %TypeVersion{4}
 	}
 }
 o

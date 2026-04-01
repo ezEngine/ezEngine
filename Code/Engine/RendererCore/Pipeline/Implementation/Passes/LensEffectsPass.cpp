@@ -26,7 +26,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezLensEffectsPass::ezLensEffectsPass(const char* szName)
-  : ezRenderPipelinePass(szName)
+  : ezRenderPipelinePass(szName, true)
 {
 }
 

@@ -14,14 +14,14 @@ o
 			s{"{ 93c2e641-1f6a-43c8-bad0-7b7e9762daae }"}
 		}
 		Uuid %DocumentID{u4{14156501856797205539,10398819186738443508}}
-		u4 %Hash{15863991170133501154}
+		u4 %Hash{8616932576313825123}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
 		{
-			s{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
 			s{"{ 1748bef5-67eb-473a-92d7-e1b59a185ba1 }"}
 			s{"{ 22424715-9424-489b-93c0-a491714b6b77 }"}
+			s{"{ 330fcf7d-fc4f-93cc-0fe4-55516ffd1dbe }"}
 			s{"{ 4795f5c4-4a78-4c13-937e-cf3e6bdecb7c }"}
 			s{"{ 4ec4625e-1f10-465b-b1a1-ee7d66bd8da3 }"}
 			s{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
@@ -30,12 +30,13 @@ o
 		}
 		VarArray %References
 		{
-			s{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
 			s{"{ 1748bef5-67eb-473a-92d7-e1b59a185ba1 }"}
 			s{"{ 22424715-9424-489b-93c0-a491714b6b77 }"}
+			s{"{ 330fcf7d-fc4f-93cc-0fe4-55516ffd1dbe }"}
 			s{"{ 4795f5c4-4a78-4c13-937e-cf3e6bdecb7c }"}
 			s{"{ 4ec4625e-1f10-465b-b1a1-ee7d66bd8da3 }"}
 			s{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
+			s{"{ 93c2e641-1f6a-43c8-bad0-7b7e9762daae }"}
 			s{"{ e47f405c-c961-8be9-1a93-3768b4d7d487 }"}
 		}
 		s %Tags{""}
@@ -456,7 +457,7 @@ o
 {
 	Uuid %id{u4{7071499756894130622,4870603163076318558}}
 	s %t{"ezFogComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -465,6 +466,7 @@ o
 		f %HeightFalloff{0x0000A041}
 		b %ModulateWithSkyColor{0}
 		f %SkyDistance{0x00007A44}
+		f %StartDistance{0}
 	}
 }
 o
@@ -545,6 +547,19 @@ o
 		}
 		s %Mesh{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
 		f %SortingDepthOffset{0}
+	}
+}
+o
+{
+	Uuid %id{u4{17227256484541832339,5324915127834412660}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ 330fcf7d-fc4f-93cc-0fe4-55516ffd1dbe }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -894,21 +909,6 @@ o
 }
 o
 {
-	Uuid %id{u4{2314897516947405651,9765971343571148293}}
-	s %t{"ezSkyBoxComponent"}
-	u3 %v{4}
-	p
-	{
-		b %Active{1}
-		s %CubeMap{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
-		f %ExposureBias{0x0000803F}
-		b %InverseTonemap{0}
-		b %UseFog{1}
-		f %VirtualDistance{0x00007A44}
-	}
-}
-o
-{
 	Uuid %id{u4{10732222493016110107,9820631736865241074}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -970,8 +970,6 @@ o
 		VarArray %Children{}
 		VarArray %Components
 		{
-			Uuid{u4{2518058348280827421,10256710470020414609}}
-			Uuid{u4{611153722817675585,10700460428056884242}}
 			Uuid{u4{7071499756894130622,4870603163076318558}}
 		}
 		s %GlobalKey{""}
@@ -1144,7 +1142,7 @@ o
 		VarArray %Children{}
 		VarArray %Components
 		{
-			Uuid{u4{2314897516947405651,9765971343571148293}}
+			Uuid{u4{17227256484541832339,5324915127834412660}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0,0,0x0000803F}}
@@ -1152,11 +1150,8 @@ o
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{""}
-		VarArray %Tags
-		{
-			s{"SkyLight"}
-		}
+		s %Name{"Sky"}
+		VarArray %Tags{}
 	}
 }
 o
@@ -1209,55 +1204,6 @@ o
 		{
 			s{"CastShadow"}
 		}
-	}
-}
-o
-{
-	Uuid %id{u4{2518058348280827421,10256710470020414609}}
-	s %t{"ezSkyLightComponent"}
-	u3 %v{3}
-	p
-	{
-		b %Active{1}
-		s %CubeMap{""}
-		VarArray %ExcludeTags{}
-		f %FarPlane{0x0000C842}
-		VarArray %IncludeTags
-		{
-			s{"SkyLight"}
-		}
-		f %Intensity{0x0000803E}
-		f %NearPlane{0}
-		s %ReflectionProbeMode{"ezReflectionProbeMode::Static"}
-		f %Saturation{0x0000803F}
-		b %ShowDebugInfo{0}
-		b %ShowMipMaps{0}
-	}
-}
-o
-{
-	Uuid %id{u4{611153722817675585,10700460428056884242}}
-	s %t{"ezDirectionalLightComponent"}
-	u3 %v{3}
-	p
-	{
-		b %Active{1}
-		b %CastShadows{1}
-		f %ConstantBias{0xCDCCCC3D}
-		ColorGamma %EffectiveColor{u1{255,255,255,255}}
-		f %FadeOutStart{0xCDCC4C3F}
-		f %Intensity{0x0000A040}
-		ColorGamma %LightColor{u1{255,255,255,255}}
-		f %MinShadowRange{0x0000F041}
-		f %NearPlaneOffset{0x0000C842}
-		u3 %NumCascades{2}
-		f %PenumbraSize{0xCDCC4C3D}
-		f %SlopeBias{0x0000803E}
-		f %SpecularMultiplier{0x0000803F}
-		f %SplitModeWeight{0x3333333F}
-		u3 %Temperature{4179}
-		b %TransparentShadows{0}
-		b %UseColorTemperature{1}
 	}
 }
 o
@@ -2171,11 +2117,11 @@ o
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
-		s %ParentTypeName{"ezSettingsComponent"}
+		s %ParentTypeName{"ezComponent"}
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezFogComponent"}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -2537,23 +2483,6 @@ o
 }
 o
 {
-	Uuid %id{u4{8781371220448777178,8391987746845008996}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezRenderComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezSkyBoxComponent"}
-		u3 %TypeVersion{4}
-	}
-}
-o
-{
 	Uuid %id{u4{6089094783765586323,8705960867921430659}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -2639,23 +2568,6 @@ o
 }
 o
 {
-	Uuid %id{u4{14619222012368174598,9914418461412086272}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezLightComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezDirectionalLightComponent"}
-		u3 %TypeVersion{3}
-	}
-}
-o
-{
 	Uuid %id{u4{455663516835322266,10016785433957589977}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -2720,23 +2632,6 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezPointLightComponent"}
 		u3 %TypeVersion{3}
-	}
-}
-o
-{
-	Uuid %id{u4{14929650074649117491,12034915874076129355}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezSettingsComponent"}
-		u3 %TypeVersion{1}
 	}
 }
 o
@@ -2839,23 +2734,6 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezLightComponent"}
 		u3 %TypeVersion{6}
-	}
-}
-o
-{
-	Uuid %id{u4{9327907810903036587,14925289355879257238}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezSettingsComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezSkyLightComponent"}
-		u3 %TypeVersion{3}
 	}
 }
 o

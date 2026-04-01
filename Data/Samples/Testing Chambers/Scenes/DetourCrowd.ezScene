@@ -11,17 +11,17 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{10463911951938236947,10286605044469982075}}
-		u4 %Hash{1954532650952598262}
+		u4 %Hash{14354531229945793309}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
 		{
-			s{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
+			s{"{ 330fcf7d-fc4f-93cc-0fe4-55516ffd1dbe }"}
 			s{"{ a76deed5-768e-8dc6-0d2e-f6043f1ec10f }"}
 		}
 		VarArray %References
 		{
-			s{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
+			s{"{ 330fcf7d-fc4f-93cc-0fe4-55516ffd1dbe }"}
 			s{"{ a76deed5-768e-8dc6-0d2e-f6043f1ec10f }"}
 		}
 		s %Tags{""}
@@ -1477,8 +1477,7 @@ o
 		b %Active{1}
 		VarArray %Children
 		{
-			Uuid{u4{15355003160099292962,9737314312087521866}}
-			Uuid{u4{17390555034899977487,10009125569602617091}}
+			Uuid{u4{16980401989233395166,15364984559284694073}}
 			Uuid{u4{6754755580210499601,9708897178198043044}}
 			Uuid{u4{16465776145049959741,9543562289450804805}}
 		}
@@ -1494,21 +1493,6 @@ o
 		{
 			s{"CastShadow"}
 		}
-	}
-}
-o
-{
-	Uuid %id{u4{17069051685797988675,9653757201302686860}}
-	s %t{"ezSkyBoxComponent"}
-	u3 %v{4}
-	p
-	{
-		b %Active{1}
-		s %CubeMap{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
-		f %ExposureBias{0x0000803F}
-		b %InverseTonemap{0}
-		b %UseFog{1}
-		f %VirtualDistance{0x00007A44}
 	}
 }
 o
@@ -1531,33 +1515,6 @@ o
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{"Scene Thumbnail Camera"}
-		VarArray %Tags
-		{
-			s{"CastShadow"}
-		}
-	}
-}
-o
-{
-	Uuid %id{u4{15355003160099292962,9737314312087521866}}
-	s %t{"ezGameObject"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		VarArray %Children{}
-		VarArray %Components
-		{
-			Uuid{u4{17272212517131410445,10144496327751953176}}
-			Uuid{u4{15365307891668258609,10588246285788422809}}
-		}
-		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0,0,0x00000040}}
-		Quat %LocalRotation{f{0xBE2BA7BE,0xBD2BA73E,0xED90203F,0xEC90203F}}
-		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{""}
 		VarArray %Tags
 		{
 			s{"CastShadow"}
@@ -1633,32 +1590,6 @@ o
 }
 o
 {
-	Uuid %id{u4{17390555034899977487,10009125569602617091}}
-	s %t{"ezGameObject"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		VarArray %Children{}
-		VarArray %Components
-		{
-			Uuid{u4{17069051685797988675,9653757201302686860}}
-		}
-		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0,0,0x0000803F}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
-		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{""}
-		VarArray %Tags
-		{
-			s{"SkyLight"}
-		}
-	}
-}
-o
-{
 	Uuid %id{u4{7563271625541560587,10033272652708007848}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -1705,30 +1636,6 @@ o
 		b %ShowDebugInfo{0}
 		b %ShowMipMaps{0}
 		b %SphereProjection{1}
-	}
-}
-o
-{
-	Uuid %id{u4{17272212517131410445,10144496327751953176}}
-	s %t{"ezSkyLightComponent"}
-	u3 %v{4}
-	p
-	{
-		b %Active{1}
-		s %CubeMap{""}
-		f %DiffuseIntensity{0xCDCCCC3E}
-		f %DiffuseSaturation{0x9A99993E}
-		VarArray %ExcludeTags{}
-		f %FarPlane{0x0000C842}
-		VarArray %IncludeTags
-		{
-			s{"SkyLight"}
-		}
-		f %NearPlane{0}
-		s %ReflectionProbeMode{"ezReflectionProbeMode::Dynamic"}
-		b %ShowDebugInfo{0}
-		b %ShowMipMaps{0}
-		f %SpecularIntensity{0x0000803F}
 	}
 }
 o
@@ -1866,28 +1773,15 @@ o
 }
 o
 {
-	Uuid %id{u4{15365307891668258609,10588246285788422809}}
-	s %t{"ezDirectionalLightComponent"}
-	u3 %v{3}
+	Uuid %id{u4{13124513534016281426,10568559975248028209}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
-		b %CastShadows{1}
-		f %ConstantBias{0xCDCCCC3D}
-		ColorGamma %EffectiveColor{u1{255,255,255,255}}
-		f %FadeOutStart{0xCDCC4C3F}
-		f %Intensity{0x0000A040}
-		ColorGamma %LightColor{u1{255,255,255,255}}
-		f %MinShadowRange{0x0000F041}
-		f %NearPlaneOffset{0x0000C842}
-		u3 %NumCascades{2}
-		f %PenumbraSize{0xCDCC4C3D}
-		f %SlopeBias{0x0000803E}
-		f %SpecularMultiplier{0x0000803F}
-		f %SplitModeWeight{0x3333333F}
-		u3 %Temperature{6550}
-		b %TransparentShadows{0}
-		b %UseColorTemperature{0}
+		VarDict %Parameters{}
+		s %Prefab{"{ 330fcf7d-fc4f-93cc-0fe4-55516ffd1dbe }"}
+		b %ShowShapeIcons{0}
 	}
 }
 o
@@ -1968,6 +1862,29 @@ o
 		b %SlopedTop{0}
 		f %Thickness{0x0000003F}
 		b %UseAsOccluder{1}
+	}
+}
+o
+{
+	Uuid %id{u4{16980401989233395166,15364984559284694073}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{13124513534016281426,10568559975248028209}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0xE914C9C1,0x8BFC6041,0xC1395B3C}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"Sky"}
+		VarArray %Tags{}
 	}
 }
 o
@@ -2449,23 +2366,6 @@ o
 }
 o
 {
-	Uuid %id{u4{8781371220448777178,8391987746845008996}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezRenderComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezSkyBoxComponent"}
-		u3 %TypeVersion{4}
-	}
-}
-o
-{
 	Uuid %id{u4{6089094783765586323,8705960867921430659}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -2551,23 +2451,6 @@ o
 }
 o
 {
-	Uuid %id{u4{14619222012368174598,9914418461412086272}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezLightComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezDirectionalLightComponent"}
-		u3 %TypeVersion{3}
-	}
-}
-o
-{
 	Uuid %id{u4{455663516835322266,10016785433957589977}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -2597,23 +2480,6 @@ o
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezSceneDocumentSettingsBase"}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{14929650074649117491,12034915874076129355}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezSettingsComponent"}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2683,40 +2549,6 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezGreyBoxComponent"}
 		u3 %TypeVersion{7}
-	}
-}
-o
-{
-	Uuid %id{u4{12814930320360971966,14780945004767832345}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezRenderComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezLightComponent"}
-		u3 %TypeVersion{6}
-	}
-}
-o
-{
-	Uuid %id{u4{9327907810903036587,14925289355879257238}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezSettingsComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezSkyLightComponent"}
-		u3 %TypeVersion{4}
 	}
 }
 o
