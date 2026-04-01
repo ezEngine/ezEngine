@@ -74,7 +74,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{13699384296078697487,10650164635913670525}}
-		u4 %Hash{1112317417148540322}
+		u4 %Hash{7517765252121729745}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{13850971636205318926,9059842567955752105}}
@@ -123,7 +123,7 @@ o
 			Uuid{u4{10582759948463870667,8631383783228501765}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
-		f %DefaultValue{0x0000003F}
+		f %DefaultValue{0xCDCCCC3E}
 		s %Name{"SkyLightDiffuseIntensity"}
 		s %Type{"float"}
 	}
@@ -241,7 +241,7 @@ o
 	{
 		b %Active{1}
 		s %CubeMap{""}
-		f %DiffuseIntensity{0x0000003F}
+		f %DiffuseIntensity{0xCDCCCC3E}
 		f %DiffuseSaturation{0x9A99993E}
 		VarArray %ExcludeTags{}
 		f %FarPlane{0x0000C842}
@@ -321,7 +321,7 @@ o
 	{
 		b %Active{1}
 		s %CubeMap{"{ ab653368-c695-4085-8f58-1456e853558a }"}
-		f %ExposureBias{0xCDCCCC3F}
+		f %ExposureBias{0x00000040}
 		b %InverseTonemap{0}
 		b %UseFog{1}
 		f %VirtualDistance{0x00007A44}

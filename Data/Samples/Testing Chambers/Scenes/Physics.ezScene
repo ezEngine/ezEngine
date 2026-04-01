@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{16033299415433335720,5748835052109362040}}
-		u4 %Hash{14180767751991875881}
+		u4 %Hash{9831841528376421301}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -12587,7 +12587,8 @@ o
 		b %Active{1}
 		VarDict %Parameters
 		{
-			f %ShaftsIntensity{0x0000003F}
+			f %SkyLightDiffuseIntensity{0xCDCCCC3E}
+			f %ShaftsIntensity{0x9A99993E}
 		}
 		s %Prefab{"{ 330fcf7d-fc4f-93cc-0fe4-55516ffd1dbe }"}
 		b %ShowShapeIcons{0}
