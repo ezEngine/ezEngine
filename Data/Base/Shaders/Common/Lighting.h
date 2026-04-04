@@ -11,6 +11,7 @@
 #include <Shaders/Common/BRDF.h>
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Common/LightData.h>
+#include <Shaders/Common/LTCAreaLight.h>
 
 // Frame data:
 Texture2D ShadowAtlasTexture;
@@ -45,14 +46,21 @@ ezPerClusterData GetClusterData(float3 screenPosition)
   return perClusterDataBuffer[clusterIndex];
 }
 
-float DistanceAttenuation(float sqrDistance, float invSqrAttRadius)
+float DistanceAttenuation(float sqrDistance, float invSqrAttRadius, float falloff)
 {
   float attenuation = (1.0 / max(sqrDistance, 0.01 * 0.01)); // min distance is 1 cm;
 
   float factor = sqrDistance * invSqrAttRadius;
   float smoothFactor = saturate(1.0 - factor * factor);
 
+  attenuation = pow(attenuation, falloff);
+
   return attenuation * smoothFactor * smoothFactor;
+}
+
+float DistanceAttenuation(float sqrDistance, float invSqrAttRadius)
+{
+  return DistanceAttenuation(sqrDistance, invSqrAttRadius, 1.0);
 }
 
 float SpotAttenuation(float3 normalizedLightVector, float3 lightDir, float2 spotParams)
@@ -341,6 +349,22 @@ float3 SampleLightCookie(ezPerLightData lightData, float3 worldPosition)
   return 1;
 }
 
+float3 SampleRectLightCookieFromUV(ezPerLightData lightData, float2 texUV, float mipLevel)
+{
+  uint cookieIndex = lightData.cookieParams0 & 0x7FFF;
+  ezPerDecalAtlasData atlasData = perDecalAtlasDataBuffer[cookieIndex];
+  if (atlasData.scale != 0)
+  {
+    float2 localUV = float2(texUV.x, 1.0 - texUV.y) * 2.0 - 1.0;
+    float2 uv = localUV * RG16FToFloat2(atlasData.scale) + RG16FToFloat2(atlasData.offset);
+
+    float4 cookie = DecalRuntimeAtlasTexture.SampleLevel(DecalAtlasSampler, uv, mipLevel);
+    return cookie.rgb * cookie.a;
+  }
+
+  return 1;
+}
+
 // Frostbite course notes
 float computeDistanceBaseRoughness(float distIntersectionToShadedPoint, float distIntersectionToProbeCenter, float linearRoughness)
 {
@@ -622,6 +646,91 @@ AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clus
 #if defined(USE_MATERIAL_SUBSURFACE_COLOR)
         AccumulateLight(totalLight, SubsurfaceShading(matData, lightVector, viewVector), lightColor * (attenuation * subsurfaceShadow));
 #endif
+      }
+    }
+    else if (type == LIGHT_TYPE_RECT)
+    {
+      float3 toLight = lightData.position - matData.worldPosition;
+      float sqrDistance = dot(toLight, toLight);
+      float attenuation = DistanceAttenuation(sqrDistance, lightData.invSqrAttRadius, lightData.falloff);
+
+      [branch] if (attenuation > 0.0f)
+      {
+        float shadowTerm = 1.0;
+        [branch] if (lightData.shadowDataOffsetAndFadeOut != 0)
+        {
+          float3 lightVector = normalize(toLight);
+          float distanceToLight = sqrt(sqrDistance);
+          float extraPenumbraScale = 1.0;
+          float subsurfaceShadow = 1.0;
+          float3 debugColor = 1.0f;
+          float shadowThickness = 0.0;
+          shadowTerm = CalculateShadowTerm(matData.worldPosition, matData.vertexNormal, lightVector, distanceToLight, type, lightData.shadowDataOffsetAndFadeOut, noise, randomRotation, extraPenumbraScale, subsurfaceShadow, debugColor);
+        }
+
+        float lightIntensity = lightData.intensity;
+        float3 lightColor = RGB8ToFloat3(lightData.colorAndType);
+        float3 lightScale = lightColor * (attenuation * lightIntensity * shadowTerm);
+        float specMul = lightData.specularMultiplier;
+
+        float2 diffDominantUV, specDominantUV;
+        AccumulatedLight rectLight = RectLightShading(lightData, matData, viewVector, diffDominantUV, specDominantUV);
+
+        rectLight.diffuseLight = min(max(rectLight.diffuseLight, 0), 65504.0);
+        rectLight.specularLight = min(max(rectLight.specularLight, 0), 65504.0);
+
+        if ((lightData.cookieParams0 & 0x8000) != 0)
+        {
+          float2 centered = diffDominantUV - 0.5;
+          float r = max(length(centered), 0.001);
+          float spread = 6.0;
+          float rMapped = r * spread / (1.0 + r * spread);
+          float2 diffuseUV = saturate(centered / r * rMapped * 0.5 + 0.5);
+
+          float edgeBlend = saturate((r - 0.5) * 2.0);
+          float distBlend = saturate(sqrt(sqrDistance * lightData.invSqrAttRadius));
+          float diffuseMip = saturate(edgeBlend + distBlend * 0.5) * 6.0;
+          float3 cookieDiffuse = SampleRectLightCookieFromUV(lightData, diffuseUV, diffuseMip);
+          float3 cookieSpecular = SampleRectLightCookieFromUV(lightData, specDominantUV, 0.0);
+
+          totalLight.diffuseLight += rectLight.diffuseLight * lightScale * cookieDiffuse;
+          totalLight.specularLight += rectLight.specularLight * lightScale * specMul * cookieSpecular;
+        }
+        else
+        {
+          AccumulateLight(totalLight, rectLight, lightScale, specMul);
+        }
+      }
+    }
+    else if (type == LIGHT_TYPE_DISK)
+    {
+      float3 toLight = lightData.position - matData.worldPosition;
+      float sqrDistance = dot(toLight, toLight);
+      float attenuation = DistanceAttenuation(sqrDistance, lightData.invSqrAttRadius, lightData.falloff);
+
+      [branch] if (attenuation > 0.0f)
+      {
+        float shadowTerm = 1.0;
+        [branch] if (lightData.shadowDataOffsetAndFadeOut != 0)
+        {
+          float3 lightVector = normalize(toLight);
+          float distanceToLight = sqrt(sqrDistance);
+          float extraPenumbraScale = 1.0;
+          float subsurfaceShadow = 1.0;
+          float3 debugColor = 1.0f;
+          float shadowThickness = 0.0;
+          shadowTerm = CalculateShadowTerm(matData.worldPosition, matData.vertexNormal, lightVector, distanceToLight, type, lightData.shadowDataOffsetAndFadeOut, noise, randomRotation, extraPenumbraScale, subsurfaceShadow, debugColor);
+        }
+
+        float lightIntensity = lightData.intensity;
+        float3 lightColor = RGB8ToFloat3(lightData.colorAndType);
+        float3 lightScale = lightColor * (attenuation * lightIntensity * shadowTerm);
+        float specMul = lightData.specularMultiplier;
+
+        AccumulatedLight diskLight = DiskLightShading(lightData, matData, viewVector);
+        diskLight.diffuseLight = min(max(diskLight.diffuseLight, 0), 65504.0);
+        diskLight.specularLight = min(max(diskLight.specularLight, 0), 65504.0);
+        AccumulateLight(totalLight, diskLight, lightScale, specMul);
       }
     }
     else // Fill Light

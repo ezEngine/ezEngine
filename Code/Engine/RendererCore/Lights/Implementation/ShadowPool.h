@@ -5,6 +5,7 @@
 class ezDirectionalLightComponent;
 class ezPointLightComponent;
 class ezSpotLightComponent;
+class ezLightComponent;
 class ezGALTextureHandle;
 class ezGALBufferHandle;
 class ezView;
@@ -17,6 +18,7 @@ public:
   static ezUInt32 AddDirectionalLight(const ezDirectionalLightComponent* pDirLight, const ezView* pReferenceView);
   static ezUInt32 AddPointLight(const ezPointLightComponent* pPointLight, float fScreenSpaceSize, const ezView* pReferenceView);
   static ezUInt32 AddSpotLight(const ezSpotLightComponent* pSpotLight, float fScreenSpaceSize, const ezView* pReferenceView);
+  static ezUInt32 AddAreaLight(const ezLightComponent* pLight, float fScreenSpaceSize, const ezView* pReferenceView, float fRange = 0.0f);
 
   static ezGALTextureHandle GetShadowAtlasTexture();
   static ezGALBufferHandle GetShadowDataBuffer();

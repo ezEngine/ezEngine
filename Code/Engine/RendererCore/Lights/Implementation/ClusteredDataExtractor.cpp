@@ -347,6 +347,35 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
             RasterizeSphere(fillLightSphere, uiLightIndex, viewMatrixRight, projectionMatrixRight, m_TempLightsClusters.GetData(), m_ClusterBoundingSpheresRightEye.GetData());
           }
         }
+        else if (auto pRectLightRenderData = ezDynamicCast<const ezRectangleLightRenderData*>(it))
+        {
+          FillRectLightData(m_TempLightData.ExpandAndGetRef(), pRectLightRenderData);
+
+          const float fHalfWidth = pRectLightRenderData->m_fWidth * 0.5f;
+          const float fHalfHeight = pRectLightRenderData->m_fHeight * 0.5f;
+          const float fDiag = ezMath::Sqrt(fHalfWidth * fHalfWidth + fHalfHeight * fHalfHeight);
+          const float fAssignmentRadius = (pRectLightRenderData->m_fRange + fDiag);
+          ezSimdBSphere rectLightSphere = ezSimdBSphere(ezSimdConversion::ToVec3(pRectLightRenderData->m_vGlobalPosition), pRectLightRenderData->m_fRange);
+          RasterizeSphere(rectLightSphere, uiLightIndex, viewMatrix, projectionMatrix, m_TempLightsClusters.GetData(), m_ClusterBoundingSpheres.GetData());
+
+          if (bIsStereo)
+          {
+            RasterizeSphere(rectLightSphere, uiLightIndex, viewMatrixRight, projectionMatrixRight, m_TempLightsClusters.GetData(), m_ClusterBoundingSpheresRightEye.GetData());
+          }
+        }
+        else if (auto pDiskLightRenderData = ezDynamicCast<const ezDiskLightRenderData*>(it))
+        {
+          FillDiskLightData(m_TempLightData.ExpandAndGetRef(), pDiskLightRenderData);
+
+          const float fAssignmentRadius = (pDiskLightRenderData->m_fRange + pDiskLightRenderData->m_fRadius);
+          ezSimdBSphere diskLightSphere = ezSimdBSphere(ezSimdConversion::ToVec3(pDiskLightRenderData->m_vGlobalPosition), fAssignmentRadius);
+          RasterizeSphere(diskLightSphere, uiLightIndex, viewMatrix, projectionMatrix, m_TempLightsClusters.GetData(), m_ClusterBoundingSpheres.GetData());
+
+          if (bIsStereo)
+          {
+            RasterizeSphere(diskLightSphere, uiLightIndex, viewMatrixRight, projectionMatrixRight, m_TempLightsClusters.GetData(), m_ClusterBoundingSpheresRightEye.GetData());
+          }
+        }
         else if (auto pFogRenderData = ezDynamicCast<const ezFogRenderData*>(it))
         {
           const float fogBaseHeight = pFogRenderData->m_fBaseHeight;

@@ -14,6 +14,8 @@
 #define LIGHT_TYPE_DIR 2
 #define LIGHT_TYPE_FILL_ADDITIVE 3
 #define LIGHT_TYPE_FILL_MODULATE_INDIRECT 4
+#define LIGHT_TYPE_RECT 5
+#define LIGHT_TYPE_DISK 6
 
 struct EZ_SHADER_STRUCT ezPerLightData
 {
@@ -29,6 +31,11 @@ struct EZ_SHADER_STRUCT ezPerLightData
   FLOAT1(specularMultiplier);
   UINT1(cookieParams0); // x: cookie index, y: cookie right dir z as 16 bit float
   UINT1(cookieParams1); // xy: cookie right dir xy as 16 bit floats
+
+  FLOAT1(falloff); // Used to control light falloff
+  UINT1(twoSided); // Toggle for two-sided area lights
+  UINT1(Unused1);
+  UINT1(Unused2);
 };
 
 #if EZ_ENABLED(PLATFORM_SHADER)
@@ -48,8 +55,37 @@ struct EZ_SHADER_STRUCT ezPerLightData
   {
     return normalize(RGB10ToFloat3(data.direction) * 2.0 - 1.0);
   }
+
+  float2 GetRectHalfSize(ezPerLightData lightData)
+  {
+    return RG16FToFloat2(lightData.spotOrFillParams);
+  }
+
+  float3 GetRectRightDirection(ezPerLightData lightData)
+  {
+    float2 xy = RG16FToFloat2(lightData.cookieParams1);
+    float z = f16tof32(lightData.cookieParams0 >> 16);
+    return float3(xy, z);
+  }
+
+  float2 GetCylinderRadiusAndHalfLength(ezPerLightData lightData)
+  {
+    return RG16FToFloat2(lightData.spotOrFillParams);
+  }
+
+  float3 GetCylinderAxisDirection(ezPerLightData lightData)
+  {
+    float2 xy = RG16FToFloat2(lightData.cookieParams1);
+    float z = f16tof32(lightData.cookieParams0 >> 16);
+    return float3(xy, z);
+  }
+
+  float GetDiskRadius(ezPerLightData lightData)
+  {
+    return RG16FToFloat2(lightData.spotOrFillParams).x;
+  }
 #else
-  static_assert(sizeof(ezPerLightData) == 48);
+  static_assert(sizeof(ezPerLightData) == 64);
 #endif
 
 struct EZ_SHADER_STRUCT ezPointShadowData
@@ -213,7 +249,7 @@ struct ezPerClusterData
     {
       return perLightDataBuffer[BrightestDirectionalLightIndex];
     }
-    
+
     return (ezPerLightData)0;
   }
 #endif

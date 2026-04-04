@@ -6,6 +6,8 @@
 #include <RendererCore/Lights/Implementation/ReflectionProbeData.h>
 #include <RendererCore/Lights/PointLightComponent.h>
 #include <RendererCore/Lights/SpotLightComponent.h>
+#include <RendererCore/Lights/DiskLightComponent.h>
+#include <RendererCore/Lights/RectangleLightComponent.h>
 #include <RendererFoundation/Shader/ShaderUtils.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Common/LightData.h>
@@ -210,6 +212,51 @@ namespace
     FillLightData(out_perLightData, pDirLightRenderData, LIGHT_TYPE_DIR);
 
     out_perLightData.direction = ezShaderUtils::Float3ToRGB10(pDirLightRenderData->m_vDirection);
+  }
+
+  void FillRectLightData(ezPerLightData& out_perLightData, const ezRectangleLightRenderData* pRectLightRenderData)
+  {
+    FillLightData(out_perLightData, pRectLightRenderData, LIGHT_TYPE_RECT);
+
+    const ezVec3 forwardDir = pRectLightRenderData->m_qGlobalRotation * ezVec3(-1, 0, 0);
+    const ezVec3 rightDir = pRectLightRenderData->m_qGlobalRotation * ezVec3(0, 1, 0);
+
+    out_perLightData.direction = ezShaderUtils::Float3ToRGB10(forwardDir);
+    out_perLightData.position = pRectLightRenderData->m_vGlobalPosition;
+    out_perLightData.invSqrAttRadius = 1.0f / (pRectLightRenderData->m_fRange * pRectLightRenderData->m_fRange);
+    out_perLightData.falloff = pRectLightRenderData->m_fFalloff;
+
+    out_perLightData.spotOrFillParams = ezShaderUtils::Float2ToRG16F(ezVec2(pRectLightRenderData->m_fWidth * 0.5f, pRectLightRenderData->m_fHeight * 0.5f));
+
+    ezUInt32 cookieBits = 0;
+    if (!pRectLightRenderData->m_CookieId.IsInvalidated())
+    {
+      cookieBits = (pRectLightRenderData->m_CookieId.m_InstanceIndex & 0x7FFF) | (1 << 15);
+    }
+    out_perLightData.cookieParams0 = cookieBits | (ezFloat16(rightDir.z).GetRawData() << 16);
+    out_perLightData.cookieParams1 = ezShaderUtils::Float2ToRG16F(rightDir.GetAsVec2());
+
+    out_perLightData.twoSided = pRectLightRenderData->m_bTwoSided ? 1.0f : 0.0f;
+  }
+
+  void FillDiskLightData(ezPerLightData& out_perLightData, const ezDiskLightRenderData* pDiskLightRenderData)
+  {
+    FillLightData(out_perLightData, pDiskLightRenderData, LIGHT_TYPE_DISK);
+
+    const ezVec3 forwardDir = pDiskLightRenderData->m_qGlobalRotation * ezVec3(-1, 0, 0);
+    const ezVec3 rightDir = pDiskLightRenderData->m_qGlobalRotation * ezVec3(0, 1, 0);
+
+    out_perLightData.direction = ezShaderUtils::Float3ToRGB10(forwardDir);
+    out_perLightData.position = pDiskLightRenderData->m_vGlobalPosition;
+    out_perLightData.invSqrAttRadius = 1.0f / (pDiskLightRenderData->m_fRange * pDiskLightRenderData->m_fRange);
+    out_perLightData.falloff = pDiskLightRenderData->m_fFalloff;
+
+    out_perLightData.spotOrFillParams = ezShaderUtils::Float2ToRG16F(ezVec2(pDiskLightRenderData->m_fRadius, 0.0f));
+
+    out_perLightData.cookieParams0 = ezFloat16(rightDir.z).GetRawData() << 16;
+    out_perLightData.cookieParams1 = ezShaderUtils::Float2ToRG16F(rightDir.GetAsVec2());
+
+    out_perLightData.twoSided = pDiskLightRenderData->m_bTwoSided ? 1.0f : 0.0f;
   }
 
   void FillFillLightData(ezPerLightData& out_perLightData, const ezFillLightRenderData* pFillLightRenderData)

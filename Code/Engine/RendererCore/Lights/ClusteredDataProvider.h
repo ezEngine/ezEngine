@@ -32,6 +32,10 @@ public:
   ezDecalAtlasResourceHandle m_hDecalAtlas;
   ezGALSamplerStateHandle m_hDecalAtlasSampler;
 
+  ezTexture2DResourceHandle m_hLtcMatTexture;
+  ezTexture2DResourceHandle m_hLtcMagTexture;
+  ezGALSamplerStateHandle m_hLtcSampler;
+
   void BindResources(ezRenderContext* pRenderContext);
 };
 

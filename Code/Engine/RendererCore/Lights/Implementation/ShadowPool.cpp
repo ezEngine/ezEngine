@@ -668,6 +668,61 @@ ezUInt32 ezShadowPool::AddSpotLight(const ezSpotLightComponent* pSpotLight, floa
 }
 
 // static
+ezUInt32 ezShadowPool::AddAreaLight(const ezLightComponent* pLight, float fScreenSpaceSize, const ezView* pReferenceView, float fRange)
+{
+  EZ_ASSERT_DEBUG(pLight->GetCastShadows(), "Implementation error");
+
+  const float fShadowMapScale = ShadowMapScaleFromScreenSpaceSize(fScreenSpaceSize);
+  ShadowData* pData = nullptr;
+  if (s_pData->GetDataForExtraction(pLight, nullptr, fShadowMapScale, sizeof(ezSpotShadowData), pData))
+  {
+    return pData->m_uiPackedDataOffset;
+  }
+
+  pData->m_uiType = LIGHT_TYPE_SPOT;
+  pData->m_Views.SetCount(1);
+
+  ezView* pView = nullptr;
+  ShadowView& shadowView = s_pData->GetShadowView(pView);
+  pData->m_Views[0] = shadowView.m_hView;
+
+  const ezGameObject* pOwner = pLight->GetOwner();
+
+  {
+    if (pOwner->GetName().IsEmpty())
+    {
+      pView->SetName("AreaLight"_ezsv);
+    }
+    else
+    {
+      pView->SetName(pOwner->GetName());
+    }
+
+    pView->SetWorld(const_cast<ezWorld*>(pLight->GetWorld()));
+    pView->SetRenderPassProperty("ShadowDepth", "RenderTransparentObjects", pLight->GetTransparentShadows());
+    CopyExcludeTagsOnWhiteList(pReferenceView->m_ExcludeTags, pView->m_ExcludeTags);
+  }
+
+  {
+    ezVec3 vPosition = pOwner->GetGlobalPosition();
+    ezVec3 vForward = -(pOwner->GetGlobalDirForwards());
+    ezVec3 vUp = pOwner->GetGlobalDirUp();
+
+    float fFov = AddSafeBorder(ezAngle::MakeFromDegree(120.0f), pLight->GetPenumbraSize());
+    float fNearPlane = 0.1f;
+    float fFarPlane = fRange > 0.0f ? fRange : ezLightComponent::CalculateEffectiveRange(0.0f, pLight->GetIntensity());
+
+    ezCamera& camera = shadowView.m_Camera;
+    camera.LookAt(vPosition, vPosition + vForward, vUp);
+    camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, fFov, fNearPlane, fFarPlane);
+  }
+
+  ezRenderWorld::AddViewToRender(shadowView.m_hView);
+
+  return pData->m_uiPackedDataOffset;
+}
+
+// static
 ezGALTextureHandle ezShadowPool::GetShadowAtlasTexture()
 {
   return s_pData->m_TextureAtlas.GetTexture();

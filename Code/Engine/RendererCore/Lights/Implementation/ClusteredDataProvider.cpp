@@ -80,6 +80,21 @@ ezClusteredDataGPU::ezClusteredDataGPU()
 
     m_hDecalAtlasSampler = pDevice->CreateSamplerState(desc);
   }
+
+  m_hLtcMatTexture = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/ltc_1.dds");
+  m_hLtcMagTexture = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/ltc_2.dds");
+
+  {
+    ezGALSamplerStateCreationDescription desc;
+    desc.m_MinFilter = ezGALTextureFilterMode::Linear;
+    desc.m_MagFilter = ezGALTextureFilterMode::Linear;
+    desc.m_MipFilter = ezGALTextureFilterMode::Linear;
+    desc.m_AddressU = ezImageAddressMode::Clamp;
+    desc.m_AddressV = ezImageAddressMode::Clamp;
+    desc.m_AddressW = ezImageAddressMode::Clamp;
+
+    m_hLtcSampler = pDevice->CreateSamplerState(desc);
+  }
 }
 
 ezClusteredDataGPU::~ezClusteredDataGPU()
@@ -93,6 +108,10 @@ ezClusteredDataGPU::~ezClusteredDataGPU()
   pDevice->DestroyBuffer(m_hClusterItemBuffer);
   pDevice->DestroySamplerState(m_hShadowSampler);
   pDevice->DestroySamplerState(m_hDecalAtlasSampler);
+  pDevice->DestroySamplerState(m_hLtcSampler);
+
+  m_hLtcMatTexture.Invalidate();
+  m_hLtcMagTexture.Invalidate();
 
   ezRenderContext::DeleteConstantBufferStorage(m_hConstantBuffer);
 }
@@ -119,6 +138,10 @@ void ezClusteredDataGPU::BindResources(ezRenderContext* pRenderContext)
   bindGroup.BindTexture("DecalAtlasORMTexture", pDecalAtlas->GetORMTexture());
   bindGroup.BindTexture("DecalRuntimeAtlasTexture", ezDecalManager::GetRuntimeDecalAtlasTexture());
   bindGroup.BindSampler("DecalAtlasSampler", m_hDecalAtlasSampler);
+
+  bindGroup.BindTexture("LtcMatTexture", m_hLtcMatTexture, ezResourceAcquireMode::BlockTillLoaded);
+  bindGroup.BindTexture("LtcMagTexture", m_hLtcMagTexture, ezResourceAcquireMode::BlockTillLoaded);
+  bindGroup.BindSampler("LtcSampler", m_hLtcSampler);
 
   bindGroup.BindTexture("ReflectionSpecularTexture", ezReflectionPool::GetReflectionSpecularTexture(m_uiSkyIrradianceIndex, m_cameraUsageHint));
   bindGroup.BindTexture("SkyIrradianceTexture", ezReflectionPool::GetSkyIrradianceTexture());
