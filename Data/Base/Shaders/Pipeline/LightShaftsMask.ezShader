@@ -45,5 +45,5 @@ float4 main(PS_IN input) : SV_Target
   float distToOrigin = length((input.TexCoord0 - LightShaftsOriginUVs) * float2(aspectRatio, 1));
   float diskMask = smoothstep(LightShaftsDiskMaskRadius, 0.0, distToOrigin);
 
-  return float4(sceneColor * (occlusion * edgeMask * diskMask * LightShaftsIntensity), 1);
+  return float4(sceneColor * LightShaftsTintColor.rgb * (occlusion * edgeMask * diskMask * LightShaftsIntensity), 1);
 }

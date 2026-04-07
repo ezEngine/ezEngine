@@ -50,6 +50,7 @@ public:
   float m_fLightShaftsMaxBrightness = 0.0f;
   float m_fLightShaftsBrightnessThreshold = 0.0f;
   float m_fLightShaftsDiskMaskRadius = 0.0f;
+  ezColorGammaUB m_LightShaftsTintColor = ezColor::White;
 };
 
 /// Extracts lights, decals, and reflection probes into a clustered data structure.

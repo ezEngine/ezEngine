@@ -5,6 +5,8 @@
 
 CONSTANT_BUFFER2(ezLightShaftsConstants, 3, BG_RENDER_PASS)
 {
+  COLOR4F(LightShaftsTintColor);
+
   FLOAT1(LightShaftsIntensity);
   FLOAT1(LightShaftsMaxBrightness);
   FLOAT1(LightShaftsBrightnessThreshold);

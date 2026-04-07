@@ -15,7 +15,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezLightShaftsComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezLightShaftsComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -23,11 +23,11 @@ EZ_BEGIN_COMPONENT_TYPE(ezLightShaftsComponent, 1, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("BrightnessThreshold", GetBrightnessThreshold, SetBrightnessThreshold)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(0.0f)),
     EZ_ACCESSOR_PROPERTY("MaxBrightness", GetMaxBrightness, SetMaxBrightness)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(10.0f)),
     EZ_ACCESSOR_PROPERTY("DiskMaskRadius", GetDiskMaskRadius, SetDiskMaskRadius)->AddAttributes(new ezClampValueAttribute(0.0f, 2.0f), new ezDefaultValueAttribute(0.1f)),
+    EZ_ACCESSOR_PROPERTY("TintColor", GetTintColor, SetTintColor),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds),
     EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
   }
   EZ_END_MESSAGEHANDLERS;
@@ -43,23 +43,6 @@ EZ_END_COMPONENT_TYPE;
 ezLightShaftsComponent::ezLightShaftsComponent() = default;
 ezLightShaftsComponent::~ezLightShaftsComponent() = default;
 
-void ezLightShaftsComponent::Deinitialize()
-{
-  ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
-
-  SUPER::Deinitialize();
-}
-
-void ezLightShaftsComponent::OnActivated()
-{
-  GetOwner()->UpdateLocalBounds();
-}
-
-void ezLightShaftsComponent::OnDeactivated()
-{
-  GetOwner()->UpdateLocalBounds();
-}
-
 void ezLightShaftsComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
   SUPER::SerializeComponent(inout_stream);
@@ -69,6 +52,7 @@ void ezLightShaftsComponent::SerializeComponent(ezWorldWriter& inout_stream) con
   s << m_fMaxBrightness;
   s << m_fBrightnessThreshold;
   s << m_fDiskMaskRadius;
+  s << m_TintColor;
 }
 
 void ezLightShaftsComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -82,6 +66,17 @@ void ezLightShaftsComponent::DeserializeComponent(ezWorldReader& inout_stream)
   s >> m_fMaxBrightness;
   s >> m_fBrightnessThreshold;
   s >> m_fDiskMaskRadius;
+
+  if (uiVersion >= 2)
+  {
+    s >> m_TintColor;
+  }
+}
+
+ezResult ezLightShaftsComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
+{
+  ref_bAlwaysVisible = true;
+  return EZ_SUCCESS;
 }
 
 void ezLightShaftsComponent::SetIntensity(float fIntensity)
@@ -90,7 +85,7 @@ void ezLightShaftsComponent::SetIntensity(float fIntensity)
 
   if (IsActiveAndInitialized())
   {
-    ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
+    InvalidateCachedRenderData();
   }
 }
 
@@ -100,7 +95,7 @@ void ezLightShaftsComponent::SetBrightnessThreshold(float fBrightnessThreshold)
 
   if (IsActiveAndInitialized())
   {
-    ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
+    InvalidateCachedRenderData();
   }
 }
 
@@ -110,7 +105,7 @@ void ezLightShaftsComponent::SetMaxBrightness(float fMaxBrightness)
 
   if (IsActiveAndInitialized())
   {
-    ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
+    InvalidateCachedRenderData();
   }
 }
 
@@ -120,13 +115,18 @@ void ezLightShaftsComponent::SetDiskMaskRadius(float fDiskMaskRadius)
 
   if (IsActiveAndInitialized())
   {
-    ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
+    InvalidateCachedRenderData();
   }
 }
 
-void ezLightShaftsComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
+void ezLightShaftsComponent::SetTintColor(const ezColorGammaUB& color)
 {
-  msg.SetAlwaysVisible(GetOwner()->IsDynamic() ? ezDefaultSpatialDataCategories::RenderDynamic : ezDefaultSpatialDataCategories::RenderStatic);
+  m_TintColor = color;
+
+  if (IsActiveAndInitialized())
+  {
+    InvalidateCachedRenderData();
+  }
 }
 
 void ezLightShaftsComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
@@ -146,6 +146,7 @@ void ezLightShaftsComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg)
   pRenderData->m_fMaxBrightness = m_fMaxBrightness;
   pRenderData->m_fBrightnessThreshold = m_fBrightnessThreshold;
   pRenderData->m_fDiskMaskRadius = m_fDiskMaskRadius;
+  pRenderData->m_TintColor = m_TintColor;
 
   msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, ezRenderData::Caching::IfStatic);
 }

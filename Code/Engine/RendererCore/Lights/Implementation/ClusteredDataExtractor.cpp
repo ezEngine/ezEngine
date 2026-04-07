@@ -374,6 +374,7 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
           pData->m_fLightShaftsMaxBrightness = pLightShaftsRenderData->m_fMaxBrightness;
           pData->m_fLightShaftsBrightnessThreshold = pLightShaftsRenderData->m_fBrightnessThreshold;
           pData->m_fLightShaftsDiskMaskRadius = pLightShaftsRenderData->m_fDiskMaskRadius;
+          pData->m_LightShaftsTintColor = pLightShaftsRenderData->m_TintColor;
         }
         else
         {

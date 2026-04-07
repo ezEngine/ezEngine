@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/World/SettingsComponentManager.h>
+#include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/Pipeline/RenderData.h>
 
 struct ezMsgUpdateLocalBounds;
@@ -15,24 +16,28 @@ public:
   float m_fMaxBrightness;
   float m_fBrightnessThreshold;
   float m_fDiskMaskRadius;
+  ezColorGammaUB m_TintColor;
 };
 
 using ezLightShaftsComponentManager = ezSettingsComponentManager<class ezLightShaftsComponent>;
 
 /// \brief Adds a light shaft effect to the scene. Usually, this component is attached to the same game object as a directional light.
-class EZ_RENDERERCORE_DLL ezLightShaftsComponent : public ezComponent
+class EZ_RENDERERCORE_DLL ezLightShaftsComponent : public ezRenderComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezLightShaftsComponent, ezComponent, ezLightShaftsComponentManager);
+  EZ_DECLARE_COMPONENT_TYPE(ezLightShaftsComponent, ezRenderComponent, ezLightShaftsComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
   // ezComponent
 
 public:
-  virtual void Deinitialize() override;
-  virtual void OnActivated() override;
-  virtual void OnDeactivated() override;
   virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
   virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezRenderComponent
+
+public:
+  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg) override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezLightShaftsComponent
@@ -60,12 +65,17 @@ public:
   void SetDiskMaskRadius(float fDiskMaskRadius);                // [ property ]
   float GetDiskMaskRadius() const { return m_fDiskMaskRadius; } // [ property ]
 
+  /// \brief The light shafts pick its color from the sky pixels at the center. The tint color can be used to add an additional color tint to the light shafts.
+  void SetTintColor(const ezColorGammaUB& color);                    // [ property ]
+  const ezColorGammaUB& GetTintColor() const { return m_TintColor; } // [ property ]
+
 private:
-  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
 
   float m_fIntensity = 1.0f;
   float m_fMaxBrightness = 10.0f;
   float m_fBrightnessThreshold = 0.0f;
   float m_fDiskMaskRadius = 0.1f;
+
+  ezColorGammaUB m_TintColor = ezColor::White;
 };

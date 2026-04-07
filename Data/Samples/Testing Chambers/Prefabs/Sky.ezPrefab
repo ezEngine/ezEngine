@@ -74,7 +74,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{13699384296078697487,10650164635913670525}}
-		u4 %Hash{1217016306571904369}
+		u4 %Hash{10110616545193450388}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{13850971636205318926,9059842567955752105}}
@@ -147,7 +147,7 @@ o
 {
 	Uuid %id{u4{14737824997050113921,4701838202341345428}}
 	s %t{"ezLightShaftsComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -155,6 +155,7 @@ o
 		f %DiskMaskRadius{0xCDCCCC3D}
 		f %Intensity{0x9A99993E}
 		f %MaxBrightness{0x00002041}
+		ColorGamma %TintColor{u1{255,0,0,255}}
 	}
 }
 o
@@ -787,11 +788,11 @@ o
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
-		s %ParentTypeName{"ezComponent"}
+		s %ParentTypeName{"ezRenderComponent"}
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezLightShaftsComponent"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o

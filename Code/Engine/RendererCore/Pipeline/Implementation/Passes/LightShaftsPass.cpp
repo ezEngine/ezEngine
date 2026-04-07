@@ -246,6 +246,8 @@ void ezLightShaftsPass::UpdateConstantBuffer(const ezClusteredDataCPU& clustered
 {
   ezLightShaftsConstants* pConstants = ezRenderContext::GetConstantBufferData<ezLightShaftsConstants>(m_hConstantBuffer);
 
+  pConstants->LightShaftsTintColor = clusteredData.m_LightShaftsTintColor;
+
   pConstants->LightShaftsIntensity = clusteredData.m_fLightShaftsIntensity;
   pConstants->LightShaftsMaxBrightness = clusteredData.m_fLightShaftsMaxBrightness;
   pConstants->LightShaftsBrightnessThreshold = clusteredData.m_fLightShaftsBrightnessThreshold;
