@@ -22,7 +22,7 @@ using namespace ezProcGenInternal;
 
 ezCVarInt cvar_ProcGenProcessingMaxTiles("ProcGen.Processing.MaxTiles", 8, ezCVarFlags::Default, "Maximum number of tiles in process");
 ezCVarInt cvar_ProcGenProcessingMaxNewObjectsPerFrame("ProcGen.Processing.MaxNewObjectsPerFrame", 256, ezCVarFlags::Default, "Maximum number of objects placed per frame");
-ezCVarBool cvar_ProcGenVisTiles("ProcGen.VisTiles", false, ezCVarFlags::Default, "Enables debug visualization of procedural placement tiles");
+ezCVarBool cvar_ProcGenVisTiles("ProcGen.VisTiles.Enable", false, ezCVarFlags::Default, "Enables debug visualization of procedural placement tiles");
 ezCVarString cvar_ProcGenVisTilesOutputFilter("ProcGen.VisTiles.OutputFilter", "", ezCVarFlags::Default, "When set only tiles form the matching output are shown");
 ezCVarInt cvar_ProcGenVisTileTileX("ProcGen.VisTiles.PosX", ezMath::MaxValue<int>(), ezCVarFlags::Default, "The x position of the tile to visualize");
 ezCVarInt cvar_ProcGenVisTileTileY("ProcGen.VisTiles.PosY", ezMath::MaxValue<int>(), ezCVarFlags::Default, "The y position of the tile to visualize");
