@@ -205,7 +205,13 @@ void ezProcPlacementComponentManager::PreparePlace(const ezWorldModule::UpdateCo
           }
         }
 
-        m_NewTiles.PushBackRange(outputContext.m_pUpdateTilesTask->GetNewTiles());
+        for (const auto& newTile : outputContext.m_pUpdateTilesTask->GetNewTiles())
+        {
+          if (!m_NewTiles.Contains(newTile))
+          {
+            m_NewTiles.PushBack(newTile);
+          }
+        }
       }
     }
 
