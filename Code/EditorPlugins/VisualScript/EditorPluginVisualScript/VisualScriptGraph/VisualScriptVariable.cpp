@@ -154,6 +154,12 @@ ezResult ezQtVisualScriptVariableWidget::GetVariantTypeDisplayName(ezVariantType
       type == ezVariantType::UInt16 ||
       type == ezVariantType::UInt32 ||
       type == ezVariantType::UInt64 ||
+      type == ezVariantType::Vector2I ||
+      type == ezVariantType::Vector3I ||
+      type == ezVariantType::Vector4I ||
+      type == ezVariantType::Vector2U ||
+      type == ezVariantType::Vector3U ||
+      type == ezVariantType::Vector4U ||
       type == ezVariantType::StringView ||
       type == ezVariantType::TempHashedString)
     return EZ_FAILURE;

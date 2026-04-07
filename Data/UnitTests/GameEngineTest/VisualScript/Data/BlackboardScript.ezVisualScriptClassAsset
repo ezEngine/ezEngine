@@ -25,7 +25,7 @@ o
 		s %AssetType{"VisualScriptClass"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{11410758142063444412,5252298219396556696}}
-		u4 %Hash{5765133772987612893}
+		u4 %Hash{17129424742192830212}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{15977922773034048496,17053314215109263305}}
@@ -535,7 +535,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Invalid %Fallback{}
+		i3 %Fallback{0}
 		HashedString %Name{s{"Counter"}}
 		Vec2 %Node::Pos{f{0x4D264C44,0x68D991C3}}
 	}

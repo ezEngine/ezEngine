@@ -370,14 +370,11 @@ ezVariant ezVisualScriptDataStorage::GetDataAsVariant(DataOffset dataOffset, con
 {
   auto scriptDataType = dataOffset.GetType();
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   // pExpectedType == nullptr means that the caller expects an ezVariant so we decide solely based on the scriptDataType.
-  // We set the pExpectedType to the equivalent of the scriptDataType here so we don't need to check for pExpectedType == nullptr in all the asserts below.
   if (pExpectedType == nullptr || pExpectedType == ezGetStaticRTTI<ezVariant>())
   {
     pExpectedType = ezVisualScriptDataType::GetRtti(scriptDataType);
   }
-#endif
 
   switch (scriptDataType)
   {
@@ -393,7 +390,7 @@ ezVariant ezVisualScriptDataStorage::GetDataAsVariant(DataOffset dataOffset, con
       return GetData<ezUInt8>(dataOffset);
 
     case ezVisualScriptDataType::Int:
-      if (pExpectedType == nullptr || pExpectedType == ezGetStaticRTTI<ezInt32>())
+      if (pExpectedType == ezGetStaticRTTI<ezInt32>())
       {
         return GetData<ezInt32>(dataOffset);
       }
@@ -429,7 +426,7 @@ ezVariant ezVisualScriptDataStorage::GetDataAsVariant(DataOffset dataOffset, con
       return GetData<ezColor>(dataOffset);
 
     case ezVisualScriptDataType::Vector2:
-      if (pExpectedType == nullptr || pExpectedType == ezGetStaticRTTI<ezVec2>())
+      if (pExpectedType == ezGetStaticRTTI<ezVec2>())
       {
         return GetData<ezVec2>(dataOffset);
       }
@@ -447,7 +444,7 @@ ezVariant ezVisualScriptDataStorage::GetDataAsVariant(DataOffset dataOffset, con
       break;
 
     case ezVisualScriptDataType::Vector3:
-      if (pExpectedType == nullptr || pExpectedType == ezGetStaticRTTI<ezVec3>())
+      if (pExpectedType == ezGetStaticRTTI<ezVec3>())
       {
         return GetData<ezVec3>(dataOffset);
       }
@@ -465,7 +462,7 @@ ezVariant ezVisualScriptDataStorage::GetDataAsVariant(DataOffset dataOffset, con
       break;
 
     case ezVisualScriptDataType::Vector4:
-      if (pExpectedType == nullptr || pExpectedType == ezGetStaticRTTI<ezVec4>())
+      if (pExpectedType == ezGetStaticRTTI<ezVec4>())
       {
         return GetData<ezVec4>(dataOffset);
       }
@@ -499,7 +496,7 @@ ezVariant ezVisualScriptDataStorage::GetDataAsVariant(DataOffset dataOffset, con
       return GetData<ezAngle>(dataOffset);
 
     case ezVisualScriptDataType::String:
-      if (pExpectedType == nullptr || pExpectedType == ezGetStaticRTTI<ezString>() || pExpectedType == ezGetStaticRTTI<const char*>())
+      if (pExpectedType == ezGetStaticRTTI<ezString>() || pExpectedType == ezGetStaticRTTI<const char*>())
       {
         return GetData<ezString>(dataOffset);
       }
@@ -511,7 +508,7 @@ ezVariant ezVisualScriptDataStorage::GetDataAsVariant(DataOffset dataOffset, con
       break;
 
     case ezVisualScriptDataType::HashedString:
-      if (pExpectedType == nullptr || pExpectedType == ezGetStaticRTTI<ezHashedString>())
+      if (pExpectedType == ezGetStaticRTTI<ezHashedString>())
       {
         return GetData<ezHashedString>(dataOffset);
       }
@@ -523,7 +520,7 @@ ezVariant ezVisualScriptDataStorage::GetDataAsVariant(DataOffset dataOffset, con
       break;
 
     case ezVisualScriptDataType::GameObject:
-      if (pExpectedType == nullptr || pExpectedType == ezGetStaticRTTI<ezGameObject>())
+      if (pExpectedType == ezGetStaticRTTI<ezGameObject>())
       {
         return GetPointerData(dataOffset, uiExecutionCounter);
       }
@@ -535,7 +532,7 @@ ezVariant ezVisualScriptDataStorage::GetDataAsVariant(DataOffset dataOffset, con
       break;
 
     case ezVisualScriptDataType::Component:
-      if (pExpectedType == nullptr || pExpectedType->IsDerivedFrom<ezComponent>())
+      if (pExpectedType->IsDerivedFrom<ezComponent>())
       {
         return GetPointerData(dataOffset, uiExecutionCounter);
       }
