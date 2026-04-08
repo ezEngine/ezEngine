@@ -158,13 +158,14 @@ void ezAnimationControllerComponent::Update()
 
   m_ElapsedTimeSinceUpdate = ezTime::MakeZero();
 
-  ezVec3 translation;
-  ezAngle rotationX;
-  ezAngle rotationY;
-  ezAngle rotationZ;
-  m_AnimController.GetRootMotion(translation, rotationX, rotationY, rotationZ);
+  m_AnimController.GetRootMotion(m_vPendingTranslation, m_PendingRotationX, m_PendingRotationY, m_PendingRotationZ);
+}
 
-  ezRootMotionMode::Apply(m_RootMotionMode, GetOwner(), translation, rotationX, rotationY, rotationZ);
+void ezAnimationControllerComponent::ApplyRootMotion()
+{
+  ezRootMotionMode::Apply(m_RootMotionMode, GetOwner(), m_vPendingTranslation, m_PendingRotationX, m_PendingRotationY, m_PendingRotationZ);
+  m_vPendingTranslation = ezVec3::MakeZero();
+  m_PendingRotationX = m_PendingRotationY = m_PendingRotationZ = ezAngle();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -177,12 +178,22 @@ ezAnimationControllerComponentManager::ezAnimationControllerComponentManager(ezW
 
 void ezAnimationControllerComponentManager::Initialize()
 {
-  auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezAnimationControllerComponentManager::Update, this);
-  desc.m_bOnlyUpdateWhenSimulating = true;
-  desc.m_Phase = ezWorldUpdatePhase::Async;
-  desc.m_uiAsyncPhaseBatchSize = 2;
+  {
+    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezAnimationControllerComponentManager::Update, this);
+    desc.m_bOnlyUpdateWhenSimulating = true;
+    desc.m_Phase = ezWorldUpdatePhase::Async;
+    desc.m_uiAsyncPhaseBatchSize = 2;
 
-  this->RegisterUpdateFunction(desc);
+    this->RegisterUpdateFunction(desc);
+  }
+
+  {
+    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezAnimationControllerComponentManager::ApplyRootMotion, this);
+    desc.m_bOnlyUpdateWhenSimulating = true;
+    desc.m_Phase = ezWorldUpdatePhase::PostAsync;
+
+    this->RegisterUpdateFunction(desc);
+  }
 
   ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&ezAnimationControllerComponentManager::ResourceEvent, this));
 }
@@ -238,6 +249,18 @@ void ezAnimationControllerComponentManager::ResourceEvent(const ezResourceEvent&
           }
         }
       }
+    }
+  }
+}
+
+void ezAnimationControllerComponentManager::ApplyRootMotion(const ezWorldModule::UpdateContext& context)
+{
+  for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
+  {
+    ComponentType* pComponent = it;
+    if (pComponent->m_RootMotionMode != ezRootMotionMode::Ignore && pComponent->IsActiveAndInitialized())
+    {
+      pComponent->ApplyRootMotion();
     }
   }
 }
