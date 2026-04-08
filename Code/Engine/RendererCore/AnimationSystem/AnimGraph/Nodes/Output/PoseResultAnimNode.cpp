@@ -138,6 +138,7 @@ void ezPoseResultAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIns
       pLocalTransforms->m_fOverallWeight = pCurrentLocalTransforms->m_fOverallWeight * fCurrentWeight;
       pLocalTransforms->m_bUseRootMotion = pCurrentLocalTransforms->m_bUseRootMotion;
       pLocalTransforms->m_vRootMotion = pCurrentLocalTransforms->m_vRootMotion;
+      pLocalTransforms->m_CustomCurveValues = pCurrentLocalTransforms->m_CustomCurveValues;
 
       ref_controller.AddOutputLocalTransforms(pLocalTransforms);
     }

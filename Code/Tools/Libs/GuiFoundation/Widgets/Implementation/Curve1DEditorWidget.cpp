@@ -78,6 +78,10 @@ void ezQtCurve1DEditorWidget::SetScrubberPosition(ezUInt64 uiTick)
   CurveEdit->SetScrubberPosition(uiTick / 4800.0);
 }
 
+void ezQtCurve1DEditorWidget::SetScrubberPosition(ezTime time)
+{
+  CurveEdit->SetScrubberPosition(time.GetSeconds());
+}
 
 void ezQtCurve1DEditorWidget::ClearSelection()
 {
@@ -468,6 +472,8 @@ void ezQtCurve1DEditorWidget::onScaleControlPoints(QPointF refPt, double scaleX,
   const ezVec2d ref(refPt.x(), refPt.y());
   const ezVec2d scale(scaleX, scaleY);
 
+  m_bControlPointsScaled = true;
+
   Q_EMIT BeginCpChangesEvent("Scale Points");
 
   for (const auto& cpSel : selection)
@@ -523,6 +529,7 @@ void ezQtCurve1DEditorWidget::onBeginOperation(QString name)
   m_CurvesBackup.CloneFrom(m_Curves);
   m_vTangentMove.SetZero();
   m_vControlPointMove.SetZero();
+  m_bControlPointsScaled = false;
 
   Q_EMIT BeginOperationEvent(name);
 }
@@ -535,7 +542,7 @@ void ezQtCurve1DEditorWidget::onEndOperation(bool commit)
     const bool bControlPointsMoved = !m_vControlPointMove.IsZero();
     const bool bTangentsMoved = !m_vTangentMove.IsZero();
 
-    if (!bControlPointsMoved && !bTangentsMoved)
+    if (!bControlPointsMoved && !bTangentsMoved && !m_bControlPointsScaled)
     {
       commit = false;
     }
@@ -1349,6 +1356,16 @@ void ezQtCurve1DEditorWidget::SetTangentMode(ezCurveTangentMode::Enum mode, bool
 
 void ezQtCurve1DEditorWidget::ClampPoint(double& x, double& y) const
 {
+  if (!ezMath::IsFinite(x))
+  {
+    x = 0;
+  }
+
+  if (!ezMath::IsFinite(y))
+  {
+    y = 0;
+  }
+
   if (CurveEdit->m_bLowerExtentFixed)
     x = ezMath::Max(x, CurveEdit->m_fLowerExtent);
   if (CurveEdit->m_bUpperExtentFixed)

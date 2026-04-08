@@ -8,6 +8,7 @@
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 
 #include <RendererCore/AnimationSystem/AnimPoseGenerator.h>
+#include <RendererCore/AnimationSystem/Declarations.h>
 #include <ozz/animation/runtime/skeleton.h>
 
 ezMutex ezAnimController::s_SharedDataMutex;
@@ -65,6 +66,8 @@ bool ezAnimController::Update(ezTime diff, ezGameObject* pTarget, bool bEnableIK
   m_RootRotationY = {};
   m_RootRotationZ = {};
 
+  m_FinalCurveValues.Clear();
+
   m_pPoseGenerator->Reset(pSkeleton.GetPointer(), pTarget);
 
   m_PinDataBoneWeights.Clear();
@@ -79,6 +82,20 @@ bool ezAnimController::Update(ezTime diff, ezGameObject* pTarget, bool bEnableIK
   GenerateLocalResultProcessors(pSkeleton.GetPointer());
 
   GetPoseGenerator().UpdatePose(bEnableIK);
+
+  // send custom curve values to the game object
+  for (const auto& fcv : m_FinalCurveValues)
+  {
+    if (fcv.m_fTotalWeight > 0.0f)
+    {
+      ezMsgAnimationCurveValue msg;
+      msg.m_sCurveName = fcv.m_sName;
+      msg.m_fMin = fcv.m_fMin;
+      msg.m_fMax = fcv.m_fMax;
+      msg.m_fAverage = fcv.m_fWeightedSum / fcv.m_fTotalWeight;
+      pTarget->PostEventMessage(msg, nullptr, ezTime::MakeZero());
+    }
+  }
 
   if (GetPoseGenerator().ShouldSendPoseResultMsg())
   {
@@ -258,6 +275,32 @@ void ezAnimController::GenerateLocalResultProcessors(const ezSkeletonResource* p
           pOut->m_bUseRootMotion = true;
         }
 
+        // accumulate custom curve values weighted by pin weight
+        for (const auto& cc : pTransforms->m_CustomCurveValues)
+        {
+          FinalCurveValue* pFinal = nullptr;
+          for (auto& fcv : m_FinalCurveValues)
+          {
+            if (fcv.m_sName == cc.m_sName)
+            {
+              pFinal = &fcv;
+              break;
+            }
+          }
+          if (pFinal == nullptr)
+          {
+            pFinal = &m_FinalCurveValues.ExpandAndGetRef();
+            pFinal->m_sName = cc.m_sName;
+            pFinal->m_fMin = cc.m_fValue;
+            pFinal->m_fMax = cc.m_fValue;
+          }
+
+          pFinal->m_fWeightedSum += cc.m_fValue * in.m_fPinWeight;
+          pFinal->m_fTotalWeight += in.m_fPinWeight;
+          pFinal->m_fMin = ezMath::Min(pFinal->m_fMin, cc.m_fValue);
+          pFinal->m_fMax = ezMath::Max(pFinal->m_fMax, cc.m_fValue);
+        }
+
         cmd.m_Inputs.PushBack(pTransforms->m_CommandID);
         cmd.m_InputWeights.PushBack(in.m_fPinWeight);
       }
@@ -269,6 +312,33 @@ void ezAnimController::GenerateLocalResultProcessors(const ezSkeletonResource* p
     }
 
     pOut->m_CommandID = cmd.GetCommandID();
+  }
+  else
+  {
+    // Single output with no bone weight mask: collect curve values directly from the one output.
+    for (const auto& cc : pOut->m_CustomCurveValues)
+    {
+      FinalCurveValue* pFinal = nullptr;
+      for (auto& fcv : m_FinalCurveValues)
+      {
+        if (fcv.m_sName == cc.m_sName)
+        {
+          pFinal = &fcv;
+          break;
+        }
+      }
+      if (pFinal == nullptr)
+      {
+        pFinal = &m_FinalCurveValues.ExpandAndGetRef();
+        pFinal->m_sName = cc.m_sName;
+        pFinal->m_fMin = cc.m_fValue;
+        pFinal->m_fMax = cc.m_fValue;
+      }
+      pFinal->m_fWeightedSum += cc.m_fValue * pOut->m_fOverallWeight;
+      pFinal->m_fTotalWeight += pOut->m_fOverallWeight;
+      pFinal->m_fMin = ezMath::Min(pFinal->m_fMin, cc.m_fValue);
+      pFinal->m_fMax = ezMath::Max(pFinal->m_fMax, cc.m_fValue);
+    }
   }
 
   ezAnimGraphPinDataModelTransforms* pModelTransform = AddPinDataModelTransforms();

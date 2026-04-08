@@ -513,6 +513,7 @@ void ezQtDocumentWindow::SlotRestoreDocumentLayout()
   if (!state.isEmpty())
   {
     m_pDockManager->restoreState(state);
+    OnAfterDocumentLayoutRestored();
   }
 
   // Schedule capturing the initial state after the layout has stabilized

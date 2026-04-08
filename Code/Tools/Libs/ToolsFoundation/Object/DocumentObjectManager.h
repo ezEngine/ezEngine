@@ -43,9 +43,7 @@ public:
 /// \brief Used by ezDocumentObjectManager::m_StructureEvents.
 struct ezDocumentObjectStructureEvent
 {
-  ezDocumentObjectStructureEvent()
-
-    = default;
+  ezDocumentObjectStructureEvent() = default;
 
   const ezAbstractProperty* GetProperty() const;
   ezVariant getInsertIndex() const;

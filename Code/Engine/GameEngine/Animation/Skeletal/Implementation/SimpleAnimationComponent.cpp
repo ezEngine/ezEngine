@@ -6,6 +6,7 @@
 #include <GameEngine/Animation/Skeletal/SimpleAnimationComponent.h>
 #include <RendererCore/AnimationSystem/AnimPoseGenerator.h>
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>
+#include <RendererCore/AnimationSystem/Declarations.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 #include <ozz/animation/runtime/animation.h>
 #include <ozz/animation/runtime/local_to_model_job.h>
@@ -201,6 +202,22 @@ void ezSimpleAnimationComponent::Update()
 
     // only applies positional root motion
     ezRootMotionMode::Apply(m_RootMotionMode, GetOwner(), vRootMotion, ezAngle(), ezAngle(), ezAngle());
+  }
+
+  if (!animDesc.m_CustomCurves.IsEmpty())
+  {
+    const double fTimeSecs = (double)m_fNormalizedPlaybackPosition * animDesc.GetDuration().GetSeconds();
+    for (const auto& curve : animDesc.m_CustomCurves)
+    {
+      const float fValue = (float)curve.m_Curve.Evaluate(fTimeSecs);
+
+      ezMsgAnimationCurveValue msg;
+      msg.m_sCurveName = curve.m_sName;
+      msg.m_fMin = fValue;
+      msg.m_fMax = fValue;
+      msg.m_fAverage = fValue;
+      GetOwner()->PostEventMessage(msg, nullptr, ezTime::MakeZero());
+    }
   }
 
   if (poseGen.GetCurrentPose().IsEmpty())

@@ -5,6 +5,7 @@
 #include <Core/ResourceManager/Resource.h>
 #include <Foundation/Containers/ArrayMap.h>
 #include <Foundation/Strings/HashedString.h>
+#include <Foundation/Tracks/Curve1D.h>
 #include <Foundation/Tracks/EventTrack.h>
 #include <ozz/base/memory/unique_ptr.h>
 
@@ -15,6 +16,13 @@ namespace ozz::animation
 {
   class Animation;
 }
+
+/// A single named float curve stored inside an animation clip.
+struct EZ_RENDERERCORE_DLL ezAnimationClipCustomCurve
+{
+  ezHashedString m_sName;
+  ezCurve1D m_Curve;
+};
 
 struct EZ_RENDERERCORE_DLL ezAnimationClipResourceDescriptor
 {
@@ -72,6 +80,8 @@ public:
   ezArrayPtr<const KeyframeVec3> GetScaleKeyframes(const JointInfo& jointInfo) const;
 
   ezVec3 m_vConstantRootMotion = ezVec3::MakeZero();
+
+  ezDynamicArray<ezAnimationClipCustomCurve> m_CustomCurves;
 
   ezEventTrack m_EventTrack;
 

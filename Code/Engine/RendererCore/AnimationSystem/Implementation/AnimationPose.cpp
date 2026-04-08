@@ -74,6 +74,20 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgApplyRootMotion, 1, ezRTTIDefaultAllocator<
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgAnimationCurveValue);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgAnimationCurveValue, 1, ezRTTIDefaultAllocator<ezMsgAnimationCurveValue>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("CurveName", m_sCurveName),
+    EZ_MEMBER_PROPERTY("Min", m_fMin),
+    EZ_MEMBER_PROPERTY("Max", m_fMax),
+    EZ_MEMBER_PROPERTY("Average", m_fAverage),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgRetrieveBoneState);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgRetrieveBoneState, 1, ezRTTIDefaultAllocator<ezMsgRetrieveBoneState>)
 {

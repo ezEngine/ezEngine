@@ -51,6 +51,11 @@
     <file>Icons/FocusOnSelectionAllViews.svg</file>
     <file>Icons/Scenegraph.svg</file>
     <file>Icons/ShapeIcons.svg</file>
+    <file>Icons/Pause.svg</file>
+    <file>Icons/Play.svg</file>
+    <file>Icons/Restart.svg</file>
+    <file>Icons/Loop.svg</file>
+    <file>Icons/Speed.svg</file>
     <file>Icons/Visualizers.svg</file>
     <file>Icons/Grid.svg</file>
     <file>Icons/Selection.svg</file>

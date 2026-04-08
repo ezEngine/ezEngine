@@ -130,7 +130,7 @@ void ezAnimationClipResourceDescriptor::operator=(ezAnimationClipResourceDescrip
 
 ezResult ezAnimationClipResourceDescriptor::Serialize(ezStreamWriter& inout_stream) const
 {
-  inout_stream.WriteVersion(9);
+  inout_stream.WriteVersion(10);
 
   const ezUInt16 uiNumJoints = static_cast<ezUInt16>(m_JointInfos.GetCount());
   inout_stream << uiNumJoints;
@@ -160,12 +160,21 @@ ezResult ezAnimationClipResourceDescriptor::Serialize(ezStreamWriter& inout_stre
 
   inout_stream << m_bAdditive;
 
+  const ezUInt16 uiNumCustomCurves = static_cast<ezUInt16>(m_CustomCurves.GetCount());
+  inout_stream << uiNumCustomCurves;
+
+  for (const auto& cc : m_CustomCurves)
+  {
+    inout_stream << cc.m_sName;
+    cc.m_Curve.Save(inout_stream);
+  }
+
   return EZ_SUCCESS;
 }
 
 ezResult ezAnimationClipResourceDescriptor::Deserialize(ezStreamReader& inout_stream)
 {
-  const ezTypeVersion uiVersion = inout_stream.ReadVersion(9);
+  const ezTypeVersion uiVersion = inout_stream.ReadVersion(10);
 
   if (uiVersion < 6)
     return EZ_FAILURE;
@@ -214,6 +223,21 @@ ezResult ezAnimationClipResourceDescriptor::Deserialize(ezStreamReader& inout_st
   if (uiVersion >= 9)
   {
     inout_stream >> m_bAdditive;
+  }
+
+  if (uiVersion >= 10)
+  {
+    ezUInt16 uiNumCustomCurves = 0;
+    inout_stream >> uiNumCustomCurves;
+
+    m_CustomCurves.SetCount(uiNumCustomCurves);
+    for (auto& cc : m_CustomCurves)
+    {
+      inout_stream >> cc.m_sName;
+      cc.m_Curve.Load(inout_stream);
+      cc.m_Curve.SortControlPoints();
+      cc.m_Curve.CreateLinearApproximation();
+    }
   }
 
   return EZ_SUCCESS;

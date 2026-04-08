@@ -1,11 +1,5 @@
 <RCC>
-  <qresource prefix="EditorPluginParticle">
-    <file>Icons/Restart.svg</file>
-    <file>Icons/Loop.svg</file>
-    <file>Icons/Speed.svg</file>
-    <file>Icons/Pause.svg</file>
-    <file>Icons/Play.svg</file>
-  </qresource>
+
   <qresource prefix="AssetIcons">
     <file>Particle_Effect.svg</file>
   </qresource>

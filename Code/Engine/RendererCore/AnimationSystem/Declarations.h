@@ -168,6 +168,21 @@ struct EZ_RENDERERCORE_DLL ezMsgApplyRootMotion : public ezMessage
   ezAngle m_RotationZ;
 };
 
+/// Sent once per named float curve per animation update frame, if at least one clip contributes a non-zero weight.
+///
+/// Game code can listen for this message on the game object that owns the animation controller.
+/// The min, max, and weighted average value across all currently playing clips are provided,
+/// so the receiver can use whichever is most appropriate.
+struct EZ_RENDERERCORE_DLL ezMsgAnimationCurveValue : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgAnimationCurveValue, ezMessage);
+
+  ezHashedString m_sCurveName; ///< The name that was assigned to the curve in the animation clip asset.
+  float m_fMin = 0.0f;         ///< Minimum sampled value across all contributing clips.
+  float m_fMax = 0.0f;         ///< Maximum sampled value across all contributing clips.
+  float m_fAverage = 0.0f;     ///< Weighted average of the sampled values, weighted by each clip's blend weight.
+};
+
 /// Queries the local transforms of each bone in an object with a skeleton
 ///
 /// Used to retrieve the pose of a ragdoll after simulation.

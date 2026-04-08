@@ -20,6 +20,7 @@ ezGameEngineTestApplication* ezGameEngineTestAnimations::CreateApplication()
 void ezGameEngineTestAnimations::SetupSubTests()
 {
   AddSubTest("Skeletal", SubTests::Skeletal);
+  AddSubTest("CurveData", SubTests::CurveData);
 }
 
 ezResult ezGameEngineTestAnimations::InitializeSubTest(ezInt32 iIdentifier)
@@ -40,12 +41,21 @@ ezResult ezGameEngineTestAnimations::InitializeSubTest(ezInt32 iIdentifier)
     return EZ_SUCCESS;
   }
 
+  if (iIdentifier == SubTests::CurveData)
+  {
+    m_ImgCompFrames.PushBack(15);
+    m_ImgCompFrames.PushBack(75);
+    m_ImgCompFrames.PushBack(100);
+
+    EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("Animations/AssetCache/Common/Scenes/AnimCurves.ezBinScene"));
+    return EZ_SUCCESS;
+  }
+
   return EZ_FAILURE;
 }
 
 ezTestAppRun ezGameEngineTestAnimations::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
 {
-  const bool bVulkan = ezGameApplication::GetActiveRenderer().IsEqual_NoCase("Vulkan");
   ++m_iFrame;
 
   m_pOwnApplication->Run();

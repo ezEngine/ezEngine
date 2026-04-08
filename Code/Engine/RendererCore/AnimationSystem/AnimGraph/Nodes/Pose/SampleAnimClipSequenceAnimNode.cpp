@@ -429,8 +429,17 @@ void ezSampleAnimClipSequenceAnimNode::Step(ezAnimController& ref_controller, ez
     {
       pLocalTransforms->m_bUseRootMotion = true;
 
+      const float fCurNormPos = ezMath::Clamp(pState->m_PlaybackTime.AsFloatInSeconds() * fInvDuration, 0.0f, 1.0f);
       ezResourceLock<ezAnimationClipResource> pAnimClip(hCurClip, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-      pLocalTransforms->m_vRootMotion = pAnimClip->GetDescriptor().m_vConstantRootMotion * tDiff.AsFloatInSeconds() * fPlaySpeed;
+      pLocalTransforms->m_vRootMotion = pAnimClip->GetDescriptor().m_vConstantRootMotion * tDiff.AsFloatInSeconds() * fPlaySpeed * m_fRootMotionAmount;
+
+      const double fSampleTimeSecs = (double)fCurNormPos * pAnimClip->GetDescriptor().GetDuration().GetSeconds();
+      for (const auto& cc : pAnimClip->GetDescriptor().m_CustomCurves)
+      {
+        auto& cv = pLocalTransforms->m_CustomCurveValues.ExpandAndGetRef();
+        cv.m_sName = cc.m_sName;
+        cv.m_fValue = static_cast<float>(cc.m_Curve.Evaluate(fSampleTimeSecs));
+      }
     }
 
     m_OutPose.SetPose(ref_graph, pLocalTransforms);

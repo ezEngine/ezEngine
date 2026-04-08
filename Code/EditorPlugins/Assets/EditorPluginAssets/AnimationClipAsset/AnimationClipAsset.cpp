@@ -4,6 +4,7 @@
 #include <EditorPluginAssets/AnimationClipAsset/AnimationClipAsset.h>
 #include <Foundation/Utilities/Progress.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
+#include <GuiFoundation/UIServices/DynamicStringEnum.h>
 #include <ModelImporter2/ModelImporter.h>
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>
 #include <RendererCore/AnimationSystem/EditableSkeleton.h>
@@ -16,11 +17,22 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezRootMotionSource, 1)
   EZ_ENUM_CONSTANTS(ezRootMotionSource::None, ezRootMotionSource::Constant)
 EZ_END_STATIC_REFLECTED_ENUM;
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipCurveData, 1, ezRTTIDefaultAllocator<ezAnimationClipCurveData>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Name", m_sName)->AddAttributes(new ezDynamicStringEnumAttribute("CustomAnimCurveNames")),
+    EZ_MEMBER_PROPERTY("Curve", m_Curve)->AddAttributes(new ezHiddenAttribute()),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezAdditiveAnimationReference, 1)
   EZ_ENUM_CONSTANTS(ezAdditiveAnimationReference::FirstKeyFrame, ezAdditiveAnimationReference::LastKeyFrame)
 EZ_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetProperties, 3, ezRTTIDefaultAllocator<ezAnimationClipAssetProperties>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetProperties, 4, ezRTTIDefaultAllocator<ezAnimationClipAssetProperties>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -36,6 +48,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetProperties, 3, ezRTTIDefault
     EZ_MEMBER_PROPERTY("ConstantRootMotion", m_vConstantRootMotion),
     EZ_MEMBER_PROPERTY("RootMotionDistance", m_fConstantRootMotionLength),
     EZ_MEMBER_PROPERTY("AdjustScale", m_fAnimationPositionScale)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0001f, 10000.0f), new ezGroupAttribute("Adjustments")),
+    EZ_ARRAY_MEMBER_PROPERTY("Curves", m_Curves),
     EZ_ARRAY_MEMBER_PROPERTY("AvailableClips", m_AvailableClips)->AddAttributes(new ezReadOnlyAttribute, new ezTemporaryAttribute(), new ezContainerAttribute(false, false, false), new ezGroupAttribute("Infos")),
     EZ_MEMBER_PROPERTY("EventTrack", m_EventTrack)->AddAttributes(new ezHiddenAttribute()),
   }
@@ -155,6 +168,16 @@ ezTransformStatus ezAnimationClipAssetDocument::InternalTransformAsset(ezStreamW
       {
         desc.m_vConstantRootMotion.SetLength(pProp->m_fConstantRootMotionLength, 0.01f).IgnoreResult();
       }
+    }
+
+    // copy named custom curves
+    desc.m_CustomCurves.SetCount(pProp->m_Curves.GetCount());
+    for (ezUInt32 i = 0; i < pProp->m_Curves.GetCount(); ++i)
+    {
+      desc.m_CustomCurves[i].m_sName.Assign(pProp->m_Curves[i].m_sName);
+      pProp->m_Curves[i].m_Curve.ConvertToRuntimeData(desc.m_CustomCurves[i].m_Curve);
+      desc.m_CustomCurves[i].m_Curve.SortControlPoints();
+      desc.m_CustomCurves[i].m_Curve.CreateLinearApproximation();
     }
 
     range.BeginNextStep("Writing Result");
