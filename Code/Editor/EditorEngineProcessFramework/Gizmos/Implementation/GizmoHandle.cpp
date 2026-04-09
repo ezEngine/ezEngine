@@ -282,6 +282,21 @@ static ezMeshBufferResourceHandle CreateMeshBufferCylinderZ()
   return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_CylinderZ", ezGALPrimitiveTopology::Triangles);
 }
 
+static ezMeshBufferResourceHandle CreateMeshBufferLineCylinderZ()
+{
+  const char* szResourceName = "{6978C491-0E1B-4471-A2A1-0CBEFFEBDAC5}";
+
+  ezMeshBufferResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szResourceName);
+
+  if (hMesh.IsValid())
+    return hMesh;
+
+  ezGeometry geom;
+  geom.AddLineCylinder(1.0f, 1.0f, 0.5f, 0.5f, 16);
+
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_LineCylinderZ", ezGALPrimitiveTopology::Lines);
+}
+
 static ezMeshBufferResourceHandle CreateMeshBufferHalfSphereZ()
 {
   const char* szResourceName = "{05BDED8B-96C1-4F2E-8F1B-5C07B3C28D22}";
@@ -614,6 +629,12 @@ bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextCompone
     {
       hMeshBuffer = CreateMeshBufferCylinderZ();
       szMeshGuid = "{893384EA-2F43-4265-AF75-662E2C81C167}";
+    }
+    break;
+    case ezEngineGizmoHandleType::LineCylinderZ:
+    {
+      hMeshBuffer = CreateMeshBufferLineCylinderZ();
+      szMeshGuid = "{F2131237-9D5D-4067-AF66-A5C9180BDF39}";
     }
     break;
     case ezEngineGizmoHandleType::HalfSphereZ:

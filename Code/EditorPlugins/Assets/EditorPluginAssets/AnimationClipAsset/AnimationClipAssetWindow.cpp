@@ -483,7 +483,7 @@ void ezQtAnimationClipAssetDocumentWindow::onCurveInsertCpAt(ezUInt32 uiCurveIdx
   ezCommandHistory* history = pDoc->GetCommandHistory();
 
   // If there is no curve at uiCurveIdx yet, add a new named curve entry
-  while (pDoc->GetPropertyObject()->GetTypeAccessor().GetCount("Curves") <= uiCurveIdx)
+  while (pDoc->GetPropertyObject()->GetTypeAccessor().GetCount("Curves") <= static_cast<ezInt32>(uiCurveIdx))
   {
     ezAddObjectCommand cmdAdd;
     cmdAdd.m_Parent = pDoc->GetPropertyObject()->GetGuid();

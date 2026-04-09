@@ -47,6 +47,7 @@ enum ezEngineGizmoHandleType
   HalfPiston,
   Sphere,
   CylinderZ,
+  LineCylinderZ,
   HalfSphereZ,
   BoxCorners,
   BoxEdges,

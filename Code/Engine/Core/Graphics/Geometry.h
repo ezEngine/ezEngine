@@ -216,6 +216,9 @@ public:
   /// This is a more compact representation, but does not allow as good texturing.
   void AddCylinderOnePiece(float fRadiusTop, float fRadiusBottom, float fPositiveLength, float fNegativeLength, ezUInt16 uiSegments, const GeoOptions& options = GeoOptions());
 
+  /// \brief Similar to AddCylinderOnePiece(), but only adds lines. This gives cleaner results for debug geometry.
+  void AddLineCylinder(float fRadiusTop, float fRadiusBottom, float fPositiveLength, float fNegativeLength, ezUInt16 uiSegments, const GeoOptions& options = GeoOptions());
+
   /// \brief Adds a cone with the origin at the center of the bottom and the tip pointing into the direction of the main axis (see GeoOptions).
   ///
   /// uiSegments is the detail around the up axis, must be at least 3.

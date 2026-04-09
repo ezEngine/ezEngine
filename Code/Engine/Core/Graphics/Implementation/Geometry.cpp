@@ -1039,6 +1039,54 @@ void ezGeometry::AddCylinderOnePiece(float fRadiusTop, float fRadiusBottom, floa
   }
 }
 
+void ezGeometry::AddLineCylinder(float fRadiusTop, float fRadiusBottom, float fPositiveLength, float fNegativeLength, ezUInt16 uiSegments, const GeoOptions& options /*= GeoOptions()*/)
+{
+  uiSegments = ezMath::Max<ezUInt16>(uiSegments, 3u);
+
+  const ezAngle fDegStep = ezAngle::MakeFromDegree(360.0f / uiSegments);
+
+  const ezQuat tilt = ezBasisAxis::GetBasisRotation(options.m_MainAxis, ezBasisAxis::PositiveZ);
+  const ezMat4 trans = options.m_Transform * tilt.GetAsMat4();
+
+  const ezVec3 vTopCenter(0, 0, fPositiveLength);
+  const ezVec3 vBottomCenter(0, 0, -fNegativeLength);
+
+  // cylinder wall
+  {
+    ezTempHybridArray<ezUInt32, 512> VertsTop;
+    ezTempHybridArray<ezUInt32, 512> VertsBottom;
+
+    for (ezInt32 i = 0; i < uiSegments; ++i)
+    {
+      const ezAngle deg = (float)i * fDegStep;
+
+      float fU = 4.0f - deg.GetDegree() / 90.0f;
+
+      const float fX = ezMath::Cos(deg);
+      const float fY = ezMath::Sin(deg);
+
+      const ezVec3 vDir(fX, fY, 0);
+
+      VertsTop.PushBack(AddVertex(trans, options, vTopCenter + vDir * fRadiusTop, vDir, ezVec2(fU, 0)));
+      VertsBottom.PushBack(AddVertex(trans, options, vBottomCenter + vDir * fRadiusBottom, vDir, ezVec2(fU, 1)));
+    }
+
+    for (ezUInt32 i = 1; i <= uiSegments; ++i)
+    {
+      ezUInt32 quad[4];
+      quad[0] = VertsBottom[i - 1];
+      quad[1] = VertsBottom[i % uiSegments];
+      quad[2] = VertsTop[i % uiSegments];
+      quad[3] = VertsTop[i - 1];
+
+      AddLine(quad[0], quad[1]);
+      AddLine(quad[1], quad[2]);
+      AddLine(quad[2], quad[3]);
+      AddLine(quad[3], quad[0]);
+    }
+  }
+}
+
 void ezGeometry::AddCone(float fRadius, float fHeight, bool bCap, ezUInt16 uiSegments, const GeoOptions& options)
 {
   uiSegments = ezMath::Max<ezUInt16>(uiSegments, 3);
