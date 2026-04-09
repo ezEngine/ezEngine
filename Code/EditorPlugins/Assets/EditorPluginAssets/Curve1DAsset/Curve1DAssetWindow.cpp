@@ -339,6 +339,9 @@ void ezQtCurve1DAssetDocumentWindow::StructureEventHandler(const ezDocumentObjec
     case ezDocumentObjectStructureEvent::Type::AfterObjectMoved2:
       UpdatePreview();
       break;
+
+    default:
+      break;
   }
 }
 

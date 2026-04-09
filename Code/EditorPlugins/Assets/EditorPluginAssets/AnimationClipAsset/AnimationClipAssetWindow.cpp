@@ -680,6 +680,9 @@ void ezQtAnimationClipAssetDocumentWindow::StructureEventHandler(const ezDocumen
     case ezDocumentObjectStructureEvent::Type::AfterObjectMoved2:
       UpdateCurveEditor();
       break;
+
+    default:
+      break;
   }
 }
 
