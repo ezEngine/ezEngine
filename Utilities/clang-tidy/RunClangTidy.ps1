@@ -11,7 +11,7 @@ param
     [string]
     $Group1Pattern = "Code\\Engine\\|Code\\EnginePlugins\\|Code\\Editor\\|Code\\EditorPlugins\\",
     [string]
-    $HeaderPattern = "^((?!ThirdParty|DirectXTex|ogt_vox|ui_).)*$",
+    $HeaderPattern = "^((?!ThirdParty|DirectXTex|ogt_vox|ui_|Shaders).)*$",
     [string]
     $LlvmInstallDir,
     [string]
