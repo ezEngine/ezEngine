@@ -25,7 +25,7 @@ struct EZ_SHADER_STRUCT ezPerLightData
   FLOAT3(position);
   FLOAT1(invSqrAttRadius);
 
-  UINT1(spotOrFillParams); // spot: scale and offset as 16 bit floats, fill: falloff exponent and directionality as 16 bit floats
+  UINT1(auxParams); // dir: shadowMask index + 1, spot: scale and offset as 16 bit floats, fill: falloff exponent and directionality as 16 bit floats
   FLOAT1(specularMultiplier);
   UINT1(cookieParams0); // x: cookie index, y: cookie right dir z as 16 bit float
   UINT1(cookieParams1); // xy: cookie right dir xy as 16 bit floats

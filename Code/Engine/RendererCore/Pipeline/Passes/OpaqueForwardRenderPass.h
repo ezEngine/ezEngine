@@ -22,7 +22,8 @@ protected:
 
   virtual void RenderObjects(const ezRenderViewContext& renderViewContext) override;
 
-  ezRenderPipelineNodeInputPin m_PinSSAO; ///< Optional SSAO input for ambient occlusion.
+  ezRenderPipelineNodeInputPin m_PinSSAO;        ///< Optional SSAO input for ambient occlusion.
+  ezRenderPipelineNodeInputPin m_PinShadowMasks; ///< Optional shadow mask input for deferred shadows.
 
-  bool m_bWriteDepth = true;              ///< Whether to write to the depth buffer.
+  bool m_bWriteDepth = true;                     ///< Whether to write to the depth buffer.
 };

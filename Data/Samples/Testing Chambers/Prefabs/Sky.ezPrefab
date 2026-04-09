@@ -41,6 +41,20 @@ o
 }
 o
 {
+	Uuid %id{u4{11842408157818111826,7898336829474207828}}
+	s %t{"ezExposedParameter"}
+	u3 %v{3}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
+		b %DefaultValue{1}
+		s %Name{"ScreenSpaceShadows"}
+		s %Type{"bool"}
+	}
+}
+o
+{
 	Uuid %id{u4{10582759948463870667,8631383783228501765}}
 	s %t{"ezDefaultValueAttribute"}
 	u3 %v{1}
@@ -60,6 +74,7 @@ o
 		{
 			Uuid{u4{1539312393514689488,17539949993289584731}}
 			Uuid{u4{7182890095702215436,5158136437573185792}}
+			Uuid{u4{11842408157818111826,7898336829474207828}}
 		}
 	}
 }
@@ -74,7 +89,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{13699384296078697487,10650164635913670525}}
-		u4 %Hash{4559917746385037778}
+		u4 %Hash{16551597272137829565}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{13850971636205318926,9059842567955752105}}
@@ -156,6 +171,18 @@ o
 		f %Intensity{0x9A99993E}
 		f %MaxBrightness{0x00002041}
 		ColorGamma %TintColor{u1{255,224,179,255}}
+	}
+}
+o
+{
+	Uuid %id{u4{6643202851369769400,4877309400953527640}}
+	s %t{"ezExposedSceneProperty"}
+	u3 %v{1}
+	p
+	{
+		s %Name{"ScreenSpaceShadows"}
+		Uuid %Object{u4{636291222374689851,10962956743524253609}}
+		s %PropertyPath{"ScreenSpaceShadows"}
 	}
 }
 o
@@ -268,6 +295,7 @@ o
 		{
 			Uuid{u4{10081778166464099989,4677534726861315126}}
 			Uuid{u4{13674849904739941258,5476620442687622839}}
+			Uuid{u4{6643202851369769400,4877309400953527640}}
 		}
 	}
 }
@@ -360,7 +388,7 @@ o
 {
 	Uuid %id{u4{636291222374689851,10962956743524253609}}
 	s %t{"ezDirectionalLightComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -374,6 +402,7 @@ o
 		f %NearPlaneOffset{0x0000C842}
 		u3 %NumCascades{3}
 		f %PenumbraSize{0xCDCC4C3D}
+		b %ScreenSpaceShadows{1}
 		f %SlopeBias{0x0000803E}
 		f %SpecularMultiplier{0x0000803F}
 		f %SplitModeWeight{0x3333333F}
@@ -707,7 +736,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDirectionalLightComponent"}
-		u3 %TypeVersion{3}
+		u3 %TypeVersion{4}
 	}
 }
 o

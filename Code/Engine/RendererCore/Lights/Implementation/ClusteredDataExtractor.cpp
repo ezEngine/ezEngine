@@ -330,8 +330,8 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
           const float fIntensity = pDirLightRenderData->m_fIntensity * ezColor(pDirLightRenderData->m_LightColor).GetLuminance();
           if (fIntensity > fBrightestDirectionalLightIntensity)
           {
-            fBrightestDirectionalLightIntensity = fIntensity;
             uiBrightestDirectionalLightIndex = uiLightIndex;
+            fBrightestDirectionalLightIntensity = fIntensity;
           }
         }
         else if (auto pFillLightRenderData = ezDynamicCast<const ezFillLightRenderData*>(it))

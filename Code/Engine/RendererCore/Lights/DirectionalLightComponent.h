@@ -12,6 +12,7 @@ class EZ_RENDERERCORE_DLL ezDirectionalLightRenderData : public ezLightRenderDat
 
 public:
   ezVec3 m_vDirection;
+  bool m_bScreenSpaceShadows;
 };
 
 /// \brief A directional lightsource shines light into one fixed direction and has infinite size. It is usually used for sunlight.
@@ -43,6 +44,10 @@ public:
   ezDirectionalLightComponent();
   ~ezDirectionalLightComponent();
 
+  /// \brief Sets whether to use screen space shadows. Improves contact shadows and self-shadowing for small objects.
+  void SetScreenSpaceShadows(bool bShadows); // [ property ]
+  bool GetScreenSpaceShadows() const;        // [ property ]
+
   /// \brief Sets how many shadow map cascades to use. Typically between 2 and 4.
   void SetNumCascades(ezUInt32 uiNumCascades); // [ property ]
   ezUInt32 GetNumCascades() const;             // [ property ]
@@ -65,6 +70,8 @@ public:
 
 protected:
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
+
+  bool m_bScreenSpaceShadows = false;
 
   ezUInt32 m_uiNumCascades = 3;
   float m_fMinShadowRange = 50.0f;

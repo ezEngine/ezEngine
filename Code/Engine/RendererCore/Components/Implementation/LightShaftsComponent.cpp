@@ -148,6 +148,8 @@ void ezLightShaftsComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg)
   pRenderData->m_fDiskMaskRadius = m_fDiskMaskRadius;
   pRenderData->m_TintColor = m_TintColor;
 
+  pRenderData->m_uiSortingKey = ezInvalidIndex;
+
   msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, ezRenderData::Caching::IfStatic);
 }
 

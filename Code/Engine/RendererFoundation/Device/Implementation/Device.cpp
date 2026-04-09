@@ -955,7 +955,7 @@ ezGALTextureHandle ezGALDevice::CreateTexture(const ezGALTextureCreationDescript
   /// \todo Platform independent validation (desc width & height < platform maximum, format, etc.)
 
   if (desc.m_ResourceAccess.IsImmutable() && (initialData.IsEmpty() || initialData.GetCount() < desc.m_uiMipLevelCount) &&
-      !desc.m_TextureFlags.IsSet(ezGALTextureUsageFlags::RenderTarget))
+      !desc.m_TextureFlags.IsAnySet(ezGALTextureUsageFlags::UnorderedAccess | ezGALTextureUsageFlags::RenderTarget))
   {
     ezLog::Error("Trying to create an immutable texture but not supplying initial data (or not enough data pointers) is not possible!");
     return ezGALTextureHandle();

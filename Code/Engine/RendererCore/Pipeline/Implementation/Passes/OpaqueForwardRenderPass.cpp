@@ -12,6 +12,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezOpaqueForwardRenderPass, 1, ezRTTIDefaultAlloc
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("SSAO", m_PinSSAO),
+    EZ_MEMBER_PROPERTY("ShadowMasks", m_PinShadowMasks),
     EZ_MEMBER_PROPERTY("WriteDepth", m_bWriteDepth)->AddAttributes(new ezDefaultValueAttribute(true)),
   }
   EZ_END_PROPERTIES;
@@ -47,6 +48,15 @@ bool ezOpaqueForwardRenderPass::GetRenderTargetDescriptions(const ezView& view, 
     }
   }
 
+  if (inputs[m_PinShadowMasks.m_uiInputIndex])
+  {
+    if (inputs[m_PinShadowMasks.m_uiInputIndex]->m_uiWidth != inputs[m_PinColor.m_uiInputIndex]->m_uiWidth ||
+        inputs[m_PinShadowMasks.m_uiInputIndex]->m_uiHeight != inputs[m_PinColor.m_uiInputIndex]->m_uiHeight)
+    {
+      ezLog::Warning("Expected same resolution for shadow mask and color input to pass '{0}'!", GetName());
+    }
+  }
+
   return true;
 }
 
@@ -67,6 +77,15 @@ void ezOpaqueForwardRenderPass::SetupResources(ezGALCommandEncoder* pCommandEnco
     else
     {
       bindGroupRenderPass.BindTexture("SSAOTexture", m_hWhiteTexture, ezResourceAcquireMode::BlockTillLoaded);
+    }
+
+    if (inputs[m_PinShadowMasks.m_uiInputIndex])
+    {
+      bindGroupRenderPass.BindTexture("ShadowMasksTexture", inputs[m_PinShadowMasks.m_uiInputIndex]->m_TextureHandle);
+    }
+    else
+    {
+      bindGroupRenderPass.BindTexture("ShadowMasksTexture", m_hWhiteTexture, ezResourceAcquireMode::BlockTillLoaded);
     }
   }
 }

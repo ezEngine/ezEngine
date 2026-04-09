@@ -1,0 +1,31 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+CAMERA_MODE
+
+[COMPUTESHADER]
+
+#include <Shaders/Common/Common.h>
+#include <Shaders/Common/GlobalConstants.h>
+#include "ScreenSpaceShadowConstants.h"
+#include "bend_sss/bend_sss_gpu.h"
+
+[numthreads(WAVE_SIZE, 1, 1)]
+void main(uint3 groupID : SV_GroupID, uint groupThreadID : SV_GroupThreadID)
+{
+  DispatchParameters dispatchParams;
+  dispatchParams.SetDefaults();
+  dispatchParams.SurfaceThickness = SurfaceThickness;
+  dispatchParams.ShadowContrast = ShadowContrast;
+
+  dispatchParams.LightCoordinate = LightCoordinate;
+  dispatchParams.WaveOffset = WaveOffset;
+
+  dispatchParams.FarDepthValue = 1;
+  dispatchParams.NearDepthValue = 0;
+  dispatchParams.InvDepthTextureSize = InvDepthTextureSize;
+  dispatchParams.EyeIndex = EyeIndex;
+
+  WriteScreenSpaceShadow(dispatchParams, groupID, groupThreadID);
+}

@@ -21,9 +21,10 @@ EZ_END_STATIC_REFLECTED_ENUM;
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFillLightRenderData, 1, ezRTTIDefaultAllocator<ezFillLightRenderData>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-void ezFillLightRenderData::FillBatchIdAndSortingKey(float fScreenSpaceSize)
+void ezFillLightRenderData::FillSortingKey(float fScreenSpaceSize)
 {
-  m_uiSortingKey = 1;
+  const ezUInt32 uiSortingKey = 10000u - static_cast<ezUInt32>(ezMath::Clamp(fScreenSpaceSize, 0.0f, 10.0f) * 1000.0f);
+  m_uiSortingKey = 0x1000000 + uiSortingKey;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -207,7 +208,7 @@ void ezFillLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
   pRenderData->m_fFalloffExponent = m_fFalloffExponent;
   pRenderData->m_fDirectionality = m_fDirectionality;
 
-  pRenderData->FillBatchIdAndSortingKey(fScreenSpaceSize);
+  pRenderData->FillSortingKey(fScreenSpaceSize);
 
   msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, ezRenderData::Caching::IfStatic);
 }

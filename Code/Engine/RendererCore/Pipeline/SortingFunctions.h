@@ -15,6 +15,7 @@ struct EZ_RENDERERCORE_DLL ezRenderSortingFunctions
     ByRenderDataThenFrontToBack,
     BackToFrontThenByRenderData,
     ByDepthOffsetOnly,
+    BySortingKeyOnly,
 
     Default = ByRenderDataThenFrontToBack
   };
@@ -35,6 +36,11 @@ struct EZ_RENDERERCORE_DLL ezRenderSortingFunctions
   ///
   /// This can be used for special cases like full-screen effects where the render order needs to be fully deterministic.
   static ezUInt64 ByDepthOffsetOnlyFunc(const ezRenderData* pRenderData, const ezCamera& camera);
+
+  /// \brief Sorts only by the render data's sorting key.
+  ///
+  /// Used for special cases like lights where the sorting key is already carefully constructed to achieve the desired order, and distance-based sorting is not needed.
+  static ezUInt64 BySortingKeyOnlyFunc(const ezRenderData* pRenderData, const ezCamera& camera);
 
   /// \brief Returns the sorting function corresponding to the given enum value.
   static Func GetFunction(Enum sortingFunction);

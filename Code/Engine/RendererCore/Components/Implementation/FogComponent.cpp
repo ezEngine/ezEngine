@@ -166,6 +166,8 @@ void ezFogComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
   pRenderData->m_fInvSkyDistance = m_bModulateWithSkyColor ? 1.0f / m_fSkyDistance : 0.0f;
   pRenderData->m_fFogStartDistance = m_fStartDistance;
 
+  pRenderData->m_uiSortingKey = ezInvalidIndex;
+
   msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, ezRenderData::Caching::IfStatic);
 }
 

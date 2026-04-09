@@ -404,6 +404,7 @@ void ezLightComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
     props["FadeOutStart"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
     props["SplitModeWeight"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
     props["NearPlaneOffset"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["ScreenSpaceShadows"].m_Visibility = bCastShadows ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
   }
 }
 

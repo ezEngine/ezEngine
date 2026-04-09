@@ -6,7 +6,8 @@
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezRenderSortingFunctions, 1)
-  EZ_ENUM_CONSTANTS(ezRenderSortingFunctions::ByRenderDataThenFrontToBack, ezRenderSortingFunctions::BackToFrontThenByRenderData, ezRenderSortingFunctions::ByDepthOffsetOnly)
+  EZ_ENUM_CONSTANTS(ezRenderSortingFunctions::ByRenderDataThenFrontToBack, ezRenderSortingFunctions::BackToFrontThenByRenderData)
+  EZ_ENUM_CONSTANTS(ezRenderSortingFunctions::ByDepthOffsetOnly, ezRenderSortingFunctions::BySortingKeyOnly)
 EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
@@ -67,6 +68,12 @@ ezUInt64 ezRenderSortingFunctions::ByDepthOffsetOnlyFunc(const ezRenderData* pRe
 }
 
 // static
+ezUInt64 ezRenderSortingFunctions::BySortingKeyOnlyFunc(const ezRenderData* pRenderData, const ezCamera& camera)
+{
+  return pRenderData->m_uiSortingKey;
+}
+
+// static
 ezRenderSortingFunctions::Func ezRenderSortingFunctions::GetFunction(Enum sortingFunction)
 {
   switch (sortingFunction)
@@ -77,6 +84,8 @@ ezRenderSortingFunctions::Func ezRenderSortingFunctions::GetFunction(Enum sortin
       return &BackToFrontThenByRenderDataFunc;
     case ByDepthOffsetOnly:
       return &ByDepthOffsetOnlyFunc;
+    case BySortingKeyOnly:
+      return &BySortingKeyOnlyFunc;
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
   }
@@ -86,4 +95,3 @@ ezRenderSortingFunctions::Func ezRenderSortingFunctions::GetFunction(Enum sortin
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_SortingFunctions);
-
