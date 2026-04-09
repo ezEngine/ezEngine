@@ -445,8 +445,8 @@ void ezSampleBlendSpace2DAnimNode::PlayClips(ezAnimController& ref_controller, c
 
     const bool bIsCenter = (pSampleTrack[i]->m_hAnimationClip == centerInfo.m_hClip);
     const double fSampleTimeSecs = bIsCenter
-      ? pState->m_CenterPlaybackTime.GetSeconds()
-      : (double)pState->m_fOtherPlaybackPosNorm * pDescs[i]->GetDuration().GetSeconds();
+                                     ? pState->m_CenterPlaybackTime.GetSeconds()
+                                     : (double)pState->m_fOtherPlaybackPosNorm * pDescs[i]->GetDuration().GetSeconds();
 
     for (const auto& cc : pDescs[i]->m_CustomCurves)
     {

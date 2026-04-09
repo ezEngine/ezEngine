@@ -6,8 +6,8 @@
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Containers/SmallArray.h>
-#include <Foundation/Strings/HashedString.h>
 #include <Foundation/Memory/AllocatorWrapper.h>
+#include <Foundation/Strings/HashedString.h>
 #include <Foundation/Types/Delegate.h>
 #include <Foundation/Types/SharedPtr.h>
 #include <Foundation/Types/UniquePtr.h>
