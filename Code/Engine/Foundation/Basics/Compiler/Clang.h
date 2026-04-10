@@ -55,6 +55,13 @@
 #  define EZ_DECL_EXPORT_FRIEND
 #  define EZ_DECL_IMPORT_FRIEND
 
+#elif defined(__clang__)
+
+// Clang in MSVC compatibility mode (clang-cl, or the clang driver targeting *-windows-msvc).
+// Everything else comes from MSVC.h, but clang's warning suppressions still have to work,
+// because the MSVC warning pragmas have no effect on the clang frontend.
+#  define EZ_WARNING_DISABLE_CLANG(_x) _Pragma(EZ_PP_STRINGIFY(clang diagnostic ignored _x))
+
 #else
 
 #  define EZ_WARNING_DISABLE_CLANG(_x)

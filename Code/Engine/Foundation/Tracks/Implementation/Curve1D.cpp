@@ -617,3 +617,6 @@ ezResult ezSampledCurve1D::Load(ezStreamReader& inout_stream)
 
   return EZ_SUCCESS;
 }
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Tracks_Implementation_Curve1D);

@@ -102,3 +102,6 @@ ezRenderGraphTextureHandle ezRenderGraphUtils::GenerateMipMaps(ezGALTextureHandl
   ref_renderGraph.PopMarker();
   return hGraphTexture;
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_RenderGraph_Implementation_RenderGraphUtils);

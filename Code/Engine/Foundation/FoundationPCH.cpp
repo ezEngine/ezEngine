@@ -39,6 +39,7 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Time_Implementation_Time);
   EZ_STATICLINK_REFERENCE(Foundation_Time_Implementation_Timestamp);
   EZ_STATICLINK_REFERENCE(Foundation_Tracks_Implementation_ColorGradient);
+  EZ_STATICLINK_REFERENCE(Foundation_Tracks_Implementation_Curve1D);
   EZ_STATICLINK_REFERENCE(Foundation_Tracks_Implementation_CurveEditData);
   EZ_STATICLINK_REFERENCE(Foundation_Types_Implementation_VarianceTypes);
   EZ_STATICLINK_REFERENCE(Foundation_Types_Implementation_VariantTypeRegistry);

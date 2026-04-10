@@ -226,3 +226,6 @@ void RemoveRenderGraphEventHandler()
   ezTelemetry::RemoveEventHandler(RenderGraphObserverDetail::TelemetryEventsHandler);
   ezTelemetry::AcceptMessagesForSystem(RenderGraphObserverDetail::s_uiSystemId, false);
 }
+
+
+EZ_STATICLINK_FILE(InspectorPlugin, InspectorPlugin_RenderGraphObserver);

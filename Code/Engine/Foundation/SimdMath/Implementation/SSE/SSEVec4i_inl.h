@@ -1,6 +1,6 @@
 #pragma once
 
-#if EZ_ENABLED(EZ_COMPILER_MSVC)
+#if EZ_ENABLED(EZ_COMPILER_MSVC_PURE)
 #  include <intrin.h>
 #endif
 
@@ -183,7 +183,7 @@ EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::CompMul(const ezSimdVec4i& v) const
 
 EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::CompDiv(const ezSimdVec4i& v) const
 {
-#if EZ_ENABLED(EZ_COMPILER_MSVC)
+#if EZ_ENABLED(EZ_COMPILER_MSVC_PURE)
   return _mm_div_epi32(m_v, v.m_v);
 #else
   int a[4];

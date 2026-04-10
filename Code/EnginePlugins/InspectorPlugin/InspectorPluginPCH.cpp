@@ -6,5 +6,6 @@ EZ_STATICLINK_LIBRARY(InspectorPlugin)
     return;
 
   EZ_STATICLINK_REFERENCE(InspectorPlugin_InspectorPlugin);
+  EZ_STATICLINK_REFERENCE(InspectorPlugin_RenderGraphObserver);
   EZ_STATICLINK_REFERENCE(InspectorPlugin_Startup);
 }

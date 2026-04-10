@@ -81,8 +81,11 @@ EZ_STATICLINK_LIBRARY(ParticlePlugin)
     return;
 
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior);
+  EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_Attract);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_Bounds);
+  EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_BoundsSphere);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_ColorGradient);
+  EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_Expression);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_FadeOut);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_Flies);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_Gravity);
@@ -91,8 +94,10 @@ EZ_STATICLINK_LIBRARY(ParticlePlugin)
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_PullAlong);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_Raycast);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_SizeCurve);
+  EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_Turbulence);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_Velocity);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Behavior_ParticleBehavior_Wind);
+  EZ_STATICLINK_REFERENCE(ParticlePlugin_Components_ParticleAttractorComponent);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Components_ParticleComponent);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Components_ParticleFinisherComponent);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_Effect_ParticleEffectDescriptor);
