@@ -420,7 +420,9 @@ void ezParticleComponent::Update()
       }
     }
 
-    m_EffectController.UpdateWindSamples(GetWorld()->GetClock().GetTimeDiff());
+    const ezTime tDiff = GetWorld()->GetClock().GetTimeDiff();
+    m_EffectController.UpdateWindSamples(tDiff);
+    m_EffectController.FindNearbyAttractors(tDiff);
   }
   else
   {

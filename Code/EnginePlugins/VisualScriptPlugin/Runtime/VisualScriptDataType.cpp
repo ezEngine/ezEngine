@@ -15,7 +15,9 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezVisualScriptDataType, 1)
   EZ_ENUM_CONSTANT(ezVisualScriptDataType::Float),
   EZ_ENUM_CONSTANT(ezVisualScriptDataType::Double),
   EZ_ENUM_CONSTANT(ezVisualScriptDataType::Color),
+  EZ_ENUM_CONSTANT(ezVisualScriptDataType::Vector2),
   EZ_ENUM_CONSTANT(ezVisualScriptDataType::Vector3),
+  EZ_ENUM_CONSTANT(ezVisualScriptDataType::Vector4),
   EZ_ENUM_CONSTANT(ezVisualScriptDataType::Quaternion),
   EZ_ENUM_CONSTANT(ezVisualScriptDataType::Transform),
   EZ_ENUM_CONSTANT(ezVisualScriptDataType::Time),
@@ -43,7 +45,9 @@ namespace
     ezVariantType::Float,             // Float,
     ezVariantType::Double,            // Double,
     ezVariantType::Color,             // Color,
+    ezVariantType::Vector2,           // Vector2,
     ezVariantType::Vector3,           // Vector3,
+    ezVariantType::Vector4,           // Vector4,
     ezVariantType::Quaternion,        // Quaternion,
     ezVariantType::Transform,         // Transform,
     ezVariantType::Time,              // Time,
@@ -70,7 +74,9 @@ namespace
     sizeof(float),                          // Float,
     sizeof(double),                         // Double,
     sizeof(ezColor),                        // Color,
+    sizeof(ezVec2),                         // Vector2,
     sizeof(ezVec3),                         // Vector3,
+    sizeof(ezVec4),                         // Vector4,
     sizeof(ezQuat),                         // Quaternion,
     sizeof(ezTransform),                    // Transform,
     sizeof(ezTime),                         // Time,
@@ -97,7 +103,9 @@ namespace
     alignof(float),                          // Float,
     alignof(double),                         // Double,
     alignof(ezColor),                        // Color,
+    alignof(ezVec2),                         // Vector2,
     alignof(ezVec3),                         // Vector3,
+    alignof(ezVec4),                         // Vector4,
     alignof(ezQuat),                         // Quaternion,
     alignof(ezTransform),                    // Transform,
     alignof(ezTime),                         // Time,
@@ -124,7 +132,9 @@ namespace
     "Float",
     "Double",
     "Color",
+    "Vector2",
     "Vector3",
+    "Vector4",
     "Quaternion",
     "Transform",
     "Time",
@@ -177,8 +187,18 @@ ezVisualScriptDataType::Enum ezVisualScriptDataType::FromVariantType(ezVariantTy
       return Double;
     case ezVariantType::Color:
       return Color;
+    case ezVariantType::Vector2:
+    case ezVariantType::Vector2I:
+    case ezVariantType::Vector2U:
+      return Vector2;
     case ezVariantType::Vector3:
+    case ezVariantType::Vector3I:
+    case ezVariantType::Vector3U:
       return Vector3;
+    case ezVariantType::Vector4:
+    case ezVariantType::Vector4I:
+    case ezVariantType::Vector4U:
+      return Vector4;
     case ezVariantType::Quaternion:
       return Quaternion;
     case ezVariantType::Transform:
@@ -218,8 +238,11 @@ ezProcessingStream::DataType ezVisualScriptDataType::GetStreamDataType(Enum data
       return ezProcessingStream::DataType::Int;
     case Float:
       return ezProcessingStream::DataType::Float;
+    case Vector2:
+      return ezProcessingStream::DataType::Float2;
     case Vector3:
       return ezProcessingStream::DataType::Float3;
+    case Vector4:
     case Color:
       return ezProcessingStream::DataType::Float4;
     default:
@@ -243,7 +266,9 @@ const ezRTTI* ezVisualScriptDataType::GetRtti(Enum dataType)
     ezGetStaticRTTI<float>(),                   // Float,
     ezGetStaticRTTI<double>(),                  // Double,
     ezGetStaticRTTI<ezColor>(),                 // Color,
+    ezGetStaticRTTI<ezVec2>(),                  // Vector2,
     ezGetStaticRTTI<ezVec3>(),                  // Vector3,
+    ezGetStaticRTTI<ezVec4>(),                  // Vector4,
     ezGetStaticRTTI<ezQuat>(),                  // Quaternion,
     ezGetStaticRTTI<ezTransform>(),             // Transform,
     ezGetStaticRTTI<ezTime>(),                  // Time,
@@ -344,7 +369,7 @@ bool ezVisualScriptDataType::CanConvertTo(Enum sourceDataType, Enum targetDataTy
       (IsNumberOrBool(targetDataType) || (targetDataType == EnumValue || targetDataType == BitflagValue)))
     return true;
 
-  if ((IsNumberOrBool(sourceDataType) && targetDataType == Vector3) ||
+  if ((IsNumberOrBool(sourceDataType) && (IsVector(targetDataType))) ||
       (sourceDataType == Vector3 && targetDataType == Transform))
     return true;
 

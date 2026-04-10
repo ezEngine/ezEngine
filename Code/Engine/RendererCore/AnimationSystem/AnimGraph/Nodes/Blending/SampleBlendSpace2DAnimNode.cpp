@@ -329,6 +329,9 @@ void ezSampleBlendSpace2DAnimNode::PlayClips(ezAnimController& ref_controller, c
   ezVec3 vRootMotion = ezVec3::MakeZero();
   ezUInt32 uiNumAvgClips = 0;
 
+  ezTempHybridArray<const ezAnimationClipResourceDescriptor*, 24> pDescs;
+  pDescs.SetCount(clips.GetCount());
+
   for (ezUInt32 i = 0; i < clips.GetCount(); ++i)
   {
     const auto& c = clips[i];
@@ -351,7 +354,10 @@ void ezSampleBlendSpace2DAnimNode::PlayClips(ezAnimController& ref_controller, c
     cmd.m_fNormalizedSamplePos = pClip->GetDescriptor().GetDuration().AsFloatInSeconds(); // will be combined with actual pos below
 
     pSampleTrack[i] = &cmd;
-    vRootMotion += pClip->GetDescriptor().m_vConstantRootMotion * c.m_fWeight;
+
+
+    // need this later to look up the root motion
+    pDescs[i] = &pClip->GetDescriptor();
   }
 
   if (uiNumAvgClips > 0)
@@ -412,6 +418,11 @@ void ezSampleBlendSpace2DAnimNode::PlayClips(ezAnimController& ref_controller, c
       pSampleTrack[i]->m_fPreviousNormalizedSamplePos = fPrevPlaybackPosNorm;
       pSampleTrack[i]->m_fNormalizedSamplePos = pState->m_fOtherPlaybackPosNorm;
       pSampleTrack[i]->m_EventSampling = uiMaxWeightClip == i ? eventSampling : ezAnimPoseEventTrackSampleMode::None;
+
+      if (pDescs[i])
+      {
+        vRootMotion += pDescs[i]->m_vConstantRootMotion * clips[i].m_fWeight;
+      }
     }
   }
 
@@ -424,6 +435,39 @@ void ezSampleBlendSpace2DAnimNode::PlayClips(ezAnimController& ref_controller, c
     const float fSpeed = static_cast<float>(m_InSpeed.GetNumber(ref_graph, m_fPlaybackSpeed));
 
     pOutputTransform->m_vRootMotion = tDiff.AsFloatInSeconds() * vRootMotion * fSpeed * m_fRootMotionAmount;
+  }
+
+  // accumulate custom curves from all clips weighted by blend weight
+  for (ezUInt32 i = 0; i < clips.GetCount(); ++i)
+  {
+    if (!pDescs[i] || clips[i].m_fWeight <= 0.0f)
+      continue;
+
+    const bool bIsCenter = (pSampleTrack[i]->m_hAnimationClip == centerInfo.m_hClip);
+    const double fSampleTimeSecs = bIsCenter
+                                     ? pState->m_CenterPlaybackTime.GetSeconds()
+                                     : (double)pState->m_fOtherPlaybackPosNorm * pDescs[i]->GetDuration().GetSeconds();
+
+    for (const auto& cc : pDescs[i]->m_CustomCurves)
+    {
+      const float fVal = static_cast<float>(cc.m_Curve.Evaluate(fSampleTimeSecs)) * clips[i].m_fWeight;
+      bool bFound = false;
+      for (auto& cv : pOutputTransform->m_CustomCurveValues)
+      {
+        if (cv.m_sName == cc.m_sName)
+        {
+          cv.m_fValue += fVal;
+          bFound = true;
+          break;
+        }
+      }
+      if (!bFound)
+      {
+        auto& cv = pOutputTransform->m_CustomCurveValues.ExpandAndGetRef();
+        cv.m_sName = cc.m_sName;
+        cv.m_fValue = fVal;
+      }
+    }
   }
 
   if (clips.GetCount() == 1)

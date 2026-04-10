@@ -23,7 +23,9 @@ struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptDataType
     Float,
     Double,
     Color,
+    Vector2,
     Vector3,
+    Vector4,
     Quaternion,
     Transform,
     Time,
@@ -54,6 +56,7 @@ struct EZ_VISUALSCRIPTPLUGIN_DLL ezVisualScriptDataType
 
   EZ_ALWAYS_INLINE static bool IsNumber(Enum dataType) { return dataType >= Byte && dataType <= Double; }
   EZ_ALWAYS_INLINE static bool IsNumberOrBool(Enum dataType) { return dataType == Bool || IsNumber(dataType); }
+  EZ_ALWAYS_INLINE static bool IsVector(Enum dataType) { return dataType >= Vector2 && dataType <= Vector4; }
   EZ_ALWAYS_INLINE static bool IsPointer(Enum dataType) { return (dataType >= GameObject && dataType <= TypedPointer) || dataType == Coroutine; }
 
   static ezVariantType::Enum GetVariantType(Enum dataType);

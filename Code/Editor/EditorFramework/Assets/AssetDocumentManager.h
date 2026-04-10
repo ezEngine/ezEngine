@@ -100,7 +100,7 @@ public:
   /// \brief Called by the editor to try to open a document for the matching picking result
   virtual ezResult OpenPickedDocument(const ezDocumentObject* pPickedComponent, ezUInt32 uiPartIndex) { return EZ_FAILURE; }
 
-  ezResult TryOpenAssetDocument(const char* szPathOrGuid);
+  static ezResult TryOpenAssetDocument(const char* szPathOrGuid);
 
   /// In case this manager deals with types that need to be force transformed on scene export, it can add the asset type names to this list.
   /// This is only needed for assets that have such special dependencies for their transform step, that the regular dependency tracking doesn't work for them.

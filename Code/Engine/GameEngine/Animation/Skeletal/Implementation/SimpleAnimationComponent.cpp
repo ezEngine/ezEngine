@@ -6,6 +6,7 @@
 #include <GameEngine/Animation/Skeletal/SimpleAnimationComponent.h>
 #include <RendererCore/AnimationSystem/AnimPoseGenerator.h>
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>
+#include <RendererCore/AnimationSystem/Declarations.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 #include <ozz/animation/runtime/animation.h>
 #include <ozz/animation/runtime/local_to_model_job.h>
@@ -191,16 +192,29 @@ void ezSimpleAnimationComponent::Update()
 
   if (m_RootMotionMode != ezRootMotionMode::Ignore)
   {
-    ezVec3 vRootMotion = tDiff.AsFloatInSeconds() * m_fSpeed * animDesc.m_vConstantRootMotion;
+    m_vPendingRootMotion = tDiff.AsFloatInSeconds() * m_fSpeed * animDesc.m_vConstantRootMotion;
 
     const bool bReverse = GetUserFlag(0);
     if (bReverse)
     {
-      vRootMotion = -vRootMotion;
+      m_vPendingRootMotion = -m_vPendingRootMotion;
     }
+  }
 
-    // only applies positional root motion
-    ezRootMotionMode::Apply(m_RootMotionMode, GetOwner(), vRootMotion, ezAngle(), ezAngle(), ezAngle());
+  if (!animDesc.m_CustomCurves.IsEmpty())
+  {
+    const double fTimeSecs = (double)m_fNormalizedPlaybackPosition * animDesc.GetDuration().GetSeconds();
+    for (const auto& curve : animDesc.m_CustomCurves)
+    {
+      const float fValue = (float)curve.m_Curve.Evaluate(fTimeSecs);
+
+      ezMsgAnimationCurveValue msg;
+      msg.m_sCurveName = curve.m_sName;
+      msg.m_fMin = fValue;
+      msg.m_fMax = fValue;
+      msg.m_fAverage = fValue;
+      GetOwner()->PostEventMessage(msg, nullptr, ezTime::MakeZero());
+    }
   }
 
   if (poseGen.GetCurrentPose().IsEmpty())
@@ -223,6 +237,14 @@ void ezSimpleAnimationComponent::Update()
       SetActiveFlag(false);
     }
   }
+}
+
+void ezSimpleAnimationComponent::ApplyRootMotion()
+{
+  // only applies positional root motion; called from the PostAsync phase to allow safe game object modification
+  ezRootMotionMode::Apply(m_RootMotionMode, GetOwner(), m_vPendingRootMotion, ezAngle(), ezAngle(), ezAngle());
+
+  m_vPendingRootMotion = ezVec3::MakeZero();
 }
 
 bool ezSimpleAnimationComponent::UpdatePlaybackTime(ezTime tDiff, const ezEventTrack& eventTrack, ezAnimPoseEventTrackSampleMode& out_trackSampling)
@@ -327,6 +349,14 @@ void ezSimpleAnimationComponentManager::Initialize()
 
     this->RegisterUpdateFunction(desc);
   }
+
+  {
+    auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezSimpleAnimationComponentManager::ApplyRootMotion, this);
+    desc.m_Phase = ezWorldUpdatePhase::PostAsync;
+    desc.m_bOnlyUpdateWhenSimulating = true;
+
+    this->RegisterUpdateFunction(desc);
+  }
 }
 
 void ezSimpleAnimationComponentManager::Update(const ezWorldModule::UpdateContext& context)
@@ -336,6 +366,17 @@ void ezSimpleAnimationComponentManager::Update(const ezWorldModule::UpdateContex
     if (it->IsActiveAndInitialized())
     {
       it->Update();
+    }
+  }
+}
+
+void ezSimpleAnimationComponentManager::ApplyRootMotion(const ezWorldModule::UpdateContext& context)
+{
+  for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
+  {
+    if (it->m_RootMotionMode != ezRootMotionMode::Ignore && it->IsActiveAndInitialized())
+    {
+      it->ApplyRootMotion();
     }
   }
 }

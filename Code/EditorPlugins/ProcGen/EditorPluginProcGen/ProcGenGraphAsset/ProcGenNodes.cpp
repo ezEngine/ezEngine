@@ -594,24 +594,11 @@ ezExpressionAST::Node* ezProcGen_Curve::GenerateExpressionASTNode(ezTempHashedSt
   {
     ezCurve1D curve;
     m_CurveData.ConvertToRuntimeData(curve);
-    curve.SortControlPoints();
-    curve.CreateLinearApproximation();
 
-    double fMinX, fMaxX;
-    curve.QueryExtents(fMinX, fMaxX);
-    fMinX = ezMath::Min(fMinX, 0.0);
-    fMaxX = ezMath::Max(fMaxX, 1.0);
-    const float fStep = static_cast<float>(fMaxX - fMinX) / static_cast<float>(m_uiNumSamples - 1);
+    ezSampledCurve1D sampledCurve;
+    curve.GenerateSampledCurve(m_uiNumSamples, sampledCurve).AssertSuccess();
 
-    ezDynamicArray<float> samples;
-    samples.SetCount(m_uiNumSamples);
-    for (ezUInt32 i = 0; i < m_uiNumSamples; ++i)
-    {
-      float x = static_cast<float>(fMinX + fStep * i);
-      samples[i] = curve.Evaluate(x);
-    }
-
-    uiCurveIndex = ref_context.m_SharedData.AddCurve(std::move(samples), fMinX, fMaxX);
+    uiCurveIndex = ref_context.m_SharedData.AddCurve(std::move(sampledCurve));
     EZ_ASSERT_DEV(uiCurveIndex <= 255, "Too many curves");
     if (!ref_context.m_CurveIndices.Contains(uiCurveIndex))
     {
@@ -620,11 +607,11 @@ ezExpressionAST::Node* ezProcGen_Curve::GenerateExpressionASTNode(ezTempHashedSt
   }
 
   ezExpressionAST::Node* arguments[] = {
-    pInput,
     out_ast.CreateConstant(uiCurveIndex, ezExpressionAST::DataType::Int),
+    pInput,
   };
 
-  return out_ast.CreateFunctionCall(ezProcGenExpressionFunctions::s_SampleCurveFunc.m_Desc, arguments);
+  return out_ast.CreateFunctionCall(ezExtendedExpressionFunctions::s_SampleCurveFunc.m_Desc, arguments);
 }
 
 //////////////////////////////////////////////////////////////////////////

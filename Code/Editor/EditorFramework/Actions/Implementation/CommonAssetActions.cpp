@@ -24,7 +24,7 @@ void ezCommonAssetActions::RegisterActions()
   s_hGrid = EZ_REGISTER_ACTION_1("Common.Grid", ezActionScope::Document, "Misc", "G", ezCommonAssetAction, ezCommonAssetAction::ActionType::Grid);
   s_hVisualizers = EZ_REGISTER_ACTION_1("Common.Visualizers", ezActionScope::Document, "Misc", "V", ezCommonAssetAction, ezCommonAssetAction::ActionType::Visualizers);
 
-  s_hSimulationSpeedMenu = EZ_REGISTER_MENU_WITH_ICON("Common.Speed.Menu", ":/EditorPluginParticle/Icons/Speed.svg");
+  s_hSimulationSpeedMenu = EZ_REGISTER_MENU_WITH_ICON("Common.Speed.Menu", ":/EditorFramework/Icons/Speed.svg");
   s_hSimulationSpeed[0] = EZ_REGISTER_ACTION_2("Common.Speed.01", ezActionScope::Document, "Animations", "Ctrl+1", ezCommonAssetAction, ezCommonAssetAction::ActionType::SimulationSpeed, 0.1f);
   s_hSimulationSpeed[1] = EZ_REGISTER_ACTION_2("Common.Speed.025", ezActionScope::Document, "Animations", "Ctrl+2", ezCommonAssetAction, ezCommonAssetAction::ActionType::SimulationSpeed, 0.25f);
   s_hSimulationSpeed[2] = EZ_REGISTER_ACTION_2("Common.Speed.05", ezActionScope::Document, "Animations", "Ctrl+3", ezCommonAssetAction, ezCommonAssetAction::ActionType::SimulationSpeed, 0.5f);
@@ -111,17 +111,17 @@ ezCommonAssetAction::ezCommonAssetAction(const ezActionContext& context, const c
   {
     case ActionType::Pause:
       SetCheckable(true);
-      SetIconPath(":/EditorPluginParticle/Icons/Pause.svg");
+      SetIconPath(":/EditorFramework/Icons/Pause.svg");
       SetChecked(m_pAssetDocument->GetCommonAssetUiState(ezCommonAssetUiState::Pause) != 0.0f);
       break;
 
     case ActionType::Restart:
-      SetIconPath(":/EditorPluginParticle/Icons/Restart.svg");
+      SetIconPath(":/EditorFramework/Icons/Restart.svg");
       break;
 
     case ActionType::Loop:
       SetCheckable(true);
-      SetIconPath(":/EditorPluginParticle/Icons/Loop.svg");
+      SetIconPath(":/EditorFramework/Icons/Loop.svg");
       SetChecked(m_pAssetDocument->GetCommonAssetUiState(ezCommonAssetUiState::Loop) != 0.0f);
       break;
 

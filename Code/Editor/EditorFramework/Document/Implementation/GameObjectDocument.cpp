@@ -150,9 +150,8 @@ void ezGameObjectDocument::SetActiveEditTool(const ezRTTI* pEditToolType)
   {
     if (m_pActiveEditTool == nullptr)
     {
-      // if there is currently no active edit tool, we may still have a manipulator active
-      // if so, when repeatedly selecting this action, toggle the visibility of manipulators
-      ezManipulatorManager::GetSingleton()->ToggleHideActiveManipulator(this);
+      // if there is currently no active edit tool, cycle through the manipulators available on the selected object
+      ezManipulatorManager::GetSingleton()->CycleActiveManipulator(this);
     }
 
     return;
@@ -372,6 +371,11 @@ void ezGameObjectDocument::DetermineNodeName(const ezDocumentObject* pObject, co
     }
   }
 
+  if (!bHasIcon && out_pIcon)
+  {
+    *out_pIcon = ezQtUiServices::GetCachedIconResource(":/GuiFoundation/Icons/Object.svg");
+  }
+
   if (!out_sResult.IsEmpty())
     return;
 
@@ -382,8 +386,7 @@ void ezGameObjectDocument::DetermineNodeName(const ezDocumentObject* pObject, co
 }
 
 
-void ezGameObjectDocument::QueryCachedNodeName(
-  const ezDocumentObject* pObject, ezStringBuilder& out_sResult, ezUuid* out_pPrefabGuid, QIcon* out_pIcon /*= nullptr*/) const
+void ezGameObjectDocument::QueryCachedNodeName(const ezDocumentObject* pObject, ezStringBuilder& out_sResult, ezUuid* out_pPrefabGuid, QIcon* out_pIcon /*= nullptr*/) const
 {
   auto pMetaScene = m_GameObjectMetaData->BeginReadMetaData(pObject->GetGuid());
   auto pMetaDoc = m_DocumentObjectMetaData->BeginReadMetaData(pObject->GetGuid());

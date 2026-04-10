@@ -1,0 +1,36 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+CAMERA_MODE
+
+[RENDERSTATE]
+DepthTest = false
+DepthWrite = false
+CullMode = CullMode_None
+
+BlendingEnabled0 = true
+BlendOp0 = BlendOp_Add
+DestBlend0 = Blend_One
+DestBlendAlpha0 = Blend_One
+
+[VERTEXSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleVertexShader.h>
+
+[PIXELSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleInterpolator.h>
+#include <Shaders/Common/Common.h>
+#include "LightShaftsConstants.h"
+
+Texture2DArray LightShaftsTexture BIND_GROUP(BG_RENDER_PASS);
+
+float4 main(PS_IN Input) : SV_Target
+{
+  #if CAMERA_MODE == CAMERA_MODE_STEREO
+    s_ActiveCameraEyeIndex = Input.RenderTargetArrayIndex;
+  #endif
+
+  return LightShaftsTexture.SampleLevel(LinearClampSampler, float3(Input.TexCoord0, s_ActiveCameraEyeIndex), 0);
+}

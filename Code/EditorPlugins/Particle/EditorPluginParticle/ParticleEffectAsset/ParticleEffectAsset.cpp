@@ -5,6 +5,7 @@
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <GuiFoundation/PropertyGrid/VisualizerManager.h>
 #include <ParticlePlugin/Behavior/ParticleBehavior_ColorGradient.h>
+#include <ParticlePlugin/Behavior/ParticleBehavior_Expression.h>
 #include <ParticlePlugin/Behavior/ParticleBehavior_Move.h>
 #include <ParticlePlugin/Behavior/ParticleBehavior_Opacity.h>
 #include <ParticlePlugin/Behavior/ParticleBehavior_SizeCurve.h>
@@ -190,6 +191,15 @@ void ezParticleEffectAssetDocument::PropertyMetaStateEventHandler(ezPropertyMeta
 
     props["Gradient"].m_Visibility = (gradientSource == ezGradientSource::CustomGradient) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
     props["SharedGradient"].m_Visibility = (gradientSource == ezGradientSource::SharedGradient) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+  }
+  else if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezParticleExpressionInput>())
+  {
+    auto& props = *e.m_pPropertyStates;
+
+    ezInt64 curveSource = e.m_pObject->GetTypeAccessor().GetValue("CurveSource").ConvertTo<ezInt64>();
+
+    props["Curve"].m_Visibility = (curveSource == ezCurveSource::CustomCurve) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["SharedCurve"].m_Visibility = (curveSource == ezCurveSource::SharedCurve) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
   }
 }
 

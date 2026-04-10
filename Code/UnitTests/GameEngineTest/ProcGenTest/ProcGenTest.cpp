@@ -146,7 +146,7 @@ ezResult ezGameEngineTestProcGen::TestOutput(const ezHashedString& sOutputName, 
   if (m_pVM == nullptr)
   {
     m_pVM = EZ_DEFAULT_NEW(ezExpressionVM);
-    m_pVM->RegisterFunction(ezProcGenExpressionFunctions::s_SampleCurveFunc);
+    m_pVM->RegisterFunction(ezExtendedExpressionFunctions::s_SampleCurveFunc);
   }
 
   ezTempHybridArray<ezProcessingStream, 8> inputs;

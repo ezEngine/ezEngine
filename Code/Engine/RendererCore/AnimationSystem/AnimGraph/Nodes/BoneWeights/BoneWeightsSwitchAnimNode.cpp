@@ -188,8 +188,11 @@ void ezSwitchBoneWeightsAnimNode::Step(ezAnimController& ref_controller, ezAnimG
       blendedWeights[i] = ozz::math::MAdd(w1, lerp2, ozz::math::MAdd(w0, lerp1, ozz::math::simd_float4::zero()));
     }
 
+    // Copy before AddPinDataBoneWeights, which may reallocate the array and invalidate pWeights0/pWeights1.
+    const float fOverallWeight = ezMath::Lerp(pWeights0->m_fOverallWeight, pWeights1->m_fOverallWeight, fLerp);
+
     ezAnimGraphPinDataBoneWeights* pPinData = ref_controller.AddPinDataBoneWeights();
-    pPinData->m_fOverallWeight = ezMath::Lerp(pWeights0->m_fOverallWeight, pWeights1->m_fOverallWeight, fLerp);
+    pPinData->m_fOverallWeight = fOverallWeight;
     pPinData->m_pSharedBoneWeights = pInstance->m_pBlendedBoneWeights.Borrow();
 
     m_OutWeights.SetWeights(ref_graph, pPinData);

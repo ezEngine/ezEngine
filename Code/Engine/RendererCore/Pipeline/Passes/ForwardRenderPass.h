@@ -54,4 +54,6 @@ protected:
   ezRenderPipelineNodePassThroughPin m_PinDepthStencil;   ///< Depth-stencil target.
 
   ezEnum<ezForwardRenderShadingQuality> m_ShadingQuality; ///< Quality level for shading calculations.
+
+  ezTexture2DResourceHandle m_hWhiteTexture;              ///< Fallback white texture for unbound inputs.
 };

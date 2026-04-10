@@ -49,7 +49,7 @@ void ezParticleInitializerFactory_RandomSize::Save(ezStreamWriter& inout_stream)
   inout_stream << m_Size.m_fVariance;
 }
 
-void ezParticleInitializerFactory_RandomSize::Load(ezStreamReader& inout_stream)
+void ezParticleInitializerFactory_RandomSize::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
 {
   ezUInt8 uiVersion = 0;
   inout_stream >> uiVersion;
@@ -76,7 +76,7 @@ void ezParticleInitializer_RandomSize::InitializeElements(ezUInt64 uiStartIndex,
   {
     for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
     {
-      pSize[i] = (float)rng.DoubleVariance(m_Size.m_Value, m_Size.m_fVariance);
+      pSize[i] = rng.FloatVariance(m_Size.m_Value, m_Size.m_fVariance);
     }
   }
   else

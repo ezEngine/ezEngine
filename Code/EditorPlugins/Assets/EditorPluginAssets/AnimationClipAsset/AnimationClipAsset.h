@@ -2,6 +2,7 @@
 
 #include <EditorFramework/Assets/AssetDocumentGenerator.h>
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
+#include <Foundation/Tracks/CurveEditData.h>
 #include <GuiFoundation/Widgets/EventTrackEditData.h>
 
 class ezAnimationClipAssetDocument;
@@ -43,6 +44,20 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezAdditiveAnimationReference);
 
 //////////////////////////////////////////////////////////////////////////
 
+/// Stores a single named float curve for use in an animation clip.
+///
+/// The color used for display in the editor is derived automatically from the name.
+class EZ_NO_LINKAGE ezAnimationClipCurveData : public ezReflectedClass
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezAnimationClipCurveData, ezReflectedClass);
+
+public:
+  ezString m_sName;          ///< Identifies this curve across clips. Used to match values from multiple clips for blending.
+  ezSingleCurveData m_Curve; ///< The curve data. Color is overridden at edit time based on m_sName.
+};
+
+//////////////////////////////////////////////////////////////////////////
+
 class ezAnimationClipAssetProperties : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezAnimationClipAssetProperties, ezReflectedClass);
@@ -58,6 +73,7 @@ public:
   ezUInt32 m_uiFirstFrame = 0;
   ezUInt32 m_uiNumFrames = 0;
   ezString m_sPreviewMesh;
+  ezString m_sPreviewAnim;
   ezEnum<ezRootMotionSource> m_RootMotionMode;
   ezEnum<ezAdditiveAnimationReference> m_AdditiveReference;
   ezVec3 m_vConstantRootMotion;
@@ -65,6 +81,7 @@ public:
   float m_fAnimationPositionScale = 1.0f;
 
   ezEventTrackData m_EventTrack;
+  ezDynamicArray<ezAnimationClipCurveData> m_Curves;
 
   static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 };

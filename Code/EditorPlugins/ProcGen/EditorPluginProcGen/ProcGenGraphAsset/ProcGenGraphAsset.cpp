@@ -98,7 +98,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenGraphAssetProperties, 1, ezRTTIDefaultA
   }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenGraphAssetDocument, 9, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenGraphAssetDocument, 10, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -488,7 +488,7 @@ void ezProcGenGraphAssetDocument::DumpSelectedOutput(bool bAst, bool bDisassembl
 {
   const ezDocumentObject* pSelectedNode = nullptr;
 
-  auto selection = GetSelectionManager()->GetSelection();
+  const auto& selection = GetSelectionManager()->GetSelection();
   if (!selection.IsEmpty())
   {
     pSelectedNode = selection[0];

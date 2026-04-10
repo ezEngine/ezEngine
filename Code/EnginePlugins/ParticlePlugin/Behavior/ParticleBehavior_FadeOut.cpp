@@ -44,7 +44,7 @@ void ezParticleBehaviorFactory_FadeOut::Save(ezStreamWriter& inout_stream) const
   inout_stream << m_fExponent;
 }
 
-void ezParticleBehaviorFactory_FadeOut::Load(ezStreamReader& inout_stream)
+void ezParticleBehaviorFactory_FadeOut::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
 {
   ezUInt8 uiVersion = 0;
   inout_stream >> uiVersion;

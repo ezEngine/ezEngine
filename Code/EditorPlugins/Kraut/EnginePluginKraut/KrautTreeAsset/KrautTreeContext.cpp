@@ -5,6 +5,7 @@
 
 #include <GameEngine/Effects/Wind/SimpleWindComponent.h>
 #include <KrautPlugin/Resources/KrautGeneratorResource.h>
+#include <KrautPlugin/Resources/KrautTreeResource.h>
 #include <RendererCore/Components/SkyBoxComponent.h>
 
 // clang-format off
@@ -51,10 +52,131 @@ void ezKrautTreeContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg0)
       }
     }
 
+    if (pMsg->m_sWhatToDo == "SetWindStrength" && !m_hWindComponent.IsInvalidated())
+    {
+      EZ_LOCK(m_pWorld->GetWriteMarker());
+
+      ezSimpleWindComponent* pWind = nullptr;
+      if (!m_pWorld->TryGetComponent(m_hWindComponent, pWind))
+        return;
+
+      const ezInt32 windStrength = pMsg->m_PayloadValue.ConvertTo<ezInt32>();
+
+      switch (windStrength)
+      {
+        case 0: // Off
+          pWind->m_MinWindStrength = ezWindStrength::None;
+          pWind->m_MaxWindStrength = ezWindStrength::None;
+          break;
+
+        case 1: // Light
+          pWind->m_MinWindStrength = ezWindStrength::Calm;
+          pWind->m_MaxWindStrength = ezWindStrength::GentleBreeze;
+          break;
+
+        case 2: // Moderate
+          pWind->m_MinWindStrength = ezWindStrength::GentleBreeze;
+          pWind->m_MaxWindStrength = ezWindStrength::StrongBreeze;
+          break;
+
+        case 3: // Strong
+          pWind->m_MinWindStrength = ezWindStrength::Storm;
+          pWind->m_MaxWindStrength = ezWindStrength::Storm;
+          break;
+      }
+    }
+
+    if (pMsg->m_sWhatToDo == "SetLodOverride" && !m_hKrautComponent.IsInvalidated())
+    {
+      EZ_LOCK(m_pWorld->GetWriteMarker());
+
+      ezKrautTreeComponent* pTree = nullptr;
+      if (!m_pWorld->TryGetComponent(m_hKrautComponent, pTree))
+        return;
+
+      const ezInt8 iLodOverride = static_cast<ezInt8>(pMsg->m_PayloadValue.ConvertTo<ezInt32>());
+      pTree->m_iLodOverride = iLodOverride;
+    }
+
+    if (pMsg->m_sWhatToDo == "SetShowFrondsLeaves" && !m_hKrautComponent.IsInvalidated())
+    {
+      EZ_LOCK(m_pWorld->GetWriteMarker());
+
+      ezKrautTreeComponent* pTree = nullptr;
+      if (!m_pWorld->TryGetComponent(m_hKrautComponent, pTree))
+        return;
+
+      pTree->m_bHideFrondsAndLeafs = !pMsg->m_PayloadValue.ConvertTo<bool>();
+    }
+
     return;
   }
 
+  if (auto pMsg = ezDynamicCast<const ezViewRedrawMsgToEngine*>(pMsg0))
+  {
+    SendLodStats(pMsg->m_DocumentGuid);
+  }
+
   ezEngineProcessDocumentContext::HandleMessage(pMsg0);
+}
+
+void ezKrautTreeContext::SendLodStats(const ezUuid& documentGuid)
+{
+  if (m_hKrautComponent.IsInvalidated())
+    return;
+
+  EZ_LOCK(m_pWorld->GetWriteMarker());
+
+  ezKrautTreeComponent* pTree = nullptr;
+  if (!m_pWorld->TryGetComponent(m_hKrautComponent, pTree))
+    return;
+
+  if (!pTree->GetKrautTreeResource().IsValid())
+    return;
+
+  ezResourceLock<ezKrautTreeResource> pResource(pTree->GetKrautTreeResource(), ezResourceAcquireMode::AllowLoadingFallback);
+  if (pResource.GetAcquireResult() != ezResourceAcquireResult::Final)
+    return;
+
+  const auto treeLods = pResource->GetTreeLODs();
+  const ezInt8 iLodIdx = pTree->m_iLodOverride;
+
+  if (iLodIdx < 0 || iLodIdx >= static_cast<ezInt8>(treeLods.GetCount()))
+    return;
+
+  const auto& lod = treeLods[iLodIdx];
+
+  LodStats stats;
+  stats.m_iLodIndex = iLodIdx;
+  stats.m_uiNumBones = lod.m_uiNumBones;
+  stats.m_uiNumTrianglesTotal = lod.m_uiNumTrianglesBranch + lod.m_uiNumTrianglesFrond + lod.m_uiNumTrianglesLeaf;
+  stats.m_uiNumTrianglesBranch = lod.m_uiNumTrianglesBranch;
+  stats.m_uiNumTrianglesFrond = lod.m_uiNumTrianglesFrond;
+  stats.m_uiNumTrianglesLeaf = lod.m_uiNumTrianglesLeaf;
+
+  if (stats.m_iLodIndex == m_LastSentLodStats.m_iLodIndex &&
+      stats.m_uiNumBones == m_LastSentLodStats.m_uiNumBones &&
+      stats.m_uiNumTrianglesTotal == m_LastSentLodStats.m_uiNumTrianglesTotal &&
+      stats.m_uiNumTrianglesBranch == m_LastSentLodStats.m_uiNumTrianglesBranch &&
+      stats.m_uiNumTrianglesFrond == m_LastSentLodStats.m_uiNumTrianglesFrond &&
+      stats.m_uiNumTrianglesLeaf == m_LastSentLodStats.m_uiNumTrianglesLeaf)
+    return;
+
+  m_LastSentLodStats = stats;
+
+  ezStringBuilder sPayload;
+  sPayload.SetFormat("{};{};{};{};{}",
+    stats.m_uiNumBones,
+    stats.m_uiNumTrianglesTotal,
+    stats.m_uiNumTrianglesBranch,
+    stats.m_uiNumTrianglesFrond,
+    stats.m_uiNumTrianglesLeaf);
+
+  ezSimpleDocumentConfigMsgToEditor msg;
+  msg.m_DocumentGuid = documentGuid;
+  msg.m_sWhatToDo = "LODStats";
+  msg.m_sPayload = sPayload;
+  SendProcessMessage(&msg);
 }
 
 void ezKrautTreeContext::OnInitialize()
@@ -63,7 +185,7 @@ void ezKrautTreeContext::OnInitialize()
   EZ_LOCK(pWorld->GetWriteMarker());
 
 
-  ezKrautTreeComponent* pTree;
+  ezKrautTreeComponent* pTree = nullptr;
 
   // Preview Mesh
   {
@@ -86,6 +208,7 @@ void ezKrautTreeContext::OnInitialize()
     m_hMainResource = ezResourceManager::LoadResource<ezKrautGeneratorResource>(sMeshGuid);
     pTree->SetVariationIndex(0xFFFF); // takes the 'display seed'
     pTree->SetKrautGeneratorResource(m_hMainResource);
+    pTree->m_bForceGenerateImmediate = true;
   }
 
 
@@ -98,11 +221,11 @@ void ezKrautTreeContext::OnInitialize()
     pWorld->CreateObject(obj, pObj);
 
     ezSimpleWindComponent* pWind = nullptr;
-    ezSimpleWindComponent::CreateComponent(pObj, pWind);
+    m_hWindComponent = ezSimpleWindComponent::CreateComponent(pObj, pWind);
 
     pWind->m_Deviation = ezAngle::MakeFromDegree(180);
-    pWind->m_MinWindStrength = ezWindStrength::Calm;
-    pWind->m_MaxWindStrength = ezWindStrength::ModerateBreeze;
+    pWind->m_MinWindStrength = ezWindStrength::LightBreeze;
+    pWind->m_MaxWindStrength = ezWindStrength::GentleBreeze;
   }
 
   // ground
@@ -181,6 +304,12 @@ bool ezKrautTreeContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* 
   }
 
   ezBoundingBoxSphere bounds = m_pMainObject->GetGlobalBounds();
+
+  // Bounds are only valid once the base-data task has run and SetDetails() was called.
+  // Until then return false so the convergence counter doesn't start and the camera isn't
+  // focused on an invalid bounding sphere.
+  if (!bounds.IsValid())
+    return false;
 
   // undo the artificial bounds scale to get a tight bbox for better thumbnails
   const float fAdditionalZoom = 1.5f;

@@ -41,7 +41,7 @@ ezOccluderComponent;Occluder Component;;https://ezengine.net/pages/docs/graphics
 ezPlayerStartPointComponent;Player Start Point;;https://ezengine.net/pages/docs/gameplay/player-start-point.html
 ezPointLightComponent;Point Light;;https://ezengine.net/pages/docs/graphics/lighting/point-light-component.html
 ezFillLightComponent;Fill Light;;https://ezengine.net/pages/docs/graphics/lighting/fill-light-component.html
-ezPrefabReferenceComponent;Prefab Reference;;https://ezengine.net/pages/docs/prefabs/prefabs-overview.html
+ezPrefabReferenceComponent;Prefab;;https://ezengine.net/pages/docs/prefabs/prefabs-overview.html
 ezProjectileComponent;Projectile;;https://ezengine.net/pages/docs/gameplay/projectile-component.html
 ezPropertyAnimComponent;Property Animation;;https://ezengine.net/pages/docs/animation/property-animation/property-animation-component.html
 ezRandomPrefabComponent;Random Prefab;;https://ezengine.net/pages/docs/prefabs/random-prefab-component.html

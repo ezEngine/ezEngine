@@ -148,12 +148,14 @@ void ezSwitchPoseAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIns
   if (iTransitionFromIndex == iTransitionToIndex)
   {
     const ezAnimGraphLocalPoseInputPin* pPinToForward = pPins[iTransitionToIndex];
-    ezAnimGraphPinDataLocalTransforms* pDataToForward = pPinToForward->GetPose(ref_controller, ref_graph);
 
-    if (pDataToForward == nullptr)
+    if (pPinToForward->GetPose(ref_controller, ref_graph) == nullptr)
       return;
 
+    // AddPinDataLocalTransforms must come before GetPose: adding to the array may reallocate it,
+    // which would invalidate any pointer previously obtained from it.
     ezAnimGraphPinDataLocalTransforms* pLocalTransforms = ref_controller.AddPinDataLocalTransforms();
+    ezAnimGraphPinDataLocalTransforms* pDataToForward = pPinToForward->GetPose(ref_controller, ref_graph);
     pLocalTransforms->m_CommandID = pDataToForward->m_CommandID;
     pLocalTransforms->m_pWeights = pDataToForward->m_pWeights;
     pLocalTransforms->m_fOverallWeight = pDataToForward->m_fOverallWeight;
@@ -170,6 +172,15 @@ void ezSwitchPoseAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIns
     if (pPose0 == nullptr || pPose1 == nullptr)
       return;
 
+    // Copy the fields we need before AddPinDataLocalTransforms, which may reallocate the array
+    // and invalidate pPose0 and pPose1.
+    const ezAnimPoseGeneratorCommandID pose0CmdID = pPose0->m_CommandID;
+    const ezAnimPoseGeneratorCommandID pose1CmdID = pPose1->m_CommandID;
+    const bool bPose0UseRootMotion = pPose0->m_bUseRootMotion;
+    const bool bPose1UseRootMotion = pPose1->m_bUseRootMotion;
+    const ezVec3 vPose0RootMotion = pPose0->m_vRootMotion;
+    const ezVec3 vPose1RootMotion = pPose1->m_vRootMotion;
+
     ezAnimGraphPinDataLocalTransforms* pPinData = ref_controller.AddPinDataLocalTransforms();
 
     const float fLerp0 = (float)ezMath::Clamp(pInstance->m_TransitionTime.GetSeconds() / m_TransitionDuration.GetSeconds(), 0.0, 1.0);
@@ -180,12 +191,12 @@ void ezSwitchPoseAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIns
     cmd.m_InputWeights[0] = 1.0f - fLerp;
     cmd.m_InputWeights[1] = fLerp;
     cmd.m_Inputs.SetCount(2);
-    cmd.m_Inputs[0] = pPose0->m_CommandID;
-    cmd.m_Inputs[1] = pPose1->m_CommandID;
+    cmd.m_Inputs[0] = pose0CmdID;
+    cmd.m_Inputs[1] = pose1CmdID;
 
     pPinData->m_CommandID = cmd.GetCommandID();
-    pPinData->m_bUseRootMotion = pPose0->m_bUseRootMotion || pPose1->m_bUseRootMotion;
-    pPinData->m_vRootMotion = ezMath::Lerp(pPose0->m_vRootMotion, pPose1->m_vRootMotion, fLerp);
+    pPinData->m_bUseRootMotion = bPose0UseRootMotion || bPose1UseRootMotion;
+    pPinData->m_vRootMotion = ezMath::Lerp(vPose0RootMotion, vPose1RootMotion, fLerp);
 
     m_OutPose.SetPose(ref_graph, pPinData);
   }

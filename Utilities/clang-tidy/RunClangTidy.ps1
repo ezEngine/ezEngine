@@ -11,7 +11,7 @@ param
     [string]
     $Group1Pattern = "Code\\Engine\\|Code\\EnginePlugins\\|Code\\Editor\\|Code\\EditorPlugins\\",
     [string]
-    $HeaderPattern = "^((?!ThirdParty|DirectXTex|ogt_vox|ui_).)*$",
+    $HeaderPattern = "^((?!ThirdParty|DirectXTex|ogt_vox|ui_|Shaders).)*$",
     [string]
     $LlvmInstallDir,
     [string]
@@ -58,6 +58,11 @@ if (-not $LlvmInstallDir) {
 $Workspace = (Resolve-Path $Workspace).Path
 
 function New-TemporaryDirectory {
+    if(!$Env:Temp)
+    {
+        Write-Error "Environment variable 'Temp' is not set. Cannot create a temporary directory."
+        exit 1
+    }
     $tempFolderPath = Join-Path $Env:Temp $(New-Guid)
     return (New-Item -Type Directory -Path $tempFolderPath).FullName
 }
@@ -100,6 +105,10 @@ if(!$TempDir)
     $TempDir = New-TemporaryDirectory
     $DeleteTempDir = $true
     Write-Host "Temporary Directory is $TempDir"
+}
+elseif(!(Test-Path $TempDir))
+{
+    New-Item -ItemType Directory -Path $TempDir | Out-Null
 }
 
 $files = @()
@@ -493,6 +502,6 @@ finally
    $job | Remove-Job -Force
    if($DeleteTempDir)
    {
-       Remove-Item -Recurse -Force $TempDir
+       Remove-Item -Recurse -Force $TempDir -ErrorAction SilentlyContinue
    }
 }

@@ -68,6 +68,7 @@ enum class ParticleEffectVersion
   Version_8,  // added event reactions
   Version_9,  // breaking change
   Version_10, // added wind samples
+  Version_11, // change serialization order
 
   // insert new version numbers above
   Version_Count,
@@ -91,14 +92,6 @@ void ezParticleEffectDescriptor::Save(ezStreamWriter& inout_stream) const
   inout_stream << m_InvisibleUpdateRate;
   // Version 5
   inout_stream << m_bAlwaysShared;
-
-  // Version 3
-  for (auto pSystem : m_ParticleSystems)
-  {
-    inout_stream << pSystem->GetDynamicRTTI()->GetTypeName();
-
-    pSystem->Save(inout_stream);
-  }
 
   // Version 6
   {
@@ -137,6 +130,14 @@ void ezParticleEffectDescriptor::Save(ezStreamWriter& inout_stream) const
 
   // Version 10
   inout_stream << m_vNumWindSamples;
+
+  // Version 11 (moved to the end)
+  for (auto pSystem : m_ParticleSystems)
+  {
+    inout_stream << pSystem->GetDynamicRTTI()->GetTypeName();
+
+    pSystem->Save(inout_stream);
+  }
 }
 
 
@@ -167,16 +168,19 @@ void ezParticleEffectDescriptor::Load(ezStreamReader& inout_stream)
 
   ezStringBuilder sType;
 
-  for (auto& pSystem : m_ParticleSystems)
+  if (uiVersion <= (int)ParticleEffectVersion::Version_10)
   {
-    inout_stream >> sType;
+    for (auto& pSystem : m_ParticleSystems)
+    {
+      inout_stream >> sType;
 
-    const ezRTTI* pRtti = ezRTTI::FindTypeByName(sType);
-    EZ_ASSERT_DEBUG(pRtti != nullptr, "Unknown particle effect type '{0}'", sType);
+      const ezRTTI* pRtti = ezRTTI::FindTypeByName(sType);
+      EZ_ASSERT_DEBUG(pRtti != nullptr, "Unknown particle effect type '{0}'", sType);
 
-    pSystem = pRtti->GetAllocator()->Allocate<ezParticleSystemDescriptor>();
+      pSystem = pRtti->GetAllocator()->Allocate<ezParticleSystemDescriptor>();
 
-    pSystem->Load(inout_stream);
+      pSystem->Load(inout_stream, *this);
+    }
   }
 
   ezStringBuilder key;
@@ -225,6 +229,22 @@ void ezParticleEffectDescriptor::Load(ezStreamReader& inout_stream)
   if (uiVersion >= (int)ParticleEffectVersion::Version_10)
   {
     inout_stream >> m_vNumWindSamples;
+  }
+
+  // serialize the systems AFTER we know everything about the effect
+  if (uiVersion >= (int)ParticleEffectVersion::Version_11)
+  {
+    for (auto& pSystem : m_ParticleSystems)
+    {
+      inout_stream >> sType;
+
+      const ezRTTI* pRtti = ezRTTI::FindTypeByName(sType);
+      EZ_ASSERT_DEBUG(pRtti != nullptr, "Unknown particle effect type '{0}'", sType);
+
+      pSystem = pRtti->GetAllocator()->Allocate<ezParticleSystemDescriptor>();
+
+      pSystem->Load(inout_stream, *this);
+    }
   }
 }
 

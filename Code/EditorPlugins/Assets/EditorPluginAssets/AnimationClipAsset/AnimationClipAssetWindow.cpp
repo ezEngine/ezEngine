@@ -4,6 +4,7 @@
 #include <EditorFramework/DocumentWindow/OrbitCamViewWidget.moc.h>
 #include <EditorFramework/InputContexts/OrbitCameraContext.h>
 #include <EditorPluginAssets/AnimationClipAsset/AnimationClipAssetWindow.moc.h>
+#include <Foundation/Algorithm/HashingUtils.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
@@ -115,16 +116,45 @@ ezQtAnimationClipAssetDocumentWindow::ezQtAnimationClipAssetDocumentWindow(ezAni
     connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::EndCpChangesEvent, this, &ezQtAnimationClipAssetDocumentWindow::onEventTrackEndCpChanges);
   }
 
+  // curve editor
+  {
+    m_pCurveEditPanel = new ezQtDocumentPanel(GetContainerWindow()->GetDockManager(), this, pDocument);
+    m_pCurveEditPanel->setObjectName("AnimClipCustomCurvesPanel");
+    m_pCurveEditPanel->setWindowTitle("Curves");
+    m_pCurveEditPanel->show();
+
+    m_pCurveEditor = new ezQtCurve1DEditorWidget(this);
+    m_pCurveEditPanel->setWidget(m_pCurveEditor);
+
+    connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::InsertCpEvent, this, &ezQtAnimationClipAssetDocumentWindow::onCurveInsertCpAt);
+    connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::CpMovedEvent, this, &ezQtAnimationClipAssetDocumentWindow::onCurveCpMoved);
+    connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::CpDeletedEvent, this, &ezQtAnimationClipAssetDocumentWindow::onCurveCpDeleted);
+    connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::TangentMovedEvent, this, &ezQtAnimationClipAssetDocumentWindow::onCurveTangentMoved);
+    connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::TangentLinkEvent, this, &ezQtAnimationClipAssetDocumentWindow::onLinkCurveTangents);
+    connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::CpTangentModeEvent, this, &ezQtAnimationClipAssetDocumentWindow::onCurveTangentModeChanged);
+
+    connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::BeginOperationEvent, this, &ezQtAnimationClipAssetDocumentWindow::onCurveBeginOperation);
+    connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::EndOperationEvent, this, &ezQtAnimationClipAssetDocumentWindow::onCurveEndOperation);
+    connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::BeginCpChangesEvent, this, &ezQtAnimationClipAssetDocumentWindow::onCurveBeginCpChanges);
+    connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::EndCpChangesEvent, this, &ezQtAnimationClipAssetDocumentWindow::onCurveEndCpChanges);
+
+    m_pDockManager->addDockWidgetTab(ads::BottomDockWidgetArea, m_pCurveEditPanel);
+
+    UpdateCurveEditor();
+  }
+
   FinishWindowCreation();
 
   GetAnimationClipDocument()->m_CommonAssetUiChangeEvent.AddEventHandler(ezMakeDelegate(&ezQtAnimationClipAssetDocumentWindow::CommonAssetUiEventHandler, this));
   GetDocument()->GetCommandHistory()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtAnimationClipAssetDocumentWindow::CommandHistoryEventHandler, this));
+  pDocument->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezQtAnimationClipAssetDocumentWindow::StructureEventHandler, this));
 }
 
 ezQtAnimationClipAssetDocumentWindow::~ezQtAnimationClipAssetDocumentWindow()
 {
   GetAnimationClipDocument()->m_CommonAssetUiChangeEvent.RemoveEventHandler(ezMakeDelegate(&ezQtAnimationClipAssetDocumentWindow::CommonAssetUiEventHandler, this));
   GetDocument()->GetCommandHistory()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtAnimationClipAssetDocumentWindow::CommandHistoryEventHandler, this));
+  GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezQtAnimationClipAssetDocumentWindow::StructureEventHandler, this));
 }
 
 ezAnimationClipAssetDocument* ezQtAnimationClipAssetDocumentWindow::GetAnimationClipDocument()
@@ -157,6 +187,12 @@ void ezQtAnimationClipAssetDocumentWindow::SendRedrawMsg()
     ezSimpleDocumentConfigMsgToEngine msg;
     msg.m_sWhatToDo = "PreviewMesh";
     msg.m_sPayload = GetAnimationClipDocument()->GetProperties()->m_sPreviewMesh;
+    GetDocument()->SendMessageToEngine(&msg);
+  }
+  {
+    ezSimpleDocumentConfigMsgToEngine msg;
+    msg.m_sWhatToDo = "PreviewAnim";
+    msg.m_sPayload = GetAnimationClipDocument()->GetProperties()->m_sPreviewAnim;
     GetDocument()->SendMessageToEngine(&msg);
   }
 
@@ -197,6 +233,32 @@ void ezQtAnimationClipAssetDocumentWindow::UpdateEventTrackEditor()
   m_pEventTrackEditor->SetData(pDoc->GetProperties()->m_EventTrack, m_ClipDuration.GetSeconds());
 }
 
+static ezColorGammaUB GetColorForCurveName(ezStringView sName, ezInt32 iOffset)
+{
+  return ezColorScheme::LightUI(static_cast<ezColorScheme::Enum>((iOffset + ezHashingUtils::StringHash(sName)) % ezColorScheme::Count));
+}
+
+void ezQtAnimationClipAssetDocumentWindow::UpdateCurveEditor()
+{
+  auto* pDoc = GetAnimationClipDocument();
+
+  m_Curves.Clear();
+  m_Curves.m_bOwnsData = false;
+
+  auto& curves = pDoc->GetProperties()->m_Curves;
+
+  ezInt32 iOffset = 0;
+  for (auto& namedCurve : curves)
+  {
+    namedCurve.m_Curve.m_CurveColor = GetColorForCurveName(namedCurve.m_sName, iOffset);
+    m_Curves.m_Curves.PushBack(&namedCurve.m_Curve);
+    ++iOffset;
+  }
+
+  m_pCurveEditor->SetCurveExtents(0.0f, m_ClipDuration.GetSeconds(), true, true);
+  m_pCurveEditor->SetCurves(m_Curves);
+}
+
 void ezQtAnimationClipAssetDocumentWindow::InternalRedraw()
 {
   if (m_pTimeScrubber == nullptr)
@@ -229,6 +291,7 @@ void ezQtAnimationClipAssetDocumentWindow::InternalRedraw()
   m_PlaybackPosition = ezMath::Clamp(m_PlaybackPosition, ezTime::MakeZero(), m_ClipDuration);
   m_pTimeScrubber->SetScrubberPosition(m_PlaybackPosition);
   m_pEventTrackEditor->SetScrubberPosition(m_PlaybackPosition);
+  m_pCurveEditor->SetScrubberPosition(m_PlaybackPosition);
 
   ezEditorInputContext::UpdateActiveInputContext();
   SendRedrawMsg();
@@ -267,6 +330,10 @@ void ezQtAnimationClipAssetDocumentWindow::ProcessMessageEventHandler(const ezEd
         m_pTimeScrubber->SetDuration(m_ClipDuration);
 
         UpdateEventTrackEditor();
+        UpdateCurveEditor();
+
+        m_pEventTrackEditor->FrameCurve();
+        m_pCurveEditor->FrameCurve();
       }
 
       return;
@@ -400,6 +467,225 @@ void ezQtAnimationClipAssetDocumentWindow::onEventTrackEndCpChanges()
   UpdateEventTrackEditor();
 }
 
+/// Returns the ezSingleCurveData document object for Curves[uiCurveIdx].m_Curve
+static const ezDocumentObject* GetCurveSubObject(ezAnimationClipAssetDocument* pDoc, ezUInt32 uiCurveIdx)
+{
+  const ezVariant namedCurveGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Curves", uiCurveIdx);
+  const ezDocumentObject* pNamedCurve = pDoc->GetObjectManager()->GetObject(namedCurveGuid.Get<ezUuid>());
+  const ezVariant curveGuid = pNamedCurve->GetTypeAccessor().GetValue("Curve");
+  return pDoc->GetObjectManager()->GetObject(curveGuid.Get<ezUuid>());
+}
+
+void ezQtAnimationClipAssetDocumentWindow::onCurveInsertCpAt(ezUInt32 uiCurveIdx, ezInt64 tickX, double newPosY)
+{
+  auto* pDoc = static_cast<ezAnimationClipAssetDocument*>(GetDocument());
+
+  ezCommandHistory* history = pDoc->GetCommandHistory();
+
+  // If there is no curve at uiCurveIdx yet, add a new named curve entry
+  while (pDoc->GetPropertyObject()->GetTypeAccessor().GetCount("Curves") <= static_cast<ezInt32>(uiCurveIdx))
+  {
+    ezAddObjectCommand cmdAdd;
+    cmdAdd.m_Parent = pDoc->GetPropertyObject()->GetGuid();
+    cmdAdd.m_sParentProperty = "Curves";
+    cmdAdd.m_pType = ezGetStaticRTTI<ezAnimationClipCurveData>();
+    cmdAdd.m_Index = -1;
+    cmdAdd.m_NewObjectGuid = ezUuid::MakeUuid();
+    history->AddCommand(cmdAdd).AssertSuccess();
+  }
+
+  const ezDocumentObject* pCurveObj = GetCurveSubObject(pDoc, uiCurveIdx);
+
+  ezAddObjectCommand cmdAdd;
+  cmdAdd.m_Parent = pCurveObj->GetGuid();
+  cmdAdd.m_NewObjectGuid = ezUuid::MakeUuid();
+  cmdAdd.m_sParentProperty = "ControlPoints";
+  cmdAdd.m_pType = ezGetStaticRTTI<ezCurveControlPointData>();
+  cmdAdd.m_Index = -1;
+
+  history->AddCommand(cmdAdd).AssertSuccess();
+
+  ezSetObjectPropertyCommand cmdSet;
+  cmdSet.m_Object = cmdAdd.m_NewObjectGuid;
+
+  cmdSet.m_sProperty = "Tick";
+  cmdSet.m_NewValue = tickX;
+  history->AddCommand(cmdSet).AssertSuccess();
+
+  cmdSet.m_sProperty = "Value";
+  cmdSet.m_NewValue = newPosY;
+  history->AddCommand(cmdSet).AssertSuccess();
+
+  cmdSet.m_sProperty = "LeftTangent";
+  cmdSet.m_NewValue = ezVec2(-0.1f, 0.0f);
+  history->AddCommand(cmdSet).AssertSuccess();
+
+  cmdSet.m_sProperty = "RightTangent";
+  cmdSet.m_NewValue = ezVec2(+0.1f, 0.0f);
+  history->AddCommand(cmdSet).AssertSuccess();
+}
+
+void ezQtAnimationClipAssetDocumentWindow::onCurveCpMoved(ezUInt32 curveIdx, ezUInt32 cpIdx, ezInt64 iTickX, double newPosY)
+{
+  iTickX = ezMath::Max<ezInt64>(iTickX, 0);
+
+  auto* pDoc = static_cast<ezAnimationClipAssetDocument*>(GetDocument());
+
+  const ezDocumentObject* pCurveObj = GetCurveSubObject(pDoc, curveIdx);
+  const ezVariant cpGuid = pCurveObj->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
+
+  ezSetObjectPropertyCommand cmdSet;
+  cmdSet.m_Object = cpGuid.Get<ezUuid>();
+
+  cmdSet.m_sProperty = "Tick";
+  cmdSet.m_NewValue = iTickX;
+  GetDocument()->GetCommandHistory()->AddCommand(cmdSet).AssertSuccess();
+
+  cmdSet.m_sProperty = "Value";
+  cmdSet.m_NewValue = newPosY;
+  GetDocument()->GetCommandHistory()->AddCommand(cmdSet).AssertSuccess();
+}
+
+
+void ezQtAnimationClipAssetDocumentWindow::onCurveCpDeleted(ezUInt32 curveIdx, ezUInt32 cpIdx)
+{
+  auto* pDoc = static_cast<ezAnimationClipAssetDocument*>(GetDocument());
+
+  const ezDocumentObject* pCurveObj = GetCurveSubObject(pDoc, curveIdx);
+  const ezVariant cpGuid = pCurveObj->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
+
+  if (!cpGuid.IsValid())
+    return;
+
+  ezRemoveObjectCommand cmdSet;
+  cmdSet.m_Object = cpGuid.Get<ezUuid>();
+  GetDocument()->GetCommandHistory()->AddCommand(cmdSet).AssertSuccess();
+}
+
+
+void ezQtAnimationClipAssetDocumentWindow::onCurveTangentMoved(ezUInt32 curveIdx, ezUInt32 cpIdx, float newPosX, float newPosY, bool rightTangent)
+{
+  auto* pDoc = static_cast<ezAnimationClipAssetDocument*>(GetDocument());
+
+  const ezDocumentObject* pCurveObj = GetCurveSubObject(pDoc, curveIdx);
+  const ezVariant cpGuid = pCurveObj->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
+
+  ezSetObjectPropertyCommand cmdSet;
+  cmdSet.m_Object = cpGuid.Get<ezUuid>();
+
+  // clamp tangents to one side
+  if (rightTangent)
+    newPosX = ezMath::Max(newPosX, 0.0f);
+  else
+    newPosX = ezMath::Min(newPosX, 0.0f);
+
+  cmdSet.m_sProperty = rightTangent ? "RightTangent" : "LeftTangent";
+  cmdSet.m_NewValue = ezVec2(newPosX, newPosY);
+  GetDocument()->GetCommandHistory()->AddCommand(cmdSet).AssertSuccess();
+}
+
+
+void ezQtAnimationClipAssetDocumentWindow::onLinkCurveTangents(ezUInt32 curveIdx, ezUInt32 cpIdx, bool bLink)
+{
+  auto* pDoc = static_cast<ezAnimationClipAssetDocument*>(GetDocument());
+
+  const ezDocumentObject* pCurveObj = GetCurveSubObject(pDoc, curveIdx);
+  const ezVariant cpGuid = pCurveObj->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
+
+  ezSetObjectPropertyCommand cmdLink;
+  cmdLink.m_Object = cpGuid.Get<ezUuid>();
+  cmdLink.m_sProperty = "Linked";
+  cmdLink.m_NewValue = bLink;
+  GetDocument()->GetCommandHistory()->AddCommand(cmdLink).AssertSuccess();
+
+  if (bLink)
+  {
+    const ezVec2 leftTangent = pDoc->GetProperties()->m_Curves[curveIdx].m_Curve.m_ControlPoints[cpIdx].m_LeftTangent;
+    const ezVec2 rightTangent = -leftTangent;
+
+    onCurveTangentMoved(curveIdx, cpIdx, rightTangent.x, rightTangent.y, true);
+  }
+}
+
+
+void ezQtAnimationClipAssetDocumentWindow::onCurveTangentModeChanged(ezUInt32 curveIdx, ezUInt32 cpIdx, bool rightTangent, int mode)
+{
+  auto* pDoc = static_cast<ezAnimationClipAssetDocument*>(GetDocument());
+
+  const ezDocumentObject* pCurveObj = GetCurveSubObject(pDoc, curveIdx);
+  const ezVariant cpGuid = pCurveObj->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
+
+  ezSetObjectPropertyCommand cmd;
+  cmd.m_Object = cpGuid.Get<ezUuid>();
+  cmd.m_sProperty = rightTangent ? "RightTangentMode" : "LeftTangentMode";
+  cmd.m_NewValue = mode;
+  GetDocument()->GetCommandHistory()->AddCommand(cmd).AssertSuccess();
+}
+
+
+void ezQtAnimationClipAssetDocumentWindow::onCurveBeginOperation(QString name)
+{
+  ezCommandHistory* history = GetDocument()->GetCommandHistory();
+  history->BeginTemporaryCommands(name.toUtf8().data());
+}
+
+void ezQtAnimationClipAssetDocumentWindow::onCurveEndOperation(bool commit)
+{
+  ezCommandHistory* history = GetDocument()->GetCommandHistory();
+
+  if (commit)
+    history->FinishTemporaryCommands();
+  else
+    history->CancelTemporaryCommands();
+
+  UpdateCurveEditor();
+}
+
+void ezQtAnimationClipAssetDocumentWindow::onCurveBeginCpChanges(QString name)
+{
+  GetDocument()->GetCommandHistory()->StartTransaction(name.toUtf8().data());
+}
+
+void ezQtAnimationClipAssetDocumentWindow::onCurveEndCpChanges()
+{
+  GetDocument()->GetCommandHistory()->FinishTransaction();
+
+  UpdateCurveEditor();
+}
+
+void ezQtAnimationClipAssetDocumentWindow::OnAfterDocumentLayoutRestored()
+{
+  // ADS flags dock widgets not found in the saved layout as "unassigned" (closed, detached from all dock areas).
+  // Re-add the panel to its default location.
+  if (m_pCurveEditPanel->isClosed())
+  {
+    if (auto* pArea = m_pEventTrackPanel->dockAreaWidget())
+    {
+      m_pDockManager->addDockWidgetTabToArea(m_pCurveEditPanel, pArea);
+    }
+    else
+    {
+      m_pDockManager->addDockWidgetTab(ads::BottomDockWidgetArea, m_pCurveEditPanel);
+    }
+  }
+}
+
+void ezQtAnimationClipAssetDocumentWindow::StructureEventHandler(const ezDocumentObjectStructureEvent& e)
+{
+  switch (e.m_EventType)
+  {
+    case ezDocumentObjectStructureEvent::Type::AfterReset:
+    case ezDocumentObjectStructureEvent::Type::AfterObjectAdded:
+    case ezDocumentObjectStructureEvent::Type::AfterObjectRemoved:
+    case ezDocumentObjectStructureEvent::Type::AfterObjectMoved2:
+      UpdateCurveEditor();
+      break;
+
+    default:
+      break;
+  }
+}
+
 void ezQtAnimationClipAssetDocumentWindow::CommandHistoryEventHandler(const ezCommandHistoryEvent& e)
 {
   // also listen to TransactionCanceled, which is sent when a no-op happens (e.g. asset transform with no change)
@@ -409,5 +695,6 @@ void ezQtAnimationClipAssetDocumentWindow::CommandHistoryEventHandler(const ezCo
       e.m_Type == ezCommandHistoryEvent::Type::TransactionCanceled)
   {
     UpdateEventTrackEditor();
+    UpdateCurveEditor();
   }
 }

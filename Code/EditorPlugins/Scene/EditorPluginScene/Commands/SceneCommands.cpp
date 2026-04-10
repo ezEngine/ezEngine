@@ -23,6 +23,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDuplicateObjectsCommand, 1, ezRTTIDefaultAlloc
     EZ_MEMBER_PROPERTY("RevoleStartAngle", m_RevolveStartAngle),
     EZ_MEMBER_PROPERTY("RevolveAngleStep", m_RevolveAngleStep),
     EZ_MEMBER_PROPERTY("RevolveRadius", m_fRevolveRadius),
+    EZ_MEMBER_PROPERTY("InsertIndex", m_iInsertIndex),
   }
   EZ_END_PROPERTIES;
 }
@@ -196,6 +197,8 @@ void ezDuplicateObjectsCommand::CreateOneDuplicate(ezAbstractObjectGraph& graph,
         auto& ref = out_toBePasted.ExpandAndGetRef();
         ref.m_pObject = pNewObject;
         ref.m_pParent = nullptr;
+        if (m_uiNumberOfCopies == 0 && m_iInsertIndex >= 0)
+          ref.m_Index = m_iInsertIndex;
 
         const ezUuid guidParent = ParentGuids[pNode->GetGuid()];
 

@@ -87,7 +87,7 @@ void ezParticleBehaviorFactory_Velocity::Save(ezStreamWriter& inout_stream) cons
   m_RuntimeSpeedCurve.Save(inout_stream);
 }
 
-void ezParticleBehaviorFactory_Velocity::Load(ezStreamReader& inout_stream)
+void ezParticleBehaviorFactory_Velocity::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
 {
   ezUInt8 uiVersion = 0;
   inout_stream >> uiVersion;

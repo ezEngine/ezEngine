@@ -67,7 +67,7 @@ void ezParticleBehaviorFactory_ColorGradient::Save(ezStreamWriter& inout_stream)
   m_Gradient.Save(inout_stream);
 }
 
-void ezParticleBehaviorFactory_ColorGradient::Load(ezStreamReader& inout_stream)
+void ezParticleBehaviorFactory_ColorGradient::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
 {
   ezUInt8 uiVersion = 0;
   inout_stream >> uiVersion;

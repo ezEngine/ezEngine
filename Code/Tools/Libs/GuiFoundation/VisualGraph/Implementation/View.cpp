@@ -2,7 +2,9 @@
 
 #include <GuiFoundation/VisualGraph/Scene.moc.h>
 #include <GuiFoundation/VisualGraph/View.moc.h>
+#include <QKeyEvent>
 #include <QMouseEvent>
+#include <QTimer>
 
 ezQtVisualGraphView::ezQtVisualGraphView(QWidget* pParent)
   : QGraphicsView(pParent)
@@ -27,12 +29,59 @@ void ezQtVisualGraphView::SetScene(ezQtVisualGraphScene* pScene)
   QRectF sceneRect = m_pScene->sceneRect();
   m_ViewPos = sceneRect.topLeft();
   m_ViewScale = QPointF(1, 1);
+  m_bFrameOnNextDraw = true;
   UpdateView();
 }
 
 ezQtVisualGraphScene* ezQtVisualGraphView::GetScene()
 {
   return m_pScene;
+}
+
+void ezQtVisualGraphView::FrameContent()
+{
+  if (m_pScene == nullptr || width() == 0 || height() == 0)
+    return;
+
+  // use selected nodes if any, otherwise all visible top-level items
+  QRectF contentRect;
+  const QList<QGraphicsItem*> selection = m_pScene->selectedItems();
+  if (!selection.isEmpty())
+  {
+    for (QGraphicsItem* pItem : selection)
+    {
+      if (pItem->isVisible())
+        contentRect = contentRect.united(pItem->sceneBoundingRect());
+    }
+  }
+  else
+  {
+    for (QGraphicsItem* pItem : m_pScene->items())
+    {
+      if (pItem->isVisible() && pItem->type() == ezQtVisualGraphScene::Node)
+        contentRect = contentRect.united(pItem->sceneBoundingRect());
+    }
+  }
+
+  if (contentRect.isEmpty())
+    return;
+
+  // margin
+  const double fMargin = 50.0;
+  contentRect.adjust(-fMargin, -fMargin, fMargin, fMargin);
+
+  const double fScaleX = width() / contentRect.width();
+  const double fScaleY = height() / contentRect.height();
+  double fScale = qMin(fScaleX, fScaleY);
+  fScale = ezMath::Clamp(fScale, 0.01, 2.0);
+
+  m_ViewScale = QPointF(fScale, fScale);
+
+  const double fViewWidth = width() / fScale;
+  const double fViewHeight = height() / fScale;
+  m_ViewPos = QPointF(contentRect.center().x() - fViewWidth * 0.5, contentRect.center().y() - fViewHeight * 0.5);
+
+  UpdateView();
 }
 
 void ezQtVisualGraphView::mousePressEvent(QMouseEvent* event)
@@ -130,14 +179,35 @@ void ezQtVisualGraphView::contextMenuEvent(QContextMenuEvent* event)
   QGraphicsView::contextMenuEvent(event);
 }
 
+void ezQtVisualGraphView::keyPressEvent(QKeyEvent* event)
+{
+  if (event->key() == Qt::Key_F && event->modifiers() == Qt::NoModifier)
+  {
+    FrameContent();
+    event->accept();
+    return;
+  }
+
+  QGraphicsView::keyPressEvent(event);
+}
+
 void ezQtVisualGraphView::resizeEvent(QResizeEvent* event)
 {
   QGraphicsView::resizeEvent(event);
+
   UpdateView();
 }
 
 void ezQtVisualGraphView::drawBackground(QPainter* painter, const QRectF& r)
 {
+  if (m_bFrameOnNextDraw)
+  {
+    // Frame is deferred until drawBackground because SetScene() is called before the
+    // widget has its final geometry, so width()/height() would be zero at that point.
+    m_bFrameOnNextDraw = false;
+    QTimer::singleShot(10, this, &ezQtVisualGraphView::FrameContent);
+  }
+
   QGraphicsView::drawBackground(painter, r);
 
   if (m_ViewScale.manhattanLength() > 1.0)

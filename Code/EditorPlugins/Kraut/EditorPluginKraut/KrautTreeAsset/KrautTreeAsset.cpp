@@ -1,15 +1,12 @@
 #include <EditorPluginKraut/EditorPluginKrautPCH.h>
 
 #include <EditorPluginKraut/KrautTreeAsset/KrautTreeAsset.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/Utilities/Progress.h>
 #include <KrautGenerator/Serialization/SerializeTree.h>
 #include <KrautPlugin/Resources/KrautGeneratorResource.h>
-#include <RendererCore/Material/MaterialResource.h>
 
 using namespace AE_NS_FOUNDATION;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezKrautTreeAssetDocument, 4, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezKrautTreeAssetDocument, 5, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezKrautTreeAssetDocument::ezKrautTreeAssetDocument(ezStringView sDocumentPath)
@@ -17,7 +14,49 @@ ezKrautTreeAssetDocument::ezKrautTreeAssetDocument(ezStringView sDocumentPath)
 {
 }
 
+void ezKrautTreeAssetDocument::SetWindStrength(ezKrautWindStrength::Enum strength)
+{
+  if (m_WindStrength == strength)
+    return;
+
+  m_WindStrength = strength;
+
+  // Send message to engine to update wind
+  ezSimpleDocumentConfigMsgToEngine msg;
+  msg.m_sWhatToDo = "SetWindStrength";
+  msg.m_sPayload = "";
+  msg.m_PayloadValue = (ezInt32)strength;
+  SendMessageToEngine(&msg);
+
+  // Notify actions to update their checked state
+  ezKrautTreeAssetEvent e;
+  e.m_Type = ezKrautTreeAssetEvent::Type::WindStrengthChanged;
+  m_Events.Broadcast(e);
+}
+
+void ezKrautTreeAssetDocument::SetShowFrondsLeaves(bool bShow)
+{
+  if (m_bShowFrondsLeaves == bShow)
+    return;
+
+  m_bShowFrondsLeaves = bShow;
+
+  // Send message to engine to update component
+  ezSimpleDocumentConfigMsgToEngine msg;
+  msg.m_sWhatToDo = "SetShowFrondsLeaves";
+  msg.m_sPayload = "";
+  msg.m_PayloadValue = (ezInt32)bShow;
+  SendMessageToEngine(&msg);
+
+  // Notify actions to update their checked state
+  ezKrautTreeAssetEvent e;
+  e.m_Type = ezKrautTreeAssetEvent::Type::FrondsLeavesVisibilityChanged;
+  m_Events.Broadcast(e);
+}
+
 //////////////////////////////////////////////////////////////////////////
+
+void CopyKrautConfig(Kraut::SpawnNodeDesc& ref_node, const ezKrautAssetBranchType& bt, ezDynamicArray<ezKrautMaterialDescriptor>& ref_materials, ezKrautBranchType branchType);
 
 class KrautStreamIn : public aeStreamIn
 {
@@ -77,78 +116,83 @@ static void GetMaterialLabel(ezStringBuilder& ref_sOut, ezKrautBranchType branch
   }
 }
 
-ezTransformStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+
+ezStatus ezKrautTreeAssetDocument::WriteKrautAsset(ezStreamWriter& ref_stream) const
 {
-  ezProgressRange range("Transforming Asset", 2, false);
-
-  ezKrautTreeAssetProperties* pProp = GetProperties();
-
-  if (!ezPathUtils::HasExtension(pProp->m_sKrautFile, ".tree"))
-    return ezStatus("Unsupported file format");
+  const ezKrautTreeAssetProperties* pProp = GetProperties();
 
   ezKrautGeneratorResourceDescriptor desc;
+  desc.m_uiDefaultDisplaySeed = 0;
+  desc.m_GoodRandomSeeds.PushBack(0);
 
-  // read the input data
-  {
-    ezFileReader krautFile;
-    if (krautFile.Open(pProp->m_sKrautFile).Failed())
-      return ezStatus(ezFmt("Could not open Kraut file '{0}'", pProp->m_sKrautFile));
+  auto& ts = desc.m_TreeStructureDesc;
 
-    KrautStreamIn kstream;
-    kstream.m_pStream = &krautFile;
-
-    ezUInt32 uiKrautEditorVersion = 0;
-    krautFile >> uiKrautEditorVersion;
-
-    Kraut::Deserializer ts;
-    ts.m_pTreeStructure = &desc.m_TreeStructureDesc;
-    ts.m_LODs[0] = &desc.m_LodDesc[0];
-    ts.m_LODs[1] = &desc.m_LodDesc[1];
-    ts.m_LODs[2] = &desc.m_LodDesc[2];
-    ts.m_LODs[3] = &desc.m_LodDesc[3];
-    ts.m_LODs[4] = &desc.m_LodDesc[4];
-
-    if (!ts.Deserialize(kstream))
+  const ezKrautAssetBranchType* pBts[12] =
     {
-      return ezStatus(ezFmt("Reading the Kraut file failed: '{}'", pProp->m_sKrautFile));
-    }
-  }
+      &pProp->m_BT_Trunk1,
+      nullptr,
+      nullptr,
+      &pProp->m_BT_MainBranch1,
+      &pProp->m_BT_MainBranch2,
+      &pProp->m_BT_MainBranch3,
+      &pProp->m_BT_SubBranch1,
+      &pProp->m_BT_SubBranch2,
+      &pProp->m_BT_SubBranch3,
+      &pProp->m_BT_Twig1,
+      &pProp->m_BT_Twig2,
+      &pProp->m_BT_Twig3};
 
-  // find materials
   {
-    desc.m_Materials.Clear();
-
-    ezStringBuilder materialLabel;
-
-    for (ezUInt32 bt = 0; bt < Kraut::BranchType::ENUM_COUNT; ++bt)
+    ezInt32 iBaseBranch = -3;
+    for (ezUInt32 n = 0; n < Kraut::BranchType::ENUM_COUNT; ++n)
     {
-      const auto& type = desc.m_TreeStructureDesc.m_BranchTypes[bt];
+      ts.m_BranchTypes[n].m_Type = (Kraut::BranchType::Enum)n;
+      ts.m_BranchTypes[n].Reset();
+      ts.m_BranchTypes[n].m_bUsed = false;
+      ts.m_BranchTypes[n].m_bAllowSubType[0] = false;
+      ts.m_BranchTypes[n].m_bAllowSubType[1] = false;
+      ts.m_BranchTypes[n].m_bAllowSubType[2] = false;
 
-      if (!type.m_bUsed)
-        continue;
-
-      for (ezUInt32 gt = 0; gt < Kraut::BranchGeometryType::ENUM_COUNT; ++gt)
+      if (pBts[n] != nullptr)
       {
-        if (!type.m_bEnable[gt])
-          continue;
-
-        auto& m = desc.m_Materials.ExpandAndGetRef();
-
-        m.m_MaterialType = static_cast<ezKrautMaterialType>((int)ezKrautMaterialType::Branch + gt);
-        m.m_BranchType = static_cast<ezKrautBranchType>((int)ezKrautBranchType::Trunk1 + bt);
-
-        GetMaterialLabel(materialLabel, m.m_BranchType, m.m_MaterialType);
-
-        // find the matching material from the user input (don't want to guess an index, in case the list size changed)
-        for (const auto& mat : pProp->m_Materials)
+        if (iBaseBranch < 0 ||
+            (ts.m_BranchTypes[iBaseBranch + 0].m_bAllowSubType[n % 3]) ||
+            (ts.m_BranchTypes[iBaseBranch + 1].m_bAllowSubType[n % 3]) ||
+            (ts.m_BranchTypes[iBaseBranch + 2].m_bAllowSubType[n % 3]))
         {
-          if (mat.m_sLabel == materialLabel)
-          {
-            m.m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>(mat.m_sMaterial);
-            break;
-          }
+          ts.m_BranchTypes[n].m_bUsed = true;
+          CopyKrautConfig(ts.m_BranchTypes[n], *pBts[n], desc.m_Materials, (ezKrautBranchType)n);
         }
       }
+
+      if (n % 3 == 2)
+        iBaseBranch += 3;
+    }
+
+    const ezKrautAssetLod* pLods[5] = {
+      &pProp->m_Lod0,
+      &pProp->m_Lod1,
+      &pProp->m_Lod2,
+      &pProp->m_Lod3,
+      &pProp->m_Lod4};
+
+    for (ezUInt32 n = 0; n < 5; ++n)
+    {
+      const ezKrautAssetLod& lod = *pLods[n];
+
+      desc.m_LodDesc[n].m_fTipDetail = lod.m_fTipDetail;
+      desc.m_LodDesc[n].m_fCurvatureThreshold = lod.m_fCurvatureThreshold;
+      desc.m_LodDesc[n].m_fThicknessThreshold = lod.m_fThicknessThreshold;
+      desc.m_LodDesc[n].m_fVertexRingDetail = lod.m_fVertexRingDetail;
+
+      desc.m_LodDesc[n].m_AllowTypes[Kraut::BranchGeometryType::Branch] = lod.m_AllowBranch.GetValue();
+      desc.m_LodDesc[n].m_AllowTypes[Kraut::BranchGeometryType::Frond] = lod.m_AllowFrond.GetValue();
+      desc.m_LodDesc[n].m_AllowTypes[Kraut::BranchGeometryType::Leaf] = lod.m_AllowLeaf.GetValue();
+
+      desc.m_LodDesc[n].m_iMaxFrondDetail = lod.m_iMaxFrondDetail;
+      desc.m_LodDesc[n].m_iFrondDetailReduction = lod.m_iFrondDetailReduction;
+      desc.m_LodDesc[n].m_uiLodDistance = lod.m_uiLodDistance;
+      desc.m_LodDesc[n].m_BranchSpikeTipMode = (Kraut::BranchSpikeTipMode::Enum)lod.m_BranchSpikeTipMode.GetValue();
     }
   }
 
@@ -156,19 +200,28 @@ ezTransformStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWrite
   {
     desc.m_sSurfaceResource = pProp->m_sSurface;
     desc.m_fStaticColliderRadius = pProp->m_fStaticColliderRadius;
-    desc.m_fUniformScaling = pProp->m_fUniformScaling;
-    desc.m_fLodDistanceScale = pProp->m_fLodDistanceScale;
+    desc.m_fUniformScaling = 1.0f;   // TODO pProp->m_fUniformScaling;
+    desc.m_fLodDistanceScale = 1.0f; // TODO pProp->m_fLodDistanceScale;
     desc.m_GoodRandomSeeds = pProp->m_GoodRandomSeeds;
     desc.m_uiDefaultDisplaySeed = pProp->m_uiRandomSeedForDisplay;
     desc.m_fTreeStiffness = pProp->m_fTreeStiffness;
+    desc.m_fMinAmbientOcclusion = pProp->m_fMinAmbientOcclusion;
 
-    if (desc.Serialize(stream).Failed())
+    if (desc.Serialize(ref_stream).Failed())
     {
       return ezStatus("Writing KrautGenerator resource descriptor failed.");
     }
   }
 
-  SyncBackAssetProperties(pProp, desc);
+  return ezStatus(EZ_SUCCESS);
+}
+
+ezTransformStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream, ezStringView sOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+{
+  if (WriteKrautAsset(stream).Failed())
+  {
+    return ezStatus("Writing KrautGenerator resource descriptor failed.");
+  }
 
   return ezStatus(EZ_SUCCESS);
 }

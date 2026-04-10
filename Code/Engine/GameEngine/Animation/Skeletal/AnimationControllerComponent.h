@@ -22,6 +22,7 @@ public:
 
 private:
   void Update(const ezWorldModule::UpdateContext& context);
+  void ApplyRootMotion(const ezWorldModule::UpdateContext& context);
   void ResourceEvent(const ezResourceEvent& e);
 
   ezDeque<ezComponentHandle> m_ComponentsToReset;
@@ -72,6 +73,7 @@ public:
 
 protected:
   void Update();
+  void ApplyRootMotion();
 
   ezEnum<ezRootMotionMode> m_RootMotionMode;
 
@@ -80,4 +82,7 @@ protected:
   ezAnimPoseGenerator m_PoseGenerator;
 
   ezTime m_ElapsedTimeSinceUpdate = ezTime::MakeZero();
+
+  ezVec3 m_vPendingTranslation = ezVec3::MakeZero();
+  ezAngle m_PendingRotationX, m_PendingRotationY, m_PendingRotationZ;
 };

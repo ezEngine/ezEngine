@@ -11,7 +11,10 @@ class EZ_RENDERERCORE_DLL ezLightRenderData : public ezRenderData
   EZ_ADD_DYNAMIC_REFLECTION(ezLightRenderData, ezRenderData);
 
 public:
-  void FillBatchIdAndSortingKey(float fScreenSpaceSize);
+  static constexpr ezUInt32 s_uiBaseSortingKey = 0x10000;
+
+  virtual bool CanBatch(const ezRenderData& other) const override;
+  void FillSortingKey(float fScreenSpaceSize);
   void FillShadowDataOffsetAndFadeOut(ezUInt32 uiDataOffset, float fFadeOut);
 
   ezColorLinearUB m_LightColor;

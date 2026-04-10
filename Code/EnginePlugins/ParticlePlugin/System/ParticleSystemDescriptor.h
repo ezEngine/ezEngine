@@ -51,7 +51,7 @@ public:
   //////////////////////////////////////////////////////////////////////////
 
   void Save(ezStreamWriter& inout_stream) const;
-  void Load(ezStreamReader& inout_stream);
+  void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor);
 
 private:
   void ClearEmitters();

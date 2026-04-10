@@ -2,14 +2,119 @@
 
 Kraut Tree;Kraut Tree;;https://ezengine.net/pages/docs/terrain/kraut-overview.html
 
-# Component Types
+GoodRandomSeeds;Good Random Seeds
+ezKrautBranchTypeMode::Regular;Regular
+ezKrautBranchTypeMode::Umbrella;Umbrella
+ezKrautBranchTargetDir::Straight;Straight
+ezKrautBranchTargetDir::Upwards;Upwards
+ezKrautBranchTargetDir::Degree22;22.5 Degree
+ezKrautBranchTargetDir::Degree45;45 Degree
+ezKrautBranchTargetDir::Degree67;67.5 Degree
+ezKrautBranchTargetDir::Degree90; 90 Degree
+ezKrautBranchTargetDir::Degree112;112.5 Degree
+ezKrautBranchTargetDir::Degree135;135 Degree
+ezKrautBranchTargetDir::Degree157;157.5 Degree
+ezKrautBranchTargetDir::Downwards;Downwards
+ezKrautBranchTargetDir2Usage::Off;Off
+ezKrautBranchTargetDir2Usage::Relative;Relative
+ezKrautBranchTargetDir2Usage::Absolute;Absolute
+ezKrautLeafOrientation::Upwards;Upwards
+ezKrautLeafOrientation::AlongBranch;Along Branch
+ezKrautLeafOrientation::OrthogonalToBranch;Orthogonal To Branch
+ezKrautFrondContourMode::Full;Full
+ezKrautFrondContourMode::Symetric;Symetric
+ezKrautFrondContourMode::InverseSymetric;Inverse Symetric
 
-ezKrautTreeComponent;Kraut Tree;;https://ezengine.net/pages/docs/terrain/kraut-overview.html
+Kraut.Wind.Menu;Wind
+Kraut.Wind.Off;No Wind
+Kraut.Wind.Light;Gentle Breeze
+Kraut.Wind.Moderate;Moderate Wind
+Kraut.Wind.Strong;Storm
 
-# Enums
-
-ezKrautAssetMaterial;Material
+Kraut.ToggleFrondsLeaves;Display Fronds and Leaves
 
 # Properties
 
-ezKrautTreeAssetProperties::LodDistanceScale;LOD Distance Scale
+GrowSubBranchType1;Grow Sub-Branch Type 1
+GrowSubBranchType2;Grow Sub-Branch Type 2
+GrowSubBranchType3;Grow Sub-Branch Type 3
+
+ezKrautAssetBranchType::SegmentLength;Branch Segment Length;How long one segment of a branch of this type is (in full detail, before LODs are generated).\n\nThe segment length influences how detailed the tree can grow. Branches can only change their direction once per segment. That means the more segments there are, the more often a branch can change its direction. So for very short branches (like twigs) the segment length should be short.However the number of segments also influences how much processing time is needed to generate a tree, and how detailed the tree is before the LOD computations take place. A tree with fewer segments can usually be edited with a better framerate and the generated meshes might be smaller (although that depends on the LOD settings and the actual curvature of the tree).In general it is not recommended to change this setting unless you want to have branches be more winding than the predefined segment length allows. In that case slightly reduce the segment length until satisfied.
+ezKrautAssetBranchType::BranchType;Branch Type
+ezKrautAssetBranchType::BranchlessPartABS;Branchless Part at Start;An absolute distance from the beginning of the branch, in which no sub-branches are spawned.\n\nYou can also use the "Lower Usage Range" to prevent branches in a certain range.
+ezKrautAssetBranchType::BranchlessPartEndABS;Branchless Part at End;An absolute distance from the end of the branch, in which no sub-branches are spawned.\n\nYou can also use the "Upper Usage Range" to prevent branches in a certain range.
+ezKrautAssetBranchType::LowerBound;Lower Usage Range;These two sliders define in which range along the parent branch a branch may be spawned, at all.\n\nBy default the range is 0 to 1 meaning the branch type may be spawned all over the parent branch without restrictions.\n\nHowever, by setting the "Lower Usage Range" to 0.5 branches of this type may only be spawned in the second half of the parent branch.\n\nConversely, setting the "Upper Usage Range" to 0.5 instead, would mean that branches of this type may only be spawned in the first half of the parent branch.
+ezKrautAssetBranchType::UpperBound;Upper Usage Range;These two sliders define in which range along the parent branch a branch may be spawned, at all.\n\nBy default the range is 0 to 1 meaning the branch type may be spawned all over the parent branch without restrictions.\n\nHowever, by setting the "Lower Usage Range" to 0.5 branches of this type may only be spawned in the second half of the parent branch.\n\nConversely, setting the "Upper Usage Range" to 0.5 instead, would mean that branches of this type may only be spawned in the first half of the parent branch.
+ezKrautAssetBranchType::MinBranchThickness;Min Branch Thickness;The branch's thickness is between 'Min Branch Thickness' and 'Max Branch Thickness'.\n\nIf a branch is supposed to be spawned on another branch, the thickness of that parent branch is evaluated at the spawn position.\nIf that thickness is lower than the thickness of the about-to-be-spawned branch, no branch is spawned.\n\nThat means a branch will never be spawned on a too thin parent branch.
+ezKrautAssetBranchType::MaxBranchThickness;Max Branch Thickness;The branch's thickness is between 'Min Branch Thickness' and 'Max Branch Thickness'.\n\nIf a branch is supposed to be spawned on another branch, the thickness of that parent branch is evaluated at the spawn position.\nIf that thickness is lower than the thickness of the about-to-be-spawned branch, no branch is spawned.\n\nThat means a branch will never be spawned on a too thin parent branch.
+ezKrautAssetBranchType::MinBranchesPerNode;Min Branches Per Node;How many branches to always spawn from a branch node (unless other factors prevent it).
+ezKrautAssetBranchType::MaxBranchesPerNode;Max Branches Per Node;How many branches at most to spawn from each branch node.
+ezKrautAssetBranchType::NodeSpacingBefore;Space Before Spawn Nodes;The amount of free space before a branch node of this type.\nThis allows to ensure that the branches which are spawned from the branch node will have enough room below them to not intersect with other branches.
+ezKrautAssetBranchType::NodeSpacingAfter;Space After Spawn Nodes;The amount of free space after a branch node of this type.\nThis allows to ensure that the branches which are spawned from the branch node will have enough room above them to not intersect with other branches.
+ezKrautAssetBranchType::NodeHeight;Spawn Node Height;Across a "branch node" branches are spawned. The height of that node determines over how much area those spawned branches will be distributed.\n\nA branch node of height zero will spawn all branches at the same position. A branch node of height 50cm, with min and max branches per node of 4, will spawn one branch roughly every 10 cm.
+ezKrautAssetBranchType::MaxRotationalDeviation;Rotational Deviation;Describes how much the spawned branches may deviate from their designated starting direction.\n\nWith a Rotational Deviation of zero, all branches will be equally distributed. For example, a branch node that spawns 4 branches will have a 90 degree angle between each one of them. The maximum possible Rotational Deviation for a branch depends on the number of spawned branches in one branch node. With one branch spawned from a branch node, that branch may deviate up to 180 degree (into both directions). With 4 branches spawned from a node, a branch may only deviate by up to 90 degree.\n\nThe slider always represents the 0 to 180 degree range. Thus the upper range of the slider won't have any effect, if many branches are spawned from one node.
+ezKrautAssetBranchType::BranchAngle;Branch Angle;The up/down angle at which the branch will be spawned (relative to its parent). An angle of 90 degree means it's spawned exactly orthogonal to its parent branch.
+ezKrautAssetBranchType::MaxBranchAngleDeviation;Branch Angle Deviation;How much the Branch Angle may deviate (into both up and down direction).
+ezKrautAssetBranchType::TargetDirection;First Target Direction;The overall target direction into which the branch grows from the start.\n\n"Straight" means it will continue into the direction in which it was spawned.
+ezKrautAssetBranchType::TargetDirRelative;Dir Relative to Parent;If this is not checked, the target direction is relative to the ground.\nIe. 0 degree means towards the sky, and 180 degree means towards the ground.\n90 degree means orthogonal to the ground.\n\nIf this is checked, the target direction is relative to the parent branch (if there is one).\nIn this case 0 degree means it will grow into the same direction as the parent branch grew at the position where the child was spawned.\n90 degree means, it will grow orthogonal to the parent and 180 degree means it will grow in the opposite direction.
+ezKrautAssetBranchType::TargetDir2Usage;Second Direction Mode;The mode for the second target direction:\n\n"Off" means it is not used and the "First Target Direction" is always used.\n"Relative" means along some fraction of the branch, the target direction will switch to the second.\n"Absolute" means after some absolute branch length, the target direction will switch to the second.\n\nUse the slider to control the relative or absolute distance.
+ezKrautAssetBranchType::TargetDir2Offset;Second Direction Offset;Controls at which absolute or relative distance along the branch, the target direction is switched to the second, unless the "Second Direction Mode" is set to "off".
+ezKrautAssetBranchType::TargetDirection2;Second Target Direction;The overall target direction into which the branch grows after its length has reached the threshold.\n"Straight" means it will continue into the direction in which it was spawned.
+ezKrautAssetBranchType::MaxTargetDirDeviation;Target Direction Deviation;When a branch is spawned it gets a target direction assigned into which it always tries to grow (upwards, downwards, etc.).\n\nThis setting describes how many degrees from that base target direction the branches final target direction may deviate.\nIf this is set to zero, all branches will try to grow into exactly the same direction.\nThe higher this setting, the more the branches will grow into different directions.
+ezKrautAssetBranchType::MinBranchLength;Min Branch Length;The minimum length of branches of this type.
+ezKrautAssetBranchType::MaxBranchLength;Max Branch Length;The maximum length of branches of this type.
+ezKrautAssetBranchType::MaxBranchLengthParentScale;Max Branch Length Scale;This curve influences the length of this type of branch along its parent branch.\n\nYou can use this curve to form the shape of a tree's crown. E.g. let branches grow longer at the top and shorter at the bottom.
+ezKrautAssetBranchType::TargetDirDeviation;Grow Direction Deviation;How many degrees a branch may deviate from its target direction.\n\nIf set to zero, the branch will grow absolutely straight.\n\nThe higher it is set, the more twisting the branch will be.\n\nThe effect of this setting also depends strongly on the "Direction Change per Segment".
+ezKrautAssetBranchType::DirChangePerSegment;Direction Change Per Segment;Specifies how many degrees per segment the branch may change its direction (towards its current target direction).\n\nIf set to zero, the branch will be absolutely straight (because it cannot change its direction, at all).\n\nThe higher the value the faster the branch will reach its current target direction and then get a new target direction, making it more twisting.\n\nThe effect of this setting strongly depends on the "Grow Direction Deviation".
+ezKrautAssetBranchType::OnlyGrowUpAndDown;Only Grow Up And Down;If checked, a branch will only grow upwards and downwards, but never sideways.\n\nThis is particularly useful for branches which shall represent large leaves, such as palm tree leaves.\nIt will look as if the branch is mainly influenced by gravity.
+ezKrautAssetBranchType::EnableMesh;Enable Mesh;If checked, the branch will have a mesh for the branch itself. If unchecked, no mesh is generated. This is mostly useful if a branch shall only consist of fronds.
+ezKrautAssetBranchType::BranchMaterial;Branch Material;
+ezKrautAssetBranchType::BranchContour;Thickness;With "Min Branch Thickness" and "Max Branch Thickness" the thickness of the branch is specified.\n\nThis curve allows to additionally modify the thickness of the branch mesh along the branch.\n\nThe exact thickness along the branch will influence where sub-branches can be spawned. If the branch is too thin at some position for the designated sub-branch type, no branches will be spawned there.
+ezKrautAssetBranchType::Roundness;Roundness;Specifies how round or pointy the tip of the branch will be. This also influences the branch thickness.\n\nIf the branch is extremely pointy, the entire branch will become thinner and thinner along its length.\n\nIf it is extremely round, however, it will not reduce its thickness along the branch, but will be entirely round at the tip.
+ezKrautAssetBranchType::Flares;Flares;Flares can be used to simulate roots and bulges along the branch. They move along the branch and can optionally rotate around it.\n\nThis setting defines how many flares modify the branch. Usually one would use 4 to 6 flares (or none).
+ezKrautAssetBranchType::FlareWidth;Flare Width;This setting describes how wide the flares will be, relative to the branches thickness. E.g. a width of '2' means the flares can become twice as thick as the branch is.
+ezKrautAssetBranchType::FlareWidthCurve;Flare Width Curve;This curve scales the flare width along the branch. For example you can simulate strong roots at the trunk start by having very wide flares that are scaled back shortly after the tree start.
+ezKrautAssetBranchType::FlareRotation;Flare Rotation;Determines how much the flares rotate along the branch.
+ezKrautAssetBranchType::RotateTexCoords;Rotate Texture Coordinates;If checked, texture coordinates will be rotated together with the flares. Otherwise the flares will rotate, but the texture coordinates stay as if there were no flares.
+ezKrautAssetBranchType::EnableFronds;Enable Fronds;If checked, fronds will be generated along the branch. Fronds can be used to represent single leaves or entire leafcards. The latter make it easy to add lots of detail to a tree with as few polygons as possible, as all the detail is in the texture.
+ezKrautAssetBranchType::FrondMaterial;Frond Material;
+ezKrautAssetBranchType::TextureRepeat;Texture Repeat;Specifies at which interval to repeat the frond texture.\n\nThis is an absolute distance value, e.g. "1.0" means the texture is repeated every meter.\n"2.0" means it is repeated every two meters, thus stretching it stronger.\nA value of 0.0 means that the texture will not be repeated, at all, and instead will stretch across the entire branch.
+ezKrautAssetBranchType::FrondUpOrientation;Up Orientation;Defines into which direction the fronds will be oriented.\n\nUp: The fronds will always point upwards (if possible).\nAlongBranch: If a branch has a parent branch, the fronds will orient into the grow direction of the parent branch.\nOrthogonalToBranch: Same as AlongBranch, just rotated by 90 degree.
+ezKrautAssetBranchType::FrondOrientationDeviation;Rotational Deviation;How much each frond may deviate from its designated rotation around the branch.
+ezKrautAssetBranchType::NumFronds;Num Fronds;How many fronds around the branch will be spawned.\n\nFor leaves usually one frond is enough. For other details 2 or 3 fronds might be useful.\nFor a cactus one might want to use 8 or more fronds to represent the spikes.
+ezKrautAssetBranchType::AlignFrondsOnSurface;Align to Surface;
+ezKrautAssetBranchType::FrondDetail;Frond Detail;How often the frond mesh will be subdivided.\n\nThe more it is sub-divided the more detailed contours are possible.\nFor simple leaves a frond detail of 0 will do. For palm tree fronds more detail is necessary.
+ezKrautAssetBranchType::FrondContour;Frond Contour;The contour describes the cross-section shape of the frond. The curve allows to paint this cross-section in detail.
+ezKrautAssetBranchType::FrondContourMode;Contour Mode;"Full Contour" means the contour-curve describes the complete cross-section.\n"Mirrored" means the curve only describes half the contour (on one side of the branch), on the other side the mirrored shape is used.\n"Mirrored inverted" is similar to "Mirrored" but the contour will also be flipped.
+ezKrautAssetBranchType::FrondHeight;Contour Scale;How prominent the contour will be.\n\nThe slider allows to set the general scale of the contour, the curve allows to modify it along the branch. Both values are multiplied to determine the contour scale at a specifc point along the branch.
+ezKrautAssetBranchType::FrondHeightScale;Contour Scale Curve;How prominent the contour will be.\n\nThe slider allows to set the general scale of the contour, the curve allows to modify it along the branch. Both values are multiplied to determine the contour scale at a specifc point along the branch.
+ezKrautAssetBranchType::FrondWidth;Frond Width;How wide the frond will be.\n\nThe slider allows to set a general width.\nThe curve allows to specify the width factor along the branch.\nBoth will be multiplied to determine the width at a specific point along the branch.
+ezKrautAssetBranchType::FrondWidthScale;Frond Width Curve;How wide the frond will be.\n\nThe slider allows to set a general width.\nThe curve allows to specify the width factor along the branch.\nBoth will be multiplied to determine the width at a specific point along the branch.
+ezKrautAssetBranchType::FrondVariationColor;Frond Variation Color;The Variation Color is a color that the fronds may use instead of the diffuse color of their texture. Each frond has a random value how much it uses the texture color or the Variation Color. Thus each frond will look slightly different.\n\nThe Variation Color can be used to create brighter or darker variations of a leaf by selecting white or black.\n\nBy selecting roughly the color that the diffuse texture uses (e.g. green) slight variations of that color can be generated.\n\nBy selecting an entirely different color (e.g. red, when the diffuse texture is green) one can generate trees that look as if they are about to change their color (ie. for autumn).\n\nThe Variation Color is NOT meant to entirely change the trees color. Modify the texture instead for such changes.
+ezKrautAssetBranchType::EnableLeaves;Enable Leaves;If enabled, along the branch billboards are placed that rotate towards the viewer.\n\nThese billboard leaves allow to create a tree that looks very dense, without the need for lots of polygons.
+ezKrautAssetBranchType::LeafMaterial;Leaf Material;
+ezKrautAssetBranchType::BillboardLeaves;Billboard Leaves;
+ezKrautAssetBranchType::LeafSize;Leaf Size;How large the leaves will be.\n\nThe spin box sets the overall size. The curve allows to scale this value along the branch.
+ezKrautAssetBranchType::LeafScale;Leaf Size Curve;How large the leaves will be.\n\nThe spin box sets the overall size. The curve allows to scale this value along the branch.
+ezKrautAssetBranchType::LeafInterval;Interval Length;At what interval the leaves are placed.\n\nA value of zero means that only a single billboard is placed at the tip of the branch.
+ezKrautAssetBranchType::LeafVariationColor;Leaf Variation Color;The Variation Color is a color that the leaves may use instead of the diffuse color of their texture. Each leaf has a random value how much it uses the texture color or the Variation Color. Thus each leaf will look slightly different.\n\nThe Variation Color can be used to create brighter or darker variations of a leaf by selecting white or black.\n\nBy selecting roughly the color that the diffuse texture uses (e.g. green) slight variations of that color can be generated.\n\nBy selecting an entirely different color (e.g. red, when the diffuse texture is green) one can generate trees that look as if they are about to change their color (ie. for autumn).\n\nThe Variation Color is NOT meant to entirely change the trees color. Modify the texture instead for such changes.
+
+ezKrautTreeAssetProperties::MinAmbientOcclusion;Min Ambient Occlusion; AO values get clamped to this.\n\nSet to 1 to disable vertex AO on the tree entirely.\nDisabling AO also speeds up tree generation time.
+ezKrautTreeAssetProperties::StaticColliderRadius;Static Collider Radius;The radius of the collider object that is placed at the tree's location.
+ezKrautTreeAssetProperties::TreeStiffness;Tree Stiffness;How stiffly the tree reacts to wind.
+ezKrautTreeAssetProperties::Surface;Surface;The surface to use for the collider object.
+ezKrautTreeAssetProperties::DisplayRandomSeed;Display Random Seed;The random seed used for editing. Change it to find good random seeds.
+ezKrautTreeAssetProperties::GoodRandomSeeds;Good Random Seeds;A list of random seeds that produce good results. Add a handful (not to many) to produce variety in game.
+
+ezKrautAssetLod::Mode;Representation;Specifies whether this LOD will either be\n- a proper mesh\n- an impostor consisting of four quads\n- an impostor consisting of two quads\n- an impostor that is one billboard quad (always facing the viewer).
+ezKrautAssetLod::TipDetail;Tip Detail Threshold;At which threshold to reduce the number of polygons that are used to represent the branch tips.\nThe lower this value, the rounder the branch tips will be.
+ezKrautAssetLod::CurvatureThreshold;Curvature Threshold;The curvature threshold is the most important setting to reduce the number of polygons.\nIt describes how close the tree skeleton should be to its full-detail representation.\nThe higher this value the more the skeleton can be reduced.\nIncreasing this value will make the tree lose roundness but can also drastically reduce the number of polygons.
+ezKrautAssetLod::ThicknessThreshold;Thickness Threshold;The thickness threshold is especially important on branches which have a varying contour.\n\nIt describes how close the shape of the branch should be to its full-detail representation.\nThe higher this value, the fewer detail is used to represent the branch shape.\n\nThis setting has only minimal effect on branches that have only simple branch contours.\n\nThis setting and the Curvature Threshold can sometimes interfer as BOTH thresholds must be crossed before the mesh will be simplyfied.\nThus setting a very low Curvature Threshold could mean that the Thickness Threshold seems to have no effect, as the mesh won't be simplified due to that restriction already.
+ezKrautAssetLod::VertexRingDetail;Ring Detail Threshold;The threshold used to reduce the detail of the branch mesh around its skeleton.\n\nThe lower this value, the smoother the mesh will be.\nThe higher this value the more it will look like a trianglular shape.\n\nThis value can drastically influence the overall number of triangles.
+ezKrautAssetLod::AllowBranch;Allow Branch Meshes for;Uncheck this to disable the generation of this type of mesh in this LOD level.
+ezKrautAssetLod::AllowFrond;Allow Fronds on;Uncheck this to disable the generation of this type of mesh in this LOD level.
+ezKrautAssetLod::AllowLeaf;Allow Leaves on;Uncheck this to disable the generation of this type of mesh in this LOD level.
+ezKrautAssetLod::MaxFrondDetail;Max Frond Detail;The maximum detail value for a frond in this LOD.
+ezKrautAssetLod::FrondDetailReduction;Frond Detail Reduction;How much the frond detail will be reduced in this LOD, before it is clamped to MaxFrondDetail.
+ezKrautAssetLod::LodDistance;Use LOD up to Distance;This value specifies at what distance this LOD will be used.\nAt lower distances more detailed LODs are used (unless this is already LOD 0).
+ezKrautAssetLod::BranchSpikeTipMode;Branch Spike Tip Mode;

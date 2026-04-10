@@ -491,6 +491,26 @@ void ezDecalManager::OnEngineShutdown()
 // static
 void ezDecalManager::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
 {
+  if (e.m_Type == ezRenderWorldExtractionEvent::Type::BeginExtraction)
+  {
+    if (s_pData->m_RuntimeAtlas.IsInitialized() &&
+        (cvar_RenderingDecalsDynamicAtlasSize.HasDelayedSyncValueChanged() ||
+          s_uiLastConfigModification != ezGameApplicationBase::GetGameApplicationBaseInstance()->GetPlatformProfile().GetLastModificationCounter()))
+    {
+      EZ_LOCK(s_pData->m_Mutex);
+
+      s_pData->m_RuntimeAtlas.Deinitialize();
+
+      for (auto& decalInfo : s_pData->m_DecalInfos)
+      {
+        decalInfo.m_atlasAllocationId.Invalidate();
+        decalInfo.m_NextUpdateTime = ezTime::MakeFromHours(-1);
+      }
+
+      s_pData->EnsureResourceCreated();
+    }
+  }
+
   if (e.m_Type != ezRenderWorldExtractionEvent::Type::EndExtraction)
     return;
 
@@ -584,14 +604,6 @@ void ezDecalManager::OnRenderEvent(const ezRenderWorldRenderEvent& e)
 {
   if (e.m_Type != ezRenderWorldRenderEvent::Type::BeginRender)
     return;
-
-  if (s_pData->m_RuntimeAtlas.IsInitialized() &&
-      (cvar_RenderingDecalsDynamicAtlasSize.HasDelayedSyncValueChanged() ||
-        s_uiLastConfigModification != ezGameApplicationBase::GetGameApplicationBaseInstance()->GetPlatformProfile().GetLastModificationCounter()))
-  {
-    OnEngineShutdown();
-    OnEngineStartup();
-  }
 
   if (s_pData->m_RuntimeAtlas.IsInitialized() == false || s_pData->m_hPlaneMeshBuffer.IsValid() == false)
     return;

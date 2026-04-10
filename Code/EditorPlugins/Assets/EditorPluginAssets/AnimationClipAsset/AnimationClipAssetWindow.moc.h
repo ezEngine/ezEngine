@@ -4,6 +4,7 @@
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorPluginAssets/AnimationClipAsset/AnimationClipAsset.h>
 #include <Foundation/Time/Clock.h>
+#include <GuiFoundation/Widgets/Curve1DEditorWidget.moc.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
 class ezQtOrbitCamViewWidget;
@@ -30,6 +31,7 @@ protected:
 
   virtual void CommonAssetUiEventHandler(const ezCommonAssetUiState& e) override;
   void CommandHistoryEventHandler(const ezCommandHistoryEvent& e);
+  virtual void OnAfterDocumentLayoutRestored() override;
 
 protected Q_SLOTS:
   void OnScrubberPosChangedEvent(ezUInt64 uiNewScrubberTickPos);
@@ -44,10 +46,28 @@ protected Q_SLOTS:
   void onEventTrackBeginCpChanges(QString name);
   void onEventTrackEndCpChanges();
 
+  //////////////////////////////////////////////////////////////////////////
+  // Curve editor events
+  void onCurveInsertCpAt(ezUInt32 uiCurveIdx, ezInt64 tickX, double newPosY);
+  void onCurveCpMoved(ezUInt32 curveIdx, ezUInt32 cpIdx, ezInt64 iTickX, double newPosY);
+  void onCurveCpDeleted(ezUInt32 curveIdx, ezUInt32 cpIdx);
+  void onCurveTangentMoved(ezUInt32 curveIdx, ezUInt32 cpIdx, float newPosX, float newPosY, bool rightTangent);
+  void onLinkCurveTangents(ezUInt32 curveIdx, ezUInt32 cpIdx, bool bLink);
+  void onCurveTangentModeChanged(ezUInt32 curveIdx, ezUInt32 cpIdx, bool rightTangent, int mode);
+
+  void onCurveBeginOperation(QString name);
+  void onCurveEndOperation(bool commit);
+  void onCurveBeginCpChanges(QString name);
+  void onCurveEndCpChanges();
+
+  //////////////////////////////////////////////////////////////////////////
+  void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
+
 private:
   void SendRedrawMsg();
   void QueryObjectBBox(ezInt32 iPurpose = 0);
   void UpdateEventTrackEditor();
+  void UpdateCurveEditor();
 
   ezClock m_Clock;
   ezEngineViewConfig m_ViewConfig;
@@ -58,4 +78,8 @@ private:
 
   ezQtDocumentPanel* m_pEventTrackPanel = nullptr;
   ezQtEventTrackEditorWidget* m_pEventTrackEditor = nullptr;
+
+  ezQtDocumentPanel* m_pCurveEditPanel = nullptr;
+  ezQtCurve1DEditorWidget* m_pCurveEditor = nullptr;
+  ezCurveGroupData m_Curves;
 };

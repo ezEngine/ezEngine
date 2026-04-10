@@ -18,6 +18,13 @@ target_link_libraries(${PROJECT_NAME}
   VisualScriptPlugin  
 )
 
+if (EZ_3RDPARTY_KRAUT_SUPPORT)
+  target_link_libraries(${PROJECT_NAME}
+    PUBLIC
+    KrautPlugin
+  )
+endif()
+
 if (EZ_3RDPARTY_ANGELSCRIPT_SUPPORT)
   target_link_libraries(${PROJECT_NAME}
     PUBLIC

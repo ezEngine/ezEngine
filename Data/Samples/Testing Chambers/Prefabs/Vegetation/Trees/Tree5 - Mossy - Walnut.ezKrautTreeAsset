@@ -9,12 +9,9 @@ o
 	p
 	{
 		s %AssetType{"Kraut Tree"}
-		VarArray %Dependencies
-		{
-			s{"Vegetation/Tree5.tree"}
-		}
+		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{16242289591921312934,5331298968656744613}}
-		u4 %Hash{8230775705889964448}
+		u4 %Hash{6857665287397820167}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -25,7 +22,6 @@ o
 		}
 		VarArray %References
 		{
-			s{"Vegetation/Tree5.tree"}
 			s{"{ 45f33bd1-4aa2-4d7e-87c3-339f0d5aa733 }"}
 			s{"{ 578e295e-813e-4937-8de6-cf32f008988c }"}
 		}
@@ -35,6 +31,320 @@ o
 }
 Objects
 {
+o
+{
+	Uuid %id{u4{9342278728185448634,262242486165029216}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{13585533661713056875,318517425319174764}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{9786251947214333085,486950143337800120}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{13242696080746741877,501610456691290628}}
+	s %t{"ezKrautAssetLod"}
+	u3 %v{1}
+	p
+	{
+		s %AllowBranch{"ezKrautTreeTypeBits::Trunk1|ezKrautTreeTypeBits::Trunk2|ezKrautTreeTypeBits::Trunk3|ezKrautTreeTypeBits::MainBranches1|ezKrautTreeTypeBits::MainBranches2|ezKrautTreeTypeBits::MainBranches3|ezKrautTreeTypeBits::SubBranches1|ezKrautTreeTypeBits::SubBranches2|ezKrautTreeTypeBits::SubBranches3|ezKrautTreeTypeBits::Twigs1|ezKrautTreeTypeBits::Twigs2|ezKrautTreeTypeBits::Twigs3"}
+		s %AllowFrond{"ezKrautTreeTypeBits::Trunk1|ezKrautTreeTypeBits::Trunk2|ezKrautTreeTypeBits::Trunk3|ezKrautTreeTypeBits::MainBranches1|ezKrautTreeTypeBits::MainBranches2|ezKrautTreeTypeBits::MainBranches3|ezKrautTreeTypeBits::SubBranches1|ezKrautTreeTypeBits::SubBranches2|ezKrautTreeTypeBits::SubBranches3|ezKrautTreeTypeBits::Twigs1|ezKrautTreeTypeBits::Twigs2|ezKrautTreeTypeBits::Twigs3"}
+		s %AllowLeaf{"ezKrautTreeTypeBits::Trunk1|ezKrautTreeTypeBits::Trunk2|ezKrautTreeTypeBits::Trunk3|ezKrautTreeTypeBits::MainBranches1|ezKrautTreeTypeBits::MainBranches2|ezKrautTreeTypeBits::MainBranches3|ezKrautTreeTypeBits::SubBranches1|ezKrautTreeTypeBits::SubBranches2|ezKrautTreeTypeBits::SubBranches3|ezKrautTreeTypeBits::Twigs1|ezKrautTreeTypeBits::Twigs2|ezKrautTreeTypeBits::Twigs3"}
+		s %BranchSpikeTipMode{"ezKrautBranchSpikeTipMode::FullDetail"}
+		f %CurvatureThreshold{0x00000040}
+		i1 %FrondDetailReduction{0}
+		u3 %LodDistance{10}
+		i1 %MaxFrondDetail{32}
+		s %Mode{"ezKrautLodMode::Full"}
+		f %ThicknessThreshold{0xCDCC4C3D}
+		f %TipDetail{0x0AD7233D}
+		f %VertexRingDetail{0xCDCC4C3E}
+	}
+}
+o
+{
+	Uuid %id{u4{6789509098609010787,560407666242400621}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{2424208613552694232,728701787343811962}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{9583638698191395104,1192856440625044210}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{9548793540716863661,1326764603631194262}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{11664884653378816407,1424432846035259522}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{17890625208873418301,2079646568531718455}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{12531437405158926626,2332434940366832786}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{15410293997206919047,2490514944246588419}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{18202242910859285997,2761821478959296293}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{7983685193159358861,3341174742547500474}}
+	s %t{"ezKrautAssetBranchType"}
+	u3 %v{1}
+	p
+	{
+		b %AlignFrondsOnSurface{0}
+		b %BillboardLeaves{1}
+		Angle %BranchAngle{f{0xDB0FC93F}}
+		Uuid %BranchContour{u4{4290546150859244109,16458196439921773123}}
+		s %BranchMaterial{""}
+		s %BranchType{"ezKrautBranchTypeMode::Regular"}
+		f %BranchlessPartABS{0}
+		f %BranchlessPartEndABS{0}
+		Angle %DirChangePerSegment{f{0xC2B8B23D}}
+		b %EnableFronds{0}
+		b %EnableLeaves{0}
+		b %EnableMesh{1}
+		Angle %FlareRotation{f{0}}
+		f %FlareWidth{0x00000040}
+		Uuid %FlareWidthCurve{u4{5479575639188563399,13512025867615965383}}
+		u1 %Flares{0}
+		Uuid %FrondContour{u4{2577100110496956413,17211108562999224290}}
+		s %FrondContourMode{"ezKrautFrondContourMode::Full"}
+		u1 %FrondDetail{1}
+		f %FrondHeight{0x0000003F}
+		Uuid %FrondHeightScale{u4{12531437405158926626,2332434940366832786}}
+		s %FrondMaterial{""}
+		Angle %FrondOrientationDeviation{f{0}}
+		s %FrondUpOrientation{"ezKrautLeafOrientation::AlongBranch"}
+		f %FrondWidth{0x0000003F}
+		Uuid %FrondWidthScale{u4{5838592051915032254,13675282361177480520}}
+		b %GrowSubBranchType1{1}
+		b %GrowSubBranchType2{1}
+		b %GrowSubBranchType3{1}
+		f %LeafInterval{0}
+		s %LeafMaterial{""}
+		Uuid %LeafScale{u4{14742848722294793226,5937228184809832886}}
+		f %LeafSize{0x0000803E}
+		u1 %LowerBound{0}
+		Angle %MaxBranchAngleDeviation{f{0}}
+		u2 %MaxBranchLength{100}
+		Uuid %MaxBranchLengthParentScale{u4{7433965500040479869,10089111593925592780}}
+		u2 %MaxBranchThickness{20}
+		u1 %MaxBranchesPerNode{4}
+		Angle %MaxRotationalDeviation{f{0}}
+		Angle %MaxTargetDirDeviation{f{0}}
+		u2 %MinBranchLength{100}
+		u2 %MinBranchThickness{20}
+		u1 %MinBranchesPerNode{4}
+		f %NodeHeight{0}
+		f %NodeSpacingAfter{0}
+		f %NodeSpacingBefore{0x0000003F}
+		u1 %NumFronds{1}
+		b %OnlyGrowUpAndDown{0}
+		b %RotateTexCoords{1}
+		f %Roundness{0x0000003F}
+		u1 %SegmentLength{1}
+		f %TargetDir2Offset{0x00002040}
+		s %TargetDir2Usage{"ezKrautBranchTargetDir2Usage::Off"}
+		Angle %TargetDirDeviation{f{0}}
+		b %TargetDirRelative{0}
+		s %TargetDirection{"ezKrautBranchTargetDir::Straight"}
+		s %TargetDirection2{"ezKrautBranchTargetDir::Upwards"}
+		f %TextureRepeat{0}
+		u1 %UpperBound{100}
+	}
+}
+o
+{
+	Uuid %id{u4{7493404585895720727,3353870903070251613}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{17923260657973594981,3497833744555944038}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{6305762129383803980,3522176755854165878}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{10731215773554536888,3597036362228315065}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{10309479828937699245,3738997504153271068}}
+	s %t{"ezKrautAssetLod"}
+	u3 %v{1}
+	p
+	{
+		s %AllowBranch{"ezKrautTreeTypeBits::Trunk1|ezKrautTreeTypeBits::Trunk2|ezKrautTreeTypeBits::Trunk3|ezKrautTreeTypeBits::MainBranches1|ezKrautTreeTypeBits::MainBranches2|ezKrautTreeTypeBits::MainBranches3|ezKrautTreeTypeBits::SubBranches1|ezKrautTreeTypeBits::SubBranches2|ezKrautTreeTypeBits::SubBranches3|ezKrautTreeTypeBits::Twigs1|ezKrautTreeTypeBits::Twigs2|ezKrautTreeTypeBits::Twigs3"}
+		s %AllowFrond{"ezKrautTreeTypeBits::Trunk1|ezKrautTreeTypeBits::Trunk2|ezKrautTreeTypeBits::Trunk3|ezKrautTreeTypeBits::MainBranches1|ezKrautTreeTypeBits::MainBranches2|ezKrautTreeTypeBits::MainBranches3|ezKrautTreeTypeBits::SubBranches1|ezKrautTreeTypeBits::SubBranches2|ezKrautTreeTypeBits::SubBranches3|ezKrautTreeTypeBits::Twigs1|ezKrautTreeTypeBits::Twigs2|ezKrautTreeTypeBits::Twigs3"}
+		s %AllowLeaf{"ezKrautTreeTypeBits::Trunk1|ezKrautTreeTypeBits::Trunk2|ezKrautTreeTypeBits::Trunk3|ezKrautTreeTypeBits::MainBranches1|ezKrautTreeTypeBits::MainBranches2|ezKrautTreeTypeBits::MainBranches3|ezKrautTreeTypeBits::SubBranches1|ezKrautTreeTypeBits::SubBranches2|ezKrautTreeTypeBits::SubBranches3|ezKrautTreeTypeBits::Twigs1|ezKrautTreeTypeBits::Twigs2|ezKrautTreeTypeBits::Twigs3"}
+		s %BranchSpikeTipMode{"ezKrautBranchSpikeTipMode::FullDetail"}
+		f %CurvatureThreshold{0x0000A041}
+		i1 %FrondDetailReduction{4}
+		u3 %LodDistance{1000}
+		i1 %MaxFrondDetail{0}
+		s %Mode{"ezKrautLodMode::Disabled"}
+		f %ThicknessThreshold{0x0000803E}
+		f %TipDetail{0xCDCCCC3E}
+		f %VertexRingDetail{0x0000803F}
+	}
+}
+o
+{
+	Uuid %id{u4{278693699604784305,4186525138253483441}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{4381926462356883623,4638966850669836367}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{0}
+		d %Value{0x000000000000F03F}
+	}
+}
 o
 {
 	Uuid %id{u4{440031702117033133,4871387950543216427}}
@@ -70,6 +380,22 @@ o
 }
 o
 {
+	Uuid %id{u4{12945585214238515641,5249910796143413205}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{4800}
+		d %Value{0}
+	}
+}
+o
+{
 	Uuid %id{u4{4391832461624850561,5280164604799923266}}
 	s %t{"ezKrautAssetMaterial"}
 	u3 %v{1}
@@ -92,12 +418,60 @@ o
 }
 o
 {
+	Uuid %id{u4{5939224850279573725,5364039097053218214}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{15664567461692710789,5454947294819750202}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{1280}
+		d %Value{0xA3FF8F46FAF2D23F}
+	}
+}
+o
+{
+	Uuid %id{u4{8471878041071215352,5513290233583702442}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
 	Uuid %id{u4{6509414412785266872,5518905210127120117}}
 	s %t{"ezKrautTreeAssetProperties"}
 	u3 %v{1}
 	p
 	{
-		u2 %DisplayRandomSeed{10}
+		Uuid %BT_MainBranch1{u4{8421195580479395614,15687071368155550690}}
+		Uuid %BT_MainBranch2{u4{4384174454355860514,11930055964071265441}}
+		Uuid %BT_MainBranch3{u4{9004028097079478135,7762348638987765899}}
+		Uuid %BT_SubBranch1{u4{2303992485140356907,17915545773902362274}}
+		Uuid %BT_SubBranch2{u4{11464918225672764525,16018355967535163164}}
+		Uuid %BT_SubBranch3{u4{16741657337874288459,8369343583829976470}}
+		Uuid %BT_Trunk1{u4{17579021226875438799,12102058799168557158}}
+		Uuid %BT_Twig1{u4{14075599591168082730,16618037496970390811}}
+		Uuid %BT_Twig2{u4{7983685193159358861,3341174742547500474}}
+		Uuid %BT_Twig3{u4{4461213255498269050,17002270866978246344}}
+		u2 %DisplayRandomSeed{7}
 		VarArray %GoodRandomSeeds
 		{
 			u2{10}
@@ -108,8 +482,11 @@ o
 			u2{17}
 			u2{31}
 		}
-		s %KrautFile{"Vegetation/Tree5.tree"}
-		f %LodDistanceScale{0x00008040}
+		Uuid %LOD0{u4{13242696080746741877,501610456691290628}}
+		Uuid %LOD1{u4{5569689236187783533,12942232950969957781}}
+		Uuid %LOD2{u4{7443165033559826697,13688684243856393500}}
+		Uuid %LOD3{u4{18100995824219816015,16829077523520086199}}
+		Uuid %LOD4{u4{10309479828937699245,3738997504153271068}}
 		VarArray %Materials
 		{
 			Uuid{u4{9980473252024396221,5330160200626627343}}
@@ -118,10 +495,54 @@ o
 			Uuid{u4{5101323386866554807,5138982381412055676}}
 			Uuid{u4{440031702117033133,4871387950543216427}}
 		}
+		f %MinAmbientOcclusion{0x3333333F}
 		f %StaticColliderRadius{0x9A99193F}
 		s %Surface{"{ ccd32963-93f9-401c-95d1-bf4e491a2df3 }"}
 		f %TreeStiffness{0x00007041}
-		f %UniformScaling{0x0000803F}
+	}
+}
+o
+{
+	Uuid %id{u4{8507910615555998925,5928139370801676579}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{14742848722294793226,5937228184809832886}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{408712018539152403,6035482999470291723}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{3907796768803117015,6085499865358024120}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
 	}
 }
 o
@@ -136,6 +557,1212 @@ o
 		{
 			Uuid{u4{6509414412785266872,5518905210127120117}}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{1638429670671320277,6462089785652339309}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{13880848382851207548,6647864823111585931}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{3612381441777592521,6712634303268038043}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints
+		{
+			Uuid{u4{4381926462356883623,4638966850669836367}}
+			Uuid{u4{12945585214238515641,5249910796143413205}}
+			Uuid{u4{15664567461692710789,5454947294819750202}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{9320066104516658650,7328532426340634465}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{9004028097079478135,7762348638987765899}}
+	s %t{"ezKrautAssetBranchType"}
+	u3 %v{1}
+	p
+	{
+		b %AlignFrondsOnSurface{0}
+		b %BillboardLeaves{1}
+		Angle %BranchAngle{f{0xDB0FC93F}}
+		Uuid %BranchContour{u4{10826550618647907083,13832585346250763087}}
+		s %BranchMaterial{""}
+		s %BranchType{"ezKrautBranchTypeMode::Regular"}
+		f %BranchlessPartABS{0}
+		f %BranchlessPartEndABS{0}
+		Angle %DirChangePerSegment{f{0xC2B8B23D}}
+		b %EnableFronds{0}
+		b %EnableLeaves{0}
+		b %EnableMesh{1}
+		Angle %FlareRotation{f{0}}
+		f %FlareWidth{0x00000040}
+		Uuid %FlareWidthCurve{u4{11387021893583314988,8276160339353131498}}
+		u1 %Flares{0}
+		Uuid %FrondContour{u4{4800884937102324322,12037345476608736895}}
+		s %FrondContourMode{"ezKrautFrondContourMode::Full"}
+		u1 %FrondDetail{1}
+		f %FrondHeight{0x0000003F}
+		Uuid %FrondHeightScale{u4{18202242910859285997,2761821478959296293}}
+		s %FrondMaterial{""}
+		Angle %FrondOrientationDeviation{f{0}}
+		s %FrondUpOrientation{"ezKrautLeafOrientation::AlongBranch"}
+		f %FrondWidth{0x0000003F}
+		Uuid %FrondWidthScale{u4{9342278728185448634,262242486165029216}}
+		b %GrowSubBranchType1{0}
+		b %GrowSubBranchType2{1}
+		b %GrowSubBranchType3{1}
+		f %LeafInterval{0}
+		s %LeafMaterial{""}
+		Uuid %LeafScale{u4{6789509098609010787,560407666242400621}}
+		f %LeafSize{0x0000803E}
+		u1 %LowerBound{0}
+		Angle %MaxBranchAngleDeviation{f{0}}
+		u2 %MaxBranchLength{100}
+		Uuid %MaxBranchLengthParentScale{u4{9244581165433459825,12514586656207971584}}
+		u2 %MaxBranchThickness{20}
+		u1 %MaxBranchesPerNode{4}
+		Angle %MaxRotationalDeviation{f{0}}
+		Angle %MaxTargetDirDeviation{f{0}}
+		u2 %MinBranchLength{100}
+		u2 %MinBranchThickness{20}
+		u1 %MinBranchesPerNode{4}
+		f %NodeHeight{0}
+		f %NodeSpacingAfter{0}
+		f %NodeSpacingBefore{0x0000003F}
+		u1 %NumFronds{1}
+		b %OnlyGrowUpAndDown{0}
+		b %RotateTexCoords{1}
+		f %Roundness{0x0000003F}
+		u1 %SegmentLength{5}
+		f %TargetDir2Offset{0x00002040}
+		s %TargetDir2Usage{"ezKrautBranchTargetDir2Usage::Off"}
+		Angle %TargetDirDeviation{f{0}}
+		b %TargetDirRelative{0}
+		s %TargetDirection{"ezKrautBranchTargetDir::Straight"}
+		s %TargetDirection2{"ezKrautBranchTargetDir::Upwards"}
+		f %TextureRepeat{0}
+		u1 %UpperBound{100}
+	}
+}
+o
+{
+	Uuid %id{u4{227226844453317955,8091834930820341651}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{1159679288228999620,8145959858301771565}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{9535858657750163078,8160581853281237177}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{11387021893583314988,8276160339353131498}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{4785920097005122061,8305856128197319695}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{16741657337874288459,8369343583829976470}}
+	s %t{"ezKrautAssetBranchType"}
+	u3 %v{1}
+	p
+	{
+		b %AlignFrondsOnSurface{0}
+		b %BillboardLeaves{1}
+		Angle %BranchAngle{f{0xDB0FC93F}}
+		Uuid %BranchContour{u4{3907796768803117015,6085499865358024120}}
+		s %BranchMaterial{""}
+		s %BranchType{"ezKrautBranchTypeMode::Regular"}
+		f %BranchlessPartABS{0}
+		f %BranchlessPartEndABS{0}
+		Angle %DirChangePerSegment{f{0xC2B8B23D}}
+		b %EnableFronds{0}
+		b %EnableLeaves{0}
+		b %EnableMesh{1}
+		Angle %FlareRotation{f{0}}
+		f %FlareWidth{0x00000040}
+		Uuid %FlareWidthCurve{u4{7191856913296877124,16208143515308984596}}
+		u1 %Flares{0}
+		Uuid %FrondContour{u4{16008470139886547492,14335433822181273060}}
+		s %FrondContourMode{"ezKrautFrondContourMode::Full"}
+		u1 %FrondDetail{1}
+		f %FrondHeight{0x0000003F}
+		Uuid %FrondHeightScale{u4{12280624285669968548,11997754442423011538}}
+		s %FrondMaterial{""}
+		Angle %FrondOrientationDeviation{f{0}}
+		s %FrondUpOrientation{"ezKrautLeafOrientation::AlongBranch"}
+		f %FrondWidth{0x0000003F}
+		Uuid %FrondWidthScale{u4{15410293997206919047,2490514944246588419}}
+		b %GrowSubBranchType1{1}
+		b %GrowSubBranchType2{1}
+		b %GrowSubBranchType3{1}
+		f %LeafInterval{0}
+		s %LeafMaterial{""}
+		Uuid %LeafScale{u4{10731215773554536888,3597036362228315065}}
+		f %LeafSize{0x0000803E}
+		u1 %LowerBound{0}
+		Angle %MaxBranchAngleDeviation{f{0}}
+		u2 %MaxBranchLength{100}
+		Uuid %MaxBranchLengthParentScale{u4{17923260657973594981,3497833744555944038}}
+		u2 %MaxBranchThickness{20}
+		u1 %MaxBranchesPerNode{4}
+		Angle %MaxRotationalDeviation{f{0}}
+		Angle %MaxTargetDirDeviation{f{0}}
+		u2 %MinBranchLength{100}
+		u2 %MinBranchThickness{20}
+		u1 %MinBranchesPerNode{4}
+		f %NodeHeight{0}
+		f %NodeSpacingAfter{0}
+		f %NodeSpacingBefore{0x0000003F}
+		u1 %NumFronds{1}
+		b %OnlyGrowUpAndDown{0}
+		b %RotateTexCoords{1}
+		f %Roundness{0x0000003F}
+		u1 %SegmentLength{2}
+		f %TargetDir2Offset{0x00002040}
+		s %TargetDir2Usage{"ezKrautBranchTargetDir2Usage::Off"}
+		Angle %TargetDirDeviation{f{0}}
+		b %TargetDirRelative{0}
+		s %TargetDirection{"ezKrautBranchTargetDir::Straight"}
+		s %TargetDirection2{"ezKrautBranchTargetDir::Upwards"}
+		f %TextureRepeat{0}
+		u1 %UpperBound{100}
+	}
+}
+o
+{
+	Uuid %id{u4{1477434319610869425,8548903236523449164}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{15734516551073085428,9075806133039112597}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{12408322485554044718,9342816036895728623}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{561501041830086280,9467254727596495014}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{7613582741759919022,9486014572103947829}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{146309017381873401,9684890869424776549}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{369635406331461997,9762071962998288713}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{7433965500040479869,10089111593925592780}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{10208230209260676463,10515592649772241980}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{3014224387916577677,11160495929956838377}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{8216252067482092228,11231143960635543783}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{10311040919925790259,11313712284277689505}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{4384174454355860514,11930055964071265441}}
+	s %t{"ezKrautAssetBranchType"}
+	u3 %v{1}
+	p
+	{
+		b %AlignFrondsOnSurface{0}
+		b %BillboardLeaves{1}
+		Angle %BranchAngle{f{0xDB0FC93F}}
+		Uuid %BranchContour{u4{9786251947214333085,486950143337800120}}
+		s %BranchMaterial{""}
+		s %BranchType{"ezKrautBranchTypeMode::Regular"}
+		f %BranchlessPartABS{0}
+		f %BranchlessPartEndABS{0}
+		Angle %DirChangePerSegment{f{0xC2B8B23D}}
+		b %EnableFronds{0}
+		b %EnableLeaves{0}
+		b %EnableMesh{1}
+		Angle %FlareRotation{f{0}}
+		f %FlareWidth{0x00000040}
+		Uuid %FlareWidthCurve{u4{3563553435147049020,17233743467314908446}}
+		u1 %Flares{0}
+		Uuid %FrondContour{u4{13228935613877066383,18057468615603309171}}
+		s %FrondContourMode{"ezKrautFrondContourMode::Full"}
+		u1 %FrondDetail{1}
+		f %FrondHeight{0x0000003F}
+		Uuid %FrondHeightScale{u4{408712018539152403,6035482999470291723}}
+		s %FrondMaterial{""}
+		Angle %FrondOrientationDeviation{f{0}}
+		s %FrondUpOrientation{"ezKrautLeafOrientation::AlongBranch"}
+		f %FrondWidth{0x0000003F}
+		Uuid %FrondWidthScale{u4{9609731107358334124,17328151321786341761}}
+		b %GrowSubBranchType1{0}
+		b %GrowSubBranchType2{1}
+		b %GrowSubBranchType3{1}
+		f %LeafInterval{0}
+		s %LeafMaterial{""}
+		Uuid %LeafScale{u4{5939224850279573725,5364039097053218214}}
+		f %LeafSize{0x0000803E}
+		u1 %LowerBound{0}
+		Angle %MaxBranchAngleDeviation{f{0}}
+		u2 %MaxBranchLength{100}
+		Uuid %MaxBranchLengthParentScale{u4{9584125228226474340,12568714031085474663}}
+		u2 %MaxBranchThickness{20}
+		u1 %MaxBranchesPerNode{4}
+		Angle %MaxRotationalDeviation{f{0}}
+		Angle %MaxTargetDirDeviation{f{0}}
+		u2 %MinBranchLength{100}
+		u2 %MinBranchThickness{20}
+		u1 %MinBranchesPerNode{4}
+		f %NodeHeight{0}
+		f %NodeSpacingAfter{0}
+		f %NodeSpacingBefore{0x0000003F}
+		u1 %NumFronds{1}
+		b %OnlyGrowUpAndDown{0}
+		b %RotateTexCoords{1}
+		f %Roundness{0x0000003F}
+		u1 %SegmentLength{5}
+		f %TargetDir2Offset{0x00002040}
+		s %TargetDir2Usage{"ezKrautBranchTargetDir2Usage::Off"}
+		Angle %TargetDirDeviation{f{0}}
+		b %TargetDirRelative{0}
+		s %TargetDirection{"ezKrautBranchTargetDir::Straight"}
+		s %TargetDirection2{"ezKrautBranchTargetDir::Upwards"}
+		f %TextureRepeat{0}
+		u1 %UpperBound{100}
+	}
+}
+o
+{
+	Uuid %id{u4{17529032048189770043,11988662512131812672}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{12280624285669968548,11997754442423011538}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{4800884937102324322,12037345476608736895}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{13597869549691794632,12046246154587317362}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{17579021226875438799,12102058799168557158}}
+	s %t{"ezKrautAssetBranchType"}
+	u3 %v{1}
+	p
+	{
+		b %AlignFrondsOnSurface{0}
+		b %BillboardLeaves{1}
+		Angle %BranchAngle{f{0xDB0FC93F}}
+		Uuid %BranchContour{u4{6305762129383803980,3522176755854165878}}
+		s %BranchMaterial{"{ 578e295e-813e-4937-8de6-cf32f008988c }"}
+		s %BranchType{"ezKrautBranchTypeMode::Regular"}
+		f %BranchlessPartABS{0}
+		f %BranchlessPartEndABS{0}
+		Angle %DirChangePerSegment{f{0xC2B8B23D}}
+		b %EnableFronds{0}
+		b %EnableLeaves{0}
+		b %EnableMesh{1}
+		Angle %FlareRotation{f{0xC2B8B23E}}
+		f %FlareWidth{0x33333340}
+		Uuid %FlareWidthCurve{u4{3612381441777592521,6712634303268038043}}
+		u1 %Flares{5}
+		Uuid %FrondContour{u4{1159679288228999620,8145959858301771565}}
+		s %FrondContourMode{"ezKrautFrondContourMode::Full"}
+		u1 %FrondDetail{1}
+		f %FrondHeight{0x0000003F}
+		Uuid %FrondHeightScale{u4{3108517300147186911,12270674696167178060}}
+		s %FrondMaterial{""}
+		Angle %FrondOrientationDeviation{f{0}}
+		s %FrondUpOrientation{"ezKrautLeafOrientation::AlongBranch"}
+		f %FrondWidth{0x0000003F}
+		Uuid %FrondWidthScale{u4{9583638698191395104,1192856440625044210}}
+		b %GrowSubBranchType1{1}
+		b %GrowSubBranchType2{0}
+		b %GrowSubBranchType3{0}
+		f %LeafInterval{0}
+		s %LeafMaterial{""}
+		Uuid %LeafScale{u4{12408322485554044718,9342816036895728623}}
+		f %LeafSize{0x0000803E}
+		u1 %LowerBound{0}
+		Angle %MaxBranchAngleDeviation{f{0}}
+		u2 %MaxBranchLength{500}
+		Uuid %MaxBranchLengthParentScale{u4{7613582741759919022,9486014572103947829}}
+		u2 %MaxBranchThickness{100}
+		u1 %MaxBranchesPerNode{1}
+		Angle %MaxRotationalDeviation{f{0}}
+		Angle %MaxTargetDirDeviation{f{0x7CD9203E}}
+		u2 %MinBranchLength{500}
+		u2 %MinBranchThickness{100}
+		u1 %MinBranchesPerNode{1}
+		f %NodeHeight{0}
+		f %NodeSpacingAfter{0}
+		f %NodeSpacingBefore{0x0000003F}
+		u1 %NumFronds{1}
+		b %OnlyGrowUpAndDown{0}
+		b %RotateTexCoords{1}
+		f %Roundness{0x0000003F}
+		u1 %SegmentLength{5}
+		f %TargetDir2Offset{0x00002040}
+		s %TargetDir2Usage{"ezKrautBranchTargetDir2Usage::Off"}
+		Angle %TargetDirDeviation{f{0x35FA8E3E}}
+		b %TargetDirRelative{0}
+		s %TargetDirection{"ezKrautBranchTargetDir::Straight"}
+		s %TargetDirection2{"ezKrautBranchTargetDir::Upwards"}
+		f %TextureRepeat{0}
+		u1 %UpperBound{100}
+	}
+}
+o
+{
+	Uuid %id{u4{3108517300147186911,12270674696167178060}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{14183257545795731664,12459869815503518902}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{9244581165433459825,12514586656207971584}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{9584125228226474340,12568714031085474663}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{5569689236187783533,12942232950969957781}}
+	s %t{"ezKrautAssetLod"}
+	u3 %v{1}
+	p
+	{
+		s %AllowBranch{"ezKrautTreeTypeBits::Trunk1|ezKrautTreeTypeBits::Trunk2|ezKrautTreeTypeBits::Trunk3|ezKrautTreeTypeBits::MainBranches1|ezKrautTreeTypeBits::MainBranches2|ezKrautTreeTypeBits::MainBranches3|ezKrautTreeTypeBits::SubBranches1|ezKrautTreeTypeBits::SubBranches2|ezKrautTreeTypeBits::SubBranches3|ezKrautTreeTypeBits::Twigs1|ezKrautTreeTypeBits::Twigs2|ezKrautTreeTypeBits::Twigs3"}
+		s %AllowFrond{"ezKrautTreeTypeBits::Trunk1|ezKrautTreeTypeBits::Trunk2|ezKrautTreeTypeBits::Trunk3|ezKrautTreeTypeBits::MainBranches1|ezKrautTreeTypeBits::MainBranches2|ezKrautTreeTypeBits::MainBranches3|ezKrautTreeTypeBits::SubBranches1|ezKrautTreeTypeBits::SubBranches2|ezKrautTreeTypeBits::SubBranches3|ezKrautTreeTypeBits::Twigs1|ezKrautTreeTypeBits::Twigs2|ezKrautTreeTypeBits::Twigs3"}
+		s %AllowLeaf{"ezKrautTreeTypeBits::Trunk1|ezKrautTreeTypeBits::Trunk2|ezKrautTreeTypeBits::Trunk3|ezKrautTreeTypeBits::MainBranches1|ezKrautTreeTypeBits::MainBranches2|ezKrautTreeTypeBits::MainBranches3|ezKrautTreeTypeBits::SubBranches1|ezKrautTreeTypeBits::SubBranches2|ezKrautTreeTypeBits::SubBranches3|ezKrautTreeTypeBits::Twigs1|ezKrautTreeTypeBits::Twigs2|ezKrautTreeTypeBits::Twigs3"}
+		s %BranchSpikeTipMode{"ezKrautBranchSpikeTipMode::FullDetail"}
+		f %CurvatureThreshold{0x0000A040}
+		i1 %FrondDetailReduction{1}
+		u3 %LodDistance{20}
+		i1 %MaxFrondDetail{6}
+		s %Mode{"ezKrautLodMode::Full"}
+		f %ThicknessThreshold{0xCDCCCC3D}
+		f %TipDetail{0xCDCCCC3D}
+		f %VertexRingDetail{0xCDCCCC3E}
+	}
+}
+o
+{
+	Uuid %id{u4{5479575639188563399,13512025867615965383}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{5838592051915032254,13675282361177480520}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{7443165033559826697,13688684243856393500}}
+	s %t{"ezKrautAssetLod"}
+	u3 %v{1}
+	p
+	{
+		s %AllowBranch{"ezKrautTreeTypeBits::Trunk1|ezKrautTreeTypeBits::Trunk2|ezKrautTreeTypeBits::Trunk3|ezKrautTreeTypeBits::MainBranches1|ezKrautTreeTypeBits::MainBranches2|ezKrautTreeTypeBits::MainBranches3|ezKrautTreeTypeBits::SubBranches1|ezKrautTreeTypeBits::SubBranches2|ezKrautTreeTypeBits::SubBranches3|ezKrautTreeTypeBits::Twigs1|ezKrautTreeTypeBits::Twigs2|ezKrautTreeTypeBits::Twigs3"}
+		s %AllowFrond{"ezKrautTreeTypeBits::Trunk1|ezKrautTreeTypeBits::Trunk2|ezKrautTreeTypeBits::Trunk3|ezKrautTreeTypeBits::MainBranches1|ezKrautTreeTypeBits::MainBranches2|ezKrautTreeTypeBits::MainBranches3|ezKrautTreeTypeBits::SubBranches1|ezKrautTreeTypeBits::SubBranches2|ezKrautTreeTypeBits::SubBranches3|ezKrautTreeTypeBits::Twigs1|ezKrautTreeTypeBits::Twigs2|ezKrautTreeTypeBits::Twigs3"}
+		s %AllowLeaf{"ezKrautTreeTypeBits::Trunk1|ezKrautTreeTypeBits::Trunk2|ezKrautTreeTypeBits::Trunk3|ezKrautTreeTypeBits::MainBranches1|ezKrautTreeTypeBits::MainBranches2|ezKrautTreeTypeBits::MainBranches3|ezKrautTreeTypeBits::SubBranches1|ezKrautTreeTypeBits::SubBranches2|ezKrautTreeTypeBits::SubBranches3|ezKrautTreeTypeBits::Twigs1|ezKrautTreeTypeBits::Twigs2|ezKrautTreeTypeBits::Twigs3"}
+		s %BranchSpikeTipMode{"ezKrautBranchSpikeTipMode::FullDetail"}
+		f %CurvatureThreshold{0x00002041}
+		i1 %FrondDetailReduction{2}
+		u3 %LodDistance{30}
+		i1 %MaxFrondDetail{4}
+		s %Mode{"ezKrautLodMode::Full"}
+		f %ThicknessThreshold{0x9A99193E}
+		f %TipDetail{0xCDCC4C3E}
+		f %VertexRingDetail{0x9A99193F}
+	}
+}
+o
+{
+	Uuid %id{u4{10826550618647907083,13832585346250763087}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{16008470139886547492,14335433822181273060}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{2028937514523955785,14778805785732252488}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{14229937360556091901,15326117105493686685}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{14927150487818473210,15592053834017416993}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{8421195580479395614,15687071368155550690}}
+	s %t{"ezKrautAssetBranchType"}
+	u3 %v{1}
+	p
+	{
+		b %AlignFrondsOnSurface{0}
+		b %BillboardLeaves{1}
+		Angle %BranchAngle{f{0x0998443F}}
+		Uuid %BranchContour{u4{580701649752590619,16083952379568234429}}
+		s %BranchMaterial{"{ 578e295e-813e-4937-8de6-cf32f008988c }"}
+		s %BranchType{"ezKrautBranchTypeMode::Regular"}
+		f %BranchlessPartABS{0}
+		f %BranchlessPartEndABS{0}
+		Angle %DirChangePerSegment{f{0x35FA8E3D}}
+		b %EnableFronds{0}
+		b %EnableLeaves{1}
+		b %EnableMesh{1}
+		Angle %FlareRotation{f{0}}
+		f %FlareWidth{0x00000040}
+		Uuid %FlareWidthCurve{u4{561501041830086280,9467254727596495014}}
+		u1 %Flares{0}
+		Uuid %FrondContour{u4{17529032048189770043,11988662512131812672}}
+		s %FrondContourMode{"ezKrautFrondContourMode::Full"}
+		u1 %FrondDetail{1}
+		f %FrondHeight{0x0000003F}
+		Uuid %FrondHeightScale{u4{2028937514523955785,14778805785732252488}}
+		s %FrondMaterial{""}
+		Angle %FrondOrientationDeviation{f{0}}
+		s %FrondUpOrientation{"ezKrautLeafOrientation::AlongBranch"}
+		f %FrondWidth{0x0000003F}
+		Uuid %FrondWidthScale{u4{13880848382851207548,6647864823111585931}}
+		b %GrowSubBranchType1{1}
+		b %GrowSubBranchType2{0}
+		b %GrowSubBranchType3{0}
+		f %LeafInterval{0x3333B33F}
+		s %LeafMaterial{"{ 45f33bd1-4aa2-4d7e-87c3-339f0d5aa733 }"}
+		Uuid %LeafScale{u4{17890625208873418301,2079646568531718455}}
+		f %LeafSize{0x6666663F}
+		u1 %LowerBound{62}
+		Angle %MaxBranchAngleDeviation{f{0x9656E83E}}
+		u2 %MaxBranchLength{500}
+		Uuid %MaxBranchLengthParentScale{u4{10208230209260676463,10515592649772241980}}
+		u2 %MaxBranchThickness{40}
+		u1 %MaxBranchesPerNode{6}
+		Angle %MaxRotationalDeviation{f{0xC2B8B23D}}
+		Angle %MaxTargetDirDeviation{f{0}}
+		u2 %MinBranchLength{400}
+		u2 %MinBranchThickness{25}
+		u1 %MinBranchesPerNode{5}
+		f %NodeHeight{0x3333333F}
+		f %NodeSpacingAfter{0}
+		f %NodeSpacingBefore{0x0000003F}
+		u1 %NumFronds{1}
+		b %OnlyGrowUpAndDown{0}
+		b %RotateTexCoords{1}
+		f %Roundness{0xA470BD3E}
+		u1 %SegmentLength{5}
+		f %TargetDir2Offset{0x00002040}
+		s %TargetDir2Usage{"ezKrautBranchTargetDir2Usage::Off"}
+		Angle %TargetDirDeviation{f{0x939D9E3F}}
+		b %TargetDirRelative{0}
+		s %TargetDirection{"ezKrautBranchTargetDir::Straight"}
+		s %TargetDirection2{"ezKrautBranchTargetDir::Upwards"}
+		f %TextureRepeat{0}
+		u1 %UpperBound{100}
+	}
+}
+o
+{
+	Uuid %id{u4{12889120147350531608,15823813175024765578}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{11464918225672764525,16018355967535163164}}
+	s %t{"ezKrautAssetBranchType"}
+	u3 %v{1}
+	p
+	{
+		b %AlignFrondsOnSurface{0}
+		b %BillboardLeaves{1}
+		Angle %BranchAngle{f{0xDB0FC93F}}
+		Uuid %BranchContour{u4{11664884653378816407,1424432846035259522}}
+		s %BranchMaterial{""}
+		s %BranchType{"ezKrautBranchTypeMode::Regular"}
+		f %BranchlessPartABS{0}
+		f %BranchlessPartEndABS{0}
+		Angle %DirChangePerSegment{f{0xC2B8B23D}}
+		b %EnableFronds{0}
+		b %EnableLeaves{0}
+		b %EnableMesh{1}
+		Angle %FlareRotation{f{0}}
+		f %FlareWidth{0x00000040}
+		Uuid %FlareWidthCurve{u4{227226844453317955,8091834930820341651}}
+		u1 %Flares{0}
+		Uuid %FrondContour{u4{15734516551073085428,9075806133039112597}}
+		s %FrondContourMode{"ezKrautFrondContourMode::Full"}
+		u1 %FrondDetail{1}
+		f %FrondHeight{0x0000003F}
+		Uuid %FrondHeightScale{u4{14183257545795731664,12459869815503518902}}
+		s %FrondMaterial{""}
+		Angle %FrondOrientationDeviation{f{0}}
+		s %FrondUpOrientation{"ezKrautLeafOrientation::AlongBranch"}
+		f %FrondWidth{0x0000003F}
+		Uuid %FrondWidthScale{u4{9535858657750163078,8160581853281237177}}
+		b %GrowSubBranchType1{1}
+		b %GrowSubBranchType2{1}
+		b %GrowSubBranchType3{1}
+		f %LeafInterval{0}
+		s %LeafMaterial{""}
+		Uuid %LeafScale{u4{146309017381873401,9684890869424776549}}
+		f %LeafSize{0x0000803E}
+		u1 %LowerBound{0}
+		Angle %MaxBranchAngleDeviation{f{0}}
+		u2 %MaxBranchLength{100}
+		Uuid %MaxBranchLengthParentScale{u4{5942290876583154673,18312326031585138830}}
+		u2 %MaxBranchThickness{20}
+		u1 %MaxBranchesPerNode{4}
+		Angle %MaxRotationalDeviation{f{0}}
+		Angle %MaxTargetDirDeviation{f{0}}
+		u2 %MinBranchLength{100}
+		u2 %MinBranchThickness{20}
+		u1 %MinBranchesPerNode{4}
+		f %NodeHeight{0}
+		f %NodeSpacingAfter{0}
+		f %NodeSpacingBefore{0x0000003F}
+		u1 %NumFronds{1}
+		b %OnlyGrowUpAndDown{0}
+		b %RotateTexCoords{1}
+		f %Roundness{0x0000003F}
+		u1 %SegmentLength{2}
+		f %TargetDir2Offset{0x00002040}
+		s %TargetDir2Usage{"ezKrautBranchTargetDir2Usage::Off"}
+		Angle %TargetDirDeviation{f{0}}
+		b %TargetDirRelative{0}
+		s %TargetDirection{"ezKrautBranchTargetDir::Straight"}
+		s %TargetDirection2{"ezKrautBranchTargetDir::Upwards"}
+		f %TextureRepeat{0}
+		u1 %UpperBound{100}
+	}
+}
+o
+{
+	Uuid %id{u4{580701649752590619,16083952379568234429}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{7191856913296877124,16208143515308984596}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{4290546150859244109,16458196439921773123}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{14075599591168082730,16618037496970390811}}
+	s %t{"ezKrautAssetBranchType"}
+	u3 %v{1}
+	p
+	{
+		b %AlignFrondsOnSurface{0}
+		b %BillboardLeaves{1}
+		Angle %BranchAngle{f{0xDB0FC93F}}
+		Uuid %BranchContour{u4{4785920097005122061,8305856128197319695}}
+		s %BranchMaterial{""}
+		s %BranchType{"ezKrautBranchTypeMode::Regular"}
+		f %BranchlessPartABS{0}
+		f %BranchlessPartEndABS{0}
+		Angle %DirChangePerSegment{f{0xC2B8B23D}}
+		b %EnableFronds{0}
+		b %EnableLeaves{0}
+		b %EnableMesh{1}
+		Angle %FlareRotation{f{0}}
+		f %FlareWidth{0x00000040}
+		Uuid %FlareWidthCurve{u4{10311040919925790259,11313712284277689505}}
+		u1 %Flares{0}
+		Uuid %FrondContour{u4{8471878041071215352,5513290233583702442}}
+		s %FrondContourMode{"ezKrautFrondContourMode::Full"}
+		u1 %FrondDetail{1}
+		f %FrondHeight{0x0000003F}
+		Uuid %FrondHeightScale{u4{1477434319610869425,8548903236523449164}}
+		s %FrondMaterial{""}
+		Angle %FrondOrientationDeviation{f{0}}
+		s %FrondUpOrientation{"ezKrautLeafOrientation::AlongBranch"}
+		f %FrondWidth{0x0000003F}
+		Uuid %FrondWidthScale{u4{1638429670671320277,6462089785652339309}}
+		b %GrowSubBranchType1{1}
+		b %GrowSubBranchType2{1}
+		b %GrowSubBranchType3{1}
+		f %LeafInterval{0}
+		s %LeafMaterial{""}
+		Uuid %LeafScale{u4{1100004975510972884,17184217961752541952}}
+		f %LeafSize{0x0000803E}
+		u1 %LowerBound{0}
+		Angle %MaxBranchAngleDeviation{f{0}}
+		u2 %MaxBranchLength{100}
+		Uuid %MaxBranchLengthParentScale{u4{8507910615555998925,5928139370801676579}}
+		u2 %MaxBranchThickness{20}
+		u1 %MaxBranchesPerNode{4}
+		Angle %MaxRotationalDeviation{f{0}}
+		Angle %MaxTargetDirDeviation{f{0}}
+		u2 %MinBranchLength{100}
+		u2 %MinBranchThickness{20}
+		u1 %MinBranchesPerNode{4}
+		f %NodeHeight{0}
+		f %NodeSpacingAfter{0}
+		f %NodeSpacingBefore{0x0000003F}
+		u1 %NumFronds{1}
+		b %OnlyGrowUpAndDown{0}
+		b %RotateTexCoords{1}
+		f %Roundness{0x0000003F}
+		u1 %SegmentLength{1}
+		f %TargetDir2Offset{0x00002040}
+		s %TargetDir2Usage{"ezKrautBranchTargetDir2Usage::Off"}
+		Angle %TargetDirDeviation{f{0}}
+		b %TargetDirRelative{0}
+		s %TargetDirection{"ezKrautBranchTargetDir::Straight"}
+		s %TargetDirection2{"ezKrautBranchTargetDir::Upwards"}
+		f %TextureRepeat{0}
+		u1 %UpperBound{100}
+	}
+}
+o
+{
+	Uuid %id{u4{18100995824219816015,16829077523520086199}}
+	s %t{"ezKrautAssetLod"}
+	u3 %v{1}
+	p
+	{
+		s %AllowBranch{"ezKrautTreeTypeBits::Trunk1|ezKrautTreeTypeBits::Trunk2|ezKrautTreeTypeBits::Trunk3|ezKrautTreeTypeBits::MainBranches1|ezKrautTreeTypeBits::MainBranches2|ezKrautTreeTypeBits::MainBranches3|ezKrautTreeTypeBits::SubBranches1|ezKrautTreeTypeBits::SubBranches2|ezKrautTreeTypeBits::SubBranches3|ezKrautTreeTypeBits::Twigs1|ezKrautTreeTypeBits::Twigs2|ezKrautTreeTypeBits::Twigs3"}
+		s %AllowFrond{"ezKrautTreeTypeBits::Trunk1|ezKrautTreeTypeBits::Trunk2|ezKrautTreeTypeBits::Trunk3|ezKrautTreeTypeBits::MainBranches1|ezKrautTreeTypeBits::MainBranches2|ezKrautTreeTypeBits::MainBranches3|ezKrautTreeTypeBits::SubBranches1|ezKrautTreeTypeBits::SubBranches2|ezKrautTreeTypeBits::SubBranches3|ezKrautTreeTypeBits::Twigs1|ezKrautTreeTypeBits::Twigs2|ezKrautTreeTypeBits::Twigs3"}
+		s %AllowLeaf{"ezKrautTreeTypeBits::Trunk1|ezKrautTreeTypeBits::Trunk2|ezKrautTreeTypeBits::Trunk3|ezKrautTreeTypeBits::MainBranches1|ezKrautTreeTypeBits::MainBranches2|ezKrautTreeTypeBits::MainBranches3|ezKrautTreeTypeBits::SubBranches1|ezKrautTreeTypeBits::SubBranches2|ezKrautTreeTypeBits::SubBranches3|ezKrautTreeTypeBits::Twigs1|ezKrautTreeTypeBits::Twigs2|ezKrautTreeTypeBits::Twigs3"}
+		s %BranchSpikeTipMode{"ezKrautBranchSpikeTipMode::FullDetail"}
+		f %CurvatureThreshold{0x00007041}
+		i1 %FrondDetailReduction{3}
+		u3 %LodDistance{40}
+		i1 %MaxFrondDetail{2}
+		s %Mode{"ezKrautLodMode::TwoQuads"}
+		f %ThicknessThreshold{0xCDCC4C3E}
+		f %TipDetail{0x9A99993E}
+		f %VertexRingDetail{0xCDCC4C3F}
+	}
+}
+o
+{
+	Uuid %id{u4{4325441790908896317,16885035404539953444}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{4461213255498269050,17002270866978246344}}
+	s %t{"ezKrautAssetBranchType"}
+	u3 %v{1}
+	p
+	{
+		b %AlignFrondsOnSurface{0}
+		b %BillboardLeaves{1}
+		Angle %BranchAngle{f{0xDB0FC93F}}
+		Uuid %BranchContour{u4{13597869549691794632,12046246154587317362}}
+		s %BranchMaterial{""}
+		s %BranchType{"ezKrautBranchTypeMode::Regular"}
+		f %BranchlessPartABS{0}
+		f %BranchlessPartEndABS{0}
+		Angle %DirChangePerSegment{f{0xC2B8B23D}}
+		b %EnableFronds{0}
+		b %EnableLeaves{0}
+		b %EnableMesh{1}
+		Angle %FlareRotation{f{0}}
+		f %FlareWidth{0x00000040}
+		Uuid %FlareWidthCurve{u4{7493404585895720727,3353870903070251613}}
+		u1 %Flares{0}
+		Uuid %FrondContour{u4{14927150487818473210,15592053834017416993}}
+		s %FrondContourMode{"ezKrautFrondContourMode::Full"}
+		u1 %FrondDetail{1}
+		f %FrondHeight{0x0000003F}
+		Uuid %FrondHeightScale{u4{12889120147350531608,15823813175024765578}}
+		s %FrondMaterial{""}
+		Angle %FrondOrientationDeviation{f{0}}
+		s %FrondUpOrientation{"ezKrautLeafOrientation::AlongBranch"}
+		f %FrondWidth{0x0000003F}
+		Uuid %FrondWidthScale{u4{13585533661713056875,318517425319174764}}
+		b %GrowSubBranchType1{1}
+		b %GrowSubBranchType2{1}
+		b %GrowSubBranchType3{1}
+		f %LeafInterval{0}
+		s %LeafMaterial{""}
+		Uuid %LeafScale{u4{369635406331461997,9762071962998288713}}
+		f %LeafSize{0x0000803E}
+		u1 %LowerBound{0}
+		Angle %MaxBranchAngleDeviation{f{0}}
+		u2 %MaxBranchLength{100}
+		Uuid %MaxBranchLengthParentScale{u4{14229937360556091901,15326117105493686685}}
+		u2 %MaxBranchThickness{20}
+		u1 %MaxBranchesPerNode{4}
+		Angle %MaxRotationalDeviation{f{0}}
+		Angle %MaxTargetDirDeviation{f{0}}
+		u2 %MinBranchLength{100}
+		u2 %MinBranchThickness{20}
+		u1 %MinBranchesPerNode{4}
+		f %NodeHeight{0}
+		f %NodeSpacingAfter{0}
+		f %NodeSpacingBefore{0x0000003F}
+		u1 %NumFronds{1}
+		b %OnlyGrowUpAndDown{0}
+		b %RotateTexCoords{1}
+		f %Roundness{0x0000003F}
+		u1 %SegmentLength{1}
+		f %TargetDir2Offset{0x00002040}
+		s %TargetDir2Usage{"ezKrautBranchTargetDir2Usage::Off"}
+		Angle %TargetDirDeviation{f{0}}
+		b %TargetDirRelative{0}
+		s %TargetDirection{"ezKrautBranchTargetDir::Straight"}
+		s %TargetDirection2{"ezKrautBranchTargetDir::Upwards"}
+		f %TextureRepeat{0}
+		u1 %UpperBound{100}
+	}
+}
+o
+{
+	Uuid %id{u4{1100004975510972884,17184217961752541952}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{2577100110496956413,17211108562999224290}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{3563553435147049020,17233743467314908446}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{9609731107358334124,17328151321786341761}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{2303992485140356907,17915545773902362274}}
+	s %t{"ezKrautAssetBranchType"}
+	u3 %v{1}
+	p
+	{
+		b %AlignFrondsOnSurface{0}
+		b %BillboardLeaves{1}
+		Angle %BranchAngle{f{0xDB0FC93F}}
+		Uuid %BranchContour{u4{2424208613552694232,728701787343811962}}
+		s %BranchMaterial{"{ 578e295e-813e-4937-8de6-cf32f008988c }"}
+		s %BranchType{"ezKrautBranchTypeMode::Regular"}
+		f %BranchlessPartABS{0}
+		f %BranchlessPartEndABS{0}
+		Angle %DirChangePerSegment{f{0x9656683E}}
+		b %EnableFronds{0}
+		b %EnableLeaves{1}
+		b %EnableMesh{1}
+		Angle %FlareRotation{f{0}}
+		f %FlareWidth{0x00000040}
+		Uuid %FlareWidthCurve{u4{278693699604784305,4186525138253483441}}
+		u1 %Flares{0}
+		Uuid %FrondContour{u4{9320066104516658650,7328532426340634465}}
+		s %FrondContourMode{"ezKrautFrondContourMode::Full"}
+		u1 %FrondDetail{1}
+		f %FrondHeight{0x0000003F}
+		Uuid %FrondHeightScale{u4{4325441790908896317,16885035404539953444}}
+		s %FrondMaterial{""}
+		Angle %FrondOrientationDeviation{f{0}}
+		s %FrondUpOrientation{"ezKrautLeafOrientation::AlongBranch"}
+		f %FrondWidth{0x0000003F}
+		Uuid %FrondWidthScale{u4{3014224387916577677,11160495929956838377}}
+		b %GrowSubBranchType1{0}
+		b %GrowSubBranchType2{0}
+		b %GrowSubBranchType3{0}
+		f %LeafInterval{0x3333333F}
+		s %LeafMaterial{"{ 45f33bd1-4aa2-4d7e-87c3-339f0d5aa733 }"}
+		Uuid %LeafScale{u4{8216252067482092228,11231143960635543783}}
+		f %LeafSize{0xCDCCCC3E}
+		u1 %LowerBound{21}
+		Angle %MaxBranchAngleDeviation{f{0}}
+		u2 %MaxBranchLength{150}
+		Uuid %MaxBranchLengthParentScale{u4{9548793540716863661,1326764603631194262}}
+		u2 %MaxBranchThickness{15}
+		u1 %MaxBranchesPerNode{4}
+		Angle %MaxRotationalDeviation{f{0}}
+		Angle %MaxTargetDirDeviation{f{0x7CD9203F}}
+		u2 %MinBranchLength{50}
+		u2 %MinBranchThickness{5}
+		u1 %MinBranchesPerNode{1}
+		f %NodeHeight{0x0000003F}
+		f %NodeSpacingAfter{0}
+		f %NodeSpacingBefore{0x0000003F}
+		u1 %NumFronds{1}
+		b %OnlyGrowUpAndDown{0}
+		b %RotateTexCoords{1}
+		f %Roundness{0x0000003F}
+		u1 %SegmentLength{1}
+		f %TargetDir2Offset{0x00002040}
+		s %TargetDir2Usage{"ezKrautBranchTargetDir2Usage::Off"}
+		Angle %TargetDirDeviation{f{0x920A863F}}
+		b %TargetDirRelative{0}
+		s %TargetDirection{"ezKrautBranchTargetDir::Straight"}
+		s %TargetDirection2{"ezKrautBranchTargetDir::Upwards"}
+		f %TextureRepeat{0}
+		u1 %UpperBound{100}
+	}
+}
+o
+{
+	Uuid %id{u4{13228935613877066383,18057468615603309171}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
+	Uuid %id{u4{5942290876583154673,18312326031585138830}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{148,216,45,255}}
+		VarArray %ControlPoints{}
 	}
 }
 }
@@ -160,6 +1787,74 @@ o
 }
 o
 {
+	Uuid %id{u4{12625803461945187175,1486503341408437327}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"ezEditorPluginKraut"}
+		VarArray %Properties{}
+		s %TypeName{"ezKrautAssetBranchType"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{258273565022489733,1710718831938856236}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginKraut"}
+		VarArray %Properties{}
+		s %TypeName{"ezKrautLeafOrientation"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{14722461902623688675,2098269905474166124}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSingleCurveData"}
+		u3 %TypeVersion{3}
+	}
+}
+o
+{
+	Uuid %id{u4{4976983466369834828,2223514201630482789}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezCurveControlPointData"}
+		u3 %TypeVersion{5}
+	}
+}
+o
+{
 	Uuid %id{u4{6793836540827978476,3094957657128336037}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -177,6 +1872,74 @@ o
 }
 o
 {
+	Uuid %id{u4{13216943865831982294,3766144591255929939}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezCurveTangentMode"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{8941752419848928563,4725643617192775025}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginKraut"}
+		VarArray %Properties{}
+		s %TypeName{"ezKrautLodMode"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{11005437603101136476,7368533338987833088}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezBitflagsBase"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{11985952029711397831,8463803327735659630}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginKraut"}
+		VarArray %Properties{}
+		s %TypeName{"ezKrautBranchSpikeTipMode"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{6089094783765586323,8705960867921430659}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -189,6 +1952,125 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{1707640932980782499,9054971359859771217}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Bitflags|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezBitflagsBase"}
+		s %PluginName{"ezEditorPluginKraut"}
+		VarArray %Properties{}
+		s %TypeName{"ezKrautTreeTypeBits"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{16701495889525411078,11381807437965769604}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"ezEditorPluginKraut"}
+		VarArray %Properties{}
+		s %TypeName{"ezKrautAssetLod"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{12729484757798672744,12712731363859926970}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginKraut"}
+		VarArray %Properties{}
+		s %TypeName{"ezKrautBranchTargetDir2Usage"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{5134299467774309416,13596281988143081331}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginKraut"}
+		VarArray %Properties{}
+		s %TypeName{"ezKrautFrondContourMode"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{9888322049947396982,14435486369164980988}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginKraut"}
+		VarArray %Properties{}
+		s %TypeName{"ezKrautBranchTargetDir"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2947336711354777548,15013008608905564043}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEnumBase"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{4985649115921301113,17375153007796215086}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginKraut"}
+		VarArray %Properties{}
+		s %TypeName{"ezKrautBranchTypeMode"}
 		u3 %TypeVersion{1}
 	}
 }

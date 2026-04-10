@@ -14,13 +14,14 @@ o
 			s{"Animations/Pete/Pete.glb"}
 		}
 		Uuid %DocumentID{u4{8943816496716217988,5662064696208493913}}
-		u4 %Hash{11374300244996061916}
+		u4 %Hash{14416492763972787097}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
 		VarArray %References
 		{
 			s{"Animations/Pete/Pete.glb"}
+			s{"{ 83b78284-22ab-43f2-b971-d44a838147f6 }"}
 		}
 		s %Tags{""}
 	}
@@ -30,35 +31,232 @@ Objects
 {
 o
 {
+	Uuid %id{u4{960635555205174686,4631467673414590861}}
+	s %t{"ezEventTrackControlPointData"}
+	u3 %v{1}
+	p
+	{
+		s %Event{"anim-off"}
+		i4 %Tick{12880}
+	}
+}
+o
+{
+	Uuid %id{u4{14276790658065716878,4844822528534806302}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Linear"}
+		i4 %Tick{4080}
+		d %Value{0x000000000000F03F}
+	}
+}
+o
+{
+	Uuid %id{u4{3423148043802708394,4881267599732652907}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{320}
+		d %Value{0}
+	}
+}
+o
+{
+	Uuid %id{u4{6554039374299869841,5001107018548714369}}
+	s %t{"ezAnimationClipCurveData"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Curve{u4{4221230093579111345,9281853881003519472}}
+		s %Name{"AnimData1"}
+	}
+}
+o
+{
+	Uuid %id{u4{8646880604099689106,5023345807530446546}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{4880}
+		d %Value{0x000000000000F03F}
+	}
+}
+o
+{
+	Uuid %id{u4{6490655951902557607,5152191243756043869}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{18880}
+		d %Value{0}
+	}
+}
+o
+{
+	Uuid %id{u4{15001873213987398551,5180037106483046509}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{3600}
+		d %Value{0}
+	}
+}
+o
+{
+	Uuid %id{u4{15821428058533354429,5199443026659831933}}
+	s %t{"ezAnimationClipCurveData"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Curve{u4{4597663892547502678,15693687659777933328}}
+		s %Name{"AnimData2"}
+	}
+}
+o
+{
+	Uuid %id{u4{2670546923805972671,5275168953182830406}}
+	s %t{"ezEventTrackControlPointData"}
+	u3 %v{1}
+	p
+	{
+		s %Event{"anim-on"}
+		i4 %Tick{5120}
+	}
+}
+o
+{
+	Uuid %id{u4{6451924470757511585,5522621512326793527}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{14720}
+		d %Value{0x000000000000F0BF}
+	}
+}
+o
+{
+	Uuid %id{u4{17597747334933201321,5550563293891928027}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{11840}
+		d %Value{0x000000000000F03F}
+	}
+}
+o
+{
+	Uuid %id{u4{15175438290888234401,5634578212857778577}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{16960}
+		d %Value{0}
+	}
+}
+o
+{
+	Uuid %id{u4{9348231767519753108,5673532549346451694}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{7920}
+		d %Value{0x000000000000F0BF}
+	}
+}
+o
+{
+	Uuid %id{u4{13340475625239816083,5763080384651480144}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
+		s %LeftTangentMode{"ezCurveTangentMode::Linear"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
+		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		i4 %Tick{13200}
+		d %Value{0x000000000000F03F}
+	}
+}
+o
+{
 	Uuid %id{u4{809977317834858380,6041188873887102900}}
 	s %t{"ezAnimationClipAssetProperties"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Additive{0}
-		VarArray %AvailableClips
-		{
-			s{"Gun Hold Pose"}
-			s{"Gun Point Pose"}
-			s{"Gun Shoot"}
-			s{"Idle Breath"}
-			s{"Idle_Pose"}
-			s{"Jump"}
-			s{"Rest Pose"}
-			s{"Run"}
-			s{"Step Backwards"}
-			s{"Step Left"}
-			s{"Step Right"}
-			s{"Walk"}
-			s{"Wave"}
-		}
+		s %AdditiveReference{"ezAdditiveAnimationReference::FirstKeyFrame"}
+		f %AdjustScale{0x0000803F}
+		s %BasePreviewAnim{""}
 		Vec3 %ConstantRootMotion{f{0x0000803F,0,0}}
+		VarArray %Curves
+		{
+			Uuid{u4{6554039374299869841,5001107018548714369}}
+			Uuid{u4{15821428058533354429,5199443026659831933}}
+		}
 		Uuid %EventTrack{u4{3303301624724567856,13701934299477078088}}
 		s %File{"Animations/Pete/Pete.glb"}
 		u3 %FirstFrame{0}
 		u3 %NumFrames{0}
 		s %PreviewMesh{"{ 83b78284-22ab-43f2-b971-d44a838147f6 }"}
 		s %RootMotion{"ezRootMotionSource::None"}
+		f %RootMotionDistance{0}
 		s %UseAnimationClip{"Wave"}
 	}
 }
@@ -78,17 +276,142 @@ o
 }
 o
 {
+	Uuid %id{u4{4221230093579111345,9281853881003519472}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{204,93,232,255}}
+		VarArray %ControlPoints
+		{
+			Uuid{u4{3423148043802708394,4881267599732652907}}
+			Uuid{u4{14276790658065716878,4844822528534806302}}
+			Uuid{u4{13340475625239816083,5763080384651480144}}
+			Uuid{u4{6490655951902557607,5152191243756043869}}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{3303301624724567856,13701934299477078088}}
 	s %t{"ezEventTrackData"}
 	u3 %v{3}
 	p
 	{
-		VarArray %ControlPoints{}
+		VarArray %ControlPoints
+		{
+			Uuid{u4{2670546923805972671,5275168953182830406}}
+			Uuid{u4{960635555205174686,4631467673414590861}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{4597663892547502678,15693687659777933328}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{34,184,207,255}}
+		VarArray %ControlPoints
+		{
+			Uuid{u4{8646880604099689106,5023345807530446546}}
+			Uuid{u4{9348231767519753108,5673532549346451694}}
+			Uuid{u4{17597747334933201321,5550563293891928027}}
+			Uuid{u4{15001873213987398551,5180037106483046509}}
+			Uuid{u4{6451924470757511585,5522621512326793527}}
+			Uuid{u4{15175438290888234401,5634578212857778577}}
+		}
 	}
 }
 }
 Types
 {
+o
+{
+	Uuid %id{u4{14722461902623688675,2098269905474166124}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSingleCurveData"}
+		u3 %TypeVersion{3}
+	}
+}
+o
+{
+	Uuid %id{u4{6978840138548522775,2217290670471061858}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"ezAnimationClipCurveData"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{4976983466369834828,2223514201630482789}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezCurveControlPointData"}
+		u3 %TypeVersion{5}
+	}
+}
+o
+{
+	Uuid %id{u4{3552612722790702332,2420538729568060994}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"ezAdditiveAnimationReference"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{13216943865831982294,3766144591255929939}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezCurveTangentMode"}
+		u3 %TypeVersion{1}
+	}
+}
 o
 {
 	Uuid %id{u4{6089094783765586323,8705960867921430659}}
@@ -188,7 +511,7 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezAnimationClipAssetProperties"}
-		u3 %TypeVersion{3}
+		u3 %TypeVersion{4}
 	}
 }
 o

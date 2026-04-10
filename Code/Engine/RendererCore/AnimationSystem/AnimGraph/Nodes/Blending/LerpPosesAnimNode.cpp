@@ -100,9 +100,11 @@ void ezLerpPosesAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphInst
   if (ezMath::Fraction(fIndex) == 0.0f)
   {
     const ezAnimGraphLocalPoseInputPin* pPinToForward = pPins[(ezInt32)ezMath::Trunc(fIndex)];
-    ezAnimGraphPinDataLocalTransforms* pDataToForward = pPinToForward->GetPose(ref_controller, ref_graph);
 
+    // AddPinDataLocalTransforms must come before GetPose: adding to the array may reallocate it,
+    // which would invalidate any pointer previously obtained from it.
     ezAnimGraphPinDataLocalTransforms* pLocalTransforms = ref_controller.AddPinDataLocalTransforms();
+    ezAnimGraphPinDataLocalTransforms* pDataToForward = pPinToForward->GetPose(ref_controller, ref_graph);
     pLocalTransforms->m_CommandID = pDataToForward->m_CommandID;
     pLocalTransforms->m_pWeights = pDataToForward->m_pWeights;
     pLocalTransforms->m_fOverallWeight = pDataToForward->m_fOverallWeight;

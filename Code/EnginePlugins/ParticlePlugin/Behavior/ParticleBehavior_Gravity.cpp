@@ -53,7 +53,7 @@ void ezParticleBehaviorFactory_Gravity::Save(ezStreamWriter& inout_stream) const
   inout_stream << m_fGravityFactor;
 }
 
-void ezParticleBehaviorFactory_Gravity::Load(ezStreamReader& inout_stream)
+void ezParticleBehaviorFactory_Gravity::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
 {
   ezUInt8 uiVersion = 0;
   inout_stream >> uiVersion;

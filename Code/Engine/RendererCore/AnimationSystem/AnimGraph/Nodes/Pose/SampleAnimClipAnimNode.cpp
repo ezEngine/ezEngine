@@ -156,9 +156,12 @@ void ezSampleAnimClipAnimNode::Step(ezAnimController& ref_controller, ezAnimGrap
     }
   }
 
+  const float fPrevNormPos = ezMath::Clamp(tPrevSamplePos.AsFloatInSeconds() * fInvDuration, 0.0f, 1.0f);
+  const float fCurNormPos = ezMath::Clamp(pState->m_PlaybackTime.AsFloatInSeconds() * fInvDuration, 0.0f, 1.0f);
+
   cmd.m_hAnimationClip = clipInfo.m_hClip;
-  cmd.m_fPreviousNormalizedSamplePos = ezMath::Clamp(tPrevSamplePos.AsFloatInSeconds() * fInvDuration, 0.0f, 1.0f);
-  cmd.m_fNormalizedSamplePos = ezMath::Clamp(pState->m_PlaybackTime.AsFloatInSeconds() * fInvDuration, 0.0f, 1.0f);
+  cmd.m_fPreviousNormalizedSamplePos = fPrevNormPos;
+  cmd.m_fNormalizedSamplePos = fCurNormPos;
 
   {
     ezAnimGraphPinDataLocalTransforms* pLocalTransforms = ref_controller.AddPinDataLocalTransforms();
@@ -172,6 +175,14 @@ void ezSampleAnimClipAnimNode::Step(ezAnimController& ref_controller, ezAnimGrap
       pLocalTransforms->m_bUseRootMotion = true;
 
       pLocalTransforms->m_vRootMotion = pAnimClip->GetDescriptor().m_vConstantRootMotion * tDiff.AsFloatInSeconds() * fPlaySpeed * m_fRootMotionAmount;
+    }
+
+    const double fSampleTimeSecs = (double)fCurNormPos * pAnimClip->GetDescriptor().GetDuration().GetSeconds();
+    for (const auto& cc : pAnimClip->GetDescriptor().m_CustomCurves)
+    {
+      auto& cv = pLocalTransforms->m_CustomCurveValues.ExpandAndGetRef();
+      cv.m_sName = cc.m_sName;
+      cv.m_fValue = static_cast<float>(cc.m_Curve.Evaluate(fSampleTimeSecs));
     }
 
     m_OutPose.SetPose(ref_graph, pLocalTransforms);

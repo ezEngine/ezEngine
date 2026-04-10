@@ -60,6 +60,8 @@ void ezTransparentForwardRenderPass::Execute(const ezRenderViewContext& renderVi
     ezBindGroupBuilder& bindGroupRenderPass = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);
     bindGroupRenderPass.BindTexture("SceneColor", hSceneColor);
     bindGroupRenderPass.BindSampler("SceneColorSampler", m_hSceneColorSamplerState);
+    bindGroupRenderPass.BindTexture("SSAOTexture", m_hWhiteTexture, ezResourceAcquireMode::BlockTillLoaded);
+    bindGroupRenderPass.BindTexture("ShadowMasksTexture", m_hWhiteTexture, ezResourceAcquireMode::BlockTillLoaded);
 
     RenderObjects(renderViewContext);
 

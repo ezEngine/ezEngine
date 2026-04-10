@@ -5,7 +5,9 @@
 #include <Core/Utils/Blackboard.h>
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Containers/HashTable.h>
+#include <Foundation/Containers/SmallArray.h>
 #include <Foundation/Memory/AllocatorWrapper.h>
+#include <Foundation/Strings/HashedString.h>
 #include <Foundation/Types/Delegate.h>
 #include <Foundation/Types/SharedPtr.h>
 #include <Foundation/Types/UniquePtr.h>
@@ -30,6 +32,13 @@ struct ezAnimGraphPinDataBoneWeights
   const ezAnimGraphSharedBoneWeights* m_pSharedBoneWeights = nullptr;
 };
 
+/// A single named float value sampled from a custom curve in an animation clip.
+struct ezAnimGraphCustomCurveData
+{
+  ezHashedString m_sName;
+  float m_fValue = 0.0f;
+};
+
 /// Runtime data for local pose pins, containing bone transforms in local space (relative to parent).
 ///
 /// Local poses are the output of pose sampling and blending nodes before forward kinematics is applied.
@@ -41,6 +50,7 @@ struct ezAnimGraphPinDataLocalTransforms
   float m_fOverallWeight = 1.0f;
   ezVec3 m_vRootMotion = ezVec3::MakeZero();
   bool m_bUseRootMotion = false;
+  ezSmallArray<ezAnimGraphCustomCurveData, 2> m_CustomCurveValues;
 };
 
 /// Runtime data for model pose pins, containing bone transforms in model space (relative to skeleton root).
@@ -180,7 +190,7 @@ private:
   ezAnimPoseGenerator* m_pPoseGenerator = nullptr;
   ezSharedPtr<ezBlackboard> m_pBlackboard = nullptr;
 
-  ezHybridArray<ezUInt32, 8> m_CurrentLocalTransformOutputs;
+  ezSmallArray<ezUInt32, 8> m_CurrentLocalTransformOutputs;
 
   static ezMutex s_SharedDataMutex;
   static ezHashTable<ezString, ezSharedPtr<ezAnimGraphSharedBoneWeights>> s_SharedBoneWeights;
@@ -191,7 +201,7 @@ private:
     ezUniquePtr<ezAnimGraphInstance> m_pInstance;
   };
 
-  ezHybridArray<GraphInstance, 2> m_Instances;
+  ezSmallArray<GraphInstance, 2> m_Instances;
 
   AnimClipInfo m_InvalidClipInfo;
   ezHashTable<ezHashedString, AnimClipInfo> m_AnimationClipMapping;
@@ -208,7 +218,18 @@ private:
   friend class ezAnimGraphBoolInputPin;
   friend class ezAnimGraphBoolOutputPin;
 
-  ezHybridArray<ezAnimGraphPinDataBoneWeights, 4> m_PinDataBoneWeights;
-  ezHybridArray<ezAnimGraphPinDataLocalTransforms, 4> m_PinDataLocalTransforms;
-  ezHybridArray<ezAnimGraphPinDataModelTransforms, 2> m_PinDataModelTransforms;
+  ezSmallArray<ezAnimGraphPinDataBoneWeights, 4> m_PinDataBoneWeights;
+  ezSmallArray<ezAnimGraphPinDataLocalTransforms, 4> m_PinDataLocalTransforms;
+  ezSmallArray<ezAnimGraphPinDataModelTransforms, 2> m_PinDataModelTransforms;
+
+  /// Accumulates weighted custom curve samples across all active pins for a single named curve.
+  struct FinalCurveValue
+  {
+    ezHashedString m_sName;
+    float m_fWeightedSum = 0.0f; ///< Sum of (value * pinWeight) across all contributing pins.
+    float m_fTotalWeight = 0.0f; ///< Sum of pin weights. Divide m_fWeightedSum by this to get the weighted average.
+    float m_fMin = 0.0f;
+    float m_fMax = 0.0f;
+  };
+  ezSmallArray<FinalCurveValue, 4> m_FinalCurveValues;
 };

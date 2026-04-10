@@ -370,14 +370,11 @@ ezVariant ezVisualScriptDataStorage::GetDataAsVariant(DataOffset dataOffset, con
 {
   auto scriptDataType = dataOffset.GetType();
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   // pExpectedType == nullptr means that the caller expects an ezVariant so we decide solely based on the scriptDataType.
-  // We set the pExpectedType to the equivalent of the scriptDataType here so we don't need to check for pExpectedType == nullptr in all the asserts below.
   if (pExpectedType == nullptr || pExpectedType == ezGetStaticRTTI<ezVariant>())
   {
     pExpectedType = ezVisualScriptDataType::GetRtti(scriptDataType);
   }
-#endif
 
   switch (scriptDataType)
   {
@@ -393,7 +390,11 @@ ezVariant ezVisualScriptDataStorage::GetDataAsVariant(DataOffset dataOffset, con
       return GetData<ezUInt8>(dataOffset);
 
     case ezVisualScriptDataType::Int:
-      if (pExpectedType == ezGetStaticRTTI<ezInt16>())
+      if (pExpectedType == ezGetStaticRTTI<ezInt32>())
+      {
+        return GetData<ezInt32>(dataOffset);
+      }
+      else if (pExpectedType == ezGetStaticRTTI<ezInt16>())
       {
         return static_cast<ezInt16>(GetData<ezInt32>(dataOffset));
       }
@@ -401,15 +402,12 @@ ezVariant ezVisualScriptDataStorage::GetDataAsVariant(DataOffset dataOffset, con
       {
         return static_cast<ezUInt16>(GetData<ezInt32>(dataOffset));
       }
-      else if (pExpectedType == ezGetStaticRTTI<ezInt32>())
-      {
-        return GetData<ezInt32>(dataOffset);
-      }
-      else
+      else if (pExpectedType == ezGetStaticRTTI<ezUInt32>())
       {
         return static_cast<ezUInt32>(GetData<ezInt32>(dataOffset));
       }
       EZ_ASSERT_NOT_IMPLEMENTED;
+      break;
 
     case ezVisualScriptDataType::Int64:
       EZ_ASSERT_DEBUG(pExpectedType->GetTypeFlags().IsSet(ezTypeFlags::IsEnum) || pExpectedType->GetTypeFlags().IsSet(ezTypeFlags::Bitflags) || pExpectedType == ezGetStaticRTTI<ezInt64>(), "");
@@ -427,9 +425,59 @@ ezVariant ezVisualScriptDataStorage::GetDataAsVariant(DataOffset dataOffset, con
       EZ_ASSERT_DEBUG(pExpectedType == ezGetStaticRTTI<ezColor>(), "");
       return GetData<ezColor>(dataOffset);
 
+    case ezVisualScriptDataType::Vector2:
+      if (pExpectedType == ezGetStaticRTTI<ezVec2>())
+      {
+        return GetData<ezVec2>(dataOffset);
+      }
+      else if (pExpectedType == ezGetStaticRTTI<ezVec2I32>())
+      {
+        auto& v = GetData<ezVec2>(dataOffset);
+        return ezVec2I32(int(v.x), int(v.y));
+      }
+      else if (pExpectedType == ezGetStaticRTTI<ezVec2U32>())
+      {
+        auto& v = GetData<ezVec2>(dataOffset);
+        return ezVec2U32(ezUInt32(v.x), ezUInt32(v.y));
+      }
+      EZ_ASSERT_NOT_IMPLEMENTED;
+      break;
+
     case ezVisualScriptDataType::Vector3:
-      EZ_ASSERT_DEBUG(pExpectedType == ezGetStaticRTTI<ezVec3>(), "");
-      return GetData<ezVec3>(dataOffset);
+      if (pExpectedType == ezGetStaticRTTI<ezVec3>())
+      {
+        return GetData<ezVec3>(dataOffset);
+      }
+      else if (pExpectedType == ezGetStaticRTTI<ezVec3I32>())
+      {
+        auto& v = GetData<ezVec3>(dataOffset);
+        return ezVec3I32(int(v.x), int(v.y), int(v.z));
+      }
+      else if (pExpectedType == ezGetStaticRTTI<ezVec3U32>())
+      {
+        auto& v = GetData<ezVec3>(dataOffset);
+        return ezVec3U32(ezUInt32(v.x), ezUInt32(v.y), ezUInt32(v.z));
+      }
+      EZ_ASSERT_NOT_IMPLEMENTED;
+      break;
+
+    case ezVisualScriptDataType::Vector4:
+      if (pExpectedType == ezGetStaticRTTI<ezVec4>())
+      {
+        return GetData<ezVec4>(dataOffset);
+      }
+      else if (pExpectedType == ezGetStaticRTTI<ezVec4I32>())
+      {
+        auto& v = GetData<ezVec4>(dataOffset);
+        return ezVec4I32(int(v.x), int(v.y), int(v.z), int(v.w));
+      }
+      else if (pExpectedType == ezGetStaticRTTI<ezVec4U32>())
+      {
+        auto& v = GetData<ezVec4>(dataOffset);
+        return ezVec4U32(ezUInt32(v.x), ezUInt32(v.y), ezUInt32(v.z), ezUInt32(v.w));
+      }
+      EZ_ASSERT_NOT_IMPLEMENTED;
+      break;
 
     case ezVisualScriptDataType::Quaternion:
       EZ_ASSERT_DEBUG(pExpectedType == ezGetStaticRTTI<ezQuat>(), "");
@@ -448,7 +496,7 @@ ezVariant ezVisualScriptDataStorage::GetDataAsVariant(DataOffset dataOffset, con
       return GetData<ezAngle>(dataOffset);
 
     case ezVisualScriptDataType::String:
-      if (pExpectedType == nullptr || pExpectedType == ezGetStaticRTTI<ezString>() || pExpectedType == ezGetStaticRTTI<const char*>())
+      if (pExpectedType == ezGetStaticRTTI<ezString>() || pExpectedType == ezGetStaticRTTI<const char*>())
       {
         return GetData<ezString>(dataOffset);
       }
@@ -457,9 +505,10 @@ ezVariant ezVisualScriptDataStorage::GetDataAsVariant(DataOffset dataOffset, con
         return ezVariant(GetData<ezString>(dataOffset).GetView(), false);
       }
       EZ_ASSERT_NOT_IMPLEMENTED;
+      break;
 
     case ezVisualScriptDataType::HashedString:
-      if (pExpectedType == nullptr || pExpectedType == ezGetStaticRTTI<ezHashedString>())
+      if (pExpectedType == ezGetStaticRTTI<ezHashedString>())
       {
         return GetData<ezHashedString>(dataOffset);
       }
@@ -468,9 +517,10 @@ ezVariant ezVisualScriptDataStorage::GetDataAsVariant(DataOffset dataOffset, con
         return ezTempHashedString(GetData<ezHashedString>(dataOffset));
       }
       EZ_ASSERT_NOT_IMPLEMENTED;
+      break;
 
     case ezVisualScriptDataType::GameObject:
-      if (pExpectedType == nullptr || pExpectedType == ezGetStaticRTTI<ezGameObject>())
+      if (pExpectedType == ezGetStaticRTTI<ezGameObject>())
       {
         return GetPointerData(dataOffset, uiExecutionCounter);
       }
@@ -479,9 +529,10 @@ ezVariant ezVisualScriptDataStorage::GetDataAsVariant(DataOffset dataOffset, con
         return GetData<ezGameObjectHandle>(dataOffset);
       }
       EZ_ASSERT_NOT_IMPLEMENTED;
+      break;
 
     case ezVisualScriptDataType::Component:
-      if (pExpectedType == nullptr || pExpectedType->IsDerivedFrom<ezComponent>())
+      if (pExpectedType->IsDerivedFrom<ezComponent>())
       {
         return GetPointerData(dataOffset, uiExecutionCounter);
       }
@@ -490,6 +541,7 @@ ezVariant ezVisualScriptDataStorage::GetDataAsVariant(DataOffset dataOffset, con
         return GetData<ezComponentHandle>(dataOffset);
       }
       EZ_ASSERT_NOT_IMPLEMENTED;
+      break;
 
     case ezVisualScriptDataType::TypedPointer:
       return GetPointerData(dataOffset, uiExecutionCounter);
@@ -569,8 +621,53 @@ void ezVisualScriptDataStorage::SetDataFromVariant(DataOffset dataOffset, const 
     case ezVisualScriptDataType::Color:
       SetData(dataOffset, value.Get<ezColor>());
       break;
+    case ezVisualScriptDataType::Vector2:
+      if (value.IsA<ezVec2I32>())
+      {
+        auto& v = value.Get<ezVec2I32>();
+        SetData(dataOffset, ezVec2(float(v.x), float(v.y)));
+      }
+      else if (value.IsA<ezVec2U32>())
+      {
+        auto& v = value.Get<ezVec2U32>();
+        SetData(dataOffset, ezVec2(float(v.x), float(v.y)));
+      }
+      else
+      {
+        SetData(dataOffset, value.Get<ezVec2>());
+      }
+      break;
     case ezVisualScriptDataType::Vector3:
-      SetData(dataOffset, value.Get<ezVec3>());
+      if (value.IsA<ezVec3I32>())
+      {
+        auto& v = value.Get<ezVec3I32>();
+        SetData(dataOffset, ezVec3(float(v.x), float(v.y), float(v.z)));
+      }
+      else if (value.IsA<ezVec3U32>())
+      {
+        auto& v = value.Get<ezVec3U32>();
+        SetData(dataOffset, ezVec3(float(v.x), float(v.y), float(v.z)));
+      }
+      else
+      {
+        SetData(dataOffset, value.Get<ezVec3>());
+      }
+      break;
+    case ezVisualScriptDataType::Vector4:
+      if (value.IsA<ezVec4I32>())
+      {
+        auto& v = value.Get<ezVec4I32>();
+        SetData(dataOffset, ezVec4(float(v.x), float(v.y), float(v.z), float(v.w)));
+      }
+      else if (value.IsA<ezVec4U32>())
+      {
+        auto& v = value.Get<ezVec4U32>();
+        SetData(dataOffset, ezVec4(float(v.x), float(v.y), float(v.z), float(v.w)));
+      }
+      else
+      {
+        SetData(dataOffset, value.Get<ezVec4>());
+      }
       break;
     case ezVisualScriptDataType::Quaternion:
       SetData(dataOffset, value.Get<ezQuat>());

@@ -27,7 +27,7 @@ class EZ_RENDERERCORE_DLL ezFillLightRenderData : public ezRenderData
   EZ_ADD_DYNAMIC_REFLECTION(ezFillLightRenderData, ezRenderData);
 
 public:
-  void FillBatchIdAndSortingKey(float fScreenSpaceSize);
+  void FillSortingKey(float fScreenSpaceSize);
 
   ezColorLinearUB m_LightColor;
   ezEnum<ezFillLightMode> m_LightMode;

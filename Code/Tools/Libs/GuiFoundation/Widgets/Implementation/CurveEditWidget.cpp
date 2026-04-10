@@ -847,12 +847,18 @@ void ezQtCurveEditWidget::PaintCurveSegments(QPainter* painter, float fOffsetX, 
     const ezCurve1D& curve = m_CurvesSorted[curveIdx];
     const ezUInt32 numCps = curve.GetNumControlPoints();
 
-    if (numCps == 0)
-      continue;
-
     const ezColorGammaUB curveColor = m_pCurveEditData->m_Curves[curveIdx]->m_CurveColor;
 
     pen.setColor(QColor(curveColor.r, curveColor.g, curveColor.b, alpha));
+
+    if (numCps == 0)
+    {
+      // Draw a flat line at Y=0 so the curve is visible even when it has no control points yet.
+      pen.setStyle(Qt::PenStyle::SolidLine);
+      painter->setPen(pen);
+      painter->drawLine(MapFromScene(QPointF(fOffsetX + m_fMinExtentValue, 0)), MapFromScene(QPointF(fOffsetX + m_fMaxExtentValue, 0)));
+      continue;
+    }
 
     if (bRenderRealCurve)
     {
@@ -1205,6 +1211,12 @@ void ezQtCurveEditWidget::RenderVerticalGrid(QPainter* painter, const QRectF& vi
 
 void ezQtCurveEditWidget::RenderSideLinesAndText(QPainter* painter, const QRectF& viewportSceneRect)
 {
+  if (ezMath::IsNaN(viewportSceneRect.x()) || ezMath::IsNaN(viewportSceneRect.y()) || ezMath::IsNaN(viewportSceneRect.width()) || ezMath::IsNaN(viewportSceneRect.height()))
+  {
+    // can happen when zoomed out quite far
+    return;
+  }
+
   double fFineGridDensity = 0.01;
   double fRoughGridDensity = 0.01;
   ezWidgetUtils::AdjustGridDensity(fFineGridDensity, fRoughGridDensity, rect().height(), ezMath::Abs(viewportSceneRect.height()), 20);

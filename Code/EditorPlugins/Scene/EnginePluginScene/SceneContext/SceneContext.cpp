@@ -196,6 +196,12 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
     return;
   }
 
+  if (const ezSyncChildOrderMsgToEngine* msg = ezDynamicCast<const ezSyncChildOrderMsgToEngine*>(pMsg))
+  {
+    HandleSyncChildOrderMsg(msg);
+    return;
+  }
+
   if (pMsg->IsInstanceOf<ezViewRedrawMsgToEngine>())
   {
     HandleViewRedrawMsg(static_cast<const ezViewRedrawMsgToEngine*>(pMsg));
@@ -1232,4 +1238,37 @@ void ezSceneContext::HandlePullObjectStateMsg(const ezPullObjectStateMsgToEngine
   }
 
   // the return message is sent after the simulation has stopped
+}
+
+void ezSceneContext::HandleSyncChildOrderMsg(const ezSyncChildOrderMsgToEngine* pMsg)
+{
+  EZ_LOCK(m_pWorld->GetWriteMarker());
+
+  ezWorldRttiConverterContext* pContext = pMsg->m_LayerGuid.IsValid() ? GetContextForLayer(pMsg->m_LayerGuid) : &GetActiveContext();
+  if (pContext == nullptr)
+    return;
+
+  ezComponentHandle hComponent = pContext->m_ComponentMap.GetHandle(pMsg->m_ComponentGuid);
+  ezComponent* pComponent = nullptr;
+  if (!m_pWorld->TryGetComponent(hComponent, pComponent))
+    return;
+
+  ezVariantArray handles;
+  handles.Reserve(pMsg->m_ChildOrder.GetCount());
+  for (const ezUuid& guid : pMsg->m_ChildOrder)
+  {
+    handles.PushBack(ezVariant(pContext->m_GameObjectMap.GetHandle(guid)));
+  }
+
+  for (const ezAbstractFunctionProperty* pFunc : pComponent->GetDynamicRTTI()->GetFunctions())
+  {
+    if (ezStringUtils::IsEqual(pFunc->GetPropertyName(), "SetChildOrder"))
+    {
+      ezTempHybridArray<ezVariant, 1> params;
+      params.PushBack(handles);
+      ezVariant ret;
+      pFunc->Execute(pComponent, params, ret);
+      break;
+    }
+  }
 }

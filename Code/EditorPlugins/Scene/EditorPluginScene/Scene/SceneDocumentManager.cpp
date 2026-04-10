@@ -1,5 +1,6 @@
 #include <EditorPluginScene/EditorPluginScenePCH.h>
 
+#include <Core/Prefabs/PrefabReferenceComponent.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <EditorPluginScene/Scene/LayerDocument.h>
@@ -62,6 +63,23 @@ ezSceneDocumentManager::ezSceneDocumentManager()
     // all layers for a scene are gathered and put into one cohesive runtime scene
     docTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::DisableTransform; // TODO: Disable creation in "New Document"?
   }
+}
+
+ezResult ezSceneDocumentManager::OpenPickedDocument(const ezDocumentObject* pPickedComponent, ezUInt32 uiPartIndex)
+{
+  if (!pPickedComponent->GetTypeAccessor().GetType()->IsDerivedFrom<ezPrefabReferenceComponent>())
+    return EZ_FAILURE;
+
+  // access the prefab asset
+  const ezVariant varPrefabGuid = pPickedComponent->GetTypeAccessor().GetValue("Prefab");
+
+  if (varPrefabGuid.IsA<ezString>())
+  {
+    if (TryOpenAssetDocument(varPrefabGuid.Get<ezString>()).Succeeded())
+      return EZ_SUCCESS;
+  }
+
+  return EZ_FAILURE;
 }
 
 void ezSceneDocumentManager::InternalCreateDocument(ezStringView sDocumentTypeName, ezStringView sPath, bool bCreateNewDocument, ezDocument*& out_pDocument, const ezDocumentObject* pOpenContext)

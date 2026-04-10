@@ -1599,6 +1599,51 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
       EZ_TEST_STRING(sb, "");
     }
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "RemoveCStyleComments")
+  {
+    ezStringBuilder sb;
+
+    // no comments
+    sb = "outPos = inPos;";
+    sb.RemoveCStyleComments();
+    EZ_TEST_STRING(sb, "outPos = inPos;");
+
+    // line comment at end
+    sb = "outPos = inPos; // move position";
+    sb.RemoveCStyleComments();
+    EZ_TEST_STRING(sb, "outPos = inPos; ");
+
+    // line comment covers a stream name
+    sb = "// outDiscard = 1;";
+    sb.RemoveCStyleComments();
+    EZ_TEST_BOOL(sb.FindSubString("outDiscard") == nullptr);
+
+    // block comment covers a stream name
+    sb = "/* outDiscard = 1; */";
+    sb.RemoveCStyleComments();
+    EZ_TEST_BOOL(sb.FindSubString("outDiscard") == nullptr);
+
+    // block comment preserves newlines
+    sb = "a\n/* b\nc */\nd";
+    sb.RemoveCStyleComments();
+    EZ_TEST_STRING(sb, "a\n\n\nd");
+
+    // multiple comments
+    sb = "a // comment1\nb /* comment2 */ c";
+    sb.RemoveCStyleComments();
+    EZ_TEST_STRING(sb, "a \nb  c");
+
+    // unterminated block comment
+    sb = "a /* unterminated";
+    sb.RemoveCStyleComments();
+    EZ_TEST_STRING(sb, "a ");
+
+    // empty string
+    sb = "";
+    sb.RemoveCStyleComments();
+    EZ_TEST_STRING(sb, "");
+  }
 }
 
 #pragma optimize("", on)

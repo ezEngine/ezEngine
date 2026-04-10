@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Grep",
+      "Bash(git log *)",
+      "Bash(git show *)",
+      "Bash(git status)",
+      "Bash(git diff *)",
+      "Bash(git branch)",
+      "Bash(git ls-tree *)",
+      "Bash(ls *)",
+      "Bash(find *)",
+      "Bash(head *)",
+      "Bash(wc *)",
+      "Bash(powershell -NoProfile -ExecutionPolicy ByPass ./RunCMake.ps1 *)",
+      "Bash(Data/Tools/Precompiled/cmake/bin/cmake *)",
+      "Bash(ctest --test-dir Workspace/claude-build *)",
+      "Bash(Workspace/claude-build-output/Bin/WinVs2022Debug64/* *)",
+      "Bash(Workspace/claude-build-output/Bin/WinVs2022Dev64/* *)"
+    ]
+  }
+}

@@ -30,6 +30,7 @@ public:
 
 private:
   void Update(const ezWorldModule::UpdateContext& context);
+  void ApplyRootMotion(const ezWorldModule::UpdateContext& context);
 };
 
 
@@ -79,6 +80,7 @@ public:
 
 protected:
   void Update();
+  void ApplyRootMotion();
   bool UpdatePlaybackTime(ezTime tDiff, const ezEventTrack& eventTrack, ezAnimPoseEventTrackSampleMode& out_trackSampling);
 
   ezEnum<ezRootMotionMode> m_RootMotionMode;
@@ -87,6 +89,7 @@ protected:
   ezSkeletonResourceHandle m_hSkeleton;
   ezTime m_ElapsedTimeSinceUpdate = ezTime::MakeZero();
   bool m_bEnableIK = false;
+  ezVec3 m_vPendingRootMotion = ezVec3::MakeZero();
 
   ozz::vector<ozz::math::SoaTransform> m_OzzLocalTransforms; // TODO: could be frame allocated
 };

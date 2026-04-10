@@ -13,7 +13,7 @@
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 ezCVarBool cvar_SpatialVisBounds("Spatial.VisBounds", false, ezCVarFlags::Default, "Enables debug visualization of object bounds");
 ezCVarBool cvar_SpatialVisLocalBBox("Spatial.VisLocalBBox", false, ezCVarFlags::Default, "Enables debug visualization of object local bounding box");
-ezCVarBool cvar_SpatialVisData("Spatial.VisData", false, ezCVarFlags::Default, "Enables debug visualization of the spatial data structure");
+ezCVarBool cvar_SpatialVisData("Spatial.VisData.Enable", false, ezCVarFlags::Default, "Enables debug visualization of the spatial data structure");
 ezCVarString cvar_SpatialVisDataOnlyCategory("Spatial.VisData.OnlyCategory", "", ezCVarFlags::Default, "When set the debug visualization is only shown for the given spatial data category");
 ezCVarBool cvar_SpatialVisDataOnlySelected("Spatial.VisData.OnlySelected", false, ezCVarFlags::Default, "When set the debug visualization is only shown for selected objects");
 ezCVarString cvar_SpatialVisDataOnlyObject("Spatial.VisData.OnlyObject", "", ezCVarFlags::Default, "When set the debug visualization is only shown for objects with the given name");

@@ -2,10 +2,12 @@
 
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocument.h>
+#include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <EditorFramework/Gizmos/GizmoBase.h>
 #include <EditorFramework/InputContexts/SelectionContext.h>
+#include <Foundation/Reflection/Implementation/PropertyAttributes.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 
 ezSelectionContext::ezSelectionContext(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView, const ezCamera* pCamera)
@@ -144,20 +146,45 @@ void ezSelectionContext::OpenDocumentForPickedObject(const ezObjectPickingResult
 
   auto* pDocument = GetOwnerWindow()->GetDocument();
 
-  const ezDocumentObject* pPickedComponent = pDocument->GetObjectManager()->GetObject(res.m_PickedComponent);
-
-  for (auto pDocMan : ezDocumentManager::GetAllDocumentManagers())
+  if (const ezDocumentObject* pPickedComponent = pDocument->GetObjectManager()->GetObject(res.m_PickedComponent))
   {
-    if (ezAssetDocumentManager* pAssetMan = ezDynamicCast<ezAssetDocumentManager*>(pDocMan))
+    for (auto pDocMan : ezDocumentManager::GetAllDocumentManagers())
     {
-      if (pAssetMan->OpenPickedDocument(pPickedComponent, res.m_uiPartIndex).Succeeded())
+      if (ezAssetDocumentManager* pAssetMan = ezDynamicCast<ezAssetDocumentManager*>(pDocMan))
       {
-        return;
+        if (pAssetMan->OpenPickedDocument(pPickedComponent, res.m_uiPartIndex).Succeeded())
+        {
+          return;
+        }
       }
     }
-  }
 
-  GetOwnerWindow()->ShowTemporaryStatusBarMsg("Could not open a document for the picked object");
+    // Fallback: iterate component properties and open the first asset-browser string property we find a value for.
+    for (auto pProperty : pPickedComponent->GetTypeAccessor().GetType()->GetProperties())
+    {
+      const ezRTTI* pType = pProperty->GetSpecificType();
+
+      if (pProperty->GetAttributeByType<ezAssetBrowserAttribute>() != nullptr && (pType == ezGetStaticRTTI<const char*>() || pType == ezGetStaticRTTI<ezString>() || pType == ezGetStaticRTTI<ezStringView>()))
+      {
+        ezStringBuilder sValue;
+
+        if (pProperty->GetCategory() == ezPropertyCategory::Member)
+        {
+          sValue = pPickedComponent->GetTypeAccessor().GetValue(pProperty->GetPropertyName()).ConvertTo<ezString>();
+        }
+        else if (pProperty->GetCategory() == ezPropertyCategory::Array)
+        {
+          if (pPickedComponent->GetTypeAccessor().GetCount(pProperty->GetPropertyName()) > 0)
+            sValue = pPickedComponent->GetTypeAccessor().GetValue(pProperty->GetPropertyName(), 0).ConvertTo<ezString>();
+        }
+
+        if (!sValue.IsEmpty() && ezAssetDocumentManager::TryOpenAssetDocument(sValue).Succeeded())
+          return;
+      }
+    }
+
+    GetOwnerWindow()->ShowTemporaryStatusBarMsg("Could not open a document for the picked object");
+  }
 }
 
 void ezSelectionContext::SelectPickedObject(const ezObjectPickingResult& res, bool bToggle, bool bDirect) const

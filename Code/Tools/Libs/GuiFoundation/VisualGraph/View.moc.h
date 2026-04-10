@@ -20,12 +20,18 @@ public:
   void SetScene(ezQtVisualGraphScene* pScene);
   ezQtVisualGraphScene* GetScene();
 
+  /// Centers and scales the view to frame all visible scene items with some margin.
+  ///
+  /// Frames only the selected items if a selection exists, otherwise all visible nodes.
+  void FrameContent();
+
 protected:
   virtual void mousePressEvent(QMouseEvent* event) override;
   virtual void mouseMoveEvent(QMouseEvent* event) override;
   virtual void mouseReleaseEvent(QMouseEvent* event) override;
   virtual void wheelEvent(QWheelEvent* event) override;
   virtual void contextMenuEvent(QContextMenuEvent* event) override;
+  virtual void keyPressEvent(QKeyEvent* event) override;
   virtual void resizeEvent(QResizeEvent*) override;
   virtual void drawBackground(QPainter* painter, const QRectF& r) override;
 
@@ -38,6 +44,7 @@ private:
 private:
   ezQtVisualGraphScene* m_pScene = nullptr;
   bool m_bPanning = false;
+  bool m_bFrameOnNextDraw = false;
   ezInt32 m_iPanCounter = 0;
 
   QPointF m_ViewPos;

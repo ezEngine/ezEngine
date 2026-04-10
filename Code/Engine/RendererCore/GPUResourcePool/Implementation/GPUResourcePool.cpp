@@ -36,9 +36,9 @@ ezGALTextureHandle ezGPUResourcePool::GetRenderTarget(const ezGALTextureCreation
 {
   EZ_LOCK(m_Lock);
 
-  if (!textureDesc.m_TextureFlags.IsSet(ezGALTextureUsageFlags::RenderTarget))
+  if (!textureDesc.m_TextureFlags.IsAnySet(ezGALTextureUsageFlags::UnorderedAccess | ezGALTextureUsageFlags::RenderTarget))
   {
-    ezLog::Error("Texture description for render target usage has not set the RenderTargetView flag!");
+    ezLog::Error("Texture description for render target usage has not set the UAV or RenderTargetView flag!");
     return ezGALTextureHandle();
   }
 

@@ -190,12 +190,8 @@ void ezMeshDecalComponent::UpdateDecals()
     }
   }
 
-  const float* pDecalIndicesAsFloat = reinterpret_cast<const float*>(decalIndices);
   ezMsgSetCustomData msg;
-  msg.m_fData0 = pDecalIndicesAsFloat[0];
-  msg.m_fData1 = pDecalIndicesAsFloat[1];
-  msg.m_fData2 = pDecalIndicesAsFloat[2];
-  msg.m_fData3 = pDecalIndicesAsFloat[3];
+  msg.m_vData = *reinterpret_cast<const ezVec4*>(decalIndices);
 
   GetOwner()->PostMessage(msg, ezTime::MakeZero(), ezObjectMsgQueueType::AfterInitialized);
 }

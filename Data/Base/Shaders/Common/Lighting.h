@@ -28,6 +28,7 @@ Texture2D SkyIrradianceTexture;
 
 // Pass data
 Texture2DArray SSAOTexture BIND_GROUP(BG_RENDER_PASS);
+Texture2DArray ShadowMasksTexture BIND_GROUP(BG_RENDER_PASS);
 Texture2DArray SceneDepth BIND_GROUP(BG_RENDER_PASS);
 Texture2DArray SceneColor BIND_GROUP(BG_RENDER_PASS);
 SamplerState SceneColorSampler BIND_GROUP(BG_RENDER_PASS);
@@ -130,6 +131,11 @@ float SampleSSAO(float3 screenPosition)
 
   return totalWeight > 0.0f ? totalSSAO / totalWeight : 1.0f;
 #endif
+}
+
+float SampleShadowMask(float3 screenPosition, uint index)
+{
+  return ShadowMasksTexture.SampleLevel(PointClampSampler, float3(screenPosition.xy * ViewportSize.zw, index + s_ActiveCameraEyeIndex), 0.0f).r;
 }
 
 uint GetPointShadowFaceIndex(float3 dir)
@@ -522,7 +528,7 @@ float EvaluatePBRLight(float3 worldPosition, float3 worldNormal, ezPerLightData 
 
     if (type == LIGHT_TYPE_SPOT)
     {
-      float2 spotParams = RG16FToFloat2(lightData.spotOrFillParams);
+      float2 spotParams = RG16FToFloat2(lightData.auxParams);
       attenuation *= SpotAttenuation(lightVector, lightDir, spotParams);
     }
   }
@@ -538,7 +544,7 @@ void EvaluateFillLight(float3 worldPosition, float3 worldNormal, float3 diffuseC
 
   float attenuation = saturate(1.0 - distanceToLight * lightData.invSqrAttRadius);
 
-  float2 fillParams = RG16FToFloat2(lightData.spotOrFillParams);
+  float2 fillParams = RG16FToFloat2(lightData.auxParams);
   attenuation = pow(attenuation, fillParams.x);
 
   directionality = min(directionality, fillParams.y);
@@ -602,6 +608,11 @@ AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clus
           float extraPenumbraScale = 1.0;
 
           shadowTerm = CalculateShadowTerm(matData.worldPosition, matData.vertexNormal, lightVector, distanceToLight, type, lightData.shadowDataOffsetAndFadeOut, noise, randomRotation, extraPenumbraScale, subsurfaceShadow, debugColor);
+
+          if (type == LIGHT_TYPE_DIR && lightData.auxParams != 0)
+          {
+            shadowTerm = min(shadowTerm, SampleShadowMask(screenPosition, lightData.auxParams - 1));
+          }
         }
 
         attenuation *= lightData.intensity;

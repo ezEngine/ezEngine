@@ -39,6 +39,7 @@ ezForwardRenderPass::ezForwardRenderPass(const char* szName)
   : ezRenderPipelinePass(szName, true)
   , m_ShadingQuality(ezForwardRenderShadingQuality::Normal)
 {
+  m_hWhiteTexture = ezResourceManager::LoadResource<ezTexture2DResource>("White.color");
 }
 
 ezForwardRenderPass::~ezForwardRenderPass() = default;

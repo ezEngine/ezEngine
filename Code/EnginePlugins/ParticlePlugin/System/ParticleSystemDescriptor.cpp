@@ -23,7 +23,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleSystemDescriptor, 2, ezRTTIDefaultAllo
     EZ_MEMBER_PROPERTY("OnDeathEvent", m_sOnDeathEvent)->AddAttributes(new ezDynamicStringEnumAttribute("ParticleEventNamesEnum")),
     EZ_ARRAY_MEMBER_PROPERTY("Emitters", m_EmitterFactories)->AddFlags(ezPropertyFlags::PointerOwner)->AddAttributes(new ezMaxArraySizeAttribute(1)),
     EZ_SET_ACCESSOR_PROPERTY("Initializers", GetInitializerFactories, AddInitializerFactory, RemoveInitializerFactory)->AddFlags(ezPropertyFlags::PointerOwner)->AddAttributes(new ezPreventDuplicatesAttribute()),
-    EZ_SET_ACCESSOR_PROPERTY("Behaviors", GetBehaviorFactories, AddBehaviorFactory, RemoveBehaviorFactory)->AddFlags(ezPropertyFlags::PointerOwner)->AddAttributes(new ezPreventDuplicatesAttribute()),
+    EZ_SET_ACCESSOR_PROPERTY("Behaviors", GetBehaviorFactories, AddBehaviorFactory, RemoveBehaviorFactory)->AddFlags(ezPropertyFlags::PointerOwner),
     EZ_SET_ACCESSOR_PROPERTY("Types", GetTypeFactories, AddTypeFactory, RemoveTypeFactory)->AddFlags(ezPropertyFlags::PointerOwner),
   }
   EZ_END_PROPERTIES;
@@ -231,7 +231,7 @@ void ezParticleSystemDescriptor::Save(ezStreamWriter& inout_stream) const
 }
 
 
-void ezParticleSystemDescriptor::Load(ezStreamReader& inout_stream)
+void ezParticleSystemDescriptor::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor)
 {
   ClearEmitters();
   ClearInitializers();
@@ -302,7 +302,7 @@ void ezParticleSystemDescriptor::Load(ezStreamReader& inout_stream)
 
     pEmitter = pRtti->GetAllocator()->Allocate<ezParticleEmitterFactory>();
 
-    pEmitter->Load(inout_stream);
+    pEmitter->Load(inout_stream, ownerEffectDescriptor, *this);
   }
 
   if (uiVersion >= 2)
@@ -316,7 +316,7 @@ void ezParticleSystemDescriptor::Load(ezStreamReader& inout_stream)
 
       pInitializer = pRtti->GetAllocator()->Allocate<ezParticleInitializerFactory>();
 
-      pInitializer->Load(inout_stream);
+      pInitializer->Load(inout_stream, ownerEffectDescriptor, *this);
     }
   }
 
@@ -329,7 +329,7 @@ void ezParticleSystemDescriptor::Load(ezStreamReader& inout_stream)
 
     pBehavior = pRtti->GetAllocator()->Allocate<ezParticleBehaviorFactory>();
 
-    pBehavior->Load(inout_stream);
+    pBehavior->Load(inout_stream, ownerEffectDescriptor, *this);
   }
 
   if (uiVersion >= 4)
@@ -343,7 +343,7 @@ void ezParticleSystemDescriptor::Load(ezStreamReader& inout_stream)
 
       pType = pRtti->GetAllocator()->Allocate<ezParticleTypeFactory>();
 
-      pType->Load(inout_stream);
+      pType->Load(inout_stream, ownerEffectDescriptor, *this);
     }
   }
 

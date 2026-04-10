@@ -114,7 +114,7 @@ namespace Kraut
 
           dTrunk.m_vGrowDirection = GetTargetDir(spawnDesc.m_TargetDirection, aeVec3(0, 1, 0), spawnDesc.m_fMaxTargetDirDeviation, vBranchAngleAxis, dTrunk.m_vStartDirection, spawnDesc.m_bTargetDirRelative);
           dTrunk.m_vGrowDirection2 = GetTargetDir(spawnDesc.m_TargetDirection2, aeVec3(0, 1, 0), spawnDesc.m_fMaxTargetDirDeviation, vBranchAngleAxis, dTrunk.m_vStartDirection, spawnDesc.m_bTargetDirRelative);
-          dTrunk.m_fGrowDir2UUsageDistance = GetGrowDir2Distance(spawnDesc.m_TargetDir2Uage, dTrunk.m_fBranchLength, spawnDesc.m_fTargetDir2Usage);
+          dTrunk.m_fGrowDir2UUsageDistance = GetGrowDir2Distance(spawnDesc.m_TargetDir2Usage, dTrunk.m_fBranchLength, spawnDesc.m_fTargetDir2Usage);
 
           iFirstBranch = GrowBranch(dTrunk, *m_pInternalPhysics);
           if ((spawnDesc.m_BranchTypeMode == Kraut::BranchTypeMode::Umbrella) || (iFirstBranch < 0))
@@ -261,7 +261,7 @@ namespace Kraut
 
     bd.m_vGrowDirection = GetTargetDir(NodeDesc.m_TargetDirection, vNodeDirection, NodeDesc.m_fMaxTargetDirDeviation, vRotationAxis, vBranchDir, NodeDesc.m_bTargetDirRelative);
     bd.m_vGrowDirection2 = GetTargetDir(NodeDesc.m_TargetDirection2, vNodeDirection, NodeDesc.m_fMaxTargetDirDeviation, vRotationAxis, vBranchDir, NodeDesc.m_bTargetDirRelative);
-    bd.m_fGrowDir2UUsageDistance = GetGrowDir2Distance(NodeDesc.m_TargetDir2Uage, bd.m_fBranchLength, NodeDesc.m_fTargetDir2Usage);
+    bd.m_fGrowDir2UUsageDistance = GetGrowDir2Distance(NodeDesc.m_TargetDir2Usage, bd.m_fBranchLength, NodeDesc.m_fTargetDir2Usage);
 
     bd.m_vStartDirection = vBranchDir;
     bd.m_vStartPosition = vBranchSpawnPosition;
@@ -286,6 +286,9 @@ namespace Kraut
     aeUInt32 uiBranches = m_RNG.Rand(spawnDesc.m_uiMinBranches, spawnDesc.m_uiMaxBranches + 1);
 
     AE_CHECK_DEV(uiBranches >= spawnDesc.m_uiMinBranches, "Number of Branches to spawn (%i) is smaller than minimum number of branches (%i). This should not happen.", uiBranches, spawnDesc.m_uiMinBranches);
+
+    if (uiBranches == 0)
+      return;
 
     aeArray<float> BranchPos;
     BranchPos.reserve(uiBranches);

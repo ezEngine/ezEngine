@@ -37,6 +37,16 @@ class ScriptObject : ezAngelScriptClass
          return false;
     }
 
+    void SetLight(bool on, ezColor color)
+    {
+        ezLightComponent@ light;
+        if (!GetOwner().TryGetComponentOfBaseType(@light))
+            return;
+
+        light.Active = on;
+        light.LightColor = color;
+    }
+
     void Update(ezTime deltaTime)
     {
         auto oldState = _state;
@@ -60,6 +70,11 @@ class ScriptObject : ezAngelScriptClass
 
             if (distToPlayer <= ApproachDistance) 
             {
+                if (_state == BallMineState::Alert)
+                {
+                    ezSound::PlaySound("{ 35b72527-bc85-4b33-802a-0fba75cf9acb }", GetOwner().GetGlobalPosition(), ezQuat::MakeIdentity(), 1.0f, 1.0f, false);
+                }
+
                 _state = BallMineState::Approaching;
 
                 ezJoltDynamicActorComponent@ actor;
@@ -73,11 +88,20 @@ class ScriptObject : ezAngelScriptClass
             }
             else if (distToPlayer <= AlertDistance)
             {
+                if (_state == BallMineState::Idle)
+                {
+                    ezSound::PlaySound("{ 497a67cc-1939-4fde-840f-df9b83d8205a }", GetOwner().GetGlobalPosition(), ezQuat::MakeIdentity(), 1.0f, 1.0f, false);
+                }
+
                 _state = BallMineState::Alert;
             }
             else
             {
-                _state = BallMineState::Idle;
+                if (_state != BallMineState::Idle)
+                {
+                    _state = BallMineState::Idle;
+                    ezSound::PlaySound("{ ae6ab36e-94ab-4fa9-b591-3e6a2851d6db }", GetOwner().GetGlobalPosition(), ezQuat::MakeIdentity(), 1.0f, 1.0f, false);
+                }
             }
 
             if (distToPlayer <= AttackDistance)
@@ -101,6 +125,7 @@ class ScriptObject : ezAngelScriptClass
                     matMsg.Material = "{ d615cd66-0904-00ca-81f9-768ff4fc24ee }";
                     GetOwner().SendMessageRecursive(matMsg);
 
+                    SetLight(false, ezColor::MakeZero());
                     SetUpdateInterval(ezTime::MakeFromMilliseconds(1000));
                     return;
                 }
@@ -110,6 +135,7 @@ class ScriptObject : ezAngelScriptClass
                     matMsg.Material = "{ 6ae73fcf-e09c-1c3f-54a8-8a80498519fb }";
                     GetOwner().SendMessageRecursive(matMsg);
 
+                    SetLight(true, ezColor(1, 0.5f, 0));
                     SetUpdateInterval(ezTime::MakeFromMilliseconds(500));
                     return;
                 }
@@ -119,6 +145,7 @@ class ScriptObject : ezAngelScriptClass
                     matMsg.Material = "{ 49324140-a093-4a75-9c6c-efde65a39fc4 }";
                     GetOwner().SendMessageRecursive(matMsg);
 
+                    SetLight(true, ezColor(1, 0, 0));
                     SetUpdateInterval(ezTime::MakeFromMilliseconds(50));
                     return;
                 }

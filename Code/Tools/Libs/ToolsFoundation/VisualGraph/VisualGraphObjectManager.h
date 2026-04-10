@@ -190,6 +190,7 @@ public:
   };
 
   bool IsNode(const ezDocumentObject* pObject) const;
+  bool IsComment(const ezDocumentObject* pObject) const;
   bool IsConnection(const ezDocumentObject* pObject) const;
   bool IsDynamicPinProperty(const ezDocumentObject* pObject, const ezAbstractProperty* pProp) const;
 

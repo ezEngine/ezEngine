@@ -33,6 +33,8 @@ public:
   const QPointF& GetOutPos() const { return m_OutPoint; }
 
   bool m_bAdjacentNodeSelected = false;
+  /// When set, the connection is drawn thicker and brighter to indicate it is carrying a live/active signal (e.g. for debug visualization).
+  bool m_bHighlight = false;
 
   virtual void ExtendContextMenu(QMenu& ref_menu) {}
 

@@ -47,6 +47,18 @@ ezProcessingStream::ezProcessingStream(const ezHashedString& sName, ezArrayPtr<e
 {
 }
 
+ezProcessingStream::ezProcessingStream(const ezHashedString& sName, const ezProcessingStream& data)
+  : m_pData(data.m_pData)
+  , m_uiDataSize(data.m_uiDataSize)
+  , m_uiAlignment(data.m_uiAlignment)
+  , m_uiTypeSize(data.m_uiTypeSize)
+  , m_uiStride(data.m_uiStride)
+  , m_Type(data.m_Type)
+  , m_bExternalMemory(true)
+  , m_sName(sName)
+{
+}
+
 ezProcessingStream::~ezProcessingStream()
 {
   FreeData();

@@ -1,12 +1,9 @@
 #pragma once
 
-#include <Core/World/SettingsComponent.h>
 #include <Core/World/SettingsComponentManager.h>
 #include <RendererCore/Pipeline/RenderData.h>
 
 struct ezMsgUpdateLocalBounds;
-
-using ezFogComponentManager = ezSettingsComponentManager<class ezFogComponent>;
 
 /// \brief The render data object for height fog.
 class EZ_RENDERERCORE_DLL ezFogRenderData : public ezRenderData
@@ -22,9 +19,11 @@ public:
   float m_fFogStartDistance;
 };
 
-class EZ_RENDERERCORE_DLL ezFogComponent : public ezSettingsComponent
+using ezFogComponentManager = ezSettingsComponentManager<class ezFogComponent>;
+
+class EZ_RENDERERCORE_DLL ezFogComponent : public ezComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezFogComponent, ezSettingsComponent, ezFogComponentManager);
+  EZ_DECLARE_COMPONENT_TYPE(ezFogComponent, ezComponent, ezFogComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
   // ezComponent

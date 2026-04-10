@@ -5,6 +5,7 @@
 #  include "KrautTest.h"
 #  include <Core/WorldSerializer/WorldReader.h>
 #  include <Foundation/IO/FileSystem/FileReader.h>
+#  include <KrautPlugin/Components/KrautTreeComponent.h>
 #  include <ParticlePlugin/Components/ParticleComponent.h>
 
 static ezGameEngineTestKraut s_GameEngineTestAnimations;
@@ -39,6 +40,20 @@ ezResult ezGameEngineTestKraut::InitializeSubTest(ezInt32 iIdentifier)
     m_ImgCompFrames.PushBack(60);
 
     EZ_SUCCEED_OR_RETURN(m_pOwnApplication->LoadScene("PlatformWin/AssetCache/Common/Kraut/Kraut.ezBinScene"));
+
+    // Force synchronous tree generation so image comparisons are deterministic.
+    // Without this, async generation means the tree may not be visible at frame 3
+    // and wind accumulation differs from the reference images.
+    {
+      ezWorld* pWorld = m_pOwnApplication->GetWorld();
+      EZ_LOCK(pWorld->GetWriteMarker());
+      ezKrautTreeComponentManager* pManager = pWorld->GetOrCreateComponentManager<ezKrautTreeComponentManager>();
+      for (auto it = pManager->GetComponents(); it.IsValid(); it.Next())
+      {
+        it->m_bForceGenerateImmediate = true;
+      }
+    }
+
     return EZ_SUCCESS;
   }
 

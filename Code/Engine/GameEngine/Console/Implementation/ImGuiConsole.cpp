@@ -632,7 +632,7 @@ void ezImGuiConsole::BuildCVarTree(CVarTreeNode& root)
         // Intermediate part - create parent node if needed
         auto& parentNode = pCurrentNode->m_Children[sPartName];
         parentNode.m_sName = sPartName;
-        parentNode.m_pCVar = nullptr; // Parent nodes don't have CVars
+        EZ_ASSERT_DEV(parentNode.m_pCVar == nullptr, "CVar name '{}' is used both as a CVar name and as a prefix for other CVars. Rename one of them.", sFullName);
         pCurrentNode = &parentNode;
       }
     }

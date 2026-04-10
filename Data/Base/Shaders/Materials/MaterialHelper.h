@@ -250,6 +250,16 @@ float3 TangentToWorldSpace(float3 normalTS)
   return normalTS.z * G.Input.Normal;
 #  endif
 }
+
+#  if defined(USE_TANGENT)
+float3 WorldToTangentSpace(float3 worldVec)
+{
+  return float3(
+    dot(worldVec, G.Input.Tangent),
+    dot(worldVec, G.Input.BiTangent),
+    dot(worldVec, G.Input.Normal));
+}
+#  endif
 #endif
 
 float3 BlendNormals(float3 baseNormal, float3 detailNormal)

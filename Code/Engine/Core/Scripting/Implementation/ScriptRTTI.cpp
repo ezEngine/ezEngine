@@ -1,6 +1,7 @@
 #include <Core/CorePCH.h>
 
 #include <Core/Scripting/ScriptRTTI.h>
+#include <Core/World/Declarations.h>
 #include <Foundation/Communication/Message.h>
 #include <Foundation/Memory/CommonAllocators.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
@@ -91,7 +92,23 @@ void ezScriptMessageHandler::FillMessagePropertyValues(const ezMessage& msg, ezD
   {
     if (pProp->GetCategory() == ezPropertyCategory::Member)
     {
-      out_propertyValues.PushBack(ezReflectionUtils::GetMemberPropertyValue(static_cast<const ezAbstractMemberProperty*>(pProp), &msg));
+      // Special handling for ezGameObjectHandle and ezComponentHandle to avoid unnecessary allocations that happen when converting them to ezVariant in ezReflectionUtils::GetMemberPropertyValue.
+      if (pProp->GetSpecificType() == ezGetStaticRTTI<ezGameObjectHandle>())
+      {
+        ezGameObjectHandle hObject;
+        static_cast<const ezAbstractMemberProperty*>(pProp)->GetValuePtr(&msg, &hObject);
+        out_propertyValues.PushBack(ezVariant(hObject));
+      }
+      else if (pProp->GetSpecificType() == ezGetStaticRTTI<ezComponentHandle>())
+      {
+        ezComponentHandle hComponent;
+        static_cast<const ezAbstractMemberProperty*>(pProp)->GetValuePtr(&msg, &hComponent);
+        out_propertyValues.PushBack(ezVariant(hComponent));
+      }
+      else
+      {
+        out_propertyValues.PushBack(ezReflectionUtils::GetMemberPropertyValue(static_cast<const ezAbstractMemberProperty*>(pProp), &msg));
+      }
     }
     else if (pProp->GetCategory() == ezPropertyCategory::Array)
     {

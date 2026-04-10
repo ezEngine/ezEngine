@@ -1,0 +1,49 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+CAMERA_MODE
+
+[RENDERSTATE]
+
+DepthTest = false
+DepthWrite = false
+CullMode = CullMode_None
+
+[VERTEXSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleVertexShader.h>
+
+[PIXELSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleInterpolator.h>
+#include <Shaders/Common/Common.h>
+#include "LightShaftsConstants.h"
+
+Texture2DArray SceneColor BIND_GROUP(BG_RENDER_PASS);
+Texture2DArray SceneDepth BIND_GROUP(BG_RENDER_PASS);
+
+float4 main(PS_IN input) : SV_Target
+{
+  #if CAMERA_MODE == CAMERA_MODE_STEREO
+    s_ActiveCameraEyeIndex = input.RenderTargetArrayIndex;
+  #endif
+
+  float3 sceneColor = SceneColor.SampleLevel(LinearClampSampler, float3(input.TexCoord0, s_ActiveCameraEyeIndex), 0).rgb;
+  float luminance = max(GetLuminance(sceneColor), 0.0001);
+  float adjustedLuminance = clamp(luminance - LightShaftsBrightnessThreshold, 0.0, LightShaftsMaxBrightness);
+  sceneColor = sceneColor * (adjustedLuminance / luminance);
+
+  float depthFromZBuffer = SceneDepth.SampleLevel(PointClampSampler, float3(input.TexCoord0, s_ActiveCameraEyeIndex), 0).r;
+  float occlusion = (depthFromZBuffer >= 0.9999) ? 1.0 : 0.0;
+
+  float2 edges = input.TexCoord0 * (1 - input.TexCoord0);
+  float edgeMask = saturate(edges.x * edges.y * 22.0);
+  edgeMask = edgeMask * edgeMask;
+
+  float aspectRatio = ViewportSize.x * ViewportSize.w; // width / height;
+  float distToOrigin = length((input.TexCoord0 - LightShaftsOriginUVs) * float2(aspectRatio, 1));
+  float diskMask = smoothstep(LightShaftsDiskMaskRadius, 0.0, distToOrigin);
+
+  return float4(sceneColor * LightShaftsTintColor.rgb * (occlusion * edgeMask * diskMask * LightShaftsIntensity), 1);
+}

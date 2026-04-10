@@ -6,6 +6,7 @@
 #include <ToolsFoundation/CommandHistory/CommandHistory.h>
 #include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
+#include <ToolsFoundation/VisualGraph/VisualGraphCommentNode.h>
 #include <ToolsFoundation/VisualGraph/VisualGraphObjectManager.h>
 
 // clang-format off
@@ -212,6 +213,14 @@ bool ezVisualGraphObjectManager::IsConnection(const ezDocumentObject* pObject) c
   return InternalIsConnection(pObject);
 }
 
+bool ezVisualGraphObjectManager::IsComment(const ezDocumentObject* pObject) const
+{
+  if (pObject == nullptr)
+    return false;
+
+  return pObject->GetType()->IsDerivedFrom<ezVisualGraphComment>();
+}
+
 bool ezVisualGraphObjectManager::IsDynamicPinProperty(const ezDocumentObject* pObject, const ezAbstractProperty* pProp) const
 {
   if (IsNode(pObject) == false)
@@ -296,7 +305,7 @@ ezStatus ezVisualGraphObjectManager::CanDisconnect(const ezDocumentObject* pObje
 ezStatus ezVisualGraphObjectManager::CanMoveNode(const ezDocumentObject* pObject, const ezVec2& vPos) const
 {
   EZ_ASSERT_DEV(pObject != nullptr, "Invalid input!");
-  if (!IsNode(pObject))
+  if (!IsNode(pObject) && !IsComment(pObject))
     return ezStatus("The given object is not a node!");
 
   return InternalCanMoveNode(pObject, vPos);
@@ -416,7 +425,7 @@ void ezVisualGraphObjectManager::RestoreMetaDataAfterLoading(const ezAbstractObj
     if (pObject == nullptr)
       continue;
 
-    if (IsNode(pObject))
+    if (IsNode(pObject) || IsComment(pObject))
     {
       DocumentNodeManager_NodeMetaData nodeMetaData;
       rttiConverter.ApplyPropertiesToObject(pAbstractObject, pNodeMetaDataType, &nodeMetaData);
@@ -530,7 +539,7 @@ void ezVisualGraphObjectManager::RestoreMetaDataAfterLoading(const ezAbstractObj
 
 void ezVisualGraphObjectManager::GetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const
 {
-  if (IsNode(pObject))
+  if (IsNode(pObject) || IsComment(pObject))
   {
     // The node position is not hashed here since the hash is only used for asset transform
     // and for that the node position is irrelevant.
@@ -562,7 +571,7 @@ bool ezVisualGraphObjectManager::CopySelectedObjects(ezAbstractObjectGraph& out_
   {
     // Only add nodes here, connections are then collected below to ensure
     // that we always include only valid connections within the copied subgraph no matter if they are selected or not.
-    if (IsNode(pObject))
+    if (IsNode(pObject) || IsComment(pObject))
     {
       // objects are required to be named root but this is not enforced or obvious by the interface.
       writer.AddObjectToGraph(pObject, "root");
@@ -573,7 +582,7 @@ bool ezVisualGraphObjectManager::CopySelectedObjects(ezAbstractObjectGraph& out_
   ezHashSet<const ezDocumentObject*> copiedConnections;
   for (const ezDocumentObject* pNodeObject : selection)
   {
-    if (IsNode(pNodeObject) == false)
+    if (!IsNode(pNodeObject) && !IsComment(pNodeObject))
       continue;
 
     auto outputs = GetOutputPins(pNodeObject);
@@ -628,7 +637,7 @@ bool ezVisualGraphObjectManager::PasteObjects(const ezArrayPtr<ezDocument::Paste
     ezUInt32 nodeCount = 0;
     for (const ezDocumentObject* pObject : AddedObjects)
     {
-      if (IsNode(pObject))
+      if (IsNode(pObject) || IsComment(pObject))
       {
         vAvgPos += GetNodePos(pObject);
         ++nodeCount;
@@ -640,7 +649,7 @@ bool ezVisualGraphObjectManager::PasteObjects(const ezArrayPtr<ezDocument::Paste
 
     for (const ezDocumentObject* pObject : AddedObjects)
     {
-      if (IsNode(pObject))
+      if (IsNode(pObject) || IsComment(pObject))
       {
         ezMoveNodeCommand move;
         move.m_Object = pObject->GetGuid();
@@ -866,7 +875,7 @@ void ezVisualGraphObjectManager::ObjectHandler(const ezDocumentObjectEvent& e)
   {
     case ezDocumentObjectEvent::Type::AfterObjectCreated:
     {
-      if (IsNode(e.m_pObject))
+      if (IsNode(e.m_pObject) || IsComment(e.m_pObject))
       {
         EZ_ASSERT_DEBUG(!m_ObjectToNode.Contains(e.m_pObject->GetGuid()), "Sanity check failed!");
         m_ObjectToNode[e.m_pObject->GetGuid()] = NodeInternal();
@@ -879,7 +888,7 @@ void ezVisualGraphObjectManager::ObjectHandler(const ezDocumentObjectEvent& e)
     break;
     case ezDocumentObjectEvent::Type::BeforeObjectDestroyed:
     {
-      if (IsNode(e.m_pObject))
+      if (IsNode(e.m_pObject) || IsComment(e.m_pObject))
       {
         auto it = m_ObjectToNode.Find(e.m_pObject->GetGuid());
         EZ_ASSERT_DEBUG(it.IsValid(), "Sanity check failed!");
@@ -919,7 +928,7 @@ void ezVisualGraphObjectManager::StructureEventHandler(const ezDocumentObjectStr
     break;
     case ezDocumentObjectStructureEvent::Type::AfterObjectAdded:
     {
-      if (IsNode(e.m_pObject))
+      if (IsNode(e.m_pObject) || IsComment(e.m_pObject))
       {
         ezVisualGraphObjectManagerEvent e2(ezVisualGraphObjectManagerEvent::Type::AfterNodeAdded, e.m_pObject);
         m_NodeEvents.Broadcast(e2);
@@ -932,7 +941,7 @@ void ezVisualGraphObjectManager::StructureEventHandler(const ezDocumentObjectStr
     break;
     case ezDocumentObjectStructureEvent::Type::BeforeObjectRemoved:
     {
-      if (IsNode(e.m_pObject))
+      if (IsNode(e.m_pObject) || IsComment(e.m_pObject))
       {
         ezVisualGraphObjectManagerEvent e2(ezVisualGraphObjectManagerEvent::Type::BeforeNodeRemoved, e.m_pObject);
         m_NodeEvents.Broadcast(e2);
@@ -941,7 +950,7 @@ void ezVisualGraphObjectManager::StructureEventHandler(const ezDocumentObjectStr
     break;
     case ezDocumentObjectStructureEvent::Type::AfterObjectRemoved:
     {
-      if (IsNode(e.m_pObject))
+      if (IsNode(e.m_pObject) || IsComment(e.m_pObject))
       {
         ezVisualGraphObjectManagerEvent e2(ezVisualGraphObjectManagerEvent::Type::AfterNodeRemoved, e.m_pObject);
         m_NodeEvents.Broadcast(e2);

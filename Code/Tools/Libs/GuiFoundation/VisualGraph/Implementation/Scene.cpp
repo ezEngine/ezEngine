@@ -1,21 +1,45 @@
 #include <GuiFoundation/GuiFoundationPCH.h>
 
+#include <Foundation/Configuration/Startup.h>
 #include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <GuiFoundation/VisualGraph/CommentNode.h>
 #include <GuiFoundation/VisualGraph/Connection.h>
 #include <GuiFoundation/VisualGraph/Node.h>
 #include <GuiFoundation/VisualGraph/Pin.h>
+#include <GuiFoundation/VisualGraph/View.moc.h>
 #include <GuiFoundation/Widgets/SearchableMenu.moc.h>
-#include <QGraphicsSceneMouseEvent>
-#include <QMenu>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Command/VisualGraphCommands.h>
+#include <ToolsFoundation/VisualGraph/VisualGraphCommentNode.h>
 
 ezRttiMappedObjectFactory<ezQtVisualGraphNode> ezQtVisualGraphScene::s_NodeFactory;
 ezRttiMappedObjectFactory<ezQtVisualGraphPin> ezQtVisualGraphScene::s_PinFactory;
 ezRttiMappedObjectFactory<ezQtVisualGraphConnection> ezQtVisualGraphScene::s_ConnectionFactory;
+
 ezVec2 ezQtVisualGraphScene::s_vLastMouseInteraction(0);
+
+// clang-format off
+EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, VisualGraphComment)
+
+  BEGIN_SUBSYSTEM_DEPENDENCIES
+    "ReflectedTypeManager"
+  END_SUBSYSTEM_DEPENDENCIES
+
+  ON_CORESYSTEMS_STARTUP
+  {
+    ezQtVisualGraphScene::GetNodeFactory().RegisterCreator(ezGetStaticRTTI<ezVisualGraphComment>(), [](const ezRTTI* pRtti) -> ezQtVisualGraphNode*
+      { return new ezQtVisualGraphCommentNode(); });
+  }
+
+  ON_CORESYSTEMS_SHUTDOWN
+  {
+    ezQtVisualGraphScene::GetNodeFactory().UnregisterCreator(ezGetStaticRTTI<ezVisualGraphComment>());
+  }
+
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 ezQtVisualGraphScene::ezQtVisualGraphScene(QObject* pParent)
   : QGraphicsScene(pParent)
@@ -53,7 +77,7 @@ void ezQtVisualGraphScene::InitScene(const ezVisualGraphObjectManager* pManager)
   const auto& rootObjects = pManager->GetRootObject()->GetChildren();
   for (const auto& pObject : rootObjects)
   {
-    if (pManager->IsNode(pObject))
+    if (pManager->IsNode(pObject) || pManager->IsComment(pObject))
     {
       CreateQtNode(pObject);
     }
@@ -330,9 +354,37 @@ void ezQtVisualGraphScene::contextMenuEvent(QGraphicsSceneContextMenuEvent* cont
     // Delete Node
     {
       QAction* pAction = new QAction("Remove", &menu);
+      pAction->setShortcut(QKeySequence("Del"));
       menu.addAction(pAction);
       connect(pAction, &QAction::triggered, this, [this](bool bChecked)
         { RemoveSelectedNodesAction(); });
+    }
+
+    // Frame Content
+    {
+      QAction* pAction = new QAction("Frame", &menu);
+      pAction->setShortcut(QKeySequence("F"));
+
+      menu.addAction(pAction);
+      connect(pAction, &QAction::triggered, this, [this](bool bChecked)
+        {
+          QList<QGraphicsView*> viewList = views();
+          if (!viewList.isEmpty())
+          {
+            if (ezQtVisualGraphView* pView = qobject_cast<ezQtVisualGraphView*>(viewList.first()))
+              pView->FrameContent();
+          }
+          //
+        });
+    }
+
+    // Add Comment
+    {
+      QAction* pAction = new QAction("Add Comment", &menu);
+      pAction->setShortcut(QKeySequence("C"));
+      menu.addAction(pAction);
+      connect(pAction, &QAction::triggered, this, [this](bool bChecked)
+        { AddCommentAroundSelectionAction(); });
     }
 
     pNode->ExtendContextMenu(menu);
@@ -379,6 +431,10 @@ void ezQtVisualGraphScene::keyPressEvent(QKeyEvent* event)
   {
     OpenSearchMenu(QCursor::pos());
   }
+  else if (event->key() == Qt::Key_C && event->modifiers() == Qt::NoModifier)
+  {
+    AddCommentAroundSelectionAction();
+  }
 
   // Pass Shortcuts/KeyPresses up the chain again, so e.g. Ctrl+S work even if inside a window
   if (event->type() == QEvent::ShortcutOverride || event->type() == QEvent::KeyPress)
@@ -416,7 +472,7 @@ void ezQtVisualGraphScene::CreateQtNode(const ezDocumentObject* pObject)
 
   pNode->ResetFlags();
 
-  // Note: We dont create connections here as it can cause recusion issues
+  // Note: We don't create connections here as it can cause recursion issues
   if (m_pTempConnection)
   {
     m_pTempNode = pNode;
@@ -755,6 +811,14 @@ void ezQtVisualGraphScene::OpenSearchMenu(QPoint screenPos)
   m_NodeCreationTemplates.Clear();
   m_pManager->GetNodeCreationTemplates(m_NodeCreationTemplates);
 
+  // Add comment node template
+  {
+    ezVisualGraphNodeDesc& commentDesc = m_NodeCreationTemplates.ExpandAndGetRef();
+    commentDesc.m_pType = ezGetStaticRTTI<ezVisualGraphComment>();
+    commentDesc.m_sTypeName = "Comment";
+    commentDesc.m_sCategory = ezMakeHashedString("Misc");
+  }
+
   for (ezUInt32 i = 0; i < m_NodeCreationTemplates.GetCount(); ++i)
   {
     const ezVisualGraphNodeDesc& nodeTemplate = m_NodeCreationTemplates[i];
@@ -828,6 +892,68 @@ void ezQtVisualGraphScene::RemoveSelectedNodesAction()
   }
 
   history->FinishTransaction();
+}
+
+void ezQtVisualGraphScene::AddCommentAroundSelectionAction()
+{
+  constexpr float fPadding = 20.0f;
+  constexpr float fHeaderHeight = 26.0f; // must match ezQtVisualGraphCommentNode::s_fHeaderHeight
+
+  ezVec2 vPos = m_vMousePos;
+  ezVec2 vSize(300.0f, 200.0f);
+  bool bCustomSize = false;
+
+  ezDeque<ezQtVisualGraphNode*> selection;
+  GetSelectedNodes(selection);
+
+  if (!selection.IsEmpty())
+  {
+    QRectF bounds;
+    for (const ezQtVisualGraphNode* pNode : selection)
+      bounds = bounds.united(pNode->sceneBoundingRect());
+
+    vPos.x = static_cast<float>(bounds.left()) - fPadding;
+    vPos.y = static_cast<float>(bounds.top()) - fHeaderHeight - fPadding;
+    vSize.x = static_cast<float>(bounds.width()) + fPadding * 2.0f;
+    vSize.y = static_cast<float>(bounds.height()) + fHeaderHeight + fPadding * 2.0f;
+    bCustomSize = true;
+  }
+
+  ezCommandHistory* history = m_pManager->GetDocument()->GetCommandHistory();
+  history->StartTransaction("Add Comment");
+
+  ezStatus res(EZ_SUCCESS);
+  {
+    ezAddObjectCommand cmd;
+    cmd.m_pType = ezGetStaticRTTI<ezVisualGraphComment>();
+    cmd.m_NewObjectGuid = ezUuid::MakeUuid();
+    cmd.m_Index = -1;
+    res = history->AddCommand(cmd);
+
+    if (res.Succeeded())
+    {
+      ezMoveNodeCommand move;
+      move.m_Object = cmd.m_NewObjectGuid;
+      move.m_NewPos = vPos;
+      res = history->AddCommand(move);
+    }
+
+    if (res.Succeeded() && bCustomSize)
+    {
+      ezSetObjectPropertyCommand setCmd;
+      setCmd.m_Object = cmd.m_NewObjectGuid;
+      setCmd.m_sProperty = "Size";
+      setCmd.m_NewValue = vSize;
+      res = history->AddCommand(setCmd);
+    }
+  }
+
+  if (res.Failed())
+    history->CancelTransaction();
+  else
+    history->FinishTransaction();
+
+  ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Adding comment node failed.");
 }
 
 void ezQtVisualGraphScene::ConnectPinsAction(const ezVisualGraphPin& sourcePin, const ezVisualGraphPin& targetPin)

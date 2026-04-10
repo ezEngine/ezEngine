@@ -413,7 +413,7 @@ void ezSmallArrayBase<T, Size>::PopBack(ezUInt32 uiCountToRemove /* = 1 */)
 {
   EZ_ASSERT_DEBUG(m_uiCount >= uiCountToRemove, "Out of bounds access. Array has {0} elements, trying to pop {1} elements.", m_uiCount, uiCountToRemove);
 
-  m_uiCount -= uiCountToRemove;
+  m_uiCount -= static_cast<ezUInt16>(uiCountToRemove);
   ezMemoryUtils::Destruct(GetElementsPtr() + m_uiCount, uiCountToRemove);
 }
 
@@ -688,7 +688,7 @@ EZ_ALWAYS_INLINE void ezSmallArray<T, Size, AllocatorWrapper>::InsertAt(ezUInt32
 template <typename T, ezUInt16 Size, typename AllocatorWrapper /*= ezDefaultAllocatorWrapper*/>
 EZ_ALWAYS_INLINE void ezSmallArray<T, Size, AllocatorWrapper>::InsertAt(ezUInt32 uiIndex, T&& value)
 {
-  SUPER::Insert(value, uiIndex, AllocatorWrapper::GetAllocator());
+  SUPER::Insert(std::move(value), uiIndex, AllocatorWrapper::GetAllocator());
 }
 
 template <typename T, ezUInt16 Size, typename AllocatorWrapper /*= ezDefaultAllocatorWrapper*/>

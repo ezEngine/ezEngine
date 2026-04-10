@@ -11,7 +11,7 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDirectionalLightRenderData, 1, ezRTTIDefaultAllocator<ezDirectionalLightRenderData>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_COMPONENT_TYPE(ezDirectionalLightComponent, 3, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezDirectionalLightComponent, 4, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -20,6 +20,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezDirectionalLightComponent, 3, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("FadeOutStart", GetFadeOutStart, SetFadeOutStart)->AddAttributes(new ezClampValueAttribute(0.6f, 1.0f), new ezDefaultValueAttribute(0.8f)),
     EZ_ACCESSOR_PROPERTY("SplitModeWeight", GetSplitModeWeight, SetSplitModeWeight)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f), new ezDefaultValueAttribute(0.7f)),
     EZ_ACCESSOR_PROPERTY("NearPlaneOffset", GetNearPlaneOffset, SetNearPlaneOffset)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(100.0f), new ezSuffixAttribute(" m")),
+    EZ_ACCESSOR_PROPERTY("ScreenSpaceShadows", GetScreenSpaceShadows, SetScreenSpaceShadows),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -43,6 +44,18 @@ ezResult ezDirectionalLightComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bo
 {
   ref_bAlwaysVisible = true;
   return EZ_SUCCESS;
+}
+
+void ezDirectionalLightComponent::SetScreenSpaceShadows(bool bShadows)
+{
+  m_bScreenSpaceShadows = bShadows;
+
+  InvalidateCachedRenderData();
+}
+
+bool ezDirectionalLightComponent::GetScreenSpaceShadows() const
+{
+  return m_bScreenSpaceShadows;
 }
 
 void ezDirectionalLightComponent::SetNumCascades(ezUInt32 uiNumCascades)
@@ -121,6 +134,7 @@ void ezDirectionalLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData&
   pRenderData->m_fSpecularMultiplier = m_fSpecularMultiplier;
 
   pRenderData->m_vDirection = GetOwner()->GetGlobalRotation() * ezVec3(-1, 0, 0);
+  pRenderData->m_bScreenSpaceShadows = m_bScreenSpaceShadows;
 
   if (m_bCastShadows)
   {
@@ -131,7 +145,12 @@ void ezDirectionalLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData&
     pRenderData->m_uiShadowDataOffsetAndFadeOut = 0;
   }
 
-  pRenderData->FillBatchIdAndSortingKey(1.0f);
+  // Sorting key
+  {
+    const float fShadowMultiplier = m_bCastShadows ? 1.0f : 0.5f;
+    const float fIntensity = (m_fIntensity * ezColor(pRenderData->m_LightColor).GetLuminance() * fShadowMultiplier);
+    pRenderData->m_uiSortingKey = pRenderData->s_uiBaseSortingKey - ezMath::Clamp(static_cast<ezUInt32>(fIntensity), 0u, pRenderData->s_uiBaseSortingKey - 1);
+  }
 
   ezRenderData::Caching::Enum caching = m_bCastShadows ? ezRenderData::Caching::Never : ezRenderData::Caching::IfStatic;
   msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, caching);
@@ -142,6 +161,7 @@ void ezDirectionalLightComponent::SerializeComponent(ezWorldWriter& inout_stream
   SUPER::SerializeComponent(inout_stream);
   ezStreamWriter& s = inout_stream.GetStream();
 
+  s << m_bScreenSpaceShadows;
   s << m_uiNumCascades;
   s << m_fMinShadowRange;
   s << m_fFadeOutStart;
@@ -154,6 +174,11 @@ void ezDirectionalLightComponent::DeserializeComponent(ezWorldReader& inout_stre
   SUPER::DeserializeComponent(inout_stream);
   const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = inout_stream.GetStream();
+
+  if (uiVersion >= 4)
+  {
+    s >> m_bScreenSpaceShadows;
+  }
 
   if (uiVersion >= 3)
   {

@@ -331,8 +331,10 @@ void ezLensFlareComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
       pRenderData->FillSortingKey();
     }
 
-    msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitTransparent,
-      pLightComponent != nullptr ? ezRenderData::Caching::Never : ezRenderData::Caching::IfStatic);
+    const bool bIsSecondaryFlare = element.m_fShiftToCenter != 0.0f;
+    const auto category = bIsSecondaryFlare ? ezDefaultRenderDataCategories::LensEffects : ezDefaultRenderDataCategories::LitTransparent;
+
+    msg.AddRenderData(pRenderData, category, pLightComponent != nullptr ? ezRenderData::Caching::Never : ezRenderData::Caching::IfStatic);
   }
 }
 

@@ -18,7 +18,9 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezVisualScriptVariableType, 1)
   EZ_ENUM_CONSTANT(ezVisualScriptVariableType::Float),
   EZ_ENUM_CONSTANT(ezVisualScriptVariableType::Double),
   EZ_ENUM_CONSTANT(ezVisualScriptVariableType::Color),
+  EZ_ENUM_CONSTANT(ezVisualScriptVariableType::Vector2),
   EZ_ENUM_CONSTANT(ezVisualScriptVariableType::Vector3),
+  EZ_ENUM_CONSTANT(ezVisualScriptVariableType::Vector4),
   EZ_ENUM_CONSTANT(ezVisualScriptVariableType::Quaternion),
   EZ_ENUM_CONSTANT(ezVisualScriptVariableType::Transform),
   EZ_ENUM_CONSTANT(ezVisualScriptVariableType::Time),
@@ -152,6 +154,12 @@ ezResult ezQtVisualScriptVariableWidget::GetVariantTypeDisplayName(ezVariantType
       type == ezVariantType::UInt16 ||
       type == ezVariantType::UInt32 ||
       type == ezVariantType::UInt64 ||
+      type == ezVariantType::Vector2I ||
+      type == ezVariantType::Vector3I ||
+      type == ezVariantType::Vector4I ||
+      type == ezVariantType::Vector2U ||
+      type == ezVariantType::Vector3U ||
+      type == ezVariantType::Vector4U ||
       type == ezVariantType::StringView ||
       type == ezVariantType::TempHashedString)
     return EZ_FAILURE;
@@ -313,7 +321,7 @@ void ezQtVisualScriptVariableTypeDeclarationWidget::ChangeType()
 ///////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezVisualScriptVariable, ezNoBase, 2, ezRTTIDefaultAllocator<ezVisualScriptVariable>)
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezVisualScriptVariable, ezNoBase, 3, ezRTTIDefaultAllocator<ezVisualScriptVariable>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -500,13 +508,55 @@ public:
 
 ezVisualScriptVariablePatch_1_2 g_ezVisualScriptVariablePatch_1_2;
 
+class ezVisualScriptVariable_2_3 : public ezGraphPatch
+{
+public:
+  ezVisualScriptVariable_2_3()
+    : ezGraphPatch("ezVisualScriptVariable", 3)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    // The patch from 1 to 2 will already set the correct values for types.
+    if (pNode->GetTypeVersion() < 2)
+      return;
+
+    auto* pType = pNode->FindProperty("Type");
+    if (pType && pType->m_Value.IsA<ezVisualScriptVariableTypeDeclaration>())
+    {
+      auto typeDecl = pType->m_Value.Get<ezVisualScriptVariableTypeDeclaration>();
+
+      constexpr ezUInt32 uiOldVector3TypeValue = 8;
+      if (typeDecl.m_Type.GetValue() == uiOldVector3TypeValue)
+      {
+        typeDecl.m_Type = ezVisualScriptVariableType::Vector3;
+        pType->m_Value = typeDecl;
+        return;
+      }
+
+      constexpr ezUInt32 uiOldQuaternionTypeValue = 9;
+      constexpr ezUInt32 uiOffsetToQuaternion = static_cast<ezUInt32>(ezVisualScriptVariableType::Quaternion) - uiOldQuaternionTypeValue;
+      if (typeDecl.m_Type.GetValue() >= uiOldQuaternionTypeValue)
+      {
+        typeDecl.m_Type = static_cast<ezVisualScriptVariableType::Enum>(typeDecl.m_Type.GetValue() + uiOffsetToQuaternion);
+        pType->m_Value = typeDecl;
+      }
+    }
+  }
+};
+
+ezVisualScriptVariable_2_3 g_ezVisualScriptVariable_2_3;
+
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezVisualScriptExpressionDataType, 1)
   EZ_ENUM_CONSTANT(ezVisualScriptExpressionDataType::Int),
   EZ_ENUM_CONSTANT(ezVisualScriptExpressionDataType::Float),
+  EZ_ENUM_CONSTANT(ezVisualScriptExpressionDataType::Vector2),
   EZ_ENUM_CONSTANT(ezVisualScriptExpressionDataType::Vector3),
+  EZ_ENUM_CONSTANT(ezVisualScriptExpressionDataType::Vector4),
   EZ_ENUM_CONSTANT(ezVisualScriptExpressionDataType::Color),
 EZ_END_STATIC_REFLECTED_ENUM;
 
@@ -530,8 +580,12 @@ ezVisualScriptDataType::Enum ezVisualScriptExpressionDataType::GetVisualScriptDa
       return ezVisualScriptDataType::Int;
     case Float:
       return ezVisualScriptDataType::Float;
+    case Vector2:
+      return ezVisualScriptDataType::Vector2;
     case Vector3:
       return ezVisualScriptDataType::Vector3;
+    case Vector4:
+      return ezVisualScriptDataType::Vector4;
     case Color:
       return ezVisualScriptDataType::Color;
     default:

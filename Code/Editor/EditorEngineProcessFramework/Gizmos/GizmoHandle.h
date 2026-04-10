@@ -47,6 +47,7 @@ enum ezEngineGizmoHandleType
   HalfPiston,
   Sphere,
   CylinderZ,
+  LineCylinderZ,
   HalfSphereZ,
   BoxCorners,
   BoxEdges,
@@ -54,6 +55,7 @@ enum ezEngineGizmoHandleType
   LineBox,
   Cone,
   Frustum,
+  Cross,
   FromFile,
 };
 

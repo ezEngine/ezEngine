@@ -1,5 +1,7 @@
 .vscode/
-.claude/
+.claude/*
+!.claude/settings.json
+!.claude/commands
 .idea/
 
 # ez specific

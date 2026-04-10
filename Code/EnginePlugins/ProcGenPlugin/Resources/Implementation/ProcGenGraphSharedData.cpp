@@ -4,27 +4,6 @@
 
 namespace ezProcGenInternal
 {
-  EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(CurveData, 1, ezRTTIDefaultAllocator<CurveData>)
-  EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-  void CurveData::Save(ezStreamWriter& inout_stream) const
-  {
-    inout_stream.WriteArray(m_Samples).IgnoreResult();
-    inout_stream << m_fMinX;
-    inout_stream << m_fMaxX;
-  }
-
-  ezResult CurveData::Load(ezStreamReader& inout_stream)
-  {
-    EZ_SUCCEED_OR_RETURN(inout_stream.ReadArray(m_Samples));
-    inout_stream >> m_fMinX;
-    inout_stream >> m_fMaxX;
-
-    return EZ_SUCCESS;
-  }
-
-  ////////////////////////////////////////////////////////////////////////////
-
   ezUInt32 GraphSharedData::AddTagSet(const ezTagSet& tagSet)
   {
     ezUInt32 uiIndex = m_TagSets.IndexOf(tagSet);
@@ -36,24 +15,16 @@ namespace ezProcGenInternal
     return uiIndex;
   }
 
-  ezUInt32 GraphSharedData::AddCurve(ezDynamicArray<float>&& samples, float fMinX, float fMaxX)
+  ezUInt32 GraphSharedData::AddCurve(ezSampledCurve1D&& curve)
   {
-    for (ezUInt32 uiIndex = 0; uiIndex < m_Curves.GetCount(); ++uiIndex)
+    ezUInt32 uiIndex = m_Curves.IndexOf(curve);
+    if (uiIndex == ezInvalidIndex)
     {
-      const CurveData& existingCurve = m_Curves[uiIndex];
-      if (existingCurve.m_Samples == samples && existingCurve.m_fMinX == fMinX && existingCurve.m_fMaxX == fMaxX)
-      {
-        return uiIndex;
-      }
+      uiIndex = m_Curves.GetCount();
+      m_Curves.PushBack(std::move(curve));
     }
 
-    const ezUInt32 uiNewIndex = m_Curves.GetCount();
-    CurveData& curve = m_Curves.ExpandAndGetRef();
-    curve.m_Samples = std::move(samples);
-    curve.m_fMinX = fMinX;
-    curve.m_fMaxX = fMaxX;
-
-    return uiNewIndex;
+    return uiIndex;
   }
 
   const ezTagSet& GraphSharedData::GetTagSet(ezUInt32 uiIndex) const
@@ -61,7 +32,7 @@ namespace ezProcGenInternal
     return m_TagSets[uiIndex];
   }
 
-  const CurveData& GraphSharedData::GetCurve(ezUInt32 uiIndex) const
+  const ezSampledCurve1D& GraphSharedData::GetCurve(ezUInt32 uiIndex) const
   {
     return m_Curves[uiIndex];
   }
@@ -114,7 +85,7 @@ namespace ezProcGenInternal
 
       for (ezUInt32 i = 0; i < uiCount; ++i)
       {
-        CurveData curveData;
+        ezSampledCurve1D curveData;
         EZ_SUCCEED_OR_RETURN(curveData.Load(inout_stream));
         m_Curves.PushBack(std::move(curveData));
       }

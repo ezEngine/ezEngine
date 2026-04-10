@@ -24,9 +24,9 @@ PlacementTask::PlacementTask(PlacementData* pData, const char* szName)
 {
   ConfigureTask(szName, ezTaskNesting::Maybe);
 
+  m_VM.RegisterFunction(ezExtendedExpressionFunctions::s_SampleCurveFunc);
   m_VM.RegisterFunction(ezProcGenExpressionFunctions::s_ApplyVolumesFunc);
   m_VM.RegisterFunction(ezProcGenExpressionFunctions::s_GetInstanceSeedFunc);
-  m_VM.RegisterFunction(ezProcGenExpressionFunctions::s_SampleCurveFunc);
 }
 
 PlacementTask::~PlacementTask() = default;

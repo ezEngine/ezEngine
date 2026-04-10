@@ -68,6 +68,12 @@ public:
   /// \brief Detaches all selected objects from their current parent
   void DetachFromParent();
 
+  /// \brief Sends the ordered child object GUIDs to all selected objects that have a component with ezSyncChildOrderAttribute.
+  void SyncChildOrderForSelection();
+
+  /// \brief Iterates all objects in this document and sends child order sync for those that require it.
+  virtual void SyncAllChildOrders();
+
   /// \brief Puts the GUID of the single selected object into the clipboard
   void CopyReference();
 
@@ -221,6 +227,12 @@ protected:
   void SyncObjectHiddenState();
   void SyncObjectHiddenState(ezDocumentObject* pObject);
 
+  /// \brief Sends the child order sync message if pObj has a component with ezSyncChildOrderAttribute.
+  void SyncChildOrderForObject(const ezDocumentObject* pObj);
+
+  /// \brief Flushes m_PendingChildOrderSync, sending sync messages for all collected parents.
+  void SendPendingChildOrderSyncs();
+
   /// \brief Finds all objects that are actively being 'debugged' (or visualized) by the editor and thus should get the debug visualization flag in
   /// the runtime.
   void UpdateObjectDebugTargets();
@@ -240,7 +252,11 @@ protected:
   bool m_bStoreSelectionChange = true;
   ezInt8 m_iAllowSelectionChanges = -1;
   ezCopyOnBroadcastEvent<const ezSelectionManagerEvent&>::Unsubscriber m_SelectionHandlerUnsubscriber;
+  ezCopyOnBroadcastEvent<const ezDocumentObjectStructureEvent&>::Unsubscriber m_ChildOrderStructureEventUnsubscriber;
+  ezEvent<const ezCommandHistoryEvent&, ezMutex>::Unsubscriber m_ChildOrderCommandHistoryUnsubscriber;
   void SelectionManagerEventHandler(const ezSelectionManagerEvent& e);
+  void ChildOrderStructureEventHandler(const ezDocumentObjectStructureEvent& e);
+  void ChildOrderCommandHistoryEventHandler(const ezCommandHistoryEvent& e);
 
   struct SelectionHistory
   {
@@ -249,6 +265,10 @@ protected:
   };
 
   ezDeque<SelectionHistory> m_SelectionStack;
+
+  //////////////////////////////////////////////////////////////////////////
+private:
+  ezSet<ezUuid> m_PendingChildOrderSync;
 
   //////////////////////////////////////////////////////////////////////////
   /// Communication with other document types

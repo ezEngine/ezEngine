@@ -35,12 +35,6 @@ const char* ezParticleStreamFactory::GetStreamName() const
   return m_szStreamName;
 }
 
-void ezParticleStreamFactory::GetFullStreamName(const char* szName, ezProcessingStream::DataType type, ezStringBuilder& out_sResult)
-{
-  out_sResult = szName;
-  out_sResult.AppendFormat("({0})", (int)type);
-}
-
 ezParticleStream* ezParticleStreamFactory::CreateParticleStream(ezParticleSystemInstance* pOwner) const
 {
   const ezRTTI* pRtti = GetParticleStreamType();

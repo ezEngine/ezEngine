@@ -417,6 +417,12 @@ public:
   /// \brief If the string ends with the given word (case insensitive), it is removed and the function returns true.
   bool TrimWordEnd(ezStringView sWord); // [tested]
 
+  /// \brief Removes C-style line comments (//) and block comments (/* */) from the string in-place.
+  ///
+  /// Newlines within block comments are preserved, so that line numbers of subsequent lines remain correct.
+  /// Unterminated block comments are silently consumed until the end of the string.
+  void RemoveCStyleComments(); // [tested]
+
 #if EZ_ENABLED(EZ_INTEROP_STL_STRINGS)
   /// \brief Copies the given substring into this one. The ezStringView might actually be a substring of this very string.
   /* implicit */ ezStringBuilder(const std::string_view& rhs, ezAllocator* pAllocator = ezFoundation::GetDefaultAllocator());

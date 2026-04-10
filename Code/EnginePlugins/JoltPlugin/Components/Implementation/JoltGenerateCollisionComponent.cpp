@@ -301,9 +301,12 @@ void ezJoltGenerateCollisionComponent::OnMsgComponentInternalTrigger(ezMsgCompon
 {
   if (ref_msg.m_sMessage == "GenerationDone")
   {
+    m_pGenerationTask = nullptr;
+
     if (m_pNextGenerationTask != nullptr)
     {
-      StartGenerateTask(std::move(m_pNextGenerationTask));
+      m_pGenerationTask = std::move(m_pNextGenerationTask);
+      m_TaskGroupID = ezTaskSystem::StartSingleTask(m_pGenerationTask, ezTaskPriority::LongRunning);
       m_pNextGenerationTask = nullptr;
     }
   }
@@ -311,7 +314,7 @@ void ezJoltGenerateCollisionComponent::OnMsgComponentInternalTrigger(ezMsgCompon
 
 void ezJoltGenerateCollisionComponent::StartGenerateTask(ezSharedPtr<ezTask>&& pTask)
 {
-  if (m_pGenerationTask != nullptr && !m_pGenerationTask->IsTaskFinished())
+  if (m_pGenerationTask != nullptr)
   {
     m_pNextGenerationTask = pTask;
     return;

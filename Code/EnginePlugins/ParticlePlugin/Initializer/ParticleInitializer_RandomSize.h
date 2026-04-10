@@ -18,7 +18,7 @@ public:
   virtual void CopyInitializerProperties(ezParticleInitializer* pInitializer, bool bFirstTime) const override;
 
   virtual void Save(ezStreamWriter& inout_stream) const override;
-  virtual void Load(ezStreamReader& inout_stream) override;
+  virtual void Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor) override;
 
   ezVarianceTypeFloat m_Size;
   ezCurve1DResourceHandle m_hCurve;
@@ -38,5 +38,5 @@ public:
 protected:
   virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
 
-  ezProcessingStream* m_pStreamSize;
+  ezProcessingStream* m_pStreamSize = nullptr;
 };

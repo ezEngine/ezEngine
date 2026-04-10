@@ -16,6 +16,7 @@ protected:
   enum SubTests
   {
     Skeletal,
+    CurveData,
   };
 
   virtual void SetupSubTests() override;

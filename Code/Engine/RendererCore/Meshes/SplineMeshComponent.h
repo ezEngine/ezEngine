@@ -2,8 +2,14 @@
 
 #include <RendererCore/Meshes/MeshComponentBase.h>
 
+#include <Foundation/Containers/ArrayMap.h>
+
 struct ezMsgSplineChanged;
 struct ezMsgExtractGeometry;
+struct ezMsgGenericEvent;
+struct ezSpline;
+class ezAbstractObjectNode;
+class ezSplineComponent;
 
 /// \brief Determines how many meshes are distributed along the spline and how they are scaled.
 struct ezSplineMeshDistributionMode
@@ -135,14 +141,16 @@ private:
   void OnObjectCreated(const ezAbstractObjectNode& node);
   void OnMsgSplineChanged(ezMsgSplineChanged& ref_msg);           // [ msg handler ]
   void OnMsgExtractGeometry(ezMsgExtractGeometry& ref_msg) const; // [ msg handler ]
+  void OnMsgGenericEvent(ezMsgGenericEvent& ref_msg);             // [ msg handler ]
 
   void GenerateMeshPath(const ezSplineComponent& splineComponent, ezStringBuilder& out_sSplineMeshPath) const;
 
   ezResult GenerateDistribution(const ezSplineComponent& splineComponent, ezDynamicArray<ezMeshResourceHandle>& out_Meshes, ezDynamicArray<ezVec2>& out_scaleOffsets) const;
   ezUInt32 FindBestMiddlePart(float fRequestedLength, ezArrayPtr<const ezVec2> middleLengthAndOffset, bool bAllowOverlapFront, bool bAllowOverlapBack, int& inout_iRandomPos, ezUInt32 uiSeed) const;
 
-  ezResult GenerateSplineMesh(const ezSplineComponent& splineComponent, ezMeshResourceDescriptor& out_splineMeshDesc, ezMsgGenerateSplineMeshCollision* out_pMsg = nullptr) const;
   void UpdateSplineMesh();
+
+  void StartGenerateTask(ezSharedPtr<ezTask>&& pTask);
 
   const ezSplineComponent* GetSplineComponent() const;
 
@@ -159,4 +167,8 @@ private:
   float m_fOffsetZ = 0.0f;
 
   ezUInt64 m_uiStableId = 0;
+
+  ezSharedPtr<ezTask> m_pGenerationTask;
+  ezSharedPtr<ezTask> m_pNextGenerationTask;
+  ezTaskGroupID m_TaskGroupID;
 };

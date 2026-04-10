@@ -84,4 +84,16 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLayerVisibilityChangedMsgToEngine, 1, ezRTTIDe
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSyncChildOrderMsgToEngine, 1, ezRTTIDefaultAllocator<ezSyncChildOrderMsgToEngine>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("LayerGuid", m_LayerGuid),
+    EZ_MEMBER_PROPERTY("ComponentGuid", m_ComponentGuid),
+    EZ_ARRAY_MEMBER_PROPERTY("ChildOrder", m_ChildOrder),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on

@@ -78,6 +78,9 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
   float4 screenPosition = mul(GetWorldToScreenMatrix(), float4(worldPosition, 1.0));
   screenPosition.xyz /= screenPosition.w;
 
+  // clamp to farplane to prevent precision issues in the projection above
+  screenPosition.z = min(screenPosition.z, 1);
+
   float fade = max(abs(screenPosition.x), abs(screenPosition.y));
   fade = saturate(1.8 - (fade * fade));
 
@@ -141,14 +144,9 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
       float2 uv = sampleUv + offsets[i] * screenSampleRadius;
 
       float depthFromZBuffer = SceneDepth.SampleLevel(PointClampSampler, float3(uv, s_ActiveCameraEyeIndex), 0.0f).r;
-      visibility += (screenPosition.z < depthFromZBuffer) ? 1 : 0;
+      visibility += (screenPosition.z <= depthFromZBuffer) ? 1 : 0;
     }
     fade *= (visibility / 32);
-  }
-
-  if (fade <= 0)
-  {
-	return (VS_OUT)0;
   }
 
   float2 screenSize = scale * (data.Size / screenPosition.w);

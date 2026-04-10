@@ -1069,3 +1069,7 @@ ezWorld* ezOpenXR::GetWorld()
   }
   return nullptr;
 }
+
+
+EZ_STATICLINK_FILE(OpenXRPlugin, OpenXRPlugin_OpenXRSingleton);
+

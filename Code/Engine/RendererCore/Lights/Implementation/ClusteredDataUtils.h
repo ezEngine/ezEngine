@@ -191,7 +191,7 @@ namespace
     const float fCosOuter = ezMath::Cos(pSpotLightRenderData->m_OuterSpotAngle * 0.5f);
     const float fSpotParamScale = 1.0f / ezMath::Max(0.001f, (fCosInner - fCosOuter));
     const float fSpotParamOffset = -fCosOuter * fSpotParamScale;
-    out_perLightData.spotOrFillParams = ezShaderUtils::Float2ToRG16F(ezVec2(fSpotParamScale, fSpotParamOffset));
+    out_perLightData.auxParams = ezShaderUtils::Float2ToRG16F(ezVec2(fSpotParamScale, fSpotParamOffset));
 
     if (!pSpotLightRenderData->m_CookieId.IsInvalidated())
     {
@@ -210,6 +210,7 @@ namespace
     FillLightData(out_perLightData, pDirLightRenderData, LIGHT_TYPE_DIR);
 
     out_perLightData.direction = ezShaderUtils::Float3ToRGB10(pDirLightRenderData->m_vDirection);
+    out_perLightData.auxParams = pDirLightRenderData->m_bScreenSpaceShadows ? 1 : 0;
   }
 
   void FillFillLightData(ezPerLightData& out_perLightData, const ezFillLightRenderData* pFillLightRenderData)
@@ -241,7 +242,7 @@ namespace
     out_perLightData.invSqrAttRadius = 1.0f / pFillLightRenderData->m_fRange;
 
     const float fFalloffExponent = ezMath::Max(pFillLightRenderData->m_fFalloffExponent, 0.001f);
-    out_perLightData.spotOrFillParams = ezShaderUtils::Float2ToRG16F(ezVec2(fFalloffExponent, pFillLightRenderData->m_fDirectionality));
+    out_perLightData.auxParams = ezShaderUtils::Float2ToRG16F(ezVec2(fFalloffExponent, pFillLightRenderData->m_fDirectionality));
   }
 
   void FillDecalData(ezPerDecalData& out_perDecalData, const ezDecalRenderData* pDecalRenderData)

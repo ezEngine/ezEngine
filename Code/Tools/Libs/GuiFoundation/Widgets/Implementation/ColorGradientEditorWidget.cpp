@@ -96,6 +96,11 @@ void ezQtColorGradientEditorWidget::SetScrubberPosition(ezUInt64 uiTick)
   GradientWidget->SetScrubberPosition(ezColorGradient::TickToTime(uiTick));
 }
 
+void ezQtColorGradientEditorWidget::SetScrubberPosition(ezTime time)
+{
+  GradientWidget->SetScrubberPosition(time.GetSeconds());
+}
+
 void ezQtColorGradientEditorWidget::FrameGradient()
 {
   GradientWidget->FrameExtents();

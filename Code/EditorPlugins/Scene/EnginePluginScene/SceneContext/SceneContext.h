@@ -15,6 +15,7 @@ class ezGridSettingsMsgToEngine;
 class ezSimulationSettingsMsgToEngine;
 struct ezResourceManagerEvent;
 class ezExposedDocumentObjectPropertiesMsgToEngine;
+class ezSyncChildOrderMsgToEngine;
 class ezViewRedrawMsgToEngine;
 class ezWorldWriter;
 class ezDeferredFileWriter;
@@ -95,6 +96,7 @@ private:
   void HandleActiveLayerChangedMsg(const ezActiveLayerChangedMsgToEngine* pMsg);
   void HandleTagMsgToEngineMsg(const ezObjectTagMsgToEngine* pMsg);
   void HandleLayerVisibilityChangedMsgToEngineMsg(const ezLayerVisibilityChangedMsgToEngine* pMsg);
+  void HandleSyncChildOrderMsg(const ezSyncChildOrderMsgToEngine* pMsg);
 
   void DrawSelectionBounds(const ezViewHandle& hView);
 

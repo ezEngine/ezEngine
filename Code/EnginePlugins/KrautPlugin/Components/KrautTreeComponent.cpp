@@ -18,6 +18,13 @@
 #include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 
 // clang-format off
+EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezKrautTreeTypeBits, 1)
+  EZ_BITFLAGS_CONSTANTS(ezKrautTreeTypeBits::Trunk1, ezKrautTreeTypeBits::Trunk2, ezKrautTreeTypeBits::Trunk3)
+  EZ_BITFLAGS_CONSTANTS(ezKrautTreeTypeBits::MainBranches1, ezKrautTreeTypeBits::MainBranches2, ezKrautTreeTypeBits::MainBranches3)
+  EZ_BITFLAGS_CONSTANTS(ezKrautTreeTypeBits::SubBranches1, ezKrautTreeTypeBits::SubBranches2, ezKrautTreeTypeBits::SubBranches3)
+  EZ_BITFLAGS_CONSTANTS(ezKrautTreeTypeBits::Twigs1, ezKrautTreeTypeBits::Twigs2, ezKrautTreeTypeBits::Twigs3)
+EZ_END_STATIC_REFLECTED_BITFLAGS
+
 EZ_BEGIN_COMPONENT_TYPE(ezKrautTreeComponent, 3, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
@@ -86,32 +93,25 @@ void ezKrautTreeComponent::DeserializeComponent(ezWorldReader& inout_stream)
 
 ezResult ezKrautTreeComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg)
 {
-  if (m_hKrautTree.IsValid())
-  {
-    ezResourceLock<ezKrautTreeResource> pTree(m_hKrautTree, ezResourceAcquireMode::AllowLoadingFallback);
-    // TODO: handle fallback case properly
+  if (!m_hKrautTree.IsValid())
+    return EZ_FAILURE;
 
-    bounds = pTree->GetDetails().m_Bounds;
+  ezResourceLock<ezKrautTreeResource> pTree(m_hKrautTree, ezResourceAcquireMode::PointerOnly);
+  if (!pTree.IsValid())
+    return EZ_FAILURE;
 
-    {
-      // this is a work around to make shadows and LODing work better
-      // shadows do not affect the maximum LOD of a tree that is being rendered,
-      // otherwise moving/rotating light-sources would cause LOD popping artifacts
-      // and would generally result in more detailed tree rendering than typically necessary
-      // however, that means when one is facing away from a tree, but can see its shadow,
-      // the shadow may disappear entirely, because no view is setting a decent LOD level
-      //
-      // by artificially increasing its bbox the main camera will affect the LOD much longer,
-      // even when not looking at the tree, thus resulting in decent shadows
+  const ezBoundingBoxSphere treeBounds = pTree->GetDetails().m_Bounds;
+  if (!treeBounds.IsValid())
+    return EZ_FAILURE; // base data not yet generated; re-trigger once available
 
-      bounds.m_fSphereRadius *= s_iLocalBoundsScale;
-      bounds.m_vBoxHalfExtents *= (float)s_iLocalBoundsScale;
-    }
+  bounds = treeBounds;
 
-    return EZ_SUCCESS;
-  }
+  // Artificially inflate the bounds so the main camera keeps selecting a decent LOD even when
+  // the tree is not directly in view (e.g. for correct shadow LOD selection).
+  bounds.m_fSphereRadius *= s_iLocalBoundsScale;
+  bounds.m_vBoxHalfExtents *= (float)s_iLocalBoundsScale;
 
-  return EZ_FAILURE;
+  return EZ_SUCCESS;
 }
 
 void ezKrautTreeComponent::SetVariationIndex(ezUInt16 uiIndex)
@@ -179,13 +179,12 @@ void ezKrautTreeComponent::OnActivated()
 
 void ezKrautTreeComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
-  if (!m_hKrautTree.IsValid())
+  if (!m_hKrautTree.IsValid() || !m_hKrautGenerator.IsValid())
     return;
 
-  ezResourceLock<ezKrautTreeResource> pTree(m_hKrautTree, ezResourceAcquireMode::AllowLoadingFallback);
-
-  // if (pTree.GetAcquireResult() != ezResourceAcquireResult::Final)
-  //   return;
+  ezResourceLock<ezKrautTreeResource> pTree(m_hKrautTree, ezResourceAcquireMode::PointerOnly);
+  if (!pTree.IsValid())
+    return;
 
   const ezGameObject* pOwner = GetOwner();
   const ezTransform tOwner = pOwner->GetGlobalTransform();
@@ -195,46 +194,105 @@ void ezKrautTreeComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
   const bool bIsShadowView = msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow;
   const float fDistanceSQR = (tOwner.m_vPosition - vLodCamPos).GetLengthSquared();
 
+  const ezUInt8 uiMaxLods = static_cast<ezUInt8>(pTree->GetTreeLODs().GetCount());
+
+  // Determine which single LOD to render
+  ezUInt8 uiActiveLod = uiMaxLods; // sentinel: no LOD selected yet
+
+  if (m_iLodOverride >= 0 && m_iLodOverride < uiMaxLods)
+  {
+    uiActiveLod = static_cast<ezUInt8>(m_iLodOverride);
+  }
+  else
+  {
+    // Skip LOD0 (full-detail) in distance-based selection; it is only shown via override.
+    // LODs 1..N are the runtime LODs.
+    for (ezUInt8 uiCurLod = 1; uiCurLod < uiMaxLods; ++uiCurLod)
+    {
+      const auto& lodData = pTree->GetTreeLODs()[uiCurLod];
+      const float fMinDistSQR = ezMath::Square(fGlobalUniformScale * lodData.m_fMinLodDistance);
+      const float fMaxDistSQR = ezMath::Square(fGlobalUniformScale * lodData.m_fMaxLodDistance);
+
+      if (fDistanceSQR >= fMinDistSQR && fDistanceSQR < fMaxDistSQR)
+      {
+        uiActiveLod = uiCurLod;
+        break;
+      }
+    }
+
+    if (uiActiveLod == uiMaxLods)
+      return; // beyond all LOD distances: don't render
+  }
+
+  // Request the LOD mesh — returns true if ready, false if still generating.
+  {
+    ezResourceLock<ezKrautGeneratorResource> pGenerator(m_hKrautGenerator, ezResourceAcquireMode::PointerOnly);
+    if (!pGenerator.IsValid())
+      return;
+
+    if (!pGenerator->RequestLodMesh(m_hKrautTree, m_uiCurrentSeed, uiActiveLod, m_bForceGenerateImmediate))
+    {
+      // In runtime, fall back to a coarser LOD (higher index) that may already be ready,
+      // rather than skipping rendering entirely for this frame.
+      bool bFoundFallback = false;
+      for (ezUInt8 uiFallbackLod = uiActiveLod + 1; uiFallbackLod < uiMaxLods; ++uiFallbackLod)
+      {
+        if (pGenerator->RequestLodMesh(m_hKrautTree, m_uiCurrentSeed, uiFallbackLod, false))
+        {
+          uiActiveLod = uiFallbackLod;
+          bFoundFallback = true;
+          break;
+        }
+      }
+
+      if (!bFoundFallback)
+        return; // no LOD ready yet; skip this frame
+    }
+  }
+
+  m_iLastRenderedLod = static_cast<ezInt8>(uiActiveLod);
+
+  const auto& lodData = pTree->GetTreeLODs()[uiActiveLod];
+  if (!lodData.m_hMesh.IsValid())
+    return;
+
+  if (bIsShadowView && lodData.m_LodType != ezKrautLodType::Mesh)
+    return;
+
   // ignore scale, the shader expects the wind strength in the global 0-20 m/sec range
   const ezVec3 vLocalWind = pOwner->GetGlobalRotation().GetInverse() * m_vWindSpringPos;
 
-  // changes every frame
   const bool bDynamic = true;
   const ezColor color = ezColor(vLocalWind.x, vLocalWind.y, vLocalWind.z, vLocalWind.GetLength());
   const ezVec4 customData = pTree->GetDetails().m_vLeafCenter.GetAsVec4(0.0f);
   auto hInstanceDataBuffer = msg.m_pRenderDataManager->GetOrCreateInstanceDataAndFill(*this, bDynamic, tOwner, m_InstanceDataOffset, GetUniqueIdForRendering(), color, customData);
 
-  const ezUInt8 uiMaxLods = static_cast<ezUInt8>(pTree->GetTreeLODs().GetCount());
-  for (ezUInt8 uiCurLod = 0; uiCurLod < uiMaxLods; ++uiCurLod)
+  ezResourceLock<ezMeshResource> pMesh(lodData.m_hMesh, ezResourceAcquireMode::AllowLoadingFallback);
+  ezArrayPtr<const ezMeshResourceDescriptor::SubMesh> subMeshes = pMesh->GetSubMeshes();
+  ezArrayPtr<const ezKrautTreeResourceDescriptor::MaterialData> materials = lodData.m_Materials;
+
+  for (ezUInt32 subMeshIdx = 0; subMeshIdx < subMeshes.GetCount(); ++subMeshIdx)
   {
-    const auto& lodData = pTree->GetTreeLODs()[uiCurLod];
+    const ezUInt32 uiMaterialIndex = subMeshes[subMeshIdx].m_uiMaterialIndex;
 
-    if (!lodData.m_hMesh.IsValid())
-      continue;
-
-    const float fMinDistSQR = ezMath::Square(fGlobalUniformScale * lodData.m_fMinLodDistance);
-    const float fMaxDistSQR = ezMath::Square(fGlobalUniformScale * lodData.m_fMaxLodDistance);
-
-    if (fDistanceSQR < fMinDistSQR || fDistanceSQR >= fMaxDistSQR)
-      continue;
-
-    if (bIsShadowView && lodData.m_LodType != ezKrautLodType::Mesh)
-      continue;
-
-    ezResourceLock<ezMeshResource> pMesh(lodData.m_hMesh, ezResourceAcquireMode::AllowLoadingFallback);
-    ezArrayPtr<const ezMeshResourceDescriptor::SubMesh> subMeshes = pMesh->GetSubMeshes();
-
-    for (ezUInt32 subMeshIdx = 0; subMeshIdx < subMeshes.GetCount(); ++subMeshIdx)
+    if (uiMaterialIndex < materials.GetCount())
     {
-      const ezUInt32 uiMaterialIndex = subMeshes[subMeshIdx].m_uiMaterialIndex;
-      ezMaterialResourceHandle hMaterial = pMesh->GetMaterials()[uiMaterialIndex];
+      const auto& matInfo = materials[uiMaterialIndex];
 
-      ezMeshRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezMeshRenderData>(pOwner);
-      pRenderData->SetFallbackGlobalBounds(GetOwner()->GetGlobalBounds());
-      pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, hMaterial, lodData.m_hMesh, uiMaterialIndex, subMeshIdx);
-
-      msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitOpaque, ezRenderData::Caching::Never);
+      if (matInfo.m_BranchType != ezKrautBranchType::None && m_bHideFrondsAndLeafs &&
+          (matInfo.m_MaterialType == ezKrautMaterialType::Frond || matInfo.m_MaterialType == ezKrautMaterialType::Leaf))
+      {
+        continue;
+      }
     }
+
+    ezMaterialResourceHandle hMaterial = pMesh->GetMaterials()[uiMaterialIndex];
+
+    ezMeshRenderData* pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezMeshRenderData>(pOwner);
+    pRenderData->SetFallbackGlobalBounds(GetOwner()->GetGlobalBounds());
+    pRenderData->Fill(m_InstanceDataOffset, hInstanceDataBuffer, hMaterial, lodData.m_hMesh, uiMaterialIndex, subMeshIdx);
+
+    msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitOpaque, ezRenderData::Caching::Never);
   }
 }
 
@@ -294,29 +352,68 @@ void ezKrautTreeComponent::EnsureTreeIsGenerated()
   if (pResource.GetAcquireResult() != ezResourceAcquireResult::Final)
     return;
 
-  ezKrautTreeResourceHandle hNewTree;
+  auto pDesc = pResource->GetDescriptor();
+  if (pDesc == nullptr)
+    return;
 
+  // Compute the seed for this component instance
+  ezUInt32 uiSeed;
   if (m_uiCustomRandomSeed != 0xFFFF)
   {
-    hNewTree = pResource->GenerateTree(m_uiCustomRandomSeed);
+    uiSeed = m_uiCustomRandomSeed;
   }
   else
   {
-    if (m_uiVariationIndex == 0xFFFF)
-    {
-      hNewTree = pResource->GenerateTreeWithGoodSeed(GetOwner()->GetStableRandomSeed() & 0xFFFF);
-    }
+    const ezUInt16 uiIndex = (m_uiVariationIndex != 0xFFFF) ? m_uiVariationIndex : static_cast<ezUInt16>(GetOwner()->GetStableRandomSeed() & 0xFFFF);
+    if (pDesc->m_GoodRandomSeeds.IsEmpty())
+      uiSeed = uiIndex;
     else
-    {
-      hNewTree = pResource->GenerateTreeWithGoodSeed(m_uiVariationIndex);
-    }
+      uiSeed = pDesc->m_GoodRandomSeeds[uiIndex % pDesc->m_GoodRandomSeeds.GetCount()];
   }
 
-  if (m_hKrautTree != hNewTree)
+  const ezKrautTreeResourceHandle hNewTree = pResource->GetOrCreateTreeResource(uiSeed);
+
+  if (m_hKrautTree == hNewTree)
   {
-    m_hKrautTree = hNewTree;
-    TriggerLocalBoundsUpdate();
+    m_uiCurrentSeed = uiSeed;
+    return;
   }
+
+  // A new tree resource is needed (generator content changed or first-time setup).
+  // If we were already rendering a specific LOD, wait until that LOD is ready in the new
+  // tree before switching, so the old tree keeps rendering without flickering.
+  if (m_iLastRenderedLod >= 0)
+  {
+    const ezUInt32 uiRequiredLod = static_cast<ezUInt32>(m_iLastRenderedLod);
+
+    // Kick off (or force) generation of the required LOD on the new tree resource.
+    pResource->RequestLodMesh(hNewTree, uiSeed, uiRequiredLod, m_bForceGenerateImmediate);
+
+    if (!m_bForceGenerateImmediate)
+    {
+      // Check whether the LOD is ready yet; if not, retry next frame so the old tree keeps rendering.
+      ezResourceLock<ezKrautTreeResource> pNewTree(hNewTree, ezResourceAcquireMode::PointerOnly);
+      if (pNewTree.IsValid() && uiRequiredLod < pNewTree->GetTreeLODs().GetCount() &&
+          pNewTree->GetLodState(uiRequiredLod) != ezKrautLodState::Ready)
+      {
+        GetWorld()->GetOrCreateComponentManager<ezKrautTreeComponentManager>()->EnqueueUpdate(GetHandle());
+        return;
+      }
+    }
+    // When m_bForceGenerateImmediate, RequestLodMesh generated synchronously — no need to retry.
+  }
+  else if (m_bForceGenerateImmediate)
+  {
+    // No previously rendered LOD to wait for. Generate base data + the coarsest runtime LOD
+    // synchronously so that bounds are valid within this same frame. This makes first-frame
+    // rendering deterministic, which is required for image comparison tests.
+    constexpr ezUInt32 uiCoarsestRuntimeLod = 1;
+    pResource->RequestLodMesh(hNewTree, uiSeed, uiCoarsestRuntimeLod, true);
+  }
+
+  m_uiCurrentSeed = uiSeed;
+  m_hKrautTree = hNewTree;
+  TriggerLocalBoundsUpdate();
 }
 
 void ezKrautTreeComponent::ComputeWind()
@@ -529,8 +626,22 @@ void ezKrautTreeComponentManager::Update(const ezWorldModule::UpdateContext& con
     if (!TryGetComponent(hComp, pComp) || !pComp->IsActiveAndInitialized())
       continue;
 
-    // TODO: this could be wrapped into a task
     pComp->EnsureTreeIsGenerated();
+
+    // If the tree resource exists but bounds aren't valid yet (base data task still running),
+    // re-enqueue so we trigger a bounds update as soon as the async task completes.
+    const ezKrautTreeResourceHandle& hTree = pComp->GetKrautTreeResource();
+    if (hTree.IsValid())
+    {
+      ezResourceLock<ezKrautTreeResource> pTree(hTree, ezResourceAcquireMode::PointerOnly);
+      if (pTree.IsValid())
+      {
+        if (!pTree->GetDetails().m_Bounds.IsValid())
+          EnqueueUpdate(hComp);              // retry next frame
+        else
+          pComp->TriggerLocalBoundsUpdate(); // bounds are now ready; ensure they propagate
+      }
+    }
   }
 }
 

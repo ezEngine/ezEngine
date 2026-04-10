@@ -147,16 +147,12 @@ void ezParticleWorldModule::ConfigureParticleStreamFactories()
 {
   ClearParticleStreamFactories();
 
-  ezStringBuilder fullName;
-
   ezRTTI::ForEachDerivedType<ezParticleStreamFactory>(
     [&](const ezRTTI* pRtti)
     {
       ezParticleStreamFactory* pFactory = pRtti->GetAllocator()->Allocate<ezParticleStreamFactory>();
 
-      ezParticleStreamFactory::GetFullStreamName(pFactory->GetStreamName(), pFactory->GetStreamDataType(), fullName);
-
-      m_StreamFactories[fullName] = pFactory;
+      m_StreamFactories[pFactory->GetStreamName()] = pFactory;
     },
     ezRTTI::ForEachOptions::ExcludeNonAllocatable);
 }

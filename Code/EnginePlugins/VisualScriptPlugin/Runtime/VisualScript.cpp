@@ -53,6 +53,10 @@ namespace
     "Builtin_Subtract",
     "Builtin_Multiply",
     "Builtin_Divide",
+    "Builtin_Modulo",
+    "Builtin_Min",
+    "Builtin_Max",
+    "Builtin_Clamp",
     "Builtin_Expression",
 
     "Builtin_ToBool",
@@ -62,10 +66,12 @@ namespace
     "Builtin_ToFloat",
     "Builtin_ToDouble",
     "Builtin_ToString",
-    "Builtin_String_Format",
     "Builtin_ToHashedString",
     "Builtin_ToVariant",
     "Builtin_Variant_ConvertTo",
+
+    "Builtin_String_Format",
+    "Builtin_String_GetCharacterCount",
 
     "Builtin_MakeArray",
     "Builtin_Array_GetElement",
@@ -157,7 +163,7 @@ ezVisualScriptGraphDescription::ezVisualScriptGraphDescription()
 
 ezVisualScriptGraphDescription::~ezVisualScriptGraphDescription() = default;
 
-static const ezTypeVersion s_uiVisualScriptGraphDescriptionVersion = 7;
+static const ezTypeVersion s_uiVisualScriptGraphDescriptionVersion = 8;
 
 // static
 ezResult ezVisualScriptGraphDescription::Serialize(ezArrayPtr<const ezVisualScriptNodeDescription> nodes, const ezVisualScriptDataDescription& localDataDesc, ezStreamWriter& inout_stream)

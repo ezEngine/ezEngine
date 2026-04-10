@@ -20,6 +20,7 @@ public:
 
   void SetCurves(const ezCurveGroupData& curveData);
   void SetScrubberPosition(ezUInt64 uiTick);
+  void SetScrubberPosition(ezTime time);
   void ClearSelection();
 
   void FrameCurve();
@@ -80,6 +81,7 @@ private:
   double m_fCurveDuration;
   ezVec2 m_vTangentMove;
   ezVec2d m_vControlPointMove;
+  bool m_bControlPointsScaled = false;
   ezCurveGroupData m_Curves;
   ezCurveGroupData m_CurvesBackup;
   QPointF m_ContextMenuScenePos;

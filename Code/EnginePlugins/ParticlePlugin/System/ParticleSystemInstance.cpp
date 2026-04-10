@@ -464,34 +464,30 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& diff)
 
 ezProcessingStream* ezParticleSystemInstance::QueryStream(const char* szName, ezProcessingStream::DataType type) const
 {
-  ezStringBuilder fullName;
-  ezParticleStreamFactory::GetFullStreamName(szName, type, fullName);
-
-  return m_StreamGroup.GetStreamByName(fullName);
+  return m_StreamGroup.GetStreamByName(szName);
 }
 
 void ezParticleSystemInstance::CreateStream(const char* szName, ezProcessingStream::DataType type, ezProcessingStream** pStream, ezParticleStreamBinding& inout_binding, bool bWillInitializeElements)
 {
   EZ_ASSERT_DEV(pStream != nullptr, "The pointer to the stream pointer must not be null");
 
-  ezStringBuilder fullName;
-  ezParticleStreamFactory::GetFullStreamName(szName, type, fullName);
-
   StreamInfo* pInfo = nullptr;
 
-  ezProcessingStream* pSubStream = m_StreamGroup.GetStreamByName(fullName);
+  ezProcessingStream* pSubStream = m_StreamGroup.GetStreamByName(szName);
   if (pSubStream == nullptr)
   {
-    pSubStream = m_StreamGroup.AddStream(fullName, type);
+    pSubStream = m_StreamGroup.AddStream(szName, type);
 
     pInfo = &m_StreamInfo.ExpandAndGetRef();
-    pInfo->m_sName = fullName;
+    pInfo->m_sName = szName;
   }
   else
   {
+    EZ_ASSERT_DEV(pSubStream->GetDataType() == type, "Particle stream '{}' already exists with data type {} (!= {}).", szName, (int)pSubStream->GetDataType(), (int)type);
+
     for (auto& info : m_StreamInfo)
     {
-      if (info.m_sName == fullName)
+      if (info.m_sName == szName)
       {
         pInfo = &info;
         break;
@@ -505,13 +501,13 @@ void ezParticleSystemInstance::CreateStream(const char* szName, ezProcessingStre
   if (bWillInitializeElements)
     pInfo->m_bGetsInitialized = true;
 
-  EZ_ASSERT_DEV(pSubStream != nullptr, "Stream creation failed ('{0}' -> '{1}')", szName, fullName);
+  EZ_ASSERT_DEV(pSubStream != nullptr, "Stream creation failed ('{0}')", szName);
   *pStream = pSubStream;
 
   {
     auto& bind = inout_binding.m_Bindings.ExpandAndGetRef();
     bind.m_ppStream = pStream;
-    bind.m_sName = fullName;
+    bind.m_sName = szName;
   }
 }
 

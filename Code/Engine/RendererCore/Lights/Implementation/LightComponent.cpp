@@ -19,9 +19,16 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLightRenderData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezLightRenderData::FillBatchIdAndSortingKey(float fScreenSpaceSize)
+bool ezLightRenderData::CanBatch(const ezRenderData& other) const
 {
-  m_uiSortingKey = (m_uiShadowDataOffsetAndFadeOut != 0) ? 0 : 1;
+  return true;
+}
+
+void ezLightRenderData::FillSortingKey(float fScreenSpaceSize)
+{
+  const float fMultiplier = (m_uiShadowDataOffsetAndFadeOut != 0) ? 1000.0f : 500.0f;
+  const ezUInt32 uiSortingKey = 10000u - static_cast<ezUInt32>(ezMath::Clamp(fScreenSpaceSize, 0.0f, 10.0f) * fMultiplier);
+  m_uiSortingKey = s_uiBaseSortingKey + uiSortingKey;
 }
 
 void ezLightRenderData::FillShadowDataOffsetAndFadeOut(ezUInt32 uiDataOffset, float fFadeOut)

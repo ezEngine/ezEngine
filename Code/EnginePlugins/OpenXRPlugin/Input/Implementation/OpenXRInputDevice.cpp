@@ -734,4 +734,4 @@ ezOpenXRInputDevice::Vec2Action::Vec2Action(ezXRDeviceFeatures::Enum feature, Xr
 }
 
 
-EZ_STATICLINK_FILE(OpenXRPlugin, OpenXRPlugin_OpenXRInputDevice);
+EZ_STATICLINK_FILE(OpenXRPlugin, OpenXRPlugin_Input_Implementation_OpenXRInputDevice);

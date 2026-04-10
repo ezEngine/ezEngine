@@ -24,6 +24,7 @@ namespace
   static ezHashedString sLogicCategory = ezMakeHashedString("Logic");
   static ezHashedString sMathCategory = ezMakeHashedString("Math");
   static ezHashedString sTypeConversionCategory = ezMakeHashedString("Type Conversion");
+  static ezHashedString sStringCategory = ezMakeHashedString("String");
   static ezHashedString sArrayCategory = ezMakeHashedString("Array");
   static ezHashedString sMessagesCategory = ezMakeHashedString("Messages");
   static ezHashedString sEnumsCategory = ezMakeHashedString("Enums");
@@ -150,7 +151,9 @@ static ezColorScheme::Enum s_scriptDataTypeToPinColor[] = {
   ezColorScheme::Green,  // Float,
   ezColorScheme::Green,  // Double,
   ezColorScheme::Lime,   // Color,
+  ezColorScheme::Orange, // Vector2,
   ezColorScheme::Orange, // Vector3,
+  ezColorScheme::Orange, // Vector4,
   ezColorScheme::Orange, // Quaternion,
   ezColorScheme::Orange, // Transform,
   ezColorScheme::Violet, // Time,
@@ -939,13 +942,16 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
     RegisterNodeType(typeDesc, std::move(nodeDesc), sLogicCategory);
   }
 
-  // Builtin_Add, Builtin_Sub, Builtin_Mul, Builtin_Div
+  // Builtin_Add, Builtin_Sub, Builtin_Mul, Builtin_Div, Builtin_Modulo, Builtin_Min, Builtin_Max
   {
     ezVisualScriptNodeDescription::Type::Enum mathNodeTypes[] = {
       ezVisualScriptNodeDescription::Type::Builtin_Add,
       ezVisualScriptNodeDescription::Type::Builtin_Subtract,
       ezVisualScriptNodeDescription::Type::Builtin_Multiply,
       ezVisualScriptNodeDescription::Type::Builtin_Divide,
+      ezVisualScriptNodeDescription::Type::Builtin_Modulo,
+      ezVisualScriptNodeDescription::Type::Builtin_Min,
+      ezVisualScriptNodeDescription::Type::Builtin_Max,
     };
 
     const char* szMathNodeTitles[] = {
@@ -953,6 +959,9 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
       "{A} - {B}",
       "{A} * {B}",
       "{A} / {B}",
+      "{A} % {B}",
+      "Min({A}, {B})",
+      "Max({A}, {B})",
     };
 
     static_assert(EZ_ARRAY_SIZE(mathNodeTypes) == EZ_ARRAY_SIZE(szMathNodeTitles));
@@ -974,6 +983,26 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
 
       RegisterNodeType(typeDesc, std::move(nodeDesc), sMathCategory);
     }
+  }
+
+  // Builtin_Clamp
+  {
+    FillDesc(typeDesc, "Builtin_Clamp", mathColor);
+
+    auto pAttr = EZ_DEFAULT_NEW(ezTitleAttribute, "Clamp({X}, {Min}, {Max})");
+    typeDesc.m_Attributes.PushBack(pAttr);
+
+    NodeDesc nodeDesc;
+    nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_Clamp;
+    nodeDesc.m_DeductTypeFunc = &ezVisualScriptTypeDeduction::DeductFromAllInputPins;
+
+    AddInputDataPin<bool>(typeDesc, nodeDesc, "Condition");
+    AddInputDataPin_Any(typeDesc, nodeDesc, "X", false, true);
+    AddInputDataPin_Any(typeDesc, nodeDesc, "Min", false, true);
+    AddInputDataPin_Any(typeDesc, nodeDesc, "Max", false, true);
+    nodeDesc.AddOutputDataPin("", nullptr, ezVisualScriptDataType::Any);
+
+    RegisterNodeType(typeDesc, std::move(nodeDesc), sMathCategory);
   }
 
   // Builtin_Expression
@@ -1062,24 +1091,6 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
     }
   }
 
-  // Builtin_String_Format
-  {
-    FillDesc(typeDesc, "Builtin_String_Format", stringColor);
-
-    auto pAttr = EZ_DEFAULT_NEW(ezTitleAttribute, "String::Format {Text}");
-    typeDesc.m_Attributes.PushBack(pAttr);
-
-    NodeDesc nodeDesc;
-    nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_String_Format;
-
-    AddInputDataPin<ezString>(typeDesc, nodeDesc, "Text");
-    AddInputProperty(typeDesc, "Params", ezGetStaticRTTI<ezVariantArray>(), ezVisualScriptDataType::Array);
-    nodeDesc.AddInputDataPin("Params", ezGetStaticRTTI<ezVariant>(), ezVisualScriptDataType::Variant, false, ezMakeHashedString("Params"));
-    AddOutputDataPin<ezString>(nodeDesc, "");
-
-    RegisterNodeType(typeDesc, std::move(nodeDesc), ezMakeHashedString("String"));
-  }
-
   // Builtin_Variant_ConvertTo
   {
     FillDesc(typeDesc, "Builtin_Variant_ConvertTo", variantColor);
@@ -1109,6 +1120,37 @@ void ezVisualScriptNodeRegistry::CreateBuiltinTypes()
     nodeDesc.AddOutputDataPin("Result", nullptr, ezVisualScriptDataType::Any);
 
     RegisterNodeType(typeDesc, std::move(nodeDesc), sTypeConversionCategory);
+  }
+
+  // Builtin_String_Format
+  {
+    FillDesc(typeDesc, "Builtin_String_Format", stringColor);
+
+    auto pAttr = EZ_DEFAULT_NEW(ezTitleAttribute, "String::Format {Text}");
+    typeDesc.m_Attributes.PushBack(pAttr);
+
+    NodeDesc nodeDesc;
+    nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_String_Format;
+
+    AddInputDataPin<ezString>(typeDesc, nodeDesc, "Text");
+    AddInputProperty(typeDesc, "Params", ezGetStaticRTTI<ezVariantArray>(), ezVisualScriptDataType::Array);
+    nodeDesc.AddInputDataPin("Params", ezGetStaticRTTI<ezVariant>(), ezVisualScriptDataType::Variant, false, ezMakeHashedString("Params"));
+    AddOutputDataPin<ezString>(nodeDesc, "");
+
+    RegisterNodeType(typeDesc, std::move(nodeDesc), sStringCategory);
+  }
+
+  // Builtin_String_GetCharacterCount
+  {
+    FillDesc(typeDesc, "Builtin_String_GetCharacterCount", stringColor);
+
+    NodeDesc nodeDesc;
+    nodeDesc.m_Type = ezVisualScriptNodeDescription::Type::Builtin_String_GetCharacterCount;
+
+    AddInputDataPin<ezString>(typeDesc, nodeDesc, "Text");
+    AddOutputDataPin<int>(nodeDesc, "");
+
+    RegisterNodeType(typeDesc, std::move(nodeDesc), sStringCategory);
   }
 
   // Builtin_MakeArray

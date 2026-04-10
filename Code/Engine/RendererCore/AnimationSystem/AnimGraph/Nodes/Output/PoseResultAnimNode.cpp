@@ -133,11 +133,15 @@ void ezPoseResultAnimNode::Step(ezAnimController& ref_controller, ezAnimGraphIns
     {
       ezAnimGraphPinDataLocalTransforms* pLocalTransforms = ref_controller.AddPinDataLocalTransforms();
 
+      // Re-query: AddPinDataLocalTransforms may have reallocated the array, invalidating the pointer obtained above.
+      pCurrentLocalTransforms = m_InPose.GetPose(ref_controller, ref_graph);
+
       pLocalTransforms->m_CommandID = pCurrentLocalTransforms->m_CommandID;
       pLocalTransforms->m_pWeights = m_InWeights.GetWeights(ref_controller, ref_graph);
       pLocalTransforms->m_fOverallWeight = pCurrentLocalTransforms->m_fOverallWeight * fCurrentWeight;
       pLocalTransforms->m_bUseRootMotion = pCurrentLocalTransforms->m_bUseRootMotion;
       pLocalTransforms->m_vRootMotion = pCurrentLocalTransforms->m_vRootMotion;
+      pLocalTransforms->m_CustomCurveValues = pCurrentLocalTransforms->m_CustomCurveValues;
 
       ref_controller.AddOutputLocalTransforms(pLocalTransforms);
     }

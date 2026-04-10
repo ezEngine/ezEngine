@@ -563,3 +563,57 @@ void ezCurve1D::MakeAutoTangentRight(ezUInt32 uiCpIdx)
 
   tCP.m_RightTangent.Set((float)tangent.x, (float)tangent.y);
 }
+
+ezResult ezCurve1D::GenerateSampledCurve(ezUInt32 uiNumSamples, ezSampledCurve1D& out_sampledCurve)
+{
+  if (uiNumSamples < 2)
+    return EZ_FAILURE;
+
+  SortControlPoints();
+  CreateLinearApproximation();
+
+  double fMinX, fMaxX;
+  QueryExtents(fMinX, fMaxX);
+  fMinX = ezMath::Min(fMinX, 0.0);
+  fMaxX = ezMath::Max(fMaxX, 1.0);
+  const float fStep = static_cast<float>(fMaxX - fMinX) / static_cast<float>(uiNumSamples - 1);
+
+  ezDynamicArray<float> samples;
+  samples.SetCount(uiNumSamples);
+  for (ezUInt32 i = 0; i < uiNumSamples; ++i)
+  {
+    float x = static_cast<float>(fMinX + fStep * i);
+    samples[i] = static_cast<float>(Evaluate(x));
+  }
+
+  out_sampledCurve.m_Samples = std::move(samples);
+  out_sampledCurve.m_fMinX = static_cast<float>(fMinX);
+  out_sampledCurve.m_fMaxX = static_cast<float>(fMaxX);
+  return EZ_SUCCESS;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSampledCurve1D, 1, ezRTTIDefaultAllocator<ezSampledCurve1D>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+bool ezSampledCurve1D::operator==(const ezSampledCurve1D& rhs) const
+{
+  return m_fMinX == rhs.m_fMinX && m_fMaxX == rhs.m_fMaxX && m_Samples == rhs.m_Samples;
+}
+
+void ezSampledCurve1D::Save(ezStreamWriter& inout_stream) const
+{
+  inout_stream.WriteArray(m_Samples).IgnoreResult();
+  inout_stream << m_fMinX;
+  inout_stream << m_fMaxX;
+}
+
+ezResult ezSampledCurve1D::Load(ezStreamReader& inout_stream)
+{
+  EZ_SUCCEED_OR_RETURN(inout_stream.ReadArray(m_Samples));
+  inout_stream >> m_fMinX;
+  inout_stream >> m_fMaxX;
+
+  return EZ_SUCCESS;
+}

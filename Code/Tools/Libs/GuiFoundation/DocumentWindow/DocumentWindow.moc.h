@@ -90,6 +90,11 @@ protected:
 
   void FinishWindowCreation();
 
+  /// Called after a saved dock layout has been restored. Override to re-apply any panel visibility
+  /// that must not be overridden by old layout files (e.g. panels that are conditionally shown/hidden).
+  /// The base implementation does nothing.
+  virtual void OnAfterDocumentLayoutRestored() {}
+
 private Q_SLOTS:
   void SlotRedraw();
   void SlotQueuedDelete();

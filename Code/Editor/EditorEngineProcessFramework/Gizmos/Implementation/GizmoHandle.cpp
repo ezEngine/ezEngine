@@ -282,6 +282,21 @@ static ezMeshBufferResourceHandle CreateMeshBufferCylinderZ()
   return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_CylinderZ", ezGALPrimitiveTopology::Triangles);
 }
 
+static ezMeshBufferResourceHandle CreateMeshBufferLineCylinderZ()
+{
+  const char* szResourceName = "{6978C491-0E1B-4471-A2A1-0CBEFFEBDAC5}";
+
+  ezMeshBufferResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szResourceName);
+
+  if (hMesh.IsValid())
+    return hMesh;
+
+  ezGeometry geom;
+  geom.AddLineCylinder(1.0f, 1.0f, 0.5f, 0.5f, 16);
+
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_LineCylinderZ", ezGALPrimitiveTopology::Lines);
+}
+
 static ezMeshBufferResourceHandle CreateMeshBufferHalfSphereZ()
 {
   const char* szResourceName = "{05BDED8B-96C1-4F2E-8F1B-5C07B3C28D22}";
@@ -438,6 +453,37 @@ static ezMeshBufferResourceHandle CreateMeshBufferFrustum()
   return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Frustum", ezGALPrimitiveTopology::Lines);
 }
 
+static ezMeshBufferResourceHandle CreateMeshBufferCross()
+{
+  const char* szResourceName = "{3D2A1B4C-8F5E-4D7A-B963-2C1E4F0A8B7D}";
+
+  ezMeshBufferResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szResourceName);
+
+  if (hMesh.IsValid())
+    return hMesh;
+
+  ezMat4 m;
+  m.SetIdentity();
+
+  ezGeometry geom;
+
+  // X axis
+  geom.AddVertex(m, ezVec3(-1.0f, 0, 0), ezVec3(0, 0, 1));
+  geom.AddVertex(m, ezVec3(1.0f, 0, 0), ezVec3(0, 0, 1));
+  // Y axis
+  geom.AddVertex(m, ezVec3(0, -1.0f, 0), ezVec3(0, 0, 1));
+  geom.AddVertex(m, ezVec3(0, 1.0f, 0), ezVec3(0, 0, 1));
+  // Z axis
+  geom.AddVertex(m, ezVec3(0, 0, -1.0f), ezVec3(0, 0, 1));
+  geom.AddVertex(m, ezVec3(0, 0, 1.0f), ezVec3(0, 0, 1));
+
+  geom.AddLine(0, 1);
+  geom.AddLine(2, 3);
+  geom.AddLine(4, 5);
+
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Cross", ezGALPrimitiveTopology::Lines);
+}
+
 static ezMeshBufferResourceHandle CreateMeshBufferFromFile(const char* szFile)
 {
   const char* szResourceName = szFile;
@@ -585,6 +631,12 @@ bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextCompone
       szMeshGuid = "{893384EA-2F43-4265-AF75-662E2C81C167}";
     }
     break;
+    case ezEngineGizmoHandleType::LineCylinderZ:
+    {
+      hMeshBuffer = CreateMeshBufferLineCylinderZ();
+      szMeshGuid = "{F2131237-9D5D-4067-AF66-A5C9180BDF39}";
+    }
+    break;
     case ezEngineGizmoHandleType::HalfSphereZ:
     {
       hMeshBuffer = CreateMeshBufferHalfSphereZ();
@@ -625,6 +677,12 @@ bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextCompone
     {
       szMeshGuid = "{22EC5D48-E8BE-410B-8EAD-51B7775BA058}";
       hMeshBuffer = CreateMeshBufferFrustum();
+    }
+    break;
+    case ezEngineGizmoHandleType::Cross:
+    {
+      hMeshBuffer = CreateMeshBufferCross();
+      szMeshGuid = "{1A3B5C7D-9E2F-4A6B-8C0D-E1F2A3B4C5D6}";
     }
     break;
     case ezEngineGizmoHandleType::FromFile:

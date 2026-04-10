@@ -3,6 +3,8 @@
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Containers/SmallArray.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStream.h>
+#include <Foundation/Math/Color8UNorm.h>
+#include <Foundation/Math/ColorScheme.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/SimdMath/SimdVec4f.h>
 #include <Foundation/SimdMath/SimdVec4i.h>
@@ -58,6 +60,14 @@ namespace ezExpression
     ezHashedString m_sName;
     ezProcessingStream::DataType m_DataType;
 
+    StreamDesc() = default;
+
+    StreamDesc(const ezHashedString sName, ezProcessingStream::DataType dataType)
+      : m_sName(sName)
+      , m_DataType(dataType)
+    {
+    }
+
     bool operator==(const StreamDesc& other) const
     {
       return m_sName == other.m_sName && m_DataType == other.m_DataType;
@@ -110,32 +120,55 @@ struct ezExpressionFunction
   ezExpression::ValidateGlobalDataFunction m_ValidateGlobalDataFunc;
 };
 
+/// \brief Contains the default expression functions that are always available in the expression system.
 struct EZ_FOUNDATION_DLL ezDefaultExpressionFunctions
 {
   static ezExpressionFunction s_RandomFunc;
   static ezExpressionFunction s_PerlinNoiseFunc;
 };
 
+/// \brief Contains extended expression functions that need to be registered explicitly with the expression VM.
+struct EZ_FOUNDATION_DLL ezExtendedExpressionFunctions
+{
+  static ezExpressionFunction s_SampleCurveFunc;
+};
+
 /// \brief Add this attribute a string property that should be interpreted as expression source.
 ///
 /// The Inputs/Outputs property reference another array property on the same object that contains objects
 /// with a name and a type property that can be used for real time error checking of the expression source.
+///
+/// Optionally, a semicolon-separated list of custom keywords can be provided. These are highlighted in the
+/// expression editor with a dedicated color, distinct from built-in types and functions.
 class EZ_FOUNDATION_DLL ezExpressionWidgetAttribute : public ezTypeWidgetAttribute
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezExpressionWidgetAttribute, ezTypeWidgetAttribute);
 
 public:
   ezExpressionWidgetAttribute() = default;
-  ezExpressionWidgetAttribute(const char* szInputsProperty, const char* szOutputProperty)
+
+  ezExpressionWidgetAttribute(const char* szInputsProperty, const char* szOutputsProperty)
     : m_sInputsProperty(szInputsProperty)
-    , m_sOutputsProperty(szOutputProperty)
+    , m_sOutputsProperty(szOutputsProperty)
+  {
+  }
+
+  /// \param szCustomKeywords Semicolon-separated list of identifiers to highlight as a custom keyword group.
+  /// \param customKeywordColor The color used to highlight the custom keywords.
+  ezExpressionWidgetAttribute(const char* szCustomKeywords, ezColorGammaUB customKeywordColor)
+    : m_sCustomKeywords(szCustomKeywords)
+    , m_CustomKeywordColor(customKeywordColor)
   {
   }
 
   const char* GetInputsProperty() const { return m_sInputsProperty; }
   const char* GetOutputsProperty() const { return m_sOutputsProperty; }
+  const char* GetCustomKeywords() const { return m_sCustomKeywords; }
+  ezColorGammaUB GetCustomKeywordColor() const { return m_CustomKeywordColor; }
 
 private:
   ezUntrackedString m_sInputsProperty;
   ezUntrackedString m_sOutputsProperty;
+  ezUntrackedString m_sCustomKeywords;
+  ezColorGammaUB m_CustomKeywordColor = ezColorGammaUB(ezColorScheme::DarkUI(ezColorScheme::Yellow));
 };

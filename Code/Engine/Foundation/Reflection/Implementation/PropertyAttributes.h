@@ -746,11 +746,10 @@ class EZ_FOUNDATION_DLL ezSplineManipulatorAttribute : public ezManipulatorAttri
 
 public:
   ezSplineManipulatorAttribute();
-  ezSplineManipulatorAttribute(const char* szNodesProperty, const char* szClosedProperty, const char* szBindTo);
+  ezSplineManipulatorAttribute(const char* szBindTo, const char* szClosedProperty);
 
-  const ezUntrackedString& GetNodesProperty() const { return m_sProperty1; }
+  const ezUntrackedString& GetBindTo() const { return m_sProperty1; }
   const ezUntrackedString& GetClosedProperty() const { return m_sProperty2; }
-  const ezUntrackedString& GetBindTo() const { return m_sProperty3; }
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -962,6 +961,27 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
+/// \brief Visualizes a Vec3 property as a 3D cross marker at the specified position in the viewport.
+///
+/// The position is interpreted as a local-space offset from the object's origin.
+/// \c szColorProperty may be nullptr, in which case \c fixedColor is used.
+class EZ_FOUNDATION_DLL ezPositionVisualizerAttribute : public ezVisualizerAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezPositionVisualizerAttribute, ezVisualizerAttribute);
+
+public:
+  ezPositionVisualizerAttribute();
+  ezPositionVisualizerAttribute(const char* szPositionProperty, float fSizeScale = 0.1f, const ezColor& fixedColor = ezColorScheme::LightUI(ezColorScheme::Grape), const char* szColorProperty = nullptr);
+
+  const ezUntrackedString& GetPositionProperty() const { return m_sProperty1; }
+  const ezUntrackedString& GetColorProperty() const { return m_sProperty2; }
+
+  float m_fSizeScale = 0.1f;
+  ezColor m_Color;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
 // Implementation moved here as it requires ezPropertyAttribute to be fully defined.
 template <typename Type>
 const Type* ezRTTI::GetAttributeByType() const
@@ -1164,4 +1184,14 @@ public:
 
 private:
   ezUntrackedString m_sBaseType;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+/// Marks a component type as requiring child-order synchronization from the editor.
+/// The editor uses this attribute to identify components that need to receive an ordered
+/// list of their parent game object's children via the reflected function SetChildOrder.
+class EZ_FOUNDATION_DLL ezSyncChildOrderAttribute : public ezPropertyAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezSyncChildOrderAttribute, ezPropertyAttribute);
 };

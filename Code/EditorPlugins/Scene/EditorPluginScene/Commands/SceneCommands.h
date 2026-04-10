@@ -30,6 +30,10 @@ public:                        // Properties
   ezAngle m_RevolveStartAngle;
   ezAngle m_RevolveAngleStep;
 
+  /// When duplicating a single object, this is set to the original object's index + 1, so the duplicate ends up right after the original.
+  /// A value of -1 (the default) appends to the end of the parent's children list.
+  ezInt32 m_iInsertIndex = -1;
+
 private:
   virtual ezStatus DoInternal(bool bRedo) override;
 

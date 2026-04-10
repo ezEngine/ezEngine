@@ -24,7 +24,6 @@ EZ_STATICLINK_LIBRARY(Core)
   EZ_STATICLINK_REFERENCE(Core_Interfaces_SoundInterface);
   EZ_STATICLINK_REFERENCE(Core_Interfaces_WindWorldModule);
   EZ_STATICLINK_REFERENCE(Core_Messages_Implementation_ApplyOnlyToMessage);
-  EZ_STATICLINK_REFERENCE(Core_Messages_Implementation_EventMessage);
   EZ_STATICLINK_REFERENCE(Core_Messages_Implementation_Messages);
   EZ_STATICLINK_REFERENCE(Core_Messages_Implementation_SetColorMessage);
   EZ_STATICLINK_REFERENCE(Core_Physics_Implementation_SurfaceResource);

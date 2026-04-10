@@ -258,7 +258,7 @@ void ezSpotLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
     pRenderData->m_uiShadowDataOffsetAndFadeOut = 0;
   }
 
-  pRenderData->FillBatchIdAndSortingKey(fScreenSpaceSize);
+  pRenderData->FillSortingKey(fScreenSpaceSize);
 
   ezRenderData::Caching::Enum caching = (m_bCastShadows || m_CookieId.IsInvalidated() == false) ? ezRenderData::Caching::Never : ezRenderData::Caching::IfStatic;
   msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, caching);

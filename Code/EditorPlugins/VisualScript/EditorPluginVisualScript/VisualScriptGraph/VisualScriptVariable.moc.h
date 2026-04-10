@@ -17,7 +17,9 @@ struct ezVisualScriptVariableType
     Float,
     Double,
     Color,
+    Vector2,
     Vector3,
+    Vector4,
     Quaternion,
     Transform,
     Time,
@@ -162,10 +164,12 @@ struct ezVisualScriptExpressionDataType
 
   enum Enum
   {
-    Int = static_cast<ezUInt8>(ezProcessingStream::DataType::Int),
-    Float = static_cast<ezUInt8>(ezProcessingStream::DataType::Float),
-    Vector3 = static_cast<ezUInt8>(ezProcessingStream::DataType::Float3),
-    Color = static_cast<ezUInt8>(ezProcessingStream::DataType::Float4),
+    Int,
+    Float,
+    Vector2,
+    Vector3,
+    Vector4,
+    Color,
 
     Default = Float
   };

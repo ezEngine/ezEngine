@@ -40,12 +40,13 @@ public:
   };
 
   ezProcessingStream();
+  ezProcessingStream(const ezHashedString& sName, const ezProcessingStream& data);
   ezProcessingStream(const ezHashedString& sName, DataType type, ezUInt16 uiStride, ezUInt16 uiAlignment);
   ezProcessingStream(const ezHashedString& sName, ezArrayPtr<ezUInt8> data, DataType type, ezUInt16 uiStride);
   ezProcessingStream(const ezHashedString& sName, ezArrayPtr<ezUInt8> data, DataType type);
   ~ezProcessingStream();
 
-  /// \brief Returns a const pointer to the data casted to the type T, note that no type check is done!
+  /// \brief Returns a const pointer to the data cast to the type T, note that no type check is done!
   template <typename T>
   const T* GetData() const
   {
@@ -55,7 +56,7 @@ public:
   /// \brief Returns a const pointer to the start of the data block.
   const void* GetData() const { return m_pData; }
 
-  /// \brief Returns a non-const pointer to the data casted to the type T, note that no type check is done!
+  /// \brief Returns a non-const pointer to the data cast to the type T, note that no type check is done!
   template <typename T>
   T* GetWritableData() const
   {

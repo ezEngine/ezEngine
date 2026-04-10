@@ -12,6 +12,7 @@
 #include <EditorPluginScene/Objects/SceneObjectManager.h>
 #include <EditorPluginScene/Scene/Scene2Document.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
+#include <Foundation/Reflection/Implementation/PropertyAttributes.h>
 #include <Foundation/Serialization/DdlSerializer.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
@@ -100,6 +101,13 @@ void ezSceneDocument::InitializeAfterLoading(bool bFirstTimeCreation)
   m_ObjectMirror.InitSender(GetObjectManager());
   m_ObjectMirror.InitReceiver(&m_Context);
   m_ObjectMirror.SendDocument();
+
+  GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocument::ChildOrderStructureEventHandler, this), m_ChildOrderStructureEventUnsubscriber);
+
+  // Layer sub-documents have their storage swapped into the main document's command history when active,
+  // so subscribe to the main document's command history to catch those transaction events.
+  ezCommandHistory* pHistory = IsMainDocument() ? GetCommandHistory() : static_cast<ezSceneDocument*>(GetMainDocument())->GetCommandHistory();
+  pHistory->m_Events.AddEventHandler(ezMakeDelegate(&ezSceneDocument::ChildOrderCommandHistoryEventHandler, this), m_ChildOrderCommandHistoryUnsubscriber);
 }
 
 ezSceneDocument::~ezSceneDocument()
@@ -409,6 +417,118 @@ void ezSceneDocument::DetachFromParent()
   GetSelectionManager()->SetSelection(prevSelection);
 }
 
+void ezSceneDocument::SyncChildOrderForObject(const ezDocumentObject* pObj)
+{
+  for (const ezDocumentObject* pComp : pObj->GetChildren())
+  {
+    if (pComp->GetParentProperty() != "Components")
+      continue;
+
+    if (pComp->GetType()->GetAttributeByType<ezSyncChildOrderAttribute>() == nullptr)
+      continue;
+
+    ezSyncChildOrderMsgToEngine msg;
+    // Sub-documents (layers) must use the main document's GUID and connection.
+    ezSceneDocument* pMainDoc = IsMainDocument() ? this : static_cast<ezSceneDocument*>(GetMainDocument());
+    msg.m_DocumentGuid = pMainDoc->GetGuid();
+    msg.m_LayerGuid = IsMainDocument() ? ezUuid() : GetGuid();
+    msg.m_ComponentGuid = pComp->GetGuid();
+
+    const ezIReflectedTypeAccessor& accessor = pObj->GetTypeAccessor();
+    const ezInt32 iCount = accessor.GetCount("Children");
+    for (ezInt32 i = 0; i < iCount; ++i)
+    {
+      ezVariant val = accessor.GetValue("Children", i);
+      if (val.IsA<ezUuid>())
+        msg.m_ChildOrder.PushBack(val.Get<ezUuid>());
+    }
+
+    if (!msg.m_ChildOrder.IsEmpty())
+    {
+      pMainDoc->GetEditorEngineConnection()->SendMessage(&msg);
+    }
+    break;
+  }
+}
+
+void ezSceneDocument::SyncChildOrderForSelection()
+{
+  for (const ezDocumentObject* pObj : GetSelectionManager()->GetSelection())
+    SyncChildOrderForObject(pObj);
+}
+
+void ezSceneDocument::SyncAllChildOrders()
+{
+  ApplyRecursive(GetObjectManager()->GetRootObject(), [this](const ezDocumentObject* pObj)
+    { SyncChildOrderForObject(pObj); });
+}
+
+void ezSceneDocument::SendPendingChildOrderSyncs()
+{
+  if (m_PendingChildOrderSync.IsEmpty())
+    return;
+
+  for (const ezUuid& guid : m_PendingChildOrderSync)
+  {
+    const ezDocumentObject* pObj = GetObjectManager()->GetObject(guid);
+    if (pObj != nullptr)
+      SyncChildOrderForObject(pObj);
+  }
+
+  m_PendingChildOrderSync.Clear();
+}
+
+void ezSceneDocument::ChildOrderStructureEventHandler(const ezDocumentObjectStructureEvent& e)
+{
+  switch (e.m_EventType)
+  {
+    case ezDocumentObjectStructureEvent::Type::AfterObjectAdded:
+    case ezDocumentObjectStructureEvent::Type::AfterObjectRemoved:
+    case ezDocumentObjectStructureEvent::Type::AfterObjectMoved2:
+    {
+      if (e.m_sParentProperty != "Children")
+        break;
+
+      const ezDocumentObject* pParent =
+        (e.m_EventType == ezDocumentObjectStructureEvent::Type::AfterObjectRemoved) ? e.m_pPreviousParent : e.m_pNewParent;
+
+      if (pParent == nullptr)
+        break;
+
+      for (const ezDocumentObject* pComp : pParent->GetChildren())
+      {
+        if (pComp->GetParentProperty() != "Components")
+          continue;
+        if (pComp->GetType()->GetAttributeByType<ezSyncChildOrderAttribute>() != nullptr)
+        {
+          m_PendingChildOrderSync.Insert(pParent->GetGuid());
+          break;
+        }
+      }
+    }
+    break;
+    default:
+      break;
+  }
+}
+
+void ezSceneDocument::ChildOrderCommandHistoryEventHandler(const ezCommandHistoryEvent& e)
+{
+  switch (e.m_Type)
+  {
+    case ezCommandHistoryEvent::Type::TransactionEnded:
+    case ezCommandHistoryEvent::Type::UndoEnded:
+    case ezCommandHistoryEvent::Type::RedoEnded:
+      SendPendingChildOrderSyncs();
+      break;
+    case ezCommandHistoryEvent::Type::TransactionCanceled:
+      m_PendingChildOrderSync.Clear();
+      break;
+    default:
+      break;
+  }
+}
+
 void ezSceneDocument::CopyReference()
 {
   if (GetSelectionManager()->GetSelection().GetCount() != 1)
@@ -564,6 +684,20 @@ void ezSceneDocument::DuplicateSelection()
   ezDuplicateObjectsCommand cmd;
   cmd.m_sGraphTextFormat = (const char*)streamStorage.GetData();
   cmd.m_sParentNodes = temp;
+
+  // When exactly one object is selected, place the duplicate right after the original in the parent's children list.
+  if (parents.GetCount() == 1)
+  {
+    ezTempHybridArray<ezSelectionEntry, 4> topLevelSel;
+    GetSelectionManager()->GetTopLevelSelection(topLevelSel);
+
+    if (topLevelSel.GetCount() == 1)
+    {
+      const ezVariant idx = topLevelSel[0].m_pObject->GetPropertyIndex();
+      if (idx.IsValid())
+        cmd.m_iInsertIndex = idx.ConvertTo<ezInt32>() + 1;
+    }
+  }
 
   auto history = GetCommandHistory();
 
@@ -1651,6 +1785,15 @@ ezStatus ezSceneDocument::RequestExportScene(const char* szTargetFile, const ezA
 
   EZ_SUCCEED_OR_RETURN(SaveDocument());
 
+  EZ_SUCCEED_OR_RETURN(WaitForEngineStatusLoaded());
+
+  // Ensure child order information is synced to the engine before export.
+  // When a scene is transformed in the background (not opened in a window), the
+  // ezDocumentOpenResponseMsgToEditor that normally triggers SyncAllChildOrders() is never
+  // received, so components with ezSyncChildOrderAttribute (e.g. ezSplineComponent) would
+  // export with incorrect child order data.
+  SyncAllChildOrders();
+
   const ezStatus status = ezAssetDocument::RemoteExport(header, szTargetFile);
 
   // make sure the world is reset
@@ -1814,6 +1957,7 @@ void ezSceneDocument::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
   if (const ezDocumentOpenResponseMsgToEditor* msg = ezDynamicCast<const ezDocumentOpenResponseMsgToEditor*>(pMsg))
   {
     SyncObjectHiddenState();
+    SyncAllChildOrders();
   }
 
   if (const ezPushObjectStateMsgToEditor* msg = ezDynamicCast<const ezPushObjectStateMsgToEditor*>(pMsg))

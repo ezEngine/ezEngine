@@ -83,7 +83,7 @@ void ezParticleEmitterFactory_Burst::Save(ezStreamWriter& inout_stream) const
   inout_stream << m_sSpawnCountScaleParameter;
 }
 
-void ezParticleEmitterFactory_Burst::Load(ezStreamReader& inout_stream)
+void ezParticleEmitterFactory_Burst::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
 {
   ezUInt8 uiVersion = 0;
   inout_stream >> uiVersion;

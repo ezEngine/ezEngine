@@ -5,6 +5,11 @@ if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
 	return()
 endif()
 
+# Re-run CMake when HEAD changes (e.g. after git pull), but not on git fetch.
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.git/HEAD")
+	set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/.git/HEAD")
+endif()
+
 include("${CMAKE_CURRENT_SOURCE_DIR}/ezCMakeConfig.cmake")
 get_property(EZ_CMAKE_RELPATH GLOBAL PROPERTY EZ_CMAKE_RELPATH)
 get_property(EZ_CMAKE_RELPATH_CODE GLOBAL PROPERTY EZ_CMAKE_RELPATH_CODE)

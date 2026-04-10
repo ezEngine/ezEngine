@@ -445,6 +445,8 @@ class Player : ezAngelScriptClass
         if (wi.bUnlocked == false)
         {
             wi.bUnlocked = true;
+            ezSound::PlaySound("{ df9c8f91-f717-42ca-8268-153c0e4bdb95 }", GetOwner().GetGlobalPosition(), ezQuat::MakeIdentity(), 1.0f, 1.0f, false);
+
             SwitchToWeapon(msg.weaponType);
         }
     }    
