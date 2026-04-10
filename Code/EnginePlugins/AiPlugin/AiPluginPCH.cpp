@@ -10,5 +10,8 @@ EZ_STATICLINK_LIBRARY(AiPlugin)
   EZ_STATICLINK_REFERENCE(AiPlugin_Navigation_Components_NavMeshObstacleComponent);
   EZ_STATICLINK_REFERENCE(AiPlugin_Navigation_Components_NavMeshPathTestComponent);
   EZ_STATICLINK_REFERENCE(AiPlugin_Navigation_Components_NavigationComponent);
+  EZ_STATICLINK_REFERENCE(AiPlugin_Navigation_Components_VoxelNavigationComponent);
   EZ_STATICLINK_REFERENCE(AiPlugin_Navigation_Implementation_NavMeshWorldModule);
+  EZ_STATICLINK_REFERENCE(AiPlugin_Navigation_Implementation_VoxelNavigation);
+  EZ_STATICLINK_REFERENCE(AiPlugin_Navigation_Implementation_VoxelWorldModule);
 }

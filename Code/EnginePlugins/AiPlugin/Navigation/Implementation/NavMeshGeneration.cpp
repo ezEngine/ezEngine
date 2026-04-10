@@ -247,7 +247,7 @@ static void QueryInputGeo(const ezNavmeshGeoWorldModuleInterface* pGeo, ezUInt32
 {
   bounds.Grow(ezVec3(1.0f));
 
-  ezTempHybridArray<ezNavmeshTriangle, 64> triangles;
+  ezHybridArray<ezNavmeshTriangle, 64> triangles;
 
   pGeo->RetrieveGeometryInArea(uiCollisionLayer, bounds, triangles);
 
