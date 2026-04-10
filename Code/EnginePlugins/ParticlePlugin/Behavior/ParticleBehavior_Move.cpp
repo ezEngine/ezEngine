@@ -212,7 +212,6 @@ void ezParticleBehavior_Move::Process(ezUInt64 uiNumElements)
   EZ_PROFILE_SCOPE("PFX: Move");
 
   const float tDiff = (float)m_TimeDiff.GetSeconds();
-  const ezVec3 vDown = m_pPhysicsModule != nullptr ? m_pPhysicsModule->GetGravity().GetNormalized() : ezVec3(0.0f, 0.0f, -1.0f);
 
   // Early exit if no movement on any axis
   const bool bHasXMovement = (m_MoveX_Mode == ezMovementMode::Constant && m_fMoveX_Speed != 0.0f) ||
@@ -306,13 +305,12 @@ void ezParticleBehavior_Move::Process(ezUInt64 uiNumElements)
         {
           const double evalPos = ezMath::Lerp(fMaxX_Z, fMinX_Z, fLifeTimeFraction);
           const float val = (float)m_pMoveZ_Curve->Evaluate(evalPos);
-          fZSpeed = m_fMoveZ_CurveOffset + val * m_fMoveZ_CurveScale;
+          vMove.z = (m_fMoveZ_CurveOffset + val * m_fMoveZ_CurveScale) * tDiff;
         }
         else
         {
-          fZSpeed = m_fMoveZ_Speed;
+          vMove.z = m_fMoveZ_Speed * tDiff;
         }
-        vMove += vDown * -fZSpeed * tDiff;
       }
 
       itPosition.Current() += ezSimdConversion::ToVec3(vMove);
@@ -333,7 +331,7 @@ void ezParticleBehavior_Move::Process(ezUInt64 uiNumElements)
       vMove.y = m_fMoveY_Speed * tDiff;
 
     if (bHasZMovement)
-      vMove += vDown * -m_fMoveZ_Speed * tDiff;
+      vMove.z = m_fMoveZ_Speed * tDiff;
 
     const ezSimdVec4f vMoveSimd = ezSimdConversion::ToVec3(vMove);
 

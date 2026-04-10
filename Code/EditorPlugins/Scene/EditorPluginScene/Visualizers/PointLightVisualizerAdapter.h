@@ -20,7 +20,7 @@ protected:
 
   virtual void UpdateGizmoTransform() override;
 
-  float m_fEffectiveRange = 1.0f;
+  float m_fDisplayRange = 1.0f;
   float m_fLength = 0.0f;
   float m_fRadius = 0.0f;
   bool m_bIsTube = false;

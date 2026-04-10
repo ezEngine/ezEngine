@@ -37,7 +37,7 @@ void ezPointLightVisualizerAdapter::Update()
   ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
   const ezPointLightVisualizerAttribute* pAttr = static_cast<const ezPointLightVisualizerAttribute*>(m_pVisualizerAttr);
 
-  m_fEffectiveRange = 1.0f;
+  m_fDisplayRange = 1.0f;
   m_fLength = 0.0f;
   m_fRadius = 0.0f;
 
@@ -51,7 +51,7 @@ void ezPointLightVisualizerAdapter::Update()
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetIntensityProperty()), intensity).AssertSuccess();
     EZ_ASSERT_DEBUG(intensity.CanConvertTo<float>(), "Invalid property bound to ezPointLightVisualizerAttribute 'intensity'");
 
-    m_fEffectiveRange = ezLightComponent::CalculateEffectiveRange(range.ConvertTo<float>(), intensity.ConvertTo<float>());
+    m_fDisplayRange = ezMath::Max(range.ConvertTo<float>(), ezLightComponent::CalculateEffectiveRange(range.ConvertTo<float>(), intensity.ConvertTo<float>()));
   }
 
   if (!pAttr->GetLengthProperty().IsEmpty())
@@ -96,7 +96,7 @@ void ezPointLightVisualizerAdapter::UpdateGizmoTransform()
 {
   // Range sphere encompasses the full attenuation volume (includes half the tube length when tubed).
   ezTransform t = GetObjectTransform();
-  const float fBoundingRadius = m_fEffectiveRange + m_fLength * 0.5f;
+  const float fBoundingRadius = m_fDisplayRange + m_fLength * 0.5f;
   t.m_vScale *= fBoundingRadius;
   m_hRangeGizmo.SetTransformation(t);
 

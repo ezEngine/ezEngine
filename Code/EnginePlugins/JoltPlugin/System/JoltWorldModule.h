@@ -87,7 +87,7 @@ public:
   const ezJoltUserData& GetUserData(ezUInt32 uiUserDataId) const;
 
   void SetGravity(const ezVec3& vObjectGravity, const ezVec3& vCharacterGravity);
-  virtual ezVec3 GetGravity() const override { return ezVec3(0, 0, -10); }
+  virtual ezVec3 GetGravity() const override { return m_Settings.m_vObjectGravity; }
   ezVec3 GetCharacterGravity() const { return m_Settings.m_vCharacterGravity; }
 
   /// \brief Queues an impulse to be applied on the given body as soon as that body is added to the Jolt scene.

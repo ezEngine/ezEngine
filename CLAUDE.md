@@ -53,6 +53,8 @@ To find more arguments for the test framework, run `FoundationTest.exe -help -cl
 
 - At startup, check which tool permissions you have. Prefer to use tools that can be executed without permission requests.
 
+- EZ_STATICLINK_FILE and EZ_STATICLINK_REFERENCE can be ignored during code generation, they are only relevant for static builds (which we don't do during development) and can automatically be updated with a script. This is not necessary for you to take care of.
+
 ## Code Documentation
 
 When documenting code:

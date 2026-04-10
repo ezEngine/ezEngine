@@ -115,199 +115,196 @@ void ezProjectileComponent::Update()
 
   ezPhysicsWorldModuleInterface* pPhysicsInterface = GetWorld()->GetModule<ezPhysicsWorldModuleInterface>();
 
-  if (pPhysicsInterface)
+  ezGameObject* pEntity = GetOwner();
+  const ezVec3 vCurPosition = pEntity->GetGlobalPosition();
+
+  const float fTimeDiff = (float)GetWorld()->GetClock().GetTimeDiff().GetSeconds();
+
+  ezVec3 vNewPosition;
+
+  // gravity
+  if (m_fGravityMultiplier != 0.0f && m_fMetersPerSecond > 0.0f) // mps == 0 for attached state
   {
-    ezGameObject* pEntity = GetOwner();
-    const ezVec3 vCurPosition = pEntity->GetGlobalPosition();
+    const ezVec3 vGravity = pPhysicsInterface ? (pPhysicsInterface->GetGravity() * m_fGravityMultiplier) : ezVec3::MakeZero();
 
-    const float fTimeDiff = (float)GetWorld()->GetClock().GetTimeDiff().GetSeconds();
+    m_vVelocity += vGravity * fTimeDiff;
+  }
 
-    ezVec3 vNewPosition;
+  ezVec3 vCurDirection = m_vVelocity * fTimeDiff;
+  float fDistance = 0.0f;
 
-    // gravity
-    if (m_fGravityMultiplier != 0.0f && m_fMetersPerSecond > 0.0f) // mps == 0 for attached state
+  if (!vCurDirection.IsZero())
+    fDistance = vCurDirection.GetLengthAndNormalize();
+
+  ezPhysicsQueryParameters queryParams(m_uiCollisionLayer);
+  queryParams.m_bIgnoreInitialOverlap = true;
+  queryParams.m_ShapeTypes = m_ShapeTypesToHit;
+
+  ezPhysicsCastResult castResult;
+  if (pPhysicsInterface && QueryCollision(*pPhysicsInterface, castResult, vCurPosition, vCurDirection, fDistance, queryParams))
+  {
+    const ezVec3 vNewCenterPosition = (m_fRadius > 0.0f)
+                                        ? CalculateSphereCenterPosition(vCurPosition, vCurDirection, castResult, fPenetrationDepth)
+                                        : castResult.m_vPosition;
+
+    const ezSurfaceResourceHandle hSurface = castResult.m_hSurface.IsValid() ? castResult.m_hSurface : m_hFallbackSurface;
+
+    const ezInt32 iInteraction = FindSurfaceInteraction(hSurface);
+
+    if (iInteraction == -1)
     {
-      const ezVec3 vGravity = pPhysicsInterface->GetGravity() * m_fGravityMultiplier;
-
-      m_vVelocity += vGravity * fTimeDiff;
-    }
-
-    ezVec3 vCurDirection = m_vVelocity * fTimeDiff;
-    float fDistance = 0.0f;
-
-    if (!vCurDirection.IsZero())
-      fDistance = vCurDirection.GetLengthAndNormalize();
-
-    ezPhysicsQueryParameters queryParams(m_uiCollisionLayer);
-    queryParams.m_bIgnoreInitialOverlap = true;
-    queryParams.m_ShapeTypes = m_ShapeTypesToHit;
-
-    ezPhysicsCastResult castResult;
-    if (QueryCollision(*pPhysicsInterface, castResult, vCurPosition, vCurDirection, fDistance, queryParams))
-    {
-      const ezVec3 vNewCenterPosition = (m_fRadius > 0.0f)
-        ? CalculateSphereCenterPosition(vCurPosition, vCurDirection, castResult, fPenetrationDepth)
-        : castResult.m_vPosition;
-
-      const ezSurfaceResourceHandle hSurface = castResult.m_hSurface.IsValid() ? castResult.m_hSurface : m_hFallbackSurface;
-
-      const ezInt32 iInteraction = FindSurfaceInteraction(hSurface);
-
-      if (iInteraction == -1)
-      {
-        GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
-        vNewPosition = vNewCenterPosition;
-      }
-      else
-      {
-        const auto& interaction = m_SurfaceInteractions[iInteraction];
-
-        if (!interaction.m_sInteraction.IsEmpty())
-        {
-          TriggerSurfaceInteraction(hSurface, castResult.m_hActorObject, castResult.m_vPosition, castResult.m_vNormal, vCurDirection, interaction.m_sInteraction);
-        }
-
-        // if we hit some valid object
-        if (!castResult.m_hActorObject.IsInvalidated())
-        {
-          ezGameObject* pObject = nullptr;
-
-          // apply a physical impulse
-          if (interaction.m_uiImpulseType >= ezImpulseTypeConfig::FirstValidKey || (interaction.m_uiImpulseType == ezImpulseTypeConfig::CustomValueKey && interaction.m_fImpulse > 0.0f))
-          {
-            if (GetWorld()->TryGetObject(castResult.m_hActorObject, pObject))
-            {
-              ezMsgPhysicsAddImpulse msg;
-              msg.m_uiImpulseType = interaction.m_uiImpulseType;
-              msg.m_vGlobalPosition = castResult.m_vPosition;
-              msg.m_vImpulse = vCurDirection;
-              msg.m_uiObjectFilterID = castResult.m_uiObjectFilterID;
-              msg.m_pInternalPhysicsShape = castResult.m_pInternalPhysicsShape;
-              msg.m_pInternalPhysicsActor = castResult.m_pInternalPhysicsActor;
-
-              if (interaction.m_uiImpulseType == ezImpulseTypeConfig::CustomValueKey)
-              {
-                msg.m_vImpulse *= interaction.m_fImpulse;
-              }
-
-              pObject->SendMessage(msg);
-            }
-          }
-
-          // apply damage
-          if (interaction.m_fDamage > 0.0f)
-          {
-            // skip the TryGetObject if we already did that above
-            if (pObject != nullptr || GetWorld()->TryGetObject(castResult.m_hShapeObject, pObject))
-            {
-              ezMsgDamage msg;
-              msg.m_fDamage = interaction.m_fDamage;
-              msg.m_vGlobalPosition = castResult.m_vPosition;
-              msg.m_vImpactDirection = vCurDirection;
-
-              ezGameObject* pHitShape = nullptr;
-              if (GetWorld()->TryGetObject(castResult.m_hShapeObject, pHitShape))
-              {
-                msg.m_sHitObjectName = pHitShape->GetName();
-              }
-              else
-              {
-                msg.m_sHitObjectName = pObject->GetName();
-              }
-
-              pObject->SendEventMessage(msg, this);
-            }
-          }
-        }
-
-        if (interaction.m_Reaction == ezProjectileReaction::Absorb)
-        {
-          SpawnDeathPrefab();
-
-
-          GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
-          vNewPosition = vNewCenterPosition;
-        }
-        else if (interaction.m_Reaction == ezProjectileReaction::Reflect || interaction.m_Reaction == ezProjectileReaction::Bounce)
-        {
-          vNewPosition = vCurPosition;
-          const float velocityToNormalProj = m_vVelocity.Dot(castResult.m_vNormal);
-          if (velocityToNormalProj < 0.0f)
-          {
-            // the same as m_vVelocity.GetReflectedVector but reuse precalculated velocityToNormalProj
-            ezVec3 vNewVelocity = m_vVelocity - 2.0f * velocityToNormalProj * castResult.m_vNormal;
-
-            // Position of the projectile at the moment of reflection
-
-            if (interaction.m_Reaction == ezProjectileReaction::Bounce)
-            {
-              ezResourceLock<ezSurfaceResource> pSurface(hSurface, ezResourceAcquireMode::BlockTillLoaded);
-
-              if (pSurface)
-              {
-                vNewVelocity *= pSurface->GetDescriptor().m_fPhysicsRestitution;
-              }
-
-              if (ShouldStopProjectile(*pPhysicsInterface, castResult, vNewVelocity))
-              {
-                vNewVelocity = ezVec3::MakeZero();
-                m_fGravityMultiplier = 0.0f;
-
-                if (m_bSpawnPrefabOnStatic)
-                {
-                  SpawnDeathPrefab();
-                  GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
-                }
-              }
-            }
-
-            const ezVec3 vPositionOnReflection = vCurPosition + castResult.m_fDistance * vCurDirection;
-            if (m_BounceOrientation == ezProjectileBounceOrientation::Reflection)
-            {
-              ApplyReflectionRotation(vCurDirection, castResult.m_vNormal);
-            }
-            else
-            {
-              ApplySpinningRotation(interaction, castResult, vPositionOnReflection, vCurDirection, vNewVelocity);
-            }
-            const float fAbsVelocity = m_vVelocity.GetLength();
-            // condition velocityToNormalProj < 0.0f implies fAbsVelocity is non-zero
-            const float fTimeBeforeReflection = castResult.m_fDistance / fAbsVelocity;
-            const float fTimeLeft = ezMath::Max(0.0f, fTimeDiff - fTimeBeforeReflection);
-            // Path travelled back after the reflection
-            vNewPosition = vPositionOnReflection + vNewVelocity * fTimeLeft;
-            m_vVelocity = vNewVelocity;
-          }
-          else
-          {
-            vNewPosition += m_vVelocity * fTimeDiff;
-          }
-        }
-        else if (interaction.m_Reaction == ezProjectileReaction::Attach)
-        {
-          m_fMetersPerSecond = 0.0f;
-          m_fGravityMultiplier = 0.0f;
-          vNewPosition = vNewCenterPosition;
-
-          ezGameObject* pObject;
-          if (GetWorld()->TryGetObject(castResult.m_hActorObject, pObject))
-          {
-            pObject->AddChild(GetOwner()->GetHandle(), ezTransformPreservation::Enum::PreserveGlobal);
-          }
-        }
-        else if (interaction.m_Reaction == ezProjectileReaction::PassThrough)
-        {
-          vNewPosition = vCurPosition + fDistance * vCurDirection;
-        }
-      }
+      GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
+      vNewPosition = vNewCenterPosition;
     }
     else
     {
-      vNewPosition = vCurPosition + fDistance * vCurDirection;
-    }
+      const auto& interaction = m_SurfaceInteractions[iInteraction];
 
-    GetOwner()->SetGlobalPosition(vNewPosition);
+      if (!interaction.m_sInteraction.IsEmpty())
+      {
+        TriggerSurfaceInteraction(hSurface, castResult.m_hActorObject, castResult.m_vPosition, castResult.m_vNormal, vCurDirection, interaction.m_sInteraction);
+      }
+
+      // if we hit some valid object
+      if (!castResult.m_hActorObject.IsInvalidated())
+      {
+        ezGameObject* pObject = nullptr;
+
+        // apply a physical impulse
+        if (interaction.m_uiImpulseType >= ezImpulseTypeConfig::FirstValidKey || (interaction.m_uiImpulseType == ezImpulseTypeConfig::CustomValueKey && interaction.m_fImpulse > 0.0f))
+        {
+          if (GetWorld()->TryGetObject(castResult.m_hActorObject, pObject))
+          {
+            ezMsgPhysicsAddImpulse msg;
+            msg.m_uiImpulseType = interaction.m_uiImpulseType;
+            msg.m_vGlobalPosition = castResult.m_vPosition;
+            msg.m_vImpulse = vCurDirection;
+            msg.m_uiObjectFilterID = castResult.m_uiObjectFilterID;
+            msg.m_pInternalPhysicsShape = castResult.m_pInternalPhysicsShape;
+            msg.m_pInternalPhysicsActor = castResult.m_pInternalPhysicsActor;
+
+            if (interaction.m_uiImpulseType == ezImpulseTypeConfig::CustomValueKey)
+            {
+              msg.m_vImpulse *= interaction.m_fImpulse;
+            }
+
+            pObject->SendMessage(msg);
+          }
+        }
+
+        // apply damage
+        if (interaction.m_fDamage > 0.0f)
+        {
+          // skip the TryGetObject if we already did that above
+          if (pObject != nullptr || GetWorld()->TryGetObject(castResult.m_hShapeObject, pObject))
+          {
+            ezMsgDamage msg;
+            msg.m_fDamage = interaction.m_fDamage;
+            msg.m_vGlobalPosition = castResult.m_vPosition;
+            msg.m_vImpactDirection = vCurDirection;
+
+            ezGameObject* pHitShape = nullptr;
+            if (GetWorld()->TryGetObject(castResult.m_hShapeObject, pHitShape))
+            {
+              msg.m_sHitObjectName = pHitShape->GetName();
+            }
+            else
+            {
+              msg.m_sHitObjectName = pObject->GetName();
+            }
+
+            pObject->SendEventMessage(msg, this);
+          }
+        }
+      }
+
+      if (interaction.m_Reaction == ezProjectileReaction::Absorb)
+      {
+        SpawnDeathPrefab();
+
+
+        GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
+        vNewPosition = vNewCenterPosition;
+      }
+      else if (interaction.m_Reaction == ezProjectileReaction::Reflect || interaction.m_Reaction == ezProjectileReaction::Bounce)
+      {
+        vNewPosition = vCurPosition;
+        const float velocityToNormalProj = m_vVelocity.Dot(castResult.m_vNormal);
+        if (velocityToNormalProj < 0.0f)
+        {
+          // the same as m_vVelocity.GetReflectedVector but reuse precalculated velocityToNormalProj
+          ezVec3 vNewVelocity = m_vVelocity - 2.0f * velocityToNormalProj * castResult.m_vNormal;
+
+          // Position of the projectile at the moment of reflection
+
+          if (interaction.m_Reaction == ezProjectileReaction::Bounce)
+          {
+            ezResourceLock<ezSurfaceResource> pSurface(hSurface, ezResourceAcquireMode::BlockTillLoaded);
+
+            if (pSurface)
+            {
+              vNewVelocity *= pSurface->GetDescriptor().m_fPhysicsRestitution;
+            }
+
+            if (ShouldStopProjectile(*pPhysicsInterface, castResult, vNewVelocity))
+            {
+              vNewVelocity = ezVec3::MakeZero();
+              m_fGravityMultiplier = 0.0f;
+
+              if (m_bSpawnPrefabOnStatic)
+              {
+                SpawnDeathPrefab();
+                GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
+              }
+            }
+          }
+
+          const ezVec3 vPositionOnReflection = vCurPosition + castResult.m_fDistance * vCurDirection;
+          if (m_BounceOrientation == ezProjectileBounceOrientation::Reflection)
+          {
+            ApplyReflectionRotation(vCurDirection, castResult.m_vNormal);
+          }
+          else
+          {
+            ApplySpinningRotation(interaction, castResult, vPositionOnReflection, vCurDirection, vNewVelocity);
+          }
+          const float fAbsVelocity = m_vVelocity.GetLength();
+          // condition velocityToNormalProj < 0.0f implies fAbsVelocity is non-zero
+          const float fTimeBeforeReflection = castResult.m_fDistance / fAbsVelocity;
+          const float fTimeLeft = ezMath::Max(0.0f, fTimeDiff - fTimeBeforeReflection);
+          // Path travelled back after the reflection
+          vNewPosition = vPositionOnReflection + vNewVelocity * fTimeLeft;
+          m_vVelocity = vNewVelocity;
+        }
+        else
+        {
+          vNewPosition += m_vVelocity * fTimeDiff;
+        }
+      }
+      else if (interaction.m_Reaction == ezProjectileReaction::Attach)
+      {
+        m_fMetersPerSecond = 0.0f;
+        m_fGravityMultiplier = 0.0f;
+        vNewPosition = vNewCenterPosition;
+
+        ezGameObject* pObject;
+        if (GetWorld()->TryGetObject(castResult.m_hActorObject, pObject))
+        {
+          pObject->AddChild(GetOwner()->GetHandle(), ezTransformPreservation::Enum::PreserveGlobal);
+        }
+      }
+      else if (interaction.m_Reaction == ezProjectileReaction::PassThrough)
+      {
+        vNewPosition = vCurPosition + fDistance * vCurDirection;
+      }
+    }
   }
+  else
+  {
+    vNewPosition = vCurPosition + fDistance * vCurDirection;
+  }
+
+  GetOwner()->SetGlobalPosition(vNewPosition);
 }
 
 void ezProjectileComponent::SerializeComponent(ezWorldWriter& inout_stream) const
@@ -460,10 +457,10 @@ void ezProjectileComponent::ApplyReflectionRotation(const ezVec3& vCurDirection,
 }
 
 void ezProjectileComponent::ApplySpinningRotation(const ezProjectileSurfaceInteraction& interaction,
-                                                  const ezPhysicsCastResult& castResult,
-                                                  const ezVec3& vPositionOnReflection,
-                                                  const ezVec3& vCurDirection,
-                                                  const ezVec3& vNewVelocity)
+  const ezPhysicsCastResult& castResult,
+  const ezVec3& vPositionOnReflection,
+  const ezVec3& vCurDirection,
+  const ezVec3& vNewVelocity)
 {
   if (interaction.m_fInertiaRatio == 0.0f)
     return;
