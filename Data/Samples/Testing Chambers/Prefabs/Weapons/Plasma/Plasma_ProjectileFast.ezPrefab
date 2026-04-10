@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{10968892147187856520,4680268186461628477}}
-		u4 %Hash{12975756229009329803}
+		u4 %Hash{18207020935216121409}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{14975086783168853274,7590948841737216774}}
@@ -20,7 +20,6 @@ o
 		VarArray %PackageDeps
 		{
 			s{"{ 0a105955-e069-4523-80ce-7b9867bde687 }"}
-			s{"{ 8f19ce05-bf1e-4626-9659-e6acc058dee5 }"}
 			s{"{ d8a5e2ee-bb0e-4cc1-9e1f-72e77393f595 }"}
 			s{"{ e00262e8-58f5-42f5-880d-569257047201 }"}
 		}
@@ -64,7 +63,7 @@ o
 		b %Active{1}
 		f %AspectRatio{0x0000803F}
 		s %BlendMode{"ezSpriteBlendMode::Additive"}
-		Color %Color{f{0xDB085D41,0x89041244,0,0x0000803F}}
+		Color %Color{f{0x085F5841,0x89041244,0,0x0000803F}}
 		u1 %Columns{1}
 		f %Framerate{0x0000C041}
 		b %IsAnimated{0}
@@ -75,6 +74,31 @@ o
 		f %Size{0x0000803F}
 		s %Texture{"{ e00262e8-58f5-42f5-880d-569257047201 }"}
 		b %UseMaxScreenSize{1}
+	}
+}
+o
+{
+	Uuid %id{u4{658211392837241996,4874009165445133687}}
+	s %t{"ezPointLightComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		b %CastShadows{0}
+		f %ConstantBias{0xCDCCCC3D}
+		ColorGamma %EffectiveColor{u1{255,255,255,255}}
+		f %Intensity{0x0000C842}
+		f %Length{0}
+		ColorGamma %LightColor{u1{42,255,0,255}}
+		f %PenumbraSize{0xCDCC4C3D}
+		f %Radius{0}
+		f %Range{0}
+		f %ShadowFadeOutRange{0}
+		f %SlopeBias{0x0000803E}
+		f %SpecularMultiplier{0x0000803F}
+		u3 %Temperature{6550}
+		b %TransparentShadows{0}
+		b %UseColorTemperature{0}
 	}
 }
 o
@@ -150,7 +174,7 @@ o
 		f %InertiaRatio{0x0000A040}
 		s %Interaction{"Plasma_Impact"}
 		s %Reaction{"ezProjectileReaction::Absorb"}
-		s %Surface{"{ 8f19ce05-bf1e-4626-9659-e6acc058dee5 }"}
+		s %Surface{"{ 0a105955-e069-4523-80ce-7b9867bde687 }"}
 	}
 }
 o
@@ -167,6 +191,7 @@ o
 			Uuid{u4{7046036172170978504,17788223592979233661}}
 			Uuid{u4{16616760190989313676,4864854735156217753}}
 			Uuid{u4{7542386066989952675,5356859417278452236}}
+			Uuid{u4{658211392837241996,4874009165445133687}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0,0,0}}
@@ -1142,6 +1167,23 @@ o
 }
 o
 {
+	Uuid %id{u4{13157915159061735959,12012078319048480294}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezLightComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezPointLightComponent"}
+		u3 %TypeVersion{4}
+	}
+}
+o
+{
 	Uuid %id{u4{8462158745466161957,12084886310631755596}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
@@ -1227,6 +1269,23 @@ o
 }
 o
 {
+	Uuid %id{u4{17338863546649435593,13192242791875444156}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezVisualizerAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezPointLightVisualizerAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{11078601447512948093,13307465990423964330}}
 	s %t{"ezCategoryAttribute"}
 	u3 %v{1}
@@ -1277,6 +1336,23 @@ o
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"Surface"}
 		s %Type{"ezStringView"}
+	}
+}
+o
+{
+	Uuid %id{u4{12814930320360971966,14780945004767832345}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezLightComponent"}
+		u3 %TypeVersion{6}
 	}
 }
 o

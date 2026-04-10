@@ -1,11 +1,14 @@
 #pragma once
 
+#include <AiPlugin/AiPluginDLL.h>
 #include <Core/World/Component.h>
 #include <Core/World/World.h>
-#include <AiPlugin/AiPluginDLL.h>
 #include <Foundation/Containers/ArrayMap.h>
 
 class ezDetourCrowdAgentComponent;
+struct dtCrowdAgentParams;
+struct dtCrowdAgent;
+class dtCrowd;
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -126,7 +129,7 @@ public:
 protected:
   ezUInt8 m_uiDestinationChangedBit : 1;
   ezUInt8 m_uiHasDestinationBit : 1;
-  ezUInt8 m_uiSteeringFailedBit : 1;  ///< Set when pathfinding fails and AllowPartialPath is false.
+  ezUInt8 m_uiSteeringFailedBit : 1; ///< Set when pathfinding fails and AllowPartialPath is false.
   ezUInt8 m_uiParamsChangedBit : 1;
   ezUInt8 m_uiAllowPartialPathBit : 1;
 
