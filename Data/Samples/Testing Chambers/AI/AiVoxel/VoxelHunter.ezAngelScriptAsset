@@ -1,0 +1,269 @@
+HeaderV2
+{
+o
+{
+	Uuid %id{u4{7510857699861936075,4635885380814651670}}
+	s %t{"ezExposedParameter"}
+	u3 %v{3}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
+		s %DefaultValue{"Prey"}
+		s %Name{"PreyMarker"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{4477411779512872614,4816567077569846753}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{2}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"AngelScript"}
+		VarArray %Dependencies
+		{
+			s{"AI/AiVoxel/Hunter.as"}
+		}
+		Uuid %DocumentID{u4{4477411779512872614,4816567077569846753}}
+		u4 %Hash{3562717073866250373}
+		VarArray %MetaInfo
+		{
+			Uuid{u4{11160300980943884973,5800247240220378925}}
+		}
+		VarArray %Outputs{}
+		VarArray %PackageDeps{}
+		VarArray %References
+		{
+			s{"AI/AiVoxel/Hunter.as"}
+		}
+		s %Tags{""}
+	}
+}
+o
+{
+	Uuid %id{u4{11160300980943884973,5800247240220378925}}
+	s %t{"ezExposedParameters"}
+	u3 %v{3}
+	p
+	{
+		VarArray %Parameters
+		{
+			Uuid{u4{17694108185283463139,10739575193649461046}}
+			Uuid{u4{13469171791519920180,15030080879531058212}}
+			Uuid{u4{7510857699861936075,4635885380814651670}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{17694108185283463139,10739575193649461046}}
+	s %t{"ezExposedParameter"}
+	u3 %v{3}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
+		i3 %DefaultValue{3}
+		s %Name{"Difficulty"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{13469171791519920180,15030080879531058212}}
+	s %t{"ezExposedParameter"}
+	u3 %v{3}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
+		b %DefaultValue{1}
+		s %Name{"ShowDebugInfo"}
+		s %Type{""}
+	}
+}
+}
+Objects
+{
+o
+{
+	Uuid %id{u4{12277280903518145436,4703652856138638606}}
+	s %t{"ezAngelScriptAssetProperties"}
+	u3 %v{1}
+	p
+	{
+		s %ClassName{"Hunter"}
+		s %Code{"class ScriptObject : ezAngelScriptClass\n{\n\t// int PublicIntVar = 0;\n\n\tvoid OnSimulationStarted()\n\t{\n\t\t// ezLog::Info(\"Simulation Started\");\n\t}\n\n\t// void Update() { }\n\n\t// void OnMsgTriggerTriggered(ezMsgTriggerTriggered@ msg) { }\n}"}
+		VarArray %Dependencies{}
+		VarArray %Parameters
+		{
+			Uuid{u4{1445999759594415275,5549759050511920892}}
+			Uuid{u4{8181763218192127420,5610321624036375913}}
+			Uuid{u4{749731718847628982,4957770118820284612}}
+		}
+		s %Source{"ezAngelScriptCodeMode::FromFile"}
+		s %SourceFile{"AI/AiVoxel/Hunter.as"}
+	}
+}
+o
+{
+	Uuid %id{u4{749731718847628982,4957770118820284612}}
+	s %t{"ezAngelScriptParameter"}
+	u3 %v{1}
+	p
+	{
+		s %Declaration{"ezString PreyMarker = Prey"}
+		s %DefaultValue{"Prey"}
+		b %Expose{1}
+		s %Name{"PreyMarker"}
+	}
+}
+o
+{
+	Uuid %id{u4{1445999759594415275,5549759050511920892}}
+	s %t{"ezAngelScriptParameter"}
+	u3 %v{1}
+	p
+	{
+		s %Declaration{"int32 Difficulty = 3"}
+		i3 %DefaultValue{3}
+		b %Expose{1}
+		s %Name{"Difficulty"}
+	}
+}
+o
+{
+	Uuid %id{u4{8181763218192127420,5610321624036375913}}
+	s %t{"ezAngelScriptParameter"}
+	u3 %v{1}
+	p
+	{
+		s %Declaration{"bool ShowDebugInfo = true"}
+		b %DefaultValue{1}
+		b %Expose{1}
+		s %Name{"ShowDebugInfo"}
+	}
+}
+o
+{
+	Uuid %id{u4{18096612296587978288,6449934965513159559}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{12277280903518145436,4703652856138638606}}
+		}
+	}
+}
+}
+Types
+{
+o
+{
+	Uuid %id{u4{8509943957974801055,7464388984120343662}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginAngelScript"}
+		VarArray %Properties{}
+		s %TypeName{"ezAngelScriptAssetProperties"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{13231494322839441943,7887324119527060122}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginAngelScript"}
+		VarArray %Properties{}
+		s %TypeName{"ezAngelScriptCodeMode"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6089094783765586323,8705960867921430659}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentRoot"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{14234517193980461100,14716562946791027194}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginAngelScript"}
+		VarArray %Properties{}
+		s %TypeName{"ezAngelScriptParameter"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2947336711354777548,15013008608905564043}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEnumBase"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{983387834180907111,17935407260904399048}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezReflectedClass"}
+		u3 %TypeVersion{1}
+	}
+}
+}

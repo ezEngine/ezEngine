@@ -425,8 +425,8 @@ void ezAiNavigation::DebugDrawPathCorridor(const ezDebugRendererContext& context
 
 void ezAiNavigation::DebugDrawPathLine(const ezDebugRendererContext& context, ezColor straightLineColor, float fLineRenderOffsetZ)
 {
-  ezHybridArray<ezDebugRendererLine, 64> lines;
-  ezHybridArray<ezVec3, 64> waypoints;
+  ezTempHybridArray<ezDebugRendererLine, 64> lines;
+  ezTempHybridArray<ezVec3, 64> waypoints;
   ComputeAllWaypoints(waypoints);
 
   if (!waypoints.IsEmpty())
