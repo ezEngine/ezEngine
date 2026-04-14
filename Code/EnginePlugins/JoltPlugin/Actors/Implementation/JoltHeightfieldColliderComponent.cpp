@@ -1,8 +1,8 @@
 #include <JoltPlugin/JoltPluginPCH.h>
 
+#include <Jolt/Physics/PhysicsSystem.h>
 #include <JoltPlugin/Actors/JoltHeightfieldColliderComponent.h>
 #include <JoltPlugin/System/JoltWorldModule.h>
-#include <Jolt/Physics/PhysicsSystem.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezJoltHeightfieldColliderComponent, 1, ezComponentMode::Static)

@@ -97,7 +97,7 @@ public:
   void SetColMeshTesselation(ezVec2U32 value);                                       // [ property ]
 
 protected:
-  void OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const; // [ msg handler ]
+  void OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const;                        // [ msg handler ]
 
   void InvalidateMesh();
   void PushHeightfieldCollider();
