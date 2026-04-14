@@ -17,6 +17,7 @@
 
 class ezJoltCharacterControllerComponent;
 class ezJoltContactListener;
+class ezJoltMaterial;
 class ezJoltSoftBodyContactListener;
 class ezJoltRagdollComponent;
 class ezJoltRopeComponent;
@@ -29,6 +30,7 @@ namespace JPH
   class TempAllocator;
   class PhysicsSystem;
   class GroupFilter;
+  class Shape;
 
   class BodyInterface;
 } // namespace JPH
@@ -150,6 +152,12 @@ public:
 
   virtual ezBoundingBoxSphere GetWorldSpaceBounds(ezGameObject* pOwner, ezUInt32 uiCollisionLayer, ezBitflags<ezPhysicsShapeType> shapeTypes, bool bIncludeChildObjects) const override;
 
+  virtual ezResult TrySetHeightfieldCollider(ezGameObject* pOwner, ezStringView sIdentifier, ezUInt8 uiCollisionLayer) override;
+
+  virtual void CreateHeightfieldCollider(ezGameObject* pOwner, ezStringView sIdentifier, const HeightfieldColliderData& data) override;
+
+  virtual void RemoveHeightfieldCollider(ezGameObject* pOwner) override;
+
   ezDeque<ezComponentHandle> m_RequireUpdate;
 
   const ezSet<ezJoltDynamicActorComponent*>& GetActiveActors() const { return m_ActiveActors; }
@@ -191,8 +199,21 @@ public:
   /// Can be used to detect when no physics update was done (at high frame rates) to skip duplicate physics modifications.
   ezUInt64 GetJoltUpdateCounter() const { return m_uiJoltUpdateCounter; }
 
+  void ReleaseHeightfieldCacheEntry(ezStringView sIdentifier);
+
 private:
+  struct HeightfieldCacheEntry
+  {
+    JPH::Ref<JPH::Shape> m_pShape;
+    ezDynamicArray<ezSurfaceResourceHandle> m_Surfaces;
+    ezDynamicArray<const ezJoltMaterial*> m_MaterialPtrs;
+    ezUInt32 m_uiRefCount = 0;
+  };
+
   bool SweepTest(ezPhysicsCastResult& out_Result, const JPH::Shape& shape, const JPH::Mat44& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection) const;
+
+  static ezResult BuildJoltHeightfieldShape(const ezPhysicsWorldModuleInterface::HeightfieldColliderData& data, HeightfieldCacheEntry& out_Data);
+  static void AttachHeightfieldBody(ezJoltWorldModule* pModule, ezGameObject* pOwner, HeightfieldCacheEntry& cacheEntry, ezUInt8 uiCollisionLayer, ezStringView sCacheIdentifier);
   bool OverlapTest(const JPH::Shape& shape, const JPH::Mat44& transform, const ezPhysicsQueryParameters& params) const;
   void QueryShapes(ezPhysicsOverlapResultArray& out_results, const JPH::Shape& shape, const JPH::Mat44& transform, const ezPhysicsQueryParameters& params) const;
 
@@ -296,6 +317,9 @@ private:
 
   ezHybridArray<ezTime, 4> m_UpdateSteps;
   ezHybridArray<ezJoltCharacterControllerComponent*, 4> m_ActiveCharacters;
+
+  // Maps identifier strings to cached Jolt heightfield shapes. Shapes are ref-counted; the cache holds one ref each.
+  ezMap<ezString, HeightfieldCacheEntry> m_HeightfieldShapeCache;
 
   ezMutex m_ImpulsesMutex;
   ezDeque<ezJoltImpulse> m_Impulses;

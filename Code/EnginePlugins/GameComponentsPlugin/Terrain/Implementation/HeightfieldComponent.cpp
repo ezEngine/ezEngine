@@ -2,6 +2,7 @@
 
 #include <Core/Graphics/Geometry.h>
 #include <Core/Interfaces/PhysicsWorldModule.h>
+#include <Core/Physics/SurfaceResource.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameComponentsPlugin/Terrain/HeightfieldComponent.h>
@@ -28,7 +29,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezHeightfieldComponent, 2, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("TexCoordOffset", GetTexCoordOffset, SetTexCoordOffset)->AddAttributes(new ezDefaultValueAttribute(ezVec2(0))),
     EZ_ACCESSOR_PROPERTY("TexCoordScale", GetTexCoordScale, SetTexCoordScale)->AddAttributes(new ezDefaultValueAttribute(ezVec2(1))),
     EZ_ACCESSOR_PROPERTY("GenerateCollision", GetGenerateCollision, SetGenerateCollision)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_ACCESSOR_PROPERTY("ColMeshTesselation", GetColMeshTesselation, SetColMeshTesselation)->AddAttributes(new ezDefaultValueAttribute(ezVec2U32(64))),    
+    EZ_ACCESSOR_PROPERTY("ColMeshTesselation", GetColMeshTesselation, SetColMeshTesselation)->AddAttributes(new ezDefaultValueAttribute(ezVec2U32(0))),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -39,7 +40,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezHeightfieldComponent, 2, ezComponentMode::Static)
   EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
-    EZ_MESSAGE_HANDLER(ezMsgBuildStaticMesh, OnBuildStaticMesh),
     EZ_MESSAGE_HANDLER(ezMsgExtractGeometry, OnMsgExtractGeometry),
   }
   EZ_END_MESSAGEHANDLERS;
@@ -124,6 +124,108 @@ void ezHeightfieldComponent::OnActivated()
   SUPER::OnActivated();
 }
 
+void ezHeightfieldComponent::OnSimulationStarted()
+{
+  SUPER::OnSimulationStarted();
+
+  if (m_bGenerateCollision)
+  {
+    PushHeightfieldCollider();
+  }
+}
+
+void ezHeightfieldComponent::PushHeightfieldCollider()
+{
+  if (!m_hHeightfield.IsValid())
+    return;
+
+  ezPhysicsWorldModuleInterface* pPhysics = GetWorld()->GetOrCreateModule<ezPhysicsWorldModuleInterface>();
+  if (pPhysics == nullptr)
+    return;
+
+  // (0,0) means "use the render mesh resolution". Otherwise use the dedicated collision resolution.
+  // m_vTesselation / m_vColMeshTesselation are quad counts; the sample count = quads + 1.
+  // Take the smaller axis to keep the grid square, then round down to even.
+  const ezVec2U32 colTess = (m_vColMeshTesselation.x == 0 || m_vColMeshTesselation.y == 0) ? m_vTesselation : m_vColMeshTesselation;
+  ezUInt32 N = ezMath::Min(colTess.x, colTess.y) + 1;
+  if ((N % 2) != 0)
+    --N;
+  N = ezMath::Max(N, 4u);
+
+  // Scale the extents by the game object's global scale so the collision shape matches the rendered mesh in world space.
+  // Jolt's HeightFieldShape supports non-uniform scale via the per-axis mScale vector.
+  const ezVec3 vScale = GetOwner()->GetGlobalTransform().m_vScale;
+  const ezVec2 vScaledHalfExtents = m_vHalfExtents.CompMul(ezVec2(vScale.x, vScale.y));
+  const float fScaledHeight = m_fHeight * vScale.z;
+
+  ezStringBuilder sIdentifier;
+  {
+    ezUInt64 uiHash = m_hHeightfield.GetResourceIDHash() + m_uiHeightfieldChangeCounter;
+    uiHash = ezHashingUtils::xxHash64(&m_vHalfExtents, sizeof(m_vHalfExtents), uiHash);
+    uiHash = ezHashingUtils::xxHash64(&m_fHeight, sizeof(m_fHeight), uiHash);
+    uiHash = ezHashingUtils::xxHash64(&colTess, sizeof(colTess), uiHash);
+    uiHash = ezHashingUtils::xxHash64(&vScale, sizeof(vScale), uiHash);
+    sIdentifier.SetFormat("Heightfield:{}", uiHash);
+  }
+
+  if (pPhysics->TrySetHeightfieldCollider(GetOwner(), sIdentifier, 0).Succeeded())
+    return;
+
+  // Cache miss: build the full height data and create the collider.
+  ezResourceLock<ezImageDataResource> pImageData(m_hHeightfield, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+  if (pImageData.GetAcquireResult() != ezResourceAcquireResult::Final)
+  {
+    ezLog::Warning("ezHeightfieldComponent: could not load heightmap image '{}' for physics collision.", m_hHeightfield.GetResourceID());
+    return;
+  }
+
+  const ezImage& heightmap = pImageData->GetDescriptor().m_Image;
+  const ezUInt32 uiMaxSamples = ezMath::Min(heightmap.GetWidth(), heightmap.GetHeight());
+  N = ezMath::Min(N, uiMaxSamples);
+  if ((N % 2) != 0)
+    --N;
+  if (N < 4)
+    N = 4;
+
+  ezPhysicsWorldModuleInterface::HeightfieldColliderData data;
+  data.m_uiResolution = N;
+  data.m_vHalfExtents = vScaledHalfExtents;
+  data.m_fMaxHeight = fScaledHeight;
+  data.m_Heights.SetCountUninitialized(N * N);
+  data.m_MaterialIndices.SetCount((N - 1) * (N - 1), 0);
+
+  const ezColor* pImgData = heightmap.GetPixelPointer<ezColor>();
+  const ezUInt32 imgWidth = heightmap.GetWidth();
+  const ezUInt32 imgHeight = heightmap.GetHeight();
+  const ezVec2 vToNDC = ezVec2(1.0f / (N - 1), 1.0f / (N - 1));
+
+  for (ezUInt32 row = 0; row < N; ++row)
+  {
+    for (ezUInt32 col = 0; col < N; ++col)
+    {
+      const ezVec2 ndc = ezVec2((float)col, (float)row).CompMul(vToNDC);
+      data.m_Heights[row * N + col] = ezImageUtils::BilinearSample(pImgData, imgWidth, imgHeight, ezImageAddressMode::Clamp, ndc).r;
+    }
+  }
+
+  // Resolve the surface handle from the material.
+  ezMaterialResourceHandle hMaterial = m_hMaterial;
+  if (!hMaterial.IsValid())
+  {
+    hMaterial = ezResourceManager::LoadResource<ezMaterialResource>("{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"); // Data/Base/Materials/Common/Pattern.ezMaterialAsset
+  }
+  if (hMaterial.IsValid())
+  {
+    ezResourceLock<ezMaterialResource> pMaterial(hMaterial, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+    if (pMaterial.GetAcquireResult() == ezResourceAcquireResult::Final && !pMaterial->GetSurface().IsEmpty())
+    {
+      data.m_Surfaces.PushBack(ezResourceManager::LoadResource<ezSurfaceResource>(pMaterial->GetSurface().GetString()));
+    }
+  }
+
+  pPhysics->CreateHeightfieldCollider(GetOwner(), sIdentifier, data);
+}
+
 void ezHeightfieldComponent::OnDeactivated()
 {
   ezRenderDataManager* pRenderDataManager = GetWorld()->GetModule<ezRenderDataManager>();
@@ -200,82 +302,9 @@ void ezHeightfieldComponent::SetColMeshTesselation(ezVec2U32 value)
   // don't invalidate the render mesh
 }
 
-void ezHeightfieldComponent::OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const
-{
-  if (!m_bGenerateCollision)
-    return;
-
-  ezGeometry geom;
-  BuildGeometry(geom);
-
-  auto* pDesc = msg.m_pStaticMeshDescription;
-  auto& subMesh = pDesc->m_SubMeshes.ExpandAndGetRef();
-  subMesh.m_uiFirstTriangle = pDesc->m_Triangles.GetCount();
-
-  const ezTransform trans = GetOwner()->GetGlobalTransform();
-
-  const ezUInt32 uiTriOffset = pDesc->m_Vertices.GetCount();
-  pDesc->m_Vertices.Reserve(uiTriOffset + geom.GetVertices().GetCount());
-
-  ezUInt32 uiTrisNeeded = 0;
-  for (const auto& polys : geom.GetPolygons())
-  {
-    uiTrisNeeded += polys.m_Vertices.GetCount() - 2;
-  }
-
-  pDesc->m_Triangles.Reserve(pDesc->m_Triangles.GetCount() + uiTrisNeeded);
-
-  for (const auto& verts : geom.GetVertices())
-  {
-    pDesc->m_Vertices.PushBack(trans * verts.m_vPosition);
-  }
-
-  for (const auto& polys : geom.GetPolygons())
-  {
-    for (ezUInt32 t = 0; t < polys.m_Vertices.GetCount() - 2; ++t)
-    {
-      auto& tri = pDesc->m_Triangles.ExpandAndGetRef();
-      tri.m_uiVertexIndices[0] = uiTriOffset + polys.m_Vertices[0];
-      tri.m_uiVertexIndices[1] = uiTriOffset + polys.m_Vertices[t + 1];
-      tri.m_uiVertexIndices[2] = uiTriOffset + polys.m_Vertices[t + 2];
-    }
-  }
-
-  subMesh.m_uiNumTriangles = pDesc->m_Triangles.GetCount() - subMesh.m_uiFirstTriangle;
-
-  ezMaterialResourceHandle hMaterial = m_hMaterial;
-  if (!hMaterial.IsValid())
-  {
-    // Data/Base/Materials/Common/Pattern.ezMaterialAsset
-    hMaterial = ezResourceManager::LoadResource<ezMaterialResource>("{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }");
-  }
-
-  if (hMaterial.IsValid())
-  {
-    ezResourceLock<ezMaterialResource> pMaterial(hMaterial, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-
-    if (pMaterial.GetAcquireResult() == ezResourceAcquireResult::Final)
-    {
-      const ezString surface = pMaterial->GetSurface().GetString();
-
-      if (!surface.IsEmpty())
-      {
-        ezUInt32 idx = pDesc->m_Surfaces.IndexOf(surface);
-        if (idx == ezInvalidIndex)
-        {
-          idx = pDesc->m_Surfaces.GetCount();
-          pDesc->m_Surfaces.PushBack(surface);
-        }
-
-        subMesh.m_uiSurfaceIndex = static_cast<ezUInt16>(idx);
-      }
-    }
-  }
-}
-
 void ezHeightfieldComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const
 {
-  if (msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::CollisionMesh && (m_bGenerateCollision == false || GetOwner()->IsDynamic()))
+  if (msg.m_Mode != ezWorldGeoExtractionUtil::ExtractionMode::RenderMesh)
     return;
 
   msg.AddMeshObject(GetOwner()->GetGlobalTransform(), GenerateMesh<ezCpuMeshResource>());

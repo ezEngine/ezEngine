@@ -4,7 +4,10 @@
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/World/WorldModule.h>
 #include <Foundation/Communication/Message.h>
+#include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Math/BoundingBoxSphere.h>
+#include <Foundation/Math/Vec2.h>
+#include <Foundation/Strings/String.h>
 
 struct ezGameObjectHandle;
 struct ezSkeletonResourceDescriptor;
@@ -83,6 +86,55 @@ public:
     EZ_IGNORE_UNUSED(pOwner);
     EZ_IGNORE_UNUSED(vBoxSize);
   }
+
+  /// Data for creating a heightfield collider.
+  struct HeightfieldColliderData
+  {
+    ezVec2 m_vHalfExtents;
+    ezUInt32 m_uiResolution = 64;
+
+    /// Maximum height range. Terrain Z spans [-m_fHeight, 0] in local space.
+    float m_fMaxHeight = 0.0f;
+
+    /// Height samples in row-major order, m_uiResolution * m_uiResolution entries. Values are in [0, 1], where
+    /// 1 maps to z = 0 (top) and 0 maps to z = -m_fMaxHeight (bottom).
+    ezDynamicArray<float> m_Heights;
+    /// Per-cell material indices (one per quad, (m_uiResolution-1)^2 entries). Indexes into m_Surfaces.
+    ezDynamicArray<ezUInt8> m_MaterialIndices;
+    ezDynamicArray<ezSurfaceResourceHandle> m_Surfaces;
+
+    ezUInt8 m_uiCollisionLayer = 0;
+  };
+
+  /// Tries to create a heightfield collider on pOwner by reusing a shape previously cached under sIdentifier.
+  ///
+  /// Removes any existing heightfield collider component from pOwner first.
+  /// Returns EZ_FAILURE if no shape with that identifier is cached; the caller should then
+  /// call CreateHeightfieldCollider() with the full data.
+  virtual ezResult TrySetHeightfieldCollider(ezGameObject* pOwner, ezStringView sIdentifier, ezUInt8 uiCollisionLayer)
+  {
+    EZ_IGNORE_UNUSED(pOwner);
+    EZ_IGNORE_UNUSED(sIdentifier);
+    EZ_IGNORE_UNUSED(uiCollisionLayer);
+    return EZ_FAILURE;
+  }
+
+  /// Creates a heightfield collider on pOwner from the given height data and caches the resulting shape under sIdentifier.
+  ///
+  /// Removes any existing heightfield collider component from pOwner first.
+  /// If a non-empty sIdentifier is supplied, the shape is stored so that future calls to
+  /// TrySetHeightfieldCollider() with the same identifier can skip the data rebuild.
+  virtual void CreateHeightfieldCollider(ezGameObject* pOwner, ezStringView sIdentifier, const HeightfieldColliderData& data)
+  {
+    EZ_IGNORE_UNUSED(pOwner);
+    EZ_IGNORE_UNUSED(sIdentifier);
+    EZ_IGNORE_UNUSED(data);
+  }
+
+  /// Removes the heightfield collider component from pOwner, if present.
+  ///
+  /// Decrements the reference count of the cached shape. If the count reaches zero, the cached shape is evicted.
+  virtual void RemoveHeightfieldCollider(ezGameObject* pOwner) { EZ_IGNORE_UNUSED(pOwner); }
 
   struct JointConfig
   {

@@ -16,6 +16,7 @@ class ezJoltRopeComponent;
 class ezJoltActorComponent;
 class ezJoltClothSheetComponent;
 class ezJoltBreakableSlabComponent;
+class ezJoltHeightfieldColliderComponent;
 
 class ezJoltUserData
 {
@@ -35,6 +36,7 @@ public:
     RagdollComponent,
     RopeComponent,
     ClothSheetComponent,
+    HeightfieldColliderComponent,
   };
 
   ezJoltUserData() = default;
@@ -100,6 +102,12 @@ public:
     m_Type = Type::BreakableSlabComponent;
     m_pObject = pObject;
     m_OnContact = contactFlags;
+  }
+
+  EZ_ALWAYS_INLINE void Init(ezJoltHeightfieldColliderComponent* pObject)
+  {
+    m_Type = Type::HeightfieldColliderComponent;
+    m_pObject = pObject;
   }
 
   EZ_FORCE_INLINE void Invalidate()

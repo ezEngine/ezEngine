@@ -45,14 +45,6 @@ current state of the engine. Follow the existing style and tone of nearby docume
 Write in a factual, neutral tone — no adjectives like "great" or "efficient".
 Do not mention "this PR" or reference GitHub — just make the docs correct.
 
-### Step 5 — Commit the changes
+### Step 5 - User Review
 
-In the `../docs-src/` directory:
-
-```
-git add -A
-git commit -m "docs: update <topic>"
-git push
-```
-
-Propose a commit message and ask the user to confirm before pushing.
+User reviews the result and submits it when ready.

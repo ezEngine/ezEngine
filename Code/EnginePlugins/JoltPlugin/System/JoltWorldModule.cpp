@@ -1,8 +1,13 @@
 #include <JoltPlugin/JoltPluginPCH.h>
 
+#include <Core/Physics/SurfaceResource.h>
 #include <Foundation/Types/TagRegistry.h>
 #include <GameEngine/Physics/CollisionFilter.h>
+#include <Jolt/Physics/Body/BodyCreationSettings.h>
+#include <Jolt/Physics/Collision/Shape/HeightFieldShape.h>
+#include <Jolt/Physics/Collision/Shape/RotatedTranslatedShape.h>
 #include <JoltPlugin/Actors/JoltDynamicActorComponent.h>
+#include <JoltPlugin/Actors/JoltHeightfieldColliderComponent.h>
 #include <JoltPlugin/Actors/JoltQueryShapeActorComponent.h>
 #include <JoltPlugin/Actors/JoltStaticActorComponent.h>
 #include <JoltPlugin/Actors/JoltTriggerComponent.h>
@@ -12,11 +17,15 @@
 #include <JoltPlugin/Components/JoltWaterVolumeComponent.h>
 #include <JoltPlugin/Constraints/JoltConstraintComponent.h>
 #include <JoltPlugin/Constraints/JoltFixedConstraintComponent.h>
+#include <JoltPlugin/Resources/JoltMaterial.h>
 #include <JoltPlugin/Shapes/JoltShapeBoxComponent.h>
+#include <JoltPlugin/System/JoltCollisionFiltering.h>
 #include <JoltPlugin/System/JoltContacts.h>
 #include <JoltPlugin/System/JoltCore.h>
 #include <JoltPlugin/System/JoltDebugRenderer.h>
 #include <JoltPlugin/System/JoltWorldModule.h>
+#include <JoltPlugin/Utilities/JoltConversionUtils.h>
+#include <JoltPlugin/Utilities/JoltUserData.h>
 #include <Physics/Collision/CollisionCollectorImpl.h>
 #include <Physics/Collision/Shape/Shape.h>
 #include <RendererCore/Meshes/CustomMeshComponent.h>
@@ -168,6 +177,8 @@ public:
 
 void ezJoltWorldModule::Deinitialize()
 {
+  m_HeightfieldShapeCache.Clear(); // JPH::Ref in each entry releases the shape automatically.
+
   m_pSystem = nullptr;
   m_pTempAllocator = nullptr;
 
@@ -1341,5 +1352,195 @@ void ezJoltNavmeshGeoWorldModule::RetrieveGeometryInArea(ezUInt32 uiCollisionLay
   const ezPhysicsQueryParameters params(uiCollisionLayer, ezPhysicsShapeType::Static);
   m_pJoltModule->QueryGeometryInBox(params, box, out_triangles);
 }
+
+ezResult ezJoltWorldModule::BuildJoltHeightfieldShape(const ezPhysicsWorldModuleInterface::HeightfieldColliderData& data, HeightfieldCacheEntry& out_Data)
+{
+  const ezUInt32 N = data.m_uiResolution;
+  const float halfX = data.m_vHalfExtents.x;
+  const float halfY = data.m_vHalfExtents.y;
+  const float fH = data.m_fMaxHeight;
+
+  if (N < 4 || (N % 2) != 0 || data.m_Heights.GetCount() != N * N)
+  {
+    ezLog::Error("BuildJoltHeightfieldShape: invalid height data (N={}, count={}).", N, data.m_Heights.GetCount());
+    return EZ_FAILURE;
+  }
+
+  const ezUInt32 uiCellCount = (N - 1) * (N - 1);
+  const bool bHasMaterials = !data.m_Surfaces.IsEmpty() && !data.m_MaterialIndices.IsEmpty();
+
+  if (bHasMaterials && data.m_MaterialIndices.GetCount() != uiCellCount)
+  {
+    ezLog::Error("BuildJoltHeightfieldShape: material indices count ({}) must be (N-1)^2 = {}.", data.m_MaterialIndices.GetCount(), uiCellCount);
+    return EZ_FAILURE;
+  }
+
+  // Resolve surface handles to Jolt material pointers. The handles are stored to keep the resources alive.
+  out_Data.m_Surfaces = data.m_Surfaces;
+  out_Data.m_MaterialPtrs.SetCount(data.m_Surfaces.GetCount(), nullptr);
+  for (ezUInt32 i = 0; i < data.m_Surfaces.GetCount(); ++i)
+  {
+    if (data.m_Surfaces[i].IsValid())
+    {
+      ezResourceLock<ezSurfaceResource> pSurface(data.m_Surfaces[i], ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+      if (pSurface.GetAcquireResult() == ezResourceAcquireResult::Final && pSurface->m_pPhysicsMaterialJolt != nullptr)
+      {
+        out_Data.m_MaterialPtrs[i] = reinterpret_cast<const ezJoltMaterial*>(pSurface->m_pPhysicsMaterialJolt);
+      }
+    }
+  }
+
+  // Row order must be flipped so that Jolt's row axis maps to +Y in ezEngine space after the +90° X rotation.
+  ezDynamicArray<float> flippedSamples;
+  flippedSamples.SetCountUninitialized(N * N);
+  for (ezUInt32 row = 0; row < N; ++row)
+  {
+    const ezUInt32 srcRow = N - 1 - row;
+    for (ezUInt32 col = 0; col < N; ++col)
+    {
+      flippedSamples[row * N + col] = data.m_Heights[srcRow * N + col];
+    }
+  }
+
+  // Jolt requires EITHER both a non-null index array and a non-empty material list, OR neither.
+  JPH::PhysicsMaterialList joltMaterials;
+  if (bHasMaterials)
+  {
+    for (const ezJoltMaterial* pMat : out_Data.m_MaterialPtrs)
+    {
+      joltMaterials.push_back(pMat != nullptr ? pMat : ezJoltCore::GetDefaultMaterial());
+    }
+  }
+
+  JPH::HeightFieldShapeSettings settings(
+    flippedSamples.GetData(),
+    JPH::Vec3(-halfX, -fH, -halfY),
+    JPH::Vec3(2.0f * halfX / static_cast<float>(N - 1), fH, 2.0f * halfY / static_cast<float>(N - 1)),
+    N,
+    bHasMaterials ? data.m_MaterialIndices.GetData() : nullptr,
+    joltMaterials);
+
+  JPH::ShapeSettings::ShapeResult result = settings.Create();
+  if (result.HasError())
+  {
+    ezLog::Error("BuildJoltHeightfieldShape: failed to create JPH::HeightFieldShape: {}", result.GetError().c_str());
+    return EZ_FAILURE;
+  }
+
+  out_Data.m_pShape = result.Get(); // JPH::Ref takes a reference
+  return EZ_SUCCESS;
+}
+
+void ezJoltWorldModule::AttachHeightfieldBody(ezJoltWorldModule* pModule, ezGameObject* pOwner, HeightfieldCacheEntry& cacheEntry, ezUInt8 uiCollisionLayer, ezStringView sCacheIdentifier)
+{
+  EZ_ASSERT_DEV(cacheEntry.m_pShape != nullptr, "Invalid shape");
+
+  // Remove any existing heightfield collider (its OnDeactivated decrements the old cache entry ref count).
+  ezJoltHeightfieldColliderComponent* pExisting = nullptr;
+  if (pOwner->TryGetComponentOfBaseType(pExisting))
+  {
+    pExisting->DeleteComponent();
+    pExisting = nullptr;
+  }
+
+  // Wrap in a RotatedTranslatedShape to apply the +90° X rotation that maps Jolt's Y-up to ezEngine's Z-up.
+  const JPH::Quat qRotX90 = JPH::Quat::sRotation(JPH::Vec3::sAxisX(), 0.5f * JPH::JPH_PI);
+  JPH::RotatedTranslatedShapeSettings rtsSettings(JPH::Vec3::sZero(), qRotX90, cacheEntry.m_pShape);
+  JPH::ShapeSettings::ShapeResult rtsResult = rtsSettings.Create();
+  if (rtsResult.HasError())
+  {
+    ezLog::Error("AttachHeightfieldBody: failed to wrap shape: {}", rtsResult.GetError().c_str());
+    return;
+  }
+
+  ++cacheEntry.m_uiRefCount;
+
+  ezJoltHeightfieldColliderComponent* pComp = nullptr;
+  ezJoltHeightfieldColliderComponent::CreateComponent(pOwner, pComp);
+
+  ezJoltUserData* pUserData = nullptr;
+  pComp->m_uiUserDataIndex = pModule->AllocateUserData(pUserData);
+  pUserData->Init(pComp);
+
+  pComp->m_uiObjectFilterID = pModule->CreateObjectFilterID();
+  pComp->m_sCacheIdentifier = sCacheIdentifier;
+
+  // Use the first resolved material for body-level friction/restitution, or the default.
+  const ezJoltMaterial* pMaterial = (!cacheEntry.m_MaterialPtrs.IsEmpty() && cacheEntry.m_MaterialPtrs[0] != nullptr)
+                                      ? cacheEntry.m_MaterialPtrs[0]
+                                      : ezJoltCore::GetDefaultMaterial();
+
+  const ezSimdTransform trans = pOwner->GetGlobalTransformSimd();
+
+  JPH::BodyCreationSettings bodyCfg;
+  bodyCfg.SetShape(rtsResult.Get());
+  bodyCfg.mPosition = ezJoltConversionUtils::ToVec3(trans.m_Position);
+  bodyCfg.mRotation = ezJoltConversionUtils::ToQuat(trans.m_Rotation).Normalized();
+  bodyCfg.mMotionType = JPH::EMotionType::Static;
+  bodyCfg.mObjectLayer = ezJoltCollisionFiltering::ConstructObjectLayer(uiCollisionLayer, ezJoltBroadphaseLayer::Static);
+  bodyCfg.mRestitution = pMaterial->m_fRestitution;
+  bodyCfg.mFriction = pMaterial->m_fFriction;
+  bodyCfg.mCollisionGroup.SetGroupID(pComp->m_uiObjectFilterID);
+  bodyCfg.mCollisionGroup.SetGroupFilter(pModule->GetGroupFilter());
+  bodyCfg.mEnhancedInternalEdgeRemoval = true;
+  bodyCfg.mUserData = reinterpret_cast<ezUInt64>(pUserData);
+
+  auto* pBodies = &pModule->GetJoltSystem()->GetBodyInterface();
+  JPH::Body* pBody = pBodies->CreateBody(bodyCfg);
+  EZ_ASSERT_DEV(pBody != nullptr, "Jolt body creation failed. Increase the maximum number of bodies.");
+
+  pComp->m_uiJoltBodyID = pBody->GetID().GetIndexAndSequenceNumber();
+
+  pModule->QueueBodyToAdd(pBody, false);
+}
+
+void ezJoltWorldModule::ReleaseHeightfieldCacheEntry(ezStringView sIdentifier)
+{
+  if (sIdentifier.IsEmpty())
+    return;
+
+  auto it = m_HeightfieldShapeCache.Find(sIdentifier);
+  if (!it.IsValid())
+    return;
+
+  EZ_ASSERT_DEV(it.Value().m_uiRefCount > 0, "HeightfieldCacheEntry ref count underflow for '{}'", sIdentifier);
+  --it.Value().m_uiRefCount;
+
+  if (it.Value().m_uiRefCount == 0)
+  {
+    m_HeightfieldShapeCache.Remove(it);
+  }
+}
+
+ezResult ezJoltWorldModule::TrySetHeightfieldCollider(ezGameObject* pOwner, ezStringView sIdentifier, ezUInt8 uiCollisionLayer)
+{
+  auto it = m_HeightfieldShapeCache.Find(sIdentifier);
+  if (!it.IsValid())
+    return EZ_FAILURE;
+
+  AttachHeightfieldBody(this, pOwner, it.Value(), uiCollisionLayer, sIdentifier);
+  return EZ_SUCCESS;
+}
+
+void ezJoltWorldModule::CreateHeightfieldCollider(ezGameObject* pOwner, ezStringView sIdentifier, const HeightfieldColliderData& data)
+{
+  HeightfieldCacheEntry entry;
+  if (BuildJoltHeightfieldShape(data, entry).Failed())
+    return;
+
+  HeightfieldCacheEntry& cachedEntry = m_HeightfieldShapeCache[sIdentifier];
+  cachedEntry = std::move(entry);
+  AttachHeightfieldBody(this, pOwner, cachedEntry, data.m_uiCollisionLayer, sIdentifier);
+}
+
+void ezJoltWorldModule::RemoveHeightfieldCollider(ezGameObject* pOwner)
+{
+  ezJoltHeightfieldColliderComponent* pComp = nullptr;
+  if (pOwner->TryGetComponentOfBaseType(pComp))
+  {
+    pComp->DeleteComponent();
+  }
+}
+
 
 EZ_STATICLINK_FILE(JoltPlugin, JoltPlugin_System_JoltWorldModule);

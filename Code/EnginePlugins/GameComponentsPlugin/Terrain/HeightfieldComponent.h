@@ -11,7 +11,6 @@
 
 class ezGeometry;
 struct ezMsgExtractRenderData;
-struct ezMsgBuildStaticMesh;
 struct ezMsgExtractGeometry;
 class ezHeightfieldComponent;
 class ezMeshResourceDescriptor;
@@ -55,6 +54,7 @@ class EZ_GAMECOMPONENTS_DLL ezHeightfieldComponent : public ezRenderComponent
 
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
+  virtual void OnSimulationStarted() override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezRenderComponent
@@ -97,10 +97,10 @@ public:
   void SetColMeshTesselation(ezVec2U32 value);                                       // [ property ]
 
 protected:
-  void OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const;                           // [ msg handler ]
-  void OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const;                        // [ msg handler ]
+  void OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const; // [ msg handler ]
 
   void InvalidateMesh();
+  void PushHeightfieldCollider();
   void BuildGeometry(ezGeometry& geom) const;
   ezResult BuildMeshDescriptor(ezMeshResourceDescriptor& desc) const;
 
@@ -118,7 +118,7 @@ protected:
   ezVec2 m_vTexCoordScale = ezVec2(1);
 
   ezVec2U32 m_vTesselation = ezVec2U32(128);
-  ezVec2U32 m_vColMeshTesselation = ezVec2U32(64);
+  ezVec2U32 m_vColMeshTesselation = ezVec2U32(0); ///< 0 means "use the same resolution as the render mesh"
 
   bool m_bGenerateCollision = true;
 
