@@ -33,7 +33,7 @@ FLOAT1(AlphaContrast);
 
 [MATERIALCONFIG]
 
-#include <Shaders/Materials/MaterialConfig.h>
+RenderDataCategory = LitMeshDecal
 
 [RENDERSTATE]
 

@@ -14,7 +14,7 @@ o
 			s{"Materials/MeshDecalMaterial.ezShader"}
 		}
 		Uuid %DocumentID{u4{13372529112349640576,5516946423271476972}}
-		u4 %Hash{898857983437426815}
+		u4 %Hash{7011489966184224663}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -41,7 +41,7 @@ o
 	{
 		f %AlphaContrast{0x00000040}
 		s %AlphaTexture{"{ bac42aa1-3f34-43ff-a2ef-0347758a705a }"}
-		s %BLEND_MODE{"BLEND_MODE::BLEND_MODE_DITHERED"}
+		s %BLEND_MODE{"BLEND_MODE::BLEND_MODE_TRANSPARENT"}
 		Color %BaseColor{f{0xBD5EE53E,0x424BCA3E,0x349AB53E,0x9796163F}}
 		f %DepthBias{0x0000803F}
 		f %MaskThreshold{0x0000803E}
