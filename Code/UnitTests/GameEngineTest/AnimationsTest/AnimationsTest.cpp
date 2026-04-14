@@ -33,7 +33,7 @@ ezResult ezGameEngineTestAnimations::InitializeSubTest(ezInt32 iIdentifier)
 
   if (iIdentifier == SubTests::Skeletal)
   {
-    m_ImgCompFrames.PushBack(1);
+    m_ImgCompFrames.PushBack(10);
     m_ImgCompFrames.PushBack(30);
     m_ImgCompFrames.PushBack(60);
 
