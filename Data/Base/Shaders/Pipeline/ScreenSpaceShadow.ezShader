@@ -18,6 +18,7 @@ void main(uint3 groupID : SV_GroupID, uint groupThreadID : SV_GroupThreadID)
   dispatchParams.SetDefaults();
   dispatchParams.SurfaceThickness = SurfaceThickness;
   dispatchParams.ShadowContrast = ShadowContrast;
+  dispatchParams.IgnoreEdgePixels = true;
 
   dispatchParams.LightCoordinate = LightCoordinate;
   dispatchParams.WaveOffset = WaveOffset;

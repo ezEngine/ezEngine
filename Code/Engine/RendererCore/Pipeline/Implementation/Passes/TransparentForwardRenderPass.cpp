@@ -51,21 +51,32 @@ void ezTransparentForwardRenderPass::Execute(const ezRenderViewContext& renderVi
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
   {
-    UpdateSceneColorTexture(renderViewContext, hSceneColor, pColorInput->m_TextureHandle);
-
-    SetupResources(renderViewContext.m_pRenderContext->GetCommandEncoder(), renderViewContext, inputs, outputs);
     SetupPermutationVars(renderViewContext);
     SetupLighting(renderViewContext);
 
-    ezBindGroupBuilder& bindGroupRenderPass = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);
-    bindGroupRenderPass.BindTexture("SceneColor", hSceneColor);
-    bindGroupRenderPass.BindSampler("SceneColorSampler", m_hSceneColorSamplerState);
-    bindGroupRenderPass.BindTexture("SSAOTexture", m_hWhiteTexture, ezResourceAcquireMode::BlockTillLoaded);
-    bindGroupRenderPass.BindTexture("ShadowMasksTexture", m_hWhiteTexture, ezResourceAcquireMode::BlockTillLoaded);
+    {
+      SetupResources(renderViewContext.m_pRenderContext->GetCommandEncoder(), renderViewContext, inputs, outputs);
 
-    RenderObjects(renderViewContext);
+      RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMeshDecal);
 
-    renderViewContext.m_pRenderContext->EndRendering();
+      renderViewContext.m_pRenderContext->EndRendering();
+    }
+
+    UpdateSceneColorTexture(renderViewContext, hSceneColor, pColorInput->m_TextureHandle);
+
+    {
+      SetupResources(renderViewContext.m_pRenderContext->GetCommandEncoder(), renderViewContext, inputs, outputs);
+
+      ezBindGroupBuilder& bindGroupRenderPass = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);
+      bindGroupRenderPass.BindTexture("SceneColor", hSceneColor);
+      bindGroupRenderPass.BindSampler("SceneColorSampler", m_hSceneColorSamplerState);
+      bindGroupRenderPass.BindTexture("SSAOTexture", m_hWhiteTexture, ezResourceAcquireMode::BlockTillLoaded);
+      bindGroupRenderPass.BindTexture("ShadowMasksTexture", m_hWhiteTexture, ezResourceAcquireMode::BlockTillLoaded);
+
+      RenderObjects(renderViewContext);
+
+      renderViewContext.m_pRenderContext->EndRendering();
+    }
   }
   ezGPUResourcePool::GetDefaultInstance()->ReturnRenderTarget(hSceneColor);
 }

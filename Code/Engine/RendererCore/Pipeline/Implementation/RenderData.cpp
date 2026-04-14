@@ -144,6 +144,7 @@ ezRenderData::Category ezDefaultRenderDataCategories::LitMaskedStatic = ezRender
 ezRenderData::Category ezDefaultRenderDataCategories::LitMaskedDynamic = ezRenderData::RegisterCategory("LitMaskedDynamic", &ezRenderSortingFunctions::ByRenderDataThenFrontToBackFunc);
 ezRenderData::Category ezDefaultRenderDataCategories::LitMasked = ezRenderData::RegisterRedirectedCategory("LitMasked", ezDefaultRenderDataCategories::LitMaskedStatic, ezDefaultRenderDataCategories::LitMaskedDynamic);
 
+ezRenderData::Category ezDefaultRenderDataCategories::LitMeshDecal = ezRenderData::RegisterCategory("LitMeshDecal", &ezRenderSortingFunctions::ByRenderDataThenFrontToBackFunc);
 ezRenderData::Category ezDefaultRenderDataCategories::LitTransparent = ezRenderData::RegisterCategory("LitTransparent", &ezRenderSortingFunctions::BackToFrontThenByRenderDataFunc);
 ezRenderData::Category ezDefaultRenderDataCategories::LitForeground = ezRenderData::RegisterCategory("LitForeground", &ezRenderSortingFunctions::ByRenderDataThenFrontToBackFunc);
 
