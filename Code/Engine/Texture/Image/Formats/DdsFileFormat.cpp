@@ -165,7 +165,7 @@ static ezResult ReadImageData(ezStreamReader& inout_stream, ezImageHeader& ref_i
     return EZ_FAILURE;
   }
 
-  ezDdsHeaderDxt10 headerDxt10;
+  ezDdsHeaderDxt10 headerDxt10{};
 
   ezImageFormat::Enum format = ezImageFormat::UNKNOWN;
 
@@ -233,7 +233,9 @@ static ezResult ReadImageData(ezStreamReader& inout_stream, ezImageHeader& ref_i
   ref_imageHeader.SetImageFormat(format);
 
   const bool bHasMipMaps = (ref_ddsHeader.m_uiCaps & ezDdsCaps::MIPMAP) != 0;
-  const bool bCubeMap = (ref_ddsHeader.m_uiCaps2 & ezDdsCaps2::CUBEMAP) != 0;
+  const bool bDxt10 = (ref_ddsHeader.m_ddspf.m_uiFourCC == ezDdsDxt10FourCc);
+  const bool bCubeMap = (ref_ddsHeader.m_uiCaps2 & ezDdsCaps2::CUBEMAP) != 0 ||
+                        (bDxt10 && (headerDxt10.m_uiMiscFlag & ezDdsResourceMiscFlags::TEXTURECUBE) != 0);
   const bool bVolume = (ref_ddsHeader.m_uiCaps2 & ezDdsCaps2::VOLUME) != 0;
 
 
@@ -256,6 +258,11 @@ static ezResult ReadImageData(ezStreamReader& inout_stream, ezImageHeader& ref_i
   else if (bVolume)
   {
     ref_imageHeader.SetDepth(ref_ddsHeader.m_uiDepth);
+  }
+
+  if (bDxt10 && headerDxt10.m_uiArraySize > 1)
+  {
+    ref_imageHeader.SetNumArrayIndices(headerDxt10.m_uiArraySize);
   }
 
   return EZ_SUCCESS;

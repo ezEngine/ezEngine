@@ -133,9 +133,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetProperties, 4, ezRTTIDefaultAlloc
   {
     EZ_ENUM_ACCESSOR_PROPERTY("ShaderMode", ezMaterialShaderMode, GetShaderMode, SetShaderMode),
     EZ_ACCESSOR_PROPERTY("BaseMaterial", GetBaseMaterial, SetBaseMaterial)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Material", ezDependencyFlags::Transform | ezDependencyFlags::Thumbnail | ezDependencyFlags::Package)),
-    EZ_ACCESSOR_PROPERTY("Surface", GetSurface, SetSurface)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
-    EZ_MEMBER_PROPERTY("AssetFilterTags", m_sAssetFilterTags),
     EZ_ACCESSOR_PROPERTY("Shader", GetShader, SetShader)->AddAttributes(new ezFileBrowserAttribute("Select Shader", "*.ezShader", "CustomAction_CreateShaderFromTemplate")),
+    EZ_MEMBER_PROPERTY("AssetFilterTags", m_sAssetFilterTags),
+    EZ_ACCESSOR_PROPERTY("Surface", GetSurface, SetSurface)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
     // This property holds the phantom shader properties type so it is only used in the object graph but not actually in the instance of this object.
     EZ_ACCESSOR_PROPERTY("ShaderProperties", GetShaderProperties, SetShaderProperties)->AddFlags(ezPropertyFlags::PointerOwner)->AddAttributes(new ezContainerAttribute(false, false, false)),
   }
@@ -1000,7 +1000,7 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& inout_strea
         if (pCategory == nullptr)
           continue;
 
-        if (ezStringUtils::IsEqual(pCategory->GetCategory(), "Texture 2D"))
+        if (ezStringUtils::IsEqual(pCategory->GetCategory(), "Texture 2D") || ezStringUtils::IsEqual(pCategory->GetCategory(), "Texture 2D Array"))
         {
           Textures2D.PushBack(pProp);
         }
@@ -1119,10 +1119,14 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& inout_strea
         ezStringBuilder sFilename, sResourceName;
         ezDynamicArray<ezUInt32> content;
 
-        // embed 2D texture data
+        // embed 2D texture data (not array textures - their lowres data has a different DDS structure)
         for (auto prop : Textures2D)
         {
           EZ_ASSERT_DEBUG(pObject != nullptr, "Need object to write out texture2d");
+          const ezCategoryAttribute* pCat = prop->GetAttributeByType<ezCategoryAttribute>();
+          if (pCat != nullptr && ezStringUtils::IsEqual(pCat->GetCategory(), "Texture 2D Array"))
+            continue;
+
           const char* szName = prop->GetPropertyName();
           sValue = pObject->GetTypeAccessor().GetValue(szName).ConvertTo<ezString>();
 

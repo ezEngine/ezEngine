@@ -179,6 +179,11 @@ namespace
         ref_attributes.PushBack(EZ_DEFAULT_NEW(ezCategoryAttribute, "Texture 2D"));
         ref_attributes.PushBack(EZ_DEFAULT_NEW(ezAssetBrowserAttribute, "CompatibleAsset_Texture_2D"));
       }
+      else if (ref_def.m_sType.IsEqual("Texture2DArray"))
+      {
+        ref_attributes.PushBack(EZ_DEFAULT_NEW(ezCategoryAttribute, "Texture 2D Array"));
+        ref_attributes.PushBack(EZ_DEFAULT_NEW(ezAssetBrowserAttribute, "CompatibleAsset_Texture_2D"));
+      }
       else if (ref_def.m_sType.IsEqual("Texture3D"))
       {
         ref_attributes.PushBack(EZ_DEFAULT_NEW(ezCategoryAttribute, "Texture 3D"));

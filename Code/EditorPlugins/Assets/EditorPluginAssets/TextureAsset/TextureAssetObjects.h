@@ -101,6 +101,7 @@ public:
   ezInt32 GetNumInputFiles() const;
 
   bool m_bIsRenderTarget = false;
+  bool m_bIsArrayTexture = false;
   bool m_bPremultipliedAlpha = false;
   bool m_bFlipHorizontal = false;
   bool m_bDilateColor = false;
@@ -119,6 +120,8 @@ public:
 
   ezEnum<ezTexConvCompressionMode> m_CompressionMode;
   ezEnum<ezTexConvMipmapMode> m_MipmapMode;
+
+  ezDynamicArray<ezString> m_ArraySlices;
 
 private:
   ezEnum<ezTexture2DChannelMappingEnum> m_ChannelMapping;

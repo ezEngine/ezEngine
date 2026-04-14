@@ -13,6 +13,7 @@ struct ezTexConvOutputType
     Volume,
     Cubemap,
     Atlas,
+    Texture2DArray,
 
     Default = Texture2D
   };

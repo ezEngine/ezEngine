@@ -245,98 +245,125 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
   arguments << "-addressW" << ToWrapMode(pProp->m_AddressModeW);
   arguments << "-filter" << ToFilterMode(pProp->m_TextureFilter);
 
-  const ezInt32 iNumInputFiles = pProp->GetNumInputFiles();
-  for (ezInt32 i = 0; i < iNumInputFiles; ++i)
+  if (pProp->m_bIsArrayTexture)
   {
-    temp.SetFormat("-in{0}", i);
+    arguments << "-type" << "Texture2DArray";
 
-    if (ezStringUtils::IsNullOrEmpty(pProp->GetInputFile(i)))
+    for (ezUInt32 i = 0; i < pProp->m_ArraySlices.GetCount(); ++i)
+    {
+      if (pProp->m_ArraySlices[i].IsEmpty())
+        continue;
+
+      ezStringBuilder sAbsPath = pProp->m_ArraySlices[i];
+      sAbsPath.MakeCleanPath();
+      if (!sAbsPath.IsAbsolutePath())
+        ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsPath);
+
+      temp.SetFormat("-in{0}", i);
+      arguments << temp.GetData();
+      arguments << QString::fromUtf8(sAbsPath.GetData());
+
+      temp.SetFormat("-rgba{0}", i);
+      arguments << temp.GetData();
+      temp.SetFormat("in{0}.rgba", i);
+      arguments << temp.GetData();
+    }
+  }
+  else
+  {
+    const ezInt32 iNumInputFiles = pProp->GetNumInputFiles();
+    for (ezInt32 i = 0; i < iNumInputFiles; ++i)
+    {
+      temp.SetFormat("-in{0}", i);
+
+      if (ezStringUtils::IsNullOrEmpty(pProp->GetInputFile(i)))
+        break;
+
+      arguments << temp.GetData();
+      arguments << QString(pProp->GetAbsoluteInputFilePath(i).GetData());
+    }
+
+    switch (pProp->GetChannelMapping())
+    {
+      case ezTexture2DChannelMappingEnum::R1:
+      {
+        arguments << "-r";
+        arguments << "in0.r"; // always linear
+      }
       break;
 
-    arguments << temp.GetData();
-    arguments << QString(pProp->GetAbsoluteInputFilePath(i).GetData());
-  }
+      case ezTexture2DChannelMappingEnum::RG1:
+      {
+        arguments << "-rg";
+        arguments << "in0.rg"; // always linear
+      }
+      break;
 
-  switch (pProp->GetChannelMapping())
-  {
-    case ezTexture2DChannelMappingEnum::R1:
-    {
-      arguments << "-r";
-      arguments << "in0.r"; // always linear
-    }
-    break;
+      case ezTexture2DChannelMappingEnum::R1_G2:
+      {
+        arguments << "-r";
+        arguments << "in0.r";
+        arguments << "-g";
+        arguments << "in1.g"; // always linear
+      }
+      break;
 
-    case ezTexture2DChannelMappingEnum::RG1:
-    {
-      arguments << "-rg";
-      arguments << "in0.rg"; // always linear
-    }
-    break;
+      case ezTexture2DChannelMappingEnum::RGB1:
+      {
+        arguments << "-rgb";
+        arguments << "in0.rgb";
+      }
+      break;
 
-    case ezTexture2DChannelMappingEnum::R1_G2:
-    {
-      arguments << "-r";
-      arguments << "in0.r";
-      arguments << "-g";
-      arguments << "in1.g"; // always linear
-    }
-    break;
+      case ezTexture2DChannelMappingEnum::RGB1_ABLACK:
+      {
+        arguments << "-rgb";
+        arguments << "in0.rgb";
+        arguments << "-a";
+        arguments << "black";
+      }
+      break;
 
-    case ezTexture2DChannelMappingEnum::RGB1:
-    {
-      arguments << "-rgb";
-      arguments << "in0.rgb";
-    }
-    break;
+      case ezTexture2DChannelMappingEnum::R1_G2_B3:
+      {
+        arguments << "-r";
+        arguments << "in0.r";
+        arguments << "-g";
+        arguments << "in1.r";
+        arguments << "-b";
+        arguments << "in2.r";
+      }
+      break;
 
-    case ezTexture2DChannelMappingEnum::RGB1_ABLACK:
-    {
-      arguments << "-rgb";
-      arguments << "in0.rgb";
-      arguments << "-a";
-      arguments << "black";
-    }
-    break;
+      case ezTexture2DChannelMappingEnum::RGBA1:
+      {
+        arguments << "-rgba";
+        arguments << "in0.rgba";
+      }
+      break;
 
-    case ezTexture2DChannelMappingEnum::R1_G2_B3:
-    {
-      arguments << "-r";
-      arguments << "in0.r";
-      arguments << "-g";
-      arguments << "in1.r";
-      arguments << "-b";
-      arguments << "in2.r";
-    }
-    break;
+      case ezTexture2DChannelMappingEnum::RGB1_A2:
+      {
+        arguments << "-rgb";
+        arguments << "in0.rgb";
+        arguments << "-a";
+        arguments << "in1.r";
+      }
+      break;
 
-    case ezTexture2DChannelMappingEnum::RGBA1:
-    {
-      arguments << "-rgba";
-      arguments << "in0.rgba";
+      case ezTexture2DChannelMappingEnum::R1_G2_B3_A4:
+      {
+        arguments << "-r";
+        arguments << "in0.r";
+        arguments << "-g";
+        arguments << "in1.r";
+        arguments << "-b";
+        arguments << "in2.r";
+        arguments << "-a";
+        arguments << "in3.r";
+      }
+      break;
     }
-    break;
-
-    case ezTexture2DChannelMappingEnum::RGB1_A2:
-    {
-      arguments << "-rgb";
-      arguments << "in0.rgb";
-      arguments << "-a";
-      arguments << "in1.r";
-    }
-    break;
-
-    case ezTexture2DChannelMappingEnum::R1_G2_B3_A4:
-    {
-      arguments << "-r";
-      arguments << "in0.r";
-      arguments << "-g";
-      arguments << "in1.r";
-      arguments << "-b";
-      arguments << "in2.r";
-      arguments << "-a";
-      arguments << "in3.r";
-    }
-    break;
   }
 
   EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("ezTexConv", arguments, 180, ezLog::GetThreadLocalLogSystem()));
@@ -366,10 +393,22 @@ void ezTextureAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo)
     pInfo->m_Outputs.Insert("LOWRES");
   }
 
+  // Always clean up any stale Input1-4 dependencies (may be present if the asset was previously non-array mode).
   for (ezUInt32 i = GetProperties()->GetNumInputFiles(); i < 4; ++i)
   {
-    // remove unused dependencies
     pInfo->m_TransformDependencies.Remove(GetProperties()->GetInputFile(i));
+  }
+
+  if (GetProperties()->m_bIsArrayTexture)
+  {
+    // Register all array slices as transform dependencies (dynamic array, not auto-registered by the base class).
+    for (const ezString& sSlice : GetProperties()->m_ArraySlices)
+    {
+      if (!sSlice.IsEmpty())
+      {
+        pInfo->m_TransformDependencies.Insert(sSlice);
+      }
+    }
   }
 }
 

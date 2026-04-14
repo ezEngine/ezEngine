@@ -22,6 +22,7 @@ public:
 
   const ezTexture2DResourceHandle& GetTexture() const { return m_hTexture; }
   int GetLodLevel() const { return m_iLodLevel; }
+  ezUInt32 GetNumArraySlices() const { return m_uiNumArraySlices; }
 
 protected:
   virtual void OnInitialize() override;
@@ -32,14 +33,21 @@ protected:
 private:
   void SetTexture(ezStringView sTextureFile);
   void OnResourceEvent(const ezResourceEvent& e);
+  void RebuildPreviewObjects(ezUInt32 uiNumArraySlices);
 
-  ezGameObjectHandle m_hPreviewObject;
-  ezComponentHandle m_hPreviewMesh2D;
+  struct PreviewSlice
+  {
+    ezGameObjectHandle m_hObject;
+    ezComponentHandle m_hMeshComponent;
+    ezMaterialResourceHandle m_hMaterial;
+  };
+
   ezMeshResourceHandle m_hPreviewMeshResource;
-  ezMaterialResourceHandle m_hMaterial;
-  ezTexture2DResourceHandle m_hTexture;
+  ezDynamicArray<PreviewSlice> m_SlicePreviews;
 
+  ezTexture2DResourceHandle m_hTexture;
   ezEvent<const ezResourceEvent&, ezMutex>::Unsubscriber m_TextureResourceEventSubscriber;
 
+  ezUInt32 m_uiNumArraySlices = 0;
   int m_iLodLevel = -1;
 };

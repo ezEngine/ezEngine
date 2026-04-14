@@ -56,7 +56,15 @@ void ezTextureViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
       sText = "Unknown format";
     }
 
-    sText.PrependFormat("{}x{} - ", uiWidth, uiHeight);
+    const ezUInt32 uiArraySlices = m_pTextureContext->GetNumArraySlices();
+    if (uiArraySlices > 1)
+    {
+      sText.PrependFormat("{}x{} [{} slices] - ", uiWidth, uiHeight, uiArraySlices);
+    }
+    else
+    {
+      sText.PrependFormat("{}x{} - ", uiWidth, uiHeight);
+    }
     sText.Append("\nPreview Mip Level: ");
 
     if (iMipLevel < 0)

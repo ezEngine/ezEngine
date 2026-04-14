@@ -93,7 +93,7 @@ Required to be non-zero when using ez specific output formats.\n\
 Example: -assetHashHigh 0xABCDABCD",
   "");
 
-ezCommandLineOptionEnum opt_Type("_TexConv", "-type", "The type of output to generate.", "2D = 1 | Volume = 2 | Cubemap = 3 | Atlas = 4", 1);
+ezCommandLineOptionEnum opt_Type("_TexConv", "-type", "The type of output to generate.", "2D = 1 | Volume = 2 | Cubemap = 3 | Atlas = 4 | Texture2DArray = 5", 1);
 
 ezCommandLineOptionEnum opt_Compression("_TexConv", "-compression", "Compression strength for output format.", "Medium = 1 | High = 2 | None = 0", 1);
 
@@ -277,6 +277,14 @@ ezResult ezTexConv::ParseOutputType()
     if (!m_bOutputSupports3D)
     {
       ezLog::Error("Volume textures are not supported by the chosen output file format.");
+      return EZ_FAILURE;
+    }
+  }
+  else if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::Texture2DArray)
+  {
+    if (!m_bOutputSupports2D)
+    {
+      ezLog::Error("2D array textures are not supported by the chosen output file format.");
       return EZ_FAILURE;
     }
   }

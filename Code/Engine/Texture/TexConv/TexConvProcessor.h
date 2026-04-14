@@ -49,6 +49,7 @@ private:
   ezResult DetermineTargetResolution(
     const ezImage& image, ezEnum<ezImageFormat> OutputImageFormat, ezUInt32& out_uiTargetResolutionX, ezUInt32& out_uiTargetResolutionY) const;
   ezResult Assemble2DTexture(const ezImageHeader& refImg, ezImage& dst) const;
+  ezResult Assemble2DArrayTexture(ezImage& dst) const;
   ezResult AssembleCubemap(ezImage& dst) const;
   ezResult Assemble3DTexture(ezImage& dst) const;
   ezResult AdjustHdrExposure(ezImage& img) const;

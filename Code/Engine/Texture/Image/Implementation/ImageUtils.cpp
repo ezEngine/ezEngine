@@ -581,12 +581,6 @@ ezResult ezImageUtils::ExtractLowerMipChain(const ezImageView& srcImg, ezImage& 
 {
   const ezImageHeader& srcImgHeader = srcImg.GetHeader();
 
-  if (srcImgHeader.GetNumFaces() != 1 || srcImgHeader.GetNumArrayIndices() != 1)
-  {
-    // Lower mips aren't stored contiguously for array/cube textures and would require copying. This isn't implemented yet.
-    return EZ_FAILURE;
-  }
-
   EZ_PROFILE_SCOPE("ezImageUtils::ExtractLowerMipChain");
 
   uiNumMips = ezMath::Min(uiNumMips, srcImgHeader.GetNumMipLevels());
@@ -620,16 +614,43 @@ ezResult ezImageUtils::ExtractLowerMipChain(const ezImageView& srcImg, ezImage& 
   dstImgHeader.SetNumArrayIndices(srcImgHeader.GetNumArrayIndices());
   dstImgHeader.SetNumMipLevels(uiNumMips);
 
-  const ezUInt8* pDataBegin = srcImg.GetPixelPointer<ezUInt8>(startMipLevel);
-  const ezUInt8* pDataEnd = srcImg.GetByteBlobPtr().GetEndPtr();
-  const ptrdiff_t dataSize = reinterpret_cast<ptrdiff_t>(pDataEnd) - reinterpret_cast<ptrdiff_t>(pDataBegin);
+  const ezUInt32 uiNumFaces = srcImgHeader.GetNumFaces();
+  const ezUInt32 uiNumArrayIndices = srcImgHeader.GetNumArrayIndices();
 
-  const ezConstByteBlobPtr lowResData(pDataBegin, static_cast<ezUInt64>(dataSize));
+  if (uiNumFaces == 1 && uiNumArrayIndices == 1)
+  {
+    // Fast path: mip levels are contiguous in memory for simple 2D textures.
+    const ezUInt8* pDataBegin = srcImg.GetPixelPointer<ezUInt8>(startMipLevel);
+    const ezUInt8* pDataEnd = srcImg.GetByteBlobPtr().GetEndPtr();
+    const ptrdiff_t dataSize = reinterpret_cast<ptrdiff_t>(pDataEnd) - reinterpret_cast<ptrdiff_t>(pDataBegin);
 
-  ezImageView dataview;
-  dataview.ResetAndViewExternalStorage(dstImgHeader, lowResData);
+    const ezConstByteBlobPtr lowResData(pDataBegin, static_cast<ezUInt64>(dataSize));
 
-  ref_dstImg.ResetAndCopy(dataview);
+    ezImageView dataview;
+    dataview.ResetAndViewExternalStorage(dstImgHeader, lowResData);
+
+    ref_dstImg.ResetAndCopy(dataview);
+  }
+  else
+  {
+    // For array/cube textures, mip levels of different slices are not contiguous,
+    // so each sub-image must be copied individually.
+    ref_dstImg.ResetAndAlloc(dstImgHeader);
+
+    for (ezUInt32 uiArrayIndex = 0; uiArrayIndex < uiNumArrayIndices; ++uiArrayIndex)
+    {
+      for (ezUInt32 uiFace = 0; uiFace < uiNumFaces; ++uiFace)
+      {
+        for (ezUInt32 uiMip = 0; uiMip < uiNumMips; ++uiMip)
+        {
+          const ezUInt32 uiSrcMip = startMipLevel + uiMip;
+          const ezImageView srcSubImage = srcImg.GetSubImageView(uiSrcMip, uiFace, uiArrayIndex);
+          ezUInt8* pDst = ref_dstImg.GetPixelPointer<ezUInt8>(uiMip, uiFace, uiArrayIndex);
+          ezMemoryUtils::Copy(pDst, srcSubImage.GetByteBlobPtr().GetPtr(), srcSubImage.GetByteBlobPtr().GetCount());
+        }
+      }
+    }
+  }
 
   return EZ_SUCCESS;
 }

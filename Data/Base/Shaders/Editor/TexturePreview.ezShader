@@ -11,6 +11,7 @@ int ShowChannelMode;
 float AlphaThreshold;
 float LodLevel;
 bool IsLinear;
+int ArrayIndex;
 
 [RENDERSTATE]
 
@@ -27,6 +28,7 @@ CullMode = CullMode_None
   FLOAT1(AlphaThreshold);
   FLOAT1(LodLevel);
   BOOL1(IsLinear);
+  INT1(ArrayIndex);
 
 [VERTEXSHADER]
 
@@ -41,15 +43,16 @@ VS_OUT main(VS_IN Input)
 
 #include <Shaders/Materials/MaterialInterpolator.h>
 
-Texture2D BaseTexture BIND_GROUP(BG_MATERIAL);
+Texture2DArray BaseTexture BIND_GROUP(BG_MATERIAL);
 SamplerState BaseTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
 
 float4 SampleTexture(PS_IN Input)
 {
+  float3 uvw = float3(Input.TexCoord0.xy, (float)GetMaterialData(ArrayIndex));
   if (GetMaterialData(LodLevel) < 0)
-    return BaseTexture.Sample(BaseTexture_AutoSampler, Input.TexCoord0.xy);
+    return BaseTexture.Sample(BaseTexture_AutoSampler, uvw);
 
-  return BaseTexture.SampleLevel(BaseTexture_AutoSampler, Input.TexCoord0.xy, GetMaterialData(LodLevel));
+  return BaseTexture.SampleLevel(BaseTexture_AutoSampler, uvw, GetMaterialData(LodLevel));
 }
 
 float4 main(PS_IN Input) : SV_Target
