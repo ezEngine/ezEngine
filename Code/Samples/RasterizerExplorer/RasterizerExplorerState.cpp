@@ -71,6 +71,8 @@ void RasterizerExplorerState::OnActivation(ezWorld* pWorld, ezStringView sStartP
 
   m_pRasterizerViewOptimized = EZ_DEFAULT_NEW(ezRasterizerView, true);
   m_pRasterizerViewGeneric = EZ_DEFAULT_NEW(ezRasterizerView, false);
+  m_pRasterizerViewMOC = EZ_DEFAULT_NEW(ezRasterizerView, ezRasterizerImplementation::MaskedOcclusionCulling);
+  m_pRasterizerViewGenericMOC = EZ_DEFAULT_NEW(ezRasterizerView, ezRasterizerImplementation::GenericMOC);
 
   CreateOverlayObject();
 
@@ -85,6 +87,8 @@ void RasterizerExplorerState::OnDeactivation()
 
   m_pRasterizerViewOptimized.Clear();
   m_pRasterizerViewGeneric.Clear();
+  m_pRasterizerViewMOC.Clear();
+  m_pRasterizerViewGenericMOC.Clear();
 
   SUPER::OnDeactivation();
 
@@ -114,7 +118,9 @@ void RasterizerExplorerState::ConfigureInputActions()
   RegisterInputActionNoTimeScale("Rasterizer", "PrevCube", ezInputSlot_KeyUp);
   RegisterInputActionNoTimeScale("Rasterizer", "OverlayOptimized", ezInputSlot_Key1);
   RegisterInputActionNoTimeScale("Rasterizer", "OverlayGeneric", ezInputSlot_Key2);
-  RegisterInputActionNoTimeScale("Rasterizer", "OverlayDiff", ezInputSlot_Key3);
+  RegisterInputActionNoTimeScale("Rasterizer", "OverlayMOC", ezInputSlot_Key3);
+  RegisterInputActionNoTimeScale("Rasterizer", "OverlayGenericMOC", ezInputSlot_Key4);
+  RegisterInputActionNoTimeScale("Rasterizer", "OverlayDiff", ezInputSlot_Key5);
 }
 
 void RasterizerExplorerState::ConfigureMainCamera()
@@ -165,6 +171,10 @@ void RasterizerExplorerState::ProcessInput()
     m_Overlay = (m_Overlay == RasterizerOverlay::Optimized) ? RasterizerOverlay::None : RasterizerOverlay::Optimized;
   if (ezInputManager::GetInputActionState("Rasterizer", "OverlayGeneric") == ezKeyState::Pressed)
     m_Overlay = (m_Overlay == RasterizerOverlay::Generic) ? RasterizerOverlay::None : RasterizerOverlay::Generic;
+  if (ezInputManager::GetInputActionState("Rasterizer", "OverlayMOC") == ezKeyState::Pressed)
+    m_Overlay = (m_Overlay == RasterizerOverlay::MOC) ? RasterizerOverlay::None : RasterizerOverlay::MOC;
+  if (ezInputManager::GetInputActionState("Rasterizer", "OverlayGenericMOC") == ezKeyState::Pressed)
+    m_Overlay = (m_Overlay == RasterizerOverlay::GenericMOC) ? RasterizerOverlay::None : RasterizerOverlay::GenericMOC;
   if (ezInputManager::GetInputActionState("Rasterizer", "OverlayDiff") == ezKeyState::Pressed)
     m_Overlay = (m_Overlay == RasterizerOverlay::Diff) ? RasterizerOverlay::None : RasterizerOverlay::Diff;
 
@@ -242,12 +252,12 @@ void RasterizerExplorerState::RunRasterizers()
     uiHeight = ezMath::Max(1u, (ezUInt32)vp.height);
   }
 
-  ezRasterizerView* rasterViews[] = {m_pRasterizerViewOptimized.Borrow(), m_pRasterizerViewGeneric.Borrow()};
-
-  for (ezRasterizerView* pRasterView : rasterViews)
+  auto RunSingle = [&](ezRasterizerView* pRasterView) -> ezTime
   {
     pRasterView->SetResolution(uiWidth, uiHeight, 0.0f);
     pRasterView->SetCamera(&m_MainCamera);
+
+    const ezTime tStart = ezTime::Now();
 
     pRasterView->BeginScene();
 
@@ -262,7 +272,21 @@ void RasterizerExplorerState::RunRasterizers()
     }
 
     pRasterView->EndScene();
-  }
+
+    return ezTime::Now() - tStart;
+  };
+
+  m_Perf.m_LastOptimized = RunSingle(m_pRasterizerViewOptimized.Borrow());
+  m_Perf.m_LastGeneric = RunSingle(m_pRasterizerViewGeneric.Borrow());
+  m_Perf.m_LastMOC = RunSingle(m_pRasterizerViewMOC.Borrow());
+  m_Perf.m_LastGenericMOC = RunSingle(m_pRasterizerViewGenericMOC.Borrow());
+
+  // Exponential moving average (smoothing factor ~0.05)
+  constexpr double fAlpha = 0.05;
+  m_Perf.m_fAvgOptimizedMs += (m_Perf.m_LastOptimized.GetMilliseconds() - m_Perf.m_fAvgOptimizedMs) * fAlpha;
+  m_Perf.m_fAvgGenericMs += (m_Perf.m_LastGeneric.GetMilliseconds() - m_Perf.m_fAvgGenericMs) * fAlpha;
+  m_Perf.m_fAvgMOCMs += (m_Perf.m_LastMOC.GetMilliseconds() - m_Perf.m_fAvgMOCMs) * fAlpha;
+  m_Perf.m_fAvgGenericMOCMs += (m_Perf.m_LastGenericMOC.GetMilliseconds() - m_Perf.m_fAvgGenericMOCMs) * fAlpha;
 }
 
 void RasterizerExplorerState::DrawDebugGeometry()
@@ -292,7 +316,7 @@ void RasterizerExplorerState::DrawDebugGeometry()
     "WASD = move, RMB+mouse = look, Up/Down = select building, ESC = quit",
     ezVec2I32(10, 30), ezColor::LightGray);
 
-  // Query visibility of the selected building against both rasterizers
+  // Query visibility of the selected building against all rasterizers
   if (m_iSelectedBuilding >= 0 && m_iSelectedBuilding < (ezInt32)m_Buildings.GetCount())
   {
     const auto& b = m_Buildings[m_iSelectedBuilding];
@@ -317,10 +341,18 @@ void RasterizerExplorerState::DrawDebugGeometry()
 
     const bool bVisOpt = m_pRasterizerViewOptimized->IsVisible(simdBox);
     const bool bVisGen = m_pRasterizerViewGeneric->IsVisible(simdBox);
+    const bool bVisMOC = m_pRasterizerViewMOC->IsVisible(simdBox);
+    const bool bVisGMOC = m_pRasterizerViewGenericMOC->IsVisible(simdBox);
+
+    const bool bAllAgree = (bVisOpt == bVisGen) && (bVisGen == bVisMOC) && (bVisMOC == bVisGMOC);
 
     ezDebugRenderer::Draw2DText(m_pMainWorld,
-      ezFmt("Building {} - Optimized: {}  Generic: {}", m_iSelectedBuilding, bVisOpt ? "VISIBLE" : "OCCLUDED", bVisGen ? "VISIBLE" : "OCCLUDED"),
-      ezVec2I32(10, 50), bVisOpt == bVisGen ? ezColor::White : ezColor::Red);
+      ezFmt("Building {} - Opt: {}  Gen: {}  MOC: {}  GMOC: {}", m_iSelectedBuilding,
+        bVisOpt ? "VIS" : "OCC",
+        bVisGen ? "VIS" : "OCC",
+        bVisMOC ? "VIS" : "OCC",
+        bVisGMOC ? "VIS" : "OCC"),
+      ezVec2I32(10, 50), bAllAgree ? ezColor::White : ezColor::Red);
   }
 }
 
@@ -330,6 +362,7 @@ void RasterizerExplorerState::BeforeWorldUpdate()
 
 #ifdef BUILDSYSTEM_ENABLE_IMGUI_SUPPORT
   DrawImGuiPanel();
+  DrawPerfPanel();
 #endif
 }
 
@@ -353,7 +386,7 @@ void RasterizerExplorerState::DrawImGuiPanel()
   ImGui::SetNextWindowSize(ImVec2(280, 500), ImGuiCond_FirstUseEver);
   ImGui::SetNextWindowPos(ImVec2(10, 60), ImGuiCond_FirstUseEver);
 
-  static const char* szOverlayNames[] = {"None", "Optimized (1)", "Generic (2)", "Diff (3)"};
+  static const char* szOverlayNames[] = {"None", "Optimized (1)", "Generic (2)", "MOC (3)", "GenericMOC (4)", "Diff (5)"};
 
   if (ImGui::Begin("City"))
   {
@@ -429,6 +462,81 @@ void RasterizerExplorerState::DrawImGuiPanel()
       }
     }
     ImGui::EndChild();
+  }
+  ImGui::End();
+#endif
+}
+
+void RasterizerExplorerState::DrawPerfPanel()
+{
+#ifdef BUILDSYSTEM_ENABLE_IMGUI_SUPPORT
+  if (ezImgui::GetSingleton() == nullptr)
+    return;
+
+  ezImgui::GetSingleton()->SetCurrentContextForView(m_hMainView);
+
+  ImGui::SetNextWindowSize(ImVec2(260, 0), ImGuiCond_FirstUseEver);
+  ImGui::SetNextWindowPos(ImVec2(300, 60), ImGuiCond_FirstUseEver);
+
+  if (ImGui::Begin("Rasterizer Performance"))
+  {
+    const ezUInt32 uiW = m_pRasterizerViewOptimized->GetResolutionX();
+    const ezUInt32 uiH = m_pRasterizerViewOptimized->GetResolutionY();
+    ImGui::Text("Resolution: %u x %u", uiW, uiH);
+    ImGui::Text("Occluders:  %u", m_Buildings.GetCount() + 1); // buildings + ground
+    ImGui::Separator();
+
+    ImGui::Columns(3, "perf_cols");
+    ImGui::SetColumnWidth(0, 90);
+    ImGui::SetColumnWidth(1, 80);
+    ImGui::SetColumnWidth(2, 80);
+
+    ImGui::Text("Impl");
+    ImGui::NextColumn();
+    ImGui::Text("Last (ms)");
+    ImGui::NextColumn();
+    ImGui::Text("Avg (ms)");
+    ImGui::NextColumn();
+    ImGui::Separator();
+
+    ImGui::Text("Optimized");
+    ImGui::NextColumn();
+    ImGui::Text("%.3f", m_Perf.m_LastOptimized.GetMilliseconds());
+    ImGui::NextColumn();
+    ImGui::Text("%.3f", m_Perf.m_fAvgOptimizedMs);
+    ImGui::NextColumn();
+
+    ImGui::Text("Generic");
+    ImGui::NextColumn();
+    ImGui::Text("%.3f", m_Perf.m_LastGeneric.GetMilliseconds());
+    ImGui::NextColumn();
+    ImGui::Text("%.3f", m_Perf.m_fAvgGenericMs);
+    ImGui::NextColumn();
+
+    ImGui::Text("MOC");
+    ImGui::NextColumn();
+    ImGui::Text("%.3f", m_Perf.m_LastMOC.GetMilliseconds());
+    ImGui::NextColumn();
+    ImGui::Text("%.3f", m_Perf.m_fAvgMOCMs);
+    ImGui::NextColumn();
+
+    ImGui::Text("GenericMOC");
+    ImGui::NextColumn();
+    ImGui::Text("%.3f", m_Perf.m_LastGenericMOC.GetMilliseconds());
+    ImGui::NextColumn();
+    ImGui::Text("%.3f", m_Perf.m_fAvgGenericMOCMs);
+    ImGui::NextColumn();
+
+    ImGui::Columns(1);
+
+    if (m_Perf.m_fAvgOptimizedMs > 0.0001)
+    {
+      ImGui::Separator();
+      ImGui::Text("Relative (vs Optimized):");
+      ImGui::Text("  Generic:    %.2fx", m_Perf.m_fAvgGenericMs / m_Perf.m_fAvgOptimizedMs);
+      ImGui::Text("  MOC:        %.2fx", m_Perf.m_fAvgMOCMs / m_Perf.m_fAvgOptimizedMs);
+      ImGui::Text("  GenericMOC: %.2fx", m_Perf.m_fAvgGenericMOCMs / m_Perf.m_fAvgOptimizedMs);
+    }
   }
   ImGui::End();
 #endif
@@ -523,6 +631,14 @@ void RasterizerExplorerState::UpdateOverlayTexture()
   else if (m_Overlay == RasterizerOverlay::Generic)
   {
     m_pRasterizerViewGeneric->ReadBackFrame(m_OverlayBuffer);
+  }
+  else if (m_Overlay == RasterizerOverlay::MOC)
+  {
+    m_pRasterizerViewMOC->ReadBackFrame(m_OverlayBuffer);
+  }
+  else if (m_Overlay == RasterizerOverlay::GenericMOC)
+  {
+    m_pRasterizerViewGenericMOC->ReadBackFrame(m_OverlayBuffer);
   }
   else if (m_Overlay == RasterizerOverlay::Diff)
   {

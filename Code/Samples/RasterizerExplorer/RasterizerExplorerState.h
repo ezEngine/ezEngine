@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/World/Declarations.h>
+#include <Foundation/Time/Time.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <GameEngine/GameState/GameState.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
@@ -14,6 +15,8 @@ enum class RasterizerOverlay
   None,
   Optimized,
   Generic,
+  MOC,
+  GenericMOC,
   Diff,
 
   COUNT
@@ -43,6 +46,7 @@ private:
   void RunRasterizers();
   void DrawDebugGeometry();
   void DrawImGuiPanel();
+  void DrawPerfPanel();
 
   void CreateOverlayObject();
   void DestroyOverlayObject();
@@ -59,6 +63,8 @@ private:
   ezUniquePtr<ezWorld> m_pWorld;
   ezUniquePtr<ezRasterizerView> m_pRasterizerViewOptimized;
   ezUniquePtr<ezRasterizerView> m_pRasterizerViewGeneric;
+  ezUniquePtr<ezRasterizerView> m_pRasterizerViewMOC;
+  ezUniquePtr<ezRasterizerView> m_pRasterizerViewGenericMOC;
 
   ezHybridArray<Building, 128> m_Buildings;
   ezInt32 m_iSelectedBuilding = -1;
@@ -78,4 +84,20 @@ private:
   static constexpr float GroundSize = GridSize * CellSize + StreetWidth;
   static constexpr float GroundHalf = GroundSize * 0.5f;
   static constexpr ezUInt32 RasterizerSize = 512;
+
+  struct PerfTimings
+  {
+    ezTime m_LastOptimized;
+    ezTime m_LastGeneric;
+    ezTime m_LastMOC;
+    ezTime m_LastGenericMOC;
+
+    // Smoothed values for display
+    double m_fAvgOptimizedMs = 0.0;
+    double m_fAvgGenericMs = 0.0;
+    double m_fAvgMOCMs = 0.0;
+    double m_fAvgGenericMOCMs = 0.0;
+  };
+
+  PerfTimings m_Perf;
 };

@@ -7,6 +7,7 @@
 #include <Foundation/Types/RefCounted.h>
 #include <Foundation/Types/SharedPtr.h>
 #include <RendererCore/Rasterizer/Generic/OccluderGeneric.h>
+#include <RendererCore/Rasterizer/MaskedOcclusionCulling/OccluderMOC.h>
 #include <RendererCore/Rasterizer/Thirdparty/Occluder.h>
 #include <RendererCore/RendererCoreDLL.h>
 
@@ -49,6 +50,7 @@ private:
   Occluder m_Occluder;
 #endif
   OccluderGeneric m_OccluderGeneric;
+  OccluderMOC m_OccluderMOC;
 
   static ezMutex s_Mutex;
   static ezMap<ezString, ezSharedPtr<ezRasterizerObject>> s_Objects;

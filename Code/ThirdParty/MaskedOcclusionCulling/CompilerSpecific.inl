@@ -77,6 +77,8 @@
 		free(ptr);
 	}
 
+// GCC 12+ and Clang 16+ already define __cpuidex and _xgetbv in their headers
+#if !(defined(__GNUC__) && __GNUC__ >= 12) && !(defined(__clang_major__) && __clang_major__ >= 16)
 	FORCE_INLINE void __cpuidex(int* cpuinfo, int function, int subfunction)
 	{
 		__cpuid_count(function, subfunction, cpuinfo[0], cpuinfo[1], cpuinfo[2], cpuinfo[3]);
@@ -92,6 +94,7 @@
 		);
 		return ((unsigned long long)edx << 32) | eax;
 	}
+#endif
 
 #else
 	#error Unsupported compiler

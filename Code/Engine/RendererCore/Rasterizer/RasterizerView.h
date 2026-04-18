@@ -12,10 +12,22 @@
 class Rasterizer;
 #endif
 class RasterizerGeneric;
+class MaskedOcclusionCulling;
 class ezRasterizerObject;
 class ezColorLinearUB;
 class ezCamera;
 class ezSimdBBox;
+
+/// Selects which software rasterizer implementation to use.
+enum class ezRasterizerImplementation
+{
+  Generic,               ///< Portable implementation using ezSimdVec4f.
+#if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
+  ThirdParty,            ///< AVX2-optimized rasterizer.
+#endif
+  MaskedOcclusionCulling, ///< Intel's Masked Occlusion Culling library (native SIMD).
+  GenericMOC             ///< Intel's MOC algorithm ported to ezSimdVec4f (portable).
+};
 
 class EZ_RENDERERCORE_DLL ezRasterizerView final
 {
@@ -24,6 +36,8 @@ class EZ_RENDERERCORE_DLL ezRasterizerView final
 public:
   /// \param bUseOptimized If true and the platform supports it, uses the AVX2-optimized rasterizer. Otherwise uses the generic implementation.
   explicit ezRasterizerView(bool bUseOptimized = true);
+
+  explicit ezRasterizerView(ezRasterizerImplementation impl);
   ~ezRasterizerView();
 
   /// \brief Changes the resolution of the view. Has to be called at least once before starting to render anything.
@@ -35,11 +49,13 @@ public:
   bool IsUsingOptimizedRasterizer() const
   {
 #if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
-    return m_bUseOptimized;
+    return m_Implementation == ezRasterizerImplementation::ThirdParty;
 #else
     return false;
 #endif
   }
+
+  ezRasterizerImplementation GetImplementation() const { return m_Implementation; }
 
   /// \brief Prepares the view to rasterize a new scene.
   void BeginScene();
@@ -89,11 +105,13 @@ private:
   ezUInt32 m_uiResolutionY = 0;
   float m_fAspectRation = 1.0f;
 
+  ezRasterizerImplementation m_Implementation = ezRasterizerImplementation::Generic;
+
 #if EZ_ENABLED(EZ_RASTERIZER_SUPPORTED)
-  bool m_bUseOptimized = true;
   ezUniquePtr<Rasterizer> m_pRasterizer;
 #endif
   ezUniquePtr<RasterizerGeneric> m_pRasterizerGeneric;
+  MaskedOcclusionCulling* m_pMOC = nullptr;
 
   struct Instance
   {
@@ -109,6 +127,7 @@ class ezRasterizerViewPool
 {
 public:
   ezRasterizerView* GetRasterizerView(ezUInt32 uiWidth, ezUInt32 uiHeight, float fAspectRatio, bool bUseOptimized = true);
+  ezRasterizerView* GetRasterizerView(ezUInt32 uiWidth, ezUInt32 uiHeight, float fAspectRatio, ezRasterizerImplementation impl);
   void ReturnRasterizerView(ezRasterizerView* pView);
 
 private:

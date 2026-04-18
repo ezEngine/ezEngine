@@ -31,5 +31,19 @@ if (EZ_3RDPARTY_OZZ_SUPPORT)
   )
 endif()
 
+if (EZ_3RDPARTY_MOC_SUPPORT)
+  target_link_libraries(${PROJECT_NAME}
+    PRIVATE
+    MaskedOcclusionCulling
+  )
+
+  # The GenericMOC implementation skips PCH since it redefines SSE intrinsic names
+  set_source_files_properties(
+    Rasterizer/GenericMOC/MaskedOcclusionCullingGenericMOC.cpp
+    PROPERTIES
+      SKIP_PRECOMPILE_HEADERS ON
+  )
+endif()
+
 # needed for shader structure includes
 target_include_directories(${PROJECT_NAME} PRIVATE "${EZ_ROOT}/Data/Base")

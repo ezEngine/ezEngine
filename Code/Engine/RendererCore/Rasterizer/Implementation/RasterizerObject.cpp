@@ -23,6 +23,15 @@ void ezRasterizerObject::CreateMesh(const ezGeometry& geo)
   ezSimdVec4f vBoundsMin(ezMath::MaxValue<float>());
   ezSimdVec4f vBoundsMax(-ezMath::MaxValue<float>());
 
+  // Also collect raw vertex data for MOC
+  ezDynamicArray<ezVec3> mocVertices;
+  ezDynamicArray<ezUInt32> mocIndices;
+  mocVertices.Reserve(geo.GetVertices().GetCount());
+
+  // Build a mapping from geometry vertex indices to MOC vertex indices (deduplicated)
+  ezDynamicArray<ezUInt32> vtxRemap;
+  vtxRemap.SetCount(geo.GetVertices().GetCount(), ezMath::MaxValue<ezUInt32>());
+
   for (const auto& poly : geo.GetPolygons())
   {
     const ezUInt32 uiNumVertices = poly.m_Vertices.GetCount();
@@ -31,6 +40,38 @@ void ezRasterizerObject::CreateMesh(const ezGeometry& geo)
     // ignore complex polygons entirely
     if (uiNumVertices > 4)
       continue;
+
+    // Collect MOC vertices and generate triangle indices for this polygon
+    {
+      ezUInt32 mocPolyVtx[4];
+      ezUInt32 numPolyVtx = 0;
+
+      for (ezUInt32 i = 0; i < uiNumVertices && i < 4; ++i)
+      {
+        const ezUInt32 vtxIdx = poly.m_Vertices[i];
+        if (vtxRemap[vtxIdx] == ezMath::MaxValue<ezUInt32>())
+        {
+          vtxRemap[vtxIdx] = mocVertices.GetCount();
+          mocVertices.PushBack(geo.GetVertices()[vtxIdx].m_vPosition);
+        }
+        mocPolyVtx[numPolyVtx++] = vtxRemap[vtxIdx];
+      }
+
+      if (numPolyVtx >= 3)
+      {
+        // First triangle
+        mocIndices.PushBack(mocPolyVtx[0]);
+        mocIndices.PushBack(mocPolyVtx[1]);
+        mocIndices.PushBack(mocPolyVtx[2]);
+      }
+      if (numPolyVtx == 4)
+      {
+        // Second triangle for quad
+        mocIndices.PushBack(mocPolyVtx[0]);
+        mocIndices.PushBack(mocPolyVtx[2]);
+        mocIndices.PushBack(mocPolyVtx[3]);
+      }
+    }
 
     for (ezUInt32 i = 0; i < uiNumVertices; ++i)
     {
@@ -87,6 +128,8 @@ void ezRasterizerObject::CreateMesh(const ezGeometry& geo)
 
   m_Occluder.bake(reinterpret_cast<const __m128*>(vertices.GetData()), vertices.GetCount(), vBoundsMin.m_v, vBoundsMax.m_v);
 #endif
+
+  m_OccluderMOC.Bake(mocVertices, mocIndices);
 }
 
 ezSharedPtr<const ezRasterizerObject> ezRasterizerObject::GetObject(ezStringView sUniqueName)
