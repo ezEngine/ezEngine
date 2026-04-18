@@ -527,7 +527,38 @@ namespace MaskedOcclusionCullingGeneric
 {
   static MaskedOcclusionCulling::Implementation gInstructionSet = MaskedOcclusionCulling::SSE2; // Report as SSE2 level
 
-#include "MaskedOcclusionCullingCommonGeneric.inl"
+// Redirect bare __m128/__m128i types and _mm_* intrinsics to our ez-based replacements.
+// Foundation headers have already been processed above, so they keep using the real SSE types.
+// Only code included AFTER these defines (i.e. Common.inl) is affected.
+#define __m128 __mocm128
+#define __m128i __mocm128i
+#define _mm_setr_ps _moc_mm_setr_ps
+#define _mm_setr_epi32 _moc_mm_setr_epi32
+#define _mm_loadu_ps _moc_mm_loadu_ps
+#define _mm_setzero_si128 _moc_mm_setzero_si128
+#define _mm_movemask_ps _moc_mm_movemask_ps
+#define _mm_cvttps_epi32 _moc_mm_cvttps_epi32
+#define _mm_and_si128 _moc_mm_and_si128
+#define _mm_add_epi32 _moc_mm_add_epi32
+#define _mm_div_ps _moc_mm_div_ps
+#define _mm_sub_ps _moc_mm_sub_ps
+#define _mm_xor_ps _moc_mm_xor_ps
+
+#include <MaskedOcclusionCullingCommon.inl>
+
+#undef __m128
+#undef __m128i
+#undef _mm_setr_ps
+#undef _mm_setr_epi32
+#undef _mm_loadu_ps
+#undef _mm_setzero_si128
+#undef _mm_movemask_ps
+#undef _mm_cvttps_epi32
+#undef _mm_and_si128
+#undef _mm_add_epi32
+#undef _mm_div_ps
+#undef _mm_sub_ps
+#undef _mm_xor_ps
 
   MaskedOcclusionCulling* CreateMaskedOcclusionCulling(pfnAlignedAlloc alignedAlloc, pfnAlignedFree alignedFree)
   {

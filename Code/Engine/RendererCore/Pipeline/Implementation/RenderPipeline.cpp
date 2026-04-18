@@ -1158,6 +1158,8 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
   static ezHashedString sTrue = ezMakeHashedString("TRUE");
   static ezHashedString sFalse = ezMakeHashedString("FALSE");
 
+  auto forward = renderViewContext.m_pCamera->GetCenterDirForwards();
+
   if (pCamera->IsOrthographic())
     pRenderContext->SetShaderPermutationVariable(sCameraMode, sOrtho);
   else if (pCamera->IsStereoscopic())

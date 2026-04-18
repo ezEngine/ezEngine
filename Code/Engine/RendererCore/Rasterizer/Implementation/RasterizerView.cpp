@@ -75,7 +75,7 @@ void ezRasterizerView::SetResolution(ezUInt32 uiWidth, ezUInt32 uiHeight, float 
         if (m_Implementation == ezRasterizerImplementation::GenericMOC)
           m_pMOC = ezCreateGenericMOC();
         else
-          m_pMOC = MaskedOcclusionCulling::Create(MaskedOcclusionCulling::Implementation::SSE2);
+          m_pMOC = MaskedOcclusionCulling::Create(MaskedOcclusionCulling::Implementation::AVX512);
       }
 
       m_pMOC->SetResolution(uiWidth, uiHeight);

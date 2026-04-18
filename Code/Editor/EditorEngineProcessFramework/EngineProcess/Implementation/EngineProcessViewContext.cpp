@@ -5,6 +5,9 @@
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessViewContext.h>
+
+#include <EditorEngineProcessFramework/Tracing/TraceProvider.h>
+
 #include <GameEngine/GameApplication/WindowOutputTarget.h>
 #include <RendererCore/Components/CameraComponent.h>
 #include <RendererCore/Debug/DebugRenderer.h>
@@ -59,6 +62,7 @@ void ezEngineProcessViewContext::HandleViewMessage(const ezEditorEngineViewMsg* 
   }
   else if (const ezViewScreenshotMsgToEngine* msg = ezDynamicCast<const ezViewScreenshotMsgToEngine*>(pMsg))
   {
+    EZ_TRACE_EVENT("ezViewScreenshotMsgToEngine", ezTraceLevel::Info);
     ezImage img;
     if (ezWindowManager::GetSingleton()->GetOutputTarget(m_hEditorWindow)->CaptureImage(img).Succeeded())
     {

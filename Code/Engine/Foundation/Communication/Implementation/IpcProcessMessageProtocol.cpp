@@ -1,11 +1,10 @@
 #include <Foundation/FoundationPCH.h>
 
-#include <Foundation/Communication/IpcProcessMessageProtocol.h>
-// #include <Foundation/Communication/Implementation/MessageLoop.h>
 #include <Foundation/Communication/IpcChannel.h>
-// #include <Foundation/Communication/RemoteMessage.h>
+#include <Foundation/Communication/IpcProcessMessageProtocol.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
+#include <Foundation/Tracing/TraceProvider.h>
 
 ezIpcProcessMessageProtocol::ezIpcProcessMessageProtocol(ezIpcChannel* pChannel)
 {
@@ -24,6 +23,10 @@ ezIpcProcessMessageProtocol::~ezIpcProcessMessageProtocol()
 
 bool ezIpcProcessMessageProtocol::Send(ezProcessMessage* pMsg)
 {
+  ezStringBuilder sType = pMsg->GetDynamicRTTI()->GetTypeName();
+  EZ_TRACE_EVENT("ezIpcProcessMessageProtocol_Send", ezTraceLevel::Info,
+    EZ_TRACE_VALUE("Type", sType.GetData()));
+
   ezContiguousMemoryStreamStorage storage;
   ezMemoryStreamWriter writer(&storage);
   ezReflectionSerializer::WriteObjectToBinary(writer, pMsg->GetDynamicRTTI(), pMsg);
@@ -96,5 +99,10 @@ ezUniquePtr<ezProcessMessage> ezIpcProcessMessageProtocol::PopMessage()
 
   ezUniquePtr<ezProcessMessage> front = std::move(m_IncomingQueue.PeekFront());
   m_IncomingQueue.PopFront();
+
+  ezStringBuilder sType = front->GetDynamicRTTI()->GetTypeName();
+  EZ_TRACE_EVENT("ezIpcProcessMessageProtocol_Receive", ezTraceLevel::Info,
+    EZ_TRACE_VALUE("Type", sType.GetData()));
+
   return front;
 }

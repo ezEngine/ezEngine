@@ -38,7 +38,7 @@
       "cacheVariables": {
         "EZ_EXPERIMENTAL_EDITOR_ON_LINUX": "ON",
         "EZ_BUILD_EXPERIMENTAL_VULKAN": "ON",
-        "EZ_ENABLE_FOLDER_UNITY_FILES" : "ON",
+        "EZ_ENABLE_FOLDER_UNITY_FILES" : "OFF",
         "EZ_COMPILE_ENGINE_AS_DLL" : "ON",
         "CMAKE_EXPORT_COMPILE_COMMANDS" : "ON",
         "EZ_BUILD_OPENXR": "ON"
@@ -55,6 +55,27 @@
       "cacheVariables": {
         "CMAKE_CXX_COMPILER" : "clang++-14",
         "CMAKE_C_COMPILER" : "clang-14"
+      }
+    },
+    {
+      "name": "include-analysis-base",
+      "hidden" : true,
+      "cacheVariables": {
+        "EZ_USE_PCH" : "OFF",
+        "EZ_ENABLE_FOLDER_UNITY_FILES" : "OFF",
+        "CMAKE_EXPORT_COMPILE_COMMANDS" : "ON"
+      }
+    },
+    {
+      "name": "linux-clang-include-analysis",
+      "inherits" : ["linux-base", "include-analysis-base"],
+      "hidden" : false,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_COMPILER" : "clang++-20",
+        "CMAKE_C_COMPILER" : "clang-20",
+        "CMAKE_CXX_FLAGS" : "-Wno-error=deprecated-literal-operator -Wno-error=nontrivial-memcall",
+        "CMAKE_C_FLAGS" : "-Wno-error=deprecated-literal-operator -Wno-error=nontrivial-memcall"
       }
     },
     {

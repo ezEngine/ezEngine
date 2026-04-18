@@ -4,6 +4,9 @@
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessCommunicationChannel.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
+
+#include <EditorEngineProcessFramework/Tracing/TraceProvider.h>
+
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorEngineProcessFramework/EngineProcess/RemoteViewContext.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
@@ -919,6 +922,7 @@ void ezEngineProcessDocumentContext::UpdateSyncObjects()
 
     if (pSyncObject->GetModified())
     {
+      EZ_TRACE_EVENT("UpdateSyncObjects", ezTraceLevel::Info);
       // reset the modified state to make sure the object isn't updated unless a new sync messages comes in
       pSyncObject->SetModified(false);
 
