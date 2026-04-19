@@ -8,6 +8,7 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <RendererFoundation/Device/Device.h>
+#include <RendererCore/Components/CameraComponent.h>
 
 ezGameEngineTest::ezGameEngineTest() = default;
 ezGameEngineTest::~ezGameEngineTest() = default;
@@ -92,6 +93,30 @@ ezString ezGameEngineTestApplication::GetProjectDataDirectoryPath() const
 {
   ezStringBuilder sProjectPath(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath(), "/", m_sProjectDirName);
   return sProjectPath;
+}
+
+void ezGameEngineTestApplication::SwitchToCamera(ezUInt32 uiCameraNumber)
+{
+  ezWorld* pWorld = GetWorld();
+  EZ_LOCK(pWorld->GetReadMarker());
+  ezGameObject* pCamera = nullptr;
+  ezStringBuilder sCamera;
+  sCamera.SetFormat("Camera{}", uiCameraNumber);
+  if (pWorld->TryGetObjectWithGlobalKey(ezTempHashedString(sCamera), pCamera))
+  {
+    ezCameraComponent* pCameraComponent = nullptr;
+    if (pCamera->TryGetComponentOfBaseType<ezCameraComponent>(pCameraComponent))
+    {
+      // update view camera
+      ezCamera* pCamera = ezDynamicCast<ezGameState*>(GetActiveGameState())->GetMainCamera();
+      const ezGameObject* pOwner = pCameraComponent->GetOwner();
+      const ezVec3 vPos = pOwner->GetGlobalPosition();
+      const ezVec3 vFwd = pOwner->GetGlobalDirForwards();
+      const ezVec3 vUp  = pOwner->GetGlobalDirUp();
+      pCamera->LookAt(vPos, vPos + vFwd, vUp);
+      pCamera->SetCameraMode(pCameraComponent->GetCameraMode(), pCameraComponent->GetFieldOfView(), pCameraComponent->GetNearPlane(), pCameraComponent->GetFarPlane());
+    }
+  }
 }
 
 ezResult ezGameEngineTestApplication::LoadScene(const char* szSceneFile)

@@ -8,6 +8,7 @@
 #include <Foundation/Profiling/ProfilingUtils.h>
 #include <ParticlePlugin/Components/ParticleComponent.h>
 
+
 static ezGameEngineTestEffects s_GameEngineTestEffects;
 
 const char* ezGameEngineTestEffects::GetTestName() const
@@ -29,6 +30,7 @@ void ezGameEngineTestEffects::SetupSubTests()
   AddSubTest("Reflections", SubTests::Reflections);
   AddSubTest("StressTest", SubTests::StressTest);
   AddSubTest("AdvancedMeshes", SubTests::AdvancedMeshes);
+  AddSubTest("Lighting", SubTests::Lighting);
 }
 
 ezResult ezGameEngineTestEffects::InitializeSubTest(ezInt32 iIdentifier)
@@ -92,6 +94,14 @@ ezResult ezGameEngineTestEffects::InitializeSubTest(ezInt32 iIdentifier)
       return m_pOwnApplication->LoadScene("Effects/AssetCache/Common/Scenes/AdvancedMeshes.ezBinScene");
     }
 
+    case SubTests::Lighting:
+    {
+      m_ImgCompFrames.PushBack({20});
+      m_ImgCompFrames.PushBack({40});
+
+      return m_pOwnApplication->LoadScene("Effects/AssetCache/Common/Scenes/Lighting.ezBinScene");
+    }
+
       EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
 
@@ -106,7 +116,9 @@ ezTestAppRun ezGameEngineTestEffects::RunSubTest(ezInt32 iIdentifier, ezUInt32 u
   if (m_pOwnApplication->ShouldApplicationQuit())
     return ezTestAppRun::Quit;
 
-  if (m_ImgCompFrames[m_uiImgCompIdx].m_uiFrame == m_iFrame)
+  m_pOwnApplication->SwitchToCamera(m_iFrame);
+  
+   if (m_ImgCompFrames[m_uiImgCompIdx].m_uiFrame == m_iFrame)
   {
     EZ_TEST_IMAGE(m_uiImgCompIdx, m_ImgCompFrames[m_uiImgCompIdx].m_uiThreshold);
     ++m_uiImgCompIdx;

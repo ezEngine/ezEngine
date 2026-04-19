@@ -21,6 +21,7 @@ protected:
     Reflections,
     StressTest,
     AdvancedMeshes,
+    Lighting
   };
 
   virtual void SetupSubTests() override;

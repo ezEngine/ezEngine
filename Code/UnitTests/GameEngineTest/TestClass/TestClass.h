@@ -24,6 +24,8 @@ public:
   virtual ezString FindProjectDirectory() const final override;
   virtual ezString GetProjectDataDirectoryPath() const final override;
   const ezImage& GetLastScreenshot() { return m_LastScreenshot; }
+  /// \brief Camera must have a global key named "Camera4" if `uiCameraNumber` was 4.
+  void SwitchToCamera(ezUInt32 uiCameraNumber);
 
   ezResult LoadScene(const char* szSceneFile);
   ezWorld* GetWorld() const { return m_pWorld.Borrow(); }
