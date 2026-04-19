@@ -178,10 +178,14 @@ float3 CalculateParticleLighting(float4 screenPosition, float3 worldPosition, fl
 
     [branch] if (type <= LIGHT_TYPE_DIR)
     {
-      float3 lightVector;
+      float3 lightShadowVector;
+      float3 lightDiffuseVector;
+      float3 lightSpecVector;
       float attenuation = 1.0;
       float distanceToLight = 1.0;
-      float NdotL = EvaluatePBRLight(worldPosition, worldNormal, lightData, type, lightVector, attenuation, distanceToLight);
+      float roughness = 1.0;
+      float specularEnergy = 1.0;
+      float NdotL = EvaluatePBRLight(worldPosition, worldNormal, lightData, type, viewVector, lightShadowVector, lightDiffuseVector, lightSpecVector, attenuation, distanceToLight, roughness, specularEnergy);
       attenuation *= saturate(lerp(1, NdotL, LightDirectionality));
 
       [branch] if (attenuation > 0.0f)
@@ -200,7 +204,7 @@ float3 CalculateParticleLighting(float4 screenPosition, float3 worldPosition, fl
           float2x2 fixedRotation = {1, 0, 0, 1};
           float extraPenumbraScale = 4.0;
 
-          shadowTerm = CalculateShadowTerm(worldPosition, vertexNormal, lightVector, distanceToLight, type,
+          shadowTerm = CalculateShadowTerm(worldPosition, vertexNormal, lightShadowVector, distanceToLight, type,
             lightData.shadowDataOffsetAndFadeOut, noise, fixedRotation, extraPenumbraScale, subsurfaceShadow, debugColor);
         }
 

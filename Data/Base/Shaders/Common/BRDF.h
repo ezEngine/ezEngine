@@ -107,11 +107,13 @@ float3 FresnelSchlick(float3 specularColor, float VdotH)
 }
 
 // note that 1/PI is applied later
-AccumulatedLight DefaultShading(ezMaterialData matData, float3 L, float3 V)
+AccumulatedLight DefaultShading(ezMaterialData matData, float3 lightDiffuseVector, float3 lightSpecVector, float3 V, float roughness)
 {
   float3 N = matData.worldNormal;
-  float3 H = normalize(V + L);
-  float NdotL = saturate(dot(N, L));
+  float3 H = normalize(V + lightSpecVector);
+  float NdotLSpec = saturate(dot(N, lightSpecVector));
+
+  float NdotL = saturate(dot(N, lightDiffuseVector));
   float NdotV = max(dot(N, V), 1e-5f);
   float NdotH = saturate(dot(N, H));
   float VdotH = saturate(dot(V, H));
@@ -122,13 +124,13 @@ AccumulatedLight DefaultShading(ezMaterialData matData, float3 L, float3 V)
   //  ------------- = D * Vis * F with Vis = -------------
   //  4 * N.L * N.V                          4 * N.L * N.V
 
-  float D = SpecularGGX(matData.roughness, NdotH);
-  float Vis = VisibilitySmithJointApprox(matData.roughness, NdotV, NdotL);
+  float D = SpecularGGX(roughness, NdotH);
+  float Vis = VisibilitySmithJointApprox(roughness, NdotV, NdotLSpec);
   float3 F = FresnelSchlick(matData.specularColor, VdotH);
 
   float3 diffuse = DiffuseLambert(matData.diffuseColor);
 
-  return InitializeLight(diffuse * NdotL, F * (D * Vis * NdotL));
+  return InitializeLight(diffuse * NdotL, F * (D * Vis * NdotLSpec));
 }
 
 AccumulatedLight SubsurfaceShading(ezMaterialData matData, float3 L, float3 V)
@@ -161,92 +163,3 @@ float3 EnvironmentBRDF(float3 specularColor, float roughness, float NoV)
   return specularColor * AB.x + F90 * AB.y;
 }
 
-///////////////////////////////////////////////////////////////////////////////////
-// Area Light Helpers
-// Based on Wicked Engine's implementation (Turánszki) which follows
-// Karis 2013 (MRP), Lagarde & de Rousiers 2014 (Frostbite rect diffuse).
-///////////////////////////////////////////////////////////////////////////////////
-
-/// Projects point P onto the line segment from A to B; returns the closest point on the segment.
-float3 ClosestPointOnSegment(float3 P, float3 A, float3 B)
-{
-  float3 AB = B - A;
-  float t = saturate(dot(P - A, AB) / dot(AB, AB));
-  return A + t * AB;
-}
-
-/// Smooth windowing attenuation: saturate(1 - (d^2/r^2)^2) / max(eps, d^2).
-/// Provides inverse-square falloff with a smooth fade to zero at the range boundary.
-float AttenuationPointLight(float dist2, float range2)
-{
-  float distPerRange = dist2 / range2;
-  distPerRange *= distPerRange;
-  return saturate(1.0 - distPerRange) / max(0.0001, dist2);
-}
-
-/// Evaluates shading for a tube (capsule) light.
-///
-/// Diffuse uses the closest point on the tube axis. Specular projects the
-/// reflection ray onto the line segment, then offsets by the tube radius
-/// toward the reflection ray (sphere representative point technique).
-AccumulatedLight TubeLightShading(ezMaterialData matData, float3 V, float3 lightPos,
-  float3 lightAxis, float halfLength, float radius)
-{
-  float3 N = matData.worldNormal;
-  float3 worldPos = matData.worldPosition;
-  float3 R = reflect(-V, N);
-
-  float3 endA = lightPos - lightAxis * halfLength;
-  float3 endB = lightPos + lightAxis * halfLength;
-
-  // --- Diffuse: closest point on tube axis to surface ---
-  float3 closestOnAxis = ClosestPointOnSegment(worldPos, endA, endB);
-  float3 Lunnormalized = closestOnAxis - worldPos;
-  float3 Ldiff = normalize(Lunnormalized);
-  float diffNdotL = saturate(dot(N, Ldiff));
-
-  float3 diffuse = DiffuseLambert(matData.diffuseColor) * diffNdotL;
-
-  // --- Specular: project reflection ray onto tube segment ---
-  // Find point on segment closest to the reflection ray (Karis 2013 / Picott 1992)
-  float3 L0 = endA - worldPos;
-  float3 L1 = endB - worldPos;
-  float3 Ld = L1 - L0;
-  float RdotLd = dot(R, Ld);
-  float t = dot(R, L0) * RdotLd - dot(L0, Ld);
-  t /= dot(Ld, Ld) - RdotLd * RdotLd;
-  Lunnormalized = L0 + saturate(t) * Ld;
-
-  // Offset by tube radius toward the reflection ray (sphere representative point)
-  if (radius > 0)
-  {
-    float3 centerToRay = mad(dot(Lunnormalized, R), R, -Lunnormalized);
-    Lunnormalized = mad(centerToRay, saturate(radius / length(centerToRay)), Lunnormalized);
-  }
-
-  float3 Lspec = normalize(Lunnormalized);
-
-  float NdotV = max(dot(N, V), 1e-5);
-  float NdotL = saturate(dot(N, Lspec));
-  float3 H = normalize(V + Lspec);
-  float NdotH = saturate(dot(N, H));
-  float VdotH = saturate(dot(V, H));
-
-  float roughnessBRDF = matData.roughness * matData.roughness;
-  roughnessBRDF = max(roughnessBRDF, 0.001);
-
-  // Clamp roughness up by the solid angle subtended by the capsule shape to conserve
-  // energy (Karis 2013, extended for tube length via Drobot 2014).
-  float distToRepPoint = length(Lunnormalized);
-  float sphereAngle = saturate(radius / distToRepPoint);
-  float lineAngle = atan2(halfLength, length(closestOnAxis - worldPos)) / PI;
-  roughnessBRDF = saturate(roughnessBRDF + (sphereAngle + lineAngle) * 0.5f);
-
-  float D = SpecularGGX(roughnessBRDF, NdotH);
-  float Vis = VisibilitySmithJointApprox(roughnessBRDF, NdotV, NdotL);
-  float3 F = FresnelSchlick(matData.specularColor, VdotH);
-
-  float3 specular = F * (D * Vis * NdotL);
-
-  return InitializeLight(diffuse, specular);
-}

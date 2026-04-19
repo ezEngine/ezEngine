@@ -16,7 +16,9 @@ protected:
 
   virtual void UpdateGizmoTransform() override;
 
-  float m_fScale;
-  float m_fAngleScale;
+  float m_fScale = 1.0f;
+  float m_fAngleScale = 1.0f;
+  float m_fRadius = 0.0f;
   ezEngineGizmoHandle m_hGizmo;
+  ezEngineGizmoHandle m_hRadiusGizmo;
 };

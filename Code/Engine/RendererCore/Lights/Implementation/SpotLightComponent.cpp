@@ -18,11 +18,12 @@ constexpr ezAngle c_MaxSpotAngle = ezAngle::MakeFromDegree(160.0f);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpotLightRenderData, 1, ezRTTIDefaultAllocator<ezSpotLightRenderData>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_COMPONENT_TYPE(ezSpotLightComponent, 4, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezSpotLightComponent, 5, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Range", GetRange, SetRange)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(0.0f), new ezSuffixAttribute(" m"), new ezMinValueTextAttribute("Auto")),
+    EZ_ACCESSOR_PROPERTY("Radius", GetRadius, SetRadius)->AddAttributes(new ezClampValueAttribute(0.0f, 0.5f), new ezSuffixAttribute(" m")),
     EZ_ACCESSOR_PROPERTY("InnerSpotAngle", GetInnerSpotAngle, SetInnerSpotAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::MakeZero(), c_MaxSpotAngle), new ezDefaultValueAttribute(ezAngle::MakeFromDegree(15.0f))),
     EZ_ACCESSOR_PROPERTY("OuterSpotAngle", GetOuterSpotAngle, SetOuterSpotAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::MakeZero(), c_MaxSpotAngle), new ezDefaultValueAttribute(ezAngle::MakeFromDegree(30.0f))),
     EZ_ACCESSOR_PROPERTY("ShadowFadeOutRange", GetShadowFadeOutRange, SetShadowFadeOutRange)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezSuffixAttribute(" m"), new ezMinValueTextAttribute("Auto")),
@@ -39,7 +40,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpotLightComponent, 4, ezComponentMode::Static)
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezSpotLightVisualizerAttribute("OuterSpotAngle", "Range", "Intensity", "LightColor"),
+    new ezSpotLightVisualizerAttribute("OuterSpotAngle", "Range", "Intensity", "LightColor", "Radius"),
     new ezConeLengthManipulatorAttribute("Range"),
     new ezConeAngleManipulatorAttribute("OuterSpotAngle", 1.5f),
     new ezConeAngleManipulatorAttribute("InnerSpotAngle", 1.5f),
@@ -80,6 +81,7 @@ void ezSpotLightComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   s << m_MaterialUpdateInterval;
   s << m_hMaterial;
   s << m_hCookie;
+  s << m_fRadius;
 }
 
 void ezSpotLightComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -111,6 +113,11 @@ void ezSpotLightComponent::DeserializeComponent(ezWorldReader& inout_stream)
     s >> temp;
     SetCookieFile(temp);
   }
+
+  if (uiVersion >= 5)
+  {
+    s >> m_fRadius;
+  }
 }
 
 ezResult ezSpotLightComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
@@ -136,6 +143,18 @@ float ezSpotLightComponent::GetRange() const
 float ezSpotLightComponent::GetEffectiveRange() const
 {
   return m_fEffectiveRange;
+}
+
+void ezSpotLightComponent::SetRadius(float fRadius)
+{
+  m_fRadius = ezMath::Max(fRadius, 0.0f);
+
+  InvalidateCachedRenderData();
+}
+
+float ezSpotLightComponent::GetRadius() const
+{
+  return m_fRadius;
 }
 
 void ezSpotLightComponent::SetShadowFadeOutRange(float fRange)
@@ -241,6 +260,7 @@ void ezSpotLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
 
   pRenderData->m_qGlobalRotation = t.m_qRotation;
   pRenderData->m_fRange = m_fEffectiveRange;
+  pRenderData->m_fRadius = m_fRadius;
   pRenderData->m_InnerSpotAngle = m_InnerSpotAngle;
   pRenderData->m_OuterSpotAngle = m_OuterSpotAngle;
   pRenderData->m_CookieId = m_CookieId;
@@ -326,8 +346,8 @@ ezSpotLightVisualizerAttribute::ezSpotLightVisualizerAttribute()
 }
 
 ezSpotLightVisualizerAttribute::ezSpotLightVisualizerAttribute(
-  const char* szAngleProperty, const char* szRangeProperty, const char* szIntensityProperty, const char* szColorProperty)
-  : ezVisualizerAttribute(szAngleProperty, szRangeProperty, szIntensityProperty, szColorProperty)
+  const char* szAngleProperty, const char* szRangeProperty, const char* szIntensityProperty, const char* szColorProperty, const char* szRadiusProperty)
+  : ezVisualizerAttribute(szAngleProperty, szRangeProperty, szIntensityProperty, szColorProperty, szRadiusProperty)
 {
 }
 

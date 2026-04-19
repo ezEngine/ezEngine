@@ -57,6 +57,10 @@ public:
   /// \brief Returns the final radius of the lightsource.
   float GetEffectiveRange() const;
 
+  /// Radius of the emitter disc at the spot light's origin. A non-zero value produces softer specular highlights and area-light style shading. Does not affect attenuation.
+  void SetRadius(float fRadius); // [ property ]
+  float GetRadius() const;       // [ property ]
+
   /// \brief Sets the radius that is used to determine when to fade out shadows. If zero the radius of the lightsource is used.
   void SetShadowFadeOutRange(float fRange); // [ property ]
   float GetShadowFadeOutRange() const;      // [ property ]
@@ -97,6 +101,7 @@ protected:
   float m_fRange = 0.0f;
   float m_fEffectiveRange = 0.0f;
   float m_fShadowFadeOutRange = 0.0f;
+  float m_fRadius = 0.0f;
 
   ezAngle m_InnerSpotAngle = ezAngle::MakeFromDegree(15.0f);
   ezAngle m_OuterSpotAngle = ezAngle::MakeFromDegree(30.0f);
@@ -118,10 +123,11 @@ class EZ_RENDERERCORE_DLL ezSpotLightVisualizerAttribute : public ezVisualizerAt
 public:
   ezSpotLightVisualizerAttribute();
   ezSpotLightVisualizerAttribute(
-    const char* szAngleProperty, const char* szRangeProperty, const char* szIntensityProperty, const char* szColorProperty);
+    const char* szAngleProperty, const char* szRangeProperty, const char* szIntensityProperty, const char* szColorProperty, const char* szRadiusProperty = nullptr);
 
   const ezUntrackedString& GetAngleProperty() const { return m_sProperty1; }
   const ezUntrackedString& GetRangeProperty() const { return m_sProperty2; }
   const ezUntrackedString& GetIntensityProperty() const { return m_sProperty3; }
   const ezUntrackedString& GetColorProperty() const { return m_sProperty4; }
+  const ezUntrackedString& GetRadiusProperty() const { return m_sProperty5; }
 };

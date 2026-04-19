@@ -11,10 +11,11 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDirectionalLightRenderData, 1, ezRTTIDefaultAllocator<ezDirectionalLightRenderData>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_COMPONENT_TYPE(ezDirectionalLightComponent, 4, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezDirectionalLightComponent, 5, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
+    EZ_ACCESSOR_PROPERTY("SourceAngle", GetSourceAngle, SetSourceAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::MakeZero(), ezAngle::MakeFromDegree(10.0f))),
     EZ_ACCESSOR_PROPERTY("NumCascades", GetNumCascades, SetNumCascades)->AddAttributes(new ezClampValueAttribute(1, 4), new ezDefaultValueAttribute(2)),
     EZ_ACCESSOR_PROPERTY("MinShadowRange", GetMinShadowRange, SetMinShadowRange)->AddAttributes(new ezClampValueAttribute(0.1f, ezVariant()), new ezDefaultValueAttribute(30.0f), new ezSuffixAttribute(" m")),
     EZ_ACCESSOR_PROPERTY("FadeOutStart", GetFadeOutStart, SetFadeOutStart)->AddAttributes(new ezClampValueAttribute(0.6f, 1.0f), new ezDefaultValueAttribute(0.8f)),
@@ -31,6 +32,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezDirectionalLightComponent, 4, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 1.0f, ezColor::White, "LightColor"),
+    new ezDirectionalLightVisualizerAttribute("SourceAngle", "LightColor"),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -56,6 +58,18 @@ void ezDirectionalLightComponent::SetScreenSpaceShadows(bool bShadows)
 bool ezDirectionalLightComponent::GetScreenSpaceShadows() const
 {
   return m_bScreenSpaceShadows;
+}
+
+void ezDirectionalLightComponent::SetSourceAngle(ezAngle sourceAngle)
+{
+  m_SourceAngle = ezMath::Clamp(sourceAngle, ezAngle::MakeZero(), ezAngle::MakeFromDegree(10.0f));
+
+  InvalidateCachedRenderData();
+}
+
+ezAngle ezDirectionalLightComponent::GetSourceAngle() const
+{
+  return m_SourceAngle;
 }
 
 void ezDirectionalLightComponent::SetNumCascades(ezUInt32 uiNumCascades)
@@ -134,6 +148,10 @@ void ezDirectionalLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData&
   pRenderData->m_fSpecularMultiplier = m_fSpecularMultiplier;
 
   pRenderData->m_vDirection = GetOwner()->GetGlobalRotation() * ezVec3(-1, 0, 0);
+  // The shader reinterprets ezLightRenderData::m_fRadius for directional lights as sin(halfAngle)
+  // of the emitter disc. This keeps the packed fp16 slot (specularMultiplierAndRadius) uniform
+  // across all light types while giving directional lights an angular parameterisation.
+  pRenderData->m_fRadius = ezMath::Sin(m_SourceAngle * 0.5f);
   pRenderData->m_bScreenSpaceShadows = m_bScreenSpaceShadows;
 
   if (m_bCastShadows)
@@ -167,6 +185,7 @@ void ezDirectionalLightComponent::SerializeComponent(ezWorldWriter& inout_stream
   s << m_fFadeOutStart;
   s << m_fSplitModeWeight;
   s << m_fNearPlaneOffset;
+  s << m_SourceAngle;
 }
 
 void ezDirectionalLightComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -187,6 +206,11 @@ void ezDirectionalLightComponent::DeserializeComponent(ezWorldReader& inout_stre
     s >> m_fFadeOutStart;
     s >> m_fSplitModeWeight;
     s >> m_fNearPlaneOffset;
+  }
+
+  if (uiVersion >= 5)
+  {
+    s >> m_SourceAngle;
   }
 }
 
@@ -212,6 +236,23 @@ public:
 };
 
 ezDirectionalLightComponentPatch_1_2 g_ezDirectionalLightComponentPatch_1_2;
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDirectionalLightVisualizerAttribute, 1, ezRTTIDefaultAllocator<ezDirectionalLightVisualizerAttribute>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezDirectionalLightVisualizerAttribute::ezDirectionalLightVisualizerAttribute()
+  : ezVisualizerAttribute(nullptr)
+{
+}
+
+ezDirectionalLightVisualizerAttribute::ezDirectionalLightVisualizerAttribute(const char* szAngleProperty, const char* szColorProperty)
+  : ezVisualizerAttribute(szAngleProperty, szColorProperty)
+{
+}
 
 
 

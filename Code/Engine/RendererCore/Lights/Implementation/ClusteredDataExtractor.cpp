@@ -279,7 +279,7 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
         {
           FillPointLightData(m_TempLightData.ExpandAndGetRef(), pPointLightRenderData);
 
-          ezSimdBSphere pointLightSphere = ezSimdBSphere(ezSimdConversion::ToVec3(pPointLightRenderData->m_vGlobalPosition), pPointLightRenderData->m_fRange);
+          ezSimdBSphere pointLightSphere = ezSimdBSphere(ezSimdConversion::ToVec3(pPointLightRenderData->m_vGlobalPosition), pPointLightRenderData->m_fRange + pPointLightRenderData->m_fLength * 0.5f);
           RasterizeSphere(pointLightSphere, uiLightIndex, viewMatrix, projectionMatrix, m_TempLightsClusters.GetData(), m_ClusterBoundingSpheres.GetData());
 
           // For stereo, also rasterize against right eye clusters (union of both eyes)
@@ -345,19 +345,6 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
           if (bIsStereo)
           {
             RasterizeSphere(fillLightSphere, uiLightIndex, viewMatrixRight, projectionMatrixRight, m_TempLightsClusters.GetData(), m_ClusterBoundingSpheresRightEye.GetData());
-          }
-        }
-        else if (auto pTubeLightRenderData = ezDynamicCast<const ezTubeLightRenderData*>(it))
-        {
-          FillTubeLightData(m_TempLightData.ExpandAndGetRef(), pTubeLightRenderData);
-
-          const float fBoundingRadius = pTubeLightRenderData->m_fRange + pTubeLightRenderData->m_fLength * 0.5f;
-          ezSimdBSphere tubeLightSphere = ezSimdBSphere(ezSimdConversion::ToVec3(pTubeLightRenderData->m_vGlobalPosition), fBoundingRadius);
-          RasterizeSphere(tubeLightSphere, uiLightIndex, viewMatrix, projectionMatrix, m_TempLightsClusters.GetData(), m_ClusterBoundingSpheres.GetData());
-
-          if (bIsStereo)
-          {
-            RasterizeSphere(tubeLightSphere, uiLightIndex, viewMatrixRight, projectionMatrixRight, m_TempLightsClusters.GetData(), m_ClusterBoundingSpheresRightEye.GetData());
           }
         }
         else if (auto pFogRenderData = ezDynamicCast<const ezFogRenderData*>(it))

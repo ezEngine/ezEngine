@@ -11,6 +11,7 @@
 #include <Shaders/Common/BRDF.h>
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Common/LightData.h>
+#include <Shaders/Common/AreaLight.h>
 
 // Frame data:
 Texture2D ShadowAtlasTexture;
@@ -509,31 +510,111 @@ float3 ComputeReflection(inout ezMaterialData matData, float3 viewVector, ezPerC
 }
 
 // Returns unsaturated NdotL
-float EvaluatePBRLight(float3 worldPosition, float3 worldNormal, ezPerLightData lightData, uint type, out float3 lightVector, out float attenuation, out float distanceToLight)
+float EvaluatePBRLight(float3 worldPosition, float3 worldNormal, ezPerLightData lightData, uint type, float3 viewVector,
+  out float3 lightShadowVector, out float3 lightDiffuseVector, out float3 lightSpecVector, out float attenuation, out float distanceToLight, inout float roughness, out float specularEnergy)
 {
   float3 lightDir = GetLightDirection(lightData);
-  lightVector = lightDir;
+  lightShadowVector = lightDiffuseVector = lightSpecVector = lightDir;
   attenuation = 1.0;
   distanceToLight = 1.0;
+  specularEnergy = 1.0;
 
   [branch] if (type <= LIGHT_TYPE_SPOT)
   {
-    lightVector = lightData.position - worldPosition;
-    float sqrDistance = dot(lightVector, lightVector);
+    lightShadowVector = lightDiffuseVector = lightSpecVector = lightData.position - worldPosition;
+
+    float radius = GetLightRadius(lightData);
+    // Area-light representative-point path. Active for point lights (sphere or tube when
+    // length > 0) and for spot lights (sphere only) as soon as a non-zero radius is authored.
+    // Spot lights reuse auxParams for cone scale/offset, so halfLength must stay 0 for them.
+    bool isAreaLight = (radius != 0.0);
+    float halfLength = (type == LIGHT_TYPE_POINT) ? GetPointLightHalfLength(lightData) : 0.0;
+
+    [branch] if (isAreaLight)
+    {
+      // Shadow vector: must remain at the exact location where the shadow map was rendered from.
+      lightShadowVector = normalize(lightShadowVector);
+
+      // Diffuse vector: closest point on the tube axis to the surface (radius is ignored).
+      // For a pure sphere (halfLength == 0) the segment collapses and this reduces to the center.
+      float3 endA = lightData.position - lightDir * halfLength;
+      float3 endB = lightData.position + lightDir * halfLength;
+      float3 closestOnAxis = ClosestPointOnSegment(worldPosition, endA, endB);
+      lightDiffuseVector = closestOnAxis - worldPosition;
+
+      // Specular vector: representative point on the capsule/sphere for the reflection ray.
+      float3 R = reflect(-viewVector, worldNormal);
+      float3 closestToReflection = ClosestPointOnSegmentToRay(worldPosition, endA, endB, radius, R);
+      lightSpecVector = normalize(closestToReflection);
+
+      // Widen the GGX lobe to approximate the emitter's solid angle (Karis 2013 sphere term
+      // r/(3*d), Drobot 2014 tube term halfLen/(2*d)). Operates in alpha-space since
+      // matData.roughness is already perceptualRoughness^2. Distances are clamped to at least
+      // 'radius' so the widening stays bounded when the surface is inside the emitter.
+      float distToRepPoint = max(length(closestToReflection), radius);
+      float distOnAxis = max(length(lightDiffuseVector), radius);
+      float origRoughness = roughness;
+      float sphereAngle = radius / (3.0 * distToRepPoint);
+      float lineAngle = halfLength / (2.0 * distOnAxis);
+      // Note we don't use the lineAngle to modify the roughness as that would make tube lights impossible
+      // as their reflections would blur out of existance instantly. Instead, we only use it for energy conservation.
+      roughness = saturate(roughness + sphereAngle);
+
+      // Energy normalization (Karis 2013): widening the GGX lobe scales its integral by ~(α'/α)^2,
+      // so we compensate the specular contribution by the inverse to keep total energy constant.
+      float alphaRatio = origRoughness / max(saturate(roughness + lineAngle), 1e-4);
+      specularEnergy = alphaRatio * alphaRatio;
+    }
+
+    float sqrDistance = dot(lightDiffuseVector, lightDiffuseVector);
+    lightDiffuseVector *= rsqrt(sqrDistance);
+
+    if (isAreaLight)
+    {
+      // Clamp distance by radius so 1/d² attenuation stays bounded inside the emitter.
+      sqrDistance = max(sqrDistance, radius * radius);
+    }
+    else
+    {
+      lightShadowVector = lightSpecVector = lightDiffuseVector;
+    }
 
     attenuation = DistanceAttenuation(sqrDistance, lightData.invSqrAttRadius);
-
     distanceToLight = sqrDistance * lightData.invSqrAttRadius;
-    lightVector *= rsqrt(sqrDistance);
 
     if (type == LIGHT_TYPE_SPOT)
     {
       float2 spotParams = RG16FToFloat2(lightData.auxParams);
-      attenuation *= SpotAttenuation(lightVector, lightDir, spotParams);
+      attenuation *= SpotAttenuation(lightDiffuseVector, lightDir, spotParams);
+    }
+  }
+  else if (type == LIGHT_TYPE_DIR)
+  {
+    // Disc representative-point approximation (Karis 2013) for the "sun disc".
+    // The emitter is treated as a disc on the celestial sphere with angular half-size 'halfAngle',
+    // where sin(halfAngle) is packed into the radius slot. We shift the specular evaluation direction
+    // onto the disc closest to the perfect mirror direction R, and widen the GGX lobe to approximate
+    // the emitter's solid angle. Diffuse and shadow vectors stay at the nominal light direction since
+    // neither benefits from (nor is robust under) shifting at infinity.
+    float sinA = GetDirLightSinHalfAngle(lightData);
+    [branch] if (sinA > 0.0)
+    {
+      float3 R = reflect(-viewVector, worldNormal);
+      lightSpecVector = ClosestPointOnDirectionalDisc(lightDir, R, sinA);
+
+      // GGX lobe widening: analogous to the point-light sphere term r/(3*d) specialised to d → ∞,
+      // where r/d collapses to sin(halfAngle).
+      float origRoughness = roughness;
+      roughness = saturate(roughness + sinA / 3.0);
+
+      // Karis energy compensation: widening the lobe scales its integral, so the specular magnitude
+      // is reduced inversely to keep total energy constant.
+      float alphaRatio = origRoughness / max(roughness, 1e-4);
+      specularEnergy = alphaRatio * alphaRatio;
     }
   }
 
-  float NdotL = dot(worldNormal, lightVector);
+  float NdotL = dot(worldNormal, lightDiffuseVector);
   return NdotL;
 }
 
@@ -588,16 +669,20 @@ AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clus
 
     [branch] if (type <= LIGHT_TYPE_DIR)
     {
-      float3 lightVector;
+      float3 lightShadowVector;
+      float3 lightDiffuseVector;
+      float3 lightSpecVector;
       float attenuation = 1.0;
       float distanceToLight = 1.0;
-      float NdotL = saturate(EvaluatePBRLight(matData.worldPosition, matData.worldNormal, lightData, type, lightVector, attenuation, distanceToLight));
+      float specularEnergy = 1.0;
+      float roughness = matData.roughness;
+      float NdotL = saturate(EvaluatePBRLight(matData.worldPosition, matData.worldNormal, lightData, type, viewVector, lightShadowVector, lightDiffuseVector, lightSpecVector, attenuation, distanceToLight, roughness, specularEnergy));
 
 #if !defined(USE_MATERIAL_SUBSURFACE_COLOR)
       [branch] if (attenuation * NdotL > 0.0f)
 #endif
       {
-        attenuation *= MicroShadow(matData.occlusion, matData.worldNormal, lightVector);
+        attenuation *= MicroShadow(matData.occlusion, matData.worldNormal, lightShadowVector);
 
         float3 debugColor = 1.0f;
         float shadowTerm = 1.0;
@@ -607,7 +692,7 @@ AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clus
         {
           float extraPenumbraScale = 1.0;
 
-          shadowTerm = CalculateShadowTerm(matData.worldPosition, matData.vertexNormal, lightVector, distanceToLight, type, lightData.shadowDataOffsetAndFadeOut, noise, randomRotation, extraPenumbraScale, subsurfaceShadow, debugColor);
+          shadowTerm = CalculateShadowTerm(matData.worldPosition, matData.vertexNormal, lightShadowVector, distanceToLight, type, lightData.shadowDataOffsetAndFadeOut, noise, randomRotation, extraPenumbraScale, subsurfaceShadow, debugColor);
 
           if (type == LIGHT_TYPE_DIR && lightData.auxParams != 0)
           {
@@ -627,63 +712,11 @@ AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clus
 #if 0
         lightColor = lerp(1.0f, debugColor, 0.5f);
 #endif
-
-        AccumulateLight(totalLight, DefaultShading(matData, lightVector, viewVector), lightColor * (attenuation * shadowTerm), lightData.specularMultiplier);
+        AccumulateLight(totalLight, DefaultShading(matData, lightDiffuseVector, lightSpecVector, viewVector, roughness), lightColor * (attenuation * shadowTerm), GetSpecularMultiplier(lightData) * specularEnergy);
 
 #if defined(USE_MATERIAL_SUBSURFACE_COLOR)
-        AccumulateLight(totalLight, SubsurfaceShading(matData, lightVector, viewVector), lightColor * (attenuation * subsurfaceShadow));
+        AccumulateLight(totalLight, SubsurfaceShading(matData, lightDiffuseVector, viewVector), lightColor * (attenuation * subsurfaceShadow));
 #endif
-      }
-    }
-    else if (type >= LIGHT_TYPE_TUBE) // Area Lights (rect and tube)
-    {
-      float2 dims = GetAreaLightDimensions(lightData);
-      float range2 = 1.0 / lightData.invSqrAttRadius;
-
-      float3 lightColor = GetLightColor(lightData);
-      float shadowTerm = 1.0;
-      float subsurfaceShadow = 1.0;
-
-      AccumulatedLight areaLight;
-      {
-        float3 tubeAxis = GetLightDirection(lightData);
-        float halfLength = dims.x * 0.5;
-        float radius = dims.y;
-
-        // Closest point on tube axis for attenuation
-        float3 endA = lightData.position - tubeAxis * halfLength;
-        float3 endB = lightData.position + tubeAxis * halfLength;
-        float3 closestOnAxis = ClosestPointOnSegment(matData.worldPosition, endA, endB);
-        float3 Lunnorm = closestOnAxis - matData.worldPosition;
-        float dist2 = dot(Lunnorm, Lunnorm);
-
-        float attenuation = AttenuationPointLight(dist2, range2);
-
-        [branch] if (attenuation > 0.0f)
-        {
-          attenuation *= lightData.intensity;
-
-          // Scale down intensity proportional to sphere volume so that larger radii don't
-          // produce more total energy than a point light of the same intensity setting.
-          if (radius > 0)
-          {
-            float sphereVol = (4.0 / 3.0) * PI * radius * radius * radius;
-            lightColor /= max(1.0, sphereVol);
-          }
-
-          [branch] if (lightData.shadowDataOffsetAndFadeOut != 0)
-          {
-            float3 debugColor;
-            float3 lightDir = normalize(lightData.position - matData.worldPosition);
-            float distanceToLight = dist2 * lightData.invSqrAttRadius;
-            shadowTerm = CalculateShadowTerm(matData.worldPosition, matData.vertexNormal, lightDir, distanceToLight, LIGHT_TYPE_POINT, lightData.shadowDataOffsetAndFadeOut, noise, randomRotation, 1.0, subsurfaceShadow, debugColor);
-          }
-
-          areaLight = TubeLightShading(matData, viewVector, lightData.position,
-            tubeAxis, halfLength, radius);
-
-          AccumulateLight(totalLight, areaLight, lightColor * (attenuation * shadowTerm), lightData.specularMultiplier);
-        }
       }
     }
     else // Fill Light (LIGHT_TYPE_FILL_ADDITIVE and LIGHT_TYPE_FILL_MODULATE_INDIRECT)

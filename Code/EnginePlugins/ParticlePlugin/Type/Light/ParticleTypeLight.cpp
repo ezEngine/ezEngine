@@ -177,8 +177,11 @@ void ezParticleTypeLight::ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg,
     pRenderData->m_LightColor = tintColor * pColor[i].ToLinearFloat();
     pRenderData->m_fIntensity = intensity;
     pRenderData->m_fSpecularMultiplier = 1.0f;
+    pRenderData->m_fRadius = 0.0f;
     pRenderData->m_fRange = ezMath::Max(0.01f, pSize[i] * sizeFactor);
     pRenderData->m_uiShadowDataOffsetAndFadeOut = 0;
+    pRenderData->m_qGlobalRotation.SetIdentity();
+    pRenderData->m_fLength = 0.0f;
 
     float fScreenSpaceSize = ezLightComponent::CalculateScreenSpaceSize(ezBoundingSphere::MakeFromCenterAndRadius(pRenderData->m_vGlobalPosition, pRenderData->m_fRange * 0.5f), *ref_msg.m_pView->GetCullingCamera());
     pRenderData->FillSortingKey(fScreenSpaceSize);

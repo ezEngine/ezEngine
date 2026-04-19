@@ -14,7 +14,6 @@
 #define LIGHT_TYPE_DIR 2
 #define LIGHT_TYPE_FILL_ADDITIVE 3
 #define LIGHT_TYPE_FILL_MODULATE_INDIRECT 4
-#define LIGHT_TYPE_TUBE 5
 
 struct EZ_SHADER_STRUCT ezPerLightData
 {
@@ -27,7 +26,7 @@ struct EZ_SHADER_STRUCT ezPerLightData
   FLOAT1(invSqrAttRadius);
 
   UINT1(auxParams); // dir: shadowMask index + 1, spot: scale and offset as 16 bit floats, fill: falloff exponent and directionality as 16 bit floats
-  FLOAT1(specularMultiplier);
+  UINT1(specularMultiplierAndRadius); // specular multiplier and area-light source radius as 16 bit floats
   UINT1(cookieParams0); // x: cookie index, y: cookie right dir z as 16 bit float
   UINT1(cookieParams1); // xy: cookie right dir xy as 16 bit floats
 };
@@ -50,9 +49,33 @@ struct EZ_SHADER_STRUCT ezPerLightData
     return normalize(RGB10ToFloat3(data.direction) * 2.0 - 1.0);
   }
 
-  float2 GetAreaLightDimensions(ezPerLightData data)
+  float GetPointLightHalfLength(ezPerLightData data)
   {
-    return RG16FToFloat2(data.auxParams);
+    return RG16FToFloat2(data.auxParams).y;
+  }
+
+  // Returns .x = specular multiplier, .y = area-light source radius.
+  float2 GetSpecularMultiplierAndRadius(ezPerLightData data)
+  {
+    return RG16FToFloat2(data.specularMultiplierAndRadius);
+  }
+
+  float GetSpecularMultiplier(ezPerLightData data)
+  {
+    return GetSpecularMultiplierAndRadius(data).x;
+  }
+
+  float GetLightRadius(ezPerLightData data)
+  {
+    return GetSpecularMultiplierAndRadius(data).y;
+  }
+
+  // For directional lights the 'radius' slot is reused to store sin(halfAngle) of the
+  // emitter disc (angular size of the "sun disc"), since there is no meaningful metric
+  // radius at infinite distance. A value of 0 means a point light source (hard specular).
+  float GetDirLightSinHalfAngle(ezPerLightData data)
+  {
+    return GetSpecularMultiplierAndRadius(data).y;
   }
 
 #else

@@ -13,17 +13,7 @@ class EZ_RENDERERCORE_DLL ezPointLightRenderData : public ezLightRenderData
 
 public:
   float m_fRange;
-};
-
-/// Render data for tube (capsule) area lights.
-class EZ_RENDERERCORE_DLL ezTubeLightRenderData : public ezLightRenderData
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezTubeLightRenderData, ezLightRenderData);
-
-public:
   float m_fLength;
-  float m_fRadius;
-  float m_fRange;
   ezQuat m_qGlobalRotation;
 };
 
@@ -93,30 +83,14 @@ protected:
   // ezTextureCubeResourceHandle m_hProjectedTexture;
 };
 
-/// \brief A special visualizer attribute for point lights
+/// Visualizer attribute for point lights. Also renders a tube (capsule) when Length or Radius is non-zero.
 class EZ_RENDERERCORE_DLL ezPointLightVisualizerAttribute : public ezVisualizerAttribute
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezPointLightVisualizerAttribute, ezVisualizerAttribute);
 
 public:
   ezPointLightVisualizerAttribute();
-  ezPointLightVisualizerAttribute(const char* szRangeProperty, const char* szIntensityProperty, const char* szColorProperty);
-
-  const ezUntrackedString& GetRangeProperty() const { return m_sProperty1; }
-  const ezUntrackedString& GetIntensityProperty() const { return m_sProperty2; }
-  const ezUntrackedString& GetColorProperty() const { return m_sProperty3; }
-};
-
-/// Visualizer attribute for tube (capsule) area lights.
-///
-/// Shows a wireframe capsule with the tube's dimensions and range in the editor.
-class EZ_RENDERERCORE_DLL ezTubeLightVisualizerAttribute : public ezVisualizerAttribute
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezTubeLightVisualizerAttribute, ezVisualizerAttribute);
-
-public:
-  ezTubeLightVisualizerAttribute();
-  ezTubeLightVisualizerAttribute(
+  ezPointLightVisualizerAttribute(
     const char* szLengthProperty, const char* szRadiusProperty, const char* szRangeProperty, const char* szIntensityProperty, const char* szColorProperty);
 
   const ezUntrackedString& GetLengthProperty() const { return m_sProperty1; }

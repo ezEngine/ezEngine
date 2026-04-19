@@ -746,6 +746,7 @@ void ezQtEngineViewWidget::RecreateEngineViewport()
 {
   if (m_pViewportWidget)
   {
+    m_pStuckIndicator = nullptr;
     m_pViewportWidget->removeEventFilter(this);
     m_pViewportWidget->hide();
     m_pViewportWidget->setParent(nullptr);

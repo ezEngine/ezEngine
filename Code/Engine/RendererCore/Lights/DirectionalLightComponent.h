@@ -48,6 +48,14 @@ public:
   void SetScreenSpaceShadows(bool bShadows); // [ property ]
   bool GetScreenSpaceShadows() const;        // [ property ]
 
+  /// Angular diameter of the emitter disc (the "sun disc") as seen from the ground.
+  ///
+  /// A non-zero value produces softer specular highlights via representative-point shading. Has no effect on attenuation since directional lights are treated as infinitely far away.
+  /// Reference values: sun ≈ 0.53°, full moon ≈ 0.52°. Values above a few degrees are physically implausible but may be used for stylised looks.
+  void SetSourceAngle(ezAngle sourceAngle); // [ property ]
+  ezAngle GetSourceAngle() const;           // [ property ]
+
+
   /// \brief Sets how many shadow map cascades to use. Typically between 2 and 4.
   void SetNumCascades(ezUInt32 uiNumCascades); // [ property ]
   ezUInt32 GetNumCascades() const;             // [ property ]
@@ -73,9 +81,25 @@ protected:
 
   bool m_bScreenSpaceShadows = false;
 
+  ezAngle m_SourceAngle = ezAngle::MakeFromDegree(0.0f);
   ezUInt32 m_uiNumCascades = 3;
   float m_fMinShadowRange = 50.0f;
   float m_fFadeOutStart = 0.8f;
   float m_fSplitModeWeight = 0.7f;
   float m_fNearPlaneOffset = 100.0f;
+};
+
+/// Visualizer attribute for the angular size (source angle) of a directional light.
+///
+/// Shows a sphere as an intuitive size reference; its world-space size is proportional to the configured angle.
+class EZ_RENDERERCORE_DLL ezDirectionalLightVisualizerAttribute : public ezVisualizerAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezDirectionalLightVisualizerAttribute, ezVisualizerAttribute);
+
+public:
+  ezDirectionalLightVisualizerAttribute();
+  ezDirectionalLightVisualizerAttribute(const char* szAngleProperty, const char* szColorProperty);
+
+  const ezUntrackedString& GetAngleProperty() const { return m_sProperty1; }
+  const ezUntrackedString& GetColorProperty() const { return m_sProperty2; }
 };

@@ -20,6 +20,7 @@ public:
   ezColorLinearUB m_LightColor;
   float m_fIntensity;
   float m_fSpecularMultiplier;
+  float m_fRadius;
   ezUInt32 m_uiShadowDataOffsetAndFadeOut;
 };
 
