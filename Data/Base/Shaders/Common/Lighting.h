@@ -8,10 +8,10 @@
 
 
 #include <Shaders/Common/AmbientCubeBasis.h>
+#include <Shaders/Common/AreaLight.h>
 #include <Shaders/Common/BRDF.h>
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Common/LightData.h>
-#include <Shaders/Common/AreaLight.h>
 
 // Frame data:
 Texture2D ShadowAtlasTexture;

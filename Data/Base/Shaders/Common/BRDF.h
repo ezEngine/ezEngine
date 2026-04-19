@@ -162,4 +162,3 @@ float3 EnvironmentBRDF(float3 specularColor, float roughness, float NoV)
 
   return specularColor * AB.x + F90 * AB.y;
 }
-
