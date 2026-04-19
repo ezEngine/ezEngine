@@ -6,7 +6,7 @@
 #include <Core/World/World.h>
 #include <Foundation/Configuration/CVar.h>
 
-ezCVarBool cvar_VoxelGridVisualize("AI.VoxelGrid.Visualize", false, ezCVarFlags::None, "Visualize the voxel grid.");
+ezCVarBool cvar_VoxelGridVisualize("AI.VoxelGrid.Visualize", false, ezCVarFlags::None, "Visualize the voxel grid. Use AI.VoxelGrid.Visualize=true in the console to enable.");
 
 // clang-format off
 EZ_IMPLEMENT_WORLD_MODULE(ezAiVoxelWorldModule);
@@ -67,15 +67,25 @@ void ezAiVoxelWorldModule::Update(const UpdateContext& ctxt)
       }
     }
 
-    m_VoxelGrid.Init(m_uiResolutionX, m_uiResolutionY, m_uiResolutionZ);
-    m_VoxelGrid.SetWorldParameters(m_vGridCenter, m_fVoxelSize);
+    m_StaticGrid.Init(m_uiResolutionX, m_uiResolutionY, m_uiResolutionZ);
+    m_StaticGrid.SetWorldParameters(m_vGridCenter, m_fVoxelSize);
     VoxelizeWorld(m_uiCollisionLayer);
+
+    // Dynamic grid shares the same dimensions and world parameters as the static grid.
+    // The actual dimensions may be rounded up to 4-voxel boundaries by ezVoxelGrid::Init.
+    m_DynamicGrid.Init(m_StaticGrid.GetDimX(), m_StaticGrid.GetDimY(), m_StaticGrid.GetDimZ());
+    m_DynamicGrid.SetWorldParameters(m_vGridCenter, m_fVoxelSize);
+
+    const ezUInt32 uiTotalVoxels = m_StaticGrid.GetDimX() * m_StaticGrid.GetDimY() * m_StaticGrid.GetDimZ();
+    m_ObstacleCounts.SetCount(uiTotalVoxels, 0);
+
     m_bIsReady = true;
   }
 
   if (cvar_VoxelGridVisualize)
   {
-    m_VoxelGrid.DebugDraw(GetWorld(), ezColor::LimeGreen.WithAlpha(0.1f));
+    m_StaticGrid.DebugDraw(GetWorld(), ezColor::LimeGreen.WithAlpha(0.1f));
+    m_DynamicGrid.DebugDraw(GetWorld(), ezColor::OrangeRed.WithAlpha(0.3f));
   }
 }
 
@@ -88,18 +98,20 @@ void ezAiVoxelWorldModule::VoxelizeWorld(ezUInt32 uiCollisionLayer)
     return;
   }
 
-  m_VoxelGrid.ClearData();
+  m_StaticGrid.ClearData();
 
   const ezPhysicsQueryParameters queryParams(uiCollisionLayer, ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic);
-  const float fVoxelSize = m_VoxelGrid.GetVoxelSize();
-  const ezBoundingBox gridAABB = m_VoxelGrid.GetAABB();
+  const float fVoxelSize = m_StaticGrid.GetVoxelSize();
+  const ezBoundingBox gridAABB = m_StaticGrid.GetAABB();
 
-  const ezUInt32 uiDimX = m_VoxelGrid.GetDimX();
-  const ezUInt32 uiDimY = m_VoxelGrid.GetDimY();
-  const ezUInt32 uiDimZ = m_VoxelGrid.GetDimZ();
+  const ezUInt32 uiDimX = m_StaticGrid.GetDimX();
+  const ezUInt32 uiDimY = m_StaticGrid.GetDimY();
+  const ezUInt32 uiDimZ = m_StaticGrid.GetDimZ();
 
-  // Phase 1: Raycast along all 3 axes to catch thin geometry (walls, floors, ceilings).
-  // For each row of voxels along an axis, cast a ray and mark hit voxels as solid.
+  // Cast rays along all 3 axes to mark surface voxels as solid.
+  // Three sets of parallel rays (one set per axis) ensure every surface is hit regardless of orientation.
+  // Interior voxels deep inside solid objects need not be marked — no navigation agent can reach them
+  // from outside without crossing the already-blocked surface voxels.
   {
     ezPhysicsCastResultArray hitResults;
     const float fPadding = fVoxelSize * 0.5f;
@@ -121,9 +133,9 @@ void ezAiVoxelWorldModule::VoxelizeWorld(ezUInt32 uiCollisionLayer)
           for (const auto& hit : hitResults.m_Results)
           {
             ezVec3I32 vCoord;
-            if (m_VoxelGrid.WorldToCoord(hit.m_vPosition, vCoord))
+            if (m_StaticGrid.WorldToCoord(hit.m_vPosition, vCoord))
             {
-              m_VoxelGrid.SetVoxel(vCoord, true);
+              m_StaticGrid.SetVoxel(vCoord, true);
             }
           }
         }
@@ -147,9 +159,9 @@ void ezAiVoxelWorldModule::VoxelizeWorld(ezUInt32 uiCollisionLayer)
           for (const auto& hit : hitResults.m_Results)
           {
             ezVec3I32 vCoord;
-            if (m_VoxelGrid.WorldToCoord(hit.m_vPosition, vCoord))
+            if (m_StaticGrid.WorldToCoord(hit.m_vPosition, vCoord))
             {
-              m_VoxelGrid.SetVoxel(vCoord, true);
+              m_StaticGrid.SetVoxel(vCoord, true);
             }
           }
         }
@@ -173,9 +185,9 @@ void ezAiVoxelWorldModule::VoxelizeWorld(ezUInt32 uiCollisionLayer)
           for (const auto& hit : hitResults.m_Results)
           {
             ezVec3I32 vCoord;
-            if (m_VoxelGrid.WorldToCoord(hit.m_vPosition, vCoord))
+            if (m_StaticGrid.WorldToCoord(hit.m_vPosition, vCoord))
             {
-              m_VoxelGrid.SetVoxel(vCoord, true);
+              m_StaticGrid.SetVoxel(vCoord, true);
             }
           }
         }
@@ -183,53 +195,90 @@ void ezAiVoxelWorldModule::VoxelizeWorld(ezUInt32 uiCollisionLayer)
     }
   }
 
-  // Phase 2: Overlap test to fill in volumetric geometry that rays might pass through.
-  // Use a slightly expanded box to catch edges.
-  {
-    const float fOverlapExtent = fVoxelSize * 1.1f;
-    const ezVec3 vBoxExtents(fOverlapExtent, fOverlapExtent, fOverlapExtent);
-
-    for (ezUInt32 z = 0; z < uiDimZ; ++z)
-    {
-      for (ezUInt32 y = 0; y < uiDimY; ++y)
-      {
-        for (ezUInt32 x = 0; x < uiDimX; ++x)
-        {
-          const ezVec3I32 vCoord((ezInt32)x, (ezInt32)y, (ezInt32)z);
-
-          // Skip already-marked voxels from raycast phase
-          if (m_VoxelGrid.CheckVoxel(vCoord))
-            continue;
-
-          const ezVec3 vWorldPos = m_VoxelGrid.CoordToWorld(vCoord);
-
-          ezTransform xform = ezTransform::MakeIdentity();
-          xform.m_vPosition = vWorldPos;
-
-          if (pPhysics->OverlapTestBox(vBoxExtents, vWorldPos, xform, queryParams))
-          {
-            m_VoxelGrid.SetVoxel(vCoord, true);
-          }
-        }
-      }
-    }
-  }
-
-  const ezBoundingBox finalAABB = m_VoxelGrid.GetAABB();
+  const ezBoundingBox finalAABB = m_StaticGrid.GetAABB();
   ezLog::Info("ezAiVoxelWorldModule: Voxelized world ({}x{}x{}, voxel size {}). Grid bounds: ({}, {}, {}) to ({}, {}, {}).",
-    uiDimX, uiDimY, uiDimZ, m_VoxelGrid.GetVoxelSize(),
+    uiDimX, uiDimY, uiDimZ, m_StaticGrid.GetVoxelSize(),
     finalAABB.m_vMin.x, finalAABB.m_vMin.y, finalAABB.m_vMin.z,
     finalAABB.m_vMax.x, finalAABB.m_vMax.y, finalAABB.m_vMax.z);
 }
 
 void ezAiVoxelWorldModule::InjectObstacle(const ezBoundingBox& box)
 {
-  m_VoxelGrid.InjectBox(box);
+  if (!m_StaticGrid.IsInitialized())
+    return;
+
+  ezVec3I32 vMin, vMax;
+  m_StaticGrid.WorldToCoord(box.m_vMin, vMin);
+  m_StaticGrid.WorldToCoord(box.m_vMax, vMax);
+
+  vMin.x = ezMath::Max(vMin.x, 0);
+  vMin.y = ezMath::Max(vMin.y, 0);
+  vMin.z = ezMath::Max(vMin.z, 0);
+  vMax.x = ezMath::Min(vMax.x, (ezInt32)m_StaticGrid.GetDimX() - 1);
+  vMax.y = ezMath::Min(vMax.y, (ezInt32)m_StaticGrid.GetDimY() - 1);
+  vMax.z = ezMath::Min(vMax.z, (ezInt32)m_StaticGrid.GetDimZ() - 1);
+
+  if (vMin.x > vMax.x || vMin.y > vMax.y || vMin.z > vMax.z)
+    return;
+
+  const ezUInt32 uiDimX = m_StaticGrid.GetDimX();
+  const ezUInt32 uiDimY = m_StaticGrid.GetDimY();
+
+  for (ezInt32 z = vMin.z; z <= vMax.z; ++z)
+  {
+    for (ezInt32 y = vMin.y; y <= vMax.y; ++y)
+    {
+      for (ezInt32 x = vMin.x; x <= vMax.x; ++x)
+      {
+        const ezUInt32 uiIndex = (ezUInt32)z * uiDimX * uiDimY + (ezUInt32)y * uiDimX + (ezUInt32)x;
+        const ezUInt8 uiPrevCount = m_ObstacleCounts[uiIndex];
+        if (uiPrevCount < 255u)
+          m_ObstacleCounts[uiIndex] = uiPrevCount + 1;
+        if (uiPrevCount == 0)
+          m_DynamicGrid.SetVoxel(ezVec3I32(x, y, z), true);
+      }
+    }
+  }
 }
 
 void ezAiVoxelWorldModule::RemoveObstacle(const ezBoundingBox& box)
 {
-  m_VoxelGrid.SubtractBox(box);
+  if (!m_StaticGrid.IsInitialized())
+    return;
+
+  ezVec3I32 vMin, vMax;
+  m_StaticGrid.WorldToCoord(box.m_vMin, vMin);
+  m_StaticGrid.WorldToCoord(box.m_vMax, vMax);
+
+  vMin.x = ezMath::Max(vMin.x, 0);
+  vMin.y = ezMath::Max(vMin.y, 0);
+  vMin.z = ezMath::Max(vMin.z, 0);
+  vMax.x = ezMath::Min(vMax.x, (ezInt32)m_StaticGrid.GetDimX() - 1);
+  vMax.y = ezMath::Min(vMax.y, (ezInt32)m_StaticGrid.GetDimY() - 1);
+  vMax.z = ezMath::Min(vMax.z, (ezInt32)m_StaticGrid.GetDimZ() - 1);
+
+  if (vMin.x > vMax.x || vMin.y > vMax.y || vMin.z > vMax.z)
+    return;
+
+  const ezUInt32 uiDimX = m_StaticGrid.GetDimX();
+  const ezUInt32 uiDimY = m_StaticGrid.GetDimY();
+
+  for (ezInt32 z = vMin.z; z <= vMax.z; ++z)
+  {
+    for (ezInt32 y = vMin.y; y <= vMax.y; ++y)
+    {
+      for (ezInt32 x = vMin.x; x <= vMax.x; ++x)
+      {
+        const ezUInt32 uiIndex = (ezUInt32)z * uiDimX * uiDimY + (ezUInt32)y * uiDimX + (ezUInt32)x;
+        if (m_ObstacleCounts[uiIndex] > 0)
+        {
+          m_ObstacleCounts[uiIndex]--;
+          if (m_ObstacleCounts[uiIndex] == 0)
+            m_DynamicGrid.SetVoxel(ezVec3I32(x, y, z), false);
+        }
+      }
+    }
+  }
 }
 
 EZ_STATICLINK_FILE(AiPlugin, AiPlugin_Navigation_Implementation_VoxelWorldModule);

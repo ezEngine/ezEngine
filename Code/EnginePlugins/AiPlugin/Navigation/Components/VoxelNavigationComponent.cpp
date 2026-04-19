@@ -84,6 +84,7 @@ void ezAiVoxelNavigationComponent::SetDestination(const ezVec3& vGlobalPos)
   }
 
   m_Navigation.SetVoxelGrid(pVoxelModule->GetVoxelGrid());
+  m_Navigation.SetDynamicObstacleGrid(pVoxelModule->GetDynamicGrid());
   m_fVoxelSize = pVoxelModule->GetVoxelGrid()->GetVoxelSize();
 
   const ezVec3 vCurrentPos = GetOwner()->GetGlobalPosition();
@@ -231,6 +232,7 @@ void ezAiVoxelNavigationComponent::Update()
       if (pVoxelModule != nullptr)
       {
         pVoxelModule->GetVoxelGrid()->DebugDraw(GetWorld(), ezColor::LimeGreen.WithAlpha(0.1f));
+        pVoxelModule->GetDynamicGrid()->DebugDraw(GetWorld(), ezColor::OrangeRed.WithAlpha(0.3f));
       }
     }
   }

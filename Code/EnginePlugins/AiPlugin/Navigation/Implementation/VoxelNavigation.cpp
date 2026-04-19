@@ -12,6 +12,56 @@ ezAiVoxelNavigation::~ezAiVoxelNavigation() = default;
 void ezAiVoxelNavigation::SetVoxelGrid(const ezVoxelGrid* pGrid)
 {
   m_pGrid = pGrid;
+  m_pDynamicGrid = nullptr;
+}
+
+void ezAiVoxelNavigation::SetDynamicObstacleGrid(const ezVoxelGrid* pDynGrid)
+{
+  m_pDynamicGrid = pDynGrid;
+}
+
+bool ezAiVoxelNavigation::IsSolidVoxel(const ezVec3I32& coord) const
+{
+  if (m_pGrid->CheckVoxel(coord))
+    return true;
+  return m_pDynamicGrid != nullptr && m_pDynamicGrid->CheckVoxel(coord);
+}
+
+bool ezAiVoxelNavigation::IsClearLine(const ezVec3I32& vStart, const ezVec3I32& vGoal) const
+{
+  const ezInt32 dx = vGoal.x - vStart.x;
+  const ezInt32 dy = vGoal.y - vStart.y;
+  const ezInt32 dz = vGoal.z - vStart.z;
+
+  const ezInt32 iSteps = ezMath::Max(ezMath::Abs(dx), ezMath::Max(ezMath::Abs(dy), ezMath::Abs(dz)));
+
+  if (iSteps == 0)
+    return true;
+
+  const float fInvSteps = 1.0f / (float)iSteps;
+  float fX = (float)vStart.x;
+  float fY = (float)vStart.y;
+  float fZ = (float)vStart.z;
+
+  for (ezInt32 i = 0; i < iSteps; ++i)
+  {
+    const ezVec3I32 vCoord(
+      (ezInt32)ezMath::Round(fX),
+      (ezInt32)ezMath::Round(fY),
+      (ezInt32)ezMath::Round(fZ));
+
+    if (vCoord.x == vGoal.x && vCoord.y == vGoal.y && vCoord.z == vGoal.z)
+      return true;
+
+    if (IsSolidVoxel(vCoord))
+      return false;
+
+    fX += (float)dx * fInvSteps;
+    fY += (float)dy * fInvSteps;
+    fZ += (float)dz * fInvSteps;
+  }
+
+  return true;
 }
 
 namespace
@@ -139,13 +189,13 @@ ezAiVoxelNavigation::State ezAiVoxelNavigation::FindPath(const ezVec3& vStart, c
 
   ezVec3I32 vStartCoord, vTargetCoord;
 
-  if (!m_pGrid->WorldToCoord(vStart, vStartCoord) || m_pGrid->CheckVoxel(vStartCoord))
+  if (!m_pGrid->WorldToCoord(vStart, vStartCoord) || IsSolidVoxel(vStartCoord))
   {
     m_State = State::InvalidStartPosition;
     return m_State;
   }
 
-  if (!m_pGrid->WorldToCoord(vTarget, vTargetCoord) || m_pGrid->CheckVoxel(vTargetCoord))
+  if (!m_pGrid->WorldToCoord(vTarget, vTargetCoord) || IsSolidVoxel(vTargetCoord))
   {
     m_State = State::InvalidTargetPosition;
     return m_State;
@@ -245,7 +295,7 @@ ezAiVoxelNavigation::State ezAiVoxelNavigation::FindPath(const ezVec3& vStart, c
       if (!m_pGrid->IsCoordValid(vNeighborCoord))
         continue;
 
-      if (m_pGrid->CheckVoxel(vNeighborCoord))
+      if (IsSolidVoxel(vNeighborCoord))
         continue;
 
       const ezUInt32 uiNeighborPacked = PackCoord(vNeighborCoord, uiDimX, uiDimY);
@@ -329,7 +379,10 @@ void ezAiVoxelNavigation::SmoothPath(ezDynamicArray<ezVec3>& inout_waypoints) co
 
     for (ezUInt32 i = inout_waypoints.GetCount() - 1; i > uiCurrent + 1; --i)
     {
-      if (m_pGrid->IsVisible(inout_waypoints[uiCurrent], inout_waypoints[i]))
+      ezVec3I32 vCoordA, vCoordB;
+      if (m_pGrid->WorldToCoord(inout_waypoints[uiCurrent], vCoordA) &&
+          m_pGrid->WorldToCoord(inout_waypoints[i], vCoordB) &&
+          IsClearLine(vCoordA, vCoordB))
       {
         uiFarthestVisible = i;
         break;
