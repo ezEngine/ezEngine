@@ -117,8 +117,8 @@ ezTestAppRun ezGameEngineTestEffects::RunSubTest(ezInt32 iIdentifier, ezUInt32 u
     return ezTestAppRun::Quit;
 
   m_pOwnApplication->SwitchToCamera(m_iFrame);
-  
-   if (m_ImgCompFrames[m_uiImgCompIdx].m_uiFrame == m_iFrame)
+
+  if (m_ImgCompFrames[m_uiImgCompIdx].m_uiFrame == m_iFrame)
   {
     EZ_TEST_IMAGE(m_uiImgCompIdx, m_ImgCompFrames[m_uiImgCompIdx].m_uiThreshold);
     ++m_uiImgCompIdx;

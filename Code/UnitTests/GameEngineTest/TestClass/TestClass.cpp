@@ -7,8 +7,8 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
-#include <RendererFoundation/Device/Device.h>
 #include <RendererCore/Components/CameraComponent.h>
+#include <RendererFoundation/Device/Device.h>
 
 ezGameEngineTest::ezGameEngineTest() = default;
 ezGameEngineTest::~ezGameEngineTest() = default;
@@ -112,7 +112,7 @@ void ezGameEngineTestApplication::SwitchToCamera(ezUInt32 uiCameraNumber)
       const ezGameObject* pOwner = pCameraComponent->GetOwner();
       const ezVec3 vPos = pOwner->GetGlobalPosition();
       const ezVec3 vFwd = pOwner->GetGlobalDirForwards();
-      const ezVec3 vUp  = pOwner->GetGlobalDirUp();
+      const ezVec3 vUp = pOwner->GetGlobalDirUp();
       pCamera->LookAt(vPos, vPos + vFwd, vUp);
       pCamera->SetCameraMode(pCameraComponent->GetCameraMode(), pCameraComponent->GetFieldOfView(), pCameraComponent->GetNearPlane(), pCameraComponent->GetFarPlane());
     }
