@@ -7,6 +7,10 @@
 #define USE_WORLDPOS
 #define USE_DATAOFFSETS
 
+#if !defined(NO_SCREEN_SPACE_TECHNIQUES)
+#  define USE_SCREEN_SPACE_TECHNIQUES
+#endif
+
 #if (BLEND_MODE == BLEND_MODE_MASKED || BLEND_MODE == BLEND_MODE_DITHERED) && RENDER_PASS != RENDER_PASS_WIREFRAME
 
 // No need to do alpha test again if we have a depth prepass
@@ -111,13 +115,13 @@ PS_OUT main(PS_IN Input)
 
 #if SHADING_MODE == SHADING_MODE_LIT
 #  if SHADING_QUALITY == SHADING_QUALITY_NORMAL
-#    if BLEND_MODE == BLEND_MODE_OPAQUE || BLEND_MODE == BLEND_MODE_MASKED || BLEND_MODE == BLEND_MODE_DITHERED
-  bool applySSAO = true;
+#    if defined(USE_SCREEN_SPACE_TECHNIQUES) && (BLEND_MODE == BLEND_MODE_OPAQUE || BLEND_MODE == BLEND_MODE_MASKED || BLEND_MODE == BLEND_MODE_DITHERED)
+  bool useScreenSpaceTechniques = true;
 #    else
-  bool applySSAO = false;
+  bool useScreenSpaceTechniques = false;
 #    endif
 
-  AccumulatedLight light = CalculateLighting(matData, clusterData, Input.Position.xyw, applySSAO);
+  AccumulatedLight light = CalculateLighting(matData, clusterData, Input.Position.xyw, useScreenSpaceTechniques);
 #  elif SHADING_QUALITY == SHADING_QUALITY_SIMPLIFIED
   AccumulatedLight light = CalculateLightingSimplified(matData);
 #  endif

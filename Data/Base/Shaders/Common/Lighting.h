@@ -644,7 +644,7 @@ void EvaluateFillLight(float3 worldPosition, float3 worldNormal, float3 diffuseC
   }
 }
 
-AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clusterData, float3 screenPosition, bool applySSAO)
+AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clusterData, float3 screenPosition, bool useScreenSpaceTechniques)
 {
   float3 viewVector = normalize(GetCameraPosition() - matData.worldPosition);
 
@@ -694,7 +694,7 @@ AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clus
 
           shadowTerm = CalculateShadowTerm(matData.worldPosition, matData.vertexNormal, lightShadowVector, distanceToLight, type, lightData.shadowDataOffsetAndFadeOut, noise, randomRotation, extraPenumbraScale, subsurfaceShadow, debugColor);
 
-          if (type == LIGHT_TYPE_DIR && lightData.auxParams != 0)
+          if (useScreenSpaceTechniques && type == LIGHT_TYPE_DIR && lightData.auxParams != 0)
           {
             shadowTerm = min(shadowTerm, SampleShadowMask(screenPosition, lightData.auxParams - 1));
           }
@@ -731,7 +731,7 @@ AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clus
 
   float occlusion = matData.occlusion;
 
-  if (applySSAO)
+  if (useScreenSpaceTechniques)
   {
     float ssao = SampleSSAO(screenPosition);
     occlusion *= ssao;
