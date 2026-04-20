@@ -77,12 +77,16 @@ Issue=$(cat /etc/issue)
 
 UbuntuPattern="Ubuntu ([0-9][0-9])"
 MintPattern="Linux Mint ([0-9][0-9])"
+DebianPattern="Debian GNU/Linux ([0-9][0-9])"
 
 if [[ $Issue =~ $UbuntuPattern ]]; then
   Distribution="Ubuntu"
   Version=${BASH_REMATCH[1]}
 elif [[ $Issue =~ $MintPattern ]]; then
   Distribution="Mint"
+  Version=${BASH_REMATCH[1]}
+elif [[ $Issue =~ $DebianPattern ]]; then
+  Distribution="Debian"
   Version=${BASH_REMATCH[1]}
 fi
 
@@ -95,10 +99,10 @@ verlt() {
     [ "$1" = "$2" ] && return 1 || verlte $1 $2
 }
 
-if [ "$Distribution" = "Ubuntu" -a \( "$Version" = "22" -o "$Version" = "24" -o "$Version" = "25" \) ] || [ "$Distribution" = "Mint" -a "$Version" = "21" ]; then
+if [ "$Distribution" = "Ubuntu" -a \( "$Version" = "22" -o "$Version" = "24" -o "$Version" = "25" \) ] || [ "$Distribution" = "Mint" -a "$Version" = "21" ] || [ "$Distribution" = "Debian" -a "$Version" = "13" ]; then
   packages=(cmake build-essential ninja-build libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev uuid-dev mold libfreetype-dev libxkbcommon-dev liblttng-ust-dev lttng-tools)
 
-  if [ "$Distribution" = "Ubuntu" -a \( "$Version" = "24" -o "$Version" = "25" \) ]; then
+  if [ "$Distribution" = "Ubuntu" -a \( "$Version" = "24" -o "$Version" = "25" \) ] || [ "$Distribution" = "Debian" -a "$Version" = "13" ]; then
     packages+=(libtinfo6)
   else  
     packages+=(libtinfo5)

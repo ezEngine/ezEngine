@@ -62,8 +62,8 @@
       "inherits" : ["linux-base"],
       "hidden": true,
       "cacheVariables": {
-        "CMAKE_CXX_COMPILER" : "g++-12",
-        "CMAKE_C_COMPILER" : "gcc-12" 
+        "CMAKE_CXX_COMPILER" : "g++",
+        "CMAKE_C_COMPILER" : "gcc"
       }
     },
     {
