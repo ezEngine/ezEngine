@@ -240,7 +240,7 @@ void ezAiVoxelWorldModule::VoxelizeWorld(ezUInt32 uiCollisionLayer)
   // Preferred path: retrieve actual collision geometry and rasterize triangles directly.
   // This is faster and more reliable than raycasting, as it uses the same geometry data
   // that the physics engine has.
-  auto* pGeoModule = GetWorld()->GetModule<ezNavmeshGeoWorldModuleInterface>();
+  auto* pGeoModule = GetWorld()->GetOrCreateModule<ezNavmeshGeoWorldModuleInterface>();
   if (pGeoModule != nullptr)
   {
     ezDynamicArray<ezNavmeshTriangle> triangles;
