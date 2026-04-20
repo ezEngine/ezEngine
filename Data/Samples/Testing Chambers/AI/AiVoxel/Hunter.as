@@ -9,7 +9,7 @@ class Hunter : ezAngelScriptClass
 {
     int Difficulty = 3;
 
-    bool ShowDebugInfo = true;
+    bool ShowDebugInfo = false;
 
     ezString PreyMarker = "Prey";
 
@@ -36,14 +36,14 @@ class Hunter : ezAngelScriptClass
             m_fSpeed          = 2.5f;
             m_fDetectionRange = 10.0f;
             m_fCatchDistance  = 2.0f;
-            SetUpdateInterval(ezTime::Milliseconds(900));
+            SetUpdateInterval(ezTime::Milliseconds(500));
         }
         else if (Difficulty == 2) // Medium
         {
             m_fSpeed          = 5.0f;
             m_fDetectionRange = 22.0f;
             m_fCatchDistance  = 1.8f;
-            SetUpdateInterval(ezTime::Milliseconds(350));
+            SetUpdateInterval(ezTime::Milliseconds(200));
         }
         else // Hard
         {
@@ -96,7 +96,8 @@ class Hunter : ezAngelScriptClass
             else
             {
                 m_State = HunterState::Pursuing;
-                navComp.SetDestination(m_vLastKnownPreyPos);
+                // Let the component continuously track the prey object
+                navComp.SetNavigationTarget(preyObj.GetHandle());
 
                 if (ShowDebugInfo)
                     ezDebug::DrawLine(vOwnPos, m_vLastKnownPreyPos, ezColor::OrangeRed, ezColor::Orange);
@@ -105,7 +106,6 @@ class Hunter : ezAngelScriptClass
         else if (m_bHasLastKnownPos)
         {
             m_State = HunterState::Pursuing;
-            navComp.SetDestination(m_vLastKnownPreyPos);
 
             float fDist = vOwnPos.GetDistanceTo(m_vLastKnownPreyPos);
             if (fDist <= m_fCatchDistance + 0.5f)
@@ -114,13 +114,16 @@ class Hunter : ezAngelScriptClass
                 m_State = HunterState::Wandering;
                 PickWanderDestination(navComp);
             }
+            else
+            {
+                navComp.SetDestination(m_vLastKnownPreyPos);
+            }
         }
         else
         {
             m_State = HunterState::Wandering;
 
-            if (navComp.GetState() == ezAiVoxelNavigationComponentState::Idle ||
-                navComp.GetState() == ezAiVoxelNavigationComponentState::Failed)
+            if (!navComp.IsNavigating())
             {
                 PickWanderDestination(navComp);
             }
@@ -132,14 +135,13 @@ class Hunter : ezAngelScriptClass
 
     void PickWanderDestination(ezAiVoxelNavigationComponent@ navComp)
     {
-        ezRandom@ rng = GetWorld().GetRandomNumberGenerator();
         ezVec3 vOwnPos = GetOwner().GetGlobalPosition();
+        ezVec3 vPoint;
 
-        float rx = rng.FloatMinMax(-m_fWanderRadius, m_fWanderRadius);
-        float ry = rng.FloatMinMax(-m_fWanderRadius, m_fWanderRadius);
-        float rz = rng.FloatMinMax(-m_fWanderRadius * 0.5f, m_fWanderRadius * 0.5f);
-
-        navComp.SetDestination(vOwnPos + ezVec3(rx, ry, rz));
+        if (navComp.FindRandomPointAroundSphere(vOwnPos, m_fWanderRadius, vPoint))
+        {
+            navComp.SetDestination(vPoint);
+        }
     }
 
     void DrawDebugState(ezVec3 vTextPos, ezVec3 vOwnPos)

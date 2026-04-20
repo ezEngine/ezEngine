@@ -36,10 +36,16 @@ EZ_BEGIN_COMPONENT_TYPE(ezAiVoxelNavigationComponent, 2, ezComponentMode::Dynami
   EZ_BEGIN_FUNCTIONS
   {
     EZ_SCRIPT_FUNCTION_PROPERTY(SetDestination, In, "Destination"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(SetNavigationTarget, In, "Object"),
     EZ_SCRIPT_FUNCTION_PROPERTY(CancelNavigation),
     EZ_SCRIPT_FUNCTION_PROPERTY(GetState),
     EZ_SCRIPT_FUNCTION_PROPERTY(GetSteeringPosition),
     EZ_SCRIPT_FUNCTION_PROPERTY(GetSteeringRotation),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetVelocity),
+    EZ_SCRIPT_FUNCTION_PROPERTY(IsNavigating),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetRemainingDistance),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetWaypointCount),
+    EZ_SCRIPT_FUNCTION_PROPERTY(FindRandomPointAroundSphere, In, "Center", In, "Radius", Out, "Point"),
   }
   EZ_END_FUNCTIONS;
 }
@@ -133,6 +139,73 @@ ezVec3 ezAiVoxelNavigationComponent::GetSteeringPosition() const
 ezQuat ezAiVoxelNavigationComponent::GetSteeringRotation() const
 {
   return m_qSteerRotation;
+}
+
+float ezAiVoxelNavigationComponent::GetRemainingDistance() const
+{
+  if (m_State != ezAiVoxelNavigationComponentState::Moving)
+    return 0.0f;
+
+  const auto& waypoints = m_Navigation.GetWaypoints();
+  const ezUInt32 uiCurrent = m_Navigation.GetCurrentWaypointIndex();
+
+  if (uiCurrent >= waypoints.GetCount())
+    return 0.0f;
+
+  float fDist = (waypoints[uiCurrent] - m_vSteerPosition).GetLength();
+
+  for (ezUInt32 i = uiCurrent; i + 1 < waypoints.GetCount(); ++i)
+  {
+    fDist += (waypoints[i + 1] - waypoints[i]).GetLength();
+  }
+
+  return fDist;
+}
+
+ezUInt32 ezAiVoxelNavigationComponent::GetWaypointCount() const
+{
+  return m_Navigation.GetWaypoints().GetCount();
+}
+
+bool ezAiVoxelNavigationComponent::FindRandomPointAroundSphere(const ezVec3& vCenter, float fRadius, ezVec3& out_vPoint)
+{
+  auto* pVoxelModule = GetWorld()->GetModule<ezAiVoxelWorldModule>();
+  if (pVoxelModule == nullptr || !pVoxelModule->IsReady())
+    return false;
+
+  const ezVoxelGrid* pGrid = pVoxelModule->GetVoxelGrid();
+  const ezVoxelGrid* pDynGrid = pVoxelModule->GetDynamicGrid();
+
+  ezRandom& rng = GetWorld()->GetRandomNumberGenerator();
+  const float fRadiusSq = fRadius * fRadius;
+
+  // Try up to 32 random samples
+  for (ezUInt32 i = 0; i < 32; ++i)
+  {
+    const ezVec3 vOffset(
+      rng.FloatMinMax(-fRadius, fRadius),
+      rng.FloatMinMax(-fRadius, fRadius),
+      rng.FloatMinMax(-fRadius, fRadius));
+
+    if (vOffset.GetLengthSquared() > fRadiusSq)
+      continue;
+
+    const ezVec3 vCandidate = vCenter + vOffset;
+    ezVec3I32 vCoord;
+    if (!pGrid->WorldToCoord(vCandidate, vCoord))
+      continue;
+
+    if (pGrid->CheckVoxel(vCoord))
+      continue;
+
+    if (pDynGrid != nullptr && pDynGrid->CheckVoxel(vCoord))
+      continue;
+
+    out_vPoint = pGrid->CoordToWorld(vCoord);
+    return true;
+  }
+
+  return false;
 }
 
 void ezAiVoxelNavigationComponent::SerializeComponent(ezWorldWriter& inout_stream) const

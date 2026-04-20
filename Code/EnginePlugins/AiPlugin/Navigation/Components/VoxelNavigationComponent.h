@@ -63,7 +63,7 @@ public:
   ezEnum<ezAiVoxelNavigationComponentState> GetState() const { return m_State; } ///< [ scriptable ]
 
   void SetNavigationTargetReference(const char* szReference); // [ property ]
-  void SetNavigationTarget(ezGameObjectHandle hObject);
+  void SetNavigationTarget(ezGameObjectHandle hObject); ///< [ scriptable ]
 
   float m_fSpeed = 5.0f;          ///< [ property ] Target movement speed.
   float m_fAcceleration = 3.0f;   ///< [ property ] How fast to gain speed.
@@ -75,6 +75,23 @@ public:
 
   ezVec3 GetSteeringPosition() const; ///< [ scriptable ]
   ezQuat GetSteeringRotation() const; ///< [ scriptable ]
+
+  /// Returns the current velocity vector.
+  ezVec3 GetVelocity() const { return m_vVelocity; } ///< [ scriptable ]
+
+  /// Returns true if the component is currently navigating along a path.
+  bool IsNavigating() const { return m_State == ezAiVoxelNavigationComponentState::Moving; } ///< [ scriptable ]
+
+  /// Returns the approximate remaining distance along the current path, or 0 if not navigating.
+  float GetRemainingDistance() const; ///< [ scriptable ]
+
+  /// Returns the number of waypoints in the current path.
+  ezUInt32 GetWaypointCount() const; ///< [ scriptable ]
+
+  /// Attempts to find a random navigable point within a sphere around vCenter.
+  ///
+  /// Returns false if the voxel grid is not ready or no free voxel was found after several attempts.
+  bool FindRandomPointAroundSphere(const ezVec3& vCenter, float fRadius, ezVec3& out_vPoint); ///< [ scriptable ]
 
 protected:
   void Update();

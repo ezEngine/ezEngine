@@ -25,6 +25,9 @@ public:
   /// Manually re-inject the obstacle, e.g. after moving it.
   void UpdateObstacle(); ///< [ scriptable ]
 
+  /// Returns whether the obstacle is currently injected into the voxel grid.
+  bool IsInjected() const { return m_bInjected; } ///< [ scriptable ]
+
   ezUInt32 m_uiCollisionLayer = 0; ///< [ property ]
 
 protected:

@@ -2,6 +2,7 @@
 
 #include <AiPlugin/Navigation/Components/VoxelGridSettingsComponent.h>
 #include <AiPlugin/Navigation/VoxelWorldModule.h>
+#include <Core/Interfaces/NavmeshGeoWorldModule.h>
 #include <Core/Interfaces/PhysicsWorldModule.h>
 #include <Core/World/World.h>
 #include <Foundation/Configuration/CVar.h>
@@ -13,6 +14,144 @@ EZ_IMPLEMENT_WORLD_MODULE(ezAiVoxelWorldModule);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAiVoxelWorldModule, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
+
+namespace
+{
+  /// SAT-based triangle-AABB overlap test (Tomas Akenine-Moller algorithm).
+  ///
+  /// Tests 13 potential separating axes: 3 box face normals, 1 triangle normal,
+  /// and 9 cross products of box edge directions with triangle edge directions.
+  bool TriangleBoxOverlap(const ezVec3& v0, const ezVec3& v1, const ezVec3& v2,
+    const ezVec3& vBoxCenter, float fBoxHalf)
+  {
+    // Translate triangle so box center is at origin
+    const ezVec3 a = v0 - vBoxCenter;
+    const ezVec3 b = v1 - vBoxCenter;
+    const ezVec3 c = v2 - vBoxCenter;
+    const float h = fBoxHalf;
+
+    // Test 3 AABB face normals
+    if (ezMath::Min(a.x, ezMath::Min(b.x, c.x)) > h || ezMath::Max(a.x, ezMath::Max(b.x, c.x)) < -h) return false;
+    if (ezMath::Min(a.y, ezMath::Min(b.y, c.y)) > h || ezMath::Max(a.y, ezMath::Max(b.y, c.y)) < -h) return false;
+    if (ezMath::Min(a.z, ezMath::Min(b.z, c.z)) > h || ezMath::Max(a.z, ezMath::Max(b.z, c.z)) < -h) return false;
+
+    // Triangle edges
+    const ezVec3 f0 = b - a;
+    const ezVec3 f1 = c - b;
+    const ezVec3 f2 = a - c;
+
+    // 9 cross product axes: box_axis_i x triangle_edge_j
+    // For each axis, project all 3 vertices and check against box projection radius.
+    float p0, p1, p2, r;
+
+    // (1,0,0) x f0 = (0, -f0.z, f0.y)
+    p0 = -a.y * f0.z + a.z * f0.y; p1 = -b.y * f0.z + b.z * f0.y; p2 = -c.y * f0.z + c.z * f0.y;
+    r = h * (ezMath::Abs(f0.z) + ezMath::Abs(f0.y));
+    if (ezMath::Min(p0, ezMath::Min(p1, p2)) > r || ezMath::Max(p0, ezMath::Max(p1, p2)) < -r) return false;
+
+    // (1,0,0) x f1 = (0, -f1.z, f1.y)
+    p0 = -a.y * f1.z + a.z * f1.y; p1 = -b.y * f1.z + b.z * f1.y; p2 = -c.y * f1.z + c.z * f1.y;
+    r = h * (ezMath::Abs(f1.z) + ezMath::Abs(f1.y));
+    if (ezMath::Min(p0, ezMath::Min(p1, p2)) > r || ezMath::Max(p0, ezMath::Max(p1, p2)) < -r) return false;
+
+    // (1,0,0) x f2 = (0, -f2.z, f2.y)
+    p0 = -a.y * f2.z + a.z * f2.y; p1 = -b.y * f2.z + b.z * f2.y; p2 = -c.y * f2.z + c.z * f2.y;
+    r = h * (ezMath::Abs(f2.z) + ezMath::Abs(f2.y));
+    if (ezMath::Min(p0, ezMath::Min(p1, p2)) > r || ezMath::Max(p0, ezMath::Max(p1, p2)) < -r) return false;
+
+    // (0,1,0) x f0 = (f0.z, 0, -f0.x)
+    p0 = a.x * f0.z - a.z * f0.x; p1 = b.x * f0.z - b.z * f0.x; p2 = c.x * f0.z - c.z * f0.x;
+    r = h * (ezMath::Abs(f0.z) + ezMath::Abs(f0.x));
+    if (ezMath::Min(p0, ezMath::Min(p1, p2)) > r || ezMath::Max(p0, ezMath::Max(p1, p2)) < -r) return false;
+
+    // (0,1,0) x f1 = (f1.z, 0, -f1.x)
+    p0 = a.x * f1.z - a.z * f1.x; p1 = b.x * f1.z - b.z * f1.x; p2 = c.x * f1.z - c.z * f1.x;
+    r = h * (ezMath::Abs(f1.z) + ezMath::Abs(f1.x));
+    if (ezMath::Min(p0, ezMath::Min(p1, p2)) > r || ezMath::Max(p0, ezMath::Max(p1, p2)) < -r) return false;
+
+    // (0,1,0) x f2 = (f2.z, 0, -f2.x)
+    p0 = a.x * f2.z - a.z * f2.x; p1 = b.x * f2.z - b.z * f2.x; p2 = c.x * f2.z - c.z * f2.x;
+    r = h * (ezMath::Abs(f2.z) + ezMath::Abs(f2.x));
+    if (ezMath::Min(p0, ezMath::Min(p1, p2)) > r || ezMath::Max(p0, ezMath::Max(p1, p2)) < -r) return false;
+
+    // (0,0,1) x f0 = (-f0.y, f0.x, 0)
+    p0 = -a.x * f0.y + a.y * f0.x; p1 = -b.x * f0.y + b.y * f0.x; p2 = -c.x * f0.y + c.y * f0.x;
+    r = h * (ezMath::Abs(f0.y) + ezMath::Abs(f0.x));
+    if (ezMath::Min(p0, ezMath::Min(p1, p2)) > r || ezMath::Max(p0, ezMath::Max(p1, p2)) < -r) return false;
+
+    // (0,0,1) x f1 = (-f1.y, f1.x, 0)
+    p0 = -a.x * f1.y + a.y * f1.x; p1 = -b.x * f1.y + b.y * f1.x; p2 = -c.x * f1.y + c.y * f1.x;
+    r = h * (ezMath::Abs(f1.y) + ezMath::Abs(f1.x));
+    if (ezMath::Min(p0, ezMath::Min(p1, p2)) > r || ezMath::Max(p0, ezMath::Max(p1, p2)) < -r) return false;
+
+    // (0,0,1) x f2 = (-f2.y, f2.x, 0)
+    p0 = -a.x * f2.y + a.y * f2.x; p1 = -b.x * f2.y + b.y * f2.x; p2 = -c.x * f2.y + c.y * f2.x;
+    r = h * (ezMath::Abs(f2.y) + ezMath::Abs(f2.x));
+    if (ezMath::Min(p0, ezMath::Min(p1, p2)) > r || ezMath::Max(p0, ezMath::Max(p1, p2)) < -r) return false;
+
+    // Triangle normal
+    const ezVec3 normal = f0.CrossRH(f1);
+    const float d = normal.Dot(a);
+    r = h * (ezMath::Abs(normal.x) + ezMath::Abs(normal.y) + ezMath::Abs(normal.z));
+    if (ezMath::Abs(d) > r) return false;
+
+    return true;
+  }
+
+  /// Rasterizes a single triangle into the voxel grid by testing each voxel
+  /// in the triangle's AABB for overlap using the SAT test.
+  void RasterizeTriangle(ezVoxelGrid& grid, const ezVec3& v0, const ezVec3& v1, const ezVec3& v2)
+  {
+    // Triangle AABB in world space
+    ezVec3 triMin;
+    triMin.x = ezMath::Min(v0.x, ezMath::Min(v1.x, v2.x));
+    triMin.y = ezMath::Min(v0.y, ezMath::Min(v1.y, v2.y));
+    triMin.z = ezMath::Min(v0.z, ezMath::Min(v1.z, v2.z));
+
+    ezVec3 triMax;
+    triMax.x = ezMath::Max(v0.x, ezMath::Max(v1.x, v2.x));
+    triMax.y = ezMath::Max(v0.y, ezMath::Max(v1.y, v2.y));
+    triMax.z = ezMath::Max(v0.z, ezMath::Max(v1.z, v2.z));
+
+    // Convert to voxel coordinates and clamp to grid bounds
+    ezVec3I32 coordMin, coordMax;
+    grid.WorldToCoord(triMin, coordMin);
+    grid.WorldToCoord(triMax, coordMax);
+
+    coordMin.x = ezMath::Max(coordMin.x, 0);
+    coordMin.y = ezMath::Max(coordMin.y, 0);
+    coordMin.z = ezMath::Max(coordMin.z, 0);
+    coordMax.x = ezMath::Min(coordMax.x, (ezInt32)grid.GetDimX() - 1);
+    coordMax.y = ezMath::Min(coordMax.y, (ezInt32)grid.GetDimY() - 1);
+    coordMax.z = ezMath::Min(coordMax.z, (ezInt32)grid.GetDimZ() - 1);
+
+    if (coordMin.x > coordMax.x || coordMin.y > coordMax.y || coordMin.z > coordMax.z)
+      return;
+
+    const float fHalfSize = grid.GetVoxelSize() * 0.5f;
+
+    for (ezInt32 z = coordMin.z; z <= coordMax.z; ++z)
+    {
+      for (ezInt32 y = coordMin.y; y <= coordMax.y; ++y)
+      {
+        for (ezInt32 x = coordMin.x; x <= coordMax.x; ++x)
+        {
+          const ezVec3I32 vCoord(x, y, z);
+
+          if (grid.CheckVoxel(vCoord))
+            continue;
+
+          const ezVec3 voxelCenter = grid.CoordToWorld(vCoord);
+
+          if (TriangleBoxOverlap(v0, v1, v2, voxelCenter, fHalfSize))
+          {
+            grid.SetVoxel(vCoord, true);
+          }
+        }
+      }
+    }
+  }
+} // namespace
 
 ezAiVoxelWorldModule::ezAiVoxelWorldModule(ezWorld* pWorld)
   : ezWorldModule(pWorld)
@@ -91,32 +230,52 @@ void ezAiVoxelWorldModule::Update(const UpdateContext& ctxt)
 
 void ezAiVoxelWorldModule::VoxelizeWorld(ezUInt32 uiCollisionLayer)
 {
-  auto* pPhysics = GetWorld()->GetModule<ezPhysicsWorldModuleInterface>();
-  if (pPhysics == nullptr)
-  {
-    ezLog::Warning("ezAiVoxelWorldModule: No physics module available for voxelization.");
-    return;
-  }
-
   m_StaticGrid.ClearData();
 
-  const ezPhysicsQueryParameters queryParams(uiCollisionLayer, ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic);
-  const float fVoxelSize = m_StaticGrid.GetVoxelSize();
   const ezBoundingBox gridAABB = m_StaticGrid.GetAABB();
-
   const ezUInt32 uiDimX = m_StaticGrid.GetDimX();
   const ezUInt32 uiDimY = m_StaticGrid.GetDimY();
   const ezUInt32 uiDimZ = m_StaticGrid.GetDimZ();
 
-  // Cast rays along all 3 axes to mark surface voxels as solid.
-  // Three sets of parallel rays (one set per axis) ensure every surface is hit regardless of orientation.
-  // Interior voxels deep inside solid objects need not be marked — no navigation agent can reach them
-  // from outside without crossing the already-blocked surface voxels.
+  // Preferred path: retrieve actual collision geometry and rasterize triangles directly.
+  // This is faster and more reliable than raycasting, as it uses the same geometry data
+  // that the physics engine has.
+  auto* pGeoModule = GetWorld()->GetModule<ezNavmeshGeoWorldModuleInterface>();
+  if (pGeoModule != nullptr)
+  {
+    ezDynamicArray<ezNavmeshTriangle> triangles;
+    pGeoModule->RetrieveGeometryInArea(uiCollisionLayer, gridAABB, triangles);
+
+    for (const auto& tri : triangles)
+    {
+      RasterizeTriangle(m_StaticGrid, tri.m_Vertices[0], tri.m_Vertices[1], tri.m_Vertices[2]);
+    }
+
+    const ezBoundingBox finalAABB = m_StaticGrid.GetAABB();
+    ezLog::Info("ezAiVoxelWorldModule: Voxelized world from {} triangles ({}x{}x{}, voxel size {}). Grid bounds: ({}, {}, {}) to ({}, {}, {}).",
+      triangles.GetCount(), uiDimX, uiDimY, uiDimZ, m_StaticGrid.GetVoxelSize(),
+      finalAABB.m_vMin.x, finalAABB.m_vMin.y, finalAABB.m_vMin.z,
+      finalAABB.m_vMax.x, finalAABB.m_vMax.y, finalAABB.m_vMax.z);
+    return;
+  }
+
+  // Fallback: raycast along all 3 axes to mark surface voxels as solid.
+  // Used when no navmesh geometry module is available (e.g. no physics engine loaded).
+  auto* pPhysics = GetWorld()->GetModule<ezPhysicsWorldModuleInterface>();
+  if (pPhysics == nullptr)
+  {
+    ezLog::Warning("ezAiVoxelWorldModule: No physics or geometry module available for voxelization.");
+    return;
+  }
+
+  const ezPhysicsQueryParameters queryParams(uiCollisionLayer, ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic);
+  const float fVoxelSize = m_StaticGrid.GetVoxelSize();
+
   {
     ezPhysicsCastResultArray hitResults;
     const float fPadding = fVoxelSize * 0.5f;
 
-    // Rays along +X axis (catches walls perpendicular to X)
+    // Rays along +X axis
     const float fRayLenX = gridAABB.m_vMax.x - gridAABB.m_vMin.x + fPadding * 2.0f;
     for (ezUInt32 z = 0; z < uiDimZ; ++z)
     {
@@ -142,7 +301,7 @@ void ezAiVoxelWorldModule::VoxelizeWorld(ezUInt32 uiCollisionLayer)
       }
     }
 
-    // Rays along +Y axis (catches walls perpendicular to Y)
+    // Rays along +Y axis
     const float fRayLenY = gridAABB.m_vMax.y - gridAABB.m_vMin.y + fPadding * 2.0f;
     for (ezUInt32 z = 0; z < uiDimZ; ++z)
     {
@@ -168,7 +327,7 @@ void ezAiVoxelWorldModule::VoxelizeWorld(ezUInt32 uiCollisionLayer)
       }
     }
 
-    // Rays along +Z axis (catches floors and ceilings)
+    // Rays along +Z axis
     const float fRayLenZ = gridAABB.m_vMax.z - gridAABB.m_vMin.z + fPadding * 2.0f;
     for (ezUInt32 y = 0; y < uiDimY; ++y)
     {
@@ -196,7 +355,7 @@ void ezAiVoxelWorldModule::VoxelizeWorld(ezUInt32 uiCollisionLayer)
   }
 
   const ezBoundingBox finalAABB = m_StaticGrid.GetAABB();
-  ezLog::Info("ezAiVoxelWorldModule: Voxelized world ({}x{}x{}, voxel size {}). Grid bounds: ({}, {}, {}) to ({}, {}, {}).",
+  ezLog::Info("ezAiVoxelWorldModule: Voxelized world via raycasts ({}x{}x{}, voxel size {}). Grid bounds: ({}, {}, {}) to ({}, {}, {}).",
     uiDimX, uiDimY, uiDimZ, m_StaticGrid.GetVoxelSize(),
     finalAABB.m_vMin.x, finalAABB.m_vMin.y, finalAABB.m_vMin.z,
     finalAABB.m_vMax.x, finalAABB.m_vMax.y, finalAABB.m_vMax.z);

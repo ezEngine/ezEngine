@@ -9,11 +9,12 @@ class Prey : ezAngelScriptClass
 {
     int Difficulty = 3;
 
-    bool ShowDebugInfo = true;
+    bool ShowDebugInfo = false;
 
     ezString HunterMarker = "Hunter";
 
     private PreyState m_State = PreyState::Wandering;
+    private PreyState m_PrevState = PreyState::Wandering;
     private ezGameObjectHandle m_hTrackedHunter;
 
     private float m_fSpeed = 5.5f;
@@ -35,7 +36,7 @@ class Prey : ezAngelScriptClass
             m_fAwarenessRange = 8.0f;
             m_fFleeDistance   = 10.0f;
             m_fPanicRange     = 3.0f;
-            SetUpdateInterval(ezTime::Milliseconds(700));
+            SetUpdateInterval(ezTime::Milliseconds(400));
         }
         else if (Difficulty == 2) // Medium
         {
@@ -43,7 +44,7 @@ class Prey : ezAngelScriptClass
             m_fAwarenessRange = 18.0f;
             m_fFleeDistance   = 15.0f;
             m_fPanicRange     = 5.0f;
-            SetUpdateInterval(ezTime::Milliseconds(300));
+            SetUpdateInterval(ezTime::Milliseconds(200));
         }
         else // Hard
         {
@@ -76,8 +77,19 @@ class Prey : ezAngelScriptClass
 
             m_State = (fDistToHunter < m_fPanicRange) ? PreyState::Cornered : PreyState::Fleeing;
 
-            if (navComp.GetState() == ezAiVoxelNavigationComponentState::Idle ||
-                navComp.GetState() == ezAiVoxelNavigationComponentState::Failed)
+            bool bNeedsNewDestination = false;
+
+            if (m_PrevState == PreyState::Wandering)
+            {
+                navComp.CancelNavigation();
+                bNeedsNewDestination = true;
+            }
+            else if (!navComp.IsNavigating())
+            {
+                bNeedsNewDestination = true;
+            }
+
+            if (bNeedsNewDestination)
             {
                 if (fDistToHunter < m_fPanicRange)
                 {
@@ -116,12 +128,13 @@ class Prey : ezAngelScriptClass
         {
             m_State = PreyState::Wandering;
 
-            if (navComp.GetState() == ezAiVoxelNavigationComponentState::Idle ||
-                navComp.GetState() == ezAiVoxelNavigationComponentState::Failed)
+            if (!navComp.IsNavigating())
             {
                 PickWanderDestination(navComp, vOwnPos);
             }
         }
+
+        m_PrevState = m_State;
 
         if (ShowDebugInfo)
             DrawDebugState(vStatusPos, vOwnPos);
@@ -129,26 +142,22 @@ class Prey : ezAngelScriptClass
 
     void PickWanderDestination(ezAiVoxelNavigationComponent@ navComp, ezVec3 vOwnPos)
     {
-        ezRandom@ rng = GetWorld().GetRandomNumberGenerator();
-        float r = 9.0f;
+        ezVec3 vPoint;
 
-        float rx = rng.FloatMinMax(-r, r);
-        float ry = rng.FloatMinMax(-r, r);
-        float rz = rng.FloatMinMax(-r * 0.4f, r * 0.4f);
-
-        navComp.SetDestination(vOwnPos + ezVec3(rx, ry, rz));
+        if (navComp.FindRandomPointAroundSphere(vOwnPos, 9.0f, vPoint))
+        {
+            navComp.SetDestination(vPoint);
+        }
     }
 
     void PickFleeDestinationRandom(ezAiVoxelNavigationComponent@ navComp, ezVec3 vOwnPos)
     {
-        ezRandom@ rng = GetWorld().GetRandomNumberGenerator();
-        float r = m_fFleeDistance;
+        ezVec3 vPoint;
 
-        float rx = rng.FloatMinMax(-r, r);
-        float ry = rng.FloatMinMax(-r, r);
-        float rz = rng.FloatMinMax(-r * 0.4f, r * 0.4f);
-
-        navComp.SetDestination(vOwnPos + ezVec3(rx, ry, rz));
+        if (navComp.FindRandomPointAroundSphere(vOwnPos, m_fFleeDistance, vPoint))
+        {
+            navComp.SetDestination(vPoint);
+        }
     }
 
     void DrawDebugState(ezVec3 vTextPos, ezVec3 vOwnPos)

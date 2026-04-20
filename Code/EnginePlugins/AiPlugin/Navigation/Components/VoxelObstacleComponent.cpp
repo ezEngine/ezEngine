@@ -18,6 +18,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezAiVoxelObstacleComponent, 1, ezComponentMode::Static)
   EZ_BEGIN_FUNCTIONS
   {
     EZ_SCRIPT_FUNCTION_PROPERTY(UpdateObstacle),
+    EZ_SCRIPT_FUNCTION_PROPERTY(IsInjected),
   }
   EZ_END_FUNCTIONS;
   EZ_BEGIN_ATTRIBUTES
