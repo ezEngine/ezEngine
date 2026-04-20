@@ -59,7 +59,7 @@ void ezDepthOnlyPass::Execute(const ezRenderViewContext& renderViewContext, cons
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
-  // When compiling a shader as DEBUG, the compiler will not remove unused slots. This will result in the shadow map render target being bound as well into the global bind group, causing validation issues. There is probably a beter solution to this but for now we just unbind it when rendering shadow maps.
+  // When compiling a shader as DEBUG, the compiler will not remove unused slots. This will result in the shadow map render target being bound as well into the global bind group, causing validation issues. There is probably a better solution to this but for now we just unbind it when rendering shadow maps.
   ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
   bindGroup.BindTexture("ShadowAtlasTexture", ezGALTextureHandle{});
 
