@@ -102,6 +102,7 @@ ezStatus ezAnimatedMeshAssetDocument::CreateMeshFromFile(ezAnimatedMeshAssetProp
   {
     opt.m_uiMeshSimplification = pProp->m_uiMeshSimplification;
     opt.m_uiMaxSimplificationError = pProp->m_uiMaxSimplificationError;
+    opt.m_fNormalWeight = pProp->m_fNormalWeight;
     opt.m_bAggressiveSimplification = pProp->m_bAggressiveSimplification;
   }
 

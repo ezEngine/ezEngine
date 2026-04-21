@@ -76,6 +76,7 @@ public:
   ezUInt32 m_uiTriangles = 0;
 
   bool m_bSimplifyMesh = false;
+  float m_fNormalWeight = 0.5f;
   bool m_bAggressiveSimplification = false;
   ezUInt8 m_uiMeshSimplification = 50;
   ezUInt8 m_uiMaxSimplificationError = 5;

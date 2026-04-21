@@ -5,7 +5,7 @@
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetProperties, 5, ezRTTIDefaultAllocator<ezMeshAssetProperties>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetProperties, 6, ezRTTIDefaultAllocator<ezMeshAssetProperties>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -35,6 +35,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetProperties, 5, ezRTTIDefaultAllocator
     EZ_MEMBER_PROPERTY("SimplifyMesh", m_bSimplifyMesh),
     EZ_MEMBER_PROPERTY("MeshSimplification", m_uiMeshSimplification)->AddAttributes(new ezDefaultValueAttribute(50), new ezClampValueAttribute(1, 100)),
     EZ_MEMBER_PROPERTY("MaxSimplificationError", m_uiMaxSimplificationError)->AddAttributes(new ezDefaultValueAttribute(5), new ezClampValueAttribute(1, 100)),
+    EZ_MEMBER_PROPERTY("NormalWeight", m_fNormalWeight)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1000.0f)),
     EZ_MEMBER_PROPERTY("AggressiveSimplification", m_bAggressiveSimplification),
   }
   EZ_END_PROPERTIES;
@@ -90,6 +91,7 @@ void ezMeshAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEve
 
     props["MeshSimplification"].m_Visibility = bSimplify ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
     props["MaxSimplificationError"].m_Visibility = bSimplify ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["NormalWeight"].m_Visibility = bSimplify ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
     props["AggressiveSimplification"].m_Visibility = bSimplify ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
 
     const ezInt64 importTransform = e.m_pObject->GetTypeAccessor().GetValue("ImportTransform").ConvertTo<ezInt64>();

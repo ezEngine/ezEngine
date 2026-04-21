@@ -50,6 +50,7 @@ namespace ezModelImporter2
 
     ezUInt8 m_uiMeshSimplification = 0;
     ezUInt8 m_uiMaxSimplificationError = 5;
+    float m_fNormalWeight = 0.5f;
     bool m_bAggressiveSimplification = false;
 
     // Adjustments to deal with bad data:

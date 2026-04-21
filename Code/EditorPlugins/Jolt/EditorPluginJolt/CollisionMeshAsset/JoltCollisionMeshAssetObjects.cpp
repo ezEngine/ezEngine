@@ -29,7 +29,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezJoltConvexCollisionMeshType, 1)
   EZ_ENUM_CONSTANT(ezJoltConvexCollisionMeshType::ConvexHullGroup),
 EZ_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezJoltCollisionMeshAssetProperties, 2, ezRTTIDefaultAllocator<ezJoltCollisionMeshAssetProperties>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezJoltCollisionMeshAssetProperties, 3, ezRTTIDefaultAllocator<ezJoltCollisionMeshAssetProperties>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -54,6 +54,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezJoltCollisionMeshAssetProperties, 2, ezRTTIDef
     EZ_MEMBER_PROPERTY("SimplifyMesh", m_bSimplifyMesh),
     EZ_MEMBER_PROPERTY("MeshSimplification", m_uiMeshSimplification)->AddAttributes(new ezDefaultValueAttribute(50), new ezClampValueAttribute(1, 100)),
     EZ_MEMBER_PROPERTY("MaxSimplificationError", m_uiMaxSimplificationError)->AddAttributes(new ezDefaultValueAttribute(20), new ezClampValueAttribute(1, 100)),
+    EZ_MEMBER_PROPERTY("NormalWeight", m_fNormalWeight)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1000.0f)),
     EZ_MEMBER_PROPERTY("AggressiveSimplification", m_bAggressiveSimplification),
   }
   EZ_END_PROPERTIES;
@@ -89,6 +90,7 @@ void ezJoltCollisionMeshAssetProperties::PropertyMetaStateEventHandler(ezPropert
   props["SimplifyMesh"].m_Visibility = ezPropertyUiState::Invisible;
   props["MeshSimplification"].m_Visibility = ezPropertyUiState::Invisible;
   props["MaxSimplificationError"].m_Visibility = ezPropertyUiState::Invisible;
+  props["NormalWeight"].m_Visibility = ezPropertyUiState::Invisible;
   props["AggressiveSimplification"].m_Visibility = ezPropertyUiState::Invisible;
   props["Surface"].m_Visibility = ezPropertyUiState::Invisible;
 
@@ -108,6 +110,7 @@ void ezJoltCollisionMeshAssetProperties::PropertyMetaStateEventHandler(ezPropert
 
     props["MeshSimplification"].m_Visibility = bSimplify ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
     props["MaxSimplificationError"].m_Visibility = bSimplify ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["NormalWeight"].m_Visibility = bSimplify ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
     props["AggressiveSimplification"].m_Visibility = bSimplify ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
   }
   else
