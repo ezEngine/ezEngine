@@ -51,12 +51,19 @@ namespace ezModelImporter2
     }
     else
     {
-      const float nrm_weight = m_Options.m_fNormalWeight;
-      const float attr_weights[3] = {nrm_weight, nrm_weight, nrm_weight};
+      if (pMesh->HasNormals())
+      {
+        const float nrm_weight = m_Options.m_fNormalWeight;
+        const float attr_weights[3] = {nrm_weight, nrm_weight, nrm_weight};
 
-      numNewIndices = meshopt_simplifyWithAttributes(simplifiedIndices.GetData(), indices.GetData(), numIndices, &pMesh->mVertices[0].x, pMesh->mNumVertices, sizeof(aiVector3D),
-        &pMesh->mNormals[0].x, sizeof(aiVector3D), attr_weights, 3, NULL,
-        numTargetIndices, fTargetError, 0, &err);
+        numNewIndices = meshopt_simplifyWithAttributes(simplifiedIndices.GetData(), indices.GetData(), numIndices, &pMesh->mVertices[0].x, pMesh->mNumVertices, sizeof(aiVector3D),
+          &pMesh->mNormals[0].x, sizeof(aiVector3D), attr_weights, 3, NULL,
+          numTargetIndices, fTargetError, 0, &err);
+      }
+      else
+      {
+        numNewIndices = meshopt_simplify(simplifiedIndices.GetData(), indices.GetData(), numIndices, &pMesh->mVertices[0].x, pMesh->mNumVertices, sizeof(aiVector3D), numTargetIndices, fTargetError, 0, &err);
+      }
 
       simplifiedIndices.SetCount(static_cast<ezUInt32>(numNewIndices));
     }
