@@ -76,7 +76,6 @@ namespace ezInternal
 #endif
 
     static_assert(sizeof(ezGameObject) == 128);
-    static_assert(sizeof(QueuedMsgMetaData) == 16);
     static_assert(EZ_COMPONENT_TYPE_INDEX_BITS <= sizeof(ezWorldModuleTypeId) * 8);
 
     auto pDefaultInitBatch = EZ_NEW(&m_Allocator, InitBatch, &m_Allocator, "Default", true);
@@ -185,10 +184,10 @@ namespace ezInternal
         MessageQueue& queue = m_TimedMessageQueues[i];
         while (!queue.IsEmpty())
         {
-          MessageQueue::Entry& entry = queue.Peek();
+          auto& entry = queue.PeekFront();
           EZ_DELETE(&m_Allocator, entry.m_pMessage);
 
-          queue.Dequeue();
+          queue.PopFront();
         }
       }
     }

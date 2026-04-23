@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Foundation/Communication/MessageQueue.h>
+#include <Foundation/Communication/Message.h>
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Math/Random.h>
 #include <Foundation/Memory/FrameAllocator.h>
@@ -208,14 +208,17 @@ namespace ezInternal
     ezClock m_Clock;
     ezRandom m_Random;
 
-    struct QueuedMsgMetaData
+    struct QueuedMsg
     {
       EZ_DECLARE_POD_TYPE();
 
-      EZ_ALWAYS_INLINE QueuedMsgMetaData()
+      EZ_ALWAYS_INLINE QueuedMsg()
         : m_uiReceiverData(0)
       {
       }
+
+      ezMessage* m_pMessage = nullptr;
+      mutable ezUInt64 m_uiMessageHash = 0;
 
       union
       {
@@ -232,10 +235,12 @@ namespace ezInternal
       ezTime m_Due;
     };
 
-    using MessageQueue = ezMessageQueue<QueuedMsgMetaData, ezLocalAllocatorWrapper>;
+    using MessageQueue = ezDeque<QueuedMsg, ezLocalAllocatorWrapper>;
+    mutable ezMutex m_MessageQueueMutex[ezObjectMsgQueueType::COUNT];
     mutable MessageQueue m_MessageQueues[ezObjectMsgQueueType::COUNT];
+    mutable MessageQueue m_MessageProcessingQueues[ezObjectMsgQueueType::COUNT];
     mutable MessageQueue m_TimedMessageQueues[ezObjectMsgQueueType::COUNT];
-    ezObjectMsgQueueType::Enum m_ProcessingMessageQueue = ezObjectMsgQueueType::COUNT;
+    ezTime m_MessageTime; // Used to determine when delayed messages are due. Advanced with the world clock when the simulation is running, otherwise the global clock is used.
 
     ezThreadID m_WriteThreadID;
     ezInt32 m_iWriteCounter = 0;

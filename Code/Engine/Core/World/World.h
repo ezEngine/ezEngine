@@ -418,8 +418,10 @@ private:
   void SetObjectGlobalKey(ezGameObject* pObject, const ezHashedString& sGlobalKey);
   ezStringView GetObjectGlobalKey(const ezGameObject* pObject) const;
 
+  using QueuedMsg = ezInternal::WorldData::QueuedMsg;
   void PostMessage(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay, bool bRecursive) const;
-  void ProcessQueuedMessage(const ezInternal::WorldData::MessageQueue::Entry& entry);
+  void UpdateMessageTime();
+  void ProcessQueuedMessage(const QueuedMsg& entry);
   void ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType);
 
   template <typename World, typename GameObject, typename Component>
@@ -464,8 +466,6 @@ private:
   ezSharedPtr<ezTask> m_pUpdateTask;
 
   ezInternal::WorldData m_Data;
-
-  using QueuedMsgMetaData = ezInternal::WorldData::QueuedMsgMetaData;
 
   ezUInt32 m_uiIndex;
   static ezStaticArray<ezWorld*, EZ_MAX_WORLDS> s_Worlds;
