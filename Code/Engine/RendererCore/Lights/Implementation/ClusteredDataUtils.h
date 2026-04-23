@@ -211,7 +211,7 @@ namespace
       const ezVec3 cookieRightDir = pSpotLightRenderData->m_qGlobalRotation * ezVec3(0, fScale, 0);
 
       // Set bit 15 as marker bit to indicate that we have a cookie.
-      // The shader checks for cookieParams0 != 0 which would not work in case the cookie id is 0 and rightDir.z is 0 as well.
+      // The shader checks for (cookieParams0 & 0xFFFF) != 0 which would not work in case the cookie id is 0.
       out_perLightData.cookieParams0 = (pSpotLightRenderData->m_CookieId.m_InstanceIndex & 0x7FFF) | (1 << 15) | (ezFloat16(cookieRightDir.z).GetRawData() << 16);
       out_perLightData.cookieParams1 = ezShaderUtils::Float2ToRG16F(cookieRightDir.GetAsVec2());
     }

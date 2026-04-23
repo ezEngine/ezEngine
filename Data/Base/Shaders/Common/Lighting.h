@@ -703,7 +703,7 @@ AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clus
         attenuation *= lightData.intensity;
         float3 lightColor = GetLightColor(lightData);
 
-        if (lightData.cookieParams0 != 0)
+        if ((lightData.cookieParams0 & 0xFFFF) != 0)
         {
           lightColor *= SampleLightCookie(lightData, matData.worldPosition);
         }

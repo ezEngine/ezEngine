@@ -211,6 +211,11 @@ float3 CalculateParticleLighting(float4 screenPosition, float3 worldPosition, fl
         attenuation *= lightData.intensity;
         float3 lightColor = RGB8ToFloat3(lightData.colorAndType);
 
+        if ((lightData.cookieParams0 & 0xFFFF) != 0)
+        {
+          lightColor *= SampleLightCookie(lightData, worldPosition);
+        }
+
         totalLight += lightColor * (attenuation * shadowTerm);
       }
     }
