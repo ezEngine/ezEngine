@@ -133,6 +133,9 @@ void ezWorld::Clear()
   DeleteDeadComponents();
 
   ezEventMessageHandlerComponent::ClearGlobalEventHandlersForWorld(this);
+
+  // reset the message time
+  m_Data.m_MessageTime = ezTime::MakeZero();
 }
 
 void ezWorld::SetCoordinateSystemProvider(const ezSharedPtr<ezCoordinateSystemProvider>& pProvider)
@@ -803,13 +806,15 @@ void ezWorld::SetObjectGlobalKey(ezGameObject* pObject, const ezHashedString& sG
   if (auto it = m_Data.m_GlobalKeyToIdTable.Find(sGlobalKey.GetHash()); it.IsValid())
   {
     if (it.Value() == pObject->m_InternalId) // same object, same global key ?
+    {
       return;
+    }
 
-                                             // we allow overwriting a global key to a different object here
-      // so that we can delete an object in a frame and spawn a new one in the same frame, that takes over
-      // due to the delayed deletion at the end of the frame, this would otherwise not work
-      // the only work-around would be to manually clear the global key before deleting an object
-      // but that would effectively do the same as this, it's just more complicated for the user
+    // we allow overwriting a global key to a different object here
+    // so that we can delete an object in a frame and spawn a new one in the same frame, that takes over
+    // due to the delayed deletion at the end of the frame, this would otherwise not work
+    // the only work-around would be to manually clear the global key before deleting an object
+    // but that would effectively do the same as this, it's just more complicated for the user
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
     ezLog::Warning("An object with the global key '{}' already exists. Overwriting with different object reference.", sGlobalKey);
