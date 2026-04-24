@@ -137,12 +137,15 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
 
   if (m_PendingReadback.m_bReadbackInProgress)
   {
-    // Wait for results
+    // Poll the readback non-blockingly (4ms budget). If the results aren't ready yet, bail out
+    // and try again next frame, rather than stalling the editor process on the GPU.
     {
-      ezEnum<ezGALAsyncResult> res = m_PendingReadback.m_PickingReadback.GetReadbackResult(ezTime::MakeFromHours(1));
-      EZ_ASSERT_ALWAYS(res == ezGALAsyncResult::Ready, "Readback of texture failed");
-      res = m_PendingReadback.m_PickingDepthReadback.GetReadbackResult(ezTime::MakeFromHours(1));
-      EZ_ASSERT_ALWAYS(res == ezGALAsyncResult::Ready, "Readback of texture failed");
+      if (m_PendingReadback.m_PickingReadback.GetReadbackResult(ezTime::MakeFromMilliseconds(4)) != ezGALAsyncResult::Ready)
+        return;
+
+      if (m_PendingReadback.m_PickingDepthReadback.GetReadbackResult(ezTime::MakeFromMilliseconds(4)) != ezGALAsyncResult::Ready)
+        return;
+
       m_PendingReadback.m_bReadbackInProgress = false;
     }
 

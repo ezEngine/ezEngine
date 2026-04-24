@@ -74,6 +74,7 @@ void ezSkeletonComponent::Update()
     const ezVec3 vBoneDir = qBoneDir * ezVec3(1, 0, 0);
     const ezVec3 vBoneTangent = qBoneDir * ezVec3(0, 1, 0);
 
+    ezDebugRenderer::DrawLinesOccluded(GetWorld(), m_LinesSkeleton, ezColor::White, GetOwner()->GetGlobalTransform());
     ezDebugRenderer::DrawLines(GetWorld(), m_LinesSkeleton, ezColor::White, GetOwner()->GetGlobalTransform());
 
     for (const auto& shape : m_SpheresShapes)

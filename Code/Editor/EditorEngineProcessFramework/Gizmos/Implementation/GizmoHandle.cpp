@@ -30,6 +30,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEngineGizmoHandle, 1, ezRTTIDefaultAllocator<e
     EZ_MEMBER_PROPERTY("Ortho", m_bShowInOrtho),
     EZ_MEMBER_PROPERTY("Pickable", m_bIsPickable),
     EZ_MEMBER_PROPERTY("FaceCam", m_bFaceCamera),
+    EZ_ARRAY_MEMBER_PROPERTY("Lines", m_Lines),
   }
   EZ_END_PROPERTIES;
 }
@@ -691,6 +692,11 @@ bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextCompone
       hMeshBuffer = CreateMeshBufferFromFile(m_sGizmoHandleMesh);
     }
     break;
+
+    case ezEngineGizmoHandleType::CustomLines:
+      // no mesh needed, OnMsgExtractRenderData in ezGizmoComponent handles this case
+      break;
+
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
   }
@@ -722,35 +728,36 @@ bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextCompone
   }
 
   ezGizmoComponent::CreateComponent(pObject, m_pGizmoComponent);
+  m_pGizmoComponent->m_GizmoColor = m_Color;
+  m_pGizmoComponent->m_bIsPickable = m_bIsPickable;
+  m_pGizmoComponent->SetUniqueID(uiNextComponentPickingID);
 
-
-  ezMeshResourceHandle hMesh;
-
-  if (m_bVisualizer)
+  if (hMeshBuffer.IsValid())
   {
-    hMesh = CreateMeshResource(szMeshGuid, hMeshBuffer, "Editor/Materials/Visualizer.ezMaterial");
-  }
-  else if (m_bConstantSize)
-  {
-    if (m_bFaceCamera)
+    ezMeshResourceHandle hMesh;
+
+    if (m_bVisualizer)
     {
-      hMesh = CreateMeshResource(szMeshGuid, hMeshBuffer, "Editor/Materials/GizmoHandleConstantSizeCamFacing.ezMaterial");
+      hMesh = CreateMeshResource(szMeshGuid, hMeshBuffer, "Editor/Materials/Visualizer.ezMaterial");
+    }
+    else if (m_bConstantSize)
+    {
+      if (m_bFaceCamera)
+      {
+        hMesh = CreateMeshResource(szMeshGuid, hMeshBuffer, "Editor/Materials/GizmoHandleConstantSizeCamFacing.ezMaterial");
+      }
+      else
+      {
+        hMesh = CreateMeshResource(szMeshGuid, hMeshBuffer, "Editor/Materials/GizmoHandleConstantSize.ezMaterial");
+      }
     }
     else
     {
-      hMesh = CreateMeshResource(szMeshGuid, hMeshBuffer, "Editor/Materials/GizmoHandleConstantSize.ezMaterial");
+      hMesh = CreateMeshResource(szMeshGuid, hMeshBuffer, "Editor/Materials/GizmoHandle.ezMaterial");
     }
-  }
-  else
-  {
-    hMesh = CreateMeshResource(szMeshGuid, hMeshBuffer, "Editor/Materials/GizmoHandle.ezMaterial");
-  }
 
-  m_pGizmoComponent->m_GizmoColor = m_Color;
-  m_pGizmoComponent->m_bIsPickable = m_bIsPickable;
-  m_pGizmoComponent->SetMesh(hMesh);
-
-  m_pGizmoComponent->SetUniqueID(uiNextComponentPickingID);
+    m_pGizmoComponent->SetMesh(hMesh);
+  }
 
   return true;
 }
@@ -770,10 +777,17 @@ void ezEngineGizmoHandle::UpdateForEngine(ezWorld* pWorld)
 
   m_pGizmoComponent->m_GizmoColor = m_Color;
   m_pGizmoComponent->SetActiveFlag(m_bVisible);
+  m_pGizmoComponent->m_Lines = m_Lines;
 }
 
 void ezEngineGizmoHandle::SetColor(const ezColor& col)
 {
   m_Color = col;
+  SetModified();
+}
+
+void ezEngineGizmoHandle::SetLines(ezArrayPtr<const ezVec3> lines)
+{
+  m_Lines = lines;
   SetModified();
 }

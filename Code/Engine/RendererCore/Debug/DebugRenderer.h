@@ -141,6 +141,14 @@ public:
   /// \brief Renders the given set of lines for one frame.
   static void DrawLines(const ezDebugRendererContext& context, ezArrayPtr<const ezDebugRendererLine> lines, const ezColor& color, ezMatOrTransform mTransform = ezMat4::MakeIdentity());
 
+  /// \brief Renders lines that are always visible on top of all geometry (no depth test), with distance-based fade-out.
+  ///
+  /// Useful for showing lines through walls. To get distinct colors for visible vs. occluded portions, additionally
+  /// call DrawLines() with the same lines but a different color: the depth-tested DrawLines() result overrides
+  /// the always-on-top DrawLinesOccluded() result wherever the lines are not occluded.
+  /// Rendering of the occluded layer can be disabled globally via the CVar 'Debug.RenderOccluded'.
+  static void DrawLinesOccluded(const ezDebugRendererContext& context, ezArrayPtr<const ezDebugRendererLine> lines, const ezColor& color, ezMatOrTransform mTransform = ezMat4::MakeIdentity());
+
   /// \brief Renders the given set of lines in 2D (screen-space) for one frame.
   static void Draw2DLines(const ezDebugRendererContext& context, ezArrayPtr<const ezDebugRendererLine> lines, const ezColor& color);
 

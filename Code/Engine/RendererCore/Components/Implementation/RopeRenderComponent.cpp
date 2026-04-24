@@ -158,6 +158,7 @@ void ezRopeRenderComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
       z.m_endColor = ezColor::Blue;
     }
 
+    ezDebugRenderer::DrawLinesOccluded(msg.m_pView->GetHandle(), lines, ezColor::White.GetDarker(), GetOwner()->GetGlobalTransform());
     ezDebugRenderer::DrawLines(msg.m_pView->GetHandle(), lines, ezColor::White, GetOwner()->GetGlobalTransform());
   }
 }

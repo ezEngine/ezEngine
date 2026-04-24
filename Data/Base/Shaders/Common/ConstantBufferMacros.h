@@ -55,16 +55,29 @@ float3x3 TransformToRotation(Transform t)
 // #  define COLOR4UB(Name) uint Name // TODO: this doesn't actually work
 #  define BOOL1(Name) bool Name
 
-// The types below are not supported for material constants
-#  define PACKEDHALF2(Name1, Name2, CombinedName) uint CombinedName
-#  define PACKEDCOLOR4H(Name)    \
-    uint EZ_PP_CONCAT(Name, RG); \
-    uint EZ_PP_CONCAT(Name, GB)
+// ### The types below are not supported for material constants ###
 
+#  define PACKEDHALF2(Name1, Name2, CombinedName) uint CombinedName
 #  define UNPACKHALF2(Name1, Name2, CombinedName) \
     float Name1 = f16tof32(CombinedName);         \
     float Name2 = f16tof32(CombinedName >> 16)
+
+#  define PACKEDCOLOR4H(Name)    \
+    uint EZ_PP_CONCAT(Name, RG); \
+    uint EZ_PP_CONCAT(Name, GB)
 #  define UNPACKCOLOR4H(Name) RGBA16FToFloat4(EZ_PP_CONCAT(Name, RG), EZ_PP_CONCAT(Name, GB))
+
+#  define PACKEDUINT16(Name1, Name2, CombinedName) uint CombinedName
+#  define UNPACKUINT16(Name1, Name2, CombinedName) \
+    uint Name1 = CombinedName & 0xFFFF;            \
+    uint Name2 = CombinedName >> 16
+
+#  define PACKEDUINT8(Name1, Name2, Name3, Name4, CombinedName) uint CombinedName
+#  define UNPACKUINT8(Name1, Name2, Name3, Name4, CombinedName) \
+    uint Name1 = CombinedName & 0xFF;                           \
+    uint Name2 = (CombinedName >> 8) & 0xFF;                    \
+    uint Name3 = (CombinedName >> 16) & 0xFF;                   \
+    uint Name4 = (CombinedName >> 24) & 0xFF
 
 #else
 
@@ -95,11 +108,24 @@ float3x3 TransformToRotation(Transform t)
 #  define MAT4(Name) ezShaderMat4 Name
 #  define TRANSFORM(Name) ezShaderTransform Name
 #  define COLOR4F(Name) ezColor Name
+
 // #  define COLOR4UB(Name) ezColorGammaUB Name // TODO: this doesn't actually work (in the shader)
+
 #  define BOOL1(Name) ezShaderBool Name
+
 #  define PACKEDHALF2(Name1, Name2, CombinedName) \
     ezFloat16 Name1;                              \
     ezFloat16 Name2
 #  define PACKEDCOLOR4H(Name) ezColorLinear16f Name
+
+#  define PACKEDUINT16(Name1, Name2, CombinedName) \
+    ezUInt16 Name1;                                \
+    ezUInt16 Name2
+
+#  define PACKEDUINT8(Name1, Name2, Name3, Name4, CombinedName) \
+    ezUInt8 Name1;                                              \
+    ezUInt8 Name2;                                              \
+    ezUInt8 Name3;                                              \
+    ezUInt8 Name4
 
 #endif

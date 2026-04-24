@@ -295,6 +295,7 @@ void ezRaycastComponent::Update()
   if (false)
   {
     ezDebugRendererLine lines[] = {{rayStartPosition, vNewPos}};
+    ezDebugRenderer::DrawLinesOccluded(GetWorld(), lines, ezColor::GreenYellow.GetDarker());
     ezDebugRenderer::DrawLines(GetWorld(), lines, ezColor::GreenYellow);
   }
 }

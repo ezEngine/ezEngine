@@ -57,6 +57,7 @@ enum ezEngineGizmoHandleType
   Frustum,
   Cross,
   FromFile,
+  CustomLines,
 };
 
 struct ezGizmoFlags
@@ -102,6 +103,7 @@ public:
   virtual void UpdateForEngine(ezWorld* pWorld) override;
 
   void SetColor(const ezColor& col);
+  void SetLines(ezArrayPtr<const ezVec3> lines);
 
 protected:
   bool m_bConstantSize = true;
@@ -116,4 +118,5 @@ protected:
   ezGizmoComponent* m_pGizmoComponent = nullptr;
   ezColor m_Color = ezColor::CornflowerBlue; /* The Original! */
   ezWorld* m_pWorld = nullptr;
+  ezDynamicArray<ezVec3> m_Lines;
 };

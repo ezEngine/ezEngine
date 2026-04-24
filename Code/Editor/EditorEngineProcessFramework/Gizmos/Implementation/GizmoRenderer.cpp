@@ -53,6 +53,11 @@ void ezGizmoRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
 
   const ezGizmoRenderData* pRenderData = batch.GetFirstData<ezGizmoRenderData>();
 
+  // Mesh-less gizmos (e.g. CustomLines) render their geometry via ezDebugRenderer inside the
+  // component's extraction callback, so there is nothing to do here.
+  if (!pRenderData->m_hMesh.IsValid())
+    return;
+
   const ezMeshResourceHandle& hMesh = pRenderData->m_hMesh;
   const ezMaterialResourceHandle& hMaterial = pRenderData->m_hMaterial;
   ezUInt32 uiSubMeshIndex = pRenderData->m_uiSubMeshIndex;

@@ -46,6 +46,7 @@ void ezLineToComponent::Update()
   line.m_start = GetOwner()->GetGlobalPosition();
   line.m_end = pTarget->GetGlobalPosition();
 
+  ezDebugRenderer::DrawLinesOccluded(GetWorld(), lines, m_LineColor.GetDarker());
   ezDebugRenderer::DrawLines(GetWorld(), lines, m_LineColor);
 }
 

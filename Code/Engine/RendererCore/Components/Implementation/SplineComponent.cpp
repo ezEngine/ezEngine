@@ -553,7 +553,7 @@ void ezSplineComponent::DrawDebugVisualizations(ezBitflags<ezSplineComponentFlag
   const bool bVisUp = flags.IsSet(ezSplineComponentFlags::VisualizeUpDir);
 
   ezTempHybridArray<ezDebugRendererLine, 32> lines;
-  ezColor c = ezColorScheme::DarkUI(ezColorScheme::Red);
+  ezColor c = ezColorScheme::LightUI(ezColorScheme::Pink);
   ezColor cUp = ezColorScheme::LightUI(ezColorScheme::Blue);
 
   ezVec3 lastPos = GetPositionAtKey(0);
@@ -592,6 +592,7 @@ void ezSplineComponent::DrawDebugVisualizations(ezBitflags<ezSplineComponentFlag
     fLastKey = fKey;
   }
 
+  ezDebugRenderer::DrawLinesOccluded(GetWorld(), lines, ezColor::White.GetDarker(), GetOwner()->GetGlobalTransform());
   ezDebugRenderer::DrawLines(GetWorld(), lines, ezColor::White, GetOwner()->GetGlobalTransform());
 
   const bool bVisTangents = flags.IsSet(ezSplineComponentFlags::VisualizeTangents);
@@ -686,6 +687,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSplineNodeComponent, 1, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Utilities/Splines"),
+    new ezShapeIconAlwaysVisibleAttribute(),
     new ezSplineTangentManipulatorAttribute("TangentModeIn", "CustomTangentIn"),
     new ezSplineTangentManipulatorAttribute("TangentModeOut", "CustomTangentOut"),
     new ezSplineManipulatorAttribute("EditNodes", "Closed"),

@@ -11,11 +11,17 @@ TWO_SIDED = FALSE
 FLIP_WINDING = FALSE
 CAMERA_MODE
 SHADING_MODE = SHADING_MODE_FULLBRIGHT
+PREPARE_DEPTH
 
 [RENDERSTATE]
 
 #include <Shaders/Materials/MaterialState.h>
 WireFrame = false
+
+#if SHAPE_ICON && PREPARE_DEPTH
+  DepthTest = false
+  DepthWrite = false
+#endif
 
 [SHADER]
 
@@ -92,6 +98,10 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
   Output.TexCoord0 = texCoords * texCoordScale + texCoordOffset;
   Output.Color0 = RGBA16FToFloat4(data.ColorRG, data.ColorBA);
 
+#if PREPARE_DEPTH && SHAPE_ICON
+  Output.Color0 = float4(0.12, 0.12, 0.15, 0);
+#endif
+
   #if defined(USE_GAME_OBJECT_ID)
     Output.GameObjectID = data.GameObjectID;
   #endif
@@ -106,6 +116,11 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
 #endif
 
 #include <Shaders/Materials/MaterialHelper.h>
+
+float interleavedGradientNoise(float2 fragCoord) {
+    float3 magic = float3(0.06711056, 0.00583715, 52.9829189);
+    return frac(magic.z * frac(dot(fragCoord, magic.xy)));
+}
 
 struct PS_OUT
 {
@@ -123,7 +138,7 @@ SamplerState SpriteTexture_AutoSampler BIND_GROUP(BG_DRAW_CALL);
 
 float GetOpacity()
 {
-  float opacity = SpriteTexture.Sample(SpriteTexture_AutoSampler, G.Input.TexCoord0.xy).a * G.Input.Color0.a;
+  float opacity = SpriteTexture.Sample(SpriteTexture_AutoSampler, G.Input.TexCoord0.xy).a;
 
   #if BLEND_MODE == BLEND_MODE_MASKED
     return opacity - 0.5;
@@ -146,14 +161,28 @@ PS_OUT main(PS_IN Input)
     discard;
   }
 
+#if SHAPE_ICON && PREPARE_DEPTH
+  {
+     // fade out after some distance
+    float viewDist = Input.Position.w;
+    const float fadeStart = 75.0;
+    const float fadeDist = 10.0;
+    float fade = saturate(1.0 - (viewDist - fadeStart) / fadeDist);
+    if (interleavedGradientNoise(Input.Position.xy) > fade)
+    {
+      discard;
+    }
+  }
+#endif
+
   float4 color = SpriteTexture.Sample(SpriteTexture_AutoSampler, Input.TexCoord0.xy);
 
 #if SHAPE_ICON
   float3 tintedColor = saturate(color.rgb * Input.Color0.rgb * 2.0);
-  float factor = saturate(GetLuminance(color.rgb) * 3.0 - 2.0);
+  float factor = saturate(GetLuminance(color.rgb * Input.Color0.a) * 3.0 - 2.0);
   color.rgb = lerp(tintedColor, 1.0, factor);
 #else
-  color *= Input.Color0;
+  color.rgb *= Input.Color0.rgb;
 #endif
 
   PS_OUT Output;

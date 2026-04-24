@@ -3,7 +3,9 @@
 #include <EnginePluginScene/RenderPipeline/EditorShapeIconsExtractor.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/TypeVersionContext.h>
+#include <Foundation/Reflection/Implementation/PropertyAttributes.h>
 #include <RendererCore/Components/SpriteComponent.h>
+#include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererCore/Pipeline/View.h>
 
@@ -131,7 +133,7 @@ void ezEditorShapeIconsExtractor::ExtractShapeIcon(const ezGameObject* pObject, 
     {
       pRenderData->m_hTexture = pShapeIconInfo->m_hTexture;
       pRenderData->m_fSize = m_fSize;
-      pRenderData->m_fMaxScreenSize = m_fMaxScreenSize;
+      pRenderData->m_fMaxScreenSize = m_fMaxScreenSize * ezDebugRenderer::GetTextScale();
       pRenderData->m_fAspectRatio = 1.0f;
       pRenderData->m_BlendMode = ezSpriteBlendMode::ShapeIcon;
       pRenderData->m_texCoordScale = ezVec2(1.0f);
@@ -157,7 +159,13 @@ void ezEditorShapeIconsExtractor::ExtractShapeIcon(const ezGameObject* pObject, 
       pRenderData->FillSortingKey();
     }
 
-    extractedRenderData.AddRenderData(pRenderData, category);
+    ezRenderData::Category effectiveCategory = category;
+    if (pShapeIconInfo->m_bAlwaysVisible && category == ezDefaultRenderDataCategories::SimpleOpaque)
+    {
+      effectiveCategory = ezDefaultRenderDataCategories::SimpleForeground;
+    }
+
+    extractedRenderData.AddRenderData(pRenderData, effectiveCategory);
   }
 }
 
@@ -214,6 +222,11 @@ void ezEditorShapeIconsExtractor::FillShapeIconInfo()
         if (auto pCatAttribute = pRtti->GetAttributeByType<ezCategoryAttribute>())
         {
           shapeIconInfo.m_FallbackColor = ezColorScheme::GetCategoryColor(pCatAttribute->GetCategory(), ezColorScheme::CategoryColorUsage::ViewportIcon);
+        }
+
+        if (pRtti->GetAttributeByType<ezShapeIconAlwaysVisibleAttribute>() != nullptr)
+        {
+          shapeIconInfo.m_bAlwaysVisible = true;
         }
       }
     });

@@ -19,6 +19,9 @@ EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezDependencyFlags, 1)
 EZ_BITFLAGS_CONSTANTS(ezDependencyFlags::Package, ezDependencyFlags::Thumbnail, ezDependencyFlags::Transform)
 EZ_END_STATIC_REFLECTED_BITFLAGS;
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShapeIconAlwaysVisibleAttribute, 1, ezRTTIDefaultAllocator<ezShapeIconAlwaysVisibleAttribute>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCategoryAttribute, 1, ezRTTIDefaultAllocator<ezCategoryAttribute>)
 {
   EZ_BEGIN_PROPERTIES
@@ -974,6 +977,40 @@ ezConeVisualizerAttribute::ezConeVisualizerAttribute(ezEnum<ezBasisAxis> axis, c
   , m_Axis(axis)
   , m_Color(fixedColor)
   , m_fScale(fScale)
+{
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRoundedRectVisualizerAttribute, 1, ezRTTIDefaultAllocator<ezRoundedRectVisualizerAttribute>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("InnerColor", m_InnerColor),
+    EZ_MEMBER_PROPERTY("OuterColor", m_OuterColor),
+    EZ_MEMBER_PROPERTY("Offset", m_vOffset),
+  }
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*, const char*, const ezColor&, const char*, const ezColor&, ezVec3),
+  }
+  EZ_END_FUNCTIONS;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezRoundedRectVisualizerAttribute::ezRoundedRectVisualizerAttribute()
+  : ezVisualizerAttribute(nullptr)
+{
+}
+
+ezRoundedRectVisualizerAttribute::ezRoundedRectVisualizerAttribute(const char* szHalfSizeXProp, const char* szHalfSizeYProp, const char* szInnerRadiusProp, const ezColor& innerColor, const char* szOuterRadiusProp, const ezColor& outerColor, ezVec3 vLocalOffset)
+  : ezVisualizerAttribute(szHalfSizeXProp, szHalfSizeYProp, szInnerRadiusProp, szOuterRadiusProp)
+  , m_InnerColor(innerColor)
+  , m_OuterColor(outerColor)
+  , m_vOffset(vLocalOffset)
 {
 }
 

@@ -445,6 +445,7 @@ void ezAiNavigation::DebugDrawPathLine(const ezDebugRendererContext& context, ez
       vStart = vthis;
     }
 
+    ezDebugRenderer::DrawLinesOccluded(context, lines, straightLineColor.GetDarker());
     ezDebugRenderer::DrawLines(context, lines, straightLineColor);
   }
 }

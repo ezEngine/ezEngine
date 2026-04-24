@@ -17,6 +17,7 @@
 #include <RendererFoundation/Shader/Types.h>
 
 ezCVarFloat cvar_AppTextScale("App.TextScale", 1.0f, ezCVarFlags::Save, "Global scale for debug text");
+ezCVarBool cvar_DebugRenderOccluded("Debug.RenderOccluded", true, ezCVarFlags::Save, "Also render debug geometry behind opaque surfaces, dimmed.");
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -113,6 +114,7 @@ namespace
   struct PerContextData
   {
     ezDynamicArray<Vertex, ezAlignedAllocatorWrapper> m_lineVertices;
+    ezDynamicArray<Vertex, ezAlignedAllocatorWrapper> m_lineOccludedVertices;
     ezDynamicArray<Vertex, ezAlignedAllocatorWrapper> m_triangleVertices;
     ezDynamicArray<Vertex, ezAlignedAllocatorWrapper> m_triangle2DVertices;
     ezDynamicArray<Vertex, ezAlignedAllocatorWrapper> m_line2DVertices;
@@ -168,6 +170,7 @@ namespace
       if (pData)
       {
         pData->m_lineVertices.Clear();
+        pData->m_lineOccludedVertices.Clear();
         pData->m_line2DVertices.Clear();
         pData->m_lineBoxes.Clear();
         pData->m_solidBoxes.Clear();
@@ -503,6 +506,29 @@ void ezDebugRenderer::DrawLines(const ezDebugRendererContext& context, ezArrayPt
     for (ezUInt32 i = 0; i < 2; ++i)
     {
       auto& vertex = data.m_lineVertices.ExpandAndGetRef();
+      vertex.m_position = mTransform.m_Mat4.TransformPosition(pPositions[i]);
+      vertex.m_color = pColors[i] * color;
+    }
+  }
+}
+
+void ezDebugRenderer::DrawLinesOccluded(const ezDebugRendererContext& context, ezArrayPtr<const ezDebugRendererLine> lines, const ezColor& color, ezMatOrTransform mTransform /*= ezMat4::MakeIdentity()*/)
+{
+  if (lines.IsEmpty())
+    return;
+
+  EZ_LOCK(s_Mutex);
+
+  auto& data = GetDataForExtraction(context);
+
+  for (auto& line : lines)
+  {
+    const ezVec3* pPositions = &line.m_start;
+    const ezColor* pColors = &line.m_startColor;
+
+    for (ezUInt32 i = 0; i < 2; ++i)
+    {
+      auto& vertex = data.m_lineOccludedVertices.ExpandAndGetRef();
       vertex.m_position = mTransform.m_Mat4.TransformPosition(pPositions[i]);
       vertex.m_color = pColors[i] * color;
     }
@@ -1585,6 +1611,96 @@ void ezDebugRenderer::RenderInternalWorldSpace(const ezDebugRendererContext& con
   ezGALCommandEncoder* pGALCommandEncoder = renderViewContext.m_pRenderContext->GetCommandEncoder();
 
   ezBindGroupBuilder& bindGroupRenderPass = ezRenderContext::GetDefaultInstance()->GetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);
+
+  // 3D Lines that show through geometry (no depth test, distance fade).
+  // Rendered first so the depth-tested regular line buffer below can override the visible portions.
+  // Globally disabled via the CVar 'Debug.RenderOccluded'.
+  if (cvar_DebugRenderOccluded)
+  {
+    ezUInt32 uiNumLineVertices = pData->m_lineOccludedVertices.GetCount();
+    if (uiNumLineVertices != 0)
+    {
+      CreateVertexBuffer(BufferType::Lines, sizeof(Vertex));
+
+      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PRE_TRANSFORMED_VERTICES", "FALSE");
+      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("OCCLUDED_PASS", "TRUE");
+      renderViewContext.m_pRenderContext->BindShader(s_hDebugPrimitiveShader);
+
+      const Vertex* pLineData = pData->m_lineOccludedVertices.GetData();
+      while (uiNumLineVertices > 0)
+      {
+        ezGALBufferHandle hBuffer = s_DataBuffer[BufferType::Lines].GetNewBuffer();
+        const ezUInt32 uiNumLineVerticesInBatch = ezMath::Min<ezUInt32>(uiNumLineVertices, LINE_VERTICES_PER_BATCH);
+        EZ_ASSERT_DEV(uiNumLineVerticesInBatch % 2 == 0, "Vertex count must be a multiple of 2.");
+        pGALCommandEncoder->UpdateBuffer(hBuffer, 0, ezMakeArrayPtr(pLineData, uiNumLineVerticesInBatch).ToByteArray(), ezGALUpdateMode::AheadOfTime);
+
+        renderViewContext.m_pRenderContext->BindMeshBuffer(ezMakeArrayPtr(&hBuffer, 1), ezGALBufferHandle(), ezMakeArrayPtr(s_VertexAttributes), ezGALPrimitiveTopology::Lines, uiNumLineVerticesInBatch / 2);
+
+        renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
+
+        uiNumLineVertices -= uiNumLineVerticesInBatch;
+        pLineData += LINE_VERTICES_PER_BATCH;
+      }
+    }
+  }
+
+  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("OCCLUDED_PASS", "FALSE");
+
+  // 3D Lines without occlusion
+  {
+    ezUInt32 uiNumLineVertices = pData->m_lineVertices.GetCount();
+    if (uiNumLineVertices != 0)
+    {
+      CreateVertexBuffer(BufferType::Lines, sizeof(Vertex));
+
+      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PRE_TRANSFORMED_VERTICES", "FALSE");
+      renderViewContext.m_pRenderContext->BindShader(s_hDebugPrimitiveShader);
+
+      const Vertex* pLineData = pData->m_lineVertices.GetData();
+      while (uiNumLineVertices > 0)
+      {
+        ezGALBufferHandle hBuffer = s_DataBuffer[BufferType::Lines].GetNewBuffer();
+        const ezUInt32 uiNumLineVerticesInBatch = ezMath::Min<ezUInt32>(uiNumLineVertices, LINE_VERTICES_PER_BATCH);
+        EZ_ASSERT_DEV(uiNumLineVerticesInBatch % 2 == 0, "Vertex count must be a multiple of 2.");
+        pGALCommandEncoder->UpdateBuffer(hBuffer, 0, ezMakeArrayPtr(pLineData, uiNumLineVerticesInBatch).ToByteArray(), ezGALUpdateMode::AheadOfTime);
+
+        renderViewContext.m_pRenderContext->BindMeshBuffer(ezMakeArrayPtr(&hBuffer, 1), ezGALBufferHandle(), ezMakeArrayPtr(s_VertexAttributes), ezGALPrimitiveTopology::Lines, uiNumLineVerticesInBatch / 2);
+
+        renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
+
+        uiNumLineVertices -= uiNumLineVerticesInBatch;
+        pLineData += LINE_VERTICES_PER_BATCH;
+      }
+    }
+  }
+
+  // LineBoxes
+  {
+    ezUInt32 uiNumLineBoxes = pData->m_lineBoxes.GetCount();
+    if (uiNumLineBoxes != 0)
+    {
+      CreateDataBuffer(BufferType::LineBoxes, sizeof(BoxData));
+
+      renderViewContext.m_pRenderContext->BindShader(s_hDebugGeometryShader);
+
+      renderViewContext.m_pRenderContext->BindMeshBuffer(s_hLineBoxMeshBuffer);
+
+      const BoxData* pLineBoxData = pData->m_lineBoxes.GetData();
+      while (uiNumLineBoxes > 0)
+      {
+        ezGALBufferHandle hBuffer = s_DataBuffer[BufferType::LineBoxes].GetNewBuffer();
+        const ezUInt32 uiNumLineBoxesInBatch = ezMath::Min<ezUInt32>(uiNumLineBoxes, BOXES_PER_BATCH);
+        bindGroupRenderPass.BindBuffer("boxData", hBuffer);
+        pGALCommandEncoder->UpdateBuffer(hBuffer, 0, ezMakeArrayPtr(pLineBoxData, uiNumLineBoxesInBatch).ToByteArray(), ezGALUpdateMode::AheadOfTime);
+
+        renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiNumLineBoxesInBatch).IgnoreResult();
+
+        uiNumLineBoxes -= uiNumLineBoxesInBatch;
+        pLineBoxData += BOXES_PER_BATCH;
+      }
+    }
+  }
+
   // SolidBoxes
   {
     ezUInt32 uiNumSolidBoxes = pData->m_solidBoxes.GetCount();
@@ -1680,61 +1796,6 @@ void ezDebugRenderer::RenderInternalWorldSpace(const ezDebugRendererContext& con
           uiNumVertices -= uiNumVerticesInBatch;
           pTriangleData += TEX_TRIANGLE_VERTICES_PER_BATCH;
         }
-      }
-    }
-  }
-
-  // 3D Lines
-  {
-    ezUInt32 uiNumLineVertices = pData->m_lineVertices.GetCount();
-    if (uiNumLineVertices != 0)
-    {
-      CreateVertexBuffer(BufferType::Lines, sizeof(Vertex));
-
-      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PRE_TRANSFORMED_VERTICES", "FALSE");
-      renderViewContext.m_pRenderContext->BindShader(s_hDebugPrimitiveShader);
-
-      const Vertex* pLineData = pData->m_lineVertices.GetData();
-      while (uiNumLineVertices > 0)
-      {
-        ezGALBufferHandle hBuffer = s_DataBuffer[BufferType::Lines].GetNewBuffer();
-        const ezUInt32 uiNumLineVerticesInBatch = ezMath::Min<ezUInt32>(uiNumLineVertices, LINE_VERTICES_PER_BATCH);
-        EZ_ASSERT_DEV(uiNumLineVerticesInBatch % 2 == 0, "Vertex count must be a multiple of 2.");
-        pGALCommandEncoder->UpdateBuffer(hBuffer, 0, ezMakeArrayPtr(pLineData, uiNumLineVerticesInBatch).ToByteArray(), ezGALUpdateMode::AheadOfTime);
-
-        renderViewContext.m_pRenderContext->BindMeshBuffer(ezMakeArrayPtr(&hBuffer, 1), ezGALBufferHandle(), ezMakeArrayPtr(s_VertexAttributes), ezGALPrimitiveTopology::Lines, uiNumLineVerticesInBatch / 2);
-
-        renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
-
-        uiNumLineVertices -= uiNumLineVerticesInBatch;
-        pLineData += LINE_VERTICES_PER_BATCH;
-      }
-    }
-  }
-
-  // LineBoxes
-  {
-    ezUInt32 uiNumLineBoxes = pData->m_lineBoxes.GetCount();
-    if (uiNumLineBoxes != 0)
-    {
-      CreateDataBuffer(BufferType::LineBoxes, sizeof(BoxData));
-
-      renderViewContext.m_pRenderContext->BindShader(s_hDebugGeometryShader);
-
-      renderViewContext.m_pRenderContext->BindMeshBuffer(s_hLineBoxMeshBuffer);
-
-      const BoxData* pLineBoxData = pData->m_lineBoxes.GetData();
-      while (uiNumLineBoxes > 0)
-      {
-        ezGALBufferHandle hBuffer = s_DataBuffer[BufferType::LineBoxes].GetNewBuffer();
-        const ezUInt32 uiNumLineBoxesInBatch = ezMath::Min<ezUInt32>(uiNumLineBoxes, BOXES_PER_BATCH);
-        bindGroupRenderPass.BindBuffer("boxData", hBuffer);
-        pGALCommandEncoder->UpdateBuffer(hBuffer, 0, ezMakeArrayPtr(pLineBoxData, uiNumLineBoxesInBatch).ToByteArray(), ezGALUpdateMode::AheadOfTime);
-
-        renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiNumLineBoxesInBatch).IgnoreResult();
-
-        uiNumLineBoxes -= uiNumLineBoxesInBatch;
-        pLineBoxData += BOXES_PER_BATCH;
       }
     }
   }

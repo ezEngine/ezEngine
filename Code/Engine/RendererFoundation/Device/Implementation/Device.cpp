@@ -1570,6 +1570,8 @@ void ezGALDevice::EndFrame()
   EZ_PROFILE_SCOPE("ezGALDevice::EndFrame");
 
   {
+    EZ_PROFILE_SCOPE("ezGALDevice::BeforeEndFrame");
+
     ezGALDeviceEvent e;
     e.m_pDevice = this;
     e.m_Type = ezGALDeviceEvent::BeforeEndFrame;

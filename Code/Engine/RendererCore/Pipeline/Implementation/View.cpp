@@ -395,11 +395,15 @@ void ezView::SetReadBackProperty(ezMap<ezString, PropertyValue>& map, const char
 
 void ezView::ReadBackPassProperties()
 {
+  EZ_PROFILE_SCOPE("ViewReadBackPassProperties");
+
   ezTempHybridArray<ezRenderPipelinePass*, 32> passes;
   m_pRenderPipeline->GetPasses(passes);
 
   for (auto pPass : passes)
   {
+    EZ_PROFILE_SCOPE(pPass->GetName());
+
     pPass->ReadBackProperties(this);
   }
 }

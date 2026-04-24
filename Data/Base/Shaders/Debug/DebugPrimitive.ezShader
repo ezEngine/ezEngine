@@ -6,6 +6,7 @@ ALL
 PRE_TRANSFORMED_VERTICES
 CAMERA_MODE
 TOPOLOGY
+OCCLUDED_PASS
 
 [RENDERSTATE]
 
@@ -14,11 +15,16 @@ DestBlend0 = Blend_InvSrcAlpha
 SourceBlend0 = Blend_SrcAlpha
 DestBlendAlpha0 = Blend_InvSrcAlpha
 
-DepthTest = true
-#if PRE_TRANSFORMED_VERTICES
+#if OCCLUDED_PASS
+  DepthTest = false
   DepthWrite = false
 #else
-  DepthWrite = true
+  DepthTest = true
+  #if PRE_TRANSFORMED_VERTICES
+    DepthWrite = false
+  #else
+    DepthWrite = true
+  #endif
 #endif
 
 [VERTEXSHADER]
@@ -56,8 +62,27 @@ VS_OUT main(VS_IN Input)
 #include <Shaders/Materials/MaterialInterpolator.h>
 #include <Shaders/Common/GlobalConstants.h>
 
+float interleavedGradientNoise(float2 fragCoord)
+{
+  float3 magic = float3(0.06711056, 0.00583715, 52.9829189);
+  return frac(magic.z * frac(dot(fragCoord, magic.xy)));
+}
+
 float4 main(PS_IN Input) : SV_Target
 {
+#if OCCLUDED_PASS
+  {
+    float viewDist = Input.Position.w;
+    const float fadeStart = 30.0;
+    const float fadeDist = 70.0;
+    float fade = saturate(1.0 - (viewDist - fadeStart) / fadeDist);
+    if (interleavedGradientNoise(Input.Position.xy) > fade)
+    {
+      discard;
+    }
+  }
+#endif
+
   return Input.Color0;
 }
 

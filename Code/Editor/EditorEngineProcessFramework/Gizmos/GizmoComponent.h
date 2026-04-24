@@ -37,6 +37,7 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezGizmoComponent : public ezMeshCompon
 protected:
   virtual ezMeshRenderData* CreateRenderData(const ezRenderDataManager* pRenderDataManager) const override;
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible, ezMsgUpdateLocalBounds& msg) override;
+  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
 
   //////////////////////////////////////////////////////////////////////////
   // ezGizmoComponent
@@ -47,4 +48,5 @@ public:
 
   ezColor m_GizmoColor = ezColor::White;
   bool m_bIsPickable = true;
+  ezDynamicArray<ezVec3> m_Lines;
 };

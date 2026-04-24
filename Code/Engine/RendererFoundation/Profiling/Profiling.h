@@ -24,10 +24,12 @@ protected:
 #if EZ_ENABLED(EZ_USE_PROFILING) || defined(EZ_DOCS)
 
 /// \brief Profiles the current scope using the given name and also inserts a marker with the given command encoder.
-#  define EZ_PROFILE_AND_MARKER(GALCommandEncoder, szName) ezProfilingScopeAndMarker EZ_PP_CONCAT(_ezProfilingScope, EZ_SOURCE_LINE)(GALCommandEncoder, szName)
+#  define EZ_PROFILE_AND_MARKER(GALCommandEncoder, ScopeName)                                                \
+    ezProfilingScopeAndMarker EZ_PP_CONCAT(_ezProfilingScope, EZ_SOURCE_LINE)(GALCommandEncoder, ScopeName); \
+    EZ_TRACY_PROFILE_SCOPE(ScopeName)
 
 #else
 
-#  define EZ_PROFILE_AND_MARKER(GALCommandEncoder, szName) /*empty*/
+#  define EZ_PROFILE_AND_MARKER(GALCommandEncoder, ScopeName) /*empty*/
 
 #endif
