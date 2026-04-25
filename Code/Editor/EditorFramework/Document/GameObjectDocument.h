@@ -36,6 +36,7 @@ struct EZ_EDITORFRAMEWORK_DLL ezGameObjectEvent
 
     ActiveEditToolChanged,
 
+    TriggerExpandScenegraph,
     TriggerShowSelectionInScenegraph,
     TriggerFocusOnSelection_Hovered,
     TriggerFocusOnSelection_All,
@@ -152,6 +153,7 @@ private:
   ///@{
 
 public:
+  void TriggerExpandScenegraph() const;
   void TriggerShowSelectionInScenegraph() const;
   void TriggerFocusOnSelection(bool bAllViews) const;
   void TriggerSnapPivotToGrid() const;

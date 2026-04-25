@@ -57,6 +57,11 @@ void ezQtGameObjectWidget::DocumentSceneEventHandler(const ezGameObjectEvent& e)
       m_pTreeWidget->EnsureLastSelectedItemVisible();
     }
     break;
+    case ezGameObjectEvent::Type::TriggerExpandScenegraph:
+    {
+      m_pTreeWidget->expandAll();
+    }
+    break;
 
     default:
       break;

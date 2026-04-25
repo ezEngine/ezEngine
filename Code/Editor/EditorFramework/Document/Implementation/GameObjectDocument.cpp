@@ -613,6 +613,13 @@ void ezGameObjectDocument::RestoreMetaDataAfterLoading(const ezAbstractObjectGra
   m_GameObjectMetaData->RestoreMetaDataFromAbstractGraph(graph);
 }
 
+void ezGameObjectDocument::TriggerExpandScenegraph() const
+{
+  ezGameObjectEvent e;
+  e.m_Type = ezGameObjectEvent::Type::TriggerExpandScenegraph;
+  m_GameObjectEvents.Broadcast(e);
+}
+
 void ezGameObjectDocument::TriggerShowSelectionInScenegraph() const
 {
   if (GetSelectionManager()->GetSelection().IsEmpty())
