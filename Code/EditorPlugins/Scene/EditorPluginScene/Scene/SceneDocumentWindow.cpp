@@ -99,10 +99,7 @@ ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezSceneDocument* pDocument)
   // If prefab: expand scenegraph and select the root object, as that is the most likely one to be edited.
   if (pDocument->IsPrefab()) {
     pDocument->TriggerExpandScenegraph();
-
-    ezDeque<const ezDocumentObject*> sel;
-    sel.PushBack(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
-    pDocument->GetSelectionManager()->SetSelection(sel);
+    pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
   }
 
   FinishWindowCreation();
