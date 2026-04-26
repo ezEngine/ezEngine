@@ -24,6 +24,7 @@ public:
 public:
   ezAngle m_Angle;
   ezVarianceTypeFloat m_Speed;
+  ezString m_sSpeedScaleParameter;
 };
 
 
@@ -34,6 +35,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleInitializer_VelocityCone final : public ez
 public:
   ezAngle m_Angle;
   ezVarianceTypeFloat m_Speed;
+  ezTempHashedString m_sSpeedScaleParameter;
 
   virtual void CreateRequiredStreams() override;
 

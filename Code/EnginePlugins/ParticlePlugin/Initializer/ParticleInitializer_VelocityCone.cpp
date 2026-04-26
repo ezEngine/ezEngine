@@ -16,6 +16,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_VelocityCone, 2, ez
   {
     EZ_MEMBER_PROPERTY("Angle", m_Angle)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(30)), new ezClampValueAttribute(ezAngle::MakeFromDegree(1), ezAngle::MakeFromDegree(89))),
     EZ_MEMBER_PROPERTY("Speed", m_Speed),
+    EZ_MEMBER_PROPERTY("SpeedScaleParam", m_sSpeedScaleParameter)
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -46,16 +47,21 @@ void ezParticleInitializerFactory_VelocityCone::CopyInitializerProperties(ezPart
 
   pInitializer->m_Angle = ezMath::Clamp(m_Angle, ezAngle::MakeFromDegree(1), ezAngle::MakeFromDegree(89));
   pInitializer->m_Speed = m_Speed;
+  pInitializer->m_sSpeedScaleParameter = ezTempHashedString(m_sSpeedScaleParameter.GetData());
 }
 
 void ezParticleInitializerFactory_VelocityCone::Save(ezStreamWriter& inout_stream) const
 {
-  const ezUInt8 uiVersion = 1;
+  const ezUInt8 uiVersion = 2;
   inout_stream << uiVersion;
 
+  // Version 1
   inout_stream << m_Angle;
   inout_stream << m_Speed.m_Value;
   inout_stream << m_Speed.m_fVariance;
+
+  // Version 2
+  inout_stream << m_sSpeedScaleParameter;
 }
 
 void ezParticleInitializerFactory_VelocityCone::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
@@ -66,6 +72,11 @@ void ezParticleInitializerFactory_VelocityCone::Load(ezStreamReader& inout_strea
   inout_stream >> m_Angle;
   inout_stream >> m_Speed.m_Value;
   inout_stream >> m_Speed.m_fVariance;
+
+  if (uiVersion >= 2)
+  {
+    inout_stream >> m_sSpeedScaleParameter;
+  }
 }
 
 void ezParticleInitializerFactory_VelocityCone::QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const
@@ -90,6 +101,8 @@ void ezParticleInitializer_VelocityCone::InitializeElements(ezUInt64 uiStartInde
 
   ezRandom& rng = GetRNG();
 
+  const float fSpeedScale = ezMath::Max(GetOwnerEffect()->GetFloatParameter(m_sSpeedScaleParameter, 1.0f), 0.0f);
+
   // const float dist = 1.0f / ezMath::Tan(m_Angle);
 
   for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
@@ -111,7 +124,7 @@ void ezParticleInitializer_VelocityCone::InitializeElements(ezUInt64 uiStartInde
     // dir.z = dist;
     // dir.Normalize();
 
-    const float fSpeed = (float)rng.DoubleVariance(m_Speed.m_Value, m_Speed.m_fVariance);
+    const float fSpeed = (float)rng.DoubleVariance(m_Speed.m_Value, m_Speed.m_fVariance) * fSpeedScale;
 
     const ezVec3 vel = startVel + GetOwnerSystem()->GetTransform().m_qRotation * dir * fSpeed;
     const float fVelLength = vel.GetLength();
