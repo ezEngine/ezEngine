@@ -1,5 +1,6 @@
 #include <EnginePluginScene/EnginePluginScenePCH.h>
 
+#include <EditorEngineProcessFramework/Gizmos/GizmoRenderer.h>
 #include <EnginePluginScene/RenderPipeline/EditorShapeIconsExtractor.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/TypeVersionContext.h>
@@ -133,7 +134,7 @@ void ezEditorShapeIconsExtractor::ExtractShapeIcon(const ezGameObject* pObject, 
     {
       pRenderData->m_hTexture = pShapeIconInfo->m_hTexture;
       pRenderData->m_fSize = m_fSize;
-      pRenderData->m_fMaxScreenSize = m_fMaxScreenSize * ezDebugRenderer::GetTextScale();
+      pRenderData->m_fMaxScreenSize = m_fMaxScreenSize * ezDebugRenderer::GetTextScale() * ezGizmoRenderer::s_fShapeIconScale;
       pRenderData->m_fAspectRatio = 1.0f;
       pRenderData->m_BlendMode = ezSpriteBlendMode::ShapeIcon;
       pRenderData->m_texCoordScale = ezVec2(1.0f);

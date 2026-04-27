@@ -519,6 +519,7 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezGlobalSettingsMsgToEngine : public e
 
 public:
   float m_fGizmoScale = 0.0f;
+  float m_fShapeIconScale = 0.0f;
 };
 
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezWorldSettingsMsgToEngine : public ezEditorEngineDocumentMsg

@@ -16,4 +16,5 @@ public:
   virtual void RenderBatch(const ezRenderViewContext& renderContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const override;
 
   static float s_fGizmoScale;
+  static float s_fShapeIconScale;
 };

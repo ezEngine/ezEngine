@@ -456,6 +456,7 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
   else if (const auto* pMsg2b = ezDynamicCast<const ezGlobalSettingsMsgToEngine*>(e.m_pMessage))
   {
     ezGizmoRenderer::s_fGizmoScale = pMsg2b->m_fGizmoScale;
+    ezGizmoRenderer::s_fShapeIconScale = pMsg2b->m_fShapeIconScale;
   }
   else if (const auto* pMsg3 = ezDynamicCast<const ezChangeCVarMsgToEngine*>(e.m_pMessage))
   {

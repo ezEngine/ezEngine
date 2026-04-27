@@ -117,11 +117,6 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
 
 #include <Shaders/Materials/MaterialHelper.h>
 
-float interleavedGradientNoise(float2 fragCoord) {
-    float3 magic = float3(0.06711056, 0.00583715, 52.9829189);
-    return frac(magic.z * frac(dot(fragCoord, magic.xy)));
-}
-
 struct PS_OUT
 {
   #if RENDER_PASS != RENDER_PASS_DEPTH_ONLY
@@ -168,7 +163,7 @@ PS_OUT main(PS_IN Input)
     const float fadeStart = 75.0;
     const float fadeDist = 10.0;
     float fade = saturate(1.0 - (viewDist - fadeStart) / fadeDist);
-    if (interleavedGradientNoise(Input.Position.xy) > fade)
+    if (InterleavedGradientNoise(Input.Position.xy) > fade)
     {
       discard;
     }

@@ -5,6 +5,7 @@
 #include <EditorFramework/Dialogs/RemoteConnectionDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/IPC/EngineProcessConnection.h>
+#include <EditorFramework/Preferences/EditorPreferences.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 #include <GuiFoundation/UIServices/QtWaitForOperationDlg.moc.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
@@ -416,6 +417,9 @@ ezResult ezEditorEngineProcessConnection::RestartProcess()
     ShutdownProcess();
     return EZ_FAILURE;
   }
+
+  ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+  pPreferences->SyncGlobalSettingsToEngine();
 
   ezLog::Dev("Transmitting open documents to Engine Process");
 

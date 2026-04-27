@@ -62,15 +62,19 @@ public:
   void SetGizmoSize(float f);
   float GetGizmoSize() const { return m_fGizmoSize; }
 
+  void SetShapeIconSize(float f);
+  float GetShapeIconSize() const { return m_fShapeIconSize; }
+
   void SetMaxFramerate(ezUInt16 uiFPS);
   ezUInt16 GetMaxFramerate() const { return m_uiMaxFramerate; }
 
   ezHybridArray<ezString, 8> m_RecentlyCreatedTypes;
 
-private:
-  void SyncGlobalSettings();
+  void SyncGlobalSettingsToEngine();
 
+private:
   float m_fGizmoSize = 1.5f;
+  float m_fShapeIconSize = 1.0f;
   bool m_bShowInDevelopmentFeatures = false;
   ezUInt16 m_uiMaxFramerate = 60;
 };
