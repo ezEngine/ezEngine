@@ -1,6 +1,6 @@
 /*
    AngelCode Scripting Library
-   Copyright (c) 2003-2024 Andreas Jonsson
+   Copyright (c) 2003-2025 Andreas Jonsson
 
    This software is provided 'as-is', without any express or implied
    warranty. In no event will the authors be held liable for any
@@ -214,34 +214,13 @@ const char *asCModule::GetDefaultNamespace() const
 // interface
 int asCModule::SetDefaultNamespace(const char *nameSpace)
 {
-	// TODO: cleanup: This function is similar to asCScriptEngine::SetDefaultNamespace. Can we reuse the code?
-	if( nameSpace == 0 )
-		return asINVALID_ARG;
+	asCArray<asCString> nsStrings;
+	int r = m_engine->ParseNamespace(nameSpace, nsStrings);
+	if (r < 0)
+		return r;
 
-	asCString ns = nameSpace;
-	if( ns != "" )
-	{
-		// Make sure the namespace is composed of alternating identifier and ::
-		size_t pos = 0;
-		bool expectIdentifier = true;
-		size_t len;
-		eTokenType t = ttIdentifier;
-
-		for( ; pos < ns.GetLength(); pos += len )
-		{
-			t = m_engine->tok.GetToken(ns.AddressOf() + pos, ns.GetLength() - pos, &len);
-			if( (expectIdentifier && t != ttIdentifier) || (!expectIdentifier && t != ttScope) )
-				return asINVALID_DECLARATION;
-
-			expectIdentifier = !expectIdentifier;
-		}
-
-		// If the namespace ends with :: then strip it off
-		if( t == ttScope )
-			ns.SetLength(ns.GetLength()-2);
-	}
-
-	m_defaultNamespace = m_engine->AddNameSpace(ns.AddressOf());
+	for (asUINT n = 0; n < nsStrings.GetLength(); n++)
+		m_defaultNamespace = m_engine->AddNameSpace(nsStrings[n].AddressOf());
 
 	return 0;
 }
@@ -449,9 +428,12 @@ int asCModule::InitGlobalProp(asCGlobalProperty *prop, asIScriptContext *myCtx)
 				msg.Format(TXT_FAILED_TO_INITIALIZE_s, prop->name.AddressOf());
 				asCScriptFunction *func = prop->GetInitFunc();
 
-				m_engine->WriteMessage(func->scriptData->scriptSectionIdx >= 0 ? m_engine->scriptSectionNames[func->scriptData->scriptSectionIdx]->AddressOf() : "",
-									 func->GetLineNumber(0, 0) & 0xFFFFF,
-									 func->GetLineNumber(0, 0) >> 20,
+				const char* scriptSection = 0;
+				int row, col;
+				func->GetDeclaredAt(&scriptSection, &row, &col);
+				m_engine->WriteMessage(scriptSection ? scriptSection : "",
+									 row,
+									 col,
 									 asMSGTYPE_ERROR,
 									 msg.AddressOf());
 
@@ -461,7 +443,8 @@ int asCModule::InitGlobalProp(asCGlobalProperty *prop, asIScriptContext *myCtx)
 
 					msg.Format(TXT_EXCEPTION_s_IN_s, ctx->GetExceptionString(), function->GetDeclaration());
 
-					m_engine->WriteMessage(function->GetScriptSectionName(),
+					function->GetDeclaredAt(&scriptSection, 0, 0);
+					m_engine->WriteMessage(scriptSection ? scriptSection : "",
 										   ctx->GetExceptionLineNumber(),
 										   0,
 										   asMSGTYPE_INFORMATION,

@@ -1,6 +1,6 @@
 /*
    AngelCode Scripting Library
-   Copyright (c) 2003-2024 Andreas Jonsson
+   Copyright (c) 2003-2025 Andreas Jonsson
 
    This software is provided 'as-is', without any express or implied
    warranty. In no event will the authors be held liable for any
@@ -104,6 +104,9 @@
 // AS_USE_NAMESPACE
 // Adds the AngelScript namespace on the declarations.
 
+// AS_USE_COMPUTED_GOTOS
+// 1 = Uses computed gotos in the VM
+// 0 = Do not use computed gotos
 
 
 //
@@ -179,11 +182,10 @@
 
 // Local (or Little) C Compiler
 // __LCC__ is defined
-// __e2k__ is not defined
 
-// MCST eLbrus C Compiler
+// MCST LCC (eLbrus Compiler Collection)
 // __LCC__ is defined
-// __e2k__ is defined
+// __MCST__ is defined
 
 
 
@@ -242,7 +244,7 @@
 // Define this for SPARC CPU family
 
 // AS_E2K
-// Define this for MCST Elbrus 2000 CPU family
+// Define this for MCST E2K (Elbrus 2000) CPU family
 
 
 
@@ -359,7 +361,8 @@
 // On some platforms objects with primitive members are split over different
 // register types when passed by value to functions.
 
-
+// RETURN_VALUE_MAX_SIZE
+// Specifies the maximum size in dwords returned in registers.
 
 
 
@@ -652,6 +655,17 @@
 	#define AS_SIZEOF_BOOL 1
 	#define STDCALL __attribute__((stdcall))
 	#define ASM_AT_N_T
+
+	// Enable use of computed gotos by default
+	#ifndef AS_USE_COMPUTED_GOTOS
+		#if defined(__GNUC__) && __GNUC__ >= 6
+			#define AS_USE_COMPUTED_GOTOS 1
+
+		// Also in clang 5.0 but how do i test for that? Should use __has_extension, but I don't know the name of the labels as values extension
+		#elif defined(__clang__) 
+			#define AS_USE_COMPUTED_GOTOS 1
+		#endif
+	#endif
 
 	// WII U
 	#if defined(__ghs__)
@@ -1037,13 +1051,15 @@
 			// TODO: Add support for native calling conventions on Linux with PPC 64bit
 			#define AS_MAX_PORTABILITY
 		#elif defined(__e2k__)
-			// 64bit MCST Elbrus 2000
+			// 64bit MCST E2K (Elbrus 2000) CPU
 			// ref: https://en.wikipedia.org/wiki/Elbrus_2000
 			#define AS_E2K
-			// AngelScript currently doesn't support native calling
-			// for MCST Elbrus 2000 processor so it's necessary to turn on
-			// portability mode
-			#define AS_MAX_PORTABILITY
+			
+			#undef AS_NO_THISCALL_FUNCTOR_METHOD
+
+			#define RETURN_VALUE_MAX_SIZE 16
+			#define HAS_128_BIT_PRIMITIVES
+
 			// STDCALL is not available on 64bit Linux
 			#undef STDCALL
 			#define STDCALL
@@ -1363,7 +1379,9 @@
 
 // If there are no current support for native calling
 // conventions, then compile with AS_MAX_PORTABILITY
-#if (!defined(AS_X86) && !defined(AS_SH4) && !defined(AS_MIPS) && !defined(AS_PPC) && !defined(AS_PPC_64) && !defined(AS_XENON) && !defined(AS_X64_GCC) && !defined(AS_X64_MSVC) && !defined(AS_ARM) && !defined(AS_ARM64) && !defined(AS_X64_MINGW) && !defined(AS_RISCV64))
+#if (!defined(AS_X86) && !defined(AS_SH4) && !defined(AS_MIPS) && !defined(AS_PPC) && \
+	 !defined(AS_PPC_64) && !defined(AS_XENON) && !defined(AS_X64_GCC) && !defined(AS_X64_MSVC) && \
+	 !defined(AS_ARM) && !defined(AS_ARM64) && !defined(AS_X64_MINGW) && !defined(AS_RISCV64) && !defined(AS_E2K))
 	#ifndef AS_MAX_PORTABILITY
 		#define AS_MAX_PORTABILITY
 	#endif

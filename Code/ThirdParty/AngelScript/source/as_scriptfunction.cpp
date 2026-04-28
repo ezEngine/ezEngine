@@ -1,6 +1,6 @@
 /*
    AngelCode Scripting Library
-   Copyright (c) 2003-2024 Andreas Jonsson
+   Copyright (c) 2003-2025 Andreas Jonsson
 
    This software is provided 'as-is', without any express or implied
    warranty. In no event will the authors be held liable for any
@@ -493,6 +493,11 @@ void asCScriptFunction::DestroyInternal()
 		asDELETE(listPattern, asSListPatternNode);
 		listPattern = n;
 	}
+
+	// Release template sub types
+	for (asUINT n = 0; n < templateSubTypes.GetLength(); n++)
+		if(templateSubTypes[n].GetTypeInfo())
+			templateSubTypes[n].GetTypeInfo()->ReleaseInternal();
 }
 
 // interface
@@ -720,7 +725,18 @@ asCString asCScriptFunction::GetDeclarationStr(bool includeObjectName, bool incl
 			str += name + "(";
 	}
 	else
-		str += name + "(";
+	{
+		if (funcType == asFUNC_TEMPLATE)
+		{
+			str += name + "<";
+			for (asUINT t = 0; t < templateSubTypes.GetLength()-1; t++)
+				str += templateSubTypes[t].GetTypeInfo()->name + ",";
+			str += templateSubTypes[templateSubTypes.GetLength() - 1].GetTypeInfo()->name;
+			str += ">(";
+		}
+		else
+			str += name + "(";
+	}
 
 	if( parameterTypes.GetLength() > 0 )
 	{
@@ -772,6 +788,11 @@ asCString asCScriptFunction::GetDeclarationStr(bool includeObjectName, bool incl
 			tmp.Format(" = %s", defaultArgs[n]->AddressOf());
 			str += tmp;
 		}
+	}
+
+	if (IsVariadic())
+	{
+		str += "...";
 	}
 
 	str += ")";
@@ -877,7 +898,7 @@ int asCScriptFunction::GetDeclaredAt(const char** scriptSection, int* row, int* 
 		if (col) *col = 0;
 		return asNOT_SUPPORTED;
 	}
-	if (scriptSection) *scriptSection = engine->scriptSectionNames[scriptData->scriptSectionIdx]->AddressOf();
+	if (scriptSection) *scriptSection = scriptData->scriptSectionIdx >= 0 ? engine->scriptSectionNames[scriptData->scriptSectionIdx]->AddressOf() : 0;
 	if (row) *row = scriptData->declaredAt & 0xFFFFF;
 	if (col) *col = scriptData->declaredAt >> 20;
 	return 0;
@@ -978,7 +999,7 @@ const char *asCScriptFunction::GetVarDecl(asUINT index, bool includeNamespace) c
 }
 
 // internal
-void asCScriptFunction::AddVariable(const asCString &in_name, asCDataType &in_type, int in_stackOffset, bool in_onHeap)
+void asCScriptFunction::AddVariable(const asCString &in_name, const asCDataType &in_type, int in_stackOffset, bool in_onHeap)
 {
 	asASSERT( scriptData );
 	asSScriptVariable *var = asNEW(asSScriptVariable);
@@ -1501,6 +1522,8 @@ const char *asCScriptFunction::GetDeclaration(bool includeObjectName, bool inclu
 	return tempString->AddressOf();
 }
 
+#ifdef AS_DEPRECATED
+// deprecated since 2025-04-25, 2.38.0
 // interface
 const char *asCScriptFunction::GetScriptSectionName() const
 {
@@ -1509,6 +1532,7 @@ const char *asCScriptFunction::GetScriptSectionName() const
 
 	return 0;
 }
+#endif
 
 // interface
 const char *asCScriptFunction::GetConfigGroup() const
@@ -1788,6 +1812,12 @@ bool asCScriptFunction::IsProperty() const
 	return traits.GetTrait(asTRAIT_PROPERTY);
 }
 
+// interface
+bool asCScriptFunction::IsVariadic() const
+{
+	return traits.GetTrait(asTRAIT_VARIADIC);
+}
+
 // internal
 bool asCScriptFunction::IsFactory() const
 {
@@ -1815,7 +1845,7 @@ asCScriptFunction* asCScriptFunction::FindNextFunctionCalled(asUINT startSearchF
 	// Find out which function that will be called
 	asCScriptFunction* calledFunc = 0;
 	int stackDelta = 0;
-	for (asUINT n = startSearchFromProgramPos; scriptData->byteCode.GetLength(); )
+	for (asUINT n = startSearchFromProgramPos; n < scriptData->byteCode.GetLength(); )
 	{
 		asBYTE bc = *(asBYTE*)&scriptData->byteCode[n];
 		if (bc == asBC_CALL ||
@@ -1906,6 +1936,34 @@ asCScriptFunction* asCScriptFunction::GetCalledFunction(asDWORD programPos)
 	}
 
 	return 0;
+}
+
+// interface
+asUINT asCScriptFunction::GetSubTypeCount() const
+{
+	return asUINT(templateSubTypes.GetLength());
+}
+
+// interface
+int asCScriptFunction::GetSubTypeId(asUINT subtypeIndex) const
+{
+	// This method is only supported for templates and template specializations
+	if (templateSubTypes.GetLength() == 0)
+		return asERROR;
+
+	if (subtypeIndex >= templateSubTypes.GetLength())
+		return asINVALID_ARG;
+
+	return engine->GetTypeIdFromDataType(templateSubTypes[subtypeIndex]);
+}
+
+// interface
+asITypeInfo* asCScriptFunction::GetSubType(asUINT subtypeIndex) const
+{
+	if (subtypeIndex >= templateSubTypes.GetLength())
+		return 0;
+
+	return templateSubTypes[subtypeIndex].GetTypeInfo();
 }
 
 END_AS_NAMESPACE

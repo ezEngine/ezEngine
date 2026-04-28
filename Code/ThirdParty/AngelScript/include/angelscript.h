@@ -1,6 +1,6 @@
 /*
    AngelCode Scripting Library
-   Copyright (c) 2003-2024 Andreas Jonsson
+   Copyright (c) 2003-2025 Andreas Jonsson
 
    This software is provided 'as-is', without any express or implied
    warranty. In no event will the authors be held liable for any
@@ -58,8 +58,8 @@ BEGIN_AS_NAMESPACE
 
 // AngelScript version
 
-#define ANGELSCRIPT_VERSION        23700
-#define ANGELSCRIPT_VERSION_STRING "2.37.0"
+#define ANGELSCRIPT_VERSION        23800
+#define ANGELSCRIPT_VERSION_STRING "2.38.0"
 
 // Data types
 
@@ -188,6 +188,9 @@ enum asEEngineProp
 	asEP_JIT_INTERFACE_VERSION              = 35,
 	asEP_ALWAYS_IMPL_DEFAULT_COPY           = 36,
 	asEP_ALWAYS_IMPL_DEFAULT_COPY_CONSTRUCT = 37,
+	asEP_MEMBER_INIT_MODE                   = 38,
+	asEP_BOOL_CONVERSION_MODE               = 39,
+	asEP_FOREACH_SUPPORT                    = 40,
 
 	asEP_LAST_PROPERTY
 };
@@ -391,7 +394,8 @@ enum asEFuncType
 	asFUNC_VIRTUAL   = 3,
 	asFUNC_FUNCDEF   = 4,
 	asFUNC_IMPORTED  = 5,
-	asFUNC_DELEGATE  = 6
+	asFUNC_DELEGATE  = 6,
+	asFUNC_TEMPLATE  = 7
 };
 
 // Is the target a 64bit system?
@@ -673,6 +677,7 @@ public:
 
 	// Compiler messages
 	virtual int SetMessageCallback(const asSFuncPtr &callback, void *obj, asDWORD callConv) = 0;
+	virtual int GetMessageCallback(asSFuncPtr *callback, void **obj, asDWORD *callConv) = 0;
 	virtual int ClearMessageCallback() = 0;
 	virtual int WriteMessage(const char *section, int row, int col, asEMsgType type, const char *message) = 0;
 
@@ -705,7 +710,11 @@ public:
 
 	// String factory
 	virtual int RegisterStringFactory(const char *datatype, asIStringFactory *factory) = 0;
+	virtual int GetStringFactory(asDWORD* typeModifiers = 0, asIStringFactory** factory = 0) const = 0;
+#ifdef AS_DEPRECATED
+	// deprecated since 2024-07-27, 2.38.0
 	virtual int GetStringFactoryReturnTypeId(asDWORD *flags = 0) const = 0;
+#endif
 
 	// Default array type
 	virtual int RegisterDefaultArrayType(const char *type) = 0;
@@ -794,7 +803,7 @@ public:
 	virtual void  SetScriptObjectUserDataCleanupCallback(asCLEANSCRIPTOBJECTFUNC_t callback, asPWORD type = 0) = 0;
 
 	// Exception handling
-	virtual int SetTranslateAppExceptionCallback(asSFuncPtr callback, void *param, int callConv) = 0;
+	virtual int SetTranslateAppExceptionCallback(const asSFuncPtr &callback, void *param, int callConv) = 0;
 
 protected:
 	virtual ~asIScriptEngine() {}
@@ -807,7 +816,7 @@ public:
 	virtual int         ReleaseStringConstant(const void *str) = 0;
 	virtual int         GetRawStringData(const void *str, char *data, asUINT *length) const = 0;
 
-protected:
+	// The destructor doesn't have to be protected as the string factory is not necessarily reference counted
 	virtual ~asIStringFactory() {}
 };
 
@@ -941,11 +950,11 @@ public:
 	virtual asIScriptFunction *GetExceptionFunction() = 0;
 	virtual const char *       GetExceptionString() = 0;
 	virtual bool               WillExceptionBeCaught() = 0;
-	virtual int                SetExceptionCallback(asSFuncPtr callback, void *obj, int callConv) = 0;
+	virtual int                SetExceptionCallback(const asSFuncPtr &callback, void *obj, int callConv) = 0;
 	virtual void               ClearExceptionCallback() = 0;
 
 	// Debugging
-	virtual int                SetLineCallback(asSFuncPtr callback, void *obj, int callConv) = 0;
+	virtual int                SetLineCallback(const asSFuncPtr &callback, void *obj, int callConv) = 0;
 	virtual void               ClearLineCallback() = 0;
 	virtual asUINT             GetCallstackSize() const = 0;
 	virtual asIScriptFunction *GetFunction(asUINT stackLevel = 0) = 0;
@@ -1100,7 +1109,7 @@ public:
 
 	// Properties
 	virtual asUINT      GetPropertyCount() const = 0;
-	virtual int         GetProperty(asUINT index, const char **name, int *typeId = 0, bool *isPrivate = 0, bool *isProtected = 0, int *offset = 0, bool *isReference = 0, asDWORD *accessMask = 0, int *compositeOffset = 0, bool *isCompositeIndirect = 0) const = 0;
+	virtual int         GetProperty(asUINT index, const char **name, int *typeId = 0, bool *isPrivate = 0, bool *isProtected = 0, int *offset = 0, bool *isReference = 0, asDWORD *accessMask = 0, int *compositeOffset = 0, bool *isCompositeIndirect = 0, bool *isConst = 0) const = 0;
 	virtual const char *GetPropertyDeclaration(asUINT index, bool includeNamespace = false) const = 0;
 
 	// Behaviours
@@ -1144,7 +1153,10 @@ public:
 	virtual asEFuncType      GetFuncType() const = 0;
 	virtual const char      *GetModuleName() const = 0;
 	virtual asIScriptModule *GetModule() const = 0;
+#ifdef AS_DEPRECATED
+	// deprecated since 2025-04-25, 2.38.0
 	virtual const char      *GetScriptSectionName() const = 0;
+#endif
 	virtual const char      *GetConfigGroup() const = 0;
 	virtual asDWORD          GetAccessMask() const = 0;
 	virtual void            *GetAuxiliary() const = 0;
@@ -1163,9 +1175,15 @@ public:
 	virtual bool             IsShared() const = 0;
 	virtual bool             IsExplicit() const = 0;
 	virtual bool             IsProperty() const = 0;
+	virtual bool             IsVariadic() const = 0;
 	virtual asUINT           GetParamCount() const = 0;
 	virtual int              GetParam(asUINT index, int *typeId, asDWORD *flags = 0, const char **name = 0, const char **defaultArg = 0) const = 0;
 	virtual int              GetReturnTypeId(asDWORD *flags = 0) const = 0;
+
+	// Template functions
+	virtual asUINT           GetSubTypeCount() const = 0;
+	virtual int              GetSubTypeId(asUINT subTypeIndex = 0) const = 0;
+	virtual asITypeInfo     *GetSubType(asUINT subTypeIndex = 0) const = 0;
 
 	// Type id for function pointers
 	virtual int              GetTypeId() const = 0;

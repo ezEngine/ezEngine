@@ -1,6 +1,6 @@
 /*
    AngelCode Scripting Library
-   Copyright (c) 2003-2023 Andreas Jonsson
+   Copyright (c) 2003-2025 Andreas Jonsson
 
    This software is provided 'as-is', without any express or implied
    warranty. In no event will the authors be held liable for any
@@ -104,11 +104,11 @@ public:
 	asIScriptFunction *GetExceptionFunction();
 	const char *       GetExceptionString();
 	bool               WillExceptionBeCaught();
-	int                SetExceptionCallback(asSFuncPtr callback, void *obj, int callConv);
+	int                SetExceptionCallback(const asSFuncPtr &callback, void *obj, int callConv);
 	void               ClearExceptionCallback();
 
 	// Debugging
-	int                SetLineCallback(asSFuncPtr callback, void *obj, int callConv);
+	int                SetLineCallback(const asSFuncPtr &callback, void *obj, int callConv);
 	void               ClearLineCallback();
 	asUINT             GetCallstackSize() const;
 	asIScriptFunction *GetFunction(asUINT stackLevel);
@@ -178,6 +178,7 @@ public:
 	void SetProgramPointer();
 
 	bool ReserveStackSpace(asUINT size);
+	int DetermineStackIndex(asDWORD *ptr) const;
 
 	asDWORD *DeserializeStackPointer(asDWORD);
 	asDWORD  SerializeStackPointer(asDWORD *) const;
@@ -207,6 +208,7 @@ public:
 	asUINT              m_stackBlockSize;
 	asUINT              m_stackIndex;
 	asDWORD            *m_originalStackPointer;
+	asUINT              m_originalStackIndex;
 
 	// Exception handling
 	bool      m_isStackMemoryNotAllocated;

@@ -1,6 +1,6 @@
 /*
    AngelCode Scripting Library
-   Copyright (c) 2003-2024 Andreas Jonsson
+   Copyright (c) 2003-2025 Andreas Jonsson
 
    This software is provided 'as-is', without any express or implied
    warranty. In no event will the authors be held liable for any
@@ -305,7 +305,9 @@ int PrepareSystemFunction(asCScriptFunction *func, asSSystemFunctionInterface *i
 			}
 			else
 			{
-#ifdef HAS_128_BIT_PRIMITIVES
+#ifdef RETURN_VALUE_MAX_SIZE
+				if( func->returnType.GetSizeInMemoryDWords() > RETURN_VALUE_MAX_SIZE )
+#elif defined(HAS_128_BIT_PRIMITIVES)
 				if( func->returnType.GetSizeInMemoryDWords() > 4 )
 #else
 				if( func->returnType.GetSizeInMemoryDWords() > 2 )
@@ -572,6 +574,11 @@ int CallSystemFunction(int id, asCContext *context)
 
 #else
 
+
+// TODO: cleanup: Should have only a single CallSystemFunctionNative function signature. However changing it requires retesting all different native platforms :(
+
+#ifndef RETURN_VALUE_MAX_SIZE
+
 //
 // CallSystemFunctionNative
 //
@@ -594,6 +601,28 @@ int CallSystemFunction(int id, asCContext *context)
 // The function should return the value that is returned in registers.
 asQWORD CallSystemFunctionNative(asCContext *context, asCScriptFunction *descr, void *obj, asDWORD *args, void *retPointer, asQWORD &retQW2, void *secondObj);
 
+#else
+
+//
+// CallSystemFunctionNative
+//
+// This function is implemented for each platform where the native calling conventions is supported.
+// See the various as_callfunc_xxx.cpp files for their implementation. It is responsible for preparing
+// the arguments for the function call, calling the function, and then retrieving the return value.
+//
+// Parameters:
+//
+// context    - This is the context that can be used to retrieve specific information from the engine
+// descr      - This is the script function object that holds the information on how to call the function
+// obj        - This is the object pointer, if the call is for a class method, otherwise it is null
+// args       - This is the function arguments, which are packed as in AngelScript
+// retPointer - This points to a the memory buffer where the return object is to be placed, if the function returns the value in memory rather than in registers
+// retQW      - This output parameter should be used if the function returns a value in registers. This is a pointer to an array of QWORDs
+// secondObj  - This is the object pointer that the proxy method should invoke its method on when the call convention is THISCALL_OBJFIRST/LAST
+void CallSystemFunctionNative(asCContext *context, asCScriptFunction *descr, void *obj, asDWORD *args, void *retPointer, asQWORD *retQW, void *secondObj);
+
+#endif
+
 
 int CallSystemFunction(int id, asCContext *context)
 {
@@ -605,8 +634,11 @@ int CallSystemFunction(int id, asCContext *context)
 	if( callConv == ICC_GENERIC_FUNC || callConv == ICC_GENERIC_METHOD )
 		return context->CallGeneric(descr);
 
-	asQWORD  retQW             = 0;
-	asQWORD  retQW2            = 0;
+#ifndef RETURN_VALUE_MAX_SIZE
+	asQWORD retQW[2] = { 0 };
+#else
+	asQWORD retQW[(RETURN_VALUE_MAX_SIZE + 1) / 2] = { 0 };
+#endif
 	asDWORD *args              = context->m_regs.stackPointer;
 	void    *retPointer        = 0;
 	int      popSize           = sysFunc->paramSize;
@@ -758,7 +790,11 @@ int CallSystemFunction(int id, asCContext *context)
 	context->m_callingSystemFunction = descr;
 	bool cppException = false;
 #ifdef AS_NO_EXCEPTIONS
-	retQW = CallSystemFunctionNative(context, descr, obj, args, sysFunc->hostReturnInMemory ? retPointer : 0, retQW2, secondObj);
+#ifndef RETURN_VALUE_MAX_SIZE
+	retQW[0] = CallSystemFunctionNative(context, descr, obj, args, sysFunc->hostReturnInMemory ? retPointer : 0, retQW[1], secondObj);
+#else
+	CallSystemFunctionNative(context, descr, obj, args, sysFunc->hostReturnInMemory ? retPointer : 0, retQW, secondObj);
+#endif
 #else
 	// This try/catch block is to catch potential exception that may
 	// be thrown by the registered function. The implementation of the
@@ -767,7 +803,11 @@ int CallSystemFunction(int id, asCContext *context)
 	// executed in case of an exception.
 	try
 	{
-		retQW = CallSystemFunctionNative(context, descr, obj, args, sysFunc->hostReturnInMemory ? retPointer : 0, retQW2, secondObj);
+#ifndef RETURN_VALUE_MAX_SIZE
+		retQW[0] = CallSystemFunctionNative(context, descr, obj, args, sysFunc->hostReturnInMemory ? retPointer : 0, retQW[1], secondObj);
+#else
+		CallSystemFunctionNative(context, descr, obj, args, sysFunc->hostReturnInMemory ? retPointer : 0, retQW, secondObj);
+#endif
 	}
 	catch(...)
 	{
@@ -787,11 +827,11 @@ int CallSystemFunction(int id, asCContext *context)
 		{
 #if defined(AS_BIG_ENDIAN) && AS_PTR_SIZE == 1
 			// Since we're treating the system function as if it is returning a QWORD we are
-			// actually receiving the value in the high DWORD of retQW.
-			retQW >>= 32;
+			// actually receiving the value in the high DWORD of retQW[0].
+			retQW[0] >>= 32;
 #endif
 
-			context->m_regs.objectRegister = (void*)(asPWORD)retQW;
+			context->m_regs.objectRegister = (void*)(asPWORD)retQW[0];
 
 			if (sysFunc->returnAutoHandle && context->m_regs.objectRegister)
 			{
@@ -808,23 +848,27 @@ int CallSystemFunction(int id, asCContext *context)
 				{
 #if defined(AS_BIG_ENDIAN) && AS_PTR_SIZE == 1
 					// Since we're treating the system function as if it is returning a QWORD we are
-					// actually receiving the value in the high DWORD of retQW.
-					retQW >>= 32;
+					// actually receiving the value in the high DWORD of retQW[0].
+					retQW[0] >>= 32;
 #endif
 
-					*(asDWORD*)retPointer = (asDWORD)retQW;
+					*(asDWORD*)retPointer = (asDWORD)retQW[0];
 				}
 				else if (sysFunc->hostReturnSize == 2)
-					*(asQWORD*)retPointer = retQW;
+					*(asQWORD*)retPointer = retQW[0];
 				else if (sysFunc->hostReturnSize == 3)
 				{
-					*(asQWORD*)retPointer = retQW;
-					*(((asDWORD*)retPointer) + 2) = (asDWORD)retQW2;
+					*(asQWORD*)retPointer = retQW[0];
+					*(((asDWORD*)retPointer) + 2) = (asDWORD)retQW[1];
 				}
-				else // if( sysFunc->hostReturnSize == 4 )
+				else if( sysFunc->hostReturnSize == 4 )
 				{
-					*(asQWORD*)retPointer = retQW;
-					*(((asQWORD*)retPointer) + 1) = retQW2;
+					*(asQWORD*)retPointer = retQW[0];
+					*(((asQWORD*)retPointer) + 1) = retQW[1];
+				}
+				else
+				{
+					memcpy(retPointer, retQW, sysFunc->hostReturnSize * sizeof(asDWORD));
 				}
 			}
 
@@ -851,8 +895,8 @@ int CallSystemFunction(int id, asCContext *context)
 		{
 #if defined(AS_BIG_ENDIAN)
 			// Since we're treating the system function as if it is returning a QWORD we are
-			// actually receiving the value in the high DWORD of retQW.
-			retQW >>= 32;
+			// actually receiving the value in the high DWORD of retQW[0].
+			retQW[0] >>= 32;
 
 			// Due to endian issues we need to handle return values that are
 			// less than a DWORD (32 bits) in size specially
@@ -864,7 +908,7 @@ int CallSystemFunction(int id, asCContext *context)
 				{
 					// 8 bits
 					asBYTE *val = (asBYTE*)&context->m_regs.valueRegister;
-					val[0] = (asBYTE)retQW;
+					val[0] = (asBYTE)retQW[0];
 					val[1] = 0;
 					val[2] = 0;
 					val[3] = 0;
@@ -878,7 +922,7 @@ int CallSystemFunction(int id, asCContext *context)
 				{
 					// 16 bits
 					asWORD *val = (asWORD*)&context->m_regs.valueRegister;
-					val[0] = (asWORD)retQW;
+					val[0] = (asWORD)retQW[0];
 					val[1] = 0;
 					val[2] = 0;
 					val[3] = 0;
@@ -888,17 +932,17 @@ int CallSystemFunction(int id, asCContext *context)
 				{
 					// 32 bits
 					asDWORD *val = (asDWORD*)&context->m_regs.valueRegister;
-					val[0] = (asDWORD)retQW;
+					val[0] = (asDWORD)retQW[0];
 					val[1] = 0;
 				}
 				break;
 			}
 #else
-			*(asDWORD*)&context->m_regs.valueRegister = (asDWORD)retQW;
+			*(asDWORD*)&context->m_regs.valueRegister = (asDWORD)retQW[0];
 #endif
 		}
 		else
-			context->m_regs.valueRegister = retQW;
+			context->m_regs.valueRegister = retQW[0];
 	}
 
 	// Clean up arguments

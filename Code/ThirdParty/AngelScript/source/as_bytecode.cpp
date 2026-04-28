@@ -1,6 +1,6 @@
 /*
    AngelCode Scripting Library
-   Copyright (c) 2003-2022 Andreas Jonsson
+   Copyright (c) 2003-2025 Andreas Jonsson
 
    This software is provided 'as-is', without any express or implied
    warranty. In no event will the authors be held liable for any
@@ -1388,7 +1388,9 @@ bool asCByteCode::IsTempRegUsed(asCByteInstruction *curr)
 			curr->op == asBC_JS       ||
 			curr->op == asBC_JNS      ||
 			curr->op == asBC_JP       ||
-			curr->op == asBC_JNP      )
+			curr->op == asBC_JNP      ||
+			curr->op == asBC_JMPP     || // TODO: JMP and JMPP cannot be said to read the temporary register. Need to follow the branch to determine what happens next
+			curr->op == asBC_JMP ) 
 			return true;
 
 		// Which instructions overwrite the register or discard the value?
@@ -1409,16 +1411,6 @@ bool asCByteCode::IsTempRegUsed(asCByteInstruction *curr)
 			curr->op == asBC_TNS       ||
 			curr->op == asBC_TP        ||
 			curr->op == asBC_TNP       ||
-			curr->op == asBC_JS        ||
-			curr->op == asBC_JNS       ||
-			curr->op == asBC_JP        ||
-			curr->op == asBC_JNP       ||
-			curr->op == asBC_JMPP      ||
-			curr->op == asBC_JMP       ||
-			curr->op == asBC_JZ        ||
-			curr->op == asBC_JNZ       ||
-			curr->op == asBC_JLowZ     ||
-			curr->op == asBC_JLowNZ    ||
 			curr->op == asBC_CMPi      ||
 			curr->op == asBC_CMPu      ||
 			curr->op == asBC_CMPf      ||
@@ -1426,7 +1418,6 @@ bool asCByteCode::IsTempRegUsed(asCByteInstruction *curr)
 			curr->op == asBC_CMPIi     ||
 			curr->op == asBC_CMPIu     ||
 			curr->op == asBC_CMPIf     ||
-			curr->op == asBC_LABEL     ||
 			curr->op == asBC_LoadThisR ||
 			curr->op == asBC_LoadRObjR ||
 			curr->op == asBC_LoadVObjR )
@@ -1585,6 +1576,7 @@ void asCByteCode::ExtractTryCatchInfo(asCScriptFunction *outFunc)
 			asSTryCatchInfo info;
 			info.tryPos    = pos;
 			info.catchPos  = *ARG_DW(instr->arg);
+			info.stackSize = asUINT(instr->stackSize);
 			outFunc->scriptData->tryCatchInfo.PushLast(info);
 		}
 
@@ -2878,6 +2870,11 @@ int asCByteCode::InstrDOUBLE(asEBCInstr bc, double param)
 	last->stackInc = asBCInfo[bc].stackInc;
 
 	return last->stackInc;
+}
+
+asCByteInstruction* asCByteCode::GetFirstInstr()
+{
+	return first;
 }
 
 int asCByteCode::GetLastInstr()

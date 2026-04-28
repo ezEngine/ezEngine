@@ -95,6 +95,41 @@ asCDataType asCDataType::CreateType(asCTypeInfo *ti, bool isConst)
 	return dt;
 }
 
+asCDataType asCDataType::CreateById(asCScriptEngine* engine, int typeId, bool isConst)
+{
+	if (typeId & asTYPEID_OBJHANDLE)
+	{
+		return CreateObjectHandle((asCTypeInfo*)engine->GetTypeInfoById(typeId), isConst);
+	}
+	else if (typeId & ~asTYPEID_MASK_SEQNBR)
+	{
+		return CreateType((asCTypeInfo*)engine->GetTypeInfoById(typeId), isConst);
+	}
+	else
+	{
+		eTokenType tt;
+
+		switch (typeId)
+		{
+		case asTYPEID_VOID: tt = ttVoid; break;
+		case asTYPEID_BOOL: tt = ttBool; break;
+		case asTYPEID_INT8: tt = ttInt8; break;
+		case asTYPEID_INT16: tt = ttInt16; break;
+		case asTYPEID_INT32: tt = ttInt; break;
+		case asTYPEID_INT64: tt = ttInt64; break;
+		case asTYPEID_UINT8: tt = ttUInt8; break;
+		case asTYPEID_UINT16: tt = ttUInt16; break;
+		case asTYPEID_UINT32: tt = ttUInt; break;
+		case asTYPEID_UINT64: tt = ttUInt64; break;
+		case asTYPEID_FLOAT: tt = ttFloat; break;
+		case asTYPEID_DOUBLE: tt = ttDouble; break;
+		default: tt = ttInt; break;
+		}
+
+		return CreatePrimitive(tt, isConst);
+	}
+}
+
 asCDataType asCDataType::CreateAuto(bool isConst)
 {
 	asCDataType dt;
