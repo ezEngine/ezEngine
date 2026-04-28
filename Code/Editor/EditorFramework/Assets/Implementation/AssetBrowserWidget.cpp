@@ -1288,7 +1288,7 @@ void ezQtAssetBrowserWidget::on_ListAssets_customContextMenuRequested(const QPoi
     if (bHasExportableItems)
     {
       m.addSeparator();
-      m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Export.svg")), QLatin1String("Export with Dependencies..."), this, SLOT(OnExportAssetWithDependencies()));
+      m.addAction(QLatin1String("Export with Dependencies..."), this, SLOT(OnExportAssetWithDependencies()));
     }
 
     // Import assets

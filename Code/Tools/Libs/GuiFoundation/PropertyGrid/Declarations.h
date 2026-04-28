@@ -26,5 +26,8 @@ struct EZ_GUIFOUNDATION_DLL ezPropertyClipboard
 {
   ezString m_Type;
   ezVariant m_Value;
+  /// When set, contains a DDL serialized ezAbstractObjectGraph of an entire object (e.g. a component).
+  /// In that case m_Value is empty and m_Type is the RTTI type name of the serialized object.
+  ezString m_ObjectGraph;
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_GUIFOUNDATION_DLL, ezPropertyClipboard)

@@ -1,6 +1,8 @@
 #include <GuiFoundation/GuiFoundationPCH.h>
 
 #include <Foundation/IO/MemoryStream.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/DdlSerializer.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <Foundation/Serialization/RttiConverter.h>
 #include <Foundation/Strings/TranslationLookup.h>
@@ -16,6 +18,7 @@
 #include <GuiFoundation/Widgets/InlinedGroupBox.moc.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
+#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <QClipboard>
@@ -34,6 +37,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezPropertyClipboard, ezNoBase, 1, ezRTTIDefaultAl
   {
     EZ_MEMBER_PROPERTY("m_Type", m_Type),
     EZ_MEMBER_PROPERTY("m_Value", m_Value),
+    EZ_MEMBER_PROPERTY("m_ObjectGraph", m_ObjectGraph),
   }
   EZ_END_PROPERTIES;
 }
@@ -155,42 +159,118 @@ void ezQtPropertyWidget::ExtendContextMenu(QMenu& m)
   }
 
   const char* szMimeType = "application/ezEditor.Property";
-  bool bValueType = ezReflectionUtils::IsValueType(m_pProp) || m_pProp->GetFlags().IsAnySet(ezPropertyFlags::Bitflags | ezPropertyFlags::IsEnum);
+  const char* szObjectMimeType = "application/ezEditor.PropertyObject";
+  const bool bValueType = ezReflectionUtils::IsValueType(m_pProp) || m_pProp->GetFlags().IsAnySet(ezPropertyFlags::Bitflags | ezPropertyFlags::IsEnum);
+
+  // Pasting onto a single element of a container (array/set/map) is a scalar SetValue,
+  // not a whole-container replacement.
+  const bool bIsContainerProp = m_pProp->GetCategory() == ezPropertyCategory::Array || m_pProp->GetCategory() == ezPropertyCategory::Set || m_pProp->GetCategory() == ezPropertyCategory::Map;
+  const bool bIsSingleElement = bIsContainerProp && !m_Items.IsEmpty() && m_Items[0].m_Index.IsValid();
+
+  // Try to resolve every selection item to an underlying ezDocumentObject. This is the
+  // case for component group widgets (m_pProp is the Components array, m_Index is valid)
+  // and for embedded class / pointer member properties.
+  ezHybridArray<const ezDocumentObject*, 8> resolvedTargets;
+  bool bAllResolved = !bValueType && !m_Items.IsEmpty();
+  if (bAllResolved)
+  {
+    for (const ezPropertySelection& sel : m_Items)
+    {
+      ezVariant v;
+      if (m_pObjectAccessor->GetValue(sel.m_pObject, m_pProp, v, sel.m_Index).Failed() || !v.IsA<ezUuid>())
+      {
+        bAllResolved = false;
+        break;
+      }
+      const ezDocumentObject* pTarget = m_pObjectAccessor->GetObject(v.Get<ezUuid>());
+      if (pTarget == nullptr)
+      {
+        bAllResolved = false;
+        break;
+      }
+      resolvedTargets.PushBack(pTarget);
+    }
+  }
+  const bool bObjectType = bAllResolved && !resolvedTargets.IsEmpty();
+
   // Copy
   {
-    ezVariant commonValue = GetCommonValue(m_Items, m_pProp);
+    ezVariant commonValue = bValueType ? GetCommonValue(m_Items, m_pProp) : ezVariant();
     QAction* pCopy = m.addAction("Copy Value");
-    if (!bValueType)
+
+    if (bValueType)
+    {
+      if (!commonValue.IsValid())
+      {
+        pCopy->setEnabled(false);
+        pCopy->setToolTip("No common value in selection");
+      }
+
+      connect(pCopy, &QAction::triggered, this, [this, szMimeType, commonValue]()
+        {
+        ezPropertyClipboard content;
+        content.m_Type = m_pProp->GetSpecificType()->GetTypeName();
+        content.m_Value = commonValue;
+
+        // Serialize
+        ezContiguousMemoryStreamStorage streamStorage;
+        ezMemoryStreamWriter memoryWriter(&streamStorage);
+        ezReflectionSerializer::WriteObjectToDDL(memoryWriter, ezGetStaticRTTI<ezPropertyClipboard>(), &content);
+        memoryWriter.WriteBytes("\0", 1).IgnoreResult(); // null terminate
+
+        // Write to clipboard
+        QClipboard* clipboard = QApplication::clipboard();
+        QMimeData* mimeData = new QMimeData();
+        QByteArray encodedData((const char*)streamStorage.GetData(), streamStorage.GetStorageSize32());
+
+        mimeData->setData(szMimeType, encodedData);
+        mimeData->setText(QString::fromUtf8((const char*)streamStorage.GetData()));
+        clipboard->setMimeData(mimeData); });
+    }
+    else if (bObjectType)
+    {
+      // Multi-select object copy is ambiguous — only enable for a single source.
+      if (resolvedTargets.GetCount() != 1)
+      {
+        pCopy->setEnabled(false);
+        pCopy->setToolTip("Copy of object values requires a single selection");
+      }
+
+      const ezDocumentObject* pSource = resolvedTargets[0];
+      connect(pCopy, &QAction::triggered, this, [this, szObjectMimeType, pSource]()
+        {
+        // Serialize the object subgraph to DDL.
+        ezAbstractObjectGraph graph;
+        ezDocumentObjectConverterWriter writer(&graph, pSource->GetDocumentObjectManager());
+        writer.AddObjectToGraph(pSource, "root");
+
+        ezContiguousMemoryStreamStorage graphStorage;
+        ezMemoryStreamWriter graphWriter(&graphStorage);
+        ezAbstractGraphDdlSerializer::Write(graphWriter, &graph);
+        graphWriter.WriteBytes("\0", 1).IgnoreResult();
+
+        ezPropertyClipboard content;
+        content.m_Type = pSource->GetType()->GetTypeName();
+        content.m_ObjectGraph = (const char*)graphStorage.GetData();
+
+        // Serialize the clipboard wrapper itself.
+        ezContiguousMemoryStreamStorage streamStorage;
+        ezMemoryStreamWriter memoryWriter(&streamStorage);
+        ezReflectionSerializer::WriteObjectToDDL(memoryWriter, ezGetStaticRTTI<ezPropertyClipboard>(), &content);
+        memoryWriter.WriteBytes("\0", 1).IgnoreResult();
+
+        QClipboard* clipboard = QApplication::clipboard();
+        QMimeData* mimeData = new QMimeData();
+        QByteArray encodedData((const char*)streamStorage.GetData(), streamStorage.GetStorageSize32());
+        mimeData->setData(szObjectMimeType, encodedData);
+        mimeData->setText(QString::fromUtf8((const char*)streamStorage.GetData()));
+        clipboard->setMimeData(mimeData); });
+    }
+    else
     {
       pCopy->setEnabled(false);
       pCopy->setToolTip("Not a value type");
     }
-    else if (!commonValue.IsValid())
-    {
-      pCopy->setEnabled(false);
-      pCopy->setToolTip("No common value in selection");
-    }
-
-    connect(pCopy, &QAction::triggered, this, [this, szMimeType, commonValue]()
-      {
-      ezPropertyClipboard content;
-      content.m_Type = m_pProp->GetSpecificType()->GetTypeName();
-      content.m_Value = commonValue;
-
-      // Serialize
-      ezContiguousMemoryStreamStorage streamStorage;
-      ezMemoryStreamWriter memoryWriter(&streamStorage);
-      ezReflectionSerializer::WriteObjectToDDL(memoryWriter, ezGetStaticRTTI<ezPropertyClipboard>(), &content);
-      memoryWriter.WriteBytes("\0", 1).IgnoreResult(); // null terminate
-
-      // Write to clipboard
-      QClipboard* clipboard = QApplication::clipboard();
-      QMimeData* mimeData = new QMimeData();
-      QByteArray encodedData((const char*)streamStorage.GetData(), streamStorage.GetStorageSize32());
-
-      mimeData->setData(szMimeType, encodedData);
-      mimeData->setText(QString::fromUtf8((const char*)streamStorage.GetData()));
-      clipboard->setMimeData(mimeData); });
   }
 
   // Paste
@@ -200,22 +280,12 @@ void ezQtPropertyWidget::ExtendContextMenu(QMenu& m)
     QClipboard* clipboard = QApplication::clipboard();
     auto mimedata = clipboard->mimeData();
 
-    if (!bValueType)
-    {
-      pPaste->setEnabled(false);
-      pPaste->setToolTip("Not a value type");
-    }
-    else if (!isEnabled())
+    if (!isEnabled())
     {
       pPaste->setEnabled(false);
       pPaste->setToolTip("Property is read only");
     }
-    else if (!mimedata->hasFormat(szMimeType))
-    {
-      pPaste->setEnabled(false);
-      pPaste->setToolTip("No property in clipboard");
-    }
-    else
+    else if (bValueType && mimedata->hasFormat(szMimeType))
     {
       QByteArray ba = mimedata->data(szMimeType);
       ezRawMemoryStreamReader memoryReader(ba.data(), ba.size());
@@ -223,18 +293,24 @@ void ezQtPropertyWidget::ExtendContextMenu(QMenu& m)
       ezPropertyClipboard content;
       ezReflectionSerializer::ReadObjectPropertiesFromDDL(memoryReader, *ezGetStaticRTTI<ezPropertyClipboard>(), &content);
 
-      const bool bIsArray = m_pProp->GetCategory() == ezPropertyCategory::Array || m_pProp->GetCategory() == ezPropertyCategory::Set;
+      // Pasting onto a single container element is a scalar SetValue, not a whole-container replacement.
+      const bool bIsArrayPaste = (m_pProp->GetCategory() == ezPropertyCategory::Array || m_pProp->GetCategory() == ezPropertyCategory::Set) && !bIsSingleElement;
+      const bool bIsMapPaste = m_pProp->GetCategory() == ezPropertyCategory::Map && !bIsSingleElement;
       const ezRTTI* pClipboardType = ezRTTI::FindTypeByName(content.m_Type);
       const bool bIsEnumeration = pClipboardType && (pClipboardType->IsDerivedFrom<ezEnumBase>() || pClipboardType->IsDerivedFrom<ezBitflagsBase>() || m_pProp->GetSpecificType()->IsDerivedFrom<ezEnumBase>() || m_pProp->GetSpecificType()->IsDerivedFrom<ezBitflagsBase>());
       const bool bEnumerationMissmatch = bIsEnumeration ? pClipboardType != m_pProp->GetSpecificType() : false;
       const ezResult clamped = ezReflectionUtils::ClampValue(content.m_Value, m_pProp->GetAttributeByType<ezClampValueAttribute>());
 
-      if (content.m_Value.IsA<ezVariantArray>() != bIsArray)
+      if (content.m_Value.IsA<ezVariantArray>() != bIsArrayPaste || content.m_Value.IsA<ezVariantDictionary>() != bIsMapPaste)
       {
         pPaste->setEnabled(false);
         ezStringBuilder sTemp;
-        sTemp.SetFormat("Cannot convert clipboard and property content between arrays and members.");
+        sTemp.SetFormat("Cannot convert clipboard and property content between containers and members.");
         pPaste->setToolTip(sTemp.GetData());
+      }
+      else if (bIsMapPaste)
+      {
+        // No further checks; per-entry conversion is attempted on apply.
       }
       else if (bEnumerationMissmatch || (!content.m_Value.CanConvertTo(m_pProp->GetSpecificType()->GetVariantType()) && content.m_Type != m_pProp->GetSpecificType()->GetTypeName()))
       {
@@ -250,10 +326,10 @@ void ezQtPropertyWidget::ExtendContextMenu(QMenu& m)
         sTemp.SetFormat("The member property '{}' has an ezClampValueAttribute but ezReflectionUtils::ClampValue failed.", m_pProp->GetPropertyName());
       }
 
-      connect(pPaste, &QAction::triggered, this, [this, content]()
+      connect(pPaste, &QAction::triggered, this, [this, content, bIsArrayPaste, bIsMapPaste]()
         {
         m_pObjectAccessor->StartTransaction("Paste Value");
-        if (content.m_Value.IsA<ezVariantArray>())
+        if (bIsArrayPaste)
         {
           const ezVariantArray& values = content.m_Value.Get<ezVariantArray>();
           for (const ezPropertySelection& sel : m_Items)
@@ -266,6 +342,26 @@ void ezQtPropertyWidget::ExtendContextMenu(QMenu& m)
             for (const ezVariant& val : values)
             {
               if (m_pObjectAccessor->InsertValue(sel.m_pObject, m_pProp, val, -1).Failed())
+              {
+                m_pObjectAccessor->CancelTransaction();
+                return;
+              }
+            }
+          }
+        }
+        else if (bIsMapPaste)
+        {
+          const ezVariantDictionary& values = content.m_Value.Get<ezVariantDictionary>();
+          for (const ezPropertySelection& sel : m_Items)
+          {
+            if (m_pObjectAccessor->ClearByName(sel.m_pObject, m_pProp->GetPropertyName()).Failed())
+            {
+              m_pObjectAccessor->CancelTransaction();
+              return;
+            }
+            for (auto it = values.GetIterator(); it.IsValid(); ++it)
+            {
+              if (m_pObjectAccessor->InsertValue(sel.m_pObject, m_pProp, it.Value(), ezVariant(it.Key())).Failed())
               {
                 m_pObjectAccessor->CancelTransaction();
                 return;
@@ -286,6 +382,109 @@ void ezQtPropertyWidget::ExtendContextMenu(QMenu& m)
         }
 
         m_pObjectAccessor->FinishTransaction(); });
+    }
+    else if (bObjectType && mimedata->hasFormat(szObjectMimeType))
+    {
+      QByteArray ba = mimedata->data(szObjectMimeType);
+      ezRawMemoryStreamReader memoryReader(ba.data(), ba.size());
+
+      ezPropertyClipboard content;
+      ezReflectionSerializer::ReadObjectPropertiesFromDDL(memoryReader, *ezGetStaticRTTI<ezPropertyClipboard>(), &content);
+
+      if (content.m_ObjectGraph.IsEmpty())
+      {
+        pPaste->setEnabled(false);
+        pPaste->setToolTip("Clipboard does not contain object data");
+      }
+      else
+      {
+        // Capture targets and content for the lambda.
+        ezDynamicArray<const ezDocumentObject*> targets;
+        targets = resolvedTargets;
+
+        connect(pPaste, &QAction::triggered, this, [this, content, targets]()
+          {
+          // Deserialize the clipboard graph.
+          ezRawMemoryStreamReader graphReader(content.m_ObjectGraph.GetData(), content.m_ObjectGraph.GetElementCount());
+          ezAbstractObjectGraph graph;
+          if (ezAbstractGraphDdlSerializer::Read(graphReader, &graph).Failed())
+            return;
+
+          const ezAbstractObjectNode* pNode = graph.GetNodeByName("root");
+          if (pNode == nullptr)
+            return;
+
+          m_pObjectAccessor->StartTransaction("Paste Component Values");
+
+          for (const ezDocumentObject* pTarget : targets)
+          {
+            const ezRTTI* pTargetType = pTarget->GetType();
+            for (const auto& nodeProp : pNode->GetProperties())
+            {
+              const ezAbstractProperty* pTargetProp = pTargetType->FindPropertyByName(nodeProp.m_sPropertyName);
+              if (pTargetProp == nullptr)
+                continue;
+              if (pTargetProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
+                continue;
+              if (pTargetProp->GetAttributeByType<ezReadOnlyAttribute>() != nullptr)
+                continue;
+              if (pTargetProp->GetAttributeByType<ezHiddenAttribute>() != nullptr)
+                continue;
+              // Skip nested object references; only by-value properties are pasted in v1.
+              const bool bTargetValue = ezReflectionUtils::IsValueType(pTargetProp) || pTargetProp->GetFlags().IsAnySet(ezPropertyFlags::Bitflags | ezPropertyFlags::IsEnum);
+              if (!bTargetValue)
+                continue;
+
+              const ezPropertyCategory::Enum cat = pTargetProp->GetCategory();
+              if (cat == ezPropertyCategory::Member)
+              {
+                if (!nodeProp.m_Value.IsValid() || nodeProp.m_Value.IsA<ezVariantArray>() || nodeProp.m_Value.IsA<ezVariantDictionary>())
+                  continue;
+                ezVariant val = nodeProp.m_Value;
+                if (!val.CanConvertTo(pTargetProp->GetSpecificType()->GetVariantType()) && pTargetProp->GetSpecificType()->GetTypeName() != ezRTTI::FindTypeByName(content.m_Type)->GetTypeName())
+                  continue;
+                ezReflectionUtils::ClampValue(val, pTargetProp->GetAttributeByType<ezClampValueAttribute>()).IgnoreResult();
+                m_pObjectAccessor->SetValue(pTarget, pTargetProp, val).LogFailure();
+              }
+              else if (cat == ezPropertyCategory::Array || cat == ezPropertyCategory::Set)
+              {
+                if (!nodeProp.m_Value.IsA<ezVariantArray>())
+                  continue;
+                if (m_pObjectAccessor->ClearByName(pTarget, pTargetProp->GetPropertyName()).Failed())
+                  continue;
+                const ezVariantArray& values = nodeProp.m_Value.Get<ezVariantArray>();
+                for (const ezVariant& val : values)
+                {
+                  m_pObjectAccessor->InsertValue(pTarget, pTargetProp, val, -1).LogFailure();
+                }
+              }
+              else if (cat == ezPropertyCategory::Map)
+              {
+                if (!nodeProp.m_Value.IsA<ezVariantDictionary>())
+                  continue;
+                if (m_pObjectAccessor->ClearByName(pTarget, pTargetProp->GetPropertyName()).Failed())
+                  continue;
+                const ezVariantDictionary& values = nodeProp.m_Value.Get<ezVariantDictionary>();
+                for (auto it = values.GetIterator(); it.IsValid(); ++it)
+                {
+                  m_pObjectAccessor->InsertValue(pTarget, pTargetProp, it.Value(), it.Key()).LogFailure();
+                }
+              }
+            }
+          }
+
+          m_pObjectAccessor->FinishTransaction(); });
+      }
+    }
+    else if (!bValueType && !bObjectType)
+    {
+      pPaste->setEnabled(false);
+      pPaste->setToolTip("Not a value type");
+    }
+    else
+    {
+      pPaste->setEnabled(false);
+      pPaste->setToolTip("No matching property in clipboard");
     }
   }
 
@@ -397,6 +596,43 @@ ezVariant ezQtPropertyWidget::GetCommonValue(const ezArrayPtr<ezPropertySelectio
       }
     }
     return values;
+  }
+  else if (!items[0].m_Index.IsValid() && m_pProp->GetCategory() == ezPropertyCategory::Map)
+  {
+    ezVariantDictionary first;
+    for (ezUInt32 i = 0; i < items.GetCount(); i++)
+    {
+      const auto& item = items[i];
+      ezDynamicArray<ezVariant> keys;
+      if (m_pObjectAccessor->GetKeys(item.m_pObject, pProperty, keys).Failed())
+        return ezVariant();
+
+      ezVariantDictionary current;
+      for (const ezVariant& key : keys)
+      {
+        ezVariant val;
+        if (m_pObjectAccessor->GetValue(item.m_pObject, pProperty, val, key).Failed())
+          return ezVariant();
+        current.Insert(key.ConvertTo<ezString>(), val);
+      }
+
+      if (i == 0)
+      {
+        first = std::move(current);
+      }
+      else
+      {
+        if (first.GetCount() != current.GetCount())
+          return ezVariant();
+        for (auto it = first.GetIterator(); it.IsValid(); ++it)
+        {
+          ezVariant* pOther = nullptr;
+          if (!current.TryGetValue(it.Key(), pOther) || *pOther != it.Value())
+            return ezVariant();
+        }
+      }
+    }
+    return first;
   }
   else
   {
