@@ -16,9 +16,11 @@ set(JOLT_PHYSICS_SRC_FILES
 	${JOLT_PHYSICS_ROOT}/ConfigurationString.h
 	${JOLT_PHYSICS_ROOT}/Compute/ComputeBuffer.h
 	${JOLT_PHYSICS_ROOT}/Compute/ComputeQueue.h
+	${JOLT_PHYSICS_ROOT}/Compute/ComputeSystem.cpp
 	${JOLT_PHYSICS_ROOT}/Compute/ComputeSystem.h
 	${JOLT_PHYSICS_ROOT}/Compute/ComputeShader.h
 	${JOLT_PHYSICS_ROOT}/Core/ARMNeon.h
+	${JOLT_PHYSICS_ROOT}/Core/RISCVVector.h
 	${JOLT_PHYSICS_ROOT}/Core/Array.h
 	${JOLT_PHYSICS_ROOT}/Core/Atomics.h
 	${JOLT_PHYSICS_ROOT}/Core/BinaryHeap.h
@@ -51,12 +53,14 @@ set(JOLT_PHYSICS_SRC_FILES
 	${JOLT_PHYSICS_ROOT}/Core/LinearCurve.h
 	${JOLT_PHYSICS_ROOT}/Core/LockFreeHashMap.h
 	${JOLT_PHYSICS_ROOT}/Core/LockFreeHashMap.inl
+	${JOLT_PHYSICS_ROOT}/Core/LSANSuppressions.h
 	${JOLT_PHYSICS_ROOT}/Core/Memory.cpp
 	${JOLT_PHYSICS_ROOT}/Core/Memory.h
 	${JOLT_PHYSICS_ROOT}/Core/Mutex.h
 	${JOLT_PHYSICS_ROOT}/Core/MutexArray.h
 	${JOLT_PHYSICS_ROOT}/Core/NonCopyable.h
 	${JOLT_PHYSICS_ROOT}/Core/ObjectToIDMap.h
+	${JOLT_PHYSICS_ROOT}/Core/Prefetch.h
 	${JOLT_PHYSICS_ROOT}/Core/Profiler.cpp
 	${JOLT_PHYSICS_ROOT}/Core/Profiler.h
 	${JOLT_PHYSICS_ROOT}/Core/Profiler.inl
@@ -315,6 +319,7 @@ set(JOLT_PHYSICS_SRC_FILES
 	${JOLT_PHYSICS_ROOT}/Physics/Constraints/ConstraintManager.h
 	${JOLT_PHYSICS_ROOT}/Physics/Constraints/ConstraintPart/AngleConstraintPart.h
 	${JOLT_PHYSICS_ROOT}/Physics/Constraints/ConstraintPart/AxisConstraintPart.h
+	${JOLT_PHYSICS_ROOT}/Physics/Constraints/ConstraintPart/ContactConstraintPart.h
 	${JOLT_PHYSICS_ROOT}/Physics/Constraints/ConstraintPart/DualAxisConstraintPart.h
 	${JOLT_PHYSICS_ROOT}/Physics/Constraints/ConstraintPart/GearConstraintPart.h
 	${JOLT_PHYSICS_ROOT}/Physics/Constraints/ConstraintPart/HingeRotationConstraintPart.h
@@ -493,6 +498,9 @@ if (JPH_USE_DX12 OR JPH_USE_VK OR JPH_USE_MTL OR JPH_USE_CPU_COMPUTE)
 		${JOLT_PHYSICS_ROOT}/Shaders/TestCompute2.hlsl
 	)
 
+	# Ignore shader files for compilation, we'll compile them manually
+	set_source_files_properties(${JOLT_PHYSICS_SHADERS} PROPERTIES HEADER_FILE_ONLY ON)
+
 	set(JOLT_PHYSICS_SHADER_HEADERS
 		${JOLT_PHYSICS_ROOT}/Shaders/HairApplyDeltaTransformBindings.h
 		${JOLT_PHYSICS_ROOT}/Shaders/HairApplyGlobalPose.h
@@ -552,9 +560,6 @@ if (WIN32)
 	# Add natvis file
 	set(JOLT_PHYSICS_SRC_FILES ${JOLT_PHYSICS_SRC_FILES} ${JOLT_PHYSICS_ROOT}/Jolt.natvis)
 
-	# Set properties to compile shaders as compute shaders
-	set_source_files_properties(${JOLT_PHYSICS_SHADERS} PROPERTIES VS_SHADER_FLAGS "/WX /T cs_5_0")
-
 	# DirectX support
 	if (JPH_USE_DX12)
 		# DirectX source files
@@ -571,6 +576,69 @@ if (WIN32)
 			${JOLT_PHYSICS_ROOT}/Compute/DX12/ComputeShaderDX12.h
 			${JOLT_PHYSICS_ROOT}/Compute/DX12/IncludeDX12.h
 		)
+
+		# Determine target architecture
+		if ("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "Win32")
+			set(DXC_ARCH_DIR "x86")
+		else()
+			set(DXC_ARCH_DIR "x64")
+		endif()
+
+		# CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION is only set for Visual Studio,
+		# otherwise just search for the first SDK.
+		set(DXC_SEARCH_HINTS "$ENV{WindowsSdkVerBinPath}${DXC_ARCH_DIR}")
+		if (CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION)
+			list(APPEND DXC_SEARCH_HINTS
+				"C:/Program Files (x86)/Windows Kits/10/bin/${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}/${DXC_ARCH_DIR}")
+		else()
+			file(GLOB DXC_SDK_VERSION_DIRS "C:/Program Files (x86)/Windows Kits/10/bin/10.*")
+			foreach(SDK_DIR ${DXC_SDK_VERSION_DIRS})
+				list(APPEND DXC_SEARCH_HINTS "${SDK_DIR}/${DXC_ARCH_DIR}")
+			endforeach()
+		endif()
+
+		# Locate DXC
+		find_program(DXC_COMPILER NAMES dxc HINTS ${DXC_SEARCH_HINTS} NO_DEFAULT_PATH)
+
+		# Compile HLSL shaders
+		if (NOT DXC_COMPILER)
+			MESSAGE("Application 'dxc' not found. Can't compile compute shaders. Some functionality will be unavailable.")
+		else()
+			if (JPH_SHADER_DEBUG_SYMBOLS)
+				set(DXC_DEBUG_FLAGS -Qembed_debug -Zi)
+			else()
+				set(DXC_DEBUG_FLAGS "")
+			endif()
+
+			if (JPH_SHADER_OPTIMIZATION)
+				set(DXC_OPTIMIZATION_FLAGS -O3)
+			else()
+				set(DXC_OPTIMIZATION_FLAGS -Od)
+			endif()
+
+			foreach(SHADER ${JOLT_PHYSICS_SHADERS})
+				string(REPLACE ".hlsl" ".dxil" DXIL_SHADER ${SHADER})
+				add_custom_command(OUTPUT ${DXIL_SHADER}
+					COMMAND ${DXC_COMPILER} -E main -T cs_6_0 -I Jolt/Shaders -WX -all_resources_bound ${DXC_OPTIMIZATION_FLAGS} ${DXC_DEBUG_FLAGS} ${SHADER} -Fo ${DXIL_SHADER}
+					DEPENDS ${SHADER} ${JOLT_PHYSICS_SHADER_HEADERS} # Currently don't have a way to detect header dependencies, so making dependent on all
+					COMMENT "Compiling HLSL ${SHADER}")
+				list(APPEND JOLT_PHYSICS_DXIL_SHADERS ${DXIL_SHADER})
+			endforeach()
+
+			# Group intermediate files
+			source_group(Intermediate FILES ${JOLT_PHYSICS_DXIL_SHADERS})
+
+			# Find DX12 runtime DLLs, they live alongside dxc.exe
+			cmake_path(GET DXC_COMPILER PARENT_PATH DXC_BIN_DIR)
+			foreach(DLL dxcompiler.dll dxil.dll)
+				set(DLL_PATH "${DXC_BIN_DIR}/${DLL}")
+				if (EXISTS "${DLL_PATH}")
+					list(APPEND JPH_DX12_RUNTIME_DLLS "${DLL_PATH}")
+				else()
+					message(WARNING "DX12 runtime DLL not found: ${DLL_PATH}")
+				endif()
+			endforeach()
+		endif()
 	endif()
 else()
 	set(JPH_USE_DX12 OFF)
@@ -672,6 +740,18 @@ if (JPH_USE_VK)
 		# For now, just set it manually
 		string(REPLACE "glslc" "dxc" Vulkan_dxc_EXECUTABLE ${Vulkan_GLSLC_EXECUTABLE})
 
+		if (JPH_SHADER_DEBUG_SYMBOLS)
+			set(SPV_DEBUG_FLAGS -fspv-debug=vulkan-with-source)
+		else()
+			set(SPV_DEBUG_FLAGS "")
+		endif()
+
+		if (JPH_SHADER_OPTIMIZATION)
+			set(SPV_OPTIMIZATION_FLAGS -O3)
+		else()
+			set(SPV_OPTIMIZATION_FLAGS -Od)
+		endif()
+
 		# Compile Vulkan shaders
 		foreach(SHADER ${JOLT_PHYSICS_SHADERS})
 			string(REPLACE ".hlsl" ".spv" SPV_SHADER ${SHADER})
@@ -680,7 +760,7 @@ if (JPH_USE_VK)
 				# The glslc compiler has the following issues:
 				# - All buffers bind to slot 0. We don't want to manually specify registers so this requires going into the SPIRV code and patching it.
 				# - It automatically aligns float3 to 16 byte boundaries which wastes a lot of memory in structs. We only seem to be able to override this alignment when compiling a GLSL shader and not with HLSL.
-				COMMAND ${Vulkan_dxc_EXECUTABLE} -E main -T cs_6_0 -I Jolt/Shaders -WX -O3 -all_resources_bound ${SHADER} -spirv -fvk-use-dx-layout -Fo ${SPV_SHADER}
+				COMMAND ${Vulkan_dxc_EXECUTABLE} -E main -T cs_6_0 -I Jolt/Shaders -WX -all_resources_bound -spirv -fvk-use-dx-layout ${SPV_OPTIMIZATION_FLAGS} ${SPV_DEBUG_FLAGS} ${SHADER} -Fo ${SPV_SHADER}
 				DEPENDS ${SHADER} ${JOLT_PHYSICS_SHADER_HEADERS} # Currently don't have a way to detect header dependencies, so making dependent on all
 				COMMENT "Compiling Vulkan ${SHADER}")
 			list(APPEND JOLT_PHYSICS_SPV_SHADERS ${SPV_SHADER})
@@ -697,10 +777,15 @@ endif()
 source_group(TREE ${JOLT_PHYSICS_ROOT} FILES ${JOLT_PHYSICS_SRC_FILES} ${JOLT_PHYSICS_SHADERS} ${JOLT_PHYSICS_SHADER_HEADERS})
 
 # Create Jolt lib
-add_library(Jolt ${JOLT_PHYSICS_SRC_FILES} ${JOLT_PHYSICS_SHADERS} ${JOLT_PHYSICS_SHADER_HEADERS} ${JOLT_PHYSICS_SPV_SHADERS} ${JOLT_PHYSICS_METAL_LIB})
+if (JPH_BUILD_SHARED_LIBS)
+	set(JPH_LIB_TYPE SHARED)
+else()
+	set(JPH_LIB_TYPE STATIC)
+endif()
+add_library(Jolt ${JPH_LIB_TYPE} ${JOLT_PHYSICS_SRC_FILES} ${JOLT_PHYSICS_SHADERS} ${JOLT_PHYSICS_SHADER_HEADERS} ${JOLT_PHYSICS_DXIL_SHADERS} ${JOLT_PHYSICS_SPV_SHADERS} ${JOLT_PHYSICS_METAL_LIB})
 add_library(Jolt::Jolt ALIAS Jolt)
 
-if (BUILD_SHARED_LIBS)
+if (JPH_BUILD_SHARED_LIBS)
 	# Set default visibility to hidden
 	set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
@@ -801,12 +886,6 @@ endif()
 if (JPH_USE_DX12)
 	target_compile_definitions(Jolt PUBLIC JPH_USE_DX12)
 	target_link_libraries(Jolt LINK_PUBLIC dxgi.lib d3d12.lib d3dcompiler.lib dxguid.lib)
-
-	# Use DXC compiler to compile shaders, when off falls back to FXC
-	if (JPH_USE_DXC)
-		target_compile_definitions(Jolt PUBLIC JPH_USE_DXC)
-		target_link_libraries(Jolt LINK_PUBLIC dxcompiler.lib)
-	endif()
 endif()
 
 # Compile against Vulkan
@@ -814,7 +893,6 @@ if (JPH_USE_VK)
 	target_compile_definitions(Jolt PUBLIC JPH_USE_VK)
 
 	target_include_directories(Jolt PUBLIC ${Vulkan_INCLUDE_DIRS})
-	target_link_libraries(Jolt LINK_PUBLIC ${Vulkan_LIBRARIES})
 endif()
 
 # Compile against Metal

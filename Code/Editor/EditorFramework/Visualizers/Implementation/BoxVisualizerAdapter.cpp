@@ -31,7 +31,18 @@ void ezBoxVisualizerAdapter::Update()
 
   if (!pAttr->GetSizeProperty().IsEmpty())
   {
-    m_vScale *= pObjectAccessor->Get<ezVec3>(m_pObject, GetProperty(pAttr->GetSizeProperty()));
+    ezVariant val;
+    if (pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetSizeProperty()), val).Succeeded())
+    {
+      if (val.IsNumber())
+      {
+        m_vScale *= val.ConvertTo<float>();
+      }
+      else if (val.CanConvertTo<ezVec3>())
+      {
+        m_vScale *= val.ConvertTo<ezVec3>();
+      }
+    }
   }
 
   if (!pAttr->GetColorProperty().IsEmpty())

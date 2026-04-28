@@ -93,12 +93,9 @@ public:
     ezVec2 m_vHalfExtents;
     ezUInt32 m_uiResolution = 64;
 
-    /// Maximum height range. Terrain Z spans [-m_fHeight, 0] in local space.
-    float m_fMaxHeight = 0.0f;
-
-    /// Height samples in row-major order, m_uiResolution * m_uiResolution entries. Values are in [0, 1], where
-    /// 1 maps to z = 0 (top) and 0 maps to z = -m_fMaxHeight (bottom).
+    /// Height samples in row-major order, m_uiResolution * m_uiResolution entries.
     ezDynamicArray<float> m_Heights;
+
     /// Per-cell material indices (one per quad, (m_uiResolution-1)^2 entries). Indexes into m_Surfaces.
     ezDynamicArray<ezUInt8> m_MaterialIndices;
     ezDynamicArray<ezSurfaceResourceHandle> m_Surfaces;

@@ -1358,7 +1358,6 @@ ezResult ezJoltWorldModule::BuildJoltHeightfieldShape(const ezPhysicsWorldModule
   const ezUInt32 N = data.m_uiResolution;
   const float halfX = data.m_vHalfExtents.x;
   const float halfY = data.m_vHalfExtents.y;
-  const float fH = data.m_fMaxHeight;
 
   if (N < 4 || (N % 2) != 0 || data.m_Heights.GetCount() != N * N)
   {
@@ -1414,8 +1413,8 @@ ezResult ezJoltWorldModule::BuildJoltHeightfieldShape(const ezPhysicsWorldModule
 
   JPH::HeightFieldShapeSettings settings(
     flippedSamples.GetData(),
-    JPH::Vec3(-halfX, -fH, -halfY),
-    JPH::Vec3(2.0f * halfX / static_cast<float>(N - 1), fH, 2.0f * halfY / static_cast<float>(N - 1)),
+    JPH::Vec3(-halfX, 0.0f, -halfY),
+    JPH::Vec3(2.0f * halfX / static_cast<float>(N - 1), 1.0f, 2.0f * halfY / static_cast<float>(N - 1)),
     N,
     bHasMaterials ? data.m_MaterialIndices.GetData() : nullptr,
     joltMaterials);

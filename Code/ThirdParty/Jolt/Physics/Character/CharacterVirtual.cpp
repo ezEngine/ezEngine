@@ -621,19 +621,22 @@ bool CharacterVirtual::GetFirstContactForSweep(RVec3Arg inPosition, Vec3Arg inDi
 		ts = mSystem->GetBodyInterface().GetTransformedShape(outContact.mBodyB);
 	}
 
-	// Fetch the face we're colliding with
-	Shape::SupportingFace face;
-	ts.GetSupportingFace(outContact.mSubShapeIDB, -outContact.mContactNormal, base_offset, face);
-
 	bool corrected = false;
-	if (face.size() >= 2)
+	if (ts.mShape != nullptr) // If body B has been removed between CastShape and GetTransformedShape, TransformedShape will be empty
 	{
-		// Inflate the colliding face by the character padding
-		PolygonConvexSupport polygon(face);
-		AddConvexRadius add_cvx(polygon, character_padding);
+		// Fetch the face we're colliding with
+		Shape::SupportingFace face;
+		ts.GetSupportingFace(outContact.mSubShapeIDB, -outContact.mContactNormal, base_offset, face);
 
-		// Correct fraction to hit this inflated face instead of the inner shape
-		corrected = sCorrectFractionForCharacterPadding(mShape, start.GetRotation(), inDisplacement, Vec3::sOne(), add_cvx, outContact.mFraction);
+		if (face.size() >= 2)
+		{
+			// Inflate the colliding face by the character padding
+			PolygonConvexSupport polygon(face);
+			AddConvexRadius add_cvx(polygon, character_padding);
+
+			// Correct fraction to hit this inflated face instead of the inner shape
+			corrected = sCorrectFractionForCharacterPadding(mShape, start.GetRotation(), inDisplacement, Vec3::sOne(), add_cvx, outContact.mFraction);
+		}
 	}
 	if (!corrected)
 	{
@@ -683,7 +686,7 @@ void CharacterVirtual::DetermineConstraints(TempContactList &inContacts, float i
 				outConstraints.emplace_back();
 				Constraint &vertical_constraint = outConstraints.back();
 				vertical_constraint.mContact = &c;
-				vertical_constraint.mLinearVelocity = contact_velocity.Dot(normal) * normal; // Project the contact velocity on the new normal so that both planes push at an equal rate
+				vertical_constraint.mLinearVelocity = c.mLinearVelocity.Dot(normal) * normal; // Project the contact velocity on the new normal so that both planes push at an equal rate. We ignore velocity added to push characters out of collision as that can get characters stuck if they are surrounded on all sides by steep slopes.
 				vertical_constraint.mPlane = Plane(normal, c.mDistance / normal.Dot(c.mContactNormal)); // Calculate the distance we have to travel horizontally to hit the contact plane
 			}
 		}

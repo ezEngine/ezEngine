@@ -117,7 +117,20 @@
 #endif
 
 // Detect CPU architecture
-#if defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(_M_IX86)
+#if defined(__aarch64__) || defined(_M_ARM64) || defined(__arm__) || defined(_M_ARM) || defined(_M_ARM64EC)
+	// ARM CPU architecture
+	#define JPH_CPU_ARM
+	#if defined(__aarch64__) || defined(_M_ARM64) || defined(_M_ARM64EC)
+		#define JPH_CPU_ARCH_BITS 64
+		#define JPH_USE_NEON
+		#define JPH_VECTOR_ALIGNMENT 16
+		#define JPH_DVECTOR_ALIGNMENT 32
+	#else
+		#define JPH_CPU_ARCH_BITS 32
+		#define JPH_VECTOR_ALIGNMENT 8 // 32-bit ARM does not support aligning on the stack on 16 byte boundaries
+		#define JPH_DVECTOR_ALIGNMENT 8
+	#endif
+#elif defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(_M_IX86)
 	// X86 CPU architecture
 	#define JPH_CPU_X86
 	#if defined(__x86_64__) || defined(_M_X64)
@@ -167,19 +180,6 @@
 			#error Undefined compiler
 		#endif
 	#endif
-#elif defined(__aarch64__) || defined(_M_ARM64) || defined(__arm__) || defined(_M_ARM)
-	// ARM CPU architecture
-	#define JPH_CPU_ARM
-	#if defined(__aarch64__) || defined(_M_ARM64)
-		#define JPH_CPU_ARCH_BITS 64
-		#define JPH_USE_NEON
-		#define JPH_VECTOR_ALIGNMENT 16
-		#define JPH_DVECTOR_ALIGNMENT 32
-	#else
-		#define JPH_CPU_ARCH_BITS 32
-		#define JPH_VECTOR_ALIGNMENT 8 // 32-bit ARM does not support aligning on the stack on 16 byte boundaries
-		#define JPH_DVECTOR_ALIGNMENT 8
-	#endif
 #elif defined(__riscv)
 	// RISC-V CPU architecture
 	#define JPH_CPU_RISCV
@@ -191,6 +191,9 @@
 		#define JPH_CPU_ARCH_BITS 32
 		#define JPH_VECTOR_ALIGNMENT 16
 		#define JPH_DVECTOR_ALIGNMENT 8
+	#endif
+	#if defined(__riscv_vector)
+		#define JPH_USE_RVV
 	#endif
 #elif defined(JPH_PLATFORM_WASM)
 	// WebAssembly CPU architecture
@@ -473,6 +476,8 @@ JPH_SUPPRESS_WARNINGS_STD_BEGIN
 	#else
 		#include <arm_neon.h>
 	#endif
+#elif defined(JPH_USE_RVV)
+	#include <riscv_vector.h>
 #endif
 JPH_SUPPRESS_WARNINGS_STD_END
 
@@ -501,7 +506,9 @@ using uint = unsigned int;
 using uint8 = std::uint8_t;
 using uint16 = std::uint16_t;
 using uint32 = std::uint32_t;
+using int32 = std::int32_t;
 using uint64 = std::uint64_t;
+using int64 = std::int64_t;
 
 // Assert sizes of types
 static_assert(sizeof(uint) >= 4, "Invalid size of uint");
@@ -604,7 +611,7 @@ static_assert(sizeof(uint64) == 8, "Invalid size of uint64");
 #elif defined(JPH_COMPILER_CLANG)
 	// We compile without -ffast-math because pragma float_control(precise, on) doesn't seem to actually negate all of the -ffast-math effects and causes the unit tests to fail (even if the pragma is added to all files)
 	// On clang 14 and later we can turn off float contraction through a pragma (before it was buggy), so if FMA is on we can disable it through this macro
-	#if (defined(JPH_CPU_ARM) && !defined(JPH_PLATFORM_ANDROID) && __clang_major__ >= 16) || (defined(JPH_CPU_X86) && __clang_major__ >= 14)
+	#if (defined(JPH_CPU_ARM) && !defined(JPH_PLATFORM_ANDROID) && __clang_major__ >= 16) || (defined(JPH_CPU_X86) && __clang_major__ >= 14) || defined(JPH_USE_RVV)
 		#define JPH_PRECISE_MATH_ON						\
 			_Pragma("float_control(precise, on, push)")	\
 			_Pragma("clang fp contract(off)")
@@ -647,6 +654,17 @@ static_assert(sizeof(uint64) == 8, "Invalid size of uint64");
 	#define JPH_TSAN_NO_SANITIZE __attribute__((no_sanitize("thread")))
 #else
 	#define JPH_TSAN_NO_SANITIZE
+#endif
+
+// Check if Address Sanitizer is enabled
+#ifdef __has_feature
+	#if __has_feature(address_sanitizer)
+		#define JPH_ASAN_ENABLED
+	#endif
+#else
+	#ifdef __SANITIZE_ADDRESS__
+		#define JPH_ASAN_ENABLED
+	#endif
 #endif
 
 // DirectX 12 is only supported on Windows

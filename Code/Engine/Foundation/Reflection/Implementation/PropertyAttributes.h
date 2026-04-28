@@ -804,6 +804,7 @@ struct ezVisualizerAnchor
   };
 };
 
+EZ_DECLARE_FLAGS_OPERATORS(ezVisualizerAnchor);
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezVisualizerAnchor);
 
 //////////////////////////////////////////////////////////////////////////

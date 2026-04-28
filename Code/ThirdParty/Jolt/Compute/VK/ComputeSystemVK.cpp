@@ -13,14 +13,64 @@
 
 JPH_NAMESPACE_BEGIN
 
-bool ComputeSystemVK::Initialize(VkPhysicalDevice inPhysicalDevice, VkDevice inDevice, uint32 inComputeQueueIndex, ComputeSystemResult &outResult)
+JPH_IMPLEMENT_RTTI_ABSTRACT(ComputeSystemVK)
+{
+	JPH_ADD_BASE_CLASS(ComputeSystemVK, ComputeSystem)
+}
+
+bool ComputeSystemVK::Initialize(VkPhysicalDevice inPhysicalDevice, PFN_vkGetDeviceProcAddr inVkGetDeviceProcAddr, VkDevice inDevice, uint32 inComputeQueueIndex, ComputeSystemResult &outResult)
 {
 	mPhysicalDevice = inPhysicalDevice;
 	mDevice = inDevice;
 	mComputeQueueIndex = inComputeQueueIndex;
 
+	// Load Vulkan device functions
+	#define JPH_LOAD_VK(name) mVk##name = reinterpret_cast<PFN_vk##name>(reinterpret_cast<void *>(inVkGetDeviceProcAddr(mDevice, "vk" #name))); JPH_ASSERT(mVk##name != nullptr)
+	JPH_LOAD_VK(AllocateCommandBuffers);
+	JPH_LOAD_VK(AllocateDescriptorSets);
+	JPH_LOAD_VK(AllocateMemory);
+	JPH_LOAD_VK(BeginCommandBuffer);
+	JPH_LOAD_VK(BindBufferMemory);
+	JPH_LOAD_VK(CmdBindDescriptorSets);
+	JPH_LOAD_VK(CmdBindPipeline);
+	JPH_LOAD_VK(CmdCopyBuffer);
+	JPH_LOAD_VK(CmdDispatch);
+	JPH_LOAD_VK(CmdPipelineBarrier);
+	JPH_LOAD_VK(CreateBuffer);
+	JPH_LOAD_VK(CreateCommandPool);
+	JPH_LOAD_VK(CreateComputePipelines);
+	JPH_LOAD_VK(CreateDescriptorPool);
+	JPH_LOAD_VK(CreateDescriptorSetLayout);
+	JPH_LOAD_VK(CreateFence);
+	JPH_LOAD_VK(CreatePipelineLayout);
+	JPH_LOAD_VK(CreateShaderModule);
+	JPH_LOAD_VK(DestroyBuffer);
+	JPH_LOAD_VK(DestroyCommandPool);
+	JPH_LOAD_VK(DestroyDescriptorPool);
+	JPH_LOAD_VK(DestroyDescriptorSetLayout);
+	JPH_LOAD_VK(DestroyDevice);
+	JPH_LOAD_VK(DestroyFence);
+	JPH_LOAD_VK(DestroyPipeline);
+	JPH_LOAD_VK(DestroyPipelineLayout);
+	JPH_LOAD_VK(DestroyShaderModule);
+	JPH_LOAD_VK(DeviceWaitIdle);
+	JPH_LOAD_VK(EndCommandBuffer);
+	JPH_LOAD_VK(FreeCommandBuffers);
+	JPH_LOAD_VK(FreeMemory);
+	JPH_LOAD_VK(GetBufferMemoryRequirements);
+	JPH_LOAD_VK(GetDeviceQueue);
+	JPH_LOAD_VK(MapMemory);
+	JPH_LOAD_VK(QueueSubmit);
+	JPH_LOAD_VK(ResetCommandBuffer);
+	JPH_LOAD_VK(ResetDescriptorPool);
+	JPH_LOAD_VK(ResetFences);
+	JPH_LOAD_VK(UnmapMemory);
+	JPH_LOAD_VK(UpdateDescriptorSets);
+	JPH_LOAD_VK(WaitForFences);
+	#undef JPH_LOAD_VK
+
 	// Get function to set a debug name
-	mVkSetDebugUtilsObjectNameEXT = reinterpret_cast<PFN_vkSetDebugUtilsObjectNameEXT>(reinterpret_cast<void *>(vkGetDeviceProcAddr(mDevice, "vkSetDebugUtilsObjectNameEXT")));
+	mVkSetDebugUtilsObjectNameEXT = reinterpret_cast<PFN_vkSetDebugUtilsObjectNameEXT>(reinterpret_cast<void *>(inVkGetDeviceProcAddr(mDevice, "vkSetDebugUtilsObjectNameEXT")));
 
 	if (!InitializeMemory())
 	{
@@ -41,7 +91,7 @@ bool ComputeSystemVK::Initialize(VkPhysicalDevice inPhysicalDevice, VkDevice inD
 void ComputeSystemVK::Shutdown()
 {
 	if (mDevice != VK_NULL_HANDLE)
-		vkDeviceWaitIdle(mDevice);
+		mVkDeviceWaitIdle(mDevice);
 
 	// Free the dummy buffer
 	FreeBuffer(mDummyBuffer);
@@ -63,7 +113,7 @@ ComputeShaderResult ComputeSystemVK::CreateComputeShader(const char *inName, uin
 		return result;
 	}
 
-	Ref<ComputeShaderVK> shader = new ComputeShaderVK(mDevice, inGroupSizeX, inGroupSizeY, inGroupSizeZ);
+	Ref<ComputeShaderVK> shader = new ComputeShaderVK(this, inGroupSizeX, inGroupSizeY, inGroupSizeZ);
 	if (!shader->Initialize(data, mDummyBuffer.mBuffer, result))
 		return result;
 

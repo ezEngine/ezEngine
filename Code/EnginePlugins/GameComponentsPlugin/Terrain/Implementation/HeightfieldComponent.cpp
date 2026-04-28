@@ -190,7 +190,6 @@ void ezHeightfieldComponent::PushHeightfieldCollider()
   ezPhysicsWorldModuleInterface::HeightfieldColliderData data;
   data.m_uiResolution = N;
   data.m_vHalfExtents = vScaledHalfExtents;
-  data.m_fMaxHeight = fScaledHeight;
   data.m_Heights.SetCountUninitialized(N * N);
   data.m_MaterialIndices.SetCount((N - 1) * (N - 1), 0);
 
@@ -204,7 +203,7 @@ void ezHeightfieldComponent::PushHeightfieldCollider()
     for (ezUInt32 col = 0; col < N; ++col)
     {
       const ezVec2 ndc = ezVec2((float)col, (float)row).CompMul(vToNDC);
-      data.m_Heights[row * N + col] = ezImageUtils::BilinearSample(pImgData, imgWidth, imgHeight, ezImageAddressMode::Clamp, ndc).r;
+      data.m_Heights[row * N + col] = (ezImageUtils::BilinearSample(pImgData, imgWidth, imgHeight, ezImageAddressMode::Clamp, ndc).r * fScaledHeight) - fScaledHeight;
     }
   }
 
@@ -534,7 +533,7 @@ ezResult ezHeightfieldComponent::BuildMeshDescriptor(ezMeshResourceDescriptor& d
       }
     }
 
-    desc.SetBounds(ezBoundingBoxSphere::MakeFromBox(ezBoundingBox::MakeFromMinMax(vPosOffset, vPosOffset + vSize)));
+    desc.SetBounds(ezBoundingBoxSphere::MakeFromBox(ezBoundingBox::MakeFromMinMax(vPosOffset, vPosOffset + vSize.Abs())));
 
     ezUInt32 uiTriangleIdx = 0;
     uiVertexIdx = 0;

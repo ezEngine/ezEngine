@@ -263,6 +263,9 @@ public:
 	/// Get the maximum of X, Y, Z and W
 	JPH_INLINE float			ReduceMax() const;
 
+	/// Sum X, Y, Z and W
+	JPH_INLINE float			ReduceSum() const;
+
 	/// Component wise square root
 	JPH_INLINE Vec4				Sqrt() const;
 
