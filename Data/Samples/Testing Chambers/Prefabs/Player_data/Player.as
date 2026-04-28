@@ -22,6 +22,13 @@ class Player : ezAngelScriptClass
     private WeaponType eActiveWeapon = WeaponType::None;
     private WeaponType eHolsteredWeapon = WeaponType::None;
     private AmmoPouch ammoPouch;
+    
+    private ezVec4 smoothInput;
+    
+    float ApplyInputGravity(float value, float input, float gravity)
+    {
+        return ezMath::Max(0, ezMath::Lerp(value, input, gravity));
+    }
 
     void OnSimulationStarted()
     {
@@ -142,12 +149,19 @@ class Player : ezAngelScriptClass
 
             // character controller update
             {
+                // input gravity
+                float inputGravity = 8.0f * deltaTime.GetSeconds();
+                smoothInput.x = ApplyInputGravity(smoothInput.x, inputComp.GetCurrentInputState("MoveForwards", false), inputGravity);
+                smoothInput.y = ApplyInputGravity(smoothInput.y, inputComp.GetCurrentInputState("MoveBackwards", false), inputGravity);
+                smoothInput.z = ApplyInputGravity(smoothInput.z, inputComp.GetCurrentInputState("StrafeLeft", false), inputGravity);
+                smoothInput.w = ApplyInputGravity(smoothInput.w, inputComp.GetCurrentInputState("StrafeRight", false), inputGravity);
+                
                 ezMsgMoveCharacterController msgMove;
                 msgMove.Jump = inputComp.GetCurrentInputState("Jump", true) > 0.5;
-                msgMove.MoveForwards = inputComp.GetCurrentInputState("MoveForwards", false);
-                msgMove.MoveBackwards = inputComp.GetCurrentInputState("MoveBackwards", false);
-                msgMove.StrafeLeft = inputComp.GetCurrentInputState("StrafeLeft", false);
-                msgMove.StrafeRight = inputComp.GetCurrentInputState("StrafeRight", false);
+                msgMove.MoveForwards = smoothInput.x;
+                msgMove.MoveBackwards = smoothInput.y;
+                msgMove.StrafeLeft = smoothInput.z;
+                msgMove.StrafeRight = smoothInput.w;
                 msgMove.RotateLeft = inputComp.GetCurrentInputState("RotateLeft", false);
                 msgMove.RotateRight = inputComp.GetCurrentInputState("RotateRight", false);
                 msgMove.Run = inputComp.GetCurrentInputState("Run", false) > 0.5;
