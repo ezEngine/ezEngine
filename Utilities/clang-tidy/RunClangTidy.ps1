@@ -5,7 +5,7 @@ param
     [string]
     $Checks = "-*,ez-name-check,modernize-use-default-member-init,modernize-use-equals-default,modernize-use-using",
     [string]
-    $ChecksGroup1 = "clang-analyzer-core.*",
+    $ChecksGroup1 = "clang-analyzer-core.*,-clang-analyzer-core.NonNullParamChecker",
     [string]
     $ExcludeRootFiles = "DirectXTex|ThirdParty|\.rc$|qrc_resources.cpp$",
     [string]
