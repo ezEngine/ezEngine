@@ -37,6 +37,7 @@ ezDelegate<ezGALDevice*(const ezGALDeviceCreationDescription&)> ezGameApplicatio
 
 ezCVarBool ezGameApplication::cvar_AppVSync("App.VSync", true, ezCVarFlags::Save, "Enables V-Sync");
 ezCVarBool ezGameApplication::cvar_AppShowFPS("App.ShowFPS", false, ezCVarFlags::Save, "Show frames per second counter");
+ezCVarBool ezGameApplication::cvar_WorldShowObjectOrigins("World.ShowObjectOrigins", false, ezCVarFlags::Default, "Render debug geometry at every game object position");
 
 ezGameApplication::ezGameApplication(const char* szAppName, const char* szProjectPath /*= nullptr*/)
   : ezGameApplicationBase(szAppName)
@@ -327,6 +328,13 @@ void ezGameApplication::UpdateWorldsAndExtractViews()
     }
   }
 
+  for (ezUInt32 i = 0; i < worldsToUpdate.GetCount(); ++i)
+  {
+    ezWorld* pWorld = worldsToUpdate[i];
+    EZ_LOCK(pWorld->GetReadMarker());
+    RenderWorldDebugInfos(*pWorld);
+  }
+
   Run_AfterWorldUpdate();
 
   RenderFps();
@@ -336,6 +344,40 @@ void ezGameApplication::UpdateWorldsAndExtractViews()
   Run_UpdatePlugins();
 
   ezRenderWorld::ExtractMainViews();
+}
+
+void ezGameApplication::RenderWorldDebugInfos(const ezWorld& world)
+{
+  if (cvar_WorldShowObjectOrigins)
+  {
+    ezUInt32 uiInactive = 0;
+    ezUInt32 uiStatic = 0;
+    ezUInt32 uiDynamic = 0;
+
+    for (auto it = world.GetObjects(); it.IsValid(); ++it)
+    {
+      ezTransform tObj = it->GetGlobalTransform();
+      tObj.m_vScale.Set(1.0f);
+
+      if (!it->IsActive())
+      {
+        ++uiInactive;
+        ezDebugRenderer::DrawCross(&world, ezVec3::MakeZero(), 0.25f, ezColor::DarkGrey, tObj);
+      }
+      else if (it->IsDynamic())
+      {
+        ++uiDynamic;
+        ezDebugRenderer::DrawCross(&world, ezVec3::MakeZero(), 0.25f, ezColor::DeepPink, tObj);
+      }
+      else
+      {
+        ++uiStatic;
+        ezDebugRenderer::DrawCross(&world, ezVec3::MakeZero(), 0.4f, ezColor::DeepSkyBlue, tObj);
+      }
+    }
+
+    ezDebugRenderer::DrawInfoText(&world, ezDebugTextPlacement::BottomLeft, "WorldStats", ezFmt("Num Objects: {} - {} static / {} dynamic / {} inactive", uiStatic + uiDynamic + uiInactive, uiStatic, uiDynamic, uiInactive));
+  }
 }
 
 void ezGameApplication::RenderFps()

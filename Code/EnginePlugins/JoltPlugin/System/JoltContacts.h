@@ -76,6 +76,7 @@ public:
   {
     const ezJoltTriggerComponent* m_pTrigger = nullptr;
     ezGameObjectHandle m_hTarget;
+    ezInt32 m_iTriggerCount = 0;
   };
 
   ezMutex m_TriggerMutex;

@@ -122,8 +122,8 @@ void ezJoltActorComponent::GatherShapes(ezDynamicArray<ezJoltSubShape>& shapes, 
   for (auto itChild = pObject->GetChildren(); itChild.IsValid(); ++itChild)
   {
     // ignore all children that are actors themselves
-    const ezJoltActorComponent* pActorComponent;
-    if (itChild->TryGetComponentOfBaseType<ezJoltActorComponent>(pActorComponent))
+    const ezJoltActorComponent* pActorComponent = nullptr;
+    if (itChild->TryGetComponentOfBaseType<ezJoltActorComponent>(pActorComponent) && pActorComponent->IsActive())
       continue;
 
     GatherShapes(shapes, itChild, rootTransform, fDensity, pMaterial);

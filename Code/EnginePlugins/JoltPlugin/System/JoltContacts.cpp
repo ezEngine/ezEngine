@@ -206,12 +206,18 @@ bool ezJoltContactListener::ActivateTrigger(const JPH::Body& body1, const JPH::B
   {
     EZ_LOCK(m_TriggerMutex);
 
-    pTrigger->PostTriggerMessage(pComponent->GetOwner()->GetHandle(), ezTriggerState::Activated);
-
     const ezUInt64 uiStoreID = (uiBody1id < uiBody2id) ? (uiBody1id << 32 | uiBody2id) : (uiBody2id << 32 | uiBody1id);
+
     auto& trig = m_Trigs[uiStoreID];
     trig.m_pTrigger = pTrigger;
     trig.m_hTarget = pComponent->GetOwner()->GetHandle();
+
+    if (trig.m_iTriggerCount == 0)
+    {
+      pTrigger->PostTriggerMessage(pComponent->GetOwner()->GetHandle(), ezTriggerState::Activated);
+    }
+
+    ++trig.m_iTriggerCount;
   }
 
   // one of the bodies is a trigger
@@ -227,8 +233,14 @@ void ezJoltContactListener::DeactivateTrigger(ezUInt64 uiBody1id, ezUInt64 uiBod
 
   if (itTrig.IsValid())
   {
-    itTrig.Value().m_pTrigger->PostTriggerMessage(itTrig.Value().m_hTarget, ezTriggerState::Deactivated);
-    m_Trigs.Remove(itTrig);
+    auto& trig = itTrig.Value();
+    trig.m_iTriggerCount--;
+
+    if (trig.m_iTriggerCount == 0)
+    {
+      trig.m_pTrigger->PostTriggerMessage(trig.m_hTarget, ezTriggerState::Deactivated);
+      m_Trigs.Remove(itTrig);
+    }
   }
 }
 

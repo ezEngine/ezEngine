@@ -76,6 +76,7 @@ class EZ_GAMEENGINE_DLL ezGameApplication : public ezGameApplicationBase
 public:
   static ezCVarBool cvar_AppVSync;
   static ezCVarBool cvar_AppShowFPS;
+  static ezCVarBool cvar_WorldShowObjectOrigins;
 
 public:
   using SUPER = ezGameApplicationBase;
@@ -135,6 +136,7 @@ protected:
 protected:
   static ezGameApplication* s_pGameApplicationInstance;
 
+  void RenderWorldDebugInfos(const ezWorld& world);
   void RenderFps();
   void RenderConsole();
 

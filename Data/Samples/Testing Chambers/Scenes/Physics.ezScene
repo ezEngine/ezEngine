@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{16033299415433335720,5748835052109362040}}
-		u4 %Hash{3122926958381277701}
+		u4 %Hash{6535120187432188945}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -5703,7 +5703,7 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{""}
-		u1 %WeightCategory{2}
+		u1 %WeightCategory{14}
 		f %WeightScale{0x0000803F}
 	}
 }
@@ -6133,7 +6133,7 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{"{ 72748b9e-00b2-4899-ac1f-57d64866228b }"}
-		u1 %WeightCategory{2}
+		u1 %WeightCategory{15}
 		f %WeightScale{0x0000803F}
 	}
 }
@@ -6963,7 +6963,7 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{""}
-		u1 %WeightCategory{2}
+		u1 %WeightCategory{15}
 		f %WeightScale{0x0000803F}
 	}
 }
@@ -7605,7 +7605,7 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{"{ 72748b9e-00b2-4899-ac1f-57d64866228b }"}
-		u1 %WeightCategory{2}
+		u1 %WeightCategory{15}
 		f %WeightScale{0x0000803F}
 	}
 }
@@ -7938,7 +7938,7 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{""}
-		u1 %WeightCategory{2}
+		u1 %WeightCategory{15}
 		f %WeightScale{0x0000803F}
 	}
 }
@@ -7965,7 +7965,7 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{""}
-		u1 %WeightCategory{2}
+		u1 %WeightCategory{15}
 		f %WeightScale{0x0000803F}
 	}
 }
@@ -8060,7 +8060,7 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{""}
-		u1 %WeightCategory{2}
+		u1 %WeightCategory{14}
 		f %WeightScale{0x0000803F}
 	}
 }
@@ -8264,7 +8264,7 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{"{ 72748b9e-00b2-4899-ac1f-57d64866228b }"}
-		u1 %WeightCategory{2}
+		u1 %WeightCategory{15}
 		f %WeightScale{0x0000803F}
 	}
 }
@@ -8357,7 +8357,7 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{""}
-		u1 %WeightCategory{2}
+		u1 %WeightCategory{14}
 		f %WeightScale{0x0000803F}
 	}
 }
@@ -8528,7 +8528,7 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{""}
-		u1 %WeightCategory{2}
+		u1 %WeightCategory{14}
 		f %WeightScale{0x0000803F}
 	}
 }
@@ -9385,7 +9385,7 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{""}
-		u1 %WeightCategory{2}
+		u1 %WeightCategory{15}
 		f %WeightScale{0x0000803F}
 	}
 }
@@ -10356,7 +10356,7 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{""}
-		u1 %WeightCategory{2}
+		u1 %WeightCategory{15}
 		f %WeightScale{0x0000803F}
 	}
 }
@@ -10501,7 +10501,7 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{""}
-		u1 %WeightCategory{2}
+		u1 %WeightCategory{15}
 		f %WeightScale{0x0000803F}
 	}
 }
@@ -10866,7 +10866,7 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{""}
-		u1 %WeightCategory{2}
+		u1 %WeightCategory{15}
 		f %WeightScale{0x0000803F}
 	}
 }
@@ -10988,7 +10988,7 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{""}
-		u1 %WeightCategory{2}
+		u1 %WeightCategory{14}
 		f %WeightScale{0x0000803F}
 	}
 }
@@ -11120,7 +11120,7 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{""}
-		u1 %WeightCategory{2}
+		u1 %WeightCategory{15}
 		f %WeightScale{0x0000803F}
 	}
 }
@@ -11232,7 +11232,7 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{""}
-		u1 %WeightCategory{2}
+		u1 %WeightCategory{15}
 		f %WeightScale{0x0000803F}
 	}
 }
@@ -11361,7 +11361,7 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{""}
-		u1 %WeightCategory{2}
+		u1 %WeightCategory{14}
 		f %WeightScale{0x0000803F}
 	}
 }
@@ -11457,7 +11457,7 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{""}
-		u1 %WeightCategory{2}
+		u1 %WeightCategory{15}
 		f %WeightScale{0x0000803F}
 	}
 }
@@ -11549,7 +11549,7 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{""}
-		u1 %WeightCategory{2}
+		u1 %WeightCategory{15}
 		f %WeightScale{0x0000803F}
 	}
 }
@@ -11816,7 +11816,7 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{""}
-		u1 %WeightCategory{2}
+		u1 %WeightCategory{15}
 		f %WeightScale{0x0000803F}
 	}
 }
@@ -11866,7 +11866,7 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{"{ 72748b9e-00b2-4899-ac1f-57d64866228b }"}
-		u1 %WeightCategory{2}
+		u1 %WeightCategory{15}
 		f %WeightScale{0x0000803F}
 	}
 }
@@ -12050,7 +12050,7 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{""}
-		u1 %WeightCategory{2}
+		u1 %WeightCategory{15}
 		f %WeightScale{0x0000803F}
 	}
 }
@@ -12258,7 +12258,7 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{"{ 72748b9e-00b2-4899-ac1f-57d64866228b }"}
-		u1 %WeightCategory{2}
+		u1 %WeightCategory{15}
 		f %WeightScale{0x0000803F}
 	}
 }
@@ -12395,7 +12395,7 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{""}
-		u1 %WeightCategory{2}
+		u1 %WeightCategory{14}
 		f %WeightScale{0x0000803F}
 	}
 }
@@ -12449,7 +12449,7 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{""}
-		u1 %WeightCategory{2}
+		u1 %WeightCategory{14}
 		f %WeightScale{0x0000803F}
 	}
 }
@@ -12532,7 +12532,7 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{"{ 72748b9e-00b2-4899-ac1f-57d64866228b }"}
-		u1 %WeightCategory{2}
+		u1 %WeightCategory{15}
 		f %WeightScale{0x0000803F}
 	}
 }
@@ -12803,7 +12803,7 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{""}
-		u1 %WeightCategory{2}
+		u1 %WeightCategory{15}
 		f %WeightScale{0x0000803F}
 	}
 }
@@ -13747,7 +13747,7 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{""}
-		u1 %WeightCategory{2}
+		u1 %WeightCategory{14}
 		f %WeightScale{0x0000803F}
 	}
 }
@@ -14059,7 +14059,7 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{""}
-		u1 %WeightCategory{2}
+		u1 %WeightCategory{15}
 		f %WeightScale{0x0000803F}
 	}
 }
@@ -14121,7 +14121,7 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{""}
-		u1 %WeightCategory{2}
+		u1 %WeightCategory{14}
 		f %WeightScale{0x0000803F}
 	}
 }
@@ -14209,7 +14209,7 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{"{ 72748b9e-00b2-4899-ac1f-57d64866228b }"}
-		u1 %WeightCategory{2}
+		u1 %WeightCategory{15}
 		f %WeightScale{0x0000803F}
 	}
 }
@@ -14236,7 +14236,7 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{""}
-		u1 %WeightCategory{2}
+		u1 %WeightCategory{14}
 		f %WeightScale{0x0000803F}
 	}
 }
@@ -14602,7 +14602,7 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{"{ 72748b9e-00b2-4899-ac1f-57d64866228b }"}
-		u1 %WeightCategory{2}
+		u1 %WeightCategory{15}
 		f %WeightScale{0x0000803F}
 	}
 }
@@ -14629,7 +14629,7 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{""}
-		u1 %WeightCategory{2}
+		u1 %WeightCategory{14}
 		f %WeightScale{0x0000803F}
 	}
 }
@@ -14695,7 +14695,7 @@ o
 		s %OnContact{""}
 		b %StartAsleep{0}
 		s %Surface{"{ 72748b9e-00b2-4899-ac1f-57d64866228b }"}
-		u1 %WeightCategory{2}
+		u1 %WeightCategory{15}
 		f %WeightScale{0x0000803F}
 	}
 }
