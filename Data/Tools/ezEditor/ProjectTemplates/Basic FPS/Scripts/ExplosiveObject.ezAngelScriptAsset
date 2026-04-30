@@ -11,7 +11,7 @@ o
 		s %AssetType{"AngelScript"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{11632671343107632272,5350357552402924410}}
-		u4 %Hash{253427181821126138}
+		u4 %Hash{9528663354938890011}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{15002804569134077271,6225326492541149877}}
@@ -39,10 +39,11 @@ o
 {
 	Uuid %id{u4{741835869484616657,16868583764278507899}}
 	s %t{"ezExposedParameter"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
 		i3 %DefaultValue{10}
 		s %Name{"Health"}
 		s %Type{""}
@@ -59,7 +60,7 @@ o
 	p
 	{
 		s %ClassName{"ScriptObject"}
-		s %Code{"class ScriptObject : ezAngelScriptClass\n{\n\tint Health = 10;\n\n\tvoid OnMsgDamage(ezMsgDamage@ msg) \n\t{\n\t\tif (Health <= 0)\n\t\t\treturn;\n\n\t\tHealth -= msg.Damage;\n\n\t\tif (Health <= 0)\n\t\t{\n\t\t\tezMsgDeleteGameObject del;\n\t\t\tGetOwner().PostMessage(del, ezTime::Milliseconds(100));\n\n\t\t\tezGameObject@ expObj = GetOwner().FindChildByName(\"OnExplode\");\n\t\t\tif (@expObj != null)\n\t\t\t{\n\t\t\t\tezSpawnComponent@ spawnComp;\n\t\t\t\tif (expObj.TryGetComponentOfBaseType(@spawnComp))\n\t\t\t\t{\n\t\t\t\t\tspawnComp.TriggerManualSpawn(true, ezVec3::MakeZero());\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n}"}
+		s %Code{"class ScriptObject : ezAngelScriptClass\n{\n\tint Health = 10;\n\n\tvoid OnMsgDamage(ezMsgDamage@ msg) \n\t{\n\t\tif (Health <= 0)\n\t\t\treturn;\n\n\t\tHealth -= int(msg.Damage);\n\n\t\tif (Health <= 0)\n\t\t{\n\t\t\tezMsgDeleteGameObject del;\n\t\t\tGetOwner().PostMessage(del, ezTime::Milliseconds(100));\n\n\t\t\tezGameObject@ expObj = GetOwner().FindChildByName(\"OnExplode\");\n\t\t\tif (@expObj != null)\n\t\t\t{\n\t\t\t\tezSpawnComponent@ spawnComp;\n\t\t\t\tif (expObj.TryGetComponentOfBaseType(@spawnComp))\n\t\t\t\t{\n\t\t\t\t\tspawnComp.TriggerManualSpawn(true, ezVec3::MakeZero());\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n}"}
 		VarArray %Dependencies{}
 		VarArray %Parameters
 		{

@@ -26,7 +26,7 @@ namespace ezInternal
 
   bool EventMessageSenderHelper::SendEventMessage(ezMessage& ref_msg, ezComponent* pSenderComponent, ezGameObject* pSearchObject, ezSmallArray<ezComponentHandle, 1>& inout_cachedReceivers)
   {
-    ezWorld* pWorld = pSearchObject->GetWorld();
+    ezWorld* pWorld = pSenderComponent->GetWorld();
     UpdateCachedReceivers(ref_msg, *pWorld, pSenderComponent, pSearchObject, inout_cachedReceivers);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
@@ -58,7 +58,7 @@ namespace ezInternal
 
   bool EventMessageSenderHelper::SendEventMessage(ezMessage& ref_msg, const ezComponent* pSenderComponent, const ezGameObject* pSearchObject, ezSmallArray<ezComponentHandle, 1>& inout_cachedReceivers)
   {
-    const ezWorld* pWorld = pSearchObject->GetWorld();
+    const ezWorld* pWorld = pSenderComponent->GetWorld();
     UpdateCachedReceivers(ref_msg, *pWorld, pSenderComponent, pSearchObject, inout_cachedReceivers);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
@@ -90,7 +90,7 @@ namespace ezInternal
 
   void EventMessageSenderHelper::PostEventMessage(const ezMessage& msg, const ezComponent* pSenderComponent, const ezGameObject* pSearchObject, ezSmallArray<ezComponentHandle, 1>& inout_cachedReceivers, ezTime delay, ezObjectMsgQueueType::Enum queueType)
   {
-    const ezWorld* pWorld = pSearchObject->GetWorld();
+    const ezWorld* pWorld = pSenderComponent->GetWorld();
     UpdateCachedReceivers(msg, *pWorld, pSenderComponent, pSearchObject, inout_cachedReceivers);
 
     if (!inout_cachedReceivers.IsEmpty())
