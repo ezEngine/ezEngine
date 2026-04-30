@@ -26,7 +26,8 @@ namespace ezInternal
 
   bool EventMessageSenderHelper::SendEventMessage(ezMessage& ref_msg, ezComponent* pSenderComponent, ezGameObject* pSearchObject, ezSmallArray<ezComponentHandle, 1>& inout_cachedReceivers)
   {
-    ezWorld* pWorld = pSenderComponent->GetWorld();
+    EZ_ASSERT_DEBUG(pSenderComponent != nullptr || pSearchObject != nullptr, "Sender or search object must be valid.");
+    ezWorld* pWorld = pSenderComponent ? pSenderComponent->GetWorld() : pSearchObject->GetWorld();
     UpdateCachedReceivers(ref_msg, *pWorld, pSenderComponent, pSearchObject, inout_cachedReceivers);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
@@ -58,7 +59,8 @@ namespace ezInternal
 
   bool EventMessageSenderHelper::SendEventMessage(ezMessage& ref_msg, const ezComponent* pSenderComponent, const ezGameObject* pSearchObject, ezSmallArray<ezComponentHandle, 1>& inout_cachedReceivers)
   {
-    const ezWorld* pWorld = pSenderComponent->GetWorld();
+    EZ_ASSERT_DEBUG(pSenderComponent != nullptr || pSearchObject != nullptr, "Sender or search object must be valid.");
+    const ezWorld* pWorld = pSenderComponent ? pSenderComponent->GetWorld() : pSearchObject->GetWorld();
     UpdateCachedReceivers(ref_msg, *pWorld, pSenderComponent, pSearchObject, inout_cachedReceivers);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
@@ -90,7 +92,8 @@ namespace ezInternal
 
   void EventMessageSenderHelper::PostEventMessage(const ezMessage& msg, const ezComponent* pSenderComponent, const ezGameObject* pSearchObject, ezSmallArray<ezComponentHandle, 1>& inout_cachedReceivers, ezTime delay, ezObjectMsgQueueType::Enum queueType)
   {
-    const ezWorld* pWorld = pSenderComponent->GetWorld();
+    EZ_ASSERT_DEBUG(pSenderComponent != nullptr || pSearchObject != nullptr, "Sender or search object must be valid.");
+    const ezWorld* pWorld = pSenderComponent ? pSenderComponent->GetWorld() : pSearchObject->GetWorld();
     UpdateCachedReceivers(msg, *pWorld, pSenderComponent, pSearchObject, inout_cachedReceivers);
 
     if (!inout_cachedReceivers.IsEmpty())
