@@ -11,9 +11,9 @@
 #  error "Unknown shading quality configuration."
 #endif
 
-float CalcCloseToGeometryFadeOut(float4 position)
+float CalcCloseToGeometryFadeOut(float4 position, float fadeOutDistance)
 {
-  return DepthFade(position.xyw, 0.1);
+  return DepthFade(position.xyw, fadeOutDistance);
 }
 
 float CalcCloseToCameraFadeOut(float4 position)
@@ -21,7 +21,7 @@ float CalcCloseToCameraFadeOut(float4 position)
   return saturate(position.w / 0.5);
 }
 
-float CalcProximityFadeOut(float4 position)
+float CalcProximityFadeOut(float4 position, float fadeOutDistance)
 {
-  return CalcCloseToGeometryFadeOut(position) * CalcCloseToCameraFadeOut(position);
+  return CalcCloseToGeometryFadeOut(position, fadeOutDistance) * CalcCloseToCameraFadeOut(position);
 }

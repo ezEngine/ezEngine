@@ -5,6 +5,15 @@ void FillCustomGlobals();
 float GetParticleOpacity();
 float3 GetParticleColor();
 
+#if defined(USE_CUSTOM_PARTICLE_FADE_OUT_DISTANCE)
+float GetParticleFadeOutDistance();
+#else
+float GetParticleFadeOutDistance()
+{
+  return 0.1;
+}
+#endif
+
 #if PARTICLE_RENDER_MODE == PARTICLE_RENDER_MODE_NONE
 struct TMP_PS_IN
 {
@@ -51,7 +60,7 @@ float4 main(PS_IN Input)
   float proximityFadeOut = 1.0;
 
 #  if CAMERA_MODE != CAMERA_MODE_ORTHO
-  proximityFadeOut = CalcProximityFadeOut(Input.Position);
+  proximityFadeOut = CalcProximityFadeOut(Input.Position, GetParticleFadeOutDistance());
 #  endif
 
   float opacity = proximityFadeOut * GetParticleOpacity();

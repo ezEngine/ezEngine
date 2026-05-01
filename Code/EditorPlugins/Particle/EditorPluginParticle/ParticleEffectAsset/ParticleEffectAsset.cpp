@@ -343,6 +343,7 @@ void ezParticleEffectAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo*
       pExposedParams->m_Parameters.PushBack(param);
       param->m_sName = it.Key();
       param->m_DefaultValue = it.Value();
+      param->m_Attributes.PushBack(EZ_DEFAULT_NEW(ezExposeColorAlphaAttribute));
     }
 
     // Info takes ownership of meta data.
