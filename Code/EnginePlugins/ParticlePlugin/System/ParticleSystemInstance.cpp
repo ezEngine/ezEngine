@@ -462,32 +462,35 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& diff)
   return bHasReactingEmitters ? ezParticleSystemState::OnlyReacting : ezParticleSystemState::Inactive;
 }
 
-ezProcessingStream* ezParticleSystemInstance::QueryStream(const char* szName, ezProcessingStream::DataType type) const
+ezProcessingStream* ezParticleSystemInstance::QueryStream(ezTempHashedString sName, ezProcessingStream::DataType type) const
 {
-  return m_StreamGroup.GetStreamByName(szName);
+  return m_StreamGroup.GetStreamByName(sName);
 }
 
-void ezParticleSystemInstance::CreateStream(const char* szName, ezProcessingStream::DataType type, ezProcessingStream** pStream, ezParticleStreamBinding& inout_binding, bool bWillInitializeElements)
+void ezParticleSystemInstance::CreateStream(ezStringView sName, ezProcessingStream::DataType type, ezProcessingStream** pStream, ezParticleStreamBinding& inout_binding, bool bWillInitializeElements)
 {
   EZ_ASSERT_DEV(pStream != nullptr, "The pointer to the stream pointer must not be null");
 
   StreamInfo* pInfo = nullptr;
 
-  ezProcessingStream* pSubStream = m_StreamGroup.GetStreamByName(szName);
+  ezHashedString sNameHashed;
+  sNameHashed.Assign(sName);
+
+  ezProcessingStream* pSubStream = m_StreamGroup.GetStreamByName(sNameHashed);
   if (pSubStream == nullptr)
   {
-    pSubStream = m_StreamGroup.AddStream(szName, type);
+    pSubStream = m_StreamGroup.AddStream(sName, type);
 
     pInfo = &m_StreamInfo.ExpandAndGetRef();
-    pInfo->m_sName = szName;
+    pInfo->m_sName = sNameHashed;
   }
   else
   {
-    EZ_ASSERT_DEV(pSubStream->GetDataType() == type, "Particle stream '{}' already exists with data type {} (!= {}).", szName, (int)pSubStream->GetDataType(), (int)type);
+    EZ_ASSERT_DEV(pSubStream->GetDataType() == type, "Particle stream '{}' already exists with data type {} (!= {}).", sName, (int)pSubStream->GetDataType(), (int)type);
 
     for (auto& info : m_StreamInfo)
     {
-      if (info.m_sName == szName)
+      if (info.m_sName == sNameHashed)
       {
         pInfo = &info;
         break;
@@ -501,13 +504,13 @@ void ezParticleSystemInstance::CreateStream(const char* szName, ezProcessingStre
   if (bWillInitializeElements)
     pInfo->m_bGetsInitialized = true;
 
-  EZ_ASSERT_DEV(pSubStream != nullptr, "Stream creation failed ('{0}')", szName);
+  EZ_ASSERT_DEV(pSubStream != nullptr, "Stream creation failed ('{0}')", sName);
   *pStream = pSubStream;
 
   {
     auto& bind = inout_binding.m_Bindings.ExpandAndGetRef();
     bind.m_ppStream = pStream;
-    bind.m_sName = szName;
+    bind.m_sName = sNameHashed;
   }
 }
 
@@ -525,7 +528,7 @@ void ezParticleSystemInstance::CreateStreamZeroInitializers()
 
     if (!info.m_bInUse)
     {
-      m_StreamGroup.RemoveStreamByName(info.m_sName.GetData());
+      m_StreamGroup.RemoveStreamByName(info.m_sName);
       m_StreamInfo.RemoveAtAndSwap(i);
     }
     else

@@ -48,10 +48,10 @@ public:
   ezProcessingStream* AddStream(ezStringView sName, ezProcessingStream::DataType type);
 
   /// \brief Removes the stream with the given name, if it exists.
-  void RemoveStreamByName(ezStringView sName);
+  void RemoveStreamByName(ezTempHashedString sName);
 
   /// \brief Returns the stream by it's name, returns nullptr if not existent. More efficient since direct use of ezHashedString.
-  ezProcessingStream* GetStreamByName(ezStringView sName) const;
+  ezProcessingStream* GetStreamByName(ezTempHashedString sName) const;
 
   /// \brief Resizes all streams to contain storage for uiNumElements. Any pending remove and spawn operations will be reset!
   void SetSize(ezUInt64 uiNumElements);

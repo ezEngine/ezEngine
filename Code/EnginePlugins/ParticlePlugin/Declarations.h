@@ -64,11 +64,11 @@ private:
 
   struct Binding
   {
-    ezString m_sName;
+    ezHashedString m_sName;
     ezProcessingStream** m_ppStream;
   };
 
-  ezHybridArray<Binding, 4> m_Bindings;
+  ezSmallArray<Binding, 4> m_Bindings;
 };
 
 //////////////////////////////////////////////////////////////////////////

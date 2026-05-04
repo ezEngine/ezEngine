@@ -49,10 +49,10 @@ public:
 
 
   /// \brief Returns the desired stream, if it already exists, nullptr otherwise.
-  ezProcessingStream* QueryStream(const char* szName, ezProcessingStream::DataType type) const;
+  ezProcessingStream* QueryStream(ezTempHashedString sName, ezProcessingStream::DataType type) const;
 
   /// \brief Returns the desired stream, if it already exists, creates it otherwise.
-  void CreateStream(const char* szName, ezProcessingStream::DataType type, ezProcessingStream** pStream, ezParticleStreamBinding& ref_binding, bool bExpectInitializedValue);
+  void CreateStream(ezStringView sName, ezProcessingStream::DataType type, ezProcessingStream** pStream, ezParticleStreamBinding& ref_binding, bool bExpectInitializedValue);
 
   void ProcessEventQueue(ezParticleEventQueue queue);
 
@@ -82,11 +82,11 @@ private:
 
   void CreateStreamZeroInitializers();
 
-  ezHybridArray<ezParticleEmitter*, 2> m_Emitters;
-  ezHybridArray<ezParticleInitializer*, 6> m_Initializers;
-  ezHybridArray<ezParticleBehavior*, 6> m_Behaviors;
-  ezHybridArray<ezParticleFinalizer*, 2> m_Finalizers;
-  ezHybridArray<ezParticleType*, 2> m_Types;
+  ezSmallArray<ezParticleEmitter*, 2> m_Emitters;
+  ezSmallArray<ezParticleInitializer*, 6> m_Initializers;
+  ezSmallArray<ezParticleBehavior*, 6> m_Behaviors;
+  ezSmallArray<ezParticleFinalizer*, 2> m_Finalizers;
+  ezSmallArray<ezParticleType*, 2> m_Types;
 
   bool m_bVisible; // typically used in editor to hide a system
   bool m_bEmitterEnabled;
@@ -100,13 +100,13 @@ private:
 
   struct StreamInfo
   {
-    ezString m_sName;
+    ezHashedString m_sName;
     bool m_bGetsInitialized = false;
     bool m_bInUse = false;
     ezProcessingStreamProcessor* m_pDefaultInitializer = nullptr;
   };
 
-  ezHybridArray<StreamInfo, 16> m_StreamInfo;
+  ezSmallArray<StreamInfo, 16> m_StreamInfo;
 
   // culling data
   ezBoundingBoxSphere m_BoundingVolume;
