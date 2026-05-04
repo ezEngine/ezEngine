@@ -11,12 +11,13 @@
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_RandomSize, 2, ezRTTIDefaultAllocator<ezParticleInitializerFactory_RandomSize>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_RandomSize, 3, ezRTTIDefaultAllocator<ezParticleInitializerFactory_RandomSize>)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Size", m_Size)->AddAttributes(new ezDefaultValueAttribute(ezVarianceTypeFloat(1.0f)), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_RESOURCE_MEMBER_PROPERTY("SizeCurve", m_hCurve)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Data_Curve")),
+    EZ_MEMBER_PROPERTY("SizeScaleParameter", m_sSizeScaleParameter),
   }
   EZ_END_PROPERTIES;
 }
@@ -37,16 +38,18 @@ void ezParticleInitializerFactory_RandomSize::CopyInitializerProperties(ezPartic
 
   pInitializer->m_hCurve = m_hCurve;
   pInitializer->m_Size = m_Size;
+  pInitializer->m_sSizeScaleParameter = m_sSizeScaleParameter;
 }
 
 void ezParticleInitializerFactory_RandomSize::Save(ezStreamWriter& inout_stream) const
 {
-  const ezUInt8 uiVersion = 2;
+  const ezUInt8 uiVersion = 3;
   inout_stream << uiVersion;
 
   inout_stream << m_hCurve;
   inout_stream << m_Size.m_Value;
   inout_stream << m_Size.m_fVariance;
+  inout_stream << m_sSizeScaleParameter;
 }
 
 void ezParticleInitializerFactory_RandomSize::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
@@ -57,6 +60,11 @@ void ezParticleInitializerFactory_RandomSize::Load(ezStreamReader& inout_stream,
   inout_stream >> m_hCurve;
   inout_stream >> m_Size.m_Value;
   inout_stream >> m_Size.m_fVariance;
+
+  if (uiVersion >= 3)
+  {
+    inout_stream >> m_sSizeScaleParameter;
+  }
 }
 
 void ezParticleInitializer_RandomSize::CreateRequiredStreams()
@@ -72,11 +80,13 @@ void ezParticleInitializer_RandomSize::InitializeElements(ezUInt64 uiStartIndex,
 
   ezRandom& rng = GetRNG();
 
+  const float fSizeScale = ezMath::Max(GetOwnerEffect()->GetFloatParameter(m_sSizeScaleParameter, 1.0f), 0.0f);
+
   if (!m_hCurve.IsValid())
   {
     for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
     {
-      pSize[i] = rng.FloatVariance(m_Size.m_Value, m_Size.m_fVariance);
+      pSize[i] = rng.FloatVariance(m_Size.m_Value, m_Size.m_fVariance) * fSizeScale;
     }
   }
   else
@@ -101,14 +111,14 @@ void ezParticleInitializer_RandomSize::InitializeElements(ezUInt64 uiStartIndex,
         double val = curve.Evaluate(f);
         val = curve.NormalizeValue(val);
 
-        pSize[i] = (float)(val * rng.DoubleVariance(m_Size.m_Value, m_Size.m_fVariance));
+        pSize[i] = (float)(val * rng.DoubleVariance(m_Size.m_Value, m_Size.m_fVariance)) * fSizeScale;
       }
     }
     else
     {
       for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
       {
-        pSize[i] = 1.0f;
+        pSize[i] = fSizeScale;
       }
     }
   }

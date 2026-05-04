@@ -22,6 +22,7 @@ public:
 
   ezVarianceTypeFloat m_Size;
   ezCurve1DResourceHandle m_hCurve;
+  ezHashedString m_sSizeScaleParameter;
 };
 
 
@@ -32,6 +33,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleInitializer_RandomSize final : public ezPa
 public:
   ezVarianceTypeFloat m_Size;
   ezCurve1DResourceHandle m_hCurve;
+  ezTempHashedString m_sSizeScaleParameter;
 
   virtual void CreateRequiredStreams() override;
 
