@@ -27,13 +27,15 @@ public:
   ezUInt8 m_uiNumVariationsY = 1;
   ezUInt8 m_uiNumFlipbookAnimationsX = 1;
   ezUInt8 m_uiNumFlipbookAnimationsY = 1;
+  ezEnum<ezParticleTypeRenderMode> m_RenderMode;
+  ezEnum<ezParticleLightingMode> m_LightingMode;
 
   ezTempHashedString m_QuadModePermutation;
 
-  ezEnum<ezParticleTypeRenderMode> m_RenderMode;
-  ezEnum<ezParticleLightingMode> m_LightingMode;
   float m_fNormalCurvature = 0.5f;
   float m_fLightDirectionality = 0.5f;
+  float m_fGeometryProximityFadeOut = 0.1f;
+  float m_fCameraProximityFadeOut = 0.5f;
   ezMaterialResourceHandle m_hCustomMaterial;
 };
 

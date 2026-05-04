@@ -43,13 +43,7 @@ PARTICLE_LIGHTING_MODE=PARTICLE_LIGHTING_MODE_FULLBRIGHT
 
   string %CodeVertexBody { "" }
 
-  string %CodeMaterialParams { "
-float FadeOutDistance @Default($prop0);
-" }
-
-  string %CodePixelDefines { "
-#define USE_CUSTOM_PARTICLE_FADE_OUT_DISTANCE
-" }
+  string %CodeMaterialParams { "" }
 
   string %CodePixelIncludes { "
 #include <Shaders/Common/VisualShaderUtil.h>
@@ -60,7 +54,6 @@ float FadeOutDistance @Default($prop0);
   string %CodePixelConstants { "" }
   string %CodeMaterialConstants { "
 
-  FLOAT1(FadeOutDistance);
   // Insert custom Visual Shader parameters here
   VSE_CONSTANTS
 " }
@@ -81,17 +74,7 @@ float GetParticleOpacity()
   return saturate(ToFloat1($in1));
 }
 
-float GetParticleFadeOutDistance()
-{
-  return GetMaterialData(FadeOutDistance);
-}
 " }
-
-  Property %FadeOutDistance
-  {
-    string %Type { "float" }
-    string %DefaultValue { "0.1" }
-  }
 
   // Pin 0
   InputPin %Color

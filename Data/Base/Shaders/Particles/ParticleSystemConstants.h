@@ -26,5 +26,9 @@ CONSTANT_BUFFER2(ezParticleSystemConstants, 2, BG_DRAW_CALL)
   FLOAT1(NormalCurvature);
   FLOAT1(LightDirectionality);
 
-  INT3(ParticlePadding);
+  // fade out params
+  FLOAT1(GeometryProximityFadeOut);
+  FLOAT1(CameraProximityFadeOut);
+
+  INT1(ParticlePadding);
 };

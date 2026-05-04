@@ -40,6 +40,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeQuadFactory, 2, ezRTTIDefaultAlloc
     EZ_MEMBER_PROPERTY("NumSpritesY", m_uiNumSpritesY)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(1, 16)),
     EZ_MEMBER_PROPERTY("TintColorParam", m_sTintColorParameter),
     EZ_MEMBER_PROPERTY("ParticleStretch", m_fStretch)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(-100.0f, 100.0f)),
+    EZ_MEMBER_PROPERTY("GeometryProximityFadeOut", m_fGeometryProximityFadeOut)->AddAttributes(new ezDefaultValueAttribute(0.1f), new ezClampValueAttribute(0, 100)),
+    EZ_MEMBER_PROPERTY("CameraProximityFadeOut", m_fCameraProximityFadeOut)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0, 100)),
   }
   EZ_END_PROPERTIES;
 }
@@ -70,6 +72,8 @@ void ezParticleTypeQuadFactory::CopyTypeProperties(ezParticleType* pObject, bool
   pType->m_LightingMode = m_LightingMode;
   pType->m_fNormalCurvature = m_fNormalCurvature;
   pType->m_fLightDirectionality = m_fLightDirectionality;
+  pType->m_fGeometryProximityFadeOut = m_fGeometryProximityFadeOut;
+  pType->m_fCameraProximityFadeOut = m_fCameraProximityFadeOut;
   pType->m_hCustomMaterial.Invalidate();
 
   if (m_bUseCustomMaterial)
@@ -94,6 +98,7 @@ enum class TypeQuadVersion
   Version_5, // added particle stretch
   Version_6, // added particle lighting
   Version_7, // added custom material support
+  Version_8, // added proximity fade out parameters
 
   // insert new version numbers above
   Version_Count,
@@ -130,6 +135,10 @@ void ezParticleTypeQuadFactory::Save(ezStreamWriter& inout_stream) const
   // Version 7
   inout_stream << m_bUseCustomMaterial;
   inout_stream << m_sCustomMaterial;
+
+  // Version 8
+  inout_stream << m_fGeometryProximityFadeOut;
+  inout_stream << m_fCameraProximityFadeOut;
 }
 
 void ezParticleTypeQuadFactory::Load(ezStreamReader& inout_stream, const ezParticleEffectDescriptor& ownerEffectDescriptor, const ezParticleSystemDescriptor& ownerSystemDescriptor)
@@ -186,6 +195,12 @@ void ezParticleTypeQuadFactory::Load(ezStreamReader& inout_stream, const ezParti
   {
     inout_stream >> m_bUseCustomMaterial;
     inout_stream >> m_sCustomMaterial;
+  }
+
+  if (uiVersion >= 8)
+  {
+    inout_stream >> m_fGeometryProximityFadeOut;
+    inout_stream >> m_fCameraProximityFadeOut;
   }
 }
 
@@ -481,6 +496,8 @@ void ezParticleTypeQuad::AddParticleRenderData(ezMsgExtractRenderData& msg, cons
   pRenderData->m_LightingMode = m_LightingMode;
   pRenderData->m_fNormalCurvature = m_fNormalCurvature;
   pRenderData->m_fLightDirectionality = m_fLightDirectionality;
+  pRenderData->m_fGeometryProximityFadeOut = m_fGeometryProximityFadeOut;
+  pRenderData->m_fCameraProximityFadeOut = m_fCameraProximityFadeOut;  
   pRenderData->m_hCustomMaterial = m_hCustomMaterial;
 
   switch (m_Orientation)

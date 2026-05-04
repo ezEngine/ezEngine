@@ -45,20 +45,24 @@ public:
 
   virtual void QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_finalizerDeps) const override;
 
+  ezHashedString m_sTexture;
+  ezHashedString m_sCustomMaterial;
+  ezHashedString m_sTintColorParameter;
+
   ezEnum<ezQuadParticleOrientation> m_Orientation;
-  ezAngle m_MaxDeviation;
   ezEnum<ezParticleTypeRenderMode> m_RenderMode;
-  ezString m_sTexture;
+  ezEnum<ezParticleLightingMode> m_LightingMode;
   ezEnum<ezParticleTextureAtlasType> m_TextureAtlasType;
   ezUInt8 m_uiNumSpritesX = 1;
   ezUInt8 m_uiNumSpritesY = 1;
-  ezString m_sTintColorParameter;
+  bool m_bUseCustomMaterial = false;
+
+  ezAngle m_MaxDeviation;
   float m_fStretch = 1;
-  ezEnum<ezParticleLightingMode> m_LightingMode;
   float m_fNormalCurvature = 0.5f;
   float m_fLightDirectionality = 0.5f;
-  bool m_bUseCustomMaterial = false;
-  ezString m_sCustomMaterial;
+  float m_fGeometryProximityFadeOut = 0.1f;
+  float m_fCameraProximityFadeOut = 0.5f;
 };
 
 /// Renders particles as camera-facing or oriented textured quads.
@@ -78,19 +82,23 @@ public:
 
   virtual void CreateRequiredStreams() override;
 
-  ezEnum<ezQuadParticleOrientation> m_Orientation;
-  ezAngle m_MaxDeviation;
-  ezEnum<ezParticleTypeRenderMode> m_RenderMode;
   ezTexture2DResourceHandle m_hTexture;
+  ezMaterialResourceHandle m_hCustomMaterial;
+  ezTempHashedString m_sTintColorParameter;
+
+  ezEnum<ezQuadParticleOrientation> m_Orientation;
+  ezEnum<ezParticleTypeRenderMode> m_RenderMode;
+  ezEnum<ezParticleLightingMode> m_LightingMode;
   ezEnum<ezParticleTextureAtlasType> m_TextureAtlasType;
   ezUInt8 m_uiNumSpritesX = 1;
   ezUInt8 m_uiNumSpritesY = 1;
-  ezTempHashedString m_sTintColorParameter;
+
+  ezAngle m_MaxDeviation;
   float m_fStretch = 1;
-  ezEnum<ezParticleLightingMode> m_LightingMode;
   float m_fNormalCurvature = 0.5f;
   float m_fLightDirectionality = 0.5f;
-  ezMaterialResourceHandle m_hCustomMaterial;
+  float m_fGeometryProximityFadeOut = 0.1f;
+  float m_fCameraProximityFadeOut = 0.5f;
 
   virtual void ExtractTypeRenderData(ezMsgExtractRenderData& ref_msg, const ezTransform& instanceTransform) const override;
 
