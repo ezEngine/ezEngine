@@ -80,7 +80,14 @@ float4 main(PS_IN Input)
   // for additive blending, color shouldn't be adjusted, just fade out
   opacity *= Input.FogAmount;
 #  else
-  finalColor = ApplyFog(finalColor, Input.FogAmount);
+  // Reconstruct world position
+  float2 ndc = Input.Position.xy * ViewportSize.zw;
+  ndc = ndc * float2(2.0, -2.0) + float2(-1.0, 1.0);
+
+  float4 worldPosition = mul(GetScreenToWorldMatrix(), float4(ndc, Input.Position.z, 1.0));
+  worldPosition.xyz /= worldPosition.w;
+
+  finalColor = ApplyFogColor(finalColor, worldPosition.xyz, Input.FogAmount);
 #  endif
 
 #  if defined(RENDER_PASS) && RENDER_PASS == RENDER_PASS_EDITOR

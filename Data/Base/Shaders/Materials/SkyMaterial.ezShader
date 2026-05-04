@@ -94,7 +94,7 @@ float3 GetDiffuseColor()
   if (GetMaterialData(UseFog))
   {
     float3 worldPos = normalize(G.Input.ViewDirection) * GetMaterialData(VirtualDistance);
-    color = ApplyFog(color, worldPos);
+    color = CalculateAndApplyFog(color, worldPos);
   }
 
   return color;

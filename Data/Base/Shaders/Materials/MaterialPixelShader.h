@@ -144,11 +144,11 @@ PS_OUT main(PS_IN Input)
 #if RENDER_PASS == RENDER_PASS_FORWARD
 #  if defined(USE_FOG) && SHADING_QUALITY == SHADING_QUALITY_NORMAL
 #    if BLEND_MODE == BLEND_MODE_ADDITIVE
-  matData.opacity *= GetFogAmount(matData.worldPosition);
+  matData.opacity *= CalculateFogAmount(matData.worldPosition);
 #    elif BLEND_MODE == BLEND_MODE_MODULATE
-  litColor = lerp(1.0, litColor, GetFogAmount(matData.worldPosition));
+  litColor = lerp(1.0, litColor, CalculateFogAmount(matData.worldPosition));
 #    else
-  litColor = ApplyFog(litColor, matData.worldPosition);
+  litColor = CalculateAndApplyFog(litColor, matData.worldPosition);
 #    endif
 #  endif
 

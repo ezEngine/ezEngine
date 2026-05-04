@@ -93,7 +93,7 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
 
   if (data.Flags & LENS_FLARE_APPLY_FOG)
   {
-    float fogAmount = GetFogAmount(worldPosition);
+    float fogAmount = CalculateFogAmount(worldPosition);
     fade *= fogAmount;
   }
 

@@ -137,7 +137,7 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
     ret.Color0.rgb *= diffuseLight;
 #  endif
 
-    ret.FogAmount = GetFogAmount(worldPosition.xyz);
+    ret.FogAmount = CalculateFogAmount(worldPosition.xyz);
     ret.Life = particleLife;
     ret.Variation = fVariation;
   }

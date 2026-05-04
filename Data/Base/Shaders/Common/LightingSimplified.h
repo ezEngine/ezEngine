@@ -14,17 +14,17 @@ Texture2D SkyIrradianceTexture;
 
 ///////////////////////////////////////////////////////////////////////////////////
 
-float GetFogAmount(float3 worldPosition)
+float CalculateFogAmount(float3 worldPosition)
 {
   return 1.0f;
 }
 
-float3 ApplyFog(float3 color, float3 worldPosition, float fogAmount)
+float3 ApplyFogColor(float3 color, float3 worldPosition, float fogAmount)
 {
   return color;
 }
 
-float3 ApplyFog(float3 color, float3 worldPosition)
+float3 CalculateAndApplyFog(float3 color, float3 worldPosition)
 {
   return color;
 }

@@ -922,7 +922,7 @@ void ApplyRefraction(inout ezMaterialData matData, inout AccumulatedLight light)
   matData.opacity = matData.refractionColor.a;
 }
 
-float GetFogAmount(float3 worldPosition)
+float CalculateFogAmount(float3 worldPosition)
 {
   float3 cameraToWorldPos = worldPosition - GetCameraPosition();
   float fogDensity = FogDensity;
@@ -936,26 +936,26 @@ float GetFogAmount(float3 worldPosition)
   return saturate(exp(-fogDensity * max(0, length(cameraToWorldPos) - FogStartDistance)));
 }
 
-float3 ApplyFog(float3 color, float3 worldPosition, float fogAmount)
+float3 ApplyFogColor(float3 color, float3 worldPosition, float fogAmount)
 {
   float3 fogColor = FogColor.rgb;
   if (FogInvSkyDistance > 0.0)
   {
-    float distance = 0;
-    float3 viewVector = NormalizeAndGetLength(worldPosition - GetCameraPosition(), distance);
+    float viewDistance = 0;
+    float3 viewVector = NormalizeAndGetLength(worldPosition - GetCameraPosition(), viewDistance);
     float4 coord = float4(CubeMapDirection(viewVector), 0);
-    float mipLevel = saturate(1.0 - distance * FogInvSkyDistance) * NUM_REFLECTION_MIPS;
+    float mipLevel = saturate(1.0 - viewDistance * FogInvSkyDistance) * NUM_REFLECTION_MIPS;
     fogColor *= ReflectionSpecularTexture.SampleLevel(LinearSampler, coord, mipLevel).rgb * 2.0;
   }
 
   return lerp(fogColor, color, fogAmount);
 }
 
-float3 ApplyFog(float3 color, float3 worldPosition)
+float3 CalculateAndApplyFog(float3 color, float3 worldPosition)
 {
   if (FogDensity > 0.0)
   {
-    return ApplyFog(color, worldPosition, GetFogAmount(worldPosition));
+    return ApplyFogColor(color, worldPosition, CalculateFogAmount(worldPosition));
   }
 
   return color;
