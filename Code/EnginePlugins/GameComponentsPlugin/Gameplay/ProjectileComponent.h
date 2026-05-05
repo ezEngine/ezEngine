@@ -91,6 +91,9 @@ public:
   /// Defines which other physics objects the projectile will collide with.
   ezUInt8 m_uiCollisionLayer; // [ property ]
 
+  /// If greater than zero, the projectile uses a sphere sweep with this radius instead of a raycast.
+  float m_fRadius; // [ property ]
+
   /// A broad filter to ignore certain types of colliders.
   ezBitflags<ezPhysicsShapeType> m_ShapeTypesToHit; // [ property ]
 
@@ -114,6 +117,7 @@ private:
   void OnTriggered(ezMsgComponentInternalTrigger& msg); // [ msg handler ]
 
   void SpawnDeathPrefab();
+  bool QueryCollision(const ezPhysicsWorldModuleInterface& physicsInterface, ezPhysicsCastResult& out_result, const ezVec3& vStart, const ezVec3& vDirection, float fDistance, const ezPhysicsQueryParameters& queryParams) const;
 
 
   /// \brief If an unknown surface type is hit, the projectile will just delete itself without further interaction

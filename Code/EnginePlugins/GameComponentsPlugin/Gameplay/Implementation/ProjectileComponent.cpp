@@ -34,7 +34,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezProjectileSurfaceInteraction, ezNoBase, 3, ezRT
 }
 EZ_END_STATIC_REFLECTED_TYPE;
 
-EZ_BEGIN_COMPONENT_TYPE(ezProjectileComponent, 7, ezComponentMode::Dynamic)
+EZ_BEGIN_COMPONENT_TYPE(ezProjectileComponent, 8, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -44,6 +44,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezProjectileComponent, 7, ezComponentMode::Dynamic)
     EZ_MEMBER_PROPERTY("SpawnPrefabOnStatic", m_bSpawnPrefabOnStatic),
     EZ_RESOURCE_MEMBER_PROPERTY("OnDeathPrefab", m_hDeathPrefab)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab", ezDependencyFlags::Package)),
     EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
+    EZ_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new ezDefaultValueAttribute(0.0f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_BITFLAGS_MEMBER_PROPERTY("ShapeTypesToHit", ezPhysicsShapeType, m_ShapeTypesToHit)->AddAttributes(new ezDefaultValueAttribute(ezVariant(ezPhysicsShapeType::Default & ~(ezPhysicsShapeType::Trigger)))),
     EZ_ACCESSOR_PROPERTY("FallbackSurface", GetFallbackSurfaceFile, SetFallbackSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
     EZ_ARRAY_MEMBER_PROPERTY("Interactions", m_SurfaceInteractions),
@@ -64,10 +65,44 @@ EZ_BEGIN_COMPONENT_TYPE(ezProjectileComponent, 7, ezComponentMode::Dynamic)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
+namespace
+{
+  /// \brief Helper function to recalculate the sphere position from hit position
+  /// \param vOrigin is expected to be the initial position of the particle before SweepTest
+  ezVec3 CalculateSphereCenterPosition(const ezVec3& vOrigin, const ezVec3& vDirection, float fRadius, const ezVec3& vHitPosition)
+  {
+    const ezVec3 vHitRelative = vHitPosition - vOrigin;
+    const float fHitToDirProj = vHitRelative.Dot(vDirection);
+
+    if (fHitToDirProj < 0.0f)
+    {
+      // It says that the hit position is "behind" (if we move along vDirection) vOrigin
+      // Likely this can only happen when there is already a collision before the particle has started moving
+      // Thus, return the original line position
+      return vOrigin;
+    }
+
+    // Distance from hit pos to the line passing through the vOrigin along vDirection
+    // This distance is equal to r * sin(theta),
+    // where theta is the angle between vDirection and the vector connecting hit pos and supposed new sphere center (vNewCenter)
+    const float fDistSquared = vHitRelative.GetLengthSquared() - fHitToDirProj * fHitToDirProj;
+
+    // Here fOffset is r * cos(theta),
+    // it equals to the distance between vHitPosition and vNewCenter projected to vDirection
+    const float fOffset = ezMath::Sqrt(ezMath::Max(0.0f, fRadius * fRadius - fDistSquared));
+
+    const ezVec3 vNewCenter = vOrigin + (fHitToDirProj - fOffset) * vDirection;
+
+    // Lerp result to make projectile go a bit "inside" into the object it collided
+    return ezMath::Lerp(vNewCenter, vHitPosition, 0.1f);
+  }
+} // namespace
+
 ezProjectileComponent::ezProjectileComponent()
 {
   m_fMetersPerSecond = 10.0f;
   m_uiCollisionLayer = 0;
+  m_fRadius = 0.0f;
   m_fGravityMultiplier = 0.0f;
   m_vVelocity.SetZero();
   m_bSpawnPrefabOnStatic = false;
@@ -85,6 +120,7 @@ void ezProjectileComponent::Update()
   if (pPhysicsInterface)
   {
     ezGameObject* pEntity = GetOwner();
+    const ezVec3 vCurPosition = pEntity->GetGlobalPosition();
 
     const float fTimeDiff = (float)GetWorld()->GetClock().GetTimeDiff().GetSeconds();
 
@@ -109,8 +145,12 @@ void ezProjectileComponent::Update()
     queryParams.m_ShapeTypes = m_ShapeTypesToHit;
 
     ezPhysicsCastResult castResult;
-    if (pPhysicsInterface->Raycast(castResult, pEntity->GetGlobalPosition(), vCurDirection, fDistance, queryParams))
+    if (QueryCollision(*pPhysicsInterface, castResult, vCurPosition, vCurDirection, fDistance, queryParams))
     {
+      const ezVec3 vNewCenterPosition = (m_fRadius > 0.0f)
+        ? CalculateSphereCenterPosition(vCurPosition, vCurDirection, m_fRadius, castResult.m_vPosition)
+        : castResult.m_vPosition;
+
       const ezSurfaceResourceHandle hSurface = castResult.m_hSurface.IsValid() ? castResult.m_hSurface : m_hFallbackSurface;
 
       const ezInt32 iInteraction = FindSurfaceInteraction(hSurface);
@@ -118,7 +158,7 @@ void ezProjectileComponent::Update()
       if (iInteraction == -1)
       {
         GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
-        vNewPosition = castResult.m_vPosition;
+        vNewPosition = vNewCenterPosition;
       }
       else
       {
@@ -188,16 +228,16 @@ void ezProjectileComponent::Update()
 
 
           GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
-          vNewPosition = castResult.m_vPosition;
+          vNewPosition = vNewCenterPosition;
         }
         else if (interaction.m_Reaction == ezProjectileReaction::Reflect || interaction.m_Reaction == ezProjectileReaction::Bounce)
         {
           /// \todo Should reflect around the actual hit position
           /// \todo Should preserve travel distance while reflecting
 
-          // const float fLength = (vPos - pEntity->GetGlobalPosition()).GetLength();
+          // const float fLength = (vPos - vCurPosition).GetLength();
 
-          vNewPosition = pEntity->GetGlobalPosition(); // vPos;
+          vNewPosition = vCurPosition; // vPos;
 
           const ezVec3 vNewDirection = vCurDirection.GetReflectedVector(castResult.m_vNormal);
 
@@ -233,7 +273,7 @@ void ezProjectileComponent::Update()
         {
           m_fMetersPerSecond = 0.0f;
           m_fGravityMultiplier = 0.0f;
-          vNewPosition = castResult.m_vPosition;
+          vNewPosition = vNewCenterPosition;
 
           ezGameObject* pObject;
           if (GetWorld()->TryGetObject(castResult.m_hActorObject, pObject))
@@ -243,13 +283,13 @@ void ezProjectileComponent::Update()
         }
         else if (interaction.m_Reaction == ezProjectileReaction::PassThrough)
         {
-          vNewPosition = pEntity->GetGlobalPosition() + fDistance * vCurDirection;
+          vNewPosition = vCurPosition + fDistance * vCurDirection;
         }
       }
     }
     else
     {
-      vNewPosition = pEntity->GetGlobalPosition() + fDistance * vCurDirection;
+      vNewPosition = vCurPosition + fDistance * vCurDirection;
     }
 
     GetOwner()->SetGlobalPosition(vNewPosition);
@@ -264,6 +304,7 @@ void ezProjectileComponent::SerializeComponent(ezWorldWriter& inout_stream) cons
   s << m_fMetersPerSecond;
   s << m_fGravityMultiplier;
   s << m_uiCollisionLayer;
+  s << m_fRadius;
   s << m_MaxLifetime;
   s << m_hDeathPrefab;
 
@@ -306,6 +347,16 @@ void ezProjectileComponent::DeserializeComponent(ezWorldReader& inout_stream)
   s >> m_fMetersPerSecond;
   s >> m_fGravityMultiplier;
   s >> m_uiCollisionLayer;
+
+  if (uiVersion >= 8)
+  {
+    s >> m_fRadius;
+  }
+  else
+  {
+    m_fRadius = 0.0f;
+  }
+
   s >> m_MaxLifetime;
   s >> m_hDeathPrefab;
 
@@ -353,6 +404,17 @@ void ezProjectileComponent::DeserializeComponent(ezWorldReader& inout_stream)
   {
     s >> m_bSpawnPrefabOnStatic;
   }
+}
+
+
+bool ezProjectileComponent::QueryCollision(const ezPhysicsWorldModuleInterface& physicsInterface, ezPhysicsCastResult& out_result, const ezVec3& vStart, const ezVec3& vDirection, float fDistance, const ezPhysicsQueryParameters& queryParams) const
+{
+  if (m_fRadius > 0.0f)
+  {
+    return physicsInterface.SweepTestSphere(out_result, m_fRadius, vStart, vDirection, fDistance, queryParams);
+  }
+
+  return physicsInterface.Raycast(out_result, vStart, vDirection, fDistance, queryParams);
 }
 
 
