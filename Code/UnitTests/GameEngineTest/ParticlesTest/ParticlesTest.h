@@ -65,6 +65,7 @@ private:
     LocalSpaceSim,
     Lighting,
     Attractors,
+    Fog,
   };
 
   virtual void SetupSubTests() override;
