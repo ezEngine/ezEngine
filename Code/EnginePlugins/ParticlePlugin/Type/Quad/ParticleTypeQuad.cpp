@@ -497,7 +497,7 @@ void ezParticleTypeQuad::AddParticleRenderData(ezMsgExtractRenderData& msg, cons
   pRenderData->m_fNormalCurvature = m_fNormalCurvature;
   pRenderData->m_fLightDirectionality = m_fLightDirectionality;
   pRenderData->m_fGeometryProximityFadeOut = m_fGeometryProximityFadeOut;
-  pRenderData->m_fCameraProximityFadeOut = m_fCameraProximityFadeOut;  
+  pRenderData->m_fCameraProximityFadeOut = m_fCameraProximityFadeOut;
   pRenderData->m_hCustomMaterial = m_hCustomMaterial;
 
   switch (m_Orientation)
