@@ -91,7 +91,8 @@ public:
   /// Defines which other physics objects the projectile will collide with.
   ezUInt8 m_uiCollisionLayer; // [ property ]
 
-  /// If greater than zero, the projectile uses a sphere sweep with this radius instead of a raycast.
+  /// If greater than zero, a sphere shape query is used for collision detection
+  /// otherwise raycasting is used and projectile is treated like a "dot"
   float m_fRadius; // [ property ]
 
   /// A broad filter to ignore certain types of colliders.

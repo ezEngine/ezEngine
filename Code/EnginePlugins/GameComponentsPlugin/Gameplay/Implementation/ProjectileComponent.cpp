@@ -69,32 +69,16 @@ namespace
 {
   /// \brief Helper function to recalculate the sphere position from hit position
   /// \param vOrigin is expected to be the initial position of the particle before SweepTest
-  ezVec3 CalculateSphereCenterPosition(const ezVec3& vOrigin, const ezVec3& vDirection, float fRadius, const ezVec3& vHitPosition)
+  ezVec3 CalculateSphereCenterPosition(const ezVec3& vOrigin, const ezVec3& vDirection, const ezPhysicsCastResult& castResult, float fPenetrationDepth)
   {
-    const ezVec3 vHitRelative = vHitPosition - vOrigin;
-    const float fHitToDirProj = vHitRelative.Dot(vDirection);
-
-    if (fHitToDirProj < 0.0f)
+    if (castResult.m_fDistance == 0.0f)
     {
       // It says that the hit position is "behind" (if we move along vDirection) vOrigin
-      // Likely this can only happen when there is already a collision before the particle has started moving
-      // Thus, return the original line position
+      // Thus, return the original position
       return vOrigin;
     }
 
-    // Distance from hit pos to the line passing through the vOrigin along vDirection
-    // This distance is equal to r * sin(theta),
-    // where theta is the angle between vDirection and the vector connecting hit pos and supposed new sphere center (vNewCenter)
-    const float fDistSquared = vHitRelative.GetLengthSquared() - fHitToDirProj * fHitToDirProj;
-
-    // Here fOffset is r * cos(theta),
-    // it equals to the distance between vHitPosition and vNewCenter projected to vDirection
-    const float fOffset = ezMath::Sqrt(ezMath::Max(0.0f, fRadius * fRadius - fDistSquared));
-
-    const ezVec3 vNewCenter = vOrigin + (fHitToDirProj - fOffset) * vDirection;
-
-    // Lerp result to make projectile go a bit "inside" into the object it collided
-    return ezMath::Lerp(vNewCenter, vHitPosition, 0.1f);
+    return vOrigin + vDirection * (castResult.m_fDistance + fPenetrationDepth);
   }
 } // namespace
 
@@ -148,7 +132,7 @@ void ezProjectileComponent::Update()
     if (QueryCollision(*pPhysicsInterface, castResult, vCurPosition, vCurDirection, fDistance, queryParams))
     {
       const ezVec3 vNewCenterPosition = (m_fRadius > 0.0f)
-        ? CalculateSphereCenterPosition(vCurPosition, vCurDirection, m_fRadius, castResult.m_vPosition)
+        ? CalculateSphereCenterPosition(vCurPosition, vCurDirection, castResult, m_fRadius * 0.5f)
         : castResult.m_vPosition;
 
       const ezSurfaceResourceHandle hSurface = castResult.m_hSurface.IsValid() ? castResult.m_hSurface : m_hFallbackSurface;
