@@ -44,7 +44,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezProjectileComponent, 8, ezComponentMode::Dynamic)
     EZ_MEMBER_PROPERTY("SpawnPrefabOnStatic", m_bSpawnPrefabOnStatic),
     EZ_RESOURCE_MEMBER_PROPERTY("OnDeathPrefab", m_hDeathPrefab)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab", ezDependencyFlags::Package)),
     EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
-    EZ_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new ezDefaultValueAttribute(0.0f), new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_BITFLAGS_MEMBER_PROPERTY("ShapeTypesToHit", ezPhysicsShapeType, m_ShapeTypesToHit)->AddAttributes(new ezDefaultValueAttribute(ezVariant(ezPhysicsShapeType::Default & ~(ezPhysicsShapeType::Trigger)))),
     EZ_ACCESSOR_PROPERTY("FallbackSurface", GetFallbackSurfaceFile, SetFallbackSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
     EZ_ARRAY_MEMBER_PROPERTY("Interactions", m_SurfaceInteractions),
