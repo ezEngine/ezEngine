@@ -822,7 +822,8 @@ namespace
                   std::is_same_v<T, float> ||
                   std::is_same_v<T, double> ||
                   std::is_same_v<T, ezColor> ||
-                  std::is_same_v<T, ezTime>)
+                  std::is_same_v<T, ezTime> ||
+                  std::is_same_v<T, ezQuat>)
     {
       const T& a = inout_context.GetData<T>(node.GetInputDataOffset(0));
       const T& b = inout_context.GetData<T>(node.GetInputDataOffset(1));
