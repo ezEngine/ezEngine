@@ -1,5 +1,6 @@
 #include <GuiFoundation/GuiFoundationPCH.h>
 
+#include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/PropertyGrid/Implementation/TagSetPropertyWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
@@ -52,6 +53,7 @@ void ezQtPropertyEditorTagSetWidget::OnInit()
   const ezTagSetWidgetAttribute* pAssetAttribute = m_pProp->GetAttributeByType<ezTagSetWidgetAttribute>();
   EZ_ASSERT_DEV(pAssetAttribute != nullptr, "ezQtPropertyEditorTagSetWidget needs ezTagSetWidgetAttribute to be set.");
   ezStringBuilder sTagFilter = pAssetAttribute->GetTagFilter();
+  m_sTagFilter = sTagFilter;
   ezTempHybridArray<ezStringView, 4> categories;
   sTagFilter.Split(false, categories, ";");
 
@@ -107,6 +109,15 @@ void ezQtPropertyEditorTagSetWidget::OnInit()
     /*QAction* pCategory = */ m_pMenu->addSection(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Tag.svg"),
       QLatin1String("[") + QString(catname.GetData(tmp)) + QLatin1String("]"));
   }
+
+  m_pMenu->addSeparator();
+
+  QAction* pEditAction = new QAction(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/GuiFoundation/Icons/Edit.svg"), "Edit Tags...", m_pMenu);
+  connect(pEditAction, &QAction::triggered, this, [this]()
+    {
+      ezActionManager::ExecuteAction({}, "Engine.Tags", ezActionContext(const_cast<ezDocument*>(m_pGrid->GetDocument())), ezVariant(m_sTagFilter)).AssertSuccess();
+    });
+  m_pMenu->addAction(pEditAction);
 }
 
 void ezQtPropertyEditorTagSetWidget::InternalUpdateValue()

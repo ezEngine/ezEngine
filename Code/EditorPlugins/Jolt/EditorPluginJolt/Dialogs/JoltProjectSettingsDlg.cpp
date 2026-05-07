@@ -35,6 +35,10 @@ ezQtJoltProjectSettingsDlg::ezQtJoltProjectSettingsDlg(const ezVariant& startup,
   if (startup.IsValid())
   {
     const ezString sStartup = startup.ConvertTo<ezString>();
+    if (sStartup == "CollisionLayers")
+    {
+      Tabs->setCurrentIndex(0);
+    }
     if (sStartup == "WeightCategories")
     {
       Tabs->setCurrentIndex(1);

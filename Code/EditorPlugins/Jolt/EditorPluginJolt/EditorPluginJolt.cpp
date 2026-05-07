@@ -102,6 +102,7 @@ void UpdateCollisionLayerDynamicEnumValues()
 {
   auto& cfe = ezDynamicEnum::GetDynamicEnum("PhysicsCollisionLayer");
   cfe.Clear();
+  cfe.SetEditCommand("Jolt.Settings.Project", "CollisionLayers");
 
   ezCollisionFilterConfig cfg;
   if (cfg.Load().Failed())

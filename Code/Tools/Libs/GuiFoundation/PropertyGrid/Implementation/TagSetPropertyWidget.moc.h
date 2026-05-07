@@ -36,4 +36,5 @@ private:
   QHBoxLayout* m_pLayout;
   QPushButton* m_pWidget;
   QMenu* m_pMenu;
+  ezString m_sTagFilter;
 };

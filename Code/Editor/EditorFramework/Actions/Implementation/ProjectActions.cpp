@@ -656,7 +656,7 @@ void ezProjectAction::Execute(const ezVariant& value)
 
     case ezProjectAction::ButtonType::TagsDialog:
     {
-      ezQtTagsDlg dlg(nullptr);
+      ezQtTagsDlg dlg(value, nullptr);
       if (dlg.exec() == QDialog::Accepted)
       {
         ezToolsProject::BroadcastConfigChanged();

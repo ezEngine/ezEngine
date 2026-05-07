@@ -351,7 +351,7 @@ bool ezQtAssetBrowserFilter::IsAssetFiltered(ezStringView sDataDirParentRelative
     else
     {
       // otherwise search for ";required;" in the tags string (note the semicolons at the start and end as delimiters
-      if (tags.FindSubString(m_sRequiredTag) == nullptr)
+      if (tags.FindSubString_NoCase(m_sRequiredTag) == nullptr)
         return true;
     }
   }

@@ -13,7 +13,7 @@ public:
   Q_OBJECT
 
 public:
-  ezQtTagsDlg(QWidget* pParent);
+  ezQtTagsDlg(const ezVariant& startup, QWidget* pParent);
 
 private Q_SLOTS:
   void on_ButtonNewCategory_clicked();
@@ -32,6 +32,7 @@ private:
 
   QTreeWidgetItem* CreateTagItem(QTreeWidgetItem* pParentItem, const QString& tag, bool bBuiltIn);
 
+  ezString m_sStartupCategory;
   ezHybridArray<ezToolsTag, 32> m_Tags;
   ezMap<ezString, QTreeWidgetItem*> m_CategoryToItem;
 };

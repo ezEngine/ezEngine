@@ -3,12 +3,18 @@
 #include <EditorFramework/Dialogs/TagsDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 
-ezQtTagsDlg::ezQtTagsDlg(QWidget* pParent)
+ezQtTagsDlg::ezQtTagsDlg(const ezVariant& startup, QWidget* pParent)
   : QDialog(pParent)
 {
   setupUi(this);
 
   LoadTags();
+
+  if (startup.IsString())
+  {
+    m_sStartupCategory = startup.Get<ezString>();
+  }
+
   FillList();
 
   on_TreeTags_itemSelectionChanged();
@@ -168,6 +174,11 @@ void ezQtTagsDlg::FillList()
 
   ezSet<ezString> TagCategories;
 
+  if (!m_sStartupCategory.IsEmpty())
+  {
+    TagCategories.Insert(m_sStartupCategory);
+  }
+
   for (const auto& tag : m_Tags)
   {
     TagCategories.Insert(tag.m_sCategory);
@@ -181,6 +192,8 @@ void ezQtTagsDlg::FillList()
     pItem->setIcon(0, ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Tag.svg"));
 
     m_CategoryToItem[it.Key()] = pItem;
+
+    pItem->setSelected(it.Key() == m_sStartupCategory);
   }
 
   for (const auto& tag : m_Tags)
