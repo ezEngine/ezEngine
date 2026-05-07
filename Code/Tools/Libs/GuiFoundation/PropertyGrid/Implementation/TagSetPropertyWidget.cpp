@@ -114,9 +114,7 @@ void ezQtPropertyEditorTagSetWidget::OnInit()
 
   QAction* pEditAction = new QAction(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/GuiFoundation/Icons/Edit.svg"), "Edit Tags...", m_pMenu);
   connect(pEditAction, &QAction::triggered, this, [this]()
-    {
-      ezActionManager::ExecuteAction({}, "Engine.Tags", ezActionContext(const_cast<ezDocument*>(m_pGrid->GetDocument())), ezVariant(m_sTagFilter)).AssertSuccess();
-    });
+    { ezActionManager::ExecuteAction({}, "Engine.Tags", ezActionContext(const_cast<ezDocument*>(m_pGrid->GetDocument())), ezVariant(m_sTagFilter)).AssertSuccess(); });
   m_pMenu->addAction(pEditAction);
 }
 
