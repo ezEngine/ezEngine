@@ -1,3 +1,5 @@
+#include "EditorFramework/Document/GameObjectDocument.h"
+
 #include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <EditorFramework/Assets/AssetCurator.h>
@@ -2655,3 +2657,69 @@ ezAssetCurator::ReplaceAssetResult ezAssetCurator::ReplaceAssetReferenceInUses(e
 
   return result;
 }
+
+void ezAssetCurator::FindAssetUsagesInGameObjects(ezUuid assetToFind, const ezDocumentObject* pObject, ezDynamicArray<ezString>& out_usages)
+{
+  auto pDocument = pObject->GetDocumentObjectManager()->GetDocument();
+  auto pAccessor = pDocument->GetObjectAccessor();
+
+  const ezRTTI* pType = pObject->GetTypeAccessor().GetType();
+  ezTempHybridArray<const ezAbstractProperty*, 32> properties;
+  pType->GetAllProperties(properties);
+
+  for (const ezAbstractProperty* pProp : properties)
+  {
+    // Skip temporary properties
+    if (pProp->GetAttributeByType<ezTemporaryAttribute>() != nullptr)
+      continue;
+
+    // Check if this is an asset reference property
+    const ezAssetBrowserAttribute* pAssetAttr = pProp->GetAttributeByType<ezAssetBrowserAttribute>();
+    if (pAssetAttr == nullptr)
+      continue;
+
+    // Must be string type
+    const auto propVarType = pProp->GetSpecificType()->GetVariantType();
+    if (propVarType != ezVariantType::String && propVarType != ezVariantType::StringView)
+      continue;
+
+    switch (pProp->GetCategory())
+    {
+    case ezPropertyCategory::Member:
+    {
+      if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
+      {
+        ezVariant value;
+        if (pAccessor->GetValue(pObject, pProp, value).Succeeded())
+        {
+          auto sValue = value.Get<ezString>();
+          ezUuid guid = ezConversionUtils::ConvertStringToUuid(sValue);
+          if (guid == assetToFind)
+          {
+            ezStringBuilder sFullPath;
+            if (const ezGameObjectDocument* pGameDoc = ezDynamicCast<const ezGameObjectDocument*>(pObject->GetDocumentObjectManager()->GetDocument()))
+            {
+              pGameDoc->GenerateFullDisplayName(pObject, sFullPath);
+              out_usages.PushBack(sFullPath);
+            }
+          }
+        }
+      }
+    }
+    break;
+
+    default:
+      break;
+    }
+  }
+
+  // Process children recursively
+  for (const ezDocumentObject* pChild : pObject->GetChildren())
+  {
+    if (pChild->GetParentPropertyType() != nullptr &&
+        pChild->GetParentPropertyType()->GetAttributeByType<ezTemporaryAttribute>() != nullptr)
+      continue;
+    FindAssetUsagesInGameObjects(assetToFind, pChild, out_usages);
+  }
+}
+

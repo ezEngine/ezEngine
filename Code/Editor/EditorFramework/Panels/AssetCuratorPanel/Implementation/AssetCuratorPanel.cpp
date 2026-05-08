@@ -175,7 +175,7 @@ void ezQtAssetCuratorPanel::UpdateIssueInfo()
 
   ezAssetInfo* pAssetInfo = pSubAsset->m_pAssetInfo;
 
-  auto getNiceName = [](const ezString& sDep) -> ezStringBuilder
+  auto getNiceName = [&pSubAsset](const ezString& sDep) -> ezStringBuilder
   {
     if (ezConversionUtils::IsStringUuid(sDep))
     {
@@ -189,8 +189,37 @@ void ezQtAssetCuratorPanel::UpdateIssueInfo()
       ezUInt64 uiLow;
       ezUInt64 uiHigh;
       guid.GetValues(uiLow, uiHigh);
+
+      ezString sDocumentPath = pSubAsset->m_pAssetInfo->m_Path.GetAbsolutePath();
+
+      // Open the document (without requesting a window)
+      ezDocument* pDocument = ezQtEditorApp::GetSingleton()->OpenDocument(sDocumentPath, ezDocumentFlags::None);
+      ezDynamicArray<ezString> uses;
+      if (pDocument != nullptr)
+      {
+        // Find all direct uses of this asset
+        ezAssetCurator::GetSingleton()->FindAssetUsagesInGameObjects(guid, pDocument->GetObjectManager()->GetRootObject(), uses);
+      }
+
       ezStringBuilder sTmp;
-      sTmp.SetFormat("{} - u4{{},{}}", sDep, uiLow, uiHigh);
+      if (uses.IsEmpty())
+      {
+        sTmp.SetFormat("{} - u4{{},{}}", sDep, uiLow, uiHigh);
+      }
+      else
+      {
+        ezStringBuilder usesString;
+        for (const ezString& use : uses)
+        {
+          if (!usesString.IsEmpty())
+          {
+            usesString.Append(", ");
+          }
+          usesString.Append(use);
+        }
+
+        sTmp.SetFormat("Dependency GUID: {}. Used by objects: {}", sDep, usesString);
+      }
 
       return sTmp;
     }
