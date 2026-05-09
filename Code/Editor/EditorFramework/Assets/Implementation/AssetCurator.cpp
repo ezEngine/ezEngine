@@ -1,5 +1,3 @@
-#include "EditorFramework/Document/GameObjectDocument.h"
-
 #include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <EditorFramework/Assets/AssetCurator.h>
@@ -2657,5 +2655,3 @@ ezAssetCurator::ReplaceAssetResult ezAssetCurator::ReplaceAssetReferenceInUses(e
 
   return result;
 }
-
-
