@@ -49,6 +49,14 @@ struct EZ_GAMECOMPONENTS_DLL ezProjectileSurfaceInteraction
 
   /// \brief How much damage to do on this type of surface. Send via ezMsgDamage
   float m_fDamage = 0.0f;
+
+  /// \brief How much the rotation (spinning) of the owner object is affected by reflections/bounces about the surface
+  /// Positive values correspond to the rotation due to object "getting stuck in the surface"
+  /// Negative values correspond to the rotation due to object "sliding over the surface"
+  /// Larger by magnitude values correspond to smaller rotations.
+  /// If zero, than the rotation of the owner is not changed during reflection/bounces
+  /// Generally, it is an analogue of mass but for rotational movement
+  float m_fInertiaRatio = 5.0f;
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMECOMPONENTS_DLL, ezProjectileSurfaceInteraction);
@@ -95,6 +103,9 @@ public:
   /// otherwise raycasting is used and projectile is treated like a "dot"
   float m_fRadius; // [ property ]
 
+  /// Velocity ratio below which a bounced projectile is considered static.
+  float m_fStaticVelocityRatio = 0.05f; // [ property ]
+
   /// A broad filter to ignore certain types of colliders.
   ezBitflags<ezPhysicsShapeType> m_ShapeTypesToHit; // [ property ]
 
@@ -118,7 +129,9 @@ private:
   void OnTriggered(ezMsgComponentInternalTrigger& msg); // [ msg handler ]
 
   void SpawnDeathPrefab();
+  void ApplySpinRotation(const ezProjectileSurfaceInteraction& interaction, const ezPhysicsCastResult& castResult, const ezVec3& vPositionOnReflection, const ezVec3& vCurDirection, const ezVec3& vNewVelocity);
   bool QueryCollision(const ezPhysicsWorldModuleInterface& physicsInterface, ezPhysicsCastResult& out_result, const ezVec3& vStart, const ezVec3& vDirection, float fDistance, const ezPhysicsQueryParameters& queryParams) const;
+  bool ShouldStopProjectile(const ezPhysicsWorldModuleInterface& physicsInterface, const ezPhysicsCastResult& castResult, const ezVec3& vVelocity);
 
 
   /// \brief If an unknown surface type is hit, the projectile will just delete itself without further interaction
