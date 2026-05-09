@@ -1,3 +1,5 @@
+#include "EditorFramework/Assets/AssetDocument.h"
+
 #include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <EditorFramework/Assets/AssetCurator.h>
@@ -194,11 +196,14 @@ void ezQtAssetCuratorPanel::UpdateIssueInfo()
 
       // Open the document (without requesting a window)
       ezDocument* pDocument = ezQtEditorApp::GetSingleton()->OpenDocument(sDocumentPath, ezDocumentFlags::None);
-      ezDynamicArray<ezString> uses;
+      ezTempHybridArray<ezString, 3> uses;
       if (pDocument != nullptr)
       {
+        // cast a document to ezAssetDocument to access the FindAssetUsages function.
+        ezAssetDocument* pAssetDoc = ezDynamicCast<ezAssetDocument*>(pDocument);
+
         // Find all direct uses of this asset
-        ezAssetCurator::GetSingleton()->FindAssetUsagesInGameObjects(guid, pDocument->GetObjectManager()->GetRootObject(), uses);
+        pAssetDoc->FindAssetUsages(sDep, pDocument->GetObjectManager()->GetRootObject(), uses, 3);
       }
 
       ezStringBuilder sTmp;
@@ -209,7 +214,7 @@ void ezQtAssetCuratorPanel::UpdateIssueInfo()
       else
       {
         ezStringBuilder usesString;
-        for (const ezString& use : uses)
+        for (auto& use : uses)
         {
           if (!usesString.IsEmpty())
           {
@@ -218,7 +223,7 @@ void ezQtAssetCuratorPanel::UpdateIssueInfo()
           usesString.Append(use);
         }
 
-        sTmp.SetFormat("Dependency GUID: {}. Used by objects: {}", sDep, usesString);
+        sTmp.SetFormat("{}. Used by objects: {}", sDep, usesString);
       }
 
       return sTmp;

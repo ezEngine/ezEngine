@@ -232,9 +232,6 @@ public:
   /// Documents are opened without a window. Errors are collected but do not abort the operation.
   ReplaceAssetResult ReplaceAssetReferenceInUses(ezUuid assetToReplace, ezStringView sOldReference, ezStringView sNewReference);
 
-  /// Finds all references to assets in the given object and its children.
-  void FindAssetUsagesInGameObjects(ezUuid assetToFind, const ezDocumentObject* pObject, ezDynamicArray<ezString>& out_usages);
-
 private:
   void ClearAssetProfiles();
   void SetupDefaultAssetProfiles();
