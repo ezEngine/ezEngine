@@ -33,7 +33,19 @@ WireFrame = false
 #endif
 
 #if defined(USE_GAME_OBJECT_ID)
-  #define CUSTOM_INTERPOLATOR uint GameObjectID : GAME_OBJECT_ID;
+  #define GAME_OBJECT_ID_INTERPOLATOR uint GameObjectID : GAME_OBJECT_ID;
+#else
+  #define GAME_OBJECT_ID_INTERPOLATOR
+#endif
+
+#if SHAPE_ICON
+  #define SHAPE_ICON_INTERPOLATOR float ShapeIconFadeOut : SHAPE_ICON_FADE_OUT;
+#else
+  #define SHAPE_ICON_INTERPOLATOR
+#endif
+
+#if defined(USE_GAME_OBJECT_ID) || SHAPE_ICON
+  #define CUSTOM_INTERPOLATOR GAME_OBJECT_ID_INTERPOLATOR SHAPE_ICON_INTERPOLATOR
 #endif
 
 [VERTEXSHADER]
@@ -106,6 +118,13 @@ VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
     Output.GameObjectID = data.GameObjectID;
   #endif
 
+#if SHAPE_ICON
+  float distanceToCamera = length(worldPosition - GetCameraPosition());
+  const float fadeStart = data.ShapeIconFadeDistance;
+  const float invFadeRange = 10.0 / data.ShapeIconFadeDistance;
+  Output.ShapeIconFadeOut = saturate(1.0 - (distanceToCamera - fadeStart) * invFadeRange);
+#endif
+
   return Output;
 }
 
@@ -157,16 +176,10 @@ PS_OUT main(PS_IN Input)
   }
 
 #if SHAPE_ICON && PREPARE_DEPTH
+  // fade out after some distance
+  if (InterleavedGradientNoise(Input.Position.xy) > Input.ShapeIconFadeOut)
   {
-     // fade out after some distance
-    float viewDist = Input.Position.w;
-    const float fadeStart = 75.0;
-    const float fadeDist = 10.0;
-    float fade = saturate(1.0 - (viewDist - fadeStart) / fadeDist);
-    if (InterleavedGradientNoise(Input.Position.xy) > fade)
-    {
-      discard;
-    }
+    discard;
   }
 #endif
 

@@ -13,6 +13,9 @@
 #include <Shaders/Materials/SpriteData.h>
 static_assert(sizeof(ezPerSpriteData) == 48);
 
+float ezSpriteRenderer::s_fShapeIconScale = 1.0f;
+float ezSpriteRenderer::s_fShapeIconFadeDistance = 100.0f;
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpriteRenderer, 1, ezRTTIDefaultAllocator<ezSpriteRenderer>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
@@ -94,7 +97,7 @@ void ezSpriteRenderer::FillSpriteData(const ezRenderDataBatch& batch) const
     spriteData.TexCoordScale = ezShaderUtils::PackFloat16intoUint(pRenderData->m_texCoordScale.x, pRenderData->m_texCoordScale.y);
     spriteData.TexCoordOffset = ezShaderUtils::PackFloat16intoUint(pRenderData->m_texCoordOffset.x, pRenderData->m_texCoordOffset.y);
     spriteData.GameObjectID = pRenderData->m_uiUniqueID;
-    spriteData.Reserved = 0;
+    spriteData.ShapeIconFadeDistance = s_fShapeIconFadeDistance;
   }
 }
 

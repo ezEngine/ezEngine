@@ -525,6 +525,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGlobalSettingsMsgToEngine, 1, ezRTTIDefaultAll
   {
     EZ_MEMBER_PROPERTY("GizmoScale", m_fGizmoScale),
     EZ_MEMBER_PROPERTY("ShapeIconScale", m_fShapeIconScale),
+    EZ_MEMBER_PROPERTY("ShapeIconFadeDistance", m_fShapeIconFadeDistance),
   }
   EZ_END_PROPERTIES;
 }

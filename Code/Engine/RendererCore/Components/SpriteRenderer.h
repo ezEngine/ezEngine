@@ -23,6 +23,9 @@ public:
   virtual void GetSupportedRenderDataTypes(ezDynamicArray<const ezRTTI*>& out_types) const override;
   virtual void RenderBatch(const ezRenderViewContext& renderContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const override;
 
+  static float s_fShapeIconScale;
+  static float s_fShapeIconFadeDistance;
+
 protected:
   /// Creates a GPU buffer for per-sprite instance data.
   ezGALBufferHandle CreateSpriteDataBuffer(ezUInt32 uiBufferSize) const;

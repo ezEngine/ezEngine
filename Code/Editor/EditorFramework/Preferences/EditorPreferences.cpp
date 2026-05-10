@@ -23,6 +23,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorPreferencesUser, 1, ezRTTIDefaultAllocat
     EZ_MEMBER_PROPERTY("MaxFramerate", m_uiMaxFramerate)->AddAttributes(new ezDefaultValueAttribute(60)),
     EZ_ACCESSOR_PROPERTY("GizmoSize", GetGizmoSize, SetGizmoSize)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.2f, 5.0f)),
     EZ_ACCESSOR_PROPERTY("ShapeIconSize", GetShapeIconSize, SetShapeIconSize)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.2f, 5.0f)),
+    EZ_ACCESSOR_PROPERTY("ShapeIconFadeDistance", GetShapeIconFadeDistance, SetShapeIconFadeDistance)->AddAttributes(new ezDefaultValueAttribute(75.0f), new ezClampValueAttribute(0.01f, 10000.0f)),
     EZ_ACCESSOR_PROPERTY("ShowInDevelopmentFeatures", GetShowInDevelopmentFeatures, SetShowInDevelopmentFeatures),
     EZ_MEMBER_PROPERTY("RotationSnap", m_RotationSnapValue)->AddAttributes(new ezDefaultValueAttribute(ezAngle::MakeFromDegree(15.0f)), new ezHiddenAttribute()),
     EZ_MEMBER_PROPERTY("ScaleSnap", m_fScaleSnapValue)->AddAttributes(new ezDefaultValueAttribute(0.125f), new ezHiddenAttribute()),
@@ -117,6 +118,12 @@ void ezEditorPreferencesUser::SetShapeIconSize(float f)
   SyncGlobalSettingsToEngine();
 }
 
+void ezEditorPreferencesUser::SetShapeIconFadeDistance(float f)
+{
+  m_fShapeIconFadeDistance = f;
+  SyncGlobalSettingsToEngine();
+}
+
 void ezEditorPreferencesUser::SetMaxFramerate(ezUInt16 uiFPS)
 {
   if (m_uiMaxFramerate == uiFPS)
@@ -130,6 +137,7 @@ void ezEditorPreferencesUser::SyncGlobalSettingsToEngine()
   ezGlobalSettingsMsgToEngine msg;
   msg.m_fGizmoScale = m_fGizmoSize;
   msg.m_fShapeIconScale = m_fShapeIconSize;
+  msg.m_fShapeIconFadeDistance = m_fShapeIconFadeDistance;
 
   ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 }

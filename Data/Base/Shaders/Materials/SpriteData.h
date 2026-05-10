@@ -13,5 +13,5 @@ struct EZ_SHADER_STRUCT ezPerSpriteData
   UINT1(TexCoordScale);
   UINT1(TexCoordOffset);
   UINT1(GameObjectID);
-  UINT1(Reserved);
+  FLOAT1(ShapeIconFadeDistance);
 };

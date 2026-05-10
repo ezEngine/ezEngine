@@ -65,6 +65,9 @@ public:
   void SetShapeIconSize(float f);
   float GetShapeIconSize() const { return m_fShapeIconSize; }
 
+  void SetShapeIconFadeDistance(float f);
+  float GetShapeIconFadeDistance() const { return m_fShapeIconFadeDistance; }
+
   void SetMaxFramerate(ezUInt16 uiFPS);
   ezUInt16 GetMaxFramerate() const { return m_uiMaxFramerate; }
 
@@ -75,6 +78,7 @@ public:
 private:
   float m_fGizmoSize = 1.5f;
   float m_fShapeIconSize = 1.0f;
+  float m_fShapeIconFadeDistance = 75.0f;
   bool m_bShowInDevelopmentFeatures = false;
   ezUInt16 m_uiMaxFramerate = 60;
 };

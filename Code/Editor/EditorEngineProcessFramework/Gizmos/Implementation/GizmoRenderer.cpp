@@ -17,7 +17,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 float ezGizmoRenderer::s_fGizmoScale = 1.0f;
-float ezGizmoRenderer::s_fShapeIconScale = 1.0f;
 
 ezGizmoRenderer::ezGizmoRenderer() = default;
 ezGizmoRenderer::~ezGizmoRenderer() = default;

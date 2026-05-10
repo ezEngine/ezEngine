@@ -15,6 +15,7 @@
 #include <Foundation/System/StackTracer.h>
 #include <Foundation/System/SystemInformation.h>
 #include <Foundation/Utilities/CommandLineOptions.h>
+#include <RendererCore/Components/SpriteRenderer.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
@@ -456,7 +457,8 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
   else if (const auto* pMsg2b = ezDynamicCast<const ezGlobalSettingsMsgToEngine*>(e.m_pMessage))
   {
     ezGizmoRenderer::s_fGizmoScale = pMsg2b->m_fGizmoScale;
-    ezGizmoRenderer::s_fShapeIconScale = pMsg2b->m_fShapeIconScale;
+    ezSpriteRenderer::s_fShapeIconScale = pMsg2b->m_fShapeIconScale;
+    ezSpriteRenderer::s_fShapeIconFadeDistance = pMsg2b->m_fShapeIconFadeDistance;
   }
   else if (const auto* pMsg3 = ezDynamicCast<const ezChangeCVarMsgToEngine*>(e.m_pMessage))
   {
