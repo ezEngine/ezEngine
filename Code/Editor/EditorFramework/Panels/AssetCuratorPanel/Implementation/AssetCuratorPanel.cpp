@@ -1,4 +1,4 @@
-#include "EditorFramework/Assets/AssetDocument.h"
+#include <EditorFramework/Assets/AssetDocument.h>
 
 #include <EditorFramework/EditorFrameworkPCH.h>
 
@@ -196,14 +196,17 @@ void ezQtAssetCuratorPanel::UpdateIssueInfo()
 
       // Open the document (without requesting a window)
       ezDocument* pDocument = ezQtEditorApp::GetSingleton()->OpenDocument(sDocumentPath, ezDocumentFlags::None);
-      ezTempHybridArray<ezString, 3> uses;
+
+      constexpr ezUInt32 maxResults = 3;
+      ezTempHybridArray<ezString, maxResults> uses;
       if (pDocument != nullptr)
       {
         // cast a document to ezAssetDocument to access the FindAssetUsages function.
-        ezAssetDocument* pAssetDoc = ezDynamicCast<ezAssetDocument*>(pDocument);
-
-        // Find all direct uses of this asset
-        pAssetDoc->FindAssetUsages(sDep, pDocument->GetObjectManager()->GetRootObject(), uses, 3);
+        if (ezAssetDocument* pAssetDoc = ezDynamicCast<ezAssetDocument*>(pDocument))
+        {
+          // Find all direct uses of this asset
+          pAssetDoc->FindAssetUsages(sDep, uses, maxResults);
+        }
       }
 
       ezStringBuilder sTmp;

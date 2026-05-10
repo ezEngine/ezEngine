@@ -1051,14 +1051,15 @@ void ezGameObjectDocument::HandleEngineMessage(const ezEditorEngineDocumentMsg* 
 
 // the following method is similar to "ezAssetCurator::ReplaceAssetReferenceInObject"
 
-void ezGameObjectDocument::FindAssetUsages(ezString assetToFind, const ezDocumentObject* pObject, ezTempHybridArray<ezString, 3>& out_usages, uint maxResults) const
+void ezGameObjectDocument::FindAssetUsages(ezStringView sAssetToFind, ezDynamicArray<ezString>& out_usages, ezUInt32 maxResults) const
 {
-  const ezGameObjectDocument* pGameDoc = ezDynamicCast<const ezGameObjectDocument*>(pObject->GetDocumentObjectManager()->GetDocument());
-  if (pGameDoc == nullptr)
-    return;
+  out_usages.Clear();
+  FindAssetUsagesInternal(sAssetToFind, GetObjectManager()->GetRootObject(), out_usages, maxResults);
+}
 
-  auto pDocument = pObject->GetDocumentObjectManager()->GetDocument();
-  auto pAccessor = pDocument->GetObjectAccessor();
+void ezGameObjectDocument::FindAssetUsagesInternal(ezStringView sAssetToFind, const ezDocumentObject* pObject, ezDynamicArray<ezString>& out_usages, ezUInt32 maxResults) const
+{
+  auto pAccessor = GetObjectAccessor();
 
   const ezRTTI* pType = pObject->GetTypeAccessor().GetType();
   ezTempHybridArray<const ezAbstractProperty*, 32> properties;
@@ -1082,7 +1083,6 @@ void ezGameObjectDocument::FindAssetUsages(ezString assetToFind, const ezDocumen
 
     switch (pProp->GetCategory())
     {
-      // also add Array, Set, Map categories as in "ezAssetCurator::ReplaceAssetReferenceInObject"?
       case ezPropertyCategory::Member:
       {
         if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
@@ -1090,12 +1090,72 @@ void ezGameObjectDocument::FindAssetUsages(ezString assetToFind, const ezDocumen
           ezVariant value;
           if (pAccessor->GetValue(pObject, pProp, value).Succeeded())
           {
-            auto sValue = value.Get<ezString>();
-            if (sValue == assetToFind)
+            const ezString& sValue = value.Get<ezString>();
+            if (sValue == sAssetToFind)
             {
               ezStringBuilder sFullPath;
-              pGameDoc->GenerateFullDisplayName(pObject, sFullPath);
+              GenerateFullDisplayName(pObject, sFullPath);
               out_usages.PushBack(sFullPath);
+
+              if (out_usages.GetCount() >= maxResults)
+                return;
+            }
+          }
+        }
+      }
+      break;
+
+      case ezPropertyCategory::Array:
+      case ezPropertyCategory::Set:
+      {
+        if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
+        {
+          ezInt32 iCount = pAccessor->GetCount(pObject, pProp);
+
+          for (ezInt32 i = 0; i < iCount; ++i)
+          {
+            ezVariant value;
+            if (pAccessor->GetValue(pObject, pProp, value, i).Succeeded())
+            {
+              const ezString& sValue = value.Get<ezString>();
+              if (sValue == sAssetToFind)
+              {
+                ezStringBuilder sFullPath;
+                GenerateFullDisplayName(pObject, sFullPath);
+                out_usages.PushBack(sFullPath);
+
+                if (out_usages.GetCount() >= maxResults)
+                  return;
+              }
+            }
+          }
+        }
+      }
+      break;
+
+      case ezPropertyCategory::Map:
+      {
+        if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
+        {
+          ezDynamicArray<ezVariant> keys;
+          if (pAccessor->GetKeys(pObject, pProp, keys).Succeeded())
+          {
+            for (const ezVariant& key : keys)
+            {
+              ezVariant value;
+              if (pAccessor->GetValue(pObject, pProp, value, key).Succeeded())
+              {
+                const ezString& sValue = value.Get<ezString>();
+                if (sValue == sAssetToFind)
+                {
+                  ezStringBuilder sFullPath;
+                  GenerateFullDisplayName(pObject, sFullPath);
+                  out_usages.PushBack(sFullPath);
+
+                  if (out_usages.GetCount() >= maxResults)
+                    return;
+                }
+              }
             }
           }
         }
@@ -1107,8 +1167,6 @@ void ezGameObjectDocument::FindAssetUsages(ezString assetToFind, const ezDocumen
     }
   }
 
-  if (out_usages.GetCount() >= maxResults)
-    return;
 
   // Process children recursively
   for (const ezDocumentObject* pChild : pObject->GetChildren())
@@ -1117,7 +1175,7 @@ void ezGameObjectDocument::FindAssetUsages(ezString assetToFind, const ezDocumen
         pChild->GetParentPropertyType()->GetAttributeByType<ezTemporaryAttribute>() != nullptr)
       continue;
 
-    FindAssetUsages(assetToFind, pChild, out_usages, maxResults);
+    FindAssetUsagesInternal(sAssetToFind, pChild, out_usages, maxResults);
 
     if (out_usages.GetCount() >= maxResults)
       return;

@@ -130,7 +130,7 @@ public:
   virtual void HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg);
 
   /// \brief Finds all usages of the given asset in this document and appends them to out_usages. The default implementation does nothing, override this if your document can reference other assets.
-  virtual void FindAssetUsages(ezString assetToFind, const ezDocumentObject* pObject, ezTempHybridArray<ezString, 3>& out_usages, uint maxResults) const {}
+  virtual void FindAssetUsages(ezStringView sAssetToFind, ezDynamicArray<ezString>& out_usages, ezUInt32 maxResults) const {}
 
   /// \brief Returns the ezEditorEngineConnection for this document.
   ezEditorEngineConnection* GetEditorEngineConnection() const { return m_pEngineConnection; }

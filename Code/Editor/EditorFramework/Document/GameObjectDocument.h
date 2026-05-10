@@ -141,9 +141,10 @@ public:
   virtual void HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg) override;
 
   /// \brief Finds all usages of the given asset in this document and appends them to out_usages. The default implementation does nothing, override this if your document can reference other assets.
-  virtual void FindAssetUsages(ezString assetToFind, const ezDocumentObject* pObject, ezTempHybridArray<ezString, 3>& out_usages, uint maxResults = 3) const override;
+  virtual void FindAssetUsages(ezStringView sAssetToFind, ezDynamicArray<ezString>& out_usages, ezUInt32 maxResults) const override;
 
 private:
+  void FindAssetUsagesInternal(ezStringView sAssetToFind, const ezDocumentObject* pObject, ezDynamicArray<ezString>& out_usages, ezUInt32 maxResults) const;
   void DeallocateEditTools();
 
   ezDelegate<void(ezGameObjectEditTool*)> m_EditToolConfigDelegate;
