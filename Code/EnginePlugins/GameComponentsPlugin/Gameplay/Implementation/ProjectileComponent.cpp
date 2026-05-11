@@ -19,6 +19,11 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezProjectileReaction, 2)
   EZ_ENUM_CONSTANT(ezProjectileReaction::PassThrough)
 EZ_END_STATIC_REFLECTED_ENUM;
 
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezProjectileBounceOrientation, 1)
+  EZ_ENUM_CONSTANT(ezProjectileBounceOrientation::Reflection),
+  EZ_ENUM_CONSTANT(ezProjectileBounceOrientation::Spinning)
+EZ_END_STATIC_REFLECTED_ENUM;
+
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezProjectileSurfaceInteraction, ezNoBase, 3, ezRTTIDefaultAllocator<ezProjectileSurfaceInteraction>)
 {
   EZ_BEGIN_PROPERTIES
@@ -46,6 +51,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezProjectileComponent, 8, ezComponentMode::Dynamic)
     EZ_RESOURCE_MEMBER_PROPERTY("OnDeathPrefab", m_hDeathPrefab)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Prefab", ezDependencyFlags::Package)),
     EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
     EZ_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_ENUM_MEMBER_PROPERTY("BounceOrientation", ezProjectileBounceOrientation, m_BounceOrientation)->AddAttributes(new ezDefaultValueAttribute((ezInt8)ezProjectileBounceOrientation::Reflection)),
     EZ_MEMBER_PROPERTY("StaticVelocityRatio", m_fStaticVelocityRatio)->AddAttributes(new ezDefaultValueAttribute(0.05f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_BITFLAGS_MEMBER_PROPERTY("ShapeTypesToHit", ezPhysicsShapeType, m_ShapeTypesToHit)->AddAttributes(new ezDefaultValueAttribute(ezVariant(ezPhysicsShapeType::Default & ~(ezPhysicsShapeType::Trigger)))),
     EZ_ACCESSOR_PROPERTY("FallbackSurface", GetFallbackSurfaceFile, SetFallbackSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("CompatibleAsset_Surface", ezDependencyFlags::Package)),
@@ -61,6 +67,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezProjectileComponent, 8, ezComponentMode::Dynamic)
   {
     new ezCategoryAttribute("Gameplay"),
     new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.4f, ezColor::OrangeRed),
+    new ezSphereManipulatorAttribute("Radius"),
+    new ezSphereVisualizerAttribute("Radius"),
   }
   EZ_END_ATTRIBUTES;
 }
@@ -89,6 +97,7 @@ ezProjectileComponent::ezProjectileComponent()
   m_fMetersPerSecond = 10.0f;
   m_uiCollisionLayer = 0;
   m_fRadius = 0.0f;
+  m_BounceOrientation = ezProjectileBounceOrientation::Reflection;
   m_fStaticVelocityRatio = 0.05f;
   m_fGravityMultiplier = 0.0f;
   m_vVelocity.SetZero();
@@ -253,7 +262,14 @@ void ezProjectileComponent::Update()
             }
 
             const ezVec3 vPositionOnReflection = vCurPosition + castResult.m_fDistance * vCurDirection;
-            ApplySpinRotation(interaction, castResult, vPositionOnReflection, vCurDirection, vNewVelocity);
+            if (m_BounceOrientation == ezProjectileBounceOrientation::Reflection)
+            {
+              ApplyReflectionRotation(vCurDirection, castResult.m_vNormal);
+            }
+            else
+            {
+              ApplySpinningRotation(interaction, castResult, vPositionOnReflection, vCurDirection, vNewVelocity);
+            }
             const float fAbsVelocity = m_vVelocity.GetLength();
             // condition velocityToNormalProj < 0.0f implies fAbsVelocity is non-zero
             const float fTimeBeforeReflection = castResult.m_fDistance / fAbsVelocity;
@@ -302,8 +318,6 @@ void ezProjectileComponent::SerializeComponent(ezWorldWriter& inout_stream) cons
   s << m_fMetersPerSecond;
   s << m_fGravityMultiplier;
   s << m_uiCollisionLayer;
-  s << m_fRadius;
-  s << m_fStaticVelocityRatio;
   s << m_MaxLifetime;
   s << m_hDeathPrefab;
 
@@ -328,9 +342,6 @@ void ezProjectileComponent::SerializeComponent(ezWorldWriter& inout_stream) cons
 
     // Version 7
     s << ia.m_uiImpulseType;
-
-    // Version 8
-    s << ia.m_fInertiaRatio;
   }
 
   // Version 5
@@ -338,6 +349,18 @@ void ezProjectileComponent::SerializeComponent(ezWorldWriter& inout_stream) cons
 
   // Version 6
   s << m_bSpawnPrefabOnStatic;
+
+  // Version 8
+  s << m_fRadius;
+  ezProjectileBounceOrientation::StorageType bounceOrientation = m_BounceOrientation;
+  s << bounceOrientation;
+  s << m_fStaticVelocityRatio;
+
+  // Version 8
+  for (const auto& ia : m_SurfaceInteractions)
+  {
+    s << ia.m_fInertiaRatio;
+  }
 }
 
 void ezProjectileComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -349,18 +372,6 @@ void ezProjectileComponent::DeserializeComponent(ezWorldReader& inout_stream)
   s >> m_fMetersPerSecond;
   s >> m_fGravityMultiplier;
   s >> m_uiCollisionLayer;
-
-  if (uiVersion >= 8)
-  {
-    s >> m_fRadius;
-    s >> m_fStaticVelocityRatio;
-  }
-  else
-  {
-    m_fRadius = 0.0f;
-    m_fStaticVelocityRatio = 0.05f;
-  }
-
   s >> m_MaxLifetime;
   s >> m_hDeathPrefab;
 
@@ -397,11 +408,6 @@ void ezProjectileComponent::DeserializeComponent(ezWorldReader& inout_stream)
     {
       s >> ia.m_uiImpulseType;
     }
-
-    if (uiVersion >= 8)
-    {
-      s >> ia.m_fInertiaRatio;
-    }
   }
 
   if (uiVersion >= 5)
@@ -412,6 +418,26 @@ void ezProjectileComponent::DeserializeComponent(ezWorldReader& inout_stream)
   if (uiVersion >= 6)
   {
     s >> m_bSpawnPrefabOnStatic;
+  }
+
+  if (uiVersion >= 8)
+  {
+    s >> m_fRadius;
+    ezProjectileBounceOrientation::StorageType bounceOrientation = ezProjectileBounceOrientation::Reflection;
+    s >> bounceOrientation;
+    m_BounceOrientation = (ezProjectileBounceOrientation::Enum)bounceOrientation;
+    s >> m_fStaticVelocityRatio;
+
+    for (auto& ia : m_SurfaceInteractions)
+    {
+      s >> ia.m_fInertiaRatio;
+    }
+  }
+  else
+  {
+    m_fRadius = 0.0f;
+    m_BounceOrientation = ezProjectileBounceOrientation::Reflection;
+    m_fStaticVelocityRatio = 0.05f;
   }
 }
 
@@ -426,11 +452,18 @@ bool ezProjectileComponent::QueryCollision(const ezPhysicsWorldModuleInterface& 
   return physicsInterface.Raycast(out_result, vStart, vDirection, fDistance, queryParams);
 }
 
-void ezProjectileComponent::ApplySpinRotation(const ezProjectileSurfaceInteraction& interaction,
-                                              const ezPhysicsCastResult& castResult,
-                                              const ezVec3& vPositionOnReflection,
-                                              const ezVec3& vCurDirection,
-                                              const ezVec3& vNewVelocity)
+void ezProjectileComponent::ApplyReflectionRotation(const ezVec3& vCurDirection, const ezVec3& vSurfaceNormal)
+{
+  const ezVec3 vNewDirection = vCurDirection.GetReflectedVector(vSurfaceNormal);
+  const ezQuat qRot = ezQuat::MakeShortestRotation(vCurDirection, vNewDirection);
+  GetOwner()->SetGlobalRotation(qRot * GetOwner()->GetGlobalRotation());
+}
+
+void ezProjectileComponent::ApplySpinningRotation(const ezProjectileSurfaceInteraction& interaction,
+                                                  const ezPhysicsCastResult& castResult,
+                                                  const ezVec3& vPositionOnReflection,
+                                                  const ezVec3& vCurDirection,
+                                                  const ezVec3& vNewVelocity)
 {
   if (interaction.m_fInertiaRatio == 0.0f)
     return;
@@ -473,7 +506,7 @@ bool ezProjectileComponent::ShouldStopProjectile(const ezPhysicsWorldModuleInter
     const ezVec3 vGravityDir = vGravity.GetNormalized();
     // Check that projectile has hit the ground
     // if not - return false to make sure it won't hang in the air after being stopped
-    if (vGravityDir.Dot(castResult.m_vNormal) > -0.6f)
+    if (-vGravityDir.Dot(castResult.m_vNormal) < ezMath::Cos(ezAngle::MakeFromDegree(40.f)))
     {
       return false;
     }
