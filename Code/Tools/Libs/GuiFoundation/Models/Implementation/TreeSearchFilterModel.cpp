@@ -23,7 +23,8 @@ void ezQtTreeSearchFilterModel::SetFilterText(const QString& sText)
     RecomputeVisibleItems();
   }
 
-  invalidateFilter();
+  beginFilterChange();
+  endFilterChange();
 }
 
 void ezQtTreeSearchFilterModel::SetIncludeChildren(bool bInclude)
@@ -33,7 +34,8 @@ void ezQtTreeSearchFilterModel::SetIncludeChildren(bool bInclude)
   if (!m_Filter.IsEmpty())
   {
     RecomputeVisibleItems();
-    invalidateFilter();
+    beginFilterChange();
+    endFilterChange();
   }
 }
 

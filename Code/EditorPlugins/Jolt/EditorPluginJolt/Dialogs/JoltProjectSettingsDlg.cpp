@@ -475,7 +475,7 @@ void ezQtJoltProjectSettingsDlg::on_ImpulsesTable_itemSelectionChanged()
     EZ_WARNING_PUSH()
     EZ_WARNING_DISABLE_GCC("-Wdeprecated-declarations")
     EZ_WARNING_DISABLE_CLANG("-Wdeprecated-declarations")
-    connect(pCheck, &QCheckBox::stateChanged, this, &ezQtJoltProjectSettingsDlg::onImpulseOverrideChecked);
+    connect(pCheck, &QCheckBox::checkStateChanged, this, &ezQtJoltProjectSettingsDlg::onImpulseOverrideChecked);
     EZ_WARNING_POP()
 
     ezQtDoubleSpinBox* pNumber = new ezQtDoubleSpinBox(nullptr);

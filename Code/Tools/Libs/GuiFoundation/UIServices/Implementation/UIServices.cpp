@@ -148,10 +148,12 @@ const QIcon& ezQtUiServices::GetCachedIconResource(ezStringView sIdentifier, ezC
         ezOSFile::CreateDirectoryStructure(sTempFolder).AssertSuccess();
 
         QFile fileOut(sTempIconFile.GetData());
-        fileOut.open(QIODeviceBase::OpenModeFlag::WriteOnly);
-        fileOut.write(sContent.GetData(), sContent.GetElementCount());
-        fileOut.flush();
-        fileOut.close();
+        if (fileOut.open(QIODeviceBase::OpenModeFlag::WriteOnly))
+        {
+          fileOut.write(sContent.GetData(), sContent.GetElementCount());
+          fileOut.flush();
+          fileOut.close();
+        }
       }
     }
 
@@ -417,19 +419,19 @@ ezResult ezQtUiServices::OpenInRider(const char* szPath)
 
   if (QFile::exists(sToolboxPath))
   {
-
     QFile file(sToolboxPath);
-    file.open(QIODevice::ReadOnly);
+    if (file.open(QIODevice::ReadOnly))
+    {
+      QByteArray rawData = file.readAll();
+      QJsonDocument doc = QJsonDocument::fromJson(rawData);
 
-    QByteArray rawData = file.readAll();
-    QJsonDocument doc = QJsonDocument::fromJson(rawData);
-
-    QJsonObject rootObject = doc.object();
-    QJsonValue shellPathValue = rootObject.value("shell_scripts");
-    QJsonObject shellPathObject = shellPathValue.toObject();
-    sRiderPath = shellPathObject.value("location").toString().replace("\\", "/").replace("\"", "");
-    sRiderPath.append("/rider.cmd");
-    file.close();
+      QJsonObject rootObject = doc.object();
+      QJsonValue shellPathValue = rootObject.value("shell_scripts");
+      QJsonObject shellPathObject = shellPathValue.toObject();
+      sRiderPath = shellPathObject.value("location").toString().replace("\\", "/").replace("\"", "");
+      sRiderPath.append("/rider.cmd");
+      file.close();
+    }
   }
   else
   {
