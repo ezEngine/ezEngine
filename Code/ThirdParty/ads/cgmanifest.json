@@ -5,7 +5,8 @@
         "type": "git",
         "git": {
           "repositoryUrl": "https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System",
-          "commitHash": "87cffe5d40307c61141c88b88c10c5e7d181d880"
+          "commitHash": "87cffe5d40307c61141c88b88c10c5e7d181d880",
+          "version": "4.5.0"
         }
       }
     } 

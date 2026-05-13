@@ -13,8 +13,8 @@ set_property(GLOBAL PROPERTY EZ_CMAKE_RELPATH_CODE "Code")
 
 set_property(GLOBAL PROPERTY EZ_CONFIG_PATH_7ZA "Data/Tools/Precompiled/7z.exe")
 
-set_property(GLOBAL PROPERTY EZ_CONFIG_QT_WINX64_VERSION "Qt6-6.4.0-vs143-x64")
-set_property(GLOBAL PROPERTY EZ_CONFIG_QT_WINX64_URL "https://github.com/ezEngine/thirdparty/releases/download/Qt6-6.4.0-vs143-x64/Qt6-6.4.0-vs143-x64.7z")
+set_property(GLOBAL PROPERTY EZ_CONFIG_QT_WINX64_VERSION "Qt6-6.11.0-vs144-x64")
+set_property(GLOBAL PROPERTY EZ_CONFIG_QT_WINX64_URL "https://github.com/ezEngine/thirdparty/releases/download/Qt6-6.11.0-vs144-x64/Qt6-6.11.0-vs144-x64.7z")
 
 set_property(GLOBAL PROPERTY EZ_CONFIG_DIRECTXSHADERCOMPILER_LINUXX64_VERSION "1.8.2505.1")
 set_property(GLOBAL PROPERTY EZ_CONFIG_DIRECTXSHADERCOMPILER_LINUXX64_URL "https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.8.2505.1/linux_dxc_2025_07_14.x86_64.tar.gz")

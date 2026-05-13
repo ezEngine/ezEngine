@@ -110,14 +110,17 @@ macro(ez_platformhook_download_qt)
 
 	# Currently only implemented for x64
 	if(EZ_CMAKE_ARCHITECTURE_64BIT)
-		# Upgrade from Qt5 to Qt6 if the EZ_QT_DIR points to a previously automatically downloaded Qt5 package.
-		if("${EZ_QT_DIR}" MATCHES ".*Qt-5\\.13\\.0-vs141-x64")
-			set(EZ_QT_DIR "EZ_QT_DIR-NOTFOUND" CACHE PATH "Directory of the Qt installation" FORCE)
-		endif()
-	
 		if(EZ_CMAKE_ARCHITECTURE_64BIT)
 			set(EZ_SDK_VERSION "${EZ_CONFIG_QT_WINX64_VERSION}")
 			set(EZ_SDK_URL "${EZ_CONFIG_QT_WINX64_URL}")
+		endif()
+
+		# Reset EZ_QT_DIR if it points to an auto-managed Qt package that no longer matches
+		# the configured version, so the correct version gets downloaded automatically.
+		# User-specified custom paths (not matching the "Qt6-" naming convention) are left alone.
+		set(EZ_EXPECTED_QT_DIR "${CMAKE_BINARY_DIR}/../${EZ_SDK_VERSION}")
+		if(NOT "${EZ_QT_DIR}" STREQUAL "${EZ_EXPECTED_QT_DIR}" AND "${EZ_QT_DIR}" MATCHES "Qt6-")
+			set(EZ_QT_DIR "EZ_QT_DIR-NOTFOUND" CACHE PATH "Directory of the Qt installation" FORCE)
 		endif()
 
 		if((EZ_QT_DIR STREQUAL "EZ_QT_DIR-NOTFOUND") OR(EZ_QT_DIR STREQUAL ""))

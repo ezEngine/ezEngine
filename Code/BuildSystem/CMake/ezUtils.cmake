@@ -678,6 +678,7 @@ function(ez_download_and_extract URL DEST_FOLDER DEST_FILENAME)
 		set(PKG_TYPE "tar.xz")
 	else()
 		get_filename_component(PKG_TYPE ${URL} LAST_EXT)
+		string(REGEX REPLACE "^\\." "" PKG_TYPE "${PKG_TYPE}")
 	endif()
 
 	set(FULL_FILENAME "${DEST_FILENAME}.${PKG_TYPE}")
