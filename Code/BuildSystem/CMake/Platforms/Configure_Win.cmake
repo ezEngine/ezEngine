@@ -101,7 +101,7 @@ macro(ez_platformhook_find_qt)
 		# Qt6 link options include '-NXCOMPAT' which does not exist on clang.
 		get_target_property(QtLinkOptions Qt6::PlatformCommonInternal INTERFACE_LINK_OPTIONS)
 		string(REPLACE "-NXCOMPAT;" "" QtLinkOptions "${QtLinkOptions}")
-		set_target_properties(Qt6::PlatformCommonInternal PROPERTIES INTERFACE_LINK_OPTIONS ${QtLinkOptions})
+		set_target_properties(Qt6::PlatformCommonInternal PROPERTIES INTERFACE_LINK_OPTIONS "${QtLinkOptions}")
 	endif()
 endmacro()
 

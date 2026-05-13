@@ -23,8 +23,12 @@ void ezQtTreeSearchFilterModel::SetFilterText(const QString& sText)
     RecomputeVisibleItems();
   }
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
   beginFilterChange();
   endFilterChange();
+#else
+  invalidateFilter();
+#endif
 }
 
 void ezQtTreeSearchFilterModel::SetIncludeChildren(bool bInclude)
@@ -34,8 +38,12 @@ void ezQtTreeSearchFilterModel::SetIncludeChildren(bool bInclude)
   if (!m_Filter.IsEmpty())
   {
     RecomputeVisibleItems();
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
     beginFilterChange();
     endFilterChange();
+#else
+    invalidateFilter();
+#endif
   }
 }
 
