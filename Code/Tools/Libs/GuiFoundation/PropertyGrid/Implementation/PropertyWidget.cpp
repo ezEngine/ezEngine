@@ -32,7 +32,7 @@ ezQtPropertyEditorCheckboxWidget::ezQtPropertyEditorCheckboxWidget()
   m_pWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
   m_pLayout->addWidget(m_pWidget);
 
-  EZ_VERIFY(connect(m_pWidget, SIGNAL(stateChanged(int)), this, SLOT(on_StateChanged_triggered(int))) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(m_pWidget, &QCheckBox::stateChanged, this, &ezQtPropertyEditorCheckboxWidget::on_StateChanged_triggered) != nullptr, "signal/slot connection failed");
 }
 
 void ezQtPropertyEditorCheckboxWidget::InternalSetValue(const ezVariant& value)

@@ -154,10 +154,12 @@ static void QtDebugMessageHandler(QtMsgType type, const QMessageLogContext& cont
 #endif
     case QtWarningMsg:
     {
-      // I just hate this pointless message
+      // pointless Qt warnings that we shouldn't forward to our log
       if (sMsg.FindSubString("iCCP") != nullptr)
         return;
       if (sMsg.FindSubString("Unable to set geometry") != nullptr)
+        return;
+      if (sMsg.FindSubString("The cached device pixel ratio value was stale") != nullptr)
         return;
 
       ezLog::Warning("|Qt| {0} ({1}:{2}, {3})", sMsg, context.file, context.line, context.function);

@@ -441,8 +441,21 @@ void ezQtPropertyWidget::ExtendContextMenu(QMenu& m)
                 if (!nodeProp.m_Value.IsValid() || nodeProp.m_Value.IsA<ezVariantArray>() || nodeProp.m_Value.IsA<ezVariantDictionary>())
                   continue;
                 ezVariant val = nodeProp.m_Value;
-                if (!val.CanConvertTo(pTargetProp->GetSpecificType()->GetVariantType()) && pTargetProp->GetSpecificType()->GetTypeName() != ezRTTI::FindTypeByName(content.m_Type)->GetTypeName())
-                  continue;
+                // Enum/bitflags values are serialized as strings in the object graph; convert back to integer before assignment.
+                if (pTargetProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags) && val.IsA<ezString>())
+                {
+                  ezInt64 iEnumValue = 0;
+                  if (!ezReflectionUtils::StringToEnumeration(pTargetProp->GetSpecificType(), val.Get<ezString>(), iEnumValue))
+                    continue;
+                  val = iEnumValue;
+                }
+                else
+                {
+                  const ezVariantType::Enum ttype = pTargetProp->GetSpecificType()->GetVariantType();
+                  if (!val.CanConvertTo(ttype) && pTargetProp->GetSpecificType()->GetTypeName() != ezRTTI::FindTypeByName(content.m_Type)->GetTypeName())
+                    continue;
+                }
+
                 ezReflectionUtils::ClampValue(val, pTargetProp->GetAttributeByType<ezClampValueAttribute>()).IgnoreResult();
                 m_pObjectAccessor->SetValue(pTarget, pTargetProp, val).LogFailure();
               }
