@@ -174,6 +174,12 @@ ezStatus ezExposedParametersAsTypeDefaultStateProvider::RevertProperty(ezDefault
 
 ezResult ezExposedParametersAsTypeDefaultStateProvider::GetDefaultValueInternal(ezDefaultStateProvider::SuperArray superPtr, ezObjectAccessorBase* pAccessor, const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezVariant& out_DefaultValue)
 {
+  if (superPtr.GetCount() <= 1)
+  {
+    out_DefaultValue = {};
+    return EZ_FAILURE;
+  }
+
   // As we derive from ezExposedParametersDefaultStateProvider, we first need to convert the exposed parameter type, prop, accessor into the actual underlying data structure that the base class expects before calling it.
   // * The ezExposedParametersAsTypeCommandAccessor proxies the ezExposedParameterCommandAccessor so the proxy source is the correct accessor.
   // * The object stays the same.
