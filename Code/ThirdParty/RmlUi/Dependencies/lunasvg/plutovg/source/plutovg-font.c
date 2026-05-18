@@ -8,6 +8,14 @@
 #define STB_TRUETYPE_IMPLEMENTATION
 #include "plutovg-stb-truetype.h"
 
+#if _MSC_FULL_VER == 195136243
+// EZ-ENGINE SPECIFIC HACK: make MSVC 2026 builds work again
+// can be removed again once this is fixed: https://developercommunity.microsoft.com/t/11089236
+#pragma optimize("", off)
+#elif _MSC_FULL_VER > 195136243
+#error "Please check, whether this file compiles now, and adjust the condition above accordingly."
+#endif
+
 static int plutovg_text_iterator_length(const void* data, plutovg_text_encoding_t encoding)
 {
     int length = 0;
