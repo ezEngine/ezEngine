@@ -14,25 +14,6 @@ trigger:
     - release
 
 jobs:
-- job: StartVM
-  displayName: StartVM
-  pool:
-    vmImage: 'windows-latest'
-  steps:
-  - checkout: none
-  - task: AzureKeyVault@2
-    displayName: 'Azure Key Vault: ezKeys'
-    inputs:
-      ConnectedServiceName: 3c1e6edd-3ce0-4297-9a12-163b037ea7bc
-      KeyVaultName: ezKeys
-      SecretsFilter: AzureFunctionKey
-  - task: PowerShell@2
-    displayName: StartVM
-    continueOnError: true
-    inputs:
-      targetType: inline
-      script: Invoke-RestMethod -Uri "https://ezengineci.azurewebsites.net/api/StartVM?code=$(AzureFunctionKey)&vmname=Windows10-1809"
-
 - job: ClangTidyVerification
   timeoutInMinutes: 120
   pool:

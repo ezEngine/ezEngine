@@ -3,10 +3,6 @@ parameters:
     displayName: 'Upload Caches'
     type: boolean
     default: false
-  - name: useVM
-    displayName: 'Start VM before build'
-    type: boolean
-    default: false
 
 trigger:
   branches:
@@ -18,25 +14,6 @@ resources:
     type: git
     ref: dev
 jobs:
-- ${{ if eq(parameters.useVM, true) }}:
-  - job: StartVM
-    displayName: StartVM
-    pool:
-      vmImage: 'windows-latest'
-    steps:
-    - checkout: none
-    - task: AzureKeyVault@2
-      displayName: 'Azure Key Vault: ezKeys'
-      inputs:
-        ConnectedServiceName: 3c1e6edd-3ce0-4297-9a12-163b037ea7bc
-        KeyVaultName: ezKeys
-        SecretsFilter: AzureFunctionKey
-    - task: PowerShell@2
-      displayName: StartVM
-      continueOnError: true
-      inputs:
-        targetType: inline
-        script: Invoke-RestMethod -Uri "https://ezengineci.azurewebsites.net/api/StartVM?code=$(AzureFunctionKey)&vmname=Windows10-1809"
 - job: Windows_x64
   displayName: Windows-x64
   timeoutInMinutes: 180
@@ -64,12 +41,6 @@ jobs:
             git clean -dfx
             Copy-Item -Path $pathA -Destination $pathB
         }
-  - task: AzureKeyVault@2
-    displayName: 'Azure Key Vault: ezKeys'
-    inputs:
-      ConnectedServiceName: 3c1e6edd-3ce0-4297-9a12-163b037ea7bc
-      KeyVaultName: ezKeys
-      SecretsFilter: AzureBlobPW,ThirdPartyWinx64Qt6
   - task: PowerShell@2
     displayName: Delete old crash dumps
     inputs:
