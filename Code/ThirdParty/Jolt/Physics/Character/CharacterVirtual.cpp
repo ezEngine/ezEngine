@@ -1755,17 +1755,17 @@ void CharacterVirtual::ExtendedUpdate(float inDeltaTime, Vec3Arg inGravity, cons
 	}
 
 	// If walk stairs enabled
-	if (!inSettings.mWalkStairsStepUp.IsNearZero())
+	if (!inSettings.mWalkStairsStepUp.IsNearZero() && IsSupported())
 	{
 		// Calculate how much we wanted to move horizontally
 		Vec3 desired_horizontal_step = desired_velocity * inDeltaTime;
-		desired_horizontal_step -= desired_horizontal_step.Dot(mUp) * mUp;
+		desired_horizontal_step -= desired_horizontal_step.Dot(mGroundNormal) * mGroundNormal;
 		float desired_horizontal_step_len = desired_horizontal_step.Length();
 		if (desired_horizontal_step_len > 0.0f)
 		{
 			// Calculate how much we moved horizontally
 			Vec3 achieved_horizontal_step = Vec3(mPosition - old_position);
-			achieved_horizontal_step -= achieved_horizontal_step.Dot(mUp) * mUp;
+			achieved_horizontal_step -= achieved_horizontal_step.Dot(mGroundNormal) * mGroundNormal;
 
 			// Only count movement in the direction of the desired movement
 			// (otherwise we find it ok if we're sliding downhill while we're trying to climb uphill)
