@@ -272,10 +272,19 @@ ezResult ezAssetCurator::EnsureAssetInfoUpdated(const ezDataDirPath& absFilePath
   UpdateAssetTransformState(newGuid, ezAssetInfo::TransformState::Unknown);
   // Don't call SetAssetExistanceState on newly created assets as their data structure is initialized in UpdateSubAssets for the first time.
   if (newExistanceState != ezAssetExistanceState::FileAdded)
+  {
     SetAssetExistanceState(*pCurrentAssetInfo, newExistanceState);
-  UpdateSubAssets(*pCurrentAssetInfo);
+  }
 
-  InvalidateAssetTransformState(newGuid);
+  if (UpdateSubAssets(*pCurrentAssetInfo).Succeeded())
+  {
+    InvalidateAssetTransformState(newGuid);
+  }
+  else
+  {
+    UpdateAssetTransformState(newGuid, ezAssetInfo::TransformState::TransformError);
+  }
+
   pFiles->LinkDocument(absFilePath, pCurrentAssetInfo->m_Info->m_DocumentID).AssertSuccess("Failed to link document in file system model");
   return EZ_SUCCESS;
 }
@@ -481,12 +490,12 @@ ezResult ezAssetCurator::ReadAssetDocumentInfo(const ezDataDirPath& absFilePath,
   return res;
 }
 
-void ezAssetCurator::UpdateSubAssets(ezAssetInfo& assetInfo)
+ezResult ezAssetCurator::UpdateSubAssets(ezAssetInfo& assetInfo)
 {
   CURATOR_PROFILE("UpdateSubAssets");
   if (assetInfo.m_ExistanceState == ezAssetExistanceState::FileRemoved)
   {
-    return;
+    return EZ_SUCCESS;
   }
 
   if (assetInfo.m_ExistanceState == ezAssetExistanceState::FileAdded)
@@ -498,6 +507,9 @@ void ezAssetCurator::UpdateSubAssets(ezAssetInfo& assetInfo)
     mainSub.m_Data.m_Guid = assetInfo.m_Info->m_DocumentID;
     mainSub.m_Data.m_sSubAssetsDocumentTypeName = assetInfo.m_Info->m_sAssetsDocumentTypeName;
   }
+
+  ezStringBuilder tmp;
+  ezTempHybridArray<ezLogEntry, 2> logEntries;
 
   {
     ezTempHybridArray<ezSubAssetData, 4> subAssets;
@@ -514,20 +526,30 @@ void ezAssetCurator::UpdateSubAssets(ezAssetInfo& assetInfo)
 
     for (const ezSubAssetData& data : subAssets)
     {
-      const bool bExisted = m_KnownSubAssets.Find(data.m_Guid).IsValid();
-      EZ_ASSERT_DEV(bExisted == assetInfo.m_SubAssets.Contains(data.m_Guid), "Implementation error: m_KnownSubAssets and assetInfo.m_SubAssets are out of sync.");
-
-      ezSubAsset sub;
-      sub.m_bMainAsset = false;
-      sub.m_ExistanceState = bExisted ? ezAssetExistanceState::FileModified : ezAssetExistanceState::FileAdded;
-      sub.m_pAssetInfo = &assetInfo;
-      sub.m_Data = data;
-      m_KnownSubAssets.Insert(data.m_Guid, sub);
-
-      if (!bExisted)
+      const auto itSub = m_KnownSubAssets.Find(data.m_Guid);
+      const bool bExisted = itSub.IsValid();
+      if (bExisted == assetInfo.m_SubAssets.Contains(data.m_Guid))
       {
-        assetInfo.m_SubAssets.Insert(sub.m_Data.m_Guid);
-        m_SubAssetChanged.Insert(sub.m_Data.m_Guid);
+        ezSubAsset sub;
+        sub.m_bMainAsset = false;
+        sub.m_ExistanceState = bExisted ? ezAssetExistanceState::FileModified : ezAssetExistanceState::FileAdded;
+        sub.m_pAssetInfo = &assetInfo;
+        sub.m_Data = data;
+        m_KnownSubAssets.Insert(data.m_Guid, sub);
+
+        if (!bExisted)
+        {
+          assetInfo.m_SubAssets.Insert(sub.m_Data.m_Guid);
+          m_SubAssetChanged.Insert(sub.m_Data.m_Guid);
+        }
+      }
+      else
+      {
+        tmp.SetFormat("Sub-asset '{}' with GUID '{}' already exists in '{}'", data.m_sName, data.m_Guid, itSub.Value().m_pAssetInfo->m_Path.GetDataDirParentRelativePath());
+
+        auto& log = logEntries.ExpandAndGetRef();
+        log.m_Type = ezLogMsgType::ErrorMsg;
+        log.m_sMsg = tmp;
       }
     }
 
@@ -543,6 +565,13 @@ void ezAssetCurator::UpdateSubAssets(ezAssetInfo& assetInfo)
       }
     }
   }
+
+  if (logEntries.IsEmpty())
+    return EZ_SUCCESS;
+
+  assetInfo.m_LogEntries = logEntries;
+
+  return EZ_FAILURE;
 }
 
 void ezAssetCurator::RemoveAssetTransformState(const ezUuid& assetGuid)

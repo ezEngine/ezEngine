@@ -440,7 +440,7 @@ private:
   void UpdateTrackedFiles(const ezUuid& assetGuid, const ezSet<ezString>& files, ezMap<ezString, ezHybridArray<ezUuid, 1>>& inverseTracker, ezSet<std::tuple<ezUuid, ezUuid>>& unresolved, bool bAdd);
   void UpdateUnresolvedTrackedFiles(ezMap<ezString, ezHybridArray<ezUuid, 1>>& inverseTracker, ezSet<std::tuple<ezUuid, ezUuid>>& unresolved);
   ezResult ReadAssetDocumentInfo(const ezDataDirPath& absFilePath, const ezFileStatus& stat, ezUniquePtr<ezAssetInfo>& assetInfo);
-  void UpdateSubAssets(ezAssetInfo& assetInfo);
+  ezResult UpdateSubAssets(ezAssetInfo& assetInfo);
 
   void RemoveAssetTransformState(const ezUuid& assetGuid);
   void InvalidateAssetTransformState(const ezUuid& assetGuid);

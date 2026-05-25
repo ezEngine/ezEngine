@@ -988,7 +988,11 @@ ezAssetInfo::TransformState ezAssetCurator::UpdateAssetTransformState(ezUuid ass
         pAssetInfo->m_MissingPackageDeps = std::move(missingPackageDeps);
         if (state == ezAssetInfo::TransformState::UpToDate)
         {
-          UpdateSubAssets(*pAssetInfo);
+          if (UpdateSubAssets(*pAssetInfo).Failed())
+          {
+            UpdateAssetTransformState(assetGuid, ezAssetInfo::TransformError);
+            state = ezAssetInfo::TransformState::TransformError;
+          }
         }
       }
     }
