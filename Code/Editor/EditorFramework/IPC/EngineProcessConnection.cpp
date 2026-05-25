@@ -255,7 +255,7 @@ bool ezEditorEngineProcessConnection::ConnectToRemoteProcess()
     return false;
 
   m_pRemoteProcess = EZ_DEFAULT_NEW(ezEditorProcessRemoteCommunicationChannel);
-  m_pRemoteProcess->ConnectToServer(dlg.GetResultingAddress().toUtf8().data()).IgnoreResult();
+  m_pRemoteProcess->ConnectToServer(dlg.GetResultingAddress().toUtf8().data()).AssertSuccess();
 
   ezQtWaitForOperationDlg waitDialog(QApplication::activeWindow());
   waitDialog.m_OnIdle = [this]() -> bool

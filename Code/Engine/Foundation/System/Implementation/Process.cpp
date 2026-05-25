@@ -11,11 +11,8 @@ ezProcess::ezProcess(ezProcess&& rhs) = default;
 
 void ezProcessOptions::AddArgument(const ezFormatString& arg)
 {
-  ezStringBuilder formatted, tmp;
-  formatted = arg.GetText(tmp);
-  formatted.Trim(" \t\n");
-
-  m_Arguments.PushBack(formatted);
+  ezStringBuilder tmp;
+  m_Arguments.PushBack(arg.GetText(tmp));
 }
 
 void ezProcessOptions::AddCommandLine(ezStringView sCmdLine)

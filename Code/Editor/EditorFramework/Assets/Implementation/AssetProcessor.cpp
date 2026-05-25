@@ -155,7 +155,7 @@ void ezAssetProcessor::StopProcessor(bool bForce)
     m_bForceStop = true;
     m_pThread->Join();
     m_pThread.Clear();
-    EZ_ASSERT_DEV(m_ProcessorState == ProcessorState::Stopped, "Process task shoul have set the state to stopped.");
+    EZ_ASSERT_DEV(m_ProcessorState == ProcessorState::Stopped, "Process task should have set the state to stopped.");
   }
 }
 

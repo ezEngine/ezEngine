@@ -83,9 +83,9 @@ ezResult ezProcessGroup::Launch(const ezProcessOptions& opt)
 
   if (AssignProcessToJobObject(m_pImpl->m_hJobObject, process.GetProcessHandle()) == FALSE)
   {
-    ezLog::Error("Failed to add process to process group '{}' - {}", m_pImpl->m_sName, ezArgErrorCode(GetLastError()));
-    m_Processes.PopBack();
-    return EZ_FAILURE;
+    ezLog::Warning("Failed to add process to process group '{}' - {}. Process will not be tracked by the job object.", m_pImpl->m_sName, ezArgErrorCode(GetLastError()));
+    // Keep the process in m_Processes so callers can still query its state,
+    // but it won't be covered by the job object's kill-on-close guarantee.
   }
 
   if (process.ResumeSuspended().Failed())
@@ -199,7 +199,16 @@ ezResult ezProcessGroup::WaitToFinish(ezTime timeout /*= ezTime::MakeZero()*/)
 ezResult ezProcessGroup::TerminateAll(ezInt32 iForcedExitCode /*= -2*/)
 {
   if (m_pImpl->m_hJobObject == INVALID_HANDLE_VALUE)
-    return EZ_SUCCESS;
+  {
+    // No job object - terminate processes individually
+    auto result = EZ_SUCCESS;
+    for (auto& process : m_Processes)
+    {
+      if (process.GetState() == ezProcessState::Running && process.Terminate().Failed())
+        result = EZ_FAILURE;
+    }
+    return result;
+  }
 
   if (TerminateJobObject(m_pImpl->m_hJobObject, (UINT)iForcedExitCode) == FALSE)
   {
@@ -207,7 +216,14 @@ ezResult ezProcessGroup::TerminateAll(ezInt32 iForcedExitCode /*= -2*/)
     return EZ_FAILURE;
   }
 
-  EZ_SUCCEED_OR_RETURN(WaitToFinish());
+  // Close the job object handle. The OS will kill all remaining processes in the job
+  // due to JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE. No need to wait here.
+  m_pImpl->Close();
+
+  // Detach all tracked processes so their destructors don't block waiting for
+  // termination that was already requested via the job object above.
+  for (auto& process : m_Processes)
+    process.Detach();
 
   return EZ_SUCCESS;
 }

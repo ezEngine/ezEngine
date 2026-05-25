@@ -41,7 +41,7 @@ void ezIpcChannelEnet::InternalConnect()
     {
       m_sLastAddress = m_sAddress;
       m_LastConnectAttempt = ezTime::Now();
-      m_pNetwork->ConnectToServer('RMOT', m_sAddress, false).IgnoreResult();
+      m_pNetwork->ConnectToServer('RMOT', m_sAddress, false).AssertSuccess();
     }
 
     m_pNetwork->WaitForConnectionToServer(ezTime::MakeFromMilliseconds(10.0)).IgnoreResult();

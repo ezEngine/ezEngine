@@ -11,7 +11,7 @@ ezResult ezEditorProcessCommunicationChannel::StartClientProcess(const char* szP
   EZ_LOG_BLOCK("ezProcessCommunicationChannel::StartClientProcess");
 
   EZ_ASSERT_DEV(m_pChannel == nullptr, "ProcessCommunication object already in use");
-  EZ_ASSERT_DEV(m_pClientProcess == nullptr, "ProcessCommunication object already in use");
+  EZ_ASSERT_DEV(m_pClientProcessGroup == nullptr, "ProcessCommunication object already in use");
 
   m_pFirstAllowedMessageType = pFirstAllowedMessageType;
 
@@ -21,7 +21,7 @@ ezResult ezEditorProcessCommunicationChannel::StartClientProcess(const char* szP
   ezTime time = ezTime::Now();
   uiUniqueHash = ezHashingUtils::xxHash64(&time, sizeof(time), uiUniqueHash);
   ezStringBuilder sMemName;
-  sMemName.SetFormat("{0}", ezArgU(uiUniqueHash, 16, false, 16, true));
+  sMemName.SetFormat("{0}", ezArgU(uiUniqueHash, 16, true, 16, true));
   ++uiUniqueHash;
 
   if (bRemote)
@@ -56,23 +56,19 @@ ezResult ezEditorProcessCommunicationChannel::StartClientProcess(const char* szP
 
   sPath.MakeCleanPath();
 
-  ezStringBuilder sPID;
-  ezConversionUtils::ToString((ezUInt64)QCoreApplication::applicationPid(), sPID);
-
-  QStringList arguments;
-  arguments << "-IPC";
-  arguments << QLatin1String(sMemName.GetData());
-  arguments << "-PID";
-  arguments << sPID.GetData();
-  arguments.append(args);
-
-  m_pClientProcess = new QProcess();
-
   if (!bRemote)
   {
-    m_pClientProcess->start(QString::fromUtf8(sPath.GetData()), arguments, QIODevice::OpenModeFlag::NotOpen);
+    ezProcessOptions po;
+    po.m_sProcess = sPath;
+    po.AddArgument("-IPC");
+    po.AddArgument(sMemName);
+    po.AddArgument("-PID");
+    po.AddArgument("{}", ezArgU(ezProcess::GetCurrentProcessID(), 1, false));
+    for (const QString& arg : args)
+      po.AddArgument(ezStringView(arg.toUtf8().constData()));
 
-    if (!m_pClientProcess->waitForStarted())
+    m_pClientProcessGroup = EZ_DEFAULT_NEW(ezProcessGroup);
+    if (m_pClientProcessGroup->Launch(po).Failed())
     {
       CloseConnection();
       ezLog::Error("Failed to start process '{0}'", sPath);
@@ -85,43 +81,32 @@ ezResult ezEditorProcessCommunicationChannel::StartClientProcess(const char* szP
 
 bool ezEditorProcessCommunicationChannel::IsClientAlive() const
 {
-  if (m_pClientProcess == nullptr)
+  if (m_pClientProcessGroup == nullptr)
     return false;
-
-  bool bRunning = m_pClientProcess->state() != QProcess::NotRunning;
-  bool bNoError = m_pClientProcess->error() == QProcess::UnknownError;
-
-  return bRunning && bNoError;
+  const auto& processes = m_pClientProcessGroup->GetProcesses();
+  if (processes.IsEmpty())
+    return false;
+  return processes[0].GetState() == ezProcessState::Running;
 }
 
 void ezEditorProcessCommunicationChannel::CloseConnection()
 {
   DestroyChannel();
-
-  if (m_pClientProcess)
-  {
-    m_pClientProcess->close();
-    delete m_pClientProcess;
-    m_pClientProcess = nullptr;
-  }
+  m_pClientProcessGroup = nullptr;
 }
 
 ezString ezEditorProcessCommunicationChannel::GetStdoutContents()
 {
-  if (m_pClientProcess)
-  {
-    QByteArray output = m_pClientProcess->readAllStandardOutput();
-    return ezString(ezStringView((const char*)output.data(), output.size()));
-  }
   return ezString();
 }
 
 ezOsProcessID ezEditorProcessCommunicationChannel::GetProcessId() const
 {
-  if (m_pClientProcess && m_pClientProcess->state() != QProcess::NotRunning)
-  {
-    return static_cast<ezOsProcessID>(m_pClientProcess->processId());
-  }
+  if (m_pClientProcessGroup == nullptr)
+    return {};
+  const auto& processes = m_pClientProcessGroup->GetProcesses();
+  if (!processes.IsEmpty() && processes[0].GetState() == ezProcessState::Running)
+    return processes[0].GetProcessID();
   return {};
 }
 
@@ -133,6 +118,22 @@ ezResult ezEditorProcessRemoteCommunicationChannel::ConnectToServer(const char* 
   EZ_ASSERT_DEV(m_pChannel == nullptr, "ProcessCommunication object already in use");
   m_pFirstAllowedMessageType = nullptr;
   CreateAndConnectChannel(ezIpcChannel::CreateNetworkChannel(szAddress, ezIpcChannel::Mode::Client));
+
+  for (ezUInt32 i = 0; i < 200; i++)
+  {
+    if (m_pChannel->GetConnectionState() == ezIpcChannel::ConnectionState::Connected)
+      break;
+
+    ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
+  }
+
+  if (m_pChannel->GetConnectionState() != ezIpcChannel::ConnectionState::Connected)
+  {
+    ezLog::Error("Failed to connect to IPC server");
+    CloseConnection();
+    return EZ_FAILURE;
+  }
+
   return EZ_SUCCESS;
 }
 

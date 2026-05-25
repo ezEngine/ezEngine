@@ -4,12 +4,13 @@
 
 #include <EditorEngineProcessFramework/IPC/ProcessCommunicationChannel.h>
 #include <Foundation/System/Process.h>
+#include <Foundation/System/ProcessGroup.h>
+#include <Foundation/Types/UniquePtr.h>
 
 template <typename T>
 class QList;
 class QString;
 using QStringList = QList<QString>;
-class QProcess;
 
 class EZ_EDITORFRAMEWORK_DLL ezEditorProcessCommunicationChannel : public ezProcessCommunicationChannel
 {
@@ -22,7 +23,7 @@ public:
   ezOsProcessID GetProcessId() const;
 
 private:
-  QProcess* m_pClientProcess = nullptr;
+  ezUniquePtr<ezProcessGroup> m_pClientProcessGroup;
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezEditorProcessRemoteCommunicationChannel : public ezProcessCommunicationChannel
