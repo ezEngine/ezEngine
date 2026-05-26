@@ -4,6 +4,103 @@
 #include <GuiFoundation/Widgets/LogWidget.moc.h>
 #include <QClipboard>
 #include <QKeyEvent>
+#include <QRegularExpression>
+
+//////////////////////////////////////////////////////////////////////////
+
+
+ezQtLogWidgetItemDelegate::ezQtLogWidgetItemDelegate(QObject* pParent)
+  : ezQtItemDelegate(pParent)
+{
+}
+
+void ezQtLogWidgetItemDelegate::paint(QPainter* pPainter, const QStyleOptionViewItem& option, const QModelIndex& index) const
+{
+  const QVariant link = index.data(ezQtLogModel::UserRoles::Link);
+
+  if (!link.isValid())
+  {
+    ezQtItemDelegate::paint(pPainter, option, index);
+    return;
+  }
+
+  const QVariant linkText = index.data(ezQtLogModel::UserRoles::LinkText);
+
+  const QString sLink = link.toString();
+  const QString sLinkText = linkText.isValid() ? linkText.toString() : QString();
+  const QString sLogText = index.data(Qt::DisplayRole).toString();
+
+  drawBackground(pPainter, option, index);
+
+  const bool bSelected = option.state & QStyle::State_Selected;
+  const QColor textColor = bSelected ? option.palette.highlightedText().color() : option.palette.text().color();
+  const QString sLinkColor = bSelected ? option.palette.link().color().name() : option.palette.linkVisited().color().name();
+
+  QString sHtml = sLogText.toHtmlEscaped();
+  const bool bHovered = (index == m_HoveredIndex);
+  const QString sDecoration = bHovered ? QStringLiteral("; text-decoration:underline;") : QString();
+  sHtml.replace(sLink.toHtmlEscaped(), QStringLiteral("<span style=\"color:") + sLinkColor + sDecoration + QStringLiteral(";\">") + sLinkText.toHtmlEscaped() + QString("</span>"));
+
+  m_Doc.setDefaultFont(option.font);
+  m_Doc.setDefaultStyleSheet(QStringLiteral("body { color: ") + textColor.name() + QStringLiteral("; }"));
+  m_Doc.setHtml(QStringLiteral("<body>") + sHtml + QStringLiteral("</body>"));
+  m_Doc.setDocumentMargin(0);
+
+  pPainter->save();
+  pPainter->translate(option.rect.left(), option.rect.top());
+  m_Doc.drawContents(pPainter, QRectF(0, 0, option.rect.width(), option.rect.height()));
+  pPainter->restore();
+}
+
+bool ezQtLogWidgetItemDelegate::mouseHoverEvent(QHoverEvent* pEvent, const QStyleOptionViewItem& option, const QModelIndex& index)
+{
+  if (pEvent->type() == QEvent::HoverEnter)
+  {
+    m_HoveredIndex = index;
+  }
+  else if (pEvent->type() == QEvent::HoverLeave)
+  {
+    m_HoveredIndex = QModelIndex();
+  }
+
+  return false;
+}
+
+bool ezQtLogWidgetItemDelegate::mouseDoubleClickEvent(QMouseEvent* pEvent, const QStyleOptionViewItem& option, const QModelIndex& index)
+{
+  QVariant linkTarget = index.data(ezQtLogModel::UserRoles::LinkTarget);
+  if (!linkTarget.isValid())
+  {
+    return false;
+  }
+
+  ezQtUiServices::GotoLinkTarget(qtToEzString(linkTarget.toString()));
+  return true;
+}
+
+
+bool ezQtLogWidgetItemDelegate::mousePressEvent(QMouseEvent* pEvent, const QStyleOptionViewItem& option, const QModelIndex& index)
+{
+  if (pEvent->button() == Qt::MouseButton::MiddleButton)
+  {
+    // necessary, so that we get mouseReleaseEvent
+    return true;
+  }
+
+  return false;
+}
+
+bool ezQtLogWidgetItemDelegate::mouseReleaseEvent(QMouseEvent* pEvent, const QStyleOptionViewItem& option, const QModelIndex& index)
+{
+  if (pEvent->button() == Qt::MouseButton::MiddleButton)
+  {
+    return mouseDoubleClickEvent(pEvent, option, index);
+  }
+
+  return false;
+}
+
+//////////////////////////////////////////////////////////////////////////
 
 ezMap<ezString, ezQtLogWidget::LogItemContextActionCallback> ezQtLogWidget::s_LogCallbacks;
 
@@ -12,10 +109,13 @@ ezQtLogWidget::ezQtLogWidget(QWidget* pParent)
 {
   setupUi(this);
 
+  m_pDelegate = new ezQtLogWidgetItemDelegate(this);
+
   m_pLog = new ezQtLogModel(this);
   ListViewLog->setModel(m_pLog);
   ListViewLog->setUniformItemSizes(true);
   ListViewLog->installEventFilter(this);
+  ListViewLog->setItemDelegate(m_pDelegate);
   connect(m_pLog, &QAbstractItemModel::rowsInserted, this, [this](const QModelIndex& parent, int iFirst, int iLast)
     { ScrollToBottomIfAtEnd(iFirst); });
   connect(ListViewLog, &QAbstractItemView::doubleClicked, this, &ezQtLogWidget::OnItemDoubleClicked);

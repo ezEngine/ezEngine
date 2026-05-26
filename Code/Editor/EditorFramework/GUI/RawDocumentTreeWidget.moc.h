@@ -11,6 +11,7 @@
 
 class ezQtTreeSearchFilterModel;
 class ezSelectionManager;
+class ezGameObjectFilter;
 
 class EZ_EDITORFRAMEWORK_DLL ezQtDocumentTreeView : public ezQtItemView<QTreeView>
 {
@@ -42,6 +43,7 @@ private:
 private:
   std::unique_ptr<ezQtDocumentTreeModel> m_pModel;
   std::unique_ptr<ezQtTreeSearchFilterModel> m_pFilterModel;
+  std::unique_ptr<ezGameObjectFilter> m_pGameObjectFilter;
   ezSelectionManager* m_pSelectionManager = nullptr;
   ezDocument* m_pDocument = nullptr;
   bool m_bBlockSelectionSignal = false;

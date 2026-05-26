@@ -47,9 +47,12 @@ struct EZ_EDITORFRAMEWORK_DLL ezGameObjectEvent
     GameModeChanged,
 
     GizmoTransformMayBeInvalid, ///< Sent when a change was made that may affect the current gizmo / manipulator state (ie. objects have been moved)
+
+    TriggerSetScenegraphFilter, ///< Sets the scenegraph search filter text. The filter string is stored in m_sPayload.
   };
 
   Type m_Type;
+  ezString m_sPayload;
 };
 
 struct ezGameObjectDocumentEvent
@@ -141,10 +144,10 @@ public:
   virtual void HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg) override;
 
   /// \brief Finds all usages of the given asset in this document and appends them to out_usages. The default implementation does nothing, override this if your document can reference other assets.
-  virtual void FindAssetUsages(ezStringView sAssetToFind, ezDynamicArray<ezString>& out_usages, ezUInt32 maxResults) const override;
+  virtual void FindAssetUsages(ezStringView sAssetToFind, ezDynamicArray<AssetUsage>& out_usages, ezUInt32 maxResults) const override;
 
 private:
-  void FindAssetUsagesInternal(ezStringView sAssetToFind, const ezDocumentObject* pObject, ezDynamicArray<ezString>& out_usages, ezUInt32 maxResults) const;
+  void FindAssetUsagesInternal(ezStringView sAssetToFind, const ezDocumentObject* pObject, ezDynamicArray<AssetUsage>& out_usages, ezUInt32 maxResults) const;
   void DeallocateEditTools();
 
   ezDelegate<void(ezGameObjectEditTool*)> m_EditToolConfigDelegate;

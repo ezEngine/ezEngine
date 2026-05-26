@@ -1051,13 +1051,13 @@ void ezGameObjectDocument::HandleEngineMessage(const ezEditorEngineDocumentMsg* 
 
 // the following method is similar to "ezAssetCurator::ReplaceAssetReferenceInObject"
 
-void ezGameObjectDocument::FindAssetUsages(ezStringView sAssetToFind, ezDynamicArray<ezString>& out_usages, ezUInt32 maxResults) const
+void ezGameObjectDocument::FindAssetUsages(ezStringView sAssetToFind, ezDynamicArray<AssetUsage>& out_usages, ezUInt32 maxResults) const
 {
   out_usages.Clear();
   FindAssetUsagesInternal(sAssetToFind, GetObjectManager()->GetRootObject(), out_usages, maxResults);
 }
 
-void ezGameObjectDocument::FindAssetUsagesInternal(ezStringView sAssetToFind, const ezDocumentObject* pObject, ezDynamicArray<ezString>& out_usages, ezUInt32 maxResults) const
+void ezGameObjectDocument::FindAssetUsagesInternal(ezStringView sAssetToFind, const ezDocumentObject* pObject, ezDynamicArray<AssetUsage>& out_usages, ezUInt32 maxResults) const
 {
   auto pAccessor = GetObjectAccessor();
 
@@ -1095,7 +1095,10 @@ void ezGameObjectDocument::FindAssetUsagesInternal(ezStringView sAssetToFind, co
             {
               ezStringBuilder sFullPath;
               GenerateFullDisplayName(pObject, sFullPath);
-              out_usages.PushBack(sFullPath);
+
+              auto& au = out_usages.ExpandAndGetRef();
+              au.m_sObjectName = sFullPath;
+              au.m_ObjectGuid = pObject->GetGuid();
 
               if (out_usages.GetCount() >= maxResults)
                 return;
@@ -1122,7 +1125,10 @@ void ezGameObjectDocument::FindAssetUsagesInternal(ezStringView sAssetToFind, co
               {
                 ezStringBuilder sFullPath;
                 GenerateFullDisplayName(pObject, sFullPath);
-                out_usages.PushBack(sFullPath);
+
+                auto& au = out_usages.ExpandAndGetRef();
+                au.m_sObjectName = sFullPath;
+                au.m_ObjectGuid = pObject->GetGuid();
 
                 if (out_usages.GetCount() >= maxResults)
                   return;
@@ -1150,7 +1156,10 @@ void ezGameObjectDocument::FindAssetUsagesInternal(ezStringView sAssetToFind, co
                 {
                   ezStringBuilder sFullPath;
                   GenerateFullDisplayName(pObject, sFullPath);
-                  out_usages.PushBack(sFullPath);
+
+                  auto& au = out_usages.ExpandAndGetRef();
+                  au.m_sObjectName = sFullPath;
+                  au.m_ObjectGuid = pObject->GetGuid();
 
                   if (out_usages.GetCount() >= maxResults)
                     return;

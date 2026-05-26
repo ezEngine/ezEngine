@@ -129,8 +129,14 @@ public:
   /// \brief Handles all messages received from the corresponding ezEngineProcessDocumentContext on the engine process.
   virtual void HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg);
 
+  struct AssetUsage
+  {
+    ezString m_sObjectName;
+    ezUuid m_ObjectGuid;
+  };
+
   /// \brief Finds all usages of the given asset in this document and appends them to out_usages. The default implementation does nothing, override this if your document can reference other assets.
-  virtual void FindAssetUsages(ezStringView sAssetToFind, ezDynamicArray<ezString>& out_usages, ezUInt32 maxResults) const {}
+  virtual void FindAssetUsages(ezStringView sAssetToFind, ezDynamicArray<AssetUsage>& out_usages, ezUInt32 maxResults) const {}
 
   /// \brief Returns the ezEditorEngineConnection for this document.
   ezEditorEngineConnection* GetEditorEngineConnection() const { return m_pEngineConnection; }

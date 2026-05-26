@@ -23,6 +23,7 @@ ezQtGameObjectWidget::ezQtGameObjectWidget(QWidget* pParent, ezGameObjectDocumen
   m_pFilterWidget = new ezQtSearchWidget(this);
   m_pFilterWidget->setObjectName("ezQtSearchWidget");
   m_pFilterWidget->setPlaceholderText("Search by name or component type");
+  m_pFilterWidget->setToolTip("Search by object name or component type name.\nUse 'ref:{GUID}' to show only objects that reference a specific asset.");
   connect(m_pFilterWidget, &ezQtSearchWidget::textChanged, this, &ezQtGameObjectWidget::OnFilterTextChanged);
 
   layout()->addWidget(m_pFilterWidget);
@@ -60,6 +61,11 @@ void ezQtGameObjectWidget::DocumentSceneEventHandler(const ezGameObjectEvent& e)
     case ezGameObjectEvent::Type::TriggerExpandScenegraph:
     {
       m_pTreeWidget->expandAll();
+    }
+    break;
+    case ezGameObjectEvent::Type::TriggerSetScenegraphFilter:
+    {
+      m_pFilterWidget->setText(QString::fromUtf8(e.m_sPayload.GetData()));
     }
     break;
 

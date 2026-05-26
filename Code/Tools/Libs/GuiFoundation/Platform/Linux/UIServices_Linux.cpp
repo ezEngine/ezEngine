@@ -4,25 +4,25 @@
 
 #  include <GuiFoundation/UIServices/UIServices.moc.h>
 
-void ezQtUiServices::OpenInExplorer(const char* szPath, bool bIsFile)
+void ezQtUiServices::OpenInExplorer(ezStringView sPath, bool bIsFile)
 {
   QStringList args;
   ezStringBuilder parentDir;
 
   if (bIsFile)
   {
-    parentDir = szPath;
+    parentDir = sPath;
     parentDir = parentDir.GetFileDirectory();
-    szPath = parentDir.GetData();
+    sPath = parentDir.GetData();
   }
-  args << QDir::toNativeSeparators(szPath);
+  args << QDir::toNativeSeparators(ezMakeQString(sPath));
 
   QProcess::startDetached("xdg-open", args);
 }
 
-void ezQtUiServices::OpenWith(const char* szPath)
+void ezQtUiServices::OpenWith(ezStringView sPath0)
 {
-  ezStringBuilder sPath = szPath;
+  ezStringBuilder sPath = sPath0;
   sPath.MakeCleanPath();
   sPath.MakePathSeparatorsNative();
 

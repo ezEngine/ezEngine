@@ -273,6 +273,14 @@ void ezQtUiServices::CheckForUpdates()
   s_Events.Broadcast(e);
 }
 
+void ezQtUiServices::GotoLinkTarget(ezStringView sLinkTarget)
+{
+  Event e;
+  e.m_Type = Event::Type::GotoLinkTarget;
+  e.m_sText = sLinkTarget;
+  s_Events.Broadcast(e);
+}
+
 void ezQtUiServices::Init()
 {
   s_LastTickEvent.m_fRefreshRate = 60.0;
@@ -369,12 +377,12 @@ void ezQtUiServices::ShowGlobalStatusBarMessage(const ezFormatString& msg)
 }
 
 
-ezResult ezQtUiServices::OpenFileInDefaultProgram(const char* szPath)
+ezResult ezQtUiServices::OpenFileInDefaultProgram(ezStringView sPath)
 {
-  return QDesktopServices::openUrl(QUrl::fromLocalFile(szPath)) ? EZ_SUCCESS : EZ_FAILURE;
+  return QDesktopServices::openUrl(QUrl::fromLocalFile(ezMakeQString(sPath))) ? EZ_SUCCESS : EZ_FAILURE;
 }
 
-ezResult ezQtUiServices::OpenInVisualStudio(const char* szPath)
+ezResult ezQtUiServices::OpenInVisualStudio(ezStringView sPath)
 {
   QString sVSExe;
   QSettings settings("\\HKEY_LOCAL_MACHINE\\SOFTWARE\\Classes\\Applications\\VSLauncher.exe\\Shell\\Open\\Command", QSettings::NativeFormat);
@@ -387,7 +395,7 @@ ezResult ezQtUiServices::OpenInVisualStudio(const char* szPath)
   }
 
   QStringList arguments;
-  arguments.push_back(szPath);
+  arguments.push_back(ezMakeQString(sPath));
 
   QProcess proc;
   if (proc.startDetached(sVSExe, arguments) == false)
@@ -398,7 +406,7 @@ ezResult ezQtUiServices::OpenInVisualStudio(const char* szPath)
   return EZ_SUCCESS;
 }
 
-ezResult ezQtUiServices::OpenInRider(const char* szPath)
+ezResult ezQtUiServices::OpenInRider(ezStringView sPath)
 {
   QString sRiderPath;
 
@@ -453,7 +461,7 @@ ezResult ezQtUiServices::OpenInRider(const char* szPath)
 #endif
 
   QStringList arguments;
-  arguments.push_back(szPath);
+  arguments.push_back(ezMakeQString(sPath));
 
   if (!QProcess::startDetached(sRiderPath, arguments))
   {

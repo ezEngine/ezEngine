@@ -5,6 +5,7 @@
 #include <QAbstractItemView>
 #include <QHoverEvent>
 #include <QItemDelegate>
+#include <QListView>
 #include <QStyledItemDelegate>
 
 /// \brief In combination with ezQtItemView this delegate allows for receiving the full range of mouse input.
@@ -183,4 +184,18 @@ private:
   ezQtItemDelegate* m_pFocusedDelegate = nullptr;
   QPersistentModelIndex m_Hovered;
   QPersistentModelIndex m_Focused;
+};
+
+
+//////////////////////////////////////////////////////////////////////////
+
+class ezQtListView : public ezQtItemView<QListView>
+{
+  Q_OBJECT
+
+public:
+  ezQtListView(QWidget* parent)
+    : ezQtItemView<QListView>(parent)
+  {
+  }
 };

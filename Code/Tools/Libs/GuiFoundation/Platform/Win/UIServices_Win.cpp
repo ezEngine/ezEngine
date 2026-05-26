@@ -9,21 +9,21 @@
 #  include <Foundation/IO/OSFile.h>
 #  include <ShlObj_core.h>
 
-void ezQtUiServices::OpenInExplorer(const char* szPath, bool bIsFile)
+void ezQtUiServices::OpenInExplorer(ezStringView sPath, bool bIsFile)
 {
   QStringList args;
 
   if (bIsFile)
     args << "/select,";
 
-  args << QDir::toNativeSeparators(szPath);
+  args << QDir::toNativeSeparators(ezMakeQString(sPath));
 
   QProcess::startDetached("explorer", args);
 }
 
-void ezQtUiServices::OpenWith(const char* szPath)
+void ezQtUiServices::OpenWith(ezStringView sPath0)
 {
-  ezStringBuilder sPath = szPath;
+  ezStringBuilder sPath = sPath0;
   sPath.MakeCleanPath();
   sPath.MakePathSeparatorsNative();
 

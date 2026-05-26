@@ -12,6 +12,13 @@ class EZ_GUIFOUNDATION_DLL ezQtLogModel : public QAbstractItemModel
   Q_OBJECT
 
 public:
+  enum UserRoles
+  {
+    Link = Qt::UserRole + 1,
+    LinkText = Qt::UserRole + 2,
+    LinkTarget = Qt::UserRole + 3,
+  };
+
   ezQtLogModel(QObject* pParent);
   void Clear();
   void SetLogLevel(ezLogMsgType::Enum logLevel);
@@ -41,17 +48,27 @@ private Q_SLOTS:
   void ProcessNewMessages();
 
 private:
+  /// Wraps a log entry with optional embedded link data parsed from [[text|target]] syntax.
+  struct ModelEntry
+  {
+    ezLogEntry m_Log;
+    ezStringView m_sLink;       ///< Full [[text|target]] substring, empty if no link present.
+    ezStringView m_sLinkText;   ///< Display text of the link.
+    ezStringView m_sLinkTarget; ///< Link target (e.g. "asset:{guid}").
+  };
+
   void Invalidate();
   bool IsFiltered(const ezLogEntry& lm) const;
   void UpdateVisibleEntries() const;
+  void FindLink(ModelEntry& ref_entry) const;
 
   ezLogMsgType::Enum m_LogLevel;
   ezString m_sSearchText;
-  ezDeque<ezLogEntry> m_AllMessages;
+  ezDeque<ModelEntry> m_AllMessages;
 
   mutable bool m_bIsValid;
-  mutable ezDeque<const ezLogEntry*> m_VisibleMessages;
-  mutable ezHybridArray<const ezLogEntry*, 16> m_BlockQueue;
+  mutable ezDeque<const ModelEntry*> m_VisibleMessages;
+  mutable ezHybridArray<const ModelEntry*, 16> m_BlockQueue;
 
   mutable ezMutex m_NewMessagesMutex;
   ezDeque<ezLogEntry> m_NewMessages;

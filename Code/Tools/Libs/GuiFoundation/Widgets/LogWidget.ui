@@ -142,9 +142,9 @@
     </layout>
    </item>
    <item>
-    <widget class="QListView" name="ListViewLog">
+    <widget class="ezQtListView" name="ListViewLog">
      <property name="editTriggers">
-      <set>QAbstractItemView::NoEditTriggers</set>
+      <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
      </property>
      <property name="showDropIndicator" stdset="0">
       <bool>true</bool>
@@ -153,10 +153,10 @@
       <bool>true</bool>
      </property>
      <property name="selectionMode">
-      <enum>QAbstractItemView::ExtendedSelection</enum>
+      <enum>QAbstractItemView::SelectionMode::ExtendedSelection</enum>
      </property>
      <property name="selectionBehavior">
-      <enum>QAbstractItemView::SelectRows</enum>
+      <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
      </property>
      <property name="uniformItemSizes">
       <bool>true</bool>
@@ -171,6 +171,11 @@
    <extends>QWidget</extends>
    <header location="global">GuiFoundation/Widgets/SearchWidget.moc.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ezQtListView</class>
+   <extends>QListView</extends>
+   <header location="global">GuiFoundation/Widgets/ItemView.moc.h</header>
   </customwidget>
  </customwidgets>
  <resources>

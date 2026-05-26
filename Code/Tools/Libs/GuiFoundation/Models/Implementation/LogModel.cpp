@@ -125,7 +125,8 @@ QVariant ezQtLogModel::data(const QModelIndex& index, int iRole) const
   if (iRow < 0 || iRow >= (ezInt32)m_VisibleMessages.GetCount())
     return QVariant();
 
-  const ezLogEntry& msg = *m_VisibleMessages[iRow];
+  const ModelEntry& entry = *m_VisibleMessages[iRow];
+  const ezLogEntry& msg = entry.m_Log;
 
   switch (iRole)
   {
@@ -168,9 +169,29 @@ QVariant ezQtLogModel::data(const QModelIndex& index, int iRole) const
       }
     }
 
+    case UserRoles::Link:
+      if (entry.m_sLink.IsEmpty())
+        return QVariant();
+
+      return ezMakeQString(entry.m_sLink);
+
+    case UserRoles::LinkText:
+      if (entry.m_sLinkText.IsEmpty())
+        return QVariant();
+
+      return ezMakeQString(entry.m_sLinkText);
+
+    case UserRoles::LinkTarget:
+      if (entry.m_sLinkTarget.IsEmpty())
+        return QVariant();
+
+      return ezMakeQString(entry.m_sLinkTarget);
+
     default:
       return QVariant();
   }
+
+  return QVariant();
 }
 
 Qt::ItemFlags ezQtLogModel::flags(const QModelIndex& index) const
@@ -222,7 +243,7 @@ void ezQtLogModel::ProcessNewMessages()
   ezStringBuilder sLatestError;
 
   // Collect messages to add to visible list
-  ezTempHybridArray<const ezLogEntry*, 64> messagesToAdd;
+  ezTempHybridArray<const ModelEntry*, 64> messagesToAdd;
 
   {
     EZ_LOCK(m_NewMessagesMutex);
@@ -236,7 +257,8 @@ void ezQtLogModel::ProcessNewMessages()
     ezStringBuilder s;
     for (const auto& msg : m_NewMessages)
     {
-      m_AllMessages.PushBack(msg);
+      auto& entry = m_AllMessages.ExpandAndGetRef();
+      entry.m_Log = msg;
 
       if (msg.m_Type == ezLogMsgType::BeginGroup || msg.m_Type == ezLogMsgType::EndGroup)
       {
@@ -255,12 +277,12 @@ void ezQtLogModel::ProcessNewMessages()
           s.Append(" >>>");
         }
 
-        m_AllMessages.PeekBack().m_sMsg = s;
+        entry.m_Log.m_sMsg = s;
       }
       else
       {
         s.SetPrintf("%*s%s", 4 * msg.m_uiIndentation, "", msg.m_sMsg.GetData());
-        m_AllMessages.PeekBack().m_sMsg = s;
+        entry.m_Log.m_sMsg = s;
 
         if (msg.m_Type == ezLogMsgType::ErrorMsg)
         {
@@ -282,6 +304,7 @@ void ezQtLogModel::ProcessNewMessages()
         }
       }
 
+      FindLink(entry);
 
       // if the message would not be shown anyway, don't trigger an update
       if (IsFiltered(msg))
@@ -352,14 +375,14 @@ void ezQtLogModel::UpdateVisibleEntries() const
   m_VisibleMessages.Clear();
   for (const auto& msg : m_AllMessages)
   {
-    if (IsFiltered(msg))
+    if (IsFiltered(msg.m_Log))
       continue;
 
-    if (msg.m_Type == ezLogMsgType::EndGroup)
+    if (msg.m_Log.m_Type == ezLogMsgType::EndGroup)
     {
       if (!m_VisibleMessages.IsEmpty())
       {
-        if (m_VisibleMessages.PeekBack()->m_Type == ezLogMsgType::BeginGroup)
+        if (m_VisibleMessages.PeekBack()->m_Log.m_Type == ezLogMsgType::BeginGroup)
           m_VisibleMessages.PopBack();
         else
           m_VisibleMessages.PushBack(&msg);
@@ -369,5 +392,38 @@ void ezQtLogModel::UpdateVisibleEntries() const
     {
       m_VisibleMessages.PushBack(&msg);
     }
+  }
+}
+
+void ezQtLogModel::FindLink(ModelEntry& ref_entry) const
+{
+  // Link format:
+  //   [[Display Text|scheme:target]]
+  //
+  // For instance:
+  //   Object [[Bernd|asset:{ Doc-UUID }#{ Obj-UUID }]] not found.
+  //
+  // Link handler can parse the link target further, e.g. detect the scheme to support different actions.
+
+  const char* szStart = ref_entry.m_Log.m_sMsg.FindSubString("[[");
+  while (szStart != nullptr)
+  {
+    const char* szSeparator = ref_entry.m_Log.m_sMsg.FindSubString("|", szStart);
+    const char* szEnd = ref_entry.m_Log.m_sMsg.FindSubString("]]", szStart);
+
+    if (szSeparator && szEnd && szSeparator < szEnd)
+    {
+      ref_entry.m_sLink = ezStringView(szStart, szEnd + 2);
+
+      ref_entry.m_sLinkText = ezStringView(szStart + 2, szSeparator);
+      ref_entry.m_sLinkTarget = ezStringView(szSeparator + 1, szEnd);
+
+      ref_entry.m_sLinkText.Trim();
+      ref_entry.m_sLinkTarget.Trim();
+      return;
+    }
+
+    // Find next candidate
+    szStart = ref_entry.m_Log.m_sMsg.FindSubString("[[", szStart + 1);
   }
 }

@@ -1,9 +1,146 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <EditorFramework/GUI/RawDocumentTreeWidget.moc.h>
+#include <Foundation/Reflection/Implementation/PropertyAttributes.h>
+#include <Foundation/Utilities/ConversionUtils.h>
 #include <GuiFoundation/ActionViews/QtProxy.moc.h>
 #include <GuiFoundation/Models/TreeSearchFilterModel.moc.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
+
+/// Delegate object for the scene graph filter model.
+///
+/// Handles matching game objects against the search text by checking component type names
+/// and, when the "ref:" keyword is used, whether any component property references a specific asset GUID.
+class ezGameObjectFilter
+{
+public:
+  bool Filter(QModelIndex index, const ezSearchPatternFilter& filter)
+  {
+    if (filter.GetSearchText() != m_sLastFilterText)
+    {
+      ParseFilter(filter.GetSearchText());
+    }
+
+    const ezQtDocumentTreeModel* pModel = qobject_cast<const ezQtDocumentTreeModel*>(index.model());
+    if (pModel == nullptr)
+      return false;
+
+    const ezDocumentObject* pObj = pModel->GetObject(index);
+    ezObjectAccessorBase* pAcc = pModel->GetDocumentTree()->GetDocument()->GetObjectAccessor();
+    ezVariant comp;
+
+    const ezInt32 iNum = pAcc->GetCountByName(pObj, "Components");
+    for (ezInt32 i = 0; i < iNum; ++i)
+    {
+      if (pAcc->GetValueByName(pObj, "Components", comp, i).Failed())
+        continue;
+
+      const ezDocumentObject* pCompObj = pAcc->GetObject(comp.Get<ezUuid>());
+
+      if (m_bGuidSearch)
+      {
+        if (ComponentReferencesGuid(pCompObj, m_SearchGuid))
+          return true;
+      }
+      else
+      {
+        if (filter.PassesFilters(pCompObj->GetType()->GetTypeName()))
+          return true;
+      }
+    }
+
+    return false;
+  }
+
+private:
+  void ParseFilter(const ezString& sText)
+  {
+    m_sLastFilterText = sText;
+    m_bGuidSearch = false;
+
+    const char* szRef = ezStringUtils::FindSubString_NoCase(sText.GetData(), "ref:");
+    if (szRef != nullptr)
+    {
+      const char* szGuid = szRef + strlen("ref:");
+      if (ezConversionUtils::IsStringUuid(szGuid))
+      {
+        m_SearchGuid = ezConversionUtils::ConvertStringToUuid(szGuid);
+        m_bGuidSearch = true;
+      }
+    }
+  }
+
+  static bool ComponentReferencesGuid(const ezDocumentObject* pCompObj, const ezUuid& searchGuid)
+  {
+    const ezIReflectedTypeAccessor& acc = pCompObj->GetTypeAccessor();
+
+    ezDynamicArray<const ezAbstractProperty*> properties;
+    acc.GetType()->GetAllProperties(properties);
+
+    for (const ezAbstractProperty* pProp : properties)
+    {
+      if (pProp->GetAttributeByType<ezAssetBrowserAttribute>() == nullptr)
+        continue;
+
+      const auto propVarType = pProp->GetSpecificType()->GetVariantType();
+      if (propVarType != ezVariantType::String && propVarType != ezVariantType::StringView)
+        continue;
+
+      switch (pProp->GetCategory())
+      {
+        case ezPropertyCategory::Member:
+        {
+          const ezVariant val = acc.GetValue(pProp->GetPropertyName());
+          if (val.CanConvertTo<ezString>())
+          {
+            const ezString sVal = val.ConvertTo<ezString>();
+            if (ezConversionUtils::IsStringUuid(sVal) && ezConversionUtils::ConvertStringToUuid(sVal) == searchGuid)
+              return true;
+          }
+          break;
+        }
+        case ezPropertyCategory::Array:
+        {
+          const ezInt32 iCount = acc.GetCount(pProp->GetPropertyName());
+          for (ezInt32 i = 0; i < iCount; ++i)
+          {
+            const ezVariant val = acc.GetValue(pProp->GetPropertyName(), i);
+            if (val.CanConvertTo<ezString>())
+            {
+              const ezString sVal = val.ConvertTo<ezString>();
+              if (ezConversionUtils::IsStringUuid(sVal) && ezConversionUtils::ConvertStringToUuid(sVal) == searchGuid)
+                return true;
+            }
+          }
+          break;
+        }
+        case ezPropertyCategory::Map:
+        {
+          ezDynamicArray<ezVariant> keys;
+          acc.GetKeys(pProp->GetPropertyName(), keys);
+          for (const ezVariant& key : keys)
+          {
+            const ezVariant val = acc.GetValue(pProp->GetPropertyName(), key);
+            if (val.CanConvertTo<ezString>())
+            {
+              const ezString sVal = val.ConvertTo<ezString>();
+              if (ezConversionUtils::IsStringUuid(sVal) && ezConversionUtils::ConvertStringToUuid(sVal) == searchGuid)
+                return true;
+            }
+          }
+          break;
+        }
+        default:
+          break;
+      }
+    }
+    return false;
+  }
+
+  ezString m_sLastFilterText;
+  bool m_bGuidSearch = false;
+  ezUuid m_SearchGuid;
+};
 
 ezQtDocumentTreeView::ezQtDocumentTreeView(QWidget* pParent)
   : ezQtItemView<QTreeView>(pParent)
@@ -19,29 +156,6 @@ ezQtDocumentTreeView::ezQtDocumentTreeView(QWidget* pParent, ezDocument* pDocume
   Initialize(pDocument, std::move(pModel), pSelection);
 }
 
-static bool GameObjectFilterFunc(QModelIndex index, const ezSearchPatternFilter& filter)
-{
-  if (const ezQtDocumentTreeModel* pModel = qobject_cast<const ezQtDocumentTreeModel*>(index.model()))
-  {
-    auto pObj = pModel->GetObject(index);
-    auto pAcc = pModel->GetDocumentTree()->GetDocument()->GetObjectAccessor();
-
-    ezVariant comp;
-
-    const ezInt32 iNum = pAcc->GetCountByName(pObj, "Components");
-    for (ezInt32 i = 0; i < iNum; ++i)
-    {
-      if (pAcc->GetValueByName(pObj, "Components", comp, i).Succeeded())
-      {
-        if (filter.PassesFilters(pAcc->GetObject(comp.Get<ezUuid>())->GetType()->GetTypeName()))
-          return true;
-      }
-    }
-  }
-
-  return false;
-}
-
 void ezQtDocumentTreeView::Initialize(ezDocument* pDocument, std::unique_ptr<ezQtDocumentTreeModel> pModel, ezSelectionManager* pSelection)
 {
   m_pDocument = pDocument;
@@ -53,9 +167,10 @@ void ezQtDocumentTreeView::Initialize(ezDocument* pDocument, std::unique_ptr<ezQ
     m_pSelectionManager = m_pDocument->GetSelectionManager();
   }
 
+  m_pGameObjectFilter = std::make_unique<ezGameObjectFilter>();
   m_pFilterModel.reset(new ezQtTreeSearchFilterModel(this));
   m_pFilterModel->setSourceModel(m_pModel.get());
-  m_pFilterModel->SetCustomFilterFunc(GameObjectFilterFunc);
+  m_pFilterModel->SetCustomFilterFunc(ezMakeDelegate(&ezGameObjectFilter::Filter, m_pGameObjectFilter.get()));
 
   setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
   setSelectionMode(QAbstractItemView::SelectionMode::ExtendedSelection);

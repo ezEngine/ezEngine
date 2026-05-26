@@ -1,6 +1,7 @@
 #include <EditorFramework/EditorFrameworkPCH.h>
 
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/Document/GameObjectDocument.h>
 #include <EditorFramework/EditorApp/CheckVersion.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
@@ -189,6 +190,65 @@ void ezQtEditorApp::UiServicesEvents(const ezQtUiServices::Event& e)
   if (e.m_Type == ezQtUiServices::Event::Type::CheckForUpdates)
   {
     m_pVersionChecker->Check(true);
+  }
+
+  if (e.m_Type == ezQtUiServices::Event::Type::GotoLinkTarget)
+  {
+    ezStringView sTarget = e.m_sText;
+
+    if (sTarget.TrimWordStart("asset:"))
+    {
+      ezStringView sObjRef;
+
+      if (const char* szRef = sTarget.FindSubString("#"))
+      {
+        sObjRef = ezStringView(szRef + 1, sTarget.GetEndPointer());
+        sTarget = ezStringView(sTarget.GetStartPointer(), szRef);
+      }
+
+      if (ezConversionUtils::IsStringUuid(sTarget))
+      {
+        const ezUuid guid = ezConversionUtils::ConvertStringToUuid(sTarget);
+
+        ezStringBuilder path;
+
+        if (auto pAsset = ezAssetCurator::GetSingleton()->GetSubAsset(guid))
+        {
+          path = pAsset->m_pAssetInfo->m_Path;
+        }
+
+        if (!path.IsEmpty())
+        {
+          if (ezDocument* pDoc = OpenDocument(path, ezDocumentFlags::RequestWindow | ezDocumentFlags::AddToRecentFilesList))
+          {
+            ezStringView sFilter = sObjRef;
+            if (sFilter.TrimWordStart("filter:"))
+            {
+              // Strip surrounding quotes, if present.
+              sFilter.TrimWordStart("\"");
+              sFilter.TrimWordEnd("\"");
+
+              if (ezGameObjectDocument* pGameObjDoc = ezDynamicCast<ezGameObjectDocument*>(pDoc))
+              {
+                ezGameObjectEvent filterEvent;
+                filterEvent.m_Type = ezGameObjectEvent::Type::TriggerSetScenegraphFilter;
+                filterEvent.m_sPayload = sFilter;
+                pGameObjDoc->m_GameObjectEvents.Broadcast(filterEvent);
+              }
+            }
+            else if (ezConversionUtils::IsStringUuid(sObjRef))
+            {
+              const ezUuid objGuid = ezConversionUtils::ConvertStringToUuid(sObjRef);
+
+              if (auto pObj = pDoc->GetObjectManager()->GetObject(objGuid))
+              {
+                pDoc->GetSelectionManager()->SetSelection(pObj);
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }
 

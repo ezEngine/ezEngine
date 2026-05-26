@@ -198,7 +198,7 @@ void ezQtAssetCuratorPanel::UpdateIssueInfo()
       ezDocument* pDocument = ezQtEditorApp::GetSingleton()->OpenDocument(sDocumentPath, ezDocumentFlags::None);
 
       constexpr ezUInt32 maxResults = 3;
-      ezTempHybridArray<ezString, maxResults> uses;
+      ezTempHybridArray<ezAssetDocument::AssetUsage, maxResults> uses;
       if (pDocument != nullptr)
       {
         // cast a document to ezAssetDocument to access the FindAssetUsages function.
@@ -223,10 +223,10 @@ void ezQtAssetCuratorPanel::UpdateIssueInfo()
           {
             usesString.Append(", ");
           }
-          usesString.Append(use);
+          usesString.Append("'", use.m_sObjectName, "'");
         }
 
-        sTmp.SetFormat("{}. Used by objects: {}", sDep, usesString);
+        sTmp.SetFormat("{}. Used by objects: [[{}|asset:{}#filter:\"ref:{}\"]]", sDep, usesString, pSubAsset->m_pAssetInfo->m_Info->m_DocumentID, sDep);
       }
 
       return sTmp;
