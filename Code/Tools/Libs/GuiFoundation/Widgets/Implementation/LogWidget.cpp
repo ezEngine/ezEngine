@@ -1,6 +1,7 @@
 #include <GuiFoundation/GuiFoundationPCH.h>
 
 #include <GuiFoundation/Models/LogModel.moc.h>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <GuiFoundation/Widgets/LogWidget.moc.h>
 #include <QClipboard>
 #include <QKeyEvent>
