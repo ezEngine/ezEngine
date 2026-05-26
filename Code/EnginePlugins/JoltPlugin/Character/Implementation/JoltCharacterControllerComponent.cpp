@@ -185,7 +185,6 @@ void ezJoltCharacterControllerComponent::RawMoveWithVelocity(const ezVec3& vVelo
   JPH::CharacterVirtual::ExtendedUpdateSettings updateSettings;
   updateSettings.mStickToFloorStepDown = JPH::Vec3(0, 0, -fMaxStepDown);
   updateSettings.mWalkStairsStepUp = fMaxStairStepUp > 0 ? JPH::Vec3(0, 0, fMaxStairStepUp) : JPH::Vec3::sZero();
-  updateSettings.mWalkStairsMinStepForward = GetShapeRadius() * 0.2f;
 
   // Update the character position
   m_pCharacter->ExtendedUpdate(GetUpdateTimeDelta(), ezJoltConversionUtils::ToVec3(pModule->GetCharacterGravity()), updateSettings, broadphaseFilter, objectFilter, m_BodyFilter, {}, *pModule->GetTempAllocator());
