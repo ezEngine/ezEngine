@@ -149,6 +149,7 @@ protected:
 	SubShapeID							mGroundBodySubShapeID;
 	RVec3								mGroundPosition = RVec3::sZero();
 	Vec3								mGroundNormal = Vec3::sZero();
+  Vec3                mGroundSurfaceNormal = Vec3::sZero();
 	Vec3								mGroundVelocity = Vec3::sZero();
 	RefConst<PhysicsMaterial>			mGroundMaterial = PhysicsMaterial::sDefault;
 	uint64								mGroundUserData = 0;

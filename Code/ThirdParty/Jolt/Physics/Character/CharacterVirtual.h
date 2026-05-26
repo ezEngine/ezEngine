@@ -334,10 +334,12 @@ public:
 	/// This function will return true if the character has moved into a slope that is too steep (e.g. a vertical wall).
 	/// You would call WalkStairs to attempt to step up stairs.
 	/// @param inLinearVelocity The linear velocity that the player desired. This is used to determine if we're pushing into a step.
-	bool								CanWalkStairs(Vec3Arg inLinearVelocity) const;
+  /// @param inAcceptNotCollided Whether we should accept the contact as a slope if the character hasn't collided with it. Used when WalkStairs have to be called multiple times in the row.
+	bool								CanWalkStairs(Vec3Arg inLinearVelocity, bool inAcceptNotCollided) const;
 
 	/// When stair walking is needed, you can call the WalkStairs function to cast up, forward and down again to try to find a valid position
 	/// @param inDeltaTime Time step to simulate.
+  /// @param inMinStepSize When the framerate is high, the forward casting might not be enough to reach the new floor. That is the distance in the forward direction at which the object is casted down to test for a potential floor.
 	/// @param inStepUp The direction and distance to step up (this corresponds to the max step height)
 	/// @param inStepForward The direction and distance to step forward after the step up
 	/// @param inStepForwardTest When running at a high frequency, inStepForward can be very small and it's likely that you hit the side of the stairs on the way down. This could produce a normal that violates the max slope angle. If this happens, we test again using this distance from the up position to see if we find a valid slope.
@@ -348,7 +350,7 @@ public:
 	/// @param inShapeFilter Filter that is used to check if a character collides with a subshape.
 	/// @param inAllocator An allocator for temporary allocations. All memory will be freed by the time this function returns.
 	/// @return true if the stair walk was successful
-	bool								WalkStairs(float inDeltaTime, Vec3Arg inStepUp, Vec3Arg inStepForward, Vec3Arg inStepForwardTest, Vec3Arg inStepDownExtra, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter, const ObjectLayerFilter &inObjectLayerFilter, const BodyFilter &inBodyFilter, const ShapeFilter &inShapeFilter, TempAllocator &inAllocator);
+	bool								WalkStairs(float inDeltaTime, float inMinStepSize, Vec3Arg inStepUp, Vec3Arg inStepForward, Vec3Arg inStepForwardTest, Vec3Arg inStepDownExtra, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter, const ObjectLayerFilter &inObjectLayerFilter, const BodyFilter &inBodyFilter, const ShapeFilter &inShapeFilter, TempAllocator &inAllocator);
 
 	/// This function can be used to artificially keep the character to the floor. Normally when a character is on a small step and starts moving horizontally, the character will
 	/// lose contact with the floor because the initial vertical velocity is zero while the horizontal velocity is quite high. To prevent the character from losing contact with the floor,
@@ -748,6 +750,13 @@ private:
 
 	// The inner rigid body that proxies the character in the world
 	BodyID								mInnerBodyID;
+
+  // Stair walking additional data
+  // Ground normal saved from the moment the character started walking stairs
+  // mGroundNormal can't be used for more than one step because for any further steps it is likely to be equal not to the ground but to the slope normal
+  Vec3                  mPreviousNormal = Vec3::sZero();
+  // Flag that indicates the character started walking stairs in previous updates
+  bool                  mIsWalkingStairs = false;
 };
 
 JPH_NAMESPACE_END

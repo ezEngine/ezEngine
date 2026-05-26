@@ -1144,6 +1144,7 @@ void CharacterVirtual::UpdateSupportingContact(bool inSkipContactVelocityCheck, 
 		mGroundBodyID = best_contact->mBodyB;
 		mGroundBodySubShapeID = best_contact->mSubShapeIDB;
 		mGroundPosition = best_contact->mPosition;
+    mGroundSurfaceNormal = best_contact->mSurfaceNormal;
 		mGroundMaterial = best_contact->mMaterial;
 		mGroundUserData = best_contact->mUserData;
 	}
@@ -1152,6 +1153,7 @@ void CharacterVirtual::UpdateSupportingContact(bool inSkipContactVelocityCheck, 
 		mGroundBodyID = BodyID();
 		mGroundBodySubShapeID = SubShapeID();
 		mGroundPosition = RVec3::sZero();
+    mGroundSurfaceNormal = RVec3::sZero();
 		mGroundMaterial = PhysicsMaterial::sDefault;
 		mGroundUserData = 0;
 	}
@@ -1532,12 +1534,8 @@ void CharacterVirtual::SetInnerBodyShape(const Shape *inShape)
 	mSystem->GetBodyInterface().SetShape(mInnerBodyID, inShape, false, EActivation::DontActivate);
 }
 
-bool CharacterVirtual::CanWalkStairs(Vec3Arg inLinearVelocity) const
+bool CharacterVirtual::CanWalkStairs(Vec3Arg inLinearVelocity, bool inAcceptNotCollided) const
 {
-	// We can only walk stairs if we're supported
-	if (!IsSupported())
-		return false;
-
 	// Check if there's enough horizontal velocity to trigger a stair walk
 	Vec3 horizontal_velocity = inLinearVelocity - inLinearVelocity.Dot(mUp) * mUp;
 	if (horizontal_velocity.IsNearZero(1.0e-6f))
@@ -1545,7 +1543,7 @@ bool CharacterVirtual::CanWalkStairs(Vec3Arg inLinearVelocity) const
 
 	// Check contacts for steep slopes
 	for (const Contact &c : mActiveContacts)
-		if (c.mHadCollision
+		if ((c.mHadCollision || inAcceptNotCollided)
 			&& !c.mWasDiscarded
 			&& c.mSurfaceNormal.Dot(horizontal_velocity - c.mLinearVelocity) < 0.0f // Pushing into the contact
 			&& IsSlopeTooSteep(c.mSurfaceNormal)) // Slope too steep
@@ -1554,7 +1552,7 @@ bool CharacterVirtual::CanWalkStairs(Vec3Arg inLinearVelocity) const
 	return false;
 }
 
-bool CharacterVirtual::WalkStairs(float inDeltaTime, Vec3Arg inStepUp, Vec3Arg inStepForward, Vec3Arg inStepForwardTest, Vec3Arg inStepDownExtra, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter, const ObjectLayerFilter &inObjectLayerFilter, const BodyFilter &inBodyFilter, const ShapeFilter &inShapeFilter, TempAllocator &inAllocator)
+bool CharacterVirtual::WalkStairs(float inDeltaTime, float inMinStepSize, Vec3Arg inStepUp, Vec3Arg inStepForward, Vec3Arg inStepForwardTest, Vec3Arg inStepDownExtra, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter, const ObjectLayerFilter &inObjectLayerFilter, const BodyFilter &inBodyFilter, const ShapeFilter &inShapeFilter, TempAllocator &inAllocator)
 {
 	StartTrackingContactChanges();
 	JPH_SCOPE_EXIT([this]() { FinishTrackingContactChanges(); });
@@ -1606,14 +1604,16 @@ bool CharacterVirtual::WalkStairs(float inDeltaTime, Vec3Arg inStepUp, Vec3Arg i
 	// so we need to cancel the stair walk or else we will move faster than we should as we've done
 	// normal movement first and then stair walk.
 	bool made_progress = false;
-	float max_dot = -0.05f * inStepForward.Length();
-	for (const Vec3 &normal : steep_slope_normals)
+	for (const Vec3& normal : steep_slope_normals)
+  {
+    float max_dot = 0.05f * inStepForward.Dot(normal);
 		if (normal.Dot(horizontal_movement) < max_dot)
 		{
 			// We moved more than 5% of the forward step against a steep slope, accept this as progress
 			made_progress = true;
 			break;
 		}
+  }
 	if (!made_progress)
 		return false;
 
@@ -1625,7 +1625,11 @@ bool CharacterVirtual::WalkStairs(float inDeltaTime, Vec3Arg inStepUp, Vec3Arg i
 
 	// Move down towards the floor.
 	// Note that we travel the same amount down as we traveled up with the specified extra
-	Vec3 down = -up + inStepDownExtra;
+  Vec3 virt_step_forward_horizontal = inMinStepSize * inStepForward.NormalizedOr(Vec3::sZero());
+  virt_step_forward_horizontal -= virt_step_forward_horizontal.Dot(mUp) * mUp;
+  Vec3 virt_sterp_forward_vertical = inStepForward.Dot(mUp) * mUp * 1.05f;
+  // Add test step forward for better sweep test behaviour
+	Vec3 down = -up + inStepDownExtra + virt_step_forward_horizontal;
 	if (!GetFirstContactForSweep(new_position, down, contact, dummy_ignored_contacts, inBroadPhaseLayerFilter, inObjectLayerFilter, inBodyFilter, inShapeFilter))
 		return false; // No floor found, we're in mid air, cancel stair walk
 
@@ -1682,9 +1686,20 @@ bool CharacterVirtual::WalkStairs(float inDeltaTime, Vec3Arg inStepUp, Vec3Arg i
 			return false;
 	}
 
+  // Test if the character have gained any height above the current ground plane
+  if (!mIsWalkingStairs)
+  {
+    Vec3 total_displacement = Vec3(contact.mPosition - mPosition);
+    if (total_displacement.Dot(mGroundSurfaceNormal) < 1e-4f)
+      return false;
+  }
+
 	// Calculate new down position
+  // Remove virtual forward step. It is not the exact cast result, yet in case inMinStepSize is much smaller than inStepUp, it should be accurate
+  down -= virt_step_forward_horizontal;
 	down *= contact.mFraction;
 	new_position += down;
+
 
 	// Move the character to the new location
 	MoveToContact(new_position, contact, inBroadPhaseLayerFilter, inObjectLayerFilter, inBodyFilter, inShapeFilter, inAllocator);
@@ -1732,6 +1747,10 @@ void CharacterVirtual::ExtendedUpdate(float inDeltaTime, Vec3Arg inGravity, cons
 	Vec3 desired_velocity = mLinearVelocity;
 	mLinearVelocity = CancelVelocityTowardsSteepSlopes(desired_velocity);
 
+  // Cancel vertical componen in case of walking stairs
+  if (mIsWalkingStairs)
+    mLinearVelocity -= mLinearVelocity.Dot(mUp) * mUp;
+
 	// Remember old position
 	RVec3 old_position = mPosition;
 
@@ -1746,7 +1765,7 @@ void CharacterVirtual::ExtendedUpdate(float inDeltaTime, Vec3Arg inGravity, cons
 		ground_to_air = false;
 
 	// If stick to floor enabled and we're going from supported to not supported
-	if (ground_to_air && !inSettings.mStickToFloorStepDown.IsNearZero())
+	if (ground_to_air && !inSettings.mStickToFloorStepDown.IsNearZero() && !mIsWalkingStairs)
 	{
 		// If we're not moving up, stick to the floor
 		float velocity = Vec3(mPosition - old_position).Dot(mUp) / inDeltaTime;
@@ -1755,17 +1774,20 @@ void CharacterVirtual::ExtendedUpdate(float inDeltaTime, Vec3Arg inGravity, cons
 	}
 
 	// If walk stairs enabled
-	if (!inSettings.mWalkStairsStepUp.IsNearZero() && IsSupported())
+  bool is_walking_stairs = mIsWalkingStairs;
+  mIsWalkingStairs = false;
+	if (!inSettings.mWalkStairsStepUp.IsNearZero() && (IsSupported() || is_walking_stairs))
 	{
 		// Calculate how much we wanted to move horizontally
+    Vec3 ground_normal = is_walking_stairs ? mPreviousNormal : mGroundNormal;
 		Vec3 desired_horizontal_step = desired_velocity * inDeltaTime;
-		desired_horizontal_step -= desired_horizontal_step.Dot(mGroundNormal) * mGroundNormal;
+		desired_horizontal_step -= desired_horizontal_step.Dot(ground_normal) * ground_normal;
 		float desired_horizontal_step_len = desired_horizontal_step.Length();
 		if (desired_horizontal_step_len > 0.0f)
 		{
 			// Calculate how much we moved horizontally
 			Vec3 achieved_horizontal_step = Vec3(mPosition - old_position);
-			achieved_horizontal_step -= achieved_horizontal_step.Dot(mGroundNormal) * mGroundNormal;
+			achieved_horizontal_step -= achieved_horizontal_step.Dot(ground_normal) * ground_normal;
 
 			// Only count movement in the direction of the desired movement
 			// (otherwise we find it ok if we're sliding downhill while we're trying to climb uphill)
@@ -1773,15 +1795,20 @@ void CharacterVirtual::ExtendedUpdate(float inDeltaTime, Vec3Arg inGravity, cons
 			achieved_horizontal_step = max(0.0f, achieved_horizontal_step.Dot(step_forward_normalized)) * step_forward_normalized;
 			float achieved_horizontal_step_len = achieved_horizontal_step.Length();
 
+      bool can_walk_stairs = CanWalkStairs(desired_velocity, is_walking_stairs);
+
+      if (can_walk_stairs && is_walking_stairs)
+        mIsWalkingStairs = true;
+
 			// If we didn't move as far as we wanted and we're against a slope that's too steep
 			if (achieved_horizontal_step_len + 1.0e-4f < desired_horizontal_step_len
-				&& CanWalkStairs(desired_velocity))
+				&& can_walk_stairs)
 			{
 				// Calculate how much we should step forward
 				// Note that we clamp the step forward to a minimum distance. This is done because at very high frame rates the delta time
 				// may be very small, causing a very small step forward. If the step becomes small enough, we may not move far enough
 				// horizontally to actually end up at the top of the step.
-				Vec3 step_forward = step_forward_normalized * max(inSettings.mWalkStairsMinStepForward, desired_horizontal_step_len - achieved_horizontal_step_len);
+				Vec3 step_forward = step_forward_normalized * max(0.0f, desired_horizontal_step_len - achieved_horizontal_step_len);
 
 				// Calculate how far to scan ahead for a floor. This is only used in case the floor normal at step_forward is too steep.
 				// In that case an additional check will be performed at this distance to check if that normal is not too steep.
@@ -1798,7 +1825,13 @@ void CharacterVirtual::ExtendedUpdate(float inDeltaTime, Vec3Arg inGravity, cons
 				// Calculate the correct magnitude for the test vector
 				step_forward_test *= inSettings.mWalkStairsStepForwardTest;
 
-				WalkStairs(inDeltaTime, inSettings.mWalkStairsStepUp, step_forward, step_forward_test, inSettings.mWalkStairsStepDownExtra, inBroadPhaseLayerFilter, inObjectLayerFilter, inBodyFilter, inShapeFilter, inAllocator);
+        if (WalkStairs(inDeltaTime, inSettings.mWalkStairsMinStepForward, inSettings.mWalkStairsStepUp, step_forward, step_forward_test, inSettings.mWalkStairsStepDownExtra, inBroadPhaseLayerFilter, inObjectLayerFilter, inBodyFilter, inShapeFilter, inAllocator))
+        {
+          mIsWalkingStairs = true;
+          mPreviousNormal = ground_normal;
+        }
+        else
+          mIsWalkingStairs = false;
 			}
 		}
 	}
