@@ -1068,7 +1068,7 @@ void ezGALCommandEncoder::ValidateTextureBarriers(ezArrayPtr<const ezGALTextureB
     }
     else
     {
-      range.m_uiBaseMipLevel = static_cast<ezUInt16>(barrier.m_Subresource.m_uiMipLevel);
+      range.m_uiBaseMipLevel = static_cast<ezUInt8>(barrier.m_Subresource.m_uiMipLevel);
       range.m_uiMipLevels = 1;
       range.m_uiBaseArraySlice = static_cast<ezUInt16>(barrier.m_Subresource.m_uiArraySlice);
       range.m_uiArraySlices = 1;

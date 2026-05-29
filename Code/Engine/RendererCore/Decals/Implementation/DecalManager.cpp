@@ -631,29 +631,37 @@ void ezDecalManager::OnRenderEvent(const ezRenderWorldRenderEvent& e)
   auto pass = s_pData->m_pRenderGraph->AddGraphicsPass("Decal Atlas");
   pass.AddColorTarget(hAtlas, {}, ezGALRenderTargetLoadOp::Load, ezGALRenderTargetStoreOp::Store);
   pass.HasSideEffects();
-  pass.SetExecuteCallback([&decalsToUpdate](const ezRenderGraphContext& ctx)
+  pass.SetExecuteCallback(
+    [](const ezRenderGraphContext& ctx)
     {
-    auto* pRenderContext = ctx.GetRenderContext();
-    auto* pCommandEncoder = ctx.GetCommandEncoder();
+      auto& decalsToUpdate = s_pData->m_DecalsToUpdate[ezRenderWorld::GetDataIndexForRendering()];
+      if (decalsToUpdate.IsEmpty())
+        return;
 
-    const bool bAllowAsyncShaderLoading = pRenderContext->GetAllowAsyncShaderLoading();
-    pRenderContext->SetAllowAsyncShaderLoading(false);
-    EZ_SCOPE_EXIT(pRenderContext->SetAllowAsyncShaderLoading(bAllowAsyncShaderLoading));
+      auto* pRenderContext = ctx.GetRenderContext();
+      auto* pCommandEncoder = ctx.GetCommandEncoder();
 
-    pRenderContext->BindMeshBuffer(s_pData->m_hPlaneMeshBuffer);
+      const bool bAllowAsyncShaderLoading = pRenderContext->GetAllowAsyncShaderLoading();
+      pRenderContext->SetAllowAsyncShaderLoading(false);
+      EZ_SCOPE_EXIT(pRenderContext->SetAllowAsyncShaderLoading(bAllowAsyncShaderLoading));
 
-    for (ezUInt32 i = 0; i < decalsToUpdate.GetCount(); ++i)
-    {
-      auto& updateInfo = decalsToUpdate[i];
-      ezRectFloat viewport = ezRectFloat(updateInfo.m_TargetRect.x, updateInfo.m_TargetRect.y, updateInfo.m_TargetRect.width, updateInfo.m_TargetRect.height);
+      pRenderContext->BindMeshBuffer(s_pData->m_hPlaneMeshBuffer);
 
-      pCommandEncoder->SetViewport(viewport);
+      for (ezUInt32 i = 0; i < decalsToUpdate.GetCount(); ++i)
+      {
+        auto& updateInfo = decalsToUpdate[i];
+        ezRectFloat viewport = ezRectFloat(updateInfo.m_TargetRect.x, updateInfo.m_TargetRect.y, updateInfo.m_TargetRect.width, updateInfo.m_TargetRect.height);
 
-      pRenderContext->SetGlobalAndWorldTimeConstants(updateInfo.m_WorldTime);
-      pRenderContext->BindMaterial(updateInfo.m_hMaterial);
+        pCommandEncoder->SetViewport(viewport);
 
-      pRenderContext->DrawMeshBuffer().AssertSuccess();
-    } });
+        pRenderContext->SetGlobalAndWorldTimeConstants(updateInfo.m_WorldTime);
+        pRenderContext->BindMaterial(updateInfo.m_hMaterial);
+
+        pRenderContext->DrawMeshBuffer().AssertSuccess();
+      }
+
+      decalsToUpdate.Clear();
+    });
 
   ezRenderGraphManager::EnqueueRenderGraph(s_pData->m_pRenderGraph);
 }
