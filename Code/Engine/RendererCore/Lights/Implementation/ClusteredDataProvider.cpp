@@ -142,7 +142,7 @@ void ezClusteredDataGPU::AddReadDependencies(ezRenderGraph& ref_graph, ezRenderG
   {
     ezGALTextureHandle hDecalAtlas = ezDecalManager::GetRuntimeDecalAtlasTexture();
     if (!hDecalAtlas.IsInvalidated())
-      ref_pass.ReadTexture(ref_graph.ImportTexture(hDecalAtlas), {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
+      ref_pass.ReadTexture(ref_graph.ImportTexture(hDecalAtlas), {}, ezGALResourceState::ShaderResource);
   }
 
   // Baked decal atlas textures are immutable and don't need barriers.
