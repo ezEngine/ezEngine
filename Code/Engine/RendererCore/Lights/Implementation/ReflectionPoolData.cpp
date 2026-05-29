@@ -8,6 +8,7 @@
 #include <RendererCore/Lights/SphereReflectionProbeComponent.h>
 #include <RendererCore/Meshes/MeshComponentBase.h>
 #include <RendererCore/Pipeline/RenderDataManager.h>
+#include <RendererCore/RenderGraph/RenderGraph.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/Texture.h>
 

@@ -13,6 +13,8 @@
 #include <RendererCore/Utils/WorldGeoExtractionUtil.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RmlUiPlugin/Components/RmlUiCanvas3DComponent.h>
+
+#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RmlUiPlugin/RmlUiContext.h>
 #include <RmlUiPlugin/RmlUiSingleton.h>
 

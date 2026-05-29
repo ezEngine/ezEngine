@@ -13,6 +13,7 @@
 class ezSkyLightComponent;
 class ezSphereReflectionProbeComponent;
 class ezBoxReflectionProbeComponent;
+class ezRenderGraph;
 
 static constexpr ezUInt32 s_uiReflectionCubeMapSize = 128;
 static constexpr ezUInt32 s_uiNumReflectionProbeCubeMaps = 32;

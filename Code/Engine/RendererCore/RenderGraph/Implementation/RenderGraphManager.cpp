@@ -1,5 +1,7 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <RendererCore/RenderGraph/RenderGraphManager.h>
+
 #include <Foundation/Configuration/Startup.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderGraph/RenderGraph.h>
