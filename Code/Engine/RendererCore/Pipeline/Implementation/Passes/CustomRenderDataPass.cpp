@@ -51,7 +51,7 @@ ezStatus ezCustomRenderDataPass::AddRenderPasses(const ezViewData& viewData, con
     pass.AddDepthStencilTarget(hDepthStencil);
   pass.SetStereoscopic(camera.IsStereoscopic());
   pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
-  {
+    {
     const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
     if (!m_RenderDataCategory.IsValid())
       return;
@@ -60,8 +60,7 @@ ezStatus ezCustomRenderDataPass::AddRenderPasses(const ezViewData& viewData, con
     if (batchList.GetBatchCount() == 0)
       return;
 
-    RenderDataWithCategory(renderViewContext, m_RenderDataCategory);
-  });
+    RenderDataWithCategory(renderViewContext, m_RenderDataCategory); });
 
   return EZ_SUCCESS;
 }

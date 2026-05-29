@@ -49,7 +49,7 @@ ezResult ezGALTextureCreationDescription::Validate(ezGALDevice* pDevice, ezArray
     return EZ_FAILURE;
   }
 
-  const auto& caps =pDevice->GetCapabilities();
+  const auto& caps = pDevice->GetCapabilities();
   ezBitflags<ezGALResourceFormatSupport> formatSupport = caps.m_FormatSupport[m_Format];
   if (m_TextureFlags.IsSet(ezGALTextureUsageFlags::RenderTarget) && !formatSupport.IsSet(ezGALResourceFormatSupport::RenderTarget))
   {

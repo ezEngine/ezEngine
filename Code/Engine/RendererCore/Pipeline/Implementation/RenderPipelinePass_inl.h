@@ -1,7 +1,7 @@
 #pragma once
 
 ezRenderPipelinePinConnection::ezRenderPipelinePinConnection(Connectivity connectivity)
-: m_Connectivity(connectivity)
+  : m_Connectivity(connectivity)
   , m_TextureHandle()
 {
 }
@@ -9,12 +9,14 @@ ezRenderPipelinePinConnection::ezRenderPipelinePinConnection(Connectivity connec
 ezRenderPipelinePinConnection::ezRenderPipelinePinConnection(Connectivity connectivity, ezRenderGraphTextureHandle hTextureHandle)
   : m_Connectivity(connectivity)
   , m_TextureHandle(hTextureHandle)
-{}
+{
+}
 
 ezRenderPipelinePinConnection::ezRenderPipelinePinConnection(Connectivity connectivity, ezRenderGraphBufferHandle hBufferHandle)
-: m_Connectivity(connectivity)
-, m_BufferHandle(hBufferHandle)
-{}
+  : m_Connectivity(connectivity)
+  , m_BufferHandle(hBufferHandle)
+{
+}
 
 ezRenderPipelinePinConnection::ezRenderPipelinePinConnection(const ezRenderPipelinePinConnection& other)
   : m_Connectivity(other.m_Connectivity)

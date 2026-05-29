@@ -109,7 +109,7 @@ ezStatus ezLightShaftsPass::AddRenderPasses(const ezViewData& viewData, const ez
     pass.ReadTexture(hDepthInput, {}, ezGALResourceState::DepthStencilRead, ezGALShaderStageFlags::PixelShader);
     pass.SetStereoscopic(camera.IsStereoscopic());
     pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
-    {
+      {
       const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
 
       UpdateConstantBuffer(*pClusteredData, vLightOriginUVs.GetAsVec2(), 0.0f);
@@ -121,8 +121,7 @@ ezStatus ezLightShaftsPass::AddRenderPasses(const ezViewData& viewData, const ez
 
       renderViewContext.m_pRenderContext->BindShader(m_hMaskShader);
       renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
-      renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
-    });
+      renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult(); });
   }
 
   // Pass 2: Radial blur passes
@@ -144,7 +143,7 @@ ezStatus ezLightShaftsPass::AddRenderPasses(const ezViewData& viewData, const ez
       pass.ReadTexture(hInput, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
       pass.SetStereoscopic(camera.IsStereoscopic());
       pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
-      {
+        {
         const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
         UpdateConstantBuffer(*pClusteredData, vLightOriginUVs.GetAsVec2(), fBlurStep);
         ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);
@@ -153,8 +152,7 @@ ezStatus ezLightShaftsPass::AddRenderPasses(const ezViewData& viewData, const ez
 
         renderViewContext.m_pRenderContext->BindShader(m_hRadialBlurShader);
         renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
-        renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
-      });
+        renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult(); });
 
       uiCurrentInputTempTexture = uiCurrentOutputTempTexture;
     }
@@ -169,7 +167,7 @@ ezStatus ezLightShaftsPass::AddRenderPasses(const ezViewData& viewData, const ez
     pass.ReadTexture(hBlurResult, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
     pass.SetStereoscopic(camera.IsStereoscopic());
     pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
-    {
+      {
       const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
 
       ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);
@@ -178,8 +176,7 @@ ezStatus ezLightShaftsPass::AddRenderPasses(const ezViewData& viewData, const ez
 
       renderViewContext.m_pRenderContext->BindShader(m_hApplyShader);
       renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
-      renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
-    });
+      renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult(); });
   }
 
   return EZ_SUCCESS;

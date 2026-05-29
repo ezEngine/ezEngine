@@ -9,8 +9,8 @@
 #include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
-#include <RendererCore/RenderGraph/RenderGraphManager.h>
 #include <RendererCore/RenderGraph/RenderGraph.h>
+#include <RendererCore/RenderGraph/RenderGraphManager.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Textures/TextureUtils.h>
 #include <RendererFoundation/CommandEncoder/CommandEncoder.h>
@@ -534,9 +534,8 @@ void ezEngineProcessDocumentContext::OnGALEvent(const ezGALDeviceEvent& e)
   auto pass = m_pRenderGraph->AddTransferPass("Thumbnail Readback");
   pass.ReadTexture(hTex, {}, ezGALResourceState::CopySource);
   pass.HasSideEffects();
-  pass.SetExecuteCallback([this, hTex](const ezRenderGraphContext& ctx) {
-    m_ThumbnailReadback.ReadbackTexture(*ctx.GetCommandEncoder(), ctx.ResolveTexture(hTex));
-  });
+  pass.SetExecuteCallback([this, hTex](const ezRenderGraphContext& ctx)
+    { m_ThumbnailReadback.ReadbackTexture(*ctx.GetCommandEncoder(), ctx.ResolveTexture(hTex)); });
 
   ezRenderGraphManager::EnqueueRenderGraph(m_pRenderGraph);
   m_bThumbnailReadbackInFlight = true;

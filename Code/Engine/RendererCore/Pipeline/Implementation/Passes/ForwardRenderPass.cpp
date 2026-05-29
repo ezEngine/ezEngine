@@ -58,13 +58,12 @@ ezStatus ezForwardRenderPass::AddRenderPasses(const ezViewData& viewData, const 
   pass.SetStereoscopic(camera.IsStereoscopic());
   ezRenderPipelinePass::SetupResourceDependencies(viewData, graph, pass, m_ShadingQuality);
   pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
-  {
+    {
     const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
     renderViewContext.UpdateViewport();
     SetupPermutationVars(renderViewContext);
     ezRenderPipelinePass::BindDataProviderResources(renderViewContext, m_ShadingQuality);
-    RenderObjects(renderViewContext);
-  });
+    RenderObjects(renderViewContext); });
 
   return EZ_SUCCESS;
 }

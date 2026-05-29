@@ -11,8 +11,8 @@
 #include <RendererCore/Lights/PointLightComponent.h>
 #include <RendererCore/Lights/SpotLightComponent.h>
 #include <RendererCore/Pipeline/View.h>
-#include <RendererCore/RenderGraph/RenderGraphManager.h>
 #include <RendererCore/RenderGraph/RenderGraph.h>
+#include <RendererCore/RenderGraph/RenderGraphManager.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Textures/DynamicTextureAtlas.h>
 #include <RendererCore/Utils/CoreRenderProfile.h>
@@ -1013,7 +1013,8 @@ void ezShadowPool::OnRenderEvent(const ezRenderWorldRenderEvent& e)
     pass.AddDepthStencilTarget(hShadowAtlas);
     pass.SetClearDepth();
     pass.HasSideEffects();
-    pass.SetExecuteCallback([](const ezRenderGraphContext& ctx) {
+    pass.SetExecuteCallback([](const ezRenderGraphContext& ctx)
+      {
       ezUInt32 uiDataIndex = ezRenderWorld::GetDataIndexForRendering();
       auto& packedShadowData = s_pData->m_PackedShadowData[uiDataIndex];
       if (!packedShadowData.IsEmpty())
@@ -1021,8 +1022,7 @@ void ezShadowPool::OnRenderEvent(const ezRenderWorldRenderEvent& e)
         EZ_PROFILE_SCOPE("Shadow Data Buffer Update");
 
         ctx.GetCommandEncoder()->UpdateBuffer(s_pData->m_hShadowDataBuffer, 0, packedShadowData.GetByteArrayPtr(), ezGALUpdateMode::AheadOfTime);
-      }
-    });
+      } });
 
     ezRenderGraphManager::EnqueueRenderGraph(s_pData->m_pRenderGraph);
   }

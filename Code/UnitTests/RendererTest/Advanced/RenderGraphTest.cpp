@@ -3,9 +3,9 @@
 #include <Foundation/Math/Random.h>
 #include <Foundation/Profiling/ProfilingUtils.h>
 #include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/RenderGraph/RenderGraph.h>
 #include <RendererCore/RenderGraph/RenderGraphManager.h>
 #include <RendererCore/RenderGraph/RenderGraphResourcePool.h>
-#include <RendererCore/RenderGraph/RenderGraph.h>
 #include <RendererTest/Advanced/RenderGraphTest.h>
 
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
@@ -514,12 +514,11 @@ void ezRenderGraphTest::MsaaResolve()
 
     // BEGIN-DOCS-CODE-SNIPPET: rendergraph-msaa-execute-callback
     pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
-    {
+      {
       ezGALTextureSubresource subresource;
       subresource.m_uiMipLevel = 0;
       subresource.m_uiArraySlice = 0;
-      ctx.GetCommandEncoder()->ResolveTexture(ctx.ResolveTexture(hResolved), subresource, ctx.ResolveTexture(hMsaaColor), subresource);
-    });
+      ctx.GetCommandEncoder()->ResolveTexture(ctx.ResolveTexture(hResolved), subresource, ctx.ResolveTexture(hMsaaColor), subresource); });
     // END-DOCS-CODE-SNIPPET
   }
 

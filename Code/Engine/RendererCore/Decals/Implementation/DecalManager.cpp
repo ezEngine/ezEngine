@@ -10,8 +10,8 @@
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
-#include <RendererCore/RenderGraph/RenderGraphManager.h>
 #include <RendererCore/RenderGraph/RenderGraph.h>
+#include <RendererCore/RenderGraph/RenderGraphManager.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Textures/DynamicTextureAtlas.h>
 #include <RendererCore/Textures/Texture2DResource.h>
@@ -631,7 +631,8 @@ void ezDecalManager::OnRenderEvent(const ezRenderWorldRenderEvent& e)
   auto pass = s_pData->m_pRenderGraph->AddGraphicsPass("Decal Atlas");
   pass.AddColorTarget(hAtlas, {}, ezGALRenderTargetLoadOp::Load, ezGALRenderTargetStoreOp::Store);
   pass.HasSideEffects();
-  pass.SetExecuteCallback([&decalsToUpdate](const ezRenderGraphContext& ctx) {
+  pass.SetExecuteCallback([&decalsToUpdate](const ezRenderGraphContext& ctx)
+    {
     auto* pRenderContext = ctx.GetRenderContext();
     auto* pCommandEncoder = ctx.GetCommandEncoder();
 
@@ -652,8 +653,7 @@ void ezDecalManager::OnRenderEvent(const ezRenderWorldRenderEvent& e)
       pRenderContext->BindMaterial(updateInfo.m_hMaterial);
 
       pRenderContext->DrawMeshBuffer().AssertSuccess();
-    }
-  });
+    } });
 
   ezRenderGraphManager::EnqueueRenderGraph(s_pData->m_pRenderGraph);
 }

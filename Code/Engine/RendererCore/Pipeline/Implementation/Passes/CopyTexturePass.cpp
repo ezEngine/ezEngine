@@ -49,9 +49,7 @@ ezStatus ezCopyTexturePass::AddRenderPasses(const ezViewData& viewData, const ez
   pass.ReadTexture(hInput, {}, ezGALResourceState::CopySource);
   pass.WriteTexture(hOutput, {}, ezGALResourceState::CopyDestination);
   pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
-  {
-    ctx.GetCommandEncoder()->CopyTexture(ctx.ResolveTexture(hOutput), ctx.ResolveTexture(hInput));
-  });
+    { ctx.GetCommandEncoder()->CopyTexture(ctx.ResolveTexture(hOutput), ctx.ResolveTexture(hInput)); });
 
   return EZ_SUCCESS;
 }

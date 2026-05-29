@@ -55,7 +55,7 @@ ezStatus ezBlendPass::AddRenderPasses(const ezViewData& viewData, const ezCamera
   pass.ReadTexture(hInputB, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
   pass.SetStereoscopic(camera.IsStereoscopic());
   pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
-  {
+    {
     const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
     renderViewContext.UpdateViewport();
 
@@ -70,8 +70,7 @@ ezStatus ezBlendPass::AddRenderPasses(const ezViewData& viewData, const ezCamera
     bindGroup.BindTexture("InputA", ctx.ResolveTexture(hInputA));
     bindGroup.BindTexture("InputB", ctx.ResolveTexture(hInputB));
 
-    renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
-  });
+    renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult(); });
 
   return EZ_SUCCESS;
 }

@@ -75,13 +75,12 @@ ezStatus ezSelectionHighlightPass::AddRenderPasses(const ezViewData& viewData, c
     pass.SetClearStencil();
     pass.SetStereoscopic(camera.IsStereoscopic());
     pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
-    {
+      {
       const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
       renderViewContext.UpdateViewport();
 
       renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_DEPTH_ONLY");
-      RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Selection);
-    });
+      RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Selection); });
   }
 
   // Reconstruct selection overlay from depth
@@ -92,7 +91,7 @@ ezStatus ezSelectionHighlightPass::AddRenderPasses(const ezViewData& viewData, c
     pass.ReadTexture(hDepth, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
     pass.SetStereoscopic(camera.IsStereoscopic());
     pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
-    {
+      {
       const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
       renderViewContext.UpdateViewport();
 
@@ -108,8 +107,7 @@ ezStatus ezSelectionHighlightPass::AddRenderPasses(const ezViewData& viewData, c
       bindGroupRenderPass.BindTexture("SelectionDepthTexture", ctx.ResolveTexture(hSelectionDepth));
       bindGroupRenderPass.BindTexture("SceneDepthTexture", ctx.ResolveTexture(hDepth));
 
-      renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
-    });
+      renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult(); });
   }
 
   return EZ_SUCCESS;

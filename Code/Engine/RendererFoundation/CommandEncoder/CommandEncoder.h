@@ -1,11 +1,11 @@
 
 #pragma once
 
+#include <Foundation/Algorithm/HashableStruct.h>
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Threading/ThreadUtils.h>
 #include <RendererFoundation/CommandEncoder/CommandEncoderPlatformInterface.h>
 #include <RendererFoundation/CommandEncoder/CommandEncoderState.h>
-#include <Foundation/Algorithm/HashableStruct.h>
 
 #define EZ_BARRIER_VALIDATION EZ_COMPILE_FOR_DEBUG
 

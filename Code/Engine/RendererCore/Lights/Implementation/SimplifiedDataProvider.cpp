@@ -5,9 +5,9 @@
 #include <RendererCore/Lights/SimplifiedDataProvider.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <RendererCore/RenderContext/RenderContext.h>
-#include <RendererFoundation/Profiling/Profiling.h>
 #include <RendererCore/RenderGraph/RenderGraph.h>
 #include <RendererCore/RenderGraph/RenderGraphPassBuilder.h>
+#include <RendererFoundation/Profiling/Profiling.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Common/LightDataSimplified.h>
 EZ_DEFINE_AS_POD_TYPE(ezSimplifiedDataConstants);

@@ -81,8 +81,6 @@ void ezRenderTargetActivatorComponent::OnMsgExtractRenderData(ezMsgExtractRender
   {
     ezRenderWorld::AddViewToRender(hView);
   }
-
-
 }
 
 void ezRenderTargetActivatorComponent::SetRenderTarget(const ezRenderToTexture2DResourceHandle& hResource)

@@ -1,12 +1,12 @@
 #include <RendererCore/RendererCorePCH.h>
 
 #include <Foundation/IO/TypeVersionContext.h>
+#include <RendererCore/Lights/ClusteredDataProvider.h>
+#include <RendererCore/Lights/SimplifiedDataProvider.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererCore/Pipeline/RendererRegistry.h>
 #include <RendererCore/RenderContext/RenderContext.h>
-#include <RendererCore/Lights/ClusteredDataProvider.h>
-#include <RendererCore/Lights/SimplifiedDataProvider.h>
 #include <RendererFoundation/Profiling/Profiling.h>
 
 // clang-format off

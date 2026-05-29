@@ -235,7 +235,8 @@ groupshared float DepthData[READ_COUNT * WAVE_SIZE];
 groupshared bool LdsEarlyOut;
 
 Texture2DArray<float> DepthTexture;    // Depth Buffer Texture (rasterized non-linear depth)
-EZ_IMAGE_FORMAT("r8") RWTexture2DArray<unorm float> OutputTexture; // Output screen-space shadow buffer (typically single-channel, 8bit)
+EZ_IMAGE_FORMAT("r8")
+RWTexture2DArray<unorm float> OutputTexture; // Output screen-space shadow buffer (typically single-channel, 8bit)
 
 SamplerState DepthTextureSampler;      // A point sampler, with Wrap Mode set to Clamp-To-Border-Color (D3D12_TEXTURE_ADDRESS_MODE_BORDER), and Border Color set to "FarDepthValue" (typically zero), or some other far-depth value out of DepthBounds.
                                        // If you have issues where invalid shadows are appearing from off-screen, it is likely that this sampler is not correctly setup

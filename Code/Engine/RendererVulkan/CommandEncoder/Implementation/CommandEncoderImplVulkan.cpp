@@ -23,8 +23,8 @@
 #include <RendererVulkan/State/ComputePipelineVulkan.h>
 #include <RendererVulkan/State/GraphicsPipelineVulkan.h>
 #include <RendererVulkan/State/StateVulkan.h>
-#include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
 #include <RendererVulkan/Utils/BarrierUtilsVulkan.h>
+#include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
 
 ezGALCommandEncoderImplVulkan::ezGALCommandEncoderImplVulkan(ezGALDeviceVulkan& device)
   : m_GALDeviceVulkan(device)
@@ -224,7 +224,7 @@ void ezGALCommandEncoderImplVulkan::UpdateBufferPlatform(const ezGALBuffer* pDes
     case ezGALUpdateMode::AheadOfTime:
       m_GALDeviceVulkan.GetInitContext().UpdateBuffer(pVulkanDestination, uiDestOffset, pSourceData);
       break;
-    EZ_DEFAULT_CASE_NOT_IMPLEMENTED
+      EZ_DEFAULT_CASE_NOT_IMPLEMENTED
   }
 }
 
@@ -996,8 +996,8 @@ void ezGALCommandEncoderImplVulkan::EnsureBindGroupTextureLayout(const ezGALBind
         const ezGALTextureVulkan* pTexture = static_cast<const ezGALTextureVulkan*>(m_GALDeviceVulkan.GetTexture(item.m_Texture.m_hTexture));
         const bool bIsDepthTexture = ezConversionUtilsVulkan::IsDepthFormat(pTexture->GetImageFormat());
         const ezBitflags<ezGALResourceState> targetState = binding.m_ResourceType == ezGALShaderResourceType::TextureRW
-                                                              ? ezGALResourceState::UnorderedAccess
-                                                              : (bIsDepthTexture ? ezGALResourceState::DepthStencilRead : ezGALResourceState::ShaderResource);
+                                                             ? ezGALResourceState::UnorderedAccess
+                                                             : (bIsDepthTexture ? ezGALResourceState::DepthStencilRead : ezGALResourceState::ShaderResource);
       }
       break;
       default:

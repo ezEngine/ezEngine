@@ -1,11 +1,12 @@
 #include <RendererCore/RendererCorePCH.h>
 
-#include <RendererCore/RenderGraph/RenderGraphPassBuilder.h>
 #include <RendererCore/RenderGraph/RenderGraph.h>
+#include <RendererCore/RenderGraph/RenderGraphPassBuilder.h>
 
 namespace
 {
-  bool HasOneBitSet(ezUInt32 x) {
+  bool HasOneBitSet(ezUInt32 x)
+  {
     return x && !(x & (x - 1));
   }
 
@@ -41,7 +42,7 @@ namespace
     ref_stage |= stage;
     return true;
   }
-}
+} // namespace
 
 ezRenderGraphPassBuilder::ezRenderGraphPassBuilder(ezRenderGraph* pParent)
   : m_pParent(pParent)

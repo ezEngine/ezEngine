@@ -4,7 +4,6 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderGraph/RenderGraph.h>
 #include <RendererCore/RenderGraph/RenderGraphResourcePool.h>
-#include <RendererCore/RenderGraph/RenderGraph.h>
 #include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Utils/ResourceStateTracker.h>
@@ -226,7 +225,7 @@ namespace
 void ezRenderGraphManager::PrintTextureResourceHistory(const ezTextureValidationError& error)
 {
   ezLog::Error("Bind group '{}' binding '{}': texture sub-resource [mip={}, slice={}] state mismatch. Tracked: {} [{}], Expected: {} [{}]",
-  error.m_uiBindGroup, error.m_sBinding.GetData(), error.m_failedSubResource.m_uiMipLevel, error.m_failedSubResource.m_uiArraySlice, ezArgEnum(error.m_actualState), ezArgEnum(error.m_actualStages), ezArgEnum(error.m_expectedState), ezArgEnum(error.m_expectedStages));
+    error.m_uiBindGroup, error.m_sBinding.GetData(), error.m_failedSubResource.m_uiMipLevel, error.m_failedSubResource.m_uiArraySlice, ezArgEnum(error.m_actualState), ezArgEnum(error.m_actualStages), ezArgEnum(error.m_expectedState), ezArgEnum(error.m_expectedStages));
 
 
   if (s_ExecutingGraphs.IsEmpty())
@@ -321,7 +320,7 @@ void ezRenderGraphManager::PrintTextureResourceHistory(const ezTextureValidation
           ezLog::Error("{}", sBlock);
           sBlock.Clear();
         }
-        //EZ_ASSERT_DEBUG(overlapped.GetCount() == 1, ""); // overlappedBarriers.GetCount(), "");
+        // EZ_ASSERT_DEBUG(overlapped.GetCount() == 1, ""); // overlappedBarriers.GetCount(), "");
         ezStringBuilder sText;
         const bool bIsCurrent = (uiGraph == s_uiCurrentGraphIndex && uiPass == s_uiCurrentPassIndex);
         sText.SetFormat("  {} Pass[{}] '{}' ", bIsCurrent ? ">" : " ", uiPass, szPassName);

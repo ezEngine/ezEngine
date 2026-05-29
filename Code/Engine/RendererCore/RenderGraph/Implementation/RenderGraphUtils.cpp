@@ -70,8 +70,7 @@ ezRenderGraphTextureHandle ezRenderGraphUtils::GenerateMipMaps(ezGALTextureHandl
           bindGroup.BindTexture("Input", context.ResolveTexture(hGraphTexture), sourceRange, ezGALResourceFormat::Invalid, ezGALTextureType::Texture2DArray);
 
           pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
-          pRenderContext->DrawMeshBuffer().IgnoreResult();
-        });
+          pRenderContext->DrawMeshBuffer().IgnoreResult(); });
     }
   }
   ref_renderGraph.PopMarker();

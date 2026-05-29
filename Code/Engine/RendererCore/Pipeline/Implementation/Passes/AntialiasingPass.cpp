@@ -77,7 +77,7 @@ ezStatus ezAntialiasingPass::AddRenderPasses(const ezViewData& viewData, const e
   pass.ReadTexture(hInput, {}, ezGALResourceState::ShaderResource);
   pass.SetStereoscopic(camera.IsStereoscopic());
   pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
-  {
+    {
     const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
     renderViewContext.UpdateViewport();
 
@@ -92,8 +92,7 @@ ezStatus ezAntialiasingPass::AddRenderPasses(const ezViewData& viewData, const e
     }
     bindGroup.BindTexture("ColorTexture", ctx.ResolveTexture(hInput));
 
-    renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
-  });
+    renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult(); });
 
   return EZ_SUCCESS;
 }

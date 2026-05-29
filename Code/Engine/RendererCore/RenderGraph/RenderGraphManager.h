@@ -2,8 +2,8 @@
 
 #include <Foundation/Types/SharedPtr.h>
 #include <Foundation/Types/UniquePtr.h>
-#include <RendererFoundation/RendererFoundationDLL.h>
 #include <RendererCore/RenderGraph/Declarations.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
 
 struct ezGALDeviceEvent;
 class ezGALResourceStateTracker;

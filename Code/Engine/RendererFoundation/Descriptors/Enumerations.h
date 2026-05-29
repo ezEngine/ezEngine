@@ -358,7 +358,7 @@ struct ezGALResourceState
 
     StorageType _Padding1 : 8;          // 21-27
 
-    StorageType Discard : 1;  // 28
+    StorageType Discard : 1;            // 28
 
     // Special (bits 29-31)
     StorageType Present : 1;  // 29
@@ -379,7 +379,7 @@ struct ezGALTextureBarrier
   ezBitflags<ezGALShaderStageFlags> m_StagesAfter = ezGALShaderStageFlags::Auto;
   ezGALTextureSubresource m_Subresource = {};
   bool m_bAllSubresources = true; ///< If true, the barrier applies to all subresources and m_Subresource is ignored.
-  bool m_bDiscard = false; ///< Discard previous texture layout
+  bool m_bDiscard = false;        ///< Discard previous texture layout
 };
 
 /// Describes a buffer barrier for a state transition.

@@ -30,8 +30,8 @@ public:
   const ezString& GetGraphName() const { return m_sGraphName; }
 
   /// Sets the user name that can be changed at any time.
-  void SetUserName(ezStringView sName) {m_sUserName = sName; }
-  const ezString& GetUserName() const {return m_sUserName; }
+  void SetUserName(ezStringView sName) { m_sUserName = sName; }
+  const ezString& GetUserName() const { return m_sUserName; }
 
   /// User data is accessible during execution callbacks via `ctx.GetUserData<T>()`.
   void SetUserData(void* pUserData) { m_pUserData = pUserData; }
@@ -129,10 +129,10 @@ private:
 
   enum class RenderGraphState
   {
-    Recording, // New passes can be added, initial state
-    Recorded, // No new passes can be added
-    Intermediate, // BuildDependencyGraph, CullDeadPasses, BuildSortedPassList, ComputeResourceLifetimes, AllocateTransientResources
-    Compiled, // BuildRenderingSetups
+    Recording,       // New passes can be added, initial state
+    Recorded,        // No new passes can be added
+    Intermediate,    // BuildDependencyGraph, CullDeadPasses, BuildSortedPassList, ComputeResourceLifetimes, AllocateTransientResources
+    Compiled,        // BuildRenderingSetups
     BarriersCreated, // ComputeBarriers
   };
 

@@ -49,7 +49,7 @@ ezStatus ezDepthOnlyPass::AddRenderPasses(const ezViewData& viewData, const ezCa
   pass.AddDepthStencilTarget(hDepthStencil);
   pass.SetStereoscopic(camera.IsStereoscopic());
   pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
-  {
+    {
     const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
     renderViewContext.UpdateViewport();
 
@@ -65,8 +65,7 @@ ezStatus ezDepthOnlyPass::AddRenderPasses(const ezViewData& viewData, const ezCa
     if (m_bRenderDynamicObjects)
       RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMaskedDynamic);
     if (m_bRenderTransparentObjects)
-      RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitTransparent);
-  });
+      RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitTransparent); });
 
   return EZ_SUCCESS;
 }

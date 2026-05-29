@@ -139,7 +139,7 @@ ezStatus ezBloomPass::AddRenderPasses(const ezViewData& viewData, const ezCamera
       pass.ReadTexture(hInput, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
       pass.SetStereoscopic(camera.IsStereoscopic());
       pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
-      {
+        {
         const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
 
         UpdateConstantBuffer(ezVec2(1.0f).CompDiv(targetSize), tintColor);
@@ -153,8 +153,7 @@ ezStatus ezBloomPass::AddRenderPasses(const ezViewData& viewData, const ezCamera
         bindGroup.BindTexture("ColorTexture", ctx.ResolveTexture(hInput));
         renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
 
-        renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
-      });
+        renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult(); });
 
       bFastDownscale = ezMath::IsEven((ezInt32)targetSize.x) && ezMath::IsEven((ezInt32)targetSize.y);
     }
@@ -207,7 +206,7 @@ ezStatus ezBloomPass::AddRenderPasses(const ezViewData& viewData, const ezCamera
       pass.ReadTexture(hNextInput, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
       pass.SetStereoscopic(camera.IsStereoscopic());
       pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
-      {
+        {
         const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
 
         UpdateConstantBuffer(ezVec2(fBlurRadius).CompDiv(targetSize), tintColor);
@@ -222,8 +221,7 @@ ezStatus ezBloomPass::AddRenderPasses(const ezViewData& viewData, const ezCamera
         bindGroup.BindTexture("ColorTexture", ctx.ResolveTexture(hInput));
         renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
 
-        renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
-      });
+        renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult(); });
     }
   }
 

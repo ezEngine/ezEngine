@@ -97,7 +97,7 @@ ezStatus ezTonemapPass::AddRenderPasses(const ezViewData& viewData, const ezCame
     pass.ReadTexture(hBloomInput, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
   pass.SetStereoscopic(camera.IsStereoscopic());
   pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
-  {
+    {
     const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
     renderViewContext.UpdateViewport();
 
@@ -153,8 +153,7 @@ ezStatus ezTonemapPass::AddRenderPasses(const ezViewData& viewData, const ezCame
     ezTempHashedString sLUTModeValues[3] = {"LUT_MODE_NONE", "LUT_MODE_ONE", "LUT_MODE_TWO"};
     renderViewContext.m_pRenderContext->SetShaderPermutationVariable("LUT_MODE", sLUTModeValues[numLUTs]);
 
-    renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
-  });
+    renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult(); });
 
   return EZ_SUCCESS;
 }

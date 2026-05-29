@@ -96,7 +96,6 @@ EZ_CREATE_SIMPLE_RENDERER_TEST(ResourceStateTracker, IsTextureBarrierNeeded)
     SRS newState = {ezGALResourceState::CopySource, ezGALShaderStageFlags::Auto};
     EZ_TEST_BOOL(ezGALResourceStateTracker::IsTextureBarrierNeeded(oldState, newState));
   }
-
 }
 
 // ============================================================

@@ -68,7 +68,7 @@ ezStatus ezMsaaResolvePass::AddRenderPasses(const ezViewData& viewData, const ez
     pass.ReadTexture(hInput, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
     pass.SetStereoscopic(camera.IsStereoscopic());
     pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
-    {
+      {
       const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
       renderViewContext.UpdateViewport();
 
@@ -81,8 +81,7 @@ ezStatus ezMsaaResolvePass::AddRenderPasses(const ezViewData& viewData, const ez
       ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
       bindGroup.BindTexture("DepthTexture", ctx.ResolveTexture(hInput));
 
-      renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
-    });
+      renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult(); });
   }
   else
   {
@@ -91,7 +90,7 @@ ezStatus ezMsaaResolvePass::AddRenderPasses(const ezViewData& viewData, const ez
     pass.ReadTexture(hInput, {}, ezGALResourceState::ResolveSource);
     pass.WriteTexture(hOutput, {}, ezGALResourceState::ResolveDestination);
     pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
-    {
+      {
       ezGALTextureSubresource subresource;
       subresource.m_uiMipLevel = 0;
       subresource.m_uiArraySlice = 0;
@@ -101,8 +100,7 @@ ezStatus ezMsaaResolvePass::AddRenderPasses(const ezViewData& viewData, const ez
       {
         subresource.m_uiArraySlice = 1;
         ctx.GetCommandEncoder()->ResolveTexture(ctx.ResolveTexture(hOutput), subresource, ctx.ResolveTexture(hInput), subresource);
-      }
-    });
+      } });
   }
 
   return EZ_SUCCESS;

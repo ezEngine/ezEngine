@@ -40,10 +40,10 @@ void ezGALResourceStateTracker::SetInitialBufferState(ezGALBufferHandle hBuffer,
 // --- Texture ChangeState ---
 
 void ezGALResourceStateTracker::ChangeState(ezGALTextureHandle hTexture,
-    ezGALTextureRange range,
+  ezGALTextureRange range,
   ezBitflags<ezGALResourceState> newState,
-    ezBitflags<ezGALShaderStageFlags> stage,
-    const ezDelegate<void(const ezGALTextureBarrier&)>& barrierCallback)
+  ezBitflags<ezGALShaderStageFlags> stage,
+  const ezDelegate<void(const ezGALTextureBarrier&)>& barrierCallback)
 {
   ResolveProxyTexture(hTexture, range);
 
@@ -226,9 +226,9 @@ void ezGALResourceStateTracker::RevertBufferState(const ezDelegate<void(const ez
 // --- Buffer ChangeState ---
 
 void ezGALResourceStateTracker::ChangeState(ezGALBufferHandle hBuffer,
-    ezBitflags<ezGALResourceState> newState,
-    ezBitflags<ezGALShaderStageFlags> stage,
-    const ezDelegate<void(const ezGALBufferBarrier&)>& barrierCallback)
+  ezBitflags<ezGALResourceState> newState,
+  ezBitflags<ezGALShaderStageFlags> stage,
+  const ezDelegate<void(const ezGALBufferBarrier&)>& barrierCallback)
 {
   EZ_ASSERT_DEBUG(stage.IsAnyFlagSet(), "Invalid shader stage, should be an explicit stage or Auto");
   SubResourceState& bs = GetOrCreateBufferState(hBuffer);
@@ -401,7 +401,7 @@ bool ezGALResourceStateTracker::AreStagesCovered(ezBitflags<ezGALShaderStageFlag
 
   // Compute is never implicitly covered by graphics stages and vice versa.
   if (requiredStages.IsSet(ezGALShaderStageFlags::ComputeShader) &&
-    !coveredStages.IsSet(ezGALShaderStageFlags::ComputeShader))
+      !coveredStages.IsSet(ezGALShaderStageFlags::ComputeShader))
     return false;
 
   return true;

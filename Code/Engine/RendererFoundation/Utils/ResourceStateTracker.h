@@ -124,7 +124,6 @@ public:
 
   ///@}
 private:
-
   void ResolveProxyTexture(ezGALTextureHandle& ref_hTexture,
     ezGALTextureRange& ref_range) const;
   TextureState& GetOrCreateTextureState(ezGALTextureHandle hTexture);

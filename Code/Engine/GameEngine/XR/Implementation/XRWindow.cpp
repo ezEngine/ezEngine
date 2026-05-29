@@ -7,11 +7,11 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderGraph/RenderGraph.h>
 #include <RendererCore/RenderGraph/RenderGraphManager.h>
+#include <RendererCore/Textures/TextureUtils.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <RendererFoundation/Profiling/Profiling.h>
 #include <RendererFoundation/Resources/Resource.h>
 #include <RendererFoundation/Resources/Texture.h>
-#include <RendererCore/Textures/TextureUtils.h>
 #include <Texture/Image/Image.h>
 
 //////////////////////////////////////////////////////////////////////////
@@ -131,7 +131,8 @@ void ezWindowOutputTargetXR::RenderCompanionView()
     pass.AddColorTarget(hTarget);
     pass.ReadTexture(hVRSource);
     pass.HasSideEffects();
-    pass.SetExecuteCallback([this, hVRSource, targetSize](const ezRenderGraphContext& ctx) {
+    pass.SetExecuteCallback([this, hVRSource, targetSize](const ezRenderGraphContext& ctx)
+      {
       auto* pRenderContext = ctx.GetRenderContext();
 
       pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
@@ -145,8 +146,7 @@ void ezWindowOutputTargetXR::RenderCompanionView()
       bindGroup.BindBuffer("ezVRCompanionViewConstants", m_hCompanionConstantBuffer);
       bindGroup.BindTexture("VRTexture", ctx.ResolveTexture(hVRSource));
 
-      pRenderContext->DrawMeshBuffer().IgnoreResult();
-    });
+      pRenderContext->DrawMeshBuffer().IgnoreResult(); });
   }
 
   // If a capture was requested, add a readback pass to the same graph.
@@ -160,9 +160,8 @@ void ezWindowOutputTargetXR::RenderCompanionView()
     auto capturePass = m_pRenderGraph->AddTransferPass("CaptureImage");
     capturePass.ReadTexture(hTarget, {}, ezGALResourceState::CopySource);
     capturePass.HasSideEffects();
-    capturePass.SetExecuteCallback([this, hTarget](const ezRenderGraphContext& ctx) {
-      m_Readback.ReadbackTexture(*ctx.GetCommandEncoder(), ctx.ResolveTexture(hTarget));
-    });
+    capturePass.SetExecuteCallback([this, hTarget](const ezRenderGraphContext& ctx)
+      { m_Readback.ReadbackTexture(*ctx.GetCommandEncoder(), ctx.ResolveTexture(hTarget)); });
 
     m_bCaptureInFlight = true;
   }

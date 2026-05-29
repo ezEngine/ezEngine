@@ -84,7 +84,7 @@ ezStatus ezSeparatedBilateralBlurPass::AddRenderPasses(const ezViewData& viewDat
     pass.ReadTexture(hDepth, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
     pass.SetStereoscopic(camera.IsStereoscopic());
     pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
-    {
+      {
       const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
       renderViewContext.UpdateViewport();
 
@@ -97,8 +97,7 @@ ezStatus ezSeparatedBilateralBlurPass::AddRenderPasses(const ezViewData& viewDat
       bindGroup.BindBuffer("ezBilateralBlurConstants", m_hBilateralBlurCB);
       bindGroup.BindTexture("BlurSource", ctx.ResolveTexture(hBlurSource));
 
-      renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
-    });
+      renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult(); });
   }
 
   // Vertical pass
@@ -109,7 +108,7 @@ ezStatus ezSeparatedBilateralBlurPass::AddRenderPasses(const ezViewData& viewDat
     pass.ReadTexture(hDepth, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
     pass.SetStereoscopic(camera.IsStereoscopic());
     pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
-    {
+      {
       const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
       renderViewContext.UpdateViewport();
 
@@ -122,8 +121,7 @@ ezStatus ezSeparatedBilateralBlurPass::AddRenderPasses(const ezViewData& viewDat
       bindGroup.BindBuffer("ezBilateralBlurConstants", m_hBilateralBlurCB);
       bindGroup.BindTexture("BlurSource", ctx.ResolveTexture(hTemp));
 
-      renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
-    });
+      renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult(); });
   }
 
   return EZ_SUCCESS;

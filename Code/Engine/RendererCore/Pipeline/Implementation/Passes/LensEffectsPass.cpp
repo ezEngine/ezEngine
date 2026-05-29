@@ -50,7 +50,7 @@ ezStatus ezLensEffectsPass::AddRenderPasses(const ezViewData& viewData, const ez
   pass.SetStereoscopic(camera.IsStereoscopic());
   SetupResourceDependencies(viewData, graph, pass);
   pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
-  {
+    {
     const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
     BindDataProviderResources(renderViewContext);
     //Needed? SetupPermutationVars(renderViewContext);
@@ -59,8 +59,7 @@ ezStatus ezLensEffectsPass::AddRenderPasses(const ezViewData& viewData, const ez
       ezBindGroupBuilder& bindGroupRenderPass = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);
       bindGroupRenderPass.BindTexture("SceneDepth", ctx.ResolveTexture(hResolvedDepth));
     }
-    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LensEffects);
-  });
+    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LensEffects); });
 
   return EZ_SUCCESS;
 }

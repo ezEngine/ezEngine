@@ -76,8 +76,7 @@ ezQtEngineViewWidget::ezQtEngineViewWidget(QWidget* pParent, ezQtEngineDocumentW
       {
         m_pViewportWidget->setGeometry(0, 0, width(), height());
         m_pDocumentWindow->TriggerRedraw();
-      }
-    });
+      } });
 
   RecreateEngineViewport();
 

@@ -4,8 +4,8 @@
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/GameApplication/WindowOutputTarget.h>
 #include <RendererCore/Pipeline/Declarations.h>
-#include <RendererCore/RenderGraph/RenderGraphManager.h>
 #include <RendererCore/RenderGraph/RenderGraph.h>
+#include <RendererCore/RenderGraph/RenderGraphManager.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Textures/TextureUtils.h>
 #include <RendererFoundation/CommandEncoder/CommandEncoder.h>
@@ -105,9 +105,8 @@ void ezWindowOutputTargetGAL::OnRenderEvent(const ezGALDeviceEvent& e)
   auto pass = m_pRenderGraph->AddTransferPass("CaptureImage");
   pass.ReadTexture(hTex, {}, ezGALResourceState::CopySource);
   pass.HasSideEffects();
-  pass.SetExecuteCallback([this, hTex](const ezRenderGraphContext& ctx) {
-    m_Readback.ReadbackTexture(*ctx.GetCommandEncoder(), ctx.ResolveTexture(hTex));
-  });
+  pass.SetExecuteCallback([this, hTex](const ezRenderGraphContext& ctx)
+    { m_Readback.ReadbackTexture(*ctx.GetCommandEncoder(), ctx.ResolveTexture(hTex)); });
 
   ezRenderGraphManager::EnqueueRenderGraph(m_pRenderGraph);
   m_bCaptureInFlight = true;

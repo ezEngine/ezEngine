@@ -124,7 +124,7 @@ ezStatus ezLSAOPass::AddRenderPasses(const ezViewData& viewData, const ezCamera&
     pass.ReadTexture(hDepthInput, {}, ezGALResourceState::ShaderResource);
     pass.WriteBuffer(hLineSweepOutputBuffer);
     pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
-    {
+      {
       // Update constants
       if (m_bConstantsDirty)
       {
@@ -143,8 +143,7 @@ ezStatus ezLSAOPass::AddRenderPasses(const ezViewData& viewData, const ezCamera&
 
       const ezUInt32 dispatchSize = m_uiNumSweepLines / SSAO_LINESWEEP_THREAD_GROUP + (m_uiNumSweepLines % SSAO_LINESWEEP_THREAD_GROUP != 0 ? 1 : 0);
       const ezUInt32 uiRenderedInstances = renderViewContext.m_pCamera->IsStereoscopic() ? 2 : 1;
-      renderViewContext.m_pRenderContext->Dispatch(dispatchSize, uiRenderedInstances).IgnoreResult();
-    });
+      renderViewContext.m_pRenderContext->Dispatch(dispatchSize, uiRenderedInstances).IgnoreResult(); });
   }
 
   // Gather pass
@@ -157,7 +156,7 @@ ezStatus ezLSAOPass::AddRenderPasses(const ezViewData& viewData, const ezCamera&
     pass.ReadBuffer(hLineSweepOutputBuffer);
     pass.SetStereoscopic(camera.IsStereoscopic());
     pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
-    {
+      {
       const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
 
       if (m_bDistributedGathering)
@@ -185,8 +184,7 @@ ezStatus ezLSAOPass::AddRenderPasses(const ezViewData& viewData, const ezCamera&
       bindGroup.BindBuffer("LineInstructions", m_hLineInfoBuffer);
       bindGroup.BindBuffer("LineSweepOutputBuffer", ctx.ResolveBuffer(hLineSweepOutputBuffer), m_LineSweepOutputBufferRange);
       renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
-      renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
-    });
+      renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult(); });
   }
 
   // Average pass (only for distributed gathering)
@@ -198,7 +196,7 @@ ezStatus ezLSAOPass::AddRenderPasses(const ezViewData& viewData, const ezCamera&
     pass.ReadTexture(hDepthInput, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
     pass.SetStereoscopic(camera.IsStereoscopic());
     pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
-    {
+      {
       const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
 
       switch (m_DepthCompareFunction)
@@ -221,8 +219,7 @@ ezStatus ezLSAOPass::AddRenderPasses(const ezViewData& viewData, const ezCamera&
       bindGroup.BindTexture("SSAOGatherOutput", ctx.ResolveTexture(hTempTexture));
 
       renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
-      renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
-    });
+      renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult(); });
   }
 
   return EZ_SUCCESS;
