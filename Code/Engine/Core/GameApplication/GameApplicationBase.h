@@ -98,6 +98,7 @@ protected:
   void ExecuteTakeScreenshot(ezWindowOutputTargetBase* pOutputTarget, ezStringView sContext = {});
 
   bool m_bTakeScreenshot = false;
+  bool m_bScreenshotPending = false;
 
   /// expose TakeScreenshot() as a console function
   ezConsoleFunction<void()> m_ConFunc_TakeScreenshot;

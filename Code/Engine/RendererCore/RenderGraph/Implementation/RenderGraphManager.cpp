@@ -144,7 +144,7 @@ void ezRenderGraphManager::ExecuteRenderGraphs(ezGALDevice* pDevice)
       for (auto& pRenderGraph : bucket)
       {
         // EnqueueRenderGraph takes a reference to the graph. If we are holding the last reference, the graph is no longer owned externally and must not be used anymore.
-        if (pRenderGraph->GetRefCount() >= 1 && pRenderGraph->Compile().Succeeded())
+        if (pRenderGraph->GetRefCount() > 1 && pRenderGraph->Compile().Succeeded())
           s_ExecutingGraphs.PushBack(pRenderGraph.Borrow());
       }
     }

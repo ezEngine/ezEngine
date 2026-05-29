@@ -115,7 +115,7 @@ void ezWindowOutputTargetGAL::OnRenderEvent(const ezGALDeviceEvent& e)
 ezEnum<ezCaptureImageResult> ezWindowOutputTargetGAL::WaitCaptureImage(ezImage& out_image)
 {
   if (!m_bCaptureInFlight)
-    return ezCaptureImageResult::NotStarted;
+    return m_bCaptureRequested ? ezCaptureImageResult::Pending : ezCaptureImageResult::NotStarted;
 
   ezGALDevice::GetDefaultDevice()->Flush();
   ezEnum<ezGALAsyncResult> res = m_Readback.GetReadbackResult(ezTime::MakeFromHours(1));
