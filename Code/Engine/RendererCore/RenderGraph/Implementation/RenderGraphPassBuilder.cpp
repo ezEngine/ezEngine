@@ -60,7 +60,7 @@ ezRenderGraphPassBuilder::~ezRenderGraphPassBuilder()
   {
     // Flush render target / depth target writes / reads
     // This is deferred to here so that the load / store ops can be modified by SetClearColor etc. Note this will be needed once we can represent a barrier that discards the old state (triggered by ezGALRenderTargetLoadOp::DontCare). For now, all barriers assume `Load` for simplicity.
-    const ezUInt8 uiColorTargetIndex = m_pParent->m_pCurrentPass->m_uiColorTargetIndex;
+    const ezUInt16 uiColorTargetIndex = m_pParent->m_pCurrentPass->m_uiColorTargetIndex;
     const ezUInt8 uiColorTargetCount = m_pParent->m_pCurrentPass->m_uiColorTargetCount;
     for (ezUInt8 i = 0; i < uiColorTargetCount; ++i)
     {
@@ -71,7 +71,7 @@ ezRenderGraphPassBuilder::~ezRenderGraphPassBuilder()
       WriteTexture(info.m_hTexture, ezGALTextureRange::MakeFromRenderTargetRange(info.m_range), state);
     }
 
-    const ezUInt8 uiDepthTargetIndex = m_pParent->m_pCurrentPass->m_uiDepthStencilTargetIndex;
+    const ezUInt16 uiDepthTargetIndex = m_pParent->m_pCurrentPass->m_uiDepthStencilTargetIndex;
     const ezUInt8 uiDepthTargetCount = m_pParent->m_pCurrentPass->m_uiDepthStencilTargetCount;
     for (ezUInt8 i = 0; i < uiDepthTargetCount; ++i)
     {

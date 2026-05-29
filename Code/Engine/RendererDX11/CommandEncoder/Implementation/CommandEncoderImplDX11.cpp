@@ -480,12 +480,12 @@ void ezGALCommandEncoderImplDX11::FlushPlatform()
   m_pDXContext->Flush();
 }
 
-void ezGALCommandEncoderImplDX11::TextureBarrierPlatform(ezArrayPtr<const ezGALTextureBarrier> barriers)
+void ezGALCommandEncoderImplDX11::TextureBarrierPlatform(ezArrayPtr<const ezGALTextureBarrier> /*barriers*/)
 {
   // DX11 does not support explicit barriers.
 }
 
-void ezGALCommandEncoderImplDX11::BufferBarrierPlatform(ezArrayPtr<const ezGALBufferBarrier> barriers)
+void ezGALCommandEncoderImplDX11::BufferBarrierPlatform(ezArrayPtr<const ezGALBufferBarrier> /*barriers*/)
 {
   // DX11 does not support explicit barriers.
 }

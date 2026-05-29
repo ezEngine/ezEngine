@@ -332,7 +332,7 @@ void ezRenderGraph::Execute(ezRenderGraphContext& ctx)
   ezUInt32 uiNextMarker = 0;
   const ezUInt32 uiMarkerCount = m_MarkerEvents.GetCount();
   const ezUInt32 uiPasses = m_CompiledPasses.GetCount();
-  for (int i = 0; i < uiPasses; ++i)
+  for (ezUInt32 i = 0; i < uiPasses; ++i)
   {
     ezRenderGraphManager::s_uiCurrentPassIndex = i;
     const CompiledPass& compiled = m_CompiledPasses[i];
