@@ -495,9 +495,9 @@ void ezGALCommandEncoder::TextureBarrier(
   ezHybridArray<ezGALTextureBarrier, 16> barriers;
   barriers.Reserve(static_cast<ezUInt32>(range.m_uiMipLevels) * static_cast<ezUInt32>(range.m_uiArraySlices));
 
-  for (ezUInt32 uiArraySlice = range.m_uiBaseArraySlice; uiArraySlice < range.m_uiBaseArraySlice + range.m_uiArraySlices; ++uiArraySlice)
+  for (ezUInt32 uiArraySlice = range.m_uiBaseArraySlice; uiArraySlice < static_cast<ezUInt32>(range.m_uiBaseArraySlice + range.m_uiArraySlices); ++uiArraySlice)
   {
-    for (ezUInt32 uiMipLevel = range.m_uiBaseMipLevel; uiMipLevel < range.m_uiBaseMipLevel + range.m_uiMipLevels; ++uiMipLevel)
+    for (ezUInt32 uiMipLevel = range.m_uiBaseMipLevel; uiMipLevel < static_cast<ezUInt32>(range.m_uiBaseMipLevel + range.m_uiMipLevels); ++uiMipLevel)
     {
       barriers.PushBack({hTexture,
         stateBefore,
