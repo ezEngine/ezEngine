@@ -37,18 +37,18 @@ ezBlendPass::ezBlendPass()
 
 ezBlendPass::~ezBlendPass() = default;
 
-ezStatus ezBlendPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
+ezStatus ezBlendPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
   ezRenderGraphTextureHandle hInputA = inputs[m_PinInputA.m_uiInputIndex].m_TextureHandle;
   ezRenderGraphTextureHandle hInputB = inputs[m_PinInputB.m_uiInputIndex].m_TextureHandle;
   if (hInputA.IsInvalidated() || hInputB.IsInvalidated())
     return ezStatus(ezFmt("Input: Not connected"));
 
-  const ezGALTextureCreationDescription inputDescA = graph.GetTextureDesc(hInputA);
-  ezRenderGraphTextureHandle hOutput = graph.CreateTexture(inputDescA);
+  const ezGALTextureCreationDescription inputDescA = ref_graph.GetTextureDesc(hInputA);
+  ezRenderGraphTextureHandle hOutput = ref_graph.CreateTexture(inputDescA);
   outputs[m_PinOutput.m_uiOutputIndex].m_TextureHandle = hOutput;
 
-  auto pass = graph.AddGraphicsPass("Blend");
+  auto pass = ref_graph.AddGraphicsPass("Blend");
   pass.AddColorTarget(hOutput, {}, ezGALRenderTargetLoadOp::Clear);
   pass.SetClearColor(0, ezColor(1.0f, 0.0f, 0.0f));
   pass.ReadTexture(hInputA, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);

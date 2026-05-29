@@ -37,7 +37,7 @@ public:
 
   /// Builds a texture description for the output based on format and MSAA settings.
   static ezGALTextureCreationDescription GetOutputDescription(const ezViewData& viewData, const ezCamera& camera, ezEnum<ezSourceFormat> format, ezEnum<ezGALMSAASampleCount> msaaMode);
-  virtual ezStatus AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs) override;
+  virtual ezStatus AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs) override;
   virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
   virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
 

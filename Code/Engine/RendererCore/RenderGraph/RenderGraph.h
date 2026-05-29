@@ -104,10 +104,10 @@ public:
   ezResult Compile();
 
   /// Compute texture and buffer barriers for each pass based on resource state tracking. Needs to be called every frame as it can't be cached.
-  void ComputeBarriers(ezGALResourceStateTracker& tracker);
+  void ComputeBarriers(ezGALResourceStateTracker& ref_tracker);
 
   /// Execute all passes in compiled order.
-  void Execute(ezRenderGraphContext& ctx);
+  void Execute(ezRenderGraphContext& ref_ctx);
 
 private:
   friend class ezRenderGraphManager;

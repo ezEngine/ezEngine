@@ -29,7 +29,7 @@ ezOpaqueForwardRenderPass::ezOpaqueForwardRenderPass(const char* szName)
 
 ezOpaqueForwardRenderPass::~ezOpaqueForwardRenderPass() = default;
 
-ezStatus ezOpaqueForwardRenderPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
+ezStatus ezOpaqueForwardRenderPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
   ezRenderGraphTextureHandle hColor = inputs[m_PinColor.m_uiInputIndex].m_TextureHandle;
   if (hColor.IsInvalidated())
@@ -48,8 +48,8 @@ ezStatus ezOpaqueForwardRenderPass::AddRenderPasses(const ezViewData& viewData, 
   // Validate SSAO dimensions if connected
   if (!hSSAO.IsInvalidated())
   {
-    const auto& ssaoDesc = graph.GetTextureDesc(hSSAO);
-    const auto& colorDesc = graph.GetTextureDesc(hColor);
+    const auto& ssaoDesc = ref_graph.GetTextureDesc(hSSAO);
+    const auto& colorDesc = ref_graph.GetTextureDesc(hColor);
     if (ssaoDesc.m_uiWidth != colorDesc.m_uiWidth || ssaoDesc.m_uiHeight != colorDesc.m_uiHeight)
     {
       ezLog::Warning("Expected same resolution for SSAO and color input to pass '{0}'!", GetName());
@@ -62,8 +62,8 @@ ezStatus ezOpaqueForwardRenderPass::AddRenderPasses(const ezViewData& viewData, 
 
   if (!hShadowMask.IsInvalidated())
   {
-    const auto& shadowMaskDesc = graph.GetTextureDesc(hShadowMask);
-    const auto& colorDesc = graph.GetTextureDesc(hColor);
+    const auto& shadowMaskDesc = ref_graph.GetTextureDesc(hShadowMask);
+    const auto& colorDesc = ref_graph.GetTextureDesc(hColor);
     if (shadowMaskDesc.m_uiWidth != colorDesc.m_uiWidth ||
         shadowMaskDesc.m_uiHeight != colorDesc.m_uiHeight)
     {
@@ -71,7 +71,7 @@ ezStatus ezOpaqueForwardRenderPass::AddRenderPasses(const ezViewData& viewData, 
     }
   }
 
-  auto pass = graph.AddGraphicsPass(GetName());
+  auto pass = ref_graph.AddGraphicsPass(GetName());
   pass.AddColorTarget(hColor);
   pass.AddDepthStencilTarget(hDepthStencil);
   if (!hSSAO.IsInvalidated())
@@ -79,7 +79,7 @@ ezStatus ezOpaqueForwardRenderPass::AddRenderPasses(const ezViewData& viewData, 
   if (!hShadowMask.IsInvalidated())
     pass.ReadTexture(hShadowMask, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
   pass.SetStereoscopic(camera.IsStereoscopic());
-  ezRenderPipelinePass::SetupResourceDependencies(viewData, graph, pass, m_ShadingQuality);
+  ezRenderPipelinePass::SetupResourceDependencies(viewData, ref_graph, pass, m_ShadingQuality);
   pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
     {
       const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();

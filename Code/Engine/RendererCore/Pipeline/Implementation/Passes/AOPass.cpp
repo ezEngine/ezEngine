@@ -66,14 +66,14 @@ ezAOPass::~ezAOPass()
   ezRenderContext::DeleteConstantBufferStorage(m_hSSAOConstantBuffer);
 }
 
-ezStatus ezAOPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
+ezStatus ezAOPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
   // Validate input
   ezRenderGraphTextureHandle hDepthInput = inputs[m_PinDepthInput.m_uiInputIndex].m_TextureHandle;
   if (hDepthInput.IsInvalidated())
     return ezStatus(ezFmt("DepthInput pin: Not connected "));
 
-  ezGALTextureCreationDescription depthDesc = graph.GetTextureDesc(hDepthInput);
+  ezGALTextureCreationDescription depthDesc = ref_graph.GetTextureDesc(hDepthInput);
   if (depthDesc.m_SampleCount != ezGALMSAASampleCount::None)
     return ezStatus(ezFmt("DepthInput pin: Input must be resolved"));
   // #TODO_RG CHECK IS DEPTH
@@ -81,7 +81,7 @@ ezStatus ezAOPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& c
   ezGALTextureCreationDescription outputDesc = depthDesc;
   outputDesc.m_Format = ezGALResourceFormat::RGHalf;
 
-  ezRenderGraphTextureHandle hSSAOOutput = graph.CreateTexture(outputDesc);
+  ezRenderGraphTextureHandle hSSAOOutput = ref_graph.CreateTexture(outputDesc);
   outputs[m_PinOutput.m_uiOutputIndex].m_TextureHandle = hSSAOOutput;
 
   // Add passes
@@ -107,7 +107,7 @@ ezStatus ezAOPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& c
       desc.m_TextureFlags.Add(ezGALTextureUsageFlags::RenderTarget | ezGALTextureUsageFlags::ShaderResource);
       desc.m_uiArraySize = outputDesc.m_uiArraySize;
 
-      hHzbTexture = graph.CreateTexture(desc);
+      m_hHzbTexture = ref_graph.CreateTexture(desc);
     }
 
     for (ezUInt32 i = 0; i < uiNumMips; ++i)
@@ -115,14 +115,14 @@ ezStatus ezAOPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& c
       uiHzbWidth = uiHzbWidth / 2;
       uiHzbHeight = uiHzbHeight / 2;
 
-      hzbSizes.PushBack(ezVec2((float)uiHzbWidth, (float)uiHzbHeight));
+      m_HzbSizes.PushBack(ezVec2((float)uiHzbWidth, (float)uiHzbHeight));
 
       {
         ezGALTextureRange desc;
         desc.m_uiBaseMipLevel = i;
         desc.m_uiMipLevels = 1;
         desc.m_uiArraySlices = outputDesc.m_uiArraySize;
-        hzbResourceViews.PushBack(desc);
+        m_HzbResourceViews.PushBack(desc);
       }
     }
 
@@ -130,7 +130,7 @@ ezStatus ezAOPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& c
     descTemp.SetAsRenderTarget(uiWidth, uiHeight, ezGALResourceFormat::RGHalf, ezGALMSAASampleCount::None);
     descTemp.m_Type = ezGALTextureType::Texture2DArray;
     descTemp.m_uiArraySize = outputDesc.m_uiArraySize;
-    hSSAOTemp = graph.CreateTexture(descTemp);
+    m_hSSAOTemp = ref_graph.CreateTexture(descTemp);
   }
 
   // Mip map passes
@@ -139,7 +139,7 @@ ezStatus ezAOPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& c
 
     for (ezUInt32 i = 0; i < uiNumMips; ++i)
     {
-      ezRenderGraphTextureHandle hInputView = i == 0 ? hDepthInput : hHzbTexture;
+      ezRenderGraphTextureHandle hInputView = i == 0 ? hDepthInput : m_hHzbTexture;
       ezVec2 pixelSize;
       ezGALTextureRange range;
 
@@ -149,12 +149,12 @@ ezStatus ezAOPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& c
       }
       else
       {
-        range = hzbResourceViews[i - 1];
-        pixelSize = ezVec2(1.0f).CompDiv(hzbSizes[i - 1]);
+        range = m_HzbResourceViews[i - 1];
+        pixelSize = ezVec2(1.0f).CompDiv(m_HzbSizes[i - 1]);
       }
 
-      auto pass = graph.AddGraphicsPass("DownscaleDepth");
-      pass.AddColorTarget(hHzbTexture, ezGALRenderTargetRange::MakeFromMipLevel(i));
+      auto pass = ref_graph.AddGraphicsPass("DownscaleDepth");
+      pass.AddColorTarget(m_hHzbTexture, ezGALRenderTargetRange::MakeFromMipLevel(i));
       pass.ReadTexture(hInputView, range, i == 0 ? ezGALResourceState::DepthStencilRead : ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
       pass.SetStereoscopic(camera.IsStereoscopic());
       pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
@@ -181,9 +181,9 @@ ezStatus ezAOPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& c
 
   // SSAO pass
   {
-    auto pass = graph.AddGraphicsPass("SSAO");
-    pass.AddColorTarget(hSSAOTemp);
-    pass.ReadTexture(hHzbTexture, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
+    auto pass = ref_graph.AddGraphicsPass("SSAO");
+    pass.AddColorTarget(m_hSSAOTemp);
+    pass.ReadTexture(m_hHzbTexture, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
     pass.ReadTexture(hDepthInput, {}, ezGALResourceState::DepthStencilRead, ezGALShaderStageFlags::PixelShader);
     pass.SetStereoscopic(camera.IsStereoscopic());
     pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
@@ -211,7 +211,7 @@ ezStatus ezAOPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& c
         ezBindGroupBuilder& bindGroupRenderPass = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);
         bindGroupRenderPass.BindBuffer("ezSSAOConstants", m_hSSAOConstantBuffer);
         bindGroupRenderPass.BindTexture("DepthTexture", ctx.ResolveTexture(hDepthInput));
-        bindGroupRenderPass.BindTexture("LowResDepthTexture", ctx.ResolveTexture(hHzbTexture));
+        bindGroupRenderPass.BindTexture("LowResDepthTexture", ctx.ResolveTexture(m_hHzbTexture));
         bindGroupRenderPass.BindSampler("DepthSampler", m_hSSAOSamplerState);
         bindGroupRenderPass.BindTexture("NoiseTexture", m_hNoiseTexture, ezResourceAcquireMode::BlockTillLoaded);
 
@@ -223,9 +223,9 @@ ezStatus ezAOPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& c
 
   // Blur pass
   {
-    auto pass = graph.AddGraphicsPass("SSAO Blur");
+    auto pass = ref_graph.AddGraphicsPass("SSAO Blur");
     pass.AddColorTarget(hSSAOOutput);
-    pass.ReadTexture(hSSAOTemp, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
+    pass.ReadTexture(m_hSSAOTemp, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
     pass.SetStereoscopic(camera.IsStereoscopic());
     pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
       {
@@ -234,7 +234,7 @@ ezStatus ezAOPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& c
       ezBindGroupBuilder& bindGroupRenderPass = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);
       renderViewContext.m_pRenderContext->BindShader(m_hBlurShader);
       bindGroupRenderPass.BindBuffer("ezSSAOConstants", m_hSSAOConstantBuffer);
-      bindGroupRenderPass.BindTexture("SSAOTexture", ctx.ResolveTexture(hSSAOTemp));
+      bindGroupRenderPass.BindTexture("SSAOTexture", ctx.ResolveTexture(m_hSSAOTemp));
 
       renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
 
@@ -244,19 +244,19 @@ ezStatus ezAOPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& c
   return EZ_SUCCESS;
 }
 
-ezStatus ezAOPass::AddRenderPassesInactive(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
+ezStatus ezAOPass::AddRenderPassesInactive(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
   ezRenderGraphTextureHandle hDepthInput = inputs[m_PinDepthInput.m_uiInputIndex].m_TextureHandle;
   if (hDepthInput.IsInvalidated())
     return ezStatus(ezFmt("DepthInput pin: Not connected "));
 
-  ezGALTextureCreationDescription outputDesc = graph.GetTextureDesc(hDepthInput);
+  ezGALTextureCreationDescription outputDesc = ref_graph.GetTextureDesc(hDepthInput);
   outputDesc.m_Format = ezGALResourceFormat::RGHalf;
 
-  ezRenderGraphTextureHandle hSSAOOutput = graph.CreateTexture(outputDesc);
+  ezRenderGraphTextureHandle hSSAOOutput = ref_graph.CreateTexture(outputDesc);
   outputs[m_PinOutput.m_uiOutputIndex].m_TextureHandle = hSSAOOutput;
 
-  auto pass = graph.AddGraphicsPass("InactiveSSAO");
+  auto pass = ref_graph.AddGraphicsPass("InactiveSSAO");
   pass.AddColorTarget(hSSAOOutput, {}, ezGALRenderTargetLoadOp::Clear);
   pass.SetClearColor(0, ezColor::White);
   return EZ_SUCCESS;

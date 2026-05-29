@@ -32,7 +32,7 @@ ezLensEffectsPass::ezLensEffectsPass(const char* szName)
 
 ezLensEffectsPass::~ezLensEffectsPass() = default;
 
-ezStatus ezLensEffectsPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
+ezStatus ezLensEffectsPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
   ezRenderGraphTextureHandle hColor = inputs[m_PinColor.m_uiInputIndex].m_TextureHandle;
   if (hColor.IsInvalidated())
@@ -43,12 +43,12 @@ ezStatus ezLensEffectsPass::AddRenderPasses(const ezViewData& viewData, const ez
 
   ezRenderGraphTextureHandle hResolvedDepth = inputs[m_PinResolvedDepth.m_uiInputIndex].m_TextureHandle;
 
-  auto pass = graph.AddGraphicsPass(GetName());
+  auto pass = ref_graph.AddGraphicsPass(GetName());
   pass.AddColorTarget(hColor);
   if (!hResolvedDepth.IsInvalidated())
     pass.ReadTexture(hResolvedDepth, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
   pass.SetStereoscopic(camera.IsStereoscopic());
-  SetupResourceDependencies(viewData, graph, pass);
+  SetupResourceDependencies(viewData, ref_graph, pass);
   pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
     {
     const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();

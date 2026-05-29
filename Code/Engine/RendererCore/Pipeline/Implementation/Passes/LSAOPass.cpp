@@ -89,38 +89,38 @@ ezLSAOPass::~ezLSAOPass()
   ezRenderContext::DeleteConstantBufferStorage(m_hLineSweepCB);
 }
 
-ezStatus ezLSAOPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
+ezStatus ezLSAOPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
   ezRenderGraphTextureHandle hDepthInput = inputs[m_PinDepthInput.m_uiInputIndex].m_TextureHandle;
   if (hDepthInput.IsInvalidated())
     return ezStatus(ezFmt("Depth: Not connected"));
 
-  const ezGALTextureCreationDescription depthDesc = graph.GetTextureDesc(hDepthInput);
+  const ezGALTextureCreationDescription depthDesc = ref_graph.GetTextureDesc(hDepthInput);
   if (depthDesc.m_SampleCount != ezGALMSAASampleCount::None)
     return ezStatus(ezFmt("Depth input must be resolved"));
 
   // Create output
   ezGALTextureCreationDescription outputDesc = depthDesc;
   outputDesc.m_Format = ezGALResourceFormat::RGHalf;
-  ezRenderGraphTextureHandle hOutput = graph.CreateTexture(outputDesc);
+  ezRenderGraphTextureHandle hOutput = ref_graph.CreateTexture(outputDesc);
   outputs[m_PinOutput.m_uiOutputIndex].m_TextureHandle = hOutput;
 
   // Setup line sweep data
   SetupLineSweepData(ezVec3I32(depthDesc.m_uiWidth, depthDesc.m_uiHeight, depthDesc.m_uiArraySize));
 
   // Import persistent buffers
-  ezRenderGraphBufferHandle hLineSweepOutputBuffer = graph.ImportBuffer(m_hLineSweepOutputBuffer);
+  ezRenderGraphBufferHandle hLineSweepOutputBuffer = ref_graph.ImportBuffer(m_hLineSweepOutputBuffer);
 
   // Temp texture for distributed gathering
   ezRenderGraphTextureHandle hTempTexture;
   if (m_bDistributedGathering)
   {
-    hTempTexture = graph.CreateTexture(outputDesc);
+    hTempTexture = ref_graph.CreateTexture(outputDesc);
   }
 
   // Line Sweep (compute)
   {
-    auto pass = graph.AddComputePass("LSAOLineSweep");
+    auto pass = ref_graph.AddComputePass("LSAOLineSweep");
     pass.ReadTexture(hDepthInput, {}, ezGALResourceState::ShaderResource);
     pass.WriteBuffer(hLineSweepOutputBuffer);
     pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
@@ -150,7 +150,7 @@ ezStatus ezLSAOPass::AddRenderPasses(const ezViewData& viewData, const ezCamera&
   {
     ezRenderGraphTextureHandle hGatherOutput = m_bDistributedGathering ? hTempTexture : hOutput;
 
-    auto pass = graph.AddGraphicsPass("LSAOGather");
+    auto pass = ref_graph.AddGraphicsPass("LSAOGather");
     pass.AddColorTarget(hGatherOutput);
     pass.ReadTexture(hDepthInput, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
     pass.ReadBuffer(hLineSweepOutputBuffer);
@@ -190,7 +190,7 @@ ezStatus ezLSAOPass::AddRenderPasses(const ezViewData& viewData, const ezCamera&
   // Average pass (only for distributed gathering)
   if (m_bDistributedGathering)
   {
-    auto pass = graph.AddGraphicsPass("LSAOAverage");
+    auto pass = ref_graph.AddGraphicsPass("LSAOAverage");
     pass.AddColorTarget(hOutput);
     pass.ReadTexture(hTempTexture, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
     pass.ReadTexture(hDepthInput, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
@@ -225,18 +225,18 @@ ezStatus ezLSAOPass::AddRenderPasses(const ezViewData& viewData, const ezCamera&
   return EZ_SUCCESS;
 }
 
-ezStatus ezLSAOPass::AddRenderPassesInactive(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
+ezStatus ezLSAOPass::AddRenderPassesInactive(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
   ezRenderGraphTextureHandle hDepthInput = inputs[m_PinDepthInput.m_uiInputIndex].m_TextureHandle;
   if (hDepthInput.IsInvalidated())
     return ezStatus(ezFmt("Depth: Not connected"));
 
-  ezGALTextureCreationDescription outputDesc = graph.GetTextureDesc(hDepthInput);
+  ezGALTextureCreationDescription outputDesc = ref_graph.GetTextureDesc(hDepthInput);
   outputDesc.m_Format = ezGALResourceFormat::RGHalf;
-  ezRenderGraphTextureHandle hOutput = graph.CreateTexture(outputDesc);
+  ezRenderGraphTextureHandle hOutput = ref_graph.CreateTexture(outputDesc);
   outputs[m_PinOutput.m_uiOutputIndex].m_TextureHandle = hOutput;
 
-  auto pass = graph.AddGraphicsPass("InactiveLSAO");
+  auto pass = ref_graph.AddGraphicsPass("InactiveLSAO");
   pass.AddColorTarget(hOutput, {}, ezGALRenderTargetLoadOp::Clear);
   pass.SetClearColor(0, ezColor::White);
   return EZ_SUCCESS;

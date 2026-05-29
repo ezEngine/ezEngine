@@ -14,7 +14,7 @@ public:
   ezOpaqueForwardRenderPass(const char* szName = "OpaqueForwardRenderPass");
   ~ezOpaqueForwardRenderPass();
 
-  virtual ezStatus AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs) override;
+  virtual ezStatus AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs) override;
 
 protected:
   virtual void SetupPermutationVars(const ezRenderViewContext& renderViewContext) override;

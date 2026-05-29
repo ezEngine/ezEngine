@@ -70,17 +70,17 @@ ezHistorySourcePass::ezHistorySourcePass(const char* szName)
 
 ezHistorySourcePass::~ezHistorySourcePass() = default;
 
-ezStatus ezHistorySourcePass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
+ezStatus ezHistorySourcePass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
   auto pData = GetPipeline()->GetFrameDataProvider<ezHistorySourcePassTextureDataProvider>();
   pData->ResetTexture(GetName());
   m_bFirstExecute = true;
   ezGALTextureCreationDescription desc = ezSourcePass::GetOutputDescription(viewData, camera, m_Format, m_MsaaMode);
   ezGALTextureHandle hTexture = QueryTextureProvider(&m_PinOutput, desc);
-  ezRenderGraphTextureHandle hGraphTexture = graph.ImportTexture(hTexture);
+  ezRenderGraphTextureHandle hGraphTexture = ref_graph.ImportTexture(hTexture);
   outputs[m_PinOutput.m_uiOutputIndex].m_TextureHandle = hGraphTexture;
 
-  auto pass = graph.AddGraphicsPass(GetName());
+  auto pass = ref_graph.AddGraphicsPass(GetName());
   if (ezGALResourceFormat::IsDepthFormat(desc.m_Format))
   {
     pass.AddDepthStencilTarget(hGraphTexture, {}, ezGALRenderTargetLoadOp::Clear);

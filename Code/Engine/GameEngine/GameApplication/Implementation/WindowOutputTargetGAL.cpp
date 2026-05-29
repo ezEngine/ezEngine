@@ -35,9 +35,9 @@ ezWindowOutputTargetGAL::~ezWindowOutputTargetGAL()
 
 void ezWindowOutputTargetGAL::CreateSwapchain(const ezGALWindowSwapChainCreationDescription& desc)
 {
-  m_currentDesc = desc;
+  m_CurrentDesc = desc;
   // ezWindowOutputTargetGAL takes over the present mode and keeps it up to date with cvar_AppVSync.
-  m_currentDesc.m_InitialPresentMode = ezGameApplication::cvar_AppVSync ? ezGALPresentMode::VSync : ezGALPresentMode::Immediate;
+  m_CurrentDesc.m_InitialPresentMode = ezGameApplication::cvar_AppVSync ? ezGALPresentMode::VSync : ezGALPresentMode::Immediate;
   const bool bSwapChainExisted = !m_hSwapChain.IsInvalidated();
   if (bSwapChainExisted)
   {
@@ -47,7 +47,7 @@ void ezWindowOutputTargetGAL::CreateSwapchain(const ezGALWindowSwapChainCreation
   else
   {
     m_Size = desc.m_pWindow->GetClientAreaSize();
-    m_hSwapChain = ezGALWindowSwapChain::Create(m_currentDesc);
+    m_hSwapChain = ezGALWindowSwapChain::Create(m_CurrentDesc);
   }
 }
 
@@ -63,9 +63,9 @@ void ezWindowOutputTargetGAL::AcquireImage()
 
   ezEnum<ezGALPresentMode> presentMode = ezGameApplication::cvar_AppVSync ? ezGALPresentMode::VSync : ezGALPresentMode::Immediate;
 
-  if (m_Size != m_currentDesc.m_pWindow->GetClientAreaSize() || presentMode != m_currentDesc.m_InitialPresentMode)
+  if (m_Size != m_CurrentDesc.m_pWindow->GetClientAreaSize() || presentMode != m_CurrentDesc.m_InitialPresentMode)
   {
-    CreateSwapchain(m_currentDesc);
+    CreateSwapchain(m_CurrentDesc);
   }
 }
 

@@ -35,17 +35,17 @@ ezCopyTexturePass::ezCopyTexturePass()
 ezCopyTexturePass::~ezCopyTexturePass() = default;
 
 // BEGIN-DOCS-CODE-SNIPPET: renderpass-add-render-passes
-ezStatus ezCopyTexturePass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
+ezStatus ezCopyTexturePass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
   ezRenderGraphTextureHandle hInput = inputs[m_PinInput.m_uiInputIndex].m_TextureHandle;
   if (hInput.IsInvalidated())
     return ezStatus(ezFmt("Input: Not connected"));
 
-  const ezGALTextureCreationDescription inputDesc = graph.GetTextureDesc(hInput);
-  ezRenderGraphTextureHandle hOutput = graph.CreateTexture(inputDesc);
+  const ezGALTextureCreationDescription inputDesc = ref_graph.GetTextureDesc(hInput);
+  ezRenderGraphTextureHandle hOutput = ref_graph.CreateTexture(inputDesc);
   outputs[m_PinOutput.m_uiOutputIndex].m_TextureHandle = hOutput;
 
-  auto pass = graph.AddTransferPass("CopyTexture");
+  auto pass = ref_graph.AddTransferPass("CopyTexture");
   pass.ReadTexture(hInput, {}, ezGALResourceState::CopySource);
   pass.WriteTexture(hOutput, {}, ezGALResourceState::CopyDestination);
   pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)

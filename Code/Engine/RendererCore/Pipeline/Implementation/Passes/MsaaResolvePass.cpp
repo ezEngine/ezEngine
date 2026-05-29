@@ -38,13 +38,13 @@ ezMsaaResolvePass::ezMsaaResolvePass()
 
 ezMsaaResolvePass::~ezMsaaResolvePass() = default;
 
-ezStatus ezMsaaResolvePass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
+ezStatus ezMsaaResolvePass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
   ezRenderGraphTextureHandle hInput = inputs[m_PinInput.m_uiInputIndex].m_TextureHandle;
   if (hInput.IsInvalidated())
     return ezStatus(ezFmt("Input: Not connected"));
 
-  const ezGALTextureCreationDescription inputDesc = graph.GetTextureDesc(hInput);
+  const ezGALTextureCreationDescription inputDesc = ref_graph.GetTextureDesc(hInput);
   if (inputDesc.m_SampleCount == ezGALMSAASampleCount::None)
     return ezStatus(ezFmt("Input is not a valid msaa target"));
 
@@ -53,17 +53,17 @@ ezStatus ezMsaaResolvePass::AddRenderPasses(const ezViewData& viewData, const ez
 
   ezGALTextureCreationDescription outputDesc = inputDesc;
   outputDesc.m_SampleCount = ezGALMSAASampleCount::None;
-  ezRenderGraphTextureHandle hOutput = graph.CreateTexture(outputDesc);
+  ezRenderGraphTextureHandle hOutput = ref_graph.CreateTexture(outputDesc);
   outputs[m_PinOutput.m_uiOutputIndex].m_TextureHandle = hOutput;
 
-  if (!graph.GetDevice()->GetCapabilities().m_bSupportsMultiSampledArrays)
+  if (!ref_graph.GetDevice()->GetCapabilities().m_bSupportsMultiSampledArrays)
   {
     EZ_ASSERT_DEV(inputDesc.m_uiArraySize == 1, "Stereo rendering is not supported.");
   }
 
   if (m_bIsDepth)
   {
-    auto pass = graph.AddGraphicsPass("MsaaDepthResolve");
+    auto pass = ref_graph.AddGraphicsPass("MsaaDepthResolve");
     pass.AddDepthStencilTarget(hOutput);
     pass.ReadTexture(hInput, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
     pass.SetStereoscopic(camera.IsStereoscopic());
@@ -86,7 +86,7 @@ ezStatus ezMsaaResolvePass::AddRenderPasses(const ezViewData& viewData, const ez
   else
   {
     bool bStereo = camera.IsStereoscopic();
-    auto pass = graph.AddTransferPass("MsaaColorResolve");
+    auto pass = ref_graph.AddTransferPass("MsaaColorResolve");
     pass.ReadTexture(hInput, {}, ezGALResourceState::ResolveSource);
     pass.WriteTexture(hOutput, {}, ezGALResourceState::ResolveDestination);
     pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)

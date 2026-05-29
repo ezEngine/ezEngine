@@ -39,7 +39,7 @@ ezForwardRenderPass::ezForwardRenderPass(const char* szName)
 
 ezForwardRenderPass::~ezForwardRenderPass() = default;
 
-ezStatus ezForwardRenderPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
+ezStatus ezForwardRenderPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
   ezRenderGraphTextureHandle hColor = inputs[m_PinColor.m_uiInputIndex].m_TextureHandle;
   if (hColor.IsInvalidated())
@@ -52,11 +52,11 @@ ezStatus ezForwardRenderPass::AddRenderPasses(const ezViewData& viewData, const 
   outputs[m_PinColor.m_uiOutputIndex].m_TextureHandle = hColor;
   outputs[m_PinDepthStencil.m_uiOutputIndex].m_TextureHandle = hDepthStencil;
 
-  auto pass = graph.AddGraphicsPass(GetName());
+  auto pass = ref_graph.AddGraphicsPass(GetName());
   pass.AddColorTarget(hColor);
   pass.AddDepthStencilTarget(hDepthStencil);
   pass.SetStereoscopic(camera.IsStereoscopic());
-  ezRenderPipelinePass::SetupResourceDependencies(viewData, graph, pass, m_ShadingQuality);
+  ezRenderPipelinePass::SetupResourceDependencies(viewData, ref_graph, pass, m_ShadingQuality);
   pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
     {
     const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();

@@ -36,7 +36,7 @@ ezSimpleRenderPass::ezSimpleRenderPass(const char* szName)
 
 ezSimpleRenderPass::~ezSimpleRenderPass() = default;
 
-ezStatus ezSimpleRenderPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
+ezStatus ezSimpleRenderPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   const ezGALRenderTargets& renderTargets = viewData.GetActiveRenderTargets();
@@ -54,7 +54,7 @@ ezStatus ezSimpleRenderPass::AddRenderPasses(const ezViewData& viewData, const e
       desc.m_TextureFlags.Add(ezGALTextureUsageFlags::RenderTarget | ezGALTextureUsageFlags::ShaderResource);
       desc.m_ResourceAccess.m_bImmutable = true;
       desc.m_pExisitingNativeObject = nullptr;
-      hColor = graph.CreateTexture(desc);
+      hColor = ref_graph.CreateTexture(desc);
     }
   }
   outputs[m_PinColor.m_uiOutputIndex].m_TextureHandle = hColor;
@@ -65,12 +65,12 @@ ezStatus ezSimpleRenderPass::AddRenderPasses(const ezViewData& viewData, const e
     const ezGALTexture* pTexture = pDevice->GetTexture(renderTargets.m_hDSTarget);
     if (pTexture)
     {
-      hDepthStencil = graph.CreateTexture(pTexture->GetDescription());
+      hDepthStencil = ref_graph.CreateTexture(pTexture->GetDescription());
     }
   }
   outputs[m_PinDepthStencil.m_uiOutputIndex].m_TextureHandle = hDepthStencil;
 
-  auto pass = graph.AddGraphicsPass(GetName());
+  auto pass = ref_graph.AddGraphicsPass(GetName());
   if (!hColor.IsInvalidated())
     pass.AddColorTarget(hColor);
   if (!hDepthStencil.IsInvalidated())

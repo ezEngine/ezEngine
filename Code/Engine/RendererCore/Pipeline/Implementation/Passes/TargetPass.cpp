@@ -37,7 +37,7 @@ ezTargetPass::ezTargetPass(const char* szName)
 
 ezTargetPass::~ezTargetPass() = default;
 
-ezStatus ezTargetPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
+ezStatus ezTargetPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
   m_hSwapChain = viewData.m_hSwapChain;
   m_RenderTargets = viewData.m_RenderTargets;
@@ -56,7 +56,7 @@ ezStatus ezTargetPass::AddRenderPasses(const ezViewData& viewData, const ezCamer
 
   for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(pinNames); ++i)
   {
-    EZ_SUCCEED_OR_RETURN(VerifyInput(graph, inputs, pinNames[i]));
+    EZ_SUCCEED_OR_RETURN(VerifyInput(ref_graph, inputs, pinNames[i]));
   }
 
   return EZ_SUCCESS;

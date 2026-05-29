@@ -57,7 +57,7 @@ ezReflectionFilterPass::~ezReflectionFilterPass()
   ezRenderContext::DeleteConstantBufferStorage(m_hIrradianceConstantBuffer);
 }
 
-ezStatus ezReflectionFilterPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
+ezStatus ezReflectionFilterPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
   // Create filtered specular output
   {
@@ -68,7 +68,7 @@ ezStatus ezReflectionFilterPass::AddRenderPasses(const ezViewData& viewData, con
     desc.m_Type = ezGALTextureType::TextureCube;
     desc.m_TextureFlags.Add(ezGALTextureUsageFlags::UnorderedAccess);
     desc.m_uiMipLevelCount = ezMath::Log2i(desc.m_uiWidth) - 1;
-    ezRenderGraphTextureHandle hFilteredSpecular = graph.CreateTexture(desc);
+    ezRenderGraphTextureHandle hFilteredSpecular = ref_graph.CreateTexture(desc);
     outputs[m_PinFilteredSpecular.m_uiOutputIndex].m_TextureHandle = hFilteredSpecular;
   }
 
@@ -81,7 +81,7 @@ ezStatus ezReflectionFilterPass::AddRenderPasses(const ezViewData& viewData, con
     desc.m_Type = ezGALTextureType::Texture2D;
     desc.m_TextureFlags.Add(ezGALTextureUsageFlags::RenderTarget | ezGALTextureUsageFlags::UnorderedAccess);
     desc.m_ResourceAccess.m_bImmutable = false;
-    ezRenderGraphTextureHandle hAvgLuminance = graph.CreateTexture(desc);
+    ezRenderGraphTextureHandle hAvgLuminance = ref_graph.CreateTexture(desc);
     outputs[m_PinAvgLuminance.m_uiOutputIndex].m_TextureHandle = hAvgLuminance;
   }
 
@@ -94,7 +94,7 @@ ezStatus ezReflectionFilterPass::AddRenderPasses(const ezViewData& viewData, con
     desc.m_Type = ezGALTextureType::Texture2D;
     desc.m_TextureFlags.Add(ezGALTextureUsageFlags::RenderTarget | ezGALTextureUsageFlags::UnorderedAccess);
     desc.m_ResourceAccess.m_bImmutable = false;
-    ezRenderGraphTextureHandle hIrradianceData = graph.CreateTexture(desc);
+    ezRenderGraphTextureHandle hIrradianceData = ref_graph.CreateTexture(desc);
     outputs[m_PinIrradianceData.m_uiOutputIndex].m_TextureHandle = hIrradianceData;
   }
 
@@ -103,21 +103,21 @@ ezStatus ezReflectionFilterPass::AddRenderPasses(const ezViewData& viewData, con
 
   // Generate mipmaps
   ezRenderGraphTextureHandle hInputCubeTexture;
-  auto pInputCubemap = graph.GetDevice()->GetTexture(m_hInputCubemap);
+  auto pInputCubemap = ref_graph.GetDevice()->GetTexture(m_hInputCubemap);
   if (pInputCubemap == nullptr)
     return EZ_SUCCESS;
   if (pInputCubemap->GetDescription().m_TextureFlags.IsSet(ezGALTextureUsageFlags::RenderTarget))
   {
-    hInputCubeTexture = ezRenderGraphUtils::GenerateMipMaps(m_hInputCubemap, {}, graph);
+    hInputCubeTexture = ezRenderGraphUtils::GenerateMipMaps(m_hInputCubemap, {}, ref_graph);
   }
   else
   {
-    hInputCubeTexture = graph.ImportTexture(m_hInputCubemap);
+    hInputCubeTexture = ref_graph.ImportTexture(m_hInputCubemap);
   }
 
   // Filtered specular compute pass
   {
-    auto pass = graph.AddComputePass("ReflectionFilterSpecular");
+    auto pass = ref_graph.AddComputePass("ReflectionFilterSpecular");
     pass.ReadTexture(hInputCubeTexture, {}, ezGALResourceState::ShaderResource);
     pass.WriteTexture(hFilteredSpecular, {}, ezGALResourceState::UnorderedAccess);
     pass.HasSideEffects();
@@ -174,7 +174,7 @@ ezStatus ezReflectionFilterPass::AddRenderPasses(const ezViewData& viewData, con
 
   {
     // Irradiance
-    auto pass = graph.AddComputePass("Irradiance");
+    auto pass = ref_graph.AddComputePass("Irradiance");
     pass.ReadTexture(hInputCubeTexture, {}, ezGALResourceState::ShaderResource);
     pass.WriteTexture(hIrradianceData, {}, ezGALResourceState::UnorderedAccess);
     pass.HasSideEffects();

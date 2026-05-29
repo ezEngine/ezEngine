@@ -49,7 +49,7 @@ ezSelectionHighlightPass::~ezSelectionHighlightPass()
   ezRenderContext::DeleteConstantBufferStorage(m_hConstantBuffer);
 }
 
-ezStatus ezSelectionHighlightPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
+ezStatus ezSelectionHighlightPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
   ezRenderGraphTextureHandle hColor = inputs[m_PinColor.m_uiInputIndex].m_TextureHandle;
   if (hColor.IsInvalidated())
@@ -62,14 +62,14 @@ ezStatus ezSelectionHighlightPass::AddRenderPasses(const ezViewData& viewData, c
     return ezStatus(ezFmt("DepthStencil: Not connected"));
 
   // Create temp depth texture for selection rendering
-  const ezGALTextureCreationDescription colorDesc = graph.GetTextureDesc(hColor);
+  const ezGALTextureCreationDescription colorDesc = ref_graph.GetTextureDesc(hColor);
   ezGALTextureCreationDescription depthDesc;
   depthDesc.SetAsRenderTarget(colorDesc.m_uiWidth, colorDesc.m_uiHeight, colorDesc.m_uiArraySize, ezGALResourceFormat::D24S8, colorDesc.m_SampleCount);
-  ezRenderGraphTextureHandle hSelectionDepth = graph.CreateTexture(depthDesc);
+  ezRenderGraphTextureHandle hSelectionDepth = ref_graph.CreateTexture(depthDesc);
 
   // Render selection objects to depth only
   {
-    auto pass = graph.AddGraphicsPass("SelectionDepth");
+    auto pass = ref_graph.AddGraphicsPass("SelectionDepth");
     pass.AddDepthStencilTarget(hSelectionDepth, {}, ezGALRenderTargetLoadOp::Clear, {}, ezGALRenderTargetLoadOp::Clear);
     pass.SetClearDepth();
     pass.SetClearStencil();
@@ -85,7 +85,7 @@ ezStatus ezSelectionHighlightPass::AddRenderPasses(const ezViewData& viewData, c
 
   // Reconstruct selection overlay from depth
   {
-    auto pass = graph.AddGraphicsPass("SelectionHighlight");
+    auto pass = ref_graph.AddGraphicsPass("SelectionHighlight");
     pass.AddColorTarget(hColor);
     pass.ReadTexture(hSelectionDepth, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
     pass.ReadTexture(hDepth, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);

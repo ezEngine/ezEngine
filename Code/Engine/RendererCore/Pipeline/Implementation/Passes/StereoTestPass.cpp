@@ -39,19 +39,19 @@ ezStereoTestPass::ezStereoTestPass()
 
 ezStereoTestPass::~ezStereoTestPass() = default;
 
-ezStatus ezStereoTestPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
+ezStatus ezStereoTestPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
   ezRenderGraphTextureHandle hInput = inputs[m_PinInput.m_uiInputIndex].m_TextureHandle;
   if (hInput.IsInvalidated())
     return ezStatus(ezFmt("Input: Not connected"));
 
-  const ezGALTextureCreationDescription inputDesc = graph.GetTextureDesc(hInput);
+  const ezGALTextureCreationDescription inputDesc = ref_graph.GetTextureDesc(hInput);
   ezGALTextureCreationDescription outputDesc = inputDesc;
   outputDesc.m_SampleCount = ezGALMSAASampleCount::None;
-  ezRenderGraphTextureHandle hOutput = graph.CreateTexture(outputDesc);
+  ezRenderGraphTextureHandle hOutput = ref_graph.CreateTexture(outputDesc);
   outputs[m_PinOutput.m_uiOutputIndex].m_TextureHandle = hOutput;
 
-  auto pass = graph.AddGraphicsPass("StereoTest");
+  auto pass = ref_graph.AddGraphicsPass("StereoTest");
   pass.AddColorTarget(hOutput);
   pass.ReadTexture(hInput, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
   pass.SetStereoscopic(camera.IsStereoscopic());

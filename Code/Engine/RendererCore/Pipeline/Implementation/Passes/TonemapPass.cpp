@@ -66,13 +66,13 @@ ezTonemapPass::~ezTonemapPass()
   ezRenderContext::DeleteConstantBufferStorage(m_hConstantBuffer);
 }
 
-ezStatus ezTonemapPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
+ezStatus ezTonemapPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
   ezRenderGraphTextureHandle hColorInput = inputs[m_PinColorInput.m_uiInputIndex].m_TextureHandle;
   if (hColorInput.IsInvalidated())
     return ezStatus(ezFmt("Color input: Not connected"));
 
-  const ezGALTextureCreationDescription colorInputDesc = graph.GetTextureDesc(hColorInput);
+  const ezGALTextureCreationDescription colorInputDesc = ref_graph.GetTextureDesc(hColorInput);
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   const ezGALRenderTargets& renderTargets = viewData.GetActiveRenderTargets();
@@ -85,12 +85,12 @@ ezStatus ezTonemapPass::AddRenderPasses(const ezViewData& viewData, const ezCame
   outputDesc.SetAsRenderTarget(colorInputDesc.m_uiWidth, colorInputDesc.m_uiHeight, rtDesc.m_Format);
   outputDesc.m_Type = colorInputDesc.m_Type;
   outputDesc.m_uiArraySize = colorInputDesc.m_uiArraySize;
-  ezRenderGraphTextureHandle hOutput = graph.CreateTexture(outputDesc);
+  ezRenderGraphTextureHandle hOutput = ref_graph.CreateTexture(outputDesc);
   outputs[m_PinOutput.m_uiOutputIndex].m_TextureHandle = hOutput;
 
   ezRenderGraphTextureHandle hBloomInput = inputs[m_PinBloomInput.m_uiInputIndex].m_TextureHandle;
 
-  auto pass = graph.AddGraphicsPass("Tonemap");
+  auto pass = ref_graph.AddGraphicsPass("Tonemap");
   pass.AddColorTarget(hOutput);
   pass.ReadTexture(hColorInput, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
   if (!hBloomInput.IsInvalidated())

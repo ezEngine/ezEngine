@@ -290,21 +290,21 @@ ezResult ezRenderGraph::Compile()
   return EZ_SUCCESS;
 }
 
-void ezRenderGraph::Execute(ezRenderGraphContext& ctx)
+void ezRenderGraph::Execute(ezRenderGraphContext& ref_ctx)
 {
   EZ_ASSERT_DEV(m_RenderGraphState == RenderGraphState::BarriersCreated, "Graph must be compiled before execution");
 
-  ctx.m_pTextureToResolvedTexture = &m_TextureToResolvedTexture;
-  ctx.m_pBufferToResolvedBuffer = &m_BufferToResolvedBuffer;
-  ctx.m_pResolvedTextures = &m_ResolvedTextures;
-  ctx.m_pResolvedBuffers = &m_ResolvedBuffers;
-  ctx.m_pUserData = GetUserData();
+  ref_ctx.m_pTextureToResolvedTexture = &m_TextureToResolvedTexture;
+  ref_ctx.m_pBufferToResolvedBuffer = &m_BufferToResolvedBuffer;
+  ref_ctx.m_pResolvedTextures = &m_ResolvedTextures;
+  ref_ctx.m_pResolvedBuffers = &m_ResolvedBuffers;
+  ref_ctx.m_pUserData = GetUserData();
 
   {
     ezRenderGraphRenderEvent ev;
     ev.m_Type = ezRenderGraphRenderEvent::Type::BeforeGraphExecution;
     ev.m_pGraph = this;
-    ev.m_pContext = &ctx;
+    ev.m_pContext = &ref_ctx;
     ezRenderGraphManager::s_RenderEvent.Broadcast(ev);
   }
 
@@ -312,7 +312,7 @@ void ezRenderGraph::Execute(ezRenderGraphContext& ctx)
   if (!m_sUserName.IsEmpty())
     sName.AppendFormat("-{}", m_sUserName);
 
-  EZ_PROFILE_AND_MARKER(ctx.GetCommandEncoder(), sName.GetData());
+  EZ_PROFILE_AND_MARKER(ref_ctx.GetCommandEncoder(), sName.GetData());
 
   ezHybridArray<GPUTimingScope*, 4> scopes;
   auto ExecuteMarker = [&](const MarkerEvent& evt, ezGALCommandEncoder* pEncoder)
@@ -342,7 +342,7 @@ void ezRenderGraph::Execute(ezRenderGraphContext& ctx)
     // Emit any markers scheduled before this pass.
     while (uiNextMarker < uiMarkerCount && m_MarkerEvents[uiNextMarker].m_uiPassIndex <= compiled.m_uiOriginalPassIndex)
     {
-      ExecuteMarker(m_MarkerEvents[uiNextMarker], ctx.GetCommandEncoder());
+      ExecuteMarker(m_MarkerEvents[uiNextMarker], ref_ctx.GetCommandEncoder());
       ++uiNextMarker;
     }
 
@@ -350,15 +350,15 @@ void ezRenderGraph::Execute(ezRenderGraphContext& ctx)
     auto textureBarriers = compiled.GetTextureBarriers(this);
     if (!textureBarriers.IsEmpty())
     {
-      ctx.m_pCommandEncoder->TextureBarrier(textureBarriers);
+      ref_ctx.m_pCommandEncoder->TextureBarrier(textureBarriers);
     }
     auto bufferBarriers = compiled.GetBufferBarriers(this);
     if (!bufferBarriers.IsEmpty())
     {
-      ctx.m_pCommandEncoder->BufferBarrier(bufferBarriers);
+      ref_ctx.m_pCommandEncoder->BufferBarrier(bufferBarriers);
     }
 
-    ctx.GetRenderContext()->ResetBindGroups();
+    ref_ctx.GetRenderContext()->ResetBindGroups();
 
     // Begin the appropriate scope and invoke the callback.
     switch (pass.m_QueueType)
@@ -369,28 +369,28 @@ void ezRenderGraph::Execute(ezRenderGraphContext& ctx)
         ezRectFloat viewport{0, 0, (float)size.width, (float)size.height};
         if (size.HasNonZeroArea())
         {
-          ctx.m_pRenderContext->BeginRendering(compiled.m_RenderingSetup, viewport, szName, pass.m_bStereoscopic);
+          ref_ctx.m_pRenderContext->BeginRendering(compiled.m_RenderingSetup, viewport, szName, pass.m_bStereoscopic);
           if (pass.m_ExecuteFunction.IsValid())
-            pass.m_ExecuteFunction(ctx);
-          ctx.m_pRenderContext->EndRendering();
+            pass.m_ExecuteFunction(ref_ctx);
+          ref_ctx.m_pRenderContext->EndRendering();
         }
         break;
       }
       case ezGALQueueType::Compute:
       {
-        ctx.m_pRenderContext->BeginCompute(szName);
+        ref_ctx.m_pRenderContext->BeginCompute(szName);
         if (pass.m_ExecuteFunction.IsValid())
-          pass.m_ExecuteFunction(ctx);
-        ctx.m_pRenderContext->EndCompute();
+          pass.m_ExecuteFunction(ref_ctx);
+        ref_ctx.m_pRenderContext->EndCompute();
         break;
       }
       case ezGALQueueType::Transfer:
       {
         // Transfer pass - no scope required.
-        ctx.m_pCommandEncoder->PushMarker(szName);
+        ref_ctx.m_pCommandEncoder->PushMarker(szName);
         if (pass.m_ExecuteFunction.IsValid())
-          pass.m_ExecuteFunction(ctx);
-        ctx.m_pCommandEncoder->PopMarker();
+          pass.m_ExecuteFunction(ref_ctx);
+        ref_ctx.m_pCommandEncoder->PopMarker();
         break;
       }
       default:
@@ -402,7 +402,7 @@ void ezRenderGraph::Execute(ezRenderGraphContext& ctx)
   // Emit any trailing markers (after the last pass).
   while (uiNextMarker < uiMarkerCount)
   {
-    ExecuteMarker(m_MarkerEvents[uiNextMarker], ctx.GetCommandEncoder());
+    ExecuteMarker(m_MarkerEvents[uiNextMarker], ref_ctx.GetCommandEncoder());
     ++uiNextMarker;
   }
 
@@ -410,7 +410,7 @@ void ezRenderGraph::Execute(ezRenderGraphContext& ctx)
     ezRenderGraphRenderEvent ev;
     ev.m_Type = ezRenderGraphRenderEvent::Type::AfterGraphExecution;
     ev.m_pGraph = this;
-    ev.m_pContext = &ctx;
+    ev.m_pContext = &ref_ctx;
     ezRenderGraphManager::s_RenderEvent.Broadcast(ev);
   }
 }
@@ -1137,7 +1137,7 @@ void ezRenderGraph::BuildRenderingSetups()
   }
 }
 
-void ezRenderGraph::ComputeBarriers(ezGALResourceStateTracker& tracker)
+void ezRenderGraph::ComputeBarriers(ezGALResourceStateTracker& ref_tracker)
 {
   EZ_PROFILE_SCOPE("ComputeBarriers");
   EZ_ASSERT_DEBUG(m_RenderGraphState == RenderGraphState::Compiled, "ComputeBarriers must be called after Compile succeeded");
@@ -1157,7 +1157,7 @@ void ezRenderGraph::ComputeBarriers(ezGALResourceStateTracker& tracker)
       {
         if (it.Value().m_access != ezGALResourceState::Unknown)
         {
-          tracker.ChangeState(it.Value().m_hTextureHandle, {}, it.Value().m_access, it.Value().m_stage, [&](const ezGALTextureBarrier& barrier)
+          ref_tracker.ChangeState(it.Value().m_hTextureHandle, {}, it.Value().m_access, it.Value().m_stage, [&](const ezGALTextureBarrier& barrier)
             {
               m_CompiledTextureBarriers.PushBack(barrier); //
             });
@@ -1167,7 +1167,7 @@ void ezRenderGraph::ComputeBarriers(ezGALResourceStateTracker& tracker)
       {
         if (it.Value().m_access != ezGALResourceState::Unknown)
         {
-          tracker.ChangeState(it.Value().m_hBufferHandle, it.Value().m_access, it.Value().m_stage, [&](const ezGALBufferBarrier& barrier)
+          ref_tracker.ChangeState(it.Value().m_hBufferHandle, it.Value().m_access, it.Value().m_stage, [&](const ezGALBufferBarrier& barrier)
             {
               m_CompiledBufferBarriers.PushBack(barrier); //
             });
@@ -1180,7 +1180,7 @@ void ezRenderGraph::ComputeBarriers(ezGALResourceStateTracker& tracker)
     {
       const ezUInt16 uiResolvedTextureIndex = m_TextureToResolvedTexture[info.m_hTexture.m_InternalId.m_InstanceIndex];
       ezGALTextureHandle hTexture = m_ResolvedTextures[uiResolvedTextureIndex];
-      tracker.ChangeState(hTexture, info.m_range, info.m_access, info.m_stage, [&](const ezGALTextureBarrier& barrier)
+      ref_tracker.ChangeState(hTexture, info.m_range, info.m_access, info.m_stage, [&](const ezGALTextureBarrier& barrier)
         {
           m_CompiledTextureBarriers.PushBack(barrier); //
         });
@@ -1190,7 +1190,7 @@ void ezRenderGraph::ComputeBarriers(ezGALResourceStateTracker& tracker)
     {
       const ezUInt16 uiResolvedTextureIndex = m_TextureToResolvedTexture[info.m_hTexture.m_InternalId.m_InstanceIndex];
       ezGALTextureHandle hTexture = m_ResolvedTextures[uiResolvedTextureIndex];
-      tracker.ChangeState(hTexture, info.m_range, info.m_access, info.m_stage, [&](const ezGALTextureBarrier& barrier)
+      ref_tracker.ChangeState(hTexture, info.m_range, info.m_access, info.m_stage, [&](const ezGALTextureBarrier& barrier)
         {
           m_CompiledTextureBarriers.PushBack(barrier); //
         });
@@ -1202,7 +1202,7 @@ void ezRenderGraph::ComputeBarriers(ezGALResourceStateTracker& tracker)
     {
       const ezUInt16 uiResolvedBufferIndex = m_BufferToResolvedBuffer[info.m_hBuffer.m_InternalId.m_InstanceIndex];
       ezGALBufferHandle hBuffer = m_ResolvedBuffers[uiResolvedBufferIndex];
-      tracker.ChangeState(hBuffer, info.m_access, info.m_stage, [&](const ezGALBufferBarrier& barrier)
+      ref_tracker.ChangeState(hBuffer, info.m_access, info.m_stage, [&](const ezGALBufferBarrier& barrier)
         {
           m_CompiledBufferBarriers.PushBack(barrier); //
         });
@@ -1212,7 +1212,7 @@ void ezRenderGraph::ComputeBarriers(ezGALResourceStateTracker& tracker)
     {
       const ezUInt16 uiResolvedBufferIndex = m_BufferToResolvedBuffer[info.m_hBuffer.m_InternalId.m_InstanceIndex];
       ezGALBufferHandle hBuffer = m_ResolvedBuffers[uiResolvedBufferIndex];
-      tracker.ChangeState(hBuffer, info.m_access, info.m_stage, [&](const ezGALBufferBarrier& barrier)
+      ref_tracker.ChangeState(hBuffer, info.m_access, info.m_stage, [&](const ezGALBufferBarrier& barrier)
         {
           m_CompiledBufferBarriers.PushBack(barrier); //
         });

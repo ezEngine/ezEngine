@@ -136,24 +136,24 @@ ezGALTextureCreationDescription ezSourcePass::GetOutputDescription(const ezViewD
   return desc;
 }
 
-ezStatus ezSourcePass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
+ezStatus ezSourcePass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
   auto desc = GetOutputDescription(viewData, camera, m_Format, m_MsaaMode);
-  ezRenderGraphTextureHandle hOutput = graph.CreateTexture(desc);
+  ezRenderGraphTextureHandle hOutput = ref_graph.CreateTexture(desc);
   outputs[m_PinOutput.m_uiOutputIndex].m_TextureHandle = hOutput;
 
   if (m_bClear)
   {
     if (ezGALResourceFormat::IsDepthFormat(desc.m_Format))
     {
-      auto pass = graph.AddGraphicsPass("ClearDepth");
+      auto pass = ref_graph.AddGraphicsPass("ClearDepth");
       pass.AddDepthStencilTarget(hOutput, {}, ezGALRenderTargetLoadOp::Clear, {}, ezGALRenderTargetLoadOp::Clear);
       pass.SetClearDepth();
       pass.SetClearStencil();
     }
     else
     {
-      auto pass = graph.AddGraphicsPass("ClearColor");
+      auto pass = ref_graph.AddGraphicsPass("ClearColor");
       pass.AddColorTarget(hOutput, {}, ezGALRenderTargetLoadOp::Clear);
       pass.SetClearColor(0, m_ClearColor);
     }

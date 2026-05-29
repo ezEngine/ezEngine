@@ -27,7 +27,7 @@ ezTransparentForwardRenderPass::~ezTransparentForwardRenderPass()
   ezGALDevice::GetDefaultDevice()->DestroySamplerState(m_hSceneColorSamplerState);
 }
 
-ezStatus ezTransparentForwardRenderPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
+ezStatus ezTransparentForwardRenderPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
   ezRenderGraphTextureHandle hColor = inputs[m_PinColor.m_uiInputIndex].m_TextureHandle;
   if (hColor.IsInvalidated())
@@ -43,19 +43,19 @@ ezStatus ezTransparentForwardRenderPass::AddRenderPasses(const ezViewData& viewD
   ezRenderGraphTextureHandle hResolvedDepth = inputs[m_PinResolvedDepth.m_uiInputIndex].m_TextureHandle;
 
   // Create temp scene color texture
-  const ezGALTextureCreationDescription colorDesc = graph.GetTextureDesc(hColor);
+  const ezGALTextureCreationDescription colorDesc = ref_graph.GetTextureDesc(hColor);
   ezGALTextureCreationDescription sceneColorDesc;
   sceneColorDesc.SetAsRenderTarget(colorDesc.m_uiWidth, colorDesc.m_uiHeight, colorDesc.m_Format);
   sceneColorDesc.m_Type = ezGALTextureType::Texture2DArray;
   sceneColorDesc.m_uiArraySize = colorDesc.m_uiArraySize;
   sceneColorDesc.m_uiMipLevelCount = 1;
-  ezRenderGraphTextureHandle hSceneColor = graph.CreateTexture(sceneColorDesc);
+  ezRenderGraphTextureHandle hSceneColor = ref_graph.CreateTexture(sceneColorDesc);
 
   // Transparent Pass1
   {
     CreateSamplerState();
 
-    auto pass = graph.AddGraphicsPass("TransparentForward1");
+    auto pass = ref_graph.AddGraphicsPass("TransparentForward1");
     pass.AddColorTarget(hColor);
     pass.AddDepthStencilTarget(hDepthStencil);
     pass.ReadTexture(hSceneColor, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
@@ -63,7 +63,7 @@ ezStatus ezTransparentForwardRenderPass::AddRenderPasses(const ezViewData& viewD
       pass.ReadTexture(hResolvedDepth, {}, ezGALResourceState::ShaderResource);
     pass.SetStereoscopic(camera.IsStereoscopic());
     // BEGIN-DOCS-CODE-SNIPPET: renderpass-render-objects
-    ezRenderPipelinePass::SetupResourceDependencies(viewData, graph, pass, m_ShadingQuality);
+    ezRenderPipelinePass::SetupResourceDependencies(viewData, ref_graph, pass, m_ShadingQuality);
     pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
       {
         const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
@@ -81,7 +81,7 @@ ezStatus ezTransparentForwardRenderPass::AddRenderPasses(const ezViewData& viewD
 
   // Copy current color to scene color texture
   {
-    auto transferPass = graph.AddTransferPass("CopySceneColor");
+    auto transferPass = ref_graph.AddTransferPass("CopySceneColor");
     transferPass.ReadTexture(hColor, {}, ezGALResourceState::ResolveSource);
     transferPass.WriteTexture(hSceneColor, {}, ezGALResourceState::ResolveDestination);
     transferPass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
@@ -94,14 +94,14 @@ ezStatus ezTransparentForwardRenderPass::AddRenderPasses(const ezViewData& viewD
 
   // Transparent pass 2
   {
-    auto pass = graph.AddGraphicsPass("TransparentForward2");
+    auto pass = ref_graph.AddGraphicsPass("TransparentForward2");
     pass.AddColorTarget(hColor);
     pass.AddDepthStencilTarget(hDepthStencil);
     pass.ReadTexture(hSceneColor, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
     if (!hResolvedDepth.IsInvalidated())
       pass.ReadTexture(hResolvedDepth, {}, ezGALResourceState::ShaderResource);
     pass.SetStereoscopic(camera.IsStereoscopic());
-    ezRenderPipelinePass::SetupResourceDependencies(viewData, graph, pass, m_ShadingQuality);
+    ezRenderPipelinePass::SetupResourceDependencies(viewData, ref_graph, pass, m_ShadingQuality);
     pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
       {
       const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();

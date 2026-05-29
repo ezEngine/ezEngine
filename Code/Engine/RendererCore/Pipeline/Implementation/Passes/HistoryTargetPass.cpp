@@ -31,7 +31,7 @@ ezHistoryTargetPass::ezHistoryTargetPass(const char* szName)
 
 ezHistoryTargetPass::~ezHistoryTargetPass() = default;
 
-ezStatus ezHistoryTargetPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
+ezStatus ezHistoryTargetPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
   auto pData = GetPipeline()->GetFrameDataProvider<ezHistorySourcePassTextureDataProvider>();
   pData->ResetTexture(m_sSourcePassName);

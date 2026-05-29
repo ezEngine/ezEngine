@@ -38,7 +38,7 @@ private:
 
   OnSwapChainChanged m_OnSwapChainChanged;
   ezSizeU32 m_Size = ezSizeU32(0, 0);
-  ezGALWindowSwapChainCreationDescription m_currentDesc;
+  ezGALWindowSwapChainCreationDescription m_CurrentDesc;
 
   // Capture image functionality
   ezGALReadbackTextureHelper m_Readback;

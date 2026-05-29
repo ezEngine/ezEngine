@@ -59,7 +59,7 @@ ezGALTextureHandle ezPickingRenderPass::GetPickingDepthRT() const
   return m_hPickingDepthRT;
 }
 
-ezStatus ezPickingRenderPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
+ezStatus ezPickingRenderPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
   m_TargetRect = viewData.m_ViewPortRect;
   DestroyTarget();
@@ -77,16 +77,16 @@ ezStatus ezPickingRenderPass::AddRenderPasses(const ezViewData& viewData, const 
   EZ_ASSERT_DEV(m_uiWindowWidth == pDepthTexture->GetDescription().m_uiWidth, "");
   EZ_ASSERT_DEV(m_uiWindowHeight == pDepthTexture->GetDescription().m_uiHeight, "");
 
-  m_hPickingIdGraphRT = graph.ImportTexture(m_hPickingIdRT);
-  m_hPickingDepthGraphRT = graph.ImportTexture(m_hPickingDepthRT);
+  m_hPickingIdGraphRT = ref_graph.ImportTexture(m_hPickingIdRT);
+  m_hPickingDepthGraphRT = ref_graph.ImportTexture(m_hPickingDepthRT);
   {
-    auto pass = graph.AddGraphicsPass(GetName());
+    auto pass = ref_graph.AddGraphicsPass(GetName());
     pass.AddColorTarget(m_hPickingIdGraphRT, {}, ezGALRenderTargetLoadOp::Clear);
     pass.AddDepthStencilTarget(m_hPickingDepthGraphRT, {}, ezGALRenderTargetLoadOp::Clear);
     pass.SetClearColor(0);
     pass.SetClearDepth().SetClearStencil();
     pass.HasSideEffects();
-    ezClusteredDataGPU::AddReadDependencies(graph, pass, viewData.m_uiSkyIrradianceIndex, viewData.m_CameraUsageHint);
+    ezClusteredDataGPU::AddReadDependencies(ref_graph, pass, viewData.m_uiSkyIrradianceIndex, viewData.m_CameraUsageHint);
     pass.SetExecuteCallback([this](const ezRenderGraphContext& ctx)
       {
         const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
@@ -151,7 +151,7 @@ ezStatus ezPickingRenderPass::AddRenderPasses(const ezViewData& viewData, const 
 
       m_PendingReadback.m_bReadbackInProgress = false;
     }
-    auto pass = graph.AddTransferPass("PickingProcessResults");
+    auto pass = ref_graph.AddTransferPass("PickingProcessResults");
     pass.HasSideEffects();
     pass.SetExecuteCallback([this](const ezRenderGraphContext& ctx)
       {
@@ -187,7 +187,7 @@ ezStatus ezPickingRenderPass::AddRenderPasses(const ezViewData& viewData, const 
   // Start transferring the picking information from the GPU to the CPU
   if (m_uiWindowWidth != 0 && m_uiWindowHeight != 0)
   {
-    auto pass = graph.AddTransferPass("PickingReadback");
+    auto pass = ref_graph.AddTransferPass("PickingReadback");
     pass.ReadTexture(m_hPickingIdGraphRT, {}, ezGALResourceState::CopySource);
     pass.ReadTexture(m_hPickingDepthGraphRT, {}, ezGALResourceState::CopySource);
     pass.HasSideEffects();

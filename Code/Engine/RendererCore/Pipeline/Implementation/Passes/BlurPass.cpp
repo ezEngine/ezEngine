@@ -47,17 +47,17 @@ ezBlurPass::~ezBlurPass()
   ezRenderContext::DeleteConstantBufferStorage(m_hBlurCB);
 }
 
-ezStatus ezBlurPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
+ezStatus ezBlurPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
   ezRenderGraphTextureHandle hInput = inputs[m_PinInput.m_uiInputIndex].m_TextureHandle;
   if (hInput.IsInvalidated())
     return ezStatus(ezFmt("Input: Not connected"));
 
-  const ezGALTextureCreationDescription inputDesc = graph.GetTextureDesc(hInput);
-  ezRenderGraphTextureHandle hOutput = graph.CreateTexture(inputDesc);
+  const ezGALTextureCreationDescription inputDesc = ref_graph.GetTextureDesc(hInput);
+  ezRenderGraphTextureHandle hOutput = ref_graph.CreateTexture(inputDesc);
   outputs[m_PinOutput.m_uiOutputIndex].m_TextureHandle = hOutput;
 
-  auto pass = graph.AddGraphicsPass("Blur");
+  auto pass = ref_graph.AddGraphicsPass("Blur");
   pass.AddColorTarget(hOutput, {}, ezGALRenderTargetLoadOp::Clear);
   pass.SetClearColor(0, ezColor(1.0f, 0.0f, 0.0f));
   pass.ReadTexture(hInput, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);

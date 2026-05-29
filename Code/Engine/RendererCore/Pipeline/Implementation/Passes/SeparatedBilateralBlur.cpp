@@ -53,7 +53,7 @@ ezSeparatedBilateralBlurPass::~ezSeparatedBilateralBlurPass()
   ezRenderContext::DeleteConstantBufferStorage(m_hBilateralBlurCB);
 }
 
-ezStatus ezSeparatedBilateralBlurPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
+ezStatus ezSeparatedBilateralBlurPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
   ezRenderGraphTextureHandle hBlurSource = inputs[m_PinBlurSourceInput.m_uiInputIndex].m_TextureHandle;
   ezRenderGraphTextureHandle hDepth = inputs[m_PinDepthInput.m_uiInputIndex].m_TextureHandle;
@@ -62,23 +62,23 @@ ezStatus ezSeparatedBilateralBlurPass::AddRenderPasses(const ezViewData& viewDat
   if (hDepth.IsInvalidated())
     return ezStatus(ezFmt("Depth: Not connected"));
 
-  const ezGALTextureCreationDescription blurDesc = graph.GetTextureDesc(hBlurSource);
-  const ezGALTextureCreationDescription depthDesc = graph.GetTextureDesc(hDepth);
+  const ezGALTextureCreationDescription blurDesc = ref_graph.GetTextureDesc(hBlurSource);
+  const ezGALTextureCreationDescription depthDesc = ref_graph.GetTextureDesc(hDepth);
   if (blurDesc.m_uiWidth != depthDesc.m_uiWidth || blurDesc.m_uiHeight != depthDesc.m_uiHeight)
     return ezStatus(ezFmt("Blur target and depth buffer need same dimensions"));
 
   // Output
-  ezRenderGraphTextureHandle hOutput = graph.CreateTexture(blurDesc);
+  ezRenderGraphTextureHandle hOutput = ref_graph.CreateTexture(blurDesc);
   outputs[m_PinOutput.m_uiOutputIndex].m_TextureHandle = hOutput;
 
   // Temp texture for horizontal pass result
   ezGALTextureCreationDescription tempDesc = blurDesc;
   tempDesc.m_TextureFlags.Add(ezGALTextureUsageFlags::ShaderResource | ezGALTextureUsageFlags::RenderTarget);
-  ezRenderGraphTextureHandle hTemp = graph.CreateTexture(tempDesc);
+  ezRenderGraphTextureHandle hTemp = ref_graph.CreateTexture(tempDesc);
 
   // Horizontal pass
   {
-    auto pass = graph.AddGraphicsPass("BilateralBlurH");
+    auto pass = ref_graph.AddGraphicsPass("BilateralBlurH");
     pass.AddColorTarget(hTemp);
     pass.ReadTexture(hBlurSource, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
     pass.ReadTexture(hDepth, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
@@ -102,7 +102,7 @@ ezStatus ezSeparatedBilateralBlurPass::AddRenderPasses(const ezViewData& viewDat
 
   // Vertical pass
   {
-    auto pass = graph.AddGraphicsPass("BilateralBlurV");
+    auto pass = ref_graph.AddGraphicsPass("BilateralBlurV");
     pass.AddColorTarget(hOutput);
     pass.ReadTexture(hTemp, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
     pass.ReadTexture(hDepth, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);

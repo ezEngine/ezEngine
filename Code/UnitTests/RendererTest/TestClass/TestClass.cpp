@@ -393,12 +393,12 @@ ezMat4 ezGraphicsTest::CreateSimpleMVP(float fAspectRatio)
   return mProj * mView * mTransform;
 }
 
-void ezGraphicsTest::ReadbackImage(ezRenderGraph& graph)
+void ezGraphicsTest::ReadbackImage(ezRenderGraph& ref_graph)
 {
   ezGALTextureHandle hBBTexture = m_pDevice->GetSwapChain(m_hSwapChain)->GetBackBufferTexture();
-  ezRenderGraphTextureHandle hGraphTexture = graph.ImportTexture(hBBTexture);
+  ezRenderGraphTextureHandle hGraphTexture = ref_graph.ImportTexture(hBBTexture);
 
-  auto pass = graph.AddTransferPass("ReadbackTexture");
+  auto pass = ref_graph.AddTransferPass("ReadbackTexture");
   pass.ReadTexture(hGraphTexture, {}, ezGALResourceState::CopySource);
   pass.HasSideEffects();
   pass.SetExecuteCallback([=](const ezRenderGraphContext& context)

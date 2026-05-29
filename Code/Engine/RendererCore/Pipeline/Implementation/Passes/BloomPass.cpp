@@ -52,14 +52,14 @@ ezBloomPass::~ezBloomPass()
   ezRenderContext::DeleteConstantBufferStorage(m_hConstantBuffer);
 }
 
-ezStatus ezBloomPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
+ezStatus ezBloomPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
   // Validate input
   ezRenderGraphTextureHandle hColorInput = inputs[m_PinInput.m_uiInputIndex].m_TextureHandle;
   if (hColorInput.IsInvalidated())
     return ezStatus(ezFmt("Input: Not connected"));
 
-  const ezGALTextureCreationDescription inputDesc = graph.GetTextureDesc(hColorInput);
+  const ezGALTextureCreationDescription inputDesc = ref_graph.GetTextureDesc(hColorInput);
 
   // Create output (half-res)
   ezGALTextureCreationDescription outputDesc = inputDesc;
@@ -67,7 +67,7 @@ ezStatus ezBloomPass::AddRenderPasses(const ezViewData& viewData, const ezCamera
   outputDesc.m_uiHeight = outputDesc.m_uiHeight / 2;
   outputDesc.m_Format = m_TextureFormat;
 
-  ezRenderGraphTextureHandle hColorOutput = graph.CreateTexture(outputDesc);
+  ezRenderGraphTextureHandle hColorOutput = ref_graph.CreateTexture(outputDesc);
   outputs[m_PinOutput.m_uiOutputIndex].m_TextureHandle = hColorOutput;
 
   // Add passes
@@ -95,12 +95,12 @@ ezStatus ezBloomPass::AddRenderPasses(const ezViewData& viewData, const ezCamera
 
     ezGALTextureCreationDescription descTemp;
     descTemp.SetAsRenderTarget(uiWidth, uiHeight, uiSliceCount, m_TextureFormat, ezGALMSAASampleCount::None);
-    tempDownscaleTextures.PushBack(graph.CreateTexture(descTemp));
+    tempDownscaleTextures.PushBack(ref_graph.CreateTexture(descTemp));
 
     // biggest upscale target is the output and lowest is not needed
     if (i > 0 && i < uiNumBlurPasses - 1)
     {
-      tempUpscaleTextures.PushBack(graph.CreateTexture(descTemp));
+      tempUpscaleTextures.PushBack(ref_graph.CreateTexture(descTemp));
     }
     else
     {
@@ -134,7 +134,7 @@ ezStatus ezBloomPass::AddRenderPasses(const ezViewData& viewData, const ezCamera
       ezVec2 targetSize = targetSizes[i];
       ezColor tintColor = (i == uiNumBlurPasses - 1) ? ezColor(m_OuterTintColor) : ezColor::White;
 
-      auto pass = graph.AddGraphicsPass("BloomDownscale");
+      auto pass = ref_graph.AddGraphicsPass("BloomDownscale");
       pass.AddColorTarget(hOutput);
       pass.ReadTexture(hInput, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
       pass.SetStereoscopic(camera.IsStereoscopic());
@@ -200,7 +200,7 @@ ezStatus ezBloomPass::AddRenderPasses(const ezViewData& viewData, const ezCamera
         tintColor = ezMath::Lerp<ezColor>(m_MidTintColor, m_OuterTintColor, (fPass - fMidPass) / fMidPass);
       }
 
-      auto pass = graph.AddGraphicsPass("BloomUpscale");
+      auto pass = ref_graph.AddGraphicsPass("BloomUpscale");
       pass.AddColorTarget(hOutput);
       pass.ReadTexture(hInput, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
       pass.ReadTexture(hNextInput, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
@@ -228,21 +228,21 @@ ezStatus ezBloomPass::AddRenderPasses(const ezViewData& viewData, const ezCamera
   return EZ_SUCCESS;
 }
 
-ezStatus ezBloomPass::AddRenderPassesInactive(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
+ezStatus ezBloomPass::AddRenderPassesInactive(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
   ezRenderGraphTextureHandle hColorInput = inputs[m_PinInput.m_uiInputIndex].m_TextureHandle;
   if (hColorInput.IsInvalidated())
     return ezStatus(ezFmt("Input: Not connected"));
 
-  ezGALTextureCreationDescription outputDesc = graph.GetTextureDesc(hColorInput);
+  ezGALTextureCreationDescription outputDesc = ref_graph.GetTextureDesc(hColorInput);
   outputDesc.m_uiWidth = outputDesc.m_uiWidth / 2;
   outputDesc.m_uiHeight = outputDesc.m_uiHeight / 2;
   outputDesc.m_Format = m_TextureFormat;
 
-  ezRenderGraphTextureHandle hColorOutput = graph.CreateTexture(outputDesc);
+  ezRenderGraphTextureHandle hColorOutput = ref_graph.CreateTexture(outputDesc);
   outputs[m_PinOutput.m_uiOutputIndex].m_TextureHandle = hColorOutput;
 
-  auto pass = graph.AddGraphicsPass("InactiveBloom");
+  auto pass = ref_graph.AddGraphicsPass("InactiveBloom");
   pass.AddColorTarget(hColorOutput, {}, ezGALRenderTargetLoadOp::Clear);
   pass.SetClearColor(0, ezColor::Black);
   return EZ_SUCCESS;

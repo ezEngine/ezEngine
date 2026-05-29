@@ -49,13 +49,13 @@ ezScreenSpaceShadowPass::~ezScreenSpaceShadowPass()
   ezRenderContext::DeleteConstantBufferStorage(m_hConstantBuffer);
 }
 
-ezStatus ezScreenSpaceShadowPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
+ezStatus ezScreenSpaceShadowPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
   ezRenderGraphTextureHandle hDepthInput = inputs[m_PinDepthInput.m_uiInputIndex].m_TextureHandle;
   if (hDepthInput.IsInvalidated())
     return ezStatus(ezFmt("DepthInput: Not connected"));
 
-  const ezGALTextureCreationDescription depthDesc = graph.GetTextureDesc(hDepthInput);
+  const ezGALTextureCreationDescription depthDesc = ref_graph.GetTextureDesc(hDepthInput);
   if (depthDesc.m_SampleCount != ezGALMSAASampleCount::None)
     return ezStatus(ezFmt("DepthInput: Must be resolved"));
 
@@ -64,10 +64,10 @@ ezStatus ezScreenSpaceShadowPass::AddRenderPasses(const ezViewData& viewData, co
   outputDesc.m_Format = ezGALResourceFormat::RUByteNormalized;
   outputDesc.m_TextureFlags = ezGALTextureUsageFlags::ShaderResource | ezGALTextureUsageFlags::UnorderedAccess;
 
-  ezRenderGraphTextureHandle hOutput = graph.CreateTexture(outputDesc);
+  ezRenderGraphTextureHandle hOutput = ref_graph.CreateTexture(outputDesc);
   outputs[m_PinOutput.m_uiOutputIndex].m_TextureHandle = hOutput;
 
-  const ezGALTextureCreationDescription& depthTexDesc = graph.GetTextureDesc(hDepthInput);
+  const ezGALTextureCreationDescription& depthTexDesc = ref_graph.GetTextureDesc(hDepthInput);
   const ezUInt32 uiWidth = depthTexDesc.m_uiWidth;
   const ezUInt32 uiHeight = depthTexDesc.m_uiHeight;
 
@@ -106,7 +106,7 @@ ezStatus ezScreenSpaceShadowPass::AddRenderPasses(const ezViewData& viewData, co
       for (ezUInt32 uiEyeIndex = 0; uiEyeIndex < uiEyeCount; ++uiEyeIndex)
       {
         // Ray march pass: writes raw shadow to output texture
-        auto pass = graph.AddComputePass("ScreenSpaceShadow");
+        auto pass = ref_graph.AddComputePass("ScreenSpaceShadow");
         pass.ReadTexture(hDepthInput, {}, ezGALResourceState::ShaderResource);
         pass.WriteTexture(hOutput, {}, ezGALResourceState::UnorderedAccess);
         pass.SetStereoscopic(camera.IsStereoscopic());

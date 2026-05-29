@@ -31,7 +31,7 @@ public:
 public:
   ezGraphicsTest();
 
-  void ReadbackImage(ezRenderGraph& graph);
+  void ReadbackImage(ezRenderGraph& ref_graph);
   virtual ezResult GetImage(ezImage& ref_img, const ezSubTestEntry& subTest, ezUInt32 uiImageNumber) override;
 
 protected:

@@ -37,7 +37,7 @@ ezDepthOnlyPass::ezDepthOnlyPass(const char* szName)
 
 ezDepthOnlyPass::~ezDepthOnlyPass() = default;
 
-ezStatus ezDepthOnlyPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
+ezStatus ezDepthOnlyPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
   ezRenderGraphTextureHandle hDepthStencil = inputs[m_PinDepthStencil.m_uiInputIndex].m_TextureHandle;
   if (hDepthStencil.IsInvalidated())
@@ -45,7 +45,7 @@ ezStatus ezDepthOnlyPass::AddRenderPasses(const ezViewData& viewData, const ezCa
 
   outputs[m_PinDepthStencil.m_uiOutputIndex].m_TextureHandle = hDepthStencil;
 
-  auto pass = graph.AddGraphicsPass(GetName());
+  auto pass = ref_graph.AddGraphicsPass(GetName());
   pass.AddDepthStencilTarget(hDepthStencil);
   pass.SetStereoscopic(camera.IsStereoscopic());
   pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)

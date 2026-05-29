@@ -52,7 +52,7 @@ ezLightShaftsPass::~ezLightShaftsPass()
   ezRenderContext::DeleteConstantBufferStorage(m_hConstantBuffer);
 }
 
-ezStatus ezLightShaftsPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
+ezStatus ezLightShaftsPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
   ezRenderGraphTextureHandle hColorInput = inputs[m_PinColor.m_uiInputIndex].m_TextureHandle;
   if (hColorInput.IsInvalidated())
@@ -62,11 +62,11 @@ ezStatus ezLightShaftsPass::AddRenderPasses(const ezViewData& viewData, const ez
   if (hDepthInput.IsInvalidated())
     return ezStatus(ezFmt("DepthInput: Not connected"));
 
-  const ezGALTextureCreationDescription depthDesc = graph.GetTextureDesc(hDepthInput);
+  const ezGALTextureCreationDescription depthDesc = ref_graph.GetTextureDesc(hDepthInput);
   if (depthDesc.m_SampleCount != ezGALMSAASampleCount::None)
     return ezStatus(ezFmt("DepthInput: Must be resolved (non-MSAA)"));
 
-  const ezGALTextureCreationDescription colorDesc = graph.GetTextureDesc(hColorInput);
+  const ezGALTextureCreationDescription colorDesc = ref_graph.GetTextureDesc(hColorInput);
   if (colorDesc.m_SampleCount != ezGALMSAASampleCount::None)
     return ezStatus(ezFmt("Color: Must be resolved (non-MSAA)"));
 
@@ -96,14 +96,14 @@ ezStatus ezLightShaftsPass::AddRenderPasses(const ezViewData& viewData, const ez
   tempDesc.SetAsRenderTarget(uiDownsampledWidth, uiDownsampledHeight, uiSliceCount, m_TextureFormat, ezGALMSAASampleCount::None);
 
   ezRenderGraphTextureHandle hTempTextures[2];
-  hTempTextures[0] = graph.CreateTexture(tempDesc);
-  hTempTextures[1] = graph.CreateTexture(tempDesc);
+  hTempTextures[0] = ref_graph.CreateTexture(tempDesc);
+  hTempTextures[1] = ref_graph.CreateTexture(tempDesc);
 
   ezUInt32 uiCurrentInputTempTexture = 0;
 
   // Pass 1: Generate mask at downsampled resolution
   {
-    auto pass = graph.AddGraphicsPass("LightShafts Mask");
+    auto pass = ref_graph.AddGraphicsPass("LightShafts Mask");
     pass.AddColorTarget(hTempTextures[0]);
     pass.ReadTexture(hColorInput, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
     pass.ReadTexture(hDepthInput, {}, ezGALResourceState::DepthStencilRead, ezGALShaderStageFlags::PixelShader);
@@ -138,7 +138,7 @@ ezStatus ezLightShaftsPass::AddRenderPasses(const ezViewData& viewData, const ez
       ezRenderGraphTextureHandle hInput = hTempTextures[uiCurrentInputTempTexture];
       ezRenderGraphTextureHandle hOutput = hTempTextures[uiCurrentOutputTempTexture];
 
-      auto pass = graph.AddGraphicsPass("LightShafts RadialBlur");
+      auto pass = ref_graph.AddGraphicsPass("LightShafts RadialBlur");
       pass.AddColorTarget(hOutput);
       pass.ReadTexture(hInput, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
       pass.SetStereoscopic(camera.IsStereoscopic());
@@ -162,7 +162,7 @@ ezStatus ezLightShaftsPass::AddRenderPasses(const ezViewData& viewData, const ez
   {
     ezRenderGraphTextureHandle hBlurResult = hTempTextures[uiCurrentInputTempTexture];
 
-    auto pass = graph.AddGraphicsPass("LightShafts Apply");
+    auto pass = ref_graph.AddGraphicsPass("LightShafts Apply");
     pass.AddColorTarget(hColorInput);
     pass.ReadTexture(hBlurResult, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
     pass.SetStereoscopic(camera.IsStereoscopic());
