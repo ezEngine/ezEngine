@@ -249,6 +249,22 @@ ezBindGroupBuilder& ezRenderContext::GetBindGroup(ezUInt32 uiBindGroup)
   return m_BindGroupBuilders[uiBindGroup];
 }
 
+void ezRenderContext::ResetBindGroup(ezUInt32 uiBindGroup)
+{
+  m_BindGroupBuilders[uiBindGroup].ResetBoundResources(ezGALDevice::GetDefaultDevice());
+  m_BindGroups[uiBindGroup].m_hBindGroupLayout.Invalidate();
+  m_BindGroups[uiBindGroup].m_BindGroupItems.Clear();
+  m_bDirtyBindGroups[uiBindGroup] = false;
+}
+
+void ezRenderContext::ResetBindGroups()
+{
+  for (ezUInt32 i = 0; i < EZ_GAL_MAX_BIND_GROUPS; ++i)
+  {
+    ResetBindGroup(i);
+  }
+}
+
 void ezRenderContext::SetPushConstants(ezTempHashedString sSlotName, ezArrayPtr<const ezUInt8> data)
 {
 
@@ -658,13 +674,7 @@ void ezRenderContext::ResetContextState()
   m_GraphicsPipeline.m_Topology = ezGALPrimitiveTopology::ENUM_COUNT; // Set to something invalid
   m_uiMeshBufferPrimitiveCount = 0;
 
-  for (ezUInt32 i = 0; i < EZ_GAL_MAX_BIND_GROUPS; ++i)
-  {
-    m_BindGroupBuilders[i].ResetBoundResources(ezGALDevice::GetDefaultDevice());
-    m_BindGroups[i].m_hBindGroupLayout.Invalidate();
-    m_BindGroups[i].m_BindGroupItems.Clear();
-    m_bDirtyBindGroups[i] = false;
-  }
+  ResetBindGroups();
 }
 
 ezGlobalConstants& ezRenderContext::WriteGlobalConstants()

@@ -28,6 +28,7 @@ struct ezTextureBindGroupItem
   ezGALSamplerStateHandle m_hSampler;               ///< Only used for slots of ezGALShaderResourceType::TextureAndSampler.
   ezGALTextureRange m_TextureRange;
   ezEnum<ezGALResourceFormat> m_OverrideViewFormat; ///< Overrides the default view format. E.g. used for converting between linear and gamma space.
+  ezEnum<ezGALTextureType> m_OverrideViewType = ezGALTextureType::Invalid;
 };
 
 /// \brief Buffer contents of ezGALBindGroupItem

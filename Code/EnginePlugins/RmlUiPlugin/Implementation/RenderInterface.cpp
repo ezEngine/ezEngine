@@ -6,6 +6,9 @@
 #include <Foundation/Math/Rect.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 #include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/RenderGraph/RenderGraph.h>
+#include <RendererCore/RenderGraph/RenderGraphManager.h>
+#include <RendererCore/RenderGraph/RenderGraphUtils.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/Textures/Texture2DResource.h>
@@ -148,6 +151,8 @@ namespace ezRmlUiInternal
       va.m_eFormat = ezGALResourceFormat::RGBAUByteNormalized;
       va.m_uiOffset = offsetof(ezRmlUiInternal::Vertex, m_Color);
     }
+
+    m_pRenderGraph = ezRenderGraphManager::CreateRenderGraph("RmlUi", ezRenderGraphPhase::PreRender);
   }
 
   RenderInterface::~RenderInterface()
@@ -189,6 +194,7 @@ namespace ezRmlUiInternal
       desc.m_uiStructSize = sizeof(Vertex);
       desc.m_uiTotalSize = vertexStorage.GetCount() * desc.m_uiStructSize;
       desc.m_BufferFlags = ezGALBufferUsageFlags::VertexBuffer;
+      desc.m_ResourceAccess.m_bImmutable = true;
 
       geometry.m_hVertexBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc, vertexStorage.GetByteArrayPtr());
     }
@@ -199,6 +205,7 @@ namespace ezRmlUiInternal
       desc.m_uiStructSize = sizeof(ezUInt32);
       desc.m_uiTotalSize = uiNumIndices * desc.m_uiStructSize;
       desc.m_BufferFlags = ezGALBufferUsageFlags::IndexBuffer;
+      desc.m_ResourceAccess.m_bImmutable = true;
 
       geometry.m_hIndexBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc, ezMakeArrayPtr(indices.data(), uiNumIndices).ToByteArray());
     }
@@ -369,7 +376,7 @@ namespace ezRmlUiInternal
     {
       BeginFrame();
     }
-    else if (e.m_Type == ezGALDeviceEvent::BeforeEndFrame)
+    else if (e.m_Type == ezGALDeviceEvent::AfterEndFrame)
     {
       EndFrame();
     }
@@ -382,121 +389,143 @@ namespace ezRmlUiInternal
       return;
 
     ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-    ezGALCommandEncoder* pCommandEncoder = pDevice->BeginCommands("RmlUi");
-
-    ezRenderContext* pRenderContext = ezRenderContext::GetDefaultInstance();
-    ezGPUResourcePool* pGpuResourcePool = ezGPUResourcePool::GetDefaultInstance();
-
-    // Force shader loading, otherwise we could end up rendering nothing when lazy update is enabled on the context
-    bool bAllowAsyncShaderLoading = pRenderContext->GetAllowAsyncShaderLoading();
-    pRenderContext->SetAllowAsyncShaderLoading(false);
-    EZ_SCOPE_EXIT(pRenderContext->SetAllowAsyncShaderLoading(bAllowAsyncShaderLoading));
 
     const ezGALResourceFormat::Enum tempTargetFormat = ezGALResourceFormat::RGBAUByteNormalized;
     const ezGALResourceFormat::Enum tempStencilFormat = ezGALResourceFormat::D24S8;
     const ezGALMSAASampleCount::Enum msaaSampleCount = ezGALMSAASampleCount::FourSamples;
 
-    pRenderContext->BindShader(m_hShader);
-    ezBindGroupBuilder& bindGroup = pRenderContext->GetBindGroup();
-    bindGroup.BindBuffer("ezRmlUiConstants", m_hConstantBuffer);
+    m_pRenderGraph->Reset();
 
     for (auto& pCommandBuffer : submittedCommandBuffers)
     {
       const ezGALTexture* pTargetTexture = pDevice->GetTexture(pCommandBuffer->m_hTargetTexture);
       if (pTargetTexture == nullptr)
+      {
+        FreeCommandBuffer(std::move(pCommandBuffer));
         continue;
+      }
 
       auto& textureDesc = pTargetTexture->GetDescription();
-      ezRectFloat viewport(static_cast<float>(textureDesc.m_uiWidth), static_cast<float>(textureDesc.m_uiHeight));
-      ezRectU32 scissorRect(0, 0, textureDesc.m_uiWidth, textureDesc.m_uiHeight);
 
-      ezGALTextureHandle hTempTarget = pGpuResourcePool->GetRenderTarget(textureDesc.m_uiWidth, textureDesc.m_uiHeight, tempTargetFormat, msaaSampleCount);
-      ezGALTextureHandle hTempStencil = pGpuResourcePool->GetRenderTarget(textureDesc.m_uiWidth, textureDesc.m_uiHeight, tempStencilFormat, msaaSampleCount);
+      ezRenderGraphTextureHandle hTarget = m_pRenderGraph->ImportTexture(pCommandBuffer->m_hTargetTexture);
+      ezGALTextureHandle hTargetTexture = pCommandBuffer->m_hTargetTexture;
 
-      ezGALRenderingSetup renderingSetup;
-      renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(hTempTarget));
-      renderingSetup.SetClearColor(0);
-      renderingSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(hTempStencil), ezGALRenderTargetLoadOp::DontCare, ezGALRenderTargetStoreOp::Discard);
-      renderingSetup.SetClearStencil().SetClearDepth();
+      ezGALTextureCreationDescription tempColorDesc;
+      tempColorDesc.SetAsRenderTarget(textureDesc.m_uiWidth, textureDesc.m_uiHeight, tempTargetFormat, msaaSampleCount);
+      ezRenderGraphTextureHandle hTempColor = m_pRenderGraph->CreateTexture(tempColorDesc);
 
-      pRenderContext->BeginRendering(renderingSetup, viewport, pCommandBuffer->m_sName, false);
-      pCommandEncoder->SetScissorRect(scissorRect);
+      ezGALTextureCreationDescription tempStencilDesc;
+      tempStencilDesc.SetAsRenderTarget(textureDesc.m_uiWidth, textureDesc.m_uiHeight, tempStencilFormat, msaaSampleCount);
+      ezRenderGraphTextureHandle hTempStencil = m_pRenderGraph->CreateTexture(tempStencilDesc);
 
-      ezUInt32 uiCommandOffset = 0;
-      while (uiCommandOffset < pCommandBuffer->m_Buffer.GetCount())
       {
-        CommandType::Enum cmdType = pCommandBuffer->PeekCommandType(uiCommandOffset);
-        switch (cmdType)
-        {
-          case CommandType::RenderGeometry:
+        auto pass = m_pRenderGraph->AddGraphicsPass(pCommandBuffer->m_sName);
+        pass.AddColorTarget(hTempColor, {}, ezGALRenderTargetLoadOp::Clear);
+        pass.SetClearColor(0);
+        pass.AddDepthStencilTarget(hTempStencil, {},
+          ezGALRenderTargetLoadOp::Clear, ezGALRenderTargetStoreOp::Discard,
+          ezGALRenderTargetLoadOp::Clear, ezGALRenderTargetStoreOp::Discard);
+        pass.SetClearDepth();
+        pass.SetClearStencil();
+
+        pass.SetExecuteCallback([this, pCommandBuffer = pCommandBuffer.Borrow()](const ezRenderGraphContext& ctx)
           {
-            auto& cmd = pCommandBuffer->ConsumeCommand<CommandRenderGeometry>(uiCommandOffset);
+            auto* pCommandEncoder = ctx.GetCommandEncoder();
+            auto* pRenderContext = ctx.GetRenderContext();
 
-            pRenderContext->SetShaderPermutationVariable("RMLUI_MODE", cmd.m_bUseStencilTest ? ezTempHashedString("RMLUI_MODE_STENCIL_TEST") : ezTempHashedString("RMLUI_MODE_NORMAL"));
+            bool bAllowAsyncShaderLoading = pRenderContext->GetAllowAsyncShaderLoading();
+            pRenderContext->SetAllowAsyncShaderLoading(false);
+            EZ_SCOPE_EXIT(pRenderContext->SetAllowAsyncShaderLoading(bAllowAsyncShaderLoading));
 
-            ezRmlUiConstants* pConstants = pRenderContext->GetConstantBufferData<ezRmlUiConstants>(m_hConstantBuffer);
-            pConstants->UiTransform = cmd.m_Transform;
-            pConstants->UiTranslation = cmd.m_Translation.GetAsVec4(0, 1);
-            pConstants->TextureNeedsAlphaMultiplication = cmd.m_bNeedsPremultipliedAlpha;
+            ezRectFloat viewport(static_cast<float>(pCommandBuffer->m_uiTargetWidth), static_cast<float>(pCommandBuffer->m_uiTargetHeight));
+            pCommandEncoder->SetViewport(viewport);
 
-            pRenderContext->BindMeshBuffer(ezMakeArrayPtr(&cmd.m_CompiledGeometry.m_hVertexBuffer, 1), cmd.m_CompiledGeometry.m_hIndexBuffer, m_VertexAttributes, ezGALPrimitiveTopology::Triangles, cmd.m_CompiledGeometry.m_uiTriangleCount);
+            ezRectU32 scissorRect(0, 0, pCommandBuffer->m_uiTargetWidth, pCommandBuffer->m_uiTargetHeight);
+            pCommandEncoder->SetScissorRect(scissorRect);
 
-            bindGroup.BindTexture("BaseTexture", cmd.m_hTexture);
+            pRenderContext->BindShader(m_hShader);
+            ezBindGroupBuilder& bindGroup = pRenderContext->GetBindGroup();
+            bindGroup.BindBuffer("ezRmlUiConstants", m_hConstantBuffer);
 
-            pRenderContext->DrawMeshBuffer().IgnoreResult();
-          }
-          break;
+            ezUInt32 uiCommandOffset = 0;
+            while (uiCommandOffset < pCommandBuffer->m_Buffer.GetCount())
+            {
+              CommandType::Enum cmdType = pCommandBuffer->PeekCommandType(uiCommandOffset);
+              switch (cmdType)
+              {
+                case CommandType::RenderGeometry:
+                {
+                  auto& cmd = pCommandBuffer->ConsumeCommand<CommandRenderGeometry>(uiCommandOffset);
 
-          case CommandType::SetScissorRegion:
-          {
-            auto& cmd = pCommandBuffer->ConsumeCommand<CommandSetScissorRegion>(uiCommandOffset);
+                  pRenderContext->SetShaderPermutationVariable("RMLUI_MODE", cmd.m_bUseStencilTest ? ezTempHashedString("RMLUI_MODE_STENCIL_TEST") : ezTempHashedString("RMLUI_MODE_NORMAL"));
 
-            pCommandEncoder->SetScissorRect(cmd.m_ScissorRect);
-          }
-          break;
+                  ezRmlUiConstants* pConstants = pRenderContext->GetConstantBufferData<ezRmlUiConstants>(m_hConstantBuffer);
+                  pConstants->UiTransform = cmd.m_Transform;
+                  pConstants->UiTranslation = cmd.m_Translation.GetAsVec4(0, 1);
+                  pConstants->TextureNeedsAlphaMultiplication = cmd.m_bNeedsPremultipliedAlpha;
 
-          case CommandType::RenderToClipMask:
-          {
-            auto& cmd = pCommandBuffer->ConsumeCommand<CommandRenderToClipMask>(uiCommandOffset);
+                  pRenderContext->BindMeshBuffer(ezMakeArrayPtr(&cmd.m_CompiledGeometry.m_hVertexBuffer, 1), cmd.m_CompiledGeometry.m_hIndexBuffer, m_VertexAttributes, ezGALPrimitiveTopology::Triangles, cmd.m_CompiledGeometry.m_uiTriangleCount);
 
-            EZ_ASSERT_DEV(cmd.m_Operation == Rml::ClipMaskOperation::Set, "Only 'Set' clip mask operation is implemented.");
-            pRenderContext->SetShaderPermutationVariable("RMLUI_MODE", "RMLUI_MODE_STENCIL_SET");
+                  bindGroup.BindTexture("BaseTexture", cmd.m_hTexture);
 
-            ezRmlUiConstants* pConstants = pRenderContext->GetConstantBufferData<ezRmlUiConstants>(m_hConstantBuffer);
-            pConstants->UiTransform = cmd.m_Transform;
-            pConstants->UiTranslation = cmd.m_Translation.GetAsVec4(0, 1);
+                  pRenderContext->DrawMeshBuffer().IgnoreResult();
+                }
+                break;
 
-            pRenderContext->BindMeshBuffer(ezMakeArrayPtr(&cmd.m_CompiledGeometry.m_hVertexBuffer, 1), cmd.m_CompiledGeometry.m_hIndexBuffer, m_VertexAttributes, ezGALPrimitiveTopology::Triangles, cmd.m_CompiledGeometry.m_uiTriangleCount);
+                case CommandType::SetScissorRegion:
+                {
+                  auto& cmd = pCommandBuffer->ConsumeCommand<CommandSetScissorRegion>(uiCommandOffset);
 
-            pRenderContext->DrawMeshBuffer().IgnoreResult();
-          }
-          break;
+                  pCommandEncoder->SetScissorRect(cmd.m_ScissorRect);
+                }
+                break;
 
-          default:
-          {
-            EZ_ASSERT_ALWAYS(false, "RmlUI: Command Type '{}' is not implemented.", cmdType);
-            break;
-          }
-        }
+                case CommandType::RenderToClipMask:
+                {
+                  auto& cmd = pCommandBuffer->ConsumeCommand<CommandRenderToClipMask>(uiCommandOffset);
+
+                  EZ_ASSERT_DEV(cmd.m_Operation == Rml::ClipMaskOperation::Set, "Only 'Set' clip mask operation is implemented.");
+                  pRenderContext->SetShaderPermutationVariable("RMLUI_MODE", "RMLUI_MODE_STENCIL_SET");
+
+                  ezRmlUiConstants* pConstants = pRenderContext->GetConstantBufferData<ezRmlUiConstants>(m_hConstantBuffer);
+                  pConstants->UiTransform = cmd.m_Transform;
+                  pConstants->UiTranslation = cmd.m_Translation.GetAsVec4(0, 1);
+
+                  pRenderContext->BindMeshBuffer(ezMakeArrayPtr(&cmd.m_CompiledGeometry.m_hVertexBuffer, 1), cmd.m_CompiledGeometry.m_hIndexBuffer, m_VertexAttributes, ezGALPrimitiveTopology::Triangles, cmd.m_CompiledGeometry.m_uiTriangleCount);
+
+                  pRenderContext->DrawMeshBuffer().IgnoreResult();
+                }
+                break;
+
+                default:
+                {
+                  EZ_ASSERT_ALWAYS(false, "RmlUI: Command Type '{}' is not implemented.", cmdType);
+                  break;
+                }
+              }
+            } //
+          });
       }
 
-      pRenderContext->EndRendering();
-
-      pCommandEncoder->ResolveTexture(pCommandBuffer->m_hTargetTexture, ezGALTextureSubresource(), hTempTarget, ezGALTextureSubresource());
-      if (textureDesc.m_uiMipLevelCount > 1 && textureDesc.m_TextureFlags.IsSet(ezGALTextureUsageFlags::DynamicMipGeneration))
+      // Transfer pass: resolve MSAA to target texture
       {
-        pCommandEncoder->GenerateMipMaps(pCommandBuffer->m_hTargetTexture, ezGALTextureRange::MakeFromMipRange());
+        auto resolvePass = m_pRenderGraph->AddTransferPass("RmlUi Resolve");
+        resolvePass.ReadTexture(hTempColor, {}, ezGALResourceState::ResolveSource);
+        resolvePass.WriteTexture(hTarget, {}, ezGALResourceState::ResolveDestination);
+        resolvePass.SetExecuteCallback([hTempColor, hTarget](const ezRenderGraphContext& ctx)
+          { ctx.GetCommandEncoder()->ResolveTexture(
+              ctx.ResolveTexture(hTarget), ezGALTextureSubresource(),
+              ctx.ResolveTexture(hTempColor), ezGALTextureSubresource()); });
       }
 
-      pGpuResourcePool->ReturnRenderTarget(hTempTarget);
-      pGpuResourcePool->ReturnRenderTarget(hTempStencil);
-
-      FreeCommandBuffer(std::move(pCommandBuffer));
+      // Optional: generate mipmaps for the target
+      if (textureDesc.m_uiMipLevelCount > 1 && textureDesc.m_TextureFlags.IsSet(ezGALTextureUsageFlags::RenderTarget))
+      {
+        ezRenderGraphUtils::GenerateMipMaps(hTargetTexture, {}, *m_pRenderGraph);
+      }
     }
 
-    pDevice->EndCommands(pCommandEncoder);
-
-    submittedCommandBuffers.Clear();
+    ezRenderGraphManager::EnqueueRenderGraph(m_pRenderGraph);
   }
 
   void RenderInterface::EndFrame()
@@ -517,6 +546,16 @@ namespace ezRmlUiInternal
       m_CompiledGeometry.Remove(releasedGeometry.m_Id);
       m_ReleasedCompiledGeometry.PopFront();
     }
+
+    auto& submittedCommandBuffers = m_SubmittedCommandBuffers[ezRenderWorld::GetDataIndexForRendering()];
+    for (auto& pCommandBuffer : submittedCommandBuffers)
+    {
+      if (pCommandBuffer != nullptr)
+      {
+        FreeCommandBuffer(std::move(pCommandBuffer));
+      }
+    }
+    submittedCommandBuffers.Clear();
   }
 
   void RenderInterface::FreeReleasedGeometry(GeometryId id)

@@ -11,7 +11,6 @@
 #include <RendererVulkan/Pools/SemaphorePoolVulkan.h>
 #include <RendererVulkan/Resources/TextureVulkan.h>
 #include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
-#include <RendererVulkan/Utils/PipelineBarrierVulkan.h>
 
 #if EZ_ENABLED(EZ_SUPPORTS_GLFW)
 #  include <GLFW/glfw3.h>
@@ -72,6 +71,8 @@ void ezGALSwapChainVulkan::AcquireNextRenderTarget(ezGALDevice* pDevice)
   // Check if the surface extent has changed before acquiring. If it has, recreate the swapchain first.
   // This avoids a Vulkan spec violation: when minImageCount equals the total swapchain image count,
   // forward progress can't be guaranteed, and using UINT64_MAX as timeout is not allowed.
+  // I *think* that this is no longer needed now that we don't SPAM the resize in the editor to the engine.
+  /*
   {
     const vk::SurfaceCapabilitiesKHR surfaceCapabilities = m_pVulkanDevice->GetVulkanPhysicalDevice().getSurfaceCapabilitiesKHR(m_vulkanSurface);
     if (surfaceCapabilities.currentExtent.width != m_CurrentSize.width || surfaceCapabilities.currentExtent.height != m_CurrentSize.height)
@@ -82,6 +83,7 @@ void ezGALSwapChainVulkan::AcquireNextRenderTarget(ezGALDevice* pDevice)
       }
     }
   }
+  */
 
   int retryCount = 0;
   while (true)
@@ -108,16 +110,20 @@ void ezGALSwapChainVulkan::AcquireNextRenderTarget(ezGALDevice* pDevice)
       {
         EZ_REPORT_FAILURE("Automatic swap-chain re-creation didn't have an effect 4 times in a row, application can't be recovered.");
       }
-      // It is not a size issue, re-create automatically
-      if (CreateSwapChainInternal().Failed())
+      while (retryCount < 4)
       {
-        ezLog::Error("Failed automatic swapchain re-creation");
+        // It is not a size issue, re-create automatically
+        if (CreateSwapChainInternal().Failed())
+        {
+          ezLog::Error("Failed automatic swapchain re-creation");
+        }
+        else
+        {
+          ezLog::Debug("Automatic swapchain re-creation succeeded");
+          break;
+        }
+        retryCount++;
       }
-      else
-      {
-        ezLog::Debug("Automatic swapchain re-creation succeeded");
-      }
-      retryCount++;
     }
     else
     {
@@ -142,12 +148,6 @@ void ezGALSwapChainVulkan::PresentRenderTarget(ezGALDevice* pDevice)
 
 
   auto pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
-  {
-    auto view = ezGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(m_RenderTargets.m_hRTs[0]);
-    const ezGALTextureVulkan* pTexture = static_cast<const ezGALTextureVulkan*>(pVulkanDevice->GetTexture(m_swapChainTextures[m_uiCurrentSwapChainImage]));
-    // Move image into ePresentSrcKHR layout.
-    pVulkanDevice->GetCurrentPipelineBarrier().EnsureImageLayout(pTexture, pTexture->GetFullRange(), vk::ImageLayout::ePresentSrcKHR, vk::PipelineStageFlagBits::eBottomOfPipe, {});
-  }
 
   // Submit command buffer
   vk::Semaphore currentPipelineRenderFinishedSemaphore = m_imageRenderFinishedSemaphores[m_uiCurrentSwapChainImage];
@@ -367,17 +367,29 @@ ezResult ezGALSwapChainVulkan::CreateSwapChainInternal()
   swapChainCreateInfo.pQueueFamilyIndices = nullptr;
   swapChainCreateInfo.queueFamilyIndexCount = 0;
 
+  // If the swapchain maintenance extension is available, request stretch scaling so the
+  // presentation engine scales the image to the surface size instead of returning
+  // VK_ERROR_OUT_OF_DATE_KHR when dimensions mismatch.
+  vk::SwapchainPresentScalingCreateInfoKHR scalingInfo;
+  if (m_pVulkanDevice->GetExtensions().m_bSwapchainMaintenance1)
+  {
+    scalingInfo.scalingBehavior = vk::PresentScalingFlagBitsKHR::eStretch;
+    scalingInfo.pNext = swapChainCreateInfo.pNext;
+    swapChainCreateInfo.pNext = &scalingInfo;
+  }
+
   // We must pass in the old swap chain or NVidia will crash.
   swapChainCreateInfo.oldSwapchain = m_vulkanSwapChain;
   DestroySwapChainInternal(m_pVulkanDevice);
 
-  VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_pVulkanDevice->GetVulkanDevice().createSwapchainKHR(&swapChainCreateInfo, nullptr, &m_vulkanSwapChain));
-
-  if (!m_vulkanSwapChain)
+  vk::SwapchainKHR newSwapChain;
+  VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_pVulkanDevice->GetVulkanDevice().createSwapchainKHR(&swapChainCreateInfo, nullptr, &newSwapChain));
+  if (!newSwapChain)
   {
     ezLog::Error("Failed to create Vulkan swap chain!");
     return EZ_FAILURE;
   }
+  m_vulkanSwapChain = newSwapChain;
 
   ezUInt32 uiSwapChainImages = 0;
   VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_pVulkanDevice->GetVulkanDevice().getSwapchainImagesKHR(m_vulkanSwapChain, &uiSwapChainImages, nullptr));
@@ -402,12 +414,14 @@ ezResult ezGALSwapChainVulkan::CreateSwapChainInternal()
     TexDesc.m_uiHeight = swapChainCreateInfo.imageExtent.height;
     TexDesc.m_SampleCount = m_WindowDesc.m_SampleCount;
     TexDesc.m_pExisitingNativeObject = m_swapChainImages[i];
-    TexDesc.m_TextureFlags = ezGALTextureUsageFlags::RenderTarget;
-    TexDesc.m_ResourceAccess.m_bImmutable = true;
+    TexDesc.m_TextureFlags = ezGALTextureUsageFlags::RenderTarget | ezGALTextureUsageFlags::ShaderResource | ezGALTextureUsageFlags::Presentable;
+    TexDesc.m_ResourceAccess.m_bImmutable = false;
     m_swapChainTextures.PushBack(m_pVulkanDevice->CreateTextureInternal(TexDesc, ezArrayPtr<ezGALSystemMemoryDescription>()));
   }
   m_CurrentSize = ezSizeU32(swapChainCreateInfo.imageExtent.width, swapChainCreateInfo.imageExtent.height);
   m_RenderTargets.m_hRTs[0] = m_swapChainTextures[0];
+
+  m_pVulkanDevice->s_SwapChainUpdatedEvent.Broadcast(this);
   return EZ_SUCCESS;
 }
 
@@ -416,8 +430,6 @@ void ezGALSwapChainVulkan::DestroySwapChainInternal(ezGALDeviceVulkan* pVulkanDe
   ezUInt32 uiSwapChainImages = m_swapChainTextures.GetCount();
   for (ezUInt32 i = 0; i < uiSwapChainImages; i++)
   {
-    pVulkanDevice->GetInitContext().TextureDestroyed(static_cast<const ezGALTextureVulkan*>(pVulkanDevice->GetTexture(m_swapChainTextures[i])));
-
     pVulkanDevice->DestroyTexture(m_swapChainTextures[i]);
   }
   m_swapChainTextures.Clear();

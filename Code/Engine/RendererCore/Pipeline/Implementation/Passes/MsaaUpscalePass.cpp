@@ -40,55 +40,40 @@ ezMsaaUpscalePass::ezMsaaUpscalePass()
 
 ezMsaaUpscalePass::~ezMsaaUpscalePass() = default;
 
-bool ezMsaaUpscalePass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+ezStatus ezMsaaUpscalePass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
-  auto pInput = inputs[m_PinInput.m_uiInputIndex];
-  if (pInput != nullptr)
+  ezRenderGraphTextureHandle hInput = inputs[m_PinInput.m_uiInputIndex].m_TextureHandle;
+  if (hInput.IsInvalidated())
+    return ezStatus(ezFmt("Input: Not connected"));
+
+  const ezGALTextureCreationDescription inputDesc = graph.GetTextureDesc(hInput);
+  if (inputDesc.m_SampleCount != ezGALMSAASampleCount::None)
+    return ezStatus(ezFmt("Input must not be a msaa target"));
+
+  ezGALTextureCreationDescription outputDesc = inputDesc;
+  outputDesc.m_SampleCount = m_MsaaMode;
+  ezRenderGraphTextureHandle hOutput = graph.CreateTexture(outputDesc);
+  outputs[m_PinOutput.m_uiOutputIndex].m_TextureHandle = hOutput;
+
+  auto pass = graph.AddGraphicsPass("MsaaUpscale");
+  pass.AddColorTarget(hOutput);
+  pass.ReadTexture(hInput, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
+  pass.SetStereoscopic(camera.IsStereoscopic());
+  pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
   {
-    if (pInput->m_SampleCount != ezGALMSAASampleCount::None)
-    {
-      ezLog::Error("Input must not be a msaa target");
-      return false;
-    }
+    const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
+    renderViewContext.UpdateViewport();
 
-    ezGALTextureCreationDescription desc = *pInput;
-    desc.m_SampleCount = m_MsaaMode;
+    renderViewContext.m_pRenderContext->BindShader(m_hShader);
+    renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
 
-    outputs[m_PinOutput.m_uiOutputIndex] = desc;
-  }
-  else
-  {
-    ezLog::Error("No input connected to '{0}'!", GetName());
-    return false;
-  }
+    ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
+    bindGroup.BindTexture("ColorTexture", ctx.ResolveTexture(hInput));
 
-  return true;
-}
+    renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
+  });
 
-void ezMsaaUpscalePass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
-{
-  auto pInput = inputs[m_PinInput.m_uiInputIndex];
-  auto pOutput = outputs[m_PinOutput.m_uiOutputIndex];
-  if (pInput == nullptr || pOutput == nullptr)
-  {
-    return;
-  }
-
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-
-  // Setup render target
-  ezGALRenderingSetup renderingSetup;
-  renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
-
-  // Bind render target and viewport
-  auto pCommandEncoder = ezRenderContext::BeginRenderingScope(renderViewContext, renderingSetup, GetName(), renderViewContext.m_pCamera->IsStereoscopic());
-
-  renderViewContext.m_pRenderContext->BindShader(m_hShader);
-  renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
-  ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
-  bindGroup.BindTexture("ColorTexture", pInput->m_TextureHandle);
-
-  renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
+  return EZ_SUCCESS;
 }
 
 ezResult ezMsaaUpscalePass::Serialize(ezStreamWriter& inout_stream) const

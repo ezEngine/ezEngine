@@ -183,10 +183,10 @@ struct ezGALTextureUsageFlags
 
   enum Enum
   {
-    ShaderResource = EZ_BIT(0),       ///< Can be used for ezGALShaderResourceType in the SRV section.
-    UnorderedAccess = EZ_BIT(1),      ///< Can be used for ezGALShaderResourceType in the UAV section.
-    RenderTarget = EZ_BIT(2),         ///< Can be used as a render target or depth-stencil target.
-    DynamicMipGeneration = EZ_BIT(3), ///< Supports dynamic mipmap generation.
+    ShaderResource = EZ_BIT(0),  ///< Can be used for ezGALShaderResourceType in the SRV section.
+    UnorderedAccess = EZ_BIT(1), ///< Can be used for ezGALShaderResourceType in the UAV section.
+    RenderTarget = EZ_BIT(2),    ///< Can be used as a render target or depth-stencil target.
+    Presentable = EZ_BIT(4),     ///< Can be presented by a swapchain
 
     Default = ShaderResource
   };
@@ -196,7 +196,6 @@ struct ezGALTextureUsageFlags
     StorageType ShaderResource : 1;
     StorageType UnorderedAccess : 1;
     StorageType RenderTarget : 1;
-    StorageType DynamicMipGeneration : 1;
   };
 };
 EZ_DECLARE_FLAGS_OPERATORS(ezGALTextureUsageFlags);
@@ -268,6 +267,130 @@ struct ezGALSharedTextureType
     Imported, ///< Allocation owned by a different process
     Default = None
   };
+};
+
+/// \brief Defines on what type of queue a render pass is being executed.
+/// Note that this does not mean a dedicated queue for this kind of task is used, it merely limits what kind of commands a pass is allowed to execute.
+struct ezGALQueueType
+{
+  using StorageType = ezUInt8;
+
+  enum Enum : ezUInt8
+  {
+    Graphics,
+    Compute,
+    Transfer,
+    Default = Graphics
+  };
+};
+
+/// \brief Describes the usage state of a GPU resource for barrier and layout transition purposes.
+///
+/// Read-only states can be combined via bitwise OR when a resource is used for multiple read purposes simultaneously (buffers ONLY, e.g., sampled in a shader while also bound as a vertex buffer).
+/// Write states are exclusive and must not be combined with other states.
+///
+/// Not every state is valid for every resource type. Using an invalid state (e.g., RenderTarget on a buffer) is a usage error.
+struct ezGALResourceState
+{
+  using StorageType = ezUInt32;
+
+  enum Enum : ezUInt32
+  {
+    Unknown = 0,
+
+    // Read-only states (combinable for buffers)
+    ShaderResource = EZ_BIT(0),   ///< Texture/buffer read by a shader stage
+    ConstantBuffer = EZ_BIT(1),   ///< Bound as a constant/uniform buffer
+    VertexBuffer = EZ_BIT(2),     ///< Bound as a vertex buffer
+    IndexBuffer = EZ_BIT(3),      ///< Bound as an index buffer
+    DrawIndirect = EZ_BIT(4),     ///< Indirect draw/dispatch argument buffer
+    DepthStencilRead = EZ_BIT(5), ///< Depth/stencil attachment without writes
+    CopySource = EZ_BIT(6),       ///< Source of a copy or blit operation
+    ResolveSource = EZ_BIT(7),    ///< Source of an MSAA resolve
+
+    // Write states (exclusive)
+    UnorderedAccess = EZ_BIT(16),    ///< UAV/storage write
+    RenderTarget = EZ_BIT(17),       ///< Color render target attachment
+    DepthStencilWrite = EZ_BIT(18),  ///< Depth/stencil attachment with writes (implies read)
+    CopyDestination = EZ_BIT(19),    ///< Destination of a copy or blit operation
+    ResolveDestination = EZ_BIT(20), ///< Destination of an MSAA resolve
+
+    // Barrier hints
+    Discard = EZ_BIT(28), ///< Textures write only: The previous data / layout can be discarded
+
+    // Special - handled internally
+    Present = EZ_BIT(29),  ///< Swapchain presentation
+    CpuRead = EZ_BIT(30),  ///< GPU->CPU readback (e.g., into a staging buffer)
+    CpuWrite = EZ_BIT(31), ///< CPU->GPU upload (e.g., from a staging buffer)
+
+    // Masks
+    AllTextureStates = ShaderResource | DepthStencilRead | CopySource | ResolveSource | UnorderedAccess | RenderTarget | DepthStencilWrite | CopyDestination | ResolveDestination | Discard,
+
+    AllBufferStates = ShaderResource | ConstantBuffer | VertexBuffer | IndexBuffer | DrawIndirect | CopySource | UnorderedAccess | CopyDestination,
+
+    AllReadStates = ShaderResource | ConstantBuffer | VertexBuffer | IndexBuffer | DrawIndirect | DepthStencilRead | CopySource | ResolveSource,
+
+    AllWriteStates = UnorderedAccess | RenderTarget | DepthStencilWrite | CopyDestination | ResolveDestination | Discard,
+
+    Default = Unknown
+  };
+
+  struct Bits
+  {
+    // Read states (bits 0-7)
+    StorageType ShaderResource : 1;   // 0
+    StorageType ConstantBuffer : 1;   // 1
+    StorageType VertexBuffer : 1;     // 2
+    StorageType IndexBuffer : 1;      // 3
+    StorageType IndirectArgument : 1; // 4
+    StorageType DepthStencilRead : 1; // 5
+    StorageType CopySource : 1;       // 6
+    StorageType ResolveSource : 1;    // 7
+
+    StorageType _Padding0 : 8;        // 8-15
+
+    // Write states (bits 16-20)
+    StorageType UnorderedAccess : 1;    // 16
+    StorageType RenderTarget : 1;       // 17
+    StorageType DepthStencilWrite : 1;  // 18
+    StorageType CopyDestination : 1;    // 19
+    StorageType ResolveDestination : 1; // 20
+
+    StorageType _Padding1 : 8;          // 21-27
+
+    StorageType Discard : 1;  // 28
+
+    // Special (bits 29-31)
+    StorageType Present : 1;  // 29
+    StorageType CpuRead : 1;  // 30
+    StorageType CpuWrite : 1; // 31
+  };
+};
+EZ_DECLARE_FLAGS_OPERATORS(ezGALResourceState);
+
+/// Describes a texture barrier for a layout/state transition.
+struct ezGALTextureBarrier
+{
+  EZ_DECLARE_POD_TYPE();
+  ezGALTextureHandle m_hTexture;
+  ezBitflags<ezGALResourceState> m_StateBefore;
+  ezBitflags<ezGALResourceState> m_StateAfter;
+  ezBitflags<ezGALShaderStageFlags> m_StagesBefore = ezGALShaderStageFlags::Auto;
+  ezBitflags<ezGALShaderStageFlags> m_StagesAfter = ezGALShaderStageFlags::Auto;
+  ezGALTextureSubresource m_Subresource = {};
+  bool m_bAllSubresources = true; ///< If true, the barrier applies to all subresources and m_Subresource is ignored.
+  bool m_bDiscard = false; ///< Discard previous texture layout
+};
+
+/// Describes a buffer barrier for a state transition.
+struct ezGALBufferBarrier
+{
+  EZ_DECLARE_POD_TYPE();
+  ezGALBufferHandle m_hBuffer;
+  ezBitflags<ezGALResourceState> m_StateBefore;
+  ezBitflags<ezGALResourceState> m_StateAfter;
+  ezBitflags<ezGALShaderStageFlags> m_StagesBefore = ezGALShaderStageFlags::Auto;
+  ezBitflags<ezGALShaderStageFlags> m_StagesAfter = ezGALShaderStageFlags::Auto;
 };
 
 #include <RendererFoundation/Descriptors/Implementation/Enumerations_inl.h>

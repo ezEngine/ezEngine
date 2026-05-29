@@ -59,15 +59,9 @@ ezGALTextureHandle ezPickingRenderPass::GetPickingDepthRT() const
   return m_hPickingDepthRT;
 }
 
-bool ezPickingRenderPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+ezStatus ezPickingRenderPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
-  m_TargetRect = view.GetViewport();
-
-  return true;
-}
-
-void ezPickingRenderPass::InitRenderPipelinePass(const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
-{
+  m_TargetRect = viewData.m_ViewPortRect;
   DestroyTarget();
   CreateTarget();
 
@@ -75,64 +69,73 @@ void ezPickingRenderPass::InitRenderPipelinePass(const ezArrayPtr<ezRenderPipeli
   {
     m_uiProcessorId = GetPipeline()->AddRenderDataProcessor(ezMakeDelegate(&ezPickingRenderPass::ProcessPickingRenderData, this));
   }
-}
 
-void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
-{
-  const ezRectFloat& viewPortRect = renderViewContext.m_pViewData->m_ViewPortRect;
-  m_uiWindowWidth = (ezUInt32)viewPortRect.width;
-  m_uiWindowHeight = (ezUInt32)viewPortRect.height;
+  m_uiWindowWidth = (ezUInt32)m_TargetRect.width;
+  m_uiWindowHeight = (ezUInt32)m_TargetRect.height;
 
   const ezGALTexture* pDepthTexture = ezGALDevice::GetDefaultDevice()->GetTexture(m_hPickingDepthRT);
   EZ_ASSERT_DEV(m_uiWindowWidth == pDepthTexture->GetDescription().m_uiWidth, "");
   EZ_ASSERT_DEV(m_uiWindowHeight == pDepthTexture->GetDescription().m_uiHeight, "");
 
+  m_hPickingIdGraphRT = graph.ImportTexture(m_hPickingIdRT);
+  m_hPickingDepthGraphRT = graph.ImportTexture(m_hPickingDepthRT);
   {
-    auto pCommandEncoder = ezRenderContext::BeginRenderingScope(renderViewContext, m_RenderTargetSetup, GetName());
+    auto pass = graph.AddGraphicsPass(GetName());
+    pass.AddColorTarget(m_hPickingIdGraphRT, {}, ezGALRenderTargetLoadOp::Clear);
+    pass.AddDepthStencilTarget(m_hPickingDepthGraphRT, {}, ezGALRenderTargetLoadOp::Clear);
+    pass.SetClearColor(0);
+    pass.SetClearDepth().SetClearStencil();
+    pass.HasSideEffects();
+    ezClusteredDataGPU::AddReadDependencies(graph, pass, viewData.m_uiSkyIrradianceIndex, viewData.m_CameraUsageHint);
+    pass.SetExecuteCallback([this](const ezRenderGraphContext& ctx)
+      {
+        const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
+        renderViewContext.UpdateViewport();
 
-    ezViewRenderMode::Enum viewRenderMode = renderViewContext.m_pViewData->m_ViewRenderMode;
-    if (viewRenderMode == ezViewRenderMode::WireframeColor || viewRenderMode == ezViewRenderMode::WireframeMonochrome)
-      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_PICKING_WIREFRAME");
-    else
-      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_PICKING");
+        ezViewRenderMode::Enum viewRenderMode = renderViewContext.m_pViewData->m_ViewRenderMode;
+        if (viewRenderMode == ezViewRenderMode::WireframeColor || viewRenderMode == ezViewRenderMode::WireframeMonochrome)
+          renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_PICKING_WIREFRAME");
+        else
+          renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_PICKING");
 
-    // Setup clustered data
-    auto pClusteredData = GetPipeline()->GetFrameDataProvider<ezClusteredDataProvider>()->GetData(renderViewContext);
-    pClusteredData->BindResources(renderViewContext.m_pRenderContext);
+        // Setup clustered data
+        auto pClusteredData = GetPipeline()->GetFrameDataProvider<ezClusteredDataProvider>()->GetData(renderViewContext);
+        pClusteredData->BindResources(renderViewContext.m_pRenderContext);
 
-    RenderDataWithCategory(renderViewContext, s_LitOpaqueWithoutSelection);
-    RenderDataWithCategory(renderViewContext, s_LitMaskedWithoutSelection);
+        RenderDataWithCategory(renderViewContext, s_LitOpaqueWithoutSelection);
+        RenderDataWithCategory(renderViewContext, s_LitMaskedWithoutSelection);
 
-    if (m_bPickTransparent)
-    {
-      RenderDataWithCategory(renderViewContext, s_LitTransparentWithoutSelection);
+        if (m_bPickTransparent)
+        {
+          RenderDataWithCategory(renderViewContext, s_LitTransparentWithoutSelection);
 
-      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "TRUE");
-      RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitForeground);
+          renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "TRUE");
+          RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitForeground);
 
-      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "FALSE");
-      RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitForeground);
-    }
+          renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "FALSE");
+          RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitForeground);
+        }
 
-    if (m_bPickSelected)
-    {
-      RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Selection);
-    }
+        if (m_bPickSelected)
+        {
+          RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Selection);
+        }
 
-    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleOpaque);
+        RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleOpaque);
 
-    if (m_bPickTransparent)
-    {
-      RenderDataWithCategory(renderViewContext, s_SimpleTransparentWithoutSelection);
-    }
+        if (m_bPickTransparent)
+        {
+          RenderDataWithCategory(renderViewContext, s_SimpleTransparentWithoutSelection);
+        }
 
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "TRUE");
-    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleForeground);
+        renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "TRUE");
+        RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleForeground);
 
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "FALSE");
-    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleForeground);
+        renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "FALSE");
+        RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleForeground);
 
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_FORWARD");
+        renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_FORWARD"); //
+      });
   }
 
   if (m_PendingReadback.m_bReadbackInProgress)
@@ -141,68 +144,81 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
     // and try again next frame, rather than stalling the editor process on the GPU.
     {
       if (m_PendingReadback.m_PickingReadback.GetReadbackResult(ezTime::MakeFromMilliseconds(4)) != ezGALAsyncResult::Ready)
-        return;
+        return EZ_SUCCESS;
 
       if (m_PendingReadback.m_PickingDepthReadback.GetReadbackResult(ezTime::MakeFromMilliseconds(4)) != ezGALAsyncResult::Ready)
-        return;
+        return EZ_SUCCESS;
 
       m_PendingReadback.m_bReadbackInProgress = false;
     }
-
-    ezGALTextureSubresource sourceSubResource;
-    ezArrayPtr<ezGALTextureSubresource> sourceSubResources(&sourceSubResource, 1);
-    ezTempHybridArray<ezGALSystemMemoryDescription, 1> memory;
-
-    m_PickingResultsDepth.Clear();
-    m_PickingResultsID.Clear();
-    m_mPickingInverseViewProjectionMatrix = ezMat4::MakeZero();
-    // If the resolution has changed, discard the readback result.
-    if (m_uiWindowHeight == m_PendingReadback.m_uiWindowHeight && m_uiWindowWidth == m_PendingReadback.m_uiWindowWidth)
-    {
+    auto pass = graph.AddTransferPass("PickingProcessResults");
+    pass.HasSideEffects();
+    pass.SetExecuteCallback([this](const ezRenderGraphContext& ctx)
       {
-        m_PickingResultsDepth.SetCountUninitialized(m_uiWindowWidth * m_uiWindowHeight);
-        ezReadbackTextureLock lock = m_PendingReadback.m_PickingDepthReadback.LockTexture(sourceSubResources, memory);
-        EZ_ASSERT_ALWAYS(lock, "Failed to lock readback texture");
-        const ezGALTexture* pReadbackTexture = ezGALDevice::GetDefaultDevice()->GetTexture(GetPickingDepthRT());
-        ezTextureUtils::CopySubResourceToMemory(pReadbackTexture->GetDescription(), sourceSubResource, memory[0], m_PickingResultsDepth.GetByteArrayPtr(), m_uiWindowWidth * sizeof(float));
-      }
-      {
-        m_PickingResultsID.SetCountUninitialized(m_uiWindowWidth * m_uiWindowHeight);
-        ezReadbackTextureLock lock = m_PendingReadback.m_PickingReadback.LockTexture(sourceSubResources, memory);
-        EZ_ASSERT_ALWAYS(lock, "Failed to lock readback texture");
-        const ezGALTexture* pReadbackTexture = ezGALDevice::GetDefaultDevice()->GetTexture(GetPickingIdRT());
-        ezTextureUtils::CopySubResourceToMemory(pReadbackTexture->GetDescription(), sourceSubResource, memory[0], m_PickingResultsID.GetByteArrayPtr(), m_uiWindowWidth * sizeof(ezUInt32));
-      }
-      m_mPickingInverseViewProjectionMatrix = m_PendingReadback.m_mPickingInverseViewProjectionMatrix;
-    }
+        ezGALTextureSubresource sourceSubResource;
+        ezArrayPtr<ezGALTextureSubresource> sourceSubResources(&sourceSubResource, 1);
+        ezTempHybridArray<ezGALSystemMemoryDescription, 1> memory;
+
+        m_PickingResultsDepth.Clear();
+        m_PickingResultsID.Clear();
+        m_mPickingInverseViewProjectionMatrix = ezMat4::MakeZero();
+        // If the resolution has changed, discard the readback result.
+        if (m_uiWindowHeight == m_PendingReadback.m_uiWindowHeight && m_uiWindowWidth == m_PendingReadback.m_uiWindowWidth)
+        {
+          {
+            m_PickingResultsDepth.SetCountUninitialized(m_uiWindowWidth * m_uiWindowHeight);
+            ezReadbackTextureLock lock = m_PendingReadback.m_PickingDepthReadback.LockTexture(sourceSubResources, memory);
+            EZ_ASSERT_ALWAYS(lock, "Failed to lock readback texture");
+            const ezGALTexture* pReadbackTexture = ezGALDevice::GetDefaultDevice()->GetTexture(GetPickingDepthRT());
+            ezTextureUtils::CopySubResourceToMemory(pReadbackTexture->GetDescription(), sourceSubResource, memory[0], m_PickingResultsDepth.GetByteArrayPtr(), m_uiWindowWidth * sizeof(float));
+          }
+          {
+            m_PickingResultsID.SetCountUninitialized(m_uiWindowWidth * m_uiWindowHeight);
+            ezReadbackTextureLock lock = m_PendingReadback.m_PickingReadback.LockTexture(sourceSubResources, memory);
+            EZ_ASSERT_ALWAYS(lock, "Failed to lock readback texture");
+            const ezGALTexture* pReadbackTexture = ezGALDevice::GetDefaultDevice()->GetTexture(GetPickingIdRT());
+            ezTextureUtils::CopySubResourceToMemory(pReadbackTexture->GetDescription(), sourceSubResource, memory[0], m_PickingResultsID.GetByteArrayPtr(), m_uiWindowWidth * sizeof(ezUInt32));
+          }
+          m_mPickingInverseViewProjectionMatrix = m_PendingReadback.m_mPickingInverseViewProjectionMatrix;
+        } //
+      });
   }
 
   // Start transferring the picking information from the GPU to the CPU
   if (m_uiWindowWidth != 0 && m_uiWindowHeight != 0)
   {
-    m_PendingReadback.m_PickingReadback.ReadbackTexture(*renderViewContext.m_pRenderContext->GetCommandEncoder(), GetPickingIdRT());
-    m_PendingReadback.m_PickingDepthReadback.ReadbackTexture(*renderViewContext.m_pRenderContext->GetCommandEncoder(), GetPickingDepthRT());
-    renderViewContext.m_pRenderContext->GetCommandEncoder()->Flush();
+    auto pass = graph.AddTransferPass("PickingReadback");
+    pass.ReadTexture(m_hPickingIdGraphRT, {}, ezGALResourceState::CopySource);
+    pass.ReadTexture(m_hPickingDepthGraphRT, {}, ezGALResourceState::CopySource);
+    pass.HasSideEffects();
+    pass.SetExecuteCallback([this](const ezRenderGraphContext& ctx)
+      {
+        const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
+        m_PendingReadback.m_PickingReadback.ReadbackTexture(*ctx.GetCommandEncoder(), ctx.ResolveTexture(m_hPickingIdGraphRT));
+        m_PendingReadback.m_PickingDepthReadback.ReadbackTexture(*ctx.GetCommandEncoder(), ctx.ResolveTexture(m_hPickingDepthGraphRT));
+        ctx.GetCommandEncoder()->Flush();
 
-    ezMat4 mProj;
-    renderViewContext.m_pCamera->GetProjectionMatrix((float)m_uiWindowWidth / m_uiWindowHeight, mProj);
-    ezMat4 mView = renderViewContext.m_pCamera->GetViewMatrix();
+        ezMat4 mProj;
+        renderViewContext.m_pCamera->GetProjectionMatrix((float)m_uiWindowWidth / m_uiWindowHeight, mProj);
+        ezMat4 mView = renderViewContext.m_pCamera->GetViewMatrix();
 
-    if (mProj.IsNaN())
-      return;
+        if (mProj.IsNaN())
+          return;
 
-    ezMat4 inv = mProj * mView;
-    if (inv.Invert(0).Failed())
-    {
-      ezLog::Warning("Inversion of View-Projection-Matrix failed. Picking results will be wrong.");
-      return;
-    }
+        ezMat4 inv = mProj * mView;
+        if (inv.Invert(0).Failed())
+        {
+          ezLog::Warning("Inversion of View-Projection-Matrix failed. Picking results will be wrong.");
+          return;
+        }
 
-    m_PendingReadback.m_mPickingInverseViewProjectionMatrix = inv;
-    m_PendingReadback.m_uiWindowWidth = m_uiWindowWidth;
-    m_PendingReadback.m_uiWindowHeight = m_uiWindowHeight;
-    m_PendingReadback.m_bReadbackInProgress = true;
+        m_PendingReadback.m_mPickingInverseViewProjectionMatrix = inv;
+        m_PendingReadback.m_uiWindowWidth = m_uiWindowWidth;
+        m_PendingReadback.m_uiWindowHeight = m_uiWindowHeight;
+        m_PendingReadback.m_bReadbackInProgress = true; //
+      });
   }
+  return EZ_SUCCESS;
 }
 
 void ezPickingRenderPass::ReadBackProperties(ezView* pView)
@@ -222,23 +238,19 @@ void ezPickingRenderPass::CreateTarget()
   tcd.m_Type = ezGALTextureType::Texture2D;
   tcd.m_uiWidth = (ezUInt32)m_TargetRect.width;
   tcd.m_uiHeight = (ezUInt32)m_TargetRect.height;
+  tcd.m_ResourceAccess.m_bImmutable = false;
 
   m_hPickingIdRT = pDevice->CreateTexture(tcd);
 
   tcd.m_Format = ezGALResourceFormat::DFloat;
 
   m_hPickingDepthRT = pDevice->CreateTexture(tcd);
-
-  m_RenderTargetSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(m_hPickingIdRT)).SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(m_hPickingDepthRT));
-  m_RenderTargetSetup.SetClearColor(0);
-  m_RenderTargetSetup.SetClearDepth().SetClearStencil();
 }
 
 void ezPickingRenderPass::DestroyTarget()
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
-  m_RenderTargetSetup.Reset();
   pDevice->DestroyTexture(m_hPickingIdRT);
   pDevice->DestroyTexture(m_hPickingDepthRT);
 }

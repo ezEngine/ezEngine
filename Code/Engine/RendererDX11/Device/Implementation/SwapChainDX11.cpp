@@ -68,6 +68,7 @@ ezGALSwapChainDX11::~ezGALSwapChainDX11() = default;
 ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
 {
   ezGALDeviceDX11* pDXDevice = static_cast<ezGALDeviceDX11*>(pDevice);
+  m_pDevice = pDevice;
   m_CurrentPresentMode = m_WindowDesc.m_InitialPresentMode;
 
   DXGI_SWAP_CHAIN_DESC SwapChainDesc;
@@ -121,10 +122,10 @@ ezResult ezGALSwapChainDX11::CreateBackBufferInternal(ezGALDeviceDX11* pDXDevice
   TexDesc.m_uiHeight = m_WindowDesc.m_pWindow->GetClientAreaSize().height;
   TexDesc.m_SampleCount = m_WindowDesc.m_SampleCount;
   TexDesc.m_pExisitingNativeObject = pNativeBackBufferTexture;
-  TexDesc.m_TextureFlags = ezGALTextureUsageFlags::RenderTarget;
+  TexDesc.m_TextureFlags = ezGALTextureUsageFlags::RenderTarget | ezGALTextureUsageFlags::ShaderResource | ezGALTextureUsageFlags::Presentable;
   TexDesc.m_Format = m_WindowDesc.m_BackBufferFormat;
 
-  TexDesc.m_ResourceAccess.m_bImmutable = true;
+  TexDesc.m_ResourceAccess.m_bImmutable = false;
 
   // And create the ez texture object wrapping the backbuffer texture
   m_hBackBufferTexture = pDXDevice->CreateTexture(TexDesc);
@@ -142,6 +143,7 @@ ezResult ezGALSwapChainDX11::CreateBackBufferInternal(ezGALDeviceDX11* pDXDevice
 
   m_RenderTargets.m_hRTs[0] = m_hBackBufferTexture;
   m_CurrentSize = ezSizeU32(TexDesc.m_uiWidth, TexDesc.m_uiHeight);
+  m_pDevice->s_SwapChainUpdatedEvent.Broadcast(this);
   return EZ_SUCCESS;
 }
 

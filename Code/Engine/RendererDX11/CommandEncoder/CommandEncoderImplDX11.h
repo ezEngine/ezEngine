@@ -61,7 +61,10 @@ public:
   virtual void ReadbackTexturePlatform(const ezGALReadbackTexture* pDestination, const ezGALTexture* pSource) override;
   virtual void ReadbackBufferPlatform(const ezGALReadbackBuffer* pDestination, const ezGALBuffer* pSource) override;
 
-  virtual void GenerateMipMapsPlatform(const ezGALTexture* pTexture, ezGALTextureRange range) override;
+  // Barriers
+
+  virtual void TextureBarrierPlatform(ezArrayPtr<const ezGALTextureBarrier> barriers) override;
+  virtual void BufferBarrierPlatform(ezArrayPtr<const ezGALBufferBarrier> barriers) override;
 
   // Misc
 

@@ -32,44 +32,37 @@ ezLensEffectsPass::ezLensEffectsPass(const char* szName)
 
 ezLensEffectsPass::~ezLensEffectsPass() = default;
 
-bool ezLensEffectsPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+ezStatus ezLensEffectsPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
-  // Color
-  if (inputs[m_PinColor.m_uiInputIndex])
+  ezRenderGraphTextureHandle hColor = inputs[m_PinColor.m_uiInputIndex].m_TextureHandle;
+  if (hColor.IsInvalidated())
+    return ezStatus(ezFmt("Color: Not connected"));
+
+  // Pass-through color
+  outputs[m_PinColor.m_uiOutputIndex].m_TextureHandle = hColor;
+
+  ezRenderGraphTextureHandle hResolvedDepth = inputs[m_PinResolvedDepth.m_uiInputIndex].m_TextureHandle;
+
+  auto pass = graph.AddGraphicsPass(GetName());
+  pass.AddColorTarget(hColor);
+  if (!hResolvedDepth.IsInvalidated())
+    pass.ReadTexture(hResolvedDepth, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
+  pass.SetStereoscopic(camera.IsStereoscopic());
+  SetupResourceDependencies(viewData, graph, pass);
+  pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
   {
-    outputs[m_PinColor.m_uiOutputIndex] = *inputs[m_PinColor.m_uiInputIndex];
-  }
-  else
-  {
-    ezLog::Error("No color input connected to pass '{0}'!", GetName());
-    return false;
-  }
+    const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
+    BindDataProviderResources(renderViewContext);
+    //Needed? SetupPermutationVars(renderViewContext);
+    if (!hResolvedDepth.IsInvalidated())
+    {
+      ezBindGroupBuilder& bindGroupRenderPass = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);
+      bindGroupRenderPass.BindTexture("SceneDepth", ctx.ResolveTexture(hResolvedDepth));
+    }
+    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LensEffects);
+  });
 
-  return true;
-}
-
-void ezLensEffectsPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
-{
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-
-  // Setup render target
-  ezGALRenderingSetup renderingSetup;
-  if (inputs[m_PinColor.m_uiInputIndex])
-  {
-    renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(inputs[m_PinColor.m_uiInputIndex]->m_TextureHandle));
-  }
-
-  renderViewContext.m_pRenderContext->BeginRendering(std::move(renderingSetup), renderViewContext.m_pViewData->m_ViewPortRect, "", renderViewContext.m_pCamera->IsStereoscopic());
-
-  if (inputs[m_PinResolvedDepth.m_uiInputIndex])
-  {
-    ezBindGroupBuilder& bindGroupRenderPass = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);
-    bindGroupRenderPass.BindTexture("SceneDepth", inputs[m_PinResolvedDepth.m_uiInputIndex]->m_TextureHandle);
-  }
-
-  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LensEffects);
-
-  renderViewContext.m_pRenderContext->EndRendering();
+  return EZ_SUCCESS;
 }
 
 

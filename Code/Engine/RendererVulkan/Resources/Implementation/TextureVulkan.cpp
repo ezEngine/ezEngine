@@ -7,7 +7,6 @@
 #include <RendererVulkan/Resources/BufferVulkan.h>
 #include <RendererVulkan/Resources/TextureVulkan.h>
 #include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
-#include <RendererVulkan/Utils/PipelineBarrierVulkan.h>
 
 vk::Extent3D ezGALTextureVulkan::GetMipLevelSize(const ezGALTextureCreationDescription& description, ezUInt32 uiMipLevel)
 {
@@ -64,7 +63,7 @@ vk::DescriptorImageInfo ezGALTextureVulkan::GetDescriptorImageInfo(ezGALTextureR
     viewCreateInfo.subresourceRange.aspectMask &= ~vk::ImageAspectFlagBits::eStencil;
 
     VK_ASSERT_DEV(m_pDevice->GetVulkanDevice().createImageView(&viewCreateInfo, nullptr, &imageInfo.imageView));
-    imageInfo.imageLayout = ezConversionUtilsVulkan::GetDefaultLayout(m_imageFormat);
+    imageInfo.imageLayout = ezConversionUtilsVulkan::GetTextureReadLayout(m_imageFormat);
     if (resourceType == ezGALShaderResourceType::TextureRW)
       imageInfo.imageLayout = vk::ImageLayout::eGeneral;
     m_TextureViews.Insert(view, imageInfo);
@@ -88,7 +87,7 @@ ezResult ezGALTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGAL
   vk::ImageCreateInfo createInfo = {};
 
   m_imageFormat = ComputeImageFormat(m_pDevice, m_Description.m_Format, createInfo, imageFormats);
-  ComputeCreateInfo(m_pDevice, m_Description, createInfo, m_stages, m_access, m_preferredLayout);
+  ComputeCreateInfo(m_pDevice, m_Description, createInfo);
 
   if (m_Description.m_pExisitingNativeObject != nullptr)
   {
@@ -126,43 +125,35 @@ vk::Format ezGALTextureVulkan::ComputeImageFormat(const ezGALDeviceVulkan* pDevi
   return ref_createInfo.format;
 }
 
-void ezGALTextureVulkan::ComputeCreateInfo(const ezGALDeviceVulkan* m_pDevice, const ezGALTextureCreationDescription& m_Description, vk::ImageCreateInfo& createInfo, vk::PipelineStageFlags& m_stages, vk::AccessFlags& m_access, vk::ImageLayout& m_preferredLayout)
+void ezGALTextureVulkan::ComputeCreateInfo(const ezGALDeviceVulkan* pDevice, const ezGALTextureCreationDescription& description, vk::ImageCreateInfo& out_createInfo)
 {
-  EZ_ASSERT_DEBUG(createInfo.format != vk::Format::eUndefined, "No storage format available for given format: {0}", m_Description.m_Format);
+  EZ_ASSERT_DEBUG(out_createInfo.format != vk::Format::eUndefined, "No storage format available for given format: {0}", description.m_Format);
 
-  const bool bIsDepth = ezConversionUtilsVulkan::IsDepthFormat(createInfo.format);
+  const bool bIsDepth = ezConversionUtilsVulkan::IsDepthFormat(out_createInfo.format);
 
-  m_stages = vk::PipelineStageFlagBits::eTransfer;
-  m_access = vk::AccessFlagBits::eTransferRead | vk::AccessFlagBits::eTransferWrite;
-  m_preferredLayout = vk::ImageLayout::eGeneral;
-
-  createInfo.initialLayout = vk::ImageLayout::eUndefined;
-  createInfo.sharingMode = vk::SharingMode::eExclusive;
-  createInfo.pQueueFamilyIndices = nullptr;
-  createInfo.queueFamilyIndexCount = 0;
-  createInfo.tiling = vk::ImageTiling::eOptimal;
-  createInfo.usage |= vk::ImageUsageFlagBits::eTransferDst;
+  // Transfer is always needed.
+  out_createInfo.initialLayout = vk::ImageLayout::eUndefined;
+  out_createInfo.sharingMode = vk::SharingMode::eExclusive;
+  out_createInfo.pQueueFamilyIndices = nullptr;
+  out_createInfo.queueFamilyIndexCount = 0;
+  out_createInfo.tiling = vk::ImageTiling::eOptimal;
+  out_createInfo.usage |= vk::ImageUsageFlagBits::eTransferDst;
   // eTransferSrc can be set on everything without any negative effects.
   // #TODO_VULKAN eSampled not needed if we only allow buffer readback or is it necessary for depth?
-  createInfo.usage |= vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eSampled;
+  out_createInfo.usage |= vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eSampled;
 
-  createInfo.extent.width = m_Description.m_uiWidth;
-  createInfo.extent.height = m_Description.m_uiHeight;
-  createInfo.extent.depth = m_Description.m_uiDepth;
-  createInfo.mipLevels = m_Description.m_uiMipLevelCount;
+  out_createInfo.extent.width = description.m_uiWidth;
+  out_createInfo.extent.height = description.m_uiHeight;
+  out_createInfo.extent.depth = description.m_uiDepth;
+  out_createInfo.mipLevels = description.m_uiMipLevelCount;
 
-  createInfo.samples = static_cast<vk::SampleCountFlagBits>(m_Description.m_SampleCount.GetValue());
+  out_createInfo.samples = static_cast<vk::SampleCountFlagBits>(description.m_SampleCount.GetValue());
 
-  // DynamicMipGeneration has to be emulated via a shader so we need to enable shader resource view and render target support.
-  if (m_Description.m_TextureFlags.IsAnySet(ezGALTextureUsageFlags::ShaderResource | ezGALTextureUsageFlags::DynamicMipGeneration))
+  // Shader resources need transfer and sampled support for mip generation via shader.
+  if (description.m_TextureFlags.IsSet(ezGALTextureUsageFlags::ShaderResource))
   {
-    // Needed for blit-based generation
-    createInfo.usage |= vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eTransferSrc;
-    // Needed for shader-based generation
-    createInfo.usage |= vk::ImageUsageFlagBits::eSampled;
-    m_stages |= m_pDevice->GetSupportedStages();
-    m_access |= vk::AccessFlagBits::eShaderRead;
-    m_preferredLayout = ezConversionUtilsVulkan::GetDefaultLayout(createInfo.format);
+    out_createInfo.usage |= vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eTransferSrc;
+    out_createInfo.usage |= vk::ImageUsageFlagBits::eSampled;
   }
   // VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT
   if (bIsDepth)
@@ -170,59 +161,50 @@ void ezGALTextureVulkan::ComputeCreateInfo(const ezGALDeviceVulkan* m_pDevice, c
     // This looks wrong but apparently, even if you don't intend to render to a depth texture, you need to set the eDepthStencilAttachment flag.
     // VUID-VkImageMemoryBarrier-oldLayout-01210: https://vulkan.lunarg.com/doc/view/1.3.275.0/windows/1.3-extensions/vkspec.html#VUID-VkImageMemoryBarrier-oldLayout-01210
     // If srcQueueFamilyIndex and dstQueueFamilyIndex define a queue family ownership transfer or oldLayout and newLayout define an image layout transition, and oldLayout or newLayout is VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL then image must have been created with VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT
-    createInfo.usage |= vk::ImageUsageFlagBits::eDepthStencilAttachment;
+    out_createInfo.usage |= vk::ImageUsageFlagBits::eDepthStencilAttachment;
   }
 
-  if (m_Description.m_TextureFlags.IsAnySet(ezGALTextureUsageFlags::RenderTarget | ezGALTextureUsageFlags::DynamicMipGeneration))
+  if (description.m_TextureFlags.IsSet(ezGALTextureUsageFlags::RenderTarget))
   {
     if (bIsDepth)
     {
-      m_stages |= vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests;
-      m_access |= vk::AccessFlagBits::eDepthStencilAttachmentRead | vk::AccessFlagBits::eDepthStencilAttachmentWrite;
-      m_preferredLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
     }
     else
     {
-      createInfo.usage |= vk::ImageUsageFlagBits::eColorAttachment;
-      m_stages |= vk::PipelineStageFlagBits::eColorAttachmentOutput;
-      m_access |= vk::AccessFlagBits::eColorAttachmentRead | vk::AccessFlagBits::eColorAttachmentWrite;
-      m_preferredLayout = vk::ImageLayout::eColorAttachmentOptimal;
+      out_createInfo.usage |= vk::ImageUsageFlagBits::eColorAttachment;
     }
   }
 
-  if (m_Description.m_TextureFlags.IsSet(ezGALTextureUsageFlags::UnorderedAccess))
+  if (description.m_TextureFlags.IsSet(ezGALTextureUsageFlags::UnorderedAccess))
   {
-    createInfo.usage |= vk::ImageUsageFlagBits::eStorage;
-    m_stages |= m_pDevice->GetSupportedStages();
-    m_access |= vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eShaderWrite;
-    m_preferredLayout = vk::ImageLayout::eGeneral;
+    out_createInfo.usage |= vk::ImageUsageFlagBits::eStorage;
   }
 
-  switch (m_Description.m_Type)
+  switch (description.m_Type)
   {
     case ezGALTextureType::TextureCube:
     case ezGALTextureType::TextureCubeArray:
-      createInfo.imageType = vk::ImageType::e2D;
-      createInfo.flags |= vk::ImageCreateFlagBits::eCubeCompatible;
-      createInfo.arrayLayers = m_Description.m_uiArraySize * 6;
+      out_createInfo.imageType = vk::ImageType::e2D;
+      out_createInfo.flags |= vk::ImageCreateFlagBits::eCubeCompatible;
+      out_createInfo.arrayLayers = description.m_uiArraySize * 6;
       break;
 
     case ezGALTextureType::Texture2D:
     case ezGALTextureType::Texture2DArray:
     case ezGALTextureType::Texture2DShared:
     {
-      createInfo.imageType = vk::ImageType::e2D;
-      createInfo.arrayLayers = m_Description.m_uiArraySize;
+      out_createInfo.imageType = vk::ImageType::e2D;
+      out_createInfo.arrayLayers = description.m_uiArraySize;
     }
     break;
 
     case ezGALTextureType::Texture3D:
     {
-      createInfo.arrayLayers = 1;
-      createInfo.imageType = vk::ImageType::e3D;
-      if (m_Description.m_TextureFlags.IsSet(ezGALTextureUsageFlags::RenderTarget))
+      out_createInfo.arrayLayers = 1;
+      out_createInfo.imageType = vk::ImageType::e3D;
+      if (description.m_TextureFlags.IsSet(ezGALTextureUsageFlags::RenderTarget))
       {
-        createInfo.flags |= vk::ImageCreateFlagBits::e2DArrayCompatible;
+        out_createInfo.flags |= vk::ImageCreateFlagBits::e2DArrayCompatible;
       }
     }
     break;

@@ -198,7 +198,7 @@ void ezMaterialManager::OnRenderEvent(const ezGALDeviceEvent& e)
       Cleanup();
     }
     break;
-    case ezGALDeviceEvent::AfterBeginFrame:
+    case ezGALDeviceEvent::BeforeBeginFrame:
     {
       ApplyMaterialChanges();
     }
@@ -581,7 +581,6 @@ void ezMaterialManager::MaterialShaderConstants::UpdateConstantBuffers()
   if (!bLayoutChanged && m_DirtyMaterials.IsEmpty() && !bBufferResized)
     return;
 
-  ezGALCommandEncoder* pEncoder = ezGALDevice::GetDefaultDevice()->BeginCommands("UpdateMaterials");
   // #TODO_MATERIAL On resize of the array, this is recomputing the CPU work which is not necessary but was easy to implement.
   const bool bRecreateAll = bBufferResized && m_Mode == MaterialStorageMode::SingleStructuredBuffer;
   if (bLayoutChanged || bRecreateAll)
@@ -591,7 +590,7 @@ void ezMaterialManager::MaterialShaderConstants::UpdateConstantBuffers()
     {
       ezMaterialResource::ezMaterialId id = it.Id();
       ezMaterialResourceHandle hMaterial = it.Value();
-      UpdateMaterial(id, hMaterial, pEncoder);
+      UpdateMaterial(id, hMaterial);
     }
   }
   else
@@ -601,13 +600,11 @@ void ezMaterialManager::MaterialShaderConstants::UpdateConstantBuffers()
       ezMaterialResourceHandle hMaterial;
       if (m_Materials.TryGetValue(id, hMaterial))
       {
-        UpdateMaterial(id, hMaterial, pEncoder);
+        UpdateMaterial(id, hMaterial);
       }
     }
     m_DirtyMaterials.Clear();
   }
-
-  ezGALDevice::GetDefaultDevice()->EndCommands(pEncoder);
 }
 
 void ezMaterialManager::MaterialShaderConstants::DestroyGpuResources()
@@ -688,7 +685,7 @@ bool ezMaterialManager::MaterialShaderConstants::UpdateMaterialLayout()
   return bLayoutChanged;
 }
 
-void ezMaterialManager::MaterialShaderConstants::UpdateMaterial(ezMaterialResource::ezMaterialId id, ezMaterialResourceHandle hMaterial, ezGALCommandEncoder* pEncoder)
+void ezMaterialManager::MaterialShaderConstants::UpdateMaterial(ezMaterialResource::ezMaterialId id, ezMaterialResourceHandle hMaterial)
 {
   ezResourceLock<ezMaterialResource> pMaterial(hMaterial, ezResourceAcquireMode::PointerOnly);
   auto itMaterial = m_pParent->m_Materials.Find(pMaterial.GetPointer());
@@ -730,7 +727,7 @@ void ezMaterialManager::MaterialShaderConstants::UpdateMaterial(ezMaterialResour
 
       // We lazily create the buffer so we need to always update the MaterialData as this could be a constant buffer from a previous material that resided in this slot.
       md.m_hConstantBuffer = m_MaterialBuffers[id.m_InstanceIndex];
-      pEncoder->UpdateBuffer(m_MaterialBuffers[id.m_InstanceIndex], 0, data, ezGALUpdateMode::AheadOfTime);
+      ezGALDevice::GetDefaultDevice()->UpdateBufferForNextFrame(m_MaterialBuffers[id.m_InstanceIndex], data, 0);
     }
     break;
     case ezMaterialManager::MaterialStorageMode::MultipleStructuredBuffer:
@@ -748,13 +745,13 @@ void ezMaterialManager::MaterialShaderConstants::UpdateMaterial(ezMaterialResour
 
       // We lazily create the buffer so we need to always update the MaterialData as this could be a constant buffer from a previous material that resided in this slot.
       md.m_hStructuredBuffer = m_MaterialBuffers[id.m_InstanceIndex];
-      pEncoder->UpdateBuffer(m_MaterialBuffers[id.m_InstanceIndex], 0, data, ezGALUpdateMode::AheadOfTime);
+      ezGALDevice::GetDefaultDevice()->UpdateBufferForNextFrame(m_MaterialBuffers[id.m_InstanceIndex], data, 0);
     }
     break;
     case ezMaterialManager::MaterialStorageMode::SingleStructuredBuffer:
     {
       md.m_hStructuredBuffer = m_hStructuredBuffer;
-      pEncoder->UpdateBuffer(m_hStructuredBuffer, m_pLayout->m_uiTotalSize * id.m_InstanceIndex, data, ezGALUpdateMode::AheadOfTime);
+      ezGALDevice::GetDefaultDevice()->UpdateBufferForNextFrame(m_hStructuredBuffer, data, m_pLayout->m_uiTotalSize * id.m_InstanceIndex);
     }
     break;
     default:

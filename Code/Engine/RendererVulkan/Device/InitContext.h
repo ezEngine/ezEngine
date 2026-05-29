@@ -5,7 +5,6 @@
 #include <RendererVulkan/Device/DeclarationsVulkan.h>
 
 class ezGALDeviceVulkan;
-class ezPipelineBarrierVulkan;
 class ezCommandBufferPoolVulkan;
 class ezStagingBufferPoolVulkan;
 
@@ -29,9 +28,6 @@ public:
   /// \param createInfo The image creation info for the texture. Needed for initial state information.
   /// \param pInitialData The initial data of the texture. If not set, the initial content will be undefined.
   void InitTexture(const ezGALTextureVulkan* pTexture, vk::ImageCreateInfo& createInfo, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData);
-
-  /// \brief Needs to be called by the ezGALDeviceVulkan just before a texture is destroyed to clean up stale barriers.
-  void TextureDestroyed(const ezGALTextureVulkan* pTexture);
 
   /// \brief Initializes a buffer with the given data.
   /// \param pBuffer The buffer to initialize.
@@ -67,7 +63,6 @@ private:
   ezMutex m_Lock;
   ezDynamicArray<ezUInt8> m_TempData;
   vk::CommandBuffer m_currentCommandBuffer;
-  ezUniquePtr<ezPipelineBarrierVulkan> m_pPipelineBarrier;
   ezUniquePtr<ezCommandBufferPoolVulkan> m_pCommandBufferPool;
   ezUniquePtr<ezStagingBufferPoolVulkan> m_pStagingBufferPool;
 };

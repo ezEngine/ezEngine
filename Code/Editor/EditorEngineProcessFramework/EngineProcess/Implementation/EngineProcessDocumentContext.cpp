@@ -8,6 +8,9 @@
 #include <EditorEngineProcessFramework/EngineProcess/RemoteViewContext.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
 #include <RendererCore/Pipeline/View.h>
+#include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/RenderGraph/RenderGraphManager.h>
+#include <RendererCore/RenderGraph/RenderGraph.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Textures/TextureUtils.h>
 #include <RendererFoundation/CommandEncoder/CommandEncoder.h>
@@ -95,12 +98,15 @@ ezEngineProcessDocumentContext::ezEngineProcessDocumentContext(ezBitflags<ezEngi
   : m_Flags(flags)
 {
   GetContext().m_Events.AddEventHandler(ezMakeDelegate(&ezEngineProcessDocumentContext::WorldRttiConverterContextEventHandler, this));
+  m_pRenderGraph = ezRenderGraphManager::CreateRenderGraph("Thumbnail", ezRenderGraphPhase::PostRender);
+  ezGALDevice::s_Events.AddEventHandler(ezMakeDelegate(&ezEngineProcessDocumentContext::OnGALEvent, this));
 }
 
 ezEngineProcessDocumentContext::~ezEngineProcessDocumentContext()
 {
   EZ_ASSERT_DEV(m_pWorld == nullptr, "World has not been deleted! Call 'ezEngineProcessDocumentContext::DestroyDocumentContext'");
 
+  ezGALDevice::s_Events.RemoveEventHandler(ezMakeDelegate(&ezEngineProcessDocumentContext::OnGALEvent, this));
   GetContext().m_Events.RemoveEventHandler(ezMakeDelegate(&ezEngineProcessDocumentContext::WorldRttiConverterContextEventHandler, this));
 }
 
@@ -414,19 +420,77 @@ void ezEngineProcessDocumentContext::OnDeinitialize() {}
 bool ezEngineProcessDocumentContext::PendingOperationInProgress() const
 {
   auto pState = ezGameApplicationBase::GetGameApplicationBaseInstance()->GetActiveGameState();
-  return m_pThumbnailViewContext != nullptr || pState != nullptr;
+  bool bPendingViewOperationInProgress = false;
+  for (auto pView : m_ViewContexts)
+  {
+    if (pView && pView->PendingOperationInProgress())
+    {
+      bPendingViewOperationInProgress = true;
+      break;
+    }
+  }
+
+  return m_pThumbnailViewContext != nullptr || m_bThumbnailReadbackInFlight || pState != nullptr || bPendingViewOperationInProgress;
 }
 
 void ezEngineProcessDocumentContext::UpdateDocumentContext()
 {
   if (ezEditorEngineProcessApp::GetSingleton()->IsRemoteMode())
   {
-    // in remote mode simply redraw all all views every time a context is updated
+    // in remote mode simply redraw all views every time a context is updated
     for (auto pView : m_ViewContexts)
     {
       if (pView)
         pView->Redraw(false);
     }
+  }
+
+  // Poll a pending thumbnail readback.
+  if (m_bThumbnailReadbackInFlight)
+  {
+    ezEnum<ezGALAsyncResult> res = m_ThumbnailReadback.GetReadbackResult(ezTime::MakeZero());
+    if (res == ezGALAsyncResult::Ready)
+    {
+      m_bThumbnailReadbackInFlight = false;
+
+      ezCreateThumbnailMsgToEditor ret;
+      ret.m_DocumentGuid = GetDocumentGuid();
+
+      ezGALTextureSubresource sourceSubResource;
+      ezArrayPtr<ezGALTextureSubresource> sourceSubResources(&sourceSubResource, 1);
+      ezTempHybridArray<ezGALSystemMemoryDescription, 1> memory;
+
+      ezReadbackTextureLock lock = m_ThumbnailReadback.LockTexture(sourceSubResources, memory);
+      EZ_ASSERT_ALWAYS(lock, "Failed to lock readback texture");
+
+      ezImage tmp;
+      ezImageView imageView = ezTextureUtils::MakeImageViewFromSubResource(m_ThumbnailColorDesc, sourceSubResource, memory[0], tmp, true);
+
+      ezImage imageSwap;
+      ezImage* pImage = &tmp;
+      ezImage* pImageSwap = &imageSwap;
+      for (ezUInt32 uiSuperscaleFactor = ThumbnailSuperscaleFactor; uiSuperscaleFactor > 1; uiSuperscaleFactor /= 2)
+      {
+        ezImageView& sourceView = uiSuperscaleFactor == ThumbnailSuperscaleFactor ? imageView : *pImage;
+        ezImageUtils::Scale(sourceView, *pImageSwap, sourceView.GetWidth() / 2, sourceView.GetHeight() / 2).IgnoreResult();
+        ezMath::Swap(pImage, pImageSwap);
+      }
+
+      ret.m_ThumbnailData.SetCountUninitialized((m_uiThumbnailWidth / ThumbnailSuperscaleFactor) * (m_uiThumbnailHeight / ThumbnailSuperscaleFactor) * 4);
+      ezMemoryUtils::Copy(ret.m_ThumbnailData.GetData(), pImage->GetPixelPointer<ezUInt8>(), ret.m_ThumbnailData.GetCount());
+
+      DestroyThumbnailViewContext();
+
+      // Send response.
+      SendProcessMessage(&ret);
+    }
+    else if (res == ezGALAsyncResult::Expired)
+    {
+      m_bThumbnailReadbackInFlight = false;
+      DestroyThumbnailViewContext();
+    }
+    // Pending: keep waiting.
+    return;
   }
 
   if (m_pThumbnailViewContext)
@@ -441,58 +505,41 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
 
     if (m_uiThumbnailConvergenceFrames > ThumbnailConvergenceFramesTarget)
     {
-      ezCreateThumbnailMsgToEditor ret;
-      ret.m_DocumentGuid = GetDocumentGuid();
-
-      // Start readback image
-      {
-        auto pCommandEncoder = ezGALDevice::GetDefaultDevice()->BeginCommands("Thumbnail Readback");
-        EZ_SCOPE_EXIT(ezGALDevice::GetDefaultDevice()->EndCommands(pCommandEncoder));
-
-        m_ThumbnailReadback.ReadbackTexture(*pCommandEncoder, m_hThumbnailColorRT);
-        pCommandEncoder->Flush();
-      }
-      // Wait for results
-      {
-        ezEnum<ezGALAsyncResult> res = m_ThumbnailReadback.GetReadbackResult(ezTime::MakeFromHours(1));
-        EZ_ASSERT_ALWAYS(res == ezGALAsyncResult::Ready, "Readback of texture failed");
-
-        const ezGALTexture* pThumbnailColor = ezGALDevice::GetDefaultDevice()->GetTexture(m_hThumbnailColorRT);
-
-        ezGALTextureSubresource sourceSubResource;
-        ezArrayPtr<ezGALTextureSubresource> sourceSubResources(&sourceSubResource, 1);
-        ezTempHybridArray<ezGALSystemMemoryDescription, 1> memory;
-
-        ezReadbackTextureLock lock = m_ThumbnailReadback.LockTexture(sourceSubResources, memory);
-        EZ_ASSERT_ALWAYS(lock, "Failed to lock readback texture");
-
-        ezImage tmp;
-        ezImageView imageView = ezTextureUtils::MakeImageViewFromSubResource(pThumbnailColor->GetDescription(), sourceSubResource, memory[0], tmp, true);
-
-        ezImage imageSwap;
-        ezImage* pImage = &tmp;
-        ezImage* pImageSwap = &imageSwap;
-        for (ezUInt32 uiSuperscaleFactor = ThumbnailSuperscaleFactor; uiSuperscaleFactor > 1; uiSuperscaleFactor /= 2)
-        {
-          ezImageView& sourceView = uiSuperscaleFactor == ThumbnailSuperscaleFactor ? imageView : *pImage;
-          ezImageUtils::Scale(sourceView, *pImageSwap, sourceView.GetWidth() / 2, sourceView.GetHeight() / 2).IgnoreResult();
-          ezMath::Swap(pImage, pImageSwap);
-        }
-
-        ret.m_ThumbnailData.SetCountUninitialized((m_uiThumbnailWidth / ThumbnailSuperscaleFactor) * (m_uiThumbnailHeight / ThumbnailSuperscaleFactor) * 4);
-        ezMemoryUtils::Copy(ret.m_ThumbnailData.GetData(), pImage->GetPixelPointer<ezUInt8>(), ret.m_ThumbnailData.GetCount());
-      }
-
-      DestroyThumbnailViewContext();
-
-      // Send response.
-      SendProcessMessage(&ret);
+      // Request async readback. The render graph will be created in OnGALEvent.
+      const ezGALTexture* pThumbnailColor = ezGALDevice::GetDefaultDevice()->GetTexture(m_hThumbnailColorRT);
+      m_ThumbnailColorDesc = pThumbnailColor->GetDescription();
+      m_bThumbnailReadbackRequested = true;
     }
     else
     {
       m_pThumbnailViewContext->Redraw(false);
     }
   }
+}
+
+void ezEngineProcessDocumentContext::OnGALEvent(const ezGALDeviceEvent& e)
+{
+  if (e.m_Type != ezGALDeviceEvent::AfterBeginFrame)
+    return;
+
+  if (!m_bThumbnailReadbackRequested)
+    return;
+
+  m_bThumbnailReadbackRequested = false;
+
+  m_pRenderGraph->Reset();
+
+  ezRenderGraphTextureHandle hTex = m_pRenderGraph->ImportTexture(m_hThumbnailColorRT);
+
+  auto pass = m_pRenderGraph->AddTransferPass("Thumbnail Readback");
+  pass.ReadTexture(hTex, {}, ezGALResourceState::CopySource);
+  pass.HasSideEffects();
+  pass.SetExecuteCallback([this, hTex](const ezRenderGraphContext& ctx) {
+    m_ThumbnailReadback.ReadbackTexture(*ctx.GetCommandEncoder(), ctx.ResolveTexture(hTex));
+  });
+
+  ezRenderGraphManager::EnqueueRenderGraph(m_pRenderGraph);
+  m_bThumbnailReadbackInFlight = true;
 }
 
 ezStatus ezEngineProcessDocumentContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)

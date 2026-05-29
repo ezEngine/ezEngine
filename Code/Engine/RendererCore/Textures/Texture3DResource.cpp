@@ -73,6 +73,7 @@ void ezTexture3DResource::FillOutDescriptor(ezTexture3DResourceDescriptor& ref_t
   ref_td.m_DescGAL.m_uiDepth = pImage->GetDepth(uiHighestMipLevel);
   ref_td.m_DescGAL.m_uiMipLevelCount = uiNumMipLevels;
   ref_td.m_DescGAL.m_uiArraySize = pImage->GetNumArrayIndices();
+  ref_td.m_DescGAL.m_ResourceAccess.m_bImmutable = true;
 
   if (ref_td.m_DescGAL.m_uiDepth > 1)
     ref_td.m_DescGAL.m_Type = ezGALTextureType::Texture3D;

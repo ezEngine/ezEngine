@@ -39,7 +39,7 @@ public:
 
   static bool IsDepthFormat(vk::Format format);
   static bool IsStencilFormat(vk::Format format);
-  static vk::ImageLayout GetDefaultLayout(vk::Format format);
+  static vk::ImageLayout GetTextureReadLayout(vk::Format format);
   static vk::PrimitiveTopology GetPrimitiveTopology(ezEnum<ezGALPrimitiveTopology> topology);
   static vk::ShaderStageFlagBits GetShaderStage(ezGALShaderStage::Enum stage);
   static vk::ShaderStageFlagBits GetShaderStages(ezBitflags<ezGALShaderStageFlags> stages);
@@ -47,6 +47,15 @@ public:
   static vk::PipelineStageFlags GetPipelineStage(vk::ShaderStageFlags flags);
   static vk::PipelineStageFlags GetPipelineStages(ezBitflags<ezGALShaderStageFlags> stages);
   static vk::DescriptorType GetDescriptorType(ezGALShaderResourceType::Enum type);
+
+  /// Converts an ezGALResourceState bitmask to the equivalent Vulkan pipeline stages and access flags.
+  static void ConvertResourceState(ezBitflags<ezGALResourceState> state, vk::PipelineStageFlags& out_stages, vk::AccessFlags& out_access);
+
+  /// Converts an ezGALResourceState bitmask to Synchronization2 pipeline stages and access flags.
+  static void ConvertResourceState(ezBitflags<ezGALResourceState> state, vk::PipelineStageFlags2& out_stages, vk::AccessFlags2& out_access);
+
+  /// Returns the Vulkan image layout that corresponds to the given resource state.
+  static vk::ImageLayout GetTextureLayout(ezBitflags<ezGALResourceState> state);
 };
 
 #include <RendererVulkan/Utils/Implementation/ConversionUtilsVulkan.inl.h>

@@ -73,6 +73,7 @@ void ezTexture2DResource::FillOutDescriptor(ezTexture2DResourceDescriptor& ref_t
   ref_td.m_DescGAL.m_uiDepth = pImage->GetDepth(uiHighestMipLevel);
   ref_td.m_DescGAL.m_uiMipLevelCount = uiNumMipLevels;
   ref_td.m_DescGAL.m_uiArraySize = pImage->GetNumArrayIndices();
+  ref_td.m_DescGAL.m_ResourceAccess.m_bImmutable = true;
 
   if (ezImageFormat::GetType(pImage->GetImageFormat()) == ezImageFormatType::BLOCK_COMPRESSED)
   {

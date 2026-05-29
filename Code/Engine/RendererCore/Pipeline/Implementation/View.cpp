@@ -1,5 +1,6 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <Core/World/World.h>
 #include <Foundation/Math/Frustum.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <RendererCore/Pipeline/Extractor.h>
@@ -55,7 +56,7 @@ void ezView::SetWorld(ezWorld* pWorld)
   if (m_pWorld != pWorld)
   {
     m_pWorld = pWorld;
-
+    m_Data.m_uiSkyIrradianceIndex = pWorld == nullptr ? 0 : pWorld->GetIndex();
     ezRenderWorld::ResetRenderDataCache(*this);
   }
 }
@@ -88,13 +89,18 @@ void ezView::SetRenderTargets(const ezGALRenderTargets& renderTargets)
   }
 }
 
-const ezGALRenderTargets& ezView::GetActiveRenderTargets() const
+const ezGALRenderTargets& ezViewData::GetActiveRenderTargets() const
 {
-  if (const ezGALSwapChain* pSwapChain = ezGALDevice::GetDefaultDevice()->GetSwapChain(m_Data.m_hSwapChain))
+  if (const ezGALSwapChain* pSwapChain = ezGALDevice::GetDefaultDevice()->GetSwapChain(m_hSwapChain))
   {
     return pSwapChain->GetRenderTargets();
   }
-  return m_Data.m_RenderTargets;
+  return m_RenderTargets;
+}
+
+const ezGALRenderTargets& ezView::GetActiveRenderTargets() const
+{
+  return m_Data.GetActiveRenderTargets();
 }
 
 void ezView::SetRenderPipelineResource(ezRenderPipelineResourceHandle hPipeline)

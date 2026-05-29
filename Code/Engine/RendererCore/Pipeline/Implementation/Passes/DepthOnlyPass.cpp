@@ -37,71 +37,41 @@ ezDepthOnlyPass::ezDepthOnlyPass(const char* szName)
 
 ezDepthOnlyPass::~ezDepthOnlyPass() = default;
 
-bool ezDepthOnlyPass::GetRenderTargetDescriptions(
-  const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+ezStatus ezDepthOnlyPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
-  // DepthStencil
-  if (inputs[m_PinDepthStencil.m_uiInputIndex])
-  {
-    outputs[m_PinDepthStencil.m_uiOutputIndex] = *inputs[m_PinDepthStencil.m_uiInputIndex];
-  }
-  else
-  {
-    ezLog::Error("No depth stencil input connected to pass '{0}'!", GetName());
-    return false;
-  }
+  ezRenderGraphTextureHandle hDepthStencil = inputs[m_PinDepthStencil.m_uiInputIndex].m_TextureHandle;
+  if (hDepthStencil.IsInvalidated())
+    return ezStatus(ezFmt("DepthStencil: Not connected"));
 
-  return true;
+  outputs[m_PinDepthStencil.m_uiOutputIndex].m_TextureHandle = hDepthStencil;
+
+  auto pass = graph.AddGraphicsPass(GetName());
+  pass.AddDepthStencilTarget(hDepthStencil);
+  pass.SetStereoscopic(camera.IsStereoscopic());
+  pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
+  {
+    const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
+    renderViewContext.UpdateViewport();
+
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_DEPTH_ONLY");
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("SHADING_QUALITY", "SHADING_QUALITY_NORMAL");
+
+    if (m_bRenderStaticObjects)
+      RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitOpaqueStatic);
+    if (m_bRenderDynamicObjects)
+      RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitOpaqueDynamic);
+    if (m_bRenderStaticObjects)
+      RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMaskedStatic);
+    if (m_bRenderDynamicObjects)
+      RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMaskedDynamic);
+    if (m_bRenderTransparentObjects)
+      RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitTransparent);
+  });
+
+  return EZ_SUCCESS;
 }
 
-void ezDepthOnlyPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
-{
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-
-  // When compiling a shader as DEBUG, the compiler will not remove unused slots. This will result in the shadow map render target being bound as well into the global bind group, causing validation issues. There is probably a better solution to this but for now we just unbind it when rendering shadow maps.
-  ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
-  bindGroup.BindTexture("ShadowAtlasTexture", ezGALTextureHandle{});
-
-  // Setup render target
-  ezGALRenderingSetup renderingSetup;
-  if (inputs[m_PinDepthStencil.m_uiInputIndex])
-  {
-    renderingSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(inputs[m_PinDepthStencil.m_uiInputIndex]->m_TextureHandle));
-  }
-
-  auto pCommandEncoder = ezRenderContext::BeginRenderingScope(renderViewContext, renderingSetup, GetName(), renderViewContext.m_pCamera->IsStereoscopic());
-
-  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_DEPTH_ONLY");
-  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("SHADING_QUALITY", "SHADING_QUALITY_NORMAL");
-
-  // Opaque
-  if (m_bRenderStaticObjects)
-  {
-    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitOpaqueStatic);
-  }
-  if (m_bRenderDynamicObjects)
-  {
-    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitOpaqueDynamic);
-  }
-
-  // Masked
-  if (m_bRenderStaticObjects)
-  {
-    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMaskedStatic);
-  }
-  if (m_bRenderDynamicObjects)
-  {
-    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMaskedDynamic);
-  }
-
-  // Transparent
-  if (m_bRenderTransparentObjects)
-  {
-    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitTransparent);
-  }
-}
-
+// BEGIN-DOCS-CODE-SNIPPET: renderpass-serialization
 ezResult ezDepthOnlyPass::Serialize(ezStreamWriter& inout_stream) const
 {
   EZ_SUCCEED_OR_RETURN(SUPER::Serialize(inout_stream));
@@ -129,6 +99,7 @@ ezResult ezDepthOnlyPass::Deserialize(ezStreamReader& inout_stream)
 
   return EZ_SUCCESS;
 }
+// END-DOCS-CODE-SNIPPET
 
 
 

@@ -144,7 +144,7 @@ void ezGALCommandEncoderImplDX11::SetBindGroupPlatform(ezUInt32 uiBindGroup, con
           FlushDeferredStateChanges().IgnoreResult();
         }
 
-        ID3D11ShaderResourceView* pResourceViewDX11 = pTexture != nullptr ? pTexture->GetSRV(item.m_Texture.m_TextureRange, item.m_Texture.m_OverrideViewFormat) : nullptr;
+        ID3D11ShaderResourceView* pResourceViewDX11 = pTexture != nullptr ? pTexture->GetSRV(item.m_Texture.m_TextureRange, item.m_Texture.m_OverrideViewFormat, item.m_Texture.m_OverrideViewType) : nullptr;
 
         SetResourceView(binding, pTexture, pResourceViewDX11);
       }
@@ -473,33 +473,21 @@ void ezGALCommandEncoderImplDX11::ReadbackBufferPlatform(const ezGALReadbackBuff
   m_pDXContext->CopyResource(pDXDestination->GetDXBuffer(), pDXBuffer->GetDXBuffer());
 }
 
-ezUInt32 GetMipSize(ezUInt32 uiSize, ezUInt32 uiMipLevel)
-{
-  for (ezUInt32 i = 0; i < uiMipLevel; i++)
-  {
-    uiSize = uiSize / 2;
-  }
-  return ezMath::Max(1u, uiSize);
-}
-
-void ezGALCommandEncoderImplDX11::GenerateMipMapsPlatform(const ezGALTexture* pTexture, ezGALTextureRange range)
-{
-  const ezGALTextureDX11* pDXResourceView = static_cast<const ezGALTextureDX11*>(pTexture);
-  ID3D11ShaderResourceView* pSRV = pDXResourceView->GetSRV(range, pTexture->GetDescription().m_Format);
-  if (!pSRV)
-  {
-    ezLog::Error("Failed to generate DX11 texture SRV for GenerateMipMapsPlatform");
-    return;
-  }
-
-  m_pDXContext->GenerateMips(pSRV);
-}
-
 void ezGALCommandEncoderImplDX11::FlushPlatform()
 {
   FlushDeferredStateChanges().IgnoreResult();
   m_GALDeviceDX11.GetFenceQueue().SubmitCurrentFence();
   m_pDXContext->Flush();
+}
+
+void ezGALCommandEncoderImplDX11::TextureBarrierPlatform(ezArrayPtr<const ezGALTextureBarrier> barriers)
+{
+  // DX11 does not support explicit barriers.
+}
+
+void ezGALCommandEncoderImplDX11::BufferBarrierPlatform(ezArrayPtr<const ezGALBufferBarrier> barriers)
+{
+  // DX11 does not support explicit barriers.
 }
 
 // Debug helper functions

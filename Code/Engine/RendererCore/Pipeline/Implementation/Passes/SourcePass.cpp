@@ -48,13 +48,13 @@ ezSourcePass::ezSourcePass(const char* szName)
 
 ezSourcePass::~ezSourcePass() = default;
 
-ezGALTextureCreationDescription ezSourcePass::GetOutputDescription(const ezView& view, ezEnum<ezSourceFormat> format, ezEnum<ezGALMSAASampleCount> msaaMode)
+ezGALTextureCreationDescription ezSourcePass::GetOutputDescription(const ezViewData& viewData, const ezCamera& camera, ezEnum<ezSourceFormat> format, ezEnum<ezGALMSAASampleCount> msaaMode)
 {
-  ezUInt32 uiWidth = static_cast<ezUInt32>(view.GetViewport().width);
-  ezUInt32 uiHeight = static_cast<ezUInt32>(view.GetViewport().height);
+  ezUInt32 uiWidth = static_cast<ezUInt32>(viewData.m_ViewPortRect.width);
+  ezUInt32 uiHeight = static_cast<ezUInt32>(viewData.m_ViewPortRect.height);
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  const ezGALRenderTargets& renderTargets = view.GetActiveRenderTargets();
+  const ezGALRenderTargets& renderTargets = viewData.GetActiveRenderTargets();
 
   ezGALTextureCreationDescription desc;
   desc.m_Type = ezGALTextureType::Texture2DArray;
@@ -132,45 +132,34 @@ ezGALTextureCreationDescription ezSourcePass::GetOutputDescription(const ezView&
   desc.m_uiHeight = uiHeight;
   desc.m_SampleCount = msaaMode;
   desc.m_TextureFlags.Add(ezGALTextureUsageFlags::RenderTarget);
-  desc.m_uiArraySize = view.GetCamera()->IsStereoscopic() ? 2 : 1;
+  desc.m_uiArraySize = camera.IsStereoscopic() ? 2 : 1;
   return desc;
 }
 
-bool ezSourcePass::GetRenderTargetDescriptions(
-  const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+ezStatus ezSourcePass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
-  outputs[m_PinOutput.m_uiOutputIndex] = GetOutputDescription(view, m_Format, m_MsaaMode);
-  return true;
-}
+  auto desc = GetOutputDescription(viewData, camera, m_Format, m_MsaaMode);
+  ezRenderGraphTextureHandle hOutput = graph.CreateTexture(desc);
+  outputs[m_PinOutput.m_uiOutputIndex].m_TextureHandle = hOutput;
 
-void ezSourcePass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
-{
-  if (!m_bClear)
-    return;
-
-  auto pOutput = outputs[m_PinOutput.m_uiOutputIndex];
-  if (pOutput == nullptr)
+  if (m_bClear)
   {
-    return;
+    if (ezGALResourceFormat::IsDepthFormat(desc.m_Format))
+    {
+      auto pass = graph.AddGraphicsPass("ClearDepth");
+      pass.AddDepthStencilTarget(hOutput, {}, ezGALRenderTargetLoadOp::Clear, {}, ezGALRenderTargetLoadOp::Clear);
+      pass.SetClearDepth();
+      pass.SetClearStencil();
+    }
+    else
+    {
+      auto pass = graph.AddGraphicsPass("ClearColor");
+      pass.AddColorTarget(hOutput, {}, ezGALRenderTargetLoadOp::Clear);
+      pass.SetClearColor(0, m_ClearColor);
+    }
   }
 
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-
-  // Setup render target
-  ezGALRenderingSetup renderingSetup;
-  if (ezGALResourceFormat::IsDepthFormat(pOutput->m_Desc.m_Format))
-  {
-    renderingSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
-    renderingSetup.SetClearDepth().SetClearStencil();
-  }
-  else
-  {
-    renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
-    renderingSetup.SetClearColor(0, m_ClearColor);
-  }
-
-  auto pCommandEncoder = ezRenderContext::BeginRenderingScope(renderViewContext, renderingSetup, GetName());
+  return EZ_SUCCESS;
 }
 
 ezResult ezSourcePass::Serialize(ezStreamWriter& inout_stream) const

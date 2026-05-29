@@ -7,6 +7,7 @@
 ///
 /// Simple utility pass for duplicating textures within the render pipeline.
 /// Can be used to preserve intermediate results or create copies for multi-pass effects.
+// BEGIN-DOCS-CODE-SNIPPET: renderpass-header
 class EZ_RENDERERCORE_DLL ezCopyTexturePass : public ezRenderPipelinePass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezCopyTexturePass, ezRenderPipelinePass);
@@ -15,11 +16,10 @@ public:
   ezCopyTexturePass();
   ~ezCopyTexturePass();
 
-  virtual bool GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs) override;
-
-  virtual void Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
+  virtual ezStatus AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs) override;
 
 protected:
   ezRenderPipelineNodeInputPin m_PinInput;
   ezRenderPipelineNodeOutputPin m_PinOutput;
 };
+// END-DOCS-CODE-SNIPPET

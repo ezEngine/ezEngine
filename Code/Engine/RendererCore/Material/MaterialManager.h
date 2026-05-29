@@ -99,7 +99,7 @@ private:
     void OnResourceEvent(const ezResourceEvent& e);
     void OnShaderChanged(ezShaderResource* pShader);
     bool UpdateMaterialLayout();
-    void UpdateMaterial(ezMaterialResource::ezMaterialId id, ezMaterialResourceHandle hMaterial, ezGALCommandEncoder* pEncoder);
+    void UpdateMaterial(ezMaterialResource::ezMaterialId id, ezMaterialResourceHandle hMaterial);
 
   private:
     // Material data

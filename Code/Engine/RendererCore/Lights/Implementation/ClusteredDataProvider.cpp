@@ -9,6 +9,8 @@
 #include <RendererCore/Lights/Implementation/ShadowPool.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/RenderGraph/RenderGraphPassBuilder.h>
+#include <RendererCore/RenderGraph/RenderGraph.h>
 #include <RendererCore/Textures/TextureUtils.h>
 #include <RendererFoundation/Profiling/Profiling.h>
 #include <RendererFoundation/Resources/Buffer.h>
@@ -124,6 +126,37 @@ void ezClusteredDataGPU::BindResources(ezRenderContext* pRenderContext)
   bindGroup.BindTexture("SkyIrradianceTexture", ezReflectionPool::GetSkyIrradianceTexture());
 
   bindGroup.BindBuffer("ezClusteredDataConstants", m_hConstantBuffer);
+}
+
+void ezClusteredDataGPU::AddReadDependencies(ezRenderGraph& ref_graph, ezRenderGraphPassBuilder& ref_pass,
+  ezUInt32 uiSkyIrradianceIndex, ezEnum<ezCameraUsageHint> cameraUsageHint)
+{
+  // Shadow atlas texture
+  {
+    ezGALTextureHandle hShadowAtlas = ezShadowPool::GetShadowAtlasTexture();
+    if (!hShadowAtlas.IsInvalidated())
+      ref_pass.ReadTexture(ref_graph.ImportTexture(hShadowAtlas), {}, ezGALResourceState::DepthStencilRead);
+  }
+
+  // Decal runtime atlas texture
+  {
+    ezGALTextureHandle hDecalAtlas = ezDecalManager::GetRuntimeDecalAtlasTexture();
+    if (!hDecalAtlas.IsInvalidated())
+      ref_pass.ReadTexture(ref_graph.ImportTexture(hDecalAtlas), {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
+  }
+
+  // Baked decal atlas textures are immutable and don't need barriers.
+
+  // Reflection specular and sky irradiance textures
+  {
+    ezGALTextureHandle hReflSpec = ezReflectionPool::GetReflectionSpecularTexture(uiSkyIrradianceIndex, cameraUsageHint);
+    if (!hReflSpec.IsInvalidated())
+      ref_pass.ReadTexture(ref_graph.ImportTexture(hReflSpec), {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
+
+    ezGALTextureHandle hSkyIrradiance = ezReflectionPool::GetSkyIrradianceTexture();
+    if (!hSkyIrradiance.IsInvalidated())
+      ref_pass.ReadTexture(ref_graph.ImportTexture(hSkyIrradiance), {}, ezGALResourceState::ShaderResource);
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////

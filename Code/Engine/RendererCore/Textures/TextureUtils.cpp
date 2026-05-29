@@ -375,6 +375,8 @@ void ezTextureUtils::CopySubResourceToImage(const ezGALTextureCreationDescriptio
   headerTemp.SetImageFormat(ezTextureUtils::GalFormatToImageFormat(desc.m_Format, bRemoveSRGB));
   headerTemp.SetWidth(desc.m_uiWidth);
   headerTemp.SetHeight(desc.m_uiHeight);
+  // GetWidth/Height assert that the requested mip level is within range, so the helper header must know the texture's full mip chain.
+  headerTemp.SetNumMipLevels(desc.m_uiMipLevelCount);
 
   ezImageHeader header;
   header.SetImageFormat(ezTextureUtils::GalFormatToImageFormat(desc.m_Format, bRemoveSRGB));
@@ -411,6 +413,7 @@ ezImageView ezTextureUtils::MakeImageViewFromSubResource(const ezGALTextureCreat
   headerTemp.SetImageFormat(ezTextureUtils::GalFormatToImageFormat(desc.m_Format, bRemoveSRGB));
   headerTemp.SetWidth(desc.m_uiWidth);
   headerTemp.SetHeight(desc.m_uiHeight);
+  headerTemp.SetNumMipLevels(desc.m_uiMipLevelCount);
 
   ezImageHeader header;
   header.SetImageFormat(ezTextureUtils::GalFormatToImageFormat(desc.m_Format, bRemoveSRGB));

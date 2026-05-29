@@ -53,89 +53,80 @@ ezSeparatedBilateralBlurPass::~ezSeparatedBilateralBlurPass()
   ezRenderContext::DeleteConstantBufferStorage(m_hBilateralBlurCB);
 }
 
-bool ezSeparatedBilateralBlurPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+ezStatus ezSeparatedBilateralBlurPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
-  EZ_ASSERT_DEBUG(inputs.GetCount() == 2, "Unexpected number of inputs for ezSeparatedBilateralBlurPass.");
+  ezRenderGraphTextureHandle hBlurSource = inputs[m_PinBlurSourceInput.m_uiInputIndex].m_TextureHandle;
+  ezRenderGraphTextureHandle hDepth = inputs[m_PinDepthInput.m_uiInputIndex].m_TextureHandle;
+  if (hBlurSource.IsInvalidated())
+    return ezStatus(ezFmt("BlurSource: Not connected"));
+  if (hDepth.IsInvalidated())
+    return ezStatus(ezFmt("Depth: Not connected"));
 
-  // Color
-  if (!inputs[m_PinBlurSourceInput.m_uiInputIndex])
+  const ezGALTextureCreationDescription blurDesc = graph.GetTextureDesc(hBlurSource);
+  const ezGALTextureCreationDescription depthDesc = graph.GetTextureDesc(hDepth);
+  if (blurDesc.m_uiWidth != depthDesc.m_uiWidth || blurDesc.m_uiHeight != depthDesc.m_uiHeight)
+    return ezStatus(ezFmt("Blur target and depth buffer need same dimensions"));
+
+  // Output
+  ezRenderGraphTextureHandle hOutput = graph.CreateTexture(blurDesc);
+  outputs[m_PinOutput.m_uiOutputIndex].m_TextureHandle = hOutput;
+
+  // Temp texture for horizontal pass result
+  ezGALTextureCreationDescription tempDesc = blurDesc;
+  tempDesc.m_TextureFlags.Add(ezGALTextureUsageFlags::ShaderResource | ezGALTextureUsageFlags::RenderTarget);
+  ezRenderGraphTextureHandle hTemp = graph.CreateTexture(tempDesc);
+
+  // Horizontal pass
   {
-    ezLog::Error("No blur target connected to bilateral blur pass!");
-    return false;
-  }
-  if (!inputs[m_PinBlurSourceInput.m_uiInputIndex]->m_TextureFlags.IsSet(ezGALTextureUsageFlags::ShaderResource))
-  {
-    ezLog::Error("All bilateral blur pass inputs must allow shader resoure view.");
-    return false;
-  }
-
-  // Depth
-  if (!inputs[m_PinDepthInput.m_uiInputIndex])
-  {
-    ezLog::Error("No depth connected to bilateral blur pass!");
-    return false;
-  }
-  if (!inputs[m_PinDepthInput.m_uiInputIndex]->m_TextureFlags.IsSet(ezGALTextureUsageFlags::ShaderResource))
-  {
-    ezLog::Error("All bilateral blur pass inputs must allow shader resoure view.");
-    return false;
-  }
-  if (inputs[m_PinBlurSourceInput.m_uiInputIndex]->m_uiWidth != inputs[m_PinDepthInput.m_uiInputIndex]->m_uiWidth || inputs[m_PinBlurSourceInput.m_uiInputIndex]->m_uiHeight != inputs[m_PinDepthInput.m_uiInputIndex]->m_uiHeight)
-  {
-    ezLog::Error("Blur target and depth buffer for bilateral blur pass need to have the same dimensions.");
-    return false;
-  }
-
-
-  // Output format maches input format.
-  outputs[m_PinOutput.m_uiOutputIndex] = *inputs[m_PinBlurSourceInput.m_uiInputIndex];
-
-  return true;
-}
-
-void ezSeparatedBilateralBlurPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
-{
-  if (outputs[m_PinOutput.m_uiOutputIndex])
-  {
-    ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-
-    // Get temp texture for horizontal target / vertical source.
-    ezGALTextureCreationDescription tempTextureDesc = outputs[m_PinBlurSourceInput.m_uiInputIndex]->m_Desc;
-    tempTextureDesc.m_TextureFlags.Add(ezGALTextureUsageFlags::ShaderResource | ezGALTextureUsageFlags::RenderTarget);
-    ezGALTextureHandle tempTexture = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(tempTextureDesc);
-
-    ezGALRenderingSetup renderingSetup;
-
-    // Bind shader and inputs
-    renderViewContext.m_pRenderContext->BindShader(m_hShader);
-    renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
-    ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
-    bindGroup.BindTexture("DepthBuffer", inputs[m_PinDepthInput.m_uiInputIndex]->m_TextureHandle);
-    bindGroup.BindBuffer("ezBilateralBlurConstants", m_hBilateralBlurCB);
-
-    // Horizontal
+    auto pass = graph.AddGraphicsPass("BilateralBlurH");
+    pass.AddColorTarget(hTemp);
+    pass.ReadTexture(hBlurSource, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
+    pass.ReadTexture(hDepth, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
+    pass.SetStereoscopic(camera.IsStereoscopic());
+    pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
     {
-      renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(tempTexture));
-      ezRenderContext::BeginRenderingScope(renderViewContext, renderingSetup, "", renderViewContext.m_pCamera->IsStereoscopic());
+      const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
+      renderViewContext.UpdateViewport();
 
+      renderViewContext.m_pRenderContext->BindShader(m_hShader);
+      renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
       renderViewContext.m_pRenderContext->SetShaderPermutationVariable("BLUR_DIRECTION", "BLUR_DIRECTION_HORIZONTAL");
-      bindGroup.BindTexture("BlurSource", inputs[m_PinBlurSourceInput.m_uiInputIndex]->m_TextureHandle);
+
+      ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
+      bindGroup.BindTexture("DepthBuffer", ctx.ResolveTexture(hDepth));
+      bindGroup.BindBuffer("ezBilateralBlurConstants", m_hBilateralBlurCB);
+      bindGroup.BindTexture("BlurSource", ctx.ResolveTexture(hBlurSource));
+
       renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
-    }
-
-    // Vertical
-    {
-      renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(outputs[m_PinOutput.m_uiOutputIndex]->m_TextureHandle));
-      ezRenderContext::BeginRenderingScope(renderViewContext, renderingSetup, "", renderViewContext.m_pCamera->IsStereoscopic());
-
-      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("BLUR_DIRECTION", "BLUR_DIRECTION_VERTICAL");
-      bindGroup.BindTexture("BlurSource", tempTexture);
-      renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
-    }
-
-    // Give back temp texture.
-    ezGPUResourcePool::GetDefaultInstance()->ReturnRenderTarget(tempTexture);
+    });
   }
+
+  // Vertical pass
+  {
+    auto pass = graph.AddGraphicsPass("BilateralBlurV");
+    pass.AddColorTarget(hOutput);
+    pass.ReadTexture(hTemp, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
+    pass.ReadTexture(hDepth, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
+    pass.SetStereoscopic(camera.IsStereoscopic());
+    pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
+    {
+      const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
+      renderViewContext.UpdateViewport();
+
+      renderViewContext.m_pRenderContext->BindShader(m_hShader);
+      renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
+      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("BLUR_DIRECTION", "BLUR_DIRECTION_VERTICAL");
+
+      ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
+      bindGroup.BindTexture("DepthBuffer", ctx.ResolveTexture(hDepth));
+      bindGroup.BindBuffer("ezBilateralBlurConstants", m_hBilateralBlurCB);
+      bindGroup.BindTexture("BlurSource", ctx.ResolveTexture(hTemp));
+
+      renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
+    });
+  }
+
+  return EZ_SUCCESS;
 }
 
 ezResult ezSeparatedBilateralBlurPass::Serialize(ezStreamWriter& inout_stream) const

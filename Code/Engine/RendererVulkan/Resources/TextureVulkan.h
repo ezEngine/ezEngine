@@ -20,7 +20,7 @@ public:
   };
 
   static vk::Format ComputeImageFormat(const ezGALDeviceVulkan* pDevice, ezEnum<ezGALResourceFormat> galFormat, vk::ImageCreateInfo& ref_createInfo, vk::ImageFormatListCreateInfo& ref_imageFormats);
-  static void ComputeCreateInfo(const ezGALDeviceVulkan* pDevice, const ezGALTextureCreationDescription& description, vk::ImageCreateInfo& ref_createInfo, vk::PipelineStageFlags& ref_stages, vk::AccessFlags& ref_access, vk::ImageLayout& ref_preferredLayout);
+  static void ComputeCreateInfo(const ezGALDeviceVulkan* pDevice, const ezGALTextureCreationDescription& description, vk::ImageCreateInfo& ref_createInfo);
   static void ComputeAllocInfo(ezVulkanAllocationCreateInfo& ref_allocInfo);
   static ezUInt32 ComputeSubResourceOffsets(const ezGALDeviceVulkan* pDevice, const ezGALTextureCreationDescription& description, ezDynamicArray<SubResourceOffset>& subResourceSizes);
   static vk::Extent3D GetMipLevelSize(const ezGALTextureCreationDescription& description, ezUInt32 uiMipLevel);
@@ -28,11 +28,6 @@ public:
 public:
   EZ_ALWAYS_INLINE vk::Image GetImage() const;
   EZ_ALWAYS_INLINE vk::Format GetImageFormat() const { return m_imageFormat; }
-  EZ_ALWAYS_INLINE vk::ImageLayout GetPreferredLayout() const;
-  EZ_ALWAYS_INLINE vk::ImageLayout GetPreferredLayout(vk::ImageLayout targetLayout) const;
-  EZ_ALWAYS_INLINE vk::PipelineStageFlags GetUsedByPipelineStage() const;
-  EZ_ALWAYS_INLINE vk::AccessFlags GetAccessMask() const;
-
   EZ_ALWAYS_INLINE ezVulkanAllocation GetAllocation() const;
   EZ_ALWAYS_INLINE const ezVulkanAllocationInfo& GetAllocationInfo() const;
 
@@ -56,10 +51,6 @@ protected:
 protected:
   vk::Image m_image = {};
   vk::Format m_imageFormat = vk::Format::eUndefined;
-  vk::ImageLayout m_preferredLayout = vk::ImageLayout::eUndefined;
-  vk::PipelineStageFlags m_stages = {};
-  vk::AccessFlags m_access = {};
-
   ezVulkanAllocation m_alloc = nullptr;
   ezVulkanAllocationInfo m_allocInfo;
 

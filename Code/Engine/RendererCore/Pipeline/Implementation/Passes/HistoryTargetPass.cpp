@@ -31,23 +31,17 @@ ezHistoryTargetPass::ezHistoryTargetPass(const char* szName)
 
 ezHistoryTargetPass::~ezHistoryTargetPass() = default;
 
-bool ezHistoryTargetPass::GetRenderTargetDescriptions(
-  const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+ezStatus ezHistoryTargetPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
   auto pData = GetPipeline()->GetFrameDataProvider<ezHistorySourcePassTextureDataProvider>();
   pData->ResetTexture(m_sSourcePassName);
-  return true;
+  return EZ_SUCCESS;
 }
 
 ezGALTextureHandle ezHistoryTargetPass::QueryTextureProvider(const ezRenderPipelineNodePin* pPin, const ezGALTextureCreationDescription& desc)
 {
   auto pData = GetPipeline()->GetFrameDataProvider<ezHistorySourcePassTextureDataProvider>();
   return pData->GetOrCreateTexture(m_sSourcePassName, desc);
-}
-
-void ezHistoryTargetPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
-{
 }
 
 ezResult ezHistoryTargetPass::Serialize(ezStreamWriter& inout_stream) const

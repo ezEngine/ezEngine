@@ -2171,6 +2171,7 @@ void ezDebugRenderer::OnEngineStartup()
     desc.m_DescGAL.m_uiWidth = debugFontImage.GetWidth();
     desc.m_DescGAL.m_uiHeight = debugFontImage.GetHeight();
     desc.m_DescGAL.m_Format = ezGALResourceFormat::RUByteNormalized;
+    desc.m_DescGAL.m_ResourceAccess.m_bImmutable = true;
     desc.m_InitialContent = ezMakeArrayPtr(&memoryDesc, 1);
 
     s_hDebugFontTexture = ezResourceManager::CreateResource<ezTexture2DResource>("DebugFontTexture", std::move(desc));

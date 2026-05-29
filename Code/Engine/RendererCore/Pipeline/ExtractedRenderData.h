@@ -6,6 +6,15 @@
 #include <RendererCore/Pipeline/RenderDataBatch.h>
 #include <RendererCore/Pipeline/ViewData.h>
 
+/// Declares that a consumer view needs a texture in a specific resource state.
+/// Recorded during extraction, applied during rendering to ensure correct barriers.
+struct ezViewDependency
+{
+  ezGALTextureHandle m_hTexture;
+  ezBitflags<ezGALResourceState> m_RequiredState;
+  ezBitflags<ezGALShaderStageFlags> m_Stage;
+};
+
 /// Contains all render data extracted from a view for one frame.
 ///
 /// During the extraction phase, render components add their render data to this container,
@@ -31,6 +40,15 @@ public:
 
   EZ_ALWAYS_INLINE void SetViewDebugContext(const ezDebugRendererContext& debugContext) { m_ViewDebugContext = debugContext; }
   EZ_ALWAYS_INLINE const ezDebugRendererContext& GetViewDebugContext() const { return m_ViewDebugContext; }
+
+  EZ_ALWAYS_INLINE void AddViewDependency(ezGALTextureHandle hTexture, ezBitflags<ezGALResourceState> requiredState, ezBitflags<ezGALShaderStageFlags> stage = ezGALShaderStageFlags::Auto)
+  {
+    auto& dep = m_ViewDependencies.ExpandAndGetRef();
+    dep.m_hTexture = hTexture;
+    dep.m_RequiredState = requiredState;
+    dep.m_Stage = stage;
+  }
+  EZ_ALWAYS_INLINE ezArrayPtr<const ezViewDependency> GetViewDependencies() const { return m_ViewDependencies; }
 
   /// Adds render data for a specific rendering category.
   void AddRenderData(const ezRenderData* pRenderData, ezRenderData::Category category);
@@ -78,4 +96,5 @@ private:
 
   ezHybridArray<DataPerCategory, 32> m_DataPerCategory;
   ezHybridArray<const ezRenderData*, 16> m_FrameData;
+  ezHybridArray<ezViewDependency, 4> m_ViewDependencies;
 };

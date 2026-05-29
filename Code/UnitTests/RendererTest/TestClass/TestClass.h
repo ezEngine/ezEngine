@@ -8,11 +8,13 @@
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/ReadbackHelper.h>
+#include <RendererFoundation/Utils/ResourceStateTracker.h>
 #include <TestFramework/Framework/TestBaseClass.h>
 
 #undef CreateWindow
 
 class ezImage;
+class ezRenderGraph;
 
 struct ObjectCB
 {
@@ -29,6 +31,7 @@ public:
 public:
   ezGraphicsTest();
 
+  void ReadbackImage(ezRenderGraph& graph);
   virtual ezResult GetImage(ezImage& ref_img, const ezSubTestEntry& subTest, ezUInt32 uiImageNumber) override;
 
 protected:
@@ -58,6 +61,9 @@ protected:
 
   ezGALCommandEncoder* BeginRendering(ezColor clearColor, ezUInt32 uiRenderTargetClearMask = 0xFFFFFFFF, ezRectFloat* pViewport = nullptr, ezRectU32* pScissor = nullptr);
   void EndRendering();
+  ezGALResourceStateTracker* GetResourceStateTracker();
+  void TransitionTexture(ezGALTextureHandle hTexture, ezBitflags<ezGALResourceState> newState, ezGALTextureRange range = {}, ezBitflags<ezGALShaderStageFlags> stage = ezGALShaderStageFlags::Auto);
+  void TransitionBuffer(ezGALBufferHandle hBuffer, ezBitflags<ezGALResourceState> newState, ezBitflags<ezGALShaderStageFlags> stage = ezGALShaderStageFlags::Auto);
 
   /// \brief Renders a unit cube and makes an image comparison if m_bCaptureImage is set and the current frame is in m_ImgCompFrames.
   /// \param viewport Viewport to render into.
@@ -76,6 +82,9 @@ protected:
   ezMeshBufferResourceHandle CreateBox(float fWidth, float fHeight, float fDepth);
   ezMeshBufferResourceHandle CreateLineBox(float fWidth, float fHeight, float fDepth);
   void RenderObject(ezMeshBufferResourceHandle hObject, const ezMat4& mTransform, const ezColor& color, ezBitflags<ezShaderBindFlags> ShaderBindFlags = ezShaderBindFlags::Default);
+  ezGALTextureHandle GetBackbuffer() const;
+  void TextureBarrier(const ezGALTextureBarrier& barrier);
+  void BufferBarrier(const ezGALBufferBarrier& barrier);
 
   ezWindow* m_pWindow = nullptr;
   ezGALDevice* m_pDevice = nullptr;
@@ -92,4 +101,7 @@ protected:
   bool m_bCaptureImage = false;
   ezHybridArray<ezUInt32, 8> m_ImgCompFrames;
   ezGALReadbackTextureHelper m_Readback;
+  bool m_bReadBackInProgress = false;
+
+  ezUniquePtr<ezGALResourceStateTracker> m_pResourceStateTracker;
 };

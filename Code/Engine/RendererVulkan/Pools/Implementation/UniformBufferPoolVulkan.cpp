@@ -92,6 +92,7 @@ ezUniformBufferPoolVulkan::BufferUpdateResult ezUniformBufferPoolVulkan::UpdateB
   {
     m_pCurrentPool->Submit(m_pDevice, uiCurrentFrame);
     m_PendingPools.PushBack(m_pCurrentPool);
+    // GetFreePool needs to check for conteguous memory block
     m_pCurrentPool = GetFreePool(uiSize);
     m_pCurrentPool->Allocate(uiSize, uiCurrentFrame, uiOffset, allocation).AssertSuccess("implementation error");
     res = BufferUpdateResult::DynamicBufferChanged;

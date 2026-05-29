@@ -103,6 +103,7 @@ ezResourceLoadDesc ezTextureCubeResource::UpdateContent(ezStreamReader* Stream)
   texDesc.m_uiDepth = pImage->GetDepth(uiHighestMipLevel);
   texDesc.m_uiMipLevelCount = uiNumMipLevels;
   texDesc.m_uiArraySize = pImage->GetNumArrayIndices();
+  texDesc.m_ResourceAccess.m_bImmutable = true;
 
   if (texDesc.m_uiDepth > 1)
     texDesc.m_Type = ezGALTextureType::Texture3D;

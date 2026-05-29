@@ -1,6 +1,7 @@
 #pragma once
 
-#include <RendererCore/Pipeline/Passes/ForwardRenderPass.h>
+#include <RendererCore/Declarations.h>
+#include <RendererCore/Pipeline/RenderPipelinePass.h>
 
 /// Forward render pass that renders secondary lens flares.
 class EZ_RENDERERCORE_DLL ezLensEffectsPass : public ezRenderPipelinePass
@@ -11,8 +12,7 @@ public:
   ezLensEffectsPass(const char* szName = "LensEffectsPass");
   ~ezLensEffectsPass();
 
-  virtual bool GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs) override;
-  virtual void Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
+  virtual ezStatus AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs) override;
 
 protected:
   ezRenderPipelineNodePassThroughPin m_PinColor;

@@ -34,7 +34,7 @@ inline bool ezGALShaderCreationDescription::HasByteCodeForStage(ezGALShaderStage
   return m_ByteCodes[stage] != nullptr && m_ByteCodes[stage]->IsValid();
 }
 
-inline void ezGALTextureCreationDescription::SetAsRenderTarget(ezUInt32 uiWidth, ezUInt32 uiHeight, ezGALResourceFormat::Enum format, ezGALMSAASampleCount::Enum sampleCount /*= ezGALMSAASampleCount::None*/)
+inline void ezGALTextureCreationDescription::SetAsRenderTarget(ezUInt32 uiWidth, ezUInt32 uiHeight, ezGALResourceFormat::Enum format, ezGALMSAASampleCount::Enum sampleCount)
 {
   m_uiWidth = uiWidth;
   m_uiHeight = uiHeight;
@@ -44,6 +44,21 @@ inline void ezGALTextureCreationDescription::SetAsRenderTarget(ezUInt32 uiWidth,
   m_SampleCount = sampleCount;
   m_Format = format;
   m_Type = ezGALTextureType::Texture2D;
+  m_TextureFlags = ezGALTextureUsageFlags::ShaderResource | ezGALTextureUsageFlags::RenderTarget;
+  m_ResourceAccess.m_bImmutable = false;
+  m_pExisitingNativeObject = nullptr;
+}
+
+inline void ezGALTextureCreationDescription::SetAsRenderTarget(ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiArraySize, ezGALResourceFormat::Enum format, ezGALMSAASampleCount::Enum sampleCount)
+{
+  m_uiWidth = uiWidth;
+  m_uiHeight = uiHeight;
+  m_uiDepth = 1;
+  m_uiMipLevelCount = 1;
+  m_uiArraySize = uiArraySize;
+  m_SampleCount = sampleCount;
+  m_Format = format;
+  m_Type = uiArraySize == 1 ? ezGALTextureType::Texture2D : ezGALTextureType::Texture2DArray;
   m_TextureFlags = ezGALTextureUsageFlags::ShaderResource | ezGALTextureUsageFlags::RenderTarget;
   m_ResourceAccess.m_bImmutable = false;
   m_pExisitingNativeObject = nullptr;

@@ -42,12 +42,12 @@ public:
   /// @param textureRange What part of the texture should be bound. Default is entire texture. Or as much as the target ezShaderResourceBinding allows for.
   /// @param overrideViewFormat If set, re-interprets the format of the texture. This can cause performance penalties. Only use it to e.g. read linear vs gamma space or other formats of same type and width.
   /// @param metaFlags Optional subset of ezGALBindGroupItemFlags::MetaFlags to be added to the binding.
-  void BindTexture(ezTempHashedString sSlotName, ezGALTextureHandle hTexture, ezGALTextureRange textureRange = {}, ezEnum<ezGALResourceFormat> overrideViewFormat = ezGALResourceFormat::Invalid, ezBitflags<ezGALBindGroupItemFlags> metaFlags = {});
+  void BindTexture(ezTempHashedString sSlotName, ezGALTextureHandle hTexture, ezGALTextureRange textureRange = {}, ezEnum<ezGALResourceFormat> overrideViewFormat = ezGALResourceFormat::Invalid, ezEnum<ezGALTextureType> overrideViewType = ezGALTextureType::Invalid, ezBitflags<ezGALBindGroupItemFlags> metaFlags = {});
 
   // Convenience functions:
-  void BindTexture(ezTempHashedString sSlotName, const ezTexture2DResourceHandle& hTexture, ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowLoadingFallback, ezGALTextureRange textureRange = {}, ezEnum<ezGALResourceFormat> overrideViewFormat = ezGALResourceFormat::Invalid);
-  void BindTexture(ezTempHashedString sSlotName, const ezTexture3DResourceHandle& hTexture, ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowLoadingFallback, ezGALTextureRange textureRange = {}, ezEnum<ezGALResourceFormat> overrideViewFormat = ezGALResourceFormat::Invalid);
-  void BindTexture(ezTempHashedString sSlotName, const ezTextureCubeResourceHandle& hTexture, ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowLoadingFallback, ezGALTextureRange textureRange = {}, ezEnum<ezGALResourceFormat> overrideViewFormat = ezGALResourceFormat::Invalid);
+  void BindTexture(ezTempHashedString sSlotName, const ezTexture2DResourceHandle& hTexture, ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowLoadingFallback, ezGALTextureRange textureRange = {}, ezEnum<ezGALResourceFormat> overrideViewFormat = ezGALResourceFormat::Invalid, ezEnum<ezGALTextureType> overrideViewType = ezGALTextureType::Invalid);
+  void BindTexture(ezTempHashedString sSlotName, const ezTexture3DResourceHandle& hTexture, ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowLoadingFallback, ezGALTextureRange textureRange = {}, ezEnum<ezGALResourceFormat> overrideViewFormat = ezGALResourceFormat::Invalid, ezEnum<ezGALTextureType> overrideViewType = ezGALTextureType::Invalid);
+  void BindTexture(ezTempHashedString sSlotName, const ezTextureCubeResourceHandle& hTexture, ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowLoadingFallback, ezGALTextureRange textureRange = {}, ezEnum<ezGALResourceFormat> overrideViewFormat = ezGALResourceFormat::Invalid, ezEnum<ezGALTextureType> overrideViewType = ezGALTextureType::Invalid);
   void BindBuffer(ezTempHashedString sSlotName, ezConstantBufferStorageHandle hBuffer, ezGALBufferRange bufferRange = {}, ezGALResourceFormat::Enum overrideTexelBufferFormat = ezGALResourceFormat::Invalid);
 
   /// Create a new bind group for the given layout.

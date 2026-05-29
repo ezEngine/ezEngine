@@ -235,6 +235,7 @@ void ezGameApplication::Run_AcquireImage()
   {
     if (auto pOutput = pWinMan->GetOutputTarget(id))
     {
+      // We could call `ExecuteTakeScreenshot` here, which would improve the screenshot latency by one frame. However, all unit test image comparisons would fail.
       EZ_PROFILE_SCOPE("AcquireImage");
       pOutput->AcquireImage();
     }

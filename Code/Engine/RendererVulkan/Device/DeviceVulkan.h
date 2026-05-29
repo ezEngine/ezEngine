@@ -44,7 +44,6 @@ using ezGALFormatLookupTableVulkan = ezGALFormatLookupTable<ezGALFormatLookupEnt
 
 class ezGALBufferVulkan;
 class ezGALTextureVulkan;
-class ezPipelineBarrierVulkan;
 class ezCommandBufferPoolVulkan;
 class ezStagingBufferPoolVulkan;
 class ezQueryPoolVulkan;
@@ -131,6 +130,9 @@ public:
     vk::PhysicalDeviceTimelineSemaphoreFeatures m_timelineSemaphoresEXT;
     bool m_bTimelineSemaphore = false;
 
+    vk::PhysicalDeviceSynchronization2Features m_synchronization2Features;
+    bool m_bSynchronization2 = false;
+
     bool m_bExternalMemoryCapabilities = false;
     bool m_bExternalSemaphoreCapabilities = false;
     bool m_bExternalFenceCapabilities = false;
@@ -145,6 +147,9 @@ public:
     bool m_bExternalSemaphoreWin32 = false;
 
     bool m_bPhysicalDeviceProperties2 = false;
+
+    bool m_bSurfaceMaintenance1 = false;
+    bool m_bSwapchainMaintenance1 = false;
   };
 
   struct Queue
@@ -168,7 +173,6 @@ public:
   vk::PipelineStageFlags GetSupportedStages() const;
 
   vk::CommandBuffer& GetCurrentCommandBuffer();
-  ezPipelineBarrierVulkan& GetCurrentPipelineBarrier();
   ezQueryPoolVulkan& GetQueryPool() const;
   ezFenceQueueVulkan& GetFenceQueue() const;
   ezStagingBufferPoolVulkan& GetStagingBufferPool() const;
@@ -261,8 +265,8 @@ public:
 
   void ReportLiveGpuObjects();
 
-  static void UploadBufferStaging(ezStagingBufferPoolVulkan* pStagingBufferPool, ezPipelineBarrierVulkan* pPipelineBarrier, vk::CommandBuffer commandBuffer, const ezGALBufferVulkan* pBuffer, ezArrayPtr<const ezUInt8> pInitialData, vk::DeviceSize dstOffset = 0);
-  static void UploadTextureStaging(ezStagingBufferPoolVulkan* pStagingBufferPool, ezPipelineBarrierVulkan* pPipelineBarrier, vk::CommandBuffer commandBuffer, const ezGALTextureVulkan* pTexture, const vk::ImageSubresourceLayers& subResource, const vk::Offset3D& imageOffset, const vk::Extent3D& imageExtent, const ezGALSystemMemoryDescription& data);
+  static void UploadBufferStaging(ezGALDeviceVulkan& device, ezStagingBufferPoolVulkan* pStagingBufferPool, vk::CommandBuffer commandBuffer, const ezGALBufferVulkan* pBuffer, ezArrayPtr<const ezUInt8> pInitialData, vk::DeviceSize dstOffset = 0);
+  static void UploadTextureStaging(ezGALDeviceVulkan& device, ezStagingBufferPoolVulkan* pStagingBufferPool, vk::CommandBuffer commandBuffer, const ezGALTextureVulkan* pTexture, const vk::ImageSubresourceLayers& subResource, const vk::Offset3D& imageOffset, const vk::Extent3D& imageExtent, const ezGALSystemMemoryDescription& data);
 
   struct OnBeforeImageDestroyedData
   {
@@ -441,7 +445,6 @@ private:
   ezUniquePtr<ezGALCommandEncoderImplVulkan> m_pCommandEncoderImpl;
   ezUniquePtr<ezGALCommandEncoder> m_pCommandEncoder;
 
-  ezUniquePtr<ezPipelineBarrierVulkan> m_pPipelineBarrier;
   ezUniquePtr<ezCommandBufferPoolVulkan> m_pCommandBufferPool;
   ezUniquePtr<ezStagingBufferPoolVulkan> m_pStagingBufferPool;
   ezUniquePtr<ezQueryPoolVulkan> m_pQueryPool;

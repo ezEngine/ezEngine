@@ -68,14 +68,21 @@ void ezEditorSelectedObjectsExtractor::Extract(const ezView& view, const ezDynam
       {
         UpdateRenderTargetCamera(pCamComp);
 
-        const float fAspect = 9.0f / 16.0f;
+        ezResourceLock<ezRenderToTexture2DResource> pRT(m_hRenderTarget, ezResourceAcquireMode::AllowLoadingFallback);
+        if (pRT.GetAcquireResult() == ezResourceAcquireResult::Final)
+        {
+          const float fAspect = 9.0f / 16.0f;
 
-        // TODO: use aspect ratio of camera render target, if available
-        ezDebugRenderer::Draw2DRectangle(view.GetHandle(), ezRectFloat(20, 20, 256, 256 * fAspect), 0, ezColor::White, m_hRenderTarget);
+          // TODO: use aspect ratio of camera render target, if available
+          ezDebugRenderer::Draw2DRectangle(view.GetHandle(), ezRectFloat(20, 20, 256, 256 * fAspect), 0, ezColor::White, m_hRenderTarget);
 
-        // TODO: if the camera renders to a texture anyway, use its view + render target instead
+          // TODO: if the camera renders to a texture anyway, use its view + render target instead
 
-        ezRenderWorld::AddViewToRender(m_hRenderTargetView);
+          ezRenderWorld::AddViewToRender(m_hRenderTargetView);
+
+          // The consumer view will sample this render target as a texture.
+          ezRenderWorld::AddViewDependency(view, pRT->GetGALTexture(), ezGALResourceState::ShaderResource);
+        }
 
         break;
       }

@@ -1,10 +1,14 @@
 #include <RendererTest/RendererTestPCH.h>
 
+#include <RendererTest/Basics/PipelineStates.h>
+
+#include <RendererCore/RenderGraph/RenderGraph.h>
+#include <RendererCore/RenderGraph/RenderGraphManager.h>
+#include <RendererCore/RenderGraph/RenderGraphUtils.h>
+
 #include <Core/Graphics/Camera.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Math/ColorScheme.h>
-
-#include <RendererTest/Basics/PipelineStates.h>
 #include <RendererTest/Basics/RendererTestUtils.h>
 
 #include <RendererTest/../../../Data/UnitTests/RendererTest/Shaders/TestConstants.h>
@@ -261,7 +265,7 @@ ezResult ezRendererTestPipelineStates::InitializeSubTest(ezInt32 iIdentifier)
     {
       // Clear all mips except the fist one and let them be regenerated.
       desc.m_ResourceAccess.m_bImmutable = false;
-      desc.m_TextureFlags.Add(ezGALTextureUsageFlags::DynamicMipGeneration);
+      desc.m_TextureFlags.Add(ezGALTextureUsageFlags::RenderTarget);
       for (ezUInt32 m = 1; m < desc.m_uiMipLevelCount; m++)
       {
         const ezUInt32 uiHeight = coloredMips.GetHeight(m);
@@ -537,7 +541,8 @@ void ezRendererTestPipelineStates::RenderBlock(ezMeshBufferResourceHandle mesh, 
 {
   BeginCommands("MostBasicTriangle");
   {
-    ezGALCommandEncoder* pCommandEncoder = BeginRendering(clearColor, uiRenderTargetClearMask, pViewport, pScissor);
+    TransitionTexture(GetBackbuffer(), ezGALResourceState::RenderTarget);
+    BeginRendering(clearColor, uiRenderTargetClearMask, pViewport, pScissor);
     {
 
       if (mesh.IsValid())
@@ -557,10 +562,10 @@ void ezRendererTestPipelineStates::RenderBlock(ezMeshBufferResourceHandle mesh, 
     EndRendering();
     if (m_bCaptureImage && m_ImgCompFrames.Contains(m_iFrame))
     {
+      TransitionTexture(GetBackbuffer(), ezGALResourceState::CopySource);
       EZ_TEST_IMAGE(m_iFrame, 100);
     }
   }
-
   EndCommands();
 }
 
@@ -616,7 +621,9 @@ void ezRendererTestPipelineStates::PushConstantsTest()
 
   BeginCommands("PushConstantsTest");
   {
-    ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::CornflowerBlue, 0xFFFFFFFF);
+    TransitionTexture(GetBackbuffer(), ezGALResourceState::RenderTarget);
+
+    BeginRendering(ezColor::CornflowerBlue, 0xFFFFFFFF);
     ezRenderContext* pContext = ezRenderContext::GetDefaultInstance();
     {
       pContext->BindShader(m_hPushConstantsShader);
@@ -641,6 +648,7 @@ void ezRendererTestPipelineStates::PushConstantsTest()
     EndRendering();
     if (m_ImgCompFrames.Contains(m_iFrame))
     {
+      TransitionTexture(GetBackbuffer(), ezGALResourceState::CopySource);
       EZ_TEST_IMAGE(m_iFrame, 100);
     }
   }
@@ -667,7 +675,8 @@ void ezRendererTestPipelineStates::BindGroupsTest()
   }
   auto renderCube = [&](ezRectFloat viewport, ezMat4 mMVP, ezUInt32 uiRenderTargetClearMask, ezGALTextureHandle hTexture, const ezGALTextureRange& textureRange)
   {
-    ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, uiRenderTargetClearMask, &viewport);
+    TransitionTexture(GetBackbuffer(), ezGALResourceState::RenderTarget);
+    BeginRendering(ezColor::RebeccaPurple, uiRenderTargetClearMask, &viewport);
     {
       ezBindGroupBuilder& bindGroupDraw = ezRenderContext::GetDefaultInstance()->GetBindGroup(EZ_GAL_BIND_GROUP_DRAW_CALL);
       bindGroupDraw.BindTexture("DiffuseTexture", hTexture, textureRange);
@@ -685,10 +694,6 @@ void ezRendererTestPipelineStates::BindGroupsTest()
       ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().IgnoreResult();
     }
     EndRendering();
-    if (m_bCaptureImage && m_ImgCompFrames.Contains(m_iFrame))
-    {
-      EZ_TEST_IMAGE(m_iFrame, 100);
-    }
   };
 
   BeginCommands("SetsSlots");
@@ -702,6 +707,12 @@ void ezRendererTestPipelineStates::BindGroupsTest()
     m_bCaptureImage = true;
     viewport = ezRectFloat(fElementWidth, fElementHeight, fElementWidth, fElementHeight);
     renderCube(viewport, mMVP, 0, m_hTexture2D, ezGALTextureRange::MakeFromMipRange(3, 1));
+
+    if (m_bCaptureImage && m_ImgCompFrames.Contains(m_iFrame))
+    {
+      TransitionTexture(GetBackbuffer(), ezGALResourceState::CopySource);
+      EZ_TEST_IMAGE(m_iFrame, 100);
+    }
   }
   EndCommands();
 }
@@ -713,7 +724,9 @@ void ezRendererTestPipelineStates::ConstantBufferTest()
 
   BeginCommands("ConstantBufferTest");
   {
-    ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::CornflowerBlue, 0xFFFFFFFF);
+    TransitionTexture(GetBackbuffer(), ezGALResourceState::RenderTarget);
+
+    BeginRendering(ezColor::CornflowerBlue, 0xFFFFFFFF);
     ezRenderContext* pContext = ezRenderContext::GetDefaultInstance();
     {
       ezBindGroupBuilder& bindGroupTest = pContext->GetBindGroup();
@@ -744,6 +757,7 @@ void ezRendererTestPipelineStates::ConstantBufferTest()
     EndRendering();
     if (m_ImgCompFrames.Contains(m_iFrame))
     {
+      TransitionTexture(GetBackbuffer(), ezGALResourceState::CopySource);
       EZ_TEST_IMAGE(m_iFrame, 100);
     }
   }
@@ -792,6 +806,8 @@ void ezRendererTestPipelineStates::StructuredBufferTest(ezGALShaderResourceType:
       pContext->EndCompute();
     }
 
+    TransitionTexture(GetBackbuffer(), ezGALResourceState::RenderTarget);
+    TransitionBuffer(m_hInstancingDataUAV, ezGALResourceState::ShaderResource);
     ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::CornflowerBlue, 0xFFFFFFFF);
     {
       pContext->BindShader(m_hInstancingShader);
@@ -819,6 +835,7 @@ void ezRendererTestPipelineStates::StructuredBufferTest(ezGALShaderResourceType:
         {
           pCommandEncoder->UpdateBuffer(m_hInstancingDataTransient, i * sizeof(ezTestShaderData), instanceData.GetArrayPtr().GetSubArray(i, 1).ToByteArray(), ezGALUpdateMode::AheadOfTime);
         }
+
         bindGroupTest.BindBuffer("instancingData", m_hInstancingDataTransient);
         pContext->DrawMeshBuffer(1, 0, 8).AssertSuccess();
       }
@@ -837,11 +854,12 @@ void ezRendererTestPipelineStates::StructuredBufferTest(ezGALShaderResourceType:
         pContext->DrawMeshBuffer(1, 0, 8).AssertSuccess();
       }
     }
-  }
-  EndRendering();
-  if (m_ImgCompFrames.Contains(m_iFrame))
-  {
-    EZ_TEST_IMAGE(m_iFrame, 100);
+    EndRendering();
+    if (m_ImgCompFrames.Contains(m_iFrame))
+    {
+      TransitionTexture(GetBackbuffer(), ezGALResourceState::CopySource);
+      EZ_TEST_IMAGE(m_iFrame, 100);
+    }
   }
   EndCommands();
 }
@@ -860,14 +878,20 @@ void ezRendererTestPipelineStates::Texture2D()
   BeginCommands("Texture2D");
   {
     ezRectFloat viewport = ezRectFloat(0, 0, fElementWidth, fElementHeight);
+    TransitionTexture(GetBackbuffer(), ezGALResourceState::RenderTarget);
     RenderCube(viewport, mMVP, 0xFFFFFFFF, m_hTexture2D, ezGALTextureRange::MakeFromMipRange(0, 1));
     viewport = ezRectFloat(fElementWidth, 0, fElementWidth, fElementHeight);
     RenderCube(viewport, mMVP, 0, m_hTexture2D, ezGALTextureRange::MakeFromMipRange(1, 1));
     viewport = ezRectFloat(0, fElementHeight, fElementWidth, fElementHeight);
     RenderCube(viewport, mMVP, 0, m_hTexture2D, ezGALTextureRange::MakeFromMipRange(2, 1));
-    m_bCaptureImage = true;
     viewport = ezRectFloat(fElementWidth, fElementHeight, fElementWidth, fElementHeight);
     RenderCube(viewport, mMVP, 0, m_hTexture2D, ezGALTextureRange::MakeFromMipRange(3, 1));
+
+    if (m_ImgCompFrames.Contains(m_iFrame))
+    {
+      TransitionTexture(GetBackbuffer(), ezGALResourceState::CopySource);
+      EZ_TEST_IMAGE(m_iFrame, 100);
+    }
   }
   EndCommands();
 }
@@ -886,14 +910,24 @@ void ezRendererTestPipelineStates::Texture2DArray()
   BeginCommands("Texture2DArray");
   {
     ezRectFloat viewport = ezRectFloat(0, 0, fElementWidth, fElementHeight);
+    TransitionTexture(GetBackbuffer(), ezGALResourceState::RenderTarget);
+    TransitionTexture(m_hTexture2DArray, ezGALResourceState::ShaderResource, {0, 1, 0, 1});
     RenderCube(viewport, mMVP, 0xFFFFFFFF, m_hTexture2DArray, {0, 1, 0, 1});
     viewport = ezRectFloat(fElementWidth, 0, fElementWidth, fElementHeight);
+    TransitionTexture(m_hTexture2DArray, ezGALResourceState::ShaderResource, {0, 1, 1, 1});
     RenderCube(viewport, mMVP, 0, m_hTexture2DArray, {0, 1, 1, 1});
     viewport = ezRectFloat(0, fElementHeight, fElementWidth, fElementHeight);
+    TransitionTexture(m_hTexture2DArray, ezGALResourceState::ShaderResource, {1, 1, 0, 1});
     RenderCube(viewport, mMVP, 0, m_hTexture2DArray, {1, 1, 0, 1});
-    m_bCaptureImage = true;
     viewport = ezRectFloat(fElementWidth, fElementHeight, fElementWidth, fElementHeight);
+    TransitionTexture(m_hTexture2DArray, ezGALResourceState::ShaderResource, {1, 1, 1, 1});
     RenderCube(viewport, mMVP, 0, m_hTexture2DArray, {1, 1, 1, 1});
+
+    if (m_ImgCompFrames.Contains(m_iFrame))
+    {
+      TransitionTexture(GetBackbuffer(), ezGALResourceState::CopySource);
+      EZ_TEST_IMAGE(m_iFrame, 100);
+    }
   }
   EndCommands();
 }
@@ -911,16 +945,35 @@ void ezRendererTestPipelineStates::GenerateMipMaps()
   BeginCommands("GenerateMipMaps");
   {
     ezRectFloat viewport = ezRectFloat(0, 0, fElementWidth, fElementHeight);
-    m_pEncoder->GenerateMipMaps(m_hTexture2D, {});
+    {
+      auto pGraph = ezRenderGraphManager::CreateRenderGraph("GenerateMipMaps");
+      ezRenderGraphUtils::GenerateMipMaps(m_hTexture2D, {}, *pGraph);
+      pGraph->Compile().AssertSuccess();
+      pGraph->ComputeBarriers(*GetResourceStateTracker());
 
+      ezRenderGraphContext ctx(m_pEncoder, m_pDevice, ezRenderContext::GetDefaultInstance());
+      pGraph->Execute(ctx);
+    }
+    //m_pEncoder->GenerateMipMaps(m_hTexture2D, {});
+
+    TransitionTexture(GetBackbuffer(), ezGALResourceState::RenderTarget);
+    TransitionTexture(m_hTexture2D, ezGALResourceState::ShaderResource, ezGALTextureRange::MakeFromMipRange(0, 1));
     RenderCube(viewport, mMVP, 0xFFFFFFFF, m_hTexture2D, ezGALTextureRange::MakeFromMipRange(0, 1));
     viewport = ezRectFloat(fElementWidth, 0, fElementWidth, fElementHeight);
+    TransitionTexture(m_hTexture2D, ezGALResourceState::ShaderResource, ezGALTextureRange::MakeFromMipRange(1, 1));
     RenderCube(viewport, mMVP, 0, m_hTexture2D, ezGALTextureRange::MakeFromMipRange(1, 1));
     viewport = ezRectFloat(0, fElementHeight, fElementWidth, fElementHeight);
+    TransitionTexture(m_hTexture2D, ezGALResourceState::ShaderResource, ezGALTextureRange::MakeFromMipRange(2, 1));
     RenderCube(viewport, mMVP, 0, m_hTexture2D, ezGALTextureRange::MakeFromMipRange(2, 1));
-    m_bCaptureImage = true;
     viewport = ezRectFloat(fElementWidth, fElementHeight, fElementWidth, fElementHeight);
+    TransitionTexture(m_hTexture2D, ezGALResourceState::ShaderResource, ezGALTextureRange::MakeFromMipRange(3, 1));
     RenderCube(viewport, mMVP, 0, m_hTexture2D, ezGALTextureRange::MakeFromMipRange(3, 1));
+
+    if (m_ImgCompFrames.Contains(m_iFrame))
+    {
+      TransitionTexture(GetBackbuffer(), ezGALResourceState::CopySource);
+      EZ_TEST_IMAGE(m_iFrame, 100);
+    }
   }
   EndCommands();
 }
@@ -929,6 +982,8 @@ ezTestAppRun ezRendererTestPipelineStates::Timestamps()
 {
   BeginCommands("Timestamps");
   {
+    TransitionTexture(GetBackbuffer(), ezGALResourceState::RenderTarget);
+
     ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0xFFFFFFFF);
 
     if (m_iFrame == 2)
@@ -989,6 +1044,8 @@ ezTestAppRun ezRendererTestPipelineStates::OcclusionQueries()
 {
   BeginCommands("OcclusionQueries");
   {
+    TransitionTexture(GetBackbuffer(), ezGALResourceState::RenderTarget);
+
     ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::RebeccaPurple, 0xFFFFFFFF);
 
     // #TODO_VULKAN Vulkan will assert if we don't render something bogus here. The reason is that occlusion queries must be started and stopped within the same render pass. However, as we start the render pass lazily within ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges, the BeginOcclusionQuery call is actually still outside the render pass.
@@ -1091,6 +1148,8 @@ void ezRendererTestPipelineStates::CustomVertexStreams()
 {
   BeginCommands("InstancingTest");
   {
+    TransitionTexture(GetBackbuffer(), ezGALResourceState::RenderTarget);
+
     ezGALCommandEncoder* pCommandEncoder = BeginRendering(ezColor::CornflowerBlue, 0xFFFFFFFF);
 
     ezRenderContext* pContext = ezRenderContext::GetDefaultInstance();
@@ -1113,11 +1172,12 @@ void ezRendererTestPipelineStates::CustomVertexStreams()
         pContext->DrawMeshBuffer(1, 0, 4).AssertSuccess();
       }
     }
-  }
-  EndRendering();
-  if (m_ImgCompFrames.Contains(m_iFrame))
-  {
-    EZ_TEST_IMAGE(m_iFrame, 100);
+    EndRendering();
+    if (m_ImgCompFrames.Contains(m_iFrame))
+    {
+      TransitionTexture(GetBackbuffer(), ezGALResourceState::CopySource);
+      EZ_TEST_IMAGE(m_iFrame, 100);
+    }
   }
   EndCommands();
 }

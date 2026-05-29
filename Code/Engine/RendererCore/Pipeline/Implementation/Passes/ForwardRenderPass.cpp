@@ -7,10 +7,9 @@
 #include <RendererCore/Pipeline/Passes/ForwardRenderPass.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/RenderGraph/RenderGraph.h>
+#include <RendererCore/RenderGraph/RenderGraphPassBuilder.h>
 #include <RendererCore/Textures/Texture2DResource.h>
-
-#include <RendererFoundation/Resources/RenderTargetView.h>
-#include <RendererFoundation/Resources/Texture.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezForwardRenderPass, 1, ezRTTINoAllocator)
@@ -29,10 +28,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezForwardRenderPass, 1, ezRTTINoAllocator)
   EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezForwardRenderShadingQuality, 1)
-  EZ_ENUM_CONSTANTS(ezForwardRenderShadingQuality::Normal, ezForwardRenderShadingQuality::Simplified)
-EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
 ezForwardRenderPass::ezForwardRenderPass(const char* szName)
@@ -44,41 +39,34 @@ ezForwardRenderPass::ezForwardRenderPass(const char* szName)
 
 ezForwardRenderPass::~ezForwardRenderPass() = default;
 
-bool ezForwardRenderPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+ezStatus ezForwardRenderPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
-  // Color
-  if (inputs[m_PinColor.m_uiInputIndex])
-  {
-    outputs[m_PinColor.m_uiOutputIndex] = *inputs[m_PinColor.m_uiInputIndex];
-  }
-  else
-  {
-    ezLog::Error("No color input connected to pass '{0}'!", GetName());
-    return false;
-  }
+  ezRenderGraphTextureHandle hColor = inputs[m_PinColor.m_uiInputIndex].m_TextureHandle;
+  if (hColor.IsInvalidated())
+    return ezStatus(ezFmt("Color: Not connected"));
 
-  // DepthStencil
-  if (inputs[m_PinDepthStencil.m_uiInputIndex])
+  ezRenderGraphTextureHandle hDepthStencil = inputs[m_PinDepthStencil.m_uiInputIndex].m_TextureHandle;
+  if (hDepthStencil.IsInvalidated())
+    return ezStatus(ezFmt("DepthStencil: Not connected"));
+
+  outputs[m_PinColor.m_uiOutputIndex].m_TextureHandle = hColor;
+  outputs[m_PinDepthStencil.m_uiOutputIndex].m_TextureHandle = hDepthStencil;
+
+  auto pass = graph.AddGraphicsPass(GetName());
+  pass.AddColorTarget(hColor);
+  pass.AddDepthStencilTarget(hDepthStencil);
+  pass.SetStereoscopic(camera.IsStereoscopic());
+  ezRenderPipelinePass::SetupResourceDependencies(viewData, graph, pass, m_ShadingQuality);
+  pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
   {
-    outputs[m_PinDepthStencil.m_uiOutputIndex] = *inputs[m_PinDepthStencil.m_uiInputIndex];
-  }
-  else
-  {
-    ezLog::Error("No depth stencil input connected to pass '{0}'!", GetName());
-    return false;
-  }
+    const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
+    renderViewContext.UpdateViewport();
+    SetupPermutationVars(renderViewContext);
+    ezRenderPipelinePass::BindDataProviderResources(renderViewContext, m_ShadingQuality);
+    RenderObjects(renderViewContext);
+  });
 
-  return true;
-}
-
-void ezForwardRenderPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
-{
-  SetupPermutationVars(renderViewContext);
-  SetupLighting(renderViewContext);
-
-  SetupResources(renderViewContext.m_pRenderContext->GetCommandEncoder(), renderViewContext, inputs, outputs);
-  RenderObjects(renderViewContext);
-  renderViewContext.m_pRenderContext->EndRendering();
+  return EZ_SUCCESS;
 }
 
 ezResult ezForwardRenderPass::Serialize(ezStreamWriter& inout_stream) const
@@ -95,25 +83,6 @@ ezResult ezForwardRenderPass::Deserialize(ezStreamReader& inout_stream)
   EZ_IGNORE_UNUSED(uiVersion);
   inout_stream >> m_ShadingQuality;
   return EZ_SUCCESS;
-}
-
-void ezForwardRenderPass::SetupResources(ezGALCommandEncoder* pCommandEncoder, const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
-{
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-
-  // Setup render target
-  ezGALRenderingSetup renderingSetup;
-  if (inputs[m_PinColor.m_uiInputIndex])
-  {
-    renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(inputs[m_PinColor.m_uiInputIndex]->m_TextureHandle));
-  }
-
-  if (inputs[m_PinDepthStencil.m_uiInputIndex])
-  {
-    renderingSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(inputs[m_PinDepthStencil.m_uiInputIndex]->m_TextureHandle));
-  }
-
-  renderViewContext.m_pRenderContext->BeginRendering(std::move(renderingSetup), renderViewContext.m_pViewData->m_ViewPortRect, "", renderViewContext.m_pCamera->IsStereoscopic());
 }
 
 void ezForwardRenderPass::SetupPermutationVars(const ezRenderViewContext& renderViewContext)
@@ -145,23 +114,6 @@ void ezForwardRenderPass::SetupPermutationVars(const ezRenderViewContext& render
   else
   {
     EZ_REPORT_FAILURE("Unknown shading quality setting.");
-  }
-}
-
-void ezForwardRenderPass::SetupLighting(const ezRenderViewContext& renderViewContext)
-{
-  // Setup clustered data
-  if (m_ShadingQuality == ezForwardRenderShadingQuality::Normal)
-  {
-    auto pClusteredData = GetPipeline()->GetFrameDataProvider<ezClusteredDataProvider>()->GetData(renderViewContext);
-    pClusteredData->BindResources(renderViewContext.m_pRenderContext);
-  }
-  // Or other light properties.
-  else
-  {
-    auto pSimplifiedData = GetPipeline()->GetFrameDataProvider<ezSimplifiedDataProvider>()->GetData(renderViewContext);
-    pSimplifiedData->BindResources(renderViewContext.m_pRenderContext);
-    // todo
   }
 }
 

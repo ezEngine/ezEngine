@@ -8,6 +8,7 @@
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <QLabel>
+#include <QTimer>
 
 ezUInt32 ezQtEngineViewWidget::s_uiNextViewID = 0;
 
@@ -64,6 +65,19 @@ ezQtEngineViewWidget::ezQtEngineViewWidget(QWidget* pParent, ezQtEngineDocumentW
   m_pMainLayout = new QHBoxLayout(this);
   m_pMainLayout->setContentsMargins(0, 0, 0, 0);
   setLayout(m_pMainLayout);
+
+  // We use a timer instead of resizing the engine viewport when the parent window resizes, because Nvidia driver deadlocks on Linux if you do so in rapid succession.
+  m_pResizeTimer = new QTimer(this);
+  m_pResizeTimer->setSingleShot(true);
+  m_pResizeTimer->setInterval(100);
+  connect(m_pResizeTimer, &QTimer::timeout, this, [this]()
+    {
+      if (m_pViewportWidget && !s_FixedResolution.HasNonZeroArea())
+      {
+        m_pViewportWidget->setGeometry(0, 0, width(), height());
+        m_pDocumentWindow->TriggerRedraw();
+      }
+    });
 
   RecreateEngineViewport();
 
@@ -370,7 +384,15 @@ void ezQtEngineViewWidget::paintEvent(QPaintEvent* event)
 
 void ezQtEngineViewWidget::resizeEvent(QResizeEvent* event)
 {
-  m_pDocumentWindow->TriggerRedraw();
+  if (s_FixedResolution.HasNonZeroArea())
+  {
+    m_pDocumentWindow->TriggerRedraw();
+    return;
+  }
+
+  // Defer the viewport resize to avoid recreating the swapchain on every intermediate size
+  // while the user is still dragging the window border.
+  m_pResizeTimer->start();
 }
 
 void ezQtEngineViewWidget::keyPressEvent(QKeyEvent* e)
@@ -766,7 +788,9 @@ void ezQtEngineViewWidget::RecreateEngineViewport()
   }
   else
   {
-    m_pMainLayout->addWidget(m_pViewportWidget);
+    // Don't add the viewport widget to the layout. Instead, it is resized manually via
+    // a timer in resizeEvent to debounce resize events during interactive window resizing.
+    m_pViewportWidget->setGeometry(0, 0, width(), height());
   }
 }
 

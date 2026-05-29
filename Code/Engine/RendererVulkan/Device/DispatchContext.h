@@ -29,6 +29,10 @@ public:
   PFN_vkGetSemaphoreCounterValue vkGetSemaphoreCounterValueKHR = nullptr;
   PFN_vkGetSemaphoreCounterValue vkGetSemaphoreCounterValue = nullptr; // Alias for Vulkan-Hpp compatibility
 
+  // VK_KHR_synchronization2
+  PFN_vkCmdPipelineBarrier2KHR vkCmdPipelineBarrier2KHR = nullptr;
+  PFN_vkCmdPipelineBarrier2KHR vkCmdPipelineBarrier2 = nullptr; // Alias for Vulkan-Hpp compatibility
+
 #if EZ_ENABLED(EZ_PLATFORM_LINUX)
   // VK_KHR_external_memory_fd
   PFN_vkGetMemoryFdKHR vkGetMemoryFdKHR = nullptr;

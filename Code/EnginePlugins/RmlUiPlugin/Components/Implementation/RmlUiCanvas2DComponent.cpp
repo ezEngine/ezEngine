@@ -23,7 +23,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezRmlUiCanvas2DComponent, 5, ezComponentMode::Static)
   {
     EZ_ACCESSOR_PROPERTY("AnchorPoint", GetAnchorPoint, SetAnchorPoint)->AddAttributes(new ezClampValueAttribute(ezVec2(0), ezVec2(1))),
     EZ_ACCESSOR_PROPERTY("Size", GetSize, SetSize)->AddAttributes(new ezSuffixAttribute("px"), new ezMinValueTextAttribute("Auto")),
-    EZ_ACCESSOR_PROPERTY("Offset", GetOffset, SetOffset)->AddAttributes(new ezDefaultValueAttribute(ezVec2::MakeZero()), new ezSuffixAttribute("px")),    
+    EZ_ACCESSOR_PROPERTY("Offset", GetOffset, SetOffset)->AddAttributes(new ezDefaultValueAttribute(ezVec2::MakeZero()), new ezSuffixAttribute("px")),
     EZ_ACCESSOR_PROPERTY("CustomScale", GetCustomScale, SetCustomScale)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, 10.0f)),
     EZ_ACCESSOR_PROPERTY("PassInput", GetPassInput, SetPassInput)->AddAttributes(new ezDefaultValueAttribute(true)),
   }
@@ -170,15 +170,17 @@ void ezRmlUiCanvas2DComponent::DeserializeComponent(ezWorldReader& inout_stream)
 
 void ezRmlUiCanvas2DComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
-  if (msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::MainView && msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::EditorView && msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::Thumbnail)
-    return;
-
   // Don't extract render data for selection.
-  if (msg.m_OverrideCategory != ezInvalidRenderDataCategory)
+  if (msg.m_OverrideCategory != ezInvalidRenderDataCategory || m_hTexture.IsInvalidated())
     return;
 
-  if (m_pContext != nullptr && m_hTexture.IsInvalidated() == false)
+  if (m_pContext != nullptr)
   {
+    // The texture is also used in shadow maps as we don't know what the depth shader compiler is culling or what the material is using the texture for.
+    ezRenderWorld::AddViewDependency(*msg.m_pView, m_hTexture, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
+    if (msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::MainView && msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::EditorView && msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::Thumbnail)
+      return;
+
     ezRmlUi::GetSingleton()->ExtractContext(*m_pContext, m_hTexture);
 
     auto pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezRmlUiRenderData>(GetOwner());

@@ -11,6 +11,8 @@
 #include <RendererCore/Lights/PointLightComponent.h>
 #include <RendererCore/Lights/SpotLightComponent.h>
 #include <RendererCore/Pipeline/View.h>
+#include <RendererCore/RenderGraph/RenderGraphManager.h>
+#include <RendererCore/RenderGraph/RenderGraph.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Textures/DynamicTextureAtlas.h>
 #include <RendererCore/Utils/CoreRenderProfile.h>
@@ -355,6 +357,8 @@ struct ezShadowPool::Data
 
   ezDynamicTextureAtlas m_TextureAtlas;
   ezGALBufferHandle m_hShadowDataBuffer;
+
+  ezSharedPtr<ezRenderGraph> m_pRenderGraph;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -516,6 +520,7 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
 #endif
     }
 
+    ezRenderWorld::AddViewDependency(*pReferenceView, GetShadowAtlasTexture(), ezGALResourceState::ShaderResource);
     ezRenderWorld::AddViewToRender(shadowView.m_hView);
   }
 
@@ -603,6 +608,7 @@ ezUInt32 ezShadowPool::AddPointLight(const ezPointLightComponent* pPointLight, f
       camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, fFov, fNearPlane, fFarPlane);
     }
 
+    ezRenderWorld::AddViewDependency(*pReferenceView, GetShadowAtlasTexture(), ezGALResourceState::ShaderResource);
     ezRenderWorld::AddViewToRender(shadowView.m_hView);
   }
 
@@ -661,7 +667,7 @@ ezUInt32 ezShadowPool::AddSpotLight(const ezSpotLightComponent* pSpotLight, floa
     camera.LookAt(vPosition, vPosition + vForward, vUp);
     camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, fFov, fNearPlane, fFarPlane);
   }
-
+  ezRenderWorld::AddViewDependency(*pReferenceView, GetShadowAtlasTexture(), ezGALResourceState::ShaderResource);
   ezRenderWorld::AddViewToRender(shadowView.m_hView);
 
   return pData->m_uiPackedDataOffset;
@@ -993,28 +999,32 @@ void ezShadowPool::OnRenderEvent(const ezRenderWorldRenderEvent& e)
   }
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  if (s_pData->m_pRenderGraph == nullptr)
+    s_pData->m_pRenderGraph = ezRenderGraphManager::CreateRenderGraph("ShadowPool", ezRenderGraphPhase::PreRender);
+
   auto rtv = pDevice->GetDefaultRenderTargetView(s_pData->m_TextureAtlas.GetTexture());
   if (rtv.IsInvalidated() == false)
   {
-    ezGALCommandEncoder* pCommandEncoder = pDevice->BeginCommands("Shadow Atlas");
+    s_pData->m_pRenderGraph->Reset();
 
-    ezGALRenderingSetup renderingSetup;
-    renderingSetup.SetDepthStencilTarget(rtv);
-    renderingSetup.SetClearDepth();
+    ezRenderGraphTextureHandle hShadowAtlas = s_pData->m_pRenderGraph->ImportTexture(s_pData->m_TextureAtlas.GetTexture());
 
-    pCommandEncoder->BeginRendering(renderingSetup);
+    auto pass = s_pData->m_pRenderGraph->AddGraphicsPass("Shadow Atlas");
+    pass.AddDepthStencilTarget(hShadowAtlas);
+    pass.SetClearDepth();
+    pass.HasSideEffects();
+    pass.SetExecuteCallback([](const ezRenderGraphContext& ctx) {
+      ezUInt32 uiDataIndex = ezRenderWorld::GetDataIndexForRendering();
+      auto& packedShadowData = s_pData->m_PackedShadowData[uiDataIndex];
+      if (!packedShadowData.IsEmpty())
+      {
+        EZ_PROFILE_SCOPE("Shadow Data Buffer Update");
 
-    ezUInt32 uiDataIndex = ezRenderWorld::GetDataIndexForRendering();
-    auto& packedShadowData = s_pData->m_PackedShadowData[uiDataIndex];
-    if (!packedShadowData.IsEmpty())
-    {
-      EZ_PROFILE_SCOPE("Shadow Data Buffer Update");
+        ctx.GetCommandEncoder()->UpdateBuffer(s_pData->m_hShadowDataBuffer, 0, packedShadowData.GetByteArrayPtr(), ezGALUpdateMode::AheadOfTime);
+      }
+    });
 
-      pCommandEncoder->UpdateBuffer(s_pData->m_hShadowDataBuffer, 0, packedShadowData.GetByteArrayPtr(), ezGALUpdateMode::AheadOfTime);
-    }
-
-    pCommandEncoder->EndRendering();
-    pDevice->EndCommands(pCommandEncoder);
+    ezRenderGraphManager::EnqueueRenderGraph(s_pData->m_pRenderGraph);
   }
 }
 

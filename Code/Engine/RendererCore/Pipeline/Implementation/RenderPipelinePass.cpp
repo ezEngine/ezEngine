@@ -5,8 +5,8 @@
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererCore/Pipeline/RendererRegistry.h>
 #include <RendererCore/RenderContext/RenderContext.h>
-
-#include <Foundation/IO/TypeVersionContext.h>
+#include <RendererCore/Lights/ClusteredDataProvider.h>
+#include <RendererCore/Lights/SimplifiedDataProvider.h>
 #include <RendererFoundation/Profiling/Profiling.h>
 
 // clang-format off
@@ -25,6 +25,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelinePass, 1, ezRTTINoAllocator)
   EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezForwardRenderShadingQuality, 1)
+  EZ_ENUM_CONSTANTS(ezForwardRenderShadingQuality::Normal, ezForwardRenderShadingQuality::Simplified)
+EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
 ezRenderPipelinePass::ezRenderPipelinePass(const char* szName, bool bIsStereoAware)
@@ -48,10 +52,6 @@ const char* ezRenderPipelinePass::GetName() const
 {
   return m_sName.GetData();
 }
-
-void ezRenderPipelinePass::InitRenderPipelinePass(const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) {}
-
-void ezRenderPipelinePass::ExecuteInactive(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) {}
 
 void ezRenderPipelinePass::ReadBackProperties(ezView* pView) {}
 
@@ -94,6 +94,32 @@ void ezRenderPipelinePass::RenderDataWithCategory(const ezRenderViewContext& ren
   }
 }
 
+void ezRenderPipelinePass::BindDataProviderResources(const ezRenderViewContext& renderViewContext, ezForwardRenderShadingQuality::Enum quality)
+{
+  // Setup clustered data
+  if (quality == ezForwardRenderShadingQuality::Normal)
+  {
+    auto pClusteredData = GetPipeline()->GetFrameDataProvider<ezClusteredDataProvider>()->GetData(renderViewContext);
+    pClusteredData->BindResources(renderViewContext.m_pRenderContext);
+  }
+  // Or other light properties.
+  else
+  {
+    auto pSimplifiedData = GetPipeline()->GetFrameDataProvider<ezSimplifiedDataProvider>()->GetData(renderViewContext);
+    pSimplifiedData->BindResources(renderViewContext.m_pRenderContext);
+  }
+}
 
+void ezRenderPipelinePass::SetupResourceDependencies(const ezViewData& viewData, ezRenderGraph& ref_graph, ezRenderGraphPassBuilder& ref_pass, ezForwardRenderShadingQuality::Enum quality)
+{
+  if (quality == ezForwardRenderShadingQuality::Normal)
+  {
+    ezClusteredDataGPU::AddReadDependencies(ref_graph, ref_pass, viewData.m_uiSkyIrradianceIndex, viewData.m_CameraUsageHint);
+  }
+  else
+  {
+    ezSimplifiedDataGPU::AddReadDependencies(ref_graph, ref_pass, viewData.m_uiSkyIrradianceIndex, viewData.m_CameraUsageHint);
+  }
+}
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RenderPipelinePass);

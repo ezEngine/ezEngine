@@ -21,8 +21,7 @@ public:
   ezLightShaftsPass();
   ~ezLightShaftsPass();
 
-  virtual bool GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs) override;
-  virtual void Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
+  virtual ezStatus AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs) override;
   virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
   virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
 
@@ -39,7 +38,7 @@ public:
   float GetMaxBlurDistance() const { return m_fMaxBlurDistance; }       // [ property ]
 
 protected:
-  ezVec4 CalculateOriginUVs(const ezVec3& vLightDirection, const ezRenderViewContext& renderViewContext) const;
+  ezVec4 CalculateOriginUVs(const ezVec3& vLightDirection, const ezViewData& viewData, const ezCamera& camera) const;
   void UpdateConstantBuffer(const ezClusteredDataCPU& clusteredData, const ezVec2& vLightOriginUVs, float fBlurStep);
 
   ezRenderPipelineNodePassThroughPin m_PinColor;

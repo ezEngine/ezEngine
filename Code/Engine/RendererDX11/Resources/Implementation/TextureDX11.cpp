@@ -112,12 +112,12 @@ ezResult ezGALTextureDX11::Create2DDesc(const ezGALTextureCreationDescription& d
       EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
   }
 
-  if (description.m_TextureFlags.IsAnySet(ezGALTextureUsageFlags::ShaderResource | ezGALTextureUsageFlags::DynamicMipGeneration))
+  if (description.m_TextureFlags.IsSet(ezGALTextureUsageFlags::ShaderResource))
     out_tex2DDesc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
   if (description.m_TextureFlags.IsSet(ezGALTextureUsageFlags::UnorderedAccess))
     out_tex2DDesc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
 
-  if (description.m_TextureFlags.IsAnySet(ezGALTextureUsageFlags::RenderTarget | ezGALTextureUsageFlags::DynamicMipGeneration))
+  if (description.m_TextureFlags.IsSet(ezGALTextureUsageFlags::RenderTarget))
     out_tex2DDesc.BindFlags |= ezGALResourceFormat::IsDepthFormat(description.m_Format) ? D3D11_BIND_DEPTH_STENCIL : D3D11_BIND_RENDER_TARGET;
 
   out_tex2DDesc.Usage = description.m_ResourceAccess.IsImmutable() ? D3D11_USAGE_IMMUTABLE : D3D11_USAGE_DEFAULT;
@@ -136,9 +136,6 @@ ezResult ezGALTextureDX11::Create2DDesc(const ezGALTextureCreationDescription& d
   out_tex2DDesc.Width = description.m_uiWidth;
   out_tex2DDesc.Height = description.m_uiHeight;
   out_tex2DDesc.MipLevels = description.m_uiMipLevelCount;
-
-  if (description.m_TextureFlags.IsSet(ezGALTextureUsageFlags::DynamicMipGeneration))
-    out_tex2DDesc.MiscFlags |= D3D11_RESOURCE_MISC_GENERATE_MIPS;
 
   out_tex2DDesc.SampleDesc.Count = description.m_SampleCount;
   out_tex2DDesc.SampleDesc.Quality = 0;
@@ -178,9 +175,6 @@ ezResult ezGALTextureDX11::Create3DDesc(const ezGALTextureCreationDescription& d
   out_tex3DDesc.MipLevels = description.m_uiMipLevelCount;
 
   out_tex3DDesc.MiscFlags = 0;
-
-  if (description.m_TextureFlags.IsSet(ezGALTextureUsageFlags::DynamicMipGeneration))
-    out_tex3DDesc.MiscFlags |= D3D11_RESOURCE_MISC_GENERATE_MIPS;
 
   return EZ_SUCCESS;
 }
@@ -227,16 +221,19 @@ void ezGALTextureDX11::ConvertInitialData(const ezGALTextureCreationDescription&
   }
 }
 
-ID3D11ShaderResourceView* ezGALTextureDX11::GetSRV(ezGALTextureRange textureRange, ezEnum<ezGALResourceFormat> overrideViewFormat) const
+ID3D11ShaderResourceView* ezGALTextureDX11::GetSRV(ezGALTextureRange textureRange, ezEnum<ezGALResourceFormat> overrideViewFormat, ezEnum<ezGALTextureType> overrideViewType) const
 {
   ID3D11ShaderResourceView* pSRV = nullptr;
   View view;
   view.m_TextureRange = textureRange;
   view.m_OverrideViewFormat = overrideViewFormat;
+  view.m_OverrideViewType = overrideViewType;
 
   if (!m_SRVs.TryGetValue(view, pSRV))
   {
-    const ezGALResourceFormat::Enum viewFormat = overrideViewFormat == ezGALResourceFormat::Invalid ? m_Description.m_Format : overrideViewFormat;
+    const ezGALResourceFormat::Enum viewFormat = overrideViewFormat != ezGALResourceFormat::Invalid ? overrideViewFormat : m_Description.m_Format;
+    const ezEnum<ezGALTextureType> type = overrideViewType != ezGALTextureType::Invalid ? overrideViewType : m_Description.m_Type;
+
     if (textureRange.m_uiArraySlices == EZ_GAL_ALL_ARRAY_SLICES)
       textureRange.m_uiArraySlices = (ezUInt16)m_Description.m_uiArraySize;
 
@@ -262,8 +259,6 @@ ID3D11ShaderResourceView* ezGALTextureDX11::GetSRV(ezGALTextureRange textureRang
     ID3D11Resource* pDXResource = GetDXTexture();
     const ezGALTextureCreationDescription& texDesc = GetDescription();
 
-    // DX11 does not care about view types matching the shader. It does care though about view types matching the resource.
-    const ezEnum<ezGALTextureType> type = texDesc.m_Type;
     switch (type)
     {
       case ezGALTextureType::Texture2D:

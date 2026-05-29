@@ -6,6 +6,7 @@ ezTestAppRun ezRendererTestBasics::SubtestLineRendering()
 {
   BeginFrame();
   BeginCommands("RendererTest");
+  TransitionTexture(GetBackbuffer(), ezGALResourceState::RenderTarget);
 
   ezColor clear(0, 0, 0, 0);
   BeginRendering(clear);
@@ -13,6 +14,7 @@ ezTestAppRun ezRendererTestBasics::SubtestLineRendering()
   RenderLineObjects(ezShaderBindFlags::Default);
 
   EndRendering();
+  TransitionTexture(GetBackbuffer(), ezGALResourceState::CopySource);
   EZ_TEST_LINE_IMAGE(0, 150);
   EndCommands();
   EndFrame();

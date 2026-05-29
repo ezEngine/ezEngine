@@ -7,6 +7,7 @@ ezTestAppRun ezRendererTestBasics::SubtestRasterizerStates()
 {
   BeginFrame();
   BeginCommands("RasterizerStates");
+  TransitionTexture(GetBackbuffer(), ezGALResourceState::RenderTarget);
   ezGALRasterizerStateHandle hState;
 
   ezGALRasterizerStateCreationDescription RasterStateDesc;
@@ -128,6 +129,7 @@ ezTestAppRun ezRendererTestBasics::SubtestRasterizerStates()
   RenderObjects(ezShaderBindFlags::NoRasterizerState);
 
   EndRendering();
+  TransitionTexture(GetBackbuffer(), ezGALResourceState::CopySource);
   if (RasterStateDesc.m_bWireFrame)
   {
     const bool bSupportsWireframe = GetDeviceCapabilities().m_bSupportsWireframe;

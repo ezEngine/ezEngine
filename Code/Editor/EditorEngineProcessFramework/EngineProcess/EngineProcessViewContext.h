@@ -62,6 +62,7 @@ public:
   virtual void HandleViewMessage(const ezEditorEngineViewMsg* pMsg);
   virtual void SetupRenderTarget(ezGALSwapChainHandle hSwapChain, const ezGALRenderTargets* pRenderTargets, ezUInt16 uiWidth, ezUInt16 uiHeight);
   virtual void Redraw(bool bRenderEditorGizmos);
+  virtual bool PendingOperationInProgress() const;
 
   /// \brief Focuses camera on the given object
   static bool FocusCameraOnObject(ezCamera& inout_camera, const ezBoundingBoxSphere& objectBounds, float fFov, const ezVec3& vViewDir);
@@ -89,6 +90,7 @@ protected:
 private:
   ezEngineProcessDocumentContext* m_pDocumentContext;
   ezRegisteredWndHandle m_hEditorWindow;
+  ezString m_sPendingScreenshotPath;
 
 protected:
   ezCamera m_Camera;

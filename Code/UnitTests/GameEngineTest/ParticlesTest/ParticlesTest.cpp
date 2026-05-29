@@ -177,6 +177,18 @@ ezUInt32 ezGameEngineTestParticles::GetImageCompareThreshold(ezInt32 iIdentifier
         return 350;
       case SubTests::VelocityConeInitializer:
         return 200;
+      case SubTests::QuadRotatingOrtho:
+        return 150;
+      default:
+        break;
+    }
+  }
+  else
+  {
+    switch (iIdentifier)
+    {
+      case SubTests::QuadRotatingOrtho:
+        return 150;
       default:
         break;
     }

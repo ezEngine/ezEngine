@@ -31,7 +31,7 @@ ezReflectionProbeUpdater::ProbeUpdateInfo::ProbeUpdateInfo()
     desc.m_uiMipLevelCount = GetMipLevels();
     desc.m_Format = ezGALResourceFormat::RGBAHalf;
     desc.m_Type = ezGALTextureType::TextureCube;
-    desc.m_TextureFlags.Add(ezGALTextureUsageFlags::DynamicMipGeneration | ezGALTextureUsageFlags::RenderTarget);
+    desc.m_TextureFlags.Add(ezGALTextureUsageFlags::RenderTarget);
     desc.m_ResourceAccess.m_bImmutable = false;
 
     m_hCubemap = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(desc);

@@ -6,6 +6,7 @@ ezTestAppRun ezRendererTestBasics::SubtestBlendStates()
 {
   BeginFrame();
   BeginCommands("BlendStates");
+  TransitionTexture(GetBackbuffer(), ezGALResourceState::RenderTarget);
   ezGALBlendStateHandle hState;
 
   ezGALBlendStateCreationDescription StateDesc;
@@ -42,6 +43,7 @@ ezTestAppRun ezRendererTestBasics::SubtestBlendStates()
   RenderObjects(ezShaderBindFlags::NoBlendState);
 
   EndRendering();
+  TransitionTexture(GetBackbuffer(), ezGALResourceState::CopySource);
   EZ_TEST_IMAGE(m_iFrame, 150);
   EndCommands();
   EndFrame();

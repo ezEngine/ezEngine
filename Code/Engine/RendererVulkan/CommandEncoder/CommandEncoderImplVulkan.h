@@ -33,7 +33,7 @@ public:
   void Reset();
 
   void EndFrame();
-  void SetCurrentCommandBuffer(vk::CommandBuffer* commandBuffer, ezPipelineBarrierVulkan* pipelineBarrier);
+  void SetCurrentCommandBuffer(vk::CommandBuffer* commandBuffer);
   void BeforeCommandBufferSubmit();
   void AfterCommandBufferSubmit(vk::Fence submitFence);
   ezDescriptorWritePoolVulkan& GetDescriptorWritePool() const;
@@ -69,10 +69,13 @@ public:
   virtual void ReadbackTexturePlatform(const ezGALReadbackTexture* pDestination, const ezGALTexture* pSource) override;
   virtual void ReadbackBufferPlatform(const ezGALReadbackBuffer* pDestination, const ezGALBuffer* pSource) override;
 
-  virtual void GenerateMipMapsPlatform(const ezGALTexture* pTexture, ezGALTextureRange range) override;
-
   void CopyImageToBuffer(const ezGALTextureVulkan* pSource, const ezGALBufferVulkan* pDestination);
   void CopyImageToBuffer(const ezGALTextureVulkan* pSource, vk::Buffer destination);
+
+  // Barriers
+
+  virtual void TextureBarrierPlatform(ezArrayPtr<const ezGALTextureBarrier> barriers) override;
+  virtual void BufferBarrierPlatform(ezArrayPtr<const ezGALBufferBarrier> barriers) override;
 
   // Misc
 
@@ -142,6 +145,7 @@ private:
   };
 
   ezResult FlushDeferredStateChanges();
+  void MarkAllStateDirty();
   void FindDynamicUniformBuffers(const ezGALBindGroupCreationDescription& desc, DynamicOffsets& out_offsets);
   static ezUInt64 HashBindGroup(const ezGALBindGroupCreationDescription& desc, const DynamicOffsets& offsets);
   vk::DescriptorSet CreateDescriptorSet(const ezGALBindGroupCreationDescription& desc, const DynamicOffsets& offsets);
@@ -160,21 +164,19 @@ private:
   vk::Device m_vkDevice;
 
   vk::CommandBuffer* m_pCommandBuffer = nullptr;
-  ezPipelineBarrierVulkan* m_pPipelineBarrier = nullptr;
 
   ezUniquePtr<ezUniformBufferPoolVulkan> m_pUniformBufferPool;
 
   // Cache flags.
   bool m_bPipelineStateDirty = true;
   bool m_bViewportDirty = true;
+  bool m_bScissorDirty = true;
   bool m_bStencilRefDirty = false;
   bool m_bIndexBufferDirty = false;
   bool m_BindGroupDirty[EZ_GAL_MAX_BIND_GROUPS] = {};
   bool m_bDynamicOffsetsDirty = false;
   ezGAL::ModifiedRange m_BoundVertexBuffersRange;
-  bool m_bRenderPassActive = false; ///< #TODO_VULKAN Disabling and re-enabling the render pass is buggy as we might execute a clear twice.
-  bool m_bClearSubmitted = false;   ///< Start render pass is lazy so if no draw call is executed we need to make sure the clear is executed anyways.
-  bool m_bInsideCompute = false;    ///< Within BeginCompute / EndCompute block.
+  bool m_bInsideCompute = false; ///< Within BeginCompute / EndCompute block.
   bool m_bPushConstantsDirty = false;
 
   // Bound objects for deferred state flushes
@@ -191,10 +193,6 @@ private:
   vk::Rect2D m_scissor;
   bool m_bScissorEnabled = false;
   ezUInt8 m_uiStencilRefValue = 0;
-
-  const ezGALRenderTargetView* m_pBoundRenderTargets[EZ_GAL_MAX_RENDERTARGET_COUNT] = {};
-  const ezGALRenderTargetView* m_pBoundDepthStencilTarget = nullptr;
-  ezUInt32 m_uiBoundRenderTargetCount;
 
   const ezGALBufferVulkan* m_pIndexBuffer = nullptr;
   vk::Buffer m_pBoundVertexBuffers[EZ_GAL_MAX_VERTEX_BUFFER_COUNT];

@@ -6,6 +6,7 @@
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererCore/Textures/Texture2DResource.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezRenderTargetActivatorComponent, 1, ezComponentMode::Static)
@@ -63,20 +64,25 @@ ezResult ezRenderTargetActivatorComponent::GetLocalBounds(ezBoundingBoxSphere& r
 
 void ezRenderTargetActivatorComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
-  // only add render target views from main views
-  // otherwise every shadow casting light source would activate a render target
-  if (msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::MainView && msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::EditorView)
-    return;
-
   if (!m_hRenderTarget.IsValid())
     return;
 
   ezResourceLock<ezRenderToTexture2DResource> pRenderTarget(m_hRenderTarget, ezResourceAcquireMode::BlockTillLoaded);
 
+  // The consumer view will sample from the render target texture. This includes shadow maps because we don't know how the texture is used in the material.
+  ezRenderWorld::AddViewDependency(*msg.m_pView, pRenderTarget->GetGALTexture(), ezGALResourceState::ShaderResource);
+
+  // only add render target views from main views
+  // otherwise every shadow casting light source would activate a render target
+  if (msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::MainView && msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::EditorView)
+    return;
+
   for (auto hView : pRenderTarget->GetAllRenderViews())
   {
     ezRenderWorld::AddViewToRender(hView);
   }
+
+
 }
 
 void ezRenderTargetActivatorComponent::SetRenderTarget(const ezRenderToTexture2DResourceHandle& hResource)

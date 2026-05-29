@@ -3,11 +3,15 @@
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/System/Window.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Types/SharedPtr.h>
 #include <GameEngine/GameApplication/WindowOutputTarget.h>
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 #include <RendererCore/Shader/ShaderResource.h>
 
+#include <RendererFoundation/Resources/ReadbackHelper.h>
+
 class ezXRInterface;
+class ezRenderGraph;
 
 /// \brief XR Window base implementation. Optionally wraps a companion window.
 class EZ_GAMEENGINE_DLL ezWindowXR : public ezWindowBase
@@ -47,17 +51,25 @@ public:
   virtual void AcquireImage() override {}
   virtual void PresentImage(bool bEnableVSync) override;
   void CompanionViewBeginFrame(bool bThrottleCompanionView = true);
-  void CompanionViewEndFrame();
-  virtual ezResult CaptureImage(ezImage& out_image) override;
+  virtual ezResult StartCaptureImage() override;
+  virtual ezEnum<ezCaptureImageResult> WaitCaptureImage(ezImage& out_image) override;
 
   /// \brief Returns the companion window output target if present.
   const ezWindowOutputTargetBase* GetCompanionWindowOutputTarget() const;
 
 private:
+  void RenderCompanionView();
+  void OnGALEvent(const ezGALDeviceEvent& e);
+
   ezXRInterface* m_pXrInterface = nullptr;
   ezTime m_LastPresent;
   ezUniquePtr<ezWindowOutputTargetGAL> m_pCompanionWindowOutputTarget;
   ezConstantBufferStorageHandle m_hCompanionConstantBuffer;
   ezShaderResourceHandle m_hCompanionShader;
   bool m_bRender = false;
+  ezSharedPtr<ezRenderGraph> m_pRenderGraph;
+  bool m_bCaptureRequested = false;
+  bool m_bCaptureInFlight = false;
+  ezGALReadbackTextureHelper m_Readback;
+  ezGALTextureCreationDescription m_CaptureBackbufferDesc;
 };

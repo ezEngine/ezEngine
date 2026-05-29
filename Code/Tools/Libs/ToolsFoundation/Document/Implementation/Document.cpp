@@ -131,6 +131,8 @@ ezStatus ezDocument::SaveDocument(bool bForce)
   if (!IsModified() && !bForce)
     return ezStatus(EZ_SUCCESS);
 
+  if (m_pCommandHistory->IsInTransaction())
+    return ezStatus("Can't save document while a transaction is in progress");
   // In the unlikely event that we manage to edit a doc and call save again while
   // an async save is already in progress we block on the first save to ensure
   // the correct chronological state on disk after both save ops are done.

@@ -34,51 +34,36 @@ ezCustomRenderDataPass::ezCustomRenderDataPass(const char* szName)
 
 ezCustomRenderDataPass::~ezCustomRenderDataPass() = default;
 
-bool ezCustomRenderDataPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+ezStatus ezCustomRenderDataPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
-  // Color
-  if (inputs[m_PinColor.m_uiInputIndex])
+  ezRenderGraphTextureHandle hColor = inputs[m_PinColor.m_uiInputIndex].m_TextureHandle;
+  ezRenderGraphTextureHandle hDepthStencil = inputs[m_PinDepthStencil.m_uiInputIndex].m_TextureHandle;
+
+  if (!hColor.IsInvalidated())
+    outputs[m_PinColor.m_uiOutputIndex].m_TextureHandle = hColor;
+  if (!hDepthStencil.IsInvalidated())
+    outputs[m_PinDepthStencil.m_uiOutputIndex].m_TextureHandle = hDepthStencil;
+
+  auto pass = graph.AddGraphicsPass(GetName());
+  if (!hColor.IsInvalidated())
+    pass.AddColorTarget(hColor);
+  if (!hDepthStencil.IsInvalidated())
+    pass.AddDepthStencilTarget(hDepthStencil);
+  pass.SetStereoscopic(camera.IsStereoscopic());
+  pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
   {
-    outputs[m_PinColor.m_uiOutputIndex] = *inputs[m_PinColor.m_uiInputIndex];
-  }
+    const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
+    if (!m_RenderDataCategory.IsValid())
+      return;
 
-  // DepthStencil
-  if (inputs[m_PinDepthStencil.m_uiInputIndex])
-  {
-    outputs[m_PinDepthStencil.m_uiOutputIndex] = *inputs[m_PinDepthStencil.m_uiInputIndex];
-  }
+    auto batchList = GetPipeline()->GetRenderDataBatchesWithCategory(m_RenderDataCategory);
+    if (batchList.GetBatchCount() == 0)
+      return;
 
-  return true;
-}
+    RenderDataWithCategory(renderViewContext, m_RenderDataCategory);
+  });
 
-void ezCustomRenderDataPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
-{
-  if (m_RenderDataCategory.IsValid() == false)
-    return;
-
-  auto batchList = GetPipeline()->GetRenderDataBatchesWithCategory(m_RenderDataCategory);
-  if (batchList.GetBatchCount() == 0)
-    return;
-
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-
-  // Setup render target
-  ezGALRenderingSetup renderingSetup;
-  if (inputs[m_PinColor.m_uiInputIndex])
-  {
-    renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(inputs[m_PinColor.m_uiInputIndex]->m_TextureHandle));
-  }
-
-  if (inputs[m_PinDepthStencil.m_uiInputIndex])
-  {
-    renderingSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(inputs[m_PinDepthStencil.m_uiInputIndex]->m_TextureHandle));
-  }
-
-  renderViewContext.m_pRenderContext->BeginRendering(std::move(renderingSetup), renderViewContext.m_pViewData->m_ViewPortRect, "", renderViewContext.m_pCamera->IsStereoscopic());
-
-  RenderDataWithCategory(renderViewContext, m_RenderDataCategory);
-
-  renderViewContext.m_pRenderContext->EndRendering();
+  return EZ_SUCCESS;
 }
 
 ezResult ezCustomRenderDataPass::Serialize(ezStreamWriter& inout_stream) const

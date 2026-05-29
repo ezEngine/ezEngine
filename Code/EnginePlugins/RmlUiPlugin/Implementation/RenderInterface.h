@@ -4,8 +4,11 @@
 
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Foundation/Containers/IdTable.h>
+#include <Foundation/Types/SharedPtr.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/Shader/ConstantBufferStorage.h>
+
+class ezRenderGraph;
 
 using ezTexture2DResourceHandle = ezTypedResourceHandle<class ezTexture2DResource>;
 using ezShaderResourceHandle = ezTypedResourceHandle<class ezShaderResource>;
@@ -101,5 +104,7 @@ namespace ezRmlUiInternal
     ezShaderResourceHandle m_hShader;
     ezConstantBufferStorageHandle m_hConstantBuffer;
     ezSmallArray<ezGALVertexAttribute, 3> m_VertexAttributes;
+
+    ezSharedPtr<ezRenderGraph> m_pRenderGraph;
   };
 } // namespace ezRmlUiInternal

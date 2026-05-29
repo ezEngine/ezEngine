@@ -37,6 +37,13 @@ void ezVulkanDispatchContext::InitDevice(vk::Device device, const void* pExtensi
     vkGetSemaphoreCounterValue = vkGetSemaphoreCounterValueKHR; // Alias
   }
 
+  // VK_KHR_synchronization2
+  if (extensions.m_bSynchronization2)
+  {
+    vkCmdPipelineBarrier2KHR = (PFN_vkCmdPipelineBarrier2KHR)device.getProcAddr("vkCmdPipelineBarrier2KHR");
+    vkCmdPipelineBarrier2 = vkCmdPipelineBarrier2KHR; // Alias
+  }
+
 #if EZ_ENABLED(EZ_PLATFORM_LINUX)
   if (extensions.m_bExternalMemoryFd)
   {

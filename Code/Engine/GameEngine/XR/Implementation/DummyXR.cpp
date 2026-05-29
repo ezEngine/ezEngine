@@ -158,10 +158,6 @@ void ezDummyXR::GALDeviceEventHandler(const ezGALDeviceEvent& e)
   }
   else if (e.m_Type == ezGALDeviceEvent::Type::BeforeEndFrame)
   {
-    if (m_pCompanion)
-    {
-      m_pCompanion->CompanionViewEndFrame();
-    }
   }
 }
 

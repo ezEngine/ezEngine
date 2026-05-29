@@ -42,9 +42,8 @@
 #include <RendererVulkan/State/ComputePipelineVulkan.h>
 #include <RendererVulkan/State/GraphicsPipelineVulkan.h>
 #include <RendererVulkan/State/StateVulkan.h>
+#include <RendererVulkan/Utils/BarrierUtilsVulkan.h>
 #include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
-#include <RendererVulkan/Utils/ImageCopyVulkan.h>
-#include <RendererVulkan/Utils/PipelineBarrierVulkan.h>
 
 #if EZ_ENABLED(EZ_SUPPORTS_GLFW)
 #  include <GLFW/glfw3.h>
@@ -205,6 +204,7 @@ vk::Result ezGALDeviceVulkan::SelectInstanceExtensions(ezDynamicArray<ezString>&
   AddExtIfSupported(VK_KHR_EXTERNAL_SEMAPHORE_CAPABILITIES_EXTENSION_NAME, m_extensions.m_bExternalSemaphoreCapabilities);
   AddExtIfSupported(VK_KHR_EXTERNAL_FENCE_CAPABILITIES_EXTENSION_NAME, m_extensions.m_bExternalFenceCapabilities);
   AddExtIfSupported(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME, m_extensions.m_bPhysicalDeviceProperties2);
+  AddExtIfSupported(VK_KHR_SURFACE_MAINTENANCE_1_EXTENSION_NAME, m_extensions.m_bSurfaceMaintenance1);
 
   // Allow OpenXR to extend instance extensions (for vulkan_enable v1)
   if (ezVulkanInitInterface* pInitInterface = ezSingletonRegistry::GetSingletonInstance<ezVulkanInitInterface>())
@@ -251,22 +251,34 @@ vk::Result ezGALDeviceVulkan::SelectDeviceExtensions(vk::DeviceCreateInfo& devic
   AddExtIfSupported(VK_EXT_SHADER_VIEWPORT_INDEX_LAYER_EXTENSION_NAME, m_extensions.m_bShaderViewportIndexLayer);
 
   vk::PhysicalDeviceFeatures2 features = GetPhysicalDeviceFeatures(&m_extensions.m_borderColorEXT);
-  m_supportedStages = vk::PipelineStageFlagBits::eVertexShader | vk::PipelineStageFlagBits::eFragmentShader | vk::PipelineStageFlagBits::eComputeShader;
-  if (features.features.geometryShader)
+  m_supportedStages =
+    vk::PipelineStageFlagBits::eTopOfPipe |
+    vk::PipelineStageFlagBits::eDrawIndirect |
+    vk::PipelineStageFlagBits::eVertexInput |
+    vk::PipelineStageFlagBits::eVertexShader |
+    vk::PipelineStageFlagBits::eTessellationControlShader |
+    vk::PipelineStageFlagBits::eTessellationEvaluationShader |
+    vk::PipelineStageFlagBits::eGeometryShader |
+    vk::PipelineStageFlagBits::eFragmentShader |
+    vk::PipelineStageFlagBits::eEarlyFragmentTests |
+    vk::PipelineStageFlagBits::eLateFragmentTests |
+    vk::PipelineStageFlagBits::eColorAttachmentOutput |
+    vk::PipelineStageFlagBits::eComputeShader |
+    vk::PipelineStageFlagBits::eTransfer |
+    vk::PipelineStageFlagBits::eBottomOfPipe |
+    vk::PipelineStageFlagBits::eHost |
+    vk::PipelineStageFlagBits::eAllGraphics |
+    vk::PipelineStageFlagBits::eAllCommands;
+
+  if (!features.features.geometryShader)
   {
-    m_supportedStages |= vk::PipelineStageFlagBits::eGeometryShader;
-  }
-  else
-  {
+    m_supportedStages &= ~vk::PipelineStageFlags(vk::PipelineStageFlagBits::eGeometryShader);
     ezLog::Warning("Geometry shaders are not supported.");
   }
 
-  if (features.features.tessellationShader)
+  if (!features.features.tessellationShader)
   {
-    m_supportedStages |= vk::PipelineStageFlagBits::eTessellationControlShader | vk::PipelineStageFlagBits::eTessellationEvaluationShader;
-  }
-  else
-  {
+    m_supportedStages &= ~vk::PipelineStageFlags(vk::PipelineStageFlagBits::eTessellationControlShader | vk::PipelineStageFlagBits::eTessellationEvaluationShader);
     ezLog::Warning("Tessellation shaders are not supported.");
   }
 
@@ -295,6 +307,16 @@ vk::Result ezGALDeviceVulkan::SelectDeviceExtensions(vk::DeviceCreateInfo& devic
     deviceCreateInfo.pNext = &m_extensions.m_timelineSemaphoresEXT;
     m_extensions.m_timelineSemaphoresEXT.timelineSemaphore = true;
   }
+
+  AddExtIfSupported(VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME, m_extensions.m_bSynchronization2);
+  if (m_extensions.m_bSynchronization2)
+  {
+    m_extensions.m_synchronization2Features.pNext = const_cast<void*>(deviceCreateInfo.pNext);
+    deviceCreateInfo.pNext = &m_extensions.m_synchronization2Features;
+    m_extensions.m_synchronization2Features.synchronization2 = true;
+  }
+
+  AddExtIfSupported(VK_KHR_SWAPCHAIN_MAINTENANCE_1_EXTENSION_NAME, m_extensions.m_bSwapchainMaintenance1);
 
   AddExtIfSupported(VK_KHR_EXTERNAL_MEMORY_EXTENSION_NAME, m_extensions.m_bExternalMemory);
   AddExtIfSupported(VK_KHR_EXTERNAL_SEMAPHORE_EXTENSION_NAME, m_extensions.m_bExternalSemaphore);
@@ -477,10 +499,14 @@ ezResult ezGALDeviceVulkan::InitPlatform()
     }
 
     {
+      vk::PhysicalDeviceSynchronization2Features sync2Features;
       vk::PhysicalDeviceTimelineSemaphoreFeatures timelineFeatures;
-      vk::PhysicalDeviceFeatures2 features2 = GetPhysicalDeviceFeatures(&timelineFeatures);
+      sync2Features.pNext = &timelineFeatures;
+      vk::PhysicalDeviceFeatures2 features2 = GetPhysicalDeviceFeatures(&sync2Features);
       m_extensions.m_bTimelineSemaphore = static_cast<bool>(timelineFeatures.timelineSemaphore);
       m_extensions.m_timelineSemaphoresEXT = timelineFeatures;
+      m_extensions.m_bSynchronization2 = static_cast<bool>(sync2Features.synchronization2);
+      m_extensions.m_synchronization2Features = sync2Features;
     }
   }
 
@@ -608,7 +634,6 @@ ezResult ezGALDeviceVulkan::InitPlatform()
   // https://www.khronos.org/registry/vulkan/specs/1.3-extensions/man/html/VK_KHR_maintenance1.html
   ezClipSpaceYMode::RenderToTextureDefault = ezClipSpaceYMode::Regular;
 
-  m_pPipelineBarrier = EZ_NEW(&m_Allocator, ezPipelineBarrierVulkan, &m_Allocator);
   m_pCommandBufferPool = EZ_NEW(&m_Allocator, ezCommandBufferPoolVulkan, &m_Allocator);
   m_pCommandBufferPool->Initialize(m_device, m_graphicsQueue.m_uiQueueFamily);
   m_pStagingBufferPool = EZ_NEW(&m_Allocator, ezStagingBufferPoolVulkan);
@@ -624,7 +649,6 @@ ezResult ezGALDeviceVulkan::InitPlatform()
   ezResourceCacheVulkan::Initialize(this, m_device);
   ezTransientDescriptorSetPoolVulkan::Initialize(m_device);
   ezDescriptorSetPoolVulkan::Initialize(this);
-  ezImageCopyVulkan::Initialize(*this);
 
   m_pCommandEncoderImpl = EZ_NEW(&m_Allocator, ezGALCommandEncoderImplVulkan, *this);
   m_pCommandEncoder = EZ_NEW(&m_Allocator, ezGALCommandEncoder, *this, *m_pCommandEncoderImpl);
@@ -653,7 +677,7 @@ void ezGALDeviceVulkan::ReportLiveGpuObjects()
   // This is automatically done in the validation layer and can't be easily done manually.
 }
 
-void ezGALDeviceVulkan::UploadBufferStaging(ezStagingBufferPoolVulkan* pStagingBufferPool, ezPipelineBarrierVulkan* pPipelineBarrier, vk::CommandBuffer commandBuffer, const ezGALBufferVulkan* pBuffer, ezArrayPtr<const ezUInt8> pInitialData, vk::DeviceSize dstOffset)
+void ezGALDeviceVulkan::UploadBufferStaging(ezGALDeviceVulkan& device, ezStagingBufferPoolVulkan* pStagingBufferPool, vk::CommandBuffer commandBuffer, const ezGALBufferVulkan* pBuffer, ezArrayPtr<const ezUInt8> pInitialData, vk::DeviceSize dstOffset)
 {
   // #TODO_VULKAN Use transfer queue
   ezStagingBufferVulkan stagingBuffer = pStagingBufferPool->AllocateBuffer(pInitialData.GetCount());
@@ -664,32 +688,20 @@ void ezGALDeviceVulkan::UploadBufferStaging(ezStagingBufferPoolVulkan* pStagingB
   region.dstOffset = dstOffset;
   region.size = pInitialData.GetCount();
 
-  pPipelineBarrier->AddBufferBarrierInternal(stagingBuffer.m_buffer, stagingBuffer.m_uiOffset, pInitialData.GetCount(), vk::PipelineStageFlagBits::eHost, vk::AccessFlagBits::eHostWrite, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferRead);
+  ezBarrierUtilsVulkan barriers(device, commandBuffer);
 
-  pPipelineBarrier->AccessBuffer(pBuffer, region.dstOffset, region.size, pBuffer->GetUsedByPipelineStage(), pBuffer->GetAccessMask(), vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite);
-
-  pPipelineBarrier->Flush();
+  barriers.BufferBarrier(stagingBuffer.m_buffer,
+    ezGALResourceState::CpuWrite, ezGALResourceState::CopySource);
 
   // #TODO_VULKAN atomic min size violation?
   commandBuffer.copyBuffer(stagingBuffer.m_buffer, pBuffer->GetVkBuffer(), 1, &region);
-
-  pPipelineBarrier->AccessBuffer(pBuffer, region.dstOffset, region.size, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite, pBuffer->GetUsedByPipelineStage(), pBuffer->GetAccessMask());
 }
 
-void ezGALDeviceVulkan::UploadTextureStaging(ezStagingBufferPoolVulkan* pStagingBufferPool, ezPipelineBarrierVulkan* pPipelineBarrier, vk::CommandBuffer commandBuffer, const ezGALTextureVulkan* pTexture, const vk::ImageSubresourceLayers& subResource, const vk::Offset3D& imageOffset, const vk::Extent3D& imageExtent, const ezGALSystemMemoryDescription& data)
+void ezGALDeviceVulkan::UploadTextureStaging(ezGALDeviceVulkan& device, ezStagingBufferPoolVulkan* pStagingBufferPool, vk::CommandBuffer commandBuffer, const ezGALTextureVulkan* pTexture, const vk::ImageSubresourceLayers& subResource, const vk::Offset3D& imageOffset, const vk::Extent3D& imageExtent, const ezGALSystemMemoryDescription& data)
 {
-  auto getRange = [](const vk::ImageSubresourceLayers& layers) -> vk::ImageSubresourceRange
-  {
-    vk::ImageSubresourceRange range;
-    range.aspectMask = layers.aspectMask;
-    range.baseMipLevel = layers.mipLevel;
-    range.levelCount = 1;
-    range.baseArrayLayer = layers.baseArrayLayer;
-    range.layerCount = layers.layerCount;
-    return range;
-  };
+  const vk::ImageSubresourceRange subresourceRange = ezConversionUtilsVulkan::GetSubresourceRange(subResource);
 
-  pPipelineBarrier->EnsureImageLayout(pTexture, getRange(subResource), vk::ImageLayout::eTransferDstOptimal, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferWrite);
+  ezBarrierUtilsVulkan barriers(device, commandBuffer);
 
   for (ezUInt32 i = 0; i < subResource.layerCount; i++)
   {
@@ -708,7 +720,7 @@ void ezGALDeviceVulkan::UploadTextureStaging(ezStagingBufferPoolVulkan* pStaging
     const ezUInt32 uiBufferRowPitch = uiBlockSize * blockCount.width;
     const ezUInt32 uiBufferSlicePitch = uiBufferRowPitch * blockCount.height;
     EZ_ASSERT_DEV(uiBufferRowPitch == data.m_uiRowPitch, "Row pitch with padding is not implemented yet.");
-    EZ_ASSERT_DEV(uiBufferSlicePitch == data.m_uiSlicePitch, "Row pitch with padding is not implemented yet.");
+    EZ_ASSERT_DEV(blockExtent[2] == 1 || uiBufferSlicePitch == data.m_uiSlicePitch, "Row pitch with padding is not implemented yet.");
 
     ezMemoryUtils::Copy(stagingBuffer.m_Data.GetPtr(), pLayerData, uiTotalSize);
 
@@ -721,21 +733,17 @@ void ezGALDeviceVulkan::UploadTextureStaging(ezStagingBufferPoolVulkan* pStaging
     region.bufferRowLength = blockExtent[0] * uiBufferRowPitch / uiBlockSize;
     region.bufferImageHeight = blockExtent[1] * uiBufferSlicePitch / uiBufferRowPitch;
 
-    pPipelineBarrier->AddBufferBarrierInternal(stagingBuffer.m_buffer, stagingBuffer.m_uiOffset, uiTotalSize, vk::PipelineStageFlagBits::eHost, vk::AccessFlagBits::eHostWrite, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferRead);
-
-    pPipelineBarrier->Flush();
+    barriers.BufferBarrier(stagingBuffer.m_buffer,
+      ezGALResourceState::CpuWrite, ezGALResourceState::CopySource);
 
     // #TODO_VULKAN atomic min size violation?
-    commandBuffer.copyBufferToImage(stagingBuffer.m_buffer, pTexture->GetImage(), pTexture->GetPreferredLayout(vk::ImageLayout::eTransferDstOptimal), 1, &region);
+    commandBuffer.copyBufferToImage(stagingBuffer.m_buffer, pTexture->GetImage(), vk::ImageLayout::eTransferDstOptimal, 1, &region);
   }
-
-  pPipelineBarrier->EnsureImageLayout(pTexture, getRange(subResource), pTexture->GetPreferredLayout(), pTexture->GetUsedByPipelineStage(), pTexture->GetAccessMask());
 }
 
 ezResult ezGALDeviceVulkan::ShutdownPlatform()
 {
-  ezImageCopyVulkan::DeInitialize(*this);
-  DestroyDeadObjects(); // ezImageCopyVulkan might add dead objects, so make sure the list is cleared again
+  DestroyDeadObjects();
 
   ezGALWindowSwapChain::SetFactoryMethod({});
   if (m_lastCommandBufferFinished)
@@ -753,7 +761,6 @@ ezResult ezGALDeviceVulkan::ShutdownPlatform()
   m_pStagingBufferPool = nullptr;
   m_pCommandEncoder = nullptr;
   m_pCommandEncoderImpl = nullptr;
-  m_pPipelineBarrier = nullptr;
   m_pCommandBufferPool->DeInitialize();
   m_pCommandBufferPool = nullptr;
 
@@ -796,21 +803,10 @@ vk::CommandBuffer& ezGALDeviceVulkan::GetCurrentCommandBuffer()
     commandBuffer = m_pCommandBufferPool->RequestCommandBuffer();
     vk::CommandBufferBeginInfo beginInfo;
     VK_ASSERT_DEBUG(commandBuffer.begin(&beginInfo));
-    GetCurrentPipelineBarrier().SetCommandBuffer(&commandBuffer);
 
-    m_pCommandEncoderImpl->SetCurrentCommandBuffer(&commandBuffer, m_pPipelineBarrier.Borrow());
+    m_pCommandEncoderImpl->SetCurrentCommandBuffer(&commandBuffer);
   }
   return commandBuffer;
-}
-
-ezPipelineBarrierVulkan& ezGALDeviceVulkan::GetCurrentPipelineBarrier()
-{
-  vk::CommandBuffer& commandBuffer = m_PerFrameData[m_uiCurrentPerFrameData].m_currentCommandBuffer;
-  if (!commandBuffer)
-  {
-    GetCurrentCommandBuffer();
-  }
-  return *m_pPipelineBarrier.Borrow();
 }
 
 ezQueryPoolVulkan& ezGALDeviceVulkan::GetQueryPool() const
@@ -887,7 +883,6 @@ vk::Fence ezGALDeviceVulkan::Submit(bool bAddSignalSemaphore, bool bAddUpdateFor
     }
     if (mainCommandBuffer)
     {
-      GetCurrentPipelineBarrier().Submit();
       mainCommandBuffer.end();
       buffers.PushBack(mainCommandBuffer);
     }
@@ -1210,7 +1205,6 @@ void ezGALDeviceVulkan::DestroyBufferPlatform(ezGALBuffer* pBuffer)
       ++i;
     }
   }
-  GetCurrentPipelineBarrier().BufferDestroyed(pVulkanBuffer);
   pVulkanBuffer->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pVulkanBuffer);
 }
@@ -1231,8 +1225,6 @@ ezGALTexture* ezGALDeviceVulkan::CreateTexturePlatform(const ezGALTextureCreatio
 void ezGALDeviceVulkan::DestroyTexturePlatform(ezGALTexture* pTexture)
 {
   ezGALTextureVulkan* pVulkanTexture = static_cast<ezGALTextureVulkan*>(pTexture);
-  GetCurrentPipelineBarrier().TextureDestroyed(pVulkanTexture);
-  m_pInitContext->TextureDestroyed(pVulkanTexture);
   for (ezInt32 i = (ezInt32)m_PendingTextureCopies.GetCount() - 1; i >= 0; --i)
   {
     if (m_PendingTextureCopies[i].m_pDstTexture == pTexture)
@@ -1259,8 +1251,6 @@ ezGALTexture* ezGALDeviceVulkan::CreateSharedTexturePlatform(const ezGALTextureC
 void ezGALDeviceVulkan::DestroySharedTexturePlatform(ezGALTexture* pTexture)
 {
   ezGALSharedTextureVulkan* pVulkanTexture = static_cast<ezGALSharedTextureVulkan*>(pTexture);
-  GetCurrentPipelineBarrier().TextureDestroyed(pVulkanTexture);
-  m_pInitContext->TextureDestroyed(pVulkanTexture);
   for (ezInt32 i = (ezInt32)m_PendingTextureCopies.GetCount() - 1; i >= 0; --i)
   {
     if (m_PendingTextureCopies[i].m_pDstTexture == pTexture)

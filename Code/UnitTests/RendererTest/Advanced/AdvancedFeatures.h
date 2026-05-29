@@ -20,7 +20,8 @@ private:
     ST_Compute,
     ST_FloatSampling, // Either natively or emulated sampling of floating point textures e.g. depth textures.
     ST_ProxyTexture,
-    ST_Material
+    ST_Material,
+    ST_MSAAResolve
   };
 
   enum ImageCaptureFrames
@@ -43,6 +44,7 @@ private:
   void VertexShaderRenderTargetArrayIndex();
   void Tessellation();
   void Compute();
+  void MSAAResolve();
   ezTestAppRun Material();
   ezTestAppRun SharedTexture();
   void OffscreenProcessMessageFunc(const ezIpcProcessMessageProtocol::Event& msg);
@@ -63,6 +65,15 @@ private:
 
   // Tessellation Test
   ezMeshBufferResourceHandle m_hSphereMesh;
+
+  // MSAA Resolve Test
+  ezGALTextureHandle m_hMSAAColor;
+  ezGALTextureHandle m_hMSAADepthStencil;
+  ezGALTextureHandle m_hMSAAResolveTarget;
+  ezMeshBufferResourceHandle m_hMSAAQuadMesh;
+  ezShaderResourceHandle m_hMSAAStencilShader;
+  ezGALReadbackTextureHelper m_MSAAReadback;
+  ezEnum<ezGALMSAASampleCount> m_MSAASamples;
 
   // Material Test
   ezTexture2DResourceHandle m_hTexture;

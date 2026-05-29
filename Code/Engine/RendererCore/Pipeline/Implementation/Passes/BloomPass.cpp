@@ -52,47 +52,27 @@ ezBloomPass::~ezBloomPass()
   ezRenderContext::DeleteConstantBufferStorage(m_hConstantBuffer);
 }
 
-bool ezBloomPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+ezStatus ezBloomPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
-  // Color
-  if (inputs[m_PinInput.m_uiInputIndex])
-  {
-    if (!inputs[m_PinInput.m_uiInputIndex]->m_TextureFlags.IsSet(ezGALTextureUsageFlags::ShaderResource))
-    {
-      ezLog::Error("'{0}' input must allow shader resource view.", GetName());
-      return false;
-    }
+  // Validate input
+  ezRenderGraphTextureHandle hColorInput = inputs[m_PinInput.m_uiInputIndex].m_TextureHandle;
+  if (hColorInput.IsInvalidated())
+    return ezStatus(ezFmt("Input: Not connected"));
 
-    // Output is half-res
-    ezGALTextureCreationDescription desc = *inputs[m_PinInput.m_uiInputIndex];
-    desc.m_uiWidth = desc.m_uiWidth / 2;
-    desc.m_uiHeight = desc.m_uiHeight / 2;
-    desc.m_Format = m_TextureFormat;
+  const ezGALTextureCreationDescription inputDesc = graph.GetTextureDesc(hColorInput);
 
-    outputs[m_PinOutput.m_uiOutputIndex] = desc;
-  }
-  else
-  {
-    ezLog::Error("No input connected to '{0}'!", GetName());
-    return false;
-  }
+  // Create output (half-res)
+  ezGALTextureCreationDescription outputDesc = inputDesc;
+  outputDesc.m_uiWidth = outputDesc.m_uiWidth / 2;
+  outputDesc.m_uiHeight = outputDesc.m_uiHeight / 2;
+  outputDesc.m_Format = m_TextureFormat;
 
-  return true;
-}
+  ezRenderGraphTextureHandle hColorOutput = graph.CreateTexture(outputDesc);
+  outputs[m_PinOutput.m_uiOutputIndex].m_TextureHandle = hColorOutput;
 
-void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
-{
-  auto pColorInput = inputs[m_PinInput.m_uiInputIndex];
-  auto pColorOutput = outputs[m_PinOutput.m_uiOutputIndex];
-  if (pColorInput == nullptr || pColorOutput == nullptr)
-  {
-    return;
-  }
-
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-
-  ezUInt32 uiWidth = pColorInput->m_Desc.m_uiWidth;
-  ezUInt32 uiHeight = pColorInput->m_Desc.m_uiHeight;
+  // Add passes
+  ezUInt32 uiWidth = inputDesc.m_uiWidth;
+  ezUInt32 uiHeight = inputDesc.m_uiHeight;
   bool bFastDownscale = ezMath::IsEven(uiWidth) && ezMath::IsEven(uiHeight);
 
   const float fMaxRes = (float)ezMath::Max(uiWidth, uiHeight);
@@ -101,36 +81,32 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
   const float fNumBlurPasses = ezMath::Log2(fMaxRes / fDownscaledSize);
   const ezUInt32 uiNumBlurPasses = (ezUInt32)ezMath::Ceil(fNumBlurPasses);
 
-  // Find temp targets
+  // Create temp textures
   ezTempHybridArray<ezVec2, 8> targetSizes;
-  ezTempHybridArray<ezGALTextureHandle, 8> tempDownscaleTextures;
-  ezTempHybridArray<ezGALTextureHandle, 8> tempUpscaleTextures;
+  ezTempHybridArray<ezRenderGraphTextureHandle, 8> tempDownscaleTextures;
+  ezTempHybridArray<ezRenderGraphTextureHandle, 8> tempUpscaleTextures;
 
   for (ezUInt32 i = 0; i < uiNumBlurPasses; ++i)
   {
     uiWidth = ezMath::Max(uiWidth / 2, 1u);
     uiHeight = ezMath::Max(uiHeight / 2, 1u);
     targetSizes.PushBack(ezVec2((float)uiWidth, (float)uiHeight));
-    auto uiSliceCount = pColorOutput->m_Desc.m_uiArraySize;
+    auto uiSliceCount = outputDesc.m_uiArraySize;
 
-    tempDownscaleTextures.PushBack(ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(uiWidth, uiHeight, m_TextureFormat, ezGALMSAASampleCount::None, uiSliceCount));
+    ezGALTextureCreationDescription descTemp;
+    descTemp.SetAsRenderTarget(uiWidth, uiHeight, uiSliceCount, m_TextureFormat, ezGALMSAASampleCount::None);
+    tempDownscaleTextures.PushBack(graph.CreateTexture(descTemp));
 
     // biggest upscale target is the output and lowest is not needed
     if (i > 0 && i < uiNumBlurPasses - 1)
     {
-      tempUpscaleTextures.PushBack(ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(uiWidth, uiHeight, m_TextureFormat, ezGALMSAASampleCount::None, uiSliceCount));
+      tempUpscaleTextures.PushBack(graph.CreateTexture(descTemp));
     }
     else
     {
-      tempUpscaleTextures.PushBack(ezGALTextureHandle());
+      tempUpscaleTextures.PushBack(ezRenderGraphTextureHandle());
     }
   }
-
-  ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
-  bindGroup.BindBuffer("ezBloomConstants", m_hConstantBuffer);
-  renderViewContext.m_pRenderContext->BindShader(m_hShader);
-
-  renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
 
   // Downscale passes
   {
@@ -141,32 +117,44 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
 
     for (ezUInt32 i = 0; i < uiNumBlurPasses; ++i)
     {
-      ezGALTextureHandle hInput;
+      ezRenderGraphTextureHandle hInput;
+      ezTempHashedString sPassMode;
       if (i == 0)
       {
-        hInput = pColorInput->m_TextureHandle;
-        renderViewContext.m_pRenderContext->SetShaderPermutationVariable("BLOOM_PASS_MODE", bFastDownscale ? sInitialDownscaleFast : sInitialDownscale);
+        hInput = hColorInput;
+        sPassMode = bFastDownscale ? sInitialDownscaleFast : sInitialDownscale;
       }
       else
       {
         hInput = tempDownscaleTextures[i - 1];
-        renderViewContext.m_pRenderContext->SetShaderPermutationVariable("BLOOM_PASS_MODE", bFastDownscale ? sDownscaleFast : sDownscale);
+        sPassMode = bFastDownscale ? sDownscaleFast : sDownscale;
       }
 
-      ezGALTextureHandle hOutput = tempDownscaleTextures[i];
+      ezRenderGraphTextureHandle hOutput = tempDownscaleTextures[i];
       ezVec2 targetSize = targetSizes[i];
-
-      ezGALRenderingSetup renderingSetup;
-      renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(hOutput));
-      renderViewContext.m_pRenderContext->BeginRendering(renderingSetup, ezRectFloat(targetSize.x, targetSize.y), "Downscale", renderViewContext.m_pCamera->IsStereoscopic());
-
       ezColor tintColor = (i == uiNumBlurPasses - 1) ? ezColor(m_OuterTintColor) : ezColor::White;
-      UpdateConstantBuffer(ezVec2(1.0f).CompDiv(targetSize), tintColor);
 
-      bindGroup.BindTexture("ColorTexture", hInput);
-      renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
+      auto pass = graph.AddGraphicsPass("BloomDownscale");
+      pass.AddColorTarget(hOutput);
+      pass.ReadTexture(hInput, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
+      pass.SetStereoscopic(camera.IsStereoscopic());
+      pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
+      {
+        const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
 
-      renderViewContext.m_pRenderContext->EndRendering();
+        UpdateConstantBuffer(ezVec2(1.0f).CompDiv(targetSize), tintColor);
+
+        renderViewContext.m_pRenderContext->SetShaderPermutationVariable("BLOOM_PASS_MODE", sPassMode);
+
+        ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
+        bindGroup.BindBuffer("ezBloomConstants", m_hConstantBuffer);
+        renderViewContext.m_pRenderContext->BindShader(m_hShader);
+
+        bindGroup.BindTexture("ColorTexture", ctx.ResolveTexture(hInput));
+        renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
+
+        renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
+      });
 
       bFastDownscale = ezMath::IsEven((ezInt32)targetSize.x) && ezMath::IsEven((ezInt32)targetSize.y);
     }
@@ -177,12 +165,10 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
     const float fBlurRadius = 2.0f * fNumBlurPasses / uiNumBlurPasses;
     const float fMidPass = (uiNumBlurPasses - 1.0f) / 2.0f;
 
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("BLOOM_PASS_MODE", "BLOOM_PASS_MODE_UPSCALE");
-
     for (ezUInt32 i = uiNumBlurPasses - 1; i-- > 0;)
     {
-      ezGALTextureHandle hNextInput = tempDownscaleTextures[i];
-      ezGALTextureHandle hInput;
+      ezRenderGraphTextureHandle hNextInput = tempDownscaleTextures[i];
+      ezRenderGraphTextureHandle hInput;
       if (i == uiNumBlurPasses - 2)
       {
         hInput = tempDownscaleTextures[i + 1];
@@ -192,10 +178,10 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
         hInput = tempUpscaleTextures[i + 1];
       }
 
-      ezGALTextureHandle hOutput;
+      ezRenderGraphTextureHandle hOutput;
       if (i == 0)
       {
-        hOutput = pColorOutput->m_TextureHandle;
+        hOutput = hColorOutput;
       }
       else
       {
@@ -203,10 +189,6 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
       }
 
       ezVec2 targetSize = targetSizes[i];
-
-      ezGALRenderingSetup renderingSetup;
-      renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(hOutput));
-      renderViewContext.m_pRenderContext->BeginRendering(renderingSetup, ezRectFloat(targetSize.x, targetSize.y), "Upscale", renderViewContext.m_pCamera->IsStereoscopic());
 
       ezColor tintColor;
       float fPass = (float)i;
@@ -219,49 +201,53 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
         tintColor = ezMath::Lerp<ezColor>(m_MidTintColor, m_OuterTintColor, (fPass - fMidPass) / fMidPass);
       }
 
-      UpdateConstantBuffer(ezVec2(fBlurRadius).CompDiv(targetSize), tintColor);
+      auto pass = graph.AddGraphicsPass("BloomUpscale");
+      pass.AddColorTarget(hOutput);
+      pass.ReadTexture(hInput, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
+      pass.ReadTexture(hNextInput, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
+      pass.SetStereoscopic(camera.IsStereoscopic());
+      pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
+      {
+        const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
 
-      bindGroup.BindTexture("NextColorTexture", hNextInput);
-      bindGroup.BindTexture("ColorTexture", hInput);
-      renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
+        UpdateConstantBuffer(ezVec2(fBlurRadius).CompDiv(targetSize), tintColor);
 
-      renderViewContext.m_pRenderContext->EndRendering();
+        renderViewContext.m_pRenderContext->SetShaderPermutationVariable("BLOOM_PASS_MODE", "BLOOM_PASS_MODE_UPSCALE");
+
+        ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
+        bindGroup.BindBuffer("ezBloomConstants", m_hConstantBuffer);
+        renderViewContext.m_pRenderContext->BindShader(m_hShader);
+
+        bindGroup.BindTexture("NextColorTexture", ctx.ResolveTexture(hNextInput));
+        bindGroup.BindTexture("ColorTexture", ctx.ResolveTexture(hInput));
+        renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
+
+        renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
+      });
     }
   }
 
-  // Return temp targets
-  for (auto hTexture : tempDownscaleTextures)
-  {
-    if (!hTexture.IsInvalidated())
-    {
-      ezGPUResourcePool::GetDefaultInstance()->ReturnRenderTarget(hTexture);
-    }
-  }
-
-  for (auto hTexture : tempUpscaleTextures)
-  {
-    if (!hTexture.IsInvalidated())
-    {
-      ezGPUResourcePool::GetDefaultInstance()->ReturnRenderTarget(hTexture);
-    }
-  }
+  return EZ_SUCCESS;
 }
 
-void ezBloomPass::ExecuteInactive(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+ezStatus ezBloomPass::AddRenderPassesInactive(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
-  auto pColorOutput = outputs[m_PinOutput.m_uiOutputIndex];
-  if (pColorOutput == nullptr)
-  {
-    return;
-  }
+  ezRenderGraphTextureHandle hColorInput = inputs[m_PinInput.m_uiInputIndex].m_TextureHandle;
+  if (hColorInput.IsInvalidated())
+    return ezStatus(ezFmt("Input: Not connected"));
 
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  ezGALTextureCreationDescription outputDesc = graph.GetTextureDesc(hColorInput);
+  outputDesc.m_uiWidth = outputDesc.m_uiWidth / 2;
+  outputDesc.m_uiHeight = outputDesc.m_uiHeight / 2;
+  outputDesc.m_Format = m_TextureFormat;
 
-  ezGALRenderingSetup renderingSetup;
-  renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(pColorOutput->m_TextureHandle));
-  renderingSetup.SetClearColor(0, ezColor::Black);
+  ezRenderGraphTextureHandle hColorOutput = graph.CreateTexture(outputDesc);
+  outputs[m_PinOutput.m_uiOutputIndex].m_TextureHandle = hColorOutput;
 
-  auto pCommandEncoder = ezRenderContext::BeginRenderingScope(renderViewContext, renderingSetup, "Clear");
+  auto pass = graph.AddGraphicsPass("InactiveBloom");
+  pass.AddColorTarget(hColorOutput, {}, ezGALRenderTargetLoadOp::Clear);
+  pass.SetClearColor(0, ezColor::Black);
+  return EZ_SUCCESS;
 }
 
 ezResult ezBloomPass::Serialize(ezStreamWriter& inout_stream) const

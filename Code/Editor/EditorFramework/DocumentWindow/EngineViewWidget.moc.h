@@ -13,6 +13,7 @@ class ezQtEngineDocumentWindow;
 class ezEditorInputContext;
 class QHBoxLayout;
 class QPushButton;
+class QTimer;
 class QVBoxLayout;
 class ezViewMarqueePickingResultMsgToEditor;
 
@@ -164,6 +165,7 @@ protected:
   QPushButton* m_pRestartButton = nullptr;
   QWidget* m_pViewportWidget = nullptr;
   QWidget* m_pStuckIndicator = nullptr;
+  QTimer* m_pResizeTimer = nullptr;
 
   mutable ezObjectPickingResult m_LastPickingResult;
 

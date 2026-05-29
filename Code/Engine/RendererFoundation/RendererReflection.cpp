@@ -117,7 +117,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGALResourceAccess, ezNoBase, 1, ezRTTIDefaultAl
 EZ_END_STATIC_REFLECTED_TYPE;
 
 EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezGALTextureUsageFlags, 1)
-  EZ_BITFLAGS_CONSTANTS(ezGALTextureUsageFlags::ShaderResource, ezGALTextureUsageFlags::UnorderedAccess, ezGALTextureUsageFlags::RenderTarget, ezGALTextureUsageFlags::DynamicMipGeneration)
+  EZ_BITFLAGS_CONSTANTS(ezGALTextureUsageFlags::ShaderResource, ezGALTextureUsageFlags::UnorderedAccess, ezGALTextureUsageFlags::RenderTarget, ezGALTextureUsageFlags::Presentable)
 EZ_END_STATIC_REFLECTED_BITFLAGS;
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGALTextureCreationDescription, ezNoBase, 1, ezRTTIDefaultAllocator<ezGALTextureCreationDescription>)
@@ -153,6 +153,58 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGALPlatformSharedHandle, ezNoBase, 1, ezRTTIDef
   EZ_END_PROPERTIES;
 }
 EZ_END_STATIC_REFLECTED_TYPE;
+
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGALShaderStage, 1)
+  EZ_ENUM_CONSTANTS(ezGALShaderStage::VertexShader, ezGALShaderStage::HullShader, ezGALShaderStage::DomainShader, ezGALShaderStage::GeometryShader, ezGALShaderStage::PixelShader, ezGALShaderStage::ComputeShader)
+EZ_END_STATIC_REFLECTED_ENUM;
+
+EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezGALShaderStageFlags, 1)
+  EZ_BITFLAGS_CONSTANTS(ezGALShaderStageFlags::VertexShader, ezGALShaderStageFlags::HullShader, ezGALShaderStageFlags::DomainShader, ezGALShaderStageFlags::GeometryShader, ezGALShaderStageFlags::PixelShader, ezGALShaderStageFlags::ComputeShader, ezGALShaderStageFlags::Auto)
+EZ_END_STATIC_REFLECTED_BITFLAGS;
+
+EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezGALResourceState, 1)
+  EZ_BITFLAGS_CONSTANTS(ezGALResourceState::ShaderResource, ezGALResourceState::ConstantBuffer, ezGALResourceState::VertexBuffer, ezGALResourceState::IndexBuffer, ezGALResourceState::DrawIndirect, ezGALResourceState::DepthStencilRead, ezGALResourceState::CopySource, ezGALResourceState::ResolveSource)
+  EZ_BITFLAGS_CONSTANTS(ezGALResourceState::UnorderedAccess, ezGALResourceState::RenderTarget, ezGALResourceState::DepthStencilWrite, ezGALResourceState::CopyDestination, ezGALResourceState::ResolveDestination)
+  EZ_BITFLAGS_CONSTANTS(ezGALResourceState::Discard, ezGALResourceState::Present, ezGALResourceState::CpuRead, ezGALResourceState::CpuWrite)
+EZ_END_STATIC_REFLECTED_BITFLAGS;
+
+EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezGALShaderResourceCategory, 1)
+  EZ_BITFLAGS_CONSTANTS(ezGALShaderResourceCategory::Sampler, ezGALShaderResourceCategory::ConstantBuffer, ezGALShaderResourceCategory::TextureSRV, ezGALShaderResourceCategory::BufferSRV, ezGALShaderResourceCategory::TextureUAV, ezGALShaderResourceCategory::BufferUAV)
+EZ_END_STATIC_REFLECTED_BITFLAGS;
+
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGALPresentMode, 1)
+  EZ_ENUM_CONSTANTS(ezGALPresentMode::Immediate, ezGALPresentMode::VSync)
+EZ_END_STATIC_REFLECTED_ENUM;
+
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGALVertexAttributeSemantic, 1)
+  EZ_ENUM_CONSTANTS(ezGALVertexAttributeSemantic::Position, ezGALVertexAttributeSemantic::Normal, ezGALVertexAttributeSemantic::Tangent,
+  ezGALVertexAttributeSemantic::Color0, ezGALVertexAttributeSemantic::Color1, ezGALVertexAttributeSemantic::Color2, ezGALVertexAttributeSemantic::Color3,
+  ezGALVertexAttributeSemantic::Color4, ezGALVertexAttributeSemantic::Color5, ezGALVertexAttributeSemantic::Color6, ezGALVertexAttributeSemantic::Color7)
+  EZ_ENUM_CONSTANTS(ezGALVertexAttributeSemantic::TexCoord0, ezGALVertexAttributeSemantic::TexCoord1, ezGALVertexAttributeSemantic::TexCoord2, ezGALVertexAttributeSemantic::TexCoord3,
+  ezGALVertexAttributeSemantic::TexCoord4, ezGALVertexAttributeSemantic::TexCoord5, ezGALVertexAttributeSemantic::TexCoord6, ezGALVertexAttributeSemantic::TexCoord7,
+  ezGALVertexAttributeSemantic::TexCoord8, ezGALVertexAttributeSemantic::TexCoord9)
+  EZ_ENUM_CONSTANTS(ezGALVertexAttributeSemantic::BiTangent,
+  ezGALVertexAttributeSemantic::BoneIndices0, ezGALVertexAttributeSemantic::BoneIndices1,
+  ezGALVertexAttributeSemantic::BoneWeights0, ezGALVertexAttributeSemantic::BoneWeights1,
+  ezGALVertexAttributeSemantic::DataOffsets)
+EZ_END_STATIC_REFLECTED_ENUM;
+
+EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezGALBufferUsageFlags, 1)
+  EZ_BITFLAGS_CONSTANTS(ezGALBufferUsageFlags::VertexBuffer, ezGALBufferUsageFlags::IndexBuffer, ezGALBufferUsageFlags::ConstantBuffer, ezGALBufferUsageFlags::TexelBuffer, ezGALBufferUsageFlags::StructuredBuffer, ezGALBufferUsageFlags::ByteAddressBuffer)
+  EZ_BITFLAGS_CONSTANTS(ezGALBufferUsageFlags::ShaderResource, ezGALBufferUsageFlags::UnorderedAccess, ezGALBufferUsageFlags::DrawIndirect, ezGALBufferUsageFlags::Transient)
+EZ_END_STATIC_REFLECTED_BITFLAGS;
+
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGALQueryType, 1)
+  EZ_ENUM_CONSTANTS(ezGALQueryType::NumSamplesPassed, ezGALQueryType::AnySamplesPassed)
+EZ_END_STATIC_REFLECTED_ENUM;
+
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGALSharedTextureType, 1)
+  EZ_ENUM_CONSTANTS(ezGALSharedTextureType::None, ezGALSharedTextureType::Exported, ezGALSharedTextureType::Imported)
+EZ_END_STATIC_REFLECTED_ENUM;
+
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGALQueueType, 1)
+  EZ_ENUM_CONSTANTS(ezGALQueueType::Graphics, ezGALQueueType::Compute, ezGALQueueType::Transfer)
+EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
 EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_RendererReflection);

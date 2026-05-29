@@ -4,6 +4,9 @@
 #include <RendererCore/Pipeline/FrameDataProvider.h>
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 
+class ezRenderGraph;
+class ezRenderGraphPassBuilder;
+
 /// GPU-side data for clustered rendering.
 ///
 /// Contains GPU buffers for lights, decals, probes, cluster assignments, and related resources.
@@ -33,6 +36,11 @@ public:
   ezGALSamplerStateHandle m_hDecalAtlasSampler;
 
   void BindResources(ezRenderContext* pRenderContext);
+
+  /// Declares read dependencies on global textures (shadow atlas, decal atlas, reflection probes, etc.)
+  /// so that the render graph can place correct barriers.
+  static void AddReadDependencies(ezRenderGraph& ref_graph, ezRenderGraphPassBuilder& ref_pass,
+    ezUInt32 uiSkyIrradianceIndex, ezEnum<ezCameraUsageHint> cameraUsageHint);
 };
 
 /// Provides GPU buffers for clustered rendering each frame.

@@ -4,17 +4,23 @@
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Strings/HashedString.h>
+#include <Foundation/Types/SharedPtr.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 
 class ezProfilingId;
 class ezView;
+class ezCamera;
+struct ezViewData;
 class ezRenderPipelinePass;
 class ezFrameDataProviderBase;
 struct ezPermutationVar;
 class ezDGMLGraph;
 class ezFrustum;
 class ezRasterizerView;
+class ezRenderGraph;
+struct ezRenderGraphRenderEvent;
+class ezRenderGraphContext;
 
 class EZ_RENDERERCORE_DLL ezRenderPipeline : public ezRefCounted
 {
@@ -23,7 +29,8 @@ public:
   {
     Uninitialized,
     RebuildError,
-    Initialized
+    Initialized,
+    RenderGraphBuilt,
   };
 
   ezRenderPipeline();
@@ -58,6 +65,10 @@ public:
   const ezExtractedRenderData& GetRenderData() const;
   ezRenderDataBatchList GetRenderDataBatchesWithCategory(ezRenderData::Category category) const;
 
+  /// Adds a texture dependency to the current extraction frame's data.
+  /// Must only be called during extraction.
+  void AddViewDependency(ezGALTextureHandle hTexture, ezBitflags<ezGALResourceState> requiredState, ezBitflags<ezGALShaderStageFlags> stage = ezGALShaderStageFlags::Auto);
+
   using RenderDataProcessor = ezDelegate<void(ezExtractedRenderData&)>;
   ezUInt32 AddRenderDataProcessor(RenderDataProcessor processor);
 
@@ -77,15 +88,14 @@ private:
   // \brief Rebuilds the render pipeline, e.g. sorting passes via dependencies and creating render targets.
   PipelineState Rebuild(const ezView& view);
   bool RebuildInternal(const ezView& view);
+  bool RebuildRenderGraph(const ezViewData& viewData, const ezCamera& camera);
   bool SortPasses();
-  bool InitRenderTargetDescriptions(const ezView& view);
-  bool CreateRenderTargetUsage(const ezView& view);
-  bool InitRenderPipelinePasses();
+  bool AddRenderPasses(const ezViewData& viewData, const ezCamera& camera);
+  bool UpdateTextureProviders();
   void SortExtractors();
   void UpdateViewData(const ezView& view, ezUInt32 uiDataIndex);
 
   void RemoveConnections(ezRenderPipelinePass* pPass);
-  void ClearRenderPassGraphTextures();
   bool AreInputDescriptionsAvailable(const ezRenderPipelinePass* pPass, const ezHybridArray<ezRenderPipelinePass*, 32>& done) const;
   bool ArePassThroughInputsDone(const ezRenderPipelinePass* pPass, const ezHybridArray<ezRenderPipelinePass*, 32>& done) const;
 
@@ -94,15 +104,18 @@ private:
   void ExtractData(const ezView& view);
   void FindVisibleObjects(const ezView& view);
 
-  void Render(ezRenderContext* pRenderer);
+  void EnqueueRenderGraph(ezRenderContext* pRenderer);
+  void UpdateRenderContext(ezRenderGraphContext& ctx);
 
   ezRasterizerView* PrepareOcclusionCulling(const ezFrustum& frustum, const ezView& view);
   void PreviewOcclusionBuffer(const ezRasterizerView& rasterizer, const ezView& view);
 
+  void OnRenderEvent(const ezRenderGraphRenderEvent& e);
+
 private: // Member data
   // Thread data
-  ezThreadID m_CurrentExtractThread;
-  ezThreadID m_CurrentRenderThread;
+  ezThreadID m_CurrentExtractThread = (ezThreadID)0;
+  ezThreadID m_CurrentRenderThread = (ezThreadID)0;
 
   // Pipeline render data
   ezExtractedRenderData m_Data[2];
@@ -113,8 +126,8 @@ private: // Member data
 #endif
 
   ezHashedString m_sName;
-  ezUInt64 m_uiLastExtractionFrame;
-  ezUInt64 m_uiLastRenderFrame;
+  ezUInt64 m_uiLastExtractionFrame = -1;
+  ezUInt64 m_uiLastRenderFrame = -1;
 
   // Render pass graph data
   PipelineState m_PipelineState = PipelineState::Uninitialized;
@@ -127,20 +140,12 @@ private: // Member data
   };
   ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> m_Passes;       ///< The passes present in the pipeline on no particular order.
   ezMap<const ezRenderPipelinePass*, ConnectionData> m_Connections; ///< Connections on each pass.
+  ezSet<const ezRenderPipelineNodePin*> m_TextureProviderPins;
 
-  /// \brief Contains all connections that share the same path-through texture and their first and last usage pass index.
-  struct TextureUsageData
-  {
-    ezSmallArray<ezRenderPipelinePassConnection*, 8> m_UsedBy;   ///< All the connections that use this texture. Due to passthrough pins, this can be larger than 1.
-    ezUInt16 m_uiFirstUsageIdx;                                  ///< Used to decide when to acquire a temp texture.
-    ezUInt16 m_uiLastUsageIdx;                                   ///< Used to decide when to return a temp texture.
-    const ezRenderPipelineNodePin* m_pTextureProvider = nullptr; ///< If set, this node and parent pass provide an external texture to the pipeline. This could be a render target from an ezTargetPass or a history buffer that is preserved across frames. At the start of every frame the parent pass will be asked for the current value of the texture a this pin.
-  };
-  ezDynamicArray<TextureUsageData> m_TextureUsage;               ///< All unique textures used during the pipeline run.
-  ezDynamicArray<ezUInt16> m_TextureUsageIdxSortedByFirstUsage;  ///< Indices map into m_TextureUsage
-  ezDynamicArray<ezUInt16> m_TextureUsageIdxSortedByLastUsage;   ///< Indices map into m_TextureUsage
-
-  ezHashTable<ezRenderPipelinePassConnection*, ezUInt32> m_ConnectionToTextureIndex;
+  /// Render Graph
+  ezSharedPtr<ezRenderGraph> m_pRenderGraph;
+  ezRenderViewContext m_RenderViewContext;
+  ezUInt32 m_uiSettingsModificationCounter = 0;
 
   // Extractors
   ezDynamicArray<ezUniquePtr<ezExtractor>> m_Extractors;

@@ -42,7 +42,10 @@ public:
   virtual void ReadbackTexturePlatform(const ezGALReadbackTexture* pDestination, const ezGALTexture* pSource) = 0;
   virtual void ReadbackBufferPlatform(const ezGALReadbackBuffer* pDestination, const ezGALBuffer* pSource) = 0;
 
-  virtual void GenerateMipMapsPlatform(const ezGALTexture* pTexture, ezGALTextureRange range) = 0;
+  // Barriers
+
+  virtual void TextureBarrierPlatform(ezArrayPtr<const ezGALTextureBarrier> barriers) = 0;
+  virtual void BufferBarrierPlatform(ezArrayPtr<const ezGALBufferBarrier> barriers) = 0;
 
   // Misc
 

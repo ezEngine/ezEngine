@@ -8,6 +8,7 @@
 #include <RendererFoundation/Resources/Texture.h>
 
 // clang-format off
+// BEGIN-DOCS-CODE-SNIPPET: renderpass-reflection
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCopyTexturePass, 1, ezRTTIDefaultAllocator<ezCopyTexturePass>)
 {
   EZ_BEGIN_PROPERTIES
@@ -23,6 +24,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCopyTexturePass, 1, ezRTTIDefaultAllocator<ezC
   EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// END-DOCS-CODE-SNIPPET
 // clang-format on
 
 ezCopyTexturePass::ezCopyTexturePass()
@@ -32,52 +34,28 @@ ezCopyTexturePass::ezCopyTexturePass()
 
 ezCopyTexturePass::~ezCopyTexturePass() = default;
 
-bool ezCopyTexturePass::GetRenderTargetDescriptions(
-  const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+// BEGIN-DOCS-CODE-SNIPPET: renderpass-add-render-passes
+ezStatus ezCopyTexturePass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
-  const ezGALTextureCreationDescription* pInput = inputs[m_PinInput.m_uiInputIndex];
+  ezRenderGraphTextureHandle hInput = inputs[m_PinInput.m_uiInputIndex].m_TextureHandle;
+  if (hInput.IsInvalidated())
+    return ezStatus(ezFmt("Input: Not connected"));
 
-  if (pInput != nullptr)
+  const ezGALTextureCreationDescription inputDesc = graph.GetTextureDesc(hInput);
+  ezRenderGraphTextureHandle hOutput = graph.CreateTexture(inputDesc);
+  outputs[m_PinOutput.m_uiOutputIndex].m_TextureHandle = hOutput;
+
+  auto pass = graph.AddTransferPass("CopyTexture");
+  pass.ReadTexture(hInput, {}, ezGALResourceState::CopySource);
+  pass.WriteTexture(hOutput, {}, ezGALResourceState::CopyDestination);
+  pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
   {
-    ezGALTextureCreationDescription desc = *pInput;
+    ctx.GetCommandEncoder()->CopyTexture(ctx.ResolveTexture(hOutput), ctx.ResolveTexture(hInput));
+  });
 
-    outputs[m_PinOutput.m_uiOutputIndex] = desc;
-  }
-  else
-  {
-    ezLog::Error("No input connected to '{0}'!", GetName());
-    return false;
-  }
-
-  return true;
+  return EZ_SUCCESS;
 }
-
-void ezCopyTexturePass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
-{
-  auto pInput = inputs[m_PinInput.m_uiInputIndex];
-  auto pOutput = outputs[m_PinOutput.m_uiOutputIndex];
-
-  if (pInput == nullptr || pOutput == nullptr)
-  {
-    return;
-  }
-
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-
-  const ezGALTexture* pDest = pDevice->GetTexture(pOutput->m_TextureHandle);
-  const ezGALTexture* pSource = pDevice->GetTexture(pInput->m_TextureHandle);
-
-  if (pDest->GetDescription().m_Format != pSource->GetDescription().m_Format)
-  {
-    // TODO: use a shader when the format doesn't match exactly
-
-    ezLog::Error("Copying textures of different formats is not implemented");
-  }
-  else
-  {
-    renderViewContext.m_pRenderContext->GetCommandEncoder()->CopyTexture(pOutput->m_TextureHandle, pInput->m_TextureHandle);
-  }
-}
+// END-DOCS-CODE-SNIPPET
 
 
 

@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12099190295688988325,5711173786673602835}}
-		u4 %Hash{5256050341635368396}
+		u4 %Hash{15494573681085934668}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -505,7 +505,7 @@ o
 		u3 %DownsampleFactor{3}
 		f %MaxBlurDistance{0x0000803F}
 		s %Name{""}
-		Vec2 %Node::Pos{f{0x566DE542,0xCEF0BDC3}}
+		Vec2 %Node::Pos{f{0xDEF9F142,0xF36ABDC3}}
 		u3 %NumBlurPasses{3}
 		u3 %NumSamples{12}
 	}
@@ -719,7 +719,7 @@ o
 	u3 %v{1}
 	p
 	{
-		b %Active{0}
+		b %Active{1}
 		Uuid %Color0{u4{8585470075124698003,2716617892859069161}}
 		Uuid %Color1{u4{7481150856176717699,11108775649456846064}}
 		Uuid %Color2{u4{11183505404953680861,11313385352575112089}}
@@ -1507,7 +1507,7 @@ o
 	p
 	{
 		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezRenderPipelinePass"}
 		s %PluginName{"Static"}
@@ -1983,7 +1983,7 @@ o
 	p
 	{
 		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezRenderPipelineNode"}
 		s %PluginName{"Static"}

@@ -395,14 +395,15 @@ void ezRmlUiCanvas3DComponent::SetInteractive(bool bIsInteractive)
 
 void ezRmlUiCanvas3DComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
-  if (msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::MainView || msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::EditorView)
+  if (m_pContext != nullptr && m_hTexture.IsValid())
   {
-    if (m_pContext != nullptr && m_hTexture.IsValid())
-    {
-      ezResourceLock<ezTexture2DResource> pTexture(m_hTexture, ezResourceAcquireMode::BlockTillLoaded);
+    ezResourceLock<ezTexture2DResource> pTexture(m_hTexture, ezResourceAcquireMode::BlockTillLoaded);
+    // The texture is also used in shadow maps as we don't know what the depth shader compiler is culling or what the material is using the texture for.
+    ezRenderWorld::AddViewDependency(*msg.m_pView, pTexture->GetGALTexture(), ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
+    if (msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::MainView && msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::EditorView)
+      return;
 
-      ezRmlUi::GetSingleton()->ExtractContext(*m_pContext, pTexture->GetGALTexture());
-    }
+    ezRmlUi::GetSingleton()->ExtractContext(*m_pContext, pTexture->GetGALTexture());
   }
 }
 
@@ -441,7 +442,7 @@ bool ezRmlUiCanvas3DComponent::UpdateTextureAndMaterial()
     if (ezMath::IsPowerOf2(m_vSize.x) && ezMath::IsPowerOf2(m_vSize.y))
     {
       desc.m_DescGAL.m_uiMipLevelCount = ezMath::Max(ezMath::Log2i(m_vSize.x), ezMath::Log2i(m_vSize.y)) - 2;
-      desc.m_DescGAL.m_TextureFlags.Add(ezGALTextureUsageFlags::DynamicMipGeneration);
+      desc.m_DescGAL.m_TextureFlags.Add(ezGALTextureUsageFlags::RenderTarget);
     }
 
     ezStringBuilder resourceName = "RmlUiCanvas3DComponent_Texture";

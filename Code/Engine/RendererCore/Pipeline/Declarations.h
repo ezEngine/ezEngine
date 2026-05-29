@@ -48,8 +48,11 @@ namespace ezInternal
   };
 } // namespace ezInternal
 
-struct ezRenderViewContext
+struct EZ_RENDERERCORE_DLL ezRenderViewContext
 {
+  // Updates global constants and encoder with the viewport information of the view data.
+  void UpdateViewport() const;
+
   const ezCamera* m_pCamera = nullptr;
   const ezViewData* m_pViewData = nullptr;
   ezRenderContext* m_pRenderContext = nullptr;

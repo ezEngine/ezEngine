@@ -102,7 +102,7 @@ void ezBindGroupBuilder::BindBuffer(ezTempHashedString sSlotName, ezGALBufferHan
   InsertItem(sSlotName, item, m_BoundBuffers);
 }
 
-void ezBindGroupBuilder::BindTexture(ezTempHashedString sSlotName, ezGALTextureHandle hTexture, ezGALTextureRange textureRange, ezEnum<ezGALResourceFormat> overrideViewFormat, ezBitflags<ezGALBindGroupItemFlags> metaFlags)
+void ezBindGroupBuilder::BindTexture(ezTempHashedString sSlotName, ezGALTextureHandle hTexture, ezGALTextureRange textureRange, ezEnum<ezGALResourceFormat> overrideViewFormat, ezEnum<ezGALTextureType> overrideViewType, ezBitflags<ezGALBindGroupItemFlags> metaFlags)
 {
   if (hTexture.IsInvalidated())
   {
@@ -127,17 +127,18 @@ void ezBindGroupBuilder::BindTexture(ezTempHashedString sSlotName, ezGALTextureH
   item.m_Texture.m_hSampler = {};
   item.m_Texture.m_TextureRange = pTexture->ClampRange(textureRange);
   item.m_Texture.m_OverrideViewFormat = overrideViewFormat;
+  item.m_Texture.m_OverrideViewType = overrideViewType;
 
   InsertItem(sSlotName, item, m_BoundTextures);
 }
 
-void ezBindGroupBuilder::BindTexture(ezTempHashedString sSlotName, const ezTexture2DResourceHandle& hTexture, ezResourceAcquireMode acquireMode, ezGALTextureRange textureRange, ezEnum<ezGALResourceFormat> overrideViewFormat)
+void ezBindGroupBuilder::BindTexture(ezTempHashedString sSlotName, const ezTexture2DResourceHandle& hTexture, ezResourceAcquireMode acquireMode, ezGALTextureRange textureRange, ezEnum<ezGALResourceFormat> overrideViewFormat, ezEnum<ezGALTextureType> overrideViewType)
 {
   if (hTexture.IsValid())
   {
     ezResourceLock<ezTexture2DResource> pTexture(hTexture, acquireMode);
     ezBitflags<ezGALBindGroupItemFlags> metaFlags = GetMetaFlags(pTexture);
-    BindTexture(sSlotName, pTexture->GetGALTexture(), textureRange, overrideViewFormat, metaFlags);
+    BindTexture(sSlotName, pTexture->GetGALTexture(), textureRange, overrideViewFormat, overrideViewType, metaFlags);
     BindSampler(sSlotName, pTexture->GetGALSamplerState(), metaFlags);
   }
   else
@@ -147,13 +148,13 @@ void ezBindGroupBuilder::BindTexture(ezTempHashedString sSlotName, const ezTextu
   }
 }
 
-void ezBindGroupBuilder::BindTexture(ezTempHashedString sSlotName, const ezTexture3DResourceHandle& hTexture, ezResourceAcquireMode acquireMode, ezGALTextureRange textureRange, ezEnum<ezGALResourceFormat> overrideViewFormat)
+void ezBindGroupBuilder::BindTexture(ezTempHashedString sSlotName, const ezTexture3DResourceHandle& hTexture, ezResourceAcquireMode acquireMode, ezGALTextureRange textureRange, ezEnum<ezGALResourceFormat> overrideViewFormat, ezEnum<ezGALTextureType> overrideViewType)
 {
   if (hTexture.IsValid())
   {
     ezResourceLock<ezTexture3DResource> pTexture(hTexture, acquireMode);
     ezBitflags<ezGALBindGroupItemFlags> metaFlags = GetMetaFlags(pTexture);
-    BindTexture(sSlotName, pTexture->GetGALTexture(), textureRange, overrideViewFormat, metaFlags);
+    BindTexture(sSlotName, pTexture->GetGALTexture(), textureRange, overrideViewFormat, overrideViewType, metaFlags);
     BindSampler(sSlotName, pTexture->GetGALSamplerState(), metaFlags);
   }
   else
@@ -163,13 +164,13 @@ void ezBindGroupBuilder::BindTexture(ezTempHashedString sSlotName, const ezTextu
   }
 }
 
-void ezBindGroupBuilder::BindTexture(ezTempHashedString sSlotName, const ezTextureCubeResourceHandle& hTexture, ezResourceAcquireMode acquireMode, ezGALTextureRange textureRange, ezEnum<ezGALResourceFormat> overrideViewFormat)
+void ezBindGroupBuilder::BindTexture(ezTempHashedString sSlotName, const ezTextureCubeResourceHandle& hTexture, ezResourceAcquireMode acquireMode, ezGALTextureRange textureRange, ezEnum<ezGALResourceFormat> overrideViewFormat, ezEnum<ezGALTextureType> overrideViewType)
 {
   if (hTexture.IsValid())
   {
     ezResourceLock<ezTextureCubeResource> pTexture(hTexture, acquireMode);
     ezBitflags<ezGALBindGroupItemFlags> metaFlags = GetMetaFlags(pTexture);
-    BindTexture(sSlotName, pTexture->GetGALTexture(), textureRange, overrideViewFormat, metaFlags);
+    BindTexture(sSlotName, pTexture->GetGALTexture(), textureRange, overrideViewFormat, overrideViewType, metaFlags);
     BindSampler(sSlotName, pTexture->GetGALSamplerState(), metaFlags);
   }
   else

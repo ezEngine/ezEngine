@@ -27,7 +27,7 @@ protected:
   void DestroyBackBufferInternal(ezGALDeviceDX11* pDXDevice);
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
-
+  ezGALDevice* m_pDevice = nullptr;
   IDXGISwapChain* m_pDXSwapChain = nullptr;
 
   ezGALTextureHandle m_hBackBufferTexture;

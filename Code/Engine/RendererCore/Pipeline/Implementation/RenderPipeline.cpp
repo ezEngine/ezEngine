@@ -22,6 +22,7 @@
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/Rasterizer/RasterizerView.h>
 #include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/RenderGraph/RenderGraphManager.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Profiling/Profiling.h>
 #include <RendererFoundation/Resources/Texture.h>
@@ -37,29 +38,40 @@ ezCVarFloat cvar_SpatialCullingOcclusionBoundsInlation("Spatial.Occlusion.Bounds
 ezCVarFloat cvar_SpatialCullingOcclusionFarPlane("Spatial.Occlusion.FarPlane", 50.0f, ezCVarFlags::Default, "Far plane distance for finding occluders.");
 
 ezRenderPipeline::ezRenderPipeline()
-
 {
-  m_CurrentExtractThread = (ezThreadID)0;
-  m_CurrentRenderThread = (ezThreadID)0;
-  m_uiLastExtractionFrame = -1;
-  m_uiLastRenderFrame = -1;
-
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   m_AverageCullingTime = ezTime::MakeFromSeconds(0.1f);
 #endif
+
+  ezRenderGraphManager::s_RenderEvent.AddEventHandler(ezMakeDelegate(&ezRenderPipeline::OnRenderEvent, this));
 }
 
 ezRenderPipeline::~ezRenderPipeline()
 {
+  ezRenderGraphManager::s_RenderEvent.RemoveEventHandler(ezMakeDelegate(&ezRenderPipeline::OnRenderEvent, this));
+
   ezGALDevice::GetDefaultDevice()->DestroyTexture(m_hOcclusionDebugViewTexture);
 
   m_Data[0].Clear();
   m_Data[1].Clear();
 
-  ClearRenderPassGraphTextures();
   while (!m_Passes.IsEmpty())
   {
     RemovePass(m_Passes.PeekBack().Borrow());
+  }
+}
+
+void ezRenderPipeline::OnRenderEvent(const ezRenderGraphRenderEvent& e)
+{
+  if (e.m_Type == ezRenderGraphRenderEvent::Type::BeforeGraphExecution && e.m_pGraph == m_pRenderGraph)
+  {
+    UpdateRenderContext(*e.m_pContext);
+  }
+  else if (e.m_Type == ezRenderGraphRenderEvent::Type::AfterGraphExecution && e.m_pGraph == m_pRenderGraph)
+  {
+    auto& data = m_Data[ezRenderWorld::GetDataIndexForRendering()];
+    data.Clear();
+    m_CurrentRenderThread = (ezThreadID)0;
   }
 }
 
@@ -178,6 +190,7 @@ bool ezRenderPipeline::Connect(ezRenderPipelinePass* pOutputNode, ezHashedString
   {
     pConnection = EZ_DEFAULT_NEW(ezRenderPipelinePassConnection);
     pConnection->m_pOutput = pPinSource;
+    pConnection->m_Connection = ezRenderPipelinePinConnection(ezRenderPipelinePinConnection::Connectivity::Texture);
     itOut.Value().m_Outputs[pPinSource->m_uiOutputIndex] = pConnection;
   }
   else
@@ -200,6 +213,16 @@ bool ezRenderPipeline::Connect(ezRenderPipelinePass* pOutputNode, ezHashedString
   pConnection->m_Inputs.PushBack(pPinTarget);
   itIn.Value().m_Inputs[pPinTarget->m_uiInputIndex] = pConnection;
   m_PipelineState = PipelineState::Uninitialized;
+
+  if (pPinSource->m_Type.IsSet(ezRenderPipelineNodePin::Type::TextureProvider))
+  {
+    m_TextureProviderPins.Insert(pPinSource);
+  }
+  if (pPinTarget->m_Type.IsSet(ezRenderPipelineNodePin::Type::TextureProvider))
+  {
+    m_TextureProviderPins.Insert(pPinTarget);
+  }
+
   return true;
 }
 
@@ -249,6 +272,15 @@ bool ezRenderPipeline::Disconnect(ezRenderPipelinePass* pOutputNode, ezHashedStr
     EZ_DEFAULT_DELETE(pConnection);
   }
 
+  if (pPinSource->m_Type.IsSet(ezRenderPipelineNodePin::Type::TextureProvider))
+  {
+    m_TextureProviderPins.Remove(pPinSource);
+  }
+  if (pPinTarget->m_Type.IsSet(ezRenderPipelineNodePin::Type::TextureProvider))
+  {
+    m_TextureProviderPins.Remove(pPinTarget);
+  }
+
   m_PipelineState = PipelineState::Uninitialized;
   return true;
 }
@@ -285,36 +317,40 @@ ezRenderPipeline::PipelineState ezRenderPipeline::Rebuild(const ezView& view)
 {
   ezLogBlock b("ezRenderPipeline::Rebuild");
 
-  ClearRenderPassGraphTextures();
-
   bool bRes = RebuildInternal(view);
   if (!bRes)
-  {
-    ClearRenderPassGraphTextures();
-  }
-  else
-  {
-    // make sure the renderdata stores the updated view data
-    UpdateViewData(view, ezRenderWorld::GetDataIndexForRendering());
-  }
-
-  m_PipelineState = bRes ? PipelineState::Initialized : PipelineState::RebuildError;
+    m_PipelineState = PipelineState::RebuildError;
   return m_PipelineState;
 }
 
 bool ezRenderPipeline::RebuildInternal(const ezView& view)
 {
+  UpdateViewData(view, ezRenderWorld::GetDataIndexForRendering());
   if (!SortPasses())
     return false;
-  if (!InitRenderTargetDescriptions(view))
-    return false;
-  if (!CreateRenderTargetUsage(view))
-    return false;
-  if (!InitRenderPipelinePasses())
-    return false;
-
   SortExtractors();
+  m_PipelineState = PipelineState::Initialized;
+  return true;
+}
 
+bool ezRenderPipeline::RebuildRenderGraph(const ezViewData& viewData, const ezCamera& camera)
+{
+  m_uiSettingsModificationCounter = camera.GetSettingsModificationCounter();
+
+  if (!m_pRenderGraph)
+  {
+    m_pRenderGraph = ezRenderGraphManager::CreateRenderGraph("RenderPipeline");
+    m_pRenderGraph->SetUserData(&m_RenderViewContext);
+  }
+
+  m_pRenderGraph->SetUserName(viewData.m_sName);
+  m_pRenderGraph->Reset();
+  if (!AddRenderPasses(viewData, camera))
+    return false;
+  if (!UpdateTextureProviders())
+    return false;
+
+  m_PipelineState = PipelineState::RenderGraphBuilt;
   return true;
 }
 
@@ -418,19 +454,19 @@ bool ezRenderPipeline::SortPasses()
   return true;
 }
 
-bool ezRenderPipeline::InitRenderTargetDescriptions(const ezView& view)
+bool ezRenderPipeline::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera)
 {
-  ezLogBlock b("Init Render Target Descriptions");
-  ezTempHybridArray<ezGALTextureCreationDescription*, 10> inputs;
-  ezTempHybridArray<ezGALTextureCreationDescription, 10> outputs;
+  ezLogBlock b("RebuildRenderGraph");
+  ezTempHybridArray<ezRenderPipelinePinConnection, 10> inputs;
+  ezTempHybridArray<ezRenderPipelinePinConnection, 10> outputs;
 
   for (auto& pPass : m_Passes)
   {
-    ezLogBlock b2("InitPass", pPass->GetName());
+    ezLogBlock b2("AddRenderPasses", pPass->GetName());
 
-    if (view.GetCamera()->IsStereoscopic() && !pPass->IsStereoAware())
+    if (camera.IsStereoscopic() && !pPass->IsStereoAware())
     {
-      ezLog::Error("View '{0}' uses a stereoscopic camera, but the render pass '{1}' does not support stereo rendering!", view.GetName(), pPass->GetName());
+      ezLog::Error("View '{0}' uses a stereoscopic camera, but the render pass '{1}' does not support stereo rendering!", viewData.m_sName, pPass->GetName());
     }
 
     ConnectionData& data = m_Connections[pPass.Borrow()];
@@ -446,19 +482,64 @@ bool ezRenderPipeline::InitRenderTargetDescriptions(const ezView& view)
     {
       if (data.m_Inputs[i] != nullptr)
       {
-        inputs[i] = &data.m_Inputs[i]->m_Desc;
+        inputs[i] = data.m_Inputs[i]->m_Connection;
       }
       else
       {
-        inputs[i] = nullptr;
+        inputs[i] = ezRenderPipelinePinConnection(ezRenderPipelinePinConnection::Connectivity::None);
       }
     }
-
-    bool bRes = pPass->GetRenderTargetDescriptions(view, inputs, outputs);
-    if (!bRes)
+    // Fill the outputs array
+    for (ezUInt32 i = 0; i < data.m_Outputs.GetCount(); i++)
     {
-      ezLog::Error("The pass could not be successfully queried for render target descriptions.");
+      ezRenderPipelinePinConnection& out = outputs[i];
+      const ezRenderPipelineNodePin* pPin = pPass->GetOutputPins()[i];
+      if (data.m_Outputs[i] != nullptr)
+      {
+        out = data.m_Outputs[i]->m_Connection;
+        if (pPin->m_Type.IsSet(ezRenderPipelineNodePin::Type::PassThrough))
+        {
+          out = inputs[pPin->m_uiInputIndex];
+        }
+      }
+      else
+      {
+        out = ezRenderPipelinePinConnection(ezRenderPipelinePinConnection::Connectivity::None);
+      }
+    }
+    m_pRenderGraph->PushMarker(pPass->GetName());
+    ezStatus result = EZ_SUCCESS;
+    if (pPass->m_bActive)
+      result = pPass->AddRenderPasses(viewData, camera, *m_pRenderGraph, inputs, outputs);
+    else
+      result = pPass->AddRenderPassesInactive(viewData, camera, *m_pRenderGraph, inputs, outputs);
+
+    m_pRenderGraph->PopMarker();
+    if (result.Failed())
+    {
+      ezLog::Error("Pass '{}' pf type '{}' failed: {}", pPass->GetName(), pPass->GetDynamicRTTI()->GetTypeName(), result.GetMessageString());
       return false;
+    }
+
+    // Check that all connected output pins have been written to.
+    for (ezUInt32 i = 0; i < outputs.GetCount(); i++)
+    {
+      ezRenderPipelinePinConnection& out = outputs[i];
+      const ezRenderPipelineNodePin* pPin = pPass->GetOutputPins()[i];
+      if (out.m_Connectivity == ezRenderPipelinePinConnection::Connectivity::Texture && out.m_TextureHandle.IsInvalidated())
+      {
+        // ezLog::Error("Pass '{}' of type {}: connected output pin '{}' was not written to by {}", pPass->GetName(), pPass->GetDynamicRTTI()->GetTypeName(), pPass->GetPinName(pPin), pPass->IsActive() ? "AddRenderPasses" : "AddRenderPassesInactive");
+        // return false;
+      }
+      if (pPin->m_Type.IsSet(ezRenderPipelineNodePin::Type::PassThrough))
+      {
+        ezRenderPipelinePinConnection& in = inputs[pPin->m_uiInputIndex];
+        if (out.m_TextureHandle != in.m_TextureHandle)
+        {
+          ezLog::Error("Pass '{}' of type {}: connected output pin '{}' has passthrough set but the output does not match the input", pPass->GetName(), pPass->GetDynamicRTTI()->GetTypeName(), pPass->GetPinName(pPin));
+          return false;
+        }
+      }
     }
 
     // Copy queried outputs into the output connections.
@@ -466,203 +547,68 @@ bool ezRenderPipeline::InitRenderTargetDescriptions(const ezView& view)
     {
       if (data.m_Outputs[i] != nullptr)
       {
-        data.m_Outputs[i]->m_Desc = outputs[i];
-      }
-    }
-
-    // Check pass-through consistency of input / output target desc.
-    auto inputPins = pPass->GetInputPins();
-    for (const ezRenderPipelineNodePin* pPin : inputPins)
-    {
-      if (pPin->m_Type.IsSet(ezRenderPipelineNodePin::Type::PassThrough))
-      {
-        if (data.m_Outputs[pPin->m_uiOutputIndex] != nullptr)
-        {
-          if (data.m_Inputs[pPin->m_uiInputIndex] == nullptr)
-          {
-            // ezLog::Error("The pass of type '{0}' has a pass through pin '{1}' that has an output but no input!",
-            // pPass->GetDynamicRTTI()->GetTypeName(), pPass->GetPinName(pPin));  return false;
-          }
-          else if (data.m_Outputs[pPin->m_uiOutputIndex]->m_Desc.CalculateHash() != data.m_Inputs[pPin->m_uiInputIndex]->m_Desc.CalculateHash())
-          {
-            ezLog::Error("The pass has a pass through pin '{0}' that has different descriptors for input and output!", pPass->GetPinName(pPin));
-            return false;
-          }
-        }
+        data.m_Outputs[i]->m_Connection = outputs[i];
       }
     }
   }
   return true;
 }
 
-bool ezRenderPipeline::CreateRenderTargetUsage(const ezView& view)
+bool ezRenderPipeline::UpdateTextureProviders()
 {
-  ezLogBlock b("Create Render Target Usage Data");
-  EZ_ASSERT_DEBUG(m_TextureUsage.IsEmpty(), "Need to call ClearRenderPassGraphTextures before re-creating the pipeline.");
-
-  m_ConnectionToTextureIndex.Clear();
-
-  // Gather all connections that share the same path-through texture and their first and last usage pass index.
-  for (ezUInt16 i = 0; i < static_cast<ezUInt16>(m_Passes.GetCount()); i++)
+  ezMap<ezRenderGraphTextureHandle, const ezRenderPipelineNodePin*> updates;
+  for (const ezRenderPipelineNodePin* pPin : m_TextureProviderPins)
   {
-    const auto& pPass = m_Passes[i].Borrow();
+    const ezRenderPipelinePass* pPass = static_cast<const ezRenderPipelinePass*>(pPin->m_pParent);
     ConnectionData& data = m_Connections[pPass];
-    for (ezRenderPipelinePassConnection* pConn : data.m_Inputs)
+
+    ezRenderGraphTextureHandle hTexture = {};
+    if (pPin->m_uiInputIndex != 0xFF)
     {
-      if (pConn != nullptr)
-      {
-        ezUInt32 uiDataIdx = m_ConnectionToTextureIndex[pConn];
-        m_TextureUsage[uiDataIdx].m_uiLastUsageIdx = i;
-      }
+      ezRenderPipelinePassConnection* pConnection = data.m_Inputs[pPin->m_uiInputIndex];
+      EZ_ASSERT_DEBUG(pConnection->m_Connection.m_Connectivity == ezRenderPipelinePinConnection::Connectivity::Texture, "Wrong connectivity for a texture provider pin!");
+      hTexture = pConnection->m_Connection.m_TextureHandle;
+    }
+    else if (pPin->m_uiOutputIndex != 0xFF)
+    {
+      ezRenderPipelinePassConnection* pConnection = data.m_Outputs[pPin->m_uiOutputIndex];
+      EZ_ASSERT_DEBUG(pConnection->m_Connection.m_Connectivity == ezRenderPipelinePinConnection::Connectivity::Texture, "Wrong connectivity for a texture provider pin!");
+      hTexture = pConnection->m_Connection.m_TextureHandle;
+    }
+    else
+    {
+      EZ_REPORT_FAILURE("Texture provider pin is invalid!");
     }
 
-    for (ezRenderPipelinePassConnection* pConn : data.m_Outputs)
+    if (updates.Contains(hTexture))
     {
-      if (pConn != nullptr)
-      {
-        if (pConn->m_pOutput->m_Type.IsSet(ezRenderPipelineNodePin::Type::PassThrough) && data.m_Inputs[pConn->m_pOutput->m_uiInputIndex] != nullptr)
-        {
-          ezRenderPipelinePassConnection* pCorrespondingInputConn = data.m_Inputs[pConn->m_pOutput->m_uiInputIndex];
-          EZ_ASSERT_DEV(m_ConnectionToTextureIndex.Contains(pCorrespondingInputConn), "");
-          ezUInt32 uiDataIdx = m_ConnectionToTextureIndex[pCorrespondingInputConn];
-          m_TextureUsage[uiDataIdx].m_UsedBy.PushBack(pConn);
-          m_TextureUsage[uiDataIdx].m_uiLastUsageIdx = i;
-
-          EZ_ASSERT_DEV(!m_ConnectionToTextureIndex.Contains(pConn), "");
-          m_ConnectionToTextureIndex[pConn] = uiDataIdx;
-        }
-        else
-        {
-          m_ConnectionToTextureIndex[pConn] = m_TextureUsage.GetCount();
-          TextureUsageData& texData = m_TextureUsage.ExpandAndGetRef();
-
-          texData.m_uiFirstUsageIdx = i;
-          texData.m_uiLastUsageIdx = i;
-          texData.m_UsedBy.PushBack(pConn);
-        }
-      }
-    }
-  }
-
-  // If a texture desc has this hash, it is uninitialized and no texture will be created at runtime.
-  static ezUInt32 defaultTextureDescHash = ezGALTextureCreationDescription().CalculateHash();
-  // Find pins that provide textures into the pipeline, e.g. ezTargetPass pins.
-  // There can only be up to one provider pin connected to a texture usage block or there would be an ambiguity which of them provides the texture.
-  for (ezUInt32 i = 0; i < m_TextureUsage.GetCount(); i++)
-  {
-    TextureUsageData& textureUsageData = m_TextureUsage[i];
-    const ezRenderPipelineNodePin* pTextureProvider = nullptr;
-    auto CheckForProvider = [&](const ezRenderPipelineNodePin* pPin) -> bool
-    {
-      if (!pPin->m_Type.IsSet(ezRenderPipelineNodePin::Type::TextureProvider))
-        return true;
-
-      if (!pTextureProvider)
-      {
-        pTextureProvider = pPin;
-        return true;
-      }
-
-      auto pPinOwner = static_cast<ezRenderPipelinePass*>(pPin->m_pParent);
-      auto pProviderOwner = static_cast<ezRenderPipelinePass*>(pTextureProvider->m_pParent);
-      ezLog::Error("Two provider pins are connected to the same texture either directly or via passthrough pins: {}.{} and {}.{}",
-        ezStringUtils::IsNullOrEmpty(pProviderOwner->GetName()) ? pProviderOwner->GetDynamicRTTI()->GetTypeName() : pProviderOwner->GetName(),
-        pProviderOwner->GetPinName(pTextureProvider).GetView(),
-        ezStringUtils::IsNullOrEmpty(pPinOwner->GetName()) ? pPinOwner->GetDynamicRTTI()->GetTypeName() : pPinOwner->GetName(),
-        pPinOwner->GetPinName(pPin).GetView());
+      ezLog::Error("Two texture provider pins found for the same texture handle - render pipeline is invalid!");
       return false;
-    };
+    }
+    updates.Insert(hTexture, pPin);
+  }
 
-    for (ezRenderPipelinePassConnection* pUsedByConn : textureUsageData.m_UsedBy)
+  for (auto it : updates)
+  {
+    ezRenderGraphTextureHandle hTexture = it.Key();
+    const ezRenderPipelineNodePin* pPin = it.Value();
+    ezRenderPipelinePass* pPass = static_cast<ezRenderPipelinePass*>(pPin->m_pParent);
+    const ezGALTextureCreationDescription& desc = m_pRenderGraph->GetTextureDesc(hTexture);
+    ezGALTextureHandle hTextureHandle = pPass->QueryTextureProvider(pPin, desc);
+    if (!hTextureHandle.IsInvalidated())
     {
-      if (!CheckForProvider(pUsedByConn->m_pOutput))
+      ezStatus result = m_pRenderGraph->ReplaceImportedTexture(hTexture, hTextureHandle);
+      if (result.Failed() && !result.GetMessageString().IsEmpty())
+      {
+        ezLog::Error("Failed to replace texture from node '{}' of type '{}' at pin '{}': {}", pPass->GetName(), pPass->GetDynamicRTTI()->GetTypeName(), pPass->GetPinName(pPin), result.GetMessageString());
         return false;
-
-      for (const ezRenderPipelineNodePin* pPin : pUsedByConn->m_Inputs)
-      {
-        if (!CheckForProvider(pPin))
-          return false;
-      }
-    }
-
-    if (pTextureProvider)
-    {
-      auto pPass = ezDynamicCast<ezRenderPipelinePass*>(pTextureProvider->m_pParent);
-      ezGALTextureHandle hTexture = pPass->QueryTextureProvider(pTextureProvider, textureUsageData.m_UsedBy[0]->m_Desc);
-      if (hTexture.IsInvalidated())
-      {
-        // In this case, e.g. ezTargetPass does not provide a render target for the connection but if the descriptor is set, we can instead use the pool to supplement the missing texture later.
-        textureUsageData.m_pTextureProvider = nullptr;
-        for (auto pUsedByConn : textureUsageData.m_UsedBy)
-        {
-          pUsedByConn->m_TextureHandle.Invalidate();
-        }
-      }
-      else
-      {
-        textureUsageData.m_pTextureProvider = pTextureProvider;
-        for (auto pUsedByConn : textureUsageData.m_UsedBy)
-        {
-          pUsedByConn->m_TextureHandle = hTexture;
-        }
       }
     }
   }
-
-  // Stupid loop to gather all TextureUsageData indices that are not provider textures and valid.
-  for (ezUInt32 i = 0; i < m_TextureUsage.GetCount(); i++)
-  {
-    TextureUsageData& data = m_TextureUsage[i];
-    if (data.m_pTextureProvider || data.m_UsedBy[0]->m_Desc.CalculateHash() == defaultTextureDescHash)
-      continue;
-
-    m_TextureUsageIdxSortedByFirstUsage.PushBack((ezUInt16)i);
-    m_TextureUsageIdxSortedByLastUsage.PushBack((ezUInt16)i);
-  }
-
-  // Sort first and last usage arrays, these will determine the lifetime of the pool textures.
-  struct FirstUsageComparer
-  {
-    FirstUsageComparer(ezDynamicArray<TextureUsageData>& ref_textureUsage)
-      : m_TextureUsage(ref_textureUsage)
-    {
-    }
-
-    EZ_ALWAYS_INLINE bool Less(ezUInt16 a, ezUInt16 b) const { return m_TextureUsage[a].m_uiFirstUsageIdx < m_TextureUsage[b].m_uiFirstUsageIdx; }
-
-    ezDynamicArray<TextureUsageData>& m_TextureUsage;
-  };
-
-  struct LastUsageComparer
-  {
-    LastUsageComparer(ezDynamicArray<TextureUsageData>& ref_textureUsage)
-      : m_TextureUsage(ref_textureUsage)
-    {
-    }
-
-    EZ_ALWAYS_INLINE bool Less(ezUInt16 a, ezUInt16 b) const { return m_TextureUsage[a].m_uiLastUsageIdx < m_TextureUsage[b].m_uiLastUsageIdx; }
-
-    ezDynamicArray<TextureUsageData>& m_TextureUsage;
-  };
-
-  m_TextureUsageIdxSortedByFirstUsage.Sort(FirstUsageComparer(m_TextureUsage));
-  m_TextureUsageIdxSortedByLastUsage.Sort(LastUsageComparer(m_TextureUsage));
 
   return true;
 }
 
-bool ezRenderPipeline::InitRenderPipelinePasses()
-{
-  ezLogBlock b("Init Render Pipeline Passes");
-  // Init every pass now.
-  for (auto& pPass : m_Passes)
-  {
-    ConnectionData& data = m_Connections[pPass.Borrow()];
-    pPass->InitRenderPipelinePass(data.m_Inputs, data.m_Outputs);
-  }
-
-  return true;
-}
 
 void ezRenderPipeline::SortExtractors()
 {
@@ -814,31 +760,6 @@ void ezRenderPipeline::RemoveConnections(ezRenderPipelinePass* pPass)
       EZ_ASSERT_DEBUG(bRes, "ezRenderPipeline::RemoveConnections should not fail to disconnect pins!");
 
       pConn = data.m_Outputs[i];
-    }
-  }
-}
-
-void ezRenderPipeline::ClearRenderPassGraphTextures()
-{
-  m_TextureUsage.Clear();
-  m_TextureUsageIdxSortedByFirstUsage.Clear();
-  m_TextureUsageIdxSortedByLastUsage.Clear();
-
-  // ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-
-  for (auto it = m_Connections.GetIterator(); it.IsValid(); ++it)
-  {
-    auto& conn = it.Value();
-    for (auto pConn : conn.m_Outputs)
-    {
-      if (pConn)
-      {
-        pConn->m_Desc = ezGALTextureCreationDescription();
-        if (!pConn->m_TextureHandle.IsInvalidated())
-        {
-          pConn->m_TextureHandle.Invalidate();
-        }
-      }
     }
   }
 }
@@ -1092,14 +1013,35 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
 #endif
 }
 
-void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
+void ezRenderPipeline::EnqueueRenderGraph(ezRenderContext* pRenderContext)
 {
+  ezLogBlock b("EnqueueRenderGraph");
+
   EZ_PROFILE_SCOPE(m_sName.GetData());
 
-  EZ_ASSERT_DEV(m_PipelineState != PipelineState::Uninitialized, "Pipeline must be rebuild before rendering.");
-  if (m_PipelineState == PipelineState::RebuildError)
+  ezUInt32 uiDataIndex = ezRenderWorld::GetDataIndexForRendering();
+  auto& data = m_Data[uiDataIndex];
+
+  EZ_ASSERT_DEV(m_PipelineState >= PipelineState::Initialized, "Pipeline must be rebuild before rendering.");
+  m_PipelineState = PipelineState::Initialized;
+
+  if (!RebuildRenderGraph(data.GetViewData(), data.GetCamera()))
   {
+    ezLog::Error("Failed call to RebuildRenderGraph, pipeline rendering aborted");
     return;
+  }
+
+  if (m_pRenderGraph->ValidateImportedResources().Failed())
+  {
+    ezLog::Error("Imported resources are no longer valid, pipeline rendering aborted");
+    m_PipelineState = PipelineState::RebuildError;
+    return;
+  }
+
+  // Apply view dependencies: import shared textures with the required initial state.
+  for (const ezViewDependency& dep : data.GetViewDependencies())
+  {
+    m_pRenderGraph->ImportTexture(dep.m_hTexture, dep.m_RequiredState, dep.m_Stage);
   }
 
   EZ_ASSERT_DEV(m_CurrentRenderThread == (ezThreadID)0, "Render must not be called from multiple threads.");
@@ -1107,8 +1049,14 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
 
   EZ_ASSERT_DEV(m_uiLastRenderFrame != ezRenderWorld::GetFrameCounter(), "Render must not be called multiple times per frame.");
   m_uiLastRenderFrame = ezRenderWorld::GetFrameCounter();
+  m_pRenderGraph->SetUserName(m_sName);
+  ezRenderGraphManager::EnqueueRenderGraph(m_pRenderGraph);
+}
 
-
+void ezRenderPipeline::UpdateRenderContext(ezRenderGraphContext& ctx)
+{
+  EZ_ASSERT_DEV(m_CurrentRenderThread == ezThreadUtils::GetCurrentThreadID(), "Graph executed on wrong thread");
+  auto pRenderContext = ctx.GetRenderContext();
   auto& data = m_Data[ezRenderWorld::GetDataIndexForRendering()];
   const ezCamera* pCamera = &data.GetCamera();
   const ezViewData* pViewData = &data.GetViewData();
@@ -1141,12 +1089,11 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
 
   pRenderContext->SetGlobalAndWorldTimeConstants(data.GetWorldTime());
 
-  ezRenderViewContext renderViewContext;
-  renderViewContext.m_pCamera = pCamera;
-  renderViewContext.m_pViewData = pViewData;
-  renderViewContext.m_pRenderContext = pRenderContext;
-  renderViewContext.m_pWorldDebugContext = &data.GetWorldDebugContext();
-  renderViewContext.m_pViewDebugContext = &data.GetViewDebugContext();
+  m_RenderViewContext.m_pCamera = pCamera;
+  m_RenderViewContext.m_pViewData = pViewData;
+  m_RenderViewContext.m_pRenderContext = pRenderContext;
+  m_RenderViewContext.m_pWorldDebugContext = &data.GetWorldDebugContext();
+  m_RenderViewContext.m_pViewDebugContext = &data.GetViewDebugContext();
 
   // Set camera mode permutation variable here since it doesn't change throughout the frame
   static ezHashedString sCameraMode = ezMakeHashedString("CAMERA_MODE");
@@ -1174,120 +1121,16 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
   {
     pRenderContext->SetShaderPermutationVariable(var.m_sName, var.m_sValue);
   }
-
-  ezRenderWorldRenderEvent renderEvent;
-  renderEvent.m_Type = ezRenderWorldRenderEvent::Type::BeforePipelineExecution;
-  renderEvent.m_pPipeline = this;
-  renderEvent.m_pRenderViewContext = &renderViewContext;
-  renderEvent.m_uiFrameCounter = ezRenderWorld::GetFrameCounter();
-  {
-    EZ_PROFILE_SCOPE("BeforePipelineExecution");
-    ezRenderWorld::s_RenderEvent.Broadcast(renderEvent);
-  }
-
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  ezGALCommandEncoder* pCommandEncoder = pDevice->BeginCommands(m_sName);
-  {
-    // Update textures from texture providers as these can change every frame (e.g. swap chain textures).
-    for (TextureUsageData& textureUsageData : m_TextureUsage)
-    {
-      if (!textureUsageData.m_pTextureProvider)
-        continue;
-
-      auto pPass = static_cast<ezRenderPipelinePass*>(textureUsageData.m_pTextureProvider->m_pParent);
-      ezGALTextureHandle hTexture = pPass->QueryTextureProvider(textureUsageData.m_pTextureProvider, textureUsageData.m_UsedBy[0]->m_Desc);
-      for (ezRenderPipelinePassConnection* pUsedByConn : textureUsageData.m_UsedBy)
-      {
-        pUsedByConn->m_TextureHandle = hTexture;
-      }
-    }
-
-    ezUInt32 uiCurrentFirstUsageIdx = 0;
-    ezUInt32 uiCurrentLastUsageIdx = 0;
-    for (ezUInt32 i = 0; i < m_Passes.GetCount(); ++i)
-    {
-      EZ_PROFILE_SCOPE("RenderPass");
-
-      auto& pPass = m_Passes[i];
-      ezLogBlock passBlock("Render Pass", pPass->GetName());
-
-      // Create pool textures
-      for (; uiCurrentFirstUsageIdx < m_TextureUsageIdxSortedByFirstUsage.GetCount();)
-      {
-        ezUInt16 uiCurrentUsageData = m_TextureUsageIdxSortedByFirstUsage[uiCurrentFirstUsageIdx];
-        TextureUsageData& usageData = m_TextureUsage[uiCurrentUsageData];
-        if (usageData.m_uiFirstUsageIdx == i)
-        {
-          ezGALTextureHandle hTexture = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(usageData.m_UsedBy[0]->m_Desc);
-          EZ_ASSERT_DEV(!hTexture.IsInvalidated(), "GPU pool returned an invalidated texture!");
-          for (ezRenderPipelinePassConnection* pConn : usageData.m_UsedBy)
-          {
-            pConn->m_TextureHandle = hTexture;
-          }
-          ++uiCurrentFirstUsageIdx;
-        }
-        else
-        {
-          // The current usage data blocks m_uiFirstUsageIdx isn't reached yet so wait.
-          break;
-        }
-      }
-
-      // Execute pass block
-      {
-        EZ_PROFILE_AND_MARKER(pCommandEncoder, pPass->GetName());
-
-        ConnectionData& connectionData = m_Connections[pPass.Borrow()];
-        if (pPass->m_bActive)
-        {
-          pPass->Execute(renderViewContext, connectionData.m_Inputs, connectionData.m_Outputs);
-        }
-        else
-        {
-          pPass->ExecuteInactive(renderViewContext, connectionData.m_Inputs, connectionData.m_Outputs);
-        }
-      }
-
-      // Release pool textures
-      for (; uiCurrentLastUsageIdx < m_TextureUsageIdxSortedByLastUsage.GetCount();)
-      {
-        ezUInt16 uiCurrentUsageData = m_TextureUsageIdxSortedByLastUsage[uiCurrentLastUsageIdx];
-        TextureUsageData& usageData = m_TextureUsage[uiCurrentUsageData];
-        if (usageData.m_uiLastUsageIdx == i)
-        {
-          ezGPUResourcePool::GetDefaultInstance()->ReturnRenderTarget(usageData.m_UsedBy[0]->m_TextureHandle);
-          for (ezRenderPipelinePassConnection* pConn : usageData.m_UsedBy)
-          {
-            pConn->m_TextureHandle.Invalidate();
-          }
-          ++uiCurrentLastUsageIdx;
-        }
-        else
-        {
-          // The current usage data blocks m_uiLastUsageIdx isn't reached yet so wait.
-          break;
-        }
-      }
-    }
-    EZ_ASSERT_DEV(uiCurrentFirstUsageIdx == m_TextureUsageIdxSortedByFirstUsage.GetCount(), "Rendering all passes should have moved us through all texture usage blocks!");
-    EZ_ASSERT_DEV(uiCurrentLastUsageIdx == m_TextureUsageIdxSortedByLastUsage.GetCount(), "Rendering all passes should have moved us through all texture usage blocks!");
-  }
-  pDevice->EndCommands(pCommandEncoder);
-
-  renderEvent.m_Type = ezRenderWorldRenderEvent::Type::AfterPipelineExecution;
-  {
-    EZ_PROFILE_SCOPE("AfterPipelineExecution");
-    ezRenderWorld::s_RenderEvent.Broadcast(renderEvent);
-  }
-
-  data.Clear();
-
-  m_CurrentRenderThread = (ezThreadID)0;
 }
 
 const ezExtractedRenderData& ezRenderPipeline::GetRenderData() const
 {
   return m_Data[ezRenderWorld::GetDataIndexForRendering()];
+}
+
+void ezRenderPipeline::AddViewDependency(ezGALTextureHandle hTexture, ezBitflags<ezGALResourceState> requiredState, ezBitflags<ezGALShaderStageFlags> stage)
+{
+  m_Data[ezRenderWorld::GetDataIndexForExtraction()].AddViewDependency(hTexture, requiredState, stage);
 }
 
 ezRenderDataBatchList ezRenderPipeline::GetRenderDataBatchesWithCategory(ezRenderData::Category category) const
@@ -1305,6 +1148,7 @@ ezUInt32 ezRenderPipeline::AddRenderDataProcessor(RenderDataProcessor processor)
 
 void ezRenderPipeline::CreateDgmlGraph(ezDGMLGraph& ref_graph)
 {
+  /*
   ezStringBuilder sTmp;
   ezHashTable<const ezRenderPipelineNode*, ezUInt32> nodeMap;
   nodeMap.Reserve(m_Passes.GetCount() + m_TextureUsage.GetCount() * 3);
@@ -1347,6 +1191,7 @@ void ezRenderPipeline::CreateDgmlGraph(ezDGMLGraph& ref_graph)
       }
     }
   }
+  */
 }
 
 ezRasterizerView* ezRenderPipeline::PrepareOcclusionCulling(const ezFrustum& frustum, const ezView& view)

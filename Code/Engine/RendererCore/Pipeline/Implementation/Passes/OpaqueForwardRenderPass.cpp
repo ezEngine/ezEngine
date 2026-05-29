@@ -1,7 +1,9 @@
 #include <RendererCore/RendererCorePCH.h>
 
 #include <RendererCore/Pipeline/Passes/OpaqueForwardRenderPass.h>
+#include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/Textures/Texture2DResource.h>
 
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererFoundation/Resources/Texture.h>
@@ -27,67 +29,90 @@ ezOpaqueForwardRenderPass::ezOpaqueForwardRenderPass(const char* szName)
 
 ezOpaqueForwardRenderPass::~ezOpaqueForwardRenderPass() = default;
 
-bool ezOpaqueForwardRenderPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+ezStatus ezOpaqueForwardRenderPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
-  if (!SUPER::GetRenderTargetDescriptions(view, inputs, outputs))
-  {
-    return false;
-  }
+  ezRenderGraphTextureHandle hColor = inputs[m_PinColor.m_uiInputIndex].m_TextureHandle;
+  if (hColor.IsInvalidated())
+    return ezStatus(ezFmt("Color: Not connected"));
 
-  if (inputs[m_PinSSAO.m_uiInputIndex])
+  ezRenderGraphTextureHandle hDepthStencil = inputs[m_PinDepthStencil.m_uiInputIndex].m_TextureHandle;
+  if (hDepthStencil.IsInvalidated())
+    return ezStatus(ezFmt("DepthStencil: Not connected"));
+
+  outputs[m_PinColor.m_uiOutputIndex].m_TextureHandle = hColor;
+  outputs[m_PinDepthStencil.m_uiOutputIndex].m_TextureHandle = hDepthStencil;
+
+  ezRenderGraphTextureHandle hSSAO = inputs[m_PinSSAO.m_uiInputIndex].m_TextureHandle;
+  ezRenderGraphTextureHandle hShadowMask = inputs[m_PinShadowMasks.m_uiInputIndex].m_TextureHandle;
+
+  // Validate SSAO dimensions if connected
+  if (!hSSAO.IsInvalidated())
   {
-    if (inputs[m_PinSSAO.m_uiInputIndex]->m_uiWidth != inputs[m_PinColor.m_uiInputIndex]->m_uiWidth ||
-        inputs[m_PinSSAO.m_uiInputIndex]->m_uiHeight != inputs[m_PinColor.m_uiInputIndex]->m_uiHeight)
+    const auto& ssaoDesc = graph.GetTextureDesc(hSSAO);
+    const auto& colorDesc = graph.GetTextureDesc(hColor);
+    if (ssaoDesc.m_uiWidth != colorDesc.m_uiWidth || ssaoDesc.m_uiHeight != colorDesc.m_uiHeight)
     {
       ezLog::Warning("Expected same resolution for SSAO and color input to pass '{0}'!", GetName());
     }
-
     if (m_ShadingQuality == ezForwardRenderShadingQuality::Simplified)
     {
       ezLog::Warning("SSAO input will be ignored for pass '{0}' since simplified shading is activated.", GetName());
     }
   }
 
-  if (inputs[m_PinShadowMasks.m_uiInputIndex])
+  if (!hShadowMask.IsInvalidated())
   {
-    if (inputs[m_PinShadowMasks.m_uiInputIndex]->m_uiWidth != inputs[m_PinColor.m_uiInputIndex]->m_uiWidth ||
-        inputs[m_PinShadowMasks.m_uiInputIndex]->m_uiHeight != inputs[m_PinColor.m_uiInputIndex]->m_uiHeight)
+    const auto& shadowMaskDesc = graph.GetTextureDesc(hShadowMask);
+    const auto& colorDesc = graph.GetTextureDesc(hColor);
+    if (shadowMaskDesc.m_uiWidth != colorDesc.m_uiWidth ||
+        shadowMaskDesc.m_uiHeight != colorDesc.m_uiHeight)
     {
       ezLog::Warning("Expected same resolution for shadow mask and color input to pass '{0}'!", GetName());
     }
   }
 
-  return true;
-}
-
-void ezOpaqueForwardRenderPass::SetupResources(ezGALCommandEncoder* pCommandEncoder, const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
-{
-  SUPER::SetupResources(pCommandEncoder, renderViewContext, inputs, outputs);
-
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-
-  ezBindGroupBuilder& bindGroupRenderPass = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);
-  // SSAO texture
-  if (m_ShadingQuality == ezForwardRenderShadingQuality::Normal)
-  {
-    if (inputs[m_PinSSAO.m_uiInputIndex])
+  auto pass = graph.AddGraphicsPass(GetName());
+  pass.AddColorTarget(hColor);
+  pass.AddDepthStencilTarget(hDepthStencil);
+  if (!hSSAO.IsInvalidated())
+    pass.ReadTexture(hSSAO, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
+  if (!hShadowMask.IsInvalidated())
+    pass.ReadTexture(hShadowMask, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
+  pass.SetStereoscopic(camera.IsStereoscopic());
+  ezRenderPipelinePass::SetupResourceDependencies(viewData, graph, pass, m_ShadingQuality);
+  pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
     {
-      bindGroupRenderPass.BindTexture("SSAOTexture", inputs[m_PinSSAO.m_uiInputIndex]->m_TextureHandle);
-    }
-    else
-    {
-      bindGroupRenderPass.BindTexture("SSAOTexture", m_hWhiteTexture, ezResourceAcquireMode::BlockTillLoaded);
-    }
+      const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
+      renderViewContext.UpdateViewport();
+      SetupPermutationVars(renderViewContext);
+      ezRenderPipelinePass::BindDataProviderResources(renderViewContext, m_ShadingQuality);
 
-    if (inputs[m_PinShadowMasks.m_uiInputIndex])
-    {
-      bindGroupRenderPass.BindTexture("ShadowMasksTexture", inputs[m_PinShadowMasks.m_uiInputIndex]->m_TextureHandle);
-    }
-    else
-    {
-      bindGroupRenderPass.BindTexture("ShadowMasksTexture", m_hWhiteTexture, ezResourceAcquireMode::BlockTillLoaded);
-    }
-  }
+      // Bind SSAO texture
+      ezBindGroupBuilder& bindGroupRenderPass = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);
+      if (m_ShadingQuality == ezForwardRenderShadingQuality::Normal)
+      {
+        if (!hSSAO.IsInvalidated())
+        {
+          bindGroupRenderPass.BindTexture("SSAOTexture", ctx.ResolveTexture(hSSAO));
+        }
+        else
+        {
+          bindGroupRenderPass.BindTexture("SSAOTexture", m_hWhiteTexture, ezResourceAcquireMode::BlockTillLoaded);
+        }
+
+        if (!hShadowMask.IsInvalidated())
+        {
+          bindGroupRenderPass.BindTexture("ShadowMasksTexture", ctx.ResolveTexture(hShadowMask));
+        }
+        else
+        {
+          bindGroupRenderPass.BindTexture("ShadowMasksTexture", m_hWhiteTexture, ezResourceAcquireMode::BlockTillLoaded);
+        }
+      }
+      RenderObjects(renderViewContext); //
+    });
+
+  return EZ_SUCCESS;
 }
 
 void ezOpaqueForwardRenderPass::SetupPermutationVars(const ezRenderViewContext& renderViewContext)

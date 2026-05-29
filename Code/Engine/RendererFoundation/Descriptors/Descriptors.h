@@ -14,6 +14,7 @@
 #include <Texture/Image/ImageEnums.h>
 
 class ezWindowBase;
+class ezGALDevice;
 
 /// \brief Bind group layout for a single bind group.
 /// Auto created by shader resource. Mostly used to quickly determine if a bind group still matches after e.g. switching the shader.
@@ -216,11 +217,14 @@ struct ezGALResourceAccess
 {
   EZ_ALWAYS_INLINE bool IsImmutable() const { return m_bImmutable; }
 
-  bool m_bImmutable = true;
+  bool m_bImmutable = false;
 };
 
-struct ezGALBufferCreationDescription : public ezHashableStruct<ezGALBufferCreationDescription>
+struct EZ_RENDERERFOUNDATION_DLL ezGALBufferCreationDescription : public ezHashableStruct<ezGALBufferCreationDescription>
 {
+  /// Returns the most appropriate default resource state based on the buffer's usage flags.
+  ezBitflags<ezGALResourceState> GetDefaultState() const;
+
   ezUInt32 m_uiTotalSize = 0;           ///< Total size in bytes. Must always be set > 0.
   ezUInt32 m_uiStructSize = 0;          ///< Struct, Index or Vertex size in bytes. Only valid if StructuredBuffer, VertexBuffer or IndexBuffer flag is set.
   ezBitflags<ezGALBufferUsageFlags> m_BufferFlags;
@@ -228,9 +232,14 @@ struct ezGALBufferCreationDescription : public ezHashableStruct<ezGALBufferCreat
   ezEnum<ezGALResourceFormat> m_Format; ///< Only relevant for TexelBuffer to create the default view.
 };
 
-struct ezGALTextureCreationDescription : public ezHashableStruct<ezGALTextureCreationDescription>
+struct EZ_RENDERERFOUNDATION_DLL ezGALTextureCreationDescription : public ezHashableStruct<ezGALTextureCreationDescription>
 {
   void SetAsRenderTarget(ezUInt32 uiWidth, ezUInt32 uiHeight, ezGALResourceFormat::Enum format, ezGALMSAASampleCount::Enum sampleCount = ezGALMSAASampleCount::None);
+  void SetAsRenderTarget(ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiArraySize, ezGALResourceFormat::Enum format, ezGALMSAASampleCount::Enum sampleCount = ezGALMSAASampleCount::None);
+  ezResult Validate(ezGALDevice* pDevice, ezArrayPtr<ezGALSystemMemoryDescription> initialData = {}) const;
+
+  /// Returns the most appropriate default resource state based on the texture's allowed views and format.
+  ezBitflags<ezGALResourceState> GetDefaultState() const;
 
   ezUInt32 m_uiWidth = 0;
   ezUInt32 m_uiHeight = 0;
@@ -253,13 +262,11 @@ struct ezGALRenderTargetViewCreationDescription : public ezHashableStruct<ezGALR
 {
   ezGALTextureHandle m_hTexture;
 
-  ezEnum<ezGALResourceFormat> m_OverrideViewFormat = ezGALResourceFormat::Invalid;
-  ezEnum<ezGALTextureType> m_OverrideViewType = ezGALTextureType::Invalid;
-
   ezUInt32 m_uiMipLevel = 0;
-
   ezUInt32 m_uiFirstSlice = 0;
   ezUInt32 m_uiSliceCount = 1;
+  ezEnum<ezGALResourceFormat> m_OverrideViewFormat = ezGALResourceFormat::Invalid;
+  ezEnum<ezGALTextureType> m_OverrideViewType = ezGALTextureType::Invalid;
 
   bool m_bReadOnly = false; ///< Can be used for depth stencil views to create read only views (e.g. for soft particles using the native depth buffer)
 };

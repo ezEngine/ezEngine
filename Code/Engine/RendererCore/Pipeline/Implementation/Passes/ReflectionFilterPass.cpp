@@ -5,6 +5,7 @@
 #include <RendererCore/Pipeline/Passes/ReflectionFilterPass.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/RenderGraph/RenderGraphUtils.h>
 #include <RendererFoundation/Profiling/Profiling.h>
 #include <RendererFoundation/Resources/Texture.h>
 
@@ -56,8 +57,9 @@ ezReflectionFilterPass::~ezReflectionFilterPass()
   ezRenderContext::DeleteConstantBufferStorage(m_hIrradianceConstantBuffer);
 }
 
-bool ezReflectionFilterPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+ezStatus ezReflectionFilterPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
+  // Create filtered specular output
   {
     ezGALTextureCreationDescription desc;
     desc.m_uiWidth = ezReflectionPool::GetReflectionCubeMapSize();
@@ -66,89 +68,132 @@ bool ezReflectionFilterPass::GetRenderTargetDescriptions(const ezView& view, con
     desc.m_Type = ezGALTextureType::TextureCube;
     desc.m_TextureFlags.Add(ezGALTextureUsageFlags::UnorderedAccess);
     desc.m_uiMipLevelCount = ezMath::Log2i(desc.m_uiWidth) - 1;
-    outputs[m_PinFilteredSpecular.m_uiOutputIndex] = desc;
+    ezRenderGraphTextureHandle hFilteredSpecular = graph.CreateTexture(desc);
+    outputs[m_PinFilteredSpecular.m_uiOutputIndex].m_TextureHandle = hFilteredSpecular;
   }
 
-  return true;
-}
+  // Create average luminance output (todo, unused)
+  {
+    ezGALTextureCreationDescription desc;
+    desc.m_uiWidth = 4;
+    desc.m_uiHeight = 4;
+    desc.m_Format = ezGALResourceFormat::RGBAHalf;
+    desc.m_Type = ezGALTextureType::Texture2D;
+    desc.m_TextureFlags.Add(ezGALTextureUsageFlags::RenderTarget | ezGALTextureUsageFlags::UnorderedAccess);
+    desc.m_ResourceAccess.m_bImmutable = false;
+    ezRenderGraphTextureHandle hAvgLuminance = graph.CreateTexture(desc);
+    outputs[m_PinAvgLuminance.m_uiOutputIndex].m_TextureHandle = hAvgLuminance;
+  }
 
-void ezReflectionFilterPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
-{
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  // Create irradiance output
+  {
+    ezGALTextureCreationDescription desc;
+    desc.m_uiWidth = 6;
+    desc.m_uiHeight = 64;
+    desc.m_Format = ezGALResourceFormat::RGBAHalf;
+    desc.m_Type = ezGALTextureType::Texture2D;
+    desc.m_TextureFlags.Add(ezGALTextureUsageFlags::RenderTarget | ezGALTextureUsageFlags::UnorderedAccess);
+    desc.m_ResourceAccess.m_bImmutable = false;
+    ezRenderGraphTextureHandle hIrradianceData = graph.CreateTexture(desc);
+    outputs[m_PinIrradianceData.m_uiOutputIndex].m_TextureHandle = hIrradianceData;
+  }
 
-  auto pInputCubemap = pDevice->GetTexture(m_hInputCubemap);
+  ezRenderGraphTextureHandle hFilteredSpecular = outputs[m_PinFilteredSpecular.m_uiOutputIndex].m_TextureHandle;
+  ezRenderGraphTextureHandle hIrradianceData = outputs[m_PinIrradianceData.m_uiOutputIndex].m_TextureHandle;
+
+  // Generate mipmaps
+  ezRenderGraphTextureHandle hInputCubeTexture;
+  auto pInputCubemap = graph.GetDevice()->GetTexture(m_hInputCubemap);
   if (pInputCubemap == nullptr)
+    return EZ_SUCCESS;
+  if (pInputCubemap->GetDescription().m_TextureFlags.IsSet(ezGALTextureUsageFlags::RenderTarget))
   {
-    return;
+    hInputCubeTexture = ezRenderGraphUtils::GenerateMipMaps(m_hInputCubemap, {}, graph);
+  }
+  else
+  {
+    hInputCubeTexture = graph.ImportTexture(m_hInputCubemap);
   }
 
-  // We cannot allow the filter to work on fallback resources as the step will not be repeated for static cube maps. Thus, we force loading the shaders and disable async shader loading in this scope.
-  ezResourceManager::ForceLoadResourceNow(m_hFilteredSpecularShader);
-  ezResourceManager::ForceLoadResourceNow(m_hIrradianceShader);
-  bool bAllowAsyncShaderLoading = renderViewContext.m_pRenderContext->GetAllowAsyncShaderLoading();
-  renderViewContext.m_pRenderContext->SetAllowAsyncShaderLoading(false);
-
-  EZ_SCOPE_EXIT(
-    renderViewContext.m_pRenderContext->SetAllowAsyncShaderLoading(bAllowAsyncShaderLoading));
-
-  if (pInputCubemap->GetDescription().m_TextureFlags.IsSet(ezGALTextureUsageFlags::DynamicMipGeneration))
+  // Filtered specular compute pass
   {
-    renderViewContext.m_pRenderContext->GetCommandEncoder()->GenerateMipMaps(m_hInputCubemap, {});
-  }
-
-  {
-    auto pFilteredSpecularOutput = outputs[m_PinFilteredSpecular.m_uiOutputIndex];
-    if (pFilteredSpecularOutput != nullptr && !pFilteredSpecularOutput->m_TextureHandle.IsInvalidated() && pDevice->GetTexture(pFilteredSpecularOutput->m_TextureHandle) != nullptr)
-    {
-      ezUInt32 uiNumMipMaps = pFilteredSpecularOutput->m_Desc.m_uiMipLevelCount;
-
-      ezUInt32 uiWidth = pFilteredSpecularOutput->m_Desc.m_uiWidth;
-      ezUInt32 uiHeight = pFilteredSpecularOutput->m_Desc.m_uiHeight;
-
-      auto computeScope = ezRenderContext::BeginComputeScope(renderViewContext, "ReflectionFilter");
-      ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
-      bindGroup.BindTexture("InputCubemap", m_hInputCubemap);
-      bindGroup.BindBuffer("ezReflectionFilteredSpecularConstants", m_hFilteredSpecularConstantBuffer);
-      renderViewContext.m_pRenderContext->BindShader(m_hFilteredSpecularShader);
-
-      for (ezUInt32 uiMipMapIndex = 0; uiMipMapIndex < uiNumMipMaps; ++uiMipMapIndex)
+    auto pass = graph.AddComputePass("ReflectionFilterSpecular");
+    pass.ReadTexture(hInputCubeTexture, {}, ezGALResourceState::ShaderResource);
+    pass.WriteTexture(hFilteredSpecular, {}, ezGALResourceState::UnorderedAccess);
+    pass.HasSideEffects();
+    pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
       {
-        ezGALTextureRange textureRange;
-        textureRange.m_uiBaseMipLevel = uiMipMapIndex;
-        textureRange.m_uiBaseArraySlice = m_uiSpecularOutputIndex * 6;
-        textureRange.m_uiArraySlices = 6;
-        bindGroup.BindTexture("ReflectionOutput", pFilteredSpecularOutput->m_TextureHandle, textureRange);
-        UpdateFilteredSpecularConstantBuffer(uiMipMapIndex, uiNumMipMaps, uiWidth, uiHeight);
+        const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
+        ezGALDevice* pDevice = ctx.GetDevice();
 
-        constexpr ezUInt32 uiThreadsX = 8;
-        constexpr ezUInt32 uiThreadsY = 8;
-        const ezUInt32 uiDispatchX = (uiWidth + uiThreadsX - 1) / uiThreadsX;
-        const ezUInt32 uiDispatchY = (uiHeight + uiThreadsY - 1) / uiThreadsY;
+        // We cannot allow the filter to work on fallback resources as the step will not be repeated for static cube maps. Thus, we force loading the shaders and disable async shader loading in this scope.
+        ezResourceManager::ForceLoadResourceNow(m_hFilteredSpecularShader);
+        ezResourceManager::ForceLoadResourceNow(m_hIrradianceShader);
+        bool bAllowAsyncShaderLoading = renderViewContext.m_pRenderContext->GetAllowAsyncShaderLoading();
+        renderViewContext.m_pRenderContext->SetAllowAsyncShaderLoading(false);
 
-        renderViewContext.m_pRenderContext->Dispatch(uiDispatchX, uiDispatchY, 6).IgnoreResult();
+        EZ_SCOPE_EXIT(
+          renderViewContext.m_pRenderContext->SetAllowAsyncShaderLoading(bAllowAsyncShaderLoading));
 
-        uiWidth >>= 1;
-        uiHeight >>= 1;
-      }
-    }
+        ezGALTextureHandle hResolvedSpecular = ctx.ResolveTexture(hFilteredSpecular);
+        const ezGALTexture* pSpecularTexture = pDevice->GetTexture(hResolvedSpecular);
+        if (pSpecularTexture == nullptr)
+          return;
+
+        const auto& specDesc = pSpecularTexture->GetDescription();
+        ezUInt32 uiNumMipMaps = specDesc.m_uiMipLevelCount;
+        ezUInt32 uiWidth = specDesc.m_uiWidth;
+        ezUInt32 uiHeight = specDesc.m_uiHeight;
+
+        ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
+        bindGroup.BindTexture("InputCubemap", ctx.ResolveTexture(hInputCubeTexture));
+        bindGroup.BindBuffer("ezReflectionFilteredSpecularConstants", m_hFilteredSpecularConstantBuffer);
+        renderViewContext.m_pRenderContext->BindShader(m_hFilteredSpecularShader);
+
+        for (ezUInt32 uiMipMapIndex = 0; uiMipMapIndex < uiNumMipMaps; ++uiMipMapIndex)
+        {
+          ezGALTextureRange textureRange;
+          textureRange.m_uiBaseMipLevel = uiMipMapIndex;
+          textureRange.m_uiBaseArraySlice = m_uiSpecularOutputIndex * 6;
+          textureRange.m_uiArraySlices = 6;
+          bindGroup.BindTexture("ReflectionOutput", hResolvedSpecular, textureRange);
+          UpdateFilteredSpecularConstantBuffer(uiMipMapIndex, uiNumMipMaps, uiWidth, uiHeight);
+
+          constexpr ezUInt32 uiThreadsX = 8;
+          constexpr ezUInt32 uiThreadsY = 8;
+          const ezUInt32 uiDispatchX = (uiWidth + uiThreadsX - 1) / uiThreadsX;
+          const ezUInt32 uiDispatchY = (uiHeight + uiThreadsY - 1) / uiThreadsY;
+
+          renderViewContext.m_pRenderContext->Dispatch(uiDispatchX, uiDispatchY, 6).IgnoreResult();
+
+          uiWidth >>= 1;
+          uiHeight >>= 1;
+        } //
+      });
   }
 
-  auto pIrradianceOutput = outputs[m_PinIrradianceData.m_uiOutputIndex];
-  if (pIrradianceOutput != nullptr && !pIrradianceOutput->m_TextureHandle.IsInvalidated())
   {
-    auto computeScope = ezRenderContext::BeginComputeScope(renderViewContext, "Irradiance");
+    // Irradiance
+    auto pass = graph.AddComputePass("Irradiance");
+    pass.ReadTexture(hInputCubeTexture, {}, ezGALResourceState::ShaderResource);
+    pass.WriteTexture(hIrradianceData, {}, ezGALResourceState::UnorderedAccess);
+    pass.HasSideEffects();
+    pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
+      {
+        const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
 
-    ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
-    bindGroup.BindTexture("IrradianceOutput", pIrradianceOutput->m_TextureHandle);
-    bindGroup.BindTexture("InputCubemap", m_hInputCubemap);
+        UpdateIrradianceConstantBuffer();
+        ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
+        bindGroup.BindTexture("IrradianceOutput", ctx.ResolveTexture(hIrradianceData));
+        bindGroup.BindTexture("InputCubemap", ctx.ResolveTexture(hInputCubeTexture));
+        bindGroup.BindBuffer("ezReflectionIrradianceConstants", m_hIrradianceConstantBuffer);
+        renderViewContext.m_pRenderContext->BindShader(m_hIrradianceShader);
 
-    UpdateIrradianceConstantBuffer();
-
-    bindGroup.BindBuffer("ezReflectionIrradianceConstants", m_hIrradianceConstantBuffer);
-    renderViewContext.m_pRenderContext->BindShader(m_hIrradianceShader);
-
-    renderViewContext.m_pRenderContext->Dispatch(1).IgnoreResult();
+        renderViewContext.m_pRenderContext->Dispatch(1).IgnoreResult(); //
+      });
   }
+
+  return EZ_SUCCESS;
 }
 
 ezResult ezReflectionFilterPass::Serialize(ezStreamWriter& inout_stream) const
@@ -186,7 +231,11 @@ ezUInt32 ezReflectionFilterPass::GetInputCubemap() const
 
 void ezReflectionFilterPass::SetInputCubemap(ezUInt32 uiCubemapHandle)
 {
-  m_hInputCubemap = ezGALTextureHandle(ezGAL::ez18_14Id(uiCubemapHandle));
+  ezGALTextureHandle hNewCubemapHandle = ezGALTextureHandle(ezGAL::ez18_14Id(uiCubemapHandle));
+  if (m_hInputCubemap != hNewCubemapHandle)
+  {
+    m_hInputCubemap = ezGALTextureHandle(ezGAL::ez18_14Id(uiCubemapHandle));
+  }
 }
 
 void ezReflectionFilterPass::UpdateFilteredSpecularConstantBuffer(ezUInt32 uiMipMapIndex, ezUInt32 uiNumMipMaps, ezUInt32 uiWidth, ezUInt32 uiHeight)

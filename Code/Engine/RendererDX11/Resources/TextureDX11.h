@@ -19,7 +19,7 @@ public:
 
 public:
   EZ_ALWAYS_INLINE ID3D11Resource* GetDXTexture() const;
-  ID3D11ShaderResourceView* GetSRV(ezGALTextureRange textureRange, ezEnum<ezGALResourceFormat> overrideViewFormat) const;
+  ID3D11ShaderResourceView* GetSRV(ezGALTextureRange textureRange, ezEnum<ezGALResourceFormat> overrideViewFormat, ezEnum<ezGALTextureType> overrideViewType) const;
   ID3D11UnorderedAccessView* GetUAV(ezGALTextureRange textureRange, ezEnum<ezGALResourceFormat> overrideViewFormat) const;
 
 protected:
@@ -44,6 +44,7 @@ protected:
   {
     ezGALTextureRange m_TextureRange;
     ezEnum<ezGALResourceFormat> m_OverrideViewFormat;
+    ezEnum<ezGALTextureType> m_OverrideViewType;
 
     EZ_ALWAYS_INLINE static ezUInt32 Hash(const View& value) { return value.CalculateHash(); }
     EZ_ALWAYS_INLINE static bool Equal(const View& a, const View& b) { return a == b; }

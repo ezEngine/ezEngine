@@ -38,83 +38,74 @@ ezMsaaResolvePass::ezMsaaResolvePass()
 
 ezMsaaResolvePass::~ezMsaaResolvePass() = default;
 
-bool ezMsaaResolvePass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+ezStatus ezMsaaResolvePass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
-  auto pInput = inputs[m_PinInput.m_uiInputIndex];
-  if (pInput != nullptr)
+  ezRenderGraphTextureHandle hInput = inputs[m_PinInput.m_uiInputIndex].m_TextureHandle;
+  if (hInput.IsInvalidated())
+    return ezStatus(ezFmt("Input: Not connected"));
+
+  const ezGALTextureCreationDescription inputDesc = graph.GetTextureDesc(hInput);
+  if (inputDesc.m_SampleCount == ezGALMSAASampleCount::None)
+    return ezStatus(ezFmt("Input is not a valid msaa target"));
+
+  m_bIsDepth = ezGALResourceFormat::IsDepthFormat(inputDesc.m_Format);
+  m_MsaaSampleCount = inputDesc.m_SampleCount;
+
+  ezGALTextureCreationDescription outputDesc = inputDesc;
+  outputDesc.m_SampleCount = ezGALMSAASampleCount::None;
+  ezRenderGraphTextureHandle hOutput = graph.CreateTexture(outputDesc);
+  outputs[m_PinOutput.m_uiOutputIndex].m_TextureHandle = hOutput;
+
+  if (!graph.GetDevice()->GetCapabilities().m_bSupportsMultiSampledArrays)
   {
-    if (pInput->m_SampleCount == ezGALMSAASampleCount::None)
-    {
-      ezLog::Error("Input is not a valid msaa target");
-      return false;
-    }
-
-    m_bIsDepth = ezGALResourceFormat::IsDepthFormat(pInput->m_Format);
-    m_MsaaSampleCount = pInput->m_SampleCount;
-
-    ezGALTextureCreationDescription desc = *pInput;
-    desc.m_SampleCount = ezGALMSAASampleCount::None;
-
-    outputs[m_PinOutput.m_uiOutputIndex] = desc;
+    EZ_ASSERT_DEV(inputDesc.m_uiArraySize == 1, "Stereo rendering is not supported.");
   }
-  else
-  {
-    ezLog::Error("No input connected to '{0}'!", GetName());
-    return false;
-  }
-
-  return true;
-}
-
-void ezMsaaResolvePass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
-{
-  auto pInput = inputs[m_PinInput.m_uiInputIndex];
-  auto pOutput = outputs[m_PinOutput.m_uiOutputIndex];
-  if (pInput == nullptr || pOutput == nullptr)
-  {
-    return;
-  }
-
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
   if (m_bIsDepth)
   {
-    // Setup render target
-    ezGALRenderingSetup renderingSetup;
-    renderingSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
-
-    // Bind render target and viewport
-    auto pCommandEncoder = ezRenderContext::BeginRenderingScope(renderViewContext, renderingSetup, GetName(), renderViewContext.m_pCamera->IsStereoscopic());
-
-    auto& globals = renderViewContext.m_pRenderContext->WriteGlobalConstants();
-    globals.NumMsaaSamples = m_MsaaSampleCount;
-
-    renderViewContext.m_pRenderContext->BindShader(m_hDepthResolveShader);
-    renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
-
-    ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
-    if (!pDevice->GetCapabilities().m_bSupportsMultiSampledArrays)
+    auto pass = graph.AddGraphicsPass("MsaaDepthResolve");
+    pass.AddDepthStencilTarget(hOutput);
+    pass.ReadTexture(hInput, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
+    pass.SetStereoscopic(camera.IsStereoscopic());
+    pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
     {
-      EZ_ASSERT_DEV(pInput->m_Desc.m_uiArraySize == 1, "Stereo rendering is not supported.");
-    }
-    bindGroup.BindTexture("DepthTexture", pInput->m_TextureHandle);
+      const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
+      renderViewContext.UpdateViewport();
 
-    renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
+      auto& globals = renderViewContext.m_pRenderContext->WriteGlobalConstants();
+      globals.NumMsaaSamples = m_MsaaSampleCount;
+
+      renderViewContext.m_pRenderContext->BindShader(m_hDepthResolveShader);
+      renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
+
+      ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
+      bindGroup.BindTexture("DepthTexture", ctx.ResolveTexture(hInput));
+
+      renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
+    });
   }
   else
   {
-    ezGALTextureSubresource subresource;
-    subresource.m_uiMipLevel = 0;
-    subresource.m_uiArraySlice = 0;
-
-    renderViewContext.m_pRenderContext->GetCommandEncoder()->ResolveTexture(pOutput->m_TextureHandle, subresource, pInput->m_TextureHandle, subresource);
-
-    if (renderViewContext.m_pCamera->IsStereoscopic())
+    bool bStereo = camera.IsStereoscopic();
+    auto pass = graph.AddTransferPass("MsaaColorResolve");
+    pass.ReadTexture(hInput, {}, ezGALResourceState::ResolveSource);
+    pass.WriteTexture(hOutput, {}, ezGALResourceState::ResolveDestination);
+    pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
     {
-      subresource.m_uiArraySlice = 1;
-      renderViewContext.m_pRenderContext->GetCommandEncoder()->ResolveTexture(pOutput->m_TextureHandle, subresource, pInput->m_TextureHandle, subresource);
-    }
+      ezGALTextureSubresource subresource;
+      subresource.m_uiMipLevel = 0;
+      subresource.m_uiArraySlice = 0;
+      ctx.GetCommandEncoder()->ResolveTexture(ctx.ResolveTexture(hOutput), subresource, ctx.ResolveTexture(hInput), subresource);
+
+      if (bStereo)
+      {
+        subresource.m_uiArraySlice = 1;
+        ctx.GetCommandEncoder()->ResolveTexture(ctx.ResolveTexture(hOutput), subresource, ctx.ResolveTexture(hInput), subresource);
+      }
+    });
   }
+
+  return EZ_SUCCESS;
 }
 
 

@@ -26,6 +26,7 @@ struct EZ_RENDERERCORE_DLL ezViewData
   }
 
   ezHashedString m_sName;
+  ezUInt32 m_uiSkyIrradianceIndex = 0;
 
   ezGALRenderTargets m_RenderTargets;
   ezGALSwapChainHandle m_hSwapChain;
@@ -78,6 +79,9 @@ struct EZ_RENDERERCORE_DLL ezViewData
     ezUInt32 h = (ezUInt32)m_ViewPortRect.height;
     ezGraphicsUtils::ConvertScreenPixelPosToNormalizedPos(x, y, w, h, inout_vPixelPos);
   }
+
+  /// Returns the active render targets. If a swap chain is set, its render targets are returned, otherwise m_RenderTargets.
+  const ezGALRenderTargets& GetActiveRenderTargets() const;
 
   /// \brief Converts a screen-space position from normalized coordinates to pixel coordinates.
   EZ_ALWAYS_INLINE void ConvertScreenNormalizedPosToPixelPos(ezVec3& inout_vNormalizedPos) const

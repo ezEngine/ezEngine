@@ -2,25 +2,69 @@
 
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Strings/HashedString.h>
+#include <Foundation/Types/Status.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Pipeline/RenderDataBatch.h>
 #include <RendererCore/Pipeline/RenderPipelineNode.h>
+#include <RendererCore/RenderGraph/Declarations.h>
+#include <RendererCore/RenderGraph/RenderGraph.h>
 
 struct ezGALTextureCreationDescription;
 class ezStreamWriter;
+struct ezViewData;
+class ezCamera;
 
-/// \brief Passed to ezRenderPipelinePass::InitRenderPipelinePass to inform about
-/// existing connections on each input / output pin index.
+/// \brief Passed into `ezRenderPipelinePass::AddRenderPasses`. Defines the type and handle of a pin connection.
+struct EZ_RENDERERCORE_DLL ezRenderPipelinePinConnection
+{
+  enum class Connectivity : ezUInt8
+  {
+    None,
+    Texture,
+    Buffer,
+  };
+
+  EZ_ALWAYS_INLINE ezRenderPipelinePinConnection(Connectivity connectivity = Connectivity::None);
+  EZ_ALWAYS_INLINE ezRenderPipelinePinConnection(Connectivity connectivity, ezRenderGraphTextureHandle hTextureHandle);
+  EZ_ALWAYS_INLINE ezRenderPipelinePinConnection(Connectivity connectivity, ezRenderGraphBufferHandle hBufferHandle);
+  EZ_ALWAYS_INLINE ezRenderPipelinePinConnection(const ezRenderPipelinePinConnection& other);
+
+  EZ_ALWAYS_INLINE ezRenderPipelinePinConnection& operator=(const ezRenderPipelinePinConnection& other);
+
+  const Connectivity m_Connectivity = Connectivity::None;
+  union
+  {
+    ezRenderGraphTextureHandle m_TextureHandle;
+    ezRenderGraphBufferHandle m_BufferHandle;
+  };
+};
+
+/// \brief Tracks connectivity of one output pin to many input pins. Created when connecting pins.
 struct ezRenderPipelinePassConnection
 {
   ezRenderPipelinePassConnection() { m_pOutput = nullptr; }
 
-  ezGALTextureCreationDescription m_Desc;
-  ezGALTextureHandle m_TextureHandle;
+  ezRenderPipelinePinConnection m_Connection;
   const ezRenderPipelineNodePin* m_pOutput;                  ///< The output pin that this connection spawns from.
   ezHybridArray<const ezRenderPipelineNodePin*, 4> m_Inputs; ///< The various input pins this connection is connected to.
 };
+
+/// Shading quality settings for forward rendering.
+struct ezForwardRenderShadingQuality
+{
+  using StorageType = ezInt8;
+
+  enum Enum
+  {
+    Normal,     ///< Full lighting and shading calculations.
+    Simplified, ///< Reduced quality for performance.
+
+    Default = Normal,
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezForwardRenderShadingQuality);
 
 class EZ_RENDERERCORE_DLL ezRenderPipelinePass : public ezRenderPipelineNode
 {
@@ -38,11 +82,16 @@ public:
   const char* GetName() const;
 
   /// \brief True if the render pipeline pass can handle stereo cameras correctly.
-  bool IsStereoAware() const { return m_bIsStereoAware; }
+  EZ_ALWAYS_INLINE bool IsStereoAware() const { return m_bIsStereoAware; }
 
-  /// \brief For a given input pin configuration, provide the output configuration of this node.
-  /// Outputs is already resized to the number of output pins.
-  virtual bool GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs) = 0;
+  /// \name New Render Graph Interface
+  ///@{
+
+  /// Called by the render pipeline when this pass is active. The pass declares its render-graph passes and writes the resulting transient handles into the `outputs` array.
+  virtual ezStatus AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs) { return EZ_SUCCESS; }
+
+  /// Called by the render pipeline when this pass is inactive instead of AddRenderPasses. The default implementation does nothing; passes that produce outputs must override this and at minimum write the same output handles they would in AddRenderPasses (typically by adding a clear pass) so downstream passes still see a valid resource.
+  virtual ezStatus AddRenderPassesInactive(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs) { return EZ_SUCCESS; }
 
   /// Returns the current texture this node provides at the given *ProviderPin.
   /// This function is called every frame if this node holds a ezRenderPipelineNodeInputProviderPin or ezRenderPipelineNodeOutputProviderPin pin. The node can return a valid texture handle, or an invalid handle, in which case the missing texture will be created from the texture pool.
@@ -51,18 +100,8 @@ public:
   /// \return The texture to use for this pin's connections. Or invalid, in which case it reverts to a regular input / output pin.
   virtual ezGALTextureHandle QueryTextureProvider(const ezRenderPipelineNodePin* pPin, const ezGALTextureCreationDescription& desc) { return {}; }
 
-  /// \brief After GetRenderTargetDescriptions was called successfully for each pass, this function is called
-  /// with the inputs and outputs for review. Disconnected pins have a nullptr value in the passed in arrays.
-  /// This is the time to create additional resources that are not covered by the pins automatically, e.g. a picking texture or eye
-  /// adaptation buffer.
-  virtual void InitRenderPipelinePass(const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs);
+  ///@}
 
-  /// \brief Render into outputs. Both inputs and outputs are passed in with actual texture handles.
-  /// Disconnected pins have a nullptr value in the passed in arrays. You can now create views and render target setups on the fly and
-  /// fill the output targets with data.
-  virtual void Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) = 0;
-
-  virtual void ExecuteInactive(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs);
 
   /// \brief Allows for the pass to write data back using ezView::SetRenderPassReadBackProperty. E.g. picking results etc.
   virtual void ReadBackProperties(ezView* pView);
@@ -72,6 +111,8 @@ public:
 
   void RenderDataWithCategory(const ezRenderViewContext& renderViewContext, ezRenderData::Category category);
 
+  void BindDataProviderResources(const ezRenderViewContext& renderViewContext, ezForwardRenderShadingQuality::Enum quality = ezForwardRenderShadingQuality::Normal);
+  static void SetupResourceDependencies(const ezViewData& viewData, ezRenderGraph& ref_graph, ezRenderGraphPassBuilder& ref_pass, ezForwardRenderShadingQuality::Enum quality = ezForwardRenderShadingQuality::Normal);
   EZ_ALWAYS_INLINE ezRenderPipeline* GetPipeline() { return m_pPipeline; }
   EZ_ALWAYS_INLINE const ezRenderPipeline* GetPipeline() const { return m_pPipeline; }
 
@@ -85,3 +126,5 @@ private:
 
   ezRenderPipeline* m_pPipeline = nullptr;
 };
+
+#include <RendererCore/Pipeline/Implementation/RenderPipelinePass_inl.h>

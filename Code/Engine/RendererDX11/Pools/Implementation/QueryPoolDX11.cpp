@@ -16,7 +16,7 @@ ezQueryPoolDX11::ezQueryPoolDX11(ezGALDeviceDX11* pDevice)
 
 ezResult ezQueryPoolDX11::Initialize()
 {
-  EZ_SUCCEED_OR_RETURN(m_TimestampPool.Initialize(m_pDevice, D3D11_QUERY_TIMESTAMP, 2048));
+  EZ_SUCCEED_OR_RETURN(m_TimestampPool.Initialize(m_pDevice, D3D11_QUERY_TIMESTAMP, 4096));
   EZ_SUCCEED_OR_RETURN(m_OcclusionPool.Initialize(m_pDevice, D3D11_QUERY_OCCLUSION, 512));
   EZ_SUCCEED_OR_RETURN(m_OcclusionPredicatePool.Initialize(m_pDevice, D3D11_QUERY_OCCLUSION_PREDICATE, 512));
 

@@ -22,6 +22,8 @@
 #  define SUPPORTS_TEXEL_BUFFER EZ_ON
 #  define SUPPORTS_MSAA_ARRAYS EZ_ON
 
+#  define EZ_IMAGE_FORMAT(fmt)
+
 float ezEvaluateAttributeAtSample(float Attribute, uint SampleIndex, uint NumMsaaSamples)
 {
   return EvaluateAttributeAtSample(Attribute, SampleIndex);

@@ -182,6 +182,7 @@ ezTestAppRun ezRendererTestReadbackBuffer::ReadbackBuffer(ezUInt32 uiInvocationC
     BeginCommands("Readback Buffer");
     // Queue readback
     {
+      TransitionBuffer(m_hBufferReadback, ezGALResourceState::CopySource);
       m_bReadbackInProgress = true;
       m_Readback.ReadbackBuffer(*m_pEncoder, m_hBufferReadback);
     }

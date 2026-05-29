@@ -67,6 +67,7 @@ ezTestAppRun ezRendererTestStencilStates::SubtestStencilOperations()
 {
   BeginFrame();
   BeginCommands("StencilOperations");
+  TransitionTexture(GetBackbuffer(), ezGALResourceState::RenderTarget);
 
   // Setup camera/projection
   ezCamera cam;
@@ -218,6 +219,7 @@ ezTestAppRun ezRendererTestStencilStates::SubtestStencilOperations()
     m_pDevice->DestroyDepthStencilState(hTestState);
   }
 
+  TransitionTexture(GetBackbuffer(), ezGALResourceState::CopySource);
   EZ_TEST_IMAGE(m_iFrame, 100);
   EndCommands();
   EndFrame();
@@ -229,6 +231,7 @@ ezTestAppRun ezRendererTestStencilStates::SubtestStencilCompareFunctions()
 {
   BeginFrame();
   BeginCommands("StencilCompareFunctions");
+  TransitionTexture(GetBackbuffer(), ezGALResourceState::RenderTarget);
 
   // Setup camera/projection
   ezCamera cam;
@@ -380,6 +383,7 @@ ezTestAppRun ezRendererTestStencilStates::SubtestStencilCompareFunctions()
     m_pDevice->DestroyDepthStencilState(hTestState);
   }
 
+  TransitionTexture(GetBackbuffer(), ezGALResourceState::CopySource);
   EZ_TEST_IMAGE(m_iFrame, 100);
   EndCommands();
   EndFrame();
@@ -398,6 +402,7 @@ ezTestAppRun ezRendererTestStencilStates::SubtestStencilRefValue()
 
   BeginFrame();
   BeginCommands("StencilRefValue");
+  TransitionTexture(GetBackbuffer(), ezGALResourceState::RenderTarget);
 
   // Setup camera/projection
   ezCamera cam;
@@ -515,6 +520,7 @@ ezTestAppRun ezRendererTestStencilStates::SubtestStencilRefValue()
     m_pDevice->DestroyDepthStencilState(hTestState);
   }
 
+  TransitionTexture(GetBackbuffer(), ezGALResourceState::CopySource);
   EZ_TEST_IMAGE(m_iFrame, 100);
   EndCommands();
   EndFrame();

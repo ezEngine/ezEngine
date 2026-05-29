@@ -9,7 +9,9 @@
 #include <Foundation/Utilities/DGMLWriter.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/View.h>
+#include <RendererCore/RenderGraph/RenderGraphManager.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
+
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Profiling/Profiling.h>
 
@@ -444,6 +446,16 @@ void ezRenderWorld::AddViewToRender(const ezViewHandle& hView)
   }
 }
 
+void ezRenderWorld::AddViewDependency(const ezView& consumerView, ezGALTextureHandle hTexture, ezBitflags<ezGALResourceState> requiredState, ezBitflags<ezGALShaderStageFlags> stage)
+{
+  EZ_ASSERT_DEV(s_bInExtract, "AddViewDependency must be called during extraction");
+
+  if (consumerView.m_pRenderPipeline)
+  {
+    consumerView.m_pRenderPipeline->AddViewDependency(hTexture, requiredState, stage);
+  }
+}
+
 void ezRenderWorld::ExtractMainViews()
 {
   EZ_ASSERT_DEV(!s_bInExtract, "ExtractMainViews must not be called from multiple threads.");
@@ -581,10 +593,11 @@ void ezRenderWorld::Render(ezRenderContext* pRenderContext)
     // If we are the only one holding a reference to the pipeline skip rendering. The pipeline is not needed anymore and will be deleted soon.
     if (pRenderPipeline->GetRefCount() > 1)
     {
-      pRenderPipeline->Render(pRenderContext);
+      pRenderPipeline->EnqueueRenderGraph(pRenderContext);
     }
     pRenderPipeline = nullptr;
   }
+  ezRenderGraphManager::ExecuteRenderGraphs(ezGALDevice::GetDefaultDevice());
 
   filteredRenderPipelines.Clear();
   /// NOTE: (Only Applies When Tracy is Enabled.)Tracy Seems to declare Timers in the same scope, so dual profile macros can throw: '__tracy_scoped_zone' : redefinition; multitple initalization, so we must scope the two events.
@@ -600,6 +613,8 @@ void ezRenderWorld::BeginFrame()
   EZ_PROFILE_SCOPE("BeginFrame");
 
   s_RenderingThreadID = ezThreadUtils::GetCurrentThreadID();
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+
 
   for (auto it = s_Views.GetIterator(); it.IsValid(); ++it)
   {
@@ -607,9 +622,6 @@ void ezRenderWorld::BeginFrame()
     pView->EnsureUpToDate();
   }
 
-  RebuildPipelines();
-
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
   auto& filteredRenderPipelines = s_FilteredRenderPipelines[GetDataIndexForRendering()];
   for (auto& pRenderPipeline : filteredRenderPipelines)
@@ -622,7 +634,12 @@ void ezRenderWorld::BeginFrame()
   }
 
   const ezUInt64 uiRenderFrame = ezRenderWorld::GetUseMultithreadedRendering() ? ezRenderWorld::GetFrameCounter() - 1 : ezRenderWorld::GetFrameCounter();
-  pDevice->BeginFrame(uiRenderFrame);
+  // This will acquire swap-chain textures and may have changed size
+  {
+    ezLogBlock b("Device::BeginFrame");
+    pDevice->BeginFrame(uiRenderFrame);
+  }
+  RebuildPipelines();
 }
 
 void ezRenderWorld::EndFrame()

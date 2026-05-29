@@ -5,7 +5,6 @@
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/Device/InitContext.h>
 #include <RendererVulkan/Resources/SharedTextureVulkan.h>
-#include <RendererVulkan/Utils/PipelineBarrierVulkan.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_LINUX)
 #  include <errno.h>
@@ -33,7 +32,7 @@ ezResult ezGALSharedTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr
 
   m_imageFormat = ComputeImageFormat(m_pDevice, m_Description.m_Format, createInfo, imageFormats);
 
-  ComputeCreateInfo(m_pDevice, m_Description, createInfo, m_stages, m_access, m_preferredLayout);
+  ComputeCreateInfo(m_pDevice, m_Description, createInfo);
 
   if (m_Description.m_pExisitingNativeObject == nullptr)
   {
@@ -47,8 +46,6 @@ ezResult ezGALSharedTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr
 #endif
       extMemoryCreateInfo.pNext = createInfo.pNext;
       createInfo.pNext = &extMemoryCreateInfo;
-
-      m_preferredLayout = vk::ImageLayout::eGeneral;
     }
 
     if (m_SharedType == ezGALSharedTextureType::None || m_SharedType == ezGALSharedTextureType::Exported)
@@ -387,6 +384,4 @@ void ezGALSharedTextureVulkan::WaitSemaphoreGPU(ezUInt64 uiValue) const
 void ezGALSharedTextureVulkan::SignalSemaphoreGPU(ezUInt64 uiValue) const
 {
   m_pDevice->AddSignalSemaphore(ezGALDeviceVulkan::SemaphoreInfo::MakeSignalSemaphore(m_SharedSemaphore, vk::SemaphoreType::eTimeline, uiValue));
-  // TODO, transition texture into GENERAL layout
-  m_pDevice->GetCurrentPipelineBarrier().EnsureImageLayout(this, GetPreferredLayout(), GetUsedByPipelineStage(), GetAccessMask());
 }

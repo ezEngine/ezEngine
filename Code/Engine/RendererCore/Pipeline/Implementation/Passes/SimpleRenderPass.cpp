@@ -36,96 +36,80 @@ ezSimpleRenderPass::ezSimpleRenderPass(const char* szName)
 
 ezSimpleRenderPass::~ezSimpleRenderPass() = default;
 
-bool ezSimpleRenderPass::GetRenderTargetDescriptions(
-  const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+ezStatus ezSimpleRenderPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  const ezGALRenderTargets& renderTargets = view.GetActiveRenderTargets();
+  const ezGALRenderTargets& renderTargets = viewData.GetActiveRenderTargets();
 
-  // Color
-  if (inputs[m_PinColor.m_uiInputIndex])
+  ezRenderGraphTextureHandle hColor = inputs[m_PinColor.m_uiInputIndex].m_TextureHandle;
+  ezRenderGraphTextureHandle hDepthStencil = inputs[m_PinDepthStencil.m_uiInputIndex].m_TextureHandle;
+
+  // If no color input, create from view's render target
+  if (hColor.IsInvalidated())
   {
-    outputs[m_PinColor.m_uiOutputIndex] = *inputs[m_PinColor.m_uiInputIndex];
-  }
-  else
-  {
-    // If no input is available, we use the render target setup instead.
     const ezGALTexture* pTexture = pDevice->GetTexture(renderTargets.m_hRTs[0]);
     if (pTexture)
     {
-      outputs[m_PinColor.m_uiOutputIndex] = pTexture->GetDescription();
-      outputs[m_PinColor.m_uiOutputIndex].m_TextureFlags.Add(ezGALTextureUsageFlags::RenderTarget | ezGALTextureUsageFlags::ShaderResource);
-      outputs[m_PinColor.m_uiOutputIndex].m_ResourceAccess.m_bImmutable = true;
-      outputs[m_PinColor.m_uiOutputIndex].m_pExisitingNativeObject = nullptr;
+      ezGALTextureCreationDescription desc = pTexture->GetDescription();
+      desc.m_TextureFlags.Add(ezGALTextureUsageFlags::RenderTarget | ezGALTextureUsageFlags::ShaderResource);
+      desc.m_ResourceAccess.m_bImmutable = true;
+      desc.m_pExisitingNativeObject = nullptr;
+      hColor = graph.CreateTexture(desc);
     }
   }
+  outputs[m_PinColor.m_uiOutputIndex].m_TextureHandle = hColor;
 
-  // DepthStencil
-  if (inputs[m_PinDepthStencil.m_uiInputIndex])
+  // If no depth input, create from view's depth target
+  if (hDepthStencil.IsInvalidated())
   {
-    outputs[m_PinDepthStencil.m_uiOutputIndex] = *inputs[m_PinDepthStencil.m_uiInputIndex];
-  }
-  else
-  {
-    // If no input is available, we use the render target setup instead.
     const ezGALTexture* pTexture = pDevice->GetTexture(renderTargets.m_hDSTarget);
     if (pTexture)
     {
-      outputs[m_PinDepthStencil.m_uiOutputIndex] = pTexture->GetDescription();
+      hDepthStencil = graph.CreateTexture(pTexture->GetDescription());
     }
   }
+  outputs[m_PinDepthStencil.m_uiOutputIndex].m_TextureHandle = hDepthStencil;
 
-  return true;
-}
-
-void ezSimpleRenderPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
-{
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-
-  // Setup render target
-  ezGALRenderingSetup renderingSetup;
-  if (inputs[m_PinColor.m_uiInputIndex])
+  auto pass = graph.AddGraphicsPass(GetName());
+  if (!hColor.IsInvalidated())
+    pass.AddColorTarget(hColor);
+  if (!hDepthStencil.IsInvalidated())
+    pass.AddDepthStencilTarget(hDepthStencil);
+  pass.SetStereoscopic(camera.IsStereoscopic());
+  pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
   {
-    renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(inputs[m_PinColor.m_uiInputIndex]->m_TextureHandle));
-  }
+    const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
+    renderViewContext.UpdateViewport();
 
-  if (inputs[m_PinDepthStencil.m_uiInputIndex])
-  {
-    renderingSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(inputs[m_PinDepthStencil.m_uiInputIndex]->m_TextureHandle));
-  }
+    ezTempHashedString sRenderPass("RENDER_PASS_FORWARD");
+    if (renderViewContext.m_pViewData->m_ViewRenderMode != ezViewRenderMode::None)
+    {
+      sRenderPass = ezViewRenderMode::GetPermutationValue(renderViewContext.m_pViewData->m_ViewRenderMode);
+    }
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", sRenderPass);
 
-  auto pCommandEncoder = ezRenderContext::BeginRenderingScope(renderViewContext, std::move(renderingSetup), GetName(), renderViewContext.m_pCamera->IsStereoscopic());
+    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleOpaque);
+    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleTransparent);
 
-  // Setup Permutation Vars
-  ezTempHashedString sRenderPass("RENDER_PASS_FORWARD");
-  if (renderViewContext.m_pViewData->m_ViewRenderMode != ezViewRenderMode::None)
-  {
-    sRenderPass = ezViewRenderMode::GetPermutationValue(renderViewContext.m_pViewData->m_ViewRenderMode);
-  }
+    if (!m_sMessage.IsEmpty())
+    {
+      ezDebugRenderer::Draw2DText(*renderViewContext.m_pViewDebugContext, m_sMessage.GetData(), ezVec2I32(20, 20), ezColor::OrangeRed);
+    }
 
-  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", sRenderPass);
+    ezDebugRenderer::RenderWorldSpace(renderViewContext);
 
-  // Execute render functions
-  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleOpaque);
-  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleTransparent);
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "TRUE");
+    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleForeground);
 
-  if (!m_sMessage.IsEmpty())
-  {
-    ezDebugRenderer::Draw2DText(*renderViewContext.m_pViewDebugContext, m_sMessage.GetData(), ezVec2I32(20, 20), ezColor::OrangeRed);
-  }
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "FALSE");
+    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleForeground);
 
-  ezDebugRenderer::RenderWorldSpace(renderViewContext);
+    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::GUI);
 
-  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "TRUE");
-  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleForeground);
+    ezDebugRenderer::RenderScreenSpace(renderViewContext);
+  });
 
-  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "FALSE");
-  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleForeground);
-
-  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::GUI);
-
-  ezDebugRenderer::RenderScreenSpace(renderViewContext);
+  return EZ_SUCCESS;
 }
 
 ezResult ezSimpleRenderPass::Serialize(ezStreamWriter& inout_stream) const

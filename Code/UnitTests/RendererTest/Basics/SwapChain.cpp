@@ -58,6 +58,7 @@ ezResult ezRendererTestSwapChain::InitializeSubTest(ezInt32 iIdentifier)
     ezGALTextureCreationDescription texDesc;
     texDesc.m_uiWidth = m_CurrentWindowSize.width;
     texDesc.m_uiHeight = m_CurrentWindowSize.height;
+    texDesc.m_ResourceAccess.m_bImmutable = false;
     switch (iIdentifier)
     {
       case SubTests::ST_D16:
@@ -115,6 +116,7 @@ void ezRendererTestSwapChain::ResizeTest(ezUInt32 uiInvocationCount)
       texDesc.m_uiWidth = m_CurrentWindowSize.width;
       texDesc.m_uiHeight = m_CurrentWindowSize.height;
       texDesc.m_Format = ezGALResourceFormat::DFloat;
+      texDesc.m_ResourceAccess.m_bImmutable = false;
       texDesc.m_TextureFlags.Add(ezGALTextureUsageFlags::RenderTarget);
       m_hDepthStencilTexture = m_pDevice->CreateTexture(texDesc);
     }
@@ -127,12 +129,14 @@ ezTestAppRun ezRendererTestSwapChain::BasicRenderLoop(ezInt32 iIdentifier, ezUIn
   BeginCommands("SwapChainTest");
   {
     const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(m_hSwapChain);
+    TransitionTexture(pPrimarySwapChain->GetBackBufferTexture(), ezGALResourceState::RenderTarget);
 
     ezGALRenderingSetup renderingSetup;
     renderingSetup.SetColorTarget(0, m_pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture()));
     renderingSetup.SetClearColor(0, ezColor::CornflowerBlue);
     if (!m_hDepthStencilTexture.IsInvalidated())
     {
+      TransitionTexture(m_hDepthStencilTexture, ezGALResourceState::DepthStencilWrite);
       renderingSetup.SetDepthStencilTarget(m_pDevice->GetDefaultRenderTargetView(m_hDepthStencilTexture));
       renderingSetup.SetClearDepth().SetClearStencil();
     }

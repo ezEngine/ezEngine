@@ -3,6 +3,7 @@
 #include <Core/World/World.h>
 #include <Foundation/Math/Color16f.h>
 #include <Foundation/Types/Bitflags.h>
+#include <Foundation/Types/SharedPtr.h>
 #include <RendererCore/Lights/Implementation/ReflectionPool.h>
 #include <RendererCore/Lights/Implementation/ReflectionProbeData.h>
 #include <RendererCore/Lights/Implementation/ReflectionProbeMapping.h>
@@ -87,4 +88,6 @@ struct ezReflectionPool::Data
   // Debug data
   ezMeshResourceHandle m_hDebugSphere;
   ezMaterialResourceHandle m_hDebugMaterial;
+
+  ezSharedPtr<ezRenderGraph> m_pRenderGraph;
 };

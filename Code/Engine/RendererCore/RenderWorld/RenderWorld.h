@@ -27,14 +27,10 @@ struct ezRenderWorldRenderEvent
   enum class Type
   {
     BeginRender,             ///< Fired before rendering begins.
-    BeforePipelineExecution, ///< Fired before executing a render pipeline.
-    AfterPipelineExecution,  ///< Fired after executing a render pipeline.
     EndRender,               ///< Fired after rendering is complete.
   };
 
   Type m_Type;
-  ezRenderPipeline* m_pPipeline = nullptr;
-  const ezRenderViewContext* m_pRenderViewContext = nullptr;
   ezUInt64 m_uiFrameCounter = 0;
 };
 
@@ -84,6 +80,10 @@ public:
   static ezArrayPtr<const ezInternal::RenderDataCacheEntry> GetCachedRenderData(const ezView& view, const ezGameObjectHandle& hOwner, ezUInt16 uiComponentVersion);
 
   static void AddViewToRender(const ezViewHandle& hView);
+
+  /// Declares that the given view needs the specified texture in the given resource
+  /// state when its render graph executes. Must be called during extraction.
+  static void AddViewDependency(const ezView& consumerView, ezGALTextureHandle hTexture, ezBitflags<ezGALResourceState> requiredState, ezBitflags<ezGALShaderStageFlags> stage = ezGALShaderStageFlags::Auto);
 
   static void ExtractMainViews();
 

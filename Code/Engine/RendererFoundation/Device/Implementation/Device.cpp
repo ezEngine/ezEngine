@@ -1,5 +1,6 @@
 #include <RendererFoundation/RendererFoundationPCH.h>
 
+#include <Foundation/Configuration/CVar.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Time/Stopwatch.h>
@@ -68,6 +69,7 @@ namespace
 
 ezGALDevice* ezGALDevice::s_pDefaultDevice = nullptr;
 ezEvent<const ezGALDeviceEvent&, ezMutex> ezGALDevice::s_Events;
+ezEvent<const ezGALSwapChain*, ezMutex> ezGALDevice::s_SwapChainUpdatedEvent;
 
 ezGALDevice::ezGALDevice(const ezGALDeviceCreationDescription& desc)
   : m_Allocator("GALDevice", ezFoundation::GetDefaultAllocator())
@@ -951,28 +953,17 @@ ezGALBufferHandle ezGALDevice::CreateConstantBuffer(ezUInt32 uiBufferSize)
 ezGALTextureHandle ezGALDevice::CreateTexture(const ezGALTextureCreationDescription& desc, ezArrayPtr<ezGALSystemMemoryDescription> initialData)
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();
-
-  /// \todo Platform independent validation (desc width & height < platform maximum, format, etc.)
-
-  if (desc.m_ResourceAccess.IsImmutable() && (initialData.IsEmpty() || initialData.GetCount() < desc.m_uiMipLevelCount) &&
-      !desc.m_TextureFlags.IsAnySet(ezGALTextureUsageFlags::UnorderedAccess | ezGALTextureUsageFlags::RenderTarget))
+  if (desc.Validate(this, initialData).Failed())
   {
-    ezLog::Error("Trying to create an immutable texture but not supplying initial data (or not enough data pointers) is not possible!");
-    return ezGALTextureHandle();
+    return {};
   }
 
-  if (desc.m_uiWidth == 0 || desc.m_uiHeight == 0)
+  if (desc.m_ResourceAccess.IsImmutable())
   {
-    ezLog::Error("Trying to create a texture with width or height == 0 is not possible!");
-    return ezGALTextureHandle();
-  }
-
-  if (desc.m_Type != ezGALTextureType::Texture2DArray && desc.m_Type != ezGALTextureType::TextureCubeArray)
-  {
-    if (desc.m_uiArraySize != 1)
+    if (desc.m_TextureFlags.IsAnySet(ezGALTextureUsageFlags::RenderTarget | ezGALTextureUsageFlags::UnorderedAccess))
     {
-      ezLog::Error("m_uiArraySize must be 1 for non array textures!");
-      return ezGALTextureHandle();
+      ezLog::Error("m_uiStructSize must be != 0 if StructuredBuffer, IndexBuffer or VertexBuffer flag is set.");
+      return {};
     }
   }
 
@@ -1207,6 +1198,7 @@ void ezGALDevice::UpdateBufferForNextFrame(ezGALBufferHandle hBuffer, ezConstByt
 
   if (const ezGALBuffer* pBuffer = GetBuffer(hBuffer))
   {
+    EZ_ASSERT_DEBUG(!pBuffer->GetDescription().m_ResourceAccess.m_bImmutable, "Can't update immutable buffers");
     if (uiDestOffset + sourceData.GetCount() > pBuffer->GetDescription().m_uiTotalSize)
     {
       ezLog::Error("Trying to update buffer outside of its bounds!");
@@ -1228,7 +1220,7 @@ void ezGALDevice::UpdateTextureForNextFrame(ezGALTextureHandle hTexture, const e
   if (const ezGALTexture* pTexture = GetTexture(hTexture))
   {
     auto& desc = pTexture->GetDescription();
-
+    EZ_ASSERT_DEBUG(!desc.m_ResourceAccess.m_bImmutable, "Can't update immutable buffers");
     const bool bDestBoxIsValid = destinationBox.IsValid() && destinationBox.GetExtents().IsZero() == false;
     if (bDestBoxIsValid && (destinationBox.m_vMax.x > desc.m_uiWidth || destinationBox.m_vMax.y > desc.m_uiHeight || destinationBox.m_vMax.z > desc.m_uiDepth))
     {
@@ -1298,11 +1290,12 @@ ezGALRenderTargetViewHandle ezGALDevice::GetDefaultRenderTargetView(ezGALTexture
 ezGALRenderTargetViewHandle ezGALDevice::GetRenderTargetView(const ezGALRenderTargetViewCreationDescription& desc)
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();
+  ezGALRenderTargetViewCreationDescription rtDesc = desc;
 
   ezGALTexture* pTexture = nullptr;
 
-  if (!desc.m_hTexture.IsInvalidated())
-    pTexture = Get<TextureTable, ezGALTexture>(desc.m_hTexture, m_Textures);
+  if (!rtDesc.m_hTexture.IsInvalidated())
+    pTexture = Get<TextureTable, ezGALTexture>(rtDesc.m_hTexture, m_Textures);
 
   if (pTexture == nullptr)
   {
@@ -1310,10 +1303,10 @@ ezGALRenderTargetViewHandle ezGALDevice::GetRenderTargetView(const ezGALRenderTa
     return ezGALRenderTargetViewHandle();
   }
 
-  const ezEnum<ezGALTextureType> type = desc.m_OverrideViewType != ezGALTextureType::Invalid ? desc.m_OverrideViewType : pTexture->GetDescription().m_Type;
+  const ezEnum<ezGALTextureType> type = rtDesc.m_OverrideViewType != ezGALTextureType::Invalid ? rtDesc.m_OverrideViewType : pTexture->GetDescription().m_Type;
   if (type != ezGALTextureType::Texture2DArray && type != ezGALTextureType::TextureCubeArray)
   {
-    if (desc.m_uiSliceCount != 1)
+    if (rtDesc.m_uiSliceCount != 1)
     {
       EZ_REPORT_FAILURE("m_uiSliceCount must be 1 for non array textures!");
       return ezGALRenderTargetViewHandle();
@@ -1324,16 +1317,21 @@ ezGALRenderTargetViewHandle ezGALDevice::GetRenderTargetView(const ezGALRenderTa
     EZ_REPORT_FAILURE("Render targets cannot be created on cube maps, use 2DArrays instead.");
     return ezGALRenderTargetViewHandle();
   }
+  if (type == ezGALTextureType::Texture2DProxy)
+  {
+    ezGALProxyTexture* pProxyTexture = static_cast<ezGALProxyTexture*>(pTexture);
+    rtDesc.m_uiFirstSlice = pProxyTexture->m_uiSlice;
+  }
 
   // Hash desc and return potential existing one
-  const ezUInt32 uiHash = desc.CalculateHash();
+  const ezUInt32 uiHash = rtDesc.CalculateHash();
   {
     ezGALRenderTargetViewHandle hRenderTarget;
     if (pTexture->m_RenderTargetViews.TryGetValue(uiHash, hRenderTarget))
       return hRenderTarget;
   }
 
-  ezGALRenderTargetView* pRenderTargetView = CreateRenderTargetViewPlatform(pTexture, desc);
+  ezGALRenderTargetView* pRenderTargetView = CreateRenderTargetViewPlatform(pTexture, rtDesc);
   if (pRenderTargetView != nullptr)
   {
     ezGALRenderTargetViewHandle hView(m_RenderTargetViews.Insert(pRenderTargetView));
@@ -1371,6 +1369,7 @@ ezResult ezGALDevice::UpdateSwapChain(ezGALSwapChainHandle hSwapChain, ezEnum<ez
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
+  Flush();
   ezGALSwapChain* pSwapChain = nullptr;
 
   if (m_SwapChains.TryGetValue(hSwapChain, pSwapChain))

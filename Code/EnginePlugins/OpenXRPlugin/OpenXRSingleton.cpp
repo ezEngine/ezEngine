@@ -915,11 +915,6 @@ void ezOpenXR::EndRender()
   const ezGALOpenXRSwapChain* pSwapChain = static_cast<const ezGALOpenXRSwapChain*>(ezGALDevice::GetDefaultDevice()->GetSwapChain(m_hSwapChain));
   if (!m_bRenderInProgress || !pSwapChain)
     return;
-
-  if (m_pCompanion)
-  {
-    m_pCompanion->CompanionViewEndFrame();
-  }
 }
 
 ezGALTextureHandle ezOpenXR::GetCurrentTexture()

@@ -14,6 +14,8 @@
 #include <RendererCore/Meshes/MeshComponentBase.h>
 #include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/RenderGraph/RenderGraphManager.h>
+#include <RendererCore/RenderGraph/RenderGraph.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
 #include <RendererFoundation/CommandEncoder/CommandEncoder.h>
@@ -306,23 +308,28 @@ void ezReflectionPool::OnRenderEvent(const ezRenderWorldRenderEvent& e)
     return;
 
   auto& skyIrradianceStorage = s_pData->m_SkyIrradianceStorage;
-
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  if (s_pData->m_pRenderGraph == nullptr)
+    s_pData->m_pRenderGraph = ezRenderGraphManager::CreateRenderGraph("ReflectionPool", ezRenderGraphPhase::PreRender);
 
-  auto pCommandEncoder = pDevice->BeginCommands("Sky Irradiance Texture Update");
+  s_pData->m_pRenderGraph->Reset();
+
+  struct IrradianceUpdates
+  {
+    ezBoundingBoxu32 m_destBox;
+    ezAmbientCube<ezColorLinear16f> m_cube;
+  };
+  ezHybridArray<IrradianceUpdates, 4> irradianceUpdates;
   ezTempHybridArray<ezGALTextureHandle, 4> atlasToClear;
 
   for (ezUInt32 i = 0; i < skyIrradianceStorage.GetCount(); ++i)
   {
     if ((uiWorldHasSkyLight & EZ_BIT(i)) == 0 && (uiSkyIrradianceChanged & EZ_BIT(i)) != 0)
     {
-      ezBoundingBoxu32 destBox;
-      destBox.m_vMin.Set(0, i, 0);
-      destBox.m_vMax.Set(6, i + 1, 1);
-      ezGALSystemMemoryDescription memDesc;
-      memDesc.m_uiRowPitch = sizeof(ezAmbientCube<ezColorLinear16f>);
-      memDesc.m_pData = ezMakeByteBlobPtr(&skyIrradianceStorage[i].m_Values[0], memDesc.m_uiRowPitch * 1);
-      pCommandEncoder->UpdateTexture(s_pData->m_hSkyIrradianceTexture, ezGALTextureSubresource(), destBox, memDesc);
+      IrradianceUpdates& cube = irradianceUpdates.ExpandAndGetRef();
+      cube.m_destBox.m_vMin.Set(0, i, 0);
+      cube.m_destBox.m_vMax.Set(6, i + 1, 1);
+      cube.m_cube = skyIrradianceStorage[i];
 
       uiSkyIrradianceChanged &= ~EZ_BIT(i);
 
@@ -334,34 +341,50 @@ void ezReflectionPool::OnRenderEvent(const ezRenderWorldRenderEvent& e)
     }
   }
 
+  // Transfer pass: update sky irradiance texture
   {
-    // Clear specular sky reflection to black.
+    ezRenderGraphTextureHandle hSkyIrradiance = s_pData->m_pRenderGraph->ImportTexture(s_pData->m_hSkyIrradianceTexture);
+    auto pass = s_pData->m_pRenderGraph->AddTransferPass("Sky Irradiance Texture Update");
+    pass.WriteTexture(hSkyIrradiance, {}, ezGALResourceState::CopyDestination);
+    pass.HasSideEffects();
+    pass.SetExecuteCallback([hSkyIrradiance, irradianceUpdates](const ezRenderGraphContext& ctx)
+      {
+        for (ezUInt32 i = 0; i < irradianceUpdates.GetCount(); ++i)
+        {
+          ezGALSystemMemoryDescription memDesc;
+          memDesc.m_uiRowPitch = sizeof(ezAmbientCube<ezColorLinear16f>);
+          memDesc.m_pData = ezMakeByteBlobPtr(reinterpret_cast<const ezUInt8*>(&irradianceUpdates[i].m_cube.m_Values[0]), memDesc.m_uiRowPitch * 1);
+          ctx.GetCommandEncoder()->UpdateTexture(ctx.ResolveTexture(hSkyIrradiance), ezGALTextureSubresource(), irradianceUpdates[i].m_destBox, memDesc);
+        } //
+      } //
+    );
+  }
+
+  // Graphics passes: clear specular sky reflection to black.
+  {
     const ezUInt32 uiNumMipMaps = GetMipLevels();
     for (ezGALTextureHandle atlas : atlasToClear)
     {
+      ezRenderGraphTextureHandle hAtlas = s_pData->m_pRenderGraph->ImportTexture(atlas);
       for (ezUInt32 uiMipMapIndex = 0; uiMipMapIndex < uiNumMipMaps; ++uiMipMapIndex)
       {
         for (ezUInt32 uiFaceIndex = 0; uiFaceIndex < 6; ++uiFaceIndex)
         {
-          ezGALRenderingSetup renderingSetup;
-          ezGALRenderTargetViewCreationDescription desc;
-          desc.m_hTexture = atlas;
-          desc.m_uiMipLevel = uiMipMapIndex;
-          desc.m_uiFirstSlice = uiFaceIndex;
-          desc.m_uiSliceCount = 1;
-          desc.m_OverrideViewType = ezGALTextureType::Texture2DArray;
+          ezGALRenderTargetRange range;
+          range.m_uiBaseArraySlice = static_cast<ezUInt16>(uiFaceIndex);
+          range.m_uiArraySlices = 1;
+          range.m_uiBaseMipLevel = static_cast<ezUInt8>(uiMipMapIndex);
 
-          renderingSetup.SetColorTarget(0, pDevice->GetRenderTargetView(desc));
-          renderingSetup.SetClearColor(0, ezColor(0, 0, 0, 1));
-
-          pCommandEncoder->BeginRendering(renderingSetup, "ClearSkySpecular");
-          pCommandEncoder->EndRendering();
+          auto clearPass = s_pData->m_pRenderGraph->AddGraphicsPass("ClearSkySpecular");
+          clearPass.AddColorTarget(hAtlas, range, {}, {}, {}, ezGALTextureType::Texture2DArray);
+          clearPass.SetClearColor(0, ezColor(0, 0, 0, 1));
+          clearPass.HasSideEffects();
         }
       }
     }
   }
 
-  pDevice->EndCommands(pCommandEncoder);
+  ezRenderGraphManager::EnqueueRenderGraph(s_pData->m_pRenderGraph);
 }
 
 

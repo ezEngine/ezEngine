@@ -4,6 +4,9 @@
 #include <RendererCore/Pipeline/FrameDataProvider.h>
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 
+class ezRenderGraph;
+class ezRenderGraphPassBuilder;
+
 /// Minimal GPU-side lighting data for simplified rendering.
 ///
 /// Contains only essential lighting data uploaded to the GPU. Used with ezSimplifiedDataExtractor
@@ -21,6 +24,11 @@ public:
   ezConstantBufferStorageHandle m_hConstantBuffer;
 
   void BindResources(ezRenderContext* pRenderContext);
+
+  /// Declares read dependencies on global textures (shadow atlas, decal atlas, reflection probes, etc.)
+  /// so that the render graph can place correct barriers.
+  static void AddReadDependencies(ezRenderGraph& ref_graph, ezRenderGraphPassBuilder& ref_pass,
+    ezUInt32 uiSkyIrradianceIndex, ezEnum<ezCameraUsageHint> cameraUsageHint);
 };
 
 /// Provides minimal GPU lighting data each frame.

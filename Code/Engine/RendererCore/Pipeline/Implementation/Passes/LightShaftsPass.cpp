@@ -52,101 +52,80 @@ ezLightShaftsPass::~ezLightShaftsPass()
   ezRenderContext::DeleteConstantBufferStorage(m_hConstantBuffer);
 }
 
-bool ezLightShaftsPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+ezStatus ezLightShaftsPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
-  auto pDepthInput = inputs[m_PinDepthInput.m_uiInputIndex];
-  if (!pDepthInput)
-  {
-    ezLog::Error("No depth input connected to '{0}'!", GetName());
-    return false;
-  }
+  ezRenderGraphTextureHandle hColorInput = inputs[m_PinColor.m_uiInputIndex].m_TextureHandle;
+  if (hColorInput.IsInvalidated())
+    return ezStatus(ezFmt("Color: Not connected"));
 
-  if (pDepthInput->m_SampleCount != ezGALMSAASampleCount::None)
-  {
-    ezLog::Error("'{0}' depth input must be resolved (non-MSAA). Connect MsaaResolvePass output.", GetName());
-    return false;
-  }
+  ezRenderGraphTextureHandle hDepthInput = inputs[m_PinDepthInput.m_uiInputIndex].m_TextureHandle;
+  if (hDepthInput.IsInvalidated())
+    return ezStatus(ezFmt("DepthInput: Not connected"));
 
-  auto pColorInput = inputs[m_PinColor.m_uiInputIndex];
-  if (!pColorInput)
-  {
-    ezLog::Error("No color input connected to '{0}'!", GetName());
-    return false;
-  }
+  const ezGALTextureCreationDescription depthDesc = graph.GetTextureDesc(hDepthInput);
+  if (depthDesc.m_SampleCount != ezGALMSAASampleCount::None)
+    return ezStatus(ezFmt("DepthInput: Must be resolved (non-MSAA)"));
 
-  if (pColorInput->m_SampleCount != ezGALMSAASampleCount::None)
-  {
-    ezLog::Error("'{0}' color input must be resolved (non-MSAA). Place after AntialiasingPass.", GetName());
-    return false;
-  }
+  const ezGALTextureCreationDescription colorDesc = graph.GetTextureDesc(hColorInput);
+  if (colorDesc.m_SampleCount != ezGALMSAASampleCount::None)
+    return ezStatus(ezFmt("Color: Must be resolved (non-MSAA)"));
 
-  outputs[m_PinColor.m_uiOutputIndex] = *pColorInput;
+  // Pass-through color
+  outputs[m_PinColor.m_uiOutputIndex].m_TextureHandle = hColorInput;
 
-  return true;
-}
-
-void ezLightShaftsPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
-{
-  auto pColor = outputs[m_PinColor.m_uiOutputIndex];
-  if (pColor == nullptr)
-    return;
-
-  auto pDepthInput = inputs[m_PinDepthInput.m_uiInputIndex];
-  if (pDepthInput == nullptr)
-    return;
-
+  // Compute light origin UVs from camera and light direction
   auto pClusteredData = GetPipeline()->GetRenderData().GetFrameData<ezClusteredDataCPU>();
   if (pClusteredData == nullptr || pClusteredData->m_vLightShaftsDirection.IsZero())
-    return;
+    return EZ_SUCCESS;
 
-  const ezVec4 vLightOriginUVs = CalculateOriginUVs(pClusteredData->m_vLightShaftsDirection, renderViewContext);
+  // Note these computations here make any graph using this pass uncachable as the logic depends on the current camera.
+  const ezVec4 vLightOriginUVs = CalculateOriginUVs(pClusteredData->m_vLightShaftsDirection, viewData, camera);
   if (vLightOriginUVs.w < 0.0f)
-    return;
+    return EZ_SUCCESS;
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
-  ezUInt32 uiDownsampledWidth = ezMath::Max((pColor->m_Desc.m_uiWidth + m_uiDownsampleFactor - 1) / m_uiDownsampleFactor, 1u);
-  ezUInt32 uiDownsampledHeight = ezMath::Max((pColor->m_Desc.m_uiHeight + m_uiDownsampleFactor - 1) / m_uiDownsampleFactor, 1u);
-  ezUInt32 uiSliceCount = pColor->m_Desc.m_uiArraySize;
+  // Setup downsampled dimensions
+  ezUInt32 uiDownsampledWidth = ezMath::Max((colorDesc.m_uiWidth + m_uiDownsampleFactor - 1) / m_uiDownsampleFactor, 1u);
+  ezUInt32 uiDownsampledHeight = ezMath::Max((colorDesc.m_uiHeight + m_uiDownsampleFactor - 1) / m_uiDownsampleFactor, 1u);
+  ezUInt32 uiSliceCount = colorDesc.m_uiArraySize;
   ezRectFloat downsampledRect((float)uiDownsampledWidth, (float)uiDownsampledHeight);
 
-  ezGALTextureHandle hTempTextures[2];
-  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(hTempTextures); ++i)
-  {
-    hTempTextures[i] = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(uiDownsampledWidth, uiDownsampledHeight, m_TextureFormat, ezGALMSAASampleCount::None, uiSliceCount);
-  }
+  // Create temp textures
+  ezGALTextureCreationDescription tempDesc;
+  tempDesc.SetAsRenderTarget(uiDownsampledWidth, uiDownsampledHeight, uiSliceCount, m_TextureFormat, ezGALMSAASampleCount::None);
 
-  EZ_SCOPE_EXIT(
-    for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(hTempTextures); ++i) {
-      if (!hTempTextures[i].IsInvalidated())
-        ezGPUResourcePool::GetDefaultInstance()->ReturnRenderTarget(hTempTextures[i]);
-    });
-
-  UpdateConstantBuffer(*pClusteredData, vLightOriginUVs.GetAsVec2(), 0.0f);
-
-  ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);
-  bindGroup.BindBuffer("ezLightShaftsConstants", m_hConstantBuffer);
-
-  renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
+  ezRenderGraphTextureHandle hTempTextures[2];
+  hTempTextures[0] = graph.CreateTexture(tempDesc);
+  hTempTextures[1] = graph.CreateTexture(tempDesc);
 
   ezUInt32 uiCurrentInputTempTexture = 0;
 
-  // Pass 1: Generate mask at half resolution
+  // Pass 1: Generate mask at downsampled resolution
   {
-    ezGALRenderingSetup renderingSetup;
-    renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(hTempTextures[0]));
-    renderViewContext.m_pRenderContext->BeginRendering(renderingSetup, downsampledRect, "LightShafts Mask", renderViewContext.m_pCamera->IsStereoscopic());
+    auto pass = graph.AddGraphicsPass("LightShafts Mask");
+    pass.AddColorTarget(hTempTextures[0]);
+    pass.ReadTexture(hColorInput, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
+    pass.ReadTexture(hDepthInput, {}, ezGALResourceState::DepthStencilRead, ezGALShaderStageFlags::PixelShader);
+    pass.SetStereoscopic(camera.IsStereoscopic());
+    pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
+    {
+      const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
 
-    bindGroup.BindTexture("SceneColor", pColor->m_TextureHandle);
-    bindGroup.BindTexture("SceneDepth", pDepthInput->m_TextureHandle);
+      UpdateConstantBuffer(*pClusteredData, vLightOriginUVs.GetAsVec2(), 0.0f);
 
-    renderViewContext.m_pRenderContext->BindShader(m_hMaskShader);
-    renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
+      ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);
+      bindGroup.BindBuffer("ezLightShaftsConstants", m_hConstantBuffer);
+      bindGroup.BindTexture("SceneColor", ctx.ResolveTexture(hColorInput));
+      bindGroup.BindTexture("SceneDepth", ctx.ResolveTexture(hDepthInput));
 
-    renderViewContext.m_pRenderContext->EndRendering();
+      renderViewContext.m_pRenderContext->BindShader(m_hMaskShader);
+      renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
+      renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
+    });
   }
 
-  // Pass 2: Radial blur
+  // Pass 2: Radial blur passes
   {
     const float fFirstPassBlurDistance = m_fMaxBlurDistance / static_cast<float>(1 << (m_uiNumBlurPasses - 1));
 
@@ -154,20 +133,28 @@ void ezLightShaftsPass::Execute(const ezRenderViewContext& renderViewContext, co
     {
       const float fBlurDistance = ezMath::Min((1 << uiPassIndex) * fFirstPassBlurDistance, 1.0f);
       const float fBlurStep = fBlurDistance / static_cast<float>(m_uiNumSamples);
-      UpdateConstantBuffer(*pClusteredData, vLightOriginUVs.GetAsVec2(), fBlurStep);
 
-      const ezUInt32 uiCurrentOutputTempTexture = (uiCurrentInputTempTexture + 1) % EZ_ARRAY_SIZE(hTempTextures);
+      const ezUInt32 uiCurrentOutputTempTexture = (uiCurrentInputTempTexture + 1) % 2;
 
-      ezGALRenderingSetup renderingSetup;
-      renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(hTempTextures[uiCurrentOutputTempTexture]));
-      renderViewContext.m_pRenderContext->BeginRendering(renderingSetup, downsampledRect, "LightShafts RadialBlur", renderViewContext.m_pCamera->IsStereoscopic());
+      ezRenderGraphTextureHandle hInput = hTempTextures[uiCurrentInputTempTexture];
+      ezRenderGraphTextureHandle hOutput = hTempTextures[uiCurrentOutputTempTexture];
 
-      bindGroup.BindTexture("LightShaftsTexture", hTempTextures[uiCurrentInputTempTexture]);
+      auto pass = graph.AddGraphicsPass("LightShafts RadialBlur");
+      pass.AddColorTarget(hOutput);
+      pass.ReadTexture(hInput, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
+      pass.SetStereoscopic(camera.IsStereoscopic());
+      pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
+      {
+        const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
+        UpdateConstantBuffer(*pClusteredData, vLightOriginUVs.GetAsVec2(), fBlurStep);
+        ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);
+        bindGroup.BindBuffer("ezLightShaftsConstants", m_hConstantBuffer);
+        bindGroup.BindTexture("LightShaftsTexture", ctx.ResolveTexture(hInput));
 
-      renderViewContext.m_pRenderContext->BindShader(m_hRadialBlurShader);
-      renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
-
-      renderViewContext.m_pRenderContext->EndRendering();
+        renderViewContext.m_pRenderContext->BindShader(m_hRadialBlurShader);
+        renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
+        renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
+      });
 
       uiCurrentInputTempTexture = uiCurrentOutputTempTexture;
     }
@@ -175,17 +162,27 @@ void ezLightShaftsPass::Execute(const ezRenderViewContext& renderViewContext, co
 
   // Pass 3: Apply to scene color at full resolution
   {
-    ezGALRenderingSetup renderingSetup;
-    renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(pColor->m_TextureHandle));
-    renderViewContext.m_pRenderContext->BeginRendering(renderingSetup, renderViewContext.m_pViewData->m_ViewPortRect, "LightShafts Apply", renderViewContext.m_pCamera->IsStereoscopic());
+    ezRenderGraphTextureHandle hBlurResult = hTempTextures[uiCurrentInputTempTexture];
 
-    bindGroup.BindTexture("LightShaftsTexture", hTempTextures[uiCurrentInputTempTexture]);
+    auto pass = graph.AddGraphicsPass("LightShafts Apply");
+    pass.AddColorTarget(hColorInput);
+    pass.ReadTexture(hBlurResult, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
+    pass.SetStereoscopic(camera.IsStereoscopic());
+    pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
+    {
+      const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
 
-    renderViewContext.m_pRenderContext->BindShader(m_hApplyShader);
-    renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
+      ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);
+      bindGroup.BindBuffer("ezLightShaftsConstants", m_hConstantBuffer);
+      bindGroup.BindTexture("LightShaftsTexture", ctx.ResolveTexture(hBlurResult));
 
-    renderViewContext.m_pRenderContext->EndRendering();
+      renderViewContext.m_pRenderContext->BindShader(m_hApplyShader);
+      renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
+      renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
+    });
   }
+
+  return EZ_SUCCESS;
 }
 
 ezResult ezLightShaftsPass::Serialize(ezStreamWriter& inout_stream) const
@@ -228,12 +225,11 @@ void ezLightShaftsPass::SetMaxBlurDistance(float fDistance)
   m_fMaxBlurDistance = ezMath::Saturate(fDistance);
 }
 
-ezVec4 ezLightShaftsPass::CalculateOriginUVs(const ezVec3& vLightDirection, const ezRenderViewContext& renderViewContext) const
+ezVec4 ezLightShaftsPass::CalculateOriginUVs(const ezVec3& vLightDirection, const ezViewData& viewData, const ezCamera& camera) const
 {
-  const ezCamera* pCamera = renderViewContext.m_pCamera;
-  const ezVec3 vLightPos = vLightDirection * (pCamera->GetFarPlane() * 0.999f) + pCamera->GetCenterPosition();
+  const ezVec3 vLightPos = vLightDirection * (camera.GetFarPlane() * 0.999f) + camera.GetCenterPosition();
 
-  const ezVec4 vLightPosClipSpace = renderViewContext.m_pViewData->m_ViewProjectionMatrix[0] * vLightPos.GetAsPositionVec4();
+  const ezVec4 vLightPosClipSpace = viewData.m_ViewProjectionMatrix[0] * vLightPos.GetAsPositionVec4();
   const float fInvW = 1.0f / vLightPosClipSpace.w;
 
   const ezVec2 vProjected = vLightPosClipSpace.GetAsVec2() * fInvW;

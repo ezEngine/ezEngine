@@ -1,6 +1,7 @@
 #include <RendererTest/RendererTestPCH.h>
 
 #include "TestClass.h"
+
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
@@ -9,18 +10,20 @@
 #include <Foundation/Memory/MemoryTracker.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 #include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/RenderGraph/RenderGraph.h>
+#include <RendererCore/RenderGraph/RenderGraphPassBuilder.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <RendererCore/Textures/TextureUtils.h>
 #include <RendererFoundation/Device/DeviceFactory.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <RendererFoundation/Resources/Texture.h>
+#include <RendererFoundation/Utils/ResourceStateTracker.h>
 #include <Texture/Image/Image.h>
 #include <Texture/Image/ImageConversion.h>
 #include <Texture/Image/ImageUtils.h>
 
 ezGraphicsTest::ezGraphicsTest() = default;
-
 
 ezResult ezGraphicsTest::InitializeTest()
 {
@@ -211,6 +214,7 @@ ezResult ezGraphicsTest::CreateWindow(ezUInt32 uiResolutionX, ezUInt32 uiResolut
     texDesc.m_uiHeight = uiResolutionY;
     texDesc.m_Format = ezGALResourceFormat::D24S8;
     texDesc.m_TextureFlags.Add(ezGALTextureUsageFlags::RenderTarget);
+    texDesc.m_ResourceAccess.m_bImmutable = false;
 
     m_hDepthStencilTexture = m_pDevice->CreateTexture(texDesc);
     if (m_hDepthStencilTexture.IsInvalidated())
@@ -271,12 +275,21 @@ void ezGraphicsTest::BeginCommands(const char* szPassName)
 {
   EZ_ASSERT_DEV(m_pEncoder == nullptr, "Call EndCommands first before calling BeginCommands again");
   m_pEncoder = m_pDevice->BeginCommands(szPassName);
+  m_pResourceStateTracker = EZ_DEFAULT_NEW(ezGALResourceStateTracker, m_pDevice);
 }
 
 
 void ezGraphicsTest::EndCommands()
 {
   EZ_ASSERT_DEV(m_pEncoder != nullptr, "Call BeginCommands first before calling EndCommands");
+
+  if (m_pResourceStateTracker != nullptr)
+  {
+    m_pResourceStateTracker->RevertTextureState(ezMakeDelegate(&ezGraphicsTest::TextureBarrier, this));
+    m_pResourceStateTracker->RevertBufferState(ezMakeDelegate(&ezGraphicsTest::BufferBarrier, this));
+    m_pResourceStateTracker = nullptr;
+  }
+
   m_pDevice->EndCommands(m_pEncoder);
   m_pEncoder = nullptr;
 }
@@ -284,6 +297,9 @@ void ezGraphicsTest::EndCommands()
 ezGALCommandEncoder* ezGraphicsTest::BeginRendering(ezColor clearColor, ezUInt32 uiRenderTargetClearMask, ezRectFloat* pViewport, ezRectU32* pScissor)
 {
   const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(m_hSwapChain);
+
+  TransitionTexture(GetBackbuffer(), ezGALResourceState::RenderTarget);
+  TransitionTexture(m_hDepthStencilTexture, ezGALResourceState::DepthStencilWrite);
 
   ezGALRenderingSetup renderingSetup;
   renderingSetup.SetColorTarget(0, m_pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture()));
@@ -316,10 +332,27 @@ ezGALCommandEncoder* ezGraphicsTest::BeginRendering(ezColor clearColor, ezUInt32
   return pCommandEncoder;
 }
 
+void ezGraphicsTest::TransitionTexture(ezGALTextureHandle hTexture, ezBitflags<ezGALResourceState> newState, ezGALTextureRange range, ezBitflags<ezGALShaderStageFlags> stage)
+{
+  EZ_ASSERT_DEV(m_pResourceStateTracker != nullptr, "TransitionTexture can only be called between BeginCommands and EndCommands");
+  m_pResourceStateTracker->ChangeState(hTexture, range, newState, stage, ezMakeDelegate(&ezGraphicsTest::TextureBarrier, this));
+}
+
+void ezGraphicsTest::TransitionBuffer(ezGALBufferHandle hBuffer, ezBitflags<ezGALResourceState> newState, ezBitflags<ezGALShaderStageFlags> stage)
+{
+  EZ_ASSERT_DEV(m_pResourceStateTracker != nullptr, "TransitionBuffer can only be called between BeginCommands and EndCommands");
+  m_pResourceStateTracker->ChangeState(hBuffer, newState, stage, ezMakeDelegate(&ezGraphicsTest::BufferBarrier, this));
+}
+
 void ezGraphicsTest::EndRendering()
 {
   ezRenderContext::GetDefaultInstance()->EndRendering();
   m_pWindow->ProcessWindowMessages();
+}
+
+ezGALResourceStateTracker* ezGraphicsTest::GetResourceStateTracker()
+{
+  return m_pResourceStateTracker.Borrow();
 }
 
 void ezGraphicsTest::SetClipSpace()
@@ -341,6 +374,7 @@ void ezGraphicsTest::RenderCube(ezRectFloat viewport, ezMat4 mMVP, ezUInt32 uiRe
   EndRendering();
   if (m_bCaptureImage && m_ImgCompFrames.Contains(m_iFrame))
   {
+    TransitionTexture(GetBackbuffer(), ezGALResourceState::CopySource);
     EZ_TEST_IMAGE(m_iFrame, 100);
   }
 };
@@ -359,14 +393,34 @@ ezMat4 ezGraphicsTest::CreateSimpleMVP(float fAspectRatio)
   return mProj * mView * mTransform;
 }
 
+void ezGraphicsTest::ReadbackImage(ezRenderGraph& graph)
+{
+  ezGALTextureHandle hBBTexture = m_pDevice->GetSwapChain(m_hSwapChain)->GetBackBufferTexture();
+  ezRenderGraphTextureHandle hGraphTexture = graph.ImportTexture(hBBTexture);
+
+  auto pass = graph.AddTransferPass("ReadbackTexture");
+  pass.ReadTexture(hGraphTexture, {}, ezGALResourceState::CopySource);
+  pass.HasSideEffects();
+  pass.SetExecuteCallback([=](const ezRenderGraphContext& context)
+    {
+      m_bReadBackInProgress = true;
+      m_Readback.ReadbackTexture(*context.GetCommandEncoder(), context.ResolveTexture(hGraphTexture));
+      context.GetCommandEncoder()->Flush(); //
+    });
+}
+
 ezResult ezGraphicsTest::GetImage(ezImage& ref_img, const ezSubTestEntry& subTest, ezUInt32 uiImageNumber)
 {
-  auto pCommandEncoder = ezRenderContext::GetDefaultInstance()->GetCommandEncoder();
-
   ezGALTextureHandle hBBTexture = m_pDevice->GetSwapChain(m_hSwapChain)->GetBackBufferTexture();
   const ezGALTexture* pBackbuffer = ezGALDevice::GetDefaultDevice()->GetTexture(hBBTexture);
-  m_Readback.ReadbackTexture(*pCommandEncoder, hBBTexture);
-  pCommandEncoder->Flush();
+
+  if (!m_bReadBackInProgress)
+  {
+    auto pCommandEncoder = ezRenderContext::GetDefaultInstance()->GetCommandEncoder();
+    m_Readback.ReadbackTexture(*pCommandEncoder, hBBTexture);
+    pCommandEncoder->Flush();
+  }
+
   // Wait for results
   {
     ezEnum<ezGALAsyncResult> res = m_Readback.GetReadbackResult(ezTime::MakeFromHours(1));
@@ -380,6 +434,7 @@ ezResult ezGraphicsTest::GetImage(ezImage& ref_img, const ezSubTestEntry& subTes
   EZ_ASSERT_ALWAYS(lock, "Failed to lock readback texture");
   ezTextureUtils::CopySubResourceToImage(pBackbuffer->GetDescription(), sourceSubResource, memory[0], ref_img, true);
 
+  m_bReadBackInProgress = false;
   return EZ_SUCCESS;
 }
 
@@ -462,4 +517,19 @@ void ezGraphicsTest::RenderObject(ezMeshBufferResourceHandle hObject, const ezMa
 
   ezRenderContext::GetDefaultInstance()->BindMeshBuffer(hObject);
   ezRenderContext::GetDefaultInstance()->DrawMeshBuffer().IgnoreResult();
+}
+ezGALTextureHandle ezGraphicsTest::GetBackbuffer() const
+{
+  const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(m_hSwapChain);
+  return pPrimarySwapChain->GetBackBufferTexture();
+}
+
+void ezGraphicsTest::TextureBarrier(const ezGALTextureBarrier& barrier)
+{
+  m_pEncoder->TextureBarrier(ezMakeArrayPtr(&barrier, 1));
+}
+
+void ezGraphicsTest::BufferBarrier(const ezGALBufferBarrier& barrier)
+{
+  m_pEncoder->BufferBarrier(ezMakeArrayPtr(&barrier, 1));
 }

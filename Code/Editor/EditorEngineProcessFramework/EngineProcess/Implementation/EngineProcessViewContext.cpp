@@ -59,10 +59,10 @@ void ezEngineProcessViewContext::HandleViewMessage(const ezEditorEngineViewMsg* 
   }
   else if (const ezViewScreenshotMsgToEngine* msg = ezDynamicCast<const ezViewScreenshotMsgToEngine*>(pMsg))
   {
-    ezImage img;
-    if (ezWindowManager::GetSingleton()->GetOutputTarget(m_hEditorWindow)->CaptureImage(img).Succeeded())
+    auto* pOutputTarget = ezWindowManager::GetSingleton()->GetOutputTarget(m_hEditorWindow);
+    if (pOutputTarget->StartCaptureImage().Succeeded())
     {
-      img.SaveTo(msg->m_sOutputFile).IgnoreResult();
+      m_sPendingScreenshotPath = msg->m_sOutputFile;
     }
   }
 #else
@@ -191,6 +191,33 @@ void ezEngineProcessViewContext::Redraw(bool bRenderEditorGizmos)
 
     ezRenderWorld::AddMainView(m_hView);
   }
+}
+
+bool ezEngineProcessViewContext::PendingOperationInProgress() const
+{
+  if (m_sPendingScreenshotPath.IsEmpty())
+    return false;
+
+  auto* pOutputTarget = ezWindowManager::GetSingleton()->GetOutputTarget(m_hEditorWindow);
+  if (pOutputTarget == nullptr)
+  {
+    const_cast<ezEngineProcessViewContext*>(this)->m_sPendingScreenshotPath.Clear();
+    return false;
+  }
+
+  ezImage img;
+  ezEnum<ezCaptureImageResult> res = pOutputTarget->WaitCaptureImage(img);
+
+  if (res == ezCaptureImageResult::Pending)
+    return true;
+
+  if (res == ezCaptureImageResult::Ready)
+  {
+    img.SaveTo(m_sPendingScreenshotPath).IgnoreResult();
+  }
+
+  const_cast<ezEngineProcessViewContext*>(this)->m_sPendingScreenshotPath.Clear();
+  return false;
 }
 
 bool ezEngineProcessViewContext::FocusCameraOnObject(ezCamera& inout_camera, const ezBoundingBoxSphere& objectBounds, float fFov, const ezVec3& vViewDir)

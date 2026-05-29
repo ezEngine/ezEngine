@@ -3,6 +3,7 @@
 #include <EditorEngineProcessFramework/EditorEngineProcessFrameworkDLL.h>
 #include <EditorEngineProcessFramework/EngineProcess/WorldRttiConverterContext.h>
 #include <Foundation/Types/Uuid.h>
+#include <Foundation/Types/SharedPtr.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <RendererFoundation/Resources/ReadbackHelper.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
@@ -16,6 +17,8 @@ class ezProcessMessage;
 class ezExportDocumentMsgToEngine;
 class ezCreateThumbnailMsgToEngine;
 struct ezResourceEvent;
+class ezRenderGraph;
+struct ezGALDeviceEvent;
 
 struct ezEngineProcessDocumentContextFlags
 {
@@ -188,8 +191,16 @@ private:
   ezGALTextureHandle m_hThumbnailDepthRT;
   ezGALReadbackTextureHelper m_ThumbnailReadback;
 
+  bool m_bThumbnailReadbackRequested = false;
+  bool m_bThumbnailReadbackInFlight = false;
+  ezGALTextureCreationDescription m_ThumbnailColorDesc;
+
   bool m_bWorldSimStateBeforeThumbnail = false;
   ezString m_sDocumentType;
+
+  ezSharedPtr<ezRenderGraph> m_pRenderGraph;
+
+  void OnGALEvent(const ezGALDeviceEvent& e);
 
   //////////////////////////////////////////////////////////////////////////
   // GameObject reference resolution

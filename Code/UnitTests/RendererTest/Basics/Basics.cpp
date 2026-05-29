@@ -52,6 +52,7 @@ ezTestAppRun ezRendererTestBasics::SubtestClearScreen()
 {
   BeginFrame();
   BeginCommands("ClearScreen");
+  TransitionTexture(GetBackbuffer(), ezGALResourceState::RenderTarget);
   switch (m_iFrame)
   {
     case 0:
@@ -69,6 +70,7 @@ ezTestAppRun ezRendererTestBasics::SubtestClearScreen()
   }
 
   EndRendering();
+  TransitionTexture(GetBackbuffer(), ezGALResourceState::CopySource);
   EZ_TEST_IMAGE(m_iFrame, 1);
   EndCommands();
   EndFrame();

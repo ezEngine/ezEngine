@@ -109,7 +109,7 @@ vk::WriteDescriptorSet& ezDescriptorWritePoolVulkan::WriteBindGroupItem(vk::Desc
       write.pImageInfo = &imageInfo;
       const ezGALTextureVulkan* pTexture = static_cast<const ezGALTextureVulkan*>(m_pDevice->GetTexture(item.m_Texture.m_hTexture));
       imageInfo = pTexture->GetDescriptorImageInfo(item.m_Texture.m_TextureRange, binding.m_ResourceType, binding.m_TextureType, item.m_Texture.m_OverrideViewFormat);
-      imageInfo.imageLayout = binding.m_ResourceType == ezGALShaderResourceType::TextureRW ? vk::ImageLayout::eGeneral : pTexture->GetPreferredLayout(ezConversionUtilsVulkan::GetDefaultLayout(pTexture->GetImageFormat()));
+      imageInfo.imageLayout = binding.m_ResourceType == ezGALShaderResourceType::TextureRW ? vk::ImageLayout::eGeneral : ezConversionUtilsVulkan::GetTextureReadLayout(pTexture->GetImageFormat());
 
       if (binding.m_ResourceType == ezGALShaderResourceType::TextureAndSampler)
       {

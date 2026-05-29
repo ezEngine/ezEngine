@@ -185,6 +185,7 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALShaderStageFlags
     RayMissShader = EZ_BIT(11),
     RayIntersectionShader = EZ_BIT(12),
     */
+    Auto = EZ_BIT(15), ///< Used by the render graph to infer the stage from the ezGALResourceState
     Default = 0
   };
 
@@ -196,6 +197,9 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALShaderStageFlags
     StorageType GeometryShader : 1;
     StorageType PixelShader : 1;
     StorageType ComputeShader : 1;
+
+    StorageType _padding : 9;
+    StorageType Auto : 1;
   };
 
   inline static ezGALShaderStageFlags::Enum MakeFromShaderStage(ezGALShaderStage::Enum stage)
@@ -229,7 +233,7 @@ struct ezGALTextureType
 
   enum Enum
   {
-    Invalid = -1,
+    Invalid = 255,
     Texture2D = 0,
     TextureCube,
     Texture3D,
@@ -426,6 +430,7 @@ struct ezGALAsyncResult
 /// \brief Used to define a texture sub-resource, i.e. a single slice.
 struct ezGALTextureSubresource
 {
+  EZ_DECLARE_POD_TYPE();
   ezUInt32 m_uiMipLevel = 0;
   ezUInt32 m_uiArraySlice = 0;
 };
@@ -433,30 +438,85 @@ struct ezGALTextureSubresource
 /// \brief Helper to map linear system memory to a 2D texture sub-resource.
 struct ezGALSystemMemoryDescription
 {
+  EZ_DECLARE_POD_TYPE();
   ezConstByteBlobPtr m_pData;
   ezUInt32 m_uiRowPitch = 0;
   ezUInt32 m_uiSlicePitch = 0;
+};
+
+/// \brief Defines the sub-resources a render target view is rendering to.
+/// Used by the render graph to define a render target. Views can't be used as the render graph works on virtual handles that only later are converted to actual resources.
+struct ezGALRenderTargetRange
+{
+  EZ_DECLARE_POD_TYPE();
+  static ezGALRenderTargetRange MakeFromMipLevel(ezUInt8 uiMipLevel = 0)
+  {
+    return {0, EZ_GAL_ALL_ARRAY_SLICES, uiMipLevel};
+  }
+  ezUInt16 m_uiBaseArraySlice = 0;
+  ezUInt16 m_uiArraySlices = EZ_GAL_ALL_ARRAY_SLICES;
+  ezUInt8 m_uiBaseMipLevel = 0;
 };
 
 /// \brief Defines a sub-set of a texture that can be bound in a shader. Default constructed means entire texture.
 /// Mainly used in ezBindGroupBuilder::BindTexture calls to map resources to shader bindings and other binding related methods.
 struct ezGALTextureRange
 {
+  EZ_DECLARE_POD_TYPE();
   /// \brief Helper to just set mip levels without also having to set the array slice fields.
   static ezGALTextureRange MakeFromMipRange(ezUInt8 uiBaseMipLevel = 0, ezUInt8 uiMipLevels = EZ_GAL_ALL_MIP_LEVELS)
   {
     return {0, 1, uiBaseMipLevel, uiMipLevels};
   }
+  static ezGALTextureRange MakeFromRenderTargetRange(const ezGALRenderTargetRange& range)
+  {
+    return {range.m_uiBaseArraySlice, range.m_uiArraySlices, range.m_uiBaseMipLevel, 1};
+  }
   ezUInt16 m_uiBaseArraySlice = 0;                    ///< Index of the first array slice to be used.
   ezUInt16 m_uiArraySlices = EZ_GAL_ALL_ARRAY_SLICES; ///< Number of array slices to be used. If set to EZ_GAL_ALL_ARRAY_SLICES, the maximum number of allowed slices is used dependent on texture size and binding contraints.
   ezUInt8 m_uiBaseMipLevel = 0;                       ///< The first mip level to be used.
   ezUInt8 m_uiMipLevels = EZ_GAL_ALL_MIP_LEVELS;      ///< Number of mip levels to be used. Ignored for UAVs. If set to EZ_GAL_ALL_MIP_LEVELS, the maximum number of allowed mip maps is used dependent on texture size.
+
+  bool operator==(const ezGALTextureRange& rhs) const
+  {
+    return m_uiBaseArraySlice == rhs.m_uiBaseArraySlice &&
+           m_uiArraySlices == rhs.m_uiArraySlices &&
+           m_uiBaseMipLevel == rhs.m_uiBaseMipLevel &&
+           m_uiMipLevels == rhs.m_uiMipLevels;
+  }
+
+  bool operator!=(const ezGALTextureRange& rhs) const { return !(*this == rhs); }
+
+  /// \brief Returns true if this range and the other range overlap in both the array-slice and mip-level dimensions.
+  bool Overlaps(const ezGALTextureRange& other) const
+  {
+    // Cast to ezUInt32 to avoid overflow when base + count exceeds the ezUInt16/ezUInt8 range.
+    const ezUInt32 aSliceEnd = (ezUInt32)m_uiBaseArraySlice + (ezUInt32)m_uiArraySlices;
+    const ezUInt32 bSliceEnd = (ezUInt32)other.m_uiBaseArraySlice + (ezUInt32)other.m_uiArraySlices;
+    if ((ezUInt32)m_uiBaseArraySlice >= bSliceEnd || (ezUInt32)other.m_uiBaseArraySlice >= aSliceEnd)
+      return false;
+
+    const ezUInt32 aMipEnd = (ezUInt32)m_uiBaseMipLevel + (ezUInt32)m_uiMipLevels;
+    const ezUInt32 bMipEnd = (ezUInt32)other.m_uiBaseMipLevel + (ezUInt32)other.m_uiMipLevels;
+    if ((ezUInt32)m_uiBaseMipLevel >= bMipEnd || (ezUInt32)other.m_uiBaseMipLevel >= aMipEnd)
+      return false;
+
+    return true;
+  }
+
+  /// \brief Computes a flat sub-resource index for the given mip level and array layer within a texture whose full range is described by this instance.
+  /// Index = uiMipLevel + uiLayer * m_uiMipLevels.
+  EZ_ALWAYS_INLINE static ezUInt32 ComputeSubResourceIndex(ezUInt32 uiMipLevel, ezUInt32 uiLayer, const ezGALTextureRange& fullRange)
+  {
+    return uiMipLevel + uiLayer * fullRange.m_uiMipLevels;
+  }
 };
 
 /// \brief Defines a sub-set of a buffer that can be bound in a shader. Default constructed means entire buffer.
 /// Mainly used in ezBindGroupBuilder::BindBuffer calls to map resources to shader bindings and other binding related methods.
 struct ezGALBufferRange
 {
+  EZ_DECLARE_POD_TYPE();
   ezUInt32 m_uiByteOffset = 0;                ///< Start of the view to the buffer. Must be multiple of the element size.
   ezUInt32 m_uiByteCount = EZ_GAL_WHOLE_SIZE; ///< m_uiByteOffset + m_uiByteCount must be less than the size of the buffer, unless EZ_GAL_WHOLE_SIZE ist used, which maps to the rest of the buffer.
 };

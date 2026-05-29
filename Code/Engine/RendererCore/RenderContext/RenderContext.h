@@ -102,26 +102,11 @@ public:
     return RenderingScope(*viewContext.m_pRenderContext, nullptr);
   }
 
-  EZ_ALWAYS_INLINE static RenderingScope BeginCommandsAndRenderingScope(const ezRenderViewContext& viewContext, const ezGALRenderingSetup& renderingSetup, const char* szName, bool bStereoRendering = false)
-  {
-    ezGALCommandEncoder* pCommandEncoder = ezGALDevice::GetDefaultDevice()->BeginCommands(szName);
-    viewContext.m_pRenderContext->BeginRendering(renderingSetup, viewContext.m_pViewData->m_ViewPortRect, "", bStereoRendering);
-    return RenderingScope(*viewContext.m_pRenderContext, pCommandEncoder);
-  }
-
   using ComputeScope = CommandEncoderScope<1>;
   EZ_ALWAYS_INLINE static ComputeScope BeginComputeScope(const ezRenderViewContext& viewContext, const char* szName = "")
   {
     viewContext.m_pRenderContext->BeginCompute(szName);
     return ComputeScope(*viewContext.m_pRenderContext, nullptr);
-  }
-
-  EZ_ALWAYS_INLINE static ComputeScope BeginCommandsAndComputeScope(const ezRenderViewContext& viewContext, const char* szName)
-  {
-    ezGALCommandEncoder* pCommandEncoder = ezGALDevice::GetDefaultDevice()->BeginCommands(szName);
-
-    viewContext.m_pRenderContext->BeginCompute();
-    return ComputeScope(*viewContext.m_pRenderContext, pCommandEncoder);
   }
 
   EZ_ALWAYS_INLINE ezGALCommandEncoder* GetCommandEncoder()
@@ -137,6 +122,8 @@ public:
   void BindMaterial(const ezMaterialResourceHandle& hMaterial);
 
   ezBindGroupBuilder& GetBindGroup(ezUInt32 uiBindGroup = 0);
+  void ResetBindGroup(ezUInt32 uiBindGroup);
+  void ResetBindGroups();
 
   /// \brief Sets push constants to the given data block.
   /// Note that for platforms that don't support push constants, this is emulated via a constant buffer. Thus, a slot name must be provided as well which matches the name of the BEGIN_PUSH_CONSTANTS block in the shader.

@@ -307,6 +307,12 @@ void ezQtDocumentWindow::showEvent(QShowEvent* event)
 {
   QMainWindow::showEvent(event);
   SetVisibleInContainer(true);
+
+  // Capture the baseline dock layout state once the window first becomes visible and Qt has had a chance to do its layout adjustments.
+  if (m_pDockManager != nullptr && m_InitialDocumentLayoutState.isEmpty())
+  {
+    QMetaObject::invokeMethod(this, "SlotCaptureInitialLayoutState", Qt::ConnectionType::QueuedConnection);
+  }
 }
 
 void ezQtDocumentWindow::hideEvent(QHideEvent* event)
@@ -516,9 +522,7 @@ void ezQtDocumentWindow::SlotRestoreDocumentLayout()
     OnAfterDocumentLayoutRestored();
   }
 
-  // Schedule capturing the initial state after the layout has stabilized
-  // This needs to happen after the window becomes visible and Qt does its layout adjustments
-  QMetaObject::invokeMethod(this, "SlotCaptureInitialLayoutState", Qt::ConnectionType::QueuedConnection);
+  // The actual capture of the baseline state is triggered from showEvent() once the window is visible and Qt has done its layout adjustments.
 }
 
 void ezQtDocumentWindow::SlotCaptureInitialLayoutState()
@@ -526,13 +530,9 @@ void ezQtDocumentWindow::SlotCaptureInitialLayoutState()
   if (m_pDockManager == nullptr || !m_InitialDocumentLayoutState.isEmpty())
     return;
 
-  // Only capture once the window is actually visible and layouts have stabilized
+  // The window may have been hidden again before this queued slot ran. In that case showEvent() will trigger the capture again next time the window becomes visible.
   if (!isVisible())
-  {
-    // If not visible yet, try again later
-    QMetaObject::invokeMethod(this, "SlotCaptureInitialLayoutState", Qt::ConnectionType::QueuedConnection);
     return;
-  }
 
   // Capture the baseline state after Qt has done its layout adjustments
   m_InitialDocumentLayoutState = m_pDockManager->saveState();

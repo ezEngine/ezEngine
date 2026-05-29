@@ -12,7 +12,6 @@
 #include <RendererFoundation/Device/ReadbackLock.h>
 #include <RendererFoundation/Utils/DependencyTracker.h>
 
-
 class ezColor;
 
 /// \brief The ezRenderDevice class is the primary interface for interactions with rendering APIs
@@ -23,6 +22,7 @@ class EZ_RENDERERFOUNDATION_DLL ezGALDevice
 {
 public:
   static ezEvent<const ezGALDeviceEvent&, ezMutex> s_Events;
+  static ezEvent<const ezGALSwapChain*, ezMutex> s_SwapChainUpdatedEvent;
 
   // Init & shutdown functions
 

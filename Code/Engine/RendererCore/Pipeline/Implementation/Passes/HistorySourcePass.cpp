@@ -70,47 +70,37 @@ ezHistorySourcePass::ezHistorySourcePass(const char* szName)
 
 ezHistorySourcePass::~ezHistorySourcePass() = default;
 
-bool ezHistorySourcePass::GetRenderTargetDescriptions(
-  const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+ezStatus ezHistorySourcePass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
   auto pData = GetPipeline()->GetFrameDataProvider<ezHistorySourcePassTextureDataProvider>();
   pData->ResetTexture(GetName());
   m_bFirstExecute = true;
-  outputs[m_PinOutput.m_uiOutputIndex] = ezSourcePass::GetOutputDescription(view, m_Format, m_MsaaMode);
-  return true;
+  ezGALTextureCreationDescription desc = ezSourcePass::GetOutputDescription(viewData, camera, m_Format, m_MsaaMode);
+  ezGALTextureHandle hTexture = QueryTextureProvider(&m_PinOutput, desc);
+  ezRenderGraphTextureHandle hGraphTexture = graph.ImportTexture(hTexture);
+  outputs[m_PinOutput.m_uiOutputIndex].m_TextureHandle = hGraphTexture;
+
+  auto pass = graph.AddGraphicsPass(GetName());
+  if (ezGALResourceFormat::IsDepthFormat(desc.m_Format))
+  {
+    pass.AddDepthStencilTarget(hGraphTexture, {}, ezGALRenderTargetLoadOp::Clear);
+    pass.SetClearDepth().SetClearStencil();
+  }
+  else
+  {
+    pass.AddDepthStencilTarget(hGraphTexture, {}, ezGALRenderTargetLoadOp::Clear);
+    pass.SetClearColor(0, m_ClearColor);
+  }
+
+  return EZ_SUCCESS;
 }
+
+
 
 ezGALTextureHandle ezHistorySourcePass::QueryTextureProvider(const ezRenderPipelineNodePin* pPin, const ezGALTextureCreationDescription& desc)
 {
   auto pData = GetPipeline()->GetFrameDataProvider<ezHistorySourcePassTextureDataProvider>();
   return pData->GetOrCreateTexture(GetName(), desc);
-}
-
-void ezHistorySourcePass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
-{
-  auto pOutput = outputs[m_PinOutput.m_uiOutputIndex];
-  if (pOutput == nullptr || !m_bFirstExecute)
-    return;
-
-  m_bFirstExecute = false;
-
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-
-  // Setup render target
-  ezGALRenderingSetup renderingSetup;
-  if (ezGALResourceFormat::IsDepthFormat(pOutput->m_Desc.m_Format))
-  {
-    renderingSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
-    renderingSetup.SetClearDepth().SetClearStencil();
-  }
-  else
-  {
-    renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
-    renderingSetup.SetClearColor(0, m_ClearColor);
-  }
-
-  auto pCommandEncoder = ezRenderContext::BeginRenderingScope(renderViewContext, renderingSetup, GetName());
 }
 
 ezResult ezHistorySourcePass::Serialize(ezStreamWriter& inout_stream) const

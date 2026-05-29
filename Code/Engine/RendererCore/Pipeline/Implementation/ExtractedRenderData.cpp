@@ -55,6 +55,7 @@ void ezExtractedRenderData::Clear()
   }
 
   m_FrameData.Clear();
+  m_ViewDependencies.Clear();
 }
 
 ezRenderDataBatchList ezExtractedRenderData::GetRenderDataBatchesWithCategory(ezRenderData::Category category) const

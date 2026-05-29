@@ -1,13 +1,46 @@
 
 #pragma once
 
+#include <Foundation/Communication/Event.h>
 #include <Foundation/Threading/ThreadUtils.h>
 #include <RendererFoundation/CommandEncoder/CommandEncoderPlatformInterface.h>
 #include <RendererFoundation/CommandEncoder/CommandEncoderState.h>
+#include <Foundation/Algorithm/HashableStruct.h>
+
+#define EZ_BARRIER_VALIDATION EZ_COMPILE_FOR_DEBUG
+
+#if EZ_ENABLED(EZ_BARRIER_VALIDATION)
+#  include <RendererFoundation/Shader/BindGroup.h>
+#  include <RendererFoundation/Utils/ResourceStateTracker.h>
+#endif
 
 struct ezGALRenderingSetup;
 struct ezGALDeviceEvent;
+class ezGALShader;
 struct ezGALBindGroupCreationDescription;
+
+struct ezTextureValidationError : public ezHashableStruct<ezTextureValidationError>
+{
+  ezUInt32 m_uiBindGroup = 0;
+  ezHashedString m_sBinding;
+  ezGALTextureHandle m_hTexture;
+  ezBitflags<ezGALResourceState> m_expectedState;
+  ezBitflags<ezGALShaderStageFlags> m_expectedStages;
+  ezGALTextureSubresource m_failedSubResource;
+  ezBitflags<ezGALResourceState> m_actualState;
+  ezBitflags<ezGALShaderStageFlags> m_actualStages;
+};
+
+struct ezBufferValidationError : public ezHashableStruct<ezBufferValidationError>
+{
+  ezUInt32 m_uiBindGroup = 0;
+  ezHashedString m_sBinding;
+  ezGALBufferHandle m_hBuffer;
+  ezBitflags<ezGALResourceState> m_expectedState;
+  ezBitflags<ezGALShaderStageFlags> m_expectedStages;
+  ezBitflags<ezGALResourceState> m_actualState;
+  ezBitflags<ezGALShaderStageFlags> m_actualStages;
+};
 
 class EZ_RENDERERFOUNDATION_DLL ezGALCommandEncoder
 {
@@ -96,7 +129,38 @@ public:
   void ReadbackTexture(ezGALReadbackTextureHandle hDestination, ezGALTextureHandle hSource);
   void ReadbackBuffer(ezGALReadbackBufferHandle hDestination, ezGALBufferHandle hSource);
 
-  void GenerateMipMaps(ezGALTextureHandle hTexture, ezGALTextureRange range);
+  // Barriers
+
+  /// Inserts resource barriers for texture state transitions.
+  ///
+  /// All barriers in a single call are batched into one API-level barrier command.
+  /// Must be called outside of rendering and compute scopes.
+  void TextureBarrier(ezArrayPtr<const ezGALTextureBarrier> barriers);
+
+  /// Inserts a single texture barrier for a layout/state transition.
+  /// Must be called outside of rendering and compute scopes.
+  void TextureBarrier(
+    ezGALTextureHandle hTexture,
+    ezGALTextureRange range = {},
+    ezBitflags<ezGALResourceState> stateBefore = ezGALResourceState::Default,
+    ezBitflags<ezGALResourceState> stateAfter = ezGALResourceState::Default,
+    ezBitflags<ezGALShaderStageFlags> stagesBefore = ezGALShaderStageFlags::Auto,
+    ezBitflags<ezGALShaderStageFlags> stagesAfter = ezGALShaderStageFlags::Auto);
+
+  /// Inserts resource barriers for buffer state transitions.
+  ///
+  /// All barriers in a single call are batched into one API-level barrier command.
+  /// Must be called outside of rendering and compute scopes.
+  void BufferBarrier(ezArrayPtr<const ezGALBufferBarrier> barriers);
+
+  /// Inserts a single buffer barrier for a state transition.
+  /// Must be called outside of rendering and compute scopes.
+  void BufferBarrier(
+    ezGALBufferHandle hBuffer,
+    ezBitflags<ezGALResourceState> stateBefore = ezGALResourceState::Default,
+    ezBitflags<ezGALResourceState> stateAfter = ezGALResourceState::Default,
+    ezBitflags<ezGALShaderStageFlags> stagesBefore = ezGALShaderStageFlags::Auto,
+    ezBitflags<ezGALShaderStageFlags> stagesAfter = ezGALShaderStageFlags::Auto);
 
   // Misc
 
@@ -157,6 +221,12 @@ public:
   const ezGALCommandEncoderStats& GetStats() const { return m_Stats; }
   void ResetStats();
 
+public:
+  /// Fired when a texture barrier validation error is detected.
+  static ezEvent<const ezTextureValidationError&> s_TextureBarrierValidationFailed;
+  /// Fired when a buffer barrier validation error is detected.
+  static ezEvent<const ezBufferValidationError&> s_BufferBarrierValidationFailed;
+
 protected:
   friend class ezGALDevice;
 
@@ -182,6 +252,17 @@ private:
     Compute
   };
 
+  CommandEncoderType m_CurrentCommandEncoderType = CommandEncoderType::Invalid;
+  bool m_bMarker = false;
+
+  // Parent Device
+  ezGALDevice& m_Device;
+  ezGALCommandEncoderRenderState m_State;
+  ezGALCommandEncoderCommonPlatformInterface& m_CommonImpl;
+  ezGALCommandEncoderStats m_Stats;
+
+  ezGALOcclusionHandle m_hPendingOcclusionQuery = {};
+
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   // This code ensures in debug build that a buffer is not updated twice per frame in the same location
   struct BufferRange
@@ -197,14 +278,29 @@ private:
   ezMap<ezGALBufferHandle, ezHybridArray<BufferRange, 1>> m_BufferUpdates;
 #endif
 
-  CommandEncoderType m_CurrentCommandEncoderType = CommandEncoderType::Invalid;
-  bool m_bMarker = false;
+  // Barrier validation
+#if EZ_ENABLED(EZ_BARRIER_VALIDATION)
+  ezResult ValidateBindGroupResourceStates(const ezGALShader* pShader);
+  ezResult ValidateBindGroupItemResourceState(ezUInt32 uiBindGroup, const ezShaderResourceBinding& binding, const ezGALBindGroupItem& item);
+  ezResult ValidateGraphicsPipelineResources();
+  ezResult ValidateComputePipelineResources();
+  void ValidateTextureBarriers(ezArrayPtr<const ezGALTextureBarrier> barriers);
+  void ValidateBufferBarriers(ezArrayPtr<const ezGALBufferBarrier> barriers);
+  void ValidateRenderTargetStates(const ezGALRenderingSetup& renderingSetup);
 
-  // Parent Device
-  ezGALDevice& m_Device;
-  ezGALCommandEncoderRenderState m_State;
-  ezGALCommandEncoderCommonPlatformInterface& m_CommonImpl;
-  ezGALCommandEncoderStats m_Stats;
+  ezGALResourceStateTracker m_ResourceStateTracker;
+  ezGALBindGroupCreationDescription m_BindGroups[EZ_GAL_MAX_BIND_GROUPS];
+  ezUInt8 m_uiBindGroupsMask = 0;
 
-  ezGALOcclusionHandle m_hPendingOcclusionQuery = {};
+  struct ValidationHash
+  {
+    static ezUInt32 Hash(const ezTextureValidationError& a);
+    static bool Equal(const ezTextureValidationError& a, const ezTextureValidationError& b);
+
+    static ezUInt32 Hash(const ezBufferValidationError& a);
+    static bool Equal(const ezBufferValidationError& a, const ezBufferValidationError& b);
+  };
+  ezHashSet<ezTextureValidationError, ValidationHash> m_TextureErrors;
+  ezHashSet<ezBufferValidationError, ValidationHash> m_BufferErrors;
+#endif
 };

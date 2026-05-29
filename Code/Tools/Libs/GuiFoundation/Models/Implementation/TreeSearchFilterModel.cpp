@@ -25,7 +25,9 @@ void ezQtTreeSearchFilterModel::SetFilterText(const QString& sText)
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
   beginFilterChange();
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
   endFilterChange();
+#endif
 #else
   invalidateFilter();
 #endif
@@ -40,7 +42,9 @@ void ezQtTreeSearchFilterModel::SetIncludeChildren(bool bInclude)
     RecomputeVisibleItems();
 #if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
     beginFilterChange();
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
     endFilterChange();
+#endif
 #else
     invalidateFilter();
 #endif

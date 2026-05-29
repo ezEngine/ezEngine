@@ -5,10 +5,14 @@
 #include <GameEngine/XR/XRInterface.h>
 #include <GameEngine/XR/XRWindow.h>
 #include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/RenderGraph/RenderGraph.h>
+#include <RendererCore/RenderGraph/RenderGraphManager.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <RendererFoundation/Profiling/Profiling.h>
 #include <RendererFoundation/Resources/Resource.h>
 #include <RendererFoundation/Resources/Texture.h>
+#include <RendererCore/Textures/TextureUtils.h>
+#include <Texture/Image/Image.h>
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -67,11 +71,17 @@ ezWindowOutputTargetXR::ezWindowOutputTargetXR(ezXRInterface* pXrInterface, ezUn
     m_hCompanionShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/VRCompanionView.ezShader");
     EZ_ASSERT_DEV(m_hCompanionShader.IsValid(), "Could not load VR companion view shader!");
     m_hCompanionConstantBuffer = ezRenderContext::CreateConstantBufferStorage<ezVRCompanionViewConstants>();
+    m_pRenderGraph = ezRenderGraphManager::CreateRenderGraph("XR CompanionView", ezRenderGraphPhase::PostRender);
+    ezGALDevice::s_Events.AddEventHandler(ezMakeDelegate(&ezWindowOutputTargetXR::OnGALEvent, this));
   }
 }
 
 ezWindowOutputTargetXR::~ezWindowOutputTargetXR()
 {
+  if (m_pCompanionWindowOutputTarget)
+  {
+    ezGALDevice::s_Events.RemoveEventHandler(ezMakeDelegate(&ezWindowOutputTargetXR::OnGALEvent, this));
+  }
   // Delete companion resources.
   ezRenderContext::DeleteConstantBufferStorage(m_hCompanionConstantBuffer);
 }
@@ -92,7 +102,7 @@ void ezWindowOutputTargetXR::CompanionViewBeginFrame(bool bThrottleCompanionView
   m_bRender = true;
 }
 
-void ezWindowOutputTargetXR::CompanionViewEndFrame()
+void ezWindowOutputTargetXR::RenderCompanionView()
 {
   if (!m_bRender)
     return;
@@ -100,56 +110,116 @@ void ezWindowOutputTargetXR::CompanionViewEndFrame()
   m_bRender = false;
 
   EZ_PROFILE_SCOPE("RenderCompanionView");
-  ezGALTextureHandle m_hColorRT = m_pXrInterface->GetCurrentTexture();
-  if (m_hColorRT.IsInvalidated() || !m_pCompanionWindowOutputTarget)
+  ezGALTextureHandle hColorRT = m_pXrInterface->GetCurrentTexture();
+  if (hColorRT.IsInvalidated() || !m_pCompanionWindowOutputTarget)
     return;
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  ezRenderContext* m_pRenderContext = ezRenderContext::GetDefaultInstance();
+
+  const ezGALSwapChain* pSwapChain = pDevice->GetSwapChain(m_pCompanionWindowOutputTarget->m_hSwapChain);
+  ezGALTextureHandle hCompanionRenderTarget = pSwapChain->GetBackBufferTexture();
+  const ezGALTexture* tex = pDevice->GetTexture(hCompanionRenderTarget);
+  ezVec2 targetSize = ezVec2((float)tex->GetDescription().m_uiWidth, (float)tex->GetDescription().m_uiHeight);
+
+  m_pRenderGraph->Reset();
+
+  ezRenderGraphTextureHandle hTarget = m_pRenderGraph->ImportTexture(hCompanionRenderTarget);
+  ezRenderGraphTextureHandle hVRSource = m_pRenderGraph->ImportTexture(hColorRT);
 
   {
-    auto pEncoder = pDevice->BeginCommands("Blit CompanionView");
+    auto pass = m_pRenderGraph->AddGraphicsPass("Blit CompanionView");
+    pass.AddColorTarget(hTarget);
+    pass.ReadTexture(hVRSource);
+    pass.HasSideEffects();
+    pass.SetExecuteCallback([this, hVRSource, targetSize](const ezRenderGraphContext& ctx) {
+      auto* pRenderContext = ctx.GetRenderContext();
 
-    const ezGALSwapChain* pSwapChain = ezGALDevice::GetDefaultDevice()->GetSwapChain(m_pCompanionWindowOutputTarget->m_hSwapChain);
-    ezGALTextureHandle hCompanionRenderTarget = pSwapChain->GetBackBufferTexture();
-    const ezGALTexture* tex = pDevice->GetTexture(hCompanionRenderTarget);
-    auto hRenderTargetView = ezGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(hCompanionRenderTarget);
-    ezVec2 targetSize = ezVec2((float)tex->GetDescription().m_uiWidth, (float)tex->GetDescription().m_uiHeight);
+      pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
 
-    ezGALRenderingSetup renderingSetup;
-    renderingSetup.SetColorTarget(0, hRenderTargetView);
+      pRenderContext->BindShader(m_hCompanionShader);
 
-    m_pRenderContext->BeginRendering(renderingSetup, ezRectFloat(targetSize.x, targetSize.y));
+      auto* constants = ezRenderContext::GetConstantBufferData<ezVRCompanionViewConstants>(m_hCompanionConstantBuffer);
+      constants->TargetSize = targetSize;
 
-    m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
+      ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
+      bindGroup.BindBuffer("ezVRCompanionViewConstants", m_hCompanionConstantBuffer);
+      bindGroup.BindTexture("VRTexture", ctx.ResolveTexture(hVRSource));
 
-    m_pRenderContext->BindShader(m_hCompanionShader);
-
-    auto* constants = ezRenderContext::GetConstantBufferData<ezVRCompanionViewConstants>(m_hCompanionConstantBuffer);
-    constants->TargetSize = targetSize;
-
-    ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
-    bindGroup.BindBuffer("ezVRCompanionViewConstants", m_hCompanionConstantBuffer);
-    bindGroup.BindTexture("VRTexture", m_hColorRT);
-
-    m_pRenderContext->DrawMeshBuffer().IgnoreResult();
-
-    m_pRenderContext->EndRendering();
-
-    pDevice->EndCommands(pEncoder);
+      pRenderContext->DrawMeshBuffer().IgnoreResult();
+    });
   }
+
+  // If a capture was requested, add a readback pass to the same graph.
+  if (m_bCaptureRequested)
+  {
+    m_bCaptureRequested = false;
+
+    const ezGALTexture* pBackbuffer = pDevice->GetTexture(hCompanionRenderTarget);
+    m_CaptureBackbufferDesc = pBackbuffer->GetDescription();
+
+    auto capturePass = m_pRenderGraph->AddTransferPass("CaptureImage");
+    capturePass.ReadTexture(hTarget, {}, ezGALResourceState::CopySource);
+    capturePass.HasSideEffects();
+    capturePass.SetExecuteCallback([this, hTarget](const ezRenderGraphContext& ctx) {
+      m_Readback.ReadbackTexture(*ctx.GetCommandEncoder(), ctx.ResolveTexture(hTarget));
+    });
+
+    m_bCaptureInFlight = true;
+  }
+
+  ezRenderGraphManager::EnqueueRenderGraph(m_pRenderGraph);
 }
 
-ezResult ezWindowOutputTargetXR::CaptureImage(ezImage& out_image)
+void ezWindowOutputTargetXR::OnGALEvent(const ezGALDeviceEvent& e)
 {
-  if (m_pCompanionWindowOutputTarget)
+  if (e.m_Type != ezGALDeviceEvent::AfterBeginFrame)
+    return;
+
+  RenderCompanionView();
+}
+
+ezResult ezWindowOutputTargetXR::StartCaptureImage()
+{
+  if (!m_pCompanionWindowOutputTarget)
+    return EZ_FAILURE;
+
+  if (m_bCaptureInFlight || m_bCaptureRequested)
+    return EZ_FAILURE;
+
+  m_bCaptureRequested = true;
+  return EZ_SUCCESS;
+}
+
+ezEnum<ezCaptureImageResult> ezWindowOutputTargetXR::WaitCaptureImage(ezImage& out_image)
+{
+  if (!m_bCaptureInFlight)
+    return ezCaptureImageResult::NotStarted;
+
+  ezEnum<ezGALAsyncResult> res = m_Readback.GetReadbackResult(ezTime::MakeFromHours(1));
+  if (res == ezGALAsyncResult::Pending)
+    return ezCaptureImageResult::Pending;
+
+  if (res == ezGALAsyncResult::Expired)
   {
-    // If we are capturing an image, we need to update the companion view first.
-    // If not, CompanionViewEndFrame will be called by the XR implementation.
-    CompanionViewEndFrame();
-    return m_pCompanionWindowOutputTarget->CaptureImage(out_image);
+    m_bCaptureInFlight = false;
+    return ezCaptureImageResult::NotStarted;
   }
-  return EZ_FAILURE;
+
+  // Ready
+  ezGALTextureSubresource sourceSubResource;
+  ezArrayPtr<ezGALTextureSubresource> sourceSubResources(&sourceSubResource, 1);
+  ezTempHybridArray<ezGALSystemMemoryDescription, 1> memory;
+  ezReadbackTextureLock lock = m_Readback.LockTexture(sourceSubResources, memory);
+  if (!lock)
+  {
+    m_bCaptureInFlight = false;
+    return ezCaptureImageResult::NotStarted;
+  }
+
+  ezTextureUtils::CopySubResourceToImage(m_CaptureBackbufferDesc, sourceSubResource, memory[0], out_image, true);
+
+  m_bCaptureInFlight = false;
+  return ezCaptureImageResult::Ready;
 }
 
 const ezWindowOutputTargetBase* ezWindowOutputTargetXR::GetCompanionWindowOutputTarget() const

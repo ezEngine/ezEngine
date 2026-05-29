@@ -38,79 +38,64 @@ ezAntialiasingPass::ezAntialiasingPass()
 
 ezAntialiasingPass::~ezAntialiasingPass() = default;
 
-bool ezAntialiasingPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+ezStatus ezAntialiasingPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<ezRenderPipelinePinConnection const> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
-  auto pInput = inputs[m_PinInput.m_uiInputIndex];
-  if (pInput != nullptr)
+  // Validate input
+  ezRenderGraphTextureHandle hInput = inputs[m_PinInput.m_uiInputIndex].m_TextureHandle;
+  if (hInput.IsInvalidated())
+    return ezStatus(ezFmt("Input: Not connected "));
+  const ezGALTextureCreationDescription inputDesc = graph.GetTextureDesc(hInput);
+
+  if (inputDesc.m_SampleCount == ezGALMSAASampleCount::TwoSamples)
   {
-    if (pInput->m_SampleCount == ezGALMSAASampleCount::TwoSamples)
-    {
-      m_sMsaaSampleCount.Assign("MSAA_SAMPLES_TWO");
-    }
-    else if (pInput->m_SampleCount == ezGALMSAASampleCount::FourSamples)
-    {
-      m_sMsaaSampleCount.Assign("MSAA_SAMPLES_FOUR");
-    }
-    else if (pInput->m_SampleCount == ezGALMSAASampleCount::EightSamples)
-    {
-      m_sMsaaSampleCount.Assign("MSAA_SAMPLES_EIGHT");
-    }
-    else
-    {
-      ezLog::Error("Input is not a valid msaa target");
-      return false;
-    }
-
-    ezGALTextureCreationDescription desc = *pInput;
-    desc.m_SampleCount = ezGALMSAASampleCount::None;
-
-    outputs[m_PinOutput.m_uiOutputIndex] = desc;
+    m_sMsaaSampleCount.Assign("MSAA_SAMPLES_TWO");
+  }
+  else if (inputDesc.m_SampleCount == ezGALMSAASampleCount::FourSamples)
+  {
+    m_sMsaaSampleCount.Assign("MSAA_SAMPLES_FOUR");
+  }
+  else if (inputDesc.m_SampleCount == ezGALMSAASampleCount::EightSamples)
+  {
+    m_sMsaaSampleCount.Assign("MSAA_SAMPLES_EIGHT");
   }
   else
   {
-    ezLog::Error("No input connected to '{0}'!", GetName());
-    return false;
+    return ezStatus(ezFmt("Input: Invalid MSAA sample count"));
   }
 
-  return true;
-}
+  // Create output
+  ezGALTextureCreationDescription outputDesc = inputDesc;
+  outputDesc.m_SampleCount = ezGALMSAASampleCount::None;
+  ezRenderGraphTextureHandle hOutput = graph.CreateTexture(outputDesc);
+  outputs[m_PinOutput.m_uiOutputIndex].m_TextureHandle = hOutput;
 
-void ezAntialiasingPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
-{
-  auto pInput = inputs[m_PinInput.m_uiInputIndex];
-  auto pOutput = outputs[m_PinOutput.m_uiOutputIndex];
-  if (pInput == nullptr || pOutput == nullptr)
+  // Add passes
+  ezGALDevice* pDevice = graph.GetDevice();
+
+  auto pass = graph.AddGraphicsPass("AntialiasingPass");
+  pass.AddColorTarget(hOutput);
+  pass.ReadTexture(hInput, {}, ezGALResourceState::ShaderResource);
+  pass.SetStereoscopic(camera.IsStereoscopic());
+  pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
   {
-    return;
-  }
+    const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
+    renderViewContext.UpdateViewport();
 
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("MSAA_SAMPLES", m_sMsaaSampleCount);
+    renderViewContext.m_pRenderContext->BindShader(m_hShader);
+    renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
 
-  // Setup render target
-  ezGALRenderingSetup renderingSetup;
-  renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
+    ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
+    if (!pDevice->GetCapabilities().m_bSupportsMultiSampledArrays)
+    {
+      EZ_ASSERT_DEV(inputDesc.m_uiArraySize == 1, "Stereo rendering is not supported.");
+    }
+    bindGroup.BindTexture("ColorTexture", ctx.ResolveTexture(hInput));
 
-  // Bind render target and viewport
-  auto pCommandEncoder = ezRenderContext::BeginRenderingScope(renderViewContext, std::move(renderingSetup), GetName(), renderViewContext.m_pCamera->IsStereoscopic());
+    renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
+  });
 
-  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("MSAA_SAMPLES", m_sMsaaSampleCount);
-
-  renderViewContext.m_pRenderContext->BindShader(m_hShader);
-
-  renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
-
-  ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
-  if (!pDevice->GetCapabilities().m_bSupportsMultiSampledArrays)
-  {
-    EZ_ASSERT_DEV(pInput->m_Desc.m_uiArraySize == 1, "Stereo rendering is not supported.");
-    bindGroup.BindTexture("ColorTexture", pInput->m_TextureHandle);
-  }
-  else
-  {
-    bindGroup.BindTexture("ColorTexture", pInput->m_TextureHandle);
-  }
-
-  renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
+  return EZ_SUCCESS;
 }
 
 ezResult ezAntialiasingPass::Serialize(ezStreamWriter& inout_stream) const

@@ -10,6 +10,8 @@
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/RenderGraph/RenderGraphManager.h>
+#include <RendererCore/RenderGraph/RenderGraph.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Textures/DynamicTextureAtlas.h>
 #include <RendererCore/Textures/Texture2DResource.h>
@@ -309,6 +311,8 @@ struct ezDecalManager::Data
   ezDynamicArray<DecalUpdateInfo> m_DecalsToUpdate[2];
 
   ezDecalAtlasResourceHandle m_hBakedAtlas;
+
+  ezSharedPtr<ezRenderGraph> m_pRenderGraph;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -617,46 +621,41 @@ void ezDecalManager::OnRenderEvent(const ezRenderWorldRenderEvent& e)
   if (rtv.IsInvalidated())
     return;
 
-  {
-    auto pRenderContext = ezRenderContext::GetDefaultInstance();
+  if (s_pData->m_pRenderGraph == nullptr)
+    s_pData->m_pRenderGraph = ezRenderGraphManager::CreateRenderGraph("DecalManager", ezRenderGraphPhase::PreRender);
 
-    // Don't allow async shader loading since we don't want to miss any updates
+  s_pData->m_pRenderGraph->Reset();
+
+  ezRenderGraphTextureHandle hAtlas = s_pData->m_pRenderGraph->ImportTexture(s_pData->m_RuntimeAtlas.GetTexture());
+
+  auto pass = s_pData->m_pRenderGraph->AddGraphicsPass("Decal Atlas");
+  pass.AddColorTarget(hAtlas, {}, ezGALRenderTargetLoadOp::Load, ezGALRenderTargetStoreOp::Store);
+  pass.HasSideEffects();
+  pass.SetExecuteCallback([&decalsToUpdate](const ezRenderGraphContext& ctx) {
+    auto* pRenderContext = ctx.GetRenderContext();
+    auto* pCommandEncoder = ctx.GetCommandEncoder();
+
     const bool bAllowAsyncShaderLoading = pRenderContext->GetAllowAsyncShaderLoading();
     pRenderContext->SetAllowAsyncShaderLoading(false);
     EZ_SCOPE_EXIT(pRenderContext->SetAllowAsyncShaderLoading(bAllowAsyncShaderLoading));
 
     pRenderContext->BindMeshBuffer(s_pData->m_hPlaneMeshBuffer);
 
-    ezGALCommandEncoder* pCommandEncoder = pDevice->BeginCommands("Decal Atlas");
-
-    ezGALRenderingSetup renderingSetup;
-    renderingSetup.SetColorTarget(0, rtv, ezGALRenderTargetLoadOp::Load, ezGALRenderTargetStoreOp::Store);
-
     for (ezUInt32 i = 0; i < decalsToUpdate.GetCount(); ++i)
     {
       auto& updateInfo = decalsToUpdate[i];
       ezRectFloat viewport = ezRectFloat(updateInfo.m_TargetRect.x, updateInfo.m_TargetRect.y, updateInfo.m_TargetRect.width, updateInfo.m_TargetRect.height);
 
-      if (i == 0)
-      {
-        pRenderContext->BeginRendering(renderingSetup, viewport, "Decal Atlas");
-      }
-      else
-      {
-        pCommandEncoder->SetViewport(viewport);
-      }
+      pCommandEncoder->SetViewport(viewport);
 
       pRenderContext->SetGlobalAndWorldTimeConstants(updateInfo.m_WorldTime);
       pRenderContext->BindMaterial(updateInfo.m_hMaterial);
 
       pRenderContext->DrawMeshBuffer().AssertSuccess();
     }
+  });
 
-    pRenderContext->EndRendering();
-    pDevice->EndCommands(pCommandEncoder);
-
-    decalsToUpdate.Clear();
-  }
+  ezRenderGraphManager::EnqueueRenderGraph(s_pData->m_pRenderGraph);
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Decals_Implementation_DecalManager);

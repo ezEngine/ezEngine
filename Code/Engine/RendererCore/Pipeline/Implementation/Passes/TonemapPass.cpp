@@ -66,121 +66,97 @@ ezTonemapPass::~ezTonemapPass()
   ezRenderContext::DeleteConstantBufferStorage(m_hConstantBuffer);
 }
 
-bool ezTonemapPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+ezStatus ezTonemapPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  const ezGALRenderTargets& renderTargets = view.GetActiveRenderTargets();
+  ezRenderGraphTextureHandle hColorInput = inputs[m_PinColorInput.m_uiInputIndex].m_TextureHandle;
+  if (hColorInput.IsInvalidated())
+    return ezStatus(ezFmt("Color input: Not connected"));
 
-  // Color
-  auto pColorInput = inputs[m_PinColorInput.m_uiInputIndex];
-  if (pColorInput != nullptr)
-  {
-    if (const ezGALTexture* pTexture = pDevice->GetTexture(renderTargets.m_hRTs[0]))
-    {
-      const ezGALTextureCreationDescription& desc = pTexture->GetDescription();
-      // if (desc.m_uiWidth != pColorInput->m_uiWidth || desc.m_uiHeight != pColorInput->m_uiHeight)
-      //{
-      //  ezLog::Error("Render target sizes don't match");
-      //  return false;
-      //}
-
-      outputs[m_PinOutput.m_uiOutputIndex].SetAsRenderTarget(pColorInput->m_uiWidth, pColorInput->m_uiHeight, desc.m_Format);
-      outputs[m_PinOutput.m_uiOutputIndex].m_Type = pColorInput->m_Type;
-      outputs[m_PinOutput.m_uiOutputIndex].m_uiArraySize = pColorInput->m_uiArraySize;
-    }
-    else
-    {
-      ezLog::Error("View '{0}' does not have a valid color target", view.GetName());
-      return false;
-    }
-  }
-  else
-  {
-    ezLog::Error("No input connected to tone map pass!");
-    return false;
-  }
-
-  return true;
-}
-
-void ezTonemapPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
-{
-  auto pColorInput = inputs[m_PinColorInput.m_uiInputIndex];
-  auto pColorOutput = outputs[m_PinOutput.m_uiOutputIndex];
-  if (pColorInput == nullptr || pColorOutput == nullptr)
-  {
-    return;
-  }
+  const ezGALTextureCreationDescription colorInputDesc = graph.GetTextureDesc(hColorInput);
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  const ezGALRenderTargets& renderTargets = viewData.GetActiveRenderTargets();
+  const ezGALTexture* pTexture = pDevice->GetTexture(renderTargets.m_hRTs[0]);
+  if (pTexture == nullptr)
+    return ezStatus(ezFmt("View does not have a valid color target"));
 
-  // Setup render target
-  ezGALRenderingSetup renderingSetup;
-  renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(pColorOutput->m_TextureHandle));
+  const ezGALTextureCreationDescription& rtDesc = pTexture->GetDescription();
+  ezGALTextureCreationDescription outputDesc;
+  outputDesc.SetAsRenderTarget(colorInputDesc.m_uiWidth, colorInputDesc.m_uiHeight, rtDesc.m_Format);
+  outputDesc.m_Type = colorInputDesc.m_Type;
+  outputDesc.m_uiArraySize = colorInputDesc.m_uiArraySize;
+  ezRenderGraphTextureHandle hOutput = graph.CreateTexture(outputDesc);
+  outputs[m_PinOutput.m_uiOutputIndex].m_TextureHandle = hOutput;
 
-  // Bind render target and viewport
-  auto pCommandEncoder = ezRenderContext::BeginRenderingScope(renderViewContext, renderingSetup, GetName(), renderViewContext.m_pCamera->IsStereoscopic());
+  ezRenderGraphTextureHandle hBloomInput = inputs[m_PinBloomInput.m_uiInputIndex].m_TextureHandle;
 
-  // Determine how many LUTs are active
-  ezUInt32 numLUTs = 0;
-  ezTexture3DResourceHandle luts[2] = {};
-  float lutStrengths[2] = {};
-
-  if (m_hLUT1.IsValid())
+  auto pass = graph.AddGraphicsPass("Tonemap");
+  pass.AddColorTarget(hOutput);
+  pass.ReadTexture(hColorInput, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
+  if (!hBloomInput.IsInvalidated())
+    pass.ReadTexture(hBloomInput, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
+  pass.SetStereoscopic(camera.IsStereoscopic());
+  pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
   {
-    luts[numLUTs] = m_hLUT1;
-    lutStrengths[numLUTs] = m_fLut1Strength;
-    numLUTs++;
-  }
+    const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
+    renderViewContext.UpdateViewport();
 
-  if (m_hLUT2.IsValid())
-  {
-    luts[numLUTs] = m_hLUT2;
-    lutStrengths[numLUTs] = m_fLut2Strength;
-    numLUTs++;
-  }
+    // Determine how many LUTs are active
+    ezUInt32 numLUTs = 0;
+    ezTexture3DResourceHandle luts[2] = {};
+    float lutStrengths[2] = {};
 
-  {
-    ezTonemapConstants* constants = ezRenderContext::GetConstantBufferData<ezTonemapConstants>(m_hConstantBuffer);
-    constants->AutoExposureParams.SetZero();
-    constants->MoodColor = m_MoodColor;
-    constants->MoodStrength = m_fMoodStrength;
-    constants->Saturation = m_fSaturation;
-    constants->Lut1Strength = lutStrengths[0];
-    constants->Lut2Strength = lutStrengths[1];
-    constants->WhitePoint = m_fWhitePoint;
+    if (m_hLUT1.IsValid())
+    {
+      luts[numLUTs] = m_hLUT1;
+      lutStrengths[numLUTs] = m_fLut1Strength;
+      numLUTs++;
+    }
 
-    // Pre-calculate factors of a s-shaped polynomial-function
-    const float m = (0.5f - 0.5f * m_fContrast) / (0.5f + 0.5f * m_fContrast);
-    const float a = 2.0f * m - 2.0f;
-    const float b = -3.0f * m + 3.0f;
+    if (m_hLUT2.IsValid())
+    {
+      luts[numLUTs] = m_hLUT2;
+      lutStrengths[numLUTs] = m_fLut2Strength;
+      numLUTs++;
+    }
 
-    constants->ContrastParams = ezVec4(a, b, m, 0.0f);
-  }
+    {
+      ezTonemapConstants* constants = ezRenderContext::GetConstantBufferData<ezTonemapConstants>(m_hConstantBuffer);
+      constants->AutoExposureParams.SetZero();
+      constants->MoodColor = m_MoodColor;
+      constants->MoodStrength = m_fMoodStrength;
+      constants->Saturation = m_fSaturation;
+      constants->Lut1Strength = lutStrengths[0];
+      constants->Lut2Strength = lutStrengths[1];
+      constants->WhitePoint = m_fWhitePoint;
 
-  ezGALTextureHandle hBloomTextureView;
-  auto pBloomInput = inputs[m_PinBloomInput.m_uiInputIndex];
-  if (pBloomInput != nullptr)
-  {
-    hBloomTextureView = pBloomInput->m_TextureHandle;
-  }
+      // Pre-calculate factors of a s-shaped polynomial-function
+      const float m = (0.5f - 0.5f * m_fContrast) / (0.5f + 0.5f * m_fContrast);
+      const float a = 2.0f * m - 2.0f;
+      const float b = -3.0f * m + 3.0f;
 
-  renderViewContext.m_pRenderContext->BindShader(m_hShader);
-  renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
+      constants->ContrastParams = ezVec4(a, b, m, 0.0f);
+    }
 
-  ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
-  bindGroup.BindBuffer("ezTonemapConstants", m_hConstantBuffer);
-  bindGroup.BindTexture("VignettingTexture", m_hVignettingTexture, ezResourceAcquireMode::BlockTillLoaded);
-  bindGroup.BindTexture("NoiseTexture", m_hNoiseTexture, ezResourceAcquireMode::BlockTillLoaded);
-  bindGroup.BindTexture("SceneColorTexture", pColorInput->m_TextureHandle);
-  bindGroup.BindTexture("BloomTexture", hBloomTextureView);
-  bindGroup.BindTexture("Lut1Texture", luts[0]);
-  bindGroup.BindTexture("Lut2Texture", luts[1]);
+    renderViewContext.m_pRenderContext->BindShader(m_hShader);
+    renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
 
-  ezTempHashedString sLUTModeValues[3] = {"LUT_MODE_NONE", "LUT_MODE_ONE", "LUT_MODE_TWO"};
-  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("LUT_MODE", sLUTModeValues[numLUTs]);
+    ezBindGroupBuilder& bindGroup = ezRenderContext::GetDefaultInstance()->GetBindGroup();
+    bindGroup.BindBuffer("ezTonemapConstants", m_hConstantBuffer);
+    bindGroup.BindTexture("VignettingTexture", m_hVignettingTexture, ezResourceAcquireMode::BlockTillLoaded);
+    bindGroup.BindTexture("NoiseTexture", m_hNoiseTexture, ezResourceAcquireMode::BlockTillLoaded);
+    bindGroup.BindTexture("SceneColorTexture", ctx.ResolveTexture(hColorInput));
+    bindGroup.BindTexture("BloomTexture", hBloomInput.IsInvalidated() ? ezGALTextureHandle() : ctx.ResolveTexture(hBloomInput));
+    bindGroup.BindTexture("Lut1Texture", luts[0]);
+    bindGroup.BindTexture("Lut2Texture", luts[1]);
 
-  renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
+    ezTempHashedString sLUTModeValues[3] = {"LUT_MODE_NONE", "LUT_MODE_ONE", "LUT_MODE_TWO"};
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("LUT_MODE", sLUTModeValues[numLUTs]);
+
+    renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
+  });
+
+  return EZ_SUCCESS;
 }
 
 ezResult ezTonemapPass::Serialize(ezStreamWriter& inout_stream) const

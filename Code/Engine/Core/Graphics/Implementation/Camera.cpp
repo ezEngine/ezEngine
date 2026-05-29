@@ -234,6 +234,11 @@ void ezCamera::SetCameraMode(ezCameraMode::Enum mode, float fFovOrDim, float fNe
 
 void ezCamera::SetStereoProjection(const ezMat4& mProjectionLeftEye, const ezMat4& mProjectionRightEye, float fAspectRatioWidthDivHeight)
 {
+  if (m_mStereoProjectionMatrix[static_cast<int>(ezCameraEye::Left)] == mProjectionLeftEye && m_mStereoProjectionMatrix[static_cast<int>(ezCameraEye::Right)] == mProjectionRightEye && m_fAspectOfPrecomputedStereoProjection == fAspectRatioWidthDivHeight)
+  {
+    return;
+  }
+
   m_mStereoProjectionMatrix[static_cast<int>(ezCameraEye::Left)] = mProjectionLeftEye;
   m_mStereoProjectionMatrix[static_cast<int>(ezCameraEye::Right)] = mProjectionRightEye;
   m_fAspectOfPrecomputedStereoProjection = fAspectRatioWidthDivHeight;

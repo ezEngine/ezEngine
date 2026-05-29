@@ -126,14 +126,21 @@ void ezGameApplicationBase::StoreScreenshot(ezImage&& image, ezStringView sConte
 
 void ezGameApplicationBase::ExecuteTakeScreenshot(ezWindowOutputTargetBase* pOutputTarget, ezStringView sContext /* = {} */)
 {
-  if (m_bTakeScreenshot)
+  // Poll a previously started capture first.
   {
-    EZ_PROFILE_SCOPE("ExecuteTakeScreenshot");
     ezImage img;
-    if (pOutputTarget->CaptureImage(img).Succeeded())
+    ezEnum<ezCaptureImageResult> res = pOutputTarget->WaitCaptureImage(img);
+    if (res == ezCaptureImageResult::Ready)
     {
       StoreScreenshot(std::move(img), sContext);
     }
+  }
+
+  // Start a new capture if requested and no operation is already in flight.
+  if (m_bTakeScreenshot)
+  {
+    EZ_PROFILE_SCOPE("ExecuteTakeScreenshot");
+    pOutputTarget->StartCaptureImage().IgnoreResult();
   }
 }
 

@@ -37,10 +37,10 @@ ezTargetPass::ezTargetPass(const char* szName)
 
 ezTargetPass::~ezTargetPass() = default;
 
-bool ezTargetPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+ezStatus ezTargetPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
-  m_hSwapChain = view.GetSwapChain();
-  m_RenderTargets = view.GetRenderTargets();
+  m_hSwapChain = viewData.m_hSwapChain;
+  m_RenderTargets = viewData.m_RenderTargets;
 
   const char* pinNames[] = {
     "Color0",
@@ -56,11 +56,10 @@ bool ezTargetPass::GetRenderTargetDescriptions(const ezView& view, const ezArray
 
   for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(pinNames); ++i)
   {
-    if (!VerifyInput(view, inputs, pinNames[i]))
-      return false;
+    EZ_SUCCEED_OR_RETURN(VerifyInput(graph, inputs, pinNames[i]));
   }
 
-  return true;
+  return EZ_SUCCESS;
 }
 
 ezGALTextureHandle ezTargetPass::QueryTextureProvider(const ezRenderPipelineNodePin* pPin, const ezGALTextureCreationDescription& desc)
@@ -88,16 +87,15 @@ ezGALTextureHandle ezTargetPass::QueryTextureProvider(const ezRenderPipelineNode
   }
 }
 
-void ezTargetPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) {}
-
-bool ezTargetPass::VerifyInput(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, const char* szPinName)
+ezStatus ezTargetPass::VerifyInput(ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, const char* szPinName)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
   const ezRenderPipelineNodePin* pPin = GetPinByName(szPinName);
-  if (inputs[pPin->m_uiInputIndex])
+  if (inputs[pPin->m_uiInputIndex].m_Connectivity == ezRenderPipelinePinConnection::Connectivity::Texture)
   {
-    const ezGALTextureHandle handle = QueryTextureProvider(pPin, *inputs[pPin->m_uiInputIndex]);
+    const ezGALTextureCreationDescription& desc = graph.GetTextureDesc(inputs[pPin->m_uiInputIndex].m_TextureHandle);
+    const ezGALTextureHandle handle = QueryTextureProvider(pPin, desc);
     if (!handle.IsInvalidated())
     {
       const ezGALTexture* pTexture = pDevice->GetTexture(handle);
@@ -110,7 +108,7 @@ bool ezTargetPass::VerifyInput(const ezView& view, const ezArrayPtr<ezGALTexture
     }
   }
 
-  return true;
+  return EZ_SUCCESS;
 }
 
 

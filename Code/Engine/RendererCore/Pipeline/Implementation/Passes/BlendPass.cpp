@@ -37,56 +37,43 @@ ezBlendPass::ezBlendPass()
 
 ezBlendPass::~ezBlendPass() = default;
 
-bool ezBlendPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+ezStatus ezBlendPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
-  // Color
-  if (inputs[m_PinInputA.m_uiInputIndex] && inputs[m_PinInputB.m_uiInputIndex])
-  {
-    if (!inputs[m_PinInputA.m_uiInputIndex]->m_TextureFlags.IsSet(ezGALTextureUsageFlags::ShaderResource) || !inputs[m_PinInputB.m_uiInputIndex]->m_TextureFlags.IsSet(ezGALTextureUsageFlags::ShaderResource))
-    {
-      ezLog::Error("Blend pass inputs must allow shader resource view.");
-      return false;
-    }
+  ezRenderGraphTextureHandle hInputA = inputs[m_PinInputA.m_uiInputIndex].m_TextureHandle;
+  ezRenderGraphTextureHandle hInputB = inputs[m_PinInputB.m_uiInputIndex].m_TextureHandle;
+  if (hInputA.IsInvalidated() || hInputB.IsInvalidated())
+    return ezStatus(ezFmt("Input: Not connected"));
 
-    outputs[m_PinOutput.m_uiOutputIndex] = *inputs[m_PinInputA.m_uiInputIndex];
-  }
-  else
-  {
-    ezLog::Error("No input connected to blend pass!");
-    return false;
-  }
+  const ezGALTextureCreationDescription inputDescA = graph.GetTextureDesc(hInputA);
+  ezRenderGraphTextureHandle hOutput = graph.CreateTexture(inputDescA);
+  outputs[m_PinOutput.m_uiOutputIndex].m_TextureHandle = hOutput;
 
-  return true;
-}
-
-void ezBlendPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
-{
-  if (outputs[m_PinOutput.m_uiOutputIndex])
+  auto pass = graph.AddGraphicsPass("Blend");
+  pass.AddColorTarget(hOutput, {}, ezGALRenderTargetLoadOp::Clear);
+  pass.SetClearColor(0, ezColor(1.0f, 0.0f, 0.0f));
+  pass.ReadTexture(hInputA, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
+  pass.ReadTexture(hInputB, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
+  pass.SetStereoscopic(camera.IsStereoscopic());
+  pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
   {
-    ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+    const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
+    renderViewContext.UpdateViewport();
 
     ezBlendConstants cb = {};
     cb.BlendFactor = m_fBlendFactor;
     renderViewContext.m_pRenderContext->SetPushConstants("ezBlendConstants", cb);
 
-    // Setup render target
-    ezGALRenderingSetup renderingSetup;
-    renderingSetup.SetColorTarget(0, pDevice->GetDefaultRenderTargetView(outputs[m_PinOutput.m_uiOutputIndex]->m_TextureHandle));
-    renderingSetup.SetClearColor(0, ezColor(1.0f, 0.0f, 0.0f));
-
-    // Bind render target and viewport
-    auto pCommandEncoder = ezRenderContext::BeginRenderingScope(renderViewContext, renderingSetup, GetName(), renderViewContext.m_pCamera->IsStereoscopic());
-
-    // Bind shader and inputs
     renderViewContext.m_pRenderContext->BindShader(m_hShader);
     renderViewContext.m_pRenderContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
 
     ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
-    bindGroup.BindTexture("InputA", inputs[m_PinInputA.m_uiInputIndex]->m_TextureHandle);
-    bindGroup.BindTexture("InputB", inputs[m_PinInputB.m_uiInputIndex]->m_TextureHandle);
+    bindGroup.BindTexture("InputA", ctx.ResolveTexture(hInputA));
+    bindGroup.BindTexture("InputB", ctx.ResolveTexture(hInputB));
 
     renderViewContext.m_pRenderContext->DrawMeshBuffer().IgnoreResult();
-  }
+  });
+
+  return EZ_SUCCESS;
 }
 
 ezResult ezBlendPass::Serialize(ezStreamWriter& inout_stream) const

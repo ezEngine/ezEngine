@@ -49,45 +49,29 @@ ezScreenSpaceShadowPass::~ezScreenSpaceShadowPass()
   ezRenderContext::DeleteConstantBufferStorage(m_hConstantBuffer);
 }
 
-bool ezScreenSpaceShadowPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+ezStatus ezScreenSpaceShadowPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
-  if (auto pDepthInput = inputs[m_PinDepthInput.m_uiInputIndex])
-  {
-    if (!pDepthInput->m_TextureFlags.IsSet(ezGALTextureUsageFlags::ShaderResource))
-    {
-      ezLog::Error("'{0}' input must allow shader resource view.", GetName());
-      return false;
-    }
+  ezRenderGraphTextureHandle hDepthInput = inputs[m_PinDepthInput.m_uiInputIndex].m_TextureHandle;
+  if (hDepthInput.IsInvalidated())
+    return ezStatus(ezFmt("DepthInput: Not connected"));
 
-    if (pDepthInput->m_SampleCount != ezGALMSAASampleCount::None)
-    {
-      ezLog::Error("'{0}' input must be resolved", GetName());
-      return false;
-    }
+  const ezGALTextureCreationDescription depthDesc = graph.GetTextureDesc(hDepthInput);
+  if (depthDesc.m_SampleCount != ezGALMSAASampleCount::None)
+    return ezStatus(ezFmt("DepthInput: Must be resolved"));
 
-    ezGALTextureCreationDescription desc = *pDepthInput;
-    desc.m_Format = ezGALResourceFormat::RUByteNormalized;
-    desc.m_TextureFlags = ezGALTextureUsageFlags::ShaderResource | ezGALTextureUsageFlags::UnorderedAccess;
+  // Create output texture
+  ezGALTextureCreationDescription outputDesc = depthDesc;
+  outputDesc.m_Format = ezGALResourceFormat::RUByteNormalized;
+  outputDesc.m_TextureFlags = ezGALTextureUsageFlags::ShaderResource | ezGALTextureUsageFlags::UnorderedAccess;
 
-    outputs[m_PinOutput.m_uiOutputIndex] = desc;
-  }
-  else
-  {
-    ezLog::Error("No input connected to '{0}'!", GetName());
-    return false;
-  }
+  ezRenderGraphTextureHandle hOutput = graph.CreateTexture(outputDesc);
+  outputs[m_PinOutput.m_uiOutputIndex].m_TextureHandle = hOutput;
 
-  return true;
-}
+  const ezGALTextureCreationDescription& depthTexDesc = graph.GetTextureDesc(hDepthInput);
+  const ezUInt32 uiWidth = depthTexDesc.m_uiWidth;
+  const ezUInt32 uiHeight = depthTexDesc.m_uiHeight;
 
-void ezScreenSpaceShadowPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
-{
-  auto pDepthInput = inputs[m_PinDepthInput.m_uiInputIndex];
-  auto pOutput = outputs[m_PinOutput.m_uiOutputIndex];
-  if (pDepthInput == nullptr || pOutput == nullptr)
-  {
-    return;
-  }
+  CreateSamplerState();
 
   bool bRendered = false;
 
@@ -103,7 +87,7 @@ void ezScreenSpaceShadowPass::Execute(const ezRenderViewContext& renderViewConte
       if (pDirLight == nullptr)
       {
         // Directional lights come first in the list, so we can stop as soon as we encounter a non-directional light.
-        return;
+        return EZ_SUCCESS;
       }
 
       if (!pDirLight->m_bScreenSpaceShadows)
@@ -112,65 +96,63 @@ void ezScreenSpaceShadowPass::Execute(const ezRenderViewContext& renderViewConte
       if (bRendered)
       {
         ezLog::Warning("Multiple directional lights with screen space shadows are not yet supported. Only the first one will be rendered.");
-        return;
+        return EZ_SUCCESS;
       }
-
-      CreateSamplerState();
-
-      ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-      const ezGALTexture* pDepthTex = pDevice->GetTexture(pDepthInput->m_TextureHandle);
-      const ezUInt32 uiWidth = pDepthTex->GetDescription().m_uiWidth;
-      const ezUInt32 uiHeight = pDepthTex->GetDescription().m_uiHeight;
 
       ezVec3 lightDir = pDirLight->m_vDirection;
       lightDir.Normalize();
 
-      const ezUInt32 uiEyeCount = renderViewContext.m_pCamera->IsStereoscopic() ? 2 : 1;
+      const ezUInt32 uiEyeCount = camera.IsStereoscopic() ? 2 : 1;
       for (ezUInt32 uiEyeIndex = 0; uiEyeIndex < uiEyeCount; ++uiEyeIndex)
       {
-        ezVec4 projectedLightDir = renderViewContext.m_pViewData->m_ViewProjectionMatrix[uiEyeIndex] * ezVec4(lightDir, 0.0f);
-
-        ezVec2I32 viewportSize = ezVec2I32::Make(uiWidth, uiHeight);
-        ezVec2I32 minRenderBounds = ezVec2I32::Make(0, 0);
-        ezVec2I32 maxRenderBounds = viewportSize;
-
-        Bend::DispatchList dispatchList = Bend::BuildDispatchList(projectedLightDir.GetData(), viewportSize.GetData(), minRenderBounds.GetData(), maxRenderBounds.GetData(), false, WAVE_SIZE);
-
         // Ray march pass: writes raw shadow to output texture
-        {
-          auto computeScope = renderViewContext.m_pRenderContext->BeginComputeScope(renderViewContext, "ScreenSpaceShadow");
-
-          ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
-          bindGroup.BindBuffer("ezScreenSpaceShadowConstants", m_hConstantBuffer);
-          bindGroup.BindTexture("DepthTexture", pDepthInput->m_TextureHandle);
-          bindGroup.BindSampler("DepthTextureSampler", m_hDepthSamplerState);
-          bindGroup.BindTexture("OutputTexture", pOutput->m_TextureHandle);
-
-          renderViewContext.m_pRenderContext->BindShader(m_hShader);
-
-          for (int i = 0; i < dispatchList.DispatchCount; ++i)
+        auto pass = graph.AddComputePass("ScreenSpaceShadow");
+        pass.ReadTexture(hDepthInput, {}, ezGALResourceState::ShaderResource);
+        pass.WriteTexture(hOutput, {}, ezGALResourceState::UnorderedAccess);
+        pass.SetStereoscopic(camera.IsStereoscopic());
+        pass.SetExecuteCallback([this, uiWidth, uiHeight, hDepthInput, hOutput, uiEyeIndex, lightDir](const ezRenderGraphContext& ctx)
           {
-            auto& dispatch = dispatchList.Dispatch[i];
+            const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
+            ezVec2I32 viewportSize = ezVec2I32::Make(uiWidth, uiHeight);
+            ezVec2I32 minRenderBounds = ezVec2I32::Make(0, 0);
+            ezVec2I32 maxRenderBounds = viewportSize;
+            ezVec4 projectedLightDir = renderViewContext.m_pViewData->m_ViewProjectionMatrix[uiEyeIndex] * ezVec4(lightDir, 0.0f);
 
-            // Fill constant buffer
+            Bend::DispatchList dispatchList = Bend::BuildDispatchList(projectedLightDir.GetData(), viewportSize.GetData(), minRenderBounds.GetData(), maxRenderBounds.GetData(), false, WAVE_SIZE);
+
+            ezBindGroupBuilder& bindGroup = renderViewContext.m_pRenderContext->GetBindGroup();
+            bindGroup.BindBuffer("ezScreenSpaceShadowConstants", m_hConstantBuffer);
+            bindGroup.BindTexture("DepthTexture", ctx.ResolveTexture(hDepthInput));
+            bindGroup.BindSampler("DepthTextureSampler", m_hDepthSamplerState);
+            bindGroup.BindTexture("OutputTexture", ctx.ResolveTexture(hOutput));
+
+            renderViewContext.m_pRenderContext->BindShader(m_hShader);
+
+            for (int j = 0; j < dispatchList.DispatchCount; ++j)
             {
-              auto cb = ezRenderContext::GetConstantBufferData<ezScreenSpaceShadowConstants>(m_hConstantBuffer);
-              cb->LightCoordinate = ezVec4(dispatchList.LightCoordinate_Shader[0], dispatchList.LightCoordinate_Shader[1], dispatchList.LightCoordinate_Shader[2], dispatchList.LightCoordinate_Shader[3]);
-              cb->WaveOffset = ezVec2I32(dispatch.WaveOffset_Shader[0], dispatch.WaveOffset_Shader[1]);
-              cb->InvDepthTextureSize = ezVec2(1.0f / uiWidth, 1.0f / uiHeight);
-              cb->SurfaceThickness = m_fSurfaceThickness;
-              cb->ShadowContrast = m_fShadowContrast;
-              cb->EyeIndex = uiEyeIndex;
-            }
+              auto& dispatch = dispatchList.Dispatch[j];
 
-            renderViewContext.m_pRenderContext->Dispatch(dispatch.WaveCount[0], dispatch.WaveCount[1], dispatch.WaveCount[2]).IgnoreResult();
-          }
-        }
+              // Fill constant buffer
+              {
+                auto cb = ezRenderContext::GetConstantBufferData<ezScreenSpaceShadowConstants>(m_hConstantBuffer);
+                cb->LightCoordinate = ezVec4(dispatchList.LightCoordinate_Shader[0], dispatchList.LightCoordinate_Shader[1], dispatchList.LightCoordinate_Shader[2], dispatchList.LightCoordinate_Shader[3]);
+                cb->WaveOffset = ezVec2I32(dispatch.WaveOffset_Shader[0], dispatch.WaveOffset_Shader[1]);
+                cb->InvDepthTextureSize = ezVec2(1.0f / uiWidth, 1.0f / uiHeight);
+                cb->SurfaceThickness = m_fSurfaceThickness;
+                cb->ShadowContrast = m_fShadowContrast;
+                cb->EyeIndex = uiEyeIndex;
+              }
+
+              renderViewContext.m_pRenderContext->Dispatch(dispatch.WaveCount[0], dispatch.WaveCount[1], dispatch.WaveCount[2]).IgnoreResult();
+            } //
+          });
       }
 
       bRendered = true;
     }
-  }
+  } //
+
+  return EZ_SUCCESS;
 }
 
 ezResult ezScreenSpaceShadowPass::Serialize(ezStreamWriter& inout_stream) const
