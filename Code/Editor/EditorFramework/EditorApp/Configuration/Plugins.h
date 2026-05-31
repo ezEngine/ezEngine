@@ -25,6 +25,7 @@ struct EZ_EDITORFRAMEWORK_DLL ezPluginBundle
 
   // General Bundle Description
   bool m_bMandatory = false;                        ///< if set, the bundle is always used and not even displayed in the UI
+  bool m_bAllowEnableReload = false;                ///< If false, the "Enable Reload" option is not available for this bundle. Only set to true for plugins that are loaded purely dynamically at runtime and not linked against directly.
   ezString m_sDisplayName;                          ///< The string for displaying the bundle in UI
   ezString m_sDescription;                          ///< A proper description what this bundle is for, so that users know when to use it.
   ezHybridArray<ezString, 1> m_EditorPlugins;       ///< List of all the DLLs (without extension) to load into the editor process.

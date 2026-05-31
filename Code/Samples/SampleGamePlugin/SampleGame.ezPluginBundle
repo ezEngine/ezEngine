@@ -3,6 +3,7 @@
 
 PluginInfo
 {
+	bool %AllowEnableReload{true}
 	string %DisplayName{"Sample Game"}
 	string %Description{"Contains the C++ code of the sample game project."}
 	string %EditorPlugins{}

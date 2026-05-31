@@ -1,6 +1,7 @@
 PluginInfo
 {
 	bool %Mandatory{false}
+	bool %AllowEnableReload{true}
 	string %DisplayName{"CppProject"}
 	string %Description{"C++ code for the CppProject project."}
 	string %EditorPlugins{}

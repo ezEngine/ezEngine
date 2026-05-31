@@ -1,6 +1,7 @@
 PluginInfo
 {
 	bool %Mandatory{false}
+	bool %AllowEnableReload{true}
 	string %DisplayName{"PacMan"}
 	string %Description{"C++ code for the PacMan project."}
 	string %EditorPlugins{}

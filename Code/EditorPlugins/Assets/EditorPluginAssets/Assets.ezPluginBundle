@@ -34,4 +34,9 @@ PluginInfo
 	// if true, the plugin is not shown in the UI and always loaded
 	// only used for system functionality
 	bool %Mandatory{true}
+
+	// if true, the user can enable "hot reload" for this bundle in the editor UI.
+	// This makes the engine load a copy of the runtime DLL, so the original can be replaced and reloaded during development.
+	// Only enable this for plugins that are loaded purely dynamically at runtime and not linked against directly.
+	// bool %AllowEnableReload{false}
 }

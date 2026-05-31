@@ -99,11 +99,14 @@ void ezQtPluginSelectionWidget::on_PluginsList_currentItemChanged(QListWidgetIte
     auto& state = m_States[PluginsList->row(current)];
     DescriptionText->setPlainText(state.m_pInfo->m_sDescription.GetData());
     LoadCopy->setChecked(state.m_bLoadCopy);
-    LoadCopy->setEnabled(true);
+    const bool bAllowReload = state.m_pInfo->m_bAllowEnableReload;
+    LoadCopy->setEnabled(bAllowReload);
+    LoadCopy->setToolTip(bAllowReload ? "" : "This plugin does not support hot-reloading. Only plugins that are loaded purely dynamically at runtime and not linked against directly can use this feature.");
   }
   else
   {
     LoadCopy->setEnabled(false);
+    LoadCopy->setToolTip("");
   }
 }
 

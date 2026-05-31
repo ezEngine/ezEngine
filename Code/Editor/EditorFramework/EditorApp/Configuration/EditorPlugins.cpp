@@ -105,6 +105,9 @@ ezResult ezPluginBundle::ReadBundleFromDDL(ezOpenDdlReader& ref_ddl)
   if (auto pElement = pInfo->FindChildOfType(ezOpenDdlPrimitiveType::Bool, "Mandatory"))
     m_bMandatory = pElement->GetPrimitivesBool()[0];
 
+  if (auto pElement = pInfo->FindChildOfType(ezOpenDdlPrimitiveType::Bool, "AllowEnableReload"))
+    m_bAllowEnableReload = pElement->GetPrimitivesBool()[0];
+
   if (auto pElement = pInfo->FindChildOfType(ezOpenDdlPrimitiveType::String, "DisplayName"))
     m_sDisplayName = pElement->GetPrimitivesString()[0];
 

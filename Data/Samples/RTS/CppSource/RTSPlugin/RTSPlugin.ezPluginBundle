@@ -1,6 +1,7 @@
 PluginInfo
 {
 	bool %Mandatory{false}
+	bool %AllowEnableReload{true}
 	string %DisplayName{"RTS"}
 	string %Description{"C++ code for the RTS project."}
 	string %EditorPlugins{}
