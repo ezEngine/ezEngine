@@ -18,12 +18,12 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, RenderGraphManager)
     "Core"
   END_SUBSYSTEM_DEPENDENCIES
 
-  ON_CORESYSTEMS_STARTUP
+  ON_HIGHLEVELSYSTEMS_STARTUP
   {
     ezRenderGraphManager::OnEngineStartup();
   }
 
-  ON_CORESYSTEMS_SHUTDOWN
+  ON_HIGHLEVELSYSTEMS_SHUTDOWN
   {
     ezRenderGraphManager::OnEngineShutdown();
   }
@@ -47,10 +47,12 @@ void ezRenderGraphManager::OnEngineStartup()
   ezGALDevice::s_Events.AddEventHandler(ezMakeDelegate(&ezRenderGraphManager::GALDeviceEventHandler));
   ezGALCommandEncoder::s_TextureBarrierValidationFailed.AddEventHandler(ezMakeDelegate(&ezRenderGraphManager::PrintTextureResourceHistory));
   ezGALCommandEncoder::s_BufferBarrierValidationFailed.AddEventHandler(ezMakeDelegate(&ezRenderGraphManager::PrintBufferResourceHistory));
+  InitPool(ezGALDevice::GetDefaultDevice());
 }
 
 void ezRenderGraphManager::OnEngineShutdown()
 {
+  DeinitPool(ezGALDevice::GetDefaultDevice());
   ezGALDevice::s_Events.RemoveEventHandler(ezMakeDelegate(&ezRenderGraphManager::GALDeviceEventHandler));
   ezGALCommandEncoder::s_TextureBarrierValidationFailed.RemoveEventHandler(ezMakeDelegate(&ezRenderGraphManager::PrintTextureResourceHistory));
   ezGALCommandEncoder::s_BufferBarrierValidationFailed.RemoveEventHandler(ezMakeDelegate(&ezRenderGraphManager::PrintBufferResourceHistory));
@@ -66,12 +68,6 @@ void ezRenderGraphManager::GALDeviceEventHandler(const ezGALDeviceEvent& e)
 {
   switch (e.m_Type)
   {
-    case ezGALDeviceEvent::AfterInit:
-      InitPool(e.m_pDevice);
-      break;
-    case ezGALDeviceEvent::BeforeShutdown:
-      DeinitPool(e.m_pDevice);
-      break;
     case ezGALDeviceEvent::BeforeBeginFrame:
       BeginFrame();
       break;
@@ -227,7 +223,7 @@ namespace
 void ezRenderGraphManager::PrintTextureResourceHistory(const ezTextureValidationError& error)
 {
   ezLog::Error("Bind group '{}' binding '{}': texture sub-resource [mip={}, slice={}] state mismatch. Tracked: {} [{}], Expected: {} [{}]",
-    error.m_uiBindGroup, error.m_sBinding.GetData(), error.m_failedSubResource.m_uiMipLevel, error.m_failedSubResource.m_uiArraySlice, ezArgEnum(error.m_actualState), ezArgEnum(error.m_actualStages), ezArgEnum(error.m_expectedState), ezArgEnum(error.m_expectedStages));
+  error.m_uiBindGroup, error.m_sBinding.GetData(), error.m_failedSubResource.m_uiMipLevel, error.m_failedSubResource.m_uiArraySlice, ezArgEnum(error.m_actualState), ezArgEnum(error.m_actualStages), ezArgEnum(error.m_expectedState), ezArgEnum(error.m_expectedStages));
 
 
   if (s_ExecutingGraphs.IsEmpty())

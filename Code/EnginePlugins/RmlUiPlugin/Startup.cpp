@@ -12,7 +12,8 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RmlUi, RmlUiPlugin)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "Foundation",
-    "Core"
+    "Core",
+    "RenderGraphManager"
   END_SUBSYSTEM_DEPENDENCIES
 
   ON_CORESYSTEMS_STARTUP
