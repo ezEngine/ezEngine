@@ -223,7 +223,7 @@ namespace
 void ezRenderGraphManager::PrintTextureResourceHistory(const ezTextureValidationError& error)
 {
   ezLog::Error("Bind group '{}' binding '{}': texture sub-resource [mip={}, slice={}] state mismatch. Tracked: {} [{}], Expected: {} [{}]",
-  error.m_uiBindGroup, error.m_sBinding.GetData(), error.m_failedSubResource.m_uiMipLevel, error.m_failedSubResource.m_uiArraySlice, ezArgEnum(error.m_actualState), ezArgEnum(error.m_actualStages), ezArgEnum(error.m_expectedState), ezArgEnum(error.m_expectedStages));
+    error.m_uiBindGroup, error.m_sBinding.GetData(), error.m_failedSubResource.m_uiMipLevel, error.m_failedSubResource.m_uiArraySlice, ezArgEnum(error.m_actualState), ezArgEnum(error.m_actualStages), ezArgEnum(error.m_expectedState), ezArgEnum(error.m_expectedStages));
 
 
   if (s_ExecutingGraphs.IsEmpty())
