@@ -147,7 +147,7 @@ public:
   virtual void FindAssetUsages(ezStringView sAssetToFind, ezDynamicArray<AssetUsage>& out_usages, ezUInt32 maxResults) const override;
 
 private:
-  void FindAssetUsagesInternal(ezStringView sAssetToFind, const ezDocumentObject* pObject, ezDynamicArray<AssetUsage>& out_usages, ezUInt32 maxResults) const;
+  void FindAssetUsagesInternal(ezStringView sAssetToFind, const ezDocumentObject* pObject, ezDynamicArray<AssetUsage>& out_usages, ezUInt32 uiMaxResults) const;
   void DeallocateEditTools();
 
   ezDelegate<void(ezGameObjectEditTool*)> m_EditToolConfigDelegate;

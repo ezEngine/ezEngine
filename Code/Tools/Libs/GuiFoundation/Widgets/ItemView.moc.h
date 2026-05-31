@@ -194,8 +194,8 @@ class ezQtListView : public ezQtItemView<QListView>
   Q_OBJECT
 
 public:
-  ezQtListView(QWidget* parent)
-    : ezQtItemView<QListView>(parent)
+  ezQtListView(QWidget* pParent)
+    : ezQtItemView<QListView>(pParent)
   {
   }
 };

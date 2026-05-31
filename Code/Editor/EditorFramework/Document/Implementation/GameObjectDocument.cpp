@@ -1051,13 +1051,13 @@ void ezGameObjectDocument::HandleEngineMessage(const ezEditorEngineDocumentMsg* 
 
 // the following method is similar to "ezAssetCurator::ReplaceAssetReferenceInObject"
 
-void ezGameObjectDocument::FindAssetUsages(ezStringView sAssetToFind, ezDynamicArray<AssetUsage>& out_usages, ezUInt32 maxResults) const
+void ezGameObjectDocument::FindAssetUsages(ezStringView sAssetToFind, ezDynamicArray<AssetUsage>& out_usages, ezUInt32 uiMaxResults) const
 {
   out_usages.Clear();
-  FindAssetUsagesInternal(sAssetToFind, GetObjectManager()->GetRootObject(), out_usages, maxResults);
+  FindAssetUsagesInternal(sAssetToFind, GetObjectManager()->GetRootObject(), out_usages, uiMaxResults);
 }
 
-void ezGameObjectDocument::FindAssetUsagesInternal(ezStringView sAssetToFind, const ezDocumentObject* pObject, ezDynamicArray<AssetUsage>& out_usages, ezUInt32 maxResults) const
+void ezGameObjectDocument::FindAssetUsagesInternal(ezStringView sAssetToFind, const ezDocumentObject* pObject, ezDynamicArray<AssetUsage>& out_usages, ezUInt32 uiMaxResults) const
 {
   auto pAccessor = GetObjectAccessor();
 
@@ -1100,7 +1100,7 @@ void ezGameObjectDocument::FindAssetUsagesInternal(ezStringView sAssetToFind, co
               au.m_sObjectName = sFullPath;
               au.m_ObjectGuid = pObject->GetGuid();
 
-              if (out_usages.GetCount() >= maxResults)
+              if (out_usages.GetCount() >= uiMaxResults)
                 return;
             }
           }
@@ -1130,7 +1130,7 @@ void ezGameObjectDocument::FindAssetUsagesInternal(ezStringView sAssetToFind, co
                 au.m_sObjectName = sFullPath;
                 au.m_ObjectGuid = pObject->GetGuid();
 
-                if (out_usages.GetCount() >= maxResults)
+                if (out_usages.GetCount() >= uiMaxResults)
                   return;
               }
             }
@@ -1161,7 +1161,7 @@ void ezGameObjectDocument::FindAssetUsagesInternal(ezStringView sAssetToFind, co
                   au.m_sObjectName = sFullPath;
                   au.m_ObjectGuid = pObject->GetGuid();
 
-                  if (out_usages.GetCount() >= maxResults)
+                  if (out_usages.GetCount() >= uiMaxResults)
                     return;
                 }
               }
@@ -1184,9 +1184,9 @@ void ezGameObjectDocument::FindAssetUsagesInternal(ezStringView sAssetToFind, co
         pChild->GetParentPropertyType()->GetAttributeByType<ezTemporaryAttribute>() != nullptr)
       continue;
 
-    FindAssetUsagesInternal(sAssetToFind, pChild, out_usages, maxResults);
+    FindAssetUsagesInternal(sAssetToFind, pChild, out_usages, uiMaxResults);
 
-    if (out_usages.GetCount() >= maxResults)
+    if (out_usages.GetCount() >= uiMaxResults)
       return;
   }
 }
