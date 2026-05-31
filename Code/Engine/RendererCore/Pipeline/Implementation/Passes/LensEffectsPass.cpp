@@ -46,7 +46,7 @@ ezStatus ezLensEffectsPass::AddRenderPasses(const ezViewData& viewData, const ez
   auto pass = ref_graph.AddGraphicsPass(GetName());
   pass.AddColorTarget(hColor);
   if (!hResolvedDepth.IsInvalidated())
-    pass.ReadTexture(hResolvedDepth, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
+    pass.ReadTexture(hResolvedDepth, {}, ezGALResourceState::ShaderResource);
   pass.SetStereoscopic(camera.IsStereoscopic());
   SetupResourceDependencies(viewData, ref_graph, pass);
   pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
