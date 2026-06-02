@@ -13,7 +13,7 @@ using ezRectFloat = ezRectTemplate<float>;
 
 class ezFormatString;
 class ezFrustum;
-struct ezRenderViewContext;
+class ezRenderViewContext;
 
 /// \brief Horizontal alignment of debug text
 struct ezDebugTextHAlign

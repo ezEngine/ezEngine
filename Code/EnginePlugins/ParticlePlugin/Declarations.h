@@ -25,7 +25,7 @@ class ezParticleEffectDescriptor;
 class ezParticleWorldModule;
 class ezParticleEffectInstance;
 class ezParticleSystemInstance;
-struct ezRenderViewContext;
+class ezRenderViewContext;
 class ezRenderPipelinePass;
 class ezParticleFinalizer;
 class ezParticleFinalizerFactory;
