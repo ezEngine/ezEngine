@@ -4,6 +4,9 @@
 
 #include <RendererCore/RenderContext/RenderContext.h>
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderViewContext, 1, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
 void ezRenderViewContext::UpdateViewport() const
 {
   ezRectFloat viewport = m_pViewData->m_ViewPortRect;

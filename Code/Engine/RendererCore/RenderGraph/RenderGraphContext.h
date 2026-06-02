@@ -16,7 +16,7 @@ class EZ_RENDERERCORE_DLL ezRenderGraphContext
 {
 public:
   ezRenderGraphContext() = default;
-  ezRenderGraphContext(ezGALCommandEncoder* pCommandEncoder, ezGALDevice* pDevice, ezRenderContext* pRenderContext, const void* pUserData = nullptr)
+  ezRenderGraphContext(ezGALCommandEncoder* pCommandEncoder, ezGALDevice* pDevice, ezRenderContext* pRenderContext, const ezReflectedClass* pUserData = nullptr)
     : m_pCommandEncoder(pCommandEncoder)
     , m_pDevice(pDevice)
     , m_pRenderContext(pRenderContext)
@@ -38,7 +38,7 @@ public:
   template <typename T>
   const T* GetUserData() const
   {
-    return static_cast<const T*>(m_pUserData);
+    return ezDynamicCast<const T*>(m_pUserData);
   }
 
 private:
@@ -47,7 +47,7 @@ private:
   ezGALCommandEncoder* m_pCommandEncoder = nullptr;
   ezGALDevice* m_pDevice = nullptr;
   ezRenderContext* m_pRenderContext = nullptr;
-  const void* m_pUserData = nullptr;
+  const ezReflectedClass* m_pUserData = nullptr;
   const ezDynamicArray<ezUInt16>* m_pTextureToResolvedTexture = nullptr;
   const ezDynamicArray<ezUInt16>* m_pBufferToResolvedBuffer = nullptr;
   const ezDynamicArray<ezGALTextureHandle>* m_pResolvedTextures = nullptr;

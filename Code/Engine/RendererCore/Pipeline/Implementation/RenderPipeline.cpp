@@ -1089,6 +1089,7 @@ void ezRenderPipeline::UpdateRenderContext(ezRenderGraphContext& ctx)
 
   pRenderContext->SetGlobalAndWorldTimeConstants(data.GetWorldTime());
 
+  m_RenderViewContext.m_pPipeline = this;
   m_RenderViewContext.m_pCamera = pCamera;
   m_RenderViewContext.m_pViewData = pViewData;
   m_RenderViewContext.m_pRenderContext = pRenderContext;

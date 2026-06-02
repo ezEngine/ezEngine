@@ -300,6 +300,9 @@ void ezRenderGraph::Execute(ezRenderGraphContext& ref_ctx)
   ref_ctx.m_pResolvedBuffers = &m_ResolvedBuffers;
   ref_ctx.m_pUserData = GetUserData();
 
+  // We need to purge bind groups between graphs as otherwise unintended resources get bound that we can't reason about and thus are unable to barrier correctly. E.g. a depth pre-pass might bind the deferred decal atlas from a previous pipeline run.
+  ref_ctx.GetRenderContext()->ResetBindGroups();
+
   {
     ezRenderGraphRenderEvent ev;
     ev.m_Type = ezRenderGraphRenderEvent::Type::BeforeGraphExecution;
@@ -357,8 +360,6 @@ void ezRenderGraph::Execute(ezRenderGraphContext& ref_ctx)
     {
       ref_ctx.m_pCommandEncoder->BufferBarrier(bufferBarriers);
     }
-
-    ref_ctx.GetRenderContext()->ResetBindGroups();
 
     // Begin the appropriate scope and invoke the callback.
     switch (pass.m_QueueType)

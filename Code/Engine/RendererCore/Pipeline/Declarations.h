@@ -48,11 +48,13 @@ namespace ezInternal
   };
 } // namespace ezInternal
 
-struct EZ_RENDERERCORE_DLL ezRenderViewContext
+class EZ_RENDERERCORE_DLL ezRenderViewContext : public ezReflectedClass
 {
+  EZ_ADD_DYNAMIC_REFLECTION(ezRenderViewContext, ezReflectedClass);
   // Updates global constants and encoder with the viewport information of the view data.
   void UpdateViewport() const;
 
+  const ezRenderPipeline* m_pPipeline = nullptr;
   const ezCamera* m_pCamera = nullptr;
   const ezViewData* m_pViewData = nullptr;
   ezRenderContext* m_pRenderContext = nullptr;

@@ -34,8 +34,8 @@ public:
   const ezString& GetUserName() const { return m_sUserName; }
 
   /// User data is accessible during execution callbacks via `ctx.GetUserData<T>()`.
-  void SetUserData(void* pUserData) { m_pUserData = pUserData; }
-  void* GetUserData() const { return m_pUserData; }
+  void SetUserData(ezReflectedClass* pUserData) { m_pUserData = pUserData; }
+  ezReflectedClass* GetUserData() const { return m_pUserData; }
 
   /// \name Transient Resource Creation
   ///@{
@@ -341,7 +341,7 @@ private:
   ezString m_sUserName;
   ezString m_sGraphName;
   ezEnum<ezRenderGraphPhase> m_Phase;
-  void* m_pUserData = nullptr;
+  ezReflectedClass* m_pUserData = nullptr;
 
   /// \name Recording State
   ///@{
