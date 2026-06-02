@@ -1,9 +1,9 @@
 #pragma once
 
 #include <Foundation/IO/Stream.h>
-#include <Jolt/Jolt.h>
 #include <Jolt/Core/StreamIn.h>
 #include <Jolt/Core/StreamOut.h>
+#include <Jolt/Jolt.h>
 
 /// Adapts ezStreamReader to JPH::StreamIn.
 class ezJoltStreamIn : public JPH::StreamIn

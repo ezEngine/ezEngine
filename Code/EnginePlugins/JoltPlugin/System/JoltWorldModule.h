@@ -8,8 +8,8 @@
 #include <Foundation/Types/UniquePtr.h>
 #include <JoltPlugin/Declarations.h>
 #include <JoltPlugin/JoltPluginDLL.h>
-#include <JoltPlugin/System/JoltCollisionFiltering.h>
 #include <JoltPlugin/Resources/JoltHeightfieldResource.h>
+#include <JoltPlugin/System/JoltCollisionFiltering.h>
 #include <JoltPlugin/Utilities/JoltUserData.h>
 #include <RendererCore/Meshes/DynamicMeshBufferResource.h>
 
