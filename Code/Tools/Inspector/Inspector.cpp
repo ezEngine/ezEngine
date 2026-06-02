@@ -2,6 +2,7 @@
 
 #include <Foundation/Application/Application.h>
 #include <Foundation/Communication/Telemetry.h>
+#include <Foundation/Utilities/CommandLineUtils.h>
 #include <Inspector/CVarsWidget.moc.h>
 #include <Inspector/DataTransferWidget.moc.h>
 #include <Inspector/FileWidget.moc.h>
@@ -109,7 +110,26 @@ public:
     QSettings Settings;
     const QString sServer = Settings.value("LastConnection", QLatin1String("localhost:1040")).toString();
 
-    ezTelemetry::ConnectToServer(sServer.toUtf8().data()).IgnoreResult();
+    // -url and -port can override the stored connection address
+    const ezStringView sUrlArg = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-url");
+    const ezInt32 iPortArg = ezCommandLineUtils::GetGlobalInstance()->GetIntOption("-port", -1);
+
+    ezStringBuilder sConnectTo(sServer.toUtf8().data());
+    if (!sUrlArg.IsEmpty() || iPortArg > 0)
+    {
+      const ezStringView sHost = sUrlArg.IsEmpty() ? ezStringView("localhost") : sUrlArg;
+      if (iPortArg > 0)
+        sConnectTo.SetFormat("{}:{}", sHost, iPortArg);
+      else
+        sConnectTo = sHost;
+
+      // Persist the command-line override so the Connect dialog reflects it
+      const QString sConnectToQt = QString::fromUtf8(sConnectTo.GetData());
+      Settings.setValue("LastConnection", sConnectToQt);
+      MainWindow.SetConnectionTarget(sConnectToQt);
+    }
+
+    ezTelemetry::ConnectToServer(sConnectTo).IgnoreResult();
 
     MainWindow.show();
     SetReturnCode(app.exec());

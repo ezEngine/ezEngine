@@ -102,8 +102,8 @@ public:
   /// \brief Launches Fileserve with the settings for the current project.
   void RunFileserve();
 
-  /// \brief Launches ezInspector.
-  void RunInspector();
+  /// \brief Launches ezInspector, connecting to the given port. Pass 0 to use the Inspector's default/last-used connection.
+  void RunInspector(ezUInt16 uiPort = 0);
 
   /// \brief Launches Tracy.
   void RunTracy();

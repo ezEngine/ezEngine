@@ -125,10 +125,9 @@ void ezQtMainWidget::on_ButtonConnect_clicked()
     return;
 
   Settings.setValue("LastConnection", sRes);
+  ezQtMainWindow::s_pWidget->SetConnectionTarget(sRes);
 
-  if (ezTelemetry::ConnectToServer(sRes.toUtf8().data()) == EZ_SUCCESS)
-  {
-  }
+  ezTelemetry::ConnectToServer(sRes.toUtf8().data()).IgnoreResult();
 }
 
 void ezQtMainWidget::SaveFavorites()

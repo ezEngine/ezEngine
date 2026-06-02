@@ -56,7 +56,9 @@ public:
   static ezActionDescriptorHandle s_hReloadResources;
   static ezActionDescriptorHandle s_hReloadEngine;
   static ezActionDescriptorHandle s_hLaunchFileserve;
-  static ezActionDescriptorHandle s_hLaunchInspector;
+  static ezActionDescriptorHandle s_hInspectorMenu;
+  static ezActionDescriptorHandle s_hLaunchInspectorPlayer;
+  static ezActionDescriptorHandle s_hLaunchInspectorEditorEngine;
   static ezActionDescriptorHandle s_hLaunchTracy;
   static ezActionDescriptorHandle s_hSaveProfiling;
   static ezActionDescriptorHandle s_hOpenVsCode;
@@ -115,7 +117,8 @@ public:
     ReloadResources,
     ReloadEngine,
     LaunchFileserve,
-    LaunchInspector,
+    LaunchInspectorPlayer,
+    LaunchInspectorEditorEngine,
     LaunchTracy,
     SaveProfiling,
     OpenVsCode,

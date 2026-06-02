@@ -32,6 +32,7 @@ ezQtMainWindow::ezQtMainWindow()
                                                 ads::CDockManager::OpaqueSplitterResize | ads::CDockManager::AllTabsHaveCloseButton));
 
   QSettings Settings;
+  m_sConnectionTarget = Settings.value("LastConnection", QLatin1String("localhost:1040")).toString();
   SetAlwaysOnTop((OnTopMode)Settings.value("AlwaysOnTop", (int)WhenConnected).toInt());
 
   Settings.beginGroup("MainWindow");
@@ -150,6 +151,7 @@ ezQtMainWindow::ezQtMainWindow()
   for (ezInt32 i = 0; i < 10; ++i)
     m_pStatHistoryWidgets[i]->Load();
 
+  UpdateWindowTitle();
   SetupNetworkTimer();
 }
 
@@ -212,8 +214,6 @@ void ezQtMainWindow::UpdateNetwork()
 
   {
     static ezUInt32 uiServerID = 0;
-    static bool bConnected = false;
-    static ezString sLastServerName;
 
     if (ezTelemetry::IsConnectedToServer())
     {
@@ -227,29 +227,32 @@ void ezQtMainWindow::UpdateNetwork()
 
         ezQtLogDockWidget::s_pWidget->Log(s.GetData());
       }
-      else if (!bConnected)
+      else if (!m_bConnectedToServer)
       {
         ezQtLogDockWidget::s_pWidget->Log("Reconnected to Server.");
       }
 
-      if (sLastServerName != ezTelemetry::GetServerName())
+      if (m_sLastServerName != ezTelemetry::GetServerName())
       {
-        sLastServerName = ezTelemetry::GetServerName();
-        setWindowTitle(QString("ezInspector - %1").arg(sLastServerName.GetData()));
+        m_sLastServerName = ezTelemetry::GetServerName();
+        UpdateWindowTitle();
       }
 
-      bConnected = true;
+      if (!m_bConnectedToServer)
+      {
+        m_bConnectedToServer = true;
+        UpdateWindowTitle();
+      }
     }
     else
     {
-      if (bConnected)
+      if (m_bConnectedToServer)
       {
         ezQtLogDockWidget::s_pWidget->Log("Lost Connection to Server.");
-        setWindowTitle(QString("ezInspector - disconnected"));
-        sLastServerName.Clear();
+        m_sLastServerName.Clear();
+        m_bConnectedToServer = false;
+        UpdateWindowTitle();
       }
-
-      bConnected = false;
     }
   }
 
@@ -287,6 +290,22 @@ void ezQtMainWindow::UpdateNetwork()
     m_pStatHistoryWidgets[i]->UpdateStats();
 
   ezTelemetry::PerFrameUpdate();
+}
+
+void ezQtMainWindow::UpdateWindowTitle()
+{
+  if (m_bConnectedToServer && !m_sLastServerName.IsEmpty())
+    setWindowTitle(QString("ezInspector [%1] - %2").arg(m_sConnectionTarget, m_sLastServerName.GetData()));
+  else if (m_bConnectedToServer)
+    setWindowTitle(QString("ezInspector [%1] - connected").arg(m_sConnectionTarget));
+  else
+    setWindowTitle(QString("ezInspector [%1] - not connected").arg(m_sConnectionTarget));
+}
+
+void ezQtMainWindow::SetConnectionTarget(const QString& sTarget)
+{
+  m_sConnectionTarget = sTarget;
+  UpdateWindowTitle();
 }
 
 void ezQtMainWindow::DockWidgetVisibilityChanged(bool bVisible)

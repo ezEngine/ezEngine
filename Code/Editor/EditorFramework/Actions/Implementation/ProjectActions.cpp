@@ -19,6 +19,7 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Profiling/ProfilingUtils.h>
+#include <Foundation/Utilities/CommandLineUtils.h>
 #include <GuiFoundation/Dialogs/ShortcutEditorDlg.moc.h>
 
 ezActionDescriptorHandle ezProjectActions::s_hCatProjectGeneral;
@@ -62,7 +63,9 @@ ezActionDescriptorHandle ezProjectActions::s_hCatEditorSettings;
 ezActionDescriptorHandle ezProjectActions::s_hReloadResources;
 ezActionDescriptorHandle ezProjectActions::s_hReloadEngine;
 ezActionDescriptorHandle ezProjectActions::s_hLaunchFileserve;
-ezActionDescriptorHandle ezProjectActions::s_hLaunchInspector;
+ezActionDescriptorHandle ezProjectActions::s_hInspectorMenu;
+ezActionDescriptorHandle ezProjectActions::s_hLaunchInspectorPlayer;
+ezActionDescriptorHandle ezProjectActions::s_hLaunchInspectorEditorEngine;
 ezActionDescriptorHandle ezProjectActions::s_hLaunchTracy;
 ezActionDescriptorHandle ezProjectActions::s_hSaveProfiling;
 ezActionDescriptorHandle ezProjectActions::s_hOpenVsCode;
@@ -135,7 +138,9 @@ void ezProjectActions::RegisterActions()
   s_hReloadResources = EZ_REGISTER_ACTION_1("Engine.ReloadResources", ezActionScope::Global, "Engine", "F4", ezProjectAction, ezProjectAction::ButtonType::ReloadResources);
   s_hReloadEngine = EZ_REGISTER_ACTION_1("Engine.ReloadEngine", ezActionScope::Global, "Engine", "Ctrl+Shift+F4", ezProjectAction, ezProjectAction::ButtonType::ReloadEngine);
   s_hLaunchFileserve = EZ_REGISTER_ACTION_1("Editor.LaunchFileserve", ezActionScope::Global, "Engine", "", ezProjectAction, ezProjectAction::ButtonType::LaunchFileserve);
-  s_hLaunchInspector = EZ_REGISTER_ACTION_1("Editor.LaunchInspector", ezActionScope::Global, "Engine", "", ezProjectAction, ezProjectAction::ButtonType::LaunchInspector);
+  s_hInspectorMenu = EZ_REGISTER_MENU("G.Inspector");
+  s_hLaunchInspectorPlayer = EZ_REGISTER_ACTION_1("Editor.LaunchInspectorPlayer", ezActionScope::Global, "Engine", "", ezProjectAction, ezProjectAction::ButtonType::LaunchInspectorPlayer);
+  s_hLaunchInspectorEditorEngine = EZ_REGISTER_ACTION_1("Editor.LaunchInspectorEditorEngine", ezActionScope::Global, "Engine", "", ezProjectAction, ezProjectAction::ButtonType::LaunchInspectorEditorEngine);
   s_hLaunchTracy = EZ_REGISTER_ACTION_1("Editor.LaunchTracy", ezActionScope::Global, "Engine", "", ezProjectAction, ezProjectAction::ButtonType::LaunchTracy);
   s_hSaveProfiling = EZ_REGISTER_ACTION_1("Editor.SaveProfiling", ezActionScope::Global, "Engine", "Ctrl+Alt+P", ezProjectAction, ezProjectAction::ButtonType::SaveProfiling);
   s_hOpenVsCode = EZ_REGISTER_ACTION_1("Editor.OpenVsCode", ezActionScope::Global, "Project", "Ctrl+Alt+O", ezProjectAction, ezProjectAction::ButtonType::OpenVsCode);
@@ -174,7 +179,9 @@ void ezProjectActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hReloadResources);
   ezActionManager::UnregisterAction(s_hReloadEngine);
   ezActionManager::UnregisterAction(s_hLaunchFileserve);
-  ezActionManager::UnregisterAction(s_hLaunchInspector);
+  ezActionManager::UnregisterAction(s_hInspectorMenu);
+  ezActionManager::UnregisterAction(s_hLaunchInspectorPlayer);
+  ezActionManager::UnregisterAction(s_hLaunchInspectorEditorEngine);
   ezActionManager::UnregisterAction(s_hLaunchTracy);
   ezActionManager::UnregisterAction(s_hSaveProfiling);
   ezActionManager::UnregisterAction(s_hOpenVsCode);
@@ -248,7 +255,9 @@ void ezProjectActions::MapActions(ezStringView sMapping, const ezBitflags<ezStan
   pMap->MapAction(s_hExportProject, "G.Project.External", 10.0f);
 
   pMap->MapAction(s_hOpenVsCode, "G.Tools.External", 1.0f);
-  pMap->MapAction(s_hLaunchInspector, "G.Tools.External", 2.0f);
+  pMap->MapAction(s_hInspectorMenu, "G.Tools.External", 2.0f);
+  pMap->MapAction(s_hLaunchInspectorPlayer, "G.Inspector", 1.0f);
+  pMap->MapAction(s_hLaunchInspectorEditorEngine, "G.Inspector", 2.0f);
   pMap->MapAction(s_hLaunchTracy, "G.Tools.External", 3.0f);
   pMap->MapAction(s_hLaunchFileserve, "G.Tools.External", 4.0f);
 
@@ -409,7 +418,8 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
     case ezProjectAction::ButtonType::LaunchFileserve:
       SetIconPath(":/EditorFramework/Icons/Fileserve.svg");
       break;
-    case ezProjectAction::ButtonType::LaunchInspector:
+    case ezProjectAction::ButtonType::LaunchInspectorEditorEngine:
+    case ezProjectAction::ButtonType::LaunchInspectorPlayer:
       SetIconPath(":/EditorFramework/Icons/Inspector.svg");
       break;
     case ezProjectAction::ButtonType::LaunchTracy:
@@ -483,7 +493,8 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
       m_ButtonType == ButtonType::ReloadResources ||
       m_ButtonType == ButtonType::LaunchFileserve ||
       m_ButtonType == ButtonType::LaunchTracy ||
-      m_ButtonType == ButtonType::LaunchInspector ||
+      m_ButtonType == ButtonType::LaunchInspectorEditorEngine ||
+      m_ButtonType == ButtonType::LaunchInspectorPlayer ||
       m_ButtonType == ButtonType::OpenVsCode ||
       m_ButtonType == ButtonType::InputConfig ||
       m_ButtonType == ButtonType::AssetProfiles ||
@@ -518,7 +529,8 @@ ezProjectAction::~ezProjectAction()
       m_ButtonType == ButtonType::ReloadEngine ||
       m_ButtonType == ButtonType::ReloadResources ||
       m_ButtonType == ButtonType::LaunchFileserve ||
-      m_ButtonType == ButtonType::LaunchInspector ||
+      m_ButtonType == ButtonType::LaunchInspectorEditorEngine ||
+      m_ButtonType == ButtonType::LaunchInspectorPlayer ||
       m_ButtonType == ButtonType::LaunchTracy ||
       m_ButtonType == ButtonType::OpenVsCode ||
       m_ButtonType == ButtonType::InputConfig ||
@@ -732,11 +744,20 @@ void ezProjectAction::Execute(const ezVariant& value)
     }
     break;
 
-    case ezProjectAction::ButtonType::LaunchInspector:
+    case ezProjectAction::ButtonType::LaunchInspectorPlayer:
     {
       ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage("Launching ezInspector...", ezTime::MakeFromSeconds(5));
 
-      ezQtEditorApp::GetSingleton()->RunInspector();
+      ezQtEditorApp::GetSingleton()->RunInspector(1040);
+    }
+    break;
+
+    case ezProjectAction::ButtonType::LaunchInspectorEditorEngine:
+    {
+      ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage("Launching ezInspector...", ezTime::MakeFromSeconds(5));
+
+      const ezUInt16 uiPort = static_cast<ezUInt16>(ezCommandLineUtils::GetGlobalInstance()->GetIntOption("-TelemetryPort", 1050));
+      ezQtEditorApp::GetSingleton()->RunInspector(uiPort);
     }
     break;
 

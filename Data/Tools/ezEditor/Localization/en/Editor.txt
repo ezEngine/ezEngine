@@ -4,7 +4,9 @@ Editor.OpenDashboard;Show Dash&board...
 Project.Open;Open Project...
 Project.Create;Create Project...
 Editor.LaunchFileserve;Launch Fileserve...;Launches the ezFileServe application.
-Editor.LaunchInspector;Launch Inspector...;Launches the ezInspector application.
+G.Inspector;Launch Inspector
+Editor.LaunchInspectorPlayer;For &ezPlayer (Port 1040);Launches ezInspector and connects to the ezPlayer telemetry port (1040).
+Editor.LaunchInspectorEditorEngine;For &Editor Engine (Port 1050);Launches ezInspector and connects to the Editor Engine process telemetry port (1050).
 Editor.LaunchTracy;Launch Tracy...;Launches the Tracy profiler application.
 Editor.Plugins;Editor Pl&ugins...;Opens the editor plugins dialog
 Editor.Shortcuts;Shortcuts...;Opens the shortcut configuration dialog

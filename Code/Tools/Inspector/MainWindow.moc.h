@@ -28,6 +28,9 @@ public:
 
   virtual void closeEvent(QCloseEvent* pEvent);
 
+  /// Updates m_sConnectionTarget and refreshes the window title.
+  void SetConnectionTarget(const QString& sTarget);
+
 public Q_SLOTS:
   void DockWidgetVisibilityChanged(bool bVisible);
   void UpdateNetworkTimeOut();
@@ -55,10 +58,14 @@ private:
   void UpdateAlwaysOnTop();
   void SetupNetworkTimer();
   void UpdateNetwork();
+  void UpdateWindowTitle();
 
 private:
   OnTopMode m_OnTopMode;
   QTimer* m_pNetworkTimer;
+  QString m_sConnectionTarget;
+  ezString m_sLastServerName;
+  bool m_bConnectedToServer = false;
 
 public:
   ads::CDockManager* m_DockManager = nullptr;

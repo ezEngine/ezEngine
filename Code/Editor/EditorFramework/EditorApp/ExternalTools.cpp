@@ -212,10 +212,15 @@ void ezQtEditorApp::RunFileserve()
   QProcess::startDetached(sToolPath.GetData(), args);
 }
 
-void ezQtEditorApp::RunInspector()
+void ezQtEditorApp::RunInspector(ezUInt16 uiPort)
 {
   const ezStringBuilder sToolPath = ezQtEditorApp::GetSingleton()->FindToolApplication("ezInspector");
   QStringList args;
+
+  if (uiPort != 0)
+  {
+    args << "-port" << QString::number(uiPort);
+  }
 
   QProcess::startDetached(sToolPath.GetData(), args);
 }
