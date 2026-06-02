@@ -361,6 +361,10 @@ void ezRenderGraph::Execute(ezRenderGraphContext& ref_ctx)
       ref_ctx.m_pCommandEncoder->BufferBarrier(bufferBarriers);
     }
 
+    ref_ctx.GetRenderContext()->ResetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);
+    ref_ctx.GetRenderContext()->ResetBindGroup(EZ_GAL_BIND_GROUP_MATERIAL);
+    ref_ctx.GetRenderContext()->ResetBindGroup(EZ_GAL_BIND_GROUP_DRAW_CALL);
+
     // Begin the appropriate scope and invoke the callback.
     switch (pass.m_QueueType)
     {
