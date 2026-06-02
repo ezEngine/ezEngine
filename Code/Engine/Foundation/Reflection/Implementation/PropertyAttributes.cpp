@@ -702,6 +702,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualizerAttribute, 1, ezRTTINoAllocator)
     EZ_MEMBER_PROPERTY("Property3", m_sProperty3),
     EZ_MEMBER_PROPERTY("Property4", m_sProperty4),
     EZ_MEMBER_PROPERTY("Property5", m_sProperty5),
+    EZ_MEMBER_PROPERTY("Property6", m_sProperty6),
     EZ_BITFLAGS_MEMBER_PROPERTY("Anchor", ezVisualizerAnchor, m_Anchor),
   }
   EZ_END_PROPERTIES;
@@ -710,12 +711,13 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezVisualizerAttribute::ezVisualizerAttribute(const char* szProperty1, const char* szProperty2 /*= nullptr*/, const char* szProperty3 /*= nullptr*/,
-  const char* szProperty4 /*= nullptr*/, const char* szProperty5 /*= nullptr*/)
+  const char* szProperty4 /*= nullptr*/, const char* szProperty5 /*= nullptr*/, const char* szProperty6 /*= nullptr*/)
   : m_sProperty1(szProperty1)
   , m_sProperty2(szProperty2)
   , m_sProperty3(szProperty3)
   , m_sProperty4(szProperty4)
   , m_sProperty5(szProperty5)
+  , m_sProperty6(szProperty6)
 {
 }
 
@@ -977,40 +979,6 @@ ezConeVisualizerAttribute::ezConeVisualizerAttribute(ezEnum<ezBasisAxis> axis, c
   , m_Axis(axis)
   , m_Color(fixedColor)
   , m_fScale(fScale)
-{
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-// clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRoundedRectVisualizerAttribute, 1, ezRTTIDefaultAllocator<ezRoundedRectVisualizerAttribute>)
-{
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_MEMBER_PROPERTY("InnerColor", m_InnerColor),
-    EZ_MEMBER_PROPERTY("OuterColor", m_OuterColor),
-    EZ_MEMBER_PROPERTY("Offset", m_vOffset),
-  }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_FUNCTIONS
-  {
-    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*, const char*, const ezColor&, const char*, const ezColor&, ezVec3),
-  }
-  EZ_END_FUNCTIONS;
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-// clang-format on
-
-ezRoundedRectVisualizerAttribute::ezRoundedRectVisualizerAttribute()
-  : ezVisualizerAttribute(nullptr)
-{
-}
-
-ezRoundedRectVisualizerAttribute::ezRoundedRectVisualizerAttribute(const char* szHalfSizeXProp, const char* szHalfSizeYProp, const char* szInnerRadiusProp, const ezColor& innerColor, const char* szOuterRadiusProp, const ezColor& outerColor, ezVec3 vLocalOffset)
-  : ezVisualizerAttribute(szHalfSizeXProp, szHalfSizeYProp, szInnerRadiusProp, szOuterRadiusProp)
-  , m_InnerColor(innerColor)
-  , m_OuterColor(outerColor)
-  , m_vOffset(vLocalOffset)
 {
 }
 

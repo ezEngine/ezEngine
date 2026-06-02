@@ -815,13 +815,14 @@ class EZ_FOUNDATION_DLL ezVisualizerAttribute : public ezPropertyAttribute
 
 public:
   ezVisualizerAttribute(const char* szProperty1, const char* szProperty2 = nullptr, const char* szProperty3 = nullptr,
-    const char* szProperty4 = nullptr, const char* szProperty5 = nullptr);
+    const char* szProperty4 = nullptr, const char* szProperty5 = nullptr, const char* szProperty6 = nullptr);
 
   ezUntrackedString m_sProperty1;
   ezUntrackedString m_sProperty2;
   ezUntrackedString m_sProperty3;
   ezUntrackedString m_sProperty4;
   ezUntrackedString m_sProperty5;
+  ezUntrackedString m_sProperty6;
   ezBitflags<ezVisualizerAnchor> m_Anchor;
 };
 
@@ -947,34 +948,6 @@ public:
   ezEnum<ezBasisAxis> m_Axis;
   ezColor m_Color;
   float m_fScale;
-};
-
-//////////////////////////////////////////////////////////////////////////
-
-/// \brief Visualizes an axis-aligned rectangle in the local XY-plane with rounded corners, optionally surrounded by a second larger outline.
-///
-/// The inner outline describes a rectangle of size 2*HalfSizeX by 2*HalfSizeY, with all four corners rounded by InnerRadius.
-/// When OuterRadius is greater than 0, a second outline is drawn at distance (InnerRadius + OuterRadius) from the rectangle edges.
-/// This can be used to depict an influence area or falloff around the inner shape.
-///
-/// All size and radius values are read from the properties named in the constructor; any property name may be empty to fix that value to 0.
-/// The shape is drawn in the object's local XY-plane, translated by the given local offset.
-class EZ_FOUNDATION_DLL ezRoundedRectVisualizerAttribute : public ezVisualizerAttribute
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezRoundedRectVisualizerAttribute, ezVisualizerAttribute);
-
-public:
-  ezRoundedRectVisualizerAttribute();
-  ezRoundedRectVisualizerAttribute(const char* szHalfSizeXProp, const char* szHalfSizeYProp, const char* szInnerRadiusProp, const ezColor& innerColor, const char* szOuterRadiusProp, const ezColor& outerColor, ezVec3 vLocalOffset);
-
-  const ezUntrackedString& GetPropHalfSizeX() const { return m_sProperty1; }
-  const ezUntrackedString& GetPropHalfSizeY() const { return m_sProperty2; }
-  const ezUntrackedString& GetPropInnerRadius() const { return m_sProperty3; }
-  const ezUntrackedString& GetPropOuterRadius() const { return m_sProperty4; }
-
-  ezColor m_InnerColor = ezColor::White;
-  ezColor m_OuterColor = ezColor::White;
-  ezVec3 m_vOffset = ezVec3::MakeZero();
 };
 
 //////////////////////////////////////////////////////////////////////////

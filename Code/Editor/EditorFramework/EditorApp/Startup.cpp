@@ -52,7 +52,6 @@
 #include <EditorFramework/Visualizers/CylinderVisualizerAdapter.h>
 #include <EditorFramework/Visualizers/DirectionVisualizerAdapter.h>
 #include <EditorFramework/Visualizers/PositionVisualizerAdapter.h>
-#include <EditorFramework/Visualizers/RoundedRectVisualizerAdapter.h>
 #include <EditorFramework/Visualizers/SphereVisualizerAdapter.h>
 #include <EditorFramework/Visualizers/VisualizerAdapterRegistry.h>
 #include <Foundation/Application/Application.h>
@@ -181,7 +180,6 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezCylinderVisualizerAttribute>(), [](const ezRTTI* pRtti)->ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezCylinderVisualizerAdapter); });
     ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezDirectionVisualizerAttribute>(), [](const ezRTTI* pRtti)->ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezDirectionVisualizerAdapter); });
     ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezConeVisualizerAttribute>(), [](const ezRTTI* pRtti)->ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezConeVisualizerAdapter); });
-    ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezRoundedRectVisualizerAttribute>(), [](const ezRTTI* pRtti)->ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezRoundedRectVisualizerAdapter); });
     ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezCameraVisualizerAttribute>(), [](const ezRTTI* pRtti)->ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezCameraVisualizerAdapter); });
     ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezPositionVisualizerAttribute>(), [](const ezRTTI* pRtti)->ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezPositionVisualizerAdapter); });
 
@@ -236,7 +234,6 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezCylinderVisualizerAttribute>());
     ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezDirectionVisualizerAttribute>());
     ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezConeVisualizerAttribute>());
-    ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezRoundedRectVisualizerAttribute>());
     ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.UnregisterCreator(ezGetStaticRTTI<ezCameraVisualizerAttribute>());
 
     ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezCompilerPreferences_PropertyMetaStateEventHandler);

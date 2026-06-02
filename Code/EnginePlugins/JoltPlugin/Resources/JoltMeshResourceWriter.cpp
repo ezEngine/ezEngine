@@ -10,40 +10,17 @@
 #include <Foundation/Time/Stopwatch.h>
 #include <Foundation/Utilities/AssetFileHeader.h>
 #include <Foundation/Utilities/Progress.h>
+#include <Jolt/Physics/Collision/Shape/HeightFieldShape.h>
+#include <JoltPlugin/Utilities/JoltConversionUtils.h>
+#include <JoltPlugin/Utilities/JoltStreamUtils.h>
 
 #define ENABLE_VHACD_IMPLEMENTATION 1
 #include <VHACD/VHACD.h>
 using namespace VHACD;
 
-namespace
-{
-  class ezJoltStreamOut : public JPH::StreamOut
-  {
-  public:
-    ezJoltStreamOut(ezStreamWriter* pPassThrough)
-    {
-      m_pWriter = pPassThrough;
-    }
-
-    virtual void WriteBytes(const void* pInData, size_t uiInNumBytes) override
-    {
-      if (m_pWriter->WriteBytes(pInData, uiInNumBytes).Failed())
-        m_bFailed = true;
-    }
-
-    virtual bool IsFailed() const override
-    {
-      return m_bFailed;
-    }
-
-
-  private:
-    ezStreamWriter* m_pWriter = nullptr;
-    bool m_bFailed = false;
-  };
-} // namespace
-
 //////////////////////////////////////////////////////////////////////////
+
+static constexpr ezUInt8 uiColliderFileVersion = 4;
 
 // static
 ezResult ezJoltMeshResourceWriter::WriteMeshResource(const ezJoltMeshDesc& meshDesc, ezStreamWriter& inout_stream, bool bWriteAssetHeader /*= true*/, ezUInt64 uiAssetHash /*= 0*/)
@@ -55,7 +32,6 @@ ezResult ezJoltMeshResourceWriter::WriteMeshResource(const ezJoltMeshDesc& meshD
     EZ_SUCCEED_OR_RETURN(header.Write(inout_stream));
   }
 
-  const ezUInt8 uiVersion = 3;
   ezUInt8 uiCompressionMode = 0;
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
@@ -66,8 +42,9 @@ ezResult ezJoltMeshResourceWriter::WriteMeshResource(const ezJoltMeshDesc& meshD
   ezChunkStreamWriter chunk(inout_stream);
 #endif
 
-  inout_stream << uiVersion;
+  inout_stream << uiColliderFileVersion;
   inout_stream << uiCompressionMode;
+  inout_stream << meshDesc.m_uiContentHash;
 
   chunk.BeginStream(1);
 
@@ -262,12 +239,21 @@ ezResult ezJoltMeshResourceWriter::CookTriangleMesh(const ezJoltMeshDesc& meshDe
 
   ezUInt32 uiMaxMaterialIndex = 0;
 
+  const ezUInt32 uiTriCount = meshDesc.m_TriangleIndices.GetCount() / 3;
+
   // copy triangles
   {
-    triangleList.reserve(meshDesc.m_TriangleSurfaceID.GetCount());
-    for (ezUInt32 i = 0; i < meshDesc.m_TriangleSurfaceID.GetCount(); ++i)
+    const bool bNoSurfaceIDs = meshDesc.m_TriangleSurfaceID.IsEmpty();
+    if (bNoSurfaceIDs && uiTriCount > 0)
     {
-      const ezUInt32 uiMaterialID = meshDesc.m_TriangleSurfaceID[i];
+      ezLog::Warning("CookTriangleMesh: no triangle surface IDs provided. Using surface 0 for all {} triangles.", uiTriCount);
+    }
+
+    triangleList.reserve(bNoSurfaceIDs ? uiTriCount : meshDesc.m_TriangleSurfaceID.GetCount());
+    const ezUInt32 uiLoopCount = bNoSurfaceIDs ? uiTriCount : meshDesc.m_TriangleSurfaceID.GetCount();
+    for (ezUInt32 i = 0; i < uiLoopCount; ++i)
+    {
+      const ezUInt32 uiMaterialID = bNoSurfaceIDs ? 0 : meshDesc.m_TriangleSurfaceID[i];
       if (uiMaterialID == 0xFFFF)
         continue;
 
@@ -460,6 +446,122 @@ ezResult ezJoltMeshResourceWriter::CookConvexHullGroup(const ezJoltMeshDesc& mes
 
     EZ_SUCCEED_OR_RETURN(CookSingleConvexJoltMesh(hullVertices, inout_stream));
   }
+
+  return EZ_SUCCESS;
+}
+
+// static
+ezResult ezJoltMeshResourceWriter::WriteHeightfieldResource(const ezJoltHeightfieldWriteDesc& desc, ezStreamWriter& inout_stream, bool bWriteAssetHeader /*= true*/, ezUInt64 uiAssetHash /*= 0*/)
+{
+  if (JPH::Allocate == nullptr)
+    JPH::RegisterDefaultAllocator();
+
+  const ezUInt32 N = desc.uiSizeX;
+  if (N < 4 || (N % 2) != 0 || desc.uiSizeX != desc.uiSizeY || desc.heights.GetCount() != N * N)
+  {
+    ezLog::Error("WriteHeightfieldResource: invalid grid dimensions (N={}, count={}).", N, desc.heights.GetCount());
+    return EZ_FAILURE;
+  }
+
+  const bool bHasMaterials = !desc.surfacePaths.IsEmpty() && !desc.matIndices.IsEmpty();
+  const ezUInt32 uiCellCount = (N - 1) * (N - 1);
+
+  if (bHasMaterials && desc.matIndices.GetCount() != uiCellCount)
+  {
+    ezLog::Error("WriteHeightfieldResource: matIndices count ({}) must be (N-1)^2 = {}.", desc.matIndices.GetCount(), uiCellCount);
+    return EZ_FAILURE;
+  }
+
+  // Row order must be flipped so that Jolt's row axis maps to +Y in ezEngine space after the
+  // +90° X rotation applied at body-creation time.
+  ezDynamicArray<float> flippedHeights;
+  flippedHeights.SetCountUninitialized(N * N);
+  for (ezUInt32 row = 0; row < N; ++row)
+  {
+    const ezUInt32 srcRow = N - 1 - row;
+    for (ezUInt32 col = 0; col < N; ++col)
+      flippedHeights[row * N + col] = desc.heights[srcRow * N + col];
+  }
+
+  JPH::PhysicsMaterialList joltMaterials;
+  if (bHasMaterials)
+  {
+    joltMaterials.resize(desc.surfacePaths.GetCount(), nullptr);
+  }
+
+  JPH::HeightFieldShapeSettings settings(
+    flippedHeights.GetData(),
+    JPH::Vec3(-desc.vHalfExtent.x, 0.0f, -desc.vHalfExtent.y),
+    JPH::Vec3(2.0f * desc.vHalfExtent.x / static_cast<float>(N - 1), 1.0f, 2.0f * desc.vHalfExtent.y / static_cast<float>(N - 1)),
+    N,
+    bHasMaterials ? desc.matIndices.GetPtr() : nullptr,
+    joltMaterials);
+
+  JPH::ShapeSettings::ShapeResult result = settings.Create();
+  if (result.HasError())
+  {
+    ezLog::Error("WriteHeightfieldResource: Jolt cooking failed: {}", result.GetError().c_str());
+    return EZ_FAILURE;
+  }
+
+  ezDefaultMemoryStreamStorage shapeMem;
+  {
+    ezMemoryStreamWriter memWriter(&shapeMem);
+    ezJoltStreamOut jOut(&memWriter);
+    result.Get()->SaveBinaryState(jOut);
+    if (jOut.IsFailed())
+    {
+      ezLog::Error("WriteHeightfieldResource: failed to serialize Jolt shape.");
+      return EZ_FAILURE;
+    }
+  }
+
+  if (bWriteAssetHeader)
+  {
+    ezAssetFileHeader header;
+    header.SetFileHashAndVersion(uiAssetHash, 1);
+    EZ_SUCCEED_OR_RETURN(header.Write(inout_stream));
+  }
+
+  ezUInt8 uiCompressionMode = 0;
+
+#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
+  uiCompressionMode = 1;
+  ezCompressedStreamWriterZstd compressor(&inout_stream, 0, ezCompressedStreamWriterZstd::Compression::Average);
+  ezChunkStreamWriter chunk(compressor);
+#else
+  ezChunkStreamWriter chunk(inout_stream);
+#endif
+
+  inout_stream << uiColliderFileVersion;
+  inout_stream << uiCompressionMode;
+  inout_stream << desc.uiContentHash;
+
+  chunk.BeginStream(1);
+  {
+    chunk.BeginChunk("Surfaces", 1);
+    const ezUInt32 uiNumSurfaces = bHasMaterials ? desc.surfacePaths.GetCount() : 0u;
+    chunk << uiNumSurfaces;
+    for (ezUInt32 i = 0; i < uiNumSurfaces; ++i)
+      chunk << desc.surfacePaths[i];
+    chunk.EndChunk();
+
+    chunk.BeginChunk("Heightfield", 1);
+    chunk << desc.uiCollisionLayer;
+    const ezUInt32 uiShapeDataSize = shapeMem.GetStorageSize32();
+    chunk << uiShapeDataSize;
+    shapeMem.CopyToStream(chunk).AssertSuccess();
+    chunk.EndChunk();
+  }
+  chunk.EndStream();
+
+#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
+  if (compressor.FinishCompressedStream().Failed())
+  {
+    ezLog::Error("WriteHeightfieldResource: failed to finish compression.");
+    return EZ_FAILURE;
+  }
+#endif
 
   return EZ_SUCCESS;
 }

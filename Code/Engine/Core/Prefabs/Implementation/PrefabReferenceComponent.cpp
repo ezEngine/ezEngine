@@ -370,7 +370,7 @@ void ezPrefabReferenceComponent::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
 
-  if (GetUniqueID() == ezInvalidIndex)
+  if (GetUniqueID() == ezInvalidIndex) // when running inside the editor, we don't want to delete the component, otherwise the object is not selectable anymore while simulating
   {
     SetUserFlag((ezUInt8)PrefabComponentFlags::SelfDeletion, true);
 

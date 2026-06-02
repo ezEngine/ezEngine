@@ -108,11 +108,10 @@ public:
   /// Removes any existing heightfield collider component from pOwner first.
   /// Returns EZ_FAILURE if no shape with that identifier is cached; the caller should then
   /// call CreateHeightfieldCollider() with the full data.
-  virtual ezResult TrySetHeightfieldCollider(ezGameObject* pOwner, ezStringView sIdentifier, ezUInt8 uiCollisionLayer)
+  virtual ezResult TrySetHeightfieldCollider(ezGameObject* pOwner, ezStringView sIdentifier)
   {
     EZ_IGNORE_UNUSED(pOwner);
     EZ_IGNORE_UNUSED(sIdentifier);
-    EZ_IGNORE_UNUSED(uiCollisionLayer);
     return EZ_FAILURE;
   }
 

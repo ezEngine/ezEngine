@@ -87,6 +87,7 @@ ezResult ezTexConvProcessor::Process()
     else if (m_Descriptor.m_OutputType == ezTexConvOutputType::Texture2DArray)
     {
       EZ_SUCCEED_OR_RETURN(Assemble2DArrayTexture(assembledImg));
+      EZ_SUCCEED_OR_RETURN(InvertNormalMap(assembledImg));
     }
 
     EZ_SUCCEED_OR_RETURN(AdjustHdrExposure(assembledImg));

@@ -168,7 +168,7 @@ void ezHeightfieldComponent::PushHeightfieldCollider()
     sIdentifier.SetFormat("Heightfield:{}", uiHash);
   }
 
-  if (pPhysics->TrySetHeightfieldCollider(GetOwner(), sIdentifier, 0).Succeeded())
+  if (pPhysics->TrySetHeightfieldCollider(GetOwner(), sIdentifier).Succeeded())
     return;
 
   // Cache miss: build the full height data and create the collider.

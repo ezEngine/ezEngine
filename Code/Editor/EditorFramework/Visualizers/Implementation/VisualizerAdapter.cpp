@@ -52,7 +52,7 @@ void ezVisualizerAdapter::DocumentObjectPropertyEventHandler(const ezDocumentObj
   {
     if (e.m_pObject == m_pObject)
     {
-      if (e.m_sProperty == m_pVisualizerAttr->m_sProperty1 || e.m_sProperty == m_pVisualizerAttr->m_sProperty2 || e.m_sProperty == m_pVisualizerAttr->m_sProperty3 || e.m_sProperty == m_pVisualizerAttr->m_sProperty4 || e.m_sProperty == m_pVisualizerAttr->m_sProperty5)
+      if (e.m_sProperty == m_pVisualizerAttr->m_sProperty1 || e.m_sProperty == m_pVisualizerAttr->m_sProperty2 || e.m_sProperty == m_pVisualizerAttr->m_sProperty3 || e.m_sProperty == m_pVisualizerAttr->m_sProperty4 || e.m_sProperty == m_pVisualizerAttr->m_sProperty5 || e.m_sProperty == m_pVisualizerAttr->m_sProperty6)
       {
         Update();
       }

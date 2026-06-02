@@ -2,6 +2,7 @@
 
 #include <Core/Messages/DeleteObjectMessage.h>
 #include <Core/Messages/HierarchyChangedMessages.h>
+#include <Core/Prefabs/PrefabReferenceComponent.h>
 #include <Core/World/EventMessageHandlerComponent.h>
 #include <Core/World/World.h>
 #include <Core/World/WorldModule.h>
@@ -263,7 +264,17 @@ void ezWorld::DeleteObjectNow(const ezGameObjectHandle& hObject0, bool bAlsoDele
 
     while (pParent)
     {
-      if (pParent->GetChildCount() != 1 || pParent->GetComponents().GetCount() != 0)
+      if (pParent->GetChildCount() != 1)
+        break;
+
+      if (pParent->GetComponents().GetCount() > 1)
+        break;
+
+      // special case for in-editor simulation:
+      // also consider parents that only have a prefab component as "empty"
+      // at game runtime, prefab component delete themselves, but in the editor they don't, otherwise objects wouldn't be selectable anymore (while simulating)
+      ezPrefabReferenceComponent* pPrefab = nullptr;
+      if (pParent->GetComponents().GetCount() == 1 && pParent->TryGetComponentOfBaseType(pPrefab) == false)
         break;
 
       pObject = pParent;

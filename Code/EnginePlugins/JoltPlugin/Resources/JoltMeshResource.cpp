@@ -4,7 +4,6 @@
 #include <Foundation/IO/ChunkStream.h>
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Utilities/AssetFileHeader.h>
-#include <Jolt/Core/StreamIn.h>
 #include <Jolt/Physics/Collision/Shape/CompoundShape.h>
 #include <Jolt/Physics/Collision/Shape/ConvexHullShape.h>
 #include <Jolt/Physics/Collision/Shape/MeshShape.h>
@@ -13,34 +12,12 @@
 #include <JoltPlugin/Resources/JoltMeshResource.h>
 #include <JoltPlugin/Shapes/Implementation/JoltCustomShapeInfo.h>
 #include <JoltPlugin/Utilities/JoltConversionUtils.h>
+#include <JoltPlugin/Utilities/JoltStreamUtils.h>
 #include <RendererCore/Meshes/CpuMeshResource.h>
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
 #  include <Foundation/IO/CompressedStreamZstd.h>
 #endif
-
-class ezJoltStreamIn : public JPH::StreamIn
-{
-public:
-  ezStreamReader* m_pStream = nullptr;
-  bool m_bEOF = false;
-
-  virtual void ReadBytes(void* pData, size_t uiInNumBytes) override
-  {
-    if (m_pStream->ReadBytes(pData, uiInNumBytes) < uiInNumBytes)
-      m_bEOF = true;
-  }
-
-  virtual bool IsEOF() const override
-  {
-    return m_bEOF;
-  }
-
-  virtual bool IsFailed() const override
-  {
-    return false;
-  }
-};
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezJoltMeshResource, 1, ezRTTIDefaultAllocator<ezJoltMeshResource>)
@@ -163,6 +140,12 @@ ezResourceLoadDesc ezJoltMeshResource::UpdateContent(ezStreamReader* Stream)
     // older cooked Jolt meshes are incompatible
     res.m_State = ezResourceState::LoadedResourceMissing;
     return res;
+  }
+
+  if (uiVersion >= 4)
+  {
+    ezUInt64 uiContentHash = 0;
+    *Stream >> uiContentHash;
   }
 
   ezStreamReader* pCompressor = Stream;
@@ -461,9 +444,7 @@ JPH::Shape* ezJoltMeshResource::InstantiateTriangleMesh(ezUInt64 uiUserData, con
 
     ezRawMemoryStreamReader memReader(m_TriangleMeshData);
 
-    ezJoltStreamIn jStream;
-    jStream.m_pStream = &memReader;
-
+    ezJoltStreamIn jStream(&memReader);
     auto shapeRes = JPH::Shape::sRestoreFromBinaryState(jStream);
 
     if (shapeRes.HasError())
@@ -537,9 +518,7 @@ JPH::Shape* ezJoltMeshResource::InstantiateConvexPart(ezUInt32 uiPartIdx, ezUInt
 
     ezRawMemoryStreamReader memReader(*m_ConvexMeshesData[uiPartIdx]);
 
-    ezJoltStreamIn jStream;
-    jStream.m_pStream = &memReader;
-
+    ezJoltStreamIn jStream(&memReader);
     auto shapeRes = JPH::Shape::sRestoreFromBinaryState(jStream);
 
     if (shapeRes.HasError())
