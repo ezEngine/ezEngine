@@ -69,6 +69,16 @@ void ezRenderPipeline::OnRenderEvent(const ezRenderGraphRenderEvent& e)
   }
   else if (e.m_Type == ezRenderGraphRenderEvent::Type::AfterGraphExecution && e.m_pGraph == m_pRenderGraph)
   {
+    {
+      ezRenderWorldRenderEvent renderEvent;
+      renderEvent.m_Type = ezRenderWorldRenderEvent::Type::AfterPipelineExecution;
+      renderEvent.m_pRenderViewContext = &m_RenderViewContext;
+      renderEvent.m_uiFrameCounter = ezRenderWorld::GetFrameCounter();
+
+      EZ_PROFILE_SCOPE("AfterPipelineExecution");
+      ezRenderWorld::s_RenderEvent.Broadcast(renderEvent);
+    }
+
     auto& data = m_Data[ezRenderWorld::GetDataIndexForRendering()];
     data.Clear();
     m_CurrentRenderThread = (ezThreadID)0;
@@ -1121,6 +1131,16 @@ void ezRenderPipeline::UpdateRenderContext(ezRenderGraphContext& ctx)
   for (auto& var : m_PermutationVars)
   {
     pRenderContext->SetShaderPermutationVariable(var.m_sName, var.m_sValue);
+  }
+
+  {
+    ezRenderWorldRenderEvent renderEvent;
+    renderEvent.m_Type = ezRenderWorldRenderEvent::Type::BeforePipelineExecution;
+    renderEvent.m_pRenderViewContext = &m_RenderViewContext;
+    renderEvent.m_uiFrameCounter = ezRenderWorld::GetFrameCounter();
+
+    EZ_PROFILE_SCOPE("BeforePipelineExecution");
+    ezRenderWorld::s_RenderEvent.Broadcast(renderEvent);
   }
 }
 

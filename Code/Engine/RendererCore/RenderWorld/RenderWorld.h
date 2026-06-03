@@ -27,10 +27,13 @@ struct ezRenderWorldRenderEvent
   enum class Type
   {
     BeginRender,             ///< Fired before rendering begins.
+    BeforePipelineExecution, ///< Fired before executing a render pipeline.
+    AfterPipelineExecution,  ///< Fired after executing a render pipeline.
     EndRender,               ///< Fired after rendering is complete.
   };
 
   Type m_Type;
+  const ezRenderViewContext* m_pRenderViewContext = nullptr;
   ezUInt64 m_uiFrameCounter = 0;
 };
 
