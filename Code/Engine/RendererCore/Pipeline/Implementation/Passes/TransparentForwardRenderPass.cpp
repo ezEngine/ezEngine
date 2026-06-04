@@ -11,6 +11,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTransparentForwardRenderPass, 1, ezRTTIDefault
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("ResolvedDepth", m_PinResolvedDepth),
+    EZ_MEMBER_PROPERTY("SSAO", m_PinSSAO),
+    EZ_MEMBER_PROPERTY("ShadowMasks", m_PinShadowMasks),
   }
   EZ_END_PROPERTIES;
 }
@@ -41,6 +43,8 @@ ezStatus ezTransparentForwardRenderPass::AddRenderPasses(const ezViewData& viewD
   outputs[m_PinDepthStencil.m_uiOutputIndex].m_TextureHandle = hDepthStencil;
 
   ezRenderGraphTextureHandle hResolvedDepth = inputs[m_PinResolvedDepth.m_uiInputIndex].m_TextureHandle;
+  ezRenderGraphTextureHandle hSSAO = inputs[m_PinSSAO.m_uiInputIndex].m_TextureHandle;
+  ezRenderGraphTextureHandle hShadowMask = inputs[m_PinShadowMasks.m_uiInputIndex].m_TextureHandle;
 
   // Create temp scene color texture
   const ezGALTextureCreationDescription colorDesc = ref_graph.GetTextureDesc(hColor);
@@ -61,6 +65,10 @@ ezStatus ezTransparentForwardRenderPass::AddRenderPasses(const ezViewData& viewD
     pass.ReadTexture(hSceneColor, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
     if (!hResolvedDepth.IsInvalidated())
       pass.ReadTexture(hResolvedDepth, {}, ezGALResourceState::ShaderResource);
+    if (!hSSAO.IsInvalidated())
+      pass.ReadTexture(hSSAO, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
+    if (!hShadowMask.IsInvalidated())
+      pass.ReadTexture(hShadowMask, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
     pass.SetStereoscopic(camera.IsStereoscopic());
     // BEGIN-DOCS-CODE-SNIPPET: renderpass-render-objects
     ezRenderPipelinePass::SetupResourceDependencies(viewData, ref_graph, pass, m_ShadingQuality);
@@ -75,6 +83,28 @@ ezStatus ezTransparentForwardRenderPass::AddRenderPasses(const ezViewData& viewD
         {
           bindGroupRenderPass.BindTexture("SceneDepth", ctx.ResolveTexture(hResolvedDepth));
         }
+
+        if (m_ShadingQuality == ezForwardRenderShadingQuality::Normal)
+        {
+          if (!hSSAO.IsInvalidated())
+          {
+            bindGroupRenderPass.BindTexture("SSAOTexture", ctx.ResolveTexture(hSSAO));
+          }
+          else
+          {
+            bindGroupRenderPass.BindTexture("SSAOTexture", m_hWhiteTexture, ezResourceAcquireMode::BlockTillLoaded);
+          }
+
+          if (!hShadowMask.IsInvalidated())
+          {
+            bindGroupRenderPass.BindTexture("ShadowMasksTexture", ctx.ResolveTexture(hShadowMask));
+          }
+          else
+          {
+            bindGroupRenderPass.BindTexture("ShadowMasksTexture", m_hWhiteTexture, ezResourceAcquireMode::BlockTillLoaded);
+          }
+        }
+
         RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMeshDecal); //
       });
     // END-DOCS-CODE-SNIPPET

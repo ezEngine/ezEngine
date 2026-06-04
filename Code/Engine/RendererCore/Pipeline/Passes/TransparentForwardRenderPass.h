@@ -22,6 +22,8 @@ protected:
   void CreateSamplerState();
 
   ezRenderPipelineNodeInputPin m_PinResolvedDepth;   ///< Optional resolved depth for soft particles.
+  ezRenderPipelineNodeInputPin m_PinSSAO;            ///< Optional SSAO input for ambient occlusion.
+  ezRenderPipelineNodeInputPin m_PinShadowMasks;     ///< Optional shadow mask input for deferred shadows.
 
   ezGALSamplerStateHandle m_hSceneColorSamplerState; ///< Sampler for scene color texture.
 };

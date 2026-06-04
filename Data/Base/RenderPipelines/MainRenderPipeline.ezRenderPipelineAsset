@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12099190295688988325,5711173786673602835}}
-		u4 %Hash{15494573681085934668}
+		u4 %Hash{10353941372729728350}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -44,6 +44,13 @@ o
 }
 o
 {
+	Uuid %id{u4{14211318061536676915,1926501294706802879}}
+	s %t{"ezRenderPipelineNodeInputPin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
 	Uuid %id{u4{6962367406187046724,2207568349783707017}}
 	s %t{"ezRenderPipelineNodePassThroughPin"}
 	u3 %v{1}
@@ -60,6 +67,13 @@ o
 {
 	Uuid %id{u4{8585470075124698003,2716617892859069161}}
 	s %t{"ezRenderPipelineNodeInputProviderPin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{16916234058005816719,2871034476039646266}}
+	s %t{"ezRenderPipelineNodeInputPin"}
 	u3 %v{1}
 	p{}
 }
@@ -98,7 +112,9 @@ o
 		s %Name{""}
 		Vec2 %Node::Pos{f{0x13190EC4,0x36A965C3}}
 		Uuid %ResolvedDepth{u4{15118319717855427782,7566771301105821867}}
+		Uuid %SSAO{u4{16916234058005816719,2871034476039646266}}
 		s %ShadingQuality{"ezForwardRenderShadingQuality::Normal"}
+		Uuid %ShadowMasks{u4{14211318061536676915,1926501294706802879}}
 	}
 }
 o
@@ -512,6 +528,19 @@ o
 }
 o
 {
+	Uuid %id{u4{7923946231253630611,5409259712904032528}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{131739830145733043,4938117585638962621}}
+		s %SourcePin{"Output"}
+		Uuid %Target{u4{15217573783965038497,4632251886641546667}}
+		s %TargetPin{"SSAO"}
+	}
+}
+o
+{
 	Uuid %id{u4{4616900964776105353,5433537937602972045}}
 	s %t{"ezDocumentObject_ConnectionBase"}
 	u3 %v{1}
@@ -533,6 +562,19 @@ o
 		b %Active{1}
 		s %Name{""}
 		Vec2 %Node::Pos{f{0xCEAA8BC3,0xABC90FC4}}
+	}
+}
+o
+{
+	Uuid %id{u4{7727492444571916711,5463061435811087574}}
+	s %t{"ezDocumentObject_ConnectionBase"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Source{u4{16879376940770929568,5482235839618129916}}
+		s %SourcePin{"Output"}
+		Uuid %Target{u4{15217573783965038497,4632251886641546667}}
+		s %TargetPin{"ShadowMasks"}
 	}
 }
 o
@@ -968,6 +1010,8 @@ o
 			Uuid{u4{16879376940770929568,5482235839618129916}}
 			Uuid{u4{14661106414859803030,5511964609060694507}}
 			Uuid{u4{12902397426000068764,5102241972032460734}}
+			Uuid{u4{7923946231253630611,5409259712904032528}}
+			Uuid{u4{7727492444571916711,5463061435811087574}}
 		}
 	}
 }
@@ -1507,7 +1551,7 @@ o
 	p
 	{
 		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezRenderPipelinePass"}
 		s %PluginName{"Static"}
