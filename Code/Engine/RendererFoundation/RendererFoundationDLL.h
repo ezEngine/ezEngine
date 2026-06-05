@@ -367,6 +367,29 @@ struct ezGALTextureFilterMode
   };
 };
 
+/// \brief Defines global texture filtering quality levels.
+///
+/// Used to scale all quality-adjustable samplers simultaneously. The actual quality applied to each sampler
+/// depends on which quality mode slot it uses and what quality level is mapped to that slot.
+/// \see ezGALDevice::SetTextureQualityMode, ezRenderContext::SetDefaultTextureQuality
+struct ezGALTextureQuality
+{
+  using StorageType = ezUInt8;
+
+  enum Enum
+  {
+    Nearest,
+    Bilinear,
+    Trilinear,
+    Anisotropic2x,
+    Anisotropic4x,
+    Anisotropic8x,
+    Anisotropic16x,
+
+    Default = Nearest,
+  };
+};
+
 struct ezGALUpdateMode
 {
   enum Enum

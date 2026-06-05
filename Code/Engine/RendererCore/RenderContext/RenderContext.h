@@ -171,22 +171,15 @@ public:
   const ezGlobalConstants& ReadGlobalConstants() const;
   void SetGlobalAndWorldTimeConstants(ezTime worldTime);
 
-  /// \brief Sets the texture filter mode that is used by default for texture resources.
+  /// \brief Sets the texture filtering quality for all quality-adjustable samplers.
   ///
-  /// The built in default is Anisotropic 4x.
-  /// If the default setting is changed, already loaded textures might not adjust.
-  /// Nearest filtering is not allowed as a default filter.
-  void SetDefaultTextureFilter(ezTextureFilterSetting::Enum filter);
+  /// The default quality is Anisotropic4x and is controlled via the Rendering.TextureQuality CVar.
+  /// Changing quality triggers immediate recreation of all affected sampler states.
+  /// Pass bForce = true to force recreation even if the quality value did not change.
+  void SetDefaultTextureQuality(ezGALTextureQuality::Enum quality, bool bForce = false);
 
   /// \brief Returns the texture filter mode that is used by default for textures.
-  ezTextureFilterSetting::Enum GetDefaultTextureFilter() const { return m_DefaultTextureFilter; }
-
-  /// \brief Returns the 'fixed' texture filter setting that the combination of default texture filter and given \a configuration defines.
-  ///
-  /// If \a configuration is set to a fixed filter, that setting is returned.
-  /// If it is one of LowestQuality to HighestQuality, the adjusted default filter is returned.
-  /// When the default filter is used (with adjustments), the allowed range is Bilinear to Aniso16x, the Nearest filter is never used.
-  ezTextureFilterSetting::Enum GetSpecificTextureFilter(ezTextureFilterSetting::Enum configuration) const;
+  ezGALTextureQuality::Enum GetDefaultTextureQuality() const { return m_DefaultTextureQuality; }
 
   /// \brief Set async shader loading. During runtime all shaders should be preloaded so this is off by default.
   void SetAllowAsyncShaderLoading(bool bAllow);
@@ -289,7 +282,7 @@ private:
   ezSmallArray<ezGALVertexAttribute, 16> m_VertexAttributes;
 
   ezUInt32 m_uiMeshBufferPrimitiveCount;
-  ezEnum<ezTextureFilterSetting> m_DefaultTextureFilter;
+  ezEnum<ezGALTextureQuality> m_DefaultTextureQuality;
   bool m_bAllowAsyncShaderLoading;
   bool m_bStereoRendering = false;
 

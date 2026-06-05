@@ -12,7 +12,7 @@ ezTestAppRun ezRendererTestBasics::SubtestTextures2D()
   BeginCommands("Textures2D");
   TransitionTexture(GetBackbuffer(), ezGALResourceState::RenderTarget);
 
-  ezRenderContext::GetDefaultInstance()->SetDefaultTextureFilter(ezTextureFilterSetting::FixedTrilinear);
+  ezRenderContext::GetDefaultInstance()->SetDefaultTextureQuality(ezGALTextureQuality::Trilinear);
 
   const ezInt32 iNumFrames = 14;
 
@@ -138,7 +138,7 @@ ezTestAppRun ezRendererTestBasics::SubtestTextures3D()
   BeginFrame();
   BeginCommands("Textures3D");
   TransitionTexture(GetBackbuffer(), ezGALResourceState::RenderTarget);
-  ezRenderContext::GetDefaultInstance()->SetDefaultTextureFilter(ezTextureFilterSetting::FixedTrilinear);
+  ezRenderContext::GetDefaultInstance()->SetDefaultTextureQuality(ezGALTextureQuality::Trilinear);
 
   const ezInt32 iNumFrames = 1;
 
@@ -171,7 +171,7 @@ ezTestAppRun ezRendererTestBasics::SubtestTexturesCube()
   BeginCommands("TexturesCube");
   TransitionTexture(GetBackbuffer(), ezGALResourceState::RenderTarget);
 
-  ezRenderContext::GetDefaultInstance()->SetDefaultTextureFilter(ezTextureFilterSetting::FixedTrilinear);
+  ezRenderContext::GetDefaultInstance()->SetDefaultTextureQuality(ezGALTextureQuality::Trilinear);
 
   const ezInt32 iNumFrames = 12;
 

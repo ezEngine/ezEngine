@@ -88,6 +88,7 @@ protected:
 
   virtual ezGALSamplerState* CreateSamplerStatePlatform(const ezGALSamplerStateCreationDescription& Description) override;
   virtual void DestroySamplerStatePlatform(ezGALSamplerState* pSamplerState) override;
+  virtual void RecreateSamplerStatePlatform(ezGALSamplerState* pSamplerState) override;
 
   virtual ezGALBindGroupLayout* CreateBindGroupLayoutPlatform(const ezGALBindGroupLayoutCreationDescription& Description) override;
   virtual void DestroyBindGroupLayoutPlatform(ezGALBindGroupLayout* pBindGroupLayout) override;

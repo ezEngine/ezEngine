@@ -339,6 +339,80 @@ void ezGALDevice::DestroyHashedResource(Handle& inout_hResource, Table& table, e
   inout_hResource.Invalidate();
 }
 
+void ezGALDevice::SetTextureQualityMode(ezUInt32 uiMode, ezGALTextureQuality::Enum quality)
+{
+  m_QualityModes[uiMode] = quality;
+}
+
+void ezGALDevice::AdjustSamplerStateDescription(ezGALSamplerStateCreationDescription& inout_desc)
+{
+  if (inout_desc.m_uiUseTextureQualityMode == 0xFF)
+    return;
+
+  switch (m_QualityModes[inout_desc.m_uiUseTextureQualityMode])
+  {
+    case ezGALTextureQuality::Nearest:
+      inout_desc.m_MinFilter = ezGALTextureFilterMode::Point;
+      inout_desc.m_MagFilter = ezGALTextureFilterMode::Point;
+      inout_desc.m_MipFilter = ezGALTextureFilterMode::Point;
+      inout_desc.m_uiMaxAnisotropy = 1;
+      break;
+
+    case ezGALTextureQuality::Bilinear:
+      inout_desc.m_MinFilter = ezGALTextureFilterMode::Linear;
+      inout_desc.m_MagFilter = ezGALTextureFilterMode::Linear;
+      inout_desc.m_MipFilter = ezGALTextureFilterMode::Point;
+      inout_desc.m_uiMaxAnisotropy = 1;
+      break;
+
+    case ezGALTextureQuality::Trilinear:
+      inout_desc.m_MinFilter = ezGALTextureFilterMode::Linear;
+      inout_desc.m_MagFilter = ezGALTextureFilterMode::Linear;
+      inout_desc.m_MipFilter = ezGALTextureFilterMode::Linear;
+      inout_desc.m_uiMaxAnisotropy = 1;
+      break;
+
+    case ezGALTextureQuality::Anisotropic2x:
+      inout_desc.m_MinFilter = ezGALTextureFilterMode::Anisotropic;
+      inout_desc.m_MagFilter = ezGALTextureFilterMode::Anisotropic;
+      inout_desc.m_MipFilter = ezGALTextureFilterMode::Anisotropic;
+      inout_desc.m_uiMaxAnisotropy = 2;
+      break;
+
+    case ezGALTextureQuality::Anisotropic4x:
+      inout_desc.m_MinFilter = ezGALTextureFilterMode::Anisotropic;
+      inout_desc.m_MagFilter = ezGALTextureFilterMode::Anisotropic;
+      inout_desc.m_MipFilter = ezGALTextureFilterMode::Anisotropic;
+      inout_desc.m_uiMaxAnisotropy = 4;
+      break;
+
+    case ezGALTextureQuality::Anisotropic8x:
+      inout_desc.m_MinFilter = ezGALTextureFilterMode::Anisotropic;
+      inout_desc.m_MagFilter = ezGALTextureFilterMode::Anisotropic;
+      inout_desc.m_MipFilter = ezGALTextureFilterMode::Anisotropic;
+      inout_desc.m_uiMaxAnisotropy = 8;
+      break;
+
+    case ezGALTextureQuality::Anisotropic16x:
+      inout_desc.m_MinFilter = ezGALTextureFilterMode::Anisotropic;
+      inout_desc.m_MagFilter = ezGALTextureFilterMode::Anisotropic;
+      inout_desc.m_MipFilter = ezGALTextureFilterMode::Anisotropic;
+      inout_desc.m_uiMaxAnisotropy = 16;
+      break;
+  }
+}
+
+void ezGALDevice::UpdateTextureQuality()
+{
+  for (auto it = m_SamplerStates.GetIterator(); it.IsValid(); ++it)
+  {
+    if (it.Value()->GetDescription().m_uiUseTextureQualityMode != 0xFF)
+    {
+      RecreateSamplerStatePlatform(it.Value());
+    }
+  }
+}
+
 ezGALBlendStateHandle ezGALDevice::CreateBlendState(const ezGALBlendStateCreationDescription& desc)
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();

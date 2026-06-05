@@ -471,8 +471,15 @@ ezGALSamplerState* ezGALDeviceDX11::CreateSamplerStatePlatform(const ezGALSample
 void ezGALDeviceDX11::DestroySamplerStatePlatform(ezGALSamplerState* pSamplerState)
 {
   ezGALSamplerStateDX11* pDX11SamplerState = static_cast<ezGALSamplerStateDX11*>(pSamplerState);
-  pDX11SamplerState->DeInitPlatform(this).IgnoreResult();
+  pDX11SamplerState->DeInitPlatform(this).AssertSuccess();
   EZ_DELETE(&m_Allocator, pDX11SamplerState);
+}
+
+void ezGALDeviceDX11::RecreateSamplerStatePlatform(ezGALSamplerState* pSamplerState)
+{
+  ezGALSamplerStateDX11* pDX11SamplerState = static_cast<ezGALSamplerStateDX11*>(pSamplerState);
+  pDX11SamplerState->DeInitPlatform(this).AssertSuccess();
+  pDX11SamplerState->InitPlatform(this).AssertSuccess();
 }
 
 ezGALBindGroupLayout* ezGALDeviceDX11::CreateBindGroupLayoutPlatform(const ezGALBindGroupLayoutCreationDescription& Description)

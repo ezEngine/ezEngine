@@ -78,7 +78,7 @@ ezClusteredDataGPU::ezClusteredDataGPU()
     desc.m_AddressW = ezImageAddressMode::Clamp;
 
     ezTextureUtils::ConfigureSampler(ezTextureFilterSetting::DefaultQuality, desc);
-    desc.m_uiMaxAnisotropy = ezMath::Min(desc.m_uiMaxAnisotropy, 4u);
+    desc.m_uiMaxAnisotropy = ezMath::Min<ezUInt8>(desc.m_uiMaxAnisotropy, 4u);
 
     m_hDecalAtlasSampler = pDevice->CreateSamplerState(desc);
   }

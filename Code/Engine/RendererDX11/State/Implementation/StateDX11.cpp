@@ -271,20 +271,23 @@ ezGALSamplerStateDX11::~ezGALSamplerStateDX11() = default;
 
 ezResult ezGALSamplerStateDX11::InitPlatform(ezGALDevice* pDevice)
 {
-  D3D11_SAMPLER_DESC DXDesc;
-  DXDesc.AddressU = GALTextureAddressModeToDX11[m_Description.m_AddressU];
-  DXDesc.AddressV = GALTextureAddressModeToDX11[m_Description.m_AddressV];
-  DXDesc.AddressW = GALTextureAddressModeToDX11[m_Description.m_AddressW];
-  DXDesc.BorderColor[0] = m_Description.m_BorderColor.r;
-  DXDesc.BorderColor[1] = m_Description.m_BorderColor.g;
-  DXDesc.BorderColor[2] = m_Description.m_BorderColor.b;
-  DXDesc.BorderColor[3] = m_Description.m_BorderColor.a;
-  DXDesc.ComparisonFunc = GALCompareFuncToDX11[m_Description.m_SampleCompareFunc];
+  ezGALSamplerStateCreationDescription desc = this->GetDescription();
+  pDevice->AdjustSamplerStateDescription(desc);
 
-  if (m_Description.m_MagFilter == ezGALTextureFilterMode::Anisotropic || m_Description.m_MinFilter == ezGALTextureFilterMode::Anisotropic ||
-      m_Description.m_MipFilter == ezGALTextureFilterMode::Anisotropic)
+  D3D11_SAMPLER_DESC DXDesc;
+  DXDesc.AddressU = GALTextureAddressModeToDX11[desc.m_AddressU];
+  DXDesc.AddressV = GALTextureAddressModeToDX11[desc.m_AddressV];
+  DXDesc.AddressW = GALTextureAddressModeToDX11[desc.m_AddressW];
+  DXDesc.BorderColor[0] = desc.m_BorderColor.r;
+  DXDesc.BorderColor[1] = desc.m_BorderColor.g;
+  DXDesc.BorderColor[2] = desc.m_BorderColor.b;
+  DXDesc.BorderColor[3] = desc.m_BorderColor.a;
+  DXDesc.ComparisonFunc = GALCompareFuncToDX11[desc.m_SampleCompareFunc];
+
+  if (desc.m_MagFilter == ezGALTextureFilterMode::Anisotropic || desc.m_MinFilter == ezGALTextureFilterMode::Anisotropic ||
+      desc.m_MipFilter == ezGALTextureFilterMode::Anisotropic)
   {
-    if (m_Description.m_SampleCompareFunc == ezGALCompareFunc::Never)
+    if (desc.m_SampleCompareFunc == ezGALCompareFunc::Never)
       DXDesc.Filter = D3D11_FILTER_ANISOTROPIC;
     else
       DXDesc.Filter = D3D11_FILTER_COMPARISON_ANISOTROPIC;
@@ -293,25 +296,25 @@ ezResult ezGALSamplerStateDX11::InitPlatform(ezGALDevice* pDevice)
   {
     ezUInt32 uiTableIndex = 0;
 
-    if (m_Description.m_MipFilter == ezGALTextureFilterMode::Linear)
+    if (desc.m_MipFilter == ezGALTextureFilterMode::Linear)
       uiTableIndex |= 1;
 
-    if (m_Description.m_MagFilter == ezGALTextureFilterMode::Linear)
+    if (desc.m_MagFilter == ezGALTextureFilterMode::Linear)
       uiTableIndex |= 2;
 
-    if (m_Description.m_MinFilter == ezGALTextureFilterMode::Linear)
+    if (desc.m_MinFilter == ezGALTextureFilterMode::Linear)
       uiTableIndex |= 4;
 
-    if (m_Description.m_SampleCompareFunc != ezGALCompareFunc::Never)
+    if (desc.m_SampleCompareFunc != ezGALCompareFunc::Never)
       uiTableIndex |= 8;
 
     DXDesc.Filter = GALFilterTableIndexToDX11[uiTableIndex];
   }
 
-  DXDesc.MaxAnisotropy = m_Description.m_uiMaxAnisotropy;
-  DXDesc.MaxLOD = m_Description.m_fMaxMip;
-  DXDesc.MinLOD = m_Description.m_fMinMip;
-  DXDesc.MipLODBias = m_Description.m_fMipLodBias;
+  DXDesc.MaxAnisotropy = desc.m_uiMaxAnisotropy;
+  DXDesc.MaxLOD = desc.m_fMaxMip;
+  DXDesc.MinLOD = desc.m_fMinMip;
+  DXDesc.MipLODBias = desc.m_fMipLodBias;
 
   if (FAILED(static_cast<ezGALDeviceDX11*>(pDevice)->GetDXDevice()->CreateSamplerState(&DXDesc, &m_pDXSamplerState)))
   {

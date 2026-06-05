@@ -1089,6 +1089,13 @@ void ezGALDeviceVulkan::DestroySamplerStatePlatform(ezGALSamplerState* pSamplerS
   EZ_DELETE(&m_Allocator, pVulkanSamplerState);
 }
 
+void ezGALDeviceVulkan::RecreateSamplerStatePlatform(ezGALSamplerState* pSamplerState)
+{
+  ezGALSamplerStateVulkan* pVulkanSamplerState = static_cast<ezGALSamplerStateVulkan*>(pSamplerState);
+  pVulkanSamplerState->DeInitPlatform(this).AssertSuccess();
+  pVulkanSamplerState->InitPlatform(this).AssertSuccess();
+}
+
 ezGALBindGroupLayout* ezGALDeviceVulkan::CreateBindGroupLayoutPlatform(const ezGALBindGroupLayoutCreationDescription& Description)
 {
   ezGALBindGroupLayoutVulkan* pVulkanBindGroupLayout = EZ_NEW(&m_Allocator, ezGALBindGroupLayoutVulkan, Description);

@@ -3,6 +3,7 @@
 #include <RendererCore/RendererCorePCH.h>
 
 #include <Foundation/Algorithm/HashStream.h>
+#include <Foundation/Configuration/CVar.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Time/Clock.h>
 #include <Foundation/Types/ScopeExit.h>
@@ -30,6 +31,9 @@
 ezRenderContext* ezRenderContext::s_pDefaultInstance = nullptr;
 ezGALCommandEncoder* ezRenderContext::s_pCommandEncoder = nullptr;
 ezHybridArray<ezRenderContext*, 4> ezRenderContext::s_Instances;
+
+// 0=Nearest, 1=Bilinear, 2=Trilinear, 3=Aniso2x, 4=Aniso4x, 5=Aniso8x, 6=Aniso16x
+ezCVarInt cvar_RenderingTextureQuality("Rendering.TextureQuality", 4, ezCVarFlags::Save, "Default texture filtering quality. 0=Nearest, 1=Bilinear, 2=Trilinear, 3=Anisotropic2x, 4=Anisotropic4x, 5=Anisotropic8x, 6=Anisotropic16x.");
 
 ezMap<ezRenderContext::ShaderVertexDecl, ezGALVertexDeclarationHandle> ezRenderContext::s_GALVertexDeclarations;
 
@@ -133,7 +137,6 @@ ezRenderContext::ezRenderContext(ezGALCommandEncoder* pCommandEncoder)
   m_StateFlags = ezRenderContextFlags::AllStatesInvalid;
   m_GraphicsPipeline.m_Topology = ezGALPrimitiveTopology::ENUM_COUNT; // Set to something invalid
   m_uiMeshBufferPrimitiveCount = 0;
-  m_DefaultTextureFilter = ezTextureFilterSetting::FixedAnisotropic4x;
   m_bAllowAsyncShaderLoading = false;
 
   m_hGlobalConstantBufferStorage = CreateConstantBufferStorage<ezGlobalConstants>();
@@ -912,6 +915,10 @@ void ezRenderContext::GALStaticDeviceEventHandler(const ezGALDeviceEvent& e)
         s_pDefaultInstance->m_bDirtyBindGroups[i] = true;
       }
       s_pDefaultInstance->m_pGALCommandEncoder = e.m_pCommandEncoder;
+
+      // this is executed every frame
+      const ezInt32 iQuality = ezMath::Clamp<ezInt32>(cvar_RenderingTextureQuality, 0, ezGALTextureQuality::Anisotropic16x);
+      s_pDefaultInstance->SetDefaultTextureQuality(static_cast<ezGALTextureQuality::Enum>(iQuality));
     }
   }
   else if (e.m_Type == ezGALDeviceEvent::Type::BeforeEndCommands)
@@ -1190,46 +1197,77 @@ ezResult ezRenderContext::ApplyBindGroup(const ezGALShader* pShader, ezUInt32 ui
   return EZ_SUCCESS;
 }
 
-void ezRenderContext::SetDefaultTextureFilter(ezTextureFilterSetting::Enum filter)
+void ezRenderContext::SetDefaultTextureQuality(ezGALTextureQuality::Enum quality, bool bForce)
 {
-  EZ_ASSERT_DEBUG(
-    filter >= ezTextureFilterSetting::FixedBilinear && filter <= ezTextureFilterSetting::FixedAnisotropic16x, "Invalid default texture filter");
-  filter = ezMath::Clamp(filter, ezTextureFilterSetting::FixedBilinear, ezTextureFilterSetting::FixedAnisotropic16x);
-
-  if (m_DefaultTextureFilter == filter)
+  if (!bForce && m_DefaultTextureQuality == quality)
     return;
 
-  m_DefaultTextureFilter = filter;
-}
+  m_DefaultTextureQuality = quality;
+  cvar_RenderingTextureQuality = static_cast<ezInt32>(quality);
 
-ezTextureFilterSetting::Enum ezRenderContext::GetSpecificTextureFilter(ezTextureFilterSetting::Enum configuration) const
-{
-  if (configuration >= ezTextureFilterSetting::FixedNearest && configuration <= ezTextureFilterSetting::FixedAnisotropic16x)
-    return configuration;
-
-  int iFilter = m_DefaultTextureFilter;
-
-  switch (configuration)
+  if (m_pGALCommandEncoder)
   {
-    case ezTextureFilterSetting::LowestQuality:
-      iFilter -= 2;
-      break;
-    case ezTextureFilterSetting::LowQuality:
-      iFilter -= 1;
-      break;
-    case ezTextureFilterSetting::HighQuality:
-      iFilter += 1;
-      break;
-    case ezTextureFilterSetting::HighestQuality:
-      iFilter += 2;
-      break;
-    default:
-      break;
+    switch (m_DefaultTextureQuality)
+    {
+      case ezGALTextureQuality::Nearest:
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(0, ezGALTextureQuality::Nearest);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(1, ezGALTextureQuality::Nearest);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(2, ezGALTextureQuality::Nearest);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(3, ezGALTextureQuality::Nearest);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(4, ezGALTextureQuality::Nearest);
+        break;
+
+      case ezGALTextureQuality::Bilinear:
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(0, ezGALTextureQuality::Bilinear);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(1, ezGALTextureQuality::Bilinear);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(2, ezGALTextureQuality::Bilinear);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(3, ezGALTextureQuality::Trilinear);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(4, ezGALTextureQuality::Anisotropic2x);
+        break;
+
+      case ezGALTextureQuality::Trilinear:
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(0, ezGALTextureQuality::Bilinear);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(1, ezGALTextureQuality::Bilinear);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(2, ezGALTextureQuality::Trilinear);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(3, ezGALTextureQuality::Anisotropic2x);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(4, ezGALTextureQuality::Anisotropic4x);
+        break;
+
+      case ezGALTextureQuality::Anisotropic2x:
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(0, ezGALTextureQuality::Bilinear);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(1, ezGALTextureQuality::Trilinear);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(2, ezGALTextureQuality::Anisotropic2x);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(3, ezGALTextureQuality::Anisotropic4x);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(4, ezGALTextureQuality::Anisotropic8x);
+        break;
+
+      case ezGALTextureQuality::Anisotropic4x:
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(0, ezGALTextureQuality::Trilinear);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(1, ezGALTextureQuality::Anisotropic2x);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(2, ezGALTextureQuality::Anisotropic4x);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(3, ezGALTextureQuality::Anisotropic8x);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(4, ezGALTextureQuality::Anisotropic16x);
+        break;
+
+      case ezGALTextureQuality::Anisotropic8x:
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(0, ezGALTextureQuality::Anisotropic2x);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(1, ezGALTextureQuality::Anisotropic4x);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(2, ezGALTextureQuality::Anisotropic8x);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(3, ezGALTextureQuality::Anisotropic16x);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(4, ezGALTextureQuality::Anisotropic16x);
+        break;
+
+      case ezGALTextureQuality::Anisotropic16x:
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(0, ezGALTextureQuality::Anisotropic4x);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(1, ezGALTextureQuality::Anisotropic8x);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(2, ezGALTextureQuality::Anisotropic16x);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(3, ezGALTextureQuality::Anisotropic16x);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(4, ezGALTextureQuality::Anisotropic16x);
+        break;
+    }
+
+    m_pGALCommandEncoder->GetDevice().UpdateTextureQuality();
   }
-
-  iFilter = ezMath::Clamp<int>(iFilter, ezTextureFilterSetting::FixedBilinear, ezTextureFilterSetting::FixedAnisotropic16x);
-
-  return (ezTextureFilterSetting::Enum)iFilter;
 }
 
 void ezRenderContext::SetAllowAsyncShaderLoading(bool bAllow)

@@ -244,6 +244,23 @@ public:
   /// Internal: Returns the allocator used by the device.
   ezAllocator* GetAllocator();
 
+  /// \brief Sets the texture quality assigned to the given quality mode slot (0–7).
+  ///
+  /// Quality mode slots are referenced by samplers that opt in via m_uiUseTextureQualityMode.
+  /// Call UpdateTextureQuality() after changing slots to apply the change to existing samplers.
+  void SetTextureQualityMode(ezUInt32 uiMode, ezGALTextureQuality::Enum quality);
+
+  /// \brief Overrides the filter settings in \a inout_desc using the quality assigned to its quality mode slot.
+  ///
+  /// No-op if inout_desc.m_uiUseTextureQualityMode is 0xFF.
+  void AdjustSamplerStateDescription(ezGALSamplerStateCreationDescription& inout_desc);
+
+  /// \brief Recreates all quality-adjustable sampler states to reflect the current quality mode settings.
+  ///
+  /// Called automatically by ezRenderContext when the texture quality changes.
+  void UpdateTextureQuality();
+
+
 private:
   static ezGALDevice* s_pDefaultDevice;
 
@@ -388,6 +405,8 @@ protected:
 
   virtual ezGALSamplerState* CreateSamplerStatePlatform(const ezGALSamplerStateCreationDescription& Description) = 0;
   virtual void DestroySamplerStatePlatform(ezGALSamplerState* pSamplerState) = 0;
+  /// \brief Destroys and reinitializes a sampler state in-place, applying AdjustSamplerStateDescription to pick up current quality settings.
+  virtual void RecreateSamplerStatePlatform(ezGALSamplerState* pSamplerState) {};
 
   virtual ezGALBindGroupLayout* CreateBindGroupLayoutPlatform(const ezGALBindGroupLayoutCreationDescription& Description) = 0;
   virtual void DestroyBindGroupLayoutPlatform(ezGALBindGroupLayout* pBindGroupLayout) = 0;
@@ -482,6 +501,8 @@ private:
   ezUInt32 m_uiGraphicsPipelines = 0;
   ezUInt32 m_uiComputePipelines = 0;
   ezGALCommandEncoderStats m_EncoderStats;
+
+  ezEnum<ezGALTextureQuality> m_QualityModes[8];
 };
 
 #include <RendererFoundation/Device/Implementation/Device_inl.h>
