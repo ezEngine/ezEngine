@@ -175,6 +175,7 @@ struct EZ_RENDERERCORE_DLL ezMsgExtractRenderData : public ezMessage
   /// Like render data, dependencies are cached for static objects when the component's render data is cached.
   /// /// \sa ezRenderPipelinePass::DeclareRendererDependenciesForCategory
   void AddDependency(ezGALBufferHandle hBuffer, ezRenderData::Category category, ezBitflags<ezGALResourceState> requiredState, ezBitflags<ezGALShaderStageFlags> stage = ezGALShaderStageFlags::Auto);
+
 private:
   friend class ezExtractor;
 

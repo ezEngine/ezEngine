@@ -4,6 +4,7 @@
 #include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/Buffer.h>
+#include <RendererFoundation/Resources/ProxyTexture.h>
 #include <RendererFoundation/Resources/ReadbackBuffer.h>
 #include <RendererFoundation/Resources/ReadbackTexture.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
@@ -14,7 +15,6 @@
 #include <RendererFoundation/Shader/Shader.h>
 #include <RendererFoundation/State/ComputePipeline.h>
 #include <RendererFoundation/State/GraphicsPipeline.h>
-#include <RendererFoundation/Resources/ProxyTexture.h>
 
 #if EZ_ENABLED(EZ_BARRIER_VALIDATION)
 
