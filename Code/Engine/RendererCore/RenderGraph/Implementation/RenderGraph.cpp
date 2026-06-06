@@ -183,7 +183,7 @@ ezStatus ezRenderGraph::ReplaceImportedTexture(ezRenderGraphTextureHandle hGraph
   // if (oldDesc.m_Type != newDesc.m_Type)
   //   return ezStatus(ezFmt("Replacement texture type {} is different from original texture type {}", ezArgEnum(newDesc.m_Type), ezArgEnum(oldDesc.m_Type)));
 
-  if (!newDesc.m_TextureFlags.AreAllSet(newDesc.m_TextureFlags))
+  if (!newDesc.m_TextureFlags.AreAllSet(oldDesc.m_TextureFlags))
     return ezStatus(ezFmt("Replacement texture flags {} does not contain some of the original flags {}", ezArgEnum(newDesc.m_TextureFlags), ezArgEnum(oldDesc.m_TextureFlags)));
 
   // Is the target graph texture not imported yet?

@@ -64,6 +64,7 @@ ezStatus ezTransparentForwardRenderPass::AddRenderPasses(const ezViewData& viewD
     pass.SetStereoscopic(camera.IsStereoscopic());
     // BEGIN-DOCS-CODE-SNIPPET: renderpass-render-objects
     ezRenderPipelinePass::SetupResourceDependencies(viewData, ref_graph, pass, m_ShadingQuality);
+    DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::LitMeshDecal, ref_graph, pass);
     pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
       {
         const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
@@ -102,6 +103,7 @@ ezStatus ezTransparentForwardRenderPass::AddRenderPasses(const ezViewData& viewD
       pass.ReadTexture(hResolvedDepth, {}, ezGALResourceState::ShaderResource);
     pass.SetStereoscopic(camera.IsStereoscopic());
     ezRenderPipelinePass::SetupResourceDependencies(viewData, ref_graph, pass, m_ShadingQuality);
+    DeclareRenderObjectDependencies(ref_graph, pass);
     pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
       {
       const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
@@ -124,6 +126,12 @@ ezStatus ezTransparentForwardRenderPass::AddRenderPasses(const ezViewData& viewD
   }
 
   return EZ_SUCCESS;
+}
+
+void ezTransparentForwardRenderPass::DeclareRenderObjectDependencies(ezRenderGraph& ref_graph, ezRenderGraphPassBuilder& ref_pass)
+{
+  DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::LitTransparent, ref_graph, ref_pass);
+  DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::LitForeground, ref_graph, ref_pass);
 }
 
 void ezTransparentForwardRenderPass::RenderObjects(const ezRenderViewContext& renderViewContext)

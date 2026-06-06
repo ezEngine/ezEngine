@@ -80,6 +80,7 @@ ezStatus ezOpaqueForwardRenderPass::AddRenderPasses(const ezViewData& viewData, 
     pass.ReadTexture(hShadowMask, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
   pass.SetStereoscopic(camera.IsStereoscopic());
   ezRenderPipelinePass::SetupResourceDependencies(viewData, ref_graph, pass, m_ShadingQuality);
+  DeclareRenderObjectDependencies(ref_graph, pass);
   pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
     {
       const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
@@ -127,6 +128,14 @@ void ezOpaqueForwardRenderPass::SetupPermutationVars(const ezRenderViewContext& 
   {
     renderViewContext.m_pRenderContext->SetShaderPermutationVariable("FORWARD_PASS_WRITE_DEPTH", "FALSE");
   }
+}
+
+void ezOpaqueForwardRenderPass::DeclareRenderObjectDependencies(ezRenderGraph& ref_graph, ezRenderGraphPassBuilder& ref_pass)
+{
+  DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::LitOpaqueStatic, ref_graph, ref_pass);
+  DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::LitOpaqueDynamic, ref_graph, ref_pass);
+  DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::LitMaskedStatic, ref_graph, ref_pass);
+  DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::LitMaskedDynamic, ref_graph, ref_pass);
 }
 
 void ezOpaqueForwardRenderPass::RenderObjects(const ezRenderViewContext& renderViewContext)

@@ -76,6 +76,12 @@ ezStatus ezSimpleRenderPass::AddRenderPasses(const ezViewData& viewData, const e
   if (!hDepthStencil.IsInvalidated())
     pass.AddDepthStencilTarget(hDepthStencil);
   pass.SetStereoscopic(camera.IsStereoscopic());
+
+  DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::SimpleOpaque, ref_graph, pass);
+  DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::SimpleTransparent, ref_graph, pass);
+  DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::SimpleForeground, ref_graph, pass);
+  DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::GUI, ref_graph, pass);
+
   pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
     {
     const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();

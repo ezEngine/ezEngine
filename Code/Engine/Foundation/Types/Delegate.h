@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Foundation/Memory/Allocator.h>
+#include <Foundation/Memory/AllocatorWrapper.h>
 
 /// \brief Base class for ezDelegate
 class ezDelegateBase
@@ -81,7 +81,7 @@ protected:
 ///
 /// \note If you are wondering where the code is, the delegate is implemented with macro and template magic in
 /// Delegate_inl.h and DelegateHelper_inl.h.
-template <typename T, ezUInt32 DataSize = 16>
+template <typename T, ezUInt32 DataSize = 16, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
 struct ezDelegate : public ezDelegateBase
 {
 };

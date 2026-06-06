@@ -12,6 +12,11 @@ ezSkyRenderPass::ezSkyRenderPass(const char* szName)
 
 ezSkyRenderPass::~ezSkyRenderPass() = default;
 
+void ezSkyRenderPass::DeclareRenderObjectDependencies(ezRenderGraph& ref_graph, ezRenderGraphPassBuilder& ref_pass)
+{
+  DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::Sky, ref_graph, ref_pass);
+}
+
 void ezSkyRenderPass::RenderObjects(const ezRenderViewContext& renderViewContext)
 {
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Sky);

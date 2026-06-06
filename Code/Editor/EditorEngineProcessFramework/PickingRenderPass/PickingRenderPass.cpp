@@ -87,6 +87,25 @@ ezStatus ezPickingRenderPass::AddRenderPasses(const ezViewData& viewData, const 
     pass.SetClearDepth().SetClearStencil();
     pass.HasSideEffects();
     ezClusteredDataGPU::AddReadDependencies(ref_graph, pass, viewData.m_uiSkyIrradianceIndex, viewData.m_CameraUsageHint);
+
+    DeclareRendererDependenciesForCategory(s_LitOpaqueWithoutSelection, ref_graph, pass);
+    DeclareRendererDependenciesForCategory(s_LitMaskedWithoutSelection, ref_graph, pass);
+    if (m_bPickTransparent)
+    {
+      DeclareRendererDependenciesForCategory(s_LitTransparentWithoutSelection, ref_graph, pass);
+      DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::LitForeground, ref_graph, pass);
+    }
+    if (m_bPickSelected)
+    {
+      DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::Selection, ref_graph, pass);
+    }
+    DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::SimpleOpaque, ref_graph, pass);
+    if (m_bPickTransparent)
+    {
+      DeclareRendererDependenciesForCategory(s_SimpleTransparentWithoutSelection, ref_graph, pass);
+    }
+    DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::SimpleForeground, ref_graph, pass);
+
     pass.SetExecuteCallback([this](const ezRenderGraphContext& ctx)
       {
         const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();

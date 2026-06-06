@@ -19,6 +19,8 @@ public:
 protected:
   virtual void SetupPermutationVars(const ezRenderViewContext& renderViewContext) override;
 
+  virtual void DeclareRenderObjectDependencies(ezRenderGraph& ref_graph, ezRenderGraphPassBuilder& ref_pass) override;
+
   virtual void RenderObjects(const ezRenderViewContext& renderViewContext) override;
 
   ezRenderPipelineNodeInputPin m_PinSSAO;        ///< Optional SSAO input for ambient occlusion.

@@ -65,9 +65,19 @@ public:
   const ezExtractedRenderData& GetRenderData() const;
   ezRenderDataBatchList GetRenderDataBatchesWithCategory(ezRenderData::Category category) const;
 
+  /// Returns the texture barrier dependencies recorded during extraction for a specific category.
+  ezArrayPtr<const ezTextureDependency> GetTextureDependenciesWithCategory(ezRenderData::Category category) const;
+
+  /// Returns the buffer barrier dependencies recorded during extraction for a specific category.
+  ezArrayPtr<const ezBufferDependency> GetBufferDependenciesWithCategory(ezRenderData::Category category) const;
+
   /// Adds a texture dependency to the current extraction frame's data.
   /// Must only be called during extraction.
   void AddViewDependency(ezGALTextureHandle hTexture, ezBitflags<ezGALResourceState> requiredState, ezBitflags<ezGALShaderStageFlags> stage = ezGALShaderStageFlags::Auto);
+
+  /// Adds a buffer dependency to the current extraction frame's data.
+  /// Must only be called during extraction.
+  void AddViewDependency(ezGALBufferHandle hBuffer, ezBitflags<ezGALResourceState> requiredState, ezBitflags<ezGALShaderStageFlags> stage = ezGALShaderStageFlags::Auto);
 
   using RenderDataProcessor = ezDelegate<void(ezExtractedRenderData&)>;
   ezUInt32 AddRenderDataProcessor(RenderDataProcessor processor);

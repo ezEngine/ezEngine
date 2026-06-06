@@ -50,6 +50,8 @@ ezStatus ezCustomRenderDataPass::AddRenderPasses(const ezViewData& viewData, con
   if (!hDepthStencil.IsInvalidated())
     pass.AddDepthStencilTarget(hDepthStencil);
   pass.SetStereoscopic(camera.IsStereoscopic());
+  if (m_RenderDataCategory.IsValid())
+    DeclareRendererDependenciesForCategory(m_RenderDataCategory, ref_graph, pass);
   pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
     {
     const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();

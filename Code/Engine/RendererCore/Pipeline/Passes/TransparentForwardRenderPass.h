@@ -16,6 +16,7 @@ public:
   virtual ezStatus AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs) override;
 
 protected:
+  virtual void DeclareRenderObjectDependencies(ezRenderGraph& ref_graph, ezRenderGraphPassBuilder& ref_pass) override;
   virtual void RenderObjects(const ezRenderViewContext& renderViewContext) override;
 
   void CreateSamplerState();

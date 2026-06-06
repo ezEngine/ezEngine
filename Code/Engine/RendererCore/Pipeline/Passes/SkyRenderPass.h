@@ -15,5 +15,6 @@ public:
   ~ezSkyRenderPass();
 
 protected:
+  virtual void DeclareRenderObjectDependencies(ezRenderGraph& ref_graph, ezRenderGraphPassBuilder& ref_pass) override;
   virtual void RenderObjects(const ezRenderViewContext& renderViewContext) override;
 };

@@ -1049,9 +1049,15 @@ void ezRenderPipeline::EnqueueRenderGraph(ezRenderContext* pRenderContext)
   }
 
   // Apply view dependencies: import shared textures with the required initial state.
-  for (const ezViewDependency& dep : data.GetViewDependencies())
+  for (const ezTextureDependency& dep : data.GetTextureViewDependencies())
   {
     m_pRenderGraph->ImportTexture(dep.m_hTexture, dep.m_RequiredState, dep.m_Stage);
+  }
+
+  // Apply view dependencies: import shared buffers with the required initial state.
+  for (const ezBufferDependency& dep : data.GetBufferViewDependencies())
+  {
+    m_pRenderGraph->ImportBuffer(dep.m_hBuffer, dep.m_RequiredState, dep.m_Stage);
   }
 
   EZ_ASSERT_DEV(m_CurrentRenderThread == (ezThreadID)0, "Render must not be called from multiple threads.");
@@ -1154,10 +1160,27 @@ void ezRenderPipeline::AddViewDependency(ezGALTextureHandle hTexture, ezBitflags
   m_Data[ezRenderWorld::GetDataIndexForExtraction()].AddViewDependency(hTexture, requiredState, stage);
 }
 
+void ezRenderPipeline::AddViewDependency(ezGALBufferHandle hBuffer, ezBitflags<ezGALResourceState> requiredState, ezBitflags<ezGALShaderStageFlags> stage)
+{
+  m_Data[ezRenderWorld::GetDataIndexForExtraction()].AddViewDependency(hBuffer, requiredState, stage);
+}
+
 ezRenderDataBatchList ezRenderPipeline::GetRenderDataBatchesWithCategory(ezRenderData::Category category) const
 {
   auto& data = m_Data[ezRenderWorld::GetDataIndexForRendering()];
   return data.GetRenderDataBatchesWithCategory(category);
+}
+
+ezArrayPtr<const ezTextureDependency> ezRenderPipeline::GetTextureDependenciesWithCategory(ezRenderData::Category category) const
+{
+  auto& data = m_Data[ezRenderWorld::GetDataIndexForRendering()];
+  return data.GetTextureDependenciesWithCategory(category);
+}
+
+ezArrayPtr<const ezBufferDependency> ezRenderPipeline::GetBufferDependenciesWithCategory(ezRenderData::Category category) const
+{
+  auto& data = m_Data[ezRenderWorld::GetDataIndexForRendering()];
+  return data.GetBufferDependenciesWithCategory(category);
 }
 
 ezUInt32 ezRenderPipeline::AddRenderDataProcessor(RenderDataProcessor processor)

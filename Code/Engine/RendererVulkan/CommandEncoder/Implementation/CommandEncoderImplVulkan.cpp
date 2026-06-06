@@ -672,12 +672,23 @@ void ezGALCommandEncoderImplVulkan::SetGraphicsPipelinePlatform(const ezGALGraph
 {
   if (m_pGraphicsPipeline != pGraphicsPipeline)
   {
+    const vk::PipelineLayout oldLayout = m_pShader ? m_pShader->GetVkPipelineLayout() : vk::PipelineLayout{};
     m_pGraphicsPipeline = static_cast<const ezGALGraphicsPipelineVulkan*>(pGraphicsPipeline);
     bool bScissorEnabled = false;
     if (m_pGraphicsPipeline)
     {
       m_pShader = static_cast<const ezGALShaderVulkan*>(m_GALDeviceVulkan.GetShader(m_pGraphicsPipeline->GetDescription().m_hShader));
       bScissorEnabled = m_GALDeviceVulkan.GetRasterizerState(m_pGraphicsPipeline->GetDescription().m_hRasterizerState)->GetDescription().m_bScissorTest;
+    }
+    // When the pipeline layout changes, previously bound descriptor sets are invalidated by Vulkan
+    // (see Vulkan spec 14.2.2 "compatibility for set N"). Force a full rebind.
+    const vk::PipelineLayout newLayout = m_pShader ? m_pShader->GetVkPipelineLayout() : vk::PipelineLayout{};
+    if (newLayout != oldLayout)
+    {
+      for (ezUInt32 i = 0; i < EZ_GAL_MAX_BIND_GROUPS; i++)
+      {
+        m_BindGroupDirty[i] = true;
+      }
     }
     if (bScissorEnabled != m_bScissorEnabled)
     {
@@ -693,10 +704,19 @@ void ezGALCommandEncoderImplVulkan::SetComputePipelinePlatform(const ezGALComput
 {
   if (m_pComputePipeline != pComputePipeline)
   {
+    const vk::PipelineLayout oldLayout = m_pShader ? m_pShader->GetVkPipelineLayout() : vk::PipelineLayout{};
     m_pComputePipeline = static_cast<const ezGALComputePipelineVulkan*>(pComputePipeline);
     if (m_pComputePipeline)
     {
       m_pShader = static_cast<const ezGALShaderVulkan*>(m_GALDeviceVulkan.GetShader(m_pComputePipeline->GetDescription().m_hShader));
+    }
+    const vk::PipelineLayout newLayout = m_pShader ? m_pShader->GetVkPipelineLayout() : vk::PipelineLayout{};
+    if (newLayout != oldLayout)
+    {
+      for (ezUInt32 i = 0; i < EZ_GAL_MAX_BIND_GROUPS; i++)
+      {
+        m_BindGroupDirty[i] = true;
+      }
     }
     m_bPipelineStateDirty = true;
   }
@@ -932,13 +952,13 @@ ezResult ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges()
   // Push Constants
   if (m_bPushConstantsDirty && m_pShader->GetPushConstantRange().size > 0)
   {
-    if (m_pShader->GetPushConstantRange().size == m_PushConstants.GetCount())
+    if (m_pShader->GetPushConstantRange().size <= m_PushConstants.GetCount())
     {
-      m_pCommandBuffer->pushConstants(m_pShader->GetVkPipelineLayout(), m_pShader->GetPushConstantRange().stageFlags, m_pShader->GetPushConstantRange().offset, m_PushConstants.GetCount(), m_PushConstants.GetData());
+      m_pCommandBuffer->pushConstants(m_pShader->GetVkPipelineLayout(), m_pShader->GetPushConstantRange().stageFlags, m_pShader->GetPushConstantRange().offset, m_pShader->GetPushConstantRange().size, m_PushConstants.GetData());
     }
     else
     {
-      ezLog::Warning("Push constant size mismatch: shader expects {} bytes but {} bytes were provided. Skipping push constants.",
+      ezLog::Warning("Push constant size mismatch: shader expects {} bytes but only {} bytes were provided. Skipping push constants.",
         m_pShader->GetPushConstantRange().size, m_PushConstants.GetCount());
     }
   }

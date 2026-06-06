@@ -74,6 +74,7 @@ ezStatus ezSelectionHighlightPass::AddRenderPasses(const ezViewData& viewData, c
     pass.SetClearDepth();
     pass.SetClearStencil();
     pass.SetStereoscopic(camera.IsStereoscopic());
+    DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::Selection, ref_graph, pass);
     pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
       {
       const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();

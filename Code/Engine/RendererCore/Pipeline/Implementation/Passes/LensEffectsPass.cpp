@@ -49,6 +49,7 @@ ezStatus ezLensEffectsPass::AddRenderPasses(const ezViewData& viewData, const ez
     pass.ReadTexture(hResolvedDepth, {}, ezGALResourceState::ShaderResource);
   pass.SetStereoscopic(camera.IsStereoscopic());
   SetupResourceDependencies(viewData, ref_graph, pass);
+  DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::LensEffects, ref_graph, pass);
   pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
     {
     const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();

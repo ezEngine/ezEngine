@@ -61,8 +61,8 @@ public:
 
   /// Caches render data for an object to avoid re-extraction if unchanged.
   ///
-  /// Cached render data needs to be deleted/invalidated manually if any data changes.
-  static void CacheRenderData(const ezView& view, const ezGameObjectHandle& hOwnerObject, const ezComponentHandle& hOwnerComponent, ezUInt16 uiComponentVersion, ezArrayPtr<ezInternal::RenderDataCacheEntry> cacheEntries);
+  /// Cached render data needs to be deleted/invalidated manually if any data changes. The dependency arrays carry per-category render-graph barrier dependencies that were recorded during extraction and are cached alongside the render data.
+  static void CacheRenderData(const ezView& view, const ezGameObjectHandle& hOwnerObject, const ezComponentHandle& hOwnerComponent, ezUInt16 uiComponentVersion, ezArrayPtr<ezInternal::RenderDataCacheEntry> cacheEntries, ezArrayPtr<const ezTextureDependency> textureDependencies = {}, ezArrayPtr<const ezBufferDependency> bufferDependencies = {});
 
   /// Deletes all cached render data globally.
   static void DeleteAllCachedRenderData();
@@ -82,11 +82,18 @@ public:
   /// Retrieves cached render data if available and still valid.
   static ezArrayPtr<const ezInternal::RenderDataCacheEntry> GetCachedRenderData(const ezView& view, const ezGameObjectHandle& hOwner, ezUInt16 uiComponentVersion);
 
+  /// Retrieves cached per-object render-graph barrier dependencies if available and still valid.
+  static void GetCachedDependencies(const ezView& view, const ezGameObjectHandle& hOwner, ezUInt16 uiComponentVersion, ezArrayPtr<const ezTextureDependency>& out_textureDependencies, ezArrayPtr<const ezBufferDependency>& out_bufferDependencies);
+
   static void AddViewToRender(const ezViewHandle& hView);
 
-  /// Declares that the given view needs the specified texture in the given resource
-  /// state when its render graph executes. Must be called during extraction.
+  /// Declares that the given view needs the specified texture in the given resource state when its render graph executes. Must be called during extraction.
+  /// Usually this function is called alongside ezRenderWorld::AddViewToRender to declare the required state of the output the view produced.
   static void AddViewDependency(const ezView& consumerView, ezGALTextureHandle hTexture, ezBitflags<ezGALResourceState> requiredState, ezBitflags<ezGALShaderStageFlags> stage = ezGALShaderStageFlags::Auto);
+
+  /// Declares that the given view needs the specified buffer in the given resource state when its render graph executes. Must be called during extraction.
+  /// Usually this function is called alongside ezRenderWorld::AddViewToRender to declare the required state of the output the view produced.
+  static void AddViewDependency(const ezView& consumerView, ezGALBufferHandle hBuffer, ezBitflags<ezGALResourceState> requiredState, ezBitflags<ezGALShaderStageFlags> stage = ezGALShaderStageFlags::Auto);
 
   static void ExtractMainViews();
 

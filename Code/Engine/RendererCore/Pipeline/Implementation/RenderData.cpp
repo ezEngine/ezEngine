@@ -171,4 +171,28 @@ void ezMsgExtractRenderData::AddRenderData(const ezRenderData* pRenderData, ezRe
   }
 }
 
+void ezMsgExtractRenderData::AddDependency(ezGALTextureHandle hTexture, ezRenderData::Category category, ezBitflags<ezGALResourceState> requiredState, ezBitflags<ezGALShaderStageFlags> stage)
+{
+  EZ_ASSERT_DEBUG(requiredState != ezGALResourceState::Unknown, "The required state must be valid");
+  if (hTexture.IsInvalidated())
+    return;
+  auto& dep = m_TextureDependencies.ExpandAndGetRef();
+  dep.m_hTexture = hTexture;
+  dep.m_RequiredState = requiredState;
+  dep.m_Stage = stage;
+  dep.m_uiCategory = category.m_uiValue;
+}
+
+void ezMsgExtractRenderData::AddDependency(ezGALBufferHandle hBuffer, ezRenderData::Category category, ezBitflags<ezGALResourceState> requiredState, ezBitflags<ezGALShaderStageFlags> stage)
+{
+  EZ_ASSERT_DEBUG(requiredState != ezGALResourceState::Unknown, "The required state must be valid");
+  if (hBuffer.IsInvalidated())
+    return;
+  auto& dep = m_BufferDependencies.ExpandAndGetRef();
+  dep.m_hBuffer = hBuffer;
+  dep.m_RequiredState = requiredState;
+  dep.m_Stage = stage;
+  dep.m_uiCategory = category.m_uiValue;
+}
+
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RenderData);

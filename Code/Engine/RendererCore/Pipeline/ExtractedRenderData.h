@@ -6,15 +6,6 @@
 #include <RendererCore/Pipeline/RenderDataBatch.h>
 #include <RendererCore/Pipeline/ViewData.h>
 
-/// Declares that a consumer view needs a texture in a specific resource state.
-/// Recorded during extraction, applied during rendering to ensure correct barriers.
-struct ezViewDependency
-{
-  ezGALTextureHandle m_hTexture;
-  ezBitflags<ezGALResourceState> m_RequiredState;
-  ezBitflags<ezGALShaderStageFlags> m_Stage;
-};
-
 /// Contains all render data extracted from a view for one frame.
 ///
 /// During the extraction phase, render components add their render data to this container,
@@ -43,15 +34,38 @@ public:
 
   EZ_ALWAYS_INLINE void AddViewDependency(ezGALTextureHandle hTexture, ezBitflags<ezGALResourceState> requiredState, ezBitflags<ezGALShaderStageFlags> stage = ezGALShaderStageFlags::Auto)
   {
-    auto& dep = m_ViewDependencies.ExpandAndGetRef();
+    auto& dep = m_ViewTextureDependencies.ExpandAndGetRef();
     dep.m_hTexture = hTexture;
     dep.m_RequiredState = requiredState;
     dep.m_Stage = stage;
   }
-  EZ_ALWAYS_INLINE ezArrayPtr<const ezViewDependency> GetViewDependencies() const { return m_ViewDependencies; }
+  EZ_ALWAYS_INLINE ezArrayPtr<const ezTextureDependency> GetTextureViewDependencies() const { return m_ViewTextureDependencies; }
+
+  EZ_ALWAYS_INLINE void AddViewDependency(ezGALBufferHandle hBuffer, ezBitflags<ezGALResourceState> requiredState, ezBitflags<ezGALShaderStageFlags> stage = ezGALShaderStageFlags::Auto)
+  {
+    auto& dep = m_ViewBufferDependencies.ExpandAndGetRef();
+    dep.m_hBuffer = hBuffer;
+    dep.m_RequiredState = requiredState;
+    dep.m_Stage = stage;
+  }
+  EZ_ALWAYS_INLINE ezArrayPtr<const ezBufferDependency> GetBufferViewDependencies() const { return m_ViewBufferDependencies; }
 
   /// Adds render data for a specific rendering category.
   void AddRenderData(const ezRenderData* pRenderData, ezRenderData::Category category);
+
+  /// Adds a texture barrier dependency that applies when its category is rendered. The category is taken from the dependency itself.
+  /// Should not be called in user code, call ezMsgExtractRenderData::AddDependency instead during extraction of object or call AddViewDependency.
+  void AddDependency(const ezTextureDependency& dependency);
+
+  /// Adds a buffer barrier dependency that applies when its category is rendered. The category is taken from the dependency itself.
+  /// Should not be called in user code, call ezMsgExtractRenderData::AddDependency instead during extraction of object or call AddViewDependency.
+  void AddDependency(const ezBufferDependency& dependency);
+
+  /// Returns the texture barrier dependencies recorded for a specific category.
+  ezArrayPtr<const ezTextureDependency> GetTextureDependenciesWithCategory(ezRenderData::Category category) const;
+
+  /// Returns the buffer barrier dependencies recorded for a specific category.
+  ezArrayPtr<const ezBufferDependency> GetBufferDependenciesWithCategory(ezRenderData::Category category) const;
 
   /// Adds frame-level data that is not tied to a specific render category.
   void AddFrameData(const ezRenderData* pFrameData);
@@ -80,9 +94,10 @@ private:
   {
     ezDynamicArray<ezRenderDataBatch> m_Batches;
     ezDynamicArray<ezRenderDataBatch::SortableRenderData> m_SortableRenderData;
-
     ezDynamicArray<ezInstanceableRenderData::DataOffsets> m_DataOffsets;
     ezGALBufferHandle m_hDataOffsetsBuffer;
+    ezDynamicArray<ezTextureDependency> m_TextureDependencies;
+    ezDynamicArray<ezBufferDependency> m_BufferDependencies;
   };
 
   void SortAndBatchCategory(DataPerCategory& dataPerCategory, ezRenderData::Category category);
@@ -96,5 +111,6 @@ private:
 
   ezHybridArray<DataPerCategory, 32> m_DataPerCategory;
   ezHybridArray<const ezRenderData*, 16> m_FrameData;
-  ezHybridArray<ezViewDependency, 4> m_ViewDependencies;
+  ezHybridArray<ezTextureDependency, 4> m_ViewTextureDependencies;
+  ezHybridArray<ezBufferDependency, 4> m_ViewBufferDependencies;
 };

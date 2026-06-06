@@ -31,6 +31,20 @@ void ezExtractedRenderData::AddFrameData(const ezRenderData* pFrameData)
   m_FrameData.PushBack(pFrameData);
 }
 
+void ezExtractedRenderData::AddDependency(const ezTextureDependency& dependency)
+{
+  EZ_ASSERT_DEBUG(dependency.m_uiCategory != ezInvalidRenderDataCategory.m_uiValue, "Per-category texture dependencies require a valid render data category. Use AddViewDependency for view-level dependencies.");
+  m_DataPerCategory.EnsureCount(dependency.m_uiCategory + 1);
+  m_DataPerCategory[dependency.m_uiCategory].m_TextureDependencies.PushBack(dependency);
+}
+
+void ezExtractedRenderData::AddDependency(const ezBufferDependency& dependency)
+{
+  EZ_ASSERT_DEBUG(dependency.m_uiCategory != ezInvalidRenderDataCategory.m_uiValue, "Per-category buffer dependencies require a valid render data category. Use AddViewDependency for view-level dependencies.");
+  m_DataPerCategory.EnsureCount(dependency.m_uiCategory + 1);
+  m_DataPerCategory[dependency.m_uiCategory].m_BufferDependencies.PushBack(dependency);
+}
+
 void ezExtractedRenderData::SortAndBatch()
 {
   EZ_PROFILE_SCOPE("ezExtractedRenderData::SortAndBatch");
@@ -52,10 +66,13 @@ void ezExtractedRenderData::Clear()
     dataPerCategory.m_Batches.Clear();
     dataPerCategory.m_SortableRenderData.Clear();
     dataPerCategory.m_DataOffsets.Clear();
+    dataPerCategory.m_TextureDependencies.Clear();
+    dataPerCategory.m_BufferDependencies.Clear();
   }
 
   m_FrameData.Clear();
-  m_ViewDependencies.Clear();
+  m_ViewTextureDependencies.Clear();
+  m_ViewBufferDependencies.Clear();
 }
 
 ezRenderDataBatchList ezExtractedRenderData::GetRenderDataBatchesWithCategory(ezRenderData::Category category) const
@@ -76,6 +93,26 @@ ezArrayPtr<const ezRenderDataBatch::SortableRenderData> ezExtractedRenderData::G
   if (category.m_uiValue < m_DataPerCategory.GetCount())
   {
     return m_DataPerCategory[category.m_uiValue].m_SortableRenderData;
+  }
+
+  return {};
+}
+
+ezArrayPtr<const ezTextureDependency> ezExtractedRenderData::GetTextureDependenciesWithCategory(ezRenderData::Category category) const
+{
+  if (category.m_uiValue < m_DataPerCategory.GetCount())
+  {
+    return m_DataPerCategory[category.m_uiValue].m_TextureDependencies;
+  }
+
+  return {};
+}
+
+ezArrayPtr<const ezBufferDependency> ezExtractedRenderData::GetBufferDependenciesWithCategory(ezRenderData::Category category) const
+{
+  if (category.m_uiValue < m_DataPerCategory.GetCount())
+  {
+    return m_DataPerCategory[category.m_uiValue].m_BufferDependencies;
   }
 
   return {};

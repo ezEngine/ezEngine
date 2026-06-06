@@ -104,3 +104,25 @@ struct EZ_RENDERERCORE_DLL ezCameraUsageHint
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezCameraUsageHint);
+
+/// Declares that a texture needs to be in a specific resource state when a render category is rendered.
+/// Recorded during extraction, applied during rendering to ensure correct barriers. m_uiCategory is the raw value of the ezRenderData::Category this dependency belongs to. View-level dependencies ignore the category value.
+struct ezTextureDependency
+{
+  EZ_DECLARE_POD_TYPE();
+  ezGALTextureHandle m_hTexture;
+  ezBitflags<ezGALResourceState> m_RequiredState;
+  ezBitflags<ezGALShaderStageFlags> m_Stage;
+  ezUInt16 m_uiCategory = 0xFFFF;
+};
+
+/// Declares that a buffer needs to be in a specific resource state when a render category is rendered.
+/// Recorded during extraction, applied during rendering to ensure correct barriers. m_uiCategory is the raw value of the ezRenderData::Category this dependency belongs to. View-level dependencies ignore the category value.
+struct ezBufferDependency
+{
+  EZ_DECLARE_POD_TYPE();
+  ezGALBufferHandle m_hBuffer;
+  ezBitflags<ezGALResourceState> m_RequiredState;
+  ezBitflags<ezGALShaderStageFlags> m_Stage;
+  ezUInt16 m_uiCategory = 0xFFFF;
+};

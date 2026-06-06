@@ -72,6 +72,19 @@ ezResult ezRenderPipelinePass::Deserialize(ezStreamReader& inout_stream)
   return EZ_SUCCESS;
 }
 
+void ezRenderPipelinePass::DeclareRendererDependenciesForCategory(ezRenderData::Category category, ezRenderGraph& ref_graph, ezRenderGraphPassBuilder& ref_passBuilder)
+{
+  for (const ezTextureDependency& dep : m_pPipeline->GetTextureDependenciesWithCategory(category))
+  {
+    ref_passBuilder.ReadTexture(ref_graph.ImportTexture(dep.m_hTexture), {}, dep.m_RequiredState, dep.m_Stage);
+  }
+
+  for (const ezBufferDependency& dep : m_pPipeline->GetBufferDependenciesWithCategory(category))
+  {
+    ref_passBuilder.ReadBuffer(ref_graph.ImportBuffer(dep.m_hBuffer), dep.m_RequiredState, dep.m_Stage);
+  }
+}
+
 void ezRenderPipelinePass::RenderDataWithCategory(const ezRenderViewContext& renderViewContext, ezRenderData::Category category)
 {
   EZ_PROFILE_AND_MARKER(renderViewContext.m_pRenderContext->GetCommandEncoder(), ezRenderData::GetCategoryName(category));

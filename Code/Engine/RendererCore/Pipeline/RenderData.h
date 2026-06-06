@@ -166,6 +166,15 @@ struct EZ_RENDERERCORE_DLL ezMsgExtractRenderData : public ezMessage
   /// function.
   void AddRenderData(const ezRenderData* pRenderData, ezRenderData::Category category, ezRenderData::Caching::Enum cachingBehavior);
 
+  /// \brief Records that the given texture must be in `requiredState` when `category` is rendered. Invalid handles are ignored so safe to pass in without checking.
+  /// Like render data, dependencies are cached for static objects when the component's render data is cached.
+  /// \sa ezRenderPipelinePass::DeclareRendererDependenciesForCategory
+  void AddDependency(ezGALTextureHandle hTexture, ezRenderData::Category category, ezBitflags<ezGALResourceState> requiredState, ezBitflags<ezGALShaderStageFlags> stage = ezGALShaderStageFlags::Auto);
+
+  /// \brief Records that the given buffer must be in `requiredState` when `category` is rendered. Invalid handles are ignored so safe to pass in without checking.
+  /// Like render data, dependencies are cached for static objects when the component's render data is cached.
+  /// /// \sa ezRenderPipelinePass::DeclareRendererDependenciesForCategory
+  void AddDependency(ezGALBufferHandle hBuffer, ezRenderData::Category category, ezBitflags<ezGALResourceState> requiredState, ezBitflags<ezGALShaderStageFlags> stage = ezGALShaderStageFlags::Auto);
 private:
   friend class ezExtractor;
 
@@ -176,6 +185,9 @@ private:
   };
 
   ezHybridArray<Data, 16> m_ExtractedRenderData;
+  ezHybridArray<ezTextureDependency, 4> m_TextureDependencies;
+  ezHybridArray<ezBufferDependency, 4> m_BufferDependencies;
+
   ezUInt32 m_uiNumCacheIfStatic = 0;
 };
 

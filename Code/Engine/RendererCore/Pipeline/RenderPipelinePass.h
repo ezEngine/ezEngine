@@ -109,6 +109,10 @@ public:
   virtual ezResult Serialize(ezStreamWriter& inout_stream) const;
   virtual ezResult Deserialize(ezStreamReader& inout_stream);
 
+  /// Imports and declares the render-graph barrier dependencies that were recorded during extraction for `category` (via ezMsgExtractRenderData::AddDependency).
+  /// Call this in AddRenderPasses for every category you want to call `RenderDataWithCategory` on in the execution callback.
+  void DeclareRendererDependenciesForCategory(ezRenderData::Category category, ezRenderGraph& ref_graph, ezRenderGraphPassBuilder& ref_passBuilder);
+
   void RenderDataWithCategory(const ezRenderViewContext& renderViewContext, ezRenderData::Category category);
 
   void BindDataProviderResources(const ezRenderViewContext& renderViewContext, ezForwardRenderShadingQuality::Enum quality = ezForwardRenderShadingQuality::Normal);

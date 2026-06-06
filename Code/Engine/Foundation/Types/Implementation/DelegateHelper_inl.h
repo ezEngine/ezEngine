@@ -72,11 +72,11 @@ public:
 };
 
 
-template <typename R, class... Args, ezUInt32 DataSize>
-struct ezDelegate<R(Args...), DataSize> : public ezDelegateBase
+template <typename R, class... Args, ezUInt32 DataSize, typename AllocatorWrapper>
+struct ezDelegate<R(Args...), DataSize, AllocatorWrapper> : public ezDelegateBase
 {
 private:
-  using SelfType = ezDelegate<R(Args...), DataSize>;
+  using SelfType = ezDelegate<R(Args...), DataSize, AllocatorWrapper>;
   constexpr const void* HeapLambda() const { return reinterpret_cast<const void*>((size_t)-1); }
   constexpr const void* InplaceLambda() const { return reinterpret_cast<const void*>((size_t)-2); }
 
@@ -112,7 +112,7 @@ public:
 
   /// \brief Constructs the delegate from a regular C function type.
   template <typename Function>
-  EZ_FORCE_INLINE ezDelegate(Function function, ezAllocator* pAllocator = ezFoundation::GetDefaultAllocator())
+  EZ_FORCE_INLINE ezDelegate(Function function, ezAllocator* pAllocator = AllocatorWrapper::GetAllocator())
   {
     static_assert(DataSize >= 16, "DataSize must be at least 16 bytes");
 

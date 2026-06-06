@@ -1,11 +1,19 @@
 #include <FoundationTest/FoundationTestPCH.h>
 
+#include <Foundation/Memory/CommonAllocators.h>
 #include <Foundation/Types/Delegate.h>
 #include <Foundation/Types/RefCounted.h>
 #include <Foundation/Types/SharedPtr.h>
 
 namespace
 {
+  ezAllocator* g_pTestAllocator;
+
+  struct ezTestAllocatorWrapper
+  {
+    static ezAllocator* GetAllocator() { return g_pTestAllocator; }
+  };
+
   struct TestType
   {
     TestType(){}; // NOLINT: Allow default construction
@@ -261,6 +269,27 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
     EZ_TEST_BOOL(!d.IsComparable());
 
     d.Invalidate();
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Lambda - capture lots of things - allocator wrapper")
+  {
+    ezProxyAllocator proxy("DelegateTestAllocator", ezFoundation::GetDefaultAllocator());
+    g_pTestAllocator = &proxy;
+
+    ezInt64 a = 10;
+    ezInt64 b = 20;
+    ezInt64 c = 30;
+
+    using TestDelegateWithAllocator = ezDelegate<ezInt32(ezInt32), 16, ezTestAllocatorWrapper>;
+    TestDelegateWithAllocator d2 = [a, b, c](ezInt32 i) -> ezInt32
+    { return static_cast<ezInt32>(a + b + c + i); };
+
+    EZ_TEST_INT(d2(6), 66);
+    EZ_TEST_BOOL(!d2.IsComparable());
+    EZ_TEST_BOOL(proxy.GetStats().m_uiNumAllocations > 0);
+
+    d2.Invalidate();
+    g_pTestAllocator = nullptr;
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Move semantics")

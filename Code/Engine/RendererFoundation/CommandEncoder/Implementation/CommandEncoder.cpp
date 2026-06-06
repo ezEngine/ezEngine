@@ -14,11 +14,25 @@
 #include <RendererFoundation/Shader/Shader.h>
 #include <RendererFoundation/State/ComputePipeline.h>
 #include <RendererFoundation/State/GraphicsPipeline.h>
+#include <RendererFoundation/Resources/ProxyTexture.h>
 
 #if EZ_ENABLED(EZ_BARRIER_VALIDATION)
 
 namespace
 {
+  void ResolveProxyTexture(ezGALDevice* pDevice, ezGALTextureHandle& ref_hTexture, ezGALTextureRange& ref_range)
+  {
+    const ezGALTexture* pTexture = pDevice->GetTexture(ref_hTexture);
+    EZ_ASSERT_DEBUG(pTexture != nullptr, "Invalid texture handle.");
+    // Resolve proxy texture as they only cause pain down the pipeline.
+    if (pTexture->GetDescription().m_Type == ezGALTextureType::Texture2DProxy)
+    {
+      const auto pProxy = static_cast<const ezGALProxyTexture*>(pTexture);
+      ref_hTexture = pProxy->GetParentTextureHandle();
+      ref_range = {pProxy->GetSlice(), 1, ref_range.m_uiBaseMipLevel, ref_range.m_uiMipLevels};
+    }
+  }
+
   /// Maps a shader resource type to the expected ezGALResourceState for validation.
   /// For texture SRVs, depth textures expect DepthStencilRead instead of ShaderResource.
   ezBitflags<ezGALResourceState> GetExpectedResourceState(ezGALShaderResourceType::Enum resourceType, const ezGALDevice& device, ezGALTextureHandle hTexture = {})
@@ -92,6 +106,11 @@ namespace
       }
     }
     return EZ_SUCCESS;
+  }
+
+  ezGALTextureRange MakeSingleSubresourceRange(const ezGALTextureSubresource& subResource)
+  {
+    return {static_cast<ezUInt16>(subResource.m_uiArraySlice), 1, static_cast<ezUInt8>(subResource.m_uiMipLevel), 1};
   }
 } // namespace
 
@@ -211,6 +230,10 @@ void ezGALCommandEncoder::CopyBuffer(ezGALBufferHandle hDest, ezGALBufferHandle 
   if (pDest != nullptr && pSource != nullptr)
   {
     EZ_ASSERT_DEBUG(!pDest->GetDescription().m_ResourceAccess.m_bImmutable, "Can't update immutable textures");
+#if EZ_ENABLED(EZ_BARRIER_VALIDATION)
+    ValidateBufferState(hDest, ezGALResourceState::CopyDestination, ezGALShaderStageFlags::Auto).IgnoreResult();
+    ValidateBufferState(hSource, ezGALResourceState::CopySource, ezGALShaderStageFlags::Auto).IgnoreResult();
+#endif
     m_Stats.m_uiCopyBuffer++;
     m_CommonImpl.CopyBufferPlatform(pDest, pSource);
   }
@@ -240,6 +263,10 @@ void ezGALCommandEncoder::CopyBufferRegion(
     EZ_IGNORE_UNUSED(uiSourceSize);
     EZ_ASSERT_DEV(uiSourceSize >= uiSourceOffset + uiByteCount, "Source buffer too small (or offset too big)");
 
+#if EZ_ENABLED(EZ_BARRIER_VALIDATION)
+    ValidateBufferState(hDest, ezGALResourceState::CopyDestination, ezGALShaderStageFlags::Auto).IgnoreResult();
+    ValidateBufferState(hSource, ezGALResourceState::CopySource, ezGALShaderStageFlags::Auto).IgnoreResult();
+#endif
     m_Stats.m_uiCopyBuffer++;
     m_CommonImpl.CopyBufferRegionPlatform(pDest, uiDestOffset, pSource, uiSourceOffset, uiByteCount);
   }
@@ -327,6 +354,10 @@ void ezGALCommandEncoder::CopyTexture(ezGALTextureHandle hDest, ezGALTextureHand
     EZ_ASSERT_DEBUG(pDest->GetDescription().m_uiMipLevelCount == pSource->GetDescription().m_uiMipLevelCount, "CopyTexture mip levels must match");
     EZ_ASSERT_DEBUG(pDest->GetDescription().m_uiArraySize == pSource->GetDescription().m_uiArraySize, "CopyTexture array size must match");
 
+#if EZ_ENABLED(EZ_BARRIER_VALIDATION)
+    ValidateTextureState(hDest, {}, ezGALResourceState::CopyDestination, ezGALShaderStageFlags::Auto).IgnoreResult();
+    ValidateTextureState(hSource, {}, ezGALResourceState::CopySource, ezGALShaderStageFlags::Auto).IgnoreResult();
+#endif
     m_Stats.m_uiCopyTexture++;
     m_CommonImpl.CopyTexturePlatform(pDest, pSource);
   }
@@ -348,6 +379,10 @@ void ezGALCommandEncoder::CopyTextureRegion(ezGALTextureHandle hDest, const ezGA
   if (pDest != nullptr && pSource != nullptr)
   {
     EZ_ASSERT_DEBUG(!pDest->GetDescription().m_ResourceAccess.m_bImmutable, "Can't update immutable textures");
+#if EZ_ENABLED(EZ_BARRIER_VALIDATION)
+    ValidateTextureState(hDest, MakeSingleSubresourceRange(destinationSubResource), ezGALResourceState::CopyDestination, ezGALShaderStageFlags::Auto).IgnoreResult();
+    ValidateTextureState(hSource, MakeSingleSubresourceRange(sourceSubResource), ezGALResourceState::CopySource, ezGALShaderStageFlags::Auto).IgnoreResult();
+#endif
     m_Stats.m_uiCopyTexture++;
     m_CommonImpl.CopyTextureRegionPlatform(pDest, destinationSubResource, vDestinationPoint, pSource, sourceSubResource, box);
   }
@@ -368,6 +403,9 @@ void ezGALCommandEncoder::UpdateTexture(ezGALTextureHandle hDest, const ezGALTex
   if (pDest != nullptr)
   {
     EZ_ASSERT_DEBUG(!pDest->GetDescription().m_ResourceAccess.m_bImmutable, "Can't update immutable textures");
+#if EZ_ENABLED(EZ_BARRIER_VALIDATION)
+    ValidateTextureState(hDest, MakeSingleSubresourceRange(destinationSubResource), ezGALResourceState::CopyDestination, ezGALShaderStageFlags::Auto).IgnoreResult();
+#endif
     m_Stats.m_uiUpdateTexture++;
     m_CommonImpl.UpdateTexturePlatform(pDest, destinationSubResource, destinationBox, sourceData);
   }
@@ -389,6 +427,10 @@ void ezGALCommandEncoder::ResolveTexture(ezGALTextureHandle hDest, const ezGALTe
   if (pDest != nullptr && pSource != nullptr)
   {
     EZ_ASSERT_DEBUG(!pDest->GetDescription().m_ResourceAccess.m_bImmutable, "Can't update immutable textures");
+#if EZ_ENABLED(EZ_BARRIER_VALIDATION)
+    ValidateTextureState(hDest, MakeSingleSubresourceRange(destinationSubResource), ezGALResourceState::ResolveDestination, ezGALShaderStageFlags::Auto).IgnoreResult();
+    ValidateTextureState(hSource, MakeSingleSubresourceRange(sourceSubResource), ezGALResourceState::ResolveSource, ezGALShaderStageFlags::Auto).IgnoreResult();
+#endif
     m_Stats.m_uiResolveTexture++;
     m_CommonImpl.ResolveTexturePlatform(pDest, destinationSubResource, pSource, sourceSubResource);
   }
@@ -417,6 +459,9 @@ void ezGALCommandEncoder::ReadbackTexture(ezGALReadbackTextureHandle hDestinatio
 
   if (pDestination != nullptr && pSource != nullptr)
   {
+#if EZ_ENABLED(EZ_BARRIER_VALIDATION)
+    ValidateTextureState(hSource, {}, ezGALResourceState::CopySource, ezGALShaderStageFlags::Auto).IgnoreResult();
+#endif
     m_Stats.m_uiReadbackTexture++;
     m_CommonImpl.ReadbackTexturePlatform(pDestination, pSource);
   }
@@ -436,6 +481,9 @@ void ezGALCommandEncoder::ReadbackBuffer(ezGALReadbackBufferHandle hDestination,
 
   if (pDestination != nullptr && pSource != nullptr)
   {
+#if EZ_ENABLED(EZ_BARRIER_VALIDATION)
+    ValidateBufferState(hSource, ezGALResourceState::CopySource, ezGALShaderStageFlags::Auto).IgnoreResult();
+#endif
     m_Stats.m_uiReadbackBuffer++;
     m_CommonImpl.ReadbackBufferPlatform(pDestination, pSource);
   }
@@ -588,6 +636,8 @@ void ezGALCommandEncoder::InvalidateState()
 #if EZ_ENABLED(EZ_BARRIER_VALIDATION)
   m_ResourceStateTracker.Clear();
   m_uiBindGroupsMask = 0;
+  m_bVertexBufferStatesDirty = true;
+  m_bIndexBufferStateDirty = true;
 #endif
 }
 
@@ -616,6 +666,7 @@ ezResult ezGALCommandEncoder::DispatchIndirect(ezGALBufferHandle hIndirectArgume
 
 #if EZ_ENABLED(EZ_BARRIER_VALIDATION)
   EZ_SUCCEED_OR_RETURN(ValidateComputePipelineResources());
+  EZ_SUCCEED_OR_RETURN(ValidateBufferState(hIndirectArgumentBuffer, ezGALResourceState::DrawIndirect, ezGALShaderStageFlags::Auto));
 #endif
 
   m_Stats.m_uiDispatch++;
@@ -637,6 +688,7 @@ ezResult ezGALCommandEncoder::Draw(ezUInt32 uiVertexCount, ezUInt32 uiStartVerte
 
 #if EZ_ENABLED(EZ_BARRIER_VALIDATION)
   EZ_SUCCEED_OR_RETURN(ValidateGraphicsPipelineResources());
+  EZ_SUCCEED_OR_RETURN(ValidateVertexBufferState());
 #endif
 
   m_Stats.m_uiDraw++;
@@ -650,6 +702,8 @@ ezResult ezGALCommandEncoder::DrawIndexed(ezUInt32 uiIndexCount, ezUInt32 uiStar
 
 #if EZ_ENABLED(EZ_BARRIER_VALIDATION)
   EZ_SUCCEED_OR_RETURN(ValidateGraphicsPipelineResources());
+  EZ_SUCCEED_OR_RETURN(ValidateVertexBufferState());
+  EZ_SUCCEED_OR_RETURN(ValidateIndexBufferState());
 #endif
 
   m_Stats.m_uiDraw++;
@@ -663,6 +717,8 @@ ezResult ezGALCommandEncoder::DrawIndexedInstanced(ezUInt32 uiIndexCountPerInsta
 
 #if EZ_ENABLED(EZ_BARRIER_VALIDATION)
   EZ_SUCCEED_OR_RETURN(ValidateGraphicsPipelineResources());
+  EZ_SUCCEED_OR_RETURN(ValidateVertexBufferState());
+  EZ_SUCCEED_OR_RETURN(ValidateIndexBufferState());
 #endif
 
   m_Stats.m_uiDraw++;
@@ -678,6 +734,9 @@ ezResult ezGALCommandEncoder::DrawIndexedInstancedIndirect(ezGALBufferHandle hIn
 
 #if EZ_ENABLED(EZ_BARRIER_VALIDATION)
   EZ_SUCCEED_OR_RETURN(ValidateGraphicsPipelineResources());
+  EZ_SUCCEED_OR_RETURN(ValidateVertexBufferState());
+  EZ_SUCCEED_OR_RETURN(ValidateIndexBufferState());
+  EZ_SUCCEED_OR_RETURN(ValidateBufferState(hIndirectArgumentBuffer, ezGALResourceState::DrawIndirect, ezGALShaderStageFlags::Auto));
 #endif
 
   m_Stats.m_uiDraw++;
@@ -691,6 +750,7 @@ ezResult ezGALCommandEncoder::DrawInstanced(ezUInt32 uiVertexCountPerInstance, e
 
 #if EZ_ENABLED(EZ_BARRIER_VALIDATION)
   EZ_SUCCEED_OR_RETURN(ValidateGraphicsPipelineResources());
+  EZ_SUCCEED_OR_RETURN(ValidateVertexBufferState());
 #endif
 
   m_Stats.m_uiDraw++;
@@ -706,6 +766,8 @@ ezResult ezGALCommandEncoder::DrawInstancedIndirect(ezGALBufferHandle hIndirectA
 
 #if EZ_ENABLED(EZ_BARRIER_VALIDATION)
   EZ_SUCCEED_OR_RETURN(ValidateGraphicsPipelineResources());
+  EZ_SUCCEED_OR_RETURN(ValidateVertexBufferState());
+  EZ_SUCCEED_OR_RETURN(ValidateBufferState(hIndirectArgumentBuffer, ezGALResourceState::DrawIndirect, ezGALShaderStageFlags::Auto));
 #endif
 
   m_Stats.m_uiDraw++;
@@ -720,8 +782,14 @@ void ezGALCommandEncoder::SetIndexBuffer(ezGALBufferHandle hIndexBuffer)
   }
 
   const ezGALBuffer* pBuffer = GetDevice().GetBuffer(hIndexBuffer);
-  /// \todo Assert on index buffer type (if non nullptr)
-  // Note that GL4 can bind arbitrary buffer to arbitrary binding points (index/vertex/transform-feedback/indirect-draw/...)
+
+#if EZ_ENABLED(EZ_BARRIER_VALIDATION)
+  if (!hIndexBuffer.IsInvalidated())
+  {
+    ValidateBufferState(hIndexBuffer, ezGALResourceState::IndexBuffer, ezGALShaderStageFlags::Auto).IgnoreResult();
+  }
+  m_bIndexBufferStateDirty = true;
+#endif
 
   m_Stats.m_uiSetIndexBuffer++;
   m_CommonImpl.SetIndexBufferPlatform(pBuffer);
@@ -737,8 +805,14 @@ void ezGALCommandEncoder::SetVertexBuffer(ezUInt32 uiSlot, ezGALBufferHandle hVe
   }
 
   const ezGALBuffer* pBuffer = GetDevice().GetBuffer(hVertexBuffer);
-  // Assert on vertex buffer type (if non-zero)
-  // Note that GL4 can bind arbitrary buffer to arbitrary binding points (index/vertex/transform-feedback/indirect-draw/...)
+
+#if EZ_ENABLED(EZ_BARRIER_VALIDATION)
+  if (!hVertexBuffer.IsInvalidated())
+  {
+    ValidateBufferState(hVertexBuffer, ezGALResourceState::VertexBuffer, ezGALShaderStageFlags::Auto).IgnoreResult();
+  }
+  m_bVertexBufferStatesDirty = true;
+#endif
 
   m_Stats.m_uiSetVertexBuffer++;
   m_CommonImpl.SetVertexBufferPlatform(uiSlot, pBuffer, uiOffset);
@@ -854,6 +928,8 @@ void ezGALCommandEncoder::BeginRendering(const ezGALRenderingSetup& renderingSet
 
 #if EZ_ENABLED(EZ_BARRIER_VALIDATION)
   ValidateRenderTargetStates(renderingSetup);
+  m_bVertexBufferStatesDirty = true;
+  m_bIndexBufferStateDirty = true;
 #endif
 
   m_Stats.m_uiBeginRendering++;
@@ -910,6 +986,39 @@ ezResult ezGALCommandEncoder::ValidateComputePipelineResources()
   return EZ_SUCCESS;
 }
 
+ezResult ezGALCommandEncoder::ValidateVertexBufferState()
+{
+  if (m_bVertexBufferStatesDirty)
+  {
+    for (ezGALBufferHandle hVertexBuffer : m_State.m_hVertexBuffers)
+    {
+      if (!hVertexBuffer.IsInvalidated())
+      {
+        EZ_SUCCEED_OR_RETURN(ValidateBufferState(hVertexBuffer, ezGALResourceState::VertexBuffer, ezGALShaderStageFlags::Auto));
+      }
+    }
+
+    m_bVertexBufferStatesDirty = false;
+  }
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezGALCommandEncoder::ValidateIndexBufferState()
+{
+  if (m_bIndexBufferStateDirty)
+  {
+    if (!m_State.m_hIndexBuffer.IsInvalidated())
+    {
+      EZ_SUCCEED_OR_RETURN(ValidateBufferState(m_State.m_hIndexBuffer, ezGALResourceState::IndexBuffer, ezGALShaderStageFlags::Auto));
+    }
+
+    m_bIndexBufferStateDirty = false;
+  }
+
+  return EZ_SUCCESS;
+}
+
 ezResult ezGALCommandEncoder::ValidateBindGroupResourceStates(const ezGALShader* pShader)
 {
   if (pShader == nullptr)
@@ -961,77 +1070,103 @@ ezResult ezGALCommandEncoder::ValidateBindGroupItemResourceState(ezUInt32 uiBind
   {
     const ezBitflags<ezGALResourceState> expectedState = GetExpectedResourceState(binding.m_ResourceType, m_Device, item.m_Texture.m_hTexture);
     EZ_ASSERT_DEBUG(!expectedState.IsNoFlagSet(), "At least one flag should e set in the expected resource state.");
-
-    const ezGALResourceStateTracker::TextureState* pState = m_ResourceStateTracker.GetTextureState(item.m_Texture.m_hTexture);
-    ezGALResourceStateTracker::TextureState dummy;
-    if (pState == nullptr)
-    {
-      // Nothing is tracked, compare to default state.
-      const ezGALTexture* pTexture = m_Device.GetTexture(item.m_Texture.m_hTexture);
-      if (pTexture == nullptr)
-      {
-        ezLog::Error("Can't validate bind group {} binding '{}' as the texture is invalid.", uiBindGroup, binding.m_sName);
-        return EZ_FAILURE;
-      }
-      dummy.m_FullRange = pTexture->ClampRange({});
-      dummy.m_SubResourceStates.PushBack({pTexture->GetDescription().GetDefaultState(), ezGALShaderStageFlags::Auto});
-      pState = &dummy;
-    }
-
-    ezTextureValidationError error;
-    error.m_uiBindGroup = uiBindGroup;
-    error.m_sBinding = binding.m_sName;
-    error.m_hTexture = item.m_Texture.m_hTexture;
-    error.m_expectedState = expectedState;
-    error.m_expectedStages = binding.m_Stages;
-
-
-    if (CheckTextureSubResourceState(*pState, item.m_Texture.m_TextureRange, error).Failed())
-    {
-      if (!m_TextureErrors.Insert(error))
-        s_TextureBarrierValidationFailed.Broadcast(error);
-      return EZ_FAILURE;
-    }
+    return ValidateTextureState(item.m_Texture.m_hTexture, item.m_Texture.m_TextureRange, expectedState, binding.m_Stages, uiBindGroup, binding.m_sName);
   }
   else if (typeFlags.IsSet(ezGALBindGroupItemFlags::Buffer))
   {
     const ezBitflags<ezGALResourceState> expectedState = GetExpectedResourceState(binding.m_ResourceType, m_Device);
-    if (expectedState.IsNoFlagSet())
-      return EZ_SUCCESS;
-
-    const ezGALResourceStateTracker::SubResourceState* pState = m_ResourceStateTracker.GetBufferState(item.m_Buffer.m_hBuffer);
-    ezGALResourceStateTracker::SubResourceState dummy;
-    if (pState == nullptr)
-    {
-      // Nothing is tracked, compare to default state.
-      const ezGALBuffer* pBuffer = m_Device.GetBuffer(item.m_Buffer.m_hBuffer);
-      if (pBuffer == nullptr)
-      {
-        ezLog::Error("Can't validate bind group {} binding '{}' as the buffer is invalid.", uiBindGroup, binding.m_sName);
-        return EZ_FAILURE;
-      }
-      dummy.m_State = pBuffer->GetDescription().GetDefaultState();
-      dummy.m_Stages = ezGALShaderStageFlags::Auto;
-      pState = &dummy;
-    }
-
-    if (ezGALResourceStateTracker::IsBufferBarrierNeeded(*pState, {expectedState, binding.m_Stages}, false))
-    {
-      ezBufferValidationError error;
-      error.m_uiBindGroup = uiBindGroup;
-      error.m_sBinding = binding.m_sName;
-      error.m_hBuffer = item.m_Buffer.m_hBuffer;
-      error.m_expectedState = expectedState;
-      error.m_expectedStages = binding.m_Stages;
-      error.m_actualState = pState->m_State;
-      error.m_actualStages = pState->m_Stages;
-
-      if (!m_BufferErrors.Insert(error))
-        s_BufferBarrierValidationFailed.Broadcast(error);
-      return EZ_FAILURE;
-    }
+    return ValidateBufferState(item.m_Buffer.m_hBuffer, expectedState, binding.m_Stages, uiBindGroup, binding.m_sName);
   }
   // Samplers and push constants have no resource state to validate.
+  return EZ_SUCCESS;
+}
+
+ezResult ezGALCommandEncoder::ValidateTextureState(ezGALTextureHandle hTexture, ezGALTextureRange range, ezBitflags<ezGALResourceState> expectedState, ezBitflags<ezGALShaderStageFlags> expectedStages, ezUInt32 uiBindGroup, const ezHashedString& sBinding)
+{
+  if (expectedState.IsNoFlagSet())
+    return EZ_SUCCESS;
+
+  ResolveProxyTexture(&m_Device, hTexture, range);
+
+  const ezGALTexture* pTexture = m_Device.GetTexture(hTexture);
+  if (pTexture == nullptr)
+  {
+    if (sBinding.IsEmpty())
+      ezLog::Error("Can't validate texture state as the texture is invalid.");
+    else
+      ezLog::Error("Can't validate bind group {} binding '{}' as the texture is invalid.", uiBindGroup, sBinding);
+    return EZ_FAILURE;
+  }
+
+  range = pTexture->ClampRange(range);
+
+  const ezGALResourceStateTracker::TextureState* pState = m_ResourceStateTracker.GetTextureState(hTexture);
+  ezGALResourceStateTracker::TextureState dummy;
+  if (pState == nullptr)
+  {
+    // Nothing is tracked, compare to default state.
+    dummy.m_FullRange = pTexture->ClampRange({});
+    dummy.m_SubResourceStates.PushBack({pTexture->GetDescription().GetDefaultState(), ezGALShaderStageFlags::Auto});
+    pState = &dummy;
+  }
+
+  ezTextureValidationError error;
+  error.m_uiBindGroup = uiBindGroup;
+  error.m_sBinding = sBinding;
+  error.m_hTexture = hTexture;
+  error.m_expectedState = expectedState;
+  error.m_expectedStages = expectedStages;
+
+  if (CheckTextureSubResourceState(*pState, range, error).Failed())
+  {
+    if (!m_TextureErrors.Insert(error))
+      s_TextureBarrierValidationFailed.Broadcast(error);
+    return EZ_FAILURE;
+  }
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezGALCommandEncoder::ValidateBufferState(ezGALBufferHandle hBuffer, ezBitflags<ezGALResourceState> expectedState, ezBitflags<ezGALShaderStageFlags> expectedStages, ezUInt32 uiBindGroup, const ezHashedString& sBinding)
+{
+  if (expectedState.IsNoFlagSet())
+    return EZ_SUCCESS;
+
+  const ezGALResourceStateTracker::SubResourceState* pState = m_ResourceStateTracker.GetBufferState(hBuffer);
+  ezGALResourceStateTracker::SubResourceState dummy;
+  if (pState == nullptr)
+  {
+    // Nothing is tracked, compare to default state.
+    const ezGALBuffer* pBuffer = m_Device.GetBuffer(hBuffer);
+    if (pBuffer == nullptr)
+    {
+      if (sBinding.IsEmpty())
+        ezLog::Error("Can't validate buffer state as the buffer is invalid.");
+      else
+        ezLog::Error("Can't validate bind group {} binding '{}' as the buffer is invalid.", uiBindGroup, sBinding);
+      return EZ_FAILURE;
+    }
+    dummy.m_State = pBuffer->GetDescription().GetDefaultState();
+    dummy.m_Stages = ezGALShaderStageFlags::Auto;
+    pState = &dummy;
+  }
+
+  if (ezGALResourceStateTracker::IsBufferBarrierNeeded(*pState, {expectedState, expectedStages}, false))
+  {
+    ezBufferValidationError error;
+    error.m_uiBindGroup = uiBindGroup;
+    error.m_sBinding = sBinding;
+    error.m_hBuffer = hBuffer;
+    error.m_expectedState = expectedState;
+    error.m_expectedStages = expectedStages;
+    error.m_actualState = pState->m_State;
+    error.m_actualStages = pState->m_Stages;
+
+    if (!m_BufferErrors.Insert(error))
+      s_BufferBarrierValidationFailed.Broadcast(error);
+    return EZ_FAILURE;
+  }
+
   return EZ_SUCCESS;
 }
 
@@ -1107,31 +1242,8 @@ void ezGALCommandEncoder::ValidateRenderTargetStates(const ezGALRenderingSetup& 
       continue;
 
     const auto& viewDesc = pView->GetDescription();
-    const ezGALResourceStateTracker::TextureState* pState = m_ResourceStateTracker.GetTextureState(viewDesc.m_hTexture);
-    ezGALResourceStateTracker::TextureState dummy;
-    if (pState == nullptr)
-    {
-      // Nothing is tracked, compare to default state.
-      const ezGALTexture* pTexture = m_Device.GetTexture(viewDesc.m_hTexture);
-      if (pTexture == nullptr)
-        continue;
-      dummy.m_FullRange = pTexture->ClampRange({});
-      dummy.m_SubResourceStates.PushBack({pTexture->GetDescription().GetDefaultState(), ezGALShaderStageFlags::Auto});
-      pState = &dummy;
-    }
-
     const ezGALTextureRange colorRange = ezGALTextureRange::MakeFromRenderTargetRange({static_cast<ezUInt16>(viewDesc.m_uiFirstSlice), static_cast<ezUInt16>(viewDesc.m_uiSliceCount), static_cast<ezUInt8>(viewDesc.m_uiMipLevel)});
-
-    ezTextureValidationError error;
-    error.m_hTexture = viewDesc.m_hTexture;
-    error.m_expectedState = ezGALResourceState::RenderTarget;
-    error.m_expectedStages = ezGALShaderStageFlags::Auto;
-
-    if (CheckTextureSubResourceState(*pState, colorRange, error).Failed())
-    {
-      if (!m_TextureErrors.Insert(error))
-        s_TextureBarrierValidationFailed.Broadcast(error);
-    }
+    ValidateTextureState(viewDesc.m_hTexture, colorRange, ezGALResourceState::RenderTarget, ezGALShaderStageFlags::Auto).IgnoreResult();
   }
 
   if (!fb.m_hDepthTarget.IsInvalidated())
@@ -1141,31 +1253,8 @@ void ezGALCommandEncoder::ValidateRenderTargetStates(const ezGALRenderingSetup& 
     {
       const auto& viewDesc = pView->GetDescription();
       const ezBitflags<ezGALResourceState> expectedState = viewDesc.m_bReadOnly ? ezGALResourceState::DepthStencilRead : ezGALResourceState::DepthStencilWrite;
-      const ezGALResourceStateTracker::TextureState* pState = m_ResourceStateTracker.GetTextureState(viewDesc.m_hTexture);
-      ezGALResourceStateTracker::TextureState dummy;
-      if (pState == nullptr)
-      {
-        // Nothing is tracked, compare to default state.
-        const ezGALTexture* pTexture = m_Device.GetTexture(viewDesc.m_hTexture);
-        if (pTexture == nullptr)
-          return;
-        dummy.m_FullRange = pTexture->ClampRange({});
-        dummy.m_SubResourceStates.PushBack({pTexture->GetDescription().GetDefaultState(), ezGALShaderStageFlags::Auto});
-        pState = &dummy;
-      }
-
       const ezGALTextureRange depthRange = ezGALTextureRange::MakeFromRenderTargetRange({static_cast<ezUInt16>(viewDesc.m_uiFirstSlice), static_cast<ezUInt16>(viewDesc.m_uiSliceCount), static_cast<ezUInt8>(viewDesc.m_uiMipLevel)});
-
-      ezTextureValidationError error;
-      error.m_hTexture = viewDesc.m_hTexture;
-      error.m_expectedState = expectedState;
-      error.m_expectedStages = ezGALShaderStageFlags::Auto;
-
-      if (CheckTextureSubResourceState(*pState, depthRange, error).Failed())
-      {
-        if (!m_TextureErrors.Insert(error))
-          s_TextureBarrierValidationFailed.Broadcast(error);
-      }
+      ValidateTextureState(viewDesc.m_hTexture, depthRange, expectedState, ezGALShaderStageFlags::Auto).IgnoreResult();
     }
   }
 }

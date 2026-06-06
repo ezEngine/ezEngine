@@ -27,6 +27,11 @@ protected:
   /// Configures shader permutation variables based on render settings.
   virtual void SetupPermutationVars(const ezRenderViewContext& renderViewContext);
 
+  /// Declares the renderer dependencies for the render data categories that RenderObjects will render.
+  ///
+  /// Must declare the same set of categories that RenderObjects passes to RenderDataWithCategory.
+  virtual void DeclareRenderObjectDependencies(ezRenderGraph& ref_graph, ezRenderGraphPassBuilder& ref_pass) = 0;
+
   /// Renders the objects for this pass. Must be implemented by derived classes.
   virtual void RenderObjects(const ezRenderViewContext& renderViewContext) = 0;
 

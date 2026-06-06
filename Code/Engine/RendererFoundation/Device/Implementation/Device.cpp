@@ -1031,7 +1031,8 @@ ezGALTextureHandle ezGALDevice::CreateProxyTexture(ezGALTextureHandle hParentTex
   const auto& parentDesc = pParentTexture->GetDescription();
   EZ_IGNORE_UNUSED(parentDesc);
   EZ_ASSERT_DEV(parentDesc.m_Type == ezGALTextureType::TextureCube || parentDesc.m_Type == ezGALTextureType::Texture2DArray || parentDesc.m_Type == ezGALTextureType::TextureCubeArray, "Proxy textures can only be created for cubemaps or array textures.");
-
+  const ezUInt32 uiSliceCount = parentDesc.m_Type == ezGALTextureType::TextureCube || parentDesc.m_Type == ezGALTextureType::TextureCubeArray ? parentDesc.m_uiArraySize * 6 : parentDesc.m_uiArraySize;
+  EZ_ASSERT_DEV(uiSlice < uiSliceCount, "Proxy slice {} is out of bounds. Parent texture only has {} slices", uiSlice, uiSliceCount);
   ezGALProxyTexture* pProxyTexture = EZ_NEW(&m_Allocator, ezGALProxyTexture, hParentTexture, *pParentTexture, (ezUInt16)uiSlice);
   ezGALTextureHandle hProxyTexture(m_Textures.Insert(pProxyTexture));
 
