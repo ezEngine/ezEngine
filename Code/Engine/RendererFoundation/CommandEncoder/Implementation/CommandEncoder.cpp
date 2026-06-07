@@ -784,10 +784,6 @@ void ezGALCommandEncoder::SetIndexBuffer(ezGALBufferHandle hIndexBuffer)
   const ezGALBuffer* pBuffer = GetDevice().GetBuffer(hIndexBuffer);
 
 #if EZ_ENABLED(EZ_BARRIER_VALIDATION)
-  if (!hIndexBuffer.IsInvalidated())
-  {
-    ValidateBufferState(hIndexBuffer, ezGALResourceState::IndexBuffer, ezGALShaderStageFlags::Auto).IgnoreResult();
-  }
   m_bIndexBufferStateDirty = true;
 #endif
 
@@ -807,10 +803,6 @@ void ezGALCommandEncoder::SetVertexBuffer(ezUInt32 uiSlot, ezGALBufferHandle hVe
   const ezGALBuffer* pBuffer = GetDevice().GetBuffer(hVertexBuffer);
 
 #if EZ_ENABLED(EZ_BARRIER_VALIDATION)
-  if (!hVertexBuffer.IsInvalidated())
-  {
-    ValidateBufferState(hVertexBuffer, ezGALResourceState::VertexBuffer, ezGALShaderStageFlags::Auto).IgnoreResult();
-  }
   m_bVertexBufferStatesDirty = true;
 #endif
 
