@@ -42,7 +42,7 @@ ezStatus ezTargetPass::AddRenderPasses(const ezViewData& viewData, const ezCamer
   m_hSwapChain = viewData.m_hSwapChain;
   m_RenderTargets = viewData.m_RenderTargets;
 
-  const char* pinNames[] = {
+  ezTempHashedString pinNames[] = {
     "Color0",
     "Color1",
     "Color2",
@@ -87,11 +87,11 @@ ezGALTextureHandle ezTargetPass::QueryTextureProvider(const ezRenderPipelineNode
   }
 }
 
-ezStatus ezTargetPass::VerifyInput(ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, const char* szPinName)
+ezStatus ezTargetPass::VerifyInput(ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezTempHashedString sPinName)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
-  const ezRenderPipelineNodePin* pPin = GetPinByName(szPinName);
+  const ezRenderPipelineNodePin* pPin = GetPinByName(sPinName);
   if (inputs[pPin->m_uiInputIndex].m_Connectivity == ezRenderPipelinePinConnection::Connectivity::Texture)
   {
     const ezGALTextureCreationDescription& desc = graph.GetTextureDesc(inputs[pPin->m_uiInputIndex].m_TextureHandle);

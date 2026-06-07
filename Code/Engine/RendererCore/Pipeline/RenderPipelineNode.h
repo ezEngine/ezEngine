@@ -98,8 +98,7 @@ public:
   void InitializePins();
 
   ezHashedString GetPinName(const ezRenderPipelineNodePin* pPin) const;
-  const ezRenderPipelineNodePin* GetPinByName(const char* szName) const;
-  const ezRenderPipelineNodePin* GetPinByName(ezHashedString sName) const;
+  const ezRenderPipelineNodePin* GetPinByName(ezTempHashedString sName) const;
   const ezArrayPtr<const ezRenderPipelineNodePin* const> GetInputPins() const { return m_InputPins; }
   const ezArrayPtr<const ezRenderPipelineNodePin* const> GetOutputPins() const { return m_OutputPins; }
 

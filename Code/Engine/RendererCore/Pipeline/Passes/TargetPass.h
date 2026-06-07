@@ -25,7 +25,7 @@ public:
 
 private:
   /// Validates that an input pin's texture matches expected dimensions and format.
-  ezStatus VerifyInput(ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, const char* szPinName);
+  ezStatus VerifyInput(ezRenderGraph& graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezTempHashedString sPinName);
 
 protected:
   ezRenderPipelineNodeInputProviderPin m_PinColor0;       ///< Color target 0 input.

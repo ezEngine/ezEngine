@@ -91,14 +91,7 @@ ezHashedString ezRenderPipelineNode::GetPinName(const ezRenderPipelineNodePin* p
   return ezHashedString();
 }
 
-const ezRenderPipelineNodePin* ezRenderPipelineNode::GetPinByName(const char* szName) const
-{
-  ezHashedString sHashedName;
-  sHashedName.Assign(szName);
-  return GetPinByName(sHashedName);
-}
-
-const ezRenderPipelineNodePin* ezRenderPipelineNode::GetPinByName(ezHashedString sName) const
+const ezRenderPipelineNodePin* ezRenderPipelineNode::GetPinByName(ezTempHashedString sName) const
 {
   const ezRenderPipelineNodePin* pin;
   if (m_NameToPin.TryGetValue(sName, pin))
