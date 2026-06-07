@@ -252,7 +252,7 @@ void ezPickingRenderPass::CreateTarget()
 
   // Create render target for picking
   ezGALTextureCreationDescription tcd;
-  tcd.m_TextureFlags = ezGALTextureUsageFlags::RenderTarget;
+  tcd.m_TextureFlags = ezGALTextureUsageFlags::RenderTarget | ezGALTextureUsageFlags::ShaderResource;
   tcd.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
   tcd.m_Type = ezGALTextureType::Texture2D;
   tcd.m_uiWidth = (ezUInt32)m_TargetRect.width;

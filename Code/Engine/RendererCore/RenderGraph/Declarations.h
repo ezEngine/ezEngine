@@ -32,6 +32,36 @@ class ezRenderGraphBufferHandle
   friend class ezRenderGraphManager;
 };
 
+template <>
+struct ezHashHelper<ezRenderGraphTextureHandle>
+{
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(ezRenderGraphTextureHandle value)
+  {
+    return ezHashHelper<ezRenderGraphTextureHandle::IdType::StorageType>::Hash(value.GetInternalID().m_Data);
+  }
+
+  EZ_ALWAYS_INLINE static bool Equal(ezRenderGraphTextureHandle a, ezRenderGraphTextureHandle b)
+  {
+    return a == b;
+  }
+};
+
+template <>
+struct ezHashHelper<ezRenderGraphBufferHandle>
+{
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(ezRenderGraphBufferHandle value)
+  {
+    return ezHashHelper<ezRenderGraphBufferHandle::IdType::StorageType>::Hash(value.GetInternalID().m_Data);
+  }
+
+  EZ_ALWAYS_INLINE static bool Equal(ezRenderGraphBufferHandle a, ezRenderGraphBufferHandle b)
+  {
+    return a == b;
+  }
+};
+
+
+
 /// Coarse execution phase for render graphs. Graphs within the same phase execute in registration (FIFO) order.
 struct ezRenderGraphPhase
 {

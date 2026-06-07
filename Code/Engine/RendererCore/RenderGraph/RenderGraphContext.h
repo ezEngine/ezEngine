@@ -55,4 +55,4 @@ private:
 };
 
 /// Execution callback type for render graph passes.
-using ezRenderGraphExecuteFunction = ezDelegate<void(const ezRenderGraphContext&), 16, ezAlignedAllocatorWrapper>;
+using ezRenderGraphExecuteFunction = ezDelegate<void(const ezRenderGraphContext&), 16, ezTempAllocatorWrapper>;

@@ -566,7 +566,8 @@ bool ezRenderPipeline::AddRenderPasses(const ezViewData& viewData, const ezCamer
 
 bool ezRenderPipeline::UpdateTextureProviders()
 {
-  ezMap<ezRenderGraphTextureHandle, const ezRenderPipelineNodePin*> updates;
+  ezHashTable<ezRenderGraphTextureHandle, const ezRenderPipelineNodePin*, ezHashHelper<ezRenderGraphTextureHandle>, ezTempAllocatorWrapper> updates;
+  updates.Reserve(m_TextureProviderPins.GetCount());
   for (const ezRenderPipelineNodePin* pPin : m_TextureProviderPins)
   {
     const ezRenderPipelinePass* pPass = static_cast<const ezRenderPipelinePass*>(pPin->m_pParent);
