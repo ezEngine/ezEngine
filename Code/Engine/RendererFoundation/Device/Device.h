@@ -406,7 +406,7 @@ protected:
   virtual ezGALSamplerState* CreateSamplerStatePlatform(const ezGALSamplerStateCreationDescription& Description) = 0;
   virtual void DestroySamplerStatePlatform(ezGALSamplerState* pSamplerState) = 0;
   /// \brief Destroys and reinitializes a sampler state in-place, applying AdjustSamplerStateDescription to pick up current quality settings.
-  virtual void RecreateSamplerStatePlatform(ezGALSamplerState* pSamplerState) {};
+  virtual void RecreateSamplerStatePlatform(ezGALSamplerState* pSamplerState) = 0;
 
   virtual ezGALBindGroupLayout* CreateBindGroupLayoutPlatform(const ezGALBindGroupLayoutCreationDescription& Description) = 0;
   virtual void DestroyBindGroupLayoutPlatform(ezGALBindGroupLayout* pBindGroupLayout) = 0;
