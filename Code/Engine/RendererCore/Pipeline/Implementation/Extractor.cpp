@@ -188,14 +188,12 @@ void ezExtractor::ExtractRenderData(const ezView& view, const ezGameObject* pObj
   {
     ezUInt16 uiComponentVersion = pObject->GetComponentVersion();
 
-    auto cachedRenderData = ezRenderWorld::GetCachedRenderData(view, pObject->GetHandle(), uiComponentVersion);
+    ezArrayPtr<const ezTextureDependency> cachedTextureDependencies;
+    ezArrayPtr<const ezBufferDependency> cachedBufferDependencies;
+    auto cachedRenderData = ezRenderWorld::GetCachedRenderData(view, pObject->GetHandle(), uiComponentVersion, cachedTextureDependencies, cachedBufferDependencies);
 
     // Apply per-object cached dependencies once. On cache-hit frames SendMessage is skipped for the owning components, so their dependencies must come from the cache here. On the frame the data is cached the dependencies are also applied through AddDependenciesFromMessage, but the per-object cache is still empty at that point, so there is no duplication.
     {
-      ezArrayPtr<const ezTextureDependency> cachedTextureDependencies;
-      ezArrayPtr<const ezBufferDependency> cachedBufferDependencies;
-      ezRenderWorld::GetCachedDependencies(view, pObject->GetHandle(), uiComponentVersion, cachedTextureDependencies, cachedBufferDependencies);
-
       for (ezTextureDependency dep : cachedTextureDependencies)
       {
         if (msg.m_OverrideCategory != ezInvalidRenderDataCategory)

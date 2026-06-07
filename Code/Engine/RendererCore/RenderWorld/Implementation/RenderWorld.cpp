@@ -99,12 +99,13 @@ namespace ezInternal
 
       ezHybridArray<RenderDataCacheEntry, 4> m_Entries;
       ezUInt16 m_uiVersion = 0;
+      bool m_bHasDependencies = false;
     };
 
     struct PerObjectDependenciesCache
     {
-      ezHybridArray<ezTextureDependency, 4> m_TextureDependencies;
-      ezHybridArray<ezBufferDependency, 4> m_BufferDependencies;
+      ezSmallArray<ezTextureDependency, 4> m_TextureDependencies;
+      ezSmallArray<ezBufferDependency, 4> m_BufferDependencies;
       ezUInt16 m_uiVersion = 0;
     };
 
@@ -400,7 +401,7 @@ void ezRenderWorld::DeleteCachedRenderDataForObjectRecursive(const ezGameObject*
   }
 }
 
-ezArrayPtr<const ezInternal::RenderDataCacheEntry> ezRenderWorld::GetCachedRenderData(const ezView& view, const ezGameObjectHandle& hOwner, ezUInt16 uiComponentVersion)
+ezArrayPtr<const ezInternal::RenderDataCacheEntry> ezRenderWorld::GetCachedRenderData(const ezView& view, const ezGameObjectHandle& hOwner, ezUInt16 uiComponentVersion, ezArrayPtr<const ezTextureDependency>& out_textureDependencies, ezArrayPtr<const ezBufferDependency>& out_bufferDependencies)
 {
   if (cvar_RenderingCachingStaticObjects)
   {
@@ -411,31 +412,25 @@ ezArrayPtr<const ezInternal::RenderDataCacheEntry> ezRenderWorld::GetCachedRende
       auto& perObjectCache = perObjectCaches[uiCacheIndex];
       if (perObjectCache.m_uiVersion == uiComponentVersion)
       {
+        if (perObjectCache.m_bHasDependencies)
+        {
+          const auto& perObjectDependenciesCaches = view.m_pRenderDataCache->m_PerObjectDependenciesCache;
+          ezUInt32 uiCacheIndex = hOwner.GetInternalID().m_InstanceIndex;
+
+          auto it = perObjectDependenciesCaches.Find(uiCacheIndex);
+          if (it.IsValid() && it.Value().m_uiVersion == uiComponentVersion)
+          {
+            out_textureDependencies = it.Value().m_TextureDependencies;
+            out_bufferDependencies = it.Value().m_BufferDependencies;
+          }
+        }
+
         return perObjectCache.m_Entries;
       }
     }
   }
 
   return ezArrayPtr<const ezInternal::RenderDataCacheEntry>();
-}
-
-void ezRenderWorld::GetCachedDependencies(const ezView& view, const ezGameObjectHandle& hOwner, ezUInt16 uiComponentVersion, ezArrayPtr<const ezTextureDependency>& out_textureDependencies, ezArrayPtr<const ezBufferDependency>& out_bufferDependencies)
-{
-  out_textureDependencies = {};
-  out_bufferDependencies = {};
-
-  if (cvar_RenderingCachingStaticObjects)
-  {
-    const auto& perObjectDependenciesCaches = view.m_pRenderDataCache->m_PerObjectDependenciesCache;
-    ezUInt32 uiCacheIndex = hOwner.GetInternalID().m_InstanceIndex;
-
-    auto it = perObjectDependenciesCaches.Find(uiCacheIndex);
-    if (it.IsValid() && it.Value().m_uiVersion == uiComponentVersion)
-    {
-      out_textureDependencies = it.Value().m_TextureDependencies;
-      out_bufferDependencies = it.Value().m_BufferDependencies;
-    }
-  }
 }
 
 void ezRenderWorld::AddViewToRender(const ezViewHandle& hView)
@@ -807,8 +802,9 @@ void ezRenderWorld::UpdateRenderDataCache()
       // add entry for this view
       const ezUInt32 uiCacheIndex = newEntries.m_hOwnerObject.GetInternalID().m_InstanceIndex;
       perObjectCaches.EnsureCount(uiCacheIndex + 1);
-
+      const bool bHasDependencies = !newEntries.m_TextureDependencies.IsEmpty() || !newEntries.m_BufferDependencies.IsEmpty();
       auto& perObjectCache = perObjectCaches[uiCacheIndex];
+      perObjectCache.m_bHasDependencies = bHasDependencies;
       if (perObjectCache.m_uiVersion != newEntries.m_Cache.m_uiVersion)
       {
         perObjectCache.m_Entries.Clear();
@@ -824,7 +820,7 @@ void ezRenderWorld::UpdateRenderDataCache()
       }
 
       // Dependencies are sparse, so they are stored in a separate map keyed by the object's cache index.
-      if (!newEntries.m_TextureDependencies.IsEmpty() || !newEntries.m_BufferDependencies.IsEmpty())
+      if (bHasDependencies)
       {
         auto& perObjectDependenciesCache = pView->m_pRenderDataCache->m_PerObjectDependenciesCache[uiCacheIndex];
         if (perObjectDependenciesCache.m_uiVersion != newEntries.m_Cache.m_uiVersion)

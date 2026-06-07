@@ -80,10 +80,7 @@ public:
   static void ResetRenderDataCache(ezView& ref_view);
 
   /// Retrieves cached render data if available and still valid.
-  static ezArrayPtr<const ezInternal::RenderDataCacheEntry> GetCachedRenderData(const ezView& view, const ezGameObjectHandle& hOwner, ezUInt16 uiComponentVersion);
-
-  /// Retrieves cached per-object render-graph barrier dependencies if available and still valid.
-  static void GetCachedDependencies(const ezView& view, const ezGameObjectHandle& hOwner, ezUInt16 uiComponentVersion, ezArrayPtr<const ezTextureDependency>& out_textureDependencies, ezArrayPtr<const ezBufferDependency>& out_bufferDependencies);
+  static ezArrayPtr<const ezInternal::RenderDataCacheEntry> GetCachedRenderData(const ezView& view, const ezGameObjectHandle& hOwner, ezUInt16 uiComponentVersion, ezArrayPtr<const ezTextureDependency>& out_textureDependencies, ezArrayPtr<const ezBufferDependency>& out_bufferDependencies);
 
   static void AddViewToRender(const ezViewHandle& hView);
 
