@@ -531,12 +531,13 @@ void ezEngineProcessDocumentContext::OnGALEvent(const ezGALDeviceEvent& e)
 
   ezRenderGraphTextureHandle hTex = m_pRenderGraph->ImportTexture(m_hThumbnailColorRT);
 
-  auto pass = m_pRenderGraph->AddTransferPass("Thumbnail Readback");
-  pass.ReadTexture(hTex, {}, ezGALResourceState::CopySource);
-  pass.HasSideEffects();
-  pass.SetExecuteCallback([this, hTex](const ezRenderGraphContext& ctx)
-    { m_ThumbnailReadback.ReadbackTexture(*ctx.GetCommandEncoder(), ctx.ResolveTexture(hTex)); });
-
+  {
+    auto pass = m_pRenderGraph->AddTransferPass("Thumbnail Readback");
+    pass.ReadTexture(hTex, {}, ezGALResourceState::CopySource);
+    pass.HasSideEffects();
+    pass.SetExecuteCallback([this, hTex](const ezRenderGraphContext& ctx)
+      { m_ThumbnailReadback.ReadbackTexture(*ctx.GetCommandEncoder(), ctx.ResolveTexture(hTex)); });
+  }
   ezRenderGraphManager::EnqueueRenderGraph(m_pRenderGraph);
   m_bThumbnailReadbackInFlight = true;
 }

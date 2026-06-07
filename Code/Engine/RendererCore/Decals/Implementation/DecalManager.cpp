@@ -627,42 +627,42 @@ void ezDecalManager::OnRenderEvent(const ezRenderWorldRenderEvent& e)
   s_pData->m_pRenderGraph->Reset();
 
   ezRenderGraphTextureHandle hAtlas = s_pData->m_pRenderGraph->ImportTexture(s_pData->m_RuntimeAtlas.GetTexture());
-
-  auto pass = s_pData->m_pRenderGraph->AddGraphicsPass("Decal Atlas");
-  pass.AddColorTarget(hAtlas, {}, ezGALRenderTargetLoadOp::Load, ezGALRenderTargetStoreOp::Store);
-  pass.HasSideEffects();
-  pass.SetExecuteCallback(
-    [](const ezRenderGraphContext& ctx)
-    {
-      auto& decalsToUpdate = s_pData->m_DecalsToUpdate[ezRenderWorld::GetDataIndexForRendering()];
-      if (decalsToUpdate.IsEmpty())
-        return;
-
-      auto* pRenderContext = ctx.GetRenderContext();
-      auto* pCommandEncoder = ctx.GetCommandEncoder();
-
-      const bool bAllowAsyncShaderLoading = pRenderContext->GetAllowAsyncShaderLoading();
-      pRenderContext->SetAllowAsyncShaderLoading(false);
-      EZ_SCOPE_EXIT(pRenderContext->SetAllowAsyncShaderLoading(bAllowAsyncShaderLoading));
-
-      pRenderContext->BindMeshBuffer(s_pData->m_hPlaneMeshBuffer);
-
-      for (ezUInt32 i = 0; i < decalsToUpdate.GetCount(); ++i)
+  {
+    auto pass = s_pData->m_pRenderGraph->AddGraphicsPass("Decal Atlas");
+    pass.AddColorTarget(hAtlas, {}, ezGALRenderTargetLoadOp::Load, ezGALRenderTargetStoreOp::Store);
+    pass.HasSideEffects();
+    pass.SetExecuteCallback(
+      [](const ezRenderGraphContext& ctx)
       {
-        auto& updateInfo = decalsToUpdate[i];
-        ezRectFloat viewport = ezRectFloat(updateInfo.m_TargetRect.x, updateInfo.m_TargetRect.y, updateInfo.m_TargetRect.width, updateInfo.m_TargetRect.height);
+        auto& decalsToUpdate = s_pData->m_DecalsToUpdate[ezRenderWorld::GetDataIndexForRendering()];
+        if (decalsToUpdate.IsEmpty())
+          return;
 
-        pCommandEncoder->SetViewport(viewport);
+        auto* pRenderContext = ctx.GetRenderContext();
+        auto* pCommandEncoder = ctx.GetCommandEncoder();
 
-        pRenderContext->SetGlobalAndWorldTimeConstants(updateInfo.m_WorldTime);
-        pRenderContext->BindMaterial(updateInfo.m_hMaterial);
+        const bool bAllowAsyncShaderLoading = pRenderContext->GetAllowAsyncShaderLoading();
+        pRenderContext->SetAllowAsyncShaderLoading(false);
+        EZ_SCOPE_EXIT(pRenderContext->SetAllowAsyncShaderLoading(bAllowAsyncShaderLoading));
 
-        pRenderContext->DrawMeshBuffer().AssertSuccess();
-      }
+        pRenderContext->BindMeshBuffer(s_pData->m_hPlaneMeshBuffer);
 
-      decalsToUpdate.Clear();
-    });
+        for (ezUInt32 i = 0; i < decalsToUpdate.GetCount(); ++i)
+        {
+          auto& updateInfo = decalsToUpdate[i];
+          ezRectFloat viewport = ezRectFloat(updateInfo.m_TargetRect.x, updateInfo.m_TargetRect.y, updateInfo.m_TargetRect.width, updateInfo.m_TargetRect.height);
 
+          pCommandEncoder->SetViewport(viewport);
+
+          pRenderContext->SetGlobalAndWorldTimeConstants(updateInfo.m_WorldTime);
+          pRenderContext->BindMaterial(updateInfo.m_hMaterial);
+
+          pRenderContext->DrawMeshBuffer().AssertSuccess();
+        }
+
+        decalsToUpdate.Clear();
+      });
+  }
   ezRenderGraphManager::EnqueueRenderGraph(s_pData->m_pRenderGraph);
 }
 
