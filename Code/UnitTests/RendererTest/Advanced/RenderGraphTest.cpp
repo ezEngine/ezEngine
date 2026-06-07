@@ -449,12 +449,13 @@ void ezRenderGraphTest::EmptyGraph()
     auto desc = MakeColorRT();
     auto hTex = graph.CreateTexture(desc);
 
-    auto pass = graph.AddGraphicsPass("AllCulled");
-    pass.AddColorTarget(hTex, {}, ezGALRenderTargetLoadOp::Clear);
-    pass.SetClearColor(0);
-    // No HasSideEffects, no downstream consumer -> culled.
-    pass.SetExecuteCallback(NoopCallback());
-
+    {
+      auto pass = graph.AddGraphicsPass("AllCulled");
+      pass.AddColorTarget(hTex, {}, ezGALRenderTargetLoadOp::Clear);
+      pass.SetClearColor(0);
+      // No HasSideEffects, no downstream consumer -> culled.
+      pass.SetExecuteCallback(NoopCallback());
+    }
     ezRenderGraphManager::EnqueueRenderGraph(m_pRenderGraph);
     ezRenderGraphManager::ExecuteRenderGraphs(m_pDevice);
     EndFrame();

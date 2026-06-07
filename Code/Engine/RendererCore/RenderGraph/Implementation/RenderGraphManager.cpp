@@ -100,6 +100,7 @@ void ezRenderGraphManager::DeinitPool(ezGALDevice* pDevice)
 void ezRenderGraphManager::EnqueueRenderGraph(const ezSharedPtr<ezRenderGraph>& pRenderGraph)
 {
   EZ_LOCK(s_Mutex);
+  EZ_ASSERT_DEV(pRenderGraph->m_pCurrentPass == nullptr, "Can't enqueue a render graph that still has a pass open for recording");
   s_EnqueuedRenderGraphs[pRenderGraph->m_Phase.GetValue()].PushBack(pRenderGraph);
 }
 

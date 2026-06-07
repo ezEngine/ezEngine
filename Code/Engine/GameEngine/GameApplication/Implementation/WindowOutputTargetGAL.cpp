@@ -102,12 +102,13 @@ void ezWindowOutputTargetGAL::OnRenderEvent(const ezGALDeviceEvent& e)
 
   ezRenderGraphTextureHandle hTex = m_pRenderGraph->ImportTexture(hBackbuffer);
 
-  auto pass = m_pRenderGraph->AddTransferPass("CaptureImage");
-  pass.ReadTexture(hTex, {}, ezGALResourceState::CopySource);
-  pass.HasSideEffects();
-  pass.SetExecuteCallback([this, hTex](const ezRenderGraphContext& ctx)
-    { m_Readback.ReadbackTexture(*ctx.GetCommandEncoder(), ctx.ResolveTexture(hTex)); });
-
+  {
+    auto pass = m_pRenderGraph->AddTransferPass("CaptureImage");
+    pass.ReadTexture(hTex, {}, ezGALResourceState::CopySource);
+    pass.HasSideEffects();
+    pass.SetExecuteCallback([this, hTex](const ezRenderGraphContext& ctx)
+      { m_Readback.ReadbackTexture(*ctx.GetCommandEncoder(), ctx.ResolveTexture(hTex)); });
+  }
   ezRenderGraphManager::EnqueueRenderGraph(m_pRenderGraph);
   m_bCaptureInFlight = true;
 }

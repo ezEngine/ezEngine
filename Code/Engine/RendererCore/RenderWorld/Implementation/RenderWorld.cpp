@@ -121,8 +121,8 @@ namespace ezInternal
       ezGameObjectHandle m_hOwnerObject;
       ezComponentHandle m_hOwnerComponent;
       PerObjectCache m_Cache;
-      ezHybridArray<ezTextureDependency, 2> m_TextureDependencies;
-      ezHybridArray<ezBufferDependency, 2> m_BufferDependencies;
+      ezSmallArray<ezTextureDependency, 2> m_TextureDependencies;
+      ezSmallArray<ezBufferDependency, 2> m_BufferDependencies;
     };
 
     ezStaticArray<NewEntryPerComponent, MaxNumNewCacheEntries> m_NewEntriesPerComponent;

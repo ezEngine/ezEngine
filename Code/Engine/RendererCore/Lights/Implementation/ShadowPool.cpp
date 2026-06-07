@@ -1009,21 +1009,22 @@ void ezShadowPool::OnRenderEvent(const ezRenderWorldRenderEvent& e)
 
     ezRenderGraphTextureHandle hShadowAtlas = s_pData->m_pRenderGraph->ImportTexture(s_pData->m_TextureAtlas.GetTexture());
 
-    auto pass = s_pData->m_pRenderGraph->AddGraphicsPass("Shadow Atlas");
-    pass.AddDepthStencilTarget(hShadowAtlas);
-    pass.SetClearDepth();
-    pass.HasSideEffects();
-    pass.SetExecuteCallback([](const ezRenderGraphContext& ctx)
-      {
-      ezUInt32 uiDataIndex = ezRenderWorld::GetDataIndexForRendering();
-      auto& packedShadowData = s_pData->m_PackedShadowData[uiDataIndex];
-      if (!packedShadowData.IsEmpty())
-      {
-        EZ_PROFILE_SCOPE("Shadow Data Buffer Update");
+    {
+      auto pass = s_pData->m_pRenderGraph->AddGraphicsPass("Shadow Atlas");
+      pass.AddDepthStencilTarget(hShadowAtlas);
+      pass.SetClearDepth();
+      pass.HasSideEffects();
+      pass.SetExecuteCallback([](const ezRenderGraphContext& ctx)
+        {
+        ezUInt32 uiDataIndex = ezRenderWorld::GetDataIndexForRendering();
+        auto& packedShadowData = s_pData->m_PackedShadowData[uiDataIndex];
+        if (!packedShadowData.IsEmpty())
+        {
+          EZ_PROFILE_SCOPE("Shadow Data Buffer Update");
 
-        ctx.GetCommandEncoder()->UpdateBuffer(s_pData->m_hShadowDataBuffer, 0, packedShadowData.GetByteArrayPtr(), ezGALUpdateMode::AheadOfTime);
-      } });
-
+          ctx.GetCommandEncoder()->UpdateBuffer(s_pData->m_hShadowDataBuffer, 0, packedShadowData.GetByteArrayPtr(), ezGALUpdateMode::AheadOfTime);
+        } });
+    }
     ezRenderGraphManager::EnqueueRenderGraph(s_pData->m_pRenderGraph);
   }
 }

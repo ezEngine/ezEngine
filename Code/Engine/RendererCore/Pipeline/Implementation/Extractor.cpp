@@ -166,7 +166,7 @@ void ezExtractor::ExtractRenderData(const ezView& view, const ezGameObject* pObj
   };
 
   // Forwards the barrier dependencies recorded on the message into the extracted render data. The stored category is the (possibly redirected) category passed to msg.AddDependency; it is resolved here to the static/dynamic variant the same way render data categories are resolved, so dependencies land in the same category as the render data they accompany.
-  auto AddDependenciesFromMessage = [&](bool bDynamic) {
+  auto AddDependenciesFromMessage = [&](const ezMsgExtractRenderData& msg, bool bDynamic) {
     for (ezTextureDependency dep : msg.m_TextureDependencies)
     {
       dep.m_uiCategory = (msg.m_OverrideCategory != ezInvalidRenderDataCategory)
@@ -288,7 +288,7 @@ void ezExtractor::ExtractRenderData(const ezView& view, const ezGameObject* pObj
         }
 
         AddRenderDataFromMessage(msg);
-        AddDependenciesFromMessage(false);
+        AddDependenciesFromMessage(msg, false);
       }
       else if (pComponent->IsActiveAndInitialized()) // component does not handle extract message at all
       {
@@ -312,7 +312,7 @@ void ezExtractor::ExtractRenderData(const ezView& view, const ezGameObject* pObj
     pObject->SendMessage(msg);
 
     AddRenderDataFromMessage(msg);
-    AddDependenciesFromMessage(true);
+    AddDependenciesFromMessage(msg, true);
   }
 }
 

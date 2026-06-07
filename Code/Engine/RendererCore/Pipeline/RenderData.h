@@ -186,8 +186,8 @@ private:
   };
 
   ezHybridArray<Data, 16> m_ExtractedRenderData;
-  ezHybridArray<ezTextureDependency, 4> m_TextureDependencies;
-  ezHybridArray<ezBufferDependency, 4> m_BufferDependencies;
+  ezSmallArray<ezTextureDependency, 4> m_TextureDependencies;
+  ezSmallArray<ezBufferDependency, 4> m_BufferDependencies;
 
   ezUInt32 m_uiNumCacheIfStatic = 0;
 };
