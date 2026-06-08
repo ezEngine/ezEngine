@@ -341,6 +341,7 @@ void ezGALDevice::DestroyHashedResource(Handle& inout_hResource, Table& table, e
 
 void ezGALDevice::SetTextureQualityMode(ezGALTextureQualitySlot::Enum slot, ezGALTextureQuality::Enum quality)
 {
+  EZ_ASSERT_DEV(slot < 5, "Invalid ezGALTextureQualitySlot value used: {}", (int)slot);
   m_QualityModes[slot] = quality;
 }
 
