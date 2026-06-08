@@ -32,7 +32,7 @@ set(EZ_DEFAULT_RENDERER "" CACHE STRING "The renderer to use by default when non
 # #####################################
 function(ez_add_renderers TARGET_NAME)
 	# PLATFORM-TODO
-	if(EZ_BUILD_VULKAN)
+	if(EZ_BUILD_VULKAN AND EZ_CMAKE_PLATFORM_SUPPORTS_VULKAN)
 		target_link_libraries(${TARGET_NAME}
 			PRIVATE
 			RendererVulkan
@@ -58,7 +58,7 @@ function(ez_add_renderers TARGET_NAME)
 		endif()
 	endif()
 
-	if(EZ_BUILD_D3D11)
+	if(EZ_BUILD_D3D11 AND (EZ_CMAKE_PLATFORM_SUPPORTS_D3D11 OR EZ_BUILD_EXPERIMENTAL_DXVK))
 		target_link_libraries(${TARGET_NAME}
 			PRIVATE
 			RendererDX11
