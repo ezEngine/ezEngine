@@ -390,6 +390,29 @@ struct ezGALTextureQuality
   };
 };
 
+/// Identifies one of the five abstract quality tiers used by the texture quality system.
+///
+/// Samplers that opt in via ezGALSamplerStateCreationDescription::m_useTextureQualitySlot reference one of these slots.
+/// Each slot is assigned an ezGALTextureQuality value through ezGALDevice::SetTextureQualityMode, and the device maps
+/// the requested tier to a concrete filter based on the current global quality setting.
+struct ezGALTextureQualitySlot
+{
+  using StorageType = ezUInt8;
+
+  enum Enum : StorageType
+  {
+    LowestQuality,  ///< Lowest quality tier, typically used for distant or unimportant textures.
+    LowQuality,     ///< Below-default quality tier.
+    DefaultQuality, ///< Standard quality tier used for most textures.
+    HighQuality,    ///< Above-default quality tier.
+    HighestQuality, ///< Highest quality tier, typically reserved for hero assets or UI.
+
+    None = 0xFF,    ///< Sentinel value: sampler uses its own fixed filter settings instead of a quality slot.
+
+    Default = DefaultQuality
+  };
+};
+
 struct ezGALUpdateMode
 {
   enum Enum

@@ -332,11 +332,11 @@ void ezTextureUtils::ConfigureSampler(ezTextureFilterSetting::Enum filter, ezGAL
 
   if (filter >= ezTextureFilterSetting::LowestQuality)
   {
-    out_sampler.m_uiUseTextureQualityMode = (filter - ezTextureFilterSetting::LowestQuality);
+    out_sampler.m_useTextureQualitySlot = static_cast<ezGALTextureQualitySlot::Enum>(filter - ezTextureFilterSetting::LowestQuality);
   }
   else
   {
-    out_sampler.m_uiUseTextureQualityMode = 0xFF;
+    out_sampler.m_useTextureQualitySlot = ezGALTextureQualitySlot::None;
   }
 
   switch (filter)

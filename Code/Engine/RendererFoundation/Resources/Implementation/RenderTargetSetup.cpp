@@ -143,5 +143,3 @@ void ezGALRenderingSetup::Reset()
 {
   *this = ezGALRenderingSetup();
 }
-
-

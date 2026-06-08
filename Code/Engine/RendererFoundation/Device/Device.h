@@ -244,15 +244,15 @@ public:
   /// Internal: Returns the allocator used by the device.
   ezAllocator* GetAllocator();
 
-  /// \brief Sets the texture quality assigned to the given quality mode slot (0–7).
+  /// \brief Sets the texture quality assigned to the given quality slot.
   ///
-  /// Quality mode slots are referenced by samplers that opt in via m_uiUseTextureQualityMode.
+  /// Quality mode slots are referenced by samplers that opt in via m_useTextureQualitySlot.
   /// Call UpdateTextureQuality() after changing slots to apply the change to existing samplers.
-  void SetTextureQualityMode(ezUInt32 uiMode, ezGALTextureQuality::Enum quality);
+  void SetTextureQualityMode(ezGALTextureQualitySlot::Enum slot, ezGALTextureQuality::Enum quality);
 
   /// \brief Overrides the filter settings in \a inout_desc using the quality assigned to its quality mode slot.
   ///
-  /// No-op if inout_desc.m_uiUseTextureQualityMode is 0xFF.
+  /// No-op if inout_desc.m_useTextureQualitySlot is ezGALTextureQualitySlot::None.
   void AdjustSamplerStateDescription(ezGALSamplerStateCreationDescription& inout_desc);
 
   /// \brief Recreates all quality-adjustable sampler states to reflect the current quality mode settings.
@@ -502,7 +502,7 @@ private:
   ezUInt32 m_uiComputePipelines = 0;
   ezGALCommandEncoderStats m_EncoderStats;
 
-  ezEnum<ezGALTextureQuality> m_QualityModes[8];
+  ezEnum<ezGALTextureQuality> m_QualityModes[5];
 };
 
 #include <RendererFoundation/Device/Implementation/Device_inl.h>

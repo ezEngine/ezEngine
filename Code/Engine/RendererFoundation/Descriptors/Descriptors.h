@@ -185,11 +185,11 @@ struct ezGALSamplerStateCreationDescription : public ezHashableStruct<ezGALSampl
 
   ezUInt8 m_uiMaxAnisotropy = 4;
 
-  /// Index into the device's quality mode table (0–7). When set, the sampler's filter and anisotropy are overridden
+  /// Quality slot that controls filter and anisotropy for this sampler. When set, these are overridden
   /// by the current quality setting for that slot, and the sampler is automatically recreated when quality changes.
-  /// Set to 0xFF (default) to use fixed filter settings from m_MinFilter/m_MagFilter/m_MipFilter/m_uiMaxAnisotropy.
+  /// Set to ezGALTextureQualitySlot::None (default) to use fixed filter settings from m_MinFilter/m_MagFilter/m_MipFilter/m_uiMaxAnisotropy.
   /// \see ezRenderContext::SetDefaultTextureQuality, ezTextureFilterSetting
-  ezUInt8 m_uiUseTextureQualityMode = 0xFF;
+  ezEnum<ezGALTextureQualitySlot> m_useTextureQualitySlot = ezGALTextureQualitySlot::None;
 };
 
 struct EZ_RENDERERFOUNDATION_DLL ezGALVertexBinding

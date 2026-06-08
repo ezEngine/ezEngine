@@ -1210,59 +1210,59 @@ void ezRenderContext::SetDefaultTextureQuality(ezGALTextureQuality::Enum quality
     switch (m_DefaultTextureQuality)
     {
       case ezGALTextureQuality::Nearest:
-        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(0, ezGALTextureQuality::Nearest);
-        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(1, ezGALTextureQuality::Nearest);
-        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(2, ezGALTextureQuality::Nearest);
-        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(3, ezGALTextureQuality::Nearest);
-        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(4, ezGALTextureQuality::Nearest);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(ezGALTextureQualitySlot::LowestQuality, ezGALTextureQuality::Nearest);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(ezGALTextureQualitySlot::LowQuality, ezGALTextureQuality::Nearest);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(ezGALTextureQualitySlot::DefaultQuality, ezGALTextureQuality::Nearest);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(ezGALTextureQualitySlot::HighQuality, ezGALTextureQuality::Nearest);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(ezGALTextureQualitySlot::HighestQuality, ezGALTextureQuality::Nearest);
         break;
 
       case ezGALTextureQuality::Bilinear:
-        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(0, ezGALTextureQuality::Bilinear);
-        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(1, ezGALTextureQuality::Bilinear);
-        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(2, ezGALTextureQuality::Bilinear);
-        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(3, ezGALTextureQuality::Trilinear);
-        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(4, ezGALTextureQuality::Anisotropic2x);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(ezGALTextureQualitySlot::LowestQuality, ezGALTextureQuality::Bilinear);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(ezGALTextureQualitySlot::LowQuality, ezGALTextureQuality::Bilinear);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(ezGALTextureQualitySlot::DefaultQuality, ezGALTextureQuality::Bilinear);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(ezGALTextureQualitySlot::HighQuality, ezGALTextureQuality::Trilinear);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(ezGALTextureQualitySlot::HighestQuality, ezGALTextureQuality::Anisotropic2x);
         break;
 
       case ezGALTextureQuality::Trilinear:
-        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(0, ezGALTextureQuality::Bilinear);
-        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(1, ezGALTextureQuality::Bilinear);
-        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(2, ezGALTextureQuality::Trilinear);
-        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(3, ezGALTextureQuality::Anisotropic2x);
-        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(4, ezGALTextureQuality::Anisotropic4x);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(ezGALTextureQualitySlot::LowestQuality, ezGALTextureQuality::Bilinear);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(ezGALTextureQualitySlot::LowQuality, ezGALTextureQuality::Bilinear);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(ezGALTextureQualitySlot::DefaultQuality, ezGALTextureQuality::Trilinear);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(ezGALTextureQualitySlot::HighQuality, ezGALTextureQuality::Anisotropic2x);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(ezGALTextureQualitySlot::HighestQuality, ezGALTextureQuality::Anisotropic4x);
         break;
 
       case ezGALTextureQuality::Anisotropic2x:
-        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(0, ezGALTextureQuality::Bilinear);
-        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(1, ezGALTextureQuality::Trilinear);
-        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(2, ezGALTextureQuality::Anisotropic2x);
-        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(3, ezGALTextureQuality::Anisotropic4x);
-        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(4, ezGALTextureQuality::Anisotropic8x);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(ezGALTextureQualitySlot::LowestQuality, ezGALTextureQuality::Bilinear);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(ezGALTextureQualitySlot::LowQuality, ezGALTextureQuality::Trilinear);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(ezGALTextureQualitySlot::DefaultQuality, ezGALTextureQuality::Anisotropic2x);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(ezGALTextureQualitySlot::HighQuality, ezGALTextureQuality::Anisotropic4x);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(ezGALTextureQualitySlot::HighestQuality, ezGALTextureQuality::Anisotropic8x);
         break;
 
       case ezGALTextureQuality::Anisotropic4x:
-        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(0, ezGALTextureQuality::Trilinear);
-        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(1, ezGALTextureQuality::Anisotropic2x);
-        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(2, ezGALTextureQuality::Anisotropic4x);
-        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(3, ezGALTextureQuality::Anisotropic8x);
-        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(4, ezGALTextureQuality::Anisotropic16x);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(ezGALTextureQualitySlot::LowestQuality, ezGALTextureQuality::Trilinear);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(ezGALTextureQualitySlot::LowQuality, ezGALTextureQuality::Anisotropic2x);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(ezGALTextureQualitySlot::DefaultQuality, ezGALTextureQuality::Anisotropic4x);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(ezGALTextureQualitySlot::HighQuality, ezGALTextureQuality::Anisotropic8x);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(ezGALTextureQualitySlot::HighestQuality, ezGALTextureQuality::Anisotropic16x);
         break;
 
       case ezGALTextureQuality::Anisotropic8x:
-        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(0, ezGALTextureQuality::Anisotropic2x);
-        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(1, ezGALTextureQuality::Anisotropic4x);
-        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(2, ezGALTextureQuality::Anisotropic8x);
-        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(3, ezGALTextureQuality::Anisotropic16x);
-        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(4, ezGALTextureQuality::Anisotropic16x);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(ezGALTextureQualitySlot::LowestQuality, ezGALTextureQuality::Anisotropic2x);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(ezGALTextureQualitySlot::LowQuality, ezGALTextureQuality::Anisotropic4x);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(ezGALTextureQualitySlot::DefaultQuality, ezGALTextureQuality::Anisotropic8x);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(ezGALTextureQualitySlot::HighQuality, ezGALTextureQuality::Anisotropic16x);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(ezGALTextureQualitySlot::HighestQuality, ezGALTextureQuality::Anisotropic16x);
         break;
 
       case ezGALTextureQuality::Anisotropic16x:
-        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(0, ezGALTextureQuality::Anisotropic4x);
-        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(1, ezGALTextureQuality::Anisotropic8x);
-        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(2, ezGALTextureQuality::Anisotropic16x);
-        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(3, ezGALTextureQuality::Anisotropic16x);
-        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(4, ezGALTextureQuality::Anisotropic16x);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(ezGALTextureQualitySlot::LowestQuality, ezGALTextureQuality::Anisotropic4x);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(ezGALTextureQualitySlot::LowQuality, ezGALTextureQuality::Anisotropic8x);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(ezGALTextureQualitySlot::DefaultQuality, ezGALTextureQuality::Anisotropic16x);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(ezGALTextureQualitySlot::HighQuality, ezGALTextureQuality::Anisotropic16x);
+        m_pGALCommandEncoder->GetDevice().SetTextureQualityMode(ezGALTextureQualitySlot::HighestQuality, ezGALTextureQuality::Anisotropic16x);
         break;
     }
 

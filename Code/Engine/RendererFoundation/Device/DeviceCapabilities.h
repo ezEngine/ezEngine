@@ -71,7 +71,7 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALDeviceCapabilities
   bool m_bSupportsConservativeRasterization = false;
   bool m_bSupportsWireframe = false;
   bool m_bSupportsVSRenderTargetArrayIndex = false;
-  bool m_bSupportsTexelBuffer = false; ///< Whether ezGALBufferUsageFlags::TexelBuffer is supported. Hardcoded per platform as it must match SUPPORTS_TEXEL_BUFFER shader define.
+  bool m_bSupportsTexelBuffer = false;     ///< Whether ezGALBufferUsageFlags::TexelBuffer is supported. Hardcoded per platform as it must match SUPPORTS_TEXEL_BUFFER shader define.
   bool m_bSupportsMultipleSRVTypes = true; ///< Whether more than one of ezGALBufferUsageFlags::StructuredBuffer, ezGALBufferUsageFlags::TexelBuffer and ezGALBufferUsageFlags::ByteAddressBuffer is supported on a buffer.
   bool m_bSupportsMultiSampledArrays = false;
   ezUInt16 m_uiMaxPushConstantsSize = 0;

@@ -339,17 +339,17 @@ void ezGALDevice::DestroyHashedResource(Handle& inout_hResource, Table& table, e
   inout_hResource.Invalidate();
 }
 
-void ezGALDevice::SetTextureQualityMode(ezUInt32 uiMode, ezGALTextureQuality::Enum quality)
+void ezGALDevice::SetTextureQualityMode(ezGALTextureQualitySlot::Enum slot, ezGALTextureQuality::Enum quality)
 {
-  m_QualityModes[uiMode] = quality;
+  m_QualityModes[slot] = quality;
 }
 
 void ezGALDevice::AdjustSamplerStateDescription(ezGALSamplerStateCreationDescription& inout_desc)
 {
-  if (inout_desc.m_uiUseTextureQualityMode == 0xFF)
+  if (inout_desc.m_useTextureQualitySlot == ezGALTextureQualitySlot::None)
     return;
 
-  switch (m_QualityModes[inout_desc.m_uiUseTextureQualityMode])
+  switch (m_QualityModes[inout_desc.m_useTextureQualitySlot])
   {
     case ezGALTextureQuality::Nearest:
       inout_desc.m_MinFilter = ezGALTextureFilterMode::Point;
@@ -406,7 +406,7 @@ void ezGALDevice::UpdateTextureQuality()
 {
   for (auto it = m_SamplerStates.GetIterator(); it.IsValid(); ++it)
   {
-    if (it.Value()->GetDescription().m_uiUseTextureQualityMode != 0xFF)
+    if (it.Value()->GetDescription().m_useTextureQualitySlot != ezGALTextureQualitySlot::None)
     {
       RecreateSamplerStatePlatform(it.Value());
     }

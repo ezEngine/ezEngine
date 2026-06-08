@@ -305,7 +305,7 @@ namespace
     out_perReflectionProbeData.WorldToProbeProjectionMatrix = inverse;
 
     out_perReflectionProbeData.ProbePosition = pReflectionProbeRenderData->m_vGlobalPosition.GetAsVec4(1.0f); // W isn't used.
-    out_perReflectionProbeData.Scale = scale.GetAsVec4(0.0f);                                                // W isn't used.
+    out_perReflectionProbeData.Scale = scale.GetAsVec4(0.0f);                                                 // W isn't used.
 
     out_perReflectionProbeData.InfluenceScale = pReflectionProbeRenderData->m_vInfluenceScale.GetAsVec4(0.0f);
     out_perReflectionProbeData.InfluenceShift = pReflectionProbeRenderData->m_vInfluenceShift.CompMul(ezVec3(1.0f) - pReflectionProbeRenderData->m_vInfluenceScale).GetAsVec4(0.0f);
