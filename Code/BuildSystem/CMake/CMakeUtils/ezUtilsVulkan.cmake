@@ -2,14 +2,14 @@
 # ## Vulkan support
 # #####################################
 
-set(EZ_BUILD_EXPERIMENTAL_VULKAN OFF CACHE BOOL "Whether to enable experimental / work-in-progress Vulkan code")
+set(EZ_BUILD_VULKAN ON CACHE BOOL "Whether to build Vulkan renderer support.")
 
 # #####################################
 # ## ez_requires_vulkan()
 # #####################################
 macro(ez_requires_vulkan)
 	ez_requires(EZ_CMAKE_PLATFORM_SUPPORTS_VULKAN)
-	ez_requires(EZ_BUILD_EXPERIMENTAL_VULKAN)
+	ez_requires(EZ_BUILD_VULKAN)
 	find_package(EzVulkan REQUIRED)
 endmacro()
 

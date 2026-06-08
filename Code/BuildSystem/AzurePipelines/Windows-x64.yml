@@ -71,7 +71,7 @@ jobs:
     inputs:
       targetType: filePath
       filePath: "$(System.DefaultWorkingDirectory)/RunCMake.ps1"
-      arguments: "-Target vs2026x64 -NoUnityBuild -NoSubmoduleUpdate -VulkanSupport 1 -SolutionName solution"
+      arguments: "-Target vs2026x64 -NoUnityBuild -NoSubmoduleUpdate -SolutionName solution"
   - task: MSBuild@1
     displayName: Build Solution
     inputs:

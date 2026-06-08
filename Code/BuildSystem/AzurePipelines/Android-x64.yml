@@ -54,7 +54,7 @@ jobs:
       displayName: CMake vs2026x64
       inputs:
         cwd: $(System.DefaultWorkingDirectory)
-        cmakeArgs: --preset vs2026x64 -DEZ_BUILD_EXPERIMENTAL_VULKAN:BOOL=ON
+        cmakeArgs: --preset vs2026x64
 
     - task: CMake@1
       displayName: CMake build vs2026x64

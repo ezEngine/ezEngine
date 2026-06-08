@@ -28,10 +28,14 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/DeviceFactory.h>
 
-#ifdef BUILDSYSTEM_ENABLE_VULKAN_SUPPORT
+#if defined(BUILDSYSTEM_DEFAULT_RENDERER)
+constexpr const char* szDefaultRenderer = BUILDSYSTEM_DEFAULT_RENDERER;
+#elif defined(BUILDSYSTEM_ENABLE_D3D11_SUPPORT)
+constexpr const char* szDefaultRenderer = "DX11";
+#elif defined(BUILDSYSTEM_ENABLE_VULKAN_SUPPORT)
 constexpr const char* szDefaultRenderer = "Vulkan";
 #else
-constexpr const char* szDefaultRenderer = "DX11";
+constexpr const char* szDefaultRenderer = "";
 #endif
 
 ezCommandLineOptionString opt_Renderer("app", "-renderer", "The renderer implementation to use.", szDefaultRenderer);

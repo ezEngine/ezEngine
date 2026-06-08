@@ -5,6 +5,12 @@
 set(EZ_BUILD_EXPERIMENTAL_DXVK OFF CACHE BOOL "Whether to emulate DX11 on Linux using DXVK-native support.")
 
 # #####################################
+# ## D3D11 Support
+# #####################################
+
+set(EZ_BUILD_D3D11 ON CACHE BOOL "Whether to build D3D11 renderer support. D3D11 is nearing end of life and may be removed in a future release.")
+
+# #####################################
 # ## ez_link_target_dx11(<target>)
 # #####################################
 
@@ -93,5 +99,6 @@ endfunction()
 # ## ez_requires_d3d()
 # #####################################
 macro(ez_requires_d3d)
-	ez_requires_one_of(EZ_CMAKE_PLATFORM_WINDOWS EZ_BUILD_EXPERIMENTAL_DXVK)
+	ez_requires_one_of(EZ_CMAKE_PLATFORM_SUPPORTS_D3D11 EZ_BUILD_EXPERIMENTAL_DXVK)
+	ez_requires(EZ_BUILD_D3D11)
 endmacro()

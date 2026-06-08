@@ -10,9 +10,9 @@ macro(ez_requires_renderer)
 	# if nothing else is known, this platform doesn't support renderers
 	if(EZ_BUILD_EXPERIMENTAL_WEBGPU)
 		ez_requires_webgpu()
-	elseif(EZ_BUILD_EXPERIMENTAL_VULKAN)
+	elseif(EZ_BUILD_VULKAN)
 		ez_requires_vulkan()
-	elseif(EZ_CMAKE_PLATFORM_WINDOWS)
+	elseif(EZ_BUILD_D3D11)
 		ez_requires_d3d()
 	else()
 		message(STATUS "No renderer available on this platform.")
@@ -21,12 +21,18 @@ macro(ez_requires_renderer)
 endmacro()
 
 # #####################################
+# ## EZ_DEFAULT_RENDERER
+# #####################################
+
+set(EZ_DEFAULT_RENDERER "" CACHE STRING "The renderer to use by default when none is specified on the command line. Leave empty to auto-select (DX11 if built, else Vulkan).")
+
+# #####################################
 # ## ez_add_renderers(<target>)
 # ## Add all required libraries and dependencies to the given target so it has access to all available renderers.
 # #####################################
 function(ez_add_renderers TARGET_NAME)
 	# PLATFORM-TODO
-	if(EZ_BUILD_EXPERIMENTAL_VULKAN)
+	if(EZ_BUILD_VULKAN)
 		target_link_libraries(${TARGET_NAME}
 			PRIVATE
 			RendererVulkan
@@ -52,14 +58,7 @@ function(ez_add_renderers TARGET_NAME)
 		endif()
 	endif()
 
-	if(EZ_BUILD_EXPERIMENTAL_WEBGPU)
-		target_link_libraries(${TARGET_NAME}
-			PRIVATE
-			RendererWebGPU
-		)
-	endif()
-
-	if(EZ_CMAKE_PLATFORM_WINDOWS)
+	if(EZ_BUILD_D3D11)
 		target_link_libraries(${TARGET_NAME}
 			PRIVATE
 			RendererDX11

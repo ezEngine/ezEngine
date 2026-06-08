@@ -3,7 +3,6 @@ param
     [Parameter(Mandatory = $True)] [ValidateSet('vs2022x64', 'vs2026x64', 'android-arm64-debug', 'android-arm64-dev', 'android-arm64-shipping', 'android-x64-debug', 'android-x64-dev', 'android-x64-shipping')][string] $Target,
     [switch]$NoSubmoduleUpdate,
     [switch]$NoUnityBuild,
-    [Nullable[bool]]$VulkanSupport,
     [string]$SolutionName,
     [string]$WorkspaceDir
 )
@@ -104,15 +103,6 @@ if ($NoUnityBuild) {
 }
 else {
     $CMAKE_ARGS += "-DEZ_ENABLE_FOLDER_UNITY_FILES:BOOL=ON"
-}
-
-if ($PSBoundParameters.ContainsKey('VulkanSupport') -and $Target -like "android*" -eq $False) {
-    if ($VulkanSupport) {
-        $CMAKE_ARGS += "-DEZ_BUILD_EXPERIMENTAL_VULKAN:BOOL=ON"
-    }
-    else {
-        $CMAKE_ARGS += "-DEZ_BUILD_EXPERIMENTAL_VULKAN:BOOL=OFF"
-    }
 }
 
 if ($SolutionName -ne "") {

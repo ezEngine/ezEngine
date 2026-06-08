@@ -15,7 +15,7 @@ target_link_libraries(${PROJECT_NAME}
   GameEngine
 )
 
-if(EZ_BUILD_EXPERIMENTAL_VULKAN)
+if(EZ_BUILD_VULKAN)
   target_link_libraries(${PROJECT_NAME}
     PRIVATE
     Vulkan-Headers

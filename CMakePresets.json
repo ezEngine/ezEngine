@@ -37,7 +37,6 @@
       "binaryDir": "${sourceDir}/Workspace/${presetName}",
       "cacheVariables": {
         "EZ_EXPERIMENTAL_EDITOR_ON_LINUX": "ON",
-        "EZ_BUILD_EXPERIMENTAL_VULKAN": "ON",
         "EZ_ENABLE_FOLDER_UNITY_FILES" : "ON",
         "EZ_COMPILE_ENGINE_AS_DLL" : "ON",
         "CMAKE_EXPORT_COMPILE_COMMANDS" : "ON",
@@ -72,7 +71,6 @@
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/Workspace/${presetName}",
       "cacheVariables": {
-        "EZ_BUILD_EXPERIMENTAL_VULKAN": "ON",
         "EZ_BUILD_SAMPLES" : "ON",
         "EZ_ENABLE_QT_SUPPORT" : "OFF",
         "ANDROID_PLATFORM" : "29",
