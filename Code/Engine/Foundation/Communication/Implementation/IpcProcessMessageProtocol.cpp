@@ -37,7 +37,7 @@ ezIpcProcessMessageProtocol::~ezIpcProcessMessageProtocol()
 bool ezIpcProcessMessageProtocol::Send(ezProcessMessage* pMsg)
 {
   ezStringBuilder sTypeName = pMsg->GetDynamicRTTI()->GetTypeName();
-  ezUInt64 uiMessageId = (ezUInt64)m_uiSendMessageId.Increment();
+  ezUInt64 uiMessageId = (ezUInt64)m_iSendMessageId.Increment();
   [[maybe_unused]] ezUInt64 uiRequestId = m_uiSendChannelId + uiMessageId;
   pMsg->m_uiMessageId = uiMessageId;
 
