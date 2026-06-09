@@ -38,7 +38,7 @@ bool ezIpcProcessMessageProtocol::Send(ezProcessMessage* pMsg)
 {
   ezStringBuilder sTypeName = pMsg->GetDynamicRTTI()->GetTypeName();
   ezUInt64 uiMessageId = (ezUInt64)m_uiSendMessageId.Increment();
-  ezUInt64 uiRequestId = m_uiSendChannelId + uiMessageId;
+  [[maybe_unused]] ezUInt64 uiRequestId = m_uiSendChannelId + uiMessageId;
   pMsg->m_uiMessageId = uiMessageId;
 
   ezContiguousMemoryStreamStorage storage;
@@ -59,7 +59,7 @@ bool ezIpcProcessMessageProtocol::ProcessMessages()
 
   while (ezUniquePtr<ezProcessMessage> msg = PopMessage())
   {
-    ezUInt64 uiRequestId = m_uiReceiveChannelId + msg->m_uiMessageId;
+    [[maybe_unused]] ezUInt64 uiRequestId = m_uiReceiveChannelId + msg->m_uiMessageId;
     ezStringBuilder sTypeName = msg->GetDynamicRTTI()->GetTypeName();
     EZ_TRACE_ASYNC_END("IpcProtocol_Send", uiRequestId);
 

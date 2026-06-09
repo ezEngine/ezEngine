@@ -160,7 +160,7 @@ void ezPipeChannel_win::InternalDisconnect()
 
   if (bNeedsDisconnectedEvent)
   {
-    SetConnectionState(ConnectionState::Disconnected).IgnoreResult();
+    SetConnectionState(ConnectionState::Disconnected);
     // Raise in case another thread is waiting for new messages (as we would sleep forever otherwise).
     m_IncomingMessages.RaiseSignal();
   }
@@ -200,7 +200,7 @@ bool ezPipeChannel_win::ProcessConnection()
       m_InputState.IsPending = true;
       break;
     case ERROR_PIPE_CONNECTED:
-      SetConnectionState(ConnectionState::Connected).IgnoreResult();
+      SetConnectionState(ConnectionState::Connected);
       break;
     case ERROR_NO_DATA:
       return false;
