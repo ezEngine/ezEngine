@@ -47,7 +47,13 @@ namespace ezRmlUiInternal
   {
     auto pInfo = static_cast<EntryInfo*>(pPtr);
 
-    pInfo->m_pBlackboard->SetEntryValue(pInfo->m_sName, ezRmlUiConversionUtils::ToVariant(variant));
+    ezVariant::Type::Enum targetType = ezVariant::Type::Invalid;
+    if (auto pEntry = pInfo->m_pBlackboard->GetEntry(pInfo->m_sName))
+    {
+      targetType = pEntry->m_Value.GetType();
+    }
+
+    pInfo->m_pBlackboard->SetEntryValue(pInfo->m_sName, ezRmlUiConversionUtils::ToVariant(variant, targetType));
 
     return true;
   }
