@@ -21,8 +21,8 @@ ezIpcChannel::ezIpcChannel(ezStringView sAddress, Mode::Enum mode)
   , m_pOwner(ezMessageLoop::GetSingleton())
 {
   EZ_TRACE_EVENT("IpcChannel_Created", ezTraceLevel::Info,
-          EZ_TRACE_VALUE("Address", m_sAddress.GetData()),
-          EZ_TRACE_VALUE("Mode", (int)m_Mode.GetValue()));
+    EZ_TRACE_VALUE("Address", m_sAddress.GetData()),
+    EZ_TRACE_VALUE("Mode", (int)m_Mode.GetValue()));
 }
 
 ezIpcChannel::~ezIpcChannel()
@@ -65,8 +65,8 @@ ezInternal::NewInstance<ezIpcChannel> ezIpcChannel::CreateNetworkChannel(ezStrin
 ezResult ezIpcChannel::Connect()
 {
   EZ_TRACE_EVENT("IpcChannel_Connect", ezTraceLevel::Info,
-            EZ_TRACE_VALUE("Address", m_sAddress.GetData()),
-            EZ_TRACE_VALUE("Mode", (int)m_Mode.GetValue()));
+    EZ_TRACE_VALUE("Address", m_sAddress.GetData()),
+    EZ_TRACE_VALUE("Mode", (int)m_Mode.GetValue()));
 
   ezEnum<ConnectionState> newState = ConnectionState::Connecting;
   ezEnum<ConnectionState> previousState = m_ConnectionState.CompareAndSwap(ConnectionState::Disconnected, newState);
@@ -88,8 +88,8 @@ ezResult ezIpcChannel::Connect()
 void ezIpcChannel::Disconnect()
 {
   EZ_TRACE_EVENT("IpcChannel_Disconnect", ezTraceLevel::Info,
-          EZ_TRACE_VALUE("Address", m_sAddress.GetData()),
-          EZ_TRACE_VALUE("Mode", (int)m_Mode.GetValue()));
+    EZ_TRACE_VALUE("Address", m_sAddress.GetData()),
+    EZ_TRACE_VALUE("Mode", (int)m_Mode.GetValue()));
 
   EZ_LOCK(m_pOwner->m_TasksMutex);
   m_pOwner->m_DisconnectQueue.PushBack(this);
@@ -225,9 +225,9 @@ void ezIpcChannel::FlushPendingOperations()
 void ezIpcChannel::LogAndBroadcastConnectionState(ezEnum<ConnectionState> previousState, ezEnum<ConnectionState> currentState)
 {
   EZ_TRACE_EVENT("IpcChannel_StateChanged", ezTraceLevel::Info,
-        EZ_TRACE_VALUE("Address", m_sAddress.GetData()),
-        EZ_TRACE_VALUE("Mode", (int)m_Mode.GetValue()),
-        EZ_TRACE_VALUE("OldState", previousState.GetValue()),
-        EZ_TRACE_VALUE("NewState", currentState.GetValue()));
+    EZ_TRACE_VALUE("Address", m_sAddress.GetData()),
+    EZ_TRACE_VALUE("Mode", (int)m_Mode.GetValue()),
+    EZ_TRACE_VALUE("OldState", previousState.GetValue()),
+    EZ_TRACE_VALUE("NewState", currentState.GetValue()));
   m_Events.Broadcast(ezIpcChannelEvent((ezIpcChannelEvent::Type)currentState.GetValue(), this));
 }

@@ -75,7 +75,7 @@ public:
 
   static ezInternal::NewInstance<ezIpcChannel> CreateNetworkChannel(ezStringView sAddress, Mode::Enum mode);
 
-  ezEnum<Mode> GetMode() const { return m_Mode;}
+  ezEnum<Mode> GetMode() const { return m_Mode; }
   ezStringView GetAddress() const { return m_sAddress; }
 
   /// \brief Connects async. Returns whether the state was changed from Disconnected to Connecting.
