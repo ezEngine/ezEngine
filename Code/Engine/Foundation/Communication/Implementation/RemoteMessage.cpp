@@ -4,6 +4,13 @@
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcessMessage, 1, ezRTTIDefaultAllocator<ezProcessMessage>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("MessageId", m_uiMessageId),
+  }
+  EZ_END_PROPERTIES;
+}
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 

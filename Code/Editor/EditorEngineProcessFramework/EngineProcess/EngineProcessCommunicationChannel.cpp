@@ -48,6 +48,7 @@ ezResult ezEngineProcessCommunicationChannel::ConnectToHostProcess()
 {
   EZ_ASSERT_DEV(m_pChannel == nullptr, "ProcessCommunication object already in use");
 
+  ezResult res = EZ_SUCCESS;
   if (!ezEditorEngineProcessApp::GetSingleton()->IsRemoteMode())
   {
     if (ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-IPC").IsEmpty())
@@ -67,11 +68,17 @@ ezResult ezEngineProcessCommunicationChannel::ConnectToHostProcess()
 
     ezLog::Debug("Host Process ID: {0}", m_iHostPID);
 
-    CreateAndConnectChannel(ezIpcChannel::CreatePipeChannel(ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-IPC"), ezIpcChannel::Mode::Client));
+    res = CreateAndConnectChannel(ezIpcChannel::CreatePipeChannel(ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-IPC"), ezIpcChannel::Mode::Client));
   }
   else
   {
-    CreateAndConnectChannel(ezIpcChannel::CreateNetworkChannel("localhost:1050", ezIpcChannel::Mode::Server));
+    res = CreateAndConnectChannel(ezIpcChannel::CreateNetworkChannel("localhost:1050", ezIpcChannel::Mode::Server));
   }
-  return EZ_SUCCESS;
+  if (res.Failed())
+  {
+    ezLog::Error("IpcChannel: CreateAndConnectChannel failed");
+    return EZ_FAILURE;
+  }
+
+  return WaitForConnection(ezTime::MakeFromSeconds(30));
 }

@@ -82,12 +82,13 @@ class ezEditorProcessorProcess
 public:
   enum class State
   {
-    LookingForWork,
-    WaitingForConnection,
-    Ready,
-    Processing,
-    ReportResult,
-    Crashed
+    StartClient,          ///< Starting client process.
+    WaitingForConnection, /// < Waiting for IPC connection to client process.
+    LookingForWork,       ///< Connected. Waiting for work to become available.
+    ReadyForProcessing,   ///< A work item has been found. Ready to start processing.
+    Processing,           ///< A work item is being processed.
+    ReportResult,         ///< Report result of the precessing phase.
+    Crashed               ///< Process has crashed. Dead end until `RequestRestart` is called.
   };
 
 public:
@@ -122,7 +123,7 @@ private:
   void OnProcessCrashed(ezStringView message);
 
 private:
-  State m_State = State::LookingForWork;
+  State m_State = State::StartClient;
   ezEditorProcessCommunicationChannel* m_pIPC;
   bool m_bProcessShouldBeRunning = false;
   bool m_bIsIdle = false;

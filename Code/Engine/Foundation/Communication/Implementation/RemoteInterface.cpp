@@ -92,6 +92,8 @@ void ezRemoteInterface::ShutdownConnection()
     m_RemoteMode = ezRemoteMode::None;
     m_uiApplicationID = 0;
     m_uiConnectionToken = 0;
+    m_uiConnectedToServerWithID = 0;
+    m_iConnectionsToClients = 0;
   }
 }
 

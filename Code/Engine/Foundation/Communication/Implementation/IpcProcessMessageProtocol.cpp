@@ -6,9 +6,21 @@
 // #include <Foundation/Communication/RemoteMessage.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
+#include <Foundation/Tracing/TraceProvider.h>
 
 ezIpcProcessMessageProtocol::ezIpcProcessMessageProtocol(ezIpcChannel* pChannel)
 {
+  ezStringView sAddress = pChannel->GetAddress();
+
+  m_uiReceiveChannelId = ezHashingUtils::xxHash64String(sAddress);
+  m_uiSendChannelId = ezHashingUtils::xxHash64String(sAddress, 1337);
+
+  if (pChannel->GetMode() == ezIpcChannel::Mode::Client)
+  {
+    // To make sure telemetry events can be correlated, the client swaps the stable channel IDs.
+    std::swap(m_uiReceiveChannelId, m_uiSendChannelId);
+  }
+
   m_pChannel = pChannel;
   m_pChannel->SetReceiveCallback(ezMakeDelegate(&ezIpcProcessMessageProtocol::ReceiveMessageData, this));
 }
@@ -24,9 +36,20 @@ ezIpcProcessMessageProtocol::~ezIpcProcessMessageProtocol()
 
 bool ezIpcProcessMessageProtocol::Send(ezProcessMessage* pMsg)
 {
+  ezStringBuilder sTypeName = pMsg->GetDynamicRTTI()->GetTypeName();
+  ezUInt64 uiMessageId = (ezUInt64)m_uiSendMessageId.Increment();
+  ezUInt64 uiRequestId = m_uiSendChannelId + uiMessageId;
+  pMsg->m_uiMessageId = uiMessageId;
+
   ezContiguousMemoryStreamStorage storage;
   ezMemoryStreamWriter writer(&storage);
   ezReflectionSerializer::WriteObjectToBinary(writer, pMsg->GetDynamicRTTI(), pMsg);
+
+  EZ_TRACE_ASYNC_BEGIN("IpcProtocol_Send", uiRequestId, ezTraceLevel::Info,
+    EZ_TRACE_VALUE("Address", m_pChannel->GetAddress().GetStartPointer()), // Safe as underlying storage is ezString
+    EZ_TRACE_VALUE("MessageId", uiMessageId),
+    EZ_TRACE_VALUE("Type", sTypeName.GetData()));
+
   return m_pChannel->Send(ezArrayPtr<const ezUInt8>(storage.GetData(), storage.GetStorageSize32()));
 }
 
@@ -36,6 +59,14 @@ bool ezIpcProcessMessageProtocol::ProcessMessages()
 
   while (ezUniquePtr<ezProcessMessage> msg = PopMessage())
   {
+    ezUInt64 uiRequestId = m_uiReceiveChannelId + msg->m_uiMessageId;
+    ezStringBuilder sTypeName = msg->GetDynamicRTTI()->GetTypeName();
+    EZ_TRACE_ASYNC_END("IpcProtocol_Send", uiRequestId);
+
+    EZ_TRACE_EVENT("IpcProtocol_Receive", ezTraceLevel::Info,
+      EZ_TRACE_VALUE("Address", m_pChannel->GetAddress().GetStartPointer()), // Safe as underlying storage is ezString
+      EZ_TRACE_VALUE("MessageId", msg->m_uiMessageId),
+      EZ_TRACE_VALUE("Type", sTypeName.GetData()));
     messagesPresent = true;
     Event e;
     e.m_pMessage = msg.Borrow();

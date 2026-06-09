@@ -5,6 +5,7 @@
 #include <Foundation/Communication/IpcChannel.h>
 #include <Foundation/Communication/RemoteMessage.h>
 #include <Foundation/Logging/Log.h>
+#include <Foundation/Tracing/TraceProvider.h>
 
 #if EZ_ENABLED(EZ_SUPPORTS_IPC)
 #  include <PipeChannel_Platform.h>
@@ -19,6 +20,9 @@ ezIpcChannel::ezIpcChannel(ezStringView sAddress, Mode::Enum mode)
   , m_Mode(mode)
   , m_pOwner(ezMessageLoop::GetSingleton())
 {
+  EZ_TRACE_EVENT("IpcChannel_Created", ezTraceLevel::Info,
+          EZ_TRACE_VALUE("Address", m_sAddress.GetData()),
+          EZ_TRACE_VALUE("Mode", (int)m_Mode.GetValue()));
 }
 
 ezIpcChannel::~ezIpcChannel()
@@ -58,16 +62,35 @@ ezInternal::NewInstance<ezIpcChannel> ezIpcChannel::CreateNetworkChannel(ezStrin
 #endif
 }
 
-void ezIpcChannel::Connect()
+ezResult ezIpcChannel::Connect()
 {
+  EZ_TRACE_EVENT("IpcChannel_Connect", ezTraceLevel::Info,
+            EZ_TRACE_VALUE("Address", m_sAddress.GetData()),
+            EZ_TRACE_VALUE("Mode", (int)m_Mode.GetValue()));
+
+  ezEnum<ConnectionState> newState = ConnectionState::Connecting;
+  ezEnum<ConnectionState> previousState = m_ConnectionState.CompareAndSwap(ConnectionState::Disconnected, newState);
+
+  if (previousState != ConnectionState::Disconnected)
+  {
+    return EZ_FAILURE;
+  }
+
+  LogAndBroadcastConnectionState(previousState, newState);
+
   EZ_LOCK(m_pOwner->m_TasksMutex);
   m_pOwner->m_ConnectQueue.PushBack(this);
   m_pOwner->WakeUp();
+  return EZ_SUCCESS;
 }
 
 
 void ezIpcChannel::Disconnect()
 {
+  EZ_TRACE_EVENT("IpcChannel_Disconnect", ezTraceLevel::Info,
+          EZ_TRACE_VALUE("Address", m_sAddress.GetData()),
+          EZ_TRACE_VALUE("Mode", (int)m_Mode.GetValue()));
+
   EZ_LOCK(m_pOwner->m_TasksMutex);
   m_pOwner->m_DisconnectQueue.PushBack(this);
   m_pOwner->WakeUp();
@@ -125,11 +148,10 @@ ezResult ezIpcChannel::WaitForMessages(ezTime timeout)
 
 void ezIpcChannel::SetConnectionState(ezEnum<ezIpcChannel::ConnectionState> state)
 {
-  const ezEnum<ezIpcChannel::ConnectionState> oldValue = m_ConnectionState.Set(state);
-
-  if (state != oldValue)
+  ezEnum<ConnectionState> previousState = m_ConnectionState.Set(state);
+  if (state != previousState)
   {
-    m_Events.Broadcast(ezIpcChannelEvent((ezIpcChannelEvent::Type)state.GetValue(), this));
+    LogAndBroadcastConnectionState(previousState, state);
   }
 }
 
@@ -198,4 +220,14 @@ void ezIpcChannel::ReceiveData(ezArrayPtr<const ezUInt8> data)
 void ezIpcChannel::FlushPendingOperations()
 {
   m_pOwner->WaitForMessages(-1, this);
+}
+
+void ezIpcChannel::LogAndBroadcastConnectionState(ezEnum<ConnectionState> previousState, ezEnum<ConnectionState> currentState)
+{
+  EZ_TRACE_EVENT("IpcChannel_StateChanged", ezTraceLevel::Info,
+        EZ_TRACE_VALUE("Address", m_sAddress.GetData()),
+        EZ_TRACE_VALUE("Mode", (int)m_Mode.GetValue()),
+        EZ_TRACE_VALUE("OldState", previousState.GetValue()),
+        EZ_TRACE_VALUE("NewState", currentState.GetValue()));
+  m_Events.Broadcast(ezIpcChannelEvent((ezIpcChannelEvent::Type)currentState.GetValue(), this));
 }

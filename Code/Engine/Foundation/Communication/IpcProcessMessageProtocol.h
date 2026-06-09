@@ -45,6 +45,9 @@ private:
 
 private:
   ezIpcChannel* m_pChannel = nullptr;
+  ezUInt64 m_uiSendChannelId = 0; // UniqueID derived from channel address to correlate telemetry across processes.
+  ezUInt64 m_uiReceiveChannelId = 0; // UniqueID derived from channel address to correlate telemetry across processes.
+  ezAtomicInteger64 m_uiSendMessageId = 0;
 
   ezMutex m_IncomingQueueMutex;
   ezDeque<ezUniquePtr<ezProcessMessage>> m_IncomingQueue;

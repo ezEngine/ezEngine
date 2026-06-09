@@ -66,4 +66,5 @@ class EZ_FOUNDATION_DLL ezProcessMessage : public ezReflectedClass
 
 public:
   ezProcessMessage() = default;
+  ezUInt64 m_uiMessageId = 0;
 };

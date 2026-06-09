@@ -3,6 +3,7 @@
 #include <EditorFramework/Assets/AssetProcessor.h>
 #include <EditorFramework/Assets/AssetProcessorMessages.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
+#include <Foundation/Communication/IpcChannel.h>
 #include <Foundation/Configuration/SubSystem.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
@@ -298,7 +299,7 @@ void ezAssetProcessor::Run()
 
 
 ////////////////////////////////////////////////////////////////////////
-// ezProcessTask
+// ezEditorProcessorProcess
 ////////////////////////////////////////////////////////////////////////
 
 ezEditorProcessorProcess::ezEditorProcessorProcess()
@@ -354,12 +355,14 @@ ezResult ezEditorProcessorProcess::StartProcess()
   {
     return EZ_FAILURE;
   }
+  m_bProcessShouldBeRunning = true;
   m_CurrentProcessID = m_pIPC->GetProcessId();
   return EZ_SUCCESS;
 }
 
 void ezEditorProcessorProcess::ShutdownProcess()
 {
+  m_bProcessShouldBeRunning = false;
   m_pIPC->CloseConnection();
 }
 
@@ -383,10 +386,8 @@ void ezEditorProcessorProcess::EventHandlerIPC(const ezProcessCommunicationChann
 
 void ezEditorProcessorProcess::ChannelEventHandler(const ezIpcChannelEvent& e)
 {
-  if (m_pNewWorkSignal)
-  {
-    m_pNewWorkSignal->RaiseSignal();
-  }
+  // We explicitly do not handle the event as it is called in a separate thread. All handling of state changes happens in ezEditorProcessorProcess::Tick.
+  m_pNewWorkSignal->RaiseSignal();
 }
 
 bool ezEditorProcessorProcess::GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, ezDataDirPath& out_path, ezAssetInfo::TransformState& out_transformState)
@@ -499,6 +500,7 @@ bool ezEditorProcessorProcess::GetNextAssetToProcess(ezUuid& out_guid, ezDataDir
 void ezEditorProcessorProcess::OnProcessCrashed(ezStringView message)
 {
   ShutdownProcess();
+  m_State = (m_State == State::Processing || m_State == State::ReadyForProcessing) ? State::ReportResult : State::Crashed;
   m_Status = ezStatus(message);
   ezLogEntryDelegate logger([this](ezLogEntry& ref_entry)
     { m_LogEntries.PushBack(std::move(ref_entry)); });
@@ -512,7 +514,7 @@ void ezEditorProcessorProcess::RequestRestart()
   if (m_State == State::Crashed)
   {
     ezLog::Info(&ezAssetProcessor::GetSingleton()->m_CuratorLog, "Restarting crashed processor {}", m_uiProcessorID);
-    m_State = State::LookingForWork;
+    m_State = State::StartClient;
   }
 }
 
@@ -625,10 +627,54 @@ void ezEditorProcessorProcess::HandleHashMissmatch()
 bool ezEditorProcessorProcess::Tick(bool bStartNewWork)
 {
   EZ_PROFILE_SCOPE("ezEditorProcessorProcess::Tick");
+  if (m_State != State::StartClient && m_State != State::Crashed)
+  {
+    if (!m_pIPC->IsClientAlive())
+    {
+      // Will transition to Crashed or ReportResult
+      OnProcessCrashed("Asset processor crashed while waiting for connection");
+    }
+  }
+
+  if (m_State >= State::LookingForWork && m_State <= State::Processing)
+  {
+    if (!m_pIPC->IsConnected())
+    {
+      // Will transition to Crashed or ReportResult
+      OnProcessCrashed("Asset processor IPC channel is not connected");
+    }
+  }
+
   while (true)
   {
     switch (m_State)
     {
+      case State::StartClient:
+      {
+        if (StartProcess().Failed())
+        {
+          OnProcessCrashed("Asset processor did not launch");
+          m_State = State::Crashed;
+          return false; // don't call later
+        }
+        else
+        {
+          m_State = State::WaitingForConnection;
+          return bStartNewWork;
+        }
+      }
+      break;
+
+      case State::WaitingForConnection:
+      {
+        if (m_pIPC->IsConnected())
+        {
+          m_State = State::LookingForWork;
+          break;
+        }
+        return bStartNewWork;
+      }
+      break;
       case State::LookingForWork:
       {
         if (!bStartNewWork)
@@ -656,6 +702,7 @@ bool ezEditorProcessorProcess::Tick(bool bStartNewWork)
         m_StartedProcessing = {};
         m_StartedTransform = {};
         m_FinishedProcessing = {};
+
         {
           auto pCurator = ezAssetCurator::GetSingleton();
 
@@ -702,41 +749,11 @@ bool ezEditorProcessorProcess::Tick(bool bStartNewWork)
           }
         }
 
-        if (!m_pIPC->IsClientAlive() || !m_pIPC->IsConnected())
-        {
-          if (StartProcess().Failed())
-          {
-            m_State = State::ReportResult;
-            OnProcessCrashed("Asset processor did not launch");
-          }
-          else
-          {
-            m_State = State::WaitingForConnection;
-            return true; // call again later
-          }
-        }
-        else
-        {
-          m_State = State::Ready;
-        }
+        m_State = State::ReadyForProcessing;
       }
       break;
-      case State::WaitingForConnection:
-      {
-        if (!m_pIPC->IsClientAlive())
-        {
-          m_State = State::ReportResult;
-          OnProcessCrashed("Asset processor crashed while waiting for connection");
-          break;
-        }
 
-        if (m_pIPC->IsConnected())
-        {
-          m_State = State::Ready;
-        }
-      }
-      break;
-      case State::Ready:
+      case State::ReadyForProcessing:
       {
         ezLog::Info(&ezAssetProcessor::GetSingleton()->m_CuratorLog, "Processing '{0}'", m_AssetPath.GetDataDirRelativePath());
 
@@ -770,8 +787,8 @@ bool ezEditorProcessorProcess::Tick(bool bStartNewWork)
         }
         else
         {
-          m_State = State::ReportResult;
           OnProcessCrashed("Asset processor crashed, failed to send message");
+          break;
         }
       }
       break;
@@ -779,13 +796,7 @@ bool ezEditorProcessorProcess::Tick(bool bStartNewWork)
       {
         EZ_PROFILE_SCOPE("ezEditorProcessorProcess::Processing");
         m_pIPC->ProcessMessages();
-        if (!m_pIPC->IsClientAlive())
-        {
-          OnProcessCrashed("Asset Processor crashed during processing");
-          m_State = State::ReportResult;
-        }
-        if (m_State == State::Processing)
-          return true; // call again later
+        return true; // call again later
       }
       break;
       case State::ReportResult:

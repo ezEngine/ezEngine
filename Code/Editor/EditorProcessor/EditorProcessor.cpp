@@ -323,6 +323,7 @@ public:
       else
       {
         ezLog::Error("Failed to connect with host process");
+        this->SetReturnCode(200);
       }
     }
   }

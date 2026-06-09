@@ -80,7 +80,7 @@ bool ezPipeChannel_win::CreatePipe(ezStringView sAddress)
 
 void ezPipeChannel_win::InternalConnect()
 {
-  if (GetConnectionState() != ConnectionState::Disconnected)
+  if (GetConnectionState() != ConnectionState::Connecting)
     return;
 
 #  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
@@ -89,15 +89,24 @@ void ezPipeChannel_win::InternalConnect()
 #  endif
 
   if (!CreatePipe(m_sAddress))
+  {
+    SetConnectionState(ConnectionState::Disconnected);
     return;
+  }
 
   if (m_hPipeHandle == INVALID_HANDLE_VALUE)
+  {
+    SetConnectionState(ConnectionState::Disconnected);
     return;
+  }
 
-  SetConnectionState(ConnectionState::Connecting);
   if (m_Mode == Mode::Server)
   {
-    ProcessConnection();
+    if (!ProcessConnection())
+    {
+      InternalDisconnect();
+      return;
+    }
   }
   else
   {
@@ -143,16 +152,15 @@ void ezPipeChannel_win::InternalDisconnect()
     FlushPendingOperations();
   }
 
-  bool bWasConnected = false;
+  const bool bNeedsDisconnectedEvent = GetConnectionState() != ConnectionState::Disconnected;
   {
     EZ_LOCK(m_OutputQueueMutex);
     m_OutputQueue.Clear();
-    bWasConnected = IsConnected();
   }
 
-  if (bWasConnected)
+  if (bNeedsDisconnectedEvent)
   {
-    SetConnectionState(ConnectionState::Disconnected);
+    SetConnectionState(ConnectionState::Disconnected).IgnoreResult();
     // Raise in case another thread is waiting for new messages (as we would sleep forever otherwise).
     m_IncomingMessages.RaiseSignal();
   }
@@ -192,7 +200,7 @@ bool ezPipeChannel_win::ProcessConnection()
       m_InputState.IsPending = true;
       break;
     case ERROR_PIPE_CONNECTED:
-      SetConnectionState(ConnectionState::Connected);
+      SetConnectionState(ConnectionState::Connected).IgnoreResult();
       break;
     case ERROR_NO_DATA:
       return false;
@@ -326,7 +334,10 @@ void ezPipeChannel_win::OnIOCompleted(IOContext* pContext, DWORD uiBytesTransfer
     if (!IsConnected())
     {
       if (!ProcessConnection())
+      {
+        InternalDisconnect();
         return;
+      }
 
       bool bHasOutput = false;
       {

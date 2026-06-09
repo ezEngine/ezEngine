@@ -90,14 +90,14 @@ void ezProcessCommunicationChannel::OnIpcChannelEvent(const ezIpcChannelEvent& m
   m_IpcChannelEvents.Broadcast(msg);
 }
 
-void ezProcessCommunicationChannel::CreateAndConnectChannel(ezInternal::NewInstance<ezIpcChannel>&& channel)
+ezResult ezProcessCommunicationChannel::CreateAndConnectChannel(ezInternal::NewInstance<ezIpcChannel>&& channel)
 {
   EZ_ASSERT_DEBUG(m_pChannel == nullptr, "Channel already created");
   m_pChannel = channel;
   m_pProtocol = EZ_DEFAULT_NEW(ezIpcProcessMessageProtocol, m_pChannel.Borrow());
   m_pProtocol->m_MessageEvent.AddEventHandler(ezMakeDelegate(&ezProcessCommunicationChannel::OnIpcProtocolEvent, this));
   m_pChannel->m_Events.AddEventHandler(ezMakeDelegate(&ezProcessCommunicationChannel::OnIpcChannelEvent, this));
-  m_pChannel->Connect();
+  return m_pChannel->Connect();
 }
 
 void ezProcessCommunicationChannel::DestroyChannel()
@@ -175,9 +175,14 @@ ezResult ezProcessCommunicationChannel::WaitForMessage(const ezRTTI* pMessageTyp
 
 ezResult ezProcessCommunicationChannel::WaitForConnection(ezTime timeout)
 {
-  if (m_pChannel->IsConnected())
+  if (m_pChannel->GetConnectionState() == ezIpcChannel::ConnectionState::Connected)
   {
     return EZ_SUCCESS;
+  }
+
+  if (m_pChannel->GetConnectionState() == ezIpcChannel::ConnectionState::Disconnected)
+  {
+    return EZ_FAILURE;
   }
 
   ezThreadSignal waitForConnectionSignal;
@@ -186,8 +191,8 @@ ezResult ezProcessCommunicationChannel::WaitForConnection(ezTime timeout)
     {
     switch (event.m_Type)
     {
-      case ezIpcChannelEvent::Connected:
       case ezIpcChannelEvent::Disconnected:
+      case ezIpcChannelEvent::Connected:
         waitForConnectionSignal.RaiseSignal();
         break;
       default:
@@ -196,9 +201,14 @@ ezResult ezProcessCommunicationChannel::WaitForConnection(ezTime timeout)
 
   EZ_SCOPE_EXIT(m_pChannel->m_Events.RemoveEventHandler(eventSubscriptionId));
 
-  if (m_pChannel->IsConnected())
+  if (m_pChannel->GetConnectionState() == ezIpcChannel::ConnectionState::Connected)
   {
     return EZ_SUCCESS;
+  }
+
+  if (m_pChannel->GetConnectionState() == ezIpcChannel::ConnectionState::Disconnected)
+  {
+    return EZ_FAILURE;
   }
 
   if (timeout == ezTime())

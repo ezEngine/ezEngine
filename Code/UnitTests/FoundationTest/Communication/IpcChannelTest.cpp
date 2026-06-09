@@ -103,29 +103,31 @@ void TestIPCChannel(ezIpcChannel* pServer, ChannelTester* pServerTester, ezIpcCh
       EZ_TEST_BOOL(!res2.has_value());
     }
     {
-      pServer->Connect();
+      EZ_TEST_RESULT(pServer->Connect());
       auto res = pServerTester->WaitForEvents(ezTime::MakeFromMilliseconds(100));
       EZ_TEST_BOOL(res.has_value() && res->m_Type == ezIpcChannelEvent::Connecting);
       EZ_TEST_BOOL(pServer->GetConnectionState() == ezIpcChannel::ConnectionState::Connecting);
     }
     {
-      pClient->Connect();
+      EZ_TEST_RESULT(pClient->Connect());
       auto res = pClientTester->WaitForEvents(ezTime::MakeFromMilliseconds(100));
       EZ_TEST_BOOL(res.has_value() && res->m_Type == ezIpcChannelEvent::Connecting);
     }
-    auto res = pServerTester->WaitForEvents(ezTime::MakeFromSeconds(100));
+    auto res = pServerTester->WaitForEvents(ezTime::MakeFromSeconds(3));
     EZ_TEST_BOOL(res.has_value() && res->m_Type == ezIpcChannelEvent::Connected);
-    auto res2 = pClientTester->WaitForEvents(ezTime::MakeFromSeconds(100));
+    auto res2 = pClientTester->WaitForEvents(ezTime::MakeFromSeconds(3));
     EZ_TEST_BOOL(res2.has_value() && res2->m_Type == ezIpcChannelEvent::Connected);
 
-    EZ_TEST_BOOL(pServer->GetConnectionState() == ezIpcChannel::ConnectionState::Connected);
-    EZ_TEST_BOOL(pClient->GetConnectionState() == ezIpcChannel::ConnectionState::Connected);
+    if (!EZ_TEST_BOOL(pServer->GetConnectionState() == ezIpcChannel::ConnectionState::Connected))
+      return;
+    if (!EZ_TEST_BOOL(pClient->GetConnectionState() == ezIpcChannel::ConnectionState::Connected))
+      return;
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Connect When Already Connected")
   {
-    pServer->Connect();
-    pClient->Connect();
+    EZ_TEST_BOOL(pServer->Connect().Failed());
+    EZ_TEST_BOOL(pClient->Connect().Failed());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ClientSend")
@@ -173,13 +175,13 @@ void TestIPCChannel(ezIpcChannel* pServer, ChannelTester* pServerTester, ezIpcCh
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Reconnect")
   {
     {
-      pServer->Connect();
+      EZ_TEST_RESULT(pServer->Connect());
       auto res = pServerTester->WaitForEvents(ezTime::MakeFromMilliseconds(100));
       EZ_TEST_BOOL(res.has_value() && res->m_Type == ezIpcChannelEvent::Connecting);
       EZ_TEST_BOOL(pServer->GetConnectionState() == ezIpcChannel::ConnectionState::Connecting);
     }
     {
-      pClient->Connect();
+      EZ_TEST_RESULT(pClient->Connect());
       auto res = pClientTester->WaitForEvents(ezTime::MakeFromMilliseconds(100));
       EZ_TEST_BOOL(res.has_value() && res->m_Type == ezIpcChannelEvent::Connecting);
     }
@@ -189,8 +191,10 @@ void TestIPCChannel(ezIpcChannel* pServer, ChannelTester* pServerTester, ezIpcCh
     auto res2 = pClientTester->WaitForEvents(ezTime::MakeFromSeconds(1));
     EZ_TEST_BOOL(res2.has_value() && res2->m_Type == ezIpcChannelEvent::Connected);
 
-    EZ_TEST_BOOL(pServer->GetConnectionState() == ezIpcChannel::ConnectionState::Connected);
-    EZ_TEST_BOOL(pClient->GetConnectionState() == ezIpcChannel::ConnectionState::Connected);
+    if (!EZ_TEST_BOOL(pServer->GetConnectionState() == ezIpcChannel::ConnectionState::Connected))
+      return;
+    if (!EZ_TEST_BOOL(pClient->GetConnectionState() == ezIpcChannel::ConnectionState::Connected))
+      return;
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ClientSend after reconnect")
@@ -223,7 +227,6 @@ void TestIPCChannel(ezIpcChannel* pServer, ChannelTester* pServerTester, ezIpcCh
   }
 }
 
-/* TODO: Enet does not connect in process.
 EZ_CREATE_SIMPLE_TEST(Communication, IpcChannel_Network)
 {
   ezUniquePtr<ezIpcChannel> pServer = ezIpcChannel::CreateNetworkChannel("127.0.0.1:1050"_ezsv, ezIpcChannel::Mode::Server);
@@ -240,7 +243,7 @@ EZ_CREATE_SIMPLE_TEST(Communication, IpcChannel_Network)
   pServerTester.Clear();
   pServer.Clear();
 }
-*/
+
 
 EZ_CREATE_SIMPLE_TEST(Communication, IpcChannel_Pipe)
 {

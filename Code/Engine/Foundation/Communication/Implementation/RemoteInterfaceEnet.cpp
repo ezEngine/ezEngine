@@ -135,6 +135,7 @@ void ezRemoteInterfaceEnetImpl::InternalShutdownConnection()
 
   // enet_deinitialize();
   m_pEnetConnectionToServer = nullptr;
+  m_EnetPeerToClientID.Clear();
 }
 
 ezTime ezRemoteInterfaceEnetImpl::InternalGetPingToServer()

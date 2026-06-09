@@ -9,6 +9,9 @@
 #include <fcntl.h>
 #include <poll.h>
 #include <signal.h>
+#if EZ_ENABLED(EZ_USE_LINUX_POSIX_EXTENSIONS)
+#  include <sys/prctl.h>
+#endif
 #include <sys/wait.h>
 #include <unistd.h>
 
@@ -136,13 +139,59 @@ namespace
     enum class Type : ezUInt32
     {
       FailedToChangeWorkingDirectory = 0,
-      FailedToExecv = 1
+      FailedToExecv = 1,
+      FailedToSetParentDeathSignal = 2
     };
 
     Type type;
     int errorCode;
   };
+
+  static ezInt32 GetExitCodeFromWaitStatus(int childStatus)
+  {
+    if (WIFEXITED(childStatus))
+    {
+      return WEXITSTATUS(childStatus);
+    }
+
+    if (WIFSIGNALED(childStatus))
+    {
+      return WTERMSIG(childStatus);
+    }
+
+    return -1;
+  }
+
+  static pid_t WaitPidInterruptedRetry(pid_t childPid, int* pChildStatus, int iOptions)
+  {
+    pid_t waitedPid = -1;
+    do
+    {
+      waitedPid = waitpid(childPid, pChildStatus, iOptions);
+    } while (waitedPid < 0 && errno == EINTR);
+
+    return waitedPid;
+  }
 } // namespace
+
+#if EZ_ENABLED(EZ_USE_LINUX_POSIX_EXTENSIONS)
+namespace ezInternal
+{
+  static thread_local bool s_bSetProcessParentDeathSignal = false;
+
+  bool SetProcessLaunchParentDeathSignal(bool bEnable)
+  {
+    const bool bPrevious = s_bSetProcessParentDeathSignal;
+    s_bSetProcessParentDeathSignal = bEnable;
+    return bPrevious;
+  }
+
+  static bool GetProcessLaunchParentDeathSignal()
+  {
+    return s_bSetProcessParentDeathSignal;
+  }
+} // namespace ezInternal
+#endif
 
 
 struct ezProcessImpl
@@ -400,6 +449,20 @@ struct ezProcessImpl
       return EZ_FAILURE;
     }
 
+#if EZ_ENABLED(EZ_USE_LINUX_POSIX_EXTENSIONS)
+    const bool bSetParentDeathSignal = ezInternal::GetProcessLaunchParentDeathSignal();
+    const pid_t parentPid = getpid();
+#endif
+
+    ezHybridArray<char*, 9> args;
+
+    args.PushBack(const_cast<char*>(executablePath.GetData()));
+    for (const ezString& arg : opt.m_Arguments)
+    {
+      args.PushBack(const_cast<char*>(arg.GetData()));
+    }
+    args.PushBack(nullptr);
+
     pid_t childPid = fork();
     if (childPid < 0)
     {
@@ -408,6 +471,25 @@ struct ezProcessImpl
 
     if (childPid == 0) // We are the child
     {
+      // DANGER! We are the child process and are now working on a shadow copy of the parent process including the state of all locks etc. This means that if we hit any locks, e.g. by allocating memory we will deadlock if at the point of fork the lock was held by a different thread. So between this line and the call to `execv` we must not make any allocations or access any high level code.
+#if EZ_ENABLED(EZ_USE_LINUX_POSIX_EXTENSIONS)
+      if (bSetParentDeathSignal)
+      {
+        if (prctl(PR_SET_PDEATHSIG, SIGKILL) != 0)
+        {
+          auto err = ProcessStartupError{ProcessStartupError::Type::FailedToSetParentDeathSignal, errno};
+          EZ_IGNORE_UNUSED(write(startupErrorPipe[1].Borrow(), &err, sizeof(err)));
+          startupErrorPipe[1].Close();
+          _exit(-1);
+        }
+
+        if (getppid() != parentPid)
+        {
+          _exit(-1);
+        }
+      }
+#endif
+
       if (suspended)
       {
         if (raise(SIGSTOP) < 0)
@@ -459,15 +541,6 @@ struct ezProcessImpl
 
       startupErrorPipe[0].Close(); // we don't need the read end of the startup error pipe in the child process
 
-      ezHybridArray<char*, 9> args;
-
-      args.PushBack(const_cast<char*>(executablePath.GetData()));
-      for (const ezString& arg : opt.m_Arguments)
-      {
-        args.PushBack(const_cast<char*>(arg.GetData()));
-      }
-      args.PushBack(nullptr);
-
       if (!opt.m_sWorkingDirectory.IsEmpty())
       {
         if (chdir(opt.m_sWorkingDirectory.GetData()) < 0)
@@ -510,6 +583,9 @@ struct ezProcessImpl
             break;
           case ProcessStartupError::Type::FailedToExecv:
             ezLog::Error("Failed to exec when starting process '{}' the error code is '{}'", opt.m_sProcess, err.errorCode);
+            break;
+          case ProcessStartupError::Type::FailedToSetParentDeathSignal:
+            ezLog::Error("Failed to configure parent death signal when starting process '{}' the error code is '{}'", opt.m_sProcess, err.errorCode);
             break;
         }
         return EZ_FAILURE;
@@ -578,25 +654,14 @@ ezResult ezProcess::Execute(const ezProcessOptions& opt, ezInt32* out_iExitCode 
   }
 
   int childStatus = -1;
-  pid_t waitedPid = waitpid(childPid, &childStatus, 0);
+  pid_t waitedPid = WaitPidInterruptedRetry(childPid, &childStatus, 0);
   if (waitedPid < 0)
   {
     return EZ_FAILURE;
   }
   if (out_iExitCode != nullptr)
   {
-    if (WIFEXITED(childStatus))
-    {
-      *out_iExitCode = WEXITSTATUS(childStatus);
-    }
-    else if (WIFSIGNALED(childStatus))
-    {
-      *out_iExitCode = WTERMSIG(childStatus);
-    }
-    else
-    {
-      *out_iExitCode = -1;
-    }
+    *out_iExitCode = GetExitCodeFromWaitStatus(childStatus);
   }
   return EZ_SUCCESS;
 }
@@ -667,10 +732,10 @@ ezResult ezProcess::WaitToFinish(ezTime timeout /*= ezTime::MakeZero()*/)
   if (timeout.IsZero())
   {
     int childStatus = 0;
-    int waitResult = waitpid(m_pImpl->m_childPid, &childStatus, 0);
+    int waitResult = WaitPidInterruptedRetry(m_pImpl->m_childPid, &childStatus, 0);
     if (waitResult > 0)
     {
-      m_iExitCode = WEXITSTATUS(childStatus);
+      m_iExitCode = GetExitCodeFromWaitStatus(childStatus);
       m_pImpl->m_exitCodeAvailable = true;
 
       m_pImpl->StopStreamWatcher();
@@ -722,6 +787,16 @@ ezResult ezProcess::Terminate()
       return EZ_FAILURE;
     }
   }
+
+  int childStatus = 0;
+  if (WaitPidInterruptedRetry(m_pImpl->m_childPid, &childStatus, 0) < 0)
+  {
+    if (errno != ECHILD) // ECHILD = Process is not a child of the calling process or was already waited for
+    {
+      return EZ_FAILURE;
+    }
+  }
+
   m_pImpl->m_exitCodeAvailable = true;
   m_iExitCode = -1;
 
@@ -741,10 +816,10 @@ ezProcessState ezProcess::GetState() const
   }
 
   int childStatus = -1;
-  int waitResult = waitpid(m_pImpl->m_childPid, &childStatus, WNOHANG);
+  int waitResult = WaitPidInterruptedRetry(m_pImpl->m_childPid, &childStatus, WNOHANG);
   if (waitResult > 0)
   {
-    m_iExitCode = WEXITSTATUS(childStatus);
+    m_iExitCode = GetExitCodeFromWaitStatus(childStatus);
     m_pImpl->m_exitCodeAvailable = true;
 
     m_pImpl->StopStreamWatcher();

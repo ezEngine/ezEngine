@@ -191,11 +191,19 @@ void ezOffscreenRendererTest::AfterCoreSystemsStartup()
   m_pChannel = ezIpcChannel::CreatePipeChannel(ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-IPC"), ezIpcChannel::Mode::Client);
   m_pProtocol = EZ_DEFAULT_NEW(ezIpcProcessMessageProtocol, m_pChannel.Borrow());
   m_pProtocol->m_MessageEvent.AddEventHandler(ezMakeDelegate(&ezOffscreenRendererTest::MessageFunc, this));
-  m_pChannel->Connect();
+  EZ_TEST_RESULT(m_pChannel->Connect());
 
-  while (!m_pChannel->IsConnected())
+  while (m_pChannel->GetConnectionState() == ezIpcChannel::ConnectionState::Connecting)
   {
     ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(16));
+  }
+
+  if (m_pChannel->GetConnectionState() != ezIpcChannel::ConnectionState::Connected)
+  {
+    ezLog::Error("Failed to connect to host process");
+    SetReturnCode(-4);
+    QuitApplication();
+    return;
   }
 
   ezStartup::StartupHighLevelSystems();

@@ -75,9 +75,11 @@ public:
 
   static ezInternal::NewInstance<ezIpcChannel> CreateNetworkChannel(ezStringView sAddress, Mode::Enum mode);
 
+  ezEnum<Mode> GetMode() const { return m_Mode;}
+  ezStringView GetAddress() const { return m_sAddress; }
 
-  /// \brief Connects async. On success, m_Events will be broadcasted.
-  void Connect();
+  /// \brief Connects async. Returns whether the state was changed from Disconnected to Connecting.
+  ezResult Connect();
   /// \brief Disconnect async. On completion, m_Events will be broadcasted.
   void Disconnect();
   /// \brief Returns whether we have a connection.
@@ -114,6 +116,7 @@ protected:
   /// \brief Called by Send to determine whether the message loop need to be woken up.
   virtual bool NeedWakeup() const = 0;
 
+  /// \brief Sets the connection state and calls LogAndBroadcastConnectionState.
   void SetConnectionState(ezEnum<ConnectionState> state);
   /// \brief Implementation needs to call this when new data has been received.
   ///  data can be invalidated after the function.
@@ -121,6 +124,8 @@ protected:
   void FlushPendingOperations();
 
 private:
+  void LogAndBroadcastConnectionState(ezEnum<ConnectionState> previousState, ezEnum<ConnectionState> currentState);
+
 protected:
   enum Constants : ezUInt32
   {

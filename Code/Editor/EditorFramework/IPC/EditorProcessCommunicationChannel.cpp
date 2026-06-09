@@ -24,14 +24,22 @@ ezResult ezEditorProcessCommunicationChannel::StartClientProcess(const char* szP
   sMemName.SetFormat("{0}", ezArgU(uiUniqueHash, 16, true, 16, true));
   ++uiUniqueHash;
 
+  ezResult res = EZ_SUCCESS;
   if (bRemote)
   {
-    CreateAndConnectChannel(ezIpcChannel::CreateNetworkChannel("172.16.80.3:1050", ezIpcChannel::Mode::Client));
+    res = CreateAndConnectChannel(ezIpcChannel::CreateNetworkChannel("172.16.80.3:1050", ezIpcChannel::Mode::Client));
   }
   else
   {
-    CreateAndConnectChannel(ezIpcChannel::CreatePipeChannel(sMemName, ezIpcChannel::Mode::Server));
+    res = CreateAndConnectChannel(ezIpcChannel::CreatePipeChannel(sMemName, ezIpcChannel::Mode::Server));
   }
+  if (res.Failed())
+  {
+    ezLog::Error("IpcChannel: CreateAndConnectChannel failed");
+    CloseConnection();
+    return EZ_FAILURE;
+  }
+
   for (ezUInt32 i = 0; i < 100; i++)
   {
     if (m_pChannel->GetConnectionState() == ezIpcChannel::ConnectionState::Connecting)
@@ -117,11 +125,16 @@ ezResult ezEditorProcessRemoteCommunicationChannel::ConnectToServer(const char* 
   EZ_LOG_BLOCK("ezEditorProcessRemoteCommunicationChannel::ConnectToServer");
   EZ_ASSERT_DEV(m_pChannel == nullptr, "ProcessCommunication object already in use");
   m_pFirstAllowedMessageType = nullptr;
-  CreateAndConnectChannel(ezIpcChannel::CreateNetworkChannel(szAddress, ezIpcChannel::Mode::Client));
+  if (CreateAndConnectChannel(ezIpcChannel::CreateNetworkChannel(szAddress, ezIpcChannel::Mode::Client)).Failed())
+  {
+    ezLog::Error("IpcChannel: CreateAndConnectChannel failed");
+    CloseConnection();
+    return EZ_FAILURE;
+  }
 
   for (ezUInt32 i = 0; i < 200; i++)
   {
-    if (m_pChannel->GetConnectionState() == ezIpcChannel::ConnectionState::Connected)
+    if (m_pChannel->GetConnectionState() != ezIpcChannel::ConnectionState::Connecting)
       break;
 
     ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(10));
@@ -149,8 +162,8 @@ void ezEditorProcessRemoteCommunicationChannel::CloseConnection()
 
 void ezEditorProcessRemoteCommunicationChannel::TryConnect()
 {
-  if (m_pChannel && !m_pChannel->IsConnected())
+  if (m_pChannel && m_pChannel->GetConnectionState() == ezIpcChannel::ConnectionState::Disconnected)
   {
-    m_pChannel->Connect();
+    m_pChannel->Connect().IgnoreResult();
   }
 }

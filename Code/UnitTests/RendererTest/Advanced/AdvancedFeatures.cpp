@@ -268,7 +268,7 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
     m_pChannel = ezIpcChannel::CreatePipeChannel(sIPC, ezIpcChannel::Mode::Server);
     m_pProtocol = EZ_DEFAULT_NEW(ezIpcProcessMessageProtocol, m_pChannel.Borrow());
     m_pProtocol->m_MessageEvent.AddEventHandler(ezMakeDelegate(&ezRendererTestAdvancedFeatures::OffscreenProcessMessageFunc, this));
-    m_pChannel->Connect();
+    EZ_SUCCEED_OR_RETURN(m_pChannel->Connect());
     while (m_pChannel->GetConnectionState() != ezIpcChannel::ConnectionState::Connecting)
     {
       ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(16));
@@ -284,7 +284,7 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
       m_SharedTextureQueue.PushBack({i, 0});
     }
 
-    while (!m_pChannel->IsConnected())
+    while (m_pChannel->GetConnectionState() == ezIpcChannel::ConnectionState::Connecting)
     {
       ezThreadUtils::Sleep(ezTime::MakeFromMilliseconds(16));
       if (m_pOffscreenProcess->GetState() == ezProcessState::Finished)
@@ -293,6 +293,12 @@ ezResult ezRendererTestAdvancedFeatures::InitializeSubTest(ezInt32 iIdentifier)
         ezLog::Error("Process exited prematurely with code: {}", uiExitCode);
         return EZ_FAILURE;
       }
+    }
+
+    if (m_pChannel->GetConnectionState() != ezIpcChannel::ConnectionState::Connected)
+    {
+      ezLog::Error("Failed to connect to offscreen process");
+      return EZ_FAILURE;
     }
 
     ezOffscreenTest_OpenMsg msg;

@@ -61,7 +61,7 @@ ezPipeChannel_linux::~ezPipeChannel_linux()
 
 void ezPipeChannel_linux::InternalConnect()
 {
-  if (GetConnectionState() != ConnectionState::Disconnected)
+  if (GetConnectionState() != ConnectionState::Connecting)
     return;
 
   int& targetSocket = (m_Mode == Mode::Server) ? m_serverSocketFd : m_clientSocketFd;
@@ -74,6 +74,7 @@ void ezPipeChannel_linux::InternalConnect()
     if (targetSocket == -1)
     {
       ezLog::Error("[IPC]Failed to create unix domain socket. error {}", errno);
+      SetConnectionState(ConnectionState::Disconnected);
       return;
     }
 
@@ -88,6 +89,7 @@ void ezPipeChannel_linux::InternalConnect()
       ezLog::Error("[IPC]Given ipc channel address is to long. Resulting path '{}' path length limit {}", strlen(thisSocketPath), EZ_ARRAY_SIZE(addr.sun_path) - 1);
       close(targetSocket);
       targetSocket = -1;
+      SetConnectionState(ConnectionState::Disconnected);
       return;
     }
 
@@ -97,6 +99,7 @@ void ezPipeChannel_linux::InternalConnect()
       ezLog::Error("[IPC]Failed to bind unix domain socket to '{}' error {}", thisSocketPath, errno);
       close(targetSocket);
       targetSocket = -1;
+      SetConnectionState(ConnectionState::Disconnected);
       return;
     }
   }
@@ -105,19 +108,24 @@ void ezPipeChannel_linux::InternalConnect()
   {
     if (m_serverSocketFd < 0)
     {
+      SetConnectionState(ConnectionState::Disconnected);
       return;
     }
-    listen(m_serverSocketFd, 1);
-    SetConnectionState(ConnectionState::Connecting);
+    if (listen(m_serverSocketFd, 1) != 0)
+    {
+      ezLog::Error("[IPC]Failed to listen on unix domain socket. Error {}", errno);
+      SetConnectionState(ConnectionState::Disconnected);
+      return;
+    }
     static_cast<ezMessageLoop_linux*>(m_pOwner)->RegisterWait(this, ezMessageLoop_linux::WaitType::Accept, m_serverSocketFd);
   }
   else
   {
     if (m_clientSocketFd < 0)
     {
+      SetConnectionState(ConnectionState::Disconnected);
       return;
     }
-    SetConnectionState(ConnectionState::Connecting);
     struct sockaddr_un serverAddress = {};
     serverAddress.sun_family = AF_UNIX;
     strcpy(serverAddress.sun_path, m_serverSocketPath.GetData());
@@ -230,6 +238,15 @@ bool ezPipeChannel_linux::NeedWakeup() const
 
 void ezPipeChannel_linux::ProcessConnectSuccessfull()
 {
+  int errorCode = 0;
+  socklen_t errorCodeSize = sizeof(errorCode);
+  if (getsockopt(m_clientSocketFd, SOL_SOCKET, SO_ERROR, &errorCode, &errorCodeSize) != 0 || errorCode != 0)
+  {
+    ezLog::Error("[IPC]Failed to connect unix domain socket. Error {}", errorCode != 0 ? errorCode : errno);
+    InternalDisconnect();
+    return;
+  }
+
   SetConnectionState(ConnectionState::Connected);
 
   // We are connected. Register for incoming messages events.

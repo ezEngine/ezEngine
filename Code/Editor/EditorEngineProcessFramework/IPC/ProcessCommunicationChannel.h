@@ -44,7 +44,7 @@ public:
 protected:
   void OnIpcProtocolEvent(const ezIpcProcessMessageProtocol::Event& msg);
   void OnIpcChannelEvent(const ezIpcChannelEvent& msg);
-  void CreateAndConnectChannel(ezInternal::NewInstance<ezIpcChannel>&& channel);
+  ezResult CreateAndConnectChannel(ezInternal::NewInstance<ezIpcChannel>&& channel);
   void DestroyChannel();
   ezUniquePtr<ezIpcProcessMessageProtocol> m_pProtocol;
   ezUniquePtr<ezIpcChannel> m_pChannel;
