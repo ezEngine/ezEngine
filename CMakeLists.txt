@@ -11,7 +11,9 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.git/HEAD")
 endif()
 
 # Set CMake policies
-cmake_policy(SET CMP0194 NEW)
+if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "4.1")
+  cmake_policy(SET CMP0194 NEW)
+endif()
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/ezCMakeConfig.cmake")
 get_property(EZ_CMAKE_RELPATH GLOBAL PROPERTY EZ_CMAKE_RELPATH)
