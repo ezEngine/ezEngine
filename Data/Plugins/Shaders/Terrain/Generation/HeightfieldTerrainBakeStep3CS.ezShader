@@ -1,0 +1,142 @@
+/// For each rendered quad cell, determines the top-4 materials across its four corners and
+/// remaps per-corner blend weights relative to that cell-level material set for use in the pixel shader.
+
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[COMPUTESHADER]
+
+#include <Shaders/Common/Common.h>
+#include <Shaders/Terrain/Generation/HeightfieldBakeConstants.h>
+
+/// Finalized material mask from Step2 (read-only). uint2 per stored-grid vertex:
+/// x = mat0|mat1<<8|mat2<<16|mat3<<24, y = w0|w1<<8|w2<<16|w3<<24 (8-bit unorm each).
+/// Fallback weight is implicit: 1 - (w0+w1+w2+w3).
+StructuredBuffer<uint2> BakedMask BIND_GROUP(BG_DRAW_CALL);
+
+/// Per-cell top-4 explicit material indices, sorted ascending by index.
+/// One uint per rendered cell: mat0|mat1<<8|mat2<<16|mat3<<24.
+RWStructuredBuffer<uint> CellMaterials BIND_GROUP(BG_DRAW_CALL);
+
+/// Per-cell-corner 4-weight pack relative to the cell's top-4 material set.
+/// Layout: (cellIndex * 4 + cornerSlot), cornerSlot = TL:0, TR:1, BL:2, BR:3.
+/// Packing: w0|w1<<8|w2<<16|w3<<24 (8-bit unorm). Fallback weight = max(0, 1-w0-w1-w2-w3).
+/// Sentinel 0xFFFFFFFF marks a carved corner; the VS outputs NaN for those vertices.
+RWStructuredBuffer<uint> VertexWeights BIND_GROUP(BG_DRAW_CALL);
+
+void UnpackVertex(uint2 packed, out uint matIdx[4], out float matW[4])
+{
+  matIdx[0] =  packed.x        & 0xFFu;
+  matIdx[1] = (packed.x >>  8) & 0xFFu;
+  matIdx[2] = (packed.x >> 16) & 0xFFu;
+  matIdx[3] = (packed.x >> 24) & 0xFFu;
+  matW[0]   = ( packed.y        & 0xFFu) * (1.0 / 255.0);
+  matW[1]   = ((packed.y >>  8) & 0xFFu) * (1.0 / 255.0);
+  matW[2]   = ((packed.y >> 16) & 0xFFu) * (1.0 / 255.0);
+  matW[3]   = ((packed.y >> 24) & 0xFFu) * (1.0 / 255.0);
+}
+
+/// Compute this corner's 4 weights relative to the cell's top-4 material set, packed as 4 × 8-bit unorm.
+uint ComputeCornerWeights(uint matIdx[4], float matW[4], uint topMat[4])
+{
+  float w[4] = {0.0, 0.0, 0.0, 0.0};
+  for (uint s = 0; s < 4; s++)
+  {
+    const uint  m = matIdx[s];
+    const float wv = matW[s];
+    for (uint t = 0; t < 4; t++)
+    {
+      if (topMat[t] == m) { w[t] += wv; break; }
+    }
+  }
+  // Clamp total to 1.0 — should already be ≤ 1 after Step2, but guard for rounding.
+  float total = w[0] + w[1] + w[2] + w[3];
+  if (total > 1.0)
+  {
+    float inv = 1.0 / total;
+    w[0] *= inv; w[1] *= inv; w[2] *= inv; w[3] *= inv;
+  }
+  return  (uint)(w[0] * 255.0 + 0.5)
+       | ((uint)(w[1] * 255.0 + 0.5) << 8)
+       | ((uint)(w[2] * 255.0 + 0.5) << 16)
+       | ((uint)(w[3] * 255.0 + 0.5) << 24);
+}
+
+[numthreads(16, 16, 1)]
+void main(uint3 DTid : SV_DispatchThreadID)
+{
+  if (DTid.x >= CellsPerSide || DTid.y >= CellsPerSide)
+    return;
+
+  const uint cx = DTid.x;
+  const uint cy = DTid.y;
+  const uint firstVtx = 4 * VertexIdxPitch + 4;
+
+  // Corner order: TL=0, TR=1, BL=2, BR=3 — matches CornerSlot[] in the VS.
+  const uint vtxIdx[4] =
+  {
+    firstVtx + (cy + 0) * VertexIdxPitch + (cx + 0), // TL
+    firstVtx + (cy + 0) * VertexIdxPitch + (cx + 1), // TR
+    firstVtx + (cy + 1) * VertexIdxPitch + (cx + 0), // BL
+    firstVtx + (cy + 1) * VertexIdxPitch + (cx + 1), // BR
+  };
+
+  // Unpack all 4 corner vertices; track which are carved.
+  uint  vMatIdx[4][4];
+  float vMatW  [4][4];
+  bool  vCarved[4];
+  for (uint v = 0; v < 4; v++)
+  {
+    UnpackVertex(BakedMask[vtxIdx[v]], vMatIdx[v], vMatW[v]);
+    vCarved[v] = (vMatIdx[v][0] == 0xFFu);
+  }
+
+  // Gather unique material indices from non-carved corners, accumulating total weight.
+  uint  uMat[16];
+  float uW  [16];
+  uint  uCount = 0u;
+  for (uint i = 0; i < 16; i++) { uMat[i] = 0u; uW[i] = 0.0; }
+
+  for (uint v = 0; v < 4; v++)
+  {
+    if (vCarved[v]) continue;
+    for (uint s = 0; s < 4; s++)
+    {
+      const uint  m = vMatIdx[v][s];
+      const float w = vMatW  [v][s];
+      if (m == 0xFFu || w <= 0.0) continue;
+      bool found = false;
+      for (uint u = 0; u < uCount; u++)
+      {
+        if (uMat[u] == m) { uW[u] += w; found = true; break; }
+      }
+      if (!found && uCount < 16u) { uMat[uCount] = m; uW[uCount] = w; uCount++; }
+    }
+  }
+
+  // Partial insertion sort: keep top 4 by total weight.
+  uint  topMat[4] = {0u, 0u, 0u, 0u};
+  float topW  [4] = {-1.0, -1.0, -1.0, -1.0};
+  for (uint u = 0; u < uCount; u++)
+  {
+    if (uW[u] > topW[3])
+    {
+      topMat[3] = uMat[u]; topW[3] = uW[u];
+      if (topW[3] > topW[2]) { uint tm = topMat[2]; float tw = topW[2]; topMat[2] = topMat[3]; topW[2] = topW[3]; topMat[3] = tm; topW[3] = tw; }
+      if (topW[2] > topW[1]) { uint tm = topMat[1]; float tw = topW[1]; topMat[1] = topMat[2]; topW[1] = topW[2]; topMat[2] = tm; topW[2] = tw; }
+      if (topW[1] > topW[0]) { uint tm = topMat[0]; float tw = topW[0]; topMat[0] = topMat[1]; topW[0] = topW[1]; topMat[1] = tm; topW[1] = tw; }
+    }
+  }
+
+  // Write per-cell material indices in descending-weight order (slot 0 = most dominant material).
+  // This keeps the most influential materials in the lowest slots so TERRAIN_LAYER_COUNT < 5
+  // only drops the least significant ones.
+  CellMaterials[cy * CellsPerSide + cx] = (topMat[0] & 0xFFu) | ((topMat[1] & 0xFFu) << 8) | ((topMat[2] & 0xFFu) << 16) | ((topMat[3] & 0xFFu) << 24);
+
+  // Write per-cell-corner weights. Each corner has a unique slot — no inter-thread write conflicts.
+  const uint cellBase = (cy * CellsPerSide + cx) * 4u;
+  for (uint v = 0; v < 4; v++)
+    VertexWeights[cellBase + v] = vCarved[v] ? 0xFFFFFFFFu : ComputeCornerWeights(vMatIdx[v], vMatW[v], topMat);
+}

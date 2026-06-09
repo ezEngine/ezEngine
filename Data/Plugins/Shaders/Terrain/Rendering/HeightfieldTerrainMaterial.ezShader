@@ -1,0 +1,262 @@
+/// Renders the heightfield terrain mesh using triplanar texture projection, blending up to four
+/// explicit material layers plus a fallback material based on baked per-vertex weights.
+
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+BLEND_MODE = BLEND_MODE_OPAQUE
+RENDER_PASS
+SHADING_MODE = SHADING_MODE_LIT
+TWO_SIDED = FALSE
+FLIP_WINDING = FALSE
+FORWARD_PASS_WRITE_DEPTH
+MSAA
+CAMERA_MODE
+SHADING_QUALITY
+MATERIAL_PREVIEW
+
+[MATERIALPARAMETER]
+
+Permutation BLEND_MODE;
+Permutation SHADING_MODE;
+Permutation TWO_SIDED;
+
+Texture2DArray LayerBaseTexture;
+Texture2DArray LayerNormalTexture;
+Texture2DArray LayerRoughnessTexture;
+
+/// World-space scale applied to triplanar UVs. Smaller values tile the texture more coarsely.
+float TextureScale @Default(0.5) @Clamp(0.001, 100.0);
+
+float RoughnessBias @Default(0.0) @Clamp(-1.0, 1.0);
+float MetallicValue @Default(0.0) @Clamp(0.0, 1.0);
+
+int2 Material0TextureIndex @Default(0) @Clamp(0, 255);
+int2 Material1TextureIndex @Default(0) @Clamp(0, 255);
+int2 Material2TextureIndex @Default(0) @Clamp(0, 255);
+int2 Material3TextureIndex @Default(0) @Clamp(0, 255);
+int2 Material4TextureIndex @Default(0) @Clamp(0, 255);
+int2 Material5TextureIndex @Default(0) @Clamp(0, 255);
+int2 Material6TextureIndex @Default(0) @Clamp(0, 255);
+int2 Material7TextureIndex @Default(0) @Clamp(0, 255);
+
+[MATERIALCONFIG]
+
+#include <Shaders/Materials/MaterialConfig.h>
+
+[RENDERSTATE]
+
+#include <Shaders/Materials/MaterialState.h>
+
+[MATERIALCONSTANTS]
+
+FLOAT1(TextureScale);
+FLOAT1(RoughnessBias);
+FLOAT1(MetallicValue);
+
+INT2(Material0TextureIndex);
+INT2(Material1TextureIndex);
+INT2(Material2TextureIndex);
+INT2(Material3TextureIndex);
+INT2(Material4TextureIndex);
+INT2(Material5TextureIndex);
+INT2(Material6TextureIndex);
+INT2(Material7TextureIndex);
+
+[SHADER]
+
+#define USE_NORMAL
+#define USE_TANGENT
+#define USE_TEXCOORD0
+#define USE_SIMPLE_MATERIAL_MODEL
+#define USE_FOG
+#define USE_DECALS
+#define NO_SCREEN_SPACE_TECHNIQUES // deactivate AO on terrain geometry
+#define TERRAIN_LAYER_COUNT 5
+
+/// Custom interpolator carrying w2 (x) and w3 (y) from the VS to the PS.
+/// w0 and w1 are in TexCoord0.xy; w_fallback is reconstructed in the PS.
+#define CUSTOM_INTERPOLATOR float2 MatWeightsHi : TEXCOORD2;
+
+[VERTEXSHADER]
+
+#define USE_WORLDPOS
+#define USE_DATAOFFSETS
+
+#if MATERIAL_PREVIEW
+
+#include <Shaders/Materials/MaterialVertexShader.h>
+
+VS_OUT main(VS_IN Input)
+{
+  return FillVertexData(Input);
+}
+
+#else
+
+#include <Shaders/Terrain/Rendering/HeightfieldTerrainVS.h>
+
+VS_OUT main(uint VertexID : SV_VertexID)
+{
+  return FillHeightfieldTerrainVertexOutput(VertexID);
+}
+
+#endif
+
+[PIXELSHADER]
+
+#define CUSTOM_GLOBALS                 \
+  float3 TpWeights;                   \
+  float  Scale;                       \
+  uint2  TexIndices1;                 \
+  uint2  TexIndices2;                 \
+  uint2  TexIndices3;                 \
+  uint2  TexIndices4;                 \
+  uint2  TexIndicesFallback;          \
+  float  MatWeight0;                  \
+  float  MatWeight1;                  \
+  float  MatWeight2;                  \
+  float  MatWeight3;                  \
+  float  MatWeightFallback;
+
+#include <Shaders/Materials/MaterialPixelShader.h>
+#include <Shaders/Terrain/Rendering/TerrainLayerSampling.h>
+#include <Shaders/Terrain/Rendering/HeightfieldRenderConstants.h>
+
+Texture2DArray LayerBaseTexture BIND_GROUP(BG_MATERIAL);
+SamplerState LayerBaseTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
+
+Texture2DArray LayerNormalTexture BIND_GROUP(BG_MATERIAL);
+SamplerState LayerNormalTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
+
+Texture2DArray LayerRoughnessTexture BIND_GROUP(BG_MATERIAL);
+SamplerState LayerRoughnessTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
+
+/// Reads the cell-level material set and per-pixel blend weights from the VS interpolants.
+///
+/// DataOffsets.y (nointerpolation) carries 4 cell-level material indices (sorted ascending by index),
+/// identical for all 6 vertices of the cell. TexCoord0.xy carries w0/w1, MatWeightsHi.xy carries w2/w3.
+/// The fallback material slot index comes from the FallbackMaterialSlot push constant.
+/// TERRAIN_LAYER_COUNT controls how many explicit slots are active (3=2 explicit, 4=3 explicit, 5=4 explicit).
+void SampleTerrainMask()
+{
+  const uint packed = G.Input.DataOffsets.y;
+  const uint matIdx0 =  packed        & 0xFFu;
+  const uint matIdx1 = (packed >>  8) & 0xFFu;
+  const uint matIdx2 = (packed >> 16) & 0xFFu;
+  const uint matIdx3 = (packed >> 24) & 0xFFu;
+
+  const float w0 = G.Input.TexCoord0.x;
+  const float w1 = G.Input.TexCoord0.y;
+  const float w2 = G.Input.MatWeightsHi.x;
+  const float w3 = G.Input.MatWeightsHi.y;
+
+  const uint fallbackIdx = GET_PUSH_CONSTANT(HeightfieldRenderConstants, FallbackMaterialSlot);
+
+  int2 MatTextureIndices[8] = { GetMaterialData(Material0TextureIndex), GetMaterialData(Material1TextureIndex), GetMaterialData(Material2TextureIndex), GetMaterialData(Material3TextureIndex), GetMaterialData(Material4TextureIndex), GetMaterialData(Material5TextureIndex), GetMaterialData(Material6TextureIndex), GetMaterialData(Material7TextureIndex) };
+
+  G.TexIndices1 = MatTextureIndices[clamp(matIdx0, 0u, 7u)];
+  G.TexIndices2 = MatTextureIndices[clamp(matIdx1, 0u, 7u)];
+  G.TexIndices3 = MatTextureIndices[clamp(matIdx2, 0u, 7u)];
+  G.TexIndices4 = MatTextureIndices[clamp(matIdx3, 0u, 7u)];
+  G.TexIndicesFallback = MatTextureIndices[clamp(fallbackIdx, 0u, 7u)];
+
+  G.MatWeight0 = w0;
+  G.MatWeight1 = w1;
+
+  #if TERRAIN_LAYER_COUNT >= 5
+    G.MatWeight2 = w2;
+    G.MatWeight3 = w3;
+    G.MatWeightFallback = max(0.0, 1.0 - w0 - w1 - w2 - w3);
+  #elif TERRAIN_LAYER_COUNT >= 4
+    G.MatWeight2 = w2;
+    G.MatWeight3 = 0.0;
+    G.MatWeightFallback = max(0.0, 1.0 - w0 - w1 - w2);
+  #else // TERRAIN_LAYER_COUNT == 3
+    G.MatWeight2 = 0.0;
+    G.MatWeight3 = 0.0;
+    G.MatWeightFallback = max(0.0, 1.0 - w0 - w1);
+  #endif
+}
+
+void FillCustomGlobals()
+{
+  G.TpWeights = TriplanarWeights(G.Input.Normal);
+  G.Scale = GetMaterialData(TextureScale);
+  SampleTerrainMask();
+}
+
+float3 GetNormal()
+{
+  const float3 n0 = TriplanarSampleNormalArray(LayerNormalTexture, LayerNormalTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.TexIndices1);
+  const float3 n1 = TriplanarSampleNormalArray(LayerNormalTexture, LayerNormalTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.TexIndices2);
+
+  float3 result = n0 * G.MatWeight0 + n1 * G.MatWeight1;
+
+  #if TERRAIN_LAYER_COUNT >= 4
+    const float3 n2 = TriplanarSampleNormalArray(LayerNormalTexture, LayerNormalTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.TexIndices3);
+    result += n2 * G.MatWeight2;
+  #endif
+
+  #if TERRAIN_LAYER_COUNT >= 5
+    const float3 n3 = TriplanarSampleNormalArray(LayerNormalTexture, LayerNormalTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.TexIndices4);
+    result += n3 * G.MatWeight3;
+  #endif
+
+  const float3 nFallback = TriplanarSampleNormalArray(LayerNormalTexture, LayerNormalTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.TexIndicesFallback);
+  result += nFallback * G.MatWeightFallback;
+
+  return normalize(result);
+}
+
+float3 GetBaseColor()
+{
+  const float3 c0 = TriplanarSampleColorArray(LayerBaseTexture, LayerBaseTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.TexIndices1).rgb;
+  const float3 c1 = TriplanarSampleColorArray(LayerBaseTexture, LayerBaseTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.TexIndices2).rgb;
+
+  float3 result = c0 * G.MatWeight0 + c1 * G.MatWeight1;
+
+  #if TERRAIN_LAYER_COUNT >= 4
+    const float3 c2 = TriplanarSampleColorArray(LayerBaseTexture, LayerBaseTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.TexIndices3).rgb;
+    result += c2 * G.MatWeight2;
+  #endif
+
+  #if TERRAIN_LAYER_COUNT >= 5
+    const float3 c3 = TriplanarSampleColorArray(LayerBaseTexture, LayerBaseTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.TexIndices4).rgb;
+    result += c3 * G.MatWeight3;
+  #endif
+
+  const float3 cFallback = TriplanarSampleColorArray(LayerBaseTexture, LayerBaseTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.TexIndicesFallback).rgb;
+  result += cFallback * G.MatWeightFallback;
+
+  return result;
+}
+
+float GetRoughness()
+{
+  const float r0 = TriplanarSampleColorArray(LayerRoughnessTexture, LayerRoughnessTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.TexIndices1).r;
+  const float r1 = TriplanarSampleColorArray(LayerRoughnessTexture, LayerRoughnessTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.TexIndices2).r;
+
+  float result = r0 * G.MatWeight0 + r1 * G.MatWeight1;
+
+  #if TERRAIN_LAYER_COUNT >= 4
+    const float r2 = TriplanarSampleColorArray(LayerRoughnessTexture, LayerRoughnessTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.TexIndices3).r;
+    result += r2 * G.MatWeight2;
+  #endif
+
+  #if TERRAIN_LAYER_COUNT >= 5
+    const float r3 = TriplanarSampleColorArray(LayerRoughnessTexture, LayerRoughnessTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.TexIndices4).r;
+    result += r3 * G.MatWeight3;
+  #endif
+
+  const float rFallback = TriplanarSampleColorArray(LayerRoughnessTexture, LayerRoughnessTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.TexIndicesFallback).r;
+  result += rFallback * G.MatWeightFallback;
+
+  return result + GetMaterialData(RoughnessBias);
+}
+
+float GetMetallic()    { return GetMaterialData(MetallicValue); }
+float GetReflectance() { return 0.5f; }
+float GetOpacity()     { return 1.0f; }

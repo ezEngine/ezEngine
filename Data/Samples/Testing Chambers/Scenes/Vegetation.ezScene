@@ -11,17 +11,21 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5610093527764820148,5219027326469845793}}
-		u4 %Hash{16117084484962545771}
+		u4 %Hash{13113950543545671831}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
 		{
+			s{"{ 14bf3313-89f3-4692-873c-d127980bf748 }"}
+			s{"{ 2987eede-0d7c-4750-9043-0215249e52c0 }"}
 			s{"{ 330fcf7d-fc4f-93cc-0fe4-55516ffd1dbe }"}
 			s{"{ 3ebb6609-8d64-436d-a723-446175509e0d }"}
+			s{"{ 491578b5-9856-4b38-aca7-1b8c709bd1d4 }"}
 			s{"{ 6f17c604-4d55-401f-9d18-55acceff3215 }"}
+			s{"{ 7dd16d0c-a7cf-47d4-8356-0ad854b37c24 }"}
+			s{"{ 989c1728-7423-471a-a653-9789a0e8cc28 }"}
 			s{"{ c825b772-d9a8-4666-b265-6a2711b17dad }"}
 			s{"{ cd62149a-5812-44fc-a00c-29c09ee8fef2 }"}
-			s{"{ ebd75409-6534-49dc-a7a3-ef5bfab657ec }"}
 			s{"{ f1b42973-eff4-405c-bab5-9174aedb999b }"}
 		}
 		VarArray %References
@@ -29,8 +33,8 @@ o
 			s{"{ 330fcf7d-fc4f-93cc-0fe4-55516ffd1dbe }"}
 			s{"{ 3ebb6609-8d64-436d-a723-446175509e0d }"}
 			s{"{ 6f17c604-4d55-401f-9d18-55acceff3215 }"}
+			s{"{ 989c1728-7423-471a-a653-9789a0e8cc28 }"}
 			s{"{ c825b772-d9a8-4666-b265-6a2711b17dad }"}
-			s{"{ ebd75409-6534-49dc-a7a3-ef5bfab657ec }"}
 			s{"{ f1b42973-eff4-405c-bab5-9174aedb999b }"}
 		}
 		s %Tags{""}
@@ -39,6 +43,61 @@ o
 }
 Objects
 {
+o
+{
+	Uuid %id{u4{1947584067647438783,2122322174217984701}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{7700804308116829100,2601260444340485067}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x000048C3,0,0x000048C2}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{7700804308116829100,2601260444340485067}}
+	s %t{"ezTerrainPatchComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		u1 %BaseMaterialIndex{0}
+		s %Collider{"ezTerrainPatchColliderMode::QuarterResolution"}
+		s %HeightImage{"{ c825b772-d9a8-4666-b265-6a2711b17dad }"}
+		Vec2 %HeightImageOffset{f{0,0x0000003F}}
+		Vec2 %HeightImageSize{f{0x0000003F,0x0000003F}}
+		f %HeightScale{0x00004842}
+		s %Material{"{ 989c1728-7423-471a-a653-9789a0e8cc28 }"}
+		s %Resolution{"ezTerrainResolution::Res256"}
+		f %Size{0x00004843}
+		VarArray %Surfaces
+		{
+			s{"{ 491578b5-9856-4b38-aca7-1b8c709bd1d4 }"}
+			s{"{ 491578b5-9856-4b38-aca7-1b8c709bd1d4 }"}
+			s{"{ 2987eede-0d7c-4750-9043-0215249e52c0 }"}
+			s{"{ 14bf3313-89f3-4692-873c-d127980bf748 }"}
+			s{"{ 14bf3313-89f3-4692-873c-d127980bf748 }"}
+			s{"{ 7dd16d0c-a7cf-47d4-8356-0ad854b37c24 }"}
+		}
+		VarArray %TerrainTags{}
+	}
+}
 o
 {
 	Uuid %id{u4{3739301098285028032,4732982985170039779}}
@@ -134,25 +193,6 @@ o
 			s{"PlantGrass"}
 			s{"VegetationMask"}
 		}
-	}
-}
-o
-{
-	Uuid %id{u4{6983789697874287837,4864524799999929777}}
-	s %t{"ezHeightfieldComponent"}
-	u3 %v{2}
-	p
-	{
-		b %Active{1}
-		Vec2u %ColMeshTesselation{u3{128,128}}
-		b %GenerateCollision{1}
-		Vec2 %HalfExtents{f{0x00004843,0x00004843}}
-		f %Height{0x00004842}
-		s %HeightfieldImage{"{ c825b772-d9a8-4666-b265-6a2711b17dad }"}
-		s %Material{"{ ebd75409-6534-49dc-a7a3-ef5bfab657ec }"}
-		Vec2u %Tesselation{u3{256,256}}
-		Vec2 %TexCoordOffset{f{0,0}}
-		Vec2 %TexCoordScale{f{0x0000803F,0x0000803F}}
 	}
 }
 o
@@ -272,6 +312,32 @@ o
 }
 o
 {
+	Uuid %id{u4{5788734620718637223,5136412461451796977}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{11541954861188027540,5615350731574297343}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x000048C3,0x000048C3,0x000048C2}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{17650777740968262625,5166333792701518721}}
 	s %t{"ezProcGenBoxExtents"}
 	u3 %v{1}
@@ -304,9 +370,12 @@ o
 		b %Active{1}
 		VarArray %Children
 		{
-			Uuid{u4{10684975021758961885,5528976002230863520}}
 			Uuid{u4{10144051846437525939,4854879346450652356}}
 			Uuid{u4{2191187807568024739,4946034694311616402}}
+			Uuid{u4{5788734620718637223,5136412461451796977}}
+			Uuid{u4{7846768961809558371,10125332005873612008}}
+			Uuid{u4{774345290624313883,15049491609805504156}}
+			Uuid{u4{1947584067647438783,2122322174217984701}}
 		}
 		VarArray %Components{}
 		s %GlobalKey{""}
@@ -355,29 +424,31 @@ o
 }
 o
 {
-	Uuid %id{u4{10684975021758961885,5528976002230863520}}
-	s %t{"ezGameObject"}
+	Uuid %id{u4{11541954861188027540,5615350731574297343}}
+	s %t{"ezTerrainPatchComponent"}
 	u3 %v{1}
 	p
 	{
 		b %Active{1}
-		VarArray %Children{}
-		VarArray %Components
+		u1 %BaseMaterialIndex{0}
+		s %Collider{"ezTerrainPatchColliderMode::QuarterResolution"}
+		s %HeightImage{"{ c825b772-d9a8-4666-b265-6a2711b17dad }"}
+		Vec2 %HeightImageOffset{f{0,0}}
+		Vec2 %HeightImageSize{f{0x0000003F,0x0000003F}}
+		f %HeightScale{0x00004842}
+		s %Material{"{ 989c1728-7423-471a-a653-9789a0e8cc28 }"}
+		s %Resolution{"ezTerrainResolution::Res256"}
+		f %Size{0x00004843}
+		VarArray %Surfaces
 		{
-			Uuid{u4{6983789697874287837,4864524799999929777}}
+			s{"{ 491578b5-9856-4b38-aca7-1b8c709bd1d4 }"}
+			s{"{ 491578b5-9856-4b38-aca7-1b8c709bd1d4 }"}
+			s{"{ 2987eede-0d7c-4750-9043-0215249e52c0 }"}
+			s{"{ 14bf3313-89f3-4692-873c-d127980bf748 }"}
+			s{"{ 14bf3313-89f3-4692-873c-d127980bf748 }"}
+			s{"{ 7dd16d0c-a7cf-47d4-8356-0ad854b37c24 }"}
 		}
-		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0,0,0}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
-		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{""}
-		VarArray %Tags
-		{
-			s{"AutoColMesh"}
-			s{"SkyLight"}
-		}
+		VarArray %TerrainTags{}
 	}
 }
 o
@@ -437,6 +508,32 @@ o
 }
 o
 {
+	Uuid %id{u4{7846768961809558371,10125332005873612008}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{13599989202278948688,10604270275996112374}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0x000048C3,0x000048C2}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{11361342443737660530,10452096935231231658}}
 	s %t{"ezProcPlacementComponent"}
 	u3 %v{1}
@@ -479,6 +576,35 @@ o
 }
 o
 {
+	Uuid %id{u4{13599989202278948688,10604270275996112374}}
+	s %t{"ezTerrainPatchComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		u1 %BaseMaterialIndex{0}
+		s %Collider{"ezTerrainPatchColliderMode::QuarterResolution"}
+		s %HeightImage{"{ c825b772-d9a8-4666-b265-6a2711b17dad }"}
+		Vec2 %HeightImageOffset{f{0x0000003F,0}}
+		Vec2 %HeightImageSize{f{0x0000003F,0x0000003F}}
+		f %HeightScale{0x00004842}
+		s %Material{"{ 989c1728-7423-471a-a653-9789a0e8cc28 }"}
+		s %Resolution{"ezTerrainResolution::Res256"}
+		f %Size{0x00004843}
+		VarArray %Surfaces
+		{
+			s{"{ 491578b5-9856-4b38-aca7-1b8c709bd1d4 }"}
+			s{"{ 491578b5-9856-4b38-aca7-1b8c709bd1d4 }"}
+			s{"{ 2987eede-0d7c-4750-9043-0215249e52c0 }"}
+			s{"{ 14bf3313-89f3-4692-873c-d127980bf748 }"}
+			s{"{ 14bf3313-89f3-4692-873c-d127980bf748 }"}
+			s{"{ 7dd16d0c-a7cf-47d4-8356-0ad854b37c24 }"}
+		}
+		VarArray %TerrainTags{}
+	}
+}
+o
+{
 	Uuid %id{u4{2569169713517342079,10797408207359207188}}
 	s %t{"ezProcGenBoxExtents"}
 	u3 %v{1}
@@ -500,6 +626,61 @@ o
 		VarDict %Parameters{}
 		s %Prefab{"{ 330fcf7d-fc4f-93cc-0fe4-55516ffd1dbe }"}
 		b %ShowShapeIcons{0}
+	}
+}
+o
+{
+	Uuid %id{u4{774345290624313883,15049491609805504156}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{6527565531093704200,15528429879928004522}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0x000048C2}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{6527565531093704200,15528429879928004522}}
+	s %t{"ezTerrainPatchComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		u1 %BaseMaterialIndex{0}
+		s %Collider{"ezTerrainPatchColliderMode::QuarterResolution"}
+		s %HeightImage{"{ c825b772-d9a8-4666-b265-6a2711b17dad }"}
+		Vec2 %HeightImageOffset{f{0x0000003F,0x0000003F}}
+		Vec2 %HeightImageSize{f{0x0000003F,0x0000003F}}
+		f %HeightScale{0x00004842}
+		s %Material{"{ 989c1728-7423-471a-a653-9789a0e8cc28 }"}
+		s %Resolution{"ezTerrainResolution::Res256"}
+		f %Size{0x00004843}
+		VarArray %Surfaces
+		{
+			s{"{ 491578b5-9856-4b38-aca7-1b8c709bd1d4 }"}
+			s{"{ 491578b5-9856-4b38-aca7-1b8c709bd1d4 }"}
+			s{"{ 2987eede-0d7c-4750-9043-0215249e52c0 }"}
+			s{"{ 14bf3313-89f3-4692-873c-d127980bf748 }"}
+			s{"{ 14bf3313-89f3-4692-873c-d127980bf748 }"}
+			s{"{ 7dd16d0c-a7cf-47d4-8356-0ad854b37c24 }"}
+		}
+		VarArray %TerrainTags{}
 	}
 }
 o
@@ -581,16 +762,6 @@ o
 }
 o
 {
-	Uuid %id{u4{2138162702365181393,1210415828151574398}}
-	s %t{"ezDefaultValueAttribute"}
-	u3 %v{1}
-	p
-	{
-		i3 %Value{50}
-	}
-}
-o
-{
 	Uuid %id{u4{16045071413232502618,1822118507243929179}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -642,12 +813,19 @@ o
 }
 o
 {
-	Uuid %id{u4{16652494303440677842,2685547549570310191}}
-	s %t{"ezDefaultValueAttribute"}
+	Uuid %id{u4{17022679703366345737,2362589303538873091}}
+	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
 	{
-		Vec2 %Value{f{0x0000803F,0x0000803F}}
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezAbstractObjectNode"}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -737,24 +915,6 @@ o
 }
 o
 {
-	Uuid %id{u4{16946204693861181262,5241691080114262688}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Attributes
-		{
-			Uuid{u4{18216794572710185453,7715340214069079990}}
-		}
-		s %Category{"ezPropertyCategory::Member"}
-		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"GenerateCollision"}
-		s %Type{"bool"}
-	}
-}
-o
-{
 	Uuid %id{u4{5837165590562654431,6019321076980052009}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -823,6 +983,23 @@ o
 }
 o
 {
+	Uuid %id{u4{7040484280844178216,7235044498528779322}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginTerrain"}
+		VarArray %Properties{}
+		s %TypeName{"ezTerrainPatchColliderMode"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{13649880205026559927,7297274558339895637}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -857,16 +1034,6 @@ o
 }
 o
 {
-	Uuid %id{u4{6072475467796573570,7332413888574927947}}
-	s %t{"ezDefaultValueAttribute"}
-	u3 %v{1}
-	p
-	{
-		Vec2 %Value{f{0,0}}
-	}
-}
-o
-{
 	Uuid %id{u4{11005437603101136476,7368533338987833088}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -884,16 +1051,6 @@ o
 }
 o
 {
-	Uuid %id{u4{18216794572710185453,7715340214069079990}}
-	s %t{"ezDefaultValueAttribute"}
-	u3 %v{1}
-	p
-	{
-		i3 %Value{1}
-	}
-}
-o
-{
 	Uuid %id{u4{15277032590044703488,7884827235263359982}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -906,6 +1063,23 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezWindStrength"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{13987401750059744300,7999434967063670576}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginTerrain"}
+		VarArray %Properties{}
+		s %TypeName{"ezTerrainResolution"}
 		u3 %TypeVersion{1}
 	}
 }
@@ -962,26 +1136,6 @@ o
 }
 o
 {
-	Uuid %id{u4{3439767906222568961,8915306710954096735}}
-	s %t{"ezDefaultValueAttribute"}
-	u3 %v{1}
-	p
-	{
-		Vec2u %Value{u3{64,64}}
-	}
-}
-o
-{
-	Uuid %id{u4{4026240663700018861,9144921175485141374}}
-	s %t{"ezDefaultValueAttribute"}
-	u3 %v{1}
-	p
-	{
-		Vec2 %Value{f{0x00004842,0x00004842}}
-	}
-}
-o
-{
 	Uuid %id{u4{3251891958765718680,9159887340540620231}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -1033,18 +1187,6 @@ o
 }
 o
 {
-	Uuid %id{u4{459496888041108987,9629798129774386001}}
-	s %t{"ezAssetBrowserAttribute"}
-	u3 %v{1}
-	p
-	{
-		s %DependencyFlags{"ezDependencyFlags::Package|ezDependencyFlags::Thumbnail"}
-		s %Filter{";CompatibleAsset_Material;"}
-		s %RequiredTag{""}
-	}
-}
-o
-{
 	Uuid %id{u4{8228401658076077542,9903301473102603301}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -1079,24 +1221,6 @@ o
 }
 o
 {
-	Uuid %id{u4{4931555655218354010,10808081516169544256}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Attributes
-		{
-			Uuid{u4{459496888041108987,9629798129774386001}}
-		}
-		s %Category{"ezPropertyCategory::Member"}
-		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"Material"}
-		s %Type{"ezStringView"}
-	}
-}
-o
-{
 	Uuid %id{u4{17733595291106647553,10998690428477627554}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -1114,42 +1238,6 @@ o
 }
 o
 {
-	Uuid %id{u4{13548577811367302605,11071755070249013719}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Attributes
-		{
-			Uuid{u4{6072475467796573570,7332413888574927947}}
-		}
-		s %Category{"ezPropertyCategory::Member"}
-		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"TexCoordOffset"}
-		s %Type{"ezVec2"}
-	}
-}
-o
-{
-	Uuid %id{u4{11723722861388398602,11101447429791822942}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Attributes
-		{
-			Uuid{u4{3323490717940253454,13240078281976672732}}
-		}
-		s %Category{"ezPropertyCategory::Member"}
-		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"HeightfieldImage"}
-		s %Type{"ezStringView"}
-	}
-}
-o
-{
 	Uuid %id{u4{14700230518358869173,11472901527618371423}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -1162,6 +1250,23 @@ o
 		s %PluginName{"ezEditorPluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezSceneDocumentSettingsBase"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{5655496217235872423,11906811382133843969}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderComponent"}
+		s %PluginName{"ezEditorPluginTerrain"}
+		VarArray %Properties{}
+		s %TypeName{"ezTerrainPatchComponent"}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1201,24 +1306,6 @@ o
 }
 o
 {
-	Uuid %id{u4{507747551448039797,12894743226731186328}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Attributes
-		{
-			Uuid{u4{3439767906222568961,8915306710954096735}}
-		}
-		s %Category{"ezPropertyCategory::Member"}
-		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"ColMeshTesselation"}
-		s %Type{"ezVec2U32"}
-	}
-}
-o
-{
 	Uuid %id{u4{418098879945088000,12933283602628545215}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -1236,46 +1323,6 @@ o
 }
 o
 {
-	Uuid %id{u4{3323490717940253454,13240078281976672732}}
-	s %t{"ezAssetBrowserAttribute"}
-	u3 %v{1}
-	p
-	{
-		s %DependencyFlags{"ezDependencyFlags::Package|ezDependencyFlags::Thumbnail"}
-		s %Filter{";CompatibleAsset_Data_2D;"}
-		s %RequiredTag{""}
-	}
-}
-o
-{
-	Uuid %id{u4{6892060381895927308,14275815048169232914}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Attributes
-		{
-			Uuid{u4{4026240663700018861,9144921175485141374}}
-		}
-		s %Category{"ezPropertyCategory::Member"}
-		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"HalfExtents"}
-		s %Type{"ezVec2"}
-	}
-}
-o
-{
-	Uuid %id{u4{17654592137702273444,14514761658005918797}}
-	s %t{"ezCategoryAttribute"}
-	u3 %v{1}
-	p
-	{
-		s %Category{"Terrain"}
-	}
-}
-o
-{
 	Uuid %id{u4{2947336711354777548,15013008608905564043}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -1289,55 +1336,6 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezEnumBase"}
 		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{1141139756170442795,15633661848414405227}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes
-		{
-			Uuid{u4{17654592137702273444,14514761658005918797}}
-		}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezRenderComponent"}
-		s %PluginName{"ezGameComponentsPlugin"}
-		VarArray %Properties
-		{
-			Uuid{u4{11723722861388398602,11101447429791822942}}
-			Uuid{u4{4931555655218354010,10808081516169544256}}
-			Uuid{u4{6892060381895927308,14275815048169232914}}
-			Uuid{u4{14156313030630152752,17972050405218730197}}
-			Uuid{u4{5252773539436939229,16057962655135348058}}
-			Uuid{u4{13548577811367302605,11071755070249013719}}
-			Uuid{u4{7068800997882447555,17461159107948935986}}
-			Uuid{u4{16946204693861181262,5241691080114262688}}
-			Uuid{u4{507747551448039797,12894743226731186328}}
-		}
-		s %TypeName{"ezHeightfieldComponent"}
-		u3 %TypeVersion{2}
-	}
-}
-o
-{
-	Uuid %id{u4{5252773539436939229,16057962655135348058}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Attributes
-		{
-			Uuid{u4{13488331851196221485,17389294344664844179}}
-		}
-		s %Category{"ezPropertyCategory::Member"}
-		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"Tesselation"}
-		s %Type{"ezVec2U32"}
 	}
 }
 o
@@ -1393,34 +1391,6 @@ o
 }
 o
 {
-	Uuid %id{u4{13488331851196221485,17389294344664844179}}
-	s %t{"ezDefaultValueAttribute"}
-	u3 %v{1}
-	p
-	{
-		Vec2u %Value{u3{128,128}}
-	}
-}
-o
-{
-	Uuid %id{u4{7068800997882447555,17461159107948935986}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Attributes
-		{
-			Uuid{u4{16652494303440677842,2685547549570310191}}
-		}
-		s %Category{"ezPropertyCategory::Member"}
-		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"TexCoordScale"}
-		s %Type{"ezVec2"}
-	}
-}
-o
-{
 	Uuid %id{u4{10743191096997614114,17783734772379841776}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -1451,24 +1421,6 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezReflectedClass"}
 		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{14156313030630152752,17972050405218730197}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Attributes
-		{
-			Uuid{u4{2138162702365181393,1210415828151574398}}
-		}
-		s %Category{"ezPropertyCategory::Member"}
-		Invalid %ConstantValue{}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"Height"}
-		s %Type{"float"}
 	}
 }
 }

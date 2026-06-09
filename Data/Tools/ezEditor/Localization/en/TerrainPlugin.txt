@@ -1,0 +1,16 @@
+# Component Types
+
+ezTerrainBrush2DComponent;Terrain Brush 2D
+ezTerrainBrush3DComponent;Terrain Brush 3D
+ezTerrainPatchComponent;Terrain Patch
+
+# Enums
+
+ezTerrainModifyMode2D::Max;Raise
+ezTerrainModifyMode2D::Min;Lower
+ezTerrainModifyMode2D::Set;Set
+ezTerrainModifyMode2D::OnlyPaint2D;Paint Only
+
+ezTerrainModifyMode3D::Carve;Carve
+ezTerrainModifyMode3D::Add;Fill
+ezTerrainModifyMode3D::OnlyPaint3D;Paint Only

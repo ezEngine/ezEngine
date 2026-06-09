@@ -1,0 +1,193 @@
+/// Evaluates all active terrain brushes against each heightfield vertex, computing the final
+/// vertex height and accumulating material weights. This is the main sculpt/paint step for heightfield terrain.
+
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[COMPUTESHADER]
+
+#include <Shaders/Common/Common.h>
+#include <Shaders/Terrain/Generation/HeightfieldBakeConstants.h>
+#include <Shaders/Terrain/Generation/TerrainBrushData.h>
+#include <Shaders/Terrain/Generation/TerrainUtils.h>
+
+/// Starting heights, might be initialized from image data or all zero.
+StructuredBuffer<float> SourceHeights BIND_GROUP(BG_DRAW_CALL);
+
+/// Output vertex heights.
+RWStructuredBuffer<float> BakedHeights BIND_GROUP(BG_DRAW_CALL);
+
+/// Output material mask per vertex. uint2 packing:
+///   x = matIdx0[7:0] | matIdx1[15:8] | matIdx2[23:16] | matIdx3[31:24]
+///   y = weight0_u8[7:0] | weight1_u8[15:8] | weight2_u8[23:16] | weight3_u8[31:24]
+/// matIdx0 == 0xFF signals a deactivated (carved-away) vertex.
+/// The fallback material's weight is implicit: w_fallback = 1 - (w0 + w1 + w2 + w3).
+RWStructuredBuffer<uint2> BakedMask BIND_GROUP(BG_DRAW_CALL);
+
+/// All active terrain brushes.
+StructuredBuffer<TerrainBrushData> Brushes BIND_GROUP(BG_DRAW_CALL);
+
+/// Blends a material into the four-slot material accumulator.
+/// Raises the weight of an existing slot for the same material, or evicts the weakest slot.
+void BlendMaterial(uint thisMatIdx, float thisMatWeight,
+                   inout uint matIdx0, inout float matWgt0,
+                   inout uint matIdx1, inout float matWgt1,
+                   inout uint matIdx2, inout float matWgt2,
+                   inout uint matIdx3, inout float matWgt3)
+{
+  if (matIdx0 == thisMatIdx)
+    { matWgt0 = max(matWgt0, thisMatWeight); return; }
+  if (matIdx1 == thisMatIdx)
+    { matWgt1 = max(matWgt1, thisMatWeight); return; }
+  if (matIdx2 == thisMatIdx)
+    { matWgt2 = max(matWgt2, thisMatWeight); return; }
+  if (matIdx3 == thisMatIdx)
+    { matWgt3 = max(matWgt3, thisMatWeight); return; }
+
+  // Material not in any slot — evict the weakest slot if this weight is stronger.
+  if (matWgt0 <= matWgt1 && matWgt0 <= matWgt2 && matWgt0 <= matWgt3)
+    { if (thisMatWeight > matWgt0) { matIdx0 = thisMatIdx; matWgt0 = thisMatWeight; } }
+  else if (matWgt1 <= matWgt2 && matWgt1 <= matWgt3)
+    { if (thisMatWeight > matWgt1) { matIdx1 = thisMatIdx; matWgt1 = thisMatWeight; } }
+  else if (matWgt2 <= matWgt3)
+    { if (thisMatWeight > matWgt2) { matIdx2 = thisMatIdx; matWgt2 = thisMatWeight; } }
+  else
+    { if (thisMatWeight > matWgt3) { matIdx3 = thisMatIdx; matWgt3 = thisMatWeight; } }
+}
+
+/// Clears the deactivated sentinel so that a later Add brush can restore a vertex that was carved away earlier in the brush stack.
+void MarkVertexReactivated(inout uint matIdx0, inout float matWgt0)
+{
+  if (matIdx0 == 0xFFu)
+  {
+    matIdx0 = 0u;
+    matWgt0 = 0.0;
+  }
+}
+
+/// Marks a vertex as carved away by a 3D Carve brush.
+/// matIdx0 == 0xFF is the sentinel that signals to downstream passes (e.g. mesh generation) to skip this vertex.
+void MarkVertexDeactivated(inout uint matIdx0, inout float matWgt0,
+                      inout uint matIdx1, inout float matWgt1,
+                      inout uint matIdx2, inout float matWgt2,
+                      inout uint matIdx3, inout float matWgt3)
+{
+  matIdx0 = 0xFFu; matIdx1 = 0u; matIdx2 = 0u; matIdx3 = 0u;
+  matWgt0 = 1.0;   matWgt1 = 0.0; matWgt2 = 0.0; matWgt3 = 0.0;
+}
+
+[numthreads(16, 16, 1)]
+void main(uint3 DTid : SV_DispatchThreadID)
+{
+  if (DTid.x >= VertexIdxPitch || DTid.y >= VertexIdxPitch)
+    return;
+
+  const uint vertexIdx = DTid.y * VertexIdxPitch + DTid.x;
+
+  // VertexIdxPitch includes a 4-vertex border; inner vertex (4,4) maps to local position (0,0).
+  const float2 localVertexPosXY = float2((float)DTid.x - 4.0, (float)DTid.y - 4.0) * GridSpacing;
+
+  float vertexHeight = SourceHeights[vertexIdx];
+
+  uint matIdx0 = 0u, matIdx1 = 0u, matIdx2 = 0u, matIdx3 = 0u;
+  float matWgt0 = 0.0, matWgt1 = 0.0, matWgt2 = 0.0, matWgt3 = 0.0;
+
+  [loop]
+  for (uint brushIdx = 0; brushIdx < BrushCount; ++brushIdx)
+  {
+    UNPACKUINT8(ModifyMode, MaterialIndex, Unused0, Unused1, Brushes[brushIdx].PackedModeMat);
+    UNPACKHALF2(MaterialStrength, Falloff, Brushes[brushIdx].PackedMatStrFalloff);
+    UNPACKHALF2(HalfExtentX, HalfExtentZ, Brushes[brushIdx].PackedExtentsXZ);
+    UNPACKHALF2(HalfExtentYBottom, HalfExtentYTop, Brushes[brushIdx].PackedExtentsY);
+    UNPACKHALF2(InnerRadius, OuterRadius, Brushes[brushIdx].PackedRadii);
+    UNPACKHALF2(NoiseStrength, NoiseFrequency, Brushes[brushIdx].PackedNoise);
+    const float OuterRadiusClamped = max(OuterRadius, 0.001f);
+
+    const float2 toVertex2D = localVertexPosXY - Brushes[brushIdx].Position.xy;
+
+    if (ModifyMode == ezTerrainModifyMode_Carve || ModifyMode == ezTerrainModifyMode_Add || ModifyMode == ezTerrainModifyMode_OnlyPaint3D)
+    {
+      // 3D brush cases
+      const float3 toVertex3D = float3(toVertex2D, vertexHeight - Brushes[brushIdx].Position.z);
+      float distanceToBrush = Brush_Sdf3D(Brushes[brushIdx], toVertex3D);
+
+      Brush_ApplyNoise3D(float3(localVertexPosXY + PatchOrigin, vertexHeight), NoiseStrength, NoiseFrequency, InnerRadius, distanceToBrush);
+
+      if (distanceToBrush > 0.0)
+        continue;
+
+      if (ModifyMode == ezTerrainModifyMode_Add)
+      {
+        // Re-activate vertices that were carved away by an earlier brush in the stack.
+        // Must happen before BlendMaterial so the 0xFF sentinel doesn't block material painting.
+        MarkVertexReactivated(matIdx0, matWgt0);
+      }
+
+      const float thisMatWeight = MaterialStrength * CalculateOuterInfluence(distanceToBrush, OuterRadiusClamped, Falloff);
+
+      if (thisMatWeight > 0.0)
+      {
+        BlendMaterial(MaterialIndex, thisMatWeight, matIdx0, matWgt0, matIdx1, matWgt1, matIdx2, matWgt2, matIdx3, matWgt3);
+      }
+
+      if (ModifyMode == ezTerrainModifyMode_Carve)
+      {
+        // Only deactivate vertices past the outer blend ring; vertices in the outermost GridSpacing stay active for a clean silhouette.
+        if (distanceToBrush + OuterRadius <= GridSpacing)
+        {
+          MarkVertexDeactivated(matIdx0, matWgt0, matIdx1, matWgt1, matIdx2, matWgt2, matIdx3, matWgt3);
+        }
+      }
+    }
+    else
+    {
+      // 2D brush cases
+
+      float distanceToBrushZ;
+      float distanceToBrushXY = Brush_Sdf2D(Brushes[brushIdx], toVertex2D, distanceToBrushZ);
+
+      const float2 worldXY = localVertexPosXY + PatchOrigin;
+      const float noise = Brush_ApplyNoise2D(worldXY, NoiseStrength, NoiseFrequency, OuterRadius, OuterRadiusClamped, distanceToBrushXY);
+
+      if (distanceToBrushXY > 0.0)
+        continue;
+
+      const float weight = CalculateOuterInfluence(distanceToBrushXY, OuterRadiusClamped, Falloff);
+      const float brushHeight = Brushes[brushIdx].Position.z + distanceToBrushZ + noise * NoiseStrength * OuterRadiusClamped;
+
+      if (ModifyMode == ezTerrainModifyMode_Max)
+      {
+        vertexHeight = lerp(vertexHeight, max(vertexHeight, brushHeight), weight);
+      }
+      else if (ModifyMode == ezTerrainModifyMode_Min)
+      {
+        vertexHeight = lerp(vertexHeight, min(vertexHeight, brushHeight), weight);
+      }
+      else if (ModifyMode == ezTerrainModifyMode_Set)
+      {
+        vertexHeight = lerp(vertexHeight, brushHeight, weight);
+      }
+
+      if (MaterialStrength > 0.0)
+      {
+        BlendMaterial(MaterialIndex, weight * MaterialStrength, matIdx0, matWgt0, matIdx1, matWgt1, matIdx2, matWgt2, matIdx3, matWgt3);
+      }
+    }
+  }
+
+  BakedHeights[vertexIdx] = vertexHeight;
+
+  // Pack 4 material indices into .x, 4 weights (8-bit unorm) into .y.
+  // The fallback material's weight is implicit: 1 - (w0 + w1 + w2 + w3).
+  {
+    uint2 outMask;
+    outMask.x = (matIdx0 & 0xFFu) | ((matIdx1 & 0xFFu) << 8) | ((matIdx2 & 0xFFu) << 16) | ((matIdx3 & 0xFFu) << 24);
+    outMask.y = (uint)(saturate(matWgt0) * 255.0 + 0.5)
+              | ((uint)(saturate(matWgt1) * 255.0 + 0.5) << 8)
+              | ((uint)(saturate(matWgt2) * 255.0 + 0.5) << 16)
+              | ((uint)(saturate(matWgt3) * 255.0 + 0.5) << 24);
+    BakedMask[vertexIdx] = outMask;
+  }
+}

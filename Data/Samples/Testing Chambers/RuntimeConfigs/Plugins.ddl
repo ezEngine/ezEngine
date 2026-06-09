@@ -45,6 +45,11 @@ Plugin
 }
 Plugin
 {
+	string %Path{"ezTerrainPlugin"}
+	bool %LoadCopy{false}
+}
+Plugin
+{
 	string %Path{"ezVisualScriptPlugin"}
 	bool %LoadCopy{false}
 }

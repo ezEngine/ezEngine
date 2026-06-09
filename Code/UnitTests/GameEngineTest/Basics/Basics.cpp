@@ -249,6 +249,11 @@ EZ_CREATE_SIMPLE_TEST(00_Init, TransformAngelScript)
 }
 #  endif
 
+EZ_CREATE_SIMPLE_TEST(00_Init, TransformTerrain)
+{
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Terrain/ezProject", 1).Succeeded());
+}
+
 #endif
 
 

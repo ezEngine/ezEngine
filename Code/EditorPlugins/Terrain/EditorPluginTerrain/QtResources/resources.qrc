@@ -1,0 +1,7 @@
+<RCC>
+  <qresource prefix="TypeIcons">
+    <file>ezTerrainPatchComponent.svg</file>
+    <file>ezTerrainBrush2DComponent.svg</file>
+    <file>ezTerrainBrush3DComponent.svg</file>
+  </qresource>
+</RCC>
