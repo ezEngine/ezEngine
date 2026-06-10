@@ -22,6 +22,8 @@ static void ExecuteGraphSync(ezRenderGraph& ref_graph, ezGALDevice* pDevice)
 {
   EZ_VERIFY(ref_graph.Compile().Succeeded(), "Terrain sync render graph compilation failed");
 
+  pDevice->BeginFrame();
+
   ezGALResourceStateTracker tracker(pDevice);
   ref_graph.ComputeBarriers(tracker);
 
@@ -36,6 +38,8 @@ static void ExecuteGraphSync(ezRenderGraph& ref_graph, ezGALDevice* pDevice)
     pEncoder->BufferBarrier(bufBarriers);
 
   pDevice->EndCommands(pEncoder);
+
+  pDevice->EndFrame();
 }
 
 // clang-format off
