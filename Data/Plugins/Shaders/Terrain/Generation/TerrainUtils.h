@@ -3,10 +3,13 @@
 #include <Shaders/Terrain/Generation/TerrainBrushData.h>
 
 /// 2D hash producing a pseudo-random value in [0, 1) from an integer-lattice point.
-/// Cheap sin-based hash. Quality is sufficient for terrain brush noise; replace if banding shows up.
+/// Integer-only arithmetic — fully deterministic across all GPU hardware and driver versions.
 float Hash2D(float2 p)
 {
-  return frac(sin(dot(p, float2(127.1, 311.7))) * 43758.5453);
+  uint2 q = (uint2)(int2(p));
+  q *= uint2(1597334677u, 3812015801u);
+  uint n = (q.x ^ q.y) * 1597334677u;
+  return float(n) * (1.0 / 4294967296.0);
 }
 
 /// 2D value noise on a unit lattice, output in [0, 1].
@@ -32,9 +35,13 @@ float FBM2D(float2 p)
 }
 
 /// 3D hash producing a pseudo-random value in [0, 1).
+/// Integer-only arithmetic — fully deterministic across all GPU hardware and driver versions.
 float Hash3D(float3 p)
 {
-  return frac(sin(dot(p, float3(127.1, 311.7, 74.7))) * 43758.5453);
+  uint3 q = (uint3)(int3(p));
+  q *= uint3(1597334677u, 3812015801u, 2912667907u);
+  uint n = (q.x ^ q.y ^ q.z) * 1597334677u;
+  return float(n) * (1.0 / 4294967296.0);
 }
 
 /// 3D value noise on a unit lattice, output in [0, 1].
