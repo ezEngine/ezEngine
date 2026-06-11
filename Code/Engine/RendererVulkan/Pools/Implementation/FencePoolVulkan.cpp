@@ -4,29 +4,29 @@
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/Pools/FencePoolVulkan.h>
 
-vk::Device ezFencePoolVulkan::s_device;
+vk::Device ezFencePoolVulkan::s_Device;
 ezHybridArray<vk::Fence, 4> ezFencePoolVulkan::s_Fences;
 
 void ezFencePoolVulkan::Initialize(vk::Device device)
 {
-  s_device = device;
+  s_Device = device;
 }
 
 void ezFencePoolVulkan::DeInitialize()
 {
   for (vk::Fence& fence : s_Fences)
   {
-    s_device.destroyFence(fence, nullptr);
+    s_Device.destroyFence(fence, nullptr);
   }
   s_Fences.Clear();
   s_Fences.Compact();
 
-  s_device = nullptr;
+  s_Device = nullptr;
 }
 
 vk::Fence ezFencePoolVulkan::RequestFence()
 {
-  EZ_ASSERT_DEBUG(s_device, "ezFencePoolVulkan::Initialize not called");
+  EZ_ASSERT_DEBUG(s_Device, "ezFencePoolVulkan::Initialize not called");
   if (!s_Fences.IsEmpty())
   {
     vk::Fence Fence = s_Fences.PeekBack();
@@ -37,14 +37,14 @@ vk::Fence ezFencePoolVulkan::RequestFence()
   {
     vk::Fence fence;
     vk::FenceCreateInfo createInfo = {};
-    VK_ASSERT_DEV(s_device.createFence(&createInfo, nullptr, &fence));
+    VK_ASSERT_DEV(s_Device.createFence(&createInfo, nullptr, &fence));
     return fence;
   }
 }
 
 void ezFencePoolVulkan::ReclaimFence(vk::Fence& fence)
 {
-  vk::Result fenceStatus = s_device.getFenceStatus(fence);
+  vk::Result fenceStatus = s_Device.getFenceStatus(fence);
   if (fenceStatus == vk::Result::eNotReady)
   {
     // #TODO_VULKAN Workaround for fences that were waited for (and thus signaled) returning VK_NOT_READY if AMDs profiler is active.
@@ -53,14 +53,14 @@ void ezFencePoolVulkan::ReclaimFence(vk::Fence& fence)
     return;
   }
   VK_ASSERT_DEV(fenceStatus);
-  s_device.resetFences(1, &fence);
-  EZ_ASSERT_DEBUG(s_device, "ezFencePoolVulkan::Initialize not called");
+  s_Device.resetFences(1, &fence);
+  EZ_ASSERT_DEBUG(s_Device, "ezFencePoolVulkan::Initialize not called");
   s_Fences.PushBack(fence);
 }
 
 
 ezFenceQueueVulkan::ezFenceQueueVulkan(ezGALDeviceVulkan* pDevice)
-  : m_device(pDevice->GetVulkanDevice())
+  : m_Device(pDevice->GetVulkanDevice())
   , m_PendingFences(pDevice->GetAllocator())
 {
 }
@@ -119,7 +119,7 @@ ezEnum<ezGALAsyncResult> ezFenceQueueVulkan::WaitForNextFence(ezTime timeout /*=
   vk::Result fenceStatus;
   {
     EZ_PROFILE_SCOPE("getFenceStatus");
-    fenceStatus = m_device.getFenceStatus(m_PendingFences[0].m_vkFence);
+    fenceStatus = m_Device.getFenceStatus(m_PendingFences[0].m_vkFence);
   }
   if (fenceStatus == vk::Result::eSuccess)
   {
@@ -131,7 +131,7 @@ ezEnum<ezGALAsyncResult> ezFenceQueueVulkan::WaitForNextFence(ezTime timeout /*=
   EZ_ASSERT_DEBUG(fenceStatus == vk::Result::eNotReady, "getFenceStatus returned {}", vk::to_string(fenceStatus).c_str());
   if (fenceStatus == vk::Result::eNotReady && !timeout.IsZero())
   {
-    fenceStatus = m_device.waitForFences(1, &m_PendingFences[0].m_vkFence, true, static_cast<ezUInt64>(timeout.GetNanoseconds()));
+    fenceStatus = m_Device.waitForFences(1, &m_PendingFences[0].m_vkFence, true, static_cast<ezUInt64>(timeout.GetNanoseconds()));
     if (fenceStatus == vk::Result::eTimeout)
       return ezGALAsyncResult::Pending;
 

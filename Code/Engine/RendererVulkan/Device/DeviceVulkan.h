@@ -54,7 +54,7 @@ class ezDescriptorWritePoolVulkan;
 class EZ_RENDERERVULKAN_DLL ezGALDeviceVulkan : public ezGALDevice
 {
 private:
-  friend ezInternal::NewInstance<ezGALDevice> CreateVulkanDevice(ezAllocator* pAllocator, const ezGALDeviceCreationDescription& Description);
+  friend ezInternal::NewInstance<ezGALDevice> CreateVulkanDevice(ezAllocator* pAllocator, const ezGALDeviceCreationDescription& description);
   ezGALDeviceVulkan(const ezGALDeviceCreationDescription& Description);
 
 public:
@@ -165,11 +165,11 @@ public:
   const Queue& GetTransferQueue() const;
 
   vk::PhysicalDevice GetVulkanPhysicalDevice() const;
-  EZ_ALWAYS_INLINE const vk::PhysicalDeviceProperties& GetPhysicalDeviceProperties() const { return m_properties.properties; }
+  EZ_ALWAYS_INLINE const vk::PhysicalDeviceProperties& GetPhysicalDeviceProperties() const { return m_Properties.properties; }
   vk::PhysicalDeviceFeatures2 GetPhysicalDeviceFeatures(void* pNext = nullptr) const;
 
-  const Extensions& GetExtensions() const { return m_extensions; }
-  const ezVulkanDispatchContext& GetDispatchContext() const { return m_dispatchContext; }
+  const Extensions& GetExtensions() const { return m_Extensions; }
+  const ezVulkanDispatchContext& GetDispatchContext() const { return m_DispatchContext; }
   vk::PipelineStageFlags GetSupportedStages() const;
 
   vk::CommandBuffer& GetCurrentCommandBuffer();
@@ -180,8 +180,8 @@ public:
   ezDescriptorWritePoolVulkan& GetDescriptorWritePool() const;
 
 
-  ezGALTextureHandle CreateTextureInternal(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData);
-  ezGALBufferHandle CreateBufferInternal(const ezGALBufferCreationDescription& Description, ezArrayPtr<const ezUInt8> pInitialData);
+  ezGALTextureHandle CreateTextureInternal(const ezGALTextureCreationDescription& description, ezArrayPtr<ezGALSystemMemoryDescription> initialData);
+  ezGALBufferHandle CreateBufferInternal(const ezGALBufferCreationDescription& description, ezArrayPtr<const ezUInt8> initialData);
 
   const ezGALFormatLookupTableVulkan& GetFormatLookupTable() const;
 
@@ -191,82 +191,82 @@ public:
 
   void DeleteLaterImpl(const PendingDeletion& deletion);
 
-  void DeleteLater(vk::Image& image, vk::DeviceMemory& externalMemory)
+  void DeleteLater(vk::Image& ref_image, vk::DeviceMemory& ref_externalMemory)
   {
-    if (image)
+    if (ref_image)
     {
-      PendingDeletion del = {vk::ObjectType::eImage, {PendingDeletionFlags::UsesExternalMemory}, (void*)image, nullptr};
-      del.m_pContext = (void*)externalMemory;
+      PendingDeletion del = {vk::ObjectType::eImage, {PendingDeletionFlags::UsesExternalMemory}, (void*)ref_image, nullptr};
+      del.m_pContext = (void*)ref_externalMemory;
       DeleteLaterImpl(del);
     }
-    image = nullptr;
-    externalMemory = nullptr;
+    ref_image = nullptr;
+    ref_externalMemory = nullptr;
   }
 
   template <typename T>
-  void DeleteLater(T& object, ezVulkanAllocation& allocation)
+  void DeleteLater(T& ref_object, ezVulkanAllocation& ref_pAllocation)
   {
-    if (object)
+    if (ref_object)
     {
-      DeleteLaterImpl({object.objectType, {}, (void*)object, allocation});
+      DeleteLaterImpl({ref_object.objectType, {}, (void*)ref_object, ref_pAllocation});
     }
-    object = nullptr;
-    allocation = nullptr;
+    ref_object = nullptr;
+    ref_pAllocation = nullptr;
   }
 
   template <typename T>
-  void DeleteLater(T& object, void* pContext)
+  void DeleteLater(T& ref_object, void* pContext)
   {
-    if (object)
+    if (ref_object)
     {
-      PendingDeletion del = {object.objectType, {}, (void*)object, nullptr};
+      PendingDeletion del = {ref_object.objectType, {}, (void*)ref_object, nullptr};
       del.m_pContext = pContext;
       DeleteLaterImpl(static_cast<const PendingDeletion&>(del));
     }
-    object = nullptr;
+    ref_object = nullptr;
   }
 
   template <typename T>
-  void DeleteLater(T& object)
+  void DeleteLater(T& ref_object)
   {
-    if (object)
+    if (ref_object)
     {
-      DeleteLaterImpl({object.objectType, {}, (void*)object, nullptr});
+      DeleteLaterImpl({ref_object.objectType, {}, (void*)ref_object, nullptr});
     }
-    object = nullptr;
+    ref_object = nullptr;
   }
 
   void ReclaimLater(const ReclaimResource& reclaim);
 
   template <typename T>
-  void ReclaimLater(T& object, void* pContext = nullptr, ezUInt32 data = 0)
+  void ReclaimLater(T& ref_object, void* pContext = nullptr, ezUInt32 uiData = 0)
   {
-    ReclaimLater({object.objectType, data, (void*)object, pContext});
-    object = nullptr;
+    ReclaimLater({ref_object.objectType, uiData, (void*)ref_object, pContext});
+    ref_object = nullptr;
   }
 
-  void SetDebugName(const vk::DebugUtilsObjectNameInfoEXT& info, ezVulkanAllocation allocation = nullptr);
+  void SetDebugName(const vk::DebugUtilsObjectNameInfoEXT& info, ezVulkanAllocation pAllocation = nullptr);
 
   template <typename T>
-  void SetDebugName(const char* szName, T& object, ezVulkanAllocation allocation = nullptr)
+  void SetDebugName(const char* szName, T& ref_object, ezVulkanAllocation pAllocation = nullptr)
   {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-    if (object)
+    if (ref_object)
     {
       vk::DebugUtilsObjectNameInfoEXT nameInfo;
-      nameInfo.objectType = object.objectType;
-      nameInfo.objectHandle = (uint64_t) static_cast<typename T::NativeType>(object);
+      nameInfo.objectType = ref_object.objectType;
+      nameInfo.objectHandle = (uint64_t) static_cast<typename T::NativeType>(ref_object);
       nameInfo.pObjectName = szName;
 
-      SetDebugName(nameInfo, allocation);
+      SetDebugName(nameInfo, pAllocation);
     }
 #endif
   }
 
   void ReportLiveGpuObjects();
 
-  static void UploadBufferStaging(ezGALDeviceVulkan& device, ezStagingBufferPoolVulkan* pStagingBufferPool, vk::CommandBuffer commandBuffer, const ezGALBufferVulkan* pBuffer, ezArrayPtr<const ezUInt8> pInitialData, vk::DeviceSize dstOffset = 0);
-  static void UploadTextureStaging(ezGALDeviceVulkan& device, ezStagingBufferPoolVulkan* pStagingBufferPool, vk::CommandBuffer commandBuffer, const ezGALTextureVulkan* pTexture, const vk::ImageSubresourceLayers& subResource, const vk::Offset3D& imageOffset, const vk::Extent3D& imageExtent, const ezGALSystemMemoryDescription& data);
+  static void UploadBufferStaging(ezGALDeviceVulkan& ref_device, ezStagingBufferPoolVulkan* pStagingBufferPool, vk::CommandBuffer commandBuffer, const ezGALBufferVulkan* pBuffer, ezArrayPtr<const ezUInt8> initialData, vk::DeviceSize dstOffset = 0);
+  static void UploadTextureStaging(ezGALDeviceVulkan& ref_device, ezStagingBufferPoolVulkan* pStagingBufferPool, vk::CommandBuffer commandBuffer, const ezGALTextureVulkan* pTexture, const vk::ImageSubresourceLayers& subResource, const vk::Offset3D& imageOffset, const vk::Extent3D& imageExtent, const ezGALSystemMemoryDescription& data);
 
   struct OnBeforeImageDestroyedData
   {
@@ -432,16 +432,16 @@ private:
   ezAtomicInteger<ezUInt64> m_uiSafeFrame = 0;
   ezUInt8 m_uiCurrentPerFrameData = m_uiFrameCounter % FRAMES;
 
-  vk::Instance m_instance;
-  vk::PhysicalDevice m_physicalDevice;
-  vk::PhysicalDeviceProperties2 m_properties;
-  vk::Device m_device;
-  Queue m_graphicsQueue;
-  Queue m_transferQueue;
+  vk::Instance m_Instance;
+  vk::PhysicalDevice m_PhysicalDevice;
+  vk::PhysicalDeviceProperties2 m_Properties;
+  vk::Device m_Device;
+  Queue m_GraphicsQueue;
+  Queue m_TransferQueue;
 
   ezGALFormatLookupTableVulkan m_FormatLookupTable;
-  vk::PipelineStageFlags m_supportedStages;
-  vk::PhysicalDeviceMemoryProperties m_memoryProperties;
+  vk::PipelineStageFlags m_SupportedStages;
+  vk::PhysicalDeviceMemoryProperties m_MemoryProperties;
 
   ezUniquePtr<ezGALCommandEncoderImplVulkan> m_pCommandEncoderImpl;
   ezUniquePtr<ezGALCommandEncoder> m_pCommandEncoder;
@@ -456,7 +456,7 @@ private:
   ezDynamicArray<ezPendingTextureCopyVulkan, ezLocalAllocatorWrapper> m_PendingTextureCopies;
 
   // We daisy-chain all command buffers in a frame in sequential order via this semaphore for now.
-  vk::Semaphore m_lastCommandBufferFinished;
+  vk::Semaphore m_LastCommandBufferFinished;
 
   PerFrameData m_PerFrameData[FRAMES];
 
@@ -466,13 +466,13 @@ private:
   struct GPUTimingScope* m_pPassTimingScope = nullptr;
 #endif
 
-  Extensions m_extensions;
-  ezVulkanDispatchContext m_dispatchContext;
+  Extensions m_Extensions;
+  ezVulkanDispatchContext m_DispatchContext;
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  vk::DebugUtilsMessengerEXT m_debugMessenger = nullptr;
+  vk::DebugUtilsMessengerEXT m_DebugMessenger = nullptr;
 #endif
-  ezHybridArray<SemaphoreInfo, 3> m_waitSemaphores;
-  ezHybridArray<SemaphoreInfo, 3> m_signalSemaphores;
+  ezHybridArray<SemaphoreInfo, 3> m_WaitSemaphores;
+  ezHybridArray<SemaphoreInfo, 3> m_SignalSemaphores;
 };
 
 #include <RendererVulkan/Device/Implementation/DeviceVulkan_inl.h>

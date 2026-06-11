@@ -184,13 +184,21 @@ namespace
 
 void ezRendererTestCopyUpdate::SetupSubTests()
 {
+  const ezGALDeviceCapabilities& caps = GetDeviceCapabilities();
+
   AddSubTest("01 - CopyUpdateBuffer", SubTests::ST_CopyBuffer);
   AddSubTest("02 - CopyUpdateTexture", SubTests::ST_CopyTexture);
   AddSubTest("03 - CopyUpdateTexture2DArray", SubTests::ST_CopyTextureArray);
   AddSubTest("04 - CopyUpdateTextureCube", SubTests::ST_CopyTextureCube);
   AddSubTest("05 - CopyUpdateTextureCubeArray", SubTests::ST_CopyTextureCubeArray);
   AddSubTest("06 - CopyUpdateTextureNPOT", SubTests::ST_CopyTextureNpot);
-  AddSubTest("07 - CopyUpdateTextureBC1", SubTests::ST_CopyTextureBC1);
+
+  const auto bc1Support = caps.m_FormatSupport[ezGALResourceFormat::BC1];
+  const bool bCanCreateBC1 = ezImageConversion::IsConvertible(ezImageFormat::B8G8R8A8_UNORM_SRGB, ezImageFormat::BC1_UNORM);
+  if (bc1Support.IsSet(ezGALResourceFormatSupport::Texture) && bCanCreateBC1)
+  {
+    AddSubTest("07 - CopyUpdateTextureBC1", SubTests::ST_CopyTextureBC1);
+  }
 }
 
 ezResult ezRendererTestCopyUpdate::InitializeTest()

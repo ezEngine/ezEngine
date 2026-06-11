@@ -7,7 +7,7 @@
 
 ezUniformBufferPoolVulkan::ezUniformBufferPoolVulkan(ezGALDeviceVulkan* pDevice)
   : m_pDevice(pDevice)
-  , m_device(pDevice->GetVulkanDevice())
+  , m_Device(pDevice->GetVulkanDevice())
   , m_Buffer(pDevice->GetAllocator())
   , m_PendingPools(pDevice->GetAllocator())
   , m_FreePools(pDevice->GetAllocator())

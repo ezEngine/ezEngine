@@ -34,17 +34,17 @@ ezResult ezGALPipelineLayoutVulkan::InitPlatform(ezGALDevice* pDevice)
     descriptorSetLayouts[i] = static_cast<const ezGALBindGroupLayoutVulkan*>(pBindGroupLayout)->GetDescriptorSetLayout();
   }
 
-  m_pushConstants.size = m_Description.m_PushConstants.m_uiSize;
-  m_pushConstants.offset = m_Description.m_PushConstants.m_uiOffset;
-  m_pushConstants.stageFlags = ezConversionUtilsVulkan::GetShaderStages(m_Description.m_PushConstants.m_Stages);
+  m_PushConstants.size = m_Description.m_PushConstants.m_uiSize;
+  m_PushConstants.offset = m_Description.m_PushConstants.m_uiOffset;
+  m_PushConstants.stageFlags = ezConversionUtilsVulkan::GetShaderStages(m_Description.m_PushConstants.m_Stages);
 
   vk::PipelineLayoutCreateInfo layoutInfo;
   layoutInfo.setLayoutCount = descriptorSetLayouts.GetCount();
   layoutInfo.pSetLayouts = descriptorSetLayouts.GetData();
-  if (m_pushConstants.size != 0)
+  if (m_PushConstants.size != 0)
   {
     layoutInfo.pushConstantRangeCount = 1;
-    layoutInfo.pPushConstantRanges = &m_pushConstants;
+    layoutInfo.pPushConstantRanges = &m_PushConstants;
   }
 
   VK_ASSERT_DEBUG(pVulkanDevice->GetVulkanDevice().createPipelineLayout(&layoutInfo, nullptr, &m_PipelineLayout));

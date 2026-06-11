@@ -20,14 +20,14 @@ public:
   ezCommandBufferPoolVulkan(ezAllocator* pAllocator);
   ~ezCommandBufferPoolVulkan();
 
-  void Initialize(vk::Device device, ezUInt32 graphicsFamilyIndex);
+  void Initialize(vk::Device device, ezUInt32 uiGraphicsFamilyIndex);
   void DeInitialize();
 
   vk::CommandBuffer RequestCommandBuffer();
-  void ReclaimCommandBuffer(vk::CommandBuffer& CommandBuffer);
+  void ReclaimCommandBuffer(vk::CommandBuffer& ref_commandBuffer);
 
 private:
-  vk::Device m_device;
-  vk::CommandPool m_commandPool;
+  vk::Device m_Device;
+  vk::CommandPool m_CommandPool;
   ezHybridArray<vk::CommandBuffer, 4> m_CommandBuffers;
 };

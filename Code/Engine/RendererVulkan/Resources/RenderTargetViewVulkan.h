@@ -24,9 +24,9 @@ protected:
   virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
-  vk::ImageView m_imageView;
-  bool m_bfullRange = false;
-  vk::ImageSubresourceRange m_range;
+  vk::ImageView m_ImageView;
+  bool m_bBfullRange = false;
+  vk::ImageSubresourceRange m_Range;
 };
 
 #include <RendererVulkan/Resources/Implementation/RenderTargetViewVulkan_inl.h>

@@ -30,7 +30,7 @@ public:
   /// \brief Creates a descriptor set for the given layout.
   /// \param hBindGroupLayout The layout for which to create the descriptor set.
   /// \param out_Allocation Filled out by the call. Needs to be passed in ReclaimDescriptorSet once the descriptor set is no longer used by the GPU.
-  vk::DescriptorSet CreateDescriptorSet(ezGALBindGroupLayoutHandle hBindGroupLayout, Allocation& out_Allocation);
+  vk::DescriptorSet CreateDescriptorSet(ezGALBindGroupLayoutHandle hBindGroupLayout, Allocation& out_allocation);
 
   /// \brief Reclaims a descriptor set for reuse.
   /// This function should only be called by ezGALDeviceVulkan when it is safe to reuse the descriptor set. To reclaim a descriptor set created via CreateDescriptorSet, call ezGALDeviceVulkan->ReclaimLater(vk::DescriptorSet, ezDescriptorSetPoolVulkan*, Allocation::m_uiPoolIndex);

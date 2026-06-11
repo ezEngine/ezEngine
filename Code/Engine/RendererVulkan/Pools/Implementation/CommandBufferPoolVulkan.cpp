@@ -10,39 +10,39 @@ ezCommandBufferPoolVulkan::ezCommandBufferPoolVulkan(ezAllocator* pAllocator)
 ezCommandBufferPoolVulkan::~ezCommandBufferPoolVulkan()
 {
   EZ_ASSERT_DEBUG(m_CommandBuffers.IsEmpty(), "Either DeInitialize was not called or ReclaimCommandBuffer was called after DeInitialize");
-  EZ_ASSERT_DEBUG(!m_device, "DeInitialize was not called");
+  EZ_ASSERT_DEBUG(!m_Device, "DeInitialize was not called");
 }
 
 void ezCommandBufferPoolVulkan::Initialize(vk::Device device, ezUInt32 graphicsFamilyIndex)
 {
-  m_device = device;
+  m_Device = device;
 
   // Command buffer
   vk::CommandPoolCreateInfo commandPoolCreateInfo = {};
   commandPoolCreateInfo.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
   commandPoolCreateInfo.queueFamilyIndex = graphicsFamilyIndex;
 
-  m_commandPool = m_device.createCommandPool(commandPoolCreateInfo);
+  m_CommandPool = m_Device.createCommandPool(commandPoolCreateInfo);
 }
 
 void ezCommandBufferPoolVulkan::DeInitialize()
 {
   for (vk::CommandBuffer& commandBuffer : m_CommandBuffers)
   {
-    m_device.freeCommandBuffers(m_commandPool, 1, &commandBuffer);
+    m_Device.freeCommandBuffers(m_CommandPool, 1, &commandBuffer);
   }
   m_CommandBuffers.Clear();
   m_CommandBuffers.Compact();
 
-  m_device.destroyCommandPool(m_commandPool);
-  m_commandPool = nullptr;
+  m_Device.destroyCommandPool(m_CommandPool);
+  m_CommandPool = nullptr;
 
-  m_device = nullptr;
+  m_Device = nullptr;
 }
 
 vk::CommandBuffer ezCommandBufferPoolVulkan::RequestCommandBuffer()
 {
-  EZ_ASSERT_DEBUG(m_device, "ezCommandBufferPoolVulkan::Initialize not called");
+  EZ_ASSERT_DEBUG(m_Device, "ezCommandBufferPoolVulkan::Initialize not called");
   if (!m_CommandBuffers.IsEmpty())
   {
     vk::CommandBuffer CommandBuffer = m_CommandBuffers.PeekBack();
@@ -55,17 +55,17 @@ vk::CommandBuffer ezCommandBufferPoolVulkan::RequestCommandBuffer()
 
     vk::CommandBufferAllocateInfo commandBufferAllocateInfo = {};
     commandBufferAllocateInfo.commandBufferCount = 1;
-    commandBufferAllocateInfo.commandPool = m_commandPool;
+    commandBufferAllocateInfo.commandPool = m_CommandPool;
     commandBufferAllocateInfo.level = vk::CommandBufferLevel::ePrimary;
 
-    VK_ASSERT_DEV(m_device.allocateCommandBuffers(&commandBufferAllocateInfo, &commandBuffer));
+    VK_ASSERT_DEV(m_Device.allocateCommandBuffers(&commandBufferAllocateInfo, &commandBuffer));
     return commandBuffer;
   }
 }
 
 void ezCommandBufferPoolVulkan::ReclaimCommandBuffer(vk::CommandBuffer& commandBuffer)
 {
-  EZ_ASSERT_DEBUG(m_device, "ezCommandBufferPoolVulkan::Initialize not called");
+  EZ_ASSERT_DEBUG(m_Device, "ezCommandBufferPoolVulkan::Initialize not called");
   commandBuffer.reset(vk::CommandBufferResetFlagBits::eReleaseResources);
   m_CommandBuffers.PushBack(commandBuffer);
 }

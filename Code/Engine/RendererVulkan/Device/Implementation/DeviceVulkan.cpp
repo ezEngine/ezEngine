@@ -92,7 +92,7 @@ namespace
     return VK_FALSE;
   }
 
-  bool isInstanceLayerPresent(const char* layerName)
+  bool isInstanceLayerPresent(const char* szLayerName)
   {
     uint32_t layerCount = 0;
     vk::enumerateInstanceLayerProperties(&layerCount, nullptr);
@@ -103,7 +103,7 @@ namespace
 
     for (const auto& layerProperties : availableLayers)
     {
-      if (strcmp(layerName, layerProperties.layerName) == 0)
+      if (strcmp(szLayerName, layerProperties.layerName) == 0)
       {
         return true;
       }
@@ -150,9 +150,9 @@ namespace
 } // namespace
 
 
-ezInternal::NewInstance<ezGALDevice> CreateVulkanDevice(ezAllocator* pAllocator, const ezGALDeviceCreationDescription& Description)
+ezInternal::NewInstance<ezGALDevice> CreateVulkanDevice(ezAllocator* pAllocator, const ezGALDeviceCreationDescription& description)
 {
-  return EZ_NEW(pAllocator, ezGALDeviceVulkan, Description);
+  return EZ_NEW(pAllocator, ezGALDeviceVulkan, description);
 }
 
 // clang-format off
@@ -211,7 +211,7 @@ vk::Result ezGALDeviceVulkan::SelectInstanceExtensions(ezDynamicArray<ezString>&
     return vk::Result::eErrorExtensionNotPresent;
   };
 
-  VK_SUCCEED_OR_RETURN_LOG(AddExtIfSupported(VK_KHR_SURFACE_EXTENSION_NAME, m_extensions.m_bSurface));
+  VK_SUCCEED_OR_RETURN_LOG(AddExtIfSupported(VK_KHR_SURFACE_EXTENSION_NAME, m_Extensions.m_bSurface));
 #if EZ_ENABLED(EZ_SUPPORTS_GLFW)
   uint32_t iNumGlfwExtensions = 0;
   const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&iNumGlfwExtensions);
@@ -221,26 +221,26 @@ vk::Result ezGALDeviceVulkan::SelectInstanceExtensions(ezDynamicArray<ezString>&
     VK_SUCCEED_OR_RETURN_LOG(AddExtIfSupported(glfwExtensions[i], dummy));
   }
 #elif defined(VK_USE_PLATFORM_WIN32_KHR)
-  VK_SUCCEED_OR_RETURN_LOG(AddExtIfSupported(VK_KHR_WIN32_SURFACE_EXTENSION_NAME, m_extensions.m_bWin32Surface));
+  VK_SUCCEED_OR_RETURN_LOG(AddExtIfSupported(VK_KHR_WIN32_SURFACE_EXTENSION_NAME, m_Extensions.m_bWin32Surface));
 #elif defined(VK_USE_PLATFORM_ANDROID_KHR)
-  VK_SUCCEED_OR_RETURN_LOG(AddExtIfSupported(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME, m_extensions.m_bAndroidSurface));
+  VK_SUCCEED_OR_RETURN_LOG(AddExtIfSupported(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME, m_Extensions.m_bAndroidSurface));
 #else
 #  error "Vulkan platform not supported"
 #endif
 
 
 #if EZ_ENABLED(EZ_PLATFORM_LINUX)
-  AddExtIfSupported(VK_KHR_XCB_SURFACE_EXTENSION_NAME, m_extensions.m_bSurfaceXcb);
+  AddExtIfSupported(VK_KHR_XCB_SURFACE_EXTENSION_NAME, m_Extensions.m_bSurfaceXcb);
 #endif
 
-  AddExtIfSupported(VK_EXT_DEBUG_UTILS_EXTENSION_NAME, m_extensions.m_bDebugUtils);
-  m_extensions.m_bDebugUtilsMarkers = m_extensions.m_bDebugUtils;
+  AddExtIfSupported(VK_EXT_DEBUG_UTILS_EXTENSION_NAME, m_Extensions.m_bDebugUtils);
+  m_Extensions.m_bDebugUtilsMarkers = m_Extensions.m_bDebugUtils;
 
-  AddExtIfSupported(VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME, m_extensions.m_bExternalMemoryCapabilities);
-  AddExtIfSupported(VK_KHR_EXTERNAL_SEMAPHORE_CAPABILITIES_EXTENSION_NAME, m_extensions.m_bExternalSemaphoreCapabilities);
-  AddExtIfSupported(VK_KHR_EXTERNAL_FENCE_CAPABILITIES_EXTENSION_NAME, m_extensions.m_bExternalFenceCapabilities);
-  AddExtIfSupported(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME, m_extensions.m_bPhysicalDeviceProperties2);
-  AddExtIfSupported(VK_KHR_SURFACE_MAINTENANCE_1_EXTENSION_NAME, m_extensions.m_bSurfaceMaintenance1);
+  AddExtIfSupported(VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME, m_Extensions.m_bExternalMemoryCapabilities);
+  AddExtIfSupported(VK_KHR_EXTERNAL_SEMAPHORE_CAPABILITIES_EXTENSION_NAME, m_Extensions.m_bExternalSemaphoreCapabilities);
+  AddExtIfSupported(VK_KHR_EXTERNAL_FENCE_CAPABILITIES_EXTENSION_NAME, m_Extensions.m_bExternalFenceCapabilities);
+  AddExtIfSupported(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME, m_Extensions.m_bPhysicalDeviceProperties2);
+  AddExtIfSupported(VK_KHR_SURFACE_MAINTENANCE_1_EXTENSION_NAME, m_Extensions.m_bSurfaceMaintenance1);
 
   // Allow OpenXR to extend instance extensions (for vulkan_enable v1)
   if (ezVulkanInitInterface* pInitInterface = ezSingletonRegistry::GetSingletonInstance<ezVulkanInitInterface>())
@@ -256,10 +256,10 @@ vk::Result ezGALDeviceVulkan::SelectDeviceExtensions(vk::DeviceCreateInfo& devic
 {
   // Fetch the list of extensions supported by the runtime.
   ezUInt32 extensionCount;
-  VK_SUCCEED_OR_RETURN_LOG(m_physicalDevice.enumerateDeviceExtensionProperties(nullptr, &extensionCount, nullptr));
+  VK_SUCCEED_OR_RETURN_LOG(m_PhysicalDevice.enumerateDeviceExtensionProperties(nullptr, &extensionCount, nullptr));
   ezDynamicArray<vk::ExtensionProperties> extensionProperties;
   extensionProperties.SetCount(extensionCount);
-  VK_SUCCEED_OR_RETURN_LOG(m_physicalDevice.enumerateDeviceExtensionProperties(nullptr, &extensionCount, extensionProperties.GetData()));
+  VK_SUCCEED_OR_RETURN_LOG(m_PhysicalDevice.enumerateDeviceExtensionProperties(nullptr, &extensionCount, extensionProperties.GetData()));
 
   EZ_LOG_BLOCK("DeviceExtensions");
   for (auto& ext : extensionProperties)
@@ -283,11 +283,11 @@ vk::Result ezGALDeviceVulkan::SelectDeviceExtensions(vk::DeviceCreateInfo& devic
     return vk::Result::eErrorExtensionNotPresent;
   };
 
-  VK_SUCCEED_OR_RETURN_LOG(AddExtIfSupported(VK_KHR_SWAPCHAIN_EXTENSION_NAME, m_extensions.m_bDeviceSwapChain));
-  AddExtIfSupported(VK_EXT_SHADER_VIEWPORT_INDEX_LAYER_EXTENSION_NAME, m_extensions.m_bShaderViewportIndexLayer);
+  VK_SUCCEED_OR_RETURN_LOG(AddExtIfSupported(VK_KHR_SWAPCHAIN_EXTENSION_NAME, m_Extensions.m_bDeviceSwapChain));
+  AddExtIfSupported(VK_EXT_SHADER_VIEWPORT_INDEX_LAYER_EXTENSION_NAME, m_Extensions.m_bShaderViewportIndexLayer);
 
-  vk::PhysicalDeviceFeatures2 features = GetPhysicalDeviceFeatures(&m_extensions.m_borderColorEXT);
-  m_supportedStages =
+  vk::PhysicalDeviceFeatures2 features = GetPhysicalDeviceFeatures(&m_Extensions.m_borderColorEXT);
+  m_SupportedStages =
     vk::PipelineStageFlagBits::eTopOfPipe |
     vk::PipelineStageFlagBits::eDrawIndirect |
     vk::PipelineStageFlagBits::eVertexInput |
@@ -308,24 +308,24 @@ vk::Result ezGALDeviceVulkan::SelectDeviceExtensions(vk::DeviceCreateInfo& devic
 
   if (!features.features.geometryShader)
   {
-    m_supportedStages &= ~vk::PipelineStageFlags(vk::PipelineStageFlagBits::eGeometryShader);
+    m_SupportedStages &= ~vk::PipelineStageFlags(vk::PipelineStageFlagBits::eGeometryShader);
     ezLog::Warning("Geometry shaders are not supported.");
   }
 
   if (!features.features.tessellationShader)
   {
-    m_supportedStages &= ~vk::PipelineStageFlags(vk::PipelineStageFlagBits::eTessellationControlShader | vk::PipelineStageFlagBits::eTessellationEvaluationShader);
+    m_SupportedStages &= ~vk::PipelineStageFlags(vk::PipelineStageFlagBits::eTessellationControlShader | vk::PipelineStageFlagBits::eTessellationEvaluationShader);
     ezLog::Warning("Tessellation shaders are not supported.");
   }
 
   // Only use the extension if it allows us to not specify a format or we would need to create different samplers for every texture.
-  if (m_extensions.m_borderColorEXT.customBorderColors && m_extensions.m_borderColorEXT.customBorderColorWithoutFormat)
+  if (m_Extensions.m_borderColorEXT.customBorderColors && m_Extensions.m_borderColorEXT.customBorderColorWithoutFormat)
   {
-    AddExtIfSupported(VK_EXT_CUSTOM_BORDER_COLOR_EXTENSION_NAME, m_extensions.m_bBorderColorFloat);
-    if (m_extensions.m_bBorderColorFloat)
+    AddExtIfSupported(VK_EXT_CUSTOM_BORDER_COLOR_EXTENSION_NAME, m_Extensions.m_bBorderColorFloat);
+    if (m_Extensions.m_bBorderColorFloat)
     {
-      m_extensions.m_borderColorEXT.pNext = const_cast<void*>(deviceCreateInfo.pNext);
-      deviceCreateInfo.pNext = &m_extensions.m_borderColorEXT;
+      m_Extensions.m_borderColorEXT.pNext = const_cast<void*>(deviceCreateInfo.pNext);
+      deviceCreateInfo.pNext = &m_Extensions.m_borderColorEXT;
     }
     else
     {
@@ -333,35 +333,35 @@ vk::Result ezGALDeviceVulkan::SelectDeviceExtensions(vk::DeviceCreateInfo& devic
     }
   }
 
-  AddExtIfSupported(VK_KHR_IMAGE_FORMAT_LIST_EXTENSION_NAME, m_extensions.m_bImageFormatList);
+  AddExtIfSupported(VK_KHR_IMAGE_FORMAT_LIST_EXTENSION_NAME, m_Extensions.m_bImageFormatList);
 
-  AddExtIfSupported(VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME, m_extensions.m_bTimelineSemaphore);
+  AddExtIfSupported(VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME, m_Extensions.m_bTimelineSemaphore);
 
-  if (m_extensions.m_bTimelineSemaphore)
+  if (m_Extensions.m_bTimelineSemaphore)
   {
-    m_extensions.m_timelineSemaphoresEXT.pNext = const_cast<void*>(deviceCreateInfo.pNext);
-    deviceCreateInfo.pNext = &m_extensions.m_timelineSemaphoresEXT;
-    m_extensions.m_timelineSemaphoresEXT.timelineSemaphore = true;
+    m_Extensions.m_timelineSemaphoresEXT.pNext = const_cast<void*>(deviceCreateInfo.pNext);
+    deviceCreateInfo.pNext = &m_Extensions.m_timelineSemaphoresEXT;
+    m_Extensions.m_timelineSemaphoresEXT.timelineSemaphore = true;
   }
 
-  AddExtIfSupported(VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME, m_extensions.m_bSynchronization2);
-  if (m_extensions.m_bSynchronization2)
+  AddExtIfSupported(VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME, m_Extensions.m_bSynchronization2);
+  if (m_Extensions.m_bSynchronization2)
   {
-    m_extensions.m_synchronization2Features.pNext = const_cast<void*>(deviceCreateInfo.pNext);
-    deviceCreateInfo.pNext = &m_extensions.m_synchronization2Features;
-    m_extensions.m_synchronization2Features.synchronization2 = true;
+    m_Extensions.m_synchronization2Features.pNext = const_cast<void*>(deviceCreateInfo.pNext);
+    deviceCreateInfo.pNext = &m_Extensions.m_synchronization2Features;
+    m_Extensions.m_synchronization2Features.synchronization2 = true;
   }
 
-  AddExtIfSupported(VK_KHR_SWAPCHAIN_MAINTENANCE_1_EXTENSION_NAME, m_extensions.m_bSwapchainMaintenance1);
+  AddExtIfSupported(VK_KHR_SWAPCHAIN_MAINTENANCE_1_EXTENSION_NAME, m_Extensions.m_bSwapchainMaintenance1);
 
-  AddExtIfSupported(VK_KHR_EXTERNAL_MEMORY_EXTENSION_NAME, m_extensions.m_bExternalMemory);
-  AddExtIfSupported(VK_KHR_EXTERNAL_SEMAPHORE_EXTENSION_NAME, m_extensions.m_bExternalSemaphore);
+  AddExtIfSupported(VK_KHR_EXTERNAL_MEMORY_EXTENSION_NAME, m_Extensions.m_bExternalMemory);
+  AddExtIfSupported(VK_KHR_EXTERNAL_SEMAPHORE_EXTENSION_NAME, m_Extensions.m_bExternalSemaphore);
 #if EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
-  AddExtIfSupported(VK_KHR_EXTERNAL_MEMORY_FD_EXTENSION_NAME, m_extensions.m_bExternalMemoryFd);
-  AddExtIfSupported(VK_KHR_EXTERNAL_SEMAPHORE_FD_EXTENSION_NAME, m_extensions.m_bExternalSemaphoreFd);
+  AddExtIfSupported(VK_KHR_EXTERNAL_MEMORY_FD_EXTENSION_NAME, m_Extensions.m_bExternalMemoryFd);
+  AddExtIfSupported(VK_KHR_EXTERNAL_SEMAPHORE_FD_EXTENSION_NAME, m_Extensions.m_bExternalSemaphoreFd);
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  AddExtIfSupported(VK_KHR_EXTERNAL_MEMORY_WIN32_EXTENSION_NAME, m_extensions.m_bExternalMemoryWin32);
-  AddExtIfSupported(VK_KHR_EXTERNAL_SEMAPHORE_WIN32_EXTENSION_NAME, m_extensions.m_bExternalSemaphoreWin32);
+  AddExtIfSupported(VK_KHR_EXTERNAL_MEMORY_WIN32_EXTENSION_NAME, m_Extensions.m_bExternalMemoryWin32);
+  AddExtIfSupported(VK_KHR_EXTERNAL_SEMAPHORE_WIN32_EXTENSION_NAME, m_Extensions.m_bExternalSemaphoreWin32);
 #endif
 
   // Allow OpenXR to extend device extensions (for vulkan_enable v1)
@@ -434,7 +434,7 @@ ezResult ezGALDeviceVulkan::InitPlatform()
         ezLog::Warning("The khronos validation layer is not supported on this device. Will run without validation layer.");
       }
 
-      if (m_extensions.m_bDebugUtils)
+      if (m_Extensions.m_bDebugUtils)
       {
         debugCreateInfo.pNext = instanceCreateInfo.pNext;
         instanceCreateInfo.pNext = &debugCreateInfo;
@@ -475,25 +475,25 @@ ezResult ezGALDeviceVulkan::InitPlatform()
 
     if (pInitInterface)
     {
-      m_instance = pInitInterface->CreateInstance(instanceCreateInfo);
+      m_Instance = pInitInterface->CreateInstance(instanceCreateInfo);
     }
-    if (!m_instance)
+    if (!m_Instance)
     {
-      m_instance = vk::createInstance(instanceCreateInfo);
+      m_Instance = vk::createInstance(instanceCreateInfo);
     }
 #if VULKAN_HPP_DISPATCH_LOADER_DYNAMIC == 1
-    vk::detail::defaultDispatchLoaderDynamic.init(m_instance);
+    vk::detail::defaultDispatchLoaderDynamic.init(m_Instance);
 #endif
-    m_dispatchContext.InitInstance(m_instance, &m_extensions);
+    m_DispatchContext.InitInstance(m_Instance, &m_Extensions);
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-    if (m_extensions.m_bDebugUtils)
+    if (m_Extensions.m_bDebugUtils)
     {
       vk::DebugUtilsMessengerCreateInfoEXT createInfo(debugCreateInfo);
-      m_debugMessenger = m_instance.createDebugUtilsMessengerEXT(createInfo, nullptr, m_dispatchContext);
+      m_DebugMessenger = m_Instance.createDebugUtilsMessengerEXT(createInfo, nullptr, m_DispatchContext);
     }
 #endif
 
-    if (!m_instance)
+    if (!m_Instance)
     {
       ezLog::Error("Failed to create Vulkan instance!");
       return EZ_FAILURE;
@@ -502,14 +502,14 @@ ezResult ezGALDeviceVulkan::InitPlatform()
 
   if (pInitInterface)
   {
-    m_physicalDevice = pInitInterface->GetPhysicalDevice(m_instance);
+    m_PhysicalDevice = pInitInterface->GetPhysicalDevice(m_Instance);
   }
-  if (!m_physicalDevice)
+  if (!m_PhysicalDevice)
   {
     // physical device
     ezUInt32 physicalDeviceCount = 0;
     ezHybridArray<vk::PhysicalDevice, 2> physicalDevices;
-    VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_instance.enumeratePhysicalDevices(&physicalDeviceCount, nullptr));
+    VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_Instance.enumeratePhysicalDevices(&physicalDeviceCount, nullptr));
     if (physicalDeviceCount == 0)
     {
       ezLog::Error("No available physical device to create a Vulkan device on!");
@@ -517,21 +517,21 @@ ezResult ezGALDeviceVulkan::InitPlatform()
     }
 
     physicalDevices.SetCount(physicalDeviceCount);
-    VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_instance.enumeratePhysicalDevices(&physicalDeviceCount, physicalDevices.GetData()));
+    VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_Instance.enumeratePhysicalDevices(&physicalDeviceCount, physicalDevices.GetData()));
 
     // TODO choosable physical device?
     // TODO making sure we have a hardware device?
-    m_physicalDevice = physicalDevices[0];
+    m_PhysicalDevice = physicalDevices[0];
   }
   {
-    m_properties = m_physicalDevice.getProperties2();
+    m_Properties = m_PhysicalDevice.getProperties2();
     ezLog::Dev("Selected physical device \"{}\" for device creation.", m_properties.properties.deviceName);
 
     // This is a workaround for broken lavapipe drivers which cannot handle label scopes that span across multiple command buffers.
-    ezStringBuilder sDeviceName = ezStringUtf8(m_properties.properties.deviceName).GetView();
+    ezStringBuilder sDeviceName = ezStringUtf8(m_Properties.properties.deviceName).GetView();
     if (sDeviceName.FindSubString_NoCase("LLVMPIPE") != nullptr)
     {
-      m_extensions.m_bDebugUtilsMarkers = false;
+      m_Extensions.m_bDebugUtilsMarkers = false;
     }
 
     {
@@ -539,10 +539,10 @@ ezResult ezGALDeviceVulkan::InitPlatform()
       vk::PhysicalDeviceTimelineSemaphoreFeatures timelineFeatures;
       sync2Features.pNext = &timelineFeatures;
       vk::PhysicalDeviceFeatures2 features2 = GetPhysicalDeviceFeatures(&sync2Features);
-      m_extensions.m_bTimelineSemaphore = static_cast<bool>(timelineFeatures.timelineSemaphore);
-      m_extensions.m_timelineSemaphoresEXT = timelineFeatures;
-      m_extensions.m_bSynchronization2 = static_cast<bool>(sync2Features.synchronization2);
-      m_extensions.m_synchronization2Features = sync2Features;
+      m_Extensions.m_bTimelineSemaphore = static_cast<bool>(timelineFeatures.timelineSemaphore);
+      m_Extensions.m_timelineSemaphoresEXT = timelineFeatures;
+      m_Extensions.m_bSynchronization2 = static_cast<bool>(sync2Features.synchronization2);
+      m_Extensions.m_synchronization2Features = sync2Features;
     }
   }
 
@@ -550,14 +550,14 @@ ezResult ezGALDeviceVulkan::InitPlatform()
   {
     // Device
     ezUInt32 queueFamilyPropertyCount = 0;
-    m_physicalDevice.getQueueFamilyProperties(&queueFamilyPropertyCount, nullptr);
+    m_PhysicalDevice.getQueueFamilyProperties(&queueFamilyPropertyCount, nullptr);
     if (queueFamilyPropertyCount == 0)
     {
       ezLog::Error("No available device queues on physical device!");
       return EZ_FAILURE;
     }
     queueFamilyProperties.SetCount(queueFamilyPropertyCount);
-    m_physicalDevice.getQueueFamilyProperties(&queueFamilyPropertyCount, queueFamilyProperties.GetData());
+    m_PhysicalDevice.getQueueFamilyProperties(&queueFamilyPropertyCount, queueFamilyProperties.GetData());
 
     {
       EZ_LOG_BLOCK("Queue Families");
@@ -577,27 +577,27 @@ ezResult ezGALDeviceVulkan::InitPlatform()
       constexpr auto graphicsFlags = vk::QueueFlagBits::eGraphics | vk::QueueFlagBits::eCompute;
       if ((queueFamilyProperty.queueFlags & graphicsFlags) == graphicsFlags)
       {
-        m_graphicsQueue.m_uiQueueFamily = i;
+        m_GraphicsQueue.m_uiQueueFamily = i;
       }
       if (queueFamilyProperty.queueFlags & vk::QueueFlagBits::eTransfer)
       {
-        if (m_transferQueue.m_uiQueueFamily == -1)
+        if (m_TransferQueue.m_uiQueueFamily == -1)
         {
-          m_transferQueue.m_uiQueueFamily = i;
+          m_TransferQueue.m_uiQueueFamily = i;
         }
         else if ((queueFamilyProperty.queueFlags & graphicsFlags) == vk::QueueFlagBits())
         {
           // Prefer a queue that can't be used for graphics.
-          m_transferQueue.m_uiQueueFamily = i;
+          m_TransferQueue.m_uiQueueFamily = i;
         }
       }
     }
-    if (m_graphicsQueue.m_uiQueueFamily == -1)
+    if (m_GraphicsQueue.m_uiQueueFamily == -1)
     {
       ezLog::Error("No graphics queue found.");
       return EZ_FAILURE;
     }
-    if (m_transferQueue.m_uiQueueFamily == -1)
+    if (m_TransferQueue.m_uiQueueFamily == -1)
     {
       ezLog::Warning("No transfer queue found.");
     }
@@ -609,14 +609,14 @@ ezResult ezGALDeviceVulkan::InitPlatform()
     vk::DeviceQueueCreateInfo& graphicsQueueCreateInfo = queues.ExpandAndGetRef();
     graphicsQueueCreateInfo.pQueuePriorities = &queuePriority;
     graphicsQueueCreateInfo.queueCount = 1;
-    graphicsQueueCreateInfo.queueFamilyIndex = m_graphicsQueue.m_uiQueueFamily;
+    graphicsQueueCreateInfo.queueFamilyIndex = m_GraphicsQueue.m_uiQueueFamily;
 
-    if (m_graphicsQueue.m_uiQueueFamily != m_transferQueue.m_uiQueueFamily && m_transferQueue.m_uiQueueFamily != -1)
+    if (m_GraphicsQueue.m_uiQueueFamily != m_TransferQueue.m_uiQueueFamily && m_TransferQueue.m_uiQueueFamily != -1)
     {
       vk::DeviceQueueCreateInfo& transferQueueCreateInfo = queues.ExpandAndGetRef();
       transferQueueCreateInfo.pQueuePriorities = &queuePriority;
       transferQueueCreateInfo.queueCount = 1;
-      transferQueueCreateInfo.queueFamilyIndex = m_transferQueue.m_uiQueueFamily;
+      transferQueueCreateInfo.queueFamilyIndex = m_TransferQueue.m_uiQueueFamily;
     }
 
     vk::DeviceCreateInfo deviceCreateInfo = {};
@@ -636,31 +636,31 @@ ezResult ezGALDeviceVulkan::InitPlatform()
 
     if (pInitInterface)
     {
-      m_device = pInitInterface->CreateDevice(deviceCreateInfo);
+      m_Device = pInitInterface->CreateDevice(deviceCreateInfo);
     }
-    if (!m_device)
+    if (!m_Device)
     {
-      VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_physicalDevice.createDevice(&deviceCreateInfo, nullptr, &m_device));
+      VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_PhysicalDevice.createDevice(&deviceCreateInfo, nullptr, &m_Device));
     }
 #if VULKAN_HPP_DISPATCH_LOADER_DYNAMIC == 1
-    vk::detail::defaultDispatchLoaderDynamic.init(m_device);
+    vk::detail::defaultDispatchLoaderDynamic.init(m_Device);
 #endif
-    m_device.getQueue(m_graphicsQueue.m_uiQueueFamily, m_graphicsQueue.m_uiQueueIndex, &m_graphicsQueue.m_queue);
+    m_Device.getQueue(m_GraphicsQueue.m_uiQueueFamily, m_GraphicsQueue.m_uiQueueIndex, &m_GraphicsQueue.m_queue);
 
-    if (m_graphicsQueue.m_uiQueueFamily != m_transferQueue.m_uiQueueFamily && m_transferQueue.m_uiQueueFamily != -1)
+    if (m_GraphicsQueue.m_uiQueueFamily != m_TransferQueue.m_uiQueueFamily && m_TransferQueue.m_uiQueueFamily != -1)
     {
-      m_device.getQueue(m_transferQueue.m_uiQueueFamily, m_transferQueue.m_uiQueueIndex, &m_transferQueue.m_queue);
+      m_Device.getQueue(m_TransferQueue.m_uiQueueFamily, m_TransferQueue.m_uiQueueIndex, &m_TransferQueue.m_queue);
     }
 
-    m_dispatchContext.InitDevice(m_device, &m_extensions);
+    m_DispatchContext.InitDevice(m_Device, &m_Extensions);
   }
 
 #if VULKAN_HPP_DISPATCH_LOADER_DYNAMIC == 1
-  VK_SUCCEED_OR_RETURN_EZ_FAILURE(ezMemoryAllocatorVulkan::Initialize(m_physicalDevice, m_device, m_instance, vk::detail::defaultDispatchLoaderDynamic.vkGetInstanceProcAddr, vk::detail::defaultDispatchLoaderDynamic.vkGetDeviceProcAddr));
+  VK_SUCCEED_OR_RETURN_EZ_FAILURE(ezMemoryAllocatorVulkan::Initialize(m_PhysicalDevice, m_Device, m_Instance, vk::detail::defaultDispatchLoaderDynamic.vkGetInstanceProcAddr, vk::detail::defaultDispatchLoaderDynamic.vkGetDeviceProcAddr));
 #else
-  VK_SUCCEED_OR_RETURN_EZ_FAILURE(ezMemoryAllocatorVulkan::Initialize(m_physicalDevice, m_device, m_instance, vkGetInstanceProcAddr, vkGetDeviceProcAddr));
+  VK_SUCCEED_OR_RETURN_EZ_FAILURE(ezMemoryAllocatorVulkan::Initialize(m_PhysicalDevice, m_Device, m_Instance, vkGetInstanceProcAddr, vkGetDeviceProcAddr));
 #endif
-  m_memoryProperties = m_physicalDevice.getMemoryProperties();
+  m_MemoryProperties = m_PhysicalDevice.getMemoryProperties();
 
   // Fill lookup table
   FillFormatLookupTable();
@@ -671,19 +671,19 @@ ezResult ezGALDeviceVulkan::InitPlatform()
   ezClipSpaceYMode::RenderToTextureDefault = ezClipSpaceYMode::Regular;
 
   m_pCommandBufferPool = EZ_NEW(&m_Allocator, ezCommandBufferPoolVulkan, &m_Allocator);
-  m_pCommandBufferPool->Initialize(m_device, m_graphicsQueue.m_uiQueueFamily);
+  m_pCommandBufferPool->Initialize(m_Device, m_GraphicsQueue.m_uiQueueFamily);
   m_pStagingBufferPool = EZ_NEW(&m_Allocator, ezStagingBufferPoolVulkan);
   // This instance is only utilized when using ezGALUpdateMode::CopyToTempStorage. All other updates run in the instance of the ezInitContextVulkan so we don't expect a lot of memory to be used here.
   m_pStagingBufferPool->Initialize(this, 1 * 1024 * 1024);
   m_pQueryPool = EZ_NEW(&m_Allocator, ezQueryPoolVulkan, this);
-  m_pQueryPool->Initialize(queueFamilyProperties[m_graphicsQueue.m_uiQueueFamily].timestampValidBits);
+  m_pQueryPool->Initialize(queueFamilyProperties[m_GraphicsQueue.m_uiQueueFamily].timestampValidBits);
   m_pFenceQueue = EZ_NEW(&m_Allocator, ezFenceQueueVulkan, this);
   m_pInitContext = EZ_NEW(&m_Allocator, ezInitContextVulkan, this);
 
-  ezSemaphorePoolVulkan::Initialize(m_device);
-  ezFencePoolVulkan::Initialize(m_device);
-  ezResourceCacheVulkan::Initialize(this, m_device);
-  ezTransientDescriptorSetPoolVulkan::Initialize(m_device);
+  ezSemaphorePoolVulkan::Initialize(m_Device);
+  ezFencePoolVulkan::Initialize(m_Device);
+  ezResourceCacheVulkan::Initialize(this, m_Device);
+  ezTransientDescriptorSetPoolVulkan::Initialize(m_Device);
   ezDescriptorSetPoolVulkan::Initialize(this);
 
   m_pCommandEncoderImpl = EZ_NEW(&m_Allocator, ezGALCommandEncoderImplVulkan, *this);
@@ -696,15 +696,15 @@ ezResult ezGALDeviceVulkan::InitPlatform()
   return EZ_SUCCESS;
 }
 
-void ezGALDeviceVulkan::SetDebugName(const vk::DebugUtilsObjectNameInfoEXT& info, ezVulkanAllocation allocation)
+void ezGALDeviceVulkan::SetDebugName(const vk::DebugUtilsObjectNameInfoEXT& info, ezVulkanAllocation pAllocation)
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  if (m_extensions.m_bDebugUtils)
+  if (m_Extensions.m_bDebugUtils)
   {
-    m_device.setDebugUtilsObjectNameEXT(info, m_dispatchContext);
+    m_Device.setDebugUtilsObjectNameEXT(info, m_DispatchContext);
   }
-  if (allocation)
-    ezMemoryAllocatorVulkan::SetAllocationUserData(allocation, info.pObjectName);
+  if (pAllocation)
+    ezMemoryAllocatorVulkan::SetAllocationUserData(pAllocation, info.pObjectName);
 #endif
 }
 
@@ -713,18 +713,18 @@ void ezGALDeviceVulkan::ReportLiveGpuObjects()
   // This is automatically done in the validation layer and can't be easily done manually.
 }
 
-void ezGALDeviceVulkan::UploadBufferStaging(ezGALDeviceVulkan& device, ezStagingBufferPoolVulkan* pStagingBufferPool, vk::CommandBuffer commandBuffer, const ezGALBufferVulkan* pBuffer, ezArrayPtr<const ezUInt8> pInitialData, vk::DeviceSize dstOffset)
+void ezGALDeviceVulkan::UploadBufferStaging(ezGALDeviceVulkan& ref_device, ezStagingBufferPoolVulkan* pStagingBufferPool, vk::CommandBuffer commandBuffer, const ezGALBufferVulkan* pBuffer, ezArrayPtr<const ezUInt8> initialData, vk::DeviceSize dstOffset)
 {
   // #TODO_VULKAN Use transfer queue
-  ezStagingBufferVulkan stagingBuffer = pStagingBufferPool->AllocateBuffer(pInitialData.GetCount());
-  ezMemoryUtils::Copy(stagingBuffer.m_Data.GetPtr(), pInitialData.GetPtr(), pInitialData.GetCount());
+  ezStagingBufferVulkan stagingBuffer = pStagingBufferPool->AllocateBuffer(initialData.GetCount());
+  ezMemoryUtils::Copy(stagingBuffer.m_Data.GetPtr(), initialData.GetPtr(), initialData.GetCount());
 
   vk::BufferCopy region;
   region.srcOffset = stagingBuffer.m_uiOffset;
   region.dstOffset = dstOffset;
-  region.size = pInitialData.GetCount();
+  region.size = initialData.GetCount();
 
-  ezBarrierUtilsVulkan barriers(device, commandBuffer);
+  ezBarrierUtilsVulkan barriers(ref_device, commandBuffer);
 
   barriers.BufferBarrier(stagingBuffer.m_buffer,
     ezGALResourceState::CpuWrite, ezGALResourceState::CopySource);
@@ -733,11 +733,11 @@ void ezGALDeviceVulkan::UploadBufferStaging(ezGALDeviceVulkan& device, ezStaging
   commandBuffer.copyBuffer(stagingBuffer.m_buffer, pBuffer->GetVkBuffer(), 1, &region);
 }
 
-void ezGALDeviceVulkan::UploadTextureStaging(ezGALDeviceVulkan& device, ezStagingBufferPoolVulkan* pStagingBufferPool, vk::CommandBuffer commandBuffer, const ezGALTextureVulkan* pTexture, const vk::ImageSubresourceLayers& subResource, const vk::Offset3D& imageOffset, const vk::Extent3D& imageExtent, const ezGALSystemMemoryDescription& data)
+void ezGALDeviceVulkan::UploadTextureStaging(ezGALDeviceVulkan& ref_device, ezStagingBufferPoolVulkan* pStagingBufferPool, vk::CommandBuffer commandBuffer, const ezGALTextureVulkan* pTexture, const vk::ImageSubresourceLayers& subResource, const vk::Offset3D& imageOffset, const vk::Extent3D& imageExtent, const ezGALSystemMemoryDescription& data)
 {
   const vk::ImageSubresourceRange subresourceRange = ezConversionUtilsVulkan::GetSubresourceRange(subResource);
 
-  ezBarrierUtilsVulkan barriers(device, commandBuffer);
+  ezBarrierUtilsVulkan barriers(ref_device, commandBuffer);
 
   for (ezUInt32 i = 0; i < subResource.layerCount; i++)
   {
@@ -771,11 +771,11 @@ ezResult ezGALDeviceVulkan::ShutdownPlatform()
   DestroyDeadObjects();
 
   ezGALWindowSwapChain::SetFactoryMethod({});
-  if (m_lastCommandBufferFinished)
-    ReclaimLater(m_lastCommandBufferFinished, m_pCommandBufferPool.Borrow());
+  if (m_LastCommandBufferFinished)
+    ReclaimLater(m_LastCommandBufferFinished, m_pCommandBufferPool.Borrow());
 
   // We couldn't create a device in the first place, so early out of shutdown
-  if (!m_device)
+  if (!m_Device)
   {
     return EZ_SUCCESS;
   }
@@ -801,17 +801,17 @@ ezResult ezGALDeviceVulkan::ShutdownPlatform()
   ezTransientDescriptorSetPoolVulkan::DeInitialize();
   ezMemoryAllocatorVulkan::DeInitialize();
 
-  m_device.waitIdle();
-  m_device.destroy();
+  m_Device.waitIdle();
+  m_Device.destroy();
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  if (m_extensions.m_bDebugUtils && m_dispatchContext.vkDestroyDebugUtilsMessengerEXT != nullptr)
+  if (m_Extensions.m_bDebugUtils && m_DispatchContext.vkDestroyDebugUtilsMessengerEXT != nullptr)
   {
-    m_instance.destroyDebugUtilsMessengerEXT(m_debugMessenger, nullptr, m_dispatchContext);
+    m_Instance.destroyDebugUtilsMessengerEXT(m_DebugMessenger, nullptr, m_DispatchContext);
   }
 #endif
 
-  m_instance.destroy();
+  m_Instance.destroy();
   ReportLiveGpuObjects();
 
   return EZ_SUCCESS;
@@ -854,24 +854,24 @@ ezInitContextVulkan& ezGALDeviceVulkan::GetInitContext() const
   return *m_pInitContext.Borrow();
 }
 
-ezGALTextureHandle ezGALDeviceVulkan::CreateTextureInternal(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData)
+ezGALTextureHandle ezGALDeviceVulkan::CreateTextureInternal(const ezGALTextureCreationDescription& description, ezArrayPtr<ezGALSystemMemoryDescription> initialData)
 {
-  ezGALTextureVulkan* pTexture = EZ_NEW(&m_Allocator, ezGALTextureVulkan, Description);
+  ezGALTextureVulkan* pTexture = EZ_NEW(&m_Allocator, ezGALTextureVulkan, description);
 
-  if (!pTexture->InitPlatform(this, pInitialData).Succeeded())
+  if (!pTexture->InitPlatform(this, initialData).Succeeded())
   {
     EZ_DELETE(&m_Allocator, pTexture);
     return ezGALTextureHandle();
   }
 
-  return FinalizeTextureInternal(Description, pTexture);
+  return FinalizeTextureInternal(description, pTexture);
 }
 
-ezGALBufferHandle ezGALDeviceVulkan::CreateBufferInternal(const ezGALBufferCreationDescription& Description, ezArrayPtr<const ezUInt8> pInitialData)
+ezGALBufferHandle ezGALDeviceVulkan::CreateBufferInternal(const ezGALBufferCreationDescription& description, ezArrayPtr<const ezUInt8> initialData)
 {
-  ezGALBufferVulkan* pBuffer = EZ_NEW(&m_Allocator, ezGALBufferVulkan, Description);
+  ezGALBufferVulkan* pBuffer = EZ_NEW(&m_Allocator, ezGALBufferVulkan, description);
 
-  if (!pBuffer->InitPlatform(this, pInitialData).Succeeded())
+  if (!pBuffer->InitPlatform(this, initialData).Succeeded())
   {
     EZ_DELETE(&m_Allocator, pBuffer);
     return ezGALBufferHandle();
@@ -915,16 +915,16 @@ vk::Fence ezGALDeviceVulkan::Submit(bool bAddSignalSemaphore, bool bAddUpdateFor
     submitInfo.pCommandBuffers = buffers.GetData();
   }
 
-  if (m_lastCommandBufferFinished)
+  if (m_LastCommandBufferFinished)
   {
-    AddWaitSemaphore(ezGALDeviceVulkan::SemaphoreInfo::MakeWaitSemaphore(m_lastCommandBufferFinished, vk::PipelineStageFlagBits::eAllCommands));
-    ReclaimLater(m_lastCommandBufferFinished);
+    AddWaitSemaphore(ezGALDeviceVulkan::SemaphoreInfo::MakeWaitSemaphore(m_LastCommandBufferFinished, vk::PipelineStageFlagBits::eAllCommands));
+    ReclaimLater(m_LastCommandBufferFinished);
   }
 
   if (bAddSignalSemaphore)
   {
-    m_lastCommandBufferFinished = ezSemaphorePoolVulkan::RequestSemaphore();
-    AddSignalSemaphore(ezGALDeviceVulkan::SemaphoreInfo::MakeSignalSemaphore(m_lastCommandBufferFinished));
+    m_LastCommandBufferFinished = ezSemaphorePoolVulkan::RequestSemaphore();
+    AddSignalSemaphore(ezGALDeviceVulkan::SemaphoreInfo::MakeSignalSemaphore(m_LastCommandBufferFinished));
   }
   vk::Fence renderFence = ezFencePoolVulkan::RequestFence();
 
@@ -934,7 +934,7 @@ vk::Fence ezGALDeviceVulkan::Submit(bool bAddSignalSemaphore, bool bAddUpdateFor
 
   ezHybridArray<ezUInt64, 3> waitSemaphoreValues;
   ezHybridArray<ezUInt64, 3> signalSemaphoreValues;
-  for (const SemaphoreInfo sem : m_waitSemaphores)
+  for (const SemaphoreInfo sem : m_WaitSemaphores)
   {
     waitSemaphores.PushBack(sem.m_semaphore);
     if (sem.m_type == vk::SemaphoreType::eTimeline)
@@ -943,9 +943,9 @@ vk::Fence ezGALDeviceVulkan::Submit(bool bAddSignalSemaphore, bool bAddUpdateFor
     }
     waitStages.PushBack(vk::PipelineStageFlagBits::eAllCommands);
   }
-  m_waitSemaphores.Clear();
+  m_WaitSemaphores.Clear();
 
-  for (const SemaphoreInfo sem : m_signalSemaphores)
+  for (const SemaphoreInfo sem : m_SignalSemaphores)
   {
     signalSemaphores.PushBack(sem.m_semaphore);
     if (sem.m_type == vk::SemaphoreType::eTimeline)
@@ -953,7 +953,7 @@ vk::Fence ezGALDeviceVulkan::Submit(bool bAddSignalSemaphore, bool bAddUpdateFor
       signalSemaphoreValues.PushBack(sem.m_uiValue);
     }
   }
-  m_signalSemaphores.Clear();
+  m_SignalSemaphores.Clear();
 
 
   // If a timeline semaphore is present, all semaphores need a value, even binary ones because validation says so.
@@ -991,7 +991,7 @@ vk::Fence ezGALDeviceVulkan::Submit(bool bAddSignalSemaphore, bool bAddUpdateFor
 
   {
     m_PerFrameData[m_uiCurrentPerFrameData].m_CommandBufferFences.PushBack(renderFence);
-    m_graphicsQueue.m_queue.submit(1, &submitInfo, renderFence);
+    m_GraphicsQueue.m_queue.submit(1, &submitInfo, renderFence);
   }
 
   m_pCommandEncoderImpl->AfterCommandBufferSubmit(renderFence);
@@ -1535,11 +1535,11 @@ void ezGALDeviceVulkan::BeginFramePlatform(ezArrayPtr<ezGALSwapChain*> swapchain
         bool bFencesReached = true;
         for (vk::Fence fence : perFrameData.m_CommandBufferFences)
         {
-          vk::Result fenceStatus = m_device.getFenceStatus(fence);
+          vk::Result fenceStatus = m_Device.getFenceStatus(fence);
           if (fenceStatus == vk::Result::eNotReady)
           {
             if (bForce)
-              VK_ASSERT_DEV(m_device.waitForFences(1, &fence, true, ezMath::MaxValue<ezUInt64>()));
+              VK_ASSERT_DEV(m_Device.waitForFences(1, &fence, true, ezMath::MaxValue<ezUInt64>()));
             else
             {
               bFencesReached = false;
@@ -1666,7 +1666,7 @@ ezUInt64 ezGALDeviceVulkan::GetSafeFramePlatform() const
 
 void ezGALDeviceVulkan::FillCapabilitiesPlatform()
 {
-  vk::PhysicalDeviceMemoryProperties memProperties = m_physicalDevice.getMemoryProperties();
+  vk::PhysicalDeviceMemoryProperties memProperties = m_PhysicalDevice.getMemoryProperties();
   vk::PhysicalDeviceFeatures2 features = GetPhysicalDeviceFeatures();
 
   ezUInt64 dedicatedMemory = 0;
@@ -1684,11 +1684,11 @@ void ezGALDeviceVulkan::FillCapabilitiesPlatform()
   }
 
   {
-    m_Capabilities.m_sAdapterName = ezStringUtf8(m_properties.properties.deviceName).GetData();
+    m_Capabilities.m_sAdapterName = ezStringUtf8(m_Properties.properties.deviceName).GetData();
     m_Capabilities.m_uiDedicatedVRAM = static_cast<ezUInt64>(dedicatedMemory);
     m_Capabilities.m_uiDedicatedSystemRAM = static_cast<ezUInt64>(systemMemory);
     m_Capabilities.m_uiSharedSystemRAM = static_cast<ezUInt64>(0); // TODO
-    m_Capabilities.m_bHardwareAccelerated = m_properties.properties.deviceType == vk::PhysicalDeviceType::eDiscreteGpu;
+    m_Capabilities.m_bHardwareAccelerated = m_Properties.properties.deviceType == vk::PhysicalDeviceType::eDiscreteGpu;
     m_Capabilities.m_bSupportsTexelBuffer = true;
     m_Capabilities.m_bSupportsMultiSampledArrays = true;
   }
@@ -1704,16 +1704,16 @@ void ezGALDeviceVulkan::FillCapabilitiesPlatform()
   m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::PixelShader] = true;
   m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::ComputeShader] = true; // we check this when creating the queue, always has to be supported
   m_Capabilities.m_bSupportsIndirectDraw = true;
-  m_Capabilities.m_uiMaxPushConstantsSize = ezMath::Min(m_properties.properties.limits.maxPushConstantsSize, (ezUInt32)ezMath::MaxValue<ezUInt16>());
+  m_Capabilities.m_uiMaxPushConstantsSize = ezMath::Min(m_Properties.properties.limits.maxPushConstantsSize, (ezUInt32)ezMath::MaxValue<ezUInt16>());
   ;
 #if EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
-  m_Capabilities.m_bSupportsSharedTextures = m_extensions.m_bTimelineSemaphore && m_extensions.m_bExternalMemoryFd && m_extensions.m_bExternalSemaphoreFd;
+  m_Capabilities.m_bSupportsSharedTextures = m_Extensions.m_bTimelineSemaphore && m_Extensions.m_bExternalMemoryFd && m_Extensions.m_bExternalSemaphoreFd;
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  m_Capabilities.m_bSupportsSharedTextures = m_extensions.m_bTimelineSemaphore && m_extensions.m_bExternalMemoryWin32 && m_extensions.m_bExternalSemaphoreWin32;
+  m_Capabilities.m_bSupportsSharedTextures = m_Extensions.m_bTimelineSemaphore && m_Extensions.m_bExternalMemoryWin32 && m_Extensions.m_bExternalSemaphoreWin32;
 #else
   EZ_ASSERT_NOT_IMPLEMENTED;
 #endif
-  m_Capabilities.m_bSupportsVSRenderTargetArrayIndex = m_extensions.m_bShaderViewportIndexLayer;
+  m_Capabilities.m_bSupportsVSRenderTargetArrayIndex = m_Extensions.m_bShaderViewportIndexLayer;
 
   m_Capabilities.m_bSupportsConservativeRasterization = false; // need to query for VK_EXT_CONSERVATIVE_RASTERIZATION
   m_Capabilities.m_bSupportsWireframe = features.features.fillModeNonSolid;
@@ -1771,7 +1771,7 @@ void ezGALDeviceVulkan::WaitIdleInternal(bool bAddUpdateForNextFrameCommands)
 {
   // Make sure command buffers get flushed. Also, no need to add a wait semaphore if we flush anyway, all commands will be done.
   Submit(false, bAddUpdateForNextFrameCommands);
-  m_device.waitIdle();
+  m_Device.waitIdle();
 
   DestroyDeadObjects();
 
@@ -1781,10 +1781,10 @@ void ezGALDeviceVulkan::WaitIdleInternal(bool bAddUpdateForNextFrameCommands)
     auto& perFrameData = m_PerFrameData[i];
     for (vk::Fence fence : perFrameData.m_CommandBufferFences)
     {
-      vk::Result fenceStatus = m_device.getFenceStatus(fence);
+      vk::Result fenceStatus = m_Device.getFenceStatus(fence);
       if (fenceStatus == vk::Result::eNotReady)
       {
-        m_device.waitForFences(1, &fence, true, 1000000000);
+        m_Device.waitForFences(1, &fence, true, 1000000000);
       }
     }
     perFrameData.m_CommandBufferFences.Clear();
@@ -1811,9 +1811,9 @@ vk::PhysicalDeviceFeatures2 ezGALDeviceVulkan::GetPhysicalDeviceFeatures(void* p
 {
   vk::PhysicalDeviceFeatures2 features;
   features.pNext = pNext;
-  m_physicalDevice.getFeatures2(&features);
+  m_PhysicalDevice.getFeatures2(&features);
 
-  ezStringBuilder sDeviceName = ezStringUtf8(m_properties.properties.deviceName).GetView();
+  ezStringBuilder sDeviceName = ezStringUtf8(m_Properties.properties.deviceName).GetView();
   // Tessellation test crashes on Mali
   if (sDeviceName == "Mali-G610")
     features.features.tessellationShader = false;
@@ -1822,15 +1822,15 @@ vk::PhysicalDeviceFeatures2 ezGALDeviceVulkan::GetPhysicalDeviceFeatures(void* p
 
 vk::PipelineStageFlags ezGALDeviceVulkan::GetSupportedStages() const
 {
-  return m_supportedStages;
+  return m_SupportedStages;
 }
 
 ezInt32 ezGALDeviceVulkan::GetMemoryIndex(vk::MemoryPropertyFlags properties, const vk::MemoryRequirements& requirements) const
 {
 
-  for (ezUInt32 i = 0; i < m_memoryProperties.memoryTypeCount; ++i)
+  for (ezUInt32 i = 0; i < m_MemoryProperties.memoryTypeCount; ++i)
   {
-    const vk::MemoryType& type = m_memoryProperties.memoryTypes[i];
+    const vk::MemoryType& type = m_MemoryProperties.memoryTypes[i];
     if (requirements.memoryTypeBits & (1 << i) && (type.propertyFlags & properties))
     {
       return i;
@@ -1878,7 +1878,7 @@ void ezGALDeviceVulkan::DeletePendingResources(ezDeque<PendingDeletion>& pending
         }
         break;
       case vk::ObjectType::eImageView:
-        m_device.destroyImageView(reinterpret_cast<vk::ImageView&>(deletion.m_pObject));
+        m_Device.destroyImageView(reinterpret_cast<vk::ImageView&>(deletion.m_pObject));
         break;
       case vk::ObjectType::eImage:
       {
@@ -1886,9 +1886,9 @@ void ezGALDeviceVulkan::DeletePendingResources(ezDeque<PendingDeletion>& pending
         OnBeforeImageDestroyed.Broadcast(OnBeforeImageDestroyedData{image, *this});
         if (deletion.m_flags.IsSet(PendingDeletionFlags::UsesExternalMemory))
         {
-          m_device.destroyImage(image);
+          m_Device.destroyImage(image);
           auto& deviceMemory = reinterpret_cast<vk::DeviceMemory&>(deletion.m_pContext);
-          m_device.freeMemory(deviceMemory);
+          m_Device.freeMemory(deviceMemory);
         }
         else
         {
@@ -1900,44 +1900,44 @@ void ezGALDeviceVulkan::DeletePendingResources(ezDeque<PendingDeletion>& pending
         ezMemoryAllocatorVulkan::DestroyBuffer(reinterpret_cast<vk::Buffer&>(deletion.m_pObject), deletion.m_allocation);
         break;
       case vk::ObjectType::eBufferView:
-        m_device.destroyBufferView(reinterpret_cast<vk::BufferView&>(deletion.m_pObject));
+        m_Device.destroyBufferView(reinterpret_cast<vk::BufferView&>(deletion.m_pObject));
         break;
       case vk::ObjectType::eFramebuffer:
-        m_device.destroyFramebuffer(reinterpret_cast<vk::Framebuffer&>(deletion.m_pObject));
+        m_Device.destroyFramebuffer(reinterpret_cast<vk::Framebuffer&>(deletion.m_pObject));
         break;
       case vk::ObjectType::eRenderPass:
-        m_device.destroyRenderPass(reinterpret_cast<vk::RenderPass&>(deletion.m_pObject));
+        m_Device.destroyRenderPass(reinterpret_cast<vk::RenderPass&>(deletion.m_pObject));
         break;
       case vk::ObjectType::eSampler:
-        m_device.destroySampler(reinterpret_cast<vk::Sampler&>(deletion.m_pObject));
+        m_Device.destroySampler(reinterpret_cast<vk::Sampler&>(deletion.m_pObject));
         break;
       case vk::ObjectType::eSemaphore:
-        m_device.destroySemaphore(reinterpret_cast<vk::Semaphore&>(deletion.m_pObject));
+        m_Device.destroySemaphore(reinterpret_cast<vk::Semaphore&>(deletion.m_pObject));
         break;
       case vk::ObjectType::eSwapchainKHR:
-        m_device.destroySwapchainKHR(reinterpret_cast<vk::SwapchainKHR&>(deletion.m_pObject));
+        m_Device.destroySwapchainKHR(reinterpret_cast<vk::SwapchainKHR&>(deletion.m_pObject));
         break;
       case vk::ObjectType::eSurfaceKHR:
-        m_instance.destroySurfaceKHR(reinterpret_cast<vk::SurfaceKHR&>(deletion.m_pObject));
+        m_Instance.destroySurfaceKHR(reinterpret_cast<vk::SurfaceKHR&>(deletion.m_pObject));
         if (ezWindowBase* pWindow = reinterpret_cast<ezWindowBase*>(deletion.m_pContext))
         {
           pWindow->RemoveReference();
         }
         break;
       case vk::ObjectType::eShaderModule:
-        m_device.destroyShaderModule(reinterpret_cast<vk::ShaderModule&>(deletion.m_pObject));
+        m_Device.destroyShaderModule(reinterpret_cast<vk::ShaderModule&>(deletion.m_pObject));
         break;
       case vk::ObjectType::ePipeline:
-        m_device.destroyPipeline(reinterpret_cast<vk::Pipeline&>(deletion.m_pObject));
+        m_Device.destroyPipeline(reinterpret_cast<vk::Pipeline&>(deletion.m_pObject));
         break;
       case vk::ObjectType::eDescriptorSetLayout:
-        m_device.destroyDescriptorSetLayout(reinterpret_cast<vk::DescriptorSetLayout&>(deletion.m_pObject));
+        m_Device.destroyDescriptorSetLayout(reinterpret_cast<vk::DescriptorSetLayout&>(deletion.m_pObject));
         break;
       case vk::ObjectType::ePipelineLayout:
-        m_device.destroyPipelineLayout(reinterpret_cast<vk::PipelineLayout&>(deletion.m_pObject));
+        m_Device.destroyPipelineLayout(reinterpret_cast<vk::PipelineLayout&>(deletion.m_pObject));
         break;
       case vk::ObjectType::eDescriptorPool:
-        m_device.destroyDescriptorPool(reinterpret_cast<vk::DescriptorPool&>(deletion.m_pObject));
+        m_Device.destroyDescriptorPool(reinterpret_cast<vk::DescriptorPool&>(deletion.m_pObject));
         break;
       default:
         EZ_REPORT_FAILURE("This object type is not implemented");
@@ -2060,7 +2060,7 @@ void ezGALDeviceVulkan::FillFormatLookupTable()
     for (auto& format : list)
     {
       vk::FormatProperties formatProperties;
-      m_physicalDevice.getFormatProperties(format, &formatProperties);
+      m_PhysicalDevice.getFormatProperties(format, &formatProperties);
       if (formatProperties.optimalTilingFeatures & vk::FormatFeatureFlagBits::eDepthStencilAttachment)
         return format;
     }
@@ -2134,7 +2134,7 @@ void ezGALDeviceVulkan::FillFormatLookupTable()
       const ezGALFormatLookupEntryVulkan& entry = m_FormatLookupTable.GetFormatInfo((ezGALResourceFormat::Enum)i);
 
       vk::FormatProperties formatProperties;
-      m_physicalDevice.getFormatProperties(entry.m_format, &formatProperties);
+      m_PhysicalDevice.getFormatProperties(entry.m_format, &formatProperties);
 
       const bool bSampled = static_cast<bool>(formatProperties.optimalTilingFeatures & vk::FormatFeatureFlagBits::eSampledImage);
       const bool bColorAttachment = static_cast<bool>(formatProperties.optimalTilingFeatures & vk::FormatFeatureFlagBits::eColorAttachment);
@@ -2169,18 +2169,18 @@ void ezGALDeviceVulkan::AddWaitSemaphore(const SemaphoreInfo& waitSemaphore)
 {
   // #TODO_VULKAN Assert is in render pipeline, thread safety
   if (waitSemaphore.m_type == vk::SemaphoreType::eTimeline)
-    m_waitSemaphores.InsertAt(0, waitSemaphore);
+    m_WaitSemaphores.InsertAt(0, waitSemaphore);
   else
-    m_waitSemaphores.PushBack(waitSemaphore);
+    m_WaitSemaphores.PushBack(waitSemaphore);
 }
 
 void ezGALDeviceVulkan::AddSignalSemaphore(const SemaphoreInfo& signalSemaphore)
 {
   // #TODO_VULKAN Assert is in render pipeline, thread safety
   if (signalSemaphore.m_type == vk::SemaphoreType::eTimeline)
-    m_signalSemaphores.InsertAt(0, signalSemaphore);
+    m_SignalSemaphores.InsertAt(0, signalSemaphore);
   else
-    m_signalSemaphores.PushBack(signalSemaphore);
+    m_SignalSemaphores.PushBack(signalSemaphore);
 }
 
 ezGALGraphicsPipeline* ezGALDeviceVulkan::CreateGraphicsPipelinePlatform(const ezGALGraphicsPipelineCreationDescription& Description)

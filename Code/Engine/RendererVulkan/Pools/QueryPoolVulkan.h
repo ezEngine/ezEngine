@@ -106,7 +106,7 @@ private:
   // Timestamp conversion and calibration data.
   double m_fNanoSecondsPerTick = 0;
   ezUInt64 m_uiValidBitsMask = 0;
-  ezTime m_gpuToCpuDelta;
+  ezTime m_GpuToCpuDelta;
 
   // Pools
   Pool m_TimestampPool;

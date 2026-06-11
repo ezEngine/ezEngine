@@ -23,9 +23,9 @@ protected:
 
   virtual ~ezGALVertexDeclarationVulkan();
 
-  vk::PipelineVertexInputStateCreateInfo m_createInfo;
-  ezHybridArray<vk::VertexInputAttributeDescription, EZ_GAL_MAX_VERTEX_ATTRIBUTE_COUNT> m_attributes;
-  ezHybridArray<vk::VertexInputBindingDescription, EZ_GAL_MAX_VERTEX_BUFFER_COUNT> m_bindings;
+  vk::PipelineVertexInputStateCreateInfo m_CreateInfo;
+  ezHybridArray<vk::VertexInputAttributeDescription, EZ_GAL_MAX_VERTEX_ATTRIBUTE_COUNT> m_Attributes;
+  ezHybridArray<vk::VertexInputBindingDescription, EZ_GAL_MAX_VERTEX_BUFFER_COUNT> m_Bindings;
 };
 
 #include <RendererVulkan/Shader/Implementation/VertexDeclarationVulkan_inl.h>

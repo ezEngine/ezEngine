@@ -15,12 +15,12 @@ public:
   virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
-  const vk::Pipeline& GetPipeline() const { return m_pipeline; }
+  const vk::Pipeline& GetPipeline() const { return m_Pipeline; }
   bool HasStencilTest() const { return m_bStencilTest; }
 
   virtual void SetDebugName(const char* szName) override;
 
 private:
-  vk::Pipeline m_pipeline;
+  vk::Pipeline m_Pipeline;
   bool m_bStencilTest = false;
 };

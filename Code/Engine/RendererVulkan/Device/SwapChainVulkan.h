@@ -32,16 +32,16 @@ protected:
 
 protected:
   ezGALDeviceVulkan* m_pVulkanDevice = nullptr;
-  ezEnum<ezGALPresentMode> m_currentPresentMode;
+  ezEnum<ezGALPresentMode> m_CurrentPresentMode;
 
-  vk::SurfaceKHR m_vulkanSurface;
-  vk::SwapchainKHR m_vulkanSwapChain;
-  ezHybridArray<vk::Image, 4> m_swapChainImages;
-  ezHybridArray<ezGALTextureHandle, 4> m_swapChainTextures;
+  vk::SurfaceKHR m_VulkanSurface;
+  vk::SwapchainKHR m_VulkanSwapChain;
+  ezHybridArray<vk::Image, 4> m_SwapChainImages;
+  ezHybridArray<ezGALTextureHandle, 4> m_SwapChainTextures;
   ezUInt32 m_uiCurrentSwapChainImage = 0;
 
-  vk::Semaphore m_currentPipelineImageAvailableSemaphore;
-  ezHybridArray<vk::Semaphore, 4> m_imageRenderFinishedSemaphores;
+  vk::Semaphore m_CurrentPipelineImageAvailableSemaphore;
+  ezHybridArray<vk::Semaphore, 4> m_ImageRenderFinishedSemaphores;
 };
 
 #include <RendererVulkan/Device/Implementation/SwapChainVulkan_inl.h>

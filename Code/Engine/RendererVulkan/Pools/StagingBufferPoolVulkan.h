@@ -30,7 +30,7 @@ public:
   /// \brief Allocates a temp buffer of the given size.
   /// \param size The size of the temp buffer.
   /// \return Allocated temp buffer.
-  ezStagingBufferVulkan AllocateBuffer(ezUInt64 size);
+  ezStagingBufferVulkan AllocateBuffer(ezUInt64 uiSize);
 
 private:
   static constexpr ezUInt32 s_uiNumberOfFramesToKeepUnusedPoolsAlive = 600;
@@ -39,7 +39,7 @@ private:
   {
     StagingBufferPool(ezUInt32 uiAlignment, ezUInt32 uiTotalSize);
     ~StagingBufferPool();
-    ezResult Allocate(ezUInt32 uiSize, ezUInt64 uiCurrentFrame, ezUInt32& out_uiStartOffset, ezByteArrayPtr& out_Allocation);
+    ezResult Allocate(ezUInt32 uiSize, ezUInt64 uiCurrentFrame, ezUInt32& out_uiStartOffset, ezByteArrayPtr& out_allocation);
     void Free(ezUInt64 uiUpToFrame);
     void Submit(ezGALDeviceVulkan* pDevice, ezUInt64 uiFrame);
 
@@ -58,7 +58,7 @@ private:
   ezUInt64 m_uiAlignment = 0;
   ezUInt64 m_uiStartingPoolSize = 10 * 1024u * 1024u;
   ezGALDeviceVulkan* m_pDevice = nullptr;
-  vk::Device m_device;
+  vk::Device m_Device;
 
   ezHybridArray<StagingBufferPool*, 8> m_Pools;
   ezUInt64 m_uiHighWatermark = 0;

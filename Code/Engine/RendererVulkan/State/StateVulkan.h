@@ -22,7 +22,7 @@ protected:
 
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
-  vk::PipelineColorBlendStateCreateInfo m_blendState = {};
+  vk::PipelineColorBlendStateCreateInfo m_BlendState = {};
   vk::PipelineColorBlendAttachmentState m_blendAttachmentState[8] = {};
 };
 
@@ -43,7 +43,7 @@ protected:
 
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
-  vk::PipelineDepthStencilStateCreateInfo m_depthStencilState = {};
+  vk::PipelineDepthStencilStateCreateInfo m_DepthStencilState = {};
 };
 
 class EZ_RENDERERVULKAN_DLL ezGALRasterizerStateVulkan : public ezGALRasterizerState
@@ -63,7 +63,7 @@ protected:
 
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
-  vk::PipelineRasterizationStateCreateInfo m_rasterizerState = {};
+  vk::PipelineRasterizationStateCreateInfo m_RasterizerState = {};
 };
 
 class EZ_RENDERERVULKAN_DLL ezGALSamplerStateVulkan : public ezGALSamplerState
@@ -81,7 +81,7 @@ protected:
   virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
-  vk::DescriptorImageInfo m_resourceImageInfo;
+  vk::DescriptorImageInfo m_ResourceImageInfo;
 };
 
 

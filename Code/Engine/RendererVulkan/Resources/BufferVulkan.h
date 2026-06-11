@@ -34,20 +34,20 @@ protected:
   void CreateBuffer();
 
 protected:
-  vk::Buffer m_buffer = {};
-  ezVulkanAllocation m_alloc = {};
-  ezVulkanAllocationInfo m_allocInfo = {};
-  vk::DescriptorBufferInfo m_resourceBufferInfo = {};
+  vk::Buffer m_Buffer = {};
+  ezVulkanAllocation m_pAlloc = {};
+  ezVulkanAllocationInfo m_AllocInfo = {};
+  vk::DescriptorBufferInfo m_ResourceBufferInfo = {};
 
   // Data for memory barriers and access
-  vk::PipelineStageFlags m_stages = {};
-  vk::AccessFlags m_access = {};
-  vk::IndexType m_indexType = vk::IndexType::eUint16; // Only applicable for index buffers
-  vk::BufferUsageFlags m_usage = {};
-  vk::DeviceSize m_size = 0;
+  vk::PipelineStageFlags m_Stages = {};
+  vk::AccessFlags m_Access = {};
+  vk::IndexType m_IndexType = vk::IndexType::eUint16; // Only applicable for index buffers
+  vk::BufferUsageFlags m_Usage = {};
+  vk::DeviceSize m_Size = 0;
 
   ezGALDeviceVulkan* m_pDeviceVulkan = nullptr;
-  vk::Device m_device = {};
+  vk::Device m_Device = {};
 
   // Views
   struct View : ezHashableStruct<View>

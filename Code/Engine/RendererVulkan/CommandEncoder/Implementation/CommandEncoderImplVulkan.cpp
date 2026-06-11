@@ -29,7 +29,7 @@
 ezGALCommandEncoderImplVulkan::ezGALCommandEncoderImplVulkan(ezGALDeviceVulkan& device)
   : m_GALDeviceVulkan(device)
 {
-  m_vkDevice = device.GetVulkanDevice();
+  m_VkDevice = device.GetVulkanDevice();
   m_pUniformBufferPool = EZ_NEW(device.GetAllocator(), ezUniformBufferPoolVulkan, &device);
   m_pUniformBufferPool->Initialize();
   m_pWritePool = EZ_NEW(device.GetAllocator(), ezDescriptorWritePoolVulkan, &device);
@@ -50,8 +50,8 @@ void ezGALCommandEncoderImplVulkan::Reset()
   m_pGraphicsPipeline = nullptr;
   m_pComputePipeline = nullptr;
 
-  m_viewport = vk::Viewport();
-  m_scissor = vk::Rect2D();
+  m_Viewport = vk::Viewport();
+  m_Scissor = vk::Rect2D();
   m_uiStencilRefValue = 0;
 
   m_pIndexBuffer = nullptr;
@@ -74,7 +74,7 @@ void ezGALCommandEncoderImplVulkan::Reset()
   m_DescriptorCache.Clear();
   m_PushConstants.Clear();
 
-  m_renderPass = vk::RenderPassBeginInfo();
+  m_RenderPass = vk::RenderPassBeginInfo();
 }
 
 void ezGALCommandEncoderImplVulkan::EndFrame()
@@ -503,55 +503,55 @@ void ezGALCommandEncoderImplVulkan::BeginRenderingPlatform(const ezGALRenderingS
   // We have to ensure we have enough queries before entering the render pass as we can't replenish pools while within.
   m_GALDeviceVulkan.GetQueryPool().EnsureFreeQueryPoolSize(*m_pCommandBuffer);
 
-  m_renderPass.renderPass = ezResourceCacheVulkan::RequestRenderPass(renderingSetup.GetRenderPass());
-  m_renderPass.framebuffer = ezResourceCacheVulkan::RequestFrameBuffer(m_renderPass.renderPass, renderingSetup.GetFrameBuffer());
+  m_RenderPass.renderPass = ezResourceCacheVulkan::RequestRenderPass(renderingSetup.GetRenderPass());
+  m_RenderPass.framebuffer = ezResourceCacheVulkan::RequestFrameBuffer(m_RenderPass.renderPass, renderingSetup.GetFrameBuffer());
   m_uiLayers = renderingSetup.GetFrameBuffer().m_uiSliceCount;
   ezSizeU32 size = renderingSetup.GetFrameBuffer().m_Size;
   SetScissorRectPlatform(ezRectU32(size.width, size.height));
 
   {
-    m_renderPass.renderArea.offset.setX(0).setY(0);
-    m_renderPass.renderArea.extent.setHeight(size.height).setWidth(size.width);
+    m_RenderPass.renderArea.offset.setX(0).setY(0);
+    m_RenderPass.renderArea.extent.setHeight(size.height).setWidth(size.width);
 
-    m_clearValues.Clear();
+    m_ClearValues.Clear();
     const bool bHasDepth = renderingSetup.HasDepthStencilTarget();
     const ezUInt32 uiColorCount = renderingSetup.GetColorTargetCount();
 
     if (bHasDepth)
     {
-      vk::ClearValue& depthClear = m_clearValues.ExpandAndGetRef();
+      vk::ClearValue& depthClear = m_ClearValues.ExpandAndGetRef();
       depthClear.depthStencil.setDepth(renderingSetup.GetClearDepth()).setStencil(renderingSetup.GetClearStencil());
 
       const ezGALRenderTargetViewVulkan* pRenderTargetView = static_cast<const ezGALRenderTargetViewVulkan*>(m_GALDeviceVulkan.GetRenderTargetView(renderingSetup.GetFrameBuffer().m_hDepthTarget));
-      m_depthMask = pRenderTargetView->GetRange().aspectMask;
+      m_DepthMask = pRenderTargetView->GetRange().aspectMask;
     }
     for (ezUInt32 i = 0; i < uiColorCount; i++)
     {
-      vk::ClearValue& colorClear = m_clearValues.ExpandAndGetRef();
+      vk::ClearValue& colorClear = m_ClearValues.ExpandAndGetRef();
       ezColor col = renderingSetup.GetClearColor(i);
       colorClear.color.setFloat32({col.r, col.g, col.b, col.a});
     }
 
-    m_renderPass.clearValueCount = m_clearValues.GetCount();
-    m_renderPass.pClearValues = m_clearValues.GetData();
+    m_RenderPass.clearValueCount = m_ClearValues.GetCount();
+    m_RenderPass.pClearValues = m_ClearValues.GetData();
   }
 
   m_bPipelineStateDirty = true;
   m_bViewportDirty = true;
   m_bScissorDirty = true;
 
-  m_pCommandBuffer->beginRenderPass(m_renderPass, vk::SubpassContents::eInline);
+  m_pCommandBuffer->beginRenderPass(m_RenderPass, vk::SubpassContents::eInline);
 }
 
 void ezGALCommandEncoderImplVulkan::EndRenderingPlatform()
 {
   m_pCommandBuffer->endRenderPass();
 
-  m_depthMask = {};
+  m_DepthMask = {};
   m_uiLayers = 0;
 
-  m_renderPass.renderPass = nullptr;
-  m_renderPass.framebuffer = nullptr;
+  m_RenderPass.renderPass = nullptr;
+  m_RenderPass.framebuffer = nullptr;
 }
 
 void ezGALCommandEncoderImplVulkan::ClearPlatform(const ezColor& ClearColor, ezUInt32 uiRenderTargetClearMask, bool bClearDepth, bool bClearStencil, float fDepthClear, ezUInt8 uiStencilClear)
@@ -574,15 +574,15 @@ void ezGALCommandEncoderImplVulkan::ClearPlatform(const ezColor& ClearColor, ezU
     }
   }
   // Clear depth / stencil
-  if ((bClearDepth || bClearStencil) && m_depthMask != vk::ImageAspectFlagBits::eNone)
+  if ((bClearDepth || bClearStencil) && m_DepthMask != vk::ImageAspectFlagBits::eNone)
   {
     vk::ClearAttachment& attachment = attachments.ExpandAndGetRef();
-    if (bClearDepth && (m_depthMask & vk::ImageAspectFlagBits::eDepth))
+    if (bClearDepth && (m_DepthMask & vk::ImageAspectFlagBits::eDepth))
     {
       attachment.aspectMask |= vk::ImageAspectFlagBits::eDepth;
       attachment.clearValue.depthStencil.setDepth(fDepthClear);
     }
-    if (bClearStencil && (m_depthMask & vk::ImageAspectFlagBits::eStencil))
+    if (bClearStencil && (m_DepthMask & vk::ImageAspectFlagBits::eStencil))
     {
       attachment.aspectMask |= vk::ImageAspectFlagBits::eStencil;
       attachment.clearValue.depthStencil.setStencil(uiStencilClear);
@@ -592,7 +592,7 @@ void ezGALCommandEncoderImplVulkan::ClearPlatform(const ezColor& ClearColor, ezU
   vk::ClearRect rect;
   rect.baseArrayLayer = 0;
   rect.layerCount = m_uiLayers;
-  rect.rect = m_renderPass.renderArea;
+  rect.rect = m_RenderPass.renderArea;
   m_pCommandBuffer->clearAttachments(attachments.GetCount(), attachments.GetData(), 1, &rect);
 }
 
@@ -692,7 +692,7 @@ void ezGALCommandEncoderImplVulkan::SetGraphicsPipelinePlatform(const ezGALGraph
     }
     if (bScissorEnabled != m_bScissorEnabled)
     {
-      // Whether scissor follows m_scissor or is derived from m_viewport changes, so the scissor must be re-applied.
+      // Whether scissor follows m_Scissor or is derived from m_Viewport changes, so the scissor must be re-applied.
       m_bScissorDirty = true;
       m_bScissorEnabled = bScissorEnabled;
     }
@@ -727,10 +727,10 @@ void ezGALCommandEncoderImplVulkan::SetViewportPlatform(const ezRectFloat& rect,
   // We use ezClipSpaceYMode::Regular and rely in the Vulkan 1.1 feature that a negative height performs y-inversion of the clip-space to framebuffer-space transform.
   // https://www.khronos.org/registry/vulkan/specs/1.3-extensions/man/html/VK_KHR_maintenance1.html
   vk::Viewport viewport = {rect.x, rect.height + rect.y, rect.width, -rect.height, fMinDepth, fMaxDepth};
-  if (m_viewport != viewport)
+  if (m_Viewport != viewport)
   {
     // Viewport is marked as dynamic in the pipeline layout and thus does not mark m_bPipelineStateDirty.
-    m_viewport = viewport;
+    m_Viewport = viewport;
     m_bViewportDirty = true;
     if (!m_bScissorEnabled)
     {
@@ -743,9 +743,9 @@ void ezGALCommandEncoderImplVulkan::SetViewportPlatform(const ezRectFloat& rect,
 void ezGALCommandEncoderImplVulkan::SetScissorRectPlatform(const ezRectU32& rect)
 {
   vk::Rect2D scissor(vk::Offset2D(rect.x, rect.y), vk::Extent2D(rect.width, rect.height));
-  if (m_scissor != scissor)
+  if (m_Scissor != scissor)
   {
-    m_scissor = scissor;
+    m_Scissor = scissor;
     m_bScissorDirty = true;
   }
 }
@@ -811,7 +811,7 @@ ezResult ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges()
 
   if (!m_bInsideCompute && m_bViewportDirty)
   {
-    m_pCommandBuffer->setViewport(0, 1, &m_viewport);
+    m_pCommandBuffer->setViewport(0, 1, &m_Viewport);
     m_bViewportDirty = false;
   }
 
@@ -819,11 +819,11 @@ ezResult ezGALCommandEncoderImplVulkan::FlushDeferredStateChanges()
   {
     if (m_bScissorEnabled)
     {
-      m_pCommandBuffer->setScissor(0, 1, &m_scissor);
+      m_pCommandBuffer->setScissor(0, 1, &m_Scissor);
     }
     else
     {
-      vk::Rect2D noScissor({int(m_viewport.x), int(m_viewport.y + m_viewport.height)}, {ezUInt32(m_viewport.width), ezUInt32(-m_viewport.height)});
+      vk::Rect2D noScissor({int(m_Viewport.x), int(m_Viewport.y + m_Viewport.height)}, {ezUInt32(m_Viewport.width), ezUInt32(-m_Viewport.height)});
       m_pCommandBuffer->setScissor(0, 1, &noScissor);
     }
     m_bScissorDirty = false;

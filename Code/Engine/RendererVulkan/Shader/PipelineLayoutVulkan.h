@@ -7,7 +7,7 @@
 class ezGALPipelineLayoutVulkan : public ezGALPipelineLayout
 {
 public:
-  inline vk::PushConstantRange GetPushConstantRange() const { return m_pushConstants; }
+  inline vk::PushConstantRange GetPushConstantRange() const { return m_PushConstants; }
   inline vk::PipelineLayout GetVkPipelineLayout() const { return m_PipelineLayout; }
 
 protected:
@@ -22,6 +22,6 @@ protected:
   virtual ~ezGALPipelineLayoutVulkan();
 
 private:
-  vk::PushConstantRange m_pushConstants;
+  vk::PushConstantRange m_PushConstants;
   vk::PipelineLayout m_PipelineLayout;
 };

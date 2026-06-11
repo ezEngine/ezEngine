@@ -12,7 +12,7 @@
 ezGALBlendStateVulkan::ezGALBlendStateVulkan(const ezGALBlendStateCreationDescription& Description)
   : ezGALBlendState(Description)
 {
-  m_blendState.pAttachments = m_blendAttachmentState;
+  m_BlendState.pAttachments = m_blendAttachmentState;
 }
 
 ezGALBlendStateVulkan::~ezGALBlendStateVulkan() {}
@@ -115,28 +115,28 @@ ezGALDepthStencilStateVulkan::~ezGALDepthStencilStateVulkan() {}
 
 ezResult ezGALDepthStencilStateVulkan::InitPlatform(ezGALDevice* pDevice)
 {
-  m_depthStencilState.depthBoundsTestEnable = VK_FALSE;
-  m_depthStencilState.depthCompareOp = GALCompareFuncToVulkan[m_Description.m_DepthTestFunc];
-  m_depthStencilState.depthTestEnable = m_Description.m_bDepthEnable ? VK_TRUE : VK_FALSE;
-  m_depthStencilState.depthWriteEnable = m_Description.m_bDepthWrite ? VK_TRUE : VK_FALSE;
-  m_depthStencilState.minDepthBounds = 0.f;
-  m_depthStencilState.maxDepthBounds = 1.f;
+  m_DepthStencilState.depthBoundsTestEnable = VK_FALSE;
+  m_DepthStencilState.depthCompareOp = GALCompareFuncToVulkan[m_Description.m_DepthTestFunc];
+  m_DepthStencilState.depthTestEnable = m_Description.m_bDepthEnable ? VK_TRUE : VK_FALSE;
+  m_DepthStencilState.depthWriteEnable = m_Description.m_bDepthWrite ? VK_TRUE : VK_FALSE;
+  m_DepthStencilState.minDepthBounds = 0.f;
+  m_DepthStencilState.maxDepthBounds = 1.f;
 
-  m_depthStencilState.stencilTestEnable = m_Description.m_bStencilEnable ? VK_TRUE : VK_FALSE;
-  m_depthStencilState.front.compareMask = m_Description.m_uiStencilReadMask;
-  m_depthStencilState.front.writeMask = m_Description.m_uiStencilWriteMask;
-  m_depthStencilState.front.compareOp = GALCompareFuncToVulkan[m_Description.m_FrontFaceStencilOp.m_StencilFunc];
-  m_depthStencilState.front.depthFailOp = GALStencilOpTableIndexToVulkan[m_Description.m_FrontFaceStencilOp.m_DepthFailOp];
-  m_depthStencilState.front.failOp = GALStencilOpTableIndexToVulkan[m_Description.m_FrontFaceStencilOp.m_FailOp];
-  m_depthStencilState.front.passOp = GALStencilOpTableIndexToVulkan[m_Description.m_FrontFaceStencilOp.m_PassOp];
+  m_DepthStencilState.stencilTestEnable = m_Description.m_bStencilEnable ? VK_TRUE : VK_FALSE;
+  m_DepthStencilState.front.compareMask = m_Description.m_uiStencilReadMask;
+  m_DepthStencilState.front.writeMask = m_Description.m_uiStencilWriteMask;
+  m_DepthStencilState.front.compareOp = GALCompareFuncToVulkan[m_Description.m_FrontFaceStencilOp.m_StencilFunc];
+  m_DepthStencilState.front.depthFailOp = GALStencilOpTableIndexToVulkan[m_Description.m_FrontFaceStencilOp.m_DepthFailOp];
+  m_DepthStencilState.front.failOp = GALStencilOpTableIndexToVulkan[m_Description.m_FrontFaceStencilOp.m_FailOp];
+  m_DepthStencilState.front.passOp = GALStencilOpTableIndexToVulkan[m_Description.m_FrontFaceStencilOp.m_PassOp];
 
   const ezGALStencilOpDescription& backFaceStencilOp = m_Description.m_BackFaceStencilOp;
-  m_depthStencilState.back.compareMask = m_Description.m_uiStencilReadMask;
-  m_depthStencilState.back.writeMask = m_Description.m_uiStencilWriteMask;
-  m_depthStencilState.back.compareOp = GALCompareFuncToVulkan[backFaceStencilOp.m_StencilFunc];
-  m_depthStencilState.back.depthFailOp = GALStencilOpTableIndexToVulkan[backFaceStencilOp.m_DepthFailOp];
-  m_depthStencilState.back.failOp = GALStencilOpTableIndexToVulkan[backFaceStencilOp.m_FailOp];
-  m_depthStencilState.back.passOp = GALStencilOpTableIndexToVulkan[backFaceStencilOp.m_PassOp];
+  m_DepthStencilState.back.compareMask = m_Description.m_uiStencilReadMask;
+  m_DepthStencilState.back.writeMask = m_Description.m_uiStencilWriteMask;
+  m_DepthStencilState.back.compareOp = GALCompareFuncToVulkan[backFaceStencilOp.m_StencilFunc];
+  m_DepthStencilState.back.depthFailOp = GALStencilOpTableIndexToVulkan[backFaceStencilOp.m_DepthFailOp];
+  m_DepthStencilState.back.failOp = GALStencilOpTableIndexToVulkan[backFaceStencilOp.m_FailOp];
+  m_DepthStencilState.back.passOp = GALStencilOpTableIndexToVulkan[backFaceStencilOp.m_PassOp];
 
   return EZ_SUCCESS;
 }
@@ -164,14 +164,14 @@ ezResult ezGALRasterizerStateVulkan::InitPlatform(ezGALDevice* pDevice)
   // TODO scissor test is always enabled for vulkan
   // const bool NeedsStateDesc2 = m_Description.m_bConservativeRasterization;
 
-  m_rasterizerState.cullMode = GALCullModeToVulkan[m_Description.m_CullMode];
-  m_rasterizerState.depthBiasClamp = m_Description.m_fDepthBiasClamp;
-  m_rasterizerState.depthBiasConstantFactor = static_cast<float>(m_Description.m_iDepthBias); // TODO does this have the intended effect?
-  m_rasterizerState.depthBiasSlopeFactor = m_Description.m_fSlopeScaledDepthBias;
-  m_rasterizerState.depthClampEnable = m_Description.m_fDepthBiasClamp > 0.f;
-  m_rasterizerState.frontFace = m_Description.m_bFrontCounterClockwise ? vk::FrontFace::eCounterClockwise : vk::FrontFace::eClockwise;
-  m_rasterizerState.lineWidth = 1.f;
-  m_rasterizerState.polygonMode = m_Description.m_bWireFrame ? vk::PolygonMode::eLine : vk::PolygonMode::eFill;
+  m_RasterizerState.cullMode = GALCullModeToVulkan[m_Description.m_CullMode];
+  m_RasterizerState.depthBiasClamp = m_Description.m_fDepthBiasClamp;
+  m_RasterizerState.depthBiasConstantFactor = static_cast<float>(m_Description.m_iDepthBias); // TODO does this have the intended effect?
+  m_RasterizerState.depthBiasSlopeFactor = m_Description.m_fSlopeScaledDepthBias;
+  m_RasterizerState.depthClampEnable = m_Description.m_fDepthBiasClamp > 0.f;
+  m_RasterizerState.frontFace = m_Description.m_bFrontCounterClockwise ? vk::FrontFace::eCounterClockwise : vk::FrontFace::eClockwise;
+  m_RasterizerState.lineWidth = 1.f;
+  m_RasterizerState.polygonMode = m_Description.m_bWireFrame ? vk::PolygonMode::eLine : vk::PolygonMode::eFill;
 
   return EZ_SUCCESS;
 }
@@ -254,8 +254,8 @@ ezResult ezGALSamplerStateVulkan::InitPlatform(ezGALDevice* pDevice)
   samplerCreateInfo.mipLodBias = desc.m_fMipLodBias;
   samplerCreateInfo.mipmapMode = GALFilterToVulkanMipmapMode[desc.m_MipFilter];
 
-  m_resourceImageInfo.imageLayout = vk::ImageLayout::eUndefined;
-  VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createSampler(&samplerCreateInfo, nullptr, &m_resourceImageInfo.sampler));
+  m_ResourceImageInfo.imageLayout = vk::ImageLayout::eUndefined;
+  VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createSampler(&samplerCreateInfo, nullptr, &m_ResourceImageInfo.sampler));
   return EZ_SUCCESS;
 }
 
@@ -263,6 +263,6 @@ ezResult ezGALSamplerStateVulkan::InitPlatform(ezGALDevice* pDevice)
 ezResult ezGALSamplerStateVulkan::DeInitPlatform(ezGALDevice* pDevice)
 {
   ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
-  pVulkanDevice->DeleteLater(m_resourceImageInfo.sampler);
+  pVulkanDevice->DeleteLater(m_ResourceImageInfo.sampler);
   return EZ_SUCCESS;
 }

@@ -19,9 +19,9 @@ public:
   static void DeInitialize();
 
   static vk::Semaphore RequestSemaphore();
-  static void ReclaimSemaphore(vk::Semaphore& semaphore);
+  static void ReclaimSemaphore(vk::Semaphore& ref_semaphore);
 
 private:
-  static ezHybridArray<vk::Semaphore, 4> s_semaphores;
-  static vk::Device s_device;
+  static ezHybridArray<vk::Semaphore, 4> s_Semaphores;
+  static vk::Device s_Device;
 };

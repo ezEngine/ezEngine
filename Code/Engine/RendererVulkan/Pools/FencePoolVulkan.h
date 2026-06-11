@@ -23,11 +23,11 @@ public:
   static void DeInitialize();
 
   static vk::Fence RequestFence();
-  static void ReclaimFence(vk::Fence& fence);
+  static void ReclaimFence(vk::Fence& ref_fence);
 
 private:
   static ezHybridArray<vk::Fence, 4> s_Fences;
-  static vk::Device s_device;
+  static vk::Device s_Device;
 };
 
 // #TODO_VULKAN extend to support multiple queues.
@@ -54,5 +54,5 @@ private:
   ezDeque<PendingFence> m_PendingFences;
   ezUInt64 m_uiCurrentFenceCounter = 1;
   ezUInt64 m_uiReachedFenceCounter = 0;
-  vk::Device m_device;
+  vk::Device m_Device;
 };

@@ -17,12 +17,12 @@ ezGALBufferVulkan::~ezGALBufferVulkan() {}
 ezResult ezGALBufferVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const ezUInt8> pInitialData)
 {
   m_pDeviceVulkan = static_cast<ezGALDeviceVulkan*>(pDevice);
-  m_device = m_pDeviceVulkan->GetVulkanDevice();
+  m_Device = m_pDeviceVulkan->GetVulkanDevice();
 
   // Derive stages and access from the GAL default state, then mask to supported stages.
   const ezBitflags<ezGALResourceState> defaultState = m_Description.GetDefaultState();
-  ezConversionUtilsVulkan::ConvertResourceState(defaultState, m_stages, m_access);
-  m_stages &= m_pDeviceVulkan->GetSupportedStages();
+  ezConversionUtilsVulkan::ConvertResourceState(defaultState, m_Stages, m_Access);
+  m_Stages &= m_pDeviceVulkan->GetSupportedStages();
 
   const bool bSRV = m_Description.m_BufferFlags.IsSet(ezGALBufferUsageFlags::ShaderResource);
   const bool bUAV = m_Description.m_BufferFlags.IsSet(ezGALBufferUsageFlags::UnorderedAccess);
@@ -31,33 +31,33 @@ ezResult ezGALBufferVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const 
     switch (flag)
     {
       case ezGALBufferUsageFlags::VertexBuffer:
-        m_usage |= vk::BufferUsageFlagBits::eVertexBuffer;
+        m_Usage |= vk::BufferUsageFlagBits::eVertexBuffer;
         // EZ_ASSERT_DEBUG(!bSRV && !bUAV, "Not implemented");
         break;
       case ezGALBufferUsageFlags::IndexBuffer:
-        m_usage |= vk::BufferUsageFlagBits::eIndexBuffer;
-        m_indexType = m_Description.m_uiStructSize == 2 ? vk::IndexType::eUint16 : vk::IndexType::eUint32;
+        m_Usage |= vk::BufferUsageFlagBits::eIndexBuffer;
+        m_IndexType = m_Description.m_uiStructSize == 2 ? vk::IndexType::eUint16 : vk::IndexType::eUint32;
         // EZ_ASSERT_DEBUG(!bSRV && !bUAV, "Not implemented");
         break;
       case ezGALBufferUsageFlags::ConstantBuffer:
-        m_usage |= vk::BufferUsageFlagBits::eUniformBuffer;
+        m_Usage |= vk::BufferUsageFlagBits::eUniformBuffer;
         break;
       case ezGALBufferUsageFlags::TexelBuffer:
         if (bSRV)
-          m_usage |= vk::BufferUsageFlagBits::eUniformTexelBuffer;
+          m_Usage |= vk::BufferUsageFlagBits::eUniformTexelBuffer;
         if (bUAV)
-          m_usage |= vk::BufferUsageFlagBits::eStorageTexelBuffer;
+          m_Usage |= vk::BufferUsageFlagBits::eStorageTexelBuffer;
         break;
       case ezGALBufferUsageFlags::StructuredBuffer:
       case ezGALBufferUsageFlags::ByteAddressBuffer:
-        m_usage |= vk::BufferUsageFlagBits::eStorageBuffer;
+        m_Usage |= vk::BufferUsageFlagBits::eStorageBuffer;
         break;
       case ezGALBufferUsageFlags::ShaderResource:
         break;
       case ezGALBufferUsageFlags::UnorderedAccess:
         break;
       case ezGALBufferUsageFlags::DrawIndirect:
-        m_usage |= vk::BufferUsageFlagBits::eIndirectBuffer;
+        m_Usage |= vk::BufferUsageFlagBits::eIndirectBuffer;
         break;
       case ezGALBufferUsageFlags::Transient:
         break;
@@ -67,15 +67,15 @@ ezResult ezGALBufferVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const 
     }
   }
 
-  m_usage |= vk::BufferUsageFlagBits::eTransferSrc;
-  m_usage |= vk::BufferUsageFlagBits::eTransferDst;
+  m_Usage |= vk::BufferUsageFlagBits::eTransferSrc;
+  m_Usage |= vk::BufferUsageFlagBits::eTransferDst;
 
   EZ_ASSERT_DEBUG(pInitialData.GetCount() <= m_Description.m_uiTotalSize, "Initial data is bigger than target buffer.");
-  vk::DeviceSize alignment = GetAlignment(m_pDeviceVulkan, m_usage);
-  m_size = ezMemoryUtils::AlignSize((vk::DeviceSize)m_Description.m_uiTotalSize, alignment);
+  vk::DeviceSize alignment = GetAlignment(m_pDeviceVulkan, m_Usage);
+  m_Size = ezMemoryUtils::AlignSize((vk::DeviceSize)m_Description.m_uiTotalSize, alignment);
 
-  m_resourceBufferInfo.offset = 0;
-  m_resourceBufferInfo.range = m_size;
+  m_ResourceBufferInfo.offset = 0;
+  m_ResourceBufferInfo.range = m_Size;
 
   // No buffer needed if we use transient memory for constant buffers.
   if (m_Description.m_BufferFlags.AreAllSet(ezGALBufferUsageFlags::Transient | ezGALBufferUsageFlags::ConstantBuffer))
@@ -92,10 +92,10 @@ ezResult ezGALBufferVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const 
 
 ezResult ezGALBufferVulkan::DeInitPlatform(ezGALDevice* pDevice)
 {
-  if (m_buffer)
+  if (m_Buffer)
   {
-    m_pDeviceVulkan->DeleteLater(m_buffer, m_alloc);
-    m_allocInfo = {};
+    m_pDeviceVulkan->DeleteLater(m_Buffer, m_pAlloc);
+    m_AllocInfo = {};
   }
 
   for (auto it : m_TexelBufferViews)
@@ -104,45 +104,45 @@ ezResult ezGALBufferVulkan::DeInitPlatform(ezGALDevice* pDevice)
   }
   m_TexelBufferViews.Clear();
 
-  m_resourceBufferInfo = vk::DescriptorBufferInfo();
+  m_ResourceBufferInfo = vk::DescriptorBufferInfo();
 
-  m_stages = {};
-  m_access = {};
-  m_indexType = vk::IndexType::eUint16;
-  m_usage = {};
-  m_size = 0;
+  m_Stages = {};
+  m_Access = {};
+  m_IndexType = vk::IndexType::eUint16;
+  m_Usage = {};
+  m_Size = 0;
 
   m_pDeviceVulkan = nullptr;
-  m_device = nullptr;
+  m_Device = nullptr;
 
   return EZ_SUCCESS;
 }
 
 const vk::DescriptorBufferInfo& ezGALBufferVulkan::GetBufferInfo() const
 {
-  return m_resourceBufferInfo;
+  return m_ResourceBufferInfo;
 }
 
 void ezGALBufferVulkan::CreateBuffer()
 {
   vk::BufferCreateInfo bufferCreateInfo;
-  bufferCreateInfo.usage = m_usage;
+  bufferCreateInfo.usage = m_Usage;
   bufferCreateInfo.pQueueFamilyIndices = nullptr;
   bufferCreateInfo.queueFamilyIndexCount = 0;
   bufferCreateInfo.sharingMode = vk::SharingMode::eExclusive;
-  bufferCreateInfo.size = m_size;
+  bufferCreateInfo.size = m_Size;
 
   ezVulkanAllocationCreateInfo allocCreateInfo;
   allocCreateInfo.m_usage = ezVulkanMemoryUsage::Auto;
 
-  VK_ASSERT_DEV(ezMemoryAllocatorVulkan::CreateBuffer(bufferCreateInfo, allocCreateInfo, m_buffer, m_alloc, &m_allocInfo));
-  m_resourceBufferInfo.buffer = m_buffer;
+  VK_ASSERT_DEV(ezMemoryAllocatorVulkan::CreateBuffer(bufferCreateInfo, allocCreateInfo, m_Buffer, m_pAlloc, &m_AllocInfo));
+  m_ResourceBufferInfo.buffer = m_Buffer;
 }
 
 void ezGALBufferVulkan::SetDebugNamePlatform(const char* szName) const
 {
   m_sDebugName = szName;
-  m_pDeviceVulkan->SetDebugName(szName, m_buffer, m_alloc);
+  m_pDeviceVulkan->SetDebugName(szName, m_Buffer, m_pAlloc);
 }
 
 vk::BufferView ezGALBufferVulkan::GetTexelBufferView(ezGALBufferRange bufferRange, ezEnum<ezGALResourceFormat> overrideTexelBufferFormat) const
@@ -158,13 +158,13 @@ vk::BufferView ezGALBufferVulkan::GetTexelBufferView(ezGALBufferRange bufferRang
     const ezGALResourceFormat::Enum viewFormat = overrideTexelBufferFormat == ezGALResourceFormat::Invalid ? m_Description.m_Format : overrideTexelBufferFormat;
 
     vk::BufferViewCreateInfo viewCreateInfo;
-    viewCreateInfo.buffer = m_buffer;
+    viewCreateInfo.buffer = m_Buffer;
     viewCreateInfo.offset = bufferRange.m_uiByteOffset;
     viewCreateInfo.range = bufferRange.m_uiByteCount;
     if (viewCreateInfo.range == EZ_GAL_WHOLE_SIZE)
       viewCreateInfo.range = VK_WHOLE_SIZE;
     viewCreateInfo.format = m_pDeviceVulkan->GetFormatLookupTable().GetFormatInfo(viewFormat).m_format;
-    VK_ASSERT_DEV(m_device.createBufferView(&viewCreateInfo, nullptr, &bufferView));
+    VK_ASSERT_DEV(m_Device.createBufferView(&viewCreateInfo, nullptr, &bufferView));
     m_TexelBufferViews.Insert(view, bufferView);
   }
 

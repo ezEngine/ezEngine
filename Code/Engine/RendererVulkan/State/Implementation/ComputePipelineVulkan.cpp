@@ -38,7 +38,7 @@ ezResult ezGALComputePipelineVulkan::InitPlatform(ezGALDevice* pDevice)
     pipe.stage.pName = "main";
   }
 
-  VK_ASSERT_DEV(pDeviceVulkan->GetVulkanDevice().createComputePipelines(ezResourceCacheVulkan::GetPipelineCache(), 1, &pipe, nullptr, &m_pipeline));
+  VK_ASSERT_DEV(pDeviceVulkan->GetVulkanDevice().createComputePipelines(ezResourceCacheVulkan::GetPipelineCache(), 1, &pipe, nullptr, &m_Pipeline));
 
   return EZ_SUCCESS;
 }
@@ -47,10 +47,10 @@ ezResult ezGALComputePipelineVulkan::DeInitPlatform(ezGALDevice* pDevice)
 {
   ezGALDeviceVulkan* pDeviceVulkan = static_cast<ezGALDeviceVulkan*>(pDevice);
 
-  if (m_pipeline)
+  if (m_Pipeline)
   {
-    pDeviceVulkan->DeleteLater(m_pipeline);
-    m_pipeline = nullptr;
+    pDeviceVulkan->DeleteLater(m_Pipeline);
+    m_Pipeline = nullptr;
   }
   return EZ_SUCCESS;
 }

@@ -70,14 +70,14 @@ ezResult ezGALBindGroupLayoutVulkan::InitPlatform(ezGALDevice* pDevice)
   descriptorSetLayout.pBindings = bindings.GetData();
   VK_ASSERT_DEBUG(pVulkanDevice->GetVulkanDevice().createDescriptorSetLayout(&descriptorSetLayout, nullptr, &m_DescriptorSetLayout));
 
-  m_DescriptorSetPool = ezDescriptorSetPoolVulkan::GetPool(m_ResourceUsage);
+  m_pDescriptorSetPool = ezDescriptorSetPoolVulkan::GetPool(m_ResourceUsage);
 
   return EZ_SUCCESS;
 }
 
 ezResult ezGALBindGroupLayoutVulkan::DeInitPlatform(ezGALDevice* pDevice)
 {
-  m_DescriptorSetPool = nullptr;
+  m_pDescriptorSetPool = nullptr;
   auto* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
   pVulkanDevice->DeleteLater(m_DescriptorSetLayout);
   return EZ_SUCCESS;
@@ -85,5 +85,5 @@ ezResult ezGALBindGroupLayoutVulkan::DeInitPlatform(ezGALDevice* pDevice)
 
 ezDescriptorSetPoolVulkan* ezGALBindGroupLayoutVulkan::GetDescriptorSetPool() const
 {
-  return m_DescriptorSetPool.Borrow();
+  return m_pDescriptorSetPool.Borrow();
 }

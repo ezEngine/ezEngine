@@ -44,7 +44,7 @@ private:
   {
     UniformBufferPool(ezUInt32 uiAlignment, ezUInt32 uiTotalSize);
     ~UniformBufferPool();
-    ezResult Allocate(ezUInt32 uiSize, ezUInt64 uiCurrentFrame, ezUInt32& out_uiStartOffset, ezByteArrayPtr& out_Allocation);
+    ezResult Allocate(ezUInt32 uiSize, ezUInt64 uiCurrentFrame, ezUInt32& out_uiStartOffset, ezByteArrayPtr& out_allocation);
     void Free(ezUInt64 uiUpToFrame);
     void Submit(ezGALDeviceVulkan* pDevice, ezUInt64 uiFrame);
     ezUInt32 GetFreeMemory() const { return m_Tracker.GetFreeMemory(); }
@@ -65,7 +65,7 @@ private:
 
 private:
   ezGALDeviceVulkan* m_pDevice = nullptr;
-  vk::Device m_device;
+  vk::Device m_Device;
   ezUInt32 m_uiAlignment = 0;
   ezUInt32 m_uiBufferSize = 0;
 

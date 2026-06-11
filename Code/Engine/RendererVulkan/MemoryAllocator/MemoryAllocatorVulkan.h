@@ -7,7 +7,7 @@
 /// \brief Subset of VmaAllocationCreateFlagBits. Duplicated for abstraction purposes.
 struct ezVulkanAllocationCreateFlags
 {
-  typedef ezUInt32 StorageType;
+  using StorageType = ezUInt32;
   enum Enum
   {
     DedicatedMemory = 0x00000001,
@@ -53,7 +53,7 @@ EZ_DECLARE_FLAGS_OPERATORS(ezVulkanAllocationCreateFlags);
 /// \brief Subset of VmaMemoryUsage. Duplicated for abstraction purposes.
 struct ezVulkanMemoryUsage
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
   enum Enum
   {
     Unknown = 0,
@@ -104,24 +104,24 @@ public:
   static vk::Result Initialize(vk::PhysicalDevice physicalDevice, vk::Device device, vk::Instance instance, PFN_vkGetInstanceProcAddr instanceProcAddr, PFN_vkGetDeviceProcAddr deviceProcAddr);
   static void DeInitialize();
 
-  static vk::Result CreateImage(const vk::ImageCreateInfo& imageCreateInfo, const ezVulkanAllocationCreateInfo& allocationCreateInfo, vk::Image& out_image, ezVulkanAllocation& out_alloc, ezVulkanAllocationInfo* pAllocInfo = nullptr);
-  static void DestroyImage(vk::Image& image, ezVulkanAllocation& alloc);
+  static vk::Result CreateImage(const vk::ImageCreateInfo& imageCreateInfo, const ezVulkanAllocationCreateInfo& allocationCreateInfo, vk::Image& out_image, ezVulkanAllocation& out_pAlloc, ezVulkanAllocationInfo* pAllocInfo = nullptr);
+  static void DestroyImage(vk::Image& ref_image, ezVulkanAllocation& ref_pAlloc);
 
-  static vk::Result CreateBuffer(const vk::BufferCreateInfo& bufferCreateInfo, const ezVulkanAllocationCreateInfo& allocationCreateInfo, vk::Buffer& out_buffer, ezVulkanAllocation& out_alloc, ezVulkanAllocationInfo* pAllocInfo = nullptr);
-  static void DestroyBuffer(vk::Buffer& buffer, ezVulkanAllocation& alloc);
+  static vk::Result CreateBuffer(const vk::BufferCreateInfo& bufferCreateInfo, const ezVulkanAllocationCreateInfo& allocationCreateInfo, vk::Buffer& out_buffer, ezVulkanAllocation& out_pAlloc, ezVulkanAllocationInfo* pAllocInfo = nullptr);
+  static void DestroyBuffer(vk::Buffer& ref_buffer, ezVulkanAllocation& ref_pAlloc);
 
-  static ezVulkanAllocationInfo GetAllocationInfo(ezVulkanAllocation alloc);
-  static vk::MemoryPropertyFlags GetAllocationFlags(ezVulkanAllocation alloc);
-  static void SetAllocationUserData(ezVulkanAllocation alloc, const char* pUserData);
+  static ezVulkanAllocationInfo GetAllocationInfo(ezVulkanAllocation pAlloc);
+  static vk::MemoryPropertyFlags GetAllocationFlags(ezVulkanAllocation pAlloc);
+  static void SetAllocationUserData(ezVulkanAllocation pAlloc, const char* pUserData);
 
-  static vk::Result MapMemory(ezVulkanAllocation alloc, void** pData);
-  static void UnmapMemory(ezVulkanAllocation alloc);
-  static vk::Result FlushAllocation(ezVulkanAllocation alloc, vk::DeviceSize offset = 0, vk::DeviceSize size = VK_WHOLE_SIZE);
-  static vk::Result InvalidateAllocation(ezVulkanAllocation alloc, vk::DeviceSize offset = 0, vk::DeviceSize size = VK_WHOLE_SIZE);
+  static vk::Result MapMemory(ezVulkanAllocation pAlloc, void** pData);
+  static void UnmapMemory(ezVulkanAllocation pAlloc);
+  static vk::Result FlushAllocation(ezVulkanAllocation pAlloc, vk::DeviceSize offset = 0, vk::DeviceSize size = VK_WHOLE_SIZE);
+  static vk::Result InvalidateAllocation(ezVulkanAllocation pAlloc, vk::DeviceSize offset = 0, vk::DeviceSize size = VK_WHOLE_SIZE);
 
   static ezVulkanMemoryStatistics GetStats();
 
 private:
   struct Impl;
-  static Impl* m_pImpl;
+  static Impl* s_pImpl;
 };

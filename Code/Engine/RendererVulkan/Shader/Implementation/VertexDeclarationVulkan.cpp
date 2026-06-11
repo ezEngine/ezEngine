@@ -52,7 +52,7 @@ ezResult ezGALVertexDeclarationVulkan::InitPlatform(ezGALDevice* pDevice)
       // ezLog::Warning("Vertex buffer semantic {} not used by shader", Current.m_eSemantic);
       continue;
     }
-    vk::VertexInputAttributeDescription& attrib = m_attributes.ExpandAndGetRef();
+    vk::VertexInputAttributeDescription& attrib = m_Attributes.ExpandAndGetRef();
     attrib.binding = Current.m_uiVertexBufferSlot;
     attrib.location = uiLocation;
     attrib.format = pVulkanDevice->GetFormatLookupTable().GetFormatInfo(Current.m_eFormat).m_format;
@@ -68,29 +68,29 @@ ezResult ezGALVertexDeclarationVulkan::InitPlatform(ezGALDevice* pDevice)
   }
 
   const ezUInt32 uiBindings = m_Description.m_VertexBindings.GetCount();
-  m_bindings.SetCount(uiBindings);
+  m_Bindings.SetCount(uiBindings);
   for (ezUInt32 uiBinding = 0; uiBinding < uiBindings; ++uiBinding)
   {
     const ezGALVertexBinding& binding = m_Description.m_VertexBindings[uiBinding];
-    vk::VertexInputBindingDescription& vkBinding = m_bindings[uiBinding];
+    vk::VertexInputBindingDescription& vkBinding = m_Bindings[uiBinding];
     vkBinding.binding = uiBinding;
     vkBinding.stride = binding.m_uiStride;
     vkBinding.inputRate = ezConversionUtilsVulkan::GetVertexBindingRate(binding.m_Rate);
   }
 
   // Remove unused vertex bindings.
-  for (ezInt32 i = (ezInt32)m_bindings.GetCount() - 1; i >= 0; --i)
+  for (ezInt32 i = (ezInt32)m_Bindings.GetCount() - 1; i >= 0; --i)
   {
     if ((usedBindings & EZ_BIT(i)) == 0)
     {
-      m_bindings.RemoveAtAndCopy(i);
+      m_Bindings.RemoveAtAndCopy(i);
     }
   }
 
-  m_createInfo.pVertexAttributeDescriptions = m_attributes.GetData();
-  m_createInfo.vertexAttributeDescriptionCount = m_attributes.GetCount();
-  m_createInfo.pVertexBindingDescriptions = m_bindings.GetData();
-  m_createInfo.vertexBindingDescriptionCount = m_bindings.GetCount();
+  m_CreateInfo.pVertexAttributeDescriptions = m_Attributes.GetData();
+  m_CreateInfo.vertexAttributeDescriptionCount = m_Attributes.GetCount();
+  m_CreateInfo.pVertexBindingDescriptions = m_Bindings.GetData();
+  m_CreateInfo.vertexBindingDescriptionCount = m_Bindings.GetCount();
 
   if (!vias.IsEmpty())
   {

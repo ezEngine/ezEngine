@@ -80,18 +80,18 @@ ezResult ezGALRenderTargetViewVulkan::InitPlatform(ezGALDevice* pDevice)
     imageViewCreationInfo.subresourceRange.layerCount = 1;
   }
 
-  m_range = imageViewCreationInfo.subresourceRange;
-  m_bfullRange = m_range == pTextureVulkan->GetFullRange();
+  m_Range = imageViewCreationInfo.subresourceRange;
+  m_bBfullRange = m_Range == pTextureVulkan->GetFullRange();
 
-  VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createImageView(&imageViewCreationInfo, nullptr, &m_imageView));
-  pVulkanDevice->SetDebugName("RTV", m_imageView);
+  VK_SUCCEED_OR_RETURN_EZ_FAILURE(pVulkanDevice->GetVulkanDevice().createImageView(&imageViewCreationInfo, nullptr, &m_ImageView));
+  pVulkanDevice->SetDebugName("RTV", m_ImageView);
   return EZ_SUCCESS;
 }
 
 ezResult ezGALRenderTargetViewVulkan::DeInitPlatform(ezGALDevice* pDevice)
 {
   ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
-  pVulkanDevice->DeleteLater(m_imageView);
+  pVulkanDevice->DeleteLater(m_ImageView);
   return EZ_SUCCESS;
 }
 

@@ -21,7 +21,7 @@ ezInitContextVulkan::ezInitContextVulkan(ezGALDeviceVulkan* pDevice)
 
 ezInitContextVulkan::~ezInitContextVulkan()
 {
-  EZ_ASSERT_DEBUG(!m_currentCommandBuffer, "GetFinishedCommandBuffer should have been called before destruction.");
+  EZ_ASSERT_DEBUG(!m_CurrentCommandBuffer, "GetFinishedCommandBuffer should have been called before destruction.");
 
   m_pCommandBufferPool->DeInitialize();
   m_pStagingBufferPool->DeInitialize();
@@ -39,17 +39,17 @@ void ezInitContextVulkan::AfterBeginFrame()
 vk::CommandBuffer ezInitContextVulkan::GetFinishedCommandBuffer()
 {
   EZ_LOCK(m_Lock);
-  if (m_currentCommandBuffer)
+  if (m_CurrentCommandBuffer)
   {
     m_pStagingBufferPool->BeforeCommandBufferSubmit();
     if (m_pDevice->GetExtensions().m_bDebugUtilsMarkers)
     {
-      m_currentCommandBuffer.endDebugUtilsLabelEXT(m_pDevice->GetDispatchContext());
+      m_CurrentCommandBuffer.endDebugUtilsLabelEXT(m_pDevice->GetDispatchContext());
     }
-    vk::CommandBuffer res = m_currentCommandBuffer;
+    vk::CommandBuffer res = m_CurrentCommandBuffer;
     res.end();
 
-    m_pDevice->ReclaimLater(m_currentCommandBuffer, m_pCommandBufferPool.Borrow());
+    m_pDevice->ReclaimLater(m_CurrentCommandBuffer, m_pCommandBufferPool.Borrow());
     return res;
   }
   return nullptr;
@@ -57,12 +57,12 @@ vk::CommandBuffer ezInitContextVulkan::GetFinishedCommandBuffer()
 
 void ezInitContextVulkan::EnsureCommandBufferExists()
 {
-  if (!m_currentCommandBuffer)
+  if (!m_CurrentCommandBuffer)
   {
     // Restart new command buffer if none is active already.
-    m_currentCommandBuffer = m_pCommandBufferPool->RequestCommandBuffer();
+    m_CurrentCommandBuffer = m_pCommandBufferPool->RequestCommandBuffer();
     vk::CommandBufferBeginInfo beginInfo;
-    m_currentCommandBuffer.begin(&beginInfo);
+    m_CurrentCommandBuffer.begin(&beginInfo);
     if (m_pDevice->GetExtensions().m_bDebugUtilsMarkers)
     {
       constexpr float markerColor[4] = {0, 0, 0, 0};
@@ -70,7 +70,7 @@ void ezInitContextVulkan::EnsureCommandBufferExists()
       ezMemoryUtils::Copy(markerInfo.color.data(), markerColor, EZ_ARRAY_SIZE(markerColor));
       markerInfo.pLabelName = "InitContext";
 
-      m_currentCommandBuffer.beginDebugUtilsLabelEXT(markerInfo, m_pDevice->GetDispatchContext());
+      m_CurrentCommandBuffer.beginDebugUtilsLabelEXT(markerInfo, m_pDevice->GetDispatchContext());
     }
   }
 }
@@ -84,7 +84,7 @@ void ezInitContextVulkan::InitTexture(const ezGALTextureVulkan* pTexture, vk::Im
 
   const ezBitflags<ezGALResourceState> defaultState = pTexture->GetDescription().GetDefaultState();
 
-  ezBarrierUtilsVulkan barriers(*m_pDevice, m_currentCommandBuffer);
+  ezBarrierUtilsVulkan barriers(*m_pDevice, m_CurrentCommandBuffer);
 
   if (pTexture->GetDescription().m_pExisitingNativeObject == nullptr)
   {
@@ -162,7 +162,7 @@ void ezInitContextVulkan::InitTexture(const ezGALTextureVulkan* pTexture, vk::Im
         const vk::Extent3D imageExtent = pTexture->GetMipLevelSize(uiMipLevel);
 
         // Image is already in CopyDestination, so skip before/after image transitions inside UploadTextureStaging.
-        m_pDevice->UploadTextureStaging(*m_pDevice, m_pStagingBufferPool.Borrow(), m_currentCommandBuffer, pTexture, subresourceLayers, imageOffset, imageExtent, subResourceData);
+        m_pDevice->UploadTextureStaging(*m_pDevice, m_pStagingBufferPool.Borrow(), m_CurrentCommandBuffer, pTexture, subresourceLayers, imageOffset, imageExtent, subResourceData);
       }
     }
 
@@ -184,7 +184,7 @@ void ezInitContextVulkan::InitBuffer(const ezGALBufferVulkan* pBuffer, ezConstBy
 
   EnsureCommandBufferExists();
 
-  ezBarrierUtilsVulkan barriers(*m_pDevice, m_currentCommandBuffer);
+  ezBarrierUtilsVulkan barriers(*m_pDevice, m_CurrentCommandBuffer);
   const ezBitflags<ezGALResourceState> defaultState = pBuffer->GetDescription().GetDefaultState();
 
   // During initialization, there can't be any read/write hazard with the GPU so we can write to the memory directly if supported, e.g. unified memory.
@@ -200,7 +200,7 @@ void ezInitContextVulkan::InitBuffer(const ezGALBufferVulkan* pBuffer, ezConstBy
   {
     barriers.BufferBarrier(pBuffer->GetVkBuffer(), ezGALResourceState::Unknown, ezGALResourceState::CopyDestination);
 
-    m_pDevice->UploadBufferStaging(*m_pDevice, m_pStagingBufferPool.Borrow(), m_currentCommandBuffer, pBuffer, pInitialData, 0);
+    m_pDevice->UploadBufferStaging(*m_pDevice, m_pStagingBufferPool.Borrow(), m_CurrentCommandBuffer, pBuffer, pInitialData, 0);
 
     barriers.BufferBarrier(pBuffer->GetVkBuffer(), ezGALResourceState::CopyDestination, defaultState);
   }
@@ -226,10 +226,10 @@ void ezInitContextVulkan::UpdateTexture(const ezGALTextureVulkan* pTexture, cons
 
   vk::ImageSubresourceRange subresourceRange = ezConversionUtilsVulkan::GetSubresourceRange(subresourceLayers);
 
-  ezBarrierUtilsVulkan barriers(*m_pDevice, m_currentCommandBuffer);
+  ezBarrierUtilsVulkan barriers(*m_pDevice, m_CurrentCommandBuffer);
   barriers.TextureBarrier(pTexture->GetImage(), subresourceRange, defaultState, ezGALResourceState::CopyDestination);
 
-  m_pDevice->UploadTextureStaging(*m_pDevice, m_pStagingBufferPool.Borrow(), m_currentCommandBuffer, pTexture, subresourceLayers, imageOffset, imageExtent, sourceData);
+  m_pDevice->UploadTextureStaging(*m_pDevice, m_pStagingBufferPool.Borrow(), m_CurrentCommandBuffer, pTexture, subresourceLayers, imageOffset, imageExtent, sourceData);
 
   barriers.TextureBarrier(pTexture->GetImage(), subresourceRange, ezGALResourceState::CopyDestination, defaultState);
 }
@@ -240,10 +240,10 @@ void ezInitContextVulkan::UpdateBuffer(const ezGALBufferVulkan* pBuffer, ezUInt3
 
   EnsureCommandBufferExists();
   const ezBitflags<ezGALResourceState> defaultState = pBuffer->GetDescription().GetDefaultState();
-  ezBarrierUtilsVulkan barriers(*m_pDevice, m_currentCommandBuffer);
+  ezBarrierUtilsVulkan barriers(*m_pDevice, m_CurrentCommandBuffer);
   barriers.BufferBarrier(pBuffer->GetVkBuffer(), defaultState, ezGALResourceState::CopyDestination);
 
-  m_pDevice->UploadBufferStaging(*m_pDevice, m_pStagingBufferPool.Borrow(), m_currentCommandBuffer, pBuffer, pSourceData, uiOffset);
+  m_pDevice->UploadBufferStaging(*m_pDevice, m_pStagingBufferPool.Borrow(), m_CurrentCommandBuffer, pBuffer, pSourceData, uiOffset);
 
   barriers.BufferBarrier(pBuffer->GetVkBuffer(), ezGALResourceState::CopyDestination, defaultState);
 }
@@ -254,7 +254,7 @@ void ezInitContextVulkan::UpdateDynamicUniformBuffer(vk::Buffer gpuBuffer, vk::B
 
   EnsureCommandBufferExists();
 
-  ezBarrierUtilsVulkan barriers(*m_pDevice, m_currentCommandBuffer);
+  ezBarrierUtilsVulkan barriers(*m_pDevice, m_CurrentCommandBuffer);
 
   if (stagingBuffer)
   {
@@ -266,7 +266,7 @@ void ezInitContextVulkan::UpdateDynamicUniformBuffer(vk::Buffer gpuBuffer, vk::B
     bufferCopy.dstOffset = uiOffset;
     bufferCopy.srcOffset = uiOffset;
     bufferCopy.size = uiSize;
-    m_currentCommandBuffer.copyBuffer(stagingBuffer, gpuBuffer, 1, &bufferCopy);
+    m_CurrentCommandBuffer.copyBuffer(stagingBuffer, gpuBuffer, 1, &bufferCopy);
 
     barriers.BufferBarrier(gpuBuffer,
       ezGALResourceState::CopyDestination, ezGALResourceState::ConstantBuffer);
@@ -298,7 +298,7 @@ void ezInitContextVulkan::ExecutePendingCopies(ezArrayPtr<ezPendingBufferCopyVul
   EZ_LOCK(m_Lock);
   EnsureCommandBufferExists();
 
-  ezBarrierUtilsVulkan barriers(*m_pDevice, m_currentCommandBuffer);
+  ezBarrierUtilsVulkan barriers(*m_pDevice, m_CurrentCommandBuffer);
 
   // Transition resources to copy-compatible states.
   for (const ezPendingBufferCopyVulkan& bufferCopy : buffers)
@@ -325,11 +325,11 @@ void ezInitContextVulkan::ExecutePendingCopies(ezArrayPtr<ezPendingBufferCopyVul
   // Execute the actual copies.
   for (const ezPendingBufferCopyVulkan& bufferCopy : buffers)
   {
-    m_currentCommandBuffer.copyBuffer(bufferCopy.m_SrcBuffer.m_buffer, bufferCopy.m_pDstBuffer->GetVkBuffer(), 1, &bufferCopy.m_Region);
+    m_CurrentCommandBuffer.copyBuffer(bufferCopy.m_SrcBuffer.m_buffer, bufferCopy.m_pDstBuffer->GetVkBuffer(), 1, &bufferCopy.m_Region);
   }
   for (const ezPendingTextureCopyVulkan& textureCopy : textures)
   {
-    m_currentCommandBuffer.copyBufferToImage(textureCopy.m_SrcBuffer.m_buffer, textureCopy.m_pDstTexture->GetImage(), vk::ImageLayout::eTransferDstOptimal, 1, &textureCopy.m_Region);
+    m_CurrentCommandBuffer.copyBufferToImage(textureCopy.m_SrcBuffer.m_buffer, textureCopy.m_pDstTexture->GetImage(), vk::ImageLayout::eTransferDstOptimal, 1, &textureCopy.m_Region);
   }
 
   // Transition resources back to their default states.

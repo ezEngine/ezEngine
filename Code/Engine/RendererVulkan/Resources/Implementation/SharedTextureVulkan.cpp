@@ -30,7 +30,7 @@ ezResult ezGALSharedTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr
   vk::ImageFormatListCreateInfo imageFormats;
   vk::ImageCreateInfo createInfo = {};
 
-  m_imageFormat = ComputeImageFormat(m_pDevice, m_Description.m_Format, createInfo, imageFormats);
+  m_ImageFormat = ComputeImageFormat(m_pDevice, m_Description.m_Format, createInfo, imageFormats);
 
   ComputeCreateInfo(m_pDevice, m_Description, createInfo);
 
@@ -61,7 +61,7 @@ ezResult ezGALSharedTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr
 
       vk::ImageFormatProperties props2;
       VK_ASSERT_DEBUG(m_pDevice->GetVulkanPhysicalDevice().getImageFormatProperties(createInfo.format, createInfo.imageType, createInfo.tiling, createInfo.usage, createInfo.flags, &props2));
-      VK_SUCCEED_OR_RETURN_EZ_FAILURE(ezMemoryAllocatorVulkan::CreateImage(createInfo, allocInfo, m_image, m_alloc, &m_allocInfo));
+      VK_SUCCEED_OR_RETURN_EZ_FAILURE(ezMemoryAllocatorVulkan::CreateImage(createInfo, allocInfo, m_Image, m_pAlloc, &m_AllocInfo));
 
       if (m_SharedType == ezGALSharedTextureType::Exported)
       {
@@ -84,14 +84,14 @@ ezResult ezGALSharedTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr
           return EZ_FAILURE;
         }
 
-        vk::MemoryGetFdInfoKHR getWin32HandleInfo{m_allocInfo.m_deviceMemory, vk::ExternalMemoryHandleTypeFlagBits::eOpaqueFd};
+        vk::MemoryGetFdInfoKHR getWin32HandleInfo{m_AllocInfo.m_deviceMemory, vk::ExternalMemoryHandleTypeFlagBits::eOpaqueFd};
         int fd = -1;
         vk::Device device = m_pDevice->GetVulkanDevice();
         VK_SUCCEED_OR_RETURN_EZ_FAILURE(device.getMemoryFdKHR(&getWin32HandleInfo, &fd, m_pDevice->GetDispatchContext()));
         m_hSharedHandle.m_uiProcessId = ezProcess::GetCurrentProcessID();
         m_hSharedHandle.m_hSharedTexture = (size_t)fd;
-        m_hSharedHandle.m_uiMemoryTypeIndex = m_allocInfo.m_memoryType;
-        m_hSharedHandle.m_uiSize = m_allocInfo.m_size;
+        m_hSharedHandle.m_uiMemoryTypeIndex = m_AllocInfo.m_memoryType;
+        m_hSharedHandle.m_uiSize = m_AllocInfo.m_size;
 
         vk::ExportSemaphoreCreateInfoKHR exportInfo{vk::ExternalSemaphoreHandleTypeFlagBits::eOpaqueFd};
         vk::SemaphoreTypeCreateInfoKHR semTypeCreateInfo{vk::SemaphoreType::eTimeline, 0, &exportInfo};
@@ -116,13 +116,13 @@ ezResult ezGALSharedTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr
         }
 
         vk::Device device = m_pDevice->GetVulkanDevice();
-        vk::MemoryGetWin32HandleInfoKHR getWin32HandleInfo{m_allocInfo.m_deviceMemory, vk::ExternalMemoryHandleTypeFlagBits::eOpaqueWin32};
+        vk::MemoryGetWin32HandleInfoKHR getWin32HandleInfo{m_AllocInfo.m_deviceMemory, vk::ExternalMemoryHandleTypeFlagBits::eOpaqueWin32};
         HANDLE handle = 0;
         VK_SUCCEED_OR_RETURN_EZ_FAILURE(device.getMemoryWin32HandleKHR(&getWin32HandleInfo, &handle, m_pDevice->GetDispatchContext()));
         m_hSharedHandle.m_uiProcessId = ezProcess::GetCurrentProcessID();
         m_hSharedHandle.m_hSharedTexture = (size_t)handle;
-        m_hSharedHandle.m_uiMemoryTypeIndex = m_allocInfo.m_memoryType;
-        m_hSharedHandle.m_uiSize = m_allocInfo.m_size;
+        m_hSharedHandle.m_uiMemoryTypeIndex = m_AllocInfo.m_memoryType;
+        m_hSharedHandle.m_uiSize = m_AllocInfo.m_size;
 
         vk::ExportSemaphoreWin32HandleInfoKHR exportInfoWin32;
         exportInfoWin32.dwAccess = GENERIC_ALL;
@@ -212,9 +212,9 @@ ezResult ezGALSharedTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr
       m_hSharedHandle.m_hSemaphore = 0;
 
       // Create Image
-      VK_SUCCEED_OR_RETURN_EZ_FAILURE(device.createImage(&createInfo, nullptr, &m_image));
+      VK_SUCCEED_OR_RETURN_EZ_FAILURE(device.createImage(&createInfo, nullptr, &m_Image));
 
-      vk::ImageMemoryRequirementsInfo2 imageRequirementsInfo{m_image};
+      vk::ImageMemoryRequirementsInfo2 imageRequirementsInfo{m_Image};
       vk::MemoryRequirements2 imageMemoryRequirements;
       device.getImageMemoryRequirements2(&imageRequirementsInfo, &imageMemoryRequirements);
 
@@ -224,15 +224,15 @@ ezResult ezGALSharedTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr
       vk::ImportMemoryFdInfoKHR fdInfo{vk::ExternalMemoryHandleTypeFlagBits::eOpaqueFd, static_cast<int>(m_hSharedHandle.m_hSharedTexture)};
       vk::MemoryAllocateInfo allocateInfo{imageMemoryRequirements.memoryRequirements.size, m_hSharedHandle.m_uiMemoryTypeIndex, &fdInfo};
 
-      m_allocInfo = {};
-      VK_SUCCEED_OR_RETURN_EZ_FAILURE(device.allocateMemory(&allocateInfo, nullptr, &m_allocInfo.m_deviceMemory));
-      m_allocInfo.m_offset = 0;
-      m_allocInfo.m_size = imageMemoryRequirements.memoryRequirements.size;
-      m_allocInfo.m_memoryType = m_hSharedHandle.m_uiMemoryTypeIndex;
+      m_AllocInfo = {};
+      VK_SUCCEED_OR_RETURN_EZ_FAILURE(device.allocateMemory(&allocateInfo, nullptr, &m_AllocInfo.m_deviceMemory));
+      m_AllocInfo.m_offset = 0;
+      m_AllocInfo.m_size = imageMemoryRequirements.memoryRequirements.size;
+      m_AllocInfo.m_memoryType = m_hSharedHandle.m_uiMemoryTypeIndex;
       // Spec: "Importing memory from a file descriptor transfers ownership of the file descriptor from the application to the Vulkan implementation. The application must not perform any operations on the file descriptor after a successful import. "
       m_hSharedHandle.m_hSharedTexture = 0;
 
-      device.bindImageMemory(m_image, m_allocInfo.m_deviceMemory, 0);
+      device.bindImageMemory(m_Image, m_AllocInfo.m_deviceMemory, 0);
 
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
       if (m_hSharedHandle.m_hSharedTexture == 0 || m_hSharedHandle.m_hSemaphore == 0)
@@ -300,9 +300,9 @@ ezResult ezGALSharedTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr
       VK_SUCCEED_OR_RETURN_EZ_FAILURE(res);
 
       // Create Image
-      VK_SUCCEED_OR_RETURN_EZ_FAILURE(device.createImage(&createInfo, nullptr, &m_image));
+      VK_SUCCEED_OR_RETURN_EZ_FAILURE(device.createImage(&createInfo, nullptr, &m_Image));
 
-      vk::ImageMemoryRequirementsInfo2 imageRequirementsInfo{m_image};
+      vk::ImageMemoryRequirementsInfo2 imageRequirementsInfo{m_Image};
       vk::MemoryRequirements2 imageMemoryRequirements;
       device.getImageMemoryRequirements2(&imageRequirementsInfo, &imageMemoryRequirements);
 
@@ -315,13 +315,13 @@ ezResult ezGALSharedTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr
       // vk::MemoryWin32HandlePropertiesKHR handleProperties;
       //  device.getMemoryWin32HandlePropertiesKHR(vk::ExternalMemoryHandleTypeFlagBits::eOpaqueWin32, reinterpret_cast<HANDLE>(m_hSharedHandle.m_hSharedTexture), m_pDevice->GetDispatchContext());
 
-      m_allocInfo = {};
-      VK_SUCCEED_OR_RETURN_EZ_FAILURE(device.allocateMemory(&allocateInfo, nullptr, &m_allocInfo.m_deviceMemory));
-      m_allocInfo.m_offset = 0;
-      m_allocInfo.m_size = imageMemoryRequirements.memoryRequirements.size;
-      m_allocInfo.m_memoryType = m_hSharedHandle.m_uiMemoryTypeIndex;
+      m_AllocInfo = {};
+      VK_SUCCEED_OR_RETURN_EZ_FAILURE(device.allocateMemory(&allocateInfo, nullptr, &m_AllocInfo.m_deviceMemory));
+      m_AllocInfo.m_offset = 0;
+      m_AllocInfo.m_size = imageMemoryRequirements.memoryRequirements.size;
+      m_AllocInfo.m_memoryType = m_hSharedHandle.m_uiMemoryTypeIndex;
 
-      device.bindImageMemory(m_image, m_allocInfo.m_deviceMemory, 0);
+      device.bindImageMemory(m_Image, m_AllocInfo.m_deviceMemory, 0);
 #else
       EZ_ASSERT_NOT_IMPLEMENTED
 #endif
@@ -329,7 +329,7 @@ ezResult ezGALSharedTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr
   }
   else
   {
-    m_image = static_cast<VkImage>(m_Description.m_pExisitingNativeObject);
+    m_Image = static_cast<VkImage>(m_Description.m_pExisitingNativeObject);
   }
   m_pDevice->GetInitContext().InitTexture(this, createInfo, pInitialData);
 
@@ -343,12 +343,12 @@ ezResult ezGALSharedTextureVulkan::DeInitPlatform(ezGALDevice* pDevice)
 
   if (m_SharedType == ezGALSharedTextureType::Imported)
   {
-    pVulkanDevice->DeleteLater(m_image, m_allocInfo.m_deviceMemory);
+    pVulkanDevice->DeleteLater(m_Image, m_AllocInfo.m_deviceMemory);
     pVulkanDevice->DeleteLater(m_SharedSemaphore);
   }
   else if (m_SharedType == ezGALSharedTextureType::Exported)
   {
-    pVulkanDevice->DeleteLater(m_image, m_alloc);
+    pVulkanDevice->DeleteLater(m_Image, m_pAlloc);
     pVulkanDevice->DeleteLater(m_SharedSemaphore);
   }
 

@@ -102,7 +102,7 @@ void ezQueryPoolVulkan::Calibrate()
 
     ezTime gpuTS;
     EZ_VERIFY(GetTimestampResult(hTimestamp, gpuTS, true) == ezGALAsyncResult::Ready, "");
-    m_gpuToCpuDelta = systemTS - gpuTS;
+    m_GpuToCpuDelta = systemTS - gpuTS;
 
     m_TimestampPool.m_device.destroySemaphore(timelineSemaphore);
   }
@@ -121,7 +121,7 @@ void ezQueryPoolVulkan::Calibrate()
     const ezTime systemTS = ezTime::Now();
     ezTime gpuTS;
     EZ_VERIFY(GetTimestampResult(hTimestamp, gpuTS, true) == ezGALAsyncResult::Ready, "");
-    m_gpuToCpuDelta = systemTS - gpuTS;
+    m_GpuToCpuDelta = systemTS - gpuTS;
   }
 }
 
@@ -137,7 +137,7 @@ void ezQueryPoolVulkan::AfterBeginFrame(vk::CommandBuffer commandBuffer)
     EZ_PROFILE_SCOPE("OcclusionPool");
     m_OcclusionPool.BeginFrame(commandBuffer, uiCurrentFrame, uiSafeFrame);
   }
-  if (m_gpuToCpuDelta.IsZero())
+  if (m_GpuToCpuDelta.IsZero())
   {
     Calibrate();
   }
@@ -274,7 +274,7 @@ ezEnum<ezGALAsyncResult> ezQueryPoolVulkan::GetTimestampResult(ezGALTimestampHan
   if (res == ezGALAsyncResult::Ready)
   {
     out_uiResult &= m_uiValidBitsMask;
-    out_result = ezTime::Nanoseconds(m_fNanoSecondsPerTick * out_uiResult) + m_gpuToCpuDelta;
+    out_result = ezTime::Nanoseconds(m_fNanoSecondsPerTick * out_uiResult) + m_GpuToCpuDelta;
   }
   else
   {

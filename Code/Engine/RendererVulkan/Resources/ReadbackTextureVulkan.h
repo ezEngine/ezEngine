@@ -10,8 +10,8 @@ class ezGALDeviceVulkan;
 class ezGALReadbackTextureVulkan : public ezGALReadbackTexture
 {
 public:
-  EZ_ALWAYS_INLINE vk::Buffer GetVkBuffer() const { return m_buffer; }
-  EZ_ALWAYS_INLINE ezVulkanAllocation GetBufferAllocation() const { return m_bufferAlloc; }
+  EZ_ALWAYS_INLINE vk::Buffer GetVkBuffer() const { return m_Buffer; }
+  EZ_ALWAYS_INLINE ezVulkanAllocation GetBufferAllocation() const { return m_pBufferAlloc; }
 
 protected:
   friend class ezGALDeviceVulkan;
@@ -25,9 +25,9 @@ protected:
   virtual void SetDebugNamePlatform(const char* szName) const override;
 
 protected:
-  vk::Buffer m_buffer = {};
-  ezVulkanAllocation m_bufferAlloc;
-  ezVulkanAllocationInfo m_bufferAllocInfo;
+  vk::Buffer m_Buffer = {};
+  ezVulkanAllocation m_pBufferAlloc;
+  ezVulkanAllocationInfo m_BufferAllocInfo;
 
   ezGALDeviceVulkan* m_pDevice = nullptr;
 };

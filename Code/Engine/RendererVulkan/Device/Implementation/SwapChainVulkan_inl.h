@@ -1,5 +1,5 @@
 
 vk::SwapchainKHR ezGALSwapChainVulkan::GetVulkanSwapChain() const
 {
-  return m_vulkanSwapChain;
+  return m_VulkanSwapChain;
 }

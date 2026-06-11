@@ -65,8 +65,8 @@ void ezGALSwapChainVulkan::AcquireNextRenderTarget(ezGALDevice* pDevice)
 {
   EZ_PROFILE_SCOPE("AcquireNextRenderTarget");
   auto pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
-  EZ_ASSERT_DEV(!m_currentPipelineImageAvailableSemaphore, "Pipeline semaphores leaked");
-  m_currentPipelineImageAvailableSemaphore = ezSemaphorePoolVulkan::RequestSemaphore();
+  EZ_ASSERT_DEV(!m_CurrentPipelineImageAvailableSemaphore, "Pipeline semaphores leaked");
+  m_CurrentPipelineImageAvailableSemaphore = ezSemaphorePoolVulkan::RequestSemaphore();
 
   // Check if the surface extent has changed before acquiring. If it has, recreate the swapchain first.
   // This avoids a Vulkan spec violation: when minImageCount equals the total swapchain image count,
@@ -74,7 +74,7 @@ void ezGALSwapChainVulkan::AcquireNextRenderTarget(ezGALDevice* pDevice)
   // I *think* that this is no longer needed now that we don't SPAM the resize in the editor to the engine.
   /*
   {
-    const vk::SurfaceCapabilitiesKHR surfaceCapabilities = m_pVulkanDevice->GetVulkanPhysicalDevice().getSurfaceCapabilitiesKHR(m_vulkanSurface);
+    const vk::SurfaceCapabilitiesKHR surfaceCapabilities = m_pVulkanDevice->GetVulkanPhysicalDevice().getSurfaceCapabilitiesKHR(m_VulkanSurface);
     if (surfaceCapabilities.currentExtent.width != m_CurrentSize.width || surfaceCapabilities.currentExtent.height != m_CurrentSize.height)
     {
       if (CreateSwapChainInternal().Failed())
@@ -89,10 +89,10 @@ void ezGALSwapChainVulkan::AcquireNextRenderTarget(ezGALDevice* pDevice)
   while (true)
   {
     // #TODO_VULKAN We leave the fence parameter blank as we do not care on the CPU whether a swap chain image is still in use or not. Currently, we daisy-chain each frame to the previous frame's semaphore. Not sure if this won't break if we stop doing that. If we call acquireNextImageKHR, can we be sure that the image is no longer in use?
-    vk::Result result = m_pVulkanDevice->GetVulkanDevice().acquireNextImageKHR(m_vulkanSwapChain, std::numeric_limits<uint64_t>::max(), m_currentPipelineImageAvailableSemaphore, nullptr, &m_uiCurrentSwapChainImage);
+    vk::Result result = m_pVulkanDevice->GetVulkanDevice().acquireNextImageKHR(m_VulkanSwapChain, std::numeric_limits<uint64_t>::max(), m_CurrentPipelineImageAvailableSemaphore, nullptr, &m_uiCurrentSwapChainImage);
     if (result == vk::Result::eSuboptimalKHR)
     {
-      const vk::SurfaceCapabilitiesKHR surfaceCapabilities = m_pVulkanDevice->GetVulkanPhysicalDevice().getSurfaceCapabilitiesKHR(m_vulkanSurface);
+      const vk::SurfaceCapabilitiesKHR surfaceCapabilities = m_pVulkanDevice->GetVulkanPhysicalDevice().getSurfaceCapabilitiesKHR(m_VulkanSurface);
       if ((surfaceCapabilities.currentExtent.width != m_CurrentSize.width || surfaceCapabilities.currentExtent.height != m_CurrentSize.height))
       {
         ezLog::Warning("Swap-chain does not match the target window size and should be recreated. Expected size {0}x{1}, current size {2}x{3}.", surfaceCapabilities.currentExtent.width, surfaceCapabilities.currentExtent.height, m_CurrentSize.width, m_CurrentSize.height);
@@ -132,12 +132,12 @@ void ezGALSwapChainVulkan::AcquireNextRenderTarget(ezGALDevice* pDevice)
   }
 
 #ifdef VK_LOG_LAYOUT_CHANGES
-  ezLog::Warning("AcquireNextRenderTarget {}", ezArgP(static_cast<void*>(m_swapChainImages[m_uiCurrentSwapChainImage])));
+  ezLog::Warning("AcquireNextRenderTarget {}", ezArgP(static_cast<void*>(m_SwapChainImages[m_uiCurrentSwapChainImage])));
 #endif
 
-  m_RenderTargets.m_hRTs[0] = m_swapChainTextures[m_uiCurrentSwapChainImage];
-  pVulkanDevice->AddWaitSemaphore(ezGALDeviceVulkan::SemaphoreInfo::MakeWaitSemaphore(m_currentPipelineImageAvailableSemaphore, vk::PipelineStageFlagBits::eColorAttachmentOutput));
-  pVulkanDevice->ReclaimLater(m_currentPipelineImageAvailableSemaphore);
+  m_RenderTargets.m_hRTs[0] = m_SwapChainTextures[m_uiCurrentSwapChainImage];
+  pVulkanDevice->AddWaitSemaphore(ezGALDeviceVulkan::SemaphoreInfo::MakeWaitSemaphore(m_CurrentPipelineImageAvailableSemaphore, vk::PipelineStageFlagBits::eColorAttachmentOutput));
+  pVulkanDevice->ReclaimLater(m_CurrentPipelineImageAvailableSemaphore);
 }
 
 void ezGALSwapChainVulkan::PresentRenderTarget(ezGALDevice* pDevice)
@@ -150,7 +150,7 @@ void ezGALSwapChainVulkan::PresentRenderTarget(ezGALDevice* pDevice)
   auto pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
 
   // Submit command buffer
-  vk::Semaphore currentPipelineRenderFinishedSemaphore = m_imageRenderFinishedSemaphores[m_uiCurrentSwapChainImage];
+  vk::Semaphore currentPipelineRenderFinishedSemaphore = m_ImageRenderFinishedSemaphores[m_uiCurrentSwapChainImage];
 
   pVulkanDevice->AddSignalSemaphore(ezGALDeviceVulkan::SemaphoreInfo::MakeSignalSemaphore(currentPipelineRenderFinishedSemaphore));
   pVulkanDevice->Submit();
@@ -161,27 +161,27 @@ void ezGALSwapChainVulkan::PresentRenderTarget(ezGALDevice* pDevice)
     presentInfo.waitSemaphoreCount = 1;
     presentInfo.pWaitSemaphores = &currentPipelineRenderFinishedSemaphore;
     presentInfo.swapchainCount = 1;
-    presentInfo.pSwapchains = &m_vulkanSwapChain;
+    presentInfo.pSwapchains = &m_VulkanSwapChain;
     presentInfo.pImageIndices = &m_uiCurrentSwapChainImage;
 
     m_pVulkanDevice->GetGraphicsQueue().m_queue.presentKHR(&presentInfo);
 
 #ifdef VK_LOG_LAYOUT_CHANGES
-    ezLog::Warning("PresentInfoKHR {}", ezArgP(m_swapChainImages[m_uiCurrentSwapChainImage]));
+    ezLog::Warning("PresentInfoKHR {}", ezArgP(m_SwapChainImages[m_uiCurrentSwapChainImage]));
 #endif
   }
 }
 
 ezResult ezGALSwapChainVulkan::UpdateSwapChain(ezGALDevice* pDevice, ezEnum<ezGALPresentMode> newPresentMode)
 {
-  EZ_ASSERT_DEBUG(!m_currentPipelineImageAvailableSemaphore, "UpdateSwapChain must not be called between AcquireNextRenderTarget and PresentRenderTarget.");
-  m_currentPresentMode = newPresentMode;
+  EZ_ASSERT_DEBUG(!m_CurrentPipelineImageAvailableSemaphore, "UpdateSwapChain must not be called between AcquireNextRenderTarget and PresentRenderTarget.");
+  m_CurrentPresentMode = newPresentMode;
   return CreateSwapChainInternal();
 }
 
 ezGALSwapChainVulkan::ezGALSwapChainVulkan(const ezGALWindowSwapChainCreationDescription& Description)
   : ezGALWindowSwapChain(Description)
-  , m_vulkanSwapChain(nullptr)
+  , m_VulkanSwapChain(nullptr)
 {
 }
 
@@ -190,14 +190,14 @@ ezGALSwapChainVulkan::~ezGALSwapChainVulkan() {}
 ezResult ezGALSwapChainVulkan::InitPlatform(ezGALDevice* pDevice)
 {
   m_pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
-  m_currentPresentMode = m_WindowDesc.m_InitialPresentMode;
+  m_CurrentPresentMode = m_WindowDesc.m_InitialPresentMode;
 
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
   vk::Win32SurfaceCreateInfoKHR surfaceCreateInfo = {};
   surfaceCreateInfo.hinstance = GetModuleHandle(nullptr);
   surfaceCreateInfo.hwnd = (HWND)m_WindowDesc.m_pWindow->GetNativeWindowHandle();
 
-  m_vulkanSurface = m_pVulkanDevice->GetVulkanInstance().createWin32SurfaceKHR(surfaceCreateInfo);
+  m_VulkanSurface = m_pVulkanDevice->GetVulkanInstance().createWin32SurfaceKHR(surfaceCreateInfo);
 #elif EZ_ENABLED(EZ_PLATFORM_LINUX)
   ezWindowHandle windowHandle = m_WindowDesc.m_pWindow->GetNativeWindowHandle();
   switch (windowHandle.type)
@@ -209,7 +209,7 @@ ezResult ezGALSwapChainVulkan::InitPlatform(ezGALDevice* pDevice)
     {
       VkSurfaceKHR glfwSurface = VK_NULL_HANDLE;
       VK_SUCCEED_OR_RETURN_EZ_FAILURE(glfwCreateWindowSurface(m_pVulkanDevice->GetVulkanInstance(), windowHandle.glfwWindow, nullptr, &glfwSurface));
-      m_vulkanSurface = glfwSurface;
+      m_VulkanSurface = glfwSurface;
     }
     break;
     case ezWindowHandle::Type::XCB:
@@ -221,7 +221,7 @@ ezResult ezGALSwapChainVulkan::InitPlatform(ezGALDevice* pDevice)
         surfaceCreateInfo.connection = windowHandle.xcbWindow.m_pConnection;
         surfaceCreateInfo.window = windowHandle.xcbWindow.m_Window;
 
-        m_vulkanSurface = m_pVulkanDevice->GetVulkanInstance().createXcbSurfaceKHR(surfaceCreateInfo);
+        m_VulkanSurface = m_pVulkanDevice->GetVulkanInstance().createXcbSurfaceKHR(surfaceCreateInfo);
       }
       else
       {
@@ -233,16 +233,16 @@ ezResult ezGALSwapChainVulkan::InitPlatform(ezGALDevice* pDevice)
 #elif EZ_ENABLED(EZ_SUPPORTS_GLFW)
   VkSurfaceKHR glfwSurface = VK_NULL_HANDLE;
   VK_SUCCEED_OR_RETURN_EZ_FAILURE(glfwCreateWindowSurface(m_pVulkanDevice->GetVulkanInstance(), m_WindowDesc.m_pWindow->GetNativeWindowHandle(), nullptr, &glfwSurface));
-  m_vulkanSurface = glfwSurface;
+  m_VulkanSurface = glfwSurface;
 #elif EZ_ENABLED(EZ_PLATFORM_ANDROID)
   vk::AndroidSurfaceCreateInfoKHR info;
   info.window = reinterpret_cast<ANativeWindow*>(m_WindowDesc.m_pWindow->GetNativeWindowHandle());
-  VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_pVulkanDevice->GetVulkanInstance().createAndroidSurfaceKHR(&info, nullptr, &m_vulkanSurface));
+  VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_pVulkanDevice->GetVulkanInstance().createAndroidSurfaceKHR(&info, nullptr, &m_VulkanSurface));
 #else
 #  error Platform not supported
 #endif
 
-  if (!m_vulkanSurface)
+  if (!m_VulkanSurface)
   {
     ezLog::Error("Failed to create Vulkan surface for window \"{}\"", m_WindowDesc.m_pWindow);
     return EZ_FAILURE;
@@ -252,12 +252,12 @@ ezResult ezGALSwapChainVulkan::InitPlatform(ezGALDevice* pDevice)
   m_WindowDesc.m_pWindow->AddReference();
   vk::Bool32 surfaceSupported = false;
 
-  VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_pVulkanDevice->GetVulkanPhysicalDevice().getSurfaceSupportKHR(m_pVulkanDevice->GetGraphicsQueue().m_uiQueueFamily, m_vulkanSurface, &surfaceSupported));
+  VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_pVulkanDevice->GetVulkanPhysicalDevice().getSurfaceSupportKHR(m_pVulkanDevice->GetGraphicsQueue().m_uiQueueFamily, m_VulkanSurface, &surfaceSupported));
 
   if (!surfaceSupported)
   {
     ezLog::Error("Vulkan device does not support surfaces");
-    m_pVulkanDevice->DeleteLater(m_vulkanSurface);
+    m_pVulkanDevice->DeleteLater(m_VulkanSurface);
     return EZ_FAILURE;
   }
 
@@ -267,23 +267,23 @@ ezResult ezGALSwapChainVulkan::InitPlatform(ezGALDevice* pDevice)
 ezResult ezGALSwapChainVulkan::CreateSwapChainInternal()
 {
   uint32_t uiPresentModes = 0;
-  VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_pVulkanDevice->GetVulkanPhysicalDevice().getSurfacePresentModesKHR(m_vulkanSurface, &uiPresentModes, nullptr));
+  VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_pVulkanDevice->GetVulkanPhysicalDevice().getSurfacePresentModesKHR(m_VulkanSurface, &uiPresentModes, nullptr));
   ezHybridArray<vk::PresentModeKHR, 4> presentModes;
   presentModes.SetCount(uiPresentModes);
-  VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_pVulkanDevice->GetVulkanPhysicalDevice().getSurfacePresentModesKHR(m_vulkanSurface, &uiPresentModes, presentModes.GetData()));
+  VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_pVulkanDevice->GetVulkanPhysicalDevice().getSurfacePresentModesKHR(m_VulkanSurface, &uiPresentModes, presentModes.GetData()));
 
   vk::SurfaceCapabilitiesKHR surfaceCapabilities;
-  vk::Result res = m_pVulkanDevice->GetVulkanPhysicalDevice().getSurfaceCapabilitiesKHR(m_vulkanSurface, &surfaceCapabilities);
+  vk::Result res = m_pVulkanDevice->GetVulkanPhysicalDevice().getSurfaceCapabilitiesKHR(m_VulkanSurface, &surfaceCapabilities);
   if (res != vk::Result::eSuccess)
   {
     return EZ_FAILURE;
   }
 
   uint32_t uiNumSurfaceFormats = 0;
-  VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_pVulkanDevice->GetVulkanPhysicalDevice().getSurfaceFormatsKHR(m_vulkanSurface, &uiNumSurfaceFormats, nullptr));
+  VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_pVulkanDevice->GetVulkanPhysicalDevice().getSurfaceFormatsKHR(m_VulkanSurface, &uiNumSurfaceFormats, nullptr));
   std::vector<vk::SurfaceFormatKHR> supportedFormats;
   supportedFormats.resize(uiNumSurfaceFormats);
-  VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_pVulkanDevice->GetVulkanPhysicalDevice().getSurfaceFormatsKHR(m_vulkanSurface, &uiNumSurfaceFormats, supportedFormats.data()));
+  VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_pVulkanDevice->GetVulkanPhysicalDevice().getSurfaceFormatsKHR(m_VulkanSurface, &uiNumSurfaceFormats, supportedFormats.data()));
 
   vk::Format desiredFormat = m_pVulkanDevice->GetFormatLookupTable().GetFormatInfo(m_WindowDesc.m_BackBufferFormat).m_format;
   vk::ColorSpaceKHR desiredColorSpace = vk::ColorSpaceKHR::eSrgbNonlinear;
@@ -359,9 +359,9 @@ ezResult ezGALSwapChainVulkan::CreateSwapChainInternal()
   if (surfaceCapabilities.maxImageCount != 0)
     swapChainCreateInfo.minImageCount = ezMath::Min(swapChainCreateInfo.minImageCount, surfaceCapabilities.maxImageCount);
 
-  swapChainCreateInfo.presentMode = ezConversionUtilsVulkan::GetPresentMode(m_currentPresentMode, presentModes);
+  swapChainCreateInfo.presentMode = ezConversionUtilsVulkan::GetPresentMode(m_CurrentPresentMode, presentModes);
   swapChainCreateInfo.preTransform = vk::SurfaceTransformFlagBitsKHR::eIdentity;
-  swapChainCreateInfo.surface = m_vulkanSurface;
+  swapChainCreateInfo.surface = m_VulkanSurface;
 
   swapChainCreateInfo.imageSharingMode = vk::SharingMode::eExclusive;
   swapChainCreateInfo.pQueueFamilyIndices = nullptr;
@@ -379,7 +379,7 @@ ezResult ezGALSwapChainVulkan::CreateSwapChainInternal()
   }
 
   // We must pass in the old swap chain or NVidia will crash.
-  swapChainCreateInfo.oldSwapchain = m_vulkanSwapChain;
+  swapChainCreateInfo.oldSwapchain = m_VulkanSwapChain;
   DestroySwapChainInternal(m_pVulkanDevice);
 
   vk::SwapchainKHR newSwapChain;
@@ -389,37 +389,37 @@ ezResult ezGALSwapChainVulkan::CreateSwapChainInternal()
     ezLog::Error("Failed to create Vulkan swap chain!");
     return EZ_FAILURE;
   }
-  m_vulkanSwapChain = newSwapChain;
+  m_VulkanSwapChain = newSwapChain;
 
   ezUInt32 uiSwapChainImages = 0;
-  VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_pVulkanDevice->GetVulkanDevice().getSwapchainImagesKHR(m_vulkanSwapChain, &uiSwapChainImages, nullptr));
-  m_swapChainImages.SetCount(uiSwapChainImages);
-  VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_pVulkanDevice->GetVulkanDevice().getSwapchainImagesKHR(m_vulkanSwapChain, &uiSwapChainImages, m_swapChainImages.GetData()));
+  VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_pVulkanDevice->GetVulkanDevice().getSwapchainImagesKHR(m_VulkanSwapChain, &uiSwapChainImages, nullptr));
+  m_SwapChainImages.SetCount(uiSwapChainImages);
+  VK_SUCCEED_OR_RETURN_EZ_FAILURE(m_pVulkanDevice->GetVulkanDevice().getSwapchainImagesKHR(m_VulkanSwapChain, &uiSwapChainImages, m_SwapChainImages.GetData()));
 
   // We can't use our pool here as the frame fence is not sufficient to reclaim swapchain semaphores. Thus, we create unique ones for every image.
-  m_imageRenderFinishedSemaphores.SetCount(uiSwapChainImages);
+  m_ImageRenderFinishedSemaphores.SetCount(uiSwapChainImages);
   for (ezUInt32 i = 0; i < uiSwapChainImages; ++i)
   {
     vk::SemaphoreCreateInfo semaphoreCreateInfo;
-    VK_ASSERT_DEV(m_pVulkanDevice->GetVulkanDevice().createSemaphore(&semaphoreCreateInfo, nullptr, &m_imageRenderFinishedSemaphores[i]));
+    VK_ASSERT_DEV(m_pVulkanDevice->GetVulkanDevice().createSemaphore(&semaphoreCreateInfo, nullptr, &m_ImageRenderFinishedSemaphores[i]));
   }
 
   for (ezUInt32 i = 0; i < uiSwapChainImages; i++)
   {
-    m_pVulkanDevice->SetDebugName("SwapChainImage", m_swapChainImages[i]);
+    m_pVulkanDevice->SetDebugName("SwapChainImage", m_SwapChainImages[i]);
 
     ezGALTextureCreationDescription TexDesc;
     TexDesc.m_Format = GetResourceFormat(desiredFormat);
     TexDesc.m_uiWidth = swapChainCreateInfo.imageExtent.width;
     TexDesc.m_uiHeight = swapChainCreateInfo.imageExtent.height;
     TexDesc.m_SampleCount = m_WindowDesc.m_SampleCount;
-    TexDesc.m_pExisitingNativeObject = m_swapChainImages[i];
+    TexDesc.m_pExisitingNativeObject = m_SwapChainImages[i];
     TexDesc.m_TextureFlags = ezGALTextureUsageFlags::RenderTarget | ezGALTextureUsageFlags::ShaderResource | ezGALTextureUsageFlags::Presentable;
     TexDesc.m_ResourceAccess.m_bImmutable = false;
-    m_swapChainTextures.PushBack(m_pVulkanDevice->CreateTextureInternal(TexDesc, ezArrayPtr<ezGALSystemMemoryDescription>()));
+    m_SwapChainTextures.PushBack(m_pVulkanDevice->CreateTextureInternal(TexDesc, ezArrayPtr<ezGALSystemMemoryDescription>()));
   }
   m_CurrentSize = ezSizeU32(swapChainCreateInfo.imageExtent.width, swapChainCreateInfo.imageExtent.height);
-  m_RenderTargets.m_hRTs[0] = m_swapChainTextures[0];
+  m_RenderTargets.m_hRTs[0] = m_SwapChainTextures[0];
 
   m_pVulkanDevice->s_SwapChainUpdatedEvent.Broadcast(this);
   return EZ_SUCCESS;
@@ -427,22 +427,22 @@ ezResult ezGALSwapChainVulkan::CreateSwapChainInternal()
 
 void ezGALSwapChainVulkan::DestroySwapChainInternal(ezGALDeviceVulkan* pVulkanDevice)
 {
-  ezUInt32 uiSwapChainImages = m_swapChainTextures.GetCount();
+  ezUInt32 uiSwapChainImages = m_SwapChainTextures.GetCount();
   for (ezUInt32 i = 0; i < uiSwapChainImages; i++)
   {
-    pVulkanDevice->DestroyTexture(m_swapChainTextures[i]);
+    pVulkanDevice->DestroyTexture(m_SwapChainTextures[i]);
   }
-  m_swapChainTextures.Clear();
+  m_SwapChainTextures.Clear();
 
-  for (vk::Semaphore& sem : m_imageRenderFinishedSemaphores)
+  for (vk::Semaphore& sem : m_ImageRenderFinishedSemaphores)
   {
     pVulkanDevice->DeleteLater(sem);
   }
-  m_imageRenderFinishedSemaphores.Clear();
+  m_ImageRenderFinishedSemaphores.Clear();
 
-  if (m_vulkanSwapChain)
+  if (m_VulkanSwapChain)
   {
-    pVulkanDevice->DeleteLater(m_vulkanSwapChain);
+    pVulkanDevice->DeleteLater(m_VulkanSwapChain);
   }
 }
 
@@ -450,9 +450,9 @@ ezResult ezGALSwapChainVulkan::DeInitPlatform(ezGALDevice* pDevice)
 {
   ezGALDeviceVulkan* pVulkanDevice = static_cast<ezGALDeviceVulkan*>(pDevice);
   DestroySwapChainInternal(pVulkanDevice);
-  if (m_vulkanSurface)
+  if (m_VulkanSurface)
   {
-    pVulkanDevice->DeleteLater(m_vulkanSurface, (void*)m_WindowDesc.m_pWindow);
+    pVulkanDevice->DeleteLater(m_VulkanSurface, (void*)m_WindowDesc.m_pWindow);
   }
   return EZ_SUCCESS;
 }

@@ -38,7 +38,7 @@ struct ezBufferBarrierVulkan
 class EZ_RENDERERVULKAN_DLL ezBarrierUtilsVulkan
 {
 public:
-  ezBarrierUtilsVulkan(const ezGALDeviceVulkan& device, vk::CommandBuffer& commandBuffer);
+  ezBarrierUtilsVulkan(const ezGALDeviceVulkan& device, vk::CommandBuffer& ref_commandBuffer);
 
   /// Submits image memory barriers for the given texture barrier descriptions.
   void TextureBarrier(ezArrayPtr<const ezGALTextureBarrier> barriers);

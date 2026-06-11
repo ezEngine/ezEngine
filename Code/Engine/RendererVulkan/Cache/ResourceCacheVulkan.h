@@ -23,7 +23,7 @@ public:
   static void Initialize(ezGALDeviceVulkan* pDevice, vk::Device device);
   static void DeInitialize();
 
-  static vk::PipelineCache GetPipelineCache() { return s_pipelineCache; }
+  static vk::PipelineCache GetPipelineCache() { return s_PipelineCache; }
   static vk::RenderPass RequestRenderPass(const ezGALRenderPassDescriptor& renderPass);
   static vk::Framebuffer RequestFrameBuffer(vk::RenderPass vkRenderPass, const ezGALFrameBufferDescriptor& frameBuffer);
 
@@ -49,9 +49,9 @@ private:
 
 private:
   static ezGALDeviceVulkan* s_pDevice;
-  static vk::Device s_device;
-  static vk::PipelineCache s_pipelineCache;
+  static vk::Device s_Device;
+  static vk::PipelineCache s_PipelineCache;
   // We have a N to 1 mapping for ezGALRenderingSetup to vk::RenderPass as multiple ezGALRenderingSetup can share the same RenderPassDesc.
-  static ezHashTable<ezGALRenderPassDescriptor, vk::RenderPass, ResourceCacheHash> s_renderPasses;
-  static ezHashTable<FramebufferKey, vk::Framebuffer, ResourceCacheHash> s_frameBuffers; // #TODO_VULKAN cache invalidation
+  static ezHashTable<ezGALRenderPassDescriptor, vk::RenderPass, ResourceCacheHash> s_RenderPasses;
+  static ezHashTable<FramebufferKey, vk::Framebuffer, ResourceCacheHash> s_FrameBuffers; // #TODO_VULKAN cache invalidation
 };

@@ -15,11 +15,11 @@
 #include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
 
 ezGALDeviceVulkan* ezResourceCacheVulkan::s_pDevice;
-vk::Device ezResourceCacheVulkan::s_device;
-vk::PipelineCache ezResourceCacheVulkan::s_pipelineCache;
+vk::Device ezResourceCacheVulkan::s_Device;
+vk::PipelineCache ezResourceCacheVulkan::s_PipelineCache;
 
-ezHashTable<ezGALRenderPassDescriptor, vk::RenderPass, ezResourceCacheVulkan::ResourceCacheHash> ezResourceCacheVulkan::s_renderPasses;
-ezHashTable<ezResourceCacheVulkan::FramebufferKey, vk::Framebuffer, ezResourceCacheVulkan::ResourceCacheHash> ezResourceCacheVulkan::s_frameBuffers;
+ezHashTable<ezGALRenderPassDescriptor, vk::RenderPass, ezResourceCacheVulkan::ResourceCacheHash> ezResourceCacheVulkan::s_RenderPasses;
+ezHashTable<ezResourceCacheVulkan::FramebufferKey, vk::Framebuffer, ezResourceCacheVulkan::ResourceCacheHash> ezResourceCacheVulkan::s_FrameBuffers;
 
 // #define EZ_LOG_VULKAN_RESOURCES
 
@@ -75,46 +75,46 @@ namespace
 void ezResourceCacheVulkan::Initialize(ezGALDeviceVulkan* pDevice, vk::Device device)
 {
   s_pDevice = pDevice;
-  s_device = device;
+  s_Device = device;
 
-  if (LoadPipelineCache(s_pipelineCache).Failed())
+  if (LoadPipelineCache(s_PipelineCache).Failed())
   {
     vk::PipelineCacheCreateInfo pipelineCacheInfo;
     pipelineCacheInfo.initialDataSize = 0;
     pipelineCacheInfo.pInitialData = nullptr;
-    VK_ASSERT_DEV(s_device.createPipelineCache(&pipelineCacheInfo, nullptr, &s_pipelineCache));
+    VK_ASSERT_DEV(s_Device.createPipelineCache(&pipelineCacheInfo, nullptr, &s_PipelineCache));
   }
 }
 
 void ezResourceCacheVulkan::DeInitialize()
 {
-  if (s_pipelineCache)
+  if (s_PipelineCache)
   {
     if (SavePipelineCache().Failed())
     {
       ezLog::Error("Failed to save Vulkan pipeline cache");
     }
     // Destroy the pipeline cache
-    s_device.destroyPipelineCache(s_pipelineCache, nullptr);
-    s_pipelineCache = nullptr;
+    s_Device.destroyPipelineCache(s_PipelineCache, nullptr);
+    s_PipelineCache = nullptr;
   }
 
   // Destroy other resources
-  for (auto it : s_renderPasses)
+  for (auto it : s_RenderPasses)
   {
-    s_device.destroyRenderPass(it.Value(), nullptr);
+    s_Device.destroyRenderPass(it.Value(), nullptr);
   }
-  s_renderPasses.Clear();
-  s_renderPasses.Compact();
+  s_RenderPasses.Clear();
+  s_RenderPasses.Compact();
 
-  for (auto it : s_frameBuffers)
+  for (auto it : s_FrameBuffers)
   {
-    s_device.destroyFramebuffer(it.Value(), nullptr);
+    s_Device.destroyFramebuffer(it.Value(), nullptr);
   }
-  s_frameBuffers.Clear();
-  s_frameBuffers.Compact();
+  s_FrameBuffers.Clear();
+  s_FrameBuffers.Compact();
 
-  s_device = nullptr;
+  s_Device = nullptr;
 }
 
 EZ_DEFINE_AS_POD_TYPE(vk::AttachmentDescription);
@@ -122,13 +122,13 @@ EZ_DEFINE_AS_POD_TYPE(vk::AttachmentReference);
 
 vk::RenderPass ezResourceCacheVulkan::RequestRenderPass(const ezGALRenderPassDescriptor& renderPass)
 {
-  if (const vk::RenderPass* pPass = s_renderPasses.GetValue(renderPass))
+  if (const vk::RenderPass* pPass = s_RenderPasses.GetValue(renderPass))
   {
     return *pPass;
   }
 
 #ifdef EZ_LOG_VULKAN_RESOURCES
-  ezLog::Info("Creating RenderPass #{}", s_renderPasses.GetCount());
+  ezLog::Info("Creating RenderPass #{}", s_RenderPasses.GetCount());
 #endif // EZ_LOG_VULKAN_RESOURCES
 
   ezHybridArray<vk::AttachmentDescription, 4> attachments;
@@ -206,9 +206,9 @@ vk::RenderPass ezResourceCacheVulkan::RequestRenderPass(const ezGALRenderPassDes
   renderPassCreateInfo.pDependencies = &dependency;
 
   vk::RenderPass vkRenderPass;
-  VK_LOG_ERROR(s_device.createRenderPass(&renderPassCreateInfo, nullptr, &vkRenderPass));
+  VK_LOG_ERROR(s_Device.createRenderPass(&renderPassCreateInfo, nullptr, &vkRenderPass));
 
-  s_renderPasses.Insert(renderPass, vkRenderPass);
+  s_RenderPasses.Insert(renderPass, vkRenderPass);
   return vkRenderPass;
 }
 
@@ -218,13 +218,13 @@ vk::Framebuffer ezResourceCacheVulkan::RequestFrameBuffer(vk::RenderPass vkRende
   key.m_renderPass = vkRenderPass;
   key.m_frameBuffer = frameBuffer;
 
-  if (const vk::Framebuffer* pFrameBuffer = s_frameBuffers.GetValue(key))
+  if (const vk::Framebuffer* pFrameBuffer = s_FrameBuffers.GetValue(key))
   {
     return *pFrameBuffer;
   }
 
 #ifdef EZ_LOG_VULKAN_RESOURCES
-  ezLog::Info("Creating FrameBuffer #{}", s_frameBuffers.GetCount());
+  ezLog::Info("Creating FrameBuffer #{}", s_FrameBuffers.GetCount());
 #endif // EZ_LOG_VULKAN_RESOURCES
 
   ezHybridArray<vk::ImageView, EZ_GAL_MAX_RENDERTARGET_COUNT + 1> attachments;
@@ -251,9 +251,9 @@ vk::Framebuffer ezResourceCacheVulkan::RequestFrameBuffer(vk::RenderPass vkRende
   framebufferInfo.layers = frameBuffer.m_uiSliceCount;
 
   vk::Framebuffer vkFrameBuffer;
-  VK_LOG_ERROR(s_device.createFramebuffer(&framebufferInfo, nullptr, &vkFrameBuffer));
+  VK_LOG_ERROR(s_Device.createFramebuffer(&framebufferInfo, nullptr, &vkFrameBuffer));
 
-  s_frameBuffers.Insert(key, vkFrameBuffer);
+  s_FrameBuffers.Insert(key, vkFrameBuffer);
   return vkFrameBuffer;
 }
 
@@ -264,13 +264,13 @@ ezResult ezResourceCacheVulkan::SavePipelineCache()
 
   // Get the cache data
   size_t dataSize = 0;
-  VK_SUCCEED_OR_RETURN_EZ_FAILURE(s_device.getPipelineCacheData(s_pipelineCache, &dataSize, nullptr));
+  VK_SUCCEED_OR_RETURN_EZ_FAILURE(s_Device.getPipelineCacheData(s_PipelineCache, &dataSize, nullptr));
   if (dataSize == 0)
     return EZ_SUCCESS;
 
   ezDynamicArray<ezUInt8> pipelineCacheData;
   pipelineCacheData.SetCountUninitialized(static_cast<ezUInt32>(dataSize));
-  VK_SUCCEED_OR_RETURN_EZ_FAILURE(s_device.getPipelineCacheData(s_pipelineCache, &dataSize, pipelineCacheData.GetData()));
+  VK_SUCCEED_OR_RETURN_EZ_FAILURE(s_Device.getPipelineCacheData(s_PipelineCache, &dataSize, pipelineCacheData.GetData()));
 
   // Create our custom prefix header
   PipelineCachePrefixHeader prefixHeader;
@@ -359,7 +359,7 @@ ezResult ezResourceCacheVulkan::LoadPipelineCache(vk::PipelineCache& out_pipelin
   vk::PipelineCacheCreateInfo pipelineCacheInfo;
   pipelineCacheInfo.initialDataSize = initialData.GetCount();
   pipelineCacheInfo.pInitialData = initialData.GetData();
-  if (s_device.createPipelineCache(&pipelineCacheInfo, nullptr, &s_pipelineCache) != vk::Result::eSuccess)
+  if (s_Device.createPipelineCache(&pipelineCacheInfo, nullptr, &s_PipelineCache) != vk::Result::eSuccess)
     return EZ_FAILURE;
 
   return EZ_SUCCESS;

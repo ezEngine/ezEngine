@@ -23,16 +23,16 @@ public:
 
   static vk::DescriptorSet CreateTransientDescriptorSet(vk::DescriptorSetLayout layout);
   static void UpdateDescriptorSet(vk::DescriptorSet descriptorSet, ezArrayPtr<vk::WriteDescriptorSet> update);
-  static void ReclaimPool(vk::DescriptorPool& descriptorPool);
+  static void ReclaimPool(vk::DescriptorPool& ref_descriptorPool);
 
 private:
   static constexpr ezUInt32 s_uiPoolBaseSize = 1024;
 
   static vk::DescriptorPool GetNewTransientPool();
 
-  static vk::DescriptorPool s_currentTransientPool;
-  static ezHybridArray<vk::DescriptorPool, 4> s_freeTransientPools;
+  static vk::DescriptorPool s_CurrentTransientPool;
+  static ezHybridArray<vk::DescriptorPool, 4> s_FreeTransientPools;
 
-  static vk::Device s_device;
-  static ezHashTable<vk::DescriptorType, float> s_descriptorWeights;
+  static vk::Device s_Device;
+  static ezHashTable<vk::DescriptorType, float> s_DescriptorWeights;
 };

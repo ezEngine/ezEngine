@@ -27,13 +27,13 @@ class ezGALBindGroupVulkan;
 class EZ_RENDERERVULKAN_DLL ezGALCommandEncoderImplVulkan : public ezGALCommandEncoderCommonPlatformInterface
 {
 public:
-  ezGALCommandEncoderImplVulkan(ezGALDeviceVulkan& device);
+  ezGALCommandEncoderImplVulkan(ezGALDeviceVulkan& ref_device);
   ~ezGALCommandEncoderImplVulkan();
 
   void Reset();
 
   void EndFrame();
-  void SetCurrentCommandBuffer(vk::CommandBuffer* commandBuffer);
+  void SetCurrentCommandBuffer(vk::CommandBuffer* pCommandBuffer);
   void BeforeCommandBufferSubmit();
   void AfterCommandBufferSubmit(vk::Fence submitFence);
   ezDescriptorWritePoolVulkan& GetDescriptorWritePool() const;
@@ -57,14 +57,14 @@ public:
   virtual void CopyBufferPlatform(const ezGALBuffer* pDestination, const ezGALBuffer* pSource) override;
   virtual void CopyBufferRegionPlatform(const ezGALBuffer* pDestination, ezUInt32 uiDestOffset, const ezGALBuffer* pSource, ezUInt32 uiSourceOffset, ezUInt32 uiByteCount) override;
 
-  virtual void UpdateBufferPlatform(const ezGALBuffer* pDestination, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> pSourceData, ezGALUpdateMode::Enum updateMode) override;
+  virtual void UpdateBufferPlatform(const ezGALBuffer* pDestination, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> sourceData, ezGALUpdateMode::Enum updateMode) override;
 
   virtual void CopyTexturePlatform(const ezGALTexture* pDestination, const ezGALTexture* pSource) override;
-  virtual void CopyTextureRegionPlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource, const ezVec3U32& DestinationPoint, const ezGALTexture* pSource, const ezGALTextureSubresource& SourceSubResource, const ezBoundingBoxu32& Box) override;
+  virtual void CopyTextureRegionPlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& destinationSubResource, const ezVec3U32& vDestinationPoint, const ezGALTexture* pSource, const ezGALTextureSubresource& sourceSubResource, const ezBoundingBoxu32& box) override;
 
-  virtual void UpdateTexturePlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource, const ezBoundingBoxu32& DestinationBox, const ezGALSystemMemoryDescription& pSourceData) override;
+  virtual void UpdateTexturePlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& destinationSubResource, const ezBoundingBoxu32& destinationBox, const ezGALSystemMemoryDescription& sourceData) override;
 
-  virtual void ResolveTexturePlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource, const ezGALTexture* pSource, const ezGALTextureSubresource& SourceSubResource) override;
+  virtual void ResolveTexturePlatform(const ezGALTexture* pDestination, const ezGALTextureSubresource& destinationSubResource, const ezGALTexture* pSource, const ezGALTextureSubresource& sourceSubResource) override;
 
   virtual void ReadbackTexturePlatform(const ezGALReadbackTexture* pDestination, const ezGALTexture* pSource) override;
   virtual void ReadbackBufferPlatform(const ezGALReadbackBuffer* pDestination, const ezGALBuffer* pSource) override;
@@ -103,7 +103,7 @@ public:
 
   // Draw functions
 
-  virtual void ClearPlatform(const ezColor& ClearColor, ezUInt32 uiRenderTargetClearMask, bool bClearDepth, bool bClearStencil, float fDepthClear, ezUInt8 uiStencilClear) override;
+  virtual void ClearPlatform(const ezColor& clearColor, ezUInt32 uiRenderTargetClearMask, bool bClearDepth, bool bClearStencil, float fDepthClear, ezUInt8 uiStencilClear) override;
 
   virtual ezResult DrawPlatform(ezUInt32 uiVertexCount, ezUInt32 uiStartVertex) override;
   virtual ezResult DrawIndexedPlatform(ezUInt32 uiIndexCount, ezUInt32 uiStartIndex) override;
@@ -161,7 +161,7 @@ private:
 
 private:
   ezGALDeviceVulkan& m_GALDeviceVulkan;
-  vk::Device m_vkDevice;
+  vk::Device m_VkDevice;
 
   vk::CommandBuffer* m_pCommandBuffer = nullptr;
 
@@ -184,13 +184,13 @@ private:
   const ezGALGraphicsPipelineVulkan* m_pGraphicsPipeline = nullptr;
   const ezGALComputePipelineVulkan* m_pComputePipeline = nullptr;
 
-  vk::RenderPassBeginInfo m_renderPass;
-  ezHybridArray<vk::ClearValue, EZ_GAL_MAX_RENDERTARGET_COUNT + 1> m_clearValues;
-  vk::ImageAspectFlags m_depthMask = {};
+  vk::RenderPassBeginInfo m_RenderPass;
+  ezHybridArray<vk::ClearValue, EZ_GAL_MAX_RENDERTARGET_COUNT + 1> m_ClearValues;
+  vk::ImageAspectFlags m_DepthMask = {};
   ezUInt32 m_uiLayers = 0;
 
-  vk::Viewport m_viewport;
-  vk::Rect2D m_scissor;
+  vk::Viewport m_Viewport;
+  vk::Rect2D m_Scissor;
   bool m_bScissorEnabled = false;
   ezUInt8 m_uiStencilRefValue = 0;
 

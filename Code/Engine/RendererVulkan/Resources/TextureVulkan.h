@@ -22,12 +22,12 @@ public:
   static vk::Format ComputeImageFormat(const ezGALDeviceVulkan* pDevice, ezEnum<ezGALResourceFormat> galFormat, vk::ImageCreateInfo& ref_createInfo, vk::ImageFormatListCreateInfo& ref_imageFormats);
   static void ComputeCreateInfo(const ezGALDeviceVulkan* pDevice, const ezGALTextureCreationDescription& description, vk::ImageCreateInfo& ref_createInfo);
   static void ComputeAllocInfo(ezVulkanAllocationCreateInfo& ref_allocInfo);
-  static ezUInt32 ComputeSubResourceOffsets(const ezGALDeviceVulkan* pDevice, const ezGALTextureCreationDescription& description, ezDynamicArray<SubResourceOffset>& subResourceSizes);
+  static ezUInt32 ComputeSubResourceOffsets(const ezGALDeviceVulkan* pDevice, const ezGALTextureCreationDescription& description, ezDynamicArray<SubResourceOffset>& ref_subResourceSizes);
   static vk::Extent3D GetMipLevelSize(const ezGALTextureCreationDescription& description, ezUInt32 uiMipLevel);
 
 public:
   EZ_ALWAYS_INLINE vk::Image GetImage() const;
-  EZ_ALWAYS_INLINE vk::Format GetImageFormat() const { return m_imageFormat; }
+  EZ_ALWAYS_INLINE vk::Format GetImageFormat() const { return m_ImageFormat; }
   EZ_ALWAYS_INLINE ezVulkanAllocation GetAllocation() const;
   EZ_ALWAYS_INLINE const ezVulkanAllocationInfo& GetAllocationInfo() const;
 
@@ -49,10 +49,10 @@ protected:
   virtual void SetDebugNamePlatform(const char* szName) const override;
 
 protected:
-  vk::Image m_image = {};
-  vk::Format m_imageFormat = vk::Format::eUndefined;
-  ezVulkanAllocation m_alloc = nullptr;
-  ezVulkanAllocationInfo m_allocInfo;
+  vk::Image m_Image = {};
+  vk::Format m_ImageFormat = vk::Format::eUndefined;
+  ezVulkanAllocation m_pAlloc = nullptr;
+  ezVulkanAllocationInfo m_AllocInfo;
 
   // Views
   struct View : ezHashableStruct<View>

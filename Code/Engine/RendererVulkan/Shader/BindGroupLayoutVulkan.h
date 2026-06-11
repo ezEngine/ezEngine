@@ -29,5 +29,5 @@ protected:
 private:
   vk::DescriptorSetLayout m_DescriptorSetLayout;
   ezBindGroupLayoutResourceUsageVulkan m_ResourceUsage; // How many resources of each type each descriptor set uses.
-  ezSharedPtr<ezDescriptorSetPoolVulkan> m_DescriptorSetPool;
+  ezSharedPtr<ezDescriptorSetPoolVulkan> m_pDescriptorSetPool;
 };
