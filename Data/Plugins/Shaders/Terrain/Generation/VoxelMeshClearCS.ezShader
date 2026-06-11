@@ -1,0 +1,29 @@
+/// Resets the mesh vertex and index counters to zero before a new surface nets generation pass.
+
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[COMPUTESHADER]
+
+#include <Shaders/Common/Common.h>
+#include "VoxelMeshConstants.h"
+
+/// Only OutCounts is touched here. Vertex/index buffers are rewritten in-place by the
+/// surface nets passes (Pass1 fills every cell slot, Pass2 emits indices keyed off the
+/// freshly reset PrimitiveCount), so they don't need an explicit clear.
+RWStructuredBuffer<VoxelMeshCounts> OutCounts BIND_GROUP(BG_DRAW_CALL);
+
+[numthreads(1, 1, 1)]
+void main()
+{
+  // Use the same atomic addressing path as Pass2's InterlockedAdd. A plain
+  // OutCounts[0] = zero;  struct-assignment was observed to not actually clear
+  // PrimitiveCount on D3D11 — the next bake's Pass2 atomic-adds appended onto the
+  // previous frame's value. Going through InterlockedExchange on the exact same
+  // sub-word target Pass2 modifies guarantees the same memory location is hit.
+  uint prev;
+  InterlockedExchange(OutCounts[0].PrimitiveCount, 0u, prev);
+  InterlockedExchange(OutCounts[0].VertexCount,    0u, prev);
+}

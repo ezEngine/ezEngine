@@ -1,0 +1,134 @@
+/// Surface nets pass 2: for each voxel edge where a solid/air transition occurs, emits two triangles
+/// connecting the four cell vertices that share that edge, building the final index buffer.
+
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[COMPUTESHADER]
+
+#include <Shaders/Common/Common.h>
+#include <Shaders/Terrain/Generation/VoxelBakeConstants.h>
+#include <Shaders/Terrain/Generation/VoxelMeshConstants.h>
+
+/// Per-voxel packed data (M³ uint32s). Lower 16 = SDF float16, upper 16 = strength float16.
+StructuredBuffer<uint>              BakedVoxelDist BIND_GROUP(BG_DRAW_CALL);
+/// Remap table written by Pass 1 (SRV — the UAV→SRV rebind flushes Pass 1's OutRemap writes).
+/// Maps linearCellIndex → compact vertex slot, or 0xFFFFFFFF for inactive cells.
+StructuredBuffer<uint>              InRemap        BIND_GROUP(BG_DRAW_CALL);
+RWStructuredBuffer<uint>            OutIndices     BIND_GROUP(BG_DRAW_CALL);
+RWStructuredBuffer<VoxelMeshCounts> OutCounts      BIND_GROUP(BG_DRAW_CALL);
+
+bool IsVoxelSolid(int3 pos)
+{
+  if (pos.x < 0 || pos.y < 0 || pos.z < 0) return false;
+  if ((uint)pos.x >= BufferSize.x || (uint)pos.y >= BufferSize.y || (uint)pos.z >= BufferSize.z) return false;
+  return f16tof32(BakedVoxelDist[(uint)pos.z * BufferSize.y * BufferSize.x + (uint)pos.y * BufferSize.x + (uint)pos.x] & 0xFFFFu) <= 0.0f;
+}
+
+/// Guards against negative indices at the terrain boundary (x/y/z == 0, neighbor cell at -1).
+/// Upper bound is never exceeded: dispatch max is VoxelResolution, NumVertices is one larger.
+bool IsCellValid(int3 cellCoord)
+{
+  return cellCoord.x >= 0 && cellCoord.y >= 0 && cellCoord.z >= 0;
+}
+
+uint CellIdx(int3 cellCoord, uint3 gridSize)
+{
+  return (uint)cellCoord.z * gridSize.y * gridSize.x + (uint)cellCoord.y * gridSize.x + (uint)cellCoord.x;
+}
+
+[numthreads(4, 4, 4)]
+void main(uint3 DTid : SV_DispatchThreadID)
+{
+  const int cellX = (int)DTid.x;
+  const int cellY = (int)DTid.y;
+  const int cellZ = (int)DTid.z;
+
+  const uint3 NumVertices = VoxelResolution + 1u; // vertices at cell corners, so one more than voxel count per axis
+
+  if ((uint)cellX >= NumVertices.x || (uint)cellY >= NumVertices.y || (uint)cellZ >= NumVertices.z)
+    return;
+
+  // Offset into inner voxel buffer space.
+  const int bufferX = cellX + (int)NumBorderVoxels;
+  const int bufferY = cellY + (int)NumBorderVoxels;
+  const int bufferZ = cellZ + (int)NumBorderVoxels;
+
+  // Determine the two voxels straddling this edge and the 4 cells sharing it.
+  int3 voxelPosA, voxelPosB;
+  int3 neighborCells[4];
+
+  if (EdgeAxis == 0u)
+  {
+    voxelPosA = int3(bufferX,   bufferY, bufferZ);
+    voxelPosB = int3(bufferX+1, bufferY, bufferZ);
+    // 4 cells sharing the X-edge: (x,y-1,z-1), (x,y,z-1), (x,y,z), (x,y-1,z)
+    neighborCells[0] = int3(cellX, cellY-1, cellZ-1);
+    neighborCells[1] = int3(cellX, cellY,   cellZ-1);
+    neighborCells[2] = int3(cellX, cellY,   cellZ  );
+    neighborCells[3] = int3(cellX, cellY-1, cellZ  );
+  }
+  else if (EdgeAxis == 1u)
+  {
+    voxelPosA = int3(bufferX, bufferY,   bufferZ);
+    voxelPosB = int3(bufferX, bufferY+1, bufferZ);
+    // 4 cells sharing the Y-edge: (x-1,y,z-1), (x,y,z-1), (x,y,z), (x-1,y,z)
+    neighborCells[0] = int3(cellX-1, cellY, cellZ-1);
+    neighborCells[1] = int3(cellX,   cellY, cellZ-1);
+    neighborCells[2] = int3(cellX,   cellY, cellZ  );
+    neighborCells[3] = int3(cellX-1, cellY, cellZ  );
+  }
+  else
+  {
+    voxelPosA = int3(bufferX, bufferY, bufferZ);
+    voxelPosB = int3(bufferX, bufferY, bufferZ+1);
+    // 4 cells sharing the Z-edge: (x-1,y-1,z), (x,y-1,z), (x,y,z), (x-1,y,z)
+    neighborCells[0] = int3(cellX-1, cellY-1, cellZ);
+    neighborCells[1] = int3(cellX,   cellY-1, cellZ);
+    neighborCells[2] = int3(cellX,   cellY,   cellZ);
+    neighborCells[3] = int3(cellX-1, cellY,   cellZ);
+  }
+
+  const bool solidA = IsVoxelSolid(voxelPosA);
+  const bool solidB = IsVoxelSolid(voxelPosB);
+  if (solidA == solidB)
+    return;
+
+  // Validate all 4 cells.
+  if (!IsCellValid(neighborCells[0])) return;
+  if (!IsCellValid(neighborCells[1])) return;
+  if (!IsCellValid(neighborCells[2])) return;
+  if (!IsCellValid(neighborCells[3])) return;
+
+  const uint idxC0 = InRemap[CellIdx(neighborCells[0], NumVertices)];
+  const uint idxC1 = InRemap[CellIdx(neighborCells[1], NumVertices)];
+  const uint idxC2 = InRemap[CellIdx(neighborCells[2], NumVertices)];
+  const uint idxC3 = InRemap[CellIdx(neighborCells[3], NumVertices)];
+
+  if (idxC0 == 0xFFFFFFFFu) return;
+  if (idxC1 == 0xFFFFFFFFu) return;
+  if (idxC2 == 0xFFFFFFFFu) return;
+  if (idxC3 == 0xFFFFFFFFu) return;
+
+  // Winding: (C0,C1,C2),(C0,C2,C3) is CCW for normal pointing in +axis direction.
+  // Y-axis (axis==1) has inverted handedness — flip when solid is at the low side.
+  // Other axes: flip when solid is at the high side.
+  const bool flip = solidA ^ (EdgeAxis != 1u);
+
+  uint basePrim;
+  InterlockedAdd(OutCounts[0].PrimitiveCount, 2u, basePrim);
+  const uint baseIdx = basePrim * 3u;
+
+  if (!flip)
+  {
+    OutIndices[baseIdx + 0] = idxC0; OutIndices[baseIdx + 1] = idxC1; OutIndices[baseIdx + 2] = idxC2;
+    OutIndices[baseIdx + 3] = idxC0; OutIndices[baseIdx + 4] = idxC2; OutIndices[baseIdx + 5] = idxC3;
+  }
+  else
+  {
+    OutIndices[baseIdx + 0] = idxC0; OutIndices[baseIdx + 1] = idxC2; OutIndices[baseIdx + 2] = idxC1;
+    OutIndices[baseIdx + 3] = idxC0; OutIndices[baseIdx + 4] = idxC3; OutIndices[baseIdx + 5] = idxC2;
+  }
+}

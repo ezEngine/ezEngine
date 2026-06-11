@@ -46,3 +46,29 @@ public:
   /// Material slot index (0–7) used as the implicit fallback layer when no explicit brush covers a vertex.
   ezUInt32 m_uiDefaultMaterialIndex = 0;
 };
+
+/// Render data for GPU-direct voxel mesh rendering.
+///
+/// Carries the GPU-side vertex and index buffer handles (StructuredBuffer SRVs written by surface nets shaders)
+/// and a primitive count from the VoxelMeshCounts readback. No CPU vertex/index data is needed.
+class EZ_TERRAINPLUGIN_DLL ezTerrainVoxelRenderData : public ezInstanceableRenderData
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezTerrainVoxelRenderData, ezInstanceableRenderData);
+
+public:
+  ezMaterialResourceHandle m_hMaterial;
+
+  /// GPU vertex buffer (StructuredBuffer<VoxelGpuVertex>) written by surface nets shaders.
+  ezGALBufferHandle m_hGpuMeshVertices;
+
+  /// GPU index buffer (StructuredBuffer<uint>) written by surface nets shaders.
+  ezGALBufferHandle m_hGpuMeshIndices;
+
+  /// Indirect draw arguments (4 uints, ByteAddressBuffer, DrawIndirect-flagged). Written GPU-side
+  /// in the same submission as the mesh, so the consumed primitive count always matches the buffer
+  /// contents — no readback latency window. The primitive count never appears CPU-side in the
+  /// rendering path.
+  ezGALBufferHandle m_hGpuMeshDrawArgs;
+
+  ezUInt32 m_uiBaseMaterialIndex = 0;
+};

@@ -9,6 +9,7 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/DynamicBuffer.h>
 #include <Shaders/Terrain/Rendering/HeightfieldRenderConstants.h>
+#include <Shaders/Terrain/Rendering/VoxelMeshRenderConstants.h>
 #include <TerrainPlugin/Rendering/TerrainRenderData.h>
 #include <TerrainPlugin/Rendering/TerrainRenderer.h>
 
@@ -73,6 +74,74 @@ void ezTerrainHeightfieldRenderer::RenderBatch(const ezRenderViewContext& render
     pContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, uiPrimitiveCount);
 
     pContext->DrawMeshBuffer().IgnoreResult();
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTerrainVoxelRenderData, 1, ezRTTIDefaultAllocator<ezTerrainVoxelRenderData>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTerrainVoxelRenderer, 1, ezRTTIDefaultAllocator<ezTerrainVoxelRenderer>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezTerrainVoxelRenderer::ezTerrainVoxelRenderer() = default;
+ezTerrainVoxelRenderer::~ezTerrainVoxelRenderer() = default;
+
+void ezTerrainVoxelRenderer::GetSupportedRenderDataTypes(ezDynamicArray<const ezRTTI*>& out_types) const
+{
+  out_types.PushBack(ezGetStaticRTTI<ezTerrainVoxelRenderData>());
+}
+
+void ezTerrainVoxelRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
+{
+  ezRenderContext* pContext = renderViewContext.m_pRenderContext;
+
+  const bool bAsync = pContext->GetAllowAsyncShaderLoading();
+  pContext->SetAllowAsyncShaderLoading(false);
+  EZ_SCOPE_EXIT(pContext->SetAllowAsyncShaderLoading(bAsync));
+
+  for (auto it = batch.GetIterator<ezTerrainVoxelRenderData>(0, batch.GetDataCount()); it.IsValid(); ++it)
+  {
+    const ezTerrainVoxelRenderData* pRenderData = it;
+
+    if (pRenderData->m_hGpuMeshVertices.IsInvalidated() || pRenderData->m_hGpuMeshIndices.IsInvalidated() || pRenderData->m_hGpuMeshDrawArgs.IsInvalidated() || !pRenderData->m_hMaterial.IsValid())
+      continue;
+
+    ezResourceLock<ezMaterialResource> pMaterial(pRenderData->m_hMaterial, ezResourceAcquireMode::AllowLoadingFallback_NeverFail);
+    if (pMaterial.GetAcquireResult() != ezResourceAcquireResult::Final)
+      continue;
+
+    // Material provides the shader (VoxelMeshMaterial.ezShader) and any texture bindings.
+    pContext->BindMaterial(pRenderData->m_hMaterial);
+
+    // Bind GPU vertex + index buffers as SRVs.
+    // The VS reads: index = VoxelIndices[SV_VertexID], then vertex = VoxelVertices[index].
+    ezBindGroupBuilder& bindGroup = pContext->GetBindGroup(EZ_GAL_BIND_GROUP_DRAW_CALL);
+    bindGroup.BindBuffer("VoxelVertices", pRenderData->m_hGpuMeshVertices);
+    bindGroup.BindBuffer("VoxelIndices", pRenderData->m_hGpuMeshIndices);
+
+    // Bind instance data buffer so the shader can read the world transform and GameObjectID.
+    ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+    if (auto* pInstanceDataBuffer = pDevice->GetDynamicBuffer(pRenderData->m_hInstanceDataBuffer))
+    {
+      bindGroup.BindBuffer("perInstanceData", pInstanceDataBuffer->GetBufferForRendering());
+    }
+
+    VoxelMeshRenderConstants constants;
+    constants.InstanceDataOffset = pRenderData->m_DataOffsets.m_uiInstance;
+    constants.BaseMaterialIndex = pRenderData->m_uiBaseMaterialIndex;
+    pContext->SetPushConstants("VoxelMeshRenderConstants", constants);
+
+    // Non-indexed draw: SV_VertexID drives index + vertex lookup.
+    // Vertex count is read from the GPU-side indirect args buffer (filled in the same submission as the mesh).
+    pContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
+    if (pContext->ApplyContextStates().Succeeded())
+    {
+      pContext->GetCommandEncoder()->DrawInstancedIndirect(pRenderData->m_hGpuMeshDrawArgs, 0).IgnoreResult();
+    }
   }
 }
 

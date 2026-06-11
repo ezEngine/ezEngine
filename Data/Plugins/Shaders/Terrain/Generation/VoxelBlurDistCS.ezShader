@@ -1,0 +1,64 @@
+/// Smooths the voxel SDF values with a 3×3×3 box blur to soften brush edges before meshing.
+
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[COMPUTESHADER]
+
+#include <Shaders/Common/Common.h>
+#include <Shaders/Terrain/Generation/VoxelBakeConstants.h>
+
+/// Per-voxel packed data input (BufferSize.x*y*z uint32s, written by VoxelBakeCS). Lower 16 = SDF float16, upper 16 = strength float16.
+StructuredBuffer<uint>   BakedVoxelDistIn  BIND_GROUP(BG_DRAW_CALL);
+/// Blurred output — becomes the BakedVoxelDist that Pass1 reads.
+RWStructuredBuffer<uint> BakedVoxelDistOut BIND_GROUP(BG_DRAW_CALL);
+/// Bound for pipeline consistency but not modified here — nibbles are unaffected by blurring.
+RWStructuredBuffer<uint> BakedVoxels       BIND_GROUP(BG_DRAW_CALL);
+
+float ReadDist(int3 p)
+{
+  p = clamp(p, int3(0, 0, 0), int3((int)BufferSize.x - 1, (int)BufferSize.y - 1, (int)BufferSize.z - 1));
+  return f16tof32(BakedVoxelDistIn[p.z * (int)BufferSize.y * (int)BufferSize.x + p.y * (int)BufferSize.x + p.x] & 0xFFFFu);
+}
+
+[numthreads(4, 4, 4)]
+void main(uint3 DTid : SV_DispatchThreadID)
+{
+  // One thread handles 8 voxels along X (matching the BakedVoxels nibble packing layout).
+  if (DTid.x >= BufferSize.x / 8u || DTid.y >= BufferSize.y || DTid.z >= BufferSize.z)
+    return;
+
+  // SmoothFactor: 0 = passthrough, 1 = full 3x3x3 box blur.
+  const float blurWeight = saturate(SmoothFactor);
+
+  [unroll]
+  for (int i = 0; i < 8; ++i)
+  {
+    const int3  p        = int3((int)DTid.x * 8 + i, (int)DTid.y, (int)DTid.z);
+    const float distOrig = ReadDist(p);
+    float sum = 0.0;
+
+    [unroll]
+    for (int dz = -1; dz <= 1; ++dz)
+    {
+      [unroll]
+      for (int dy = -1; dy <= 1; ++dy)
+      {
+        [unroll]
+        for (int dx = -1; dx <= 1; ++dx)
+        {
+          sum += ReadDist(p + int3(dx, dy, dz));
+        }
+      }
+    }
+
+    const float avg     = sum / 27.0;
+    const float distOut = lerp(distOrig, avg, blurWeight);
+
+    const uint linearIdx    = (uint)p.z * BufferSize.y * BufferSize.x + (uint)p.y * BufferSize.x + (uint)p.x;
+    const uint packedCenter = BakedVoxelDistIn[linearIdx];
+    BakedVoxelDistOut[linearIdx] = f32tof16(distOut) | (packedCenter & 0xFFFF0000u);
+  }
+}

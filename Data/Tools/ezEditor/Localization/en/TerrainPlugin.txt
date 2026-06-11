@@ -2,6 +2,7 @@
 
 ezTerrainBrush2DComponent;Terrain Brush 2D
 ezTerrainBrush3DComponent;Terrain Brush 3D
+ezTerrainVolumeComponent;Terrain Volume
 ezTerrainPatchComponent;Terrain Patch
 
 # Enums

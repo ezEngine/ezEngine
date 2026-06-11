@@ -10,7 +10,7 @@
 #include <TerrainPlugin/TerrainSystem.h>
 
 // clang-format off
-EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezTerrainBrushBaseComponent, 1)
+EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezTerrainBrushBaseComponent, 2)
 {
   EZ_BEGIN_MESSAGEHANDLERS
   {
@@ -40,6 +40,9 @@ void ezTerrainBrushBaseComponent::SerializeComponent(ezWorldWriter& inout_stream
   s << m_fMaterialStrength;
   s << m_iPriority;
   m_Tags.Save(s);
+
+  s << m_bAffectPatches;
+  s << m_bAffectVolumes;
 }
 
 void ezTerrainBrushBaseComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -47,6 +50,8 @@ void ezTerrainBrushBaseComponent::DeserializeComponent(ezWorldReader& inout_stre
   SUPER::DeserializeComponent(inout_stream);
 
   auto& s = inout_stream.GetStream();
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
+
   s >> m_fHalfSizeX;
   s >> m_fInnerRadius;
   s >> m_fOuterRadius;
@@ -57,6 +62,12 @@ void ezTerrainBrushBaseComponent::DeserializeComponent(ezWorldReader& inout_stre
   s >> m_fMaterialStrength;
   s >> m_iPriority;
   m_Tags.Load(s, ezTagRegistry::GetGlobalRegistry());
+
+  if (uiVersion >= 2)
+  {
+    s >> m_bAffectPatches;
+    s >> m_bAffectVolumes;
+  }
 }
 
 void ezTerrainBrushBaseComponent::OnActivated()
@@ -103,6 +114,8 @@ void ezTerrainBrushBaseComponent::FillBrush(ezTerrainData_Brush& brush, const ez
   brush.m_fFalloff = m_fFalloff;
   brush.m_uiMaterialIndex = m_uiMaterialIndex;
   brush.m_fMaterialStrength = m_fMaterialStrength;
+  brush.m_bAffectHeightfields = m_bAffectPatches;
+  brush.m_bAffectVoxels = m_bAffectVolumes;
   brush.m_fNoiseStrength = m_fNoiseStrength;
   brush.m_fNoiseFrequency = m_fNoiseFrequency;
   brush.m_iPriority = m_iPriority;
@@ -224,6 +237,22 @@ void ezTerrainBrushBaseComponent::SetMaterialStrength(float fStrength)
   if (m_fMaterialStrength == fStrength)
     return;
   m_fMaterialStrength = fStrength;
+  RefreshBrushes();
+}
+
+void ezTerrainBrushBaseComponent::SetAffectPatches(bool b)
+{
+  if (m_bAffectPatches == b)
+    return;
+  m_bAffectPatches = b;
+  RefreshBrushes();
+}
+
+void ezTerrainBrushBaseComponent::SetAffectVolumes(bool b)
+{
+  if (m_bAffectVolumes == b)
+    return;
+  m_bAffectVolumes = b;
   RefreshBrushes();
 }
 

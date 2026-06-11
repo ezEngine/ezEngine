@@ -1,0 +1,31 @@
+/// Copies the compacted vertex and index buffers into the final GPU draw buffers and writes
+/// the indirect draw arguments needed to render the voxel mesh.
+
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[COMPUTESHADER]
+
+#include <Shaders/Common/Common.h>
+#include <Shaders/Terrain/Generation/VoxelMeshConstants.h>
+
+StructuredBuffer<VoxelGpuVertex>    InCompactVertices BIND_GROUP(BG_DRAW_CALL);
+StructuredBuffer<uint>              InIndices         BIND_GROUP(BG_DRAW_CALL);
+/// Counts written by the surface nets passes. VertexCount and PrimitiveCount drive copy bounds.
+StructuredBuffer<VoxelMeshCounts>   InCounts          BIND_GROUP(BG_DRAW_CALL);
+RWStructuredBuffer<VoxelGpuVertex>  OutFinalVertices  BIND_GROUP(BG_DRAW_CALL);
+RWStructuredBuffer<uint>            OutFinalIndices   BIND_GROUP(BG_DRAW_CALL);
+RWByteAddressBuffer                 OutFinalDrawArgs  BIND_GROUP(BG_DRAW_CALL);
+
+[numthreads(64, 1, 1)]
+void main(uint3 DTid : SV_DispatchThreadID)
+{
+  const uint vertexCount = InCounts[0].VertexCount;
+  const uint indexCount  = InCounts[0].PrimitiveCount * 3u;
+  const uint i = DTid.x;
+  if (i < vertexCount) OutFinalVertices[i] = InCompactVertices[i];
+  if (i < indexCount)  OutFinalIndices[i]  = InIndices[i];
+  if (i == 0)          OutFinalDrawArgs.Store4(0, uint4(indexCount, 1u, 0u, 0u));
+}

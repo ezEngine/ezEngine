@@ -1,0 +1,152 @@
+/// Evaluates all active terrain brushes against every voxel in the patch, producing an SDF distance
+/// and a material index per voxel. This is the main sculpt/paint step for voxel terrain generation.
+
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[COMPUTESHADER]
+
+#include <Shaders/Common/Common.h>
+#include <Shaders/Terrain/Generation/VoxelBakeConstants.h>
+#include <Shaders/Terrain/Generation/TerrainBrushData.h>
+#include <Shaders/Terrain/Generation/TerrainUtils.h>
+
+/// Packed voxel buffer: BakedVoxelsPitch.x * BakedVoxelsPitch.y * BakedVoxelsPitch.z uints. Each uint holds 8 4-bit voxel values along X.
+/// Bits [i*4+3 : i*4] = voxel at x=px*8+i for thread (px, y, z).
+/// Values 0-15: material index. Whether solid or air is determined by the SDF sign in BakedVoxelDist (negative = solid).
+RWStructuredBuffer<uint> BakedVoxels BIND_GROUP(BG_DRAW_CALL);
+
+/// Per-voxel packed data: BufferSize.x * BufferSize.y * BufferSize.z uint32s. Lower 16 bits = SDF as float16 (negative = solid).
+/// Upper 16 bits = brush material strength as float16 (0 = no brush coverage, 1 = fully painted).
+RWStructuredBuffer<uint> BakedVoxelDist BIND_GROUP(BG_DRAW_CALL);
+
+/// All active terrain brushes for this frame. BrushCount entries are valid.
+StructuredBuffer<TerrainBrushData> Brushes BIND_GROUP(BG_DRAW_CALL);
+
+void ApplyMaterial(float effectiveStrength, uint materialIndex, inout float matStrength, inout uint overrideMaterial)
+{
+  if (effectiveStrength > matStrength)
+  {
+    matStrength = effectiveStrength;
+    overrideMaterial = materialIndex;
+  }
+}
+
+[numthreads(4, 4, 4)]
+void main(uint3 DTid : SV_DispatchThreadID)
+{
+  const uint3 BakedVoxelsPitch = uint3(BufferSize.x / 8u, BufferSize.y, BufferSize.z);
+  const uint3 BakedVoxelDistPitch = BufferSize; // one uint per voxel
+
+  if (DTid.x >= BakedVoxelsPitch.x || DTid.y >= BakedVoxelsPitch.y || DTid.z >= BakedVoxelsPitch.z)
+    return;
+
+  uint packed = 0u;
+
+  [unroll]
+  for (uint i = 0; i < 8; ++i)
+  {
+    const uint x = DTid.x * 8 + i;
+    const uint y = DTid.y;
+    const uint z = DTid.z;
+
+    const float3 voxelCenter = (float3(float(x), float(y), float(z)) - float(NumBorderVoxels) - 0.5f) * GridSpacing;
+
+    float initialHeight = 0.0f;
+    uint overrideMaterial = 0u;
+    float voxelDistance = 0.1f;
+    float matStrength = 0.0f;
+
+    if (InitialSolid != 0u)
+    {
+      initialHeight = FillHeight; // Solid below FillHeight, air above.
+      voxelDistance = voxelCenter.z - FillHeight; // Plane SDF: negative below fill height.
+    }
+
+    // Full-volume height used by 2D Min mode; depends only on push constants so hoisted out.
+    const float volumeHeight = (float)VoxelResolution.z * GridSpacing;
+
+    [loop]
+    for (uint brushIdx = 0; brushIdx < BrushCount; ++brushIdx)
+    {
+      UNPACKUINT8(ModifyMode, MaterialIndex, Unused0, Unused1, Brushes[brushIdx].PackedModeMat);
+      UNPACKHALF2(BrushMatStr, Falloff, Brushes[brushIdx].PackedMatStrFalloff);
+
+      UNPACKHALF2(HalfExtentX, HalfExtentZ, Brushes[brushIdx].PackedExtentsXZ);
+      UNPACKHALF2(HalfExtentYBottom, HalfExtentYTop, Brushes[brushIdx].PackedExtentsY);
+      UNPACKHALF2(InnerRadius, OuterRadius, Brushes[brushIdx].PackedRadii);
+      UNPACKHALF2(NoiseStrength, NoiseFrequency, Brushes[brushIdx].PackedNoise);
+      const float OuterRadiusClamped = max(OuterRadius, 0.001f);
+
+      const float3 toVoxel3D = voxelCenter - Brushes[brushIdx].Position;
+
+      if (ModifyMode == ezTerrainModifyMode_Carve || ModifyMode == ezTerrainModifyMode_Add || ModifyMode == ezTerrainModifyMode_OnlyPaint3D)
+      {
+        // 3D brush cases
+
+        float distanceToBrush = Brush_Sdf3D(Brushes[brushIdx], toVoxel3D);
+        Brush_ApplyNoise3D(voxelCenter + PatchOrigin, NoiseStrength, NoiseFrequency, InnerRadius, distanceToBrush);
+
+        if (distanceToBrush > 0.0)
+          continue;
+
+        const float weight = CalculateOuterInfluence(distanceToBrush, OuterRadiusClamped, Falloff);
+
+        ApplyMaterial(BrushMatStr * weight, MaterialIndex, matStrength, overrideMaterial);
+
+        if (ModifyMode == ezTerrainModifyMode_Carve)
+        {
+          voxelDistance = max(voxelDistance, -(distanceToBrush + OuterRadius));
+        }
+        else if (ModifyMode == ezTerrainModifyMode_Add)
+        {
+          voxelDistance = min(voxelDistance, distanceToBrush + OuterRadius);
+        }
+      }
+      else
+      {
+        // 2D brush cases
+
+        float distanceToBrushZ;
+        float distanceToBrushXY = Brush_Sdf2D(Brushes[brushIdx], toVoxel3D.xy, distanceToBrushZ);
+
+        const float noise = Brush_ApplyNoise2D(voxelCenter.xy + PatchOrigin, NoiseStrength, NoiseFrequency, OuterRadius, OuterRadiusClamped, distanceToBrushXY);
+
+        if (distanceToBrushXY > 0.0)
+          continue;
+
+        const float weight = CalculateOuterInfluence(distanceToBrushXY, OuterRadiusClamped, Falloff);
+
+        ApplyMaterial(BrushMatStr * weight, MaterialIndex, matStrength, overrideMaterial);
+
+        const float brushHeight = Brushes[brushIdx].Position.z + distanceToBrushZ + noise * NoiseStrength * OuterRadiusClamped;
+
+        if (ModifyMode == ezTerrainModifyMode_Set || ModifyMode == ezTerrainModifyMode_Max)
+        {
+          // fills from below
+          const float maxBoundary = lerp(initialHeight, brushHeight, weight); 
+          const float addSdf = max(distanceToBrushXY - OuterRadius, voxelCenter.z - maxBoundary);
+
+          voxelDistance = min(voxelDistance, addSdf);
+        }
+
+        if (ModifyMode == ezTerrainModifyMode_Set || ModifyMode == ezTerrainModifyMode_Min)
+        {
+          // carves from above
+          const float minBoundary = lerp(volumeHeight, brushHeight, weight);
+          const float removedSdf = max(distanceToBrushXY - OuterRadius, minBoundary - voxelCenter.z);
+
+          voxelDistance = max(voxelDistance, -removedSdf);
+        }
+      }
+    }
+
+    packed |= (overrideMaterial & 0xFu) << (i * 4);
+
+    BakedVoxelDist[z * BakedVoxelDistPitch.y * BakedVoxelDistPitch.x + y * BakedVoxelDistPitch.x + x] = f32tof16(voxelDistance) | (f32tof16(matStrength) << 16u);
+  }
+
+  BakedVoxels[DTid.z * BakedVoxelsPitch.y * BakedVoxelsPitch.x + DTid.y * BakedVoxelsPitch.x + DTid.x] = packed;
+}

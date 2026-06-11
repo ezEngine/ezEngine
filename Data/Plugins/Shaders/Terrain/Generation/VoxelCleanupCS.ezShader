@@ -1,0 +1,95 @@
+/// Removes isolated solid voxels that are only weakly connected to their neighbors, preventing
+/// floating geometry artifacts before the surface nets meshing step.
+
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[COMPUTESHADER]
+
+#include <Shaders/Common/Common.h>
+#include <Shaders/Terrain/Generation/VoxelBakeConstants.h>
+
+/// Per-voxel packed data input (BufferSize.x*y*z uint32s). Lower 16 = SDF float16, upper 16 = strength float16.
+StructuredBuffer<uint>   BakedVoxelDistIn  BIND_GROUP(BG_DRAW_CALL);
+/// Cleaned output — fed to VoxelBlurDistCS.
+RWStructuredBuffer<uint> BakedVoxelDistOut BIND_GROUP(BG_DRAW_CALL);
+/// Packed voxel nibbles (BufferSize.x/8 * y * z uint32s). Read-only; nibbles are always preserved as-is.
+StructuredBuffer<uint>   BakedVoxels       BIND_GROUP(BG_DRAW_CALL);
+
+static const int3 kFaceOffsets[6] =
+{
+  int3( 1, 0, 0), int3(-1, 0, 0),
+  int3( 0, 1, 0), int3( 0,-1, 0),
+  int3( 0, 0, 1), int3( 0, 0,-1),
+};
+
+static const int3 kEdgeOffsets[12] =
+{
+  int3( 1, 1, 0), int3( 1,-1, 0), int3(-1, 1, 0), int3(-1,-1, 0),
+  int3( 1, 0, 1), int3( 1, 0,-1), int3(-1, 0, 1), int3(-1, 0,-1),
+  int3( 0, 1, 1), int3( 0, 1,-1), int3( 0,-1, 1), int3( 0,-1,-1),
+};
+
+bool IsSolid(int3 p)
+{
+  if (p.x < 0 || p.y < 0 || p.z < 0)
+    return false;
+
+  if ((uint)p.x >= BufferSize.x || (uint)p.y >= BufferSize.y || (uint)p.z >= BufferSize.z)
+    return false;
+
+  return f16tof32(BakedVoxelDistIn[(uint)p.z * BufferSize.y * BufferSize.x + (uint)p.y * BufferSize.x + (uint)p.x] & 0xFFFFu) <= 0.0f;
+}
+
+[numthreads(4, 4, 4)]
+void main(uint3 DTid : SV_DispatchThreadID)
+{
+  // x dimension is packed: each uint holds 8 voxel nibbles
+  const uint3 nibbleBufSize = uint3(BufferSize.x / 8u, BufferSize.y, BufferSize.z);
+
+  if (DTid.x >= nibbleBufSize.x || DTid.y >= nibbleBufSize.y || DTid.z >= nibbleBufSize.z)
+    return;
+
+  const uint packedNibbles = BakedVoxels[DTid.z * nibbleBufSize.y * nibbleBufSize.x + DTid.y * nibbleBufSize.x + DTid.x];
+
+  // Air-distance value written for culled voxels. One voxel of slack so the subsequent
+  // blur cannot pull the neighborhood back through zero on its own.
+  const float airDist = GridSpacing;
+
+  [unroll]
+  for (int i = 0; i < 8; ++i)
+  {
+    const int3 p         = int3((int)DTid.x * 8 + i, (int)DTid.y, (int)DTid.z);
+    const uint packedVoxel = BakedVoxelDistIn[p.z * BufferSize.y * BufferSize.x + p.y * BufferSize.x + p.x];
+    const float distOrig   = f16tof32(packedVoxel & 0xFFFFu);
+
+    if (distOrig > 0.0f)
+    {
+      BakedVoxelDistOut[p.z * BufferSize.y * BufferSize.x + p.y * BufferSize.x + p.x] = packedVoxel;
+      continue;
+    }
+
+    int faceCount = 0;
+    int edgeCount = 0;
+
+    [unroll] for (int a = 0; a < 6; ++a)
+    {
+      if (IsSolid(p + kFaceOffsets[a])) faceCount++;
+    }
+
+    [unroll] for (int b = 0; b < 12; ++b)
+    {
+      if (IsSolid(p + kEdgeOffsets[b])) edgeCount++;
+    }
+
+    const bool keep = (faceCount >= 1 && edgeCount >= 1) || (faceCount >= 2);
+
+    // For culled voxels, write air distance; strength clears to 0 (upper 16 bits).
+    const uint outDist = keep ? packedVoxel : f32tof16(airDist);
+    BakedVoxelDistOut[p.z * BufferSize.y * BufferSize.x + p.y * BufferSize.x + p.x] = outDist;
+  }
+
+  // nibbles in BakedVoxels are always preserved — no write-back needed
+}

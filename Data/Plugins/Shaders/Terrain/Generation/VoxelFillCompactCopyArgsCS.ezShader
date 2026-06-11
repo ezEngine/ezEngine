@@ -1,0 +1,27 @@
+/// Computes the indirect dispatch group count for VoxelCompactCopyCS based on the current
+/// mesh vertex and index counts, enabling the copy to run without a CPU readback.
+
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[COMPUTESHADER]
+
+#include <Shaders/Common/Common.h>
+#include <Shaders/Terrain/Generation/VoxelMeshConstants.h>
+
+StructuredBuffer<VoxelMeshCounts> InCounts        BIND_GROUP(BG_DRAW_CALL);
+RWByteAddressBuffer               OutDispatchArgs BIND_GROUP(BG_DRAW_CALL);
+
+[numthreads(1, 1, 1)]
+void main()
+{
+  const uint vertexCount = InCounts[0].VertexCount;
+  const uint indexCount  = InCounts[0].PrimitiveCount * 3u;
+  // Groups: enough to cover max(vertexCount, indexCount) threads at 64 per group.
+  // At least 1 so thread 0 always runs and writes DrawArgs even for empty meshes.
+  const uint groups = max((max(vertexCount, indexCount) + 63u) / 64u, 1u);
+  // DispatchIndirect args: { ThreadGroupCountX, ThreadGroupCountY, ThreadGroupCountZ }
+  OutDispatchArgs.Store3(0, uint3(groups, 1u, 1u));
+}

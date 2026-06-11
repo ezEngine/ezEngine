@@ -1,0 +1,227 @@
+/// Surface nets pass 1: for each voxel cell that contains a surface crossing, generates one vertex
+/// positioned at the SDF zero crossing and determines its normal and material assignment.
+
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[COMPUTESHADER]
+
+#include <Shaders/Common/Common.h>
+#include <Shaders/Terrain/Generation/VoxelBakeConstants.h>
+#include <Shaders/Terrain/Generation/VoxelMeshConstants.h>
+
+/// Packed voxel input (same format written by VoxelBakeCS).
+StructuredBuffer<uint>              BakedVoxels        BIND_GROUP(BG_DRAW_CALL);
+/// Per-voxel packed data (M³ uint32s). Lower 16 = SDF float16, upper 16 = material strength float16.
+StructuredBuffer<uint>              BakedVoxelDist     BIND_GROUP(BG_DRAW_CALL);
+/// Maps linearCellIndex → compact vertex slot (0..VertexCount-1), or 0xFFFFFFFF for inactive cells.
+/// Read by Pass 2 (as InRemap) to translate cell indices into compact vertex indices.
+RWStructuredBuffer<uint>            OutRemap           BIND_GROUP(BG_DRAW_CALL);
+/// Densely packed active vertices. Only the first VertexCount entries are valid.
+RWStructuredBuffer<VoxelGpuVertex>  OutCompactVertices BIND_GROUP(BG_DRAW_CALL);
+RWStructuredBuffer<VoxelMeshCounts> OutCounts          BIND_GROUP(BG_DRAW_CALL);
+
+// Corner offsets of a unit cell, indexed 0-7.
+// Index = dx + dy*2 + dz*4 (dx,dy,dz ∈ {0,1}).
+static const int3 CornerOffset[8] =
+{
+  int3(0,0,0), int3(1,0,0), int3(0,1,0), int3(1,1,0),
+  int3(0,0,1), int3(1,0,1), int3(0,1,1), int3(1,1,1),
+};
+
+// 12 cell edges defined by two corner indices (from CornerOffset above).
+// Groups of 4: X-direction edges, Y-direction edges, Z-direction edges.
+static const uint EdgeIdxA[12] = { 0,2,4,6,  0,1,4,5,  0,1,2,3 };
+static const uint EdgeIdxB[12] = { 1,3,5,7,  2,3,6,7,  4,5,6,7 };
+
+uint ReadVoxelNibble(int3 pos, uint3 BakedVoxelsPitch)
+{
+  if (pos.x < 0 || pos.y < 0 || pos.z < 0) return 0u;
+  if ((uint)pos.x >= BufferSize.x || (uint)pos.y >= BufferSize.y || (uint)pos.z >= BufferSize.z) return 0u;
+  uint wordIdx  = (uint)pos.x / 8u;
+  uint bitShift = ((uint)pos.x % 8u) * 4u;
+  return (BakedVoxels[(uint)pos.z * BakedVoxelsPitch.y * BakedVoxelsPitch.x + (uint)pos.y * BakedVoxelsPitch.x + wordIdx] >> bitShift) & 0xFu;
+}
+
+void ReadVoxelDistStrength(int3 pos, out float dist, out float strength)
+{
+  if (pos.x < 0 || pos.y < 0 || pos.z < 0) { dist = 1e6; strength = 0.0f; return; }
+  if ((uint)pos.x >= BufferSize.x || (uint)pos.y >= BufferSize.y || (uint)pos.z >= BufferSize.z) { dist = 1e6; strength = 0.0f; return; }
+  uint packed = BakedVoxelDist[(uint)pos.z * BufferSize.y * BufferSize.x + (uint)pos.y * BufferSize.x + (uint)pos.x];
+  dist     = f16tof32(packed & 0xFFFFu);
+  strength = f16tof32(packed >> 16u);
+}
+
+float ReadVoxelDist(int3 pos)
+{
+  float dist, strength;
+  ReadVoxelDistStrength(pos, dist, strength);
+  return dist;
+}
+
+/// Trilinear sample of the SDF at a fractional position in voxel coordinates.
+float SampleSdfTrilinear(float3 samplePos)
+{
+  int3   baseCell = int3(floor(samplePos));
+  float3 frac     = samplePos - float3(baseCell);
+
+  float s000 = ReadVoxelDist(baseCell + int3(0,0,0));
+  float s100 = ReadVoxelDist(baseCell + int3(1,0,0));
+  float s010 = ReadVoxelDist(baseCell + int3(0,1,0));
+  float s110 = ReadVoxelDist(baseCell + int3(1,1,0));
+  float s001 = ReadVoxelDist(baseCell + int3(0,0,1));
+  float s101 = ReadVoxelDist(baseCell + int3(1,0,1));
+  float s011 = ReadVoxelDist(baseCell + int3(0,1,1));
+  float s111 = ReadVoxelDist(baseCell + int3(1,1,1));
+
+  // Lerp along X for each Y-Z corner pair.
+  float sx_y0z0 = lerp(s000, s100, frac.x);
+  float sx_y1z0 = lerp(s010, s110, frac.x);
+  float sx_y0z1 = lerp(s001, s101, frac.x);
+  float sx_y1z1 = lerp(s011, s111, frac.x);
+  // Lerp along Y for each Z plane.
+  float sy_z0 = lerp(sx_y0z0, sx_y1z0, frac.y);
+  float sy_z1 = lerp(sx_y0z1, sx_y1z1, frac.y);
+  // Lerp along Z.
+  return lerp(sy_z0, sy_z1, frac.z);
+}
+
+[numthreads(4, 4, 4)]
+void main(uint3 DTid : SV_DispatchThreadID)
+{
+  const uint3 BakedVoxelsPitch = uint3(BufferSize.x / 8u, BufferSize.y, BufferSize.z);
+  const uint3 TargetResolution = VoxelResolution + 1u; // vertices at cell corners, so one more than voxel count per axis
+
+  if (DTid.x >= TargetResolution.x || DTid.y >= TargetResolution.y || DTid.z >= TargetResolution.z)
+    return;
+
+  int3 cell       = (int3)DTid;
+  uint remapIndex = DTid.z * TargetResolution.y * TargetResolution.x + DTid.y * TargetResolution.x + DTid.x;
+
+  // Offset into voxel buffer space: inner cell 0 maps to voxel border.
+  int3 voxelCell = cell + (int3)(NumBorderVoxels, NumBorderVoxels, NumBorderVoxels);
+
+  // Read the 8 corner voxel nibbles, signed distances, and material strengths from the extended buffer.
+  uint  nibbles[8];
+  float dists[8];
+  float strengths[8];
+  [unroll]
+  for (uint cornerIdx = 0; cornerIdx < 8; ++cornerIdx)
+  {
+    nibbles[cornerIdx] = ReadVoxelNibble(voxelCell + CornerOffset[cornerIdx], BakedVoxelsPitch);
+    ReadVoxelDistStrength(voxelCell + CornerOffset[cornerIdx], dists[cornerIdx], strengths[cornerIdx]);
+  }
+
+  float3 posSum    = float3(0, 0, 0);
+  uint   crossings = 0u;
+
+  [unroll]
+  for (uint edgeIdx = 0; edgeIdx < 12; ++edgeIdx)
+  {
+    bool solidA = (dists[EdgeIdxA[edgeIdx]] <= 0.0f);
+    bool solidB = (dists[EdgeIdxB[edgeIdx]] <= 0.0f);
+    if (solidA == solidB) continue;
+
+    // Physical positions use inner cell coords (independent of border offset). The -0.5 shift
+    // matches the shift applied to voxel centers in VoxelBakeCS so the SDF zero-crossing lands at
+    // the correct world position, while the vertex grid origin sits flush with the volume's near edge.
+    float3 edgePosA = (float3(cell + CornerOffset[EdgeIdxA[edgeIdx]]) - 0.5) * GridSpacing;
+    float3 edgePosB = (float3(cell + CornerOffset[EdgeIdxB[edgeIdx]]) - 0.5) * GridSpacing;
+
+    // SDF-interpolated edge crossing. Guard against zero denominator (equal distances).
+    float distA = dists[EdgeIdxA[edgeIdx]];
+    float distB = dists[EdgeIdxB[edgeIdx]];
+    float denom = distA - distB;
+    float edgeT = (abs(denom) > 1e-6f) ? saturate(distA / denom) : 0.5f;
+    posSum += lerp(edgePosA, edgePosB, edgeT);
+    ++crossings;
+  }
+
+  VoxelGpuVertex vert;
+  vert.MaterialStrength = 0.0f;
+  vert.BitangentSign    = 1.0f;
+
+  if (crossings == 0u)
+  {
+    OutRemap[remapIndex] = 0xFFFFFFFFu;
+    return;
+  }
+
+  float3 avgPos = posSum / (float)crossings;
+
+  // Normal from SDF gradient sampled at the actual vertex position (trilinear), rather than at
+  // the cell center. This places the stencil where the surface really is, which removes most of
+  // the per-cell jitter the 8-corner gradient introduces on slopes. Dist is positive in air,
+  // negative in solid, so grad(dist) points outward — that IS the surface normal.
+  // avgPos is in physical space relative to the volume origin; corner sample at cell c lives at
+  // (c - 0.5) * GridSpacing (see edge-crossing position above), so the inverse mapping into
+  // voxel-buffer coordinates is avgPos / GridSpacing + NumBorderVoxels + 0.5.
+  const float  borderOffset  = (float)NumBorderVoxels + 0.5f;
+  const float3 voxelSpacePos = avgPos / GridSpacing + borderOffset;
+  const float  gradStep      = 1.0f; // central difference step in voxels
+  float3 sdfGradient;
+  sdfGradient.x = SampleSdfTrilinear(voxelSpacePos + float3(gradStep, 0, 0)) - SampleSdfTrilinear(voxelSpacePos - float3(gradStep, 0, 0));
+  sdfGradient.y = SampleSdfTrilinear(voxelSpacePos + float3(0, gradStep, 0)) - SampleSdfTrilinear(voxelSpacePos - float3(0, gradStep, 0));
+  sdfGradient.z = SampleSdfTrilinear(voxelSpacePos + float3(0, 0, gradStep)) - SampleSdfTrilinear(voxelSpacePos - float3(0, 0, gradStep));
+
+  float3 avgNormal = length(sdfGradient) > 0.001f ? normalize(sdfGradient) : float3(0, 0, 1);
+
+  float3 tangent;
+  if (abs(avgNormal.z) < 0.9f)
+    tangent = normalize(cross(float3(0, 0, 1), avgNormal));
+  else
+    tangent = normalize(cross(float3(0, 1, 0), avgNormal));
+
+  // Material vote among solid corners: primary key = total strength, tiebreaker = corner count.
+  // Strength-first prevents base-material (strength=0) corners from outvoting painted corners.
+  float strPerMat[16];
+  uint  cntPerMat[16];
+  [unroll] for (uint matIdx = 0u; matIdx < 16u; ++matIdx) { strPerMat[matIdx] = 0.0f; cntPerMat[matIdx] = 0u; }
+  [unroll]
+  for (uint cornerIdx = 0u; cornerIdx < 8u; ++cornerIdx)
+  {
+    uint nibble = nibbles[cornerIdx];
+    if (dists[cornerIdx] <= 0.0f) { strPerMat[nibble] += strengths[cornerIdx]; cntPerMat[nibble]++; }
+  }
+  uint  dominantMat = 0u;
+  float dominantStr = -1.0f;
+  uint  dominantCnt = 0u;
+  [unroll]
+  for (uint matIdx = 0u; matIdx < 16u; ++matIdx)
+  {
+    if (strPerMat[matIdx] > dominantStr || (strPerMat[matIdx] == dominantStr && cntPerMat[matIdx] > dominantCnt))
+    {
+      dominantStr = strPerMat[matIdx];
+      dominantCnt = cntPerMat[matIdx];
+      dominantMat = matIdx;
+    }
+  }
+
+  // Average material strength from solid corners that match the dominant material and have strength > 0.
+  // Excluding zero-strength corners keeps the average representative of the actually-painted region.
+  float totalStrength = 0.0f;
+  uint  strengthCount = 0u;
+  [unroll]
+  for (uint cornerIdx = 0u; cornerIdx < 8u; ++cornerIdx)
+  {
+    if (nibbles[cornerIdx] == dominantMat && dists[cornerIdx] <= 0.0f && strengths[cornerIdx] > 0.0f)
+    {
+      totalStrength += strengths[cornerIdx];
+      strengthCount++;
+    }
+  }
+  float vertStrength = (strengthCount > 0u) ? (totalStrength / (float)strengthCount) : 0.0f;
+
+  vert.Position         = avgPos;
+  vert.Normal           = avgNormal;
+  vert.Tangent          = tangent;
+  vert.Material         = dominantMat;
+  vert.MaterialStrength = vertStrength;
+
+  uint compactIdx;
+  InterlockedAdd(OutCounts[0].VertexCount, 1u, compactIdx);
+  OutRemap[remapIndex]           = compactIdx;
+  OutCompactVertices[compactIdx] = vert;
+}

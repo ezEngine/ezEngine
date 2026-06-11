@@ -18,6 +18,7 @@ ezGameEngineTestApplication* ezGameEngineTestTerrain::CreateApplication()
 void ezGameEngineTestTerrain::SetupSubTests()
 {
   AddSubTest("Heightfields", SubTests::HeightfieldTerrain);
+  AddSubTest("Voxels", SubTests::VoxelTerrain);
 }
 
 ezResult ezGameEngineTestTerrain::InitializeSubTest(ezInt32 iIdentifier)
@@ -36,6 +37,14 @@ ezResult ezGameEngineTestTerrain::InitializeSubTest(ezInt32 iIdentifier)
       m_ImgCompFrames.PushBack({3});
 
       return m_pOwnApplication->LoadScene("Terrain/AssetCache/Common/Scenes/Heightfields.ezBinScene");
+    }
+
+    case SubTests::VoxelTerrain:
+    {
+      // due to how the system works, frame 3 is the first one that will see terrain
+      m_ImgCompFrames.PushBack({3});
+
+      return m_pOwnApplication->LoadScene("Terrain/AssetCache/Common/Scenes/Voxels.ezBinScene");
     }
 
       EZ_DEFAULT_CASE_NOT_IMPLEMENTED;

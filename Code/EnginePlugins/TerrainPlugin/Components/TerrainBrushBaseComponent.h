@@ -55,6 +55,12 @@ public:
   void SetMaterialStrength(float fStrength);                        //< [ property ]
   float GetMaterialStrength() const { return m_fMaterialStrength; } //< [ property ]
 
+  void SetAffectPatches(bool b);                                    //< [ property ]
+  bool GetAffectPatches() const { return m_bAffectPatches; }        //< [ property ]
+
+  void SetAffectVolumes(bool b);                                    //< [ property ]
+  bool GetAffectVolumes() const { return m_bAffectVolumes; }        //< [ property ]
+
   void SetNoiseStrength(float fNoise);                              //< [ property ]
   float GetNoiseStrength() const { return m_fNoiseStrength; }       //< [ property ]
 
@@ -93,6 +99,8 @@ protected:
   float m_fMaterialStrength = 0.0f;
   ezUInt8 m_uiMaterialIndex = 0;
   ezInt8 m_iPriority = 0;
+  bool m_bAffectPatches = true;
+  bool m_bAffectVolumes = true;
   /// If non-empty, brush only affects terrain objects that have at least one matching tag.
   ezTagSet m_Tags;
 };

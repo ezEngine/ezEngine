@@ -16,6 +16,7 @@ protected:
   enum SubTests
   {
     HeightfieldTerrain,
+    VoxelTerrain,
   };
 
   virtual void SetupSubTests() override;

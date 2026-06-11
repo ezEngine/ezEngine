@@ -1,0 +1,3113 @@
+HeaderV2
+{
+o
+{
+	Uuid %id{u4{9924433196559156103,5412841129761561541}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{2}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Scene"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{9924433196559156103,5412841129761561541}}
+		u4 %Hash{10903018729154948138}
+		VarArray %MetaInfo{}
+		VarArray %Outputs{}
+		VarArray %PackageDeps
+		{
+			s{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
+			s{"{ bf60c51f-0262-40b6-931c-82dea06a2e72 }"}
+		}
+		VarArray %References
+		{
+			s{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
+			s{"{ bf60c51f-0262-40b6-931c-82dea06a2e72 }"}
+		}
+		s %Tags{""}
+	}
+}
+}
+Objects
+{
+o
+{
+	Uuid %id{u4{6263278233384489736,18972004092661642}}
+	s %t{"ezSplineNodeComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		Vec3 %CustomTangentIn{f{0,0,0}}
+		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %EditNodes{0}
+		b %LinkCustomTangents{0}
+		Angle %Roll{f{0}}
+		s %TangentModeIn{"ezSplineTangentMode::Auto"}
+		s %TangentModeOut{"ezSplineTangentMode::Auto"}
+	}
+}
+o
+{
+	Uuid %id{u4{14179053039644037613,61350908336274283}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{6263278233384489736,18972004092661642}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0xFE900E42,0xD6D5F9C1,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"-2"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{10767464224589013731,69442668941606502}}
+	s %t{"ezSplineNodeComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		Vec3 %CustomTangentIn{f{0,0,0}}
+		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %EditNodes{0}
+		b %LinkCustomTangents{0}
+		Angle %Roll{f{0}}
+		s %TangentModeIn{"ezSplineTangentMode::Auto"}
+		s %TangentModeOut{"ezSplineTangentMode::Auto"}
+	}
+}
+o
+{
+	Uuid %id{u4{7127193741044694259,121199532952969072}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{15415230544050801387,401119160676351982}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x0000F0C0,0x120C7CC1,0x652282C0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"0"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{3800146347561767119,134677622294548972}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{7610240016970960639,17823727917377720062}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0xC099313F,0xEED684C2,0xE9AACBC1}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"-2"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{973434769806330617,156424422088472424}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{1397142912700184979,4766164758807646067}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x00008042,0,0x000000C2}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{2754792910931201537,156566707659567381}}
+	s %t{"ezSplineNodeComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		Vec3 %CustomTangentIn{f{0,0,0}}
+		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %EditNodes{0}
+		b %LinkCustomTangents{0}
+		Angle %Roll{f{0}}
+		s %TangentModeIn{"ezSplineTangentMode::Auto"}
+		s %TangentModeOut{"ezSplineTangentMode::Auto"}
+	}
+}
+o
+{
+	Uuid %id{u4{18325884637575982317,213739453807376584}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{15523585035249082609,408799011355575883}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x748ED340,0x59D7C441,0xB1C0E73F}}
+		Quat %LocalRotation{f{0x5B5BAFBE,0x628470BF,0x000000B3,0x000000B3}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{2607656576921768657,395579307064070064}}
+	s %t{"ezSplineNodeComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		Vec3 %CustomTangentIn{f{0,0,0}}
+		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %EditNodes{0}
+		b %LinkCustomTangents{0}
+		Angle %Roll{f{0}}
+		s %TangentModeIn{"ezSplineTangentMode::Auto"}
+		s %TangentModeOut{"ezSplineTangentMode::Auto"}
+	}
+}
+o
+{
+	Uuid %id{u4{15415230544050801387,401119160676351982}}
+	s %t{"ezSplineNodeComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		Vec3 %CustomTangentIn{f{0,0,0}}
+		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %EditNodes{0}
+		b %LinkCustomTangents{0}
+		Angle %Roll{f{0}}
+		s %TangentModeIn{"ezSplineTangentMode::Auto"}
+		s %TangentModeOut{"ezSplineTangentMode::Auto"}
+	}
+}
+o
+{
+	Uuid %id{u4{15523585035249082609,408799011355575883}}
+	s %t{"ezTerrainBrush3DComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		b %AffectPatches{1}
+		b %AffectVolumes{1}
+		f %Falloff{0x0000803F}
+		f %HalfSizeX{0x66664A41}
+		f %HalfSizeYBottom{0x14AE473F}
+		f %HalfSizeYTop{0xF6289440}
+		f %HalfSizeZ{0x608F4240}
+		f %InnerRadius{0x0000803F}
+		u1 %MaterialIndex{3}
+		f %MaterialStrength{0x0000803F}
+		s %ModifyMode{"ezTerrainModifyMode3D::Carve"}
+		f %NoiseFrequency{0x0000803F}
+		f %NoiseStrength{0}
+		f %OuterRadius{0x713D2A40}
+		i1 %Priority{0}
+		VarArray %TerrainTags{}
+	}
+}
+o
+{
+	Uuid %id{u4{11307118800728715636,4064317900287860831}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{13109316851520550764,4418793537951619723}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x7DDAD5C1,0x734E2642,0xBE8F7141}}
+		Quat %LocalRotation{f{0x278D323E,0,0,0x0B147C3F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{3700135609585876326,4078363207571179555}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{5502333660377711454,4432838845234938447}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x7DDABDC1,0xDB2C853F,0xCE762041}}
+		Quat %LocalRotation{f{0xE0D9E5BB,0,0,0x64FE7F3F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{13109316851520550764,4418793537951619723}}
+	s %t{"ezTerrainBrush2DComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		b %AffectPatches{1}
+		b %AffectVolumes{1}
+		f %Falloff{0x14AE073F}
+		f %HalfSizeX{0}
+		f %HalfSizeY{0}
+		f %InnerRadius{0}
+		u1 %MaterialIndex{4}
+		f %MaterialStrength{0x6666663F}
+		s %ModifyMode{"ezTerrainModifyMode2D::Max"}
+		f %NoiseFrequency{0x66668640}
+		f %NoiseStrength{0xA4703D3F}
+		f %OuterRadius{0x0000A041}
+		i1 %Priority{0}
+		VarArray %TerrainTags{}
+	}
+}
+o
+{
+	Uuid %id{u4{5502333660377711454,4432838845234938447}}
+	s %t{"ezTerrainBrush2DComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		b %AffectPatches{1}
+		b %AffectVolumes{1}
+		f %Falloff{0x0000803F}
+		f %HalfSizeX{0x0000803F}
+		f %HalfSizeY{0x00000040}
+		f %InnerRadius{0x00000040}
+		u1 %MaterialIndex{5}
+		f %MaterialStrength{0x0000803F}
+		s %ModifyMode{"ezTerrainModifyMode2D::Set"}
+		f %NoiseFrequency{0x0000803F}
+		f %NoiseStrength{0}
+		f %OuterRadius{0x00002041}
+		i1 %Priority{0}
+		VarArray %TerrainTags{}
+	}
+}
+o
+{
+	Uuid %id{u4{13964062784219199980,4483941311976067947}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{11161763181892300272,4679000869524267246}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x52BFA9C0,0x245155C1,0xA8FB36BF}}
+		Quat %LocalRotation{f{0xD60DCDBE,0x652F15BF,0xD60DCDBE,0x652F153F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{7345973893721878889,4610484736176520857}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{9148171944513714017,4964960373840279749}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x09A1CFC0,0x843F8641,0xF48F1940}}
+		Quat %LocalRotation{f{0,0,0x50A917BF,0x5F3D4E3F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{5881539096473727919,4652062352886617924}}
+	s %t{"ezSceneLayer"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Layer{u4{9924433196559156103,5412841129761561541}}
+	}
+}
+o
+{
+	Uuid %id{u4{15926297389670878897,4669798374742384271}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{13243265986524734605,5225451193174680733}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0x00000040}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{11161763181892300272,4679000869524267246}}
+	s %t{"ezTerrainBrush3DComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		b %AffectPatches{1}
+		b %AffectVolumes{1}
+		f %Falloff{0x0000803F}
+		f %HalfSizeX{0}
+		f %HalfSizeYBottom{0}
+		f %HalfSizeYTop{0}
+		f %HalfSizeZ{0x52B80E40}
+		f %InnerRadius{0xE17ACC40}
+		u1 %MaterialIndex{5}
+		f %MaterialStrength{0x0000803F}
+		s %ModifyMode{"ezTerrainModifyMode3D::Carve"}
+		f %NoiseFrequency{0x14AEB740}
+		f %NoiseStrength{0xAE47213F}
+		f %OuterRadius{0x9A995940}
+		i1 %Priority{0}
+		VarArray %TerrainTags{}
+	}
+}
+o
+{
+	Uuid %id{u4{10710973874046859901,4759517950399722238}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children
+		{
+			Uuid{u4{14815524404720212118,4863550397379101332}}
+			Uuid{u4{16851076279520896643,5135361654894196557}}
+			Uuid{u4{6215276824831418757,4835133263489622510}}
+			Uuid{u4{15926297389670878897,4669798374742384271}}
+		}
+		VarArray %Components{}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"Environment"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{1397142912700184979,4766164758807646067}}
+	s %t{"ezTerrainVolumeComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		u1 %BaseMaterialIndex{0}
+		u1 %CleanupIterations{2}
+		b %EnableCollider{1}
+		f %FillHeight{0x0AD723BC}
+		s %Material{"{ bf60c51f-0262-40b6-931c-82dea06a2e72 }"}
+		s %Resolution{"ezTerrainResolution::Res32"}
+		f %Size{0x00008042}
+		VarArray %Surfaces{}
+		VarArray %TerrainTags{}
+	}
+}
+o
+{
+	Uuid %id{u4{17971743445450541461,4766289443598942952}}
+	s %t{"ezAmbientLightComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		ColorGamma %BottomColor{u1{89,89,108,255}}
+		f %Intensity{0x00000040}
+		ColorGamma %TopColor{u1{124,124,149,255}}
+	}
+}
+o
+{
+	Uuid %id{u4{16529572930418907831,4779993286594266326}}
+	s %t{"ezSkyBoxComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		s %CubeMap{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
+		f %ExposureBias{0x0000803F}
+		b %InverseTonemap{0}
+		b %UseFog{1}
+		f %VirtualDistance{0x00007A44}
+	}
+}
+o
+{
+	Uuid %id{u4{9957488821587883394,4789038165752892656}}
+	s %t{"ezTerrainVolumeComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		u1 %BaseMaterialIndex{1}
+		u1 %CleanupIterations{2}
+		b %EnableCollider{1}
+		f %FillHeight{0x0000A041}
+		s %Material{"{ bf60c51f-0262-40b6-931c-82dea06a2e72 }"}
+		s %Resolution{"ezTerrainResolution::Res64"}
+		f %Size{0x00008042}
+		VarArray %Surfaces{}
+		VarArray %TerrainTags{}
+	}
+}
+o
+{
+	Uuid %id{u4{6215276824831418757,4835133263489622510}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{7972040364717959570,5126763255654610702}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0xD8476A42,0x9F1A09C2,0xB579A941}}
+		Quat %LocalRotation{f{0xC7E94EBE,0xD707313D,0x4BEF743F,0x9F8F513E}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"Scene Thumbnail Camera"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{14815524404720212118,4863550397379101332}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{14825829136289177765,5714482371080002275}}
+			Uuid{u4{17971743445450541461,4766289443598942952}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0x00000040}}
+		Quat %LocalRotation{f{0xBE2BA7BE,0xBD2BA73E,0xED90203F,0xEC90203F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{3913472416877727652,4908614579468470040}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{1111172814550827944,5103674137016669339}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x95D10841,0xA2B46741,0xEA0723C1}}
+		Quat %LocalRotation{f{0xD60DCDBE,0x652F15BF,0xD60DCDBE,0x652F153F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{1700069276803647077,4915010382030324548}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children
+		{
+			Uuid{u4{3800146347561767119,134677622294548972}}
+			Uuid{u4{4864538013888669663,17962416814319695390}}
+			Uuid{u4{7127193741044694259,121199532952969072}}
+			Uuid{u4{6677492634061272023,18351071424712709799}}
+		}
+		VarArray %Components
+		{
+			Uuid{u4{3502267327595482205,5269486019694083440}}
+			Uuid{u4{18407093924879378434,18339786566110947123}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x3EED42C2,0xE69CD441,0xBE8F0141}}
+		Quat %LocalRotation{f{0xA2E75CBE,0,0,0xDEF8793F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{5834714109996315293,4941702732487817650}}
+	s %t{"ezSceneDocumentSettings"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Layers
+		{
+			Uuid{u4{5881539096473727919,4652062352886617924}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{9148171944513714017,4964960373840279749}}
+	s %t{"ezTerrainBrush2DComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		b %AffectPatches{1}
+		b %AffectVolumes{1}
+		f %Falloff{0xB81E453F}
+		f %HalfSizeX{0x5C8F1E41}
+		f %HalfSizeY{0x3D0AD73F}
+		f %InnerRadius{0x0000803F}
+		u1 %MaterialIndex{1}
+		f %MaterialStrength{0x0000803F}
+		s %ModifyMode{"ezTerrainModifyMode2D::OnlyPaint2D"}
+		f %NoiseFrequency{0x0000803F}
+		f %NoiseStrength{0}
+		f %OuterRadius{0x0000A040}
+		i1 %Priority{0}
+		VarArray %TerrainTags{}
+	}
+}
+o
+{
+	Uuid %id{u4{6222266557963801219,5000519876276185313}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{3419966955636901511,5195579433824384612}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x7B528FC1,0x94BBC7C0,0x36B59240}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{1111172814550827944,5103674137016669339}}
+	s %t{"ezTerrainBrush3DComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		b %AffectPatches{1}
+		b %AffectVolumes{1}
+		f %Falloff{0x0000803F}
+		f %HalfSizeX{0}
+		f %HalfSizeYBottom{0}
+		f %HalfSizeYTop{0}
+		f %HalfSizeZ{0xEC519641}
+		f %InnerRadius{0x0000A040}
+		u1 %MaterialIndex{2}
+		f %MaterialStrength{0x0000803F}
+		s %ModifyMode{"ezTerrainModifyMode3D::Carve"}
+		f %NoiseFrequency{0x0000803F}
+		f %NoiseStrength{0}
+		f %OuterRadius{0xA4701D40}
+		i1 %Priority{0}
+		VarArray %TerrainTags{}
+	}
+}
+o
+{
+	Uuid %id{u4{1507386825730263472,5104696068727085510}}
+	s %t{"ezTerrainVolumeComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		u1 %BaseMaterialIndex{0}
+		u1 %CleanupIterations{2}
+		b %EnableCollider{1}
+		f %FillHeight{0x00000042}
+		s %Material{"{ bf60c51f-0262-40b6-931c-82dea06a2e72 }"}
+		s %Resolution{"ezTerrainResolution::Res256"}
+		f %Size{0x00008042}
+		VarArray %Surfaces{}
+		VarArray %TerrainTags{}
+	}
+}
+o
+{
+	Uuid %id{u4{7972040364717959570,5126763255654610702}}
+	s %t{"ezCameraComponent"}
+	u3 %v{10}
+	p
+	{
+		b %Active{1}
+		f %Aperture{0x0000803F}
+		s %CameraRenderPipeline{""}
+		f %Dimensions{0x00002041}
+		i1 %EditorShortcut{1}
+		VarArray %ExcludeTags{}
+		f %ExposureCompensation{0}
+		f %FOV{0x00007042}
+		f %FarPlane{0x00007A44}
+		f %ISO{0x0000C842}
+		VarArray %IncludeTags{}
+		s %Mode{"ezCameraMode::PerspectiveFixedFovY"}
+		f %NearPlane{0x0000803E}
+		s %RenderTarget{""}
+		Vec2 %RenderTargetOffset{f{0,0}}
+		Vec2 %RenderTargetSize{f{0x0000803F,0x0000803F}}
+		b %ShowStats{0}
+		Time %ShutterTime{d{0x000000000000F03F}}
+		s %UsageHint{"ezCameraUsageHint::Thumbnail"}
+	}
+}
+o
+{
+	Uuid %id{u4{16851076279520896643,5135361654894196557}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{16529572930418907831,4779993286594266326}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0x0000803F}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"SkyLight"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{3419966955636901511,5195579433824384612}}
+	s %t{"ezTerrainBrush3DComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		b %AffectPatches{1}
+		b %AffectVolumes{1}
+		f %Falloff{0x0000803F}
+		f %HalfSizeX{0}
+		f %HalfSizeYBottom{0}
+		f %HalfSizeYTop{0}
+		f %HalfSizeZ{0x0000A040}
+		f %InnerRadius{0x9A994940}
+		u1 %MaterialIndex{0}
+		f %MaterialStrength{0x0000803F}
+		s %ModifyMode{"ezTerrainModifyMode3D::Add"}
+		f %NoiseFrequency{0x0000803F}
+		f %NoiseStrength{0}
+		f %OuterRadius{0x0000A040}
+		i1 %Priority{0}
+		VarArray %TerrainTags{}
+	}
+}
+o
+{
+	Uuid %id{u4{13243265986524734605,5225451193174680733}}
+	s %t{"ezSphereReflectionProbeComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		Vec3 %CaptureOffset{f{0,0,0}}
+		VarArray %ExcludeTags
+		{
+			s{"SkyLight"}
+		}
+		f %Falloff{0xCDCCCC3D}
+		f %FarPlane{0x0000C842}
+		VarArray %IncludeTags{}
+		f %NearPlane{0}
+		f %Radius{0x00004843}
+		s %ReflectionProbeMode{"ezReflectionProbeMode::Static"}
+		b %ShowDebugInfo{0}
+		b %ShowMipMaps{0}
+		b %SphereProjection{1}
+	}
+}
+o
+{
+	Uuid %id{u4{3502267327595482205,5269486019694083440}}
+	s %t{"ezTerrainBrush2DComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		b %AffectPatches{1}
+		b %AffectVolumes{1}
+		f %Falloff{0x0000803F}
+		f %HalfSizeX{0}
+		f %HalfSizeY{0}
+		f %InnerRadius{0}
+		u1 %MaterialIndex{0}
+		f %MaterialStrength{0x0000803F}
+		s %ModifyMode{"ezTerrainModifyMode2D::Max"}
+		f %NoiseFrequency{0x295CEF3F}
+		f %NoiseStrength{0x9A99993E}
+		f %OuterRadius{0x0000A040}
+		i1 %Priority{1}
+		VarArray %TerrainTags{}
+	}
+}
+o
+{
+	Uuid %id{u4{15935647916770792622,5413763125922443288}}
+	s %t{"ezTerrainVolumeComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		u1 %BaseMaterialIndex{2}
+		u1 %CleanupIterations{2}
+		b %EnableCollider{1}
+		f %FillHeight{0x00008041}
+		s %Material{"{ bf60c51f-0262-40b6-931c-82dea06a2e72 }"}
+		s %Resolution{"ezTerrainResolution::Res128"}
+		f %Size{0x00008042}
+		VarArray %Surfaces{}
+		VarArray %TerrainTags{}
+	}
+}
+o
+{
+	Uuid %id{u4{13690953397534418359,5448067927738650586}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{9957488821587883394,4789038165752892656}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x00008042,0x000080C2,0x0000A0C1}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{3371911037906890396,5607626586117662190}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{569611435579990688,5802686143665861489}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x6A734641,0x21F3FB41,0x16F80C41}}
+		Quat %LocalRotation{f{0xF5FD77BE,0x40122ABF,0x3C122ABF,0xFAFD77BE}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{14825829136289177765,5714482371080002275}}
+	s %t{"ezDirectionalLightComponent"}
+	u3 %v{5}
+	p
+	{
+		b %Active{1}
+		b %CastShadows{1}
+		f %ConstantBias{0xCDCCCC3D}
+		ColorGamma %EffectiveColor{u1{255,255,255,255}}
+		f %FadeOutStart{0xCDCC4C3F}
+		f %Intensity{0x0000A040}
+		ColorGamma %LightColor{u1{255,255,255,255}}
+		f %MinShadowRange{0x0000F041}
+		f %NearPlaneOffset{0x0000C842}
+		u3 %NumCascades{2}
+		f %PenumbraSize{0xCDCC4C3D}
+		b %ScreenSpaceShadows{0}
+		f %SlopeBias{0x0000803E}
+		Angle %SourceAngle{f{0}}
+		f %SpecularMultiplier{0x0000803F}
+		f %SplitModeWeight{0x3333333F}
+		u3 %Temperature{6550}
+		b %TransparentShadows{0}
+		b %UseColorTemperature{0}
+	}
+}
+o
+{
+	Uuid %id{u4{569611435579990688,5802686143665861489}}
+	s %t{"ezTerrainBrush3DComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		b %AffectPatches{1}
+		b %AffectVolumes{1}
+		f %Falloff{0x0000803F}
+		f %HalfSizeX{0x66664A41}
+		f %HalfSizeYBottom{0x14AE473F}
+		f %HalfSizeYTop{0xF6289440}
+		f %HalfSizeZ{0x608F4240}
+		f %InnerRadius{0x0000803F}
+		u1 %MaterialIndex{0}
+		f %MaterialStrength{0}
+		s %ModifyMode{"ezTerrainModifyMode3D::Carve"}
+		f %NoiseFrequency{0x0000803F}
+		f %NoiseStrength{0}
+		f %OuterRadius{0}
+		i1 %Priority{0}
+		VarArray %TerrainTags{}
+	}
+}
+o
+{
+	Uuid %id{u4{18096612296587978288,6449934965513159559}}
+	s %t{"ezSceneDocumentRoot"}
+	u3 %v{2}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{10710973874046859901,4759517950399722238}}
+			Uuid{u4{2837108953704325339,18075552035089980254}}
+			Uuid{u4{3435316677421410773,17824787649629911843}}
+			Uuid{u4{1700069276803647077,4915010382030324548}}
+			Uuid{u4{7345973893721878889,4610484736176520857}}
+			Uuid{u4{11307118800728715636,4064317900287860831}}
+			Uuid{u4{18105732161989390846,8751990586517479283}}
+			Uuid{u4{3700135609585876326,4078363207571179555}}
+			Uuid{u4{1126872629597381101,9790296533343067174}}
+			Uuid{u4{18325884637575982317,213739453807376584}}
+			Uuid{u4{3371911037906890396,5607626586117662190}}
+			Uuid{u4{3913472416877727652,4908614579468470040}}
+			Uuid{u4{15190193332219470408,10574095219786352499}}
+			Uuid{u4{6966741593336610769,15801504972967576015}}
+			Uuid{u4{14491997274117948895,7251719362876737853}}
+			Uuid{u4{10532979549698014106,12072981335585548837}}
+			Uuid{u4{14659038806469831216,17274520632143780686}}
+			Uuid{u4{13964062784219199980,4483941311976067947}}
+			Uuid{u4{9973012860370624372,9990314877084103625}}
+			Uuid{u4{3194435250398991617,15478050026169850908}}
+			Uuid{u4{12749014962215554862,15490826897609494387}}
+			Uuid{u4{11004235760118680392,16994083478805570733}}
+			Uuid{u4{3762351234812358906,17811805498610507977}}
+			Uuid{u4{6222266557963801219,5000519876276185313}}
+			Uuid{u4{241370034727300912,9992835916496127427}}
+		}
+		Uuid %Settings{u4{5834714109996315293,4941702732487817650}}
+	}
+}
+o
+{
+	Uuid %id{u4{14491997274117948895,7251719362876737853}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{11689697671791049187,7446778920424937152}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x08BEC5C0,0x9A94BE41,0x49900441}}
+		Quat %LocalRotation{f{0xD60DCDBE,0x652F15BF,0xD60DCDBE,0x652F153F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{11689697671791049187,7446778920424937152}}
+	s %t{"ezTerrainBrush3DComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		b %AffectPatches{1}
+		b %AffectVolumes{1}
+		f %Falloff{0x0000803F}
+		f %HalfSizeX{0}
+		f %HalfSizeYBottom{0}
+		f %HalfSizeYTop{0}
+		f %HalfSizeZ{0}
+		f %InnerRadius{0x8FC25540}
+		u1 %MaterialIndex{0}
+		f %MaterialStrength{0}
+		s %ModifyMode{"ezTerrainModifyMode3D::Add"}
+		f %NoiseFrequency{0x0000803F}
+		f %NoiseStrength{0}
+		f %OuterRadius{0}
+		i1 %Priority{0}
+		VarArray %TerrainTags{}
+	}
+}
+o
+{
+	Uuid %id{u4{18105732161989390846,8751990586517479283}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{1461186139071674358,9106466224181238175}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x064B4441,0xE69CD441,0xBE8F7141}}
+		Quat %LocalRotation{f{0x278D323E,0,0,0x0B147C3F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{1461186139071674358,9106466224181238175}}
+	s %t{"ezTerrainBrush2DComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		b %AffectPatches{1}
+		b %AffectVolumes{1}
+		f %Falloff{0x14AE073F}
+		f %HalfSizeX{0}
+		f %HalfSizeY{0}
+		f %InnerRadius{0}
+		u1 %MaterialIndex{0}
+		f %MaterialStrength{0}
+		s %ModifyMode{"ezTerrainModifyMode2D::Max"}
+		f %NoiseFrequency{0x66668640}
+		f %NoiseStrength{0xA4703D3F}
+		f %OuterRadius{0x0000A041}
+		i1 %Priority{0}
+		VarArray %TerrainTags{}
+	}
+}
+o
+{
+	Uuid %id{u4{1126872629597381101,9790296533343067174}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{2929070680389216229,10144772171006826066}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x31A73AC1,0x3CF608C1,0x04D9013F}}
+		Quat %LocalRotation{f{0xE0D9E5BB,0,0,0x64FE7F3F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{9973012860370624372,9990314877084103625}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{7170713258043724664,10185374434632302924}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x9ACCE3C0,0xDF50F4C0,0xE6BE0DC0}}
+		Quat %LocalRotation{f{0xD60DCDBE,0x652F15BF,0xD60DCDBE,0x652F153F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{241370034727300912,9992835916496127427}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children
+		{
+			Uuid{u4{8206695466856409581,18084561114817074144}}
+			Uuid{u4{14179053039644037613,61350908336274283}}
+			Uuid{u4{15785698979979732981,17931518701183010369}}
+			Uuid{u4{9263807912193803233,18331650891341893775}}
+			Uuid{u4{8144512962524513516,18267484452268641462}}
+		}
+		VarArray %Components
+		{
+			Uuid{u4{15885814506109952820,10187895474044326726}}
+			Uuid{u4{1356709445998523898,18118743490796239084}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x4E8CBCC1,0x9F5640C1,0x34B59240}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{2929070680389216229,10144772171006826066}}
+	s %t{"ezTerrainBrush2DComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		b %AffectPatches{1}
+		b %AffectVolumes{1}
+		f %Falloff{0x0000803F}
+		f %HalfSizeX{0x0000A040}
+		f %HalfSizeY{0x00004040}
+		f %InnerRadius{0}
+		u1 %MaterialIndex{0}
+		f %MaterialStrength{0}
+		s %ModifyMode{"ezTerrainModifyMode2D::Min"}
+		f %NoiseFrequency{0x0000803F}
+		f %NoiseStrength{0}
+		f %OuterRadius{0}
+		i1 %Priority{0}
+		VarArray %TerrainTags{}
+	}
+}
+o
+{
+	Uuid %id{u4{7170713258043724664,10185374434632302924}}
+	s %t{"ezTerrainBrush3DComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		b %AffectPatches{1}
+		b %AffectVolumes{1}
+		f %Falloff{0x0000803F}
+		f %HalfSizeX{0}
+		f %HalfSizeYBottom{0}
+		f %HalfSizeYTop{0}
+		f %HalfSizeZ{0}
+		f %InnerRadius{0x9A99B940}
+		u1 %MaterialIndex{5}
+		f %MaterialStrength{0x0000803F}
+		s %ModifyMode{"ezTerrainModifyMode3D::Add"}
+		f %NoiseFrequency{0x295CCF40}
+		f %NoiseStrength{0x52B8DE3F}
+		f %OuterRadius{0x0000A040}
+		i1 %Priority{9}
+		VarArray %TerrainTags{}
+	}
+}
+o
+{
+	Uuid %id{u4{15885814506109952820,10187895474044326726}}
+	s %t{"ezTerrainBrush3DComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		b %AffectPatches{1}
+		b %AffectVolumes{1}
+		f %Falloff{0x0000803F}
+		f %HalfSizeX{0}
+		f %HalfSizeYBottom{0}
+		f %HalfSizeYTop{0}
+		f %HalfSizeZ{0}
+		f %InnerRadius{0x0000A040}
+		u1 %MaterialIndex{4}
+		f %MaterialStrength{0x0000403F}
+		s %ModifyMode{"ezTerrainModifyMode3D::Add"}
+		f %NoiseFrequency{0x0000803F}
+		f %NoiseStrength{0xC3F5283F}
+		f %OuterRadius{0x0000A040}
+		i1 %Priority{0}
+		VarArray %TerrainTags{}
+	}
+}
+o
+{
+	Uuid %id{u4{15190193332219470408,10574095219786352499}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{12387893729892570700,10769154777334551798}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0xD6862241,0x10C2F041,0x49907C41}}
+		Quat %LocalRotation{f{0xD60DCDBE,0x652F15BF,0xD60DCDBE,0x652F153F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{3104523458387078242,10644100955407883498}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{15935647916770792622,5413763125922443288}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0x000080C2,0x000080C1}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{12387893729892570700,10769154777334551798}}
+	s %t{"ezTerrainBrush3DComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		b %AffectPatches{1}
+		b %AffectVolumes{1}
+		f %Falloff{0x0000803F}
+		f %HalfSizeX{0}
+		f %HalfSizeYBottom{0}
+		f %HalfSizeYTop{0}
+		f %HalfSizeZ{0}
+		f %InnerRadius{0x0000A040}
+		u1 %MaterialIndex{0}
+		f %MaterialStrength{0}
+		s %ModifyMode{"ezTerrainModifyMode3D::Add"}
+		f %NoiseFrequency{0x0000803F}
+		f %NoiseStrength{0}
+		f %OuterRadius{0}
+		i1 %Priority{0}
+		VarArray %TerrainTags{}
+	}
+}
+o
+{
+	Uuid %id{u4{10532979549698014106,12072981335585548837}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{7730679947371114398,12268040893133748136}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x879E1EC1,0x7F1CB341,0x28415240}}
+		Quat %LocalRotation{f{0xD60DCDBE,0x652F15BF,0xD60DCDBE,0x652F153F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{7730679947371114398,12268040893133748136}}
+	s %t{"ezTerrainBrush3DComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		b %AffectPatches{1}
+		b %AffectVolumes{1}
+		f %Falloff{0x0000803F}
+		f %HalfSizeX{0}
+		f %HalfSizeYBottom{0}
+		f %HalfSizeYTop{0}
+		f %HalfSizeZ{0}
+		f %InnerRadius{0x0000A040}
+		u1 %MaterialIndex{0}
+		f %MaterialStrength{0}
+		s %ModifyMode{"ezTerrainModifyMode3D::Add"}
+		f %NoiseFrequency{0x0000803F}
+		f %NoiseStrength{0}
+		f %OuterRadius{0}
+		i1 %Priority{0}
+		VarArray %TerrainTags{}
+	}
+}
+o
+{
+	Uuid %id{u4{3194435250398991617,15478050026169850908}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{392135648072091909,15673109583718050207}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x6E090BC1,0x2D20C740,0xDABE0DC0}}
+		Quat %LocalRotation{f{0xD60DCDBE,0x652F15BF,0xD60DCDBE,0x652F153F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{12749014962215554862,15490826897609494387}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{9946715359888655154,15685886455157693686}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x00505441,0x424E28C1,0xEFBE0DC0}}
+		Quat %LocalRotation{f{0xD60DCDBE,0x652F15BF,0xD60DCDBE,0x652F153F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{392135648072091909,15673109583718050207}}
+	s %t{"ezTerrainBrush3DComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		b %AffectPatches{1}
+		b %AffectVolumes{0}
+		f %Falloff{0x0000803F}
+		f %HalfSizeX{0}
+		f %HalfSizeYBottom{0}
+		f %HalfSizeYTop{0}
+		f %HalfSizeZ{0}
+		f %InnerRadius{0x9A99B940}
+		u1 %MaterialIndex{5}
+		f %MaterialStrength{0x0000803F}
+		s %ModifyMode{"ezTerrainModifyMode3D::Add"}
+		f %NoiseFrequency{0x0000803F}
+		f %NoiseStrength{0}
+		f %OuterRadius{0x0000A040}
+		i1 %Priority{9}
+		VarArray %TerrainTags{}
+	}
+}
+o
+{
+	Uuid %id{u4{9946715359888655154,15685886455157693686}}
+	s %t{"ezTerrainBrush3DComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		b %AffectPatches{1}
+		b %AffectVolumes{1}
+		f %Falloff{0x5C8FC23E}
+		f %HalfSizeX{0}
+		f %HalfSizeYBottom{0}
+		f %HalfSizeYTop{0}
+		f %HalfSizeZ{0}
+		f %InnerRadius{0x713D8240}
+		u1 %MaterialIndex{3}
+		f %MaterialStrength{0x0000803F}
+		s %ModifyMode{"ezTerrainModifyMode3D::OnlyPaint3D"}
+		f %NoiseFrequency{0x0000803F}
+		f %NoiseStrength{0}
+		f %OuterRadius{0x00004040}
+		i1 %Priority{9}
+		VarArray %TerrainTags{}
+	}
+}
+o
+{
+	Uuid %id{u4{6966741593336610769,15801504972967576015}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{4164441991009711061,15996564530515775314}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x491F2C40,0xDAD1D941,0x24488E41}}
+		Quat %LocalRotation{f{0xD60DCDBE,0x652F15BF,0xD60DCDBE,0x652F153F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{4164441991009711061,15996564530515775314}}
+	s %t{"ezTerrainBrush3DComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		b %AffectPatches{1}
+		b %AffectVolumes{1}
+		f %Falloff{0x0000803F}
+		f %HalfSizeX{0}
+		f %HalfSizeYBottom{0}
+		f %HalfSizeYTop{0}
+		f %HalfSizeZ{0}
+		f %InnerRadius{0xE17A5440}
+		u1 %MaterialIndex{0}
+		f %MaterialStrength{0}
+		s %ModifyMode{"ezTerrainModifyMode3D::Add"}
+		f %NoiseFrequency{0x0000803F}
+		f %NoiseStrength{0}
+		f %OuterRadius{0}
+		i1 %Priority{0}
+		VarArray %TerrainTags{}
+	}
+}
+o
+{
+	Uuid %id{u4{10682006674007329541,16175699255175190422}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{1507386825730263472,5104696068727085510}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0x000000C2}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{11004235760118680392,16994083478805570733}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{8201936157791780684,17189143036353770032}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0xCA3D78C1,0x57E8A141,0x54FB36BF}}
+		Quat %LocalRotation{f{0xD60DCDBE,0x652F15BF,0xD60DCDBE,0x652F153F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{8201936157791780684,17189143036353770032}}
+	s %t{"ezTerrainBrush3DComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		b %AffectPatches{1}
+		b %AffectVolumes{1}
+		f %Falloff{0x0000803F}
+		f %HalfSizeX{0}
+		f %HalfSizeYBottom{0}
+		f %HalfSizeYTop{0}
+		f %HalfSizeZ{0}
+		f %InnerRadius{0x0000A040}
+		u1 %MaterialIndex{0}
+		f %MaterialStrength{0}
+		s %ModifyMode{"ezTerrainModifyMode3D::Add"}
+		f %NoiseFrequency{0x0000803F}
+		f %NoiseStrength{0}
+		f %OuterRadius{0}
+		i1 %Priority{0}
+		VarArray %TerrainTags{}
+	}
+}
+o
+{
+	Uuid %id{u4{14659038806469831216,17274520632143780686}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{11856739204142931508,17469580189691979985}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x102BAB3E,0x16D507C1,0x98FB36BF}}
+		Quat %LocalRotation{f{0xD60DCDBE,0x652F15BF,0xD60DCDBE,0x652F153F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{11856739204142931508,17469580189691979985}}
+	s %t{"ezTerrainBrush3DComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		b %AffectPatches{1}
+		b %AffectVolumes{1}
+		f %Falloff{0x0000803F}
+		f %HalfSizeX{0}
+		f %HalfSizeYBottom{0}
+		f %HalfSizeYTop{0}
+		f %HalfSizeZ{0}
+		f %InnerRadius{0xE17ACC40}
+		u1 %MaterialIndex{5}
+		f %MaterialStrength{0x0000803F}
+		s %ModifyMode{"ezTerrainModifyMode3D::Carve"}
+		f %NoiseFrequency{0x0000803F}
+		f %NoiseStrength{0}
+		f %OuterRadius{0x9A995940}
+		i1 %Priority{0}
+		VarArray %TerrainTags{}
+	}
+}
+o
+{
+	Uuid %id{u4{3762351234812358906,17811805498610507977}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{11731695786989243360,18281564441425860063}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x000F9641,0x000FFFC1,0x0BE83042}}
+		Quat %LocalRotation{f{0x2119CBBE,0xCB10393E,0xA9A9513F,0x0C0CBF3E}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"Main View"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{7610240016970960639,17823727917377720062}}
+	s %t{"ezSplineNodeComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		Vec3 %CustomTangentIn{f{0,0,0}}
+		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %EditNodes{0}
+		b %LinkCustomTangents{0}
+		Angle %Roll{f{0}}
+		s %TangentModeIn{"ezSplineTangentMode::Auto"}
+		s %TangentModeOut{"ezSplineTangentMode::Auto"}
+	}
+}
+o
+{
+	Uuid %id{u4{3435316677421410773,17824787649629911843}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{5237514728213245901,18179263287293670735}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x7DDABDC1,0xCD397941,0xBE8F0141}}
+		Quat %LocalRotation{f{0xA2E75CBE,0,0,0xDEF8793F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{15785698979979732981,17931518701183010369}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{1811722791749646579,18145930874781669216}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x4A726B41,0x49A37DC1,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"-1"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{4864538013888669663,17962416814319695390}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{224263639348787202,18247460610982671710}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x84F32041,0x6C3404C2,0x542689C1}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"-1"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{2837108953704325339,18075552035089980254}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children
+		{
+			Uuid{u4{973434769806330617,156424422088472424}}
+			Uuid{u4{13690953397534418359,5448067927738650586}}
+			Uuid{u4{3104523458387078242,10644100955407883498}}
+			Uuid{u4{10682006674007329541,16175699255175190422}}
+		}
+		VarArray %Components{}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x000080C2,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{8206695466856409581,18084561114817074144}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{2754792910931201537,156566707659567381}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x2ACA5142,0x19256DC1,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"-3"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{1356709445998523898,18118743490796239084}}
+	s %t{"ezSplineComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		b %Closed{0}
+		b %EditNodes{0}
+		s %Flags{""}
+	}
+}
+o
+{
+	Uuid %id{u4{1811722791749646579,18145930874781669216}}
+	s %t{"ezSplineNodeComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		Vec3 %CustomTangentIn{f{0,0,0}}
+		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %EditNodes{0}
+		b %LinkCustomTangents{0}
+		Angle %Roll{f{0}}
+		s %TangentModeIn{"ezSplineTangentMode::Auto"}
+		s %TangentModeOut{"ezSplineTangentMode::Auto"}
+	}
+}
+o
+{
+	Uuid %id{u4{5237514728213245901,18179263287293670735}}
+	s %t{"ezTerrainBrush2DComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		b %AffectPatches{1}
+		b %AffectVolumes{1}
+		f %Falloff{0xB81E453F}
+		f %HalfSizeX{0}
+		f %HalfSizeY{0}
+		f %InnerRadius{0x0000A040}
+		u1 %MaterialIndex{0}
+		f %MaterialStrength{0}
+		s %ModifyMode{"ezTerrainModifyMode2D::Max"}
+		f %NoiseFrequency{0x0000803F}
+		f %NoiseStrength{0}
+		f %OuterRadius{0x0000A040}
+		i1 %Priority{0}
+		VarArray %TerrainTags{}
+	}
+}
+o
+{
+	Uuid %id{u4{3972027095157929455,18208341333551587149}}
+	s %t{"ezSplineNodeComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		Vec3 %CustomTangentIn{f{0,0,0}}
+		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %EditNodes{0}
+		b %LinkCustomTangents{0}
+		Angle %Roll{f{0}}
+		s %TangentModeIn{"ezSplineTangentMode::Auto"}
+		s %TangentModeOut{"ezSplineTangentMode::Auto"}
+	}
+}
+o
+{
+	Uuid %id{u4{224263639348787202,18247460610982671710}}
+	s %t{"ezSplineNodeComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		Vec3 %CustomTangentIn{f{0,0,0}}
+		Vec3 %CustomTangentOut{f{0,0,0}}
+		b %EditNodes{0}
+		b %LinkCustomTangents{0}
+		Angle %Roll{f{0}}
+		s %TangentModeIn{"ezSplineTangentMode::Auto"}
+		s %TangentModeOut{"ezSplineTangentMode::Auto"}
+	}
+}
+o
+{
+	Uuid %id{u4{8144512962524513516,18267484452268641462}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{2607656576921768657,395579307064070064}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x0000003F,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"1"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{11731695786989243360,18281564441425860063}}
+	s %t{"ezCameraComponent"}
+	u3 %v{10}
+	p
+	{
+		b %Active{1}
+		f %Aperture{0x0000803F}
+		s %CameraRenderPipeline{""}
+		f %Dimensions{0x00002041}
+		i1 %EditorShortcut{-1}
+		VarArray %ExcludeTags{}
+		f %ExposureCompensation{0}
+		f %FOV{0x00007042}
+		f %FarPlane{0x00007A44}
+		f %ISO{0x0000C842}
+		VarArray %IncludeTags{}
+		s %Mode{"ezCameraMode::PerspectiveFixedFovY"}
+		f %NearPlane{0x0000803E}
+		s %RenderTarget{""}
+		Vec2 %RenderTargetOffset{f{0,0}}
+		Vec2 %RenderTargetSize{f{0x0000803F,0x0000803F}}
+		b %ShowStats{0}
+		Time %ShutterTime{d{0x000000000000F03F}}
+		s %UsageHint{"ezCameraUsageHint::MainView"}
+	}
+}
+o
+{
+	Uuid %id{u4{9263807912193803233,18331650891341893775}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{3972027095157929455,18208341333551587149}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x589A7B40,0x376537C1,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"0"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{18407093924879378434,18339786566110947123}}
+	s %t{"ezSplineComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		b %Closed{0}
+		b %EditNodes{0}
+		s %Flags{""}
+	}
+}
+o
+{
+	Uuid %id{u4{6677492634061272023,18351071424712709799}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{10767464224589013731,69442668941606502}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x23B2A141,0xE9089941,0xE82D0E41}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"1"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+}
+Types
+{
+o
+{
+	Uuid %id{u4{18145823255500990886,658922949661762930}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPropertyAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezManipulatorAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6914292285925798136,1108246313736053318}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezComponent"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{15206751466792366313,1123861201670545443}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezVariantArray"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{12741513019009579696,2118083688060841630}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezReflectionProbeMode"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{7156867284130120138,2127711369401232967}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezReflectionProbeComponentBase"}
+		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{5827458717401089751,2275458197221607663}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezVisualizerAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDirectionVisualizerAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{17022679703366345737,2362589303538873091}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezAbstractObjectNode"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{15272284220582915620,3290797833852729302}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezCameraMode"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{17523044089822028024,3521005166208929094}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPropertyAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezCategoryAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{4703311060447830999,3977544601562298928}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSplineNodeComponent"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{8654430645282539645,3990045288992136643}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSplineComponentSpace"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{3414595336801375576,4156646965533310725}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Bitflags|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezBitflagsBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSplineComponentFlags"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{5195345338716098525,5056385137718360950}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginScene"}
+		VarArray %Properties{}
+		s %TypeName{"ezSceneLayerBase"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{8563490291623798130,5776005443963034139}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"ezEditorPluginTerrain"}
+		VarArray %Properties{}
+		s %TypeName{"ezTerrainBrushBaseComponent"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{15759661313447686678,5843393332621611219}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezTerrainBrushBaseComponent"}
+		s %PluginName{"ezEditorPluginTerrain"}
+		VarArray %Properties{}
+		s %TypeName{"ezTerrainBrush3DComponent"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{5837165590562654431,6019321076980052009}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezSceneLayerBase"}
+		s %PluginName{"ezEditorPluginScene"}
+		VarArray %Properties{}
+		s %TypeName{"ezSceneLayer"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{18327411855245510474,6668321287849544166}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Bitflags|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezBitflagsBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezVisualizerAnchor"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{14561188410025902030,6776644216668443091}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezVisualizerAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDirectionalLightVisualizerAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{12581155680651700418,6796330396717236658}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezVisualizerAttribute"}
+		s %PluginName{"ezEditorPluginTerrain"}
+		VarArray %Properties{}
+		s %TypeName{"ezTerrainBrush3DVisualizerAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{13649880205026559927,7297274558339895637}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezGameObject"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{450943844669591006,7318511461061204347}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezSceneDocumentSettingsBase"}
+		s %PluginName{"ezEditorPluginScene"}
+		VarArray %Properties{}
+		s %TypeName{"ezSceneDocumentSettings"}
+		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{11005437603101136476,7368533338987833088}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezBitflagsBase"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{13987401750059744300,7999434967063670576}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginTerrain"}
+		VarArray %Properties{}
+		s %TypeName{"ezTerrainResolution"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{4655660492459501943,8090873753673120907}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezManipulatorAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSplineTangentManipulatorAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{8781371220448777178,8391987746845008996}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSkyBoxComponent"}
+		u3 %TypeVersion{4}
+	}
+}
+o
+{
+	Uuid %id{u4{15829715360065729463,8612673207191066077}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPropertyAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezShapeIconAlwaysVisibleAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6089094783765586323,8705960867921430659}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentRoot"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{3251891958765718680,9159887340540620231}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezDocumentRoot"}
+		s %PluginName{"ezEditorPluginScene"}
+		VarArray %Properties{}
+		s %TypeName{"ezSceneDocumentRoot"}
+		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{14098825437160388753,9428810076851471707}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginTerrain"}
+		VarArray %Properties{}
+		s %TypeName{"ezTerrainModifyMode3D"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{14543630447052729839,9459039542380974471}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezObjectMode"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{16508388108942581257,9601460247128054931}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezCameraComponent"}
+		u3 %TypeVersion{10}
+	}
+}
+o
+{
+	Uuid %id{u4{8228401658076077542,9903301473102603301}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezVisualizerAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezCameraVisualizerAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{14619222012368174598,9914418461412086272}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezLightComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDirectionalLightComponent"}
+		u3 %TypeVersion{5}
+	}
+}
+o
+{
+	Uuid %id{u4{455663516835322266,10016785433957589977}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezManipulatorAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezTransformManipulatorAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2405688349736292149,10068629224057040417}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezTerrainBrushBaseComponent"}
+		s %PluginName{"ezEditorPluginTerrain"}
+		VarArray %Properties{}
+		s %TypeName{"ezTerrainBrush2DComponent"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{11567003349540998631,10071876288442081223}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezManipulatorAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSplineManipulatorAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{17733595291106647553,10998690428477627554}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezVisualizerAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezBoxVisualizerAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{14700230518358869173,11472901527618371423}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginScene"}
+		VarArray %Properties{}
+		s %TypeName{"ezSceneDocumentSettingsBase"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{8761784020540283900,11813671609775349281}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSplineComponent"}
+		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{16875341842033603361,11841711754387798757}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderComponent"}
+		s %PluginName{"ezEditorPluginTerrain"}
+		VarArray %Properties{}
+		s %TypeName{"ezTerrainVolumeComponent"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{16777871838542487558,12116962178824346014}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezRenderComponent"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{7223601987112261230,12139124130745219210}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectionProbeComponentBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSphereReflectionProbeComponent"}
+		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{9604010176759229512,12868035041842190965}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezPropertyAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{16905784224145738668,13460825231038052746}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginTerrain"}
+		VarArray %Properties{}
+		s %TypeName{"ezTerrainModifyMode2D"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6484465473051580353,13616948832937675817}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezVisualizerAttribute"}
+		s %PluginName{"ezEditorPluginTerrain"}
+		VarArray %Properties{}
+		s %TypeName{"ezTerrainBrush2DVisualizerAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{5292472142899984827,13813128825879118617}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPropertyAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSyncChildOrderAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{12814930320360971966,14780945004767832345}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezLightComponent"}
+		u3 %TypeVersion{6}
+	}
+}
+o
+{
+	Uuid %id{u4{2947336711354777548,15013008608905564043}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEnumBase"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{11081527203184866822,15735316544108576551}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezAmbientLightComponent"}
+		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{18075037991921780250,16373560435556338007}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPropertyAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezVisualizerAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{15796815132701145913,16426079668733115146}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezManipulatorAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSphereManipulatorAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{14469700887475489738,16951777026318265606}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezBasisAxis"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{14207082430471941233,17000358661146427261}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezVisualizerAttribute"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSphereVisualizerAttribute"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{17965579125706971693,17079293274319994058}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezCameraUsageHint"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{983387834180907111,17935407260904399048}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezReflectedClass"}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{12282983039272315452,18409996219135515065}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSplineTangentMode"}
+		u3 %TypeVersion{1}
+	}
+}
+}

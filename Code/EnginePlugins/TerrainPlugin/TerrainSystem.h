@@ -11,6 +11,7 @@
 #include <TerrainPlugin/TerrainPluginDLL.h>
 
 #include <Shaders/Terrain/Generation/TerrainBrushData.h>
+#include <Shaders/Terrain/Generation/VoxelMeshConstants.h>
 
 class ezRenderGraph;
 
@@ -70,6 +71,8 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_TERRAINPLUGIN_DLL, ezTerrainPatchColliderMode);
 struct ezTerrainData_Brush
 {
   bool m_bInUse = false;
+  bool m_bAffectHeightfields = true;
+  bool m_bAffectVoxels = true;
   ezInt8 m_iPriority = 0;                      ///< Sort order. Higher = applied later = wins over lower-priority brushes. Equal priorities use mode-based ordering.
   ezUInt8 m_uiMaterialIndex = 0;               ///< Material (layer) index to paint: 0-3.
   ezEnum<ezTerrainModifyMode> m_ModifyMode;
@@ -108,6 +111,32 @@ struct ezTerrainData_Heightfield
   /// Hash of the indices of brushes that spatially overlap this heightfield.
   /// Updated each time brush state is re-evaluated; compared against the previous value to skip
   /// re-bakes when the set of relevant brushes (and whether any are present) has not changed.
+  ezUInt64 m_uiBrushOverlapHash = 0;
+};
+
+/// CPU-side state for one voxel terrain volume managed by ezTerrainSystem.
+struct ezTerrainData_Voxel
+{
+  bool m_bInUse = false;
+  bool m_bDirty = true;
+  bool m_bInitialSolid = false;      ///< false = all cells start as air; true = all cells start as solid. Applied before brushes each bake.
+  ezUInt8 m_uiCleanupIterations = 1; ///< Number of topology-cleanup iterations to run after baking (0–4). Higher values remove more spike voxels at the cost of slightly more GPU work.
+
+  ezUInt16 m_uiResolution = 32;      ///< User-selected inner voxels per axis (no border, no alignment). Equals the triangulated cell count.
+  ezUInt16 m_uiPackPitch = 5;        ///< Packed X row count = BufX / 8, where BufX = ((m_uiResolution + 2*border + 7) & ~7). Stride for BakedVoxels.
+  float m_fVoxelSize = 1.0f;         ///< World-space size of one voxel.
+  ezTransform m_GlobalTransform = ezTransform::MakeIdentity();
+
+  /// Final render buffers — written from the shared compact scratch by VoxelCompactCopyCS each rebuild.
+  /// Allocated at worst-case capacity in CreateVoxelTerrain; the copy is GPU-driven (DispatchIndirect)
+  /// so only the used entries are written, and DrawArgs controls the actual draw count.
+  ezGALBufferHandle m_hFinalVertices; ///< StructuredBuffer<VoxelGpuVertex> for rendering.
+  ezGALBufferHandle m_hFinalIndices;  ///< StructuredBuffer<uint> for rendering.
+  /// DrawArgs buffer: 4 uints {IndexCount, 1, 0, 0}. Written by VoxelCompactCopyCS thread 0.
+  ezGALBufferHandle m_hFinalDrawArgs;
+
+  float m_fFillHeight = 0.0f; ///< World-space Z height below which voxels start as solid (when m_bInitialSolid is true).
+  ezTagSet m_Tags;            ///< Identity tags for this voxel volume; matched against brush include-tag filters.
   ezUInt64 m_uiBrushOverlapHash = 0;
 };
 
@@ -245,4 +274,83 @@ private:
   ezShaderResourceHandle m_hTerrainBakeStep1Shader;
   ezShaderResourceHandle m_hTerrainBakeStep2Shader;
   ezShaderResourceHandle m_hTerrainBakeStep3Shader;
+
+  //////////////////////////////////////////////////////////////////////////
+  // Voxel Volumes
+  //////////////////////////////////////////////////////////////////////////
+
+public:
+  /// Allocates GPU buffers and readback helpers for a new voxel terrain piece. Returns a slot index.
+  ezUInt32 CreateVoxelTerrain(ezUInt32 uiResolution, float fVoxelSize);
+  /// Thread-safe: queues the volume for GPU buffer destruction at the start of the next frame.
+  void RemoveVoxelTerrain(ezUInt32 uiIndex);
+
+  /// Returns a mutable reference and marks the volume dirty so it rebakes next frame.
+  ezTerrainData_Voxel& ModifyVoxelTerrain(ezUInt32 uiIndex);
+
+  /// Returns the GPU vertex buffer (StructuredBuffer SRV) for the given voxel volume.
+  ezGALBufferHandle GetVoxelVolumeGpuMeshVertexBuffer(ezUInt32 uiIndex) const;
+
+  /// Returns the GPU index buffer (StructuredBuffer SRV) for the given voxel volume.
+  ezGALBufferHandle GetVoxelVolumeGpuMeshIndexBuffer(ezUInt32 uiIndex) const;
+
+  /// Returns the indirect draw arguments buffer for the given voxel volume.
+  ezGALBufferHandle GetVoxelVolumeGpuMeshDrawArgsBuffer(ezUInt32 uiIndex) const;
+
+  /// Returns the brush overlap hash stored on the voxel volume (updated each bake).
+  /// Returns 0 for invalid indices. Used by export modifiers to detect stale baked files.
+  ezUInt64 GetVoxelBrushOverlapHash(ezUInt32 uiIndex) const;
+
+  /// Bakes the given voxel terrain piece and blocks while reading the mesh back to the CPU.
+  ///
+  /// out_verts / out_indices receive the compacted surface-nets mesh; out_vertexCount and
+  /// out_primitiveCount give the valid element counts (out_indices holds out_primitiveCount*3 indices).
+  /// Must be called from the main/render thread with GPU device access.
+  ezResult ReadbackVoxelData(ezUInt32 uiIndex, ezTempArray<VoxelGpuVertex>& out_verts, ezDynamicArray<ezUInt32>& out_indices, ezUInt32& out_vertexCount, ezUInt32& out_primitiveCount, ezTime timeout = ezTime::MakeFromSeconds(5.0));
+
+private:
+  /// Immediately destroys the GPU buffers for the given slot and marks it free. Not thread-safe; call via RemoveVoxelTerrain.
+  void DestroyVoxelTerrain(ezUInt32& uiIndex);
+
+  /// Adds the full voxel bake pass sequence to graph: solid/SDF bake → SDF blur → topology cleanup iterations
+  /// → surface nets pass 1 and 2 → fill indirect dispatch args → GPU-driven compact copy to final render buffers.
+  void UpdateVoxels(ezUInt32 uiIndex, ezRenderGraph& graph);
+
+  /// (Re)creates the shared voxel bake scratch when the requested dimensions exceed the current capacity, else reuses it.
+  /// Content is valid only within a single bake sequence; one buffer set is shared across all voxel volumes.
+  void EnsureSharedVoxelScratch(ezUInt32 uiPackPitch, ezUInt32 uiBufYZ, ezUInt32 uiResolution);
+
+  void DestroyVoxelVolumes();
+  void DestroySharedVoxelScratch();
+
+  /// Populates brushes with all active brushes whose footprint overlaps the voxel volume's 3D extent,
+  /// sorted in bake order: priority ascending, Carve last within the same priority.
+  void FindVoxelOverlappingBrushes(const ezTerrainData_Voxel& vol, ezDynamicArray<TerrainBrushData>& brushes) const;
+  ezUInt64 ComputeVoxelBrushOverlapHash(const ezTerrainData_Voxel& vol) const;
+
+  ezConstantBufferStorageHandle m_hVoxelBakeConstants;
+  ezDynamicArray<ezTerrainData_Voxel> m_VoxelVolumes;
+  ezHybridArray<ezUInt32, 8> m_QueuedVoxelVolumesToDelete;
+  ezShaderResourceHandle m_hVoxelBakeShader;
+  ezShaderResourceHandle m_hVoxelMeshClearShader;
+  ezShaderResourceHandle m_hVoxelSurfaceNetsPass1Shader;
+  ezShaderResourceHandle m_hVoxelSurfaceNetsPass2Shader;
+  ezShaderResourceHandle m_hVoxelBlurDistShader;
+  ezShaderResourceHandle m_hVoxelCleanupShader;
+  ezShaderResourceHandle m_hVoxelFillCompactCopyArgsShader;
+  ezShaderResourceHandle m_hVoxelCompactCopyShader;
+
+  /// Shared voxel bake scratch — one set reused across all voxel volumes; content is valid only within a single bake sequence.
+  /// Sized to the largest volume seen so far; m_uiSharedVoxel* track the current capacity dimensions.
+  ezGALBufferHandle m_hSharedVoxels;                  ///< Packed solidity bits (uint, 8 voxels per uint along X).
+  ezGALBufferHandle m_hSharedVoxelDist;               ///< Per-voxel SDF (float), unpacked.
+  ezGALBufferHandle m_hSharedVoxelDistScratch;        ///< Ping-pong partner of m_hSharedVoxelDist for blur/cleanup.
+  ezGALBufferHandle m_hSharedMeshRemap;               ///< linearCellIndex → compact vertex slot.
+  ezGALBufferHandle m_hSharedMeshCompactVertices;     ///< Densely packed surface-nets vertices.
+  ezGALBufferHandle m_hSharedMeshIndices;             ///< Surface-nets indices (worst-case cells*18).
+  ezGALBufferHandle m_hSharedMeshCounts;              ///< VoxelMeshCounts, 1 entry.
+  ezGALBufferHandle m_hSharedCompactCopyDispatchArgs; ///< DispatchIndirect args for VoxelCompactCopyCS.
+  ezUInt32 m_uiSharedVoxelPackPitch = 0;
+  ezUInt32 m_uiSharedVoxelBufYZ = 0;
+  ezUInt32 m_uiSharedVoxelResolution = 0;
 };

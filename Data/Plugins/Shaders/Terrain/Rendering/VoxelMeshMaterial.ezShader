@@ -1,0 +1,178 @@
+/// Renders the voxel terrain mesh using triplanar texture projection, blending between a base
+/// material and a brush-painted override material per vertex.
+
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+BLEND_MODE = BLEND_MODE_OPAQUE
+RENDER_PASS
+SHADING_MODE = SHADING_MODE_LIT
+TWO_SIDED = FALSE
+FLIP_WINDING = FALSE
+FORWARD_PASS_WRITE_DEPTH
+MSAA
+CAMERA_MODE
+SHADING_QUALITY
+MATERIAL_PREVIEW
+
+[MATERIALPARAMETER]
+
+Permutation BLEND_MODE;
+Permutation SHADING_MODE;
+Permutation TWO_SIDED;
+
+Texture2DArray LayerBaseTexture;
+Texture2DArray LayerNormalTexture;
+Texture2DArray LayerRoughnessTexture;
+
+/// World-space scale applied to triplanar UVs. Smaller values tile the texture more coarsely.
+float TextureScale @Default(0.5) @Clamp(0.001, 100.0);
+
+float RoughnessBias @Default(0.0) @Clamp(-1.0, 1.0);
+float MetallicValue  @Default(0.0) @Clamp(0.0, 1.0);
+
+int2 Material0TextureIndex @Default(0) @Clamp(0, 255);
+int2 Material1TextureIndex @Default(0) @Clamp(0, 255);
+int2 Material2TextureIndex @Default(0) @Clamp(0, 255);
+int2 Material3TextureIndex @Default(0) @Clamp(0, 255);
+int2 Material4TextureIndex @Default(0) @Clamp(0, 255);
+int2 Material5TextureIndex @Default(0) @Clamp(0, 255);
+int2 Material6TextureIndex @Default(0) @Clamp(0, 255);
+int2 Material7TextureIndex @Default(0) @Clamp(0, 255);
+
+[MATERIALCONFIG]
+
+#include <Shaders/Materials/MaterialConfig.h>
+
+[RENDERSTATE]
+
+#include <Shaders/Materials/MaterialState.h>
+
+[MATERIALCONSTANTS]
+
+FLOAT1(TextureScale);
+FLOAT1(RoughnessBias);
+FLOAT1(MetallicValue);
+
+INT2(Material0TextureIndex);
+INT2(Material1TextureIndex);
+INT2(Material2TextureIndex);
+INT2(Material3TextureIndex);
+INT2(Material4TextureIndex);
+INT2(Material5TextureIndex);
+INT2(Material6TextureIndex);
+INT2(Material7TextureIndex);
+
+[SHADER]
+
+#define USE_NORMAL
+#define USE_TANGENT
+#define USE_TEXCOORD0
+#define USE_SIMPLE_MATERIAL_MODEL
+#define USE_FOG
+#define USE_DECALS
+#define NO_SCREEN_SPACE_TECHNIQUES // deactivate AO on terrain geometry
+
+[VERTEXSHADER]
+
+#define USE_WORLDPOS
+#define USE_DATAOFFSETS
+
+#if MATERIAL_PREVIEW
+
+#include <Shaders/Materials/MaterialVertexShader.h>
+
+VS_OUT main(VS_IN Input)
+{
+  return FillVertexData(Input);
+}
+
+#else
+
+#include <Shaders/Terrain/Rendering/VoxelTerrainVS.h>
+
+VS_OUT main(uint VertexID : SV_VertexID)
+{
+  return FillVoxelTerrainVertexOutput(VertexID);
+}
+
+#endif
+
+[PIXELSHADER]
+
+#define CUSTOM_GLOBALS \
+  float3 TpWeights; \
+  float  Scale;     \
+  uint2  BaseTexIdx; \
+  uint2  OverTexIdx;
+
+#include <Shaders/Materials/MaterialPixelShader.h>
+#include <Shaders/Terrain/Rendering/VoxelMeshRenderConstants.h>
+#include <Shaders/Terrain/Rendering/TerrainLayerSampling.h>
+
+Texture2DArray LayerBaseTexture BIND_GROUP(BG_MATERIAL);
+SamplerState LayerBaseTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
+
+Texture2DArray LayerNormalTexture BIND_GROUP(BG_MATERIAL);
+SamplerState LayerNormalTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
+
+Texture2DArray LayerRoughnessTexture BIND_GROUP(BG_MATERIAL);
+SamplerState LayerRoughnessTexture_AutoSampler BIND_GROUP(BG_MATERIAL);
+
+uint2 LookupTexIndices(uint matSlot)
+{
+  int2 MatTextureIndices[8] = { GetMaterialData(Material0TextureIndex), GetMaterialData(Material1TextureIndex), GetMaterialData(Material2TextureIndex), GetMaterialData(Material3TextureIndex), GetMaterialData(Material4TextureIndex), GetMaterialData(Material5TextureIndex), GetMaterialData(Material6TextureIndex), GetMaterialData(Material7TextureIndex) };
+  return MatTextureIndices[clamp(matSlot, 0u, 7u)];
+}
+
+void FillCustomGlobals()
+{
+  // Use the smooth interpolated normal, not a face normal derived from screen-space derivatives
+  // (cross(ddx, ddy)). A face normal produces piecewise-constant weights, which shows as
+  // visible faceting at triangle edges even when the shading normal is smooth.
+  G.TpWeights = TriplanarWeights(G.Input.Normal);
+  G.Scale = GetMaterialData(TextureScale);
+
+  G.BaseTexIdx = LookupTexIndices(GET_PUSH_CONSTANT(VoxelMeshRenderConstants, BaseMaterialIndex));
+  G.OverTexIdx = LookupTexIndices(G.Input.DataOffsets.y);
+
+  // Downward-facing surfaces use the side texture for the Z projection instead of the top texture.
+  if (G.Input.Normal.z < 0.0)
+  {
+    G.BaseTexIdx = G.BaseTexIdx.yy;
+    G.OverTexIdx = G.OverTexIdx.yy;
+  }
+}
+
+float3 GetNormal()
+{
+  float matStrength = G.Input.TexCoord0.x;
+
+  float3 mainNormal     = TriplanarSampleNormalArray(LayerNormalTexture, LayerNormalTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.BaseTexIdx);
+  float3 overrideNormal = TriplanarSampleNormalArray(LayerNormalTexture, LayerNormalTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.OverTexIdx);
+  return normalize(lerp(mainNormal, overrideNormal, matStrength));
+}
+
+float3 GetBaseColor()
+{
+  float matStrength = G.Input.TexCoord0.x;
+
+  float3 mainColor     = TriplanarSampleColorArray(LayerBaseTexture, LayerBaseTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.BaseTexIdx).rgb;
+  float3 overrideColor = TriplanarSampleColorArray(LayerBaseTexture, LayerBaseTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.OverTexIdx).rgb;
+  return lerp(mainColor, overrideColor, matStrength);
+}
+
+float GetRoughness()
+{
+  float matStrength = G.Input.TexCoord0.x;
+
+  float mainRoughness     = TriplanarSampleColorArray(LayerRoughnessTexture, LayerRoughnessTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.BaseTexIdx).r;
+  float overrideRoughness = TriplanarSampleColorArray(LayerRoughnessTexture, LayerRoughnessTexture_AutoSampler, G.Input.WorldPosition, G.Input.Normal, G.TpWeights, G.Scale, G.OverTexIdx).r;
+  return lerp(mainRoughness, overrideRoughness, matStrength) + GetMaterialData(RoughnessBias);
+}
+
+float  GetMetallic()    { return GetMaterialData(MetallicValue); }
+float  GetReflectance() { return 0.5f; }
+float  GetOpacity()     { return 1.0f; }

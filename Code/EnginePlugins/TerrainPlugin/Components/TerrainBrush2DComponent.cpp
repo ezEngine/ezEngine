@@ -28,6 +28,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezTerrainBrush2DComponent, 1, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("NoiseFrequency", GetNoiseFrequency, SetNoiseFrequency)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(1.0f, 100.0f)),
     EZ_ACCESSOR_PROPERTY("MaterialIndex", GetMaterialIndex, SetMaterialIndex)->AddAttributes(new ezClampValueAttribute(0, 15)),
     EZ_ACCESSOR_PROPERTY("MaterialStrength", GetMaterialStrength, SetMaterialStrength)->AddAttributes(new ezDefaultValueAttribute(0.0f), new ezClampValueAttribute(0.0f, 1.0f)),
+    EZ_ACCESSOR_PROPERTY("AffectPatches", GetAffectPatches, SetAffectPatches)->AddAttributes(new ezDefaultValueAttribute(true)),
+    EZ_ACCESSOR_PROPERTY("AffectVolumes", GetAffectVolumes, SetAffectVolumes)->AddAttributes(new ezDefaultValueAttribute(false)),
     EZ_ACCESSOR_PROPERTY("Priority", GetPriority, SetPriority)->AddAttributes(new ezDefaultValueAttribute((ezInt8)0), new ezClampValueAttribute((ezInt8)-128, (ezInt8)127)),
     EZ_SET_ACCESSOR_PROPERTY("TerrainTags", GetTags, Reflection_SetTag, Reflection_RemoveTag)->AddAttributes(new ezTagSetWidgetAttribute("Terrain")),
   }

@@ -6,4 +6,5 @@ EZ_STATICLINK_LIBRARY(EnginePluginTerrain)
     return;
 
   EZ_STATICLINK_REFERENCE(EnginePluginTerrain_SceneExport_TerrainHeightfieldExportModifier);
+  EZ_STATICLINK_REFERENCE(EnginePluginTerrain_SceneExport_TerrainVoxelExportModifier);
 }

@@ -3,5 +3,6 @@
     <file>ezTerrainPatchComponent.svg</file>
     <file>ezTerrainBrush2DComponent.svg</file>
     <file>ezTerrainBrush3DComponent.svg</file>
+    <file>ezTerrainVolumeComponent.svg</file>
   </qresource>
 </RCC>
