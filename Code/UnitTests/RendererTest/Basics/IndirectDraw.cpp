@@ -11,11 +11,10 @@ static ezRendererTestIndirectDraw s_IndirectDrawTest;
 
 void ezRendererTestIndirectDraw::SetupSubTests()
 {
-  AddSubTest("01 - DrawInstancedIndirect", SubTests::ST_DrawInstancedIndirect);
-  AddSubTest("02 - DrawIndexedInstancedIndirect", SubTests::ST_DrawIndexedInstancedIndirect);
-  AddSubTest("03 - DrawInstancedIndirect StartInstance", SubTests::ST_DrawInstancedIndirectMultiInstance);
-  AddSubTest("04 - DrawIndexedInstancedIndirect Offset", SubTests::ST_DrawIndexedInstancedIndirectOffset);
-  AddSubTest("05 - DispatchIndirect", SubTests::ST_DispatchIndirect);
+  AddSubTest("DrawInstancedIndirect", SubTests::ST_DrawInstancedIndirect);
+  AddSubTest("DrawIndexedInstancedIndirect", SubTests::ST_DrawIndexedInstancedIndirect);
+  AddSubTest("DrawIndexedInstancedIndirect Offset", SubTests::ST_DrawIndexedInstancedIndirectOffset);
+  AddSubTest("DispatchIndirect", SubTests::ST_DispatchIndirect);
 }
 
 ezResult ezRendererTestIndirectDraw::InitializeSubTest(ezInt32 iIdentifier)
@@ -84,16 +83,8 @@ ezResult ezRendererTestIndirectDraw::DeInitializeSubTest(ezInt32 iIdentifier)
   m_hTriangleMesh.Invalidate();
   m_hIndexedTriangleMesh.Invalidate();
 
-  if (!m_hIndirectArgsBuffer.IsInvalidated())
-  {
-    m_pDevice->DestroyBuffer(m_hIndirectArgsBuffer);
-    m_hIndirectArgsBuffer.Invalidate();
-  }
-  if (!m_hDispatchOutputTexture.IsInvalidated())
-  {
-    m_pDevice->DestroyTexture(m_hDispatchOutputTexture);
-    m_hDispatchOutputTexture.Invalidate();
-  }
+  m_pDevice->DestroyBuffer(m_hIndirectArgsBuffer);
+  m_pDevice->DestroyTexture(m_hDispatchOutputTexture);
 
   ezGPUResourcePool::SetDefaultInstance(nullptr);
   DestroyWindow();
@@ -115,9 +106,6 @@ ezTestAppRun ezRendererTestIndirectDraw::RunSubTest(ezInt32 iIdentifier, ezUInt3
       break;
     case ST_DrawIndexedInstancedIndirect:
       DrawIndexedInstancedIndirect();
-      break;
-    case ST_DrawInstancedIndirectMultiInstance:
-      DrawInstancedIndirectStartInstance();
       break;
     case ST_DrawIndexedInstancedIndirectOffset:
       DrawIndexedInstancedIndirectOffset();
@@ -184,32 +172,6 @@ void ezRendererTestIndirectDraw::DrawIndexedInstancedIndirect()
     pContext->BindMeshBuffer(m_hIndexedTriangleMesh);
     pContext->ApplyContextStates().AssertSuccess();
     m_pEncoder->DrawIndexedInstancedIndirect(m_hIndirectArgsBuffer, 0).AssertSuccess();
-
-    EndRendering();
-  }
-
-  CaptureImage();
-  EndCommands();
-}
-
-void ezRendererTestIndirectDraw::DrawInstancedIndirectStartInstance()
-{
-  ezRenderContext* pContext = ezRenderContext::GetDefaultInstance();
-
-  BeginCommands("DrawInstancedIndirectMulti");
-
-  FillIndirectArgsViaCompute(6, 2, 0, 2);
-
-  TransitionBuffer(m_hIndirectArgsBuffer, ezGALResourceState::DrawIndirect);
-  TransitionTexture(GetBackbuffer(), ezGALResourceState::RenderTarget);
-
-  {
-    BeginRendering(ezColor::Black);
-
-    pContext->BindShader(m_hInstancedDrawShader);
-    pContext->BindNullMeshBuffer(ezGALPrimitiveTopology::Triangles, 1);
-    pContext->ApplyContextStates().AssertSuccess();
-    m_pEncoder->DrawInstancedIndirect(m_hIndirectArgsBuffer, 0).AssertSuccess();
 
     EndRendering();
   }

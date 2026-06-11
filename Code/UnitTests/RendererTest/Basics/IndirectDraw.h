@@ -12,7 +12,6 @@ private:
   {
     ST_DrawInstancedIndirect,
     ST_DrawIndexedInstancedIndirect,
-    ST_DrawInstancedIndirectMultiInstance,
     ST_DrawIndexedInstancedIndirectOffset,
     ST_DispatchIndirect,
   };
@@ -29,7 +28,6 @@ private:
 
   void DrawInstancedIndirect();
   void DrawIndexedInstancedIndirect();
-  void DrawInstancedIndirectStartInstance();
   void DrawIndexedInstancedIndirectOffset();
   void DispatchIndirect();
 
