@@ -13,8 +13,7 @@ ezGALGraphicsPipelineVulkan::ezGALGraphicsPipelineVulkan(const ezGALGraphicsPipe
 {
 }
 
-ezGALGraphicsPipelineVulkan::~ezGALGraphicsPipelineVulkan()
-= default;
+ezGALGraphicsPipelineVulkan::~ezGALGraphicsPipelineVulkan() = default;
 
 ezResult ezGALGraphicsPipelineVulkan::InitPlatform(ezGALDevice* pDevice)
 {

@@ -13,8 +13,7 @@ ezGALComputePipelineVulkan::ezGALComputePipelineVulkan(const ezGALComputePipelin
 {
 }
 
-ezGALComputePipelineVulkan::~ezGALComputePipelineVulkan()
-= default;
+ezGALComputePipelineVulkan::~ezGALComputePipelineVulkan() = default;
 
 ezResult ezGALComputePipelineVulkan::InitPlatform(ezGALDevice* pDevice)
 {

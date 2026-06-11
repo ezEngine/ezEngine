@@ -19,8 +19,7 @@ ezGALSharedTextureVulkan::ezGALSharedTextureVulkan(const ezGALTextureCreationDes
 {
 }
 
-ezGALSharedTextureVulkan::~ezGALSharedTextureVulkan()
-= default;
+ezGALSharedTextureVulkan::~ezGALSharedTextureVulkan() = default;
 
 ezResult ezGALSharedTextureVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData)
 {
