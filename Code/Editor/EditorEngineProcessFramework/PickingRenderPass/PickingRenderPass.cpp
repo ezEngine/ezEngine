@@ -88,13 +88,11 @@ ezStatus ezPickingRenderPass::AddRenderPasses(const ezViewData& viewData, const 
     pass.HasSideEffects();
     ezClusteredDataGPU::AddReadDependencies(ref_graph, pass, viewData.m_uiSkyIrradianceIndex, viewData.m_CameraUsageHint);
 
-    DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::LitOpaqueStatic, ref_graph, pass);
-    DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::LitOpaqueDynamic, ref_graph, pass);
-    DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::LitMaskedStatic, ref_graph, pass);
-    DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::LitMaskedDynamic, ref_graph, pass);
+    DeclareRendererDependenciesForCategory(s_LitOpaqueWithoutSelection, ref_graph, pass);
+    DeclareRendererDependenciesForCategory(s_LitMaskedWithoutSelection, ref_graph, pass);
     if (m_bPickTransparent)
     {
-      DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::LitTransparent, ref_graph, pass);
+      DeclareRendererDependenciesForCategory(s_LitTransparentWithoutSelection, ref_graph, pass);
       DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::LitForeground, ref_graph, pass);
     }
     if (m_bPickSelected)
@@ -104,7 +102,7 @@ ezStatus ezPickingRenderPass::AddRenderPasses(const ezViewData& viewData, const 
     DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::SimpleOpaque, ref_graph, pass);
     if (m_bPickTransparent)
     {
-      DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::SimpleTransparent, ref_graph, pass);
+      DeclareRendererDependenciesForCategory(s_SimpleTransparentWithoutSelection, ref_graph, pass);
     }
     DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::SimpleForeground, ref_graph, pass);
 
@@ -440,6 +438,20 @@ void ezPickingRenderPass::ProcessPickingRenderData(ezExtractedRenderData& extrac
         continue;
 
       extractedRenderData.AddRenderData(pRenderData, filteredCategory);
+    }
+
+    ezArrayPtr<const ezTextureDependency> textureDependencies = extractedRenderData.GetTextureDependenciesWithCategory(originalCategory);
+    for (ezTextureDependency dependency : textureDependencies)
+    {
+      dependency.m_uiCategory = filteredCategory.m_uiValue;
+      extractedRenderData.AddDependency(dependency);
+    }
+
+    ezArrayPtr<const ezBufferDependency> bufferDependencies = extractedRenderData.GetBufferDependenciesWithCategory(originalCategory);
+    for (ezBufferDependency dependency : bufferDependencies)
+    {
+      dependency.m_uiCategory = filteredCategory.m_uiValue;
+      extractedRenderData.AddDependency(dependency);
     }
   };
 
