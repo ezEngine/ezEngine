@@ -364,4 +364,3 @@ void ezRendererTestIndirectDraw::CaptureImage()
     EZ_TEST_IMAGE(m_iFrame, 100);
   }
 }
-
