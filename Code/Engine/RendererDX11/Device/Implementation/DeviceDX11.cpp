@@ -944,9 +944,11 @@ ezResult ezGALDeviceDX11::LockTexturePlatform(const ezGALReadbackTexture* pTextu
       switch (pTexture->GetDescription().m_Type)
       {
         case ezGALTextureType::Texture2D:
+        case ezGALTextureType::Texture2DArray:
         case ezGALTextureType::Texture2DProxy:
         case ezGALTextureType::Texture2DShared:
         case ezGALTextureType::TextureCube:
+        case ezGALTextureType::TextureCubeArray:
           memDesc.m_pData = ezMakeByteBlobPtr(Mapped.pData, Mapped.RowPitch * pTexture->GetDescription().m_uiHeight);
           memDesc.m_uiRowPitch = Mapped.RowPitch;
           memDesc.m_uiSlicePitch = 0;
@@ -956,6 +958,7 @@ ezResult ezGALDeviceDX11::LockTexturePlatform(const ezGALReadbackTexture* pTextu
           memDesc.m_uiSlicePitch = Mapped.DepthPitch;
           break;
         default:
+          EZ_ASSERT_NOT_IMPLEMENTED;
           break;
       }
     }
