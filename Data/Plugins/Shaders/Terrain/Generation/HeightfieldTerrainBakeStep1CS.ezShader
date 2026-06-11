@@ -135,7 +135,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
       if (ModifyMode == ezTerrainModifyMode_Carve)
       {
         // Only deactivate vertices past the outer blend ring; vertices in the outermost GridSpacing stay active for a clean silhouette.
-        if (distanceToBrush + OuterRadius <= GridSpacing)
+        if (distanceToBrush + OuterRadius <= 0.5 * GridSpacing)
         {
           MarkVertexDeactivated(matIdx0, matWgt0, matIdx1, matWgt1, matIdx2, matWgt2, matIdx3, matWgt3);
         }

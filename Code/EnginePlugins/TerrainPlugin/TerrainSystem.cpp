@@ -242,7 +242,6 @@ ezGALBufferHandle ezTerrainSystem::CreateBrushBuffer(ezDynamicArray<TerrainBrush
   brushDesc.m_uiStructSize = sizeof(TerrainBrushData);
   brushDesc.m_uiTotalSize = brushes.GetCount() * sizeof(TerrainBrushData);
   brushDesc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
-  brushDesc.m_ResourceAccess.m_bImmutable = false;
 
   return pDevice->CreateBuffer(brushDesc, ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(brushes.GetData()), brushes.GetCount() * sizeof(TerrainBrushData)));
 }
@@ -337,30 +336,10 @@ void ezTerrainSystem::DestroyHeightfieldTerrain(ezUInt32& uiIdx)
   uiIdx = ezInvalidIndex;
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-
-  if (!data.m_hBakedHeights.IsInvalidated())
-  {
-    pDevice->DestroyBuffer(data.m_hBakedHeights);
-    data.m_hBakedHeights.Invalidate();
-  }
-
-  if (!data.m_hBakedNormals.IsInvalidated())
-  {
-    pDevice->DestroyBuffer(data.m_hBakedNormals);
-    data.m_hBakedNormals.Invalidate();
-  }
-
-  if (!data.m_hCellMaterials.IsInvalidated())
-  {
-    pDevice->DestroyBuffer(data.m_hCellMaterials);
-    data.m_hCellMaterials.Invalidate();
-  }
-
-  if (!data.m_hVertexWeights.IsInvalidated())
-  {
-    pDevice->DestroyBuffer(data.m_hVertexWeights);
-    data.m_hVertexWeights.Invalidate();
-  }
+  pDevice->DestroyBuffer(data.m_hBakedHeights);
+  pDevice->DestroyBuffer(data.m_hBakedNormals);
+  pDevice->DestroyBuffer(data.m_hCellMaterials);
+  pDevice->DestroyBuffer(data.m_hVertexWeights);
 
   data.m_bInUse = false;
 }
@@ -564,14 +543,10 @@ void ezTerrainSystem::DestroyHeightfields()
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   for (auto& patch : m_Heightfields)
   {
-    if (!patch.m_hBakedHeights.IsInvalidated())
-      pDevice->DestroyBuffer(patch.m_hBakedHeights);
-    if (!patch.m_hBakedNormals.IsInvalidated())
-      pDevice->DestroyBuffer(patch.m_hBakedNormals);
-    if (!patch.m_hCellMaterials.IsInvalidated())
-      pDevice->DestroyBuffer(patch.m_hCellMaterials);
-    if (!patch.m_hVertexWeights.IsInvalidated())
-      pDevice->DestroyBuffer(patch.m_hVertexWeights);
+    pDevice->DestroyBuffer(patch.m_hBakedHeights);
+    pDevice->DestroyBuffer(patch.m_hBakedNormals);
+    pDevice->DestroyBuffer(patch.m_hCellMaterials);
+    pDevice->DestroyBuffer(patch.m_hVertexWeights);
   }
   m_Heightfields.Clear();
 }
@@ -579,12 +554,8 @@ void ezTerrainSystem::DestroyHeightfields()
 void ezTerrainSystem::DestroySharedHeightfieldScratch()
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  pDevice->DestroyBuffer(m_hHeightfieldSharedMask);
 
-  if (!m_hHeightfieldSharedMask.IsInvalidated())
-  {
-    pDevice->DestroyBuffer(m_hHeightfieldSharedMask);
-    m_hHeightfieldSharedMask.Invalidate();
-  }
   m_uiHeightfieldSharedMaskStoredSize = 0;
 }
 
@@ -645,10 +616,9 @@ void ezTerrainSystem::UpdateHeightfield(ezUInt32 uiIndex, ezRenderGraph& graph)
   // The intermediate mask is shared bake scratch — grow it to fit this patch's stored grid.
   EnsureSharedHeightfieldScratch(uiStoredSize);
 
-  // Import all buffers into the graph. Transient buffers start in ShaderResource (default for SRV-only).
-  // Persistent bake buffers default to UnorderedAccess (they have both SRV and UAV flags).
-  auto hGraphSrc = graph.ImportBuffer(hSourceBuffer, ezGALResourceState::ShaderResource);
-  auto hGraphBrush = graph.ImportBuffer(hBrushBuffer, ezGALResourceState::ShaderResource);
+  // Import all buffers into the graph.
+  auto hGraphSrc = graph.ImportBuffer(hSourceBuffer);
+  auto hGraphBrush = graph.ImportBuffer(hBrushBuffer);
   auto hGraphBakedH = graph.ImportBuffer(patch.m_hBakedHeights);
   auto hGraphBakedM = graph.ImportBuffer(m_hHeightfieldSharedMask);
   auto hGraphBakedN = graph.ImportBuffer(patch.m_hBakedNormals);

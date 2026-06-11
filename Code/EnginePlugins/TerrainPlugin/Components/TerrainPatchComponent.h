@@ -86,8 +86,8 @@ public:
   void SetHeightImageSize(ezVec2 vSize);                     // [ property ]
 
   /// Multiplier applied to the [0, 1] greyscale sample to produce a world-space height.
-  float GetHeightScale() const { return m_fHeightScale; }                           // [ property ]
-  void SetHeightScale(float fScale);                                                // [ property ]
+  float GetHeightImageScale() const { return m_fHeightScale; }                      // [ property ]
+  void SetHeightImageScale(float fScale);                                           // [ property ]
 
   void SetCollider(ezEnum<ezTerrainPatchColliderMode> mode);                        // [ property ]
   ezEnum<ezTerrainPatchColliderMode> GetCollider() const { return m_ColliderMode; } // [ property ]
