@@ -403,9 +403,6 @@ void ezGALCommandEncoder::UpdateTexture(ezGALTextureHandle hDest, const ezGALTex
   if (pDest != nullptr)
   {
     EZ_ASSERT_DEBUG(!pDest->GetDescription().m_ResourceAccess.m_bImmutable, "Can't update immutable textures");
-#if EZ_ENABLED(EZ_BARRIER_VALIDATION)
-    ValidateTextureState(hDest, MakeSingleSubresourceRange(destinationSubResource), ezGALResourceState::CopyDestination, ezGALShaderStageFlags::Auto).IgnoreResult();
-#endif
     m_Stats.m_uiUpdateTexture++;
     m_CommonImpl.UpdateTexturePlatform(pDest, destinationSubResource, destinationBox, sourceData);
   }

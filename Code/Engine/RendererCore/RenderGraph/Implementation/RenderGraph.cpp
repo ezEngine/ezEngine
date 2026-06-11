@@ -72,6 +72,7 @@ const ezGALBufferCreationDescription& ezRenderGraph::GetBufferDesc(ezRenderGraph
 
 ezRenderGraphTextureHandle ezRenderGraph::ImportTexture(ezGALTextureHandle hTexture, ezBitflags<ezGALResourceState> access, ezBitflags<ezGALShaderStageFlags> stage)
 {
+  EZ_ASSERT_DEBUG(m_RenderGraphState == RenderGraphState::Recording, "Operation only allowed between Reset and EnqueueRenderGraph");
   if (ezRenderGraphTextureHandle* hGraphTexture = m_ImportTextureToHandle.GetValue(hTexture))
   {
     // Replace the access state and stage flags on re-import.
@@ -104,6 +105,7 @@ ezRenderGraphTextureHandle ezRenderGraph::ImportTexture(ezGALTextureHandle hText
 
 ezRenderGraphBufferHandle ezRenderGraph::ImportBuffer(ezGALBufferHandle hBuffer, ezBitflags<ezGALResourceState> access, ezBitflags<ezGALShaderStageFlags> stage)
 {
+  EZ_ASSERT_DEBUG(m_RenderGraphState == RenderGraphState::Recording, "Operation only allowed between Reset and EnqueueRenderGraph");
   if (ezRenderGraphBufferHandle* hGraphBuffer = m_ImportBufferToHandle.GetValue(hBuffer))
   {
     // Replace the access state and stage flags on re-import.
@@ -136,8 +138,8 @@ ezRenderGraphBufferHandle ezRenderGraph::ImportBuffer(ezGALBufferHandle hBuffer,
 
 ezStatus ezRenderGraph::ReplaceImportedTexture(ezRenderGraphTextureHandle hGraphTexture, ezGALTextureHandle hNewTexture)
 {
-  // if (m_RenderGraphState == RenderGraphState::Recording)
-  //   return EZ_FAILURE;
+  EZ_ASSERT_DEBUG(m_RenderGraphState == RenderGraphState::Recording, "Operation only allowed between Reset and EnqueueRenderGraph");
+
   auto it = m_HandleToImportTexture.Find(hGraphTexture);
   // New texture must not be already registered.
   if (m_ImportTextureToHandle.Find(hNewTexture).IsValid())
@@ -189,10 +191,6 @@ ezStatus ezRenderGraph::ReplaceImportedTexture(ezRenderGraphTextureHandle hGraph
   // Is the target graph texture not imported yet?
   if (!it.IsValid())
   {
-    // If we elevate a temp texture to an imported texture, we need to clear all precomputations as they become invalid.
-    if (m_RenderGraphState != RenderGraphState::Recording)
-      ResetInternal(RenderGraphState::Recorded);
-
     oldDesc = newDesc;
     m_HandleToImportTexture.Insert(hGraphTexture, ImportedTexture{hNewTexture, newDesc.GetDefaultState(), ezGALShaderStageFlags::Auto});
     m_ImportTextureToHandle.Insert(hNewTexture, hGraphTexture);
@@ -206,14 +204,6 @@ ezStatus ezRenderGraph::ReplaceImportedTexture(ezRenderGraphTextureHandle hGraph
   it.Value().m_hTextureHandle = hNewTexture;
   m_ImportTextureToHandle[hNewTexture] = hGraphTexture;
 
-  // Patch AllocateTransientResources output
-  if (m_RenderGraphState >= RenderGraphState::Intermediate)
-  {
-    const ezUInt16 uiResolvedTextureIndex = m_TextureToResolvedTexture[hGraphTexture.m_InternalId.m_InstanceIndex];
-    m_ResolvedTextures[uiResolvedTextureIndex] = hNewTexture;
-  }
-
-  ResetInternal(RenderGraphState::Intermediate);
   return EZ_SUCCESS;
 }
 
@@ -270,20 +260,15 @@ void ezRenderGraph::Reset()
 ezResult ezRenderGraph::Compile()
 {
   EZ_PROFILE_SCOPE("Compile");
-  if (m_RenderGraphState < RenderGraphState::Intermediate)
+
+  if (m_RenderGraphState < RenderGraphState::Compiled)
   {
     EZ_SUCCEED_OR_RETURN(ValidateGraph());
     BuildDependencyGraph();
     CullDeadPasses();
     BuildSortedPassList();
-
     ComputeResourceLifetimes();
     AllocateTransientResources();
-    m_RenderGraphState = RenderGraphState::Intermediate;
-  }
-
-  if (m_RenderGraphState < RenderGraphState::Compiled)
-  {
     BuildRenderingSetups();
     m_RenderGraphState = RenderGraphState::Compiled;
   }
@@ -514,10 +499,7 @@ void ezRenderGraph::ResetInternal(RenderGraphState renderGraphState)
   {
     // Reset compile state
     m_CompiledPasses.Clear();
-  }
 
-  if (renderGraphState < RenderGraphState::Intermediate)
-  {
     // Reset intermediate state
     m_AdjacencyStorage.Clear();
     m_Alive.Clear();
@@ -540,7 +522,7 @@ void ezRenderGraph::ResetInternal(RenderGraphState renderGraphState)
     m_pAllocator->FreeResources();
   }
 
-  if (renderGraphState < RenderGraphState::Recorded)
+  if (renderGraphState < RenderGraphState::Enqueued)
   {
     // Reset recording state
     m_pCurrentPass = nullptr;

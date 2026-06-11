@@ -399,23 +399,24 @@ void ezTextureUtils::CopySubResourceToImage(const ezGALTextureCreationDescriptio
 
   out_image.ResetAndAlloc(header);
 
-  if (headerTemp.GetRowPitch() == memory.m_uiRowPitch)
+  if (header.GetRowPitch() == memory.m_uiRowPitch)
   {
     const void* pSource = memory.m_pData.GetPtr();
     ezUInt8* pDest = out_image.GetPixelPointer<ezUInt8>();
-    ezUInt32 uiSize = header.GetHeight() * ezGALResourceFormat::GetBitsPerElement(desc.m_Format) * header.GetWidth() / 8;
+    ezUInt32 uiSize = static_cast<ezUInt32>(header.GetDepthPitch());
     EZ_ASSERT_DEBUG(uiSize <= memory.m_pData.GetCount(), "Not enough data in the buffer to create image");
     memcpy(pDest, pSource, uiSize);
   }
   else
   {
     // Copy row by row
-    const ezUInt32 uiHeight = header.GetHeight();
+    const ezUInt32 uiHeight = header.GetNumBlocksY();
+    const ezUInt32 uiRowSize = static_cast<ezUInt32>(header.GetRowPitch());
     for (ezUInt32 y = 0; y < uiHeight; ++y)
     {
       const void* pSource = ezMemoryUtils::AddByteOffset(memory.m_pData.GetPtr(), y * memory.m_uiRowPitch);
       ezUInt8* pDest = out_image.GetPixelPointer<ezUInt8>(0, 0, 0, 0, y);
-      memcpy(pDest, pSource, ezGALResourceFormat::GetBitsPerElement(desc.m_Format) * header.GetWidth() / 8);
+      memcpy(pDest, pSource, uiRowSize);
     }
   }
 }
@@ -434,7 +435,7 @@ ezImageView ezTextureUtils::MakeImageViewFromSubResource(const ezGALTextureCreat
   header.SetWidth(headerTemp.GetWidth(subResource.m_uiMipLevel));
   header.SetHeight(headerTemp.GetHeight(subResource.m_uiMipLevel));
 
-  if (headerTemp.GetRowPitch() == memory.m_uiRowPitch)
+  if (header.GetRowPitch() == memory.m_uiRowPitch)
   {
     view.ResetAndViewExternalStorage(header, memory.m_pData);
   }

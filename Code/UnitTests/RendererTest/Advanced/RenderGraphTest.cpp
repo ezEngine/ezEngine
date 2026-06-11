@@ -326,14 +326,14 @@ void ezRenderGraphTest::ImportReplace()
     pass.SetExecuteCallback(NoopCallback());
   }
 
-  // Compile so that resolved textures are available.
-  EZ_TEST_RESULT(graph.Compile());
-
   // Replace A with B (matching description, B not yet imported) -> should succeed.
   EZ_TEST_BOOL(graph.ReplaceImportedTexture(hImportA, hGPUTexB).Succeeded());
 
   // Replace A (now pointing to B) with a different format -> should fail.
   EZ_TEST_BOOL(graph.ReplaceImportedTexture(hImportA, hGPUTexDiff).Failed());
+
+  // Compile so that resolved textures are available.
+  EZ_TEST_RESULT(graph.Compile());
 
   // After replace, re-compiling and executing should use the new texture (B).
   ezGALTextureHandle hResolved;

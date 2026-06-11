@@ -1,0 +1,20 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[COMPUTESHADER]
+
+#include "IndirectArgs.h"
+
+RWByteAddressBuffer IndirectArgsBuffer;
+
+[numthreads(1, 1, 1)]
+void main()
+{
+  IndirectArgsBuffer.Store(0, GET_PUSH_CONSTANT(ezIndirectArgs, Arg0));
+  IndirectArgsBuffer.Store(4, GET_PUSH_CONSTANT(ezIndirectArgs, Arg1));
+  IndirectArgsBuffer.Store(8, GET_PUSH_CONSTANT(ezIndirectArgs, Arg2));
+  IndirectArgsBuffer.Store(12, GET_PUSH_CONSTANT(ezIndirectArgs, Arg3));
+  IndirectArgsBuffer.Store(16, GET_PUSH_CONSTANT(ezIndirectArgs, Arg4));
+}

@@ -238,7 +238,7 @@ ezGALCommandEncoder* ezGALDevice::BeginCommands(const char* szName)
   }
   {
     EZ_GALDEVICE_LOCK_AND_CHECK();
-
+    EZ_ASSERT_DEV(m_bBeginFrameCalled, "BeginCommands is only allowed to be called within a BeginFrame / EndFrame scope");
     EZ_ASSERT_DEV(m_pCommandEncoder == nullptr, "Nested Passes are not allowed: You must call ezGALDevice::EndCommands before you can call ezGALDevice::BeginCommands again");
     m_pCommandEncoder = BeginCommandsPlatform(szName);
   }
@@ -1296,33 +1296,45 @@ void ezGALDevice::UpdateTextureForNextFrame(ezGALTextureHandle hTexture, const e
   if (const ezGALTexture* pTexture = GetTexture(hTexture))
   {
     auto& desc = pTexture->GetDescription();
-    EZ_ASSERT_DEBUG(!desc.m_ResourceAccess.m_bImmutable, "Can't update immutable buffers");
+    EZ_ASSERT_DEBUG(!desc.m_ResourceAccess.m_bImmutable, "Can't update immutable textures");
+    const ezVec3U32 vMipSize = pTexture->GetMipMapSize(destinationSubResource.m_uiMipLevel);
     const bool bDestBoxIsValid = destinationBox.IsValid() && destinationBox.GetExtents().IsZero() == false;
-    if (bDestBoxIsValid && (destinationBox.m_vMax.x > desc.m_uiWidth || destinationBox.m_vMax.y > desc.m_uiHeight || destinationBox.m_vMax.z > desc.m_uiDepth))
+    if (bDestBoxIsValid && (destinationBox.m_vMax.x > vMipSize.x || destinationBox.m_vMax.y > vMipSize.y || destinationBox.m_vMax.z > vMipSize.z))
     {
       ezLog::Error("Trying to update texture outside of its bounds!");
       return;
     }
 
-    const ezUInt32 uiWidth = bDestBoxIsValid ? ezMath::Max(destinationBox.m_vMax.x - destinationBox.m_vMin.x, 1u) : desc.m_uiWidth;
-    const ezUInt32 uiHeight = bDestBoxIsValid ? ezMath::Max(destinationBox.m_vMax.y - destinationBox.m_vMin.y, 1u) : desc.m_uiHeight;
-    const ezUInt32 uiDepth = bDestBoxIsValid ? ezMath::Max(destinationBox.m_vMax.z - destinationBox.m_vMin.z, 1u) : desc.m_uiDepth;
+    const ezUInt32 uiWidth = bDestBoxIsValid ? ezMath::Max(destinationBox.m_vMax.x - destinationBox.m_vMin.x, 1u) : vMipSize.x;
+    const ezUInt32 uiHeight = bDestBoxIsValid ? ezMath::Max(destinationBox.m_vMax.y - destinationBox.m_vMin.y, 1u) : vMipSize.y;
+    const ezUInt32 uiDepth = bDestBoxIsValid ? ezMath::Max(destinationBox.m_vMax.z - destinationBox.m_vMin.z, 1u) : vMipSize.z;
 
-    const ezUInt32 uiRowPitch = uiWidth * ezGALResourceFormat::GetBitsPerElement(desc.m_Format) / 8;
-    const ezUInt32 uiSlicePitch = uiRowPitch * uiHeight;
-    if (sourceData.m_uiRowPitch != uiRowPitch)
+    const bool bBlockCompressed = ezGALResourceFormat::IsBlockCompressed(desc.m_Format);
+    const ezUInt32 uiBlockWidth = bBlockCompressed ? 4u : 1u;
+    const ezUInt32 uiBlockHeight = bBlockCompressed ? 4u : 1u;
+    const ezUInt32 uiBlockDepth = 1u;
+    const ezUInt32 uiBlockCountX = (uiWidth + uiBlockWidth - 1) / uiBlockWidth;
+    const ezUInt32 uiBlockCountY = (uiHeight + uiBlockHeight - 1) / uiBlockHeight;
+    const ezUInt32 uiBlockCountZ = (uiDepth + uiBlockDepth - 1) / uiBlockDepth;
+    const ezUInt32 uiBytesPerBlock = ezGALResourceFormat::GetBitsPerElement(desc.m_Format) * uiBlockWidth * uiBlockHeight * uiBlockDepth / 8;
+
+    const ezUInt32 uiTightRowPitch = uiBlockCountX * uiBytesPerBlock;
+    if (sourceData.m_uiRowPitch < uiTightRowPitch)
     {
-      ezLog::Error("Invalid row pitch. Expected {0} got {1}", uiRowPitch, sourceData.m_uiRowPitch);
+      ezLog::Error("Invalid row pitch. Expected at least {0} got {1}", uiTightRowPitch, sourceData.m_uiRowPitch);
       return;
     }
 
-    if (sourceData.m_uiSlicePitch != 0 && sourceData.m_uiSlicePitch != uiSlicePitch)
+    const ezUInt32 uiMinSlicePitch = sourceData.m_uiRowPitch * uiBlockCountY;
+    if (sourceData.m_uiSlicePitch != 0 && sourceData.m_uiSlicePitch < uiMinSlicePitch)
     {
-      ezLog::Error("Invalid slice pitch. Expected {0} got {1}", uiSlicePitch, sourceData.m_uiSlicePitch);
+      ezLog::Error("Invalid slice pitch. Expected at least {0} got {1}", uiMinSlicePitch, sourceData.m_uiSlicePitch);
       return;
     }
 
-    if (sourceData.m_pData.GetCount() < uiSlicePitch * uiDepth)
+    const ezUInt32 uiSlicePitch = sourceData.m_uiSlicePitch != 0 ? sourceData.m_uiSlicePitch : uiMinSlicePitch;
+
+    if (sourceData.m_pData.GetCount() < uiSlicePitch * uiBlockCountZ)
     {
       ezLog::Error("Not enough data provided to update texture");
       return;
@@ -1342,7 +1354,7 @@ void ezGALDevice::UpdateTextureForNextFrame(ezGALTextureHandle hTexture, const e
     else
     {
       finalDestBox.m_vMin = ezVec3U32(0, 0, 0);
-      finalDestBox.m_vMax = ezVec3U32(desc.m_uiWidth, desc.m_uiHeight, desc.m_uiDepth);
+      finalDestBox.m_vMax = vMipSize;
     }
 
     UpdateTextureForNextFramePlatform(pTexture, finalSourceData, destinationSubResource, finalDestBox);

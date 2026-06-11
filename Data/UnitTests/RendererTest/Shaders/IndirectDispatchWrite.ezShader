@@ -1,0 +1,19 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[COMPUTESHADER]
+
+RWTexture2D<float4> OutputTexture;
+
+[numthreads(8, 8, 1)]
+void main(uint3 dispatchThreadID : SV_DispatchThreadID)
+{
+  uint width, height;
+  OutputTexture.GetDimensions(width, height);
+  if (dispatchThreadID.x >= width || dispatchThreadID.y >= height)
+    return;
+
+  OutputTexture[dispatchThreadID.xy] = float4(1, 0, 0, 1);
+}

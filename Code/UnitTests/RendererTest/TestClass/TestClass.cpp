@@ -254,7 +254,8 @@ void ezGraphicsTest::DestroyWindow()
 
 void ezGraphicsTest::BeginFrame()
 {
-  m_pDevice->EnqueueFrameSwapChain(m_hSwapChain);
+  if (!m_hSwapChain.IsInvalidated())
+    m_pDevice->EnqueueFrameSwapChain(m_hSwapChain);
   m_pDevice->BeginFrame(m_iFrame);
 }
 

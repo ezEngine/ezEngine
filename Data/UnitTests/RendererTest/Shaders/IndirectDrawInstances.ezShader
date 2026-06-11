@@ -1,0 +1,58 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[RENDERSTATE]
+
+DepthTest = false
+CullMode = CullMode_None
+
+[VERTEXSHADER]
+
+struct VS_OUT
+{
+  float4 Position : SV_Position;
+  float4 Color : COLOR0;
+};
+
+VS_OUT main(uint vertexId : SV_VertexID, uint instanceId : SV_InstanceID)
+{
+  float2 corners[6] = {
+    float2(-1.0, -1.0),
+    float2( 1.0, -1.0),
+    float2(-1.0,  1.0),
+    float2(-1.0,  1.0),
+    float2( 1.0, -1.0),
+    float2( 1.0,  1.0)
+  };
+
+  float2 cellCenter = float2((instanceId & 1) ? 0.5 : -0.5, (instanceId & 2) ? 0.5 : -0.5);
+
+  VS_OUT RetVal;
+  RetVal.Position = float4(corners[vertexId] * 0.5 + cellCenter, 0.0, 1.0);
+
+  if (instanceId == 0)
+    RetVal.Color = float4(1.0, 0.0, 0.0, 1.0);
+  else if (instanceId == 1)
+    RetVal.Color = float4(0.0, 1.0, 0.0, 1.0);
+  else if (instanceId == 2)
+    RetVal.Color = float4(0.0, 0.0, 1.0, 1.0);
+  else
+    RetVal.Color = float4(1.0, 1.0, 0.0, 1.0);
+
+  return RetVal;
+}
+
+[PIXELSHADER]
+
+struct VS_OUT
+{
+  float4 Position : SV_Position;
+  float4 Color : COLOR0;
+};
+
+float4 main(VS_OUT a) : SV_Target
+{
+  return a.Color;
+}

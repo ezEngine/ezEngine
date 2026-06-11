@@ -126,6 +126,7 @@ public:
   /// hDest must be in ezGALResourceState::CopyDestination. hSource must be in ezGALResourceState::CopySource.
   void CopyBufferRegion(ezGALBufferHandle hDest, ezUInt32 uiDestOffset, ezGALBufferHandle hSource, ezUInt32 uiSourceOffset, ezUInt32 uiByteCount);
 
+  /// Updates a buffer region. TransientConstantBuffer is only allowed on transient constant buffers. AheadOfTime means the update happens before the encoder commands are executed. No state prerequisites are required.
   void UpdateBuffer(ezGALBufferHandle hDest, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> sourceData, ezGALUpdateMode::Enum updateMode = ezGALUpdateMode::TransientConstantBuffer);
 
   /// hDest must be in ezGALResourceState::CopyDestination. hSource must be in ezGALResourceState::CopySource.
@@ -134,7 +135,7 @@ public:
   /// destinationSubResource of hDest must be in ezGALResourceState::CopyDestination. sourceSubResource of hSource must be in ezGALResourceState::CopySource.
   void CopyTextureRegion(ezGALTextureHandle hDest, const ezGALTextureSubresource& destinationSubResource, const ezVec3U32& vDestinationPoint, ezGALTextureHandle hSource, const ezGALTextureSubresource& sourceSubResource, const ezBoundingBoxu32& box);
 
-  /// destinationSubResource of hDest must be in ezGALResourceState::CopyDestination.
+  /// Updates a texture region. Similar to UpdateBuffer with AheadOfTime. No state prerequisites are required.
   void UpdateTexture(ezGALTextureHandle hDest, const ezGALTextureSubresource& destinationSubResource, const ezBoundingBoxu32& destinationBox, const ezGALSystemMemoryDescription& sourceData);
 
   /// destinationSubResource of hDest must be in ezGALResourceState::ResolveDestination. sourceSubResource of hSource must be in ezGALResourceState::ResolveSource.

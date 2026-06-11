@@ -1,0 +1,54 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[RENDERSTATE]
+
+DepthTest = false
+CullMode = CullMode_None
+
+[VERTEXSHADER]
+
+struct VS_IN
+{
+  float3 Position : POSITION;
+};
+
+struct VS_OUT
+{
+  float4 Position : SV_Position;
+  float4 Color : COLOR0;
+};
+
+VS_OUT main(VS_IN Input, uint instanceId : SV_InstanceID)
+{
+  float2 cellCenter = float2((instanceId & 1) ? 0.5 : -0.5, (instanceId & 2) ? 0.5 : -0.5);
+
+  VS_OUT RetVal;
+  RetVal.Position = float4(Input.Position.xy * 0.5 + cellCenter, 0.0, 1.0);
+
+  if (instanceId == 0)
+    RetVal.Color = float4(1.0, 0.0, 0.0, 1.0);
+  else if (instanceId == 1)
+    RetVal.Color = float4(0.0, 1.0, 0.0, 1.0);
+  else if (instanceId == 2)
+    RetVal.Color = float4(0.0, 0.0, 1.0, 1.0);
+  else
+    RetVal.Color = float4(1.0, 1.0, 0.0, 1.0);
+
+  return RetVal;
+}
+
+[PIXELSHADER]
+
+struct VS_OUT
+{
+  float4 Position : SV_Position;
+  float4 Color : COLOR0;
+};
+
+float4 main(VS_OUT Input) : SV_Target
+{
+  return Input.Color;
+}

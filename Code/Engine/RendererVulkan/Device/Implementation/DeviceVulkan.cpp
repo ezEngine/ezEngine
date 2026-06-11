@@ -111,6 +111,42 @@ namespace
 
     return false;
   }
+
+  struct TextureStagingLayout
+  {
+    ezUInt32 m_uiRowPitch = 0;
+    ezUInt32 m_uiSlicePitch = 0;
+    vk::DeviceSize m_uiUploadSize = 0;
+    ezUInt32 m_uiBufferRowLength = 0;
+    ezUInt32 m_uiBufferImageHeight = 0;
+  };
+
+  TextureStagingLayout ComputeTextureStagingLayout(vk::Format format, const vk::Extent3D& imageExtent, const ezGALSystemMemoryDescription& data)
+  {
+    const ezUInt8 uiBlockSize = vk::blockSize(format);
+    const auto blockExtent = vk::blockExtent(format);
+    const VkExtent3D blockCount = {
+      (imageExtent.width + blockExtent[0] - 1) / blockExtent[0],
+      (imageExtent.height + blockExtent[1] - 1) / blockExtent[1],
+      (imageExtent.depth + blockExtent[2] - 1) / blockExtent[2]};
+
+    TextureStagingLayout layout;
+    const ezUInt32 uiTightRowPitch = uiBlockSize * blockCount.width;
+    layout.m_uiRowPitch = data.m_uiRowPitch;
+    layout.m_uiSlicePitch = data.m_uiSlicePitch != 0 ? data.m_uiSlicePitch : layout.m_uiRowPitch * blockCount.height;
+
+    EZ_ASSERT_DEV(layout.m_uiRowPitch >= uiTightRowPitch, "Row pitch is smaller than the required image row size.");
+    EZ_ASSERT_DEV((layout.m_uiRowPitch % uiBlockSize) == 0, "Row pitch must be a multiple of the format block size.");
+    EZ_ASSERT_DEV(layout.m_uiSlicePitch >= layout.m_uiRowPitch * blockCount.height, "Slice pitch is smaller than the required image slice size.");
+    EZ_ASSERT_DEV((layout.m_uiSlicePitch % layout.m_uiRowPitch) == 0, "Slice pitch must be a multiple of the row pitch.");
+
+    layout.m_uiUploadSize = static_cast<vk::DeviceSize>(layout.m_uiSlicePitch) * blockCount.depth;
+    EZ_ASSERT_DEV(data.m_pData.GetCount() >= layout.m_uiUploadSize, "Not enough source data provided for the described row and slice pitch.");
+
+    layout.m_uiBufferRowLength = blockExtent[0] * layout.m_uiRowPitch / uiBlockSize;
+    layout.m_uiBufferImageHeight = blockExtent[1] * layout.m_uiSlicePitch / layout.m_uiRowPitch;
+    return layout;
+  }
 } // namespace
 
 
@@ -705,24 +741,13 @@ void ezGALDeviceVulkan::UploadTextureStaging(ezGALDeviceVulkan& device, ezStagin
 
   for (ezUInt32 i = 0; i < subResource.layerCount; i++)
   {
-    auto pLayerData = data.m_pData.GetPtr() + i * data.m_uiSlicePitch;
     const vk::Format format = pTexture->GetImageFormat();
-    const ezUInt8 uiBlockSize = vk::blockSize(format);
-    const auto blockExtent = vk::blockExtent(format);
-    const VkExtent3D blockCount = {
-      (imageExtent.width + blockExtent[0] - 1) / blockExtent[0],
-      (imageExtent.height + blockExtent[1] - 1) / blockExtent[1],
-      (imageExtent.depth + blockExtent[2] - 1) / blockExtent[2]};
+    const TextureStagingLayout layout = ComputeTextureStagingLayout(format, imageExtent, data);
+    EZ_ASSERT_DEV(data.m_pData.GetCount() >= (i + 1) * layout.m_uiUploadSize, "Not enough source data provided for the requested texture array layers.");
+    auto pLayerData = data.m_pData.GetPtr() + i * layout.m_uiUploadSize;
 
-    const vk::DeviceSize uiTotalSize = uiBlockSize * blockCount.width * blockCount.height * blockCount.depth;
-    ezStagingBufferVulkan stagingBuffer = pStagingBufferPool->AllocateBuffer(uiTotalSize);
-
-    const ezUInt32 uiBufferRowPitch = uiBlockSize * blockCount.width;
-    const ezUInt32 uiBufferSlicePitch = uiBufferRowPitch * blockCount.height;
-    EZ_ASSERT_DEV(uiBufferRowPitch == data.m_uiRowPitch, "Row pitch with padding is not implemented yet.");
-    EZ_ASSERT_DEV(blockExtent[2] == 1 || uiBufferSlicePitch == data.m_uiSlicePitch, "Row pitch with padding is not implemented yet.");
-
-    ezMemoryUtils::Copy(stagingBuffer.m_Data.GetPtr(), pLayerData, uiTotalSize);
+    ezStagingBufferVulkan stagingBuffer = pStagingBufferPool->AllocateBuffer(layout.m_uiUploadSize);
+    ezMemoryUtils::Copy(stagingBuffer.m_Data.GetPtr(), pLayerData, layout.m_uiUploadSize);
 
     vk::BufferImageCopy region = {};
     region.imageSubresource = subResource;
@@ -730,8 +755,8 @@ void ezGALDeviceVulkan::UploadTextureStaging(ezGALDeviceVulkan& device, ezStagin
     region.imageExtent = imageExtent;
 
     region.bufferOffset = stagingBuffer.m_uiOffset;
-    region.bufferRowLength = blockExtent[0] * uiBufferRowPitch / uiBlockSize;
-    region.bufferImageHeight = blockExtent[1] * uiBufferSlicePitch / uiBufferRowPitch;
+    region.bufferRowLength = layout.m_uiBufferRowLength;
+    region.bufferImageHeight = layout.m_uiBufferImageHeight;
 
     barriers.BufferBarrier(stagingBuffer.m_buffer,
       ezGALResourceState::CpuWrite, ezGALResourceState::CopySource);
@@ -1383,33 +1408,22 @@ void ezGALDeviceVulkan::UpdateTextureForNextFramePlatform(const ezGALTexture* pT
   subresourceLayers.layerCount = 1;
 
   const vk::Format format = pTextureVulkan->GetImageFormat();
-  const ezUInt8 uiBlockSize = vk::blockSize(format);
-  const auto blockExtent = vk::blockExtent(format);
-  const VkExtent3D blockCount = {
-    (imageExtent.width + blockExtent[0] - 1) / blockExtent[0],
-    (imageExtent.height + blockExtent[1] - 1) / blockExtent[1],
-    (imageExtent.depth + blockExtent[2] - 1) / blockExtent[2]};
-  const vk::DeviceSize uiTotalSize = uiBlockSize * blockCount.width * blockCount.height * blockCount.depth;
+  const TextureStagingLayout layout = ComputeTextureStagingLayout(format, imageExtent, sourceData);
 
   ezPendingTextureCopyVulkan& copy = m_PendingTextureCopies.ExpandAndGetRef();
   // The staging pool is a frame allocator, but we explicitly allocate a buffer here that us used at the start of the next frame. To prevent race conditions, there is a delay of one frame inside ezStagingBufferPoolVulkan::AfterBeginFrame to accomodate this fact.
-  copy.m_SrcBuffer = m_pStagingBufferPool->AllocateBuffer(uiTotalSize);
+  copy.m_SrcBuffer = m_pStagingBufferPool->AllocateBuffer(layout.m_uiUploadSize);
 
-  const ezUInt32 uiBufferRowPitch = uiBlockSize * blockCount.width;
-  const ezUInt32 uiBufferSlicePitch = uiBufferRowPitch * blockCount.height;
-  EZ_ASSERT_DEV(uiBufferRowPitch == sourceData.m_uiRowPitch, "Row pitch with padding is not implemented yet.");
-  EZ_ASSERT_DEV(uiBufferSlicePitch == sourceData.m_uiSlicePitch, "Row pitch with padding is not implemented yet.");
-
-  ezMemoryUtils::Copy(copy.m_SrcBuffer.m_Data.GetPtr(), sourceData.m_pData.GetPtr(), uiTotalSize);
+  ezMemoryUtils::Copy(copy.m_SrcBuffer.m_Data.GetPtr(), sourceData.m_pData.GetPtr(), layout.m_uiUploadSize);
 
   copy.m_pDstTexture = pTextureVulkan;
   copy.m_Region.imageSubresource = subresourceLayers;
   copy.m_Region.imageOffset = imageOffset;
   copy.m_Region.imageExtent = imageExtent;
   copy.m_Region.bufferOffset = copy.m_SrcBuffer.m_uiOffset;
-  copy.m_Region.bufferRowLength = blockExtent[0] * uiBufferRowPitch / uiBlockSize;
-  copy.m_Region.bufferImageHeight = blockExtent[1] * uiBufferSlicePitch / uiBufferRowPitch;
-  copy.m_uiTotalSize = uiTotalSize;
+  copy.m_Region.bufferRowLength = layout.m_uiBufferRowLength;
+  copy.m_Region.bufferImageHeight = layout.m_uiBufferImageHeight;
+  copy.m_uiTotalSize = layout.m_uiUploadSize;
 }
 
 ezEnum<ezGALAsyncResult> ezGALDeviceVulkan::GetTimestampResultPlatform(ezGALTimestampHandle hTimestamp, ezTime& result)
@@ -1474,17 +1488,19 @@ ezResult ezGALDeviceVulkan::LockTexturePlatform(const ezGALReadbackTexture* pTex
     const ezUInt32 uiSubresourceIndex = subRes.m_uiMipLevel + subRes.m_uiArraySlice * uiMipLevels;
     const ezGALTextureVulkan::SubResourceOffset offset = subResourceOffsets[uiSubresourceIndex];
     ezGALSystemMemoryDescription& memDesc = out_Memory.ExpandAndGetRef();
+    const vk::Extent3D imageExtent = ezGALTextureVulkan::GetMipLevelSize(textureDesc, subRes.m_uiMipLevel);
     const auto blockExtent = vk::blockExtent(stagingFormat);
     const ezUInt8 uiBlockSize = vk::blockSize(stagingFormat);
+    const ezUInt32 uiBlockDepth = (imageExtent.depth + blockExtent[2] - 1) / blockExtent[2];
 
-    const ezUInt32 uiRowPitch = offset.m_uiRowLength * blockExtent[0] * uiBlockSize;
+    const ezUInt32 uiRowPitch = (offset.m_uiRowLength / blockExtent[0]) * uiBlockSize;
 
     ezUInt8* pSubResourceData = reinterpret_cast<ezUInt8*>(pData) + offset.m_uiOffset;
 
     memDesc.m_pData = ezMakeByteBlobPtr(pSubResourceData, offset.m_uiSize);
     memDesc.m_uiRowPitch = uiRowPitch;
-    memDesc.m_uiSlicePitch = uiRowPitch * offset.m_uiImageHeight;
-    EZ_ASSERT_DEBUG(memDesc.m_uiSlicePitch == offset.m_uiSize, "");
+    memDesc.m_uiSlicePitch = uiRowPitch * (offset.m_uiImageHeight / blockExtent[1]);
+    EZ_ASSERT_DEBUG(memDesc.m_uiSlicePitch * uiBlockDepth == offset.m_uiSize, "");
   }
 
   return EZ_SUCCESS;

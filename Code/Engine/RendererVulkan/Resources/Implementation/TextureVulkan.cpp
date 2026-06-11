@@ -244,7 +244,7 @@ ezUInt32 ezGALTextureVulkan::ComputeSubResourceOffsets(const ezGALDeviceVulkan* 
         (imageExtent.depth + blockExtent[2] - 1) / blockExtent[2]};
 
       const ezUInt32 uiTotalSize = uiBlockSize * blockCount.width * blockCount.height * blockCount.depth;
-      subResourceSizes.PushBack({uiOffset, uiTotalSize, blockCount.width / blockExtent[0], blockCount.height / blockExtent[1]});
+      subResourceSizes.PushBack({uiOffset, uiTotalSize, blockCount.width * blockExtent[0], blockCount.height * blockExtent[1]});
       uiOffset += ezMemoryUtils::AlignSize(uiTotalSize, alignment);
     }
   }

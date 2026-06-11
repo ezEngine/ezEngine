@@ -954,7 +954,6 @@ void ezRendererTestPipelineStates::GenerateMipMaps()
       ezRenderGraphContext ctx(m_pEncoder, m_pDevice, ezRenderContext::GetDefaultInstance());
       pGraph->Execute(ctx);
     }
-    // m_pEncoder->GenerateMipMaps(m_hTexture2D, {});
 
     TransitionTexture(GetBackbuffer(), ezGALResourceState::RenderTarget);
     TransitionTexture(m_hTexture2D, ezGALResourceState::ShaderResource, ezGALTextureRange::MakeFromMipRange(0, 1));

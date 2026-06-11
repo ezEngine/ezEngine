@@ -16,9 +16,9 @@ class ezRenderGraphResourcePool;
 class ezRenderGraphResourceAllocator;
 class ezGALResourceStateTracker;
 
-/// Persistent render graph that can be rebuilt across frames. Contains passes that declare transient resource dependencies. After all passes are added, the graph is compiled to cull unused passes, allocate and alias transient resources, and compute barrier placement, then executed. Passes are always executed in declaration order.
+/// Render graph usable for a single frame. Contains passes that declare transient resource dependencies. After all passes are added, the graph is compiled to cull unused passes, allocate and alias transient resources, and compute barrier placement, then executed. Passes are always executed in declaration order.
 ///
-/// The graph object is designed to persist across the lifetime of the program. Call Reset() before re-declaring passes. Note that only one ezRenderGraphPassBuilder can exist at any time so calls to `Add*Pass` must be scoped individually.
+/// The graph object is designed to persist across the lifetime of the program. Every frame you want to use the graph, call Reset() before re-declaring passes. Note that only one ezRenderGraphPassBuilder can exist at any time so calls to `Add*Pass` must be scoped individually. Finally, call ezRenderGraphManager::EnqueueRenderGraph to submit the graph for execution this frame.
 class EZ_RENDERERCORE_DLL ezRenderGraph : public ezRefCounted
 {
 public:
@@ -68,7 +68,7 @@ public:
   ezRenderGraphBufferHandle ImportBuffer(ezGALBufferHandle hBuffer, ezBitflags<ezGALResourceState> access = ezGALResourceState::Unknown,
     ezBitflags<ezGALShaderStageFlags> stage = ezGALShaderStageFlags::Auto);
 
-  /// Use to replace a swapchain image for minimal cost. If this failed the graph has to be rebuilt as the texture formats do not match. This does not invalidate the compile state.
+  /// Use to replace a graph texture with an actual GPU resource. The `hNewTexture` must not be already imported into the graph. Mainly used when graphs are built greedily and the target swachchain image is not clear at which point it fints into the pipeline. Thus, the graph can be built entirely with transient graph textures and only at the end the replacement can be done. If this call failed the given texture does not fulfil the requirements made to the graph texture.
   ezStatus ReplaceImportedTexture(ezRenderGraphTextureHandle hGraphTexture, ezGALTextureHandle hNewTexture);
 
   ///@}
@@ -94,7 +94,7 @@ public:
   /// \name Compilation & Execution
   ///@{
 
-  /// Clear all declared passes and resources so the graph can be rebuilt.
+  /// Clear all declared passes and resources so the graph can be rebuilt. This is done automatically for enqueued graphs at the end of each frame, but should be called regardless every time you intent to record into the graph.
   void Reset();
 
   /// Checks that all imported textures and buffers still exist on the device. Call before registering the graph each frame to detect stale resources.
@@ -103,7 +103,7 @@ public:
   /// Compile the graph: cull unused passes, allocate and alias transient resources. After this call, no new passes can be added until the graph is reset.
   ezResult Compile();
 
-  /// Compute texture and buffer barriers for each pass based on resource state tracking. Needs to be called every frame as it can't be cached.
+  /// Compute texture and buffer barriers for each pass based on resource state tracking.
   void ComputeBarriers(ezGALResourceStateTracker& ref_tracker);
 
   /// Execute all passes in compiled order.
@@ -130,9 +130,8 @@ private:
   enum class RenderGraphState
   {
     Recording,       // New passes can be added, initial state
-    Recorded,        // No new passes can be added
-    Intermediate,    // BuildDependencyGraph, CullDeadPasses, BuildSortedPassList, ComputeResourceLifetimes, AllocateTransientResources
-    Compiled,        // BuildRenderingSetups
+    Enqueued,        // No new passes can be added.
+    Compiled,        // BuildDependencyGraph, CullDeadPasses, BuildSortedPassList, ComputeResourceLifetimes, AllocateTransientResources, BuildRenderingSetups
     BarriersCreated, // ComputeBarriers
   };
 
