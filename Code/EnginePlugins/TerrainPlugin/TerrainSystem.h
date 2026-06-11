@@ -306,7 +306,7 @@ public:
   /// out_verts / out_indices receive the compacted surface-nets mesh; out_vertexCount and
   /// out_primitiveCount give the valid element counts (out_indices holds out_primitiveCount*3 indices).
   /// Must be called from the main/render thread with GPU device access.
-  ezResult ReadbackVoxelData(ezUInt32 uiIndex, ezTempArray<VoxelGpuVertex>& out_verts, ezDynamicArray<ezUInt32>& out_indices, ezUInt32& out_vertexCount, ezUInt32& out_primitiveCount, ezTime timeout = ezTime::MakeFromSeconds(5.0));
+  ezResult ReadbackVoxelData(ezUInt32 uiIndex, ezTempArray<VoxelGpuVertex>& out_verts, ezDynamicArray<ezUInt32>& out_indices, ezUInt32& out_uiVertexCount, ezUInt32& out_uiPrimitiveCount, ezTime timeout = ezTime::MakeFromSeconds(5.0));
 
 private:
   /// Immediately destroys the GPU buffers for the given slot and marks it free. Not thread-safe; call via RemoveVoxelTerrain.

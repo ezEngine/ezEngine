@@ -1537,10 +1537,10 @@ void ezTerrainSystem::UpdateVoxels(ezUInt32 uiIndex, ezRenderGraph& graph)
 }
 
 
-ezResult ezTerrainSystem::ReadbackVoxelData(ezUInt32 uiIndex, ezTempArray<VoxelGpuVertex>& out_verts, ezDynamicArray<ezUInt32>& out_indices, ezUInt32& out_vertexCount, ezUInt32& out_primitiveCount, ezTime timeout)
+ezResult ezTerrainSystem::ReadbackVoxelData(ezUInt32 uiIndex, ezTempArray<VoxelGpuVertex>& out_verts, ezDynamicArray<ezUInt32>& out_indices, ezUInt32& out_uiVertexCount, ezUInt32& out_uiPrimitiveCount, ezTime timeout)
 {
-  out_vertexCount = 0;
-  out_primitiveCount = 0;
+  out_uiVertexCount = 0;
+  out_uiPrimitiveCount = 0;
 
   if (uiIndex >= m_VoxelVolumes.GetCount())
     return EZ_FAILURE;
@@ -1621,8 +1621,8 @@ ezResult ezTerrainSystem::ReadbackVoxelData(ezUInt32 uiIndex, ezTempArray<VoxelG
     if (!lock)
       return EZ_FAILURE;
     const VoxelMeshCounts* pCounts = reinterpret_cast<const VoxelMeshCounts*>(rawMemory.GetPtr());
-    out_vertexCount = pCounts->VertexCount;
-    out_primitiveCount = pCounts->PrimitiveCount;
+    out_uiVertexCount = pCounts->VertexCount;
+    out_uiPrimitiveCount = pCounts->PrimitiveCount;
   }
 
   {
@@ -1630,8 +1630,8 @@ ezResult ezTerrainSystem::ReadbackVoxelData(ezUInt32 uiIndex, ezTempArray<VoxelG
     auto lock = vertRB.LockBuffer(rawMemory);
     if (lock)
     {
-      out_verts.SetCountUninitialized(out_vertexCount);
-      ezMemoryUtils::Copy(out_verts.GetData(), reinterpret_cast<const VoxelGpuVertex*>(rawMemory.GetPtr()), out_vertexCount);
+      out_verts.SetCountUninitialized(out_uiVertexCount);
+      ezMemoryUtils::Copy(out_verts.GetData(), reinterpret_cast<const VoxelGpuVertex*>(rawMemory.GetPtr()), out_uiVertexCount);
     }
   }
 
@@ -1640,7 +1640,7 @@ ezResult ezTerrainSystem::ReadbackVoxelData(ezUInt32 uiIndex, ezTempArray<VoxelG
     auto lock = idxRB.LockBuffer(rawMemory);
     if (lock)
     {
-      const ezUInt32 uiIndexCount = out_primitiveCount * 3;
+      const ezUInt32 uiIndexCount = out_uiPrimitiveCount * 3;
       out_indices.SetCountUninitialized(uiIndexCount);
       ezMemoryUtils::Copy(out_indices.GetData(), reinterpret_cast<const ezUInt32*>(rawMemory.GetPtr()), uiIndexCount);
     }

@@ -50,7 +50,7 @@ public:
   ezTerrainVolumeComponent();
   ~ezTerrainVolumeComponent();
 
-  void SetResolution(ezEnum<ezTerrainResolution> eResolution); // [ property ]
+  void SetResolution(ezEnum<ezTerrainResolution> resolution);  // [ property ]
   ezEnum<ezTerrainResolution> GetResolution() const { return m_Resolution; }
 
   void SetSize(float f);                                       // [ property ]

@@ -55,12 +55,12 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezTerrainVolumeComponent::ezTerrainVolumeComponent() = default;
 ezTerrainVolumeComponent::~ezTerrainVolumeComponent() = default;
 
-void ezTerrainVolumeComponent::SetResolution(ezEnum<ezTerrainResolution> eResolution)
+void ezTerrainVolumeComponent::SetResolution(ezEnum<ezTerrainResolution> resolution)
 {
-  if (m_Resolution == eResolution)
+  if (m_Resolution == resolution)
     return;
 
-  m_Resolution = eResolution;
+  m_Resolution = resolution;
 
   if (m_uiVoxelIndex != ezInvalidIndex)
   {
