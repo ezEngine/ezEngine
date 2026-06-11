@@ -8,7 +8,7 @@
 struct EZ_SHADER_STRUCT VoxelGpuVertex
 {
   FLOAT3(Position);
-  UINT1(Material); ///< Dominant material index (0-15). Value 0xFFFFFFFF = inactive cell sentinel.
+  UINT1(Material);          ///< Dominant material index (0-15). Value 0xFFFFFFFF = inactive cell sentinel.
 
   FLOAT3(Normal);
   FLOAT1(MaterialStrength); ///< Blend weight for the per-vertex override material (0 = main material, 1 = full override).
@@ -26,4 +26,3 @@ struct EZ_SHADER_STRUCT VoxelMeshCounts
   UINT1(Pad1);
   UINT1(Pad2);
 };
-

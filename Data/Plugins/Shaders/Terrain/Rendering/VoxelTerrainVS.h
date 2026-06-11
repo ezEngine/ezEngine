@@ -24,22 +24,22 @@ VS_OUT FillVoxelTerrainVertexOutput(uint vertexID)
   const uint idx = VoxelIndices[vertexID];
   const VoxelGpuVertex v = VoxelVertices[idx];
 
-  const ezPerInstanceData instanceData  = perInstanceData[GET_PUSH_CONSTANT(VoxelMeshRenderConstants, InstanceDataOffset)];
-  const float4x4 objectToWorld         = TransformToMatrix(instanceData.ObjectToWorld);
-  const float3x3 objectToWorldNormal   = TransformToRotation(instanceData.ObjectToWorldNormal);
+  const ezPerInstanceData instanceData = perInstanceData[GET_PUSH_CONSTANT(VoxelMeshRenderConstants, InstanceDataOffset)];
+  const float4x4 objectToWorld = TransformToMatrix(instanceData.ObjectToWorld);
+  const float3x3 objectToWorldNormal = TransformToRotation(instanceData.ObjectToWorldNormal);
 
-  const float3 worldPos     = mul(objectToWorld, float4(v.Position, 1.0f)).xyz;
-  const float3 worldNormal  = normalize(mul(objectToWorldNormal, v.Normal));
+  const float3 worldPos = mul(objectToWorld, float4(v.Position, 1.0f)).xyz;
+  const float3 worldNormal = normalize(mul(objectToWorldNormal, v.Normal));
   const float3 worldTangent = normalize(mul(objectToWorldNormal, v.Tangent));
-  const float3 worldBitan   = cross(worldNormal, worldTangent) * v.BitangentSign;
+  const float3 worldBitan = cross(worldNormal, worldTangent) * v.BitangentSign;
 
   VS_OUT Output;
-  Output.Position      = mul(GetWorldToScreenMatrix(), float4(worldPos, 1.0f));
+  Output.Position = mul(GetWorldToScreenMatrix(), float4(worldPos, 1.0f));
   Output.WorldPosition = worldPos;
-  Output.Normal        = worldNormal;
-  Output.Tangent       = worldTangent;
-  Output.BiTangent     = worldBitan;
-  Output.TexCoord0     = float2(v.MaterialStrength, 0.0f);
-  Output.DataOffsets   = uint3(GET_PUSH_CONSTANT(VoxelMeshRenderConstants, InstanceDataOffset), v.Material, 0);
+  Output.Normal = worldNormal;
+  Output.Tangent = worldTangent;
+  Output.BiTangent = worldBitan;
+  Output.TexCoord0 = float2(v.MaterialStrength, 0.0f);
+  Output.DataOffsets = uint3(GET_PUSH_CONSTANT(VoxelMeshRenderConstants, InstanceDataOffset), v.Material, 0);
   return Output;
 }
