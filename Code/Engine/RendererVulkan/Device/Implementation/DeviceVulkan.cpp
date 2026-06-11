@@ -525,7 +525,7 @@ ezResult ezGALDeviceVulkan::InitPlatform()
   }
   {
     m_Properties = m_PhysicalDevice.getProperties2();
-    ezLog::Dev("Selected physical device \"{}\" for device creation.", m_properties.properties.deviceName);
+    ezLog::Dev("Selected physical device \"{}\" for device creation.", m_Properties.properties.deviceName);
 
     // This is a workaround for broken lavapipe drivers which cannot handle label scopes that span across multiple command buffers.
     ezStringBuilder sDeviceName = ezStringUtf8(m_Properties.properties.deviceName).GetView();
