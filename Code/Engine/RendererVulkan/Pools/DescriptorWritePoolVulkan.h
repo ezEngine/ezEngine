@@ -32,7 +32,7 @@ public:
   /// \param descriptorSet The Vulkan descriptor set to write to.
   /// \param desc The bind group creation description containing the resources to write.
   /// \param out_Offsets Output array that will be filled with dynamic buffer offsets for constant buffers. See ezGALBindGroupVulkan::GetOffsets.
-  void WriteDescriptor(vk::DescriptorSet descriptorSet, const ezGALBindGroupCreationDescription& desc, ezDynamicArray<ezUInt32>& out_Offsets);
+  void WriteDescriptor(vk::DescriptorSet descriptorSet, const ezGALBindGroupCreationDescription& desc, ezDynamicArray<ezUInt32>& out_offsets);
 
   /// \brief Flushes all pending descriptor writes to the GPU.
   ///

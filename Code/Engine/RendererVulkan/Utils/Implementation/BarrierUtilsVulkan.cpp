@@ -81,26 +81,26 @@ namespace
       ezBitflags<ezGALResourceState> stateAfter,
       ezBitflags<ezGALShaderStageFlags> stagesBefore,
       ezBitflags<ezGALShaderStageFlags> stagesAfter,
-      vk::PipelineStageFlags2& outSrcStages,
-      vk::PipelineStageFlags2& outDstStages,
-      vk::AccessFlags2& outSrcAccess,
-      vk::AccessFlags2& outDstAccess)
+      vk::PipelineStageFlags2& out_srcStages,
+      vk::PipelineStageFlags2& out_dstStages,
+      vk::AccessFlags2& out_srcAccess,
+      vk::AccessFlags2& out_dstAccess)
     {
-      ezConversionUtilsVulkan::ConvertResourceState(stateBefore, outSrcStages, outSrcAccess);
-      ezConversionUtilsVulkan::ConvertResourceState(stateAfter, outDstStages, outDstAccess);
+      ezConversionUtilsVulkan::ConvertResourceState(stateBefore, out_srcStages, out_srcAccess);
+      ezConversionUtilsVulkan::ConvertResourceState(stateAfter, out_dstStages, out_dstAccess);
 
       if (!stagesBefore.IsSet(ezGALShaderStageFlags::Auto))
       {
         const vk::PipelineStageFlags2 explicitStages = GetPipelineStages(stagesBefore);
-        if (explicitStages != vk::PipelineStageFlags2{} && (explicitStages & outSrcStages) == explicitStages)
-          outSrcStages = explicitStages;
+        if (explicitStages != vk::PipelineStageFlags2{} && (explicitStages & out_srcStages) == explicitStages)
+          out_srcStages = explicitStages;
       }
 
       if (!stagesAfter.IsSet(ezGALShaderStageFlags::Auto))
       {
         const vk::PipelineStageFlags2 explicitStages = GetPipelineStages(stagesAfter);
-        if (explicitStages != vk::PipelineStageFlags2{} && (explicitStages & outDstStages) == explicitStages)
-          outDstStages = explicitStages;
+        if (explicitStages != vk::PipelineStageFlags2{} && (explicitStages & out_dstStages) == explicitStages)
+          out_dstStages = explicitStages;
       }
     }
 
@@ -149,7 +149,7 @@ namespace
       return vkBarrier;
     }
 
-    void SubmitImageBarriers(const ezGALDeviceVulkan& device, vk::CommandBuffer& commandBuffer, ezArrayPtr<const vk::ImageMemoryBarrier2> barriers)
+    void SubmitImageBarriers(const ezGALDeviceVulkan& device, vk::CommandBuffer& ref_commandBuffer, ezArrayPtr<const vk::ImageMemoryBarrier2> barriers)
     {
       if (barriers.IsEmpty())
         return;
@@ -169,10 +169,10 @@ namespace
       vk::DependencyInfo depInfo;
       depInfo.imageMemoryBarrierCount = barriers.GetCount();
       depInfo.pImageMemoryBarriers = barriers.GetPtr();
-      commandBuffer.pipelineBarrier2KHR(depInfo, device.GetDispatchContext());
+      ref_commandBuffer.pipelineBarrier2KHR(depInfo, device.GetDispatchContext());
     }
 
-    void SubmitBufferBarriers(const ezGALDeviceVulkan& device, vk::CommandBuffer& commandBuffer, ezArrayPtr<const vk::BufferMemoryBarrier2> barriers)
+    void SubmitBufferBarriers(const ezGALDeviceVulkan& device, vk::CommandBuffer& ref_commandBuffer, ezArrayPtr<const vk::BufferMemoryBarrier2> barriers)
     {
       if (barriers.IsEmpty())
         return;
@@ -180,10 +180,10 @@ namespace
       vk::DependencyInfo depInfo;
       depInfo.bufferMemoryBarrierCount = barriers.GetCount();
       depInfo.pBufferMemoryBarriers = barriers.GetPtr();
-      commandBuffer.pipelineBarrier2KHR(depInfo, device.GetDispatchContext());
+      ref_commandBuffer.pipelineBarrier2KHR(depInfo, device.GetDispatchContext());
     }
 
-    void TextureBarrier(const ezGALDeviceVulkan& device, vk::CommandBuffer& commandBuffer, ezArrayPtr<const ezGALTextureBarrier> barriers)
+    void TextureBarrier(const ezGALDeviceVulkan& device, vk::CommandBuffer& ref_commandBuffer, ezArrayPtr<const ezGALTextureBarrier> barriers)
     {
       ezHybridArray<vk::ImageMemoryBarrier2, 16> vkBarriers;
       vkBarriers.Reserve(barriers.GetCount());
@@ -204,10 +204,10 @@ namespace
           barrier.m_bDiscard));
       }
 
-      SubmitImageBarriers(device, commandBuffer, vkBarriers.GetArrayPtr());
+      SubmitImageBarriers(device, ref_commandBuffer, vkBarriers.GetArrayPtr());
     }
 
-    void TextureBarrier(const ezGALDeviceVulkan& device, vk::CommandBuffer& commandBuffer, ezArrayPtr<const ezTextureBarrierVulkan> barriers)
+    void TextureBarrier(const ezGALDeviceVulkan& device, vk::CommandBuffer& ref_commandBuffer, ezArrayPtr<const ezTextureBarrierVulkan> barriers)
     {
       ezHybridArray<vk::ImageMemoryBarrier2, 16> vkBarriers;
       vkBarriers.Reserve(barriers.GetCount());
@@ -227,10 +227,10 @@ namespace
           barrier.m_bDiscard));
       }
 
-      SubmitImageBarriers(device, commandBuffer, vkBarriers.GetArrayPtr());
+      SubmitImageBarriers(device, ref_commandBuffer, vkBarriers.GetArrayPtr());
     }
 
-    void BufferBarrier(const ezGALDeviceVulkan& device, vk::CommandBuffer& commandBuffer, ezArrayPtr<const ezGALBufferBarrier> barriers)
+    void BufferBarrier(const ezGALDeviceVulkan& device, vk::CommandBuffer& ref_commandBuffer, ezArrayPtr<const ezGALBufferBarrier> barriers)
     {
       ezHybridArray<vk::BufferMemoryBarrier2, 16> vkBarriers;
       vkBarriers.Reserve(barriers.GetCount());
@@ -249,10 +249,10 @@ namespace
           barrier.m_StagesAfter));
       }
 
-      SubmitBufferBarriers(device, commandBuffer, vkBarriers.GetArrayPtr());
+      SubmitBufferBarriers(device, ref_commandBuffer, vkBarriers.GetArrayPtr());
     }
 
-    void BufferBarrier(const ezGALDeviceVulkan& device, vk::CommandBuffer& commandBuffer, ezArrayPtr<const ezBufferBarrierVulkan> barriers)
+    void BufferBarrier(const ezGALDeviceVulkan& device, vk::CommandBuffer& ref_commandBuffer, ezArrayPtr<const ezBufferBarrierVulkan> barriers)
     {
       ezHybridArray<vk::BufferMemoryBarrier2, 16> vkBarriers;
       vkBarriers.Reserve(barriers.GetCount());
@@ -270,12 +270,12 @@ namespace
           barrier.m_StagesAfter));
       }
 
-      SubmitBufferBarriers(device, commandBuffer, vkBarriers.GetArrayPtr());
+      SubmitBufferBarriers(device, ref_commandBuffer, vkBarriers.GetArrayPtr());
     }
 
     void TextureBarrier(
       const ezGALDeviceVulkan& device,
-      vk::CommandBuffer& commandBuffer,
+      vk::CommandBuffer& ref_commandBuffer,
       vk::Image image,
       const vk::ImageSubresourceRange& subresourceRange,
       ezBitflags<ezGALResourceState> stateBefore,
@@ -284,12 +284,12 @@ namespace
       ezBitflags<ezGALShaderStageFlags> stagesAfter)
     {
       const vk::ImageMemoryBarrier2 vkBarrier = MakeImageBarrier(image, subresourceRange, stateBefore, stateAfter, stagesBefore, stagesAfter);
-      SubmitImageBarriers(device, commandBuffer, ezMakeArrayPtr(&vkBarrier, 1));
+      SubmitImageBarriers(device, ref_commandBuffer, ezMakeArrayPtr(&vkBarrier, 1));
     }
 
     void BufferBarrier(
       const ezGALDeviceVulkan& device,
-      vk::CommandBuffer& commandBuffer,
+      vk::CommandBuffer& ref_commandBuffer,
       vk::Buffer buffer,
       ezBitflags<ezGALResourceState> stateBefore,
       ezBitflags<ezGALResourceState> stateAfter,
@@ -297,7 +297,7 @@ namespace
       ezBitflags<ezGALShaderStageFlags> stagesAfter)
     {
       const vk::BufferMemoryBarrier2 vkBarrier = MakeBufferBarrier(buffer, stateBefore, stateAfter, stagesBefore, stagesAfter);
-      SubmitBufferBarriers(device, commandBuffer, ezMakeArrayPtr(&vkBarrier, 1));
+      SubmitBufferBarriers(device, ref_commandBuffer, ezMakeArrayPtr(&vkBarrier, 1));
     }
   } // namespace Sync2
 
@@ -334,26 +334,26 @@ namespace
       ezBitflags<ezGALResourceState> stateAfter,
       ezBitflags<ezGALShaderStageFlags> stagesBefore,
       ezBitflags<ezGALShaderStageFlags> stagesAfter,
-      vk::PipelineStageFlags& outSrcStages,
-      vk::PipelineStageFlags& outDstStages,
-      vk::AccessFlags& outSrcAccess,
-      vk::AccessFlags& outDstAccess)
+      vk::PipelineStageFlags& out_srcStages,
+      vk::PipelineStageFlags& out_dstStages,
+      vk::AccessFlags& out_srcAccess,
+      vk::AccessFlags& out_dstAccess)
     {
-      ezConversionUtilsVulkan::ConvertResourceState(stateBefore, outSrcStages, outSrcAccess);
-      ezConversionUtilsVulkan::ConvertResourceState(stateAfter, outDstStages, outDstAccess);
+      ezConversionUtilsVulkan::ConvertResourceState(stateBefore, out_srcStages, out_srcAccess);
+      ezConversionUtilsVulkan::ConvertResourceState(stateAfter, out_dstStages, out_dstAccess);
 
       if (!stagesBefore.IsSet(ezGALShaderStageFlags::Auto))
       {
         const vk::PipelineStageFlags explicitStages = GetPipelineStages(stagesBefore);
-        if (explicitStages != vk::PipelineStageFlags{} && (explicitStages & outSrcStages) == explicitStages)
-          outSrcStages = explicitStages;
+        if (explicitStages != vk::PipelineStageFlags{} && (explicitStages & out_srcStages) == explicitStages)
+          out_srcStages = explicitStages;
       }
 
       if (!stagesAfter.IsSet(ezGALShaderStageFlags::Auto))
       {
         const vk::PipelineStageFlags explicitStages = GetPipelineStages(stagesAfter);
-        if (explicitStages != vk::PipelineStageFlags{} && (explicitStages & outDstStages) == explicitStages)
-          outDstStages = explicitStages;
+        if (explicitStages != vk::PipelineStageFlags{} && (explicitStages & out_dstStages) == explicitStages)
+          out_dstStages = explicitStages;
       }
     }
 
@@ -364,8 +364,8 @@ namespace
       ezBitflags<ezGALResourceState> stateAfter,
       ezBitflags<ezGALShaderStageFlags> stagesBefore,
       ezBitflags<ezGALShaderStageFlags> stagesAfter,
-      vk::PipelineStageFlags& inout_SrcStages,
-      vk::PipelineStageFlags& inout_DstStages,
+      vk::PipelineStageFlags& inout_srcStages,
+      vk::PipelineStageFlags& inout_dstStages,
       bool bDiscard = false)
     {
       vk::ImageMemoryBarrier vkBarrier;
@@ -375,8 +375,8 @@ namespace
       ResolveBarrierSync(stateBefore, stateAfter, stagesBefore, stagesAfter,
         srcStages, dstStages, vkBarrier.srcAccessMask, vkBarrier.dstAccessMask);
 
-      inout_SrcStages |= srcStages;
-      inout_DstStages |= dstStages;
+      inout_srcStages |= srcStages;
+      inout_dstStages |= dstStages;
 
       vkBarrier.oldLayout = bDiscard ? vk::ImageLayout::eUndefined : ezConversionUtilsVulkan::GetTextureLayout(stateBefore);
       vkBarrier.newLayout = ezConversionUtilsVulkan::GetTextureLayout(stateAfter);
@@ -394,8 +394,8 @@ namespace
       ezBitflags<ezGALResourceState> stateAfter,
       ezBitflags<ezGALShaderStageFlags> stagesBefore,
       ezBitflags<ezGALShaderStageFlags> stagesAfter,
-      vk::PipelineStageFlags& inout_SrcStages,
-      vk::PipelineStageFlags& inout_DstStages)
+      vk::PipelineStageFlags& inout_srcStages,
+      vk::PipelineStageFlags& inout_dstStages)
     {
       vk::BufferMemoryBarrier vkBarrier;
       vk::PipelineStageFlags srcStages;
@@ -404,8 +404,8 @@ namespace
       ResolveBarrierSync(stateBefore, stateAfter, stagesBefore, stagesAfter,
         srcStages, dstStages, vkBarrier.srcAccessMask, vkBarrier.dstAccessMask);
 
-      inout_SrcStages |= srcStages;
-      inout_DstStages |= dstStages;
+      inout_srcStages |= srcStages;
+      inout_dstStages |= dstStages;
 
       vkBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
       vkBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
@@ -417,7 +417,7 @@ namespace
     }
 
     void SubmitImageBarriers(
-      vk::CommandBuffer& commandBuffer,
+      vk::CommandBuffer& ref_commandBuffer,
       vk::PipelineStageFlags srcStages,
       vk::PipelineStageFlags dstStages,
       ezArrayPtr<const vk::ImageMemoryBarrier> barriers)
@@ -437,14 +437,14 @@ namespace
       }
 #endif
 
-      commandBuffer.pipelineBarrier(srcStages, dstStages, vk::DependencyFlags(),
+      ref_commandBuffer.pipelineBarrier(srcStages, dstStages, vk::DependencyFlags(),
         0, nullptr,
         0, nullptr,
         barriers.GetCount(), barriers.GetPtr());
     }
 
     void SubmitBufferBarriers(
-      vk::CommandBuffer& commandBuffer,
+      vk::CommandBuffer& ref_commandBuffer,
       vk::PipelineStageFlags srcStages,
       vk::PipelineStageFlags dstStages,
       ezArrayPtr<const vk::BufferMemoryBarrier> barriers)
@@ -452,13 +452,13 @@ namespace
       if (barriers.IsEmpty())
         return;
 
-      commandBuffer.pipelineBarrier(srcStages, dstStages, vk::DependencyFlags(),
+      ref_commandBuffer.pipelineBarrier(srcStages, dstStages, vk::DependencyFlags(),
         0, nullptr,
         barriers.GetCount(), barriers.GetPtr(),
         0, nullptr);
     }
 
-    void TextureBarrier(const ezGALDeviceVulkan& device, vk::CommandBuffer& commandBuffer, ezArrayPtr<const ezGALTextureBarrier> barriers)
+    void TextureBarrier(const ezGALDeviceVulkan& device, vk::CommandBuffer& ref_commandBuffer, ezArrayPtr<const ezGALTextureBarrier> barriers)
     {
       ezHybridArray<vk::ImageMemoryBarrier, 16> vkBarriers;
       vkBarriers.Reserve(barriers.GetCount());
@@ -483,10 +483,10 @@ namespace
           barrier.m_bDiscard));
       }
 
-      SubmitImageBarriers(commandBuffer, srcStages, dstStages, vkBarriers.GetArrayPtr());
+      SubmitImageBarriers(ref_commandBuffer, srcStages, dstStages, vkBarriers.GetArrayPtr());
     }
 
-    void TextureBarrier(const ezGALDeviceVulkan& /*device*/, vk::CommandBuffer& commandBuffer, ezArrayPtr<const ezTextureBarrierVulkan> barriers)
+    void TextureBarrier(const ezGALDeviceVulkan& /*device*/, vk::CommandBuffer& ref_commandBuffer, ezArrayPtr<const ezTextureBarrierVulkan> barriers)
     {
       ezHybridArray<vk::ImageMemoryBarrier, 16> vkBarriers;
       vkBarriers.Reserve(barriers.GetCount());
@@ -510,10 +510,10 @@ namespace
           barrier.m_bDiscard));
       }
 
-      SubmitImageBarriers(commandBuffer, srcStages, dstStages, vkBarriers.GetArrayPtr());
+      SubmitImageBarriers(ref_commandBuffer, srcStages, dstStages, vkBarriers.GetArrayPtr());
     }
 
-    void BufferBarrier(const ezGALDeviceVulkan& device, vk::CommandBuffer& commandBuffer, ezArrayPtr<const ezGALBufferBarrier> barriers)
+    void BufferBarrier(const ezGALDeviceVulkan& device, vk::CommandBuffer& ref_commandBuffer, ezArrayPtr<const ezGALBufferBarrier> barriers)
     {
       ezHybridArray<vk::BufferMemoryBarrier, 16> vkBarriers;
       vkBarriers.Reserve(barriers.GetCount());
@@ -536,10 +536,10 @@ namespace
           dstStages));
       }
 
-      SubmitBufferBarriers(commandBuffer, srcStages, dstStages, vkBarriers.GetArrayPtr());
+      SubmitBufferBarriers(ref_commandBuffer, srcStages, dstStages, vkBarriers.GetArrayPtr());
     }
 
-    void BufferBarrier(const ezGALDeviceVulkan& /*device*/, vk::CommandBuffer& commandBuffer, ezArrayPtr<const ezBufferBarrierVulkan> barriers)
+    void BufferBarrier(const ezGALDeviceVulkan& /*device*/, vk::CommandBuffer& ref_commandBuffer, ezArrayPtr<const ezBufferBarrierVulkan> barriers)
     {
       ezHybridArray<vk::BufferMemoryBarrier, 16> vkBarriers;
       vkBarriers.Reserve(barriers.GetCount());
@@ -561,12 +561,12 @@ namespace
           dstStages));
       }
 
-      SubmitBufferBarriers(commandBuffer, srcStages, dstStages, vkBarriers.GetArrayPtr());
+      SubmitBufferBarriers(ref_commandBuffer, srcStages, dstStages, vkBarriers.GetArrayPtr());
     }
 
     void TextureBarrier(
       const ezGALDeviceVulkan& /*device*/,
-      vk::CommandBuffer& commandBuffer,
+      vk::CommandBuffer& ref_commandBuffer,
       vk::Image image,
       const vk::ImageSubresourceRange& subresourceRange,
       ezBitflags<ezGALResourceState> stateBefore,
@@ -577,12 +577,12 @@ namespace
       vk::PipelineStageFlags srcStages;
       vk::PipelineStageFlags dstStages;
       const vk::ImageMemoryBarrier vkBarrier = MakeImageBarrier(image, subresourceRange, stateBefore, stateAfter, stagesBefore, stagesAfter, srcStages, dstStages);
-      SubmitImageBarriers(commandBuffer, srcStages, dstStages, ezMakeArrayPtr(&vkBarrier, 1));
+      SubmitImageBarriers(ref_commandBuffer, srcStages, dstStages, ezMakeArrayPtr(&vkBarrier, 1));
     }
 
     void BufferBarrier(
       const ezGALDeviceVulkan& /*device*/,
-      vk::CommandBuffer& commandBuffer,
+      vk::CommandBuffer& ref_commandBuffer,
       vk::Buffer buffer,
       ezBitflags<ezGALResourceState> stateBefore,
       ezBitflags<ezGALResourceState> stateAfter,
@@ -592,14 +592,14 @@ namespace
       vk::PipelineStageFlags srcStages;
       vk::PipelineStageFlags dstStages;
       const vk::BufferMemoryBarrier vkBarrier = MakeBufferBarrier(buffer, stateBefore, stateAfter, stagesBefore, stagesAfter, srcStages, dstStages);
-      SubmitBufferBarriers(commandBuffer, srcStages, dstStages, ezMakeArrayPtr(&vkBarrier, 1));
+      SubmitBufferBarriers(ref_commandBuffer, srcStages, dstStages, ezMakeArrayPtr(&vkBarrier, 1));
     }
   } // namespace Sync1
 } // namespace
 
-ezBarrierUtilsVulkan::ezBarrierUtilsVulkan(const ezGALDeviceVulkan& device, vk::CommandBuffer& commandBuffer)
+ezBarrierUtilsVulkan::ezBarrierUtilsVulkan(const ezGALDeviceVulkan& device, vk::CommandBuffer& ref_commandBuffer)
   : m_Device(device)
-  , m_CommandBuffer(commandBuffer)
+  , m_CommandBuffer(ref_commandBuffer)
 {
 }
 

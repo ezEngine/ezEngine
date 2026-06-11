@@ -11,7 +11,7 @@ ezGALShaderVulkan::ezGALShaderVulkan(const ezGALShaderCreationDescription& Descr
 {
 }
 
-ezGALShaderVulkan::~ezGALShaderVulkan() {}
+ezGALShaderVulkan::~ezGALShaderVulkan() = default;
 
 void ezGALShaderVulkan::SetDebugName(ezStringView sName) const
 {

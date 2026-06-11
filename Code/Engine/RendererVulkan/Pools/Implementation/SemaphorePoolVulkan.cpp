@@ -40,8 +40,8 @@ vk::Semaphore ezSemaphorePoolVulkan::RequestSemaphore()
   }
 }
 
-void ezSemaphorePoolVulkan::ReclaimSemaphore(vk::Semaphore& semaphore)
+void ezSemaphorePoolVulkan::ReclaimSemaphore(vk::Semaphore& ref_semaphore)
 {
   EZ_ASSERT_DEBUG(s_Device, "ezSemaphorePoolVulkan::Initialize not called");
-  s_Semaphores.PushBack(semaphore);
+  s_Semaphores.PushBack(ref_semaphore);
 }

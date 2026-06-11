@@ -104,7 +104,7 @@ ezDescriptorSetPoolVulkan::~ezDescriptorSetPoolVulkan()
   m_SubPools.Clear();
 }
 
-vk::DescriptorSet ezDescriptorSetPoolVulkan::CreateDescriptorSet(ezGALBindGroupLayoutHandle hBindGroupLayout, ezDescriptorSetPoolVulkan::Allocation& out_Allocation)
+vk::DescriptorSet ezDescriptorSetPoolVulkan::CreateDescriptorSet(ezGALBindGroupLayoutHandle hBindGroupLayout, ezDescriptorSetPoolVulkan::Allocation& out_allocation)
 {
   EZ_LOCK(m_Mutex);
   ezUInt32 uiPoolIndex = GetFreePoolIndex();
@@ -123,7 +123,7 @@ vk::DescriptorSet ezDescriptorSetPoolVulkan::CreateDescriptorSet(ezGALBindGroupL
   ++m_uiTotalAllocations;
   ++pSubPool->m_uiAllocatedSets;
 
-  out_Allocation.m_uiPoolIndex = uiPoolIndex;
+  out_allocation.m_uiPoolIndex = uiPoolIndex;
 
   return set;
 }

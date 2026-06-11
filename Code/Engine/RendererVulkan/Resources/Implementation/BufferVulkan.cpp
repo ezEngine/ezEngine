@@ -12,7 +12,7 @@ ezGALBufferVulkan::ezGALBufferVulkan(const ezGALBufferCreationDescription& Descr
 {
 }
 
-ezGALBufferVulkan::~ezGALBufferVulkan() {}
+ezGALBufferVulkan::~ezGALBufferVulkan() = default;
 
 ezResult ezGALBufferVulkan::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const ezUInt8> pInitialData)
 {

@@ -105,10 +105,10 @@ void ezTransientDescriptorSetPoolVulkan::UpdateDescriptorSet(vk::DescriptorSet d
   s_Device.updateDescriptorSets(update.GetCount(), update.GetPtr(), 0, nullptr);
 }
 
-void ezTransientDescriptorSetPoolVulkan::ReclaimPool(vk::DescriptorPool& descriptorPool)
+void ezTransientDescriptorSetPoolVulkan::ReclaimPool(vk::DescriptorPool& ref_descriptorPool)
 {
-  s_Device.resetDescriptorPool(descriptorPool);
-  s_FreeTransientPools.PushBack(descriptorPool);
+  s_Device.resetDescriptorPool(ref_descriptorPool);
+  s_FreeTransientPools.PushBack(ref_descriptorPool);
 }
 
 vk::DescriptorPool ezTransientDescriptorSetPoolVulkan::GetNewTransientPool()

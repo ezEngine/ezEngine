@@ -36,9 +36,9 @@ void ezDescriptorWritePoolVulkan::WriteTransientDescriptor(vk::DescriptorSet des
   }
 }
 
-void ezDescriptorWritePoolVulkan::WriteDescriptor(vk::DescriptorSet descriptorSet, const ezGALBindGroupCreationDescription& desc, ezDynamicArray<ezUInt32>& out_Offsets)
+void ezDescriptorWritePoolVulkan::WriteDescriptor(vk::DescriptorSet descriptorSet, const ezGALBindGroupCreationDescription& desc, ezDynamicArray<ezUInt32>& out_offsets)
 {
-  out_Offsets.Clear();
+  out_offsets.Clear();
   const ezGALBindGroupLayoutVulkan* pLayout = static_cast<const ezGALBindGroupLayoutVulkan*>(m_pDevice->GetBindGroupLayout(desc.m_hBindGroupLayout));
   ezArrayPtr<const ezShaderResourceBinding> bindings = pLayout->GetDescription().m_ResourceBindings;
   const ezUInt32 uiBindings = bindings.GetCount();
@@ -51,7 +51,7 @@ void ezDescriptorWritePoolVulkan::WriteDescriptor(vk::DescriptorSet descriptorSe
     vk::WriteDescriptorSet& write = WriteBindGroupItem(descriptorSet, binding, item, nullptr);
     if (binding.m_ResourceType == ezGALShaderResourceType::ConstantBuffer)
     {
-      out_Offsets.PushBack(static_cast<ezUInt32>(write.pBufferInfo->offset));
+      out_offsets.PushBack(static_cast<ezUInt32>(write.pBufferInfo->offset));
       const_cast<vk::DescriptorBufferInfo*>(write.pBufferInfo)->offset = 0;
     }
   }

@@ -15,7 +15,7 @@ ezGALBlendStateVulkan::ezGALBlendStateVulkan(const ezGALBlendStateCreationDescri
   m_BlendState.pAttachments = m_blendAttachmentState;
 }
 
-ezGALBlendStateVulkan::~ezGALBlendStateVulkan() {}
+ezGALBlendStateVulkan::~ezGALBlendStateVulkan() = default;
 
 static vk::BlendOp ToVulkanBlendOp(ezGALBlendOp::Enum e)
 {
@@ -111,7 +111,7 @@ ezGALDepthStencilStateVulkan::ezGALDepthStencilStateVulkan(const ezGALDepthStenc
 {
 }
 
-ezGALDepthStencilStateVulkan::~ezGALDepthStencilStateVulkan() {}
+ezGALDepthStencilStateVulkan::~ezGALDepthStencilStateVulkan() = default;
 
 ezResult ezGALDepthStencilStateVulkan::InitPlatform(ezGALDevice* pDevice)
 {
@@ -154,7 +154,7 @@ ezGALRasterizerStateVulkan::ezGALRasterizerStateVulkan(const ezGALRasterizerStat
 {
 }
 
-ezGALRasterizerStateVulkan::~ezGALRasterizerStateVulkan() {}
+ezGALRasterizerStateVulkan::~ezGALRasterizerStateVulkan() = default;
 
 
 
@@ -189,7 +189,7 @@ ezGALSamplerStateVulkan::ezGALSamplerStateVulkan(const ezGALSamplerStateCreation
 {
 }
 
-ezGALSamplerStateVulkan::~ezGALSamplerStateVulkan() {}
+ezGALSamplerStateVulkan::~ezGALSamplerStateVulkan() = default;
 
 ezResult ezGALSamplerStateVulkan::InitPlatform(ezGALDevice* pDevice)
 {

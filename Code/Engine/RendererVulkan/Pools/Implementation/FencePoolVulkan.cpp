@@ -42,20 +42,20 @@ vk::Fence ezFencePoolVulkan::RequestFence()
   }
 }
 
-void ezFencePoolVulkan::ReclaimFence(vk::Fence& fence)
+void ezFencePoolVulkan::ReclaimFence(vk::Fence& ref_fence)
 {
-  vk::Result fenceStatus = s_Device.getFenceStatus(fence);
+  vk::Result fenceStatus = s_Device.getFenceStatus(ref_fence);
   if (fenceStatus == vk::Result::eNotReady)
   {
     // #TODO_VULKAN Workaround for fences that were waited for (and thus signaled) returning VK_NOT_READY if AMDs profiler is active.
     // The fence will simply take another round through the reclaim process and will eventually turn signaled.
-    static_cast<ezGALDeviceVulkan*>(ezGALDevice::GetDefaultDevice())->ReclaimLater(fence);
+    static_cast<ezGALDeviceVulkan*>(ezGALDevice::GetDefaultDevice())->ReclaimLater(ref_fence);
     return;
   }
   VK_ASSERT_DEV(fenceStatus);
-  s_Device.resetFences(1, &fence);
+  s_Device.resetFences(1, &ref_fence);
   EZ_ASSERT_DEBUG(s_Device, "ezFencePoolVulkan::Initialize not called");
-  s_Fences.PushBack(fence);
+  s_Fences.PushBack(ref_fence);
 }
 
 

@@ -214,12 +214,12 @@ void ezGALTextureVulkan::ComputeCreateInfo(const ezGALDeviceVulkan* pDevice, con
   }
 }
 
-void ezGALTextureVulkan::ComputeAllocInfo(ezVulkanAllocationCreateInfo& allocInfo)
+void ezGALTextureVulkan::ComputeAllocInfo(ezVulkanAllocationCreateInfo& ref_allocInfo)
 {
-  allocInfo.m_usage = ezVulkanMemoryUsage::Auto;
+  ref_allocInfo.m_usage = ezVulkanMemoryUsage::Auto;
 }
 
-ezUInt32 ezGALTextureVulkan::ComputeSubResourceOffsets(const ezGALDeviceVulkan* pDevice, const ezGALTextureCreationDescription& description, ezDynamicArray<SubResourceOffset>& subResourceSizes)
+ezUInt32 ezGALTextureVulkan::ComputeSubResourceOffsets(const ezGALDeviceVulkan* pDevice, const ezGALTextureCreationDescription& description, ezDynamicArray<SubResourceOffset>& ref_subResourceSizes)
 {
   const ezUInt32 alignment = (ezUInt32)ezGALBufferVulkan::GetAlignment(pDevice, vk::BufferUsageFlagBits::eTransferDst);
   const vk::Format stagingFormat = pDevice->GetFormatLookupTable().GetFormatInfo(description.m_Format).m_readback;
@@ -228,14 +228,14 @@ ezUInt32 ezGALTextureVulkan::ComputeSubResourceOffsets(const ezGALDeviceVulkan* 
   const ezUInt32 arrayLayers = (description.m_Type == ezGALTextureType::TextureCube || description.m_Type == ezGALTextureType::TextureCubeArray) ? (description.m_uiArraySize * 6) : description.m_uiArraySize;
   const ezUInt32 mipLevels = description.m_uiMipLevelCount;
 
-  subResourceSizes.Reserve(arrayLayers * mipLevels);
+  ref_subResourceSizes.Reserve(arrayLayers * mipLevels);
   ezUInt32 uiOffset = 0;
   for (ezUInt32 uiLayer = 0; uiLayer < arrayLayers; uiLayer++)
   {
     for (ezUInt32 uiMipLevel = 0; uiMipLevel < mipLevels; uiMipLevel++)
     {
       const ezUInt32 uiSubresourceIndex = uiMipLevel + uiLayer * mipLevels;
-      EZ_ASSERT_DEBUG(subResourceSizes.GetCount() == uiSubresourceIndex, "");
+      EZ_ASSERT_DEBUG(ref_subResourceSizes.GetCount() == uiSubresourceIndex, "");
 
       const vk::Extent3D imageExtent = GetMipLevelSize(description, uiMipLevel);
       const VkExtent3D blockCount = {
@@ -244,7 +244,7 @@ ezUInt32 ezGALTextureVulkan::ComputeSubResourceOffsets(const ezGALDeviceVulkan* 
         (imageExtent.depth + blockExtent[2] - 1) / blockExtent[2]};
 
       const ezUInt32 uiTotalSize = uiBlockSize * blockCount.width * blockCount.height * blockCount.depth;
-      subResourceSizes.PushBack({uiOffset, uiTotalSize, blockCount.width * blockExtent[0], blockCount.height * blockExtent[1]});
+      ref_subResourceSizes.PushBack({uiOffset, uiTotalSize, blockCount.width * blockExtent[0], blockCount.height * blockExtent[1]});
       uiOffset += ezMemoryUtils::AlignSize(uiTotalSize, alignment);
     }
   }

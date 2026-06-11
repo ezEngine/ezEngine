@@ -26,10 +26,10 @@ ezHashTable<ezResourceCacheVulkan::FramebufferKey, vk::Framebuffer, ezResourceCa
 static_assert(sizeof(ezUInt32) == sizeof(ezGALRenderTargetViewHandle));
 namespace
 {
-  EZ_ALWAYS_INLINE ezStreamWriter& operator<<(ezStreamWriter& Stream, const ezGALRenderTargetViewHandle& Value)
+  EZ_ALWAYS_INLINE ezStreamWriter& operator<<(ezStreamWriter& ref_stream, const ezGALRenderTargetViewHandle& hValue)
   {
-    Stream << reinterpret_cast<const ezUInt32&>(Value);
-    return Stream;
+    ref_stream << reinterpret_cast<const ezUInt32&>(hValue);
+    return ref_stream;
   }
 
   static constexpr ezUInt32 PIPELINE_CACHE_MAGIC = 0x45A9BCD7; // Arbitrary m_uiMagic number

@@ -10,7 +10,7 @@ ezGALRenderTargetViewVulkan::ezGALRenderTargetViewVulkan(ezGALTexture* pTexture,
 {
 }
 
-ezGALRenderTargetViewVulkan::~ezGALRenderTargetViewVulkan() {}
+ezGALRenderTargetViewVulkan::~ezGALRenderTargetViewVulkan() = default;
 
 ezResult ezGALRenderTargetViewVulkan::InitPlatform(ezGALDevice* pDevice)
 {

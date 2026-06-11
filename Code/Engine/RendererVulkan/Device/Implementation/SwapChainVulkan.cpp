@@ -22,30 +22,30 @@
 
 namespace
 {
-  ezResult GetAlternativeFormat(ezGALResourceFormat::Enum& format)
+  ezResult GetAlternativeFormat(ezGALResourceFormat::Enum& ref_format)
   {
-    switch (format)
+    switch (ref_format)
     {
       case ezGALResourceFormat::RGBAUByteNormalizedsRGB:
-        format = ezGALResourceFormat::BGRAUByteNormalizedsRGB;
+        ref_format = ezGALResourceFormat::BGRAUByteNormalizedsRGB;
         return EZ_SUCCESS;
       case ezGALResourceFormat::RGBAUByteNormalized:
-        format = ezGALResourceFormat::BGRAUByteNormalized;
+        ref_format = ezGALResourceFormat::BGRAUByteNormalized;
         return EZ_SUCCESS;
       case ezGALResourceFormat::BGRAUByteNormalizedsRGB:
-        format = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
+        ref_format = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
         return EZ_SUCCESS;
       case ezGALResourceFormat::BGRAUByteNormalized:
-        format = ezGALResourceFormat::RGBAUByteNormalized;
+        ref_format = ezGALResourceFormat::RGBAUByteNormalized;
         return EZ_SUCCESS;
       default:
         return EZ_FAILURE;
     }
   }
 
-  ezGALResourceFormat::Enum GetResourceFormat(vk::Format& format)
+  ezGALResourceFormat::Enum GetResourceFormat(vk::Format& ref_format)
   {
-    switch (format)
+    switch (ref_format)
     {
       case vk::Format::eR8G8B8A8Srgb:
         return ezGALResourceFormat::RGBAUByteNormalizedsRGB;
@@ -185,7 +185,7 @@ ezGALSwapChainVulkan::ezGALSwapChainVulkan(const ezGALWindowSwapChainCreationDes
 {
 }
 
-ezGALSwapChainVulkan::~ezGALSwapChainVulkan() {}
+ezGALSwapChainVulkan::~ezGALSwapChainVulkan() = default;
 
 ezResult ezGALSwapChainVulkan::InitPlatform(ezGALDevice* pDevice)
 {

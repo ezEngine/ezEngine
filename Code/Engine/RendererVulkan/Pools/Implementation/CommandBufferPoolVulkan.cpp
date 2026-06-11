@@ -13,14 +13,14 @@ ezCommandBufferPoolVulkan::~ezCommandBufferPoolVulkan()
   EZ_ASSERT_DEBUG(!m_Device, "DeInitialize was not called");
 }
 
-void ezCommandBufferPoolVulkan::Initialize(vk::Device device, ezUInt32 graphicsFamilyIndex)
+void ezCommandBufferPoolVulkan::Initialize(vk::Device device, ezUInt32 uiGraphicsFamilyIndex)
 {
   m_Device = device;
 
   // Command buffer
   vk::CommandPoolCreateInfo commandPoolCreateInfo = {};
   commandPoolCreateInfo.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
-  commandPoolCreateInfo.queueFamilyIndex = graphicsFamilyIndex;
+  commandPoolCreateInfo.queueFamilyIndex = uiGraphicsFamilyIndex;
 
   m_CommandPool = m_Device.createCommandPool(commandPoolCreateInfo);
 }
@@ -63,9 +63,9 @@ vk::CommandBuffer ezCommandBufferPoolVulkan::RequestCommandBuffer()
   }
 }
 
-void ezCommandBufferPoolVulkan::ReclaimCommandBuffer(vk::CommandBuffer& commandBuffer)
+void ezCommandBufferPoolVulkan::ReclaimCommandBuffer(vk::CommandBuffer& ref_commandBuffer)
 {
   EZ_ASSERT_DEBUG(m_Device, "ezCommandBufferPoolVulkan::Initialize not called");
-  commandBuffer.reset(vk::CommandBufferResetFlagBits::eReleaseResources);
-  m_CommandBuffers.PushBack(commandBuffer);
+  ref_commandBuffer.reset(vk::CommandBufferResetFlagBits::eReleaseResources);
+  m_CommandBuffers.PushBack(ref_commandBuffer);
 }

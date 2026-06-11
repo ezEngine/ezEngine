@@ -62,7 +62,7 @@ void ezStagingBufferPoolVulkan::BeforeCommandBufferSubmit()
   }
 }
 
-ezStagingBufferVulkan ezStagingBufferPoolVulkan::AllocateBuffer(ezUInt64 size)
+ezStagingBufferVulkan ezStagingBufferPoolVulkan::AllocateBuffer(ezUInt64 uiSize)
 {
   EZ_ASSERT_DEBUG(m_Device, "ezStagingBufferPoolVulkan::Initialize not called");
   ezStagingBufferVulkan buffer;
@@ -71,7 +71,7 @@ ezStagingBufferVulkan ezStagingBufferPoolVulkan::AllocateBuffer(ezUInt64 size)
   ezByteArrayPtr allocation;
   for (StagingBufferPool* pPool : m_Pools)
   {
-    if (pPool->Allocate((ezUInt32)size, m_pDevice->GetCurrentFrame(), uiOffset, allocation).Succeeded())
+    if (pPool->Allocate((ezUInt32)uiSize, m_pDevice->GetCurrentFrame(), uiOffset, allocation).Succeeded())
     {
       buffer.m_alloc = pPool->m_Alloc;
       buffer.m_buffer = pPool->m_Buffer;
@@ -81,8 +81,8 @@ ezStagingBufferVulkan ezStagingBufferPoolVulkan::AllocateBuffer(ezUInt64 size)
 
   if (allocation.IsEmpty())
   {
-    StagingBufferPool* pPool = GetFreePool(size);
-    pPool->Allocate((ezUInt32)size, m_pDevice->GetCurrentFrame(), uiOffset, allocation).AssertSuccess("Newly created pool should be able to allocate requested size");
+    StagingBufferPool* pPool = GetFreePool(uiSize);
+    pPool->Allocate((ezUInt32)uiSize, m_pDevice->GetCurrentFrame(), uiOffset, allocation).AssertSuccess("Newly created pool should be able to allocate requested size");
     buffer.m_alloc = pPool->m_Alloc;
     buffer.m_buffer = pPool->m_Buffer;
   }
@@ -128,12 +128,12 @@ ezStagingBufferPoolVulkan::StagingBufferPool::~StagingBufferPool()
   ezMemoryAllocatorVulkan::DestroyBuffer(m_Buffer, m_Alloc);
 }
 
-ezResult ezStagingBufferPoolVulkan::StagingBufferPool::Allocate(ezUInt32 uiSize, ezUInt64 uiCurrentFrame, ezUInt32& out_uiStartOffset, ezByteArrayPtr& out_Allocation)
+ezResult ezStagingBufferPoolVulkan::StagingBufferPool::Allocate(ezUInt32 uiSize, ezUInt64 uiCurrentFrame, ezUInt32& out_uiStartOffset, ezByteArrayPtr& out_allocation)
 {
   if (m_Tracker.Allocate(uiSize, uiCurrentFrame, out_uiStartOffset).Failed())
     return EZ_FAILURE;
 
-  out_Allocation = m_Data.GetSubArray(out_uiStartOffset, uiSize);
+  out_allocation = m_Data.GetSubArray(out_uiStartOffset, uiSize);
   return EZ_SUCCESS;
 }
 

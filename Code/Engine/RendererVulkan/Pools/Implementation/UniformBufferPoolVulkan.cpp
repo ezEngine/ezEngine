@@ -196,12 +196,12 @@ ezUniformBufferPoolVulkan::UniformBufferPool::~UniformBufferPool()
   }
 }
 
-ezResult ezUniformBufferPoolVulkan::UniformBufferPool::Allocate(ezUInt32 uiSize, ezUInt64 uiCurrentFrame, ezUInt32& out_uiStartOffset, ezByteArrayPtr& out_Allocation)
+ezResult ezUniformBufferPoolVulkan::UniformBufferPool::Allocate(ezUInt32 uiSize, ezUInt64 uiCurrentFrame, ezUInt32& out_uiStartOffset, ezByteArrayPtr& out_allocation)
 {
   if (m_Tracker.Allocate(uiSize, uiCurrentFrame, out_uiStartOffset).Failed())
     return EZ_FAILURE;
 
-  out_Allocation = m_Data.GetSubArray(out_uiStartOffset, uiSize);
+  out_allocation = m_Data.GetSubArray(out_uiStartOffset, uiSize);
   return EZ_SUCCESS;
 }
 
