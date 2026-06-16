@@ -14,7 +14,7 @@ StructuredBuffer<uint> perInstanceDataCustom BIND_GROUP(BG_DRAW_CALL);
 
 uint GetNumInstanceVertexColorsHelper(uint accessData)
 {
-  return accessData >> VERTEX_COLOR_ACCESS_OFFSET_BITS;
+  return accessData != 0xFFFFFFFF ? accessData >> VERTEX_COLOR_ACCESS_OFFSET_BITS : 0;
 }
 
 float4 GetInstanceVertexColorsHelper(uint accessData, uint vertexID, uint colorIndex)
