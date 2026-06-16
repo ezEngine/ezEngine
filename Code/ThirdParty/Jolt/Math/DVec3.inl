@@ -234,8 +234,8 @@ DVec3::operator Vec3() const
 	__m128 low = _mm_cvtpd_ps(mValue.mLow);
 	__m128 high = _mm_cvtpd_ps(mValue.mHigh);
 	return _mm_shuffle_ps(low, high, _MM_SHUFFLE(1, 0, 1, 0));
-#elif defined(JPH_USE_NEON)
-	return vcvt_high_f32_f64(vcvtx_f32_f64(mValue.val[0]), mValue.val[1]);
+#elif defined(JPH_USE_NEON) && !defined(JPH_COMPILER_MSVC) // Disabled on MSVC because of internal compiler error: https://developercommunity.visualstudio.com/t/ARM64-NEON-vcvt_f32_f64-with-fp:fast-tr/11088003
+	return vcvt_high_f32_f64(vcvt_f32_f64(mValue.val[0]), mValue.val[1]);
 #elif defined(JPH_USE_RVV)
 	Vec3 v;
 	const vfloat64m2_t src = __riscv_vle64_v_f64m2(mF64, 3);
@@ -418,22 +418,22 @@ DVec3 DVec3::sGreaterOrEqual(DVec3Arg inV1, DVec3Arg inV2)
 
 DVec3 DVec3::sFusedMultiplyAdd(DVec3Arg inMul1, DVec3Arg inMul2, DVec3Arg inAdd)
 {
-#if defined(JPH_USE_AVX)
-	#ifdef JPH_USE_FMADD
+#ifdef JPH_USE_FMADD
+	#ifdef JPH_USE_AVX
 		return _mm256_fmadd_pd(inMul1.mValue, inMul2.mValue, inAdd.mValue);
+	#elif defined(JPH_USE_NEON)
+		return DVec3({ vmlaq_f64(inAdd.mValue.val[0], inMul1.mValue.val[0], inMul2.mValue.val[0]), vmlaq_f64(inAdd.mValue.val[1], inMul1.mValue.val[1], inMul2.mValue.val[1]) });
+	#elif defined(JPH_USE_RVV)
+		DVec3 res;
+		const vfloat64m2_t v1 = __riscv_vle64_v_f64m2(inMul1.mF64, 3);
+		const vfloat64m2_t v2 = __riscv_vle64_v_f64m2(inMul2.mF64, 3);
+		const vfloat64m2_t rvv_add = __riscv_vle64_v_f64m2(inAdd.mF64, 3);
+		const vfloat64m2_t fmadd = __riscv_vfmacc_vv_f64m2(rvv_add, v1, v2, 3);
+		__riscv_vse64_v_f64m2(res.mF64, fmadd, 3);
+		return res;
 	#else
-		return _mm256_add_pd(_mm256_mul_pd(inMul1.mValue, inMul2.mValue), inAdd.mValue);
+		return inMul1 * inMul2 + inAdd;
 	#endif
-#elif defined(JPH_USE_NEON)
-	return DVec3({ vmlaq_f64(inAdd.mValue.val[0], inMul1.mValue.val[0], inMul2.mValue.val[0]), vmlaq_f64(inAdd.mValue.val[1], inMul1.mValue.val[1], inMul2.mValue.val[1]) });
-#elif defined(JPH_USE_RVV)
-	DVec3 res;
-	const vfloat64m2_t v1 = __riscv_vle64_v_f64m2(inMul1.mF64, 3);
-	const vfloat64m2_t v2 = __riscv_vle64_v_f64m2(inMul2.mF64, 3);
-	const vfloat64m2_t rvv_add = __riscv_vle64_v_f64m2(inAdd.mF64, 3);
-	const vfloat64m2_t fmadd = __riscv_vfmacc_vv_f64m2(rvv_add, v1, v2, 3);
-	__riscv_vse64_v_f64m2(res.mF64, fmadd, 3);
-	return res;
 #else
 	return inMul1 * inMul2 + inAdd;
 #endif
@@ -1094,13 +1094,13 @@ DVec3 DVec3::Sqrt() const
 	__riscv_vse64_v_f64m2(res.mF64, rvv_sqrt, 3);
 	return res;
 #else
-	return DVec3(sqrt(mF64[0]), sqrt(mF64[1]), sqrt(mF64[2]));
+	return DVec3(JPH::Sqrt(mF64[0]), JPH::Sqrt(mF64[1]), JPH::Sqrt(mF64[2]));
 #endif
 }
 
 double DVec3::Length() const
 {
-	return sqrt(Dot(*this));
+	return JPH::Sqrt(Dot(*this));
 }
 
 DVec3 DVec3::Normalized() const

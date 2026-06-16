@@ -200,7 +200,7 @@ Vec3 Quat::GetAngularVelocity(float inDeltaTime) const
 	// Otherwise calculate the angle from w = cos(angle / 2) and determine the axis by normalizing the imaginary part
 	// Note that it is also possible to calculate the angle through angle = 2 * atan2(|xyz|, w). This is more accurate but also 2x as expensive.
 	float angle = 2.0f * ACos(w_pos.GetW());
-	return (xyz / (sqrt(xyz_len_sq) * inDeltaTime)) * angle;
+	return (xyz / (Sqrt(xyz_len_sq) * inDeltaTime)) * angle;
 }
 
 Quat Quat::sFromTo(Vec3Arg inFrom, Vec3Arg inTo)
@@ -235,7 +235,7 @@ Quat Quat::sFromTo(Vec3Arg inFrom, Vec3Arg inTo)
 		which then needs to be normalized because the whole equation was multiplied by 2 cos(angle / 2)
 	*/
 
-	float len_v1_v2 = sqrt(inFrom.LengthSq() * inTo.LengthSq());
+	float len_v1_v2 = Sqrt(inFrom.LengthSq() * inTo.LengthSq());
 	float w = len_v1_v2 + inFrom.Dot(inTo);
 
 	if (w == 0.0f)
@@ -259,12 +259,13 @@ Quat Quat::sFromTo(Vec3Arg inFrom, Vec3Arg inTo)
 template <class Random>
 Quat Quat::sRandom(Random &inRandom)
 {
-	std::uniform_real_distribution<float> zero_to_one(0.0f, 1.0f);
-	float x0 = zero_to_one(inRandom);
-	float r1 = sqrt(1.0f - x0), r2 = sqrt(x0);
-	std::uniform_real_distribution<float> zero_to_two_pi(0.0f, 2.0f * JPH_PI);
+	// Using Uniform Random Rotations - Graphics Gems III - Ken Shoemake
+	float x0 = float(inRandom() - inRandom.min()) / float(inRandom.max() - inRandom.min());
+	float r1 = Sqrt(1.0f - x0), r2 = Sqrt(x0);
+	float theta1 = 2.0f * JPH_PI * float(inRandom() - inRandom.min()) / float(inRandom.max() - inRandom.min());
+	float theta2 = 2.0f * JPH_PI * float(inRandom() - inRandom.min()) / float(inRandom.max() - inRandom.min());
 	Vec4 s, c;
-	Vec4(zero_to_two_pi(inRandom), zero_to_two_pi(inRandom), 0, 0).SinCos(s, c);
+	Vec4(theta1, theta2, 0, 0).SinCos(s, c);
 	return Quat(s.GetX() * r1, c.GetX() * r1, s.GetY() * r2, c.GetY() * r2);
 }
 
@@ -290,20 +291,21 @@ Quat Quat::sEulerAngles(Vec3Arg inAngles)
 
 Vec3 Quat::GetEulerAngles() const
 {
-	float y_sq = GetY() * GetY();
+	float x = GetX(), y = GetY(), z = GetZ(), w = GetW();
+	float y_sq = y * y;
 
 	// X
-	float t0 = 2.0f * (GetW() * GetX() + GetY() * GetZ());
-	float t1 = 1.0f - 2.0f * (GetX() * GetX() + y_sq);
+	float t0 = 2.0f * (w * x + y * z);
+	float t1 = 1.0f - 2.0f * (x * x + y_sq);
 
 	// Y
-	float t2 = 2.0f * (GetW() * GetY() - GetZ() * GetX());
+	float t2 = 2.0f * (w * y - z * x);
 	t2 = t2 > 1.0f? 1.0f : t2;
 	t2 = t2 < -1.0f? -1.0f : t2;
 
 	// Z
-	float t3 = 2.0f * (GetW() * GetZ() + GetX() * GetY());
-	float t4 = 1.0f - 2.0f * (y_sq + GetZ() * GetZ());
+	float t3 = 2.0f * (w * z + x * y);
+	float t4 = 1.0f - 2.0f * (y_sq + z * z);
 
 	return Vec3(ATan2(t0, t1), ASin(t2), ATan2(t3, t4));
 }
@@ -313,7 +315,7 @@ Quat Quat::GetTwist(Vec3Arg inAxis) const
 	Quat twist(Vec4(GetXYZ().Dot(inAxis) * inAxis, GetW()));
 	float twist_len = twist.LengthSq();
 	if (twist_len != 0.0f)
-		return twist / sqrt(twist_len);
+		return twist / Sqrt(twist_len);
 	else
 		return Quat::sIdentity();
 }
@@ -321,7 +323,7 @@ Quat Quat::GetTwist(Vec3Arg inAxis) const
 void Quat::GetSwingTwist(Quat &outSwing, Quat &outTwist) const
 {
 	float x = GetX(), y = GetY(), z = GetZ(), w = GetW();
-	float s = sqrt(Square(w) + Square(x));
+	float s = Sqrt(Square(w) + Square(x));
 	if (s != 0.0f)
 	{
 		outTwist = Quat(x / s, 0, 0, w / s);
@@ -338,7 +340,7 @@ void Quat::GetSwingTwist(Quat &outSwing, Quat &outTwist) const
 Quat Quat::LERP(QuatArg inDestination, float inFraction) const
 {
 	float scale0 = 1.0f - inFraction;
-	return Quat(Vec4::sReplicate(scale0) * mValue + Vec4::sReplicate(inFraction) * inDestination.mValue);
+	return Quat(scale0 * mValue + inFraction * inDestination.mValue);
 }
 
 Quat Quat::SLERP(QuatArg inDestination, float inFraction) const
@@ -375,7 +377,7 @@ Quat Quat::SLERP(QuatArg inDestination, float inFraction) const
 	}
 
 	// Interpolate between the two quaternions
-	return Quat(Vec4::sReplicate(scale0) * mValue + Vec4::sReplicate(scale1) * inDestination.mValue).Normalized();
+	return Quat(scale0 * mValue + scale1 * inDestination.mValue).Normalized();
 }
 
 Vec3 Quat::operator * (Vec3Arg inValue) const
@@ -451,7 +453,7 @@ void Quat::StoreFloat4(Float4 *outV) const
 Quat Quat::sLoadFloat3Unsafe(const Float3 &inV)
 {
 	Vec3 v = Vec3::sLoadFloat3Unsafe(inV);
-	float w = sqrt(max(1.0f - v.LengthSq(), 0.0f)); // It is possible that the length of v is a fraction above 1, and we don't want to introduce NaN's in that case so we clamp to 0
+	float w = Sqrt(max(1.0f - v.LengthSq(), 0.0f)); // It is possible that the length of v is a fraction above 1, and we don't want to introduce NaN's in that case so we clamp to 0
 	return Quat(Vec4(v, w));
 }
 

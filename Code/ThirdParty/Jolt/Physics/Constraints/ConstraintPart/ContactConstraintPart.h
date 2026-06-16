@@ -42,7 +42,6 @@ protected:
 	// Note: Constructor will not be called
 	float						mEffectiveMass;
 	float						mTotalLambda;
-	float						mBias;
 };
 
 template <>
@@ -82,13 +81,7 @@ protected:
 	Float3						mInvI2_R2xAxis;
 };
 
-static_assert(sizeof(ContactConstraintPart1<EMotionType::Kinematic>) == 3 * sizeof(float) + sizeof(Float3));
-static_assert(sizeof(ContactConstraintPart1<EMotionType::Dynamic>) == 3 * sizeof(float) + 2 * sizeof(Float3));
-static_assert(sizeof(ContactConstraintPart2<EMotionType::Kinematic>) == sizeof(Float3));
-static_assert(sizeof(ContactConstraintPart2<EMotionType::Dynamic>) == 2 * sizeof(Float3));
-
 /// This is a copy of AxisConstraintPart, specialized to handle contact constraints. See the documentation of AxisConstraintPart for more documentation behind the math.
-/// Warning: Make sure there is 1 float of padding after this class because we read using Vec3::sLoadFloat3Unsafe and a Float3 is the last member.
 template <EMotionType Type1, EMotionType Type2>
 class ContactConstraintPart : public ContactConstraintPart1<Type1>, public ContactConstraintPart2<Type2>
 {
@@ -119,6 +112,9 @@ public:
 	JPH_INLINE void				CalculateConstraintProperties(float inInvMass1, Mat44Arg inInvI1, Vec3Arg inR1PlusU, float inInvMass2, Mat44Arg inInvI2, Vec3Arg inR2, Vec3Arg inWorldSpaceAxis, float inBias = 0.0f)
 	{
 		JPH_ASSERT(inWorldSpaceAxis.IsNormalized(1.0e-5f));
+
+		// Store bias
+		mBias = inBias;
 
 		// Calculate inverse effective mass: K = J M^-1 J^T
 		float inv_effective_mass;
@@ -158,10 +154,7 @@ public:
 		if (inv_effective_mass == 0.0f)
 			this->Deactivate();
 		else
-		{
 			this->mEffectiveMass = 1.0f / inv_effective_mass;
-			this->mBias = inBias;
-		}
 	}
 
 	/// See AxisConstraintPart::WarmStart
@@ -195,7 +188,7 @@ public:
 		// Lagrange multiplier is:
 		//
 		// lambda = -K^-1 (J v + b)
-		float lambda = this->mEffectiveMass * (jv - this->mBias);
+		float lambda = this->mEffectiveMass * (jv - mBias);
 
 		// Return the total accumulated lambda
 		return this->mTotalLambda + lambda;
@@ -242,122 +235,20 @@ public:
 
 		return false;
 	}
+
+private:
+	// Note: Constructor will not be called. This serves as 1 extra float so we can read the previous member using Vec3::sLoadFloat3Unsafe
+	float						mBias;
 };
 
 static_assert(sizeof(ContactConstraintPart<EMotionType::Dynamic, EMotionType::Dynamic>) == 3 * sizeof(float) + 4 * sizeof(Float3));
 static_assert(sizeof(ContactConstraintPart<EMotionType::Dynamic, EMotionType::Kinematic>) == 3 * sizeof(float) + 3 * sizeof(Float3));
 static_assert(sizeof(ContactConstraintPart<EMotionType::Dynamic, EMotionType::Static>) == 3 * sizeof(float) + 2 * sizeof(Float3));
+static_assert(sizeof(ContactConstraintPart<EMotionType::Kinematic, EMotionType::Dynamic>) == 3 * sizeof(float) + 3 * sizeof(Float3));
 static_assert(sizeof(ContactConstraintPart<EMotionType::Kinematic, EMotionType::Kinematic>) == 3 * sizeof(float) + 2 * sizeof(Float3));
 static_assert(sizeof(ContactConstraintPart<EMotionType::Kinematic, EMotionType::Static>) == 3 * sizeof(float) + sizeof(Float3));
 static_assert(sizeof(ContactConstraintPart<EMotionType::Static, EMotionType::Dynamic>) == 3 * sizeof(float) + 2 * sizeof(Float3));
 static_assert(sizeof(ContactConstraintPart<EMotionType::Static, EMotionType::Kinematic>) == 3 * sizeof(float) + sizeof(Float3));
 static_assert(sizeof(ContactConstraintPart<EMotionType::Static, EMotionType::Static>) == 3 * sizeof(float));
-
-/// Concrete contact constraint part that dispatches to the correct templated form based on the motion types of the bodies
-class ConcreteContactConstraintPart
-{
-public:
-	/// Constructor / destructor
-								ConcreteContactConstraintPart() : mDD() { }
-								~ConcreteContactConstraintPart() = default;
-
-	inline bool					SolveVelocityConstraint(Body &inBody1, float inInvMass1, float inInvInertiaScale1, Vec3Arg inR1PlusU, Body &inBody2, float inInvMass2, float inInvInertiaScale2, Vec3Arg inR2, Vec3Arg inWorldSpaceAxis, float inBias, float inMinLambda, float inMaxLambda)
-	{
-		bool rv = false;
-		Vec3 linear_velocity1, angular_velocity1, linear_velocity2, angular_velocity2;
-
-		MotionProperties *mp1 = inBody1.GetMotionPropertiesUnchecked();
-		MotionProperties *mp2 = inBody2.GetMotionPropertiesUnchecked();
-
-		// Dispatch to the correct templated form
-		switch (inBody1.GetMotionType())
-		{
-		case EMotionType::Dynamic:
-			{
-				Mat44 inv_i1 = inInvInertiaScale1 * inBody1.GetInverseInertia();
-				linear_velocity1 = mp1->GetLinearVelocity();
-				angular_velocity1 = mp1->GetAngularVelocity();
-				switch (inBody2.GetMotionType())
-				{
-				case EMotionType::Dynamic:
-					mDD.CalculateConstraintProperties(inInvMass1, inv_i1, inR1PlusU, inInvMass2, inInvInertiaScale2 * inBody2.GetInverseInertia(), inR2, inWorldSpaceAxis, inBias);
-					linear_velocity2 = mp2->GetLinearVelocity();
-					angular_velocity2 = mp2->GetAngularVelocity();
-					rv = mDD.SolveVelocityConstraint(linear_velocity1, angular_velocity1, linear_velocity2, angular_velocity2, inInvMass1, inInvMass2, inWorldSpaceAxis, inMinLambda, inMaxLambda);
-					mp2->ApplyLinearVelocityStep(linear_velocity2);
-					mp2->ApplyAngularVelocityStep(angular_velocity2);
-					break;
-
-				case EMotionType::Kinematic:
-					mDK.CalculateConstraintProperties(inInvMass1, inv_i1, inR1PlusU, 0.0f /* Will not be used */, Mat44() /* Will not be used */, inR2, inWorldSpaceAxis, inBias);
-					linear_velocity2 = mp2->GetLinearVelocity();
-					angular_velocity2 = mp2->GetAngularVelocity();
-					rv = mDK.SolveVelocityConstraint(linear_velocity1, angular_velocity1, linear_velocity2, angular_velocity2, inInvMass1, 0.0f /* Will not be used */, inWorldSpaceAxis, inMinLambda, inMaxLambda);
-					break;
-
-				case EMotionType::Static:
-					JPH_IF_DEBUG(linear_velocity2 = Vec3::sNaN();)
-					JPH_IF_DEBUG(angular_velocity2 = Vec3::sNaN();)
-					mDS.CalculateConstraintProperties(inInvMass1, inv_i1, inR1PlusU, 0.0f /* Will not be used */, Mat44() /* Will not be used */, inR2, inWorldSpaceAxis, inBias);
-					rv = mDS.SolveVelocityConstraint(linear_velocity1, angular_velocity1, linear_velocity2 /* Will not be used */, angular_velocity2 /* Will not be used */, inInvMass1, 0.0f /* Will not be used */, inWorldSpaceAxis, inMinLambda, inMaxLambda);
-					break;
-
-				default:
-					JPH_ASSERT(false);
-					break;
-				}
-				mp1->ApplyLinearVelocityStep(linear_velocity1);
-				mp1->ApplyAngularVelocityStep(angular_velocity1);
-				break;
-			}
-
-		case EMotionType::Kinematic:
-			JPH_ASSERT(inBody2.IsDynamic());
-			mKD.CalculateConstraintProperties(0 /* Will not be used */, Mat44() /* Will not be used */, inR1PlusU, inInvMass2, inInvInertiaScale2 * inBody2.GetInverseInertia(), inR2, inWorldSpaceAxis, inBias);
-			linear_velocity1 = mp1->GetLinearVelocity();
-			angular_velocity1 = mp1->GetAngularVelocity();
-			linear_velocity2 = mp2->GetLinearVelocity();
-			angular_velocity2 = mp2->GetAngularVelocity();
-			rv = mKD.SolveVelocityConstraint(linear_velocity1, angular_velocity1, linear_velocity2, angular_velocity2, 0.0f /* Will not be used */, inInvMass2, inWorldSpaceAxis, inMinLambda, inMaxLambda);
-			mp2->ApplyLinearVelocityStep(linear_velocity2);
-			mp2->ApplyAngularVelocityStep(angular_velocity2);
-			break;
-
-		case EMotionType::Static:
-			JPH_ASSERT(inBody2.IsDynamic());
-			mSD.CalculateConstraintProperties(0 /* Will not be used */, Mat44() /* Will not be used */, inR1PlusU, inInvMass2, inInvInertiaScale2 * inBody2.GetInverseInertia(), inR2, inWorldSpaceAxis, inBias);
-			JPH_IF_DEBUG(linear_velocity1 = Vec3::sNaN();)
-			JPH_IF_DEBUG(angular_velocity1 = Vec3::sNaN();)
-			linear_velocity2 = mp2->GetLinearVelocity();
-			angular_velocity2 = mp2->GetAngularVelocity();
-			rv = mSD.SolveVelocityConstraint(linear_velocity1 /* Will not be used */, angular_velocity1 /* Will not be used */, linear_velocity2, angular_velocity2, 0.0f /* Unused */, inInvMass2, inWorldSpaceAxis, inMinLambda, inMaxLambda);
-			mp2->ApplyLinearVelocityStep(linear_velocity2);
-			mp2->ApplyAngularVelocityStep(angular_velocity2);
-			break;
-
-		default:
-			JPH_ASSERT(false);
-			break;
-		}
-
-		return rv;
-	}
-
-	inline float				GetTotalLambda() const
-	{
-		return mDD.GetTotalLambda();
-	}
-
-private:
-	union
-	{
-		ContactConstraintPart<EMotionType::Dynamic, EMotionType::Dynamic>	mDD;
-		ContactConstraintPart<EMotionType::Dynamic, EMotionType::Kinematic>	mDK;
-		ContactConstraintPart<EMotionType::Dynamic, EMotionType::Static>	mDS;
-		ContactConstraintPart<EMotionType::Kinematic, EMotionType::Dynamic>	mKD;
-		ContactConstraintPart<EMotionType::Static, EMotionType::Dynamic>	mSD;
-	};
-	[[maybe_unused]] float		mPadding; // Pad an extra float so that we can use Vec3::sLoadFloat3Unsafe on the last Float3 member without worrying about reading past the end of the struct
-};
 
 JPH_NAMESPACE_END
