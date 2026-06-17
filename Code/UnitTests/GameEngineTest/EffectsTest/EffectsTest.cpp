@@ -31,6 +31,7 @@ void ezGameEngineTestEffects::SetupSubTests()
   AddSubTest("StressTest", SubTests::StressTest);
   AddSubTest("AdvancedMeshes", SubTests::AdvancedMeshes);
   AddSubTest("Lighting", SubTests::Lighting);
+  AddSubTest("MeshDecals", SubTests::MeshDecals);
 }
 
 ezResult ezGameEngineTestEffects::InitializeSubTest(ezInt32 iIdentifier)
@@ -100,6 +101,13 @@ ezResult ezGameEngineTestEffects::InitializeSubTest(ezInt32 iIdentifier)
       m_ImgCompFrames.PushBack({40});
 
       return m_pOwnApplication->LoadScene("Effects/AssetCache/Common/Scenes/Lighting.ezBinScene");
+    }
+
+    case SubTests::MeshDecals:
+    {
+      m_ImgCompFrames.PushBack({5, 150});
+
+      return m_pOwnApplication->LoadScene("Effects/AssetCache/Common/Scenes/MeshDecals.ezBinScene");
     }
 
       EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
