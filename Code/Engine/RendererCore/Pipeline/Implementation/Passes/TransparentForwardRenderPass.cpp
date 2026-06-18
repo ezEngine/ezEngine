@@ -70,7 +70,7 @@ ezStatus ezTransparentForwardRenderPass::AddRenderPasses(const ezViewData& viewD
     if (!hShadowMask.IsInvalidated())
       pass.ReadTexture(hShadowMask, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
     pass.SetStereoscopic(camera.IsStereoscopic());
-    // BEGIN-DOCS-CODE-SNIPPET: renderpass-render-objects
+
     ezRenderPipelinePass::SetupResourceDependencies(viewData, ref_graph, pass, m_ShadingQuality);
     DeclareRendererDependenciesForCategory(ezDefaultRenderDataCategories::LitMeshDecal, ref_graph, pass);
     pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
@@ -107,7 +107,6 @@ ezStatus ezTransparentForwardRenderPass::AddRenderPasses(const ezViewData& viewD
 
         RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMeshDecal); //
       });
-    // END-DOCS-CODE-SNIPPET
   }
 
   // Copy current color to scene color texture

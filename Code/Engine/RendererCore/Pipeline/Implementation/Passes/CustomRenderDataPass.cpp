@@ -50,19 +50,25 @@ ezStatus ezCustomRenderDataPass::AddRenderPasses(const ezViewData& viewData, con
   if (!hDepthStencil.IsInvalidated())
     pass.AddDepthStencilTarget(hDepthStencil);
   pass.SetStereoscopic(camera.IsStereoscopic());
+
+  // BEGIN-DOCS-CODE-SNIPPET: renderpass-render-objects
   if (m_RenderDataCategory.IsValid())
     DeclareRendererDependenciesForCategory(m_RenderDataCategory, ref_graph, pass);
-  pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
+
+  pass.SetExecuteCallback(
+    [=](const ezRenderGraphContext& ctx)
     {
-    const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
-    if (!m_RenderDataCategory.IsValid())
-      return;
+      const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
+      if (!m_RenderDataCategory.IsValid())
+        return;
 
-    auto batchList = GetPipeline()->GetRenderDataBatchesWithCategory(m_RenderDataCategory);
-    if (batchList.GetBatchCount() == 0)
-      return;
+      auto batchList = GetPipeline()->GetRenderDataBatchesWithCategory(m_RenderDataCategory);
+      if (batchList.GetBatchCount() == 0)
+        return;
 
-    RenderDataWithCategory(renderViewContext, m_RenderDataCategory); });
+      RenderDataWithCategory(renderViewContext, m_RenderDataCategory);
+    });
+  // END-DOCS-CODE-SNIPPET
 
   return EZ_SUCCESS;
 }
