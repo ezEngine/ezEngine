@@ -5,6 +5,7 @@
 #include <Foundation/Math/Color16f.h>
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/Pipeline/RenderData.h>
+#include <Foundation/Time/Time.h>
 
 struct ezMsgSetColor;
 using ezTexture2DResourceHandle = ezTypedResourceHandle<class ezTexture2DResource>;
@@ -51,7 +52,22 @@ public:
   ezUInt32 m_uiUniqueID;
 };
 
-using ezSpriteComponentManager = ezComponentManager<class ezSpriteComponent, ezBlockStorageType::Compact>;
+struct ezSpriteAnimationEndAction
+{
+  using StorageType = ezUInt8;
+
+  enum Enum
+  {
+    Loop,
+    Stop,
+    Destroy,
+    Default = Loop
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezSpriteAnimationEndAction);
+
+using ezSpriteComponentManager = ezComponentManagerSimple<class ezSpriteComponent, ezComponentUpdateType::Always, ezBlockStorageType::Compact>;
 
 /// \brief Renders a screen-oriented quad (billboard) with a maximum screen size.
 ///
@@ -85,6 +101,8 @@ public:
   ezSpriteComponent();
   ~ezSpriteComponent();
 
+  void Update();
+
   void SetTexture(const ezTexture2DResourceHandle& hTexture); // [ property ]
   const ezTexture2DResourceHandle& GetTexture() const;        // [ property ]
 
@@ -105,10 +123,24 @@ private:
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
 
   ezTexture2DResourceHandle m_hTexture;
-  ezEnum<ezSpriteBlendMode> m_BlendMode;
   ezColor m_Color = ezColor::White;
+
+  ezEnum<ezSpriteBlendMode> m_BlendMode;
+  ezEnum<ezSpriteAnimationEndAction> m_EndAction = ezSpriteAnimationEndAction::Default;
+  bool m_bUseMaxScreenSize = true;
+  bool m_bLoop = true;
 
   float m_fSize = 1.0f;
   float m_fMaxScreenSize = 64.0f;
   float m_fAspectRatio = 1.0f;
+
+  ezUInt32 m_uiColumns = 1;
+  ezUInt32 m_uiRows = 1;
+  float m_fFramerate = 24.0f;
+
+  ezInt32 m_iMaxLoops = -1; // -1 = infinite
+
+  ezTime m_TimeSinceStart;
+  ezUInt32 m_uiCurrentLoop = 0;
+  bool m_bIsFinished = false;
 };

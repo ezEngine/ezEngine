@@ -36,6 +36,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpriteRenderData, 1, ezRTTIDefaultAllocator<ez
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
+// clang-format off
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSpriteAnimationEndAction, 1)
+  EZ_ENUM_CONSTANTS(ezSpriteAnimationEndAction::Loop, ezSpriteAnimationEndAction::Stop, ezSpriteAnimationEndAction::Destroy)
+EZ_END_STATIC_REFLECTED_ENUM;
+// clang-format on
+
 void ezSpriteRenderData::FillSortingKey()
 {
   // ignore upper 32 bit of the resource ID hash
@@ -55,7 +61,7 @@ bool ezSpriteRenderData::CanBatch(const ezRenderData& other0) const
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezSpriteComponent, 3, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezSpriteComponent, 4, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -63,8 +69,17 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpriteComponent, 3, ezComponentMode::Static)
     EZ_ENUM_MEMBER_PROPERTY("BlendMode", ezSpriteBlendMode, m_BlendMode),
     EZ_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new ezExposeColorAlphaAttribute()),
     EZ_ACCESSOR_PROPERTY("Size", GetSize, SetSize)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1.0f), new ezSuffixAttribute(" m")),
+
+    EZ_MEMBER_PROPERTY("UseMaxScreenSize", m_bUseMaxScreenSize)->AddAttributes(new ezDefaultValueAttribute(false)),
     EZ_ACCESSOR_PROPERTY("MaxScreenSize", GetMaxScreenSize, SetMaxScreenSize)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(64.0f), new ezSuffixAttribute(" px")),
     EZ_MEMBER_PROPERTY("AspectRatio", m_fAspectRatio)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1.0f)),
+
+    EZ_MEMBER_PROPERTY("Columns", m_uiColumns)->AddAttributes(new ezClampValueAttribute(1, ezVariant()), new ezDefaultValueAttribute(1)),
+    EZ_MEMBER_PROPERTY("Rows", m_uiRows)->AddAttributes(new ezClampValueAttribute(1, ezVariant()), new ezDefaultValueAttribute(1)),
+    EZ_MEMBER_PROPERTY("Framerate", m_fFramerate)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(24.0f)),
+    EZ_MEMBER_PROPERTY("Loop", m_bLoop)->AddAttributes(new ezDefaultValueAttribute(true)),
+    EZ_MEMBER_PROPERTY("MaxLoops", m_iMaxLoops)->AddAttributes(new ezDefaultValueAttribute(-1)),
+    EZ_ENUM_MEMBER_PROPERTY("EndAction", ezSpriteAnimationEndAction, m_EndAction)->AddAttributes(new ezDefaultValueAttribute(ezSpriteAnimationEndAction::Default)),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -85,6 +100,49 @@ EZ_END_COMPONENT_TYPE;
 ezSpriteComponent::ezSpriteComponent() = default;
 ezSpriteComponent::~ezSpriteComponent() = default;
 
+void ezSpriteComponent::Update()
+{
+  if (m_bIsFinished || !m_hTexture.IsValid())
+    return;
+
+  const ezUInt32 uiTotalFrames = m_uiColumns * m_uiRows;
+  if (uiTotalFrames <= 1)
+    return; // Nothing to animate.
+
+  ezTime tDiff = GetWorld()->GetClock().GetTimeDiff();
+  m_TimeSinceStart += tDiff;
+
+  const float fTotalAnimTime = uiTotalFrames / ezMath::Max(0.001f, m_fFramerate);
+
+  if (m_TimeSinceStart.GetSeconds() >= fTotalAnimTime)
+  {
+    m_uiCurrentLoop++;
+
+    if (!m_bLoop || (m_iMaxLoops > 0 && m_uiCurrentLoop >= (ezUInt32)m_iMaxLoops))
+    {
+      m_bIsFinished = true;
+
+      switch (m_EndAction)
+      {
+        case ezSpriteAnimationEndAction::Loop:
+          // Restart time but keep the remainder to prevent stuttering.
+          m_TimeSinceStart -= ezTime::MakeFromSeconds(fTotalAnimTime);
+          m_bIsFinished = false;
+          break;
+        case ezSpriteAnimationEndAction::Stop:
+          m_TimeSinceStart -= ezTime::MakeFromSeconds(fTotalAnimTime);
+          break;
+        case ezSpriteAnimationEndAction::Destroy:
+          GetWorld()->DeleteObjectNow(GetOwner()->GetHandle());
+          break;
+
+        default:
+          break;
+      }
+    }
+  }
+}
+
 ezResult ezSpriteComponent::GetLocalBounds(ezBoundingBoxSphere& ref_bounds, bool& ref_bAlwaysVisible, ezMsgUpdateLocalBounds& ref_msg)
 {
   ref_bounds = ezBoundingSphere::MakeFromCenterAndRadius(ezVec3::MakeZero(), m_fSize * 0.5f);
@@ -104,13 +162,39 @@ void ezSpriteComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) cons
   {
     pRenderData->m_hTexture = m_hTexture;
     pRenderData->m_fSize = m_fSize;
-    pRenderData->m_fMaxScreenSize = m_fMaxScreenSize;
+
+    pRenderData->m_fMaxScreenSize = m_bUseMaxScreenSize ? m_fMaxScreenSize : ezMath::HighValue<float>();
+
     pRenderData->m_fAspectRatio = m_fAspectRatio;
     pRenderData->m_BlendMode = m_BlendMode;
     pRenderData->m_color = m_Color;
-    pRenderData->m_texCoordScale = ezVec2(1.0f);
-    pRenderData->m_texCoordOffset = ezVec2(0.0f);
     pRenderData->m_uiUniqueID = GetUniqueIdForRendering();
+
+    const ezUInt32 uiTotalFrames = ezMath::Max(1u, m_uiColumns * m_uiRows);
+    ezUInt32 uiCurrentFrame = 0;
+
+    if (uiTotalFrames > 1)
+    {
+      if (m_bIsFinished && m_EndAction == ezSpriteAnimationEndAction::Stop)
+      {
+        uiCurrentFrame = uiTotalFrames - 1; // Park at the last frame.
+      }
+      else
+      {
+        uiCurrentFrame = (ezUInt32)(m_TimeSinceStart.GetSeconds() * m_fFramerate) % uiTotalFrames;
+      }
+    }
+
+    // Protect against division by zero before clamping takes effect.
+
+    const ezUInt32 safeCols = ezMath::Max(1u, m_uiColumns);
+    const ezUInt32 safeRows = ezMath::Max(1u, m_uiRows);
+
+    const ezUInt32 x = uiCurrentFrame % safeCols;
+    const ezUInt32 y = uiCurrentFrame / safeCols;
+
+    pRenderData->m_texCoordScale = ezVec2(1.0f / safeCols, 1.0f / safeRows);
+    pRenderData->m_texCoordOffset = ezVec2((float)x * pRenderData->m_texCoordScale.x, (float)y * pRenderData->m_texCoordScale.y);
 
     pRenderData->FillSortingKey();
   }
@@ -138,6 +222,15 @@ void ezSpriteComponent::SerializeComponent(ezWorldWriter& inout_stream) const
   s << m_Color; // HDR now
   s << m_fAspectRatio;
   s << m_BlendMode;
+
+  // Version 4
+  s << m_bUseMaxScreenSize;
+  s << m_uiColumns;
+  s << m_uiRows;
+  s << m_fFramerate;
+  s << m_bLoop;
+  s << m_iMaxLoops;
+  s << m_EndAction;
 }
 
 void ezSpriteComponent::DeserializeComponent(ezWorldReader& inout_stream)
@@ -164,6 +257,17 @@ void ezSpriteComponent::DeserializeComponent(ezWorldReader& inout_stream)
     s >> m_Color;
     s >> m_fAspectRatio;
     s >> m_BlendMode;
+  }
+
+  if (uiVersion >= 4)
+  {
+    s >> m_bUseMaxScreenSize;
+    s >> m_uiColumns;
+    s >> m_uiRows;
+    s >> m_fFramerate;
+    s >> m_bLoop;
+    s >> m_iMaxLoops;
+    s >> m_EndAction;
   }
 }
 
