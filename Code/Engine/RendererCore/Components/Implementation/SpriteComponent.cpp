@@ -79,7 +79,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpriteComponent, 4, ezComponentMode::Static)
     EZ_MEMBER_PROPERTY("Rows", m_uiRows)->AddAttributes(new ezClampValueAttribute(1, ezVariant()), new ezDefaultValueAttribute(1)),
     EZ_MEMBER_PROPERTY("Framerate", m_fFramerate)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(24.0f)),
     EZ_ENUM_MEMBER_PROPERTY("EndAction", ezSpriteAnimationEndAction, m_EndAction)->AddAttributes(new ezDefaultValueAttribute(ezSpriteAnimationEndAction::Default)),
-    EZ_MEMBER_PROPERTY("Loops", m_uiLoops)->AddAttributes(new ezClampValueAttribute(1, ezVariant()), new ezDefaultValueAttribute(1)),
+    EZ_MEMBER_PROPERTY("Loops", m_uiLoops)->AddAttributes(new ezClampValueAttribute(0, ezVariant()), new ezDefaultValueAttribute(1), new ezMinValueTextAttribute("Infinite")),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -164,7 +164,7 @@ void ezSpriteComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) cons
     pRenderData->m_color = m_Color;
     pRenderData->m_uiUniqueID = GetUniqueIdForRendering();
 
-    const ezUInt32 uiTotalFrames = ezMath::Max(1u, m_uiColumns * m_uiRows);
+    const ezUInt16 uiTotalFrames = ezMath::Max((ezUInt16)1u, (ezUInt16)(m_uiColumns * m_uiRows));
     ezUInt32 uiCurrentFrame = 0;
 
     if (uiTotalFrames > 1)
@@ -181,8 +181,8 @@ void ezSpriteComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) cons
 
     // Protect against division by zero before clamping takes effect.
 
-    const ezUInt32 safeCols = ezMath::Max(1u, m_uiColumns);
-    const ezUInt32 safeRows = ezMath::Max(1u, m_uiRows);
+    const ezUInt16 safeCols = ezMath::Max((ezUInt16)1u, (ezUInt16)m_uiColumns);
+    const ezUInt16 safeRows = ezMath::Max((ezUInt16)1u, (ezUInt16)m_uiRows);
 
     const ezUInt32 x = uiCurrentFrame % safeCols;
     const ezUInt32 y = uiCurrentFrame / safeCols;

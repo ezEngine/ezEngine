@@ -134,13 +134,14 @@ private:
   float m_fMaxScreenSize = 64.0f;
   float m_fAspectRatio = 1.0f;
 
-  ezUInt32 m_uiColumns = 1;
-  ezUInt32 m_uiRows = 1;
   float m_fFramerate = 24.0f;
 
-  ezInt32 m_uiLoops = 1;
+  ezUInt32 m_uiLoops = 1;
 
   ezTime m_TimeSinceStart;
   ezUInt32 m_uiCurrentLoop = 0;
+
+  ezUInt8 m_uiColumns = 1;
+  ezUInt8 m_uiRows = 1;
   bool m_bIsFinished = false;
 };
