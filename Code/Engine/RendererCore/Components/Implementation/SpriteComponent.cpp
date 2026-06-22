@@ -79,7 +79,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpriteComponent, 4, ezComponentMode::Static)
     EZ_MEMBER_PROPERTY("Rows", m_uiRows)->AddAttributes(new ezClampValueAttribute(1, ezVariant()), new ezDefaultValueAttribute(1)),
     EZ_MEMBER_PROPERTY("Framerate", m_fFramerate)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(24.0f)),
     EZ_ENUM_MEMBER_PROPERTY("EndAction", ezSpriteAnimationEndAction, m_EndAction)->AddAttributes(new ezDefaultValueAttribute(ezSpriteAnimationEndAction::Default)),
-    EZ_MEMBER_PROPERTY("Loops", m_uiLoops)->AddAttributes(new ezClampValueAttribute(0, ezVariant()), new ezDefaultValueAttribute(1), new ezMinValueTextAttribute("Infinite")),
+    EZ_MEMBER_PROPERTY("Loops", m_uiLoops)->AddAttributes(new ezClampValueAttribute(0, ezVariant()), new ezDefaultValueAttribute(0), new ezMinValueTextAttribute("Infinite")),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -102,7 +102,7 @@ ezSpriteComponent::~ezSpriteComponent() = default;
 
 void ezSpriteComponent::Update()
 {
-  if (!m_bIsAnimated || m_bIsFinished || !m_hTexture.IsValid())
+  if (!m_bIsAnimated || !m_hTexture.IsValid())
     return;
 
   const ezUInt32 uiTotalFrames = m_uiColumns * m_uiRows;
@@ -124,7 +124,7 @@ void ezSpriteComponent::Update()
     {
       if (m_uiCurrentLoop >= m_uiLoops)
       {
-        m_bIsFinished = true;
+        m_bIsAnimated = false;
 
         if (m_EndAction == ezSpriteAnimationEndAction::Destroy)
         {
@@ -167,7 +167,7 @@ void ezSpriteComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) cons
 
     if (uiTotalFrames > 1)
     {
-      if (m_bIsFinished && m_EndAction == ezSpriteAnimationEndAction::Stop)
+      if (!m_bIsAnimated && m_EndAction == ezSpriteAnimationEndAction::Stop)
       {
         uiCurrentFrame = uiTotalFrames - 1; // Park at the last frame.
       }

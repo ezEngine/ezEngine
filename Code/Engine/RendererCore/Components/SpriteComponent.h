@@ -143,5 +143,4 @@ private:
 
   ezUInt8 m_uiColumns = 1;
   ezUInt8 m_uiRows = 1;
-  bool m_bIsFinished = false;
 };
