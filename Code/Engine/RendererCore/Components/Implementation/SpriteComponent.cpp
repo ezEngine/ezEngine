@@ -70,7 +70,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpriteComponent, 4, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new ezExposeColorAlphaAttribute()),
     EZ_ACCESSOR_PROPERTY("Size", GetSize, SetSize)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1.0f), new ezSuffixAttribute(" m")),
 
-    EZ_MEMBER_PROPERTY("UseMaxScreenSize", m_bUseMaxScreenSize)->AddAttributes(new ezDefaultValueAttribute(false)),
+    EZ_MEMBER_PROPERTY("UseMaxScreenSize", m_bUseMaxScreenSize)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_ACCESSOR_PROPERTY("MaxScreenSize", GetMaxScreenSize, SetMaxScreenSize)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(64.0f), new ezSuffixAttribute(" px")),
     EZ_MEMBER_PROPERTY("AspectRatio", m_fAspectRatio)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1.0f)),
 
