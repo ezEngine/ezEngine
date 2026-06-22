@@ -74,12 +74,12 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpriteComponent, 4, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("MaxScreenSize", GetMaxScreenSize, SetMaxScreenSize)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(64.0f), new ezSuffixAttribute(" px")),
     EZ_MEMBER_PROPERTY("AspectRatio", m_fAspectRatio)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1.0f)),
 
+    EZ_MEMBER_PROPERTY("IsAnimated", m_bIsAnimated)->AddAttributes(new ezDefaultValueAttribute(false)),
     EZ_MEMBER_PROPERTY("Columns", m_uiColumns)->AddAttributes(new ezClampValueAttribute(1, ezVariant()), new ezDefaultValueAttribute(1)),
     EZ_MEMBER_PROPERTY("Rows", m_uiRows)->AddAttributes(new ezClampValueAttribute(1, ezVariant()), new ezDefaultValueAttribute(1)),
     EZ_MEMBER_PROPERTY("Framerate", m_fFramerate)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(24.0f)),
-    EZ_MEMBER_PROPERTY("Loop", m_bLoop)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("MaxLoops", m_iMaxLoops)->AddAttributes(new ezDefaultValueAttribute(-1)),
     EZ_ENUM_MEMBER_PROPERTY("EndAction", ezSpriteAnimationEndAction, m_EndAction)->AddAttributes(new ezDefaultValueAttribute(ezSpriteAnimationEndAction::Default)),
+    EZ_MEMBER_PROPERTY("Loops", m_uiLoops)->AddAttributes(new ezClampValueAttribute(1, ezVariant()), new ezDefaultValueAttribute(1)),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -102,7 +102,7 @@ ezSpriteComponent::~ezSpriteComponent() = default;
 
 void ezSpriteComponent::Update()
 {
-  if (m_bIsFinished || !m_hTexture.IsValid())
+  if (!m_bIsAnimated || m_bIsFinished || !m_hTexture.IsValid())
     return;
 
   const ezUInt32 uiTotalFrames = m_uiColumns * m_uiRows;
@@ -114,30 +114,24 @@ void ezSpriteComponent::Update()
 
   const float fTotalAnimTime = uiTotalFrames / ezMath::Max(0.001f, m_fFramerate);
 
+  ezLog::Info("Time Since Start: {}, Total Animation Time: {}", m_TimeSinceStart.GetSeconds(), fTotalAnimTime);
   if (m_TimeSinceStart.GetSeconds() >= fTotalAnimTime)
   {
     m_uiCurrentLoop++;
+    ezLog::Info("Current Loop Changed to {}", m_uiCurrentLoop);
 
-    if (!m_bLoop || (m_iMaxLoops > 0 && m_uiCurrentLoop >= (ezUInt32)m_iMaxLoops))
+    m_TimeSinceStart -= ezTime::MakeFromSeconds(fTotalAnimTime);
+
+    if (m_EndAction != ezSpriteAnimationEndAction::Loop)
     {
-      m_bIsFinished = true;
-
-      switch (m_EndAction)
+      if (m_uiCurrentLoop >= m_uiLoops)
       {
-        case ezSpriteAnimationEndAction::Loop:
-          // Restart time but keep the remainder to prevent stuttering.
-          m_TimeSinceStart -= ezTime::MakeFromSeconds(fTotalAnimTime);
-          m_bIsFinished = false;
-          break;
-        case ezSpriteAnimationEndAction::Stop:
-          m_TimeSinceStart -= ezTime::MakeFromSeconds(fTotalAnimTime);
-          break;
-        case ezSpriteAnimationEndAction::Destroy:
-          GetWorld()->DeleteObjectNow(GetOwner()->GetHandle());
-          break;
+        m_bIsFinished = true;
 
-        default:
-          break;
+        if (m_EndAction == ezSpriteAnimationEndAction::Destroy)
+        {
+          GetWorld()->DeleteObjectNow(GetOwner()->GetHandle());
+        }
       }
     }
   }
@@ -206,7 +200,9 @@ void ezSpriteComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) cons
     category = ezDefaultRenderDataCategories::LitMasked;
   }
 
-  msg.AddRenderData(pRenderData, category, ezRenderData::Caching::IfStatic);
+  const auto cachingFlags = m_bIsAnimated ? ezRenderData::Caching::Never : ezRenderData::Caching::IfStatic;
+
+  msg.AddRenderData(pRenderData, category, cachingFlags);
 }
 
 void ezSpriteComponent::SerializeComponent(ezWorldWriter& inout_stream) const
@@ -225,11 +221,11 @@ void ezSpriteComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 
   // Version 4
   s << m_bUseMaxScreenSize;
+  s << m_bIsAnimated;
   s << m_uiColumns;
   s << m_uiRows;
   s << m_fFramerate;
-  s << m_bLoop;
-  s << m_iMaxLoops;
+  s << m_uiLoops;
   s << m_EndAction;
 }
 
@@ -262,11 +258,11 @@ void ezSpriteComponent::DeserializeComponent(ezWorldReader& inout_stream)
   if (uiVersion >= 4)
   {
     s >> m_bUseMaxScreenSize;
+    s >> m_bIsAnimated;
     s >> m_uiColumns;
     s >> m_uiRows;
     s >> m_fFramerate;
-    s >> m_bLoop;
-    s >> m_iMaxLoops;
+    s >> m_uiLoops;
     s >> m_EndAction;
   }
 }

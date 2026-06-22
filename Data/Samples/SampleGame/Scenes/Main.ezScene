@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{10991936023139991684,4849455965415217685}}
-		u4 %Hash{16197563020347398232}
+		u4 %Hash{5210501018981786561}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -165,7 +165,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::ForceDynamic"}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{"Animated Torch Sprite"}
 		VarArray %Tags{}
 	}
@@ -390,13 +390,13 @@ o
 		s %BlendMode{"ezSpriteBlendMode::Masked"}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		u3 %Columns{4}
-		s %EndAction{"ezSpriteAnimationEndAction::Loop"}
+		s %EndAction{"ezSpriteAnimationEndAction::Stop"}
 		f %Framerate{0x00000041}
-		b %Loop{0}
-		i3 %MaxLoops{3}
+		b %IsAnimated{1}
+		i3 %Loops{4}
 		f %MaxScreenSize{0x00008042}
 		u3 %Rows{2}
-		f %Size{0x9A991940}
+		f %Size{0x00000040}
 		s %Texture{"{ 96de5ab9-1132-4473-be58-5a01b38209b1 }"}
 		b %UseMaxScreenSize{0}
 	}

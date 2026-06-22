@@ -128,7 +128,7 @@ private:
   ezEnum<ezSpriteBlendMode> m_BlendMode;
   ezEnum<ezSpriteAnimationEndAction> m_EndAction = ezSpriteAnimationEndAction::Default;
   bool m_bUseMaxScreenSize = true;
-  bool m_bLoop = true;
+  bool m_bIsAnimated = false;
 
   float m_fSize = 1.0f;
   float m_fMaxScreenSize = 64.0f;
@@ -138,7 +138,7 @@ private:
   ezUInt32 m_uiRows = 1;
   float m_fFramerate = 24.0f;
 
-  ezInt32 m_iMaxLoops = -1; // -1 = infinite
+  ezInt32 m_uiLoops = 1;
 
   ezTime m_TimeSinceStart;
   ezUInt32 m_uiCurrentLoop = 0;
