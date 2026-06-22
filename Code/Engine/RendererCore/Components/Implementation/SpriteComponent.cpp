@@ -114,11 +114,9 @@ void ezSpriteComponent::Update()
 
   const float fTotalAnimTime = uiTotalFrames / ezMath::Max(0.001f, m_fFramerate);
 
-  ezLog::Info("Time Since Start: {}, Total Animation Time: {}", m_TimeSinceStart.GetSeconds(), fTotalAnimTime);
   if (m_TimeSinceStart.GetSeconds() >= fTotalAnimTime)
   {
     m_uiCurrentLoop++;
-    ezLog::Info("Current Loop Changed to {}", m_uiCurrentLoop);
 
     m_TimeSinceStart -= ezTime::MakeFromSeconds(fTotalAnimTime);
 
