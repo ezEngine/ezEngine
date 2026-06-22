@@ -36,12 +36,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpriteRenderData, 1, ezRTTIDefaultAllocator<ez
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-// clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSpriteAnimationEndAction, 1)
-  EZ_ENUM_CONSTANTS(ezSpriteAnimationEndAction::Loop, ezSpriteAnimationEndAction::Stop, ezSpriteAnimationEndAction::Destroy)
-EZ_END_STATIC_REFLECTED_ENUM;
-// clang-format on
-
 void ezSpriteRenderData::FillSortingKey()
 {
   // ignore upper 32 bit of the resource ID hash
@@ -78,8 +72,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpriteComponent, 4, ezComponentMode::Static)
     EZ_MEMBER_PROPERTY("Columns", m_uiColumns)->AddAttributes(new ezClampValueAttribute(1, ezVariant()), new ezDefaultValueAttribute(1)),
     EZ_MEMBER_PROPERTY("Rows", m_uiRows)->AddAttributes(new ezClampValueAttribute(1, ezVariant()), new ezDefaultValueAttribute(1)),
     EZ_MEMBER_PROPERTY("Framerate", m_fFramerate)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(24.0f)),
-    EZ_ENUM_MEMBER_PROPERTY("EndAction", ezSpriteAnimationEndAction, m_EndAction)->AddAttributes(new ezDefaultValueAttribute(ezSpriteAnimationEndAction::Default)),
     EZ_MEMBER_PROPERTY("Loops", m_uiLoops)->AddAttributes(new ezClampValueAttribute(0, ezVariant()), new ezDefaultValueAttribute(0), new ezMinValueTextAttribute("Infinite")),
+    EZ_ENUM_MEMBER_PROPERTY("LoopEndAction", ezOnComponentFinishedAction, m_EndAction)
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -120,16 +114,17 @@ void ezSpriteComponent::Update()
 
     m_TimeSinceStart -= ezTime::MakeFromSeconds(fTotalAnimTime);
 
-    if (m_EndAction != ezSpriteAnimationEndAction::Loop)
+    if (m_uiLoops != 0 && m_uiCurrentLoop >= m_uiLoops)
     {
-      if (m_uiCurrentLoop >= m_uiLoops)
-      {
-        m_bIsAnimated = false;
+      m_bIsAnimated = false;
 
-        if (m_EndAction == ezSpriteAnimationEndAction::Destroy)
-        {
-          GetWorld()->DeleteObjectNow(GetOwner()->GetHandle());
-        }
+      if (m_EndAction == ezOnComponentFinishedAction::DeleteComponent)
+      {
+        DeleteComponent();
+      }
+      else if (m_EndAction == ezOnComponentFinishedAction::DeleteGameObject)
+      {
+        GetWorld()->DeleteObjectNow(GetOwner()->GetHandle());
       }
     }
   }
@@ -167,7 +162,7 @@ void ezSpriteComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) cons
 
     if (uiTotalFrames > 1)
     {
-      if (!m_bIsAnimated && m_EndAction == ezSpriteAnimationEndAction::Stop)
+      if (!m_bIsAnimated && m_EndAction == ezOnComponentFinishedAction::None)
       {
         uiCurrentFrame = uiTotalFrames - 1; // Park at the last frame.
       }

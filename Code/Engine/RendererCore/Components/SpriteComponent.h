@@ -52,21 +52,6 @@ public:
   ezUInt32 m_uiUniqueID;
 };
 
-struct ezSpriteAnimationEndAction
-{
-  using StorageType = ezUInt8;
-
-  enum Enum
-  {
-    Loop,
-    Stop,
-    Destroy,
-    Default = Loop
-  };
-};
-
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezSpriteAnimationEndAction);
-
 using ezSpriteComponentManager = ezComponentManagerSimple<class ezSpriteComponent, ezComponentUpdateType::Always, ezBlockStorageType::Compact>;
 
 /// \brief Renders a screen-oriented quad (billboard) with a maximum screen size.
@@ -126,7 +111,7 @@ private:
   ezColor m_Color = ezColor::White;
 
   ezEnum<ezSpriteBlendMode> m_BlendMode;
-  ezEnum<ezSpriteAnimationEndAction> m_EndAction = ezSpriteAnimationEndAction::Default;
+  ezEnum<ezOnComponentFinishedAction> m_EndAction = ezOnComponentFinishedAction::Default;
   bool m_bUseMaxScreenSize = true;
   bool m_bIsAnimated = false;
 
@@ -136,7 +121,7 @@ private:
 
   float m_fFramerate = 24.0f;
 
-  ezUInt32 m_uiLoops = 1;
+  ezUInt32 m_uiLoops = 0;
 
   ezTime m_TimeSinceStart;
   ezUInt32 m_uiCurrentLoop = 0;

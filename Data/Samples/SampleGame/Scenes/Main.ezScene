@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{10991936023139991684,4849455965415217685}}
-		u4 %Hash{5210501018981786561}
+		u4 %Hash{503404682665130119}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -389,13 +389,13 @@ o
 		f %AspectRatio{0x0000803F}
 		s %BlendMode{"ezSpriteBlendMode::Masked"}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-		u3 %Columns{4}
-		s %EndAction{"ezSpriteAnimationEndAction::Stop"}
+		u1 %Columns{4}
 		f %Framerate{0x00000041}
 		b %IsAnimated{1}
-		i3 %Loops{4}
+		s %LoopEndAction{"ezOnComponentFinishedAction::None"}
+		u3 %Loops{0}
 		f %MaxScreenSize{0x00008042}
-		u3 %Rows{2}
+		u1 %Rows{2}
 		f %Size{0x00000040}
 		s %Texture{"{ 96de5ab9-1132-4473-be58-5a01b38209b1 }"}
 		b %UseMaxScreenSize{0}
@@ -6464,23 +6464,6 @@ o
 }
 o
 {
-	Uuid %id{u4{1746454652317952527,8440347139122873383}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezEnumBase"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezSpriteAnimationEndAction"}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
 	Uuid %id{u4{7768413804913695997,8445575526993733033}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
@@ -6747,6 +6730,23 @@ o
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
 		s %Name{"CustomData"}
 		s %Type{"ezStringView"}
+	}
+}
+o
+{
+	Uuid %id{u4{2869469983493172804,11764438314605031013}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezOnComponentFinishedAction"}
+		u3 %TypeVersion{1}
 	}
 }
 o
