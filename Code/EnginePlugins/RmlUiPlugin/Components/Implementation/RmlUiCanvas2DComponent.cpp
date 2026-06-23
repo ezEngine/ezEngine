@@ -9,7 +9,7 @@
 #include <Core/Input/InputManager.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
-#include <GameEngine/Gameplay/BlackboardComponent.h>
+#include <RendererCore/Components/BlackboardComponent.h>
 #include <RendererCore/Pipeline/RenderDataManager.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>

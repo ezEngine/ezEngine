@@ -30,6 +30,8 @@ public:
   ~ezVolumeSamplerComponent();
   ezVolumeSamplerComponent& operator=(ezVolumeSamplerComponent&& other);
 
+  virtual void OnActivated() override;
+
   virtual void SerializeComponent(ezWorldWriter& inout_stream) const override;
   virtual void DeserializeComponent(ezWorldReader& inout_stream) override;
 
@@ -38,8 +40,14 @@ public:
   const char* GetVolumeType() const;      // [ property ]
 
   /// \brief If enabled, the sampling position will be the main camera's position. Otherwise, the owner's position is used.
-  void SetAttachToMainCamera(bool bAttach);                            // [ property ]
-  bool GetAttachToMainCamera() const { return m_bAttachToMainCamera; } // [ property ]
+  void SetAttachToMainCamera(bool bAttach);                                     // [ property ]
+  bool GetAttachToMainCamera() const { return m_bAttachToMainCamera; }          // [ property ]
+
+  void SetWriteToBlackboard(bool bWriteToBlackboard);                           // [ property ]
+  bool GetWriteToBlackboard() const { return m_bWriteToBlackboard; }            // [ property ]
+
+  void SetBlackboardName(const ezHashedString& sName);                          // [ property ]
+  const ezHashedString& GetBlackboardName() const { return m_sBlackboardName; } // [ property ]
 
   /// \brief Registers a new value to be sampled from the volumes. This registration is only done at runtime and not serialized.
   void RegisterValue(const ezHashedString& sName, const ezVariant& defaultValue, ezTime interpolationDuration = ezTime::MakeZero()); // [ scriptable ]
@@ -63,4 +71,9 @@ private:
   ezUniquePtr<ezVolumeSampler> m_pSampler;
   ezSpatialData::Category m_SpatialCategory = ezInvalidSpatialDataCategory;
   bool m_bAttachToMainCamera = false;
+  bool m_bWriteToBlackboard = false;
+
+  ezHashedString m_sBlackboardName;
+
+  ezSharedPtr<ezBlackboard> m_pBlackboard;
 };

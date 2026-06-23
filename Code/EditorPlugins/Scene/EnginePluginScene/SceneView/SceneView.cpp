@@ -1,6 +1,7 @@
 #include <EnginePluginScene/EnginePluginScenePCH.h>
 
 #include <Core/Interfaces/SoundInterface.h>
+#include <Core/Utils/Blackboard.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoComponent.h>
 #include <EnginePluginScene/SceneView/SceneView.h>
@@ -86,8 +87,8 @@ bool ezSceneViewContext::UpdateThumbnailCamera(const ezBoundingBoxSphere& bounds
   {
     pView->SetViewRenderMode(ezViewRenderMode::Default);
     pView->SetRenderPassProperty("EditorSelectionPass", "Active", false);
-    pView->SetExtractorProperty("EditorShapeIconsExtractor", "Active", false);
-    pView->SetExtractorProperty("EditorGridExtractor", "Active", false);
+    pView->SetRenderPassProperty("EditorShapeIconsExtractor", "Active", false);
+    pView->SetRenderPassProperty("EditorGridExtractor", "Active", false);
     pView->SetRenderPassProperty("EditorPickingPass", "PickSelected", true);
   }
 
@@ -201,12 +202,12 @@ void ezSceneViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
   {
     m_CullingCamera = m_Camera;
   }
+}
 
-  if (pView != nullptr)
-  {
-    pView->SetRenderPassProperty("EditorSelectionPass", "Active", m_pSceneContext->GetRenderSelectionOverlay());
-    pView->SetExtractorProperty("EditorShapeIconsExtractor", "Active", m_pSceneContext->GetRenderShapeIcons());
-  }
+void ezSceneViewContext::SetViewProperties(ezView* pView)
+{
+  pView->SetRenderPassProperty("EditorSelectionPass", "Active", m_pSceneContext->GetRenderSelectionOverlay());
+  pView->SetRenderPassProperty("EditorShapeIconsExtractor", "Active", m_pSceneContext->GetRenderShapeIcons());
 }
 
 ezViewHandle ezSceneViewContext::CreateView()
@@ -214,12 +215,14 @@ ezViewHandle ezSceneViewContext::CreateView()
   ezView* pView = nullptr;
   ezRenderWorld::CreateView("Editor - View", pView);
 
-  pView->SetRenderPipelineResource(CreateDefaultRenderPipeline());
+  pView->SetBlackboard(ezBlackboard::Create("EditorViewBlackboard"));
 
   ezVariant sceneContextVariant(m_pSceneContext);
-  pView->SetExtractorProperty("EditorSelectedObjectsExtractor", "SceneContext", sceneContextVariant);
-  pView->SetExtractorProperty("EditorShapeIconsExtractor", "SceneContext", sceneContextVariant);
-  pView->SetExtractorProperty("EditorGridExtractor", "SceneContext", sceneContextVariant);
+  pView->SetRenderPassProperty("EditorSelectedObjectsExtractor", "SceneContext", sceneContextVariant);
+  pView->SetRenderPassProperty("EditorShapeIconsExtractor", "SceneContext", sceneContextVariant);
+  pView->SetRenderPassProperty("EditorGridExtractor", "SceneContext", sceneContextVariant);
+
+  pView->SetRenderPipelineResource(CreateDefaultRenderPipeline());
 
   ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
   pView->SetWorld(pDocumentContext->GetWorld());

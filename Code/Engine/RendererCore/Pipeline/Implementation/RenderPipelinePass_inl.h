@@ -48,6 +48,7 @@ ezRenderPipelinePinConnection& ezRenderPipelinePinConnection::operator=(const ez
         m_BufferHandle = other.m_BufferHandle;
         break;
       default:
+        m_TextureHandle = ezRenderGraphTextureHandle();
         break;
     }
   }

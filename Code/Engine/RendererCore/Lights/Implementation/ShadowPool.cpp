@@ -2,6 +2,7 @@
 
 #include <Core/GameApplication/GameApplicationBase.h>
 #include <Core/Graphics/Camera.h>
+#include <Core/Utils/Blackboard.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Profiling/Profiling.h>
@@ -22,7 +23,6 @@
 #include <RendererFoundation/Shader/ShaderUtils.h>
 
 #include <Shaders/Common/LightData.h>
-
 
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, ShadowPool)
@@ -270,10 +270,10 @@ struct ezShadowPool::Data
     // rendering.
     pView->SetViewport(ezRectFloat(0.0f, 0.0f, 1024.0f, 1024.0f));
 
-    const ezTag& tagCastShadows = ezTagRegistry::GetGlobalRegistry().RegisterTag("CastShadow");
-    pView->m_IncludeTags.Set(tagCastShadows);
-
+    pView->m_IncludeTags.SetByName("CastShadow");
     pView->m_ExcludeTags.SetByName("EditorHidden");
+
+    pView->SetBlackboard(ezBlackboard::Create("ShadowViewBlackboard"));
 
     return hView;
   }
@@ -446,7 +446,7 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
       pView->SetWorld(const_cast<ezWorld*>(pDirLight->GetWorld()));
       pView->SetCullingCamera(&shadowView.m_CullingCamera);
       pView->SetLodCamera(pReferenceCamera);
-      pView->SetRenderPassProperty("ShadowDepth", "RenderTransparentObjects", pDirLight->GetTransparentShadows());
+      pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("ShadowDepth.RenderTransparentObjects"), pDirLight->GetTransparentShadows());
       CopyExcludeTagsOnWhiteList(pReferenceView->m_ExcludeTags, pView->m_ExcludeTags);
     }
 

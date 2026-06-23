@@ -2,7 +2,7 @@
 
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
-#include <GameEngine/Gameplay/BlackboardComponent.h>
+#include <RendererCore/Components/BlackboardComponent.h>
 #include <GameEngine/StateMachine/StateMachineComponent.h>
 
 // clang-format off
@@ -416,7 +416,7 @@ void ezStateMachineComponent::InstantiateStateMachine()
   }
 
   m_pStateMachineInstance = pStateMachineResource->CreateInstance(*this);
-  m_pStateMachineInstance->SetBlackboard(ezBlackboardComponent::FindBlackboard(GetOwner(), m_sBlackboardName.GetView()));
+  m_pStateMachineInstance->SetBlackboard(ezBlackboardComponent::FindBlackboard(*GetOwner(), m_sBlackboardName.GetView()));
   m_pStateMachineInstance->SetStateOrFallback(m_sInitialState).IgnoreResult();
 }
 

@@ -11,7 +11,7 @@ o
 		s %AssetType{"BlackboardTemplate"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{6483898052508378242,4872236789633655366}}
-		u4 %Hash{10404090399828156306}
+		u4 %Hash{11636519468488527633}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps{}
@@ -31,7 +31,7 @@ o
 	{
 		s %Flags{""}
 		Color %InitialValue{f{0xA209AF3F,0,0x6DC98140,0x0000803F}}
-		HashedString %Name{s{"MoodColor"}}
+		HashedString %Name{s{"TonemapPass.MoodColor"}}
 	}
 }
 o
@@ -58,7 +58,7 @@ o
 	{
 		s %Flags{""}
 		f %InitialValue{0x9A99993F}
-		HashedString %Name{s{"MoodStrength"}}
+		HashedString %Name{s{"TonemapPass.MoodStrength"}}
 	}
 }
 o

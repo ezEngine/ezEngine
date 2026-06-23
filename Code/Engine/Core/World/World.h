@@ -327,6 +327,12 @@ public:
   /// If more control is desired, individual components should use their own RNG.
   ezRandom& GetRandomNumberGenerator();
 
+  /// \brief Returns the blackboard that is associated with this world.
+  const ezSharedPtr<ezBlackboard>& GetBlackboard();
+
+  /// \brief Returns the blackboard that is associated with this world.
+  ezSharedPtr<const ezBlackboard> GetBlackboard() const;
+
 
   /// \brief Returns the allocator used by this world.
   ezAllocator* GetAllocator();

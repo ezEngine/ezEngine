@@ -117,8 +117,7 @@ private:
   };
 
 private:
-  static void CreateViews(
-    ezDynamicArray<ReflectionView>& views, ezUInt32 uiMaxRenderViews, const char* szNameSuffix, const char* szRenderPipelineResource);
+  static void CreateViews(ezDynamicArray<ReflectionView>& views, ezUInt32 uiMaxRenderViews, const char* szNameSuffix, const char* szRenderPipelineResource);
   void CreateReflectionViewsAndResources();
 
   void ResetProbeUpdateInfo(ezUInt32 uiInfo);

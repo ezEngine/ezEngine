@@ -595,8 +595,8 @@ void ezEngineProcessDocumentContext::CreateThumbnailViewContext(const ezCreateTh
   {
     pView->SetViewRenderMode(ezViewRenderMode::Default);
     pView->SetRenderPassProperty("EditorSelectionPass", "Active", false);
-    pView->SetExtractorProperty("EditorShapeIconsExtractor", "Active", false);
-    pView->SetExtractorProperty("EditorGridExtractor", "Active", false);
+    pView->SetRenderPassProperty("EditorShapeIconsExtractor", "Active", false);
+    pView->SetRenderPassProperty("EditorGridExtractor", "Active", false);
     pView->SetRenderPassProperty("EditorPickingPass", "Active", false);
 
     for (const ezString& sTag : pMsg->m_ViewExcludeTags)

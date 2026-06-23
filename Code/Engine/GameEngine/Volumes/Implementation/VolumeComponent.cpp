@@ -3,8 +3,8 @@
 #include <Core/Messages/UpdateLocalBoundsMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
-#include <GameEngine/Utils/BlackboardTemplateResource.h>
 #include <GameEngine/Volumes/VolumeComponent.h>
+#include <RendererCore/Utils/BlackboardTemplateResource.h>
 
 // clang-format off
 EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezVolumeComponent, 1)

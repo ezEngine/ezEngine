@@ -6,7 +6,7 @@
 #include <Foundation/Strings/HashedString.h>
 #include <GameEngine/Animation/Skeletal/AnimatedMeshComponent.h>
 #include <GameEngine/Animation/Skeletal/AnimationControllerComponent.h>
-#include <GameEngine/Gameplay/BlackboardComponent.h>
+#include <RendererCore/Components/BlackboardComponent.h>
 #include <GameEngine/Physics/CharacterControllerComponent.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphResource.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
@@ -107,7 +107,7 @@ void ezAnimationControllerComponent::OnSimulationStarted()
   if (!msg.m_hSkeleton.IsValid())
     return;
 
-  m_AnimController.Initialize(msg.m_hSkeleton, m_PoseGenerator, ezBlackboardComponent::FindBlackboard(GetOwner()));
+  m_AnimController.Initialize(msg.m_hSkeleton, m_PoseGenerator, ezBlackboardComponent::FindBlackboard(*GetOwner()));
   m_AnimController.AddAnimGraph(m_hAnimGraph);
 
   for (const auto& clip : m_AnimationClipOverrides)

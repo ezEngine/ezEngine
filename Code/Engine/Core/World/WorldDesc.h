@@ -5,6 +5,7 @@
 #include <Foundation/Types/SharedPtr.h>
 #include <Foundation/Types/UniquePtr.h>
 
+#include <Core/Utils/Blackboard.h>
 #include <Core/World/CoordinateSystem.h>
 #include <Core/World/SpatialSystem.h>
 
@@ -21,10 +22,11 @@ struct ezWorldDesc
   ezUniquePtr<ezSpatialSystem> m_pSpatialSystem;                                  ///< Custom spatial system to use for this world
   bool m_bAutoCreateSpatialSystem = true;                                         ///< Automatically create a default spatial system if none is set
 
+  bool m_bReportErrorWhenStaticObjectMoves = true;                                ///< Whether to log errors when objects marked as static change position
+
   ezSharedPtr<ezCoordinateSystemProvider> m_pCoordinateSystemProvider;            ///< Optional provider for position-dependent coordinate systems
   ezUniquePtr<ezTimeStepSmoothing> m_pTimeStepSmoothing;                          ///< Custom time step smoothing (if nullptr, ezDefaultTimeStepSmoothing will be used)
-
-  bool m_bReportErrorWhenStaticObjectMoves = true;                                ///< Whether to log errors when objects marked as static change position
+  ezSharedPtr<ezBlackboard> m_pBlackboard;                                        ///< Custom blackboard to use for this world (if nullptr, a new blackboard will be created)
 
   ezTime m_MaxComponentInitializationTimePerFrame = ezTime::MakeFromHours(10000); ///< Maximum time to spend on component initialization per frame
 };

@@ -26,6 +26,10 @@ void ezVolumeSampler::RegisterValue(ezHashedString sName, ezVariant defaultValue
   {
     value.m_fInterpolationFactor = -1.0;
   }
+
+  ezStringBuilder sb = sName.GetView();
+  sb.Append("_Strength");
+  value.m_sStrengthName.Assign(sb);
 }
 
 void ezVolumeSampler::DeregisterValue(ezHashedString sName)
@@ -38,7 +42,7 @@ void ezVolumeSampler::DeregisterAllValues()
   m_Values.Clear();
 }
 
-void ezVolumeSampler::SampleAtPosition(const ezWorld& world, ezSpatialData::Category spatialCategory, const ezVec3& vGlobalPosition, ezTime deltaTime)
+void ezVolumeSampler::SampleAtPosition(const ezWorld& world, ezSpatialData::Category spatialCategory, const ezVec3& vGlobalPosition, ezTime deltaTime, ezBlackboard* pTargetBlackboard /*= nullptr*/)
 {
   struct ComponentInfo
   {
@@ -120,6 +124,7 @@ void ezVolumeSampler::SampleAtPosition(const ezWorld& world, ezSpatialData::Cate
     auto& value = it.Value();
 
     value.m_TargetValue = value.m_DefaultValue;
+    float fTotalStrength = 0.0f;
 
     for (auto& info : componentInfos)
     {
@@ -137,6 +142,7 @@ void ezVolumeSampler::SampleAtPosition(const ezWorld& world, ezSpatialData::Cate
       }
 
       value.m_TargetValue = ezMath::Lerp(value.m_TargetValue, newTargetValue, double(info.m_fAlpha));
+      fTotalStrength = ezMath::Lerp(fTotalStrength, 1.0f, info.m_fAlpha);
     }
 
     if (value.m_fInterpolationFactor > 0.0)
@@ -147,6 +153,12 @@ void ezVolumeSampler::SampleAtPosition(const ezWorld& world, ezSpatialData::Cate
     else
     {
       value.m_CurrentValue = value.m_TargetValue;
+    }
+
+    if (pTargetBlackboard != nullptr)
+    {
+      pTargetBlackboard->SetEntryValue(sName, value.m_CurrentValue);
+      pTargetBlackboard->SetEntryValue(value.m_sStrengthName, fTotalStrength);
     }
   }
 }

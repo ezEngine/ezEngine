@@ -1,13 +1,11 @@
 #pragma once
 
-#include <GameEngine/GameEngineDLL.h>
-
 #include <Core/ResourceManager/Resource.h>
-#include <GameEngine/Gameplay/BlackboardComponent.h>
+#include <RendererCore/Components/BlackboardComponent.h>
 
 using ezBlackboardTemplateResourceHandle = ezTypedResourceHandle<class ezBlackboardTemplateResource>;
 
-struct EZ_GAMEENGINE_DLL ezBlackboardTemplateResourceDescriptor
+struct EZ_RENDERERCORE_DLL ezBlackboardTemplateResourceDescriptor
 {
   ezResult Serialize(ezStreamWriter& inout_stream) const;
   ezResult Deserialize(ezStreamReader& inout_stream);
@@ -18,7 +16,7 @@ struct EZ_GAMEENGINE_DLL ezBlackboardTemplateResourceDescriptor
 /// \brief Describes the initial state of a blackboard.
 ///
 /// Used by ezBlackboardComponent to initialize its blackboard from.
-class EZ_GAMEENGINE_DLL ezBlackboardTemplateResource : public ezResource
+class EZ_RENDERERCORE_DLL ezBlackboardTemplateResource : public ezResource
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezBlackboardTemplateResource, ezResource);
   EZ_RESOURCE_DECLARE_COMMON_CODE(ezBlackboardTemplateResource);

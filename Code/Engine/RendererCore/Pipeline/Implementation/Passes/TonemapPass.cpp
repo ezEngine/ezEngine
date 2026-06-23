@@ -46,6 +46,7 @@ ezTonemapPass::ezTonemapPass()
 {
   m_hVignettingTexture = ezResourceManager::LoadResource<ezTexture2DResource>("White.color");
   m_hNoiseTexture = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/BlueNoise.dds");
+  m_hBlackTexture = ezResourceManager::LoadResource<ezTexture2DResource>("Black.color");
 
   m_MoodColor = ezColor::Orange;
   m_fMoodStrength = 0.0f;
@@ -146,9 +147,17 @@ ezStatus ezTonemapPass::AddRenderPasses(const ezViewData& viewData, const ezCame
     bindGroup.BindTexture("VignettingTexture", m_hVignettingTexture, ezResourceAcquireMode::BlockTillLoaded);
     bindGroup.BindTexture("NoiseTexture", m_hNoiseTexture, ezResourceAcquireMode::BlockTillLoaded);
     bindGroup.BindTexture("SceneColorTexture", ctx.ResolveTexture(hColorInput));
-    bindGroup.BindTexture("BloomTexture", hBloomInput.IsInvalidated() ? ezGALTextureHandle() : ctx.ResolveTexture(hBloomInput));
     bindGroup.BindTexture("Lut1Texture", luts[0]);
     bindGroup.BindTexture("Lut2Texture", luts[1]);
+
+    if (!hBloomInput.IsInvalidated())
+    {
+      bindGroup.BindTexture("BloomTexture", ctx.ResolveTexture(hBloomInput));
+    }
+    else
+    {
+      bindGroup.BindTexture("BloomTexture", m_hBlackTexture, ezResourceAcquireMode::BlockTillLoaded);
+    }
 
     ezTempHashedString sLUTModeValues[3] = {"LUT_MODE_NONE", "LUT_MODE_ONE", "LUT_MODE_TWO"};
     renderViewContext.m_pRenderContext->SetShaderPermutationVariable("LUT_MODE", sLUTModeValues[numLUTs]);

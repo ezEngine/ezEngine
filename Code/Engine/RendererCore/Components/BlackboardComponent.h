@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GameEngine/GameEngineDLL.h>
+#include <RendererCore/RendererCoreDLL.h>
 
 #include <Core/Messages/EventMessageSender.h>
 #include <Core/ResourceManager/ResourceHandle.h>
@@ -21,11 +21,11 @@ struct ezBlackboardEntry
   ezResult Deserialize(ezStreamReader& inout_stream);
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezBlackboardEntry);
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezBlackboardEntry);
 
 //////////////////////////////////////////////////////////////////////////
 
-struct EZ_GAMEENGINE_DLL ezMsgBlackboardEntryChanged : public ezMessage
+struct EZ_RENDERERCORE_DLL ezMsgBlackboardEntryChanged : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgBlackboardEntryChanged, ezMessage);
 
@@ -43,7 +43,7 @@ private:
 /// \brief This base component represents an ezBlackboard, which can be used to share state between multiple components and objects.
 ///
 /// The derived implementations may either create their own blackboards or reference other blackboards.
-class EZ_GAMEENGINE_DLL ezBlackboardComponent : public ezComponent
+class EZ_RENDERERCORE_DLL ezBlackboardComponent : public ezComponent
 {
   EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(ezBlackboardComponent, ezComponent);
 
@@ -67,11 +67,13 @@ public:
 
   /// \brief Try to find a ezBlackboardComponent on pSearchObject or its parents with the given name and returns its blackboard.
   ///
-  /// The blackboard name is only checked if the given name is not empty. If no matching blackboard component is found,
-  /// the function will call ezBlackboard::GetOrCreateGlobal() with the given name. Thus if you provide a name, you will always get a result, either from a component or from the global storage.
+  /// The blackboard name is only checked if the given name is not empty.
+  /// If no matching blackboard component is found and NO name is given the world's blackboard is returned.
+  /// If no matching blackboard component is found and a name is given, the function will call ezBlackboard::GetOrCreateGlobal() with the given name.
+  /// Thus you will always get a result, either from a component, the world or from the global storage.
   ///
   /// \sa ezBlackboard::GetOrCreateGlobal()
-  static ezSharedPtr<ezBlackboard> FindBlackboard(ezGameObject* pSearchObject, ezStringView sBlackboardName = ezStringView());
+  static ezSharedPtr<ezBlackboard> FindBlackboard(ezGameObject& searchObject, ezStringView sBlackboardName = ezStringView());
 
   /// \brief Returns the blackboard owned by this component
   const ezSharedPtr<ezBlackboard>& GetBoard();
@@ -99,7 +101,7 @@ protected:
 using ezLocalBlackboardComponentManager = ezComponentManager<class ezLocalBlackboardComponent, ezBlockStorageType::Compact>;
 
 /// \brief This component creates its own ezBlackboard, and thus locally holds state.
-class EZ_GAMEENGINE_DLL ezLocalBlackboardComponent : public ezBlackboardComponent
+class EZ_RENDERERCORE_DLL ezLocalBlackboardComponent : public ezBlackboardComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezLocalBlackboardComponent, ezBlackboardComponent, ezLocalBlackboardComponentManager);
 
@@ -167,14 +169,14 @@ struct ezGlobalBlackboardInitMode
   };
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezGlobalBlackboardInitMode);
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezGlobalBlackboardInitMode);
 
 using ezGlobalBlackboardComponentManager = ezComponentManager<class ezGlobalBlackboardComponent, ezBlockStorageType::Compact>;
 
 /// \brief This component references a global blackboard by name. If necessary, the blackboard will be created.
 ///
 /// This allows to initialize a global blackboard with known values.
-class EZ_GAMEENGINE_DLL ezGlobalBlackboardComponent : public ezBlackboardComponent
+class EZ_RENDERERCORE_DLL ezGlobalBlackboardComponent : public ezBlackboardComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezGlobalBlackboardComponent, ezBlackboardComponent, ezGlobalBlackboardComponentManager);
 

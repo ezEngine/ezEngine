@@ -10,7 +10,6 @@
 #include <GameEngine/Animation/PropertyAnimResource.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/StateMachine/StateMachineResource.h>
-#include <GameEngine/Utils/BlackboardTemplateResource.h>
 #include <GameEngine/Utils/ImageDataResource.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphResource.h>
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>
@@ -25,6 +24,7 @@
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Textures/Texture3DResource.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
+#include <RendererCore/Utils/BlackboardTemplateResource.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/DeviceFactory.h>
 

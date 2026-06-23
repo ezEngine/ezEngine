@@ -1,5 +1,6 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <Core/Utils/Blackboard.h>
 #include <Core/World/World.h>
 #include <Foundation/Math/Frustum.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
@@ -58,6 +59,8 @@ void ezView::SetWorld(ezWorld* pWorld)
     m_pWorld = pWorld;
     m_Data.m_uiSkyIrradianceIndex = pWorld == nullptr ? 0 : pWorld->GetIndex();
     ezRenderWorld::ResetRenderDataCache(*this);
+
+    m_BlackboardChangeCounter[SourceBlackboard::World] = {};
   }
 }
 
@@ -194,18 +197,31 @@ void ezView::SetShaderPermutationVariable(const char* szName, const char* szValu
   m_bPermutationVarsDirty = true;
 }
 
-void ezView::SetRenderPassProperty(const char* szPassName, const char* szPropertyName, const ezVariant& value)
+void ezView::SetBlackboard(const ezSharedPtr<ezBlackboard>& pBlackboard)
 {
-  SetProperty(m_PassProperties, szPassName, szPropertyName, value);
+  if (m_pBlackboard != pBlackboard)
+  {
+    m_pBlackboard = pBlackboard;
+    m_BlackboardChangeCounter[SourceBlackboard::View] = {};
+  }
 }
 
-void ezView::SetExtractorProperty(const char* szPassName, const char* szPropertyName, const ezVariant& value)
+const ezSharedPtr<ezBlackboard>& ezView::GetBlackboard() const
 {
-  SetProperty(m_ExtractorProperties, szPassName, szPropertyName, value);
+  return m_pBlackboard;
+}
+
+void ezView::SetRenderPassProperty(const char* szPassName, const char* szPropertyName, const ezVariant& value)
+{
+  EZ_ASSERT_DEV(m_pBlackboard != nullptr, "Blackboard must be set before setting render pass properties.");
+  ezStringBuilder sKey(szPassName, ".", szPropertyName);
+  m_pBlackboard->SetEntryValue(sKey, value);
 }
 
 void ezView::ResetRenderPassProperties()
 {
+  EZ_ASSERT_NOT_IMPLEMENTED;
+#if 0
   for (auto it : m_PassProperties)
   {
     auto& prop = it.Value();
@@ -215,19 +231,7 @@ void ezView::ResetRenderPassProperties()
       prop.m_bIsDirty = true;
     }
   }
-}
-
-void ezView::ResetExtractorProperties()
-{
-  for (auto it : m_ExtractorProperties)
-  {
-    auto& prop = it.Value();
-    if (prop.m_bIsValid)
-    {
-      prop.m_CurrentValue = prop.m_DefaultValue;
-      prop.m_bIsDirty = true;
-    }
-  }
+#endif
 }
 
 void ezView::SetRenderPassReadBackProperty(const char* szPassName, const char* szPropertyName, const ezVariant& value)
@@ -330,13 +334,14 @@ void ezView::EnsureUpToDate()
       }
 
       m_bPermutationVarsDirty = true;
-      ResetAllPropertyStates(m_PassProperties);
-      ResetAllPropertyStates(m_ExtractorProperties);
+
+      // Re-evaluate all blackboards since the render pipeline has changed and the property mappings are not valid anymore.
+      m_BlackboardChangeCounter[SourceBlackboard::World] = {};
+      m_BlackboardChangeCounter[SourceBlackboard::View] = {};
     }
 
     ApplyPermutationVars();
-    ApplyRenderPassProperties();
-    ApplyExtractorProperties();
+    ApplyPropertiesFromBlackboard();
   }
 }
 
@@ -351,25 +356,6 @@ void ezView::ApplyPermutationVars()
   m_pRenderPipeline->m_PermutationVars = m_PermutationVars;
   m_bPermutationVarsDirty = false;
 }
-
-void ezView::SetProperty(ezMap<ezString, PropertyValue>& map, const char* szPassName, const char* szPropertyName, const ezVariant& value)
-{
-  ezStringBuilder sKey(szPassName, "::", szPropertyName);
-
-  bool bExisted = false;
-  auto& prop = map.FindOrAdd(sKey, &bExisted).Value();
-
-  if (!bExisted)
-  {
-    prop.m_sObjectName = szPassName;
-    prop.m_sPropertyName = szPropertyName;
-    prop.m_bIsValid = true;
-  }
-
-  prop.m_bIsDirty = true;
-  prop.m_CurrentValue = value;
-}
-
 
 void ezView::SetReadBackProperty(ezMap<ezString, PropertyValue>& map, const char* szPassName, const char* szPropertyName, const ezVariant& value)
 {
@@ -404,103 +390,112 @@ void ezView::ReadBackPassProperties()
   }
 }
 
-void ezView::ResetAllPropertyStates(ezMap<ezString, PropertyValue>& map)
-{
-  for (auto it = map.GetIterator(); it.IsValid(); ++it)
-  {
-    it.Value().m_bIsDirty = true;
-    it.Value().m_bIsValid = true;
-  }
-}
-
-void ezView::ApplyRenderPassProperties()
+void ezView::ApplyPropertiesFromBlackboard()
 {
   if (m_pRenderPipeline == nullptr)
     return;
 
-  for (auto it = m_PassProperties.GetIterator(); it.IsValid(); ++it)
-  {
-    auto& propertyValue = it.Value();
+  const ezBlackboard* pBlackboards[SourceBlackboard::COUNT];
+  pBlackboards[0] = m_pWorld != nullptr ? m_pWorld->GetBlackboard().Borrow() : nullptr;
+  pBlackboards[1] = m_pBlackboard.Borrow();
 
-    if (!propertyValue.m_bIsValid || !propertyValue.m_bIsDirty)
+  bool bAnyStructureChanged = false;
+  bool bAnyValuesChanged = false;
+
+  static_assert(EZ_ARRAY_SIZE(m_BlackboardChangeCounter) == EZ_ARRAY_SIZE(pBlackboards));
+  for (ezUInt32 i = EZ_ARRAY_SIZE(pBlackboards); i-- > 0;)
+  {
+    const ezBlackboard* pBlackboard = pBlackboards[i];
+    if (pBlackboard == nullptr)
       continue;
 
-    propertyValue.m_bIsDirty = false;
+    auto& changeCounter = m_BlackboardChangeCounter[i];
 
-    ezReflectedClass* pObject = nullptr;
-    const char* szDot = propertyValue.m_sObjectName.FindSubString(".");
-    if (szDot != nullptr)
+    const bool bStructureChanged = changeCounter.m_uiStructure != pBlackboard->GetBlackboardChangeCounter();
+    if (bStructureChanged)
     {
-      EZ_REPORT_FAILURE("Setting renderer properties is not possible anymore");
+      UpdatePropertyMappings(*pBlackboard, i);
+
+      changeCounter.m_uiStructure = pBlackboard->GetBlackboardChangeCounter();
     }
-    else
+
+    bAnyStructureChanged |= bStructureChanged;
+    bAnyValuesChanged |= changeCounter.m_uiValue != pBlackboard->GetBlackboardEntryChangeCounter();
+
+    changeCounter.m_uiValue = pBlackboard->GetBlackboardEntryChangeCounter();
+  }
+
+  if (bAnyStructureChanged || bAnyValuesChanged)
+  {
+    for (auto& mapping : m_PropertyMappings)
     {
-      pObject = m_pRenderPipeline->GetPassByName(propertyValue.m_sObjectName);
+      const ezBlackboard* pBlackboard = pBlackboards[static_cast<ezUInt32>(mapping.Value().m_SourceIndex)];
+      EZ_ASSERT_DEBUG(pBlackboard != nullptr, "Property mapping has invalid source index.");
+
+      auto pEntry = pBlackboard->GetEntry(mapping.Key());
+      if (pEntry != nullptr && (mapping.Value().m_uiChangeCounter != pEntry->m_uiChangeCounter || bAnyStructureChanged))
+      {
+        ezReflectionUtils::SetMemberPropertyValue(mapping.Value().m_pProperty, mapping.Value().m_pObject, pEntry->m_Value);
+        mapping.Value().m_uiChangeCounter = pEntry->m_uiChangeCounter;
+      }
+    }
+  }
+}
+
+void ezView::UpdatePropertyMappings(const ezBlackboard& blackboard, ezUInt32 uiSourceIndex)
+{
+  EZ_ASSERT_DEV(m_pRenderPipeline != nullptr, "Can only update mappings with a valid render pipeline");
+
+  // Reset the property value to the default value if the blackboard entry was removed
+  ezHybridArray<ezHashedString, 32> keysToRemove;
+  for (auto it = m_PropertyMappings.GetIterator(); it.IsValid(); ++it)
+  {
+    auto& mapping = it.Value();
+    if (mapping.m_SourceIndex == uiSourceIndex && blackboard.GetEntry(it.Key()) == nullptr)
+    {
+      ezReflectionUtils::SetMemberPropertyValue(mapping.m_pProperty, mapping.m_pObject, mapping.m_DefaultValue);
+      keysToRemove.PushBack(it.Key());
+    }
+  }
+
+  // Remove old mappings
+  for (auto& key : keysToRemove)
+  {
+    m_PropertyMappings.Remove(key);
+  }
+
+  // Add or update mappings
+  for (auto it = blackboard.GetAllEntries().GetIterator(); it.IsValid(); ++it)
+  {
+    const ezStringView sName = it.Key();
+    const char* szDot = sName.FindSubString(".");
+    if (szDot == nullptr)
+      continue;
+
+    const ezStringView sObjectName = ezStringView(sName.GetStartPointer(), szDot);
+
+    ezReflectedClass* pObject = m_pRenderPipeline->GetPassByName(sObjectName);
+    if (pObject == nullptr)
+    {
+      pObject = m_pRenderPipeline->GetExtractorByName(sObjectName);
     }
 
     if (pObject == nullptr)
-    {
-      ezLog::Error("The render pass '{0}' does not exist. Property '{1}' cannot be applied.", propertyValue.m_sObjectName, propertyValue.m_sPropertyName);
-
-      propertyValue.m_bIsValid = false;
       continue;
-    }
 
-    ApplyProperty(pObject, propertyValue, "render pass");
+    const ezStringView sPropertyName = ezStringView(szDot + 1, sName.GetEndPointer());
+    const ezAbstractProperty* pAbstractProperty = pObject->GetDynamicRTTI()->FindPropertyByName(sPropertyName);
+    if (pAbstractProperty == nullptr || pAbstractProperty->GetCategory() != ezPropertyCategory::Member)
+      continue;
+
+    auto& mapping = m_PropertyMappings[it.Key()];
+    mapping.m_pObject = pObject;
+    mapping.m_pProperty = static_cast<const ezAbstractMemberProperty*>(pAbstractProperty);
+    mapping.m_uiChangeCounter = 0;
+    mapping.m_SourceIndex = ezMath::Max(mapping.m_SourceIndex, static_cast<SourceBlackboard>(uiSourceIndex));
+    mapping.m_DefaultValue = ezReflectionUtils::GetMemberPropertyValue(mapping.m_pProperty, mapping.m_pObject);
   }
 }
 
-void ezView::ApplyExtractorProperties()
-{
-  if (m_pRenderPipeline == nullptr)
-    return;
-
-  for (auto it = m_ExtractorProperties.GetIterator(); it.IsValid(); ++it)
-  {
-    if (!it.Value().m_bIsValid || !it.Value().m_bIsDirty)
-      continue;
-
-    it.Value().m_bIsDirty = false;
-
-    ezExtractor* pExtractor = m_pRenderPipeline->GetExtractorByName(it.Value().m_sObjectName);
-    if (pExtractor == nullptr)
-    {
-      ezLog::Error("The extractor '{0}' does not exist. Property '{1}' cannot be applied.", it.Value().m_sObjectName, it.Value().m_sPropertyName);
-
-      it.Value().m_bIsValid = false;
-      continue;
-    }
-
-    ApplyProperty(pExtractor, it.Value(), "extractor");
-  }
-}
-
-void ezView::ApplyProperty(ezReflectedClass* pObject, PropertyValue& data, const char* szTypeName)
-{
-  const ezAbstractProperty* pAbstractProperty = pObject->GetDynamicRTTI()->FindPropertyByName(data.m_sPropertyName);
-  if (pAbstractProperty == nullptr)
-  {
-    ezLog::Error("The {0} '{1}' does not have a property called '{2}', it cannot be applied.", szTypeName, data.m_sObjectName, data.m_sPropertyName);
-
-    data.m_bIsValid = false;
-    return;
-  }
-
-  if (pAbstractProperty->GetCategory() != ezPropertyCategory::Member)
-  {
-    ezLog::Error("The {0} property '{1}::{2}' is not a member property, it cannot be applied.", szTypeName, data.m_sObjectName, data.m_sPropertyName);
-
-    data.m_bIsValid = false;
-    return;
-  }
-
-  auto pMemberProperty = static_cast<const ezAbstractMemberProperty*>(pAbstractProperty);
-  if (data.m_DefaultValue.IsValid() == false)
-  {
-    data.m_DefaultValue = ezReflectionUtils::GetMemberPropertyValue(pMemberProperty, pObject);
-  }
-
-  ezReflectionUtils::SetMemberPropertyValue(pMemberProperty, pObject, data.m_CurrentValue);
-}
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_View);

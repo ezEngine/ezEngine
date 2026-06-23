@@ -11,7 +11,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezVolumeSamplerValue, ezNoBase, 1, ezRTTIDefaultA
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Name", m_sName),
+    EZ_MEMBER_PROPERTY("Name", m_sName)->AddAttributes(new ezDynamicStringEnumAttribute("BlackboardKeysEnum")),
     EZ_MEMBER_PROPERTY("DefaultValue", m_DefaultValue)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_MEMBER_PROPERTY("InterpolationDuration", m_InterpolationDuration),
   }
@@ -48,6 +48,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezVolumeSamplerComponent, 1, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("VolumeType", GetVolumeType, SetVolumeType)->AddAttributes(new ezDynamicStringEnumAttribute("SpatialDataCategoryEnum"), new ezDefaultValueAttribute("GenericVolume")),
     EZ_ARRAY_ACCESSOR_PROPERTY("Values", Values_GetCount, Values_GetMapping, Values_SetMapping, Values_Insert, Values_Remove),
     EZ_ACCESSOR_PROPERTY("AttachToMainCamera", GetAttachToMainCamera, SetAttachToMainCamera),
+    EZ_ACCESSOR_PROPERTY("WriteToBlackboard", GetWriteToBlackboard, SetWriteToBlackboard),
+    EZ_ACCESSOR_PROPERTY("BlackboardName", GetBlackboardName, SetBlackboardName)->AddAttributes(new ezDynamicStringEnumAttribute("BlackboardNamesEnum")),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_FUNCTIONS
@@ -75,6 +77,11 @@ ezVolumeSamplerComponent::ezVolumeSamplerComponent()
 ezVolumeSamplerComponent::ezVolumeSamplerComponent(ezVolumeSamplerComponent&& other) = default;
 ezVolumeSamplerComponent::~ezVolumeSamplerComponent() = default;
 ezVolumeSamplerComponent& ezVolumeSamplerComponent::operator=(ezVolumeSamplerComponent&& other) = default;
+
+void ezVolumeSamplerComponent::OnActivated()
+{
+  m_pBlackboard = ezBlackboardComponent::FindBlackboard(*GetOwner(), m_sBlackboardName);
+}
 
 void ezVolumeSamplerComponent::SerializeComponent(ezWorldWriter& inout_stream) const
 {
@@ -119,6 +126,24 @@ const char* ezVolumeSamplerComponent::GetVolumeType() const
 void ezVolumeSamplerComponent::SetAttachToMainCamera(bool bAttach)
 {
   m_bAttachToMainCamera = bAttach;
+}
+
+void ezVolumeSamplerComponent::SetWriteToBlackboard(bool bWriteToBlackboard)
+{
+  m_bWriteToBlackboard = bWriteToBlackboard;
+}
+
+void ezVolumeSamplerComponent::SetBlackboardName(const ezHashedString& sName)
+{
+  if (m_sBlackboardName == sName)
+    return;
+
+  m_sBlackboardName = sName;
+
+  if (IsActiveAndInitialized())
+  {
+    m_pBlackboard = ezBlackboardComponent::FindBlackboard(*GetOwner(), m_sBlackboardName);
+  }
 }
 
 void ezVolumeSamplerComponent::RegisterValue(const ezHashedString& sName, const ezVariant& defaultValue, ezTime interpolationDuration)
@@ -211,7 +236,8 @@ void ezVolumeSamplerComponent::Update()
     deltaTime = ezClock::GetGlobalClock()->GetTimeDiff();
   }
 
-  m_pSampler->SampleAtPosition(*pWorld, m_SpatialCategory, vSamplePos, deltaTime);
+  ezBlackboard* pBlackboard = m_bWriteToBlackboard ? m_pBlackboard.Borrow() : nullptr;
+  m_pSampler->SampleAtPosition(*pWorld, m_SpatialCategory, vSamplePos, deltaTime, pBlackboard);
 }
 
 

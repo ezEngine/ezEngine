@@ -2,8 +2,8 @@
 
 #include <Core/Collection/CollectionResource.h>
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
-#include <GameEngine/Gameplay/BlackboardComponent.h>
-#include <GameEngine/Utils/BlackboardTemplateResource.h>
+#include <RendererCore/Components/BlackboardComponent.h>
+#include <RendererCore/Utils/BlackboardTemplateResource.h>
 
 struct ezBlackboardTemplateAssetObject : public ezReflectedClass
 {

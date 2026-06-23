@@ -267,7 +267,7 @@ void ezPostProcessingComponent::SampleAndSetViewProperties()
       value = m_pSampler->GetValue(mapping.m_sVolumeValueName);
     }
 
-    pView->SetRenderPassProperty(mapping.m_sRenderPassName, mapping.m_sPropertyName, value);
+    //pView->SetRenderPassProperty(mapping.m_sRenderPassName, mapping.m_sPropertyName, value);
   }
 }
 

@@ -304,10 +304,16 @@ void ezEngineProcessViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
     pView->SetRenderPassProperty("DepthPrePass", "Active", bUseDepthPrePass);
     pView->SetRenderPassProperty("AOPass", "Active", bUseDepthPrePass); // Also disable SSAO to save some performance
 
-    // by default this stuff is disabled, derived classes can enable it
-    pView->SetRenderPassProperty("EditorSelectionPass", "Active", false);
-    pView->SetExtractorProperty("EditorShapeIconsExtractor", "Active", false);
+    SetViewProperties(pView);
   }
+}
+
+
+void ezEngineProcessViewContext::SetViewProperties(ezView* pView)
+{
+  // by default this stuff is disabled, derived classes can enable it
+  pView->SetRenderPassProperty("EditorSelectionPass", "Active", false);
+  pView->SetRenderPassProperty("EditorShapeIconsExtractor", "Active", false);
 }
 
 ezRenderPipelineResourceHandle ezEngineProcessViewContext::CreateDefaultRenderPipeline()

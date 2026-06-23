@@ -35,6 +35,7 @@ protected:
 
   ezTexture2DResourceHandle m_hVignettingTexture;                           ///< Vignetting effect texture.
   ezTexture2DResourceHandle m_hNoiseTexture;                                ///< Film grain noise texture.
+  ezTexture2DResourceHandle m_hBlackTexture;                                ///< Black texture for fallback.
   ezTexture3DResourceHandle m_hLUT1;                                        ///< First 3D lookup table for color grading.
   ezTexture3DResourceHandle m_hLUT2;                                        ///< Second 3D lookup table for color grading.
 

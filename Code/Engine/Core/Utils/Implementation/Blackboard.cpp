@@ -58,9 +58,11 @@ ezMutex ezBlackboard::s_GlobalBlackboardsMutex;
 ezHashTable<ezHashedString, ezSharedPtr<ezBlackboard>> ezBlackboard::s_GlobalBlackboards;
 
 // static
-ezSharedPtr<ezBlackboard> ezBlackboard::Create(ezAllocator* pAllocator /*= ezFoundation::GetDefaultAllocator()*/)
+ezSharedPtr<ezBlackboard> ezBlackboard::Create(const ezStringView& sName, ezAllocator* pAllocator /*= ezFoundation::GetDefaultAllocator()*/)
 {
-  return EZ_NEW(pAllocator, ezBlackboard, false);
+  ezSharedPtr<ezBlackboard> pBlackboard = EZ_NEW(pAllocator, ezBlackboard, false);
+  pBlackboard->m_sName.Assign(sName);
+  return pBlackboard;
 }
 
 // static
