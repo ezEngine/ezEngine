@@ -5,6 +5,7 @@
 #include <Foundation/Configuration/Startup.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderGraph/RenderGraph.h>
+#include <RendererCore/RenderGraph/RenderGraphInspectionInfo.h>
 #include <RendererCore/RenderGraph/RenderGraphPassObserver.h>
 #include <RendererCore/RenderGraph/RenderGraphResourcePool.h>
 #include <RendererFoundation/CommandEncoder/CommandEncoder.h>

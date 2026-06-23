@@ -46,7 +46,7 @@ EZ_RENDERERCORE_DLL void operator<<(ezStreamWriter& inout_stream, const ezRender
 EZ_RENDERERCORE_DLL void operator>>(ezStreamReader& inout_stream, ezRenderGraphInspectionSummary& ref_value);
 
 /// Read-only snapshot of a compiled render graph's structure, taken after compilation. Used for visualization and debugging without exposing internal graph state.
-struct ezRenderGraphInspectionInfo
+struct EZ_RENDERERCORE_DLL ezRenderGraphInspectionInfo
 {
   void Swap(ezRenderGraphInspectionInfo& data);
   void Clear();
@@ -107,18 +107,3 @@ struct ezRenderGraphInspectionInfo
 EZ_RENDERERCORE_DLL void operator<<(ezStreamWriter& inout_stream, const ezRenderGraphInspectionInfo& value);
 EZ_RENDERERCORE_DLL void operator>>(ezStreamReader& inout_stream, ezRenderGraphInspectionInfo& ref_value);
 
-inline void ezRenderGraphInspectionInfo::Swap(ezRenderGraphInspectionInfo& data)
-{
-  m_Passes.Swap(data.m_Passes);
-  m_Textures.Swap(data.m_Textures);
-  m_Buffers.Swap(data.m_Buffers);
-  m_Accesses.Swap(data.m_Accesses);
-}
-
-inline void ezRenderGraphInspectionInfo::Clear()
-{
-  m_Passes.Clear();
-  m_Textures.Clear();
-  m_Buffers.Clear();
-  m_Accesses.Clear();
-}

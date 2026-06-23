@@ -1,10 +1,10 @@
 #include <InspectorPlugin/InspectorPluginPCH.h>
 
 #include <Foundation/Communication/Telemetry.h>
+#include <Foundation/Configuration/Startup.h>
 #include <RendererCore/RenderGraph/RenderGraphInspectionInfo.h>
 #include <RendererCore/RenderGraph/RenderGraphManager.h>
 #include <RendererCore/RenderGraph/RenderGraphPassObserver.h>
-#include <RendererFoundation/Device/Device.h>
 
 namespace RenderGraphObserverDetail
 {
@@ -194,6 +194,22 @@ namespace RenderGraphObserverDetail
   }
 } // namespace RenderGraphObserverDetail
 
+// clang-format off
+EZ_BEGIN_SUBSYSTEM_DECLARATION(InspectorPlugin, RenderGraphObserver)
+
+  BEGIN_SUBSYSTEM_DEPENDENCIES
+    "RenderGraphManager"
+  END_SUBSYSTEM_DEPENDENCIES
+
+  ON_HIGHLEVELSYSTEMS_SHUTDOWN
+  {
+    RenderGraphObserverDetail::s_pObserver = nullptr;
+    RenderGraphObserverDetail::s_bObserverResponseEnabled = false;
+  }
+
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
+
 void AddRenderGraphEventHandler()
 {
   ezTelemetry::AcceptMessagesForSystem(RenderGraphObserverDetail::s_uiSystemId, true, RenderGraphObserverDetail::HandleMessages, nullptr);
@@ -206,6 +222,4 @@ void RemoveRenderGraphEventHandler()
   ezRenderGraphManager::s_RenderEvent.RemoveEventHandler(RenderGraphObserverDetail::RenderGraphRenderEventHandler);
   ezTelemetry::RemoveEventHandler(RenderGraphObserverDetail::TelemetryEventsHandler);
   ezTelemetry::AcceptMessagesForSystem(RenderGraphObserverDetail::s_uiSystemId, false);
-  RenderGraphObserverDetail::s_pObserver = nullptr;
-  RenderGraphObserverDetail::s_bObserverResponseEnabled = false;
 }

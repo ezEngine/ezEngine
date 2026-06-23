@@ -329,3 +329,19 @@ void operator>>(ezStreamReader& inout_stream, ezRenderGraphInspectionInfo& ref_v
     ReadTextureRange(inout_stream, access.m_TextureRange);
   }
 }
+
+void ezRenderGraphInspectionInfo::Swap(ezRenderGraphInspectionInfo& data)
+{
+  m_Passes.Swap(data.m_Passes);
+  m_Textures.Swap(data.m_Textures);
+  m_Buffers.Swap(data.m_Buffers);
+  m_Accesses.Swap(data.m_Accesses);
+}
+
+void ezRenderGraphInspectionInfo::Clear()
+{
+  m_Passes.Clear();
+  m_Textures.Clear();
+  m_Buffers.Clear();
+  m_Accesses.Clear();
+}
