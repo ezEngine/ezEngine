@@ -11,6 +11,7 @@
 #include <Inspector/MemoryWidget.moc.h>
 #include <Inspector/PluginsWidget.moc.h>
 #include <Inspector/ReflectionWidget.moc.h>
+#include <Inspector/RenderGraphWidget.moc.h>
 #include <Inspector/ResourceWidget.moc.h>
 #include <Inspector/SubsystemsWidget.moc.h>
 #include <Inspector/TimeWidget.moc.h>
@@ -59,6 +60,7 @@ ezQtMainWindow::ezQtMainWindow()
   ezQtReflectionWidget* pReflectionWidget = new ezQtReflectionWidget(m_DockManager);
   ezQtDataWidget* pDataWidget = new ezQtDataWidget(m_DockManager);
   ezQtResourceWidget* pResourceWidget = new ezQtResourceWidget(m_DockManager);
+  ezQtRenderGraphWidget* pRenderGraphWidget = new ezQtRenderGraphWidget(m_DockManager);
 
   EZ_VERIFY(nullptr != QWidget::connect(pMainWidget, &ads::CDockWidget::viewToggled, this, &ezQtMainWindow::DockWidgetVisibilityChanged), "");
   EZ_VERIFY(nullptr != QWidget::connect(pLogWidget, &ads::CDockWidget::viewToggled, this, &ezQtMainWindow::DockWidgetVisibilityChanged), "");
@@ -74,6 +76,7 @@ ezQtMainWindow::ezQtMainWindow()
     nullptr != QWidget::connect(pGlobalEventesWidget, &ads::CDockWidget::viewToggled, this, &ezQtMainWindow::DockWidgetVisibilityChanged), "");
   EZ_VERIFY(nullptr != QWidget::connect(pDataWidget, &ads::CDockWidget::viewToggled, this, &ezQtMainWindow::DockWidgetVisibilityChanged), "");
   EZ_VERIFY(nullptr != QWidget::connect(pResourceWidget, &ads::CDockWidget::viewToggled, this, &ezQtMainWindow::DockWidgetVisibilityChanged), "");
+  EZ_VERIFY(nullptr != QWidget::connect(pRenderGraphWidget, &ads::CDockWidget::viewToggled, this, &ezQtMainWindow::DockWidgetVisibilityChanged), "");
 
   QMenu* pHistoryMenu = new QMenu;
   pHistoryMenu->setTearOffEnabled(true);
@@ -117,6 +120,7 @@ ezQtMainWindow::ezQtMainWindow()
   m_DockManager->addDockWidgetTab(ads::RightDockWidgetArea, pPluginsWidget);
   m_DockManager->addDockWidgetTab(ads::RightDockWidgetArea, pReflectionWidget);
   m_DockManager->addDockWidgetTab(ads::RightDockWidgetArea, pResourceWidget);
+  m_DockManager->addDockWidgetTab(ads::RightDockWidgetArea, pRenderGraphWidget);
   m_DockManager->addDockWidgetTab(ads::RightDockWidgetArea, pSubsystemsWidget);
 
   m_DockManager->addDockWidget(ads::BottomDockWidgetArea, pFileWidget);
@@ -273,6 +277,7 @@ void ezQtMainWindow::UpdateNetwork()
     ezQtGlobalEventsWidget::s_pWidget->ResetStats();
     ezQtDataWidget::s_pWidget->ResetStats();
     ezQtResourceWidget::s_pWidget->ResetStats();
+    ezQtRenderGraphWidget::s_pWidget->ResetStats();
   }
 
   UpdateAlwaysOnTop();
@@ -284,6 +289,7 @@ void ezQtMainWindow::UpdateNetwork()
   ezQtTimeWidget::s_pWidget->UpdateStats();
   ezQtFileWidget::s_pWidget->UpdateStats();
   ezQtResourceWidget::s_pWidget->UpdateStats();
+  ezQtRenderGraphWidget::s_pWidget->UpdateStats();
   // ezQtDataWidget::s_pWidget->UpdateStats();
 
   for (ezInt32 i = 0; i < 10; ++i)
@@ -324,6 +330,7 @@ void ezQtMainWindow::DockWidgetVisibilityChanged(bool bVisible)
   ActionShowWindowGlobalEvents->setChecked(!ezQtGlobalEventsWidget::s_pWidget->isClosed());
   ActionShowWindowData->setChecked(!ezQtDataWidget::s_pWidget->isClosed());
   ActionShowWindowResource->setChecked(!ezQtResourceWidget::s_pWidget->isClosed());
+  ActionShowWindowRenderGraph->setChecked(!ezQtRenderGraphWidget::s_pWidget->isClosed());
 
   for (ezInt32 i = 0; i < 10; ++i)
     m_pStatHistoryWidgets[i]->m_ShowWindowAction.setChecked(!m_pStatHistoryWidgets[i]->isClosed());

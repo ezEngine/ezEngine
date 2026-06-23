@@ -1,0 +1,22 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[COMPUTESHADER]
+
+#include <Shaders/Common/Common.h>
+RWStructuredBuffer<uint> HistogramOutput BIND_GROUP(BG_DRAW_CALL);
+
+[numthreads(256, 1, 1)]
+void main(uint3 dispatchThreadId : SV_DispatchThreadID)
+{
+  uint bucket = dispatchThreadId.x;
+  if (bucket >= 256u)
+    return;
+
+  HistogramOutput[bucket] = 0u;
+  HistogramOutput[256u + bucket] = 0u;
+  HistogramOutput[512u + bucket] = 0u;
+  HistogramOutput[768u + bucket] = 0u;
+}

@@ -8,6 +8,7 @@
 struct ezGALDeviceEvent;
 class ezGALResourceStateTracker;
 class ezRenderGraph;
+class ezRenderGraphPassObserver;
 class ezRenderGraphResourcePool;
 struct ezTextureValidationError;
 struct ezBufferValidationError;
@@ -44,6 +45,21 @@ public:
   /// Access the shared resource pool. Only valid after device init.
   static ezRenderGraphResourcePool* GetResourcePool();
 
+  /// \name Pass Observers
+  ///@{
+
+  /// Fills a summary with the render graphs and available swapchains.
+  /// Only safe to call from an ezRenderGraphRenderEvent::Type::AfterGraphExecution callback registered through s_RenderEvent.
+  static void GetExecutionSummary(ezRenderGraphInspectionSummary& out_summary);
+
+  /// Fills an inspection info of a specific render graph.
+  /// Only safe to call from an ezRenderGraphRenderEvent::Type::AfterGraphExecution callback registered through s_RenderEvent.
+  static ezResult GetRenderGraphInspectionInfo(ezUInt64 uiRenderGraphId, ezRenderGraphInspectionInfo& out_InspectionInfo);
+
+  static ezSharedPtr<ezRenderGraphPassObserver> CreateObserver();
+
+  ///@}
+
   static ezEvent<const ezRenderGraphRenderEvent&, ezMutex> s_RenderEvent;
 
   /// Prints all operations and barriers affecting a texture resource up to the current execution point.
@@ -56,6 +72,7 @@ public:
 
 private:
   friend class ezRenderGraph;
+  friend class ezRenderGraphPassObserver;
 
   static void OnEngineStartup();
   static void OnEngineShutdown();
@@ -65,6 +82,10 @@ private:
   static void DeinitPool(ezGALDevice* pDevice);
   static void BeginFrame();
   static void OnGraphDestroyed(ezRenderGraph* pGraph);
+  static ezUInt64 GetRenderGraphId(ezRenderGraph* pGraph);
+  static ezRenderGraph* GetRenderGraphById(ezUInt64 uiRenderGraphId);
+  static ezUInt32 GetSwapChainId(ezGALSwapChainHandle hSwapChain);
+  static ezGALSwapChainHandle GetSwapChainById(ezUInt32 uiSwapChainId);
 
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererCore, RenderGraphManager);
 
@@ -74,8 +95,13 @@ private:
   static ezUniquePtr<ezRenderGraphResourcePool> s_pPool;
   static ezUniquePtr<ezGALResourceStateTracker> s_pStateTracker;
 
+  // Pass observers
+  static ezDynamicArray<ezSharedPtr<ezRenderGraphPassObserver>> s_Observers;
+  static ezSharedPtr<ezRenderGraph> s_pObserverGraph;
+
   // Execution tracking for diagnostics
   static ezDynamicArray<ezRenderGraph*> s_ExecutingGraphs; ///< Executed this frame, kept alive via s_EnqueuedRenderGraphs
+  static ezDynamicArray<ezRenderGraphPassObserver*> s_ExecutingObservers;
   static ezUInt32 s_uiCurrentGraphIndex;
   static ezUInt32 s_uiCurrentPassIndex;
 };

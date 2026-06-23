@@ -1,0 +1,27 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+MSAA
+
+[COMPUTESHADER]
+
+#include <Shaders/RenderGraph/RenderGraphReadbackPixelConstants.h>
+#include <Shaders/RenderGraph/RenderGraphReadTexel.h>
+
+RWStructuredBuffer<float4> PixelOutput BIND_GROUP(BG_DRAW_CALL);
+
+[numthreads(1, 1, 1)]
+void main(uint3 dispatchThreadId : SV_DispatchThreadID)
+{
+  int2 pixelPosition = GET_PUSH_CONSTANT(ezRenderGraphReadbackPixelConstants, PixelPosition);
+  uint2 textureSize = GET_PUSH_CONSTANT(ezRenderGraphReadbackPixelConstants, TextureSize);
+
+  if (pixelPosition.x < 0 || pixelPosition.y < 0 || pixelPosition.x >= int(textureSize.x) || pixelPosition.y >= int(textureSize.y))
+  {
+    PixelOutput[0] = float4(0.0f, 0.0f, 0.0f, 0.0f);
+    return;
+  }
+
+  PixelOutput[0] = ReadTexel(pixelPosition, GET_PUSH_CONSTANT(ezRenderGraphReadbackPixelConstants, SampleIndex), GET_PUSH_CONSTANT(ezRenderGraphReadbackPixelConstants, SampleCount));
+}

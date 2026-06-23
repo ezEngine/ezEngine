@@ -1,0 +1,114 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+CAMERA_MODE = CAMERA_MODE_ORTHO
+MSAA
+
+[RENDERSTATE]
+
+DepthTest = false
+DepthWrite = false
+CullMode = CullMode_None
+
+[VERTEXSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleVertexShader.h>
+
+[PIXELSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleInterpolator.h>
+#include <Shaders/Common/Common.h>
+#include <Shaders/RenderGraph/RenderGraphPreviewConstants.h>
+#include <Shaders/RenderGraph/RenderGraphReadTexel.h>
+
+float4 SampleTexture(float2 uv)
+{
+  uint width;
+  uint height;
+#if MSAA
+  uint sampleCount;
+  SourceTexture.GetDimensions(width, height, sampleCount);
+#else
+  uint sampleCount = 1;
+  SourceTexture.GetDimensions(width, height);
+#endif
+
+  int2 pixelPosition = int2(uv * float2(width, height));
+  int sampleIndex = GET_PUSH_CONSTANT(ezRenderGraphPreviewConstants, SampleIndex);
+  return ReadTexel(pixelPosition, sampleIndex, sampleCount);
+}
+
+uint2 GetTextureSize()
+{
+  uint width;
+  uint height;
+#if MSAA
+  uint sampleCount;
+  SourceTexture.GetDimensions(width, height, sampleCount);
+#else
+  SourceTexture.GetDimensions(width, height);
+#endif
+  return uint2(width, height);
+}
+
+float3 ApplyChannels(float4 texel, float2 uv)
+{
+  uint channelMask = GET_PUSH_CONSTANT(ezRenderGraphPreviewConstants, ChannelMask);
+  bool showR = (channelMask & 1u) != 0u;
+  bool showG = (channelMask & 2u) != 0u;
+  bool showB = (channelMask & 4u) != 0u;
+  bool showA = (channelMask & 8u) != 0u;
+  uint colorChannelCount = (showR ? 1u : 0u) + (showG ? 1u : 0u) + (showB ? 1u : 0u);
+
+  if (colorChannelCount == 0u && showA)
+  {
+    return texel.a.xxx;
+  }
+
+  if (colorChannelCount == 1u)
+  {
+    float value = showR ? texel.r : (showG ? texel.g : texel.b);
+    return value.xxx;
+  }
+
+  float3 color = float3(showR ? texel.r : 0.0f, showG ? texel.g : 0.0f, showB ? texel.b : 0.0f);
+  if (showR && showG && showB && showA)
+  {
+    float3 bg0 = float3(0.3f, 0.3f, 0.3f);
+    float3 bg1 = float3(0.5f, 0.5f, 0.5f);
+    int bgIdx = (int)(floor(uv.x * 32.0f) + floor(uv.y * 32.0f)) & 1;
+    color = lerp(bgIdx != 0 ? bg1 : bg0, color, texel.a);
+  }
+
+  return color;
+}
+
+float4 main(PS_IN input) : SV_Target
+{
+  float4 uvTransform = GET_PUSH_CONSTANT(ezRenderGraphPreviewConstants, UVTransform);
+  float2 uv = input.TexCoord0.xy * uvTransform.xy + uvTransform.zw;
+
+  if (uv.x < 0.0f || uv.x > 1.0f || uv.y < 0.0f || uv.y > 1.0f)
+  {
+    return float4(0.2f, 0.2f, 0.2f, 1.0f);
+  }
+
+  float2 valueRange = GET_PUSH_CONSTANT(ezRenderGraphPreviewConstants, ValueRange);
+  float4 texel = ApplyValueRange(SampleTexture(uv), valueRange.x, valueRange.y);
+  float3 color = saturate(ApplyChannels(texel, uv));
+
+  if (GET_PUSH_CONSTANT(ezRenderGraphPreviewConstants, HighlightPixel) != 0)
+  {
+    int2 selectedPixel = GET_PUSH_CONSTANT(ezRenderGraphPreviewConstants, PixelPosition);
+    uint2 textureSize = GetTextureSize();
+    int2 pixelPosition = min(int2(uv * float2(textureSize)), int2(textureSize) - 1);
+    if (selectedPixel.x >= 0 && selectedPixel.y >= 0 && (pixelPosition.x == selectedPixel.x || pixelPosition.y == selectedPixel.y))
+    {
+      color = 1.0f - color;
+    }
+  }
+
+  return float4(color, 1.0f);
+}

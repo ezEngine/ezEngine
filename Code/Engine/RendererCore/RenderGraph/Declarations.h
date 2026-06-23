@@ -9,10 +9,13 @@ class ezRenderGraph;
 class ezRenderGraphPassBuilder;
 class ezRenderGraphContext;
 class ezRenderGraphManager;
+struct ezRenderGraphInspectionInfo;
+struct ezRenderGraphDebugTarget;
 class ezRenderGraphResourcePool;
 class ezRenderGraphResourceAllocator;
 class ezPooledRenderTexture;
 class ezPooledRenderBuffer;
+struct ezRenderGraphInspectionSummary;
 
 /// Opaque handle to a texture within a render graph.
 class ezRenderGraphTextureHandle
@@ -75,3 +78,5 @@ struct ezRenderGraphPhase
     Default = Render
   };
 };
+
+

@@ -1,0 +1,399 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>RenderGraphWidget</class>
+ <widget class="QWidget" name="RenderGraphWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1005</width>
+    <height>748</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Render Graph</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <item>
+    <widget class="QSplitter" name="HorizontalSplitter">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <widget class="QWidget" name="Lists">
+    <layout class="QVBoxLayout" name="ListsLayout" stretch="0,2,0,1">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="GraphListLabel">
+         <property name="text">
+          <string>Render Graphs</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QListWidget" name="GraphList"/>
+       </item>
+       <item>
+        <widget class="QLabel" name="SwapChainListLabel">
+         <property name="text">
+          <string>Swap Chains</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QListWidget" name="SwapChainList"/>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QSplitter" name="VerticalSplitter">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <widget class="QScrollArea" name="OverviewScroll">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="widgetResizable">
+        <bool>false</bool>
+       </property>
+       <widget class="ezQtRenderGraphOverviewWidget" name="Overview">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>600</width>
+          <height>300</height>
+         </rect>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="PreviewAndControlsWidget">
+       <layout class="QVBoxLayout" name="PreviewAndControlsLayout">
+        <item>
+         <layout class="QHBoxLayout" name="ControlsLayout">
+          <item>
+           <widget class="QLabel" name="MipLabel">
+            <property name="text">
+             <string>Mip</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="MipSpin">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="SliceLabel">
+            <property name="text">
+             <string>Slice</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="SliceSpin">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="SampleLabel">
+            <property name="text">
+             <string>Sample</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="SampleSpin">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="minimum">
+             <number>-1</number>
+            </property>
+            <property name="maximum">
+             <number>8</number>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="ChannelR">
+            <property name="text">
+             <string>R</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="ChannelG">
+            <property name="text">
+             <string>G</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="ChannelB">
+            <property name="text">
+             <string>B</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="ChannelA">
+            <property name="text">
+             <string>A</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="ResetZoomToolButton">
+                        <property name="icon">
+                         <iconset resource="../Libs/GuiFoundation/QtResources/resources.qrc">
+                            <normaloff>:/GuiFoundation/Icons/ZoomReset.svg</normaloff>:/GuiFoundation/Icons/ZoomReset.svg</iconset>
+                        </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QVBoxLayout" name="PreviewLayout" stretch="1,0">
+          <item>
+           <widget class="ezQtRenderGraphPreviewWidget" name="Preview" native="true">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="autoFillBackground">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="RangeLayout">
+            <item>
+             <layout class="QHBoxLayout" name="RangeControlsLayout" stretch="0,0">
+              <item>
+               <layout class="QGridLayout" name="HistogramGridLayout">
+                <item row="0" column="0" rowspan="2">
+                 <widget class="ezQtRenderGraphHistogramWidget" name="Histogram" native="true">
+                  <property name="minimumSize">
+                   <size>
+                    <width>256</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="autoFillBackground">
+                   <bool>false</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="2">
+                 <widget class="ezQtDoubleSpinBox" name="RangeMinSpin">
+                  <property name="decimals">
+                   <number>4</number>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.010000000000000</double>
+                  </property>
+                  <property name="minimum">
+                   <double>-100000.000000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>100000.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="2">
+                 <widget class="ezQtDoubleSpinBox" name="RangeMaxSpin">
+                  <property name="decimals">
+                   <number>4</number>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.010000000000000</double>
+                  </property>
+                  <property name="minimum">
+                   <double>-100000.000000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>100000.000000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>1.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QLabel" name="RangeMaxLabel">
+                  <property name="text">
+                   <string>Max</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="4">
+                 <widget class="QToolButton" name="AutoToolButton">
+                  <property name="text">
+                   <string>[m,M]</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QLabel" name="RangeMinLabel">
+                  <property name="text">
+                   <string>Min</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="4">
+                 <widget class="QToolButton" name="ResetToolButton">
+                  <property name="text">
+                   <string>[0,1]</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="3">
+                 <widget class="QLineEdit" name="MinValue">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>100</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="readOnly">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="3">
+                 <widget class="QLineEdit" name="MaxValue">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>100</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="readOnly">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <spacer name="HistogramSpacer">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QLabel" name="PixelLabel">
+              <property name="text">
+               <string>Pixel: -</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ezQtRenderGraphOverviewWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">Inspector/RenderGraphOverviewWidget.moc.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ezQtRenderGraphPreviewWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">Inspector/RenderGraphPreviewWidget.moc.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ezQtRenderGraphHistogramWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">Inspector/RenderGraphHistogramWidget.moc.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ezQtDoubleSpinBox</class>
+   <extends>QDoubleSpinBox</extends>
+   <header location="global">GuiFoundation/Widgets/DoubleSpinBox.moc.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../Libs/GuiFoundation/QtResources/resources.qrc"/>
+ </resources>
+ <connections/>
+</ui>

@@ -1,0 +1,48 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+MSAA
+
+[COMPUTESHADER]
+
+#include <Shaders/RenderGraph/RenderGraphHistogramConstants.h>
+#include <Shaders/RenderGraph/RenderGraphReadTexel.h>
+
+RWStructuredBuffer<uint> HistogramOutput BIND_GROUP(BG_DRAW_CALL);
+
+#define NUM_BINS 256u
+#define THREADS_X 8u
+#define THREADS_Y 8u
+
+void AddChannel(uint channelIndex, float normalizedValue)
+{
+  uint channelMask = GET_PUSH_CONSTANT(ezRenderGraphHistogramConstants, ChannelMask);
+  if ((channelMask & (1u << channelIndex)) == 0u)
+    return;
+
+  uint bucket = uint(floor(normalizedValue * float(NUM_BINS)));
+  if (bucket >= NUM_BINS)
+    return;
+
+  uint previousValue;
+  InterlockedAdd(HistogramOutput[channelIndex * NUM_BINS + bucket], 1u, previousValue);
+}
+
+[numthreads(THREADS_X, THREADS_Y, 1)]
+void main(uint3 dispatchThreadId : SV_DispatchThreadID)
+{
+  uint2 textureSize = GET_PUSH_CONSTANT(ezRenderGraphHistogramConstants, TextureSize);
+  if (dispatchThreadId.x >= textureSize.x || dispatchThreadId.y >= textureSize.y)
+    return;
+
+  float rangeMin = GET_PUSH_CONSTANT(ezRenderGraphHistogramConstants, RangeMin);
+  float rangeMax = GET_PUSH_CONSTANT(ezRenderGraphHistogramConstants, RangeMax);
+  float4 texel = ReadTexel(int2(dispatchThreadId.xy), GET_PUSH_CONSTANT(ezRenderGraphHistogramConstants, SampleIndex), GET_PUSH_CONSTANT(ezRenderGraphHistogramConstants, SampleCount));
+  float4 normalized = ApplyValueRange(texel, rangeMin, rangeMax);
+
+  AddChannel(0u, normalized.r);
+  AddChannel(1u, normalized.g);
+  AddChannel(2u, normalized.b);
+  AddChannel(3u, normalized.a);
+}

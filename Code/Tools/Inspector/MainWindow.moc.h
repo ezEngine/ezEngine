@@ -48,6 +48,7 @@ private Q_SLOTS:
   void on_ActionShowWindowGlobalEvents_triggered();
   void on_ActionShowWindowData_triggered();
   void on_ActionShowWindowResource_triggered();
+  void on_ActionShowWindowRenderGraph_triggered();
 
   void on_ActionOnTopWhenConnected_triggered();
   void on_ActionAlwaysOnTop_triggered();

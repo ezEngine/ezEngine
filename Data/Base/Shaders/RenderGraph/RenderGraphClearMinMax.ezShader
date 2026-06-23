@@ -1,0 +1,16 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[COMPUTESHADER]
+
+#include <Shaders/Common/Common.h>
+RWStructuredBuffer<uint> MinMaxOutput BIND_GROUP(BG_DRAW_CALL);
+
+[numthreads(1, 1, 1)]
+void main(uint3 dispatchThreadId : SV_DispatchThreadID)
+{
+  MinMaxOutput[0] = 0xFFFFFFFFu;
+  MinMaxOutput[1] = 0u;
+}

@@ -11,6 +11,7 @@
 #include <Inspector/MemoryWidget.moc.h>
 #include <Inspector/PluginsWidget.moc.h>
 #include <Inspector/ReflectionWidget.moc.h>
+#include <Inspector/RenderGraphWidget.moc.h>
 #include <Inspector/ResourceWidget.moc.h>
 #include <Inspector/SubsystemsWidget.moc.h>
 #include <Inspector/TimeWidget.moc.h>
@@ -85,6 +86,12 @@ void ezQtMainWindow::on_ActionShowWindowResource_triggered()
 {
   ezQtResourceWidget::s_pWidget->toggleView(ActionShowWindowResource->isChecked());
   ezQtResourceWidget::s_pWidget->raise();
+}
+
+void ezQtMainWindow::on_ActionShowWindowRenderGraph_triggered()
+{
+  ezQtRenderGraphWidget::s_pWidget->toggleView(ActionShowWindowRenderGraph->isChecked());
+  ezQtRenderGraphWidget::s_pWidget->raise();
 }
 
 void ezQtMainWindow::on_ActionOnTopWhenConnected_triggered()

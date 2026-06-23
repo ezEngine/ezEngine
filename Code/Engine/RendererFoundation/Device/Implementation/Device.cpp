@@ -1594,7 +1594,7 @@ ezReadbackTextureLock ezGALDevice::LockTexture(ezGALReadbackTextureHandle hReadb
   return ezReadbackTextureLock(this, pReadbackTexture, subResources, out_memory);
 }
 
-ezGALTextureHandle ezGALDevice::GetBackBufferTextureFromSwapChain(ezGALSwapChainHandle hSwapChain)
+ezGALTextureHandle ezGALDevice::GetBackBufferTextureFromSwapChain(ezGALSwapChainHandle hSwapChain) const
 {
   ezGALSwapChain* pSwapChain = nullptr;
 
@@ -1609,7 +1609,14 @@ ezGALTextureHandle ezGALDevice::GetBackBufferTextureFromSwapChain(ezGALSwapChain
   }
 }
 
-
+void ezGALDevice::GetAllSwapChains(ezDynamicArray<ezGALSwapChainHandle>& out_swapChains) const
+{
+  out_swapChains.Reserve(m_SwapChains.GetCount());
+  for (auto it = m_SwapChains.GetIterator(); it.IsValid(); ++it)
+  {
+    out_swapChains.PushBack(ezGALSwapChainHandle(it.Id()));
+  }
+}
 
 // Misc functions
 

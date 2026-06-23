@@ -5,9 +5,11 @@
 #include <Foundation/Configuration/Startup.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderGraph/RenderGraph.h>
+#include <RendererCore/RenderGraph/RenderGraphPassObserver.h>
 #include <RendererCore/RenderGraph/RenderGraphResourcePool.h>
 #include <RendererFoundation/CommandEncoder/CommandEncoder.h>
 #include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Device/SwapChain.h>
 #include <RendererFoundation/Utils/ResourceStateTracker.h>
 
 // clang-format off
@@ -37,7 +39,10 @@ ezDynamicArray<ezSharedPtr<ezRenderGraph>> ezRenderGraphManager::s_EnqueuedRende
 ezDynamicArray<ezRenderGraph*> ezRenderGraphManager::s_AllRenderGraphs[3];
 ezUniquePtr<ezRenderGraphResourcePool> ezRenderGraphManager::s_pPool;
 ezUniquePtr<ezGALResourceStateTracker> ezRenderGraphManager::s_pStateTracker;
+ezDynamicArray<ezSharedPtr<ezRenderGraphPassObserver>> ezRenderGraphManager::s_Observers;
+ezSharedPtr<ezRenderGraph> ezRenderGraphManager::s_pObserverGraph;
 ezDynamicArray<ezRenderGraph*> ezRenderGraphManager::s_ExecutingGraphs;
+ezDynamicArray<ezRenderGraphPassObserver*> ezRenderGraphManager::s_ExecutingObservers;
 ezUInt32 ezRenderGraphManager::s_uiCurrentGraphIndex = 0;
 ezUInt32 ezRenderGraphManager::s_uiCurrentPassIndex = 0;
 
@@ -52,6 +57,8 @@ void ezRenderGraphManager::OnEngineStartup()
 
 void ezRenderGraphManager::OnEngineShutdown()
 {
+  s_pObserverGraph = nullptr;
+
   DeinitPool(ezGALDevice::GetDefaultDevice());
   ezGALDevice::s_Events.RemoveEventHandler(ezMakeDelegate(&ezRenderGraphManager::GALDeviceEventHandler));
   ezGALCommandEncoder::s_TextureBarrierValidationFailed.RemoveEventHandler(ezMakeDelegate(&ezRenderGraphManager::PrintTextureResourceHistory));
@@ -62,6 +69,17 @@ void ezRenderGraphManager::OnEngineShutdown()
   EZ_ASSERT_DEV(s_AllRenderGraphs[ezRenderGraphPhase::PreRender].IsEmpty(), "Not all PreRender-phase render graphs were destroyed before shutdown.");
   EZ_ASSERT_DEV(s_AllRenderGraphs[ezRenderGraphPhase::Render].IsEmpty(), "Not all render-phase render graphs were destroyed before shutdown.");
   EZ_ASSERT_DEV(s_AllRenderGraphs[ezRenderGraphPhase::PostRender].IsEmpty(), "Not all post-render-phase render graphs were destroyed before shutdown.");
+
+  for (ezUInt32 i = s_Observers.GetCount(); i > 0; --i)
+  {
+    if (s_Observers[i - 1]->GetRefCount() == 1)
+    {
+      s_Observers.RemoveAtAndSwap(i - 1);
+      continue;
+    }
+  }
+
+  EZ_ASSERT_DEV(s_Observers.IsEmpty(), "Not render graph observers were destroyed before shutdown.");
 }
 
 void ezRenderGraphManager::GALDeviceEventHandler(const ezGALDeviceEvent& e)
@@ -149,15 +167,58 @@ void ezRenderGraphManager::ExecuteRenderGraphs(ezGALDevice* pDevice)
           s_ExecutingGraphs.PushBack(pRenderGraph.Borrow());
       }
     }
+    s_ExecutingObservers.Clear();
+    for (ezUInt32 i = s_Observers.GetCount(); i > 0; --i)
+    {
+      if (s_Observers[i - 1]->GetRefCount() == 1)
+      {
+        s_Observers.RemoveAtAndSwap(i - 1);
+        continue;
+      }
+      // Apply any pending requests while we hold the mutex.
+      // After this point, m_Request is only accessed on the render thread.
+      s_Observers[i - 1]->ApplyPendingRequest();
+      s_ExecutingObservers.PushBack(s_Observers[i - 1].Borrow());
+    }
+
+    // Create observer render graph
+    if (!s_ExecutingObservers.IsEmpty())
+    {
+      if (s_pObserverGraph == nullptr)
+      {
+        s_pObserverGraph = CreateRenderGraph("__OBSERVER__", ezRenderGraphPhase::PostRender);
+      }
+
+      for (auto* pObserver : s_ExecutingObservers)
+      {
+        pObserver->RecordPreview(*s_pObserverGraph.Borrow());
+      }
+
+      if (s_pObserverGraph->Compile().Succeeded())
+        s_ExecutingGraphs.PushBack(s_pObserverGraph.Borrow());
+    }
   }
 
   {
     EZ_PROFILE_SCOPE("ComputeBarriers");
     for (auto pRenderGraph : s_ExecutingGraphs)
     {
-      pRenderGraph->ComputeBarriers(*s_pStateTracker.Borrow());
+      // Collect observers for this graph.
+      ezHybridArray<ezRenderGraphPassObserver*, 4> graphObservers;
+      for (auto* pObserver : s_ExecutingObservers)
+      {
+        if (pObserver->m_pGraph == pRenderGraph)
+        {
+          pObserver->Reset();
+          graphObservers.PushBack(pObserver);
+        }
+      }
+
+      pRenderGraph->ComputeBarriers(*s_pStateTracker.Borrow(), graphObservers);
     }
   }
+
+
 
   ezHybridArray<ezGALTextureBarrier, 8> textureBarriers;
   s_pStateTracker->RevertTextureState([&](const ezGALTextureBarrier& barrier)
@@ -171,7 +232,15 @@ void ezRenderGraphManager::ExecuteRenderGraphs(ezGALDevice* pDevice)
   ezRenderGraphContext ctx(pEncoder, pDevice, ezRenderContext::GetDefaultInstance());
   for (s_uiCurrentGraphIndex = 0; s_uiCurrentGraphIndex < s_ExecutingGraphs.GetCount(); ++s_uiCurrentGraphIndex)
   {
-    s_ExecutingGraphs[s_uiCurrentGraphIndex]->Execute(ctx);
+    // Collect valid observers for this graph.
+    ezHybridArray<ezRenderGraphPassObserver*, 4> graphObservers;
+    for (auto* pObserver : s_ExecutingObservers)
+    {
+      if (pObserver->m_bValid && pObserver->m_pGraph == s_ExecutingGraphs[s_uiCurrentGraphIndex])
+        graphObservers.PushBack(pObserver);
+    }
+
+    s_ExecutingGraphs[s_uiCurrentGraphIndex]->Execute(ctx, graphObservers);
   }
   pEncoder->TextureBarrier(textureBarriers);
   pEncoder->BufferBarrier(bufferBarriers);
@@ -195,6 +264,110 @@ void ezRenderGraphManager::ExecuteRenderGraphs(ezGALDevice* pDevice)
 
   for (auto& bucket : s_EnqueuedRenderGraphs)
     bucket.Clear();
+}
+
+void ezRenderGraphManager::GetExecutionSummary(ezRenderGraphInspectionSummary& out_summary)
+{
+  out_summary.m_RenderGraphs.Clear();
+  out_summary.m_AvailableSwapChains.Clear();
+
+  if (ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice())
+  {
+    ezDynamicArray<ezGALSwapChainHandle> swapChains;
+    pDevice->GetAllSwapChains(swapChains);
+    out_summary.m_AvailableSwapChains.Reserve(swapChains.GetCount());
+    for (ezGALSwapChainHandle hSwapChain : swapChains)
+    {
+      ezRenderGraphSwapChainSummary& swapChainSummary = out_summary.m_AvailableSwapChains.ExpandAndGetRef();
+      swapChainSummary.m_uiSwapChainId = GetSwapChainId(hSwapChain);
+
+      if (const ezGALSwapChain* pSwapChain = pDevice->GetSwapChain(hSwapChain))
+      {
+        const ezSizeU32 size = pSwapChain->GetCurrentSize();
+        swapChainSummary.m_uiWidth = size.width;
+        swapChainSummary.m_uiHeight = size.height;
+      }
+    }
+  }
+
+  for (ezUInt32 i = 0; i < 3; ++i)
+  {
+    for (ezRenderGraph* pGraph : s_AllRenderGraphs[i])
+    {
+      if (pGraph == s_pObserverGraph.Borrow())
+        continue;
+      ezRenderGraphExecutionSummary& summary = out_summary.m_RenderGraphs.ExpandAndGetRef();
+      summary.m_uiRenderGraphId = GetRenderGraphId(pGraph);
+      summary.m_sGraphName = pGraph->GetGraphName();
+      summary.m_sUserName = pGraph->GetUserName();
+      summary.m_Phase = pGraph->m_Phase;
+
+      summary.m_uiExecutionOrder = -1;
+      for (ezUInt32 j = 0; j < s_EnqueuedRenderGraphs[i].GetCount(); ++j)
+      {
+        if (s_EnqueuedRenderGraphs[i][j].Borrow() == pGraph)
+        {
+          summary.m_uiExecutionOrder = j;
+          break;
+        }
+      }
+    }
+  }
+}
+
+ezResult ezRenderGraphManager::GetRenderGraphInspectionInfo(ezUInt64 uiRenderGraphId, ezRenderGraphInspectionInfo& out_InspectionInfo)
+{
+  if (ezRenderGraph* pGraph = GetRenderGraphById(uiRenderGraphId))
+  {
+    return pGraph->GetInspectionInfo(out_InspectionInfo);
+  }
+  return EZ_FAILURE;
+}
+
+ezUInt64 ezRenderGraphManager::GetRenderGraphId(ezRenderGraph* pGraph)
+{
+  return reinterpret_cast<ezUInt64>(pGraph);
+}
+
+ezRenderGraph* ezRenderGraphManager::GetRenderGraphById(ezUInt64 uiRenderGraphId)
+{
+  ezRenderGraph* pGraph = reinterpret_cast<ezRenderGraph*>(uiRenderGraphId);
+  for (ezUInt32 i = 0; i < 3; ++i)
+  {
+    for (ezRenderGraph* pGraph2 : s_AllRenderGraphs[i])
+    {
+      if (pGraph == pGraph2)
+      {
+        return pGraph2;
+      }
+    }
+  }
+  return nullptr;
+}
+
+ezUInt32 ezRenderGraphManager::GetSwapChainId(ezGALSwapChainHandle hSwapChain)
+{
+  return hSwapChain.GetInternalID().m_Data;
+}
+
+ezGALSwapChainHandle ezRenderGraphManager::GetSwapChainById(ezUInt32 uiSwapChainId)
+{
+  ezGALSwapChainHandle hSwapChain{ezGALSwapChainHandle::IdType(uiSwapChainId)};
+  if (ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice())
+  {
+    if (pDevice->GetSwapChain(hSwapChain) != nullptr)
+    {
+      return hSwapChain;
+    }
+  }
+  return ezGALSwapChainHandle();
+}
+
+ezSharedPtr<ezRenderGraphPassObserver> ezRenderGraphManager::CreateObserver()
+{
+  ezSharedPtr<ezRenderGraphPassObserver> observer = EZ_DEFAULT_NEW(ezRenderGraphPassObserver, ezGALDevice::GetDefaultDevice());
+  s_Observers.PushBack(observer);
+  return observer;
 }
 
 void ezRenderGraphManager::OnGraphDestroyed(ezRenderGraph* pGraph)
@@ -226,7 +399,7 @@ namespace
 void ezRenderGraphManager::PrintTextureResourceHistory(const ezTextureValidationError& error)
 {
   ezLog::Error("Bind group '{}' binding '{}': texture sub-resource [mip={}, slice={}] state mismatch. Tracked: {} [{}], Expected: {} [{}]",
-    error.m_uiBindGroup, error.m_sBinding.GetData(), error.m_failedSubResource.m_uiMipLevel, error.m_failedSubResource.m_uiArraySlice, ezArgEnum(error.m_actualState), ezArgEnum(error.m_actualStages), ezArgEnum(error.m_expectedState), ezArgEnum(error.m_expectedStages));
+  error.m_uiBindGroup, error.m_sBinding.GetData(), error.m_failedSubResource.m_uiMipLevel, error.m_failedSubResource.m_uiArraySlice, ezArgEnum(error.m_actualState), ezArgEnum(error.m_actualStages), ezArgEnum(error.m_expectedState), ezArgEnum(error.m_expectedStages));
 
 
   if (s_ExecutingGraphs.IsEmpty())

@@ -59,6 +59,7 @@
     <addaction name="ActionShowWindowPlugins"/>
     <addaction name="ActionShowWindowReflection"/>
     <addaction name="ActionShowWindowResource"/>
+    <addaction name="ActionShowWindowRenderGraph"/>
     <addaction name="ActionShowWindowSubsystems"/>
     <addaction name="ActionShowWindowTime"/>
    </widget>
@@ -247,6 +248,14 @@
    </property>
    <property name="text">
     <string>Resources</string>
+   </property>
+  </action>
+  <action name="ActionShowWindowRenderGraph">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Render Graph</string>
    </property>
   </action>
  </widget>

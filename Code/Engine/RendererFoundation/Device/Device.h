@@ -166,8 +166,9 @@ public:
 
   // Swap chain functions
 
-  ezGALTextureHandle GetBackBufferTextureFromSwapChain(ezGALSwapChainHandle hSwapChain);
+  ezGALTextureHandle GetBackBufferTextureFromSwapChain(ezGALSwapChainHandle hSwapChain) const;
 
+  void GetAllSwapChains(ezDynamicArray<ezGALSwapChainHandle>& out_swapChains) const;
 
   // Misc functions
 

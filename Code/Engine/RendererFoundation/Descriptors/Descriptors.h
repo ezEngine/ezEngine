@@ -243,6 +243,8 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALTextureCreationDescription : public ezHash
   void SetAsRenderTarget(ezUInt32 uiWidth, ezUInt32 uiHeight, ezGALResourceFormat::Enum format, ezGALMSAASampleCount::Enum sampleCount = ezGALMSAASampleCount::None);
   void SetAsRenderTarget(ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiArraySize, ezGALResourceFormat::Enum format, ezGALMSAASampleCount::Enum sampleCount = ezGALMSAASampleCount::None);
   ezResult Validate(ezGALDevice* pDevice, ezArrayPtr<ezGALSystemMemoryDescription> initialData = {}) const;
+  ezUInt32 GetNumberOfSlices() const;
+  ezVec3U32 GetMipMapSize(ezUInt32 uiMipLevel) const;
 
   /// Returns the most appropriate default resource state based on the texture's allowed views and format.
   ezBitflags<ezGALResourceState> GetDefaultState() const;

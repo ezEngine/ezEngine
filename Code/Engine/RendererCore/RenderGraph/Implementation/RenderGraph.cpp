@@ -1,10 +1,13 @@
 #include <RendererCore/RendererCorePCH.h>
 
 #include <RendererCore/RenderGraph/RenderGraph.h>
+#include <RendererCore/RenderGraph/RenderGraphInspectionInfo.h>
+#include <RendererCore/RenderGraph/RenderGraphPassObserver.h>
 
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderGraph/RenderGraphContext.h>
+#include <RendererCore/RenderGraph/RenderGraphInspectionInfo.h>
 #include <RendererCore/RenderGraph/RenderGraphManager.h>
 #include <RendererCore/RenderGraph/RenderGraphResourceAllocator.h>
 #include <RendererCore/RenderGraph/RenderGraphResourcePool.h>
@@ -275,7 +278,108 @@ ezResult ezRenderGraph::Compile()
   return EZ_SUCCESS;
 }
 
-void ezRenderGraph::Execute(ezRenderGraphContext& ref_ctx)
+ezResult ezRenderGraph::GetInspectionInfo(ezRenderGraphInspectionInfo& out_info) const
+{
+  if (m_RenderGraphState < RenderGraphState::Compiled)
+    return EZ_FAILURE;
+
+  // All passes in declaration order, with alive flag.
+  const ezUInt32 uiNumPasses = m_Passes.GetCount();
+  out_info.m_Passes.SetCount(uiNumPasses);
+  for (ezUInt32 i = 0; i < uiNumPasses; ++i)
+  {
+    auto& pi = out_info.m_Passes[i];
+    pi.m_sName = m_PassNames[i];
+    pi.m_QueueType = m_Passes[i].m_QueueType;
+    pi.m_bHasSideEffects = m_Passes[i].m_bHasSideEffects;
+    pi.m_bAlive = m_Alive[i];
+  }
+
+  // Textures
+  const ezUInt32 uiNumTextures = m_TextureCreationDescriptions.GetCount();
+  out_info.m_Textures.SetCount(uiNumTextures);
+  for (ezUInt32 i = 0; i < uiNumTextures; ++i)
+  {
+    auto& ti = out_info.m_Textures[i];
+    ti.m_Desc = m_TextureCreationDescriptions[i];
+
+    ezRenderGraphTextureHandle hTex;
+    hTex.m_InternalId.m_InstanceIndex = i;
+    hTex.m_InternalId.m_Generation = 0;
+    ti.m_bImported = m_HandleToImportTexture.Contains(hTex);
+    ti.m_uiFirstUsePassIndex = m_TextureFirstUse[i];
+    ti.m_uiLastUsePassIndex = m_TextureLastUse[i];
+    ti.m_uiResolvedIndex = m_TextureToResolvedTexture[i];
+  }
+
+  // Buffers
+  const ezUInt32 uiNumBuffers = m_BufferCreationDescriptions.GetCount();
+  out_info.m_Buffers.SetCount(uiNumBuffers);
+  for (ezUInt32 i = 0; i < uiNumBuffers; ++i)
+  {
+    auto& bi = out_info.m_Buffers[i];
+    bi.m_Desc = m_BufferCreationDescriptions[i];
+
+    ezRenderGraphBufferHandle hBuf;
+    hBuf.m_InternalId.m_InstanceIndex = i;
+    hBuf.m_InternalId.m_Generation = 0;
+    bi.m_bImported = m_HandleToImportBuffer.Contains(hBuf);
+    bi.m_uiFirstUsePassIndex = m_BufferFirstUse[i];
+    bi.m_uiLastUsePassIndex = m_BufferLastUse[i];
+    bi.m_uiResolvedIndex = m_BufferToResolvedBuffer[i];
+  }
+
+  // Accesses - flatten all pass resource accesses (all passes, not just alive)
+  out_info.m_Accesses.Clear();
+  out_info.m_Accesses.Reserve(m_ReadBuffers.GetCount() + m_WriteBuffers.GetCount() + m_ReadTextures.GetCount() + m_WriteTextures.GetCount());
+  for (ezUInt32 passIdx = 0; passIdx < uiNumPasses; ++passIdx)
+  {
+    const Pass& pass = m_Passes[passIdx];
+    ezUInt16 uiAccessIndexInPass = 0;
+    for (const TextureInfo& info : pass.GetReadTextures(this))
+    {
+      auto& a = out_info.m_Accesses.ExpandAndGetRef();
+      a.m_uiPassIndex = static_cast<ezUInt16>(passIdx);
+      a.m_uiResourceIndex = info.m_hTexture.m_InternalId.m_InstanceIndex;
+      a.m_uiAccessIndex = uiAccessIndexInPass++;
+      a.m_bIsTexture = true;
+      a.m_Access = info.m_access;
+      a.m_TextureRange = info.m_range;
+    }
+    for (const TextureInfo& info : pass.GetWriteTextures(this))
+    {
+      auto& a = out_info.m_Accesses.ExpandAndGetRef();
+      a.m_uiPassIndex = static_cast<ezUInt16>(passIdx);
+      a.m_uiResourceIndex = info.m_hTexture.m_InternalId.m_InstanceIndex;
+      a.m_uiAccessIndex = uiAccessIndexInPass++;
+      a.m_bIsTexture = true;
+      a.m_Access = info.m_access;
+      a.m_TextureRange = info.m_range;
+    }
+    for (const BufferInfo& info : pass.GetReadBuffers(this))
+    {
+      auto& a = out_info.m_Accesses.ExpandAndGetRef();
+      a.m_uiPassIndex = static_cast<ezUInt16>(passIdx);
+      a.m_uiResourceIndex = info.m_hBuffer.m_InternalId.m_InstanceIndex;
+      a.m_uiAccessIndex = uiAccessIndexInPass++;
+      a.m_bIsTexture = false;
+      a.m_Access = info.m_access;
+    }
+    for (const BufferInfo& info : pass.GetWriteBuffers(this))
+    {
+      auto& a = out_info.m_Accesses.ExpandAndGetRef();
+      a.m_uiPassIndex = static_cast<ezUInt16>(passIdx);
+      a.m_uiResourceIndex = info.m_hBuffer.m_InternalId.m_InstanceIndex;
+      a.m_uiAccessIndex = uiAccessIndexInPass++;
+      a.m_bIsTexture = false;
+      a.m_Access = info.m_access;
+    }
+  }
+
+  return EZ_SUCCESS;
+}
+
+void ezRenderGraph::Execute(ezRenderGraphContext& ref_ctx, ezArrayPtr<ezRenderGraphPassObserver*> observers)
 {
   EZ_ASSERT_DEV(m_RenderGraphState == RenderGraphState::BarriersCreated, "Graph must be compiled before execution");
 
@@ -386,6 +490,21 @@ void ezRenderGraph::Execute(ezRenderGraphContext& ref_ctx)
       default:
         EZ_REPORT_FAILURE("Invalid queue type");
         break;
+    }
+
+    // Execute observer copies after this pass.
+    for (auto* pObserver : observers)
+    {
+      if (!pObserver->m_bValid || pObserver->m_uiSortedPassIndex != (ezUInt32)i)
+        continue;
+
+      if (!pObserver->m_PreCopyBarriers.IsEmpty())
+        ref_ctx.m_pCommandEncoder->TextureBarrier(pObserver->m_PreCopyBarriers);
+
+      ref_ctx.m_pCommandEncoder->CopyTexture(pObserver->GetCopyTexture(), pObserver->m_hResolvedSourceTexture);
+
+      if (!pObserver->m_PostCopyBarriers.IsEmpty())
+        ref_ctx.m_pCommandEncoder->TextureBarrier(pObserver->m_PostCopyBarriers);
     }
   }
 
@@ -1124,7 +1243,7 @@ void ezRenderGraph::BuildRenderingSetups()
   }
 }
 
-void ezRenderGraph::ComputeBarriers(ezGALResourceStateTracker& ref_tracker)
+void ezRenderGraph::ComputeBarriers(ezGALResourceStateTracker& ref_tracker, ezArrayPtr<ezRenderGraphPassObserver*> observers)
 {
   EZ_PROFILE_SCOPE("ComputeBarriers");
   EZ_ASSERT_DEBUG(m_RenderGraphState == RenderGraphState::Compiled, "ComputeBarriers must be called after Compile succeeded");
@@ -1205,6 +1324,59 @@ void ezRenderGraph::ComputeBarriers(ezGALResourceStateTracker& ref_tracker)
         });
     }
     compiled.m_uiBufferBarrierCount = m_CompiledBufferBarriers.GetCount() - compiled.m_uiBufferBarrierIndex;
+
+    // Set up observers that target this pass.
+    for (auto* pObserver : observers)
+    {
+      if (pObserver->GetRequest().m_sPassName != m_PassNames[passIdx])
+        continue;
+
+      const ezRenderGraphTextureHandle hSourceTex = FindTextureAccessInPass(passIdx, pObserver->GetRequest().m_uiAccessIndex);
+      if (hSourceTex.IsInvalidated())
+        continue;
+
+      const ezUInt16 uiResolvedIdx = m_TextureToResolvedTexture[hSourceTex.m_InternalId.m_InstanceIndex];
+      if (uiResolvedIdx == s_Unused)
+        continue;
+
+      const ezGALTextureHandle hResolvedSource = m_ResolvedTextures[uiResolvedIdx];
+      const ezGALTextureCreationDescription& srcDesc = m_TextureCreationDescriptions[hSourceTex.m_InternalId.m_InstanceIndex];
+
+      pObserver->EnsureCopyTexture(srcDesc);
+      if (pObserver->GetCopyTexture().IsInvalidated())
+        continue;
+
+      pObserver->m_hResolvedSourceTexture = hResolvedSource;
+      pObserver->m_uiSortedPassIndex = sortedIdx;
+      pObserver->m_bValid = true;
+
+      // Source → CopySource barrier (tracked by the state tracker so the
+      // next pass's barriers will restore the correct state).
+      ref_tracker.ChangeState(hResolvedSource, {}, ezGALResourceState::CopySource, ezGALShaderStageFlags::Auto, [&](const ezGALTextureBarrier& barrier)
+        { pObserver->m_PreCopyBarriers.PushBack(barrier); });
+
+      const ezGALResourceState::Enum destReadState = ezGALResourceFormat::IsDepthFormat(srcDesc.m_Format)
+                                                       ? ezGALResourceState::DepthStencilRead
+                                                       : ezGALResourceState::ShaderResource;
+
+      // Destination → CopyDestination barrier (not tracked — external resource).
+      {
+        ezGALTextureBarrier destBarrier;
+        destBarrier.m_hTexture = pObserver->GetCopyTexture();
+        destBarrier.m_StateBefore = destReadState;
+        destBarrier.m_StateAfter = ezGALResourceState::CopyDestination;
+        pObserver->m_PreCopyBarriers.PushBack(destBarrier);
+      }
+
+      // Destination → read barrier after copy.
+      {
+        ezGALTextureBarrier destBarrier;
+        destBarrier.m_hTexture = pObserver->GetCopyTexture();
+        destBarrier.m_StateBefore = ezGALResourceState::CopyDestination;
+        destBarrier.m_StateAfter = destReadState;
+        pObserver->m_PostCopyBarriers.PushBack(destBarrier);
+      }
+    }
   }
   m_RenderGraphState = RenderGraphState::BarriersCreated;
 }

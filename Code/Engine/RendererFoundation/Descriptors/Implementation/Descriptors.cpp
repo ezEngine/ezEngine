@@ -80,6 +80,22 @@ ezResult ezGALTextureCreationDescription::Validate(ezGALDevice* pDevice, ezArray
   return EZ_SUCCESS;
 }
 
+ezUInt32 ezGALTextureCreationDescription::GetNumberOfSlices() const
+{
+  if (m_Type ==ezGALTextureType::TextureCube || m_Type == ezGALTextureType::TextureCubeArray)
+    return m_uiArraySize * 6;
+  return m_uiArraySize;
+}
+
+ezVec3U32 ezGALTextureCreationDescription::GetMipMapSize(ezUInt32 uiMipLevel) const
+{
+  ezVec3U32 size = {m_uiWidth, m_uiHeight, m_uiDepth};
+  size.x = ezMath::Max(1u, size.x >> uiMipLevel);
+  size.y = ezMath::Max(1u, size.y >> uiMipLevel);
+  size.z = ezMath::Max(1u, size.z >> uiMipLevel);
+  return size;
+}
+
 ezBitflags<ezGALResourceState> ezGALTextureCreationDescription::GetDefaultState() const
 {
   if (m_TextureFlags.IsSet(ezGALTextureUsageFlags::Presentable))

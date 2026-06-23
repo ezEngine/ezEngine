@@ -1,0 +1,50 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+MSAA
+
+[COMPUTESHADER]
+
+#include <Shaders/RenderGraph/RenderGraphMinMaxConstants.h>
+#include <Shaders/RenderGraph/RenderGraphReadTexel.h>
+
+RWStructuredBuffer<uint> MinMaxOutput BIND_GROUP(BG_DRAW_CALL);
+
+#define THREADS_X 8u
+#define THREADS_Y 8u
+
+uint FloatToOrderedUint(float value)
+{
+  // InterlockedMin/Max operate on integers. Positive IEEE floats already increase with their bit pattern once the sign bit is set.
+  // Negative floats sort in the opposite direction, so invert all their bits. This maps the full float range to unsigned integers
+  // where smaller floats have smaller integer values and larger floats have larger integer values.
+  uint rawValue = asuint(value);
+  return (rawValue & 0x80000000u) != 0u ? ~rawValue : (rawValue ^ 0x80000000u);
+}
+
+void AddChannel(uint channelIndex, float value)
+{
+  uint channelMask = GET_PUSH_CONSTANT(ezRenderGraphMinMaxConstants, ChannelMask);
+  if ((channelMask & (1u << channelIndex)) == 0u || value != value)
+    return;
+
+  uint orderedValue = FloatToOrderedUint(value);
+  uint previousValue;
+  InterlockedMin(MinMaxOutput[0], orderedValue, previousValue);
+  InterlockedMax(MinMaxOutput[1], orderedValue, previousValue);
+}
+
+[numthreads(THREADS_X, THREADS_Y, 1)]
+void main(uint3 dispatchThreadId : SV_DispatchThreadID)
+{
+  uint2 textureSize = GET_PUSH_CONSTANT(ezRenderGraphMinMaxConstants, TextureSize);
+  if (dispatchThreadId.x >= textureSize.x || dispatchThreadId.y >= textureSize.y)
+    return;
+
+  float4 texel = ReadTexel(int2(dispatchThreadId.xy), GET_PUSH_CONSTANT(ezRenderGraphMinMaxConstants, SampleIndex), GET_PUSH_CONSTANT(ezRenderGraphMinMaxConstants, SampleCount));
+  AddChannel(0u, texel.r);
+  AddChannel(1u, texel.g);
+  AddChannel(2u, texel.b);
+  AddChannel(3u, texel.a);
+}
