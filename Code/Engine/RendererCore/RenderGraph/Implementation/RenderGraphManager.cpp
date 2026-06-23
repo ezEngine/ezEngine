@@ -316,11 +316,11 @@ void ezRenderGraphManager::GetExecutionSummary(ezRenderGraphInspectionSummary& o
   }
 }
 
-ezResult ezRenderGraphManager::GetRenderGraphInspectionInfo(ezUInt64 uiRenderGraphId, ezRenderGraphInspectionInfo& out_InspectionInfo)
+ezResult ezRenderGraphManager::GetRenderGraphInspectionInfo(ezUInt64 uiRenderGraphId, ezRenderGraphInspectionInfo& out_inspectionInfo)
 {
   if (ezRenderGraph* pGraph = GetRenderGraphById(uiRenderGraphId))
   {
-    return pGraph->GetInspectionInfo(out_InspectionInfo);
+    return pGraph->GetInspectionInfo(out_inspectionInfo);
   }
   return EZ_FAILURE;
 }

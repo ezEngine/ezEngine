@@ -79,22 +79,22 @@ void ezQtRenderGraphHistogramWidget::paintEvent(QPaintEvent*)
     UpdateHistogram(plotRect);
   }
   // TODO: DPI scaling?
-  painter.drawImage(plotRect.adjusted(2, 2, -2, -2), m_histogramImage);
+  painter.drawImage(plotRect.adjusted(2, 2, -2, -2), m_HistogramImage);
 }
 
 void ezQtRenderGraphHistogramWidget::UpdateHistogram(const QRect plotRect)
 {
-  if (m_histogramImage.isNull())
+  if (m_HistogramImage.isNull())
   {
-    m_histogramImage = QImage(256, plotRect.height() - 4, QImage::Format_ARGB32_Premultiplied);
+    m_HistogramImage = QImage(256, plotRect.height() - 4, QImage::Format_ARGB32_Premultiplied);
   }
-  m_histogramImage.fill(Qt::transparent);
+  m_HistogramImage.fill(Qt::transparent);
   if (m_Histogram.IsEmpty())
     return;
 
 
 
-  const ezUInt32 uiImageHeight = (ezUInt32)m_histogramImage.height();
+  const ezUInt32 uiImageHeight = (ezUInt32)m_HistogramImage.height();
   const ezUInt32 uiMaxImageHeight = uiImageHeight - 1u;
   for (ezUInt32 bin = 0; bin < 256; ++bin)
   {
@@ -115,7 +115,7 @@ void ezQtRenderGraphHistogramWidget::UpdateHistogram(const QRect plotRect)
       const bool bB = y <= uiBHeight;
       const bool bA = y <= uiAHeight;
       const ezUInt32 uiLookup = EZ_BIT(0) * bR | EZ_BIT(1) * bG | EZ_BIT(2) * bB | EZ_BIT(3) * bA;
-      m_histogramImage.setPixelColor((ezInt32)bin, (ezInt32)uiImageHeight - (ezInt32)y - 1, m_Colors[uiLookup]);
+      m_HistogramImage.setPixelColor((ezInt32)bin, (ezInt32)uiImageHeight - (ezInt32)y - 1, m_Colors[uiLookup]);
     }
   }
 }

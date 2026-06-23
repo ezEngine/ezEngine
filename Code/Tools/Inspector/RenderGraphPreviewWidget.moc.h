@@ -18,12 +18,12 @@ class ezQtRenderGraphPreviewWidget : public QWidget
 public:
   explicit ezQtRenderGraphPreviewWidget(QWidget* pParent = nullptr);
 
-  void SetTextureSize(ezVec2U32 size);
-  void SetTargetSize(ezVec2U32 size);
-  void SetView(float fZoom, ezVec2 panCenter);
+  void SetTextureSize(ezVec2U32 vSize);
+  void SetTargetSize(ezVec2U32 vSize);
+  void SetView(float fZoom, ezVec2 vPanCenter);
 
 Q_SIGNALS:
-  void RequestChanged(float fZoom, ezVec2 panCenter, ezVec2I32 pixel, bool bUpdatePixelPosition, bool bHighlightPixel);
+  void RequestChanged(float fZoom, ezVec2 vPanCenter, ezVec2I32 vPixel, bool bUpdatePixelPosition, bool bHighlightPixel);
 
 protected:
   void paintEvent(QPaintEvent*) override;

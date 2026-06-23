@@ -17,46 +17,46 @@ template <typename T>
 struct ezComPtr
 {
 public:
-  ezComPtr() {}
+  ezComPtr() = default;
   ~ezComPtr()
   {
-    if (m_ptr != nullptr)
+    if (m_pPtr != nullptr)
     {
-      m_ptr->Release();
-      m_ptr = nullptr;
+      m_pPtr->Release();
+      m_pPtr = nullptr;
     }
   }
 
   ezComPtr(const ezComPtr& other)
-    : m_ptr(other.m_ptr)
+    : m_pPtr(other.m_pPtr)
   {
-    if (m_ptr)
+    if (m_pPtr)
     {
-      m_ptr->AddRef();
+      m_pPtr->AddRef();
     }
   }
 
-  T* operator->() { return m_ptr; }
-  T* const operator->() const { return m_ptr; }
+  T* operator->() { return m_pPtr; }
+  T* const operator->() const { return m_pPtr; }
 
   T** put()
   {
-    EZ_ASSERT_DEV(m_ptr == nullptr, "Can only put into an empty ezComPtr");
-    return &m_ptr;
+    EZ_ASSERT_DEV(m_pPtr == nullptr, "Can only put into an empty ezComPtr");
+    return &m_pPtr;
   }
 
   bool operator==(nullptr_t)
   {
-    return m_ptr == nullptr;
+    return m_pPtr == nullptr;
   }
 
   bool operator!=(nullptr_t)
   {
-    return m_ptr != nullptr;
+    return m_pPtr != nullptr;
   }
 
 private:
-  T* m_ptr = nullptr;
+  T* m_pPtr = nullptr;
 };
 
 ezComPtr<IDxcUtils> s_pDxcUtils;
@@ -152,29 +152,29 @@ ezResult ezShaderCompilerDXC::Initialize()
   return EZ_SUCCESS;
 }
 
-ezResult ezShaderCompilerDXC::Compile(ezShaderProgramData& inout_Data, ezLogInterface* pLog)
+ezResult ezShaderCompilerDXC::Compile(ezShaderProgramData& inout_data, ezLogInterface* pLog)
 {
   EZ_SUCCEED_OR_RETURN(Initialize());
 
   for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
   {
-    if (inout_Data.m_uiSourceHash[stage] == 0)
+    if (inout_data.m_uiSourceHash[stage] == 0)
       continue;
-    if (inout_Data.m_bWriteToDisk[stage] == false)
+    if (inout_data.m_bWriteToDisk[stage] == false)
     {
       ezLog::Debug("Shader for stage '{}' is already compiled.", ezGALShaderStage::Names[stage]);
       continue;
     }
 
-    const ezStringBuilder sShaderSource = inout_Data.m_sShaderSource[stage];
+    const ezStringBuilder sShaderSource = inout_data.m_sShaderSource[stage];
 
     if (!sShaderSource.IsEmpty() && sShaderSource.FindSubString("main") != nullptr)
     {
-      const ezStringBuilder sSourceFile = inout_Data.m_sSourceFile;
+      const ezStringBuilder sSourceFile = inout_data.m_sSourceFile;
 
-      if (CompileSPIRVShader(sSourceFile, sShaderSource, inout_Data.m_Flags.IsSet(ezShaderCompilerFlags::Debug), GetProfileName(inout_Data.m_sPlatform, (ezGALShaderStage::Enum)stage), "main", inout_Data.m_ByteCode[stage]->m_ByteCode).Succeeded())
+      if (CompileSPIRVShader(sSourceFile, sShaderSource, inout_data.m_Flags.IsSet(ezShaderCompilerFlags::Debug), GetProfileName(inout_data.m_sPlatform, (ezGALShaderStage::Enum)stage), "main", inout_data.m_ByteCode[stage]->m_ByteCode).Succeeded())
       {
-        EZ_SUCCEED_OR_RETURN(ReflectShaderStage(inout_Data, (ezGALShaderStage::Enum)stage));
+        EZ_SUCCEED_OR_RETURN(ReflectShaderStage(inout_data, (ezGALShaderStage::Enum)stage));
       }
       else
       {

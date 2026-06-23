@@ -12,7 +12,7 @@ class EZ_SHADERCOMPILERDXC_DLL ezShaderCompilerDXC : public ezShaderProgramCompi
 
 public:
   virtual ezResult ModifyShaderSource(ezShaderProgramData& inout_data, ezLogInterface* pLog) override;
-  virtual ezResult Compile(ezShaderProgramData& inout_Data, ezLogInterface* pLog) override;
+  virtual ezResult Compile(ezShaderProgramData& inout_data, ezLogInterface* pLog) override;
 
 protected:
   virtual void ConfigureDxcArgs(ezDynamicArray<ezStringWChar>& inout_Args);

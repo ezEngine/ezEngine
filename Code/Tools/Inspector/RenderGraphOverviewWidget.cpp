@@ -73,14 +73,14 @@ namespace
     return ezMakeQString(text);
   }
 
-  void AppendAccessTooltipDetails(ezStringBuilder& ref_text, const ezRenderGraphInspectionInfo::AccessInfo& access)
+  void AppendAccessTooltipDetails(ezStringBuilder& ref_sText, const ezRenderGraphInspectionInfo::AccessInfo& access)
   {
-    ref_text.AppendFormat("\nAccess: {}", ezArgEnum(access.m_Access));
+    ref_sText.AppendFormat("\nAccess: {}", ezArgEnum(access.m_Access));
 
     if (access.m_bIsTexture)
     {
       const auto& range = access.m_TextureRange;
-      ref_text.AppendFormat("\nRange: mip {}+{}, slice {}+{}", range.m_uiBaseMipLevel, range.m_uiMipLevels,
+      ref_sText.AppendFormat("\nRange: mip {}+{}, slice {}+{}", range.m_uiBaseMipLevel, range.m_uiMipLevels,
         range.m_uiBaseArraySlice, range.m_uiArraySlices);
     }
   }

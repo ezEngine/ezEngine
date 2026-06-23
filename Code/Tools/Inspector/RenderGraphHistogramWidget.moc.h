@@ -26,5 +26,5 @@ private:
   ezDynamicArray<ezUInt8> m_Histogram;
   bool m_bRepaintPending = false;
   QColor m_Colors[16];
-  QImage m_histogramImage;
+  QImage m_HistogramImage;
 };

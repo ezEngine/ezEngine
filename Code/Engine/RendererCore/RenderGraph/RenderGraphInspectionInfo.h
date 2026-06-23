@@ -48,7 +48,7 @@ EZ_RENDERERCORE_DLL void operator>>(ezStreamReader& inout_stream, ezRenderGraphI
 /// Read-only snapshot of a compiled render graph's structure, taken after compilation. Used for visualization and debugging without exposing internal graph state.
 struct EZ_RENDERERCORE_DLL ezRenderGraphInspectionInfo
 {
-  void Swap(ezRenderGraphInspectionInfo& data);
+  void Swap(ezRenderGraphInspectionInfo& ref_data);
   void Clear();
 
   /// Describes one declared pass and whether it remains active after graph compilation.

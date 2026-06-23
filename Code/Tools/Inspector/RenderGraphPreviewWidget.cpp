@@ -21,22 +21,22 @@ ezQtRenderGraphPreviewWidget::ezQtRenderGraphPreviewWidget(QWidget* pParent)
   checkerPainter.fillRect(QRect(checker, checker, checker, checker), palette().color(QPalette::Light));
 }
 
-void ezQtRenderGraphPreviewWidget::SetTextureSize(ezVec2U32 size)
+void ezQtRenderGraphPreviewWidget::SetTextureSize(ezVec2U32 vSize)
 {
-  m_vTextureSize = size;
+  m_vTextureSize = vSize;
   update();
 }
 
-void ezQtRenderGraphPreviewWidget::SetTargetSize(ezVec2U32 size)
+void ezQtRenderGraphPreviewWidget::SetTargetSize(ezVec2U32 vSize)
 {
-  m_vTargetSize = size;
+  m_vTargetSize = vSize;
   update();
 }
 
-void ezQtRenderGraphPreviewWidget::SetView(float fZoom, ezVec2 panCenter)
+void ezQtRenderGraphPreviewWidget::SetView(float fZoom, ezVec2 vPanCenter)
 {
   m_fZoom = ezMath::Clamp(fZoom, 0.1f, 64.0f);
-  m_vPanCenter = panCenter;
+  m_vPanCenter = vPanCenter;
   update();
 }
 

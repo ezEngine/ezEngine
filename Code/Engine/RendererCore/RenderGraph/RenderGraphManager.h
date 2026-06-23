@@ -54,7 +54,7 @@ public:
 
   /// Fills an inspection info of a specific render graph.
   /// Only safe to call from an ezRenderGraphRenderEvent::Type::AfterGraphExecution callback registered through s_RenderEvent.
-  static ezResult GetRenderGraphInspectionInfo(ezUInt64 uiRenderGraphId, ezRenderGraphInspectionInfo& out_InspectionInfo);
+  static ezResult GetRenderGraphInspectionInfo(ezUInt64 uiRenderGraphId, ezRenderGraphInspectionInfo& out_inspectionInfo);
 
   static ezSharedPtr<ezRenderGraphPassObserver> CreateObserver();
 

@@ -330,12 +330,12 @@ void operator>>(ezStreamReader& inout_stream, ezRenderGraphInspectionInfo& ref_v
   }
 }
 
-void ezRenderGraphInspectionInfo::Swap(ezRenderGraphInspectionInfo& data)
+void ezRenderGraphInspectionInfo::Swap(ezRenderGraphInspectionInfo& ref_data)
 {
-  m_Passes.Swap(data.m_Passes);
-  m_Textures.Swap(data.m_Textures);
-  m_Buffers.Swap(data.m_Buffers);
-  m_Accesses.Swap(data.m_Accesses);
+  m_Passes.Swap(ref_data.m_Passes);
+  m_Textures.Swap(ref_data.m_Textures);
+  m_Buffers.Swap(ref_data.m_Buffers);
+  m_Accesses.Swap(ref_data.m_Accesses);
 }
 
 void ezRenderGraphInspectionInfo::Clear()

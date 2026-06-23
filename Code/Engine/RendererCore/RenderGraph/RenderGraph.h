@@ -109,7 +109,7 @@ public:
   void ComputeBarriers(ezGALResourceStateTracker& ref_tracker, ezArrayPtr<ezRenderGraphPassObserver*> observers = {});
 
   /// Execute all passes in compiled order.
-  void Execute(ezRenderGraphContext& ctx, ezArrayPtr<ezRenderGraphPassObserver*> observers = {});
+  void Execute(ezRenderGraphContext& ref_ctx, ezArrayPtr<ezRenderGraphPassObserver*> observers = {});
 
 private:
   friend class ezRenderGraphManager;
