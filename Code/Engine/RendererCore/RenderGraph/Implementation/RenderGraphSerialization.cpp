@@ -88,7 +88,7 @@ namespace
     ref_value.m_BufferFlags.SetValue(bufferFlags);
     ref_value.m_Format = static_cast<ezGALResourceFormat::Enum>(uiFormat);
   }
-}
+} // namespace
 
 void operator<<(ezStreamWriter& inout_stream, const ezRenderGraphObserverRequest& value)
 {

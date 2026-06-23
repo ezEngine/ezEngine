@@ -130,9 +130,8 @@ void ezQtRenderGraphOverviewWidget::SetInfo(ezUInt64 uiSelectedGraphId, const ez
     if (uiResolvedIndex != 0xFFFF)
       m_TextureColumnResources.PushBack({uiResolvedIndex, (ezUInt16)i});
   }
-  std::sort(begin(m_TextureColumnResources), end(m_TextureColumnResources), [](const TextureColumnResource& lhs, const TextureColumnResource& rhs) {
-    return lhs.m_uiResolvedIndex < rhs.m_uiResolvedIndex;
-  });
+  std::sort(begin(m_TextureColumnResources), end(m_TextureColumnResources), [](const TextureColumnResource& lhs, const TextureColumnResource& rhs)
+    { return lhs.m_uiResolvedIndex < rhs.m_uiResolvedIndex; });
 
   m_BufferColumnResources.Clear();
   for (ezUInt32 i = 0; i < m_Info.m_Buffers.GetCount(); ++i)
@@ -141,9 +140,8 @@ void ezQtRenderGraphOverviewWidget::SetInfo(ezUInt64 uiSelectedGraphId, const ez
     if (uiResolvedIndex != 0xFFFF)
       m_BufferColumnResources.PushBack({uiResolvedIndex, (ezUInt16)i});
   }
-  std::sort(begin(m_BufferColumnResources), end(m_BufferColumnResources), [](const BufferColumnResource& lhs, const BufferColumnResource& rhs) {
-    return lhs.m_uiResolvedIndex < rhs.m_uiResolvedIndex;
-  });
+  std::sort(begin(m_BufferColumnResources), end(m_BufferColumnResources), [](const BufferColumnResource& lhs, const BufferColumnResource& rhs)
+    { return lhs.m_uiResolvedIndex < rhs.m_uiResolvedIndex; });
 
   // Compute size
   const QSize required(s_iPassLabelWidth + s_iContentPadding + ezMath::Max<ezInt32>(1, (ezInt32)m_uiTotalResourceColumnCount) * s_iCellSize,
@@ -285,7 +283,8 @@ const ezRenderGraphInspectionInfo::AccessInfo* ezQtRenderGraphOverviewWidget::Fi
     return nullptr;
 
   auto it = std::lower_bound(begin(m_Info.m_Accesses), end(m_Info.m_Accesses), hover.m_uiPassIndex,
-    [](const ezRenderGraphInspectionInfo::AccessInfo& access, ezUInt16 uiPassIndex) { return access.m_uiPassIndex < uiPassIndex; });
+    [](const ezRenderGraphInspectionInfo::AccessInfo& access, ezUInt16 uiPassIndex)
+    { return access.m_uiPassIndex < uiPassIndex; });
 
   const ezRenderGraphInspectionInfo::AccessInfo* pMatch = nullptr;
   for (; it != end(m_Info.m_Accesses) && it->m_uiPassIndex == hover.m_uiPassIndex; ++it)
@@ -324,7 +323,8 @@ QString ezQtRenderGraphOverviewWidget::MakeAccessesTooltip(const HoverInfo& hove
     return QString();
 
   auto it = std::lower_bound(begin(m_Info.m_Accesses), end(m_Info.m_Accesses), hover.m_uiPassIndex,
-    [](const ezRenderGraphInspectionInfo::AccessInfo& access, ezUInt16 uiPassIndex) { return access.m_uiPassIndex < uiPassIndex; });
+    [](const ezRenderGraphInspectionInfo::AccessInfo& access, ezUInt16 uiPassIndex)
+    { return access.m_uiPassIndex < uiPassIndex; });
 
   ezStringBuilder tooltip;
   bool bHasAccess = false;
@@ -375,7 +375,8 @@ ezUInt16 ezQtRenderGraphOverviewWidget::FindTextureLifetimeResource(const HoverI
     return 0xFFFF;
 
   auto it = std::lower_bound(begin(m_TextureColumnResources), end(m_TextureColumnResources), hover.m_uiResourceColumn,
-    [](const TextureColumnResource& resource, ezUInt16 uiResolvedIndex) { return resource.m_uiResolvedIndex < uiResolvedIndex; });
+    [](const TextureColumnResource& resource, ezUInt16 uiResolvedIndex)
+    { return resource.m_uiResolvedIndex < uiResolvedIndex; });
 
   for (; it != end(m_TextureColumnResources) && it->m_uiResolvedIndex == hover.m_uiResourceColumn; ++it)
   {
@@ -398,7 +399,8 @@ ezUInt16 ezQtRenderGraphOverviewWidget::FindBufferLifetimeResource(const HoverIn
 
   const ezUInt32 uiBufferColumn = hover.m_uiResourceColumn - m_uiTextureColumnCount;
   auto it = std::lower_bound(begin(m_BufferColumnResources), end(m_BufferColumnResources), uiBufferColumn,
-    [](const BufferColumnResource& resource, ezUInt32 uiResolvedIndex) { return resource.m_uiResolvedIndex < uiResolvedIndex; });
+    [](const BufferColumnResource& resource, ezUInt32 uiResolvedIndex)
+    { return resource.m_uiResolvedIndex < uiResolvedIndex; });
 
   for (; it != end(m_BufferColumnResources) && it->m_uiResolvedIndex == uiBufferColumn; ++it)
   {
@@ -458,7 +460,8 @@ QString ezQtRenderGraphOverviewWidget::MakeHoverTooltip(const HoverInfo& hover) 
 QString ezQtRenderGraphOverviewWidget::MakeTextureColumnTooltip(ezUInt32 uiResolvedIndex) const
 {
   auto it = std::lower_bound(begin(m_TextureColumnResources), end(m_TextureColumnResources), uiResolvedIndex,
-    [](const TextureColumnResource& resource, ezUInt32 uiResolvedIndex) { return resource.m_uiResolvedIndex < uiResolvedIndex; });
+    [](const TextureColumnResource& resource, ezUInt32 uiResolvedIndex)
+    { return resource.m_uiResolvedIndex < uiResolvedIndex; });
 
   QString tooltip;
   for (; it != end(m_TextureColumnResources) && it->m_uiResolvedIndex == uiResolvedIndex; ++it)
@@ -473,7 +476,8 @@ QString ezQtRenderGraphOverviewWidget::MakeTextureColumnTooltip(ezUInt32 uiResol
 QString ezQtRenderGraphOverviewWidget::MakeBufferColumnTooltip(ezUInt32 uiResolvedIndex) const
 {
   auto it = std::lower_bound(begin(m_BufferColumnResources), end(m_BufferColumnResources), uiResolvedIndex,
-    [](const BufferColumnResource& resource, ezUInt32 uiResolvedIndex) { return resource.m_uiResolvedIndex < uiResolvedIndex; });
+    [](const BufferColumnResource& resource, ezUInt32 uiResolvedIndex)
+    { return resource.m_uiResolvedIndex < uiResolvedIndex; });
 
   QString tooltip;
   for (; it != end(m_BufferColumnResources) && it->m_uiResolvedIndex == uiResolvedIndex; ++it)
@@ -516,7 +520,9 @@ void ezQtRenderGraphOverviewWidget::DrawPassNames(QPainter& painter)
   {
     const auto& pass = m_Info.m_Passes[passIndex];
     const QRect labelRect(0, s_iHeaderHeight + (ezInt32)passIndex * s_iCellSize, s_iPassLabelWidth, s_iCellSize);
-    const QColor textColor = !pass.m_bAlive ? palette().color(QPalette::Disabled, QPalette::Text) : pass.m_QueueType == ezGALQueueType::Compute ? ezToQtColor(ezColorScheme::LightUI(ezColorScheme::Green)) : pass.m_QueueType == ezGALQueueType::Transfer ? ezToQtColor(ezColorScheme::LightUI(ezColorScheme::Blue)) : palette().color(QPalette::Text);
+    const QColor textColor = !pass.m_bAlive ? palette().color(QPalette::Disabled, QPalette::Text) : pass.m_QueueType == ezGALQueueType::Compute  ? ezToQtColor(ezColorScheme::LightUI(ezColorScheme::Green))
+                                                                                                  : pass.m_QueueType == ezGALQueueType::Transfer ? ezToQtColor(ezColorScheme::LightUI(ezColorScheme::Blue))
+                                                                                                                                                 : palette().color(QPalette::Text);
     painter.fillRect(labelRect, passIndex % 2 == 0 ? palette().color(QPalette::Base) : palette().color(QPalette::AlternateBase));
     painter.setPen(textColor);
     painter.drawText(labelRect.adjusted(6, 0, -4, 0), Qt::AlignVCenter | Qt::AlignLeft, ezMakeQString(pass.m_sName));

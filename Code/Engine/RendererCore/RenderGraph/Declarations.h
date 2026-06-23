@@ -78,5 +78,3 @@ struct ezRenderGraphPhase
     Default = Render
   };
 };
-
-

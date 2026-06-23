@@ -1,7 +1,7 @@
 #if MSAA
-  Texture2DMS<float4> SourceTexture BIND_GROUP(BG_DRAW_CALL);
+Texture2DMS<float4> SourceTexture BIND_GROUP(BG_DRAW_CALL);
 #else
-  Texture2D SourceTexture BIND_GROUP(BG_DRAW_CALL);
+Texture2D SourceTexture BIND_GROUP(BG_DRAW_CALL);
 #endif
 
 float4 ReadTexel(int2 pixelPosition, int sampleIndex, uint sampleCount)

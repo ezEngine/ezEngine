@@ -82,7 +82,7 @@ ezResult ezGALTextureCreationDescription::Validate(ezGALDevice* pDevice, ezArray
 
 ezUInt32 ezGALTextureCreationDescription::GetNumberOfSlices() const
 {
-  if (m_Type ==ezGALTextureType::TextureCube || m_Type == ezGALTextureType::TextureCubeArray)
+  if (m_Type == ezGALTextureType::TextureCube || m_Type == ezGALTextureType::TextureCubeArray)
     return m_uiArraySize * 6;
   return m_uiArraySize;
 }

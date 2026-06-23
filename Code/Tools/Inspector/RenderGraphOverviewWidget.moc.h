@@ -3,13 +3,13 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Strings/String.h>
-#include <RendererCore/RenderGraph/RenderGraphInspectionInfo.h>
-#include <RendererCore/RenderGraph/RenderGraphPassObserver.h>
 #include <QPoint>
 #include <QRect>
 #include <QSize>
 #include <QString>
 #include <QWidget>
+#include <RendererCore/RenderGraph/RenderGraphInspectionInfo.h>
+#include <RendererCore/RenderGraph/RenderGraphPassObserver.h>
 
 class QMouseEvent;
 class QPaintEvent;
@@ -105,7 +105,7 @@ private:
   ezUInt32 m_uiBufferColumnCount = 0;
   ezUInt32 m_uiTotalResourceColumnCount = 0;
   ezDynamicArray<TextureColumnResource> m_TextureColumnResources; ///< Find transient textures matching the same m_uiResolvedIndex
-  ezDynamicArray<BufferColumnResource> m_BufferColumnResources; ///< Find transient buffers matching the same m_uiResolvedIndex
+  ezDynamicArray<BufferColumnResource> m_BufferColumnResources;   ///< Find transient buffers matching the same m_uiResolvedIndex
 
   // Observed resource
   ezString m_sObservedPassName;

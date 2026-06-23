@@ -32,8 +32,8 @@ public:
   const ezString& GetGraphName() const { return m_sGraphName; }
 
   /// Sets the user name that can be changed at any time.
-  void SetUserName(ezStringView sName) {m_sUserName = sName; }
-  const ezString& GetUserName() const {return m_sUserName; }
+  void SetUserName(ezStringView sName) { m_sUserName = sName; }
+  const ezString& GetUserName() const { return m_sUserName; }
 
   /// User data is accessible during execution callbacks via `ctx.GetUserData<T>()`.
   void SetUserData(ezReflectedClass* pUserData) { m_pUserData = pUserData; }

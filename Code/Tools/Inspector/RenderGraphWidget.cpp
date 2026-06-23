@@ -14,8 +14,8 @@
 #include <QLineEdit>
 #include <QListWidget>
 #include <QPalette>
-#include <QSignalBlocker>
 #include <QShowEvent>
+#include <QSignalBlocker>
 #include <QSpinBox>
 #include <QSplitter>
 #include <QToolButton>
@@ -105,7 +105,8 @@ ezQtRenderGraphWidget::ezQtRenderGraphWidget(ads::CDockManager* pDockManager, QW
   connect(Overview, &ezQtRenderGraphOverviewWidget::AccessDeselected, this, &ezQtRenderGraphWidget::ClearAccessSelection);
   connect(Preview, &ezQtRenderGraphPreviewWidget::RequestChanged, this, &ezQtRenderGraphWidget::UpdatePreviewRequest);
 
-  auto requestFromControls = [this]() {
+  auto requestFromControls = [this]()
+  {
     if (!m_bUpdatingControls)
     {
       SetRequestFromControls();
@@ -117,7 +118,8 @@ ezQtRenderGraphWidget::ezQtRenderGraphWidget(ads::CDockManager* pDockManager, QW
     }
   };
 
-  auto setRange = [this](float fMin, float fMax) {
+  auto setRange = [this](float fMin, float fMax)
+  {
     m_bUpdatingControls = true;
     RangeMinSpin->setValue(fMin);
     RangeMaxSpin->setValue(fMax);
@@ -131,7 +133,8 @@ ezQtRenderGraphWidget::ezQtRenderGraphWidget(ads::CDockManager* pDockManager, QW
     SendObserverRequest();
   };
 
-  connect(GraphList, &QListWidget::currentRowChanged, this, [this](int row) {
+  connect(GraphList, &QListWidget::currentRowChanged, this, [this](int row)
+    {
     if (row < 0)
       return;
     QListWidgetItem* pItem = GraphList->item(row);
@@ -146,18 +149,17 @@ ezQtRenderGraphWidget::ezQtRenderGraphWidget(ads::CDockManager* pDockManager, QW
     m_Request.m_uiRenderGraphId = m_uiSelectedGraphId;
     Preview->SetView(m_Request.m_fZoom, m_Request.m_vPanCenter);
     SendInfoRequest();
-    m_bUpdateUi = true;
-  });
+    m_bUpdateUi = true; });
 
-  connect(SwapChainList, &QListWidget::currentRowChanged, this, [this](int row) {
+  connect(SwapChainList, &QListWidget::currentRowChanged, this, [this](int row)
+    {
     if (row < 0)
       return;
     QListWidgetItem* pItem = SwapChainList->item(row);
     m_uiSelectedSwapChainId = pItem->data(SwapChainListRole_SwapChainId).toUInt();
     m_Request.m_uiSwapChainId = m_uiSelectedSwapChainId;
     Preview->SetTargetSize(ezVec2U32(pItem->data(SwapChainListRole_Width).toUInt(), pItem->data(SwapChainListRole_Height).toUInt()));
-    SendObserverRequest();
-  });
+    SendObserverRequest(); });
 
   connect(MipSpin, qOverload<int>(&QSpinBox::valueChanged), this, requestFromControls);
   connect(SliceSpin, qOverload<int>(&QSpinBox::valueChanged), this, requestFromControls);
@@ -168,14 +170,16 @@ ezQtRenderGraphWidget::ezQtRenderGraphWidget(ads::CDockManager* pDockManager, QW
   connect(ChannelG, &QCheckBox::toggled, this, requestFromControls);
   connect(ChannelB, &QCheckBox::toggled, this, requestFromControls);
   connect(ChannelA, &QCheckBox::toggled, this, requestFromControls);
-  connect(ResetToolButton, &QToolButton::clicked, this, [setRange]() { setRange(0.0f, 1.0f); });
-  connect(AutoToolButton, &QToolButton::clicked, this, [this, setRange]() { setRange(m_Response.m_fImageMin, m_Response.m_fImageMax); });
-  connect(ResetZoomToolButton, &QToolButton::clicked, this, [this]() {
+  connect(ResetToolButton, &QToolButton::clicked, this, [setRange]()
+    { setRange(0.0f, 1.0f); });
+  connect(AutoToolButton, &QToolButton::clicked, this, [this, setRange]()
+    { setRange(m_Response.m_fImageMin, m_Response.m_fImageMax); });
+  connect(ResetZoomToolButton, &QToolButton::clicked, this, [this]()
+    {
     m_Request.m_fZoom = 1.0f;
     m_Request.m_vPanCenter = ezVec2(0.5f);
     Preview->SetView(m_Request.m_fZoom, m_Request.m_vPanCenter);
-    SendObserverRequest();
-  });
+    SendObserverRequest(); });
 
   ResetStats();
 }
@@ -332,8 +336,8 @@ void ezQtRenderGraphWidget::UpdateGraphList()
 
       const ezUInt64 uiIdentity = graph.m_uiRenderGraphId;
       QListWidgetItem* pItem = new QListWidgetItem(MakeGraphLabel(graph));
-        pItem->setData(GraphListRole_RenderGraphId, QVariant::fromValue<qulonglong>(uiIdentity));
-        pItem->setData(GraphListRole_IsGraphItem, true);
+      pItem->setData(GraphListRole_RenderGraphId, QVariant::fromValue<qulonglong>(uiIdentity));
+      pItem->setData(GraphListRole_IsGraphItem, true);
       pItem->setForeground(graph.m_uiExecutionOrder >= 0 ? ezToQtColor(ezColorScheme::LightUI(ezColorScheme::Green)) : GraphList->palette().color(QPalette::Disabled, QPalette::Text));
       GraphList->addItem(pItem);
       if (uiIdentity == m_uiSelectedGraphId)

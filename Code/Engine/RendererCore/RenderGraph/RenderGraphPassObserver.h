@@ -32,7 +32,7 @@ struct ezRenderGraphObserverRequest
   ezUInt16 m_uiArraySlice = 0;
   ezUInt8 m_uiMipLevel = 0;
   ezUInt8 m_uiChannelMask = EZ_BIT(0) | EZ_BIT(1) | EZ_BIT(2) | EZ_BIT(3); ///< red, green, blue, alpha
-  ezInt8 m_iSampleIndex = -1;   ///< Negative = auto-resolve, 0+ = specific MSAA sample.
+  ezInt8 m_iSampleIndex = -1;                                              ///< Negative = auto-resolve, 0+ = specific MSAA sample.
 
   // Value Clamp
   float m_fRangeMin = 0.0f;
@@ -148,6 +148,4 @@ private:
 
   ezHybridArray<ezGALTextureBarrier, 4> m_PreCopyBarriers;
   ezHybridArray<ezGALTextureBarrier, 4> m_PostCopyBarriers;
-
-
 };

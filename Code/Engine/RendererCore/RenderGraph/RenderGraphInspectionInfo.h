@@ -2,11 +2,11 @@
 
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Strings/String.h>
+#include <RendererCore/RenderGraph/Declarations.h>
 #include <RendererCore/RendererCoreDLL.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <RendererFoundation/Descriptors/Enumerations.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
-#include <RendererCore/RenderGraph/Declarations.h>
 
 class ezStreamReader;
 class ezStreamWriter;
