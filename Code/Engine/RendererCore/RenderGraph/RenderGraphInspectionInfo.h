@@ -106,4 +106,3 @@ struct EZ_RENDERERCORE_DLL ezRenderGraphInspectionInfo
 
 EZ_RENDERERCORE_DLL void operator<<(ezStreamWriter& inout_stream, const ezRenderGraphInspectionInfo& value);
 EZ_RENDERERCORE_DLL void operator>>(ezStreamReader& inout_stream, ezRenderGraphInspectionInfo& ref_value);
-
