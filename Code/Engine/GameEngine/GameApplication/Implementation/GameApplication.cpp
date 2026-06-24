@@ -219,7 +219,7 @@ void ezGameApplication::OpenInspector()
   sInspectorPath.AppendPath("ezInspector");
 #  endif
 
-  opt.m_sProcess = ezOSFile::ExistsFile(sInspectorPath) ? sInspectorPath : "ezInspector";
+  opt.m_sProcess = sInspectorPath;
 
   ezProcess process;
   if (process.Launch(opt, ezProcessLaunchFlags::Detached).Failed())
