@@ -116,7 +116,7 @@ protected:
   void UpdateFrameTimes();
   void UpdateMemoryUsage();
 
-  static ezIdTable<ezImGuiRegisteredWndHandleData, ezUniquePtr<CustomConsoleWindow>> m_CustomWindows;
+  static ezIdTable<ezImGuiRegisteredWndHandleData, ezUniquePtr<CustomConsoleWindow>> s_CustomWindows;
 
   ezDeque<ezConsoleString> m_LogStrings;           // For log messages (used by log window)
   ezDeque<ezConsoleString> m_CommandOutputStrings; // For command input/output (used by console window)

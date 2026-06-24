@@ -37,7 +37,7 @@ ezImGuiConsole::ezImGuiConsole()
   EnableLogOutput(true);
 }
 
-ezIdTable<ezImGuiRegisteredWndHandleData, ezUniquePtr<ezImGuiConsole::CustomConsoleWindow>> ezImGuiConsole::m_CustomWindows;
+ezIdTable<ezImGuiRegisteredWndHandleData, ezUniquePtr<ezImGuiConsole::CustomConsoleWindow>> ezImGuiConsole::s_CustomWindows;
 
 ezImGuiConsole::~ezImGuiConsole()
 {
@@ -51,19 +51,19 @@ ezImGuiRegisteredWndHandle ezImGuiConsole::RegisterWindow(ezStringView sName, ez
   pData->m_Callback = callback;
   pData->m_bOpen = false;
 
-  return ezImGuiRegisteredWndHandle(m_CustomWindows.Insert(std::move(pData)));
+  return ezImGuiRegisteredWndHandle(s_CustomWindows.Insert(std::move(pData)));
 }
 
 void ezImGuiConsole::UnregisterWindow(ezImGuiRegisteredWndHandle hWindow)
 {
   ezUniquePtr<CustomConsoleWindow>* pDataPtr = nullptr;
-  if (!m_CustomWindows.TryGetValue(hWindow.GetInternalID(), pDataPtr))
+  if (!s_CustomWindows.TryGetValue(hWindow.GetInternalID(), pDataPtr))
     return;
 
   CustomConsoleWindow* pData = pDataPtr->Borrow();
   EZ_ASSERT_DEV(pData != nullptr, "Invalid window data");
 
-  m_CustomWindows.Remove(hWindow.GetInternalID());
+  s_CustomWindows.Remove(hWindow.GetInternalID());
 }
 
 void ezImGuiConsole::EnableLogOutput(bool bEnable)
@@ -234,9 +234,9 @@ void ezImGuiConsole::RenderMenuBar()
     ImGui::MenuItem("Log", nullptr, &m_bLogWindowOpen);
     ImGui::MenuItem("CVars", nullptr, &m_bCVarWindowOpen);
 
-    if (!m_CustomWindows.IsEmpty())
+    if (!s_CustomWindows.IsEmpty())
     {
-      for (auto it = m_CustomWindows.GetIterator(); it.IsValid(); ++it)
+      for (auto it = s_CustomWindows.GetIterator(); it.IsValid(); ++it)
       {
         ImGui::MenuItem(it.Value()->m_sName.GetData(), nullptr, &it.Value()->m_bOpen);
       }
@@ -1252,7 +1252,7 @@ void ezImGuiConsole::RenderConsole(bool bIsOpen)
   // Render registered custom windows
   if (bIsOpen)
   {
-    for (auto it = m_CustomWindows.GetIterator(); it.IsValid(); ++it)
+    for (auto it = s_CustomWindows.GetIterator(); it.IsValid(); ++it)
     {
       if (it.Value()->m_bOpen)
       {

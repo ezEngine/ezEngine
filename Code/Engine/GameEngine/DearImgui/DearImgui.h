@@ -83,7 +83,7 @@ public:
   };
 
   /// Associates a named image with a registered texture and UV coordinates. This allows the AddImage() and AddImageButton() convenience functions to look up the image by name instead of requiring the caller to pass the ImTextureID and UVs every time. Call RegisterTexture() first to obtain the texture ID.
-  void RegisterImage(ezTempHashedString sImgId, ImTextureID pTexId, const ezVec2& vUv0, const ezVec2& vUv1);
+  void RegisterImage(ezTempHashedString sImgId, ImTextureID texId, const ezVec2& vUv0, const ezVec2& vUv1);
 
   /// Renders a clickable image button using a previously registered image name.
   bool AddImageButton(ezTempHashedString sImgId, const char* szImguiID, const ezVec2& vImageSize, const ezColor& backgroundColor = ezColor::MakeZero(), const ezColor& tintColor = ezColor::White) const;

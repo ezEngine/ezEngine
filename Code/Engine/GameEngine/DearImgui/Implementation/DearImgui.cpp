@@ -133,10 +133,10 @@ void ezImgui::UnregisterResource(ImTextureID id)
   m_RegisteredTextures.Remove(handle);
 }
 
-void ezImgui::RegisterImage(ezTempHashedString sName, ImTextureID pTexId, const ezVec2& vUv0, const ezVec2& vUv1)
+void ezImgui::RegisterImage(ezTempHashedString sName, ImTextureID texId, const ezVec2& vUv0, const ezVec2& vUv1)
 {
   auto& img = m_Images[sName];
-  img.m_Id = pTexId;
+  img.m_Id = texId;
   img.m_UV0 = vUv0;
   img.m_UV1 = vUv1;
 }
