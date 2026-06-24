@@ -29,6 +29,7 @@ struct ezGameApplicationInputFlags
     Dev_CaptureProfilingInfo = EZ_BIT(12), ///< Register the F8 key to write a profiling capture to disk
     Dev_CaptureFrame = EZ_BIT(13),         ///< Register the F11 key to make a render frame capture (if capture plugin is available)
     Dev_Screenshot = EZ_BIT(14),           ///< Register the F12 key to save a screenshot to disk
+    Dev_OpenInspector = EZ_BIT(15),        ///< Register the F10 key to open the ezInspector application
 
     Dev_All = 0xFFFFFF00,
 
@@ -47,6 +48,7 @@ struct ezGameApplicationInputFlags
     StorageType Dev_CaptureProfilingInfo : 1;
     StorageType Dev_CaptureFrame : 1;
     StorageType Dev_Screenshot : 1;
+    StorageType Dev_OpenInspector : 1;
   };
 };
 
@@ -139,6 +141,7 @@ protected:
   void RenderWorldDebugInfos(const ezWorld& world);
   void RenderFps();
   void RenderConsole();
+  void OpenInspector();
 
   void UpdateWorldsAndExtractViews();
   ezSharedPtr<ezDelegateTask<void>> m_pUpdateTask;

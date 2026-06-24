@@ -39,6 +39,9 @@
 
 extern thread_local struct ImGuiContext* g_ThreadLocalContext;
 #define GImGui g_ThreadLocalContext
+
+#include <cstdint>
+#define ImTextureID uint32_t
 // End ezEngine edit
 //////////////////////////////////////////////////////////////////////////
 

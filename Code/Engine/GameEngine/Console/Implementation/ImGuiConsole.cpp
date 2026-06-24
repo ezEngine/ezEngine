@@ -14,6 +14,7 @@
 #  include <Foundation/Strings/StringBuilder.h>
 #  include <Foundation/Time/Clock.h>
 #  include <Foundation/Time/Time.h>
+#  include <GameEngine/Console/ConsoleActions.h>
 #  include <GameEngine/Console/LuaInterpreter.h>
 #  include <GameEngine/DearImgui/DearImgui.h>
 #  include <RendererCore/Pipeline/View.h>
@@ -36,9 +37,33 @@ ezImGuiConsole::ezImGuiConsole()
   EnableLogOutput(true);
 }
 
+ezIdTable<ezImGuiRegisteredWndHandleData, ezUniquePtr<ezImGuiConsole::CustomConsoleWindow>> ezImGuiConsole::m_CustomWindows;
+
 ezImGuiConsole::~ezImGuiConsole()
 {
   EnableLogOutput(false);
+}
+
+ezImGuiRegisteredWndHandle ezImGuiConsole::RegisterWindow(ezStringView sName, ezImGuiWindowCallback callback)
+{
+  ezUniquePtr<CustomConsoleWindow> pData = EZ_DEFAULT_NEW(CustomConsoleWindow);
+  pData->m_sName = sName;
+  pData->m_Callback = callback;
+  pData->m_bOpen = false;
+
+  return ezImGuiRegisteredWndHandle(m_CustomWindows.Insert(std::move(pData)));
+}
+
+void ezImGuiConsole::UnregisterWindow(ezImGuiRegisteredWndHandle hWindow)
+{
+  ezUniquePtr<CustomConsoleWindow>* pDataPtr = nullptr;
+  if (!m_CustomWindows.TryGetValue(hWindow.GetInternalID(), pDataPtr))
+    return;
+
+  CustomConsoleWindow* pData = pDataPtr->Borrow();
+  EZ_ASSERT_DEV(pData != nullptr, "Invalid window data");
+
+  m_CustomWindows.Remove(hWindow.GetInternalID());
 }
 
 void ezImGuiConsole::EnableLogOutput(bool bEnable)
@@ -198,6 +223,87 @@ void ezImGuiConsole::LogHandler(const ezLoggingEventData& data)
   }
 }
 
+void ezImGuiConsole::RenderMenuBar()
+{
+  if (!ImGui::BeginMainMenuBar())
+    return;
+
+  if (ImGui::BeginMenu("Windows"))
+  {
+    ImGui::MenuItem("Stats", nullptr, &m_bStatsWindowOpen);
+    ImGui::MenuItem("Log", nullptr, &m_bLogWindowOpen);
+    ImGui::MenuItem("CVars", nullptr, &m_bCVarWindowOpen);
+
+    if (!m_CustomWindows.IsEmpty())
+    {
+      for (auto it = m_CustomWindows.GetIterator(); it.IsValid(); ++it)
+      {
+        ImGui::MenuItem(it.Value()->m_sName.GetData(), nullptr, &it.Value()->m_bOpen);
+      }
+    }
+
+    ImGui::EndMenu();
+  }
+
+  if (ImGui::BeginMenu("Layout"))
+  {
+    if (ImGui::MenuItem("Reset Layout"))
+    {
+      m_uiResetLayout = 3;
+      m_bStatsWindowOpen = true;
+      m_bLogWindowOpen = true;
+      m_bCVarWindowOpen = true;
+    }
+
+    ImGui::EndMenu();
+  }
+
+  auto actions = ezConsoleActions::GetActions();
+  ezStringView sCurrentMenu;
+  bool bHasCurrentMenu = false;
+  bool bCurrentMenuOpen = false;
+
+  for (const auto& desc : actions)
+  {
+    const ezStringView sMenu = desc.m_sMenu;
+
+    if (!bHasCurrentMenu || !sCurrentMenu.IsEqual(sMenu))
+    {
+      if (bCurrentMenuOpen)
+      {
+        ImGui::EndMenu();
+      }
+
+      sCurrentMenu = sMenu;
+      bHasCurrentMenu = true;
+      bCurrentMenuOpen = ImGui::BeginMenu(ezStringBuilder(sMenu).GetData());
+    }
+
+    ezStringBuilder sShortcut;
+    const ezInputActionConfig config = ezInputManager::GetInputActionConfig(desc.m_sInputSet, desc.m_sAction);
+    for (const ezString& sTrigger : config.m_sInputSlotTrigger)
+    {
+      if (sTrigger.IsEmpty())
+        continue;
+
+      sShortcut.Append(ezInputManager::GetInputSlotDisplayName(sTrigger));
+      break;
+    }
+
+    if (bCurrentMenuOpen && ImGui::MenuItem(desc.m_sAction.GetData(), sShortcut.IsEmpty() ? nullptr : sShortcut.GetData()) && desc.m_Action.IsValid())
+    {
+      desc.m_Action();
+    }
+  }
+
+  if (bCurrentMenuOpen)
+  {
+    ImGui::EndMenu();
+  }
+
+  ImGui::EndMainMenuBar();
+}
+
 void ezImGuiConsole::RenderCommandWindow(bool bSetFocus)
 {
   // Get available screen space
@@ -211,40 +317,15 @@ void ezImGuiConsole::RenderCommandWindow(bool bSetFocus)
   const float commandWidth = screenWidth - statsWidth - logWidth - 20.0f; // Remaining width with some padding
   const float commandHeight = screenHeight * 0.2f;                        // 1/5th of screen height
   const float commandPosX = statsWidth + 10.0f;                           // Position after stats with padding
-  const float commandPosY = 10.0f;                                        // Top of screen
+  const float commandPosY = ImGui::GetFrameHeight() + 10.0f;              // Below the menu bar
 
   ImGui::SetNextWindowSize(ImVec2(commandWidth, commandHeight), (m_uiResetLayout > 0) ? ImGuiCond_Always : ImGuiCond_FirstUseEver);
   ImGui::SetNextWindowPos(ImVec2(commandPosX, commandPosY), (m_uiResetLayout > 0) ? ImGuiCond_Always : ImGuiCond_FirstUseEver);
 
-  if (!ImGui::Begin("Commands", nullptr, ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoSavedSettings))
+  if (!ImGui::Begin("Commands", nullptr, ImGuiWindowFlags_NoSavedSettings))
   {
     ImGui::End();
     return;
-  }
-
-  // Menu bar with Reset Layout button
-  if (ImGui::BeginMenuBar())
-  {
-    if (ImGui::BeginMenu("Windows"))
-    {
-      ImGui::MenuItem("Stats", nullptr, &m_bStatsWindowOpen);
-      ImGui::MenuItem("Log", nullptr, &m_bLogWindowOpen);
-      ImGui::MenuItem("CVars", nullptr, &m_bCVarWindowOpen);
-      ImGui::EndMenu();
-    }
-
-    if (ImGui::BeginMenu("Layout"))
-    {
-      if (ImGui::MenuItem("Reset Layout"))
-      {
-        m_uiResetLayout = 3;
-        m_bStatsWindowOpen = true;
-        m_bLogWindowOpen = true;
-        m_bCVarWindowOpen = true;
-      }
-      ImGui::EndMenu();
-    }
-    ImGui::EndMenuBar();
   }
 
   // Reserve space for input at the bottom
@@ -388,8 +469,8 @@ void ezImGuiConsole::RenderStatsWindow(bool bFull)
 
   // Stats window: top left, 1/4 width, auto height
   const float statsWidth = screenWidth * 0.25f;
-  const float statsPosX = 10.0f; // Left side with padding
-  const float statsPosY = 10.0f; // Top with padding
+  const float statsPosX = 10.0f;                                 // Left side with padding
+  const float statsPosY = ImGui::GetFrameHeight() + 10.0f;        // Below the menu bar
 
   // Set initial size with width preference, allow manual resizing
   if (m_uiResetLayout > 0)
@@ -944,7 +1025,7 @@ void ezImGuiConsole::RenderLogWindow(bool bFull)
   const float buttonHeight = ImGui::GetFrameHeightWithSpacing();
   const float logHeight = screenHeight * 0.5f - buttonHeight; // Reduced height to account for command window
   const float logPosX = screenWidth - logWidth - 10.0f;       // Right side with padding
-  const float logPosY = 10.0f;                                // Top with padding (original position)
+  const float logPosY = ImGui::GetFrameHeight() + 10.0f;      // Below the menu bar
 
   ImGui::SetNextWindowSize(ImVec2(logWidth, logHeight), (m_uiResetLayout > 0) ? ImGuiCond_Always : ImGuiCond_FirstUseEver);
   ImGui::SetNextWindowPos(ImVec2(logPosX, logPosY), (m_uiResetLayout > 0) ? ImGuiCond_Always : ImGuiCond_FirstUseEver);
@@ -1145,6 +1226,7 @@ void ezImGuiConsole::RenderConsole(bool bIsOpen)
   {
     ezImgui::GetSingleton()->SetPassInputToImgui(true);
 
+    RenderMenuBar();
     RenderCommandWindow(m_uiForceFocus > 0);
     if (m_uiForceFocus > 0)
     {
@@ -1165,6 +1247,18 @@ void ezImGuiConsole::RenderConsole(bool bIsOpen)
   if (m_bLogWindowOpen && (bIsOpen || m_bPinLogWindow))
   {
     RenderLogWindow(bIsOpen);
+  }
+
+  // Render registered custom windows
+  if (bIsOpen)
+  {
+    for (auto it = m_CustomWindows.GetIterator(); it.IsValid(); ++it)
+    {
+      if (it.Value()->m_bOpen)
+      {
+        it.Value()->m_Callback(it.Value()->m_bOpen);
+      }
+    }
   }
 
   // Reset layout flag after all windows have been rendered

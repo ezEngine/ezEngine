@@ -107,11 +107,10 @@ void ezImguiExtractor::Extract(const ezView& view, const ezDynamicArray<const ez
         for (int cmdIdx = 0; cmdIdx < pCommands->CmdBuffer.Size; cmdIdx++)
         {
           const ImDrawCmd* pCmd = &pCommands->CmdBuffer[cmdIdx];
-          const size_t iTextureID = reinterpret_cast<size_t>(pCmd->TextureId);
 
           ezImguiBatch& batch = pRenderData->m_Batches[cmdIdx];
           batch.m_uiVertexCount = static_cast<ezUInt16>(pCmd->ElemCount);
-          batch.m_uiTextureID = (ezUInt16)iTextureID;
+          batch.m_TextureId = pCmd->TextureId;
           batch.m_ScissorRect = ezRectU32((ezUInt32)pCmd->ClipRect.x, (ezUInt32)pCmd->ClipRect.y, (ezUInt32)(pCmd->ClipRect.z - pCmd->ClipRect.x), (ezUInt32)(pCmd->ClipRect.w - pCmd->ClipRect.y));
         }
       }
@@ -161,9 +160,9 @@ void ezImguiRenderer::RenderBatch(const ezRenderViewContext& renderContext, cons
   ezGALCommandEncoder* pCommandEncoder = pRenderContext->GetCommandEncoder();
 
   pRenderContext->BindShader(m_hShader);
-  const auto& textures = ezImgui::GetSingleton()->m_Textures;
-  const ezUInt32 numTextures = textures.GetCount();
+  const auto& registeredTextures = ezImgui::GetSingleton()->m_RegisteredTextures;
   ezBindGroupBuilder& bindGroup = pRenderContext->GetBindGroup();
+
   for (auto it = batch.GetIterator<ezImguiRenderData>(); it.IsValid(); ++it)
   {
     const ezImguiRenderData* pRenderData = it;
@@ -185,10 +184,33 @@ void ezImguiRenderer::RenderBatch(const ezRenderViewContext& renderContext, cons
     {
       const ezImguiBatch& imGuiBatch = pRenderData->m_Batches[batchIdx];
 
-      if (imGuiBatch.m_uiVertexCount > 0 && imGuiBatch.m_uiTextureID < numTextures)
+      ezImgui::ezImGuiTextureRegistration reg;
+      ezImgui::ezImGuiTextureIdData handle = *reinterpret_cast<const ezImgui::ezImGuiTextureIdData*>(&imGuiBatch.m_TextureId);
+      if (imGuiBatch.m_uiVertexCount > 0 && registeredTextures.TryGetValue(handle, reg))
       {
         pCommandEncoder->SetScissorRect(imGuiBatch.m_ScissorRect);
-        bindGroup.BindTexture("BaseTexture", textures[imGuiBatch.m_uiTextureID]);
+
+        switch (reg.m_Type)
+        {
+          case ezImgui::ezImGuiTextureRegistration::Type::Texture2D:
+          {
+            pRenderContext->BindShader(m_hShader);
+            bindGroup.BindTexture("BaseTexture", reg.m_hTexture2D);
+            break;
+          }
+          case ezImgui::ezImGuiTextureRegistration::Type::GALTexture:
+          {
+            pRenderContext->BindShader(m_hShader);
+            bindGroup.BindTexture("BaseTexture", reg.m_hGALTexture);
+            break;
+          }
+          case ezImgui::ezImGuiTextureRegistration::Type::Material:
+          {
+            pRenderContext->BindMaterial(reg.m_hMaterial);
+            break;
+          }
+        }
+
         pRenderContext->DrawMeshBuffer(imGuiBatch.m_uiVertexCount / 3, uiFirstIndex / 3).IgnoreResult();
       }
 

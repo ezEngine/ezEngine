@@ -12,8 +12,10 @@
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Memory/FrameAllocator.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/System/Process.h>
 #include <Foundation/Time/DefaultTimeStepSmoothing.h>
 #include <GameEngine/Configuration/InputConfig.h>
+#include <GameEngine/Console/ConsoleActions.h>
 #include <GameEngine/Console/QuakeConsole.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/GameApplication/WindowOutputTarget.h>
@@ -81,6 +83,7 @@ namespace
   const char* s_szCaptureProfilingAction = "CaptureProfiling";
   const char* s_szCaptureFrame = "CaptureFrame";
   const char* s_szTakeScreenshot = "TakeScreenshot";
+  const char* s_szOpenInspector = "OpenInspector";
 } // namespace
 
 
@@ -112,32 +115,44 @@ void ezGameApplication::RegisterGameApplicationInputActions(ezBitflags<ezGameApp
     // so we use F4 there, and it should be consistent here
     config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF4;
     ezInputManager::SetInputActionConfig(s_szInputSet, s_szReloadResourcesAction, config, true);
+    ezConsoleActions::AddAction(s_szInputSet, s_szReloadResourcesAction, "Engine", []() { ezResourceManager::ReloadAllResources(false); });
   }
 
   if (flags.IsSet(ezGameApplicationInputFlags::Dev_ShowStats))
   {
     config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF5;
     ezInputManager::SetInputActionConfig(s_szInputSet, s_szShowFpsAction, config, true);
+    ezConsoleActions::AddAction(s_szInputSet, s_szShowFpsAction, "Engine", []() { cvar_AppShowFPS = !cvar_AppShowFPS; });
   }
 
   if (flags.IsSet(ezGameApplicationInputFlags::Dev_CaptureProfilingInfo))
   {
     config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF8;
     ezInputManager::SetInputActionConfig(s_szInputSet, s_szCaptureProfilingAction, config, true);
+    ezConsoleActions::AddAction(s_szInputSet, s_szCaptureProfilingAction, "Engine", [this]() { TakeProfilingCapture(); });
   }
 
   if (flags.IsSet(ezGameApplicationInputFlags::Dev_CaptureFrame))
   {
     config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF11;
     ezInputManager::SetInputActionConfig(s_szInputSet, s_szCaptureFrame, config, true);
+    ezConsoleActions::AddAction(s_szInputSet, s_szCaptureFrame, "Engine", [this]() { CaptureFrame(); });
   }
 
   if (flags.IsSet(ezGameApplicationInputFlags::Dev_Screenshot))
   {
     config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF12;
     ezInputManager::SetInputActionConfig(s_szInputSet, s_szTakeScreenshot, config, true);
+    ezConsoleActions::AddAction(s_szInputSet, s_szTakeScreenshot, "Engine", [this]() { TakeScreenshot(); });
   }
 
+  if (flags.IsSet(ezGameApplicationInputFlags::Dev_OpenInspector))
+  {
+    config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF10;
+    ezInputManager::SetInputActionConfig(s_szInputSet, s_szOpenInspector, config, true);
+    ezConsoleActions::AddAction(s_szInputSet, s_szOpenInspector, "Engine", [this]() { OpenInspector(); });
+  }
+  
   if (flags.IsSet(ezGameApplicationInputFlags::LoadInputConfig))
   {
     ezStringView sConfigFile = ezGameAppInputConfig::s_sConfigFile;
@@ -184,6 +199,28 @@ ezString ezGameApplication::FindProjectDirectory() const
   }
 
   return result;
+}
+
+void ezGameApplication::OpenInspector()
+{
+#if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
+  ezProcessOptions opt;
+
+  ezStringBuilder sInspectorPath = ezOSFile::GetApplicationDirectory();
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  sInspectorPath.AppendPath("ezInspector.exe");
+#  else
+  sInspectorPath.AppendPath("ezInspector");
+#  endif
+
+  opt.m_sProcess = ezOSFile::ExistsFile(sInspectorPath) ? sInspectorPath : "ezInspector";
+
+  ezProcess process;
+  if (process.Launch(opt, ezProcessLaunchFlags::Detached).Failed())
+  {
+    ezLog::Warning("Failed to launch ezInspector.");
+  }
+#endif
 }
 
 ezGameUpdateMode ezGameApplication::GetGameUpdateMode() const
@@ -444,30 +481,7 @@ bool ezGameApplication::Run_ProcessApplicationInput()
     }
   }
 
-  if (ezInputManager::GetInputActionState(s_szInputSet, s_szShowFpsAction) == ezKeyState::Pressed)
-  {
-    cvar_AppShowFPS = !cvar_AppShowFPS;
-  }
-
-  if (ezInputManager::GetInputActionState(s_szInputSet, s_szReloadResourcesAction) == ezKeyState::Pressed)
-  {
-    ezResourceManager::ReloadAllResources(false);
-  }
-
-  if (ezInputManager::GetInputActionState(s_szInputSet, s_szTakeScreenshot) == ezKeyState::Pressed)
-  {
-    TakeScreenshot();
-  }
-
-  if (ezInputManager::GetInputActionState(s_szInputSet, s_szCaptureProfilingAction) == ezKeyState::Pressed)
-  {
-    TakeProfilingCapture();
-  }
-
-  if (ezInputManager::GetInputActionState(s_szInputSet, s_szCaptureFrame) == ezKeyState::Pressed)
-  {
-    CaptureFrame();
-  }
+  ezConsoleActions::HandleInput();
 
   if (m_pConsole)
   {

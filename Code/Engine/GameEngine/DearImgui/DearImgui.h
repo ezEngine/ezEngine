@@ -5,6 +5,7 @@
 #  include <Core/ResourceManager/ResourceHandle.h>
 #  include <Foundation/Configuration/CVar.h>
 #  include <Foundation/Configuration/Singleton.h>
+#  include <Foundation/Containers/IdTable.h>
 #  include <Foundation/Math/Size.h>
 #  include <Foundation/Memory/CommonAllocators.h>
 #  include <Foundation/Types/UniquePtr.h>
@@ -13,6 +14,7 @@
 #  include <RendererCore/Pipeline/Declarations.h>
 
 using ezTexture2DResourceHandle = ezTypedResourceHandle<class ezTexture2DResource>;
+using ezMaterialResourceHandle = ezTypedResourceHandle<class ezMaterialResource>;
 
 struct ImGuiContext;
 struct ezGameApplicationExecutionEvent;
@@ -61,7 +63,17 @@ public:
   /// \brief Returns the shared font atlas
   ImFontAtlas& GetFontAtlas() { return *m_pSharedFontAtlas; }
 
+  /// Registers a texture resource and returns an ImTextureID that can be used with raw ImGui image calls or passed to RegisterImage(). The texture stays registered until UnregisterResource() is called.
   ImTextureID RegisterTexture(const ezTexture2DResourceHandle& hTexture);
+
+  /// \copydoc RegisterTexture(const ezTexture2DResourceHandle&)
+  ImTextureID RegisterTexture(ezGALTextureHandle hTexture);
+
+  /// Registers a material resource and returns an ImTextureID. Works like RegisterTexture() but renders using the full material rather than just a texture.
+  ImTextureID RegisterMaterial(const ezMaterialResourceHandle& hMaterial);
+
+  /// Removes a previously registered texture or material. The ImTextureID must not be used afterwards.
+  void UnregisterResource(ImTextureID id);
 
   struct Image
   {
@@ -70,19 +82,41 @@ public:
     ezVec2 m_UV1;
   };
 
+  /// Associates a named image with a registered texture and UV coordinates. This allows the AddImage() and AddImageButton() convenience functions to look up the image by name instead of requiring the caller to pass the ImTextureID and UVs every time. Call RegisterTexture() first to obtain the texture ID.
   void RegisterImage(ezTempHashedString sImgId, ImTextureID pTexId, const ezVec2& vUv0, const ezVec2& vUv1);
 
+  /// Renders a clickable image button using a previously registered image name.
   bool AddImageButton(ezTempHashedString sImgId, const char* szImguiID, const ezVec2& vImageSize, const ezColor& backgroundColor = ezColor::MakeZero(), const ezColor& tintColor = ezColor::White) const;
 
+  /// Renders an image using a previously registered image name.
   void AddImage(ezTempHashedString sImgId, const ezVec2& vImageSize, const ezColor& tintColor = ezColor::White, const ezColor& borderColor = ezColor::MakeZero()) const;
 
+  /// Like AddImageButton(), but draws a colored overlay from \a fProgress (0 to 1) to the right edge, which can be used to indicate a loading progress.
   bool AddImageButtonWithProgress(ezTempHashedString sImgId, const char* szImguiID, const ezVec2& vImageSize, float fProgress, const ezColor& overlayColor, const ezColor& tintColor = ezColor::White) const;
 
+  /// Like AddImage(), but draws a colored overlay from \a fProgress (0 to 1) to the right edge, which can be used to indicate a loading progress.
   void AddImageWithProgress(ezTempHashedString sImgId, const char* szImguiID, const ezVec2& vImageSize, float fProgress, const ezColor& overlayColor, const ezColor& tintColor = ezColor::White) const;
 
 private:
   friend class ezImguiExtractor;
   friend class ezImguiRenderer;
+
+  using ezImGuiTextureIdData = ezGenericId<16, 16>;
+
+  struct ezImGuiTextureRegistration
+  {
+    enum class Type : ezUInt8
+    {
+      Texture2D,
+      GALTexture,
+      Material,
+    };
+
+    Type m_Type = Type::Texture2D;
+    ezTexture2DResourceHandle m_hTexture2D;
+    ezGALTextureHandle m_hGALTexture;
+    ezMaterialResourceHandle m_hMaterial;
+  };
 
   void Startup(ezImguiConfigFontCallback configFontCallback);
   void Shutdown();
@@ -96,7 +130,7 @@ private:
   bool m_bPassInputToImgui = true;
   bool m_bImguiWantsInput = false;
   ezSizeU32 m_CurrentWindowResolution;
-  ezHybridArray<ezTexture2DResourceHandle, 4> m_Textures;
+  ezIdTable<ezImGuiTextureIdData, ezImGuiTextureRegistration> m_RegisteredTextures;
 
   ezImguiConfigStyleCallback m_ConfigStyleCallback;
 

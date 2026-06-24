@@ -4,6 +4,7 @@
 
 #  include <Core/ResourceManager/ResourceHandle.h>
 #  include <Foundation/Math/Rect.h>
+#  include <GameEngine/DearImgui/DearImgui.h>
 #  include <GameEngine/GameEngineDLL.h>
 #  include <Imgui/imgui.h>
 #  include <RendererCore/Meshes/MeshBufferResource.h>
@@ -29,7 +30,7 @@ struct ezImguiBatch
   EZ_DECLARE_POD_TYPE();
 
   ezRectU32 m_ScissorRect;
-  ezUInt16 m_uiTextureID;
+  ImTextureID m_TextureId;
   ezUInt16 m_uiVertexCount;
 };
 

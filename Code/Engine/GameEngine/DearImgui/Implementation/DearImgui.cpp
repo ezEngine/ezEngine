@@ -99,14 +99,38 @@ void ezImgui::SetCurrentContextForView(const ezViewHandle& hView)
 
 ImTextureID ezImgui::RegisterTexture(const ezTexture2DResourceHandle& hTexture)
 {
-  ezUInt32 idx = m_Textures.IndexOf(hTexture);
-  if (idx == ezInvalidIndex)
-  {
-    idx = m_Textures.GetCount();
-    m_Textures.PushBack(hTexture);
-  }
+  ezImGuiTextureRegistration reg;
+  reg.m_Type = ezImGuiTextureRegistration::Type::Texture2D;
+  reg.m_hTexture2D = hTexture;
+  ezImGuiTextureIdData handle = m_RegisteredTextures.Insert(reg);
+  return *reinterpret_cast<ImTextureID*>(&handle);
+}
 
-  return reinterpret_cast<ImTextureID>(static_cast<intptr_t>(idx));
+ImTextureID ezImgui::RegisterTexture(ezGALTextureHandle hTexture)
+{
+  ezImGuiTextureRegistration reg;
+  reg.m_Type = ezImGuiTextureRegistration::Type::GALTexture;
+  reg.m_hGALTexture = hTexture;
+  ezImGuiTextureIdData handle = m_RegisteredTextures.Insert(reg);
+  return *reinterpret_cast<ImTextureID*>(&handle);
+}
+
+ImTextureID ezImgui::RegisterMaterial(const ezMaterialResourceHandle& hMaterial)
+{
+  ezImGuiTextureRegistration reg;
+  reg.m_Type = ezImGuiTextureRegistration::Type::Material;
+  reg.m_hMaterial = hMaterial;
+  ezImGuiTextureIdData handle = m_RegisteredTextures.Insert(reg);
+  return *reinterpret_cast<ImTextureID*>(&handle);
+}
+
+void ezImgui::UnregisterResource(ImTextureID id)
+{
+  ezImGuiTextureIdData handle = *reinterpret_cast<ezImGuiTextureIdData*>(&id);
+  if (!m_RegisteredTextures.Contains(handle))
+    return;
+
+  m_RegisteredTextures.Remove(handle);
 }
 
 void ezImgui::RegisterImage(ezTempHashedString sName, ImTextureID pTexId, const ezVec2& vUv0, const ezVec2& vUv1)
@@ -276,20 +300,24 @@ void ezImgui::Startup(ezImguiConfigFontCallback configFontCallback)
     hFont = ezResourceManager::GetOrCreateResource<ezTexture2DResource>("ImguiFont", std::move(desc));
   }
 
-  m_Textures.PushBack(hFont);
-
-  const size_t id = (size_t)m_Textures.GetCount() - 1;
-  m_pSharedFontAtlas->TexID = reinterpret_cast<void*>(id);
+  m_pSharedFontAtlas->TexID = RegisterTexture(hFont);
 
   ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.AddEventHandler(ezMakeDelegate(&ezImgui::GameApplicationEventHandler, this));
 }
 
 void ezImgui::Shutdown()
 {
-  ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.RemoveEventHandler(ezMakeDelegate(&ezImgui::GameApplicationEventHandler, this));
-  m_Textures.Clear();
-
+  if (m_pSharedFontAtlas)
+  {
+    UnregisterResource(m_pSharedFontAtlas->TexID);
+  }
   m_pSharedFontAtlas = nullptr;
+
+  ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.RemoveEventHandler(ezMakeDelegate(&ezImgui::GameApplicationEventHandler, this));
+  EZ_ASSERT_DEV(m_RegisteredTextures.IsEmpty(), "Not all registered textures were unregistered. You need to call 'UnregisterResource' before shutdown.");
+  m_RegisteredTextures.Clear();
+
+
 
   for (auto it = m_ViewToContextTable.GetIterator(); it.IsValid(); ++it)
   {

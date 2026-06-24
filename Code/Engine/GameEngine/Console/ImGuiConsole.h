@@ -4,10 +4,21 @@
 
 #  include <Core/Console/Console.h>
 #  include <Core/Input/DeviceTypes/MouseKeyboard.h>
+#  include <Foundation/Containers/IdTable.h>
 #  include <Foundation/Logging/Log.h>
+#  include <Foundation/Types/Delegate.h>
 #  include <GameEngine/GameEngineDLL.h>
 
 struct ezLoggingEventData;
+
+/// Callback signature for registered ImGui windows. The bool ref controls the window's open state.
+using ezImGuiWindowCallback = ezDelegate<void(bool&)>;
+using ezImGuiRegisteredWndHandleData = ezGenericId<16, 16>;
+class ezImGuiRegisteredWndHandle
+{
+  EZ_DECLARE_HANDLE_TYPE(ezImGuiRegisteredWndHandle, ezImGuiRegisteredWndHandleData);
+};
+
 
 /// \brief An ImGui-based console for in-game display of logs, configuration of ezCVars, and more.
 ///
@@ -57,6 +68,17 @@ public:
   virtual void HandleInput(bool bIsOpen) override;
 
   /// @}
+  /// \name Custom Windows
+  /// @{
+
+  /// Register an additional ImGui window that will be rendered when the console is open.
+  /// The window appears in the Commands menu bar under "Windows".
+  static ezImGuiRegisteredWndHandle RegisterWindow(ezStringView sName, ezImGuiWindowCallback callback);
+
+  /// Unregister a previously registered window by name.
+  static void UnregisterWindow(ezImGuiRegisteredWndHandle hWindow);
+
+  /// @}
 
 protected:
   struct CVarTreeNode
@@ -67,8 +89,16 @@ protected:
     bool m_bExpanded = false;
   };
 
+  struct CustomConsoleWindow
+  {
+    ezString m_sName;
+    ezImGuiWindowCallback m_Callback;
+    bool m_bOpen = false;
+  };
+
   void LogHandler(const ezLoggingEventData& data);
   void ClearLogStrings();
+  void RenderMenuBar();
   void RenderCommandWindow(bool bSetFocus);
   void RenderCVarWindow();
   void RenderStatsWindow(bool bFull);
@@ -85,6 +115,8 @@ protected:
   ezUInt64 CalculateTotalMemoryUsage();
   void UpdateFrameTimes();
   void UpdateMemoryUsage();
+
+  static ezIdTable<ezImGuiRegisteredWndHandleData, ezUniquePtr<CustomConsoleWindow>> m_CustomWindows;
 
   ezDeque<ezConsoleString> m_LogStrings;           // For log messages (used by log window)
   ezDeque<ezConsoleString> m_CommandOutputStrings; // For command input/output (used by console window)
