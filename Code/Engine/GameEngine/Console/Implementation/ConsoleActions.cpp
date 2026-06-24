@@ -31,7 +31,7 @@ namespace
 
     return lhs.m_sAction.Compare(rhs.m_sAction);
   }
-}
+} // namespace
 
 void ezConsoleActions::AddAction(ezStringView sInputSet, ezStringView sAction, ezStringView sMenu, Action action)
 {

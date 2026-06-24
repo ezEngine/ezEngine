@@ -115,44 +115,50 @@ void ezGameApplication::RegisterGameApplicationInputActions(ezBitflags<ezGameApp
     // so we use F4 there, and it should be consistent here
     config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF4;
     ezInputManager::SetInputActionConfig(s_szInputSet, s_szReloadResourcesAction, config, true);
-    ezConsoleActions::AddAction(s_szInputSet, s_szReloadResourcesAction, "Engine", []() { ezResourceManager::ReloadAllResources(false); });
+    ezConsoleActions::AddAction(s_szInputSet, s_szReloadResourcesAction, "Engine", []()
+      { ezResourceManager::ReloadAllResources(false); });
   }
 
   if (flags.IsSet(ezGameApplicationInputFlags::Dev_ShowStats))
   {
     config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF5;
     ezInputManager::SetInputActionConfig(s_szInputSet, s_szShowFpsAction, config, true);
-    ezConsoleActions::AddAction(s_szInputSet, s_szShowFpsAction, "Engine", []() { cvar_AppShowFPS = !cvar_AppShowFPS; });
+    ezConsoleActions::AddAction(s_szInputSet, s_szShowFpsAction, "Engine", []()
+      { cvar_AppShowFPS = !cvar_AppShowFPS; });
   }
 
   if (flags.IsSet(ezGameApplicationInputFlags::Dev_CaptureProfilingInfo))
   {
     config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF8;
     ezInputManager::SetInputActionConfig(s_szInputSet, s_szCaptureProfilingAction, config, true);
-    ezConsoleActions::AddAction(s_szInputSet, s_szCaptureProfilingAction, "Engine", [this]() { TakeProfilingCapture(); });
+    ezConsoleActions::AddAction(s_szInputSet, s_szCaptureProfilingAction, "Engine", [this]()
+      { TakeProfilingCapture(); });
   }
 
   if (flags.IsSet(ezGameApplicationInputFlags::Dev_CaptureFrame))
   {
     config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF11;
     ezInputManager::SetInputActionConfig(s_szInputSet, s_szCaptureFrame, config, true);
-    ezConsoleActions::AddAction(s_szInputSet, s_szCaptureFrame, "Engine", [this]() { CaptureFrame(); });
+    ezConsoleActions::AddAction(s_szInputSet, s_szCaptureFrame, "Engine", [this]()
+      { CaptureFrame(); });
   }
 
   if (flags.IsSet(ezGameApplicationInputFlags::Dev_Screenshot))
   {
     config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF12;
     ezInputManager::SetInputActionConfig(s_szInputSet, s_szTakeScreenshot, config, true);
-    ezConsoleActions::AddAction(s_szInputSet, s_szTakeScreenshot, "Engine", [this]() { TakeScreenshot(); });
+    ezConsoleActions::AddAction(s_szInputSet, s_szTakeScreenshot, "Engine", [this]()
+      { TakeScreenshot(); });
   }
 
   if (flags.IsSet(ezGameApplicationInputFlags::Dev_OpenInspector))
   {
     config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF10;
     ezInputManager::SetInputActionConfig(s_szInputSet, s_szOpenInspector, config, true);
-    ezConsoleActions::AddAction(s_szInputSet, s_szOpenInspector, "Engine", [this]() { OpenInspector(); });
+    ezConsoleActions::AddAction(s_szInputSet, s_szOpenInspector, "Engine", [this]()
+      { OpenInspector(); });
   }
-  
+
   if (flags.IsSet(ezGameApplicationInputFlags::LoadInputConfig))
   {
     ezStringView sConfigFile = ezGameAppInputConfig::s_sConfigFile;

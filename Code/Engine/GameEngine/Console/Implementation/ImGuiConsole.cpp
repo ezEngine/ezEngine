@@ -469,8 +469,8 @@ void ezImGuiConsole::RenderStatsWindow(bool bFull)
 
   // Stats window: top left, 1/4 width, auto height
   const float statsWidth = screenWidth * 0.25f;
-  const float statsPosX = 10.0f;                                 // Left side with padding
-  const float statsPosY = ImGui::GetFrameHeight() + 10.0f;        // Below the menu bar
+  const float statsPosX = 10.0f;                           // Left side with padding
+  const float statsPosY = ImGui::GetFrameHeight() + 10.0f; // Below the menu bar
 
   // Set initial size with width preference, allow manual resizing
   if (m_uiResetLayout > 0)
