@@ -104,6 +104,9 @@ public:
 
   void OnMsgSetColor(ezMsgSetColor& ref_msg); // [ property ]
 
+protected:
+  void OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg);     // [ msg handler ]
+
 private:
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
 
@@ -111,7 +114,7 @@ private:
   ezColor m_Color = ezColor::White;
 
   ezEnum<ezSpriteBlendMode> m_BlendMode;
-  ezEnum<ezOnComponentFinishedAction> m_EndAction = ezOnComponentFinishedAction::Default;
+  ezEnum<ezOnComponentFinishedAction> m_OnFinishedAction = ezOnComponentFinishedAction::Default;
   bool m_bUseMaxScreenSize = true;
   bool m_bIsAnimated = false;
 
