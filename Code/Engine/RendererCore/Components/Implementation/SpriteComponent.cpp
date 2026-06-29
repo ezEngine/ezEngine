@@ -73,7 +73,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpriteComponent, 4, ezComponentMode::Static)
     EZ_MEMBER_PROPERTY("Rows", m_uiRows)->AddAttributes(new ezClampValueAttribute(1, ezVariant()), new ezDefaultValueAttribute(1)),
     EZ_MEMBER_PROPERTY("Framerate", m_fFramerate)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(24.0f)),
     EZ_MEMBER_PROPERTY("Loops", m_uiLoops)->AddAttributes(new ezClampValueAttribute(0, ezVariant()), new ezDefaultValueAttribute(0), new ezMinValueTextAttribute("Infinite")),
-    EZ_ENUM_MEMBER_PROPERTY("LoopEndAction", ezOnComponentFinishedAction, m_EndAction)
+    EZ_ENUM_MEMBER_PROPERTY("OnFinishedAction", ezOnComponentFinishedAction, m_EndAction)
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
