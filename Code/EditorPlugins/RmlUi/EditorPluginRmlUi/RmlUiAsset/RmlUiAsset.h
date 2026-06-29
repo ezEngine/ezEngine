@@ -22,6 +22,10 @@ protected:
   virtual ezTransformStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
 
   ezStatus FindDependencies(ezDependencyFile& ref_Dependencies, ezStringView sFilePath) const;
+  void FindPackageDependencies(ezSet<ezString>& ref_packageDeps, ezStringView sFilePath, ezSet<ezString>& ref_visited) const;
+
+private:
+  ezStatus FindDependencies(ezDependencyFile& ref_Dependencies, ezStringView sFilePath, ezSet<ezString>& ref_visited) const;
 
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
 };

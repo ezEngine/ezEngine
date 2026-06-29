@@ -41,4 +41,5 @@ private:
   static ezResult GatherBinaries(DirectoryMapping& mapping, const ezPathPatternFilter& filter);
   static ezResult CreateLaunchConfig(const ezDynamicArray<ezString>& sceneFiles, const char* szTargetDirectory);
   static ezResult GatherGeneratedAssetFiles(ezSet<ezString>& out_Files, const char* szProjectDirectory);
+  static void AddPackageDependenciesToFileList(DirectoryMapping& ref_fileList);
 };

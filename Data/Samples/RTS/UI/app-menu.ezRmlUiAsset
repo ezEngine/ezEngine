@@ -35,9 +35,50 @@ o
 		u4 %Hash{7490952393100317776}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
-		VarArray %PackageDeps{}
+		VarArray %PackageDeps
+		{
+			s{"RmlUI/rmlui-default/assets.png"}
+			s{"RmlUI/rmlui-default/assets.rcss"}
+			s{"RmlUI/rmlui-default/button.rcss"}
+			s{"RmlUI/rmlui-default/common.rcss"}
+			s{"RmlUI/rmlui-default/expand.rcss"}
+			s{"RmlUI/rmlui-default/input-checkbox.rcss"}
+			s{"RmlUI/rmlui-default/input-radio.rcss"}
+			s{"RmlUI/rmlui-default/input-range.rcss"}
+			s{"RmlUI/rmlui-default/input-submit.rcss"}
+			s{"RmlUI/rmlui-default/input-text.rcss"}
+			s{"RmlUI/rmlui-default/progress.rcss"}
+			s{"RmlUI/rmlui-default/scrollbar.rcss"}
+			s{"RmlUI/rmlui-default/select.rcss"}
+			s{"RmlUI/rmlui-default/table.rcss"}
+			s{"RmlUI/rmlui-default/tabs.rcss"}
+			s{"RmlUI/rmlui-default/template.rml"}
+			s{"RmlUI/rmlui-default/textarea.rcss"}
+			s{"RmlUI/rmlui-default/window.rcss"}
+			s{"UI/app-menu.rcss"}
+			s{"UI/app-menu.rml"}
+		}
 		VarArray %References
 		{
+			s{"RmlUI/rmlui-default/assets.png"}
+			s{"RmlUI/rmlui-default/assets.rcss"}
+			s{"RmlUI/rmlui-default/button.rcss"}
+			s{"RmlUI/rmlui-default/common.rcss"}
+			s{"RmlUI/rmlui-default/expand.rcss"}
+			s{"RmlUI/rmlui-default/input-checkbox.rcss"}
+			s{"RmlUI/rmlui-default/input-radio.rcss"}
+			s{"RmlUI/rmlui-default/input-range.rcss"}
+			s{"RmlUI/rmlui-default/input-submit.rcss"}
+			s{"RmlUI/rmlui-default/input-text.rcss"}
+			s{"RmlUI/rmlui-default/progress.rcss"}
+			s{"RmlUI/rmlui-default/scrollbar.rcss"}
+			s{"RmlUI/rmlui-default/select.rcss"}
+			s{"RmlUI/rmlui-default/table.rcss"}
+			s{"RmlUI/rmlui-default/tabs.rcss"}
+			s{"RmlUI/rmlui-default/template.rml"}
+			s{"RmlUI/rmlui-default/textarea.rcss"}
+			s{"RmlUI/rmlui-default/window.rcss"}
+			s{"UI/app-menu.rcss"}
 			s{"UI/app-menu.rml"}
 		}
 		s %Tags{""}

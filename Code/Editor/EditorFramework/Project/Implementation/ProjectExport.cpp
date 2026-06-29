@@ -7,6 +7,7 @@
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/Utilities/ConversionUtils.h>
 #include <Foundation/Utilities/Progress.h>
 #include <ToolsFoundation/Utilities/PathPatternFilter.h>
 
@@ -406,6 +407,44 @@ ezResult ezProjectExport::GatherGeneratedAssetFiles(ezSet<ezString>& out_Files, 
   return EZ_SUCCESS;
 }
 
+void ezProjectExport::AddPackageDependenciesToFileList(DirectoryMapping& ref_fileList)
+{
+  auto knownAssets = ezAssetCurator::GetSingleton()->GetKnownAssets();
+
+  ezStringBuilder sAbsPath, sRelPath;
+
+  for (auto it = knownAssets->GetIterator(); it.IsValid(); ++it)
+  {
+    const ezAssetInfo* pAssetInfo = it.Value();
+    if (pAssetInfo->m_Info == nullptr)
+      continue;
+
+    for (const ezString& dep : pAssetInfo->m_Info->m_PackageDependencies)
+    {
+      // GUIDs reference other assets which ScanFolder already handles via the asset curator
+      if (ezConversionUtils::IsStringUuid(dep))
+        continue;
+
+      if (ezFileSystem::ResolvePath(dep, &sAbsPath, nullptr).Failed())
+        continue;
+
+      sAbsPath.MakeCleanPath();
+
+      // Find which data directory this file belongs to and add it directly to that directory's file list
+      for (auto itDir = ref_fileList.GetIterator(); itDir.IsValid(); ++itDir)
+      {
+        if (sAbsPath.StartsWith_NoCase(itDir.Key()))
+        {
+          sRelPath = sAbsPath;
+          sRelPath.Shrink(itDir.Key().GetElementCount(), 0); // keeps the leading slash
+          itDir.Value().m_Files.Insert(sRelPath);
+          break;
+        }
+      }
+    }
+  }
+}
+
 ezResult ezProjectExport::ExportProject(const char* szTargetDirectory, const ezPlatformProfile* pPlatformProfile, const ezApplicationFileSystemConfig& dataDirs)
 {
   ezProgressRange mainProgress("Export Project", 7, true);
@@ -450,6 +489,7 @@ ezResult ezProjectExport::ExportProject(const char* szTargetDirectory, const ezP
   {
     mainProgress.BeginNextStep("Scanning data directories");
     EZ_SUCCEED_OR_RETURN(ezProjectExport::ScanDataDirectories(fileList, dataDirs, dataFilter, &sceneFiles, pPlatformProfile));
+    ezProjectExport::AddPackageDependenciesToFileList(fileList);
   }
 
   // 3
