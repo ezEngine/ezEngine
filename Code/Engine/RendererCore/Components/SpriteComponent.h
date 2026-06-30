@@ -3,9 +3,9 @@
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/World/World.h>
 #include <Foundation/Math/Color16f.h>
+#include <Foundation/Time/Time.h>
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/Pipeline/RenderData.h>
-#include <Foundation/Time/Time.h>
 
 struct ezMsgSetColor;
 using ezTexture2DResourceHandle = ezTypedResourceHandle<class ezTexture2DResource>;
@@ -99,16 +99,13 @@ public:
   float GetSize() const;     // [ property ]
 
   /// \brief Sets the maximum screen-space size in pixels. Once a sprite is close enough to have reached this size, it will not grow larger.
-  void SetMaxScreenSize(float fSize);         // [ property ]
-  float GetMaxScreenSize() const;             // [ property ]
-
-  void OnMsgSetColor(ezMsgSetColor& ref_msg); // [ property ]
-
-protected:
-  void OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg);     // [ msg handler ]
+  void SetMaxScreenSize(float fSize);                             // [ property ]
+  float GetMaxScreenSize() const;                                 // [ property ]
 
 private:
-  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
+  void OnMsgSetColor(ezMsgSetColor& ref_msg);                     // [ msg handler ]
+  void OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg);         // [ msg handler ]
+  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const; // [ msg handler ]
 
   ezTexture2DResourceHandle m_hTexture;
   ezColor m_Color = ezColor::White;

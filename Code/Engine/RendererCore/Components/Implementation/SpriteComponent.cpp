@@ -1,5 +1,6 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <Core/Messages/DeleteObjectMessage.h>
 #include <Core/Messages/SetColorMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
@@ -85,6 +86,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpriteComponent, 4, ezComponentMode::Static)
   {
     EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
     EZ_MESSAGE_HANDLER(ezMsgSetColor, OnMsgSetColor),
+    EZ_MESSAGE_HANDLER(ezMsgDeleteGameObject, OnMsgDeleteGameObject),
   }
   EZ_END_MESSAGEHANDLERS;
 }
