@@ -34,11 +34,11 @@ private:
   struct Value
   {
     ezVariant m_DefaultValue;
-    ezVariant m_TargetValue;
     ezVariant m_CurrentValue;
     double m_fInterpolationFactor = -1.0;
 
     ezHashedString m_sStrengthName;
+    float m_fCurrentStrength = 0.0f;
   };
 
   ezHashTable<ezHashedString, Value> m_Values;

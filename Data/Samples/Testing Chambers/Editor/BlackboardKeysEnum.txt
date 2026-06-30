@@ -1,4 +1,6 @@
 Aim
+Fog.Color
+Fog.Density
 Health
 IsAlive
 Melee

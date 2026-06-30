@@ -5,6 +5,7 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <RendererCore/Components/FogComponent.h>
 #include <RendererCore/Pipeline/RenderDataManager.h>
+#include <RendererCore/Utils/BlackboardHelper.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFogRenderData, 1, ezRTTIDefaultAllocator<ezFogRenderData>)
@@ -157,18 +158,23 @@ void ezFogComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
   if (msg.m_OverrideCategory != ezInvalidRenderDataCategory)
     return;
 
+  const ezBlackboard& blackboard = *GetWorld()->GetBlackboard().Borrow();
+  const ezColor color = EZ_APPLY_BLACKBOARD_VALUE_WITH_STRENGTH(m_Color, blackboard, Fog.Color);
+  const float fDensity = EZ_APPLY_BLACKBOARD_VALUE_WITH_STRENGTH(m_fDensity, blackboard, Fog.Density);
+  const float fHeightFalloff = EZ_APPLY_BLACKBOARD_VALUE_WITH_STRENGTH(m_fHeightFalloff, blackboard, Fog.HeightFalloff);
+  const float fStartDistance = EZ_APPLY_BLACKBOARD_VALUE_WITH_STRENGTH(m_fStartDistance, blackboard, Fog.StartDistance);
+
   auto pRenderData = msg.m_pRenderDataManager->CreateRenderDataForThisFrame<ezFogRenderData>(GetOwner());
 
-  pRenderData->m_Color = m_Color;
-  pRenderData->m_fDensity = m_fDensity / 100.0f;
+  pRenderData->m_Color = color;
+  pRenderData->m_fDensity = fDensity / 100.0f;
   pRenderData->m_fBaseHeight = GetOwner()->GetGlobalTransform().m_vPosition.z;
-  pRenderData->m_fHeightFalloff = m_fHeightFalloff;
+  pRenderData->m_fHeightFalloff = fHeightFalloff;
   pRenderData->m_fInvSkyDistance = m_bModulateWithSkyColor ? 1.0f / m_fSkyDistance : 0.0f;
-  pRenderData->m_fFogStartDistance = m_fStartDistance;
-
+  pRenderData->m_fFogStartDistance = fStartDistance;
   pRenderData->m_uiSortingKey = ezInvalidIndex;
 
-  msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, ezRenderData::Caching::IfStatic);
+  msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, ezRenderData::Caching::Never);
 }
 
 void ezFogComponent::SerializeComponent(ezWorldWriter& inout_stream) const

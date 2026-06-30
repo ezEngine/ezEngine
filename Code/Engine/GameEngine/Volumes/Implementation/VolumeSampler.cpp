@@ -10,9 +10,8 @@ void ezVolumeSampler::RegisterValue(ezHashedString sName, ezVariant defaultValue
 {
   auto& value = m_Values[sName];
   value.m_DefaultValue = defaultValue;
-  value.m_TargetValue = defaultValue;
   value.m_CurrentValue = defaultValue;
-
+  
   if (interpolationDuration.IsPositive())
   {
     // Reach 90% of target value after interpolation duration:
@@ -30,6 +29,7 @@ void ezVolumeSampler::RegisterValue(ezHashedString sName, ezVariant defaultValue
   ezStringBuilder sb = sName.GetView();
   sb.Append("_Strength");
   value.m_sStrengthName.Assign(sb);
+  value.m_fCurrentStrength = 0.0f;
 }
 
 void ezVolumeSampler::DeregisterValue(ezHashedString sName)
@@ -123,8 +123,8 @@ void ezVolumeSampler::SampleAtPosition(const ezWorld& world, ezSpatialData::Cate
     auto& sName = it.Key();
     auto& value = it.Value();
 
-    value.m_TargetValue = value.m_DefaultValue;
-    float fTotalStrength = 0.0f;
+    ezVariant targetValue = value.m_DefaultValue;
+    float fTargetStrength = 0.0f;
 
     for (auto& info : componentInfos)
     {
@@ -133,7 +133,7 @@ void ezVolumeSampler::SampleAtPosition(const ezWorld& world, ezSpatialData::Cate
         continue;
 
       ezResult conversionStatus = EZ_SUCCESS;
-      ezEnum<ezVariantType> targetType = value.m_TargetValue.GetType();
+      ezEnum<ezVariantType> targetType = targetValue.GetType();
       ezVariant newTargetValue = volumeValue.ConvertTo(targetType, &conversionStatus);
       if (conversionStatus.Failed())
       {
@@ -141,24 +141,26 @@ void ezVolumeSampler::SampleAtPosition(const ezWorld& world, ezSpatialData::Cate
         continue;
       }
 
-      value.m_TargetValue = ezMath::Lerp(value.m_TargetValue, newTargetValue, double(info.m_fAlpha));
-      fTotalStrength = ezMath::Lerp(fTotalStrength, 1.0f, info.m_fAlpha);
+      targetValue = ezMath::Lerp(targetValue, newTargetValue, double(info.m_fAlpha));
+      fTargetStrength = ezMath::Lerp(fTargetStrength, 1.0f, info.m_fAlpha);
     }
 
     if (value.m_fInterpolationFactor > 0.0)
     {
       double f = 1.0 - ezMath::Pow(value.m_fInterpolationFactor, deltaTime.GetSeconds());
-      value.m_CurrentValue = ezMath::Lerp(value.m_CurrentValue, value.m_TargetValue, f);
+      value.m_CurrentValue = ezMath::Lerp(value.m_CurrentValue, targetValue, f);
+      value.m_fCurrentStrength = ezMath::Lerp(value.m_fCurrentStrength, fTargetStrength, f);
     }
     else
     {
-      value.m_CurrentValue = value.m_TargetValue;
+      value.m_CurrentValue = targetValue;
+      value.m_fCurrentStrength = fTargetStrength;
     }
 
     if (pTargetBlackboard != nullptr)
     {
       pTargetBlackboard->SetEntryValue(sName, value.m_CurrentValue);
-      pTargetBlackboard->SetEntryValue(value.m_sStrengthName, fTotalStrength);
+      pTargetBlackboard->SetEntryValue(value.m_sStrengthName, value.m_fCurrentStrength);
     }
   }
 }
