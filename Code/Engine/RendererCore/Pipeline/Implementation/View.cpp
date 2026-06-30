@@ -60,6 +60,7 @@ void ezView::SetWorld(ezWorld* pWorld)
     m_Data.m_uiSkyIrradianceIndex = pWorld == nullptr ? 0 : pWorld->GetIndex();
     ezRenderWorld::ResetRenderDataCache(*this);
 
+    m_pWorldBlackboard = pWorld != nullptr ? pWorld->GetBlackboard() : nullptr;
     m_BlackboardChangeCounter[SourceBlackboard::World] = {};
   }
 }
@@ -199,23 +200,23 @@ void ezView::SetShaderPermutationVariable(const char* szName, const char* szValu
 
 void ezView::SetBlackboard(const ezSharedPtr<ezBlackboard>& pBlackboard)
 {
-  if (m_pBlackboard != pBlackboard)
+  if (m_pViewBlackboard != pBlackboard)
   {
-    m_pBlackboard = pBlackboard;
+    m_pViewBlackboard = pBlackboard;
     m_BlackboardChangeCounter[SourceBlackboard::View] = {};
   }
 }
 
 const ezSharedPtr<ezBlackboard>& ezView::GetBlackboard() const
 {
-  return m_pBlackboard;
+  return m_pViewBlackboard;
 }
 
 void ezView::SetRenderPassProperty(const char* szPassName, const char* szPropertyName, const ezVariant& value)
 {
-  EZ_ASSERT_DEV(m_pBlackboard != nullptr, "Blackboard must be set before setting render pass properties.");
+  EZ_ASSERT_DEV(m_pViewBlackboard != nullptr, "Blackboard must be set before setting render pass properties.");
   ezStringBuilder sKey(szPassName, ".", szPropertyName);
-  m_pBlackboard->SetEntryValue(sKey, value);
+  m_pViewBlackboard->SetEntryValue(sKey, value);
 }
 
 void ezView::ResetRenderPassProperties()
@@ -396,8 +397,8 @@ void ezView::ApplyPropertiesFromBlackboard()
     return;
 
   const ezBlackboard* pBlackboards[SourceBlackboard::COUNT];
-  pBlackboards[0] = m_pWorld != nullptr ? m_pWorld->GetBlackboard().Borrow() : nullptr;
-  pBlackboards[1] = m_pBlackboard.Borrow();
+  pBlackboards[SourceBlackboard::World] = m_pWorldBlackboard.Borrow();
+  pBlackboards[SourceBlackboard::View] = m_pViewBlackboard.Borrow();
 
   bool bAnyStructureChanged = false;
   bool bAnyValuesChanged = false;

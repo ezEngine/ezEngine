@@ -220,7 +220,8 @@ private:
   void ApplyPropertiesFromBlackboard();
   void UpdatePropertyMappings(const ezBlackboard& blackboard, ezUInt32 uiSourceIndex);
 
-  ezSharedPtr<ezBlackboard> m_pBlackboard;
+  ezSharedPtr<ezBlackboard> m_pWorldBlackboard;
+  ezSharedPtr<ezBlackboard> m_pViewBlackboard;
 
   enum SourceBlackboard : ezUInt8
   {
