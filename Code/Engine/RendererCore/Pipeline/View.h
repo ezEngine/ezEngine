@@ -136,19 +136,12 @@ public:
 
   void SetShaderPermutationVariable(const char* szName, const char* szValue);
 
-  /// \brief TODO
+  /// \brief This blackboard can be used to set view specific render pipeline pass or extractor properties,
+  /// or to overwrite properties that are already set on the world blackboard.
+  ///
+  /// To set properties the blackboard entry name must be in the form of "PassName.PropertyName" or "ExtractorName.PropertyName".
   void SetBlackboard(const ezSharedPtr<ezBlackboard>& pBlackboard);
   const ezSharedPtr<ezBlackboard>& GetBlackboard() const;
-
-  /// TODO: remove this function and use the blackboard directly instead.
-  void SetRenderPassProperty(const char* szPassName, const char* szPropertyName, const ezVariant& value);
-
-  void ResetRenderPassProperties();
-
-
-  void SetRenderPassReadBackProperty(const char* szPassName, const char* szPropertyName, const ezVariant& value);
-  ezVariant GetRenderPassReadBackProperty(const char* szPassName, const char* szPropertyName);
-  bool IsRenderPassReadBackPropertyExisting(const char* szPassName, const char* szPropertyName) const;
 
   /// \brief Pushes the view and camera data into the extracted data of the pipeline.
   ///
@@ -201,22 +194,9 @@ private:
   ezDynamicArray<ezPermutationVar> m_PermutationVars;
   bool m_bPermutationVarsDirty = false;
 
-  void ApplyPermutationVars();
-
-  struct PropertyValue
-  {
-    ezString m_sObjectName;
-    ezString m_sPropertyName;
-    ezVariant m_DefaultValue;
-    ezVariant m_CurrentValue;
-    bool m_bIsValid;
-    bool m_bIsDirty;
-  };
-
-  void SetReadBackProperty(ezMap<ezString, PropertyValue>& map, const char* szPassName, const char* szPropertyName, const ezVariant& value);
-
   void ReadBackPassProperties();
 
+  void ApplyPermutationVars();
   void ApplyPropertiesFromBlackboard();
   void UpdatePropertyMappings(const ezBlackboard& blackboard, ezUInt32 uiSourceIndex);
 
@@ -250,8 +230,6 @@ private:
   };
 
   ezHashTable<ezHashedString, PropertyMapping> m_PropertyMappings;
-
-  ezMap<ezString, PropertyValue> m_PassReadBackProperties;
 };
 
 #include <RendererCore/Pipeline/Implementation/View_inl.h>

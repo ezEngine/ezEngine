@@ -22,8 +22,8 @@ ezViewHandle ezTextureViewContext::CreateView()
   pView->SetCameraUsageHint(ezCameraUsageHint::EditorView);
 
   pView->SetRenderPipelineResource(CreateDebugRenderPipeline());
-  pView->SetRenderPassProperty("DepthPrePass", "Active", false);
-  pView->SetRenderPassProperty("AOPass", "Active", false);
+  pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("DepthPrePass.Active"), false);
+  pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("AOPass.Active"), false);
 
   ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
   pView->SetWorld(pDocumentContext->GetWorld());

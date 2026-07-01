@@ -100,8 +100,8 @@ void ezSkeletonViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
     ezView* pView = nullptr;
     if (ezRenderWorld::TryGetView(m_hView, pView))
     {
-      pView->SetRenderPassProperty("EditorPickingPass", "Active", true);
-      pView->SetRenderPassProperty("EditorPickingPass", "PickSelected", true);
+      pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorPickingPass.Active"), true);
+      pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorPickingPass.PickSelected"), true);
     }
 
     PickObjectAt(pMsg2->m_uiPickPosX, pMsg2->m_uiPickPosY);
@@ -125,19 +125,17 @@ void ezSkeletonViewContext::PickObjectAt(ezUInt16 x, ezUInt16 y)
   if (ezRenderWorld::TryGetView(m_hView, pView) == false)
     return;
 
-  pView->SetRenderPassProperty("EditorPickingPass", "PickingPosition", ezVec2(x, y));
+  auto pBlackboard = pView->GetBlackboard();
+  pBlackboard->SetEntryValue(ezMakeHashedString("EditorPickingPass.PickingPosition"), ezVec2(x, y));
 
-  if (pView->IsRenderPassReadBackPropertyExisting("EditorPickingPass", "PickedPosition") == false)
+  auto pPickedPositionEntry = pBlackboard->GetEntry("EditorPickingPass.PickedPosition");
+  if (pPickedPositionEntry == nullptr || pPickedPositionEntry->m_Value.IsA<ezVec3>() == false)
     return;
 
-  ezVariant varPickedPos = pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickedPosition");
-  if (varPickedPos.IsA<ezVec3>() == false)
-    return;
-
-  const ezUInt32 uiPickingID = pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickedID").ConvertTo<ezUInt32>();
-  res.m_vPickedNormal = pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickedNormal").ConvertTo<ezVec3>();
-  res.m_vPickingRayStartPosition = pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickedRayStartPosition").ConvertTo<ezVec3>();
-  res.m_vPickedPosition = varPickedPos.ConvertTo<ezVec3>();
+  const ezUInt32 uiPickingID = pBlackboard->GetEntryValue("EditorPickingPass.PickedID").ConvertTo<ezUInt32>();
+  res.m_vPickedNormal = pBlackboard->GetEntryValue("EditorPickingPass.PickedNormal").ConvertTo<ezVec3>();
+  res.m_vPickingRayStartPosition = pBlackboard->GetEntryValue("EditorPickingPass.PickedRayStartPosition").ConvertTo<ezVec3>();
+  res.m_vPickedPosition = pPickedPositionEntry->m_Value.ConvertTo<ezVec3>();
 
   EZ_ASSERT_DEBUG(!res.m_vPickedPosition.IsNaN(), "");
 

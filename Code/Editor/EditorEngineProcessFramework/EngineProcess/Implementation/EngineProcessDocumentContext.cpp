@@ -594,10 +594,10 @@ void ezEngineProcessDocumentContext::CreateThumbnailViewContext(const ezCreateTh
   if (ezRenderWorld::TryGetView(m_pThumbnailViewContext->GetViewHandle(), pView))
   {
     pView->SetViewRenderMode(ezViewRenderMode::Default);
-    pView->SetRenderPassProperty("EditorSelectionPass", "Active", false);
-    pView->SetRenderPassProperty("EditorShapeIconsExtractor", "Active", false);
-    pView->SetRenderPassProperty("EditorGridExtractor", "Active", false);
-    pView->SetRenderPassProperty("EditorPickingPass", "Active", false);
+    pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorSelectionPass.Active"), false);
+    pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorShapeIconsExtractor.Active"), false);
+    pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorGridExtractor.Active"), false);
+    pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorPickingPass.Active"), false);
 
     for (const ezString& sTag : pMsg->m_ViewExcludeTags)
     {

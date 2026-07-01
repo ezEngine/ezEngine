@@ -118,6 +118,9 @@ public:
   EZ_ALWAYS_INLINE ezRenderPipeline* GetPipeline() { return m_pPipeline; }
   EZ_ALWAYS_INLINE const ezRenderPipeline* GetPipeline() const { return m_pPipeline; }
 
+  protected:
+  void SetReadBackProperty(ezView* pView, ezStringView sPropertyName, const ezVariant& value);
+
 private:
   friend class ezRenderPipeline;
 

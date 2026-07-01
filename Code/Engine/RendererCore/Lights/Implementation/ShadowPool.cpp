@@ -595,7 +595,7 @@ ezUInt32 ezShadowPool::AddPointLight(const ezPointLightComponent* pPointLight, f
       pView->SetName(tmp);
 
       pView->SetWorld(const_cast<ezWorld*>(pPointLight->GetWorld()));
-      pView->SetRenderPassProperty("ShadowDepth", "RenderTransparentObjects", pPointLight->GetTransparentShadows());
+      pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("ShadowDepth.RenderTransparentObjects"), pPointLight->GetTransparentShadows());
       CopyExcludeTagsOnWhiteList(pReferenceView->m_ExcludeTags, pView->m_ExcludeTags);
     }
 
@@ -648,7 +648,7 @@ ezUInt32 ezShadowPool::AddSpotLight(const ezSpotLightComponent* pSpotLight, floa
     }
 
     pView->SetWorld(const_cast<ezWorld*>(pSpotLight->GetWorld()));
-    pView->SetRenderPassProperty("ShadowDepth", "RenderTransparentObjects", pSpotLight->GetTransparentShadows());
+    pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("ShadowDepth.RenderTransparentObjects"), pSpotLight->GetTransparentShadows());
     CopyExcludeTagsOnWhiteList(pReferenceView->m_ExcludeTags, pView->m_ExcludeTags);
   }
 

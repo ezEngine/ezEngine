@@ -212,57 +212,6 @@ const ezSharedPtr<ezBlackboard>& ezView::GetBlackboard() const
   return m_pViewBlackboard;
 }
 
-void ezView::SetRenderPassProperty(const char* szPassName, const char* szPropertyName, const ezVariant& value)
-{
-  EZ_ASSERT_DEV(m_pViewBlackboard != nullptr, "Blackboard must be set before setting render pass properties.");
-  ezStringBuilder sKey(szPassName, ".", szPropertyName);
-  m_pViewBlackboard->SetEntryValue(sKey, value);
-}
-
-void ezView::ResetRenderPassProperties()
-{
-  EZ_ASSERT_NOT_IMPLEMENTED;
-#if 0
-  for (auto it : m_PassProperties)
-  {
-    auto& prop = it.Value();
-    if (prop.m_bIsValid)
-    {
-      prop.m_CurrentValue = prop.m_DefaultValue;
-      prop.m_bIsDirty = true;
-    }
-  }
-#endif
-}
-
-void ezView::SetRenderPassReadBackProperty(const char* szPassName, const char* szPropertyName, const ezVariant& value)
-{
-  SetReadBackProperty(m_PassReadBackProperties, szPassName, szPropertyName, value);
-}
-
-ezVariant ezView::GetRenderPassReadBackProperty(const char* szPassName, const char* szPropertyName)
-{
-  ezStringBuilder sKey(szPassName, "::", szPropertyName);
-
-  auto it = m_PassReadBackProperties.Find(sKey);
-  if (it.IsValid())
-  {
-    return it.Value().m_CurrentValue;
-  }
-
-  ezLog::Warning("Unknown read-back property '{0}::{1}'", szPassName, szPropertyName);
-  return ezVariant();
-}
-
-
-bool ezView::IsRenderPassReadBackPropertyExisting(const char* szPassName, const char* szPropertyName) const
-{
-  ezStringBuilder sKey(szPassName, "::", szPropertyName);
-
-  auto it = m_PassReadBackProperties.Find(sKey);
-  return it.IsValid();
-}
-
 void ezView::UpdateViewData(ezUInt32 uiDataIndex)
 {
   if (m_pRenderPipeline != nullptr)
@@ -346,36 +295,6 @@ void ezView::EnsureUpToDate()
   }
 }
 
-void ezView::ApplyPermutationVars()
-{
-  if (!m_bPermutationVarsDirty)
-    return;
-
-  if (m_pRenderPipeline == nullptr)
-    return;
-
-  m_pRenderPipeline->m_PermutationVars = m_PermutationVars;
-  m_bPermutationVarsDirty = false;
-}
-
-void ezView::SetReadBackProperty(ezMap<ezString, PropertyValue>& map, const char* szPassName, const char* szPropertyName, const ezVariant& value)
-{
-  ezStringBuilder sKey(szPassName, "::", szPropertyName);
-
-  bool bExisted = false;
-  auto& prop = map.FindOrAdd(sKey, &bExisted).Value();
-
-  if (!bExisted)
-  {
-    prop.m_sObjectName = szPassName;
-    prop.m_sPropertyName = szPropertyName;
-    prop.m_bIsValid = true;
-  }
-
-  prop.m_bIsDirty = false;
-  prop.m_CurrentValue = value;
-}
-
 void ezView::ReadBackPassProperties()
 {
   EZ_PROFILE_SCOPE("ViewReadBackPassProperties");
@@ -389,6 +308,18 @@ void ezView::ReadBackPassProperties()
 
     pPass->ReadBackProperties(this);
   }
+}
+
+void ezView::ApplyPermutationVars()
+{
+  if (!m_bPermutationVarsDirty)
+    return;
+
+  if (m_pRenderPipeline == nullptr)
+    return;
+
+  m_pRenderPipeline->m_PermutationVars = m_PermutationVars;
+  m_bPermutationVarsDirty = false;
 }
 
 void ezView::ApplyPropertiesFromBlackboard()

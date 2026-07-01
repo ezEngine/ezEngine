@@ -28,5 +28,7 @@ namespace ezInternal
   }
 } // namespace ezInternal
 
+#define EZ_STRENGTH_SUFFIX "_Strength"
+
 #define EZ_APPLY_BLACKBOARD_VALUE_WITH_STRENGTH(currentValue, blackboard, name) \
-  ezInternal::ApplyBlackboardValueWithStrength(currentValue, blackboard, ezTempHashedString(#name), ezTempHashedString(#name "_Strength"))
+  ezInternal::ApplyBlackboardValueWithStrength(currentValue, blackboard, ezTempHashedString(#name), ezTempHashedString(#name EZ_STRENGTH_SUFFIX))

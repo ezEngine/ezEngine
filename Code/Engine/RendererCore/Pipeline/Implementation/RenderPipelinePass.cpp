@@ -105,4 +105,12 @@ void ezRenderPipelinePass::RenderDataWithCategory(const ezRenderViewContext& ren
   }
 }
 
+void ezRenderPipelinePass::SetReadBackProperty(ezView* pView, ezStringView sPropertyName, const ezVariant& value)
+{
+  ezStringBuilder sb = GetName();
+  sb.Append(".", sPropertyName);
+
+  pView->GetBlackboard()->SetEntryValue(sb, value);
+}
+
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RenderPipelinePass);

@@ -40,12 +40,16 @@ public:
   const char* GetVolumeType() const;      // [ property ]
 
   /// \brief If enabled, the sampling position will be the main camera's position. Otherwise, the owner's position is used.
-  void SetAttachToMainCamera(bool bAttach);                                     // [ property ]
-  bool GetAttachToMainCamera() const { return m_bAttachToMainCamera; }          // [ property ]
+  void SetAttachToMainCamera(bool bAttach);                            // [ property ]
+  bool GetAttachToMainCamera() const { return m_bAttachToMainCamera; } // [ property ]
 
-  void SetWriteToBlackboard(bool bWriteToBlackboard);                           // [ property ]
-  bool GetWriteToBlackboard() const { return m_bWriteToBlackboard; }            // [ property ]
+  /// \brief If enabled, the sampled values will also be written to a blackboard.
+  /// See ezBlackboardComponent::FindBlackboard for details on how blackboards are found.
+  void SetWriteToBlackboard(bool bWriteToBlackboard);                // [ property ]
+  bool GetWriteToBlackboard() const { return m_bWriteToBlackboard; } // [ property ]
 
+  /// \brief The name of the blackboard to write to. Only relevant if WriteToBlackboard is enabled.
+  /// See ezBlackboardComponent::FindBlackboard for details on how blackboards are found.
   void SetBlackboardName(const ezHashedString& sName);                          // [ property ]
   const ezHashedString& GetBlackboardName() const { return m_sBlackboardName; } // [ property ]
 

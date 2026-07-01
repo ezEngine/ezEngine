@@ -301,8 +301,8 @@ void ezEngineProcessViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
     pView->SetViewRenderMode(renderMode);
 
     bool bUseDepthPrePass = renderMode != ezViewRenderMode::WireframeColor && renderMode != ezViewRenderMode::WireframeMonochrome;
-    pView->SetRenderPassProperty("DepthPrePass", "Active", bUseDepthPrePass);
-    pView->SetRenderPassProperty("AOPass", "Active", bUseDepthPrePass); // Also disable SSAO to save some performance
+    pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("DepthPrePass.Active"), bUseDepthPrePass);
+    pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("AOPass.Active"), bUseDepthPrePass); // Also disable SSAO to save some performance
 
     SetViewProperties(pView);
   }
@@ -312,8 +312,8 @@ void ezEngineProcessViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
 void ezEngineProcessViewContext::SetViewProperties(ezView* pView)
 {
   // by default this stuff is disabled, derived classes can enable it
-  pView->SetRenderPassProperty("EditorSelectionPass", "Active", false);
-  pView->SetRenderPassProperty("EditorShapeIconsExtractor", "Active", false);
+  pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorSelectionPass.Active"), false);
+  pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorShapeIconsExtractor.Active"), false);
 }
 
 ezRenderPipelineResourceHandle ezEngineProcessViewContext::CreateDefaultRenderPipeline()

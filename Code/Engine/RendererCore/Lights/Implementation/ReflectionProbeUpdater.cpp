@@ -401,12 +401,11 @@ void ezReflectionProbeUpdater::AddViewToRender(const ProbeUpdateInfo::Step& step
       {
         renderTargets.m_hRTs[2] = updateInfo.m_TargetSlot.m_hIrradianceOutputTexture;
       }
-      pView->SetRenderPassProperty("ReflectionFilterPass", "DiffuseIntensity", updateInfo.m_desc.m_fDiffuseIntensity);
-      pView->SetRenderPassProperty("ReflectionFilterPass", "DiffuseSaturation", updateInfo.m_desc.m_fDiffuseSaturation);
-      pView->SetRenderPassProperty("ReflectionFilterPass", "SpecularIntensity", updateInfo.m_desc.m_fSpecularIntensity);
-      pView->SetRenderPassProperty("ReflectionFilterPass", "SpecularOutputIndex", updateInfo.m_TargetSlot.m_iSpecularOutputIndex);
-      pView->SetRenderPassProperty("ReflectionFilterPass", "IrradianceOutputIndex", updateInfo.m_TargetSlot.m_iIrradianceOutputIndex);
-
+      pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("ReflectionFilterPass.DiffuseIntensity"), updateInfo.m_desc.m_fDiffuseIntensity);
+      pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("ReflectionFilterPass.DiffuseSaturation"), updateInfo.m_desc.m_fDiffuseSaturation);
+      pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("ReflectionFilterPass.SpecularIntensity"), updateInfo.m_desc.m_fSpecularIntensity);
+      pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("ReflectionFilterPass.SpecularOutputIndex"), updateInfo.m_TargetSlot.m_iSpecularOutputIndex);
+      pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("ReflectionFilterPass.IrradianceOutputIndex"), updateInfo.m_TargetSlot.m_iIrradianceOutputIndex);
 
       ezGALTextureHandle hSourceTexture = updateInfo.m_hCubemap;
       if (updateInfo.m_desc.m_Mode == ezReflectionProbeMode::Static)
@@ -421,7 +420,7 @@ void ezReflectionProbeUpdater::AddViewToRender(const ProbeUpdateInfo::Step& step
           }
         }
       }
-      pView->SetRenderPassProperty("ReflectionFilterPass", "InputCubemap", hSourceTexture.GetInternalID().m_Data);
+      pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("ReflectionFilterPass.InputCubemap"), hSourceTexture.GetInternalID().m_Data);
     }
     else
     {

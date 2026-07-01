@@ -2,6 +2,7 @@
 
 #include <GameEngine/Volumes/VolumeComponent.h>
 #include <GameEngine/Volumes/VolumeSampler.h>
+#include <RendererCore/Utils/BlackboardHelper.h>
 
 ezVolumeSampler::ezVolumeSampler() = default;
 ezVolumeSampler::~ezVolumeSampler() = default;
@@ -11,7 +12,7 @@ void ezVolumeSampler::RegisterValue(ezHashedString sName, ezVariant defaultValue
   auto& value = m_Values[sName];
   value.m_DefaultValue = defaultValue;
   value.m_CurrentValue = defaultValue;
-  
+
   if (interpolationDuration.IsPositive())
   {
     // Reach 90% of target value after interpolation duration:
@@ -27,7 +28,7 @@ void ezVolumeSampler::RegisterValue(ezHashedString sName, ezVariant defaultValue
   }
 
   ezStringBuilder sb = sName.GetView();
-  sb.Append("_Strength");
+  sb.Append(EZ_STRENGTH_SUFFIX);
   value.m_sStrengthName.Assign(sb);
   value.m_fCurrentStrength = 0.0f;
 }
