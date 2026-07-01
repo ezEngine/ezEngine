@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7297922959506964864,5177324930371449723}}
-		u4 %Hash{7428910545135644672}
+		u4 %Hash{15844216438626553389}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -5923,18 +5923,6 @@ o
 }
 o
 {
-	Uuid %id{u4{6156895886333951361,4641702912039801733}}
-	s %t{"ezBlackboardEntry"}
-	u3 %v{1}
-	p
-	{
-		s %Flags{""}
-		Color %InitialValue{f{0x6319173D,0x9ECA2F3F,0x40E12A3F,0x0000803F}}
-		HashedString %Name{s{"TonemapPass.MoodColor"}}
-	}
-}
-o
-{
 	Uuid %id{u4{13617870519002393270,4642629171220050720}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -6535,6 +6523,25 @@ o
 			s{"CastShadow"}
 			s{"AutoColMesh"}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{99346858464531378,4693595147337785391}}
+	s %t{"ezLocalBlackboardComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		s %BlackboardName{""}
+		VarArray %Entries
+		{
+			Uuid{u4{817612181633043878,5750228506484575517}}
+			Uuid{u4{18220394771658031491,4844633984354351979}}
+		}
+		b %SendEntryChangedMessage{0}
+		b %ShowDebugInfo{0}
+		s %Template{""}
 	}
 }
 o
@@ -7828,25 +7835,6 @@ o
 }
 o
 {
-	Uuid %id{u4{7616279660237390242,4827319655176108225}}
-	s %t{"ezLocalBlackboardComponent"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		s %BlackboardName{""}
-		VarArray %Entries
-		{
-			Uuid{u4{6156895886333951361,4641702912039801733}}
-			Uuid{u4{16822406972728564879,5048640735147566186}}
-		}
-		b %SendEntryChangedMessage{0}
-		b %ShowDebugInfo{0}
-		s %Template{""}
-	}
-}
-o
-{
 	Uuid %id{u4{13086942527320534937,4832580786345188855}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -7991,6 +7979,18 @@ o
 		Angle %Roll{f{0}}
 		s %TangentModeIn{"ezSplineTangentMode::Auto"}
 		s %TangentModeOut{"ezSplineTangentMode::Auto"}
+	}
+}
+o
+{
+	Uuid %id{u4{18220394771658031491,4844633984354351979}}
+	s %t{"ezBlackboardEntry"}
+	u3 %v{1}
+	p
+	{
+		s %Flags{""}
+		f %InitialValue{0x0000A040}
+		HashedString %Name{s{"TonemapPass.MoodStrength"}}
 	}
 }
 o
@@ -10092,6 +10092,18 @@ o
 }
 o
 {
+	Uuid %id{u4{11581885833089796518,5040758803811254181}}
+	s %t{"ezVolumeSamplerValue"}
+	u3 %v{1}
+	p
+	{
+		f %DefaultValue{0xCDCCCC3D}
+		Time %InterpolationDuration{d{0}}
+		HashedString %Name{s{"TonemapPass.Contrast"}}
+	}
+}
+o
+{
 	Uuid %id{u4{12310385124625322932,5041087509723627308}}
 	s %t{"ezRotorComponent"}
 	u3 %v{3}
@@ -10161,18 +10173,6 @@ o
 			s{"CastShadow"}
 			s{"AutoColMesh"}
 		}
-	}
-}
-o
-{
-	Uuid %id{u4{16822406972728564879,5048640735147566186}}
-	s %t{"ezBlackboardEntry"}
-	u3 %v{1}
-	p
-	{
-		s %Flags{""}
-		f %InitialValue{0x00002041}
-		HashedString %Name{s{"TonemapPass.MoodStrength"}}
 	}
 }
 o
@@ -10403,6 +10403,18 @@ o
 		b %SlopedTop{0}
 		f %Thickness{0x0000003F}
 		b %UseAsOccluder{1}
+	}
+}
+o
+{
+	Uuid %id{u4{9572077330960294577,5060997298317261874}}
+	s %t{"ezVolumeSamplerValue"}
+	u3 %v{1}
+	p
+	{
+		f %DefaultValue{0x9A99993E}
+		Time %InterpolationDuration{d{0x0000000000000040}}
+		HashedString %Name{s{"TonemapPass.MoodStrength"}}
 	}
 }
 o
@@ -12857,8 +12869,8 @@ o
 		VarArray %Components
 		{
 			Uuid{u4{15416684804433933185,4882811130761641720}}
+			Uuid{u4{99346858464531378,4693595147337785391}}
 			Uuid{u4{10520240358678061731,5267623913918568667}}
-			Uuid{u4{7616279660237390242,4827319655176108225}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0x64A51F42,0x0000403F,0x7C5DCE40}}
@@ -13225,18 +13237,6 @@ o
 }
 o
 {
-	Uuid %id{u4{2156216838664280966,5337510071129268916}}
-	s %t{"ezVolumeSamplerValue"}
-	u3 %v{1}
-	p
-	{
-		f %DefaultValue{0xCDCC4C3E}
-		Time %InterpolationDuration{d{0x0000000000000040}}
-		HashedString %Name{s{"TonemapPass.MoodStrength"}}
-	}
-}
-o
-{
 	Uuid %id{u4{2414911438676449467,5338458782476429275}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -13340,18 +13340,6 @@ o
 			s{"CastShadow"}
 			s{"AutoColMesh"}
 		}
-	}
-}
-o
-{
-	Uuid %id{u4{5313746708220022961,5356967007788730903}}
-	s %t{"ezVolumeSamplerValue"}
-	u3 %v{1}
-	p
-	{
-		Color %DefaultValue{f{0x0000803F,0x0B50993E,0,0x0000803F}}
-		Time %InterpolationDuration{d{0x0000000000000040}}
-		HashedString %Name{s{"TonemapPass.MoodColor"}}
 	}
 }
 o
@@ -14542,7 +14530,7 @@ o
 		VarArray %Children{}
 		VarArray %Components
 		{
-			Uuid{u4{18286812653381575817,5470485865020772829}}
+			Uuid{u4{13733991660780769426,5585025714308045762}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0,0,0x0000C03F}}
@@ -14550,7 +14538,7 @@ o
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{"Postprocessing"}
+		s %Name{""}
 		VarArray %Tags{}
 	}
 }
@@ -14797,26 +14785,6 @@ o
 			s{"CastShadow"}
 			s{"AutoColMesh"}
 		}
-	}
-}
-o
-{
-	Uuid %id{u4{18286812653381575817,5470485865020772829}}
-	s %t{"ezVolumeSamplerComponent"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		b %AttachToMainCamera{1}
-		HashedString %BlackboardName{s{""}}
-		VarArray %Values
-		{
-			Uuid{u4{5313746708220022961,5356967007788730903}}
-			Uuid{u4{2156216838664280966,5337510071129268916}}
-			Uuid{u4{4006666805132090546,5723288581268370398}}
-		}
-		s %VolumeType{"GenericVolume"}
-		b %WriteToBlackboard{1}
 	}
 }
 o
@@ -15397,6 +15365,18 @@ o
 }
 o
 {
+	Uuid %id{u4{13082672763754932911,5529218080205743939}}
+	s %t{"ezVolumeSamplerValue"}
+	u3 %v{1}
+	p
+	{
+		Color %DefaultValue{f{0x0000803F,0x71A5C03E,0,0x0000803F}}
+		Time %InterpolationDuration{d{0x0000000000000040}}
+		HashedString %Name{s{"TonemapPass.MoodColor"}}
+	}
+}
+o
+{
 	Uuid %id{u4{10035995686865939584,5532042553256123164}}
 	s %t{"ezPrefabReferenceComponent"}
 	u3 %v{4}
@@ -15972,6 +15952,26 @@ o
 		Angle %Roll{f{0}}
 		s %TangentModeIn{"ezSplineTangentMode::Auto"}
 		s %TangentModeOut{"ezSplineTangentMode::Auto"}
+	}
+}
+o
+{
+	Uuid %id{u4{13733991660780769426,5585025714308045762}}
+	s %t{"ezVolumeSamplerComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		b %AttachToMainCamera{1}
+		HashedString %BlackboardName{s{""}}
+		VarArray %Values
+		{
+			Uuid{u4{13082672763754932911,5529218080205743939}}
+			Uuid{u4{9572077330960294577,5060997298317261874}}
+			Uuid{u4{11581885833089796518,5040758803811254181}}
+		}
+		s %VolumeType{"GenericVolume"}
+		b %WriteToBlackboard{1}
 	}
 }
 o
@@ -17292,18 +17292,6 @@ o
 }
 o
 {
-	Uuid %id{u4{4006666805132090546,5723288581268370398}}
-	s %t{"ezVolumeSamplerValue"}
-	u3 %v{1}
-	p
-	{
-		f %DefaultValue{0xCDCCCC3D}
-		Time %InterpolationDuration{d{0}}
-		HashedString %Name{s{"TonemapPass.Contrast"}}
-	}
-}
-o
-{
 	Uuid %id{u4{1417298650335220395,5724244919304517660}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -17674,6 +17662,18 @@ o
 			s{"CastShadow"}
 			s{"AutoColMesh"}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{817612181633043878,5750228506484575517}}
+	s %t{"ezBlackboardEntry"}
+	u3 %v{1}
+	p
+	{
+		s %Flags{""}
+		Color %InitialValue{f{0xC392633B,0x6F31B73E,0xEF4E633F,0x0000803F}}
+		HashedString %Name{s{"TonemapPass.MoodColor"}}
 	}
 }
 o
@@ -45363,7 +45363,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezVolumeSamplerComponent"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o

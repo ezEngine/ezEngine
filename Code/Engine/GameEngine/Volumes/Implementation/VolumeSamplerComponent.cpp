@@ -41,7 +41,7 @@ ezResult ezVolumeSamplerValue::Deserialize(ezStreamReader& inout_stream)
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezVolumeSamplerComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezVolumeSamplerComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -92,6 +92,8 @@ void ezVolumeSamplerComponent::SerializeComponent(ezWorldWriter& inout_stream) c
   auto& sCategory = ezSpatialData::GetCategoryName(m_SpatialCategory);
   s << sCategory;
   s << m_bAttachToMainCamera;
+  s << m_bWriteToBlackboard;
+  s << m_sBlackboardName;
 
   s.WriteArray(m_Values).IgnoreResult();
 }
@@ -99,7 +101,7 @@ void ezVolumeSamplerComponent::SerializeComponent(ezWorldWriter& inout_stream) c
 void ezVolumeSamplerComponent::DeserializeComponent(ezWorldReader& inout_stream)
 {
   SUPER::DeserializeComponent(inout_stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = inout_stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = inout_stream.GetStream();
 
   ezHashedString sCategory;
@@ -107,6 +109,12 @@ void ezVolumeSamplerComponent::DeserializeComponent(ezWorldReader& inout_stream)
   m_SpatialCategory = ezSpatialData::RegisterCategory(sCategory, ezSpatialData::Flags::None);
 
   s >> m_bAttachToMainCamera;
+
+  if (uiVersion >= 2)
+  {
+    s >> m_bWriteToBlackboard;
+    s >> m_sBlackboardName;
+  }
 
   ezDynamicArray<ezVolumeSamplerValue> values;
   s.ReadArray(values).IgnoreResult();
@@ -239,6 +247,63 @@ void ezVolumeSamplerComponent::Update()
   ezBlackboard* pBlackboard = m_bWriteToBlackboard ? m_pBlackboard.Borrow() : nullptr;
   m_pSampler->SampleAtPosition(*pWorld, m_SpatialCategory, vSamplePos, deltaTime, pBlackboard);
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/GraphPatch.h>
+
+// Migrate post processing component to volume sampler component
+class ezVolumeSamplerComponent_1_2 : public ezGraphPatch
+{
+public:
+  ezVolumeSamplerComponent_1_2()
+    : ezGraphPatch("ezPostProcessingComponent", 2)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& ref_context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    ref_context.RenameClass("ezVolumeSamplerComponent");
+
+    // Migrate mappings
+    ezVariantArray newValues;
+    if (auto pMappings = pNode->FindProperty("Mappings"))
+    {
+      if (pMappings->m_Value.IsA<ezVariantArray>())
+      {
+        auto& mappings = pMappings->m_Value.Get<ezVariantArray>();
+        for (auto& mapping : mappings)
+        {
+          if (!mapping.IsA<ezUuid>())
+            continue;
+
+          auto pMappingNode = pGraph->GetNode(mapping.Get<ezUuid>());
+          if (!pMappingNode)
+            continue;
+
+          ezUuid newGuid = ezUuid::MakeUuid();
+          auto* pNewNode = pGraph->AddNode(newGuid, "ezVolumeSamplerValue", 1);
+
+          ezStringBuilder name = pMappingNode->FindProperty("RenderPass")->m_Value.Get<ezHashedString>().GetView();
+          name.Append(".", pMappingNode->FindProperty("Property")->m_Value.Get<ezHashedString>());
+
+          pNewNode->AddProperty("Name", name.GetView());
+          pNewNode->AddProperty("DefaultValue", pMappingNode->FindProperty("DefaultValue")->m_Value);
+          pNewNode->AddProperty("InterpolationDuration", pMappingNode->FindProperty("InterpolationDuration")->m_Value);
+
+          newValues.PushBack(newGuid);
+        }
+      }
+    }
+
+    pNode->AddProperty("Values", newValues);
+    pNode->AddProperty("AttachToMainCamera", true);
+    pNode->AddProperty("WriteToBlackboard", true);
+  }
+};
+
+ezVolumeSamplerComponent_1_2 g_ezVolumeSamplerComponent_1_2;
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Volumes_Implementation_VolumeSamplerComponent);
