@@ -5,8 +5,8 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
-#include <RendererCore/Components/BlackboardComponent.h>
 #include <GameEngine/Gameplay/InputComponent.h>
+#include <RendererCore/Components/BlackboardComponent.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezInputMessageGranularity, 1)

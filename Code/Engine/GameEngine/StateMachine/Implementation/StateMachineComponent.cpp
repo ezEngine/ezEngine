@@ -2,8 +2,8 @@
 
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
-#include <RendererCore/Components/BlackboardComponent.h>
 #include <GameEngine/StateMachine/StateMachineComponent.h>
+#include <RendererCore/Components/BlackboardComponent.h>
 
 // clang-format off
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgStateMachineStateChanged);

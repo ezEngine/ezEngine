@@ -6,10 +6,10 @@
 #include <Foundation/Strings/HashedString.h>
 #include <GameEngine/Animation/Skeletal/AnimatedMeshComponent.h>
 #include <GameEngine/Animation/Skeletal/AnimationControllerComponent.h>
-#include <RendererCore/Components/BlackboardComponent.h>
 #include <GameEngine/Physics/CharacterControllerComponent.h>
 #include <RendererCore/AnimationSystem/AnimGraph/AnimGraphResource.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
+#include <RendererCore/Components/BlackboardComponent.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezAnimationControllerComponent, 4, ezComponentMode::Static);
