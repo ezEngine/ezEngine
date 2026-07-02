@@ -3,6 +3,7 @@
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/World/World.h>
 #include <Foundation/Math/Color16f.h>
+#include <Foundation/Time/Time.h>
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/Pipeline/RenderData.h>
 
@@ -51,7 +52,7 @@ public:
   ezUInt32 m_uiUniqueID;
 };
 
-using ezSpriteComponentManager = ezComponentManager<class ezSpriteComponent, ezBlockStorageType::Compact>;
+using ezSpriteComponentManager = ezComponentManagerSimple<class ezSpriteComponent, ezComponentUpdateType::Always, ezBlockStorageType::Compact>;
 
 /// \brief Renders a screen-oriented quad (billboard) with a maximum screen size.
 ///
@@ -85,6 +86,8 @@ public:
   ezSpriteComponent();
   ~ezSpriteComponent();
 
+  void Update();
+
   void SetTexture(const ezTexture2DResourceHandle& hTexture); // [ property ]
   const ezTexture2DResourceHandle& GetTexture() const;        // [ property ]
 
@@ -96,19 +99,33 @@ public:
   float GetSize() const;     // [ property ]
 
   /// \brief Sets the maximum screen-space size in pixels. Once a sprite is close enough to have reached this size, it will not grow larger.
-  void SetMaxScreenSize(float fSize);         // [ property ]
-  float GetMaxScreenSize() const;             // [ property ]
-
-  void OnMsgSetColor(ezMsgSetColor& ref_msg); // [ property ]
+  void SetMaxScreenSize(float fSize);                             // [ property ]
+  float GetMaxScreenSize() const;                                 // [ property ]
 
 private:
-  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
+  void OnMsgSetColor(ezMsgSetColor& ref_msg);                     // [ msg handler ]
+  void OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg);         // [ msg handler ]
+  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const; // [ msg handler ]
 
   ezTexture2DResourceHandle m_hTexture;
-  ezEnum<ezSpriteBlendMode> m_BlendMode;
   ezColor m_Color = ezColor::White;
+
+  ezEnum<ezSpriteBlendMode> m_BlendMode;
+  ezEnum<ezOnComponentFinishedAction> m_OnFinishedAction = ezOnComponentFinishedAction::Default;
+  bool m_bUseMaxScreenSize = true;
+  bool m_bIsAnimated = false;
 
   float m_fSize = 1.0f;
   float m_fMaxScreenSize = 64.0f;
   float m_fAspectRatio = 1.0f;
+
+  float m_fFramerate = 24.0f;
+
+  ezUInt32 m_uiLoops = 0;
+
+  ezTime m_TimeSinceStart;
+  ezUInt32 m_uiCurrentLoop = 0;
+
+  ezUInt8 m_uiColumns = 1;
+  ezUInt8 m_uiRows = 1;
 };
