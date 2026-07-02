@@ -46,7 +46,7 @@ struct ezRenderWorldRenderEvent
 class EZ_RENDERERCORE_DLL ezRenderWorld
 {
 public:
-  static ezViewHandle CreateView(const char* szName, ezView*& out_pView);
+  static ezViewHandle CreateView(ezStringView sName, ezView*& out_pView);
   static void DeleteView(const ezViewHandle& hView);
 
   static bool TryGetView(const ezViewHandle& hView, ezView*& out_pView);

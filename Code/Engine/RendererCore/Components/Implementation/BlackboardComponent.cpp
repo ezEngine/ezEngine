@@ -111,12 +111,12 @@ ezBlackboardComponent::ezBlackboardComponent() = default;
 ezBlackboardComponent::~ezBlackboardComponent() = default;
 
 // static
-ezSharedPtr<ezBlackboard> ezBlackboardComponent::FindBlackboard(ezGameObject& searchObject, ezStringView sBlackboardName /*= ezStringView()*/)
+ezSharedPtr<ezBlackboard> ezBlackboardComponent::FindBlackboard(ezGameObject& ref_searchObject, ezStringView sBlackboardName /*= ezStringView()*/)
 {
   const ezTempHashedString sBlackboardNameHashed(sBlackboardName);
 
   ezBlackboardComponent* pBlackboardComponent = nullptr;
-  ezGameObject* pObject = &searchObject;
+  ezGameObject* pObject = &ref_searchObject;
   while (pObject != nullptr)
   {
     if (pObject->TryGetComponentOfBaseType(pBlackboardComponent))
@@ -132,7 +132,7 @@ ezSharedPtr<ezBlackboard> ezBlackboardComponent::FindBlackboard(ezGameObject& se
 
   if (sBlackboardName.IsEmpty())
   {
-    return searchObject.GetWorld()->GetBlackboard();
+    return ref_searchObject.GetWorld()->GetBlackboard();
   }
   else
   {

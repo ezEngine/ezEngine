@@ -212,27 +212,17 @@ void ezSceneViewContext::SetViewProperties(ezView* pView)
 
 ezViewHandle ezSceneViewContext::CreateView()
 {
-  ezView* pView = nullptr;
-  ezRenderWorld::CreateView("Editor - View", pView);
-
-  pView->SetBlackboard(ezBlackboard::Create("EditorViewBlackboard"));
+  ezView* pView = CreateDefaultView("Editor - View");
 
   ezVariant sceneContextVariant(m_pSceneContext);
   pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorSelectedObjectsExtractor.SceneContext"), sceneContextVariant);
   pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorShapeIconsExtractor.SceneContext"), sceneContextVariant);
   pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorGridExtractor.SceneContext"), sceneContextVariant);
 
-  pView->SetRenderPipelineResource(CreateDefaultRenderPipeline());
-
-  ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
-  pView->SetWorld(pDocumentContext->GetWorld());
-  pView->SetCamera(&m_Camera);
   pView->SetCullingCamera(&m_CullingCamera);
-  pView->SetCameraUsageHint(ezCameraUsageHint::EditorView);
+  
+  pView->m_ExcludeTags.SetByName("EditorHidden");
 
-  const ezTag& tagHidden = ezTagRegistry::GetGlobalRegistry().RegisterTag("EditorHidden");
-
-  pView->m_ExcludeTags.Set(tagHidden);
   return pView->GetHandle();
 }
 
@@ -354,10 +344,13 @@ void ezSceneViewContext::MarqueePickObjects(const ezViewMarqueePickingMsgToEngin
         }
       }
     }
+
+    pBlackboard->SetEntryValue(ezMakeHashedString("EditorPickingPass.MarqueePickPos0"), ezVec2(-1));
+    pBlackboard->SetEntryValue(ezMakeHashedString("EditorPickingPass.MarqueePickPos1"), ezVec2(-1));
   }
 
   if (res.m_uiActionIdentifier == 0)
     return;
 
-  SendViewMessage(&res);
+    SendViewMessage(&res);
 }

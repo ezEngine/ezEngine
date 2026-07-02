@@ -94,6 +94,8 @@ private:
   ezString m_sPendingScreenshotPath;
 
 protected:
+  ezView* CreateDefaultView(ezStringView sName);
+
   ezCamera m_Camera;
   ezViewHandle m_hView;
   ezUInt32 m_uiViewID;

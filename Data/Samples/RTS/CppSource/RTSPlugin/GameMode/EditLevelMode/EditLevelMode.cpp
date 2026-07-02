@@ -26,8 +26,7 @@ static ezHashedString s_sShowEditWidget = ezMakeHashedString("ShowEditWidget");
 RtsEditLevelMode::RtsEditLevelMode()
 {
   // create a blackboard to easily share state with the RML UI
-  m_pBlackboard = ezBlackboard::Create();
-  m_pBlackboard->SetName("game-ui");
+  m_pBlackboard = ezBlackboard::Create("game-ui");
 
   m_pBlackboard->SetEntryValue(s_sTeam, 0);
   m_pBlackboard->SetEntryValue(s_sShipType, 0);

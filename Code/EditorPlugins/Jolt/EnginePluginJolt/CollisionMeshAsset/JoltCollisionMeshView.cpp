@@ -25,15 +25,7 @@ bool ezJoltCollisionMeshViewContext::UpdateThumbnailCamera(const ezBoundingBoxSp
 
 ezViewHandle ezJoltCollisionMeshViewContext::CreateView()
 {
-  ezView* pView = nullptr;
-  ezRenderWorld::CreateView("Collision Mesh Editor - View", pView);
-  pView->SetCameraUsageHint(ezCameraUsageHint::EditorView);
-
-  pView->SetRenderPipelineResource(CreateDefaultRenderPipeline());
-
-  ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
-  pView->SetWorld(pDocumentContext->GetWorld());
-  pView->SetCamera(&m_Camera);
+  ezView* pView = CreateDefaultView("Collision Mesh Editor - View");
   return pView->GetHandle();
 }
 

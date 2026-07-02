@@ -326,6 +326,23 @@ ezRenderPipelineResourceHandle ezEngineProcessViewContext::CreateDebugRenderPipe
   return ezEditorEngineProcessApp::GetSingleton()->CreateDefaultDebugRenderPipeline();
 }
 
+ezView* ezEngineProcessViewContext::CreateDefaultView(ezStringView sName)
+{
+  ezView* pView = nullptr;
+  ezRenderWorld::CreateView(sName, pView);
+  pView->SetCameraUsageHint(ezCameraUsageHint::EditorView);
+
+  pView->SetBlackboard(ezBlackboard::Create(sName));
+
+  pView->SetRenderPipelineResource(CreateDefaultRenderPipeline());
+
+  ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
+  pView->SetWorld(pDocumentContext->GetWorld());
+  pView->SetCamera(&m_Camera);
+
+  return pView;
+}
+
 void ezEngineProcessViewContext::DrawSimpleGrid() const
 {
   ezDynamicArray<ezDebugRendererLine> lines;

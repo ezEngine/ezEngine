@@ -73,7 +73,7 @@ public:
   /// Thus you will always get a result, either from a component, the world or from the global storage.
   ///
   /// \sa ezBlackboard::GetOrCreateGlobal()
-  static ezSharedPtr<ezBlackboard> FindBlackboard(ezGameObject& searchObject, ezStringView sBlackboardName = ezStringView());
+  static ezSharedPtr<ezBlackboard> FindBlackboard(ezGameObject& ref_searchObject, ezStringView sBlackboardName = ezStringView());
 
   /// \brief Returns the blackboard owned by this component
   const ezSharedPtr<ezBlackboard>& GetBoard();

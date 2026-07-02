@@ -53,15 +53,7 @@ void ezSkeletonViewContext::Redraw(bool bRenderEditorGizmos)
 
 ezViewHandle ezSkeletonViewContext::CreateView()
 {
-  ezView* pView = nullptr;
-  ezRenderWorld::CreateView("Skeleton Editor - View", pView);
-  pView->SetCameraUsageHint(ezCameraUsageHint::EditorView);
-
-  pView->SetRenderPipelineResource(CreateDefaultRenderPipeline());
-
-  ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
-  pView->SetWorld(pDocumentContext->GetWorld());
-  pView->SetCamera(&m_Camera);
+  ezView* pView = CreateDefaultView("Skeleton Editor - View");
   return pView->GetHandle();
 }
 

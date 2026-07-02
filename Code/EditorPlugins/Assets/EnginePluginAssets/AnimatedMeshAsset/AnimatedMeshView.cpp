@@ -26,15 +26,7 @@ bool ezAnimatedMeshViewContext::UpdateThumbnailCamera(const ezBoundingBoxSphere&
 
 ezViewHandle ezAnimatedMeshViewContext::CreateView()
 {
-  ezView* pView = nullptr;
-  ezRenderWorld::CreateView("AnimatedMesh Editor - View", pView);
-  pView->SetCameraUsageHint(ezCameraUsageHint::EditorView);
-
-  pView->SetRenderPipelineResource(CreateDefaultRenderPipeline());
-
-  ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
-  pView->SetWorld(pDocumentContext->GetWorld());
-  pView->SetCamera(&m_Camera);
+  ezView* pView = CreateDefaultView("AnimatedMesh Editor - View");
   return pView->GetHandle();
 }
 

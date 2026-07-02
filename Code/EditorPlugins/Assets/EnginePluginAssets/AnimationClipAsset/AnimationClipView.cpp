@@ -24,15 +24,7 @@ bool ezAnimationClipViewContext::UpdateThumbnailCamera(const ezBoundingBoxSphere
 
 ezViewHandle ezAnimationClipViewContext::CreateView()
 {
-  ezView* pView = nullptr;
-  ezRenderWorld::CreateView("Animation Clip Editor - View", pView);
-  pView->SetCameraUsageHint(ezCameraUsageHint::EditorView);
-
-  pView->SetRenderPipelineResource(CreateDefaultRenderPipeline());
-
-  ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
-  pView->SetWorld(pDocumentContext->GetWorld());
-  pView->SetCamera(&m_Camera);
+  ezView* pView = CreateDefaultView("Animation Clip Editor - View");
   return pView->GetHandle();
 }
 

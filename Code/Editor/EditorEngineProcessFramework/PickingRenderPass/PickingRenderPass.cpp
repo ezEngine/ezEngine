@@ -373,8 +373,10 @@ void ezPickingRenderPass::ReadBackPropertiesMarqueePick(ezView* pView)
     return;
   }
 
-  m_MarqueePickPosition0.Set(-1);
-  m_MarqueePickPosition1.Set(-1);
+  // We must not reset the marquee pick positions here since the marquee action is active over multiple frames and the view only sets properties when they change.
+  // They are reseted manually by the editor when the marquee action is finished.
+  // m_MarqueePickPosition0.Set(-1);
+  // m_MarqueePickPosition1.Set(-1);
   SetReadBackProperty(pView, "MarqueeResultActionID", m_uiMarqueeActionID);
 
   ezTempHybridArray<ezUInt32, 32> IDs;
