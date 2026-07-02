@@ -220,7 +220,7 @@ ezViewHandle ezSceneViewContext::CreateView()
   pView->GetBlackboard()->SetEntryValue(ezMakeHashedString("EditorGridExtractor.SceneContext"), sceneContextVariant);
 
   pView->SetCullingCamera(&m_CullingCamera);
-  
+
   pView->m_ExcludeTags.SetByName("EditorHidden");
 
   return pView->GetHandle();
@@ -352,5 +352,5 @@ void ezSceneViewContext::MarqueePickObjects(const ezViewMarqueePickingMsgToEngin
   if (res.m_uiActionIdentifier == 0)
     return;
 
-    SendViewMessage(&res);
+  SendViewMessage(&res);
 }
