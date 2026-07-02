@@ -16,4 +16,3 @@ void ezRenderViewContext::UpdateViewport() const
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Declarations);
-

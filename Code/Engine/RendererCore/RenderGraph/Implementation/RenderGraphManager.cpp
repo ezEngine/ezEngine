@@ -635,4 +635,3 @@ void ezRenderGraphManager::PrintBufferResourceHistory(const ezBufferValidationEr
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_RenderGraph_Implementation_RenderGraphManager);
-

@@ -86,4 +86,3 @@ void ezConsoleActions::ClearActions()
 }
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Console_Implementation_ConsoleActions);
-
