@@ -1,9 +1,11 @@
 #include <RendererCore/RendererCorePCH.h>
 
+#include <Core/Utils/Blackboard.h>
 #include <Foundation/IO/TypeVersionContext.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererCore/Pipeline/RendererRegistry.h>
+#include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererFoundation/Profiling/Profiling.h>
 

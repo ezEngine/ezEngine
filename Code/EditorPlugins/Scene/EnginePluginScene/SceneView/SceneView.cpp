@@ -317,7 +317,7 @@ void ezSceneViewContext::MarqueePickObjects(const ezViewMarqueePickingMsgToEngin
     if (pMsg->m_uiWhatToDo == 0xFF)
       return;
 
-    auto pMarqueeActionIDEntry = pBlackboard->GetEntry("EditorPickingPass.MarqueeActionID");
+    auto pMarqueeActionIDEntry = pBlackboard->GetEntry("EditorPickingPass.MarqueeResultActionID");
     if (pMarqueeActionIDEntry == nullptr || pMarqueeActionIDEntry->m_Value.ConvertTo<ezUInt32>() != pMsg->m_uiActionIdentifier)
       return;
 

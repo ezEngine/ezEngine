@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Messages/EventMessageSender.h>
 #include <GameEngine/StateMachine/StateMachineResource.h>
 
 /// \brief Message that is sent by ezStateMachineState_SendMsg once the state is entered.

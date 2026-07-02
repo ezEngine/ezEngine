@@ -375,7 +375,7 @@ void ezPickingRenderPass::ReadBackPropertiesMarqueePick(ezView* pView)
 
   m_MarqueePickPosition0.Set(-1);
   m_MarqueePickPosition1.Set(-1);
-  SetReadBackProperty(pView, "MarqueeActionID", m_uiMarqueeActionID);
+  SetReadBackProperty(pView, "MarqueeResultActionID", m_uiMarqueeActionID);
 
   ezTempHybridArray<ezUInt32, 32> IDs;
   ezVariantArray resArray;
