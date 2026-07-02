@@ -84,3 +84,6 @@ void ezConsoleActions::ClearActions()
 {
   s_ConsoleActions.Clear();
 }
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Console_Implementation_ConsoleActions);
+

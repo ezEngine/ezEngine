@@ -683,4 +683,4 @@ public:
 ezBlackboardComponent_2_3 g_ezBlackboardComponent_2_3;
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Gameplay_Implementation_BlackboardComponent);
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_BlackboardComponent);

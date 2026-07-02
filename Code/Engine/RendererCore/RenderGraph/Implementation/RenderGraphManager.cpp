@@ -632,3 +632,7 @@ void ezRenderGraphManager::PrintBufferResourceHistory(const ezBufferValidationEr
 
   ezLog::Error("=== End Buffer Resource History ===");
 }
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_RenderGraph_Implementation_RenderGraphManager);
+
