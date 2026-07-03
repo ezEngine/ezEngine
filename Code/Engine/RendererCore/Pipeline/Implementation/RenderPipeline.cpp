@@ -865,6 +865,13 @@ void ezRenderPipeline::ExtractData(const ezView& view)
   // Usually clear is not needed, only if the multithreading flag is switched during runtime.
   data.Clear();
 
+  ezRenderWorldExtractionEvent extractionEvent;
+  extractionEvent.m_Type = ezRenderWorldExtractionEvent::Type::BeforeViewExtraction;
+  extractionEvent.m_pView = &view;
+  extractionEvent.m_pExtractedRenderData = &data;
+  extractionEvent.m_uiFrameCounter = ezRenderWorld::GetFrameCounter();
+  ezRenderWorld::s_ExtractionEvent.Broadcast(extractionEvent);
+
   // Store camera and viewdata
   data.SetCamera(*view.GetCamera());
   data.SetViewData(view.GetData());
@@ -899,6 +906,9 @@ void ezRenderPipeline::ExtractData(const ezView& view)
       pExtractor->PostSortAndBatch(view, m_VisibleObjects, data);
     }
   }
+
+  extractionEvent.m_Type = ezRenderWorldExtractionEvent::Type::AfterViewExtraction;
+  ezRenderWorld::s_ExtractionEvent.Broadcast(extractionEvent);
 
   m_CurrentExtractThread = (ezThreadID)0;
 }

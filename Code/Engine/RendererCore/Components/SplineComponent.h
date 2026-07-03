@@ -153,6 +153,8 @@ public:
   /// \brief Access to the underlying spline object
   const ezSpline& GetSpline() const { return m_Spline; }
   void SetSpline(ezSpline&& spline);
+  ezSpline& BeginModifySpline() { return m_Spline; }
+  void EndModifySpline(bool bRecreateDistanceToKeyMapping = true);
 
   /// \brief Returns the underlying mapping of distances to spline keys.
   const ezArrayMap<float, float>& GetDistanceToKeyRemapping() const { return m_DistanceToKey; }

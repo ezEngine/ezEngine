@@ -17,7 +17,8 @@ struct ezRenderWorldExtractionEvent
   };
 
   Type m_Type;
-  ezView* m_pView = nullptr;
+  const ezView* m_pView = nullptr;
+  ezExtractedRenderData* m_pExtractedRenderData = nullptr;
   ezUInt64 m_uiFrameCounter = 0;
 };
 

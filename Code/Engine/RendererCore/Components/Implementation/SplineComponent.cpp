@@ -350,6 +350,18 @@ void ezSplineComponent::SetSpline(ezSpline&& spline)
   SendSplineChangedEvent();
 }
 
+void ezSplineComponent::EndModifySpline(bool bRecreateDistanceToKeyMapping /*= true*/)
+{
+  m_Spline.m_uiChangeCounter++;
+
+  if (bRecreateDistanceToKeyMapping || m_DistanceToKey.IsEmpty())
+  {
+    CreateDistanceToKeyRemapping();
+  }
+
+  SendSplineChangedEvent();
+}
+
 float ezSplineComponent::GetKeyAtDistanceHelper(const ezArrayMap<float, float>& distanceToKey, float fDistance)
 {
   if (distanceToKey.IsEmpty())
