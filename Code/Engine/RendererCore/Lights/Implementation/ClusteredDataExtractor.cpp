@@ -882,7 +882,6 @@ void ezClusteredDataExtractor::AddGpuData(const ezView& view, ezExtractedRenderD
   ref_extractedRenderData.AddTextureBinding("DecalAtlasORMTexture", pDecalAtlas->GetORMTexture());
   ref_extractedRenderData.AddSamplerBinding("DecalAtlasSampler", m_DataGPU.m_hDecalAtlasSampler);
   ref_extractedRenderData.AddBufferBinding("ezClusteredDataConstants", m_DataGPU.m_hConstantBuffer);
-
 }
 
 

@@ -1144,7 +1144,7 @@ void ezRenderPipeline::UpdateRenderContext(ezRenderGraphContext& ctx)
   ezBindGroupBuilder& bindGroup = pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_FRAME);
   for (const ezSamplerBinding& binding : data.GetSamplerBindings())
   {
-      bindGroup.BindSampler(binding.m_sSlotName, binding.m_Sampler.m_hSampler);
+    bindGroup.BindSampler(binding.m_sSlotName, binding.m_Sampler.m_hSampler);
   }
   for (const ezBufferBinding& binding : data.GetBufferBindings())
   {

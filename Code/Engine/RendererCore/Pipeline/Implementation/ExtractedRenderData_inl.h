@@ -64,4 +64,3 @@ void ezExtractedRenderData::AddTextureBinding(const ezTextureBinding& binding)
 {
   m_TextureBindings.PushBack(binding);
 }
-

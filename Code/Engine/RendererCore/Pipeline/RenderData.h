@@ -4,8 +4,8 @@
 #include <Foundation/Math/Vec3.h>
 #include <Foundation/Memory/FrameAllocator.h>
 #include <Foundation/Strings/HashedString.h>
-#include <RendererCore/Pipeline/Declarations.h>
 #include <RendererCore/Declarations.h>
+#include <RendererCore/Pipeline/Declarations.h>
 
 class ezRasterizerObject;
 
