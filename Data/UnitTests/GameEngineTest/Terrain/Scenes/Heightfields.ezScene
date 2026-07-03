@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{10138403709902337594,10715883720332191846}}
-		u4 %Hash{14673215653922005289}
+		u4 %Hash{17426948585897595786}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %PackageDeps
@@ -44,8 +44,8 @@ o
 		s %Collider{"ezTerrainPatchColliderMode::QuarterResolution"}
 		s %HeightImage{"{ c825b772-d9a8-4666-b265-6a2711b17dad }"}
 		Vec2 %HeightImageOffset{f{0,0x0000003F}}
+		f %HeightImageScale{0x00002041}
 		Vec2 %HeightImageSize{f{0x0000003F,0x0000003F}}
-		f %HeightScale{0x00002041}
 		s %Material{"{ 989c1728-7423-471a-a653-9789a0e8cc28 }"}
 		s %Resolution{"ezTerrainResolution::Res256"}
 		f %Size{0x00008042}
@@ -160,8 +160,8 @@ o
 		s %Collider{"ezTerrainPatchColliderMode::QuarterResolution"}
 		s %HeightImage{"{ c825b772-d9a8-4666-b265-6a2711b17dad }"}
 		Vec2 %HeightImageOffset{f{0x0000003F,0x0000003F}}
+		f %HeightImageScale{0x00002041}
 		Vec2 %HeightImageSize{f{0x0000003F,0x0000003F}}
-		f %HeightScale{0x00002041}
 		s %Material{"{ 989c1728-7423-471a-a653-9789a0e8cc28 }"}
 		s %Resolution{"ezTerrainResolution::Res32"}
 		f %Size{0x00008042}
@@ -937,8 +937,8 @@ o
 		s %Collider{"ezTerrainPatchColliderMode::QuarterResolution"}
 		s %HeightImage{"{ c825b772-d9a8-4666-b265-6a2711b17dad }"}
 		Vec2 %HeightImageOffset{f{0x0000003F,0}}
+		f %HeightImageScale{0x00002041}
 		Vec2 %HeightImageSize{f{0x0000003F,0x0000003F}}
-		f %HeightScale{0x00002041}
 		s %Material{"{ 989c1728-7423-471a-a653-9789a0e8cc28 }"}
 		s %Resolution{"ezTerrainResolution::Res64"}
 		f %Size{0x00008042}
@@ -1359,8 +1359,8 @@ o
 		s %Collider{"ezTerrainPatchColliderMode::QuarterResolution"}
 		s %HeightImage{"{ c825b772-d9a8-4666-b265-6a2711b17dad }"}
 		Vec2 %HeightImageOffset{f{0,0}}
+		f %HeightImageScale{0x00002041}
 		Vec2 %HeightImageSize{f{0x0000003F,0x0000003F}}
-		f %HeightScale{0x00002041}
 		s %Material{"{ 989c1728-7423-471a-a653-9789a0e8cc28 }"}
 		s %Resolution{"ezTerrainResolution::Res128"}
 		f %Size{0x00008042}
@@ -1716,7 +1716,7 @@ o
 		s %PluginName{"ezEditorPluginTerrain"}
 		VarArray %Properties{}
 		s %TypeName{"ezTerrainBrushBaseComponent"}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o

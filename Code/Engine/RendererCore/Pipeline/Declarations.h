@@ -4,7 +4,7 @@
 #include <Foundation/Reflection/Reflection.h>
 #include <RendererCore/RendererCoreDLL.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
-
+#include <RendererFoundation/Shader/BindGroup.h>
 class ezCamera;
 class ezExtractedRenderData;
 class ezExtractor;
@@ -125,4 +125,25 @@ struct ezBufferDependency
   ezBitflags<ezGALResourceState> m_RequiredState;
   ezBitflags<ezGALShaderStageFlags> m_Stage;
   ezUInt16 m_uiCategory = 0xFFFF;
+};
+
+struct ezTextureBinding
+{
+  EZ_DECLARE_POD_TYPE();
+  ezTempHashedString m_sSlotName;
+  ezTextureBindGroupItem m_Texture;
+};
+
+struct ezBufferBinding
+{
+  EZ_DECLARE_POD_TYPE();
+  ezTempHashedString m_sSlotName;
+  ezGALBufferBindGroupItem m_Buffer;
+};
+
+struct ezSamplerBinding
+{
+  EZ_DECLARE_POD_TYPE();
+  ezTempHashedString m_sSlotName;
+  ezSamplerBindGroupItem m_Sampler;
 };

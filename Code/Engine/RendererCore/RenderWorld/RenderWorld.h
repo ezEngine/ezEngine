@@ -62,7 +62,7 @@ public:
   /// Caches render data for an object to avoid re-extraction if unchanged.
   ///
   /// Cached render data needs to be deleted/invalidated manually if any data changes. The dependency arrays carry per-category render-graph barrier dependencies that were recorded during extraction and are cached alongside the render data.
-  static void CacheRenderData(const ezView& view, const ezGameObjectHandle& hOwnerObject, const ezComponentHandle& hOwnerComponent, ezUInt16 uiComponentVersion, ezArrayPtr<ezInternal::RenderDataCacheEntry> cacheEntries, ezArrayPtr<const ezTextureDependency> textureDependencies = {}, ezArrayPtr<const ezBufferDependency> bufferDependencies = {});
+  static void CacheRenderData(const ezView& view, const ezGameObjectHandle& hOwnerObject, const ezComponentHandle& hOwnerComponent, ezUInt16 uiComponentVersion, ezArrayPtr<ezInternal::RenderDataCacheEntry> cacheEntries, ezArrayPtr<const ezTextureDependency> textureDependencies = {}, ezArrayPtr<const ezBufferDependency> bufferDependencies = {}, ezArrayPtr<const ezSamplerBinding> samplerBindings = {}, ezArrayPtr<const ezBufferBinding> bufferBindings = {}, ezArrayPtr<const ezTextureBinding> textureBindings = {});
 
   /// Deletes all cached render data globally.
   static void DeleteAllCachedRenderData();
@@ -80,7 +80,7 @@ public:
   static void ResetRenderDataCache(ezView& ref_view);
 
   /// Retrieves cached render data if available and still valid.
-  static ezArrayPtr<const ezInternal::RenderDataCacheEntry> GetCachedRenderData(const ezView& view, const ezGameObjectHandle& hOwner, ezUInt16 uiComponentVersion, ezArrayPtr<const ezTextureDependency>& out_textureDependencies, ezArrayPtr<const ezBufferDependency>& out_bufferDependencies);
+  static ezArrayPtr<const ezInternal::RenderDataCacheEntry> GetCachedRenderData(const ezView& view, const ezGameObjectHandle& hOwner, ezUInt16 uiComponentVersion, ezArrayPtr<const ezTextureDependency>& out_textureDependencies, ezArrayPtr<const ezBufferDependency>& out_bufferDependencies, ezArrayPtr<const ezSamplerBinding>& out_samplerBindings, ezArrayPtr<const ezBufferBinding>& out_bufferBindings, ezArrayPtr<const ezTextureBinding>& out_textureBindings);
 
   static void AddViewToRender(const ezViewHandle& hView);
 

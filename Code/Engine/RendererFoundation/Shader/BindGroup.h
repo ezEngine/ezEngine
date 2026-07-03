@@ -63,7 +63,9 @@ struct ezGALBindGroupItemFlags
     StorageType Sampler : 1;
     StorageType Texture : 1;
     StorageType Buffer : 1;
-    StorageType Fallback : 1;
+    StorageType EmptyBinding : 1;
+    StorageType FallbackResource : 1;
+    StorageType PartiallyLoaded : 1;
   };
 };
 EZ_DECLARE_FLAGS_OPERATORS(ezGALBindGroupItemFlags);

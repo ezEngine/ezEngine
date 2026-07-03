@@ -412,6 +412,12 @@ void ezGALDevice::UpdateTextureQuality()
       RecreateSamplerStatePlatform(it.Value());
     }
   }
+
+  // Sampler states are not ref counted and expected to exist forever. If changed, anything referencing samplers must be destroyed, Right now, this is only bind groups as the ezGALImmutableSamplers assert that no quality slot is set on registration.
+  for (auto it = m_BindGroups.GetIterator(); it.IsValid(); ++it)
+  {
+    RecreateBindGroupPlatform(it.Value());
+  }
 }
 
 ezGALBlendStateHandle ezGALDevice::CreateBlendState(const ezGALBlendStateCreationDescription& desc)

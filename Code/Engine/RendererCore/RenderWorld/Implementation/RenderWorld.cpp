@@ -106,6 +106,9 @@ namespace ezInternal
     {
       ezSmallArray<ezTextureDependency, 4> m_TextureDependencies;
       ezSmallArray<ezBufferDependency, 4> m_BufferDependencies;
+      ezSmallArray<ezSamplerBinding, 2> m_SamplerBindings;
+      ezSmallArray<ezBufferBinding, 2> m_BufferBindings;
+      ezSmallArray<ezTextureBinding, 2> m_TextureBindings;
       ezUInt16 m_uiVersion = 0;
     };
 
@@ -124,6 +127,9 @@ namespace ezInternal
       PerObjectCache m_Cache;
       ezSmallArray<ezTextureDependency, 2> m_TextureDependencies;
       ezSmallArray<ezBufferDependency, 2> m_BufferDependencies;
+      ezSmallArray<ezSamplerBinding, 2> m_SamplerBindings;
+      ezSmallArray<ezBufferBinding, 2> m_BufferBindings;
+      ezSmallArray<ezTextureBinding, 2> m_TextureBindings;
     };
 
     ezStaticArray<NewEntryPerComponent, MaxNumNewCacheEntries> m_NewEntriesPerComponent;
@@ -272,7 +278,7 @@ bool ezRenderWorld::IsRenderingScheduled()
   return !s_MainViews.IsEmpty() || !s_FilteredRenderPipelines[GetDataIndexForRendering()].IsEmpty();
 }
 
-void ezRenderWorld::CacheRenderData(const ezView& view, const ezGameObjectHandle& hOwnerObject, const ezComponentHandle& hOwnerComponent, ezUInt16 uiComponentVersion, ezArrayPtr<ezInternal::RenderDataCacheEntry> cacheEntries, ezArrayPtr<const ezTextureDependency> textureDependencies, ezArrayPtr<const ezBufferDependency> bufferDependencies)
+void ezRenderWorld::CacheRenderData(const ezView& view, const ezGameObjectHandle& hOwnerObject, const ezComponentHandle& hOwnerComponent, ezUInt16 uiComponentVersion, ezArrayPtr<ezInternal::RenderDataCacheEntry> cacheEntries, ezArrayPtr<const ezTextureDependency> textureDependencies, ezArrayPtr<const ezBufferDependency> bufferDependencies, ezArrayPtr<const ezSamplerBinding> samplerBindings, ezArrayPtr<const ezBufferBinding> bufferBindings, ezArrayPtr<const ezTextureBinding> textureBindings)
 {
   if (cvar_RenderingCachingStaticObjects)
   {
@@ -292,6 +298,9 @@ void ezRenderWorld::CacheRenderData(const ezView& view, const ezGameObjectHandle
       newEntry.m_Cache.m_uiVersion = uiComponentVersion;
       newEntry.m_TextureDependencies = textureDependencies;
       newEntry.m_BufferDependencies = bufferDependencies;
+      newEntry.m_SamplerBindings = samplerBindings;
+      newEntry.m_BufferBindings = bufferBindings;
+      newEntry.m_TextureBindings = textureBindings;
     }
   }
 }
@@ -401,7 +410,7 @@ void ezRenderWorld::DeleteCachedRenderDataForObjectRecursive(const ezGameObject*
   }
 }
 
-ezArrayPtr<const ezInternal::RenderDataCacheEntry> ezRenderWorld::GetCachedRenderData(const ezView& view, const ezGameObjectHandle& hOwner, ezUInt16 uiComponentVersion, ezArrayPtr<const ezTextureDependency>& out_textureDependencies, ezArrayPtr<const ezBufferDependency>& out_bufferDependencies)
+ezArrayPtr<const ezInternal::RenderDataCacheEntry> ezRenderWorld::GetCachedRenderData(const ezView& view, const ezGameObjectHandle& hOwner, ezUInt16 uiComponentVersion, ezArrayPtr<const ezTextureDependency>& out_textureDependencies, ezArrayPtr<const ezBufferDependency>& out_bufferDependencies, ezArrayPtr<const ezSamplerBinding>& out_samplerBindings, ezArrayPtr<const ezBufferBinding>& out_bufferBindings, ezArrayPtr<const ezTextureBinding>& out_textureBindings)
 {
   if (cvar_RenderingCachingStaticObjects)
   {
@@ -422,6 +431,9 @@ ezArrayPtr<const ezInternal::RenderDataCacheEntry> ezRenderWorld::GetCachedRende
           {
             out_textureDependencies = it.Value().m_TextureDependencies;
             out_bufferDependencies = it.Value().m_BufferDependencies;
+            out_samplerBindings = it.Value().m_SamplerBindings;
+            out_bufferBindings = it.Value().m_BufferBindings;
+            out_textureBindings = it.Value().m_TextureBindings;
           }
         }
 
@@ -802,7 +814,7 @@ void ezRenderWorld::UpdateRenderDataCache()
       // add entry for this view
       const ezUInt32 uiCacheIndex = newEntries.m_hOwnerObject.GetInternalID().m_InstanceIndex;
       perObjectCaches.EnsureCount(uiCacheIndex + 1);
-      const bool bHasDependencies = !newEntries.m_TextureDependencies.IsEmpty() || !newEntries.m_BufferDependencies.IsEmpty();
+      const bool bHasDependencies = !newEntries.m_TextureDependencies.IsEmpty() || !newEntries.m_BufferDependencies.IsEmpty() || !newEntries.m_SamplerBindings.IsEmpty() || !newEntries.m_BufferBindings.IsEmpty() || !newEntries.m_TextureBindings.IsEmpty();
       auto& perObjectCache = perObjectCaches[uiCacheIndex];
       perObjectCache.m_bHasDependencies = bHasDependencies;
       if (perObjectCache.m_uiVersion != newEntries.m_Cache.m_uiVersion)
@@ -827,6 +839,9 @@ void ezRenderWorld::UpdateRenderDataCache()
         {
           perObjectDependenciesCache.m_TextureDependencies.Clear();
           perObjectDependenciesCache.m_BufferDependencies.Clear();
+          perObjectDependenciesCache.m_SamplerBindings.Clear();
+          perObjectDependenciesCache.m_BufferBindings.Clear();
+          perObjectDependenciesCache.m_TextureBindings.Clear();
           perObjectDependenciesCache.m_uiVersion = newEntries.m_Cache.m_uiVersion;
         }
 
@@ -838,6 +853,21 @@ void ezRenderWorld::UpdateRenderDataCache()
         for (const ezBufferDependency& dep : newEntries.m_BufferDependencies)
         {
           perObjectDependenciesCache.m_BufferDependencies.PushBack(dep);
+        }
+
+        for (const ezSamplerBinding& binding : newEntries.m_SamplerBindings)
+        {
+          perObjectDependenciesCache.m_SamplerBindings.PushBack(binding);
+        }
+
+        for (const ezBufferBinding& binding : newEntries.m_BufferBindings)
+        {
+          perObjectDependenciesCache.m_BufferBindings.PushBack(binding);
+        }
+
+        for (const ezTextureBinding& binding : newEntries.m_TextureBindings)
+        {
+          perObjectDependenciesCache.m_TextureBindings.PushBack(binding);
         }
       }
 

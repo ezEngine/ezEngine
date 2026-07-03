@@ -356,7 +356,7 @@ struct ezGALResourceState
     StorageType CopyDestination : 1;    // 19
     StorageType ResolveDestination : 1; // 20
 
-    StorageType _Padding1 : 8;          // 21-27
+    StorageType _Padding1 : 7;          // 21-27
 
     StorageType Discard : 1;            // 28
 

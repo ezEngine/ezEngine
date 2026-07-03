@@ -240,6 +240,7 @@ vk::Result ezGALDeviceVulkan::SelectInstanceExtensions(ezDynamicArray<ezString>&
   AddExtIfSupported(VK_KHR_EXTERNAL_SEMAPHORE_CAPABILITIES_EXTENSION_NAME, m_Extensions.m_bExternalSemaphoreCapabilities);
   AddExtIfSupported(VK_KHR_EXTERNAL_FENCE_CAPABILITIES_EXTENSION_NAME, m_Extensions.m_bExternalFenceCapabilities);
   AddExtIfSupported(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME, m_Extensions.m_bPhysicalDeviceProperties2);
+  AddExtIfSupported(VK_KHR_GET_SURFACE_CAPABILITIES_2_EXTENSION_NAME, m_Extensions.m_bSurfaceCapabilities2);
   AddExtIfSupported(VK_KHR_SURFACE_MAINTENANCE_1_EXTENSION_NAME, m_Extensions.m_bSurfaceMaintenance1);
 
   // Allow OpenXR to extend instance extensions (for vulkan_enable v1)
@@ -352,8 +353,14 @@ vk::Result ezGALDeviceVulkan::SelectDeviceExtensions(vk::DeviceCreateInfo& devic
     m_Extensions.m_synchronization2Features.synchronization2 = true;
   }
 
-  AddExtIfSupported(VK_KHR_SWAPCHAIN_MAINTENANCE_1_EXTENSION_NAME, m_Extensions.m_bSwapchainMaintenance1);
 
+  AddExtIfSupported(VK_KHR_SWAPCHAIN_MAINTENANCE_1_EXTENSION_NAME, m_Extensions.m_bSwapchainMaintenance1);
+  if (m_Extensions.m_bSwapchainMaintenance1)
+  {
+    m_Extensions.m_swapchainMaintenance1Features.pNext = const_cast<void*>(deviceCreateInfo.pNext);
+    deviceCreateInfo.pNext = &m_Extensions.m_swapchainMaintenance1Features;
+    m_Extensions.m_swapchainMaintenance1Features.swapchainMaintenance1 = true;
+  }
   AddExtIfSupported(VK_KHR_EXTERNAL_MEMORY_EXTENSION_NAME, m_Extensions.m_bExternalMemory);
   AddExtIfSupported(VK_KHR_EXTERNAL_SEMAPHORE_EXTENSION_NAME, m_Extensions.m_bExternalSemaphore);
 #if EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
@@ -1163,6 +1170,13 @@ void ezGALDeviceVulkan::DestroyBindGroupPlatform(ezGALBindGroup* pBindGroup)
   ezGALBindGroupVulkan* pVulkanBindGroup = static_cast<ezGALBindGroupVulkan*>(pBindGroup);
   pVulkanBindGroup->DeInitPlatform(this).IgnoreResult();
   EZ_DELETE(&m_Allocator, pVulkanBindGroup);
+}
+
+void ezGALDeviceVulkan::RecreateBindGroupPlatform(ezGALBindGroup* pBindGroup)
+{
+  ezGALBindGroupVulkan* pVulkanBindGroup = static_cast<ezGALBindGroupVulkan*>(pBindGroup);
+  pVulkanBindGroup->DeInitPlatform(this).AssertSuccess();
+  pVulkanBindGroup->InitPlatform(this).AssertSuccess();
 }
 
 ezGALPipelineLayout* ezGALDeviceVulkan::CreatePipelineLayoutPlatform(const ezGALPipelineLayoutCreationDescription& Description)

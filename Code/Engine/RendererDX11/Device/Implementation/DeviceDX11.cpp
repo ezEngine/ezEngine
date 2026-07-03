@@ -519,6 +519,10 @@ ezGALBindGroup* ezGALDeviceDX11::CreateBindGroupPlatform(const ezGALBindGroupCre
   }
 }
 
+void ezGALDeviceDX11::RecreateBindGroupPlatform(ezGALBindGroup* pBindGroup)
+{
+}
+
 void ezGALDeviceDX11::DestroyBindGroupPlatform(ezGALBindGroup* pBindGroup)
 {
   ezGALBindGroupDX11* pDX11BindGroup = static_cast<ezGALBindGroupDX11*>(pBindGroup);

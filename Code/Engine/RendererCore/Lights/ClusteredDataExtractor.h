@@ -53,6 +53,36 @@ public:
   ezColorGammaUB m_LightShaftsTintColor = ezColor::White;
 };
 
+/// GPU-side data for clustered rendering.
+///
+/// Contains GPU buffers for lights, decals, probes, cluster assignments, and related resources.
+/// Uploaded from ezClusteredDataCPU by the data provider and bound to shaders for rendering.
+struct EZ_RENDERERCORE_DLL ezClusteredDataGPU
+{
+  EZ_DISALLOW_COPY_AND_ASSIGN(ezClusteredDataGPU);
+
+public:
+  ezClusteredDataGPU();
+  ~ezClusteredDataGPU();
+
+  ezUInt32 m_uiSkyIrradianceIndex = 0;
+  ezEnum<ezCameraUsageHint> m_cameraUsageHint = ezCameraUsageHint::Default;
+
+  ezGALBufferHandle m_hLightDataBuffer;
+  ezGALBufferHandle m_hDecalDataBuffer;
+  ezGALBufferHandle m_hReflectionProbeDataBuffer;
+  ezGALBufferHandle m_hClusterDataBuffer;
+  ezGALBufferHandle m_hClusterItemBuffer;
+
+  ezGALBufferHandle m_hConstantBuffer;
+
+  ezGALSamplerStateHandle m_hShadowSampler;
+
+  ezDecalAtlasResourceHandle m_hDecalAtlas;
+  ezGALSamplerStateHandle m_hDecalAtlasSampler;
+};
+
+
 /// Extracts lights, decals, and reflection probes into a clustered data structure.
 ///
 /// Divides the view frustum into a 3D grid of clusters and assigns visible lights, decals,
@@ -74,6 +104,8 @@ public:
 
 private:
   void FillItemListAndClusterData(ezClusteredDataCPU* pData);
+  void UpdateGpuData(const ezView& view, const ezClusteredDataCPU* pData);
+  void AddGpuData(const ezView& view, ezExtractedRenderData& ref_extractedRenderData);
 
   template <ezUInt32 MaxData>
   struct TempCluster
@@ -95,4 +127,6 @@ private:
   ezDynamicArray<ezSimdBSphere, ezAlignedAllocatorWrapper> m_ClusterBoundingSpheresRightEye;
   ezMat4 m_mProjection = ezMat4::MakeZero();
   ezMat4 m_mProjectionRightEye = ezMat4::MakeZero();
+
+  ezClusteredDataGPU m_DataGPU;
 };

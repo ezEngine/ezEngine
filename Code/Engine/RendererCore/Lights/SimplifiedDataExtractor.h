@@ -18,6 +18,23 @@ public:
   ezEnum<ezCameraUsageHint> m_cameraUsageHint = ezCameraUsageHint::Default;
 };
 
+/// Minimal GPU-side lighting data for simplified rendering.
+///
+/// Contains only essential lighting data uploaded to the GPU. Used with ezSimplifiedDataExtractor
+/// for rendering paths that don't require full clustered lighting.
+struct EZ_RENDERERCORE_DLL ezSimplifiedDataGPU
+{
+  EZ_DISALLOW_COPY_AND_ASSIGN(ezSimplifiedDataGPU);
+
+public:
+  ezSimplifiedDataGPU();
+  ~ezSimplifiedDataGPU();
+
+  ezUInt32 m_uiSkyIrradianceIndex = 0;
+  ezEnum<ezCameraUsageHint> m_cameraUsageHint = ezCameraUsageHint::Default;
+  ezGALBufferHandle m_hConstantBuffer;
+};
+
 /// Extracts minimal lighting data for simplified rendering.
 ///
 /// Alternative to ezClusteredDataExtractor for cases where full clustered rendering
@@ -36,4 +53,11 @@ public:
 
   virtual ezResult Serialize(ezStreamWriter& inout_stream) const override;
   virtual ezResult Deserialize(ezStreamReader& inout_stream) override;
+
+private:
+  void UpdateGpuData(const ezView& view, const ezSimplifiedDataCPU* pData);
+  void AddGpuData(const ezView& view, ezExtractedRenderData& ref_extractedRenderData);
+
+private:
+  ezSimplifiedDataGPU m_DataGPU;
 };

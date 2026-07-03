@@ -415,6 +415,8 @@ protected:
   // Bind group platform functions
   virtual ezGALBindGroup* CreateBindGroupPlatform(const ezGALBindGroupCreationDescription& Description) = 0;
   virtual void DestroyBindGroupPlatform(ezGALBindGroup* pBindGroup) = 0;
+  /// \brief Destroys and reinitializes a bind group in-place.
+  virtual void RecreateBindGroupPlatform(ezGALBindGroup* pBindGroup) = 0;
 
   virtual ezGALPipelineLayout* CreatePipelineLayoutPlatform(const ezGALPipelineLayoutCreationDescription& Description) = 0;
   virtual void DestroyPipelineLayoutPlatform(ezGALPipelineLayout* pPipelineLayout) = 0;

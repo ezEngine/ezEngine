@@ -2,8 +2,6 @@
 
 #include <Foundation/IO/TypeVersionContext.h>
 #include <RendererCore/Debug/DebugRenderer.h>
-#include <RendererCore/Lights/ClusteredDataProvider.h>
-#include <RendererCore/Lights/SimplifiedDataProvider.h>
 #include <RendererCore/Pipeline/Passes/ForwardRenderPass.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/RenderContext/RenderContext.h>
@@ -41,6 +39,8 @@ ezForwardRenderPass::~ezForwardRenderPass() = default;
 
 ezStatus ezForwardRenderPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
+  EZ_IGNORE_UNUSED(viewData);
+
   ezRenderGraphTextureHandle hColor = inputs[m_PinColor.m_uiInputIndex].m_TextureHandle;
   if (hColor.IsInvalidated())
     return ezStatus(ezFmt("Color: Not connected"));
@@ -56,14 +56,12 @@ ezStatus ezForwardRenderPass::AddRenderPasses(const ezViewData& viewData, const 
   pass.AddColorTarget(hColor);
   pass.AddDepthStencilTarget(hDepthStencil);
   pass.SetStereoscopic(camera.IsStereoscopic());
-  ezRenderPipelinePass::SetupResourceDependencies(viewData, ref_graph, pass, m_ShadingQuality);
   DeclareRenderObjectDependencies(ref_graph, pass);
   pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
     {
     const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
     renderViewContext.UpdateViewport();
     SetupPermutationVars(renderViewContext);
-    ezRenderPipelinePass::BindDataProviderResources(renderViewContext, m_ShadingQuality);
     RenderObjects(renderViewContext); });
 
   return EZ_SUCCESS;

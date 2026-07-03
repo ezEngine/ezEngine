@@ -182,6 +182,21 @@ void ezExtractor::ExtractRenderData(const ezView& view, const ezGameObject* pObj
                            : ezRenderData::ResolveCategory(ezRenderData::Category(dep.m_uiCategory), bDynamic).m_uiValue;
       extractedRenderData.AddDependency(dep);
     }
+
+    for (const ezSamplerBinding& binding : msg.m_SamplerBindings)
+    {
+      extractedRenderData.AddSamplerBinding(binding);
+    }
+
+    for (const ezBufferBinding& binding : msg.m_BufferBindings)
+    {
+      extractedRenderData.AddBufferBinding(binding);
+    }
+
+    for (const ezTextureBinding& binding : msg.m_TextureBindings)
+    {
+      extractedRenderData.AddTextureBinding(binding);
+    }
   };
 
   if (pObject->IsStatic())
@@ -190,7 +205,10 @@ void ezExtractor::ExtractRenderData(const ezView& view, const ezGameObject* pObj
 
     ezArrayPtr<const ezTextureDependency> cachedTextureDependencies;
     ezArrayPtr<const ezBufferDependency> cachedBufferDependencies;
-    auto cachedRenderData = ezRenderWorld::GetCachedRenderData(view, pObject->GetHandle(), uiComponentVersion, cachedTextureDependencies, cachedBufferDependencies);
+    ezArrayPtr<const ezSamplerBinding> cachedSamplerBindings;
+    ezArrayPtr<const ezBufferBinding> cachedBufferBindings;
+    ezArrayPtr<const ezTextureBinding> cachedTextureBindings;
+    auto cachedRenderData = ezRenderWorld::GetCachedRenderData(view, pObject->GetHandle(), uiComponentVersion, cachedTextureDependencies, cachedBufferDependencies, cachedSamplerBindings, cachedBufferBindings, cachedTextureBindings);
 
     // Apply per-object cached dependencies once. On cache-hit frames SendMessage is skipped for the owning components, so their dependencies must come from the cache here. On the frame the data is cached the dependencies are also applied through AddDependenciesFromMessage, but the per-object cache is still empty at that point, so there is no duplication.
     {
@@ -206,6 +224,21 @@ void ezExtractor::ExtractRenderData(const ezView& view, const ezGameObject* pObj
         if (msg.m_OverrideCategory != ezInvalidRenderDataCategory)
           dep.m_uiCategory = msg.m_OverrideCategory.m_uiValue;
         extractedRenderData.AddDependency(dep);
+      }
+
+      for (const ezSamplerBinding& binding : cachedSamplerBindings)
+      {
+        extractedRenderData.AddSamplerBinding(binding);
+      }
+
+      for (const ezBufferBinding& binding : cachedBufferBindings)
+      {
+        extractedRenderData.AddBufferBinding(binding);
+      }
+
+      for (const ezTextureBinding& binding : cachedTextureBindings)
+      {
+        extractedRenderData.AddTextureBinding(binding);
       }
     }
 
@@ -253,6 +286,9 @@ void ezExtractor::ExtractRenderData(const ezView& view, const ezGameObject* pObj
       msg.m_ExtractedRenderData.Clear();
       msg.m_TextureDependencies.Clear();
       msg.m_BufferDependencies.Clear();
+      msg.m_SamplerBindings.Clear();
+      msg.m_BufferBindings.Clear();
+      msg.m_TextureBindings.Clear();
       msg.m_uiNumCacheIfStatic = 0;
 
       if (pComponent->SendMessage(msg))
@@ -282,7 +318,7 @@ void ezExtractor::ExtractRenderData(const ezView& view, const ezGameObject* pObj
             dep.m_uiCategory = ezRenderData::ResolveCategory(ezRenderData::Category(dep.m_uiCategory), false).m_uiValue;
           }
 
-          ezRenderWorld::CacheRenderData(view, pObject->GetHandle(), pComponent->GetHandle(), uiComponentVersion, newCacheEntries, msg.m_TextureDependencies, msg.m_BufferDependencies);
+          ezRenderWorld::CacheRenderData(view, pObject->GetHandle(), pComponent->GetHandle(), uiComponentVersion, newCacheEntries, msg.m_TextureDependencies, msg.m_BufferDependencies, msg.m_SamplerBindings, msg.m_BufferBindings, msg.m_TextureBindings);
         }
 
         AddRenderDataFromMessage(msg);
@@ -307,6 +343,9 @@ void ezExtractor::ExtractRenderData(const ezView& view, const ezGameObject* pObj
     msg.m_ExtractedRenderData.Clear();
     msg.m_TextureDependencies.Clear();
     msg.m_BufferDependencies.Clear();
+    msg.m_SamplerBindings.Clear();
+    msg.m_BufferBindings.Clear();
+    msg.m_TextureBindings.Clear();
     pObject->SendMessage(msg);
 
     AddRenderDataFromMessage(msg);

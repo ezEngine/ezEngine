@@ -45,6 +45,7 @@ void ezGALImmutableSamplers::OnEngineShutdown()
 
 ezResult ezGALImmutableSamplers::RegisterImmutableSampler(ezHashedString sSamplerName, const ezGALSamplerStateCreationDescription& desc)
 {
+  EZ_ASSERT_ALWAYS(desc.m_useTextureQualitySlot == ezGALTextureQualitySlot::None, "Immutable samplers cannot support dynamic quality levels");
   EZ_ASSERT_DEBUG(!s_bInitialized, "Registering immutable samplers is only allowed at sub-system startup");
   if (s_ImmutableSamplerDesc.Contains(sSamplerName))
     return EZ_FAILURE;

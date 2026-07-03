@@ -1140,6 +1140,21 @@ void ezRenderPipeline::UpdateRenderContext(ezRenderGraphContext& ctx)
     pRenderContext->SetShaderPermutationVariable(var.m_sName, var.m_sValue);
   }
 
+  // Apply bindings
+  ezBindGroupBuilder& bindGroup = pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_FRAME);
+  for (const ezSamplerBinding& binding : data.GetSamplerBindings())
+  {
+      bindGroup.BindSampler(binding.m_sSlotName, binding.m_Sampler.m_hSampler);
+  }
+  for (const ezBufferBinding& binding : data.GetBufferBindings())
+  {
+    bindGroup.BindBuffer(binding.m_sSlotName, binding.m_Buffer.m_hBuffer, binding.m_Buffer.m_BufferRange, binding.m_Buffer.m_OverrideTexelBufferFormat);
+  }
+  for (const ezTextureBinding& binding : data.GetTextureBindings())
+  {
+    bindGroup.BindTexture(binding.m_sSlotName, binding.m_Texture.m_hTexture, binding.m_Texture.m_TextureRange, binding.m_Texture.m_OverrideViewFormat, binding.m_Texture.m_OverrideViewType);
+  }
+
   {
     ezRenderWorldRenderEvent renderEvent;
     renderEvent.m_Type = ezRenderWorldRenderEvent::Type::BeforePipelineExecution;
