@@ -1,7 +1,6 @@
 #include <EditorEngineProcessFramework/EditorEngineProcessFrameworkPCH.h>
 
 #include <EditorEngineProcessFramework/PickingRenderPass/PickingRenderPass.h>
-#include <RendererCore/Lights/ClusteredDataProvider.h>
 #include <RendererCore/Pipeline/SortingFunctions.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
@@ -86,7 +85,6 @@ ezStatus ezPickingRenderPass::AddRenderPasses(const ezViewData& viewData, const 
     pass.SetClearColor(0);
     pass.SetClearDepth().SetClearStencil();
     pass.HasSideEffects();
-    ezClusteredDataGPU::AddReadDependencies(ref_graph, pass, viewData.m_uiSkyIrradianceIndex, viewData.m_CameraUsageHint);
 
     DeclareRendererDependenciesForCategory(s_LitOpaqueWithoutSelection, ref_graph, pass);
     DeclareRendererDependenciesForCategory(s_LitMaskedWithoutSelection, ref_graph, pass);
@@ -116,10 +114,6 @@ ezStatus ezPickingRenderPass::AddRenderPasses(const ezViewData& viewData, const 
           renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_PICKING_WIREFRAME");
         else
           renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_PICKING");
-
-        // Setup clustered data
-        auto pClusteredData = GetPipeline()->GetFrameDataProvider<ezClusteredDataProvider>()->GetData(renderViewContext);
-        pClusteredData->BindResources(renderViewContext.m_pRenderContext);
 
         RenderDataWithCategory(renderViewContext, s_LitOpaqueWithoutSelection);
         RenderDataWithCategory(renderViewContext, s_LitMaskedWithoutSelection);

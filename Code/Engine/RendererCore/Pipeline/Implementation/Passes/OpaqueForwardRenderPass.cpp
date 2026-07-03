@@ -31,6 +31,8 @@ ezOpaqueForwardRenderPass::~ezOpaqueForwardRenderPass() = default;
 
 ezStatus ezOpaqueForwardRenderPass::AddRenderPasses(const ezViewData& viewData, const ezCamera& camera, ezRenderGraph& ref_graph, const ezArrayPtr<const ezRenderPipelinePinConnection> inputs, ezArrayPtr<ezRenderPipelinePinConnection> outputs)
 {
+  EZ_IGNORE_UNUSED(viewData);
+
   ezRenderGraphTextureHandle hColor = inputs[m_PinColor.m_uiInputIndex].m_TextureHandle;
   if (hColor.IsInvalidated())
     return ezStatus(ezFmt("Color: Not connected"));
@@ -79,14 +81,12 @@ ezStatus ezOpaqueForwardRenderPass::AddRenderPasses(const ezViewData& viewData, 
   if (!hShadowMask.IsInvalidated())
     pass.ReadTexture(hShadowMask, {}, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::PixelShader);
   pass.SetStereoscopic(camera.IsStereoscopic());
-  ezRenderPipelinePass::SetupResourceDependencies(viewData, ref_graph, pass, m_ShadingQuality);
   DeclareRenderObjectDependencies(ref_graph, pass);
   pass.SetExecuteCallback([=](const ezRenderGraphContext& ctx)
     {
       const ezRenderViewContext& renderViewContext = *ctx.GetUserData<ezRenderViewContext>();
       renderViewContext.UpdateViewport();
       SetupPermutationVars(renderViewContext);
-      ezRenderPipelinePass::BindDataProviderResources(renderViewContext, m_ShadingQuality);
 
       // Bind SSAO texture
       ezBindGroupBuilder& bindGroupRenderPass = renderViewContext.m_pRenderContext->GetBindGroup(EZ_GAL_BIND_GROUP_RENDER_PASS);

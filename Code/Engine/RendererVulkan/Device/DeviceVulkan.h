@@ -148,7 +148,9 @@ public:
 
     bool m_bPhysicalDeviceProperties2 = false;
 
+    bool m_bSurfaceCapabilities2 = false;
     bool m_bSurfaceMaintenance1 = false;
+    vk::PhysicalDeviceSwapchainMaintenance1FeaturesKHR m_swapchainMaintenance1Features;
     bool m_bSwapchainMaintenance1 = false;
   };
 
@@ -336,6 +338,7 @@ protected:
 
   virtual ezGALBindGroup* CreateBindGroupPlatform(const ezGALBindGroupCreationDescription& Description) override;
   virtual void DestroyBindGroupPlatform(ezGALBindGroup* pBindGroup) override;
+  virtual void RecreateBindGroupPlatform(ezGALBindGroup* pBindGroup) override;
 
   virtual ezGALPipelineLayout* CreatePipelineLayoutPlatform(const ezGALPipelineLayoutCreationDescription& Description) override;
   virtual void DestroyPipelineLayoutPlatform(ezGALPipelineLayout* pPipelineLayout) override;

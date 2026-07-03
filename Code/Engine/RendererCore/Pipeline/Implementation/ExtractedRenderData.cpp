@@ -2,6 +2,9 @@
 
 #include <Foundation/Profiling/Profiling.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
+#include <RendererCore/Textures/Texture2DResource.h>
+#include <RendererCore/Textures/Texture3DResource.h>
+#include <RendererCore/Textures/TextureCubeResource.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/Buffer.h>
 
@@ -17,32 +20,67 @@ ezExtractedRenderData::~ezExtractedRenderData()
   }
 }
 
-void ezExtractedRenderData::AddRenderData(const ezRenderData* pRenderData, ezRenderData::Category category)
+void ezExtractedRenderData::AddSamplerBinding(ezTempHashedString sSlotName, ezGALSamplerStateHandle hSampler)
 {
-  m_DataPerCategory.EnsureCount(category.m_uiValue + 1);
-
-  auto& sortableRenderData = m_DataPerCategory[category.m_uiValue].m_SortableRenderData.ExpandAndGetRef();
-  sortableRenderData.m_pRenderData = pRenderData;
-  sortableRenderData.m_uiSortingKey = pRenderData->GetFinalSortingKey(category, m_Camera);
+  if (hSampler.IsInvalidated())
+    return;
+  ezSamplerBinding& sampler = m_SamplerBindings.ExpandAndGetRef();
+  sampler.m_sSlotName = sSlotName;
+  sampler.m_Sampler.m_hSampler = hSampler;
 }
 
-void ezExtractedRenderData::AddFrameData(const ezRenderData* pFrameData)
+void ezExtractedRenderData::AddBufferBinding(ezTempHashedString sSlotName, ezGALBufferHandle hBuffer, ezGALBufferRange bufferRange, ezEnum<ezGALResourceFormat> overrideTexelBufferFormat)
 {
-  m_FrameData.PushBack(pFrameData);
+  if (hBuffer.IsInvalidated())
+    return;
+  ezBufferBinding& buffer = m_BufferBindings.ExpandAndGetRef();
+  buffer.m_sSlotName = sSlotName;
+  buffer.m_Buffer.m_hBuffer = hBuffer;
+  buffer.m_Buffer.m_BufferRange = bufferRange;
+  buffer.m_Buffer.m_OverrideTexelBufferFormat = overrideTexelBufferFormat;
 }
 
-void ezExtractedRenderData::AddDependency(const ezTextureDependency& dependency)
+
+void ezExtractedRenderData::AddTextureBinding(ezTempHashedString sSlotName, ezGALTextureHandle hTexture, ezGALTextureRange textureRange, ezEnum<ezGALResourceFormat> overrideViewFormat, ezEnum<ezGALTextureType> overrideViewType)
 {
-  EZ_ASSERT_DEBUG(dependency.m_uiCategory != ezInvalidRenderDataCategory.m_uiValue, "Per-category texture dependencies require a valid render data category. Use AddViewDependency for view-level dependencies.");
-  m_DataPerCategory.EnsureCount(dependency.m_uiCategory + 1);
-  m_DataPerCategory[dependency.m_uiCategory].m_TextureDependencies.PushBack(dependency);
+  if (hTexture.IsInvalidated())
+    return;
+  ezTextureBinding& texture = m_TextureBindings.ExpandAndGetRef();
+  texture.m_sSlotName = sSlotName;
+  texture.m_Texture.m_hTexture = hTexture;
+  texture.m_Texture.m_TextureRange = textureRange;
+  texture.m_Texture.m_OverrideViewFormat = overrideViewFormat;
+  texture.m_Texture.m_OverrideViewType = overrideViewType;
 }
 
-void ezExtractedRenderData::AddDependency(const ezBufferDependency& dependency)
+void ezExtractedRenderData::AddTextureBinding(ezTempHashedString sSlotName, const ezTexture2DResourceHandle& hTexture, ezResourceAcquireMode acquireMode, ezGALTextureRange textureRange, ezEnum<ezGALResourceFormat> overrideViewFormat, ezEnum<ezGALTextureType> overrideViewType)
 {
-  EZ_ASSERT_DEBUG(dependency.m_uiCategory != ezInvalidRenderDataCategory.m_uiValue, "Per-category buffer dependencies require a valid render data category. Use AddViewDependency for view-level dependencies.");
-  m_DataPerCategory.EnsureCount(dependency.m_uiCategory + 1);
-  m_DataPerCategory[dependency.m_uiCategory].m_BufferDependencies.PushBack(dependency);
+  if (hTexture.IsValid())
+  {
+    ezResourceLock<ezTexture2DResource> pTexture(hTexture, acquireMode);
+    AddTextureBinding(sSlotName, pTexture->GetGALTexture(), textureRange, overrideViewFormat, overrideViewType);
+    AddSamplerBinding(sSlotName, pTexture->GetGALSamplerState());
+  }
+}
+
+void ezExtractedRenderData::AddTextureBinding(ezTempHashedString sSlotName, const ezTexture3DResourceHandle& hTexture, ezResourceAcquireMode acquireMode, ezGALTextureRange textureRange, ezEnum<ezGALResourceFormat> overrideViewFormat, ezEnum<ezGALTextureType> overrideViewType)
+{
+  if (hTexture.IsValid())
+  {
+    ezResourceLock<ezTexture3DResource> pTexture(hTexture, acquireMode);
+    AddTextureBinding(sSlotName, pTexture->GetGALTexture(), textureRange, overrideViewFormat, overrideViewType);
+    AddSamplerBinding(sSlotName, pTexture->GetGALSamplerState());
+  }
+}
+
+void ezExtractedRenderData::AddTextureBinding(ezTempHashedString sSlotName, const ezTextureCubeResourceHandle& hTexture, ezResourceAcquireMode acquireMode, ezGALTextureRange textureRange, ezEnum<ezGALResourceFormat> overrideViewFormat, ezEnum<ezGALTextureType> overrideViewType)
+{
+  if (hTexture.IsValid())
+  {
+    ezResourceLock<ezTextureCubeResource> pTexture(hTexture, acquireMode);
+    AddTextureBinding(sSlotName, pTexture->GetGALTexture(), textureRange, overrideViewFormat, overrideViewType);
+    AddSamplerBinding(sSlotName, pTexture->GetGALSamplerState());
+  }
 }
 
 void ezExtractedRenderData::SortAndBatch()
@@ -73,6 +111,10 @@ void ezExtractedRenderData::Clear()
   m_FrameData.Clear();
   m_ViewTextureDependencies.Clear();
   m_ViewBufferDependencies.Clear();
+
+  m_TextureBindings.Clear();
+  m_BufferBindings.Clear();
+  m_SamplerBindings.Clear();
 }
 
 ezRenderDataBatchList ezExtractedRenderData::GetRenderDataBatchesWithCategory(ezRenderData::Category category) const

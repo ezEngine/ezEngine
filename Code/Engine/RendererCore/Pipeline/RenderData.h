@@ -4,6 +4,7 @@
 #include <Foundation/Math/Vec3.h>
 #include <Foundation/Memory/FrameAllocator.h>
 #include <Foundation/Strings/HashedString.h>
+#include <RendererCore/Declarations.h>
 #include <RendererCore/Pipeline/Declarations.h>
 
 class ezRasterizerObject;
@@ -173,7 +174,7 @@ struct EZ_RENDERERCORE_DLL ezMsgExtractRenderData : public ezMessage
 
   /// \brief Records that the given buffer must be in `requiredState` when `category` is rendered. Invalid handles are ignored so safe to pass in without checking.
   /// Like render data, dependencies are cached for static objects when the component's render data is cached.
-  /// /// \sa ezRenderPipelinePass::DeclareRendererDependenciesForCategory
+  /// \sa ezRenderPipelinePass::DeclareRendererDependenciesForCategory
   void AddDependency(ezGALBufferHandle hBuffer, ezRenderData::Category category, ezBitflags<ezGALResourceState> requiredState, ezBitflags<ezGALShaderStageFlags> stage = ezGALShaderStageFlags::Auto);
 
 private:

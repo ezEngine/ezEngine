@@ -182,6 +182,7 @@ void ezExtractor::ExtractRenderData(const ezView& view, const ezGameObject* pObj
                            : ezRenderData::ResolveCategory(ezRenderData::Category(dep.m_uiCategory), bDynamic).m_uiValue;
       extractedRenderData.AddDependency(dep);
     }
+
   };
 
   if (pObject->IsStatic())

@@ -1,8 +1,6 @@
 #include <RendererCore/RendererCorePCH.h>
 
 #include <Foundation/IO/TypeVersionContext.h>
-#include <RendererCore/Lights/ClusteredDataProvider.h>
-#include <RendererCore/Lights/SimplifiedDataProvider.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererCore/Pipeline/RendererRegistry.h>
@@ -104,34 +102,6 @@ void ezRenderPipelinePass::RenderDataWithCategory(const ezRenderViewContext& ren
         pRenderer->RenderBatch(renderViewContext, this, batch);
       }
     }
-  }
-}
-
-void ezRenderPipelinePass::BindDataProviderResources(const ezRenderViewContext& renderViewContext, ezForwardRenderShadingQuality::Enum quality)
-{
-  // Setup clustered data
-  if (quality == ezForwardRenderShadingQuality::Normal)
-  {
-    auto pClusteredData = GetPipeline()->GetFrameDataProvider<ezClusteredDataProvider>()->GetData(renderViewContext);
-    pClusteredData->BindResources(renderViewContext.m_pRenderContext);
-  }
-  // Or other light properties.
-  else
-  {
-    auto pSimplifiedData = GetPipeline()->GetFrameDataProvider<ezSimplifiedDataProvider>()->GetData(renderViewContext);
-    pSimplifiedData->BindResources(renderViewContext.m_pRenderContext);
-  }
-}
-
-void ezRenderPipelinePass::SetupResourceDependencies(const ezViewData& viewData, ezRenderGraph& ref_graph, ezRenderGraphPassBuilder& ref_pass, ezForwardRenderShadingQuality::Enum quality)
-{
-  if (quality == ezForwardRenderShadingQuality::Normal)
-  {
-    ezClusteredDataGPU::AddReadDependencies(ref_graph, ref_pass, viewData.m_uiSkyIrradianceIndex, viewData.m_CameraUsageHint);
-  }
-  else
-  {
-    ezSimplifiedDataGPU::AddReadDependencies(ref_graph, ref_pass, viewData.m_uiSkyIrradianceIndex, viewData.m_CameraUsageHint);
   }
 }
 

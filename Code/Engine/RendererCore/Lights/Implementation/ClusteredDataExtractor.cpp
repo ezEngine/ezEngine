@@ -9,9 +9,17 @@
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Lights/AmbientLightComponent.h>
 #include <RendererCore/Lights/ClusteredDataExtractor.h>
+
+#include <RendererCore/Decals/DecalAtlasResource.h>
+#include <RendererCore/Decals/Implementation/DecalManager.h>
 #include <RendererCore/Lights/Implementation/ClusteredDataUtils.h>
+#include <RendererCore/Lights/Implementation/ReflectionPool.h>
+#include <RendererCore/Lights/Implementation/ShadowPool.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <RendererCore/Pipeline/View.h>
+#include <RendererCore/Textures/TextureUtils.h>
+#include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Resources/Buffer.h>
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 ezCVarBool cvar_RenderingLightingVisClusterData("Rendering.Lighting.VisClusterData", false, ezCVarFlags::Default, "Enables debug visualization of clustered light data");
@@ -172,6 +180,95 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezClusteredDataCPU::ezClusteredDataCPU() = default;
 ezClusteredDataCPU::~ezClusteredDataCPU() = default;
+
+ezClusteredDataGPU::ezClusteredDataGPU()
+{
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+
+  {
+    ezGALBufferCreationDescription desc;
+
+    {
+      desc.m_uiStructSize = sizeof(ezPerLightData);
+      desc.m_uiTotalSize = desc.m_uiStructSize * ezClusteredDataCPU::MAX_NUM_LIGHTS;
+      desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
+      desc.m_ResourceAccess.m_bImmutable = false;
+
+      m_hLightDataBuffer = pDevice->CreateBuffer(desc);
+    }
+
+    {
+      desc.m_uiStructSize = sizeof(ezPerDecalData);
+      desc.m_uiTotalSize = desc.m_uiStructSize * ezClusteredDataCPU::MAX_NUM_DECALS;
+      desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
+      desc.m_ResourceAccess.m_bImmutable = false;
+
+      m_hDecalDataBuffer = pDevice->CreateBuffer(desc);
+    }
+
+    {
+      desc.m_uiStructSize = sizeof(ezPerReflectionProbeData);
+      desc.m_uiTotalSize = desc.m_uiStructSize * ezClusteredDataCPU::MAX_NUM_REFLECTION_PROBES;
+      desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
+      desc.m_ResourceAccess.m_bImmutable = false;
+
+      m_hReflectionProbeDataBuffer = pDevice->CreateBuffer(desc);
+    }
+
+    {
+      desc.m_uiStructSize = sizeof(ezPerClusterData);
+      desc.m_uiTotalSize = desc.m_uiStructSize * NUM_CLUSTERS;
+
+      m_hClusterDataBuffer = pDevice->CreateBuffer(desc);
+    }
+  }
+
+  {
+    ezGALBufferCreationDescription desc;
+    desc.m_uiStructSize = 0;
+    desc.m_uiTotalSize = sizeof(ezClusteredDataConstants);
+    desc.m_BufferFlags = ezGALBufferUsageFlags::ConstantBuffer;
+    m_hConstantBuffer = pDevice->CreateBuffer(desc);
+  }
+
+  {
+    ezGALSamplerStateCreationDescription desc;
+    desc.m_AddressU = ezImageAddressMode::Clamp;
+    desc.m_AddressV = ezImageAddressMode::Clamp;
+    desc.m_AddressW = ezImageAddressMode::Clamp;
+    desc.m_SampleCompareFunc = ezGALCompareFunc::Less;
+
+    m_hShadowSampler = pDevice->CreateSamplerState(desc);
+  }
+
+  m_hDecalAtlas = ezDecalManager::GetBakedDecalAtlas();
+
+  {
+    ezGALSamplerStateCreationDescription desc;
+    desc.m_AddressU = ezImageAddressMode::Clamp;
+    desc.m_AddressV = ezImageAddressMode::Clamp;
+    desc.m_AddressW = ezImageAddressMode::Clamp;
+
+    ezTextureUtils::ConfigureSampler(ezTextureFilterSetting::DefaultQuality, desc);
+    desc.m_uiMaxAnisotropy = ezMath::Min<ezUInt8>(desc.m_uiMaxAnisotropy, 4u);
+
+    m_hDecalAtlasSampler = pDevice->CreateSamplerState(desc);
+  }
+}
+
+ezClusteredDataGPU::~ezClusteredDataGPU()
+{
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+
+  pDevice->DestroyBuffer(m_hLightDataBuffer);
+  pDevice->DestroyBuffer(m_hDecalDataBuffer);
+  pDevice->DestroyBuffer(m_hReflectionProbeDataBuffer);
+  pDevice->DestroyBuffer(m_hClusterDataBuffer);
+  pDevice->DestroyBuffer(m_hClusterItemBuffer);
+  pDevice->DestroyBuffer(m_hConstantBuffer);
+  pDevice->DestroySamplerState(m_hShadowSampler);
+  pDevice->DestroySamplerState(m_hDecalAtlasSampler);
+}
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -526,7 +623,11 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
 
   FillItemListAndClusterData(pData);
 
+  UpdateGpuData(view, pData);
+  AddGpuData(view, ref_extractedRenderData);
+
   ref_extractedRenderData.AddFrameData(pData);
+
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   VisualizeClusteredData(view, pData, m_ClusterBoundingSpheres);
@@ -669,6 +770,117 @@ void ezClusteredDataExtractor::FillItemListAndClusterData(ezClusteredDataCPU* pD
 
   pData->m_ClusterItemList = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezUInt32, m_TempClusterItemList.GetCount());
   pData->m_ClusterItemList.CopyFrom(m_TempClusterItemList);
+}
+
+void ezClusteredDataExtractor::UpdateGpuData(const ezView& view, const ezClusteredDataCPU* pData)
+{
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+
+  m_DataGPU.m_uiSkyIrradianceIndex = pData->m_uiSkyIrradianceIndex;
+  m_DataGPU.m_cameraUsageHint = pData->m_cameraUsageHint;
+
+  if (!pData->m_ClusterItemList.IsEmpty())
+  {
+    if (!pData->m_LightData.IsEmpty())
+    {
+      pDevice->UpdateBufferForNextFrame(m_DataGPU.m_hLightDataBuffer, pData->m_LightData.ToByteArray(), 0);
+    }
+
+    if (!pData->m_DecalData.IsEmpty())
+    {
+      pDevice->UpdateBufferForNextFrame(m_DataGPU.m_hDecalDataBuffer, pData->m_DecalData.ToByteArray(), 0);
+    }
+
+    if (!pData->m_ReflectionProbeData.IsEmpty())
+    {
+      pDevice->UpdateBufferForNextFrame(m_DataGPU.m_hReflectionProbeDataBuffer, pData->m_ReflectionProbeData.ToByteArray(), 0);
+    }
+
+    if (m_DataGPU.m_hClusterItemBuffer.IsInvalidated() == false)
+    {
+      auto& bufferDesc = pDevice->GetBuffer(m_DataGPU.m_hClusterItemBuffer)->GetDescription();
+      if (bufferDesc.m_uiTotalSize < pData->m_ClusterItemList.ToByteArray().GetCount())
+      {
+        pDevice->DestroyBuffer(m_DataGPU.m_hClusterItemBuffer);
+      }
+    }
+
+    if (m_DataGPU.m_hClusterItemBuffer.IsInvalidated())
+    {
+      const ezUInt32 uiNumItems = ezMemoryUtils::AlignSize(pData->m_ClusterItemList.GetCount(), ezMath::PowerOfTwo_Ceil(ezUInt32(NUM_CLUSTERS)));
+
+      ezGALBufferCreationDescription desc;
+      desc.m_uiStructSize = sizeof(ezUInt32);
+      desc.m_uiTotalSize = uiNumItems * desc.m_uiStructSize;
+      desc.m_BufferFlags = ezGALBufferUsageFlags::StructuredBuffer | ezGALBufferUsageFlags::ShaderResource;
+      desc.m_ResourceAccess.m_bImmutable = false;
+      m_DataGPU.m_hClusterItemBuffer = pDevice->CreateBuffer(desc);
+    }
+
+    pDevice->UpdateBufferForNextFrame(m_DataGPU.m_hClusterItemBuffer, pData->m_ClusterItemList.ToByteArray(), 0);
+  }
+
+  pDevice->UpdateBufferForNextFrame(m_DataGPU.m_hClusterDataBuffer, pData->m_ClusterData.ToByteArray(), 0);
+
+  ezClusteredDataConstants constants = {};
+  constants.DepthSliceScale = s_fDepthSliceScale;
+  constants.DepthSliceBias = s_fDepthSliceBias;
+  constants.InvTileSize = ezVec2(NUM_CLUSTERS_X / view.GetViewport().width, NUM_CLUSTERS_Y / view.GetViewport().height);
+  constants.NumLights = pData->m_LightData.GetCount();
+  constants.NumDecals = pData->m_DecalData.GetCount();
+
+  constants.BrightestDirectionalLightIndex = pData->m_uiBrightestDirectionalLightIndex;
+  constants.SkyIrradianceIndex = pData->m_uiSkyIrradianceIndex;
+
+  constants.FogHeight = pData->m_fFogHeight;
+  constants.FogHeightFalloff = pData->m_fFogHeightFalloff;
+  constants.FogDensityAtCameraPos = pData->m_fFogDensityAtCameraPos;
+  constants.FogDensity = pData->m_fFogDensity;
+  constants.FogColor = pData->m_FogColor;
+  constants.FogInvSkyDistance = pData->m_fFogInvSkyDistance;
+  constants.FogStartDistance = pData->m_fFogStartDistance;
+
+  pDevice->UpdateBufferForNextFrame(m_DataGPU.m_hConstantBuffer, ezMakeByteArrayPtr(&constants, 1), 0);
+}
+
+void ezClusteredDataExtractor::AddGpuData(const ezView& view, ezExtractedRenderData& ref_extractedRenderData)
+{
+  const ezEnum<ezCameraUsageHint> cameraUsageHint = view.GetCameraUsageHint();
+
+  // Shadow atlas texture
+  if (cameraUsageHint != ezCameraUsageHint::Shadow)
+  {
+    ref_extractedRenderData.AddViewDependency(ezShadowPool::GetShadowAtlasTexture(), ezGALResourceState::DepthStencilRead, ezGALShaderStageFlags::Auto);
+    ref_extractedRenderData.AddTextureBinding(ezTempHashedString("ShadowAtlasTexture"), ezShadowPool::GetShadowAtlasTexture());
+  }
+
+  // Decal runtime atlas texture
+  ref_extractedRenderData.AddViewDependency(ezDecalManager::GetRuntimeDecalAtlasTexture(), ezGALResourceState::ShaderResource, ezGALShaderStageFlags::Auto);
+  ref_extractedRenderData.AddTextureBinding(ezTempHashedString("DecalRuntimeAtlasTexture"), ezDecalManager::GetRuntimeDecalAtlasTexture());
+
+  // Reflection specular and sky irradiance textures
+  const ezGALTextureHandle hReflSpec = ezReflectionPool::GetReflectionSpecularTexture(view.GetWorld()->GetIndex(), cameraUsageHint);
+  ref_extractedRenderData.AddViewDependency(hReflSpec, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::Auto);
+  ref_extractedRenderData.AddTextureBinding(ezTempHashedString("ReflectionSpecularTexture"), hReflSpec);
+
+  const ezGALTextureHandle hSkyIrradiance = ezReflectionPool::GetSkyIrradianceTexture();
+  ref_extractedRenderData.AddViewDependency(hSkyIrradiance, ezGALResourceState::ShaderResource, ezGALShaderStageFlags::Auto);
+  ref_extractedRenderData.AddTextureBinding(ezTempHashedString("SkyIrradianceTexture"), hSkyIrradiance);
+
+  ref_extractedRenderData.AddBufferBinding("perLightDataBuffer", m_DataGPU.m_hLightDataBuffer);
+  ref_extractedRenderData.AddBufferBinding("perDecalDataBuffer", m_DataGPU.m_hDecalDataBuffer);
+  ref_extractedRenderData.AddBufferBinding("perDecalAtlasDataBuffer", ezDecalManager::GetDecalAtlasDataBufferForRendering());
+  ref_extractedRenderData.AddBufferBinding("perPerReflectionProbeDataBuffer", m_DataGPU.m_hReflectionProbeDataBuffer);
+  ref_extractedRenderData.AddBufferBinding("perClusterDataBuffer", m_DataGPU.m_hClusterDataBuffer);
+  ref_extractedRenderData.AddBufferBinding("clusterItemBuffer", m_DataGPU.m_hClusterItemBuffer);
+  ref_extractedRenderData.AddBufferBinding("shadowDataBuffer", ezShadowPool::GetShadowDataBuffer());
+  ref_extractedRenderData.AddSamplerBinding("ShadowSampler", m_DataGPU.m_hShadowSampler);
+  ezResourceLock<ezDecalAtlasResource> pDecalAtlas(m_DataGPU.m_hDecalAtlas, ezResourceAcquireMode::AllowLoadingFallback);
+  ref_extractedRenderData.AddTextureBinding("DecalAtlasBaseColorTexture", pDecalAtlas->GetBaseColorTexture());
+  ref_extractedRenderData.AddTextureBinding("DecalAtlasNormalTexture", pDecalAtlas->GetNormalTexture());
+  ref_extractedRenderData.AddTextureBinding("DecalAtlasORMTexture", pDecalAtlas->GetORMTexture());
+  ref_extractedRenderData.AddSamplerBinding("DecalAtlasSampler", m_DataGPU.m_hDecalAtlasSampler);
+  ref_extractedRenderData.AddBufferBinding("ezClusteredDataConstants", m_DataGPU.m_hConstantBuffer);
 }
 
 

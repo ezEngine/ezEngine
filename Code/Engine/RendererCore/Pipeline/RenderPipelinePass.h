@@ -115,8 +115,6 @@ public:
 
   void RenderDataWithCategory(const ezRenderViewContext& renderViewContext, ezRenderData::Category category);
 
-  void BindDataProviderResources(const ezRenderViewContext& renderViewContext, ezForwardRenderShadingQuality::Enum quality = ezForwardRenderShadingQuality::Normal);
-  static void SetupResourceDependencies(const ezViewData& viewData, ezRenderGraph& ref_graph, ezRenderGraphPassBuilder& ref_pass, ezForwardRenderShadingQuality::Enum quality = ezForwardRenderShadingQuality::Normal);
   EZ_ALWAYS_INLINE ezRenderPipeline* GetPipeline() { return m_pPipeline; }
   EZ_ALWAYS_INLINE const ezRenderPipeline* GetPipeline() const { return m_pPipeline; }
 

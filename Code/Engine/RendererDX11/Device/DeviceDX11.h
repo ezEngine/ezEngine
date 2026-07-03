@@ -95,6 +95,7 @@ protected:
 
   virtual ezGALBindGroup* CreateBindGroupPlatform(const ezGALBindGroupCreationDescription& Description) override;
   virtual void DestroyBindGroupPlatform(ezGALBindGroup* pBindGroup) override;
+  virtual void RecreateBindGroupPlatform(ezGALBindGroup* pBindGroup) override;
 
   virtual ezGALPipelineLayout* CreatePipelineLayoutPlatform(const ezGALPipelineLayoutCreationDescription& Description) override;
   virtual void DestroyPipelineLayoutPlatform(ezGALPipelineLayout* pPipelineLayout) override;
