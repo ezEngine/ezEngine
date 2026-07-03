@@ -177,22 +177,6 @@ struct EZ_RENDERERCORE_DLL ezMsgExtractRenderData : public ezMessage
   /// \sa ezRenderPipelinePass::DeclareRendererDependenciesForCategory
   void AddDependency(ezGALBufferHandle hBuffer, ezRenderData::Category category, ezBitflags<ezGALResourceState> requiredState, ezBitflags<ezGALShaderStageFlags> stage = ezGALShaderStageFlags::Auto);
 
-  /// \brief Adds a sampler that is added to the EZ_GAL_BIND_GROUP_FRAME during rendering.
-  /// \sa ezBindGroupBuilder
-  void AddSamplerBinding(ezTempHashedString sSlotName, ezGALSamplerStateHandle hSampler);
-
-  /// \brief Adds a buffer that is added to the EZ_GAL_BIND_GROUP_FRAME during rendering.
-  /// \sa ezBindGroupBuilder
-  void AddBufferBinding(ezTempHashedString sSlotName, ezGALBufferHandle hBuffer, ezGALBufferRange bufferRange = {}, ezEnum<ezGALResourceFormat> overrideTexelBufferFormat = ezGALResourceFormat::Invalid);
-
-  /// \brief Adds a texture that is added to the EZ_GAL_BIND_GROUP_FRAME during rendering.
-  /// \sa ezBindGroupBuilder
-  void AddTextureBinding(ezTempHashedString sSlotName, ezGALTextureHandle hTexture, ezGALTextureRange textureRange = {}, ezEnum<ezGALResourceFormat> overrideViewFormat = ezGALResourceFormat::Invalid, ezEnum<ezGALTextureType> overrideViewType = ezGALTextureType::Invalid);
-
-  void AddTextureBinding(ezTempHashedString sSlotName, const ezTexture2DResourceHandle& hTexture, ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowLoadingFallback, ezGALTextureRange textureRange = {}, ezEnum<ezGALResourceFormat> overrideViewFormat = ezGALResourceFormat::Invalid, ezEnum<ezGALTextureType> overrideViewType = ezGALTextureType::Invalid);
-  void AddTextureBinding(ezTempHashedString sSlotName, const ezTexture3DResourceHandle& hTexture, ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowLoadingFallback, ezGALTextureRange textureRange = {}, ezEnum<ezGALResourceFormat> overrideViewFormat = ezGALResourceFormat::Invalid, ezEnum<ezGALTextureType> overrideViewType = ezGALTextureType::Invalid);
-  void AddTextureBinding(ezTempHashedString sSlotName, const ezTextureCubeResourceHandle& hTexture, ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowLoadingFallback, ezGALTextureRange textureRange = {}, ezEnum<ezGALResourceFormat> overrideViewFormat = ezGALResourceFormat::Invalid, ezEnum<ezGALTextureType> overrideViewType = ezGALTextureType::Invalid);
-
 private:
   friend class ezExtractor;
 
@@ -205,9 +189,6 @@ private:
   ezHybridArray<Data, 16> m_ExtractedRenderData;
   ezSmallArray<ezTextureDependency, 4> m_TextureDependencies;
   ezSmallArray<ezBufferDependency, 4> m_BufferDependencies;
-  ezSmallArray<ezSamplerBinding, 2> m_SamplerBindings;
-  ezSmallArray<ezBufferBinding, 2> m_BufferBindings;
-  ezSmallArray<ezTextureBinding, 2> m_TextureBindings;
 
   ezUInt32 m_uiNumCacheIfStatic = 0;
 };

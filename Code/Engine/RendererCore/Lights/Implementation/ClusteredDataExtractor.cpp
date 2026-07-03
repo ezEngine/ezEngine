@@ -845,7 +845,6 @@ void ezClusteredDataExtractor::UpdateGpuData(const ezView& view, const ezCluster
 
 void ezClusteredDataExtractor::AddGpuData(const ezView& view, ezExtractedRenderData& ref_extractedRenderData)
 {
-  // TODO Add dependencies / bind slots (will be done later in the execution of the extracted data inside the ezRenderPipeline)
   const ezEnum<ezCameraUsageHint> cameraUsageHint = view.GetCameraUsageHint();
 
   // Shadow atlas texture
