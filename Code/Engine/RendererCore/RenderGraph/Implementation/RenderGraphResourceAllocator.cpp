@@ -1,8 +1,8 @@
 #include <RendererCore/RendererCorePCH.h>
 
 #include <Foundation/Algorithm/HashingUtils.h>
-#include <RendererCore/RenderGraph/RenderGraphResourceAllocator.h>
 #include <Foundation/Memory/FrameAllocator.h>
+#include <RendererCore/RenderGraph/RenderGraphResourceAllocator.h>
 
 ezRenderGraphResourceAllocator::ezRenderGraphResourceAllocator(ezRenderGraphResourcePool* pPool)
   : m_pPool(pPool)

@@ -10,8 +10,8 @@
 #include <RendererVulkan/Device/SwapChainVulkan.h>
 #include <RendererVulkan/Pools/SemaphorePoolVulkan.h>
 #include <RendererVulkan/Resources/TextureVulkan.h>
-#include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
 #include <RendererVulkan/Utils/BarrierUtilsVulkan.h>
+#include <RendererVulkan/Utils/ConversionUtilsVulkan.h>
 
 #if EZ_ENABLED(EZ_SUPPORTS_GLFW)
 #  include <GLFW/glfw3.h>
