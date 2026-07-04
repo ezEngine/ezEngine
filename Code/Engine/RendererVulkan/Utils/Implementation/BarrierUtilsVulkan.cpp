@@ -1,6 +1,6 @@
 #include <RendererVulkan/RendererVulkanPCH.h>
 
-// #define EZ_LOG_VULKAN_BARRIERS
+// #define VK_LOG_LAYOUT_CHANGES
 
 #include <RendererVulkan/Device/DeviceVulkan.h>
 #include <RendererVulkan/Device/DispatchContext.h>
@@ -154,15 +154,10 @@ namespace
       if (barriers.IsEmpty())
         return;
 
-#ifdef EZ_LOG_VULKAN_BARRIERS
+#ifdef VK_LOG_LAYOUT_CHANGES
       for (const vk::ImageMemoryBarrier2& b : barriers)
       {
-        void* bla = static_cast<VkImage>(b.image);
-        void* blub = reinterpret_cast<void*>(0x3d000000003d);
-        if (bla == blub)
-        {
-          ezLog::Info("CommandBuffer: {}, VkBarrier: Image {} | {} -> {}", ezArgP(static_cast<VkCommandBuffer>(commandBuffer)), ezArgP(static_cast<VkImage>(b.image)), vk::to_string(b.oldLayout).c_str(), vk::to_string(b.newLayout).c_str());
-        }
+        ezLog::Info("CommandBuffer: {}, VkBarrier: Image {} | {} -> {}", ezArgP(static_cast<VkCommandBuffer>(ref_commandBuffer)), ezArgP(static_cast<VkImage>(b.image)), vk::to_string(b.oldLayout).c_str(), vk::to_string(b.newLayout).c_str());
       }
 #endif
 
@@ -185,7 +180,7 @@ namespace
 
     void TextureBarrier(const ezGALDeviceVulkan& device, vk::CommandBuffer& ref_commandBuffer, ezArrayPtr<const ezGALTextureBarrier> barriers)
     {
-      ezHybridArray<vk::ImageMemoryBarrier2, 16> vkBarriers;
+      ezHybridArray<vk::ImageMemoryBarrier2, 16, ezTempAllocatorWrapper> vkBarriers;
       vkBarriers.Reserve(barriers.GetCount());
 
       for (const ezGALTextureBarrier& barrier : barriers)
@@ -209,7 +204,7 @@ namespace
 
     void TextureBarrier(const ezGALDeviceVulkan& device, vk::CommandBuffer& ref_commandBuffer, ezArrayPtr<const ezTextureBarrierVulkan> barriers)
     {
-      ezHybridArray<vk::ImageMemoryBarrier2, 16> vkBarriers;
+      ezHybridArray<vk::ImageMemoryBarrier2, 16, ezTempAllocatorWrapper> vkBarriers;
       vkBarriers.Reserve(barriers.GetCount());
 
       for (const ezTextureBarrierVulkan& barrier : barriers)
@@ -232,7 +227,7 @@ namespace
 
     void BufferBarrier(const ezGALDeviceVulkan& device, vk::CommandBuffer& ref_commandBuffer, ezArrayPtr<const ezGALBufferBarrier> barriers)
     {
-      ezHybridArray<vk::BufferMemoryBarrier2, 16> vkBarriers;
+      ezHybridArray<vk::BufferMemoryBarrier2, 16, ezTempAllocatorWrapper> vkBarriers;
       vkBarriers.Reserve(barriers.GetCount());
 
       for (const ezGALBufferBarrier& barrier : barriers)
@@ -254,7 +249,7 @@ namespace
 
     void BufferBarrier(const ezGALDeviceVulkan& device, vk::CommandBuffer& ref_commandBuffer, ezArrayPtr<const ezBufferBarrierVulkan> barriers)
     {
-      ezHybridArray<vk::BufferMemoryBarrier2, 16> vkBarriers;
+      ezHybridArray<vk::BufferMemoryBarrier2, 16, ezTempAllocatorWrapper> vkBarriers;
       vkBarriers.Reserve(barriers.GetCount());
 
       for (const ezBufferBarrierVulkan& barrier : barriers)
@@ -425,15 +420,10 @@ namespace
       if (barriers.IsEmpty())
         return;
 
-#ifdef EZ_LOG_VULKAN_BARRIERS
+#ifdef VK_LOG_LAYOUT_CHANGES
       for (const vk::ImageMemoryBarrier& b : barriers)
       {
-        void* bla = static_cast<VkImage>(b.image);
-        void* blub = reinterpret_cast<void*>(0x3d000000003d);
-        if (bla == blub)
-        {
-          ezLog::Info("CommandBuffer: {}, VkBarrier: Image {} | {} -> {}", ezArgP(static_cast<VkCommandBuffer>(commandBuffer)), ezArgP(static_cast<VkImage>(b.image)), vk::to_string(b.oldLayout).c_str(), vk::to_string(b.newLayout).c_str());
-        }
+        ezLog::Info("CommandBuffer: {}, VkBarrier: Image {} | {} -> {}", ezArgP(static_cast<VkCommandBuffer>(ref_commandBuffer)), ezArgP(static_cast<VkImage>(b.image)), vk::to_string(b.oldLayout).c_str(), vk::to_string(b.newLayout).c_str());
       }
 #endif
 
@@ -460,7 +450,7 @@ namespace
 
     void TextureBarrier(const ezGALDeviceVulkan& device, vk::CommandBuffer& ref_commandBuffer, ezArrayPtr<const ezGALTextureBarrier> barriers)
     {
-      ezHybridArray<vk::ImageMemoryBarrier, 16> vkBarriers;
+      ezHybridArray<vk::ImageMemoryBarrier, 16, ezTempAllocatorWrapper> vkBarriers;
       vkBarriers.Reserve(barriers.GetCount());
       vk::PipelineStageFlags srcStages;
       vk::PipelineStageFlags dstStages;
@@ -488,7 +478,7 @@ namespace
 
     void TextureBarrier(const ezGALDeviceVulkan& /*device*/, vk::CommandBuffer& ref_commandBuffer, ezArrayPtr<const ezTextureBarrierVulkan> barriers)
     {
-      ezHybridArray<vk::ImageMemoryBarrier, 16> vkBarriers;
+      ezHybridArray<vk::ImageMemoryBarrier, 16, ezTempAllocatorWrapper> vkBarriers;
       vkBarriers.Reserve(barriers.GetCount());
       vk::PipelineStageFlags srcStages;
       vk::PipelineStageFlags dstStages;
@@ -515,7 +505,7 @@ namespace
 
     void BufferBarrier(const ezGALDeviceVulkan& device, vk::CommandBuffer& ref_commandBuffer, ezArrayPtr<const ezGALBufferBarrier> barriers)
     {
-      ezHybridArray<vk::BufferMemoryBarrier, 16> vkBarriers;
+      ezHybridArray<vk::BufferMemoryBarrier, 16, ezTempAllocatorWrapper> vkBarriers;
       vkBarriers.Reserve(barriers.GetCount());
       vk::PipelineStageFlags srcStages;
       vk::PipelineStageFlags dstStages;
@@ -541,7 +531,7 @@ namespace
 
     void BufferBarrier(const ezGALDeviceVulkan& /*device*/, vk::CommandBuffer& ref_commandBuffer, ezArrayPtr<const ezBufferBarrierVulkan> barriers)
     {
-      ezHybridArray<vk::BufferMemoryBarrier, 16> vkBarriers;
+      ezHybridArray<vk::BufferMemoryBarrier, 16, ezTempAllocatorWrapper> vkBarriers;
       vkBarriers.Reserve(barriers.GetCount());
       vk::PipelineStageFlags srcStages;
       vk::PipelineStageFlags dstStages;

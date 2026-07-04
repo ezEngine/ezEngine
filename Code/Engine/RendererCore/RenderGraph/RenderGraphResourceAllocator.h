@@ -55,6 +55,7 @@ private:
 
   struct TextureGroup
   {
+    TextureGroup();
     ezUInt32 m_uiNextPoolIndex = 0;
     ezHybridArray<ezSharedPtr<ezPooledRenderTexture>, 1> m_All;
     ezHybridArray<ezSharedPtr<ezPooledRenderTexture>, 1> m_Available;
@@ -64,6 +65,7 @@ private:
 
   struct BufferGroup
   {
+    BufferGroup();
     ezUInt32 m_uiNextPoolIndex = 0;
     ezHybridArray<ezSharedPtr<ezPooledRenderBuffer>, 1> m_All;
     ezHybridArray<ezSharedPtr<ezPooledRenderBuffer>, 1> m_Available;

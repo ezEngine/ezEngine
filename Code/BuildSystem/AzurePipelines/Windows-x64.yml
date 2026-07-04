@@ -119,14 +119,14 @@ jobs:
     env:
       TRACY_NO_INVARIANT_CHECK: 1
     inputs:
-      script: Output\Bin\WinVs2026Dev64\RendererTest.exe -renderer DX11 -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\RendererTest
+      script: Output\Bin\WinVs2026Dev64\RendererTest.exe -debugdevice -renderer DX11 -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\RendererTest
   - task: CmdLine@2
     displayName: RendererTest Vulkan
     condition: eq(variables['task.MSBuild.status'], 'success')
     env:
       TRACY_NO_INVARIANT_CHECK: 1
     inputs:
-      script: Output\Bin\WinVs2026Dev64\RendererTest.exe -renderer Vulkan -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\RendererTestVulkan
+      script: Output\Bin\WinVs2026Dev64\RendererTest.exe -debugdevice -renderer Vulkan -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\RendererTestVulkan
   - task: CmdLine@2
     displayName: EditorTest
     condition: eq(variables['task.MSBuild.status'], 'success')
@@ -142,7 +142,7 @@ jobs:
     env:
       TRACY_NO_INVARIANT_CHECK: 1
     inputs:
-      script: Output\Bin\WinVs2026Dev64\GameEngineTest.exe -renderer DX11 -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\GameEngineTest
+      script: Output\Bin\WinVs2026Dev64\GameEngineTest.exe -debugdevice -renderer DX11 -nosave -nogui -all -outputDir $(Build.ArtifactStagingDirectory)\Test\GameEngineTest
   - task: PowerShell@2
     displayName: Copy Dumps
     condition: eq(variables['task.MSBuild.status'], 'success')

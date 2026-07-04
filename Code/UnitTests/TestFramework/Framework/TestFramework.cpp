@@ -43,6 +43,7 @@ ezCommandLineOptionString opt_Filter("_TestFramework", "-filter", "Filter to exe
 ezCommandLineOptionPath opt_Json("_TestFramework", "-json", "JSON file to write.", "");
 ezCommandLineOptionPath opt_OutputDir("_TestFramework", "-outputDir", "Output directory", "");
 ezCommandLineOptionBool opt_List("_TestFramework", "-list", "List all test names and exit.", false);
+ezCommandLineOptionBool opt_DebugDevice("_TestFramework", "-debugdevice", "Whether to create a debug GAL device.", false);
 
 constexpr int s_iMaxErrorMessageLength = 512;
 

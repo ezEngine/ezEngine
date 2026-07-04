@@ -172,9 +172,12 @@ void ezInitContextVulkan::InitTexture(const ezGALTextureVulkan* pTexture, vk::Im
   }
   else
   {
-    // We don't actually know what the current state is of an existing native object. The only use case right now are back buffers created by swap chains so for now we just throw away the current content and barrier into the preferred layout.
-    barriers.TextureBarrier(pTexture->GetImage(), pTexture->GetFullRange(),
-      ezGALResourceState::Unknown, defaultState);
+    // We don't actually know what the current state is of an existing native object, so switch from Unknown to default.
+    // This must not be done for swap chains textures as these are not allowed to be touched until acquired. The initial layout is set for these at the first time of acquire.
+    if (!pTexture->GetDescription().m_TextureFlags.IsSet(ezGALTextureUsageFlags::Presentable))
+    {
+      barriers.TextureBarrier(pTexture->GetImage(), pTexture->GetFullRange(), ezGALResourceState::Unknown, defaultState);
+    }
   }
 }
 
