@@ -39,7 +39,7 @@ constexpr const char* szDefaultRenderer = "";
 #endif
 
 ezCommandLineOptionString opt_Renderer("app", "-renderer", "The renderer implementation to use.", szDefaultRenderer);
-ezCommandLineOptionBool opt_DebugDevice("app", "-debugdevice", "Whether to create a debug GAL device.", false);
+ezCommandLineOptionBool opt_RendererDebugDevice("app", "-debugdevice", "Whether to create a debug GAL device.", false);
 
 void ezGameApplication::Init_ConfigureAssetManagement()
 {
@@ -244,7 +244,7 @@ void ezGameApplication::Init_SetupGraphicsDevice()
 {
   ezGALDeviceCreationDescription DeviceInit;
 
-  DeviceInit.m_bDebugDevice = opt_DebugDevice.GetOptionValue(ezCommandLineOption::LogMode::Never);
+  DeviceInit.m_bDebugDevice = opt_RendererDebugDevice.GetOptionValue(ezCommandLineOption::LogMode::Never);
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   DeviceInit.m_bDebugDevice = true;
 #endif
