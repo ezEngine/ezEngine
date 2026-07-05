@@ -3,6 +3,7 @@
 #include <RendererFoundation/RendererFoundationDLL.h>
 
 #include <Foundation/Algorithm/HashingUtils.h>
+#include <Foundation/Communication/Event.h>
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Types/Delegate.h>
@@ -10,6 +11,7 @@
 #include <RendererFoundation/Descriptors/Enumerations.h>
 
 class ezGALDevice;
+struct ezGALDeviceEvent;
 
 template <>
 struct ezHashHelper<ezGALTextureHandle>
@@ -43,19 +45,21 @@ struct ezHashHelper<ezGALBufferHandle>
 ///
 /// For resources that are first seen without an explicit initial state, the tracker starts from the resource default state (ezGAL*CreationDescription::GetDefaultState) with stage Auto.
 ///
-/// Barrier emission is callback-based: callbacks are only invoked when a barrier is needed. A barrier is required when the state changes, or when the previous
-/// state contains ezGALResourceState::UnorderedAccess (UAV write-after-write).
+/// Barrier emission is callback-based: callbacks are only invoked when a barrier is needed. A barrier is required when the state changes, or when the previous state contains ezGALResourceState::UnorderedAccess (UAV write-after-write).
+/// States cannot be tracked across frames and before the frame end all resources must be reverted to their default state via RevertTextureState / RevertBufferState.
 class EZ_RENDERERFOUNDATION_DLL ezGALResourceStateTracker
 {
 public:
   struct SubResourceState
   {
+    EZ_DECLARE_POD_TYPE();
     ezBitflags<ezGALResourceState> m_State;
     ezBitflags<ezGALShaderStageFlags> m_Stages;
   };
 
   struct TextureState
   {
+    TextureState();
     ezGALTextureRange m_FullRange; ///< Range covering the entire texture, filled on first occurrence.
     /// If size == 1, the single entry represents the entire resource (compressed).
     /// If size > 1, each entry corresponds to a sub-resource at index:
@@ -65,7 +69,7 @@ public:
 
 public:
   explicit ezGALResourceStateTracker(ezGALDevice* pDevice);
-  ~ezGALResourceStateTracker() = default;
+  ~ezGALResourceStateTracker();
 
   ezGALResourceStateTracker(const ezGALResourceStateTracker&) = delete;
   ezGALResourceStateTracker& operator=(const ezGALResourceStateTracker&) = delete;
@@ -124,6 +128,7 @@ public:
 
   ///@}
 private:
+  void GALDeviceEventHandler(const ezGALDeviceEvent& e);
   void ResolveProxyTexture(ezGALTextureHandle& ref_hTexture,
     ezGALTextureRange& ref_range) const;
   TextureState& GetOrCreateTextureState(ezGALTextureHandle hTexture);
@@ -132,6 +137,7 @@ private:
 
 private:
   ezGALDevice* m_pDevice = nullptr;
+  ezEventSubscriptionID m_GALDeviceEventSubscriptionID = 0;
   ezHashTable<ezGALTextureHandle, TextureState> m_TextureStates;
   ezHashTable<ezGALBufferHandle, SubResourceState> m_BufferStates;
 };

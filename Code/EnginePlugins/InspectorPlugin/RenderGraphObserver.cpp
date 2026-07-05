@@ -64,6 +64,9 @@ namespace RenderGraphObserverDetail
 
   static void RenderGraphRenderEventHandler(const ezRenderGraphRenderEvent& e)
   {
+    if (!ezTelemetry::IsConnectedToOther())
+      return;
+
     if (e.m_Type != ezRenderGraphRenderEvent::Type::AfterGraphExecution)
       return;
 

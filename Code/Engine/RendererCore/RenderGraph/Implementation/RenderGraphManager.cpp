@@ -274,7 +274,7 @@ void ezRenderGraphManager::GetExecutionSummary(ezRenderGraphInspectionSummary& o
 
   if (ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice())
   {
-    ezDynamicArray<ezGALSwapChainHandle> swapChains;
+    ezDynamicArray<ezGALSwapChainHandle> swapChains(ezTempAllocator::Get());
     pDevice->GetAllSwapChains(swapChains);
     out_summary.m_AvailableSwapChains.Reserve(swapChains.GetCount());
     for (ezGALSwapChainHandle hSwapChain : swapChains)

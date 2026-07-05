@@ -8,16 +8,35 @@
 #include <Foundation/Memory/FrameAllocator.h>
 #include <RendererFoundation/Resources/ProxyTexture.h>
 
+ezGALResourceStateTracker::TextureState::TextureState()
+  : m_SubResourceStates(ezFrameAllocator::GetCurrentAllocator())
+{
+}
+
 ezGALResourceStateTracker::ezGALResourceStateTracker(ezGALDevice* pDevice)
   : m_pDevice(pDevice)
 {
   EZ_ASSERT_DEBUG(pDevice != nullptr, "Device must not be null");
+  m_GALDeviceEventSubscriptionID = ezGALDevice::s_Events.AddEventHandler(ezMakeDelegate(&ezGALResourceStateTracker::GALDeviceEventHandler, this));
+}
+
+ezGALResourceStateTracker::~ezGALResourceStateTracker()
+{
+  ezGALDevice::s_Events.RemoveEventHandler(m_GALDeviceEventSubscriptionID);
 }
 
 void ezGALResourceStateTracker::Clear()
 {
   m_TextureStates.Clear();
   m_BufferStates.Clear();
+}
+
+void ezGALResourceStateTracker::GALDeviceEventHandler(const ezGALDeviceEvent& e)
+{
+  if (e.m_Type == ezGALDeviceEvent::AfterEndFrame && e.m_pDevice == m_pDevice)
+  {
+    Clear();
+  }
 }
 
 // --- Initial State ---
